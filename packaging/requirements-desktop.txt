@@ -1,0 +1,5 @@
+# Tools used only to BUILD the Windows app (not needed to run the zip version)
+pywebview>=6.1,<7
+pystray>=0.19.5
+pillow>=10
+pyinstaller>=6.10

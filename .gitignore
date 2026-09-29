@@ -1,0 +1,23 @@
+# ---- Your private data: never uploaded to GitHub ----
+bsf-saved-content.json
+bsf-members-private.json
+bsf-remote-pin.txt
+bsf-remote-sessions.json
+bsf-control-key.txt
+bsf-app-settings.json
+bsf-app-log.txt*
+ipad-remote-check.txt
+backups/
+webview/
+*.tmp
+# member lists and exports you may keep in this folder (the samples are fine to share)
+*.xlsx
+*.xls
+*.csv
+!samples/*.xlsx
+# ---- Build output ----
+dist/
+build/
+.build-venv/
+__pycache__/
+*.pyc

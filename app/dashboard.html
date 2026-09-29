@@ -1,0 +1,455 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BSF Command Center</title>
+<link rel="stylesheet" href="css/dashboard.css">
+<link rel="stylesheet" href="css/members.css">
+<link rel="stylesheet" href="css/console.css">
+</head>
+<body>
+
+<header class="top console-top">
+  <div class="brand">
+    <svg viewBox="0 0 36 26" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" aria-hidden="true"><path d="M18 5.5C14 2.6 8.6 2 3 3v18.5c5.6-1 11-.4 15 2.5 4-2.9 9.4-3.5 15-2.5V3c-5.6-1-11-.4-15 2.5z"/><path d="M18 5.5V24"/></svg>
+    <div class="brand-text"><h1>BSF Command Center</h1><span class="meeting-title" id="meeting-title">BSF Meeting</span></div>
+  </div>
+  <div class="health" id="health" aria-label="Connection status">
+    <button class="hchip" type="button" id="h-program" data-goto="settings" data-sec="diag" title="Local program"><i></i><span class="hl">Program</span><span class="hs">PC</span><b>Connecting…</b></button>
+    <button class="hchip" type="button" id="h-sources" data-goto="settings" data-sec="display" title="Overlay pages open in OBS, Camo or a browser"><i></i><span class="hl">Overlays</span><span class="hs">OBS</span><b>—</b></button>
+    <button class="hchip" type="button" id="h-ipad" data-goto="settings" data-sec="ipad" title="Phone & iPad remote"><i></i><span class="hl">Remote</span><span class="hs">Remote</span><b>—</b></button>
+  </div>
+  <span class="mode" id="mode" hidden>Connecting…</span>
+  <button class="btn hideall" id="hide-all" type="button" title="Hide the question, verse and birthday overlays">Hide all <kbd class="key" data-sc="hideAll">Esc</kbd></button>
+</header>
+
+<div class="reminder" id="bday-reminder" role="status" hidden></div>
+
+<nav class="tabs" role="tablist" aria-label="Sections">
+  <button class="tab" role="tab" type="button" id="tabbtn-meeting" data-tab="meeting" aria-selected="true">Meeting <kbd>Alt+1</kbd></button>
+  <button class="tab" role="tab" type="button" id="tabbtn-overlays" data-tab="overlays" aria-selected="false">Content <kbd>Alt+2</kbd></button>
+  <button class="tab" role="tab" type="button" id="tabbtn-members" data-tab="members" aria-selected="false">Members <kbd>Alt+3</kbd></button>
+  <button class="tab" role="tab" type="button" id="tabbtn-birthdays" data-tab="birthdays" aria-selected="false">Birthdays <span class="tab-badge" id="tab-bday-badge" hidden></span> <kbd>Alt+4</kbd></button>
+  <button class="tab" role="tab" type="button" id="tabbtn-email" data-tab="email" aria-selected="false">Email <kbd>Alt+5</kbd></button>
+  <button class="tab" role="tab" type="button" id="tabbtn-settings" data-tab="settings" aria-selected="false">Settings <kbd>Alt+6</kbd></button>
+  <div class="onair-pills" aria-label="On screen now">
+  <span class="pill" id="pill-verse"><span class="dot"></span><span>Focus Verse: <b>Hidden</b></span></span>
+  <span class="pill" id="pill-question"><span class="dot"></span><span>Discussion Question: <b>Hidden</b></span></span>
+  <span class="pill" id="pill-birthday"><span class="dot"></span><span>Birthday: <b>Hidden</b></span></span>
+  </div>
+</nav>
+
+<main>
+<!-- ===================== MEETING MODE ===================== -->
+<div class="tabpanel meeting" id="tab-meeting" role="tabpanel" aria-labelledby="tabbtn-meeting">
+  <section class="mcol runsheet" aria-labelledby="rs-title">
+    <div class="col-head"><h2 id="rs-title">Run sheet</h2><button class="btn quiet small" type="button" data-goto="overlays">Edit content</button></div>
+    <div class="rs-group">
+      <div class="rs-title"><span class="cat question">Questions</span><span class="rs-count" id="rs-q-count"></span></div>
+      <ol class="rs-list" id="rs-questions" data-empty="No questions yet. Add them in Content."></ol>
+    </div>
+    <div class="rs-group">
+      <div class="rs-title"><span class="cat verse">Verses</span><span class="rs-count" id="rs-v-count"></span></div>
+      <ol class="rs-list" id="rs-verses" data-empty="No saved verses yet. Add them in Content."></ol>
+    </div>
+  </section>
+
+  <section class="mcol program" aria-labelledby="pg-title">
+    <div class="col-head"><h2 id="pg-title"><span class="live-dot" id="pg-dot"></span>On screen now</h2><span class="sub" id="mt-section"></span></div>
+    <div class="program-wrap"><div class="program-frame" id="program">
+      <iframe id="program-frame" title="What Zoom participants see" tabindex="-1"></iframe>
+      <div class="program-badge" id="program-badge">NOTHING ON SCREEN</div>
+    </div></div>
+    <div class="onair" id="onair">
+      <div class="air q" data-k="question"><div class="air-head"><span class="cat question">Question</span><span class="state" data-state="question">—</span></div><p class="air-text" data-text="question"></p></div>
+      <div class="air v" data-k="verse"><div class="air-head"><span class="cat verse">Verse</span><span class="state" data-state="verse">—</span></div><p class="air-text serif" data-text="verse"></p></div>
+      <div class="air b" data-k="birthday"><div class="air-head"><span class="cat birthday">Birthday</span><span class="state" data-state="birthday">—</span></div><p class="air-text" data-text="birthday"></p></div>
+    </div>
+  </section>
+
+  <section class="mcol controls" aria-label="Controls">
+    <div class="ctl q" data-k="question">
+      <div class="ctl-head"><span class="cat question">Question</span><span class="state" data-state="question">—</span>
+        <button class="cbtn clear" type="button" data-m="clear" data-k="question">Clear</button></div>
+      <div class="ctl-row">
+        <button class="cbtn nav" type="button" data-m="prev" data-k="question" aria-label="Previous question"><span class="ar">◀</span> Prev <kbd class="key" data-sc="prevQ"></kbd></button>
+        <button class="cbtn toggle" type="button" data-m="toggle" data-k="question"><span class="tl">Show</span> <kbd class="key" data-sc="toggleQ"></kbd></button>
+        <button class="cbtn nav" type="button" data-m="next" data-k="question" aria-label="Next question">Next <span class="ar">▶</span> <kbd class="key" data-sc="nextQ"></kbd></button>
+      </div>
+      <div class="ctl-next"><span class="nl">Next</span><span class="nt" data-next="question"></span></div>
+    </div>
+    <div class="ctl v" data-k="verse">
+      <div class="ctl-head"><span class="cat verse">Verse</span><span class="state" data-state="verse">—</span>
+        <button class="cbtn clear" type="button" data-m="clear" data-k="verse">Clear</button></div>
+      <div class="ctl-row">
+        <button class="cbtn nav" type="button" data-m="prev" data-k="verse" aria-label="Previous verse"><span class="ar">◀</span> Prev <kbd class="key" data-sc="prevV"></kbd></button>
+        <button class="cbtn toggle" type="button" data-m="toggle" data-k="verse"><span class="tl">Show</span> <kbd class="key" data-sc="toggleV"></kbd></button>
+        <button class="cbtn nav" type="button" data-m="next" data-k="verse" aria-label="Next verse">Next <span class="ar">▶</span> <kbd class="key" data-sc="nextV"></kbd></button>
+      </div>
+      <div class="ctl-next"><span class="nl">Next</span><span class="nt" data-next="verse"></span></div>
+    </div>
+    <div class="ctl b" data-k="birthday">
+      <div class="ctl-head"><span class="cat birthday">Birthday</span><span class="state" data-state="birthday">—</span></div>
+      <div class="ctl-row two">
+        <button class="cbtn toggle" type="button" data-m="toggle" data-k="birthday"><span class="tl">Show</span> <kbd class="key" data-sc="toggleB"></kbd></button>
+        <span class="bday-who" id="mt-bday-who"></span>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="main tabpanel" id="tab-overlays" role="tabpanel" aria-labelledby="tabbtn-overlays">
+
+  <!-- ===================== Focus Verse ===================== -->
+  <section class="box" id="verse-box" aria-labelledby="verse-title">
+    <div class="box-head">
+      <h2 id="verse-title"><svg viewBox="0 0 36 26" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" aria-hidden="true"><path d="M18 5.5C14 2.6 8.6 2 3 3v18.5c5.6-1 11-.4 15 2.5 4-2.9 9.4-3.5 15-2.5V3c-5.6-1-11-.4-15 2.5z"/><path d="M18 5.5V24"/></svg>BSF Focus Verse</h2>
+      <div class="actions">
+        <button class="btn primary" type="button" data-act="show" data-kind="verse">Show verse</button>
+        <button class="btn" type="button" data-act="hide" data-kind="verse">Hide</button>
+        <button class="btn danger" type="button" data-act="clear" data-kind="verse">Clear</button>
+      </div>
+    </div>
+
+    <div class="two">
+      <label class="field"><span>Reference</span><input type="text" id="v-ref" placeholder="e.g. John 15:5"></label>
+      <label class="field"><span>Translation</span><input type="text" id="v-version" placeholder="e.g. NIV"></label>
+    </div>
+    <label class="field"><span>Verse text</span>
+      <textarea id="v-text" class="serif" rows="5" placeholder="Type or paste the verse. Press Ctrl+Enter to show it."></textarea></label>
+    <div class="checks">
+      <label class="check"><input type="checkbox" id="v-livetype"> Update on screen as I type</label>
+      <button class="btn quiet small" type="button" data-act="blank" data-kind="verse">Empty the editor</button>
+    </div>
+
+    <div class="row"><span class="lbl">Transition</span><div class="seg" data-seg="transition" data-kind="verse"></div></div>
+    <div class="row" id="v-speed-row"><span class="lbl">Reveal speed</span><div class="seg" data-seg="speed" data-kind="verse"></div></div>
+    <div class="row"><span class="lbl">Random</span><label class="check"><input type="checkbox" data-rand="verse"> Pick a different transition each time</label></div>
+    <div class="row" data-pool-row="verse" hidden><span class="lbl">Choose from</span><div class="pool" data-pool="verse"></div></div>
+    <div class="row" data-burst-row="verse" hidden><span class="lbl">Burst strength</span><div class="seg" data-bseg="verse"></div></div>
+    <div class="row"><span class="lbl">Label</span>
+      <div class="two" style="grid-template-columns:1fr auto;align-items:center">
+        <input type="text" id="v-label" aria-label="Verse label">
+        <label class="check"><input type="checkbox" id="v-showlabel"> Show</label>
+      </div></div>
+
+    <div class="list-head">
+      <h3 id="v-list-title">Saved verses</h3>
+      <button class="btn quiet small" type="button" data-act="prev" data-kind="verse">Previous</button>
+      <button class="btn quiet small" type="button" data-act="next" data-kind="verse">Next</button>
+      <button class="btn small" type="button" data-act="save" data-kind="verse" id="v-save">Save to list</button>
+    </div>
+    <ol class="items" id="v-items" data-empty="No saved verses yet. Type one above and select Save to list."></ol>
+    <div class="actions" style="margin-top:10px">
+      <button class="btn quiet small danger" type="button" data-act="clearlist" data-kind="verse">Remove all verses</button>
+    </div>
+    <p class="hint">Select a saved verse to load it into the editor, or <b>Show</b> to put it on screen right away. <kbd>Shift</kbd>+<kbd>→</kbd> shows the next verse.</p>
+  </section>
+
+  <!-- ===================== Discussion Question ===================== -->
+  <section class="box" id="question-box" aria-labelledby="question-title">
+    <div class="box-head">
+      <h2 id="question-title"><svg viewBox="0 0 34 30" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2" width="30" height="20" rx="5"/><path d="M8 22l-3.5 6 9-6" fill="currentColor"/></svg>BSF Discussion Question</h2>
+      <div class="actions">
+        <button class="btn primary" type="button" data-act="show" data-kind="question">Show question</button>
+        <button class="btn" type="button" data-act="hide" data-kind="question">Hide</button>
+        <button class="btn danger" type="button" data-act="clear" data-kind="question">Clear</button>
+      </div>
+    </div>
+
+    <label class="field"><span>Question</span>
+      <textarea id="q-text" class="q" rows="4" placeholder="Type or paste the question. Press Ctrl+Enter to show it."></textarea></label>
+    <div class="checks">
+      <label class="check"><input type="checkbox" id="q-livetype"> Update on screen as I type</label>
+      <button class="btn quiet small" type="button" data-act="blank" data-kind="question">Empty the editor</button>
+    </div>
+
+    <div class="row"><span class="lbl">Transition</span><div class="seg" data-seg="transition" data-kind="question"></div></div>
+    <div class="row" id="q-speed-row"><span class="lbl">Reveal speed</span><div class="seg" data-seg="speed" data-kind="question"></div></div>
+    <div class="row"><span class="lbl">Random</span><label class="check"><input type="checkbox" data-rand="question"> Pick a different transition each time</label></div>
+    <div class="row" data-pool-row="question" hidden><span class="lbl">Choose from</span><div class="pool" data-pool="question"></div></div>
+    <div class="row" data-burst-row="question" hidden><span class="lbl">Burst strength</span><div class="seg" data-bseg="question"></div></div>
+    <div class="row"><span class="lbl">Label</span>
+      <div class="two" style="grid-template-columns:1fr auto;align-items:center">
+        <input type="text" id="q-label" aria-label="Question label">
+        <label class="check"><input type="checkbox" id="q-showlabel"> Show</label>
+      </div></div>
+    <div class="row"><span class="lbl"></span>
+      <label class="check"><input type="checkbox" id="q-numbered"> Add the question number from the list (e.g. “Discussion Question 2”)</label></div>
+
+    <div class="list-head">
+      <h3 id="q-list-title">Question list</h3>
+      <button class="btn quiet small" type="button" data-act="prev" data-kind="question">Previous</button>
+      <button class="btn quiet small" type="button" data-act="next" data-kind="question">Next</button>
+      <button class="btn small" type="button" data-act="save" data-kind="question" id="q-save">Save to list</button>
+    </div>
+    <ol class="items" id="q-items" data-empty="No questions yet. Type one above and select Save to list, or add several at once below."></ol>
+    <div class="actions" style="margin-top:10px">
+      <button class="btn quiet small" type="button" id="q-bulk-toggle">Add several questions</button>
+      <button class="btn quiet small danger" type="button" data-act="clearlist" data-kind="question">Remove all questions</button>
+    </div>
+    <div class="bulk" id="q-bulk" hidden>
+      <label class="field"><span>Paste your questions. Put each question on its own line.</span>
+        <textarea id="q-bulk-text" placeholder="What does verse 3 teach us about God?&#10;How can you apply this passage this week?"></textarea></label>
+      <div class="actions">
+        <button class="btn primary small" type="button" id="q-bulk-add">Add to list</button>
+        <button class="btn quiet small" type="button" id="q-bulk-cancel">Cancel</button>
+      </div>
+    </div>
+    <p class="hint">Keyboard (when not typing): <kbd>→</kbd> next question · <kbd>←</kbd> previous · <kbd>Q</kbd> show/hide question · <kbd>V</kbd> show/hide verse · <kbd>Esc</kbd> hide both</p>
+  </section>
+
+  <!-- ===================== Side: preview, layout, links ===================== -->
+  <aside class="side">
+    <section class="box" aria-labelledby="preview-title">
+      <div class="box-head"><h2 id="preview-title">Live preview</h2></div>
+      <div class="preview" id="preview"><iframe id="preview-frame" title="Live output preview" tabindex="-1"></iframe></div>
+      <div class="preview-cap"><span>Exactly what your overlays show, at 1920 × 1080</span><span>Grey area = your camera</span></div>
+    </section>
+
+
+
+
+  </aside>
+</div>
+<!-- ===================== BSF Members ===================== -->
+<div class="tabpanel mgrid" id="tab-members" role="tabpanel" aria-labelledby="tabbtn-members" hidden>
+  <section class="box m-list" aria-labelledby="mlist-title">
+    <div class="box-head"><h2 id="mlist-title">Members <span class="count" id="m-count">0</span></h2>
+      <button class="btn primary" type="button" id="m-add">Add member</button></div>
+    <div class="m-tools">
+      <input type="search" id="m-search" placeholder="Search name, country, phone or email  ( / )" aria-label="Search members">
+      <div class="two-eq">
+        <label class="field"><span>Country</span><select id="m-country" aria-label="Filter by country"><option value="">All countries</option></select></label>
+        <label class="field"><span>Sort by</span><select id="m-sort" aria-label="Sort members">
+          <option value="name">Name (A–Z)</option><option value="name-desc">Name (Z–A)</option>
+          <option value="next">Next birthday</option><option value="calendar">Birth date (Jan–Dec)</option>
+          <option value="oldest">Birth date (oldest first)</option></select></label>
+      </div>
+      <div class="actions">
+        <button class="btn" type="button" id="m-import">Import Excel</button>
+        <button class="btn quiet" type="button" id="m-template">Download template</button>
+        <button class="btn quiet" type="button" id="m-export-xlsx">Export Excel</button>
+        <button class="btn quiet" type="button" id="m-export-csv">Export CSV</button>
+        <input type="file" id="m-import-file" accept=".xlsx,.xls,.csv" hidden>
+      </div>
+    </div>
+    <div class="m-selbar" id="m-selbar"></div>
+    <ul class="m-items" id="m-items" role="listbox" aria-label="Members" aria-multiselectable="false"></ul>
+  </section>
+
+  <section class="box m-detail-box" aria-labelledby="mdetail-title">
+    <div class="box-head"><h2 id="mdetail-title">Member details</h2></div>
+    <div id="m-detail"></div>
+  </section>
+
+  <div class="composer-slot" id="slot-members"></div>
+</div>
+
+<!-- ===================== Birthdays ===================== -->
+<div class="tabpanel" id="tab-birthdays" role="tabpanel" aria-labelledby="tabbtn-birthdays" hidden>
+<div class="bd-summary">
+  <div class="chips" id="stat-chips">
+    <button class="chip" type="button" data-goto="members" id="chip-members">Members: <b>0</b></button>
+    <button class="chip" type="button" data-goto="birthdays" id="chip-today">Birthdays today: <b>0</b></button>
+    <button class="chip" type="button" data-goto="birthdays" id="chip-upcoming">Next 14 days: <b>0</b></button>
+  </div>
+</div>
+  <div class="bgrid">
+    <section class="box" aria-labelledby="bd-title">
+      <div class="box-head"><h2 id="bd-title">Birthday reminders</h2>
+        <div class="row-inline"><span class="lbl">Remind me</span><div class="seg" id="bd-window"></div></div></div>
+      <div id="bd-today"></div>
+      <h3 id="bd-up-title">Coming up</h3>
+      <ul class="bd-list" id="bd-upcoming"></ul>
+      <p class="hint" id="bd-none"></p>
+    </section>
+    <section class="box" aria-labelledby="bd-all-title">
+      <div class="box-head"><h2 id="bd-all-title">All birthdays</h2><span class="hint" style="margin:0">In order of the next birthday</span></div>
+      <ul class="bd-list compact" id="bd-all"></ul>
+      <p class="hint" id="bd-missing"></p>
+    </section>
+  </div>
+</div>
+
+<!-- ===================== Email Preparation ===================== -->
+<div class="tabpanel egrid" id="tab-email" role="tabpanel" aria-labelledby="tabbtn-email" hidden>
+  <section class="box" aria-labelledby="epick-title">
+    <div class="box-head"><h2 id="epick-title">Choose recipients</h2></div>
+    <input type="search" id="e-search" placeholder="Search members" aria-label="Search recipients">
+    <div class="actions" style="margin:10px 0">
+      <button class="btn small" type="button" id="e-all">Tick all shown</button>
+      <button class="btn quiet small" type="button" id="e-none">Untick all</button>
+    </div>
+    <ul class="m-items" id="e-items" aria-label="Recipients"></ul>
+    <p class="hint">Tick one member for a personal email, or several for a group email (sent as BCC so members don’t see each other’s addresses).</p>
+  </section>
+  <div class="composer-slot" id="slot-email"></div>
+</div>
+
+<!-- ===================== Settings ===================== -->
+<div class="tabpanel settings" id="tab-settings" role="tabpanel" aria-labelledby="tabbtn-settings" hidden>
+  <nav class="s-nav" id="s-nav" aria-label="Settings sections">
+    <button type="button" data-sec="general"><span class="sn-i">⚙</span>General</button>
+    <button type="button" data-sec="overlays"><span class="sn-i">▣</span>Overlays</button>
+    <button type="button" data-sec="display"><span class="sn-i">◧</span>Zoom / Display<i class="sn-dot" id="sn-display"></i></button>
+    <button type="button" data-sec="ipad"><span class="sn-i">▭</span>Phone &amp; iPad Remote<i class="sn-dot" id="sn-ipad"></i></button>
+    <button type="button" data-sec="keys"><span class="sn-i">⌨</span>Keyboard shortcuts</button>
+    <button type="button" data-sec="security"><span class="sn-i">⛨</span>Security</button>
+    <button type="button" data-sec="data"><span class="sn-i">⛁</span>Data / Backup</button>
+    <button type="button" data-sec="diag"><span class="sn-i">✚</span>Diagnostics<i class="sn-dot" id="sn-diag"></i></button>
+  </nav>
+  <div class="s-body">
+    <section class="s-sec" id="sec-general" aria-labelledby="sech-general" hidden>
+      <header class="s-head"><h2 id="sech-general">General</h2><p>Your name, meeting title and the wording used in emails.</p></header>
+  <section class="box" aria-labelledby="s-you">
+    <div class="box-head"><h2 id="s-you">Your details &amp; email wording</h2></div>
+    <label class="field"><span>Meeting title (shown at the top of the Command Center)</span><input type="text" data-set="meetingTitle" placeholder="e.g. BSF Tuesday Evening Group"></label>
+    <label class="field"><span>Your name (used as [Your Name])</span><input type="text" data-set="yourName" placeholder="e.g. Mary Thomas"></label>
+    <label class="field"><span>Your email (optional; used as “To” for group emails)</span><input type="text" data-set="yourEmail" placeholder="you@example.com"></label>
+    <label class="field"><span>Group name (used as [Group Name])</span><input type="text" data-set="groupName"></label>
+    <h3>Email wording</h3>
+    <label class="field"><span>Greeting for one member</span><input type="text" data-set="greeting"></label>
+    <label class="field"><span>Greeting for a group</span><input type="text" data-set="groupGreeting"></label>
+    <label class="field"><span>Signature</span><textarea data-set="signature" rows="3"></textarea></label>
+    <label class="field"><span>Default subject (Prepare Email)</span><input type="text" data-set="defaultSubject"></label>
+    <label class="field"><span>Default body (Prepare Email)</span><textarea data-set="defaultBody" rows="6"></textarea></label>
+    <div class="row"><span class="lbl">Address separator</span><div class="seg" data-setseg="separator"></div></div>
+    <p class="hint">Placeholders: [Member Name] [First Name] [Country] [Birth Date] [Today’s Date] [Group Name] [Your Name] [Greeting] [Signature]</p>
+  </section>
+    </section>
+    <section class="s-sec" id="sec-overlays" aria-labelledby="sech-overlays" hidden>
+      <header class="s-head"><h2 id="sech-overlays">Overlays</h2><p>Where the cards appear, how big they are, and the birthday greeting.</p></header>
+    <section class="box" aria-labelledby="layout-title">
+      <div class="box-head"><h2 id="layout-title">Placement &amp; style</h2>
+        <button class="btn quiet small" type="button" id="layout-reset">Recommended layout</button></div>
+      <h3 style="margin-top:0">Focus Verse</h3>
+      <div class="row"><span class="lbl">Position</span><div class="seg" data-seg="verseAlign"></div></div>
+      <div class="row"><span class="lbl">Height on screen</span><div class="range"><input type="range" data-range="verseY" min="22" max="60" step="1" aria-label="Verse height on screen"><span class="val"></span></div></div>
+      <div class="row"><span class="lbl">Maximum width</span><div class="range"><input type="range" data-range="verseWidth" min="40" max="88" step="1" aria-label="Verse maximum width"><span class="val"></span></div></div>
+      <div class="row"><span class="lbl">Text size</span><div class="range"><input type="range" data-range="verseScale" min="0.6" max="1.6" step="0.05" aria-label="Verse text size"><span class="val"></span></div></div>
+      <h3>Discussion Question</h3>
+      <div class="row"><span class="lbl">Above bottom</span><div class="range"><input type="range" data-range="qBottom" min="4" max="24" step="1" aria-label="Question distance from bottom"><span class="val"></span></div></div>
+      <div class="row"><span class="lbl">Width</span><div class="range"><input type="range" data-range="qWidth" min="50" max="94" step="1" aria-label="Question width"><span class="val"></span></div></div>
+      <div class="row"><span class="lbl">Text size</span><div class="range"><input type="range" data-range="qScale" min="0.6" max="1.6" step="0.05" aria-label="Question text size"><span class="val"></span></div></div>
+      <h3>Both cards</h3>
+      <div class="row"><span class="lbl">Card opacity</span><div class="range"><input type="range" data-range="panel" min="55" max="100" step="1" aria-label="Card opacity"><span class="val"></span></div></div>
+    </section>
+  <section class="box" aria-labelledby="s-bday">
+    <div class="box-head"><h2 id="s-bday">Birthdays</h2></div>
+    <label class="field"><span>Overlay greeting</span><input type="text" data-set="bdayGreeting"></label>
+    <label class="field"><span>Overlay message (optional)</span><textarea data-set="bdayMessage" rows="2"></textarea></label>
+    <label class="field"><span>Overlay label (optional)</span><input type="text" data-set="bdayLabel"></label>
+    <div class="row"><span class="lbl">Name shown</span><div class="seg" data-setseg="bdayNameStyle"></div></div>
+    <div class="row"><span class="lbl">Transition</span><div class="seg" data-setseg="bdayTransition"></div></div>
+    <div class="row"><span class="lbl">Position</span><div class="seg" id="s-bdaypos"></div></div>
+    <div class="row"><span class="lbl">Card size</span><div class="range"><input type="range" id="s-bdayscale" min="0.6" max="1.6" step="0.05" aria-label="Birthday card size"><span class="val"></span></div></div>
+    <div class="row"><span class="lbl"></span><label class="check"><input type="checkbox" data-setcheck="bdayShowCountry"> Show the member’s country on the overlay</label></div>
+    <h3>Reminders and dates</h3>
+    <div class="row"><span class="lbl">Remind me</span><div class="seg" data-setseg="reminderDays"></div></div>
+    <div class="row"><span class="lbl">29 February</span><div class="seg" data-setseg="leap"></div></div>
+    <div class="row"><span class="lbl">Dates like 03/04/1990</span><div class="seg" data-setseg="dateOrder"></div></div>
+    <p class="hint">Only used when importing a date that could be read either way. Dates in the YYYY-MM-DD format (e.g. 1985-03-15) are never ambiguous.</p>
+  </section>
+    </section>
+    <section class="s-sec" id="sec-display" aria-labelledby="sech-display" hidden>
+      <header class="s-head"><h2 id="sech-display">Zoom / Display</h2><p>Add the overlays to OBS, Camo or Zoom.</p></header>
+    <section class="box">
+      <div class="box-head"><h2>Set up OBS, Camo or Zoom</h2></div>
+      <ol class="steps">
+        <li><b>OBS:</b> Sources → + → <b>Browser</b>. Paste a link from “Overlay links” below. Width <b>1920</b>, height <b>1080</b>. Keep the source above your camera.</li>
+        <li><b>Zoom:</b> in OBS select <b>Start Virtual Camera</b>, then in Zoom choose <b>OBS Virtual Camera</b> as your camera.</li>
+        <li><b>Camo Studio:</b> add a <b>Web</b> layer with the same link.</li>
+        <li>The background around the cards is transparent automatically. “Connected” below shows when a source has an overlay open.</li>
+      </ol>
+    </section>
+    <section class="box" aria-labelledby="links-title">
+      <div class="box-head"><h2 id="links-title">Overlay links</h2></div>
+      <div id="links"></div>
+      <div class="note" id="links-note"></div>
+    </section>
+    </section>
+    <section class="s-sec" id="sec-ipad" aria-labelledby="sech-ipad" hidden>
+      <header class="s-head"><h2 id="sech-ipad">Phone &amp; iPad Remote</h2><p>Control the overlays from an iPhone, Android phone or iPad on the same Wi-Fi.</p></header>
+    <section class="box" id="remote-box" aria-labelledby="remote-title" hidden>
+      <div class="box-head"><h2 id="remote-title">phone remote</h2></div>
+      <div id="remote-body"></div>
+    </section>
+    </section>
+    <section class="s-sec" id="sec-keys" aria-labelledby="sech-keys" hidden>
+      <header class="s-head"><h2 id="sech-keys">Keyboard shortcuts</h2><p>Keys that work on the Meeting and Content tabs.</p></header>
+    <section class="box"><div id="keys-body"></div></section>
+    </section>
+    <section class="s-sec" id="sec-security" aria-labelledby="sech-security" hidden>
+      <header class="s-head"><h2 id="sech-security">Security</h2><p>How the Command Center protects your meeting and your members’ details.</p></header>
+    <div class="card-grid" id="sec-cards"></div>
+    </section>
+    <section class="s-sec" id="sec-data" aria-labelledby="sech-data" hidden>
+      <header class="s-head"><h2 id="sech-data">Data / Backup</h2><p>Where everything is stored, backups and resets.</p></header>
+    <section class="box" aria-labelledby="s-content-data">
+      <div class="box-head"><h2 id="s-content-data">Verses, questions &amp; overlay settings</h2></div>
+      <p class="plain">Saved automatically in <b>bsf-saved-content.json</b> in the BSF Command Center folder.</p>
+      <div class="actions">
+        <button class="btn small" type="button" id="export">Save a backup file</button>
+        <button class="btn small" type="button" id="import">Load a backup file</button>
+        <input type="file" id="import-file" accept=".json,application/json" hidden>
+        <button class="btn small danger" type="button" id="reset">Reset to blank</button>
+      </div>
+      <p class="hint">Everything is saved automatically on this computer. Backup files let you move your lists to another computer.</p>
+    </section>
+  <section class="box" aria-labelledby="s-data">
+    <div class="box-head"><h2 id="s-data">Member data &amp; privacy</h2></div>
+    <p class="plain">Member information stays on this computer. It is never uploaded, and it is never sent to the overlay pages. The birthday overlay only receives the greeting, the name, and the country if you choose to show it.</p>
+    <div class="note"><b>Stored in:</b> <span id="s-location">…</span></div>
+    <div class="actions" style="margin-top:12px">
+      <button class="btn" type="button" id="s-export">Back up members (Excel)</button>
+      <button class="btn quiet" type="button" id="s-samples">Load sample members for testing</button>
+      <button class="btn danger" type="button" id="s-clear">Clear all member data</button>
+    </div>
+    <p class="hint">To restore a backup, use Import Excel in the BSF Members tab.</p>
+  </section>
+    </section>
+    <section class="s-sec" id="sec-diag" aria-labelledby="sech-diag" hidden>
+      <header class="s-head"><h2 id="sech-diag">Diagnostics</h2><p>Technical details for troubleshooting. Nothing here is needed during a meeting.</p></header>
+    <div id="diag-body"></div>
+    </section>
+  </div>
+</div>
+
+</main>
+<footer class="bday-bar" aria-label="Birthday celebration overlay">
+  <span class="bb-title">Birthday overlay</span>
+  <span class="pill" id="bb-pill"><span class="dot"></span><span><b>Hidden</b></span></span>
+  <label class="bb-who"><span class="sr">Member to celebrate</span><select id="bb-member" aria-label="Member to celebrate"></select></label>
+  <label class="check bb-country"><input type="checkbox" id="bb-country"> Country</label>
+  <button class="btn primary big" type="button" id="bb-show">Show Birthday Celebration</button>
+  <button class="btn big" type="button" id="bb-hide">Hide</button>
+  <button class="btn danger big" type="button" id="bb-clear">Clear</button>
+  <span class="bb-msg" id="bb-msg"></span>
+</footer>
+
+<dialog id="dlg" aria-labelledby="dlg-title">
+  <form method="dialog" class="dlg-inner">
+    <h2 id="dlg-title"></h2>
+    <div id="dlg-body"></div>
+    <div class="dlg-actions" id="dlg-actions"></div>
+  </form>
+</dialog>
+
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="js/store.js"></script>
+<script src="js/shortcuts.js"></script>
+<script src="js/dashboard.js"></script>
+<script src="vendor/xlsx.full.min.js"></script>
+<script src="js/members-core.js"></script>
+<script src="js/members.js"></script>
+<script src="vendor/qrcode.js"></script>
+<script src="js/meeting.js"></script>
+<script src="js/remote-panel.js"></script>
+<script src="js/settings.js"></script>
+<script src="js/app-bridge.js"></script>
+</body>
+</html>

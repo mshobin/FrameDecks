@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="BSF Remote">
+<meta name="theme-color" content="#0a1222">
+<link rel="manifest" href="remote-manifest.json">
+<link rel="apple-touch-icon" href="icons/remote-180.png">
+<link rel="icon" type="image/png" href="icons/remote-192.png">
+<title>BSF Remote</title>
+<link rel="stylesheet" href="css/remote.css">
+</head>
+<body data-pt="question">
+
+<!-- PIN screen -->
+<section class="login" id="login" hidden>
+  <div class="login-card">
+    <svg class="logo" viewBox="0 0 36 26" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" aria-hidden="true"><path d="M18 5.5C14 2.6 8.6 2 3 3v18.5c5.6-1 11-.4 15 2.5 4-2.9 9.4-3.5 15-2.5V3c-5.6-1-11-.4-15 2.5z"/><path d="M18 5.5V24"/></svg>
+    <h1>BSF Remote</h1>
+    <p>Enter the 6-digit PIN shown on your PC<br>(Settings → Phone &amp; iPad Remote).</p>
+    <form id="login-form" autocomplete="off">
+      <input id="pin" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="••••••" aria-label="PIN" autocomplete="one-time-code">
+      <button class="big-btn gold" type="submit">Connect</button>
+    </form>
+    <p class="login-msg" id="login-msg" role="alert"></p>
+  </div>
+</section>
+
+<!-- Control surface -->
+<div class="app" id="app" hidden>
+  <header class="bar">
+    <div class="title">BSF Remote</div>
+    <span class="conn" id="conn"><i></i><b>Connecting…</b></span>
+    <div class="air-chips" aria-label="On screen now">
+      <span class="ac q" data-air="question"><i></i>Question</span>
+      <span class="ac v" data-air="verse"><i></i>Verse</span>
+      <span class="ac b" data-air="birthday"><i></i>Birthday</span>
+    </div>
+  <!-- Phones: one panel at a time -->
+    <nav class="ptabs" id="ptabs" aria-label="Choose a panel">
+      <button type="button" class="pt q" data-pt="question">Question<i data-dot="question"></i></button>
+      <button type="button" class="pt v" data-pt="verse">Verse<i data-dot="verse"></i></button>
+      <button type="button" class="pt b" data-pt="more">Birthday &amp; more<i data-dot="birthday"></i></button>
+    </nav>
+    <button class="tool" type="button" id="lists-btn">Lists</button>
+    <button class="hideall" type="button" id="hide-all">HIDE ALL</button>
+  </header>
+  <div class="offline" id="offline" hidden>Not connected to the PC — reconnecting… Buttons are paused.</div>
+
+  <main class="surface">
+    <section class="pane q" data-k="question" aria-label="Question">
+      <div class="phead"><span class="cat">Question</span><span class="state" data-state="question">—</span><span class="label" id="q-label"></span></div>
+      <p class="now" data-now="question"></p>
+      <p class="next"><span>Next</span><em data-next="question"></em></p>
+      <div class="pad">
+        <button class="pb nav" type="button" data-do="prev" data-k="question" aria-label="Previous question">◀<small>Prev</small></button>
+        <button class="pb toggle" type="button" data-do="toggle" data-k="question"><span class="tl">SHOW</span></button>
+        <button class="pb nav" type="button" data-do="next" data-k="question" aria-label="Next question">▶<small>Next</small></button>
+      </div>
+      <button class="hold" type="button" data-hold="clear" data-k="question"><span class="fill"></span><span class="ht">Hold to clear question</span></button>
+    </section>
+
+    <section class="pane v" data-k="verse" aria-label="Verse">
+      <div class="phead"><span class="cat">Verse</span><span class="state" data-state="verse">—</span><span class="label" id="v-label"></span></div>
+      <p class="now serif" data-now="verse"></p>
+      <p class="next"><span>Next</span><em data-next="verse"></em></p>
+      <div class="pad">
+        <button class="pb nav" type="button" data-do="prev" data-k="verse" aria-label="Previous verse">◀<small>Prev</small></button>
+        <button class="pb toggle" type="button" data-do="toggle" data-k="verse"><span class="tl">SHOW</span></button>
+        <button class="pb nav" type="button" data-do="next" data-k="verse" aria-label="Next verse">▶<small>Next</small></button>
+      </div>
+      <button class="hold" type="button" data-hold="clear" data-k="verse"><span class="fill"></span><span class="ht">Hold to clear verse</span></button>
+    </section>
+
+    <aside class="side">
+      <section class="pane b" data-k="birthday" aria-label="Birthday">
+        <div class="phead"><span class="cat">Birthday</span><span class="state" data-state="birthday">—</span></div>
+        <p class="now small" data-now="birthday"></p>
+        <button class="pb toggle wide" type="button" data-do="toggle" data-k="birthday"><span class="tl">SHOW</span></button>
+      </section>
+      <section class="pane preview-pane">
+        <div class="phead"><span class="cat plain">Preview</span><button class="tool small" type="button" id="pv-btn">Show preview</button></div>
+        <div class="preview" id="preview" hidden><iframe id="frame" title="What Zoom participants see" tabindex="-1"></iframe></div>
+        <p class="foot">Change questions and verses on the PC; they appear here automatically.
+          <button class="linkish" type="button" id="logout">Disconnect this device</button></p>
+      </section>
+    </aside>
+  </main>
+
+  <!-- Lists drawer -->
+  <div class="drawer" id="drawer" hidden>
+    <div class="drawer-card">
+      <div class="drawer-head"><h2>Lists</h2><div class="dtabs"><button type="button" class="dt on" data-list="question">Questions</button><button type="button" class="dt" data-list="verse">Verses</button></div>
+        <button class="tool" type="button" id="drawer-close">Close</button></div>
+      <p class="drawer-hint">Tap an item to show it on screen.</p>
+      <ol class="dlist" id="dlist"></ol>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="js/store.js"></script>
+<script src="js/remote.js"></script>
+</body>
+</html>

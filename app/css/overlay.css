@@ -1,0 +1,185 @@
+/* BSF Command Center - overlay styles (Focus Verse + Discussion Question) */
+@font-face{font-family:'BSF Serif';src:url('../fonts/EBGaramond.ttf') format('truetype');font-weight:400 800;font-display:block}
+@font-face{font-family:'BSF Sans';src:url('../fonts/SourceSans3.ttf') format('truetype');font-weight:200 900;font-display:block}
+
+:root{
+  /* One unit that scales with the output size and never overflows odd aspect ratios */
+  --u: min(1vw, 1.7778vh);
+  --gold-1:#f6e1a0; --gold-2:#d9ab4a; --gold-3:#a8781f; --gold-4:#eccb72;
+  --gold-text:#f2c35b;
+  --navy-a:rgba(24,44,84,var(--panel-a,.92));
+  --navy-b:rgba(12,26,56,var(--panel-a,.92));
+  --serif:'BSF Serif','EB Garamond',Georgia,'Palatino Linotype',Cambria,serif;
+  --sans:'BSF Sans','Source Sans 3','Segoe UI',system-ui,-apple-system,Arial,sans-serif;
+  /* layout (set live from the dashboard) */
+  --verse-y:40%; --verse-w:70; --verse-scale:1;
+  --q-bottom:10; --q-w:84; --q-scale:1;
+}
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0;height:100%;background:transparent;overflow:hidden}
+body{font-family:var(--sans);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+body.bg-dark{background:#0b1222}
+body.bg-green{background:#00b140}
+body.bg-preview{background:
+  radial-gradient(ellipse 17% 30% at 50% 60%, #59606f 0%, #3a404c 60%, transparent 61%),
+  radial-gradient(ellipse 7.5% 13.5% at 50% 30%, #6b7282 0%, #555c6b 70%, transparent 71%),
+  linear-gradient(165deg,#465063 0%,#262c38 100%)}
+
+/* ---------- Zones ---------- */
+.zone{position:fixed;left:0;right:0;display:flex;pointer-events:none;padding:0 calc(var(--u)*4)}
+.zone-verse{top:var(--verse-y);transform:translateY(-50%);justify-content:center;transition:top .6s ease}
+.zone-verse.align-left{justify-content:flex-start}
+.zone-verse.align-right{justify-content:flex-end}
+.zone-question{bottom:calc(var(--q-bottom) * 1vh);justify-content:center}
+
+/* ---------- Card ---------- */
+.card{
+  position:relative;
+  color:#fff;
+  border:max(2px, calc(var(--u)*.13)) solid transparent;
+  border-radius:calc(var(--u)*1.1);
+  background:
+    linear-gradient(180deg,var(--navy-a),var(--navy-b)) padding-box,
+    linear-gradient(135deg,var(--gold-1) 0%,var(--gold-2) 28%,var(--gold-3) 52%,var(--gold-4) 76%,var(--gold-2) 100%) border-box;
+  box-shadow:0 calc(var(--u)*.8) calc(var(--u)*2.8) rgba(0,0,0,.38), 0 0 0 1px rgba(0,0,0,.25);
+  overflow:hidden;
+  opacity:1;
+  transition:opacity .7s ease, transform .9s cubic-bezier(.2,.7,.2,1);
+}
+.card.out{opacity:0}
+.card.fast{transition-duration:.35s,.35s}
+.card.rise-from{transform:translateY(calc(var(--u)*1.6))}
+.card.empty{visibility:hidden}
+
+.card-label{display:flex;align-items:center;gap:calc(var(--u)*.9);
+  font-family:var(--sans);font-weight:700;color:var(--gold-text);
+  text-transform:uppercase;letter-spacing:.08em;line-height:1}
+.card-label svg{flex:none;height:1.5em;width:auto;color:var(--gold-text)}
+.card-rule{height:1px;background:rgba(255,255,255,.8)}
+.card.no-label .card-label,.card.no-label .card-rule{display:none}
+
+.card-text{margin:0;white-space:pre-line;overflow-wrap:anywhere;text-wrap:pretty}
+.card-text .rest{color:transparent}
+.card-text .caret{display:inline-block;width:.06em;height:1em;margin-right:-.06em;background:currentColor;
+  vertical-align:-.12em;animation:caret 1s steps(1) infinite}
+@keyframes caret{50%{opacity:0}}
+.card-text .w{opacity:0;animation:word-in .6s ease forwards}
+@keyframes word-in{from{opacity:0;filter:blur(2px)}to{opacity:1;filter:blur(0)}}
+.late{transition:opacity .6s ease}
+.card.hold-late .late{opacity:0}
+
+/* ---------- Focus verse ---------- */
+.card-verse{
+  --s:calc(var(--u) * var(--verse-scale));
+  width:max-content;max-width:calc(var(--verse-w) * 1vw);max-height:62vh;
+  padding:calc(var(--s)*1.9) calc(var(--s)*3) calc(var(--s)*2.1);
+  text-align:center;
+}
+.card-verse .card-label{justify-content:center;font-size:calc(var(--s)*1.0)}
+.card-verse .card-rule{margin:calc(var(--s)*1.1) auto calc(var(--s)*1.6);width:min(100%, calc(var(--s)*26));
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.85) 18%,rgba(255,255,255,.85) 82%,transparent)}
+.card-verse .card-text{font-family:var(--serif);font-weight:500;color:#fbf6ea;
+  font-size:calc(var(--s) * 2.85 * var(--fit,1));line-height:1.34;letter-spacing:.003em;text-wrap:balance}
+.card-verse .card-ref{margin-top:calc(var(--s)*1.4);display:flex;justify-content:center;align-items:baseline;flex-wrap:wrap;
+  gap:0 calc(var(--s)*.8);font-family:var(--sans);font-weight:700;color:var(--gold-text);
+  font-size:calc(var(--s)*1.45);letter-spacing:.05em}
+.card-verse .card-ref::before,.card-verse .card-ref::after{content:"";align-self:center;width:calc(var(--s)*2.2);height:1px;background:currentColor;opacity:.6}
+.card-verse .ver{font-weight:500;opacity:.75;letter-spacing:.06em}
+.card-verse.no-ref .card-ref{display:none}
+.align-left .card-verse,.align-right .card-verse{text-align:left}
+.align-left .card-verse .card-label,.align-right .card-verse .card-label{justify-content:flex-start}
+.align-left .card-verse .card-rule,.align-right .card-verse .card-rule{margin-left:0;
+  background:linear-gradient(90deg,rgba(255,255,255,.85) 80%,transparent)}
+.align-left .card-verse .card-ref,.align-right .card-verse .card-ref{justify-content:flex-start}
+.align-left .card-verse .card-ref::before,.align-right .card-verse .card-ref::before{display:none}
+
+/* ---------- Discussion question ---------- */
+.card-question{
+  --s:calc(var(--u) * var(--q-scale));
+  width:calc(var(--q-w) * 1vw);max-width:100%;max-height:36vh;
+  padding:calc(var(--s)*1.35) calc(var(--s)*2.4) calc(var(--s)*1.7);
+}
+.card-question .card-label{font-size:calc(var(--s)*1.35)}
+.card-question .card-rule{margin:calc(var(--s)*1.0) 0 calc(var(--s)*1.2)}
+.card-question .card-text{font-family:var(--sans);font-weight:600;color:#ffffff;
+  font-size:calc(var(--s) * 2.15 * var(--fit,1));line-height:1.36}
+
+@media (prefers-reduced-motion: reduce){
+  .card{transition-duration:.3s,.01s}
+  .card.rise-from{transform:none}
+  .card-text .w{animation-duration:.2s}
+}
+
+/* ---------- Birthday celebration ---------- */
+.zone-birthday{justify-content:center}
+.zone-birthday.pos-top{top:6vh}
+.zone-birthday.pos-center{top:50%;transform:translateY(-50%)}
+.zone-birthday.pos-bottom{bottom:calc(var(--q-bottom) * 1vh)}
+.card-birthday{
+  --s:calc(var(--u) * var(--bday-scale,1));
+  width:max-content;max-width:72vw;max-height:46vh;min-width:min(42vw, 100%);
+  padding:calc(var(--s)*1.8) calc(var(--s)*6.2) calc(var(--s)*2);
+  text-align:center;
+  background:
+    radial-gradient(ellipse 70% 60% at 50% 0%, rgba(236,203,114,.16), transparent 70%) padding-box,
+    linear-gradient(180deg,var(--navy-a),var(--navy-b)) padding-box,
+    linear-gradient(135deg,var(--gold-1) 0%,var(--gold-2) 28%,var(--gold-3) 52%,var(--gold-4) 76%,var(--gold-2) 100%) border-box;
+}
+.card-birthday .bday-deco{position:absolute;top:0;bottom:0;width:calc(var(--s)*5);color:var(--gold-2);opacity:.55;pointer-events:none}
+.card-birthday .bday-deco svg{display:block;width:100%;height:100%}
+.card-birthday .bday-deco.l{left:calc(var(--s)*.6)}
+.card-birthday .bday-deco.r{right:calc(var(--s)*.6);transform:scaleX(-1)}
+.card-birthday .card-label{justify-content:center;font-size:calc(var(--s)*1.0)}
+.card-birthday .card-rule{margin:calc(var(--s)*1.0) auto calc(var(--s)*1.3);width:min(100%, calc(var(--s)*24));
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.85) 18%,rgba(255,255,255,.85) 82%,transparent)}
+.bday-greeting{margin:0;font-family:var(--serif);font-weight:600;color:#fbf6ea;line-height:1.18;
+  font-size:calc(var(--s) * 3.3 * var(--fit,1));overflow-wrap:anywhere;text-wrap:balance}
+.bday-name{color:var(--gold-text);
+  background:linear-gradient(180deg,#fbe7a8 0%,#e9bf5c 55%,#c9973a 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.bday-message{margin:calc(var(--s)*1.0) auto 0;max-width:calc(var(--s)*52);font-family:var(--sans);font-weight:500;color:#efe8d6;
+  font-size:calc(var(--s) * 1.55 * var(--fit,1));line-height:1.4;overflow-wrap:anywhere;white-space:pre-line}
+.bday-country{margin:calc(var(--s)*1.0) 0 0;font-family:var(--sans);font-weight:700;color:var(--gold-text);
+  letter-spacing:.08em;font-size:calc(var(--s)*1.05)}
+.bday-country::before,.bday-country::after{content:"";display:inline-block;vertical-align:middle;width:calc(var(--s)*1.6);height:1px;background:currentColor;opacity:.6;margin:0 calc(var(--s)*.7)}
+.card-birthday .bday-message:empty,.card-birthday .bday-country:empty{display:none}
+
+/* Compact verse card when space is tight */
+.card-verse.tight{padding:calc(var(--s)*1.1) calc(var(--s)*2.4) calc(var(--s)*1.2)}
+.card-verse.tight .card-label,.card-verse.tight .card-rule{display:none}
+.card-verse.tight .card-ref{margin-top:calc(var(--s)*.8)}
+
+/* ---------- Burst transition ---------- */
+.card.bursting{animation:burst-card .95s cubic-bezier(.2,.8,.25,1) both}
+.card.bursting.burst-bold{animation:burst-card-bold 1.1s cubic-bezier(.2,.8,.25,1) both}
+.card.bursting .card-text,.card.bursting .late{animation:burst-text .55s ease .38s both}
+.card.bursting.burst-bold .card-text,.card.bursting.burst-bold .late{animation-delay:.45s}
+@keyframes burst-card{
+  0%{opacity:0;transform:scale(.4);filter:brightness(2)}
+  45%{opacity:1;transform:scale(1.025);filter:brightness(1.3)}
+  75%{transform:scale(.997);filter:brightness(1.05)}
+  100%{opacity:1;transform:none;filter:none}}
+@keyframes burst-card-bold{
+  0%{opacity:0;transform:scale(.18);filter:brightness(2.8)}
+  40%{opacity:1;transform:scale(1.055);filter:brightness(1.6)}
+  65%{transform:scale(.99);filter:brightness(1.1)}
+  100%{opacity:1;transform:none;filter:none}}
+@keyframes burst-text{from{opacity:0;transform:translateY(calc(var(--u)*.35));filter:blur(3px)}to{opacity:1;transform:none;filter:none}}
+
+.burst{position:absolute;width:0;height:0;pointer-events:none;z-index:2}
+.burst .b-glow{position:absolute;left:0;top:0;width:calc(var(--cw)*.9);height:calc(var(--cw)*.9);margin:calc(var(--cw)*-.45) 0 0 calc(var(--cw)*-.45);
+  border-radius:50%;background:radial-gradient(circle,rgba(255,240,196,.95) 0%,rgba(242,195,91,.55) 22%,rgba(217,171,74,.18) 45%,transparent 68%);
+  mix-blend-mode:screen;animation:b-glow .9s ease-out both}
+.burst .b-ring{position:absolute;left:0;top:0;width:calc(var(--cw)*.8);height:calc(var(--cw)*.8);margin:calc(var(--cw)*-.4) 0 0 calc(var(--cw)*-.4);
+  border-radius:50%;border:calc(var(--u)*.18) solid rgba(246,225,160,.85);box-shadow:0 0 calc(var(--u)*1.2) rgba(242,195,91,.6);animation:b-ring .8s ease-out .05s both}
+.burst .b-spark{position:absolute;left:0;top:0;width:calc(var(--u)*.55);height:calc(var(--u)*.55);margin:calc(var(--u)*-.275) 0 0 calc(var(--u)*-.275);
+  border-radius:50%;background:radial-gradient(circle,#fff8e0 0%,#f2c35b 55%,rgba(242,195,91,0) 72%);
+  animation:b-spark .95s cubic-bezier(.15,.7,.3,1) both}
+.burst.gentle .b-glow{opacity:.75}
+.burst.gentle .b-ring{border-width:calc(var(--u)*.1);opacity:.7}
+.burst.bold .b-spark{width:calc(var(--u)*.75);height:calc(var(--u)*.75);animation-duration:1.15s}
+.burst.bold .b-glow{animation-duration:1.05s}
+@keyframes b-glow{0%{transform:scale(.05);opacity:0}25%{opacity:1}100%{transform:scale(1.15);opacity:0}}
+@keyframes b-ring{0%{transform:scale(.08);opacity:0}20%{opacity:1}100%{transform:scale(1.2);opacity:0}}
+@keyframes b-spark{0%{transform:rotate(var(--a)) translateX(0) scale(1.2);opacity:0}
+  12%{opacity:1}100%{transform:rotate(var(--a)) translateX(var(--d)) scale(.25);opacity:0}}
+@media (prefers-reduced-motion: reduce){.burst{display:none}.card.bursting,.card.bursting .card-text,.card.bursting .late{animation:none}}
