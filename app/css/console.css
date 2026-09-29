@@ -260,3 +260,31 @@ select.item-fx.set{color:var(--gold-strong);border-color:rgba(227,183,90,.55)}
 .big-switch input:checked::after{left:29px}
 .big-switch input:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 .big-switch b{font-size:17px}
+
+/* ---------- About ---------- */
+.about-btn{display:inline-flex;align-items:center;gap:6px;margin-left:10px;border:1px solid var(--edge);background:transparent;color:var(--muted);
+  border-radius:999px;padding:4px 11px 4px 9px;font:inherit;font-size:13px;font-weight:700;cursor:pointer;flex:none}
+.about-btn:hover{color:var(--gold-strong);border-color:rgba(227,183,90,.5)}
+.about-btn:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+@media (max-width:1250px){.about-btn span{display:none}.about-btn{padding:4px 9px}}
+.about-dlg{width:min(760px,94vw);max-height:90vh;padding:0;border:1px solid var(--line);border-radius:18px;background:var(--surface);color:var(--ink)}
+.about-dlg::backdrop{background:rgba(3,7,15,.72)}
+.about-dlg .about{padding:26px 28px 20px}
+.about-hero{display:flex;gap:18px;align-items:center;padding-bottom:18px;margin-bottom:14px;border-bottom:1px solid var(--line-soft)}
+.about-logo{width:64px;height:64px;border-radius:16px;border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;color:var(--gold);flex:none;background:#0a1222}
+.about-logo svg{width:38px}
+.about-name{font-family:var(--serif);font-size:30px;line-height:1.1}
+.about-tagline{color:var(--gold-strong);font-size:16px;margin-top:4px}
+.about-meta{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:6px;font-size:13px;color:var(--muted)}
+.about-version:not(:empty){font-weight:800;color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:1px 8px}
+.about-block{margin:0 0 12px}
+.about-block h3,.about-kicker{margin:0 0 3px;font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
+.about-block p{margin:0;color:var(--ink);line-height:1.55}
+.about-creator{display:flex;gap:16px;align-items:flex-start;border:1px solid var(--line-soft);border-radius:14px;padding:16px;margin:16px 0 14px;background:rgba(255,255,255,.02)}
+.about-avatar{width:52px;height:52px;border-radius:50%;background:var(--gold-soft);color:var(--gold-strong);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;flex:none}
+.about-creator-name{font-size:19px;font-weight:700}
+.about-creator p{margin:4px 0 10px;color:var(--muted)}
+.about-creator .actions{align-items:center}
+.about-email{color:var(--muted)}
+.about-disclaimer{border-left:3px solid var(--gold);background:var(--gold-soft);border-radius:6px;padding:10px 14px;font-size:13.5px;line-height:1.5;color:var(--ink)}
+.about-close{justify-content:flex-end;margin-top:16px}

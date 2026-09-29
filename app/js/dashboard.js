@@ -529,7 +529,7 @@ function setup(){
   // Meeting shortcuts (Meeting and Content tabs). Configurable in Settings > Keyboard shortcuts.
   var lastKeyAt = {};
   document.addEventListener('keydown', function(e){
-    if (document.querySelector('dialog[open]') || window.BSFShortcutsCapturing) return;
+    if (document.querySelector('dialog[open], .app-modal-back') || window.BSFShortcutsCapturing) return;
     var tab = document.body.dataset.tab;
     if (tab && tab !== 'overlays' && tab !== 'meeting') return;
     var t = e.target.tagName;

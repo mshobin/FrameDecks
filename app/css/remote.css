@@ -83,6 +83,7 @@ button{font:inherit;color:inherit;touch-action:manipulation;-webkit-tap-highligh
 .preview{position:relative;width:100%;aspect-ratio:16/9;border-radius:10px;overflow:hidden;background:#1f2533;border:1px solid var(--edge);margin-bottom:10px}
 .preview iframe{position:absolute;left:0;top:0;width:1920px;height:1080px;border:0;transform-origin:0 0;pointer-events:none}
 .foot{color:var(--faint);font-size:13.5px;margin:auto 0 0}
+.credit{color:var(--faint) !important;font-size:12px !important;line-height:1.45;margin:14px 0 0 !important}
 .linkish{background:none;border:0;color:var(--muted);text-decoration:underline;padding:0;margin-left:4px;font-size:13.5px}
 
 /* Lists drawer */

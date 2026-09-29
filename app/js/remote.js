@@ -13,6 +13,13 @@ function toast(msg, bad){
   clearTimeout(toastT); toastT = setTimeout(function(){ t.className = 'toast'; }, bad ? 3500 : 1500);
 }
 
+/* Credit and independence note (text from js/brand.js) */
+if (window.BSFBrand){
+  Array.prototype.forEach.call(document.querySelectorAll('[data-credit]'), function(p){
+    p.textContent = 'By ' + BSFBrand.creator.name + ' · ' + BSFBrand.creator.email + '. An independent tool, not affiliated with or endorsed by Bible Study Fellowship International.';
+  });
+}
+
 /* ---------- Sign in ---------- */
 function showLogin(msg){
   $('app').hidden = true; $('login').hidden = false;

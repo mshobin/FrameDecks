@@ -14,6 +14,7 @@
   <div class="brand">
     <svg viewBox="0 0 36 26" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" aria-hidden="true"><path d="M18 5.5C14 2.6 8.6 2 3 3v18.5c5.6-1 11-.4 15 2.5 4-2.9 9.4-3.5 15-2.5V3c-5.6-1-11-.4-15 2.5z"/><path d="M18 5.5V24"/></svg>
     <div class="brand-text"><h1>BSF Command Center</h1><span class="meeting-title" id="meeting-title">BSF Meeting</span></div>
+    <button class="about-btn" type="button" id="about-btn" aria-label="About BSF Command Center" title="About BSF Command Center">ⓘ<span>About</span></button>
   </div>
   <div class="health" id="health" aria-label="Connection status">
     <button class="hchip" type="button" id="h-program" data-goto="settings" data-sec="diag" title="Local program"><i></i><span class="hl">Program</span><span class="hs">PC</span><b>Connecting…</b></button>
@@ -299,6 +300,7 @@
     <button type="button" data-sec="security"><span class="sn-i">⛨</span>Security</button>
     <button type="button" data-sec="data"><span class="sn-i">⛁</span>Data / Backup</button>
     <button type="button" data-sec="diag"><span class="sn-i">✚</span>Diagnostics<i class="sn-dot" id="sn-diag"></i></button>
+    <button type="button" data-sec="about"><span class="sn-i">ⓘ</span>About</button>
   </nav>
   <div class="s-body">
     <section class="s-sec" id="sec-general" aria-labelledby="sech-general" hidden>
@@ -414,10 +416,16 @@
       <header class="s-head"><h2 id="sech-diag">Diagnostics</h2><p>Technical details for troubleshooting. Nothing here is needed during a meeting.</p></header>
     <div id="diag-body"></div>
     </section>
+    <section class="s-sec" id="sec-about" aria-labelledby="sech-about" hidden>
+      <header class="s-head"><h2 id="sech-about">About</h2><p>Who made the Command Center, and how to get in touch.</p></header>
+      <section class="box"><div id="about-body" class="about"></div></section>
+    </section>
   </div>
 </div>
 
 </main>
+
+<dialog class="about-dlg" id="about-dlg" aria-label="About BSF Command Center"><div id="about-dlg-body" class="about"></div></dialog>
 <footer class="bday-bar" aria-label="Birthday celebration overlay">
   <span class="bb-title">Birthday overlay</span>
   <span class="pill" id="bb-pill"><span class="dot"></span><span><b>Hidden</b></span></span>
@@ -449,6 +457,8 @@
 <script src="vendor/qrcode.js"></script>
 <script src="js/meeting.js"></script>
 <script src="js/remote-panel.js"></script>
+<script src="js/brand.js"></script>
+<script src="js/about.js"></script>
 <script src="js/settings.js"></script>
 <script src="js/app-bridge.js"></script>
 </body>

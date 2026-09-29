@@ -1,7 +1,16 @@
 ================================================================
-  BSF COMMAND CENTER
-  Meeting overlays, member management and birthdays for BSF
+  BSF COMMAND CENTER  ·  version 3.1
+  Clean Bible study overlays for BSF leaders on Zoom.
 ================================================================
+
+Created by Shobin Mathews, an enterprise IT consultant and active
+BSF member who builds practical tools for BSF online groups.
+Questions or feedback: mshobin@gmail.com
+(In the app: select "ⓘ About" at the top, next to the name.)
+
+BSF Command Center is an independent tool created by Shobin
+Mathews. It is not officially affiliated with, endorsed by, or
+produced by Bible Study Fellowship International.
 
 Everything runs on your own computer. No internet connection,
 cloud account, paid service or API key is needed.
@@ -673,8 +682,17 @@ If the phone or iPad can't connect ("This site can't be reached")
 
 
 ----------------------------------------------------------------
-15. CREDITS
+15. ABOUT AND CREDITS
 ----------------------------------------------------------------
+
+BSF Command Center: created by Shobin Mathews (mshobin@gmail.com).
+Mission: help BSF leaders run smoother, more focused Zoom Bible
+studies with clear, easy-to-use overlays that keep attention on
+God's Word and the group discussion.
+The About text is kept in app/js/brand.js (see BUILD-AND-INSTALL.md
+to change it). BSF Command Center is an independent tool; it is not
+officially affiliated with, endorsed by, or produced by Bible Study
+Fellowship International.
 
 Fonts: EB Garamond and Source Sans 3, both under the SIL Open Font
 License (see app/fonts/OFL-*.txt). They are included, so no

@@ -31,14 +31,14 @@ GitHub now starts building your installer automatically.
 2. Click the **Actions** tab. You'll see **Build Windows installer** running (yellow dot).
    It takes about 5–10 minutes. A green tick means it worked.
 3. Click the finished run. At the bottom, under **Artifacts**, click
-   **BSF-Command-Center-Setup-3.0** to download it (a .zip containing the Setup .exe).
-4. Unzip it. You now have **BSF-Command-Center-Setup-3.0.exe**.
+   **BSF-Command-Center-Setup-3.1** (the version number) to download it (a .zip containing the Setup .exe).
+4. Unzip it. You now have **BSF-Command-Center-Setup-3.1.exe**.
 
 If you see a red cross instead, click the run to read the error, and send it to me.
 
 ## Part 3 · Install
 
-1. Double-click **BSF-Command-Center-Setup-3.0.exe**.
+1. Double-click **BSF-Command-Center-Setup-3.1.exe**.
 2. Windows may show **"Windows protected your PC"**. This appears because the installer isn't
    code-signed (signing costs money every year). Click **More info → Run anyway**.
 3. Follow the wizard. No administrator password is needed. Leave **Create a desktop icon** ticked.
@@ -79,19 +79,65 @@ your data. (The old files stay where they are as an extra backup.)
 
 Settings → Data / Backup has buttons to open the data and backups folders.
 
-## Updating to a new version
+## Making changes and releasing a new version
 
-1. Replace the files in your folder with the new ones I give you (keep the `.git` and `.github` folders).
-2. In GitHub Desktop, type a short summary (for example "Update to 3.1") → **Commit to main** → **Push origin**.
-3. Download the new installer from **Actions** as in Part 2, and run it. It installs over the old version.
-   Your data is untouched. If the app is open, the installer closes it first.
+Every new version follows the same four steps: **change → version number → commit & push → install**.
 
-## Keeping permanent copies of each version (recommended)
+### 1. Make the change
 
-Artifacts on the Actions tab are deleted after 90 days. To keep an installer permanently:
-on github.com open **Releases → Draft a new release → Choose a tag**, type **v3.0** (the version number
-with a "v"), and click **Publish release**. GitHub builds the installer again and attaches it to that release.
-If a future update ever misbehaves, download the previous version from **Releases** and install it.
+Edit files inside your repository folder (the one GitHub Desktop is tracking). For example:
+
+| To change… | Edit this file |
+|---|---|
+| The About text (tagline, mission, contact email…) | `app/js/brand.js` |
+| The version number | `server.py`, the line `APP_VERSION = "3.1"` |
+| Overlay card styles | `app/css/overlay.css` |
+
+Use a plain text editor such as Notepad or VS Code (free). Keep the quote marks, commas and brackets as they are.
+
+**Quick test before building:** double-click `Start BSF Command Center.bat` in the same folder. It runs your changed version in the browser straight away. It uses its own separate data, so it never touches the installed app's data.
+
+### 2. Raise the version number
+
+Open `server.py` and change `APP_VERSION = "3.1"` to the next number, for example `"3.2"`.
+Use 3.2, 3.3… for small changes and 4.0 for big ones. The About screen, the installer's name and
+Windows all use this number, so the installer knows it is an upgrade.
+
+### 3. Commit and push with GitHub Desktop
+
+1. Open GitHub Desktop. The left side lists every file you changed; click one to see exactly what changed
+   (red = removed, green = added). Your private data files never appear here.
+2. Bottom left, in **Summary**, describe the change, for example `Update tagline, version 3.2`.
+3. Click **Commit to main**, then **Push origin** at the top.
+
+GitHub starts building straight away (Actions tab, about 5–10 minutes).
+
+### 4. Install the new version
+
+Download the installer from the **Actions** tab (see Part 2) and run it. It installs over the old version and
+closes the app first if it's open. **Your data is untouched.** Check the version in the top bar's **ⓘ About**.
+
+### Keep a permanent copy (recommended for each version you actually use)
+
+Artifacts on the Actions tab are deleted after 90 days. On github.com: **Releases → Draft a new release →
+Choose a tag**, type the version with a "v" (for example **v3.2**) → **Create new tag** → **Publish release**.
+GitHub builds the installer again and attaches it to that release permanently.
+
+### When I send you an updated zip
+
+1. Unzip it somewhere else (for example your Downloads folder).
+2. Open the new `BSF-Command-Center` folder, select everything inside it (Ctrl+A), copy it, and paste it
+   into your repository folder. Choose **Replace the files in the destination**.
+   The hidden `.git` folder in your repository folder is not in my zip, so your history is kept.
+3. If you had changed `app/js/brand.js` yourself, GitHub Desktop will show my version replacing yours:
+   click the file, check the differences, and put your wording back before committing.
+4. The version number is already raised in my updates. Continue with step 3 above (commit and push).
+
+### Undoing a change
+
+- **Before you commit:** in GitHub Desktop, right-click the file → **Discard changes**.
+- **After you commit:** **History** tab → right-click the commit → **Revert changes in commit** → **Push origin**.
+- **Fastest during a busy week:** install the previous version from the **Releases** page. Your data is kept.
 
 ## Uninstalling
 
