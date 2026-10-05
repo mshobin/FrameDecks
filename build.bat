@@ -19,6 +19,29 @@ echo  [2/5] Installing build tools (first time takes a few minutes)...
 python -m pip install --upgrade pip >nul || goto :fail
 python -m pip install -r packaging\requirements-desktop.txt || goto :fail
 
+echo  [2b] BCC vCam camera...
+if exist "vcam\bin\bcc_vcam64.dll" goto :vcamdone
+set "VSWHERE=%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe"
+if not exist "%VSWHERE%" goto :novcam
+for /f "usebackq delims=" %%m in (`"%VSWHERE%" -latest -requires Microsoft.Component.MSBuild -find MSBuild\**\Bin\MSBuild.exe`) do set "MSBUILD=%%m"
+if not defined MSBUILD goto :novcam
+where git >nul 2>nul || goto :novcam
+if not exist "vcam_build\softcam" (
+  git clone --depth 1 --branch v1.8.1 https://github.com/tshino/softcam.git vcam_build\softcam || goto :fail
+  python packaging\build_vcam.py vcam_build\softcam || goto :fail
+)
+"%MSBUILD%" vcam_build\softcam\softcam.sln /m /t:softcam /p:Configuration=Release /p:Platform=x64 || goto :fail
+"%MSBUILD%" vcam_build\softcam\softcam.sln /m /t:softcam /p:Configuration=Release /p:Platform=Win32 || goto :fail
+copy /y "vcam_build\softcam\x64\Release\softcam.dll" "vcam\bin\bcc_vcam64.dll" >nul || goto :fail
+copy /y "vcam_build\softcam\Win32\Release\softcam.dll" "vcam\bin\bcc_vcam32.dll" >nul || goto :fail
+goto :vcamdone
+:novcam
+echo.
+echo  NOTE: BCC vCam was skipped. Building it needs "Build Tools for Visual Studio" (free, with
+echo  "Desktop development with C++") and Git. Everything else still builds. (GitHub builds it for you.)
+echo.
+:vcamdone
+
 echo  [3/5] Self-check...
 python packaging\check.py || goto :fail
 

@@ -18,5 +18,18 @@ ping = json.loads(urllib.request.urlopen(base + "api/app/ping").read())
 assert ping["app"] == "BSF Command Center"
 for name in ["app/js/overlay.js", "app/js/store.js", "app/fonts/EBGaramond.ttf", "app/vendor/xlsx.full.min.js", "desktop_app.py"]:
     assert (root / name).exists(), name
+# BCC vCam: the camera ID in the app must match the one compiled into the camera
+import re as _re
+build_id = _re.search(r'CLSID = "([0-9A-F-]+)"', (root / "packaging" / "build_vcam.py").read_text()).group(1)
+from vcam.sink import VCAM_CLSID
+assert VCAM_CLSID == "{" + build_id + "}", "BCC vCam ID mismatch between vcam/sink.py and packaging/build_vcam.py"
+assert (root / "vcam" / "models" / "selfie_segmentation_landscape.tflite").exists(), "blur model missing"
+try:
+    import cv2
+    from vcam.blur import BackgroundBlur
+    BackgroundBlur(root / "vcam" / "models" / "selfie_segmentation_landscape.tflite").close()
+    print("BCC vCam: blur model loads with OpenCV", cv2.__version__)
+except ImportError:
+    print("BCC vCam: OpenCV not installed here (only needed to build the app)")
 srv.shutdown()
 print("Self-check passed: version", ping["version"])

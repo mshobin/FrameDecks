@@ -1,5 +1,5 @@
 ================================================================
-  BSF COMMAND CENTER  ·  version 3.1
+  BSF COMMAND CENTER  ·  version 3.2.1
   Clean Bible study overlays for BSF leaders on Zoom.
 ================================================================
 
@@ -32,6 +32,25 @@ THE INSTALLED WINDOWS APP (recommended)
 
 
 ----------------------------------------------------------------
+BCC vCam: THE BUILT-IN CAMERA (installed Windows app)
+----------------------------------------------------------------
+
+  The Command Center has its own camera for Zoom and Teams, called
+  "BCC vCam". No OBS or Camo is needed for it.
+    - In Zoom: Settings > Video > Camera > BCC vCam.
+      In Teams: Settings > Devices > Camera > BCC vCam.
+    - Background blur (Off / Light / Strong) and the webcam choice
+      are in Settings > BCC vCam. Use this blur instead of Zoom's
+      or Teams' own blur (theirs would also blur your overlay cards
+      once they appear on BCC vCam).
+    - Your laptop webcam only switches on while Zoom, Teams or the
+      preview is using BCC vCam.
+    - The verse, question and birthday cards are being added to
+      BCC vCam next. Until then, keep using the OBS or Camo links
+      for the cards.
+
+
+----------------------------------------------------------------
 BEFORE MY ZOOM MEETING (checklist)
 ----------------------------------------------------------------
 
@@ -39,7 +58,9 @@ BEFORE MY ZOOM MEETING (checklist)
       turn on Settings > Phone & iPad Remote (or use the
       "...with iPad Remote" start file).
   [ ] Top bar: "PC  Connected" is green.
-  [ ] Open OBS (or Camo). Top bar: "OBS  1 open" (or more) is green.
+  [ ] Camera: in Zoom or Teams, BCC vCam is selected and the top bar
+      shows "vCam  In use" (or, for the cards: OBS/Camo is open and
+      the top bar shows "OBS  1 open").
   [ ] Content tab: today's questions and verses are in the lists,
       in the order you will use them.
   [ ] Meeting tab: the run sheet shows them; nothing is LIVE yet.

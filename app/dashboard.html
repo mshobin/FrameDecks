@@ -19,6 +19,7 @@
   <div class="health" id="health" aria-label="Connection status">
     <button class="hchip" type="button" id="h-program" data-goto="settings" data-sec="diag" title="Local program"><i></i><span class="hl">Program</span><span class="hs">PC</span><b>Connecting…</b></button>
     <button class="hchip" type="button" id="h-sources" data-goto="settings" data-sec="display" title="Overlay pages open in OBS, Camo or a browser"><i></i><span class="hl">Overlays</span><span class="hs">OBS</span><b>—</b></button>
+    <button class="hchip" type="button" id="h-vcam" data-goto="settings" data-sec="vcam" title="BCC vCam virtual camera"><i></i><span class="hl">BCC vCam</span><span class="hs">vCam</span><b>—</b></button>
     <button class="hchip" type="button" id="h-ipad" data-goto="settings" data-sec="ipad" title="Phone & iPad remote"><i></i><span class="hl">Remote</span><span class="hs">Remote</span><b>—</b></button>
   </div>
   <span class="mode" id="mode" hidden>Connecting…</span>
@@ -295,6 +296,7 @@
     <button type="button" data-sec="general"><span class="sn-i">⚙</span>General</button>
     <button type="button" data-sec="overlays"><span class="sn-i">▣</span>Overlays</button>
     <button type="button" data-sec="display"><span class="sn-i">◧</span>Zoom / Display<i class="sn-dot" id="sn-display"></i></button>
+    <button type="button" data-sec="vcam"><span class="sn-i">◉</span>BCC vCam<i class="sn-dot" id="sn-vcam"></i></button>
     <button type="button" data-sec="ipad"><span class="sn-i">▭</span>Phone &amp; iPad Remote<i class="sn-dot" id="sn-ipad"></i></button>
     <button type="button" data-sec="keys"><span class="sn-i">⌨</span>Keyboard shortcuts</button>
     <button type="button" data-sec="security"><span class="sn-i">⛨</span>Security</button>
@@ -371,6 +373,10 @@
       <div id="links"></div>
       <div class="note" id="links-note"></div>
     </section>
+    </section>
+    <section class="s-sec" id="sec-vcam" aria-labelledby="sech-vcam" hidden>
+      <header class="s-head"><h2 id="sech-vcam">BCC vCam</h2><p>The Command Center’s own camera for Zoom and Teams, with optional background blur. No OBS or Camo needed.</p></header>
+      <div id="vcam-body"></div>
     </section>
     <section class="s-sec" id="sec-ipad" aria-labelledby="sech-ipad" hidden>
       <header class="s-head"><h2 id="sech-ipad">Phone &amp; iPad Remote</h2><p>Control the overlays from an iPhone, Android phone or iPad on the same Wi-Fi.</p></header>
@@ -457,6 +463,7 @@
 <script src="vendor/qrcode.js"></script>
 <script src="js/meeting.js"></script>
 <script src="js/remote-panel.js"></script>
+<script src="js/vcam-panel.js"></script>
 <script src="js/brand.js"></script>
 <script src="js/about.js"></script>
 <script src="js/settings.js"></script>

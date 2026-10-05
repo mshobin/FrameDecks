@@ -36,8 +36,8 @@ except Exception as e:  # never let file details stop a build
 a = Analysis(
     [str(root / "desktop_app.py")],
     pathex=[str(root)],
-    datas=[(str(root / "app"), "app")],
-    hiddenimports=["server", "pystray._win32", "PIL.Image"],
+    datas=[(str(root / "app"), "app"), (str(root / "vcam" / "models"), "vcam/models"), (str(root / "vcam" / "bin"), "vcam/bin")],
+    hiddenimports=["server", "pystray._win32", "PIL.Image", "vcam.engine", "vcam.blur", "vcam.sink", "cv2", "numpy"],
     excludes=["tkinter", "unittest", "pydoc_data"],
     noarchive=False,
 )

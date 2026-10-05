@@ -31,14 +31,14 @@ GitHub now starts building your installer automatically.
 2. Click the **Actions** tab. You'll see **Build Windows installer** running (yellow dot).
    It takes about 5–10 minutes. A green tick means it worked.
 3. Click the finished run. At the bottom, under **Artifacts**, click
-   **BSF-Command-Center-Setup-3.1** (the version number) to download it (a .zip containing the Setup .exe).
-4. Unzip it. You now have **BSF-Command-Center-Setup-3.1.exe**.
+   **BSF-Command-Center-Setup-3.2.1** (the version number) to download it (a .zip containing the Setup .exe).
+4. Unzip it. You now have **BSF-Command-Center-Setup-3.2.1.exe**.
 
 If you see a red cross instead, click the run to read the error, and send it to me.
 
 ## Part 3 · Install
 
-1. Double-click **BSF-Command-Center-Setup-3.1.exe**.
+1. Double-click **BSF-Command-Center-Setup-3.2.1.exe**.
 2. Windows may show **"Windows protected your PC"**. This appears because the installer isn't
    code-signed (signing costs money every year). Click **More info → Run anyway**.
 3. Follow the wizard. No administrator password is needed. Leave **Create a desktop icon** ticked.
@@ -64,6 +64,21 @@ If you see a red cross instead, click the run to read the error, and send it to 
 - [ ] **Email draft and WhatsApp buttons** open your normal email app and browser.
 - [ ] **Excel export and backups** save to your Downloads folder.
 - [ ] Settings → Data / Backup shows your data folder and at least one backup.
+
+### First test of BCC vCam (the built-in camera)
+
+- [ ] During installation, **Install the BCC vCam camera** was ticked and you allowed the administrator prompt.
+      (If not: Settings → BCC vCam → **Install BCC vCam**.)
+- [ ] Settings → BCC vCam → **Show preview**: you see yourself. Try **Background blur: Light** and **Strong**.
+- [ ] Close and reopen Zoom. Settings → Video → Camera → **BCC vCam**: Zoom shows you, and the top bar says **vCam · In use**.
+- [ ] Turn off Zoom's own background blur/virtual background while using BCC vCam's blur.
+- [ ] Stop your Zoom video: within a second the laptop webcam light goes off.
+- [ ] Settings → BCC vCam shows the frames per second (aim: about 30) and the work per frame. If the picture is jerky,
+      choose **720p**, or blur **Light**, and send me the numbers from Settings → Diagnostics.
+- [ ] Repeat in Microsoft Teams (Settings → Devices → Camera → BCC vCam).
+
+If Zoom or Teams doesn't list BCC vCam, restart the meeting app (they look for cameras when they start).
+Close Zoom and Teams before installing a new version, because they keep the camera in use.
 
 Once all of these work, stop using the old folder and its .bat files, so you don't have two copies of
 your data. (The old files stay where they are as an extra backup.)

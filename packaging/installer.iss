@@ -40,6 +40,7 @@ RestartApplications=no
 
 [Tasks]
 Name: "desktopicon"; Description: "Create a desktop icon"; GroupDescription: "Icons:"
+Name: "vcam"; Description: "Install the BCC vCam camera for Zoom and Teams (Windows asks for administrator permission)"; GroupDescription: "Options:"
 Name: "startup"; Description: "Start BSF Command Center automatically when I sign in to Windows"; GroupDescription: "Options:"; Flags: unchecked
 
 [Files]
@@ -55,9 +56,11 @@ Name: "{autodesktop}\BSF Command Center"; Filename: "{app}\BSF Command Center.ex
 Name: "{userstartup}\BSF Command Center"; Filename: "{app}\BSF Command Center.exe"; Tasks: startup
 
 [Run]
+Filename: "{app}\_internal\vcam\bin\register-bcc-vcam.cmd"; Verb: "runas"; Flags: shellexec waituntilterminated runhidden; Tasks: vcam; StatusMsg: "Installing the BCC vCam camera..."
 Filename: "{app}\BSF Command Center.exe"; Description: "Open BSF Command Center now"; Flags: nowait postinstall skipifsilent
 
 [UninstallRun]
+Filename: "{app}\_internal\vcam\bin\unregister-bcc-vcam.cmd"; Verb: "runas"; Flags: shellexec waituntilterminated runhidden; RunOnceId: "RemoveBccVcam"
 Filename: "{sys}\taskkill.exe"; Parameters: "/IM ""BSF Command Center.exe"" /F"; Flags: runhidden; RunOnceId: "StopApp"
 
 [Code]

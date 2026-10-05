@@ -27,7 +27,7 @@ from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from pathlib import Path
 from urllib.parse import urlparse, parse_qs, unquote
 
-APP_VERSION = "3.1"
+APP_VERSION = "3.2.1"
 STARTED_AT = time.time()
 FROZEN = getattr(sys, "frozen", False)          # True inside the installed Windows app
 HERE = Path(sys.executable).resolve().parent if FROZEN else Path(__file__).resolve().parent
@@ -217,7 +217,9 @@ def diagnostics(address):
         "remoteMode": REMOTE, "addresses": lan_addresses(), "uptimeSeconds": int(time.time() - STARTED_AT),
         "stateRevision": state.get("rev", 0), "files": files, "remoteSessions": n_sessions,
         "devices": [{"ip": ip, "lastSeen": d["last"], "signedIn": d["signedIn"]} for ip, d in devices.items()],
-        "network": windows_network_check() if REMOTE else None, "now": time.time()
+        "network": windows_network_check() if REMOTE else None, "now": time.time(),
+        "vcam": {"available": VCAM["engine"] is not None, "reason": VCAM["reason"], "detail": VCAM["detail"],
+                 "status": dict(VCAM["engine"].status) if VCAM["engine"] else None}
     }
 
 
@@ -512,6 +514,134 @@ def firewall(action):
     return r.returncode == 0, ("Done." if r.returncode == 0 else "Windows reported a problem.")
 
 
+# ---------- BCC vCam (built-in virtual camera, Windows) ----------
+VCAM_SETTINGS_FILE = DATA / "bsf-vcam-settings.json"
+VCAM_DEFAULTS = {"enabled": True, "cameraIndex": 0, "resolution": "720p", "mirror": False, "blur": "off"}
+VCAM = {"engine": None, "reason": "", "detail": "", "cameras": None}
+
+
+def vcam_settings():
+    out = dict(VCAM_DEFAULTS)
+    try:
+        data = json.loads(VCAM_SETTINGS_FILE.read_text(encoding="utf-8"))
+        if isinstance(data, dict):
+            out.update(clean_vcam(data))
+    except (OSError, ValueError):
+        pass
+    return out
+
+
+def clean_vcam(d):
+    out = {}
+    if isinstance(d.get("enabled"), bool):
+        out["enabled"] = d["enabled"]
+    if isinstance(d.get("mirror"), bool):
+        out["mirror"] = d["mirror"]
+    if isinstance(d.get("cameraIndex"), int) and 0 <= d["cameraIndex"] <= 9:
+        out["cameraIndex"] = d["cameraIndex"]
+    if d.get("resolution") in ("720p", "1080p"):
+        out["resolution"] = d["resolution"]
+    if d.get("blur") in ("off", "light", "strong"):
+        out["blur"] = d["blur"]
+    return out
+
+
+def vcam_list_cameras():
+    """Names of the webcams Windows knows about (read-only), in the order Windows lists them."""
+    if VCAM["cameras"] is not None:
+        return VCAM["cameras"]
+    names = []
+    if os.name == "nt":
+        try:
+            r = subprocess.run(["powershell", "-NoProfile", "-Command",
+                                "Get-CimInstance Win32_PnPEntity | Where-Object { $_.PNPClass -in 'Camera','Image' -and $_.Status -eq 'OK' } | "
+                                "Select-Object -ExpandProperty Name"], capture_output=True, text=True, timeout=10, creationflags=0x08000000)
+            names = [n.strip() for n in r.stdout.splitlines() if n.strip()]
+        except (OSError, subprocess.TimeoutExpired):
+            pass
+    elif os.environ.get("BSF_VCAM_DEMO") == "1":
+        names = ["Demo webcam (test)"]
+    VCAM["cameras"] = names
+    return names
+
+
+def vcam_start():
+    """Create the engine (idle until Zoom/Teams uses BCC vCam). Safe to call when unavailable."""
+    if VCAM["engine"] is not None:
+        return
+    demo = os.environ.get("BSF_VCAM_DEMO") == "1"
+    start_files_msg = ("You’re using the start-file version (the black window). BCC vCam is only in the installed app: "
+                       "close the black window, then open BSF Command Center from its desktop or Start-menu icon.")
+    try:
+        import cv2  # noqa: F401
+        from vcam.engine import VCamEngine, Camera, DemoCamera
+        from vcam.blur import BackgroundBlur
+        from vcam import sink as vsink
+    except Exception as e:
+        VCAM["detail"] = f"{type(e).__name__}: {e}"
+        if FROZEN:
+            import traceback
+            print("BCC vCam could not load:\n" + traceback.format_exc())
+            VCAM["reason"] = ("BCC vCam couldn’t start because part of it is missing. Please send Settings → Diagnostics "
+                              "→ Copy diagnostics to the developer.")
+        else:
+            VCAM["reason"] = start_files_msg
+        return
+    model = RES / "vcam" / "models" / "selfie_segmentation_landscape.tflite"
+    if not model.exists():
+        model = HERE / "vcam" / "models" / "selfie_segmentation_landscape.tflite"
+    if demo:
+        make_sink, make_cam = (lambda w, h: vsink.FakeSink(w, h, connected=False)), DemoCamera
+    else:
+        if os.name != "nt":
+            VCAM["reason"] = start_files_msg if not FROZEN else "BCC vCam works on Windows."
+            return
+        dll = vsink.dll_path(RES) if vsink.dll_path(RES).exists() else vsink.dll_path(HERE)
+        if not dll.exists():
+            VCAM["detail"] = f"missing {dll.name}"
+            VCAM["reason"] = start_files_msg if not FROZEN else (
+                "BCC vCam’s camera file is missing from this installation. Reinstall the app with the latest installer.")
+            return
+        make_sink, make_cam = (lambda w, h: vsink.SoftcamSink(dll, w, h)), Camera
+    engine = VCamEngine(make_sink, make_cam, lambda: BackgroundBlur(model))
+    engine.configure(**{k: v for k, v in vcam_settings().items() if k != "enabled"})
+    VCAM["engine"], VCAM["reason"] = engine, ""
+    if vcam_settings()["enabled"]:
+        engine.start()
+
+
+def vcam_status():
+    eng = VCAM["engine"]
+    try:
+        from vcam import sink as vsink
+        registered = vsink.is_registered() or os.environ.get("BSF_VCAM_DEMO") == "1"
+    except Exception:
+        registered = False
+    return {"available": eng is not None, "reason": VCAM["reason"], "registered": registered,
+            "settings": vcam_settings(), "status": dict(eng.status) if eng else None,
+            "cameras": vcam_list_cameras() if eng else [], "name": "BCC vCam"}
+
+
+def vcam_install(action):
+    """Register (or remove) BCC vCam with Windows. Asks for administrator permission (UAC)."""
+    if os.name != "nt":
+        return False, "Only available on Windows."
+    name = "unregister-bcc-vcam.cmd" if action == "uninstall" else "register-bcc-vcam.cmd"
+    helper = next((p for p in (RES / "vcam" / "bin" / name, HERE / "vcam" / "bin" / name) if p.exists()), None)
+    if helper is None or not (helper.parent / "bcc_vcam64.dll").exists():
+        return False, "The BCC vCam files are missing. Reinstall the app."
+    path = str(helper).replace("'", "''")
+    outer = ("try { Start-Process -FilePath '" + path + "' -Verb RunAs -Wait -WindowStyle Hidden; exit 0 } catch { exit 5 }")
+    try:
+        r = subprocess.run(["powershell", "-NoProfile", "-Command", outer], capture_output=True, text=True,
+                           timeout=180, creationflags=0x08000000)
+    except (OSError, subprocess.TimeoutExpired):
+        return False, "Windows didn’t respond. Try again."
+    if r.returncode == 5:
+        return False, "Cancelled: administrator permission was not given."
+    return True, "Done."
+
+
 TYPES = {
     ".html": "text/html; charset=utf-8", ".js": "application/javascript; charset=utf-8",
     ".css": "text/css; charset=utf-8", ".json": "application/json; charset=utf-8",
@@ -623,8 +753,22 @@ class Handler(BaseHTTPRequestHandler):
             return self.reply(302, "", "text/plain", [("Location", "/remote.html")])
         if not self.allowed(path):
             return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
+        if path.startswith("/api/vcam/"):
+            if not self.is_local():
+                return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
+            if path == "/api/vcam/status":
+                return self.reply(200, json.dumps(vcam_status()), TYPES[".json"])
+            if path == "/api/vcam/preview.jpg":
+                eng = VCAM["engine"]
+                if not eng:
+                    return self.reply(404, "Not available", "text/plain; charset=utf-8")
+                eng.want_preview(3.0)                 # keeps the webcam on while the preview is open
+                if not eng.preview_jpeg:
+                    return self.reply(204, b"", "text/plain")
+                return self.reply(200, eng.preview_jpeg, "image/jpeg")
+            return self.reply(404, "Not found", "text/plain; charset=utf-8")
         if path == "/api/app/ping":
-            return self.reply(200, json.dumps({"app": "BSF Command Center", "version": APP_VERSION}), TYPES[".json"])
+            return self.reply(200, json.dumps({"app": "BSF Command Center", "version": APP_VERSION, "installedApp": FROZEN}), TYPES[".json"])
         if path == "/api/app/info":
             if not self.is_local():
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
@@ -754,6 +898,24 @@ class Handler(BaseHTTPRequestHandler):
             return self.reply(400, "Invalid data", "text/plain; charset=utf-8")
         if path == "/api/remote-login":
             return self.remote_login(data)
+        if path.startswith("/api/vcam/"):
+            if not self.is_local():
+                return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
+            if path == "/api/vcam/settings" and isinstance(data, dict):
+                changes = clean_vcam(data)
+                cur = vcam_settings()
+                cur.update(changes)
+                VCAM_SETTINGS_FILE.write_text(json.dumps(cur, indent=2), encoding="utf-8")
+                eng = VCAM["engine"]
+                if eng:
+                    eng.configure(**{k: v for k, v in changes.items() if k != "enabled"})
+                    if "enabled" in changes:
+                        (eng.start if changes["enabled"] else eng.stop)()
+                return self.reply(200, json.dumps(vcam_status()), TYPES[".json"])
+            if path == "/api/vcam/install":
+                done, msg = vcam_install("uninstall" if data.get("action") == "uninstall" else "install")
+                return self.reply(200, json.dumps({"ok": done, "message": msg, **vcam_status()}), TYPES[".json"])
+            return self.reply(404, "Not found", "text/plain; charset=utf-8")
         if path.startswith("/api/app/"):
             if not self.is_local():
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
@@ -811,6 +973,7 @@ def start_main_server():
         return None
     server.daemon_threads = True
     MAIN["server"], MAIN["port"] = server, server.server_address[1]
+    threading.Thread(target=vcam_start, daemon=True).start()   # idle until Zoom/Teams uses BCC vCam
     threading.Thread(target=_backup_loop, daemon=True).start()
     threading.Thread(target=_remote_watcher, daemon=True).start()
     return server

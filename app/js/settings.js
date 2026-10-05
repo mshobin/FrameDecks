@@ -63,6 +63,8 @@ function renderSecurity(){
       if (!confirm('Create a new PIN? Every connected phone or iPad will need the new PIN.')) return;
       fetch('api/remote-reset', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: '{}'}).then(function(){ window.BSFActions.toast('New PIN created. All phones and phones and iPads were disconnected.'); });
     }})] : []));
+  g.appendChild(card('BCC vCam camera', pill('ok', 'Stays on this PC'),
+    'Your webcam picture is processed on this PC (including background blur) and only goes to the meeting app you choose. The webcam is only switched on while Zoom, Teams or the preview is using BCC vCam.'));
   g.appendChild(card('Member details', pill('ok', 'Private'),
     'Stored only in bsf-members-private.json on this PC. Never sent to overlays or the phone remote. The birthday overlay receives only the greeting you choose to show.'));
   g.appendChild(card('Windows Firewall', pill('ok', 'Never changed automatically'),
@@ -97,7 +99,9 @@ function renderDiag(){
     row('Network addresses', (d.addresses || []).join(', ') || 'None found');
     row('Running for', Math.round(d.uptimeSeconds / 60) + ' min');
     row('Python / Windows', d.python + ' · ' + d.os);
-    row('Signed-in phones/phones and iPads', String(d.remoteSessions));
+    row('Signed-in phones/iPads', String(d.remoteSessions));
+    row('Installed app', d.installedApp ? 'Yes' : 'No (start-file version)');
+    row('BCC vCam', d.vcam && !d.vcam.status && d.vcam.detail ? 'Not available (' + d.vcam.detail + ')' : d.vcam && d.vcam.status ? d.vcam.status.state + (d.vcam.status.fps ? ' · ' + d.vcam.status.fps + ' fps · ' + d.vcam.status.msPerFrame + ' ms per frame' : '') + (d.vcam.status.state === 'error' ? ' · ' + d.vcam.status.message : '') : (d.vcam && d.vcam.reason) || 'Not available');
     var files = h('table', {cls: 'plain'}, [h('tr', {}, [h('th', {text: 'Data file'}), h('th', {text: 'Status'})])]);
     Object.keys(d.files).forEach(function(n){ var f = d.files[n]; files.appendChild(h('tr', {}, [h('td', {cls: 'mono', text: n}), h('td', {text: f.exists ? 'Present (' + Math.max(1, Math.round(f.bytes / 1024)) + ' KB)' : 'Not created yet'})])); });
     var fb = h('section', {cls: 'box'}, [h('div', {cls: 'box-head'}, [h('h2', {text: 'Data files'})]), files]);
@@ -121,7 +125,9 @@ function copyReport(){
   var lines = ['BSF Command Center diagnostics', 'Version: ' + (d.version || '?'), 'Mode: ' + (Store.served ? 'local program' : 'no-install'),
     'Program: ' + (Store.online ? 'connected' : 'not responding'), 'Port: ' + (d.port || '?'), 'Listening on: ' + (d.listeningOn || '?'),
     'Addresses: ' + (d.addresses || []).join(', '), 'Python: ' + (d.python || '?'), 'OS: ' + (d.os || '?'),
-    'Signed-in phones/phones and iPads: ' + (d.remoteSessions != null ? d.remoteSessions : '?'),
+    'Signed-in phones/iPads: ' + (d.remoteSessions != null ? d.remoteSessions : '?'),
+    'Installed app: ' + (d.installedApp ? 'yes' : 'no'),
+    'BCC vCam: ' + (d.vcam ? JSON.stringify(d.vcam.status || {reason: d.vcam.reason, detail: d.vcam.detail}) : 'n/a'),
     'Network: ' + (d.network ? JSON.stringify(d.network) : 'n/a'),
     'Files: ' + (d.files ? Object.keys(d.files).map(function(n){ return n + '=' + (d.files[n].exists ? 'yes' : 'no'); }).join(', ') : '?'),
     'Browser: ' + navigator.userAgent, 'Window: ' + window.innerWidth + 'x' + window.innerHeight,

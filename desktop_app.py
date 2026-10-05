@@ -59,12 +59,20 @@ def ask(port, action):
 
 
 def running_copy(port=server.PREFERRED_PORT):
-    """Is BSF Command Center already running on this port?"""
+    """What is already running on this port? None, "app" (this installed app) or "start-files" (the black-window version)."""
     try:
         with urllib.request.urlopen(f"http://127.0.0.1:{port}/api/app/ping", timeout=1.5) as r:
-            return json.loads(r.read().decode()).get("app") == APP_NAME
+            d = json.loads(r.read().decode())
     except Exception:
-        return False
+        return None
+    if d.get("app") != APP_NAME:
+        return None
+    return "app" if d.get("installedApp") else "start-files"
+
+
+START_FILES_RUNNING = ("The start-file version of BSF Command Center is still running (the black window).\n\n"
+                       "Close that black window first, then open BSF Command Center again.\n\n"
+                       "Only one copy can run at a time, and only the installed app has BCC vCam.")
 
 
 def tray_image():
@@ -74,7 +82,11 @@ def tray_image():
 
 def main():
     # 1. Only one copy: if it is already running, bring its window forward and stop here.
-    if running_copy():
+    other = running_copy()
+    if other == "start-files":
+        message(START_FILES_RUNNING, warn=True)
+        return
+    if other == "app":
         try:
             ask(server.PREFERRED_PORT, "show")
         except Exception:
@@ -88,7 +100,7 @@ def main():
         return
     port = srv.server_address[1]
     if port != server.PREFERRED_PORT:
-        if running_copy():                      # started twice at the same moment
+        if running_copy() == "app":             # started twice at the same moment
             srv.server_close()
             try:
                 ask(server.PREFERRED_PORT, "show")
@@ -137,6 +149,12 @@ def main():
 
     def stop_everything():
         server.set_remote(False)
+        eng = server.VCAM.get("engine")
+        if eng:
+            try:
+                eng.stop()               # releases the webcam
+            except Exception:
+                pass
         if state["tray"]:
             try:
                 state["tray"].stop()
