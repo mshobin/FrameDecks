@@ -27,7 +27,7 @@ from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from pathlib import Path
 from urllib.parse import urlparse, parse_qs, unquote
 
-APP_VERSION = "3.2.1"
+APP_VERSION = "3.2.2"
 STARTED_AT = time.time()
 FROZEN = getattr(sys, "frozen", False)          # True inside the installed Windows app
 HERE = Path(sys.executable).resolve().parent if FROZEN else Path(__file__).resolve().parent
@@ -598,9 +598,20 @@ def vcam_start():
             return
         dll = vsink.dll_path(RES) if vsink.dll_path(RES).exists() else vsink.dll_path(HERE)
         if not dll.exists():
-            VCAM["detail"] = f"missing {dll.name}"
-            VCAM["reason"] = start_files_msg if not FROZEN else (
-                "BCC vCam’s camera file is missing from this installation. Reinstall the app with the latest installer.")
+            folder = dll.parent
+            present = sorted(p.name for p in folder.iterdir()) if folder.is_dir() else []
+            VCAM["detail"] = f"missing {dll.name} in {folder} (found: {', '.join(present) or 'nothing'})"
+            if not FROZEN:
+                VCAM["reason"] = start_files_msg
+            elif (folder / "build-info.json").exists():
+                VCAM["reason"] = ("The camera file bcc_vcam64.dll was installed but has since been removed, most likely by "
+                                  "Windows Security or another antivirus. Open Windows Security → Virus & threat protection → "
+                                  "Protection history, restore or allow bcc_vcam64.dll, then run the installer again.")
+            else:
+                VCAM["reason"] = ("This installer was built without the camera, because the GitHub build recipe is out of date. "
+                                  "Copy the .github folder from the latest BSF-Command-Center.zip into your repository, commit "
+                                  "and push, then install the new installer.")
+            print("BCC vCam not available: " + VCAM["detail"])
             return
         make_sink, make_cam = (lambda w, h: vsink.SoftcamSink(dll, w, h)), Camera
     engine = VCamEngine(make_sink, make_cam, lambda: BackgroundBlur(model))

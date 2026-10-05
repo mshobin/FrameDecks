@@ -24,6 +24,12 @@ build_id = _re.search(r'CLSID = "([0-9A-F-]+)"', (root / "packaging" / "build_vc
 from vcam.sink import VCAM_CLSID
 assert VCAM_CLSID == "{" + build_id + "}", "BCC vCam ID mismatch between vcam/sink.py and packaging/build_vcam.py"
 assert (root / "vcam" / "models" / "selfie_segmentation_landscape.tflite").exists(), "blur model missing"
+if os.name == "nt" and os.environ.get("GITHUB_ACTIONS") == "true":
+    missing = [f for f in ("bcc_vcam64.dll", "bcc_vcam32.dll", "build-info.json") if not (root / "vcam" / "bin" / f).exists()]
+    if missing:
+        sys.exit("STOP: the BCC vCam camera was not built (" + ", ".join(missing) + " missing).\n"
+                 "The build recipe .github/workflows/build-windows.yml in your repository is out of date.\n"
+                 "Copy the .github folder from the latest BSF-Command-Center.zip into your repository, then commit and push.")
 try:
     import cv2
     from vcam.blur import BackgroundBlur

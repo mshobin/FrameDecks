@@ -31,14 +31,14 @@ GitHub now starts building your installer automatically.
 2. Click the **Actions** tab. You'll see **Build Windows installer** running (yellow dot).
    It takes about 5–10 minutes. A green tick means it worked.
 3. Click the finished run. At the bottom, under **Artifacts**, click
-   **BSF-Command-Center-Setup-3.2.1** (the version number) to download it (a .zip containing the Setup .exe).
-4. Unzip it. You now have **BSF-Command-Center-Setup-3.2.1.exe**.
+   **BSF-Command-Center-Setup-3.2.2** (the version number) to download it (a .zip containing the Setup .exe).
+4. Unzip it. You now have **BSF-Command-Center-Setup-3.2.2.exe**.
 
 If you see a red cross instead, click the run to read the error, and send it to me.
 
 ## Part 3 · Install
 
-1. Double-click **BSF-Command-Center-Setup-3.2.1.exe**.
+1. Double-click **BSF-Command-Center-Setup-3.2.2.exe**.
 2. Windows may show **"Windows protected your PC"**. This appears because the installer isn't
    code-signed (signing costs money every year). Click **More info → Run anyway**.
 3. Follow the wizard. No administrator password is needed. Leave **Create a desktop icon** ticked.
@@ -144,6 +144,9 @@ GitHub builds the installer again and attaches it to that release permanently.
 2. Open the new `BSF-Command-Center` folder, select everything inside it (Ctrl+A), copy it, and paste it
    into your repository folder. Choose **Replace the files in the destination**.
    The hidden `.git` folder in your repository folder is not in my zip, so your history is kept.
+   **Make sure the `.github` folder is copied too.** It holds the build recipe; if it isn't updated, GitHub
+   builds the app the old way (for example without the BCC vCam camera). After pasting, GitHub Desktop should
+   list `.github/workflows/build-windows.yml` among the changed files whenever I've changed the recipe.
 3. If you had changed `app/js/brand.js` yourself, GitHub Desktop will show my version replacing yours:
    click the file, check the differences, and put your wording back before committing.
 4. The version number is already raised in my updates. Continue with step 3 above (commit and push).
@@ -174,5 +177,11 @@ The installer appears in the `dist` folder.
   with Python. Restore it and add an exception for `%LOCALAPPDATA%\Programs\BSF Command Center`.
 - **"Port 8750 is in use" message:** another program is using the address the overlays need.
   Close that program and restart BSF Command Center.
+- **"This installer was built without the camera"** (Settings → BCC vCam): the build recipe in your repository
+  is out of date. Copy the `.github` folder from my latest zip into your repository, commit, push, and install
+  the new installer.
+- **"The camera file was installed but has since been removed"**: Windows Security (or another antivirus)
+  removed `bcc_vcam64.dll`. Open Windows Security → Virus & threat protection → Protection history, choose
+  **Restore** (or **Allow**) for it, then run the installer again.
 - Anything else: Settings → Diagnostics → **Copy diagnostics** (it contains no PIN or member details),
   plus `bsf-app-log.txt` from the data folder.

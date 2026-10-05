@@ -33,6 +33,31 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -r packaging/requirements-desktop.txt
 
+      - name: Get softcam (MIT licence) for BCC vCam
+        run: git clone --depth 1 --branch v1.8.1 https://github.com/tshino/softcam.git vcam_build/softcam
+
+      - name: Prepare BCC vCam (name and ID)
+        run: python packaging/build_vcam.py vcam_build/softcam
+
+      - name: Set up the Microsoft C++ compiler
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Build BCC vCam (64-bit and 32-bit)
+        shell: pwsh
+        run: |
+          foreach ($p in 'x64', 'Win32') {
+            msbuild vcam_build/softcam/softcam.sln /m /t:softcam /p:Configuration=Release /p:Platform=$p
+            if ($LASTEXITCODE -ne 0) { throw "BCC vCam build failed ($p)" }
+          }
+          Copy-Item vcam_build/softcam/x64/Release/softcam.dll vcam/bin/bcc_vcam64.dll
+          Copy-Item vcam_build/softcam/Win32/Release/softcam.dll vcam/bin/bcc_vcam32.dll
+          # A record of what was built, so the app can tell "never built" from "removed after installing"
+          $files = @{}
+          foreach ($f in 'bcc_vcam64.dll', 'bcc_vcam32.dll') { $files[$f] = (Get-FileHash "vcam/bin/$f" -Algorithm SHA256).Hash }
+          @{ builtBy = 'GitHub Actions'; run = '${{ github.run_number }}'; commit = '${{ github.sha }}'; files = $files } |
+            ConvertTo-Json | Set-Content -Encoding utf8 vcam/bin/build-info.json
+          Get-ChildItem vcam/bin
+
       - name: Self-check (program starts and serves its pages)
         run: python packaging/check.py
 
@@ -52,6 +77,7 @@ jobs:
         run: |
           if (-not (Test-Path "dist/BSF Command Center/BSF Command Center.exe")) { throw "The app was not built" }
           if (-not (Get-ChildItem -Recurse "dist/BSF Command Center" -Filter dashboard.html)) { throw "App pages are missing" }
+          if (-not (Get-ChildItem -Recurse "dist/BSF Command Center" -Filter bcc_vcam64.dll)) { throw "BCC vCam is missing" }
 
       - name: Install Inno Setup (if needed)
         shell: pwsh
