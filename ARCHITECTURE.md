@@ -1,0 +1,222 @@
+# BCC vCam: architecture, implementation plan and test plan
+
+Covers Camera Looks, screen sharing, layers (image / video / presentation), scenes, diagnostics and test
+recording in the BSF Command Center's built-in virtual camera, **BCC vCam**.
+
+> **Design decision: "path A".** This build extends the existing working pipeline, which processes frames
+> in system memory with OpenCV/NumPy (CPU), instead of adding a native GPU (D3D11) compositor. The working
+> virtual camera (softcam) only accepts frames in system memory, so even a GPU compositor would copy every
+> frame back once. Section 9 lists every place where this differs from a GPU-first specification, with
+> measurements.
+
+---
+
+## 1. Architecture overview
+
+```
+              ┌────────────────────────────── BSF Command Center (one process) ─────────────────────────────┐
+ Webcam ──MF──▶ Grabber thread ─▶ mirror ─▶ Camera Look ─▶ background blur ──┐                              │
+ (OpenCV MSMF; │                 (flip)    (LUT + 3x3 matrix  (MediaPipe     │                              │
+  off when not │                            + vignette)       selfie model)  ▼                              │
+  needed)      │                                                    ┌─────────────────┐                     │
+ Screen ─DXGI─▶ ScreenCapture thread (only new frames on change) ──▶│   COMPOSITOR    │                     │
+ Window ─WGC──▶                                                     │ 1 base layout   │                     │
+ PDF deck ────▶ PdfSource (rendered once per page) ────────────────▶│ 2 layers (z)    │─▶ FINAL FRAME ──┬──▶ softcam ─▶ "BCC vCam" ─▶ Zoom / Teams
+ Image/video/ ─▶ LayerManager (cached transforms; video decode     ▶│ 3 cards         │   (BGR, 720p/   ├──▶ preview (Studio, Meeting, Settings)
+ presentation    on its own thread)                                 │ 4 latency clock │    1080p)       └──▶ test recorder (MP4, own thread)
+ Live state ──▶ OverlayLayer: verse / question / birthday cards ───▶└─────────────────┘                     │
+ (dashboard, phone, keyboard)  drawn once, blended per frame                                                 │
+              └──────────────────────────────────────────────────────────────────────────────────────────┘
+```
+
+**One authoritative final frame.** The virtual camera, every preview and the recorder all use the same
+composed frame; nothing bypasses the compositor.
+
+| Module | File | Responsibility |
+|---|---|---|
+| Engine | `vcam/engine.py` | Frame loop, webcam on/off, look, blur, compositor, sink, measurements |
+| Webcam | `vcam/devices.py` | Webcams by name (Media Foundation, DirectShow fallback), "why it won't open" |
+| Camera Looks | `vcam/looks.py` | Data-driven colour grading (`bsf-looks.json`) |
+| Background blur | `vcam/blur.py` | Person mask (separate thread, 10 Hz) and blur |
+| Screen sharing | `vcam/screen.py` | DXGI Desktop Duplication (displays), Windows Graphics Capture (windows) |
+| Layers | `vcam/layers.py` | Image, video, PDF and window sources; transforms; z-order |
+| Compositor | `vcam/compositor.py` | Layouts, layers, cards, latency clock, test recorder |
+| Cards | `vcam/cards.py`, `vcam/overlay.py` | Verse / question / birthday cards and their transitions |
+| Virtual camera | `vcam/sink.py` + softcam DLL | "BCC vCam" DirectShow camera (system-memory frames) |
+| Control plane | `server.py` | Settings, studio, scenes, uploads (this PC only) |
+| UI | `app/js/studio.js`, `vcam-panel.js`, `meeting.js` | Studio tab, BCC vCam settings, Meeting preview |
+
+**Threads:** UI (WebView2) · HTTP control · engine loop · webcam grabber · blur model · card drawing ·
+screen capture · one per playing video · recorder. Only the engine loop touches the final frame; other
+threads hand over their newest picture under a short lock (no waiting).
+
+## 2. Implementation plan (APIs and libraries)
+
+| Need | API / library (licence) | Notes |
+|---|---|---|
+| Webcam | Media Foundation through OpenCV `CAP_MSMF`; DirectShow `CAP_DSHOW` fallback | Listed by name with `cv2-enumerate-cameras` (MIT) |
+| Virtual camera | softcam (MIT), renamed "BCC vCam", own CLSID | `scSendFrame` takes BGR frames in system memory |
+| Camera Looks | OpenCV `cv2.LUT`, `cv2.transform`, `cv2.multiply` | 2–3 whole-frame operations |
+| Display capture | DXGI Desktop Duplication via `windows-capture` (MIT) | `acquire_frame()` returns nothing when the screen didn't change; cursor drawn by us |
+| Window capture | Windows Graphics Capture via `windows-capture` | `window_hwnd`, `cursor_capture`, `dirty_region` |
+| PDF slides | PDFium via `pypdfium2` (Apache/BSD) | Rendered per page at the layer's pixel width |
+| PowerPoint control | PowerPoint COM via `comtypes` (MIT) | `SlideShowWindows(1).View.Next()/Previous()`; Page Down/Up message fallback |
+| Video layers | FFmpeg in OpenCV (`CAP_FFMPEG`, `VIDEO_ACCELERATION_ANY`) | Hardware decoding requested; the result shows in Diagnostics |
+| Recording | Media Foundation H.264 (`CAP_MSMF`, fourcc `H264`); MPEG-4 fallback | Hardware encoder used by Windows when available |
+| SVG | The browser (WebView2) rasterises to PNG before upload | No native SVG library needed |
+
+## 3. Shader examples (future GPU path) and what this build runs
+
+### 3.1 Colour grade (HLSL) — one pass
+```hlsl
+cbuffer Grade : register(b0) {
+    float brightness, contrast, gamma, saturation;
+    float3 gain;            // temperature/tint as per-channel gains, computed on the CPU
+    float vignette;         // 0 = off
+};
+Texture2D cam : register(t0); SamplerState s : register(s0);
+
+float4 PS(float4 pos : SV_Position, float2 uv : TEXCOORD) : SV_Target {
+    float3 c = cam.Sample(s, uv).rgb;
+    c = (c + brightness - 0.5) * contrast + 0.5;                       // brightness + contrast
+    c = pow(max(c * gain, 0.0), 1.0 / max(gamma, 0.001));             // temperature/tint + gamma
+    float l = dot(c, float3(0.2126, 0.7152, 0.0722));
+    c = lerp(l.xxx, c, saturation);                                    // saturation (Rec.709 luma)
+    float r = length(uv - 0.5) * 1.41421;                              // optional, very mild vignette
+    c *= 1.0 - vignette * pow(saturate((r - 0.45) / 0.55), 2.0);
+    return float4(saturate(c), 1.0);
+}
+// gain = float3(1 + 0.0045*T + 0.002*N,  1 - 0.004*N,  1 - 0.0045*T + 0.002*N)   (T = temperature, N = tint)
+```
+**This build (CPU, `vcam/looks.py`):** the four per-channel steps are folded into one 256-entry table per
+channel (`cv2.LUT`); saturation is one 3×3 matrix (`cv2.transform`); the vignette is a precomputed gain map.
+Highlights that pass white before the saturation step are stored with headroom so the result matches the
+shader. Verified within **1 level of 255** against the reference formula.
+
+### 3.2 Layer composition (HLSL) — textured quads, premultiplied alpha
+```hlsl
+cbuffer Layer : register(b0) { float4x4 transform; float opacity; };   // position, scale, rotation
+Texture2D tex : register(t0); SamplerState s : register(s0);
+struct VSOut { float4 pos : SV_Position; float2 uv : TEXCOORD; };
+VSOut VS(float2 corner : POSITION) {                                    // unit quad 0..1
+    VSOut o; o.pos = mul(float4(corner, 0, 1), transform); o.uv = corner; return o;
+}
+float4 PS(VSOut i) : SV_Target {
+    float4 c = tex.Sample(s, i.uv);
+    return float4(c.rgb * c.a, c.a) * opacity;                          // premultiplied
+}
+// Blend state: Src = ONE, Dest = INV_SRC_ALPHA, Op = ADD. Draw visible layers bottom-to-top.
+```
+**This build (CPU, `vcam/layers.py`):** each layer's transformed, premultiplied picture (`cv2.resize`,
+`cv2.warpAffine`) and its "keep" mask are **cached** and rebuilt only when the source or transform
+changes. Per frame each layer is one blend: `dst = colour + dst × (1 − α)` with OpenCV 8-bit operations.
+
+## 4. Capture → compose → camera pipelines
+
+**Windows (this build):**
+```
+DXGI AcquireNextFrame ──(changed only)──▶ to_bgr ─▶ fit (once per change) ─┐
+WGC FrameArrived (window, cursor) ────────────────────────────────────────▶ compositor ─▶ cards ─▶ final BGR
+Webcam (MSMF) ─▶ look ─▶ blur ─────────────────────────────────────────────┘                     │
+                                                                  softcam shared memory ◀─────────┘
+                                                                  (Zoom/Teams then encode)
+```
+**Windows (GPU path B, if ever needed):** DXGI/WGC already deliver D3D11 textures; the webcam frame is
+uploaded once; grade and layers run as the shaders above into one render target; one staging-texture
+read-back per frame feeds softcam (or a Windows 11 Media Foundation virtual camera could take the texture).
+
+**macOS (not implemented — this app is Windows-only):** ScreenCaptureKit `SCStream` → `CMSampleBuffer`
+→ `CVMetalTextureCache` texture → Metal compute/render pass (same shaders in MSL) → CoreMediaIO Camera
+Extension. `vcam/screen.py` keeps all capture behind `ScreenCapture`, so a macOS backend fits there.
+
+**Encoding:** a virtual camera hands **uncompressed** frames to the meeting app, which encodes with its own
+low-delay encoder; this app doesn't add a second encode (that would only add delay). Hardware H.264
+is used for the **test recording** only.
+
+## 5. UI wireframes
+
+**Studio tab (Alt+7) — main control panel**
+```
+┌ Controls ─────────────┐┌ Final picture ─────────────────────────┐┌ Layers ──────── [+ Add layer ▾]┐
+│ Scene [Presentation ▾]││ ┌────────────────────────────────────┐ ││ ⋮⋮ 🎬 1. Intro      [👁] [×]   │
+│ [Save as][Update][Del]││ │  exactly what Zoom/Teams receive   │ ││ ⋮⋮ 📑 2. Sermon deck [👁] [×]   │
+│ Look  [Warm ▾]        ││ │  (live, ~5 fps)                    │ ││ ⋮⋮ 🖼 3. Logo        [👁] [×]   │
+│ SCREEN SHARE          ││ └────────────────────────────────────┘ ││ Quick presets: [Logo] [Lower   │
+│ Source [Display 1 ▾]  ││ camera 30 fps → output 30 fps · 4 ms · ││  third] [Slide+camera] [Intro] │
+│ [Start screen share]  ││ capture-to-send 6 ms · dropped 0 · CPU ││ ── Selected: Logo ──           │
+│ LAYOUT [Cam|Scr|S+C|SbS]│ [● Record test] [Open recordings]     ││ X ━━━●━━ Y ━●━━━ Size ━●━━━    │
+│ Corner ↖ ↗ ↙ ↘ Size S M L│ ☐ Latency test (running clock)       ││ Rotation ━━●━━ Opacity ━━━━●   │
+│ SLIDES [◀ Prev][Next ▶]││                                        ││ (video: ▶ ⏸ ⏹ ☐ Loop)         │
+└───────────────────────┘└────────────────────────────────────────┘└────────────────────────────────┘
+```
+**Meeting tab:** "On screen now" shows the real BCC vCam frame while it is live; **Look** menu in its header.
+**Settings → BCC vCam:** on/off, webcam, picture size, Look, blur, mirror, cards, preview, install.
+**Tray menu (icon near the clock):** Open · **Look ▸** (Off / Warm / Dark / Neutral / custom) · **Scene ▸**
+(saved scenes) · **Stop screen share** · **Hide all overlays** · Phone remote ✓ · Quit.
+
+## 6. Hotkeys
+
+| Keys | Action | Where |
+|---|---|---|
+| Ctrl+Alt+1 / 2 / 3 / 0 | Look: Warm / Dark / Neutral / Off | Any tab |
+| Ctrl+Shift+1 / 2 / 3 | Show/hide layer 1 / 2 / 3 (top of the Layers list) | Any tab |
+| Page Down / Page Up | Next / previous slide (PDF deck or PowerPoint slide show) | Any tab, when a presentation is active |
+| → ← ⇧→ ⇧← Q V B Esc | Existing meeting shortcuts (configurable in Settings) | Meeting and Content tabs |
+| Alt+1 … Alt+7 | Tabs (Alt+7 = Studio) | Any tab |
+
+All hotkeys are ignored while typing in a box or while a dialog is open. They work while the Command
+Center window has focus (no system-wide keyboard hooks).
+
+## 7. Storage (versioned JSON in the data folder)
+
+* **`bsf-looks.json`** — `{"version": 1, "looks": {"warm": {...}, "dark": {...}, "neutral": {...}, "<your id>": {...}}}`.
+  Values are clamped to safe ranges; a damaged file falls back to the built-in looks with a note.
+* **`bsf-vcam-settings.json`** — on/off, webcam name, resolution, mirror, blur, cards, active look id.
+* **`bsf-studio.json`**
+```json
+{ "version": 1,
+  "layout": {"mode": "pip", "corner": "br", "size": "small", "custom": false, "x": 0.82, "y": 0.78, "scale": 0.3},
+  "layers": [{"id": "L1a2b3c4d", "type": "image", "name": "Logo", "file": "logo.png", "visible": true,
+              "x": 0.88, "y": 0.13, "w": 0.16, "rotation": 0, "opacity": 0.9, "loop": true, "page": 0}],
+  "scenes": [{"id": "presentation", "name": "Presentation", "look": "neutral", "layout": {...},
+              "screen": {"kind": "pdf", "file": "Sermon.pdf"}, "layers": [...]}],
+  "activeScene": "presentation" }
+```
+* **`layers\`** — copies of pictures, videos and PDFs you add (scenes keep working if the originals move).
+* IDs are stable and separate from names. Switching scenes reuses running sources (no pipeline rebuild).
+
+## 8. Test plan
+
+**Automated (in this repository's development environment, with simulated webcam/screen and sink):**
+show/hide cards × 3 cycles; preview = virtual-camera frame; looks vs reference formula (±1/255); looks
+leave cards untouched; layouts; layer types, transforms, hide, reorder; play-once video; PDF next/previous;
+scenes save/switch/restore; uploads (wrong types refused); test recording; tray actions; Studio UI clicks
+and hotkeys.
+
+**On the Windows PC (BUILD-AND-INSTALL.md checklist):**
+1. **Latency (glass-to-glass):** Studio → tick *Latency test*. In a Zoom test meeting showing BCC vCam,
+   screenshot the Studio clock and your Zoom self-view together; difference = full delay (target < 200 ms).
+   Settings → Diagnostics shows *capture-to-send* (this app's part, target < 15 ms).
+2. **CPU:** Diagnostics shows the app's CPU %; compare with Task Manager. Test each layout, each look,
+   blur on/off, with a playing video layer. Dropped frames should stay at 0.
+3. **Frame rate:** camera fps vs output fps must match (about 30).
+4. **Visual quality:** share a document with small text — readable in Zoom at 720p and 1080p; check skin
+   tones with Warm/Dark/Neutral in daylight and lamp light; cards sharp on top of a shared screen.
+5. **Recording:** Studio → *Record test* for 30 s, play the MP4: smooth, matches what Zoom showed.
+6. **Screen sharing:** a display (cursor visible, nothing changing → app CPU stays low), a PowerPoint
+   slide show window with Page Down/Up, a PDF deck.
+
+## 9. Differences from a GPU-first specification (measured, this development machine)
+
+| Specification | This build | Measured (720p unless noted) |
+|---|---|---|
+| Grading on the GPU | CPU: LUT + matrix (+ vignette) | Neutral 1.9 ms · Warm 2.3 ms · Dark+vignette 3.1 ms (1080p 4.3–7.1 ms) |
+| Layer compositing on the GPU, zero-copy | CPU, cached transforms, one 8-bit blend per layer | camera + logo + playing video + PDF slide: 1.1–1.3 ms |
+| Screen layouts | CPU, screen resized only when it changes | 1–1.5 ms unchanged screen; +3–4 ms on frames where it changed |
+| Grade + compose + layers < 5–8 ms | met in the measured scenes | full heavy scene: 6.7 ms of work per frame, capture-to-send 6.7 ms, 0 dropped |
+| Hardware encoder for the camera | not applicable (uncompressed hand-over to Zoom/Teams) | — |
+| GPU usage in Diagnostics | GPU not used, shown as such | — |
+| macOS | not implemented (Windows-only app); capture isolated behind one interface | — |
+
+These figures come from a slow shared development machine; your laptop's figures appear in
+Settings → Diagnostics and the Studio tab.

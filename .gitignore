@@ -25,3 +25,7 @@ __pycache__/
 vcam_build/
 vcam/bin/*.dll
 bsf-vcam-settings.json
+bsf-looks.json
+bsf-studio.json
+layers/
+recordings/

@@ -60,6 +60,7 @@ class Grabber:
         self.camera = camera
         self.cond = threading.Condition()
         self.frame, self.seq, self.error, self.alive = None, 0, None, True
+        self.t_capture, self.fps, self._n, self._t = 0.0, 0.0, 0, time.time()
         threading.Thread(target=self._run, name="bcc-vcam-grab", daemon=True).start()
 
     def _run(self):
@@ -78,7 +79,11 @@ class Grabber:
                         return
                     continue
                 misses = 0
-                self.frame, self.seq = f, self.seq + 1
+                self.frame, self.seq, self.t_capture = f, self.seq + 1, time.perf_counter()
+                self._n += 1
+                now = time.time()
+                if now - self._t >= 1.0:
+                    self.fps, self._n, self._t = round(self._n / (now - self._t), 1), 0, now
                 self.cond.notify_all()
 
     def next(self, last_seq, timeout=2.0):
@@ -87,7 +92,7 @@ class Grabber:
                 raise RuntimeError("The webcam stopped sending pictures. Check it is connected.")
             if self.error:
                 raise self.error if isinstance(self.error, RuntimeError) else RuntimeError(str(self.error))
-            return self.frame, self.seq
+            return self.frame, self.seq, self.t_capture
 
     def close(self):
         self.alive = False
@@ -98,11 +103,13 @@ class Grabber:
 
 
 class VCamEngine:
-    def __init__(self, sink_factory, camera_factory=Camera, blur_factory=None, overlay=None):
+    def __init__(self, sink_factory, camera_factory=Camera, blur_factory=None, overlay=None, compositor=None):
         self.sink_factory = sink_factory          # (width, height) -> sink
         self.camera_factory = camera_factory      # (index, width, height) -> camera
         self.blur_factory = blur_factory          # () -> BackgroundBlur (loaded on first use)
-        self.overlay = overlay                    # (frame) -> frame with cards drawn (stage 2)
+        self.overlay = overlay                    # (frame) -> frame with cards drawn (used when there is no compositor)
+        self.compositor = compositor              # layout + layers + cards, the one final picture
+        self.dropped = 0
         self.settings = {"cameraName": "", "resolution": "720p", "mirror": False, "blur": "off"}
         self.lock = threading.Lock()
         self.thread = None
@@ -159,11 +166,14 @@ class VCamEngine:
         if self.cam:
             self.cam.close()
             self.cam = None
+        self.preview_jpeg = None          # never show an out-of-date picture when the preview reopens
         self._set(cameraOn=False)
 
     def _loop(self):
         cv2.setNumThreads(2)                     # leave the rest of the CPU for Zoom/Teams
         frames, t_window, busy, seq = 0, time.time(), 0.0, 0
+        lat_sum, cpu_t0, cpu_w0 = 0.0, time.process_time(), time.time()
+        tick = time.perf_counter()
         while self.running:
             try:
                 with self.lock:
@@ -187,36 +197,63 @@ class VCamEngine:
                     self._set(state="ready", message="Ready. Choose “BCC vCam” as the camera in Zoom or Teams.", fps=0.0)
                     time.sleep(0.5)
                     continue
-                if self.cam is None:
-                    self._set(state="starting", message="Starting the webcam…")
-                    self.cam = Grabber(self.camera_factory(s["cameraName"], w, h))
-                    seq = 0                              # a fresh webcam session starts counting again
-                    self._set(cameraOn=True)
-                frame, seq = self.cam.next(seq)
+                need_cam = self.compositor.needs_camera() if self.compositor else True
+                if not need_cam:                         # screen-only layout: the webcam is switched off
+                    if self.cam:
+                        self._close_camera()
+                    tick += 1 / 30
+                    time.sleep(max(0.0, tick - time.perf_counter()))
+                    if time.perf_counter() - tick > 0.2:
+                        tick = time.perf_counter()
+                    frame, t_cap = None, time.perf_counter()
+                else:
+                    if self.cam is None:
+                        self._set(state="starting", message="Starting the webcam…")
+                        self.cam = Grabber(self.camera_factory(s["cameraName"], w, h))
+                        seq = 0                          # a fresh webcam session starts counting again
+                        self._set(cameraOn=True)
+                    prev = seq
+                    frame, seq, t_cap = self.cam.next(seq)
+                    if prev and seq - prev > 1:
+                        self.dropped += seq - prev - 1   # webcam frames that arrived while we were still busy
                 t0 = time.perf_counter()
-                if frame.shape[1] != w or frame.shape[0] != h:
+                if frame is not None and (frame.shape[1] != w or frame.shape[0] != h):
                     frame = cv2.resize(frame, (w, h), interpolation=cv2.INTER_AREA)
-                if s["mirror"]:
+                if frame is not None and s["mirror"]:
                     frame = cv2.flip(frame, 1)
-                if s["blur"] in ("light", "strong"):
+                grade = s.get("grade")
+                if frame is not None and grade is not None:   # Camera Look: the webcam picture only
+                    frame = grade.apply(frame)
+                if frame is not None and s["blur"] in ("light", "strong"):
                     if self.blur is None and self.blur_factory:
                         self.blur = self.blur_factory()
                     if self.blur:
                         frame = self.blur.apply(frame, s["blur"])
-                if self.overlay:
+                if self.compositor:
+                    frame = self.compositor.compose(frame, w, h)    # layout + layers + cards = the final picture
+                elif self.overlay:
                     frame = self.overlay(frame)
                 frame = np.ascontiguousarray(frame)
                 if in_use:
                     self.sink.send(frame)
+                lat_sum += time.perf_counter() - t_cap
+                if self.compositor:
+                    self.compositor.after_send(frame)         # test recording
                 busy += time.perf_counter() - t0
                 frames += 1
-                if previewing and (self.preview_jpeg is None or frames % 6 == 0):
+                if previewing and (self.preview_jpeg is None or frames % 3 == 0):
                     small = cv2.resize(frame, (480, int(480 * h / w)), interpolation=cv2.INTER_AREA)
                     ok, jpg = cv2.imencode(".jpg", small, [cv2.IMWRITE_JPEG_QUALITY, 70])
                     if ok:
                         self.preview_jpeg = jpg.tobytes()
                 now = time.time()
                 if now - t_window >= 1.0:
+                    self._set(lookMs=round(s["grade"].ms, 1) if s.get("grade") is not None else 0.0)
+                    cpu = (time.process_time() - cpu_t0) / max(0.001, now - cpu_w0) / max(1, os.cpu_count() or 1) * 100
+                    cpu_t0, cpu_w0 = time.process_time(), now
+                    self._set(captureFps=self.cam.fps if self.cam else 0.0, dropped=self.dropped,
+                              latencyMs=round(lat_sum / max(frames, 1) * 1000, 1), cpuPercent=round(cpu, 1))
+                    lat_sum = 0.0
                     self._set(fps=round(frames / (now - t_window), 1), msPerFrame=round(busy / max(frames, 1) * 1000, 1),
                               blurMs=round(self.blur.model_ms, 1) if self.blur and s["blur"] != "off" else 0.0)
                     frames, busy, t_window = 0, 0.0, now

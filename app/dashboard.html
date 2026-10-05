@@ -31,6 +31,7 @@
 <nav class="tabs" role="tablist" aria-label="Sections">
   <button class="tab" role="tab" type="button" id="tabbtn-meeting" data-tab="meeting" aria-selected="true">Meeting <kbd>Alt+1</kbd></button>
   <button class="tab" role="tab" type="button" id="tabbtn-overlays" data-tab="overlays" aria-selected="false">Content <kbd>Alt+2</kbd></button>
+  <button class="tab" role="tab" type="button" id="tabbtn-studio" data-tab="studio" aria-selected="false">Studio <kbd>Alt+7</kbd></button>
   <button class="tab" role="tab" type="button" id="tabbtn-members" data-tab="members" aria-selected="false">Members <kbd>Alt+3</kbd></button>
   <button class="tab" role="tab" type="button" id="tabbtn-birthdays" data-tab="birthdays" aria-selected="false">Birthdays <span class="tab-badge" id="tab-bday-badge" hidden></span> <kbd>Alt+4</kbd></button>
   <button class="tab" role="tab" type="button" id="tabbtn-email" data-tab="email" aria-selected="false">Email <kbd>Alt+5</kbd></button>
@@ -58,9 +59,11 @@
   </section>
 
   <section class="mcol program" aria-labelledby="pg-title">
-    <div class="col-head"><h2 id="pg-title"><span class="live-dot" id="pg-dot"></span>On screen now</h2><span class="sub" id="mt-section"></span></div>
+    <div class="col-head"><h2 id="pg-title"><span class="live-dot" id="pg-dot"></span>On screen now</h2><span class="sub" id="mt-section"></span>
+      <label class="look-pick" id="mt-look-wrap" hidden title="Camera Look for BCC vCam (Ctrl+Alt+1 Warm · 2 Dark · 3 Neutral · 0 Off)">Look <select id="mt-look"></select></label></div>
     <div class="program-wrap"><div class="program-frame" id="program">
       <iframe id="program-frame" title="What Zoom participants see" tabindex="-1"></iframe>
+      <img id="program-live" alt="The BCC vCam picture Zoom participants see" hidden>
       <div class="program-badge" id="program-badge">NOTHING ON SCREEN</div>
     </div></div>
     <div class="onair" id="onair">
@@ -291,6 +294,8 @@
 </div>
 
 <!-- ===================== Settings ===================== -->
+<div class="tabpanel studio" id="tab-studio" role="tabpanel" aria-labelledby="tabbtn-studio" hidden></div>
+
 <div class="tabpanel settings" id="tab-settings" role="tabpanel" aria-labelledby="tabbtn-settings" hidden>
   <nav class="s-nav" id="s-nav" aria-label="Settings sections">
     <button type="button" data-sec="general"><span class="sn-i">⚙</span>General</button>
@@ -388,6 +393,14 @@
     <section class="s-sec" id="sec-keys" aria-labelledby="sech-keys" hidden>
       <header class="s-head"><h2 id="sech-keys">Keyboard shortcuts</h2><p>Keys that work on the Meeting and Content tabs.</p></header>
     <section class="box"><div id="keys-body"></div></section>
+    <section class="box"><div class="box-head"><h2>Camera Look (BCC vCam)</h2></div>
+      <div class="kb-table">
+        <div class="kb-row"><span class="cat-dot live"></span><span class="kb-name">Warm</span><span class="kb-keys"><kbd class="key">Ctrl</kbd><kbd class="key">Alt</kbd><kbd class="key">1</kbd></span><span></span><span></span></div>
+        <div class="kb-row"><span class="cat-dot live"></span><span class="kb-name">Dark / Polished</span><span class="kb-keys"><kbd class="key">Ctrl</kbd><kbd class="key">Alt</kbd><kbd class="key">2</kbd></span><span></span><span></span></div>
+        <div class="kb-row"><span class="cat-dot live"></span><span class="kb-name">Neutral / Clean</span><span class="kb-keys"><kbd class="key">Ctrl</kbd><kbd class="key">Alt</kbd><kbd class="key">3</kbd></span><span></span><span></span></div>
+        <div class="kb-row"><span class="cat-dot live"></span><span class="kb-name">Look off</span><span class="kb-keys"><kbd class="key">Ctrl</kbd><kbd class="key">Alt</kbd><kbd class="key">0</kbd></span><span></span><span></span></div>
+      </div>
+      <p class="hint">These work on every tab whenever you are not typing in a box. They change the colour of your camera picture only; the cards keep their colours.</p></section>
     </section>
     <section class="s-sec" id="sec-security" aria-labelledby="sech-security" hidden>
       <header class="s-head"><h2 id="sech-security">Security</h2><p>How the Command Center protects your meeting and your members’ details.</p></header>
@@ -464,6 +477,7 @@
 <script src="js/meeting.js"></script>
 <script src="js/remote-panel.js"></script>
 <script src="js/vcam-panel.js"></script>
+<script src="js/studio.js"></script>
 <script src="js/brand.js"></script>
 <script src="js/about.js"></script>
 <script src="js/settings.js"></script>

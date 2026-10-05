@@ -1,5 +1,5 @@
 ================================================================
-  BSF COMMAND CENTER  ·  version 3.2.3
+  BSF COMMAND CENTER  ·  version 4.0
   Clean Bible study overlays for BSF leaders on Zoom.
 ================================================================
 
@@ -45,9 +45,26 @@ BCC vCam: THE BUILT-IN CAMERA (installed Windows app)
       once they appear on BCC vCam).
     - Your laptop webcam only switches on while Zoom, Teams or the
       preview is using BCC vCam.
-    - The verse, question and birthday cards are being added to
-      BCC vCam next. Until then, keep using the OBS or Camo links
-      for the cards.
+    - Your verse, question and birthday cards appear on BCC vCam
+      whenever you select Show (dashboard, keyboard or phone), with
+      the same look and transitions as the overlay pages. OBS and
+      Camo are not needed. (Settings > BCC vCam > "Cards" turns
+      this off if you still add the OBS overlay links on top.)
+    - Camera Look: Warm, Dark / Polished or Neutral / Clean colour
+      for your camera picture (the cards keep their colours).
+      Choose it in the Meeting tab ("Look"), in Settings > BCC vCam,
+      or press Ctrl+Alt+1 (Warm), Ctrl+Alt+2 (Dark), Ctrl+Alt+3
+      (Neutral), Ctrl+Alt+0 (Off). You can add your own looks to
+      bsf-looks.json in the data folder (Settings > Data / Backup >
+      Open data folder); unusual values are kept within safe limits.
+    - STUDIO tab (Alt+7): share a screen, a window (e.g. a PowerPoint
+      slide show) or PDF slides; choose a layout (Camera, Screen,
+      Screen + camera in a corner, Side by side); add layers
+      (pictures, videos, PDF slides, a window) with position, size,
+      rotation and opacity; save everything as Scenes. Ctrl+Shift+1/2/3
+      show or hide the first three layers; Page Down / Page Up change
+      slides. "Record test" saves an MP4 of exactly what BCC vCam
+      sends, in your Videos folder. ARCHITECTURE.md has the details.
 
 
 ----------------------------------------------------------------

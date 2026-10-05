@@ -31,14 +31,14 @@ GitHub now starts building your installer automatically.
 2. Click the **Actions** tab. You'll see **Build Windows installer** running (yellow dot).
    It takes about 5–10 minutes. A green tick means it worked.
 3. Click the finished run. At the bottom, under **Artifacts**, click
-   **BSF-Command-Center-Setup-3.2.3** (the version number) to download it (a .zip containing the Setup .exe).
-4. Unzip it. You now have **BSF-Command-Center-Setup-3.2.3.exe**.
+   **BSF-Command-Center-Setup-4.0** (the version number) to download it (a .zip containing the Setup .exe).
+4. Unzip it. You now have **BSF-Command-Center-Setup-4.0.exe**.
 
 If you see a red cross instead, click the run to read the error, and send it to me.
 
 ## Part 3 · Install
 
-1. Double-click **BSF-Command-Center-Setup-3.2.3.exe**.
+1. Double-click **BSF-Command-Center-Setup-4.0.exe**.
 2. Windows may show **"Windows protected your PC"**. This appears because the installer isn't
    code-signed (signing costs money every year). Click **More info → Run anyway**.
 3. Follow the wizard. No administrator password is needed. Leave **Create a desktop icon** ticked.
@@ -76,6 +76,19 @@ If you see a red cross instead, click the run to read the error, and send it to 
 - [ ] Settings → BCC vCam shows the frames per second (aim: about 30) and the work per frame. If the picture is jerky,
       choose **720p**, or blur **Light**, and send me the numbers from Settings → Diagnostics.
 - [ ] Repeat in Microsoft Teams (Settings → Devices → Camera → BCC vCam).
+- [ ] **Cards on BCC vCam:** in a Zoom test meeting (zoom.us/test), select **Show** for a question, then a verse:
+      both appear on your video within about a second. **Hide** removes each one. Try a Burst transition too.
+      Check the same in Settings → BCC vCam → Show preview.
+- [ ] **Camera Look:** press **Ctrl+Alt+1** (Warm), **Ctrl+Alt+2** (Dark), **Ctrl+Alt+3** (Neutral), **Ctrl+Alt+0** (Off)
+      while Zoom shows BCC vCam: your picture's colour changes, the cards don't. Settings → BCC vCam shows the
+      "look" time per frame; send me that number with the frames per second.
+- [ ] **Studio (Alt+7):** share your screen (Screen share → Start). Try each layout. Move the mouse: the cursor
+      shows. Share a PowerPoint slide show window and press Page Down / Page Up.
+- [ ] **Layers:** add a logo (PNG) and a short video; move, resize, rotate, fade; reorder by dragging;
+      Ctrl+Shift+1 hides layer 1. Save a scene, change things, switch back to the scene.
+- [ ] **Test recording:** Record test for 30 seconds, then open the recordings folder and play the MP4.
+- [ ] **Latency:** tick "Latency test", screenshot the Studio clock next to your Zoom self-view; send me the
+      difference, plus the line under "Final picture" (fps, ms, dropped, CPU).
 
 If Zoom or Teams doesn't list BCC vCam, restart the meeting app (they look for cameras when they start).
 Close Zoom and Teams before installing a new version, because they keep the camera in use.

@@ -34,6 +34,20 @@ try:
     import cv2
     from vcam.blur import BackgroundBlur
     BackgroundBlur(root / "vcam" / "models" / "selfie_segmentation_landscape.tflite").close()
+    from vcam.cards import CardDrawer, place_verse      # the cards drawn onto BCC vCam
+    _st = {"layout": {}, "question": {"visible": True, "text": "Self-check question?", "label": "Discussion Question"}, "birthday": {}}
+    _c = CardDrawer(root / "app" / "fonts").draw("verse", {"text": "Self-check verse", "ref": "John 1:1", "label": "BSF Focus Verse"}, {}, 1280, 720, place_verse(_st, 1280, 720))
+    assert _c.w > 100 and _c.h > 50, "card drawing failed"
+    import numpy as _np
+    from vcam.looks import Grade, BUILT_IN               # Camera Looks
+    from vcam.compositor import Compositor               # layouts + layers + cards
+    _cmp = Compositor(Path(tempfile.mkdtemp()))
+    for _m in ("camera", "screen", "pip", "side"):
+        _cmp.set_layout({"mode": _m})
+        assert _cmp.compose(_np.full((720, 1280, 3), 90, _np.uint8), 1280, 720).shape == (720, 1280, 3), "layout failed: " + _m
+    import pypdfium2                                     # PDF slides
+    for _k in BUILT_IN:
+        assert Grade(BUILT_IN[_k]).apply(_np.full((72, 128, 3), 128, _np.uint8)).shape == (72, 128, 3), "look failed: " + _k
     print("BCC vCam: blur model loads with OpenCV", cv2.__version__)
 except ImportError:
     print("BCC vCam: OpenCV not installed here (only needed to build the app)")

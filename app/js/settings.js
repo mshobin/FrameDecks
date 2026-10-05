@@ -101,6 +101,11 @@ function renderDiag(){
     row('Python / Windows', d.python + ' · ' + d.os);
     row('Signed-in phones/iPads', String(d.remoteSessions));
     row('Installed app', d.installedApp ? 'Yes' : 'No (start-file version)');
+    if (d.vcam && d.vcam.status && d.vcam.status.fps){
+      var v = d.vcam.status;
+      row('BCC vCam performance', 'camera ' + (v.captureFps || 0) + ' fps → output ' + v.fps + ' fps · ' + v.msPerFrame + ' ms work per frame · capture-to-send ' +
+        (v.latencyMs || 0) + ' ms · dropped frames ' + (v.dropped || 0) + ' · CPU ' + (v.cpuPercent || 0) + '% of this PC · GPU: not used (CPU pipeline)');
+    }
     row('BCC vCam', d.vcam && !d.vcam.status && d.vcam.detail ? 'Not available (' + d.vcam.detail + ')' : d.vcam && d.vcam.status ? d.vcam.status.state + (d.vcam.status.fps ? ' · ' + d.vcam.status.fps + ' fps · ' + d.vcam.status.msPerFrame + ' ms per frame' : '') + (d.vcam.status.state === 'error' ? ' · ' + d.vcam.status.message : '') : (d.vcam && d.vcam.reason) || 'Not available');
     var files = h('table', {cls: 'plain'}, [h('tr', {}, [h('th', {text: 'Data file'}), h('th', {text: 'Status'})])]);
     Object.keys(d.files).forEach(function(n){ var f = d.files[n]; files.appendChild(h('tr', {}, [h('td', {cls: 'mono', text: n}), h('td', {text: f.exists ? 'Present (' + Math.max(1, Math.round(f.bytes / 1024)) + ' KB)' : 'Not created yet'})])); });

@@ -39,6 +39,9 @@ var camSel = h('select', {id: 'vcam-camera'});
 var resSeg = h('div', {cls: 'seg', id: 'vcam-res'});
 var blurSeg = h('div', {cls: 'seg', id: 'vcam-blur'});
 var mirror = h('input', {type: 'checkbox', id: 'vcam-mirror'});
+var cardsCb = h('input', {type: 'checkbox', id: 'vcam-cards'});
+var lookSel = h('select', {id: 'vcam-look'});
+var mtLook = $('mt-look');
 var installBox = h('div', {cls: 'alert warn', hidden: 'hidden'});
 var unavailable = h('div', {cls: 'alert', hidden: 'hidden'});
 var img = h('img', {alt: 'BCC vCam preview', id: 'vcam-preview-img'});
@@ -62,6 +65,28 @@ function save(key, value){
 }
 sw.addEventListener('change', function(){ save('enabled', sw.checked); });
 mirror.addEventListener('change', function(){ save('mirror', mirror.checked); });
+/* Camera Look: Settings menu, Meeting tab menu and Ctrl+Alt+1/2/3/0 all use this one function */
+function setLook(id){
+  var looks = (current && current.looks) || [];
+  var found = id === 'off' ? {name: 'Off'} : looks.filter(function(l){ return l.id === id; })[0];
+  if (!found) return;
+  save('look', id);
+  toast(id === 'off' ? 'Camera Look: off' : 'Camera Look: ' + found.name);
+}
+lookSel.addEventListener('change', function(){ setLook(lookSel.value); });
+if (mtLook) mtLook.addEventListener('change', function(){ setLook(mtLook.value); mtLook.blur(); });
+document.addEventListener('keydown', function(e){
+  if (!e.ctrlKey || !e.altKey || e.shiftKey || e.metaKey) return;
+  var n = {Digit1: 1, Digit2: 2, Digit3: 3, Digit0: 0, Numpad1: 1, Numpad2: 2, Numpad3: 3, Numpad0: 0}[e.code];
+  if (n === undefined || !current || !current.available) return;
+  var t = e.target, tag = t && t.tagName;
+  if (tag === 'INPUT' || tag === 'TEXTAREA' || (t && t.isContentEditable) || document.querySelector('dialog[open], .app-modal-back')) return;
+  e.preventDefault();
+  var order = ['warm', 'dark', 'neutral'];
+  setLook(n === 0 ? 'off' : order[n - 1]);
+});
+window.BSFLook = {set: setLook};
+cardsCb.addEventListener('change', function(){ save('cards', cardsCb.checked); toast(cardsCb.checked ? 'Your cards will appear on BCC vCam' : 'Cards are off on BCC vCam (use the OBS/Camo overlay links instead)'); });
 camSel.addEventListener('change', function(){ save('cameraName', camSel.value); });
 previewBtn.addEventListener('click', function(){
   previewing = !previewing;
@@ -80,8 +105,11 @@ var settingsBox = h('section', {cls: 'box'}, [
   h('div', {cls: 'box-head'}, [h('h2', {text: 'Picture'})]),
   h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'Webcam'}), camSel]),
   h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'Picture size'}), resSeg]),
+  h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'Camera Look'}), lookSel,
+    h('span', {cls: 'hint', style: 'margin-left:10px', text: 'Ctrl+Alt+1 Warm · 2 Dark · 3 Neutral · 0 Off'})]),
   h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'Background blur'}), blurSeg]),
   h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'Mirror'}), h('label', {cls: 'check'}, [mirror, ' Flip left-right (only your camera picture; text stays readable)'])]),
+  h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'Cards'}), h('label', {cls: 'check'}, [cardsCb, ' Show my verse, question and birthday cards on BCC vCam'])]),
   h('div', {cls: 'box-head', style: 'margin-top:12px'}, [h('h2', {text: 'Preview'}), previewBtn]),
   previewBox,
   h('p', {cls: 'hint', text: 'The preview turns your webcam on while it is showing.'})
@@ -93,7 +121,7 @@ var helpBox = h('section', {cls: 'box'}, [
     h('li', {}, [h('b', {text: 'Microsoft Teams: '}), 'Settings → Devices (or Video and effects) → Camera → choose ', h('b', {text: 'BCC vCam'}), '.']),
     h('li', {text: 'Keep the Command Center running (closing its window keeps it running in the background).'})
   ]),
-  h('p', {cls: 'hint', text: 'Coming next: your verse, question and birthday cards drawn straight onto BCC vCam. Until then, keep the OBS or Camo overlay links for the cards.'})
+  h('p', {cls: 'hint', text: 'Your verse, question and birthday cards appear on BCC vCam whenever you select Show, with the same transitions. OBS or Camo are not needed. If you still add the overlay links in OBS on top of BCC vCam, turn off “Cards” above so they don’t appear twice.'})
 ]);
 root.appendChild(main); root.appendChild(settingsBox); root.appendChild(helpBox);
 
@@ -120,6 +148,18 @@ function render(d){
   settingsBox.hidden = helpBox.hidden = false;
   sw.checked = s.enabled; swText.textContent = s.enabled ? 'BCC vCam is on' : 'BCC vCam is off';
   mirror.checked = s.mirror;
+  cardsCb.checked = s.cards !== false;
+  var lsig = JSON.stringify(d.looks || []);
+  [lookSel, mtLook].forEach(function(sel){
+    if (!sel) return;
+    if (sel.dataset.sig !== lsig){
+      sel.dataset.sig = lsig; sel.innerHTML = '';
+      sel.appendChild(h('option', {value: 'off', text: 'Off'}));
+      (d.looks || []).forEach(function(l){ sel.appendChild(h('option', {value: l.id, text: l.name})); });
+    }
+    if (document.activeElement !== sel) sel.value = s.look || 'off';
+  });
+  if ($('mt-look-wrap')) $('mt-look-wrap').hidden = false;
   Array.prototype.forEach.call(resSeg.children, function(b){ b.setAttribute('aria-pressed', String(b.dataset.val === s.resolution)); });
   Array.prototype.forEach.call(blurSeg.children, function(b){ b.setAttribute('aria-pressed', String(b.dataset.val === s.blur)); });
   var cams = d.cameras || [], sig = JSON.stringify(cams);
@@ -135,7 +175,8 @@ function render(d){
   var look = STATES[key] || STATES.ready;
   pill.className = 'status-pill ' + look[0]; pill.lastChild.textContent = look[1];
   msg.textContent = key === 'error' ? st.message + ' It will try again automatically.' : look[2];
-  perf.textContent = st && st.fps ? st.fps + ' frames per second · ' + st.msPerFrame + ' ms of work per frame' + (st.blurMs ? ' · blur check ' + st.blurMs + ' ms' : '') : '';
+  perf.textContent = st && st.fps ? st.fps + ' frames per second · ' + st.msPerFrame + ' ms of work per frame' + (st.lookMs ? ' · look ' + st.lookMs + ' ms' : '') + (st.blurMs ? ' · blur check ' + st.blurMs + ' ms' : '') : '';
+  if (d.looksNote) perf.textContent += ' · ' + d.looksNote;
   installBox.hidden = d.registered;
   if (!d.registered && !installBox.childNodes.length){
     installBox.appendChild(h('b', {text: 'BCC vCam is not installed in Windows yet. '}));

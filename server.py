@@ -27,7 +27,7 @@ from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from pathlib import Path
 from urllib.parse import urlparse, parse_qs, unquote
 
-APP_VERSION = "3.2.3"
+APP_VERSION = "4.0"
 STARTED_AT = time.time()
 FROZEN = getattr(sys, "frozen", False)          # True inside the installed Windows app
 HERE = Path(sys.executable).resolve().parent if FROZEN else Path(__file__).resolve().parent
@@ -151,6 +151,13 @@ def save_state(new):
         os.replace(tmp, STATE_FILE)
         cond.notify_all()
         return state
+
+
+def update_state(change):
+    """Change the live state from inside the program (e.g. the tray's Hide all). Every screen picks it up."""
+    with cond:
+        new = change(json.loads(json.dumps(state)))
+    return save_state(new)
 
 
 # ---------- Read-only checks used by Settings > Phone & iPad Remote and Diagnostics ----------
@@ -517,7 +524,8 @@ def firewall(action):
 
 # ---------- BCC vCam (built-in virtual camera, Windows) ----------
 VCAM_SETTINGS_FILE = DATA / "bsf-vcam-settings.json"
-VCAM_DEFAULTS = {"enabled": True, "cameraName": "", "resolution": "720p", "mirror": False, "blur": "off"}
+VCAM_DEFAULTS = {"enabled": True, "cameraName": "", "resolution": "720p", "mirror": False, "blur": "off", "cards": True, "look": "off"}
+LOOKS_FILE = DATA / "bsf-looks.json"
 VCAM = {"engine": None, "reason": "", "detail": "", "cameras": None, "camerasAt": 0}
 
 
@@ -538,6 +546,10 @@ def clean_vcam(d):
         out["enabled"] = d["enabled"]
     if isinstance(d.get("mirror"), bool):
         out["mirror"] = d["mirror"]
+    if isinstance(d.get("cards"), bool):
+        out["cards"] = d["cards"]
+    if isinstance(d.get("look"), str) and (d["look"] == "off" or (d["look"].isidentifier() and len(d["look"]) <= 40)):
+        out["look"] = d["look"]
     if isinstance(d.get("cameraName"), str) and len(d["cameraName"]) <= 200:
         out["cameraName"] = d["cameraName"]
     if d.get("resolution") in ("720p", "1080p"):
@@ -565,6 +577,208 @@ def vcam_list_cameras():
     return cams
 
 
+# ---------- Studio: layout, screen sharing, layers, scenes (saved in bsf-studio.json) ----------
+STUDIO_FILE = DATA / "bsf-studio.json"
+LAYERS_DIR = DATA / "layers"
+STUDIO_VERSION = 1
+QUICK_PRESETS = {
+    "logo": {"name": "Logo overlay", "needs": "image", "layer": {"type": "image", "x": 0.88, "y": 0.13, "w": 0.16, "opacity": 0.9}},
+    "lower_third": {"name": "Lower third", "needs": "image", "layer": {"type": "image", "x": 0.34, "y": 0.84, "w": 0.6}},
+    "slide_camera": {"name": "Slide + camera", "needs": "pdf_or_window", "layout": {"mode": "pip", "corner": "br", "size": "small", "custom": False}},
+    "intro": {"name": "Intro bumper", "needs": "video", "layer": {"type": "video", "x": 0.5, "y": 0.5, "w": 1.0, "loop": False}},
+}
+
+
+def studio_load():
+    try:
+        d = json.loads(STUDIO_FILE.read_text(encoding="utf-8"))
+        if not isinstance(d, dict):
+            raise ValueError
+    except (OSError, ValueError):
+        d = {}
+    from vcam.layers import clean_layer
+    from vcam.compositor import clean_layout
+    scenes = []
+    for sc in d.get("scenes", []) if isinstance(d.get("scenes"), list) else []:
+        if isinstance(sc, dict) and str(sc.get("id", "")).isidentifier():
+            scenes.append({"id": sc["id"][:40], "name": str(sc.get("name") or "Scene")[:40], "look": str(sc.get("look") or "off")[:40],
+                           "layout": clean_layout(sc.get("layout")), "screen": sc.get("screen") if isinstance(sc.get("screen"), dict) else None,
+                           "layers": [clean_layer(l) for l in sc.get("layers", []) if isinstance(l, dict)]})
+    return {"version": STUDIO_VERSION, "layout": clean_layout(d.get("layout")),
+            "layers": [clean_layer(l) for l in d.get("layers", []) if isinstance(l, dict)],
+            "scenes": scenes, "activeScene": str(d.get("activeScene") or "")[:40]}
+
+
+def studio_save():
+    comp = VCAM.get("compositor")
+    if not comp:
+        return
+    cur = studio_load()
+    cur.update(layout=comp.layout, layers=comp.layers.layers)
+    STUDIO_FILE.write_text(json.dumps(cur, indent=2), encoding="utf-8")
+
+
+def recordings_dir():
+    vids = Path.home() / "Videos"
+    return (vids if vids.is_dir() else DATA) / "BSF Command Center"
+
+
+def studio_status():
+    comp = VCAM.get("compositor")
+    if not comp:
+        return {"available": False, "reason": VCAM.get("reason", "")}
+    from vcam.screen import list_sources
+    st = studio_load()
+    rec = comp.recorder
+    lay_status = comp.layers.status()
+    return {"available": True, "layout": comp.layout, "layers": [dict(l, status=lay_status.get(l["id"], {})) for l in comp.layers.layers],
+            "screen": comp.screen_status(), "sources": list_sources(), "scenes": [{"id": x["id"], "name": x["name"]} for x in st["scenes"]],
+            "activeScene": st["activeScene"], "presets": {k: {"name": v["name"], "needs": v["needs"]} for k, v in QUICK_PRESETS.items()},
+            "recording": {"on": rec is not None, "seconds": round(time.time() - rec.started, 1) if rec else 0, "codec": rec.codec if rec else "",
+                          "frames": rec.frames if rec else 0, "skipped": rec.skipped if rec else 0, "folder": str(recordings_dir())},
+            "lastRecording": comp.last_recording, "latencyTest": comp.latency_test, "composeMs": round(comp.ms, 2),
+            "pdfs": sorted(p.name for p in LAYERS_DIR.glob("*.pdf")) if LAYERS_DIR.is_dir() else []}
+
+
+def _layer_id():
+    return "L" + secrets.token_hex(4)
+
+
+def studio_action(d):
+    """Everything the Studio panel, hotkeys, tray menu and scenes can change."""
+    comp, eng = VCAM.get("compositor"), VCAM.get("engine")
+    if not comp:
+        raise ValueError(VCAM.get("reason") or "BCC vCam is not available.")
+    op = d.get("op")
+    if op == "layout":
+        comp.set_layout(d.get("layout") or {})
+    elif op == "screen":
+        src = d.get("source")
+        if src:
+            from vcam.screen import list_sources
+            if src.get("kind") == "pdf":
+                name = Path(str(src.get("file", ""))).name
+                if not (LAYERS_DIR / name).is_file():
+                    raise ValueError("That PDF is not in the layers folder.")
+                src = {"kind": "pdf", "file": name, "name": name}
+            else:
+                known = {x["id"]: x for x in list_sources()}
+                match = known.get(src.get("id")) or next((x for x in known.values() if x["name"] == src.get("name")), None)
+                if not match:
+                    raise ValueError("That screen or window is no longer available.")
+                src = match
+        comp.set_screen(src, LAYERS_DIR)
+    elif op == "layers":
+        layers = [l for l in (d.get("layers") or []) if isinstance(l, dict)][:30]
+        for l in layers:
+            if not l.get("id"):
+                l["id"] = _layer_id()
+        comp.layers.set_layers(layers)
+    elif op == "layer-control":
+        comp.layers.control(str(d.get("id")), str(d.get("cmd")))
+    elif op == "toggle-layer":
+        n = int(d.get("index", 0))
+        layers = [dict(l) for l in comp.layers.layers]
+        order = layers[::-1]                                   # the panel lists the top layer first
+        if 0 <= n < len(order):
+            order[n]["visible"] = not order[n]["visible"]
+            comp.layers.set_layers(layers)
+            return {"layer": order[n]["name"], "visible": order[n]["visible"]}
+        return {"layer": None}
+    elif op == "slide":
+        step = 1 if int(d.get("step", 1)) > 0 else -1
+        res = comp.slide(step)
+        if res is None:                                        # no shared presentation: the top presentation layer
+            pres = [l for l in comp.layers.layers[::-1] if l["type"] in ("pdf", "window") and l["visible"]]
+            res = comp.layers.slide(pres[0]["id"], step) if pres else None
+        return {"slide": res}
+    elif op == "record":
+        if d.get("on"):
+            w, h = SIZES_FOR_REC.get(vcam_settings()["resolution"], (1280, 720))
+            r = comp.start_recording(recordings_dir(), w, h)
+            return {"recording": True, "codec": r.codec, "file": r.path}
+        return {"recording": False, "result": comp.stop_recording()}
+    elif op == "latency-test":
+        comp.latency_test = bool(d.get("on"))
+    elif op == "preset":
+        p = QUICK_PRESETS.get(d.get("preset"))
+        if not p:
+            raise ValueError("Unknown preset")
+        if "layer" in p:
+            f = Path(str(d.get("file") or "")).name
+            if not (LAYERS_DIR / f).is_file():
+                raise ValueError("Choose a file for this preset first.")
+            layers = [dict(l) for l in comp.layers.layers]
+            layers.append({**p["layer"], "id": _layer_id(), "name": p["name"], "file": f, "visible": True})
+            comp.layers.set_layers(layers)
+        if "layout" in p:
+            comp.set_layout(p["layout"])
+    elif op in ("scene-save", "scene-apply", "scene-delete"):
+        st = studio_load()
+        if op == "scene-save":
+            sid = str(d.get("id") or "") or re.sub(r"\W+", "_", str(d.get("name") or "scene").lower()).strip("_")[:30] or "scene"
+            if not sid.isidentifier():
+                sid = "s_" + sid
+            scene = {"id": sid, "name": str(d.get("name") or sid)[:40], "look": vcam_settings()["look"], "layout": comp.layout,
+                     "screen": comp.screen_src, "layers": comp.layers.layers}
+            st["scenes"] = [x for x in st["scenes"] if x["id"] != sid] + [scene]
+            st["activeScene"] = sid
+        elif op == "scene-delete":
+            st["scenes"] = [x for x in st["scenes"] if x["id"] != d.get("id")]
+        else:
+            sc = next((x for x in st["scenes"] if x["id"] == d.get("id")), None)
+            if not sc:
+                raise ValueError("Scene not found")
+            # switching reuses everything that is already running (camera, layer sources, cards)
+            comp.set_layout(sc["layout"])
+            comp.layers.set_layers(sc["layers"])
+            want = sc.get("screen")
+            if (want or {}).get("id") != (comp.screen_src or {}).get("id") or (want or {}).get("file") != (comp.screen_src or {}).get("file"):
+                try:
+                    studio_action({"op": "screen", "source": want})
+                except ValueError:
+                    comp.set_screen(None)
+            cur = vcam_settings()
+            if sc["look"] != cur["look"]:
+                cur["look"] = sc["look"]
+                VCAM_SETTINGS_FILE.write_text(json.dumps(cur, indent=2), encoding="utf-8")
+                if eng:
+                    eng.configure(grade=vcam_grade(sc["look"]))
+            st["activeScene"] = sc["id"]
+        st.update(layout=comp.layout, layers=comp.layers.layers)
+        STUDIO_FILE.write_text(json.dumps(st, indent=2), encoding="utf-8")
+        return {"activeScene": st["activeScene"]}
+    else:
+        raise ValueError("Unknown action")
+    studio_save()
+    return {}
+
+
+SIZES_FOR_REC = {"720p": (1280, 720), "1080p": (1920, 1080)}
+
+
+def vcam_looks():
+    """All looks (built-in + bsf-looks.json). Re-read each time, so looks added to the file appear."""
+    try:
+        from vcam import looks
+        found, note = looks.load(LOOKS_FILE)
+    except Exception as e:
+        return {}, f"Looks unavailable ({type(e).__name__})"
+    VCAM["looksNote"] = note
+    return found, note
+
+
+def vcam_grade(look_id):
+    """The Grade to apply for a look id, or None for Off / unknown looks."""
+    if look_id == "off":
+        return None
+    found, _ = vcam_looks()
+    if look_id not in found:
+        return None
+    from vcam.looks import Grade
+    return Grade(found[look_id])
+
+
 def _vcam_blockers():
     try:
         from vcam.devices import camera_blockers
@@ -575,7 +789,7 @@ def _vcam_blockers():
 
 def vcam_effective(settings):
     """The settings the engine should use: an empty camera choice means the first usable webcam."""
-    out = {k: v for k, v in settings.items() if k != "enabled"}
+    out = {k: v for k, v in settings.items() if k not in ("enabled", "cards", "look")}
     if not out.get("cameraName"):
         cams = vcam_list_cameras()
         out["cameraName"] = next((c["name"] for c in cams if not c["ir"]), cams[0]["name"] if cams else "")
@@ -633,11 +847,35 @@ def vcam_start():
             print("BCC vCam not available: " + VCAM["detail"])
             return
         make_sink, make_cam = (lambda w, h: vsink.SoftcamSink(dll, w, h)), (lambda name, w, h: Camera(name, w, h, vcam_list_cameras()))
-    engine = VCamEngine(make_sink, make_cam, lambda: BackgroundBlur(model))
-    engine.configure(**vcam_effective(vcam_settings()))
+    # The verse, question and birthday cards, drawn onto every frame from the same live state as the overlay pages
+    from vcam.overlay import OverlayLayer
+    layer = OverlayLayer(APP / "fonts", lambda: state)
+    VCAM["cardsOn"] = vcam_settings()["cards"]
+
+    def cards(frame):
+        return layer(frame) if VCAM.get("cardsOn", True) else frame
+    from vcam.compositor import Compositor
+    LAYERS_DIR.mkdir(parents=True, exist_ok=True)
+    comp = Compositor(LAYERS_DIR, cards=layer, cards_on=lambda: VCAM.get("cardsOn", True))
+    VCAM["compositor"] = comp
+    st = studio_load()
+    comp.set_layout(st["layout"])
+    comp.layers.set_layers(st["layers"])
+    engine = VCamEngine(make_sink, make_cam, lambda: BackgroundBlur(model), compositor=comp)
+    VCAM["layer"] = layer
+    engine.configure(**vcam_effective(vcam_settings()), grade=vcam_grade(vcam_settings()["look"]))
     VCAM["engine"], VCAM["reason"] = engine, ""
     if vcam_settings()["enabled"]:
         engine.start()
+
+
+def _looks_list():
+    if VCAM.get("looksCache") is None or time.time() - VCAM.get("looksAt", 0) > 10:
+        found, _ = vcam_looks()
+        from vcam.looks import ORDER
+        ids = [i for i in ORDER if i in found] + sorted(i for i in found if i not in ORDER)
+        VCAM["looksCache"], VCAM["looksAt"] = [{"id": i, "name": found[i]["name"]} for i in ids], time.time()
+    return VCAM["looksCache"]
 
 
 def vcam_status():
@@ -651,7 +889,8 @@ def vcam_status():
             "settings": vcam_settings(), "status": dict(eng.status) if eng else None,
             "cameras": [{"name": n, "ir": any(c["ir"] for c in vcam_list_cameras() if c["name"] == n)}
                         for n in dict.fromkeys(c["name"] for c in vcam_list_cameras())] if eng else [],
-            "activeCamera": vcam_effective(vcam_settings())["cameraName"] if eng else "", "name": "BCC vCam"}
+            "activeCamera": vcam_effective(vcam_settings())["cameraName"] if eng else "", "name": "BCC vCam",
+            "looks": _looks_list(), "looksNote": VCAM.get("looksNote", "")}
 
 
 def vcam_install(action):
@@ -790,6 +1029,8 @@ class Handler(BaseHTTPRequestHandler):
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
             if path == "/api/vcam/status":
                 return self.reply(200, json.dumps(vcam_status()), TYPES[".json"])
+            if path == "/api/vcam/studio":
+                return self.reply(200, json.dumps(studio_status()), TYPES[".json"])
             if path == "/api/vcam/preview.jpg":
                 eng = VCAM["engine"]
                 if not eng:
@@ -876,6 +1117,39 @@ class Handler(BaseHTTPRequestHandler):
         host = self.headers.get("Host", "")
         return origin in (f"http://{host}",)
 
+    def upload_layer_file(self):
+        """A picture, video or PDF for a layer, copied into the data folder's layers folder (this PC only)."""
+        if not self.is_local():
+            return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
+        name = Path(parse_qs(urlparse(self.path).query).get("name", ["file"])[0]).name
+        stem, ext = os.path.splitext(name)
+        if ext.lower() not in (".png", ".jpg", ".jpeg", ".mp4", ".mov", ".webm", ".pdf"):
+            return self.reply(400, json.dumps({"error": "Use PNG, JPG, MP4, MOV, WebM or PDF."}), TYPES[".json"])
+        length = int(self.headers.get("Content-Length", 0))
+        if length <= 0 or length > 1024 * 1024 * 1024:
+            return self.reply(400, json.dumps({"error": "The file must be smaller than 1 GB."}), TYPES[".json"])
+        LAYERS_DIR.mkdir(parents=True, exist_ok=True)
+        safe = re.sub(r"[^\w\- ]+", "", stem)[:60].strip() or "file"
+        target = LAYERS_DIR / (safe + ext.lower())
+        n = 2
+        while target.exists():
+            target = LAYERS_DIR / f"{safe} ({n}){ext.lower()}"
+            n += 1
+        tmp = target.with_suffix(target.suffix + ".part")
+        left = length
+        with open(tmp, "wb") as f:
+            while left > 0:
+                chunk = self.rfile.read(min(1 << 20, left))
+                if not chunk:
+                    break
+                f.write(chunk)
+                left -= len(chunk)
+        if left:
+            tmp.unlink(missing_ok=True)
+            return self.reply(400, json.dumps({"error": "The upload was interrupted."}), TYPES[".json"])
+        tmp.replace(target)
+        return self.reply(200, json.dumps({"file": target.name}), TYPES[".json"])
+
     def app_action(self, action, data):
         ok = lambda obj: self.reply(200, json.dumps(obj), TYPES[".json"])
         bad = lambda msg, code=400: self.reply(code, json.dumps({"error": msg}), TYPES[".json"])
@@ -888,7 +1162,7 @@ class Handler(BaseHTTPRequestHandler):
             name = backup_now(time.strftime("%H%M%S"))
             return ok({"backup": name, "backups": list_backups()}) if name else bad("There is nothing to back up yet.")
         if action == "open-folder":
-            target = BACKUP_DIR if data.get("which") == "backups" else DATA
+            target = {"backups": BACKUP_DIR, "recordings": recordings_dir(), "layers": LAYERS_DIR}.get(data.get("which"), DATA)
             target.mkdir(parents=True, exist_ok=True)
             return ok({"opened": open_folder(target), "folder": str(target)})
         if action == "import":
@@ -921,6 +1195,8 @@ class Handler(BaseHTTPRequestHandler):
     def do_POST(self):
         if not self.host_ok() or not self.origin_ok():
             return self.reply(403, "Forbidden", "text/plain; charset=utf-8")
+        if urlparse(self.path).path == "/api/vcam/upload":
+            return self.upload_layer_file()
         path = urlparse(self.path).path
         if not self.allowed(path):
             return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
@@ -939,11 +1215,17 @@ class Handler(BaseHTTPRequestHandler):
                 cur.update(changes)
                 VCAM_SETTINGS_FILE.write_text(json.dumps(cur, indent=2), encoding="utf-8")
                 eng = VCAM["engine"]
+                VCAM["cardsOn"] = cur["cards"]
                 if eng:
-                    eng.configure(**vcam_effective(cur))
+                    eng.configure(**vcam_effective(cur), **({"grade": vcam_grade(cur["look"])} if "look" in changes else {}))
                     if "enabled" in changes:
                         (eng.start if changes["enabled"] else eng.stop)()
                 return self.reply(200, json.dumps(vcam_status()), TYPES[".json"])
+            if path == "/api/vcam/studio":
+                try:
+                    return self.reply(200, json.dumps({"ok": True, **(studio_action(data) or {}), "studio": studio_status()}), TYPES[".json"])
+                except (ValueError, RuntimeError, OSError) as e:
+                    return self.reply(400, json.dumps({"error": str(e)}), TYPES[".json"])
             if path == "/api/vcam/install":
                 done, msg = vcam_install("uninstall" if data.get("action") == "uninstall" else "install")
                 return self.reply(200, json.dumps({"ok": done, "message": msg, **vcam_status()}), TYPES[".json"])

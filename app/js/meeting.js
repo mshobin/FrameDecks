@@ -190,7 +190,10 @@ setInterval(renderProgram, 1000); renderProgram();
 Status.on('presence', function(p){
   var n = 0; for (var k in p) n += p[k];
   var anyLive = live && ['question', 'verse', 'birthday'].some(function(k){ return stateOf(k) === 'live'; });
-  if (n) chip('h-sources', 'ok', n + ' open', n + ' overlay page(s) open in OBS, Camo or a browser');
+  var vc = window.BSFVcamStatus && window.BSFVcamStatus();
+  var onVcam = vc && vc.status && vc.status.state === 'live' && vc.settings && vc.settings.cards !== false;
+  if (onVcam && !n) chip('h-sources', 'ok', 'On vCam', 'Your cards are shown on BCC vCam');
+  else if (n) chip('h-sources', 'ok', n + ' open', n + ' overlay page(s) open in OBS, Camo or a browser');
   else chip('h-sources', anyLive ? 'warn' : '', 'None open', anyLive ? 'Something is on screen, but no overlay page is open in OBS or Camo' : 'No overlay page is open yet');
 });
 
@@ -212,8 +215,26 @@ Status.on('remote', function(r){
 
 if (!Store.served){ chip('h-sources', '', '—', 'Needs the local program'); chip('h-ipad', '', '—', 'Needs the local program'); }
 
-/* ---------- Program preview ---------- */
+/* ---------- Program preview ----------
+ * While BCC vCam is live, show its real final frame (exactly what Zoom/Teams receive).
+ * Otherwise show the overlay page, so opening the app never switches the webcam on by itself. */
 $('program-frame').src = 'stage.html?bg=preview&preview=1';
+var liveImg = $('program-live');
+function pullLive(){
+  var vs = window.BSFVcamStatus && window.BSFVcamStatus();
+  var live = vs && vs.status && vs.status.state === 'live' && document.body.dataset.tab === 'meeting';
+  if (!live){
+    liveImg.hidden = true; $('program-frame').style.visibility = '';
+    return setTimeout(pullLive, 1000);
+  }
+  fetch('api/vcam/preview.jpg?t=' + Date.now(), {cache: 'no-store'}).then(function(r){
+    if (r.status === 200) return r.blob().then(function(bl){
+      var u = URL.createObjectURL(bl), old = liveImg.src; liveImg.src = u; liveImg.hidden = false; $('program-frame').style.visibility = 'hidden';
+      if (old && old.slice(0, 5) === 'blob:') URL.revokeObjectURL(old);
+    });
+  }).catch(function(){}).then(function(){ setTimeout(pullLive, 250); });
+}
+if (Store.served) setTimeout(pullLive, 1500);
 
 Store.subscribe(function(st){ live = st; render(); });
 setInterval(render, 2000);   // picks up list edits, birthday candidate and day changes

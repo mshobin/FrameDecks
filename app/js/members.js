@@ -154,7 +154,7 @@ function whenText(b){ return b.days === 0 ? 'Today' : b.days === 1 ? 'Tomorrow' 
 function turningText(b){ return b.turning ? (b.days === 0 ? 'Turns ' + b.turning + ' today' : 'Turns ' + b.turning) : ''; }
 
 /* ---------- Tabs ---------- */
-var TABS = ['meeting', 'overlays', 'members', 'birthdays', 'email', 'settings'];
+var TABS = ['meeting', 'overlays', 'members', 'birthdays', 'email', 'settings', 'studio'];   // Alt+1..7
 function setTab(t){
   ui.tab = t; document.body.dataset.tab = t;
   TABS.forEach(function(k){
@@ -1032,7 +1032,7 @@ function setup(){
 
   document.addEventListener('keydown', function(e){
     if (document.querySelector('dialog[open]')) return;
-    if (e.altKey && !e.ctrlKey && /^[1-6]$/.test(e.key)){ e.preventDefault(); setTab(TABS[+e.key - 1]); return; }
+    if (e.altKey && !e.ctrlKey && /^[1-7]$/.test(e.key)){ e.preventDefault(); setTab(TABS[+e.key - 1]); return; }
     var t = e.target.tagName;
     if (t === 'INPUT' || t === 'TEXTAREA' || t === 'SELECT') return;
     if (e.key === '/' && (ui.tab === 'members' || ui.tab === 'email')){ e.preventDefault(); $(ui.tab === 'members' ? 'm-search' : 'e-search').focus(); }

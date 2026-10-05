@@ -75,6 +75,32 @@ START_FILES_RUNNING = ("The start-file version of BSF Command Center is still ru
                        "Only one copy can run at a time, and only the installed app has BCC vCam.")
 
 
+def tray_do(action):
+    try:
+        server.studio_action(action)
+    except Exception as e:
+        print("Tray action failed:", e)
+
+
+def tray_look(look_id):
+    cur = server.vcam_settings()
+    cur["look"] = look_id
+    server.VCAM_SETTINGS_FILE.write_text(json.dumps(cur, indent=2), encoding="utf-8")
+    eng = server.VCAM.get("engine")
+    if eng:
+        eng.configure(grade=server.vcam_grade(look_id))
+
+
+def tray_hide_all():
+    """Same as the red Hide all button: question, verse and birthday cards fade out everywhere."""
+    def change(st):
+        for k in ("question", "verse", "birthday"):
+            if isinstance(st.get(k), dict):
+                st[k]["visible"] = False
+        return st
+    server.update_state(change)
+
+
 def tray_image():
     from PIL import Image
     return Image.open(server.APP / "icons" / "remote-192.png")
@@ -123,8 +149,31 @@ def main():
         except Exception:
             print("Tray icon not available:\n" + traceback.format_exc())
             return None
+        def look_items():
+            def pick(lid):
+                return lambda icon, item: tray_look(lid)
+            cur = server.vcam_settings().get("look", "off")
+            looks = [("off", "Off")] + [(l["id"], l["name"]) for l in server._looks_list()]
+            return [pystray.MenuItem(name, pick(lid), checked=(lambda item, lid=lid: server.vcam_settings().get("look") == lid), radio=True)
+                    for lid, name in looks]
+
+        def scene_items():
+            def pick(sid):
+                return lambda icon, item: tray_do({"op": "scene-apply", "id": sid})
+            st = server.studio_load()
+            if not st["scenes"]:
+                return [pystray.MenuItem("No scenes saved yet", None, enabled=False)]
+            return [pystray.MenuItem(x["name"], pick(x["id"]), checked=(lambda item, sid=x["id"]: server.studio_load()["activeScene"] == sid), radio=True)
+                    for x in st["scenes"]]
         menu = pystray.Menu(
             pystray.MenuItem("Open BSF Command Center", lambda icon, item: on_open(), default=True),
+            pystray.Menu.SEPARATOR,
+            pystray.MenuItem("Look", pystray.Menu(look_items)),
+            pystray.MenuItem("Scene", pystray.Menu(scene_items)),
+            pystray.MenuItem("Stop screen share", lambda icon, item: tray_do({"op": "screen", "source": None}),
+                             enabled=lambda item: bool(server.VCAM.get("compositor") and server.VCAM["compositor"].screen)),
+            pystray.MenuItem("Hide all overlays", lambda icon, item: tray_hide_all()),
+            pystray.Menu.SEPARATOR,
             pystray.MenuItem("Phone remote", lambda icon, item: server.set_remote(not server.REMOTE),
                              checked=lambda item: server.REMOTE),
             pystray.Menu.SEPARATOR,
