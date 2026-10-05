@@ -21,3 +21,7 @@ build/
 .build-venv/
 __pycache__/
 *.pyc
+# BCC vCam build files (GitHub builds the camera itself)
+vcam_build/
+vcam/bin/*.dll
+bsf-vcam-settings.json

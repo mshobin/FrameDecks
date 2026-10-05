@@ -10,6 +10,8 @@ import os
 import threading
 import time
 
+# Must be set before OpenCV loads: makes opening laptop webcams faster and more reliable on some PCs
+os.environ.setdefault("OPENCV_VIDEOIO_MSMF_ENABLE_HW_TRANSFORMS", "0")
 import cv2
 import numpy as np
 
@@ -101,7 +103,7 @@ class VCamEngine:
         self.camera_factory = camera_factory      # (index, width, height) -> camera
         self.blur_factory = blur_factory          # () -> BackgroundBlur (loaded on first use)
         self.overlay = overlay                    # (frame) -> frame with cards drawn (stage 2)
-        self.settings = {"cameraIndex": 0, "resolution": "720p", "mirror": False, "blur": "off"}
+        self.settings = {"cameraName": "", "resolution": "720p", "mirror": False, "blur": "off"}
         self.lock = threading.Lock()
         self.thread = None
         self.running = False
@@ -140,7 +142,7 @@ class VCamEngine:
     def configure(self, **changes):
         """Apply new settings. A different size or camera takes effect immediately."""
         restart_sink = "resolution" in changes and changes["resolution"] != self.settings["resolution"]
-        reopen = restart_sink or ("cameraIndex" in changes and changes["cameraIndex"] != self.settings["cameraIndex"])
+        reopen = restart_sink or ("cameraName" in changes and changes["cameraName"] != self.settings["cameraName"])
         with self.lock:
             self.settings.update(changes)
             self._reopen = getattr(self, "_reopen", False) or reopen
@@ -187,7 +189,7 @@ class VCamEngine:
                     continue
                 if self.cam is None:
                     self._set(state="starting", message="Starting the webcam…")
-                    self.cam = Grabber(self.camera_factory(int(s["cameraIndex"]), w, h))
+                    self.cam = Grabber(self.camera_factory(s["cameraName"], w, h))
                     seq = 0                              # a fresh webcam session starts counting again
                     self._set(cameraOn=True)
                 frame, seq = self.cam.next(seq)
@@ -223,5 +225,5 @@ class VCamEngine:
             except Exception as e:
                 self._close_camera()
                 self._set(state="error", message=str(e) or type(e).__name__, fps=0.0)
-                time.sleep(2.0)                          # try again shortly (e.g. webcam plugged back in)
+                time.sleep(5.0)                          # try again shortly (e.g. the other app lets go of the webcam)
         self._close_camera()

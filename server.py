@@ -27,7 +27,7 @@ from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from pathlib import Path
 from urllib.parse import urlparse, parse_qs, unquote
 
-APP_VERSION = "3.2.2"
+APP_VERSION = "3.2.3"
 STARTED_AT = time.time()
 FROZEN = getattr(sys, "frozen", False)          # True inside the installed Windows app
 HERE = Path(sys.executable).resolve().parent if FROZEN else Path(__file__).resolve().parent
@@ -219,6 +219,7 @@ def diagnostics(address):
         "devices": [{"ip": ip, "lastSeen": d["last"], "signedIn": d["signedIn"]} for ip, d in devices.items()],
         "network": windows_network_check() if REMOTE else None, "now": time.time(),
         "vcam": {"available": VCAM["engine"] is not None, "reason": VCAM["reason"], "detail": VCAM["detail"],
+                 "cameras": VCAM["cameras"] or [], "blockers": _vcam_blockers(),
                  "status": dict(VCAM["engine"].status) if VCAM["engine"] else None}
     }
 
@@ -516,8 +517,8 @@ def firewall(action):
 
 # ---------- BCC vCam (built-in virtual camera, Windows) ----------
 VCAM_SETTINGS_FILE = DATA / "bsf-vcam-settings.json"
-VCAM_DEFAULTS = {"enabled": True, "cameraIndex": 0, "resolution": "720p", "mirror": False, "blur": "off"}
-VCAM = {"engine": None, "reason": "", "detail": "", "cameras": None}
+VCAM_DEFAULTS = {"enabled": True, "cameraName": "", "resolution": "720p", "mirror": False, "blur": "off"}
+VCAM = {"engine": None, "reason": "", "detail": "", "cameras": None, "camerasAt": 0}
 
 
 def vcam_settings():
@@ -537,8 +538,8 @@ def clean_vcam(d):
         out["enabled"] = d["enabled"]
     if isinstance(d.get("mirror"), bool):
         out["mirror"] = d["mirror"]
-    if isinstance(d.get("cameraIndex"), int) and 0 <= d["cameraIndex"] <= 9:
-        out["cameraIndex"] = d["cameraIndex"]
+    if isinstance(d.get("cameraName"), str) and len(d["cameraName"]) <= 200:
+        out["cameraName"] = d["cameraName"]
     if d.get("resolution") in ("720p", "1080p"):
         out["resolution"] = d["resolution"]
     if d.get("blur") in ("off", "light", "strong"):
@@ -547,22 +548,38 @@ def clean_vcam(d):
 
 
 def vcam_list_cameras():
-    """Names of the webcams Windows knows about (read-only), in the order Windows lists them."""
-    if VCAM["cameras"] is not None:
+    """Webcams by name (BCC vCam itself excluded). Refreshed at most every 10 s; never turns a webcam on."""
+    if VCAM["cameras"] is not None and time.time() - VCAM["camerasAt"] < 10:
         return VCAM["cameras"]
-    names = []
-    if os.name == "nt":
+    cams = []
+    if os.environ.get("BSF_VCAM_DEMO") == "1":
+        cams = [{"name": "Demo webcam (test)", "backend": "demo", "index": 0, "ir": False},
+                {"name": "Integrated IR Camera", "backend": "demo", "index": 1, "ir": True}]
+    else:
         try:
-            r = subprocess.run(["powershell", "-NoProfile", "-Command",
-                                "Get-CimInstance Win32_PnPEntity | Where-Object { $_.PNPClass -in 'Camera','Image' -and $_.Status -eq 'OK' } | "
-                                "Select-Object -ExpandProperty Name"], capture_output=True, text=True, timeout=10, creationflags=0x08000000)
-            names = [n.strip() for n in r.stdout.splitlines() if n.strip()]
-        except (OSError, subprocess.TimeoutExpired):
-            pass
-    elif os.environ.get("BSF_VCAM_DEMO") == "1":
-        names = ["Demo webcam (test)"]
-    VCAM["cameras"] = names
-    return names
+            from vcam import devices
+            cams = devices.list_cameras()
+        except Exception:
+            cams = []
+    VCAM["cameras"], VCAM["camerasAt"] = cams, time.time()
+    return cams
+
+
+def _vcam_blockers():
+    try:
+        from vcam.devices import camera_blockers
+        return camera_blockers()
+    except Exception:
+        return None
+
+
+def vcam_effective(settings):
+    """The settings the engine should use: an empty camera choice means the first usable webcam."""
+    out = {k: v for k, v in settings.items() if k != "enabled"}
+    if not out.get("cameraName"):
+        cams = vcam_list_cameras()
+        out["cameraName"] = next((c["name"] for c in cams if not c["ir"]), cams[0]["name"] if cams else "")
+    return out
 
 
 def vcam_start():
@@ -572,9 +589,11 @@ def vcam_start():
     demo = os.environ.get("BSF_VCAM_DEMO") == "1"
     start_files_msg = ("You’re using the start-file version (the black window). BCC vCam is only in the installed app: "
                        "close the black window, then open BSF Command Center from its desktop or Start-menu icon.")
+    os.environ.setdefault("OPENCV_VIDEOIO_MSMF_ENABLE_HW_TRANSFORMS", "0")   # before OpenCV loads
     try:
         import cv2  # noqa: F401
-        from vcam.engine import VCamEngine, Camera, DemoCamera
+        from vcam.engine import VCamEngine, DemoCamera
+        from vcam.devices import Camera
         from vcam.blur import BackgroundBlur
         from vcam import sink as vsink
     except Exception as e:
@@ -613,9 +632,9 @@ def vcam_start():
                                   "and push, then install the new installer.")
             print("BCC vCam not available: " + VCAM["detail"])
             return
-        make_sink, make_cam = (lambda w, h: vsink.SoftcamSink(dll, w, h)), Camera
+        make_sink, make_cam = (lambda w, h: vsink.SoftcamSink(dll, w, h)), (lambda name, w, h: Camera(name, w, h, vcam_list_cameras()))
     engine = VCamEngine(make_sink, make_cam, lambda: BackgroundBlur(model))
-    engine.configure(**{k: v for k, v in vcam_settings().items() if k != "enabled"})
+    engine.configure(**vcam_effective(vcam_settings()))
     VCAM["engine"], VCAM["reason"] = engine, ""
     if vcam_settings()["enabled"]:
         engine.start()
@@ -630,7 +649,9 @@ def vcam_status():
         registered = False
     return {"available": eng is not None, "reason": VCAM["reason"], "registered": registered,
             "settings": vcam_settings(), "status": dict(eng.status) if eng else None,
-            "cameras": vcam_list_cameras() if eng else [], "name": "BCC vCam"}
+            "cameras": [{"name": n, "ir": any(c["ir"] for c in vcam_list_cameras() if c["name"] == n)}
+                        for n in dict.fromkeys(c["name"] for c in vcam_list_cameras())] if eng else [],
+            "activeCamera": vcam_effective(vcam_settings())["cameraName"] if eng else "", "name": "BCC vCam"}
 
 
 def vcam_install(action):
@@ -919,7 +940,7 @@ class Handler(BaseHTTPRequestHandler):
                 VCAM_SETTINGS_FILE.write_text(json.dumps(cur, indent=2), encoding="utf-8")
                 eng = VCAM["engine"]
                 if eng:
-                    eng.configure(**{k: v for k, v in changes.items() if k != "enabled"})
+                    eng.configure(**vcam_effective(cur))
                     if "enabled" in changes:
                         (eng.start if changes["enabled"] else eng.stop)()
                 return self.reply(200, json.dumps(vcam_status()), TYPES[".json"])

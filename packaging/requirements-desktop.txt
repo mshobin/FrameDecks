@@ -4,4 +4,5 @@ pystray>=0.19.5
 pillow>=10
 opencv-python-headless>=4.9,<5   # BCC vCam: webcam, blur model, image work
 numpy>=1.26
+cv2-enumerate-cameras>=1.4,<2   # BCC vCam: lists webcams by name
 pyinstaller>=6.10

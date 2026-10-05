@@ -31,14 +31,14 @@ GitHub now starts building your installer automatically.
 2. Click the **Actions** tab. You'll see **Build Windows installer** running (yellow dot).
    It takes about 5–10 minutes. A green tick means it worked.
 3. Click the finished run. At the bottom, under **Artifacts**, click
-   **BSF-Command-Center-Setup-3.2.2** (the version number) to download it (a .zip containing the Setup .exe).
-4. Unzip it. You now have **BSF-Command-Center-Setup-3.2.2.exe**.
+   **BSF-Command-Center-Setup-3.2.3** (the version number) to download it (a .zip containing the Setup .exe).
+4. Unzip it. You now have **BSF-Command-Center-Setup-3.2.3.exe**.
 
 If you see a red cross instead, click the run to read the error, and send it to me.
 
 ## Part 3 · Install
 
-1. Double-click **BSF-Command-Center-Setup-3.2.2.exe**.
+1. Double-click **BSF-Command-Center-Setup-3.2.3.exe**.
 2. Windows may show **"Windows protected your PC"**. This appears because the installer isn't
    code-signed (signing costs money every year). Click **More info → Run anyway**.
 3. Follow the wizard. No administrator password is needed. Leave **Create a desktop icon** ticked.
@@ -183,5 +183,10 @@ The installer appears in the `dist` folder.
 - **"The camera file was installed but has since been removed"**: Windows Security (or another antivirus)
   removed `bcc_vcam64.dll`. Open Windows Security → Virus & threat protection → Protection history, choose
   **Restore** (or **Allow**) for it, then run the installer again.
+- **"The webcam could not be opened" / "Your webcam is being used by …"** (Settings → BCC vCam): only one app can
+  use a laptop webcam at a time. In Zoom and Teams choose **BCC vCam** as the camera (not your webcam), and close
+  Camo, OBS or the Camera app. If it mentions privacy: Windows Settings → Privacy & security → Camera → turn on
+  **Camera access** and **Let desktop apps access your camera**. Also check Settings → BCC vCam → **Webcam** shows
+  your real webcam (infrared "face sign-in" cameras can't be used).
 - Anything else: Settings → Diagnostics → **Copy diagnostics** (it contains no PIN or member details),
   plus `bsf-app-log.txt` from the data folder.

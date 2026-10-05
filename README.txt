@@ -1,5 +1,5 @@
 ================================================================
-  BSF COMMAND CENTER  ·  version 3.2.2
+  BSF COMMAND CENTER  ·  version 3.2.3
   Clean Bible study overlays for BSF leaders on Zoom.
 ================================================================
 

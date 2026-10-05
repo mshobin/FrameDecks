@@ -62,7 +62,7 @@ function save(key, value){
 }
 sw.addEventListener('change', function(){ save('enabled', sw.checked); });
 mirror.addEventListener('change', function(){ save('mirror', mirror.checked); });
-camSel.addEventListener('change', function(){ save('cameraIndex', parseInt(camSel.value, 10)); });
+camSel.addEventListener('change', function(){ save('cameraName', camSel.value); });
 previewBtn.addEventListener('click', function(){
   previewing = !previewing;
   previewBtn.textContent = previewing ? 'Hide preview' : 'Show preview';
@@ -122,13 +122,15 @@ function render(d){
   mirror.checked = s.mirror;
   Array.prototype.forEach.call(resSeg.children, function(b){ b.setAttribute('aria-pressed', String(b.dataset.val === s.resolution)); });
   Array.prototype.forEach.call(blurSeg.children, function(b){ b.setAttribute('aria-pressed', String(b.dataset.val === s.blur)); });
-  var names = d.cameras.length ? d.cameras : ['Webcam'];
-  if (camSel.options.length !== Math.max(names.length, s.cameraIndex + 1)){
-    camSel.innerHTML = '';
-    names.forEach(function(n, i){ camSel.appendChild(h('option', {value: String(i), text: (i + 1) + '. ' + n})); });
-    for (var i = names.length; i <= s.cameraIndex; i++) camSel.appendChild(h('option', {value: String(i), text: (i + 1) + '. Camera'}));
+  var cams = d.cameras || [], sig = JSON.stringify(cams);
+  if (camSel.dataset.sig !== sig){
+    camSel.dataset.sig = sig; camSel.innerHTML = '';
+    if (!cams.length) camSel.appendChild(h('option', {value: '', text: 'No webcam found'}));
+    cams.forEach(function(c){
+      camSel.appendChild(h('option', {value: c.name, text: c.name + (c.ir ? ' (face sign-in camera, not usable)' : ''), disabled: c.ir ? 'disabled' : null}));
+    });
   }
-  camSel.value = String(s.cameraIndex);
+  if (d.activeCamera && document.activeElement !== camSel) camSel.value = d.activeCamera;
   var key = s.enabled ? (st && st.state) || 'ready' : 'off';
   var look = STATES[key] || STATES.ready;
   pill.className = 'status-pill ' + look[0]; pill.lastChild.textContent = look[1];
