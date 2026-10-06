@@ -1,31 +1,50 @@
-/* BSF Command Center - Studio: screen sharing, layouts, layers, scenes, test recording (BCC vCam) */
+/* BSF Command Center - Studio (Camo-style): layers on the left, live canvas in the centre,
+ * scenes and inspector on the right. Everything you see is exactly what BCC vCam sends. */
 (function(){
 'use strict';
-var Store = window.BSFStore;
+var Store = window.BSFStore, I = window.BSFIcon;
 var $ = function(id){ return document.getElementById(id); };
 var root = $('tab-studio');
 if (!root) return;
 function h(tag, attrs, kids){
   var el = document.createElement(tag);
-  for (var k in (attrs || {})){ var v = attrs[k]; if (k.slice(0, 2) === 'on') el.addEventListener(k.slice(2), v); else if (k === 'text') el.textContent = v; else if (k === 'cls') el.className = v; else if (v != null && v !== false) el.setAttribute(k, v); }
+  for (var k in (attrs || {})){ var v = attrs[k]; if (k.slice(0, 2) === 'on') el.addEventListener(k.slice(2), v); else if (k === 'text') el.textContent = v; else if (k === 'cls') el.className = v; else if (k === 'html') el.innerHTML = v; else if (v != null && v !== false) el.setAttribute(k, v); }
   (kids || []).forEach(function(c){ if (c != null) el.appendChild(typeof c === 'string' ? document.createTextNode(c) : c); });
   return el;
 }
+function ib(icon, label, onclick, cls){ return h('button', {cls: 'ib ' + (cls || ''), type: 'button', title: label, 'aria-label': label, html: I(icon, 16), onclick: onclick}); }
 function toast(m, bad){ if (window.BSFActions) window.BSFActions.toast(m, bad); }
 if (!Store.served){ root.appendChild(h('p', {cls: 'plain', style: 'padding:20px', text: 'The Studio needs the installed BSF Command Center app (BCC vCam).'})); return; }
 
-var S = null, selected = null, previewOn = false;
+var REF_W = 1920, REF_H = 1080;            // inspector numbers use a 1920×1080 canvas
+var TYPES = {camera: ['video', 'Video source'], screen: ['monitor', 'Screen capture'], text: ['type', 'Text'], image: ['image', 'Image'],
+  rect: ['square', 'Rectangle'], ellipse: ['circle', 'Ellipse'], background: ['paint-bucket', 'Background'], video: ['film', 'Video file'],
+  pdf: ['presentation', 'Slides (PDF)'], window: ['app-window', 'Window']};
+var S = null;                               // studio status from the program
+var L = [];                                 // the layer list being edited (output, or preview in Preview mode)
+var sel = [];                               // selected layer ids
+var lastClicked = null;
+var dirtyUntil = 0;                         // ignore server echoes briefly while dragging
+
+/* ---------- talking to the program ---------- */
 function act(op, body){
   return fetch('api/vcam/studio', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(Object.assign({op: op}, body || {}))})
     .then(function(r){ return r.json().then(function(d){ if (!r.ok) throw new Error(d.error || 'Something went wrong'); return d; }); })
-    .then(function(d){ if (d.studio) render(d.studio); return d; })
+    .then(function(d){ if (d.studio) apply(d.studio); return d; })
     .catch(function(e){ toast(e.message, true); throw e; });
 }
+var sendT = null;
+function pushLayers(now){
+  clearTimeout(sendT);
+  dirtyUntil = Date.now() + 400;
+  var go = function(){ act('layers', {layers: L.map(strip), target: S && S.staged ? 'preview' : 'output'}).catch(function(){}); };
+  if (now) go(); else sendT = setTimeout(go, 70);
+}
+function strip(l){ var c = Object.assign({}, l); delete c.status; return c; }
 function upload(file, name){
   return fetch('api/vcam/upload?name=' + encodeURIComponent(name || file.name), {method: 'POST', headers: {'Content-Type': 'application/octet-stream'}, body: file})
     .then(function(r){ return r.json().then(function(d){ if (!r.ok) throw new Error(d.error || 'Upload failed'); return d.file; }); });
 }
-/* SVG pictures are turned into PNG here (the browser draws SVG perfectly) */
 function svgToPng(file){
   return new Promise(function(resolve, reject){
     var url = URL.createObjectURL(file), img = new Image();
@@ -55,260 +74,560 @@ function addFile(kind){
     return upload(f);
   });
 }
-function sendLayers(layers){ return act('layers', {layers: layers}); }
-function layersCopy(){ return (S.layers || []).map(function(l){ var c = Object.assign({}, l); delete c.status; return c; }); }
 
-/* ---------- build the three columns once ---------- */
-var ctl = h('section', {cls: 'st-col st-controls', 'aria-label': 'Studio controls'});
-var mid = h('section', {cls: 'st-col st-preview', 'aria-label': 'Final picture'});
-var lay = h('section', {cls: 'st-col st-layers', 'aria-label': 'Layers'});
-root.appendChild(ctl); root.appendChild(mid); root.appendChild(lay);
+/* ---------- layout of the tab ---------- */
+root.classList.add('s2');
+var top = h('div', {cls: 's2-top'});
+var left = h('aside', {cls: 's2-left', 'aria-label': 'Layers'});
+var centre = h('section', {cls: 's2-centre', 'aria-label': 'Canvas'});
+var right = h('aside', {cls: 's2-right', 'aria-label': 'Scenes and inspector'});
+root.appendChild(top); root.appendChild(h('div', {cls: 's2-body'}, [left, centre, right]));
 
-// Scene + look
-var sceneSel = h('select', {id: 'st-scene'});
+/* Top bar: scene selector with collection filter · Preview/Output · Record · Look · Focus · Hide window */
+var colFilter = h('select', {id: 's2-colfilter', 'aria-label': 'Scene collection'});
+var sceneSel = h('select', {id: 's2-scene', 'aria-label': 'Scene'});
+var modeSeg = h('div', {cls: 'seg s2-mode', role: 'group', 'aria-label': 'Preview or output'}, [
+  h('button', {type: 'button', 'data-val': 'preview', html: I('scan-eye', 15) + ' Preview'}),
+  h('button', {type: 'button', 'data-val': 'output', html: I('radio', 15) + ' Output'})]);
+var sendBtn = h('button', {cls: 'btn primary small', type: 'button', id: 's2-send', html: I('send', 15) + ' Send to output', hidden: 'hidden'});
+var recBtn = h('button', {cls: 'btn s2-rec', type: 'button', id: 's2-rec', html: '<span class="dot"></span> Record'});
+var lookSel = h('select', {id: 's2-look', 'aria-label': 'Camera look'});
+var focusBtn = ib('maximize-2', 'Focus: hide the rest of the app', function(){ document.body.classList.toggle('studio-focus'); focusBtn.innerHTML = I(document.body.classList.contains('studio-focus') ? 'minimize-2' : 'maximize-2', 16); setTimeout(fitStage, 50); });
+focusBtn.id = 's2-focus';
+var hideBtn = ib('panel-left', 'Hide the app window (keeps running near the clock)', function(){
+  fetch('api/app/hide', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: '{}'}).then(function(r){ if (!r.ok) toast('Only in the installed app', true); }); });
+var shareChip = h('span', {cls: 's2-chip', id: 's2-share', hidden: 'hidden'});
+top.appendChild(h('div', {cls: 's2-top-l'}, [h('span', {cls: 's2-lbl', html: I('layout-template', 15)}), colFilter, sceneSel]));
+top.appendChild(h('div', {cls: 's2-top-c'}, [modeSeg, sendBtn, shareChip]));
+top.appendChild(h('div', {cls: 's2-top-r'}, [lookSel, recBtn, focusBtn, hideBtn]));
+
+colFilter.addEventListener('change', renderScenes);
 sceneSel.addEventListener('change', function(){ if (sceneSel.value) act('scene-apply', {id: sceneSel.value}).then(function(){ toast('Scene: ' + sceneSel.options[sceneSel.selectedIndex].text); }); });
-var lookSel = h('select', {id: 'st-look'});
-lookSel.addEventListener('change', function(){ if (window.BSFLook) window.BSFLook.set(lookSel.value); });
-ctl.appendChild(h('div', {cls: 'st-box'}, [
-  h('div', {cls: 'st-row'}, [h('label', {cls: 'st-lbl', 'for': 'st-scene', text: 'Scene'}), sceneSel]),
-  h('div', {cls: 'actions'}, [
-    h('button', {cls: 'btn small', type: 'button', text: 'Save as new…', onclick: function(){ var n = prompt('Name for this scene (for example “Presentation”):'); if (n && n.trim()) act('scene-save', {name: n.trim()}).then(function(){ toast('Scene saved'); }); }}),
-    h('button', {cls: 'btn small', type: 'button', text: 'Update', onclick: function(){ if (!sceneSel.value) return toast('Choose a scene first', true); act('scene-save', {id: sceneSel.value, name: sceneSel.options[sceneSel.selectedIndex].text}).then(function(){ toast('Scene updated'); }); }}),
-    h('button', {cls: 'btn small quiet', type: 'button', text: 'Delete', onclick: function(){ if (sceneSel.value && confirm('Delete this scene?')) act('scene-delete', {id: sceneSel.value}); }})]),
-  h('div', {cls: 'st-row'}, [h('label', {cls: 'st-lbl', 'for': 'st-look', text: 'Look'}), lookSel])
-]));
-// Screen share
-var srcSel = h('select', {id: 'st-source'});
-var shareBtn = h('button', {cls: 'btn primary', type: 'button', id: 'st-share', text: 'Start screen share'});
-var shareInfo = h('p', {cls: 'hint', id: 'st-share-info'});
-shareBtn.addEventListener('click', function(){
-  if (S.screen.active) return act('screen', {source: null}).then(function(){ toast('Screen sharing stopped'); });
-  var v = srcSel.value; if (!v) return;
-  var src = v.indexOf('pdf:') === 0 ? {kind: 'pdf', file: v.slice(4)} : {id: v};
-  act('screen', {source: src}).then(function(){ toast('Screen sharing started'); if (S.layout.mode === 'camera') act('layout', {layout: {mode: 'pip'}}); });
+modeSeg.addEventListener('click', function(e){
+  var b = e.target.closest('[data-val]'); if (!b) return;
+  if (b.dataset.val === 'preview' && !S.staged) act('stage', {on: true}).then(function(){ toast('Preview: changes stay private until you Send to output'); refresh(); });
+  if (b.dataset.val === 'output' && S.staged){
+    if (!confirm('Leave Preview without sending your changes to the output?')) return;
+    act('stage', {on: false}).then(refresh);
+  }
 });
-ctl.appendChild(h('div', {cls: 'st-box'}, [h('h3', {text: 'Screen share'}),
-  h('div', {cls: 'st-row'}, [h('label', {cls: 'st-lbl', 'for': 'st-source', text: 'Source'}), srcSel]), shareBtn, shareInfo]));
-// Layout
-var modeSeg = h('div', {cls: 'seg st-seg', id: 'st-mode'});
-[['camera', 'Camera'], ['screen', 'Screen'], ['pip', 'Screen + camera'], ['side', 'Side by side']].forEach(function(o){
-  modeSeg.appendChild(h('button', {type: 'button', 'data-val': o[0], text: o[1], onclick: function(){ act('layout', {layout: {mode: o[0]}}); }}));
-});
-var cornerSeg = h('div', {cls: 'seg st-seg', id: 'st-corner'});
-[['tl', '↖ Top left'], ['tr', '↗ Top right'], ['bl', '↙ Bottom left'], ['br', '↘ Bottom right']].forEach(function(o){
-  cornerSeg.appendChild(h('button', {type: 'button', 'data-val': o[0], text: o[1], onclick: function(){ act('layout', {layout: {corner: o[0], custom: false}}); }}));
-});
-var sizeSeg = h('div', {cls: 'seg st-seg', id: 'st-size'});
-[['small', 'Small'], ['medium', 'Medium'], ['large', 'Large']].forEach(function(o){
-  sizeSeg.appendChild(h('button', {type: 'button', 'data-val': o[0], text: o[1], onclick: function(){ act('layout', {layout: {size: o[0], custom: false}}); }}));
-});
-var pipBox = h('div', {id: 'st-pip'}, [h('p', {cls: 'st-sub', text: 'Camera corner'}), cornerSeg, h('p', {cls: 'st-sub', text: 'Camera size'}), sizeSeg]);
-ctl.appendChild(h('div', {cls: 'st-box'}, [h('h3', {text: 'Layout'}), modeSeg, pipBox]));
-// Slides
-var slideInfo = h('span', {cls: 'hint', id: 'st-slide-info'});
-var slideBox = h('div', {cls: 'st-box', id: 'st-slides'}, [h('h3', {text: 'Slides'}), h('div', {cls: 'actions'}, [
-  h('button', {cls: 'btn', type: 'button', text: '◀ Previous', onclick: function(){ slide(-1); }}),
-  h('button', {cls: 'btn', type: 'button', text: 'Next ▶', onclick: function(){ slide(1); }}), slideInfo]),
-  h('p', {cls: 'hint', text: 'Page Up / Page Down also work (when you are not typing).'})]);
-ctl.appendChild(slideBox);
-function slide(step){ act('slide', {step: step}).then(function(d){ var s = d.slide || {}; slideInfo.textContent = s.page ? 'Slide ' + s.page + ' of ' + s.pages : (s.result && s.result !== 'ok' ? s.result : ''); }); }
-
-// Preview + recording + latency
-var img = h('img', {alt: 'The final BCC vCam picture', id: 'st-img'});
-var pv = h('div', {cls: 'st-frame'}, [img, h('span', {cls: 'st-off', text: 'Starting the preview…'})]);
-var metrics = h('p', {cls: 'hint', id: 'st-metrics'});
-var recBtn = h('button', {cls: 'btn', type: 'button', id: 'st-rec', text: '● Record test'});
-var recInfo = h('span', {cls: 'hint', id: 'st-rec-info'});
+sendBtn.addEventListener('click', function(){ act('stage-commit').then(function(){ toast('Sent to output'); refresh(); }); });
 recBtn.addEventListener('click', function(){
   var on = !(S.recording && S.recording.on);
-  act('record', {on: on}).then(function(d){
-    if (on) toast('Recording the BCC vCam output'); else if (d.result) toast('Saved: ' + d.result.file.split(/[\\/]/).pop() + ' (' + d.result.seconds + ' s)');
+  act('record', {on: on}).then(function(d){ if (on) toast('Recording the BCC vCam output'); else if (d.result) toast('Saved: ' + d.result.file.split(/[\\/]/).pop() + ' (' + d.result.seconds + ' s)'); });
+});
+lookSel.addEventListener('change', function(){ if (window.BSFLook) window.BSFLook.set(lookSel.value); });
+
+/* ---------- Left: layers ---------- */
+var addBtn = h('button', {cls: 'btn primary small', type: 'button', id: 's2-add', 'aria-haspopup': 'menu', html: I('plus', 15) + ' Add layer'});
+var addMenu = h('div', {cls: 's2-menu', id: 's2-addmenu', role: 'menu', hidden: 'hidden'});
+var list = h('ol', {cls: 's2-list', id: 's2-list', 'aria-label': 'Layer stack (top = in front)'});
+left.appendChild(h('div', {cls: 's2-head'}, [h('h2', {html: I('layers', 16) + ' Layers'}), addBtn]));
+left.appendChild(addMenu);
+left.appendChild(list);
+left.appendChild(h('p', {cls: 'hint s2-tip', text: 'Higher layers appear in front. Ctrl/Cmd+Click or Shift+Click to select several. Double-click a name to rename. Your verse, question and birthday cards always stay on top.'}));
+function menuItem(icon, label, fn, id){ return h('button', {type: 'button', role: 'menuitem', id: id || null, html: I(icon, 16) + '<span>' + label + '</span>', onclick: function(){ addMenu.hidden = true; fn(); }}); }
+addMenu.appendChild(menuItem('video', 'Video Source (camera)', function(){ addLayer({type: 'camera', name: 'Camera', w: 0.5, h: 0.5}); }, 'add-camera'));
+addMenu.appendChild(menuItem('monitor', 'Screen Capture…', chooseScreen, 'add-screen'));
+addMenu.appendChild(menuItem('type', 'Text', function(){ addLayer({type: 'text', name: 'Text', w: 0.5, h: 0.12, props: {text: 'Hello {{firstName}}'}}); }, 'add-text'));
+addMenu.appendChild(menuItem('image', 'Image…', function(){ addFile('image').then(function(f){ if (f) addLayer({type: 'image', name: f.replace(/\.[^.]+$/, ''), file: f, w: 0.25}); }); }, 'add-image'));
+addMenu.appendChild(menuItem('square', 'Rectangle', function(){ addLayer({type: 'rect', name: 'Rectangle', w: 0.3, h: 0.2, radius: 0.015}); }, 'add-rect'));
+addMenu.appendChild(menuItem('circle', 'Ellipse', function(){ addLayer({type: 'ellipse', name: 'Ellipse', w: 0.15, h: 0.15 * 16 / 9}); }, 'add-ellipse'));
+addMenu.appendChild(menuItem('paint-bucket', 'Background', function(){ addLayer({type: 'background', name: 'Background'}, true); }, 'add-background'));
+addMenu.appendChild(h('hr'));
+addMenu.appendChild(menuItem('film', 'Video file…', function(){ addFile('video').then(function(f){ if (f) addLayer({type: 'video', name: f.replace(/\.[^.]+$/, ''), file: f, w: 0.5}); }); }, 'add-video'));
+addMenu.appendChild(menuItem('presentation', 'Slides (PDF)…', function(){ addFile('pdf').then(function(f){ if (f) addLayer({type: 'pdf', name: f.replace(/\.[^.]+$/, ''), file: f, w: 0.6}); }); }, 'add-pdf'));
+addMenu.appendChild(menuItem('app-window', 'Window (e.g. PowerPoint)…', chooseWindow, 'add-window'));
+addMenu.appendChild(h('hr'));
+addMenu.appendChild(h('div', {cls: 's2-menu-lbl', text: 'Layout templates'}));
+addMenu.appendChild(menuItem('video', 'Camera full screen', function(){ template('camera'); }, 'tpl-camera'));
+addMenu.appendChild(menuItem('monitor-up', 'Screen + camera corner', function(){ template('pip'); }, 'tpl-pip'));
+addMenu.appendChild(menuItem('panel-right', 'Screen + camera side by side', function(){ template('side'); }, 'tpl-side'));
+addBtn.addEventListener('click', function(e){ e.stopPropagation(); addMenu.hidden = !addMenu.hidden; });
+document.addEventListener('click', function(e){ if (!addMenu.hidden && !addMenu.contains(e.target) && !addBtn.contains(e.target)) addMenu.hidden = true; });
+
+function uid(){ return 'L' + Math.random().toString(16).slice(2, 10); }
+function addLayer(l, bottom){
+  var layer = Object.assign({id: uid(), visible: true, locked: false, x: 0.5, y: 0.5, w: 0.3, h: 0, rotation: 0, opacity: 1, radius: 0}, l);
+  if (bottom) L.unshift(layer); else L.push(layer);
+  sel = [layer.id];
+  pushLayers(true); draw();
+}
+function template(kind){
+  var bg = {id: uid(), type: 'background', name: 'Background', visible: true, props: {color: '#0b1222'}};
+  var cam = {id: uid(), type: 'camera', name: 'Camera', visible: true, x: 0.5, y: 0.5, w: 1, h: 1};
+  var scr = {id: uid(), type: 'screen', name: 'Screen', visible: true, x: 0.5, y: 0.5, w: 1, h: 1, props: {fit: 'contain'}};
+  var keep = L.filter(function(l){ return ['camera', 'screen', 'background'].indexOf(l.type) < 0; });
+  if (kind === 'camera') L = [bg, cam].concat(keep);
+  if (kind === 'pip'){ cam = Object.assign(cam, {x: 0.83, y: 0.79, w: 0.28, h: 0.28, radius: 0.025}); L = [bg, scr, cam].concat(keep); }
+  if (kind === 'side'){ scr = Object.assign(scr, {x: 0.34, y: 0.5, w: 0.66, h: 1}); cam = Object.assign(cam, {x: 0.83, y: 0.5, w: 0.34, h: 1}); L = [bg, scr, cam].concat(keep); }
+  sel = [cam.id]; pushLayers(true); draw();
+  if (kind !== 'camera' && !(S.screen && S.screen.active)) chooseScreen(true);
+}
+function chooser(title, options, onPick){
+  var back = h('div', {cls: 'app-modal-back', id: 's2-chooser'}), card = h('div', {cls: 'app-modal'}, [h('h2', {text: title})]);
+  var listEl = h('div', {cls: 's2-pick'});
+  options.forEach(function(o){ var b = h('button', {cls: 'btn', type: 'button', html: I(o.icon, 16) + ' <span></span>', onclick: function(){ back.remove(); onPick(o); }}); b.querySelector('span').textContent = o.name; listEl.appendChild(b); });
+  if (!options.length) listEl.appendChild(h('p', {cls: 'hint', text: 'Nothing found.'}));
+  card.appendChild(listEl);
+  card.appendChild(h('div', {cls: 'app-modal-actions'}, [h('button', {cls: 'btn quiet', type: 'button', text: 'Cancel', onclick: function(){ back.remove(); }})]));
+  back.appendChild(card); document.body.appendChild(back);
+}
+function chooseScreen(onlyShare){
+  var opts = (S.sources || []).map(function(s){ return {icon: s.kind === 'window' ? 'app-window' : 'monitor', name: s.name, src: {id: s.id}}; })
+    .concat((S.pdfs || []).map(function(p){ return {icon: 'presentation', name: 'Slides: ' + p, src: {kind: 'pdf', file: p}}; }));
+  chooser('Share which screen or window?', opts, function(o){
+    act('screen', {source: o.src}).then(function(){
+      toast('Screen capture started: ' + o.name);
+      if (onlyShare !== true && !L.some(function(l){ return l.type === 'screen'; })) addLayer({type: 'screen', name: 'Screen', w: 0.6, h: 0.6, props: {fit: 'contain'}});
+      setTimeout(refresh, 1500);
+    });
   });
-});
-var latBox = h('input', {type: 'checkbox', id: 'st-latency'});
-latBox.addEventListener('change', function(){ act('latency-test', {on: latBox.checked}); clock.hidden = !latBox.checked; });
-var clock = h('div', {cls: 'st-clock', hidden: 'hidden'});
-setInterval(function(){ if (!clock.hidden){ var d = new Date(); clock.textContent = d.toTimeString().slice(0, 8) + '.' + String(d.getMilliseconds()).padStart(3, '0'); } }, 16);
-mid.appendChild(h('div', {cls: 'col-head'}, [h('h2', {text: 'Final picture'}), h('span', {cls: 'sub', text: 'Exactly what Zoom / Teams receive from BCC vCam'})]));
-mid.appendChild(pv); mid.appendChild(metrics);
-mid.appendChild(h('div', {cls: 'actions'}, [recBtn, recInfo,
-  h('button', {cls: 'btn small quiet', type: 'button', text: 'Open recordings folder', onclick: function(){ fetch('api/app/open-folder', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({which: 'recordings'})}); }})]));
-mid.appendChild(h('label', {cls: 'check', style: 'margin-top:8px'}, [latBox, ' Latency test: show a running clock on BCC vCam']));
-mid.appendChild(clock);
-mid.appendChild(h('p', {cls: 'hint', text: 'Latency test: join a Zoom test meeting showing BCC vCam, then take a screenshot showing both this clock and your Zoom video. The difference between the two times is the full delay (glass to glass).'}));
+}
+function chooseWindow(){
+  var wins = (S.sources || []).filter(function(s){ return s.kind === 'window'; });
+  chooser('Capture which window?', wins.map(function(w){ return {icon: 'app-window', name: w.name, w: w}; }), function(o){
+    addLayer({type: 'window', name: o.w.name.slice(0, 40), hwnd: o.w.hwnd, w: 0.6});
+  });
+}
 
-// Layers panel
-var list = h('ol', {cls: 'st-list', id: 'st-list'});
-var addSel = h('select', {id: 'st-add', 'aria-label': 'Add layer'}, [h('option', {value: '', text: '+ Add layer…'}),
-  h('option', {value: 'image', text: 'Image… (PNG, JPG, SVG)'}), h('option', {value: 'video', text: 'Video… (MP4, MOV, WebM)'}),
-  h('option', {value: 'pdf', text: 'Presentation: PDF slides…'}), h('option', {value: 'window', text: 'Presentation: a window (e.g. PowerPoint slide show)'})]);
-addSel.addEventListener('change', function(){
-  var k = addSel.value; addSel.value = ''; if (!k) return;
-  if (k === 'window'){
-    var wins = (S.sources || []).filter(function(s){ return s.kind === 'window'; });
-    if (!wins.length) return toast('No windows found. Start your PowerPoint slide show first.', true);
-    var names = wins.map(function(w, i){ return (i + 1) + '. ' + w.name; }).join('\n');
-    var n = parseInt(prompt('Which window? Type its number:\n' + names), 10);
-    var w = wins[n - 1]; if (!w) return;
-    var ls = layersCopy(); ls.push({type: 'window', name: w.name.slice(0, 40), hwnd: w.hwnd, x: 0.5, y: 0.5, w: 0.6});
-    return sendLayers(ls);
-  }
-  addFile(k).then(function(file){
-    if (!file) return;
-    var ls = layersCopy();
-    ls.push({type: k, name: file.replace(/\.[^.]+$/, ''), file: file, x: 0.5, y: 0.5, w: k === 'image' ? 0.25 : 0.5, loop: true});
-    return sendLayers(ls).then(function(d){ var l = d.studio.layers[d.studio.layers.length - 1]; selected = l && l.id; render(d.studio); });
-  }).catch(function(e){ toast(e.message, true); });
-});
-var presets = h('div', {cls: 'st-presets'});
-[['logo', 'Logo overlay', 'image'], ['lower_third', 'Lower third', 'image'], ['slide_camera', 'Slide + camera', 'pdf'], ['intro', 'Intro bumper', 'video']].forEach(function(p){
-  presets.appendChild(h('button', {cls: 'btn small', type: 'button', text: p[1], onclick: function(){
-    if (p[0] === 'slide_camera'){
-      return addFile('pdf').then(function(file){ if (!file) return;
-        return act('screen', {source: {kind: 'pdf', file: file}}).then(function(){ return act('preset', {preset: 'slide_camera'}); }).then(function(){ toast('Slides with your camera in the corner'); }); });
-    }
-    addFile(p[2]).then(function(file){ if (file) return act('preset', {preset: p[0], file: file}).then(function(){ toast(p[1] + ' added'); }); })
-      .catch(function(e){ toast(e.message, true); });
-  }}));
-});
-var editor = h('div', {cls: 'st-editor', id: 'st-editor'});
-lay.appendChild(h('div', {cls: 'col-head'}, [h('h2', {text: 'Layers'}), addSel]));
-lay.appendChild(list);
-lay.appendChild(h('p', {cls: 'hint', text: 'Top of the list = in front. Drag to reorder. Your verse, question and birthday cards are always on top. Ctrl+Shift+1/2/3 show or hide the first three layers.'}));
-lay.appendChild(h('div', {cls: 'st-sub', text: 'Quick presets'})); lay.appendChild(presets);
-lay.appendChild(editor);
-
-var ICON = {image: '🖼', video: '🎬', pdf: '📑', window: '🪟'};
 var dragId = null;
 function renderList(){
-  var top = (S.layers || []).slice().reverse();          // show the front layer first
-  var sig = JSON.stringify(top.map(function(l){ return [l.id, l.name, l.visible, l.status && l.status.error]; })) + selected;
-  if (list.dataset.sig === sig) return; list.dataset.sig = sig;
+  if (list.contains(document.activeElement) && document.activeElement.tagName === 'INPUT') return;
   list.innerHTML = '';
-  if (!top.length) list.appendChild(h('li', {cls: 'st-empty', text: 'No layers yet. Use “+ Add layer…” or a quick preset.'}));
-  top.forEach(function(l, i){
-    var eye = h('button', {cls: 'st-eye' + (l.visible ? ' on' : ''), type: 'button', title: l.visible ? 'Hide' : 'Show', 'aria-pressed': String(l.visible), text: l.visible ? '👁' : '—',
-      onclick: function(e){ e.stopPropagation(); var ls = layersCopy(); ls.forEach(function(x){ if (x.id === l.id) x.visible = !x.visible; }); sendLayers(ls); }});
-    var del = h('button', {cls: 'st-del', type: 'button', title: 'Delete layer', text: '×', onclick: function(e){ e.stopPropagation(); if (confirm('Delete “' + l.name + '”?')) sendLayers(layersCopy().filter(function(x){ return x.id !== l.id; })); }});
-    var li = h('li', {cls: 'st-item' + (l.id === selected ? ' sel' : '') + (l.visible ? '' : ' off'), draggable: 'true', 'data-id': l.id}, [
-      h('span', {cls: 'st-grip', 'aria-hidden': 'true', text: '⋮⋮'}), h('span', {cls: 'st-ico', text: ICON[l.type] || '▣'}),
-      h('span', {cls: 'st-name', text: (i < 3 ? (i + 1) + '. ' : '') + l.name}),
-      l.status && l.status.error ? h('span', {cls: 'st-err', title: l.status.error, text: '⚠'}) : null, eye, del]);
-    li.addEventListener('click', function(){ selected = l.id; renderList(); renderEditor(); });
-    li.addEventListener('dragstart', function(){ dragId = l.id; li.classList.add('drag'); });
+  var shown = L.slice().reverse();
+  if (!shown.length) list.appendChild(h('li', {cls: 's2-empty', text: 'No layers yet. Use Add layer, or a layout template.'}));
+  shown.forEach(function(l){
+    var t = TYPES[l.type] || ['square', l.type];
+    var name = h('span', {cls: 's2-name', text: l.name || t[1]});
+    name.addEventListener('dblclick', function(e){
+      e.stopPropagation(); var inp = h('input', {type: 'text', value: l.name || '', cls: 's2-rename'});
+      name.replaceWith(inp); inp.focus(); inp.select();
+      var done = function(){ l.name = inp.value.trim() || t[1]; inp.blur(); pushLayers(true); draw(); };
+      inp.addEventListener('blur', function(){ l.name = inp.value.trim() || t[1]; pushLayers(true); setTimeout(draw, 0); });
+      inp.addEventListener('keydown', function(ev){ ev.stopPropagation(); if (ev.key === 'Enter') done(); if (ev.key === 'Escape'){ inp.value = l.name; done(); } });
+    });
+    var li = h('li', {cls: 's2-item' + (sel.indexOf(l.id) >= 0 ? ' sel' : '') + (l.visible === false ? ' off' : '') + (l.locked ? ' locked' : ''),
+                      draggable: 'true', 'data-id': l.id, tabindex: '0'}, [
+      h('span', {cls: 's2-grip', html: I('grip-vertical', 14)}), h('span', {cls: 's2-ico', html: I(t[0], 16)}), name,
+      l.status && l.status.error ? h('span', {cls: 's2-err', title: l.status.error, text: '⚠'}) : null,
+      ib(l.locked ? 'lock' : 'lock-open', l.locked ? 'Unlock' : 'Lock', function(e){ e.stopPropagation(); l.locked = !l.locked; pushLayers(true); draw(); }, 's2-lock' + (l.locked ? ' on' : '')),
+      ib(l.visible === false ? 'eye-off' : 'eye', l.visible === false ? 'Show' : 'Hide', function(e){ e.stopPropagation(); l.visible = l.visible === false; pushLayers(true); draw(); }, 's2-eye' + (l.visible === false ? '' : ' on'))]);
+    li.addEventListener('click', function(e){ selectFromList(l.id, e); });
+    li.addEventListener('dragstart', function(e){ dragId = l.id; li.classList.add('drag'); e.dataTransfer.effectAllowed = 'move'; });
     li.addEventListener('dragend', function(){ li.classList.remove('drag'); });
     li.addEventListener('dragover', function(e){ e.preventDefault(); });
     li.addEventListener('drop', function(e){
       e.preventDefault(); if (!dragId || dragId === l.id) return;
-      var shown = top.map(function(x){ return x.id; });
-      shown.splice(shown.indexOf(dragId), 1); shown.splice(shown.indexOf(l.id), 0, dragId);
-      var byId = {}; layersCopy().forEach(function(x){ byId[x.id] = x; });
-      sendLayers(shown.reverse().map(function(id){ return byId[id]; }));
+      var order = L.slice().reverse().map(function(x){ return x.id; });
+      order.splice(order.indexOf(dragId), 1); order.splice(order.indexOf(l.id), 0, dragId);
+      var byId = {}; L.forEach(function(x){ byId[x.id] = x; });
+      L = order.reverse().map(function(id){ return byId[id]; }); pushLayers(true); draw();
     });
     list.appendChild(li);
   });
 }
-var editT = null;
-function renderEditor(){
-  var l = (S.layers || []).filter(function(x){ return x.id === selected; })[0];
-  editor.innerHTML = '';
-  if (!l){ editor.appendChild(h('p', {cls: 'hint', text: 'Select a layer to move, resize, rotate or fade it.'})); return; }
-  function slider(key, label, min, max, step, fmt){
-    var r = h('input', {type: 'range', min: min, max: max, step: step, value: l[key], 'aria-label': label});
-    var out = h('span', {cls: 'st-val', text: fmt(l[key])});
-    r.addEventListener('input', function(){
-      out.textContent = fmt(+r.value); l[key] = +r.value;
-      clearTimeout(editT); editT = setTimeout(function(){ var ls = layersCopy(); ls.forEach(function(x){ if (x.id === l.id) x[key] = +r.value; }); sendLayers(ls); }, 60);
-    });
-    return h('div', {cls: 'st-row'}, [h('span', {cls: 'st-lbl', text: label}), r, out]);
-  }
-  var pct = function(v){ return Math.round(v * 100) + '%'; };
-  editor.appendChild(h('h3', {text: (ICON[l.type] || '') + ' ' + l.name}));
-  editor.appendChild(slider('x', 'Position X', 0, 1, 0.005, pct));
-  editor.appendChild(slider('y', 'Position Y', 0, 1, 0.005, pct));
-  editor.appendChild(slider('w', 'Size', 0.02, 1.2, 0.01, pct));
-  editor.appendChild(slider('rotation', 'Rotation', -180, 180, 1, function(v){ return Math.round(v) + '°'; }));
-  editor.appendChild(slider('opacity', 'Opacity', 0, 1, 0.01, pct));
-  var st = l.status || {};
-  if (l.type === 'video'){
-    var loop = h('input', {type: 'checkbox'}); loop.checked = l.loop;
-    loop.addEventListener('change', function(){ var ls = layersCopy(); ls.forEach(function(x){ if (x.id === l.id) x.loop = loop.checked; }); sendLayers(ls); });
-    editor.appendChild(h('div', {cls: 'actions'}, ['▶ ⏸ ⏹'.split(' ').map(function(sym, i){
-      var cmd = ['play', 'pause', 'stop'][i];
-      return h('button', {cls: 'btn small', type: 'button', text: sym + ' ' + ['Play', 'Pause', 'Stop'][i], onclick: function(){ act('layer-control', {id: l.id, cmd: cmd}); }});
-    })].reduce(function(a, b){ return a.concat(b); }, [])));
-    editor.appendChild(h('label', {cls: 'check'}, [loop, ' Loop (untick to play once, e.g. an intro)']));
-  }
-  if (l.type === 'pdf' || l.type === 'window'){
-    editor.appendChild(h('div', {cls: 'actions'}, [
-      h('button', {cls: 'btn small', type: 'button', text: '◀ Previous slide', onclick: function(){ act('slide', {step: -1}); }}),
-      h('button', {cls: 'btn small', type: 'button', text: 'Next slide ▶', onclick: function(){ act('slide', {step: 1}); }})]));
-  }
-  editor.appendChild(h('p', {cls: 'hint', text: st.error ? '⚠ ' + st.error : [st.info, st.page ? 'slide ' + st.page + ' of ' + st.pages : '', st.decodeFps ? st.decodeFps + ' fps' : '', st.backend || ''].filter(Boolean).join(' · ')}));
+function selectFromList(id, e){
+  if (e.ctrlKey || e.metaKey){ var i = sel.indexOf(id); if (i >= 0) sel.splice(i, 1); else sel.push(id); }
+  else if (e.shiftKey && lastClicked){
+    var order = L.slice().reverse().map(function(x){ return x.id; }), a = order.indexOf(lastClicked), b = order.indexOf(id);
+    sel = order.slice(Math.min(a, b), Math.max(a, b) + 1);
+  } else sel = [id];
+  lastClicked = id; draw();
 }
 
-/* ---------- show the current state ---------- */
+/* ---------- Centre: the canvas ---------- */
+var img = h('img', {alt: 'The live BCC vCam picture', id: 's2-img', draggable: 'false'});
+var boxes = h('div', {cls: 's2-boxes'});
+var guides = h('div', {cls: 's2-guides'});
+var stage = h('div', {cls: 's2-stage', id: 's2-stage', tabindex: '0', 'aria-label': 'Canvas: drag layers to move them; use the handles to resize'}, [img, boxes, guides,
+  h('span', {cls: 's2-badge', id: 's2-badge', text: 'OUTPUT'})]);
+var stageWrap = h('div', {cls: 's2-stagewrap'}, [stage]);
+var metrics = h('p', {cls: 'hint s2-metrics', id: 's2-metrics'});
+var snapCb = h('input', {type: 'checkbox', id: 's2-snap', checked: 'checked'});
+centre.appendChild(stageWrap);
+centre.appendChild(h('div', {cls: 's2-under'}, [h('label', {cls: 'check'}, [snapCb, ' Snap to guides']), metrics]));
+function fitStage(){
+  if (!root.hidden){                     // fill the space between the tabs and the birthday bar
+    var bar = document.querySelector('.bday-bar');
+    var focus = document.body.classList.contains('studio-focus');
+    var avail = window.innerHeight - root.getBoundingClientRect().top - (focus || !bar ? 0 : bar.offsetHeight);
+    root.style.setProperty('--s2h', Math.max(520, Math.floor(avail)) + 'px');
+  }
+  var r = stageWrap.getBoundingClientRect(), w = Math.max(200, r.width), hh = Math.max(120, r.height);
+  var sw = Math.min(w, hh * 16 / 9); stage.style.width = sw + 'px'; stage.style.height = (sw * 9 / 16) + 'px';
+}
+window.addEventListener('resize', fitStage);
+
+function aspectOf(l){
+  var info = l.status && l.status.info, m = info && /(\d+)×(\d+)/.exec(info);
+  if (m) return +m[1] / +m[2];
+  if (['camera', 'screen', 'pdf', 'window', 'video'].indexOf(l.type) >= 0) return 16 / 9;
+  if (l.type === 'ellipse') return 1;
+  return 4;
+}
+function boxOf(l){            // normalised box (0..1 of the canvas)
+  if (l.type === 'background') return {x: 0, y: 0, w: 1, h: 1};
+  var w = l.w, hh = l.h > 0 ? l.h : (l.w * 16 / 9) / aspectOf(l);
+  return {x: l.x - w / 2, y: l.y - hh / 2, w: w, h: hh};
+}
+function drawBoxes(){
+  boxes.innerHTML = '';
+  L.forEach(function(l){
+    if (l.visible === false) return;
+    var b = boxOf(l), selected = sel.indexOf(l.id) >= 0;
+    var el = h('div', {cls: 's2-box' + (selected ? ' sel' : '') + (l.locked ? ' locked' : '') + (l.type === 'background' ? ' bg' : ''), 'data-id': l.id,
+      style: 'left:' + (b.x * 100) + '%;top:' + (b.y * 100) + '%;width:' + (b.w * 100) + '%;height:' + (b.h * 100) + '%;transform:rotate(' + (l.rotation || 0) + 'deg)'});
+    if (selected && sel.length === 1 && !l.locked && l.type !== 'background'){
+      ['nw', 'n', 'ne', 'e', 'se', 's', 'sw', 'w'].forEach(function(p){ el.appendChild(h('span', {cls: 's2-h ' + p, 'data-h': p})); });
+      el.appendChild(h('span', {cls: 's2-tag', text: Math.round(b.w * REF_W) + ' × ' + Math.round(b.h * REF_H)}));
+    }
+    boxes.appendChild(el);
+  });
+}
+
+/* Dragging, resizing, snapping, pinch */
+var drag = null, pointers = {};
+function layerById(id){ return L.filter(function(x){ return x.id === id; })[0]; }
+function snapTargets(exclude){
+  var xs = [0, 0.5, 1], ys = [0, 0.5, 1];
+  L.forEach(function(l){
+    if (exclude.indexOf(l.id) >= 0 || l.visible === false || l.type === 'background') return;
+    var b = boxOf(l); xs.push(b.x, b.x + b.w / 2, b.x + b.w); ys.push(b.y, b.y + b.h / 2, b.y + b.h);
+  });
+  return {xs: xs, ys: ys};
+}
+function snap(vals, targets, tol){
+  var best = null;
+  vals.forEach(function(v){ targets.forEach(function(t){ var d = t - v; if (Math.abs(d) <= tol && (!best || Math.abs(d) < Math.abs(best.d))) best = {d: d, at: t}; }); });
+  return best;
+}
+function showGuides(gx, gy){
+  guides.innerHTML = '';
+  if (gx != null) guides.appendChild(h('div', {cls: 's2-guide v', style: 'left:' + (gx * 100) + '%'}));
+  if (gy != null) guides.appendChild(h('div', {cls: 's2-guide h', style: 'top:' + (gy * 100) + '%'}));
+}
+stage.addEventListener('pointerdown', function(e){
+  pointers[e.pointerId] = {x: e.clientX, y: e.clientY};
+  var r = stage.getBoundingClientRect();
+  if (Object.keys(pointers).length === 2 && sel.length === 1){        // two fingers: pinch to resize
+    var ids = Object.keys(pointers), a = pointers[ids[0]], b = pointers[ids[1]], l0 = layerById(sel[0]);
+    if (l0 && !l0.locked) drag = {pinch: true, d0: Math.hypot(a.x - b.x, a.y - b.y), w0: l0.w, h0: l0.h, l: l0};
+    return;
+  }
+  var handle = e.target.closest('.s2-h'), boxEl = e.target.closest('.s2-box');
+  var id = boxEl && boxEl.dataset.id, l = id && layerById(id);
+  if (!l || l.locked || l.type === 'background'){ if (!handle){ sel = l && !l.locked ? [l.id] : []; draw(); } return; }
+  if (e.ctrlKey || e.metaKey){ var i = sel.indexOf(id); if (i >= 0) sel.splice(i, 1); else sel.push(id); draw(); return; }
+  if (sel.indexOf(id) < 0){ sel = [id]; draw(); }
+  try { stage.setPointerCapture(e.pointerId); } catch(err){}
+  stage.focus();
+  drag = {mode: handle ? 'resize' : 'move', h: handle && handle.dataset.h, x0: e.clientX, y0: e.clientY, rw: r.width, rh: r.height,
+          start: sel.map(function(sid){ var x = layerById(sid); return {l: x, x: x.x, y: x.y, b: boxOf(x)}; })};
+  e.preventDefault();
+});
+stage.addEventListener('pointermove', function(e){
+  if (pointers[e.pointerId]) pointers[e.pointerId] = {x: e.clientX, y: e.clientY};
+  if (!drag) return;
+  if (drag.pinch){
+    var ids = Object.keys(pointers); if (ids.length < 2) return;
+    var a = pointers[ids[0]], b = pointers[ids[1]], k = Math.hypot(a.x - b.x, a.y - b.y) / Math.max(1, drag.d0);
+    drag.l.w = Math.max(0.02, drag.w0 * k); if (drag.h0 > 0) drag.l.h = Math.max(0.02, drag.h0 * k);
+    drawBoxes(); renderInspector(true); pushLayers(); return;
+  }
+  var dx = (e.clientX - drag.x0) / drag.rw, dy = (e.clientY - drag.y0) / drag.rh, tol = 6 / drag.rw, tolY = 6 / drag.rh;
+  var T = snapCb.checked ? snapTargets(sel) : {xs: [], ys: []}, gx = null, gy = null;
+  if (drag.mode === 'move'){
+    var p = drag.start[0].b, nx = p.x + dx, ny = p.y + dy;
+    var sx = snap([nx, nx + p.w / 2, nx + p.w], T.xs, tol), sy = snap([ny, ny + p.h / 2, ny + p.h], T.ys, tolY);
+    if (sx){ dx += sx.d; gx = sx.at; } if (sy){ dy += sy.d; gy = sy.at; }
+    drag.start.forEach(function(s){ s.l.x = s.x + dx; s.l.y = s.y + dy; });
+  } else {
+    var s0 = drag.start[0], b0 = s0.b, hd = drag.h, x1 = b0.x, y1 = b0.y, x2 = b0.x + b0.w, y2 = b0.y + b0.h;
+    if (hd.indexOf('w') >= 0) x1 += dx; if (hd.indexOf('e') >= 0) x2 += dx;
+    if (hd.indexOf('n') >= 0) y1 += dy; if (hd.indexOf('s') >= 0) y2 += dy;
+    if (snapCb.checked){
+      var ex = hd.indexOf('w') >= 0 ? snap([x1], T.xs, tol) : (hd.indexOf('e') >= 0 ? snap([x2], T.xs, tol) : null);
+      var ey = hd.indexOf('n') >= 0 ? snap([y1], T.ys, tolY) : (hd.indexOf('s') >= 0 ? snap([y2], T.ys, tolY) : null);
+      if (ex){ if (hd.indexOf('w') >= 0) x1 += ex.d; else x2 += ex.d; gx = ex.at; }
+      if (ey){ if (hd.indexOf('n') >= 0) y1 += ey.d; else y2 += ey.d; gy = ey.at; }
+    }
+    if (e.shiftKey && hd.length === 2){                            // Shift: keep proportions
+      var ratio = b0.w / b0.h, nh = Math.abs(x2 - x1) / ratio;
+      if (hd.indexOf('n') >= 0) y1 = y2 - nh; else y2 = y1 + nh;
+    }
+    var w = Math.max(0.01, x2 - x1), hh = Math.max(0.01, y2 - y1);
+    s0.l.w = w; s0.l.h = hh; s0.l.x = x1 + w / 2; s0.l.y = y1 + hh / 2;
+  }
+  showGuides(gx, gy); drawBoxes(); renderInspector(true); pushLayers();
+});
+function endDrag(e){ delete pointers[e.pointerId]; if (drag){ drag = null; guides.innerHTML = ''; pushLayers(true); renderInspector(); } }
+stage.addEventListener('pointerup', endDrag);
+stage.addEventListener('pointercancel', endDrag);
+
+/* Keyboard on the canvas: arrows nudge, Delete removes, Ctrl+D duplicates */
+stage.addEventListener('keydown', function(e){
+  if (!sel.length) return;
+  var step = (e.shiftKey ? 10 : 1);
+  var mv = {ArrowLeft: [-step, 0], ArrowRight: [step, 0], ArrowUp: [0, -step], ArrowDown: [0, step]}[e.key];
+  if (mv){ e.preventDefault(); e.stopPropagation(); sel.forEach(function(id){ var l = layerById(id); if (l && !l.locked){ l.x += mv[0] / REF_W; l.y += mv[1] / REF_H; } }); draw(); pushLayers(); return; }
+  if (e.key === 'Delete' || e.key === 'Backspace'){ e.preventDefault(); removeSelected(); }
+  if ((e.ctrlKey || e.metaKey) && (e.key === 'd' || e.key === 'D')){ e.preventDefault(); duplicateSelected(); }
+});
+
+/* ---------- Right: scenes + inspector + personalise ---------- */
+var colSel = h('select', {id: 's2-collection', 'aria-label': 'Scene collection'});
+var gallery = h('div', {cls: 's2-gallery', id: 's2-gallery'});
+var insp = h('div', {cls: 's2-insp', id: 's2-insp'});
+var varsBox = h('div', {cls: 's2-vars', id: 's2-vars'});
+right.appendChild(h('div', {cls: 's2-head'}, [h('h2', {html: I('layout-template', 16) + ' Scenes'}), colSel,
+  ib('plus', 'New collection', function(){ var n = prompt('Name for the new collection:'); if (n && n.trim()) act('collection-add', {name: n.trim()}).then(function(d){ colSel.dataset.sig = ''; refresh().then(function(){ colSel.value = d.collection; renderScenes(); }); }); })]));
+right.appendChild(gallery);
+right.appendChild(h('div', {cls: 's2-head'}, [h('h2', {html: I('sparkles', 16) + ' Inspector'})]));
+right.appendChild(insp);
+right.appendChild(h('div', {cls: 's2-head'}, [h('h2', {html: I('braces', 16) + ' Personalise'})]));
+right.appendChild(varsBox);
+colSel.addEventListener('change', renderScenes);
+
+function renderScenes(){
+  if (!S) return;
+  var cols = S.collections || [], fsig = JSON.stringify(cols);
+  [colSel, colFilter].forEach(function(s, i){
+    if (s.dataset.sig !== fsig){ var keep = s.value; s.dataset.sig = fsig; s.innerHTML = '';
+      if (i === 1) s.appendChild(h('option', {value: '', text: 'All collections'}));
+      cols.forEach(function(c){ s.appendChild(h('option', {value: c.id, text: c.name})); });
+      if (keep) s.value = keep; }
+  });
+  var col = colSel.value || (cols[0] && cols[0].id);
+  var gsig = JSON.stringify([S.scenes, S.activeScene, col]);
+  if (gallery.dataset.sig !== gsig){
+    gallery.dataset.sig = gsig; gallery.innerHTML = '';
+    (S.scenes || []).filter(function(sc){ return sc.collection === col; }).forEach(function(sc){
+      var card = h('button', {cls: 's2-scene' + (S.activeScene === sc.id ? ' on' : ''), type: 'button', title: 'Switch to ' + sc.name}, [
+        sc.thumb ? h('img', {src: 'api/vcam/scene-thumb?id=' + encodeURIComponent(sc.id) + '&t=' + sc.thumb, alt: ''}) : h('span', {cls: 's2-nothumb', html: I('image', 20)}),
+        h('span', {cls: 's2-scname', text: sc.name})]);
+      card.addEventListener('click', function(){ act('scene-apply', {id: sc.id}).then(function(){ toast('Scene: ' + sc.name); refresh(); }); });
+      var del = ib('x', 'Delete scene', function(e){ e.stopPropagation(); if (confirm('Delete scene “' + sc.name + '”?')) act('scene-delete', {id: sc.id}).then(refresh); }, 's2-scdel');
+      gallery.appendChild(h('div', {cls: 's2-scwrap'}, [card, del]));
+    });
+    gallery.appendChild(h('button', {cls: 's2-scene add', type: 'button', id: 's2-savescene', html: I('plus', 20) + '<span class="s2-scname">Save as scene</span>', onclick: function(){
+      var n = prompt('Name for this scene (e.g. “Meeting Default”):'); if (n && n.trim()) act('scene-save', {name: n.trim(), collection: col}).then(function(){ toast('Scene saved'); refresh(); }); }}));
+  }
+  var f = colFilter.value, opts = (S.scenes || []).filter(function(sc){ return !f || sc.collection === f; });
+  var ssig = JSON.stringify(opts) + S.activeScene;
+  if (sceneSel.dataset.sig !== ssig){ sceneSel.dataset.sig = ssig; sceneSel.innerHTML = '';
+    sceneSel.appendChild(h('option', {value: '', text: opts.length ? 'Choose a scene…' : 'No scenes yet'}));
+    opts.forEach(function(sc){ sceneSel.appendChild(h('option', {value: sc.id, text: sc.name})); });
+    sceneSel.value = S.activeScene && opts.some(function(o){ return o.id === S.activeScene; }) ? S.activeScene : ''; }
+}
+
+function num(label, val, onset, opts){
+  opts = opts || {};
+  var inp = h('input', {type: 'number', value: String(val), step: opts.step || 1, min: opts.min, max: opts.max, 'aria-label': label, 'data-f': label});
+  inp.addEventListener('change', function(){ var v = parseFloat(inp.value); if (!isNaN(v)){ onset(v); drawBoxes(); pushLayers(true); } });
+  return h('label', {cls: 's2-num'}, [h('span', {text: label}), inp, opts.unit ? h('em', {text: opts.unit}) : null]);
+}
+function rangeRow(label, val, min, max, step, fmt, onset){
+  var r = h('input', {type: 'range', min: min, max: max, step: step, value: val, 'aria-label': label}), out = h('em', {text: fmt(val)});
+  r.addEventListener('input', function(){ out.textContent = fmt(+r.value); onset(+r.value); drawBoxes(); pushLayers(); });
+  return h('label', {cls: 's2-range'}, [h('span', {text: label}), r, out]);
+}
+function colour(label, val, onset){
+  var c = h('input', {type: 'color', value: val || '#ffffff', 'aria-label': label});
+  c.addEventListener('input', function(){ onset(c.value); pushLayers(); });
+  return h('label', {cls: 's2-num'}, [h('span', {text: label}), c]);
+}
+function select(label, val, options, onset){
+  var s = h('select', {'aria-label': label}); options.forEach(function(o){ s.appendChild(h('option', {value: o[0], text: o[1]})); }); s.value = val;
+  s.addEventListener('change', function(){ onset(s.value); pushLayers(true); drawBoxes(); });
+  return h('label', {cls: 's2-num'}, [h('span', {text: label}), s]);
+}
+function checkbox(label, val, onset){
+  var c = h('input', {type: 'checkbox'}); c.checked = !!val; c.addEventListener('change', function(){ onset(c.checked); pushLayers(true); });
+  return h('label', {cls: 'check'}, [c, ' ' + label]);
+}
+var inspSig = '';
+function renderInspector(fromDrag){
+  var ae = document.activeElement;
+  if (!fromDrag && ae && insp.contains(ae) && (ae.tagName === 'INPUT' || ae.tagName === 'TEXTAREA' || ae.tagName === 'SELECT')) return;
+  var chosen = sel.map(layerById).filter(Boolean);
+  if (fromDrag && chosen.length === 1){        // while dragging: just update the numbers
+    var b = boxOf(chosen[0]), set = function(k, v){ var i = insp.querySelector('[data-f="' + k + '"]'); if (i) i.value = v; };
+    set('X', Math.round(b.x * REF_W)); set('Y', Math.round(b.y * REF_H)); set('Width', Math.round(b.w * REF_W)); set('Height', Math.round(b.h * REF_H));
+    return;
+  }
+  var sig = JSON.stringify([chosen.map(strip), S && S.screen, S && S.variables]);
+  if (sig === inspSig) return; inspSig = sig;
+  insp.innerHTML = '';
+  if (!chosen.length){ insp.appendChild(h('p', {cls: 'hint', text: 'Select a layer on the canvas or in the Layers list.'})); return; }
+  var actions = h('div', {cls: 's2-actions'}, [
+    ib('copy', 'Duplicate (Ctrl+D)', duplicateSelected), ib('trash-2', 'Delete (Del)', removeSelected),
+    ib('arrow-up', 'Move up (forward)', function(){ moveSelected(1); }), ib('arrow-down', 'Move down (backward)', function(){ moveSelected(-1); })]);
+  if (chosen.length > 1){ insp.appendChild(h('p', {cls: 'plain', text: chosen.length + ' layers selected'})); insp.appendChild(actions); return; }
+  var l = chosen[0], bx = boxOf(l), p = l.props || (l.props = {}), lid = l.id;
+  var cur = function(){ return layerById(lid) || l; }, curP = function(){ var x = cur(); return x.props || (x.props = {}); };
+  var title = h('div', {cls: 's2-insp-title', html: I((TYPES[l.type] || ['square'])[0], 16) + ' <b></b>'});
+  title.querySelector('b').textContent = l.name || (TYPES[l.type] || ['', ''])[1];
+  insp.appendChild(title); insp.appendChild(actions);
+  if (l.type !== 'background'){
+    insp.appendChild(h('div', {cls: 's2-grid'}, [
+      num('X', Math.round(bx.x * REF_W), function(v){ var l = cur(), p = curP(); var b = boxOf(l); l.x = v / REF_W + b.w / 2; }, {unit: 'px'}),
+      num('Y', Math.round(bx.y * REF_H), function(v){ var l = cur(), p = curP(); var b = boxOf(l); l.y = v / REF_H + b.h / 2; }, {unit: 'px'}),
+      num('Width', Math.round(bx.w * REF_W), function(v){ var l = cur(), p = curP(); var b = boxOf(l), nw = Math.max(4, v) / REF_W; l.x = b.x + nw / 2; l.w = nw; if (!(l.h > 0)) l.h = b.h; }, {unit: 'px', min: 4}),
+      num('Height', Math.round(bx.h * REF_H), function(v){ var l = cur(), p = curP(); var b = boxOf(l), nh = Math.max(4, v) / REF_H; l.y = b.y + nh / 2; l.h = nh; }, {unit: 'px', min: 4})]));
+    insp.appendChild(rangeRow('Opacity', l.opacity == null ? 1 : l.opacity, 0, 1, 0.01, function(v){ var l = cur(), p = curP(); return Math.round(v * 100) + '%'; }, function(v){ var l = cur(), p = curP(); l.opacity = v; }));
+    insp.appendChild(h('div', {cls: 's2-grid'}, [
+      num('Rotation', Math.round(l.rotation || 0), function(v){ var l = cur(), p = curP(); l.rotation = Math.max(-360, Math.min(360, v)); }, {unit: '°'}),
+      num('Corner radius', Math.round((l.radius || 0) * REF_H), function(v){ var l = cur(), p = curP(); l.radius = Math.max(0, v) / REF_H; }, {unit: 'px', min: 0})]));
+  }
+  if (l.type === 'text'){
+    var ta = h('textarea', {rows: 3, 'aria-label': 'Text', id: 's2-textarea'}); ta.value = p.text || '';
+    ta.addEventListener('input', function(){ curP().text = ta.value; pushLayers(); });
+    var chips = h('div', {cls: 's2-chips'});
+    Object.keys(S.variables || {}).concat(S.builtinVariables || []).forEach(function(k){
+      chips.appendChild(h('button', {type: 'button', cls: 's2-varchip', text: '{{' + k + '}}', onclick: function(){
+        var pos = ta.selectionStart == null ? ta.value.length : ta.selectionStart; ta.value = ta.value.slice(0, pos) + '{{' + k + '}}' + ta.value.slice(pos); curP().text = ta.value; pushLayers(true); }}));
+    });
+    insp.appendChild(h('label', {cls: 's2-text'}, [h('span', {text: 'Text'}), ta]));
+    insp.appendChild(chips);
+    insp.appendChild(h('div', {cls: 's2-grid'}, [
+      select('Font', p.font || 'sans', [['sans', 'Source Sans'], ['serif', 'EB Garamond']], function(v){ var l = cur(), p = curP(); p.font = v; }),
+      num('Size', Math.round((p.size || 0.06) * REF_H), function(v){ var l = cur(), p = curP(); p.size = Math.max(10, v) / REF_H; }, {unit: 'px', min: 10}),
+      select('Weight', String(p.weight || 700), [['400', 'Regular'], ['600', 'Semibold'], ['700', 'Bold'], ['900', 'Black']], function(v){ var l = cur(), p = curP(); p.weight = +v; }),
+      select('Align', p.align || 'center', [['left', 'Left'], ['center', 'Centre'], ['right', 'Right']], function(v){ var l = cur(), p = curP(); p.align = v; }),
+      colour('Colour', p.color || '#ffffff', function(v){ var l = cur(), p = curP(); p.color = v; }),
+      colour('Background', p.bg || '#0b1222', function(v){ var l = cur(), p = curP(); p.bg = v; })]));
+    insp.appendChild(checkbox('Show background', !!p.bg, function(v){ var l = cur(), p = curP(); p.bg = v ? (p.bg || '#0b1222') : ''; }));
+  }
+  if (l.type === 'rect' || l.type === 'ellipse'){
+    insp.appendChild(h('div', {cls: 's2-grid'}, [colour('Fill', p.fill || '#14284a', function(v){ var l = cur(), p = curP(); p.fill = v; }), colour('Outline', p.stroke || '#ffffff', function(v){ var l = cur(), p = curP(); p.stroke = v; }),
+      num('Outline width', p.strokeWidth || 0, function(v){ var l = cur(), p = curP(); p.strokeWidth = Math.max(0, Math.min(40, v)); }, {unit: 'px', min: 0})]));
+    insp.appendChild(rangeRow('Fill opacity', p.fillOpacity == null ? 1 : p.fillOpacity, 0, 1, 0.01, function(v){ var l = cur(), p = curP(); return Math.round(v * 100) + '%'; }, function(v){ var l = cur(), p = curP(); p.fillOpacity = v; }));
+  }
+  if (l.type === 'background') insp.appendChild(colour('Colour', p.color || '#0b1222', function(v){ var l = cur(), p = curP(); p.color = v; }));
+  if (l.type === 'camera'){
+    insp.appendChild(h('div', {cls: 's2-grid'}, [select('Fit', p.fit || 'cover', [['cover', 'Fill the box'], ['contain', 'Show all']], function(v){ var l = cur(), p = curP(); p.fit = v; })]));
+    insp.appendChild(checkbox('Mirror', !!p.mirror, function(v){ var l = cur(), p = curP(); p.mirror = v; }));
+  }
+  if (l.type === 'screen'){
+    var sc = S.screen || {};
+    insp.appendChild(h('p', {cls: 'plain', text: sc.active ? 'Sharing: ' + ((sc.source && sc.source.name) || '') + ' · ' + (sc.backend || 'starting…') + (sc.fps ? ' · ' + sc.fps + ' fps' : '') : 'Not sharing yet.'}));
+    if (sc.error) insp.appendChild(h('div', {cls: 'alert warn', text: sc.error}));
+    insp.appendChild(h('div', {cls: 's2-actions'}, [
+      h('button', {cls: 'btn small', type: 'button', html: I('monitor', 15) + (sc.active ? ' Change' : ' Choose screen'), onclick: function(){ chooseScreen(true); }}),
+      sc.active ? h('button', {cls: 'btn small danger', type: 'button', html: I('circle-stop', 15) + ' Stop', onclick: function(){ act('screen', {source: null}).then(refresh); }}) : null]));
+    insp.appendChild(select('Fit', p.fit || 'contain', [['contain', 'Show all'], ['cover', 'Fill the box']], function(v){ var l = cur(), p = curP(); p.fit = v; }));
+  }
+  if (l.type === 'video'){
+    insp.appendChild(h('div', {cls: 's2-actions'}, [['play', 'Play'], ['pause', 'Pause'], ['square', 'Stop']].map(function(c){
+      return h('button', {cls: 'btn small', type: 'button', html: I(c[0], 14) + ' ' + c[1], onclick: function(){ act('layer-control', {id: l.id, cmd: c[1].toLowerCase()}); }}); })));
+    insp.appendChild(checkbox('Loop (untick to play once)', l.loop !== false, function(v){ var l = cur(), p = curP(); l.loop = v; }));
+  }
+  if (l.type === 'pdf' || l.type === 'window' || (l.type === 'screen' && S.screen && S.screen.source && ['pdf', 'window'].indexOf(S.screen.source.kind) >= 0)){
+    insp.appendChild(h('div', {cls: 's2-actions'}, [
+      h('button', {cls: 'btn small', type: 'button', html: I('chevron-left', 15) + ' Previous slide', onclick: function(){ act('slide', {step: -1}); }}),
+      h('button', {cls: 'btn small', type: 'button', html: 'Next slide ' + I('chevron-right', 15), onclick: function(){ act('slide', {step: 1}); }})]));
+  }
+  var st = l.status || {};
+  if (st.error || st.info) insp.appendChild(h('p', {cls: 'hint', text: st.error ? '⚠ ' + st.error : [st.info, st.page ? 'slide ' + st.page + ' of ' + st.pages : ''].filter(Boolean).join(' · ')}));
+}
+var varsSig = '';
+function renderVars(){
+  if (varsBox.contains(document.activeElement)) return;
+  var sig = JSON.stringify([S.variables, S.builtinVariables]); if (sig === varsSig) return; varsSig = sig;
+  varsBox.innerHTML = '';
+  var vars = S.variables || {};
+  Object.keys(vars).forEach(function(k){
+    var inp = h('input', {type: 'text', value: vars[k], 'aria-label': k, placeholder: k, 'data-var': k});
+    inp.addEventListener('change', function(){ vars[k] = inp.value; act('variables', {variables: vars}); });
+    varsBox.appendChild(h('label', {cls: 's2-var'}, [h('code', {text: '{{' + k + '}}'}), inp,
+      ib('x', 'Remove', function(){ delete vars[k]; act('variables', {variables: vars}).then(refresh); })]));
+  });
+  varsBox.appendChild(h('button', {cls: 'btn small', type: 'button', html: I('plus', 14) + ' Add variable', onclick: function(){
+    var k = prompt('Variable name (letters and numbers, e.g. churchName):'); if (!k || !/^[A-Za-z_][A-Za-z0-9_]*$/.test(k.trim())) return;
+    vars[k.trim()] = ''; act('variables', {variables: vars}).then(refresh); }}));
+  varsBox.appendChild(h('p', {cls: 'hint', text: 'Use them in Text layers. Always available: ' + (S.builtinVariables || []).map(function(k){ return '{{' + k + '}}'; }).join(' ')}));
+}
+
+/* ---------- actions on the selection ---------- */
+function removeSelected(){ if (!sel.length) return; L = L.filter(function(l){ return sel.indexOf(l.id) < 0 || l.locked; }); sel = []; pushLayers(true); draw(); }
+function duplicateSelected(){
+  var add = [];
+  sel.forEach(function(id){ var l = layerById(id); if (!l) return; var c = JSON.parse(JSON.stringify(strip(l))); c.id = uid(); c.name = (l.name || '') + ' copy'; c.x += 0.02; c.y += 0.02; c.locked = false; add.push(c); });
+  L = L.concat(add); sel = add.map(function(c){ return c.id; }); pushLayers(true); draw();
+}
+function moveSelected(dir){
+  var order = dir > 0 ? sel.slice().reverse() : sel.slice();
+  order.forEach(function(id){
+    var i = L.findIndex(function(l){ return l.id === id; }), j = i + dir;
+    if (i < 0 || j < 0 || j >= L.length) return; var t = L[i]; L[i] = L[j]; L[j] = t;
+  });
+  pushLayers(true); draw();
+}
+
+/* ---------- show the state ---------- */
 function setSeg(seg, val){ Array.prototype.forEach.call(seg.children, function(b){ b.setAttribute('aria-pressed', String(b.dataset.val === val)); }); }
-function render(d){
+function draw(){ renderList(); drawBoxes(); renderInspector(); }
+function apply(d){
   S = d;
-  if (!d.available){ root.classList.add('st-na'); ctl.innerHTML = ''; ctl.appendChild(h('p', {cls: 'plain', text: d.reason || 'BCC vCam is not available.'})); return; }
-  // scenes
-  var ss = JSON.stringify(d.scenes);
-  if (sceneSel.dataset.sig !== ss){ sceneSel.dataset.sig = ss; sceneSel.innerHTML = ''; sceneSel.appendChild(h('option', {value: '', text: d.scenes.length ? 'Choose a scene…' : 'No scenes saved yet'}));
-    d.scenes.forEach(function(x){ sceneSel.appendChild(h('option', {value: x.id, text: x.name})); }); }
-  if (document.activeElement !== sceneSel) sceneSel.value = d.activeScene || '';
-  // looks (same list as Settings > BCC vCam)
+  if (!d.available){ root.innerHTML = ''; root.appendChild(h('p', {cls: 'plain', style: 'padding:20px', text: d.reason || 'BCC vCam is not available.'})); return; }
+  if (!drag && Date.now() > dirtyUntil){
+    var fresh = (d.staged ? d.stagedLayers : d.layers).map(function(l){ return Object.assign({}, l); });
+    var status = {}; d.layers.forEach(function(l){ status[l.id] = l.status; });
+    fresh.forEach(function(l){ if (status[l.id]) l.status = status[l.id]; });
+    L = fresh;
+    sel = sel.filter(function(id){ return L.some(function(l){ return l.id === id; }); });
+  }
+  setSeg(modeSeg, d.staged ? 'preview' : 'output');
+  sendBtn.hidden = !d.staged;
+  $('s2-badge').textContent = d.staged ? 'PREVIEW · not on the output yet' : 'OUTPUT · what Zoom / Teams receive';
+  $('s2-badge').className = 's2-badge' + (d.staged ? ' pv' : '');
+  var r = d.recording;
+  recBtn.classList.toggle('on', !!(r && r.on));
+  recBtn.innerHTML = '<span class="dot"></span> ' + (r && r.on ? 'Stop · ' + fmtTime(r.seconds) : 'Record');
+  var sc = d.screen || {};
+  shareChip.hidden = !sc.active;
+  shareChip.innerHTML = I('monitor', 14) + ' ' + (sc.error ? '⚠ Screen sharing problem' : 'Sharing' + (sc.fps ? ' · ' + sc.fps + ' fps' : ''));
+  shareChip.title = sc.error || (sc.backend || '');
+  shareChip.classList.toggle('bad', !!sc.error);
   var vs = window.BSFVcamStatus && window.BSFVcamStatus();
   if (vs && vs.looks){ var ls = JSON.stringify(vs.looks); if (lookSel.dataset.sig !== ls){ lookSel.dataset.sig = ls; lookSel.innerHTML = '';
-      lookSel.appendChild(h('option', {value: 'off', text: 'Off'})); vs.looks.forEach(function(l){ lookSel.appendChild(h('option', {value: l.id, text: l.name})); }); }
+      lookSel.appendChild(h('option', {value: 'off', text: 'Look: Off'})); vs.looks.forEach(function(l){ lookSel.appendChild(h('option', {value: l.id, text: 'Look: ' + l.name})); }); }
     if (document.activeElement !== lookSel) lookSel.value = vs.settings.look || 'off'; }
-  // screen share
-  var src = JSON.stringify([d.sources, d.pdfs]);
-  if (srcSel.dataset.sig !== src){ srcSel.dataset.sig = src; var keep = srcSel.value; srcSel.innerHTML = '';
-    var g1 = h('optgroup', {label: 'Screens'}), g2 = h('optgroup', {label: 'Windows'}), g3 = h('optgroup', {label: 'Slides (PDF)'});
-    d.sources.forEach(function(s){ (s.kind === 'window' ? g2 : g1).appendChild(h('option', {value: s.id, text: s.name})); });
-    d.pdfs.forEach(function(p){ g3.appendChild(h('option', {value: 'pdf:' + p, text: p})); });
-    [g1, g2, g3].forEach(function(g){ if (g.children.length) srcSel.appendChild(g); });
-    if (keep) srcSel.value = keep; }
-  var sc = d.screen;
-  shareBtn.textContent = sc.active ? '■ Stop screen share' : 'Start screen share';
-  shareBtn.className = 'btn ' + (sc.active ? 'danger' : 'primary');
-  shareInfo.textContent = sc.active ? ((sc.source && sc.source.name) || '') + ' · ' + (sc.backend || '') + (sc.fps ? ' · ' + sc.fps + ' fps' : '') + (sc.page ? ' · slide ' + sc.page + ' of ' + sc.pages : '') + (sc.error ? ' · ⚠ ' + sc.error : '') : 'Not sharing.';
-  setSeg(modeSeg, d.layout.mode); setSeg(cornerSeg, d.layout.corner); setSeg(sizeSeg, d.layout.size);
-  pipBox.hidden = d.layout.mode !== 'pip';
-  var pres = (sc.active && sc.source && (sc.source.kind === 'pdf' || sc.source.kind === 'window')) || d.layers.some(function(l){ return l.type === 'pdf' || l.type === 'window'; });
-  slideBox.hidden = !pres;
-  if (sc.page) slideInfo.textContent = 'Slide ' + sc.page + ' of ' + sc.pages;
-  var r = d.recording;
-  recBtn.textContent = r.on ? '■ Stop recording' : '● Record test'; recBtn.className = 'btn ' + (r.on ? 'danger' : '');
-  recInfo.textContent = r.on ? 'Recording… ' + Math.round(r.seconds) + ' s · ' + r.codec + (r.skipped ? ' · ' + r.skipped + ' frames skipped' : '') :
-    (d.lastRecording ? 'Last: ' + d.lastRecording.file.split(/[\\/]/).pop() + ' (' + d.lastRecording.seconds + ' s)' : 'Saves to ' + r.folder);
-  latBox.checked = d.latencyTest; clock.hidden = !d.latencyTest;
-  renderList(); if (document.activeElement && document.activeElement.type === 'range') return; renderEditor();
+  renderScenes(); draw(); renderVars();
 }
+function fmtTime(s){ s = Math.round(s || 0); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); }
 function metricsLine(){
   var vs = window.BSFVcamStatus && window.BSFVcamStatus(), st = vs && vs.status;
   if (!st) return '';
-  return 'Camera ' + (st.captureFps || 0) + ' fps → output ' + (st.fps || 0) + ' fps · ' + (st.msPerFrame || 0) + ' ms work per frame (layout + layers + cards ' + (S ? S.composeMs : 0) +
-    ' ms) · capture-to-send ' + (st.latencyMs || 0) + ' ms · dropped ' + (st.dropped || 0) + ' · CPU ' + (st.cpuPercent || 0) + '% · GPU not used (CPU pipeline)';
+  return 'Camera ' + (st.captureFps || 0) + ' fps → output ' + (st.fps || 0) + ' fps · ' + (st.msPerFrame || 0) + ' ms per frame · capture-to-send ' +
+    (st.latencyMs || 0) + ' ms · dropped ' + (st.dropped || 0) + ' · CPU ' + (st.cpuPercent || 0) + '%';
 }
+function visible(){ return !root.hidden && document.body.dataset.tab === 'studio'; }
+function refresh(){ return fetch('api/vcam/studio', {cache: 'no-store'}).then(function(r){ return r.json(); }).then(apply).catch(function(){}); }
 function poll(){
-  var visible = !root.hidden && document.body.dataset.tab === 'studio';
-  fetch('api/vcam/studio', {cache: 'no-store'}).then(function(r){ return r.json(); }).then(function(d){ if (visible || !S) render(d); else S = d; }).catch(function(){})
-    .then(function(){ metrics.textContent = metricsLine(); setTimeout(poll, visible ? 1000 : 4000); });
+  (visible() || !S ? refresh() : Promise.resolve()).then(function(){ metrics.textContent = metricsLine(); setTimeout(poll, visible() ? 1000 : 4000); });
 }
 poll();
-function pullPreview(){
-  var visible = !root.hidden && document.body.dataset.tab === 'studio';
-  if (!visible){ previewOn = false; return; }
-  fetch('api/vcam/preview.jpg?t=' + Date.now(), {cache: 'no-store'}).then(function(r){
-    if (r.status === 200) return r.blob().then(function(b){ var u = URL.createObjectURL(b), old = img.src; img.src = u; pv.classList.add('on'); if (old && old.slice(0, 5) === 'blob:') URL.revokeObjectURL(old); });
-  }).catch(function(){}).then(function(){ setTimeout(pullPreview, 200); });
+var pulling = false;
+function pullImage(){
+  if (!visible()){ pulling = false; return; }
+  pulling = true;
+  var url = (S && S.staged ? 'api/vcam/stage.jpg' : 'api/vcam/preview.jpg') + '?t=' + Date.now();
+  fetch(url, {cache: 'no-store'}).then(function(r){
+    if (r.status === 200) return r.blob().then(function(b){ var u = URL.createObjectURL(b), old = img.src; img.src = u; stage.classList.add('on'); if (old && old.slice(0, 5) === 'blob:') URL.revokeObjectURL(old); });
+  }).catch(function(){}).then(function(){ setTimeout(pullImage, S && S.staged ? 220 : 160); });
 }
 var prevOnTab = window.BSFOnTab;
-window.BSFOnTab = function(t){ if (prevOnTab) prevOnTab(t); if (t === 'studio' && !previewOn){ previewOn = true; pullPreview(); poll(); } };
+window.BSFOnTab = function(t){
+  if (prevOnTab) prevOnTab(t);
+  if (t === 'studio'){ setTimeout(fitStage, 0); if (!pulling) pullImage(); refresh(); }
+  else document.body.classList.remove('studio-focus');
+};
+if (window.ResizeObserver) new ResizeObserver(fitStage).observe(stageWrap);
+window.BSFStudio = {layers: function(){ return L; }, select: function(ids){ sel = ids.slice(); draw(); }};
 
-/* ---------- hotkeys: Ctrl+Shift+1/2/3 = first three layers, Page Up/Down = slides ---------- */
+/* ---------- hotkeys: Ctrl+Shift+1/2/3 = layers 1-3, Page Up/Down = slides ---------- */
 document.addEventListener('keydown', function(e){
   var t = e.target, tag = t && t.tagName;
   if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || (t && t.isContentEditable) || document.querySelector('dialog[open], .app-modal-back')) return;
@@ -320,10 +639,11 @@ document.addEventListener('keydown', function(e){
     return;
   }
   if ((e.key === 'PageDown' || e.key === 'PageUp') && !e.ctrlKey && !e.altKey && S && S.available){
-    var pres = (S.screen.active && S.screen.source && (S.screen.source.kind === 'pdf' || S.screen.source.kind === 'window')) || S.layers.some(function(l){ return l.type === 'pdf' || l.type === 'window'; });
+    var pres = (S.screen && S.screen.active && S.screen.source && ['pdf', 'window'].indexOf(S.screen.source.kind) >= 0) ||
+      (S.layers || []).some(function(l){ return l.type === 'pdf' || l.type === 'window'; });
     if (!pres) return;
     e.preventDefault();
-    slide(e.key === 'PageDown' ? 1 : -1);
+    act('slide', {step: e.key === 'PageDown' ? 1 : -1});
   }
 });
 })();

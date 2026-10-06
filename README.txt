@@ -1,5 +1,5 @@
 ================================================================
-  BSF COMMAND CENTER  ·  version 4.0
+  BSF COMMAND CENTER  ·  version 4.1
   Clean Bible study overlays for BSF leaders on Zoom.
 ================================================================
 
@@ -57,14 +57,31 @@ BCC vCam: THE BUILT-IN CAMERA (installed Windows app)
       (Neutral), Ctrl+Alt+0 (Off). You can add your own looks to
       bsf-looks.json in the data folder (Settings > Data / Backup >
       Open data folder); unusual values are kept within safe limits.
-    - STUDIO tab (Alt+7): share a screen, a window (e.g. a PowerPoint
-      slide show) or PDF slides; choose a layout (Camera, Screen,
-      Screen + camera in a corner, Side by side); add layers
-      (pictures, videos, PDF slides, a window) with position, size,
-      rotation and opacity; save everything as Scenes. Ctrl+Shift+1/2/3
-      show or hide the first three layers; Page Down / Page Up change
-      slides. "Record test" saves an MP4 of exactly what BCC vCam
-      sends, in your Videos folder. ARCHITECTURE.md has the details.
+    - STUDIO tab (Alt+2), laid out like Camo Studio:
+        Left   - Layers: Add layer (Video source = your camera, Screen
+                 capture, Text, Image, Rectangle, Ellipse, Background,
+                 Video file, PDF slides, a window, or a layout
+                 template). Drag to reorder (higher = in front),
+                 Ctrl/Cmd+Click or Shift+Click to select several,
+                 eye = show/hide, padlock = lock, double-click to rename.
+        Centre - the live picture. Drag layers to move them, drag the
+                 handles to resize (Shift keeps the proportions),
+                 pinch with two fingers on a tablet. Pink guide lines
+                 show when a layer snaps to the centre, an edge or
+                 another layer. Arrow keys nudge, Delete removes,
+                 Ctrl+D duplicates.
+        Right  - Scenes (collections + thumbnails), the Inspector
+                 (X, Y, width, height, opacity, rotation, corner
+                 radius, and each layer's own settings: text, colours,
+                 fit...) and Personalise: your own variables such as
+                 {{firstName}} or {{location}} for Text layers, plus
+                 {{date}}, {{time}}, {{question}}, {{verse}}, {{verseRef}}.
+        Top    - scene and collection, Preview / Output (edit privately,
+                 then "Send to output"), Record, Look, Focus (hide the
+                 rest of the app) and Hide window.
+      Ctrl+Shift+1/2/3 show or hide the top three layers; Page Down /
+      Page Up change slides. Recordings are listed under Meetings &
+      Content > Recordings. ARCHITECTURE.md has the details.
 
 
 ----------------------------------------------------------------
@@ -119,9 +136,16 @@ WHAT'S NEW IN VERSION 3 (the meeting control console)
   - Stream Deck support has been removed.
 
   Small changes you may notice
-  - Tabs: Meeting is Alt+1, Content (formerly "Meeting Overlays") is
-    Alt+2, then Members Alt+3, Birthdays Alt+4, Email Alt+5,
-    Settings Alt+6.
+  - Four main tabs (version 4.1):
+      Alt+1 Meetings & Content - Run meeting · Content · Recordings
+      Alt+2 Studio
+      Alt+3 Members - Directory · Manage · Birthdays · Email
+      Alt+4 Settings
+    Each tab remembers the sub-tab you used last.
+  - Members have an optional Role (Group Leader, Discussion Leader...).
+    The Directory shows Name, Role, Email and Birthday, with upcoming
+    birthdays highlighted. Excel files may include a "Role" column;
+    files without one still import, and existing roles are kept.
   - Esc now hides everything, including the birthday card.
   - B is a new shortcut: show or hide the birthday card.
   - Show/Hide (the Q and V keys and the phone remote) all
@@ -263,7 +287,7 @@ layer can use these links.
 6. USING THE DASHBOARD DURING THE MEETING
 ----------------------------------------------------------------
 
-THE MEETING TAB (Alt+1) - use this while you lead
+MEETINGS & CONTENT > RUN MEETING (Alt+1) - use this while you lead
   Left:   Run sheet. Your questions and verses in order. Items you
           have already used are dimmed; the current one says LIVE
           (on screen) or READY (loaded but hidden); the next one says
@@ -294,7 +318,7 @@ Top bar (on every tab)
   Hide all (red) clears the screen at once. Same as Esc.
   Click any light to open its page in Settings.
 
-THE CONTENT TAB (Alt+2) - use this to prepare
+MEETINGS & CONTENT > CONTENT - use this to prepare
 For each card (Focus Verse and Discussion Question)
   Show    Puts the editor's text on screen with the chosen transition.
   Hide    Fades the card out. The content is kept, so Show brings it back.
@@ -353,8 +377,8 @@ Keyboard shortcuts (Meeting and Content tabs, when you're not typing)
   V                    Show or hide the verse
   B                    Show or hide the birthday card
   Esc                  Hide all (question, verse and birthday)
-  Alt + 1 to 6         Switch tabs: Meeting, Content, Members,
-                       Birthdays, Email, Settings
+  Alt + 1 to 4         Switch tabs: Meetings & Content, Studio, Members,
+                       Settings
   Holding a key down counts as one press.
   To change a key: Settings > Keyboard shortcuts > Change, then press
   the new key. "Restore default keys" puts the keys above back.
@@ -453,7 +477,7 @@ The text looks small or large
 10. BSF MEMBERS
 ----------------------------------------------------------------
 
-Open the "Members" tab (or press Alt+3).
+Open Members > Manage (press Alt+3, then Manage).
 
 Importing from Excel
   1. Select "Download template" (or use samples/BSF-Members-

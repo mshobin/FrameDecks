@@ -116,6 +116,11 @@ class Compositor:
         self.ms = 0.0
         self.lock = threading.Lock()
         self._backdrop = None
+        self.variables = {}            # personal variables, e.g. {"firstName": "Shobin", "location": "Kuwait"}
+        self.staged = None             # Preview mode: a layer list being edited before it goes to the output
+        self.last_cam = None
+        self.frame_no = 0
+        self._builtins = (0, {})
 
     def _canvas(self, w, h):
         if self._backdrop is None or self._backdrop.shape[:2] != (h, w):
@@ -150,7 +155,7 @@ class Compositor:
         if isinstance(s, PdfSource):
             return {"active": True, "source": self.screen_src, "backend": "PDF slides", "page": s.page + 1, "pages": s.pages, "fps": 0}
         return {"active": True, "source": self.screen_src, "backend": s.backend, "fps": s.fps, "error": s.error,
-                "hasFrame": s.frame is not None}
+                "hasFrame": s.frame is not None, "attempts": list(getattr(s, "attempts", []))[-6:]}
 
     def slide(self, step):
         """Next/Previous for the shared presentation (PDF deck or PowerPoint window)."""
@@ -163,8 +168,44 @@ class Compositor:
             return {"result": powerpoint_slide(step, self.screen_src.get("hwnd"))}
         return None
 
+    @staticmethod
+    def scene_mode(layers):
+        """A scene built from layers (camera / screen / background are layers) instead of a fixed layout."""
+        return any(l.get("visible", True) and l.get("type") in ("camera", "screen", "background") for l in layers)
+
     def needs_camera(self):
+        layers = self.layers.layers
+        if self.scene_mode(layers):
+            return any(l.get("visible", True) and l["type"] == "camera" for l in layers)
         return not (self.layout["mode"] == "screen" and self._screen_frame()[0] is not None)
+
+    def all_variables(self):
+        """Personal variables plus live ones; refreshed at most once a second."""
+        now = time.time()
+        if now - self._builtins[0] >= 1.0:
+            b = {"date": time.strftime("%d %B %Y").lstrip("0"), "time": time.strftime("%H:%M")}
+            try:
+                st = self.cards.get_state() if self.cards is not None else {}
+                q, v = st.get("question", {}) or {}, st.get("verse", {}) or {}
+                b.update(question=q.get("text", "") if q.get("visible") else "", verse=v.get("text", "") if v.get("visible") else "",
+                         verseRef=v.get("ref", "") if v.get("visible") else "")
+            except Exception:
+                pass
+            self._builtins = (now, b)
+        return {**self._builtins[1], **self.variables}
+
+    def render(self, layers, w, h, cam=None):
+        """Draw any layer list (Preview mode, scene thumbnails) with the latest camera and screen pictures."""
+        cam = self.last_cam if cam is None else cam
+        if cam is not None and cam.shape[:2] != (h, w):
+            cam = cv2.resize(cam, (w, h), interpolation=cv2.INTER_AREA)
+        scr, sid = self._screen_frame()
+        if self.scene_mode(layers):
+            frame = np.full((h, w, 3), BACKDROP, np.uint8)
+        else:
+            frame = cam.copy() if cam is not None else np.full((h, w, 3), BACKDROP, np.uint8)
+        return self.layers.compose(frame, cam, scr, self.all_variables(), cam_ver=-1, screen_ver=-1,
+                                   stack=[dict(l) for l in layers])
 
     def start_recording(self, folder, w, h):
         if self.recorder:
@@ -201,6 +242,12 @@ class Compositor:
 
     def compose(self, cam, w, h):
         t = time.perf_counter()
+        self.frame_no += 1
+        self.last_cam = cam
+        if self.scene_mode(self.layers.layers):                       # Camo-style scene: everything is a layer
+            scr, sid = self._screen_frame()
+            frame = self.layers.compose(self._canvas(w, h), cam, scr, self.all_variables(), cam_ver=self.frame_no, screen_ver=sid)
+            return self._finish(frame, w, h, t)
         L = self.layout
         mode = L["mode"]
         has_screen = self._screen_frame()[0] is not None
@@ -232,7 +279,10 @@ class Compositor:
                 x0, y0 = max(0, min(w - pw, x0)), max(0, min(h - ph, y0))
                 frame[y0:y0 + ph, x0:x0 + pw] = small
                 cv2.rectangle(frame, (x0, y0), (x0 + pw - 1, y0 + ph - 1), (220, 225, 235), max(1, w // 640))
-        frame = self.layers.compose(frame)
+        frame = self.layers.compose(frame, None, None, self.all_variables())
+        return self._finish(frame, w, h, t)
+
+    def _finish(self, frame, w, h, t):
         if self.cards is not None and self.cards_on():
             frame = self.cards(frame)
         if self.latency_test:

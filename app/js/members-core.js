@@ -193,6 +193,7 @@ function context(members, settings){
     'Member Name': group ? 'everyone' : (m.name || ''),
     'First Name': group ? 'everyone' : String(m.name || '').split(/\s+/)[0],
     'Country': group ? '' : (m.country || ''),
+    'Role': group ? '' : (m.role || ''),
     'Birth Date': group ? '' : formatDate(m.birthDate, false),
     "Today's Date": formatToday(), 'Date': formatToday(),
     'Group Name': settings.groupName || 'BSF',
@@ -229,10 +230,13 @@ function toCsv(headers, rows, phoneCol){
 }
 
 /* ---------- Members ---------- */
-var COLUMNS = ['Name', 'Country', 'Phone Number', 'Email', 'Birth Date'];
+var COLUMNS = ['Name', 'Country', 'Phone Number', 'Email', 'Birth Date'];        // required in imported sheets
+var OPTIONAL_COLUMNS = ['Role'];                                                   // used when present
+var EXPORT_COLUMNS = COLUMNS.concat(OPTIONAL_COLUMNS);
 var ALIASES = {
   'name': 'Name', 'full name': 'Name', 'member name': 'Name',
   'country': 'Country',
+  'role': 'Role', 'title': 'Role', 'position': 'Role', 'ministry': 'Role', 'responsibility': 'Role', 'serving role': 'Role',
   'phone number': 'Phone Number', 'phone': 'Phone Number', 'mobile': 'Phone Number', 'mobile number': 'Phone Number', 'whatsapp': 'Phone Number',
   'email': 'Email', 'e-mail': 'Email', 'email address': 'Email',
   'birth date': 'Birth Date', 'birthdate': 'Birth Date', 'date of birth': 'Birth Date', 'dob': 'Birth Date', 'birthday': 'Birth Date'
@@ -246,7 +250,7 @@ function checkMember(input, order, dateCode){
   var m = {
     id: input.id || uid(),
     name: clean(input.name, 120), country: clean(input.country, 80),
-    phone: clean(input.phone, 40), email: clean(input.email, 160), birthDate: ''
+    phone: clean(input.phone, 40), email: clean(input.email, 160), birthDate: '', role: clean(input.role, 60)
   };
   if (!m.name) errors.push('Name is missing');
   if (!m.country) warnings.push('Country is missing');
@@ -263,7 +267,7 @@ function checkMember(input, order, dateCode){
 }
 
 root.BSFMembers = {
-  COLUMNS: COLUMNS, headerName: headerName, checkMember: checkMember, uid: uid, clean: clean,
+  COLUMNS: COLUMNS, OPTIONAL_COLUMNS: OPTIONAL_COLUMNS, EXPORT_COLUMNS: EXPORT_COLUMNS, headerName: headerName, checkMember: checkMember, uid: uid, clean: clean,
   parseDate: parseDate, formatDate: formatDate, formatToday: formatToday, birthday: birthday, setToday: setToday, today: today,
   parsePhone: parsePhone, withCountryCode: withCountryCode, whatsappUrl: whatsappUrl, telUrl: telUrl,
   countryCode: countryCode, countryList: CODE_LIST,

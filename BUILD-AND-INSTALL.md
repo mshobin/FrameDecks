@@ -31,14 +31,14 @@ GitHub now starts building your installer automatically.
 2. Click the **Actions** tab. You'll see **Build Windows installer** running (yellow dot).
    It takes about 5–10 minutes. A green tick means it worked.
 3. Click the finished run. At the bottom, under **Artifacts**, click
-   **BSF-Command-Center-Setup-4.0** (the version number) to download it (a .zip containing the Setup .exe).
-4. Unzip it. You now have **BSF-Command-Center-Setup-4.0.exe**.
+   **BSF-Command-Center-Setup-4.1** (the version number) to download it (a .zip containing the Setup .exe).
+4. Unzip it. You now have **BSF-Command-Center-Setup-4.1.exe**.
 
 If you see a red cross instead, click the run to read the error, and send it to me.
 
 ## Part 3 · Install
 
-1. Double-click **BSF-Command-Center-Setup-4.0.exe**.
+1. Double-click **BSF-Command-Center-Setup-4.1.exe**.
 2. Windows may show **"Windows protected your PC"**. This appears because the installer isn't
    code-signed (signing costs money every year). Click **More info → Run anyway**.
 3. Follow the wizard. No administrator password is needed. Leave **Create a desktop icon** ticked.
@@ -50,7 +50,7 @@ If you see a red cross instead, click the run to read the error, and send it to 
 
 ## Part 4 · First-run checklist (before a real meeting)
 
-- [ ] The app opens in its own window with the Meeting tab.
+- [ ] The app opens in its own window on Meetings & Content → Run meeting (four main tabs: Alt+1 to Alt+4).
 - [ ] Your members and saved lists are there (after importing).
 - [ ] **OBS / Camo:** your existing overlay links still work (same address: `http://localhost:8750/...`).
       Check the top bar shows **OBS · 1 open**.
@@ -82,8 +82,12 @@ If you see a red cross instead, click the run to read the error, and send it to 
 - [ ] **Camera Look:** press **Ctrl+Alt+1** (Warm), **Ctrl+Alt+2** (Dark), **Ctrl+Alt+3** (Neutral), **Ctrl+Alt+0** (Off)
       while Zoom shows BCC vCam: your picture's colour changes, the cards don't. Settings → BCC vCam shows the
       "look" time per frame; send me that number with the frames per second.
-- [ ] **Studio (Alt+7):** share your screen (Screen share → Start). Try each layout. Move the mouse: the cursor
-      shows. Share a PowerPoint slide show window and press Page Down / Page Up.
+- [ ] **Screen sharing (fixed in 4.1):** Studio (Alt+2) → Add layer → Layout templates → *Screen + camera corner*,
+      pick your display. Within a few seconds your screen appears; move the mouse — the cursor shows. If it can't
+      start, the Screen layer's inspector shows exactly which capture methods were tried and why: send me that text.
+      Also try a PowerPoint slide show window and Page Down / Page Up.
+- [ ] **Studio canvas:** drag a layer (pink guides appear near the centre/edges), resize with a corner handle,
+      change Corner radius in the inspector, add a Text layer with {{firstName}} (Personalise → firstName).
 - [ ] **Layers:** add a logo (PNG) and a short video; move, resize, rotate, fade; reorder by dragging;
       Ctrl+Shift+1 hides layer 1. Save a scene, change things, switch back to the scene.
 - [ ] **Test recording:** Record test for 30 seconds, then open the recordings folder and play the MP4.

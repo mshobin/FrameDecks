@@ -27,7 +27,7 @@ from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from pathlib import Path
 from urllib.parse import urlparse, parse_qs, unquote
 
-APP_VERSION = "4.0"
+APP_VERSION = "4.1"
 STARTED_AT = time.time()
 FROZEN = getattr(sys, "frozen", False)          # True inside the installed Windows app
 HERE = Path(sys.executable).resolve().parent if FROZEN else Path(__file__).resolve().parent
@@ -579,6 +579,7 @@ def vcam_list_cameras():
 
 # ---------- Studio: layout, screen sharing, layers, scenes (saved in bsf-studio.json) ----------
 STUDIO_FILE = DATA / "bsf-studio.json"
+SCENES_DIR = DATA / "scenes"            # scene thumbnails
 LAYERS_DIR = DATA / "layers"
 STUDIO_VERSION = 1
 QUICK_PRESETS = {
@@ -604,9 +605,24 @@ def studio_load():
             scenes.append({"id": sc["id"][:40], "name": str(sc.get("name") or "Scene")[:40], "look": str(sc.get("look") or "off")[:40],
                            "layout": clean_layout(sc.get("layout")), "screen": sc.get("screen") if isinstance(sc.get("screen"), dict) else None,
                            "layers": [clean_layer(l) for l in sc.get("layers", []) if isinstance(l, dict)]})
+    variables = {}
+    for k, v in (d.get("variables") or {}).items() if isinstance(d.get("variables"), dict) else []:
+        if isinstance(k, str) and re.match(r"^[A-Za-z_][A-Za-z0-9_]{0,30}$", k):
+            variables[k] = str(v)[:200]
+    if not variables:
+        variables = {"firstName": "", "lastName": "", "title": "", "location": "", "organization": ""}
+    collections = [{"id": str(c["id"])[:40], "name": str(c.get("name") or "Collection")[:40]} for c in d.get("collections", [])
+                   if isinstance(c, dict) and str(c.get("id", "")).isidentifier()] if isinstance(d.get("collections"), list) else []
+    if not collections:
+        collections = [{"id": "main", "name": "My scenes"}]
+    ids = {c["id"] for c in collections}
+    for sc in scenes:
+        raw = next((x for x in d.get("scenes", []) if isinstance(x, dict) and x.get("id") == sc["id"]), {})
+        sc["collection"] = raw.get("collection") if raw.get("collection") in ids else collections[0]["id"]
     return {"version": STUDIO_VERSION, "layout": clean_layout(d.get("layout")),
             "layers": [clean_layer(l) for l in d.get("layers", []) if isinstance(l, dict)],
-            "scenes": scenes, "activeScene": str(d.get("activeScene") or "")[:40]}
+            "scenes": scenes, "activeScene": str(d.get("activeScene") or "")[:40],
+            "variables": variables, "collections": collections}
 
 
 def studio_save():
@@ -631,8 +647,14 @@ def studio_status():
     st = studio_load()
     rec = comp.recorder
     lay_status = comp.layers.status()
+    staged = comp.staged
     return {"available": True, "layout": comp.layout, "layers": [dict(l, status=lay_status.get(l["id"], {})) for l in comp.layers.layers],
-            "screen": comp.screen_status(), "sources": list_sources(), "scenes": [{"id": x["id"], "name": x["name"]} for x in st["scenes"]],
+            "staged": staged is not None, "stagedLayers": staged or [], "variables": st["variables"], "collections": st["collections"],
+            "sceneMode": comp.scene_mode(staged if staged is not None else comp.layers.layers),
+            "builtinVariables": sorted(k for k in comp.all_variables() if k not in st["variables"]),
+            "screen": comp.screen_status(), "sources": list_sources(),
+            "scenes": [{"id": x["id"], "name": x["name"], "collection": x["collection"],
+                        "thumb": int((SCENES_DIR / (x["id"] + ".jpg")).stat().st_mtime) if (SCENES_DIR / (x["id"] + ".jpg")).exists() else 0} for x in st["scenes"]],
             "activeScene": st["activeScene"], "presets": {k: {"name": v["name"], "needs": v["needs"]} for k, v in QUICK_PRESETS.items()},
             "recording": {"on": rec is not None, "seconds": round(time.time() - rec.started, 1) if rec else 0, "codec": rec.codec if rec else "",
                           "frames": rec.frames if rec else 0, "skipped": rec.skipped if rec else 0, "folder": str(recordings_dir())},
@@ -669,11 +691,47 @@ def studio_action(d):
                 src = match
         comp.set_screen(src, LAYERS_DIR)
     elif op == "layers":
-        layers = [l for l in (d.get("layers") or []) if isinstance(l, dict)][:30]
+        from vcam.layers import clean_layer
+        layers = [l for l in (d.get("layers") or []) if isinstance(l, dict)][:40]
         for l in layers:
             if not l.get("id"):
                 l["id"] = _layer_id()
+        if d.get("target") == "preview" and comp.staged is not None:
+            comp.staged = [clean_layer(l) for l in layers]       # Preview mode: not on the output yet
+            return {}
         comp.layers.set_layers(layers)
+    elif op == "stage":
+        comp.staged = [dict(l) for l in comp.layers.layers] if d.get("on") else None
+        return {}
+    elif op == "stage-commit":
+        if comp.staged is not None:
+            comp.layers.set_layers(comp.staged)
+            comp.staged = None
+    elif op == "variables":
+        st = studio_load()
+        vs = {}
+        for k, v in (d.get("variables") or {}).items():
+            if isinstance(k, str) and re.match(r"^[A-Za-z_][A-Za-z0-9_]{0,30}$", k):
+                vs[k] = str(v)[:200]
+        st["variables"] = vs
+        comp.variables = vs
+        STUDIO_FILE.write_text(json.dumps(st, indent=2), encoding="utf-8")
+        return {}
+    elif op in ("collection-add", "collection-delete"):
+        st = studio_load()
+        if op == "collection-add":
+            name = str(d.get("name") or "Collection")[:40]
+            cid = "c_" + secrets.token_hex(3)
+            st["collections"].append({"id": cid, "name": name})
+        else:
+            cid = d.get("id")
+            if len(st["collections"]) > 1:
+                st["collections"] = [c for c in st["collections"] if c["id"] != cid]
+                for sc in st["scenes"]:
+                    if sc.get("collection") == cid:
+                        sc["collection"] = st["collections"][0]["id"]
+        STUDIO_FILE.write_text(json.dumps(st, indent=2), encoding="utf-8")
+        return {"collection": cid}
     elif op == "layer-control":
         comp.layers.control(str(d.get("id")), str(d.get("cmd")))
     elif op == "toggle-layer":
@@ -719,19 +777,36 @@ def studio_action(d):
             sid = str(d.get("id") or "") or re.sub(r"\W+", "_", str(d.get("name") or "scene").lower()).strip("_")[:30] or "scene"
             if not sid.isidentifier():
                 sid = "s_" + sid
+            src_layers = comp.staged if comp.staged is not None else comp.layers.layers
+            ids = {c["id"] for c in st["collections"]}
             scene = {"id": sid, "name": str(d.get("name") or sid)[:40], "look": vcam_settings()["look"], "layout": comp.layout,
-                     "screen": comp.screen_src, "layers": comp.layers.layers}
+                     "screen": comp.screen_src, "layers": src_layers,
+                     "collection": d.get("collection") if d.get("collection") in ids else st["collections"][0]["id"]}
+            try:                                                           # thumbnail for the scene gallery
+                SCENES_DIR.mkdir(parents=True, exist_ok=True)
+                import cv2 as _cv2
+                img = comp.render(src_layers, 320, 180)
+                _cv2.imwrite(str(SCENES_DIR / (sid + ".jpg")), img, [_cv2.IMWRITE_JPEG_QUALITY, 80])
+            except Exception as e:
+                print("Scene thumbnail:", e)
             st["scenes"] = [x for x in st["scenes"] if x["id"] != sid] + [scene]
             st["activeScene"] = sid
         elif op == "scene-delete":
             st["scenes"] = [x for x in st["scenes"] if x["id"] != d.get("id")]
+            try:
+                (SCENES_DIR / (str(d.get("id")) + ".jpg")).unlink(missing_ok=True)
+            except OSError:
+                pass
         else:
             sc = next((x for x in st["scenes"] if x["id"] == d.get("id")), None)
             if not sc:
                 raise ValueError("Scene not found")
             # switching reuses everything that is already running (camera, layer sources, cards)
             comp.set_layout(sc["layout"])
-            comp.layers.set_layers(sc["layers"])
+            if comp.staged is not None:
+                comp.staged = [dict(l) for l in sc["layers"]]                 # Preview mode: load it into the preview
+            else:
+                comp.layers.set_layers(sc["layers"])
             want = sc.get("screen")
             if (want or {}).get("id") != (comp.screen_src or {}).get("id") or (want or {}).get("file") != (comp.screen_src or {}).get("file"):
                 try:
@@ -861,6 +936,7 @@ def vcam_start():
     st = studio_load()
     comp.set_layout(st["layout"])
     comp.layers.set_layers(st["layers"])
+    comp.variables = st["variables"]
     engine = VCamEngine(make_sink, make_cam, lambda: BackgroundBlur(model), compositor=comp)
     VCAM["layer"] = layer
     engine.configure(**vcam_effective(vcam_settings()), grade=vcam_grade(vcam_settings()["look"]))
@@ -1031,6 +1107,30 @@ class Handler(BaseHTTPRequestHandler):
                 return self.reply(200, json.dumps(vcam_status()), TYPES[".json"])
             if path == "/api/vcam/studio":
                 return self.reply(200, json.dumps(studio_status()), TYPES[".json"])
+            if path in ("/api/vcam/scene-thumb", "/api/vcam/stage.jpg"):
+                comp = VCAM.get("compositor")
+                if not comp:
+                    return self.reply(404, "Not available", "text/plain; charset=utf-8")
+                if path == "/api/vcam/scene-thumb":
+                    f = SCENES_DIR / (Path(parse_qs(url.query).get("id", [""])[0]).name + ".jpg")
+                    if not f.is_file():
+                        return self.reply(404, "No thumbnail", "text/plain; charset=utf-8")
+                    return self.reply(200, f.read_bytes(), "image/jpeg")
+                import cv2 as _cv2
+                eng = VCAM.get("engine")
+                if eng:
+                    eng.want_preview(3.0)                       # keep the camera running while editing
+                layers = comp.staged if comp.staged is not None else comp.layers.layers
+                ok, jpg = _cv2.imencode(".jpg", comp.render(layers, 640, 360), [_cv2.IMWRITE_JPEG_QUALITY, 75])
+                return self.reply(200, jpg.tobytes(), "image/jpeg")
+            if path == "/api/vcam/recordings":
+                folder = recordings_dir()
+                items = []
+                if folder.is_dir():
+                    for f in sorted(folder.glob("*.mp4"), key=lambda x: x.stat().st_mtime, reverse=True):
+                        st_ = f.stat()
+                        items.append({"name": f.name, "bytes": st_.st_size, "modified": st_.st_mtime})
+                return self.reply(200, json.dumps({"folder": str(folder), "items": items}), TYPES[".json"])
             if path == "/api/vcam/preview.jpg":
                 eng = VCAM["engine"]
                 if not eng:
@@ -1226,6 +1326,21 @@ class Handler(BaseHTTPRequestHandler):
                     return self.reply(200, json.dumps({"ok": True, **(studio_action(data) or {}), "studio": studio_status()}), TYPES[".json"])
                 except (ValueError, RuntimeError, OSError) as e:
                     return self.reply(400, json.dumps({"error": str(e)}), TYPES[".json"])
+            if path == "/api/vcam/recordings":
+                folder = recordings_dir()
+                op = data.get("op")
+                if op == "folder":
+                    folder.mkdir(parents=True, exist_ok=True)
+                    return self.reply(200, json.dumps({"opened": open_folder(folder)}), TYPES[".json"])
+                f = folder / Path(str(data.get("name") or "")).name          # only files inside the recordings folder
+                if f.suffix.lower() != ".mp4" or not f.is_file():
+                    return self.reply(404, json.dumps({"error": "Recording not found"}), TYPES[".json"])
+                if op == "open":
+                    return self.reply(200, json.dumps({"opened": open_folder(f)}), TYPES[".json"])
+                if op == "delete":
+                    f.unlink()
+                    return self.reply(200, json.dumps({"deleted": f.name}), TYPES[".json"])
+                return self.reply(400, json.dumps({"error": "Unknown action"}), TYPES[".json"])
             if path == "/api/vcam/install":
                 done, msg = vcam_install("uninstall" if data.get("action") == "uninstall" else "install")
                 return self.reply(200, json.dumps({"ok": done, "message": msg, **vcam_status()}), TYPES[".json"])

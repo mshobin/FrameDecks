@@ -29,19 +29,27 @@
 <div class="reminder" id="bday-reminder" role="status" hidden></div>
 
 <nav class="tabs" role="tablist" aria-label="Sections">
-  <button class="tab" role="tab" type="button" id="tabbtn-meeting" data-tab="meeting" aria-selected="true">Meeting <kbd>Alt+1</kbd></button>
-  <button class="tab" role="tab" type="button" id="tabbtn-overlays" data-tab="overlays" aria-selected="false">Content <kbd>Alt+2</kbd></button>
-  <button class="tab" role="tab" type="button" id="tabbtn-studio" data-tab="studio" aria-selected="false">Studio <kbd>Alt+7</kbd></button>
-  <button class="tab" role="tab" type="button" id="tabbtn-members" data-tab="members" aria-selected="false">Members <kbd>Alt+3</kbd></button>
-  <button class="tab" role="tab" type="button" id="tabbtn-birthdays" data-tab="birthdays" aria-selected="false">Birthdays <span class="tab-badge" id="tab-bday-badge" hidden></span> <kbd>Alt+4</kbd></button>
-  <button class="tab" role="tab" type="button" id="tabbtn-email" data-tab="email" aria-selected="false">Email <kbd>Alt+5</kbd></button>
-  <button class="tab" role="tab" type="button" id="tabbtn-settings" data-tab="settings" aria-selected="false">Settings <kbd>Alt+6</kbd></button>
+  <button class="tab grp" role="tab" type="button" id="grp-meetings" data-group="meetings" data-tab="meeting" aria-selected="true"><i data-icon="calendar-days"></i>Meetings &amp; Content <kbd>Alt+1</kbd></button>
+  <button class="tab grp" role="tab" type="button" id="tabbtn-studio" data-group="studio" data-tab="studio" aria-selected="false"><i data-icon="clapperboard"></i>Studio <kbd>Alt+2</kbd></button>
+  <button class="tab grp" role="tab" type="button" id="grp-members" data-group="members" data-tab="directory" aria-selected="false"><i data-icon="users"></i>Members <span class="tab-badge" id="grp-bday-badge" hidden></span> <kbd>Alt+3</kbd></button>
+  <button class="tab grp" role="tab" type="button" id="tabbtn-settings" data-group="settings" data-tab="settings" aria-selected="false"><i data-icon="settings"></i>Settings <kbd>Alt+4</kbd></button>
   <div class="onair-pills" aria-label="On screen now">
   <span class="pill" id="pill-verse"><span class="dot"></span><span>Focus Verse: <b>Hidden</b></span></span>
   <span class="pill" id="pill-question"><span class="dot"></span><span>Discussion Question: <b>Hidden</b></span></span>
   <span class="pill" id="pill-birthday"><span class="dot"></span><span>Birthday: <b>Hidden</b></span></span>
   </div>
 </nav>
+<div class="subtabs" id="sub-meetings" role="tablist" aria-label="Meetings and content">
+  <button class="subtab" role="tab" type="button" id="tabbtn-meeting" data-tab="meeting" aria-selected="true"><i data-icon="radio"></i>Run meeting</button>
+  <button class="subtab" role="tab" type="button" id="tabbtn-overlays" data-tab="overlays" aria-selected="false"><i data-icon="file-text"></i>Content</button>
+  <button class="subtab" role="tab" type="button" id="tabbtn-recordings" data-tab="recordings" aria-selected="false"><i data-icon="film"></i>Recordings</button>
+</div>
+<div class="subtabs" id="sub-members" role="tablist" aria-label="Members" hidden>
+  <button class="subtab" role="tab" type="button" id="tabbtn-directory" data-tab="directory" aria-selected="false"><i data-icon="users"></i>Directory</button>
+  <button class="subtab" role="tab" type="button" id="tabbtn-members" data-tab="members" aria-selected="false"><i data-icon="user"></i>Manage</button>
+  <button class="subtab" role="tab" type="button" id="tabbtn-birthdays" data-tab="birthdays" aria-selected="false"><i data-icon="cake"></i>Birthdays <span class="tab-badge" id="tab-bday-badge" hidden></span></button>
+  <button class="subtab" role="tab" type="button" id="tabbtn-email" data-tab="email" aria-selected="false"><i data-icon="mail"></i>Email</button>
+</div>
 
 <main>
 <!-- ===================== MEETING MODE ===================== -->
@@ -294,6 +302,10 @@
 </div>
 
 <!-- ===================== Settings ===================== -->
+<div class="tabpanel" id="tab-directory" role="tabpanel" aria-labelledby="tabbtn-directory" hidden></div>
+
+<div class="tabpanel" id="tab-recordings" role="tabpanel" aria-labelledby="tabbtn-recordings" hidden></div>
+
 <div class="tabpanel studio" id="tab-studio" role="tabpanel" aria-labelledby="tabbtn-studio" hidden></div>
 
 <div class="tabpanel settings" id="tab-settings" role="tabpanel" aria-labelledby="tabbtn-settings" hidden>
@@ -467,6 +479,7 @@
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
+<script src="js/icons.js"></script>
 <script src="js/store.js"></script>
 <script src="js/shortcuts.js"></script>
 <script src="js/dashboard.js"></script>
@@ -478,6 +491,7 @@
 <script src="js/remote-panel.js"></script>
 <script src="js/vcam-panel.js"></script>
 <script src="js/studio.js"></script>
+<script src="js/nav.js"></script>
 <script src="js/brand.js"></script>
 <script src="js/about.js"></script>
 <script src="js/settings.js"></script>

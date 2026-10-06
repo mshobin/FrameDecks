@@ -44,7 +44,7 @@ composed frame; nothing bypasses the compositor.
 | Cards | `vcam/cards.py`, `vcam/overlay.py` | Verse / question / birthday cards and their transitions |
 | Virtual camera | `vcam/sink.py` + softcam DLL | "BCC vCam" DirectShow camera (system-memory frames) |
 | Control plane | `server.py` | Settings, studio, scenes, uploads (this PC only) |
-| UI | `app/js/studio.js`, `vcam-panel.js`, `meeting.js` | Studio tab, BCC vCam settings, Meeting preview |
+| UI | `app/js/studio.js`, `nav.js`, `vcam-panel.js`, `meeting.js` | Camo-style Studio, four-tab navigation + Directory + Recordings, BCC vCam settings, Meeting preview |
 
 **Threads:** UI (WebView2) · HTTP control · engine loop · webcam grabber · blur model · card drawing ·
 screen capture · one per playing video · recorder. Only the engine loop touches the final frame; other
@@ -135,7 +135,7 @@ is used for the **test recording** only.
 
 ## 5. UI wireframes
 
-**Studio tab (Alt+7) — main control panel**
+**Studio tab (Alt+2) — superseded in 4.1 by the Camo-style layout in §10; original wireframe kept for reference**
 ```
 ┌ Controls ─────────────┐┌ Final picture ─────────────────────────┐┌ Layers ──────── [+ Add layer ▾]┐
 │ Scene [Presentation ▾]││ ┌────────────────────────────────────┐ ││ ⋮⋮ 🎬 1. Intro      [👁] [×]   │
@@ -162,7 +162,7 @@ is used for the **test recording** only.
 | Ctrl+Shift+1 / 2 / 3 | Show/hide layer 1 / 2 / 3 (top of the Layers list) | Any tab |
 | Page Down / Page Up | Next / previous slide (PDF deck or PowerPoint slide show) | Any tab, when a presentation is active |
 | → ← ⇧→ ⇧← Q V B Esc | Existing meeting shortcuts (configurable in Settings) | Meeting and Content tabs |
-| Alt+1 … Alt+7 | Tabs (Alt+7 = Studio) | Any tab |
+| Alt+1 … Alt+4 | Meetings & Content · Studio · Members · Settings | Any tab |
 
 All hotkeys are ignored while typing in a box or while a dialog is open. They work while the Command
 Center window has focus (no system-wide keyboard hooks).
@@ -220,3 +220,30 @@ and hotkeys.
 
 These figures come from a slow shared development machine; your laptop's figures appear in
 Settings → Diagnostics and the Studio tab.
+
+## 10. Version 4.1: Camo-style Studio and scene model
+
+**Everything is a layer.** Layer types: `camera` (the webcam), `screen` (the shared display/window/PDF),
+`text` (with `{{variables}}`), `image`, `rect`, `ellipse`, `background`, `video`, `pdf`, `window`.
+Every layer has `x, y` (centre), `w, h` (independent size; `h = 0` keeps the source's proportions),
+`rotation`, `opacity`, `radius` (corner radius), `visible`, `locked`, and type-specific `props`.
+A scene that contains camera, screen or background layers is drawn entirely from layers ("scene mode");
+older scenes made with the fixed layouts keep working unchanged.
+
+**Cost control.** Text and shapes are drawn once and cached (text re-drawn only when its resolved text
+changes, e.g. `{{time}}` once a minute). Camera and screen layers are copied straight in; rounded corners
+blend only the four corner squares. A shared screen is resized only when its picture changes (DXGI/WGC
+deliver frames only on change). Measured (camera + screen with rounded corners + name bar + text):
+720p 6.2 ms/frame with a still slide, 14.8 ms when the screen also changes every frame;
+1080p 13.9 / 26.6 ms.
+
+**Preview / Output.** In Preview the Studio edits a private copy (`staged`), rendered on demand at
+640×360; *Send to output* swaps it in. **Scene collections** group scenes; each saved scene gets a
+320×180 thumbnail (`scenes/<id>.jpg`). **Variables** are stored in `bsf-studio.json` (`variables`);
+live ones: `date, time, question, verse, verseRef`.
+
+**Screen-sharing reliability (4.1 fix).** Displays: Windows Graphics Capture first (works on laptops with
+two graphics chips, includes the cursor), DXGI Desktop Duplication as fallback. Each attempt must deliver a
+first frame within 3 s; options step down from (cursor + borderless) → (cursor) → (Windows defaults) because
+borderless/dirty-region/update-interval settings are only available on newer Windows builds. Every attempt
+and its error is reported in the Screen layer's inspector, Diagnostics and `bsf-app-log.txt`.

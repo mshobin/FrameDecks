@@ -108,7 +108,7 @@ function normalizeData(d){
   var members = (Array.isArray(d.members) ? d.members : []).filter(function(m){ return m && typeof m === 'object' && M.clean(m.name); }).map(function(m){
     var bd = /^(\d{4}|-)-\d{2}-\d{2}$/.test(m.birthDate || '') && M.parseDate(m.birthDate).ok ? m.birthDate : '';
     return {id: M.clean(m.id, 40) || M.uid(), name: M.clean(m.name, 120), country: M.clean(m.country, 80),
-            phone: M.clean(m.phone, 40), email: M.clean(m.email, 160), birthDate: bd};
+            phone: M.clean(m.phone, 40), email: M.clean(m.email, 160), birthDate: bd, role: M.clean(m.role, 60)};
   });
   return {members: members, settings: s};
 }
@@ -154,12 +154,12 @@ function whenText(b){ return b.days === 0 ? 'Today' : b.days === 1 ? 'Tomorrow' 
 function turningText(b){ return b.turning ? (b.days === 0 ? 'Turns ' + b.turning + ' today' : 'Turns ' + b.turning) : ''; }
 
 /* ---------- Tabs ---------- */
-var TABS = ['meeting', 'overlays', 'members', 'birthdays', 'email', 'settings', 'studio'];   // Alt+1..7
+var TABS = ['meeting', 'overlays', 'recordings', 'studio', 'directory', 'members', 'birthdays', 'email', 'settings'];
 function setTab(t){
   ui.tab = t; document.body.dataset.tab = t;
   TABS.forEach(function(k){
-    $('tabbtn-' + k).setAttribute('aria-selected', String(k === t));
-    $('tab-' + k).hidden = k !== t;
+    var b = $('tabbtn-' + k); if (b) b.setAttribute('aria-selected', String(k === t));
+    var p = $('tab-' + k); if (p) p.hidden = k !== t;
   });
   if (t === 'members'){ $('slot-members').appendChild(composerEl); if (ui.compSource === 'ticked' && !anyChecked()) ui.compSource = 'selected'; }
   if (t === 'email'){ $('slot-email').appendChild(composerEl); ui.compSource = 'ticked'; renderPicker(); }
@@ -210,7 +210,7 @@ function filtered(){
   var list = data.members.filter(function(m){
     if (ui.country && m.country !== ui.country) return false;
     if (!q) return true;
-    if ((m.name + ' ' + m.country + ' ' + m.email + ' ' + m.phone).toLowerCase().indexOf(q) >= 0) return true;
+    if ((m.name + ' ' + m.country + ' ' + m.email + ' ' + m.phone + ' ' + (m.role || '')).toLowerCase().indexOf(q) >= 0) return true;
     return qd.length >= 3 && m.phone.replace(/\D/g, '').indexOf(qd) >= 0;
   });
   var key = {
@@ -256,7 +256,7 @@ function renderList(){
     var li = h('li', {'class': 'm-item', role: 'option', tabindex: '0', 'data-id': m.id, 'aria-selected': String(m.id === ui.selectedId)}, [
       cb,
       h('span', {}, [h('span', {'class': 'm-name', text: m.name}),
-        h('span', {'class': 'm-sub', text: [m.country, m.phone || m.email].filter(Boolean).join(' · ') || 'No contact details'})]),
+        h('span', {'class': 'm-sub', text: [m.role, m.country, m.phone || m.email].filter(Boolean).join(' · ') || 'No contact details'})]),
       flags
     ]);
     li.addEventListener('click', function(){ select(m.id); });
@@ -400,11 +400,12 @@ function editMember(m){
     field('country', 'Country', 'e.g. Kuwait', 'dl-countries'), dl,
     field('phone', 'Phone Number (with country code, e.g. +965 5000 1234)', '+965 5000 1234'), codeBtn,
     field('email', 'Email', 'name@example.com'),
-    field('birthDate', 'Birth Date (YYYY-MM-DD, e.g. 1985-03-15; the year is optional)', '1985-03-15')
+    field('birthDate', 'Birth Date (YYYY-MM-DD, e.g. 1985-03-15; the year is optional)', '1985-03-15'),
+    field('role', 'Role (optional)', 'e.g. Group Leader, Discussion Leader, Serving Member')
   ]);
   function check(){
     var r = M.checkMember({name: f.name.input.value, country: f.country.input.value, phone: f.phone.input.value,
-      email: f.email.input.value, birthDate: f.birthDate.input.value}, data.settings.dateOrder);
+      email: f.email.input.value, birthDate: f.birthDate.input.value, role: f.role.input.value}, data.settings.dateOrder);
     var ph = M.parsePhone(f.phone.input.value);
     f.name.hint.textContent = r.member.name ? '' : 'Name is required'; f.name.hint.className = 'fhint' + (r.member.name ? '' : ' bad');
     f.email.hint.textContent = !r.member.email ? '' : M.validEmail(r.member.email) ? '' : 'This email address isn’t valid';
@@ -491,8 +492,9 @@ function analyse(wb, fileName){
     if (M.COLUMNS.every(function(c){ var v = get(c); return v === '' || v === null || v === undefined; })) return;
     var bdRaw = get('Birth Date');
     var r = M.checkMember({name: get('Name'), country: get('Country'), phone: typeof get('Phone Number') === 'number' ? String(get('Phone Number')) : get('Phone Number'),
-      email: get('Email'), birthDate: bdRaw}, data.settings.dateOrder, dateCode);
+      email: get('Email'), birthDate: bdRaw, role: found.map['Role'] !== undefined ? get('Role') : ''}, data.settings.dateOrder, dateCode);
     r.rowNum = found.headerRow + i + 2;
+    r.hasRole = found.map['Role'] !== undefined;
     var key = matchKey(r.member);
     if (key && seen[key]) r.warnings.push('Appears twice in this file');
     if (key) seen[key] = true;
@@ -551,7 +553,12 @@ function showPreview(results, fileName){
     var added = 0, updated = 0;
     ok.forEach(function(r){
       var k = matchKey(r.member);
-      if (idx[k] !== undefined){ r.member.id = data.members[idx[k]].id; data.members[idx[k]] = r.member; updated++; }
+      if (idx[k] !== undefined){
+        var prev = data.members[idx[k]];
+        r.member.id = prev.id;
+        if (!r.hasRole) r.member.role = prev.role || '';     // a sheet without a Role column keeps existing roles
+        data.members[idx[k]] = r.member; updated++;
+      }
       else { idx[k] = data.members.length; data.members.push(r.member); added++; }
     });
     if (mode === 'replace'){ ui.checked = {}; ui.selectedId = null; ui.celebrateId = null; }
@@ -566,31 +573,31 @@ function showPreview(results, fileName){
 /* ---------- Excel / CSV export and template ---------- */
 function memberRows(){
   return data.members.slice().sort(function(a, b){ return a.name.localeCompare(b.name); })
-    .map(function(m){ return [m.name, m.country, m.phone, m.email, m.birthDate]; });
+    .map(function(m){ return [m.name, m.country, m.phone, m.email, m.birthDate, m.role || '']; });
 }
 function sheetFrom(rows){
   var ws = XLSX.utils.aoa_to_sheet(rows);
-  ws['!cols'] = [{wch: 28}, {wch: 18}, {wch: 20}, {wch: 30}, {wch: 14}];
+  ws['!cols'] = [{wch: 28}, {wch: 18}, {wch: 20}, {wch: 30}, {wch: 14}, {wch: 22}];
   return ws;
 }
 function exportXlsx(){
   if (!data.members.length){ toast('There are no members to export.', true); return; }
   var wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, sheetFrom([M.COLUMNS].concat(memberRows())), 'Members');
+  XLSX.utils.book_append_sheet(wb, sheetFrom([M.EXPORT_COLUMNS].concat(memberRows())), 'Members');
   XLSX.writeFile(wb, 'BSF-Members-' + stamp() + '.xlsx');
   toast('Exported ' + data.members.length + ' members to Excel (saved to Downloads)');
 }
 function exportCsv(){
   if (!data.members.length){ toast('There are no members to export.', true); return; }
-  download(new Blob([M.toCsv(M.COLUMNS, memberRows(), 2)], {type: 'text/csv;charset=utf-8'}), 'BSF-Members-' + stamp() + '.csv');
+  download(new Blob([M.toCsv(M.EXPORT_COLUMNS, memberRows(), 2)], {type: 'text/csv;charset=utf-8'}), 'BSF-Members-' + stamp() + '.csv');
   toast('Exported ' + data.members.length + ' members to CSV (saved to Downloads)');
 }
 function downloadTemplate(){
   var wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, sheetFrom([M.COLUMNS,
-    ['Grace Mensah', 'Ghana', '+233 20 000 0001', 'grace@example.com', '1985-03-15'],
-    ['Daniel Okafor', 'Nigeria', '+234 800 000 0002', 'daniel@example.com', '1990-11-02'],
-    ['Priya Nair', 'India', '+91 90000 00003', 'priya@example.com', '--07-21']]), 'Members');
+  XLSX.utils.book_append_sheet(wb, sheetFrom([M.EXPORT_COLUMNS,
+    ['Grace Mensah', 'Ghana', '+233 20 000 0001', 'grace@example.com', '1985-03-15', 'Group Leader'],
+    ['Daniel Okafor', 'Nigeria', '+234 800 000 0002', 'daniel@example.com', '1990-11-02', 'Discussion Leader'],
+    ['Priya Nair', 'India', '+91 90000 00003', 'priya@example.com', '--07-21', '']]), 'Members');
   var info = XLSX.utils.aoa_to_sheet([
     ['BSF Members template - how to fill it in'], [''],
     ['Keep the first row of the Members sheet exactly as it is:  Name | Country | Phone Number | Email | Birth Date'],
@@ -883,7 +890,15 @@ window.BSFBirthday = {
   toggle: function(){ if (live && live.birthday.visible && live.birthday.greeting) hideBirthday(); else if (byId(ui.celebrateId)) showBirthday(); else toast('No birthday is ready. Choose a member in the birthday bar below.', true); },
   candidate: function(){ var m = byId(ui.celebrateId); return m ? {name: m.name} : null; }
 };
-window.BSFMembersAPI = { settings: function(){ return data.settings; } };
+window.BSFMembersAPI = {
+  settings: function(){ return data.settings; },
+  /* read-only list for the Directory table (copies; never the private objects themselves) */
+  directory: function(){ return data.members.map(function(m){ return {id: m.id, name: m.name, role: m.role || '', email: m.email, birthDate: m.birthDate, b: bInfo(m)}; }); },
+  reminderDays: function(){ return Number(data.settings.reminderDays) || 14; },
+  open: function(id){ ui.selectedId = id; setTab('members'); renderAll(); },
+  edit: function(id){ var m = byId(id); if (m) editMember(m); },
+  add: function(){ editMember(null); }
+};
 function refreshBirthdayInPlace(){
   if (live && !live.birthday.visible){ stageBirthday(); return; }
   if (!live || !live.birthday.visible) return;
@@ -1032,7 +1047,7 @@ function setup(){
 
   document.addEventListener('keydown', function(e){
     if (document.querySelector('dialog[open]')) return;
-    if (e.altKey && !e.ctrlKey && /^[1-7]$/.test(e.key)){ e.preventDefault(); setTab(TABS[+e.key - 1]); return; }
+    if (e.altKey && !e.ctrlKey && /^[1-4]$/.test(e.key) && window.BSFNavAlt){ e.preventDefault(); window.BSFNavAlt(+e.key); return; }
     var t = e.target.tagName;
     if (t === 'INPUT' || t === 'TEXTAREA' || t === 'SELECT') return;
     if (e.key === '/' && (ui.tab === 'members' || ui.tab === 'email')){ e.preventDefault(); $(ui.tab === 'members' ? 'm-search' : 'e-search').focus(); }
