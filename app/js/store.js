@@ -135,8 +135,9 @@ function normalize(s){
       return o;
     });
   }
-  st.library.verses = list(st.library.verses, ['ref', 'version', 'text']);
-  st.library.questions = list(st.library.questions, ['text']);
+  // pair = id of the linked verse/question (from an Excel import: one question with its verse per row)
+  st.library.verses = list(st.library.verses, ['ref', 'version', 'text', 'pair']);
+  st.library.questions = list(st.library.questions, ['text', 'num', 'note', 'pair']);
   var B = st.birthday;
   ['label', 'name', 'greeting', 'message', 'country'].forEach(function(k){ B[k] = String(B[k]); });
   B.visible = !!B.visible; B.showLabel = !!B.showLabel;
@@ -152,7 +153,7 @@ function normalize(s){
   L.qBottom = clamp(L.qBottom, 4, 24, 10);
   L.qWidth = clamp(L.qWidth, 50, 94, 84);
   L.qScale = clamp(L.qScale, .6, 1.6, 1);
-  L.panel = clamp(L.panel, 55, 100, 92);
+  L.panel = clamp(L.panel, 50, 100, 92);
   return st;
 }
 
@@ -163,10 +164,32 @@ var started = false;
 
 function emit(){ listeners.forEach(function(fn){ try { fn(state); } catch(e){ console.error(e); } }); }
 
+/* Idle pacing: when this window is hidden or minimised, background checks slow right down;
+ * the moment it is shown again it checks at once. Other screens use Store.pace() too. */
+function pace(ms){ return document.hidden ? Math.max(ms * 8, 3000) : ms; }
+var loopT = null;
+document.addEventListener('visibilitychange', function(){
+  if (!document.hidden && loopT !== null && served && !shared){ clearTimeout(loopT); serverLoop(); }
+});
+/* Previews embedded in the dashboard (same app, same address) use the dashboard's copy of the state
+ * instead of asking the program themselves: one check loop per window instead of several. */
+var shared = false;
+function shareParent(){
+  try {
+    var P = window.parent !== window && window.parent.BSFStore;
+    if (!P || !P.served) return false;
+    P.subscribe(function(st){
+      state = normalize(JSON.parse(JSON.stringify(st))); started = true; Store.online = P.online; emit();
+    });
+    return (shared = true);
+  } catch(e){ return false; }                     // a different address: keep our own loop
+}
+
 /* ---------- Local program mode ---------- */
 /* Quick checks several times a second. Each request finishes instantly, so no connection is
  * ever held open (browsers only allow about six per address, shared by every overlay). */
 function serverLoop(){
+  loopT = null;
   fetch('api/rev', {cache: 'no-store'})
     .then(function(r){ if (r.status === 401 || r.status === 403){ Store.authFailed = true; if (Store.onAuthFailed) Store.onAuthFailed(); } if (!r.ok) throw new Error(r.status); Store.authFailed = false; return r.json(); })
     .then(function(v){
@@ -175,8 +198,8 @@ function serverLoop(){
       return fetch('api/state', {cache: 'no-store'}).then(function(r){ if (!r.ok) throw new Error(r.status); return r.json(); })
         .then(function(data){ var next = normalize(data); var changed = !started || next.rev !== state.rev; started = true; if (changed){ state = next; emit(); } });
     })
-    .then(function(){ setTimeout(serverLoop, 300); })
-    .catch(function(){ Store.online = false; setTimeout(serverLoop, 1500); });
+    .then(function(){ loopT = setTimeout(serverLoop, pace(300)); })
+    .catch(function(){ Store.online = false; loopT = setTimeout(serverLoop, pace(1500)); });
 }
 function serverSave(next, baseRev){
   var body = baseRev === undefined ? next : Object.assign({}, next, {baseRev: baseRev});
@@ -203,7 +226,7 @@ function fileStart(){
   state = fileRead(); started = true; emit();
   try { bc = new BroadcastChannel(CHANNEL); bc.onmessage = fileCheck; } catch(e){}
   window.addEventListener('storage', function(e){ if (e.key === KEY) fileCheck(); });
-  setInterval(fileCheck, 1000);
+  setInterval(fileCheck, 5000);                // safety net; changes normally arrive instantly via the two events above
 }
 function fileSave(next){
   next = normalize(next);
@@ -235,7 +258,8 @@ var Store = {
     }
     return attempt();
   },
-  start: function(){ if (served) serverLoop(); else fileStart(); },
+  start: function(){ if (served){ if (!shareParent()) serverLoop(); } else fileStart(); },
+  pace: pace,
   /* Overlays report that they are open, so the dashboard can show "connected" */
   presence: function(page){
     if (!served || /[?&]preview=1/.test(location.search)) return;

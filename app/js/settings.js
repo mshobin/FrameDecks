@@ -43,7 +43,7 @@ if (Store.served){
     dot('sn-ipad', ok ? 'ok' : 'info');
   });
   Status.on('presence', function(p){ var n = 0; for (var k in p) n += p[k]; dot('sn-display', n ? 'ok' : ''); });
-  setInterval(function(){ dot('sn-diag', Store.online ? 'ok' : 'bad'); }, 1500);
+  setInterval(function(){ if (!document.hidden) dot('sn-diag', Store.online ? 'ok' : 'bad'); }, 1500);
 }
 
 /* ---------- Security ---------- */
@@ -101,6 +101,19 @@ function renderDiag(){
     row('Python / Windows', d.python + ' · ' + d.os);
     row('Signed-in phones/iPads', String(d.remoteSessions));
     row('Installed app', d.installedApp ? 'Yes' : 'No (start-file version)');
+    if (d.resources){
+      var r = d.resources, rq = r.requestsPerMinute || {};
+      var total = Object.keys(rq).reduce(function(a, k){ return a + rq[k]; }, 0);
+      row('Resources', (r.memoryMB != null ? r.memoryMB + ' MB memory · ' : '') + r.threads + ' threads · ' + Math.round(total) + ' requests/min' +
+        (r.presentationWindows ? ' · Presentation window open' : '') + ' · ' + r.layers + ' Studio layers (' + r.layerCacheEntries + ' cached pictures)');
+      var busiest = Object.keys(rq).slice(0, 4).map(function(k){ return k.replace('/api/', '') + ' ' + rq[k] + '/min'; }).join(' · ');
+      if (busiest) row('Busiest requests', busiest);
+      var tips = [];
+      if (r.memoryMB > 900) tips.push('memory is high: restart the app after the meeting');
+      if (r.camera && r.camera.msPerFrame > 25) tips.push('camera work is heavy: use 720p, a lower blur, or fewer Studio layers');
+      if ((rq['/api/vcam/preview.jpg'] || 0) > 400) tips.push('a preview is being watched: close Studio or BCC vCam preview when not needed');
+      row('Performance tips', tips.length ? tips.join('; ') : 'Everything looks light.');
+    }
     if (d.vcam && d.vcam.status && d.vcam.status.fps){
       var v = d.vcam.status;
       row('BCC vCam performance', 'camera ' + (v.captureFps || 0) + ' fps → output ' + v.fps + ' fps · ' + v.msPerFrame + ' ms work per frame · capture-to-send ' +
@@ -133,6 +146,7 @@ function copyReport(){
     'Signed-in phones/iPads: ' + (d.remoteSessions != null ? d.remoteSessions : '?'),
     'Installed app: ' + (d.installedApp ? 'yes' : 'no'),
     'BCC vCam: ' + (d.vcam ? JSON.stringify(d.vcam.status || {reason: d.vcam.reason, detail: d.vcam.detail}) : 'n/a'),
+    'Resources: ' + JSON.stringify(d.resources || {}),
     'Network: ' + (d.network ? JSON.stringify(d.network) : 'n/a'),
     'Files: ' + (d.files ? Object.keys(d.files).map(function(n){ return n + '=' + (d.files[n].exists ? 'yes' : 'no'); }).join(', ') : '?'),
     'Browser: ' + navigator.userAgent, 'Window: ' + window.innerWidth + 'x' + window.innerHeight,

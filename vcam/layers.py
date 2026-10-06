@@ -309,6 +309,9 @@ class LayerManager:
                 elif n["type"] == "video" and isinstance(self.sources[lid], VideoSource):
                     self.sources[lid].loop = n["loop"]
             self.layers = new
+            for key in list(self.cache):                       # free every cached picture of deleted layers
+                if key.split(":")[0] not in keep:
+                    self.cache.pop(key, None)
 
     def _source(self, l):
         s = self.sources.get(l["id"])

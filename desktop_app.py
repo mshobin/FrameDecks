@@ -173,6 +173,8 @@ def main():
             pystray.MenuItem("Stop screen share", lambda icon, item: tray_do({"op": "screen", "source": None}),
                              enabled=lambda item: bool(server.VCAM.get("compositor") and server.VCAM["compositor"].screen)),
             pystray.MenuItem("Hide all overlays", lambda icon, item: tray_hide_all()),
+            pystray.MenuItem("Presentation window", lambda icon, item: server.DESKTOP["present"](not server.DESKTOP["present_open"]()),
+                             checked=lambda item: bool(server.DESKTOP.get("present_open") and server.DESKTOP["present_open"]())),
             pystray.Menu.SEPARATOR,
             pystray.MenuItem("Phone remote", lambda icon, item: server.set_remote(not server.REMOTE),
                              checked=lambda item: server.REMOTE),
@@ -284,9 +286,39 @@ def main():
         return False   # cancel the close; the page decides
 
     window.events.closing += on_closing
+
+    def present(on=True):
+        """The separate "BSF Presentation" window: its own Windows window, so Zoom can share just it."""
+        w = state.get("present")
+        if not on:
+            state["present"] = None
+            if w:
+                try:
+                    w.destroy()
+                except Exception:
+                    pass
+            refresh_tray()
+            return
+        if w:
+            try:
+                w.restore()
+                w.show()
+                return
+            except Exception:
+                state["present"] = None
+        w = webview.create_window("BSF Presentation", url + "present.html", width=1280, height=760,
+                                  min_size=(480, 300), background_color="#000000", text_select=False)
+        def closed():
+            if state.get("present") is w:
+                state["present"] = None
+            refresh_tray()
+        w.events.closed += closed
+        state["present"] = w
+        refresh_tray()
     state["tray"] = build_tray(show, quit_app)
     server.DESKTOP.update(active=True, show=show, hide=hide, quit=quit_app, choose_folder=choose_folder,
-                          on_remote_change=refresh_tray)
+                          on_remote_change=refresh_tray, present=present,
+                          present_open=lambda: state.get("present") is not None)
     webview.start(private_mode=False, storage_path=str(server.DATA / "webview"))
     stop_everything()
 

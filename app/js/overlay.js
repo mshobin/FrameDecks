@@ -358,6 +358,8 @@ function applyLayout(L){
   r.setProperty('--q-w', L.qWidth);
   r.setProperty('--q-scale', L.qScale);
   r.setProperty('--panel-a', (L.panel / 100).toFixed(2));
+  // the more see-through the card, the stronger a soft shadow behind the text (keeps it readable)
+  r.setProperty('--txt-shadow', Math.max(0, Math.min(0.85, (1 - L.panel / 100) * 2.2)).toFixed(2));
   r.setProperty('--bday-scale', L.bdayScale);
   var vz = document.querySelector('.zone-verse');
   if (vz) vz.className = 'zone zone-verse align-' + L.verseAlign;

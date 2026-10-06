@@ -46,10 +46,13 @@ Array.prototype.forEach.call(document.querySelectorAll('.subtabs'), function(bar
 show(document.body.dataset.tab || 'meeting');
 
 /* Members tab shows the birthday count too */
-setInterval(function(){
+(function(){
   var src = $('tab-bday-badge'), dst = $('grp-bday-badge');
-  if (src && dst){ dst.hidden = src.hidden; dst.textContent = src.textContent; }
-}, 1000);
+  if (!src || !dst) return;
+  var copy = function(){ dst.hidden = src.hidden; dst.textContent = src.textContent; };
+  copy();
+  new MutationObserver(copy).observe(src, {attributes: true, childList: true, characterData: true, subtree: true});   // only when it changes
+})();
 
 /* ---------- Members > Directory: Name, Role, Email, Birthday ---------- */
 var dir = {q: '', sort: 'name'};

@@ -355,7 +355,15 @@
       <div class="row"><span class="lbl">Width</span><div class="range"><input type="range" data-range="qWidth" min="50" max="94" step="1" aria-label="Question width"><span class="val"></span></div></div>
       <div class="row"><span class="lbl">Text size</span><div class="range"><input type="range" data-range="qScale" min="0.6" max="1.6" step="0.05" aria-label="Question text size"><span class="val"></span></div></div>
       <h3>Both cards</h3>
-      <div class="row"><span class="lbl">Card opacity</span><div class="range"><input type="range" data-range="panel" min="55" max="100" step="1" aria-label="Card opacity"><span class="val"></span></div></div>
+      <div class="row"><span class="lbl">Card opacity</span><div class="range"><input type="range" data-range="panel" min="50" max="100" step="1" aria-label="Card opacity"><span class="val"></span></div></div>
+      <div class="row op-row"><span class="lbl"></span><div class="op-presets" role="group" aria-label="Card opacity presets">
+        <button type="button" class="chip" data-panel="70">70%</button><button type="button" class="chip" data-panel="80">80%</button>
+        <button type="button" class="chip" data-panel="90">90%</button><button type="button" class="chip" data-panel="100">100%</button></div></div>
+      <div class="op-preview" id="op-preview" aria-label="Card opacity preview">
+        <div class="op-scene" aria-hidden="true"><span class="op-sun"></span><span class="op-person"></span></div>
+        <div class="op-card" id="op-card"><span class="op-label">Discussion question</span><span class="op-text">Text stays clear while your video shows through.</span></div>
+      </div>
+      <p class="hint">Lower opacity lets participants see your video through the card. 80–90% suits most rooms; the text gets a soft shadow automatically so it stays readable.</p>
     </section>
   <section class="box" aria-labelledby="s-bday">
     <div class="box-head"><h2 id="s-bday">Birthdays</h2></div>
@@ -491,6 +499,7 @@
 <script src="js/remote-panel.js"></script>
 <script src="js/vcam-panel.js"></script>
 <script src="js/studio.js"></script>
+<script src="js/content-import.js"></script>
 <script src="js/nav.js"></script>
 <script src="js/brand.js"></script>
 <script src="js/about.js"></script>

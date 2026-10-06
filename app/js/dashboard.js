@@ -349,10 +349,22 @@ function bindRanges(){
       layoutT[key] = setTimeout(function(){ commit(function(n){ n.layout[key] = Number(r.value); }); }, 90);
     });
   });
+  Array.prototype.forEach.call(document.querySelectorAll('[data-panel]'), function(b){
+    b.addEventListener('click', function(){ commit(function(n){ n.layout.panel = Number(b.dataset.panel); }); opacityPreview(Number(b.dataset.panel)); });
+  });
+  var pr = document.querySelector('[data-range=panel]');
+  if (pr) pr.addEventListener('input', function(){ opacityPreview(Number(pr.value)); });
   $('layout-reset').addEventListener('click', function(){
     var d = Store.defaults().layout;
     commit(function(n){ n.layout = d; }).then(function(){ toast('Recommended layout restored'); });
   });
+}
+/* Small live preview: a sample card over a sample "video" at the chosen opacity */
+function opacityPreview(v){
+  var c = $('op-card'); if (!c) return;
+  c.style.setProperty('--op', (v / 100).toFixed(2));
+  c.style.setProperty('--op-shadow', Math.max(0, Math.min(0.85, (1 - v / 100) * 2.2)).toFixed(2));
+  Array.prototype.forEach.call(document.querySelectorAll('[data-panel]'), function(b){ b.setAttribute('aria-pressed', String(Number(b.dataset.panel) === Math.round(v))); });
 }
 function refreshRanges(){
   Array.prototype.forEach.call(document.querySelectorAll('[data-range]'), function(r){
@@ -360,6 +372,7 @@ function refreshRanges(){
     if (document.activeElement !== r) r.value = live.layout[key];
     r.nextElementSibling.textContent = fmt(key, Number(r.value));
   });
+  if (document.activeElement !== document.querySelector('[data-range=panel]')) opacityPreview(live.layout.panel);
 }
 
 /* ---------- Status ---------- */
@@ -555,8 +568,8 @@ function setup(){
   buildLinks();
   setupPreview();
   setupBackup();
-  pollPresence(); setInterval(pollPresence, 4000);
-  refreshMode(); setInterval(refreshMode, 2000);
+  pollPresence(); setInterval(function(){ if (!document.hidden) pollPresence(); }, 4000);   // idle: nothing while hidden
+  refreshMode(); setInterval(function(){ if (!document.hidden) refreshMode(); }, 2000);
 }
 
 Store.subscribe(function(st){

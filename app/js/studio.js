@@ -37,7 +37,7 @@ var sendT = null;
 function pushLayers(now){
   clearTimeout(sendT);
   dirtyUntil = Date.now() + 400;
-  var go = function(){ act('layers', {layers: L.map(strip), target: S && S.staged ? 'preview' : 'output'}).catch(function(){}); };
+  var go = function(){ act('layers', {layers: L.map(strip), target: 'output'}).catch(function(){}); };
   if (now) go(); else sendT = setTimeout(go, 70);
 }
 function strip(l){ var c = Object.assign({}, l); delete c.status; return c; }
@@ -86,10 +86,9 @@ root.appendChild(top); root.appendChild(h('div', {cls: 's2-body'}, [left, centre
 /* Top bar: scene selector with collection filter · Preview/Output · Record · Look · Focus · Hide window */
 var colFilter = h('select', {id: 's2-colfilter', 'aria-label': 'Scene collection'});
 var sceneSel = h('select', {id: 's2-scene', 'aria-label': 'Scene'});
-var modeSeg = h('div', {cls: 'seg s2-mode', role: 'group', 'aria-label': 'Preview or output'}, [
-  h('button', {type: 'button', 'data-val': 'preview', html: I('scan-eye', 15) + ' Preview'}),
-  h('button', {type: 'button', 'data-val': 'output', html: I('radio', 15) + ' Output'})]);
-var sendBtn = h('button', {cls: 'btn primary small', type: 'button', id: 's2-send', html: I('send', 15) + ' Send to output', hidden: 'hidden'});
+/* Presentation Mode: a separate "BSF Presentation" window showing only the scene, for Zoom > Share > window */
+var presBtn = h('button', {cls: 'btn primary s2-present', type: 'button', id: 's2-present', html: I('presentation', 16) + ' Presentation Mode',
+  title: 'Open a separate window with only the scene, to share in Zoom (Share Screen → BSF Presentation)'});
 var recBtn = h('button', {cls: 'btn s2-rec', type: 'button', id: 's2-rec', html: '<span class="dot"></span> Record'});
 var lookSel = h('select', {id: 's2-look', 'aria-label': 'Camera look'});
 var focusBtn = ib('maximize-2', 'Focus: hide the rest of the app', function(){ document.body.classList.toggle('studio-focus'); focusBtn.innerHTML = I(document.body.classList.contains('studio-focus') ? 'minimize-2' : 'maximize-2', 16); setTimeout(fitStage, 50); });
@@ -98,20 +97,23 @@ var hideBtn = ib('panel-left', 'Hide the app window (keeps running near the cloc
   fetch('api/app/hide', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: '{}'}).then(function(r){ if (!r.ok) toast('Only in the installed app', true); }); });
 var shareChip = h('span', {cls: 's2-chip', id: 's2-share', hidden: 'hidden'});
 top.appendChild(h('div', {cls: 's2-top-l'}, [h('span', {cls: 's2-lbl', html: I('layout-template', 15)}), colFilter, sceneSel]));
-top.appendChild(h('div', {cls: 's2-top-c'}, [modeSeg, sendBtn, shareChip]));
+top.appendChild(h('div', {cls: 's2-top-c'}, [presBtn, shareChip]));
 top.appendChild(h('div', {cls: 's2-top-r'}, [lookSel, recBtn, focusBtn, hideBtn]));
 
 colFilter.addEventListener('change', renderScenes);
 sceneSel.addEventListener('change', function(){ if (sceneSel.value) act('scene-apply', {id: sceneSel.value}).then(function(){ toast('Scene: ' + sceneSel.options[sceneSel.selectedIndex].text); }); });
-modeSeg.addEventListener('click', function(e){
-  var b = e.target.closest('[data-val]'); if (!b) return;
-  if (b.dataset.val === 'preview' && !S.staged) act('stage', {on: true}).then(function(){ toast('Preview: changes stay private until you Send to output'); refresh(); });
-  if (b.dataset.val === 'output' && S.staged){
-    if (!confirm('Leave Preview without sending your changes to the output?')) return;
-    act('stage', {on: false}).then(refresh);
+var popup = null;
+presBtn.addEventListener('click', function(){
+  var open = S && S.presentation && S.presentation.open;
+  if (S && S.presentation && !S.presentation.desktop){        // browser: a popup window (opened right away, inside the click)
+    if (popup && !popup.closed){ popup.close(); popup = null; return; }
+    popup = window.open('present.html', 'bsf-presentation', 'popup,width=1280,height=760');
+    if (!popup) toast('Allow pop-ups for this page to open the Presentation window', true);
+    return;
   }
+  fetch('api/app/present', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({on: !open})})
+    .then(function(){ toast(open ? 'Presentation window closed' : 'Presentation window open: in Zoom choose Share Screen → “BSF Presentation”'); setTimeout(refresh, 600); });
 });
-sendBtn.addEventListener('click', function(){ act('stage-commit').then(function(){ toast('Sent to output'); refresh(); }); });
 recBtn.addEventListener('click', function(){
   var on = !(S.recording && S.recording.on);
   act('record', {on: on}).then(function(d){ if (on) toast('Recording the BCC vCam output'); else if (d.result) toast('Saved: ' + d.result.file.split(/[\\/]/).pop() + ' (' + d.result.seconds + ' s)'); });
@@ -566,7 +568,6 @@ function moveSelected(dir){
 }
 
 /* ---------- show the state ---------- */
-function setSeg(seg, val){ Array.prototype.forEach.call(seg.children, function(b){ b.setAttribute('aria-pressed', String(b.dataset.val === val)); }); }
 function draw(){ renderList(); drawBoxes(); renderInspector(); }
 function apply(d){
   S = d;
@@ -578,10 +579,11 @@ function apply(d){
     L = fresh;
     sel = sel.filter(function(id){ return L.some(function(l){ return l.id === id; }); });
   }
-  setSeg(modeSeg, d.staged ? 'preview' : 'output');
-  sendBtn.hidden = !d.staged;
-  $('s2-badge').textContent = d.staged ? 'PREVIEW · not on the output yet' : 'OUTPUT · what Zoom / Teams receive';
-  $('s2-badge').className = 's2-badge' + (d.staged ? ' pv' : '');
+  if (d.staged && !apply.committed){ apply.committed = true; act('stage-commit').catch(function(){}); }   // an old private preview: apply it once
+  var po = d.presentation && d.presentation.open;
+  presBtn.innerHTML = I(po ? 'x' : 'presentation', 16) + (po ? ' Close Presentation' : ' Presentation Mode');
+  presBtn.classList.toggle('on', !!po);
+  $('s2-badge').textContent = po ? 'LIVE · also in the Presentation window' : 'LIVE · what Zoom / Teams receive';
   var r = d.recording;
   recBtn.classList.toggle('on', !!(r && r.on));
   recBtn.innerHTML = '<span class="dot"></span> ' + (r && r.on ? 'Stop · ' + fmtTime(r.seconds) : 'Record');
@@ -603,20 +605,20 @@ function metricsLine(){
   return 'Camera ' + (st.captureFps || 0) + ' fps → output ' + (st.fps || 0) + ' fps · ' + (st.msPerFrame || 0) + ' ms per frame · capture-to-send ' +
     (st.latencyMs || 0) + ' ms · dropped ' + (st.dropped || 0) + ' · CPU ' + (st.cpuPercent || 0) + '%';
 }
-function visible(){ return !root.hidden && document.body.dataset.tab === 'studio'; }
+function visible(){ return !root.hidden && document.body.dataset.tab === 'studio' && !document.hidden; }   // minimised: no pictures, no polling
 function refresh(){ return fetch('api/vcam/studio', {cache: 'no-store'}).then(function(r){ return r.json(); }).then(apply).catch(function(){}); }
 function poll(){
-  (visible() || !S ? refresh() : Promise.resolve()).then(function(){ metrics.textContent = metricsLine(); setTimeout(poll, visible() ? 1000 : 4000); });
+  (visible() || !S ? refresh() : Promise.resolve()).then(function(){ metrics.textContent = metricsLine(); setTimeout(poll, visible() ? 1000 : window.BSFStore.pace(4000)); });
 }
 poll();
 var pulling = false;
 function pullImage(){
   if (!visible()){ pulling = false; return; }
   pulling = true;
-  var url = (S && S.staged ? 'api/vcam/stage.jpg' : 'api/vcam/preview.jpg') + '?t=' + Date.now();
+  var url = 'api/vcam/preview.jpg?t=' + Date.now();
   fetch(url, {cache: 'no-store'}).then(function(r){
     if (r.status === 200) return r.blob().then(function(b){ var u = URL.createObjectURL(b), old = img.src; img.src = u; stage.classList.add('on'); if (old && old.slice(0, 5) === 'blob:') URL.revokeObjectURL(old); });
-  }).catch(function(){}).then(function(){ setTimeout(pullImage, S && S.staged ? 220 : 160); });
+  }).catch(function(){}).then(function(){ setTimeout(pullImage, document.hidden ? 1000 : 200); });
 }
 var prevOnTab = window.BSFOnTab;
 window.BSFOnTab = function(t){
@@ -625,6 +627,7 @@ window.BSFOnTab = function(t){
   else document.body.classList.remove('studio-focus');
 };
 if (window.ResizeObserver) new ResizeObserver(fitStage).observe(stageWrap);
+document.addEventListener('visibilitychange', function(){ if (visible() && !pulling) pullImage(); });   // shown again: resume the picture
 window.BSFStudio = {layers: function(){ return L; }, select: function(ids){ sel = ids.slice(); draw(); }};
 
 /* ---------- hotkeys: Ctrl+Shift+1/2/3 = layers 1-3, Page Up/Down = slides ---------- */

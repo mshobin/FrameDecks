@@ -12,7 +12,17 @@ import time
 import cv2
 import numpy as np
 
-STRENGTH = {"light": 2.5, "strong": 5.0}   # blur radius on the 1/8-size picture
+# Blur strength 0..100 %. Blur radius on the 1/8-size picture: 2 + 12 x strength.
+# Presets: Light 30 % (radius 5.6; its visible effect is about 1.5x the old Light's), Medium 55, Strong 80,
+# Maximum 100 (radius 14, about 2x the old Light). Measured on a photo, see the 4.2 notes in ARCHITECTURE.md.
+PRESETS = {"off": 0, "light": 30, "medium": 55, "strong": 80, "maximum": 100}
+LEGACY = {"off": 0, "light": 30, "strong": 80}            # settings saved by older versions
+
+
+def sigma_for(strength):
+    s = LEGACY.get(strength, strength) if isinstance(strength, str) else strength
+    s = max(0.0, min(100.0, float(s or 0)))
+    return 2.0 + 12.0 * s / 100.0
 
 
 class BackgroundBlur:
@@ -61,7 +71,7 @@ class BackgroundBlur:
             self.full_version = self.mask_version
         return self.full_mask
 
-    def apply(self, frame, strength="light"):
+    def apply(self, frame, strength=30):
         with self.cond:                                       # hand the newest frame to the model thread
             self.pending = frame
             self.cond.notify()
@@ -69,7 +79,7 @@ class BackgroundBlur:
             return frame                                      # first moment: no outline yet
         h, w = frame.shape[:2]
         small = cv2.resize(frame, (w // 8, h // 8), interpolation=cv2.INTER_AREA)
-        small = cv2.GaussianBlur(small, (0, 0), STRENGTH.get(strength, STRENGTH["light"]))
+        small = cv2.GaussianBlur(small, (0, 0), sigma_for(strength))
         background = cv2.resize(small, (w, h), interpolation=cv2.INTER_LINEAR)
         mask = self._full(w, h)
         person = cv2.multiply(frame, mask, scale=1 / 255.0)

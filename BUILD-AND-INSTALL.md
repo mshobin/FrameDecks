@@ -31,14 +31,14 @@ GitHub now starts building your installer automatically.
 2. Click the **Actions** tab. You'll see **Build Windows installer** running (yellow dot).
    It takes about 5–10 minutes. A green tick means it worked.
 3. Click the finished run. At the bottom, under **Artifacts**, click
-   **BSF-Command-Center-Setup-4.1** (the version number) to download it (a .zip containing the Setup .exe).
-4. Unzip it. You now have **BSF-Command-Center-Setup-4.1.exe**.
+   **BSF-Command-Center-Setup-4.2** (the version number) to download it (a .zip containing the Setup .exe).
+4. Unzip it. You now have **BSF-Command-Center-Setup-4.2.exe**.
 
 If you see a red cross instead, click the run to read the error, and send it to me.
 
 ## Part 3 · Install
 
-1. Double-click **BSF-Command-Center-Setup-4.1.exe**.
+1. Double-click **BSF-Command-Center-Setup-4.2.exe**.
 2. Windows may show **"Windows protected your PC"**. This appears because the installer isn't
    code-signed (signing costs money every year). Click **More info → Run anyway**.
 3. Follow the wizard. No administrator password is needed. Leave **Create a desktop icon** ticked.
@@ -86,6 +86,14 @@ If you see a red cross instead, click the run to read the error, and send it to 
       pick your display. Within a few seconds your screen appears; move the mouse — the cursor shows. If it can't
       start, the Screen layer's inspector shows exactly which capture methods were tried and why: send me that text.
       Also try a PowerPoint slide show window and Page Down / Page Up.
+- [ ] **Presentation Mode (4.2):** Studio → *Presentation Mode*. A separate window "BSF Presentation" opens. In a Zoom
+      test meeting: Share Screen → pick **BSF Presentation**. Show a question from the main window or your phone: it
+      appears in the shared window at once. Esc closes it.
+- [ ] **Acceptance (4.2):** with Zoom in a meeting, BCC vCam on, and the Presentation window shared, switch between apps,
+      move windows, type in a browser for a few minutes. Nothing should lag or freeze. Then send me Settings →
+      Diagnostics → *Copy diagnostics* (it includes the new Resources line).
+- [ ] **Excel import:** Content → *Download template*, fill in two rows, *Import from Excel*.
+- [ ] **Blur:** Settings → BCC vCam → try Light and Maximum with the preview on; *Save as default*.
 - [ ] **Studio canvas:** drag a layer (pink guides appear near the centre/edges), resize with a corner handle,
       change Corner radius in the inspector, add a Text layer with {{firstName}} (Personalise → firstName).
 - [ ] **Layers:** add a logo (PNG) and a short video; move, resize, rotate, fade; reorder by dragging;

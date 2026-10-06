@@ -55,7 +55,27 @@ function segButtons(seg, items, key){
   });
 }
 segButtons(resSeg, [['720p', '720p (recommended)'], ['1080p', '1080p']], 'resolution');
-segButtons(blurSeg, [['off', 'Off'], ['light', 'Light'], ['strong', 'Strong']], 'blur');
+/* Background blur: presets + 0-100 % slider. Changes apply live for this session; "Save as default" keeps them. */
+var BLUR_PRESETS = [['off', 'Off', 0], ['light', 'Light', 30], ['medium', 'Medium', 55], ['strong', 'Strong', 80], ['maximum', 'Maximum', 100]];
+var blurRange = h('input', {type: 'range', min: '0', max: '100', step: '1', value: '0', id: 'vcam-blur-range', 'aria-label': 'Blur strength'});
+var blurVal = h('span', {cls: 'val', id: 'vcam-blur-val', text: '0%'});
+var blurSave = h('button', {cls: 'btn small', type: 'button', id: 'vcam-blur-save', text: 'Save as default'});
+var blurNote = h('span', {cls: 'hint', id: 'vcam-blur-note'});
+var blurT = null;
+BLUR_PRESETS.forEach(function(p){
+  blurSeg.appendChild(h('button', {type: 'button', 'data-val': String(p[2]), text: p[1], onclick: function(){ tryBlur(p[2]); }}));
+});
+function tryBlur(n){
+  blurRange.value = n; blurVal.textContent = n + '%'; markBlur(n);
+  if (!previewing) previewBtn.click();                        // live preview of the effect
+  clearTimeout(blurT);
+  blurT = setTimeout(function(){ post('settings', {session: true, blurStrength: n}).then(render); }, 120);
+}
+function markBlur(n){ Array.prototype.forEach.call(blurSeg.children, function(b){ b.setAttribute('aria-pressed', String(+b.dataset.val === n)); }); }
+blurRange.addEventListener('input', function(){ tryBlur(+blurRange.value); });
+blurSave.addEventListener('click', function(){
+  post('settings', {saveBlurDefault: true}).then(render).then(function(){ toast('Background blur ' + blurRange.value + '% saved as the default'); });
+});
 function save(key, value){
   var body = {}; body[key] = value;
   post('settings', body).then(render).then(function(){
@@ -108,6 +128,8 @@ var settingsBox = h('section', {cls: 'box'}, [
   h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'Camera Look'}), lookSel,
     h('span', {cls: 'hint', style: 'margin-left:10px', text: 'Ctrl+Alt+1 Warm · 2 Dark · 3 Neutral · 0 Off'})]),
   h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'Background blur'}), blurSeg]),
+  h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'Blur strength'}), h('div', {cls: 'range'}, [blurRange, blurVal])]),
+  h('div', {cls: 'row'}, [h('span', {cls: 'lbl'}), blurSave, blurNote]),
   h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'Mirror'}), h('label', {cls: 'check'}, [mirror, ' Flip left-right (only your camera picture; text stays readable)'])]),
   h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'Cards'}), h('label', {cls: 'check'}, [cardsCb, ' Show my verse, question and birthday cards on BCC vCam'])]),
   h('div', {cls: 'box-head', style: 'margin-top:12px'}, [h('h2', {text: 'Preview'}), previewBtn]),
@@ -161,7 +183,12 @@ function render(d){
   });
   if ($('mt-look-wrap')) $('mt-look-wrap').hidden = false;
   Array.prototype.forEach.call(resSeg.children, function(b){ b.setAttribute('aria-pressed', String(b.dataset.val === s.resolution)); });
-  Array.prototype.forEach.call(blurSeg.children, function(b){ b.setAttribute('aria-pressed', String(b.dataset.val === s.blur)); });
+  var now = d.blurNow == null ? (s.blurStrength || 0) : d.blurNow, saved = s.blurStrength || 0;
+  if (document.activeElement !== blurRange){ blurRange.value = now; blurVal.textContent = now + '%'; }
+  markBlur(+blurRange.value);
+  blurSave.disabled = now === saved;
+  var name = function(n){ var p = BLUR_PRESETS.filter(function(x){ return x[2] === n; })[0]; return p ? p[1] + ' (' + n + '%)' : n + '%'; };
+  blurNote.textContent = now === saved ? 'Default: ' + name(saved) : 'Trying ' + name(now) + ' · default is ' + name(saved) + ' (not saved yet)';
   var cams = d.cameras || [], sig = JSON.stringify(cams);
   if (camSel.dataset.sig !== sig){
     camSel.dataset.sig = sig; camSel.innerHTML = '';
@@ -195,12 +222,13 @@ function render(d){
 }
 function poll(){
   fetch('api/vcam/status', {cache: 'no-store'}).then(function(r){ return r.json(); }).then(render).catch(function(){})
-    .then(function(){ setTimeout(poll, $('sec-vcam') && !$('sec-vcam').hidden ? 1000 : 3000); });
+    .then(function(){ setTimeout(poll, window.BSFStore.pace($('sec-vcam') && !$('sec-vcam').hidden ? 1000 : 3000)); });
 }
 poll();
 
 /* Preview: pulls a small picture about 3 times a second while it is open and this section is visible */
 function pullPreview(){
+  if (document.hidden){ setTimeout(pullPreview, 1000); return; }       // minimised: don't ask for pictures
   if (!previewing) return;
   if ($('sec-vcam').hidden || document.body.dataset.tab !== 'settings'){
     previewing = false; previewBtn.textContent = 'Show preview'; previewBox.classList.remove('on'); img.removeAttribute('src'); return;

@@ -116,6 +116,11 @@ class Compositor:
         self.ms = 0.0
         self.lock = threading.Lock()
         self._backdrop = None
+        # Presentation window: newest final frame, published only when the picture actually changed
+        self.present = {"clients": 0, "frame": None, "ver": 0, "sig": None, "sent": 0}
+        self.last_change = time.time()             # when the final picture last changed (drives the idle rhythm)
+        self._sig = None
+        self.present_cond = threading.Condition()
         self.variables = {}            # personal variables, e.g. {"firstName": "Shobin", "location": "Kuwait"}
         self.staged = None             # Preview mode: a layer list being edited before it goes to the output
         self.last_cam = None
@@ -296,3 +301,13 @@ class Compositor:
     def after_send(self, frame):
         if self.recorder:
             self.recorder.push(frame)
+        small = cv2.resize(frame, (64, 36), interpolation=cv2.INTER_AREA).astype(np.int16)
+        if self._sig is None or int(np.abs(small - self._sig).max()) > 1:
+            self.last_change = time.time()
+        self._sig = small
+        if self.present["clients"] > 0:
+            sig = self.present["sig"]
+            if sig is None or int(np.abs(small - sig).max()) > 1:        # changed (a still slide stays silent)
+                with self.present_cond:
+                    self.present.update(frame=frame, sig=small, ver=self.present["ver"] + 1)
+                    self.present_cond.notify_all()

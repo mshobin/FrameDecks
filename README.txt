@@ -1,5 +1,5 @@
 ================================================================
-  BSF COMMAND CENTER  ·  version 4.1
+  BSF COMMAND CENTER  ·  version 4.2
   Clean Bible study overlays for BSF leaders on Zoom.
 ================================================================
 
@@ -136,6 +136,36 @@ WHAT'S NEW IN VERSION 3 (the meeting control console)
   - Stream Deck support has been removed.
 
   Small changes you may notice
+  - New in 4.2:
+      * Card opacity (Settings > Overlays): 70 / 80 / 90 / 100 % presets,
+        a slider and a live preview. Below 100 % your video shows
+        through the card; the text gets a soft shadow so it stays clear.
+      * Presentation Mode (Studio, or the icon near the clock): opens a
+        separate "BSF Presentation" window with only the scene and your
+        cards. In Zoom: Share Screen > choose "BSF Presentation". Keep
+        controlling everything from the main window. Esc or the X
+        (move the mouse) closes it; F or double-click = full screen.
+        (The Studio's Preview / Output switch is gone: edits go live.)
+      * Phones: the remote is one "Live Control" screen. The buttons at
+        the top jump to Questions, Verses or Birthday; tap a section's
+        header to fold it.
+      * Meetings & Content > Content > Import from Excel: questions and
+        their verses, one pair per row (.xlsx or .csv). "Download
+        template" gives a ready file. You can match differently named
+        columns, check every row before importing, and add to or
+        replace your lists.
+      * BCC vCam blur: Off / Light / Medium / Strong / Maximum and a
+        0-100 % slider with live preview; "Save as default" keeps it.
+        The new Light is about 1.5x stronger than before.
+  - Best performance with Zoom (see Settings > Diagnostics > Resources):
+      * Use BCC vCam at 720p (recommended) unless you need 1080p.
+      * Close the Studio tab or BCC vCam preview when you're not editing:
+        the live canvas is the heaviest screen. Minimised, the app now
+        stops all pictures and slows its checks automatically.
+      * Blur and Studio layers with live video cost the most; turn off
+        what you don't use. Turn off Zoom's own background blur when
+        BCC vCam blurs.
+      * Share the Presentation window rather than your whole screen.
   - Four main tabs (version 4.1):
       Alt+1 Meetings & Content - Run meeting · Content · Recordings
       Alt+2 Studio

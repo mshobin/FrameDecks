@@ -105,10 +105,52 @@ document.addEventListener('click', function(e){
   buzz(12);
   act(b.dataset.do, b.dataset.k);
 });
-/* Phones: one panel at a time (remembered on this device) */
-function setPanel(k){ document.body.dataset.pt = k; try { localStorage.setItem('bsf-remote-panel', k); } catch(e){} }
+/* Phones: one "Live Control" screen. The quick-switch buttons jump to a section; the button of the
+ * section you're looking at is highlighted; each section can be folded (remembered on this phone). */
+var PHONE = window.matchMedia('(max-width:700px), (max-height:520px)');
+var SECTIONS = {question: '.pane.q', verse: '.pane.v', more: '.pane.b'};
+var jumpedAt = 0;
+function sectionFor(k){ return document.querySelector(SECTIONS[k] || '.pane.q'); }
+function setPanel(k){
+  document.body.dataset.pt = k;
+  var sec = sectionFor(k);
+  if (PHONE.matches && sec){
+    jumpedAt = Date.now();
+    if (sec.classList.contains('folded')) toggleFold(sec);
+    sec.scrollIntoView({behavior: 'smooth', block: 'start'});
+  }
+}
 Array.prototype.forEach.call(document.querySelectorAll('.pt'), function(b){ b.addEventListener('click', function(){ setPanel(b.dataset.pt); }); });
-try { var savedPanel = localStorage.getItem('bsf-remote-panel'); if (savedPanel) document.body.dataset.pt = savedPanel; } catch(e){}
+document.body.dataset.pt = 'question';
+var folds = {};
+try { folds = JSON.parse(localStorage.getItem('bsf-remote-folds') || '{}') || {}; } catch(e){}
+function toggleFold(sec){
+  var k = sec.dataset.k, f = !sec.classList.contains('folded');
+  sec.classList.toggle('folded', f);
+  var b = sec.querySelector('.fold'); if (b) b.setAttribute('aria-expanded', String(!f));
+  folds[k] = f; try { localStorage.setItem('bsf-remote-folds', JSON.stringify(folds)); } catch(e){}
+}
+Array.prototype.forEach.call(document.querySelectorAll('.pane.q, .pane.v, .pane.b'), function(sec){
+  var head = sec.querySelector('.phead');
+  var b = document.createElement('button');
+  b.type = 'button'; b.className = 'fold'; b.textContent = '▾';
+  b.setAttribute('aria-label', 'Fold or unfold this section'); b.setAttribute('aria-expanded', 'true');
+  head.appendChild(b);
+  head.addEventListener('click', function(e){ if (PHONE.matches && !e.target.closest('.label')) toggleFold(sec); });
+  if (folds[sec.dataset.k]){ sec.classList.add('folded'); b.setAttribute('aria-expanded', 'false'); }
+});
+/* Highlight the section in view while scrolling (not right after a jump, so the tapped one stays lit) */
+if ('IntersectionObserver' in window){
+  var seen = {};
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(en){ seen[en.target.dataset.k] = en.intersectionRatio; });
+    if (!PHONE.matches || Date.now() - jumpedAt < 700) return;
+    var best = null, top = 0;
+    ['question', 'verse', 'birthday'].forEach(function(k){ if ((seen[k] || 0) > top){ top = seen[k]; best = k; } });
+    if (best) document.body.dataset.pt = best === 'birthday' ? 'more' : best;
+  }, {threshold: [0, 0.25, 0.5, 0.75, 1]});
+  Array.prototype.forEach.call(document.querySelectorAll('.pane.q, .pane.v, .pane.b'), function(sec){ io.observe(sec); });
+}
 /* A short vibration confirms a press on Android phones (iPhones ignore this) */
 function buzz(ms){ try { if (navigator.vibrate) navigator.vibrate(ms); } catch(e){} }
 

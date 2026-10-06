@@ -27,7 +27,7 @@ from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from pathlib import Path
 from urllib.parse import urlparse, parse_qs, unquote
 
-APP_VERSION = "4.1"
+APP_VERSION = "4.2"
 STARTED_AT = time.time()
 FROZEN = getattr(sys, "frozen", False)          # True inside the installed Windows app
 HERE = Path(sys.executable).resolve().parent if FROZEN else Path(__file__).resolve().parent
@@ -150,6 +150,9 @@ def save_state(new):
         tmp.write_text(json.dumps(state, indent=2, ensure_ascii=False), encoding="utf-8")
         os.replace(tmp, STATE_FILE)
         cond.notify_all()
+        eng = VCAM.get("engine") if "VCAM" in globals() else None
+        if eng:
+            eng.kick()                     # a card was shown/hidden: draw it now, even in the idle rhythm
         return state
 
 
@@ -209,6 +212,50 @@ def _refresh_network_check():
     _net_cache.update({"at": time.time(), "value": out})
 
 
+# ---------- Resource monitor (Settings > Diagnostics) ----------
+REQ = {"counts": {}, "since": time.time()}
+
+
+def count_request(path):
+    """Count requests by kind, so Diagnostics can show which screens are busy."""
+    kind = path if path in ("/api/rev", "/api/state", "/api/presence", "/api/vcam/preview.jpg", "/api/vcam/stage.jpg",
+                            "/api/vcam/status", "/api/vcam/studio", "/api/present.mjpg") else ("page" if not path.startswith("/api/") else "other api")
+    REQ["counts"][kind] = REQ["counts"].get(kind, 0) + 1
+
+
+def process_memory_mb():
+    try:
+        if os.name == "nt":
+            import ctypes
+            from ctypes import wintypes
+
+            class PMC(ctypes.Structure):
+                _fields_ = [("cb", wintypes.DWORD), ("PageFaultCount", wintypes.DWORD), ("PeakWorkingSetSize", ctypes.c_size_t),
+                            ("WorkingSetSize", ctypes.c_size_t), ("QuotaPeakPagedPoolUsage", ctypes.c_size_t),
+                            ("QuotaPagedPoolUsage", ctypes.c_size_t), ("QuotaPeakNonPagedPoolUsage", ctypes.c_size_t),
+                            ("QuotaNonPagedPoolUsage", ctypes.c_size_t), ("PagefileUsage", ctypes.c_size_t), ("PeakPagefileUsage", ctypes.c_size_t)]
+            pmc = PMC(); pmc.cb = ctypes.sizeof(PMC)
+            ctypes.windll.psapi.GetProcessMemoryInfo(ctypes.windll.kernel32.GetCurrentProcess(), ctypes.byref(pmc), pmc.cb)
+            return round(pmc.WorkingSetSize / 1048576, 1)
+        with open("/proc/self/statm") as f:
+            return round(int(f.read().split()[1]) * os.sysconf("SC_PAGE_SIZE") / 1048576, 1)
+    except Exception:
+        return None
+
+
+def resources():
+    mins = max(1 / 60, (time.time() - REQ["since"]) / 60)
+    rates = {k: round(v / mins, 1) for k, v in sorted(REQ["counts"].items(), key=lambda kv: -kv[1])}
+    REQ.update(counts={}, since=time.time())                  # each look covers the time since the last one
+    eng, comp = VCAM.get("engine"), VCAM.get("compositor")
+    st = dict(eng.status) if eng else {}
+    return {"memoryMB": process_memory_mb(), "threads": threading.active_count(), "requestsPerMinute": rates,
+            "presentationWindows": comp.present["clients"] if comp else 0,
+            "camera": {k: st.get(k) for k in ("state", "fps", "captureFps", "msPerFrame", "lookMs", "blurMs", "latencyMs", "dropped", "cpuPercent")} if eng else None,
+            "composeMs": round(comp.ms, 2) if comp else None, "layers": len(comp.layers.layers) if comp else 0,
+            "layerCacheEntries": len(comp.layers.cache) if comp else 0}
+
+
 def diagnostics(address):
     files = {}
     for f in (STATE_FILE, PRIVATE_FILE, PIN_FILE, SESSIONS_FILE):
@@ -219,6 +266,7 @@ def diagnostics(address):
     with sessions_lock:
         n_sessions = len([1 for v in sessions.values() if v > time.time()])
     return {
+        "resources": resources(),
         "version": APP_VERSION, "python": platform.python_version(), "os": platform.platform(),
         "folder": str(HERE), "dataFolder": str(DATA), "installedApp": FROZEN, "port": address[1], "listeningOn": address[0],
         "remoteMode": REMOTE, "addresses": lan_addresses(), "uptimeSeconds": int(time.time() - STARTED_AT),
@@ -524,7 +572,7 @@ def firewall(action):
 
 # ---------- BCC vCam (built-in virtual camera, Windows) ----------
 VCAM_SETTINGS_FILE = DATA / "bsf-vcam-settings.json"
-VCAM_DEFAULTS = {"enabled": True, "cameraName": "", "resolution": "720p", "mirror": False, "blur": "off", "cards": True, "look": "off"}
+VCAM_DEFAULTS = {"enabled": True, "cameraName": "", "resolution": "720p", "mirror": False, "blur": "off", "blurStrength": 0, "cards": True, "look": "off"}
 LOOKS_FILE = DATA / "bsf-looks.json"
 VCAM = {"engine": None, "reason": "", "detail": "", "cameras": None, "camerasAt": 0}
 
@@ -556,6 +604,10 @@ def clean_vcam(d):
         out["resolution"] = d["resolution"]
     if d.get("blur") in ("off", "light", "strong"):
         out["blur"] = d["blur"]
+    if isinstance(d.get("blurStrength"), (int, float)) and not isinstance(d.get("blurStrength"), bool):
+        out["blurStrength"] = int(max(0, min(100, d["blurStrength"])))
+    elif "blur" in out:                                   # older settings: off / light / strong
+        out["blurStrength"] = {"off": 0, "light": 30, "strong": 80}[out["blur"]]
     return out
 
 
@@ -659,6 +711,8 @@ def studio_status():
             "recording": {"on": rec is not None, "seconds": round(time.time() - rec.started, 1) if rec else 0, "codec": rec.codec if rec else "",
                           "frames": rec.frames if rec else 0, "skipped": rec.skipped if rec else 0, "folder": str(recordings_dir())},
             "lastRecording": comp.last_recording, "latencyTest": comp.latency_test, "composeMs": round(comp.ms, 2),
+            "presentation": {"open": bool(comp.present["clients"]) or bool(DESKTOP.get("present_open") and DESKTOP["present_open"]()),
+                             "desktop": bool(DESKTOP.get("present")), "framesSent": comp.present["sent"]},
             "pdfs": sorted(p.name for p in LAYERS_DIR.glob("*.pdf")) if LAYERS_DIR.is_dir() else []}
 
 
@@ -668,6 +722,13 @@ def _layer_id():
 
 def studio_action(d):
     """Everything the Studio panel, hotkeys, tray menu and scenes can change."""
+    eng = VCAM.get("engine")
+    if eng:
+        eng.kick()                         # a Studio change: draw it now
+    return _studio_action(d)
+
+
+def _studio_action(d):
     comp, eng = VCAM.get("compositor"), VCAM.get("engine")
     if not comp:
         raise ValueError(VCAM.get("reason") or "BCC vCam is not available.")
@@ -865,6 +926,8 @@ def _vcam_blockers():
 def vcam_effective(settings):
     """The settings the engine should use: an empty camera choice means the first usable webcam."""
     out = {k: v for k, v in settings.items() if k not in ("enabled", "cards", "look")}
+    if VCAM.get("blurSession") is not None:               # a blur strength being tried, not saved yet
+        out["blurStrength"] = VCAM["blurSession"]
     if not out.get("cameraName"):
         cams = vcam_list_cameras()
         out["cameraName"] = next((c["name"] for c in cams if not c["ir"]), cams[0]["name"] if cams else "")
@@ -966,6 +1029,7 @@ def vcam_status():
             "cameras": [{"name": n, "ir": any(c["ir"] for c in vcam_list_cameras() if c["name"] == n)}
                         for n in dict.fromkeys(c["name"] for c in vcam_list_cameras())] if eng else [],
             "activeCamera": vcam_effective(vcam_settings())["cameraName"] if eng else "", "name": "BCC vCam",
+            "blurNow": VCAM["blurSession"] if VCAM.get("blurSession") is not None else vcam_settings()["blurStrength"],
             "looks": _looks_list(), "looksNote": VCAM.get("looksNote", "")}
 
 
@@ -1092,6 +1156,7 @@ class Handler(BaseHTTPRequestHandler):
         return self.reply(200, json.dumps({"ok": True}), TYPES[".json"], [("Set-Cookie", cookie)])
 
     def do_GET(self):
+        count_request(urlparse(self.path).path)
         if not self.host_ok():
             return self.reply(403, "Forbidden", "text/plain; charset=utf-8")
         url = urlparse(self.path)
@@ -1100,6 +1165,10 @@ class Handler(BaseHTTPRequestHandler):
             return self.reply(302, "", "text/plain", [("Location", "/remote.html")])
         if not self.allowed(path):
             return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
+        if path == "/api/present.mjpg":                 # Presentation window (this PC only)
+            if not self.is_local():
+                return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
+            return self.present_stream()
         if path.startswith("/api/vcam/"):
             if not self.is_local():
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
@@ -1217,6 +1286,65 @@ class Handler(BaseHTTPRequestHandler):
         host = self.headers.get("Host", "")
         return origin in (f"http://{host}",)
 
+    def present_stream(self):
+        """The Presentation window's picture: a motion-JPEG stream of the final BCC vCam frame.
+        A frame is sent only when the picture changed (at most 30 per second), so a still slide costs
+        almost nothing. Each frame is encoded here, not in the camera thread."""
+        comp, eng = VCAM.get("compositor"), VCAM.get("engine")
+        if not comp or not eng:
+            return self.reply(404, "BCC vCam is not available", "text/plain; charset=utf-8")
+        import cv2 as _cv2
+        self.send_response(200)
+        self.send_header("Content-Type", "multipart/x-mixed-replace; boundary=bsfframe")
+        self.send_header("Cache-Control", "no-store")
+        self.send_header("X-Content-Type-Options", "nosniff")
+        self.end_headers()
+        import select as _select, socket as _socket
+        self.wfile.write(b"--bsfframe\r\n")                # boundary first: each frame then ends with the next one,
+        self.wfile.flush()                                   # so the browser shows it at once (even a still slide)
+        pres = comp.present
+        with comp.present_cond:
+            pres["clients"] += 1
+            pres["sig"] = None                    # send the current picture straight away
+        last, t_last, repeat = -1, 0.0, None
+        try:
+            while True:
+                eng.keep_awake(3.0)
+                with comp.present_cond:
+                    comp.present_cond.wait_for(lambda: pres["ver"] != last, timeout=0.12 if repeat else 1.0)
+                    ver, frame = pres["ver"], pres["frame"]
+                if (ver == last or frame is None) and repeat:
+                    # Browsers show a stream frame once the next one begins: repeat the newest frame once,
+                    # so a still picture (and the last frame of a transition) appears straight away.
+                    self.wfile.write(repeat)
+                    self.wfile.flush()
+                    repeat = None
+                    continue
+                if ver == last or frame is None:
+                    # nothing new: check the window is still there (a closed window must not keep the camera awake)
+                    readable, _, _ = _select.select([self.connection], [], [], 0)
+                    if readable and not self.connection.recv(1, _socket.MSG_PEEK):
+                        break
+                    continue
+                gap = time.time() - t_last
+                if gap < 1 / 30:
+                    time.sleep(1 / 30 - gap)
+                ok, jpg = _cv2.imencode(".jpg", frame, [_cv2.IMWRITE_JPEG_QUALITY, 85])
+                if not ok:
+                    continue
+                data = jpg.tobytes()
+                part = b"Content-Type: image/jpeg\r\nContent-Length: " + str(len(data)).encode() + b"\r\n\r\n" + data + b"\r\n--bsfframe\r\n"
+                self.wfile.write(part)
+                self.wfile.flush()
+                repeat = part
+                last, t_last = ver, time.time()
+                pres["sent"] += 1
+        except (BrokenPipeError, ConnectionResetError, ConnectionAbortedError, OSError):
+            pass
+        finally:
+            with comp.present_cond:
+                pres["clients"] = max(0, pres["clients"] - 1)
+
     def upload_layer_file(self):
         """A picture, video or PDF for a layer, copied into the data folder's layers folder (this PC only)."""
         if not self.is_local():
@@ -1253,6 +1381,13 @@ class Handler(BaseHTTPRequestHandler):
     def app_action(self, action, data):
         ok = lambda obj: self.reply(200, json.dumps(obj), TYPES[".json"])
         bad = lambda msg, code=400: self.reply(code, json.dumps({"error": msg}), TYPES[".json"])
+        if action == "present":
+            # A separate "BSF Presentation" window (selectable in Zoom > Share > specific window).
+            hook = DESKTOP.get("present")
+            if hook:
+                hook(bool(data.get("on", True)))
+                return ok({"desktop": True, "open": bool(data.get("on", True))})
+            return ok({"desktop": False})        # browser: the page opens its own popup window
         if action == "remote":
             res = set_remote(bool(data.get("enabled")))
             return ok(res)
@@ -1293,6 +1428,7 @@ class Handler(BaseHTTPRequestHandler):
         return bad("Unknown action", 404)
 
     def do_POST(self):
+        count_request(urlparse(self.path).path)
         if not self.host_ok() or not self.origin_ok():
             return self.reply(403, "Forbidden", "text/plain; charset=utf-8")
         if urlparse(self.path).path == "/api/vcam/upload":
@@ -1309,6 +1445,24 @@ class Handler(BaseHTTPRequestHandler):
         if path.startswith("/api/vcam/"):
             if not self.is_local():
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
+            if path == "/api/vcam/settings" and isinstance(data, dict) and (data.get("session") or data.get("saveBlurDefault")):
+                # Blur: try a strength live (not saved), or save the current strength as the default
+                cur = vcam_settings()
+                if data.get("saveBlurDefault"):
+                    n = VCAM.get("blurSession")
+                    n = cur["blurStrength"] if n is None else n
+                    cur["blurStrength"] = n
+                    cur["blur"] = "off" if n == 0 else ("light" if n <= 45 else "strong")   # for older versions
+                    VCAM_SETTINGS_FILE.write_text(json.dumps(cur, indent=2), encoding="utf-8")
+                    VCAM["blurSession"] = None
+                else:
+                    c = clean_vcam({"blurStrength": data.get("blurStrength")})
+                    if "blurStrength" in c:
+                        VCAM["blurSession"] = c["blurStrength"]
+                eng = VCAM["engine"]
+                if eng:
+                    eng.configure(**vcam_effective(cur))
+                return self.reply(200, json.dumps(vcam_status()), TYPES[".json"])
             if path == "/api/vcam/settings" and isinstance(data, dict):
                 changes = clean_vcam(data)
                 cur = vcam_settings()

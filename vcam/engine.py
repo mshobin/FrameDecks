@@ -110,7 +110,7 @@ class VCamEngine:
         self.overlay = overlay                    # (frame) -> frame with cards drawn (used when there is no compositor)
         self.compositor = compositor              # layout + layers + cards, the one final picture
         self.dropped = 0
-        self.settings = {"cameraName": "", "resolution": "720p", "mirror": False, "blur": "off"}
+        self.settings = {"cameraName": "", "resolution": "720p", "mirror": False, "blur": "off", "blurStrength": 0}
         self.lock = threading.Lock()
         self.thread = None
         self.running = False
@@ -118,6 +118,8 @@ class VCamEngine:
         self.cam = None
         self.blur = None
         self.preview_until = 0.0
+        self.awake_until = 0.0                    # e.g. the Presentation window is open (no preview pictures needed)
+        self.kick_evt = threading.Event()         # set when something changes (a card shown, a Studio edit)
         self.preview_jpeg = None
         self.status = {"state": "off", "message": "", "fps": 0.0, "msPerFrame": 0.0, "blurMs": 0.0,
                        "inUse": False, "cameraOn": False}
@@ -155,6 +157,13 @@ class VCamEngine:
             self._reopen = getattr(self, "_reopen", False) or reopen
             self._resink = getattr(self, "_resink", False) or restart_sink
 
+    def kick(self):
+        """Something changed: draw the next frame now (wakes the idle rhythm)."""
+        self.kick_evt.set()
+
+    def keep_awake(self, seconds=3.0):
+        self.awake_until = time.time() + seconds
+
     def want_preview(self, seconds=3.0):
         self.preview_until = time.time() + seconds
 
@@ -190,8 +199,9 @@ class VCamEngine:
                     self._close_camera()
                 in_use = self.sink.connected()
                 previewing = time.time() < self.preview_until
+                awake = time.time() < self.awake_until
                 self._set(inUse=in_use)
-                if not in_use and not previewing:
+                if not in_use and not previewing and not awake:
                     if self.cam:
                         self._close_camera()            # webcam light goes off
                     self._set(state="ready", message="Ready. Choose “BCC vCam” as the camera in Zoom or Teams.", fps=0.0)
@@ -201,8 +211,15 @@ class VCamEngine:
                 if not need_cam:                         # screen-only layout: the webcam is switched off
                     if self.cam:
                         self._close_camera()
-                    tick += 1 / 30
-                    time.sleep(max(0.0, tick - time.perf_counter()))
+                    # Idle rhythm: with no camera and nothing changing, and Zoom not using BCC vCam, check 5x a second
+                    # instead of 30. Any change (kick) wakes it at once; changes keep it at 30 fps for 1.5 s.
+                    idle = not in_use and self.compositor is not None and time.time() - self.compositor.last_change > 1.5
+                    tick += 0.2 if idle else 1 / 30
+                    wait = tick - time.perf_counter()
+                    if wait > 0:
+                        if self.kick_evt.wait(wait):
+                            tick = time.perf_counter()
+                    self.kick_evt.clear()
                     if time.perf_counter() - tick > 0.2:
                         tick = time.perf_counter()
                     frame, t_cap = None, time.perf_counter()
@@ -224,11 +241,12 @@ class VCamEngine:
                 grade = s.get("grade")
                 if frame is not None and grade is not None:   # Camera Look: the webcam picture only
                     frame = grade.apply(frame)
-                if frame is not None and s["blur"] in ("light", "strong"):
+                strength = s.get("blurStrength", 0) or 0
+                if frame is not None and strength > 0:
                     if self.blur is None and self.blur_factory:
                         self.blur = self.blur_factory()
                     if self.blur:
-                        frame = self.blur.apply(frame, s["blur"])
+                        frame = self.blur.apply(frame, strength)
                 if self.compositor:
                     frame = self.compositor.compose(frame, w, h)    # layout + layers + cards = the final picture
                 elif self.overlay:

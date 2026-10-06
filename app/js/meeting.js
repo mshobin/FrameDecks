@@ -185,7 +185,7 @@ function renderProgram(){
   var t = (window.BSFMembersAPI && window.BSFMembersAPI.settings().meetingTitle) || 'BSF Meeting';
   if ($('meeting-title').textContent !== t){ $('meeting-title').textContent = t; document.title = t + ' · BSF Command Center'; }
 }
-setInterval(renderProgram, 1000); renderProgram();
+setInterval(function(){ if (!document.hidden) renderProgram(); }, 1000); renderProgram();
 
 Status.on('presence', function(p){
   var n = 0; for (var k in p) n += p[k];
@@ -222,7 +222,7 @@ $('program-frame').src = 'stage.html?bg=preview&preview=1';
 var liveImg = $('program-live');
 function pullLive(){
   var vs = window.BSFVcamStatus && window.BSFVcamStatus();
-  var live = vs && vs.status && vs.status.state === 'live' && document.body.dataset.tab === 'meeting';
+  var live = vs && vs.status && vs.status.state === 'live' && document.body.dataset.tab === 'meeting' && !document.hidden;
   if (!live){
     liveImg.hidden = true; $('program-frame').style.visibility = '';
     return setTimeout(pullLive, 1000);
@@ -237,6 +237,6 @@ function pullLive(){
 if (Store.served) setTimeout(pullLive, 1500);
 
 Store.subscribe(function(st){ live = st; render(); });
-setInterval(render, 2000);   // picks up list edits, birthday candidate and day changes
+setInterval(function(){ if (!document.hidden) render(); }, 2000);   // picks up list edits, birthday candidate and day changes
 setTimeout(fit, 0); setTimeout(fit, 400);
 })();

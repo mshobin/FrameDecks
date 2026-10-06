@@ -247,3 +247,37 @@ two graphics chips, includes the cursor), DXGI Desktop Duplication as fallback. 
 first frame within 3 s; options step down from (cursor + borderless) → (cursor) → (Windows defaults) because
 borderless/dirty-region/update-interval settings are only available on newer Windows builds. Every attempt
 and its error is reported in the Screen layer's inspector, Diagnostics and `bsf-app-log.txt`.
+
+## 11. Version 4.2: changes and performance review
+
+**Data-model changes (all optional; older versions ignore them):**
+`layout.panel` minimum 50 (was 55). Library questions gain `num`, `note`, `pair`; verses gain `pair`
+(question ↔ verse link from an Excel row). BCC vCam settings gain `blurStrength` 0–100 (old `blur`
+off/light/strong is still written: ≤45 → light, else strong; old files map off→0, light→30, strong→80).
+Studio: the private Preview copy (`staged`) is no longer exposed; a leftover one is applied once.
+
+**New pieces:** `app/present.html` (Presentation window), `GET /api/present.mjpg` (this PC only; motion-JPEG,
+a frame only when the picture changes, repeated once so a still frame displays, stops when the window
+closes), `POST /api/app/present` (opens/closes the pywebview window), `app/js/content-import.js` +
+`app/js/import-worker.js` (Excel/CSV parsed in a Web Worker), resource monitor in Diagnostics.
+
+**Performance review — resource-heavy areas found and what changed (measured on the development machine):**
+
+| Area | Before (4.1) | After (4.2) |
+|---|---|---|
+| Update checks: dashboard + every embedded preview polled every 0.3 s, even minimised | 651 requests/min on Run meeting | 261/min (previews share the dashboard's updates); ~20/min when minimised |
+| Minimised dashboard with Studio open kept requesting live pictures (camera engine + webcam kept running, preview encoding) | 1,407 requests/min, 19.4 % of a core | 57 requests/min, 1.6 % |
+| Meeting tab live picture while BCC vCam live, Settings preview: continued while minimised | 4 pictures/s | stopped while hidden |
+| Presentation window with a still scene: engine rebuilt the frame 30×/s | 22.1 % of a core, 0 frames sent | 4.1 % (idle rhythm 5×/s, woken instantly by any change) |
+| Fixed-interval timers (status lights, program tiles, badge copy, file check) | ran always | skipped while hidden / event-driven / 5 s safety net |
+| Deleted Studio layers left cached pictures in memory | grew with each edit | freed on deletion |
+| Excel import | (new) | parsed in a background worker: 5,000 rows read + previewed in 0.8 s, longest UI pause 63 ms |
+| Presentation stream when the window closed with a still scene | kept the engine awake forever | detected within 1 s, stream ends |
+
+**Unchanged by design:** while Zoom uses BCC vCam the engine runs at a steady 30 fps (a camera feed must not
+stutter); OpenCV is limited to 2 threads so Zoom keeps the rest of the CPU; the Studio canvas, when visible,
+is a live editor (~5 pictures/s).
+
+**Safeguards:** idle pacing everywhere (`Store.pace`), visibility-aware loops, engine idle rhythm + kick on
+change, stream disconnect detection, cache cleanup, and Settings → Diagnostics → Resources (memory, threads,
+requests/min by kind, Presentation windows, per-stage camera timings, plain-language tips).

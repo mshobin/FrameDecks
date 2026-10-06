@@ -200,6 +200,26 @@ def _sparkle_deco(w, h, color, alpha):
     return img
 
 
+def _text_shadow(img, panel, u):
+    """A soft dark shadow behind text, stronger as the card gets more see-through (matches --txt-shadow)."""
+    k = max(0.0, min(0.85, (1 - panel) * 2.2))
+    if k <= 0.01:
+        return img
+    a = np.asarray(img, np.float32)[..., 3] / 255.0
+    sh = cv2.GaussianBlur(a, (0, 0), max(0.8, u * 0.3)) * k
+    sh = np.roll(sh, max(1, int(round(u * 0.06))), axis=0)
+    out = np.zeros(a.shape + (4,), np.float32)
+    out[..., 3] = sh                                                     # black shadow
+    src = np.asarray(img, np.float32) / 255.0
+    sa = src[..., 3:4]
+    res = np.empty_like(out)
+    res[..., :3] = src[..., :3] * sa                                     # text over shadow (premultiplied), then back
+    res[..., 3:4] = sa + out[..., 3:4] * (1 - sa)
+    rgb = np.where(res[..., 3:4] > 0, res[..., :3] / np.maximum(res[..., 3:4], 1e-6), 0)
+    from PIL import Image as _I
+    return _I.fromarray(np.dstack([rgb * 255, res[..., 3:4] * 255]).clip(0, 255).astype(np.uint8), "RGBA")
+
+
 def _premult(img):
     a = np.asarray(img, np.float32) / 255.0
     a[..., :3] *= a[..., 3:4]
@@ -233,6 +253,7 @@ class CardDrawer:
         oy = int(round(u * 0.8))
         sh[margin + oy:margin + oy + m.shape[0], margin:margin + m.shape[1]] = m
         sh = cv2.GaussianBlur(sh, (0, 0), max(1.0, u * 1.4)) * 0.38
+        sh[margin:margin + m.shape[0], margin:margin + m.shape[1]] *= (1 - m)   # like CSS: no shadow under the card
         base[..., 3] = sh
         # card: gold gradient everywhere, navy panel (with its opacity) over the inside
         gold = _gold_gradient(m.shape[1], m.shape[0])
@@ -246,12 +267,15 @@ class CardDrawer:
             g = np.clip(1 - e / 0.7, 0, 1)[..., None] * 0.16
             navy = navy * (1 - g) + np.array([236, 203, 114], np.float32) * g
         b0 = int(round(bw))
-        col = gold.copy()
-        region = col[b0:b0 + ih, b0:b0 + iw]
-        a = panel * inner[..., None]
-        col[b0:b0 + ih, b0:b0 + iw] = region * (1 - a) + navy * a
-        card = np.concatenate([col / 255.0, m[..., None]], -1)
-        card[..., :3] *= card[..., 3:4]
+        # gold ring at the edge (opaque) + navy inside at the chosen card opacity, so video shows through
+        inner_full = np.zeros_like(m)
+        inner_full[b0:b0 + ih, b0:b0 + iw] = inner[:m.shape[0] - b0, :m.shape[1] - b0]
+        ring = np.clip(m - inner_full, 0, 1)
+        a_in = panel * inner_full
+        navy_full = np.zeros_like(gold)
+        navy_full[b0:b0 + ih, b0:b0 + iw] = navy[:m.shape[0] - b0, :m.shape[1] - b0]
+        alpha = np.clip(ring + a_in, 0, 1)
+        card = np.concatenate([(gold * ring[..., None] + navy_full * a_in[..., None]) / 255.0, alpha[..., None]], -1)   # premultiplied
         # thin dark ring (0 0 0 1px rgba(0,0,0,.25)) is subtle; the shadow covers it
         sub = base[margin:margin + m.shape[0], margin:margin + m.shape[1]]
         base[margin:margin + m.shape[0], margin:margin + m.shape[1]] = card + sub * (1 - card[..., 3:4])
@@ -402,7 +426,8 @@ class CardDrawer:
             y += 1 + 1.2 * s
         chars = {}
         self._text_block(txt, text, lines, font, x0, y, inner_w, lh, "left", (255, 255, 255), chars)
-        card = Card("question", cw, ch, margin, (base, _premult(late), _premult(txt)), self._words_from_chars(text, chars),
+        pa = float(L.get("panel", 92)) / 100
+        card = Card("question", cw, ch, margin, (base, _premult(_text_shadow(late, pa, u)), _premult(_text_shadow(txt, pa, u))), self._words_from_chars(text, chars),
                     [chars.get(i) for i in range(len(text))], fs, None)
         card.x, card.y = (W - cw) / 2, H - float(L.get("qBottom", 10)) / 100 * H - ch
         return card
@@ -498,7 +523,8 @@ class CardDrawer:
                 rx += ver_font.getlength(ch_) + 1.45 * s * 0.06
             rx += 0.8 * s
             dl.line([(rx, line_y), (rx + 2.2 * s, line_y)], fill=gold_line, width=1)
-        card = Card("verse", cw, ch, margin, (base, _premult(late), _premult(txt)), self._words_from_chars(text, chars),
+        pa = float(L.get("panel", 92)) / 100
+        card = Card("verse", cw, ch, margin, (base, _premult(_text_shadow(late, pa, u)), _premult(_text_shadow(txt, pa, u))), self._words_from_chars(text, chars),
                     [chars.get(i) for i in range(len(text))], m["fs"], None)
         cy = (top + bottom) / 2
         card.y = cy - ch / 2
@@ -582,7 +608,8 @@ class CardDrawer:
                 cx += cfont.getlength(ch_) + 1.05 * s * 0.08
             cx += 0.7 * s
             dc.line([(cx, ly), (cx + 1.6 * s, ly)], fill=line, width=1)
-        card = Card("birthday", cw, ch, margin, (base, _premult(late), _premult(txt)), [], [], 0, None)
+        pa = float(L.get("panel", 92)) / 100
+        card = Card("birthday", cw, ch, margin, (base, _premult(_text_shadow(late, pa, u)), _premult(_text_shadow(txt, pa, u))), [], [], 0, None)
         pos = L.get("bdayPos", "top")
         card.x = (W - cw) / 2
         card.y = H * 0.06 if pos == "top" else ((H - ch) / 2 if pos == "center" else H - float(L.get("qBottom", 10)) / 100 * H - ch)
