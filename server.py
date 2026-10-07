@@ -28,7 +28,7 @@ from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from pathlib import Path
 from urllib.parse import urlparse, parse_qs, unquote
 
-APP_VERSION = "4.3"
+APP_VERSION = "4.5"
 STARTED_AT = time.time()
 FROZEN = getattr(sys, "frozen", False)          # True inside the installed Windows app
 HERE = Path(sys.executable).resolve().parent if FROZEN else Path(__file__).resolve().parent
@@ -365,7 +365,8 @@ def _remote_watcher():
 
 # ---------- Installed-app settings, backups and importing old data ----------
 DESKTOP = {"active": False}  # filled in by desktop_app.py (show/hide/quit/choose_folder hooks)
-APP_SETTINGS_DEFAULTS = {"remoteAutostart": False, "importDecided": False}
+APP_SETTINGS_DEFAULTS = {"remoteAutostart": False, "importDecided": False,
+                         "lowGpu": True}     # draw the app window without the graphics card (keeps Windows smooth)
 
 
 def app_settings():
@@ -573,7 +574,7 @@ def firewall(action):
 
 # ---------- BCC vCam (built-in virtual camera, Windows) ----------
 VCAM_SETTINGS_FILE = DATA / "bsf-vcam-settings.json"
-VCAM_DEFAULTS = {"enabled": True, "cameraName": "", "resolution": "720p", "mirror": False, "blur": "off", "blurStrength": 0, "cards": True, "look": "off"}
+VCAM_DEFAULTS = {"enabled": True, "cameraName": "", "resolution": "720p", "mirror": False, "blur": "off", "blurStrength": 0, "cards": True, "look": "off", "presentFps": 15}
 LOOKS_FILE = DATA / "bsf-looks.json"
 VCAM = {"engine": None, "reason": "", "detail": "", "cameras": None, "camerasAt": 0}
 
@@ -605,6 +606,8 @@ def clean_vcam(d):
         out["resolution"] = d["resolution"]
     if d.get("blur") in ("off", "light", "strong"):
         out["blur"] = d["blur"]
+    if d.get("presentFps") in (15, 30):
+        out["presentFps"] = d["presentFps"]
     if isinstance(d.get("blurStrength"), (int, float)) and not isinstance(d.get("blurStrength"), bool):
         n = math.floor(float(d["blurStrength"]) * 2 + 0.5) / 2   # steps of 0.5 % (halves round up, like the screen)
         n = 0 if n <= 0 else max(0.5, min(100.0, n))           # 0 = off; otherwise at least 0.5 %
@@ -1198,7 +1201,14 @@ class Handler(BaseHTTPRequestHandler):
                 eng.want_preview(3.0)                 # keeps the webcam on while the preview is open
                 if not eng.preview_jpeg:
                     return self.reply(204, b"", "text/plain")
-                return self.reply(200, eng.preview_jpeg, "image/jpeg")
+                tag = '"p%d"' % eng.preview_ver
+                if self.headers.get("If-None-Match") == tag:          # the screen already has this picture
+                    self.send_response(304)
+                    self.send_header("ETag", tag)
+                    self.send_header("Cache-Control", "no-store")
+                    self.end_headers()
+                    return
+                return self.reply(200, eng.preview_jpeg, "image/jpeg", headers=[("ETag", tag)])
             return self.reply(404, "Not found", "text/plain; charset=utf-8")
         if path == "/api/app/ping":
             return self.reply(200, json.dumps({"app": "BSF Command Center", "version": APP_VERSION, "installedApp": FROZEN}), TYPES[".json"])
@@ -1207,6 +1217,7 @@ class Handler(BaseHTTPRequestHandler):
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
             info = {"version": APP_VERSION, "installedApp": FROZEN, "desktop": DESKTOP["active"], "dataFolder": str(DATA),
                     "separateData": SEPARATE_DATA, "windows": os.name == "nt", "settings": app_settings(),
+                    "lowGpuActive": bool(DESKTOP.get("low_gpu")),
                     "remote": {"enabled": REMOTE, "listening": sorted(remote_servers), "failed": list(remote_errors)},
                     "backups": list_backups()[:KEEP_BACKUPS], "migration": migration_status()}
             return self.reply(200, json.dumps(info), TYPES[".json"])
@@ -1285,6 +1296,9 @@ class Handler(BaseHTTPRequestHandler):
         if not comp or not eng:
             return self.reply(404, "BCC vCam is not available", "text/plain; charset=utf-8")
         import cv2 as _cv2
+        from vcam.priority import lower_this_thread
+        lower_this_thread()                          # picture encoding for the window: background priority
+        fps = vcam_settings().get("presentFps", 15)
         self.send_response(200)
         self.send_header("Content-Type", "multipart/x-mixed-replace; boundary=bsfframe")
         self.send_header("Cache-Control", "no-store")
@@ -1318,9 +1332,11 @@ class Handler(BaseHTTPRequestHandler):
                         break
                     continue
                 gap = time.time() - t_last
-                if gap < 1 / 30:
-                    time.sleep(1 / 30 - gap)
-                ok, jpg = _cv2.imencode(".jpg", frame, [_cv2.IMWRITE_JPEG_QUALITY, 85])
+                if gap < 1 / fps:                    # 15 per second by default: plenty for Zoom window sharing
+                    time.sleep(1 / fps - gap)
+                    with comp.present_cond:          # send the newest picture after the pause
+                        ver, frame = pres["ver"], pres["frame"]
+                ok, jpg = _cv2.imencode(".jpg", frame, [_cv2.IMWRITE_JPEG_QUALITY, 82])
                 if not ok:
                     continue
                 data = jpg.tobytes()

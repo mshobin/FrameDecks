@@ -89,6 +89,8 @@ class Recorder:
             self.skipped += 1
 
     def _run(self):
+        from .priority import lower_this_thread
+        lower_this_thread()                          # recording: background priority
         while self.alive or not self.q.empty():
             try:
                 f = self.q.get(timeout=0.2)

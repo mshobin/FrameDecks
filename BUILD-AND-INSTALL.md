@@ -31,14 +31,14 @@ GitHub now starts building your installer automatically.
 2. Click the **Actions** tab. You'll see **Build Windows installer** running (yellow dot).
    It takes about 5–10 minutes. A green tick means it worked.
 3. Click the finished run. At the bottom, under **Artifacts**, click
-   **BSF-Command-Center-Setup-4.3** (the version number) to download it (a .zip containing the Setup .exe).
-4. Unzip it. You now have **BSF-Command-Center-Setup-4.3.exe**.
+   **BSF-Command-Center-Setup-4.5** (the version number) to download it (a .zip containing the Setup .exe).
+4. Unzip it. You now have **BSF-Command-Center-Setup-4.5.exe**.
 
 If you see a red cross instead, click the run to read the error, and send it to me.
 
 ## Part 3 · Install
 
-1. Double-click **BSF-Command-Center-Setup-4.3.exe**.
+1. Double-click **BSF-Command-Center-Setup-4.5.exe**.
 2. Windows may show **"Windows protected your PC"**. This appears because the installer isn't
    code-signed (signing costs money every year). Click **More info → Run anyway**.
 3. Follow the wizard. No administrator password is needed. Leave **Create a desktop icon** ticked.
@@ -89,6 +89,13 @@ If you see a red cross instead, click the run to read the error, and send it to 
 - [ ] **Presentation Mode (4.2):** Studio → *Presentation Mode*. A separate window "BSF Presentation" opens. In a Zoom
       test meeting: Share Screen → pick **BSF Presentation**. Show a question from the main window or your phone: it
       appears in the shared window at once. Esc closes it.
+- [ ] **4.5 Graphics card:** open Presentation Mode and share it in Zoom. In Task Manager the "WebView2: BSF
+      Presentation" line should be gone (the window is now part of BSF Command Center itself), and WebView2's GPU use
+      should be far lower. Send me a new screenshot. If the Presentation window doesn't appear, send Settings →
+      Diagnostics → Copy diagnostics (the log says which window type was used).
+- [ ] **4.4 Smoothness:** repeat your meeting setup (Zoom sharing the Presentation window, a question live) and open
+      Task Manager → Processes. Compare GPU and "Desktop Window Manager" with your earlier screenshot, and switch
+      between apps. Send me a new screenshot including the **BSF Command Center** process line.
 - [ ] **4.3 Presentation window:** opens with no title bar or window buttons; drag to move; Full Screen fills the
       screen with no frame; Esc leaves full screen, Esc again (or ✕) closes. Zoom still lists it as "BSF Presentation".
 - [ ] **4.3 Camera quality:** Settings → BCC vCam: the line under the preview shows "Webcam: 1280×720 MJPG at 30 fps"

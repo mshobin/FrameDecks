@@ -260,6 +260,16 @@ var Store = {
   },
   start: function(){ if (served){ if (!shareParent()) serverLoop(); } else fileStart(); },
   pace: pace,
+  /* Fetch the BCC vCam preview only when it's new: the program answers "not modified" for a picture this
+   * screen already has, so nothing is downloaded, decoded or redrawn. tag = {etag} remembered per screen. */
+  freshPreview: function(tag){
+    var h = tag.etag ? {'If-None-Match': tag.etag} : {};
+    return fetch('api/vcam/preview.jpg?t=' + Date.now(), {cache: 'no-store', headers: h}).then(function(r){
+      if (r.status !== 200) return null;
+      tag.etag = r.headers.get('ETag') || '';
+      return r.blob();
+    });
+  },
   /* Overlays report that they are open, so the dashboard can show "connected" */
   presence: function(page){
     if (!served || /[?&]preview=1/.test(location.search)) return;

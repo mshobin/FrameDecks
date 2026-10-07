@@ -175,6 +175,8 @@ class OverlayLayer:
 
     # ---------- drawing happens on its own thread, so the video never pauses ----------
     def _worker(self):
+        from .priority import lower_this_thread
+        lower_this_thread()                          # card drawing: background priority
         while True:
             with self.cond:
                 while not self.jobs:

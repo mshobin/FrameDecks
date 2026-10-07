@@ -1,5 +1,5 @@
 ================================================================
-  BSF COMMAND CENTER  ·  version 4.3
+  BSF COMMAND CENTER  ·  version 4.5
   Clean Bible study overlays for BSF leaders on Zoom.
 ================================================================
 
@@ -134,6 +134,27 @@ WHAT'S NEW IN VERSION 3 (the meeting control console)
   - Stream Deck support has been removed.
 
   Small changes you may notice
+  - New in 4.5 (much lighter on the graphics card):
+      * The Presentation window is now a plain Windows window: no web
+        browser engine inside it at all. It draws the finished picture
+        directly and only when it changes. Everything works as before:
+        no frame, drag to move, drag an edge to resize, Full screen,
+        Esc, and the Exit button when you move the mouse.
+      * Settings > General > Performance > "Light on graphics card"
+        (on by default): the main window is drawn without the graphics
+        card. Restart the app after changing it.
+  - New in 4.4 (smoother Windows while Zoom is running):
+      * The window no longer redraws continuously: the LIVE dot pulses
+        3 times then stays lit (an endless pulse made Windows redraw the
+        whole app 60 times a second), and the header blur is gone.
+      * Live pictures inside the app refresh more calmly (Meeting 2/s,
+        Studio 3/s, faster only while you drag) and only when there is
+        something new.
+      * Presentation window: 15 frames a second by default (plenty for
+        Zoom). Settings > BCC vCam > Presentation window > Smooth (30)
+        if you show fast motion.
+      * Background work (blur, cards, video, recording, screen capture)
+        runs at lower Windows priority, so your apps come first.
   - New in 4.3:
       * Presentation window has no title bar, frame or window buttons:
         just the scene. Drag anywhere on it to move it. Full Screen

@@ -584,14 +584,13 @@ function poll(){
   (visible() || !S ? refresh() : Promise.resolve()).then(function(){ metrics.textContent = metricsLine(); setTimeout(poll, visible() ? 1000 : window.BSFStore.pace(4000)); });
 }
 poll();
-var pulling = false;
+var pulling = false, imgTag = {};
 function pullImage(){
   if (!visible()){ pulling = false; return; }
   pulling = true;
-  var url = 'api/vcam/preview.jpg?t=' + Date.now();
-  fetch(url, {cache: 'no-store'}).then(function(r){
-    if (r.status === 200) return r.blob().then(function(b){ var u = URL.createObjectURL(b), old = img.src; img.src = u; stage.classList.add('on'); if (old && old.slice(0, 5) === 'blob:') URL.revokeObjectURL(old); });
-  }).catch(function(){}).then(function(){ setTimeout(pullImage, document.hidden ? 1000 : 200); });
+  window.BSFStore.freshPreview(imgTag).then(function(b){
+    if (b){ var u = URL.createObjectURL(b), old = img.src; img.src = u; stage.classList.add('on'); if (old && old.slice(0, 5) === 'blob:') URL.revokeObjectURL(old); }
+  }).catch(function(){}).then(function(){ setTimeout(pullImage, document.hidden ? 1000 : (drag ? 140 : 333)); });   // calm when idle, quick while dragging
 }
 var prevOnTab = window.BSFOnTab;
 window.BSFOnTab = function(t){

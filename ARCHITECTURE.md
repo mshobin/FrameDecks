@@ -296,3 +296,36 @@ requests/min by kind, Presentation windows, per-stage camera timings, plain-lang
 * **Personalise / variables removed** from the Studio UI and API (`op: "variables"`, `variables`,
   `builtinVariables`); new text layers default to plain text. Values saved by older versions in
   `bsf-studio.json` are still applied to existing text layers so they don't suddenly show `{{…}}`.
+
+## 13. Version 4.4: smooth multitasking (GPU / compositor load)
+
+Report: Task Manager showed GPU 100 % (Desktop Window Manager 68.5 %, the app's WebView2 GPU process 27.9 %).
+Measured causes and fixes (Chromium timeline: frames the window presents per second, nothing changing):
+
+| Cause | Fix | Before → after |
+|---|---|---|
+| Endless pulse on the LIVE dot (whenever anything is live) | pulses 3×, then static; recording dot static | Meeting tab: 60.2 → 2.3 frames/s |
+| Header `backdrop-filter: blur()` (GPU re-blurs the page under it on every change) | near-opaque background | — |
+| In-app live pictures at 960 px, 3–5×/s | 640 px q80; Meeting 2/s, Studio 3/s (7/s while dragging), Settings 2/s | Studio: 11.7 → 8.3 frames/s, 23.5 → 16.7 paints/s |
+| Pictures decoded even when unchanged | numbered previews (`ETag` / `If-None-Match` → 304); the engine skips encoding unchanged frames | no work for still scenes |
+| Presentation window streamed up to 30 fps | 15 fps default (`presentFps`, Smooth = 30); engine runs at that rate when only the window needs pictures | 23.3 → 12.1 frames/s to the window |
+| Helpers competing with the desktop and Zoom | blur model, card drawing, video decode, recorder, screen capture, Presentation encoding at THREAD_PRIORITY_BELOW_NORMAL (`vcam/priority.py`); camera loop normal | — |
+
+## 14. Version 4.5: removing the browser engine's GPU load
+
+Report after 4.4: "Microsoft Edge WebView2" still used ~90 % GPU, including the Presentation window.
+
+* **Native Presentation window** (`vcam/present_window.py`): a Win32 popup window (WS_POPUP + WS_THICKFRAME with
+  WM_NCCALCSIZE → frameless but resizable and snappable; WM_NCHITTEST → drag to move / resize edges; WS_EX_APPWINDOW
+  so Zoom lists "BSF Presentation"). Frames come in-process from the compositor (no JPEG), are converted to 32-bit
+  once per new picture (~0.5 ms) and drawn with GDI: `SetDIBitsToDevice` at 1:1, `StretchDIBits` (HALFTONE) when
+  scaled, black bars with `PatBlt`. The Full screen / Exit buttons (Pillow, Source Sans, same design as the web
+  version) are two small patches drawn only while shown (~0.5 ms). Repaints only when the picture changes, at
+  `presentFps`. Esc: leave full screen, then close; F / F11 / double-click: full screen. Falls back to the
+  WebView2 window (`present.html`) if the native window can't be created.
+* **Light on graphics card** (`app settings: lowGpu`, default on): the desktop app sets
+  `WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS="--disable-features=ElasticOverscroll --disable-gpu --disable-gpu-compositing"`
+  before WebView2 starts (the environment variable takes precedence over pywebview's arguments set in code; pywebview's
+  own argument is kept). The dashboard is mostly static after 4.4, so CPU drawing is cheap.
+* Verified here with a simulated Win32 layer (message flow, painting, hit-testing, full screen, close) and the
+  desktop app with stand-in window/tray libraries; real Windows behaviour must be confirmed on the PC.

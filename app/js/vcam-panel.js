@@ -38,6 +38,7 @@ var swText = h('b', {text: 'BCC vCam'});
 var camSel = h('select', {id: 'vcam-camera'});
 var resSeg = h('div', {cls: 'seg', id: 'vcam-res'});
 var blurSeg = h('div', {cls: 'seg', id: 'vcam-blur'});
+var presSeg = h('div', {cls: 'seg', id: 'vcam-present-fps'});
 var mirror = h('input', {type: 'checkbox', id: 'vcam-mirror'});
 var cardsCb = h('input', {type: 'checkbox', id: 'vcam-cards'});
 var lookSel = h('select', {id: 'vcam-look'});
@@ -47,7 +48,7 @@ var unavailable = h('div', {cls: 'alert', hidden: 'hidden'});
 var img = h('img', {alt: 'BCC vCam preview', id: 'vcam-preview-img'});
 var previewBox = h('div', {cls: 'vcam-preview'}, [img, h('span', {cls: 'vcam-preview-off', text: 'Preview is off'})]);
 var previewBtn = h('button', {cls: 'btn small', type: 'button', id: 'vcam-preview-btn', text: 'Show preview'});
-var previewing = false, current = null;
+var previewing = false, current = null, pvTag = {};
 
 function segButtons(seg, items, key){
   items.forEach(function(o){
@@ -55,6 +56,7 @@ function segButtons(seg, items, key){
   });
 }
 segButtons(resSeg, [['720p', '720p (recommended)'], ['1080p', '1080p']], 'resolution');
+segButtons(presSeg, [[15, 'Standard · 15 fps (recommended)'], [30, 'Smooth · 30 fps']], 'presentFps');
 /* Background blur: presets + 0-100 % slider. Changes apply live for this session; "Save as default" keeps them. */
 var BLUR_PRESETS = [['off', 'Off', 0], ['light', 'Light', 30], ['medium', 'Medium', 55], ['strong', 'Strong', 80], ['maximum', 'Maximum', 100]];
 var BLUR_MIN = 0.5, BLUR_MAX = 100, BLUR_STEP = 0.5;     // strength in 0.5 % steps; 0 = Off (preset)
@@ -136,6 +138,8 @@ var settingsBox = h('section', {cls: 'box'}, [
   h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'Picture size'}), resSeg]),
   h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'Camera Look'}), lookSel,
     h('span', {cls: 'hint', style: 'margin-left:10px', text: 'Ctrl+Alt+1 Warm · 2 Dark · 3 Neutral · 0 Off'})]),
+  h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'Presentation window'}), presSeg]),
+  h('div', {cls: 'row'}, [h('span', {cls: 'lbl'}), h('span', {cls: 'hint', text: 'Standard is plenty for sharing in Zoom and keeps Windows smooth. Use Smooth only for fast motion.'})]),
   h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'Background blur'}), blurSeg]),
   h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'Blur strength'}), blurDown, h('div', {cls: 'range'}, [blurRange, blurVal]), blurUp]),
   h('div', {cls: 'row'}, [h('span', {cls: 'lbl'}), blurSave, blurNote]),
@@ -195,6 +199,7 @@ function render(d){
   var now = d.blurNow == null ? (s.blurStrength || 0) : d.blurNow, saved = s.blurStrength || 0;
   if (document.activeElement !== blurRange){ blurNowVal = now; blurRange.value = Math.max(BLUR_MIN, now); blurVal.textContent = fmtBlur(now); }
   markBlur(blurNowVal);
+  Array.prototype.forEach.call(presSeg.children, function(b){ b.setAttribute('aria-pressed', String(+b.dataset.val === (s.presentFps || 15))); });
   blurDown.disabled = blurNowVal > 0 && blurNowVal <= BLUR_MIN; blurUp.disabled = blurNowVal >= BLUR_MAX;
   blurSave.disabled = now === saved;
   var name = function(n){ var p = BLUR_PRESETS.filter(function(x){ return x[2] === n; })[0]; return p ? p[1] + (n ? ' (' + fmtBlur(n) + ')' : '') : fmtBlur(n); };
@@ -243,9 +248,9 @@ function pullPreview(){
   if ($('sec-vcam').hidden || document.body.dataset.tab !== 'settings'){
     previewing = false; previewBtn.textContent = 'Show preview'; previewBox.classList.remove('on'); img.removeAttribute('src'); return;
   }
-  fetch('api/vcam/preview.jpg?t=' + Date.now(), {cache: 'no-store'}).then(function(r){
-    if (r.status === 200) return r.blob().then(function(b){ var u = URL.createObjectURL(b); var old = img.src; img.src = u; if (old && old.slice(0, 5) === 'blob:') URL.revokeObjectURL(old); });
-  }).catch(function(){}).then(function(){ setTimeout(pullPreview, 330); });
+  window.BSFStore.freshPreview(pvTag).then(function(b){
+    if (b){ var u = URL.createObjectURL(b); var old = img.src; img.src = u; if (old && old.slice(0, 5) === 'blob:') URL.revokeObjectURL(old); }
+  }).catch(function(){}).then(function(){ setTimeout(pullPreview, 500); });
 }
 window.BSFVcamStatus = function(){ return current; };
 })();

@@ -104,7 +104,27 @@ function renderAbout(){
   if (!p){ p = h('p', {cls: 'hint', id: 'app-about'}); sec.appendChild(p); }
   p.textContent = 'BSF Command Center version ' + info.version + (info.installedApp ? ' (installed app)' : '') + '.';
 }
-function refresh(){ return getInfo().then(function(d){ info = d; window.BSFAppInfo = d; renderDataCard(); renderAbout(); document.dispatchEvent(new CustomEvent('bsf-app-info', {detail: d})); return d; }); }
+/* Settings > General > Performance (installed app): draw this window without the graphics card */
+function renderPerf(){
+  var sec = $('sec-general'); if (!sec || !info || !info.desktop) return;
+  var box = $('app-perf');
+  if (!box){
+    var cb = h('input', {type: 'checkbox', id: 'app-lowgpu'});
+    cb.addEventListener('change', function(){
+      post('settings', {lowGpu: cb.checked}).then(function(){ toast('Saved. Restart BSF Command Center to apply it.'); refresh(); });
+    });
+    box = h('section', {cls: 'box', id: 'app-perf', 'aria-labelledby': 'app-perf-title'}, [
+      h('div', {cls: 'box-head'}, [h('h2', {id: 'app-perf-title', text: 'Performance'})]),
+      h('label', {cls: 'check'}, [cb, ' Light on graphics card (recommended)']),
+      h('p', {cls: 'hint', text: 'Draws this window without the graphics card, so Windows, Zoom and app switching stay smooth. Turn it off only if this window ever looks wrong. Takes effect after restarting the app.'}),
+      h('p', {cls: 'hint', id: 'app-lowgpu-state'})]);
+    sec.appendChild(box);
+  }
+  var want = info.settings.lowGpu !== false;
+  $('app-lowgpu').checked = want;
+  $('app-lowgpu-state').textContent = 'Now: ' + (info.lowGpuActive ? 'on' : 'off') + (want !== !!info.lowGpuActive ? ' (restart the app to apply your change)' : '');
+}
+function refresh(){ return getInfo().then(function(d){ info = d; window.BSFAppInfo = d; renderDataCard(); renderAbout(); renderPerf(); document.dispatchEvent(new CustomEvent('bsf-app-info', {detail: d})); return d; }); }
 
 /* ---------- Closing the app window (called by the desktop app) ---------- */
 window.BSFAppClosing = function(){

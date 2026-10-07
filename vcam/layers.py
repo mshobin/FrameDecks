@@ -147,6 +147,8 @@ class VideoSource:
         return cap
 
     def _run(self):
+        from .priority import lower_this_thread
+        lower_this_thread()                          # video decoding: background priority
         try:
             cap = self._open()
         except Exception as e:

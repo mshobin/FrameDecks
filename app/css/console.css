@@ -56,7 +56,7 @@ kbd.key:empty{display:none}
 .state{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:800;letter-spacing:.08em;border-radius:6px;padding:3px 8px;
   border:1px solid var(--edge);color:var(--hid);background:transparent;white-space:nowrap}
 .state.live{background:var(--live);border-color:var(--live);color:#062a14}
-.state.live::before{content:"";width:7px;height:7px;border-radius:50%;background:#062a14;animation:livepulse 1.6s ease-in-out infinite}
+.state.live::before{content:"";width:7px;height:7px;border-radius:50%;background:#062a14;animation:livepulse 1.6s ease-in-out 3}   /* pulses 3 times, then stays lit: an endless animation keeps the window redrawing 60x a second */
 .state.ready{color:var(--ink);border-color:#56627a}
 .state.empty{border-style:dashed}
 @keyframes livepulse{50%{opacity:.35}}
@@ -389,7 +389,7 @@ select.item-fx.set{color:var(--gold-strong);border-color:rgba(227,183,90,.55)}
 .s2-rec{display:inline-flex;align-items:center;gap:8px;font-weight:700}
 .s2-rec .dot{width:10px;height:10px;border-radius:50%;background:var(--red)}
 .s2-rec.on{background:var(--red-strong);border-color:var(--red-strong);color:#fff}
-.s2-rec.on .dot{background:#fff;animation:livepulse 1.2s ease-in-out infinite}
+.s2-rec.on .dot{background:#fff}
 .s2-chip{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;border-radius:999px;padding:4px 10px;background:var(--live-soft);color:var(--live);border:1px solid rgba(52,209,124,.4)}
 .s2-chip.bad{background:var(--warn-soft);color:var(--warn);border-color:rgba(245,181,71,.5)}
 .ib{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:8px;border:1px solid var(--edge);background:transparent;color:var(--muted);cursor:pointer;transition:background .12s,color .12s,border-color .12s}

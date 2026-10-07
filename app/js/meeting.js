@@ -219,7 +219,7 @@ if (!Store.served){ chip('h-sources', '', '—', 'Needs the local program'); chi
  * While BCC vCam is live, show its real final frame (exactly what Zoom/Teams receive).
  * Otherwise show the overlay page, so opening the app never switches the webcam on by itself. */
 $('program-frame').src = 'stage.html?bg=preview&preview=1';
-var liveImg = $('program-live');
+var liveImg = $('program-live'), liveTag = {};
 function pullLive(){
   var vs = window.BSFVcamStatus && window.BSFVcamStatus();
   var live = vs && vs.status && vs.status.state === 'live' && document.body.dataset.tab === 'meeting' && !document.hidden;
@@ -227,12 +227,11 @@ function pullLive(){
     liveImg.hidden = true; $('program-frame').style.visibility = '';
     return setTimeout(pullLive, 1000);
   }
-  fetch('api/vcam/preview.jpg?t=' + Date.now(), {cache: 'no-store'}).then(function(r){
-    if (r.status === 200) return r.blob().then(function(bl){
-      var u = URL.createObjectURL(bl), old = liveImg.src; liveImg.src = u; liveImg.hidden = false; $('program-frame').style.visibility = 'hidden';
-      if (old && old.slice(0, 5) === 'blob:') URL.revokeObjectURL(old);
-    });
-  }).catch(function(){}).then(function(){ setTimeout(pullLive, 250); });
+  Store.freshPreview(liveTag).then(function(bl){
+    if (!bl) return;                                   // nothing new: no download, no decode, no redraw
+    var u = URL.createObjectURL(bl), old = liveImg.src; liveImg.src = u; liveImg.hidden = false; $('program-frame').style.visibility = 'hidden';
+    if (old && old.slice(0, 5) === 'blob:') URL.revokeObjectURL(old);
+  }).catch(function(){}).then(function(){ setTimeout(pullLive, 500); });   // 2 pictures a second
 }
 if (Store.served) setTimeout(pullLive, 1500);
 

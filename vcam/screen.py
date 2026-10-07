@@ -113,6 +113,8 @@ class ScreenCapture:
         self.alive = False
 
     def _run(self):
+        from .priority import lower_this_thread
+        lower_this_thread()                          # screen capture: background priority
         kind = self.source.get("kind")
         self.attempts = []
         try:

@@ -38,6 +38,7 @@ def _setup_log():
 
 _setup_log()
 import server  # noqa: E402  (after logging is set up, because it prints)
+from vcam.present_window import NativePresentation  # noqa: E402  (native Presentation window)
 
 
 def message(text, title=APP_NAME, warn=False):
@@ -288,24 +289,41 @@ def main():
     window.events.closing += on_closing
 
     def present(on=True):
-        """The separate "BSF Presentation" window: its own Windows window, so Zoom can share just it."""
+        """The separate "BSF Presentation" window (Zoom > Share Screen > that window).
+        Preferred: a native window (no browser engine, very light on the graphics card). Fallback: a WebView2 window."""
         w = state.get("present")
         if not on:
             state["present"] = None
             if w:
                 try:
-                    w.destroy()
+                    (w.close if isinstance(w, NativePresentation) else w.destroy)()
                 except Exception:
                     pass
             refresh_tray()
             return
         if w:
-            try:
-                w.restore()
-                w.show()
+            if isinstance(w, NativePresentation) and w.is_open():
                 return
-            except Exception:
-                state["present"] = None
+            if not isinstance(w, NativePresentation):
+                try:
+                    w.restore()
+                    w.show()
+                    return
+                except Exception:
+                    pass
+            state["present"] = None
+        comp, eng = server.VCAM.get("compositor"), server.VCAM.get("engine")
+        if comp and eng:
+            try:
+                state["present"] = NativePresentation(
+                    comp, eng.keep_awake, lambda: server.vcam_settings().get("presentFps", 15), server.APP / "fonts",
+                    on_closed=lambda: (state.update(present=None) if isinstance(state.get("present"), NativePresentation)
+                                       and not state["present"].is_open() else None, refresh_tray()))
+                print("Presentation window: native (no browser engine)")
+                refresh_tray()
+                return
+            except Exception as e:
+                print("Presentation window: native window unavailable, using WebView2 instead:", e)
         # Frameless: no title bar, no minimise/maximise/close buttons, no window frame. Drag anywhere to move it.
         # The title stays internal (never shown) so Zoom can list it under "Share specific window".
         w = webview.create_window("BSF Presentation", url + "present.html", width=1280, height=720,
@@ -319,11 +337,14 @@ def main():
         w.events.closed += closed
         state["present"] = w
         refresh_tray()
+
     def present_fullscreen(want=None):
         """Full Screen in the Presentation window: the window itself fills the screen (no frame at all)."""
         w = state.get("present")
         if not w:
             return False
+        if isinstance(w, NativePresentation):
+            return w.set_fullscreen(want)
         cur = bool(state.get("present_fs"))
         if want is None or bool(want) != cur:
             try:
@@ -332,11 +353,27 @@ def main():
             except Exception:
                 pass
         return bool(state.get("present_fs"))
+
+    def present_open():
+        w = state.get("present")
+        return bool(w) and (w.is_open() if isinstance(w, NativePresentation) else True)
+
+    def present_fs_state():
+        w = state.get("present")
+        if isinstance(w, NativePresentation):
+            return w.is_open() and w.fullscreen
+        return bool(w and state.get("present_fs"))
     state["tray"] = build_tray(show, quit_app)
     server.DESKTOP.update(active=True, show=show, hide=hide, quit=quit_app, choose_folder=choose_folder,
                           on_remote_change=refresh_tray, present=present, present_fullscreen=present_fullscreen,
-                          present_fs_state=lambda: bool(state.get("present") and state.get("present_fs")),
-                          present_open=lambda: state.get("present") is not None)
+                          present_fs_state=present_fs_state, present_open=present_open)
+    # "Light on graphics card" (Settings > General, on by default): the app's windows are drawn without the GPU.
+    # The dashboard is mostly still, so the CPU handles it easily, and the GPU stays free for Windows and Zoom.
+    # (pywebview's own argument is kept; the variable takes precedence over arguments set in code.)
+    if server.app_settings().get("lowGpu", True):
+        os.environ["WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS"] = (
+            "--disable-features=ElasticOverscroll --disable-gpu --disable-gpu-compositing")
+        server.DESKTOP["low_gpu"] = True
     webview.start(private_mode=False, storage_path=str(server.DATA / "webview"))
     stop_everything()
 

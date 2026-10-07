@@ -45,6 +45,8 @@ class BackgroundBlur:
             self.cond.notify_all()
 
     def _segment_loop(self):
+        from .priority import lower_this_thread
+        lower_this_thread()                          # the desktop and Zoom go first
         while True:
             with self.cond:
                 while self.alive and self.pending is None:

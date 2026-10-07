@@ -121,7 +121,7 @@ class VCamEngine:
         self.overlay = overlay                    # (frame) -> frame with cards drawn (used when there is no compositor)
         self.compositor = compositor              # layout + layers + cards, the one final picture
         self.dropped = 0
-        self.settings = {"cameraName": "", "resolution": "720p", "mirror": False, "blur": "off", "blurStrength": 0}
+        self.settings = {"cameraName": "", "resolution": "720p", "mirror": False, "blur": "off", "blurStrength": 0, "presentFps": 15}
         self.lock = threading.Lock()
         self.thread = None
         self.running = False
@@ -130,7 +130,9 @@ class VCamEngine:
         self.blur = None
         self.preview_until = 0.0
         self.awake_until = 0.0                    # e.g. the Presentation window is open (no preview pictures needed)
+        self.preview_ver, self.preview_t = 0, 0.0  # numbered previews: screens skip pictures they already have
         self.kick_evt = threading.Event()         # set when something changes (a card shown, a Studio edit)
+        self._last_proc = 0.0
         self.preview_jpeg = None
         self.status = {"state": "off", "message": "", "fps": 0.0, "msPerFrame": 0.0, "blurMs": 0.0,
                        "inUse": False, "cameraOn": False}
@@ -225,7 +227,8 @@ class VCamEngine:
                     # Idle rhythm: with no camera and nothing changing, and Zoom not using BCC vCam, check 5x a second
                     # instead of 30. Any change (kick) wakes it at once; changes keep it at 30 fps for 1.5 s.
                     idle = not in_use and self.compositor is not None and time.time() - self.compositor.last_change > 1.5
-                    tick += 0.2 if idle else 1 / 30
+                    rate = s.get("presentFps", 15) if (not in_use and not previewing) else 30
+                    tick += 0.2 if idle else 1 / rate
                     wait = tick - time.perf_counter()
                     if wait > 0:
                         if self.kick_evt.wait(wait):
@@ -246,6 +249,10 @@ class VCamEngine:
                     frame, seq, t_cap = self.cam.next(seq)
                     if prev and seq - prev > 1:
                         self.dropped += seq - prev - 1   # webcam frames that arrived while we were still busy
+                    only_present = not in_use and not previewing and awake
+                    if only_present and time.perf_counter() - self._last_proc < 1 / max(1, s.get("presentFps", 15)):
+                        continue                         # only the Presentation window needs pictures: its rate is enough
+                    self._last_proc = time.perf_counter()
                 t0 = time.perf_counter()
                 if frame is not None and (frame.shape[1] != w or frame.shape[0] != h):
                     frame = fit_cover(frame, w, h)       # keep the picture's shape; clean scaling, no stretching
@@ -272,12 +279,16 @@ class VCamEngine:
                     self.compositor.after_send(frame)         # test recording
                 busy += time.perf_counter() - t0
                 frames += 1
-                if previewing and (self.preview_jpeg is None or frames % 3 == 0):
-                    pw = min(960, w)                     # previews: sharp enough to judge quality (only while watched)
+                unchanged = (self.compositor is not None and self.preview_jpeg is not None
+                             and self.compositor.last_change < self.preview_t)          # nothing new to show
+                if previewing and not unchanged and (self.preview_jpeg is None or frames % 3 == 0):
+                    pw = min(640, w)                     # previews: clear but light (only while a preview is open)
                     small = frame if pw == w else cv2.resize(frame, (pw, int(pw * h / w)), interpolation=cv2.INTER_AREA)
-                    ok, jpg = cv2.imencode(".jpg", small, [cv2.IMWRITE_JPEG_QUALITY, 85])
+                    ok, jpg = cv2.imencode(".jpg", small, [cv2.IMWRITE_JPEG_QUALITY, 80])
                     if ok:
                         self.preview_jpeg = jpg.tobytes()
+                        self.preview_ver += 1
+                        self.preview_t = time.time()
                 now = time.time()
                 if now - t_window >= 1.0:
                     self._set(lookMs=round(s["grade"].ms, 1) if s.get("grade") is not None else 0.0)
