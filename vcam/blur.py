@@ -12,7 +12,7 @@ import time
 import cv2
 import numpy as np
 
-# Blur strength 0..100 %. Blur radius on the 1/8-size picture: 2 + 12 x strength.
+# Blur strength 0.5..100 % in steps of 0.5 (0 = off). Blur radius on the 1/8-size picture: 2 + 12 x strength.
 # Presets: Light 30 % (radius 5.6; its visible effect is about 1.5x the old Light's), Medium 55, Strong 80,
 # Maximum 100 (radius 14, about 2x the old Light). Measured on a photo, see the 4.2 notes in ARCHITECTURE.md.
 PRESETS = {"off": 0, "light": 30, "medium": 55, "strong": 80, "maximum": 100}

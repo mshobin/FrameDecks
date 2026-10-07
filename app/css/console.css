@@ -473,13 +473,6 @@ select.item-fx.set{color:var(--gold-strong);border-color:rgba(227,183,90,.55)}
 .s2-range em{font-style:normal;text-align:right;font-size:12px}
 .s2-text{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--muted)}
 .s2-text textarea{font:inherit;font-size:14px;background:var(--raised);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:7px;resize:vertical}
-.s2-chips{display:flex;flex-wrap:wrap;gap:5px;margin:6px 0 10px}
-.s2-varchip{all:unset;cursor:pointer;font:600 11.5px ui-monospace,Consolas,monospace;color:var(--gold-strong);background:var(--gold-soft);border:1px solid rgba(227,183,90,.35);border-radius:6px;padding:2px 6px}
-.s2-varchip:hover{background:rgba(227,183,90,.25)}
-.s2-vars{display:flex;flex-direction:column;gap:6px}
-.s2-var{display:grid;grid-template-columns:auto 1fr auto;gap:6px;align-items:center}
-.s2-var code{font-size:11.5px;color:var(--gold-strong)}
-.s2-var input{font:inherit;font-size:13px;background:var(--raised);color:var(--ink);border:1px solid var(--line);border-radius:7px;padding:5px 7px;min-width:0}
 .s2-pick{display:flex;flex-direction:column;gap:6px;max-height:50vh;overflow:auto}
 .s2-pick .btn{justify-content:flex-start;text-align:left;display:flex;gap:8px;align-items:center}
 /* Focus: hide the rest of the app */

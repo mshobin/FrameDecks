@@ -12,6 +12,7 @@ Mac:     double-click "Start BSF Command Center (Mac).command"
          (for the phone remote: python3 server.py --remote)
 """
 import json
+import math
 import os
 import platform
 import re
@@ -27,7 +28,7 @@ from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from pathlib import Path
 from urllib.parse import urlparse, parse_qs, unquote
 
-APP_VERSION = "4.2"
+APP_VERSION = "4.3"
 STARTED_AT = time.time()
 FROZEN = getattr(sys, "frozen", False)          # True inside the installed Windows app
 HERE = Path(sys.executable).resolve().parent if FROZEN else Path(__file__).resolve().parent
@@ -605,7 +606,9 @@ def clean_vcam(d):
     if d.get("blur") in ("off", "light", "strong"):
         out["blur"] = d["blur"]
     if isinstance(d.get("blurStrength"), (int, float)) and not isinstance(d.get("blurStrength"), bool):
-        out["blurStrength"] = int(max(0, min(100, d["blurStrength"])))
+        n = math.floor(float(d["blurStrength"]) * 2 + 0.5) / 2   # steps of 0.5 % (halves round up, like the screen)
+        n = 0 if n <= 0 else max(0.5, min(100.0, n))           # 0 = off; otherwise at least 0.5 %
+        out["blurStrength"] = int(n) if n == int(n) else n
     elif "blur" in out:                                   # older settings: off / light / strong
         out["blurStrength"] = {"off": 0, "light": 30, "strong": 80}[out["blur"]]
     return out
@@ -661,8 +664,7 @@ def studio_load():
     for k, v in (d.get("variables") or {}).items() if isinstance(d.get("variables"), dict) else []:
         if isinstance(k, str) and re.match(r"^[A-Za-z_][A-Za-z0-9_]{0,30}$", k):
             variables[k] = str(v)[:200]
-    if not variables:
-        variables = {"firstName": "", "lastName": "", "title": "", "location": "", "organization": ""}
+    # (Text layers made earlier may contain {{name}} placeholders: values saved then are still used for them.)
     collections = [{"id": str(c["id"])[:40], "name": str(c.get("name") or "Collection")[:40]} for c in d.get("collections", [])
                    if isinstance(c, dict) and str(c.get("id", "")).isidentifier()] if isinstance(d.get("collections"), list) else []
     if not collections:
@@ -701,9 +703,8 @@ def studio_status():
     lay_status = comp.layers.status()
     staged = comp.staged
     return {"available": True, "layout": comp.layout, "layers": [dict(l, status=lay_status.get(l["id"], {})) for l in comp.layers.layers],
-            "staged": staged is not None, "stagedLayers": staged or [], "variables": st["variables"], "collections": st["collections"],
+            "staged": staged is not None, "stagedLayers": staged or [], "collections": st["collections"],
             "sceneMode": comp.scene_mode(staged if staged is not None else comp.layers.layers),
-            "builtinVariables": sorted(k for k in comp.all_variables() if k not in st["variables"]),
             "screen": comp.screen_status(), "sources": list_sources(),
             "scenes": [{"id": x["id"], "name": x["name"], "collection": x["collection"],
                         "thumb": int((SCENES_DIR / (x["id"] + ".jpg")).stat().st_mtime) if (SCENES_DIR / (x["id"] + ".jpg")).exists() else 0} for x in st["scenes"]],
@@ -768,16 +769,6 @@ def _studio_action(d):
         if comp.staged is not None:
             comp.layers.set_layers(comp.staged)
             comp.staged = None
-    elif op == "variables":
-        st = studio_load()
-        vs = {}
-        for k, v in (d.get("variables") or {}).items():
-            if isinstance(k, str) and re.match(r"^[A-Za-z_][A-Za-z0-9_]{0,30}$", k):
-                vs[k] = str(v)[:200]
-        st["variables"] = vs
-        comp.variables = vs
-        STUDIO_FILE.write_text(json.dumps(st, indent=2), encoding="utf-8")
-        return {}
     elif op in ("collection-add", "collection-delete"):
         st = studio_load()
         if op == "collection-add":
@@ -1382,12 +1373,18 @@ class Handler(BaseHTTPRequestHandler):
         ok = lambda obj: self.reply(200, json.dumps(obj), TYPES[".json"])
         bad = lambda msg, code=400: self.reply(code, json.dumps({"error": msg}), TYPES[".json"])
         if action == "present":
-            # A separate "BSF Presentation" window (selectable in Zoom > Share > specific window).
-            hook = DESKTOP.get("present")
-            if hook:
-                hook(bool(data.get("on", True)))
-                return ok({"desktop": True, "open": bool(data.get("on", True))})
-            return ok({"desktop": False})        # browser: the page opens its own popup window
+            # A separate, frameless "BSF Presentation" window (selectable in Zoom > Share > specific window).
+            hook, fs = DESKTOP.get("present"), DESKTOP.get("present_fullscreen")
+            if not hook:
+                return ok({"desktop": False})    # browser: the page opens its own popup window
+            if data.get("query"):
+                state_fn = DESKTOP.get("present_fs_state")
+                return ok({"desktop": True, "fullscreen": bool(state_fn()) if state_fn else False})
+            if "fullscreen" in data:
+                want = None if data["fullscreen"] == "toggle" else bool(data["fullscreen"])
+                return ok({"desktop": True, "fullscreen": bool(fs(want)) if fs else False})
+            hook(bool(data.get("on", True)))
+            return ok({"desktop": True, "open": bool(data.get("on", True))})
         if action == "remote":
             res = set_remote(bool(data.get("enabled")))
             return ok(res)

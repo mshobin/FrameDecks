@@ -224,7 +224,7 @@ Settings → Diagnostics and the Studio tab.
 ## 10. Version 4.1: Camo-style Studio and scene model
 
 **Everything is a layer.** Layer types: `camera` (the webcam), `screen` (the shared display/window/PDF),
-`text` (with `{{variables}}`), `image`, `rect`, `ellipse`, `background`, `video`, `pdf`, `window`.
+`text`, `image`, `rect`, `ellipse`, `background`, `video`, `pdf`, `window`.
 Every layer has `x, y` (centre), `w, h` (independent size; `h = 0` keeps the source's proportions),
 `rotation`, `opacity`, `radius` (corner radius), `visible`, `locked`, and type-specific `props`.
 A scene that contains camera, screen or background layers is drawn entirely from layers ("scene mode");
@@ -239,8 +239,7 @@ deliver frames only on change). Measured (camera + screen with rounded corners +
 
 **Preview / Output.** In Preview the Studio edits a private copy (`staged`), rendered on demand at
 640×360; *Send to output* swaps it in. **Scene collections** group scenes; each saved scene gets a
-320×180 thumbnail (`scenes/<id>.jpg`). **Variables** are stored in `bsf-studio.json` (`variables`);
-live ones: `date, time, question, verse, verseRef`.
+320×180 thumbnail (`scenes/<id>.jpg`). (Version 4.3 removed the Personalise / variables panel; `variables` values saved earlier are still used by existing text layers.)
 
 **Screen-sharing reliability (4.1 fix).** Displays: Windows Graphics Capture first (works on laptops with
 two graphics chips, includes the cursor), DXGI Desktop Duplication as fallback. Each attempt must deliver a
@@ -281,3 +280,19 @@ is a live editor (~5 pictures/s).
 **Safeguards:** idle pacing everywhere (`Store.pace`), visibility-aware loops, engine idle rhythm + kick on
 change, stream disconnect detection, cache cleanup, and Settings → Diagnostics → Resources (memory, threads,
 requests/min by kind, Presentation windows, per-stage camera timings, plain-language tips).
+
+## 12. Version 4.3
+
+* **Presentation window**: pywebview `frameless=True, easy_drag=True`, 1280×720 content. Full Screen calls the
+  window's own `toggle_fullscreen()` through `POST /api/app/present {"fullscreen": "toggle"|true|false}`;
+  `{"query": true}` reports `{desktop, fullscreen}` so Esc leaves full screen before closing. Browser popups
+  (no installed app) keep the page's fullscreen API (a browser cannot hide its own popup frame).
+* **Blur steps**: `blurStrength` is 0 (off) or 0.5…100 in 0.5 steps; values are rounded half-up (same as the
+  screen) and clamped. The engine's `blurMs` now follows `blurStrength` (it was tied to the old `blur` field).
+* **Camera quality**: MJPG requested for Media Foundation too (with a check of the delivered size and a fallback
+  to the default mode, keeping the larger picture); `fit_cover()` keeps the aspect ratio (INTER_AREA shrinking,
+  INTER_CUBIC enlarging); previews 960 px at JPEG 85 (only while a preview is open: about +0.9 ms/frame);
+  the delivered webcam mode is shown as `captureInfo`.
+* **Personalise / variables removed** from the Studio UI and API (`op: "variables"`, `variables`,
+  `builtinVariables`); new text layers default to plain text. Values saved by older versions in
+  `bsf-studio.json` are still applied to existing text layers so they don't suddenly show `{{…}}`.

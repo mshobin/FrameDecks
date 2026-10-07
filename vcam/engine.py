@@ -18,6 +18,17 @@ import numpy as np
 SIZES = {"720p": (1280, 720), "1080p": (1920, 1080)}
 
 
+def fit_cover(img, w, h):
+    """Scale a camera picture to w x h keeping its shape (crop the edges if the shape differs).
+    Area averaging when shrinking (clean, no shimmer), bicubic when enlarging; no artificial sharpening."""
+    ih, iw = img.shape[:2]
+    k = max(w / iw, h / ih)
+    nw, nh = max(w, int(round(iw * k))), max(h, int(round(ih * k)))
+    out = cv2.resize(img, (nw, nh), interpolation=cv2.INTER_AREA if k < 1 else cv2.INTER_CUBIC)
+    y0, x0 = (nh - h) // 2, (nw - w) // 2
+    return out[y0:y0 + h, x0:x0 + w]
+
+
 class Camera:
     """The real webcam, read through Windows Media Foundation (BCC vCam itself never appears there,
     so the engine can't capture its own output)."""
@@ -226,7 +237,9 @@ class VCamEngine:
                 else:
                     if self.cam is None:
                         self._set(state="starting", message="Starting the webcam…")
-                        self.cam = Grabber(self.camera_factory(s["cameraName"], w, h))
+                        cam_obj = self.camera_factory(s["cameraName"], w, h)
+                        self.cam = Grabber(cam_obj)
+                        self._set(captureInfo=getattr(cam_obj, "info", "") or f"{w}×{h}")
                         seq = 0                          # a fresh webcam session starts counting again
                         self._set(cameraOn=True)
                     prev = seq
@@ -235,7 +248,7 @@ class VCamEngine:
                         self.dropped += seq - prev - 1   # webcam frames that arrived while we were still busy
                 t0 = time.perf_counter()
                 if frame is not None and (frame.shape[1] != w or frame.shape[0] != h):
-                    frame = cv2.resize(frame, (w, h), interpolation=cv2.INTER_AREA)
+                    frame = fit_cover(frame, w, h)       # keep the picture's shape; clean scaling, no stretching
                 if frame is not None and s["mirror"]:
                     frame = cv2.flip(frame, 1)
                 grade = s.get("grade")
@@ -260,8 +273,9 @@ class VCamEngine:
                 busy += time.perf_counter() - t0
                 frames += 1
                 if previewing and (self.preview_jpeg is None or frames % 3 == 0):
-                    small = cv2.resize(frame, (480, int(480 * h / w)), interpolation=cv2.INTER_AREA)
-                    ok, jpg = cv2.imencode(".jpg", small, [cv2.IMWRITE_JPEG_QUALITY, 70])
+                    pw = min(960, w)                     # previews: sharp enough to judge quality (only while watched)
+                    small = frame if pw == w else cv2.resize(frame, (pw, int(pw * h / w)), interpolation=cv2.INTER_AREA)
+                    ok, jpg = cv2.imencode(".jpg", small, [cv2.IMWRITE_JPEG_QUALITY, 85])
                     if ok:
                         self.preview_jpeg = jpg.tobytes()
                 now = time.time()
@@ -273,7 +287,7 @@ class VCamEngine:
                               latencyMs=round(lat_sum / max(frames, 1) * 1000, 1), cpuPercent=round(cpu, 1))
                     lat_sum = 0.0
                     self._set(fps=round(frames / (now - t_window), 1), msPerFrame=round(busy / max(frames, 1) * 1000, 1),
-                              blurMs=round(self.blur.model_ms, 1) if self.blur and s["blur"] != "off" else 0.0)
+                              blurMs=round(self.blur.model_ms, 1) if self.blur and (s.get("blurStrength") or 0) > 0 else 0.0)
                     frames, busy, t_window = 0, 0.0, now
                 self._set(state="live" if in_use else "preview",
                           message="In use by Zoom or Teams" if in_use else "Preview")

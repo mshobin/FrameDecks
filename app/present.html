@@ -60,11 +60,22 @@
   function showUi(){ document.body.classList.add('ui'); clearTimeout(uiT); uiT = setTimeout(function(){ document.body.classList.remove('ui'); }, 2000); }
   document.addEventListener('mousemove', showUi, {passive: true});
   document.addEventListener('touchstart', showUi, {passive: true});
+  /* Full Screen: in the installed app the frameless window itself fills the screen (no frame, no title bar);
+     in a browser popup the page's own full screen is used. */
+  var desktop = false, nativeFs = false;
+  fetch('api/app/present', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({query: true})})
+    .then(function(r){ return r.json(); }).then(function(d){ desktop = !!d.desktop; nativeFs = !!d.fullscreen; }).catch(function(){});
+  function setNative(want){
+    return fetch('api/app/present', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({fullscreen: want})})
+      .then(function(r){ return r.json(); }).then(function(d){ nativeFs = !!d.fullscreen; }).catch(function(){});
+  }
   function fullscreen(){
+    if (desktop){ setNative('toggle'); return; }
     if (document.fullscreenElement) document.exitFullscreen();
     else if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(function(){});
   }
   function exit(){
+    if (desktop && nativeFs){ setNative(false); return; }       // Esc: leave full screen first
     if (document.fullscreenElement){ document.exitFullscreen(); return; }
     pic.src = '';                                   // stop the stream at once
     fetch('api/app/present', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({on: false})})

@@ -21,7 +21,7 @@ LIVE = ("camera", "screen")                  # drawn from live pictures every fr
 DEFAULT = {"visible": True, "locked": False, "x": 0.5, "y": 0.5, "w": 0.3, "h": 0.0, "rotation": 0.0, "opacity": 1.0,
            "radius": 0.0, "loop": True, "page": 0}
 PROPS = {   # type-specific settings, all optional
-    "text": {"text": "Hello {{firstName}}", "font": "sans", "size": 0.06, "color": "#ffffff", "weight": 700,
+    "text": {"text": "Your text here", "font": "sans", "size": 0.06, "color": "#ffffff", "weight": 700,
              "align": "center", "bg": "", "bgOpacity": 0.6},
     "rect": {"fill": "#14284a", "fillOpacity": 0.9, "stroke": "#e3b75a", "strokeWidth": 0},
     "ellipse": {"fill": "#e3b75a", "fillOpacity": 1.0, "stroke": "#ffffff", "strokeWidth": 0},
@@ -508,7 +508,8 @@ def _box(img, l, W, H):
 def _cover(img, w, h):
     ih, iw = img.shape[:2]
     k = max(w / iw, h / ih)
-    r = cv2.resize(img, (max(w, int(round(iw * k))), max(h, int(round(ih * k)))), interpolation=cv2.INTER_LINEAR)
+    r = cv2.resize(img, (max(w, int(round(iw * k))), max(h, int(round(ih * k)))),
+                   interpolation=cv2.INTER_AREA if k < 1 else cv2.INTER_LINEAR)   # shrinking: area averaging (crisper)
     y0, x0 = (r.shape[0] - h) // 2, (r.shape[1] - w) // 2
     return r[y0:y0 + h, x0:x0 + w]
 

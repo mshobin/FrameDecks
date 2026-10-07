@@ -121,7 +121,7 @@ class Compositor:
         self.last_change = time.time()             # when the final picture last changed (drives the idle rhythm)
         self._sig = None
         self.present_cond = threading.Condition()
-        self.variables = {}            # personal variables, e.g. {"firstName": "Shobin", "location": "Kuwait"}
+        self.variables = {}            # values saved by older versions for {{name}} placeholders in existing text layers
         self.staged = None             # Preview mode: a layer list being edited before it goes to the output
         self.last_cam = None
         self.frame_no = 0

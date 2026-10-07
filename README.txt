@@ -1,5 +1,5 @@
 ================================================================
-  BSF COMMAND CENTER  ·  version 4.2
+  BSF COMMAND CENTER  ·  version 4.3
   Clean Bible study overlays for BSF leaders on Zoom.
 ================================================================
 
@@ -70,12 +70,10 @@ BCC vCam: THE BUILT-IN CAMERA (installed Windows app)
                  show when a layer snaps to the centre, an edge or
                  another layer. Arrow keys nudge, Delete removes,
                  Ctrl+D duplicates.
-        Right  - Scenes (collections + thumbnails), the Inspector
+        Right  - Scenes (collections + thumbnails) and the Inspector
                  (X, Y, width, height, opacity, rotation, corner
                  radius, and each layer's own settings: text, colours,
-                 fit...) and Personalise: your own variables such as
-                 {{firstName}} or {{location}} for Text layers, plus
-                 {{date}}, {{time}}, {{question}}, {{verse}}, {{verseRef}}.
+                 fit...).
         Top    - scene and collection, Preview / Output (edit privately,
                  then "Send to output"), Record, Look, Focus (hide the
                  rest of the app) and Hide window.
@@ -136,6 +134,19 @@ WHAT'S NEW IN VERSION 3 (the meeting control console)
   - Stream Deck support has been removed.
 
   Small changes you may notice
+  - New in 4.3:
+      * Presentation window has no title bar, frame or window buttons:
+        just the scene. Drag anywhere on it to move it. Full Screen
+        (button, F or double-click) makes the window fill the screen;
+        Esc leaves full screen first, then closes it.
+      * Blur strength in 0.5 % steps (0.5 %, 1 %, 1.5 % ...) with - and
+        + buttons; 0.5 % is the lowest blur (Off is still a preset).
+      * Sharper camera: the webcam is asked for its full-quality mode
+        (Settings > BCC vCam and Diagnostics show what it delivers, e.g.
+        "1280x720 MJPG at 30 fps"), pictures are never stretched, and
+        previews are twice as sharp. In Zoom also tick Settings > Video
+        > HD, or Zoom sends a softer, low-resolution picture.
+      * The Studio's Personalise / variables panel has been removed.
   - New in 4.2:
       * Card opacity (Settings > Overlays): 70 / 80 / 90 / 100 % presets,
         a slider and a live preview. Below 100 % your video shows

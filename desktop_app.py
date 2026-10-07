@@ -306,8 +306,12 @@ def main():
                 return
             except Exception:
                 state["present"] = None
-        w = webview.create_window("BSF Presentation", url + "present.html", width=1280, height=760,
-                                  min_size=(480, 300), background_color="#000000", text_select=False)
+        # Frameless: no title bar, no minimise/maximise/close buttons, no window frame. Drag anywhere to move it.
+        # The title stays internal (never shown) so Zoom can list it under "Share specific window".
+        w = webview.create_window("BSF Presentation", url + "present.html", width=1280, height=720,
+                                  min_size=(480, 270), background_color="#000000", text_select=False,
+                                  frameless=True, easy_drag=True)
+        state["present_fs"] = False
         def closed():
             if state.get("present") is w:
                 state["present"] = None
@@ -315,9 +319,23 @@ def main():
         w.events.closed += closed
         state["present"] = w
         refresh_tray()
+    def present_fullscreen(want=None):
+        """Full Screen in the Presentation window: the window itself fills the screen (no frame at all)."""
+        w = state.get("present")
+        if not w:
+            return False
+        cur = bool(state.get("present_fs"))
+        if want is None or bool(want) != cur:
+            try:
+                w.toggle_fullscreen()
+                state["present_fs"] = not cur
+            except Exception:
+                pass
+        return bool(state.get("present_fs"))
     state["tray"] = build_tray(show, quit_app)
     server.DESKTOP.update(active=True, show=show, hide=hide, quit=quit_app, choose_folder=choose_folder,
-                          on_remote_change=refresh_tray, present=present,
+                          on_remote_change=refresh_tray, present=present, present_fullscreen=present_fullscreen,
+                          present_fs_state=lambda: bool(state.get("present") and state.get("present_fs")),
                           present_open=lambda: state.get("present") is not None)
     webview.start(private_mode=False, storage_path=str(server.DATA / "webview"))
     stop_everything()

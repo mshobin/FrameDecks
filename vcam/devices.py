@@ -151,30 +151,50 @@ class Camera:
         if os.name != "nt":
             tries = [("any", 0)]
         last = None
+        self.info = ""
         for backend, index in tries:
             api = {"msmf": cv2.CAP_MSMF, "dshow": cv2.CAP_DSHOW}.get(backend, cv2.CAP_ANY)
-            cap = cv2.VideoCapture(index, api)
-            if not cap.isOpened():
-                last = "could not be opened"
-                cap.release()
-                continue
-            if backend == "dshow":
-                cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*"MJPG"))   # needed for HD on many webcams
-            cap.set(cv2.CAP_PROP_FRAME_WIDTH, width)
-            cap.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
-            cap.set(cv2.CAP_PROP_FPS, 30)
-            deadline = time.time() + 4.0
-            ok = False
-            while time.time() < deadline:
-                ok, frame = cap.read()
-                if ok and frame is not None:
+            best = None                                   # (pixels, cap, description)
+            # Quality: ask for the webcam's compressed MJPG mode first - most webcams only deliver full
+            # resolution at a steady 30 fps that way (the uncompressed mode often drops to a lower size or a
+            # low frame rate, which looks soft and hazy). If the picture comes back smaller than asked,
+            # also try the webcam's default mode and keep whichever gives the larger picture.
+            for mjpg in (True, False):
+                cap = cv2.VideoCapture(index, api)
+                if not cap.isOpened():
+                    last = "could not be opened"
+                    cap.release()
                     break
-                time.sleep(0.05)
-            if ok:
-                self.cap, self.backend = cap, backend
+                if mjpg:
+                    cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*"MJPG"))
+                cap.set(cv2.CAP_PROP_FRAME_WIDTH, width)
+                cap.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
+                cap.set(cv2.CAP_PROP_FPS, 30)
+                deadline = time.time() + 4.0
+                ok, frame = False, None
+                while time.time() < deadline:
+                    ok, frame = cap.read()
+                    if ok and frame is not None:
+                        break
+                    time.sleep(0.05)
+                if not ok:
+                    last = "opened but sent no picture"
+                    cap.release()
+                    continue
+                px = frame.shape[0] * frame.shape[1]
+                fps = cap.get(cv2.CAP_PROP_FPS) or 0
+                desc = f"{frame.shape[1]}×{frame.shape[0]}{' MJPG' if mjpg else ''}{f' at {fps:.0f} fps' if fps else ''} via {backend.upper()}"
+                if best is None or px > best[0]:
+                    if best:
+                        best[1].release()
+                    best = (px, cap, desc)
+                else:
+                    cap.release()
+                if frame.shape[1] >= width * 0.95:        # full size: no need to try the other mode
+                    break
+            if best:
+                self.cap, self.backend, self.info = best[1], backend, best[2]
                 return
-            last = "opened but sent no picture"
-            cap.release()
         reason = explain(camera_blockers())
         if not reason:
             label = f"“{name}”" if name else "The webcam"

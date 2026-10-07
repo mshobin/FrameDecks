@@ -131,7 +131,7 @@ left.appendChild(h('p', {cls: 'hint s2-tip', text: 'Higher layers appear in fron
 function menuItem(icon, label, fn, id){ return h('button', {type: 'button', role: 'menuitem', id: id || null, html: I(icon, 16) + '<span>' + label + '</span>', onclick: function(){ addMenu.hidden = true; fn(); }}); }
 addMenu.appendChild(menuItem('video', 'Video Source (camera)', function(){ addLayer({type: 'camera', name: 'Camera', w: 0.5, h: 0.5}); }, 'add-camera'));
 addMenu.appendChild(menuItem('monitor', 'Screen Capture…', chooseScreen, 'add-screen'));
-addMenu.appendChild(menuItem('type', 'Text', function(){ addLayer({type: 'text', name: 'Text', w: 0.5, h: 0.12, props: {text: 'Hello {{firstName}}'}}); }, 'add-text'));
+addMenu.appendChild(menuItem('type', 'Text', function(){ addLayer({type: 'text', name: 'Text', w: 0.5, h: 0.12, props: {text: 'Your text here'}}); }, 'add-text'));
 addMenu.appendChild(menuItem('image', 'Image…', function(){ addFile('image').then(function(f){ if (f) addLayer({type: 'image', name: f.replace(/\.[^.]+$/, ''), file: f, w: 0.25}); }); }, 'add-image'));
 addMenu.appendChild(menuItem('square', 'Rectangle', function(){ addLayer({type: 'rect', name: 'Rectangle', w: 0.3, h: 0.2, radius: 0.015}); }, 'add-rect'));
 addMenu.appendChild(menuItem('circle', 'Ellipse', function(){ addLayer({type: 'ellipse', name: 'Ellipse', w: 0.15, h: 0.15 * 16 / 9}); }, 'add-ellipse'));
@@ -381,14 +381,11 @@ stage.addEventListener('keydown', function(e){
 var colSel = h('select', {id: 's2-collection', 'aria-label': 'Scene collection'});
 var gallery = h('div', {cls: 's2-gallery', id: 's2-gallery'});
 var insp = h('div', {cls: 's2-insp', id: 's2-insp'});
-var varsBox = h('div', {cls: 's2-vars', id: 's2-vars'});
 right.appendChild(h('div', {cls: 's2-head'}, [h('h2', {html: I('layout-template', 16) + ' Scenes'}), colSel,
   ib('plus', 'New collection', function(){ var n = prompt('Name for the new collection:'); if (n && n.trim()) act('collection-add', {name: n.trim()}).then(function(d){ colSel.dataset.sig = ''; refresh().then(function(){ colSel.value = d.collection; renderScenes(); }); }); })]));
 right.appendChild(gallery);
 right.appendChild(h('div', {cls: 's2-head'}, [h('h2', {html: I('sparkles', 16) + ' Inspector'})]));
 right.appendChild(insp);
-right.appendChild(h('div', {cls: 's2-head'}, [h('h2', {html: I('braces', 16) + ' Personalise'})]));
-right.appendChild(varsBox);
 colSel.addEventListener('change', renderScenes);
 
 function renderScenes(){
@@ -458,7 +455,7 @@ function renderInspector(fromDrag){
     set('X', Math.round(b.x * REF_W)); set('Y', Math.round(b.y * REF_H)); set('Width', Math.round(b.w * REF_W)); set('Height', Math.round(b.h * REF_H));
     return;
   }
-  var sig = JSON.stringify([chosen.map(strip), S && S.screen, S && S.variables]);
+  var sig = JSON.stringify([chosen.map(strip), S && S.screen]);
   if (sig === inspSig) return; inspSig = sig;
   insp.innerHTML = '';
   if (!chosen.length){ insp.appendChild(h('p', {cls: 'hint', text: 'Select a layer on the canvas or in the Layers list.'})); return; }
@@ -485,13 +482,7 @@ function renderInspector(fromDrag){
   if (l.type === 'text'){
     var ta = h('textarea', {rows: 3, 'aria-label': 'Text', id: 's2-textarea'}); ta.value = p.text || '';
     ta.addEventListener('input', function(){ curP().text = ta.value; pushLayers(); });
-    var chips = h('div', {cls: 's2-chips'});
-    Object.keys(S.variables || {}).concat(S.builtinVariables || []).forEach(function(k){
-      chips.appendChild(h('button', {type: 'button', cls: 's2-varchip', text: '{{' + k + '}}', onclick: function(){
-        var pos = ta.selectionStart == null ? ta.value.length : ta.selectionStart; ta.value = ta.value.slice(0, pos) + '{{' + k + '}}' + ta.value.slice(pos); curP().text = ta.value; pushLayers(true); }}));
-    });
     insp.appendChild(h('label', {cls: 's2-text'}, [h('span', {text: 'Text'}), ta]));
-    insp.appendChild(chips);
     insp.appendChild(h('div', {cls: 's2-grid'}, [
       select('Font', p.font || 'sans', [['sans', 'Source Sans'], ['serif', 'EB Garamond']], function(v){ var l = cur(), p = curP(); p.font = v; }),
       num('Size', Math.round((p.size || 0.06) * REF_H), function(v){ var l = cur(), p = curP(); p.size = Math.max(10, v) / REF_H; }, {unit: 'px', min: 10}),
@@ -533,24 +524,6 @@ function renderInspector(fromDrag){
   var st = l.status || {};
   if (st.error || st.info) insp.appendChild(h('p', {cls: 'hint', text: st.error ? '⚠ ' + st.error : [st.info, st.page ? 'slide ' + st.page + ' of ' + st.pages : ''].filter(Boolean).join(' · ')}));
 }
-var varsSig = '';
-function renderVars(){
-  if (varsBox.contains(document.activeElement)) return;
-  var sig = JSON.stringify([S.variables, S.builtinVariables]); if (sig === varsSig) return; varsSig = sig;
-  varsBox.innerHTML = '';
-  var vars = S.variables || {};
-  Object.keys(vars).forEach(function(k){
-    var inp = h('input', {type: 'text', value: vars[k], 'aria-label': k, placeholder: k, 'data-var': k});
-    inp.addEventListener('change', function(){ vars[k] = inp.value; act('variables', {variables: vars}); });
-    varsBox.appendChild(h('label', {cls: 's2-var'}, [h('code', {text: '{{' + k + '}}'}), inp,
-      ib('x', 'Remove', function(){ delete vars[k]; act('variables', {variables: vars}).then(refresh); })]));
-  });
-  varsBox.appendChild(h('button', {cls: 'btn small', type: 'button', html: I('plus', 14) + ' Add variable', onclick: function(){
-    var k = prompt('Variable name (letters and numbers, e.g. churchName):'); if (!k || !/^[A-Za-z_][A-Za-z0-9_]*$/.test(k.trim())) return;
-    vars[k.trim()] = ''; act('variables', {variables: vars}).then(refresh); }}));
-  varsBox.appendChild(h('p', {cls: 'hint', text: 'Use them in Text layers. Always available: ' + (S.builtinVariables || []).map(function(k){ return '{{' + k + '}}'; }).join(' ')}));
-}
-
 /* ---------- actions on the selection ---------- */
 function removeSelected(){ if (!sel.length) return; L = L.filter(function(l){ return sel.indexOf(l.id) < 0 || l.locked; }); sel = []; pushLayers(true); draw(); }
 function duplicateSelected(){
@@ -596,7 +569,7 @@ function apply(d){
   if (vs && vs.looks){ var ls = JSON.stringify(vs.looks); if (lookSel.dataset.sig !== ls){ lookSel.dataset.sig = ls; lookSel.innerHTML = '';
       lookSel.appendChild(h('option', {value: 'off', text: 'Look: Off'})); vs.looks.forEach(function(l){ lookSel.appendChild(h('option', {value: l.id, text: 'Look: ' + l.name})); }); }
     if (document.activeElement !== lookSel) lookSel.value = vs.settings.look || 'off'; }
-  renderScenes(); draw(); renderVars();
+  renderScenes(); draw();
 }
 function fmtTime(s){ s = Math.round(s || 0); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); }
 function metricsLine(){

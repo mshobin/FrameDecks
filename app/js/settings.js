@@ -116,6 +116,7 @@ function renderDiag(){
     }
     if (d.vcam && d.vcam.status && d.vcam.status.fps){
       var v = d.vcam.status;
+      if (v.captureInfo) row('Webcam picture', v.captureInfo);
       row('BCC vCam performance', 'camera ' + (v.captureFps || 0) + ' fps → output ' + v.fps + ' fps · ' + v.msPerFrame + ' ms work per frame · capture-to-send ' +
         (v.latencyMs || 0) + ' ms · dropped frames ' + (v.dropped || 0) + ' · CPU ' + (v.cpuPercent || 0) + '% of this PC · GPU: not used (CPU pipeline)');
     }
