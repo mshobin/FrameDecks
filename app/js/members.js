@@ -844,14 +844,11 @@ function renderBar(){
   if (!ui.celebrateId && opts.length) ui.celebrateId = opts[0].m.id;
   sel.value = ui.celebrateId || '';
   sel.disabled = !opts.length;
-  $('bb-show').disabled = !opts.length;
   stageBirthday();
-  $('bb-msg').textContent = opts.length ? '' : 'Nobody has a birthday today or in the next ' + n + ' days. To celebrate someone else, choose “Celebrate on screen” on their member card.';
   renderBarStatus();
 }
 function renderBarStatus(){
   var on = !!(live && live.birthday.visible && live.birthday.greeting);
-  var pill = $('bb-pill'); pill.className = 'pill' + (on ? ' on' : ''); pill.querySelector('b').textContent = on ? 'On screen' : 'Hidden';
   var top = $('pill-birthday'); top.className = 'pill' + (on ? ' on' : ''); top.querySelector('b').textContent = on ? 'On screen' : 'Hidden';
 }
 function bdayPayload(m){
@@ -887,7 +884,7 @@ function clearBirthday(){
 /* Shared with Meeting Mode and keyboard shortcuts */
 window.BSFBirthday = {
   show: function(){ showBirthday(); }, hide: hideBirthday, clear: clearBirthday,
-  toggle: function(){ if (live && live.birthday.visible && live.birthday.greeting) hideBirthday(); else if (byId(ui.celebrateId)) showBirthday(); else toast('No birthday is ready. Choose a member in the birthday bar below.', true); },
+  toggle: function(){ if (live && live.birthday.visible && live.birthday.greeting) hideBirthday(); else if (byId(ui.celebrateId)) showBirthday(); else toast('No birthday is ready. Choose a member in the Birthday box (Run meeting), or use “Celebrate on screen” on their member card.', true); },
   candidate: function(){ var m = byId(ui.celebrateId); return m ? {name: m.name} : null; }
 };
 window.BSFMembersAPI = {
@@ -1040,9 +1037,6 @@ function setup(){
   });
   $('bb-country').checked = !!data.settings.bdayShowCountry;
   $('bb-country').addEventListener('change', refreshBirthdayInPlace);
-  $('bb-show').addEventListener('click', showBirthday);
-  $('bb-hide').addEventListener('click', hideBirthday);
-  $('bb-clear').addEventListener('click', clearBirthday);
   bindSettings();
 
   document.addEventListener('keydown', function(e){

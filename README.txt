@@ -1,5 +1,5 @@
 ================================================================
-  BSF COMMAND CENTER  ·  version 4.5.1
+  BSF COMMAND CENTER  ·  version 4.6
   Clean Bible study overlays for BSF leaders on Zoom.
 ================================================================
 
@@ -134,6 +134,17 @@ WHAT'S NEW IN VERSION 3 (the meeting control console)
   - Stream Deck support has been removed.
 
   Small changes you may notice
+  - New in 4.6:
+      * The birthday panel at the bottom of every tab is gone. Choosing
+        who to celebrate (and "Country") is now in the Birthday box on
+        Meetings & Content > Run meeting, next to its Show button.
+      * Camera blur in 0.1 % steps (0.1 %, 0.2 % ...), lowest 0.1 %.
+      * Remote: new "Scenes" section (switch Studio scenes) and, below it,
+        "Slides" (previous / next slide). On phones, the new "Studio"
+        button at the top jumps there.
+      * Next / previous slide now works for a PowerPoint window layer
+        (slide show or normal view) and shows "Slide 4 of 12". If it
+        can't move, it says why.
   - 4.5.1: fixed a crash when the Presentation window was opened a second
     time. Settings > General > Performance also has "Lightweight
     Presentation window": untick it if that window ever misbehaves (the

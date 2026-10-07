@@ -46,6 +46,7 @@
       <button type="button" class="pt q" data-pt="question">Questions<i data-dot="question"></i></button>
       <button type="button" class="pt v" data-pt="verse">Verses<i data-dot="verse"></i></button>
       <button type="button" class="pt b" data-pt="more">Birthday<i data-dot="birthday"></i></button>
+      <button type="button" class="pt s" data-pt="studio" id="pt-studio" hidden>Studio</button>
     </nav>
     <button class="tool" type="button" id="lists-btn">Lists</button>
     <button class="hideall" type="button" id="hide-all">HIDE ALL</button>
@@ -82,6 +83,18 @@
         <div class="phead"><span class="cat">Birthday</span><span class="state" data-state="birthday">—</span></div>
         <p class="now small" data-now="birthday"></p>
         <button class="pb toggle wide" type="button" data-do="toggle" data-k="birthday"><span class="tl">SHOW</span></button>
+      </section>
+      <section class="pane sc" data-k="scenes" aria-label="Studio scenes" hidden>
+        <div class="phead"><span class="cat">Scenes</span><span class="state" id="sc-state">—</span></div>
+        <div class="scene-grid" id="scene-grid"></div>
+      </section>
+      <section class="pane sl" data-k="slides" aria-label="Slides" hidden>
+        <div class="phead"><span class="cat">Slides</span><span class="state" id="sl-state">—</span></div>
+        <p class="now small" id="sl-name"></p>
+        <div class="pad two">
+          <button class="pb" type="button" data-slide="-1"><span class="ar">◀</span><span>PREV</span></button>
+          <button class="pb" type="button" data-slide="1"><span class="ar">▶</span><span>NEXT</span></button>
+        </div>
       </section>
       <section class="pane preview-pane">
         <div class="phead"><span class="cat plain">Preview</span><button class="tool small" type="button" id="pv-btn">Show preview</button></div>

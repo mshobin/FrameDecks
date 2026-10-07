@@ -59,13 +59,13 @@ segButtons(resSeg, [['720p', '720p (recommended)'], ['1080p', '1080p']], 'resolu
 segButtons(presSeg, [[15, 'Standard · 15 fps (recommended)'], [30, 'Smooth · 30 fps']], 'presentFps');
 /* Background blur: presets + 0-100 % slider. Changes apply live for this session; "Save as default" keeps them. */
 var BLUR_PRESETS = [['off', 'Off', 0], ['light', 'Light', 30], ['medium', 'Medium', 55], ['strong', 'Strong', 80], ['maximum', 'Maximum', 100]];
-var BLUR_MIN = 0.5, BLUR_MAX = 100, BLUR_STEP = 0.5;     // strength in 0.5 % steps; 0 = Off (preset)
+var BLUR_MIN = 0.1, BLUR_MAX = 100, BLUR_STEP = 0.1;     // strength in 0.1 % steps; 0 = Off (preset)
 var blurRange = h('input', {type: 'range', min: String(BLUR_MIN), max: String(BLUR_MAX), step: String(BLUR_STEP), value: String(BLUR_MIN), id: 'vcam-blur-range', 'aria-label': 'Blur strength'});
 var blurVal = h('span', {cls: 'val', id: 'vcam-blur-val', text: 'Off'});
-var blurDown = h('button', {cls: 'btn small', type: 'button', id: 'vcam-blur-down', text: '−', 'aria-label': 'Less blur (0.5 %)'});
-var blurUp = h('button', {cls: 'btn small', type: 'button', id: 'vcam-blur-up', text: '+', 'aria-label': 'More blur (0.5 %)'});
-function fmtBlur(n){ return n > 0 ? (n % 1 ? n.toFixed(1) : String(n)) + '%' : 'Off'; }
-function snapBlur(n){ n = Math.round(Number(n) * 2) / 2; return n <= 0 ? 0 : Math.max(BLUR_MIN, Math.min(BLUR_MAX, n)); }
+var blurDown = h('button', {cls: 'btn small', type: 'button', id: 'vcam-blur-down', text: '−', 'aria-label': 'Less blur (0.1 %)'});
+var blurUp = h('button', {cls: 'btn small', type: 'button', id: 'vcam-blur-up', text: '+', 'aria-label': 'More blur (0.1 %)'});
+function fmtBlur(n){ return n > 0 ? (Math.abs(n - Math.round(n)) > 1e-9 ? n.toFixed(1) : String(Math.round(n))) + '%' : 'Off'; }
+function snapBlur(n){ n = Math.round(Number(n) * 10) / 10; return n <= 0 ? 0 : Math.max(BLUR_MIN, Math.min(BLUR_MAX, n)); }   // 0.1 % steps
 var blurNowVal = 0;
 var blurSave = h('button', {cls: 'btn small', type: 'button', id: 'vcam-blur-save', text: 'Save as default'});
 var blurNote = h('span', {cls: 'hint', id: 'vcam-blur-note'});
@@ -82,8 +82,8 @@ function tryBlur(n){
 }
 function markBlur(n){ Array.prototype.forEach.call(blurSeg.children, function(b){ b.setAttribute('aria-pressed', String(+b.dataset.val === n)); }); }
 blurRange.addEventListener('input', function(){ tryBlur(+blurRange.value); });
-blurDown.addEventListener('click', function(){ tryBlur(blurNowVal > 0 ? Math.max(BLUR_MIN, blurNowVal - BLUR_STEP) : BLUR_MIN); });
-blurUp.addEventListener('click', function(){ tryBlur(blurNowVal > 0 ? blurNowVal + BLUR_STEP : BLUR_MIN); });
+blurDown.addEventListener('click', function(){ tryBlur(blurNowVal > 0 ? Math.max(BLUR_MIN, Math.round((blurNowVal - BLUR_STEP) * 10) / 10) : BLUR_MIN); });
+blurUp.addEventListener('click', function(){ tryBlur(blurNowVal > 0 ? Math.round((blurNowVal + BLUR_STEP) * 10) / 10 : BLUR_MIN); });
 blurSave.addEventListener('click', function(){
   post('settings', {saveBlurDefault: true}).then(render).then(function(){ toast('Background blur ' + fmtBlur(blurNowVal) + ' saved as the default'); });
 });

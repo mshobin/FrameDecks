@@ -108,6 +108,10 @@
         <button class="cbtn toggle" type="button" data-m="toggle" data-k="birthday"><span class="tl">Show</span> <kbd class="key" data-sc="toggleB"></kbd></button>
         <span class="bday-who" id="mt-bday-who"></span>
       </div>
+      <div class="ctl-row bday-pick">
+        <select id="bb-member" aria-label="Member to celebrate"></select>
+        <label class="check bb-country"><input type="checkbox" id="bb-country"> Country</label>
+      </div>
     </div>
   </section>
 </div>
@@ -465,16 +469,7 @@
 </main>
 
 <dialog class="about-dlg" id="about-dlg" aria-label="About BSF Command Center"><div id="about-dlg-body" class="about"></div></dialog>
-<footer class="bday-bar" aria-label="Birthday celebration overlay">
-  <span class="bb-title">Birthday overlay</span>
-  <span class="pill" id="bb-pill"><span class="dot"></span><span><b>Hidden</b></span></span>
-  <label class="bb-who"><span class="sr">Member to celebrate</span><select id="bb-member" aria-label="Member to celebrate"></select></label>
-  <label class="check bb-country"><input type="checkbox" id="bb-country"> Country</label>
-  <button class="btn primary big" type="button" id="bb-show">Show Birthday Celebration</button>
-  <button class="btn big" type="button" id="bb-hide">Hide</button>
-  <button class="btn danger big" type="button" id="bb-clear">Clear</button>
-  <span class="bb-msg" id="bb-msg"></span>
-</footer>
+
 
 <dialog id="dlg" aria-labelledby="dlg-title">
   <form method="dialog" class="dlg-inner">

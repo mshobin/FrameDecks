@@ -108,7 +108,7 @@ document.addEventListener('click', function(e){
 /* Phones: one "Live Control" screen. The quick-switch buttons jump to a section; the button of the
  * section you're looking at is highlighted; each section can be folded (remembered on this phone). */
 var PHONE = window.matchMedia('(max-width:700px), (max-height:520px)');
-var SECTIONS = {question: '.pane.q', verse: '.pane.v', more: '.pane.b'};
+var SECTIONS = {question: '.pane.q', verse: '.pane.v', more: '.pane.b', studio: '.pane.sc'};
 var jumpedAt = 0;
 function sectionFor(k){ return document.querySelector(SECTIONS[k] || '.pane.q'); }
 function setPanel(k){
@@ -130,7 +130,7 @@ function toggleFold(sec){
   var b = sec.querySelector('.fold'); if (b) b.setAttribute('aria-expanded', String(!f));
   folds[k] = f; try { localStorage.setItem('bsf-remote-folds', JSON.stringify(folds)); } catch(e){}
 }
-Array.prototype.forEach.call(document.querySelectorAll('.pane.q, .pane.v, .pane.b'), function(sec){
+Array.prototype.forEach.call(document.querySelectorAll('.pane.q, .pane.v, .pane.b, .pane.sc, .pane.sl'), function(sec){
   var head = sec.querySelector('.phead');
   var b = document.createElement('button');
   b.type = 'button'; b.className = 'fold'; b.textContent = '▾';
@@ -146,11 +146,66 @@ if ('IntersectionObserver' in window){
     entries.forEach(function(en){ seen[en.target.dataset.k] = en.intersectionRatio; });
     if (!PHONE.matches || Date.now() - jumpedAt < 700) return;
     var best = null, top = 0;
-    ['question', 'verse', 'birthday'].forEach(function(k){ if ((seen[k] || 0) > top){ top = seen[k]; best = k; } });
-    if (best) document.body.dataset.pt = best === 'birthday' ? 'more' : best;
+    ['question', 'verse', 'birthday', 'scenes', 'slides'].forEach(function(k){ if ((seen[k] || 0) > top){ top = seen[k]; best = k; } });
+    if (best) document.body.dataset.pt = best === 'birthday' ? 'more' : (best === 'scenes' || best === 'slides' ? 'studio' : best);
   }, {threshold: [0, 0.25, 0.5, 0.75, 1]});
-  Array.prototype.forEach.call(document.querySelectorAll('.pane.q, .pane.v, .pane.b'), function(sec){ io.observe(sec); });
+  Array.prototype.forEach.call(document.querySelectorAll('.pane.q, .pane.v, .pane.b, .pane.sc, .pane.sl'), function(sec){ io.observe(sec); });
 }
+/* ---------- Studio from the remote: switch scene, next / previous slide ---------- */
+var studioBusy = 0;
+function studioPost(body){
+  return fetch('api/remote/studio', {method: 'POST', headers: {'Content-Type': 'application/json'}, credentials: 'same-origin', body: JSON.stringify(body)})
+    .then(function(r){ return r.json().then(function(d){ if (!r.ok) throw new Error(d.error || 'Not available'); return d; }); });
+}
+function renderStudio(d){
+  var on = !!(d && d.available);
+  var sc = document.querySelector('.pane.sc'), sl = document.querySelector('.pane.sl');
+  sc.hidden = !on; sl.hidden = !(on && d.presentation);
+  $('pt-studio').hidden = !on; $('ptabs').classList.toggle('has-studio', on);
+  if (!on) return;
+  var grid = $('scene-grid'), sig = JSON.stringify([d.scenes, d.activeScene]);
+  if (grid.dataset.sig !== sig){
+    grid.dataset.sig = sig; grid.innerHTML = '';
+    if (!d.scenes.length){ var p = document.createElement('p'); p.className = 'sc-empty'; p.textContent = 'No scenes yet. Save scenes in the Studio on the PC.'; grid.appendChild(p); }
+    d.scenes.forEach(function(x){
+      var b = document.createElement('button');
+      b.type = 'button'; b.className = 'scene' + (x.id === d.activeScene ? ' on' : ''); b.textContent = x.name;
+      b.setAttribute('aria-pressed', String(x.id === d.activeScene));
+      b.addEventListener('click', function(){
+        if (Date.now() - studioBusy < 600 || x.id === d.activeScene) return;   // no accidental double taps
+        studioBusy = Date.now(); buzz(20);
+        studioPost({op: 'scene', id: x.id}).then(function(r){ renderStudio(r.studio); toast('Scene: ' + x.name); }).catch(function(e){ toast(e.message, true); });
+      });
+      grid.appendChild(b);
+    });
+  }
+  var act_ = d.scenes.filter(function(x){ return x.id === d.activeScene; })[0];
+  $('sc-state').textContent = act_ ? act_.name : '—';
+  if (d.presentation){
+    $('sl-name').textContent = d.presentation.name || '';
+    $('sl-state').textContent = d.presentation.page ? 'Slide ' + d.presentation.page + (d.presentation.pages ? ' of ' + d.presentation.pages : '') : 'Ready';
+  }
+}
+Array.prototype.forEach.call(document.querySelectorAll('[data-slide]'), function(b){
+  b.addEventListener('click', function(){
+    if (Date.now() - studioBusy < 400) return;
+    studioBusy = Date.now(); buzz(15);
+    studioPost({op: 'slide', step: +b.dataset.slide}).then(function(r){
+      var s = r.slide || {};
+      renderStudio(r.studio);
+      if (s.page) $('sl-state').textContent = 'Slide ' + s.page + (s.pages ? ' of ' + s.pages : '');
+      else if (s.error) toast(s.error, true);
+    }).catch(function(e){ toast(e.message, true); });
+  });
+});
+function pollStudio(){
+  if (!$('app').hidden && !document.hidden)
+    fetch('api/remote/studio', {cache: 'no-store', credentials: 'same-origin'}).then(function(r){ return r.ok ? r.json() : null; })
+      .then(function(d){ if (d) renderStudio(d); }).catch(function(){});
+  setTimeout(pollStudio, document.hidden ? 15000 : 4000);
+}
+setTimeout(pollStudio, 800);
+
 /* A short vibration confirms a press on Android phones (iPhones ignore this) */
 function buzz(ms){ try { if (navigator.vibrate) navigator.vibrate(ms); } catch(e){} }
 

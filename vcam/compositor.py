@@ -172,7 +172,7 @@ class Compositor:
             return {"page": s.page + 1, "pages": s.pages}
         if s is not None and self.screen_src and self.screen_src.get("kind") == "window":
             from .layers import powerpoint_slide
-            return {"result": powerpoint_slide(step, self.screen_src.get("hwnd"))}
+            return powerpoint_slide(step, self.screen_src.get("hwnd"))
         return None
 
     @staticmethod

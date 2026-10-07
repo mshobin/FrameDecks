@@ -476,7 +476,7 @@ select.item-fx.set{color:var(--gold-strong);border-color:rgba(227,183,90,.55)}
 .s2-pick{display:flex;flex-direction:column;gap:6px;max-height:50vh;overflow:auto}
 .s2-pick .btn{justify-content:flex-start;text-align:left;display:flex;gap:8px;align-items:center}
 /* Focus: hide the rest of the app */
-body.studio-focus .console-top,body.studio-focus .tabs,body.studio-focus .subtabs,body.studio-focus .bday-bar,body.studio-focus #bday-reminder{display:none !important}
+body.studio-focus .console-top,body.studio-focus .tabs,body.studio-focus .subtabs,body.studio-focus #bday-reminder{display:none !important}
 body.studio-focus .studio.s2{height:100vh !important}
 /* Tablet / narrow */
 @media (max-width:1280px){.s2-body{grid-template-columns:230px minmax(0,1fr) 280px}}
@@ -529,3 +529,8 @@ body.studio-focus .studio.s2{height:100vh !important}
 .imp-table td{padding:6px 9px;border-top:1px solid var(--line-soft);vertical-align:top;max-width:320px;white-space:pre-wrap;word-break:break-word}
 .imp-table tr.bad td{background:rgba(242,99,99,.09)} .imp-table tr.warn td{background:rgba(245,181,71,.07)}
 .imp-mode{display:flex;gap:18px;flex-wrap:wrap}
+
+/* Birthday: who to celebrate (moved here from the old bottom panel) */
+.bday-pick{display:flex;gap:8px;align-items:center;margin-top:6px}
+.bday-pick select{flex:1;min-width:0;font:inherit;font-size:13.5px;background:var(--raised);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:6px 8px}
+.bday-pick .check{font-size:13px;white-space:nowrap}

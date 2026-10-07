@@ -127,7 +127,7 @@ function render(){
   who.textContent = '';
   if (live.birthday.greeting.trim()){ who.appendChild(document.createTextNode('For ')); who.appendChild(h('b', null, live.birthday.name || live.birthday.greeting)); }
   else if (c){ who.appendChild(document.createTextNode('Ready for ')); who.appendChild(h('b', null, c.name)); }
-  else who.textContent = 'No birthday today. Choose someone in the birthday bar below.';
+  else who.textContent = 'No birthday coming up. Use “Celebrate on screen” on a member card.';
   $('program').classList.toggle('on', any); $('pg-dot').classList.toggle('on', any);
   var badge = $('program-badge'); badge.className = 'program-badge' + (any ? ' on' : ''); badge.textContent = any ? '● LIVE ON ZOOM' : 'NOTHING ON SCREEN';
   // section line

@@ -148,6 +148,16 @@ addMenu.appendChild(menuItem('panel-right', 'Screen + camera side by side', func
 addBtn.addEventListener('click', function(e){ e.stopPropagation(); addMenu.hidden = !addMenu.hidden; });
 document.addEventListener('click', function(e){ if (!addMenu.hidden && !addMenu.contains(e.target) && !addBtn.contains(e.target)) addMenu.hidden = true; });
 
+/* Next / previous slide (PDF deck or PowerPoint), with a short message saying what happened */
+function slideMove(step){
+  act('slide', {step: step}).then(function(d){
+    var r = d.slide || {};
+    if (r.page) toast('Slide ' + r.page + (r.pages ? ' of ' + r.pages : ''));
+    else if (r.error) toast(r.error, true);
+    else if (r.result) toast(r.result === 'ok' ? 'Next slide' : r.result);
+    else toast('No presentation to move. Add Slides (PDF) or a PowerPoint window as a layer.', true);
+  }).catch(function(){});
+}
 function uid(){ return 'L' + Math.random().toString(16).slice(2, 10); }
 function addLayer(l, bottom){
   var layer = Object.assign({id: uid(), visible: true, locked: false, x: 0.5, y: 0.5, w: 0.3, h: 0, rotation: 0, opacity: 1, radius: 0}, l);
@@ -518,8 +528,8 @@ function renderInspector(fromDrag){
   }
   if (l.type === 'pdf' || l.type === 'window' || (l.type === 'screen' && S.screen && S.screen.source && ['pdf', 'window'].indexOf(S.screen.source.kind) >= 0)){
     insp.appendChild(h('div', {cls: 's2-actions'}, [
-      h('button', {cls: 'btn small', type: 'button', html: I('chevron-left', 15) + ' Previous slide', onclick: function(){ act('slide', {step: -1}); }}),
-      h('button', {cls: 'btn small', type: 'button', html: 'Next slide ' + I('chevron-right', 15), onclick: function(){ act('slide', {step: 1}); }})]));
+      h('button', {cls: 'btn small', type: 'button', html: I('chevron-left', 15) + ' Previous slide', onclick: function(){ slideMove(-1); }}),
+      h('button', {cls: 'btn small', type: 'button', html: 'Next slide ' + I('chevron-right', 15), onclick: function(){ slideMove(1); }})]));
   }
   var st = l.status || {};
   if (st.error || st.info) insp.appendChild(h('p', {cls: 'hint', text: st.error ? '⚠ ' + st.error : [st.info, st.page ? 'slide ' + st.page + ' of ' + st.pages : ''].filter(Boolean).join(' · ')}));
@@ -618,7 +628,7 @@ document.addEventListener('keydown', function(e){
       (S.layers || []).some(function(l){ return l.type === 'pdf' || l.type === 'window'; });
     if (!pres) return;
     e.preventDefault();
-    act('slide', {step: e.key === 'PageDown' ? 1 : -1});
+    slideMove(e.key === 'PageDown' ? 1 : -1);
   }
 });
 })();

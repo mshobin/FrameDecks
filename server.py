@@ -28,7 +28,7 @@ from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from pathlib import Path
 from urllib.parse import urlparse, parse_qs, unquote
 
-APP_VERSION = "4.5.1"
+APP_VERSION = "4.6"
 STARTED_AT = time.time()
 FROZEN = getattr(sys, "frozen", False)          # True inside the installed Windows app
 HERE = Path(sys.executable).resolve().parent if FROZEN else Path(__file__).resolve().parent
@@ -66,7 +66,7 @@ COOKIE = "bsf_remote"
 REMOTE_PUBLIC = {"/remote.html", "/css/remote.css", "/js/remote.js", "/js/store.js", "/js/brand.js", "/api/remote-login",
                  "/remote-manifest.json", "/icons/remote-180.png", "/icons/remote-192.png", "/icons/remote-512.png",
                  "/icons/remote-maskable-512.png"}
-REMOTE_SIGNED_IN = {"/api/rev", "/api/state", "/api/remote-logout", "/js/overlay.js",
+REMOTE_SIGNED_IN = {"/api/rev", "/api/state", "/api/remote-logout", "/js/overlay.js", "/api/remote/studio",
                     "/css/overlay.css", "/stage.html", "/focus-verse.html", "/discussion-question.html", "/birthday.html"}
 sessions_lock = threading.Lock()
 failures = {}  # ip -> [count, locked_until]
@@ -610,9 +610,10 @@ def clean_vcam(d):
     if d.get("presentFps") in (15, 30):
         out["presentFps"] = d["presentFps"]
     if isinstance(d.get("blurStrength"), (int, float)) and not isinstance(d.get("blurStrength"), bool):
-        n = math.floor(float(d["blurStrength"]) * 2 + 0.5) / 2   # steps of 0.5 % (halves round up, like the screen)
-        n = 0 if n <= 0 else max(0.5, min(100.0, n))           # 0 = off; otherwise at least 0.5 %
-        out["blurStrength"] = int(n) if n == int(n) else n
+        raw = float(d["blurStrength"])
+        n = math.floor(raw * 10 + 0.5) / 10                        # steps of 0.1 % (halves round up, like the screen)
+        n = 0 if raw <= 0 else max(0.1, min(100.0, n))            # 0 = off; any positive value is at least 0.1 %
+        out["blurStrength"] = int(n) if n == int(n) else round(n, 1)
     elif "blur" in out:                                   # older settings: off / light / strong
         out["blurStrength"] = {"off": 0, "light": 30, "strong": 80}[out["blur"]]
     return out
@@ -690,6 +691,45 @@ def studio_save():
     cur = studio_load()
     cur.update(layout=comp.layout, layers=comp.layers.layers)
     STUDIO_FILE.write_text(json.dumps(cur, indent=2), encoding="utf-8")
+
+
+def remote_studio_info():
+    """What the phone/iPad remote may see of the Studio: scene names, the active scene, and the presentation."""
+    comp = VCAM.get("compositor")
+    if not comp:
+        return {"available": False}
+    st = studio_load()
+    pres = None
+    src = comp.screen_src or {}
+    if comp.screen is not None and src.get("kind") in ("pdf", "window"):
+        ss = comp.screen_status()
+        pres = {"name": src.get("name") or src.get("file") or "Presentation", "page": ss.get("page"), "pages": ss.get("pages")}
+    else:
+        layers = [l for l in comp.layers.layers[::-1] if l["type"] in ("pdf", "window") and l["visible"]]
+        if layers:
+            l = layers[0]
+            if l["type"] == "pdf" and l["id"] not in comp.layers.sources:
+                comp.layers._source(l)                         # load the deck so the slide number is known
+            ls = comp.layers.status().get(l["id"], {})
+            pres = {"name": l["name"], "page": ls.get("page"), "pages": ls.get("pages")}
+    if pres and not pres.get("page") and VCAM.get("lastSlide", {}).get("page"):
+        pres.update(page=VCAM["lastSlide"]["page"], pages=VCAM["lastSlide"].get("pages"))
+    return {"available": True, "scenes": [{"id": x["id"], "name": x["name"]} for x in st["scenes"]],
+            "activeScene": st["activeScene"], "presentation": pres}
+
+
+def remote_studio_action(d):
+    """Only two things are allowed from the remote: switch scene, and next/previous slide."""
+    op = d.get("op")
+    if op == "scene":
+        studio_action({"op": "scene-apply", "id": str(d.get("id") or "")})
+        return {}
+    if op == "slide":
+        res = studio_action({"op": "slide", "step": 1 if int(d.get("step", 1)) > 0 else -1}).get("slide")
+        if isinstance(res, dict) and res.get("page"):
+            VCAM["lastSlide"] = res
+        return {"slide": res}
+    raise ValueError("Not allowed from the remote")
 
 
 def recordings_dir():
@@ -1160,6 +1200,8 @@ class Handler(BaseHTTPRequestHandler):
             return self.reply(302, "", "text/plain", [("Location", "/remote.html")])
         if not self.allowed(path):
             return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
+        if path == "/api/remote/studio":                # scenes + presentation for the remote (PIN-protected)
+            return self.reply(200, json.dumps(remote_studio_info()), TYPES[".json"])
         if path == "/api/present.mjpg":                 # Presentation window (this PC only)
             if not self.is_local():
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
@@ -1513,6 +1555,12 @@ class Handler(BaseHTTPRequestHandler):
                 done, msg = vcam_install("uninstall" if data.get("action") == "uninstall" else "install")
                 return self.reply(200, json.dumps({"ok": done, "message": msg, **vcam_status()}), TYPES[".json"])
             return self.reply(404, "Not found", "text/plain; charset=utf-8")
+        if path == "/api/remote/studio":                 # switch scene / next-previous slide from the remote
+            try:
+                res = remote_studio_action(data if isinstance(data, dict) else {})
+                return self.reply(200, json.dumps({"ok": True, **res, "studio": remote_studio_info()}), TYPES[".json"])
+            except (ValueError, RuntimeError) as e:
+                return self.reply(400, json.dumps({"error": str(e)}), TYPES[".json"])
         if path.startswith("/api/app/"):
             if not self.is_local():
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")

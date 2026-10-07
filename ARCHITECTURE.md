@@ -340,3 +340,18 @@ belongs to (by handle); windows register on creation and are removed on WM_NCDES
 Verified with a simulated Win32 layer that behaves like Windows here (second registration fails): 2nd and 3rd
 opens, closing from the app, 5 rapid open/close cycles. New safety switch `nativePresent` (Settings > General >
 Performance) to fall back to the WebView2 Presentation window.
+
+## 16. Version 4.6
+
+* **Birthday bottom panel removed.** Its member chooser (`#bb-member`) and Country option (`#bb-country`) moved into
+  the Meeting tab's Birthday card (same IDs, so the birthday logic is unchanged); its Show / Hide / Clear duplicated
+  the Meeting tab and shortcuts. The 84 px bottom padding reserved for it is gone.
+* **Blur in 0.1 % steps**: `blurStrength` 0 (off) or 0.1…100, rounded half-up to 0.1; any positive value ≥ 0.1.
+* **PowerPoint slides** (`vcam/layers.py`): all COM calls go through one helper thread with `CoInitialize`
+  (web request threads never had COM initialised, so Next slide silently failed); `GetActiveObject(…, dynamic=True)`
+  (no comtypes code generation, which fails in the installed app); slide show (prefers the show whose HWND is the
+  captured window) or normal view (`GotoSlide`); fallback Page Down/Up to the window and its child windows
+  (PowerPoint reads keys in a child window). Results: `{"page", "pages"}` or `{"error"}`. Presentation layers are
+  now loaded on demand for slide moves (previously only once the camera engine had drawn them).
+* **Remote Studio controls**: `GET/POST /api/remote/studio` on the PIN-protected remote allowlist. POST allows only
+  `{"op": "scene", "id"}` and `{"op": "slide", "step"}`; everything else in the Studio stays PC-only.
