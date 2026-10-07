@@ -26,7 +26,7 @@ function showLogin(msg){
   $('login-msg').textContent = msg || '';
   setTimeout(function(){ $('pin').focus(); }, 50);
 }
-function showApp(){ $('login').hidden = true; $('app').hidden = false; }
+function showApp(){ var was = $('app').hidden; $('login').hidden = true; $('app').hidden = false; if (was) setView('home', {replace: true}); }
 $('login-form').addEventListener('submit', function(e){
   e.preventDefault();
   var pin = $('pin').value.replace(/\D/g, '');
@@ -41,6 +41,7 @@ $('login-form').addEventListener('submit', function(e){
     })
     .catch(function(){ $('login-msg').textContent = 'Can’t reach your PC. Check it’s on the same Wi-Fi and the program is running.'; });
 });
+$('dash-logout').addEventListener('click', function(){ $('logout').click(); });
 $('logout').addEventListener('click', function(){
   fetch('api/remote-logout', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: '{}'})
     .finally(function(){ showLogin('Disconnected. Enter the PIN to connect again.'); });
@@ -162,6 +163,7 @@ function renderStudio(d){
   var sc = document.querySelector('.pane.sc'), sl = document.querySelector('.pane.sl');
   sc.hidden = !on; sl.hidden = !(on && d.presentation);
   $('pt-studio').hidden = !on; $('ptabs').classList.toggle('has-studio', on);
+  studioInfo = d || null; syncView();
   if (!on) return;
   var grid = $('scene-grid'), sig = JSON.stringify([d.scenes, d.activeScene]);
   if (grid.dataset.sig !== sig){
@@ -205,6 +207,97 @@ function pollStudio(){
   setTimeout(pollStudio, document.hidden ? 15000 : 4000);
 }
 setTimeout(pollStudio, 800);
+
+/* ---------- Navigation Dashboard and section views ----------
+ * body[data-view] = home | question | verse | birthday | studio | scenes | slides | preview | all.
+ * Home shows only the big category buttons. A section view shows its existing pane(s) - the very same
+ * elements and handlers as before, only hidden or shown - so nothing is reset when you go back and forth
+ * (selected slide, scene, preview...). "All controls" is the previous all-in-one Live Control screen. */
+var studioInfo = null;
+var VIEWS = {
+  question: {title: 'Questions', panes: ['question']},
+  verse:    {title: 'Verses', panes: ['verse']},
+  birthday: {title: 'Birthday', panes: ['birthday']},
+  studio:   {title: 'Studio', panes: ['scenes', 'slides'], empty: 'The Studio isn’t available. Start BCC vCam on the PC.'},
+  scenes:   {title: 'Scenes', panes: ['scenes'], empty: 'Scenes aren’t available. Start BCC vCam on the PC.'},
+  slides:   {title: 'Slides', panes: ['slides'], empty: 'No presentation is open. Add a PDF or PowerPoint in the Studio on the PC.'},
+  preview:  {title: 'Preview', panes: ['preview']},
+  all:      {title: 'All controls', panes: null}
+};
+var PANE_SEL = {question: '.pane.q', verse: '.pane.v', birthday: '.pane.b', scenes: '.pane.sc', slides: '.pane.sl', preview: '.preview-pane'};
+var lastView = null;
+function curView(){ return document.body.dataset.view || 'home'; }
+function setView(v, opt){
+  opt = opt || {};
+  if (v !== 'home' && !VIEWS[v]) v = 'home';
+  var from = curView();
+  document.body.dataset.view = v;
+  if (v !== 'home'){
+    lastView = v;
+    Object.keys(PANE_SEL).forEach(function(k){                      // unfold the panes this view shows
+      var sec = document.querySelector(PANE_SEL[k]);
+      if (sec && sec.classList.contains('folded') && (VIEWS[v].panes || []).indexOf(k) >= 0) toggleFold(sec);
+    });
+    if (v === 'preview' && $('preview').hidden) $('pv-btn').click();   // the Preview section starts showing the picture
+  }
+  if (!opt.fromHistory){
+    try {
+      if (opt.replace) history.replaceState({view: v}, '', location.pathname + location.search);
+      else if (v === 'home' && history.state && history.state.view && history.state.view !== 'home') history.back();
+      else if (v !== from) history.pushState({view: v}, '', location.pathname + location.search);
+    } catch(e){}
+  }
+  syncView();
+  window.scrollTo(0, 0);
+  if (opt.replace) return;
+  if (v === 'home'){ var t = document.querySelector('.tile[data-view="' + lastView + '"]') || document.querySelector('.tile'); if (t) t.focus({preventScroll: true}); }
+  else $('view-title').focus({preventScroll: true});
+}
+/* Which panes are visible in this view, the title, the empty message, and the tiles' live status */
+function syncView(){
+  var v = curView(), conf = VIEWS[v];
+  Object.keys(PANE_SEL).forEach(function(k){
+    var sec = document.querySelector(PANE_SEL[k]);
+    if (sec) sec.classList.toggle('off-view', v === 'home' || (conf && conf.panes !== null && conf.panes.indexOf(k) < 0));
+  });
+  $('view-title').textContent = conf ? conf.title : '';
+  var empty = $('view-empty');
+  if (conf && conf.panes){
+    var any = conf.panes.some(function(k){ var s = document.querySelector(PANE_SEL[k]); return s && !s.hidden; });
+    empty.hidden = any; empty.textContent = any ? '' : (conf.empty || '');
+  } else empty.hidden = true;
+  var studioOn = !!(studioInfo && studioInfo.available), pres = studioOn && studioInfo.presentation;
+  var act = studioOn ? studioInfo.scenes.filter(function(x){ return x.id === studioInfo.activeScene; })[0] : null;
+  sub('studio', studioOn ? (act ? act.name : 'Ready') : 'Not available', null);
+  sub('scenes', studioOn ? (studioInfo.scenes.length ? (act ? act.name : 'No scene') : 'No scenes yet') : 'Not available', null);
+  sub('slides', pres ? (pres.page ? 'Slide ' + pres.page + (pres.pages ? ' of ' + pres.pages : '') : 'Ready') : 'No presentation', null);
+  Array.prototype.forEach.call(document.querySelectorAll('.tile'), function(b){
+    var on = b.dataset.view === lastView;
+    b.classList.toggle('current', on);
+    if (on) b.setAttribute('aria-current', 'true'); else b.removeAttribute('aria-current');
+  });
+}
+function sub(k, text, state){
+  var el = document.querySelector('[data-tile="' + k + '"]'); if (!el) return;
+  el.textContent = text; el.className = 'ti-sub' + (state ? ' ' + state : '');
+  el.parentNode.classList.toggle('is-live', state === 'live');
+}
+Array.prototype.forEach.call(document.querySelectorAll('.tile'), function(b){
+  b.addEventListener('click', function(){ buzz(10); setView(b.dataset.view); });
+});
+$('home-btn').addEventListener('click', function(){ buzz(10); setView('home'); });
+window.addEventListener('popstate', function(e){ setView((e.state && e.state.view) || 'home', {fromHistory: true}); });
+/* Keyboard: arrow keys move between the dashboard buttons; Esc goes Home from a section */
+document.addEventListener('keydown', function(e){
+  if ($('app').hidden || e.altKey || e.ctrlKey || e.metaKey) return;
+  if (e.key === 'Escape' && curView() !== 'home' && $('drawer').hidden){ e.preventDefault(); setView('home'); return; }
+  if (curView() !== 'home' || ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End'].indexOf(e.key) < 0) return;
+  var tiles = Array.prototype.slice.call(document.querySelectorAll('.tile'));
+  var i = tiles.indexOf(document.activeElement); if (i < 0) return;
+  var cols = tiles.filter(function(t){ return t.offsetTop === tiles[0].offsetTop; }).length || 1;
+  var j = {ArrowLeft: i - 1, ArrowRight: i + 1, ArrowUp: i - cols, ArrowDown: i + cols, Home: 0, End: tiles.length - 1}[e.key];
+  if (j >= 0 && j < tiles.length){ e.preventDefault(); tiles[j].focus(); }
+});
 
 /* A short vibration confirms a press on Android phones (iPhones ignore this) */
 function buzz(ms){ try { if (navigator.vibrate) navigator.vibrate(ms); } catch(e){} }
@@ -280,6 +373,7 @@ function render(){
       document.querySelector('[data-next="' + k + '"]').textContent = !l.length ? 'Add items on the PC' : nx ? (k === 'verse' ? (nx.ref || 'Verse') + ' — ' + nx.text.replace(/\s+/g, ' ') : nx.text) : 'End of list';
     }
   });
+  ['question', 'verse', 'birthday'].forEach(function(k){ var st = stateOf(k); sub(k, STATE_TEXT[st], st); });
   $('q-label').textContent = live.question.text.trim() ? live.question.label : '';
   var vi = currentIndex('verse'); $('v-label').textContent = vi >= 0 ? (vi + 1) + ' of ' + library('verse').length : '';
   renderDrawer();

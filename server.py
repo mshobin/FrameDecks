@@ -580,15 +580,40 @@ LOOKS_FILE = DATA / "bsf-looks.json"
 VCAM = {"engine": None, "reason": "", "detail": "", "cameras": None, "camerasAt": 0}
 
 
+def _picture():
+    """vcam/picture.py (profiles, schema). Needs OpenCV; without it the version-1 settings still work."""
+    try:
+        from vcam import picture
+        return picture
+    except Exception:
+        return None
+
+
 def vcam_settings():
+    """Saved BCC vCam settings, migrated to the current schema and validated; defaults fill the gaps
+    (a damaged or older file never stops the camera)."""
     out = dict(VCAM_DEFAULTS)
+    pic = _picture()
+    if pic:
+        out.update(pic.defaults(), schemaVersion=pic.SCHEMA_VERSION)
     try:
         data = json.loads(VCAM_SETTINGS_FILE.read_text(encoding="utf-8"))
         if isinstance(data, dict):
+            if pic:
+                data, _ = pic.migrate(data)
             out.update(clean_vcam(data))
     except (OSError, ValueError):
         pass
+    if pic:
+        out["filterName"] = out["look"]                       # the filter is the Camera Look (alias)
+        out["backgroundMode"] = pic.background_mode(out.get("blurStrength"))
     return out
+
+
+def vcam_save(cur):
+    """Write the settings file (only stored keys; derived ones like filterName are recomputed on read)."""
+    data = {k: v for k, v in cur.items() if k not in ("filterName", "backgroundMode")}
+    VCAM_SETTINGS_FILE.write_text(json.dumps(data, indent=2), encoding="utf-8")
 
 
 def clean_vcam(d):
@@ -616,7 +641,46 @@ def clean_vcam(d):
         out["blurStrength"] = int(n) if n == int(n) else round(n, 1)
     elif "blur" in out:                                   # older settings: off / light / strong
         out["blurStrength"] = {"off": 0, "light": 30, "strong": 80}[out["blur"]]
+    # Version 2 (picture settings): filterName is accepted as another name for look; backgroundMode none/blur
+    fn = d.get("filterName")
+    if "look" not in d and isinstance(fn, str) and (fn in ("off", "none") or (fn.isidentifier() and len(fn) <= 40)):
+        out["look"] = "off" if fn == "none" else fn
+    if d.get("backgroundMode") in ("none", "blur") and "blurStrength" not in d:
+        n = 0 if d["backgroundMode"] == "none" else (vcam_settings_raw_blur() or 30)
+        out["blurStrength"], out["blur"] = n, "off" if n == 0 else ("light" if n <= 45 else "strong")
+    pic = _picture()
+    if pic:
+        out.update(pic.clean(d))
+        if isinstance(d.get("schemaVersion"), int):
+            out["schemaVersion"] = pic.SCHEMA_VERSION
     return out
+
+
+def vcam_settings_raw_blur():
+    """The saved blur strength (0 if none), without going through clean_vcam (avoids recursion)."""
+    try:
+        v = json.loads(VCAM_SETTINGS_FILE.read_text(encoding="utf-8")).get("blurStrength", 0)
+        return v if isinstance(v, (int, float)) and not isinstance(v, bool) else 0
+    except (OSError, ValueError, AttributeError):
+        return 0
+
+
+def vcam_apply_changes(data):
+    """Validated changes for a settings POST: {"applyProfile": "meetings"} applies a profile; editing a
+    setting the active profile controls switches the profile to "custom" (the values stay as they are)."""
+    pic = _picture()
+    if pic and isinstance(data.get("applyProfile"), str):
+        prof = pic.profile_changes(data["applyProfile"])
+        if prof is None:
+            raise ValueError("Unknown profile")
+        return clean_vcam(prof)
+    changes = clean_vcam(data)
+    if pic and "outputProfile" not in data:
+        cur = vcam_settings()
+        prof = pic.PROFILES.get(cur.get("outputProfile"), {}).get("settings", {})
+        if any(k in prof and changes[k] != cur.get(k) for k in changes):
+            changes["outputProfile"] = "custom"
+    return changes
 
 
 def vcam_list_cameras():
@@ -912,7 +976,7 @@ def _studio_action(d):
             cur = vcam_settings()
             if sc["look"] != cur["look"]:
                 cur["look"] = sc["look"]
-                VCAM_SETTINGS_FILE.write_text(json.dumps(cur, indent=2), encoding="utf-8")
+                vcam_save(cur)
                 if eng:
                     eng.configure(grade=vcam_grade(sc["look"]))
             st["activeScene"] = sc["id"]
@@ -939,15 +1003,17 @@ def vcam_looks():
     return found, note
 
 
-def vcam_grade(look_id):
-    """The Grade to apply for a look id, or None for Off / unknown looks."""
+def vcam_grade(look_id, intensity=None):
+    """The Grade to apply for a look id at the saved filter intensity (0-100), or None for Off / unknown
+    looks / intensity 0 (the picture is then left exactly as it is)."""
     if look_id == "off":
         return None
     found, _ = vcam_looks()
     if look_id not in found:
         return None
-    from vcam.looks import Grade
-    return Grade(found[look_id])
+    from vcam.looks import Grade, at_intensity
+    look = at_intensity(found[look_id], vcam_settings().get("filterIntensity", 100) if intensity is None else intensity)
+    return Grade(look) if look is not None else None
 
 
 def _vcam_blockers():
@@ -960,7 +1026,7 @@ def _vcam_blockers():
 
 def vcam_effective(settings):
     """The settings the engine should use: an empty camera choice means the first usable webcam."""
-    out = {k: v for k, v in settings.items() if k not in ("enabled", "cards", "look")}
+    out = {k: v for k, v in settings.items() if k not in ("enabled", "cards", "look", "filterName", "backgroundMode", "schemaVersion")}
     if VCAM.get("blurSession") is not None:               # a blur strength being tried, not saved yet
         out["blurStrength"] = VCAM["blurSession"]
     if not out.get("cameraName"):
@@ -1065,7 +1131,8 @@ def vcam_status():
                         for n in dict.fromkeys(c["name"] for c in vcam_list_cameras())] if eng else [],
             "activeCamera": vcam_effective(vcam_settings())["cameraName"] if eng else "", "name": "BCC vCam",
             "blurNow": VCAM["blurSession"] if VCAM.get("blurSession") is not None else vcam_settings()["blurStrength"],
-            "looks": _looks_list(), "looksNote": VCAM.get("looksNote", "")}
+            "looks": _looks_list(), "looksNote": VCAM.get("looksNote", ""),
+            "profiles": [{"id": k, "name": v["name"]} for k, v in (_picture().PROFILES.items() if _picture() else [])]}
 
 
 def vcam_install(action):
@@ -1509,7 +1576,7 @@ class Handler(BaseHTTPRequestHandler):
                     n = cur["blurStrength"] if n is None else n
                     cur["blurStrength"] = n
                     cur["blur"] = "off" if n == 0 else ("light" if n <= 45 else "strong")   # for older versions
-                    VCAM_SETTINGS_FILE.write_text(json.dumps(cur, indent=2), encoding="utf-8")
+                    vcam_save(cur)
                     VCAM["blurSession"] = None
                 else:
                     c = clean_vcam({"blurStrength": data.get("blurStrength")})
@@ -1520,14 +1587,18 @@ class Handler(BaseHTTPRequestHandler):
                     eng.configure(**vcam_effective(cur))
                 return self.reply(200, json.dumps(vcam_status()), TYPES[".json"])
             if path == "/api/vcam/settings" and isinstance(data, dict):
-                changes = clean_vcam(data)
+                try:
+                    changes = vcam_apply_changes(data)
+                except ValueError as e:
+                    return self.reply(400, json.dumps({"error": str(e)}), TYPES[".json"])
                 cur = vcam_settings()
                 cur.update(changes)
-                VCAM_SETTINGS_FILE.write_text(json.dumps(cur, indent=2), encoding="utf-8")
+                vcam_save(cur)
                 eng = VCAM["engine"]
                 VCAM["cardsOn"] = cur["cards"]
+                regrade = "look" in changes or "filterIntensity" in changes
                 if eng:
-                    eng.configure(**vcam_effective(cur), **({"grade": vcam_grade(cur["look"])} if "look" in changes else {}))
+                    eng.configure(**vcam_effective(cur), **({"grade": vcam_grade(cur["look"], cur.get("filterIntensity", 100))} if regrade else {}))
                     if "enabled" in changes:
                         (eng.start if changes["enabled"] else eng.stop)()
                 return self.reply(200, json.dumps(vcam_status()), TYPES[".json"])

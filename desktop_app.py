@@ -86,7 +86,7 @@ def tray_do(action):
 def tray_look(look_id):
     cur = server.vcam_settings()
     cur["look"] = look_id
-    server.VCAM_SETTINGS_FILE.write_text(json.dumps(cur, indent=2), encoding="utf-8")
+    server.vcam_save(cur)
     eng = server.VCAM.get("engine")
     if eng:
         eng.configure(grade=server.vcam_grade(look_id))

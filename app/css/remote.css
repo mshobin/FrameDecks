@@ -205,3 +205,70 @@ button{font:inherit;color:inherit;touch-action:manipulation;-webkit-tap-highligh
 .pane.sl .pad{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 @media (max-width:700px), (max-height:520px){.pane.sc .fold,.pane.sl .fold{margin-left:auto}}
 .sc-empty{grid-column:1 / -1}
+
+/* ---------- Navigation Dashboard (first screen) and section views ---------- */
+.dash{display:none;padding:16px 16px 24px}
+body[data-view="home"] .dash{display:block}
+body[data-view="home"] .surface{display:none !important}
+.dash-title{font-family:var(--serif);font-weight:500;font-size:26px;margin:2px 2px 14px;color:var(--ink)}
+.dash-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,200px),1fr));gap:14px}
+.tile{position:relative;display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-start;gap:6px;min-height:150px;padding:16px 18px;
+  border-radius:20px;border:2px solid var(--edge);background:var(--panel);color:var(--ink);text-align:left;box-shadow:inset 0 6px 0 var(--tc,var(--edge));
+  transition:transform .06s, filter .1s}
+.tile:active{transform:scale(.97);filter:brightness(1.15)}
+.tile:focus-visible,.home-btn:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+.ti-ic{flex:none;width:38px;height:38px;margin:2px 0 auto;color:var(--tc,var(--muted))}   /* pushes the name to the bottom */
+.ti-name{font-size:27px;font-weight:900;letter-spacing:.01em;line-height:1.1}
+.ti-sub{font-size:15px;font-weight:800;letter-spacing:.06em;color:var(--muted);border-radius:8px;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ti-sub.live{background:var(--live);color:#062a14;padding:3px 10px}
+.ti-sub.ready{color:var(--ink)}
+.tile.is-live{border-color:var(--live)}
+.tile.current{border-color:var(--tc,var(--gold));background:var(--panel2)}
+.tile.current::after{content:"Last opened";position:absolute;top:14px;right:14px;font-size:12px;font-weight:800;letter-spacing:.06em;color:var(--muted)}
+.t-q{--tc:var(--q)} .t-v{--tc:var(--v)} .t-b{--tc:var(--b)} .t-s{--tc:#34d1b0} .t-sc{--tc:#5fd4c4} .t-sl{--tc:#e48a5c}
+.t-p{--tc:#9ba8c2} .t-a{--tc:var(--gold)}
+.dash-foot{margin:18px 2px 0;color:var(--faint);font-size:14px}
+
+.viewbar{display:none;align-items:center;gap:14px;padding:12px 16px 0}
+body:not([data-view="home"]) .viewbar{display:flex}
+.home-btn{display:inline-flex;align-items:center;gap:10px;min-height:64px;min-width:140px;padding:0 22px;border-radius:16px;border:2px solid var(--gold);
+  background:var(--panel2);color:var(--ink);font-size:21px;font-weight:900;letter-spacing:.04em;touch-action:manipulation}
+.home-btn .ar{color:var(--gold)}
+.home-btn:active{transform:scale(.97)}
+.view-title{margin:0;font-family:var(--serif);font-weight:500;font-size:26px;outline:none;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.view-empty{margin:14px 16px 0;padding:18px;border:1px dashed var(--edge);border-radius:16px;color:var(--muted);font-size:18px}
+.pane.off-view{display:none !important}
+/* A single section: one wide column, the same controls a little roomier */
+body:not([data-view="home"]):not([data-view="all"]) .surface{display:flex !important;flex-direction:column;max-width:1000px;width:100%;margin:0 auto}
+body:not([data-view="home"]):not([data-view="all"]) .side{display:flex;flex-direction:column;gap:14px}
+body:not([data-view="home"]):not([data-view="all"]) .pb{min-height:110px}
+body:not([data-view="home"]):not([data-view="all"]) .fold{display:none}
+body:not([data-view="home"]):not([data-view="all"]) .phead{cursor:default}
+/* The phone quick-switch bar belongs to "All controls" only (the dashboard replaces it elsewhere) */
+body:not([data-view="all"]) .ptabs{display:none !important}
+
+@media (max-width:700px), (max-height:520px){
+  .dash{padding:12px 10px 20px}
+  .dash-title{font-size:21px;margin-bottom:10px}
+  .dash-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .tile{min-height:124px;padding:12px 14px;border-radius:18px}
+  .ti-ic{width:32px;height:32px}
+  .ti-name{font-size:22px}
+  .ti-sub{font-size:13px}
+  .tile.current::after{display:none}
+  .viewbar{padding:10px 10px 0;gap:10px}
+  .home-btn{min-height:56px;min-width:120px;font-size:19px;padding:0 16px}
+  .view-title{font-size:22px}
+  .view-empty{margin:10px}
+  body:not([data-view="home"]):not([data-view="all"]) .pb{min-height:96px}
+}
+@media (max-width:360px){ .ti-name{font-size:19px} .tile{min-height:112px} }
+/* Phones sideways: four buttons per row so all of them fit with little scrolling */
+@media (max-height:520px) and (min-width:560px){
+  .dash-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .tile{min-height:96px}
+  .ti-ic{width:26px;height:26px;margin-bottom:4px}
+  .ti-name{font-size:20px}
+  .home-btn{min-height:48px}
+}
+@media (prefers-reduced-motion:reduce){ .tile,.home-btn,.pb{transition:none} }

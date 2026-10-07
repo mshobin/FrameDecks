@@ -1,6 +1,7 @@
 """BCC vCam engine.
 
-webcam  ->  (mirror)  ->  (background blur)  ->  (overlay cards: stage 2)  ->  "BCC vCam"
+webcam -> crop + zoom + resize (one resample) -> mirror -> colour-range fix -> background blur
+       -> filter (Camera Look x intensity) -> adjustments -> layers + cards -> "BCC vCam" (RGB24)
 
 The laptop webcam is opened only while an app (Zoom, Teams...) is showing BCC vCam or the preview
 in Settings is open. Otherwise the webcam is released (its light goes off) and the engine just
@@ -15,13 +16,23 @@ os.environ.setdefault("OPENCV_VIDEOIO_MSMF_ENABLE_HW_TRANSFORMS", "0")
 import cv2
 import numpy as np
 
+from . import picture
+
 SIZES = {"720p": (1280, 720), "1080p": (1920, 1080)}
 
 
-def fit_cover(img, w, h):
-    """Scale a camera picture to w x h keeping its shape (crop the edges if the shape differs).
-    Area averaging when shrinking (clean, no shimmer), bicubic when enlarging; no artificial sharpening."""
+def fit_cover(img, w, h, zoom=1.0):
+    """Scale a camera picture to w x h keeping its shape (crop the edges if the shape differs), optionally
+    zoomed in on the centre. Crop first, then ONE resample: area averaging when shrinking (clean, no shimmer),
+    bicubic when enlarging; no artificial sharpening. zoom=1.0 gives exactly the previous result."""
     ih, iw = img.shape[:2]
+    if zoom > 1.0001:
+        cw = min(iw, iw / zoom if iw * h <= ih * w else ih / zoom * w / h)    # visible part, output shape
+        ch = cw * h / w
+        x0, y0 = int(round((iw - cw) / 2)), int(round((ih - ch) / 2))
+        crop = img[y0:y0 + int(round(ch)), x0:x0 + int(round(cw))]
+        k = w / crop.shape[1]
+        return cv2.resize(crop, (w, h), interpolation=cv2.INTER_AREA if k < 1 else cv2.INTER_CUBIC)
     k = max(w / iw, h / ih)
     nw, nh = max(w, int(round(iw * k))), max(h, int(round(ih * k)))
     out = cv2.resize(img, (nw, nh), interpolation=cv2.INTER_AREA if k < 1 else cv2.INTER_CUBIC)
@@ -32,7 +43,7 @@ def fit_cover(img, w, h):
 class Camera:
     """The real webcam, read through Windows Media Foundation (BCC vCam itself never appears there,
     so the engine can't capture its own output)."""
-    def __init__(self, index, width, height):
+    def __init__(self, index, width, height, **_options):
         self.cap = cv2.VideoCapture(index, cv2.CAP_MSMF if os.name == "nt" else cv2.CAP_ANY)
         if not self.cap.isOpened():
             raise RuntimeError("The webcam could not be opened. Another app may be using it, or Windows privacy settings may block it.")
@@ -50,7 +61,7 @@ class Camera:
 
 class DemoCamera:
     """A moving test picture, used only for testing without a webcam (BSF_VCAM_DEMO=1)."""
-    def __init__(self, index, width, height):
+    def __init__(self, index, width, height, **_options):
         self.w, self.h, self.t = width, height, 0
 
     def read(self):
@@ -121,7 +132,10 @@ class VCamEngine:
         self.overlay = overlay                    # (frame) -> frame with cards drawn (used when there is no compositor)
         self.compositor = compositor              # layout + layers + cards, the one final picture
         self.dropped = 0
-        self.settings = {"cameraName": "", "resolution": "720p", "mirror": False, "blur": "off", "blurStrength": 0, "presentFps": 15}
+        self.settings = {"cameraName": "", "resolution": "720p", "mirror": False, "blur": "off", "blurStrength": 0, "presentFps": 15,
+                         **picture.defaults()}
+        self._adjust, self._adjust_key = None, None
+        self.late = 0                             # output frames that took longer than one frame interval
         self.lock = threading.Lock()
         self.thread = None
         self.running = False
@@ -163,12 +177,15 @@ class VCamEngine:
 
     def configure(self, **changes):
         """Apply new settings. A different size or camera takes effect immediately."""
-        restart_sink = "resolution" in changes and changes["resolution"] != self.settings["resolution"]
-        reopen = restart_sink or ("cameraName" in changes and changes["cameraName"] != self.settings["cameraName"])
+        differs = lambda k: k in changes and changes[k] != self.settings.get(k)
+        restart_sink = differs("resolution") or any(differs(k) for k in picture.NEEDS_RESINK)
+        reopen = differs("resolution") or differs("cameraName") or any(differs(k) for k in picture.NEEDS_REOPEN)
+        controls = any(differs(k) for k in picture.CAMERA_CONTROLS)
         with self.lock:
             self.settings.update(changes)
             self._reopen = getattr(self, "_reopen", False) or reopen
             self._resink = getattr(self, "_resink", False) or restart_sink
+            self._recontrol = getattr(self, "_recontrol", False) or controls
 
     def kick(self):
         """Something changed: draw the next frame now (wakes the idle rhythm)."""
@@ -183,6 +200,25 @@ class VCamEngine:
     # ---------- internals ----------
     def _set(self, **kw):
         self.status.update(kw)
+
+    def _adjustments(self, s):
+        """The user adjustments for these settings (rebuilt only when one of them changes)."""
+        key = tuple(s.get(k) for k in picture.ADJUSTMENTS)
+        if key != self._adjust_key:
+            self._adjust, self._adjust_key = picture.Adjust.of(s), key
+        return self._adjust
+
+    def _open_sink(self, w, h, s):
+        if s.get("outputPacing") == "fixed":     # BCC vCam sends at a steady rate (repeats a frame if needed)
+            try:
+                return self.sink_factory(w, h, float(s.get("frameRate") or 30))
+            except TypeError:                     # an older sink factory without a frame-rate option
+                pass
+        return self.sink_factory(w, h)
+
+    @staticmethod
+    def _capture_size(s, w, h):
+        return SIZES.get(s.get("captureResolution"), (w, h)) if s.get("captureResolution") != "auto" else (w, h)
 
     def _close_camera(self):
         if self.cam:
@@ -201,13 +237,14 @@ class VCamEngine:
                 with self.lock:
                     s = dict(self.settings)
                     reopen, resink = getattr(self, "_reopen", False), getattr(self, "_resink", False)
-                    self._reopen = self._resink = False
+                    recontrol = getattr(self, "_recontrol", False)
+                    self._reopen = self._resink = self._recontrol = False
                 w, h = SIZES.get(s["resolution"], SIZES["720p"])
                 if resink and self.sink:
                     self.sink.close()
                     self.sink = None
                 if self.sink is None:
-                    self.sink = self.sink_factory(w, h)
+                    self.sink = self._open_sink(w, h, s)
                 if reopen:
                     self._close_camera()
                 in_use = self.sink.connected()
@@ -240,9 +277,15 @@ class VCamEngine:
                 else:
                     if self.cam is None:
                         self._set(state="starting", message="Starting the webcam…")
-                        cam_obj = self.camera_factory(s["cameraName"], w, h)
+                        cw, ch = self._capture_size(s, w, h)
+                        opts = {k: v for k, v in (("fps", s.get("frameRate", 30)), ("pixel_format", s.get("pixelFormat", "auto")))
+                                if v not in (30, "auto")}         # only non-default options (older factories still work)
+                        cam_obj = self.camera_factory(s["cameraName"], cw, ch, **opts)
                         self.cam = Grabber(cam_obj)
-                        self._set(captureInfo=getattr(cam_obj, "info", "") or f"{w}×{h}")
+                        self._set(captureInfo=getattr(cam_obj, "info", "") or f"{cw}×{ch}")
+                        recontrol = True
+                    if recontrol and hasattr(self.cam.camera, "apply_controls"):
+                        self._set(controls=self.cam.camera.apply_controls(s))
                         seq = 0                          # a fresh webcam session starts counting again
                         self._set(cameraOn=True)
                     prev = seq
@@ -254,19 +297,27 @@ class VCamEngine:
                         continue                         # only the Presentation window needs pictures: its rate is enough
                     self._last_proc = time.perf_counter()
                 t0 = time.perf_counter()
-                if frame is not None and (frame.shape[1] != w or frame.shape[0] != h):
-                    frame = fit_cover(frame, w, h)       # keep the picture's shape; clean scaling, no stretching
+                zoom = float(s.get("zoom") or 1.0)
+                if frame is not None:
+                    self._set(inputSize=f"{frame.shape[1]}×{frame.shape[0]}")
+                if frame is not None and (frame.shape[1] != w or frame.shape[0] != h or zoom > 1.0001):
+                    frame = fit_cover(frame, w, h, zoom)  # crop + zoom + resize in one resample; no stretching
                 if frame is not None and s["mirror"]:
                     frame = cv2.flip(frame, 1)
-                grade = s.get("grade")
-                if frame is not None and grade is not None:   # Camera Look: the webcam picture only
-                    frame = grade.apply(frame)
+                if frame is not None:
+                    frame = picture.fix_range(frame, s.get("colorRange"))
                 strength = s.get("blurStrength", 0) or 0
-                if frame is not None and strength > 0:
+                if frame is not None and strength > 0:     # background first: the person mask sees the true colours
                     if self.blur is None and self.blur_factory:
                         self.blur = self.blur_factory()
                     if self.blur:
                         frame = self.blur.apply(frame, strength)
+                grade = s.get("grade")
+                if frame is not None and grade is not None:   # filter (Camera Look x intensity): the webcam picture only
+                    frame = grade.apply(frame)
+                adjust = self._adjustments(s)
+                if frame is not None and adjust is not None:  # user adjustments, sharpness last
+                    frame = adjust.apply(frame)
                 if self.compositor:
                     frame = self.compositor.compose(frame, w, h)    # layout + layers + cards = the final picture
                 elif self.overlay:
@@ -275,6 +326,8 @@ class VCamEngine:
                 if in_use:
                     self.sink.send(frame)
                 lat_sum += time.perf_counter() - t_cap
+                if time.perf_counter() - t0 > 1 / max(1, s.get("frameRate") or 30):
+                    self.late += 1                           # this frame missed its slot (the next webcam frame waits)
                 if self.compositor:
                     self.compositor.after_send(frame)         # test recording
                 busy += time.perf_counter() - t0
@@ -291,7 +344,13 @@ class VCamEngine:
                         self.preview_t = time.time()
                 now = time.time()
                 if now - t_window >= 1.0:
-                    self._set(lookMs=round(s["grade"].ms, 1) if s.get("grade") is not None else 0.0)
+                    self._set(lookMs=round(s["grade"].ms, 1) if s.get("grade") is not None else 0.0,
+                              adjustMs=round(adjust.ms, 1) if adjust is not None else 0.0, lateFrames=self.late,
+                              outputSize=f"{w}×{h}", outputFormat="RGB24 (BCC vCam)",
+                              outputPacing="steady " + str(s.get("frameRate") or 30) + " fps" if s.get("outputPacing") == "fixed" else "follows the webcam")
+                    if frame is not None:
+                        lo, hi = picture.levels(frame)
+                        self._set(blackLevel=lo, whiteLevel=hi)
                     cpu = (time.process_time() - cpu_t0) / max(0.001, now - cpu_w0) / max(1, os.cpu_count() or 1) * 100
                     cpu_t0, cpu_w0 = time.process_time(), now
                     self._set(captureFps=self.cam.fps if self.cam else 0.0, dropped=self.dropped,

@@ -126,6 +126,103 @@ previewBtn.addEventListener('click', function(){
   if (previewing) pullPreview(); else img.removeAttribute('src');
 });
 
+/* ---------- Quality: profile, filter strength, framing, camera controls, fine-tune, diagnostics ---------- */
+var profSeg = h('div', {cls: 'seg', id: 'vcam-profile'});
+var profNote = h('span', {cls: 'hint', id: 'vcam-profile-note'});
+var segs = {};          // key -> seg element (values compared as strings)
+function seg(key, items, id){
+  var s = h('div', {cls: 'seg', id: id});
+  items.forEach(function(o){ s.appendChild(h('button', {type: 'button', 'data-val': String(o[0]), text: o[1], onclick: function(){ save(key, o[0]); }})); });
+  segs[key] = s; return s;
+}
+var sliders = {};       // key -> {input, val, fmt}
+var sliderT = {};
+function slider(key, label, min, max, step, fmt){
+  var input = h('input', {type: 'range', min: String(min), max: String(max), step: String(step), id: 'vcam-' + key, 'aria-label': label});
+  var val = h('span', {cls: 'val'});
+  input.addEventListener('input', function(){
+    val.textContent = fmt(+input.value);
+    clearTimeout(sliderT[key]);
+    sliderT[key] = setTimeout(function(){ var b = {}; b[key] = +input.value; post('settings', b).then(render); }, 150);
+  });
+  sliders[key] = {input: input, val: val, fmt: fmt};
+  return h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: label}), h('div', {cls: 'range'}, [input, val])]);
+}
+var signed = function(n){ return n > 0 ? '+' + n : String(n); };
+var pct = function(n){ return Math.round(n) + '%'; };
+profSeg.appendChild(h('button', {type: 'button', 'data-val': 'custom', text: 'Custom', onclick: function(){ save('outputProfile', 'custom'); }}));
+var FINE = [['exposureCompensation', 'Exposure (EV)', -2, 2, 0.1, function(n){ return (n > 0 ? '+' : '') + n.toFixed(1); }],
+  ['temperature', 'Temperature', -100, 100, 1, signed], ['tint', 'Tint', -100, 100, 1, signed],
+  ['brightness', 'Brightness', -100, 100, 1, signed], ['contrast', 'Contrast', -100, 100, 1, signed],
+  ['gamma', 'Gamma', -100, 100, 1, signed], ['saturation', 'Saturation', -100, 100, 1, signed],
+  ['vibrance', 'Vibrance', -100, 100, 1, signed], ['hue', 'Hue', -180, 180, 1, function(n){ return signed(n) + '°'; }],
+  ['sharpness', 'Sharpness', 0, 100, 1, function(n){ return n ? String(n) : 'Off'; }]];
+var fineRows = FINE.map(function(f){ return slider(f[0], f[1], f[2], f[3], f[4], f[5]); });
+var fineReset = h('button', {cls: 'btn small', type: 'button', id: 'vcam-fine-reset', text: 'Reset fine-tune', onclick: function(){
+  var b = {}; FINE.forEach(function(f){ b[f[0]] = 0; }); post('settings', b).then(render).then(function(){ toast('Fine-tune reset'); });
+}});
+var manualExpRows = [slider('shutterSpeed', 'Shutter', -13, 0, 1, function(n){ return '1/' + Math.round(Math.pow(2, -n)) + ' s'; }),
+  slider('gain', 'Gain', 0, 255, 1, String)];
+var manualWbRows = [slider('whiteBalanceKelvin', 'Kelvin', 2500, 7500, 50, function(n){ return n + ' K'; })];
+var diag = h('dl', {cls: 'vcam-diag', id: 'vcam-diag'});
+var qualityBox = h('section', {cls: 'box'}, [
+  h('div', {cls: 'box-head'}, [h('h2', {text: 'Quality'})]),
+  h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'Profile'}), profSeg]),
+  h('div', {cls: 'row'}, [h('span', {cls: 'lbl'}), profNote]),
+  slider('filterIntensity', 'Look strength', 0, 100, 1, pct),
+  slider('zoom', 'Zoom', 1, 2, 0.01, function(n){ return Math.round(n * 100) + '%'; }),
+  h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'Webcam mode'}), seg('captureResolution', [['auto', 'Same as output'], ['1080p', '1080p (sharper 720p)'], ['720p', '720p']], 'vcam-capture')]),
+  h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'Frame pacing'}), seg('outputPacing', [['camera', 'Follow webcam'], ['fixed', 'Steady 30 fps']], 'vcam-pacing')]),
+  h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'Black level'}), seg('colorRange', [['auto', 'As delivered'], ['expand-limited', 'Fix grey blacks']], 'vcam-range')]),
+  h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'Exposure'}), seg('exposureMode', [['auto', 'Auto'], ['manual', 'Manual']], 'vcam-exposure')]),
+  manualExpRows[0], manualExpRows[1],
+  h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'White balance'}), seg('whiteBalanceMode', [['auto', 'Auto'], ['manual', 'Manual']], 'vcam-wb')]),
+  manualWbRows[0],
+  h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'Backlight'}), seg('backlightCompensation', [['default', 'Webcam default'], ['off', 'Off'], ['on', 'On']], 'vcam-backlight')]),
+  h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'Anti-flicker'}), seg('antiFlicker', [['off', 'Off'], ['50', '50 Hz'], ['60', '60 Hz'], ['auto', 'Auto']], 'vcam-flicker')]),
+  h('details', {cls: 'vcam-fine'}, [h('summary', {text: 'Fine-tune (exposure, colour, sharpness)'})].concat(fineRows, [h('div', {cls: 'row'}, [h('span', {cls: 'lbl'}), fineReset])])),
+  h('div', {cls: 'box-head', style: 'margin-top:12px'}, [h('h2', {text: 'Diagnostics'})]),
+  diag
+]);
+function renderQuality(d){
+  var s = d.settings, st = d.status || {};
+  var psig = JSON.stringify(d.profiles || []);
+  if (profSeg.dataset.sig !== psig){
+    profSeg.dataset.sig = psig;
+    while (profSeg.children.length > 1) profSeg.removeChild(profSeg.lastChild);
+    (d.profiles || []).forEach(function(p){
+      profSeg.appendChild(h('button', {type: 'button', 'data-val': p.id, text: p.name, onclick: function(){
+        post('settings', {applyProfile: p.id}).then(render).then(function(){ toast('Profile: ' + p.name + '. Zoom or Teams may need to switch the camera off and on.'); });
+      }}));
+    });
+  }
+  Array.prototype.forEach.call(profSeg.children, function(b){ b.setAttribute('aria-pressed', String(b.dataset.val === (s.outputProfile || 'custom'))); });
+  profNote.textContent = s.outputProfile === 'meetings' ? 'Meetings: 1280×720, 30 fps, 101% zoom, auto exposure and white balance, Warm look at ' + Math.round(s.filterIntensity) + '%.' : 'Your own settings.';
+  Object.keys(segs).forEach(function(k){
+    Array.prototype.forEach.call(segs[k].children, function(b){ b.setAttribute('aria-pressed', String(b.dataset.val === String(s[k]))); });
+  });
+  Object.keys(sliders).forEach(function(k){
+    var x = sliders[k]; if (s[k] == null) return;
+    if (document.activeElement !== x.input){ x.input.value = s[k]; x.val.textContent = x.fmt(+s[k]); }
+  });
+  sliders.filterIntensity.input.disabled = (s.look || 'off') === 'off';
+  manualExpRows.forEach(function(r){ r.hidden = s.exposureMode !== 'manual'; });
+  manualWbRows.forEach(function(r){ r.hidden = s.whiteBalanceMode !== 'manual'; });
+  var c = st.controls || {}, rows = [
+    ['Webcam delivers', (st.captureInfo || '—') + (st.inputSize && st.captureInfo && st.captureInfo.indexOf(st.inputSize) < 0 ? ' (' + st.inputSize + ')' : '')],
+    ['Webcam frame rate', st.captureFps ? st.captureFps + ' fps' : '—'],
+    ['Output', (st.outputSize || '—') + ' · ' + (st.outputFormat || 'RGB24') + ' · ' + (st.fps ? st.fps + ' fps' : '—') + (st.outputPacing ? ' · ' + st.outputPacing : '')],
+    ['Work per frame', st.msPerFrame != null ? st.msPerFrame + ' ms (look ' + (st.lookMs || 0) + ' ms, fine-tune ' + (st.adjustMs || 0) + ' ms' + (st.blurMs ? ', blur check ' + st.blurMs + ' ms' : '') + ')' : '—'],
+    ['Capture to send', st.latencyMs != null ? st.latencyMs + ' ms (this app’s part of the delay)' : '—'],
+    ['Dropped / late', (st.dropped || 0) + ' webcam frames skipped · ' + (st.lateFrames || 0) + ' output frames late'],
+    ['Black / white level', st.blackLevel != null ? st.blackLevel + ' / ' + st.whiteLevel + (st.blackLevel > 40 ? ' — blacks look grey: try “Fix grey blacks”' : st.whiteLevel < 200 ? ' — a dark picture' : '') : '—'],
+    ['Camera controls', Object.keys(c).length ? Object.keys(c).map(function(k){ return k + ': ' + c[k]; }).join(' · ') : '—'],
+    ['Active', 'profile ' + (s.outputProfile || 'custom') + ' · look ' + (s.look || 'off') + (s.look && s.look !== 'off' ? ' ' + Math.round(s.filterIntensity) + '%' : '') + ' · zoom ' + Math.round((s.zoom || 1) * 100) + '%' + (s.mirror ? ' · mirrored' : '') + ' · background ' + (s.backgroundMode || 'none')]
+  ];
+  diag.innerHTML = '';
+  rows.forEach(function(r){ diag.appendChild(h('dt', {text: r[0]})); diag.appendChild(h('dd', {text: r[1]})); });
+}
+
 var main = h('section', {cls: 'box'}, [
   h('div', {cls: 'big-switch'}, [sw, h('div', {}, [swText,
     h('div', {cls: 'hint', text: 'A camera called “BCC vCam” for Zoom and Teams. Your webcam only turns on while a meeting app is using it.'})])]),
@@ -158,7 +255,7 @@ var helpBox = h('section', {cls: 'box'}, [
   ]),
   h('p', {cls: 'hint', text: 'Your verse, question and birthday cards appear on BCC vCam whenever you select Show, with the same transitions. OBS or Camo are not needed. If you still add the overlay links in OBS on top of BCC vCam, turn off “Cards” above so they don’t appear twice.'})
 ]);
-root.appendChild(main); root.appendChild(settingsBox); root.appendChild(helpBox);
+root.appendChild(main); root.appendChild(settingsBox); root.appendChild(qualityBox); root.appendChild(helpBox);
 
 /* ---------- Show the current state ---------- */
 var STATES = {
@@ -175,12 +272,13 @@ function render(d){
   unavailable.hidden = d.available;
   if (!d.available){
     unavailable.textContent = d.reason || 'BCC vCam is not available here.';
-    settingsBox.hidden = helpBox.hidden = true;
+    settingsBox.hidden = helpBox.hidden = qualityBox.hidden = true;
     pill.className = 'status-pill'; pill.lastChild.textContent = 'Not available'; msg.textContent = ''; perf.textContent = '';
     chip('', '—', d.reason); dot('');
     return d;
   }
-  settingsBox.hidden = helpBox.hidden = false;
+  settingsBox.hidden = helpBox.hidden = qualityBox.hidden = false;
+  if (s.schemaVersion >= 2) renderQuality(d); else qualityBox.hidden = true;
   sw.checked = s.enabled; swText.textContent = s.enabled ? 'BCC vCam is on' : 'BCC vCam is off';
   mirror.checked = s.mirror;
   cardsCb.checked = s.cards !== false;

@@ -355,3 +355,39 @@ Performance) to fall back to the WebView2 Presentation window.
   now loaded on demand for slide moves (previously only once the camera engine had drawn them).
 * **Remote Studio controls**: `GET/POST /api/remote/studio` on the PIN-protected remote allowlist. POST allows only
   `{"op": "scene", "id"}` and `{"op": "slide", "step"}`; everything else in the Studio stays PC-only.
+
+## 17. Version 4.7: picture quality profile and remote Navigation Dashboard
+
+**Pipeline order** (`vcam/engine.py`): webcam → crop + zoom + resize in **one** resample (`fit_cover(…, zoom)`; area
+when shrinking, bicubic when enlarging) → mirror → colour-range fix (optional 16–235 → 0–255) → background blur
+(the person mask sees the true colours) → filter (Camera Look × `filterIntensity`) → adjustments → layers/cards → BCC vCam.
+The per-pixel steps run at output size after the single resample; sharpening is last, so nothing resamples a sharpened picture.
+
+**Adjustments** (`vcam/picture.py`, order: exposure, white balance, brightness, contrast, gamma, saturation, vibrance,
+hue, sharpness). Exposure and white balance act on linear light inside one 256-entry table per channel; saturation and
+hue are 3×3 matrices (folded into one when vibrance is 0); vibrance is a per-pixel blend with a saturated copy weighted by
+1 − chroma (4–6 ms at 720p here); sharpness is an unsharp mask (amount ≤ 0.8, σ 1). All neutral → nothing runs.
+
+**Settings schema 2** (`bsf-vcam-settings.json`, `schemaVersion: 2`). Files without `schemaVersion` are migrated on read;
+the defaults reproduce the version-1 picture exactly (`filterIntensity` 100, `zoom` 1.0, `captureResolution` "auto",
+adjustments 0, camera controls untouched). Older app versions ignore the new keys. `filterName` is an alias of `look`;
+`backgroundMode` (none/blur) is derived from `blurStrength`. `POST /api/vcam/settings {"applyProfile": "meetings"}` applies
+the Meetings profile (720p, 30 fps, 1080p capture, zoom 1.01, auto exposure/white balance, Warm at 25 %); changing a
+value the profile sets switches `outputProfile` to "custom". `spotlight`/`retouch` are stored but not implemented (always off).
+
+**Camera controls** go through OpenCV (`cap.set`), best effort: "auto" values are never written, so the driver's own
+automatic exposure/white balance stay in charge; manual values report "applied" or "not supported" in Diagnostics.
+Power-line frequency (anti-flicker) is not exposed by OpenCV; the setting is stored and reported, and the driver's value is
+kept. A future native step: `IKsControl` / `KSPROPERTY_VIDEOPROCAMP_POWERLINE_FREQUENCY` on the webcam's DirectShow filter.
+
+**Output**: softcam offers RGB24 only, so BCC does no YUV conversion of its own (the meeting app converts once).
+`outputPacing` "fixed" creates the camera with a frame rate (`scCreateCamera(w, h, 30)`) instead of 0 (follow the webcam);
+test on the PC before making it the default. Diagnostics add input/output size, pacing, late frames, black/white level
+(1st/99th luma percentile) and camera-control results.
+
+**Remote** (`app/remote.html`, `js/remote.js`, `css/remote.css`): `body[data-view]` = home | question | verse | birthday |
+studio | scenes | slides | preview | all. The remote opens on the Navigation Dashboard (big buttons with live status).
+Section views show the existing panes (hidden/shown with `.off-view`, never rebuilt), so slide, scene and list state is kept.
+Home button, Esc and the phone's back gesture (history state) return to the dashboard; arrow keys move between buttons.
+"All controls" is the previous all-in-one Live Control screen (quick-switch bar and folding work there as before).
+No API or command changed.
