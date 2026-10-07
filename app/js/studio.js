@@ -152,6 +152,7 @@ document.addEventListener('click', function(e){ if (!addMenu.hidden && !addMenu.
 function slideMove(step){
   act('slide', {step: step}).then(function(d){
     var r = d.slide || {};
+    if (r.busy) return;                                    // the previous press is still being carried out
     if (r.page) toast('Slide ' + r.page + (r.pages ? ' of ' + r.pages : ''));
     else if (r.error) toast(r.error, true);
     else if (r.result) toast(r.result === 'ok' ? 'Next slide' : r.result);
@@ -623,7 +624,7 @@ document.addEventListener('keydown', function(e){
     act('toggle-layer', {index: n}).then(function(d){ if (d.layer) toast((d.visible ? 'Showing ' : 'Hiding ') + d.layer); else toast('There is no layer ' + (n + 1) + ' yet', true); });
     return;
   }
-  if ((e.key === 'PageDown' || e.key === 'PageUp') && !e.ctrlKey && !e.altKey && S && S.available){
+  if ((e.key === 'PageDown' || e.key === 'PageUp') && !e.ctrlKey && !e.altKey && !e.repeat && S && S.available){
     var pres = (S.screen && S.screen.active && S.screen.source && ['pdf', 'window'].indexOf(S.screen.source.kind) >= 0) ||
       (S.layers || []).some(function(l){ return l.type === 'pdf' || l.type === 'window'; });
     if (!pres) return;

@@ -391,3 +391,29 @@ Section views show the existing panes (hidden/shown with `.off-view`, never rebu
 Home button, Esc and the phone's back gesture (history state) return to the dashboard; arrow keys move between buttons.
 "All controls" is the previous all-in-one Live Control screen (quick-switch bar and folding work there as before).
 No API or command changed.
+
+## 18. Version 4.8: PowerPoint reliability, compact remote, live-meeting efficiency
+
+**PowerPoint** (`vcam/powerpoint.py`, no OpenCV needed). Root causes fixed: (1) Next/Previous only reached PowerPoint
+when the slide show was captured as a Studio screen/layer - a full-screen show shared directly in Zoom/Teams got
+nothing, and the remote hid Slides; `server.slide_move()` now falls back to the running slide show (the active one,
+or the captured window's), and `remote_studio_info()` reports it (cached 2 s). (2) A slow COM call (5 s timeout) was
+followed by a Page Down fallback while the COM call was still queued -> two slides; keys are now sent only to a
+captured window that is not PowerPoint. (3) Presses queued behind a slow call fired late; now one command at a time,
+presses during a running command or within 120 ms are dropped (`busy`), atomically. The PowerPoint connection is kept
+and re-made after a restart; a paused (black/white screen) show resumes on Next. PC Page Up/Down ignore key-repeat.
+
+**Remote** (`remote.html/js/css`): every section is a compact card - controls first (`[Prev][Show][Next][▼]`,
+Birthday `[Show][▼]`, Slides `[Prev][Next][▼]` with "5 / 18", Scenes = scene buttons, Preview = `[Show preview]`),
+details on ▼ (text, next item, list, hold-to-clear, slide source). Cards open independently, start collapsed, and keep
+their state between screens. Details are rendered only while open; the preview iframe loads only while open. Slide
+buttons send one command at a time. Updates are event-driven (`Store.start({longPoll: true})`). Toasts at the bottom.
+
+**Efficiency.** Phone remote and PC dashboard: long-poll `/api/state?since=&wait=10` instead of `/api/rev` every
+300 ms (~200 -> ~6 requests/min idle; overlay pages keep short polls - OBS sources share one connection pool).
+Library skipping: the server tracks `libraryRev`; a save with `keepLibrary` and a long-poll with `librev` leave the
+library out (1,000-item library: ~1.1 MB -> ~2.6 KB per tap). Older clients get the full state as before.
+Network check (PowerShell) cached 15 min (60 s with Settings > Remote open) instead of starting every minute; LAN
+addresses cached 10 s; Studio's window/display list cached 3 s; vCam top-bar light uses `?lite=1` (no webcam
+enumeration); one presence poll instead of two; header chips/lights write to the page only on change; Meeting
+safety re-render 2 s -> 10 s; background polls slow down while minimised.

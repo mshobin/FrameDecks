@@ -12,11 +12,14 @@ function h(tag, attrs, kids){
   return el;
 }
 function toast(m, bad){ if (window.BSFActions) window.BSFActions.toast(m, bad); }
-function chip(cls, text, title){
+function chip(cls, text, title){                        // touches the page only when something changed
   var c = $('h-vcam'); if (!c) return;
-  c.className = 'hchip ' + cls; c.querySelector('b').textContent = text; c.title = title || '';
+  var k = 'hchip ' + cls, b = c.querySelector('b');
+  if (c.className !== k) c.className = k;
+  if (b.textContent !== text) b.textContent = text;
+  if (c.title !== (title || '')) c.title = title || '';
 }
-function dot(cls){ var d = $('sn-vcam'); if (d) d.className = 'sn-dot ' + (cls || ''); }
+function dot(cls){ var d = $('sn-vcam'), k = 'sn-dot ' + (cls || ''); if (d && d.className !== k) d.className = k; }
 
 if (!Store.served){
   root.appendChild(h('p', {cls: 'plain', text: 'BCC vCam needs the Command Center program (the installed Windows app).'}));
@@ -333,8 +336,16 @@ function render(d){
   dot(key === 'live' ? 'ok' : key === 'error' || !d.registered ? 'warn' : s.enabled ? 'info' : '');
   return d;
 }
+/* While this section is closed, only the top-bar light needs the status: a light request ("lite") that skips
+ * listing webcams and looks; the lists from the last full answer are kept. */
+function sectionOpen(){ return $('sec-vcam') && !$('sec-vcam').hidden && document.body.dataset.tab === 'settings'; }
 function poll(){
-  fetch('api/vcam/status', {cache: 'no-store'}).then(function(r){ return r.json(); }).then(render).catch(function(){})
+  var lite = !sectionOpen() && current;
+  fetch('api/vcam/status' + (lite ? '?lite=1' : ''), {cache: 'no-store'}).then(function(r){ return r.json(); })
+    .then(function(d){
+      if (d.lite && current){ d.cameras = current.cameras; d.looks = current.looks; d.profiles = current.profiles; d.looksNote = current.looksNote; d.activeCamera = current.activeCamera; }
+      return render(d);
+    }).catch(function(){})
     .then(function(){ setTimeout(poll, window.BSFStore.pace($('sec-vcam') && !$('sec-vcam').hidden ? 1000 : 3000)); });
 }
 poll();

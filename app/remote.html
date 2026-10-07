@@ -41,13 +41,6 @@
       <span class="ac v" data-air="verse"><i></i>Verse</span>
       <span class="ac b" data-air="birthday"><i></i>Birthday</span>
     </div>
-  <!-- Phones: one Live Control screen; these jump to a section (and show which one you're on) -->
-    <nav class="ptabs" id="ptabs" aria-label="Jump to a section">
-      <button type="button" class="pt q" data-pt="question">Questions<i data-dot="question"></i></button>
-      <button type="button" class="pt v" data-pt="verse">Verses<i data-dot="verse"></i></button>
-      <button type="button" class="pt b" data-pt="more">Birthday<i data-dot="birthday"></i></button>
-      <button type="button" class="pt s" data-pt="studio" id="pt-studio" hidden>Studio</button>
-    </nav>
     <button class="tool" type="button" id="lists-btn">Lists</button>
     <button class="hideall" type="button" id="hide-all">HIDE ALL</button>
   </header>
@@ -77,58 +70,84 @@
   </div>
   <p class="view-empty" id="view-empty" role="status" hidden></p>
 
-  <main class="surface">
-    <section class="pane q" data-k="question" aria-label="Question">
-      <div class="phead"><span class="cat">Question</span><span class="state" data-state="question">—</span><span class="label" id="q-label"></span></div>
-      <p class="now" data-now="question"></p>
-      <p class="next"><span>Next</span><em data-next="question"></em></p>
-      <div class="pad">
-        <button class="pb nav" type="button" data-do="prev" data-k="question" aria-label="Previous question">◀<small>Prev</small></button>
+  <!-- Control cards. Collapsed = the controls you need live; ▼ = the details (text, next item, clear, list). -->
+  <main class="surface" id="surface">
+    <section class="card q" data-k="question" aria-labelledby="q-title">
+      <header class="card-head"><h2 class="cat" id="q-title">Questions</h2><span class="state" data-state="question">—</span><span class="meta" id="q-pos"></span></header>
+      <div class="ctrl">
+        <button class="pb nav" type="button" data-do="prev" data-k="question" aria-label="Previous question"><span class="ar" aria-hidden="true">◀</span><small>Prev</small></button>
         <button class="pb toggle" type="button" data-do="toggle" data-k="question"><span class="tl">SHOW</span></button>
-        <button class="pb nav" type="button" data-do="next" data-k="question" aria-label="Next question">▶<small>Next</small></button>
+        <button class="pb nav" type="button" data-do="next" data-k="question" aria-label="Next question"><span class="ar" aria-hidden="true">▶</span><small>Next</small></button>
+        <button class="exp" type="button" aria-expanded="false" aria-controls="q-detail" aria-label="Question details"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
       </div>
-      <button class="hold" type="button" data-hold="clear" data-k="question"><span class="fill"></span><span class="ht">Hold to clear question</span></button>
+      <div class="detail" id="q-detail" hidden>
+        <p class="dlabel" id="q-label"></p>
+        <p class="now" data-now="question"></p>
+        <p class="next"><span>Next</span><em data-next="question"></em></p>
+        <div class="dacts"><button class="tool" type="button" data-list="question">Choose from list</button>
+          <button class="hold" type="button" data-hold="clear" data-k="question"><span class="fill"></span><span class="ht">Hold to clear</span></button></div>
+      </div>
     </section>
 
-    <section class="pane v" data-k="verse" aria-label="Verse">
-      <div class="phead"><span class="cat">Verse</span><span class="state" data-state="verse">—</span><span class="label" id="v-label"></span></div>
-      <p class="now serif" data-now="verse"></p>
-      <p class="next"><span>Next</span><em data-next="verse"></em></p>
-      <div class="pad">
-        <button class="pb nav" type="button" data-do="prev" data-k="verse" aria-label="Previous verse">◀<small>Prev</small></button>
+    <section class="card v" data-k="verse" aria-labelledby="v-title">
+      <header class="card-head"><h2 class="cat" id="v-title">Verses</h2><span class="state" data-state="verse">—</span><span class="meta" id="v-pos"></span></header>
+      <div class="ctrl">
+        <button class="pb nav" type="button" data-do="prev" data-k="verse" aria-label="Previous verse"><span class="ar" aria-hidden="true">◀</span><small>Prev</small></button>
         <button class="pb toggle" type="button" data-do="toggle" data-k="verse"><span class="tl">SHOW</span></button>
-        <button class="pb nav" type="button" data-do="next" data-k="verse" aria-label="Next verse">▶<small>Next</small></button>
+        <button class="pb nav" type="button" data-do="next" data-k="verse" aria-label="Next verse"><span class="ar" aria-hidden="true">▶</span><small>Next</small></button>
+        <button class="exp" type="button" aria-expanded="false" aria-controls="v-detail" aria-label="Verse details"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
       </div>
-      <button class="hold" type="button" data-hold="clear" data-k="verse"><span class="fill"></span><span class="ht">Hold to clear verse</span></button>
+      <div class="detail" id="v-detail" hidden>
+        <p class="now serif" data-now="verse"></p>
+        <p class="next"><span>Next</span><em data-next="verse"></em></p>
+        <div class="dacts"><button class="tool" type="button" data-list="verse">Choose from list</button>
+          <button class="hold" type="button" data-hold="clear" data-k="verse"><span class="fill"></span><span class="ht">Hold to clear</span></button></div>
+      </div>
     </section>
 
-    <aside class="side">
-      <section class="pane b" data-k="birthday" aria-label="Birthday">
-        <div class="phead"><span class="cat">Birthday</span><span class="state" data-state="birthday">—</span></div>
-        <p class="now small" data-now="birthday"></p>
+    <section class="card b" data-k="birthday" aria-labelledby="b-title">
+      <header class="card-head"><h2 class="cat" id="b-title">Birthday</h2><span class="state" data-state="birthday">—</span><span class="meta" id="b-name"></span></header>
+      <div class="ctrl">
         <button class="pb toggle wide" type="button" data-do="toggle" data-k="birthday"><span class="tl">SHOW</span></button>
-      </section>
-      <section class="pane sc" data-k="scenes" aria-label="Studio scenes" hidden>
-        <div class="phead"><span class="cat">Scenes</span><span class="state" id="sc-state">—</span></div>
-        <div class="scene-grid" id="scene-grid"></div>
-      </section>
-      <section class="pane sl" data-k="slides" aria-label="Slides" hidden>
-        <div class="phead"><span class="cat">Slides</span><span class="state" id="sl-state">—</span></div>
+        <button class="exp" type="button" aria-expanded="false" aria-controls="b-detail" aria-label="Birthday details"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+      </div>
+      <div class="detail" id="b-detail" hidden>
+        <p class="now small" data-now="birthday"></p>
+        <p class="hint">Choose who to celebrate in the Meeting tab on the PC.</p>
+      </div>
+    </section>
+
+    <section class="card sc" data-k="scenes" aria-labelledby="sc-title" hidden>
+      <header class="card-head"><h2 class="cat" id="sc-title">Scenes</h2><span class="state on-air" id="sc-state">—</span></header>
+      <div class="scene-grid" id="scene-grid"></div>
+    </section>
+
+    <section class="card sl" data-k="slides" aria-labelledby="sl-title" hidden>
+      <header class="card-head"><h2 class="cat" id="sl-title">Slides</h2><span class="state" id="sl-state">—</span></header>
+      <div class="ctrl">
+        <button class="pb" type="button" data-slide="-1" aria-label="Previous slide"><span class="ar" aria-hidden="true">◀</span><small>Prev</small></button>
+        <button class="pb" type="button" data-slide="1" aria-label="Next slide"><span class="ar" aria-hidden="true">▶</span><small>Next</small></button>
+        <button class="exp" type="button" aria-expanded="false" aria-controls="sl-detail" aria-label="Slide details"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+      </div>
+      <div class="detail" id="sl-detail" hidden>
         <p class="now small" id="sl-name"></p>
-        <div class="pad two">
-          <button class="pb" type="button" data-slide="-1"><span class="ar">◀</span><span>PREV</span></button>
-          <button class="pb" type="button" data-slide="1"><span class="ar">▶</span><span>NEXT</span></button>
-        </div>
-      </section>
-      <section class="pane preview-pane">
-        <div class="phead"><span class="cat plain">Preview</span><button class="tool small" type="button" id="pv-btn">Show preview</button></div>
-        <div class="preview" id="preview" hidden><iframe id="frame" title="What Zoom participants see" tabindex="-1"></iframe></div>
-        <p class="foot">Change questions and verses on the PC; they appear here automatically.
-          <button class="linkish" type="button" id="logout">Disconnect this device</button></p>
-        <p class="credit" data-credit></p>
-      </section>
-    </aside>
+        <p class="hint" id="sl-src"></p>
+      </div>
+    </section>
+
+    <section class="card p" data-k="preview" aria-labelledby="p-title">
+      <header class="card-head"><h2 class="cat" id="p-title">Preview</h2><span class="meta">What Zoom participants see</span></header>
+      <div class="ctrl">
+        <button class="exp wide" type="button" id="pv-btn" aria-expanded="false" aria-controls="p-detail"><span class="xl">Show preview</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+      </div>
+      <div class="detail" id="p-detail" hidden>
+        <div class="preview" id="preview"><iframe id="frame" title="What Zoom participants see" tabindex="-1"></iframe></div>
+      </div>
+    </section>
   </main>
+
+  <!-- kept for the dashboard's Disconnect button -->
+  <button class="linkish" type="button" id="logout" hidden>Disconnect this device</button>
 
   <!-- Lists drawer -->
   <div class="drawer" id="drawer" hidden>

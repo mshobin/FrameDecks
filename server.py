@@ -28,7 +28,7 @@ from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from pathlib import Path
 from urllib.parse import urlparse, parse_qs, unquote
 
-APP_VERSION = "4.7"
+APP_VERSION = "4.8"
 STARTED_AT = time.time()
 FROZEN = getattr(sys, "frozen", False)          # True inside the installed Windows app
 HERE = Path(sys.executable).resolve().parent if FROZEN else Path(__file__).resolve().parent
@@ -105,7 +105,19 @@ def save_sessions():
 sessions = load_sessions()
 
 
-def lan_addresses():
+_lan_cache = {"at": 0.0, "value": []}
+
+
+def lan_addresses(max_age=10.0):
+    """This PC's network addresses (cached 10 s: the host-name lookup can be slow on some networks)."""
+    if time.monotonic() - _lan_cache["at"] < max_age:
+        return list(_lan_cache["value"])
+    out = _lan_addresses()
+    _lan_cache.update(at=time.monotonic(), value=out)
+    return list(out)
+
+
+def _lan_addresses():
     ips = []
     try:  # finds the Wi-Fi/Ethernet address; nothing is actually sent
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -140,12 +152,28 @@ def load_state():
 
 
 state = load_state()
+# Revision at which the question/verse library last changed. Screens that already have that library can leave it
+# out of what they send and receive (a big imported library made every Show/Next tap from the phone slow).
+LIBRARY = {"rev": int(state.get("rev", 0) or 0)}
+
+
+def state_body(lib_rev=None):
+    """The state as JSON; without the library when the asker already has this library (lib_rev matches)."""
+    if lib_rev is not None and str(lib_rev) == str(LIBRARY["rev"]):
+        out = {k: v for k, v in state.items() if k != "library"}
+        out.update(libraryRev=LIBRARY["rev"], libraryOmitted=True)
+        return json.dumps(out)
+    return json.dumps(dict(state, libraryRev=LIBRARY["rev"]))
 
 
 def save_state(new):
     global state
     with cond:
+        new.pop("libraryRev", None)
+        new.pop("libraryOmitted", None)
         new["rev"] = int(state.get("rev", 0)) + 1
+        if new.get("library") != state.get("library"):
+            LIBRARY["rev"] = new["rev"]
         state = new
         tmp = STATE_FILE.with_suffix(".tmp")
         tmp.write_text(json.dumps(state, indent=2, ensure_ascii=False), encoding="utf-8")
@@ -171,13 +199,14 @@ _net_cache = {"at": 0, "value": None}
 _net_lock = threading.Lock()
 
 
-def windows_network_check():
+def windows_network_check(max_age=900):
     """On Windows, report the network type (Private/Public) and whether the optional firewall
-    rule exists. Read-only: nothing is changed. Runs in the background and is cached for 60 s,
-    so it never slows the dashboard. Returns None on other systems or while first checking."""
+    rule exists. Read-only: nothing is changed. Runs in the background (PowerShell) and is cached: 15 minutes
+    normally (the header light asks every 3 s during a meeting - starting PowerShell every minute was wasted
+    work), 60 s while Settings > Phone & iPad Remote is open. Returns None on other systems or while first checking."""
     if os.name != "nt":
         return None
-    if time.time() - _net_cache["at"] > 60 and _net_lock.acquire(blocking=False):
+    if time.time() - _net_cache["at"] > max_age and _net_lock.acquire(blocking=False):
         def work():
             try:
                 _refresh_network_check()
@@ -757,11 +786,49 @@ def studio_save():
     STUDIO_FILE.write_text(json.dumps(cur, indent=2), encoding="utf-8")
 
 
+def powerpoint_show():
+    """The PowerPoint slide show running on this PC (full screen or windowed), or None. Cached ~2 s."""
+    try:
+        from vcam.powerpoint import powerpoint_status
+        s = powerpoint_status()
+    except Exception:
+        return None
+    return {"name": s.get("name") or "PowerPoint", "page": s.get("page"), "pages": s.get("pages"), "kind": "powerpoint"} if s else None
+
+
+def slide_move(step):
+    """Next (+1) / Previous (-1) for whatever is being presented: the Studio's shared screen or presentation layer
+    (PDF deck or captured window) first, else the PowerPoint slide show running on this PC - e.g. full screen and
+    shared directly in Zoom/Teams, which BCC is not capturing. Works without the camera engine."""
+    try:
+        step = 1 if int(step) > 0 else -1
+    except (TypeError, ValueError):
+        raise ValueError("Unknown slide step")
+    comp = VCAM.get("compositor")
+    res = None
+    if comp:
+        res = comp.slide(step)
+        if res is None:                                        # no shared presentation: the top presentation layer
+            pres = [l for l in comp.layers.layers[::-1] if l["type"] in ("pdf", "window") and l["visible"]]
+            res = comp.layers.slide(pres[0]["id"], step) if pres else None
+    if res is None:
+        try:
+            from vcam.powerpoint import powerpoint_slide
+            res = powerpoint_slide(step)
+        except Exception as e:
+            res = {"error": f"Slides are not available ({type(e).__name__})"}
+    if isinstance(res, dict) and res.get("page"):
+        VCAM["lastSlide"] = res
+    return res
+
+
 def remote_studio_info():
-    """What the phone/iPad remote may see of the Studio: scene names, the active scene, and the presentation."""
+    """What the phone/iPad remote may see of the Studio: scene names, the active scene, and the presentation
+    (a Studio deck/window, or a PowerPoint slide show running on this PC)."""
     comp = VCAM.get("compositor")
     if not comp:
-        return {"available": False}
+        ppt = powerpoint_show()
+        return {"available": False, "scenes": [], "activeScene": "", "presentation": ppt}
     st = studio_load()
     pres = None
     src = comp.screen_src or {}
@@ -776,6 +843,8 @@ def remote_studio_info():
                 comp.layers._source(l)                         # load the deck so the slide number is known
             ls = comp.layers.status().get(l["id"], {})
             pres = {"name": l["name"], "page": ls.get("page"), "pages": ls.get("pages")}
+    if pres is None:
+        pres = powerpoint_show()
     if pres and not pres.get("page") and VCAM.get("lastSlide", {}).get("page"):
         pres.update(page=VCAM["lastSlide"]["page"], pages=VCAM["lastSlide"].get("pages"))
     return {"available": True, "scenes": [{"id": x["id"], "name": x["name"]} for x in st["scenes"]],
@@ -789,10 +858,7 @@ def remote_studio_action(d):
         studio_action({"op": "scene-apply", "id": str(d.get("id") or "")})
         return {}
     if op == "slide":
-        res = studio_action({"op": "slide", "step": 1 if int(d.get("step", 1)) > 0 else -1}).get("slide")
-        if isinstance(res, dict) and res.get("page"):
-            VCAM["lastSlide"] = res
-        return {"slide": res}
+        return {"slide": slide_move(d.get("step", 1))}
     raise ValueError("Not allowed from the remote")
 
 
@@ -813,7 +879,7 @@ def studio_status():
     return {"available": True, "layout": comp.layout, "layers": [dict(l, status=lay_status.get(l["id"], {})) for l in comp.layers.layers],
             "staged": staged is not None, "stagedLayers": staged or [], "collections": st["collections"],
             "sceneMode": comp.scene_mode(staged if staged is not None else comp.layers.layers),
-            "screen": comp.screen_status(), "sources": list_sources(),
+            "screen": comp.screen_status(), "sources": _cached_sources(list_sources),
             "scenes": [{"id": x["id"], "name": x["name"], "collection": x["collection"],
                         "thumb": int((SCENES_DIR / (x["id"] + ".jpg")).stat().st_mtime) if (SCENES_DIR / (x["id"] + ".jpg")).exists() else 0} for x in st["scenes"]],
             "activeScene": st["activeScene"], "presets": {k: {"name": v["name"], "needs": v["needs"]} for k, v in QUICK_PRESETS.items()},
@@ -823,6 +889,17 @@ def studio_status():
             "presentation": {"open": bool(comp.present["clients"]) or bool(DESKTOP.get("present_open") and DESKTOP["present_open"]()),
                              "desktop": bool(DESKTOP.get("present")), "framesSent": comp.present["sent"]},
             "pdfs": sorted(p.name for p in LAYERS_DIR.glob("*.pdf")) if LAYERS_DIR.is_dir() else []}
+
+
+_SOURCES = {"at": 0.0, "list": []}
+
+
+def _cached_sources(list_sources):
+    """Displays and windows for the Studio's screen-share menu, listed at most every 3 s (the Studio asks every
+    second while it is open; enumerating every window that often is wasted work during a meeting)."""
+    if time.monotonic() - _SOURCES["at"] > 3.0:
+        _SOURCES.update(at=time.monotonic(), list=list_sources())
+    return _SOURCES["list"]
 
 
 def _layer_id():
@@ -839,9 +916,11 @@ def studio_action(d):
 
 def _studio_action(d):
     comp, eng = VCAM.get("compositor"), VCAM.get("engine")
+    op = d.get("op")
+    if op == "slide":                                          # slides work even without the camera engine
+        return {"slide": slide_move(d.get("step", 1))}
     if not comp:
         raise ValueError(VCAM.get("reason") or "BCC vCam is not available.")
-    op = d.get("op")
     if op == "layout":
         comp.set_layout(d.get("layout") or {})
     elif op == "screen":
@@ -903,13 +982,6 @@ def _studio_action(d):
             comp.layers.set_layers(layers)
             return {"layer": order[n]["name"], "visible": order[n]["visible"]}
         return {"layer": None}
-    elif op == "slide":
-        step = 1 if int(d.get("step", 1)) > 0 else -1
-        res = comp.slide(step)
-        if res is None:                                        # no shared presentation: the top presentation layer
-            pres = [l for l in comp.layers.layers[::-1] if l["type"] in ("pdf", "window") and l["visible"]]
-            res = comp.layers.slide(pres[0]["id"], step) if pres else None
-        return {"slide": res}
     elif op == "record":
         if d.get("on"):
             w, h = SIZES_FOR_REC.get(vcam_settings()["resolution"], (1280, 720))
@@ -1118,13 +1190,17 @@ def _looks_list():
     return VCAM["looksCache"]
 
 
-def vcam_status():
+def vcam_status(lite=False):
+    """BCC vCam status for the PC screens. lite: only what the top-bar light needs (no webcam or looks listing)."""
     eng = VCAM["engine"]
     try:
         from vcam import sink as vsink
         registered = vsink.is_registered() or os.environ.get("BSF_VCAM_DEMO") == "1"
     except Exception:
         registered = False
+    if lite:
+        return {"available": eng is not None, "reason": VCAM["reason"], "registered": registered, "lite": True,
+                "settings": vcam_settings(), "status": dict(eng.status) if eng else None}
     return {"available": eng is not None, "reason": VCAM["reason"], "registered": registered,
             "settings": vcam_settings(), "status": dict(eng.status) if eng else None,
             "cameras": [{"name": n, "ir": any(c["ir"] for c in vcam_list_cameras() if c["name"] == n)}
@@ -1277,7 +1353,7 @@ class Handler(BaseHTTPRequestHandler):
             if not self.is_local():
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
             if path == "/api/vcam/status":
-                return self.reply(200, json.dumps(vcam_status()), TYPES[".json"])
+                return self.reply(200, json.dumps(vcam_status(lite="lite=1" in url.query)), TYPES[".json"])
             if path == "/api/vcam/studio":
                 return self.reply(200, json.dumps(studio_status()), TYPES[".json"])
             if path in ("/api/vcam/scene-thumb", "/api/vcam/stage.jpg"):
@@ -1343,7 +1419,7 @@ class Handler(BaseHTTPRequestHandler):
                 own = set() if os.environ.get("BSF_TEST_COUNT_OWN_ADDRESS") == "1" else set(ips)
                 info["devices"] = [{"ip": ip, "lastSeen": d["last"], "firstSeen": d["first"], "signedIn": d["signedIn"]}
                                    for ip, d in sorted(devices.items(), key=lambda kv: -kv[1]["last"]) if ip not in own]
-                info["network"] = windows_network_check()
+                info["network"] = windows_network_check(60 if "fresh=1" in url.query else 900)
             return self.reply(200, json.dumps(info), TYPES[".json"])
         if path == "/api/remote-selftest":
             # Checks the PC is listening on its network address. It cannot see the phone or iPad's side,
@@ -1364,12 +1440,17 @@ class Handler(BaseHTTPRequestHandler):
             data["storedAt"] = str(PRIVATE_FILE)
             return self.reply(200, json.dumps(data), TYPES[".json"])
         if path == "/api/state":
-            since = parse_qs(url.query).get("since", [None])[0]
+            q = parse_qs(url.query)
+            since = q.get("since", [None])[0]
+            try:
+                wait = min(25.0, max(1.0, float(q.get("wait", ["25"])[0])))
+            except ValueError:
+                wait = 25.0
             with cond:
                 if since is not None:
-                    # Long-poll: answer as soon as something changes (or after 25 s)
-                    cond.wait_for(lambda: str(state.get("rev")) != since, timeout=25)
-                body = json.dumps(state)
+                    # Long-poll: answer as soon as something changes (or after `wait` seconds, at most 25)
+                    cond.wait_for(lambda: str(state.get("rev")) != since, timeout=wait)
+                body = state_body(q.get("librev", [None])[0])
             return self.reply(200, body, TYPES[".json"])
         if path == "/api/rev":
             return self.reply(200, json.dumps({"rev": state.get("rev", 0)}), TYPES[".json"])
@@ -1659,11 +1740,17 @@ class Handler(BaseHTTPRequestHandler):
                 return self.reply(400, "Invalid data", "text/plain; charset=utf-8")
             data.pop("rev", None)
             base = data.pop("baseRev", None)
+            keep = data.pop("keepLibrary", False) is True
             with cond:
                 # Two devices changed things at the same moment: send back the latest so it can redo its change
                 if base is not None and str(base) != str(state.get("rev", 0)):
-                    return self.reply(409, json.dumps(state), TYPES[".json"])
-                return self.reply(200, json.dumps(save_state(data)), TYPES[".json"])
+                    return self.reply(409, state_body(), TYPES[".json"])
+                if keep:                                   # "library unchanged": only valid on top of the latest state
+                    if base is None:
+                        return self.reply(409, state_body(), TYPES[".json"])
+                    data["library"] = state.get("library")
+                save_state(data)
+                return self.reply(200, state_body(LIBRARY["rev"] if keep else None), TYPES[".json"])
         if path == "/api/private":
             if not isinstance(data, dict) or not isinstance(data.get("members", []), list):
                 return self.reply(400, "Invalid data", "text/plain; charset=utf-8")

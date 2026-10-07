@@ -387,8 +387,9 @@ function refreshStatus(){
 function refreshMode(){
   var m = $('mode');
   if (!Store.served){ m.textContent = 'No-install mode · same browser only'; m.className = 'mode'; return; }
-  m.textContent = Store.online ? 'Local program · connected' : 'Local program not responding';
-  m.className = 'mode' + (Store.online ? '' : ' bad');
+  var text = Store.online ? 'Local program · connected' : 'Local program not responding', cls = 'mode' + (Store.online ? '' : ' bad');
+  if (m.textContent !== text) m.textContent = text;
+  if (m.className !== cls) m.className = cls;
 }
 
 /* ---------- Links ---------- */
@@ -428,15 +429,17 @@ function buildLinks(){
       'For OBS, Camo or Zoom, start the local program instead: double-click <b>Start BSF Command Center.bat</b>.';
   }
 }
+function showPresence(c){
+  LINKS.forEach(function(L){
+    var n = c[L.page] || 0, el = $('conn-' + L.page);
+    var text = n ? '● Connected' + (n > 1 ? ' (' + n + ')' : '') : 'Not open yet', cls = 'conn' + (n ? ' ok' : '');
+    if (el.textContent !== text) el.textContent = text;
+    if (el.className !== cls) el.className = cls;
+  });
+}
 function pollPresence(){
   if (!Store.served) return;
-  fetch('api/presence', {cache: 'no-store'}).then(function(r){ return r.json(); }).then(function(c){
-    LINKS.forEach(function(L){
-      var n = c[L.page] || 0, el = $('conn-' + L.page);
-      el.textContent = n ? '● Connected' + (n > 1 ? ' (' + n + ')' : '') : 'Not open yet';
-      el.className = 'conn' + (n ? ' ok' : '');
-    });
-  }).catch(function(){});
+  fetch('api/presence', {cache: 'no-store'}).then(function(r){ return r.json(); }).then(showPresence).catch(function(){});
 }
 
 /* ---------- Preview ---------- */
@@ -568,7 +571,11 @@ function setup(){
   buildLinks();
   setupPreview();
   setupBackup();
-  pollPresence(); setInterval(function(){ if (!document.hidden) pollPresence(); }, 4000);   // idle: nothing while hidden
+  // Overlay "connected" lights: shares the Meeting tab's presence check (one request every 4 s, not two)
+  setTimeout(function(){
+    if (window.BSFStatus) window.BSFStatus.on('presence', showPresence);
+    else { pollPresence(); setInterval(function(){ if (!document.hidden) pollPresence(); }, 4000); }
+  }, 0);
   refreshMode(); setInterval(function(){ if (!document.hidden) refreshMode(); }, 2000);
 }
 
@@ -577,5 +584,5 @@ Store.subscribe(function(st){
   if (!drafts){ initDrafts(live); setup(); fillEditors(); }
   refreshStatus(); refreshSegs(); refreshRanges(); renderLists(); refreshMode();
 });
-Store.start();
+Store.start({longPoll: true});   // changes (phone remote, overlays) arrive at once; idle = ~6 requests a minute
 })();

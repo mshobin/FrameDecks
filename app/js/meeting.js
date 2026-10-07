@@ -10,15 +10,18 @@ var NAMES = {question: 'Question', verse: 'Verse', birthday: 'Birthday'};
 var Status = window.BSFStatus = {remote: null, presence: null, subs: {},
   on: function(k, f){ (this.subs[k] = this.subs[k] || []).push(f); if (this[k]) f(this[k]); },
   set: function(k, v){ this[k] = v; (this.subs[k] || []).forEach(function(f){ try { f(v); } catch(e){} }); }};
+/* The header lights and Settings share these two checks (one request each, never duplicated). Minimised:
+ * they slow right down (Store.pace). With Settings > Phone & iPad Remote open, the network check is fresh. */
 function poll(url, key, every){
   function go(){
-    fetch(url, {cache: 'no-store'}).then(function(r){ if (!r.ok) throw 0; return r.json(); })
-      .then(function(d){ Status.set(key, d); }).catch(function(){}).then(function(){ setTimeout(go, every); });
+    var u = typeof url === 'function' ? url() : url;
+    fetch(u, {cache: 'no-store'}).then(function(r){ if (!r.ok) throw 0; return r.json(); })
+      .then(function(d){ Status.set(key, d); }).catch(function(){}).then(function(){ setTimeout(go, Store.pace(every)); });
   }
   go();
 }
 if (Store.served){
-  poll('api/remote-info', 'remote', 3000);
+  poll(function(){ var s = $('sec-ipad'); return 'api/remote-info' + (s && !s.hidden && document.body.dataset.tab === 'settings' ? '?fresh=1' : ''); }, 'remote', 3000);
   poll('api/presence', 'presence', 4000);
 }
 
@@ -175,9 +178,12 @@ function badges(){ Array.prototype.forEach.call(document.querySelectorAll('kbd[d
 badges(); if (SC) SC.onChange(badges);
 
 /* ---------- Header health chips ---------- */
-function chip(id, cls, text, title){
+function chip(id, cls, text, title){                    // touches the page only when something changed
   var c = $(id); if (!c) return;
-  c.className = 'hchip ' + (cls || ''); c.querySelector('b').textContent = text; if (title) c.title = title;
+  var k = 'hchip ' + (cls || ''), b = c.querySelector('b');
+  if (c.className !== k) c.className = k;
+  if (b.textContent !== text) b.textContent = text;
+  if (title && c.title !== title) c.title = title;
 }
 function renderProgram(){
   if (!Store.served) chip('h-program', 'info', 'No-install mode', 'Overlays update only in this browser. Start the program for OBS, Camo and the phone remote.');
@@ -236,6 +242,6 @@ function pullLive(){
 if (Store.served) setTimeout(pullLive, 1500);
 
 Store.subscribe(function(st){ live = st; render(); });
-setInterval(function(){ if (!document.hidden) render(); }, 2000);   // picks up list edits, birthday candidate and day changes
+setInterval(function(){ if (!document.hidden) render(); }, 10000);  // safety net: birthday candidate and day changes (edits arrive through Store)
 setTimeout(fit, 0); setTimeout(fit, 400);
 })();

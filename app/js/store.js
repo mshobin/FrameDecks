@@ -169,7 +169,9 @@ function emit(){ listeners.forEach(function(fn){ try { fn(state); } catch(e){ co
 function pace(ms){ return document.hidden ? Math.max(ms * 8, 3000) : ms; }
 var loopT = null;
 document.addEventListener('visibilitychange', function(){
-  if (!document.hidden && loopT !== null && served && !shared){ clearTimeout(loopT); serverLoop(); }
+  if (document.hidden || !served || shared) return;
+  if (longPoll){ if (started) restartLongLoop(); }    // back from the lock screen: fresh state at once
+  else if (loopT !== null){ clearTimeout(loopT); serverLoop(); }
 });
 /* Previews embedded in the dashboard (same app, same address) use the dashboard's copy of the state
  * instead of asking the program themselves: one check loop per window instead of several. */
@@ -201,16 +203,58 @@ function serverLoop(){
     .then(function(){ loopT = setTimeout(serverLoop, pace(300)); })
     .catch(function(){ Store.online = false; loopT = setTimeout(serverLoop, pace(1500)); });
 }
+/* Event-driven mode (the phone remote, on its own device): one request waits at the program until something
+ * changes, so a change arrives at once and an idle remote makes about 6 requests a minute instead of 200.
+ * Short waits (10 s) keep "connected / reconnecting" honest on a phone whose Wi-Fi drops silently. */
+var longPoll = false, lpAbort = null;
+/* The program says which revision last changed the question/verse library; while ours is current, requests leave
+ * the library out (it can be large) and answers without it keep the one we have. */
+var libRev = null;
+function adopt(data){
+  if (data && data.libraryOmitted) data.library = state.library;
+  if (data && data.libraryRev != null) libRev = data.libraryRev;
+  return normalize(data);
+}
+function longLoop(){
+  loopT = null;
+  var ctl = window.AbortController ? new AbortController() : null, guard = null;
+  lpAbort = ctl;
+  if (ctl) guard = setTimeout(function(){ ctl.abort(); }, 15000);
+  var q = started ? '?since=' + encodeURIComponent(state.rev) + '&wait=10' + (libRev != null ? '&librev=' + encodeURIComponent(libRev) : '') : '';
+  fetch('api/state' + q, {cache: 'no-store', signal: ctl ? ctl.signal : undefined})
+    .then(function(r){ if (r.status === 401 || r.status === 403){ Store.authFailed = true; if (Store.onAuthFailed) Store.onAuthFailed(); } if (!r.ok) throw new Error(r.status); Store.authFailed = false; return r.json(); })
+    .then(function(data){
+      clearTimeout(guard); Store.online = true;
+      var next = adopt(data), changed = !started || next.rev !== state.rev;
+      started = true; if (changed){ state = next; emit(); }
+      if (lpAbort === ctl) loopT = setTimeout(longLoop, 0);
+    })
+    .catch(function(){
+      clearTimeout(guard);
+      if (lpAbort !== ctl) return;                 // replaced by a fresh loop (page shown again)
+      Store.online = false; loopT = setTimeout(longLoop, 1500);
+    });
+}
+function restartLongLoop(){
+  clearTimeout(loopT); loopT = null;
+  var old = lpAbort; lpAbort = null;
+  if (old) try { old.abort(); } catch(e){}
+  longLoop();
+}
+
 function serverSave(next, baseRev){
   var body = baseRev === undefined ? next : Object.assign({}, next, {baseRev: baseRev});
+  if (baseRev !== undefined && libRev != null && JSON.stringify(next.library) === JSON.stringify(state.library)){
+    body = Object.assign({}, body, {keepLibrary: true}); delete body.library;     // unchanged: don't send it again
+  }
   return fetch('api/state', {
     method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body)
   }).then(function(r){
-    if (r.status === 409) return r.json().then(function(d){ state = normalize(d); emit(); var e = new Error('conflict'); e.conflict = true; throw e; });
+    if (r.status === 409) return r.json().then(function(d){ state = adopt(d); emit(); var e = new Error('conflict'); e.conflict = true; throw e; });
     if (r.status === 401 || r.status === 403){ var a = new Error('signed out'); a.auth = true; throw a; }
     if (!r.ok) throw new Error(r.status);
     return r.json();
-  }).then(function(data){ state = normalize(data); emit(); return state; });
+  }).then(function(data){ state = adopt(data); emit(); return state; });
 }
 
 /* ---------- No-install mode ---------- */
@@ -258,7 +302,11 @@ var Store = {
     }
     return attempt();
   },
-  start: function(){ if (served){ if (!shareParent()) serverLoop(); } else fileStart(); },
+  /* opts.longPoll: event-driven updates (used by the phone remote) */
+  start: function(opts){
+    if (served){ if (!shareParent()){ longPoll = !!(opts && opts.longPoll); if (longPoll) longLoop(); else serverLoop(); } }
+    else fileStart();
+  },
   pace: pace,
   /* Fetch the BCC vCam preview only when it's new: the program answers "not modified" for a picture this
    * screen already has, so nothing is downloaded, decoded or redrawn. tag = {etag} remembered per screen. */
