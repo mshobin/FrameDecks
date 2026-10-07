@@ -116,12 +116,16 @@ function renderPerf(){
     box = h('section', {cls: 'box', id: 'app-perf', 'aria-labelledby': 'app-perf-title'}, [
       h('div', {cls: 'box-head'}, [h('h2', {id: 'app-perf-title', text: 'Performance'})]),
       h('label', {cls: 'check'}, [cb, ' Light on graphics card (recommended)']),
+      h('label', {cls: 'check'}, [(function(){ var c = h('input', {type: 'checkbox', id: 'app-native-present'});
+        c.addEventListener('change', function(){ post('settings', {nativePresent: c.checked}).then(function(){ toast(c.checked ? 'Lightweight Presentation window on (next time you open it)' : 'Presentation window will use the web view (next time you open it)'); refresh(); }); });
+        return c; })(), ' Lightweight Presentation window (recommended; untick if it ever misbehaves)']),
       h('p', {cls: 'hint', text: 'Draws this window without the graphics card, so Windows, Zoom and app switching stay smooth. Turn it off only if this window ever looks wrong. Takes effect after restarting the app.'}),
       h('p', {cls: 'hint', id: 'app-lowgpu-state'})]);
     sec.appendChild(box);
   }
   var want = info.settings.lowGpu !== false;
   $('app-lowgpu').checked = want;
+  $('app-native-present').checked = info.settings.nativePresent !== false;
   $('app-lowgpu-state').textContent = 'Now: ' + (info.lowGpuActive ? 'on' : 'off') + (want !== !!info.lowGpuActive ? ' (restart the app to apply your change)' : '');
 }
 function refresh(){ return getInfo().then(function(d){ info = d; window.BSFAppInfo = d; renderDataCard(); renderAbout(); renderPerf(); document.dispatchEvent(new CustomEvent('bsf-app-info', {detail: d})); return d; }); }

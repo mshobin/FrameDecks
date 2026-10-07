@@ -329,3 +329,14 @@ Report after 4.4: "Microsoft Edge WebView2" still used ~90 % GPU, including the 
   own argument is kept). The dashboard is mostly static after 4.4, so CPU drawing is cheap.
 * Verified here with a simulated Win32 layer (message flow, painting, hit-testing, full screen, close) and the
   desktop app with stand-in window/tray libraries; real Windows behaviour must be confirmed on the PC.
+
+## 15. Version 4.5.1: second-open crash fixed
+
+Opening the native Presentation window a second time crashed the app. Cause: each window registered the window
+class with its own handler; Windows keeps the first registration (the second RegisterClassEx fails), so the new
+window was driven by the first window's handler, which had already been freed → access violation. Fix: one window
+class with one permanent handler for the app's lifetime (`_route`), which forwards each message to the window it
+belongs to (by handle); windows register on creation and are removed on WM_NCDESTROY / end of their loop.
+Verified with a simulated Win32 layer that behaves like Windows here (second registration fails): 2nd and 3rd
+opens, closing from the app, 5 rapid open/close cycles. New safety switch `nativePresent` (Settings > General >
+Performance) to fall back to the WebView2 Presentation window.

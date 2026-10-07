@@ -1,5 +1,5 @@
 ================================================================
-  BSF COMMAND CENTER  ·  version 4.5
+  BSF COMMAND CENTER  ·  version 4.5.1
   Clean Bible study overlays for BSF leaders on Zoom.
 ================================================================
 
@@ -134,6 +134,10 @@ WHAT'S NEW IN VERSION 3 (the meeting control console)
   - Stream Deck support has been removed.
 
   Small changes you may notice
+  - 4.5.1: fixed a crash when the Presentation window was opened a second
+    time. Settings > General > Performance also has "Lightweight
+    Presentation window": untick it if that window ever misbehaves (the
+    previous, web-based Presentation window is used instead).
   - New in 4.5 (much lighter on the graphics card):
       * The Presentation window is now a plain Windows window: no web
         browser engine inside it at all. It draws the finished picture

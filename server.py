@@ -28,7 +28,7 @@ from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from pathlib import Path
 from urllib.parse import urlparse, parse_qs, unquote
 
-APP_VERSION = "4.5"
+APP_VERSION = "4.5.1"
 STARTED_AT = time.time()
 FROZEN = getattr(sys, "frozen", False)          # True inside the installed Windows app
 HERE = Path(sys.executable).resolve().parent if FROZEN else Path(__file__).resolve().parent
@@ -366,7 +366,8 @@ def _remote_watcher():
 # ---------- Installed-app settings, backups and importing old data ----------
 DESKTOP = {"active": False}  # filled in by desktop_app.py (show/hide/quit/choose_folder hooks)
 APP_SETTINGS_DEFAULTS = {"remoteAutostart": False, "importDecided": False,
-                         "lowGpu": True}     # draw the app window without the graphics card (keeps Windows smooth)
+                         "lowGpu": True,     # draw the app window without the graphics card (keeps Windows smooth)
+                         "nativePresent": True}   # Presentation window without a browser engine (off = WebView2 window)
 
 
 def app_settings():

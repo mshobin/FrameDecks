@@ -151,6 +151,27 @@ def to_bgra(frame):
 
 
 # ---------------------------------------------------------------- the Windows window
+# Windows keeps ONE handler per window class for the life of the process. So the class is registered once with a
+# permanent handler that forwards each message to the Presentation window it belongs to (looked up by its handle).
+# (Registering a per-window handler made the second window use the first window's freed handler -> crash.)
+_CLASS = {"registered": False, "proc": None, "wndproc_type": None, "windows": {}, "creating": None, "lock": threading.Lock()}
+CLASS_NAME = "BSFPresentationWindow"
+
+
+def _route(hwnd, msg, wp, lp):
+    """The permanent window procedure: hand the message to the right Presentation window."""
+    inst = _CLASS["windows"].get(hwnd)
+    if inst is None and _CLASS["creating"] is not None:      # messages sent during CreateWindowEx, before we know hwnd
+        inst = _CLASS["creating"]
+        _CLASS["windows"][hwnd] = inst
+    if msg == 0x0082:                                         # WM_NCDESTROY: the window is gone for good
+        _CLASS["windows"].pop(hwnd, None)
+    if inst is not None and inst._handler is not None:
+        return inst._handler(hwnd, msg, wp, lp)
+    import ctypes
+    return ctypes.windll.user32.DefWindowProcW(hwnd, msg, wp, lp)
+
+
 class NativePresentation:
     """Opens the window on its own thread. close(), set_fullscreen() and is_open() are safe from any thread."""
 
@@ -167,6 +188,7 @@ class NativePresentation:
         self.alive = True
         self.error = None
         self.ready = threading.Event()
+        self._handler = None
         threading.Thread(target=self._window_thread, name="bcc-present-window", daemon=True).start()
         if not self.ready.wait(6) or self.error:
             self.alive = False
@@ -247,7 +269,10 @@ class NativePresentation:
         u32, g32, k32 = ctypes.windll.user32, ctypes.windll.gdi32, ctypes.windll.kernel32
         self._u32 = u32
         LRESULT = ctypes.c_ssize_t
-        WNDPROC = ctypes.WINFUNCTYPE(LRESULT, W.HWND, W.UINT, W.WPARAM, W.LPARAM)
+        with _CLASS["lock"]:
+            if _CLASS["wndproc_type"] is None:
+                _CLASS["wndproc_type"] = ctypes.WINFUNCTYPE(LRESULT, W.HWND, W.UINT, W.WPARAM, W.LPARAM)
+        WNDPROC = _CLASS["wndproc_type"]
 
         class WNDCLASSEXW(ctypes.Structure):
             _fields_ = [("cbSize", W.UINT), ("style", W.UINT), ("lpfnWndProc", WNDPROC), ("cbClsExtra", ctypes.c_int),
@@ -460,17 +485,22 @@ class NativePresentation:
                 print("Presentation window:", repr(e))
             return u32.DefWindowProcW(hwnd, msg, wp, lp)
 
-        self._proc = WNDPROC(wndproc)                       # keep a reference for the window's lifetime
+        self._handler = wndproc                             # this window's handler (reached through _route)
         hinst = k32.GetModuleHandleW(None)
-        wc = WNDCLASSEXW()
-        wc.cbSize = ctypes.sizeof(WNDCLASSEXW)
-        wc.style = 0x0008 | 0x0001 | 0x0002                 # CS_DBLCLKS | CS_VREDRAW | CS_HREDRAW
-        wc.lpfnWndProc = self._proc
-        wc.hInstance = hinst
-        wc.hCursor = u32.LoadCursorW(None, ctypes.c_void_p(32512))   # IDC_ARROW
-        wc.hbrBackground = g32.GetStockObject(4)            # BLACK_BRUSH
-        wc.lpszClassName = "BSFPresentationWindow"
-        u32.RegisterClassExW(ctypes.byref(wc))              # (fails harmlessly if already registered)
+        with _CLASS["lock"]:
+            if not _CLASS["registered"]:                    # once per app run; the handler is kept forever
+                _CLASS["proc"] = WNDPROC(_route)
+                wc = WNDCLASSEXW()
+                wc.cbSize = ctypes.sizeof(WNDCLASSEXW)
+                wc.style = 0x0008 | 0x0001 | 0x0002         # CS_DBLCLKS | CS_VREDRAW | CS_HREDRAW
+                wc.lpfnWndProc = _CLASS["proc"]
+                wc.hInstance = hinst
+                wc.hCursor = u32.LoadCursorW(None, ctypes.c_void_p(32512))   # IDC_ARROW
+                wc.hbrBackground = g32.GetStockObject(4)    # BLACK_BRUSH
+                wc.lpszClassName = CLASS_NAME
+                if not u32.RegisterClassExW(ctypes.byref(wc)):
+                    raise OSError(f"RegisterClassEx failed ({k32.GetLastError()})")
+                _CLASS["registered"] = True
         try:
             u32.GetDpiForSystem.restype = W.UINT
             s = max(1.0, u32.GetDpiForSystem() / 96.0)
@@ -480,9 +510,16 @@ class NativePresentation:
         h = int(w * 9 / 16)
         x, y = (u32.GetSystemMetrics(0) - w) // 2, (u32.GetSystemMetrics(1) - h) // 2
         WS_POPUP, WS_THICKFRAME, WS_MINIMIZEBOX, WS_VISIBLE = 0x80000000, 0x00040000, 0x00020000, 0x10000000
-        self.hwnd = u32.CreateWindowExW(0x00040000, wc.lpszClassName, TITLE,           # WS_EX_APPWINDOW: on the taskbar
-                                        WS_POPUP | WS_THICKFRAME | WS_MINIMIZEBOX | WS_VISIBLE,
-                                        x, y, w, h, None, None, hinst, None)
+        with _CLASS["lock"]:                                # only one window is created at a time
+            _CLASS["creating"] = self
+            try:
+                self.hwnd = u32.CreateWindowExW(0x00040000, CLASS_NAME, TITLE,          # WS_EX_APPWINDOW: on the taskbar
+                                                WS_POPUP | WS_THICKFRAME | WS_MINIMIZEBOX | WS_VISIBLE,
+                                                x, y, w, h, None, None, hinst, None)
+            finally:
+                _CLASS["creating"] = None
+        if self.hwnd:
+            _CLASS["windows"][self.hwnd] = self
         if not self.hwnd:
             raise OSError(f"CreateWindowEx failed ({k32.GetLastError()})")
         u32.SetWindowPos(self.hwnd, None, 0, 0, 0, 0, 0x0001 | 0x0002 | 0x0004 | 0x0020)   # apply the frameless style
@@ -492,3 +529,7 @@ class NativePresentation:
         while u32.GetMessageW(ctypes.byref(msg), None, 0, 0) > 0:
             u32.TranslateMessage(ctypes.byref(msg))
             u32.DispatchMessageW(ctypes.byref(msg))
+        for k, v in list(_CLASS["windows"].items()):
+            if v is self:
+                _CLASS["windows"].pop(k, None)
+        self._handler = None

@@ -313,7 +313,7 @@ def main():
                     pass
             state["present"] = None
         comp, eng = server.VCAM.get("compositor"), server.VCAM.get("engine")
-        if comp and eng:
+        if comp and eng and server.app_settings().get("nativePresent", True):
             try:
                 state["present"] = NativePresentation(
                     comp, eng.keep_awake, lambda: server.vcam_settings().get("presentFps", 15), server.APP / "fonts",
