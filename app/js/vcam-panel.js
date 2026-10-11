@@ -62,31 +62,51 @@ segButtons(resSeg, [['720p', '720p (recommended)'], ['1080p', '1080p']], 'resolu
 segButtons(presSeg, [[15, 'Standard · 15 fps (recommended)'], [30, 'Smooth · 30 fps']], 'presentFps');
 /* Background blur: presets + 0-100 % slider. Changes apply live for this session; "Save as default" keeps them. */
 var BLUR_PRESETS = [['off', 'Off', 0], ['light', 'Light', 30], ['medium', 'Medium', 55], ['strong', 'Strong', 80], ['maximum', 'Maximum', 100]];
-var BLUR_MIN = 0.1, BLUR_MAX = 100, BLUR_STEP = 0.1;     // strength in 0.1 % steps; 0 = Off (preset)
-var blurRange = h('input', {type: 'range', min: String(BLUR_MIN), max: String(BLUR_MAX), step: String(BLUR_STEP), value: String(BLUR_MIN), id: 'vcam-blur-range', 'aria-label': 'Blur strength'});
+/* Strength 0.001 … 100 % in 0.001 steps (v4.9). Values are kept as whole thousandths (integers) while being
+ * adjusted, so repeated +/- never drift (0.1 + 0.2 style float errors). The slider is curved: half its travel
+ * covers 0 - 25 %, where subtle, natural-looking settings live; the box takes an exact value. */
+var BLUR_MIN = 0.001, BLUR_MAX = 100, BLUR_STEP = 0.001;
+function milli(n){ return Math.round(Number(n) * 1000); }
+var blurRange = h('input', {type: 'range', min: '0', max: '1', step: '0.0001', value: '0', id: 'vcam-blur-range', 'aria-label': 'Blur strength',
+  'aria-valuemin': '0', 'aria-valuemax': '100'});
 var blurVal = h('span', {cls: 'val', id: 'vcam-blur-val', text: 'Off'});
-var blurDown = h('button', {cls: 'btn small', type: 'button', id: 'vcam-blur-down', text: '−', 'aria-label': 'Less blur (0.1 %)'});
-var blurUp = h('button', {cls: 'btn small', type: 'button', id: 'vcam-blur-up', text: '+', 'aria-label': 'More blur (0.1 %)'});
-function fmtBlur(n){ return n > 0 ? (Math.abs(n - Math.round(n)) > 1e-9 ? n.toFixed(1) : String(Math.round(n))) + '%' : 'Off'; }
-function snapBlur(n){ n = Math.round(Number(n) * 10) / 10; return n <= 0 ? 0 : Math.max(BLUR_MIN, Math.min(BLUR_MAX, n)); }   // 0.1 % steps
-var blurNowVal = 0;
+var blurNum = h('input', {type: 'number', min: '0', max: '100', step: String(BLUR_STEP), inputmode: 'decimal', id: 'vcam-blur-num', 'aria-label': 'Blur strength in percent (0.001 steps)', cls: 'blur-num'});
+var blurDown = h('button', {cls: 'btn small', type: 'button', id: 'vcam-blur-down', text: '−', 'aria-label': 'Less blur (0.001 %; Shift: 0.1 %)', title: '0.001 % (Shift: 0.1 %)'});
+var blurUp = h('button', {cls: 'btn small', type: 'button', id: 'vcam-blur-up', text: '+', 'aria-label': 'More blur (0.001 %; Shift: 0.1 %)', title: '0.001 % (Shift: 0.1 %)'});
+function fmtNum(n){ return (milli(n) / 1000).toFixed(3).replace(/\.?0+$/, ''); }
+function fmtBlur(n){ return n > 0 ? fmtNum(n) + '%' : 'Off'; }
+function snapBlur(n){ var m = milli(n); return !isFinite(m) || m <= 0 ? 0 : Math.max(1, Math.min(100000, m)) / 1000; }   // 0.001 % steps
+function toPos(n){ return Math.sqrt(Math.max(0, n) / 100); }          // strength -> slider position (curved)
+function fromPos(x){ return snapBlur(100 * x * x); }
+var blurNowVal = 0, blurLocalAt = 0;      // a value just set here wins over status checks still on their way
+var styleSeg = h('div', {cls: 'seg', id: 'vcam-blur-style'});
+[['natural', 'Natural'], ['classic', 'Classic']].forEach(function(o){
+  styleSeg.appendChild(h('button', {type: 'button', 'data-val': o[0], text: o[1], onclick: function(){ save('blurStyle', o[0]); }}));
+});
 var blurSave = h('button', {cls: 'btn small', type: 'button', id: 'vcam-blur-save', text: 'Save as default'});
 var blurNote = h('span', {cls: 'hint', id: 'vcam-blur-note'});
 var blurT = null;
 BLUR_PRESETS.forEach(function(p){
   blurSeg.appendChild(h('button', {type: 'button', 'data-val': String(p[2]), text: p[1], onclick: function(){ tryBlur(p[2]); }}));
 });
-function tryBlur(n){
+function tryBlur(n, from){
   n = snapBlur(n); blurNowVal = n;
-  blurRange.value = Math.max(BLUR_MIN, n); blurVal.textContent = fmtBlur(n); markBlur(n);
+  if (from !== 'range') blurRange.value = toPos(n);
+  if (from !== 'num') blurNum.value = fmtNum(n);
+  blurVal.textContent = fmtBlur(n); markBlur(n);
   if (!previewing) previewBtn.click();                        // live preview of the effect
   clearTimeout(blurT);
+  blurLocalAt = Date.now();
   blurT = setTimeout(function(){ post('settings', {session: true, blurStrength: n}).then(render); }, 120);
 }
-function markBlur(n){ Array.prototype.forEach.call(blurSeg.children, function(b){ b.setAttribute('aria-pressed', String(+b.dataset.val === n)); }); }
-blurRange.addEventListener('input', function(){ tryBlur(+blurRange.value); });
-blurDown.addEventListener('click', function(){ tryBlur(blurNowVal > 0 ? Math.max(BLUR_MIN, Math.round((blurNowVal - BLUR_STEP) * 10) / 10) : BLUR_MIN); });
-blurUp.addEventListener('click', function(){ tryBlur(blurNowVal > 0 ? Math.round((blurNowVal + BLUR_STEP) * 10) / 10 : BLUR_MIN); });
+function markBlur(n){ Array.prototype.forEach.call(blurSeg.children, function(b){ b.setAttribute('aria-pressed', String(milli(b.dataset.val) === milli(n))); });
+  blurRange.setAttribute('aria-valuenow', String(n)); blurRange.setAttribute('aria-valuetext', fmtBlur(n)); }
+blurRange.addEventListener('input', function(){ tryBlur(fromPos(+blurRange.value), 'range'); });
+blurNum.addEventListener('input', function(){ if (blurNum.value !== '' && isFinite(+blurNum.value)) tryBlur(Math.min(100, Math.max(0, +blurNum.value)), 'num'); });
+blurNum.addEventListener('change', function(){ tryBlur(Math.min(100, Math.max(0, +blurNum.value || 0))); });   // tidy the box (e.g. 12.34567 -> 12.346)
+function nudge(sign, big){ var m = milli(blurNowVal) + sign * (big ? 100 : 1); tryBlur(Math.max(sign < 0 && blurNowVal > 0 ? 1 : 0, m) / 1000); }
+blurDown.addEventListener('click', function(e){ nudge(-1, e.shiftKey); });
+blurUp.addEventListener('click', function(e){ nudge(1, e.shiftKey); });
 blurSave.addEventListener('click', function(){
   post('settings', {saveBlurDefault: true}).then(render).then(function(){ toast('Background blur ' + fmtBlur(blurNowVal) + ' saved as the default'); });
 });
@@ -241,7 +261,9 @@ var settingsBox = h('section', {cls: 'box'}, [
   h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'Presentation window'}), presSeg]),
   h('div', {cls: 'row'}, [h('span', {cls: 'lbl'}), h('span', {cls: 'hint', text: 'Standard is plenty for sharing in Zoom and keeps Windows smooth. Use Smooth only for fast motion.'})]),
   h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'Background blur'}), blurSeg]),
-  h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'Blur strength'}), blurDown, h('div', {cls: 'range'}, [blurRange, blurVal]), blurUp]),
+  h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'Blur strength'}), h('div', {cls: 'blur-ctl'}, [blurDown, h('div', {cls: 'range'}, [blurRange, blurVal]), blurUp, blurNum, h('span', {cls: 'hint', text: '%'})])]),
+  h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'Blur style'}), styleSeg]),
+  h('div', {cls: 'row'}, [h('span', {cls: 'lbl'}), h('span', {cls: 'hint', text: 'Natural softens the background like a camera lens focused on you - no halo around you, and settings below 10 % stay subtle. Classic is the look of earlier versions.'})]),
   h('div', {cls: 'row'}, [h('span', {cls: 'lbl'}), blurSave, blurNote]),
   h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'Mirror'}), h('label', {cls: 'check'}, [mirror, ' Flip left-right (only your camera picture; text stays readable)'])]),
   h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'Cards'}), h('label', {cls: 'check'}, [cardsCb, ' Show my verse, question and birthday cards on BCC vCam'])]),
@@ -298,13 +320,16 @@ function render(d){
   if ($('mt-look-wrap')) $('mt-look-wrap').hidden = false;
   Array.prototype.forEach.call(resSeg.children, function(b){ b.setAttribute('aria-pressed', String(b.dataset.val === s.resolution)); });
   var now = d.blurNow == null ? (s.blurStrength || 0) : d.blurNow, saved = s.blurStrength || 0;
-  if (document.activeElement !== blurRange){ blurNowVal = now; blurRange.value = Math.max(BLUR_MIN, now); blurVal.textContent = fmtBlur(now); }
+  if (document.activeElement !== blurRange && document.activeElement !== blurNum && milli(now) !== milli(blurNowVal) && Date.now() - blurLocalAt > 1500){
+    blurNowVal = now; blurRange.value = toPos(now); blurNum.value = fmtNum(now); blurVal.textContent = fmtBlur(now);
+  } else if (blurNum.value === '' && document.activeElement !== blurNum){ blurNum.value = fmtNum(blurNowVal); blurRange.value = toPos(blurNowVal); }
   markBlur(blurNowVal);
+  Array.prototype.forEach.call(styleSeg.children, function(b){ b.setAttribute('aria-pressed', String(b.dataset.val === (s.blurStyle || 'natural'))); });
   Array.prototype.forEach.call(presSeg.children, function(b){ b.setAttribute('aria-pressed', String(+b.dataset.val === (s.presentFps || 15))); });
-  blurDown.disabled = blurNowVal > 0 && blurNowVal <= BLUR_MIN; blurUp.disabled = blurNowVal >= BLUR_MAX;
-  blurSave.disabled = now === saved;
+  blurDown.disabled = blurNowVal <= 0; blurUp.disabled = blurNowVal >= BLUR_MAX;
+  blurSave.disabled = milli(now) === milli(saved);
   var name = function(n){ var p = BLUR_PRESETS.filter(function(x){ return x[2] === n; })[0]; return p ? p[1] + (n ? ' (' + fmtBlur(n) + ')' : '') : fmtBlur(n); };
-  blurNote.textContent = now === saved ? 'Default: ' + name(saved) : 'Trying ' + name(now) + ' · default is ' + name(saved) + ' (not saved yet)';
+  blurNote.textContent = milli(now) === milli(saved) ? 'Default: ' + name(saved) : 'Trying ' + name(now) + ' · default is ' + name(saved) + ' (not saved yet)';
   var cams = d.cameras || [], sig = JSON.stringify(cams);
   if (camSel.dataset.sig !== sig){
     camSel.dataset.sig = sig; camSel.innerHTML = '';

@@ -254,6 +254,7 @@ function buildTransitionExtras(){
 }
 function refreshTransitionExtras(){
   if (!live) return;
+  if (!controlsVisible()){ controlsDirty = true; return; }       // hidden: done when Content / Settings opens
   ['verse', 'question'].forEach(function(kind){
     var o = live[kind];
     document.querySelector('[data-rand="' + kind + '"]').checked = o.random;
@@ -266,6 +267,7 @@ function refreshTransitionExtras(){
   });
 }
 function refreshSegs(){
+  if (!controlsVisible()){ controlsDirty = true; return; }       // hidden: done when Content / Settings opens
   Array.prototype.forEach.call(document.querySelectorAll('[data-seg]'), function(seg){
     var key = seg.dataset.seg, kind = seg.dataset.kind;
     var cur = kind ? drafts[kind][key] : (live ? live.layout[key] : '');
@@ -290,12 +292,20 @@ function itemPicker(kind, it){
   });
   return sel;
 }
-var listSig = '';
+var listSig = '', libSig = '', libObj = null, listsBuilt = '';
+/* The Content view's lists. Hidden (any other view): nothing is drawn now - they are drawn when Content opens
+ * (window.BSFRenderLists). Only the "loaded"/"on screen" item changed: just those rows are redrawn. A full
+ * rebuild happens only when the list itself changes. With 1,000 items a step went from ~0.7 s to a few ms. */
 function renderLists(){
-  var sig = JSON.stringify([live.library, drafts.verse.itemId, drafts.question.itemId,
-    isOn('verse') && live.verse.itemId, isOn('question') && live.question.itemId]);
+  if (live.library !== libObj){ libObj = live.library; libSig = JSON.stringify(live.library); }
+  var sig = JSON.stringify([libSig.length, drafts.verse.itemId, drafts.question.itemId,
+    isOn('verse') && live.verse.itemId, isOn('question') && live.question.itemId]) + libSig;
   if (sig === listSig) return;
-  listSig = sig;
+  var panel = $('tab-overlays');
+  if (panel && panel.hidden && listsBuilt){ listsDirty = true; refreshSaveButtons(); return; }
+  listSig = sig; listsDirty = false;
+  if (listsBuilt === libSig){ patchListRows(); refreshSaveButtons(); return; }
+  listsBuilt = libSig;
   ['verse', 'question'].forEach(function(kind){
     var ol = $(kind === 'verse' ? 'v-items' : 'q-items');
     var items = list(kind);
@@ -303,11 +313,43 @@ function renderLists(){
     $(kind === 'verse' ? 'v-list-title' : 'q-list-title').textContent =
       (kind === 'verse' ? 'Saved verses' : 'Question list') + ' (' + items.length + ')';
     ol.innerHTML = '';
-    items.forEach(function(it, i){
+    var frag = document.createDocumentFragment();
+    items.forEach(function(it, i){ frag.appendChild(listRow(kind, it, i, items, liveId)); });
+    ol.appendChild(frag);
+    if (kind === 'question'){
+      Array.prototype.forEach.call(ol.querySelectorAll('.t1'), function(s){
+        s.style.cssText = 'display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-weight:500';
+      });
+    }
+  });
+  refreshSaveButtons();
+}
+var listsDirty = false;
+window.BSFRenderLists = function(){
+  if (!live) return;
+  if (controlsDirty){ controlsDirty = false; refreshSegs(); refreshRanges(); }
+  if (listsDirty){ listSig = ''; renderLists(); }
+};
+/* Only the loaded / on-screen markers changed: redraw just the rows whose state differs */
+function patchListRows(){
+  ['verse', 'question'].forEach(function(kind){
+    var ol = $(kind === 'verse' ? 'v-items' : 'q-items'), items = list(kind), liveId = isOn(kind) ? live[kind].itemId : null;
+    Array.prototype.forEach.call(ol.children, function(li, i){
+      var it = items[i]; if (!it) return;
+      var cls = 'item' + (it.id === liveId ? ' live' : '') + (it.id === drafts[kind].itemId ? ' loaded' : '');
+      if (li.className !== cls){
+        var nl = listRow(kind, it, i, items, liveId);
+        if (kind === 'question'){ var s = nl.querySelector('.t1'); if (s) s.style.cssText = 'display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-weight:500'; }
+        ol.replaceChild(nl, li);
+      }
+    });
+  });
+}
+function listRow(kind, it, i, items, liveId){
       var t1 = kind === 'verse' ? ((it.ref || 'Untitled verse') + (it.version ? ' · ' + it.version : '')) : it.text;
       var t2 = kind === 'verse' ? it.text.replace(/\s+/g, ' ') : '';
       var cls = 'item' + (it.id === liveId ? ' live' : '') + (it.id === drafts[kind].itemId ? ' loaded' : '');
-      ol.appendChild(h('li', {'class': cls}, [
+      return (h('li', {'class': cls}, [
         h('span', {'class': 'num', text: String(i + 1)}),
         h('button', {'class': 'txt', type: 'button', title: 'Load into the editor', onclick: function(){ loadItem(kind, it); }}, [
           h('span', {'class': 't1', text: t1}), t2 ? h('span', {'class': 't2', text: t2}) : null
@@ -324,14 +366,6 @@ function renderLists(){
             onclick: function(){ removeItem(kind, it); }})
         ])
       ]));
-    });
-    if (kind === 'question'){
-      Array.prototype.forEach.call(ol.querySelectorAll('.t1'), function(s){
-        s.style.cssText = 'display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-weight:500';
-      });
-    }
-  });
-  refreshSaveButtons();
 }
 
 /* ---------- Layout controls ---------- */
@@ -582,7 +616,13 @@ function setup(){
 Store.subscribe(function(st){
   live = JSON.parse(JSON.stringify(st));
   if (!drafts){ initDrafts(live); setup(); fillEditors(); }
-  refreshStatus(); refreshSegs(); refreshRanges(); renderLists(); refreshMode();
+  refreshStatus();
+  // The effect/layout controls live in Content and Settings > Overlays: refreshed when one of them is open,
+  // otherwise when it opens (BSFRenderLists) - every Next/Show during a meeting skips this work.
+  if (controlsVisible()){ refreshSegs(); refreshRanges(); controlsDirty = false; } else controlsDirty = true;
+  renderLists(); refreshMode();
 });
+var controlsDirty = false;
+function controlsVisible(){ var a = $('tab-overlays'), s = $('tab-settings'); return (a && !a.hidden) || (s && !s.hidden); }
 Store.start({longPoll: true});   // changes (phone remote, overlays) arrive at once; idle = ~6 requests a minute
 })();

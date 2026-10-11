@@ -7,6 +7,13 @@
 <link rel="stylesheet" href="css/dashboard.css">
 <link rel="stylesheet" href="css/members.css">
 <link rel="stylesheet" href="css/console.css">
+<link rel="stylesheet" href="css/theme.css">
+<script>/* Appearance before the first paint (Settings > General > Appearance): dark (default), light or match Windows */
+(function(){ var d = document.documentElement, p = 'dark';
+  try { p = localStorage.getItem('bsf-cc-theme') || 'dark'; } catch(e){}
+  d.dataset.themePref = p;
+  d.dataset.theme = p === 'system' ? (window.matchMedia && matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark') : (p === 'light' ? 'light' : 'dark');
+})();</script>
 </head>
 <body>
 
@@ -29,8 +36,7 @@
 <div class="reminder" id="bday-reminder" role="status" hidden></div>
 
 <nav class="tabs" role="tablist" aria-label="Sections">
-  <button class="tab grp" role="tab" type="button" id="grp-meetings" data-group="meetings" data-tab="meeting" aria-selected="true"><i data-icon="calendar-days"></i>Meetings &amp; Content <kbd>Alt+1</kbd></button>
-  <button class="tab grp" role="tab" type="button" id="tabbtn-studio" data-group="studio" data-tab="studio" aria-selected="false"><i data-icon="clapperboard"></i>Studio <kbd>Alt+2</kbd></button>
+  <button class="tab grp" role="tab" type="button" id="grp-studio" data-group="studio" data-tab="meeting" aria-selected="true"><i data-icon="clapperboard"></i>Studio <kbd>Alt+1</kbd></button>
   <button class="tab grp" role="tab" type="button" id="grp-members" data-group="members" data-tab="directory" aria-selected="false"><i data-icon="users"></i>Members <span class="tab-badge" id="grp-bday-badge" hidden></span> <kbd>Alt+3</kbd></button>
   <button class="tab grp" role="tab" type="button" id="tabbtn-settings" data-group="settings" data-tab="settings" aria-selected="false"><i data-icon="settings"></i>Settings <kbd>Alt+4</kbd></button>
   <div class="onair-pills" aria-label="On screen now">
@@ -39,11 +45,6 @@
   <span class="pill" id="pill-birthday"><span class="dot"></span><span>Birthday: <b>Hidden</b></span></span>
   </div>
 </nav>
-<div class="subtabs" id="sub-meetings" role="tablist" aria-label="Meetings and content">
-  <button class="subtab" role="tab" type="button" id="tabbtn-meeting" data-tab="meeting" aria-selected="true"><i data-icon="radio"></i>Run meeting</button>
-  <button class="subtab" role="tab" type="button" id="tabbtn-overlays" data-tab="overlays" aria-selected="false"><i data-icon="file-text"></i>Content</button>
-  <button class="subtab" role="tab" type="button" id="tabbtn-recordings" data-tab="recordings" aria-selected="false"><i data-icon="film"></i>Recordings</button>
-</div>
 <div class="subtabs" id="sub-members" role="tablist" aria-label="Members" hidden>
   <button class="subtab" role="tab" type="button" id="tabbtn-directory" data-tab="directory" aria-selected="false"><i data-icon="users"></i>Directory</button>
   <button class="subtab" role="tab" type="button" id="tabbtn-members" data-tab="members" aria-selected="false"><i data-icon="user"></i>Manage</button>
@@ -52,6 +53,20 @@
 </div>
 
 <main>
+<!-- ===================== STUDIO (v4.9) =====================
+     One workspace: the rail on the left (Scenes, Layers - filled by js/studio.js) and, on the right, the views
+     that used to be separate tabs. Their panel ids (tab-meeting, tab-overlays, tab-studio, tab-recordings) are
+     unchanged, so every existing screen, shortcut and "go to" link keeps working. -->
+<div class="studio-ws" id="studio-ws">
+<aside class="rail" id="studio-rail" aria-label="Scenes and layers"></aside>
+<div class="ws-main" id="ws-main">
+<div class="subtabs ws-tabs" id="sub-studio" role="tablist" aria-label="Studio views">
+  <button class="subtab" role="tab" type="button" id="tabbtn-meeting" data-tab="meeting" aria-selected="true"><i data-icon="radio"></i>Meeting <kbd>Alt+1</kbd></button>
+  <button class="subtab" role="tab" type="button" id="tabbtn-overlays" data-tab="overlays" aria-selected="false"><i data-icon="file-text"></i>Content</button>
+  <button class="subtab" role="tab" type="button" id="tabbtn-studio" data-tab="studio" aria-selected="false"><i data-icon="layout-template"></i>Canvas <kbd>Alt+2</kbd></button>
+  <button class="subtab" role="tab" type="button" id="tabbtn-recordings" data-tab="recordings" aria-selected="false"><i data-icon="film"></i>Recordings</button>
+  <button class="ws-railbtn" type="button" id="rail-toggle" aria-controls="studio-rail" aria-expanded="true" title="Show or hide Scenes and Layers"><i data-icon="panel-left"></i><span>Scenes &amp; Layers</span></button>
+</div>
 <!-- ===================== MEETING MODE ===================== -->
 <div class="tabpanel meeting" id="tab-meeting" role="tabpanel" aria-labelledby="tabbtn-meeting">
   <section class="mcol runsheet" aria-labelledby="rs-title">
@@ -231,6 +246,13 @@
   </aside>
 </div>
 <!-- ===================== BSF Members ===================== -->
+<div class="tabpanel" id="tab-recordings" role="tabpanel" aria-labelledby="tabbtn-recordings" hidden></div>
+
+<div class="tabpanel studio" id="tab-studio" role="tabpanel" aria-labelledby="tabbtn-studio" hidden></div>
+
+</div><!-- /ws-main -->
+</div><!-- /studio-ws -->
+
 <div class="tabpanel mgrid" id="tab-members" role="tabpanel" aria-labelledby="tabbtn-members" hidden>
   <section class="box m-list" aria-labelledby="mlist-title">
     <div class="box-head"><h2 id="mlist-title">Members <span class="count" id="m-count">0</span></h2>
@@ -308,10 +330,6 @@
 <!-- ===================== Settings ===================== -->
 <div class="tabpanel" id="tab-directory" role="tabpanel" aria-labelledby="tabbtn-directory" hidden></div>
 
-<div class="tabpanel" id="tab-recordings" role="tabpanel" aria-labelledby="tabbtn-recordings" hidden></div>
-
-<div class="tabpanel studio" id="tab-studio" role="tabpanel" aria-labelledby="tabbtn-studio" hidden></div>
-
 <div class="tabpanel settings" id="tab-settings" role="tabpanel" aria-labelledby="tabbtn-settings" hidden>
   <nav class="s-nav" id="s-nav" aria-label="Settings sections">
     <button type="button" data-sec="general"><span class="sn-i">⚙</span>General</button>
@@ -327,7 +345,13 @@
   </nav>
   <div class="s-body">
     <section class="s-sec" id="sec-general" aria-labelledby="sech-general" hidden>
-      <header class="s-head"><h2 id="sech-general">General</h2><p>Your name, meeting title and the wording used in emails.</p></header>
+      <header class="s-head"><h2 id="sech-general">General</h2><p>Appearance, your name, meeting title and the wording used in emails.</p></header>
+  <section class="box" aria-labelledby="s-look">
+    <div class="box-head"><h2 id="s-look">Appearance</h2></div>
+    <div class="row"><span class="lbl">Theme</span><div class="seg" id="theme-seg" role="radiogroup" aria-label="Theme">
+      <button type="button" role="radio" data-theme-pick="dark">Dark</button><button type="button" role="radio" data-theme-pick="light">Light</button><button type="button" role="radio" data-theme-pick="system">Match Windows</button></div></div>
+    <p class="hint">Only this window changes. Your camera picture, overlays and the phone/iPad remote are not affected.</p>
+  </section>
   <section class="box" aria-labelledby="s-you">
     <div class="box-head"><h2 id="s-you">Your details &amp; email wording</h2></div>
     <label class="field"><span>Meeting title (shown at the top of the Command Center)</span><input type="text" data-set="meetingTitle" placeholder="e.g. BSF Tuesday Evening Group"></label>
@@ -467,6 +491,34 @@
 </div>
 
 </main>
+
+<!-- ===================== Control bar (v4.9) =====================
+     The live actions, one click away on every tab. It only calls the existing actions (BSFActions, BSFBirthday,
+     the Studio's slide command) - no logic of its own. The phone/iPad remote is a separate page and is not affected. -->
+<div class="ctlbar" id="ctlbar" role="toolbar" aria-label="Live controls">
+  <div class="cb-grp q" role="group" aria-label="Question">
+    <span class="cb-lbl">Question</span>
+    <button class="cb-btn" type="button" data-cb="prev" data-k="question" aria-label="Previous question">◀</button>
+    <button class="cb-btn show" type="button" data-cb="toggle" data-k="question" aria-label="Show or hide the question"><span class="tl">Show</span></button>
+    <button class="cb-btn" type="button" data-cb="next" data-k="question" aria-label="Next question">▶</button>
+  </div>
+  <div class="cb-grp v" role="group" aria-label="Verse">
+    <span class="cb-lbl">Verse</span>
+    <button class="cb-btn" type="button" data-cb="prev" data-k="verse" aria-label="Previous verse">◀</button>
+    <button class="cb-btn show" type="button" data-cb="toggle" data-k="verse" aria-label="Show or hide the verse"><span class="tl">Show</span></button>
+    <button class="cb-btn" type="button" data-cb="next" data-k="verse" aria-label="Next verse">▶</button>
+  </div>
+  <div class="cb-grp b" role="group" aria-label="Birthday">
+    <span class="cb-lbl">Birthday</span>
+    <button class="cb-btn show" type="button" data-cb="toggle" data-k="birthday" aria-label="Show or hide the birthday greeting"><span class="tl">Show</span></button>
+  </div>
+  <div class="cb-grp sl" role="group" aria-label="Slides">
+    <span class="cb-lbl">Slides</span>
+    <button class="cb-btn" type="button" data-cb="slide" data-step="-1" aria-label="Previous slide">◀</button>
+    <button class="cb-btn" type="button" data-cb="slide" data-step="1" aria-label="Next slide">▶</button>
+  </div>
+  <button class="cb-btn hide" type="button" data-cb="hideAll" aria-label="Hide all overlays">Hide all</button>
+</div>
 
 <dialog class="about-dlg" id="about-dlg" aria-label="About BSF Command Center"><div id="about-dlg-body" class="about"></div></dialog>
 

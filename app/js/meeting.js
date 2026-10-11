@@ -46,8 +46,8 @@ function setState(el, st){ el.className = 'state ' + st; el.textContent = STATE_
 function fit(){
   var panel = $('tab-meeting'); if (!panel || panel.hidden) return;
   var top = panel.getBoundingClientRect().top + window.scrollY;
-  var bar = document.querySelector('.bday-bar');
-  var h = window.innerHeight - top - (bar ? bar.offsetHeight : 0);
+  var bar = document.querySelector('.bday-bar'), cb = $('ctlbar');
+  var h = window.innerHeight - top - (bar ? bar.offsetHeight : 0) - (cb && !cb.hidden ? cb.offsetHeight : 0);
   document.documentElement.style.setProperty('--mh', Math.max(430, h) + 'px');
   sizeProgram();
 }
@@ -62,7 +62,7 @@ function sizeProgram(){
 window.addEventListener('resize', fit);
 if (window.ResizeObserver){
   var ro = new ResizeObserver(fit);
-  ['.console-top', '.tabs', '#bday-reminder', '.bday-bar'].forEach(function(s){ var e = document.querySelector(s); if (e) ro.observe(e); });
+  ['.console-top', '.tabs', '#bday-reminder', '.bday-bar', '#ctlbar', '#sub-studio'].forEach(function(s){ var e = document.querySelector(s); if (e) ro.observe(e); });
 }
 window.BSFOnTab = function(t){ document.body.classList.toggle('meeting-mode', t === 'meeting'); if (t === 'meeting') setTimeout(fit, 0); };
 if (document.body.dataset.tab === 'meeting') document.body.classList.add('meeting-mode');
@@ -72,11 +72,31 @@ function snippet(s, n){ s = String(s || '').replace(/\s+/g, ' ').trim(); return 
 function renderList(k){
   var ol = $(k === 'question' ? 'rs-questions' : 'rs-verses'), items = A.list(k), cur = A.current(k), st = stateOf(k);
   $(k === 'question' ? 'rs-q-count' : 'rs-v-count').textContent = items.length ? items.length + (items.length === 1 ? ' item' : ' items') : '';
-  var sig = JSON.stringify([items.map(function(i){ return i.id + i.text.length + (i.transition || ''); }), cur, st]);
+  var listKey = JSON.stringify(items.map(function(i){ return i.id + i.text.length + (i.transition || '') + (i.ref || ''); }));
+  var sig = JSON.stringify([listKey, cur, st]);
   if (ol.dataset.sig === sig) return; ol.dataset.sig = sig;
+  function rowCls(i){ return (i === cur ? 'cur' + (st === 'live' ? ' live' : '') : '') + (cur >= 0 && i < cur ? ' done' : '') + ((cur < 0 ? i === 0 : i === cur + 1) ? ' next' : ''); }
+  function rowTag(i){ return i === cur ? (st === 'live' ? 'LIVE' : 'READY') : ((cur < 0 ? i === 0 : i === cur + 1) ? 'NEXT' : ''); }
+  if (ol.dataset.list === listKey && ol.children.length === items.length){
+    // Same list, only the current item moved (every Next / Show): update the rows in place - no rebuild,
+    // so a step stays instant even with a 1,000-item list
+    // Only rows between the old and the new position can change (current, done, next)
+    var was = +ol.dataset.cur, lo = Math.max(0, Math.min(was, cur) - 1), hi = Math.min(ol.children.length - 1, Math.max(was, cur) + 1);
+    if (isNaN(was)){ lo = 0; hi = ol.children.length - 1; }
+    for (var r = lo; r <= hi; r++){
+      var li0 = ol.children[r], c = rowCls(r), tg = li0.querySelector('.tag'), tt = rowTag(r);
+      if (li0.className !== c) li0.className = c;
+      if (tg && tg.textContent !== tt) tg.textContent = tt;
+    }
+    ol.dataset.cur = cur;
+    keepCurrentInView(ol);
+    return;
+  }
+  ol.dataset.list = listKey; ol.dataset.cur = cur;
   ol.innerHTML = '';
+  var frag = document.createDocumentFragment();
   items.forEach(function(it, i){
-    var li = h('li', (i === cur ? 'cur' + (st === 'live' ? ' live' : '') : '') + (cur >= 0 && i < cur ? ' done' : '') + ((cur < 0 ? i === 0 : i === cur + 1) ? ' next' : ''));
+    var li = h('li', rowCls(i));
     var b = h('button'); b.type = 'button';
     b.title = 'Show this ' + (k === 'question' ? 'question' : 'verse') + ' now';
     b.appendChild(h('span', 'n', String(i + 1)));
@@ -85,11 +105,15 @@ function renderList(k){
     else t.textContent = it.text;
     if (it.transition) t.appendChild(h('span', 'fx', '✦ ' + (it.transition === 'random' ? 'Random' : (window.BSFTransitions.names[it.transition] || ''))));
     b.appendChild(t);
-    b.appendChild(h('span', 'tag', i === cur ? (st === 'live' ? 'LIVE' : 'READY') : ((cur < 0 ? i === 0 : i === cur + 1) ? 'NEXT' : '')));
+    b.appendChild(h('span', 'tag', rowTag(i)));
     b.addEventListener('click', guard('item-' + k, function(){ A.showItem(k, it); }, b));
-    li.appendChild(b); ol.appendChild(li);
+    li.appendChild(b); frag.appendChild(li);
   });
-  // Keep the current item in view inside the run sheet only (never scroll the whole page)
+  ol.appendChild(frag);
+  keepCurrentInView(ol);
+}
+/* Keep the current item in view inside the run sheet only (never scroll the whole page) */
+function keepCurrentInView(ol){
   var curEl = ol.querySelector('li.cur'), box = ol.closest('.runsheet');
   if (curEl && box && box.scrollHeight > box.clientHeight + 2){
     var top = curEl.getBoundingClientRect().top - box.getBoundingClientRect().top + box.scrollTop, bottom = top + curEl.offsetHeight;
@@ -97,12 +121,16 @@ function renderList(k){
     else if (bottom > box.scrollTop + box.clientHeight) box.scrollTop = bottom - box.clientHeight + 8;
   }
 }
+/* The state badges and Show/Hide buttons are fixed parts of the page: looked up once, not on every change
+ * (each whole-page search cost ~6 ms once the run sheet and Content lists hold 1,000+ rows) */
+var stateEls = {}, toggleEls = {};
+function els(cache, sel, k){ return cache[k] || (cache[k] = Array.prototype.slice.call(document.querySelectorAll(sel))); }
 function render(){
   if (!live) return;
   var any = false;
   ['question', 'verse', 'birthday'].forEach(function(k){
     var st = stateOf(k); if (st === 'live') any = true;
-    Array.prototype.forEach.call(document.querySelectorAll('[data-state="' + k + '"]'), function(el){ setState(el, st); });
+    els(stateEls, '[data-state="' + k + '"]', k).forEach(function(el){ setState(el, st); });
     var air = document.querySelector('.air[data-k="' + k + '"]'); air.classList.toggle('on', st === 'live');
     var tx = document.querySelector('[data-text="' + k + '"]'); tx.textContent = '';
     var o = live[k];
@@ -112,7 +140,7 @@ function render(){
     else if (k === 'birthday' && window.BSFBirthday && window.BSFBirthday.candidate()) tx.textContent = 'Ready: ' + window.BSFBirthday.candidate().name;
     else tx.appendChild(h('span', 'muted', 'Nothing loaded'));
     // toggle buttons
-    Array.prototype.forEach.call(document.querySelectorAll('.cbtn.toggle[data-k="' + k + '"]'), function(b){
+    els(toggleEls, '.cbtn.toggle[data-k="' + k + '"]', k).forEach(function(b){
       b.classList.toggle('is-live', st === 'live');
       b.querySelector('.tl').textContent = st === 'live' ? 'Hide' : 'Show';
       b.setAttribute('aria-label', (st === 'live' ? 'Hide ' : 'Show ') + NAMES[k].toLowerCase());
@@ -172,6 +200,34 @@ Array.prototype.forEach.call(document.querySelectorAll('#tab-meeting .cbtn'), fu
     else A.step(k, m === 'next' ? 1 : -1);
   }, b));
 });
+
+/* ---------- Control bar (bottom of every tab): the same actions and the same double-click guard ---------- */
+(function(){
+  var bar = $('ctlbar'); if (!bar) return;
+  function slide(step){
+    if (window.BSFStudio && window.BSFStudio.slide) return window.BSFStudio.slide(step);
+    fetch('api/vcam/studio', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({op: 'slide', step: step})})
+      .then(function(r){ return r.json(); }).then(function(d){ var s = d.slide || {};
+        if (s.page) A.toast('Slide ' + s.page + (s.pages ? ' of ' + s.pages : '')); else if (s.error && !s.busy) A.toast(s.error, true); }).catch(function(){});
+  }
+  Array.prototype.forEach.call(bar.querySelectorAll('[data-cb]'), function(b){
+    var m = b.dataset.cb, k = b.dataset.k;
+    b.addEventListener('click', guard('bar-' + m + '-' + (k || b.dataset.step || ''), function(){
+      if (m === 'hideAll') A.hideAll();
+      else if (m === 'slide') slide(+b.dataset.step);
+      else if (k === 'birthday') window.BSFBirthday.toggle();
+      else if (m === 'toggle') A.toggle(k);
+      else A.step(k, m === 'next' ? 1 : -1);
+    }, b));
+  });
+  window.BSFControlBar = {render: function(){
+    if (!live) return;
+    ['question', 'verse', 'birthday'].forEach(function(k){
+      var b = bar.querySelector('[data-cb="toggle"][data-k="' + k + '"]'), on = stateOf(k) === 'live';
+      if (b.classList.contains('is-live') !== on){ b.classList.toggle('is-live', on); b.querySelector('.tl').textContent = on ? 'Hide' : 'Show'; b.setAttribute('aria-pressed', String(on)); }
+    });
+  }};
+})();
 
 /* Keyboard badges follow the configured shortcuts */
 function badges(){ Array.prototype.forEach.call(document.querySelectorAll('kbd[data-sc]'), function(k){ k.textContent = SC ? SC.short(k.dataset.sc) : ''; }); }
@@ -241,7 +297,7 @@ function pullLive(){
 }
 if (Store.served) setTimeout(pullLive, 1500);
 
-Store.subscribe(function(st){ live = st; render(); });
+Store.subscribe(function(st){ live = st; render(); if (window.BSFControlBar) window.BSFControlBar.render(); });
 setInterval(function(){ if (!document.hidden) render(); }, 10000);  // safety net: birthday candidate and day changes (edits arrive through Store)
 setTimeout(fit, 0); setTimeout(fit, 400);
 })();

@@ -1,5 +1,7 @@
-/* BSF Command Center - Studio (Camo-style): layers on the left, live canvas in the centre,
- * scenes and inspector on the right. Everything you see is exactly what BCC vCam sends. */
+/* BSF Command Center - Studio. v4.9 layout: the rail on the left of the whole Studio (Scenes on top, the
+ * OBS-style Layers list beneath) stays visible in every Studio view (Meeting, Content, Canvas, Recordings);
+ * the Canvas view shows the live canvas with the Inspector beside it. Everything you see is exactly what
+ * BCC vCam sends. The layer/scene logic below is unchanged - only where the panels are placed moved. */
 (function(){
 'use strict';
 var Store = window.BSFStore, I = window.BSFIcon;
@@ -77,11 +79,15 @@ function addFile(kind){
 
 /* ---------- layout of the tab ---------- */
 root.classList.add('s2');
+var rail = $('studio-rail') || root;
 var top = h('div', {cls: 's2-top'});
-var left = h('aside', {cls: 's2-left', 'aria-label': 'Layers'});
+var scenesSec = h('section', {cls: 'rail-sec rail-scenes', 'aria-label': 'Scenes'});
+var left = h('section', {cls: 's2-left rail-sec rail-layers', 'aria-label': 'Layers'});
+var railNote = h('p', {cls: 'rail-note', hidden: 'hidden'});
 var centre = h('section', {cls: 's2-centre', 'aria-label': 'Canvas'});
-var right = h('aside', {cls: 's2-right', 'aria-label': 'Scenes and inspector'});
-root.appendChild(top); root.appendChild(h('div', {cls: 's2-body'}, [left, centre, right]));
+var right = h('aside', {cls: 's2-right', 'aria-label': 'Inspector'});
+rail.appendChild(scenesSec); rail.appendChild(left); rail.appendChild(railNote);
+root.appendChild(top); root.appendChild(h('div', {cls: 's2-body'}, [centre, right]));
 
 /* Top bar: scene selector with collection filter · Preview/Output · Record · Look · Focus · Hide window */
 var colFilter = h('select', {id: 's2-colfilter', 'aria-label': 'Scene collection'});
@@ -156,7 +162,7 @@ function slideMove(step){
     if (r.page) toast('Slide ' + r.page + (r.pages ? ' of ' + r.pages : ''));
     else if (r.error) toast(r.error, true);
     else if (r.result) toast(r.result === 'ok' ? 'Next slide' : r.result);
-    else toast('No presentation to move. Add Slides (PDF) or a PowerPoint window as a layer.', true);
+    else toast('No presentation is running. Start the PowerPoint slide show, or add Slides (PDF) in the Studio.', true);
   }).catch(function(){});
 }
 function uid(){ return 'L' + Math.random().toString(16).slice(2, 10); }
@@ -262,9 +268,9 @@ centre.appendChild(stageWrap);
 centre.appendChild(h('div', {cls: 's2-under'}, [h('label', {cls: 'check'}, [snapCb, ' Snap to guides']), metrics]));
 function fitStage(){
   if (!root.hidden){                     // fill the space between the tabs and the birthday bar
-    var bar = document.querySelector('.bday-bar');
+    var bar = document.querySelector('.bday-bar'), cb = $('ctlbar');
     var focus = document.body.classList.contains('studio-focus');
-    var avail = window.innerHeight - root.getBoundingClientRect().top - (focus || !bar ? 0 : bar.offsetHeight);
+    var avail = window.innerHeight - root.getBoundingClientRect().top - (focus || !bar ? 0 : bar.offsetHeight) - (cb && cb.offsetHeight ? cb.offsetHeight : 0);
     root.style.setProperty('--s2h', Math.max(520, Math.floor(avail)) + 'px');
   }
   var r = stageWrap.getBoundingClientRect(), w = Math.max(200, r.width), hh = Math.max(120, r.height);
@@ -392,9 +398,9 @@ stage.addEventListener('keydown', function(e){
 var colSel = h('select', {id: 's2-collection', 'aria-label': 'Scene collection'});
 var gallery = h('div', {cls: 's2-gallery', id: 's2-gallery'});
 var insp = h('div', {cls: 's2-insp', id: 's2-insp'});
-right.appendChild(h('div', {cls: 's2-head'}, [h('h2', {html: I('layout-template', 16) + ' Scenes'}), colSel,
+scenesSec.appendChild(h('div', {cls: 's2-head'}, [h('h2', {html: I('layout-template', 16) + ' Scenes'}), colSel,
   ib('plus', 'New collection', function(){ var n = prompt('Name for the new collection:'); if (n && n.trim()) act('collection-add', {name: n.trim()}).then(function(d){ colSel.dataset.sig = ''; refresh().then(function(){ colSel.value = d.collection; renderScenes(); }); }); })]));
-right.appendChild(gallery);
+scenesSec.appendChild(gallery);
 right.appendChild(h('div', {cls: 's2-head'}, [h('h2', {html: I('sparkles', 16) + ' Inspector'})]));
 right.appendChild(insp);
 colSel.addEventListener('change', renderScenes);
@@ -413,7 +419,7 @@ function renderScenes(){
   if (gallery.dataset.sig !== gsig){
     gallery.dataset.sig = gsig; gallery.innerHTML = '';
     (S.scenes || []).filter(function(sc){ return sc.collection === col; }).forEach(function(sc){
-      var card = h('button', {cls: 's2-scene' + (S.activeScene === sc.id ? ' on' : ''), type: 'button', title: 'Switch to ' + sc.name}, [
+      var card = h('button', {cls: 's2-scene' + (S.activeScene === sc.id ? ' on' : ''), type: 'button', title: 'Switch to ' + sc.name, 'aria-pressed': String(S.activeScene === sc.id)}, [
         sc.thumb ? h('img', {src: 'api/vcam/scene-thumb?id=' + encodeURIComponent(sc.id) + '&t=' + sc.thumb, alt: ''}) : h('span', {cls: 's2-nothumb', html: I('image', 20)}),
         h('span', {cls: 's2-scname', text: sc.name})]);
       card.addEventListener('click', function(){ act('scene-apply', {id: sc.id}).then(function(){ toast('Scene: ' + sc.name); refresh(); }); });
@@ -555,7 +561,13 @@ function moveSelected(dir){
 function draw(){ renderList(); drawBoxes(); renderInspector(); }
 function apply(d){
   S = d;
-  if (!d.available){ root.innerHTML = ''; root.appendChild(h('p', {cls: 'plain', style: 'padding:20px', text: d.reason || 'BCC vCam is not available.'})); return; }
+  if (!d.available){
+    root.innerHTML = ''; root.appendChild(h('p', {cls: 'plain', style: 'padding:20px', text: d.reason || 'BCC vCam is not available.'}));
+    scenesSec.hidden = left.hidden = true; railNote.hidden = false;
+    railNote.textContent = 'Scenes and layers appear here when BCC vCam is running. ' + (d.reason || '');
+    return;
+  }
+  scenesSec.hidden = left.hidden = false; railNote.hidden = true;
   if (!drag && Date.now() > dirtyUntil){
     var fresh = (d.staged ? d.stagedLayers : d.layers).map(function(l){ return Object.assign({}, l); });
     var status = {}; d.layers.forEach(function(l){ status[l.id] = l.status; });
@@ -589,10 +601,18 @@ function metricsLine(){
   return 'Camera ' + (st.captureFps || 0) + ' fps → output ' + (st.fps || 0) + ' fps · ' + (st.msPerFrame || 0) + ' ms per frame · capture-to-send ' +
     (st.latencyMs || 0) + ' ms · dropped ' + (st.dropped || 0) + ' · CPU ' + (st.cpuPercent || 0) + '%';
 }
-function visible(){ return !root.hidden && document.body.dataset.tab === 'studio' && !document.hidden; }   // minimised: no pictures, no polling
+function visible(){ return !root.hidden && document.body.dataset.tab === 'studio' && !document.hidden; }   // the canvas: minimised = no pictures, no polling
+/* The rail (scenes, layers) is on screen in every Studio view: it refreshes every 3 s there, every second
+ * with the canvas open, and not at all while the app is minimised or on Members / Settings. */
+function railVisible(){ return document.body.dataset.group === 'studio' && !document.body.classList.contains('rail-hidden') && !document.hidden; }
 function refresh(){ return fetch('api/vcam/studio', {cache: 'no-store'}).then(function(r){ return r.json(); }).then(apply).catch(function(){}); }
+var pollT = null;
 function poll(){
-  (visible() || !S ? refresh() : Promise.resolve()).then(function(){ metrics.textContent = metricsLine(); setTimeout(poll, visible() ? 1000 : window.BSFStore.pace(4000)); });
+  clearTimeout(pollT);
+  (visible() || railVisible() || !S ? refresh() : Promise.resolve()).then(function(){
+    if (visible()) metrics.textContent = metricsLine();
+    pollT = setTimeout(poll, visible() ? 1000 : railVisible() ? 3000 : window.BSFStore.pace(4000));
+  });
 }
 poll();
 var pulling = false, imgTag = {};
@@ -606,12 +626,13 @@ function pullImage(){
 var prevOnTab = window.BSFOnTab;
 window.BSFOnTab = function(t){
   if (prevOnTab) prevOnTab(t);
-  if (t === 'studio'){ setTimeout(fitStage, 0); if (!pulling) pullImage(); refresh(); }
+  if (t === 'studio'){ setTimeout(fitStage, 0); if (!pulling) pullImage(); }
   else document.body.classList.remove('studio-focus');
+  if (['meeting', 'overlays', 'studio', 'recordings'].indexOf(t) >= 0 && S) poll();   // fresh scenes/layers at once
 };
 if (window.ResizeObserver) new ResizeObserver(fitStage).observe(stageWrap);
 document.addEventListener('visibilitychange', function(){ if (visible() && !pulling) pullImage(); });   // shown again: resume the picture
-window.BSFStudio = {layers: function(){ return L; }, select: function(ids){ sel = ids.slice(); draw(); }};
+window.BSFStudio = {layers: function(){ return L; }, select: function(ids){ sel = ids.slice(); draw(); }, slide: slideMove};
 
 /* ---------- hotkeys: Ctrl+Shift+1/2/3 = layers 1-3, Page Up/Down = slides ---------- */
 document.addEventListener('keydown', function(e){

@@ -1,6 +1,16 @@
 """Background blur: finds the person with Google's small MediaPipe Selfie Segmentation model
 (run through OpenCV, about 250 KB) and blurs everything else.
 
+Two styles (setting blurStyle):
+  natural (default, 4.9) - behaves like a lens focused on you rather than a filter:
+      * strength 0.001..100 in 0.001 steps; below 10 % the blur fades smoothly to nothing (at the old
+        1/8-size shortcut even 0.1 % was a 16-pixel blur), from 10 % up the amount equals classic;
+      * the background is blurred at the resolution the amount needs (full size for subtle settings);
+      * mask-normalised blur: your colours never smear into the background (no halo);
+      * depth: background close to you is softened slightly less than the far background (both blurred, so no
+        sharp "ghost"), and the edge around you softens with strength.
+  classic - exactly the picture of 4.8 and older.
+
 Kept light on CPU:
   - the model runs on its own thread about 10 times a second, never holding up a video frame;
   - the person outline is enlarged once per model run (not every frame) and smoothed over time;
@@ -19,10 +29,31 @@ PRESETS = {"off": 0, "light": 30, "medium": 55, "strong": 80, "maximum": 100}
 LEGACY = {"off": 0, "light": 30, "strong": 80}            # settings saved by older versions
 
 
-def sigma_for(strength):
+def _strength(strength):
     s = LEGACY.get(strength, strength) if isinstance(strength, str) else strength
-    s = max(0.0, min(100.0, float(s or 0)))
-    return 2.0 + 12.0 * s / 100.0
+    return max(0.0, min(100.0, float(s or 0)))
+
+
+def sigma_for(strength):
+    """Classic: blur radius on the 1/8-size picture."""
+    return 2.0 + 12.0 * _strength(strength) / 100.0
+
+
+def natural_sigma(strength):
+    """Natural: blur radius in full-size pixels. Equal to classic from 10 % up (presets look the same amount);
+    below 10 % it fades smoothly to zero, so the finest steps (0.001) make a real, gentle difference."""
+    s = _strength(strength)
+    if s >= 10.0:
+        return 8.0 * sigma_for(s)
+    return 8.0 * sigma_for(10.0) * (s / 10.0) ** 1.15
+
+
+def _scale_for(sig):
+    """Work on the smallest picture where the blur is still at least 2 pixels wide (1, 2, 4 or 8 times smaller)."""
+    d = 1
+    while d < 8 and sig / (d * 2) >= 2.0:
+        d *= 2
+    return d
 
 
 class BackgroundBlur:
@@ -34,6 +65,7 @@ class BackgroundBlur:
         self.full_mask = None         # uint8 HxWx3 (255 = person), rebuilt only when the mask changes
         self.full_version = -1
         self.pending = None           # newest frame waiting for the model
+        self._nat = None              # natural style: cached masks, rebuilt when the outline, size or strength changes
         self.cond = threading.Condition()
         self.model_ms = 0.0
         self.alive = True
@@ -73,12 +105,62 @@ class BackgroundBlur:
             self.full_version = self.mask_version
         return self.full_mask
 
-    def apply(self, frame, strength=30):
+    def _natural_masks(self, w, h, d, s):
+        """(alpha at full size, background weight and depth ramp at the working size), cached."""
+        key = (self.mask_version, w, h, d, round(s, 1))
+        if self._nat is not None and self._nat[0] == key:
+            return self._nat[1]
+        m = cv2.GaussianBlur(self.small_mask, (0, 0), 1.2)
+        person = np.clip((m - 0.35) / 0.3, 0.0, 1.0).astype(np.float32)
+        # the edge softens with strength, inward only: the background stays fully softened right up to you
+        # (an outward soft edge lets the sharp background show through around you)
+        person = np.minimum(person, cv2.GaussianBlur(person, (0, 0), 0.8 + 0.035 * s))
+        alpha = cv2.resize(1.0 - person, (w, h), interpolation=cv2.INTER_LINEAR)
+        sw, sh = w // d, h // d
+        weight = cv2.resize(1.0 - person, (sw, sh), interpolation=cv2.INTER_AREA)
+        bg = (person < 0.5).astype(np.uint8)
+        dist = cv2.distanceTransform(bg, cv2.DIST_L2, 3) if bg.any() else np.zeros_like(person)
+        ramp = np.clip(dist / (0.2 * person.shape[1]), 0.0, 1.0).astype(np.float32)    # 0 next to you .. 1 far away
+        ramp = cv2.resize(cv2.GaussianBlur(ramp, (0, 0), 2.0), (sw, sh), interpolation=cv2.INTER_LINEAR)
+        out = (alpha, weight, ramp)
+        self._nat = (key, out)
+        return out
+
+    def _natural(self, frame, s):
+        sig = natural_sigma(s)
+        if sig < 0.1:
+            return frame                                      # below a tenth of a pixel: nothing to see
+        h, w = frame.shape[:2]
+        d = _scale_for(sig)
+        ss = sig / d
+        alpha, weight, ramp = self._natural_masks(w, h, d, s)
+        small = cv2.resize(frame, (w // d, h // d), interpolation=cv2.INTER_AREA) if d > 1 else frame
+        if d == 1:                                            # a few pixels: a plain blur is already clean
+            bg = cv2.GaussianBlur(small, (0, 0), ss)
+        else:
+            f = small.astype(np.float32)
+            wf = weight[..., None]
+            den_far = cv2.GaussianBlur(weight, (0, 0), ss)[..., None]
+            far = cv2.GaussianBlur(f * wf, (0, 0), ss) / np.maximum(den_far, 1e-3)
+            near_s = max(0.5, ss * 0.8)             # a gentle gradation, never a visible band
+            den_near = cv2.GaussianBlur(weight, (0, 0), near_s)[..., None]
+            near = cv2.GaussianBlur(f * wf, (0, 0), near_s) / np.maximum(den_near, 1e-3)
+            r = ramp[..., None]
+            bg = near + (far - near) * r                      # less blur next to you, full blur far away
+            plain = cv2.GaussianBlur(f, (0, 0), ss)           # inside the outline (no background to sample)
+            bg = np.where(den_far < 0.02, plain, bg)
+            bg = np.clip(bg, 0, 255).astype(np.uint8)
+            bg = cv2.resize(bg, (w, h), interpolation=cv2.INTER_LINEAR)
+        return cv2.blendLinear(bg, frame, alpha, 1.0 - alpha)
+
+    def apply(self, frame, strength=30, style="natural"):
         with self.cond:                                       # hand the newest frame to the model thread
             self.pending = frame
             self.cond.notify()
         if self.small_mask is None:
             return frame                                      # first moment: no outline yet
+        if style != "classic":
+            return self._natural(frame, _strength(strength))
         h, w = frame.shape[:2]
         small = cv2.resize(frame, (w // 8, h // 8), interpolation=cv2.INTER_AREA)
         small = cv2.GaussianBlur(small, (0, 0), sigma_for(strength))

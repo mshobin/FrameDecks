@@ -173,7 +173,8 @@ closes the app first if it's open. **Your data is untouched.** Check the version
 
 Artifacts on the Actions tab are deleted after 90 days. On github.com: **Releases → Draft a new release →
 Choose a tag**, type the version with a "v" (for example **v3.2**) → **Create new tag** → **Publish release**.
-GitHub builds the installer again and attaches it to that release permanently.
+GitHub builds the installer again and attaches it to that release permanently. The release is named
+"Version <number>" and its description comes from `docs/releases/v<number>.md` - add that file before tagging.
 
 ### When I send you an updated zip
 

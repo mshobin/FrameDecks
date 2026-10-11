@@ -1,0 +1,157 @@
+/* BSF Command Center v4.9 - design system (loaded after dashboard.css, members.css and console.css).
+ *
+ * Only tokens and calm, static surfaces: no backdrop-filter, no blur, no endless animations, transitions on
+ * transform/opacity/colour only - the app has to stay light next to Zoom, Teams, OBS and PowerPoint.
+ * Video surfaces (canvas, program preview, overlay previews, the gold member card) stay dark in both themes.
+ * The phone/iPad remote has its own stylesheet (remote.css) and is not affected by this file.
+ */
+
+/* ---------- Scale ---------- */
+:root{
+  --r-1:8px; --r-2:12px; --r-3:16px; --r-4:20px;                       /* corner radius scale */
+  --fs-headline:22px; --fs-title:17px; --fs-section:12px; --fs-body:15px; --fs-caption:12.5px;
+  --sp-1:4px; --sp-2:8px; --sp-3:12px; --sp-4:16px; --sp-5:24px;
+  --ease:cubic-bezier(.2,.8,.2,1); --t-fast:.12s; --t:.18s;
+  --rail-w:300px; --top-h:58px; --cb-h:0px;
+}
+
+/* ---------- Dark (default): neutral graphite, one warm accent ---------- */
+:root,html[data-theme="dark"]{
+  color-scheme:dark;
+  --app-bg:#0e0f11; --bg:#0e0f11; --chrome-bg:rgba(18,19,22,.985);
+  --surface:#18191c; --raised:#222327; --field:#121316; --panel:#16171a; --panel-2:#1c1d21;
+  --line:#313338; --line-soft:#24262a; --edge:#28292e; --line-hover:#474a51; --line-strong:#585b63;
+  --ink:#f2f2f4; --muted:#a1a4ab; --faint:#6c6f77; --ink-warm:#f6f0e2;
+  --hover:rgba(255,255,255,.045); --hover-2:rgba(255,255,255,.075); --sunken:rgba(0,0,0,.2);
+  --neutral-btn:#2c2e33; --live-hover:#21b358; --video-bg:#0a0b0d; --scrim:rgba(0,0,0,.55); --kbd-line:rgba(255,255,255,.22);
+  --shadow-1:0 1px 2px rgba(0,0,0,.35); --shadow-2:0 8px 24px rgba(0,0,0,.28);
+  --shadow-pop:0 14px 40px rgba(0,0,0,.5); --shadow-modal:0 24px 70px rgba(0,0,0,.55);
+}
+
+/* ---------- Light ---------- */
+html[data-theme="light"]{
+  color-scheme:light;
+  --app-bg:#f4f4f6; --bg:#f4f4f6; --chrome-bg:rgba(250,250,252,.985);
+  --surface:#ffffff; --raised:#f1f1f4; --field:#ffffff; --panel:#ffffff; --panel-2:#f7f7f9;
+  --line:#d4d5da; --line-soft:#e5e5ea; --edge:#e1e2e7; --line-hover:#b6b8bf; --line-strong:#9c9ea6;
+  --ink:#1c1c1e; --muted:#5d6068; --faint:#8a8d95; --ink-warm:#1c1c1e;
+  --hover:rgba(0,0,0,.04); --hover-2:rgba(0,0,0,.065); --sunken:rgba(0,0,0,.035);
+  --neutral-btn:#e3e4e8; --live-hover:#15803d; --video-bg:#1b1c1f; --scrim:rgba(20,20,26,.32); --kbd-line:rgba(0,0,0,.2);
+  --shadow-1:0 1px 2px rgba(0,0,0,.06),0 1px 1px rgba(0,0,0,.04); --shadow-2:0 8px 24px rgba(0,0,0,.08);
+  --shadow-pop:0 14px 40px rgba(0,0,0,.14); --shadow-modal:0 24px 70px rgba(0,0,0,.18);
+  --gold:#d6a03c; --gold-strong:#8a5c0a; --gold-ink:#1a1405; --gold-soft:rgba(214,160,60,.16);
+  --on:#15803d; --danger:#c2410c;
+  --q:#2563eb; --q-strong:#2563eb; --q-soft:rgba(37,99,235,.1);
+  --v:#7c3aed; --v-strong:#6d28d9; --v-soft:rgba(124,58,237,.1);
+  --b:#b45309; --b-strong:#b45309; --b-soft:rgba(180,83,9,.1);
+  --live:#16a34a; --live-strong:#16a34a; --live-soft:rgba(22,163,74,.12);
+  --hid:#6b7280; --warn:#b45309; --warn-soft:rgba(180,83,9,.1);
+  --red:#dc2626; --red-strong:#dc2626; --red-soft:rgba(220,38,38,.08);
+}
+html[data-theme="light"] .state.live,html[data-theme="light"] .ac.on{color:#fff}
+html[data-theme="light"] .state.live::before{background:#fff}
+html[data-theme="light"] .dir-when.today{color:#fff}
+
+/* ---------- Type & surfaces ---------- */
+body{font-size:var(--fs-body);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+.box,.mcol{border-radius:var(--r-3);box-shadow:var(--shadow-1)}
+.box-head h2{font-size:var(--fs-title);font-weight:700;letter-spacing:-.005em}
+.btn{border-radius:var(--r-1);transition:background-color var(--t-fast),border-color var(--t-fast),transform var(--t-fast) var(--ease)}
+.btn:active:not(:disabled){transform:scale(.98)}
+input[type=text],input[type=number],input[type=search],textarea,select{border-radius:var(--r-1)}
+.app-modal,dialog{border-radius:var(--r-4)}
+.s2-menu{border-radius:var(--r-2)}
+
+/* ---------- Shell: header and the three tabs ---------- */
+.console-top{border-bottom-color:var(--line-soft)}
+.console-top h1{letter-spacing:-.005em}
+.tabs{gap:6px;padding:10px 18px 0;border-bottom:1px solid var(--line-soft)}
+.tab{border-radius:var(--r-2) var(--r-2) 0 0;font-size:15px;transition:color var(--t-fast),background-color var(--t-fast)}
+.tab[aria-selected="true"]{color:var(--ink);background:var(--surface);box-shadow:inset 0 2px 0 var(--gold)}
+.tab.grp.on .ic{color:var(--gold)}
+
+/* ---------- Studio workspace: rail | views ---------- */
+.studio-ws{display:grid;grid-template-columns:var(--rail-w) minmax(0,1fr);align-items:start;min-width:0;
+  min-height:calc(100vh - var(--ws-top,114px) - var(--cb-h));
+  background:linear-gradient(90deg,var(--panel) 0 var(--rail-w),var(--line-soft) var(--rail-w) calc(var(--rail-w) + 1px),transparent 0)}   /* the rail's surface, full height, one static paint */
+body.rail-hidden .studio-ws,body.studio-focus .studio-ws{background:none}
+.studio-ws[hidden]{display:none !important}
+body.rail-hidden .studio-ws{grid-template-columns:minmax(0,1fr)}
+body.rail-hidden .rail,body.studio-focus .rail{display:none}
+body.studio-focus .studio-ws{grid-template-columns:minmax(0,1fr)}
+.ws-main{min-width:0;container-type:inline-size;container-name:ws}
+.rail{position:sticky;top:var(--top-h);max-height:calc(100vh - var(--ws-top,114px) - var(--cb-h));overflow:auto;overscroll-behavior:contain;
+  padding:14px 12px 18px;display:flex;flex-direction:column;gap:18px}
+.rail .s2-head{margin:0 0 10px}
+.rail .s2-head h2{font-size:var(--fs-section);letter-spacing:.08em}
+.rail-sec[hidden]{display:none}
+.rail .s2-left{background:transparent;border:0;padding:0;overflow:visible}
+.rail .s2-menu{top:34px;right:0}
+.rail .s2-gallery{grid-template-columns:repeat(2,minmax(0,1fr))}
+.rail-note{color:var(--muted);font-size:13.5px;margin:4px 2px}
+.ws-tabs{align-items:center;padding:8px 16px 0}
+.ws-tabs .subtab kbd{font-size:11px;opacity:.6;margin-left:2px}
+.ws-railbtn{margin-left:auto;margin-bottom:6px;display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line-soft);background:transparent;color:var(--muted);
+  border-radius:var(--r-1);padding:5px 10px;font-size:13px;cursor:pointer;transition:color var(--t-fast),border-color var(--t-fast)}
+.ws-railbtn:hover{color:var(--ink);border-color:var(--line-hover)}
+.ws-railbtn[aria-expanded="false"]{color:var(--gold-strong);border-color:rgba(227,183,90,.45)}
+@media (max-width:1100px){ .ws-railbtn span{display:none} }
+
+/* The canvas view sits beside the rail: canvas + inspector (the rail holds layers and scenes now) */
+.s2-body{grid-template-columns:minmax(0,1fr) 320px}
+@media (max-width:1280px){ .s2-body{grid-template-columns:minmax(0,1fr) 280px} }
+@media (max-width:1024px){ .s2-body{grid-template-columns:1fr;grid-template-rows:auto auto} .s2-centre{grid-column:auto;order:0} }
+
+/* Meeting view inside the workspace: columns follow the space it actually has (not the window) */
+@container ws (max-width:1180px){
+  .meeting{grid-template-columns:minmax(180px,.55fr) minmax(0,1.6fr) minmax(318px,1fr);gap:12px;padding:10px 14px}
+  .air-head{gap:6px} .air-head .state{font-size:11px;padding:2px 6px;letter-spacing:.04em}
+}
+/* Same arrangement the Meeting view always used on small screens (controls first, page scrolls), now
+   triggered by the room the view has beside the rail rather than by the window width */
+@container ws (max-width:900px){
+  .meeting{grid-template-columns:minmax(0,1fr);height:auto}
+  .controls{order:-1;overflow:visible;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+  .ctl.b{grid-column:1 / -1}
+  .program{order:0} .runsheet{order:1;max-height:420px}
+  .onair{grid-template-columns:1fr}
+}
+@container ws (max-width:760px){
+  .controls{grid-template-columns:minmax(0,1fr)}
+}
+
+/* Narrow windows: the rail goes above the views */
+@media (max-width:900px){
+  .studio-ws{grid-template-columns:minmax(0,1fr)}
+  .studio-ws{background:none}
+  .rail{position:static;max-height:none;background:var(--panel);border-bottom:1px solid var(--line-soft)}
+}
+
+/* ---------- Control bar: the live actions on every tab ---------- */
+body{padding-bottom:var(--cb-h)}
+.ctlbar{position:fixed;left:0;right:0;bottom:0;z-index:60;display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));background:var(--chrome-bg);border-top:1px solid var(--line-soft);box-shadow:0 -6px 18px rgba(0,0,0,.18)}
+body.studio-focus .ctlbar{display:none}
+.cb-grp{display:flex;align-items:center;gap:6px;padding:4px 6px 4px 10px;border:1px solid var(--line-soft);border-radius:var(--r-2);background:var(--panel)}
+.cb-lbl{font-size:var(--fs-section);font-weight:800;letter-spacing:.08em;text-transform:uppercase;margin-right:2px}
+.cb-grp.q .cb-lbl{color:var(--q)} .cb-grp.v .cb-lbl{color:var(--v)} .cb-grp.b .cb-lbl{color:var(--b)} .cb-grp.sl .cb-lbl{color:#e48a5c}
+html[data-theme="light"] .cb-grp.sl .cb-lbl{color:#c2410c}
+.cb-btn{min-width:48px;min-height:44px;padding:0 14px;border-radius:var(--r-1);border:1px solid var(--line);background:var(--raised);color:var(--ink);
+  font-size:16px;font-weight:700;cursor:pointer;transition:background-color var(--t-fast),border-color var(--t-fast),transform var(--t-fast) var(--ease)}
+.cb-btn:hover{border-color:var(--line-hover)}
+.cb-btn:active{transform:scale(.96)}
+.cb-btn:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.cb-btn.show{min-width:86px;background:var(--live-strong);border-color:var(--live-strong);color:#fff;letter-spacing:.02em}
+.cb-btn.show:hover{background:var(--live-hover)}
+.cb-btn.show.is-live{background:var(--neutral-btn);border-color:var(--line-strong);color:var(--ink)}
+.cb-btn.ok{border-color:var(--live)}
+.cb-btn.hide{margin-left:auto;background:var(--red-strong);border-color:var(--red-strong);color:#fff;padding:0 20px;font-weight:800}
+.cb-btn.hide:hover{filter:brightness(1.08)}
+@media (max-width:1200px){ .cb-lbl{display:none} .cb-grp{padding-left:6px} .cb-grp.q,.cb-grp.v,.cb-grp.b,.cb-grp.sl{box-shadow:inset 3px 0 0 var(--c,transparent)} .cb-grp.q{--c:var(--q)} .cb-grp.v{--c:var(--v)} .cb-grp.b{--c:var(--b)} .cb-grp.sl{--c:#e48a5c} }
+@media (prefers-reduced-motion:reduce){ .btn,.cb-btn,.tab,.ws-railbtn{transition:none} }
+
+/* ---------- BCC vCam blur: precise control ---------- */
+.blur-ctl{display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-width:0}
+.blur-ctl .range{flex:1 1 220px;min-width:180px}
+.blur-num{width:104px;background:var(--field);border:1px solid var(--line);color:var(--ink);padding:6px 8px;font-variant-numeric:tabular-nums;text-align:right}
+.blur-num:focus{border-color:var(--gold);outline:none}

@@ -311,7 +311,7 @@ class VCamEngine:
                     if self.blur is None and self.blur_factory:
                         self.blur = self.blur_factory()
                     if self.blur:
-                        frame = self.blur.apply(frame, strength)
+                        frame = self.blur.apply(frame, strength, s.get("blurStyle", "natural"))
                 grade = s.get("grade")
                 if frame is not None and grade is not None:   # filter (Camera Look x intensity): the webcam picture only
                     frame = grade.apply(frame)

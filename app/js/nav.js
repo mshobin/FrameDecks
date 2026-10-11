@@ -1,5 +1,8 @@
-/* BSF Command Center - four main tabs (Meetings & Content · Studio · Members · Settings) with sub-tabs,
- * the Members directory table and the Recordings list. */
+/* BSF Command Center - three main tabs (Studio · Members · Settings) with sub-views, the Members directory
+ * table and the Recordings list.
+ * v4.9: "Meetings & Content" moved into the Studio. The view ids are unchanged (meeting, overlays, studio,
+ * recordings), so BSFSetTab('meeting'), data-goto links and every screen that checks body.dataset.tab work as
+ * before; only the grouping and the layout changed. */
 (function(){
 'use strict';
 var $ = function(id){ return document.getElementById(id); };
@@ -14,11 +17,12 @@ function icons(root){ Array.prototype.forEach.call((root || document).querySelec
 icons();
 
 /* ---------- groups ---------- */
-var GROUPS = {meetings: ['meeting', 'overlays', 'recordings'], studio: ['studio'], members: ['directory', 'members', 'birthdays', 'email'], settings: ['settings']};
+var GROUPS = {studio: ['meeting', 'overlays', 'studio', 'recordings'], members: ['directory', 'members', 'birthdays', 'email'], settings: ['settings']};
 var KEY = 'bsf-cc-subtab';
 var last = {};
 try { last = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch(e){}
-function groupOf(t){ for (var g in GROUPS) if (GROUPS[g].indexOf(t) >= 0) return g; return 'meetings'; }
+if (last.meetings && !last.studioV49){ last.studio = last.meetings; delete last.meetings; last.studioV49 = 1; }   // saved by 4.8 and older
+function groupOf(t){ for (var g in GROUPS) if (GROUPS[g].indexOf(t) >= 0) return g; return 'studio'; }
 function show(t){
   var g = groupOf(t);
   last[g] = t;
@@ -28,22 +32,79 @@ function show(t){
     b.setAttribute('aria-selected', String(on)); b.classList.toggle('on', on);
     if (GROUPS[b.dataset.group].length > 1) b.dataset.tab = last[b.dataset.group] || GROUPS[b.dataset.group][0];
   });
-  $('sub-meetings').hidden = g !== 'meetings';
+  $('studio-ws').hidden = g !== 'studio';
   $('sub-members').hidden = g !== 'members';
   document.body.dataset.group = g;
   if (t === 'directory') renderDirectory();
   if (t === 'recordings') loadRecordings();
+  if ((t === 'overlays' || t === 'settings') && window.BSFRenderLists) window.BSFRenderLists();   // drawn when shown
+  if (window.BSFMeasure) window.BSFMeasure();
 }
 var prev = window.BSFOnTab;
 window.BSFOnTab = function(t){ if (prev) prev(t); show(t); };
+/* Alt+1 Studio (Meeting view) · Alt+2 Studio (Canvas) · Alt+3 Members · Alt+4 Settings - the same places
+ * these keys opened before the Meetings & Content tab moved into the Studio. */
 window.BSFNavAlt = function(n){
-  var g = ['meetings', 'studio', 'members', 'settings'][n - 1];
+  if (n === 1) return window.BSFSetTab('meeting');
+  if (n === 2) return window.BSFSetTab('studio');
+  var g = n === 3 ? 'members' : 'settings';
   window.BSFSetTab(last[g] || GROUPS[g][0]);
 };
 Array.prototype.forEach.call(document.querySelectorAll('.subtabs'), function(bar){
   bar.addEventListener('click', function(e){ var b = e.target.closest('[data-tab]'); if (b) window.BSFSetTab(b.dataset.tab); });
 });
 show(document.body.dataset.tab || 'meeting');
+
+/* Heights the layout needs: the sticky header (the rail stays below it) and the control bar (pages end above it) */
+(function(){
+  var top = document.querySelector('.console-top'), cb = $('ctlbar'), ws = $('studio-ws'), root = document.documentElement;
+  function measure(){
+    if (top) root.style.setProperty('--top-h', top.offsetHeight + 'px');
+    if (ws && !ws.hidden) root.style.setProperty('--ws-top', Math.round(ws.getBoundingClientRect().top + window.scrollY) + 'px');
+    root.style.setProperty('--cb-h', (cb && cb.offsetHeight ? cb.offsetHeight : 0) + 'px');
+  }
+  measure(); window.BSFMeasure = measure;
+  if (window.ResizeObserver){ var ro = new ResizeObserver(measure); [top, cb, document.querySelector('.tabs'), $('bday-reminder')].forEach(function(e){ if (e) ro.observe(e); }); }
+  else window.addEventListener('resize', measure);
+})();
+
+/* Appearance: Dark (default) · Light · Match Windows - remembered on this PC */
+(function(){
+  var seg = $('theme-seg'), d = document.documentElement, KEYT = 'bsf-cc-theme';
+  var mq = window.matchMedia ? window.matchMedia('(prefers-color-scheme: light)') : null;
+  function resolve(p){ return p === 'system' ? (mq && mq.matches ? 'light' : 'dark') : (p === 'light' ? 'light' : 'dark'); }
+  function set(p){
+    d.dataset.themePref = p; d.dataset.theme = resolve(p);
+    try { localStorage.setItem(KEYT, p); } catch(e){}
+    mark();
+  }
+  function mark(){
+    if (!seg) return;
+    Array.prototype.forEach.call(seg.querySelectorAll('[data-theme-pick]'), function(b){
+      var on = b.dataset.themePick === (d.dataset.themePref || 'dark');
+      b.setAttribute('aria-pressed', String(on)); b.setAttribute('aria-checked', String(on));
+    });
+  }
+  if (mq){ var follow = function(){ if (d.dataset.themePref === 'system') d.dataset.theme = resolve('system'); };
+    if (mq.addEventListener) mq.addEventListener('change', follow); else if (mq.addListener) mq.addListener(follow); }
+  if (seg) seg.addEventListener('click', function(e){ var b = e.target.closest('[data-theme-pick]'); if (b) set(b.dataset.themePick); });
+  mark();
+})();
+
+/* Studio rail (Scenes & Layers): can be folded away to give a meeting more room; remembered on this PC */
+(function(){
+  var b = $('rail-toggle'), RK = 'bsf-cc-rail';
+  if (!b) return;
+  function setRail(open){
+    document.body.classList.toggle('rail-hidden', !open);
+    b.setAttribute('aria-expanded', String(open));
+    try { localStorage.setItem(RK, open ? '1' : '0'); } catch(e){}
+    window.dispatchEvent(new Event('resize'));          // the Meeting view and the canvas re-fit
+  }
+  var saved = null; try { saved = localStorage.getItem(RK); } catch(e){}
+  if (saved === '0') setRail(false);
+  b.addEventListener('click', function(){ setRail(document.body.classList.contains('rail-hidden')); });
+})();
 
 /* Members tab shows the birthday count too */
 (function(){

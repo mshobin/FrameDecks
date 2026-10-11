@@ -417,3 +417,44 @@ Network check (PowerShell) cached 15 min (60 s with Settings > Remote open) inst
 addresses cached 10 s; Studio's window/display list cached 3 s; vCam top-bar light uses `?lite=1` (no webcam
 enumeration); one presence poll instead of two; header chips/lights write to the page only on change; Meeting
 safety re-render 2 s -> 10 s; background polls slow down while minimised.
+
+## 19. Version 4.9: Studio workspace, control bar, natural blur, design system
+
+**Navigation.** Three top tabs: Studio · Members · Settings (`nav.js` GROUPS). The former *Meetings & Content* views
+moved into the Studio. **View ids are unchanged** (`meeting`, `overlays`, `studio`, `recordings`): `BSFSetTab()`,
+`data-goto`, `body.dataset.tab` checks, keyboard shortcuts and the startup view (`meeting`) all behave as before.
+Alt+1 Meeting · Alt+2 Canvas · Alt+3 Members · Alt+4 Settings (the old destinations). The saved "last sub-view"
+(`bsf-cc-subtab`) is migrated from `meetings` to `studio`.
+
+**Studio workspace** (`dashboard.html` `#studio-ws`): `#studio-rail` (Scenes on top, Layers beneath, built by
+`studio.js` - same functions, new parent) | `#ws-main` (view switcher `#sub-studio` + the four view panels). The
+Canvas view is canvas + Inspector. The rail folds (`body.rail-hidden`, remembered). `studio.js` polls
+`/api/vcam/studio` every 1 s with the Canvas open, every 3 s while the rail is visible, otherwise not
+(minimised: paced). `.ws-main` is a CSS container; the Meeting grid follows its width (`@container ws`).
+
+**Control bar** (`#ctlbar`, wired in `meeting.js`): calls `BSFActions.step/toggle/hideAll`, `BSFBirthday.toggle`,
+`BSFStudio.slide` (or `POST /api/vcam/studio {op:"slide"}`) through the same `guard()` (450 ms) as the Meeting view.
+Layout heights `--top-h`, `--ws-top`, `--cb-h` are measured in `nav.js`; `meeting.js fit()` and `studio.js fitStage()`
+subtract the bar.
+
+**Design system** (`css/theme.css`, loaded last): radius 8/12/16/20, type scale, motion tokens, dark (default) and
+light palettes. Dark-only colours in `dashboard.css`/`console.css`/`members.css` were replaced by tokens whose
+fallback is the old value. Appearance (`bsf-cc-theme`: dark | light | system) is applied by an inline script before
+the first paint. No backdrop-filter, no endless animation; transitions on colour/transform only.
+
+**Blur** (`vcam/blur.py`, `server.clean_vcam`, `vcam-panel.js`): `blurStrength` 0.001…100 in 0.001 steps (decimal
+rounding from the shortest repr: no drift), `blurStyle` natural (default) | classic. Natural: full-size sigma =
+classic from 10 % up, `25.6 × (s/10)^1.15` below; working scale 1/1…1/8 chosen so the blur is ≥ 2 px there;
+mask-normalised blur (no halo); inward-only edge feather growing with strength; mild near/far gradation (0.8×).
+Classic is bit-identical to 4.8 (tested). UI: curved slider (`s = 100·x²`), exact number box, ±0.001 (Shift ±0.1),
+values held as integer thousandths in JS.
+
+**Performance (large lists).** Each Next/Show used to rebuild the hidden Content lists (2 × N rows), a hidden picker
+and the whole run sheet (~0.7 s at N = 1,000). Now: Content lists and effect controls are drawn only while Content /
+Settings is open (`BSFRenderLists` on open), only rows whose state changed are replaced, the run sheet patches the
+rows between the old and new position, and fixed elements are looked up once. ~25 ms per step at N = 1,000.
+
+**Mobile remote protection boundary.** `remote.html`, `js/remote.js`, `css/remote.css`, `js/store.js`,
+`remote-manifest.json`, icons and every `/api/remote*`, `/api/state`, `/api/rev` handler are untouched in 4.9
+(verified with `git diff` against 4.8). All 4.9 changes are in PC-only files or in local-only (`is_local()`)
+endpoints; `theme.css` is linked only from `dashboard.html`.

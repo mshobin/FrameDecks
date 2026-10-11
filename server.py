@@ -12,7 +12,6 @@ Mac:     double-click "Start BSF Command Center (Mac).command"
          (for the phone remote: python3 server.py --remote)
 """
 import json
-import math
 import os
 import platform
 import re
@@ -28,7 +27,7 @@ from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from pathlib import Path
 from urllib.parse import urlparse, parse_qs, unquote
 
-APP_VERSION = "4.8"
+APP_VERSION = "4.9"
 STARTED_AT = time.time()
 FROZEN = getattr(sys, "frozen", False)          # True inside the installed Windows app
 HERE = Path(sys.executable).resolve().parent if FROZEN else Path(__file__).resolve().parent
@@ -604,7 +603,8 @@ def firewall(action):
 
 # ---------- BCC vCam (built-in virtual camera, Windows) ----------
 VCAM_SETTINGS_FILE = DATA / "bsf-vcam-settings.json"
-VCAM_DEFAULTS = {"enabled": True, "cameraName": "", "resolution": "720p", "mirror": False, "blur": "off", "blurStrength": 0, "cards": True, "look": "off", "presentFps": 15}
+VCAM_DEFAULTS = {"enabled": True, "cameraName": "", "resolution": "720p", "mirror": False, "blur": "off", "blurStrength": 0, "cards": True, "look": "off", "presentFps": 15,
+                 "blurStyle": "natural"}
 LOOKS_FILE = DATA / "bsf-looks.json"
 VCAM = {"engine": None, "reason": "", "detail": "", "cameras": None, "camerasAt": 0}
 
@@ -663,11 +663,20 @@ def clean_vcam(d):
         out["blur"] = d["blur"]
     if d.get("presentFps") in (15, 30):
         out["presentFps"] = d["presentFps"]
-    if isinstance(d.get("blurStrength"), (int, float)) and not isinstance(d.get("blurStrength"), bool):
-        raw = float(d["blurStrength"])
-        n = math.floor(raw * 10 + 0.5) / 10                        # steps of 0.1 % (halves round up, like the screen)
-        n = 0 if raw <= 0 else max(0.1, min(100.0, n))            # 0 = off; any positive value is at least 0.1 %
-        out["blurStrength"] = int(n) if n == int(n) else round(n, 1)
+    if d.get("blurStyle") in ("natural", "classic"):
+        out["blurStyle"] = d["blurStyle"]
+    if isinstance(d.get("blurStrength"), (int, float, str)) and not isinstance(d.get("blurStrength"), bool):
+        try:
+            raw = float(d["blurStrength"])
+        except ValueError:
+            raw = float("nan")
+        if raw == raw and abs(raw) != float("inf"):
+            # Steps of 0.001 % (v4.9; 0.1 before). Rounded in decimal from the number's shortest text form, so
+            # 12.345 stays 12.345 (binary floats would make some halves round down) - no drift on save/reload.
+            from decimal import Decimal, ROUND_HALF_UP
+            n = float(Decimal(repr(raw)).quantize(Decimal("0.001"), rounding=ROUND_HALF_UP))
+            n = 0 if raw <= 0 else max(0.001, min(100.0, n))       # 0 = off; any positive value is at least 0.001 %
+            out["blurStrength"] = int(n) if n == int(n) else n
     elif "blur" in out:                                   # older settings: off / light / strong
         out["blurStrength"] = {"off": 0, "light": 30, "strong": 80}[out["blur"]]
     # Version 2 (picture settings): filterName is accepted as another name for look; backgroundMode none/blur
