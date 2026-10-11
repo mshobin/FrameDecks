@@ -8,6 +8,7 @@
 var Store = window.BSFStore;
 var $ = function(id){ return document.getElementById(id); };
 var live = null, listKind = 'question';
+var P = window.BSFPresent;            /* Question · Both · Verse - the same logic as the PC (js/store.js) */
 var NAMES = {verse: 'Verse', question: 'Question', birthday: 'Birthday'};
 var all = function(sel){ return Array.prototype.slice.call(document.querySelectorAll(sel)); };
 
@@ -78,16 +79,18 @@ function showItem(k, idx){
     if (k === 'verse'){ o.ref = it.ref; o.version = it.version; }
     else o.label = questionLabel(o, idx);
     window.BSFTransitions.resolve(n, k, it.id);
+    if (k === 'question') P.afterShow(n);
   }, NAMES[k] + ' ' + (idx + 1) + ' on screen');
 }
 function has(k){ var o = live[k]; return (k === 'birthday' ? o.greeting : o.text).trim() !== ''; }
-function isOn(k){ return live[k].visible && has(k); }
+function isOn(k){ return k === 'question' ? P.live(live) : live[k].visible && has(k); }
 function act(what, k){
   if (!live) return;
   if (what === 'toggle'){
-    if (isOn(k)){ update(function(n){ n[k].visible = false; }, NAMES[k] + ' hidden'); return; }
+    if (isOn(k)){ update(function(n){ if (k === 'question') P.hide(n); else n[k].visible = false; }, NAMES[k] + ' hidden'); return; }
     if (!has(k)){ toast(k === 'birthday' ? 'Choose who to celebrate on the PC first.' : 'Nothing loaded. Use Next or the list.', true); return; }
-    update(function(n){ if (k !== 'birthday') window.BSFTransitions.resolve(n, k, n[k].itemId); n[k].visible = true; n[k].seq = (n[k].seq || 0) + 1; }, NAMES[k] + ' on screen');
+    update(function(n){ if (k !== 'birthday') window.BSFTransitions.resolve(n, k, n[k].itemId); n[k].visible = true; n[k].seq = (n[k].seq || 0) + 1;
+      if (k === 'question') P.afterShow(n); }, NAMES[k] + ' on screen');
   } else if (what === 'clear'){
     update(function(n){
       var x = n[k]; x.visible = false; x.cut = (x.cut || 0) + 1;
@@ -113,6 +116,16 @@ document.addEventListener('click', function(e){
   b.classList.add('sent'); setTimeout(function(){ b.classList.remove('sent'); }, 400);
   buzz(12);
   act(b.dataset.do, b.dataset.k);
+});
+
+/* Presentation mode (above Show): Question · Both · Verse. On screen, the picture follows at once. */
+all('[data-pmode]').forEach(function(b){
+  b.addEventListener('click', function(){
+    if (!live || b.getAttribute('aria-checked') === 'true') return;
+    buzz(10);
+    var m = b.dataset.pmode;
+    update(function(n){ P.setMode(n, m); }, {question: 'Question only', both: 'Question + verse', verse: 'Verse only'}[m]);
+  });
 });
 
 /* Clear needs a press-and-hold (0.8 s) so it can't happen by accident */
@@ -367,6 +380,8 @@ function render(){
     }
   });
   setText($('q-label'), live.question.text.trim() ? live.question.label : '');
+  var pm = P.mode(live);
+  all('[data-pmode]').forEach(function(b){ var on = b.dataset.pmode === pm; if (b.getAttribute('aria-checked') !== String(on)) b.setAttribute('aria-checked', String(on)); });
   var sig = JSON.stringify([listKind, live.library, live.question.itemId, live.verse.itemId, live.question.visible, live.verse.visible]);
   if (!$('drawer').hidden && sig !== lastDrawerSig){ lastDrawerSig = sig; renderDrawer(); }
 }

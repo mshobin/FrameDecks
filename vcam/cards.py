@@ -616,9 +616,34 @@ class CardDrawer:
         return card
 
 
+MODES = ("question", "both", "verse")
+BOTH_VERSE, BOTH_QUESTION = 0.86, 1.06          # same as overlay.js: in Both mode the question leads
+
+
+def presentation_mode(st):
+    """Same as BSFPresent.mode() in store.js: the question's own saved mode, else the mode last chosen."""
+    q = st.get("question", {}) or {}
+    for it in (st.get("library", {}) or {}).get("questions", []) or []:
+        if it.get("id") == q.get("itemId") and it.get("mode") in MODES:
+            return it["mode"]
+    return q.get("mode") if q.get("mode") in MODES else "question"
+
+
+def effective_layout(st):
+    """The layout to draw with: in Both mode, with question and verse on screen, the question is a little larger
+    and the verse a little smaller (supporting it). Otherwise exactly the saved layout."""
+    L = dict(st.get("layout", {}) or {})
+    q, v = st.get("question", {}) or {}, st.get("verse", {}) or {}
+    if (presentation_mode(st) == "both" and q.get("visible") and str(q.get("text", "")).strip()
+            and v.get("visible") and str(v.get("text", "")).strip()):
+        L["verseScale"] = float(L.get("verseScale", 1)) * BOTH_VERSE
+        L["qScale"] = float(L.get("qScale", 1)) * BOTH_QUESTION
+    return L
+
+
 def place_verse(st, W, H):
     """Same as placeVerse() in overlay.js: the band the verse card may use, clear of the question/birthday."""
-    L = st.get("layout", {})
+    L = effective_layout(st)
     u = min(W / 100, H * 1.7778 / 100)
     border = max(2, u * 0.13) * 2
     top_limit, bottom_limit = H * 0.04, H * 0.96

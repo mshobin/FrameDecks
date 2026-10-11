@@ -12,7 +12,7 @@ import time
 import cv2
 import numpy as np
 
-from .cards import CardDrawer, place_verse
+from .cards import CardDrawer, effective_layout, place_verse
 
 TYPE_MS = {"slow": 0.070, "normal": 0.038, "fast": 0.018}
 WORD_MS = {"slow": 0.260, "normal": 0.150, "fast": 0.080}
@@ -196,7 +196,7 @@ class OverlayLayer:
                     self.drawing.discard(kind)
 
     def _card(self, kind, tr, st, W, H, now):
-        L = dict(st.get("layout", {}) or {})
+        L = effective_layout(st)                      # Both mode: the question leads (same as the overlay pages)
         band = place_verse(st, W, H) if kind == "verse" else None
         key = (tr.sig(tr.data), W, H, tuple(sorted((k, str(v)) for k, v in L.items())), band and (round(band[1] - band[0])))
         with self.cond:

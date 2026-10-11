@@ -849,7 +849,7 @@ function renderBar(){
 }
 function renderBarStatus(){
   var on = !!(live && live.birthday.visible && live.birthday.greeting);
-  var top = $('pill-birthday'); top.className = 'pill' + (on ? ' on' : ''); top.querySelector('b').textContent = on ? 'On screen' : 'Hidden';
+  var top = $('pill-birthday'); if (top){ top.className = 'pill' + (on ? ' on' : ''); top.querySelector('b').textContent = on ? 'On screen' : 'Hidden'; }
 }
 function bdayPayload(m){
   var st = data.settings, display = st.bdayNameStyle === 'first' ? m.name.split(/\s+/)[0] : m.name;

@@ -20,8 +20,15 @@ var FIELDS = [
   {key: 'ref',     label: 'Verse reference', need: false, alias: ['verse reference', 'reference', 'ref', 'verse ref', 'scripture reference', 'passage', 'bible reference', 'scripture']},
   {key: 'version', label: 'Bible version',   need: false, alias: ['version', 'bible version', 'translation']},
   {key: 'vtext',   label: 'Verse text',      need: false, alias: ['verse text', 'verse', 'bible verse', 'focus verse', 'scripture text', 'text of verse']},
-  {key: 'note',    label: 'Notes (optional)', need: false, alias: ['notes', 'note', 'optional', 'comments', 'comment', 'remarks']}
+  {key: 'note',    label: 'Notes (optional)', need: false, alias: ['notes', 'note', 'optional', 'comments', 'comment', 'remarks']},
+  {key: 'mode',    label: 'Presentation mode (optional)', need: false, alias: ['presentationmode', 'presentation mode', 'mode', 'show as', 'display', 'present as']}
 ];
+/* PresentationMode: QUESTION (question only), BOTH (question with its verse), VERSE (verse only). Blank = the
+ * mode chosen in the app at the time (Question unless changed). */
+var MODE_WORDS = {question: 'question', q: 'question', 'question only': 'question',
+  both: 'both', 'question and verse': 'both', 'question + verse': 'both', 'question & verse': 'both', combined: 'both',
+  verse: 'verse', v: 'verse', 'verse only': 'verse', scripture: 'verse'};
+function readMode(s){ s = String(s || '').toLowerCase().replace(/\s+/g, ' ').trim(); return s ? (MODE_WORDS[s] || null) : ''; }
 var MAXLEN = 2000;
 function norm(s){ return String(s || '').toLowerCase().replace(/[_\s]+/g, ' ').replace(/[^a-z0-9# ]/g, '').trim(); }
 function autoMap(headers){
@@ -49,6 +56,8 @@ function check(parsed, map){
   parsed.rows.forEach(function(r, i){
     var row = {line: parsed.headerRow + 1 + i, num: get(r, 'num'), q: get(r, 'qtext'), ref: get(r, 'ref'), version: get(r, 'version'),
                v: get(r, 'vtext'), note: get(r, 'note'), errors: [], warnings: []};
+    var rawMode = get(r, 'mode'); row.mode = readMode(rawMode);
+    if (row.mode === null){ row.warnings.push('PresentationMode “' + rawMode + '” is not QUESTION, BOTH or VERSE: left blank'); row.mode = ''; }
     if (!row.num && !row.q && !row.ref && !row.v && !row.note){ blank++; return; }
     ['q', 'v', 'note'].forEach(function(k){ if (row[k].length > MAXLEN){ row[k] = row[k].slice(0, MAXLEN); row.warnings.push('Text shortened to ' + MAXLEN + ' characters'); } });
     if (row.ref.length > 80){ row.ref = row.ref.slice(0, 80); row.warnings.push('Reference shortened'); }
@@ -57,6 +66,7 @@ function check(parsed, map){
     if (hasVerse && !row.v){ row.warnings.push('Verse reference without verse text: the verse is skipped'); row.skipVerse = true; }
     else if (hasVerse && !row.ref){ row.warnings.push('Verse text without a reference: the verse is skipped'); row.skipVerse = true; }
     if (!row.q && hasVerse && !row.skipVerse) row.warnings.push('No question: only the verse is imported');
+    if (row.mode && row.mode !== 'question' && (!hasVerse || row.skipVerse) && row.q) row.warnings.push('PresentationMode ' + row.mode.toUpperCase() + ' without a verse in this row: the verse already on screen will be used');
     if (row.num){
       if (!/^\s*\d+[a-z]?\s*$/i.test(row.num)) row.warnings.push('Question number “' + row.num + '” is not a number');
       if (seenNums[row.num]) row.warnings.push('Question number ' + row.num + ' also on row ' + seenNums[row.num]);
@@ -78,6 +88,7 @@ function doImport(result, mode){
   result.rows.forEach(function(r){
     if (r.errors.length) return;
     var q = r.q ? {id: uid('q'), text: r.q, num: r.num, note: r.note} : null;
+    if (q && r.mode) q.mode = r.mode;
     var v = (r.ref || r.v) && !r.skipVerse ? {id: uid('v'), ref: r.ref, version: r.version, text: r.v} : null;
     if (q && v){ q.pair = v.id; v.pair = q.id; }        // the question and its verse stay linked
     if (q) qs.push(q);
@@ -153,12 +164,12 @@ function openDialog(parsed, fileName){
       issues.appendChild(ul);
     }
     table.innerHTML = '';
-    var t = h('table', {cls: 'imp-table'}, [h('thead', {}, [h('tr', {}, ['Row', 'No.', 'Question', 'Verse reference', 'Verse text', 'Notes'].map(function(x){ return h('th', {text: x}); }))])]);
+    var t = h('table', {cls: 'imp-table'}, [h('thead', {}, [h('tr', {}, ['Row', 'No.', 'Question', 'Verse reference', 'Verse text', 'Notes', 'Mode'].map(function(x){ return h('th', {text: x}); }))])]);
     var tb = h('tbody');
     result.rows.slice(0, 200).forEach(function(r){                 // preview: first 200 rows (the import uses all)
       tb.appendChild(h('tr', {cls: r.errors.length ? 'bad' : (r.warnings.length ? 'warn' : '')}, [
         h('td', {text: String(r.line)}), h('td', {text: r.num}), h('td', {text: r.q}),
-        h('td', {text: r.ref + (r.version ? ' · ' + r.version : '')}), h('td', {text: r.v}), h('td', {text: r.note})]));
+        h('td', {text: r.ref + (r.version ? ' · ' + r.version : '')}), h('td', {text: r.v}), h('td', {text: r.note}), h('td', {text: r.mode ? r.mode.toUpperCase() : ''})]));
     });
     t.appendChild(tb); table.appendChild(t);
     if (result.rows.length > 200) table.appendChild(h('p', {cls: 'hint', text: 'Showing the first 200 of ' + result.rows.length + ' rows; all of them will be imported.'}));
@@ -178,22 +189,49 @@ function openDialog(parsed, fileName){
   (mapBox.querySelector('select') || goBtn).focus();
 }
 
-/* ---------- template ---------- */
+/* ---------- template and export: the same columns, so an export can be imported again ---------- */
+var HEAD = ['Question number', 'Question text', 'Verse reference', 'Bible version', 'Verse text', 'Notes', 'PresentationMode'];
+var COLS = [{wch: 10}, {wch: 60}, {wch: 18}, {wch: 10}, {wch: 60}, {wch: 26}, {wch: 18}];
+/* One row per question with its linked verse; verses linked to no question get their own rows at the end */
+function exportRows(st){
+  var lib = st.library, byId = {}, used = {};
+  lib.verses.forEach(function(v){ byId[v.id] = v; });
+  var rows = [HEAD];
+  lib.questions.forEach(function(q, i){
+    var v = q.pair && byId[q.pair];
+    if (v) used[v.id] = true;
+    rows.push([q.num || i + 1, q.text, v ? v.ref : '', v ? v.version : '', v ? v.text : '', q.note || '', q.mode ? q.mode.toUpperCase() : '']);
+  });
+  lib.verses.forEach(function(v){ if (!used[v.id]) rows.push(['', '', v.ref, v.version, v.text, '', '']); });
+  return rows;
+}
+function exportExcel(){
+  var X = window.XLSX; if (!X){ toast('The Excel library did not load', true); return; }
+  var rows = exportRows(Store.get());
+  if (rows.length < 2){ toast('There are no questions or verses to export yet.', true); return; }
+  var wb = X.utils.book_new(), ws = X.utils.aoa_to_sheet(rows); ws['!cols'] = COLS;
+  X.utils.book_append_sheet(wb, ws, 'Questions & Verses');
+  X.writeFile(wb, 'BSF-Questions-and-Verses-' + new Date().toISOString().slice(0, 10) + '.xlsx');
+  toast('Exported ' + (rows.length - 1) + ' rows to your Downloads');
+}
 function downloadTemplate(){
   var X = window.XLSX; if (!X){ toast('The Excel library did not load', true); return; }
-  var rows = [['Question number', 'Question text', 'Verse reference', 'Bible version', 'Verse text', 'Notes'],
-    [1, 'What does this passage reveal about the character of God?', 'Psalm 119:105', 'KJV', 'Thy word is a lamp unto my feet, and a light unto my path.', 'Opening question'],
-    [2, 'Which phrase in today’s focus verse stood out to you most this week, and why?', 'Isaiah 40:8', 'KJV', 'The grass withereth, the flower fadeth: but the word of our God shall stand for ever.', ''],
-    [3, 'How could the truth of this passage change the way you respond to a situation you face right now?', '', '', '', 'A question without a verse is fine']];
+  var rows = [HEAD,
+    [1, 'What does this passage reveal about the character of God?', 'Psalm 119:105', 'KJV', 'Thy word is a lamp unto my feet, and a light unto my path.', 'Opening question', 'BOTH'],
+    [2, 'Which phrase in today’s focus verse stood out to you most this week, and why?', 'Isaiah 40:8', 'KJV', 'The grass withereth, the flower fadeth: but the word of our God shall stand for ever.', '', 'QUESTION'],
+    [3, 'Read the passage together.', 'Romans 8:1', 'KJV', 'There is therefore now no condemnation to them which are in Christ Jesus.', 'Reading', 'VERSE'],
+    [4, 'How could the truth of this passage change the way you respond to a situation you face right now?', '', '', '', 'A question without a verse is fine', '']];
   var help = [['How to fill in this template'], [''],
     ['One row = one question and the Bible verse that goes with it.'],
     ['Question number: optional (1, 2, 3...).'], ['Question text: the discussion question.'],
     ['Verse reference: e.g. John 3:16. Leave the verse columns empty if a question has no verse.'],
     ['Bible version: optional, e.g. KJV, NIV, ESV.'], ['Verse text: the words of the verse (line breaks are kept).'],
-    ['Notes: optional, for your own use.'], [''],
-    ['In BSF Command Center: Meetings & Content > Content > Import from Excel. Different column names can be matched there.']];
+    ['Notes: optional, for your own use.'],
+    ['PresentationMode: optional. QUESTION = the question only, BOTH = the question with its verse, VERSE = the verse only.'],
+    ['   Leave it empty to use the mode chosen in the app (Question unless you change it).'], [''],
+    ['In BSF Command Center: Studio > Content > Import from Excel. Different column names can be matched there.']];
   var wb = X.utils.book_new();
-  var ws = X.utils.aoa_to_sheet(rows); ws['!cols'] = [{wch: 10}, {wch: 60}, {wch: 18}, {wch: 10}, {wch: 60}, {wch: 26}];
+  var ws = X.utils.aoa_to_sheet(rows); ws['!cols'] = COLS;
   X.utils.book_append_sheet(wb, ws, 'Questions & Verses');
   var hs = X.utils.aoa_to_sheet(help); hs['!cols'] = [{wch: 100}];
   X.utils.book_append_sheet(wb, hs, 'How to fill in');
@@ -208,6 +246,7 @@ var bar = h('section', {cls: 'imp-bar', 'aria-label': 'Import from Excel'}, [
   h('div', {}, [h('b', {text: 'Import questions & verses'}), h('span', {cls: 'hint', text: ' from Excel (.xlsx) or CSV — one question with its verse per row'})]),
   h('div', {cls: 'actions'}, [
     h('button', {cls: 'btn small', type: 'button', id: 'imp-template', text: 'Download template', onclick: downloadTemplate}),
+    h('button', {cls: 'btn small', type: 'button', id: 'imp-export', text: 'Export to Excel', onclick: exportExcel}),
     h('button', {cls: 'btn primary small', type: 'button', id: 'imp-open', text: 'Import from Excel…', onclick: function(){ file.click(); }})]), file]);
 host.insertBefore(bar, host.firstChild);
 file.addEventListener('change', function(){
@@ -217,5 +256,5 @@ file.addEventListener('change', function(){
   toast('Reading ' + f.name + '…');
   parse(f).then(function(p){ openDialog(p, f.name); }).catch(function(e){ toast(e.message, true); });
 });
-window.BSFContentImport = {check: check, autoMap: autoMap};
+window.BSFContentImport = {check: check, autoMap: autoMap, exportRows: exportRows, readMode: readMode};
 })();

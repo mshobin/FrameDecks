@@ -102,9 +102,12 @@ focusBtn.id = 's2-focus';
 var hideBtn = ib('panel-left', 'Hide the app window (keeps running near the clock)', function(){
   fetch('api/app/hide', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: '{}'}).then(function(r){ if (!r.ok) toast('Only in the installed app', true); }); });
 var shareChip = h('span', {cls: 's2-chip', id: 's2-share', hidden: 'hidden'});
-top.appendChild(h('div', {cls: 's2-top-l'}, [h('span', {cls: 's2-lbl', html: I('layout-template', 15)}), colFilter, sceneSel]));
+/* v5: the scene picker and collection filter are the Scenes list beside the canvas, and the Look is in
+ * Settings > BCC vCam (and Ctrl+Alt+1/2/3/0) - the bar shows the active scene instead of repeating them. */
+var sceneNow = h('span', {cls: 's2-scene-now', id: 's2-scene-now'});
+top.appendChild(h('div', {cls: 's2-top-l'}, [h('span', {cls: 's2-lbl', html: I('layout-template', 15)}), sceneNow]));
 top.appendChild(h('div', {cls: 's2-top-c'}, [presBtn, shareChip]));
-top.appendChild(h('div', {cls: 's2-top-r'}, [lookSel, recBtn, focusBtn, hideBtn]));
+top.appendChild(h('div', {cls: 's2-top-r'}, [recBtn, focusBtn, hideBtn]));
 
 colFilter.addEventListener('change', renderScenes);
 sceneSel.addEventListener('change', function(){ if (sceneSel.value) act('scene-apply', {id: sceneSel.value}).then(function(){ toast('Scene: ' + sceneSel.options[sceneSel.selectedIndex].text); }); });
@@ -429,6 +432,8 @@ function renderScenes(){
     gallery.appendChild(h('button', {cls: 's2-scene add', type: 'button', id: 's2-savescene', html: I('plus', 20) + '<span class="s2-scname">Save as scene</span>', onclick: function(){
       var n = prompt('Name for this scene (e.g. “Meeting Default”):'); if (n && n.trim()) act('scene-save', {name: n.trim(), collection: col}).then(function(){ toast('Scene saved'); refresh(); }); }}));
   }
+  var act_ = (S.scenes || []).filter(function(sc){ return sc.id === S.activeScene; })[0];
+  sceneNow.textContent = act_ ? act_.name : 'No scene chosen';
   var f = colFilter.value, opts = (S.scenes || []).filter(function(sc){ return !f || sc.collection === f; });
   var ssig = JSON.stringify(opts) + S.activeScene;
   if (sceneSel.dataset.sig !== ssig){ sceneSel.dataset.sig = ssig; sceneSel.innerHTML = '';

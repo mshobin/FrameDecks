@@ -6,7 +6,7 @@ var Store = window.BSFStore;
 var $ = function(id){ return document.getElementById(id); };
 var DRAFT_KEY = 'bsf-cc-drafts-v1';
 var TRANS = [['fade','Fade'],['rise','Gentle rise'],['words','Word by word'],['typewriter','Typewriter'],['burst','Burst'],['none','Cut']];
-var T = window.BSFTransitions;
+var T = window.BSFTransitions, P = window.BSFPresent;
 var SPEEDS = [['slow','Slow'],['normal','Medium'],['fast','Fast']];
 var ALIGNS = [['left','Left'],['center','Center'],['right','Right']];
 var NAMES = {verse: 'Focus Verse', question: 'Discussion Question'};
@@ -54,6 +54,8 @@ window.BSFActions = {
   show: function(k){ show(k); }, hide: function(k){ hide(k); }, toggle: function(k){ toggle(k); },
   clear: function(k){ clearLive(k); }, step: function(k, d){ step(k, d); }, hideAll: function(){ hideAll(); },
   showItem: function(k, item){ showItem(k, item); }, list: function(k){ return list(k); },
+  setMode: function(m){ setMode(m); }, mode: function(){ return live ? P.mode(live) : 'question'; },
+  questionLive: function(){ return !!(live && P.live(live)); },
   current: function(k){ return indexOf(k, isOn(k) ? live[k].itemId : (live && live[k].itemId) || drafts[k].itemId); },
   toast: function(m, bad){ toast(m, bad); }
 };
@@ -105,16 +107,20 @@ function show(kind){
     else o.label = questionLabel();
     T.resolve(n, kind, o.itemId);
     o.visible = true; o.seq = (o.seq || 0) + 1;
+    if (kind === 'question') P.afterShow(n);            // Question · Both · Verse (unset = question only, as before)
   });
 }
-function hide(kind){ commit(function(n){ n[kind].visible = false; }); }
+function hide(kind){ commit(function(n){ if (kind === 'question') P.hide(n); else n[kind].visible = false; }); }
 /* Show/Hide works the same on the dashboard, phone remote and keyboard: if something is loaded,
  * show or hide it; if nothing is loaded yet, show what's in the editor. */
 function toggle(kind){
-  if (isOn(kind)){ hide(kind); return; }
-  if (live && live[kind].text.trim()){ commit(function(n){ T.resolve(n, kind, n[kind].itemId); n[kind].visible = true; n[kind].seq = (n[kind].seq || 0) + 1; }); return; }
+  if (kind === 'question' ? (live && P.live(live)) : isOn(kind)){ hide(kind); return; }
+  if (live && live[kind].text.trim()){ commit(function(n){ T.resolve(n, kind, n[kind].itemId); n[kind].visible = true; n[kind].seq = (n[kind].seq || 0) + 1;
+    if (kind === 'question') P.afterShow(n); }); return; }
   show(kind);
 }
+/* Presentation mode of the current question (Question · Both · Verse). On screen, the change shows at once. */
+function setMode(m){ commit(function(n){ P.setMode(n, m); }); }
 function hideAll(){ commit(function(n){ n.verse.visible = false; n.question.visible = false; n.birthday.visible = false; }); }
 function clearLive(kind){
   commit(function(n){
@@ -410,13 +416,19 @@ function refreshRanges(){
 }
 
 /* ---------- Status ---------- */
+/* One live indicator in the header: what the audience sees right now */
 function refreshStatus(){
-  ['verse', 'question'].forEach(function(kind){
-    var p = $('pill-' + kind), on = isOn(kind);
-    p.className = 'pill' + (on ? ' on' : '');
-    p.querySelector('b').textContent = on ? 'On screen' : 'Hidden';
-    p.title = on ? live[kind].text : 'Not showing';
-  });
+  var el = $('live-ind'); if (!el || !live) return;
+  var on = [];
+  if (isOn('question')) on.push('Question');
+  if (isOn('verse')) on.push('Verse');
+  if (live.birthday.visible && live.birthday.greeting.trim()) on.push('Birthday');
+  var cls = 'live-ind' + (on.length ? ' on' : ''), what = on.join(' + ');
+  if (el.className !== cls) el.className = cls;
+  var b = el.querySelector('b'), w = el.querySelector('.live-what');
+  if (b.textContent !== (on.length ? 'LIVE' : 'Off air')) b.textContent = on.length ? 'LIVE' : 'Off air';
+  if (w.textContent !== what) w.textContent = what;
+  el.title = on.length ? 'On screen now: ' + what : 'Nothing is on screen';
 }
 function refreshMode(){
   var m = $('mode');
@@ -555,7 +567,7 @@ function setup(){
     else if (act === 'next') step(kind, 1);
     else if (act === 'clearlist') clearList(kind);
   });
-  $('hide-all').addEventListener('click', hideAll);
+  if ($('hide-all')) $('hide-all').addEventListener('click', hideAll);   // v5: Hide all lives in the action bar
 
   // Ctrl+Enter shows from the editor
   [['v-text', 'verse'], ['v-ref', 'verse'], ['v-version', 'verse'], ['q-text', 'question']].forEach(function(p){

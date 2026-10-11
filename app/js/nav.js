@@ -91,6 +91,86 @@ show(document.body.dataset.tab || 'meeting');
   mark();
 })();
 
+/* ---------- Header: one status button. Its colour is the worst of the four checks (their own code keeps
+ * updating them inside the menu); the menu lists them, each opening its Settings section. ---------- */
+(function(){
+  var box = $('sysstat'); if (!box) return;
+  var chips = Array.prototype.slice.call(box.querySelectorAll('.hchip')), dot = box.querySelector('.sys-dot'), txt = box.querySelector('.sys-text');
+  var RANK = {bad: 3, warn: 2, info: 1, ok: 0};
+  function sum(){
+    var worst = 'ok', bad = [];
+    chips.forEach(function(c){
+      var s = ['bad', 'warn'].filter(function(x){ return c.classList.contains(x); })[0];
+      if (s){ bad.push(c.querySelector('.hl').textContent + ': ' + c.querySelector('b').textContent); if (RANK[s] > RANK[worst]) worst = s; }
+    });
+    var label = worst === 'ok' ? 'All systems ready' : bad[0] + (bad.length > 1 ? ' +' + (bad.length - 1) : '');
+    if (dot.className !== 'sys-dot ' + worst) dot.className = 'sys-dot ' + worst;
+    if (txt.textContent !== label) txt.textContent = label;
+    box.title = chips.map(function(c){ return c.querySelector('.hl').textContent + ': ' + c.querySelector('b').textContent; }).join(' · ');
+  }
+  var mo = new MutationObserver(sum);
+  chips.forEach(function(c){ mo.observe(c, {attributes: true, attributeFilter: ['class'], subtree: true, childList: true, characterData: true}); });
+  sum();
+  chips.forEach(function(c){ c.addEventListener('click', function(){ box.open = false; }); });
+  document.addEventListener('click', function(e){ if (box.open && !box.contains(e.target)) box.open = false; });
+})();
+
+/* ---------- Header search: questions, verses and members. Choosing a question or verse shows where it is in the
+ * Run sheet (nothing goes on screen); a member opens their card. Ctrl+K focuses it. ---------- */
+(function(){
+  var inp = $('gsearch'), ul = $('gsearch-list'); if (!inp || !ul) return;
+  var results = [], active = -1, lib = null;
+  Store.subscribe(function(st){ lib = st.library; });
+  function norm(s){ return String(s || '').toLowerCase(); }
+  function find(q){
+    q = norm(q).trim(); if (!q || !lib) return [];
+    var out = [];
+    lib.questions.forEach(function(it, i){ if (out.length < 30 && norm(it.text).indexOf(q) >= 0) out.push({kind: 'question', i: i, title: it.text, sub: 'Question ' + (i + 1)}); });
+    lib.verses.forEach(function(it, i){ if (out.length < 30 && norm((it.ref || '') + ' ' + it.text).indexOf(q) >= 0) out.push({kind: 'verse', i: i, title: (it.ref || 'Verse') + (it.version ? ' · ' + it.version : ''), sub: it.text}); });
+    var api = window.BSFMembersAPI;
+    if (api && api.directory) api.directory().forEach(function(m){ if (out.length < 40 && norm(m.name + ' ' + m.email + ' ' + m.role).indexOf(q) >= 0) out.push({kind: 'member', id: m.id, title: m.name, sub: m.role || m.email || 'Member'}); });
+    return out;
+  }
+  function draw(){
+    ul.innerHTML = '';
+    results.forEach(function(r, n){
+      var li = h('li', {role: 'option', id: 'gs-' + n, 'aria-selected': String(n === active), cls: 'gs-' + r.kind}, [
+        h('span', {cls: 'gs-kind', text: {question: 'Question', verse: 'Verse', member: 'Member'}[r.kind]}),
+        h('span', {cls: 'gs-text'}, [h('b', {text: r.title}), h('small', {text: r.sub})])]);
+      li.addEventListener('mousedown', function(e){ e.preventDefault(); pick(r); });
+      ul.appendChild(li);
+    });
+    if (!results.length && inp.value.trim()) ul.appendChild(h('li', {cls: 'gs-none', text: 'Nothing found'}));
+    ul.hidden = !inp.value.trim();
+    inp.setAttribute('aria-expanded', String(!ul.hidden));
+    if (active >= 0) inp.setAttribute('aria-activedescendant', 'gs-' + active); else inp.removeAttribute('aria-activedescendant');
+  }
+  function close(){ ul.hidden = true; inp.setAttribute('aria-expanded', 'false'); active = -1; }
+  function pick(r){
+    close(); inp.value = ''; inp.blur();
+    if (r.kind === 'member'){ if (window.BSFMembersAPI) window.BSFMembersAPI.open(r.id); return; }
+    window.BSFSetTab('meeting');
+    setTimeout(function(){
+      var row = document.querySelectorAll(r.kind === 'question' ? '#rs-questions > li' : '#rs-verses > li')[r.i];
+      if (!row) return;
+      row.scrollIntoView({block: 'center'});
+      var b = row.querySelector('button'); if (b) b.focus({preventScroll: true});
+      row.classList.add('found'); setTimeout(function(){ row.classList.remove('found'); }, 1600);
+    }, 60);
+  }
+  var t = null;
+  inp.addEventListener('input', function(){ clearTimeout(t); t = setTimeout(function(){ results = find(inp.value); active = results.length ? 0 : -1; draw(); }, 80); });
+  inp.addEventListener('keydown', function(e){
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp'){ e.preventDefault(); if (!results.length) return; active = (active + (e.key === 'ArrowDown' ? 1 : -1) + results.length) % results.length; draw(); }
+    else if (e.key === 'Enter'){ e.preventDefault(); if (results[active]) pick(results[active]); }
+    else if (e.key === 'Escape'){ e.preventDefault(); e.stopPropagation(); inp.value = ''; close(); inp.blur(); }
+  });
+  inp.addEventListener('blur', function(){ setTimeout(close, 120); });
+  document.addEventListener('keydown', function(e){
+    if ((e.ctrlKey || e.metaKey) && (e.key === 'k' || e.key === 'K') && !document.querySelector('dialog[open], .app-modal-back')){ e.preventDefault(); inp.focus(); inp.select(); }
+  });
+})();
+
 /* Studio rail (Scenes & Layers): can be folded away to give a meeting more room; remembered on this PC */
 (function(){
   var b = $('rail-toggle'), RK = 'bsf-cc-rail';

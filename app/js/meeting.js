@@ -34,6 +34,7 @@ function ago(t, now){
 function stateOf(k){
   if (!live) return 'empty';
   var o = live[k], has = (k === 'birthday' ? o.greeting : o.text).trim() !== '';
+  if (k === 'question' && has && window.BSFPresent && window.BSFPresent.live(live)) return 'live';   // shown in its mode (Question · Both · Verse)
   if (o.visible && has) return 'live';
   if (has) return 'ready';
   if (k === 'birthday' && window.BSFBirthday && window.BSFBirthday.candidate()) return 'ready';
@@ -64,7 +65,7 @@ if (window.ResizeObserver){
   var ro = new ResizeObserver(fit);
   ['.console-top', '.tabs', '#bday-reminder', '.bday-bar', '#ctlbar', '#sub-studio'].forEach(function(s){ var e = document.querySelector(s); if (e) ro.observe(e); });
 }
-window.BSFOnTab = function(t){ document.body.classList.toggle('meeting-mode', t === 'meeting'); if (t === 'meeting') setTimeout(fit, 0); };
+window.BSFOnTab = function(t){ document.body.classList.toggle('meeting-mode', t === 'meeting'); if (t === 'meeting') setTimeout(fit, 0); setTimeout(pendingPreview, 0); };
 if (document.body.dataset.tab === 'meeting') document.body.classList.add('meeting-mode');
 
 /* ---------- Render ---------- */
@@ -131,7 +132,7 @@ function render(){
   ['question', 'verse', 'birthday'].forEach(function(k){
     var st = stateOf(k); if (st === 'live') any = true;
     els(stateEls, '[data-state="' + k + '"]', k).forEach(function(el){ setState(el, st); });
-    var air = document.querySelector('.air[data-k="' + k + '"]'); air.classList.toggle('on', st === 'live');
+    var air = document.querySelector('.air[data-k="' + k + '"]'); if (air) air.classList.toggle('on', st === 'live');
     var tx = document.querySelector('[data-text="' + k + '"]'); tx.textContent = '';
     var o = live[k];
     if (k === 'verse' && o.text.trim()){ tx.appendChild(h('span', 'ref', (o.ref || '') + (o.version ? ' · ' + o.version : ''))); tx.appendChild(document.createTextNode(' ' + o.text.replace(/\s+/g, ' '))); }
@@ -182,14 +183,14 @@ function guard(key, fn, btn){
 Array.prototype.forEach.call(document.querySelectorAll('#tab-meeting .cbtn'), function(b){
   var m = b.dataset.m, k = b.dataset.k;
   if (m === 'clear'){
-    var t;
+    var t, label = b.textContent;
     b.addEventListener('click', function(){
       if (!b.classList.contains('armed')){
         b.classList.add('armed'); b.textContent = 'Confirm clear';
-        t = setTimeout(function(){ b.classList.remove('armed'); b.textContent = 'Clear'; }, 2500);
+        t = setTimeout(function(){ b.classList.remove('armed'); b.textContent = label; }, 2500);
         return;
       }
-      clearTimeout(t); b.classList.remove('armed'); b.textContent = 'Clear';
+      clearTimeout(t); b.classList.remove('armed'); b.textContent = label;
       A.clear(k);
     });
     return;
@@ -213,6 +214,7 @@ Array.prototype.forEach.call(document.querySelectorAll('#tab-meeting .cbtn'), fu
   Array.prototype.forEach.call(bar.querySelectorAll('[data-cb]'), function(b){
     var m = b.dataset.cb, k = b.dataset.k;
     b.addEventListener('click', guard('bar-' + m + '-' + (k || b.dataset.step || ''), function(){
+      if (k) showContext(k);                              // the details panel follows what you are operating
       if (m === 'hideAll') A.hideAll();
       else if (m === 'slide') slide(+b.dataset.step);
       else if (k === 'birthday') window.BSFBirthday.toggle();
@@ -223,11 +225,58 @@ Array.prototype.forEach.call(document.querySelectorAll('#tab-meeting .cbtn'), fu
   window.BSFControlBar = {render: function(){
     if (!live) return;
     ['question', 'verse', 'birthday'].forEach(function(k){
-      var b = bar.querySelector('[data-cb="toggle"][data-k="' + k + '"]'), on = stateOf(k) === 'live';
+      var b = bar.querySelector('[data-cb="toggle"][data-k="' + k + '"]'), st = stateOf(k), on = st === 'live';
       if (b.classList.contains('is-live') !== on){ b.classList.toggle('is-live', on); b.querySelector('.tl').textContent = on ? 'Hide' : 'Show'; b.setAttribute('aria-pressed', String(on)); }
+      var off = k === 'birthday' && st === 'empty';                    // nobody to celebrate yet (as the Meeting view did)
+      if (b.disabled !== off) b.disabled = off;
     });
+    renderModes();
   }};
 })();
+
+/* ---------- Details panel: one item at a time (Question · Verse · Birthday) ---------- */
+var ctxNow = 'question';
+function showContext(k){
+  if (k === ctxNow) return;
+  ctxNow = k;
+  Array.prototype.forEach.call(document.querySelectorAll('[data-ctx]'), function(b){ b.setAttribute('aria-selected', String(b.dataset.ctx === k)); });
+  Array.prototype.forEach.call(document.querySelectorAll('[data-ctx-panel]'), function(p){ p.hidden = p.dataset.ctxPanel !== k; });
+  pendingPreview();
+}
+Array.prototype.forEach.call(document.querySelectorAll('[data-ctx]'), function(b){ b.addEventListener('click', function(){ showContext(b.dataset.ctx); }); });
+
+/* ---------- Presentation mode: Question · Both · Verse (every selector shows and sets the same mode) ---------- */
+var MODE_TOAST = {question: 'Show: the question only', both: 'Show: the question with its verse', verse: 'Show: the verse only'};
+Array.prototype.forEach.call(document.querySelectorAll('[data-pmode-group] [data-pmode]'), function(b){
+  b.addEventListener('click', function(){
+    if (b.getAttribute('aria-checked') === 'true') return;
+    var m = b.dataset.pmode;
+    A.setMode(m);
+    renderModes(m);                                        // feels instant; the saved state confirms it a moment later
+    A.toast(MODE_TOAST[m] + (A.questionLive() ? ' (on screen now)' : ''));
+  });
+});
+function renderModes(force){
+  var m = force || A.mode();
+  Array.prototype.forEach.call(document.querySelectorAll('[data-pmode-group] [data-pmode]'), function(b){
+    var on = String(b.dataset.pmode === m);
+    if (b.getAttribute('aria-checked') !== on) b.setAttribute('aria-checked', on);
+  });
+}
+
+/* ---------- "Show will display": a small live preview of what SHOW puts on screen in the chosen mode ---------- */
+var pf = $('pending-frame'), pbox = $('pending-frame-box'), pfOn = false;
+function scalePending(){ if (pfOn && pbox && pbox.clientWidth) pf.style.transform = 'scale(' + (pbox.clientWidth / 1920) + ')'; }
+function pendingPreview(){
+  if (!pf) return;
+  var want = document.body.dataset.tab === 'meeting' && ctxNow === 'question' && !document.hidden;
+  if (want === pfOn) return scalePending();
+  pfOn = want;
+  pf.src = want ? 'stage.html?bg=preview&preview=1&pending=1' : 'about:blank';   // nothing runs while it is not seen
+  scalePending();
+}
+if (window.ResizeObserver && pbox) new ResizeObserver(scalePending).observe(pbox);
+document.addEventListener('visibilitychange', pendingPreview);
 
 /* Keyboard badges follow the configured shortcuts */
 function badges(){ Array.prototype.forEach.call(document.querySelectorAll('kbd[data-sc]'), function(k){ k.textContent = SC ? SC.short(k.dataset.sc) : ''; }); }

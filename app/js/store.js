@@ -26,6 +26,7 @@ var DEFAULT_STATE = {
     label: 'Discussion Question', showLabel: true,
     text: 'What does this passage reveal about the character of God?',
     visible: false, seq: 0, cut: 0, itemId: 'q1',
+    mode: '',   /* Presentation mode: '' / 'question' (the question only - the classic behaviour), 'both', 'verse' */
     transition: 'fade', speed: 'normal',
     random: false, pool: ['fade', 'rise', 'words', 'burst'], burst: 'gentle', play: '', upcoming: ''
   },
@@ -106,6 +107,85 @@ function describeTransition(st, kind, id){
   return TRANSITION_NAMES[pref || o.transition] || '';
 }
 var SPEEDS = ['slow', 'normal', 'fast'];
+var MODES = ['question', 'both', 'verse'];
+
+/* ---------- Presentation mode: Question · Both · Verse (shared by the PC, the phone remote and the overlays) ----------
+ * A question can be shown alone (the classic behaviour), together with its verse, or as its verse only.
+ * The verse is the one linked to the question (Excel import: same row), else the verse already loaded.
+ * Mode of the current question: its own saved mode (e.g. from the Excel column PresentationMode) if it has
+ * one, otherwise the mode last chosen (it carries on to the next question). Unset = 'question' = exactly the
+ * behaviour of earlier versions, so nothing changes for anyone who never touches the selector.
+ * These helpers only edit a copy of the state inside Store.update(); they never send anything themselves. */
+var Present = {
+  modes: MODES,
+  names: {question: 'Question', both: 'Both', verse: 'Verse'},
+  item: function(st, id){ id = id || st.question.itemId; var a = st.library.questions; for (var i = 0; i < a.length; i++) if (a[i].id === id) return a[i]; return null; },
+  /* the mode this question will be shown in */
+  mode: function(st, id){
+    var it = Present.item(st, id);
+    var m = it && it.mode ? it.mode : st.question.mode;
+    return MODES.indexOf(m) >= 0 ? m : 'question';
+  },
+  /* the verse that goes with the question: its linked verse, else the verse already loaded */
+  verseFor: function(st, id){
+    var it = Present.item(st, id);
+    if (it && it.pair){ var a = st.library.verses; for (var i = 0; i < a.length; i++) if (a[i].id === it.pair) return a[i]; }
+    return null;
+  },
+  hasVerse: function(st, id){ return !!Present.verseFor(st, id) || !!String(st.verse.text || '').trim(); },
+  /* is "this question in its mode" on screen? */
+  live: function(st){
+    var m = Present.mode(st), q = st.question, v = st.verse;
+    var qOn = q.visible && String(q.text || '').trim() !== '', vOn = v.visible && String(v.text || '').trim() !== '';
+    return m === 'verse' ? vOn : qOn;
+  },
+  _on: function(n, kind){ var o = n[kind]; if (!o.visible){ resolveTransition(n, kind, o.itemId); o.visible = true; o.seq = (o.seq || 0) + 1; } },
+  _loadVerse: function(n){
+    var v = Present.verseFor(n);
+    if (v && n.verse.itemId !== v.id){ n.verse.text = v.text; n.verse.ref = v.ref; n.verse.version = v.version; n.verse.itemId = v.id; n.verse.visible = false; }
+    return String(n.verse.text || '').trim() !== '';
+  },
+  /* Called right after existing code made the question visible: completes the picture for the mode */
+  afterShow: function(n){
+    var m = Present.mode(n);
+    n.question.mode = m === 'question' && !n.question.mode ? '' : m;     // remember (unset stays unset)
+    if (m === 'question') return m;                                       // classic: the verse is left as it is
+    if (Present._loadVerse(n)) Present._on(n, 'verse');
+    if (m === 'verse') n.question.visible = false;
+    return m;
+  },
+  /* Hide "this question in its mode" */
+  hide: function(n){
+    var m = Present.mode(n);
+    n.question.visible = false;
+    if (m !== 'question') n.verse.visible = false;
+  },
+  /* Choose a mode. If the question is on screen, the screen follows at once (Question / Both / Verse). */
+  setMode: function(n, m){
+    if (MODES.indexOf(m) < 0) return;
+    var wasLive = Present.live(n), it = Present.item(n), before = Present.mode(n);
+    n.question.mode = m;
+    if (it) it.mode = m;                                                  // remembered for this question (and in Excel exports)
+    if (!wasLive || before === m) return;
+    if (m === 'question'){ Present._on(n, 'question'); n.verse.visible = false; }
+    else if (m === 'both'){ Present._on(n, 'question'); if (Present._loadVerse(n)) Present._on(n, 'verse'); }
+    else { if (Present._loadVerse(n)) Present._on(n, 'verse'); n.question.visible = false; }
+  },
+  /* What SHOW would put on screen (for previews), without changing anything */
+  preview: function(st){
+    var n = JSON.parse(JSON.stringify(st));
+    if (!Present.live(n) && String(n.question.text || '').trim()){
+      n.question.visible = true; n.question.play = 'none'; Present.afterShow(n);
+      n.verse.play = 'none';
+    }
+    return n;
+  },
+  /* Both on screen in Both mode: the question leads, the verse supports it (used by the overlays and BCC vCam) */
+  combined: function(st){
+    return Present.mode(st) === 'both' && st.question.visible && String(st.question.text || '').trim() !== '' &&
+      st.verse.visible && String(st.verse.text || '').trim() !== '';
+  }
+};
 
 function normalize(s){
   var st = merge(DEFAULT_STATE, s);
@@ -125,6 +205,7 @@ function normalize(s){
     o.play = TRANSITIONS.indexOf(o.play) >= 0 ? o.play : '';
     o.upcoming = TRANSITIONS.indexOf(o.upcoming) >= 0 ? o.upcoming : '';
   });
+  st.question.mode = MODES.indexOf(st.question.mode) >= 0 ? st.question.mode : '';
   function list(arr, fields){
     return (Array.isArray(arr) ? arr : []).filter(isObj).map(function(it){
       var o = {id: String(it.id || ('i' + Math.random().toString(36).slice(2, 9)))};
@@ -137,7 +218,8 @@ function normalize(s){
   }
   // pair = id of the linked verse/question (from an Excel import: one question with its verse per row)
   st.library.verses = list(st.library.verses, ['ref', 'version', 'text', 'pair']);
-  st.library.questions = list(st.library.questions, ['text', 'num', 'note', 'pair']);
+  st.library.questions = list(st.library.questions, ['text', 'num', 'note', 'pair', 'mode']);
+  st.library.questions.forEach(function(q){ if (MODES.indexOf(q.mode) < 0) q.mode = ''; });
   var B = st.birthday;
   ['label', 'name', 'greeting', 'message', 'country'].forEach(function(k){ B[k] = String(B[k]); });
   B.visible = !!B.visible; B.showLabel = !!B.showLabel;
@@ -333,4 +415,5 @@ window.BSFStore = Store;
 /* Transition helpers shared by the dashboard, Meeting Mode and the phone remote */
 window.BSFTransitions = {list: TRANSITIONS, names: TRANSITION_NAMES, defaultPool: DEFAULT_POOL,
   resolve: resolveTransition, describe: describeTransition, preference: preference};
+window.BSFPresent = Present;
 })();

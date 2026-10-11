@@ -458,3 +458,33 @@ rows between the old and new position, and fixed elements are looked up once. ~2
 `remote-manifest.json`, icons and every `/api/remote*`, `/api/state`, `/api/rev` handler are untouched in 4.9
 (verified with `git diff` against 4.8). All 4.9 changes are in PC-only files or in local-only (`is_local()`)
 endpoints; `theme.css` is linked only from `dashboard.html`.
+
+## 20. Version 5.0: simpler surface and Question · Both · Verse
+
+**Presentation mode** (`js/store.js` → `window.BSFPresent`, shared by the dashboard, the remote and the overlays).
+State: optional `question.mode` (last chosen) and `library.questions[].mode` (per question; Excel `PresentationMode`);
+`''` = unset = `question` = the pre-5.0 behaviour. `mode(st)` = the item's mode, else the last chosen. Hooks (inside
+`Store.update`): `afterShow(n)` after existing code makes the question visible (Both: load the linked verse -
+`pair` - else keep the loaded verse, and show it; Verse: also hide the question), `hide(n)`, `setMode(n, m)` (if on
+screen, the picture follows at once), `live(st)`, `preview(st)` (what Show would do; used by `stage.html?pending=1`),
+`combined(st)` (Both with both on screen). Callers: `dashboard.js` show/hide/toggle (so the action bar, keyboard,
+run sheet and Content all follow), `remote.js` toggle/showItem, `meeting.js` selectors. Unit tests cover the rules.
+
+**Both layout:** `overlay.js effective()` and `vcam/cards.py effective_layout()` scale the verse ×0.86 and the
+question ×1.06 only when `combined()`; `placeVerse` / `place_verse` use the same numbers, so the verse still shrinks
+and reflows above the question. The vCam card cache key includes the layout, so a mode change redraws at once.
+
+**UI consolidation** (presentation only; every handler, id used by code, API and data flow kept):
+- Header: brand · search (`nav.js`, navigation only - never shows anything) · `#live-ind` (from `refreshStatus`) ·
+  `#sysstat` (the four `.hchip` elements inside; summary via MutationObserver). Removed: About button (Settings →
+  About), header Hide all, on-air pills (JS guarded with null checks).
+- Meeting view: run sheet | program | details panel (`[data-ctx]` tabs, `[data-ctx-panel]`); Prev/Show/Next only in
+  the action bar; `data-state`/`data-text`/`data-next` hooks kept so `meeting.js render()` is unchanged.
+- Action bar: mode selector + key hints; birthday Show disabled when nobody to celebrate (as the Meeting button was).
+- Content: Hide/Clear/Previous/Next removed (action bar / details panel); style rows in `<details class="adv">`;
+  row tools shown on hover / focus-within (CSS only).
+- Canvas: scene select, collection filter and Look select no longer appended (objects kept; no code path changed).
+- Excel: `PresentationMode` column (import with validation, template, new Export to Excel; same columns round-trip).
+
+**Measured (1600×900, first screen, excluding list rows):** header controls 6 → 2; Meeting workspace 13 → 7;
+Content workspace 41 → 21; Canvas workspace 8 → 5 (while adding the mode selector and search).

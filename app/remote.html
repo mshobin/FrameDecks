@@ -74,6 +74,9 @@
   <main class="surface" id="surface">
     <section class="card q" data-k="question" aria-labelledby="q-title">
       <header class="card-head"><h2 class="cat" id="q-title">Questions</h2><span class="state" data-state="question">—</span><span class="meta" id="q-pos"></span></header>
+      <div class="pmode" role="radiogroup" aria-label="Presentation mode: what Show puts on screen">
+        <button type="button" role="radio" data-pmode="question" aria-checked="true">Question</button><button type="button" role="radio" data-pmode="both" aria-checked="false">Both</button><button type="button" role="radio" data-pmode="verse" aria-checked="false">Verse</button>
+      </div>
       <div class="ctrl">
         <button class="pb nav" type="button" data-do="prev" data-k="question" aria-label="Previous question"><span class="ar" aria-hidden="true">◀</span><small>Prev</small></button>
         <button class="pb toggle" type="button" data-do="toggle" data-k="question"><span class="tl">SHOW</span></button>

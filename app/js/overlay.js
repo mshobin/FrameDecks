@@ -348,6 +348,18 @@ function BirthdayCard(zone){
   };
 }
 
+/* ---------- Presentation mode Both: the question leads, the verse supports it ----------
+ * Only when a question is shown in Both mode (Question · Both · Verse). Everything else is laid out exactly as before.
+ * BCC vCam uses the same numbers (vcam/cards.py effective_layout). */
+var BOTH_VERSE = 0.86, BOTH_QUESTION = 1.06;
+function effective(st){
+  var P = window.BSFPresent;
+  if (!P || !P.combined(st)) return st;
+  var L = Object.assign({}, st.layout);
+  L.verseScale = L.verseScale * BOTH_VERSE; L.qScale = L.qScale * BOTH_QUESTION;
+  return Object.assign({}, st, {layout: L});
+}
+
 /* ---------- Page setup ---------- */
 function applyLayout(L){
   var r = document.documentElement.style;
@@ -387,8 +399,12 @@ function mount(opts){
   var Store = window.BSFStore;
   var ready = (document.fonts && document.fonts.ready) ? document.fonts.ready : Promise.resolve();
   ready.then(function(){
-    Store.subscribe(function(st){
+    var pending = /[?&]pending=1/.test(location.search) && window.BSFPresent;
+    Store.subscribe(function(raw){
+      // pending=1: a preview of what SHOW will put on screen (Question · Both · Verse), not what is on screen now
+      var st = effective(pending ? window.BSFPresent.preview(raw) : raw);
       last = st;
+      document.body.classList.toggle('mode-both', !!(window.BSFPresent && window.BSFPresent.combined(st)));
       applyLayout(st.layout);
       placeVerse(st);
       if (cards.verse) cards.verse.update(st.verse);

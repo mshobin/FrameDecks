@@ -70,7 +70,7 @@ function setVersion(v){
 var sec = $('about-body'); if (sec) render(sec, false);
 /* Header button → About panel over the current screen */
 var dlg = $('about-dlg');
-$('about-btn').addEventListener('click', function(){
+if ($('about-btn')) $('about-btn').addEventListener('click', function(){   // v5: About is in Settings > About
   render($('about-dlg-body'), true);
   dlg.showModal();
   var close = dlg.querySelector('.about-close .btn'); if (close) close.focus({preventScroll: true});
