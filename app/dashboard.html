@@ -20,36 +20,40 @@
 <header class="top console-top">
   <div class="brand">
     <svg viewBox="0 0 36 26" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" aria-hidden="true"><path d="M18 5.5C14 2.6 8.6 2 3 3v18.5c5.6-1 11-.4 15 2.5 4-2.9 9.4-3.5 15-2.5V3c-5.6-1-11-.4-15 2.5z"/><path d="M18 5.5V24"/></svg>
-    <div class="brand-text"><h1>BSF Command Center</h1><span class="meeting-title" id="meeting-title">BSF Meeting</span></div>
+    <div class="brand-text"><h1 id="org-title">BSF Command Center</h1><span class="meeting-title" id="meeting-title">BSF Meeting</span></div>
   </div>
-  <!-- Search: questions, verses and members. Choosing one gets it ready (nothing goes on screen until Show). -->
+  <!-- v5.1: the three sections sit in the command bar (same buttons, ids and shortcuts as before) -->
+  <nav class="tabs" role="tablist" aria-label="Sections">
+    <button class="tab grp" role="tab" type="button" id="grp-studio" data-group="studio" data-tab="meeting" aria-selected="true"><i data-icon="clapperboard"></i>Studio <kbd>Alt+1</kbd></button>
+    <button class="tab grp" role="tab" type="button" id="grp-members" data-group="members" data-tab="directory" aria-selected="false"><i data-icon="users"></i>Members <span class="tab-badge" id="grp-bday-badge" hidden></span> <kbd>Alt+3</kbd></button>
+    <button class="tab grp" role="tab" type="button" id="tabbtn-settings" data-group="settings" data-tab="settings" aria-selected="false"><i data-icon="settings"></i>Settings <kbd>Alt+4</kbd></button>
+  </nav>
+  <!-- Search: questions, verses, birthdays, members, scenes, slides and settings. Choosing one gets it ready or opens it (nothing goes on screen until Show). -->
   <div class="gsearch" role="search">
     <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-    <input type="search" id="gsearch" placeholder="Search questions, verses, members…" autocomplete="off" aria-label="Search questions, verses and members" aria-controls="gsearch-list" aria-expanded="false">
+    <input type="search" id="gsearch" placeholder="Search questions, verses, members, scenes…" autocomplete="off" aria-label="Search questions, verses, members, birthdays, scenes and settings" aria-controls="gsearch-list" aria-expanded="false">
     <kbd class="key">Ctrl+K</kbd>
     <ul class="gsearch-list" id="gsearch-list" role="listbox" hidden></ul>
   </div>
-  <!-- One live indicator (what the audience sees) and one status button (the four health checks in its menu) -->
+  <!-- v5.1: LIVE ON AIR plus every output's status, visible at a glance (each chip opens its details).
+       Narrow windows fold the chips into one status button. -->
   <span class="live-ind" id="live-ind" role="status" aria-live="polite"><i></i><b>Off air</b><span class="live-what"></span></span>
-  <details class="sysstat" id="sysstat">
-    <summary aria-label="System status"><i class="sys-dot"></i><span class="sys-text">Checking…</span></summary>
+  <div class="sysstat" id="sysstat">
+    <button class="sys-sum" type="button" id="sys-sum" aria-expanded="false" aria-controls="health" aria-label="System status"><i class="sys-dot"></i><span class="sys-text">Checking…</span></button>
     <div class="sys-menu health" id="health" aria-label="Connection status">
-      <button class="hchip" type="button" id="h-program" data-goto="settings" data-sec="diag" title="Local program"><i></i><span class="hl">Program</span><span class="hs">PC</span><b>Connecting…</b></button>
+      <button class="hchip" type="button" id="h-vcam" data-goto="settings" data-sec="vcam" title="BCC vCam virtual camera (the camera you choose in Zoom or Teams)"><i></i><span class="hl">BCC vCam</span><span class="hs">Zoom · Teams</span><b>—</b></button>
       <button class="hchip" type="button" id="h-sources" data-goto="settings" data-sec="display" title="Overlay pages open in OBS, Camo or a browser"><i></i><span class="hl">Overlays</span><span class="hs">OBS</span><b>—</b></button>
-      <button class="hchip" type="button" id="h-vcam" data-goto="settings" data-sec="vcam" title="BCC vCam virtual camera"><i></i><span class="hl">BCC vCam</span><span class="hs">vCam</span><b>—</b></button>
-      <button class="hchip" type="button" id="h-ipad" data-goto="settings" data-sec="ipad" title="Phone & iPad remote"><i></i><span class="hl">Remote</span><span class="hs">Remote</span><b>—</b></button>
+      <button class="hchip" type="button" id="h-ipad" data-goto="settings" data-sec="ipad" title="Phone &amp; iPad remote"><i></i><span class="hl">Remote</span><span class="hs">Remote</span><b>—</b></button>
+      <button class="hchip" type="button" id="h-rec" data-goto="recordings" title="Recording of the BCC vCam output" hidden><i></i><span class="hl">Recording</span><span class="hs">REC</span><b>—</b></button>
+      <button class="hchip" type="button" id="h-slides" data-goto="studio" title="Slides: a PowerPoint slide show or slides shared in the Studio" hidden><i></i><span class="hl">Slides</span><span class="hs">Slides</span><b>—</b></button>
+      <button class="hchip" type="button" id="h-program" data-goto="settings" data-sec="diag" title="Local program"><i></i><span class="hl">Program</span><span class="hs">PC</span><b>Connecting…</b></button>
     </div>
-  </details>
+  </div>
   <span class="mode" id="mode" hidden>Connecting…</span>
 </header>
-
 <div class="reminder" id="bday-reminder" role="status" hidden></div>
 
-<nav class="tabs" role="tablist" aria-label="Sections">
-  <button class="tab grp" role="tab" type="button" id="grp-studio" data-group="studio" data-tab="meeting" aria-selected="true"><i data-icon="clapperboard"></i>Studio <kbd>Alt+1</kbd></button>
-  <button class="tab grp" role="tab" type="button" id="grp-members" data-group="members" data-tab="directory" aria-selected="false"><i data-icon="users"></i>Members <span class="tab-badge" id="grp-bday-badge" hidden></span> <kbd>Alt+3</kbd></button>
-  <button class="tab grp" role="tab" type="button" id="tabbtn-settings" data-group="settings" data-tab="settings" aria-selected="false"><i data-icon="settings"></i>Settings <kbd>Alt+4</kbd></button>
-</nav>
+
 <div class="subtabs" id="sub-members" role="tablist" aria-label="Members" hidden>
   <button class="subtab" role="tab" type="button" id="tabbtn-directory" data-tab="directory" aria-selected="false"><i data-icon="users"></i>Directory</button>
   <button class="subtab" role="tab" type="button" id="tabbtn-members" data-tab="members" aria-selected="false"><i data-icon="user"></i>Manage</button>
@@ -88,43 +92,89 @@
 
   <!-- The main workspace: exactly what Zoom / Teams participants see -->
   <section class="mcol program" aria-labelledby="pg-title">
-    <div class="col-head"><h2 id="pg-title"><span class="live-dot" id="pg-dot"></span>On screen now</h2><span class="sub" id="mt-section"></span></div>
+    <div class="col-head"><h2 id="pg-title"><span class="live-dot" id="pg-dot"></span>On screen now</h2><span class="sub" id="mt-section"></span>
+      <span class="pg-view" id="pg-view" title="What the picture below shows"></span></div>
     <div class="program-wrap"><div class="program-frame" id="program">
       <iframe id="program-frame" title="What Zoom participants see" tabindex="-1"></iframe>
       <img id="program-live" alt="The BCC vCam picture Zoom participants see" hidden>
       <div class="program-badge" id="program-badge">NOTHING ON SCREEN</div>
     </div></div>
+    <!-- v5.1 Live outputs: every place the picture goes, with its health (read-only; each opens its settings) -->
+    <div class="outputs" id="outputs" role="list" aria-label="Live outputs">
+      <button type="button" class="out" role="listitem" id="out-vcam" data-goto="settings" data-sec="vcam"><span class="out-h"><i></i><b>BCC vCam</b><em>Zoom · Teams camera</em></span><span class="out-m" data-m>—</span></button>
+      <button type="button" class="out" role="listitem" id="out-overlays" data-goto="settings" data-sec="display"><span class="out-h"><i></i><b>Overlay pages</b><em>OBS · Camo · browser</em></span><span class="out-m" data-m>—</span></button>
+      <button type="button" class="out" role="listitem" id="out-present" data-goto="studio"><span class="out-h"><i></i><b>Presentation window</b><em>Zoom Share Screen</em></span><span class="out-m" data-m>—</span></button>
+      <button type="button" class="out" role="listitem" id="out-rec" data-goto="recordings"><span class="out-h"><i></i><b>Recording</b><em>BCC vCam output</em></span><span class="out-m" data-m>—</span></button>
+      <button type="button" class="out" role="listitem" id="out-slides" data-goto="studio"><span class="out-h"><i></i><b>Slides</b><em>PowerPoint · PDF</em></span><span class="out-m" data-m>—</span></button>
+      <button type="button" class="out" role="listitem" id="out-remote" data-goto="settings" data-sec="ipad"><span class="out-h"><i></i><b>Remote</b><em>Phone · iPad · Android</em></span><span class="out-m" data-m>—</span></button>
+    </div>
   </section>
 
-  <!-- Context panel: details and settings for one item at a time. Prev / Show / Next live in the action bar below. -->
-  <section class="mcol controls ctx" aria-label="Details">
-    <div class="ctx-seg" role="tablist" aria-label="Details for">
+  <!-- Inspector: the item you operate (Question · Verse · Birthday), its content and its style. Prev / Show / Next
+       and Take live are in the command bar below. -->
+  <section class="mcol controls ctx" aria-labelledby="insp-title">
+    <div class="insp-head"><h2 id="insp-title">Inspector</h2><span class="insp-live" id="insp-live"></span></div>
+    <div class="ctx-label">Editing target</div>
+    <div class="ctx-seg" role="tablist" aria-label="Editing target">
       <button type="button" role="tab" data-ctx="question" aria-selected="true" class="q">Question <span class="state" data-state="question">—</span></button>
       <button type="button" role="tab" data-ctx="verse" aria-selected="false" class="v">Verse <span class="state" data-state="verse">—</span></button>
       <button type="button" role="tab" data-ctx="birthday" aria-selected="false" class="b">Birthday <span class="state" data-state="birthday">—</span></button>
     </div>
+    <div class="insp-tabs" role="tablist" aria-label="Inspector">
+      <button type="button" role="tab" data-itab="content" aria-selected="true">Content</button>
+      <button type="button" role="tab" data-itab="style" aria-selected="false">Style &amp; position</button>
+    </div>
+    <div class="insp-body" data-ipanel="content">
     <div class="ctl q" data-k="question" data-ctx-panel="question">
       <div class="ctx-label">Presentation mode</div>
       <div class="pmode" role="radiogroup" aria-label="Presentation mode: what Show puts on screen" data-pmode-group>
           <button type="button" role="radio" data-pmode="question" aria-checked="true">Question</button><button type="button" role="radio" data-pmode="both" aria-checked="false">Both</button><button type="button" role="radio" data-pmode="verse" aria-checked="false">Verse</button></div>
-      <div class="air" data-k="question"><p class="air-text" data-text="question"></p></div>
+      <div class="ctx-label">Question prompt <span class="ctx-meta" id="insp-qpos"></span></div>
+      <div class="air" data-k="question"><p class="air-text" data-text="question"></p><p class="air-pair" id="insp-qpair" hidden></p></div>
       <div class="ctx-label">Show will display</div>
       <div class="pending-wrap"><div class="pending-frame" id="pending-frame-box"><iframe id="pending-frame" title="What Show will put on screen" tabindex="-1"></iframe></div></div>
       <div class="ctl-next"><span class="nl">Next</span><span class="nt" data-next="question"></span></div>
-      <div class="ctx-foot"><button class="cbtn clear" type="button" data-m="clear" data-k="question">Clear question</button></div>
+      <div class="ctx-foot"><button class="btn quiet small" type="button" data-goto="overlays" data-edit="question">Edit in Content</button><button class="cbtn clear" type="button" data-m="clear" data-k="question">Clear question</button></div>
     </div>
     <div class="ctl v" data-k="verse" data-ctx-panel="verse" hidden>
+      <div class="ctx-label">Scripture reference <span class="ctx-meta" id="insp-vpos"></span></div>
+      <div class="vchips" id="insp-vchips" role="list" aria-label="Nearby verses (click to show)"></div>
+      <div class="ctx-label">Verse text</div>
       <div class="air" data-k="verse"><p class="air-text serif" data-text="verse"></p></div>
       <div class="ctl-next"><span class="nl">Next</span><span class="nt" data-next="verse"></span></div>
-      <div class="ctx-foot"><button class="cbtn clear" type="button" data-m="clear" data-k="verse">Clear verse</button></div>
+      <div class="ctx-foot"><button class="btn quiet small" type="button" data-goto="overlays" data-edit="verse">Edit in Content</button><button class="cbtn clear" type="button" data-m="clear" data-k="verse">Clear verse</button></div>
     </div>
     <div class="ctl b" data-k="birthday" data-ctx-panel="birthday" hidden>
       <div class="air" data-k="birthday"><p class="air-text" data-text="birthday"></p></div>
       <span class="bday-who" id="mt-bday-who"></span>
+      <div class="ctx-label">Who to celebrate</div>
       <div class="ctl-row bday-pick">
         <select id="bb-member" aria-label="Member to celebrate"></select>
         <label class="check bb-country"><input type="checkbox" id="bb-country"> Country</label>
       </div>
+    </div>
+    </div>
+    <!-- Style: the same placement settings as Settings > Overlays (one setting, two places to reach it) -->
+    <div class="insp-body insp-style" data-ipanel="style" hidden>
+      <div data-ctx-style="question">
+        <div class="row"><span class="lbl">Text size</span><div class="range"><input type="range" data-range="qScale" min="0.6" max="1.6" step="0.05" aria-label="Question text size"><span class="val"></span></div></div>
+        <div class="row"><span class="lbl">Width</span><div class="range"><input type="range" data-range="qWidth" min="50" max="94" step="1" aria-label="Question width"><span class="val"></span></div></div>
+        <div class="row"><span class="lbl">Above bottom</span><div class="range"><input type="range" data-range="qBottom" min="4" max="24" step="1" aria-label="Question distance from bottom"><span class="val"></span></div></div>
+        <div class="row"><span class="lbl">Transition</span><div class="seg" data-seg="transition" data-kind="question"></div></div>
+      </div>
+      <div data-ctx-style="verse" hidden>
+        <div class="row"><span class="lbl">Text size</span><div class="range"><input type="range" data-range="verseScale" min="0.6" max="1.6" step="0.05" aria-label="Verse text size"><span class="val"></span></div></div>
+        <div class="row"><span class="lbl">Position</span><div class="seg" data-seg="verseAlign"></div></div>
+        <div class="row"><span class="lbl">Height</span><div class="range"><input type="range" data-range="verseY" min="22" max="60" step="1" aria-label="Verse height on screen"><span class="val"></span></div></div>
+        <div class="row"><span class="lbl">Width</span><div class="range"><input type="range" data-range="verseWidth" min="40" max="88" step="1" aria-label="Verse maximum width"><span class="val"></span></div></div>
+        <div class="row"><span class="lbl">Transition</span><div class="seg" data-seg="transition" data-kind="verse"></div></div>
+      </div>
+      <div data-ctx-style="birthday" hidden>
+        <p class="hint">Greeting, message, position, size and transition of the birthday card are in Settings → Overlays → Birthdays.</p>
+        <button class="btn small" type="button" data-goto="settings" data-sec="overlays">Open birthday settings</button>
+      </div>
+      <div class="row" data-ctx-style-common><span class="lbl">Card opacity</span><div class="range"><input type="range" data-range="panel" min="50" max="100" step="1" aria-label="Card opacity"><span class="val"></span></div></div>
+      <button class="btn quiet small insp-more" type="button" data-goto="settings" data-sec="overlays">All placement settings</button>
     </div>
   </section>
 </div>
@@ -519,6 +569,8 @@
     <button class="cb-btn" type="button" data-cb="slide" data-step="-1" aria-label="Previous slide">◀</button>
     <button class="cb-btn" type="button" data-cb="slide" data-step="1" aria-label="Next slide">▶</button>
   </div>
+  <!-- v5.1 Take live: Show (or Hide) the item selected in the Inspector - the same action as its own Show button -->
+  <button class="cb-btn take" type="button" data-cb="take" id="cb-take" aria-label="Take live: show the Inspector's item"><span class="tk-ic" aria-hidden="true">▶</span><span class="tk-t"><span class="tl">Take live</span><span class="tk-what" id="cb-take-what">Question</span></span><kbd class="key" data-sc="takeLive"></kbd></button>
   <button class="cb-btn hide" type="button" data-cb="hideAll" aria-label="Hide all overlays">Hide all<kbd class="key" data-sc="hideAll">Esc</kbd></button>
 </div>
 
@@ -548,6 +600,7 @@
 <script src="js/remote-panel.js"></script>
 <script src="js/vcam-panel.js"></script>
 <script src="js/studio.js"></script>
+<script src="js/rail.js"></script>
 <script src="js/content-import.js"></script>
 <script src="js/nav.js"></script>
 <script src="js/brand.js"></script>

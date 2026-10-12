@@ -6,21 +6,21 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="BSF Remote">
-<meta name="theme-color" content="#0a1222">
+<meta name="apple-mobile-web-app-title" content="BCC Director">
+<meta name="theme-color" content="#0b0e13">
 <link rel="manifest" href="remote-manifest.json">
 <link rel="apple-touch-icon" href="icons/remote-180.png">
 <link rel="icon" type="image/png" href="icons/remote-192.png">
-<title>BSF Remote</title>
+<title>BCC Mobile Director</title>
 <link rel="stylesheet" href="css/remote.css">
 </head>
-<body data-pt="question" data-view="home">
+<body data-tab="live" data-target="question" data-role="admin">
 
 <!-- PIN screen -->
 <section class="login" id="login" hidden>
   <div class="login-card">
     <svg class="logo" viewBox="0 0 36 26" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" aria-hidden="true"><path d="M18 5.5C14 2.6 8.6 2 3 3v18.5c5.6-1 11-.4 15 2.5 4-2.9 9.4-3.5 15-2.5V3c-5.6-1-11-.4-15 2.5z"/><path d="M18 5.5V24"/></svg>
-    <h1>BSF Remote</h1>
+    <h1>BCC Mobile Director</h1>
     <p>Enter the 6-digit PIN shown on your PC<br>(Settings → Phone &amp; iPad Remote).</p>
     <form id="login-form" autocomplete="off">
       <input id="pin" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="••••••" aria-label="PIN" autocomplete="one-time-code">
@@ -34,133 +34,161 @@
 <!-- Control surface -->
 <div class="app" id="app" hidden>
   <header class="bar">
-    <div class="title">BSF Remote</div>
+    <div class="brand"><svg viewBox="0 0 36 26" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round" aria-hidden="true"><path d="M18 5.5C14 2.6 8.6 2 3 3v18.5c5.6-1 11-.4 15 2.5 4-2.9 9.4-3.5 15-2.5V3c-5.6-1-11-.4-15 2.5z"/><path d="M18 5.5V24"/></svg>
+      <div class="brand-t"><b class="title">BCC Director</b><small id="role-name">Admin</small></div></div>
     <span class="conn" id="conn"><i></i><b>Connecting…</b></span>
-    <div class="air-chips" aria-label="On screen now">
-      <span class="ac q" data-air="question"><i></i>Question</span>
-      <span class="ac v" data-air="verse"><i></i>Verse</span>
-      <span class="ac b" data-air="birthday"><i></i>Birthday</span>
-    </div>
-    <button class="tool" type="button" id="lists-btn">Lists</button>
-    <button class="hideall" type="button" id="hide-all">HIDE ALL</button>
+    <span class="onair" id="onair" role="status" aria-live="polite"><i></i><b>OFF AIR</b></span>
+    <button class="tool more-btn" type="button" id="more-btn" aria-label="More: layout, all controls, disconnect" aria-haspopup="dialog"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg></button>
+    <button class="hideall" type="button" id="hide-all" aria-label="Hide everything on screen now">HIDE ALL</button>
   </header>
   <div class="offline" id="offline" hidden>Not connected to the PC — reconnecting… Buttons are paused.</div>
 
-  <!-- Navigation Dashboard: the first screen. Each button opens one section; Home comes back here. -->
-  <nav class="dash" id="dash" aria-labelledby="dash-title">
-    <h1 class="dash-title" id="dash-title">Navigation Dashboard</h1>
-    <div class="dash-grid" id="dash-grid">
-      <button type="button" class="tile t-q" data-view="question"><svg class="ti-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg><span class="ti-name">Questions</span><span class="ti-sub" id="ds-question" data-tile="question">—</span></button>
-      <button type="button" class="tile t-v" data-view="verse"><svg class="ti-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></svg><span class="ti-name">Verses</span><span class="ti-sub" id="ds-verse" data-tile="verse">—</span></button>
-      <button type="button" class="tile t-b" data-view="birthday"><svg class="ti-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8"/><path d="M4 16s.5-1 2-1 2.5 2 4 2 2.5-2 4-2 2.5 2 4 2 2-1 2-1"/><path d="M2 21h20"/><path d="M7 8v3M12 8v3M17 8v3"/><path d="M7 4h.01M12 4h.01M17 4h.01"/></svg><span class="ti-name">Birthday</span><span class="ti-sub" id="ds-birthday" data-tile="birthday">—</span></button>
-      <button type="button" class="tile t-s" data-view="studio"><svg class="ti-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m16 13 5.2 3.5a.5.5 0 0 0 .8-.4V7.9a.5.5 0 0 0-.8-.4L16 10.5"/><rect x="2" y="6" width="14" height="12" rx="2"/></svg><span class="ti-name">Studio</span><span class="ti-sub" id="ds-studio" data-tile="studio">—</span></button>
-      <button type="button" class="tile t-sc" data-view="scenes"><svg class="ti-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span class="ti-name">Scenes</span><span class="ti-sub" id="ds-scenes" data-tile="scenes">—</span></button>
-      <button type="button" class="tile t-sl" data-view="slides"><svg class="ti-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h20"/><path d="M21 3v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V3"/><path d="m7 21 5-5 5 5"/></svg><span class="ti-name">Slides</span><span class="ti-sub" id="ds-slides" data-tile="slides">—</span></button>
-      <button type="button" class="tile t-p" data-view="preview"><svg class="ti-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg><span class="ti-name">Preview</span><span class="ti-sub" id="ds-preview">What Zoom sees</span></button>
-      <button type="button" class="tile t-a" data-view="all"><svg class="ti-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg><span class="ti-name">All controls</span><span class="ti-sub" id="ds-all">Everything on one screen</span></button>
-    </div>
-    <p class="dash-foot"><button class="linkish" type="button" id="dash-logout">Disconnect this device</button></p>
-    <p class="credit" data-credit></p>
+  <div class="layout">
+    <!-- Run sheet: a tab on phones, always beside the controls on tablets -->
+    <aside class="col-left" aria-labelledby="rs-title">
+      <section class="panel runsheet">
+        <header class="panel-head"><h2 id="rs-title">Run sheet</h2>
+          <div class="seg dtabs" role="tablist" aria-label="List"><button type="button" class="dt on" role="tab" aria-selected="true" data-list="question">Questions</button><button type="button" class="dt" role="tab" aria-selected="false" data-list="verse">Verses</button></div></header>
+        <p class="drawer-hint">Tap an item to put it on screen.</p>
+        <ol class="dlist" id="dlist"></ol>
+      </section>
+    </aside>
+
+    <main class="col-main">
+      <div class="hero">
+      <!-- Now: what the audience sees, at a glance. The three quick buttons show or hide each card in one tap. -->
+      <section class="now" id="now" aria-labelledby="now-title">
+        <div class="now-top"><span class="now-label" id="now-title">On screen now</span><span class="now-meta" id="now-meta"></span></div>
+        <p class="now-text" id="now-text">Nothing on screen</p>
+        <p class="now-sub" id="now-sub"></p>
+        <div class="quick" role="group" aria-label="Quick show / hide">
+          <button type="button" class="qk q" data-do="toggle" data-k="question" data-quick="question"><i></i><span class="qk-n">Question</span><span class="qk-s" data-qs="question">—</span></button>
+          <button type="button" class="qk v" data-do="toggle" data-k="verse" data-quick="verse"><i></i><span class="qk-n">Verse</span><span class="qk-s" data-qs="verse">—</span></button>
+          <button type="button" class="qk b" data-do="toggle" data-k="birthday" data-quick="birthday"><i></i><span class="qk-n">Birthday</span><span class="qk-s" data-qs="birthday">—</span></button>
+        </div>
+        <div class="now-chips" id="now-chips"><span class="nc" id="nc-slide" hidden></span><span class="nc" id="nc-scene" hidden></span></div>
+      </section>
+      <section class="card p" data-k="preview" aria-labelledby="p-title">
+          <header class="card-head"><h2 class="cat" id="p-title">Live preview</h2><span class="meta">What Zoom participants see</span></header>
+          <div class="ctrl">
+            <button class="exp wide" type="button" id="pv-btn" aria-expanded="false" aria-controls="p-detail"><span class="xl">Show preview</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+          </div>
+          <div class="detail" id="p-detail" hidden>
+            <div class="preview" id="preview"><iframe id="frame" title="What Zoom participants see" tabindex="-1"></iframe></div>
+          </div>
+        </section>
+      </div>
+
+      <!-- What the big buttons below control (phones). Tablets show every control card at once. -->
+      <div class="target seg" id="target" role="tablist" aria-label="Control">
+        <button type="button" role="tab" data-target-pick="question" aria-selected="true">Question</button>
+        <button type="button" role="tab" data-target-pick="verse" aria-selected="false">Verse</button>
+        <button type="button" role="tab" data-target-pick="birthday" aria-selected="false">Birthday</button>
+        <button type="button" role="tab" data-target-pick="slides" aria-selected="false">Slides</button>
+      </div>
+      <p class="view-empty" id="view-empty" role="status" hidden></p>
+
+      <!-- Control cards. Collapsed = the controls you need live; ▼ = the details (text, next item, list, clear). -->
+      <div class="surface" id="surface">
+        <section class="card q" data-k="question" aria-labelledby="q-title">
+          <header class="card-head"><h2 class="cat" id="q-title">Question</h2><span class="state" data-state="question">—</span><span class="meta" id="q-pos"></span></header>
+          <div class="pmode" role="radiogroup" aria-label="Presentation mode: what Show puts on screen">
+            <button type="button" role="radio" data-pmode="question" aria-checked="true">Question</button><button type="button" role="radio" data-pmode="both" aria-checked="false">Both</button><button type="button" role="radio" data-pmode="verse" aria-checked="false">Verse</button>
+          </div>
+          <div class="ctrl">
+            <button class="pb nav" type="button" data-do="prev" data-k="question" aria-label="Previous question"><span class="ar" aria-hidden="true">◀</span><small>Prev</small></button>
+            <button class="pb toggle" type="button" data-do="toggle" data-k="question"><span class="tl">SHOW</span></button>
+            <button class="pb nav" type="button" data-do="next" data-k="question" aria-label="Next question"><span class="ar" aria-hidden="true">▶</span><small>Next</small></button>
+            <button class="exp" type="button" aria-expanded="false" aria-controls="q-detail" aria-label="Question details"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+          </div>
+          <div class="detail" id="q-detail" hidden>
+            <p class="dlabel" id="q-label"></p>
+            <p class="now-t" data-now="question"></p>
+            <p class="next"><span>Next</span><em data-next="question"></em></p>
+            <div class="dacts"><button class="tool" type="button" data-list="question">Choose from list</button>
+              <button class="hold" type="button" data-hold="clear" data-k="question"><span class="fill"></span><span class="ht">Hold to clear</span></button></div>
+          </div>
+        </section>
+
+        <section class="card v" data-k="verse" aria-labelledby="v-title">
+          <header class="card-head"><h2 class="cat" id="v-title">Verse</h2><span class="state" data-state="verse">—</span><span class="meta" id="v-pos"></span></header>
+          <div class="ctrl">
+            <button class="pb nav" type="button" data-do="prev" data-k="verse" aria-label="Previous verse"><span class="ar" aria-hidden="true">◀</span><small>Prev</small></button>
+            <button class="pb toggle" type="button" data-do="toggle" data-k="verse"><span class="tl">SHOW</span></button>
+            <button class="pb nav" type="button" data-do="next" data-k="verse" aria-label="Next verse"><span class="ar" aria-hidden="true">▶</span><small>Next</small></button>
+            <button class="exp" type="button" aria-expanded="false" aria-controls="v-detail" aria-label="Verse details"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+          </div>
+          <div class="detail" id="v-detail" hidden>
+            <p class="now-t serif" data-now="verse"></p>
+            <p class="next"><span>Next</span><em data-next="verse"></em></p>
+            <div class="dacts"><button class="tool" type="button" data-list="verse">Choose from list</button>
+              <button class="hold" type="button" data-hold="clear" data-k="verse"><span class="fill"></span><span class="ht">Hold to clear</span></button></div>
+          </div>
+        </section>
+
+        <section class="card b" data-k="birthday" aria-labelledby="b-title">
+          <header class="card-head"><h2 class="cat" id="b-title">Birthday</h2><span class="state" data-state="birthday">—</span><span class="meta" id="b-name"></span></header>
+          <div class="ctrl">
+            <button class="pb toggle wide" type="button" data-do="toggle" data-k="birthday"><span class="tl">SHOW</span></button>
+            <button class="exp" type="button" aria-expanded="false" aria-controls="b-detail" aria-label="Birthday details"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+          </div>
+          <div class="detail" id="b-detail" hidden>
+            <p class="now-t small" data-now="birthday"></p>
+            <p class="hint">Choose who to celebrate in the Meeting view on the PC.</p>
+          </div>
+        </section>
+
+        <section class="card sl" data-k="slides" aria-labelledby="sl-title" hidden>
+          <header class="card-head"><h2 class="cat" id="sl-title">Slides</h2><span class="state" id="sl-state">—</span></header>
+          <div class="ctrl">
+            <button class="pb" type="button" data-slide="-1" aria-label="Previous slide"><span class="ar" aria-hidden="true">◀</span><small>Prev</small></button>
+            <button class="pb" type="button" data-slide="1" aria-label="Next slide"><span class="ar" aria-hidden="true">▶</span><small>Next</small></button>
+            <button class="exp" type="button" aria-expanded="false" aria-controls="sl-detail" aria-label="Slide details"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+          </div>
+          <div class="detail" id="sl-detail" hidden>
+            <p class="now-t small" id="sl-name"></p>
+            <p class="hint" id="sl-src"></p>
+          </div>
+        </section>
+
+        <section class="card sc" data-k="scenes" aria-labelledby="sc-title" hidden>
+          <header class="card-head"><h2 class="cat" id="sc-title">Scenes</h2><span class="state on-air" id="sc-state">—</span></header>
+          <div class="scene-grid" id="scene-grid"></div>
+        </section>
+
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Phones: one tab per job, at your thumb -->
+  <nav class="tabbar" id="tabbar" aria-label="Sections">
+    <button type="button" data-tab="live" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="2.5"/><path d="M16.2 7.8a6 6 0 0 1 0 8.4M7.8 16.2a6 6 0 0 1 0-8.4M19 5a10 10 0 0 1 0 14M5 19A10 10 0 0 1 5 5"/></svg><span>Live</span></button>
+    <button type="button" data-tab="runsheet"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg><span>Run sheet</span></button>
+    <button type="button" data-tab="scenes"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span>Scenes</span></button>
+    <button type="button" data-tab="preview"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg><span>Preview</span></button>
+    <button type="button" data-tab="all"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg><span>All</span></button>
   </nav>
 
-  <!-- Inside a section: a big Home button back to the dashboard -->
-  <div class="viewbar" id="viewbar">
-    <button type="button" class="home-btn" id="home-btn" aria-label="Home: back to the Navigation Dashboard"><span class="ar" aria-hidden="true">◀</span>Home</button>
-    <h2 class="view-title" id="view-title" tabindex="-1"></h2>
-  </div>
-  <p class="view-empty" id="view-empty" role="status" hidden></p>
-
-  <!-- Control cards. Collapsed = the controls you need live; ▼ = the details (text, next item, clear, list). -->
-  <main class="surface" id="surface">
-    <section class="card q" data-k="question" aria-labelledby="q-title">
-      <header class="card-head"><h2 class="cat" id="q-title">Questions</h2><span class="state" data-state="question">—</span><span class="meta" id="q-pos"></span></header>
-      <div class="pmode" role="radiogroup" aria-label="Presentation mode: what Show puts on screen">
-        <button type="button" role="radio" data-pmode="question" aria-checked="true">Question</button><button type="button" role="radio" data-pmode="both" aria-checked="false">Both</button><button type="button" role="radio" data-pmode="verse" aria-checked="false">Verse</button>
+  <!-- More: layout for this device (role), disconnect -->
+  <div class="sheet" id="more" hidden>
+    <div class="sheet-card" role="dialog" aria-modal="true" aria-labelledby="more-title">
+      <div class="sheet-head"><h2 id="more-title">This device</h2><button class="tool" type="button" id="more-close">Done</button></div>
+      <h3>Layout</h3>
+      <div class="roles" role="radiogroup" aria-label="Layout for this device">
+        <button type="button" role="radio" data-role-pick="presenter" aria-checked="false"><b>Presenter</b><span>Prev · Show · Next · Hide for questions, verses and slides</span></button>
+        <button type="button" role="radio" data-role-pick="leader" aria-checked="false"><b>Leader</b><span>Questions, verses and birthdays, with the run sheet</span></button>
+        <button type="button" role="radio" data-role-pick="producer" aria-checked="false"><b>Producer</b><span>Everything live: run sheet, scenes, slides and preview</span></button>
+        <button type="button" role="radio" data-role-pick="admin" aria-checked="true"><b>Admin</b><span>Every control, including All controls</span></button>
       </div>
-      <div class="ctrl">
-        <button class="pb nav" type="button" data-do="prev" data-k="question" aria-label="Previous question"><span class="ar" aria-hidden="true">◀</span><small>Prev</small></button>
-        <button class="pb toggle" type="button" data-do="toggle" data-k="question"><span class="tl">SHOW</span></button>
-        <button class="pb nav" type="button" data-do="next" data-k="question" aria-label="Next question"><span class="ar" aria-hidden="true">▶</span><small>Next</small></button>
-        <button class="exp" type="button" aria-expanded="false" aria-controls="q-detail" aria-label="Question details"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
-      </div>
-      <div class="detail" id="q-detail" hidden>
-        <p class="dlabel" id="q-label"></p>
-        <p class="now" data-now="question"></p>
-        <p class="next"><span>Next</span><em data-next="question"></em></p>
-        <div class="dacts"><button class="tool" type="button" data-list="question">Choose from list</button>
-          <button class="hold" type="button" data-hold="clear" data-k="question"><span class="fill"></span><span class="ht">Hold to clear</span></button></div>
-      </div>
-    </section>
-
-    <section class="card v" data-k="verse" aria-labelledby="v-title">
-      <header class="card-head"><h2 class="cat" id="v-title">Verses</h2><span class="state" data-state="verse">—</span><span class="meta" id="v-pos"></span></header>
-      <div class="ctrl">
-        <button class="pb nav" type="button" data-do="prev" data-k="verse" aria-label="Previous verse"><span class="ar" aria-hidden="true">◀</span><small>Prev</small></button>
-        <button class="pb toggle" type="button" data-do="toggle" data-k="verse"><span class="tl">SHOW</span></button>
-        <button class="pb nav" type="button" data-do="next" data-k="verse" aria-label="Next verse"><span class="ar" aria-hidden="true">▶</span><small>Next</small></button>
-        <button class="exp" type="button" aria-expanded="false" aria-controls="v-detail" aria-label="Verse details"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
-      </div>
-      <div class="detail" id="v-detail" hidden>
-        <p class="now serif" data-now="verse"></p>
-        <p class="next"><span>Next</span><em data-next="verse"></em></p>
-        <div class="dacts"><button class="tool" type="button" data-list="verse">Choose from list</button>
-          <button class="hold" type="button" data-hold="clear" data-k="verse"><span class="fill"></span><span class="ht">Hold to clear</span></button></div>
-      </div>
-    </section>
-
-    <section class="card b" data-k="birthday" aria-labelledby="b-title">
-      <header class="card-head"><h2 class="cat" id="b-title">Birthday</h2><span class="state" data-state="birthday">—</span><span class="meta" id="b-name"></span></header>
-      <div class="ctrl">
-        <button class="pb toggle wide" type="button" data-do="toggle" data-k="birthday"><span class="tl">SHOW</span></button>
-        <button class="exp" type="button" aria-expanded="false" aria-controls="b-detail" aria-label="Birthday details"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
-      </div>
-      <div class="detail" id="b-detail" hidden>
-        <p class="now small" data-now="birthday"></p>
-        <p class="hint">Choose who to celebrate in the Meeting tab on the PC.</p>
-      </div>
-    </section>
-
-    <section class="card sc" data-k="scenes" aria-labelledby="sc-title" hidden>
-      <header class="card-head"><h2 class="cat" id="sc-title">Scenes</h2><span class="state on-air" id="sc-state">—</span></header>
-      <div class="scene-grid" id="scene-grid"></div>
-    </section>
-
-    <section class="card sl" data-k="slides" aria-labelledby="sl-title" hidden>
-      <header class="card-head"><h2 class="cat" id="sl-title">Slides</h2><span class="state" id="sl-state">—</span></header>
-      <div class="ctrl">
-        <button class="pb" type="button" data-slide="-1" aria-label="Previous slide"><span class="ar" aria-hidden="true">◀</span><small>Prev</small></button>
-        <button class="pb" type="button" data-slide="1" aria-label="Next slide"><span class="ar" aria-hidden="true">▶</span><small>Next</small></button>
-        <button class="exp" type="button" aria-expanded="false" aria-controls="sl-detail" aria-label="Slide details"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
-      </div>
-      <div class="detail" id="sl-detail" hidden>
-        <p class="now small" id="sl-name"></p>
-        <p class="hint" id="sl-src"></p>
-      </div>
-    </section>
-
-    <section class="card p" data-k="preview" aria-labelledby="p-title">
-      <header class="card-head"><h2 class="cat" id="p-title">Preview</h2><span class="meta">What Zoom participants see</span></header>
-      <div class="ctrl">
-        <button class="exp wide" type="button" id="pv-btn" aria-expanded="false" aria-controls="p-detail"><span class="xl">Show preview</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
-      </div>
-      <div class="detail" id="p-detail" hidden>
-        <div class="preview" id="preview"><iframe id="frame" title="What Zoom participants see" tabindex="-1"></iframe></div>
-      </div>
-    </section>
-  </main>
-
-  <!-- kept for the dashboard's Disconnect button -->
-  <button class="linkish" type="button" id="logout" hidden>Disconnect this device</button>
-
-  <!-- Lists drawer -->
-  <div class="drawer" id="drawer" hidden>
-    <div class="drawer-card">
-      <div class="drawer-head"><h2>Lists</h2><div class="dtabs"><button type="button" class="dt on" data-list="question">Questions</button><button type="button" class="dt" data-list="verse">Verses</button></div>
-        <button class="tool" type="button" id="drawer-close">Close</button></div>
-      <p class="drawer-hint">Tap an item to show it on screen.</p>
-      <ol class="dlist" id="dlist"></ol>
+      <p class="hint">The layout only changes what this device shows. Anyone with the PIN can control the meeting; HIDE ALL is always at the top.</p>
+      <p class="dash-foot"><button class="linkish" type="button" id="dash-logout">Disconnect this device</button></p>
+      <p class="credit" data-credit></p>
     </div>
   </div>
+
+  <!-- kept for the Disconnect button -->
+  <button class="linkish" type="button" id="logout" hidden>Disconnect this device</button>
 </div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 

@@ -1,8 +1,10 @@
-/* BSF Command Center - phone remote (touch-first). Controls the overlays only; member data is never available here.
- *
- * Screens: the Navigation Dashboard (big buttons) and one view per section. Every section is a compact card:
- * collapsed = the controls you need live (Prev / Show / Next ...), ▼ = its details (text, next item, list,
- * clear). Cards are only shown/hidden, never rebuilt, so nothing is lost when you move between screens. */
+/* BSF Command Center - BCC Mobile Director: the phone / tablet remote (touch-first). Controls the overlays only;
+ * member data is never available here. v5.1 redesign - the same actions, PIN, APIs and state as before:
+ *   phones  : one job per tab (Live · Run sheet · Scenes · Preview · All), thumb-reachable at the bottom;
+ *             Live = what is on screen + quick show/hide + the big Prev / Show / Next for one target
+ *   tablets : a control surface - the run sheet on the left, everything live on the right
+ *   layouts : Presenter · Leader · Producer · Admin choose what this device shows (not a permission)
+ * Cards are only shown/hidden, never rebuilt, so nothing is lost when you move between screens. */
 (function(){
 'use strict';
 var Store = window.BSFStore;
@@ -35,7 +37,11 @@ function showLogin(msg){
   $('login-msg').textContent = msg || '';
   setTimeout(function(){ $('pin').focus(); }, 50);
 }
-function showApp(){ var was = $('app').hidden; $('login').hidden = true; $('app').hidden = false; if (was){ setView('home', {replace: true}); pollStudio(); } }
+function showApp(){
+  var was = $('app').hidden; $('login').hidden = true; $('app').hidden = false;
+  if (was){ setTab(curTab(), {replace: true}); pollStudio();
+    if (tablet.matches && role().preview && !card('preview').classList.contains('open')) setOpen('preview', true); }   // tablets: preview on by default
+}
 $('login-form').addEventListener('submit', function(e){
   e.preventDefault();
   var pin = $('pin').value.replace(/\D/g, '');
@@ -142,7 +148,7 @@ $('hide-all').addEventListener('click', function(){
 });
 
 /* ---------- Details on demand: ▼ opens one card's details, ▲ closes them (no other card changes) ---------- */
-var CARD = {question: '.card.q', verse: '.card.v', birthday: '.card.b', scenes: '.card.sc', slides: '.card.sl', preview: '.card.p'};
+var CARD = {question: '.card.q', verse: '.card.v', birthday: '.card.b', slides: '.card.sl', scenes: '.card.sc', preview: '.card.p'};
 function card(k){ return document.querySelector(CARD[k]); }
 function setOpen(k, open){
   var c = card(k); if (!c) return;
@@ -226,125 +232,169 @@ function pollStudio(){
   if (!$('app').hidden && !document.hidden)
     fetch('api/remote/studio', {cache: 'no-store', credentials: 'same-origin'}).then(function(r){ return r.ok ? r.json() : null; })
       .then(function(d){ if (d) renderStudio(d); }).catch(function(){});
-  var needs = ['home', 'studio', 'scenes', 'slides', 'all'].indexOf(curView()) >= 0;
+  var needs = tablet.matches || ['scenes', 'all'].indexOf(curTab()) >= 0 || (curTab() === 'live' && document.body.dataset.target === 'slides');
   studioT = setTimeout(pollStudio, document.hidden ? 15000 : needs ? 4000 : 15000);
 }
 document.addEventListener('visibilitychange', function(){ if (!document.hidden && !$('app').hidden) pollStudio(); });
 
-/* ---------- Navigation Dashboard and section views ----------
- * body[data-view] = home | question | verse | birthday | studio | scenes | slides | preview | all. */
-var VIEWS = {
-  question: {title: 'Questions', cards: ['question']},
-  verse:    {title: 'Verses', cards: ['verse']},
-  birthday: {title: 'Birthday', cards: ['birthday']},
-  studio:   {title: 'Studio', cards: ['scenes', 'slides'], empty: 'Nothing to control yet. Start BCC vCam on the PC, or start a PowerPoint slide show.'},
-  scenes:   {title: 'Scenes', cards: ['scenes'], empty: 'Scenes aren’t available. Start BCC vCam on the PC.'},
-  slides:   {title: 'Slides', cards: ['slides'], empty: 'No presentation is running. Start the PowerPoint slide show (or share slides in the Studio) on the PC.'},
-  preview:  {title: 'Preview', cards: ['preview']},
-  all:      {title: 'All controls', cards: null}
+/* ---------- Tabs, targets and layouts ----------
+ * body[data-tab]    = live | runsheet | scenes | preview | all   (phones; tablets show everything at once)
+ * body[data-target] = question | verse | birthday | slides        (which card the Live tab's big buttons run)
+ * body[data-role]   = presenter | leader | producer | admin       (what this device shows; remembered here) */
+var ROLES = {
+  presenter: {name: 'Presenter', tabs: ['live'], targets: ['question', 'verse', 'slides'], quick: ['question', 'verse'], runsheet: false},
+  leader:    {name: 'Leader', tabs: ['live', 'runsheet'], targets: ['question', 'verse', 'birthday'], quick: ['question', 'verse', 'birthday'], runsheet: true},
+  producer:  {name: 'Producer', tabs: ['live', 'runsheet', 'scenes', 'preview'], targets: ['question', 'verse', 'birthday', 'slides'], quick: ['question', 'verse', 'birthday'], runsheet: true, scenes: true, preview: true},
+  admin:     {name: 'Admin', tabs: ['live', 'runsheet', 'scenes', 'preview', 'all'], targets: ['question', 'verse', 'birthday', 'slides'], quick: ['question', 'verse', 'birthday'], runsheet: true, scenes: true, preview: true}
 };
-var lastView = null;
-function curView(){ return document.body.dataset.view || 'home'; }
-function setView(v, opt){
+var TABS = {
+  live:     {cards: null},                          // the target's card
+  runsheet: {cards: []},
+  scenes:   {cards: ['scenes', 'slides'], empty: 'Scenes and slides aren’t available. Start BCC vCam on the PC, or start a PowerPoint slide show.'},
+  preview:  {cards: ['preview']},
+  all:      {cards: ['question', 'verse', 'birthday', 'slides', 'scenes', 'preview']}
+};
+var KEYS = {role: 'bcc-remote-role', target: 'bcc-remote-target', tab: 'bcc-remote-tab'};
+function load(k, d){ try { return localStorage.getItem(KEYS[k]) || d; } catch(e){ return d; } }
+function save(k, v){ try { localStorage.setItem(KEYS[k], v); } catch(e){} }
+var tablet = window.matchMedia ? window.matchMedia('(min-width: 900px)') : {matches: false};
+function role(){ return ROLES[document.body.dataset.role] || ROLES.admin; }
+function curTab(){ return document.body.dataset.tab || 'live'; }
+function setRole(r){
+  if (!ROLES[r]) r = 'admin';
+  document.body.dataset.role = r; save('role', r);
+  setText($('role-name'), ROLES[r].name);
+  all('[data-role-pick]').forEach(function(b){ b.setAttribute('aria-checked', String(b.dataset.rolePick === r)); });
+  all('#tabbar [data-tab]').forEach(function(b){ b.hidden = ROLES[r].tabs.indexOf(b.dataset.tab) < 0; });
+  $('tabbar').hidden = ROLES[r].tabs.length < 2;
+  all('[data-target-pick]').forEach(function(b){ b.hidden = ROLES[r].targets.indexOf(b.dataset.targetPick) < 0; });
+  all('[data-quick]').forEach(function(b){ b.hidden = ROLES[r].quick.indexOf(b.dataset.quick) < 0; });
+  if (ROLES[r].targets.indexOf(document.body.dataset.target) < 0) setTarget(ROLES[r].targets[0]);
+  if (ROLES[r].tabs.indexOf(curTab()) < 0) setTab('live', {replace: true});
+  syncView();
+}
+function setTarget(t){
+  document.body.dataset.target = t; save('target', t);
+  all('[data-target-pick]').forEach(function(b){ b.setAttribute('aria-selected', String(b.dataset.targetPick === t)); });
+  syncView();
+  if (t === 'slides') pollStudio();
+}
+function setTab(t, opt){
   opt = opt || {};
-  if (v !== 'home' && !VIEWS[v]) v = 'home';
-  var from = curView();
-  document.body.dataset.view = v;
-  if (v !== 'home') lastView = v;
-  if (v === 'preview' && !card('preview').classList.contains('open')) setOpen('preview', true);   // opened on purpose: show it
+  if (!TABS[t] || role().tabs.indexOf(t) < 0) t = 'live';
+  var from = curTab();
+  document.body.dataset.tab = t; save('tab', t);
+  all('#tabbar [data-tab]').forEach(function(b){ if (b.dataset.tab === t) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
   if (!opt.fromHistory){
     try {
-      if (opt.replace) history.replaceState({view: v}, '', location.pathname + location.search);
-      else if (v === 'home' && history.state && history.state.view && history.state.view !== 'home') history.back();
-      else if (v !== from) history.pushState({view: v}, '', location.pathname + location.search);
+      if (opt.replace) history.replaceState({tab: t}, '', location.pathname + location.search);
+      else if (t === 'live' && history.state && history.state.tab && history.state.tab !== 'live') history.back();
+      else if (t !== from) history.pushState({tab: t}, '', location.pathname + location.search);
     } catch(e){}
   }
+  // The live preview runs only while it is on screen (saves the phone's battery and the PC's work)
+  if (!tablet.matches){
+    if (t === 'preview' && !card('preview').classList.contains('open')) setOpen('preview', true);
+    else if (t !== 'preview' && t !== 'all' && card('preview').classList.contains('open')) setOpen('preview', false);
+  }
   syncView();
-  if (v !== from) window.scrollTo(0, 0);
-  if (['home', 'studio', 'scenes', 'slides', 'all'].indexOf(v) >= 0 && v !== from && !opt.replace) pollStudio();   // fresh status at once
-  if (opt.replace) return;
-  if (v === 'home'){ var t = document.querySelector('.tile[data-view="' + lastView + '"]') || document.querySelector('.tile'); if (t) t.focus({preventScroll: true}); }
-  else $('view-title').focus({preventScroll: true});
+  if (t === 'runsheet') renderDrawer(true);
+  if (t !== from){ window.scrollTo(0, 0); if (['scenes', 'all', 'live'].indexOf(t) >= 0) pollStudio(); }
 }
-/* Which cards this view shows, the title, the empty message, and the dashboard buttons' live status */
+/* Which cards are on screen, and the message when a tab has nothing to show */
 function syncView(){
-  var v = curView(), conf = VIEWS[v];
-  Object.keys(CARD).forEach(function(k){
-    var c = card(k); if (c) c.classList.toggle('off-view', v === 'home' || (conf && conf.cards !== null && conf.cards.indexOf(k) < 0));
-  });
-  setText($('view-title'), conf ? conf.title : '');
-  var empty = $('view-empty');
-  if (conf && conf.cards){
-    var any = conf.cards.some(function(k){ var c = card(k); return c && !c.hidden; });
-    empty.hidden = any; setText(empty, any ? '' : (conf.empty || ''));
-  } else empty.hidden = true;
-  var si = studioInfo || {}, studioOn = !!si.available, pres = si.presentation;
-  var act_ = studioOn ? (si.scenes || []).filter(function(x){ return x.id === si.activeScene; })[0] : null;
-  sub('studio', studioOn ? (act_ ? act_.name : 'Ready') : pres ? 'Slides ready' : 'Not available', null);
-  sub('scenes', studioOn ? ((si.scenes || []).length ? (act_ ? act_.name : 'No scene') : 'No scenes yet') : 'Not available', null);
-  sub('slides', pres ? (pres.page ? 'Slide ' + pres.page + (pres.pages ? ' of ' + pres.pages : '') : 'Ready') : 'No presentation', null);
-  all('.tile').forEach(function(b){
-    var on = b.dataset.view === lastView;
-    b.classList.toggle('current', on);
-    if (on) b.setAttribute('aria-current', 'true'); else b.removeAttribute('aria-current');
-  });
+  var t = curTab(), r = role(), conf = TABS[t], tab = tablet.matches;
+  var show = {};
+  if (tab){                                   // tablets: the whole surface for this layout
+    r.targets.forEach(function(k){ show[k] = true; });
+    if (r.scenes) show.scenes = true;
+    if (r.preview) show.preview = true;
+  } else if (t === 'live') show[document.body.dataset.target] = true;
+  else (conf.cards || []).forEach(function(k){ show[k] = true; });
+  Object.keys(CARD).forEach(function(k){ var c = card(k); if (c) c.classList.toggle('off-view', !show[k]); });
+  document.body.classList.toggle('no-runsheet', !r.runsheet);
+  var empty = $('view-empty'), visibleCards = Object.keys(show).filter(function(k){ var c = card(k); return c && !c.hidden; });
+  var msg = '';
+  if (!visibleCards.length && t !== 'runsheet'){
+    var tg = document.body.dataset.target;
+    msg = t === 'live' && tg === 'slides' ? 'No presentation is running. Start the PowerPoint slide show (or share slides in the Studio) on the PC.' : (conf.empty || '');
+  }
+  empty.hidden = !msg; setText(empty, msg);
+  // Now-panel chips: the slide and the scene
+  var si = studioInfo || {}, pres = si.presentation, act_ = si.available ? (si.scenes || []).filter(function(x){ return x.id === si.activeScene; })[0] : null;
+  var ns = $('nc-slide'), nsc = $('nc-scene');
+  ns.hidden = !pres; if (pres) setText(ns, 'Slide ' + (pres.page ? pres.page + (pres.pages ? ' / ' + pres.pages : '') : '—'));
+  nsc.hidden = !act_; if (act_) setText(nsc, 'Scene · ' + act_.name);
 }
-function sub(k, text, state){
-  var el = document.querySelector('[data-tile="' + k + '"]'); if (!el) return;
-  setText(el, text);
-  var cls = 'ti-sub' + (state ? ' ' + state : '');
-  if (el.className !== cls) el.className = cls;
-  el.parentNode.classList.toggle('is-live', state === 'live');
-}
-all('.tile').forEach(function(b){
-  b.addEventListener('click', function(){ buzz(10); setView(b.dataset.view); });
-});
-$('home-btn').addEventListener('click', function(){ buzz(10); setView('home'); });
-window.addEventListener('popstate', function(e){ setView((e.state && e.state.view) || 'home', {fromHistory: true}); });
-/* Keyboard: arrow keys move between the dashboard buttons; Esc closes the list, then goes Home */
+if (tablet.addEventListener) tablet.addEventListener('change', function(){ syncView(); renderDrawer(true); }); else if (tablet.addListener) tablet.addListener(function(){ syncView(); });
+all('#tabbar [data-tab]').forEach(function(b){ b.addEventListener('click', function(){ buzz(8); setTab(b.dataset.tab); }); });
+all('[data-target-pick]').forEach(function(b){ b.addEventListener('click', function(){ buzz(8); setTarget(b.dataset.targetPick); }); });
+window.addEventListener('popstate', function(e){ setTab((e.state && e.state.tab) || 'live', {fromHistory: true}); });
+
+/* More: layout for this device, disconnect */
+var moreFrom = null;
+function openMore(){ moreFrom = document.activeElement; $('more').hidden = false; $('more-close').focus(); }
+function closeMore(){ $('more').hidden = true; if (moreFrom && moreFrom.focus) moreFrom.focus({preventScroll: true}); }
+$('more-btn').addEventListener('click', function(){ buzz(8); openMore(); });
+$('more-close').addEventListener('click', closeMore);
+$('more').addEventListener('click', function(e){ if (e.target === $('more')) closeMore(); });
+all('[data-role-pick]').forEach(function(b){ b.addEventListener('click', function(){ buzz(10); setRole(b.dataset.rolePick); toast('Layout: ' + ROLES[b.dataset.rolePick].name); }); });
 document.addEventListener('keydown', function(e){
   if ($('app').hidden || e.altKey || e.ctrlKey || e.metaKey) return;
   if (e.key === 'Escape'){
-    if (!$('drawer').hidden){ e.preventDefault(); closeDrawer(); return; }
-    if (curView() !== 'home'){ e.preventDefault(); setView('home'); }
-    return;
+    if (!$('more').hidden){ e.preventDefault(); closeMore(); return; }
+    if (curTab() !== 'live'){ e.preventDefault(); setTab('live'); }
   }
-  if (curView() !== 'home' || ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End'].indexOf(e.key) < 0) return;
-  var tiles = all('.tile');
-  var i = tiles.indexOf(document.activeElement); if (i < 0) return;
-  var cols = tiles.filter(function(t){ return t.offsetTop === tiles[0].offsetTop; }).length || 1;
-  var j = {ArrowLeft: i - 1, ArrowRight: i + 1, ArrowUp: i - cols, ArrowDown: i + cols, Home: 0, End: tiles.length - 1}[e.key];
-  if (j >= 0 && j < tiles.length){ e.preventDefault(); tiles[j].focus(); }
 });
 
-/* ---------- Lists drawer ---------- */
-var drawerFrom = null;
-function openDrawer(k){ listKind = k || listKind; drawerFrom = document.activeElement; $('drawer').hidden = false; renderDrawer(); $('drawer-close').focus(); }
-function closeDrawer(){ $('drawer').hidden = true; if (drawerFrom && drawerFrom.focus) drawerFrom.focus({preventScroll: true}); }
-$('lists-btn').addEventListener('click', function(){ openDrawer(); });
+/* ---------- Run sheet (a tab on phones; always beside the controls on tablets) ---------- */
+function runsheetOn(){ return !$('app').hidden && role().runsheet && (tablet.matches || curTab() === 'runsheet'); }
+function openDrawer(k){
+  listKind = k || listKind;
+  if (!tablet.matches) setTab('runsheet'); else renderDrawer(true);
+  var cur = $('dlist').querySelector('li.cur button'); if (cur) cur.focus({preventScroll: true});
+}
 all('[data-list]').forEach(function(b){ if (b.classList.contains('dt')) return; b.addEventListener('click', function(){ openDrawer(b.dataset.list); }); });
-$('drawer-close').addEventListener('click', closeDrawer);
-$('drawer').addEventListener('click', function(e){ if (e.target === $('drawer')) closeDrawer(); });
-all('.dt').forEach(function(b){ b.addEventListener('click', function(){ listKind = b.dataset.list; renderDrawer(); }); });
-function renderDrawer(){
-  if ($('drawer').hidden || !live) return;
-  all('.dt').forEach(function(b){ b.classList.toggle('on', b.dataset.list === listKind); });
+all('.dt').forEach(function(b){ b.addEventListener('click', function(){ listKind = b.dataset.list; renderDrawer(true); }); });
+var rsKey = '';
+function renderDrawer(force){
+  if (!live || !runsheetOn()) return;
+  all('.dt').forEach(function(b){ var on = b.dataset.list === listKind; b.classList.toggle('on', on); b.setAttribute('aria-selected', String(on)); });
   var ol = $('dlist'), l = library(listKind), cur = currentIndex(listKind), on = isOn(listKind);
-  ol.innerHTML = '';
+  var key = listKind + JSON.stringify(l.map(function(it){ return it.id + (it.ref || '') + it.text.length; }));
+  function cls(i){ return (i === cur ? 'cur' + (on ? '' : ' ready') : '') + (cur >= 0 && i < cur ? ' done' : '') + ((cur < 0 ? i === 0 : i === cur + 1) ? ' nx' : ''); }
+  function tag(i){ return i === cur ? (on ? 'LIVE' : 'READY') : (cur < 0 ? i === 0 : i === cur + 1) ? 'NEXT' : ''; }
+  if (!force && key === rsKey && ol.children.length === l.length){
+    // the same list: only the markers move (every Next / Show) - no rebuild, even with a long list
+    for (var r = 0; r < ol.children.length; r++){ var li0 = ol.children[r], c = cls(r); if (li0.className !== c){ li0.className = c; setText(li0.querySelector('.tag'), tag(r)); } }
+    scrollCur(ol); return;
+  }
+  rsKey = key; ol.innerHTML = '';
   if (!l.length){ ol.appendChild(h('li', 'empty', 'Nothing saved yet. Add them in Content on the PC.')); return; }
   var frag = document.createDocumentFragment();
   l.forEach(function(it, i){
-    var li = h('li', i === cur ? 'cur' + (on ? '' : ' ready') : ''), b = h('button'); b.type = 'button';
+    var li = h('li', cls(i)), b = h('button'); b.type = 'button';
     b.appendChild(h('span', 'n', String(i + 1)));
     var t = h('span', 't');
     if (listKind === 'verse') t.appendChild(h('b', null, (it.ref || 'Verse') + (it.version ? ' · ' + it.version : '')));
     t.appendChild(document.createTextNode(listKind === 'verse' ? it.text.replace(/\s+/g, ' ').slice(0, 140) + (it.text.length > 140 ? '…' : '') : it.text));
     b.appendChild(t);
-    b.appendChild(h('span', 'tag', i === cur ? (on ? 'LIVE' : 'READY') : ''));
-    b.addEventListener('click', function(){ var k = listKind; closeDrawer(); showItem(k, i); });
+    b.appendChild(h('span', 'tag', tag(i)));
+    b.addEventListener('click', function(){
+      var k = listKind, now = Date.now();
+      if (now - (lastTap['item' + k] || 0) < 600) return; lastTap['item' + k] = now;   // a double tap never shows two items
+      buzz(12); showItem(k, i);
+      if (!tablet.matches && role().tabs.indexOf('live') >= 0) setTarget(k);
+    });
     li.appendChild(b); frag.appendChild(li);
   });
   ol.appendChild(frag);
+  scrollCur(ol);
+}
+function scrollCur(ol){
+  var c = ol.querySelector('li.cur') || ol.querySelector('li.nx'); if (!c) return;
+  var box = ol, top = c.offsetTop - box.offsetTop;
+  if (top < box.scrollTop || top + c.offsetHeight > box.scrollTop + box.clientHeight) box.scrollTop = Math.max(0, top - box.clientHeight / 3);
 }
 
 /* ---------- Render (only what changed is written to the page) ---------- */
@@ -359,10 +409,9 @@ function render(){
     if (s.className !== cls) s.className = cls;
     setText(s, STATE_TEXT[st]);
     c.classList.toggle('live', st === 'live');
-    document.querySelector('[data-air="' + k + '"]').classList.toggle('on', st === 'live');
     var tg = c.querySelector('.pb.toggle');
     tg.classList.toggle('is-live', st === 'live'); setText(tg.querySelector('.tl'), st === 'live' ? 'HIDE' : 'SHOW');
-    sub(k, STATE_TEXT[st], st);
+    quick(k, st);
     if (k !== 'birthday'){
       var l = library(k), cur = currentIndex(k);
       setText($(k[0] + '-pos'), cur >= 0 ? (cur + 1) + ' / ' + l.length : l.length ? l.length + ' in list' : '');
@@ -382,8 +431,38 @@ function render(){
   setText($('q-label'), live.question.text.trim() ? live.question.label : '');
   var pm = P.mode(live);
   all('[data-pmode]').forEach(function(b){ var on = b.dataset.pmode === pm; if (b.getAttribute('aria-checked') !== String(on)) b.setAttribute('aria-checked', String(on)); });
-  var sig = JSON.stringify([listKind, live.library, live.question.itemId, live.verse.itemId, live.question.visible, live.verse.visible]);
-  if (!$('drawer').hidden && sig !== lastDrawerSig){ lastDrawerSig = sig; renderDrawer(); }
+  var sig = JSON.stringify([listKind, live.library.questions.length, live.library.verses.length, live.question.itemId, live.verse.itemId, live.question.visible, live.verse.visible, P.mode(live)]);
+  if (sig !== lastDrawerSig){ lastDrawerSig = sig; renderDrawer(); }
+  renderNow();
+}
+/* Quick buttons (Now panel): each card's state, one tap to show or hide it */
+function quick(k, st){
+  var b = document.querySelector('[data-quick="' + k + '"]'); if (!b) return;
+  var cls = 'qk ' + k[0] + ' ' + st; if (b.className !== cls) b.className = cls;
+  setText(b.querySelector('.qk-s'), st === 'live' ? 'LIVE · tap to hide' : st === 'ready' ? 'Tap to show' : 'Empty');
+  b.setAttribute('aria-label', (st === 'live' ? 'Hide the ' : 'Show the ') + NAMES[k].toLowerCase());
+}
+/* Now: what Zoom participants see right now, in words */
+function renderNow(){
+  var on = ['question', 'verse', 'birthday'].filter(function(k){ return isOn(k); });
+  var oa = $('onair'), any = on.length > 0, oc = 'onair' + (any ? ' on' : '');
+  if (oa.className !== oc) oa.className = oc;
+  setText(oa.querySelector('b'), any ? 'ON AIR' : 'OFF AIR');
+  $('now').classList.toggle('on', any);
+  var text = 'Nothing on screen', subt = '', meta = '';
+  var q = live.question, v = live.verse, pm = P.mode(live);
+  if (isOn('question') && pm !== 'verse'){
+    text = q.text; meta = 'Question' + (currentIndex('question') >= 0 ? ' ' + (currentIndex('question') + 1) + ' of ' + library('question').length : '');
+    if (pm === 'both' && v.visible && v.text.trim()) subt = 'With ' + (v.ref || 'the verse') + (v.version ? ' · ' + v.version : '');
+  } else if (isOn('verse') || (isOn('question') && pm === 'verse')){
+    text = v.text.replace(/\s+/g, ' '); meta = (v.ref || 'Verse') + (v.version ? ' · ' + v.version : '');
+  }
+  if (isOn('birthday')){ if (text === 'Nothing on screen'){ text = live.birthday.greeting; meta = 'Birthday'; } else subt = (subt ? subt + ' · ' : '') + 'Birthday: ' + (live.birthday.name || 'on screen'); }
+  if (!any){
+    var nq = library('question'), ci = currentIndex('question');
+    subt = q.text.trim() ? 'Ready: ' + (ci >= 0 ? 'question ' + (ci + 1) : 'a question') + ' · tap Show' : nq.length ? 'Tap Next to begin' : 'Add questions on the PC';
+  }
+  setText($('now-text'), text); setText($('now-sub'), subt); setText($('now-meta'), meta);
 }
 Store.subscribe(function(st){ live = st; if (!$('login').hidden) showApp(); render(); });
 
@@ -398,8 +477,13 @@ setInterval(function(){
   lastOk = ok; lastOnline = Store.online;
   var c = $('conn');
   c.className = 'conn ' + (Store.online ? 'ok' : ok ? '' : 'bad'); c.querySelector('b').textContent = Store.online ? 'Connected' : ok ? 'Connecting…' : 'Reconnecting…';
-  all('.pb, .hold, #hide-all, .scene').forEach(function(b){ b.disabled = !ok; });
+  all('.pb, .hold, #hide-all, .scene, .qk').forEach(function(b){ b.disabled = !ok; });
 }, 700);
+
+/* This device's layout, target and tab (remembered); tablets open the live preview by default */
+setRole(load('role', 'admin'));
+setTarget(ROLES[document.body.dataset.role].targets.indexOf(load('target', 'question')) >= 0 ? load('target', 'question') : role().targets[0]);
+document.body.dataset.tab = role().tabs.indexOf(load('tab', 'live')) >= 0 ? load('tab', 'live') : 'live';
 
 /* Start: find out whether this device is already signed in. Updates arrive the moment they happen (long-poll). */
 fetch('api/rev', {cache: 'no-store'}).then(function(r){

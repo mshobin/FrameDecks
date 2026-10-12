@@ -160,6 +160,7 @@ function render(){
   if (live.birthday.greeting.trim()){ who.appendChild(document.createTextNode('For ')); who.appendChild(h('b', null, live.birthday.name || live.birthday.greeting)); }
   else if (c){ who.appendChild(document.createTextNode('Ready for ')); who.appendChild(h('b', null, c.name)); }
   else who.textContent = 'No birthday coming up. Use “Celebrate on screen” on a member card.';
+  renderInspector();
   $('program').classList.toggle('on', any); $('pg-dot').classList.toggle('on', any);
   var badge = $('program-badge'); badge.className = 'program-badge' + (any ? ' on' : ''); badge.textContent = any ? '● LIVE ON ZOOM' : 'NOTHING ON SCREEN';
   // section line
@@ -167,6 +168,38 @@ function render(){
   if (qi >= 0) parts.push('Question ' + (qi + 1) + ' of ' + qn);
   if (live.verse.text.trim() && live.verse.ref) parts.push(live.verse.ref);
   $('mt-section').textContent = parts.join(' · ') || 'Ready to begin';
+}
+
+/* ---------- Inspector extras: position in the list, the question's verse, nearby verses as quick chips ---------- */
+var chipSig = '';
+function renderInspector(){
+  var P = window.BSFPresent;
+  ['question', 'verse'].forEach(function(k){
+    var items = A.list(k), cur = A.current(k), el = $(k === 'question' ? 'insp-qpos' : 'insp-vpos');
+    var t = cur >= 0 ? (k === 'question' ? 'Question ' : 'Verse ') + (cur + 1) + ' of ' + items.length : items.length ? items.length + ' in the list' : '';
+    if (el && el.textContent !== t) el.textContent = t;
+  });
+  var pair = $('insp-qpair'), qi = P && live.question.itemId ? P.item(live, live.question.itemId) : null, pv = qi && P.verseFor(live, qi.id);
+  if (pair){
+    var pt = pv ? 'Verse for this question: ' + (pv.ref || 'Verse') + (pv.version ? ' · ' + pv.version : '') : '';
+    pair.hidden = !pt; if (pair.textContent !== pt) pair.textContent = pt;
+  }
+  var box = $('insp-vchips'); if (!box) return;
+  var vs = A.list('verse'), vc = A.current('verse'), vst = stateOf('verse');
+  var lo = Math.max(0, Math.min(vc < 0 ? 0 : vc - 2, vs.length - 5)), win = vs.slice(lo, lo + 5);
+  var sig = JSON.stringify([win.map(function(v){ return v.id + (v.ref || ''); }), vc, vst, lo]);
+  if (sig === chipSig) return; chipSig = sig;
+  box.innerHTML = '';
+  win.forEach(function(v, j){
+    var i = lo + j, on = i === vc;
+    var b = h('button', 'vchip' + (on ? ' on' + (vst === 'live' ? ' live' : '') : ''), v.ref || ('Verse ' + (i + 1)));
+    b.type = 'button'; b.setAttribute('role', 'listitem'); b.title = 'Show ' + (v.ref || 'this verse') + ' now';
+    b.addEventListener('click', guard('item-verse', function(){ A.showItem('verse', v); }, b));
+    box.appendChild(b);
+  });
+  var add = h('button', 'vchip add', '+ Verse'); add.type = 'button'; add.title = 'Add or edit verses in Content';
+  add.addEventListener('click', function(){ window.BSFSetTab('overlays'); setTimeout(function(){ var f = $('v-ref'); if (f){ f.scrollIntoView({block: 'center'}); f.focus(); } }, 60); });
+  box.appendChild(add);
 }
 
 /* ---------- Controls ---------- */
@@ -215,7 +248,8 @@ Array.prototype.forEach.call(document.querySelectorAll('#tab-meeting .cbtn'), fu
     var m = b.dataset.cb, k = b.dataset.k;
     b.addEventListener('click', guard('bar-' + m + '-' + (k || b.dataset.step || ''), function(){
       if (k) showContext(k);                              // the details panel follows what you are operating
-      if (m === 'hideAll') A.hideAll();
+      if (m === 'take') takeLive();
+      else if (m === 'hideAll') A.hideAll();
       else if (m === 'slide') slide(+b.dataset.step);
       else if (k === 'birthday') window.BSFBirthday.toggle();
       else if (m === 'toggle') A.toggle(k);
@@ -231,8 +265,31 @@ Array.prototype.forEach.call(document.querySelectorAll('#tab-meeting .cbtn'), fu
       if (b.disabled !== off) b.disabled = off;
     });
     renderModes();
+    renderTake();
   }};
 })();
+
+/* ---------- Take live: Show (or Hide) whatever the Inspector is on - exactly its own Show button ---------- */
+function takeLive(){
+  var k = ctxNow;
+  if (k === 'birthday'){ if (stateOf('birthday') !== 'empty') window.BSFBirthday.toggle(); else A.toast('Choose who to celebrate first.', true); }
+  else A.toggle(k);
+}
+var takeGuard = 0;
+window.BSFTakeLive = function(){ var now = Date.now(); if (now - takeGuard < 450) return; takeGuard = now; takeLive(); };
+function renderTake(){
+  var b = $('cb-take'); if (!b || !live) return;
+  var st = stateOf(ctxNow), on = st === 'live';
+  var what = NAMES[ctxNow] + (ctxNow === 'question' && A.mode() !== 'question' ? (A.mode() === 'both' ? ' + verse' : ' (verse)') : '');
+  var label = on ? 'Hide' : 'Take live';
+  if (b.querySelector('.tl').textContent !== label) b.querySelector('.tl').textContent = label;
+  if ($('cb-take-what').textContent !== what) $('cb-take-what').textContent = what;
+  b.classList.toggle('is-live', on);
+  b.classList.toggle('q', ctxNow === 'question'); b.classList.toggle('v', ctxNow === 'verse'); b.classList.toggle('b', ctxNow === 'birthday');
+  b.setAttribute('aria-label', (on ? 'Hide the ' : 'Take live: show the ') + NAMES[ctxNow].toLowerCase());
+  var off = st === 'empty' && ctxNow === 'birthday';
+  if (b.disabled !== off) b.disabled = off;
+}
 
 /* ---------- Details panel: one item at a time (Question · Verse · Birthday) ---------- */
 var ctxNow = 'question';
@@ -241,8 +298,22 @@ function showContext(k){
   ctxNow = k;
   Array.prototype.forEach.call(document.querySelectorAll('[data-ctx]'), function(b){ b.setAttribute('aria-selected', String(b.dataset.ctx === k)); });
   Array.prototype.forEach.call(document.querySelectorAll('[data-ctx-panel]'), function(p){ p.hidden = p.dataset.ctxPanel !== k; });
-  pendingPreview();
+  Array.prototype.forEach.call(document.querySelectorAll('[data-ctx-style]'), function(p){ p.hidden = p.dataset.ctxStyle !== k; });
+  pendingPreview(); renderTake();
 }
+/* Inspector tabs: Content (what is loaded, next, mode) · Style & position (size, placement, transition) */
+Array.prototype.forEach.call(document.querySelectorAll('[data-itab]'), function(b){
+  b.addEventListener('click', function(){
+    Array.prototype.forEach.call(document.querySelectorAll('[data-itab]'), function(x){ x.setAttribute('aria-selected', String(x === b)); });
+    Array.prototype.forEach.call(document.querySelectorAll('[data-ipanel]'), function(p){ p.hidden = p.dataset.ipanel !== b.dataset.itab; });
+    if (b.dataset.itab === 'style' && window.BSFRefreshControls) window.BSFRefreshControls();
+    pendingPreview();
+  });
+});
+/* "Edit in Content": opens the editor with the cursor in it */
+Array.prototype.forEach.call(document.querySelectorAll('[data-edit]'), function(b){
+  b.addEventListener('click', function(){ setTimeout(function(){ var f = $(b.dataset.edit === 'verse' ? 'v-ref' : 'q-text'); if (f){ f.scrollIntoView({block: 'center'}); f.focus(); } }, 60); });
+});
 Array.prototype.forEach.call(document.querySelectorAll('[data-ctx]'), function(b){ b.addEventListener('click', function(){ showContext(b.dataset.ctx); }); });
 
 /* ---------- Presentation mode: Question · Both · Verse (every selector shows and sets the same mode) ---------- */
@@ -269,7 +340,8 @@ var pf = $('pending-frame'), pbox = $('pending-frame-box'), pfOn = false;
 function scalePending(){ if (pfOn && pbox && pbox.clientWidth) pf.style.transform = 'scale(' + (pbox.clientWidth / 1920) + ')'; }
 function pendingPreview(){
   if (!pf) return;
-  var want = document.body.dataset.tab === 'meeting' && ctxNow === 'question' && !document.hidden;
+  var ip = document.querySelector('[data-ipanel="content"]');
+  var want = document.body.dataset.tab === 'meeting' && ctxNow === 'question' && !document.hidden && !(ip && ip.hidden);
   if (want === pfOn) return scalePending();
   pfOn = want;
   pf.src = want ? 'stage.html?bg=preview&preview=1&pending=1' : 'about:blank';   // nothing runs while it is not seen
@@ -293,8 +365,12 @@ function chip(id, cls, text, title){                    // touches the page only
 function renderProgram(){
   if (!Store.served) chip('h-program', 'info', 'No-install mode', 'Overlays update only in this browser. Start the program for OBS, Camo and the phone remote.');
   else chip('h-program', Store.online ? 'ok' : 'bad', Store.online ? 'Connected' : 'Not responding', Store.online ? 'The local program is running' : 'Check the black BSF Command Center window is open');
-  var t = (window.BSFMembersAPI && window.BSFMembersAPI.settings().meetingTitle) || 'BSF Meeting';
-  if ($('meeting-title').textContent !== t){ $('meeting-title').textContent = t; document.title = t + ' · BSF Command Center'; }
+  var set = window.BSFMembersAPI ? window.BSFMembersAPI.settings() : {};
+  var t = set.meetingTitle || 'BSF Meeting', g = String(set.groupName || 'BSF').trim() || 'BSF';
+  var org = (g.length <= 24 ? g : 'BSF') + ' Command Center';            // e.g. "NLFM Command Center"; long group names keep the usual title
+  if ($('meeting-title').textContent !== t){ $('meeting-title').textContent = t; }
+  if ($('org-title') && $('org-title').textContent !== org) $('org-title').textContent = org;
+  var dt = t + ' · ' + org; if (document.title !== dt) document.title = dt;
 }
 setInterval(function(){ if (!document.hidden) renderProgram(); }, 1000); renderProgram();
 
@@ -325,6 +401,63 @@ Status.on('remote', function(r){
 });
 
 if (!Store.served){ chip('h-sources', '', '—', 'Needs the local program'); chip('h-ipad', '', '—', 'Needs the local program'); }
+
+/* ---------- Live outputs (Meeting view) and the Recording / Slides chips ----------
+ * Read-only: they show what the existing checks already know (BCC vCam status, overlay pages, Studio,
+ * PowerPoint, remote). Nothing here starts or stops an output. */
+function out(id, cls, metric, title){
+  var c = $(id); if (!c) return;
+  var k = 'out ' + (cls || ''), m = c.querySelector('[data-m]');
+  if (c.className !== k) c.className = k;
+  if (m.textContent !== metric) m.textContent = metric;
+  if (title != null && c.title !== title) c.title = title;
+}
+function fmtTime(sec){ sec = Math.round(sec || 0); return Math.floor(sec / 60) + ':' + String(sec % 60).padStart(2, '0'); }
+var lastPresence = null, lastRemote = null, slideInfo = null;
+Status.on('presence', function(p){ lastPresence = p; renderOutputs(); });
+Status.on('remote', function(r){ lastRemote = r; renderOutputs(); });
+function renderOutputs(){
+  var vs = window.BSFVcamStatus && window.BSFVcamStatus(), st = vs && vs.status, ss = window.BSFStudio && window.BSFStudio.state ? window.BSFStudio.state() : null;
+  // BCC vCam: the camera Zoom / Teams receive
+  if (!Store.served) out('out-vcam', '', 'Needs the installed app');
+  else if (!vs) out('out-vcam', '', 'Checking…');
+  else if (!vs.available) out('out-vcam', 'off', 'Not available', vs.reason || '');
+  else if (st && st.state === 'live')
+    out('out-vcam', 'ok', (st.outputSize || '') + ' · ' + Math.round(st.fps || 0) + ' fps · ' + Math.round(st.latencyMs || 0) + ' ms · ' + (st.dropped || 0) + ' dropped',
+      'Live in Zoom / Teams. Camera ' + (st.captureFps || 0) + ' fps, ' + (st.msPerFrame || 0) + ' ms per frame, CPU ' + (st.cpuPercent || 0) + '%');
+  else if (st && st.state === 'error') out('out-vcam', 'bad', 'Problem', st.message || '');
+  else out('out-vcam', vs.settings && vs.settings.enabled === false ? 'off' : 'idle', vs.settings && vs.settings.enabled === false ? 'Off' : 'Ready · not in a meeting', st && st.message || '');
+  // Overlay pages (OBS, Camo, a browser)
+  var n = 0; if (lastPresence) for (var k in lastPresence) n += lastPresence[k];
+  out('out-overlays', n ? 'ok' : 'idle', n ? n + ' page' + (n === 1 ? '' : 's') + ' open' : 'None open');
+  // Presentation window and recording (Studio)
+  var po = ss && ss.presentation && ss.presentation.open, rec = ss && ss.recording;
+  out('out-present', po ? 'ok' : 'idle', !ss || !ss.available ? 'Needs BCC vCam' : po ? 'Open · share it in Zoom' : 'Closed');
+  out('out-rec', rec && rec.on ? 'rec' : 'idle', !ss || !ss.available ? 'Needs BCC vCam' : rec && rec.on ? '● ' + fmtTime(rec.seconds) + (rec.codec ? ' · ' + rec.codec : '') : 'Not recording');
+  var hr = $('h-rec'); if (hr){ var on = !!(rec && rec.on); if (hr.hidden === on) hr.hidden = !on; if (on) chip('h-rec', 'rec', fmtTime(rec.seconds), 'Recording the BCC vCam output'); }
+  // Slides (PowerPoint slide show, or a deck / window shared in the Studio)
+  var pr = slideInfo && slideInfo.presentation;
+  out('out-slides', pr ? 'ok' : 'idle', pr ? (pr.page ? 'Slide ' + pr.page + (pr.pages ? ' of ' + pr.pages : '') : 'Ready') + (pr.name ? ' · ' + pr.name : '') : 'No presentation');
+  var hs = $('h-slides'); if (hs){ if (hs.hidden === !!pr) hs.hidden = !pr; if (pr) chip('h-slides', 'ok', pr.page ? pr.page + (pr.pages ? '/' + pr.pages : '') : 'Ready', 'Slides: ' + (pr.name || 'presentation')); }
+  // Remote
+  var r = lastRemote;
+  if (!r) out('out-remote', '', '—');
+  else if (!r.enabled) out('out-remote', 'off', 'Off');
+  else { var nn = (r.devices || []).filter(function(d){ return d.signedIn && r.now - d.lastSeen < 12; }).length;
+    out('out-remote', nn ? 'ok' : 'idle', nn ? nn + ' device' + (nn === 1 ? '' : 's') + ' connected' : 'Waiting for a device'); }
+  // What the big picture is
+  var pv = $("pg-view"), real = !!(liveImg && !liveImg.hidden);
+  if (pv){ var pt = real ? 'BCC vCam picture' : 'Overlay preview'; if (pv.textContent !== pt) pv.textContent = pt; }
+}
+/* The slide number: asked every 5 s while the Meeting view is on screen (one light request; PowerPoint is
+ * only asked when no Studio deck is shared - the same answer the phone remote gets) */
+function pollSlides(){
+  var want = Store.served && document.body.dataset.tab === 'meeting' && !document.hidden;
+  (want ? fetch('api/remote/studio', {cache: 'no-store'}).then(function(r){ return r.ok ? r.json() : null; }).then(function(d){ slideInfo = d; renderOutputs(); }).catch(function(){})
+        : Promise.resolve()).then(function(){ setTimeout(pollSlides, want ? 5000 : 8000); });
+}
+if (Store.served) setTimeout(pollSlides, 1200);
+setInterval(function(){ if (!document.hidden) renderOutputs(); }, 1000);
 
 /* ---------- Program preview ----------
  * While BCC vCam is live, show its real final frame (exactly what Zoom/Teams receive).

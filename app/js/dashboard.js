@@ -610,6 +610,7 @@ function setup(){
     else if (a === 'toggleV') toggle('verse');
     else if (a === 'hideAll') hideAll();
     else if (a === 'toggleB' && window.BSFBirthday) window.BSFBirthday.toggle();
+    else if (a === 'takeLive' && window.BSFTakeLive) window.BSFTakeLive();
   });
 
   buildTransitionExtras();
@@ -635,6 +636,11 @@ Store.subscribe(function(st){
   renderLists(); refreshMode();
 });
 var controlsDirty = false;
-function controlsVisible(){ var a = $('tab-overlays'), s = $('tab-settings'); return (a && !a.hidden) || (s && !s.hidden); }
+function controlsVisible(){
+  var a = $('tab-overlays'), s = $('tab-settings'), st = document.querySelector('[data-ipanel="style"]');
+  return (a && !a.hidden) || (s && !s.hidden) || (document.body.dataset.tab === 'meeting' && st && !st.hidden);   // v5.1: the Inspector's Style tab
+}
+/* The Inspector's Style tab was opened: bring its settings up to date (they are skipped while hidden) */
+window.BSFRefreshControls = function(){ if (live && drafts && controlsDirty && controlsVisible()){ controlsDirty = false; refreshSegs(); refreshRanges(); } };
 Store.start({longPoll: true});   // changes (phone remote, overlays) arrive at once; idle = ~6 requests a minute
 })();

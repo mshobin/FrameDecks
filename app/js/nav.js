@@ -91,35 +91,51 @@ show(document.body.dataset.tab || 'meeting');
   mark();
 })();
 
-/* ---------- Header: one status button. Its colour is the worst of the four checks (their own code keeps
- * updating them inside the menu); the menu lists them, each opening its Settings section. ---------- */
+/* ---------- Header: every output's status chip, visible at a glance (v5.1). Each chip keeps its own code
+ * (vCam, overlays, remote, recording, slides, program); a chip opens its details. On narrow windows the chips
+ * fold into one status button whose colour is the worst of them. ---------- */
 (function(){
   var box = $('sysstat'); if (!box) return;
+  var btn = $('sys-sum'), menu = $('health');
   var chips = Array.prototype.slice.call(box.querySelectorAll('.hchip')), dot = box.querySelector('.sys-dot'), txt = box.querySelector('.sys-text');
   var RANK = {bad: 3, warn: 2, info: 1, ok: 0};
   function sum(){
     var worst = 'ok', bad = [];
     chips.forEach(function(c){
+      if (c.hidden) return;
       var s = ['bad', 'warn'].filter(function(x){ return c.classList.contains(x); })[0];
       if (s){ bad.push(c.querySelector('.hl').textContent + ': ' + c.querySelector('b').textContent); if (RANK[s] > RANK[worst]) worst = s; }
     });
     var label = worst === 'ok' ? 'All systems ready' : bad[0] + (bad.length > 1 ? ' +' + (bad.length - 1) : '');
     if (dot.className !== 'sys-dot ' + worst) dot.className = 'sys-dot ' + worst;
     if (txt.textContent !== label) txt.textContent = label;
-    box.title = chips.map(function(c){ return c.querySelector('.hl').textContent + ': ' + c.querySelector('b').textContent; }).join(' · ');
+    box.classList.toggle('has-problem', worst !== 'ok');
+    btn.title = chips.filter(function(c){ return !c.hidden; }).map(function(c){ return c.querySelector('.hl').textContent + ': ' + c.querySelector('b').textContent; }).join(' · ');
   }
   var mo = new MutationObserver(sum);
-  chips.forEach(function(c){ mo.observe(c, {attributes: true, attributeFilter: ['class'], subtree: true, childList: true, characterData: true}); });
+  chips.forEach(function(c){ mo.observe(c, {attributes: true, attributeFilter: ['class', 'hidden'], subtree: true, childList: true, characterData: true}); });
   sum();
-  chips.forEach(function(c){ c.addEventListener('click', function(){ box.open = false; }); });
-  document.addEventListener('click', function(e){ if (box.open && !box.contains(e.target)) box.open = false; });
+  function setOpen(on){ box.classList.toggle('open', on); btn.setAttribute('aria-expanded', String(on)); }
+  btn.addEventListener('click', function(e){ e.stopPropagation(); setOpen(!box.classList.contains('open')); });
+  chips.forEach(function(c){ c.addEventListener('click', function(){ setOpen(false); }); });
+  document.addEventListener('click', function(e){ if (box.classList.contains('open') && !box.contains(e.target)) setOpen(false); });
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && box.classList.contains('open')) setOpen(false); }, true);   // Esc still hides all as well
 })();
 
-/* ---------- Header search: questions, verses and members. Choosing a question or verse shows where it is in the
- * Run sheet (nothing goes on screen); a member opens their card. Ctrl+K focuses it. ---------- */
+/* ---------- Header search: questions, verses, birthdays, members, scenes, slides and settings. Choosing a
+ * question or verse shows where it is in the Run sheet (nothing goes on screen); a member or birthday opens the
+ * member's card; a scene is pointed out in the Scenes list (switching stays a click on the scene); a settings
+ * page opens. Ctrl+K focuses it. ---------- */
 (function(){
   var inp = $('gsearch'), ul = $('gsearch-list'); if (!inp || !ul) return;
   var results = [], active = -1, lib = null;
+  var SECTIONS = [['general', 'General', 'appearance theme dark light meeting title your name group name email wording'],
+    ['overlays', 'Overlays', 'card position text size opacity birthday greeting reminders'],
+    ['display', 'Zoom / Display', 'overlay links obs camo browser source zoom display'], ['vcam', 'BCC vCam', 'camera zoom teams blur background look filter resolution'],
+    ['ipad', 'Phone & iPad Remote', 'remote pin qr phone tablet android'], ['keys', 'Keyboard shortcuts', 'keys hotkeys shortcuts'],
+    ['security', 'Security', 'pin privacy'], ['data', 'Data & backup', 'backup restore export import excel'],
+    ['diag', 'Diagnostics', 'problems errors logs'], ['about', 'About', 'version credits']];
+  var KINDS = {question: 'Question', verse: 'Verse', member: 'Member', birthday: 'Birthday', scene: 'Scene', slides: 'Slides', setting: 'Settings'};
   Store.subscribe(function(st){ lib = st.library; });
   function norm(s){ return String(s || '').toLowerCase(); }
   function find(q){
@@ -128,14 +144,25 @@ show(document.body.dataset.tab || 'meeting');
     lib.questions.forEach(function(it, i){ if (out.length < 30 && norm(it.text).indexOf(q) >= 0) out.push({kind: 'question', i: i, title: it.text, sub: 'Question ' + (i + 1)}); });
     lib.verses.forEach(function(it, i){ if (out.length < 30 && norm((it.ref || '') + ' ' + it.text).indexOf(q) >= 0) out.push({kind: 'verse', i: i, title: (it.ref || 'Verse') + (it.version ? ' · ' + it.version : ''), sub: it.text}); });
     var api = window.BSFMembersAPI;
-    if (api && api.directory) api.directory().forEach(function(m){ if (out.length < 40 && norm(m.name + ' ' + m.email + ' ' + m.role).indexOf(q) >= 0) out.push({kind: 'member', id: m.id, title: m.name, sub: m.role || m.email || 'Member'}); });
-    return out;
+    var dirRows = api && api.directory ? api.directory() : [];
+    var bq = q === 'birthday' || q === 'birthdays' || q === 'bday';
+    dirRows.filter(function(m){ return m.b && (bq ? m.b.days <= 31 : (m.b.days <= 31 && norm(m.name).indexOf(q) >= 0)); })
+      .sort(function(a, b){ return a.b.days - b.b.days; }).slice(0, 8).forEach(function(m){
+        out.push({kind: 'birthday', id: m.id, title: m.name, sub: m.b.days === 0 ? 'Birthday today' : m.b.days === 1 ? 'Birthday tomorrow' : 'Birthday in ' + m.b.days + ' days'}); });
+    dirRows.forEach(function(m){ if (out.length < 46 && norm(m.name + ' ' + m.email + ' ' + m.role).indexOf(q) >= 0) out.push({kind: 'member', id: m.id, title: m.name, sub: m.role || m.email || 'Member'}); });
+    var st = window.BSFStudio && window.BSFStudio.state ? window.BSFStudio.state() : null;
+    if (st && st.available){
+      (st.scenes || []).forEach(function(sc){ if (norm(sc.name).indexOf(q) >= 0 || q === 'scene' || q === 'scenes') out.push({kind: 'scene', id: sc.id, title: sc.name, sub: sc.id === st.activeScene ? 'Active scene' : 'Scene'}); });
+      (st.pdfs || []).forEach(function(f){ if (norm(f).indexOf(q) >= 0 || q === 'slides') out.push({kind: 'slides', title: f, sub: 'Slides (PDF) in the Studio'}); });
+    }
+    SECTIONS.forEach(function(x){ if (norm(x[1] + ' ' + x[2]).indexOf(q) >= 0) out.push({kind: 'setting', sec: x[0], title: x[1], sub: 'Settings · ' + x[2]}); });
+    return out.slice(0, 60);
   }
   function draw(){
     ul.innerHTML = '';
     results.forEach(function(r, n){
       var li = h('li', {role: 'option', id: 'gs-' + n, 'aria-selected': String(n === active), cls: 'gs-' + r.kind}, [
-        h('span', {cls: 'gs-kind', text: {question: 'Question', verse: 'Verse', member: 'Member'}[r.kind]}),
+        h('span', {cls: 'gs-kind', text: KINDS[r.kind]}),
         h('span', {cls: 'gs-text'}, [h('b', {text: r.title}), h('small', {text: r.sub})])]);
       li.addEventListener('mousedown', function(e){ e.preventDefault(); pick(r); });
       ul.appendChild(li);
@@ -148,7 +175,19 @@ show(document.body.dataset.tab || 'meeting');
   function close(){ ul.hidden = true; inp.setAttribute('aria-expanded', 'false'); active = -1; }
   function pick(r){
     close(); inp.value = ''; inp.blur();
-    if (r.kind === 'member'){ if (window.BSFMembersAPI) window.BSFMembersAPI.open(r.id); return; }
+    if (r.kind === 'member' || r.kind === 'birthday'){ if (window.BSFMembersAPI) window.BSFMembersAPI.open(r.id); return; }
+    if (r.kind === 'setting'){ window.BSFSetTab('settings'); if (window.BSFShowSection) setTimeout(function(){ window.BSFShowSection(r.sec); }, 0); return; }
+    if (r.kind === 'slides'){ window.BSFSetTab('studio'); return; }
+    if (r.kind === 'scene'){
+      if (document.body.classList.contains('rail-hidden') && $('rail-toggle')) $('rail-toggle').click();
+      if (document.body.dataset.group !== 'studio') window.BSFSetTab('meeting');
+      setTimeout(function(){
+        var c = document.querySelector('.s2-scene[data-scene="' + r.id + '"]'); if (!c) return;
+        c.scrollIntoView({block: 'nearest'}); c.focus({preventScroll: true});
+        c.classList.add('found'); setTimeout(function(){ c.classList.remove('found'); }, 1600);
+      }, 60);
+      return;
+    }
     window.BSFSetTab('meeting');
     setTimeout(function(){
       var row = document.querySelectorAll(r.kind === 'question' ? '#rs-questions > li' : '#rs-verses > li')[r.i];

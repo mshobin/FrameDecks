@@ -422,7 +422,7 @@ function renderScenes(){
   if (gallery.dataset.sig !== gsig){
     gallery.dataset.sig = gsig; gallery.innerHTML = '';
     (S.scenes || []).filter(function(sc){ return sc.collection === col; }).forEach(function(sc){
-      var card = h('button', {cls: 's2-scene' + (S.activeScene === sc.id ? ' on' : ''), type: 'button', title: 'Switch to ' + sc.name, 'aria-pressed': String(S.activeScene === sc.id)}, [
+      var card = h('button', {cls: 's2-scene' + (S.activeScene === sc.id ? ' on' : ''), type: 'button', title: 'Switch to ' + sc.name, 'aria-pressed': String(S.activeScene === sc.id), 'data-scene': sc.id}, [
         sc.thumb ? h('img', {src: 'api/vcam/scene-thumb?id=' + encodeURIComponent(sc.id) + '&t=' + sc.thumb, alt: ''}) : h('span', {cls: 's2-nothumb', html: I('image', 20)}),
         h('span', {cls: 's2-scname', text: sc.name})]);
       card.addEventListener('click', function(){ act('scene-apply', {id: sc.id}).then(function(){ toast('Scene: ' + sc.name); refresh(); }); });
@@ -609,14 +609,16 @@ function metricsLine(){
 function visible(){ return !root.hidden && document.body.dataset.tab === 'studio' && !document.hidden; }   // the canvas: minimised = no pictures, no polling
 /* The rail (scenes, layers) is on screen in every Studio view: it refreshes every 3 s there, every second
  * with the canvas open, and not at all while the app is minimised or on Members / Settings. */
-function railVisible(){ return document.body.dataset.group === 'studio' && !document.body.classList.contains('rail-hidden') && !document.hidden; }
+function railVisible(){ return (document.body.dataset.group === 'studio' && !document.body.classList.contains('rail-hidden') ||
+  document.body.dataset.tab === 'meeting') && !document.hidden; }   // v5.1: the Meeting view's Live outputs show the Studio's state too
 function refresh(){ return fetch('api/vcam/studio', {cache: 'no-store'}).then(function(r){ return r.json(); }).then(apply).catch(function(){}); }
 var pollT = null;
 function poll(){
   clearTimeout(pollT);
-  (visible() || railVisible() || !S ? refresh() : Promise.resolve()).then(function(){
+  var recOn = !!(S && S.recording && S.recording.on);       // v5.1: the Recording chip and output card keep counting
+  (visible() || railVisible() || !S || (recOn && !document.hidden) ? refresh() : Promise.resolve()).then(function(){
     if (visible()) metrics.textContent = metricsLine();
-    pollT = setTimeout(poll, visible() ? 1000 : railVisible() ? 3000 : window.BSFStore.pace(4000));
+    pollT = setTimeout(poll, visible() || (S && S.recording && S.recording.on && !document.hidden) ? 1000 : railVisible() ? 3000 : window.BSFStore.pace(4000));
   });
 }
 poll();
@@ -637,7 +639,8 @@ window.BSFOnTab = function(t){
 };
 if (window.ResizeObserver) new ResizeObserver(fitStage).observe(stageWrap);
 document.addEventListener('visibilitychange', function(){ if (visible() && !pulling) pullImage(); });   // shown again: resume the picture
-window.BSFStudio = {layers: function(){ return L; }, select: function(ids){ sel = ids.slice(); draw(); }, slide: slideMove};
+window.BSFStudio = {layers: function(){ return L; }, select: function(ids){ sel = ids.slice(); draw(); }, slide: slideMove,
+  state: function(){ return S; }};                         // read-only, for the header search, outputs and the rail library
 
 /* ---------- hotkeys: Ctrl+Shift+1/2/3 = layers 1-3, Page Up/Down = slides ---------- */
 document.addEventListener('keydown', function(e){

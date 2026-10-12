@@ -488,3 +488,38 @@ and reflows above the question. The vCam card cache key includes the layout, so 
 
 **Measured (1600×900, first screen, excluding list rows):** header controls 6 → 2; Meeting workspace 13 → 7;
 Content workspace 41 → 21; Canvas workspace 8 → 5 (while adding the mode selector and search).
+
+## 21. Version 5.1: Command Center layout and BCC Mobile Director
+
+Presentation and navigation only: the state model, every API, the remote allowlist, PowerPoint/vCam code, blur and
+storage are unchanged. New code reads existing state; every button calls an existing action.
+
+**Desktop**
+- Command bar (`dashboard.html` header): brand (`#org-title` = Settings `groupName` + " Command Center", long names
+  keep "BSF") · the three section tabs (moved into the header; same ids, `data-group`, Alt keys) · search · `#live-ind`
+  · `#sysstat`: the `.hchip` chips are inline on wide windows; ≤1480 px they fold into `#sys-sum` (a button toggling
+  `.open`; Esc closes it and still hides all). New chips `#h-rec` / `#h-slides` show only while recording / presenting.
+  Search (`nav.js`) adds birthdays, scenes (pointed out in the rail, never applied), PDF decks and Settings pages.
+- Rail (`js/rail.js`, new, loaded after `studio.js`): "Broadcast layers" = the three cards as the pinned top of the
+  stack (eye = `BSFActions.toggle` / `BSFBirthday.toggle`, row = open in the Inspector), quick add (clicks the existing
+  `#add-text/#add-image/#add-camera/#add-pdf` menu items) and a Library (counts from the store, members API and
+  `BSFStudio.state()`; each row navigates). `studio.js` exposes `BSFStudio.state()` (read-only), marks scene cards
+  with `data-scene`, and keeps polling while the Meeting view or a recording is on screen.
+- Meeting view: run sheet | program + Live outputs (`#outputs`, `meeting.js renderOutputs()` once a second, DOM
+  written only on change: BCC vCam status/size/fps/latency/dropped from `BSFVcamStatus`, overlay pages from
+  presence, Presentation window and Recording from `BSFStudio.state()`, slides from `GET api/remote/studio` every 5 s
+  while the view is visible, remote from `remote-info`) | Inspector (`[data-ctx]` target, `[data-itab]` Content / Style).
+  Style hosts extra `data-range` / `data-seg` controls bound by the existing `bindRanges` / `buildSegs`;
+  `controlsVisible()` counts the Style tab and `BSFRefreshControls()` refreshes them when it opens.
+- Command bar (bottom): unchanged groups + `#cb-take` "Take live" = `A.toggle(ctxNow)` (birthday: `BSFBirthday.toggle`),
+  shortcut `takeLive` (default T, configurable; Space/Enter are reserved by the shortcut editor).
+- Theme: cooler graphite tokens, `--accent` (selection/focus), `--take`, `--mica` (a static gradient, no backdrop blur).
+
+**Remote** (`remote.html/css/js`; same three files, so the server allowlist is unchanged)
+- Phones: tabs Live · Run sheet · Scenes · Preview · All (`body[data-tab]`, history-aware); Live = Now panel
+  (`renderNow()` from state) + quick show/hide (`data-do="toggle"`, same handler and 0.6 s guard) + target picker
+  (`body[data-target]`) + that card. The preview iframe runs only on the Preview tab (tablets: open by default).
+- Tablets (≥900 px): run sheet column + Now/preview + every card. Portrait: run sheet below.
+- Run sheet replaces the Lists drawer: same `showItem`, rows patched in place on each step, double-tap guard.
+- Layouts (`body[data-role]`, localStorage `bcc-remote-role`): Presenter / Leader / Producer / Admin choose tabs,
+  targets and cards. They are a view preference, not permissions: the PIN still governs access.

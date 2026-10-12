@@ -17,7 +17,8 @@ var ACTIONS = [
   {id: 'prevV',   name: 'Previous verse',       cat: 'verse',    def: 'Shift+ArrowLeft'},
   {id: 'toggleV', name: 'Show / hide verse',    cat: 'verse',    def: 'v'},
   {id: 'toggleB', name: 'Show / hide birthday', cat: 'birthday', def: 'b'},
-  {id: 'hideAll', name: 'Hide all overlays',    cat: 'danger',   def: 'Escape'}
+  {id: 'hideAll', name: 'Hide all overlays',    cat: 'danger',   def: 'Escape'},
+  {id: 'takeLive', name: 'Take live (the Inspector’s item)', cat: 'live', def: 't'}
 ];
 var RESERVED = {'Tab': 1, 'Enter': 1, ' ': 1, 'Shift': 1, 'Control': 1, 'Alt': 1, 'Meta': 1, 'CapsLock': 1, '/': 1};
 var map = load();
