@@ -27,7 +27,7 @@ from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from pathlib import Path
 from urllib.parse import urlparse, parse_qs, unquote
 
-APP_VERSION = "5.1"
+APP_VERSION = "6.0"
 STARTED_AT = time.time()
 FROZEN = getattr(sys, "frozen", False)          # True inside the installed Windows app
 HERE = Path(sys.executable).resolve().parent if FROZEN else Path(__file__).resolve().parent
@@ -181,7 +181,67 @@ def save_state(new):
         eng = VCAM.get("engine") if "VCAM" in globals() else None
         if eng:
             eng.kick()                     # a card was shown/hidden: draw it now, even in the idle rhythm
+        if "VCAM" in globals():
+            apply_live_media(state)
         return state
+
+
+# ---------- v6 Scenes: the live scene's media layers are the BCC vCam picture ----------
+MEDIA_KINDS = ("camera", "screen", "window", "image", "video", "pdf", "background", "text", "rect", "ellipse")
+
+
+def scene_media(st):
+    """The compositor layers (bottom first) of the live scene, or None when no scene is live."""
+    live = st.get("live") if isinstance(st.get("live"), dict) else {}
+    sid = live.get("scene")
+    if not sid:
+        return None
+    sc = next((x for x in st.get("scenes") or [] if isinstance(x, dict) and x.get("id") == sid), None)
+    if sc is None:
+        return None
+    out = []
+    for l in reversed([l for l in sc.get("layers") or [] if isinstance(l, dict)]):
+        if l.get("kind") not in MEDIA_KINDS:
+            continue
+        c = dict(l.get("c") or {})
+        c.pop("vcam", None)
+        c.pop("obs", None)
+        if l["kind"] in ("image", "video", "pdf") and not c.get("file"):
+            continue                                   # not chosen yet: nothing to draw
+        if l["kind"] == "window" and c.get("hwnd") is None:
+            continue
+        c.update(id=str(l.get("id") or ""), name=l.get("name") or l["kind"], type=l["kind"],
+                 visible=l.get("visible", True) is not False, locked=bool(l.get("locked")), opacity=l.get("opacity", 1))
+        out.append(c)
+    return out
+
+
+def media_sig(layers):
+    from vcam.layers import clean_layer
+    return json.dumps([clean_layer(l) for l in layers if l.get("id")], sort_keys=True)
+
+
+def apply_live_media(st):
+    """Called after every save: when the live scene (or its media layers) changed, the camera picture follows.
+    Studio edits on the PC write the same layers back, so nothing is applied twice."""
+    comp = VCAM.get("compositor")
+    if not comp:
+        return
+    media = scene_media(st)
+    if media is None:
+        return
+    try:
+        sig = media_sig(media)
+    except Exception:
+        return
+    if sig == VCAM.get("mediaSig"):
+        return
+    VCAM["mediaSig"] = sig
+    try:
+        comp.layers.set_layers(media)
+        studio_save()
+    except Exception as e:                              # never let a scene stop the camera
+        print("BCC vCam: could not apply the scene:", e)
 
 
 def update_state(change):
@@ -795,6 +855,93 @@ def studio_save():
     STUDIO_FILE.write_text(json.dumps(cur, indent=2), encoding="utf-8")
 
 
+# ---------- v6 Scripture: ESV API (your own key) with an offline cache; typed / Excel text works as before ----------
+SCRIPTURE_FILE = DATA / "bcc-scripture.json"
+SCRIPTURE_CACHE = DATA / "bcc-scripture-cache.json"
+ESV_URL = os.environ.get("BSF_ESV_URL", "https://api.esv.org/v3/passage/text/")
+SCRIPTURE_CACHE_MAX = 400                     # passages kept for offline use (oldest dropped first)
+_scr_lock = threading.Lock()
+SCRIPTURE_HEALTH = {"ok": None, "message": "", "at": 0}
+
+
+def scripture_settings():
+    try:
+        d = json.loads(SCRIPTURE_FILE.read_text(encoding="utf-8"))
+        d = d if isinstance(d, dict) else {}
+    except (OSError, ValueError):
+        d = {}
+    return {"provider": "esv", "key": str(d.get("key") or "")[:200], "translation": "ESV" if d.get("translation", "ESV") == "ESV" else "typed"}
+
+
+def _scr_cache():
+    try:
+        d = json.loads(SCRIPTURE_CACHE.read_text(encoding="utf-8"))
+        return d if isinstance(d, dict) else {}
+    except (OSError, ValueError):
+        return {}
+
+
+def scripture_lookup(ref, translation="ESV", fresh=False):
+    """{ref, text, version, cached, stale?} for a reference such as "Romans 2:28-29"; raises ValueError with a plain message."""
+    ref = re.sub(r"\s+", " ", str(ref or "")).strip()[:120]
+    if not ref:
+        raise ValueError("Type a reference first, for example Romans 2:29.")
+    if translation != "ESV":
+        raise ValueError("Only the ESV can be fetched. For other translations type or paste the text (or import it from Excel).")
+    key = "ESV|" + ref.lower()
+    with _scr_lock:
+        cache = _scr_cache()
+    hit = cache.get(key)
+    if hit and not fresh:
+        hit["at"] = time.time()
+        return {"ref": hit["ref"], "text": hit["text"], "version": "ESV", "cached": True}
+    api_key = scripture_settings()["key"]
+    if not api_key:
+        if hit:
+            return {"ref": hit["ref"], "text": hit["text"], "version": "ESV", "cached": True, "stale": True}
+        raise ValueError("Add your ESV API key in Settings → Scripture (free for churches at api.esv.org), or type the verse text.")
+    from urllib.request import Request, urlopen
+    from urllib.parse import urlencode
+    q = urlencode({"q": ref, "include-passage-references": "false", "include-verse-numbers": "false", "include-first-verse-numbers": "false",
+                   "include-footnotes": "false", "include-footnote-body": "false", "include-headings": "false", "include-short-copyright": "false",
+                   "include-selahs": "true", "indent-paragraphs": "0", "indent-poetry": "false", "indent-declares": "0", "indent-psalm-doxology": "0"})
+    try:
+        with urlopen(Request(ESV_URL + "?" + q, headers={"Authorization": "Token " + api_key, "User-Agent": "BCC/" + APP_VERSION}), timeout=8) as r:
+            data = json.loads(r.read().decode("utf-8"))
+    except Exception as e:
+        code = getattr(e, "code", None)
+        SCRIPTURE_HEALTH.update(ok=False, at=time.time(), message="The ESV key was not accepted." if code in (401, 403) else "Can’t reach api.esv.org.")
+        if hit:
+            return {"ref": hit["ref"], "text": hit["text"], "version": "ESV", "cached": True, "stale": True}
+        if code in (401, 403):
+            raise ValueError("The ESV API key was not accepted. Check it in Settings → Scripture.")
+        raise ValueError("No internet connection, and this passage isn’t saved on this PC yet. Type the text, or try again when online.")
+    passages = [p for p in (data.get("passages") or []) if isinstance(p, str) and p.strip()]
+    if not passages:
+        raise ValueError("That reference wasn’t found. Try e.g. John 3:16, Psalm 23 or Matthew 5:1-12.")
+    text = "\n".join(re.sub(r"[ \t]+", " ", p).strip() for p in passages)
+    text = re.sub(r"\s*\(ESV\)\s*$", "", text).strip()
+    text = re.sub(r"\n{3,}", "\n\n", text)
+    canon = str(data.get("canonical") or ref)[:120]
+    SCRIPTURE_HEALTH.update(ok=True, at=time.time(), message="Connected to api.esv.org")
+    with _scr_lock:
+        cache = _scr_cache()
+        cache[key] = {"ref": canon, "text": text, "at": time.time()}
+        if len(cache) > SCRIPTURE_CACHE_MAX:
+            for k in sorted(cache, key=lambda k: cache[k].get("at", 0))[:len(cache) - SCRIPTURE_CACHE_MAX]:
+                cache.pop(k, None)
+        tmp = SCRIPTURE_CACHE.with_suffix(".tmp")
+        tmp.write_text(json.dumps(cache, ensure_ascii=False), encoding="utf-8")
+        os.replace(tmp, SCRIPTURE_CACHE)
+    return {"ref": canon, "text": text, "version": "ESV", "cached": False}
+
+
+def scripture_info():
+    st = scripture_settings()
+    return {"provider": "ESV API (api.esv.org)", "hasKey": bool(st["key"]), "keyHint": ("…" + st["key"][-4:]) if st["key"] else "",
+            "translation": st["translation"], "cached": len(_scr_cache()), "cacheMax": SCRIPTURE_CACHE_MAX, "health": SCRIPTURE_HEALTH}
+
+
 def powerpoint_show():
     """The PowerPoint slide show running on this PC (full screen or windowed), or None. Cached ~2 s."""
     try:
@@ -856,8 +1003,17 @@ def remote_studio_info():
         pres = powerpoint_show()
     if pres and not pres.get("page") and VCAM.get("lastSlide", {}).get("page"):
         pres.update(page=VCAM["lastSlide"]["page"], pages=VCAM["lastSlide"].get("pages"))
+    eng = VCAM.get("engine")
+    est = {}
+    try:
+        est = dict(eng.status) if eng else {}
+    except Exception:
+        est = {}
+    rec = comp.recorder
     return {"available": True, "scenes": [{"id": x["id"], "name": x["name"]} for x in st["scenes"]],
-            "activeScene": st["activeScene"], "presentation": pres}
+            "activeScene": st["activeScene"], "presentation": pres,
+            "vcam": {"state": est.get("state", ""), "inUse": bool(est.get("inUse")), "fps": est.get("fps", 0)},
+            "recording": {"on": rec is not None, "seconds": round(time.time() - rec.started, 1) if rec else 0}}
 
 
 def remote_studio_action(d):
@@ -958,6 +1114,10 @@ def _studio_action(d):
             comp.staged = [clean_layer(l) for l in layers]       # Preview mode: not on the output yet
             return {}
         comp.layers.set_layers(layers)
+        try:
+            VCAM["mediaSig"] = media_sig(comp.layers.layers)     # the scene will be written back with these: no re-apply
+        except Exception:
+            pass
     elif op == "stage":
         comp.staged = [dict(l) for l in comp.layers.layers] if d.get("on") else None
         return {}
@@ -1177,6 +1337,8 @@ def vcam_start():
     from vcam.compositor import Compositor
     LAYERS_DIR.mkdir(parents=True, exist_ok=True)
     comp = Compositor(LAYERS_DIR, cards=layer, cards_on=lambda: VCAM.get("cardsOn", True))
+    from vcam.program import ProgramFX
+    comp.program_fx = ProgramFX(APP / "fonts", lambda: state, lambda: VCAM.get("cardsOn", True))
     VCAM["compositor"] = comp
     st = studio_load()
     comp.set_layout(st["layout"])
@@ -1354,6 +1516,17 @@ class Handler(BaseHTTPRequestHandler):
             return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
         if path == "/api/remote/studio":                # scenes + presentation for the remote (PIN-protected)
             return self.reply(200, json.dumps(remote_studio_info()), TYPES[".json"])
+        if path.startswith("/api/scripture"):            # this PC only (the API key never leaves it)
+            if not self.is_local():
+                return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
+            if path == "/api/scripture/settings":
+                return self.reply(200, json.dumps(scripture_info()), TYPES[".json"])
+            qs = parse_qs(url.query)
+            try:
+                res = scripture_lookup(qs.get("ref", [""])[0], qs.get("tr", ["ESV"])[0], fresh=qs.get("fresh", ["0"])[0] == "1")
+                return self.reply(200, json.dumps(res), TYPES[".json"])
+            except ValueError as e:
+                return self.reply(400, json.dumps({"error": str(e)}), TYPES[".json"])
         if path == "/api/present.mjpg":                 # Presentation window (this PC only)
             if not self.is_local():
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
@@ -1655,6 +1828,29 @@ class Handler(BaseHTTPRequestHandler):
             return self.reply(400, "Invalid data", "text/plain; charset=utf-8")
         if path == "/api/remote-login":
             return self.remote_login(data)
+        if path == "/api/scripture/settings":
+            if not self.is_local():
+                return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
+            d = data if isinstance(data, dict) else {}
+            cur = scripture_settings()
+            if "key" in d:
+                cur["key"] = re.sub(r"[^A-Za-z0-9]", "", str(d.get("key") or ""))[:200]
+            if d.get("translation") in ("ESV", "typed"):
+                cur["translation"] = d["translation"]
+            SCRIPTURE_FILE.write_text(json.dumps(cur), encoding="utf-8")
+            if d.get("clearCache"):
+                with _scr_lock:
+                    try:
+                        SCRIPTURE_CACHE.unlink()
+                    except OSError:
+                        pass
+            if d.get("test"):
+                try:
+                    scripture_lookup("John 3:16", "ESV", fresh=True)
+                except ValueError as e:
+                    return self.reply(200, json.dumps(dict(scripture_info(), test=str(e))), TYPES[".json"])
+                return self.reply(200, json.dumps(dict(scripture_info(), test="ok")), TYPES[".json"])
+            return self.reply(200, json.dumps(scripture_info()), TYPES[".json"])
         if path.startswith("/api/vcam/"):
             if not self.is_local():
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")

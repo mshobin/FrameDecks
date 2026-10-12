@@ -523,3 +523,52 @@ storage are unchanged. New code reads existing state; every button calls an exis
 - Run sheet replaces the Lists drawer: same `showItem`, rows patched in place on each step, double-tap guard.
 - Layouts (`body[data-role]`, localStorage `bcc-remote-role`): Presenter / Leader / Producer / Admin choose tabs,
   targets and cards. They are a view preference, not permissions: the PIN still governs access.
+
+## 22. Version 6.0: Scenes · Layers · Canvas
+
+One Studio workspace replaces the Meeting / Content / Canvas / Recordings tabs and the run sheet. Old ids are kept
+inside the Inspector where possible, so the existing editors (`dashboard.js`, `content-import.js`, birthday) still
+bind unchanged; `rail.js` is removed.
+
+**Model** (`store.js`, `window.BSFScenes`; new top-level keys must also be in `DEFAULT_STATE` because `normalize`
+only merges known keys)
+- `scenes[]`: `{id, name, group, fav, tpl, created, modified, version, creator, from, template, parent,
+  tx {type, ms}, auto {on, sec}, out {vcam, obs}, layers[]}`. Layer: `{id, kind, name, visible, locked, opacity, c}`.
+  Kinds: cards (`scripture`, `question`, `birthday` - drive the existing `verse` / `question` / `birthday` state on
+  take), text (`announcement`, `prayer`, `lowerthird`, `countdown`) and media (`camera`, `screen`, `window`, `image`,
+  `video`, `pdf`, `background`, `text`, `rect`, `ellipse` - converted to/from compositor layers by
+  `mediaToComp` / `compToMedia`).
+- `live`: `{scene, seq, at, tx, txMs, auto, blackout, emergency, message, on {layerId: bool}, cd {layerId: start}}`;
+  `profile` = global transition profile; `v6` = migration done (`BSFScenes.migrate`, run once by `workspace.js`).
+- `take(st, id, tx)` applies a scene in one `Store.update`; `duplicate(opts)`, `explode`, `uniqueName`,
+  `previewState` (a scene as if live, for `stage.html?scene=ID`), `liveText(st, output)` (empty text layers are
+  skipped, countdown excepted).
+
+**Server** (`server.py`, `APP_VERSION = "6.0"`)
+- `save_state` → `apply_live_media`: the live scene's media layers become the compositor layers; `media_sig` avoids
+  write-back loops (the `layers` op stores `VCAM["mediaSig"]`).
+- Scripture: `GET /api/scripture?ref=&fresh=`, `GET/POST /api/scripture/settings` (local only; the key never reaches
+  the remote). ESV v3 text API (`BSF_ESV_URL` overrides it for tests), cache `bcc-scripture-cache.json` (400 entries,
+  stale entries served when offline), settings `bcc-scripture.json`.
+- `remote_studio_info` adds `vcam {state, inUse, fps}` and `recording {on, seconds}`.
+
+**Renderers**
+- `vcam/program.py` `ProgramFX` (set as `Compositor.program_fx`, applied after the cards): text layers drawn on a
+  worker thread with `CardDrawer`, scene transitions blended from a snapshot of the previous program frame,
+  Blackout and the Emergency slate. About 0.9 ms per 720p frame. `vcam/overlay.py` hides cards on Blackout /
+  Emergency or when `out.vcam` is false.
+- `overlay.js`: `TextLayers` and `Program` (black, slate, dips; `body[data-stx]` makes card entries follow the scene
+  transition), output rules (`out.obs`), `?scene=ID` preview. `stage.html` mounts both.
+
+**Desktop** (`dashboard.html`, `js/workspace.js` new, `js/scripture.js` new, `meeting.js` slimmed)
+- `.ws` grid: Scenes + Layers | Studio Canvas (the Studio host when live with BCC vCam, else the overlay iframe with
+  media outlines) | Inspector (`#insp-tabs` per selection; `.ip[data-kind][data-itab]` panels hold the moved editors)
+  | Live bar (`#ctlbar.livebar`).
+- `studio.js` mounts only its centre into `#tab-studio`; canvas edits flow back to the scene via
+  `BSFStudio.onPush`, canvas selection via `BSFStudio.onSelect`.
+- Settings gains Scripture, Transitions and Recording (`#tab-recordings` moved there; `BSFLoadRecordings` on open).
+  Tab aliases (`members.js`): meeting / overlays / canvas → studio, recordings → settings › recording.
+- Shortcuts: `takeLive` T, `nextScene` ], `prevScene` [; Ctrl+D duplicates the selected scene.
+
+**Remote** (`remote.html/css/js`, same files so the allowlist is unchanged): Scenes | Live canvas + controls | Layers;
+phones use tabs, ≥900 px shows three panes. Every action writes through the same `Store.update` path as the desktop.

@@ -238,8 +238,8 @@ function downloadTemplate(){
   X.writeFile(wb, 'BSF-Questions-and-Verses-Template.xlsx');
 }
 
-/* ---------- the bar in Meetings & Content > Content ---------- */
-var host = $('tab-overlays');
+/* ---------- the bar in the Question layer's Inspector (v6) ---------- */
+var host = $('imp-host') || $('tab-overlays');
 if (!host) return;
 var file = h('input', {type: 'file', accept: '.xlsx,.xls,.csv', id: 'imp-file', hidden: 'hidden'});
 var bar = h('section', {cls: 'imp-bar', 'aria-label': 'Import from Excel'}, [
@@ -248,7 +248,7 @@ var bar = h('section', {cls: 'imp-bar', 'aria-label': 'Import from Excel'}, [
     h('button', {cls: 'btn small', type: 'button', id: 'imp-template', text: 'Download template', onclick: downloadTemplate}),
     h('button', {cls: 'btn small', type: 'button', id: 'imp-export', text: 'Export to Excel', onclick: exportExcel}),
     h('button', {cls: 'btn primary small', type: 'button', id: 'imp-open', text: 'Import from Excel…', onclick: function(){ file.click(); }})]), file]);
-host.insertBefore(bar, host.firstChild);
+host.appendChild(bar);
 file.addEventListener('change', function(){
   var f = file.files[0]; file.value = '';
   if (!f) return;

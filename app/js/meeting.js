@@ -1,17 +1,17 @@
-/* BSF Command Center - Meeting Mode + connection health (shared with Settings) */
+/* BSF Command Center - live status (v6): the header chips for every output, the birthday panel's text and the
+ * keyboard hints. The Studio itself (scenes, layers, canvas, inspector, live bar) is js/workspace.js. */
 (function(){
 'use strict';
-var Store = window.BSFStore, A = window.BSFActions, SC = window.BSFShortcuts;
+var Store = window.BSFStore, A = window.BSFActions, SC_ = window.BSFShortcuts;
 var $ = function(id){ return document.getElementById(id); };
 var live = null;
-var NAMES = {question: 'Question', verse: 'Verse', birthday: 'Birthday'};
 
 /* ---------- Status shared with Settings (one poller for everything) ---------- */
 var Status = window.BSFStatus = {remote: null, presence: null, subs: {},
   on: function(k, f){ (this.subs[k] = this.subs[k] || []).push(f); if (this[k]) f(this[k]); },
   set: function(k, v){ this[k] = v; (this.subs[k] || []).forEach(function(f){ try { f(v); } catch(e){} }); }};
-/* The header lights and Settings share these two checks (one request each, never duplicated). Minimised:
- * they slow right down (Store.pace). With Settings > Phone & iPad Remote open, the network check is fresh. */
+/* One request each, never duplicated; minimised they slow right down (Store.pace). With Settings > Phone & iPad
+ * Remote open, the network check is fresh. */
 function poll(url, key, every){
   function go(){
     var u = typeof url === 'function' ? url() : url;
@@ -25,336 +25,33 @@ if (Store.served){
   poll('api/presence', 'presence', 4000);
 }
 
-/* ---------- Helpers ---------- */
 function h(tag, cls, text){ var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
-function ago(t, now){
-  var s = Math.max(0, Math.round((now || Date.now() / 1000) - t));
-  return s < 5 ? 'just now' : s < 60 ? s + ' s ago' : s < 3600 ? Math.round(s / 60) + ' min ago' : Math.round(s / 3600) + ' h ago';
-}
-function stateOf(k){
-  if (!live) return 'empty';
-  var o = live[k], has = (k === 'birthday' ? o.greeting : o.text).trim() !== '';
-  if (k === 'question' && has && window.BSFPresent && window.BSFPresent.live(live)) return 'live';   // shown in its mode (Question · Both · Verse)
-  if (o.visible && has) return 'live';
-  if (has) return 'ready';
-  if (k === 'birthday' && window.BSFBirthday && window.BSFBirthday.candidate()) return 'ready';
-  return 'empty';
-}
-var STATE_TEXT = {live: 'LIVE', ready: 'READY', empty: 'EMPTY'};
-function setState(el, st){ el.className = 'state ' + st; el.textContent = STATE_TEXT[st]; el.title = st === 'live' ? 'Zoom participants can see this' : st === 'ready' ? 'Loaded but hidden' : 'Nothing loaded'; }
 
-/* ---------- Layout: fit Meeting Mode to the window (no scrolling needed) ---------- */
-function fit(){
-  var panel = $('tab-meeting'); if (!panel || panel.hidden) return;
-  var top = panel.getBoundingClientRect().top + window.scrollY;
-  var bar = document.querySelector('.bday-bar'), cb = $('ctlbar');
-  var h = window.innerHeight - top - (bar ? bar.offsetHeight : 0) - (cb && !cb.hidden ? cb.offsetHeight : 0);
-  document.documentElement.style.setProperty('--mh', Math.max(430, h) + 'px');
-  sizeProgram();
-}
-function sizeProgram(){
-  var wrap = document.querySelector('.program-wrap'), frame = $('program'); if (!wrap || !frame) return;
-  var w = wrap.clientWidth, hh = wrap.clientHeight;
-  if (window.innerWidth <= 1100) hh = w * 9 / 16;
-  var fw = Math.max(160, Math.min(w, hh * 16 / 9));
-  frame.style.width = fw + 'px'; frame.style.height = (fw * 9 / 16) + 'px';
-  $('program-frame').style.transform = 'scale(' + (fw / 1920) + ')';
-}
-window.addEventListener('resize', fit);
-if (window.ResizeObserver){
-  var ro = new ResizeObserver(fit);
-  ['.console-top', '.tabs', '#bday-reminder', '.bday-bar', '#ctlbar', '#sub-studio'].forEach(function(s){ var e = document.querySelector(s); if (e) ro.observe(e); });
-}
-window.BSFOnTab = function(t){ document.body.classList.toggle('meeting-mode', t === 'meeting'); if (t === 'meeting') setTimeout(fit, 0); setTimeout(pendingPreview, 0); };
-if (document.body.dataset.tab === 'meeting') document.body.classList.add('meeting-mode');
-
-/* ---------- Render ---------- */
-function snippet(s, n){ s = String(s || '').replace(/\s+/g, ' ').trim(); return s.length > n ? s.slice(0, n - 1) + '…' : s; }
-function renderList(k){
-  var ol = $(k === 'question' ? 'rs-questions' : 'rs-verses'), items = A.list(k), cur = A.current(k), st = stateOf(k);
-  $(k === 'question' ? 'rs-q-count' : 'rs-v-count').textContent = items.length ? items.length + (items.length === 1 ? ' item' : ' items') : '';
-  var listKey = JSON.stringify(items.map(function(i){ return i.id + i.text.length + (i.transition || '') + (i.ref || ''); }));
-  var sig = JSON.stringify([listKey, cur, st]);
-  if (ol.dataset.sig === sig) return; ol.dataset.sig = sig;
-  function rowCls(i){ return (i === cur ? 'cur' + (st === 'live' ? ' live' : '') : '') + (cur >= 0 && i < cur ? ' done' : '') + ((cur < 0 ? i === 0 : i === cur + 1) ? ' next' : ''); }
-  function rowTag(i){ return i === cur ? (st === 'live' ? 'LIVE' : 'READY') : ((cur < 0 ? i === 0 : i === cur + 1) ? 'NEXT' : ''); }
-  if (ol.dataset.list === listKey && ol.children.length === items.length){
-    // Same list, only the current item moved (every Next / Show): update the rows in place - no rebuild,
-    // so a step stays instant even with a 1,000-item list
-    // Only rows between the old and the new position can change (current, done, next)
-    var was = +ol.dataset.cur, lo = Math.max(0, Math.min(was, cur) - 1), hi = Math.min(ol.children.length - 1, Math.max(was, cur) + 1);
-    if (isNaN(was)){ lo = 0; hi = ol.children.length - 1; }
-    for (var r = lo; r <= hi; r++){
-      var li0 = ol.children[r], c = rowCls(r), tg = li0.querySelector('.tag'), tt = rowTag(r);
-      if (li0.className !== c) li0.className = c;
-      if (tg && tg.textContent !== tt) tg.textContent = tt;
-    }
-    ol.dataset.cur = cur;
-    keepCurrentInView(ol);
-    return;
-  }
-  ol.dataset.list = listKey; ol.dataset.cur = cur;
-  ol.innerHTML = '';
-  var frag = document.createDocumentFragment();
-  items.forEach(function(it, i){
-    var li = h('li', rowCls(i));
-    var b = h('button'); b.type = 'button';
-    b.title = 'Show this ' + (k === 'question' ? 'question' : 'verse') + ' now';
-    b.appendChild(h('span', 'n', String(i + 1)));
-    var t = h('span', 't');
-    if (k === 'verse'){ t.appendChild(h('b', null, (it.ref || 'Verse') + (it.version ? ' · ' + it.version : ''))); t.appendChild(document.createTextNode(snippet(it.text, 90))); }
-    else t.textContent = it.text;
-    if (it.transition) t.appendChild(h('span', 'fx', '✦ ' + (it.transition === 'random' ? 'Random' : (window.BSFTransitions.names[it.transition] || ''))));
-    b.appendChild(t);
-    b.appendChild(h('span', 'tag', rowTag(i)));
-    b.addEventListener('click', guard('item-' + k, function(){ A.showItem(k, it); }, b));
-    li.appendChild(b); frag.appendChild(li);
-  });
-  ol.appendChild(frag);
-  keepCurrentInView(ol);
-}
-/* Keep the current item in view inside the run sheet only (never scroll the whole page) */
-function keepCurrentInView(ol){
-  var curEl = ol.querySelector('li.cur'), box = ol.closest('.runsheet');
-  if (curEl && box && box.scrollHeight > box.clientHeight + 2){
-    var top = curEl.getBoundingClientRect().top - box.getBoundingClientRect().top + box.scrollTop, bottom = top + curEl.offsetHeight;
-    if (top < box.scrollTop) box.scrollTop = top - 8;
-    else if (bottom > box.scrollTop + box.clientHeight) box.scrollTop = bottom - box.clientHeight + 8;
-  }
-}
-/* The state badges and Show/Hide buttons are fixed parts of the page: looked up once, not on every change
- * (each whole-page search cost ~6 ms once the run sheet and Content lists hold 1,000+ rows) */
-var stateEls = {}, toggleEls = {};
-function els(cache, sel, k){ return cache[k] || (cache[k] = Array.prototype.slice.call(document.querySelectorAll(sel))); }
+/* ---------- Birthday layer: what the card says, and who it is for ---------- */
 function render(){
   if (!live) return;
-  var any = false;
-  ['question', 'verse', 'birthday'].forEach(function(k){
-    var st = stateOf(k); if (st === 'live') any = true;
-    els(stateEls, '[data-state="' + k + '"]', k).forEach(function(el){ setState(el, st); });
-    var air = document.querySelector('.air[data-k="' + k + '"]'); if (air) air.classList.toggle('on', st === 'live');
-    var tx = document.querySelector('[data-text="' + k + '"]'); tx.textContent = '';
-    var o = live[k];
-    if (k === 'verse' && o.text.trim()){ tx.appendChild(h('span', 'ref', (o.ref || '') + (o.version ? ' · ' + o.version : ''))); tx.appendChild(document.createTextNode(' ' + o.text.replace(/\s+/g, ' '))); }
-    else if (k === 'question' && o.text.trim()) tx.textContent = o.text;
-    else if (k === 'birthday' && o.greeting.trim()) tx.textContent = o.greeting;
-    else if (k === 'birthday' && window.BSFBirthday && window.BSFBirthday.candidate()) tx.textContent = 'Ready: ' + window.BSFBirthday.candidate().name;
+  var tx = document.querySelector('[data-text="birthday"]'), b = live.birthday, c = window.BSFBirthday && window.BSFBirthday.candidate();
+  if (tx){
+    tx.textContent = '';
+    if (b.greeting.trim()) tx.textContent = b.greeting;
+    else if (c) tx.textContent = 'Ready: ' + c.name;
     else tx.appendChild(h('span', 'muted', 'Nothing loaded'));
-    // toggle buttons
-    els(toggleEls, '.cbtn.toggle[data-k="' + k + '"]', k).forEach(function(b){
-      b.classList.toggle('is-live', st === 'live');
-      b.querySelector('.tl').textContent = st === 'live' ? 'Hide' : 'Show';
-      b.setAttribute('aria-label', (st === 'live' ? 'Hide ' : 'Show ') + NAMES[k].toLowerCase());
-      b.disabled = st === 'empty' && k === 'birthday';
-    });
-    if (k !== 'birthday'){
-      var items = A.list(k), cur = A.current(k), nx = cur < 0 ? items[0] : items[cur + 1];
-      var nt = document.querySelector('[data-next="' + k + '"]');
-      nt.textContent = !items.length ? 'Add items in Content' : nx ? (k === 'verse' ? (nx.ref || 'Verse') : snippet(nx.text, 70)) + ' · ' + window.BSFTransitions.describe(live, k, nx.id) : 'End of list';
-      nt.title = nt.textContent;
-      renderList(k);
-    }
-  });
-  var who = $('mt-bday-who'), c = window.BSFBirthday && window.BSFBirthday.candidate();
-  who.textContent = '';
-  if (live.birthday.greeting.trim()){ who.appendChild(document.createTextNode('For ')); who.appendChild(h('b', null, live.birthday.name || live.birthday.greeting)); }
-  else if (c){ who.appendChild(document.createTextNode('Ready for ')); who.appendChild(h('b', null, c.name)); }
-  else who.textContent = 'No birthday coming up. Use “Celebrate on screen” on a member card.';
-  renderInspector();
-  $('program').classList.toggle('on', any); $('pg-dot').classList.toggle('on', any);
-  var badge = $('program-badge'); badge.className = 'program-badge' + (any ? ' on' : ''); badge.textContent = any ? '● LIVE ON ZOOM' : 'NOTHING ON SCREEN';
-  // section line
-  var qi = A.current('question'), qn = A.list('question').length, parts = [];
-  if (qi >= 0) parts.push('Question ' + (qi + 1) + ' of ' + qn);
-  if (live.verse.text.trim() && live.verse.ref) parts.push(live.verse.ref);
-  $('mt-section').textContent = parts.join(' · ') || 'Ready to begin';
-}
-
-/* ---------- Inspector extras: position in the list, the question's verse, nearby verses as quick chips ---------- */
-var chipSig = '';
-function renderInspector(){
-  var P = window.BSFPresent;
-  ['question', 'verse'].forEach(function(k){
-    var items = A.list(k), cur = A.current(k), el = $(k === 'question' ? 'insp-qpos' : 'insp-vpos');
-    var t = cur >= 0 ? (k === 'question' ? 'Question ' : 'Verse ') + (cur + 1) + ' of ' + items.length : items.length ? items.length + ' in the list' : '';
-    if (el && el.textContent !== t) el.textContent = t;
-  });
-  var pair = $('insp-qpair'), qi = P && live.question.itemId ? P.item(live, live.question.itemId) : null, pv = qi && P.verseFor(live, qi.id);
-  if (pair){
-    var pt = pv ? 'Verse for this question: ' + (pv.ref || 'Verse') + (pv.version ? ' · ' + pv.version : '') : '';
-    pair.hidden = !pt; if (pair.textContent !== pt) pair.textContent = pt;
+    var air = tx.parentNode; if (air) air.classList.toggle('on', b.visible && !!b.greeting.trim());
   }
-  var box = $('insp-vchips'); if (!box) return;
-  var vs = A.list('verse'), vc = A.current('verse'), vst = stateOf('verse');
-  var lo = Math.max(0, Math.min(vc < 0 ? 0 : vc - 2, vs.length - 5)), win = vs.slice(lo, lo + 5);
-  var sig = JSON.stringify([win.map(function(v){ return v.id + (v.ref || ''); }), vc, vst, lo]);
-  if (sig === chipSig) return; chipSig = sig;
-  box.innerHTML = '';
-  win.forEach(function(v, j){
-    var i = lo + j, on = i === vc;
-    var b = h('button', 'vchip' + (on ? ' on' + (vst === 'live' ? ' live' : '') : ''), v.ref || ('Verse ' + (i + 1)));
-    b.type = 'button'; b.setAttribute('role', 'listitem'); b.title = 'Show ' + (v.ref || 'this verse') + ' now';
-    b.addEventListener('click', guard('item-verse', function(){ A.showItem('verse', v); }, b));
-    box.appendChild(b);
-  });
-  var add = h('button', 'vchip add', '+ Verse'); add.type = 'button'; add.title = 'Add or edit verses in Content';
-  add.addEventListener('click', function(){ window.BSFSetTab('overlays'); setTimeout(function(){ var f = $('v-ref'); if (f){ f.scrollIntoView({block: 'center'}); f.focus(); } }, 60); });
-  box.appendChild(add);
-}
-
-/* ---------- Controls ---------- */
-var locks = {};
-function guard(key, fn, btn){
-  return function(){
-    var now = Date.now();
-    if (now - (locks[key] || 0) < 450) return;            // ignore accidental double clicks
-    locks[key] = now;
-    fn();
-    if (btn){ btn.classList.add('ok'); setTimeout(function(){ btn.classList.remove('ok'); }, 450); }
-  };
-}
-Array.prototype.forEach.call(document.querySelectorAll('#tab-meeting .cbtn'), function(b){
-  var m = b.dataset.m, k = b.dataset.k;
-  if (m === 'clear'){
-    var t, label = b.textContent;
-    b.addEventListener('click', function(){
-      if (!b.classList.contains('armed')){
-        b.classList.add('armed'); b.textContent = 'Confirm clear';
-        t = setTimeout(function(){ b.classList.remove('armed'); b.textContent = label; }, 2500);
-        return;
-      }
-      clearTimeout(t); b.classList.remove('armed'); b.textContent = label;
-      A.clear(k);
-    });
-    return;
+  var who = $('mt-bday-who');
+  if (who){
+    who.textContent = '';
+    if (b.greeting.trim()){ who.appendChild(document.createTextNode('For ')); who.appendChild(h('b', null, b.name || b.greeting)); }
+    else if (c){ who.appendChild(document.createTextNode('Ready for ')); who.appendChild(h('b', null, c.name)); }
+    else who.textContent = 'No birthday coming up. Choose a member below, or use “Celebrate on screen” on a member card.';
   }
-  b.addEventListener('click', guard(m + '-' + k, function(){
-    if (k === 'birthday') window.BSFBirthday.toggle();
-    else if (m === 'toggle') A.toggle(k);
-    else A.step(k, m === 'next' ? 1 : -1);
-  }, b));
-});
-
-/* ---------- Control bar (bottom of every tab): the same actions and the same double-click guard ---------- */
-(function(){
-  var bar = $('ctlbar'); if (!bar) return;
-  function slide(step){
-    if (window.BSFStudio && window.BSFStudio.slide) return window.BSFStudio.slide(step);
-    fetch('api/vcam/studio', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({op: 'slide', step: step})})
-      .then(function(r){ return r.json(); }).then(function(d){ var s = d.slide || {};
-        if (s.page) A.toast('Slide ' + s.page + (s.pages ? ' of ' + s.pages : '')); else if (s.error && !s.busy) A.toast(s.error, true); }).catch(function(){});
-  }
-  Array.prototype.forEach.call(bar.querySelectorAll('[data-cb]'), function(b){
-    var m = b.dataset.cb, k = b.dataset.k;
-    b.addEventListener('click', guard('bar-' + m + '-' + (k || b.dataset.step || ''), function(){
-      if (k) showContext(k);                              // the details panel follows what you are operating
-      if (m === 'take') takeLive();
-      else if (m === 'hideAll') A.hideAll();
-      else if (m === 'slide') slide(+b.dataset.step);
-      else if (k === 'birthday') window.BSFBirthday.toggle();
-      else if (m === 'toggle') A.toggle(k);
-      else A.step(k, m === 'next' ? 1 : -1);
-    }, b));
-  });
-  window.BSFControlBar = {render: function(){
-    if (!live) return;
-    ['question', 'verse', 'birthday'].forEach(function(k){
-      var b = bar.querySelector('[data-cb="toggle"][data-k="' + k + '"]'), st = stateOf(k), on = st === 'live';
-      if (b.classList.contains('is-live') !== on){ b.classList.toggle('is-live', on); b.querySelector('.tl').textContent = on ? 'Hide' : 'Show'; b.setAttribute('aria-pressed', String(on)); }
-      var off = k === 'birthday' && st === 'empty';                    // nobody to celebrate yet (as the Meeting view did)
-      if (b.disabled !== off) b.disabled = off;
-    });
-    renderModes();
-    renderTake();
-  }};
-})();
-
-/* ---------- Take live: Show (or Hide) whatever the Inspector is on - exactly its own Show button ---------- */
-function takeLive(){
-  var k = ctxNow;
-  if (k === 'birthday'){ if (stateOf('birthday') !== 'empty') window.BSFBirthday.toggle(); else A.toast('Choose who to celebrate first.', true); }
-  else A.toggle(k);
 }
-var takeGuard = 0;
-window.BSFTakeLive = function(){ var now = Date.now(); if (now - takeGuard < 450) return; takeGuard = now; takeLive(); };
-function renderTake(){
-  var b = $('cb-take'); if (!b || !live) return;
-  var st = stateOf(ctxNow), on = st === 'live';
-  var what = NAMES[ctxNow] + (ctxNow === 'question' && A.mode() !== 'question' ? (A.mode() === 'both' ? ' + verse' : ' (verse)') : '');
-  var label = on ? 'Hide' : 'Take live';
-  if (b.querySelector('.tl').textContent !== label) b.querySelector('.tl').textContent = label;
-  if ($('cb-take-what').textContent !== what) $('cb-take-what').textContent = what;
-  b.classList.toggle('is-live', on);
-  b.classList.toggle('q', ctxNow === 'question'); b.classList.toggle('v', ctxNow === 'verse'); b.classList.toggle('b', ctxNow === 'birthday');
-  b.setAttribute('aria-label', (on ? 'Hide the ' : 'Take live: show the ') + NAMES[ctxNow].toLowerCase());
-  var off = st === 'empty' && ctxNow === 'birthday';
-  if (b.disabled !== off) b.disabled = off;
-}
-
-/* ---------- Details panel: one item at a time (Question · Verse · Birthday) ---------- */
-var ctxNow = 'question';
-function showContext(k){
-  if (k === ctxNow) return;
-  ctxNow = k;
-  Array.prototype.forEach.call(document.querySelectorAll('[data-ctx]'), function(b){ b.setAttribute('aria-selected', String(b.dataset.ctx === k)); });
-  Array.prototype.forEach.call(document.querySelectorAll('[data-ctx-panel]'), function(p){ p.hidden = p.dataset.ctxPanel !== k; });
-  Array.prototype.forEach.call(document.querySelectorAll('[data-ctx-style]'), function(p){ p.hidden = p.dataset.ctxStyle !== k; });
-  pendingPreview(); renderTake();
-}
-/* Inspector tabs: Content (what is loaded, next, mode) · Style & position (size, placement, transition) */
-Array.prototype.forEach.call(document.querySelectorAll('[data-itab]'), function(b){
-  b.addEventListener('click', function(){
-    Array.prototype.forEach.call(document.querySelectorAll('[data-itab]'), function(x){ x.setAttribute('aria-selected', String(x === b)); });
-    Array.prototype.forEach.call(document.querySelectorAll('[data-ipanel]'), function(p){ p.hidden = p.dataset.ipanel !== b.dataset.itab; });
-    if (b.dataset.itab === 'style' && window.BSFRefreshControls) window.BSFRefreshControls();
-    pendingPreview();
-  });
-});
-/* "Edit in Content": opens the editor with the cursor in it */
-Array.prototype.forEach.call(document.querySelectorAll('[data-edit]'), function(b){
-  b.addEventListener('click', function(){ setTimeout(function(){ var f = $(b.dataset.edit === 'verse' ? 'v-ref' : 'q-text'); if (f){ f.scrollIntoView({block: 'center'}); f.focus(); } }, 60); });
-});
-Array.prototype.forEach.call(document.querySelectorAll('[data-ctx]'), function(b){ b.addEventListener('click', function(){ showContext(b.dataset.ctx); }); });
-
-/* ---------- Presentation mode: Question · Both · Verse (every selector shows and sets the same mode) ---------- */
-var MODE_TOAST = {question: 'Show: the question only', both: 'Show: the question with its verse', verse: 'Show: the verse only'};
-Array.prototype.forEach.call(document.querySelectorAll('[data-pmode-group] [data-pmode]'), function(b){
-  b.addEventListener('click', function(){
-    if (b.getAttribute('aria-checked') === 'true') return;
-    var m = b.dataset.pmode;
-    A.setMode(m);
-    renderModes(m);                                        // feels instant; the saved state confirms it a moment later
-    A.toast(MODE_TOAST[m] + (A.questionLive() ? ' (on screen now)' : ''));
-  });
-});
-function renderModes(force){
-  var m = force || A.mode();
-  Array.prototype.forEach.call(document.querySelectorAll('[data-pmode-group] [data-pmode]'), function(b){
-    var on = String(b.dataset.pmode === m);
-    if (b.getAttribute('aria-checked') !== on) b.setAttribute('aria-checked', on);
-  });
-}
-
-/* ---------- "Show will display": a small live preview of what SHOW puts on screen in the chosen mode ---------- */
-var pf = $('pending-frame'), pbox = $('pending-frame-box'), pfOn = false;
-function scalePending(){ if (pfOn && pbox && pbox.clientWidth) pf.style.transform = 'scale(' + (pbox.clientWidth / 1920) + ')'; }
-function pendingPreview(){
-  if (!pf) return;
-  var ip = document.querySelector('[data-ipanel="content"]');
-  var want = document.body.dataset.tab === 'meeting' && ctxNow === 'question' && !document.hidden && !(ip && ip.hidden);
-  if (want === pfOn) return scalePending();
-  pfOn = want;
-  pf.src = want ? 'stage.html?bg=preview&preview=1&pending=1' : 'about:blank';   // nothing runs while it is not seen
-  scalePending();
-}
-if (window.ResizeObserver && pbox) new ResizeObserver(scalePending).observe(pbox);
-document.addEventListener('visibilitychange', pendingPreview);
 
 /* Keyboard badges follow the configured shortcuts */
-function badges(){ Array.prototype.forEach.call(document.querySelectorAll('kbd[data-sc]'), function(k){ k.textContent = SC ? SC.short(k.dataset.sc) : ''; }); }
-badges(); if (SC) SC.onChange(badges);
+function badges(){ Array.prototype.forEach.call(document.querySelectorAll('kbd[data-sc]'), function(k){ k.textContent = SC_ ? SC_.short(k.dataset.sc) : ''; }); }
+badges(); if (SC_) SC_.onChange(badges);
 
-/* ---------- Header health chips ---------- */
+/* ---------- Header chips (each output, only here) ---------- */
 function chip(id, cls, text, title){                    // touches the page only when something changed
   var c = $(id); if (!c) return;
   var k = 'hchip ' + (cls || ''), b = c.querySelector('b');
@@ -368,7 +65,7 @@ function renderProgram(){
   var set = window.BSFMembersAPI ? window.BSFMembersAPI.settings() : {};
   var t = set.meetingTitle || 'BSF Meeting', g = String(set.groupName || 'BSF').trim() || 'BSF';
   var org = (g.length <= 24 ? g : 'BSF') + ' Command Center';            // e.g. "NLFM Command Center"; long group names keep the usual title
-  if ($('meeting-title').textContent !== t){ $('meeting-title').textContent = t; }
+  if ($('meeting-title').textContent !== t) $('meeting-title').textContent = t;
   if ($('org-title') && $('org-title').textContent !== org) $('org-title').textContent = org;
   var dt = t + ' · ' + org; if (document.title !== dt) document.title = dt;
 }
@@ -376,7 +73,7 @@ setInterval(function(){ if (!document.hidden) renderProgram(); }, 1000); renderP
 
 Status.on('presence', function(p){
   var n = 0; for (var k in p) n += p[k];
-  var anyLive = live && ['question', 'verse', 'birthday'].some(function(k){ return stateOf(k) === 'live'; });
+  var anyLive = live && (live.question.visible || live.verse.visible || live.birthday.visible);
   var vc = window.BSFVcamStatus && window.BSFVcamStatus();
   var onVcam = vc && vc.status && vc.status.state === 'live' && vc.settings && vc.settings.cards !== false;
   if (onVcam && !n) chip('h-sources', 'ok', 'On vCam', 'Your cards are shown on BCC vCam');
@@ -390,96 +87,38 @@ Status.on('remote', function(r){
   var now = r.now, signed = (r.devices || []).filter(function(d){ return d.signedIn; });
   var recent = signed.filter(function(d){ return now - d.lastSeen < 12; });
   var net = r.network, publicNet = net && (net.profiles || []).some(function(p){ return p.category === 'Public'; });
-  if (recent.length){ chip('h-ipad', 'ok', 'Connected', recent.length + ' device(s) connected'); ipadWasConnected = true; }
+  if (recent.length){ chip('h-ipad', 'ok', recent.length > 1 ? recent.length + ' connected' : 'Connected', recent.length + ' device(s) connected'); ipadWasConnected = true; }
   else if (ipadWasConnected || signed.some(function(d){ return now - d.lastSeen < 10800; })){
     chip('h-ipad', 'warn', 'Disconnected', 'The phone or iPad stopped responding. Check its Wi-Fi or reopen the remote.');
-    if (ipadWasConnected){ A.toast('phone remote disconnected. You can keep using this screen.', true); ipadWasConnected = false; }
+    if (ipadWasConnected){ A.toast('Phone remote disconnected. You can keep using this screen.', true); ipadWasConnected = false; }
   }
   else if (!(r.urls || []).length) chip('h-ipad', 'bad', 'No network', 'This PC is not connected to Wi-Fi or a network');
   else if (publicNet) chip('h-ipad', 'warn', 'Check firewall', 'Your network is set to Public. See Settings → Phone & iPad Remote.');
   else chip('h-ipad', 'info', 'Waiting', 'Remote is on. Waiting for the phone or iPad to connect.');
 });
-
 if (!Store.served){ chip('h-sources', '', '—', 'Needs the local program'); chip('h-ipad', '', '—', 'Needs the local program'); }
 
-/* ---------- Live outputs (Meeting view) and the Recording / Slides chips ----------
- * Read-only: they show what the existing checks already know (BCC vCam status, overlay pages, Studio,
- * PowerPoint, remote). Nothing here starts or stops an output. */
-function out(id, cls, metric, title){
-  var c = $(id); if (!c) return;
-  var k = 'out ' + (cls || ''), m = c.querySelector('[data-m]');
-  if (c.className !== k) c.className = k;
-  if (m.textContent !== metric) m.textContent = metric;
-  if (title != null && c.title !== title) c.title = title;
-}
+/* Recording and Slides chips: shown only while they are running */
 function fmtTime(sec){ sec = Math.round(sec || 0); return Math.floor(sec / 60) + ':' + String(sec % 60).padStart(2, '0'); }
-var lastPresence = null, lastRemote = null, slideInfo = null;
-Status.on('presence', function(p){ lastPresence = p; renderOutputs(); });
-Status.on('remote', function(r){ lastRemote = r; renderOutputs(); });
-function renderOutputs(){
-  var vs = window.BSFVcamStatus && window.BSFVcamStatus(), st = vs && vs.status, ss = window.BSFStudio && window.BSFStudio.state ? window.BSFStudio.state() : null;
-  // BCC vCam: the camera Zoom / Teams receive
-  if (!Store.served) out('out-vcam', '', 'Needs the installed app');
-  else if (!vs) out('out-vcam', '', 'Checking…');
-  else if (!vs.available) out('out-vcam', 'off', 'Not available', vs.reason || '');
-  else if (st && st.state === 'live')
-    out('out-vcam', 'ok', (st.outputSize || '') + ' · ' + Math.round(st.fps || 0) + ' fps · ' + Math.round(st.latencyMs || 0) + ' ms · ' + (st.dropped || 0) + ' dropped',
-      'Live in Zoom / Teams. Camera ' + (st.captureFps || 0) + ' fps, ' + (st.msPerFrame || 0) + ' ms per frame, CPU ' + (st.cpuPercent || 0) + '%');
-  else if (st && st.state === 'error') out('out-vcam', 'bad', 'Problem', st.message || '');
-  else out('out-vcam', vs.settings && vs.settings.enabled === false ? 'off' : 'idle', vs.settings && vs.settings.enabled === false ? 'Off' : 'Ready · not in a meeting', st && st.message || '');
-  // Overlay pages (OBS, Camo, a browser)
-  var n = 0; if (lastPresence) for (var k in lastPresence) n += lastPresence[k];
-  out('out-overlays', n ? 'ok' : 'idle', n ? n + ' page' + (n === 1 ? '' : 's') + ' open' : 'None open');
-  // Presentation window and recording (Studio)
-  var po = ss && ss.presentation && ss.presentation.open, rec = ss && ss.recording;
-  out('out-present', po ? 'ok' : 'idle', !ss || !ss.available ? 'Needs BCC vCam' : po ? 'Open · share it in Zoom' : 'Closed');
-  out('out-rec', rec && rec.on ? 'rec' : 'idle', !ss || !ss.available ? 'Needs BCC vCam' : rec && rec.on ? '● ' + fmtTime(rec.seconds) + (rec.codec ? ' · ' + rec.codec : '') : 'Not recording');
-  var hr = $('h-rec'); if (hr){ var on = !!(rec && rec.on); if (hr.hidden === on) hr.hidden = !on; if (on) chip('h-rec', 'rec', fmtTime(rec.seconds), 'Recording the BCC vCam output'); }
-  // Slides (PowerPoint slide show, or a deck / window shared in the Studio)
-  var pr = slideInfo && slideInfo.presentation;
-  out('out-slides', pr ? 'ok' : 'idle', pr ? (pr.page ? 'Slide ' + pr.page + (pr.pages ? ' of ' + pr.pages : '') : 'Ready') + (pr.name ? ' · ' + pr.name : '') : 'No presentation');
-  var hs = $('h-slides'); if (hs){ if (hs.hidden === !!pr) hs.hidden = !pr; if (pr) chip('h-slides', 'ok', pr.page ? pr.page + (pr.pages ? '/' + pr.pages : '') : 'Ready', 'Slides: ' + (pr.name || 'presentation')); }
-  // Remote
-  var r = lastRemote;
-  if (!r) out('out-remote', '', '—');
-  else if (!r.enabled) out('out-remote', 'off', 'Off');
-  else { var nn = (r.devices || []).filter(function(d){ return d.signedIn && r.now - d.lastSeen < 12; }).length;
-    out('out-remote', nn ? 'ok' : 'idle', nn ? nn + ' device' + (nn === 1 ? '' : 's') + ' connected' : 'Waiting for a device'); }
-  // What the big picture is
-  var pv = $("pg-view"), real = !!(liveImg && !liveImg.hidden);
-  if (pv){ var pt = real ? 'BCC vCam picture' : 'Overlay preview'; if (pv.textContent !== pt) pv.textContent = pt; }
+var slideInfo = null;
+window.BSFSlideInfo = function(){ return slideInfo; };
+function renderRunning(){
+  var ss = window.BSFStudio && window.BSFStudio.state ? window.BSFStudio.state() : null, rec = ss && ss.recording;
+  var hr = $('h-rec'); if (hr){ var on = !!(rec && rec.on); if (hr.hidden === on) hr.hidden = !on; if (on) chip('h-rec', 'rec', fmtTime(rec.seconds), 'Recording the BCC vCam output (Settings → Recording)'); }
+  var pr = slideInfo && slideInfo.presentation, hs = $('h-slides');
+  if (hs){ if (hs.hidden === !!pr) hs.hidden = !pr; if (pr) chip('h-slides', 'ok', pr.page ? pr.page + (pr.pages ? '/' + pr.pages : '') : 'Ready', 'Slides: ' + (pr.name || 'presentation')); }
 }
-/* The slide number: asked every 5 s while the Meeting view is on screen (one light request; PowerPoint is
- * only asked when no Studio deck is shared - the same answer the phone remote gets) */
+/* The slide number: asked every 5 s while the Studio is on screen (PowerPoint is asked only when no Studio deck is
+ * shared - the same answer the phone remote gets) */
 function pollSlides(){
-  var want = Store.served && document.body.dataset.tab === 'meeting' && !document.hidden;
-  (want ? fetch('api/remote/studio', {cache: 'no-store'}).then(function(r){ return r.ok ? r.json() : null; }).then(function(d){ slideInfo = d; renderOutputs(); }).catch(function(){})
+  var want = Store.served && document.body.dataset.tab === 'studio' && !document.hidden;
+  (want ? fetch('api/remote/studio', {cache: 'no-store'}).then(function(r){ return r.ok ? r.json() : null; }).then(function(d){ slideInfo = d; renderRunning(); if (window.BSFWorkspace) window.BSFWorkspace.slides(d); }).catch(function(){})
         : Promise.resolve()).then(function(){ setTimeout(pollSlides, want ? 5000 : 8000); });
 }
 if (Store.served) setTimeout(pollSlides, 1200);
-setInterval(function(){ if (!document.hidden) renderOutputs(); }, 1000);
+setInterval(function(){ if (!document.hidden) renderRunning(); }, 1000);
 
-/* ---------- Program preview ----------
- * While BCC vCam is live, show its real final frame (exactly what Zoom/Teams receive).
- * Otherwise show the overlay page, so opening the app never switches the webcam on by itself. */
-$('program-frame').src = 'stage.html?bg=preview&preview=1';
-var liveImg = $('program-live'), liveTag = {};
-function pullLive(){
-  var vs = window.BSFVcamStatus && window.BSFVcamStatus();
-  var live = vs && vs.status && vs.status.state === 'live' && document.body.dataset.tab === 'meeting' && !document.hidden;
-  if (!live){
-    liveImg.hidden = true; $('program-frame').style.visibility = '';
-    return setTimeout(pullLive, 1000);
-  }
-  Store.freshPreview(liveTag).then(function(bl){
-    if (!bl) return;                                   // nothing new: no download, no decode, no redraw
-    var u = URL.createObjectURL(bl), old = liveImg.src; liveImg.src = u; liveImg.hidden = false; $('program-frame').style.visibility = 'hidden';
-    if (old && old.slice(0, 5) === 'blob:') URL.revokeObjectURL(old);
-  }).catch(function(){}).then(function(){ setTimeout(pullLive, 500); });   // 2 pictures a second
-}
-if (Store.served) setTimeout(pullLive, 1500);
-
-Store.subscribe(function(st){ live = st; render(); if (window.BSFControlBar) window.BSFControlBar.render(); });
-setInterval(function(){ if (!document.hidden) render(); }, 10000);  // safety net: birthday candidate and day changes (edits arrive through Store)
-setTimeout(fit, 0); setTimeout(fit, 400);
+Store.subscribe(function(st){ live = st; render(); });
+setInterval(function(){ if (!document.hidden) render(); }, 10000);  // birthday candidate and day changes
+window.BSFRenderBirthday = render;
 })();

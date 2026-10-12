@@ -17,7 +17,7 @@ function icons(root){ Array.prototype.forEach.call((root || document).querySelec
 icons();
 
 /* ---------- groups ---------- */
-var GROUPS = {studio: ['meeting', 'overlays', 'studio', 'recordings'], members: ['directory', 'members', 'birthdays', 'email'], settings: ['settings']};
+var GROUPS = {studio: ['studio'], members: ['directory', 'members', 'birthdays', 'email'], settings: ['settings']};
 var KEY = 'bsf-cc-subtab';
 var last = {};
 try { last = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch(e){}
@@ -36,8 +36,8 @@ function show(t){
   $('sub-members').hidden = g !== 'members';
   document.body.dataset.group = g;
   if (t === 'directory') renderDirectory();
-  if (t === 'recordings') loadRecordings();
-  if ((t === 'overlays' || t === 'settings') && window.BSFRenderLists) window.BSFRenderLists();   // drawn when shown
+  if (t === 'settings' && $('sec-recording') && !$('sec-recording').hidden) loadRecordings();
+  if ((t === 'studio' || t === 'settings') && window.BSFRenderLists) window.BSFRenderLists();   // drawn when shown
   if (window.BSFMeasure) window.BSFMeasure();
 }
 var prev = window.BSFOnTab;
@@ -45,15 +45,14 @@ window.BSFOnTab = function(t){ if (prev) prev(t); show(t); };
 /* Alt+1 Studio (Meeting view) · Alt+2 Studio (Canvas) · Alt+3 Members · Alt+4 Settings - the same places
  * these keys opened before the Meetings & Content tab moved into the Studio. */
 window.BSFNavAlt = function(n){
-  if (n === 1) return window.BSFSetTab('meeting');
-  if (n === 2) return window.BSFSetTab('studio');
+  if (n === 1 || n === 2) return window.BSFSetTab('studio');      // v6: Meeting and Canvas are the one Studio
   var g = n === 3 ? 'members' : 'settings';
   window.BSFSetTab(last[g] || GROUPS[g][0]);
 };
 Array.prototype.forEach.call(document.querySelectorAll('.subtabs'), function(bar){
   bar.addEventListener('click', function(e){ var b = e.target.closest('[data-tab]'); if (b) window.BSFSetTab(b.dataset.tab); });
 });
-show(document.body.dataset.tab || 'meeting');
+show(document.body.dataset.tab || 'studio');
 
 /* Heights the layout needs: the sticky header (the rail stays below it) and the control bar (pages end above it) */
 (function(){
@@ -128,15 +127,16 @@ show(document.body.dataset.tab || 'meeting');
  * page opens. Ctrl+K focuses it. ---------- */
 (function(){
   var inp = $('gsearch'), ul = $('gsearch-list'); if (!inp || !ul) return;
-  var results = [], active = -1, lib = null;
+  var results = [], active = -1, lib = null, fullState = null;
   var SECTIONS = [['general', 'General', 'appearance theme dark light meeting title your name group name email wording'],
-    ['overlays', 'Overlays', 'card position text size opacity birthday greeting reminders'],
+    ['overlays', 'Birthdays', 'birthday reminders dates leap'], ['scripture', 'Scripture', 'bible esv api key translation offline cache'],
+    ['transitions', 'Transitions', 'transition profile fade dip cut sunday bible study'], ['recording', 'Recording', 'record recordings mp4'],
     ['display', 'Zoom / Display', 'overlay links obs camo browser source zoom display'], ['vcam', 'BCC vCam', 'camera zoom teams blur background look filter resolution'],
     ['ipad', 'Phone & iPad Remote', 'remote pin qr phone tablet android'], ['keys', 'Keyboard shortcuts', 'keys hotkeys shortcuts'],
     ['security', 'Security', 'pin privacy'], ['data', 'Data & backup', 'backup restore export import excel'],
     ['diag', 'Diagnostics', 'problems errors logs'], ['about', 'About', 'version credits']];
-  var KINDS = {question: 'Question', verse: 'Verse', member: 'Member', birthday: 'Birthday', scene: 'Scene', slides: 'Slides', setting: 'Settings'};
-  Store.subscribe(function(st){ lib = st.library; });
+  var KINDS = {question: 'Question', verse: 'Verse', member: 'Member', birthday: 'Birthday', scene: 'Scene', layer: 'Layer', media: 'Media', bible: 'Bible', slides: 'Slides', setting: 'Settings'};
+  Store.subscribe(function(st){ lib = st.library; fullState = st; });
   function norm(s){ return String(s || '').toLowerCase(); }
   function find(q){
     q = norm(q).trim(); if (!q || !lib) return [];
@@ -150,11 +150,20 @@ show(document.body.dataset.tab || 'meeting');
       .sort(function(a, b){ return a.b.days - b.b.days; }).slice(0, 8).forEach(function(m){
         out.push({kind: 'birthday', id: m.id, title: m.name, sub: m.b.days === 0 ? 'Birthday today' : m.b.days === 1 ? 'Birthday tomorrow' : 'Birthday in ' + m.b.days + ' days'}); });
     dirRows.forEach(function(m){ if (out.length < 46 && norm(m.name + ' ' + m.email + ' ' + m.role).indexOf(q) >= 0) out.push({kind: 'member', id: m.id, title: m.name, sub: m.role || m.email || 'Member'}); });
-    var st = window.BSFStudio && window.BSFStudio.state ? window.BSFStudio.state() : null;
-    if (st && st.available){
-      (st.scenes || []).forEach(function(sc){ if (norm(sc.name).indexOf(q) >= 0 || q === 'scene' || q === 'scenes') out.push({kind: 'scene', id: sc.id, title: sc.name, sub: sc.id === st.activeScene ? 'Active scene' : 'Scene'}); });
-      (st.pdfs || []).forEach(function(f){ if (norm(f).indexOf(q) >= 0 || q === 'slides') out.push({kind: 'slides', title: f, sub: 'Slides (PDF) in the Studio'}); });
+    var SC = window.BSFScenes;
+    if (SC && fullState){
+      fullState.scenes.forEach(function(sc){
+        if (norm(sc.name + ' ' + sc.group).indexOf(q) >= 0 || q === 'scene' || q === 'scenes' || (q === 'template' || q === 'templates') && sc.tpl)
+          out.unshift({kind: 'scene', id: sc.id, title: sc.name, sub: (fullState.live.scene === sc.id ? 'Live · ' : '') + (sc.tpl ? 'Template' : sc.group || 'Scene') + ' · ' + sc.layers.length + ' layers'});
+        sc.layers.forEach(function(l){
+          var media = l.c && l.c.file ? ' ' + l.c.file : '';
+          if (norm(l.name + ' ' + SC.info[l.kind].name + media + ' ' + (l.c.text || '') + ' ' + (l.c.title || '')).indexOf(q) >= 0 && out.length < 60)
+            out.push({kind: SC.isMedia(l.kind) ? 'media' : 'layer', id: sc.id, layer: l.id, title: l.name, sub: SC.info[l.kind].name + ' layer · ' + sc.name});
+        });
+      });
     }
+    var ref = window.BSFScripture && window.BSFScripture.parse(inp.value);
+    if (ref) out.unshift({kind: 'bible', ref: ref, title: ref, sub: 'Fetch into the Scripture layer (ESV)'});
     SECTIONS.forEach(function(x){ if (norm(x[1] + ' ' + x[2]).indexOf(q) >= 0) out.push({kind: 'setting', sec: x[0], title: x[1], sub: 'Settings · ' + x[2]}); });
     return out.slice(0, 60);
   }
@@ -177,25 +186,9 @@ show(document.body.dataset.tab || 'meeting');
     close(); inp.value = ''; inp.blur();
     if (r.kind === 'member' || r.kind === 'birthday'){ if (window.BSFMembersAPI) window.BSFMembersAPI.open(r.id); return; }
     if (r.kind === 'setting'){ window.BSFSetTab('settings'); if (window.BSFShowSection) setTimeout(function(){ window.BSFShowSection(r.sec); }, 0); return; }
-    if (r.kind === 'slides'){ window.BSFSetTab('studio'); return; }
-    if (r.kind === 'scene'){
-      if (document.body.classList.contains('rail-hidden') && $('rail-toggle')) $('rail-toggle').click();
-      if (document.body.dataset.group !== 'studio') window.BSFSetTab('meeting');
-      setTimeout(function(){
-        var c = document.querySelector('.s2-scene[data-scene="' + r.id + '"]'); if (!c) return;
-        c.scrollIntoView({block: 'nearest'}); c.focus({preventScroll: true});
-        c.classList.add('found'); setTimeout(function(){ c.classList.remove('found'); }, 1600);
-      }, 60);
-      return;
-    }
-    window.BSFSetTab('meeting');
-    setTimeout(function(){
-      var row = document.querySelectorAll(r.kind === 'question' ? '#rs-questions > li' : '#rs-verses > li')[r.i];
-      if (!row) return;
-      row.scrollIntoView({block: 'center'});
-      var b = row.querySelector('button'); if (b) b.focus({preventScroll: true});
-      row.classList.add('found'); setTimeout(function(){ row.classList.remove('found'); }, 1600);
-    }, 60);
+    if (r.kind === 'scene' || r.kind === 'layer' || r.kind === 'media'){ window.BSFSetTab('studio'); if (window.BSFWorkspace) window.BSFWorkspace.select(r.id, r.layer || null, true); return; }
+    if (r.kind === 'bible'){ window.BSFSetTab('studio'); if (window.BSFWorkspace) window.BSFWorkspace.fetchVerse(r.ref); return; }
+    if (r.kind === 'question' || r.kind === 'verse'){ window.BSFSetTab('studio'); if (window.BSFWorkspace) window.BSFWorkspace.findItem(r.kind, r.i); return; }
   }
   var t = null;
   inp.addEventListener('input', function(){ clearTimeout(t); t = setTimeout(function(){ results = find(inp.value); active = results.length ? 0 : -1; draw(); }, 80); });
@@ -276,6 +269,7 @@ function renderDirectory(){
   root.appendChild(h('div', {cls: 'dir-wrap'}, [table]));
 }
 window.BSFRenderDirectory = renderDirectory;
+window.BSFLoadRecordings = function(){ loadRecordings(); };
 
 /* ---------- Meetings & Content > Recordings ---------- */
 function rec(op, name){
@@ -288,11 +282,11 @@ function loadRecordings(){
   fetch('api/vcam/recordings', {cache: 'no-store'}).then(function(r){ return r.json(); }).then(function(d){
     root.innerHTML = '';
     root.appendChild(h('div', {cls: 'dir-head'}, [
-      h('div', {}, [h('h2', {text: 'Recordings'}), h('p', {cls: 'hint', text: 'Test recordings of exactly what BCC vCam sent. Saved in ' + d.folder})]),
+      h('div', {}, [h('h2', {text: 'Recordings'}), h('p', {cls: 'hint', text: 'Recordings of exactly what BCC vCam sent. Saved in ' + d.folder})]),
       h('div', {cls: 'dir-tools'}, [
         h('button', {cls: 'btn', type: 'button', html: window.BSFIcon('folder-open', 16) + ' Open folder', onclick: function(){ rec('folder'); }}),
-        h('button', {cls: 'btn primary', type: 'button', html: window.BSFIcon('circle-dot', 16) + ' Record in Studio', onclick: function(){ window.BSFSetTab('studio'); }})])]));
-    if (!d.items.length){ root.appendChild(h('p', {cls: 'empty-card', text: 'No recordings yet. In Studio, press Record to save a test recording.'})); return; }
+      ])]));
+    if (!d.items.length){ root.appendChild(h('p', {cls: 'empty-card', text: 'No recordings yet. Press Record above to record what BCC vCam sends.'})); return; }
     var t = h('table', {cls: 'dir-table'}, [h('thead', {}, [h('tr', {}, ['Recording', 'Date', 'Size', ''].map(function(x){ return h('th', {text: x}); }))])]);
     var tb = h('tbody');
     d.items.forEach(function(it){

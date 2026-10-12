@@ -158,8 +158,13 @@ class OverlayLayer:
             return frame
         now = time.monotonic()
         H, W = frame.shape[:2]
+        live = st.get("live") or {}
+        hold = bool(live.get("blackout") or live.get("emergency"))
         for kind, tr in self.tracks.items():
-            tr.update(st.get(kind) or {}, now, self.alpha[kind])
+            d = st.get(kind) or {}
+            if hold or (d.get("out") or {}).get("vcam") is False:      # v6: Blackout / Emergency, or "not on BCC vCam"
+                d = dict(d, visible=False)
+            tr.update(d, now, self.alpha[kind])
             tr.tick(now)
         # birthday first (behind), then verse, then question - same stacking as the stage page
         for kind in ("birthday", "verse", "question"):

@@ -111,6 +111,7 @@ class Compositor:
         self.layout = clean_layout({})
         self.layers = LayerManager(layer_folder)
         self.cards, self.cards_on = cards, cards_on
+        self.program_fx = None         # v6: text layers, scene transitions, Blackout / Emergency screen (vcam/program.py)
         self.screen_src, self.screen = None, None
         self._screen_fit = (None, None)        # (key, image) - resized only when the screen changes
         self.recorder, self.last_recording = None, None
@@ -292,6 +293,12 @@ class Compositor:
     def _finish(self, frame, w, h, t):
         if self.cards is not None and self.cards_on():
             frame = self.cards(frame)
+        if self.program_fx is not None:
+            try:
+                frame = self.program_fx(frame)
+            except Exception as e:                    # never let an effect stop the camera
+                print("BCC vCam: program effect:", e)
+                self.program_fx = None
         if self.latency_test:
             stamp = time.time()
             txt = time.strftime("%H:%M:%S", time.localtime(stamp)) + ".%03d" % int(stamp % 1 * 1000)

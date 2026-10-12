@@ -11,7 +11,7 @@ assert srv is not None, "could not start"
 threading.Thread(target=srv.serve_forever, daemon=True).start()
 base = f"http://127.0.0.1:{srv.server_address[1]}/"
 for page in ["", "dashboard.html", "remote.html", "stage.html", "focus-verse.html", "discussion-question.html",
-             "birthday.html", "js/app-bridge.js", "js/brand.js", "js/about.js", "remote-manifest.json", "icons/remote-192.png"]:
+             "birthday.html", "js/app-bridge.js", "js/brand.js", "js/workspace.js", "js/scripture.js", "js/about.js", "remote-manifest.json", "icons/remote-192.png"]:
     with urllib.request.urlopen(base + page, timeout=5) as r:
         assert r.status == 200, page
 ping = json.loads(urllib.request.urlopen(base + "api/app/ping").read())
@@ -45,6 +45,9 @@ try:
     for _m in ("camera", "screen", "pip", "side"):
         _cmp.set_layout({"mode": _m})
         assert _cmp.compose(_np.full((720, 1280, 3), 90, _np.uint8), 1280, 720).shape == (720, 1280, 3), "layout failed: " + _m
+    from vcam.program import ProgramFX                   # v6: text layers, transitions, Blackout / Emergency
+    _cmp.program_fx = ProgramFX(root / "app" / "fonts", lambda: {"live": {"blackout": True}}, lambda: True)
+    assert _cmp.compose(_np.full((720, 1280, 3), 90, _np.uint8), 1280, 720).shape == (720, 1280, 3), "program effects failed"
     import pypdfium2                                     # PDF slides
     for _k in BUILT_IN:
         assert Grade(BUILT_IN[_k]).apply(_np.full((72, 128, 3), 128, _np.uint8)).shape == (72, 128, 3), "look failed: " + _k

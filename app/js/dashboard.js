@@ -121,7 +121,7 @@ function toggle(kind){
 }
 /* Presentation mode of the current question (Question · Both · Verse). On screen, the change shows at once. */
 function setMode(m){ commit(function(n){ P.setMode(n, m); }); }
-function hideAll(){ commit(function(n){ n.verse.visible = false; n.question.visible = false; n.birthday.visible = false; }); }
+function hideAll(){ commit(function(n){ if (window.BSFScenes) window.BSFScenes.hideAll(n); else { n.verse.visible = false; n.question.visible = false; n.birthday.visible = false; } }); }
 function clearLive(kind){
   commit(function(n){
     var o = n[kind];
@@ -307,8 +307,7 @@ function renderLists(){
   var sig = JSON.stringify([libSig.length, drafts.verse.itemId, drafts.question.itemId,
     isOn('verse') && live.verse.itemId, isOn('question') && live.question.itemId]) + libSig;
   if (sig === listSig) return;
-  var panel = $('tab-overlays');
-  if (panel && panel.hidden && listsBuilt){ listsDirty = true; refreshSaveButtons(); return; }
+  if (!listsVisible() && listsBuilt){ listsDirty = true; refreshSaveButtons(); return; }
   listSig = sig; listsDirty = false;
   if (listsBuilt === libSig){ patchListRows(); refreshSaveButtons(); return; }
   listsBuilt = libSig;
@@ -423,7 +422,11 @@ function refreshStatus(){
   if (isOn('question')) on.push('Question');
   if (isOn('verse')) on.push('Verse');
   if (live.birthday.visible && live.birthday.greeting.trim()) on.push('Birthday');
-  var cls = 'live-ind' + (on.length ? ' on' : ''), what = on.join(' + ');
+  var SC = window.BSFScenes, ls = SC && SC.liveScene(live), tl = SC ? SC.liveText(live).length : 0;
+  if (tl) on.push(tl === 1 ? '1 text layer' : tl + ' text layers');
+  if (live.live && live.live.blackout) on = ['Blackout'];
+  else if (live.live && live.live.emergency) on = ['Emergency screen'];
+  var cls = 'live-ind' + (on.length ? ' on' : ''), what = (ls ? ls.name + (on.length ? ' · ' : '') : '') + on.join(' + ');
   if (el.className !== cls) el.className = cls;
   var b = el.querySelector('b'), w = el.querySelector('.live-what');
   if (b.textContent !== (on.length ? 'LIVE' : 'Off air')) b.textContent = on.length ? 'LIVE' : 'Off air';
@@ -491,6 +494,7 @@ function pollPresence(){
 /* ---------- Preview ---------- */
 function setupPreview(){
   var frame = $('preview-frame'), box = $('preview');
+  if (!frame || !box) return;                                  // v6: the Studio Canvas is the preview
   frame.src = 'stage.html?bg=preview&preview=1';
   function scale(){ frame.style.transform = 'scale(' + (box.clientWidth / 1920) + ')'; }
   scale();
@@ -593,7 +597,7 @@ function setup(){
   document.addEventListener('keydown', function(e){
     if (document.querySelector('dialog[open], .app-modal-back') || window.BSFShortcutsCapturing) return;
     var tab = document.body.dataset.tab;
-    if (tab && tab !== 'overlays' && tab !== 'meeting') return;
+    if (tab && tab !== 'studio') return;
     var t = e.target.tagName;
     if (t === 'INPUT' || t === 'TEXTAREA' || t === 'SELECT' || e.ctrlKey || e.metaKey || e.altKey) return;
     var a = window.BSFShortcuts ? window.BSFShortcuts.match(e) : null;
@@ -610,7 +614,9 @@ function setup(){
     else if (a === 'toggleV') toggle('verse');
     else if (a === 'hideAll') hideAll();
     else if (a === 'toggleB' && window.BSFBirthday) window.BSFBirthday.toggle();
-    else if (a === 'takeLive' && window.BSFTakeLive) window.BSFTakeLive();
+    else if (a === 'takeLive' && window.BSFWorkspace) window.BSFWorkspace.take();
+    else if (a === 'nextScene' && window.BSFWorkspace) window.BSFWorkspace.step(1);
+    else if (a === 'prevScene' && window.BSFWorkspace) window.BSFWorkspace.step(-1);
   });
 
   buildTransitionExtras();
@@ -636,10 +642,14 @@ Store.subscribe(function(st){
   renderLists(); refreshMode();
 });
 var controlsDirty = false;
+/* v6: the lists and the style / layout / animation controls live in the Inspector; they are drawn only while the
+ * Inspector shows them (every Next / Show during a meeting skips this work) */
+function shown(el){ return !!(el && el.offsetParent !== null); }
+function listsVisible(){ return shown($('q-items')) || shown($('v-items')); }
 function controlsVisible(){
-  var a = $('tab-overlays'), s = $('tab-settings'), st = document.querySelector('[data-ipanel="style"]');
-  return (a && !a.hidden) || (s && !s.hidden) || (document.body.dataset.tab === 'meeting' && st && !st.hidden);   // v5.1: the Inspector's Style tab
+  return document.body.dataset.tab === 'studio' && !!document.querySelector('#insp-body .ip[data-itab]:not([hidden]) [data-seg], #insp-body .ip[data-itab]:not([hidden]) [data-range]');
 }
+window.BSFListsShown = function(){ if (live && listsDirty){ listSig = ''; renderLists(); } };
 /* The Inspector's Style tab was opened: bring its settings up to date (they are skipped while hidden) */
 window.BSFRefreshControls = function(){ if (live && drafts && controlsDirty && controlsVisible()){ controlsDirty = false; refreshSegs(); refreshRanges(); } };
 Store.start({longPoll: true});   // changes (phone remote, overlays) arrive at once; idle = ~6 requests a minute

@@ -43,6 +43,12 @@ var DEFAULT_STATE = {
     qBottom: 10, qWidth: 84, qScale: 1,
     panel: 92
   },
+  /* v6: Scenes own Layers; the live scene and the program controls (see BSFScenes below) */
+  scenes: [],
+  live: {scene: '', seq: 0, at: 0, tx: 'cut', txMs: 0, auto: true, blackout: false, emergency: false,
+         message: 'Please stand by \u2014 we\u2019ll be right back.', on: {}, cd: {}},
+  profile: 'bible-study',
+  v6: false,
   /* Saved lists shown in the dashboard (sample placeholder content) */
   library: {
     verses: [
@@ -187,6 +193,385 @@ var Present = {
   }
 };
 
+/* =====================================================================================================
+ * v6 Scenes: everything belongs to a Scene, everything visible is a Layer, everything renders on the Canvas.
+ *   Scene  {id, name, group, fav, tpl, created, modified, version, creator, from, template, parent,
+ *           tx: {type, ms}, auto: {on, sec}, out: {vcam, obs}, layers: [Layer]}            (layers: top first)
+ *   Layer  {id, kind, name, visible, locked, opacity, c: {...content / media fields}}
+ * Card kinds (scripture, question, birthday) drive the existing verse / question / birthday cards, so the
+ * keyboard, the remote and every overlay keep working. Text kinds (announcement, prayer, lowerthird,
+ * countdown) are drawn by the overlay pages and BCC vCam. Media kinds are BCC vCam Studio layers (the program
+ * applies the live scene's media layers to the camera picture).
+ * All helpers edit a copy inside Store.update(); they never send anything themselves.
+ * ===================================================================================================== */
+var CARD_KINDS = ['scripture', 'question', 'birthday'];
+var TEXT_KINDS = ['announcement', 'prayer', 'lowerthird', 'countdown'];
+var MEDIA_KINDS = ['camera', 'screen', 'window', 'image', 'video', 'pdf', 'background', 'text', 'rect', 'ellipse'];
+var KIND_INFO = {
+  scripture: {name: 'Scripture', icon: 'book-open'}, question: {name: 'Question', icon: 'message-circle'},
+  birthday: {name: 'Birthday', icon: 'cake'}, announcement: {name: 'Announcement', icon: 'megaphone'},
+  prayer: {name: 'Prayer Point', icon: 'heart'}, lowerthird: {name: 'Lower Third', icon: 'panel-bottom'},
+  countdown: {name: 'Countdown', icon: 'timer'}, camera: {name: 'Camera', icon: 'video'}, screen: {name: 'Screen', icon: 'monitor'},
+  window: {name: 'Window', icon: 'app-window'}, image: {name: 'Image', icon: 'image'}, video: {name: 'Video', icon: 'film'},
+  pdf: {name: 'Slides', icon: 'presentation'}, background: {name: 'Background', icon: 'paint-bucket'}, text: {name: 'Text', icon: 'type'},
+  rect: {name: 'Shape', icon: 'square'}, ellipse: {name: 'Ellipse', icon: 'circle'}
+};
+/* Scene transitions. In BCC vCam every type plays on the whole picture; on the overlay pages the dips cover the
+ * screen and the cards follow (cut = instant). */
+var TX = [['cut', 'Cut'], ['fade', 'Fade'], ['dissolve', 'Cross Dissolve'], ['dip-black', 'Dip to Black'], ['dip-white', 'Dip to White'],
+  ['blur-fade', 'Blur Fade'], ['zoom-fade', 'Zoom Fade'], ['slide-left', 'Slide Left'], ['slide-right', 'Slide Right'], ['push', 'Push'],
+  ['reveal', 'Reveal'], ['soft-scale', 'Soft Scale'], ['cinema', 'Cinema Fade'], ['church', 'Church Service Fade']];
+var TX_IDS = TX.map(function(t){ return t[0]; });
+var TX_MS = {cut: 0, fade: 500, dissolve: 450, 'dip-black': 700, 'dip-white': 700, 'blur-fade': 500, 'zoom-fade': 500, 'slide-left': 450,
+  'slide-right': 450, push: 450, reveal: 550, 'soft-scale': 450, cinema: 1100, church: 800};
+var PROFILES = [
+  {id: 'sunday', name: 'Sunday Service', type: 'fade', ms: 500}, {id: 'bible-study', name: 'Bible Study', type: 'fade', ms: 350},
+  {id: 'youth', name: 'Youth Service', type: 'push', ms: 300}, {id: 'conference', name: 'Conference', type: 'dissolve', ms: 400},
+  {id: 'wedding', name: 'Wedding', type: 'cinema', ms: 1100}, {id: 'funeral', name: 'Funeral', type: 'church', ms: 900},
+  {id: 'christmas', name: 'Christmas Service', type: 'dip-white', ms: 700}, {id: 'livestream', name: 'Livestream', type: 'cut', ms: 0}];
+var POS = ['top', 'center', 'bottom', 'lower-left', 'lower-right', 'upper-left', 'upper-right'];
+function rid(p){ return (p || 'L') + Math.random().toString(36).slice(2, 9); }
+function str(v, n){ return String(v == null ? '' : v).slice(0, n || 200); }
+function num(v, lo, hi, d){ v = Number(v); return isFinite(v) ? Math.min(hi, Math.max(lo, v)) : d; }
+var TEXT_DEFAULTS = {
+  announcement: {title: 'Announcement', text: '', pos: 'center', w: 70, scale: 1, label: true, anim: 'fade'},
+  prayer: {title: 'Prayer Point', text: '', pos: 'center', w: 70, scale: 1, label: true, anim: 'fade'},
+  lowerthird: {title: '', text: '', pos: 'lower-left', w: 46, scale: 0.9, label: true, anim: 'rise'},
+  countdown: {title: 'Starting in', text: 'Starting now', mode: 'duration', minutes: 5, until: '10:30', pos: 'center', w: 36, scale: 1.6, label: true, anim: 'fade'}
+};
+function cleanLayer(l){
+  if (!isObj(l)) return null;
+  var kind = CARD_KINDS.concat(TEXT_KINDS, MEDIA_KINDS).indexOf(l.kind) >= 0 ? l.kind : null;
+  if (!kind) return null;
+  var c = isObj(l.c) ? JSON.parse(JSON.stringify(l.c)) : {};
+  var out = {id: str(l.id || rid(), 40), kind: kind, name: str(l.name || KIND_INFO[kind].name, 60),
+    visible: l.visible !== false, locked: !!l.locked, opacity: num(l.opacity, 0, 1, 1), c: c};
+  if (TEXT_KINDS.indexOf(kind) >= 0){
+    var d = TEXT_DEFAULTS[kind];
+    for (var k in d){
+      if (typeof d[k] === 'number') c[k] = num(c[k], k === 'w' ? 20 : k === 'minutes' ? 0 : 0.4, k === 'w' ? 96 : k === 'minutes' ? 600 : 3, d[k]);
+      else if (typeof d[k] === 'boolean') c[k] = c[k] === undefined ? d[k] : !!c[k];
+      else c[k] = str(c[k] === undefined ? d[k] : c[k], k === 'text' ? 2000 : 200);
+    }
+    if (POS.indexOf(c.pos) < 0) c.pos = d.pos;
+    if (['fade', 'rise', 'none'].indexOf(c.anim) < 0) c.anim = d.anim;
+    if (['duration', 'until'].indexOf(c.mode) < 0) c.mode = d.mode;
+  }
+  if (CARD_KINDS.indexOf(kind) >= 0){
+    c.itemId = str(c.itemId, 40);                       // '' = follows the list (Prev / Next); else this item
+    if (kind === 'scripture'){ c.ref = str(c.ref, 120); c.version = str(c.version, 40); c.text = str(c.text, 8000); }
+  }
+  c.vcam = c.vcam !== false; c.obs = c.obs !== false;     // Output: where this layer appears
+  return out;
+}
+function cleanScene(sc){
+  if (!isObj(sc)) return null;
+  var tx = isObj(sc.tx) ? sc.tx : {}, auto = isObj(sc.auto) ? sc.auto : {}, out = isObj(sc.out) ? sc.out : {};
+  return {id: str(sc.id || rid('sc_'), 40), name: str(sc.name || 'Scene', 80), group: str(sc.group, 60), fav: !!sc.fav, tpl: !!sc.tpl,
+    created: Number(sc.created) || 0, modified: Number(sc.modified) || 0, version: Math.max(1, Number(sc.version) || 1),
+    creator: str(sc.creator, 80), from: str(sc.from, 80), template: str(sc.template, 80), parent: str(sc.parent, 40),
+    tx: {type: tx.type === 'profile' || TX_IDS.indexOf(tx.type) >= 0 ? tx.type : 'profile', ms: num(tx.ms, 0, 5000, 500)},
+    auto: {on: !!auto.on, sec: num(auto.sec, 2, 3600, 30)},
+    out: {vcam: out.vcam !== false, obs: out.obs !== false},
+    layers: (Array.isArray(sc.layers) ? sc.layers : []).map(cleanLayer).filter(Boolean).slice(0, 60)};
+}
+function newLayer(kind, extra){
+  var l = {id: rid(), kind: kind, name: KIND_INFO[kind].name, visible: true, locked: false, opacity: 1, c: {}};
+  if (kind === 'camera') l.c = {x: 0.5, y: 0.5, w: 1, h: 1, props: {fit: 'cover', mirror: false}};
+  else if (kind === 'screen') l.c = {x: 0.5, y: 0.5, w: 0.6, h: 0.6, props: {fit: 'contain'}};
+  else if (kind === 'background') l.c = {props: {color: '#0b1222'}};
+  else if (kind === 'text') l.c = {x: 0.5, y: 0.5, w: 0.5, h: 0.12, props: {text: 'Your text here'}};
+  else if (kind === 'rect') l.c = {x: 0.5, y: 0.5, w: 0.3, h: 0.2, radius: 0.015};
+  else if (kind === 'ellipse') l.c = {x: 0.5, y: 0.5, w: 0.15, h: 0.15 * 16 / 9};
+  else if (kind === 'image') l.c = {x: 0.5, y: 0.5, w: 0.25, file: ''};
+  else if (kind === 'video') l.c = {x: 0.5, y: 0.5, w: 0.5, file: '', loop: true};
+  else if (kind === 'pdf') l.c = {x: 0.5, y: 0.5, w: 0.6, file: ''};
+  if (extra) for (var k in extra) if (k === 'c') Object.assign(l.c, extra.c); else l[k] = extra[k];
+  return cleanLayer(l);
+}
+/* Built-in templates (the + Scene menu) */
+var TEMPLATES = [
+  {id: 'bible-study', name: 'Bible Study', layers: ['scripture', 'question']},
+  {id: 'scripture', name: 'Scripture', layers: ['scripture']},
+  {id: 'question', name: 'Question', layers: ['question']},
+  {id: 'question-scripture', name: 'Question + Scripture', layers: ['question', 'scripture']},
+  {id: 'birthday', name: 'Birthday', layers: ['birthday']},
+  {id: 'announcement', name: 'Announcement', layers: ['announcement']},
+  {id: 'prayer', name: 'Prayer Point', layers: ['prayer', 'scripture']},
+  {id: 'slides', name: 'Slides', layers: ['pdf']},
+  {id: 'media', name: 'Media', layers: ['video']},
+  {id: 'countdown', name: 'Countdown', layers: ['countdown']},
+  {id: 'zoom', name: 'Zoom Layout', layers: ['camera']},
+  {id: 'teams', name: 'Teams Layout', layers: ['camera']},
+  {id: 'blank', name: 'Blank', layers: []}];
+function mediaToComp(l){
+  var o = JSON.parse(JSON.stringify(l.c || {}));
+  delete o.vcam; delete o.obs;
+  o.id = l.id; o.name = l.name; o.type = l.kind; o.visible = l.visible; o.locked = l.locked; o.opacity = l.opacity;
+  return o;
+}
+function compToMedia(o){
+  var c = JSON.parse(JSON.stringify(o)), keep = {id: c.id, kind: c.type, name: c.name, visible: c.visible !== false, locked: !!c.locked, opacity: c.opacity == null ? 1 : c.opacity};
+  ['id', 'type', 'name', 'visible', 'locked', 'opacity', 'status'].forEach(function(k){ delete c[k]; });
+  keep.c = c;
+  return cleanLayer(keep);
+}
+function profileOf(st){ for (var i = 0; i < PROFILES.length; i++) if (PROFILES[i].id === st.profile) return PROFILES[i]; return PROFILES[1]; }
+function qLabel(st, idx){
+  var q = st.question, numbered = /\s\d+$/.test(q.label), base = q.label.replace(/\s+\d+$/, '');
+  return numbered && idx >= 0 ? base + ' ' + (idx + 1) : q.label;
+}
+var Scenes = {
+  CARD: CARD_KINDS, TEXT: TEXT_KINDS, MEDIA: MEDIA_KINDS, info: KIND_INFO, transitions: TX, txMs: TX_MS, profiles: PROFILES, templates: TEMPLATES,
+  positions: POS, textDefaults: TEXT_DEFAULTS, cleanLayer: cleanLayer, cleanScene: cleanScene, mediaToComp: mediaToComp, compToMedia: compToMedia,
+  isCard: function(k){ return CARD_KINDS.indexOf(k) >= 0; }, isText: function(k){ return TEXT_KINDS.indexOf(k) >= 0; },
+  isMedia: function(k){ return MEDIA_KINDS.indexOf(k) >= 0; },
+  normalizeInto: function(st, raw){
+    st.scenes = (Array.isArray(raw.scenes) ? raw.scenes : []).map(cleanScene).filter(Boolean).slice(0, 400);
+    var seen = {}; st.scenes = st.scenes.filter(function(sc){ if (seen[sc.id]) return false; return (seen[sc.id] = true); });
+    var l = isObj(raw.live) ? raw.live : {};
+    st.live = {scene: str(l.scene, 40), seq: Number(l.seq) || 0, at: Number(l.at) || 0, tx: TX_IDS.indexOf(l.tx) >= 0 ? l.tx : 'cut',
+      txMs: num(l.txMs, 0, 5000, 0), auto: l.auto !== false, blackout: !!l.blackout, emergency: !!l.emergency,
+      message: str(l.message === undefined ? DEFAULT_STATE.live.message : l.message, 300), on: {}, cd: {}};
+    if (isObj(l.on)) for (var k in l.on) if (l.on[k]) st.live.on[str(k, 40)] = true;
+    if (isObj(l.cd)) for (var j in l.cd) st.live.cd[str(j, 40)] = Number(l.cd[j]) || 0;
+    st.profile = PROFILES.some(function(p){ return p.id === raw.profile; }) ? raw.profile : 'bible-study';
+    st.v6 = !!raw.v6;
+  },
+  find: function(st, id){ for (var i = 0; i < st.scenes.length; i++) if (st.scenes[i].id === id) return st.scenes[i]; return null; },
+  layer: function(sc, id){ if (!sc) return null; for (var i = 0; i < sc.layers.length; i++) if (sc.layers[i].id === id) return sc.layers[i]; return null; },
+  first: function(sc, kind){ if (!sc) return null; for (var i = 0; i < sc.layers.length; i++) if (sc.layers[i].kind === kind) return sc.layers[i]; return null; },
+  liveScene: function(st){ return Scenes.find(st, st.live.scene); },
+  /* scenes you step through with Prev / Next (templates are not part of the running order) */
+  order: function(st){ return st.scenes.filter(function(sc){ return !sc.tpl; }); },
+  neighbour: function(st, id, d){
+    var o = Scenes.order(st), i = -1;
+    for (var k = 0; k < o.length; k++) if (o[k].id === id) i = k;
+    var j = i < 0 ? (d > 0 ? 0 : o.length - 1) : i + d;
+    return o[j] || null;
+  },
+  profile: profileOf,
+  transitionOf: function(st, sc, override){
+    if (override && TX_IDS.indexOf(override) >= 0) return {type: override, ms: override === 'cut' ? 0 : TX_MS[override]};
+    if (sc && sc.tx.type !== 'profile') return {type: sc.tx.type, ms: sc.tx.type === 'cut' ? 0 : sc.tx.ms};
+    var p = profileOf(st); return {type: p.type, ms: p.ms};
+  },
+  txName: function(id){ for (var i = 0; i < TX.length; i++) if (TX[i][0] === id) return TX[i][1]; return id; },
+  stamp: function(sc, who){ sc.modified = Date.now(); sc.version = (sc.version || 1) + 1; if (who) sc.creator = sc.creator || who; },
+  /* A new scene from a built-in template or another scene (opts.from = scene to copy, see duplicate) */
+  create: function(st, tplId, opts){
+    opts = opts || {};
+    var t = TEMPLATES.filter(function(x){ return x.id === tplId; })[0] || TEMPLATES[TEMPLATES.length - 1];
+    var now = Date.now();
+    var sc = cleanScene({id: rid('sc_'), name: opts.name || Scenes.uniqueName(st, t.name), group: opts.group || '', created: now, modified: now,
+      creator: opts.creator || '', template: t.id === 'blank' ? '' : t.name, tx: {type: 'profile', ms: 500}});
+    sc.layers = t.layers.map(function(k){ return newLayer(k); });
+    if (t.id === 'zoom' || t.id === 'teams') sc.layers[0].name = t.id === 'zoom' ? 'Zoom camera' : 'Teams camera';
+    Scenes.insert(st, sc, opts.after);
+    return sc;
+  },
+  insert: function(st, sc, afterId){
+    var i = -1; for (var k = 0; k < st.scenes.length; k++) if (st.scenes[k].id === afterId) i = k;
+    if (i < 0) st.scenes.push(sc); else st.scenes.splice(i + 1, 0, sc);
+  },
+  uniqueName: function(st, base){
+    var names = {}; st.scenes.forEach(function(s){ names[s.name.toLowerCase()] = 1; });
+    if (!names[base.toLowerCase()]) return base;
+    var m = /^(.*?)(\d+)$/.exec(base);                    // "Romans Day 5" -> "Romans Day 6"
+    if (m){ for (var n = +m[2] + 1; n < +m[2] + 500; n++) if (!names[(m[1] + n).toLowerCase()]) return m[1] + n; }
+    for (var c = 1; c < 500; c++){ var nm = base + (c === 1 ? ' copy' : ' copy ' + c); if (!names[nm.toLowerCase()]) return nm; }
+    return base + ' ' + rid('');
+  },
+  /* Smart duplication. opts: {name, group, layers, layout, branding, animations, transitions, outputs,
+   * content: 'keep' | 'empty' | 'only', template (save as template), variant (child of the source)} */
+  duplicate: function(st, id, opts){
+    opts = opts || {};
+    var src = Scenes.find(st, id); if (!src) return null;
+    var keep = function(k){ return opts[k] !== false; };
+    var sc = JSON.parse(JSON.stringify(src)), now = Date.now();
+    sc.id = rid('sc_'); sc.name = opts.name || Scenes.uniqueName(st, src.name);
+    sc.group = opts.group != null ? opts.group : src.group;
+    sc.fav = false; sc.tpl = !!opts.template; sc.created = now; sc.modified = now; sc.version = 1;
+    sc.creator = opts.creator || src.creator; sc.from = src.name; sc.template = src.tpl ? src.name : src.template;
+    sc.parent = opts.variant ? src.id : src.parent;
+    if (!keep('transitions')){ sc.tx = {type: 'profile', ms: 500}; sc.auto = {on: false, sec: 30}; }
+    if (!keep('outputs')){ sc.out = {vcam: true, obs: true}; sc.layers.forEach(function(l){ l.c.vcam = true; l.c.obs = true; }); }
+    if (!keep('layers')) sc.layers = [];
+    if (!keep('branding')) sc.layers = sc.layers.filter(function(l){ return !(l.kind === 'image' && /logo|brand|watermark/i.test(l.name)); });
+    sc.layers.forEach(function(l){
+      var fresh = newLayer(l.kind);
+      if (!keep('layout')){
+        ['x', 'y', 'w', 'h', 'rotation', 'radius', 'pos', 'scale'].forEach(function(k){ if (fresh.c[k] !== undefined) l.c[k] = fresh.c[k]; else delete l.c[k]; });
+      }
+      if (!keep('animations') && TEXT_KINDS.indexOf(l.kind) >= 0) l.c.anim = TEXT_DEFAULTS[l.kind].anim;
+      if (opts.content === 'empty'){
+        if (TEXT_KINDS.indexOf(l.kind) >= 0){ l.c.text = ''; if (l.kind === 'lowerthird') l.c.title = ''; }
+        if (CARD_KINDS.indexOf(l.kind) >= 0){ l.c.itemId = ''; if (l.kind === 'scripture'){ l.c.ref = ''; l.c.text = ''; l.c.version = ''; } }
+        if (['image', 'video', 'pdf'].indexOf(l.kind) >= 0) l.c.file = '';
+      }
+      if (opts.content === 'only'){                       // the words and files only; looks reset to the defaults
+        var keepC = {};
+        ['text', 'title', 'itemId', 'ref', 'version', 'file', 'minutes', 'until', 'mode', 'props', 'hwnd'].forEach(function(k){ if (l.c[k] !== undefined) keepC[k] = l.c[k]; });
+        l.c = Object.assign(fresh.c, keepC); l.opacity = 1; l.visible = true;
+      }
+    });
+    Scenes.insert(st, cleanScene(sc), src.id);
+    return Scenes.find(st, sc.id);
+  },
+  /* Explode a list into scenes: one scene per question (or verse), each pinned to its item, from this scene */
+  explode: function(st, id, kind){
+    var src = Scenes.find(st, id); if (!src) return [];
+    var lk = kind === 'verse' ? 'scripture' : 'question', items = st.library[kind === 'verse' ? 'verses' : 'questions'];
+    if (!Scenes.first(src, lk)) return [];
+    var made = [], after = src.id, group = src.group || src.name;
+    items.slice(0, 200).forEach(function(it, i){
+      var sc = Scenes.duplicate(st, src.id, {name: src.name + ' · ' + (kind === 'verse' ? (it.ref || 'Verse ' + (i + 1)) : 'Q' + (i + 1)), group: group, variant: true});
+      var l = Scenes.first(sc, lk); l.c.itemId = it.id;
+      if (lk === 'question' && it.pair){ var sl = Scenes.first(sc, 'scripture'); if (sl && !sl.c.itemId && !sl.c.text) sl.c.itemId = it.pair; }
+      st.scenes.splice(st.scenes.indexOf(sc), 1);
+      var at = -1; for (var k = 0; k < st.scenes.length; k++) if (st.scenes[k].id === after) at = k;
+      st.scenes.splice(at + 1, 0, sc); after = sc.id;
+      made.push(sc);
+    });
+    return made;
+  },
+  /* ---------- Live ---------- */
+  isLive: function(st, sceneId){ return !!sceneId && st.live.scene === sceneId; },
+  /* Is this layer on the program right now? (cards: the card itself; text: the live map; media: its visibility) */
+  layerOn: function(st, sc, l){
+    if (!sc || st.live.scene !== sc.id) return false;
+    if (l.kind === 'question') return st.question.visible && String(st.question.text).trim() !== '';
+    if (l.kind === 'scripture') return st.verse.visible && String(st.verse.text).trim() !== '';
+    if (l.kind === 'birthday') return st.birthday.visible && String(st.birthday.greeting).trim() !== '';
+    if (TEXT_KINDS.indexOf(l.kind) >= 0) return !!st.live.on[l.id];
+    return l.visible;
+  },
+  _loadQuestion: function(n, itemId){
+    var a = n.library.questions;
+    for (var i = 0; i < a.length; i++) if (a[i].id === itemId){
+      n.question.text = a[i].text; n.question.itemId = a[i].id; n.question.label = qLabel(n, i); return true;
+    }
+    return false;
+  },
+  _loadVerse: function(n, l){
+    if (l.c.itemId){
+      var a = n.library.verses;
+      for (var i = 0; i < a.length; i++) if (a[i].id === l.c.itemId){ n.verse.text = a[i].text; n.verse.ref = a[i].ref; n.verse.version = a[i].version; n.verse.itemId = a[i].id; return true; }
+    }
+    if (String(l.c.text || '').trim()){ n.verse.text = l.c.text; n.verse.ref = l.c.ref; n.verse.version = l.c.version; n.verse.itemId = ''; return true; }
+    return false;
+  },
+  _showCard: function(n, kind, cut){
+    var o = n[kind];
+    if (kind !== 'birthday') resolveTransition(n, kind, o.itemId);
+    o.visible = true; o.seq = (o.seq || 0) + 1;
+    if (cut) o.play = 'none';
+  },
+  /* Take a scene live: its layers decide what the cards show; its transition plays (override = the live bar's choice). */
+  take: function(n, id, override){
+    var sc = Scenes.find(n, id); if (!sc) return false;
+    var tx = Scenes.transitionOf(n, sc, override), cut = tx.type === 'cut';
+    var q = Scenes.first(sc, 'question'), v = Scenes.first(sc, 'scripture'), b = Scenes.first(sc, 'birthday');
+    var qOn = !!(q && q.visible), vOn = !!(v && v.visible);
+    var vcamOk = function(l){ return sc.out.vcam && (!l || l.c.vcam !== false); }, obsOk = function(l){ return sc.out.obs && (!l || l.c.obs !== false); };
+    // question
+    if (qOn && q.c.itemId) Scenes._loadQuestion(n, q.c.itemId);
+    if (qOn && String(n.question.text).trim()){
+      n.question.mode = vOn ? 'both' : 'question';
+      var it = Present.item(n); if (it && it.mode && it.mode !== n.question.mode) it.mode = n.question.mode;   // the scene decides
+      Scenes._showCard(n, 'question', cut);
+    } else n.question.visible = false;
+    // scripture
+    if (vOn){
+      var had = Scenes._loadVerse(n, v);
+      if (!had && qOn) Present._loadVerse(n);                 // the question's own verse (Excel: same row)
+      if (String(n.verse.text).trim()) Scenes._showCard(n, 'verse', cut); else n.verse.visible = false;
+    } else n.verse.visible = false;
+    // birthday
+    if (b && b.visible && String(n.birthday.greeting).trim()){ n.birthday.visible = true; n.birthday.seq = (n.birthday.seq || 0) + 1; }
+    else n.birthday.visible = false;
+    n.question.out = {vcam: vcamOk(q), obs: obsOk(q)}; n.verse.out = {vcam: vcamOk(v), obs: obsOk(v)}; n.birthday.out = {vcam: vcamOk(b), obs: obsOk(b)};
+    // text layers
+    n.live.on = {}; n.live.cd = {};
+    sc.layers.forEach(function(l){ if (TEXT_KINDS.indexOf(l.kind) >= 0 && l.visible){ n.live.on[l.id] = true; if (l.kind === 'countdown') n.live.cd[l.id] = Date.now(); } });
+    n.live.scene = sc.id; n.live.seq = (n.live.seq || 0) + 1; n.live.at = Date.now(); n.live.tx = tx.type; n.live.txMs = tx.ms;
+    return true;
+  },
+  /* Hide every layer (cards and text layers); the scene stays live. Media layers stay (they are the picture). */
+  hideAll: function(n){ n.verse.visible = false; n.question.visible = false; n.birthday.visible = false; n.live.on = {}; },
+  /* Show / hide one layer on the program (live scene only). Used by Hide selected and the live layer eyes. */
+  setOn: function(n, sceneId, layerId, on){
+    var sc = Scenes.find(n, sceneId), l = Scenes.layer(sc, layerId); if (!l || n.live.scene !== sceneId) return;
+    if (l.kind === 'question'){
+      if (on){ if (l.c.itemId) Scenes._loadQuestion(n, l.c.itemId); if (String(n.question.text).trim()) Scenes._showCard(n, 'question'); }
+      else n.question.visible = false;
+    } else if (l.kind === 'scripture'){
+      if (on){ var had = Scenes._loadVerse(n, l); if (!had && !String(n.verse.text).trim()) Present._loadVerse(n); if (String(n.verse.text).trim()) Scenes._showCard(n, 'verse'); }
+      else n.verse.visible = false;
+      var qv = n.question.visible; if (qv) n.question.mode = on ? 'both' : 'question';
+    } else if (l.kind === 'birthday'){
+      if (on && String(n.birthday.greeting).trim()){ n.birthday.visible = true; n.birthday.seq = (n.birthday.seq || 0) + 1; } else n.birthday.visible = false;
+    } else if (TEXT_KINDS.indexOf(l.kind) >= 0){
+      if (on){ n.live.on[l.id] = true; if (l.kind === 'countdown' && !n.live.cd[l.id]) n.live.cd[l.id] = Date.now(); } else delete n.live.on[l.id];
+    } else l.visible = !!on;
+  },
+  /* The layer's eye: its visibility in the scene; on the live scene the program follows at once */
+  toggleVisible: function(n, sceneId, layerId){
+    var sc = Scenes.find(n, sceneId), l = Scenes.layer(sc, layerId); if (!l) return;
+    var on = n.live.scene === sceneId ? !Scenes.layerOn(n, sc, l) : !l.visible;
+    l.visible = on;
+    if (n.live.scene === sceneId) Scenes.setOn(n, sceneId, layerId, on);
+  },
+  /* What the program would show if this scene were taken live now (canvas preview of another scene) */
+  previewState: function(st, id){
+    var n = JSON.parse(JSON.stringify(st));
+    if (!Scenes.take(n, id, 'cut')) return n;
+    ['question', 'verse'].forEach(function(k){ n[k].play = 'none'; });
+    n.live.blackout = false; n.live.emergency = false;
+    return n;
+  },
+  /* Text layers on the program (for the overlay pages and BCC vCam) */
+  liveText: function(st, output){
+    var sc = Scenes.liveScene(st); if (!sc) return [];
+    if (output && sc.out[output] === false) return [];
+    return sc.layers.filter(function(l){ return TEXT_KINDS.indexOf(l.kind) >= 0 && st.live.on[l.id] && (!output || l.c[output] !== false) &&
+      (l.kind === 'countdown' || String(l.c.text || '').trim() !== '' || String(l.c.title || '').trim() !== ''); });   // an empty layer shows nothing
+  },
+  countdown: function(st, l, now){
+    now = now || Date.now();
+    var end;
+    if (l.c.mode === 'until'){
+      var m = /^(\d{1,2}):(\d{2})$/.exec(String(l.c.until || '').trim()), d = new Date(now);
+      if (!m) return l.c.text;
+      d.setHours(+m[1], +m[2], 0, 0); end = d.getTime();
+    } else end = (st.live.cd[l.id] || now) + l.c.minutes * 60000;
+    var left = Math.ceil((end - now) / 1000);
+    if (left <= 0) return l.c.text || '0:00';
+    var h = Math.floor(left / 3600), mm = Math.floor(left % 3600 / 60), ss = left % 60;
+    return (h ? h + ':' + String(mm).padStart(2, '0') : mm) + ':' + String(ss).padStart(2, '0');
+  },
+  /* First run of v6: the content you already have becomes scenes (nothing is lost). media = the BCC vCam layers
+   * now on the picture (they go into every scene, so the picture looks the same), studioScenes = saved Studio scenes. */
+  migrate: function(n, media, studioScenes, who){
+    if (n.v6) return false;
+    n.v6 = true;
+    if (n.scenes.length) return true;
+    var now = Date.now(), m = (media || []).map(compToMedia).filter(Boolean).reverse();
+    function make(name, kinds, extra){
+      var sc = cleanScene({id: rid('sc_'), name: name, created: now, modified: now, creator: who || '', template: name, layers: []});
+      sc.layers = kinds.map(function(k){ return newLayer(k); }).concat(JSON.parse(JSON.stringify(extra || m)));
+      n.scenes.push(sc); return sc;
+    }
+    make('Bible Study', ['scripture', 'question']);
+    make('Birthday', ['birthday']);
+    (studioScenes || []).forEach(function(s){
+      var lay = (s.layers || []).map(compToMedia).filter(Boolean).reverse();
+      var sc = make(s.name || 'Studio scene', ['scripture', 'question'], lay); sc.from = 'Studio scene'; sc.template = '';
+    });
+    return true;
+  }
+};
+
 function normalize(s){
   var st = merge(DEFAULT_STATE, s);
   st.rev = Number(st.rev) || 0;
@@ -236,6 +621,11 @@ function normalize(s){
   L.qWidth = clamp(L.qWidth, 50, 94, 84);
   L.qScale = clamp(L.qScale, .6, 1.6, 1);
   L.panel = clamp(L.panel, 50, 100, 92);
+  ['question', 'verse', 'birthday'].forEach(function(k){            // v6: which outputs show this card
+    var o = isObj(s) && isObj(s[k]) && isObj(s[k].out) ? s[k].out : {};
+    st[k].out = {vcam: o.vcam !== false, obs: o.obs !== false};
+  });
+  Scenes.normalizeInto(st, isObj(s) ? s : {});
   return st;
 }
 
@@ -416,4 +806,5 @@ window.BSFStore = Store;
 window.BSFTransitions = {list: TRANSITIONS, names: TRANSITION_NAMES, defaultPool: DEFAULT_POOL,
   resolve: resolveTransition, describe: describeTransition, preference: preference};
 window.BSFPresent = Present;
+window.BSFScenes = Scenes;
 })();

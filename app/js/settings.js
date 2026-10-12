@@ -22,6 +22,8 @@ function showSection(id){
   try { localStorage.setItem(SEC_KEY, id); } catch(e){}
   if (id === 'diag') renderDiag();
   if (id === 'security') renderSecurity();
+  if (id === 'recording' && window.BSFLoadRecordings) window.BSFLoadRecordings();
+  (window.BSFSectionHooks || []).forEach(function(f){ try { f(id); } catch(e){} });     // v6: Scripture, Transitions
 }
 window.BSFShowSection = showSection;
 $('s-nav').addEventListener('click', function(e){ var b = e.target.closest('[data-sec]'); if (b) showSection(b.dataset.sec); });

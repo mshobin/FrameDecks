@@ -355,7 +355,7 @@ function render(d){
     }})]));
   }
   // top bar + settings nav
-  var chipLook = {live: ['ok', 'In use'], preview: ['info', 'Preview'], ready: ['info', 'Ready'], starting: ['info', 'Starting'], error: ['warn', 'Problem'], off: ['', 'Off']}[key] || ['info', 'Ready'];
+  var chipLook = {live: ['ok', 'In a meeting'], preview: ['info', 'Preview'], ready: ['info', 'Ready'], starting: ['info', 'Starting'], error: ['warn', 'Problem'], off: ['', 'Off']}[key] || ['info', 'Ready'];
   chip(chipLook[0], d.registered ? chipLook[1] : 'Not installed', look[2] || msg.textContent);
   if (!d.registered) chip('warn', 'Not installed', 'Settings → BCC vCam → Install');
   dot(key === 'live' ? 'ok' : key === 'error' || !d.registered ? 'warn' : s.enabled ? 'info' : '');

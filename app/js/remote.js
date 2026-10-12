@@ -1,47 +1,28 @@
-/* BSF Command Center - BCC Mobile Director: the phone / tablet remote (touch-first). Controls the overlays only;
- * member data is never available here. v5.1 redesign - the same actions, PIN, APIs and state as before:
- *   phones  : one job per tab (Live · Run sheet · Scenes · Preview · All), thumb-reachable at the bottom;
- *             Live = what is on screen + quick show/hide + the big Prev / Show / Next for one target
- *   tablets : a control surface - the run sheet on the left, everything live on the right
- *   layouts : Presenter · Leader · Producer · Admin choose what this device shows (not a permission)
- * Cards are only shown/hidden, never rebuilt, so nothing is lost when you move between screens. */
+/* BSF Command Center v6 - BCC Mobile Director: the phone / tablet remote. Same architecture as the PC:
+ * Scene → Layer → Canvas. The scenes, layers and live state are the shared state (js/store.js BSFScenes), so a
+ * take, a layer's eye or a duplicate here is exactly the same action as on the PC. Member data never comes here.
+ *   phones  : Live (canvas, Prev · Take live · Next, transition, Q + Scripture, list stepper, program) · Scenes · Layers
+ *   tablets : three panes - Scenes | Canvas + live controls | Layers - a control surface
+ *   layouts : Presenter · Leader · Producer/Admin choose what this device shows (not a permission) */
 (function(){
 'use strict';
-var Store = window.BSFStore;
+var Store = window.BSFStore, SC = window.BSFScenes, P = window.BSFPresent, T = window.BSFTransitions;
 var $ = function(id){ return document.getElementById(id); };
-var live = null, listKind = 'question';
-var P = window.BSFPresent;            /* Question · Both · Verse - the same logic as the PC (js/store.js) */
-var NAMES = {verse: 'Verse', question: 'Question', birthday: 'Birthday'};
 var all = function(sel){ return Array.prototype.slice.call(document.querySelectorAll(sel)); };
-
+var live = null, selScene = '', selLayer = '';
 function h(tag, cls, text){ var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
-function setText(el, text){ if (el && el.textContent !== text) el.textContent = text; }   // no DOM write if unchanged
+function setText(el, text){ if (el && el.textContent !== text) el.textContent = text; }
 var toastT;
-function toast(msg, bad){
-  var t = $('toast'); t.textContent = msg; t.className = 'toast show' + (bad ? ' bad' : '');
-  clearTimeout(toastT); toastT = setTimeout(function(){ t.className = 'toast'; }, bad ? 3500 : 1500);
-}
-/* A short vibration confirms a press on Android phones (iPhones ignore this) */
+function toast(msg, bad){ var t = $('toast'); t.textContent = msg; t.className = 'toast show' + (bad ? ' bad' : ''); clearTimeout(toastT); toastT = setTimeout(function(){ t.className = 'toast'; }, bad ? 3500 : 1500); }
+/* A short vibration confirms a press on Android phones (iPhone Safari does not allow it) */
 function buzz(ms){ try { if (navigator.vibrate) navigator.vibrate(ms); } catch(e){} }
-
-/* Credit and independence note (text from js/brand.js) */
-if (window.BSFBrand){
-  all('[data-credit]').forEach(function(p){
-    p.textContent = 'By ' + BSFBrand.creator.name + ' · ' + BSFBrand.creator.email + '. An independent tool, not affiliated with or endorsed by Bible Study Fellowship International.';
-  });
-}
+if (window.BSFBrand) all('[data-credit]').forEach(function(p){ p.textContent = 'By ' + BSFBrand.creator.name + ' · ' + BSFBrand.creator.email + '. An independent tool, not affiliated with or endorsed by Bible Study Fellowship International.'; });
+function lsGet(k, d){ try { var v = localStorage.getItem(k); return v === null ? d : v; } catch(e){ return d; } }
+function lsSet(k, v){ try { localStorage.setItem(k, v); } catch(e){} }
 
 /* ---------- Sign in ---------- */
-function showLogin(msg){
-  $('app').hidden = true; $('login').hidden = false;
-  $('login-msg').textContent = msg || '';
-  setTimeout(function(){ $('pin').focus(); }, 50);
-}
-function showApp(){
-  var was = $('app').hidden; $('login').hidden = true; $('app').hidden = false;
-  if (was){ setTab(curTab(), {replace: true}); pollStudio();
-    if (tablet.matches && role().preview && !card('preview').classList.contains('open')) setOpen('preview', true); }   // tablets: preview on by default
-}
+function showLogin(msg){ $('app').hidden = true; $('login').hidden = false; $('login-msg').textContent = msg || ''; setTimeout(function(){ $('pin').focus(); }, 50); }
+function showApp(){ var was = $('app').hidden; $('login').hidden = true; $('app').hidden = false; if (was){ setTab(curTab(), true); pollStudio(); } }
 $('login-form').addEventListener('submit', function(e){
   e.preventDefault();
   var pin = $('pin').value.replace(/\D/g, '');
@@ -58,418 +39,282 @@ $('login-form').addEventListener('submit', function(e){
 });
 $('dash-logout').addEventListener('click', function(){ $('logout').click(); });
 $('logout').addEventListener('click', function(){
-  fetch('api/remote-logout', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: '{}'})
-    .finally(function(){ showLogin('Disconnected. Enter the PIN to connect again.'); });
+  fetch('api/remote-logout', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: '{}'}).finally(function(){ showLogin('Disconnected. Enter the PIN to connect again.'); });
 });
 Store.onAuthFailed = function(){ if ($('login').hidden) showLogin('Please enter the PIN again.'); };
 
-/* ---------- Actions (same terms as the PC) ---------- */
+/* ---------- Actions (the same helpers as the PC) ---------- */
 function update(fn, done){
-  if (!Store.online){ toast('Not connected to the PC. Try again in a moment.', true); return; }
-  Store.update(fn).then(function(){ if (done) toast('✓ ' + done); }).catch(function(e){
-    if (e && e.auth) showLogin('Please enter the PIN again.');
-    else toast('Couldn’t reach your PC. Check the Wi-Fi.', true);
+  if (!Store.online){ toast('Not connected to the PC. Try again in a moment.', true); return Promise.resolve(); }
+  return Store.update(fn).then(function(){ if (done) toast('✓ ' + done); }).catch(function(e){
+    if (e && e.auth) showLogin('Please enter the PIN again.'); else toast('Couldn’t reach your PC. Check the Wi-Fi.', true);
   });
 }
+var tapAt = {};
+function guard(key, fn){ return function(e){ var now = Date.now(); if (now - (tapAt[key] || 0) < 600) return; tapAt[key] = now; buzz(12); fn(e); }; }   // a double tap never acts twice
+function txOverride(){ return $('tx').value || null; }
+function take(id){
+  var sc = SC.find(live, id); if (!sc) return;
+  update(function(n){ SC.take(n, id, txOverride()); }, sc.name + ' is live');
+  selScene = id;
+}
+function stepScene(d){
+  var nx = SC.neighbour(live, live.live.scene || selScene, d);
+  if (!nx){ toast(d > 0 ? 'That’s the last scene.' : 'That’s the first scene.'); return; }
+  take(nx.id);
+}
+/* Step the list (question / verse): show the next item, as on the PC */
 function library(k){ return k === 'verse' ? live.library.verses : live.library.questions; }
 function currentIndex(k){ var l = library(k), id = live[k].itemId; for (var i = 0; i < l.length; i++) if (l[i].id === id) return i; return -1; }
-function questionLabel(q, idx){
-  var numbered = /\s\d+$/.test(q.label), base = q.label.replace(/\s+\d+$/, '');
-  return numbered && idx >= 0 ? base + ' ' + (idx + 1) : q.label;
-}
+function qLabel(q, idx){ var numbered = /\s\d+$/.test(q.label), base = q.label.replace(/\s+\d+$/, ''); return numbered && idx >= 0 ? base + ' ' + (idx + 1) : q.label; }
 function showItem(k, idx){
   var it = library(k)[idx]; if (!it) return;
   update(function(n){
-    var o = n[k];
-    o.text = it.text; o.itemId = it.id; o.visible = true; o.seq = (o.seq || 0) + 1;
-    if (k === 'verse'){ o.ref = it.ref; o.version = it.version; }
-    else o.label = questionLabel(o, idx);
-    window.BSFTransitions.resolve(n, k, it.id);
+    var o = n[k]; o.text = it.text; o.itemId = it.id; o.visible = true; o.seq = (o.seq || 0) + 1;
+    if (k === 'verse'){ o.ref = it.ref; o.version = it.version; } else o.label = qLabel(o, idx);
+    T.resolve(n, k, it.id);
     if (k === 'question') P.afterShow(n);
-  }, NAMES[k] + ' ' + (idx + 1) + ' on screen');
+  }, (k === 'verse' ? 'Verse ' : 'Question ') + (idx + 1));
 }
-function has(k){ var o = live[k]; return (k === 'birthday' ? o.greeting : o.text).trim() !== ''; }
-function isOn(k){ return k === 'question' ? P.live(live) : live[k].visible && has(k); }
-function act(what, k){
-  if (!live) return;
-  if (what === 'toggle'){
-    if (isOn(k)){ update(function(n){ if (k === 'question') P.hide(n); else n[k].visible = false; }, NAMES[k] + ' hidden'); return; }
-    if (!has(k)){ toast(k === 'birthday' ? 'Choose who to celebrate on the PC first.' : 'Nothing loaded. Use Next or the list.', true); return; }
-    update(function(n){ if (k !== 'birthday') window.BSFTransitions.resolve(n, k, n[k].itemId); n[k].visible = true; n[k].seq = (n[k].seq || 0) + 1;
-      if (k === 'question') P.afterShow(n); }, NAMES[k] + ' on screen');
-  } else if (what === 'clear'){
+function stepList(d){
+  var k = stepKind(); if (!k) return;
+  var l = library(k); if (!l.length){ toast('The list is empty. Add items on the PC.', true); return; }
+  var i = currentIndex(k), j = i < 0 ? (d > 0 ? 0 : l.length - 1) : i + d;
+  if (j < 0){ toast('That’s the first one.'); return; } if (j >= l.length){ toast('That’s the last one.'); return; }
+  showItem(k, j);
+}
+function stepKind(){
+  var ls = SC.liveScene(live), sl = ls && SC.layer(ls, selLayer);
+  if (sl && (sl.kind === 'question' || sl.kind === 'scripture')) return sl.kind === 'question' ? 'question' : 'verse';
+  if (ls && SC.first(ls, 'question')) return 'question';
+  if (ls && SC.first(ls, 'scripture')) return 'verse';
+  return null;
+}
+
+/* ---------- controls ---------- */
+$('take').addEventListener('click', guard('take', function(){
+  var id = selScene && SC.find(live, selScene) ? selScene : (SC.neighbour(live, live.live.scene, 1) || {}).id;
+  if (!id){ toast('Choose a scene in Scenes first.', true); return; }
+  take(id);
+}));
+$('prev').addEventListener('click', guard('prev', function(){ stepScene(-1); }));
+$('next').addEventListener('click', guard('next', function(){ stepScene(1); }));
+$('st-prev').addEventListener('click', guard('sp', function(){ stepList(-1); }));
+$('st-next').addEventListener('click', guard('sn', function(){ stepList(1); }));
+$('hide-all').addEventListener('click', function(){ buzz(25); update(function(n){ SC.hideAll(n); }, 'Everything hidden'); });
+$('auto').addEventListener('click', guard('auto', function(){ update(function(n){ n.live.auto = !n.live.auto; }); }));
+$('blackout').addEventListener('click', guard('bk', function(){ update(function(n){ n.live.blackout = !n.live.blackout; }, live.live.blackout ? 'Blackout off' : 'Blackout'); }));
+$('emergency').addEventListener('click', guard('em', function(){ update(function(n){ n.live.emergency = !n.live.emergency; }, live.live.emergency ? 'Emergency screen off' : 'Emergency screen on'); }));
+$('hide-layer').addEventListener('click', guard('hl', function(){
+  var ls = SC.liveScene(live), l = ls && SC.layer(ls, selLayer);
+  if (!l || !SC.layerOn(live, ls, l)){ toast('Select a layer that is on screen (Layers).', true); return; }
+  update(function(n){ SC.setOn(n, ls.id, l.id, false); }, l.name + ' hidden');
+}));
+/* Question + Scripture: one toggle for the live scene's two cards */
+all('[data-qs]').forEach(function(b){
+  b.addEventListener('click', guard('qs', function(){
+    var ls = SC.liveScene(live), q = ls && SC.first(ls, 'question'), v = ls && SC.first(ls, 'scripture'); if (!ls) return;
+    var m = b.dataset.qs;
     update(function(n){
-      var x = n[k]; x.visible = false; x.cut = (x.cut || 0) + 1;
-      if (k !== 'birthday'){ x.text = ''; x.itemId = ''; if (k === 'verse'){ x.ref = ''; x.version = ''; } }
-    }, NAMES[k] + ' cleared');
-  } else if (what === 'next' || what === 'prev'){
-    var l = library(k); if (!l.length){ toast('The list is empty. Add items on the PC.', true); return; }
-    var i = currentIndex(k), d = what === 'next' ? 1 : -1;
-    var j = i < 0 ? (d > 0 ? 0 : l.length - 1) : i + d;
-    if (j < 0){ toast('That’s the first one.'); return; }
-    if (j >= l.length){ toast('That’s the last one.'); return; }
-    showItem(k, j);
-  }
-}
-
-/* Taps: ignore repeats within 0.6 s so a double tap never skips two questions */
-var lastTap = {};
-document.addEventListener('click', function(e){
-  var b = e.target.closest('[data-do]'); if (!b || b.disabled) return;
-  var key = b.dataset.do + b.dataset.k, now = Date.now();
-  if (now - (lastTap[key] || 0) < 600) return;
-  lastTap[key] = now;
-  b.classList.add('sent'); setTimeout(function(){ b.classList.remove('sent'); }, 400);
-  buzz(12);
-  act(b.dataset.do, b.dataset.k);
+      var sc = SC.find(n, ls.id);
+      if (q){ SC.setOn(n, ls.id, q.id, m !== 'verse'); SC.layer(sc, q.id).visible = m !== 'verse'; }
+      if (v){ SC.setOn(n, ls.id, v.id, m !== 'question'); SC.layer(sc, v.id).visible = m !== 'question'; }
+      if (q && v) n.question.mode = m === 'both' ? 'both' : 'question';
+    }, {question: 'Question only', both: 'Question + scripture', verse: 'Scripture only'}[m]);
+  }));
 });
+var txSel = $('tx');
+txSel.appendChild(h('option', null, 'Scene default')); txSel.firstChild.value = '';
+SC.transitions.forEach(function(t){ var o = h('option', null, t[1]); o.value = t[0]; txSel.appendChild(o); });
 
-/* Presentation mode (above Show): Question · Both · Verse. On screen, the picture follows at once. */
-all('[data-pmode]').forEach(function(b){
-  b.addEventListener('click', function(){
-    if (!live || b.getAttribute('aria-checked') === 'true') return;
-    buzz(10);
-    var m = b.dataset.pmode;
-    update(function(n){ P.setMode(n, m); }, {question: 'Question only', both: 'Question + verse', verse: 'Verse only'}[m]);
+/* ---------- Scenes ---------- */
+var sceneSig = '';
+function renderScenes(){
+  var ol = $('slist'), next = live.live.scene ? SC.neighbour(live, live.live.scene, 1) : null, list = SC.order(live);
+  var sig = JSON.stringify([list.map(function(s){ return [s.id, s.name, s.group, s.layers.length, s.tx.type]; }), live.live.scene, selScene, next && next.id]);
+  if (sig === sceneSig) return; sceneSig = sig;
+  ol.innerHTML = '';
+  if (!list.length){ ol.appendChild(h('li', 'empty', 'No scenes yet. Create them on the PC (Studio → + Scene).')); return; }
+  var lastGroup = null;
+  list.forEach(function(sc, i){
+    if (sc.group !== lastGroup && sc.group){ ol.appendChild(h('li', 'sg', sc.group)); }
+    lastGroup = sc.group;
+    var isLive = live.live.scene === sc.id, isNext = next && next.id === sc.id;
+    var li = h('li', 'srow' + (isLive ? ' live' : '') + (sc.id === selScene ? ' sel' : '') + (isNext ? ' nx' : ''));
+    var b = h('button', 'sbtn'); b.type = 'button';
+    b.appendChild(h('span', 'n', String(i + 1)));
+    var t = h('span', 't'); t.appendChild(h('b', null, sc.name)); t.appendChild(h('small', null, sc.layers.length + (sc.layers.length === 1 ? ' layer · ' : ' layers · ') + (sc.tx.type === 'profile' ? SC.profile(live).name : SC.txName(sc.tx.type))));
+    b.appendChild(t);
+    b.appendChild(h('span', 'tag', isLive ? 'LIVE' : isNext ? 'NEXT' : ''));
+    b.addEventListener('click', function(){ buzz(8); selScene = sc.id; sceneSig = ''; render(); });
+    var go = h('button', 'sgo', isLive ? '↻' : '▶'); go.type = 'button'; go.setAttribute('aria-label', 'Take ' + sc.name + ' live');
+    go.addEventListener('click', guard('go' + sc.id, function(){ take(sc.id); }));
+    var more = h('button', 'smore', '⋯'); more.type = 'button'; more.setAttribute('aria-label', 'More for ' + sc.name);
+    more.addEventListener('click', function(){ buzz(8); actions(sc); });
+    li.appendChild(b); li.appendChild(go); li.appendChild(more);
+    ol.appendChild(li);
   });
-});
-
-/* Clear needs a press-and-hold (0.8 s) so it can't happen by accident */
-all('.hold').forEach(function(b){
-  var t = null;
-  function start(e){ e.preventDefault(); if (b.disabled) return; b.classList.add('holding'); t = setTimeout(function(){ b.classList.remove('holding'); t = null; buzz(40); act('clear', b.dataset.k); }, 800); }
-  function stop(){ if (t){ clearTimeout(t); t = null; b.classList.remove('holding'); toast('Keep holding to clear'); } }
-  b.addEventListener('pointerdown', start); b.addEventListener('pointerup', stop); b.addEventListener('pointerleave', stop); b.addEventListener('pointercancel', stop);
-  b.addEventListener('contextmenu', function(e){ e.preventDefault(); });
-});
-$('hide-all').addEventListener('click', function(){
-  buzz(25);
-  update(function(n){ n.verse.visible = false; n.question.visible = false; n.birthday.visible = false; }, 'Everything hidden');
-});
-
-/* ---------- Details on demand: ▼ opens one card's details, ▲ closes them (no other card changes) ---------- */
-var CARD = {question: '.card.q', verse: '.card.v', birthday: '.card.b', slides: '.card.sl', scenes: '.card.sc', preview: '.card.p'};
-function card(k){ return document.querySelector(CARD[k]); }
-function setOpen(k, open){
-  var c = card(k); if (!c) return;
-  var b = c.querySelector('.exp'), d = c.querySelector('.detail');
-  if (!b || !d) return;
-  c.classList.toggle('open', open); d.hidden = !open; b.setAttribute('aria-expanded', String(open));
-  if (k === 'preview'){
-    var xl = b.querySelector('.xl'); if (xl) xl.textContent = open ? 'Hide preview' : 'Show preview';
-    // The live preview runs only while it is open (saves the phone's battery and the PC's work)
-    $('frame').src = open ? 'stage.html?bg=preview&preview=1' : 'about:blank';
-    if (open) scalePreview();
-  } else if (open) render();
 }
-Object.keys(CARD).forEach(function(k){
-  var c = card(k), b = c && c.querySelector('.exp');
-  if (b) b.addEventListener('click', function(){ buzz(8); setOpen(k, !c.classList.contains('open')); });
-});
-function scalePreview(){ var box = $('preview'); if (box.clientWidth) $('frame').style.transform = 'scale(' + (box.clientWidth / 1920) + ')'; }
-window.addEventListener('resize', scalePreview);
-if (window.ResizeObserver) new ResizeObserver(scalePreview).observe($('preview'));
+/* Scene actions sheet: duplicate, variant */
+function actions(sc){
+  var back = h('div', 'sheet'), card = h('div', 'sheet-card'); card.setAttribute('role', 'dialog');
+  var head = h('div', 'sheet-head'); head.appendChild(h('h2', null, sc.name)); var close = h('button', 'tool', 'Close'); close.type = 'button'; head.appendChild(close); card.appendChild(head);
+  [['Take live', function(){ take(sc.id); }], ['Duplicate', function(){ var made; update(function(n){ made = SC.duplicate(n, sc.id, {}); }, 'Scene duplicated').then(function(){ if (made){ selScene = made.id; render(); } }); }],
+   ['Duplicate layer structure only', function(){ update(function(n){ SC.duplicate(n, sc.id, {content: 'empty'}); }, 'Scene duplicated (empty)'); }],
+   ['Create variant', function(){ update(function(n){ SC.duplicate(n, sc.id, {variant: true, name: SC.uniqueName(n, sc.name + ' variant')}); }, 'Variant created'); }]].forEach(function(a){
+    var b = h('button', 'roles-btn', a[0]); b.type = 'button'; b.addEventListener('click', function(){ back.remove(); buzz(10); a[1](); }); card.appendChild(b);
+  });
+  close.addEventListener('click', function(){ back.remove(); }); back.addEventListener('click', function(e){ if (e.target === back) back.remove(); });
+  back.appendChild(card); $('app').appendChild(back);
+}
 
-/* ---------- Studio from the remote: switch scene, next / previous slide ---------- */
-var studioInfo = null, slideBusy = false, sceneBusy = 0;
+/* ---------- Layers of the live scene (or the chosen scene when nothing is live) ---------- */
+var layerSig = '';
+function renderLayers(){
+  var sc = SC.liveScene(live) || SC.find(live, selScene), ol = $('llist');
+  setText($('ly-of'), sc ? sc.name + (SC.isLive(live, sc.id) ? ' · live' : '') : '');
+  var sig = JSON.stringify([sc, selLayer, live.live.on, live.question.visible, live.verse.visible, live.birthday.visible, live.live.scene]);
+  if (sig === layerSig) return; layerSig = sig;
+  ol.innerHTML = '';
+  if (!sc){ ol.appendChild(h('li', 'empty', 'No scene yet.')); return; }
+  sc.layers.forEach(function(l){
+    var on = SC.isLive(live, sc.id) ? SC.layerOn(live, sc, l) : l.visible;
+    var li = h('li', 'lrow' + (on ? ' on' : '') + (l.id === selLayer ? ' sel' : '') + (SC.isMedia(l.kind) ? ' media' : ''));
+    var b = h('button', 'lbtn'); b.type = 'button';
+    var t = h('span', 't'); t.appendChild(h('b', null, l.name)); t.appendChild(h('small', null, SC.info[l.kind].name + (on && SC.isLive(live, sc.id) ? ' · on screen' : '')));
+    b.appendChild(t);
+    b.addEventListener('click', function(){ buzz(8); selLayer = l.id; layerSig = ''; render(); });
+    var eye = h('button', 'eye' + (on ? ' on' : ''), on ? 'ON' : 'OFF'); eye.type = 'button'; eye.setAttribute('aria-label', (on ? 'Hide ' : 'Show ') + l.name);
+    eye.addEventListener('click', guard('eye' + l.id, function(){ update(function(n){ SC.toggleVisible(n, sc.id, l.id); }); }));
+    li.appendChild(b); li.appendChild(eye); ol.appendChild(li);
+  });
+}
+
+/* ---------- Canvas: the live picture, and (tablets) the next scene ---------- */
+var tablet = window.matchMedia ? window.matchMedia('(min-width: 900px)') : {matches: false};
+function canvasOn(){ return !$('app').hidden && !document.hidden && (tablet.matches || curTab() === 'live'); }
+function setFrame(f, src){ if (f.dataset.src !== src){ f.dataset.src = src; f.src = src; } }
+function renderCanvas(){
+  setFrame($('frame'), canvasOn() ? 'stage.html?bg=preview&preview=1' : 'about:blank');
+  var nx = live.live.scene ? SC.neighbour(live, live.live.scene, 1) : null;
+  var showNext = tablet.matches && nx && canvasOn();
+  $('next-pv').hidden = !showNext;
+  setText($('np-name'), nx ? nx.name : '');
+  setFrame($('frame-next'), showNext ? 'stage.html?bg=preview&preview=1&scene=' + encodeURIComponent(nx.id) : 'about:blank');
+  scale();
+}
+function scale(){ [['canvas', 'frame'], ['canvas-next', 'frame-next']].forEach(function(p){ var box = $(p[0]); if (box && box.clientWidth) $(p[1]).style.transform = 'scale(' + (box.clientWidth / 1920) + ')'; }); }
+window.addEventListener('resize', scale);
+if (window.ResizeObserver) new ResizeObserver(scale).observe($('canvas'));
+
+/* ---------- Render ---------- */
+function render(){
+  if (!live) return;
+  var ls = SC.liveScene(live), L = live.live;
+  if (selScene && !SC.find(live, selScene)) selScene = '';
+  if (ls && selLayer && !SC.layer(ls, selLayer)) selLayer = '';
+  var anyOn = live.question.visible || live.verse.visible || live.birthday.visible || SC.liveText(live).length > 0;
+  var oa = $('onair'), oc = 'onair' + (L.blackout || L.emergency ? ' bad' : anyOn ? ' on' : '');
+  if (oa.className !== oc) oa.className = oc;
+  setText(oa.querySelector('b'), L.blackout ? 'BLACKOUT' : L.emergency ? 'EMERGENCY' : anyOn ? 'ON AIR' : 'OFF AIR');
+  setText($('now-name'), ls ? ls.name : 'Nothing live yet');
+  var tx = ls ? SC.transitionOf(live, ls) : null;
+  setText($('now-meta'), ls ? SC.txName(L.tx) + (L.txMs ? ' ' + L.txMs + ' ms' : '') : '');
+  var bits = [];
+  if (live.question.visible && live.question.text.trim()) bits.push('Question: ' + live.question.text.trim().slice(0, 60));
+  if (live.verse.visible && live.verse.text.trim()) bits.push((live.verse.ref || 'Scripture') + (live.verse.version ? ' (' + live.verse.version + ')' : ''));
+  if (live.birthday.visible) bits.push('Birthday: ' + (live.birthday.name || ''));
+  SC.liveText(live).forEach(function(l){ bits.push(l.name); });
+  setText($('now-sub'), bits.join(' · ') || (ls ? 'Nothing on screen in this scene' : 'Choose a scene, then Take live'));
+  $('now').classList.toggle('on', anyOn);
+  // take button: the chosen scene (else the next one)
+  var target = selScene && SC.find(live, selScene) ? SC.find(live, selScene) : (L.scene ? SC.neighbour(live, L.scene, 1) : SC.order(live)[0]);
+  setText($('take-what'), target ? target.name : '');
+  setText($('take').querySelector('.tl'), target && SC.isLive(live, target.id) ? 'TAKE AGAIN' : 'TAKE LIVE');
+  $('take').disabled = !target;
+  $('auto').setAttribute('aria-pressed', String(L.auto));
+  $('blackout').setAttribute('aria-pressed', String(L.blackout)); $('blackout').classList.toggle('on', L.blackout);
+  $('emergency').setAttribute('aria-pressed', String(L.emergency)); $('emergency').classList.toggle('on', L.emergency);
+  // Q + Scripture
+  var q = ls && SC.first(ls, 'question'), v = ls && SC.first(ls, 'scripture');
+  $('qs').hidden = !(q && v);
+  if (q && v){
+    var qo = SC.layerOn(live, ls, q), vo = SC.layerOn(live, ls, v), m = qo && vo ? 'both' : qo ? 'question' : vo ? 'verse' : '';
+    all('[data-qs]').forEach(function(b){ b.setAttribute('aria-checked', String(b.dataset.qs === m)); });
+  }
+  // list stepper
+  var k = stepKind(); $('stepper').hidden = !k;
+  if (k){ var items = library(k), cur = currentIndex(k); setText($('st-t'), (k === 'question' ? 'Question ' : 'Verse ') + (cur >= 0 ? (cur + 1) + ' / ' + items.length : '– / ' + items.length)); }
+  var sl = ls && SC.layer(ls, selLayer); $('hide-layer').disabled = !(sl && SC.layerOn(live, ls, sl));
+  setText($('hide-layer'), sl ? 'Hide ' + sl.name : 'Hide layer');
+  renderScenes(); renderLayers(); renderCanvas(); renderChips();
+}
+Store.subscribe(function(st){ live = st; if (!$('login').hidden) showApp(); render(); });
+
+/* ---------- Status chips and slides (from the PC: BCC vCam, recording, the slide show) ---------- */
+var studioInfo = null, slideBusy = false;
+function renderChips(){
+  var d = studioInfo || {}, vc = d.vcam || {}, rec = d.recording || {}, pres = d.presentation, L = live ? live.live : {};
+  var c1 = $('ch-vcam'); c1.hidden = !vc.state;
+  if (vc.state){ setText(c1, 'BCC vCam · ' + (vc.state === 'live' ? (vc.inUse ? 'in a meeting' : 'live') : vc.state === 'error' ? 'problem' : vc.state)); c1.className = 'chip' + (vc.state === 'live' ? ' ok' : vc.state === 'error' ? ' bad' : ''); }
+  var c2 = $('ch-rec'); c2.hidden = !rec.on; if (rec.on){ var s = Math.round(rec.seconds || 0); setText(c2, '● REC ' + Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0')); c2.className = 'chip bad'; }
+  var c3 = $('ch-slide'); c3.hidden = !pres; if (pres) setText(c3, 'Slide ' + (pres.page ? pres.page + (pres.pages ? ' / ' + pres.pages : '') : '–'));
+  var c4 = $('ch-black'); c4.hidden = !(L.blackout || L.emergency); setText(c4, L.blackout ? 'Blackout' : 'Emergency screen'); c4.className = 'chip bad';
+  $('slides').hidden = !pres; if (pres) setText($('sl-t'), 'Slide ' + (pres.page ? pres.page + (pres.pages ? ' / ' + pres.pages : '') : ''));
+}
 function studioPost(body){
   return fetch('api/remote/studio', {method: 'POST', headers: {'Content-Type': 'application/json'}, credentials: 'same-origin', body: JSON.stringify(body)})
     .then(function(r){ return r.json().then(function(d){ if (!r.ok) throw new Error(d.error || 'Not available'); return d; }); });
 }
-function slideText(p){ return p && p.page ? p.page + (p.pages ? ' / ' + p.pages : '') : 'Ready'; }
-function renderStudio(d){
-  studioInfo = d || null;
-  var on = !!(d && d.available), pres = d && d.presentation;
-  card('scenes').hidden = !on; card('slides').hidden = !pres;
-  if (on){
-    var grid = $('scene-grid'), sig = JSON.stringify([d.scenes, d.activeScene]);
-    if (grid.dataset.sig !== sig){
-      grid.dataset.sig = sig; grid.innerHTML = '';
-      if (!d.scenes.length) grid.appendChild(h('p', 'sc-empty', 'No scenes yet. Save scenes in the Studio on the PC.'));
-      d.scenes.forEach(function(x){
-        var b = h('button', 'scene' + (x.id === d.activeScene ? ' on' : ''), x.name);
-        b.type = 'button'; b.setAttribute('aria-pressed', String(x.id === d.activeScene));
-        b.addEventListener('click', function(){
-          if (Date.now() - sceneBusy < 600 || x.id === (studioInfo && studioInfo.activeScene)) return;   // no accidental double taps
-          sceneBusy = Date.now(); buzz(20);
-          studioPost({op: 'scene', id: x.id}).then(function(r){ renderStudio(r.studio); toast('Scene: ' + x.name); }).catch(function(e){ toast(e.message, true); });
-        });
-        grid.appendChild(b);
-      });
-    }
-    var a = d.scenes.filter(function(x){ return x.id === d.activeScene; })[0];
-    setText($('sc-state'), a ? a.name : '—');
-  }
-  if (pres){
-    setText($('sl-state'), slideText(pres));
-    setText($('sl-name'), pres.name || 'Presentation');
-    setText($('sl-src'), (pres.kind === 'powerpoint' ? 'PowerPoint slide show on the PC' : 'Shared from the Studio') +
-      (pres.page ? ' · slide ' + pres.page + (pres.pages ? ' of ' + pres.pages : '') : ''));
-  }
-  syncView();
-}
-/* Next / Previous slide: one command at a time - a tap while the PC is still moving is ignored, so a slide is
- * never skipped; the buttons dim for that moment. */
 all('[data-slide]').forEach(function(b){
   b.addEventListener('click', function(){
-    if (slideBusy || b.disabled) return;
-    slideBusy = true; buzz(15);
-    all('[data-slide]').forEach(function(x){ x.classList.add('wait'); });
-    studioPost({op: 'slide', step: +b.dataset.slide}).then(function(r){
-      var s = r.slide || {};
-      renderStudio(r.studio);
-      if (s.page) setText($('sl-state'), slideText(s));
-      else if (s.error && !s.busy) toast(s.error, true);
-    }).catch(function(e){ toast(e.message, true); }).then(function(){
-      setTimeout(function(){ slideBusy = false; all('[data-slide]').forEach(function(x){ x.classList.remove('wait'); }); }, 150);
-    });
+    if (slideBusy) return; slideBusy = true; buzz(15);
+    studioPost({op: 'slide', step: +b.dataset.slide}).then(function(r){ studioInfo = r.studio || studioInfo; var s = r.slide || {}; if (s.error && !s.busy) toast(s.error, true); renderChips(); })
+      .catch(function(e){ toast(e.message, true); }).then(function(){ setTimeout(function(){ slideBusy = false; }, 150); });
   });
 });
-/* Scenes and slides are checked every 4 s while a screen that shows them is open, every 15 s otherwise. */
 var studioT = null;
 function pollStudio(){
   clearTimeout(studioT);
   if (!$('app').hidden && !document.hidden)
-    fetch('api/remote/studio', {cache: 'no-store', credentials: 'same-origin'}).then(function(r){ return r.ok ? r.json() : null; })
-      .then(function(d){ if (d) renderStudio(d); }).catch(function(){});
-  var needs = tablet.matches || ['scenes', 'all'].indexOf(curTab()) >= 0 || (curTab() === 'live' && document.body.dataset.target === 'slides');
-  studioT = setTimeout(pollStudio, document.hidden ? 15000 : needs ? 4000 : 15000);
+    fetch('api/remote/studio', {cache: 'no-store', credentials: 'same-origin'}).then(function(r){ return r.ok ? r.json() : null; }).then(function(d){ if (d){ studioInfo = d; renderChips(); } }).catch(function(){});
+  studioT = setTimeout(pollStudio, document.hidden ? 15000 : 4000);
 }
-document.addEventListener('visibilitychange', function(){ if (!document.hidden && !$('app').hidden) pollStudio(); });
+document.addEventListener('visibilitychange', function(){ if (!document.hidden && !$('app').hidden){ pollStudio(); } if (live) renderCanvas(); });
 
-/* ---------- Tabs, targets and layouts ----------
- * body[data-tab]    = live | runsheet | scenes | preview | all   (phones; tablets show everything at once)
- * body[data-target] = question | verse | birthday | slides        (which card the Live tab's big buttons run)
- * body[data-role]   = presenter | leader | producer | admin       (what this device shows; remembered here) */
-var ROLES = {
-  presenter: {name: 'Presenter', tabs: ['live'], targets: ['question', 'verse', 'slides'], quick: ['question', 'verse'], runsheet: false},
-  leader:    {name: 'Leader', tabs: ['live', 'runsheet'], targets: ['question', 'verse', 'birthday'], quick: ['question', 'verse', 'birthday'], runsheet: true},
-  producer:  {name: 'Producer', tabs: ['live', 'runsheet', 'scenes', 'preview'], targets: ['question', 'verse', 'birthday', 'slides'], quick: ['question', 'verse', 'birthday'], runsheet: true, scenes: true, preview: true},
-  admin:     {name: 'Admin', tabs: ['live', 'runsheet', 'scenes', 'preview', 'all'], targets: ['question', 'verse', 'birthday', 'slides'], quick: ['question', 'verse', 'birthday'], runsheet: true, scenes: true, preview: true}
-};
-var TABS = {
-  live:     {cards: null},                          // the target's card
-  runsheet: {cards: []},
-  scenes:   {cards: ['scenes', 'slides'], empty: 'Scenes and slides aren’t available. Start BCC vCam on the PC, or start a PowerPoint slide show.'},
-  preview:  {cards: ['preview']},
-  all:      {cards: ['question', 'verse', 'birthday', 'slides', 'scenes', 'preview']}
-};
-var KEYS = {role: 'bcc-remote-role', target: 'bcc-remote-target', tab: 'bcc-remote-tab'};
-function load(k, d){ try { return localStorage.getItem(KEYS[k]) || d; } catch(e){ return d; } }
-function save(k, v){ try { localStorage.setItem(KEYS[k], v); } catch(e){} }
-var tablet = window.matchMedia ? window.matchMedia('(min-width: 900px)') : {matches: false};
+/* ---------- Tabs (phones) and layouts ---------- */
+var ROLES = {presenter: {name: 'Presenter', tabs: ['live']}, leader: {name: 'Leader', tabs: ['live', 'scenes']}, admin: {name: 'Producer / Admin', tabs: ['live', 'scenes', 'layers']}};
 function role(){ return ROLES[document.body.dataset.role] || ROLES.admin; }
 function curTab(){ return document.body.dataset.tab || 'live'; }
+function setTab(t, quiet){
+  if (role().tabs.indexOf(t) < 0) t = 'live';
+  document.body.dataset.tab = t; lsSet('bcc-remote-tab', t);
+  all('#tabbar [data-tab]').forEach(function(b){ if (b.dataset.tab === t) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
+  if (!quiet) window.scrollTo(0, 0);
+  if (live) renderCanvas();
+}
 function setRole(r){
   if (!ROLES[r]) r = 'admin';
-  document.body.dataset.role = r; save('role', r);
+  document.body.dataset.role = r; lsSet('bcc-remote-role', r);
   setText($('role-name'), ROLES[r].name);
   all('[data-role-pick]').forEach(function(b){ b.setAttribute('aria-checked', String(b.dataset.rolePick === r)); });
   all('#tabbar [data-tab]').forEach(function(b){ b.hidden = ROLES[r].tabs.indexOf(b.dataset.tab) < 0; });
   $('tabbar').hidden = ROLES[r].tabs.length < 2;
-  all('[data-target-pick]').forEach(function(b){ b.hidden = ROLES[r].targets.indexOf(b.dataset.targetPick) < 0; });
-  all('[data-quick]').forEach(function(b){ b.hidden = ROLES[r].quick.indexOf(b.dataset.quick) < 0; });
-  if (ROLES[r].targets.indexOf(document.body.dataset.target) < 0) setTarget(ROLES[r].targets[0]);
-  if (ROLES[r].tabs.indexOf(curTab()) < 0) setTab('live', {replace: true});
-  syncView();
+  if (ROLES[r].tabs.indexOf(curTab()) < 0) setTab('live', true);
 }
-function setTarget(t){
-  document.body.dataset.target = t; save('target', t);
-  all('[data-target-pick]').forEach(function(b){ b.setAttribute('aria-selected', String(b.dataset.targetPick === t)); });
-  syncView();
-  if (t === 'slides') pollStudio();
-}
-function setTab(t, opt){
-  opt = opt || {};
-  if (!TABS[t] || role().tabs.indexOf(t) < 0) t = 'live';
-  var from = curTab();
-  document.body.dataset.tab = t; save('tab', t);
-  all('#tabbar [data-tab]').forEach(function(b){ if (b.dataset.tab === t) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
-  if (!opt.fromHistory){
-    try {
-      if (opt.replace) history.replaceState({tab: t}, '', location.pathname + location.search);
-      else if (t === 'live' && history.state && history.state.tab && history.state.tab !== 'live') history.back();
-      else if (t !== from) history.pushState({tab: t}, '', location.pathname + location.search);
-    } catch(e){}
-  }
-  // The live preview runs only while it is on screen (saves the phone's battery and the PC's work)
-  if (!tablet.matches){
-    if (t === 'preview' && !card('preview').classList.contains('open')) setOpen('preview', true);
-    else if (t !== 'preview' && t !== 'all' && card('preview').classList.contains('open')) setOpen('preview', false);
-  }
-  syncView();
-  if (t === 'runsheet') renderDrawer(true);
-  if (t !== from){ window.scrollTo(0, 0); if (['scenes', 'all', 'live'].indexOf(t) >= 0) pollStudio(); }
-}
-/* Which cards are on screen, and the message when a tab has nothing to show */
-function syncView(){
-  var t = curTab(), r = role(), conf = TABS[t], tab = tablet.matches;
-  var show = {};
-  if (tab){                                   // tablets: the whole surface for this layout
-    r.targets.forEach(function(k){ show[k] = true; });
-    if (r.scenes) show.scenes = true;
-    if (r.preview) show.preview = true;
-  } else if (t === 'live') show[document.body.dataset.target] = true;
-  else (conf.cards || []).forEach(function(k){ show[k] = true; });
-  Object.keys(CARD).forEach(function(k){ var c = card(k); if (c) c.classList.toggle('off-view', !show[k]); });
-  document.body.classList.toggle('no-runsheet', !r.runsheet);
-  var empty = $('view-empty'), visibleCards = Object.keys(show).filter(function(k){ var c = card(k); return c && !c.hidden; });
-  var msg = '';
-  if (!visibleCards.length && t !== 'runsheet'){
-    var tg = document.body.dataset.target;
-    msg = t === 'live' && tg === 'slides' ? 'No presentation is running. Start the PowerPoint slide show (or share slides in the Studio) on the PC.' : (conf.empty || '');
-  }
-  empty.hidden = !msg; setText(empty, msg);
-  // Now-panel chips: the slide and the scene
-  var si = studioInfo || {}, pres = si.presentation, act_ = si.available ? (si.scenes || []).filter(function(x){ return x.id === si.activeScene; })[0] : null;
-  var ns = $('nc-slide'), nsc = $('nc-scene');
-  ns.hidden = !pres; if (pres) setText(ns, 'Slide ' + (pres.page ? pres.page + (pres.pages ? ' / ' + pres.pages : '') : '—'));
-  nsc.hidden = !act_; if (act_) setText(nsc, 'Scene · ' + act_.name);
-}
-if (tablet.addEventListener) tablet.addEventListener('change', function(){ syncView(); renderDrawer(true); }); else if (tablet.addListener) tablet.addListener(function(){ syncView(); });
 all('#tabbar [data-tab]').forEach(function(b){ b.addEventListener('click', function(){ buzz(8); setTab(b.dataset.tab); }); });
-all('[data-target-pick]').forEach(function(b){ b.addEventListener('click', function(){ buzz(8); setTarget(b.dataset.targetPick); }); });
-window.addEventListener('popstate', function(e){ setTab((e.state && e.state.tab) || 'live', {fromHistory: true}); });
-
-/* More: layout for this device, disconnect */
-var moreFrom = null;
-function openMore(){ moreFrom = document.activeElement; $('more').hidden = false; $('more-close').focus(); }
-function closeMore(){ $('more').hidden = true; if (moreFrom && moreFrom.focus) moreFrom.focus({preventScroll: true}); }
+function openMore(){ $('more').hidden = false; $('more-close').focus(); }
+function closeMore(){ $('more').hidden = true; }
 $('more-btn').addEventListener('click', function(){ buzz(8); openMore(); });
 $('more-close').addEventListener('click', closeMore);
 $('more').addEventListener('click', function(e){ if (e.target === $('more')) closeMore(); });
 all('[data-role-pick]').forEach(function(b){ b.addEventListener('click', function(){ buzz(10); setRole(b.dataset.rolePick); toast('Layout: ' + ROLES[b.dataset.rolePick].name); }); });
-document.addEventListener('keydown', function(e){
-  if ($('app').hidden || e.altKey || e.ctrlKey || e.metaKey) return;
-  if (e.key === 'Escape'){
-    if (!$('more').hidden){ e.preventDefault(); closeMore(); return; }
-    if (curTab() !== 'live'){ e.preventDefault(); setTab('live'); }
-  }
-});
-
-/* ---------- Run sheet (a tab on phones; always beside the controls on tablets) ---------- */
-function runsheetOn(){ return !$('app').hidden && role().runsheet && (tablet.matches || curTab() === 'runsheet'); }
-function openDrawer(k){
-  listKind = k || listKind;
-  if (!tablet.matches) setTab('runsheet'); else renderDrawer(true);
-  var cur = $('dlist').querySelector('li.cur button'); if (cur) cur.focus({preventScroll: true});
-}
-all('[data-list]').forEach(function(b){ if (b.classList.contains('dt')) return; b.addEventListener('click', function(){ openDrawer(b.dataset.list); }); });
-all('.dt').forEach(function(b){ b.addEventListener('click', function(){ listKind = b.dataset.list; renderDrawer(true); }); });
-var rsKey = '';
-function renderDrawer(force){
-  if (!live || !runsheetOn()) return;
-  all('.dt').forEach(function(b){ var on = b.dataset.list === listKind; b.classList.toggle('on', on); b.setAttribute('aria-selected', String(on)); });
-  var ol = $('dlist'), l = library(listKind), cur = currentIndex(listKind), on = isOn(listKind);
-  var key = listKind + JSON.stringify(l.map(function(it){ return it.id + (it.ref || '') + it.text.length; }));
-  function cls(i){ return (i === cur ? 'cur' + (on ? '' : ' ready') : '') + (cur >= 0 && i < cur ? ' done' : '') + ((cur < 0 ? i === 0 : i === cur + 1) ? ' nx' : ''); }
-  function tag(i){ return i === cur ? (on ? 'LIVE' : 'READY') : (cur < 0 ? i === 0 : i === cur + 1) ? 'NEXT' : ''; }
-  if (!force && key === rsKey && ol.children.length === l.length){
-    // the same list: only the markers move (every Next / Show) - no rebuild, even with a long list
-    for (var r = 0; r < ol.children.length; r++){ var li0 = ol.children[r], c = cls(r); if (li0.className !== c){ li0.className = c; setText(li0.querySelector('.tag'), tag(r)); } }
-    scrollCur(ol); return;
-  }
-  rsKey = key; ol.innerHTML = '';
-  if (!l.length){ ol.appendChild(h('li', 'empty', 'Nothing saved yet. Add them in Content on the PC.')); return; }
-  var frag = document.createDocumentFragment();
-  l.forEach(function(it, i){
-    var li = h('li', cls(i)), b = h('button'); b.type = 'button';
-    b.appendChild(h('span', 'n', String(i + 1)));
-    var t = h('span', 't');
-    if (listKind === 'verse') t.appendChild(h('b', null, (it.ref || 'Verse') + (it.version ? ' · ' + it.version : '')));
-    t.appendChild(document.createTextNode(listKind === 'verse' ? it.text.replace(/\s+/g, ' ').slice(0, 140) + (it.text.length > 140 ? '…' : '') : it.text));
-    b.appendChild(t);
-    b.appendChild(h('span', 'tag', tag(i)));
-    b.addEventListener('click', function(){
-      var k = listKind, now = Date.now();
-      if (now - (lastTap['item' + k] || 0) < 600) return; lastTap['item' + k] = now;   // a double tap never shows two items
-      buzz(12); showItem(k, i);
-      if (!tablet.matches && role().tabs.indexOf('live') >= 0) setTarget(k);
-    });
-    li.appendChild(b); frag.appendChild(li);
-  });
-  ol.appendChild(frag);
-  scrollCur(ol);
-}
-function scrollCur(ol){
-  var c = ol.querySelector('li.cur') || ol.querySelector('li.nx'); if (!c) return;
-  var box = ol, top = c.offsetTop - box.offsetTop;
-  if (top < box.scrollTop || top + c.offsetHeight > box.scrollTop + box.clientHeight) box.scrollTop = Math.max(0, top - box.clientHeight / 3);
-}
-
-/* ---------- Render (only what changed is written to the page) ---------- */
-function stateOf(k){ return isOn(k) ? 'live' : has(k) ? 'ready' : 'empty'; }
-var STATE_TEXT = {live: 'LIVE', ready: 'READY', empty: 'EMPTY'};
-var lastDrawerSig = '';
-function render(){
-  if (!live) return;
-  ['question', 'verse', 'birthday'].forEach(function(k){
-    var st = stateOf(k), c = card(k);
-    var s = c.querySelector('[data-state]'), cls = 'state ' + st;
-    if (s.className !== cls) s.className = cls;
-    setText(s, STATE_TEXT[st]);
-    c.classList.toggle('live', st === 'live');
-    var tg = c.querySelector('.pb.toggle');
-    tg.classList.toggle('is-live', st === 'live'); setText(tg.querySelector('.tl'), st === 'live' ? 'HIDE' : 'SHOW');
-    quick(k, st);
-    if (k !== 'birthday'){
-      var l = library(k), cur = currentIndex(k);
-      setText($(k[0] + '-pos'), cur >= 0 ? (cur + 1) + ' / ' + l.length : l.length ? l.length + ' in list' : '');
-    } else setText($('b-name'), live.birthday.name || '');
-    if (!c.classList.contains('open')) return;            // details are drawn only while they are open
-    var now = c.querySelector('[data-now]'), o = live[k];
-    now.textContent = '';
-    if (k === 'verse' && o.text.trim()){ now.appendChild(h('span', 'ref', (o.ref || '') + (o.version ? ' · ' + o.version : ''))); now.appendChild(document.createTextNode(o.text)); }
-    else if (k === 'question' && o.text.trim()) now.textContent = o.text;
-    else if (k === 'birthday' && o.greeting.trim()) now.textContent = o.greeting;
-    else now.appendChild(h('span', 'none', k === 'birthday' ? 'Choose who to celebrate on the PC.' : 'Nothing loaded. Tap Next or choose from the list.'));
-    if (k !== 'birthday'){
-      var l2 = library(k), cur2 = currentIndex(k), nx = cur2 < 0 ? l2[0] : l2[cur2 + 1];
-      setText(c.querySelector('[data-next]'), !l2.length ? 'Add items on the PC' : nx ? (k === 'verse' ? (nx.ref || 'Verse') + ' — ' + nx.text.replace(/\s+/g, ' ') : nx.text) : 'End of list');
-    }
-  });
-  setText($('q-label'), live.question.text.trim() ? live.question.label : '');
-  var pm = P.mode(live);
-  all('[data-pmode]').forEach(function(b){ var on = b.dataset.pmode === pm; if (b.getAttribute('aria-checked') !== String(on)) b.setAttribute('aria-checked', String(on)); });
-  var sig = JSON.stringify([listKind, live.library.questions.length, live.library.verses.length, live.question.itemId, live.verse.itemId, live.question.visible, live.verse.visible, P.mode(live)]);
-  if (sig !== lastDrawerSig){ lastDrawerSig = sig; renderDrawer(); }
-  renderNow();
-}
-/* Quick buttons (Now panel): each card's state, one tap to show or hide it */
-function quick(k, st){
-  var b = document.querySelector('[data-quick="' + k + '"]'); if (!b) return;
-  var cls = 'qk ' + k[0] + ' ' + st; if (b.className !== cls) b.className = cls;
-  setText(b.querySelector('.qk-s'), st === 'live' ? 'LIVE · tap to hide' : st === 'ready' ? 'Tap to show' : 'Empty');
-  b.setAttribute('aria-label', (st === 'live' ? 'Hide the ' : 'Show the ') + NAMES[k].toLowerCase());
-}
-/* Now: what Zoom participants see right now, in words */
-function renderNow(){
-  var on = ['question', 'verse', 'birthday'].filter(function(k){ return isOn(k); });
-  var oa = $('onair'), any = on.length > 0, oc = 'onair' + (any ? ' on' : '');
-  if (oa.className !== oc) oa.className = oc;
-  setText(oa.querySelector('b'), any ? 'ON AIR' : 'OFF AIR');
-  $('now').classList.toggle('on', any);
-  var text = 'Nothing on screen', subt = '', meta = '';
-  var q = live.question, v = live.verse, pm = P.mode(live);
-  if (isOn('question') && pm !== 'verse'){
-    text = q.text; meta = 'Question' + (currentIndex('question') >= 0 ? ' ' + (currentIndex('question') + 1) + ' of ' + library('question').length : '');
-    if (pm === 'both' && v.visible && v.text.trim()) subt = 'With ' + (v.ref || 'the verse') + (v.version ? ' · ' + v.version : '');
-  } else if (isOn('verse') || (isOn('question') && pm === 'verse')){
-    text = v.text.replace(/\s+/g, ' '); meta = (v.ref || 'Verse') + (v.version ? ' · ' + v.version : '');
-  }
-  if (isOn('birthday')){ if (text === 'Nothing on screen'){ text = live.birthday.greeting; meta = 'Birthday'; } else subt = (subt ? subt + ' · ' : '') + 'Birthday: ' + (live.birthday.name || 'on screen'); }
-  if (!any){
-    var nq = library('question'), ci = currentIndex('question');
-    subt = q.text.trim() ? 'Ready: ' + (ci >= 0 ? 'question ' + (ci + 1) : 'a question') + ' · tap Show' : nq.length ? 'Tap Next to begin' : 'Add questions on the PC';
-  }
-  setText($('now-text'), text); setText($('now-sub'), subt); setText($('now-meta'), meta);
-}
-Store.subscribe(function(st){ live = st; if (!$('login').hidden) showApp(); render(); });
+document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && !$('more').hidden){ e.preventDefault(); closeMore(); } });
+if (tablet.addEventListener) tablet.addEventListener('change', function(){ if (live) renderCanvas(); });
 
 /* Connection indicator: buttons pause while the PC can't be reached (the page is only touched when it changes) */
 var offlineSince = null, lastOk = null, lastOnline = null;
 setInterval(function(){
-  // Only warn after 2.5 s without the PC, so a brief Wi-Fi hiccup (or the moment after signing in) doesn't flash a warning
   if (Store.online) offlineSince = null; else if (offlineSince === null) offlineSince = Date.now();
   var ok = Store.online || (Date.now() - offlineSince < 2500);
   $('offline').hidden = ok || $('app').hidden;
@@ -477,14 +322,13 @@ setInterval(function(){
   lastOk = ok; lastOnline = Store.online;
   var c = $('conn');
   c.className = 'conn ' + (Store.online ? 'ok' : ok ? '' : 'bad'); c.querySelector('b').textContent = Store.online ? 'Connected' : ok ? 'Connecting…' : 'Reconnecting…';
-  all('.pb, .hold, #hide-all, .scene, .qk').forEach(function(b){ b.disabled = !ok; });
+  all('.pb, #hide-all, .tool, .sgo, .eye').forEach(function(b){ if (b.id !== 'more-btn' && b.id !== 'more-close') b.disabled = !ok; });
+  if (ok && live) render();
 }, 700);
 
-/* This device's layout, target and tab (remembered); tablets open the live preview by default */
-setRole(load('role', 'admin'));
-setTarget(ROLES[document.body.dataset.role].targets.indexOf(load('target', 'question')) >= 0 ? load('target', 'question') : role().targets[0]);
-document.body.dataset.tab = role().tabs.indexOf(load('tab', 'live')) >= 0 ? load('tab', 'live') : 'live';
-
+/* This device's layout and tab (remembered) */
+setRole(lsGet('bcc-remote-role', 'admin'));
+document.body.dataset.tab = role().tabs.indexOf(lsGet('bcc-remote-tab', 'live')) >= 0 ? lsGet('bcc-remote-tab', 'live') : 'live';
 /* Start: find out whether this device is already signed in. Updates arrive the moment they happen (long-poll). */
 fetch('api/rev', {cache: 'no-store'}).then(function(r){
   if (r.status === 403 || r.status === 401) showLogin(); else showApp();

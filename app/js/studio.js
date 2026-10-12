@@ -35,11 +35,11 @@ function act(op, body){
     .then(function(d){ if (d.studio) apply(d.studio); return d; })
     .catch(function(e){ toast(e.message, true); throw e; });
 }
-var sendT = null;
+var sendT = null, pushHooks = [], selHooks = [], lastSelSig = '';
 function pushLayers(now){
   clearTimeout(sendT);
   dirtyUntil = Date.now() + 400;
-  var go = function(){ act('layers', {layers: L.map(strip), target: 'output'}).catch(function(){}); };
+  var go = function(){ act('layers', {layers: L.map(strip), target: 'output'}).then(function(){ pushHooks.forEach(function(f){ try { f(L.map(strip)); } catch(e){} }); }).catch(function(){}); };
   if (now) go(); else sendT = setTimeout(go, 70);
 }
 function strip(l){ var c = Object.assign({}, l); delete c.status; return c; }
@@ -79,15 +79,17 @@ function addFile(kind){
 
 /* ---------- layout of the tab ---------- */
 root.classList.add('s2');
-var rail = $('studio-rail') || root;
 var top = h('div', {cls: 's2-top'});
 var scenesSec = h('section', {cls: 'rail-sec rail-scenes', 'aria-label': 'Scenes'});
 var left = h('section', {cls: 's2-left rail-sec rail-layers', 'aria-label': 'Layers'});
 var railNote = h('p', {cls: 'rail-note', hidden: 'hidden'});
 var centre = h('section', {cls: 's2-centre', 'aria-label': 'Canvas'});
 var right = h('aside', {cls: 's2-right', 'aria-label': 'Inspector'});
-rail.appendChild(scenesSec); rail.appendChild(left); rail.appendChild(railNote);
-root.appendChild(top); root.appendChild(h('div', {cls: 's2-body'}, [centre, right]));
+/* v6: the canvas is the Studio Canvas (centre), its inspector sits in the Inspector for media layers, its tools in
+ * the canvas header, Record in Settings > Recording. The old Scenes gallery and Layers list are replaced by the
+ * workspace's Scenes and Layers (js/workspace.js); they are kept here, unattached, for the code that fills them. */
+root.appendChild(centre);
+var mediaHost = $('insp-media'); if (mediaHost) mediaHost.appendChild(right);
 
 /* Top bar: scene selector with collection filter · Preview/Output · Record · Look · Focus · Hide window */
 var colFilter = h('select', {id: 's2-colfilter', 'aria-label': 'Scene collection'});
@@ -105,9 +107,11 @@ var shareChip = h('span', {cls: 's2-chip', id: 's2-share', hidden: 'hidden'});
 /* v5: the scene picker and collection filter are the Scenes list beside the canvas, and the Look is in
  * Settings > BCC vCam (and Ctrl+Alt+1/2/3/0) - the bar shows the active scene instead of repeating them. */
 var sceneNow = h('span', {cls: 's2-scene-now', id: 's2-scene-now'});
-top.appendChild(h('div', {cls: 's2-top-l'}, [h('span', {cls: 's2-lbl', html: I('layout-template', 15)}), sceneNow]));
-top.appendChild(h('div', {cls: 's2-top-c'}, [presBtn, shareChip]));
-top.appendChild(h('div', {cls: 's2-top-r'}, [recBtn, focusBtn, hideBtn]));
+var tools = $('canvas-tools');
+if (tools){ [shareChip, presBtn, focusBtn, hideBtn].forEach(function(b){ tools.appendChild(b); }); }
+var recHost = $('rec-host');
+if (recHost){ recHost.appendChild(recBtn); recHost.appendChild(h('span', {cls: 'hint rec-note', id: 's2-rec-note', text: 'Records exactly what BCC vCam sends to Zoom or Teams.'})); }
+presBtn.classList.remove('primary'); presBtn.classList.add('small');
 
 colFilter.addEventListener('change', renderScenes);
 sceneSel.addEventListener('change', function(){ if (sceneSel.value) act('scene-apply', {id: sceneSel.value}).then(function(){ toast('Scene: ' + sceneSel.options[sceneSel.selectedIndex].text); }); });
@@ -270,12 +274,6 @@ var snapCb = h('input', {type: 'checkbox', id: 's2-snap', checked: 'checked'});
 centre.appendChild(stageWrap);
 centre.appendChild(h('div', {cls: 's2-under'}, [h('label', {cls: 'check'}, [snapCb, ' Snap to guides']), metrics]));
 function fitStage(){
-  if (!root.hidden){                     // fill the space between the tabs and the birthday bar
-    var bar = document.querySelector('.bday-bar'), cb = $('ctlbar');
-    var focus = document.body.classList.contains('studio-focus');
-    var avail = window.innerHeight - root.getBoundingClientRect().top - (focus || !bar ? 0 : bar.offsetHeight) - (cb && cb.offsetHeight ? cb.offsetHeight : 0);
-    root.style.setProperty('--s2h', Math.max(520, Math.floor(avail)) + 'px');
-  }
   var r = stageWrap.getBoundingClientRect(), w = Math.max(200, r.width), hh = Math.max(120, r.height);
   var sw = Math.min(w, hh * 16 / 9); stage.style.width = sw + 'px'; stage.style.height = (sw * 9 / 16) + 'px';
 }
@@ -563,7 +561,10 @@ function moveSelected(dir){
 }
 
 /* ---------- show the state ---------- */
-function draw(){ renderList(); drawBoxes(); renderInspector(); }
+function draw(){
+  renderList(); drawBoxes(); renderInspector();
+  var sig = sel.join(','); if (sig !== lastSelSig){ lastSelSig = sig; selHooks.forEach(function(f){ try { f(sel.slice()); } catch(e){} }); }
+}
 function apply(d){
   S = d;
   if (!d.available){
@@ -609,8 +610,7 @@ function metricsLine(){
 function visible(){ return !root.hidden && document.body.dataset.tab === 'studio' && !document.hidden; }   // the canvas: minimised = no pictures, no polling
 /* The rail (scenes, layers) is on screen in every Studio view: it refreshes every 3 s there, every second
  * with the canvas open, and not at all while the app is minimised or on Members / Settings. */
-function railVisible(){ return (document.body.dataset.group === 'studio' && !document.body.classList.contains('rail-hidden') ||
-  document.body.dataset.tab === 'meeting') && !document.hidden; }   // v5.1: the Meeting view's Live outputs show the Studio's state too
+function railVisible(){ return document.body.dataset.tab === 'studio' && !document.hidden; }   // v6: the Studio workspace (layers, status chips)
 function refresh(){ return fetch('api/vcam/studio', {cache: 'no-store'}).then(function(r){ return r.json(); }).then(apply).catch(function(){}); }
 var pollT = null;
 function poll(){
@@ -635,12 +635,16 @@ window.BSFOnTab = function(t){
   if (prevOnTab) prevOnTab(t);
   if (t === 'studio'){ setTimeout(fitStage, 0); if (!pulling) pullImage(); }
   else document.body.classList.remove('studio-focus');
-  if (['meeting', 'overlays', 'studio', 'recordings'].indexOf(t) >= 0 && S) poll();   // fresh scenes/layers at once
+  if (t === 'studio' && S) poll();                              // fresh layers at once
 };
 if (window.ResizeObserver) new ResizeObserver(fitStage).observe(stageWrap);
 document.addEventListener('visibilitychange', function(){ if (visible() && !pulling) pullImage(); });   // shown again: resume the picture
-window.BSFStudio = {layers: function(){ return L; }, select: function(ids){ sel = ids.slice(); draw(); }, slide: slideMove,
-  state: function(){ return S; }};                         // read-only, for the header search, outputs and the rail library
+window.BSFStudio = {layers: function(){ return L; }, select: function(ids){ sel = ids.slice(); lastSelSig = sel.join(','); draw(); }, slide: slideMove,
+  state: function(){ return S; },                          // read-only, for the header chips and the workspace
+  /* v6 workspace hooks: pushed layers (written back into the live scene), canvas selection, file / source pickers */
+  onPush: function(f){ pushHooks.push(f); }, onSelect: function(f){ selHooks.push(f); },
+  addFile: addFile, chooseScreen: function(){ chooseScreen(true); }, chooser: chooser, refresh: refresh, fit: function(){ fitStage(); if (visible() && !pulling) pullImage(); },
+  menu: function(id){ var m = addMenu.querySelector('#' + id); if (m) m.click(); }, remove: removeSelected, duplicate: duplicateSelected, move: moveSelected};
 
 /* ---------- hotkeys: Ctrl+Shift+1/2/3 = layers 1-3, Page Up/Down = slides ---------- */
 document.addEventListener('keydown', function(e){
