@@ -229,7 +229,7 @@ function downloadTemplate(){
     ['Notes: optional, for your own use.'],
     ['PresentationMode: optional. QUESTION = the question only, BOTH = the question with its verse, VERSE = the verse only.'],
     ['   Leave it empty to use the mode chosen in the app (Question unless you change it).'], [''],
-    ['In BSF Command Center: Studio > Content > Import from Excel. Different column names can be matched there.']];
+    ['In Kingdom Connect: Studio > select the Question layer > Content > Import from Excel. Different column names can be matched there.']];
   var wb = X.utils.book_new();
   var ws = X.utils.aoa_to_sheet(rows); ws['!cols'] = COLS;
   X.utils.book_append_sheet(wb, ws, 'Questions & Verses');

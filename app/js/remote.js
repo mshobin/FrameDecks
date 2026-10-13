@@ -16,7 +16,7 @@ var toastT;
 function toast(msg, bad){ var t = $('toast'); t.textContent = msg; t.className = 'toast show' + (bad ? ' bad' : ''); clearTimeout(toastT); toastT = setTimeout(function(){ t.className = 'toast'; }, bad ? 3500 : 1500); }
 /* A short vibration confirms a press on Android phones (iPhone Safari does not allow it) */
 function buzz(ms){ try { if (navigator.vibrate) navigator.vibrate(ms); } catch(e){} }
-if (window.BSFBrand) all('[data-credit]').forEach(function(p){ p.textContent = 'By ' + BSFBrand.creator.name + ' · ' + BSFBrand.creator.email + '. An independent tool, not affiliated with or endorsed by Bible Study Fellowship International.'; });
+if (window.BSFBrand) all('[data-credit]').forEach(function(p){ p.textContent = BSFBrand.name + ' · ' + BSFBrand.tagline + '. By ' + BSFBrand.creator.name + ' · ' + BSFBrand.creator.email + '. ' + BSFBrand.disclaimer; });
 function lsGet(k, d){ try { var v = localStorage.getItem(k); return v === null ? d : v; } catch(e){ return d; } }
 function lsSet(k, v){ try { localStorage.setItem(k, v); } catch(e){} }
 
@@ -115,12 +115,8 @@ all('[data-qs]').forEach(function(b){
   b.addEventListener('click', guard('qs', function(){
     var ls = SC.liveScene(live), q = ls && SC.first(ls, 'question'), v = ls && SC.first(ls, 'scripture'); if (!ls) return;
     var m = b.dataset.qs;
-    update(function(n){
-      var sc = SC.find(n, ls.id);
-      if (q){ SC.setOn(n, ls.id, q.id, m !== 'verse'); SC.layer(sc, q.id).visible = m !== 'verse'; }
-      if (v){ SC.setOn(n, ls.id, v.id, m !== 'question'); SC.layer(sc, v.id).visible = m !== 'question'; }
-      if (q && v) n.question.mode = m === 'both' ? 'both' : 'question';
-    }, {question: 'Question only', both: 'Question + scripture', verse: 'Scripture only'}[m]);
+    if (!q || !v) return;
+    update(function(n){ SC.setQS(n, ls.id, m); }, {question: 'Question only', both: 'Question + scripture', verse: 'Scripture only'}[m]);
   }));
 });
 var txSel = $('tx');

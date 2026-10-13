@@ -44,7 +44,7 @@ function commit(fn){
   chain = chain.then(function(){
     return Store.update(fn);
   }).catch(function(){
-    toast('Can’t reach the BSF Command Center program. Check that its window is still open.', true);
+    toast('Can’t reach the Kingdom Connect program. Check that its window is still open.', true);
   });
   return chain;
 }
@@ -617,6 +617,7 @@ function setup(){
     else if (a === 'takeLive' && window.BSFWorkspace) window.BSFWorkspace.take();
     else if (a === 'nextScene' && window.BSFWorkspace) window.BSFWorkspace.step(1);
     else if (a === 'prevScene' && window.BSFWorkspace) window.BSFWorkspace.step(-1);
+    else if (a === 'presentMode' && window.BSFPresentation) window.BSFPresentation(!document.body.classList.contains('pm'));
   });
 
   buildTransitionExtras();

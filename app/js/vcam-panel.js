@@ -22,7 +22,7 @@ function chip(cls, text, title){                        // touches the page only
 function dot(cls){ var d = $('sn-vcam'), k = 'sn-dot ' + (cls || ''); if (d && d.className !== k) d.className = k; }
 
 if (!Store.served){
-  root.appendChild(h('p', {cls: 'plain', text: 'BCC vCam needs the Command Center program (the installed Windows app).'}));
+  root.appendChild(h('p', {cls: 'plain', text: 'BCC vCam needs the Kingdom Connect program (the installed Windows app).'}));
   chip('', '—', 'Needs the installed app');
   return;
 }
@@ -276,7 +276,7 @@ var helpBox = h('section', {cls: 'box'}, [
   h('ol', {cls: 'steps'}, [
     h('li', {}, [h('b', {text: 'Zoom: '}), 'Settings → Video → Camera → choose ', h('b', {text: 'BCC vCam'}), '. Turn off Zoom’s own background blur if it is on, and tick ', h('b', {text: 'HD'}), ' so Zoom sends a sharp picture (without it Zoom sends a low-resolution, softer version).']),
     h('li', {}, [h('b', {text: 'Microsoft Teams: '}), 'Settings → Devices (or Video and effects) → Camera → choose ', h('b', {text: 'BCC vCam'}), '.']),
-    h('li', {text: 'Keep the Command Center running (closing its window keeps it running in the background).'})
+    h('li', {text: 'Keep Kingdom Connect running (closing its window keeps it running in the background).'})
   ]),
   h('p', {cls: 'hint', text: 'Your verse, question and birthday cards appear on BCC vCam whenever you select Show, with the same transitions. OBS or Camo are not needed. If you still add the overlay links in OBS on top of BCC vCam, turn off “Cards” above so they don’t appear twice.'})
 ]);

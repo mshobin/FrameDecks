@@ -15,7 +15,8 @@ import traceback
 import urllib.request
 import webbrowser
 
-APP_NAME = "BSF Command Center"
+APP_NAME = "BSF Command Center"          # identity: data folder, single-instance check (never changes)
+DISPLAY_NAME = "Kingdom Connect"     # what people see
 
 
 # ---------- A windowed app has no console: send messages to a small log file instead ----------
@@ -41,7 +42,7 @@ import server  # noqa: E402  (after logging is set up, because it prints)
 from vcam.present_window import NativePresentation  # noqa: E402  (native Presentation window)
 
 
-def message(text, title=APP_NAME, warn=False):
+def message(text, title=DISPLAY_NAME, warn=False):
     """A plain Windows message box (falls back to the log elsewhere)."""
     print(text)
     if os.name == "nt":
@@ -71,8 +72,8 @@ def running_copy(port=server.PREFERRED_PORT):
     return "app" if d.get("installedApp") else "start-files"
 
 
-START_FILES_RUNNING = ("The start-file version of BSF Command Center is still running (the black window).\n\n"
-                       "Close that black window first, then open BSF Command Center again.\n\n"
+START_FILES_RUNNING = ("The start-file version of Kingdom Connect is still running (the black window).\n\n"
+                       "Close that black window first, then open Kingdom Connect again.\n\n"
                        "Only one copy can run at a time, and only the installed app has BCC vCam.")
 
 
@@ -122,8 +123,8 @@ def main():
 
     srv = server.start_main_server()
     if srv is None:
-        message("BSF Command Center could not start because ports 8750-8760 are all in use.\n\n"
-                "Close the other program using them, then open BSF Command Center again.", warn=True)
+        message("Kingdom Connect could not start because ports 8750-8760 are all in use.\n\n"
+                "Close the other program using them, then open Kingdom Connect again.", warn=True)
         return
     port = srv.server_address[1]
     if port != server.PREFERRED_PORT:
@@ -134,7 +135,7 @@ def main():
             except Exception:
                 pass
             return
-        message(f"Another program is using port {server.PREFERRED_PORT}, so BSF Command Center is using port {port} today.\n\n"
+        message(f"Another program is using port {server.PREFERRED_PORT}, so Kingdom Connect is using port {port} today.\n\n"
                 "Your overlay links in OBS or Camo need the new port, or close the other program and restart.", warn=True)
     threading.Thread(target=srv.serve_forever, daemon=True).start()
     if server.app_settings()["remoteAutostart"]:
@@ -167,7 +168,7 @@ def main():
             return [pystray.MenuItem(x["name"], pick(x["id"]), checked=(lambda item, sid=x["id"]: server.studio_load()["activeScene"] == sid), radio=True)
                     for x in st["scenes"]]
         menu = pystray.Menu(
-            pystray.MenuItem("Open BSF Command Center", lambda icon, item: on_open(), default=True),
+            pystray.MenuItem("Open Kingdom Connect", lambda icon, item: on_open(), default=True),
             pystray.Menu.SEPARATOR,
             pystray.MenuItem("Look", pystray.Menu(look_items)),
             pystray.MenuItem("Scene", pystray.Menu(scene_items)),
@@ -180,8 +181,8 @@ def main():
             pystray.MenuItem("Phone remote", lambda icon, item: server.set_remote(not server.REMOTE),
                              checked=lambda item: server.REMOTE),
             pystray.Menu.SEPARATOR,
-            pystray.MenuItem("Quit BSF Command Center", lambda icon, item: on_quit()))
-        icon = pystray.Icon("bsf-command-center", tray_image(), APP_NAME, menu)
+            pystray.MenuItem("Quit Kingdom Connect", lambda icon, item: on_quit()))
+        icon = pystray.Icon("bsf-command-center", tray_image(), DISPLAY_NAME, menu)
         icon.run_detached()
         return icon
 
@@ -227,7 +228,7 @@ def main():
         server.DESKTOP.update(active=False, show=lambda: webbrowser.open(url), quit=quit_fallback, on_remote_change=refresh_tray)
         webbrowser.open(url)
         if not state["tray"]:
-            message("BSF Command Center is open in your web browser.\n\nIt keeps running in the background (so your overlays keep "
+            message("Kingdom Connect is open in your web browser.\n\nIt keeps running in the background (so your overlays keep "
                     "working) until you restart or sign out of Windows.")
         done.wait()
         stop_everything()
@@ -235,7 +236,7 @@ def main():
 
     webview.settings["ALLOW_DOWNLOADS"] = True                 # backups and Excel exports
     webview.settings["OPEN_EXTERNAL_LINKS_IN_BROWSER"] = True  # WhatsApp etc. open in your browser
-    window = webview.create_window(APP_NAME, url, width=1440, height=900, min_size=(1000, 640),
+    window = webview.create_window(DISPLAY_NAME, url, width=1440, height=900, min_size=(1000, 640),
                                    background_color="#0a1222", text_select=True)
     state["window"] = window
 
@@ -252,7 +253,7 @@ def main():
             state["hinted"] = True
             try:
                 state["tray"].notify("Still running in the background, so your overlays keep working. "
-                                     "Click the icon near the clock to open it again.", APP_NAME)
+                                     "Click the icon near the clock to open it again.", DISPLAY_NAME)
             except Exception:
                 pass
 
@@ -383,7 +384,7 @@ if __name__ == "__main__":
         main()
     except Exception:
         print(traceback.format_exc())
-        message("BSF Command Center hit an unexpected problem and has to close.\n\n"
-                "Details were saved in bsf-app-log.txt in your BSF Command Center data folder.", warn=True)
+        message("Kingdom Connect hit an unexpected problem and has to close.\n\n"
+                "Details were saved in bsf-app-log.txt in your data folder (%APPDATA%\\BSF Command Center).", warn=True)
     finally:
         os._exit(0)

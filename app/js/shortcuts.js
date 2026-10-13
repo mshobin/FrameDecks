@@ -20,7 +20,8 @@ var ACTIONS = [
   {id: 'hideAll', name: 'Hide all overlays',    cat: 'danger',   def: 'Escape'},
   {id: 'takeLive', name: 'Take the selected scene live', cat: 'live', def: 't'},
   {id: 'nextScene', name: 'Next scene (live)', cat: 'live', def: ']'},
-  {id: 'prevScene', name: 'Previous scene (live)', cat: 'live', def: '['}
+  {id: 'prevScene', name: 'Previous scene (live)', cat: 'live', def: '['},
+  {id: 'presentMode', name: 'Presentation Mode on / off', cat: 'live', def: 'p'}
 ];
 var RESERVED = {'Tab': 1, 'Enter': 1, ' ': 1, 'Shift': 1, 'Control': 1, 'Alt': 1, 'Meta': 1, 'CapsLock': 1, '/': 1};
 var map = load();
@@ -103,7 +104,7 @@ window.BSFShortcuts = {
         h('button', {'class': 'btn small', type: 'button', text: 'Restore default keys', onclick: function(){
           ACTIONS.forEach(function(a){ map[a.id] = a.def; }); save(); render('Default keys restored.'); }})
       ]));
-      root.appendChild(h('p', {'class': 'hint', text: msg || 'Shortcuts work on the Meeting and Content tabs whenever you are not typing in a box. Holding a key down triggers it only once. Changes are saved in this browser.'}));
+      root.appendChild(h('p', {'class': 'hint', text: msg || 'Shortcuts work in the Studio whenever you are not typing in a box. Holding a key down triggers it only once. Changes are saved in this browser.'}));
     }
     render();
   }

@@ -61,12 +61,12 @@ function chip(id, cls, text, title){                    // touches the page only
 }
 function renderProgram(){
   if (!Store.served) chip('h-program', 'info', 'No-install mode', 'Overlays update only in this browser. Start the program for OBS, Camo and the phone remote.');
-  else chip('h-program', Store.online ? 'ok' : 'bad', Store.online ? 'Connected' : 'Not responding', Store.online ? 'The local program is running' : 'Check the black BSF Command Center window is open');
+  else chip('h-program', Store.online ? 'ok' : 'bad', Store.online ? 'Connected' : 'Not responding', Store.online ? 'The local program is running' : 'Check the black Kingdom Connect window is open');
   var set = window.BSFMembersAPI ? window.BSFMembersAPI.settings() : {};
   var t = set.meetingTitle || 'BSF Meeting', g = String(set.groupName || 'BSF').trim() || 'BSF';
-  var org = (g.length <= 24 ? g : 'BSF') + ' Command Center';            // e.g. "NLFM Command Center"; long group names keep the usual title
+  var org = 'Kingdom Connect';
+  t = (g && g !== 'BSF' && t.indexOf(g) < 0 ? g + ' · ' : '') + t;      // e.g. "NLFM · Tuesday Evening Group"
   if ($('meeting-title').textContent !== t) $('meeting-title').textContent = t;
-  if ($('org-title') && $('org-title').textContent !== org) $('org-title').textContent = org;
   var dt = t + ' · ' + org; if (document.title !== dt) document.title = dt;
 }
 setInterval(function(){ if (!document.hidden) renderProgram(); }, 1000); renderProgram();

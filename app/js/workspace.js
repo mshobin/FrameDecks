@@ -76,13 +76,75 @@ function visibleScenes(){
   if (filter === 'recent') list = list.slice().sort(function(a, b){ return (b.modified || 0) - (a.modified || 0); }).slice(0, 8);
   return list;
 }
-function renderScenes(){
-  var ol = $('scene-list'), next = live.live.scene ? SC.neighbour(live, live.live.scene, 1) : null;
-  var list = visibleScenes();
-  var sig = JSON.stringify([list.map(function(s){ return [s.id, s.name, s.group, s.fav, s.tpl, s.layers.length, s.tx, s.auto.on, s.auto.sec]; }), live.live.scene, next && next.id, selScene, filter, collapsed, live.profile]);
+/* Question · Scripture · Both, right on the scene card (scenes with both cards) */
+var QS_OPTS = [['question', 'Question', 'Question only'], ['verse', 'Scripture', 'Scripture only'], ['both', 'Q + S', 'Question + Scripture']];
+function qsPill(sc){
+  var m = SC.qsMode(sc); if (!m) return null;
+  var g = h('span', {cls: 'si-qs', role: 'radiogroup', 'aria-label': 'What this scene shows'});
+  QS_OPTS.forEach(function(o){
+    g.appendChild(h('button', {type: 'button', role: 'radio', 'aria-checked': String(m === o[0]), title: o[2], text: o[1], onclick: function(e){
+      e.stopPropagation(); if (m === o[0]) return;
+      commit(function(n){ SC.setQS(n, sc.id, o[0]); }).then(function(){ toast(sc.name + ': ' + o[2] + (isLiveScene(sc.id) ? ' (on screen now)' : '')); });
+    }}));
+  });
+  g.addEventListener('dblclick', stop);
+  return g;
+}
+
+/* Content Library: ready-made Welcome, Prayer, Discussion, Scripture and Closing scenes, plus your own templates */
+var libSig = '';
+function libIcon(e){ var k = e.layers[0] ? e.layers[0][0] : 'announcement'; return (SC.info[k] || {}).icon || 'square'; }
+function libDesc(e){ return e.layers.map(function(d){ return (d[1] && d[1].name) || SC.info[d[0]].name; }).join(' + '); }
+function addFromLibrary(id, name){
+  var made = null, base = scene();
+  commit(function(n){ made = SC.fromLibrary(n, id, {after: selScene || null, group: base && !base.tpl ? base.group : '', creator: creator()}); })
+    .then(function(){ if (made){ select(made.id, null); toast('Added to your scenes: ' + made.name); } });
+}
+function renderLibrary(ol){
+  var q = search.trim().toLowerCase(), mine = live.scenes.filter(function(s){ return s.tpl && (!q || s.name.toLowerCase().indexOf(q) >= 0); });
+  var sig = JSON.stringify(['lib', q, mine.map(function(s){ return [s.id, s.name, s.layers.length]; }), selScene, collapsed]);
   if (sig === sceneSig) return; sceneSig = sig;
   ol.innerHTML = '';
-  if (!list.length){ ol.appendChild(h('li', {cls: 'pane-empty', text: live.scenes.length ? 'No scenes match.' : 'No scenes yet. Use + Scene to create one.'})); return; }
+  function head(g, n){
+    var open = !collapsed['lib:' + g];
+    ol.appendChild(h('li', {cls: 'sg-head', role: 'presentation'}, [h('button', {type: 'button', cls: 'sg-btn', 'aria-expanded': String(open), onclick: function(){ collapsed['lib:' + g] = open; sceneSig = ''; renderScenes(); }},
+      [h('span', {cls: 'sg-car', text: open ? '▾' : '▸'}), h('span', {text: g}), h('em', {text: String(n)})])]));
+    return open;
+  }
+  function item(icon, name, desc, onAdd, onOpen, sel){
+    var li = h('li', {cls: 'lib-item' + (sel ? ' sel' : ''), tabindex: '0', role: 'option', title: onOpen ? 'Select to edit · + adds a scene made from it' : 'Add this scene to your running order'}, [
+      h('span', {cls: 'lib-ic', html: I(icon, 16)}), h('span', {cls: 'si-t'}, [h('b', {text: name}), h('small', {text: desc})]),
+      h('button', {cls: 'btn small lib-add', type: 'button', 'aria-label': 'Add ' + name, html: I('plus', 14) + ' Add', onclick: function(e){ e.stopPropagation(); onAdd(); }})]);
+    li.addEventListener('click', onOpen || onAdd);
+    li.addEventListener('keydown', function(e){ if (e.key === 'Enter'){ e.preventDefault(); (onOpen || onAdd)(); } });
+    ol.appendChild(li);
+  }
+  var any = false;
+  SC.libraryCats.forEach(function(cat){
+    var list = SC.library.filter(function(e){ return e.cat === cat[0] && (!q || (e.name + ' ' + cat[1]).toLowerCase().indexOf(q) >= 0); });
+    if (!list.length) return; any = true;
+    if (head(cat[1], list.length)) list.forEach(function(e){ item(libIcon(e), e.name, libDesc(e), function(){ addFromLibrary(e.id); }); });
+  });
+  if (mine.length){ any = true;
+    if (head('Your templates', mine.length)) mine.forEach(function(t){ item('layout-template', t.name, sceneSub(t), function(){ fromTemplate(t.id); }, function(){ select(t.id, null); }, t.id === selScene); });
+  }
+  if (!any) ol.appendChild(h('li', {cls: 'pane-empty', text: 'Nothing in the Library matches.'}));
+  ol.appendChild(h('li', {cls: 'pane-note lib-note', text: 'Save any scene as your own template: ⋯ → Duplicate as template.'}));
+}
+function renderScenes(){
+  var ol = $('scene-list'), next = live.live.scene ? SC.neighbour(live, live.live.scene, 1) : null;
+  if (filter === 'tpl') return renderLibrary(ol);
+  var list = visibleScenes();
+  var sig = JSON.stringify([list.map(function(s){ return [s.id, s.name, s.group, s.fav, s.tpl, s.layers.length, s.tx, s.auto.on, s.auto.sec, SC.qsMode(s)]; }), live.live.scene, next && next.id, selScene, filter, collapsed, live.profile]);
+  if (sig === sceneSig) return; sceneSig = sig;
+  ol.innerHTML = '';
+  if (!list.length){
+    if (live.scenes.length){ ol.appendChild(h('li', {cls: 'pane-empty', text: 'No scenes match.'})); return; }
+    ol.appendChild(h('li', {cls: 'pane-empty start'}, [h('b', {text: 'Ready when you are'}), h('span', {text: 'Quick Start makes a full set of scenes for a Bible study, prayer meeting, youth gathering or fellowship meeting in one click.'}),
+      h('button', {cls: 'btn primary small', type: 'button', html: I('sparkles', 15) + ' Quick Start', onclick: function(){ openQuickStart(); }}),
+      h('button', {cls: 'btn quiet small', type: 'button', text: 'Browse the Library', onclick: function(){ setFilter('tpl'); }})]));
+    return;
+  }
   var groups = [], byGroup = {};
   list.forEach(function(sc){
     var g = filter === 'recent' ? 'Recent' : sc.tpl && filter !== 'tpl' ? 'Templates' : sc.group || '';
@@ -108,7 +170,8 @@ function renderScenes(){
         isLive ? h('span', {cls: 'si-badge live', text: 'LIVE'}) : isNext ? h('span', {cls: 'si-badge next', text: 'NEXT'}) : null,
         h('button', {cls: 'ib si-fav' + (sc.fav ? ' on' : ''), type: 'button', title: sc.fav ? 'Remove from favourites' : 'Add to favourites', 'aria-label': 'Favourite', html: sc.fav ? '★' : '☆',
           onclick: function(e){ e.stopPropagation(); edit(sc.id, function(x){ x.fav = !x.fav; }); }}),
-        h('button', {cls: 'ib si-more', type: 'button', title: 'Scene actions', 'aria-label': 'Scene actions', html: '⋯', onclick: function(e){ e.stopPropagation(); sceneMenu(sc.id, e.currentTarget); }})]);
+        h('button', {cls: 'ib si-more', type: 'button', title: 'Scene actions', 'aria-label': 'Scene actions', html: '⋯', onclick: function(e){ e.stopPropagation(); sceneMenu(sc.id, e.currentTarget); }}),
+        qsPill(sc)]);
       li.addEventListener('click', function(){ select(sc.id, null); });
       li.addEventListener('dblclick', function(){ takeScene(sc.id); });
       li.addEventListener('contextmenu', function(e){ e.preventDefault(); select(sc.id, null); sceneMenu(sc.id, li, e); });
@@ -140,13 +203,12 @@ function shiftScene(id, d){
 }
 $('scene-search').addEventListener('input', function(e){ search = e.target.value; sceneSig = ''; renderScenes(); });
 $('scene-search').addEventListener('keydown', function(e){ e.stopPropagation(); if (e.key === 'Escape'){ e.target.value = ''; search = ''; sceneSig = ''; renderScenes(); } });
-Array.prototype.forEach.call(document.querySelectorAll('[data-sf]'), function(b){
-  b.addEventListener('click', function(){
-    filter = b.dataset.sf; sceneSig = '';
-    Array.prototype.forEach.call(document.querySelectorAll('[data-sf]'), function(x){ x.setAttribute('aria-selected', String(x === b)); });
-    renderScenes();
-  });
-});
+function setFilter(f){
+  filter = f; sceneSig = '';
+  Array.prototype.forEach.call(document.querySelectorAll('[data-sf]'), function(x){ x.setAttribute('aria-selected', String(x.dataset.sf === f)); });
+  renderScenes();
+}
+Array.prototype.forEach.call(document.querySelectorAll('[data-sf]'), function(b){ b.addEventListener('click', function(){ setFilter(b.dataset.sf); }); });
 
 /* ---------- menus ---------- */
 var openMenu = null;
@@ -185,7 +247,7 @@ var TPL_ICON = {'bible-study': 'book-open', scripture: 'book-open', question: 'm
 $('scene-add').addEventListener('click', function(e){
   e.stopPropagation();
   var saved = live.scenes.filter(function(s){ return s.tpl; });
-  var items = [{label: 'New scene'}].concat(SC.templates.map(function(t){
+  var items = [{icon: 'sparkles', text: 'Quick Start…', run: openQuickStart}, {icon: 'library', text: 'Browse the Content Library', run: function(){ setFilter('tpl'); }}, '-', {label: 'New scene'}].concat(SC.templates.map(function(t){
     return {icon: TPL_ICON[t.id] || 'square', text: t.name + ' Scene', run: function(){ newScene(t.id); }};
   }));
   if (saved.length){ items.push('-', {label: 'From your templates'}); saved.forEach(function(t){ items.push({icon: 'layout-template', text: t.name, run: function(){ fromTemplate(t.id); }}); }); }
@@ -208,13 +270,103 @@ function duplicate(id, opts){
   opts.creator = creator();
   return commit(function(n){ made = SC.duplicate(n, id, opts); }).then(function(){ if (made){ select(made.id, null, true); toast((opts.template ? 'Template saved: ' : 'Scene duplicated: ') + made.name); } return made; });
 }
+/* ---------- Quick Start: one click, a ready-to-run set of scenes ---------- */
+function qsSceneName(e){
+  if (e[1]) return e[1];
+  var lib = SC.library.filter(function(x){ return x.id === e[0]; })[0], tpl = SC.templates.filter(function(x){ return '@' + x.id === e[0]; })[0];
+  return lib ? lib.name : tpl ? tpl.name : 'Scene';
+}
+function openQuickStart(){
+  var dlg = $('qs-dlg');
+  if (!dlg){
+    dlg = h('dialog', {cls: 'kc-dlg qs-dlg', id: 'qs-dlg', 'aria-labelledby': 'qs-title'});
+    dlg.addEventListener('click', function(e){ if (e.target === dlg) dlg.close(); });
+    document.body.appendChild(dlg);
+  }
+  dlg.innerHTML = '';
+  var grid = h('div', {cls: 'qs-grid'});
+  SC.quickStarts.forEach(function(q){
+    grid.appendChild(h('button', {type: 'button', cls: 'qs-card', 'data-qs-id': q.id, onclick: function(){ runQuickStart(q); }}, [
+      h('span', {cls: 'qs-ic', html: I(q.icon, 24)}), h('b', {text: q.name}), h('span', {cls: 'qs-text', text: q.text}),
+      h('ol', {cls: 'qs-list'}, q.scenes.map(function(e){ return h('li', {text: qsSceneName(e)}); }))]));
+  });
+  dlg.appendChild(h('div', {cls: 'kc-dlg-in'}, [
+    h('p', {cls: 'kc-dlg-kicker', text: 'Quick Start'}), h('h2', {id: 'qs-title', text: 'What are you leading today?'}),
+    h('p', {cls: 'kc-dlg-sub', text: 'Pick one and a complete set of scenes is ready in its own group. Change any of them afterwards; nothing goes on screen until you take it live.'}),
+    grid,
+    h('div', {cls: 'kc-dlg-foot'}, [h('button', {cls: 'btn quiet', type: 'button', text: 'Browse the Library instead', onclick: function(){ dlg.close(); setFilter('tpl'); }}),
+      h('button', {cls: 'btn', type: 'button', text: 'Cancel', onclick: function(){ dlg.close(); }})])]));
+  if (window.BSFSetTab && document.body.dataset.tab !== 'studio') window.BSFSetTab('studio');
+  dlg.showModal();
+  var first = dlg.querySelector('.qs-card'); if (first) first.focus();
+}
+function runQuickStart(q){
+  var made = [];
+  commit(function(n){ made = SC.quickStart(n, q.id, {creator: creator()}); }).then(function(){
+    var dlg = $('qs-dlg'); if (dlg && dlg.open) dlg.close();
+    if (!made.length) return;
+    delete collapsed[made[0].group]; setFilter('all');
+    select(made[0].id, null, true);
+    toast(q.name + ' is ready: ' + made.length + ' scenes in “' + made[0].group + '”. Select a scene and press Take live.');
+  });
+}
+window.BSFQuickStart = {open: openQuickStart};
+$('quick-start').addEventListener('click', openQuickStart);
+
+/* ---------- Duplicate → Edit question → Done ---------- */
+var editQ = null;                                  // {sid, lid, src, from}
+function dupAndEdit(id){
+  var sc = SC.find(live, id), q = sc && SC.first(sc, 'question');
+  if (!q || sc.tpl) return duplicate(id, {});
+  var src = q.c.itemId || live.question.itemId || '';
+  return duplicate(id, {}).then(function(made){
+    if (!made) return;
+    var nl = SC.first(made, 'question'); if (!nl) return;
+    editQ = {sid: made.id, lid: nl.id, src: src, from: sc.name};
+    inspSig = ''; select(made.id, nl.id);
+    setTimeout(function(){ var t = $('eq-text'); if (t){ t.focus(); t.select(); } }, 60);
+  });
+}
+function editQuestionForm(gen){
+  var sc = scene(), l = layer(), items = live.library.questions;
+  var i = items.findIndex(function(x){ return x.id === editQ.src; });
+  var cur = i >= 0 ? items[i].text : String(live.question.text || '');
+  var name = h('input', {type: 'text', value: sc.name, id: 'eq-name', 'aria-label': 'Scene name'}); name.addEventListener('keydown', stop);
+  var ta = h('textarea', {rows: 5, id: 'eq-text', 'aria-label': 'Question for this scene'}); ta.value = cur;
+  ta.addEventListener('keydown', function(e){ stop(e); if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)){ e.preventDefault(); done(); } });
+  var picks = h('div', {cls: 'eq-picks'});
+  [[i + 1, 'Next in the list'], [i - 1, 'Previous']].forEach(function(p){
+    var it = items[p[0]]; if (i < 0 || !it) return;
+    picks.appendChild(h('button', {type: 'button', cls: 'chip eq-pick', title: it.text, onclick: function(){ ta.value = it.text; ta.focus(); }}, [h('b', {text: p[1] + ' (' + (p[0] + 1) + '): '}), it.text.slice(0, 70) + (it.text.length > 70 ? '…' : '')]));
+  });
+  function done(){
+    var text = ta.value.trim(), nm = name.value.trim(), sid = editQ.sid, lid = editQ.lid, src = editQ.src;
+    if (!text){ toast('Type the question for this scene first.', true); ta.focus(); return; }
+    var hit = null;
+    commit(function(n){ var x = SC.find(n, sid); if (x && nm) x.name = nm; hit = SC.pinQuestionText(n, sid, lid, text, src); }).then(function(){
+      editQ = null; inspSig = ''; select(sid, null);
+      var k = hit ? live.library.questions.findIndex(function(x){ return x.id === hit.id; }) : -1;
+      toast('Scene ready: ' + (nm || sc.name) + (k >= 0 ? ' · question ' + (k + 1) : ''));
+    });
+  }
+  gen.appendChild(h('div', {cls: 'eq'}, [
+    h('p', {cls: 'eq-steps'}, [h('span', {cls: 'ok', text: '✓ Duplicated'}), h('span', {cls: 'on', text: '2 Edit question'}), h('span', {text: '3 Done'})]),
+    h('p', {cls: 'hint', text: 'Copied from “' + editQ.from + '”. Everything else (layout, verse, transition, outputs) is kept.'}),
+    field('Scene name', name), field('Question', ta), picks,
+    h('div', {cls: 'ip-acts eq-acts'}, [
+      h('button', {cls: 'btn primary', type: 'button', id: 'eq-done', html: I('check', 16) + ' Done', onclick: done}),
+      h('button', {cls: 'btn quiet', type: 'button', text: 'Keep the copied question', onclick: function(){ editQ = null; inspSig = ''; select(sc.id, null); }})]),
+    h('p', {cls: 'hint', text: 'Ctrl+Enter = Done. A new question is added to the list right after the original one, and this scene is pinned to it.'})]));
+}
+
 function sceneMenu(id, anchor, ev){
   var sc = SC.find(live, id); if (!sc) return;
   var hasQ = !!SC.first(sc, 'question'), hasV = !!SC.first(sc, 'scripture');
   menu(anchor, [
     {icon: 'play', text: isLiveScene(id) ? 'Take live again' : 'Take live', hint: 'T', run: function(){ select(id, null); takeScene(id); }},
     '-',
-    {icon: 'copy', text: 'Duplicate', hint: 'Ctrl+D', run: function(){ duplicate(id, {}); }},
+    {icon: 'copy', text: hasQ ? 'Duplicate & edit question' : 'Duplicate', hint: 'Ctrl+D', run: function(){ dupAndEdit(id); }},
+    hasQ ? {icon: 'copy', text: 'Duplicate (keep the question)', run: function(){ duplicate(id, {}); }} : null,
     {icon: 'copy', text: 'Duplicate with options…', run: function(){ smartDuplicate(id); }},
     {icon: 'layout-template', text: 'Duplicate as template', run: function(){ duplicate(id, {template: true, name: SC.uniqueName(live, sc.name + ' template')}); }},
     {icon: 'layers', text: 'Duplicate layer structure only', run: function(){ duplicate(id, {content: 'empty'}); }},
@@ -465,9 +617,48 @@ var inspSig = '', curTabs = '';
 function group(kind){ return !kind ? 'scene' : SC.isCard(kind) ? 'card' : SC.isText(kind) ? 'text' : 'media'; }
 function setTab(t){ var g = curKind(); tabFor[g] = t; lsSet('bcc-insp-tabs', JSON.stringify(tabFor)); inspSig = ''; renderInspector(); }
 function curKind(){ var l = layer(); return l ? l.kind : ''; }
+/* Basic (Label · Theme · Position) or Advanced (typography, layout, animation) for content layers; Basic by default */
+var adv = lsGet('kc-insp-adv', '0') === '1';
+function tabsFor(g){ return adv || (g !== 'card' && g !== 'text') ? TABS[g] : TABS[g].filter(function(t){ return t[0] === 'content' || t[0] === 'style' || t[0] === 'output'; }); }
+function setAdv(on){
+  adv = !!on; lsSet('kc-insp-adv', adv ? '1' : '0'); inspSig = ''; curTabs = '';
+  Array.prototype.forEach.call(document.querySelectorAll('#insp-mode [data-im]'), function(b){ b.setAttribute('aria-checked', String((b.dataset.im === 'adv') === adv)); });
+  renderInspector();
+}
+Array.prototype.forEach.call(document.querySelectorAll('#insp-mode [data-im]'), function(b){ b.addEventListener('click', function(){ setAdv(b.dataset.im === 'adv'); }); });
+/* Card themes: a look = card opacity + text size (the same settings Advanced shows as sliders) */
+var THEMES = [['classic', 'Classic', 92, 1], ['bold', 'Bold', 100, 1.15], ['soft', 'Soft', 76, 1], ['large', 'Large print', 100, 1.35]];
+var QPOS = [['low', 'Low', 6], ['middle', 'Middle', 12], ['high', 'High', 20]];
+function buildBasicSegs(){
+  Array.prototype.forEach.call(document.querySelectorAll('[data-kc-theme]'), function(seg){
+    var key = seg.dataset.kcTheme === 'question' ? 'qScale' : 'verseScale';
+    THEMES.forEach(function(t){ seg.appendChild(h('button', {type: 'button', 'data-val': t[0], text: t[1], title: 'Card ' + t[2] + '% · text ' + Math.round(t[3] * 100) + '%',
+      onclick: function(){ commit(function(n){ n.layout.panel = t[2]; n.layout[key] = t[3]; }); }})); });
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('[data-kc-qpos]'), function(seg){
+    QPOS.forEach(function(p){ seg.appendChild(h('button', {type: 'button', 'data-val': p[0], text: p[1], onclick: function(){ commit(function(n){ n.layout.qBottom = p[2]; }); }})); });
+  });
+}
+buildBasicSegs();
+function refreshBasicSegs(){
+  var L = live.layout;
+  Array.prototype.forEach.call(document.querySelectorAll('[data-kc-theme]'), function(seg){
+    var sc = seg.dataset.kcTheme === 'question' ? L.qScale : L.verseScale;
+    Array.prototype.forEach.call(seg.children, function(b, i){ var t = THEMES[i]; b.setAttribute('aria-pressed', String(Math.round(L.panel) === t[2] && Math.abs(sc - t[3]) < 0.01)); });
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('[data-kc-qpos]'), function(seg){
+    Array.prototype.forEach.call(seg.children, function(b, i){ b.setAttribute('aria-pressed', String(Math.round(L.qBottom) === QPOS[i][2])); });
+  });
+}
 function renderInspector(){
   var sc = scene(), l = layer(), kind = l ? l.kind : '', g = group(kind);
-  var tabs = TABS[g], tab = tabFor[kind || 'scene'] || tabs[0][0];
+  if (editQ && (selScene !== editQ.sid || selLayer !== editQ.lid)) editQ = null;
+  document.body.classList.toggle('insp-basic', !adv);
+  var im = $('insp-mode'); if (im){ var showIm = !editQ && (g === 'card' || g === 'text'); if (im.hidden === showIm) im.hidden = !showIm; }
+  // birthday: in Basic its position sits on the Style tab
+  var bp = $('bday-pos-sec'), bdst = document.querySelector('.ip[data-kind="birthday"][data-itab="' + (adv ? 'layout' : 'style') + '"]');
+  if (bp && bdst && bp.parentNode !== bdst) bdst.appendChild(bp);
+  var tabs = tabsFor(g), tab = tabFor[kind || 'scene'] || tabs[0][0];
   if (!tabs.some(function(t){ return t[0] === tab; })) tab = tabs[0][0];
   // head
   $('insp-ic').innerHTML = I(l ? SC.info[l.kind].icon : 'layout-template', 18);
@@ -476,31 +667,33 @@ function renderInspector(){
   var on = sc && isLiveScene(sc.id) && (!l || SC.layerOn(live, sc, l));
   $('insp-live').textContent = on ? 'LIVE' : ''; $('insp-live').className = 'insp-live' + (on ? ' on' : '');
   // tabs
-  var tsig = (kind || 'scene') + '|' + tab;
+  var tsig = (kind || 'scene') + '|' + tab + '|' + adv + '|' + !!editQ;
   if (tsig !== curTabs){
     curTabs = tsig;
     var nav = $('insp-tabs'); nav.innerHTML = '';
     tabs.forEach(function(t){ nav.appendChild(h('button', {type: 'button', role: 'tab', 'data-itab': t[0], 'aria-selected': String(t[0] === tab), text: t[1], onclick: function(){ tabFor[kind || 'scene'] = t[0]; lsSet('bcc-insp-tabs', JSON.stringify(tabFor)); inspSig = ''; renderInspector(); }})); });
-    nav.hidden = tabs.length < 2;
+    nav.hidden = !!editQ || tabs.length < 2;
   }
   // panels: the existing editors for Question / Scripture / Birthday; generated forms for the rest
   var panelKind = SC.isCard(kind) ? kind : SC.isMedia(kind) ? 'media' : null;
-  var useGen = !sc || !l || SC.isText(kind) || (SC.isCard(kind) && tab === 'output') || (SC.isMedia(kind) && !(isLiveScene(sc.id) && studio()));
+  var useGen = !!editQ || !sc || !l || SC.isText(kind) || (SC.isCard(kind) && tab === 'output') || (SC.isMedia(kind) && !(isLiveScene(sc.id) && studio()));
+  $('insp-tabs').hidden = !!editQ || tabs.length < 2;
   Array.prototype.forEach.call(document.querySelectorAll('#insp-body > .ip[data-kind]'), function(p){
     var show = !useGen && p.dataset.kind === panelKind && p.dataset.itab === tab;
     if (p.hidden === show) p.hidden = !show;
   });
   var gen = $('ip-gen'); gen.hidden = !useGen;
-  if (SC.isCard(kind) && !useGen){ renderPin(sc, l); if (window.BSFRenderLists) window.BSFRenderLists(); if (window.BSFRefreshControls) window.BSFRefreshControls(); if (kind === 'birthday' && window.BSFRenderBirthday) window.BSFRenderBirthday(); }
+  if (SC.isCard(kind) && !useGen){ refreshBasicSegs(); renderPin(sc, l); if (window.BSFRenderLists) window.BSFRenderLists(); if (window.BSFRefreshControls) window.BSFRefreshControls(); if (kind === 'birthday' && window.BSFRenderBirthday) window.BSFRenderBirthday(); }
   if (useGen){
-    var sig = JSON.stringify([sc && sc.id, l, tab, sc && !l ? [sc.name, sc.group, sc.fav, sc.tpl, sc.tx, sc.auto, sc.out, sc.modified, live.profile] : 0, isLiveScene(sc && sc.id), live.live.on]);
+    var sig = JSON.stringify([editQ, adv, sc && sc.id, l, tab, sc && !l ? [sc.name, sc.group, sc.fav, sc.tpl, sc.tx, sc.auto, sc.out, sc.modified, live.profile] : 0, isLiveScene(sc && sc.id), live.live.on]);
     var ae = document.activeElement;
     if (ae && gen.contains(ae) && /INPUT|TEXTAREA|SELECT/.test(ae.tagName) && inspSig.split('|')[0] === (sc && sc.id) + ':' + (l && l.id) + ':' + tab) return;   // typing: don't redraw under the cursor
     if (sig === inspSig.slice(inspSig.indexOf('|') + 1)) return;
     inspSig = (sc && sc.id) + ':' + (l && l.id) + ':' + tab + '|' + sig;
     gen.innerHTML = '';
     if (!sc){ gen.appendChild(h('p', {cls: 'hint', text: 'Select or create a scene on the left.'})); return; }
-    if (!l) sceneForm(gen, sc, tab);
+    if (editQ) editQuestionForm(gen);
+    else if (!l) sceneForm(gen, sc, tab);
     else if (tab === 'output') outputForm(gen, sc, l);
     else if (SC.isText(kind)) textForm(gen, sc, l, tab);
     else mediaForm(gen, sc, l);
@@ -595,6 +788,15 @@ function textForm(gen, sc, l, tab){
       gen.appendChild(field(l.kind === 'lowerthird' ? 'Role or second line' : 'Text', ta));
     }
     gen.appendChild(h('p', {cls: 'hint', text: isLiveScene(sid) ? 'This scene is live: changes appear on screen as you type.' : 'Shown when this scene is taken live.'}));
+  } else if (tab === 'style' && !adv){
+    gen.appendChild(checkCtl('Show the title / label', c.label, function(v){ set(function(x){ x.c.label = v; }, true); }));
+    var sizes = [['small', 'Small', 0.85], ['standard', 'Standard', 1], ['large', 'Large', 1.3], ['xl', 'Extra large', 1.7]];
+    var near = function(v){ return sizes.reduce(function(a, t){ return Math.abs(t[2] - v) < Math.abs(a[2] - v) ? t : a; }); };
+    gen.appendChild(row('Theme', segCtl(near(c.scale)[0], sizes.map(function(t){ return [t[0], t[1]]; }), function(v){ var t = sizes.filter(function(x){ return x[0] === v; })[0]; set(function(x){ x.c.scale = t[2]; }, true); })));
+    var pos2 = h('select', {'aria-label': 'Position', id: 'tl-pos'}, SC.positions.map(function(p){ return h('option', {value: p, text: POS_NAMES[p]}); })); pos2.value = c.pos;
+    pos2.addEventListener('change', function(){ set(function(x){ x.c.pos = pos2.value; }, true); });
+    gen.appendChild(field('Position', pos2));
+    gen.appendChild(h('p', {cls: 'hint', text: 'Advanced (above) has exact text size, width, opacity and animation.'}));
   } else if (tab === 'style'){
     gen.appendChild(checkCtl('Show the title / label', c.label, function(v){ set(function(x){ x.c.label = v; }, true); }));
     gen.appendChild(row('Text size', rangeCtl(c.scale, 0.4, 3, 0.05, function(v){ return Math.round(v * 100) + '%'; }, function(v){ set(function(x){ x.c.scale = v; }); })));
@@ -854,6 +1056,21 @@ function renderAll(force){
 Store.subscribe(function(st){ live = st; migrate(); renderAll(false); });
 setInterval(function(){ if (live && !document.hidden && document.body.dataset.tab === 'studio') renderLayers(); }, 3000);   // media layer status from BCC vCam
 
+/* ---------- Presentation Mode: only the scene list, Previous · Take live · Next (and HIDE ALL, always) ---------- */
+function setPresentation(on){
+  on = !!on;
+  if (on && window.BSFSetTab && document.body.dataset.tab !== 'studio') window.BSFSetTab('studio');
+  document.body.classList.toggle('pm', on);
+  var b = $('pm-toggle'); b.setAttribute('aria-pressed', String(on));
+  b.querySelector('span').textContent = on ? 'Exit Presentation Mode' : 'Presentation Mode';
+  b.title = on ? 'Back to the full Studio (P)' : 'Presentation Mode: only the scenes, Previous, Take live and Next (P)';
+  if (filter === 'tpl' && on) setFilter('all');
+  closeMenu();
+  setTimeout(function(){ window.dispatchEvent(new Event('resize')); var el = document.querySelector('#scene-list .scene-item.live, #scene-list .scene-item.sel'); if (el) el.scrollIntoView({block: 'nearest'}); }, 60);
+}
+$('pm-toggle').addEventListener('click', function(){ setPresentation(!document.body.classList.contains('pm')); });
+window.BSFPresentation = setPresentation;
+
 /* Keyboard in the Studio: Ctrl+D duplicates the selected scene (or layer), Delete removes, F2 renames */
 document.addEventListener('keydown', function(e){
   if (document.body.dataset.tab !== 'studio' || document.querySelector('dialog[open], .app-modal-back')) return;
@@ -861,7 +1078,7 @@ document.addEventListener('keydown', function(e){
   if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || (t && t.isContentEditable)) return;
   if ((e.ctrlKey || e.metaKey) && (e.key === 'd' || e.key === 'D') && !e.shiftKey){
     if (t && t.closest && t.closest('#s2-stage')) return;                 // the canvas duplicates its own selection
-    e.preventDefault(); if (selLayer) duplicateLayer(selScene, selLayer); else if (selScene) duplicate(selScene, {});
+    e.preventDefault(); if (selLayer) duplicateLayer(selScene, selLayer); else if (selScene) dupAndEdit(selScene);
   }
 });
 

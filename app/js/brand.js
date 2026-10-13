@@ -1,25 +1,89 @@
 /* ==================================================================
- * BSF Command Center - brand and About information
+ * Kingdom Connect - brand and About page text
  *
- * This is the ONE place to change the text shown in "About".
+ * This is the ONE place to change the words on the About page.
  * Edit the words between the quote marks, save, and rebuild.
  * (Keep each line's quotes, commas and brackets as they are.)
  *
  * The version number lives in server.py (APP_VERSION) so the app,
- * the installer and this About screen always show the same number.
+ * the installer and the About page always show the same number.
  * ================================================================== */
 window.BSFBrand = {
-  name: 'BSF Command Center',
-  tagline: 'Clean Bible study overlays for BSF leaders on Zoom.',
-  category: 'Bible Study Overlays for online BSF Zoom groups.',
-  audience: 'BSF leaders (group leaders, discussion leaders, and serving members) who host or support online Zoom Bible study sessions.',
-  mission: 'Help BSF leaders run smoother, more focused Zoom Bible studies by providing clear, easy-to-use overlays that keep attention on God’s Word and the group discussion.',
-  positioning: 'BSF Command Center is a simple, reliable overlay tool designed specifically for BSF leaders who want to display Scripture, lesson references, and study visuals cleanly during their Zoom sessions—without complicated setups or distracting designs.',
+  name: 'Kingdom Connect',
+  tagline: 'Christ-Centered Fellowship',
+  motto: ['Connecting Believers.', 'Sharing Christ.', 'Growing Together.'],
+  intro: 'A ministry-focused platform designed to help churches, Bible studies, prayer groups, discipleship communities, and Christian fellowship groups create meaningful Christ-centered gatherings.',
+
+  mission: 'To strengthen Christian communities by making online meetings more engaging, organized, and centered on biblical truth.',
+  vision: 'To see every online gathering become a place where God’s Word is clearly shared, believers are encouraged, disciples are equipped, and lives are transformed for the glory of God.',
+
+  why: {
+    lead: 'Technology should never distract from ministry.',
+    text: 'Too often leaders spend valuable time managing slides, searching for content, troubleshooting screens, and navigating complicated software. Kingdom Connect was created to remove those distractions so leaders can focus on what matters most:',
+    points: ['God’s Word', 'Prayer', 'Fellowship', 'Discipleship', 'Encouraging one another in Christ'],
+    principle: ['Less time managing technology.', 'More time ministering to people.']
+  },
+
+  serves: ['Bible Study Leaders', 'Discussion Leaders', 'Churches', 'Prayer Groups', 'Youth Ministries', 'Small Groups',
+           'Discipleship Communities', 'Christian Organizations', 'Ministry Teams', 'Online Fellowship Groups'],
+
+  values: [
+    {title: 'Christ-Centered', text: 'Everything begins with Scripture and points people to Jesus.'},
+    {title: 'Servant-Hearted', text: 'Built to support those who faithfully serve others.'},
+    {title: 'Simple by Design', text: 'Technology should empower ministry, not complicate it.'},
+    {title: 'Excellence for God’s Glory', text: 'Pursuing quality as an act of stewardship and worship.'}
+  ],
+
+  impact: ['Present Scripture clearly', 'Lead engaging discussions', 'Encourage participation', 'Strengthen discipleship',
+           'Support prayer gatherings', 'Build meaningful fellowship', 'Equip believers', 'Foster spiritual growth'],
+
+  // Shown one at a time on the About page (English Standard Version)
+  scriptures: [
+    {ref: 'Hebrews 10:24–25', text: 'And let us consider how to stir up one another to love and good works, not neglecting to meet together, as is the habit of some, but encouraging one another, and all the more as you see the Day drawing near.'},
+    {ref: 'Colossians 3:16', text: 'Let the word of Christ dwell in you richly, teaching and admonishing one another in all wisdom, singing psalms and hymns and spiritual songs, with thankfulness in your hearts to God.'},
+    {ref: '2 Timothy 2:2', text: 'And what you have heard from me in the presence of many witnesses entrust to faithful men, who will be able to teach others also.'},
+    {ref: 'Acts 2:42', text: 'And they devoted themselves to the apostles’ teaching and the fellowship, to the breaking of bread and the prayers.'},
+    {ref: 'Matthew 28:19–20', text: 'Go therefore and make disciples of all nations, baptizing them in the name of the Father and of the Son and of the Holy Spirit, teaching them to observe all that I have commanded you. And behold, I am with you always, to the end of the age.'}
+  ],
+  scriptureCredit: 'Scripture quotations are from the ESV® Bible (The Holy Bible, English Standard Version®), © 2001 by Crossway. Used by permission. All rights reserved.',
+
+  heart: {
+    lines: ['Every discussion matters.', 'Every prayer matters.', 'Every soul matters.'],
+    prayer: 'We pray Kingdom Connect helps leaders create spaces where people encounter God’s truth and experience authentic Christian fellowship.'
+  },
+
   creator: {
     name: 'Shobin Mathews',
-    bio: 'Enterprise IT consultant and active BSF member who builds practical tools for BSF online groups.',
-    email: 'mshobin@gmail.com'
+    roles: ['Enterprise IT Consultant', 'Ministry Servant', 'BSF Leader', 'Follower of Jesus Christ'],
+    email: 'mshobin@gmail.com',
+    badge: 'Inspired by Service',
+    // DRAFT - written for you to replace with your own words before release.
+    story: [
+      'Kingdom Connect began in the middle of ministry, not in a boardroom. Week after week, leading online Bible studies meant juggling slides, verses, questions and screens while trying to stay present with the people in the group.',
+      'Years of work in enterprise IT made one thing clear: good technology should quietly serve the people using it. So this platform was built to do exactly that, so a leader can keep their eyes on God’s Word and on the people God has entrusted to them.'
+    ],
+    // DRAFT - your ministry journey, oldest first. Change, add or remove steps.
+    journey: [
+      {title: 'Follower of Jesus Christ', text: 'Where every part of this story begins.'},
+      {title: 'Enterprise IT Consultant', text: 'Building dependable systems for organizations.'},
+      {title: 'BSF Leader', text: 'Serving and leading in online Bible study groups.'},
+      {title: 'Ministry Servant', text: 'Seeing leaders wrestle with technology during gatherings.'},
+      {title: 'Kingdom Connect', text: 'A platform that lets leaders focus on people and the Word.'}
+    ]
   },
+
+  commitment: {
+    points: ['Stewardship', 'Transparency', 'Responsible development', 'Ministry-first design', 'Respectful use of user data', 'Continuous improvement'],
+    lines: ['Our goal is never technology for technology’s sake.', 'Our goal is helping believers gather around God’s Word.']
+  },
+
+  join: {
+    thanks: 'Thank you for serving God’s people.',
+    text: 'Whether you lead a Bible study, facilitate discussion groups, mentor disciples, teach Scripture, coordinate ministries, or shepherd believers, we pray Kingdom Connect becomes a blessing to your ministry.'
+  },
+
+  footer: 'Built for ministry, discipleship, prayer, fellowship, and the glory of God.',
+
   // Always keep this accurate:
-  disclaimer: 'BSF Command Center is an independent tool created by Shobin Mathews. It is not officially affiliated with, endorsed by, or produced by Bible Study Fellowship International.'
+  disclaimer: 'Kingdom Connect (formerly BSF Command Center) is an independent ministry tool created by Shobin Mathews. It is not officially affiliated with, endorsed by, or produced by Bible Study Fellowship International.'
 };

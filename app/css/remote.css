@@ -206,3 +206,19 @@ body:has(.tabbar[hidden]) .layout{padding-bottom:16px}
   .p-scenes,.p-layers{position:static;max-height:46dvh}
 }
 @media (prefers-reduced-motion:reduce){ .pb,.toast{transition:none} }
+
+/* ---------- v6.1 Kingdom Connect: navy & gold (tokens only) ---------- */
+:root{--bg:#0a1120;--panel:#0f182b;--panel2:#152039;--raised:#18233a;--edge:#1e2a42;--edge2:#2b3a58;--ink:#eef2f9;--muted:#9fabc2;--faint:#6b7894;
+  --accent:#e3b75a;--accent-soft:rgba(227,183,90,.14);--mica:linear-gradient(180deg,rgba(227,183,90,.03),rgba(255,255,255,0) 60%)}
+.login{background:radial-gradient(120% 70% at 50% 0%,#16294d 0%,#0f1f3d 40%,#0a1120 100%)}
+.login-card{border-color:rgba(227,183,90,.3)}
+.logo{width:96px;height:auto;margin-top:-8px}
+.login h1{font-size:26px;letter-spacing:.14em;text-transform:uppercase;background:linear-gradient(180deg,#fff3cf,#f0c96d 55%,#c9973a);-webkit-background-clip:text;background-clip:text;color:transparent}
+.login .login-sub{margin:-2px 0 16px;font-size:13px;font-weight:700;letter-spacing:.3em;text-transform:uppercase;color:#b9c6dd}
+#pin{background:#0b1324}
+#pin:focus{box-shadow:0 0 0 3px rgba(227,183,90,.25)}
+.big-btn.gold{background:linear-gradient(180deg,#f7dc95,#e3b75a);color:#1a1405}
+.brand-mark{width:26px;height:auto;flex:none;display:block}
+.brand-t .title{font-size:14px;letter-spacing:.14em;text-transform:uppercase;background:linear-gradient(180deg,#fff3cf,#f0c96d 55%,#c9973a);-webkit-background-clip:text;background-clip:text;color:transparent}
+@media (max-width:380px){ .brand-mark{display:none} }
+.seg button[aria-checked="true"]{color:#1a1405}

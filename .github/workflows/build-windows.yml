@@ -1,5 +1,5 @@
-# Builds the installer "BCC v<version>.exe" on a clean Windows machine at GitHub.
-#   - Every push to "main" (or "Run workflow" on the Actions tab): the installer ("BCC v<version>.exe") is attached to that run
+# Builds the installer "Kingdom Connect v<version>.exe" on a clean Windows machine at GitHub.
+#   - Every push to "main" (or "Run workflow" on the Actions tab): the installer ("Kingdom Connect v<version>.exe") is attached to that run
 #     under "Artifacts" (kept for 90 days).
 #   - A version tag such as v3.1: the installer is also published on the Releases page (kept forever).
 name: Build Windows installer
@@ -95,8 +95,8 @@ jobs:
       - name: Attach the installer to this run
         uses: actions/upload-artifact@v4
         with:
-          name: BCC v${{ steps.ver.outputs.version }}
-          path: dist/BCC v*.exe
+          name: Kingdom Connect v${{ steps.ver.outputs.version }}
+          path: dist/Kingdom Connect v*.exe
           if-no-files-found: error
 
       - name: Publish on the Releases page (version tags only)
@@ -105,5 +105,5 @@ jobs:
         with:
           name: Version ${{ steps.ver.outputs.version }}
           body_path: docs/releases/v${{ steps.ver.outputs.version }}.md
-          files: dist/BCC v*.exe
+          files: dist/Kingdom Connect v*.exe
           generate_release_notes: false

@@ -647,3 +647,140 @@ body.studio-focus .ws{grid-template-columns:minmax(0,1fr);height:100vh} body.stu
 @media (max-width:760px){ .ws{grid-template-columns:minmax(0,1fr)} .ws-left{max-height:none} }
 html[data-theme="light"] .canvas-frame,html[data-theme="light"] .ws-center{background:#e8e9ee}
 html[data-theme="light"] .si-badge.live,html[data-theme="light"] .canvas-badge.live{color:#fff}
+
+/* =====================================================================================================
+ * v6.1 - Kingdom Connect: one navy & gold design language, plus Quick Start, the Content Library,
+ * the Question · Scripture pill, Duplicate → Edit question, Presentation Mode and Basic / Advanced.
+ * Token changes only where possible: no new effects, no backdrop blur, no running animations.
+ * ===================================================================================================== */
+:root,html[data-theme="dark"]{
+  --app-bg:#0a1120; --bg:#0a1120; --chrome-bg:#0d1628;
+  --surface:#121c30; --raised:#18233a; --field:#0b1324; --panel:#0f182b; --panel-2:#152039;
+  --line:#26344f; --line-soft:#1c2840; --edge:#1e2a42; --line-hover:#344566; --line-strong:#4a5c80;
+  --ink:#eef2f9; --muted:#9fabc2; --faint:#6b7894; --ink-warm:#fbf3df;
+  --neutral-btn:#223050;
+  --accent:#e3b75a; --accent-strong:#d9a94a; --accent-soft:rgba(227,183,90,.13); --accent-ink:#1a1405;
+  --mica:linear-gradient(180deg,rgba(227,183,90,.025),rgba(255,255,255,0) 60%);
+  --kc-navy:#0a1426; --kc-gold-line:rgba(227,183,90,.3);
+}
+html[data-theme="light"]{
+  --app-bg:#f5f3ee; --bg:#f5f3ee; --chrome-bg:rgba(252,251,248,.985);
+  --surface:#ffffff; --raised:#f2efe8; --panel:#fdfcf9; --panel-2:#f7f4ee;
+  --line:#dcd6ca; --line-soft:#e8e3d8; --edge:#e4ded2;
+  --ink:#16203a; --muted:#56607a; --faint:#8a90a2;
+  --accent:#1f3a6d; --accent-strong:#172f5c; --accent-soft:rgba(31,58,109,.09); --accent-ink:#fff;
+  --mica:linear-gradient(180deg,rgba(214,160,60,.05),rgba(255,255,255,0) 60%);
+  --kc-navy:#0a1426; --kc-gold-line:rgba(184,134,47,.35);
+}
+/* Selection uses the brand accent (gold on navy, navy on paper); live stays green, hide stays red */
+.scene-item.sel,.layer-item.sel{border-color:var(--kc-gold-line)}
+html[data-theme="light"] .scene-item.sel,html[data-theme="light"] .layer-item.sel{border-color:rgba(31,58,109,.35)}
+
+/* Header: the Kingdom Connect wordmark */
+.console-top{background:linear-gradient(180deg,rgba(227,183,90,.035),rgba(227,183,90,0)),var(--chrome-bg)}
+.console-top .brand h1{font-family:var(--sans);font-weight:800;font-size:13.5px;letter-spacing:.11em;white-space:nowrap;text-transform:uppercase;
+  background:linear-gradient(180deg,#fff3cf,#f0c96d 55%,#c9973a);-webkit-background-clip:text;background-clip:text;color:transparent}
+html[data-theme="light"] .console-top .brand h1{background:linear-gradient(180deg,#2a4a85,#0f1f3d);-webkit-background-clip:text;background-clip:text}
+.console-top .brand .meeting-title{font-size:12px;letter-spacing:.02em;color:var(--muted);font-weight:600}
+.console-top .brand-mark{width:28px}
+
+/* Section titles and cards: editorial serif headings, quiet hairlines */
+.s-head h2,.box-head h2{letter-spacing:.005em}
+.box{border-radius:var(--r-3);border-color:var(--line-soft)}
+.s-nav{background:var(--panel);border-color:var(--line-soft)}
+.s-nav button[aria-current="true"]{background:var(--accent-soft);color:var(--ink);box-shadow:inset 3px 0 0 var(--gold)}
+
+/* Pane head: Quick Start + Scene */
+.pane-head .qs-btn{margin-left:auto}
+.pane-head .qs-btn + #scene-add{margin-left:0}
+.qs-btn{border-color:var(--kc-gold-line);color:var(--gold-strong)}
+.qs-btn .ic{color:var(--gold)}
+
+/* Header toggle: Presentation Mode */
+.pm-toggle{display:inline-flex;align-items:center;gap:7px;white-space:nowrap;border-color:var(--kc-gold-line)}
+.pm-toggle[aria-pressed="true"]{background:var(--gold);border-color:var(--gold);color:var(--gold-ink)}
+@media (max-width:1500px){ .pm-toggle span{display:none} .pm-toggle{padding:6px 9px} }
+
+/* Empty Scenes list: a friendly start */
+.pane-empty.start{display:flex;flex-direction:column;align-items:flex-start;gap:8px;padding:16px 10px;margin:4px 2px;border:1px dashed var(--kc-gold-line);border-radius:var(--r-2);color:var(--muted)}
+.pane-empty.start b{color:var(--ink);font-size:14px}
+.pane-empty.start .btn{display:inline-flex;align-items:center;gap:6px}
+
+/* Question · Scripture · Q + S on the scene card */
+.scene-item:has(.si-qs){flex-wrap:wrap;row-gap:4px}
+.si-qs{display:inline-flex;flex:0 0 auto;margin-left:30px;padding:2px;gap:1px;border-radius:999px;background:var(--raised);border:1px solid var(--line-soft);order:9}
+.scene-item:has(.si-qs)::after{content:"";flex-basis:100%;order:8;height:0}
+.si-qs button{all:unset;cursor:pointer;padding:2px 10px;border-radius:999px;font-size:11px;font-weight:700;color:var(--muted);line-height:1.5;white-space:nowrap}
+.si-qs button:hover{color:var(--ink)}
+.si-qs button[aria-checked="true"]{background:var(--accent);color:var(--accent-ink)}
+.si-qs button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+
+/* Content Library */
+.lib-item{display:flex;align-items:center;gap:9px;padding:7px 6px 7px 8px;margin-bottom:3px;border:1px solid transparent;border-radius:var(--r-2);cursor:pointer}
+.lib-item:hover{background:var(--hover)}
+.lib-item.sel{background:var(--accent-soft);border-color:var(--kc-gold-line)}
+.lib-item:focus-visible{outline:2px solid var(--accent);outline-offset:-1px}
+.lib-ic{flex:none;width:30px;height:30px;border-radius:9px;display:inline-flex;align-items:center;justify-content:center;background:var(--accent-soft);color:var(--gold)}
+html[data-theme="light"] .lib-ic{color:#9a6a12;background:rgba(214,160,60,.12)}
+.lib-add{flex:none;display:inline-flex;align-items:center;gap:3px;padding:3px 9px!important;font-size:12px!important;opacity:.0;transition:opacity var(--t-fast)}
+.lib-item:hover .lib-add,.lib-item:focus-within .lib-add,.lib-item:focus .lib-add{opacity:1}
+@media (hover:none){ .lib-add{opacity:1} }
+.lib-note{padding:8px 6px;list-style:none}
+
+/* Dialogs (Quick Start) */
+.kc-dlg{width:min(880px,94vw);max-height:90vh;padding:0;border:1px solid var(--kc-gold-line);border-radius:20px;background:var(--surface);color:var(--ink);box-shadow:var(--shadow-modal)}
+.kc-dlg::backdrop{background:var(--scrim,rgba(3,7,15,.6))}
+.kc-dlg-in{padding:28px 30px 22px}
+.kc-dlg-kicker{margin:0 0 4px;font-size:12px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--gold-strong)}
+.kc-dlg h2{margin:0;font-family:var(--serif);font-weight:500;font-size:30px}
+.kc-dlg-sub{margin:6px 0 18px;color:var(--muted)}
+.qs-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.qs-card{all:unset;box-sizing:border-box;cursor:pointer;display:flex;flex-direction:column;gap:6px;padding:18px;border-radius:16px;background:var(--panel-2);border:1px solid var(--line-soft);
+  transition:border-color var(--t) var(--ease),transform var(--t) var(--ease)}
+.qs-card:hover{border-color:var(--gold);transform:translateY(-2px)}
+.qs-card:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.qs-card b{font-family:var(--serif);font-weight:600;font-size:21px}
+.qs-ic{width:42px;height:42px;border-radius:12px;display:inline-flex;align-items:center;justify-content:center;color:var(--gold);background:var(--accent-soft);border:1px solid var(--kc-gold-line)}
+html[data-theme="light"] .qs-ic{color:#9a6a12;background:rgba(214,160,60,.12)}
+.qs-text{color:var(--muted);font-size:14px;line-height:1.45}
+.qs-list{margin:6px 0 0;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:4px}
+.qs-list li{font-size:11.5px;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--raised);color:var(--muted)}
+.kc-dlg-foot{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}
+@media (max-width:700px){ .qs-grid{grid-template-columns:1fr} }
+
+/* Duplicate → Edit question → Done */
+.eq{display:flex;flex-direction:column;gap:10px}
+.eq-steps{display:flex;gap:6px;margin:0;flex-wrap:wrap}
+.eq-steps span{font-size:11.5px;font-weight:800;letter-spacing:.04em;padding:3px 10px;border-radius:999px;background:var(--raised);color:var(--faint)}
+.eq-steps .ok{color:var(--live);background:var(--live-soft)}
+.eq-steps .on{background:var(--accent);color:var(--accent-ink)}
+.eq textarea{font-family:var(--serif);font-size:18px;line-height:1.4}
+.eq-picks{display:flex;flex-direction:column;gap:6px}
+.eq-pick{all:unset;cursor:pointer;font-size:12.5px;line-height:1.35;padding:6px 10px;border-radius:9px;border:1px dashed var(--line);color:var(--muted)}
+.eq-pick:hover{border-color:var(--gold);color:var(--ink)}
+.eq-pick b{color:var(--ink)}
+.eq-acts{display:flex;gap:8px;flex-wrap:wrap}
+.eq-acts .btn{display:inline-flex;align-items:center;gap:6px}
+
+/* Basic / Advanced */
+.insp-mode{display:flex;gap:2px;margin:0 12px 8px;padding:2px;border-radius:9px;background:var(--raised);border:1px solid var(--line-soft)}
+.insp-mode[hidden]{display:none}
+.insp-mode button{flex:1;border:0;background:transparent;color:var(--muted);font:inherit;font-size:12px;font-weight:700;padding:5px 6px;border-radius:7px;cursor:pointer}
+.insp-mode button[aria-checked="true"]{background:var(--surface);color:var(--ink);box-shadow:var(--shadow-1)}
+body.insp-basic #insp-body .adv{display:none!important}
+body:not(.insp-basic) #insp-body .basic-only{display:none!important}
+
+/* Presentation Mode: the scenes, the canvas, Previous · Take live · Next (HIDE ALL always stays) */
+body.pm .ws{grid-template-columns:minmax(300px,380px) minmax(0,1fr)}
+body.pm .ws-right,body.pm .layers-pane,body.pm .pane-tools,body.pm #scene-add,body.pm #quick-start,body.pm .canvas-tools,body.pm .canvas-note,
+body.pm .console-top .tabs,body.pm #gsearch,body.pm .gsearch,body.pm #sysstat,
+body.pm #ctlbar .lb-tx,body.pm #lb-auto,body.pm #lb-step,body.pm #lb-slides,body.pm #lb-hide-layer,body.pm #lb-blackout,body.pm #lb-emergency,
+body.pm .si-fav,body.pm .si-more,body.pm .si-qs{display:none!important}
+body.pm .scenes-pane{flex:1 1 100%}
+body.pm .scene-item{padding:12px 10px;margin-bottom:5px}
+body.pm .si-t b{font-size:16px}
+body.pm .si-num{font-size:14px}
+body.pm #cb-take{min-width:220px}
+
+.console-top .brand{flex:none}
+.console-top .brand-text{min-width:0}

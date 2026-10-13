@@ -1,12 +1,12 @@
 {
-  "name": "BCC Mobile Director",
-  "short_name": "BCC Director",
+  "name": "Kingdom Connect Director",
+  "short_name": "KC Director",
   "start_url": "/remote.html",
   "scope": "/",
   "display": "standalone",
   "orientation": "any",
-  "background_color": "#0b0e13",
-  "theme_color": "#0b0e13",
+  "background_color": "#0a1426",
+  "theme_color": "#0a1426",
   "icons": [
     {
       "src": "/icons/remote-192.png",

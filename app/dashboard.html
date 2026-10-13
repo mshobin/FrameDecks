@@ -3,11 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>BSF Command Center</title>
+<title>Kingdom Connect</title>
 <link rel="stylesheet" href="css/dashboard.css">
 <link rel="stylesheet" href="css/members.css">
 <link rel="stylesheet" href="css/console.css">
 <link rel="stylesheet" href="css/theme.css">
+<link rel="stylesheet" href="css/about.css">
 <script>/* Appearance before the first paint (Settings > General > Appearance): dark (default), light or match Windows */
 (function(){ var d = document.documentElement, p = 'dark';
   try { p = localStorage.getItem('bsf-cc-theme') || 'dark'; } catch(e){}
@@ -19,8 +20,8 @@
 
 <header class="top console-top">
   <div class="brand">
-    <svg viewBox="0 0 36 26" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" aria-hidden="true"><path d="M18 5.5C14 2.6 8.6 2 3 3v18.5c5.6-1 11-.4 15 2.5 4-2.9 9.4-3.5 15-2.5V3c-5.6-1-11-.4-15 2.5z"/><path d="M18 5.5V24"/></svg>
-    <div class="brand-text"><h1 id="org-title">BSF Command Center</h1><span class="meeting-title" id="meeting-title">BSF Meeting</span></div>
+    <img class="brand-mark" src="img/kc-emblem.webp" alt="" width="30" height="36" decoding="async">
+    <div class="brand-text"><h1 id="org-title">Kingdom Connect</h1><span class="meeting-title" id="meeting-title">BSF Meeting</span></div>
   </div>
   <!-- Studio (the workspace), Members, Settings: same buttons, ids and Alt keys as before -->
   <nav class="tabs" role="tablist" aria-label="Sections">
@@ -38,6 +39,7 @@
   </div>
   <!-- LIVE plus every output's status, at a glance and only here (each chip opens its details).
        Narrow windows fold the chips into one status button. -->
+  <button class="btn small pm-toggle" type="button" id="pm-toggle" aria-pressed="false" title="Presentation Mode: only the scenes, Previous, Take live and Next (P)"><i data-icon="presentation" data-size="16"></i><span>Presentation Mode</span></button>
   <span class="live-ind" id="live-ind" role="status" aria-live="polite"><i></i><b>Off air</b><span class="live-what"></span></span>
   <div class="sysstat" id="sysstat">
     <button class="sys-sum" type="button" id="sys-sum" aria-expanded="false" aria-controls="health" aria-label="System status"><i class="sys-dot"></i><span class="sys-text">Checking…</span></button>
@@ -71,11 +73,12 @@
   <aside class="ws-left" aria-label="Scenes and layers">
     <section class="pane scenes-pane" aria-labelledby="scenes-title">
       <header class="pane-head"><h2 id="scenes-title">Scenes</h2>
+        <button class="btn small qs-btn" type="button" id="quick-start" title="Quick Start: a ready-made set of scenes for a Bible study, prayer meeting, youth gathering or fellowship"><i data-icon="sparkles" data-size="15"></i> Quick Start</button>
         <button class="btn primary small" type="button" id="scene-add" aria-haspopup="menu"><i data-icon="plus" data-size="15"></i> Scene</button></header>
       <div class="pane-tools">
         <input type="search" id="scene-search" placeholder="Search scenes" aria-label="Search scenes">
         <div class="chips sfilter" id="scene-filter" role="tablist" aria-label="Show">
-          <button type="button" role="tab" data-sf="all" aria-selected="true">All</button><button type="button" role="tab" data-sf="fav" aria-selected="false">Favorites</button><button type="button" role="tab" data-sf="recent" aria-selected="false">Recent</button><button type="button" role="tab" data-sf="tpl" aria-selected="false">Templates</button></div>
+          <button type="button" role="tab" data-sf="all" aria-selected="true">All</button><button type="button" role="tab" data-sf="fav" aria-selected="false">Favorites</button><button type="button" role="tab" data-sf="recent" aria-selected="false">Recent</button><button type="button" role="tab" data-sf="tpl" aria-selected="false">Library</button></div>
       </div>
       <ol class="scene-list" id="scene-list" aria-label="Scenes"></ol>
     </section>
@@ -108,6 +111,7 @@
 
   <aside class="ws-right inspector" id="inspector" aria-labelledby="insp-title">
     <header class="insp-head"><span class="insp-ic" id="insp-ic"></span><div class="insp-t"><h2 id="insp-title">Scene</h2><small id="insp-sub"></small></div><span class="insp-live" id="insp-live"></span></header>
+    <div class="insp-mode" id="insp-mode" role="radiogroup" aria-label="Inspector detail" hidden><button type="button" role="radio" data-im="basic" aria-checked="true">Basic</button><button type="button" role="radio" data-im="adv" aria-checked="false">Advanced</button></div>
     <nav class="insp-tabs" id="insp-tabs" role="tablist" aria-label="Inspector"></nav>
     <div class="insp-body" id="insp-body">
       <!-- built by js/workspace.js: scene settings, text layers, media layers, output -->
@@ -164,7 +168,9 @@
       </div></div>
     <div class="row"><span class="lbl"></span>
       <label class="check"><input type="checkbox" id="q-numbered"> Add the question number from the list (e.g. “Discussion Question 2”)</label></div></div>
-        <div class="ip-sec"><div class="row"><span class="lbl">Text size</span><div class="range"><input type="range" data-range="qScale" min="0.6" max="1.6" step="0.05" aria-label="Question text size"><span class="val"></span></div></div>
+        <div class="ip-sec basic-only"><div class="row"><span class="lbl">Theme</span><div class="seg" data-kc-theme="question"></div></div>
+          <div class="row"><span class="lbl">Position</span><div class="seg" data-kc-qpos></div></div></div>
+        <div class="ip-sec adv"><div class="row"><span class="lbl">Text size</span><div class="range"><input type="range" data-range="qScale" min="0.6" max="1.6" step="0.05" aria-label="Question text size"><span class="val"></span></div></div>
         <div class="row"><span class="lbl">Card opacity</span><div class="range"><input type="range" data-range="panel" min="50" max="100" step="1" aria-label="Card opacity"><span class="val"></span></div></div>
         <div class="row op-row"><span class="lbl"></span><div class="op-presets" role="group" aria-label="Card opacity presets">
         <button type="button" class="chip" data-panel="70">70%</button><button type="button" class="chip" data-panel="80">80%</button>
@@ -233,7 +239,9 @@
         <input type="text" id="v-label" aria-label="Verse label">
         <label class="check"><input type="checkbox" id="v-showlabel"> Show</label>
       </div></div></div>
-        <div class="ip-sec"><div class="row"><span class="lbl">Text size</span><div class="range"><input type="range" data-range="verseScale" min="0.6" max="1.6" step="0.05" aria-label="Verse text size"><span class="val"></span></div></div>
+        <div class="ip-sec basic-only"><div class="row"><span class="lbl">Theme</span><div class="seg" data-kc-theme="verse"></div></div>
+          <div class="row"><span class="lbl">Position</span><div class="seg" data-seg="verseAlign"></div></div></div>
+        <div class="ip-sec adv"><div class="row"><span class="lbl">Text size</span><div class="range"><input type="range" data-range="verseScale" min="0.6" max="1.6" step="0.05" aria-label="Verse text size"><span class="val"></span></div></div>
         <div class="row"><span class="lbl">Card opacity</span><div class="range"><input type="range" data-range="panel" min="50" max="100" step="1" aria-label="Card opacity"><span class="val"></span></div></div></div>
       </div>
       <div class="ip" data-kind="scripture" data-itab="layout" hidden>
@@ -264,9 +272,9 @@
         </div>
       </div>
       <div class="ip" data-kind="birthday" data-itab="style" hidden><div class="ip-sec"><div class="row"><span class="lbl">Name shown</span><div class="seg" data-setseg="bdayNameStyle"></div></div>
-        <div class="row"><span class="lbl">Card size</span><div class="range"><input type="range" id="s-bdayscale" min="0.6" max="1.6" step="0.05" aria-label="Birthday card size"><span class="val"></span></div></div>
+        <div class="row adv"><span class="lbl">Card size</span><div class="range"><input type="range" id="s-bdayscale" min="0.6" max="1.6" step="0.05" aria-label="Birthday card size"><span class="val"></span></div></div>
         <div class="row"><span class="lbl"></span><label class="check"><input type="checkbox" data-setcheck="bdayShowCountry"> Show the member’s country on the overlay</label></div></div></div>
-      <div class="ip" data-kind="birthday" data-itab="layout" hidden><div class="ip-sec"><div class="row"><span class="lbl">Position</span><div class="seg" id="s-bdaypos"></div></div></div></div>
+      <div class="ip" data-kind="birthday" data-itab="layout" hidden><div class="ip-sec" id="bday-pos-sec"><div class="row"><span class="lbl">Position</span><div class="seg" id="s-bdaypos"></div></div></div></div>
       <div class="ip" data-kind="birthday" data-itab="animation" hidden><div class="ip-sec"><div class="row"><span class="lbl">Transition</span><div class="seg" data-setseg="bdayTransition"></div></div></div></div>
 
       <!-- Media layers (BCC vCam Studio): the Studio inspector lives here -->
@@ -380,7 +388,7 @@
   </section>
   <section class="box" aria-labelledby="s-you">
     <div class="box-head"><h2 id="s-you">Your details &amp; email wording</h2></div>
-    <label class="field"><span>Meeting title (shown at the top of the Command Center)</span><input type="text" data-set="meetingTitle" placeholder="e.g. BSF Tuesday Evening Group"></label>
+    <label class="field"><span>Meeting title (shown at the top of Kingdom Connect)</span><input type="text" data-set="meetingTitle" placeholder="e.g. BSF Tuesday Evening Group"></label>
     <label class="field"><span>Your name (used as [Your Name])</span><input type="text" data-set="yourName" placeholder="e.g. Mary Thomas"></label>
     <label class="field"><span>Your email (optional; used as “To” for group emails)</span><input type="text" data-set="yourEmail" placeholder="you@example.com"></label>
     <label class="field"><span>Group name (used as [Group Name])</span><input type="text" data-set="groupName"></label>
@@ -438,7 +446,7 @@
     </section>
     </section>
     <section class="s-sec" id="sec-vcam" aria-labelledby="sech-vcam" hidden>
-      <header class="s-head"><h2 id="sech-vcam">BCC vCam</h2><p>The Command Center’s own camera for Zoom and Teams, with optional background blur. No OBS or Camo needed.</p></header>
+      <header class="s-head"><h2 id="sech-vcam">BCC vCam</h2><p>Kingdom Connect’s own camera for Zoom and Teams, with optional background blur. No OBS or Camo needed.</p></header>
       <div id="vcam-body"></div>
     </section>
     <section class="s-sec" id="sec-ipad" aria-labelledby="sech-ipad" hidden>
@@ -461,7 +469,7 @@
       <p class="hint">These work on every tab whenever you are not typing in a box. They change the colour of your camera picture only; the cards keep their colours.</p></section>
     </section>
     <section class="s-sec" id="sec-security" aria-labelledby="sech-security" hidden>
-      <header class="s-head"><h2 id="sech-security">Security</h2><p>How the Command Center protects your meeting and your members’ details.</p></header>
+      <header class="s-head"><h2 id="sech-security">Security</h2><p>How Kingdom Connect protects your meeting and your members’ details.</p></header>
     <div class="card-grid" id="sec-cards"></div>
     </section>
     <section class="s-sec" id="sec-data" aria-labelledby="sech-data" hidden>
@@ -493,9 +501,9 @@
       <header class="s-head"><h2 id="sech-diag">Diagnostics</h2><p>Technical details for troubleshooting. Nothing here is needed during a meeting.</p></header>
     <div id="diag-body"></div>
     </section>
-    <section class="s-sec" id="sec-about" aria-labelledby="sech-about" hidden>
-      <header class="s-head"><h2 id="sech-about">About</h2><p>Who made the Command Center, and how to get in touch.</p></header>
-      <section class="box"><div id="about-body" class="about"></div></section>
+    <section class="s-sec s-about" id="sec-about" aria-labelledby="sech-about" hidden>
+      <h2 id="sech-about" class="sr-only">About Kingdom Connect</h2>
+      <div id="about-body" class="about"></div>
     </section>
   </div>
 </div>
@@ -530,7 +538,7 @@
   <button class="cb-btn hide" type="button" data-cb="hideAll" aria-label="Hide all layers">Hide all<kbd class="key" data-sc="hideAll">Esc</kbd></button>
 </div>
 
-<dialog class="about-dlg" id="about-dlg" aria-label="About BSF Command Center"><div id="about-dlg-body" class="about"></div></dialog>
+<dialog class="about-dlg" id="about-dlg" aria-label="About Kingdom Connect"><div id="about-dlg-body" class="about"></div></dialog>
 
 
 <dialog id="dlg" aria-labelledby="dlg-title">

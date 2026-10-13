@@ -122,7 +122,7 @@ function loadPrivate(){
 }
 var saveT, saveChain = Promise.resolve(), loadFailed = false;
 function persist(){
-  if (loadFailed){ toast('Changes can’t be saved because member data didn’t load. Restart the BSF Command Center and reload this page.', true); return; }
+  if (loadFailed){ toast('Changes can’t be saved because member data didn’t load. Restart Kingdom Connect and reload this page.', true); return; }
   clearTimeout(saveT);
   saveT = setTimeout(function(){
     var payload = JSON.stringify({members: data.members, settings: data.settings});
@@ -132,7 +132,7 @@ function persist(){
           .then(function(r){ if (!r.ok) throw new Error(); });
       }
       localStorage.setItem(PKEY, payload);
-    }).catch(function(){ toast('Member data couldn’t be saved. Check that the BSF Command Center window is open.', true); });
+    }).catch(function(){ toast('Member data couldn’t be saved. Check that the Kingdom Connect window is open.', true); });
   }, 250);
 }
 
@@ -1063,6 +1063,6 @@ function setup(){
 
 loadPrivate().then(function(d){ data = normalizeData(d); }, function(){
   loadFailed = true;
-  toast('Member data couldn’t be loaded. Check that the BSF Command Center window is open, then reload.', true);
+  toast('Member data couldn’t be loaded. Check that the Kingdom Connect window is open, then reload.', true);
 }).then(function(){ setup(); renderAll(); });
 })();

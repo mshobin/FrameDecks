@@ -16,7 +16,7 @@ function h(tag, attrs, kids){
 }
 function ib(icon, label, onclick, cls){ return h('button', {cls: 'ib ' + (cls || ''), type: 'button', title: label, 'aria-label': label, html: I(icon, 16), onclick: onclick}); }
 function toast(m, bad){ if (window.BSFActions) window.BSFActions.toast(m, bad); }
-if (!Store.served){ root.appendChild(h('p', {cls: 'plain', style: 'padding:20px', text: 'The Studio needs the installed BSF Command Center app (BCC vCam).'})); return; }
+if (!Store.served){ root.appendChild(h('p', {cls: 'plain', style: 'padding:20px', text: 'The Studio needs the installed Kingdom Connect app (BCC vCam).'})); return; }
 
 var REF_W = 1920, REF_H = 1080;            // inspector numbers use a 1920×1080 canvas
 var TYPES = {camera: ['video', 'Video source'], screen: ['monitor', 'Screen capture'], text: ['type', 'Text'], image: ['image', 'Image'],
@@ -94,8 +94,8 @@ var mediaHost = $('insp-media'); if (mediaHost) mediaHost.appendChild(right);
 /* Top bar: scene selector with collection filter · Preview/Output · Record · Look · Focus · Hide window */
 var colFilter = h('select', {id: 's2-colfilter', 'aria-label': 'Scene collection'});
 var sceneSel = h('select', {id: 's2-scene', 'aria-label': 'Scene'});
-/* Presentation Mode: a separate "BSF Presentation" window showing only the scene, for Zoom > Share > window */
-var presBtn = h('button', {cls: 'btn primary s2-present', type: 'button', id: 's2-present', html: I('presentation', 16) + ' Presentation Mode',
+/* Share Window (was "Presentation Mode" before 6.1): a separate window showing only the scene, for Zoom > Share > window */
+var presBtn = h('button', {cls: 'btn primary s2-present', type: 'button', id: 's2-present', html: I('presentation', 16) + ' Share Window',
   title: 'Open a separate window with only the scene, to share in Zoom (Share Screen → BSF Presentation)'});
 var recBtn = h('button', {cls: 'btn s2-rec', type: 'button', id: 's2-rec', html: '<span class="dot"></span> Record'});
 var lookSel = h('select', {id: 's2-look', 'aria-label': 'Camera look'});
@@ -583,7 +583,7 @@ function apply(d){
   }
   if (d.staged && !apply.committed){ apply.committed = true; act('stage-commit').catch(function(){}); }   // an old private preview: apply it once
   var po = d.presentation && d.presentation.open;
-  presBtn.innerHTML = I(po ? 'x' : 'presentation', 16) + (po ? ' Close Presentation' : ' Presentation Mode');
+  presBtn.innerHTML = I(po ? 'x' : 'presentation', 16) + (po ? ' Close Share Window' : ' Share Window');
   presBtn.classList.toggle('on', !!po);
   $('s2-badge').textContent = po ? 'LIVE · also in the Presentation window' : 'LIVE · what Zoom / Teams receive';
   var r = d.recording;

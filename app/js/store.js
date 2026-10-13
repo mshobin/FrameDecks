@@ -304,6 +304,38 @@ var TEMPLATES = [
   {id: 'zoom', name: 'Zoom Layout', layers: ['camera']},
   {id: 'teams', name: 'Teams Layout', layers: ['camera']},
   {id: 'blank', name: 'Blank', layers: []}];
+/* v6.1 Content Library: reusable ready-made scenes. Each layer: [kind, {name, c}] (text is editable afterwards) */
+var BENEDICTION = 'The Lord bless you and keep you; the Lord make his face to shine upon you and be gracious to you; the Lord lift up his countenance upon you and give you peace.';
+var LIBRARY_CATS = [['welcome', 'Welcome Slides'], ['prayer', 'Prayer Slides'], ['discussion', 'Discussion Questions'], ['scripture', 'Scripture Layouts'], ['closing', 'Closing Slides']];
+var LIBRARY = [
+  {id: 'lib-welcome', cat: 'welcome', name: 'Welcome', layers: [['announcement', {name: 'Welcome', c: {title: 'Welcome', text: 'We’re glad you’re here. We’ll begin in just a moment.'}}]]},
+  {id: 'lib-welcome-countdown', cat: 'welcome', name: 'Starting Soon', layers: [['countdown', {name: 'Countdown', c: {title: 'We begin in', text: 'Welcome!', minutes: 5}}]]},
+  {id: 'lib-welcome-host', cat: 'welcome', name: 'Welcome · Host', layers: [['lowerthird', {name: 'Host', c: {title: 'Welcome', text: 'Your host for today'}}]]},
+  {id: 'lib-prayer-open', cat: 'prayer', name: 'Opening Prayer', layers: [['prayer', {name: 'Opening Prayer', c: {title: 'Opening Prayer', text: 'Let’s begin by bringing our time together before the Lord.'}}]]},
+  {id: 'lib-prayer-requests', cat: 'prayer', name: 'Prayer Requests', layers: [['prayer', {name: 'Prayer Requests', c: {title: 'Prayer Requests', text: 'Share your prayer requests in the chat or unmute to pray together.'}}]]},
+  {id: 'lib-prayer-points', cat: 'prayer', name: 'Prayer Points', layers: [['prayer', {name: 'Prayer Points', c: {title: 'Let Us Pray', text: 'For our church and its leaders\nFor families and those who are sick\nFor the nations to know Christ'}}]]},
+  {id: 'lib-prayer-close', cat: 'prayer', name: 'Closing Prayer', layers: [['prayer', {name: 'Closing Prayer', c: {title: 'Closing Prayer', text: 'Let’s close our time together in prayer.'}}]]},
+  {id: 'lib-question', cat: 'discussion', name: 'Discussion Question', layers: [['question', {}]]},
+  {id: 'lib-question-scripture', cat: 'discussion', name: 'Question + Scripture', layers: [['question', {}], ['scripture', {}]]},
+  {id: 'lib-breakout', cat: 'discussion', name: 'Small-Group Breakout', layers: [['announcement', {name: 'Breakout', c: {title: 'Small Groups', text: 'Discuss the next question together in your small group.'}}]]},
+  {id: 'lib-focus-verse', cat: 'scripture', name: 'Focus Verse', layers: [['scripture', {name: 'Focus Verse'}]]},
+  {id: 'lib-reading', cat: 'scripture', name: 'Scripture Reading', layers: [['scripture', {name: 'Reading'}], ['lowerthird', {name: 'Reader', c: {title: 'Scripture Reading', text: ''}}]]},
+  {id: 'lib-memory-verse', cat: 'scripture', name: 'Memory Verse', layers: [['scripture', {name: 'Memory Verse'}], ['announcement', {name: 'Memory Verse', c: {title: 'Memory Verse', text: '', pos: 'top', w: 40, scale: 0.8}}]]},
+  {id: 'lib-thanks', cat: 'closing', name: 'Thank You', layers: [['announcement', {name: 'Thank You', c: {title: 'Thank You', text: 'Thank you for joining us. God bless you this week.'}}]]},
+  {id: 'lib-next', cat: 'closing', name: 'Next Meeting', layers: [['announcement', {name: 'Next Meeting', c: {title: 'Next Meeting', text: 'Join us next week at the same time.'}}]]},
+  {id: 'lib-benediction', cat: 'closing', name: 'Benediction', layers: [['scripture', {name: 'Benediction', c: {ref: 'Numbers 6:24–26', version: 'ESV', text: BENEDICTION}}]]}
+];
+/* v6.1 Quick Start: one click makes a ready-to-run set of scenes */
+var QUICK_START = [
+  {id: 'bible-study', name: 'Bible Study', icon: 'book-open', text: 'Welcome, prayer, the focus verse, discussion questions and a closing.',
+   scenes: [['lib-welcome'], ['lib-prayer-open'], ['lib-focus-verse'], ['lib-question-scripture', 'Discussion'], ['lib-prayer-close'], ['lib-thanks']]},
+  {id: 'prayer', name: 'Prayer Meeting', icon: 'hand-heart', text: 'Scripture to begin, prayer requests and prayer points, and a blessing.',
+   scenes: [['lib-welcome'], ['lib-reading'], ['lib-prayer-requests'], ['lib-prayer-points'], ['lib-benediction'], ['lib-thanks']]},
+  {id: 'youth', name: 'Youth Gathering', icon: 'flame', text: 'A countdown, welcome, Scripture, a discussion question and what’s next.',
+   scenes: [['lib-welcome-countdown'], ['lib-welcome'], ['lib-focus-verse', 'Scripture'], ['lib-question', 'Discussion'], ['lib-prayer-close', 'Prayer'], ['lib-next']]},
+  {id: 'fellowship', name: 'Fellowship Meeting', icon: 'users', text: 'Welcome, birthdays, announcements, a verse, prayer and goodbye.',
+   scenes: [['lib-welcome'], ['@birthday', 'Celebrations'], ['@announcement', 'Announcements'], ['lib-focus-verse', 'Scripture'], ['lib-prayer-close'], ['lib-thanks']]}
+];
 function mediaToComp(l){
   var o = JSON.parse(JSON.stringify(l.c || {}));
   delete o.vcam; delete o.obs;
@@ -322,7 +354,7 @@ function qLabel(st, idx){
   return numbered && idx >= 0 ? base + ' ' + (idx + 1) : q.label;
 }
 var Scenes = {
-  CARD: CARD_KINDS, TEXT: TEXT_KINDS, MEDIA: MEDIA_KINDS, info: KIND_INFO, transitions: TX, txMs: TX_MS, profiles: PROFILES, templates: TEMPLATES,
+  CARD: CARD_KINDS, TEXT: TEXT_KINDS, MEDIA: MEDIA_KINDS, info: KIND_INFO, transitions: TX, txMs: TX_MS, profiles: PROFILES, templates: TEMPLATES, library: LIBRARY, libraryCats: LIBRARY_CATS, quickStarts: QUICK_START,
   positions: POS, textDefaults: TEXT_DEFAULTS, cleanLayer: cleanLayer, cleanScene: cleanScene, mediaToComp: mediaToComp, compToMedia: compToMedia,
   isCard: function(k){ return CARD_KINDS.indexOf(k) >= 0; }, isText: function(k){ return TEXT_KINDS.indexOf(k) >= 0; },
   isMedia: function(k){ return MEDIA_KINDS.indexOf(k) >= 0; },
@@ -369,6 +401,60 @@ var Scenes = {
     if (t.id === 'zoom' || t.id === 'teams') sc.layers[0].name = t.id === 'zoom' ? 'Zoom camera' : 'Teams camera';
     Scenes.insert(st, sc, opts.after);
     return sc;
+  },
+  /* A scene from the Content Library (or "@kind" for a one-layer scene of that kind) */
+  fromLibrary: function(st, libId, opts){
+    opts = opts || {};
+    if (libId.charAt(0) === '@') return Scenes.create(st, libId.slice(1), opts);
+    var e = LIBRARY.filter(function(x){ return x.id === libId; })[0]; if (!e) return null;
+    var now = Date.now();
+    var sc = cleanScene({id: rid('sc_'), name: opts.name || Scenes.uniqueName(st, e.name), group: opts.group || '', created: now, modified: now,
+      creator: opts.creator || '', template: e.name, from: 'Content Library', tx: {type: 'profile', ms: 500}});
+    sc.layers = e.layers.map(function(d){ var x = d[1] || {}, extra = {c: x.c || {}}; if (x.name) extra.name = x.name; return newLayer(d[0], extra); });
+    Scenes.insert(st, sc, opts.after);
+    return sc;
+  },
+  /* Quick Start: the whole set, in a new group, after the last scene */
+  quickStart: function(st, qsId, opts){
+    opts = opts || {};
+    var q = QUICK_START.filter(function(x){ return x.id === qsId; })[0]; if (!q) return [];
+    var d = new Date(opts.now || Date.now()), group = opts.group || (q.name + ' · ' + d.toLocaleDateString([], {month: 'short', day: 'numeric'}));
+    var g = group, k = 2, used = {}; st.scenes.forEach(function(s){ used[s.group] = 1; });
+    while (used[g]) g = group + ' (' + (k++) + ')';
+    return q.scenes.map(function(e){
+      var lib = LIBRARY.filter(function(x){ return x.id === e[0]; })[0], tpl = TEMPLATES.filter(function(x){ return '@' + x.id === e[0]; })[0];
+      var sc = Scenes.fromLibrary(st, e[0], {group: g, creator: opts.creator, name: e[1] || (lib ? lib.name : tpl ? tpl.name : 'Scene')});   // names are unique within the new group
+      if (sc && e[0].charAt(0) === '@'){ sc.template = e[1] || sc.template; }
+      return sc;
+    }).filter(Boolean);
+  },
+  /* Duplicate → Edit question → Done: pin this question text to the scene's question layer.
+     Reuses a list item with the same text, else adds one right after `afterId` (the source scene's question). */
+  pinQuestionText: function(n, sid, lid, text, afterId){
+    var sc = Scenes.find(n, sid), l = Scenes.layer(sc, lid), t = String(text || '').trim(); if (!l || !t) return null;
+    var a = n.library.questions, hit = null, at = -1;
+    for (var i = 0; i < a.length; i++){ if (String(a[i].text).trim() === t) hit = a[i]; if (a[i].id === afterId) at = i; }
+    if (!hit){ hit = {id: rid('q'), text: t}; if (at >= 0) a.splice(at + 1, 0, hit); else a.push(hit); }
+    l.c.itemId = hit.id; Scenes.stamp(sc);
+    if (n.live.scene === sid && n.question.visible) Scenes._loadQuestion(n, hit.id);
+    return hit;
+  },
+  /* Question · Scripture · Both for a scene that has both cards ('' when it doesn't) */
+  qsMode: function(sc){
+    var q = Scenes.first(sc, 'question'), v = Scenes.first(sc, 'scripture');
+    if (!q || !v) return '';
+    return q.visible && v.visible ? 'both' : v.visible ? 'verse' : 'question';
+  },
+  setQS: function(n, sid, m){
+    var sc = Scenes.find(n, sid), q = sc && Scenes.first(sc, 'question'), v = sc && Scenes.first(sc, 'scripture');
+    if (!q || !v) return false;
+    q.visible = m !== 'verse'; v.visible = m !== 'question';
+    if (n.live.scene === sid){
+      Scenes.setOn(n, sid, q.id, q.visible); Scenes.setOn(n, sid, v.id, v.visible);
+      n.question.mode = m === 'both' ? 'both' : 'question';
+    }
+    Scenes.stamp(sc);
+    return true;
   },
   insert: function(st, sc, afterId){
     var i = -1; for (var k = 0; k < st.scenes.length; k++) if (st.scenes[k].id === afterId) i = k;

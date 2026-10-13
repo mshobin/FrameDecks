@@ -6,12 +6,12 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="BCC Director">
-<meta name="theme-color" content="#0b0e13">
+<meta name="apple-mobile-web-app-title" content="KC Director">
+<meta name="theme-color" content="#0a1426">
 <link rel="manifest" href="remote-manifest.json">
 <link rel="apple-touch-icon" href="icons/remote-180.png">
 <link rel="icon" type="image/png" href="icons/remote-192.png">
-<title>BCC Mobile Director</title>
+<title>Kingdom Connect Director</title>
 <link rel="stylesheet" href="css/remote.css">
 </head>
 <body data-tab="live" data-role="admin">
@@ -19,8 +19,9 @@
 <!-- PIN screen -->
 <section class="login" id="login" hidden>
   <div class="login-card">
-    <svg class="logo" viewBox="0 0 36 26" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" aria-hidden="true"><path d="M18 5.5C14 2.6 8.6 2 3 3v18.5c5.6-1 11-.4 15 2.5 4-2.9 9.4-3.5 15-2.5V3c-5.6-1-11-.4-15 2.5z"/><path d="M18 5.5V24"/></svg>
-    <h1>BCC Mobile Director</h1>
+    <img class="logo" src="img/kc-emblem.webp" alt="" width="84" height="102">
+    <h1>Kingdom Connect</h1>
+    <p class="login-sub">Mobile Director</p>
     <p>Enter the 6-digit PIN shown on your PC<br>(Settings → Phone &amp; iPad Remote).</p>
     <form id="login-form" autocomplete="off">
       <input id="pin" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="••••••" aria-label="PIN" autocomplete="one-time-code">
@@ -34,8 +35,8 @@
 <!-- Director: Scene → Layer → Canvas -->
 <div class="app" id="app" hidden>
   <header class="bar">
-    <div class="brand"><svg viewBox="0 0 36 26" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round" aria-hidden="true"><path d="M18 5.5C14 2.6 8.6 2 3 3v18.5c5.6-1 11-.4 15 2.5 4-2.9 9.4-3.5 15-2.5V3c-5.6-1-11-.4-15 2.5z"/><path d="M18 5.5V24"/></svg>
-      <div class="brand-t"><b class="title">BCC Director</b><small id="role-name">Admin</small></div></div>
+    <div class="brand"><img class="brand-mark" src="img/kc-emblem.webp" alt="" width="26" height="32">
+      <div class="brand-t"><b class="title">Kingdom Connect</b><small id="role-name">Admin</small></div></div>
     <span class="conn" id="conn"><i></i><b>Connecting…</b></span>
     <span class="onair" id="onair" role="status" aria-live="polite"><i></i><b>OFF AIR</b></span>
     <button class="tool more-btn" type="button" id="more-btn" aria-label="More: layout, disconnect" aria-haspopup="dialog"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg></button>

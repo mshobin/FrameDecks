@@ -65,7 +65,7 @@ function importDialog(candidates, firstRun){
     });
   } else list.appendChild(h('p', {cls: 'hint', text: 'No earlier BSF Command Center folder was found on your Desktop, Downloads or Documents. Choose it yourself, or start fresh.'}));
   var closeFn = modal(firstRun ? 'Welcome! Bring in your existing data?' : 'Import from an earlier version', [
-    h('p', {text: 'This copies your saved verses and questions, members, settings and phone-remote PIN from the folder where you used the Command Center before. The original folder is not changed.'}),
+    h('p', {text: 'This copies your saved verses and questions, members, settings and phone-remote PIN from the folder where you used Kingdom Connect before. The original folder is not changed.'}),
     list
   ], [
     {text: 'Choose a folder…', onclick: function(){ pickFolder().then(function(f){ if (f) doImport(f, closeFn); }); return false; }},
@@ -94,7 +94,7 @@ function renderDataCard(){
     var t = h('table', {cls: 'plain'}, [h('tr', {}, [h('th', {text: 'Backup'}), h('th', {text: 'Contains'})])]);
     info.backups.forEach(function(b){ t.appendChild(h('tr', {}, [h('td', {cls: 'mono', text: b.name}), h('td', {text: b.files.join(', ')})])); });
     card.appendChild(t);
-    card.appendChild(h('p', {cls: 'hint', text: 'To restore one: open the backups folder, then use “Load a backup file” below or Members → Import Excel, or copy the files into the data folder while the Command Center is closed.'}));
+    card.appendChild(h('p', {cls: 'hint', text: 'To restore one: open the backups folder, then use “Load a backup file” below or Members → Import Excel, or copy the files into the data folder while Kingdom Connect is closed.'}));
   }
 }
 /* About line in General */
@@ -102,7 +102,7 @@ function renderAbout(){
   var sec = $('sec-general'); if (!sec || !info) return;
   var p = $('app-about');
   if (!p){ p = h('p', {cls: 'hint', id: 'app-about'}); sec.appendChild(p); }
-  p.textContent = 'BSF Command Center version ' + info.version + (info.installedApp ? ' (installed app)' : '') + '.';
+  p.textContent = 'Kingdom Connect version ' + info.version + (info.installedApp ? ' (installed app)' : '') + '.';
 }
 /* Settings > General > Performance (installed app): draw this window without the graphics card */
 function renderPerf(){
@@ -111,7 +111,7 @@ function renderPerf(){
   if (!box){
     var cb = h('input', {type: 'checkbox', id: 'app-lowgpu'});
     cb.addEventListener('change', function(){
-      post('settings', {lowGpu: cb.checked}).then(function(){ toast('Saved. Restart BSF Command Center to apply it.'); refresh(); });
+      post('settings', {lowGpu: cb.checked}).then(function(){ toast('Saved. Restart Kingdom Connect to apply it.'); refresh(); });
     });
     box = h('section', {cls: 'box', id: 'app-perf', 'aria-labelledby': 'app-perf-title'}, [
       h('div', {cls: 'box-head'}, [h('h2', {id: 'app-perf-title', text: 'Performance'})]),
@@ -138,7 +138,7 @@ window.BSFAppClosing = function(){
   });
   var body = [h('p', {text: 'Keep it running in the background so your overlays keep working in OBS and Camo and your phone stays connected. It stays in the tray near the clock; click the icon to open this window again.'})];
   if (live.length) body.unshift(h('div', {cls: 'alert warn'}, [h('b', {text: 'On screen now: '}), live.join(', ') + '. Quitting removes it from your Zoom video.']));
-  modal('Close BSF Command Center?', body, [
+  modal('Close Kingdom Connect?', body, [
     {text: 'Keep running in the background', cls: 'primary', onclick: function(){ post('hide'); }},
     {text: 'Quit', cls: live.length ? 'danger' : '', onclick: function(){ post('quit'); }},
     {text: 'Cancel', cls: 'quiet', onclick: function(){}}
