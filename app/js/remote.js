@@ -1,7 +1,7 @@
 /* BSF Command Center v6 - BCC Mobile Director: the phone / tablet remote. Same architecture as the PC:
  * Scene → Layer → Canvas. The scenes, layers and live state are the shared state (js/store.js BSFScenes), so a
  * take, a layer's eye or a duplicate here is exactly the same action as on the PC. Member data never comes here.
- *   phones  : Live (canvas, Prev · Take live · Next, transition, Q + Scripture, list stepper, program) · Scenes · Layers
+ *   phones  : Live (canvas, Prev · Go Live · Next, transition, Q + Scripture, list stepper, program) · Scenes · Layers
  *   tablets : three panes - Scenes | Canvas + live controls | Layers - a control surface
  *   layouts : Presenter · Leader · Producer/Admin choose what this device shows (not a permission) */
 (function(){
@@ -155,7 +155,7 @@ function renderScenes(){
 function actions(sc){
   var back = h('div', 'sheet'), card = h('div', 'sheet-card'); card.setAttribute('role', 'dialog');
   var head = h('div', 'sheet-head'); head.appendChild(h('h2', null, sc.name)); var close = h('button', 'tool', 'Close'); close.type = 'button'; head.appendChild(close); card.appendChild(head);
-  [['Take live', function(){ take(sc.id); }], ['Duplicate', function(){ var made; update(function(n){ made = SC.duplicate(n, sc.id, {}); }, 'Scene duplicated').then(function(){ if (made){ selScene = made.id; render(); } }); }],
+  [['Go Live', function(){ take(sc.id); }], ['Duplicate', function(){ var made; update(function(n){ made = SC.duplicate(n, sc.id, {}); }, 'Scene duplicated').then(function(){ if (made){ selScene = made.id; render(); } }); }],
    ['Duplicate layer structure only', function(){ update(function(n){ SC.duplicate(n, sc.id, {content: 'empty'}); }, 'Scene duplicated (empty)'); }],
    ['Create variant', function(){ update(function(n){ SC.duplicate(n, sc.id, {variant: true, name: SC.uniqueName(n, sc.name + ' variant')}); }, 'Variant created'); }]].forEach(function(a){
     var b = h('button', 'roles-btn', a[0]); b.type = 'button'; b.addEventListener('click', function(){ back.remove(); buzz(10); a[1](); }); card.appendChild(b);
@@ -221,12 +221,12 @@ function render(){
   if (live.verse.visible && live.verse.text.trim()) bits.push((live.verse.ref || 'Scripture') + (live.verse.version ? ' (' + live.verse.version + ')' : ''));
   if (live.birthday.visible) bits.push('Birthday: ' + (live.birthday.name || ''));
   SC.liveText(live).forEach(function(l){ bits.push(l.name); });
-  setText($('now-sub'), bits.join(' · ') || (ls ? 'Nothing on screen in this scene' : 'Choose a scene, then Take live'));
+  setText($('now-sub'), bits.join(' · ') || (ls ? 'Nothing on screen in this scene' : 'Choose a scene, then Go Live'));
   $('now').classList.toggle('on', anyOn);
   // take button: the chosen scene (else the next one)
   var target = selScene && SC.find(live, selScene) ? SC.find(live, selScene) : (L.scene ? SC.neighbour(live, L.scene, 1) : SC.order(live)[0]);
-  setText($('take-what'), target ? target.name : '');
-  setText($('take').querySelector('.tl'), target && SC.isLive(live, target.id) ? 'TAKE AGAIN' : 'TAKE LIVE');
+  setText($('take-what'), target ? (SC.isLive(live, target.id) ? '● On air: ' : '') + target.name : '');
+  setText($('take').querySelector('.tl'), 'GO LIVE');
   $('take').disabled = !target;
   $('auto').setAttribute('aria-pressed', String(L.auto));
   $('blackout').setAttribute('aria-pressed', String(L.blackout)); $('blackout').classList.toggle('on', L.blackout);

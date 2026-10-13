@@ -9,6 +9,7 @@ Sizes use the same unit as the pages: u = min(1vw, 1.7778vh).
 """
 import math
 import re
+import threading
 from pathlib import Path
 
 import cv2
@@ -19,6 +20,29 @@ GOLD_TEXT = (242, 195, 91)
 GOLD_STOPS = [(0.0, (246, 225, 160)), (0.28, (217, 171, 74)), (0.52, (168, 120, 31)), (0.76, (236, 203, 114)), (1.0, (217, 171, 74))]
 NAVY_A, NAVY_B = (24, 44, 84), (12, 26, 56)
 VERSE_TEXT, BDAY_TEXT, BDAY_MSG = (251, 246, 234), (251, 246, 234), (239, 232, 214)
+_GOLD = (GOLD_TEXT, GOLD_STOPS)
+_PALETTE = threading.RLock()          # v6.2: cards are drawn on more than one worker thread; the accent is per draw
+
+
+def accent_palette(hex_color):
+    """v6.2 Leader accent colour -> (text colour, gradient stops). Same maths as BSFScenes.brandPalette."""
+    m = re.fullmatch(r"#([0-9a-fA-F]{6})", hex_color or "")
+    if not m:
+        return None
+    n = int(m.group(1), 16)
+    c = ((n >> 16) & 255, (n >> 8) & 255, n & 255)
+
+    def mix(t, k):
+        return tuple(int(round(v + (t - v) * k)) for v in c)
+    return mix(255, .2), [(0.0, mix(255, .55)), (0.28, c), (0.52, mix(0, .35)), (0.76, mix(255, .3)), (1.0, c)]
+
+
+def logo_rgba(path):
+    """The leader's logo as a PIL RGBA image (None when missing or unreadable)."""
+    try:
+        return Image.open(path).convert("RGBA")
+    except Exception:
+        return None
 
 
 class Fonts:
@@ -283,11 +307,18 @@ class CardDrawer:
 
     # ----- cards -----
     def draw(self, kind, d, layout, W, H, max_h=None):
-        if kind == "question":
-            return self._question(d, layout, W, H)
-        if kind == "verse":
-            return self._verse(d, layout, W, H, max_h)
-        return self._birthday(d, layout, W, H)
+        global GOLD_TEXT, GOLD_STOPS
+        pal = accent_palette((layout or {}).get("accent", ""))
+        with _PALETTE:
+            GOLD_TEXT, GOLD_STOPS = pal if pal else _GOLD
+            try:
+                if kind == "question":
+                    return self._question(d, layout, W, H)
+                if kind == "verse":
+                    return self._verse(d, layout, W, H, max_h)
+                return self._birthday(d, layout, W, H)
+            finally:
+                GOLD_TEXT, GOLD_STOPS = _GOLD
 
     def _label_size(self, kind, font_px, label):
         font = self.fonts.get("sans", 700, font_px)
@@ -400,7 +431,9 @@ class CardDrawer:
         pad_t, pad_s, pad_b = 1.35 * s, 2.4 * s, 1.7 * s
         inner_w = cw - 2 * pad_s - 2 * bw
         label = d.get("label", "") if d.get("showLabel", True) else ""
-        label_h = (1.35 * 1.5 * s + 1.0 * s + 1 + 1.2 * s) if label.strip() else 0
+        logo = d.get("logo")                       # v6.2 text layers: the leader's logo (PIL RGBA) at the right of the label row
+        head = bool(label.strip()) or logo is not None
+        label_h = (1.35 * 1.5 * s + 1.0 * s + 1 + 1.2 * s) if head else 0
         text = d.get("text", "").strip()
         max_h = H * 0.36
         fit = 1.0
@@ -419,8 +452,14 @@ class CardDrawer:
         late = Image.new("RGBA", (Wc, Hc), (0, 0, 0, 0))
         txt = Image.new("RGBA", (Wc, Hc), (0, 0, 0, 0))
         x0, y = margin + bw + pad_s, margin + bw + pad_t
-        if label.strip():
-            self._draw_label(late, "question", 1.35 * s, label, x0, y, u)
+        if head:
+            if label.strip():
+                self._draw_label(late, "question", 1.35 * s, label, x0, y, u)
+            if logo is not None:
+                lh_px = max(4, int(round(1.35 * s * 1.5 * 1.25)))
+                lw_px = max(1, min(int(round(lh_px * logo.width / max(1, logo.height))), int(inner_w * 0.4)))
+                im = logo.resize((lw_px, max(1, int(round(lw_px * logo.height / max(1, logo.width))))), Image.LANCZOS)
+                late.alpha_composite(im, (int(round(x0 + inner_w - im.width)), int(round(y + (1.35 * s * 1.5 - im.height) / 2))))
             y += 1.35 * s * 1.5 + 1.0 * s
             self._rule(base, x0, y, inner_w, "none", 0.8)
             y += 1 + 1.2 * s

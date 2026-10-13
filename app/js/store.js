@@ -49,6 +49,9 @@ var DEFAULT_STATE = {
          message: 'Please stand by \u2014 we\u2019ll be right back.', on: {}, cd: {}},
   profile: 'bible-study',
   v6: false,
+  /* v6.2 Leader branding: shown only by Branding layers and the layers that ask for it ({meeting} / {org} in their
+     text, "Show logo" on text cards). logo = version of the uploaded picture ('' = none; the file is api/brand/logo). */
+  brand: {meeting: '', org: '', color: '', logo: '', lw: 0, lh: 0, auto: false},
   /* Saved lists shown in the dashboard (sample placeholder content) */
   library: {
     verses: [
@@ -205,13 +208,13 @@ var Present = {
  * All helpers edit a copy inside Store.update(); they never send anything themselves.
  * ===================================================================================================== */
 var CARD_KINDS = ['scripture', 'question', 'birthday'];
-var TEXT_KINDS = ['announcement', 'prayer', 'lowerthird', 'countdown'];
+var TEXT_KINDS = ['announcement', 'prayer', 'lowerthird', 'countdown', 'brand'];
 var MEDIA_KINDS = ['camera', 'screen', 'window', 'image', 'video', 'pdf', 'background', 'text', 'rect', 'ellipse'];
 var KIND_INFO = {
   scripture: {name: 'Scripture', icon: 'book-open'}, question: {name: 'Question', icon: 'message-circle'},
   birthday: {name: 'Birthday', icon: 'cake'}, announcement: {name: 'Announcement', icon: 'megaphone'},
   prayer: {name: 'Prayer Point', icon: 'heart'}, lowerthird: {name: 'Lower Third', icon: 'panel-bottom'},
-  countdown: {name: 'Countdown', icon: 'timer'}, camera: {name: 'Camera', icon: 'video'}, screen: {name: 'Screen', icon: 'monitor'},
+  countdown: {name: 'Countdown', icon: 'timer'}, brand: {name: 'Branding', icon: 'star'}, camera: {name: 'Camera', icon: 'video'}, screen: {name: 'Screen', icon: 'monitor'},
   window: {name: 'Window', icon: 'app-window'}, image: {name: 'Image', icon: 'image'}, video: {name: 'Video', icon: 'film'},
   pdf: {name: 'Slides', icon: 'presentation'}, background: {name: 'Background', icon: 'paint-bucket'}, text: {name: 'Text', icon: 'type'},
   rect: {name: 'Shape', icon: 'square'}, ellipse: {name: 'Ellipse', icon: 'circle'}
@@ -234,10 +237,12 @@ function rid(p){ return (p || 'L') + Math.random().toString(36).slice(2, 9); }
 function str(v, n){ return String(v == null ? '' : v).slice(0, n || 200); }
 function num(v, lo, hi, d){ v = Number(v); return isFinite(v) ? Math.min(hi, Math.max(lo, v)) : d; }
 var TEXT_DEFAULTS = {
-  announcement: {title: 'Announcement', text: '', pos: 'center', w: 70, scale: 1, label: true, anim: 'fade'},
-  prayer: {title: 'Prayer Point', text: '', pos: 'center', w: 70, scale: 1, label: true, anim: 'fade'},
-  lowerthird: {title: '', text: '', pos: 'lower-left', w: 46, scale: 0.9, label: true, anim: 'rise'},
-  countdown: {title: 'Starting in', text: 'Starting now', mode: 'duration', minutes: 5, until: '10:30', pos: 'center', w: 36, scale: 1.6, label: true, anim: 'fade'}
+  announcement: {title: 'Announcement', text: '', pos: 'center', w: 70, scale: 1, label: true, anim: 'fade', logo: false},
+  prayer: {title: 'Prayer Point', text: '', pos: 'center', w: 70, scale: 1, label: true, anim: 'fade', logo: false},
+  lowerthird: {title: '', text: '', pos: 'lower-left', w: 46, scale: 0.9, label: true, anim: 'rise', logo: false},
+  countdown: {title: 'Starting in', text: 'Starting now', mode: 'duration', minutes: 5, until: '10:30', pos: 'center', w: 36, scale: 1.6, label: true, anim: 'fade', logo: false},
+  /* the meeting's logo and/or name as a small badge (logo = show the logo, name = the Meeting Name, org = Leader / Organization) */
+  brand: {title: '', text: '', pos: 'upper-right', w: 30, scale: 1, label: false, anim: 'fade', logo: true, name: true, org: false}
 };
 function cleanLayer(l){
   if (!isObj(l)) return null;
@@ -270,6 +275,7 @@ function cleanScene(sc){
   return {id: str(sc.id || rid('sc_'), 40), name: str(sc.name || 'Scene', 80), group: str(sc.group, 60), fav: !!sc.fav, tpl: !!sc.tpl,
     created: Number(sc.created) || 0, modified: Number(sc.modified) || 0, version: Math.max(1, Number(sc.version) || 1),
     creator: str(sc.creator, 80), from: str(sc.from, 80), template: str(sc.template, 80), parent: str(sc.parent, 40),
+    notes: str(sc.notes, 2000),                                   /* v6.2 leader notes (Excel import), never on screen */
     tx: {type: tx.type === 'profile' || TX_IDS.indexOf(tx.type) >= 0 ? tx.type : 'profile', ms: num(tx.ms, 0, 5000, 500)},
     auto: {on: !!auto.on, sec: num(auto.sec, 2, 3600, 30)},
     out: {vcam: out.vcam !== false, obs: out.obs !== false},
@@ -310,6 +316,8 @@ var LIBRARY_CATS = [['welcome', 'Welcome Slides'], ['prayer', 'Prayer Slides'], 
 var LIBRARY = [
   {id: 'lib-welcome', cat: 'welcome', name: 'Welcome', layers: [['announcement', {name: 'Welcome', c: {title: 'Welcome', text: 'We’re glad you’re here. We’ll begin in just a moment.'}}]]},
   {id: 'lib-welcome-countdown', cat: 'welcome', name: 'Starting Soon', layers: [['countdown', {name: 'Countdown', c: {title: 'We begin in', text: 'Welcome!', minutes: 5}}]]},
+  {id: 'lib-meeting-title', cat: 'welcome', name: 'Meeting Title', layers: [['brand', {name: 'Meeting Title', c: {pos: 'center', scale: 2, logo: true, name: true, org: true}}]]},
+  {id: 'lib-meeting-lower', cat: 'welcome', name: 'Meeting Lower Third', layers: [['lowerthird', {name: 'Meeting', c: {title: '{meeting}', text: '{org}', logo: true}}]]},
   {id: 'lib-welcome-host', cat: 'welcome', name: 'Welcome · Host', layers: [['lowerthird', {name: 'Host', c: {title: 'Welcome', text: 'Your host for today'}}]]},
   {id: 'lib-prayer-open', cat: 'prayer', name: 'Opening Prayer', layers: [['prayer', {name: 'Opening Prayer', c: {title: 'Opening Prayer', text: 'Let’s begin by bringing our time together before the Lord.'}}]]},
   {id: 'lib-prayer-requests', cat: 'prayer', name: 'Prayer Requests', layers: [['prayer', {name: 'Prayer Requests', c: {title: 'Prayer Requests', text: 'Share your prayer requests in the chat or unmute to pray together.'}}]]},
@@ -399,6 +407,7 @@ var Scenes = {
       creator: opts.creator || '', template: t.id === 'blank' ? '' : t.name, tx: {type: 'profile', ms: 500}});
     sc.layers = t.layers.map(function(k){ return newLayer(k); });
     if (t.id === 'zoom' || t.id === 'teams') sc.layers[0].name = t.id === 'zoom' ? 'Zoom camera' : 'Teams camera';
+    Scenes.autoBrand(st, sc);
     Scenes.insert(st, sc, opts.after);
     return sc;
   },
@@ -411,6 +420,7 @@ var Scenes = {
     var sc = cleanScene({id: rid('sc_'), name: opts.name || Scenes.uniqueName(st, e.name), group: opts.group || '', created: now, modified: now,
       creator: opts.creator || '', template: e.name, from: 'Content Library', tx: {type: 'profile', ms: 500}});
     sc.layers = e.layers.map(function(d){ var x = d[1] || {}, extra = {c: x.c || {}}; if (x.name) extra.name = x.name; return newLayer(d[0], extra); });
+    Scenes.autoBrand(st, sc);
     Scenes.insert(st, sc, opts.after);
     return sc;
   },
@@ -620,8 +630,34 @@ var Scenes = {
   liveText: function(st, output){
     var sc = Scenes.liveScene(st); if (!sc) return [];
     if (output && sc.out[output] === false) return [];
-    return sc.layers.filter(function(l){ return TEXT_KINDS.indexOf(l.kind) >= 0 && st.live.on[l.id] && (!output || l.c[output] !== false) &&
-      (l.kind === 'countdown' || String(l.c.text || '').trim() !== '' || String(l.c.title || '').trim() !== ''); });   // an empty layer shows nothing
+    return sc.layers.filter(function(l){ return TEXT_KINDS.indexOf(l.kind) >= 0 && l.kind !== 'brand' && st.live.on[l.id] && (!output || l.c[output] !== false) &&
+      (l.kind === 'countdown' || Scenes.brandText(st, l.c.text).trim() !== '' || Scenes.brandText(st, l.c.title).trim() !== ''); });   // an empty layer shows nothing
+  },
+  /* v6.2 Branding: badges on the program, {meeting} / {org} in text, the accent colour */
+  liveBrand: function(st, output){
+    var sc = Scenes.liveScene(st); if (!sc || (output && sc.out[output] === false)) return [];
+    var b = st.brand || {};
+    return sc.layers.filter(function(l){ return l.kind === 'brand' && st.live.on[l.id] && (!output || l.c[output] !== false) &&
+      ((l.c.logo && b.logo) || (l.c.name && b.meeting) || (l.c.org && b.org)); });
+  },
+  brandText: function(st, s){
+    var b = (st && st.brand) || {};
+    return String(s == null ? '' : s).replace(/\{meeting\}/gi, b.meeting || '').replace(/\{org\}/gi, b.org || '');
+  },
+  hasBrand: function(st){ var b = (st && st.brand) || {}; return !!(b.logo || b.meeting || b.org); },
+  /* accent colour → the five card colours (same maths as vcam/cards.py accent_palette) */
+  brandPalette: function(hex){
+    var m = /^#([0-9a-f]{6})$/i.exec(hex || ''); if (!m) return null;
+    var n = parseInt(m[1], 16), c = [n >> 16 & 255, n >> 8 & 255, n & 255];
+    function mix(t, k){ return '#' + c.map(function(v){ return Math.round(v + (t - v) * k).toString(16).padStart(2, '0'); }).join(''); }
+    return {g1: mix(255, .55), g2: mix(0, 0), g3: mix(0, .35), g4: mix(255, .3), text: mix(255, .2)};
+  },
+  /* A Branding layer for a scene (the leader chooses which scenes have one) */
+  /* Settings → Meeting → "New scenes include branding" */
+  autoBrand: function(st, sc){ if (st.brand && st.brand.auto && !sc.tpl && Scenes.hasBrand(st)) Scenes.addBrand(sc); },
+  addBrand: function(sc, opts){
+    if (!sc || Scenes.first(sc, 'brand')) return null;
+    var l = newLayer('brand', {c: opts || {}}); sc.layers.unshift(l); return l;
   },
   countdown: function(st, l, now){
     now = now || Date.now();
@@ -712,6 +748,9 @@ function normalize(s){
     st[k].out = {vcam: o.vcam !== false, obs: o.obs !== false};
   });
   Scenes.normalizeInto(st, isObj(s) ? s : {});
+  var b = isObj(s) && isObj(s.brand) ? s.brand : {};
+  st.brand = {meeting: str(b.meeting, 80), org: str(b.org, 80), color: /^#[0-9a-fA-F]{6}$/.test(b.color || '') ? b.color.toLowerCase() : '',
+    logo: str(b.logo, 40), lw: Number(b.lw) || 0, lh: Number(b.lh) || 0, auto: !!b.auto};
   return st;
 }
 
@@ -846,6 +885,7 @@ var Store = {
   normalize: normalize,
   defaults: function(){ return normalize(null); },
   get: function(){ return JSON.parse(JSON.stringify(state)); },
+  brand: function(){ return Object.assign({}, state.brand); },          // v6.2 cheap read for the header
   subscribe: function(fn){ listeners.push(fn); if (started) fn(state); },
   save: function(next){ return served ? serverSave(next) : fileSave(next); },
   /* Change the shared state safely: fn edits a fresh copy. If another device (e.g. the

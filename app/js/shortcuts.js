@@ -18,7 +18,7 @@ var ACTIONS = [
   {id: 'toggleV', name: 'Show / hide verse',    cat: 'verse',    def: 'v'},
   {id: 'toggleB', name: 'Show / hide birthday', cat: 'birthday', def: 'b'},
   {id: 'hideAll', name: 'Hide all overlays',    cat: 'danger',   def: 'Escape'},
-  {id: 'takeLive', name: 'Take the selected scene live', cat: 'live', def: 't'},
+  {id: 'takeLive', name: 'Go Live (the selected scene)', cat: 'live', def: 't'},
   {id: 'nextScene', name: 'Next scene (live)', cat: 'live', def: ']'},
   {id: 'prevScene', name: 'Previous scene (live)', cat: 'live', def: '['},
   {id: 'presentMode', name: 'Presentation Mode on / off', cat: 'live', def: 'p'}

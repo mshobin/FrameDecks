@@ -606,3 +606,14 @@ the birthday position block moves to Style in Basic). The Studio "Presentation M
 
 **Design** (`theme.css` v6.1 section, `remote.css` tail): navy/gold token overrides for dark and light (accent = gold on
 navy, navy on paper), wordmark header; no new effects.
+
+## 24. Version 6.2: leader branding, the meeting Excel template, Go Live
+
+Full description (flows, data model, template columns, validation rules, file map): `docs/meeting-import-and-branding.md`.
+- `state.brand` {meeting, org, color, logo, lw, lh, auto}; layer kind `brand` (a text-type layer, opt-in per scene);
+  `{meeting}` / `{org}` and `c.logo` on text layers; accent colour → `--gold-*` on overlay pages and
+  `cards.accent_palette` on BCC vCam (part of the card cache key). Logo = `DATA/bcc-brand-logo.png` via `api/brand/logo`.
+- `js/meeting-sheet.js` (parse / validate / apply / template / export, no DOM, Node-tested) + `js/meeting-import.js`
+  (dialog, Append / Replace / Cancel, ESV fill, one-commit apply, Undo) + `js/meeting-brand.js` (Settings section).
+- Go Live: one primary action in the live bar (label constant, "● On air" sub-label, canvas flash); no take button
+  in the Inspector; remote and menus renamed.

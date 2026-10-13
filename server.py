@@ -11,6 +11,7 @@ Windows: double-click "Start BSF Command Center.bat"
 Mac:     double-click "Start BSF Command Center (Mac).command"
          (for the phone remote: python3 server.py --remote)
 """
+import hashlib
 import json
 import os
 import platform
@@ -27,7 +28,7 @@ from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from pathlib import Path
 from urllib.parse import urlparse, parse_qs, unquote
 
-APP_VERSION = "6.1"
+APP_VERSION = "6.2"
 STARTED_AT = time.time()
 FROZEN = getattr(sys, "frozen", False)          # True inside the installed Windows app
 HERE = Path(sys.executable).resolve().parent if FROZEN else Path(__file__).resolve().parent
@@ -65,7 +66,7 @@ COOKIE = "bsf_remote"
 REMOTE_PUBLIC = {"/remote.html", "/css/remote.css", "/js/remote.js", "/js/store.js", "/js/brand.js", "/api/remote-login",
                  "/remote-manifest.json", "/icons/remote-180.png", "/icons/remote-192.png", "/icons/remote-512.png",
                  "/icons/remote-maskable-512.png", "/img/kc-emblem.webp"}
-REMOTE_SIGNED_IN = {"/api/rev", "/api/state", "/api/remote-logout", "/js/overlay.js", "/api/remote/studio",
+REMOTE_SIGNED_IN = {"/api/rev", "/api/state", "/api/remote-logout", "/js/overlay.js", "/api/remote/studio", "/api/brand/logo",
                     "/css/overlay.css", "/stage.html", "/focus-verse.html", "/discussion-question.html", "/birthday.html"}
 sessions_lock = threading.Lock()
 failures = {}  # ip -> [count, locked_until]
@@ -855,6 +856,18 @@ def studio_save():
     STUDIO_FILE.write_text(json.dumps(cur, indent=2), encoding="utf-8")
 
 
+# ---------- v6.2 Branding: the leader's logo (always stored as PNG) ----------
+BRAND_LOGO = DATA / "bcc-brand-logo.png"
+
+
+def png_size(data):
+    """(width, height) of a PNG, or None if the bytes are not a PNG."""
+    if len(data) < 24 or data[:8] != b"\x89PNG\r\n\x1a\n" or data[12:16] != b"IHDR":
+        return None
+    w, h = int.from_bytes(data[16:20], "big"), int.from_bytes(data[20:24], "big")
+    return (w, h) if 0 < w <= 8192 and 0 < h <= 8192 else None
+
+
 # ---------- v6 Scripture: ESV API (your own key) with an offline cache; typed / Excel text works as before ----------
 SCRIPTURE_FILE = DATA / "bcc-scripture.json"
 SCRIPTURE_CACHE = DATA / "bcc-scripture-cache.json"
@@ -1338,7 +1351,7 @@ def vcam_start():
     LAYERS_DIR.mkdir(parents=True, exist_ok=True)
     comp = Compositor(LAYERS_DIR, cards=layer, cards_on=lambda: VCAM.get("cardsOn", True))
     from vcam.program import ProgramFX
-    comp.program_fx = ProgramFX(APP / "fonts", lambda: state, lambda: VCAM.get("cardsOn", True))
+    comp.program_fx = ProgramFX(APP / "fonts", lambda: state, lambda: VCAM.get("cardsOn", True), logo_path=BRAND_LOGO)
     VCAM["compositor"] = comp
     st = studio_load()
     comp.set_layout(st["layout"])
@@ -1527,6 +1540,10 @@ class Handler(BaseHTTPRequestHandler):
                 return self.reply(200, json.dumps(res), TYPES[".json"])
             except ValueError as e:
                 return self.reply(400, json.dumps({"error": str(e)}), TYPES[".json"])
+        if path == "/api/brand/logo":                    # v6.2 the leader's logo (PNG), for overlays, vCam and the remote
+            if not BRAND_LOGO.exists():
+                return self.reply(404, "No logo", "text/plain; charset=utf-8")
+            return self.reply(200, BRAND_LOGO.read_bytes(), "image/png", [("Cache-Control", "private, max-age=31536000")])
         if path == "/api/present.mjpg":                 # Presentation window (this PC only)
             if not self.is_local():
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
@@ -1725,6 +1742,25 @@ class Handler(BaseHTTPRequestHandler):
             with comp.present_cond:
                 pres["clients"] = max(0, pres["clients"] - 1)
 
+    def upload_brand_logo(self):
+        """v6.2 The leader's logo: a PNG made by the dashboard (PNG, JPG and SVG are converted there). ?remove=1 deletes it."""
+        if not self.is_local():
+            return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
+        if parse_qs(urlparse(self.path).query).get("remove", ["0"])[0] == "1":
+            BRAND_LOGO.unlink(missing_ok=True)
+            return self.reply(200, json.dumps({"logo": "", "w": 0, "h": 0}), TYPES[".json"])
+        length = int(self.headers.get("Content-Length", 0))
+        if length <= 0 or length > 8 * 1024 * 1024:
+            return self.reply(400, json.dumps({"error": "The logo must be smaller than 8 MB."}), TYPES[".json"])
+        data = self.rfile.read(length)
+        info = png_size(data)
+        if not info:
+            return self.reply(400, json.dumps({"error": "That is not a picture Kingdom Connect can use. Choose a PNG, JPG or SVG file."}), TYPES[".json"])
+        tmp = BRAND_LOGO.with_suffix(".part")
+        tmp.write_bytes(data)
+        os.replace(tmp, BRAND_LOGO)
+        return self.reply(200, json.dumps({"logo": hashlib.sha1(data).hexdigest()[:12], "w": info[0], "h": info[1]}), TYPES[".json"])
+
     def upload_layer_file(self):
         """A picture, video or PDF for a layer, copied into the data folder's layers folder (this PC only)."""
         if not self.is_local():
@@ -1819,6 +1855,8 @@ class Handler(BaseHTTPRequestHandler):
             return self.reply(403, "Forbidden", "text/plain; charset=utf-8")
         if urlparse(self.path).path == "/api/vcam/upload":
             return self.upload_layer_file()
+        if urlparse(self.path).path == "/api/brand/logo":
+            return self.upload_brand_logo()
         path = urlparse(self.path).path
         if not self.allowed(path):
             return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")

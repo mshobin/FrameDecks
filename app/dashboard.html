@@ -30,7 +30,7 @@
     <button class="tab grp" role="tab" type="button" id="tabbtn-settings" data-group="settings" data-tab="settings" aria-selected="false"><i data-icon="settings"></i>Settings <kbd>Alt+4</kbd></button>
   </nav>
   <!-- Search (Ctrl+K): scenes, layers, Bible references, questions, verses, members, birthdays, media and settings.
-       Choosing one selects or opens it; nothing goes on screen until Take live. -->
+       Choosing one selects or opens it; nothing goes on screen until Go Live. -->
   <div class="gsearch" role="search">
     <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
     <input type="search" id="gsearch" placeholder="Search scenes, layers, Romans 2:29, questions, members…" autocomplete="off" aria-label="Search scenes, layers, Bible references, questions, verses, members and settings" aria-controls="gsearch-list" aria-expanded="false">
@@ -39,7 +39,7 @@
   </div>
   <!-- LIVE plus every output's status, at a glance and only here (each chip opens its details).
        Narrow windows fold the chips into one status button. -->
-  <button class="btn small pm-toggle" type="button" id="pm-toggle" aria-pressed="false" title="Presentation Mode: only the scenes, Previous, Take live and Next (P)"><i data-icon="presentation" data-size="16"></i><span>Presentation Mode</span></button>
+  <button class="btn small pm-toggle" type="button" id="pm-toggle" aria-pressed="false" title="Presentation Mode: only the scenes, Previous, Go Live and Next (P)"><i data-icon="presentation" data-size="16"></i><span>Presentation Mode</span></button>
   <span class="live-ind" id="live-ind" role="status" aria-live="polite"><i></i><b>Off air</b><span class="live-what"></span></span>
   <div class="sysstat" id="sysstat">
     <button class="sys-sum" type="button" id="sys-sum" aria-expanded="false" aria-controls="health" aria-label="System status"><i class="sys-dot"></i><span class="sys-text">Checking…</span></button>
@@ -364,6 +364,7 @@
 <div class="tabpanel settings" id="tab-settings" role="tabpanel" aria-labelledby="tabbtn-settings" hidden>
   <nav class="s-nav" id="s-nav" aria-label="Settings sections">
     <button type="button" data-sec="general"><span class="sn-i">⚙</span>General</button>
+    <button type="button" data-sec="meeting"><span class="sn-i">★</span>Meeting &amp; Branding</button>
     <button type="button" data-sec="overlays"><span class="sn-i">🎂</span>Birthdays</button>
     <button type="button" data-sec="scripture"><span class="sn-i">✝</span>Scripture<i class="sn-dot" id="sn-scripture"></i></button>
     <button type="button" data-sec="transitions"><span class="sn-i">⇄</span>Transitions</button>
@@ -378,6 +379,10 @@
     <button type="button" data-sec="about"><span class="sn-i">ⓘ</span>About</button>
   </nav>
   <div class="s-body">
+    <section class="s-sec" id="sec-meeting" aria-labelledby="sech-meeting" hidden>
+      <header class="s-head"><h2 id="sech-meeting">Meeting &amp; Branding</h2><p>Your meeting’s name, logo and colour. They appear only where you choose: Branding layers, and text layers that ask for them.</p></header>
+      <div id="meeting-body"></div>
+    </section>
     <section class="s-sec" id="sec-general" aria-labelledby="sech-general" hidden>
       <header class="s-head"><h2 id="sech-general">General</h2><p>Appearance, your name, meeting title and the wording used in emails.</p></header>
   <section class="box" aria-labelledby="s-look">
@@ -388,7 +393,7 @@
   </section>
   <section class="box" aria-labelledby="s-you">
     <div class="box-head"><h2 id="s-you">Your details &amp; email wording</h2></div>
-    <label class="field"><span>Meeting title (shown at the top of Kingdom Connect)</span><input type="text" data-set="meetingTitle" placeholder="e.g. BSF Tuesday Evening Group"></label>
+    <p class="hint">Meeting Name, your logo and colours: <button class="linkish" type="button" data-goto="settings" data-sec="meeting">Settings → Meeting &amp; Branding</button>.</p>
     <label class="field"><span>Your name (used as [Your Name])</span><input type="text" data-set="yourName" placeholder="e.g. Mary Thomas"></label>
     <label class="field"><span>Your email (optional; used as “To” for group emails)</span><input type="text" data-set="yourEmail" placeholder="you@example.com"></label>
     <label class="field"><span>Group name (used as [Group Name])</span><input type="text" data-set="groupName"></label>
@@ -511,13 +516,13 @@
 </main>
 
 <!-- ===================== v6 Live bar =====================
-     Scenes: Previous · Take live · Next, the transition for this take, auto advance. Layers: step the selected list,
+     Scenes: Previous · Go Live · Next, the transition for this take, auto advance. Layers: step the selected list,
      hide the selected layer, hide all. Program: Blackout and the Emergency screen. -->
 <div class="ctlbar livebar" id="ctlbar" role="toolbar" aria-label="Live controls">
   <div class="lb-grp lb-scenes" role="group" aria-label="Scenes">
-    <button class="cb-btn" type="button" id="lb-prev" aria-label="Previous scene (take it live)">◀<span class="lb-t">Scene</span><kbd class="key" data-sc="prevScene"></kbd></button>
-    <button class="cb-btn take" type="button" id="cb-take" aria-label="Take the selected scene live"><span class="tk-ic" aria-hidden="true">▶</span><span class="tk-t"><span class="tl">Take live</span><span class="tk-what" id="cb-take-what"></span></span><kbd class="key" data-sc="takeLive"></kbd></button>
-    <button class="cb-btn" type="button" id="lb-next" aria-label="Next scene (take it live)"><span class="lb-t">Scene</span>▶<kbd class="key" data-sc="nextScene"></kbd></button>
+    <button class="cb-btn" type="button" id="lb-prev" aria-label="Previous scene (goes live)">◀<span class="lb-t">Scene</span><kbd class="key" data-sc="prevScene"></kbd></button>
+    <button class="cb-btn take" type="button" id="cb-take" aria-label="Go Live: put the selected scene on screen"><span class="tk-ic" aria-hidden="true">▶</span><span class="tk-t"><span class="tl">Go Live</span><span class="tk-what" id="cb-take-what"></span></span><kbd class="key" data-sc="takeLive"></kbd></button>
+    <button class="cb-btn" type="button" id="lb-next" aria-label="Next scene (goes live)"><span class="lb-t">Scene</span>▶<kbd class="key" data-sc="nextScene"></kbd></button>
   </div>
   <label class="lb-grp lb-tx" title="Transition for the next take (Scene default = the scene's own, or the profile in Settings → Transitions)"><span class="lb-l">Transition</span><select id="lb-tx" aria-label="Transition for the next take"></select></label>
   <button class="cb-btn lb-auto" type="button" id="lb-auto" aria-pressed="true" title="Auto advance: scenes set to advance by themselves do so">Auto</button>
@@ -570,6 +575,9 @@
 <script src="js/nav.js"></script>
 <script src="js/brand.js"></script>
 <script src="js/about.js"></script>
+<script src="js/meeting-sheet.js"></script>
+<script src="js/meeting-import.js"></script>
+<script src="js/meeting-brand.js"></script>
 <script src="js/settings.js"></script>
 <script src="js/app-bridge.js"></script>
 </body>

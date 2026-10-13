@@ -223,3 +223,20 @@ body[data-stx="push"] .card.out:not(.empty){transform:translateX(calc(var(--u)*1
 body[data-stx="soft-scale"] .card.out:not(.empty),body[data-stx="zoom-fade"] .card.out:not(.empty){transform:scale(.94)}
 body[data-stx="cinema"] .card,body[data-stx="church"] .card{transition-duration:var(--stx-ms,.8s),var(--stx-ms,.8s)}
 @media (prefers-reduced-motion: reduce){.pg-dip{display:none}}
+
+/* ---------- v6.2 Leader branding ---------- */
+/* Logo at the right of a text card's label row (Show logo) */
+.card-x .card-logo{margin-left:auto;height:1.9em;width:auto;max-width:40%;object-fit:contain}
+.card-x .card-logo[hidden]{display:none}
+.card-x.no-label .card-label{display:none}
+/* Branding layer: the logo and the Meeting Name on a small navy plate with the accent edge */
+.zone-brand.pos-center{top:50%}
+.card-brand{--s:calc(var(--u) * var(--xs,1));width:auto;max-width:60vw;display:flex;align-items:center;gap:calc(var(--s)*1.1);
+  padding:calc(var(--s)*1.3);border-radius:calc(var(--s)*1.1)}
+.card-brand .brand-logo{height:calc(var(--s)*4.4);width:auto;max-width:calc(var(--s)*24);object-fit:contain;flex:none}
+.card-brand .brand-logo[hidden]{display:none}
+.card-brand .brand-t{display:flex;flex-direction:column;min-width:0}
+.card-brand .brand-t:not(:has(:not([hidden]))){display:none}
+.card-brand .brand-name{font-family:var(--sans);font-weight:700;font-size:calc(var(--s)*1.9);line-height:1.25;color:#fbf6ea;white-space:nowrap}
+.card-brand .brand-org{font-family:var(--sans);font-weight:600;font-size:calc(var(--s)*1.35);line-height:1.25;color:var(--gold-text);white-space:nowrap}
+.card-brand .brand-name[hidden],.card-brand .brand-org[hidden]{display:none}

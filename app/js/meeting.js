@@ -63,7 +63,8 @@ function renderProgram(){
   if (!Store.served) chip('h-program', 'info', 'No-install mode', 'Overlays update only in this browser. Start the program for OBS, Camo and the phone remote.');
   else chip('h-program', Store.online ? 'ok' : 'bad', Store.online ? 'Connected' : 'Not responding', Store.online ? 'The local program is running' : 'Check the black Kingdom Connect window is open');
   var set = window.BSFMembersAPI ? window.BSFMembersAPI.settings() : {};
-  var t = set.meetingTitle || 'BSF Meeting', g = String(set.groupName || 'BSF').trim() || 'BSF';
+  var br = window.BSFStore && window.BSFStore.brand ? window.BSFStore.brand() : {};
+  var t = br.meeting || set.meetingTitle || 'BSF Meeting', g = String(br.org || set.groupName || 'BSF').trim() || 'BSF';   // v6.2 Settings → Meeting & Branding first
   var org = 'Kingdom Connect';
   t = (g && g !== 'BSF' && t.indexOf(g) < 0 ? g + ' · ' : '') + t;      // e.g. "NLFM · Tuesday Evening Group"
   if ($('meeting-title').textContent !== t) $('meeting-title').textContent = t;

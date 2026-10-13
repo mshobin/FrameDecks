@@ -372,19 +372,41 @@ function TextLayers(root){
   var shown = {};                                  // id -> {el, sig}
   function make(l){
     var card = el('section', 'card card-x card-' + l.kind + ' out');
+    if (l.kind === 'brand'){                                  // v6.2 Branding: logo + Meeting Name (+ organization)
+      var lg = document.createElement('img'); lg.className = 'brand-logo'; lg.alt = '';
+      var bt = el('div', 'brand-t'), bn = el('b', 'brand-name'), bo = el('span', 'brand-org');
+      bt.appendChild(bn); bt.appendChild(bo); card.appendChild(lg); card.appendChild(bt);
+      var z = el('div', 'zone-x zone-brand'); z.appendChild(card); root.appendChild(z);
+      return {zone: z, card: card, logo: lg, name: bn, org: bo};
+    }
     var label = el('header', 'card-label', TEXT_ICON[l.kind] || ''), lt = el('span'); label.appendChild(lt);
+    var logo = document.createElement('img'); logo.className = 'card-logo'; logo.alt = ''; label.appendChild(logo);
     card.appendChild(label); card.appendChild(el('div', 'card-rule')); card.appendChild(el('p', 'card-text'));
     var zone = el('div', 'zone-x'); zone.appendChild(card); root.appendChild(zone);
-    return {zone: zone, card: card, lt: lt, text: card.querySelector('.card-text')};
+    return {zone: zone, card: card, lt: lt, logo: logo, text: card.querySelector('.card-text')};
   }
+  function logoSrc(st){ return st.brand && st.brand.logo ? 'api/brand/logo?v=' + encodeURIComponent(st.brand.logo) : ''; }
+  function setLogo(img, src){ if (img.getAttribute('src') !== src){ if (src) img.setAttribute('src', src); else img.removeAttribute('src'); } img.hidden = !src; }
   function fill(x, l, st){
     var c = l.c, S = window.BSFScenes;
+    if (l.kind === 'brand'){
+      var b = st.brand || {};
+      x.zone.className = 'zone-x zone-brand pos-' + c.pos;
+      x.card.style.setProperty('--xs', c.scale);
+      setLogo(x.logo, c.logo ? logoSrc(st) : '');
+      x.name.textContent = c.name ? b.meeting : ''; x.org.textContent = c.org ? b.org : '';
+      x.name.hidden = !x.name.textContent; x.org.hidden = !x.org.textContent;
+      x.zone.style.opacity = String(l.opacity == null ? 1 : l.opacity);
+      return;
+    }
     x.zone.className = 'zone-x pos-' + c.pos;
     x.card.style.setProperty('--xs', c.scale); x.card.style.setProperty('--xw', c.w);
     x.card.style.opacity = '';
-    x.lt.textContent = c.title || '';
-    x.card.classList.toggle('no-label', !c.label || !String(c.title || '').trim());
-    var t = l.kind === 'countdown' ? S.countdown(st, l) : (c.text || '');
+    var title = S.brandText(st, c.title);
+    x.lt.textContent = title;
+    setLogo(x.logo, c.logo ? logoSrc(st) : '');
+    x.card.classList.toggle('no-label', !(c.label && title.trim()) && !(c.logo && logoSrc(st)));
+    var t = l.kind === 'countdown' ? S.countdown(st, l) : S.brandText(st, c.text);
     if (x.text.textContent !== t) x.text.textContent = t;
     x.zone.style.opacity = String(l.opacity == null ? 1 : l.opacity);
   }
@@ -495,13 +517,20 @@ function mount(opts){
       if (cards.verse) cards.verse.update(held(st, forObs(st.verse)));
       if (cards.question) cards.question.update(held(st, forObs(st.question)));
       if (cards.birthday) cards.birthday.update(held(st, forObs(st.birthday)));
-      if (texts && SC){ lastText = st.live && (st.live.blackout || st.live.emergency) ? [] : SC.liveText(st, isPreview ? null : 'obs'); texts.update(st, lastText); }
+      brandPalette(st);
+      if (texts && SC){ lastText = st.live && (st.live.blackout || st.live.emergency) ? [] : SC.liveText(st, isPreview ? null : 'obs').concat(SC.liveBrand(st, isPreview ? null : 'obs')); texts.update(st, lastText); }
       if (program) program(st);
     });
     Store.start();
     Store.presence(opts.page);
   });
-  var rt, last = null, lastText = [];
+  var rt, last = null, lastText = [], palette = '';
+  /* v6.2 the leader's accent colour replaces the gold of every card on this page (cleared when removed) */
+  function brandPalette(st){
+    var c = (st.brand && st.brand.color) || ''; if (c === palette || !SC) return; palette = c;
+    var p = SC.brandPalette(c), r = document.documentElement.style;
+    [['--gold-1', 'g1'], ['--gold-2', 'g2'], ['--gold-3', 'g3'], ['--gold-4', 'g4'], ['--gold-text', 'text']].forEach(function(k){ if (p) r.setProperty(k[0], p[k[1]]); else r.removeProperty(k[0]); });
+  }
   if (texts) setInterval(function(){ if (last && lastText.length) texts.tick(last, lastText); }, 250);   // countdowns
   window.addEventListener('resize', function(){
     clearTimeout(rt);

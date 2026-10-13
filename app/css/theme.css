@@ -784,3 +784,76 @@ body.pm #cb-take{min-width:220px}
 
 .console-top .brand{flex:none}
 .console-top .brand-text{min-width:0}
+
+/* v6.2 - Go Live: one primary action that always looks and reads the same; "● On air" underneath says the
+   selected scene is already on screen. The canvas outline flashes green once after Go Live. */
+.livebar .cb-btn.take.is-live,.cb-btn.take.is-live{background:var(--take);border-color:var(--take);color:var(--take-ink)}
+.livebar .cb-btn.take.is-live .tk-ic,.cb-btn.take.is-live .tk-ic{font-size:14px}
+.livebar .cb-btn.take.is-live .tk-ic::before,.cb-btn.take.is-live .tk-ic::before{content:none}
+.cb-btn.take .tl{letter-spacing:.06em}
+#program{transition:box-shadow .9s var(--ease)}
+#program.went-live{box-shadow:0 0 0 3px var(--live),0 0 0 9px var(--live-soft);transition:none}
+
+/* v6.2 - Settings → Meeting & Branding */
+.linkish{background:none;border:0;padding:0;font:inherit;color:var(--gold-strong);text-decoration:underline;text-underline-offset:2px;cursor:pointer}
+.mb-grid{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(220px,1fr);gap:20px;align-items:start}
+@media (max-width:1100px){ .mb-grid{grid-template-columns:1fr} }
+.mb-lbl{display:block;font-size:13px;font-weight:700;color:var(--muted);margin:0 0 6px}
+.mb-logo{height:120px;border-radius:var(--r-2);border:1px dashed var(--line);display:flex;align-items:center;justify-content:center;padding:12px;margin-bottom:8px;
+  background:repeating-conic-gradient(rgba(128,128,128,.12) 0 25%,transparent 0 50%) 0 0/16px 16px,var(--field)}
+.mb-logo.over{border-color:var(--gold);background-color:var(--accent-soft)}
+.mb-logo img{max-height:100%;max-width:100%;object-fit:contain}
+.mb-logo img[hidden],.mb-logo-empty[hidden]{display:none}
+.mb-logo-empty{color:var(--faint);font-size:13px}
+.mb-colour{margin-top:14px;padding-top:12px;border-top:1px solid var(--line-soft)}
+.mb-colour-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:8px}
+.mb-swatches{display:flex;gap:6px;flex-wrap:wrap}
+.mb-swatches button{width:26px;height:26px;border-radius:50%;border:2px solid var(--surface);box-shadow:0 0 0 1px var(--line);cursor:pointer;padding:0}
+.mb-swatches button[aria-checked="true"]{box-shadow:0 0 0 2px var(--ink)}
+.mb-colour-row input[type=color]{width:42px;height:30px;padding:0;border:1px solid var(--line);border-radius:8px;background:none;cursor:pointer}
+.mb-preview{display:flex;align-items:center;min-height:90px;padding:14px;margin:6px 0 12px;border-radius:var(--r-2);background:linear-gradient(165deg,#465063,#262c38)}
+.mb-badge{display:inline-flex;align-items:center;gap:12px;padding:10px 14px;border-radius:10px;background:rgba(14,30,62,.9);border:2px solid var(--mb-edge,#d9ab4a)}
+.mb-badge img{height:44px;width:auto;max-width:200px;object-fit:contain}
+.mb-badge b{display:block;color:#fbf6ea;font-size:16px}
+.mb-badge span{display:block;color:var(--mb-text,#f2c35b);font-size:13px;font-weight:600}
+.mb-preview .hint{color:#c8cfdc;margin:0}
+.mb-list{list-style:none;margin:10px 0 12px;padding:8px 10px;max-height:300px;overflow:auto;border:1px solid var(--line-soft);border-radius:var(--r-2);columns:2 260px;column-gap:20px}
+.mb-list li{break-inside:avoid;padding:2px 0}
+.mb-list small{color:var(--faint)}
+.mb-inline{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
+.mb-inline select{height:36px;padding:4px 10px;line-height:1.2}
+.mb-acts{flex-wrap:wrap;gap:8px}
+.mb-acts .btn{display:inline-flex;align-items:center;gap:6px}
+#mb-scenes.found{box-shadow:0 0 0 2px var(--gold)}
+
+/* v6.2 - Import a meeting from Excel */
+.mi-dlg{width:min(820px,94vw)}
+.mi-drop{display:flex;flex-direction:column;align-items:center;gap:6px;padding:34px 20px;border:2px dashed var(--line);border-radius:16px;cursor:pointer;text-align:center;color:var(--muted);background:var(--panel-2)}
+.mi-drop:hover,.mi-drop.over,.mi-drop:focus-visible{border-color:var(--gold);color:var(--ink);outline:none}
+.mi-drop b{color:var(--ink);font-size:16px}
+.mi-drop-ic{color:var(--gold)}
+.mi-spacer{flex:1}
+.kc-dlg-foot{align-items:center;flex-wrap:wrap}
+.mi-chips{display:flex;flex-wrap:wrap;gap:8px;margin:4px 0 14px}
+.mi-chip{display:inline-flex;align-items:baseline;gap:4px;padding:5px 12px;border-radius:999px;background:var(--raised);border:1px solid var(--line-soft);font-size:13px;color:var(--muted)}
+.mi-chip b{color:var(--ink);font-size:14px}
+.mi-chip.big{background:var(--accent-soft);border-color:var(--kc-gold-line)}
+.mi-chip.big b{font-size:18px}
+.mi-details{margin:0 0 12px;border:1px solid var(--line-soft);border-radius:12px;padding:8px 12px}
+.mi-details summary{cursor:pointer;font-weight:700;font-size:13.5px}
+.mi-scenes{margin:8px 0 2px;padding-left:24px;max-height:220px;overflow:auto;font-size:13.5px}
+.mi-scenes li{padding:3px 0}
+.mi-scenes li span{display:block;color:var(--muted);font-size:12.5px}
+.mi-head{margin:10px 0 6px;font-weight:700;font-size:14px}
+.mi-head.bad{color:var(--red)} .mi-head.warn{color:var(--warn,#f5b547)} .mi-head.ok{color:var(--live)}
+.mi-list{margin:0;padding:8px 12px 8px 28px;max-height:220px;overflow:auto;border-radius:10px;font-size:13.5px;line-height:1.45}
+.mi-list.bad{background:var(--red-soft,rgba(242,99,99,.08));border:1px solid rgba(242,99,99,.35)}
+.mi-list.warn{background:var(--warn-soft,rgba(245,181,71,.08));border:1px solid rgba(245,181,71,.3)}
+.mi-list li{margin:2px 0}
+.mi-err-one{padding:12px 14px;border-radius:10px;background:var(--red-soft,rgba(242,99,99,.08));border:1px solid rgba(242,99,99,.35);line-height:1.5}
+.mi-mode{margin:12px 0 0;padding:10px 14px;border:1px solid var(--kc-gold-line);border-radius:12px}
+.mi-mode legend{padding:0 6px;font-weight:700;font-size:13.5px}
+.mi-mode .radio{display:flex;gap:8px;align-items:flex-start;margin:6px 0;cursor:pointer}
+.mi-mode .radio input{margin-top:4px}
+.mi-lists{margin:4px 0 2px 26px}
+.btn.primary.danger{background:var(--red-strong,#dc2626);border-color:var(--red-strong,#dc2626);color:#fff}

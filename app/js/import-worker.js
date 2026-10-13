@@ -16,12 +16,15 @@ self.onmessage = function(e){
   try {
     var wb = XLSX.read(new Uint8Array(e.data.buffer), {type: 'array', cellDates: false, raw: false, codepage: 65001});
     // Use the first sheet that has a table (the template's instructions sheet is skipped)
-    var pick = null, best = null;
+    var pick = null, best = null, want = e.data.want ? String(e.data.want).toLowerCase() : '';
     wb.SheetNames.forEach(function(n){
       var rows = XLSX.utils.sheet_to_json(wb.Sheets[n], {header: 1, defval: '', blankrows: true, raw: false});   // keep empty rows: row numbers must match Excel
-      if (/^how to|instructions?$/i.test(n.trim())) return;
+      if (/^how to|instructions?$|^read ?me$|^allowed values$/i.test(n.trim())) return;
+      // v6.2 the meeting template: the first sheet whose header has the wanted column (e.g. "Scene Name")
+      if (want && !rows.slice(0, 10).some(function(r){ return r.some(function(c){ return cellText(c).toLowerCase() === want; }); })) return;
       if (!pick && rows.length) { pick = n; best = rows; }
     });
+    if (!pick && want) { self.postMessage({ok: false, error: 'No sheet in this file has a “' + e.data.want + '” column. Use the Kingdom Connect meeting template (Download the Excel template).'}); return; }
     if (!pick) { self.postMessage({ok: false, error: 'The file has no rows to import.'}); return; }
     // The header row: the first of the first 10 rows with at least two filled cells
     var hr = 0;

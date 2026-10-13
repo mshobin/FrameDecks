@@ -17,9 +17,36 @@ import time
 import cv2
 import numpy as np
 
-from .cards import CardDrawer
+from PIL import Image, ImageDraw
+
+from .cards import CardDrawer, Card, accent_palette, logo_rgba, _premult, GOLD_TEXT as _GOLD_TEXT
 
 TEXT_KINDS = ("announcement", "prayer", "lowerthird", "countdown")
+
+
+def brand_text(st, s):
+    """v6.2 {meeting} and {org} in a text layer become the leader's Meeting Name and Leader / Organization."""
+    b = st.get("brand") or {}
+    s = str(s or "")
+    for k, v in (("{meeting}", b.get("meeting") or ""), ("{org}", b.get("org") or "")):
+        i = s.lower().find(k)
+        while i >= 0:
+            s = s[:i] + v + s[i + len(k):]
+            i = s.lower().find(k, i + len(v))
+    return s
+
+
+def live_brand(st, output="vcam"):
+    """v6.2 The live scene's Branding layers that have something to show (same rules as BSFScenes.liveBrand)."""
+    live = st.get("live") or {}
+    sc = next((x for x in st.get("scenes") or [] if isinstance(x, dict) and x.get("id") == live.get("scene")), None)
+    if not sc or (sc.get("out") or {}).get(output) is False:
+        return []
+    b, on = st.get("brand") or {}, live.get("on") or {}
+    return [l for l in sc.get("layers") or [] if isinstance(l, dict) and l.get("kind") == "brand" and on.get(l.get("id"))
+            and (l.get("c") or {}).get(output) is not False
+            and (((l.get("c") or {}).get("logo") and b.get("logo")) or ((l.get("c") or {}).get("name") and b.get("meeting"))
+                 or ((l.get("c") or {}).get("org") and b.get("org")))]
 
 
 def _ease(t):
@@ -39,7 +66,7 @@ def live_text(st, output="vcam"):
     on = live.get("on") or {}
     return [l for l in sc.get("layers") or [] if isinstance(l, dict) and l.get("kind") in TEXT_KINDS and on.get(l.get("id"))
             and (l.get("c") or {}).get(output) is not False
-            and (l.get("kind") == "countdown" or str((l.get("c") or {}).get("text") or "").strip() or str((l.get("c") or {}).get("title") or "").strip())]
+            and (l.get("kind") == "countdown" or brand_text(st, (l.get("c") or {}).get("text")).strip() or brand_text(st, (l.get("c") or {}).get("title")).strip())]
 
 
 def countdown_text(st, l, now=None):
@@ -68,8 +95,9 @@ class _Text:
 
 
 class ProgramFX:
-    def __init__(self, fonts_dir, get_state, cards_on=lambda: True):
+    def __init__(self, fonts_dir, get_state, cards_on=lambda: True, logo_path=None):
         self.drawer = CardDrawer(fonts_dir)
+        self.logo_path, self.logo_cache = logo_path, (None, None)      # (version, PIL RGBA)
         self.get_state, self.cards_on = get_state, cards_on
         self.texts = {}                  # layer id -> _Text
         self.jobs, self.cond = {}, threading.Condition()
@@ -189,18 +217,82 @@ class ProgramFX:
         self.slate = (key, img)
         return img
 
+    # ---------- v6.2 branding ----------
+    def _logo(self, version):
+        """The leader's logo (PIL RGBA), read again only when a new one is uploaded."""
+        if not version or not self.logo_path:
+            return None
+        if self.logo_cache[0] != version:
+            self.logo_cache = (version, logo_rgba(self.logo_path))
+        return self.logo_cache[1]
+
+    def _badge(self, d, L, W, H):
+        """A Branding layer: the logo and/or the Meeting Name (and Leader / Organization) on a small navy plate."""
+        u = min(W / 100, H * 1.7778 / 100)
+        s = u * float(L.get("scale", 1))
+        pal = accent_palette(L.get("accent"))
+        gold = pal[0] if pal else _GOLD_TEXT
+        edge = pal[1][1][1] if pal else (217, 171, 74)
+        fonts = self.drawer.fonts
+        lines = []
+        if d.get("name") and d.get("meeting"):
+            lines.append((d["meeting"], fonts.get("sans", 700, 1.9 * s), (251, 246, 234)))
+        if d.get("show_org") and d.get("org"):
+            lines.append((d["org"], fonts.get("sans", 600, 1.35 * s), gold))
+        logo = self._logo(d.get("logo")) if d.get("logo") else None
+        pad, gap = 1.3 * s, 1.1 * s
+        text_h = sum(f.size * 1.25 for _, f, _ in lines)
+        text_w = max([f.getlength(t) for t, f, _ in lines] or [0])
+        logo_h = max(text_h, 4.4 * s) if lines else 6.0 * s
+        lw = lh = 0
+        if logo is not None:
+            lh = int(round(logo_h))
+            lw = max(1, int(round(lh * logo.width / max(1, logo.height))))
+            if lw > 24 * s:                                   # very wide logos
+                lw = int(24 * s)
+                lh = max(1, int(round(lw * logo.height / max(1, logo.width))))
+        inner_h = max(lh, text_h)
+        w = int(round(2 * pad + lw + (gap if lw and lines else 0) + text_w))
+        h = int(round(2 * pad + inner_h))
+        img = Image.new("RGBA", (max(1, w), max(1, h)), (0, 0, 0, 0))
+        dr = ImageDraw.Draw(img)
+        bw = max(2, int(round(u * 0.13)))
+        dr.rounded_rectangle([0, 0, w - 1, h - 1], radius=int(1.1 * s), fill=edge + (255,))
+        dr.rounded_rectangle([bw, bw, w - 1 - bw, h - 1 - bw], radius=max(0, int(1.1 * s) - bw), fill=(14, 30, 62, 225))
+        x = pad
+        if logo is not None:
+            img.alpha_composite(logo.resize((lw, lh), Image.LANCZOS), (int(round(x)), int(round((h - lh) / 2))))
+            x += lw + (gap if lines else 0)
+        y = (h - text_h) / 2
+        for t, f, col in lines:
+            dr.text((x, y + f.size * 0.125), t, font=f, fill=col + (255,))
+            y += f.size * 1.25
+        base = _premult(img)
+        empty = np.zeros_like(base)
+        card = Card("brand", w, h, 0, (base, empty, empty.copy()), [], [], 0, None)
+        return card
+
     # ---------- text layers ----------
     def _texts(self, frame, st, live, W, H, now, dt, hold):
-        want = {} if hold or not self.cards_on() else {l["id"]: l for l in live_text(st, "vcam")}
+        want = {} if hold or not self.cards_on() else {l["id"]: l for l in live_text(st, "vcam") + live_brand(st, "vcam")}
+        b = st.get("brand") or {}
         for lid, l in want.items():
             t = self.texts.setdefault(lid, _Text())
             c = l.get("c") or {}
-            text = countdown_text(st, l) if l["kind"] == "countdown" else str(c.get("text") or "")
-            data = {"label": str(c.get("title") or ""), "showLabel": c.get("label", True) is not False and bool(str(c.get("title") or "").strip()),
-                    "text": text or " "}
-            L = {"qScale": float(c.get("scale") or 1), "qWidth": float(c.get("w") or 70), "qBottom": 8,
-                 "panel": float((st.get("layout") or {}).get("panel", 92))}
-            key = (data["label"], data["showLabel"], data["text"], L["qScale"], L["qWidth"], L["panel"], c.get("pos"), W, H)
+            accent = b.get("color") or ""
+            if l["kind"] == "brand":
+                data = {"brand": True, "meeting": b.get("meeting") or "", "org": b.get("org") or "", "logo": c.get("logo") and b.get("logo"),
+                        "name": bool(c.get("name")), "show_org": bool(c.get("org"))}
+                L = {"scale": float(c.get("scale") or 1), "accent": accent}
+                key = ("brand", data["meeting"], data["org"], data["logo"], data["name"], data["show_org"], L["scale"], accent, c.get("pos"), W, H)
+            else:
+                text = countdown_text(st, l) if l["kind"] == "countdown" else brand_text(st, c.get("text"))
+                title = brand_text(st, c.get("title"))
+                data = {"label": title, "showLabel": c.get("label", True) is not False and bool(title.strip()), "text": text or " ",
+                        "logo": (b.get("logo") or None) if c.get("logo") else None}
+                L = {"qScale": float(c.get("scale") or 1), "qWidth": float(c.get("w") or 70), "qBottom": 8,
+                     "panel": float((st.get("layout") or {}).get("panel", 92)), "accent": accent}
+                key = (data["label"], data["showLabel"], data["text"], data["logo"], accent, L["qScale"], L["qWidth"], L["panel"], c.get("pos"), W, H)
             if t.target < 1:
                 t.anim, t.t0 = str(c.get("anim") or "fade"), now
             t.target = 1.0
@@ -240,7 +332,12 @@ class ProgramFX:
                     self.cond.wait()
                 lid, (key, data, L, W, H, pos) = self.jobs.popitem()
             try:
-                card = self.drawer.draw("question", data, L, W, H)
+                if data.get("brand"):
+                    card = self._badge(data, L, W, H)
+                else:
+                    if data.get("logo"):
+                        data = dict(data, logo=self._logo(data["logo"]))
+                    card = self.drawer.draw("question", data, L, W, H)
                 OverlayLayer._prepare(card)
                 u = min(W / 100, H * 1.7778 / 100)
                 left, right = 4 * u, W - 4 * u - card.w

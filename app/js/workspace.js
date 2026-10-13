@@ -142,6 +142,7 @@ function renderScenes(){
     if (live.scenes.length){ ol.appendChild(h('li', {cls: 'pane-empty', text: 'No scenes match.'})); return; }
     ol.appendChild(h('li', {cls: 'pane-empty start'}, [h('b', {text: 'Ready when you are'}), h('span', {text: 'Quick Start makes a full set of scenes for a Bible study, prayer meeting, youth gathering or fellowship meeting in one click.'}),
       h('button', {cls: 'btn primary small', type: 'button', html: I('sparkles', 15) + ' Quick Start', onclick: function(){ openQuickStart(); }}),
+      h('button', {cls: 'btn small', type: 'button', html: I('file-text', 15) + ' Import from Excel', onclick: function(){ if (window.BSFMeetingImport) window.BSFMeetingImport.pick(); }}),
       h('button', {cls: 'btn quiet small', type: 'button', text: 'Browse the Library', onclick: function(){ setFilter('tpl'); }})]));
     return;
   }
@@ -247,7 +248,12 @@ var TPL_ICON = {'bible-study': 'book-open', scripture: 'book-open', question: 'm
 $('scene-add').addEventListener('click', function(e){
   e.stopPropagation();
   var saved = live.scenes.filter(function(s){ return s.tpl; });
-  var items = [{icon: 'sparkles', text: 'Quick Start…', run: openQuickStart}, {icon: 'library', text: 'Browse the Content Library', run: function(){ setFilter('tpl'); }}, '-', {label: 'New scene'}].concat(SC.templates.map(function(t){
+  var MI = window.BSFMeetingImport;
+  var items = [{icon: 'sparkles', text: 'Quick Start…', run: openQuickStart}, {icon: 'library', text: 'Browse the Content Library', run: function(){ setFilter('tpl'); }},
+    MI ? {icon: 'file-text', text: 'Import meeting from Excel…', run: MI.pick} : null,
+    MI ? {icon: 'arrow-down', text: 'Download the Excel template', run: MI.template} : null,
+    MI && MI.canUndo() ? {icon: 'refresh-cw', text: 'Undo the last Excel import', run: MI.undo} : null,
+    '-', {label: 'New scene'}].concat(SC.templates.map(function(t){
     return {icon: TPL_ICON[t.id] || 'square', text: t.name + ' Scene', run: function(){ newScene(t.id); }};
   }));
   if (saved.length){ items.push('-', {label: 'From your templates'}); saved.forEach(function(t){ items.push({icon: 'layout-template', text: t.name, run: function(){ fromTemplate(t.id); }}); }); }
@@ -292,7 +298,7 @@ function openQuickStart(){
   });
   dlg.appendChild(h('div', {cls: 'kc-dlg-in'}, [
     h('p', {cls: 'kc-dlg-kicker', text: 'Quick Start'}), h('h2', {id: 'qs-title', text: 'What are you leading today?'}),
-    h('p', {cls: 'kc-dlg-sub', text: 'Pick one and a complete set of scenes is ready in its own group. Change any of them afterwards; nothing goes on screen until you take it live.'}),
+    h('p', {cls: 'kc-dlg-sub', text: 'Pick one and a complete set of scenes is ready in its own group. Change any of them afterwards; nothing goes on screen until you press Go Live.'}),
     grid,
     h('div', {cls: 'kc-dlg-foot'}, [h('button', {cls: 'btn quiet', type: 'button', text: 'Browse the Library instead', onclick: function(){ dlg.close(); setFilter('tpl'); }}),
       h('button', {cls: 'btn', type: 'button', text: 'Cancel', onclick: function(){ dlg.close(); }})])]));
@@ -307,7 +313,7 @@ function runQuickStart(q){
     if (!made.length) return;
     delete collapsed[made[0].group]; setFilter('all');
     select(made[0].id, null, true);
-    toast(q.name + ' is ready: ' + made.length + ' scenes in “' + made[0].group + '”. Select a scene and press Take live.');
+    toast(q.name + ' is ready: ' + made.length + ' scenes in “' + made[0].group + '”. Select a scene and press Go Live.');
   });
 }
 window.BSFQuickStart = {open: openQuickStart};
@@ -363,7 +369,7 @@ function sceneMenu(id, anchor, ev){
   var sc = SC.find(live, id); if (!sc) return;
   var hasQ = !!SC.first(sc, 'question'), hasV = !!SC.first(sc, 'scripture');
   menu(anchor, [
-    {icon: 'play', text: isLiveScene(id) ? 'Take live again' : 'Take live', hint: 'T', run: function(){ select(id, null); takeScene(id); }},
+    {icon: 'play', text: 'Go Live', hint: 'T', run: function(){ select(id, null); takeScene(id); }},
     '-',
     {icon: 'copy', text: hasQ ? 'Duplicate & edit question' : 'Duplicate', hint: 'Ctrl+D', run: function(){ dupAndEdit(id); }},
     hasQ ? {icon: 'copy', text: 'Duplicate (keep the question)', run: function(){ duplicate(id, {}); }} : null,
@@ -456,7 +462,8 @@ function layerSub(sc, l){
     return 'Follows the list' + (live.verse.ref ? ' · ' + live.verse.ref : ''); }
   if (l.kind === 'birthday') return live.birthday.name ? 'For ' + live.birthday.name : 'Choose who to celebrate';
   if (l.kind === 'countdown') return c.mode === 'until' ? 'Until ' + c.until : c.minutes + ' min';
-  if (SC.isText(l.kind)) return String(c.text || c.title || '').replace(/\s+/g, ' ').slice(0, 44) || 'Empty';
+  if (l.kind === 'brand') return [c.logo ? 'Logo' : '', c.name ? 'Meeting Name' : '', c.org ? 'Organization' : ''].filter(Boolean).join(' · ') + (SC.hasBrand(live) ? '' : ' (set them in Settings)') || 'Nothing chosen';
+  if (SC.isText(l.kind)) return SC.brandText(live, c.text || c.title || '').replace(/\s+/g, ' ').slice(0, 44) || 'Empty';
   if (c.file) return c.file;
   if (l.kind === 'screen' || l.kind === 'window') return 'Screen sharing';
   return SC.info[l.kind].name;
@@ -465,7 +472,7 @@ function renderLayers(){
   var sc = scene(), ol = $('layer-list');
   $('layers-of').textContent = sc ? sc.name : '';
   var S = studio(), status = {}; if (S && isLiveScene(selScene)) S.layers.forEach(function(x){ status[x.id] = x.status; });
-  var sig = JSON.stringify([sc, selLayer, live.live.on, live.question.visible, live.verse.visible, live.birthday.visible, live.live.scene, live.question.text.length, live.verse.ref, live.birthday.name, status, live.library.questions.length]);
+  var sig = JSON.stringify([sc, selLayer, live.live.on, live.question.visible, live.verse.visible, live.birthday.visible, live.live.scene, live.question.text.length, live.verse.ref, live.birthday.name, status, live.library.questions.length, live.brand]);
   if (sig === layerSig) return; layerSig = sig;
   ol.innerHTML = '';
   $('layer-add').disabled = !sc;
@@ -549,7 +556,7 @@ function toggleLayer(sid, lid){
   });
 }
 /* + Layer */
-var CONTENT_ADD = [['scripture', 'Scripture'], ['question', 'Question'], ['birthday', 'Birthday'], ['announcement', 'Announcement'], ['prayer', 'Prayer Point'], ['lowerthird', 'Lower Third'], ['countdown', 'Countdown']];
+var CONTENT_ADD = [['scripture', 'Scripture'], ['question', 'Question'], ['birthday', 'Birthday'], ['announcement', 'Announcement'], ['prayer', 'Prayer Point'], ['lowerthird', 'Lower Third'], ['countdown', 'Countdown'], ['brand', 'Branding (logo + Meeting Name)']];
 var MEDIA_ADD = [['camera', 'Camera (BCC vCam)'], ['screen', 'Screen…'], ['window', 'Window (e.g. PowerPoint)…'], ['image', 'Image…'], ['logo', 'Logo…'], ['watermark', 'Watermark…'],
   ['video', 'Video…'], ['pdf', 'Slides (PDF)…'], ['background', 'Background'], ['text', 'Text'], ['rect', 'Shape']];
 $('layer-add').addEventListener('click', function(e){
@@ -569,7 +576,8 @@ $('layer-add').addEventListener('click', function(e){
 function addLayer(what){
   var sc = scene(); if (!sc) return;
   var kind = what === 'logo' || what === 'watermark' ? 'image' : what;
-  if (SC.isCard(kind) && SC.first(sc, kind)){ select(sc.id, SC.first(sc, kind).id); toast('This scene already has a ' + SC.info[kind].name + ' layer.'); return; }
+  if ((SC.isCard(kind) || kind === 'brand') && SC.first(sc, kind)){ select(sc.id, SC.first(sc, kind).id); toast('This scene already has a ' + SC.info[kind].name + ' layer.'); return; }
+  if (kind === 'brand' && !SC.hasBrand(live)) toast('Add your Meeting Name or logo in Settings → Meeting & Branding; the badge shows them.');
   function put(extra){
     var made = null;
     extra = extra || {};
@@ -685,7 +693,7 @@ function renderInspector(){
   var gen = $('ip-gen'); gen.hidden = !useGen;
   if (SC.isCard(kind) && !useGen){ refreshBasicSegs(); renderPin(sc, l); if (window.BSFRenderLists) window.BSFRenderLists(); if (window.BSFRefreshControls) window.BSFRefreshControls(); if (kind === 'birthday' && window.BSFRenderBirthday) window.BSFRenderBirthday(); }
   if (useGen){
-    var sig = JSON.stringify([editQ, adv, sc && sc.id, l, tab, sc && !l ? [sc.name, sc.group, sc.fav, sc.tpl, sc.tx, sc.auto, sc.out, sc.modified, live.profile] : 0, isLiveScene(sc && sc.id), live.live.on]);
+    var sig = JSON.stringify([editQ, adv, sc && sc.id, l, tab, sc && !l ? [sc.name, sc.group, sc.fav, sc.tpl, sc.tx, sc.auto, sc.out, sc.modified, live.profile, !!SC.first(sc, 'brand')] : 0, l && l.kind === 'brand' ? live.brand : 0, isLiveScene(sc && sc.id), live.live.on]);
     var ae = document.activeElement;
     if (ae && gen.contains(ae) && /INPUT|TEXTAREA|SELECT/.test(ae.tagName) && inspSig.split('|')[0] === (sc && sc.id) + ':' + (l && l.id) + ':' + tab) return;   // typing: don't redraw under the cursor
     if (sig === inspSig.slice(inspSig.indexOf('|') + 1)) return;
@@ -725,13 +733,14 @@ function sceneForm(gen, sc, tab){
     gr.addEventListener('input', function(){ later('gr', function(){ edit(sid, function(x){ x.group = gr.value.trim().slice(0, 60); }); }); });
     gen.appendChild(h('div', {cls: 'ip-sec'}, [field('Name', nm), field('Group', gr), dl,
       checkCtl('Favourite', sc.fav, function(v){ edit(sid, function(x){ x.fav = v; }); }),
-      checkCtl('Template (kept for making new scenes; not in Previous / Next)', sc.tpl, function(v){ edit(sid, function(x){ x.tpl = v; }); })]));
+      checkCtl('Template (kept for making new scenes; not in Previous / Next)', sc.tpl, function(v){ edit(sid, function(x){ x.tpl = v; }); }),
+      notesCtl(sc),
+      checkCtl('Branding: show my logo and Meeting Name in this scene', !!SC.first(sc, 'brand'), function(v){ if (window.BSFBrandSettings) window.BSFBrandSettings.setBranding([sid], v).then(function(){ toast(v ? 'Branding added to ' + sc.name : 'Branding removed from ' + sc.name); }); })]));
     gen.appendChild(h('div', {cls: 'ip-sec ip-acts'}, [
-      h('button', {cls: 'btn primary small', type: 'button', html: I('play', 14) + ' ' + (isLiveScene(sid) ? 'Take live again' : 'Take live'), onclick: function(){ takeScene(sid); }}),
       h('button', {cls: 'btn small', type: 'button', text: 'Duplicate…', onclick: function(){ smartDuplicate(sid); }}),
       h('button', {cls: 'btn small', type: 'button', text: 'Save as template', onclick: function(){ duplicate(sid, {template: true, name: SC.uniqueName(live, sc.name + ' template')}); }}),
       SC.first(sc, 'question') ? h('button', {cls: 'btn quiet small', type: 'button', text: 'One scene per question', onclick: function(){ explode(sid, 'question'); }}) : null]));
-    gen.appendChild(h('p', {cls: 'hint', text: 'A scene owns its layers, its transition and its output rules. Select a layer to edit its content. Double-click a scene (or press T) to take it live.'}));
+    gen.appendChild(h('p', {cls: 'hint', text: 'A scene owns its layers, its transition and its output rules. Select a layer to edit its content. Go Live (bottom bar, T, or double-click a scene) puts it on screen.'}));
   } else if (tab === 'transition'){
     var p = SC.profile(live);
     var sel = h('select', {'aria-label': 'Transition', id: 'sc-tx'}, [h('option', {value: 'profile', text: 'Profile: ' + p.name + ' (' + SC.txName(p.type) + (p.ms ? ', ' + p.ms + ' ms' : '') + ')'})]
@@ -764,9 +773,38 @@ function sceneForm(gen, sc, tab){
 }
 /* ---------- Text layers ---------- */
 var POS_NAMES = {top: 'Top', center: 'Centre', bottom: 'Bottom', 'lower-left': 'Lower left', 'lower-right': 'Lower right', 'upper-left': 'Upper left', 'upper-right': 'Upper right'};
+function notesCtl(sc){
+  var ta = h('textarea', {rows: sc.notes ? 3 : 2, 'aria-label': 'Leader notes', placeholder: 'Notes for you (never shown on screen)'}); ta.value = sc.notes || '';
+  ta.addEventListener('keydown', stop);
+  ta.addEventListener('input', function(){ var v = ta.value; later('notes', function(){ edit(sc.id, function(x){ x.notes = v.slice(0, 2000); }); }); });
+  return field('Leader notes', ta);
+}
+function brandStatus(){
+  var b = live.brand, bits = [b.logo ? 'logo' : '', b.meeting ? '“' + b.meeting + '”' : '', b.org ? '“' + b.org + '”' : ''].filter(Boolean);
+  return h('p', {cls: 'hint'}, [bits.length ? 'Your branding: ' + bits.join(', ') + '. ' : 'No Meeting Name or logo yet. ',
+    h('button', {cls: 'linkish', type: 'button', 'data-goto': 'settings', 'data-sec': 'meeting', text: 'Settings → Meeting & Branding', onclick: function(){ if (window.BSFSetTab) window.BSFSetTab('settings'); }})]);
+}
 function textForm(gen, sc, l, tab){
   var sid = sc.id, lid = l.id, c = l.c;
   function set(fn, now){ if (now) editLayer(sid, lid, fn); else editLayerSoon(sid, lid, fn); }
+  if (l.kind === 'brand' && (tab === 'content' || tab === 'style')){
+    if (tab === 'content'){
+      gen.appendChild(h('p', {cls: 'plain', text: 'A small badge with your logo and Meeting Name. Choose what it shows:'}));
+      gen.appendChild(checkCtl('Logo', c.logo, function(v){ set(function(x){ x.c.logo = v; }, true); }));
+      gen.appendChild(checkCtl('Meeting Name', c.name, function(v){ set(function(x){ x.c.name = v; }, true); }));
+      gen.appendChild(checkCtl('Leader / Organization Name', c.org, function(v){ set(function(x){ x.c.org = v; }, true); }));
+      gen.appendChild(brandStatus());
+    } else {
+      var bsz = [['small', 'Small', 0.75], ['standard', 'Standard', 1], ['large', 'Large', 1.4], ['title', 'Title', 2]];
+      var bnear = function(v){ return bsz.reduce(function(a, t){ return Math.abs(t[2] - v) < Math.abs(a[2] - v) ? t : a; }); };
+      gen.appendChild(row('Size', segCtl(bnear(c.scale)[0], bsz.map(function(t){ return [t[0], t[1]]; }), function(v){ var t = bsz.filter(function(x){ return x[0] === v; })[0]; set(function(x){ x.c.scale = t[2]; }, true); })));
+      var bp = h('select', {'aria-label': 'Position', id: 'tl-pos'}, SC.positions.map(function(p){ return h('option', {value: p, text: POS_NAMES[p]}); })); bp.value = c.pos;
+      bp.addEventListener('change', function(){ set(function(x){ x.c.pos = bp.value; }, true); });
+      gen.appendChild(field('Position', bp));
+      gen.appendChild(h('p', {cls: 'hint', text: 'The badge uses your accent colour when one is set.'}));
+    }
+    return;
+  }
   if (tab === 'content'){
     var title = h('input', {type: 'text', value: c.title, 'aria-label': l.kind === 'lowerthird' ? 'Name' : 'Title', id: 'tl-title'}); title.addEventListener('keydown', stop);
     title.addEventListener('input', function(){ var v = title.value; set(function(x){ x.c.title = v; }); });
@@ -787,6 +825,8 @@ function textForm(gen, sc, l, tab){
       ta.addEventListener('input', function(){ var v = ta.value; set(function(x){ x.c.text = v; }); });
       gen.appendChild(field(l.kind === 'lowerthird' ? 'Role or second line' : 'Text', ta));
     }
+    gen.appendChild(checkCtl('Show my logo on this card', c.logo, function(v){ set(function(x){ x.c.logo = v; }, true); }));
+    gen.appendChild(h('p', {cls: 'hint', html: 'Type <b>{meeting}</b> or <b>{org}</b> to show your Meeting Name or organization.'}));
     gen.appendChild(h('p', {cls: 'hint', text: isLiveScene(sid) ? 'This scene is live: changes appear on screen as you type.' : 'Shown when this scene is taken live.'}));
   } else if (tab === 'style' && !adv){
     gen.appendChild(checkCtl('Show the title / label', c.label, function(v){ set(function(x){ x.c.label = v; }, true); }));
@@ -899,7 +939,7 @@ function renderCanvas(){
   $('mt-section').textContent = sc ? SC.txName(tx.type) + (tx.ms ? ' ' + tx.ms + ' ms' : '') + (sc.auto.on ? ' · auto ' + sc.auto.sec + ' s' : '') : '';
   $('canvas-note').textContent = !sc ? '' : useStudio ? 'Exactly what Zoom / Teams receive. Drag media layers to move them, the handles to resize.' :
     isLive ? 'Live. The overlay page shown here is what OBS receives' + (S ? '' : ' (turn BCC vCam on to see the camera picture and arrange media layers)') + '.' :
-    'Preview of this scene. Take live (T) puts it on air.' + (sc.layers.some(function(l){ return SC.isMedia(l.kind); }) ? ' Outlines show where its media layers go.' : '');
+    'Preview of this scene: not on air. Go Live (T) puts it on screen.' + (sc.layers.some(function(l){ return SC.isMedia(l.kind); }) ? ' Outlines show where its media layers go.' : '');
   // media outlines for a scene that is not live
   var boxes = $('canvas-boxes'), bsig = !useStudio && sc && !isLive ? JSON.stringify(sc.layers.filter(function(l){ return SC.isMedia(l.kind) && l.visible; }).map(function(l){ return [l.id, l.name, l.c.x, l.c.y, l.c.w, l.c.h, l.kind]; })) : '';
   if (boxes.dataset.sig !== bsig){
@@ -951,7 +991,8 @@ function takeScene(id){
   var b = SC.first(sc, 'birthday'), needBday = b && b.visible && !live.birthday.greeting.trim();
   commit(function(n){ SC.take(n, id, txSel.value || null); }).then(function(){
     if (needBday && window.BSFBirthday && window.BSFBirthday.candidate()) window.BSFBirthday.show();
-    toast(sc.name + ' is live');
+    toast('On air: ' + sc.name);
+    var f = $('program'); if (f){ f.classList.remove('went-live'); void f.offsetWidth; f.classList.add('went-live'); setTimeout(function(){ f.classList.remove('went-live'); }, 1400); }
   });
 }
 function stepScene(d){
@@ -998,8 +1039,9 @@ var slideInfo = null;
 function renderLiveBar(){
   var sc = scene(), L = live.live;
   var what = sc ? sc.name : 'Select a scene';
-  $('cb-take-what').textContent = what;
-  $('cb-take').querySelector('.tl').textContent = sc && isLiveScene(sc.id) ? 'Take again' : 'Take live';
+  var onAir = !!(sc && isLiveScene(sc.id));
+  $('cb-take-what').textContent = onAir ? '● On air: ' + what : what;
+  $('cb-take').title = onAir ? sc.name + ' is on air. Go Live again re-shows it from the start of its transition.' : 'Go Live: put the selected scene on screen (T)';
   $('cb-take').disabled = !sc || sc.tpl;
   $('cb-take').classList.toggle('is-live', !!(sc && isLiveScene(sc.id)));
   var order = SC.order(live), li = order.findIndex(function(s){ return s.id === (L.scene || selScene); });
@@ -1056,14 +1098,14 @@ function renderAll(force){
 Store.subscribe(function(st){ live = st; migrate(); renderAll(false); });
 setInterval(function(){ if (live && !document.hidden && document.body.dataset.tab === 'studio') renderLayers(); }, 3000);   // media layer status from BCC vCam
 
-/* ---------- Presentation Mode: only the scene list, Previous · Take live · Next (and HIDE ALL, always) ---------- */
+/* ---------- Presentation Mode: only the scene list, Previous · Go Live · Next (and HIDE ALL, always) ---------- */
 function setPresentation(on){
   on = !!on;
   if (on && window.BSFSetTab && document.body.dataset.tab !== 'studio') window.BSFSetTab('studio');
   document.body.classList.toggle('pm', on);
   var b = $('pm-toggle'); b.setAttribute('aria-pressed', String(on));
   b.querySelector('span').textContent = on ? 'Exit Presentation Mode' : 'Presentation Mode';
-  b.title = on ? 'Back to the full Studio (P)' : 'Presentation Mode: only the scenes, Previous, Take live and Next (P)';
+  b.title = on ? 'Back to the full Studio (P)' : 'Presentation Mode: only the scenes, Previous, Go Live and Next (P)';
   if (filter === 'tpl' && on) setFilter('all');
   closeMenu();
   setTimeout(function(){ window.dispatchEvent(new Event('resize')); var el = document.querySelector('#scene-list .scene-item.live, #scene-list .scene-item.sel'); if (el) el.scrollIntoView({block: 'nearest'}); }, 60);

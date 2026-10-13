@@ -201,7 +201,8 @@ class OverlayLayer:
                     self.drawing.discard(kind)
 
     def _card(self, kind, tr, st, W, H, now):
-        L = effective_layout(st)                      # Both mode: the question leads (same as the overlay pages)
+        L = dict(effective_layout(st))                # Both mode: the question leads (same as the overlay pages)
+        L["accent"] = ((st.get("brand") or {}).get("color") or "")   # v6.2 the leader's accent colour
         band = place_verse(st, W, H) if kind == "verse" else None
         key = (tr.sig(tr.data), W, H, tuple(sorted((k, str(v)) for k, v in L.items())), band and (round(band[1] - band[0])))
         with self.cond:
