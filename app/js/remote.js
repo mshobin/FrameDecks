@@ -3,7 +3,7 @@
  * take, a layer's eye or a duplicate here is exactly the same action as on the PC. Member data never comes here.
  *   phones  : Live (canvas, Prev · Go Live · Next, transition, Q + Scripture, list stepper, program) · Scenes · Layers
  *   tablets : three panes - Scenes | Canvas + live controls | Layers - a control surface
- *   layouts : Presenter · Leader · Producer/Admin choose what this device shows (not a permission) */
+ *   layouts : Simple · Standard · Advanced (ids presenter · leader · admin) choose what this device shows (not a permission) */
 (function(){
 'use strict';
 var Store = window.BSFStore, SC = window.BSFScenes, P = window.BSFPresent, T = window.BSFTransitions;
@@ -279,7 +279,7 @@ function pollStudio(){
 document.addEventListener('visibilitychange', function(){ if (!document.hidden && !$('app').hidden){ pollStudio(); } if (live) renderCanvas(); });
 
 /* ---------- Tabs (phones) and layouts ---------- */
-var ROLES = {presenter: {name: 'Presenter', tabs: ['live']}, leader: {name: 'Leader', tabs: ['live', 'scenes']}, admin: {name: 'Producer / Admin', tabs: ['live', 'scenes', 'layers']}};
+var ROLES = {presenter: {name: 'Simple', tabs: ['live']}, leader: {name: 'Standard', tabs: ['live', 'scenes']}, admin: {name: 'Advanced', tabs: ['live', 'scenes', 'layers']}};   // ids kept so saved choices carry over
 function role(){ return ROLES[document.body.dataset.role] || ROLES.admin; }
 function curTab(){ return document.body.dataset.tab || 'live'; }
 function setTab(t, quiet){

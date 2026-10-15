@@ -222,3 +222,24 @@ body:has(.tabbar[hidden]) .layout{padding-bottom:16px}
 .brand-t .title{font-size:14px;letter-spacing:.14em;text-transform:uppercase;background:linear-gradient(180deg,#fff3cf,#f0c96d 55%,#c9973a);-webkit-background-clip:text;background-clip:text;color:transparent}
 @media (max-width:380px){ .brand-mark{display:none} }
 .seg button[aria-checked="true"]{color:#1a1405}
+
+/* ---------- v6.3 Simple mode (layout "presenter"): one thumb, nothing to misread ----------
+   The scene, its picture and two very large buttons at the bottom of the screen: Previous and NEXT (Next puts the
+   next scene on screen). The question list stepper stays when the scene has one; HIDE ALL stays at the top. */
+body[data-role="presenter"]{--tap:92px}
+body[data-role="presenter"] .p-live{display:flex;flex-direction:column;gap:12px}
+body[data-role="presenter"] .txrow,body[data-role="presenter"] #qs,body[data-role="presenter"] .prog,body[data-role="presenter"] #take,body[data-role="presenter"] .next-pv{display:none !important}
+body[data-role="presenter"] .now-name{font-size:26px}
+body[data-role="presenter"] .canvas{max-height:34vh}
+body[data-role="presenter"] .stepper .pb.sm{min-height:76px;font-size:24px}
+body[data-role="presenter"] .stepper .st-t{font-size:17px;font-weight:800}
+body[data-role="presenter"] .deck{order:99;position:sticky;bottom:calc(10px + env(safe-area-inset-bottom,0px));grid-template-columns:1fr 1.9fr;gap:12px;
+  padding:10px;margin:0 -10px;background:linear-gradient(180deg,transparent,var(--bg) 24%)}
+body[data-role="presenter"] .deck .pb .ar{font-size:32px}
+body[data-role="presenter"] .deck .pb small{font-size:15px}
+body[data-role="presenter"] #next{background:var(--live-strong);color:#fff}
+body[data-role="presenter"] #next small::before{content:"Next "}
+@media (min-width:900px){ body[data-role="presenter"] .deck{position:static;margin:0;background:none} }
+body[data-role="presenter"] .p-live{min-height:calc(100dvh - 150px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px))}
+body[data-role="presenter"] .deck{margin-top:auto}
+body[data-role="presenter"] #prev small::before{content:"Previous "}
