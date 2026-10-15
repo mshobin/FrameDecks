@@ -16,7 +16,7 @@ function h(tag, attrs, kids){
 }
 function ib(icon, label, onclick, cls){ return h('button', {cls: 'ib ' + (cls || ''), type: 'button', title: label, 'aria-label': label, html: I(icon, 16), onclick: onclick}); }
 function toast(m, bad){ if (window.BSFActions) window.BSFActions.toast(m, bad); }
-if (!Store.served){ root.appendChild(h('p', {cls: 'plain', style: 'padding:20px', text: 'The Studio needs the installed Kingdom Connect app (KingdomConnect).'})); return; }
+if (!Store.served){ root.appendChild(h('p', {cls: 'plain', style: 'padding:20px', text: 'The Studio needs the installed Kingdom Connect app.'})); return; }
 
 var REF_W = 1920, REF_H = 1080;            // inspector numbers use a 1920×1080 canvas
 var TYPES = {camera: ['video', 'Video source'], screen: ['monitor', 'Screen capture'], text: ['type', 'Text'], image: ['image', 'Image'],
@@ -105,7 +105,7 @@ var hideBtn = ib('panel-left', 'Hide the app window (keeps running near the cloc
   fetch('api/app/hide', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: '{}'}).then(function(r){ if (!r.ok) toast('Only in the installed app', true); }); });
 var shareChip = h('span', {cls: 's2-chip', id: 's2-share', hidden: 'hidden'});
 /* v5: the scene picker and collection filter are the Scenes list beside the canvas, and the Look is in
- * Settings > KingdomConnect (and Ctrl+Alt+1/2/3/0) - the bar shows the active scene instead of repeating them. */
+ * Settings > KingdomConnect Camera (and Ctrl+Alt+1/2/3/0) - the bar shows the active scene instead of repeating them. */
 var sceneNow = h('span', {cls: 's2-scene-now', id: 's2-scene-now'});
 var tools = $('canvas-tools');
 if (tools){ [shareChip, presBtn, focusBtn, hideBtn].forEach(function(b){ tools.appendChild(b); }); }

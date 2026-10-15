@@ -1,4 +1,4 @@
-/* BSF Command Center - Settings > KingdomConnect (built-in virtual camera) and the top-bar light */
+/* BSF Command Center - Settings > KingdomConnect Camera (built-in virtual camera) and the top-bar light */
 (function(){
 'use strict';
 var Store = window.BSFStore;
@@ -22,7 +22,7 @@ function chip(cls, text, title){                        // touches the page only
 function dot(cls){ var d = $('sn-vcam'), k = 'sn-dot ' + (cls || ''); if (d && d.className !== k) d.className = k; }
 
 if (!Store.served){
-  root.appendChild(h('p', {cls: 'plain', text: 'KingdomConnect needs the Kingdom Connect program (the installed Windows app).'}));
+  root.appendChild(h('p', {cls: 'plain', text: 'The KingdomConnect camera needs the Kingdom Connect program (the installed Windows app).'}));
   chip('', '—', 'Needs the installed app');
   return;
 }
@@ -357,7 +357,7 @@ function render(d){
   // top bar + settings nav
   var chipLook = {live: ['ok', 'In a meeting'], preview: ['info', 'Preview'], ready: ['info', 'Ready'], starting: ['info', 'Starting'], error: ['warn', 'Problem'], off: ['', 'Off']}[key] || ['info', 'Ready'];
   chip(chipLook[0], d.registered ? chipLook[1] : 'Not installed', look[2] || msg.textContent);
-  if (!d.registered) chip('warn', 'Not installed', 'Settings → KingdomConnect → Install');
+  if (!d.registered) chip('warn', 'Not installed', 'Settings → KingdomConnect Camera → Install');
   dot(key === 'live' ? 'ok' : key === 'error' || !d.registered ? 'warn' : s.enabled ? 'info' : '');
   return d;
 }

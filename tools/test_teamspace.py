@@ -1,7 +1,7 @@
 """Team Space peer-to-peer test: two PCs on loopback addresses standing in for WireGuard tunnel addresses.
 
 Run on Linux:  KC_TEAMSPACE_ALLOW_ANY_ADDRESS=1 python3 tools/test_teamspace.py
-(127.0.0.2 and 127.0.0.3 play the two WireGuard addresses; the WireGuard check is skipped for the test only.)
+(127.0.0.12 and 127.0.0.13 play the two WireGuard addresses; the WireGuard check is skipped for the test only.)
 """
 import http.client
 import json
@@ -17,7 +17,7 @@ import teamspace  # noqa: E402
 
 teamspace.SYNC_EVERY = 0.5
 teamspace.ONLINE_FOR = 2.0
-A_IP, B_IP, PORT = "127.0.0.2", "127.0.0.3", 18790
+A_IP, B_IP, PORT = "127.0.0.12", "127.0.0.13", 18791
 fails = []
 
 

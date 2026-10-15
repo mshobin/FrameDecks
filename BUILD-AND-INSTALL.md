@@ -1,7 +1,13 @@
-# BSF Command Center: build and install the Windows app
+# Kingdom Connect: Installation Guide (build and install the Windows app)
 
-This guide turns the BSF Command Center folder into a normal Windows program:
-a **Setup** file that installs it, a **desktop icon**, and its **own window**.
+This guide turns the Kingdom Connect folder (formerly BSF Command Center) into a normal Windows program:
+- a **Setup** file that installs it;
+- a **desktop icon**;
+- its **own app window**, with no address bar or browser controls;
+- the **KingdomConnect** camera for Zoom, Teams, Google Meet and OBS.
+
+After installing, see `docs/configuration-guide.md` to set up the camera and **Team Space** (which needs WireGuard),
+and `docs/user-guide.md` for everyday use.
 
 GitHub builds the installer for you on a clean Windows computer, so you don't need to install
 any programming tools. You only need a free GitHub account.
@@ -31,18 +37,21 @@ GitHub now starts building your installer automatically.
 2. Click the **Actions** tab. You'll see **Build Windows installer** running (yellow dot).
    It takes about 5–10 minutes. A green tick means it worked.
 3. Click the finished run. At the bottom, under **Artifacts**, click
-   **Kingdom Connect v6.1** (the version number; before 6.1 it was called "BCC v…") to download it (a .zip containing the Setup .exe).
-4. Unzip it. You now have **Kingdom Connect v6.1.exe**.
+   **Kingdom Connect v6.4** (the version number) to download it. It is a .zip containing the Setup .exe.
+4. Unzip it. You now have **Kingdom Connect v6.4.exe**.
 
 If you see a red cross instead, click the run to read the error, and send it to me.
 
 ## Part 3 · Install
 
-1. Double-click **Kingdom Connect v6.1.exe**.
+1. Close Zoom, Teams and OBS (they keep the camera in use), then double-click **Kingdom Connect v6.4.exe**.
 2. Windows may show **"Windows protected your PC"**. This appears because the installer isn't
    code-signed (signing costs money every year). Click **More info → Run anyway**.
-3. Follow the wizard. No administrator password is needed. Leave **Create a desktop icon** ticked.
-   Tick **Start automatically when I sign in** if you'd like it ready every time.
+3. Follow the wizard. Leave **Create a desktop icon** ticked.
+   - Leave **Install the KingdomConnect camera for Zoom and Teams** ticked. Windows asks for administrator permission
+     once, only for the camera.
+   - If you had the camera before (as "BCC vCam"), it is renamed to **KingdomConnect** automatically.
+   - Tick **Start automatically when I sign in** if you'd like it ready every time.
 4. When it opens for the first time, it offers to **import your existing data**.
    Choose your current BSF Command Center folder (it's usually found automatically) and click **Import**.
    Your members, saved verses and questions, settings and phone PIN are copied across.
@@ -50,7 +59,12 @@ If you see a red cross instead, click the run to read the error, and send it to 
 
 ## Part 4 · First-run checklist (before a real meeting)
 
-- [ ] The app opens in its own window on Meetings & Content → Run meeting (four main tabs: Alt+1 to Alt+4).
+- [ ] The app opens in its own window, with no address bar or browser buttons. It shows the Book + Candle logo at
+      the top left and the tabs Studio · Members · Settings (Alt+1, Alt+3, Alt+4). Minimize, Maximize and Close work
+      as usual, and the title bar is dark (or light, in light mode).
+- [ ] Zoom, Teams, Google Meet and OBS list the camera as **KingdomConnect** (restart them after installing).
+- [ ] Optional, **Team Space**: install WireGuard and follow `docs/configuration-guide.md`, section 2. The Team
+      button in the command bar shows a green dot when a co-leader is online.
 - [ ] Your members and saved lists are there (after importing).
 - [ ] **OBS / Camo:** your existing overlay links still work (same address: `http://localhost:8750/...`).
       Check the top bar shows **OBS · 1 open**.
@@ -68,19 +82,19 @@ If you see a red cross instead, click the run to read the error, and send it to 
 ### First test of KingdomConnect (the built-in camera)
 
 - [ ] During installation, **Install the KingdomConnect camera** was ticked and you allowed the administrator prompt.
-      (If not: Settings → KingdomConnect → **Install KingdomConnect**.)
-- [ ] Settings → KingdomConnect → **Show preview**: you see yourself. Try **Background blur: Light** and **Strong**.
-- [ ] Close and reopen Zoom. Settings → Video → Camera → **KingdomConnect**: Zoom shows you, and the top bar says **vCam · In use**.
+      (If not: Settings → KingdomConnect Camera → **Install KingdomConnect**.)
+- [ ] Settings → KingdomConnect Camera → **Show preview**: you see yourself. Try **Background blur: Light** and **Strong**.
+- [ ] Close and reopen Zoom. Settings → Video → Camera → **KingdomConnect**: Zoom shows you, and the status menu says **KingdomConnect · In use**.
 - [ ] Turn off Zoom's own background blur/virtual background while using KingdomConnect's blur.
 - [ ] Stop your Zoom video: within a second the laptop webcam light goes off.
-- [ ] Settings → KingdomConnect shows the frames per second (aim: about 30) and the work per frame. If the picture is jerky,
+- [ ] Settings → KingdomConnect Camera shows the frames per second (aim: about 30) and the work per frame. If the picture is jerky,
       choose **720p**, or blur **Light**, and send me the numbers from Settings → Diagnostics.
 - [ ] Repeat in Microsoft Teams (Settings → Devices → Camera → KingdomConnect).
 - [ ] **Cards on KingdomConnect:** in a Zoom test meeting (zoom.us/test), select **Show** for a question, then a verse:
       both appear on your video within about a second. **Hide** removes each one. Try a Burst transition too.
-      Check the same in Settings → KingdomConnect → Show preview.
+      Check the same in Settings → KingdomConnect Camera → Show preview.
 - [ ] **Camera Look:** press **Ctrl+Alt+1** (Warm), **Ctrl+Alt+2** (Dark), **Ctrl+Alt+3** (Neutral), **Ctrl+Alt+0** (Off)
-      while Zoom shows KingdomConnect: your picture's colour changes, the cards don't. Settings → KingdomConnect shows the
+      while Zoom shows KingdomConnect: your picture's colour changes, the cards don't. Settings → KingdomConnect Camera shows the
       "look" time per frame; send me that number with the frames per second.
 - [ ] **Screen sharing (fixed in 4.1):** Studio (Alt+2) → Add layer → Layout templates → *Screen + camera corner*,
       pick your display. Within a few seconds your screen appears; move the mouse — the cursor shows. If it can't
@@ -98,14 +112,14 @@ If you see a red cross instead, click the run to read the error, and send it to 
       between apps. Send me a new screenshot including the **BSF Command Center** process line.
 - [ ] **4.3 Presentation window:** opens with no title bar or window buttons; drag to move; Full Screen fills the
       screen with no frame; Esc leaves full screen, Esc again (or ✕) closes. Zoom still lists it as "BSF Presentation".
-- [ ] **4.3 Camera quality:** Settings → KingdomConnect: the line under the preview shows "Webcam: 1280×720 MJPG at 30 fps"
+- [ ] **4.3 Camera quality:** Settings → KingdomConnect Camera: the line under the preview shows "Webcam: 1280×720 MJPG at 30 fps"
       (or similar). If it shows a smaller size, send me that line. In Zoom tick Settings → Video → HD.
 - [ ] **4.3 Blur:** − / + change the blur by 0.5 %; the lowest blur is 0.5 %.
 - [ ] **Acceptance (4.2):** with Zoom in a meeting, KingdomConnect on, and the Presentation window shared, switch between apps,
       move windows, type in a browser for a few minutes. Nothing should lag or freeze. Then send me Settings →
       Diagnostics → *Copy diagnostics* (it includes the new Resources line).
 - [ ] **Excel import:** Content → *Download template*, fill in two rows, *Import from Excel*.
-- [ ] **Blur:** Settings → KingdomConnect → try Light and Maximum with the preview on; *Save as default*.
+- [ ] **Blur:** Settings → KingdomConnect Camera → try Light and Maximum with the preview on; *Save as default*.
 - [ ] **Studio canvas:** drag a layer (pink guides appear near the centre/edges), resize with a corner handle,
       change Corner radius in the inspector, add a Text layer and type your own text.
 - [ ] **Layers:** add a logo (PNG) and a short video; move, resize, rotate, fade; reorder by dragging;
@@ -208,23 +222,27 @@ The installer appears in the `dist` folder.
 
 ## If something goes wrong
 
-- **The app opens in my browser instead of its own window:** Windows is missing the free
+- **The app opens in an Edge window (or your browser) instead of its own window:** Windows is missing the free
   "Microsoft Edge WebView2 Runtime". Install it from microsoft.com, then open the app again.
-  Everything works in the browser meanwhile.
+  Everything works in the meantime. The Edge app window has no address bar or tabs.
+- **Zoom / Teams / OBS still shows "BCC vCam" or no KingdomConnect:** restart that app. If it is still missing, run
+  the installer again with **Install the KingdomConnect camera** ticked.
+- **Team Space shows "No connected WireGuard tunnel was found":** open WireGuard and **Activate** your tunnel. See
+  `docs/configuration-guide.md`, section 2.4.
 - **Antivirus blocks or quarantines the app:** this is a known false alarm with unsigned apps made
   with Python. Restore it and add an exception for `%LOCALAPPDATA%\Programs\BSF Command Center`.
 - **"Port 8750 is in use" message:** another program is using the address the overlays need.
   Close that program and restart BSF Command Center.
-- **"This installer was built without the camera"** (Settings → KingdomConnect): the build recipe in your repository
+- **"This installer was built without the camera"** (Settings → KingdomConnect Camera): the build recipe in your repository
   is out of date. Copy the `.github` folder from my latest zip into your repository, commit, push, and install
   the new installer.
 - **"The camera file was installed but has since been removed"**: Windows Security (or another antivirus)
   removed `kingdomconnect_vcam64.dll`. Open Windows Security → Virus & threat protection → Protection history, choose
   **Restore** (or **Allow**) for it, then run the installer again.
-- **"The webcam could not be opened" / "Your webcam is being used by …"** (Settings → KingdomConnect): only one app can
+- **"The webcam could not be opened" / "Your webcam is being used by …"** (Settings → KingdomConnect Camera): only one app can
   use a laptop webcam at a time. In Zoom and Teams choose **KingdomConnect** as the camera (not your webcam), and close
   Camo, OBS or the Camera app. If it mentions privacy: Windows Settings → Privacy & security → Camera → turn on
-  **Camera access** and **Let desktop apps access your camera**. Also check Settings → KingdomConnect → **Webcam** shows
+  **Camera access** and **Let desktop apps access your camera**. Also check Settings → KingdomConnect Camera → **Webcam** shows
   your real webcam (infrared "face sign-in" cameras can't be used).
 - Anything else: Settings → Diagnostics → **Copy diagnostics** (it contains no PIN or member details),
   plus `bsf-app-log.txt` from the data folder.

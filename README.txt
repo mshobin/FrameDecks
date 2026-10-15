@@ -1,3 +1,8 @@
+NOTE (v6.4): this is the original manual from version 4.6, kept for
+reference. The current guides are docs/user-guide.md,
+BUILD-AND-INSTALL.md, docs/configuration-guide.md and docs/features.md.
+The built-in camera is now called "KingdomConnect".
+
 ================================================================
   BSF COMMAND CENTER  ·  version 4.6
   Clean Bible study overlays for BSF leaders on Zoom.
@@ -40,7 +45,7 @@ KingdomConnect: THE BUILT-IN CAMERA (installed Windows app)
     - In Zoom: Settings > Video > Camera > KingdomConnect.
       In Teams: Settings > Devices > Camera > KingdomConnect.
     - Background blur (Off / Light / Strong) and the webcam choice
-      are in Settings > KingdomConnect. Use this blur instead of Zoom's
+      are in Settings > KingdomConnect Camera. Use this blur instead of Zoom's
       or Teams' own blur (theirs would also blur your overlay cards
       once they appear on KingdomConnect).
     - Your laptop webcam only switches on while Zoom, Teams or the
@@ -48,11 +53,11 @@ KingdomConnect: THE BUILT-IN CAMERA (installed Windows app)
     - Your verse, question and birthday cards appear on KingdomConnect
       whenever you select Show (dashboard, keyboard or phone), with
       the same look and transitions as the overlay pages. OBS and
-      Camo are not needed. (Settings > KingdomConnect > "Cards" turns
+      Camo are not needed. (Settings > KingdomConnect Camera > "Cards" turns
       this off if you still add the OBS overlay links on top.)
     - Camera Look: Warm, Dark / Polished or Neutral / Clean colour
       for your camera picture (the cards keep their colours).
-      Choose it in the Meeting tab ("Look"), in Settings > KingdomConnect,
+      Choose it in the Meeting tab ("Look"), in Settings > KingdomConnect Camera,
       or press Ctrl+Alt+1 (Warm), Ctrl+Alt+2 (Dark), Ctrl+Alt+3
       (Neutral), Ctrl+Alt+0 (Off). You can add your own looks to
       bsf-looks.json in the data folder (Settings > Data / Backup >
@@ -166,7 +171,7 @@ WHAT'S NEW IN VERSION 3 (the meeting control console)
         Studio 3/s, faster only while you drag) and only when there is
         something new.
       * Presentation window: 15 frames a second by default (plenty for
-        Zoom). Settings > KingdomConnect > Presentation window > Smooth (30)
+        Zoom). Settings > KingdomConnect Camera > Presentation window > Smooth (30)
         if you show fast motion.
       * Background work (blur, cards, video, recording, screen capture)
         runs at lower Windows priority, so your apps come first.
@@ -178,7 +183,7 @@ WHAT'S NEW IN VERSION 3 (the meeting control console)
       * Blur strength in 0.5 % steps (0.5 %, 1 %, 1.5 % ...) with - and
         + buttons; 0.5 % is the lowest blur (Off is still a preset).
       * Sharper camera: the webcam is asked for its full-quality mode
-        (Settings > KingdomConnect and Diagnostics show what it delivers, e.g.
+        (Settings > KingdomConnect Camera and Diagnostics show what it delivers, e.g.
         "1280x720 MJPG at 30 fps"), pictures are never stretched, and
         previews are twice as sharp. In Zoom also tick Settings > Video
         > HD, or Zoom sends a softer, low-resolution picture.

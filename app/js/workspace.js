@@ -569,7 +569,7 @@ $('layer-add').addEventListener('click', function(e){
   items.push('-', {label: 'Media (KingdomConnect picture)'});
   MEDIA_ADD.forEach(function(k){
     var kind = k[0] === 'logo' || k[0] === 'watermark' ? 'image' : k[0];
-    items.push({icon: SC.info[kind].icon, text: k[1], disabled: !S, title: S ? '' : 'Needs KingdomConnect (Settings → KingdomConnect)', run: function(){ addLayer(k[0]); }});
+    items.push({icon: SC.info[kind].icon, text: k[1], disabled: !S, title: S ? '' : 'Needs KingdomConnect (Settings → KingdomConnect Camera)', run: function(){ addLayer(k[0]); }});
   });
   menu($('layer-add'), items);
 });
@@ -863,7 +863,7 @@ function outputForm(gen, sc, l){
 function mediaForm(gen, sc, l){
   var sid = sc.id, lid = l.id, c = l.c;
   var S = studio();
-  gen.appendChild(h('p', {cls: 'hint', text: S ? 'Take this scene live to place this layer directly on the canvas. Until then you can set it up here.' : 'Media layers are part of the KingdomConnect picture. Turn KingdomConnect on in Settings → KingdomConnect to see and arrange them.'}));
+  gen.appendChild(h('p', {cls: 'hint', text: S ? 'Take this scene live to place this layer directly on the canvas. Until then you can set it up here.' : 'Media layers are part of the KingdomConnect picture. Turn KingdomConnect on in Settings → KingdomConnect Camera to see and arrange them.'}));
   if (['image', 'video', 'pdf'].indexOf(l.kind) >= 0){
     gen.appendChild(row('File', h('span', {cls: 'plain', text: c.file || 'Not chosen yet'})));
     gen.appendChild(h('div', {cls: 'ip-acts'}, [h('button', {cls: 'btn small', type: 'button', text: c.file ? 'Choose another file…' : 'Choose a file…', onclick: function(){ pickFile(l.kind).then(function(f){ if (f) editLayer(sid, lid, function(x){ x.c.file = f; }); }); }})]));

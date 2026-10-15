@@ -162,6 +162,43 @@ window.open = function(url){
   return nativeOpen.apply(window, arguments);
 };
 
+/* ---------- v6.4 native app window ----------
+ * In the app window (WebView2, or the Edge/Chrome app window used when WebView2 is missing) Kingdom Connect behaves
+ * like a desktop app, not a web page: no browser reload / print / view-source / find / zoom keys, no browser
+ * right-click menu outside text boxes, and files dropped outside a drop zone don't replace the page.
+ * The title bar follows the app's dark or light theme. In an ordinary browser tab nothing here applies. */
+var appShell = false;
+try { if (/[?&]shell=app\b/.test(location.search)) sessionStorage.setItem('kc-shell', 'app'); appShell = sessionStorage.getItem('kc-shell') === 'app'; } catch(e){}
+function isNative(){ return appShell || !!(info && info.shell === 'webview' && info.desktop); }
+function editable(t){ return t && t.closest && t.closest('input, textarea, select, [contenteditable=""], [contenteditable="true"]'); }
+document.addEventListener('keydown', function(e){
+  if (!isNative()) return;
+  var k = (e.key || '').toLowerCase(), mod = e.ctrlKey || e.metaKey;
+  var block = k === 'f5' || k === 'browserback' || k === 'browserforward' || k === 'f7' ||
+    (mod && ['r', 'p', 'u', 's', 'j', 'h', 'n', 't', 'w', 'g', 'o', '+', '=', '-', '0'].indexOf(k) >= 0 && !e.altKey) ||
+    (e.altKey && (k === 'arrowleft' || k === 'arrowright') && !editable(e.target)) || (mod && e.shiftKey && (k === 'i' || k === 'c' || k === 'delete'));
+  if (block && !e.defaultPrevented) e.preventDefault();
+}, false);
+window.addEventListener('wheel', function(e){ if (isNative() && (e.ctrlKey || e.metaKey)) e.preventDefault(); }, {passive: false});
+document.addEventListener('contextmenu', function(e){ if (isNative() && !editable(e.target)) e.preventDefault(); });
+window.addEventListener('dragover', function(e){ if (isNative()) e.preventDefault(); });
+window.addEventListener('drop', function(e){ if (isNative()) e.preventDefault(); });
+function themeNow(){
+  var t = document.documentElement.getAttribute('data-theme');
+  if (t === 'light' || t === 'dark') return t;
+  return window.matchMedia && matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+}
+var sentTheme = '';
+function syncTitleBar(){
+  if (!(info && info.shell === 'webview')) return;
+  var t = themeNow(); if (t === sentTheme) return; sentTheme = t;
+  post('window', {theme: t}).catch(function(){ sentTheme = ''; });
+}
+new MutationObserver(syncTitleBar).observe(document.documentElement, {attributes: true, attributeFilter: ['data-theme']});
+if (window.matchMedia) try { matchMedia('(prefers-color-scheme: light)').addEventListener('change', syncTitleBar); } catch(e){}
+document.documentElement.classList.toggle('kc-native', appShell);
+document.addEventListener('bsf-app-info', function(){ document.documentElement.classList.toggle('kc-native', isNative()); syncTitleBar(); });
+
 refresh().then(function(d){
   if (d.migration.needed) importDialog(d.migration.candidates, true);
 });

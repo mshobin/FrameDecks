@@ -69,6 +69,7 @@ function renderProgram(){
   t = (g && g !== 'BSF' && t.indexOf(g) < 0 ? g + ' · ' : '') + t;      // e.g. "NLFM · Tuesday Evening Group"
   if ($('meeting-title').textContent !== t) $('meeting-title').textContent = t;
   var dt = t + ' · ' + org; if (document.title !== dt) document.title = dt;
+  var bt = org + ' · ' + t, be = $('brand'); if (be && be.title !== bt) be.title = bt;     // v6.4: logo only; the name is in its tooltip
 }
 setInterval(function(){ if (!document.hidden) renderProgram(); }, 1000); renderProgram();
 

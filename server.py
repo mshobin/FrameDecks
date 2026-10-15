@@ -1625,7 +1625,7 @@ class Handler(BaseHTTPRequestHandler):
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
             info = {"version": APP_VERSION, "installedApp": FROZEN, "desktop": DESKTOP["active"], "dataFolder": str(DATA),
                     "separateData": SEPARATE_DATA, "windows": os.name == "nt", "settings": app_settings(),
-                    "lowGpuActive": bool(DESKTOP.get("low_gpu")),
+                    "lowGpuActive": bool(DESKTOP.get("low_gpu")), "shell": DESKTOP.get("shell", "browser"),
                     "remote": {"enabled": REMOTE, "listening": sorted(remote_servers), "failed": list(remote_errors)},
                     "backups": list_backups()[:KEEP_BACKUPS], "migration": migration_status()}
             return self.reply(200, json.dumps(info), TYPES[".json"])
@@ -1851,6 +1851,10 @@ class Handler(BaseHTTPRequestHandler):
                 return ok({"desktop": True, "fullscreen": bool(fs(want)) if fs else False})
             hook(bool(data.get("on", True)))
             return ok({"desktop": True, "open": bool(data.get("on", True))})
+        if action == "window":
+            # v6.4 native window: the page says whether it is dark or light; the title bar follows
+            hook = DESKTOP.get("window_theme")
+            return ok({"styled": bool(hook(data.get("theme") != "light")) if hook else False})
         if action == "remote":
             res = set_remote(bool(data.get("enabled")))
             return ok(res)

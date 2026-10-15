@@ -150,7 +150,7 @@ is used for the **test recording** only.
 └───────────────────────┘└────────────────────────────────────────┘└────────────────────────────────┘
 ```
 **Meeting tab:** "On screen now" shows the real KingdomConnect frame while it is live; **Look** menu in its header.
-**Settings → KingdomConnect:** on/off, webcam, picture size, Look, blur, mirror, cards, preview, install.
+**Settings → KingdomConnect Camera:** on/off, webcam, picture size, Look, blur, mirror, cards, preview, install.
 **Tray menu (icon near the clock):** Open · **Look ▸** (Off / Warm / Dark / Neutral / custom) · **Scene ▸**
 (saved scenes) · **Stop screen share** · **Hide all overlays** · Phone remote ✓ · Quit.
 
@@ -637,3 +637,65 @@ Full description (flows, data model, template columns, validation rules, file ma
 - Remote: role ids are unchanged; the names are now Simple / Standard / Advanced. `body[data-role="presenter"]` is
   the thumb-zone layout.
 - Design review: `docs/design/kingdom-connect-redesign.html`.
+
+## 26. Version 6.4: Team Space (peer-to-peer over WireGuard), KingdomConnect camera, logo only, native window
+
+Full description: `docs/features.md`. Set-up: `docs/configuration-guide.md`.
+
+- **Team Space** (`teamspace.py`, `app/js/teamspace.js`).
+  > Team Space is available only when authorized peers are online through a secure WireGuard network. No cloud
+  > relay or third-party server is required.
+  - A second `ThreadingHTTPServer` is bound to this PC's WireGuard address only (port 8790). It answers only
+    `POST /team/v1`. The main server stays on `127.0.0.1`, and Team Space's local API (`api/team…`) is
+    `is_local()`-only.
+  - Authorization:
+    - the source IP must be in the peer list (WireGuard's cryptokey routing makes it trustworthy);
+    - the message must be signed with HMAC-SHA256 under `sha256("kingdom-connect-team-v1:" + team key)`;
+    - `from` / `to` must match the addresses;
+    - `|ts − now| ≤ 120 s`;
+    - each 128-bit nonce is used once.
+
+    Replies are signed and checked the same way.
+  - Messages are sent with `http.client` using `source_address = (WireGuard address, 0)`, so they leave through
+    the tunnel.
+  - Presence and sync: a `sync` exchange with every peer every 4 s. A peer is Online if it answered within 12 s.
+    The doc is `{notes: {text, at, by}, actions: {id: {text, done, del, at, by, created}}}`, merged last writer wins
+    (notes whole, actions per item, ties by author). No queue and no relay: a message is delivered only if the peer
+    answers now.
+  - Ask to Go Live:
+    - `ask` is refused locally unless the peer is Online;
+    - the receiver keeps it pending; it expires after 120 s or when the sender goes offline;
+    - `answer` is sent back if the asker is still connected;
+    - the approving dashboard selects the scene and calls `BSFWorkspace.take()`.
+  - WireGuard detection:
+    - Windows: `Get-NetAdapter`, description `*WireGuard*`, status Up;
+    - Linux: `DEVTYPE=wireguard`;
+    - macOS: `utun`.
+
+    `TEAM.watch()` starts and stops the listener as the tunnel comes and goes.
+    `KC_TEAMSPACE_ALLOW_ANY_ADDRESS=1` is for tests only.
+  - Files: `kc-teamspace.json` (settings and key), `kc-teamspace-doc.json` (notes and actions).
+  - Test: `tools/test_teamspace.py`, which runs two instances on 127.0.0.12 and 127.0.0.13.
+- **Camera rename:**
+  - `packaging/build_vcam.py` `NAME = "KingdomConnect"` (the DirectShow friendly name, pin name and shared-memory
+    names); the CLSID is unchanged;
+  - the DLLs are now `kingdomconnect_vcam64/32.dll`, registered by `register-kingdomconnect-camera.cmd`;
+  - the installer re-registers when the task is ticked **or** the CLSID is already registered (`ShouldRegisterCamera`),
+    so upgrades point Windows at the renamed DLL;
+  - `vcam/devices.py` skips both the new and the old name;
+  - `packaging/check.py` asserts the name.
+- **Logo only:**
+  - the header `.brand` is the `kc-emblem.webp` mark; `#org-title` / `#meeting-title` are `.sr-only` (ids kept for
+    `meeting.js`), and the Meeting Name is in the mark's tooltip and `document.title`;
+  - the remote login and bar show the mark only;
+  - `app/icons/remote-*.png` were regenerated from the mark (no text);
+  - the About page is untouched.
+- **Native window:**
+  - `desktop_app.py` `style_title_bar()` sets DWM attributes 20/19 (immersive dark), 35 (caption colour) and 36
+    (text colour) on the pywebview window's HWND when it is shown, and again when the page posts `api/app/window`
+    {theme};
+  - without WebView2, `open_app_window()` starts Edge/Chrome with `--app=<url>?shell=app` and a separate profile
+    (`DATA/appwindow`);
+  - `app-bridge.js` (only in the app shell: `info.shell === 'webview'` or `?shell=app`) blocks browser accelerators,
+    Ctrl+wheel zoom, the context menu outside editable fields and navigation by file drop;
+  - `api/app/info` reports `shell`.

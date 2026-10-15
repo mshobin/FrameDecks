@@ -8,7 +8,8 @@ unchanged.
 ## 1. User flows
 
 ### Leader branding: Settings → Meeting & Branding
-1. Type the **Meeting Name** and the **Leader / Organization Name**. The window header shows them straight away.
+1. Type the **Meeting Name** and the **Leader / Organization Name**. Since 6.4 the header shows only the Book +
+   Candle logo; the names appear in the logo's tooltip and in the window title straight away.
 2. Upload a **logo** (PNG, JPG or SVG) by selecting **Upload logo…** or dropping a file on the logo box. The dashboard
    converts every format to PNG (at most 1024 px) before saving it.
 3. Optionally tick **Use my accent colour**: pick one of eight swatches or any colour. The accent replaces the gold of

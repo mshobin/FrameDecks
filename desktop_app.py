@@ -53,6 +53,78 @@ def message(text, title=DISPLAY_NAME, warn=False):
             pass
 
 
+# ---------- v6.4 native window: a title bar in the app's own colours, and an app-mode fallback ----------
+TITLE_COLORS = {True: (0x1c1511, 0xf6f1ee), False: (0xfcfafa, 0x1e1c1c)}   # COLORREF (0x00BBGGRR): caption, text
+
+
+def style_title_bar(hwnd, dark=True):
+    """Windows 10/11: dark or light title bar (Minimize, Maximize/Restore and Close stay Windows' own).
+    Windows 11 also takes the exact caption colour of the command bar, so the window reads as one surface."""
+    if os.name != "nt" or not hwnd:
+        return False
+    try:
+        import ctypes
+        from ctypes import wintypes
+        dwm = ctypes.windll.dwmapi
+        set_attr = dwm.DwmSetWindowAttribute
+        set_attr.argtypes = [wintypes.HWND, wintypes.DWORD, ctypes.c_void_p, wintypes.DWORD]
+        on = ctypes.c_int(1 if dark else 0)
+        for attr in (20, 19):                 # DWMWA_USE_IMMERSIVE_DARK_MODE (19 on early Windows 10 builds)
+            if set_attr(hwnd, attr, ctypes.byref(on), ctypes.sizeof(on)) == 0:
+                break
+        cap, txt = TITLE_COLORS[bool(dark)]
+        cap, txt = ctypes.c_uint(cap), ctypes.c_uint(txt)
+        set_attr(hwnd, 35, ctypes.byref(cap), ctypes.sizeof(cap))   # DWMWA_CAPTION_COLOR (Windows 11)
+        set_attr(hwnd, 36, ctypes.byref(txt), ctypes.sizeof(txt))   # DWMWA_TEXT_COLOR (Windows 11)
+        # repaint the frame now
+        ctypes.windll.user32.SetWindowPos(hwnd, None, 0, 0, 0, 0, 0x0001 | 0x0002 | 0x0004 | 0x0020)
+        return True
+    except Exception:
+        return False
+
+
+def window_handle(window):
+    try:
+        return int(window.native.Handle.ToInt64())
+    except Exception:
+        pass
+    if os.name == "nt":
+        try:
+            import ctypes
+            return ctypes.windll.user32.FindWindowW(None, DISPLAY_NAME) or 0
+        except Exception:
+            pass
+    return 0
+
+
+def app_browser():
+    """Microsoft Edge (always on Windows 10/11) or Chrome, for a window without browser controls (--app mode)."""
+    if os.name != "nt":
+        return None
+    roots = [os.environ.get(k) for k in ("ProgramFiles(x86)", "ProgramFiles", "LOCALAPPDATA")]
+    for rel in (r"Microsoft\Edge\Application\msedge.exe", r"Google\Chrome\Application\chrome.exe"):
+        for root in roots:
+            if root and os.path.isfile(os.path.join(root, rel)):
+                return os.path.join(root, rel)
+    return None
+
+
+def open_app_window(url, profile):
+    """Open the dashboard as an app window: no address bar, tabs or browser buttons. Returns True if it worked."""
+    exe = app_browser()
+    if not exe:
+        return False
+    try:
+        import subprocess
+        sep = "&" if "?" in url else "?"
+        subprocess.Popen([exe, f"--app={url}{sep}shell=app", f"--user-data-dir={profile}", "--window-size=1440,900",
+                          "--no-first-run", "--no-default-browser-check", "--disable-features=Translate"],
+                         creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0), close_fds=True)
+        return True
+    except OSError:
+        return False
+
+
 def ask(port, action):
     req = urllib.request.Request(f"http://127.0.0.1:{port}/api/app/{action}", data=b"{}",
                                  headers={"Content-Type": "application/json"}, method="POST")
@@ -219,16 +291,26 @@ def main():
             pass
 
     if webview is None:
-        # Fallback: dashboard in the default browser, program keeps running from the tray icon
+        # Fallback without WebView2: an Edge (or Chrome) app window - its own window, without an address bar, tabs or
+        # browser buttons - and only if neither exists, the default browser. The program keeps running from the tray.
         done = threading.Event()
+        profile = str(server.DATA / "appwindow")
+
+        def open_ui():
+            if open_app_window(url, profile):
+                server.DESKTOP["shell"] = "app-browser"
+            else:
+                server.DESKTOP["shell"] = "browser"
+                webbrowser.open(url)
 
         def quit_fallback():
             done.set()
-        state["tray"] = build_tray(lambda: webbrowser.open(url), quit_fallback)
-        server.DESKTOP.update(active=False, show=lambda: webbrowser.open(url), quit=quit_fallback, on_remote_change=refresh_tray)
-        webbrowser.open(url)
+        state["tray"] = build_tray(open_ui, quit_fallback)
+        server.DESKTOP.update(active=False, show=open_ui, quit=quit_fallback, on_remote_change=refresh_tray)
+        open_ui()
         if not state["tray"]:
-            message("Kingdom Connect is open in your web browser.\n\nIt keeps running in the background (so your overlays keep "
+            where = "its own window" if server.DESKTOP.get("shell") == "app-browser" else "your web browser"
+            message(f"Kingdom Connect is open in {where}.\n\nIt keeps running in the background (so your overlays keep "
                     "working) until you restart or sign out of Windows.")
         done.wait()
         stop_everything()
@@ -239,6 +321,19 @@ def main():
     window = webview.create_window(DISPLAY_NAME, url, width=1440, height=900, min_size=(1000, 640),
                                    background_color="#0a1222", text_select=True)
     state["window"] = window
+    server.DESKTOP["shell"] = "webview"
+    state["dark"] = True
+
+    def set_theme(dark):
+        state["dark"] = bool(dark)
+        return style_title_bar(window_handle(window), state["dark"])
+
+    def on_shown():
+        set_theme(state["dark"])
+    try:
+        window.events.shown += on_shown
+    except Exception:
+        pass
 
     def show():
         try:
@@ -365,7 +460,7 @@ def main():
             return w.is_open() and w.fullscreen
         return bool(w and state.get("present_fs"))
     state["tray"] = build_tray(show, quit_app)
-    server.DESKTOP.update(active=True, show=show, hide=hide, quit=quit_app, choose_folder=choose_folder,
+    server.DESKTOP.update(active=True, show=show, hide=hide, quit=quit_app, choose_folder=choose_folder, window_theme=set_theme,
                           on_remote_change=refresh_tray, present=present, present_fullscreen=present_fullscreen,
                           present_fs_state=present_fs_state, present_open=present_open)
     # "Light on graphics card" (Settings > General, on by default): the app's windows are drawn without the GPU.

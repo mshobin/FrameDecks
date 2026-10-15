@@ -90,7 +90,7 @@ footer{margin-top:60px;font-size:13px;color:var(--muted)}
 <header>
   <p class="eyebrow">Kingdom Connect · design review and redesign · v6.3</p>
   <h1>Kingdom Connect Redesign Review</h1>
-  <p class="lede">A review of the Studio, the phone remote and the team workflow for non-technical leaders running live meetings, with the redesign that follows from it. Phase 1 of the redesign is already built and shipping in version 6.3. Everything later is marked as proposed.</p>
+  <p class="lede">A review of the Studio, the phone remote and the team workflow for non-technical leaders running live meetings, with the redesign that follows from it. Phase 1 of the redesign is already built and shipping in version 6.3, and Team Space (peer-to-peer over WireGuard, no cloud relay) shipped in 6.4. Everything else later is marked as proposed.</p>
   <div class="meta"><span>Reviewed: <b>Kingdom Connect 6.2</b> (Studio, Settings, phone remote)</span><span>Shipped: <b>6.3</b>, one command bar, elastic panels, phone Simple mode</span><span>Inputs: <b>your layout sketch</b> and <b>reference mockup</b></span></div>
   <nav class="toc" aria-label="Contents">
     <a href="#a"><span>A</span>Executive UX review</a><a href="#b"><span>B</span>Information architecture</a><a href="#c"><span>C</span>Layout architecture</a>
@@ -114,7 +114,7 @@ footer{margin-top:60px;font-size:13px;color:var(--muted)}
       <li><b>The phone remote had three layouts named after jobs (Presenter, Leader, Producer).</b> People pick by confidence, not by job title, and even the simplest layout still had seven controls.</li>
       <li><b>No team space.</b> Co-leaders coordinate in WhatsApp or Zoom chat, outside the tool, often in view of the participants.</li>
     </ul>
-    <p><b>Verdict:</b> keep the Scene → Layer → Canvas model and redesign the frame. That means one command bar, a 2×2 elastic workspace that gives the preview the most room, a contextual Inspector, a phone remote with Simple, Standard and Advanced modes, and a secure team space as the next major feature.</p>
+    <p><b>Verdict:</b> keep the Scene → Layer → Canvas model and redesign the frame. That means one command bar, a 2×2 elastic workspace that gives the preview the most room, a contextual Inspector, a phone remote with Simple, Standard and Advanced modes, and Team Space: co-leaders connected directly, peer-to-peer over WireGuard (built in 6.4).</p>
   </div>
   <div class="kv">
     <div class="stat"><b>≈ −67 px</b><span>chrome height at 1366×768 (about 124 → 57 px): one bar instead of two</span></div>
@@ -287,68 +287,65 @@ flowchart LR
 
 <section id="f">
   <p class="sec-id">F</p>
-  <h2>Collaboration architecture <span class="pill plan">proposed</span></h2>
+  <h2>Collaboration architecture: Team Space, peer-to-peer over WireGuard <span class="pill ok">built in 6.4</span></h2>
   <div class="col">
-    <p>Today Kingdom Connect is a program on one PC, and phones on the same Wi-Fi control it. Co-leaders are usually at home on other networks, so a team space needs a small <b>relay service</b> on the internet. The relay passes encrypted messages between devices; it never sees what was written. The meeting PC stays in charge of what is on screen.</p>
+    <p style="border-left:3px solid #d9ab4a;padding:8px 12px;background:rgba(217,171,74,.08);border-radius:8px"><b>Team Space is available only when authorized peers are online through a secure WireGuard network. No cloud relay or third-party server is required.</b></p>
+    <p>Kingdom Connect is a program on each leader's PC. Co-leaders are usually at home on other networks, so they join one private <b>WireGuard</b> network. Each Kingdom Connect PC then talks <b>directly</b> to the others over that tunnel. No relay, no cloud service and no third-party server sits between them, and nothing is queued: Team Space works only while both PCs are online and connected. The meeting PC stays in charge of what is on screen.</p>
     <h3>Placement</h3>
     <ul>
-      <li><b>Desktop:</b> a 💬 button in the command bar with an unread count. It opens a right-edge drawer (360 px) that docks as a third column on screens ≥1600 px. In Presentation Mode it shows only incoming requests and mentions.</li>
-      <li><b>Phone:</b> a Team tab in Standard and Advanced. Simple mode shows a single banner for messages from the host, with quick reactions.</li>
-      <li><b>In context:</b> any message can be attached to a scene ("comment on Discussion 2"); the scene card shows a 💬 badge. Requests to go live appear on the host's GO LIVE button.</li>
+      <li><b>Desktop:</b> a <b>Team</b> button in the command bar. A green dot means a co-leader is online; a red number means a request to go live. It opens a right-edge drawer (380 px).</li>
+      <li><b>Settings → Team Space:</b> this PC's WireGuard address (detected from the connected tunnels), the team key (create, copy, paste; fingerprint shown) and the authorized co-leaders' WireGuard addresses.</li>
+      <li><b>Requests to go live</b> appear as a dialog on the PC that would go live: Approve &amp; Go Live, or Decline.</li>
     </ul>
     <h3>What it does</h3>
-    <p>Direct messages; group and meeting-specific rooms (one room per meeting, created with it); presence (online, away, offline, "live controller"); quick reactions; shared notes (one per meeting and per scene, synced with the scene's leader notes); shared action lists (assign, due, done); notifications (desktop toast and phone push, content-free); sync across desktop and phone (each device is a member in its own right).</p>
+    <p>Presence (Online / Offline, from the live peer connection); shared notes; a shared action list (add, tick, remove); Ask to Go Live between connected PCs. Notes and actions sync only while peers are connected. Edits made alone stay on that PC and are exchanged on the next connection.</p>
   </div>
 <pre class="mermaid">
 flowchart LR
-  subgraph PC[Meeting PC · Kingdom Connect]
+  subgraph A[Meeting PC · Kingdom Connect]
     ST[(Live state<br/>scenes · layers)]
-    CC[Team client<br/>keys in Windows credential store]
+    TA[Team Space<br/>listens on 10.8.0.2:8790 only]
   end
-  subgraph Phones[Leaders' phones and PCs]
-    P1[Team client]
-    P2[Team client]
+  subgraph B[Co-leader PC · Kingdom Connect]
+    TB[Team Space<br/>listens on 10.8.0.3:8790 only]
   end
-  REL[Relay service<br/>stores ciphertext only<br/>presence + delivery queues]
-  PUSH[Push service<br/>content-free wake-ups]
-  CC <-- TLS 1.3 + MLS ciphertext --> REL
-  P1 <-- TLS 1.3 + MLS ciphertext --> REL
-  P2 <-- TLS 1.3 + MLS ciphertext --> REL
-  REL --> PUSH --> P1
-  CC -- approved requests only --> ST
+  subgraph C[Co-leader PC · Kingdom Connect]
+    TC[Team Space<br/>listens on 10.8.0.4:8790 only]
+  end
+  TA <-- WireGuard tunnel · HMAC-signed messages --> TB
+  TA <-- WireGuard tunnel · HMAC-signed messages --> TC
+  TB <-- WireGuard tunnel --> TC
+  TA -- approved requests only --> ST
 </pre>
-  <h3>Workflow: a co-leader asks to change the scene</h3>
+  <h3>Workflow: a co-leader asks to go live</h3>
 <pre class="mermaid">
 sequenceDiagram
-  participant J as John (co-leader phone)
-  participant R as Relay (ciphertext)
+  participant J as John (co-leader PC)
   participant H as Host PC (Kingdom Connect)
-  J->>R: "Request: Go live Closing" (MLS-encrypted, signed)
-  R->>H: deliver
-  H->>H: verify signature + John's role
-  H-->>H: GO LIVE shows "John asks: Closing"
-  alt Host approves (one tap)
+  Note over J,H: Both PCs online on the WireGuard network. Nothing in between.
+  J->>J: Is the host Online? (answered in the last 12 s)
+  J->>H: ask "Closing" (signed with the team key, over the tunnel)
+  H->>H: check address is an authorized peer, signature, time, nonce
+  H-->>H: dialog "John asks to go live: Closing"
+  alt Host approves
     H->>H: Go Live Closing (normal live path)
-    H->>R: "Approved" (encrypted)
-  else Host declines or 60 s pass
-    H->>R: "Declined" (encrypted)
+    H->>J: answer "approved" (signed, direct)
+  else Host declines, 2 minutes pass, or either PC disconnects
+    H->>J: "declined" or nothing (the request lapses; nothing is queued)
   end
-  R->>J: result + toast
 </pre>
-  <h3>Permission model</h3>
+  <h3>Trust model</h3>
   <div class="tbl"><table>
-    <thead><tr><th>Capability</th><th>Host</th><th>Co-leader</th><th>Presenter</th><th>Helper</th><th>Observer</th></tr></thead>
+    <thead><tr><th>Layer</th><th>What it guarantees</th></tr></thead>
     <tbody>
-      <tr><td>Go Live / Next / Previous</td><td>✓</td><td>✓</td><td>✓ (own segment)</td><td>request</td><td>—</td></tr>
-      <tr><td>HIDE ALL</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td><td>—</td></tr>
-      <tr><td>Blackout · Emergency</td><td>✓</td><td>✓</td><td>—</td><td>—</td><td>—</td></tr>
-      <tr><td>Edit scenes, layers, branding</td><td>✓</td><td>✓</td><td>—</td><td>—</td><td>—</td></tr>
-      <tr><td>Chat · reactions</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td><td>read</td></tr>
-      <tr><td>Shared notes · actions</td><td>edit</td><td>edit</td><td>edit own</td><td>edit own</td><td>read</td></tr>
-      <tr><td>Invite · remove devices · change roles</td><td>✓</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+      <tr><td>WireGuard</td><td>End-to-end encryption between the two PCs (Curve25519, ChaCha20-Poly1305). A packet from a peer's tunnel address was sent with that peer's key (cryptokey routing, <code>AllowedIPs</code> = its /32)</td></tr>
+      <tr><td>Listener</td><td>Bound to this PC's WireGuard address only; never on Wi-Fi, the LAN or the internet. Starts and stops with the tunnel</td></tr>
+      <tr><td>Peer list</td><td>Only the WireGuard addresses the leader authorized are answered</td></tr>
+      <tr><td>Team key</td><td>Every message and reply is HMAC-SHA256 signed, names sender and recipient, carries a timestamp (±2 min) and a single-use nonce: no forgery, no replay, no reflection</td></tr>
+      <tr><td>Meeting PC</td><td>Nothing goes on air from a co-leader without approval on the PC that would go live</td></tr>
     </tbody>
   </table></div>
-  <p class="col"><b>Technical:</b> the meeting PC enforces roles on its own server, because hiding a button on a phone is not security. The relay enforces only membership. <b>Scalability:</b> the relay is stateless apart from its queues and scales horizontally. MLS keeps group key updates efficient (logarithmic in group size), which matters for rooms of 50+ leaders across a church network.</p>
+  <p class="col"><b>Data:</b> display names, notes, actions, scene names and the live scene travel between peers. Members' data, the phone PIN, the ESV key and the team key never do. <b>Scale:</b> designed for a team of up to 16 PCs, each syncing with each (a few kilobytes every 4 seconds). <b>Limits by design:</b> no offline delivery, no relay, no push. If two PCs can't reach each other through WireGuard, they show as Offline.</p>
 </section>
 
 <section id="g">
@@ -360,15 +357,15 @@ sequenceDiagram
       <tr><td>Phone remote access</td><td>Local network only, 6-digit PIN, signed session cookie (30 days), lock-out after failed tries, an allow-list of what a phone may open</td><td>Pair each device by QR code (device key + PC fingerprint) instead of a shared PIN; list and revoke devices in Settings</td><td><span class="pill h">High</span></td></tr>
       <tr><td>Roles</td><td>Remote layouts change only what a device shows</td><td>Enforce the permission model above on the PC's server for every request</td><td><span class="pill h">High</span></td></tr>
       <tr><td>Transport on the LAN</td><td>HTTP on the local network</td><td>HTTPS with a per-install certificate whose fingerprint is in the pairing QR (no warning pages, no MITM on shared church Wi-Fi)</td><td><span class="pill h">High</span></td></tr>
-      <tr><td>Team messages</td><td>None</td><td>End-to-end encryption with MLS (RFC 9420) for rooms and DMs; device keys in the OS keychain; relay holds ciphertext only; forward secrecy and post-compromise security</td><td><span class="pill h">High</span></td></tr>
-      <tr><td>Shared notes · actions</td><td>Leader notes stored locally per scene</td><td>CRDT documents (e.g. Yjs) whose updates travel as MLS messages: conflict-free editing without a server that can read them</td><td><span class="pill m">Medium</span></td></tr>
-      <tr><td>Notifications</td><td>None</td><td>Push payloads carry no content; the app fetches and decrypts after waking</td><td><span class="pill m">Medium</span></td></tr>
+      <tr><td>Team Space</td><td>Built in 6.4: peer-to-peer over WireGuard; listener on the WireGuard address only; authorized peer addresses; HMAC-signed messages with timestamp and nonce; no relay</td><td>Keep. Later: per-device keys instead of one team key, and a local audit of requests</td><td><span class="pill m">Medium</span></td></tr>
+      <tr><td>Shared notes · actions</td><td>Built in 6.4: synced directly between connected peers, last writer wins per note and per item</td><td>Later: character-level merging (CRDT) for simultaneous typing in the same note</td><td><span class="pill l">Low</span></td></tr>
+      <tr><td>Notifications</td><td>In-app only (Team button, approval dialog)</td><td>Keep: no push service, because that would need a third-party server</td><td><span class="pill l">Low</span></td></tr>
       <tr><td>Audit</td><td>None</td><td>A local, append-only log of live actions (who went live, blackout, emergency, from which device), viewable after the meeting</td><td><span class="pill m">Medium</span></td></tr>
       <tr><td>Secrets on the PC</td><td>ESV key and logo stay on this PC; never sent to phones</td><td>Keep; move the ESV key to the Windows credential store</td><td><span class="pill l">Low</span></td></tr>
-      <tr><td>Members' data</td><td>Kept locally; never on the phone allow-list</td><td>Keep; never sync member data to the relay</td><td><span class="pill l">Low</span></td></tr>
+      <tr><td>Members' data</td><td>Kept locally; never on the phone allow-list</td><td>Keep; never sent to Team Space peers</td><td><span class="pill l">Low</span></td></tr>
     </tbody>
   </table></div>
-  <p class="col"><b>Threat model in one line:</b> a stranger on church Wi-Fi, a lost phone, a curious relay operator, and a mistaken tap during a live meeting. The first three are handled by pairing, revocation and end-to-end encryption. The fourth by roles, confirmations on Blackout/Emergency in Simple mode, and HIDE ALL always within reach.</p>
+  <p class="col"><b>Threat model in one line:</b> a stranger on church Wi-Fi, a lost phone, someone outside the team trying to reach Team Space, and a mistaken tap during a live meeting. The first two are handled by pairing and revocation; the third by WireGuard, the authorized peer list and the signed team key, with no server to attack. The fourth by roles, confirmations on Blackout/Emergency in Simple mode, and HIDE ALL always within reach.</p>
 </section>
 
 <section id="h">
@@ -436,7 +433,7 @@ flowchart TD
       <tr><td>One-file meeting from Excel</td><td>Lesson coordinators prepare in a spreadsheet; leaders import a ready meeting</td><td><span class="pill h">High</span></td><td><span class="pill ok">have</span></td></tr>
       <tr><td>Phone-first Simple mode</td><td>Any leader can run a meeting with one thumb</td><td><span class="pill h">High</span></td><td><span class="pill ok">have</span></td></tr>
       <tr><td>Multi-leader handoff</td><td>"Pass the controller" between leaders with requests and approvals; no one shares their screen</td><td><span class="pill h">High</span></td><td><span class="pill plan">phase 3</span></td></tr>
-      <tr><td>End-to-end encrypted team space</td><td>Coordinate privately during the meeting, inside the tool</td><td><span class="pill h">High</span></td><td><span class="pill plan">phase 3</span></td></tr>
+      <tr><td>Team Space, peer-to-peer over WireGuard</td><td>Coordinate privately during the meeting, inside the tool, with no cloud relay</td><td><span class="pill h">High</span></td><td><span class="pill ok">have (6.4)</span></td></tr>
       <tr><td>AI meeting preparation</td><td>From a passage and a lesson, draft discussion questions, cross-references and a scene plan that the leader reviews and approves. Nothing goes live unreviewed</td><td><span class="pill h">High</span></td><td><span class="pill plan">phase 3</span></td></tr>
       <tr><td>Scripture by topic</td><td>"Verses about forgiveness" → ESV results to pin, with references checked</td><td><span class="pill m">Medium</span></td><td><span class="pill plan">phase 3</span></td></tr>
       <tr><td>Live captions and translation of the leader's voice</td><td>Accessibility and multilingual groups</td><td><span class="pill m">Medium</span></td><td><span class="pill plan">phase 3</span></td></tr>
@@ -495,7 +492,7 @@ flowchart TD
     <tbody>
       <tr><td><b>Phase 1</b><br>Frame</td><td>One command bar; 2×2 elastic workspace; folding, auto-hide, preview-only; Layout menu; phone Simple / Standard / Advanced; earlier: Go Live, branding, Excel import, Library, Quick Start</td><td>Front-end only; no data migration; existing ids and shortcuts kept; tests for every flow</td><td><span class="pill ok">shipped 6.1–6.3</span></td></tr>
       <tr><td><b>Phase 2</b><br>Trust</td><td>QR device pairing and revocation; roles enforced on the PC; HTTPS on the LAN; audit log; remaining consolidations (L); timer and media controls on the phone; automation rules; rehearsal mode</td><td>Server changes in <code>server.py</code> (device table, signed requests); remote reads its role from the PC; no internet needed</td><td><span class="pill plan">next</span></td></tr>
-      <tr><td><b>Phase 3</b><br>Team</td><td>Relay service; MLS-encrypted rooms and DMs; presence; shared notes and actions (CRDT); push; requests to go live; AI preparation; content packs; captions</td><td>A new hosted component with an operating cost; needs a privacy policy and key-recovery design; MLS via OpenMLS; the PC remains authoritative for live state</td><td><span class="pill plan">later</span></td></tr>
+      <tr><td><b>Phase 3</b><br>Team</td><td>Team Space shipped in 6.4: presence, shared notes and actions, Ask to Go Live, peer-to-peer over WireGuard with no relay. Still to come: AI preparation; content packs; captions</td><td>No hosted component and no operating cost: the PCs talk directly over the team's WireGuard network; the PC remains authoritative for live state</td><td><span class="pill ok">Team Space shipped 6.4</span></td></tr>
     </tbody>
   </table></div>
 </section>
