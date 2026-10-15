@@ -28,7 +28,7 @@ from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from pathlib import Path
 from urllib.parse import urlparse, parse_qs, unquote
 
-APP_VERSION = "6.3"
+APP_VERSION = "6.4"
 STARTED_AT = time.time()
 FROZEN = getattr(sys, "frozen", False)          # True inside the installed Windows app
 HERE = Path(sys.executable).resolve().parent if FROZEN else Path(__file__).resolve().parent
@@ -450,6 +450,21 @@ def _remote_watcher():
         time.sleep(15)
         if REMOTE and set(lan_addresses()) != set(remote_servers):
             set_remote(True)
+
+
+# ---------- Team Space: direct peer-to-peer over WireGuard (teamspace.py) ----------
+# Team Space is available only when authorized peers are online through a secure WireGuard network.
+# No cloud relay or third-party server is required.
+def _team_scenes():
+    st = state
+    scenes = [{"id": str(sc.get("id", "")), "name": str(sc.get("name", ""))}
+              for sc in (st.get("scenes") or []) if isinstance(sc, dict) and not sc.get("tpl")]
+    live = st.get("live") if isinstance(st.get("live"), dict) else {}
+    return scenes, str(live.get("scene", ""))
+
+
+import teamspace  # noqa: E402  (after state, which it reads)
+TEAM = teamspace.TeamSpace(DATA, _team_scenes, APP_VERSION)
 
 
 # ---------- Installed-app settings, backups and importing old data ----------
@@ -1527,6 +1542,14 @@ class Handler(BaseHTTPRequestHandler):
             return self.reply(302, "", "text/plain", [("Location", "/remote.html")])
         if not self.allowed(path):
             return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
+        if path == "/api/team":                         # Team Space status (this PC only)
+            if not self.is_local():
+                return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
+            return self.reply(200, json.dumps(TEAM.status()), TYPES[".json"])
+        if path == "/api/team/key":                     # the team key, to copy to the other PCs (this PC only)
+            if not self.is_local():
+                return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
+            return self.reply(200, json.dumps({"key": TEAM.key()}), TYPES[".json"])
         if path == "/api/remote/studio":                # scenes + presentation for the remote (PIN-protected)
             return self.reply(200, json.dumps(remote_studio_info()), TYPES[".json"])
         if path.startswith("/api/scripture"):            # this PC only (the API key never leaves it)
@@ -1669,6 +1692,24 @@ class Handler(BaseHTTPRequestHandler):
         if APP.resolve() in target.parents and target.is_file():
             return self.reply(200, target.read_bytes(), TYPES.get(target.suffix.lower(), "application/octet-stream"))
         self.reply(404, "Not found", "text/plain; charset=utf-8")
+
+    def team_post(self, path, d):
+        ok, msg, extra = True, "", {}
+        if path == "/api/team/settings":
+            ok, msg = TEAM.configure(d)
+        elif path == "/api/team/notes":
+            TEAM.set_notes(d.get("text", ""))
+        elif path == "/api/team/action":
+            ok, msg = TEAM.action(d)
+        elif path == "/api/team/ask":
+            ok, msg = TEAM.ask(str(d.get("peer", "")), str(d.get("scene", "")))
+        elif path == "/api/team/answer":
+            ok, msg, req = TEAM.answer(str(d.get("id", "")), bool(d.get("approved")))
+            extra = {"request": req}
+        else:
+            return self.reply(404, "Not found", "text/plain; charset=utf-8")
+        body = dict(extra, ok=ok, error=msg, status=TEAM.status())
+        return self.reply(200 if ok else 400, json.dumps(body), TYPES[".json"])
 
     def origin_ok(self):
         # Extra protection: requests made by other websites are refused
@@ -2000,6 +2041,10 @@ class Handler(BaseHTTPRequestHandler):
             data.pop("storedAt", None)
             save_private(data)
             return self.reply(204, b"", "text/plain")
+        if path.startswith("/api/team/"):
+            if not self.is_local():
+                return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
+            return self.team_post(path, data if isinstance(data, dict) else {})
         if path == "/api/presence":
             if isinstance(data, dict) and isinstance(data.get("id"), str):
                 presence[data["id"][:40]] = (str(data.get("page", ""))[:20], time.time())
@@ -2022,6 +2067,8 @@ def start_main_server():
     threading.Thread(target=vcam_start, daemon=True).start()   # idle until Zoom/Teams uses BCC vCam
     threading.Thread(target=_backup_loop, daemon=True).start()
     threading.Thread(target=_remote_watcher, daemon=True).start()
+    threading.Thread(target=TEAM.start, daemon=True).start()   # Team Space: only if set up, on the WireGuard address
+    threading.Thread(target=TEAM.watch, daemon=True).start()
     return server
 
 
@@ -2070,6 +2117,7 @@ def main():
         pass
     finally:
         set_remote(False)
+        TEAM.stop()
         server.server_close()
 
 
