@@ -1,9 +1,9 @@
-"""BCC vCam engine.
+"""KingdomConnect engine.
 
 webcam -> crop + zoom + resize (one resample) -> mirror -> colour-range fix -> background blur
-       -> filter (Camera Look x intensity) -> adjustments -> layers + cards -> "BCC vCam" (RGB24)
+       -> filter (Camera Look x intensity) -> adjustments -> layers + cards -> "KingdomConnect" (RGB24)
 
-The laptop webcam is opened only while an app (Zoom, Teams...) is showing BCC vCam or the preview
+The laptop webcam is opened only while an app (Zoom, Teams...) is showing KingdomConnect or the preview
 in Settings is open. Otherwise the webcam is released (its light goes off) and the engine just
 checks twice a second whether it is needed, which costs almost nothing.
 """
@@ -41,7 +41,7 @@ def fit_cover(img, w, h, zoom=1.0):
 
 
 class Camera:
-    """The real webcam, read through Windows Media Foundation (BCC vCam itself never appears there,
+    """The real webcam, read through Windows Media Foundation (KingdomConnect itself never appears there,
     so the engine can't capture its own output)."""
     def __init__(self, index, width, height, **_options):
         self.cap = cv2.VideoCapture(index, cv2.CAP_MSMF if os.name == "nt" else cv2.CAP_ANY)
@@ -209,7 +209,7 @@ class VCamEngine:
         return self._adjust
 
     def _open_sink(self, w, h, s):
-        if s.get("outputPacing") == "fixed":     # BCC vCam sends at a steady rate (repeats a frame if needed)
+        if s.get("outputPacing") == "fixed":     # KingdomConnect sends at a steady rate (repeats a frame if needed)
             try:
                 return self.sink_factory(w, h, float(s.get("frameRate") or 30))
             except TypeError:                     # an older sink factory without a frame-rate option
@@ -254,14 +254,14 @@ class VCamEngine:
                 if not in_use and not previewing and not awake:
                     if self.cam:
                         self._close_camera()            # webcam light goes off
-                    self._set(state="ready", message="Ready. Choose “BCC vCam” as the camera in Zoom or Teams.", fps=0.0)
+                    self._set(state="ready", message="Ready. Choose “KingdomConnect” as the camera in Zoom or Teams.", fps=0.0)
                     time.sleep(0.5)
                     continue
                 need_cam = self.compositor.needs_camera() if self.compositor else True
                 if not need_cam:                         # screen-only layout: the webcam is switched off
                     if self.cam:
                         self._close_camera()
-                    # Idle rhythm: with no camera and nothing changing, and Zoom not using BCC vCam, check 5x a second
+                    # Idle rhythm: with no camera and nothing changing, and Zoom not using KingdomConnect, check 5x a second
                     # instead of 30. Any change (kick) wakes it at once; changes keep it at 30 fps for 1.5 s.
                     idle = not in_use and self.compositor is not None and time.time() - self.compositor.last_change > 1.5
                     rate = s.get("presentFps", 15) if (not in_use and not previewing) else 30
@@ -346,7 +346,7 @@ class VCamEngine:
                 if now - t_window >= 1.0:
                     self._set(lookMs=round(s["grade"].ms, 1) if s.get("grade") is not None else 0.0,
                               adjustMs=round(adjust.ms, 1) if adjust is not None else 0.0, lateFrames=self.late,
-                              outputSize=f"{w}×{h}", outputFormat="RGB24 (BCC vCam)",
+                              outputSize=f"{w}×{h}", outputFormat="RGB24 (KingdomConnect)",
                               outputPacing="steady " + str(s.get("frameRate") or 30) + " fps" if s.get("outputPacing") == "fixed" else "follows the webcam")
                     if frame is not None:
                         lo, hi = picture.levels(frame)

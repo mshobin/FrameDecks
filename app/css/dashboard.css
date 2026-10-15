@@ -121,7 +121,7 @@ input[type=range]{flex:1;accent-color:var(--gold)}
 .toast.bad{border-color:var(--danger);color:var(--danger)}
 .main > .box{margin-top:0}
 
-/* BCC vCam: quality diagnostics and fine-tune */
+/* KingdomConnect: quality diagnostics and fine-tune */
 .vcam-diag{display:grid;grid-template-columns:150px 1fr;gap:4px 12px;margin:6px 0 0;font-size:13px}
 .vcam-diag dt{color:var(--muted)} .vcam-diag dd{margin:0;overflow-wrap:anywhere}
 .vcam-fine{margin-top:8px} .vcam-fine summary{cursor:pointer;font-weight:700;padding:6px 0}

@@ -3,9 +3,9 @@
  * The leader's Meeting Name, Leader / Organization Name, logo and accent colour (state.brand), and where they appear:
  *   - Branding layers (a small badge with the logo and/or names), added per scene from here or from the Studio;
  *   - text layers (Announcement, Prayer, Lower Third, Countdown) that use {meeting} / {org} or "Show logo";
- *   - the accent colour replaces the gold of the cards on BCC vCam and the overlay pages.
+ *   - the accent colour replaces the gold of the cards on KingdomConnect and the overlay pages.
  * Nothing is forced onto a scene: the leader ticks the scenes that carry the badge.
- * The logo is converted to PNG here (PNG, JPG or SVG in), so every output (browser, OBS, BCC vCam) reads one file.
+ * The logo is converted to PNG here (PNG, JPG or SVG in), so every output (browser, OBS, KingdomConnect) reads one file.
  */
 (function(){
 'use strict';

@@ -25,7 +25,7 @@ var COLUMNS = [
   {key: 'branding', name: 'Branding', need: 'No', alias: ['branding', 'brand'], help: 'Yes = this scene shows your branding (Settings → Meeting & Branding). Empty = No.', ex: 'Yes'},
   {key: 'showLogo', name: 'Show Logo', need: 'No', alias: ['showlogo', 'logo'], help: 'With Branding Yes: show your logo. Empty = Yes.', ex: 'Yes'},
   {key: 'showName', name: 'Show Meeting Name', need: 'No', alias: ['showmeetingname', 'meetingname', 'showname'], help: 'With Branding Yes: show your Meeting Name. Empty = Yes.', ex: 'Yes'},
-  {key: 'bg', name: 'Background Style or Template', need: 'For Custom', alias: ['backgroundstyleortemplate', 'backgroundstyle', 'background', 'template', 'style'], help: 'Custom rows: the template (Announcement, Prayer, Lower Third, Countdown, Branding, Birthday, Camera, Screen). Other rows: the scene background on BCC vCam: None, Navy, Black, White, Brand or a colour like #1F3A6D.', ex: 'Navy'},
+  {key: 'bg', name: 'Background Style or Template', need: 'For Custom', alias: ['backgroundstyleortemplate', 'backgroundstyle', 'background', 'template', 'style'], help: 'Custom rows: the template (Announcement, Prayer, Lower Third, Countdown, Branding, Birthday, Camera, Screen). Other rows: the scene background on KingdomConnect: None, Navy, Black, White, Brand or a colour like #1F3A6D.', ex: 'Navy'},
   {key: 'layerOrder', name: 'Layer Order', need: 'No', alias: ['layerorder', 'layerno'], help: 'Whole number inside the scene: 1 = in front. Pictures, videos and slides always sit behind questions, verses and text.', ex: '1'},
   {key: 'status', name: 'Status', need: 'No', alias: ['status', 'visible', 'show'], help: 'Active (shown when the scene goes live) or Hidden (in the scene, switched off). Empty = Active.', ex: 'Active'}
 ];
@@ -309,12 +309,12 @@ function readMe(brand, title){
   COLUMNS.forEach(function(c){ rows.push([c.name, c.need, c.help, c.ex]); });
   rows.push([''], ['Layer Types'], ['Question', 'A discussion question card.'], ['Verse', 'A Bible verse card (Verse Reference + Verse Text).'],
     ['Question + Verse', 'The question and its verse together in one scene (one row makes both).'], ['Text', 'Your own words on a card (Text / Caption).'],
-    ['Image / Video', 'A picture or video on BCC vCam: choose the file in the Studio after the import.'], ['PowerPoint', 'Your PowerPoint window on BCC vCam: choose the window after the import.'],
+    ['Image / Video', 'A picture or video on KingdomConnect: choose the file in the Studio after the import.'], ['PowerPoint', 'Your PowerPoint window on KingdomConnect: choose the window after the import.'],
     ['Custom', 'A ready-made layer: write its template in “Background Style or Template”: Announcement, Prayer, Lower Third, Countdown, Branding, Birthday, Camera, Screen.'],
     [''], ['Good to know'],
     ['• A scene shows at most one Question, one Verse, one Birthday and one Branding badge. For the next question, start a new scene.'],
     ['• Branding uses your Meeting Name and logo from Settings → Meeting & Branding. {meeting} and {org} in any text are replaced by your names.'],
-    ['• Pictures, videos, slides and backgrounds appear on BCC vCam (Zoom / Teams); questions, verses and text appear on BCC vCam and the overlay pages.'],
+    ['• Pictures, videos, slides and backgrounds appear on KingdomConnect (Zoom / Teams); questions, verses and text appear on KingdomConnect and the overlay pages.'],
     ['• Every question and verse is also added to your question and verse lists, so ◀ ▶ can step through them.'],
     ['• Up to 1000 rows per file. Kingdom Connect reads .xlsx, .xls and .csv files.']);
   return rows;

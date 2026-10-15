@@ -4,7 +4,7 @@
  * renders on the Canvas. Scenes live in the shared state (js/store.js BSFScenes), so the phone remote, the
  * keyboard and the overlay pages see the same scenes. Question, Scripture and Birthday layers drive the existing
  * cards, and their Inspector holds the existing editors and lists (same elements, same code), so every earlier way
- * of working still works. Media layers are BCC vCam Studio layers; the program applies the live scene's media
+ * of working still works. Media layers are KingdomConnect Studio layers; the program applies the live scene's media
  * layers to the camera picture, and arranging them on the canvas writes them back into the scene. */
 (function(){
 'use strict';
@@ -418,7 +418,7 @@ function importScene(){
       var made = null;
       commit(function(n){ sc.id = 'sc_' + Math.random().toString(36).slice(2, 9); sc.name = SC.uniqueName(n, sc.name); sc.created = sc.modified = Date.now(); sc.from = file.name; SC.insert(n, sc, selScene); made = sc; })
         .then(function(){ if (made) select(made.id, null, true); toast('Scene imported: ' + made.name); });
-    }).catch(function(){ toast('That file is not a BCC scene.', true); });
+    }).catch(function(){ toast('That file is not a Kingdom Connect scene.', true); });
   });
   document.body.appendChild(f); f.click();
 }
@@ -437,7 +437,7 @@ function smartDuplicate(id){
     h('label', {cls: 'check'}, [h('input', {type: 'radio', name: 'dup-c', value: 'keep', checked: 'checked'}), ' Keep the content']),
     h('label', {cls: 'check'}, [h('input', {type: 'radio', name: 'dup-c', value: 'only'}), ' Content only (looks back to the defaults)']),
     h('label', {cls: 'check'}, [h('input', {type: 'radio', name: 'dup-c', value: 'empty'}), ' Empty layer content (ready for next week)'])]));
-  card.appendChild(h('p', {cls: 'hint', text: 'BCC vCam, Zoom / Teams camera, recording and remote settings belong to this PC, so every scene - including the copy - uses them.'}));
+  card.appendChild(h('p', {cls: 'hint', text: 'KingdomConnect, Zoom / Teams camera, recording and remote settings belong to this PC, so every scene - including the copy - uses them.'}));
   var ok = h('button', {cls: 'btn primary', type: 'button', text: 'Duplicate', id: 'dup-ok'});
   card.appendChild(h('div', {cls: 'app-modal-actions'}, [h('button', {cls: 'btn quiet', type: 'button', text: 'Cancel', onclick: function(){ back.remove(); }}), ok]));
   ok.addEventListener('click', function(){
@@ -557,7 +557,7 @@ function toggleLayer(sid, lid){
 }
 /* + Layer */
 var CONTENT_ADD = [['scripture', 'Scripture'], ['question', 'Question'], ['birthday', 'Birthday'], ['announcement', 'Announcement'], ['prayer', 'Prayer Point'], ['lowerthird', 'Lower Third'], ['countdown', 'Countdown'], ['brand', 'Branding (logo + Meeting Name)']];
-var MEDIA_ADD = [['camera', 'Camera (BCC vCam)'], ['screen', 'Screen…'], ['window', 'Window (e.g. PowerPoint)…'], ['image', 'Image…'], ['logo', 'Logo…'], ['watermark', 'Watermark…'],
+var MEDIA_ADD = [['camera', 'Camera (KingdomConnect)'], ['screen', 'Screen…'], ['window', 'Window (e.g. PowerPoint)…'], ['image', 'Image…'], ['logo', 'Logo…'], ['watermark', 'Watermark…'],
   ['video', 'Video…'], ['pdf', 'Slides (PDF)…'], ['background', 'Background'], ['text', 'Text'], ['rect', 'Shape']];
 $('layer-add').addEventListener('click', function(e){
   e.stopPropagation(); var sc = scene(); if (!sc) return;
@@ -566,10 +566,10 @@ $('layer-add').addEventListener('click', function(e){
     var has = SC.isCard(k[0]) && SC.first(sc, k[0]);
     return {icon: SC.info[k[0]].icon, text: k[1] + ' Layer', hint: has ? 'in this scene' : '', run: function(){ addLayer(k[0]); }};
   }));
-  items.push('-', {label: 'Media (BCC vCam picture)'});
+  items.push('-', {label: 'Media (KingdomConnect picture)'});
   MEDIA_ADD.forEach(function(k){
     var kind = k[0] === 'logo' || k[0] === 'watermark' ? 'image' : k[0];
-    items.push({icon: SC.info[kind].icon, text: k[1], disabled: !S, title: S ? '' : 'Needs BCC vCam (Settings → BCC vCam)', run: function(){ addLayer(k[0]); }});
+    items.push({icon: SC.info[kind].icon, text: k[1], disabled: !S, title: S ? '' : 'Needs KingdomConnect (Settings → KingdomConnect)', run: function(){ addLayer(k[0]); }});
   });
   menu($('layer-add'), items);
 });
@@ -610,7 +610,7 @@ function defaults(kind){
   return JSON.parse(JSON.stringify(d));
 }
 function pickFile(kind){
-  if (!window.BSFStudio || !window.BSFStudio.addFile){ toast('Needs BCC vCam (the installed app).', true); return Promise.resolve(null); }
+  if (!window.BSFStudio || !window.BSFStudio.addFile){ toast('Needs KingdomConnect (the installed app).', true); return Promise.resolve(null); }
   return window.BSFStudio.addFile(kind).catch(function(e){ toast(e.message, true); return null; });
 }
 
@@ -754,14 +754,14 @@ function sceneForm(gen, sc, tab){
     sec.addEventListener('keydown', stop);
     sec.addEventListener('change', function(){ edit(sid, function(x){ x.auto.sec = Math.max(2, Math.min(3600, +sec.value || 30)); }); });
     gen.appendChild(h('div', {cls: 'ip-sec'}, [field('Transition into this scene', sel), field('Duration (ms)', ms),
-      h('p', {cls: 'hint', text: 'Plays on the whole BCC vCam picture. On the OBS / browser overlay page the dips cover the screen and the cards follow. The top bar can override it for a take.'})]));
+      h('p', {cls: 'hint', text: 'Plays on the whole KingdomConnect picture. On the OBS / browser overlay page the dips cover the screen and the cards follow. The top bar can override it for a take.'})]));
     gen.appendChild(h('div', {cls: 'ip-sec'}, [checkCtl('Auto advance to the next scene', sc.auto.on, function(v){ edit(sid, function(x){ x.auto.on = v; }); }), field('After (seconds)', sec),
       h('p', {cls: 'hint', text: 'Only while Auto is on in the top bar.'})]));
   } else if (tab === 'output'){
     gen.appendChild(h('div', {cls: 'ip-sec'}, [h('b', {text: 'When this scene is live, show its cards and text layers on'}),
-      checkCtl('BCC vCam (Zoom / Teams camera, recording, Presentation window)', sc.out.vcam, function(v){ edit(sid, function(x){ x.out.vcam = v; }); }),
+      checkCtl('KingdomConnect (Zoom / Teams camera, recording, Presentation window)', sc.out.vcam, function(v){ edit(sid, function(x){ x.out.vcam = v; }); }),
       checkCtl('OBS / browser overlay pages', sc.out.obs, function(v){ edit(sid, function(x){ x.out.obs = v; }); }),
-      h('p', {cls: 'hint', text: 'Takes effect the next time the scene is taken live. Each layer can also be limited in its own Output tab. Camera and media layers are the BCC vCam picture itself.'})]));
+      h('p', {cls: 'hint', text: 'Takes effect the next time the scene is taken live. Each layer can also be limited in its own Output tab. Camera and media layers are the KingdomConnect picture itself.'})]));
   } else {
     var par = sc.parent ? SC.find(live, sc.parent) : null;
     gen.appendChild(h('dl', {cls: 'hist'}, [
@@ -855,7 +855,7 @@ function textForm(gen, sc, l, tab){
 function outputForm(gen, sc, l){
   var sid = sc.id, lid = l.id;
   gen.appendChild(h('div', {cls: 'ip-sec'}, [h('b', {text: 'Show this layer on'}),
-    checkCtl('BCC vCam (Zoom / Teams camera, recording, Presentation window)', l.c.vcam, function(v){ editLayer(sid, lid, function(x){ x.c.vcam = v; }); }),
+    checkCtl('KingdomConnect (Zoom / Teams camera, recording, Presentation window)', l.c.vcam, function(v){ editLayer(sid, lid, function(x){ x.c.vcam = v; }); }),
     checkCtl('OBS / browser overlay pages', l.c.obs, function(v){ editLayer(sid, lid, function(x){ x.c.obs = v; }); }),
     h('p', {cls: 'hint', text: SC.isCard(l.kind) ? 'Applies when the scene is taken live.' : 'Applies at once.'})]));
 }
@@ -863,7 +863,7 @@ function outputForm(gen, sc, l){
 function mediaForm(gen, sc, l){
   var sid = sc.id, lid = l.id, c = l.c;
   var S = studio();
-  gen.appendChild(h('p', {cls: 'hint', text: S ? 'Take this scene live to place this layer directly on the canvas. Until then you can set it up here.' : 'Media layers are part of the BCC vCam picture. Turn BCC vCam on in Settings → BCC vCam to see and arrange them.'}));
+  gen.appendChild(h('p', {cls: 'hint', text: S ? 'Take this scene live to place this layer directly on the canvas. Until then you can set it up here.' : 'Media layers are part of the KingdomConnect picture. Turn KingdomConnect on in Settings → KingdomConnect to see and arrange them.'}));
   if (['image', 'video', 'pdf'].indexOf(l.kind) >= 0){
     gen.appendChild(row('File', h('span', {cls: 'plain', text: c.file || 'Not chosen yet'})));
     gen.appendChild(h('div', {cls: 'ip-acts'}, [h('button', {cls: 'btn small', type: 'button', text: c.file ? 'Choose another file…' : 'Choose a file…', onclick: function(){ pickFile(l.kind).then(function(f){ if (f) editLayer(sid, lid, function(x){ x.c.file = f; }); }); }})]));
@@ -938,7 +938,7 @@ function renderCanvas(){
   var tx = sc ? SC.transitionOf(live, sc) : null;
   $('mt-section').textContent = sc ? SC.txName(tx.type) + (tx.ms ? ' ' + tx.ms + ' ms' : '') + (sc.auto.on ? ' · auto ' + sc.auto.sec + ' s' : '') : '';
   $('canvas-note').textContent = !sc ? '' : useStudio ? 'Exactly what Zoom / Teams receive. Drag media layers to move them, the handles to resize.' :
-    isLive ? 'Live. The overlay page shown here is what OBS receives' + (S ? '' : ' (turn BCC vCam on to see the camera picture and arrange media layers)') + '.' :
+    isLive ? 'Live. The overlay page shown here is what OBS receives' + (S ? '' : ' (turn KingdomConnect on to see the camera picture and arrange media layers)') + '.' :
     'Preview of this scene: not on air. Go Live (T) puts it on screen.' + (sc.layers.some(function(l){ return SC.isMedia(l.kind); }) ? ' Outlines show where its media layers go.' : '');
   // media outlines for a scene that is not live
   var boxes = $('canvas-boxes'), bsig = !useStudio && sc && !isLive ? JSON.stringify(sc.layers.filter(function(l){ return SC.isMedia(l.kind) && l.visible; }).map(function(l){ return [l.id, l.name, l.c.x, l.c.y, l.c.w, l.c.h, l.kind]; })) : '';
@@ -1096,7 +1096,7 @@ function renderAll(force){
   renderScenes(); renderLayers(); renderInspector(); renderCanvas(); renderLiveBar();
 }
 Store.subscribe(function(st){ live = st; migrate(); renderAll(false); });
-setInterval(function(){ if (live && !document.hidden && document.body.dataset.tab === 'studio') renderLayers(); }, 3000);   // media layer status from BCC vCam
+setInterval(function(){ if (live && !document.hidden && document.body.dataset.tab === 'studio') renderLayers(); }, 3000);   // media layer status from KingdomConnect
 
 /* ---------- Presentation Mode: only the scene list, Previous · Go Live · Next (and HIDE ALL, always) ---------- */
 function setPresentation(on){
@@ -1137,7 +1137,7 @@ function renderTransitions(){
   var t = h('table', {cls: 'dir-table'}, [h('thead', {}, [h('tr', {}, ['Profile', 'Transition', 'Duration'].map(function(x){ return h('th', {text: x}); }))])]), tb = h('tbody');
   SC.profiles.forEach(function(p){ tb.appendChild(h('tr', {cls: p.id === live.profile ? 'today' : ''}, [h('td', {text: p.name}), h('td', {text: SC.txName(p.type)}), h('td', {text: p.ms ? p.ms + ' ms' : '-'})])); });
   t.appendChild(tb); root.appendChild(h('div', {cls: 'dir-wrap'}, [t]));
-  root.appendChild(h('p', {cls: 'hint', text: 'BCC vCam plays every transition on the whole picture (a few light operations per frame, under a second). The OBS / browser overlay page covers the screen for the dips and moves the cards for the slides and pushes.'}));
+  root.appendChild(h('p', {cls: 'hint', text: 'KingdomConnect plays every transition on the whole picture (a few light operations per frame, under a second). The OBS / browser overlay page covers the screen for the dips and moves the cards for the slides and pushes.'}));
 }
 (window.BSFSectionHooks = window.BSFSectionHooks || []).push(function(id){ if (id === 'transitions') renderTransitions(); });
 

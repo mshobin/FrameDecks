@@ -65,22 +65,22 @@ If you see a red cross instead, click the run to read the error, and send it to 
 - [ ] **Excel export and backups** save to your Downloads folder.
 - [ ] Settings → Data / Backup shows your data folder and at least one backup.
 
-### First test of BCC vCam (the built-in camera)
+### First test of KingdomConnect (the built-in camera)
 
-- [ ] During installation, **Install the BCC vCam camera** was ticked and you allowed the administrator prompt.
-      (If not: Settings → BCC vCam → **Install BCC vCam**.)
-- [ ] Settings → BCC vCam → **Show preview**: you see yourself. Try **Background blur: Light** and **Strong**.
-- [ ] Close and reopen Zoom. Settings → Video → Camera → **BCC vCam**: Zoom shows you, and the top bar says **vCam · In use**.
-- [ ] Turn off Zoom's own background blur/virtual background while using BCC vCam's blur.
+- [ ] During installation, **Install the KingdomConnect camera** was ticked and you allowed the administrator prompt.
+      (If not: Settings → KingdomConnect → **Install KingdomConnect**.)
+- [ ] Settings → KingdomConnect → **Show preview**: you see yourself. Try **Background blur: Light** and **Strong**.
+- [ ] Close and reopen Zoom. Settings → Video → Camera → **KingdomConnect**: Zoom shows you, and the top bar says **vCam · In use**.
+- [ ] Turn off Zoom's own background blur/virtual background while using KingdomConnect's blur.
 - [ ] Stop your Zoom video: within a second the laptop webcam light goes off.
-- [ ] Settings → BCC vCam shows the frames per second (aim: about 30) and the work per frame. If the picture is jerky,
+- [ ] Settings → KingdomConnect shows the frames per second (aim: about 30) and the work per frame. If the picture is jerky,
       choose **720p**, or blur **Light**, and send me the numbers from Settings → Diagnostics.
-- [ ] Repeat in Microsoft Teams (Settings → Devices → Camera → BCC vCam).
-- [ ] **Cards on BCC vCam:** in a Zoom test meeting (zoom.us/test), select **Show** for a question, then a verse:
+- [ ] Repeat in Microsoft Teams (Settings → Devices → Camera → KingdomConnect).
+- [ ] **Cards on KingdomConnect:** in a Zoom test meeting (zoom.us/test), select **Show** for a question, then a verse:
       both appear on your video within about a second. **Hide** removes each one. Try a Burst transition too.
-      Check the same in Settings → BCC vCam → Show preview.
+      Check the same in Settings → KingdomConnect → Show preview.
 - [ ] **Camera Look:** press **Ctrl+Alt+1** (Warm), **Ctrl+Alt+2** (Dark), **Ctrl+Alt+3** (Neutral), **Ctrl+Alt+0** (Off)
-      while Zoom shows BCC vCam: your picture's colour changes, the cards don't. Settings → BCC vCam shows the
+      while Zoom shows KingdomConnect: your picture's colour changes, the cards don't. Settings → KingdomConnect shows the
       "look" time per frame; send me that number with the frames per second.
 - [ ] **Screen sharing (fixed in 4.1):** Studio (Alt+2) → Add layer → Layout templates → *Screen + camera corner*,
       pick your display. Within a few seconds your screen appears; move the mouse — the cursor shows. If it can't
@@ -98,14 +98,14 @@ If you see a red cross instead, click the run to read the error, and send it to 
       between apps. Send me a new screenshot including the **BSF Command Center** process line.
 - [ ] **4.3 Presentation window:** opens with no title bar or window buttons; drag to move; Full Screen fills the
       screen with no frame; Esc leaves full screen, Esc again (or ✕) closes. Zoom still lists it as "BSF Presentation".
-- [ ] **4.3 Camera quality:** Settings → BCC vCam: the line under the preview shows "Webcam: 1280×720 MJPG at 30 fps"
+- [ ] **4.3 Camera quality:** Settings → KingdomConnect: the line under the preview shows "Webcam: 1280×720 MJPG at 30 fps"
       (or similar). If it shows a smaller size, send me that line. In Zoom tick Settings → Video → HD.
 - [ ] **4.3 Blur:** − / + change the blur by 0.5 %; the lowest blur is 0.5 %.
-- [ ] **Acceptance (4.2):** with Zoom in a meeting, BCC vCam on, and the Presentation window shared, switch between apps,
+- [ ] **Acceptance (4.2):** with Zoom in a meeting, KingdomConnect on, and the Presentation window shared, switch between apps,
       move windows, type in a browser for a few minutes. Nothing should lag or freeze. Then send me Settings →
       Diagnostics → *Copy diagnostics* (it includes the new Resources line).
 - [ ] **Excel import:** Content → *Download template*, fill in two rows, *Import from Excel*.
-- [ ] **Blur:** Settings → BCC vCam → try Light and Maximum with the preview on; *Save as default*.
+- [ ] **Blur:** Settings → KingdomConnect → try Light and Maximum with the preview on; *Save as default*.
 - [ ] **Studio canvas:** drag a layer (pink guides appear near the centre/edges), resize with a corner handle,
       change Corner radius in the inspector, add a Text layer and type your own text.
 - [ ] **Layers:** add a logo (PNG) and a short video; move, resize, rotate, fade; reorder by dragging;
@@ -114,7 +114,7 @@ If you see a red cross instead, click the run to read the error, and send it to 
 - [ ] **Latency:** tick "Latency test", screenshot the Studio clock next to your Zoom self-view; send me the
       difference, plus the line under "Final picture" (fps, ms, dropped, CPU).
 
-If Zoom or Teams doesn't list BCC vCam, restart the meeting app (they look for cameras when they start).
+If Zoom or Teams doesn't list KingdomConnect, restart the meeting app (they look for cameras when they start).
 Close Zoom and Teams before installing a new version, because they keep the camera in use.
 
 Once all of these work, stop using the old folder and its .bat files, so you don't have two copies of
@@ -183,7 +183,7 @@ GitHub builds the installer again and attaches it to that release permanently. T
    into your repository folder. Choose **Replace the files in the destination**.
    The hidden `.git` folder in your repository folder is not in my zip, so your history is kept.
    **Make sure the `.github` folder is copied too.** It holds the build recipe; if it isn't updated, GitHub
-   builds the app the old way (for example without the BCC vCam camera). After pasting, GitHub Desktop should
+   builds the app the old way (for example without the KingdomConnect camera). After pasting, GitHub Desktop should
    list `.github/workflows/build-windows.yml` among the changed files whenever I've changed the recipe.
 3. If you had changed `app/js/brand.js` yourself, GitHub Desktop will show my version replacing yours:
    click the file, check the differences, and put your wording back before committing.
@@ -215,16 +215,16 @@ The installer appears in the `dist` folder.
   with Python. Restore it and add an exception for `%LOCALAPPDATA%\Programs\BSF Command Center`.
 - **"Port 8750 is in use" message:** another program is using the address the overlays need.
   Close that program and restart BSF Command Center.
-- **"This installer was built without the camera"** (Settings → BCC vCam): the build recipe in your repository
+- **"This installer was built without the camera"** (Settings → KingdomConnect): the build recipe in your repository
   is out of date. Copy the `.github` folder from my latest zip into your repository, commit, push, and install
   the new installer.
 - **"The camera file was installed but has since been removed"**: Windows Security (or another antivirus)
-  removed `bcc_vcam64.dll`. Open Windows Security → Virus & threat protection → Protection history, choose
+  removed `kingdomconnect_vcam64.dll`. Open Windows Security → Virus & threat protection → Protection history, choose
   **Restore** (or **Allow**) for it, then run the installer again.
-- **"The webcam could not be opened" / "Your webcam is being used by …"** (Settings → BCC vCam): only one app can
-  use a laptop webcam at a time. In Zoom and Teams choose **BCC vCam** as the camera (not your webcam), and close
+- **"The webcam could not be opened" / "Your webcam is being used by …"** (Settings → KingdomConnect): only one app can
+  use a laptop webcam at a time. In Zoom and Teams choose **KingdomConnect** as the camera (not your webcam), and close
   Camo, OBS or the Camera app. If it mentions privacy: Windows Settings → Privacy & security → Camera → turn on
-  **Camera access** and **Let desktop apps access your camera**. Also check Settings → BCC vCam → **Webcam** shows
+  **Camera access** and **Let desktop apps access your camera**. Also check Settings → KingdomConnect → **Webcam** shows
   your real webcam (infrared "face sign-in" cameras can't be used).
 - Anything else: Settings → Diagnostics → **Copy diagnostics** (it contains no PIN or member details),
   plus `bsf-app-log.txt` from the data folder.

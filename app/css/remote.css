@@ -1,6 +1,6 @@
 @font-face{font-family:'BSF Serif';src:url('../fonts/EBGaramond.ttf') format('truetype');font-weight:400 800;font-display:swap}
 @font-face{font-family:'BSF Sans';src:url('../fonts/SourceSans3.ttf') format('truetype');font-weight:200 900;font-display:swap}
-/* BCC Mobile Director (v6): Scene → Layer → Canvas. Same colours as the Command Center: green = live, red = hide,
+/* Kingdom Connect Mobile Director (v6): Scene → Layer → Canvas. Same colours as the Command Center: green = live, red = hide,
  * blue = chosen. Static surfaces only (no backdrop blur, no endless animation) so the phone stays cool. */
 :root{--bg:#0b0e13;--panel:#12161d;--panel2:#181d26;--raised:#1d232d;--edge:#262d38;--edge2:#333b48;--ink:#eef1f6;--muted:#9ba5b4;--faint:#6a7482;
   --accent:#4c8dff;--accent-soft:rgba(76,141,255,.14);--live:#34d17c;--live-strong:#16a34a;--live-soft:rgba(52,209,124,.14);--hid:#7b8599;

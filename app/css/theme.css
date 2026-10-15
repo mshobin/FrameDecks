@@ -157,7 +157,7 @@ html[data-theme="light"] .cb-grp.sl .cb-lbl{color:#c2410c}
 @media (max-width:1200px){ .cb-lbl{display:none} .cb-grp{padding-left:6px} .cb-grp.q,.cb-grp.v,.cb-grp.b,.cb-grp.sl{box-shadow:inset 3px 0 0 var(--c,transparent)} .cb-grp.q{--c:var(--q)} .cb-grp.v{--c:var(--v)} .cb-grp.b{--c:var(--b)} .cb-grp.sl{--c:#e48a5c} }
 @media (prefers-reduced-motion:reduce){ .btn,.cb-btn,.tab,.ws-railbtn{transition:none} }
 
-/* ---------- BCC vCam blur: precise control ---------- */
+/* ---------- KingdomConnect blur: precise control ---------- */
 .blur-ctl{display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-width:0}
 .blur-ctl .range{flex:1 1 220px;min-width:180px}
 .blur-num{width:104px;background:var(--field);border:1px solid var(--line);color:var(--ink);padding:6px 8px;font-variant-numeric:tabular-nums;text-align:right}
@@ -513,7 +513,7 @@ body.studio-focus .ws{grid-template-columns:minmax(0,1fr);height:100vh} body.stu
 .layer-item.on{box-shadow:inset 3px 0 0 var(--live)}
 .layer-item.media{border-top-color:transparent}
 .layer-item:not(.media) + .layer-item.media{margin-top:20px;position:relative}
-.layer-item:not(.media) + .layer-item.media::before{content:"Media · BCC vCam picture";position:absolute;top:-17px;left:6px;font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
+.layer-item:not(.media) + .layer-item.media::before{content:"Media · KingdomConnect picture";position:absolute;top:-17px;left:6px;font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
 
 /* Menus */
 .ws-menu{position:fixed;z-index:120;min-width:240px;max-width:320px;max-height:min(70vh,560px);overflow:auto;padding:6px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-2);box-shadow:var(--shadow-pop)}

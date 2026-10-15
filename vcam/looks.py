@@ -1,4 +1,4 @@
-"""Camera Looks for BCC vCam: colour grading of the webcam picture only (never the cards).
+"""Camera Looks for KingdomConnect: colour grading of the webcam picture only (never the cards).
 Each look is a "filter" with an intensity 0-100 (at_intensity); 100 is the look as defined here.
 
 Same steps and order as the reference shader:

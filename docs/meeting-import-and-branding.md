@@ -12,7 +12,7 @@ unchanged.
 2. Upload a **logo** (PNG, JPG or SVG) by selecting **Upload logo…** or dropping a file on the logo box. The dashboard
    converts every format to PNG (at most 1024 px) before saving it.
 3. Optionally tick **Use my accent colour**: pick one of eight swatches or any colour. The accent replaces the gold of
-   the cards and badges on BCC vCam and on the overlay pages. The app's own interface keeps its colours.
+   the cards and badges on KingdomConnect and on the overlay pages. The app's own interface keeps its colours.
 4. Under **Where branding appears**, tick the scenes that show the **Branding badge** (logo + Meeting Name). Other
    controls in this section:
    - **Brand every scene** and **Remove from every scene**;
@@ -125,7 +125,7 @@ The file is made by `BSFMeetingSheet.templateBook`, which is the same code for t
 | Notes | No | Becomes the scene's leader notes |
 | Branding | No | Yes → branding for this row (see below) |
 | Show Logo / Show Meeting Name | No | Used when Branding is Yes; empty = Yes |
-| Background Style or Template | For Custom | Custom rows: the template name. Other rows: the scene background on BCC vCam (None, Navy, Black, White, Brand, `#rrggbb`) |
+| Background Style or Template | For Custom | Custom rows: the template name. Other rows: the scene background on KingdomConnect (None, Navy, Black, White, Brand, `#rrggbb`) |
 | Layer Order | No | 1 = in front. Media (pictures, video, slides, camera, screen) always sit behind cards and text |
 | Status | No | Active (default) or Hidden (in the scene, switched off) |
 
@@ -192,6 +192,6 @@ The file is made by `BSFMeetingSheet.templateBook`, which is the same code for t
 | `app/js/import-worker.js` | Reads the workbook off the main thread; `want: 'Scene Name'` picks the right sheet |
 | `app/js/workspace.js` | + Scene menu entries, empty-state button, Branding layer Inspector, Show logo, scene notes, Go Live bar |
 | `app/js/overlay.js`, `app/css/overlay.css` | Overlay rendering of branding |
-| `vcam/program.py`, `vcam/cards.py`, `vcam/overlay.py` | BCC vCam rendering of branding and the accent colour |
+| `vcam/program.py`, `vcam/cards.py`, `vcam/overlay.py` | KingdomConnect rendering of branding and the accent colour |
 | `server.py` | Logo endpoints; version 6.2 |
 | `tools/make_meeting_template.js` | Regenerates `docs/templates/Kingdom-Connect-Meeting-Template.xlsx` |

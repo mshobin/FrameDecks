@@ -1,7 +1,7 @@
 """Finding and opening the webcam, and explaining clearly when Windows won't let us.
 
 - Webcams are listed (and remembered) by name, through Windows Media Foundation and DirectShow.
-- BCC vCam itself is always skipped, so the engine can never capture its own picture.
+- KingdomConnect itself is always skipped, so the engine can never capture its own picture.
 - If a webcam won't open, Windows' own records are read (read-only) to say why: privacy settings,
   or which program is currently using the webcam.
 """
@@ -11,7 +11,7 @@ import time
 
 import cv2
 
-OWN_NAME = "bcc vcam"
+OWN_NAMES = ("kingdomconnect", "bcc vcam")   # the camera's name, and its name before 6.4
 IR_HINT = re.compile(r"\b(ir|infrared)\b|hello", re.I)   # Windows Hello face sign-in cameras
 
 
@@ -23,7 +23,7 @@ def _backends():
 
 
 def list_cameras():
-    """[{name, backend, index, ir}] for every webcam, BCC vCam excluded. Never turns a webcam on."""
+    """[{name, backend, index, ir}] for every webcam, KingdomConnect excluded. Never turns a webcam on."""
     try:
         from cv2_enumerate_cameras import enumerate_cameras
     except Exception:
@@ -36,7 +36,7 @@ def list_cameras():
             continue
         for c in items:
             name = (c.name or "").strip() or "Camera"
-            if OWN_NAME in name.lower():
+            if any(n in name.lower() for n in OWN_NAMES):
                 continue
             found.append({"name": name, "backend": label, "index": c.index, "ir": bool(IR_HINT.search(name))})
     return found
@@ -131,7 +131,7 @@ def explain(blockers):
         who = " and ".join(blockers["inUseBy"])
         tip = ""
         if any(w in ("Zoom", "Microsoft Teams") for w in blockers["inUseBy"]):
-            tip = " In Zoom or Teams, choose “BCC vCam” as the camera instead of your webcam."
+            tip = " In Zoom or Teams, choose “KingdomConnect” as the camera instead of your webcam."
         return f"Your webcam is being used by {who}, and only one app can use it at a time.{tip} Or close {who}."
     return ""
 
@@ -141,7 +141,7 @@ class CameraUnavailable(RuntimeError):
 
 
 class Camera:
-    """Opens the chosen webcam: Media Foundation first, DirectShow as a second try (never BCC vCam).
+    """Opens the chosen webcam: Media Foundation first, DirectShow as a second try (never KingdomConnect).
     Only counts as open once a real picture has arrived."""
     def __init__(self, name, width, height, cams=None, fps=30, pixel_format="auto"):
         cams = list_cameras() if cams is None else cams

@@ -11,30 +11,38 @@ assert srv is not None, "could not start"
 threading.Thread(target=srv.serve_forever, daemon=True).start()
 base = f"http://127.0.0.1:{srv.server_address[1]}/"
 for page in ["", "dashboard.html", "remote.html", "stage.html", "focus-verse.html", "discussion-question.html",
-             "birthday.html", "js/app-bridge.js", "js/brand.js", "js/workspace.js", "js/scripture.js", "js/meeting-sheet.js", "js/meeting-import.js", "js/meeting-brand.js", "js/panels.js", "js/about.js", "remote-manifest.json", "icons/remote-192.png"]:
+             "birthday.html", "js/app-bridge.js", "js/brand.js", "js/workspace.js", "js/scripture.js", "js/meeting-sheet.js", "js/meeting-import.js", "js/meeting-brand.js", "js/panels.js", "js/teamspace.js", "js/about.js", "remote-manifest.json", "icons/remote-192.png"]:
     with urllib.request.urlopen(base + page, timeout=5) as r:
         assert r.status == 200, page
 ping = json.loads(urllib.request.urlopen(base + "api/app/ping").read())
 assert ping["app"] == "BSF Command Center"
 for name in ["app/js/overlay.js", "app/js/store.js", "app/fonts/EBGaramond.ttf", "app/vendor/xlsx.full.min.js", "desktop_app.py"]:
     assert (root / name).exists(), name
-# BCC vCam: the camera ID in the app must match the one compiled into the camera
+# KingdomConnect: the camera ID in the app must match the one compiled into the camera
 import re as _re
 build_id = _re.search(r'CLSID = "([0-9A-F-]+)"', (root / "packaging" / "build_vcam.py").read_text()).group(1)
 from vcam.sink import VCAM_CLSID
-assert VCAM_CLSID == "{" + build_id + "}", "BCC vCam ID mismatch between vcam/sink.py and packaging/build_vcam.py"
+assert VCAM_CLSID == "{" + build_id + "}", "KingdomConnect ID mismatch between vcam/sink.py and packaging/build_vcam.py"
+from vcam.sink import VCAM_NAME
+build_name = _re.search(r'NAME = "([^"]+)"', (root / "packaging" / "build_vcam.py").read_text()).group(1)
+assert VCAM_NAME == build_name == "KingdomConnect", "the camera must be called KingdomConnect"
+# Team Space: peer-to-peer over WireGuard only, answered on this PC's own program
+team = json.loads(urllib.request.urlopen(base + "api/team").read())
+assert team["text"] == ("Team Space is available only when authorized peers are online through a secure WireGuard network. "
+                        "No cloud relay or third-party server is required."), "Team Space wording"
+assert team["enabled"] is False and team["listening"] is False, "Team Space is off until it is set up"
 assert (root / "vcam" / "models" / "selfie_segmentation_landscape.tflite").exists(), "blur model missing"
 if os.name == "nt" and os.environ.get("GITHUB_ACTIONS") == "true":
-    missing = [f for f in ("bcc_vcam64.dll", "bcc_vcam32.dll", "build-info.json") if not (root / "vcam" / "bin" / f).exists()]
+    missing = [f for f in ("kingdomconnect_vcam64.dll", "kingdomconnect_vcam32.dll", "build-info.json") if not (root / "vcam" / "bin" / f).exists()]
     if missing:
-        sys.exit("STOP: the BCC vCam camera was not built (" + ", ".join(missing) + " missing).\n"
+        sys.exit("STOP: the KingdomConnect camera was not built (" + ", ".join(missing) + " missing).\n"
                  "The build recipe .github/workflows/build-windows.yml in your repository is out of date.\n"
                  "Copy the .github folder from the latest BSF-Command-Center.zip into your repository, then commit and push.")
 try:
     import cv2
     from vcam.blur import BackgroundBlur
     BackgroundBlur(root / "vcam" / "models" / "selfie_segmentation_landscape.tflite").close()
-    from vcam.cards import CardDrawer, place_verse      # the cards drawn onto BCC vCam
+    from vcam.cards import CardDrawer, place_verse      # the cards drawn onto KingdomConnect
     _st = {"layout": {}, "question": {"visible": True, "text": "Self-check question?", "label": "Discussion Question"}, "birthday": {}}
     _c = CardDrawer(root / "app" / "fonts").draw("verse", {"text": "Self-check verse", "ref": "John 1:1", "label": "BSF Focus Verse"}, {}, 1280, 720, place_verse(_st, 1280, 720))
     assert _c.w > 100 and _c.h > 50, "card drawing failed"
@@ -51,8 +59,8 @@ try:
     import pypdfium2                                     # PDF slides
     for _k in BUILT_IN:
         assert Grade(BUILT_IN[_k]).apply(_np.full((72, 128, 3), 128, _np.uint8)).shape == (72, 128, 3), "look failed: " + _k
-    print("BCC vCam: blur model loads with OpenCV", cv2.__version__)
+    print("KingdomConnect: blur model loads with OpenCV", cv2.__version__)
 except ImportError:
-    print("BCC vCam: OpenCV not installed here (only needed to build the app)")
+    print("KingdomConnect: OpenCV not installed here (only needed to build the app)")
 srv.shutdown()
 print("Self-check passed: version", ping["version"])

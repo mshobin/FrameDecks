@@ -1,5 +1,5 @@
 """Next / Previous slide in PowerPoint through its own automation (COM), for the PC hotkeys, the Studio and the
-phone remote. Works with a full-screen slide show that BCC is not capturing (shared directly in Zoom/Teams),
+phone remote. Works with a full-screen slide show that Kingdom Connect is not capturing (shared directly in Zoom/Teams),
 a captured slide-show window, or the normal editing view. No OpenCV needed, so slides work even when the
 camera engine is not running.
 """

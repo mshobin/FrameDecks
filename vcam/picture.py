@@ -1,4 +1,4 @@
-"""Picture settings for BCC vCam: profiles, validation/migration, user adjustments and camera controls.
+"""Picture settings for KingdomConnect: profiles, validation/migration, user adjustments and camera controls.
 
 Settings schema (bsf-vcam-settings.json, "schemaVersion": 2). Version 1 files (no schemaVersion) keep working:
 missing keys get defaults that reproduce the version-1 picture exactly (filterIntensity 100, zoom 1.0,
@@ -6,7 +6,7 @@ captureResolution "auto", every adjustment neutral, camera controls untouched).
 
 Processing order in the engine (one resample, then per-pixel stages at output size):
     capture -> crop + zoom + resize (one high-quality resample) -> mirror -> colour-range fix
-    -> background blur -> filter (Camera Look x intensity) -> adjustments -> layers/cards -> BCC vCam (RGB24)
+    -> background blur -> filter (Camera Look x intensity) -> adjustments -> layers/cards -> KingdomConnect (RGB24)
 
 Adjustments (this module) run in this order:
     1 exposure compensation  2 white balance (temperature/tint)          } per channel: one 256-entry
@@ -37,10 +37,10 @@ FIELDS = {
     "exposureMode":         ("enum", ("auto", "manual"), "auto"),
     "shutterSpeed":         ("num", (-13.0, 0.0), -6.0),       # OpenCV exposure units: log2(seconds), -6 = 1/64 s
     "gain":                 ("num", (0.0, 255.0), 0.0),        # camera units; manual exposure only
-    "exposureCompensation": ("num", (-2.0, 2.0), 0.0),         # EV, applied by BCC (software)
+    "exposureCompensation": ("num", (-2.0, 2.0), 0.0),         # EV, applied by Kingdom Connect (software)
     "whiteBalanceMode":     ("enum", ("auto", "manual"), "auto"),
     "whiteBalanceKelvin":   ("num", (2500.0, 7500.0), 4600.0), # manual white balance only (camera control)
-    "temperature":          ("num", (-100.0, 100.0), 0.0),     # BCC fine-tune: warmer + / cooler -
+    "temperature":          ("num", (-100.0, 100.0), 0.0),     # Kingdom Connect fine-tune: warmer + / cooler -
     "tint":                 ("num", (-100.0, 100.0), 0.0),     # magenta + / green -
     "brightness":           ("num", (-100.0, 100.0), 0.0),
     "contrast":             ("num", (-100.0, 100.0), 0.0),
@@ -51,8 +51,8 @@ FIELDS = {
     "sharpness":            ("num", (0.0, 100.0), 0.0),
     "backlightCompensation": ("enum", ("default", "off", "on"), "default"),
     "antiFlicker":          ("enum", ("off", "50", "60", "auto"), "off"),
-    "spotlight":            ("bool", None, False),              # reserved: not implemented by BCC (always off)
-    "retouch":              ("bool", None, False),              # reserved: not implemented by BCC (always off)
+    "spotlight":            ("bool", None, False),              # reserved: not implemented by Kingdom Connect (always off)
+    "retouch":              ("bool", None, False),              # reserved: not implemented by Kingdom Connect (always off)
     "effects":              ("enum", ("none",), "none"),
     "filterIntensity":      ("num", (0.0, 100.0), 100.0),      # 100 = the Camera Look exactly as in version 1
 }

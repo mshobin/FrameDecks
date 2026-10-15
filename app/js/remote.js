@@ -1,4 +1,4 @@
-/* BSF Command Center v6 - BCC Mobile Director: the phone / tablet remote. Same architecture as the PC:
+/* BSF Command Center v6 - Kingdom Connect Mobile Director: the phone / tablet remote. Same architecture as the PC:
  * Scene → Layer → Canvas. The scenes, layers and live state are the shared state (js/store.js BSFScenes), so a
  * take, a layer's eye or a duplicate here is exactly the same action as on the PC. Member data never comes here.
  *   phones  : Live (canvas, Prev · Go Live · Next, transition, Q + Scripture, list stepper, program) · Scenes · Layers
@@ -247,12 +247,12 @@ function render(){
 }
 Store.subscribe(function(st){ live = st; if (!$('login').hidden) showApp(); render(); });
 
-/* ---------- Status chips and slides (from the PC: BCC vCam, recording, the slide show) ---------- */
+/* ---------- Status chips and slides (from the PC: KingdomConnect, recording, the slide show) ---------- */
 var studioInfo = null, slideBusy = false;
 function renderChips(){
   var d = studioInfo || {}, vc = d.vcam || {}, rec = d.recording || {}, pres = d.presentation, L = live ? live.live : {};
   var c1 = $('ch-vcam'); c1.hidden = !vc.state;
-  if (vc.state){ setText(c1, 'BCC vCam · ' + (vc.state === 'live' ? (vc.inUse ? 'in a meeting' : 'live') : vc.state === 'error' ? 'problem' : vc.state)); c1.className = 'chip' + (vc.state === 'live' ? ' ok' : vc.state === 'error' ? ' bad' : ''); }
+  if (vc.state){ setText(c1, 'KingdomConnect · ' + (vc.state === 'live' ? (vc.inUse ? 'in a meeting' : 'live') : vc.state === 'error' ? 'problem' : vc.state)); c1.className = 'chip' + (vc.state === 'live' ? ' ok' : vc.state === 'error' ? ' bad' : ''); }
   var c2 = $('ch-rec'); c2.hidden = !rec.on; if (rec.on){ var s = Math.round(rec.seconds || 0); setText(c2, '● REC ' + Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0')); c2.className = 'chip bad'; }
   var c3 = $('ch-slide'); c3.hidden = !pres; if (pres) setText(c3, 'Slide ' + (pres.page ? pres.page + (pres.pages ? ' / ' + pres.pages : '') : '–'));
   var c4 = $('ch-black'); c4.hidden = !(L.blackout || L.emergency); setText(c4, L.blackout ? 'Blackout' : 'Emergency screen'); c4.className = 'chip bad';

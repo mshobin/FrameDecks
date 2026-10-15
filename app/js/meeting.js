@@ -77,7 +77,7 @@ Status.on('presence', function(p){
   var anyLive = live && (live.question.visible || live.verse.visible || live.birthday.visible);
   var vc = window.BSFVcamStatus && window.BSFVcamStatus();
   var onVcam = vc && vc.status && vc.status.state === 'live' && vc.settings && vc.settings.cards !== false;
-  if (onVcam && !n) chip('h-sources', 'ok', 'On vCam', 'Your cards are shown on BCC vCam');
+  if (onVcam && !n) chip('h-sources', 'ok', 'On camera', 'Your cards are shown on KingdomConnect');
   else if (n) chip('h-sources', 'ok', n + ' open', n + ' overlay page(s) open in OBS, Camo or a browser');
   else chip('h-sources', anyLive ? 'warn' : '', 'None open', anyLive ? 'Something is on screen, but no overlay page is open in OBS or Camo' : 'No overlay page is open yet');
 });
@@ -105,7 +105,7 @@ var slideInfo = null;
 window.BSFSlideInfo = function(){ return slideInfo; };
 function renderRunning(){
   var ss = window.BSFStudio && window.BSFStudio.state ? window.BSFStudio.state() : null, rec = ss && ss.recording;
-  var hr = $('h-rec'); if (hr){ var on = !!(rec && rec.on); if (hr.hidden === on) hr.hidden = !on; if (on) chip('h-rec', 'rec', fmtTime(rec.seconds), 'Recording the BCC vCam output (Settings → Recording)'); }
+  var hr = $('h-rec'); if (hr){ var on = !!(rec && rec.on); if (hr.hidden === on) hr.hidden = !on; if (on) chip('h-rec', 'rec', fmtTime(rec.seconds), 'Recording the KingdomConnect output (Settings → Recording)'); }
   var pr = slideInfo && slideInfo.presentation, hs = $('h-slides');
   if (hs){ if (hs.hidden === !!pr) hs.hidden = !pr; if (pr) chip('h-slides', 'ok', pr.page ? pr.page + (pr.pages ? '/' + pr.pages : '') : 'Ready', 'Slides: ' + (pr.name || 'presentation')); }
 }

@@ -32,27 +32,27 @@ THE INSTALLED WINDOWS APP (recommended)
 
 
 ----------------------------------------------------------------
-BCC vCam: THE BUILT-IN CAMERA (installed Windows app)
+KingdomConnect: THE BUILT-IN CAMERA (installed Windows app)
 ----------------------------------------------------------------
 
   The Command Center has its own camera for Zoom and Teams, called
-  "BCC vCam". No OBS or Camo is needed for it.
-    - In Zoom: Settings > Video > Camera > BCC vCam.
-      In Teams: Settings > Devices > Camera > BCC vCam.
+  "KingdomConnect". No OBS or Camo is needed for it.
+    - In Zoom: Settings > Video > Camera > KingdomConnect.
+      In Teams: Settings > Devices > Camera > KingdomConnect.
     - Background blur (Off / Light / Strong) and the webcam choice
-      are in Settings > BCC vCam. Use this blur instead of Zoom's
+      are in Settings > KingdomConnect. Use this blur instead of Zoom's
       or Teams' own blur (theirs would also blur your overlay cards
-      once they appear on BCC vCam).
+      once they appear on KingdomConnect).
     - Your laptop webcam only switches on while Zoom, Teams or the
-      preview is using BCC vCam.
-    - Your verse, question and birthday cards appear on BCC vCam
+      preview is using KingdomConnect.
+    - Your verse, question and birthday cards appear on KingdomConnect
       whenever you select Show (dashboard, keyboard or phone), with
       the same look and transitions as the overlay pages. OBS and
-      Camo are not needed. (Settings > BCC vCam > "Cards" turns
+      Camo are not needed. (Settings > KingdomConnect > "Cards" turns
       this off if you still add the OBS overlay links on top.)
     - Camera Look: Warm, Dark / Polished or Neutral / Clean colour
       for your camera picture (the cards keep their colours).
-      Choose it in the Meeting tab ("Look"), in Settings > BCC vCam,
+      Choose it in the Meeting tab ("Look"), in Settings > KingdomConnect,
       or press Ctrl+Alt+1 (Warm), Ctrl+Alt+2 (Dark), Ctrl+Alt+3
       (Neutral), Ctrl+Alt+0 (Off). You can add your own looks to
       bsf-looks.json in the data folder (Settings > Data / Backup >
@@ -90,7 +90,7 @@ BEFORE MY ZOOM MEETING (checklist)
       turn on Settings > Phone & iPad Remote (or use the
       "...with iPad Remote" start file).
   [ ] Top bar: "PC  Connected" is green.
-  [ ] Camera: in Zoom or Teams, BCC vCam is selected and the top bar
+  [ ] Camera: in Zoom or Teams, KingdomConnect is selected and the top bar
       shows "vCam  In use" (or, for the cards: OBS/Camo is open and
       the top bar shows "OBS  1 open").
   [ ] Content tab: today's questions and verses are in the lists,
@@ -166,7 +166,7 @@ WHAT'S NEW IN VERSION 3 (the meeting control console)
         Studio 3/s, faster only while you drag) and only when there is
         something new.
       * Presentation window: 15 frames a second by default (plenty for
-        Zoom). Settings > BCC vCam > Presentation window > Smooth (30)
+        Zoom). Settings > KingdomConnect > Presentation window > Smooth (30)
         if you show fast motion.
       * Background work (blur, cards, video, recording, screen capture)
         runs at lower Windows priority, so your apps come first.
@@ -178,7 +178,7 @@ WHAT'S NEW IN VERSION 3 (the meeting control console)
       * Blur strength in 0.5 % steps (0.5 %, 1 %, 1.5 % ...) with - and
         + buttons; 0.5 % is the lowest blur (Off is still a preset).
       * Sharper camera: the webcam is asked for its full-quality mode
-        (Settings > BCC vCam and Diagnostics show what it delivers, e.g.
+        (Settings > KingdomConnect and Diagnostics show what it delivers, e.g.
         "1280x720 MJPG at 30 fps"), pictures are never stretched, and
         previews are twice as sharp. In Zoom also tick Settings > Video
         > HD, or Zoom sends a softer, low-resolution picture.
@@ -201,17 +201,17 @@ WHAT'S NEW IN VERSION 3 (the meeting control console)
         template" gives a ready file. You can match differently named
         columns, check every row before importing, and add to or
         replace your lists.
-      * BCC vCam blur: Off / Light / Medium / Strong / Maximum and a
+      * KingdomConnect blur: Off / Light / Medium / Strong / Maximum and a
         0-100 % slider with live preview; "Save as default" keeps it.
         The new Light is about 1.5x stronger than before.
   - Best performance with Zoom (see Settings > Diagnostics > Resources):
-      * Use BCC vCam at 720p (recommended) unless you need 1080p.
-      * Close the Studio tab or BCC vCam preview when you're not editing:
+      * Use KingdomConnect at 720p (recommended) unless you need 1080p.
+      * Close the Studio tab or KingdomConnect preview when you're not editing:
         the live canvas is the heaviest screen. Minimised, the app now
         stops all pictures and slows its checks automatically.
       * Blur and Studio layers with live video cost the most; turn off
         what you don't use. Turn off Zoom's own background blur when
-        BCC vCam blurs.
+        KingdomConnect blurs.
       * Share the Presentation window rather than your whole screen.
   - Four main tabs (version 4.1):
       Alt+1 Meetings & Content - Run meeting · Content · Recordings

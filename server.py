@@ -187,7 +187,7 @@ def save_state(new):
         return state
 
 
-# ---------- v6 Scenes: the live scene's media layers are the BCC vCam picture ----------
+# ---------- v6 Scenes: the live scene's media layers are the KingdomConnect picture ----------
 MEDIA_KINDS = ("camera", "screen", "window", "image", "video", "pdf", "background", "text", "rect", "ellipse")
 
 
@@ -242,7 +242,7 @@ def apply_live_media(st):
         comp.layers.set_layers(media)
         studio_save()
     except Exception as e:                              # never let a scene stop the camera
-        print("BCC vCam: could not apply the scene:", e)
+        print("KingdomConnect: could not apply the scene:", e)
 
 
 def update_state(change):
@@ -677,7 +677,7 @@ def firewall(action):
     return r.returncode == 0, ("Done." if r.returncode == 0 else "Windows reported a problem.")
 
 
-# ---------- BCC vCam (built-in virtual camera, Windows) ----------
+# ---------- KingdomConnect (built-in virtual camera, Windows) ----------
 VCAM_SETTINGS_FILE = DATA / "bsf-vcam-settings.json"
 VCAM_DEFAULTS = {"enabled": True, "cameraName": "", "resolution": "720p", "mirror": False, "blur": "off", "blurStrength": 0, "cards": True, "look": "off", "presentFps": 15,
                  "blurStyle": "natural"}
@@ -695,7 +695,7 @@ def _picture():
 
 
 def vcam_settings():
-    """Saved BCC vCam settings, migrated to the current schema and validated; defaults fill the gaps
+    """Saved KingdomConnect settings, migrated to the current schema and validated; defaults fill the gaps
     (a damaged or older file never stops the camera)."""
     out = dict(VCAM_DEFAULTS)
     pic = _picture()
@@ -798,7 +798,7 @@ def vcam_apply_changes(data):
 
 
 def vcam_list_cameras():
-    """Webcams by name (BCC vCam itself excluded). Refreshed at most every 10 s; never turns a webcam on."""
+    """Webcams by name (KingdomConnect itself excluded). Refreshed at most every 10 s; never turns a webcam on."""
     if VCAM["cameras"] is not None and time.time() - VCAM["camerasAt"] < 10:
         return VCAM["cameras"]
     cams = []
@@ -934,7 +934,7 @@ def scripture_lookup(ref, translation="ESV", fresh=False):
                    "include-footnotes": "false", "include-footnote-body": "false", "include-headings": "false", "include-short-copyright": "false",
                    "include-selahs": "true", "indent-paragraphs": "0", "indent-poetry": "false", "indent-declares": "0", "indent-psalm-doxology": "0"})
     try:
-        with urlopen(Request(ESV_URL + "?" + q, headers={"Authorization": "Token " + api_key, "User-Agent": "BCC/" + APP_VERSION}), timeout=8) as r:
+        with urlopen(Request(ESV_URL + "?" + q, headers={"Authorization": "Token " + api_key, "User-Agent": "KingdomConnect/" + APP_VERSION}), timeout=8) as r:
             data = json.loads(r.read().decode("utf-8"))
     except Exception as e:
         code = getattr(e, "code", None)
@@ -983,7 +983,7 @@ def powerpoint_show():
 def slide_move(step):
     """Next (+1) / Previous (-1) for whatever is being presented: the Studio's shared screen or presentation layer
     (PDF deck or captured window) first, else the PowerPoint slide show running on this PC - e.g. full screen and
-    shared directly in Zoom/Teams, which BCC is not capturing. Works without the camera engine."""
+    shared directly in Zoom/Teams, which Kingdom Connect is not capturing. Works without the camera engine."""
     try:
         step = 1 if int(step) > 0 else -1
     except (TypeError, ValueError):
@@ -1113,7 +1113,7 @@ def _studio_action(d):
     if op == "slide":                                          # slides work even without the camera engine
         return {"slide": slide_move(d.get("step", 1))}
     if not comp:
-        raise ValueError(VCAM.get("reason") or "BCC vCam is not available.")
+        raise ValueError(VCAM.get("reason") or "KingdomConnect is not available.")
     if op == "layout":
         comp.set_layout(d.get("layout") or {})
     elif op == "screen":
@@ -1305,11 +1305,11 @@ def vcam_effective(settings):
 
 
 def vcam_start():
-    """Create the engine (idle until Zoom/Teams uses BCC vCam). Safe to call when unavailable."""
+    """Create the engine (idle until Zoom/Teams uses KingdomConnect). Safe to call when unavailable."""
     if VCAM["engine"] is not None:
         return
     demo = os.environ.get("BSF_VCAM_DEMO") == "1"
-    start_files_msg = ("You’re using the start-file version (the black window). BCC vCam is only in the installed app: "
+    start_files_msg = ("You’re using the start-file version (the black window). KingdomConnect is only in the installed app: "
                        "close the black window, then open BSF Command Center from its desktop or Start-menu icon.")
     os.environ.setdefault("OPENCV_VIDEOIO_MSMF_ENABLE_HW_TRANSFORMS", "0")   # before OpenCV loads
     try:
@@ -1322,8 +1322,8 @@ def vcam_start():
         VCAM["detail"] = f"{type(e).__name__}: {e}"
         if FROZEN:
             import traceback
-            print("BCC vCam could not load:\n" + traceback.format_exc())
-            VCAM["reason"] = ("BCC vCam couldn’t start because part of it is missing. Please send Settings → Diagnostics "
+            print("KingdomConnect could not load:\n" + traceback.format_exc())
+            VCAM["reason"] = ("KingdomConnect couldn’t start because part of it is missing. Please send Settings → Diagnostics "
                               "→ Copy diagnostics to the developer.")
         else:
             VCAM["reason"] = start_files_msg
@@ -1335,7 +1335,7 @@ def vcam_start():
         make_sink, make_cam = (lambda w, h: vsink.FakeSink(w, h, connected=False)), DemoCamera
     else:
         if os.name != "nt":
-            VCAM["reason"] = start_files_msg if not FROZEN else "BCC vCam works on Windows."
+            VCAM["reason"] = start_files_msg if not FROZEN else "KingdomConnect works on Windows."
             return
         dll = vsink.dll_path(RES) if vsink.dll_path(RES).exists() else vsink.dll_path(HERE)
         if not dll.exists():
@@ -1345,14 +1345,14 @@ def vcam_start():
             if not FROZEN:
                 VCAM["reason"] = start_files_msg
             elif (folder / "build-info.json").exists():
-                VCAM["reason"] = ("The camera file bcc_vcam64.dll was installed but has since been removed, most likely by "
+                VCAM["reason"] = ("The camera file kingdomconnect_vcam64.dll was installed but has since been removed, most likely by "
                                   "Windows Security or another antivirus. Open Windows Security → Virus & threat protection → "
-                                  "Protection history, restore or allow bcc_vcam64.dll, then run the installer again.")
+                                  "Protection history, restore or allow kingdomconnect_vcam64.dll, then run the installer again.")
             else:
                 VCAM["reason"] = ("This installer was built without the camera, because the GitHub build recipe is out of date. "
                                   "Copy the .github folder from the latest BSF-Command-Center.zip into your repository, commit "
                                   "and push, then install the new installer.")
-            print("BCC vCam not available: " + VCAM["detail"])
+            print("KingdomConnect not available: " + VCAM["detail"])
             return
         make_sink, make_cam = (lambda w, h: vsink.SoftcamSink(dll, w, h)), (lambda name, w, h: Camera(name, w, h, vcam_list_cameras()))
     # The verse, question and birthday cards, drawn onto every frame from the same live state as the overlay pages
@@ -1390,7 +1390,7 @@ def _looks_list():
 
 
 def vcam_status(lite=False):
-    """BCC vCam status for the PC screens. lite: only what the top-bar light needs (no webcam or looks listing)."""
+    """KingdomConnect status for the PC screens. lite: only what the top-bar light needs (no webcam or looks listing)."""
     eng = VCAM["engine"]
     try:
         from vcam import sink as vsink
@@ -1404,20 +1404,20 @@ def vcam_status(lite=False):
             "settings": vcam_settings(), "status": dict(eng.status) if eng else None,
             "cameras": [{"name": n, "ir": any(c["ir"] for c in vcam_list_cameras() if c["name"] == n)}
                         for n in dict.fromkeys(c["name"] for c in vcam_list_cameras())] if eng else [],
-            "activeCamera": vcam_effective(vcam_settings())["cameraName"] if eng else "", "name": "BCC vCam",
+            "activeCamera": vcam_effective(vcam_settings())["cameraName"] if eng else "", "name": "KingdomConnect",
             "blurNow": VCAM["blurSession"] if VCAM.get("blurSession") is not None else vcam_settings()["blurStrength"],
             "looks": _looks_list(), "looksNote": VCAM.get("looksNote", ""),
             "profiles": [{"id": k, "name": v["name"]} for k, v in (_picture().PROFILES.items() if _picture() else [])]}
 
 
 def vcam_install(action):
-    """Register (or remove) BCC vCam with Windows. Asks for administrator permission (UAC)."""
+    """Register (or remove) KingdomConnect with Windows. Asks for administrator permission (UAC)."""
     if os.name != "nt":
         return False, "Only available on Windows."
-    name = "unregister-bcc-vcam.cmd" if action == "uninstall" else "register-bcc-vcam.cmd"
+    name = "unregister-kingdomconnect-camera.cmd" if action == "uninstall" else "register-kingdomconnect-camera.cmd"
     helper = next((p for p in (RES / "vcam" / "bin" / name, HERE / "vcam" / "bin" / name) if p.exists()), None)
-    if helper is None or not (helper.parent / "bcc_vcam64.dll").exists():
-        return False, "The BCC vCam files are missing. Reinstall the app."
+    if helper is None or not (helper.parent / "kingdomconnect_vcam64.dll").exists():
+        return False, "The KingdomConnect files are missing. Reinstall the app."
     path = str(helper).replace("'", "''")
     outer = ("try { Start-Process -FilePath '" + path + "' -Verb RunAs -Wait -WindowStyle Hidden; exit 0 } catch { exit 5 }")
     try:
@@ -1563,7 +1563,7 @@ class Handler(BaseHTTPRequestHandler):
                 return self.reply(200, json.dumps(res), TYPES[".json"])
             except ValueError as e:
                 return self.reply(400, json.dumps({"error": str(e)}), TYPES[".json"])
-        if path == "/api/brand/logo":                    # v6.2 the leader's logo (PNG), for overlays, vCam and the remote
+        if path == "/api/brand/logo":                    # v6.2 the leader's logo (PNG), for overlays, the camera and the remote
             if not BRAND_LOGO.exists():
                 return self.reply(404, "No logo", "text/plain; charset=utf-8")
             return self.reply(200, BRAND_LOGO.read_bytes(), "image/png", [("Cache-Control", "private, max-age=31536000")])
@@ -1720,12 +1720,12 @@ class Handler(BaseHTTPRequestHandler):
         return origin in (f"http://{host}",)
 
     def present_stream(self):
-        """The Presentation window's picture: a motion-JPEG stream of the final BCC vCam frame.
+        """The Presentation window's picture: a motion-JPEG stream of the final KingdomConnect frame.
         A frame is sent only when the picture changed (at most 30 per second), so a still slide costs
         almost nothing. Each frame is encoded here, not in the camera thread."""
         comp, eng = VCAM.get("compositor"), VCAM.get("engine")
         if not comp or not eng:
-            return self.reply(404, "BCC vCam is not available", "text/plain; charset=utf-8")
+            return self.reply(404, "KingdomConnect is not available", "text/plain; charset=utf-8")
         import cv2 as _cv2
         from vcam.priority import lower_this_thread
         lower_this_thread()                          # picture encoding for the window: background priority
@@ -2064,7 +2064,7 @@ def start_main_server():
         return None
     server.daemon_threads = True
     MAIN["server"], MAIN["port"] = server, server.server_address[1]
-    threading.Thread(target=vcam_start, daemon=True).start()   # idle until Zoom/Teams uses BCC vCam
+    threading.Thread(target=vcam_start, daemon=True).start()   # idle until Zoom/Teams uses KingdomConnect
     threading.Thread(target=_backup_loop, daemon=True).start()
     threading.Thread(target=_remote_watcher, daemon=True).start()
     threading.Thread(target=TEAM.start, daemon=True).start()   # Team Space: only if set up, on the WireGuard address

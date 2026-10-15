@@ -42,7 +42,7 @@ RestartApplications=no
 
 [Tasks]
 Name: "desktopicon"; Description: "Create a desktop icon"; GroupDescription: "Icons:"
-Name: "vcam"; Description: "Install the BCC vCam camera for Zoom and Teams (Windows asks for administrator permission)"; GroupDescription: "Options:"
+Name: "vcam"; Description: "Install the KingdomConnect camera for Zoom and Teams (Windows asks for administrator permission)"; GroupDescription: "Options:"
 Name: "startup"; Description: "Start Kingdom Connect automatically when I sign in to Windows"; GroupDescription: "Options:"; Flags: unchecked
 
 [Files]
@@ -62,11 +62,11 @@ Name: "{autodesktop}\Kingdom Connect"; Filename: "{app}\BSF Command Center.exe";
 Name: "{userstartup}\Kingdom Connect"; Filename: "{app}\BSF Command Center.exe"; Tasks: startup
 
 [Run]
-Filename: "{app}\_internal\vcam\bin\register-bcc-vcam.cmd"; Verb: "runas"; Flags: shellexec waituntilterminated runhidden; Tasks: vcam; StatusMsg: "Installing the BCC vCam camera..."
+Filename: "{app}\_internal\vcam\bin\register-kingdomconnect-camera.cmd"; Verb: "runas"; Flags: shellexec waituntilterminated runhidden; Check: ShouldRegisterCamera; StatusMsg: "Installing the KingdomConnect camera..."
 Filename: "{app}\BSF Command Center.exe"; Description: "Open Kingdom Connect now"; Flags: nowait postinstall skipifsilent
 
 [UninstallRun]
-Filename: "{app}\_internal\vcam\bin\unregister-bcc-vcam.cmd"; Verb: "runas"; Flags: shellexec waituntilterminated runhidden; RunOnceId: "RemoveBccVcam"
+Filename: "{app}\_internal\vcam\bin\unregister-kingdomconnect-camera.cmd"; Verb: "runas"; Flags: shellexec waituntilterminated runhidden; RunOnceId: "RemoveKingdomConnectCamera"
 Filename: "{sys}\taskkill.exe"; Parameters: "/IM ""BSF Command Center.exe"" /F"; Flags: runhidden; RunOnceId: "StopApp"
 
 [Code]
@@ -79,6 +79,22 @@ var v: String;
 begin
   Result := (RegQueryStringValue(HKLM, WebView2Key, 'pv', v) and (v <> '') and (v <> '0.0.0.0')) or
             (RegQueryStringValue(HKCU, WebView2KeyUser, 'pv', v) and (v <> '') and (v <> '0.0.0.0'));
+end;
+
+// The KingdomConnect camera keeps the camera ID it had as "BCC vCam", so Zoom, Teams and OBS see the same device
+// under its new name. Its driver file was renamed in 6.4, so a PC that already has the camera registers it again
+// (pointing Windows at the new file) even when the option is not ticked this time.
+const
+  CameraKey = 'CLSID\{6F2B8C3E-4D7A-4B9E-9C11-B5CC0A1E7D21}';
+
+function CameraRegistered: Boolean;
+begin
+  Result := RegKeyExists(HKCR64, CameraKey) or RegKeyExists(HKCR32, CameraKey);
+end;
+
+function ShouldRegisterCamera: Boolean;
+begin
+  Result := WizardIsTaskSelected('vcam') or CameraRegistered;
 end;
 
 function InitializeSetup: Boolean;

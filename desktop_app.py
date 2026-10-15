@@ -74,7 +74,7 @@ def running_copy(port=server.PREFERRED_PORT):
 
 START_FILES_RUNNING = ("The start-file version of Kingdom Connect is still running (the black window).\n\n"
                        "Close that black window first, then open Kingdom Connect again.\n\n"
-                       "Only one copy can run at a time, and only the installed app has BCC vCam.")
+                       "Only one copy can run at a time, and only the installed app has KingdomConnect.")
 
 
 def tray_do(action):

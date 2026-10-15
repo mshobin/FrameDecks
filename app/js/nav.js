@@ -131,7 +131,7 @@ show(document.body.dataset.tab || 'studio');
   var SECTIONS = [['general', 'General', 'appearance theme dark light meeting title your name group name email wording'],
     ['overlays', 'Birthdays', 'birthday reminders dates leap'], ['scripture', 'Scripture', 'bible esv api key translation offline cache'],
     ['transitions', 'Transitions', 'transition profile fade dip cut sunday bible study'], ['recording', 'Recording', 'record recordings mp4'],
-    ['display', 'Zoom / Display', 'overlay links obs camo browser source zoom display'], ['vcam', 'BCC vCam', 'camera zoom teams blur background look filter resolution'],
+    ['display', 'Zoom / Display', 'overlay links obs camo browser source zoom display'], ['vcam', 'KingdomConnect Camera', 'kingdomconnect camera zoom teams blur background look filter resolution'],
     ['ipad', 'Phone & iPad Remote', 'remote pin qr phone tablet android'], ['keys', 'Keyboard shortcuts', 'keys hotkeys shortcuts'],
     ['security', 'Security', 'pin privacy'], ['data', 'Data & backup', 'backup restore export import excel'],
     ['diag', 'Diagnostics', 'problems errors logs'], ['about', 'About', 'version credits']];
@@ -282,11 +282,11 @@ function loadRecordings(){
   fetch('api/vcam/recordings', {cache: 'no-store'}).then(function(r){ return r.json(); }).then(function(d){
     root.innerHTML = '';
     root.appendChild(h('div', {cls: 'dir-head'}, [
-      h('div', {}, [h('h2', {text: 'Recordings'}), h('p', {cls: 'hint', text: 'Recordings of exactly what BCC vCam sent. Saved in ' + d.folder})]),
+      h('div', {}, [h('h2', {text: 'Recordings'}), h('p', {cls: 'hint', text: 'Recordings of exactly what KingdomConnect sent. Saved in ' + d.folder})]),
       h('div', {cls: 'dir-tools'}, [
         h('button', {cls: 'btn', type: 'button', html: window.BSFIcon('folder-open', 16) + ' Open folder', onclick: function(){ rec('folder'); }}),
       ])]));
-    if (!d.items.length){ root.appendChild(h('p', {cls: 'empty-card', text: 'No recordings yet. Press Record above to record what BCC vCam sends.'})); return; }
+    if (!d.items.length){ root.appendChild(h('p', {cls: 'empty-card', text: 'No recordings yet. Press Record above to record what KingdomConnect sends.'})); return; }
     var t = h('table', {cls: 'dir-table'}, [h('thead', {}, [h('tr', {}, ['Recording', 'Date', 'Size', ''].map(function(x){ return h('th', {text: x}); }))])]);
     var tb = h('tbody');
     d.items.forEach(function(it){
