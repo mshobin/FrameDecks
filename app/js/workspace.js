@@ -740,7 +740,7 @@ function sceneForm(gen, sc, tab){
       h('button', {cls: 'btn small', type: 'button', text: 'Duplicate…', onclick: function(){ smartDuplicate(sid); }}),
       h('button', {cls: 'btn small', type: 'button', text: 'Save as template', onclick: function(){ duplicate(sid, {template: true, name: SC.uniqueName(live, sc.name + ' template')}); }}),
       SC.first(sc, 'question') ? h('button', {cls: 'btn quiet small', type: 'button', text: 'One scene per question', onclick: function(){ explode(sid, 'question'); }}) : null]));
-    gen.appendChild(h('p', {cls: 'hint', text: 'A scene owns its layers, its transition and its output rules. Select a layer to edit its content. Go Live (bottom bar, T, or double-click a scene) puts it on screen.'}));
+    gen.appendChild(h('p', {cls: 'hint', text: 'A scene owns its layers, its transition and its output rules. Select a layer to edit its content. Go Live (top bar, T, or double-click a scene) puts it on screen.'}));
   } else if (tab === 'transition'){
     var p = SC.profile(live);
     var sel = h('select', {'aria-label': 'Transition', id: 'sc-tx'}, [h('option', {value: 'profile', text: 'Profile: ' + p.name + ' (' + SC.txName(p.type) + (p.ms ? ', ' + p.ms + ' ms' : '') + ')'})]
@@ -754,9 +754,9 @@ function sceneForm(gen, sc, tab){
     sec.addEventListener('keydown', stop);
     sec.addEventListener('change', function(){ edit(sid, function(x){ x.auto.sec = Math.max(2, Math.min(3600, +sec.value || 30)); }); });
     gen.appendChild(h('div', {cls: 'ip-sec'}, [field('Transition into this scene', sel), field('Duration (ms)', ms),
-      h('p', {cls: 'hint', text: 'Plays on the whole BCC vCam picture. On the OBS / browser overlay page the dips cover the screen and the cards follow. The live bar can override it for a take.'})]));
+      h('p', {cls: 'hint', text: 'Plays on the whole BCC vCam picture. On the OBS / browser overlay page the dips cover the screen and the cards follow. The top bar can override it for a take.'})]));
     gen.appendChild(h('div', {cls: 'ip-sec'}, [checkCtl('Auto advance to the next scene', sc.auto.on, function(v){ edit(sid, function(x){ x.auto.on = v; }); }), field('After (seconds)', sec),
-      h('p', {cls: 'hint', text: 'Only while Auto is on in the live bar.'})]));
+      h('p', {cls: 'hint', text: 'Only while Auto is on in the top bar.'})]));
   } else if (tab === 'output'){
     gen.appendChild(h('div', {cls: 'ip-sec'}, [h('b', {text: 'When this scene is live, show its cards and text layers on'}),
       checkCtl('BCC vCam (Zoom / Teams camera, recording, Presentation window)', sc.out.vcam, function(v){ edit(sid, function(x){ x.out.vcam = v; }); }),
@@ -896,7 +896,7 @@ function renderPin(sc, l){
       box.appendChild(h('p', {cls: 'pin-on'}, [h('b', {text: 'This scene shows question ' + (i + 1) + ': '}), document.createTextNode(i >= 0 ? items[i].text : '(no longer in the list)')]));
       box.appendChild(h('button', {cls: 'btn quiet small', type: 'button', text: 'Follow the list instead', onclick: function(){ editLayer(sid, lid, function(x){ x.c.itemId = ''; }); }}));
     } else {
-      box.appendChild(h('p', {cls: 'hint', text: 'This layer follows the question list: ◀ ▶ in the live bar (or ← →) step through it.'}));
+      box.appendChild(h('p', {cls: 'hint', text: 'This layer follows the question list: ◀ ▶ in the top bar (or ← →) step through it.'}));
       var cur = live.question.itemId && items.some(function(q){ return q.id === live.question.itemId; });
       box.appendChild(h('button', {cls: 'btn quiet small', type: 'button', text: 'Pin the current question to this scene', disabled: cur ? null : 'disabled', onclick: function(){ var id = live.question.itemId; editLayer(sid, lid, function(x){ x.c.itemId = id; }, 'Question pinned to this scene'); }}));
     }

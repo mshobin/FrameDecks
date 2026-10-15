@@ -857,3 +857,176 @@ body.pm #cb-take{min-width:220px}
 .mi-mode .radio input{margin-top:4px}
 .mi-lists{margin:4px 0 2px 26px}
 .btn.primary.danger{background:var(--red-strong,#dc2626);border-color:var(--red-strong,#dc2626);color:#fff}
+
+/* =====================================================================================================
+ * v6.3 - ONE COMMAND BAR. The old top header and bottom live bar are one row: navigation on the left, the live
+ * controls in the middle (Previous · GO LIVE · Next, transition, auto, the list stepper), status and HIDE ALL on
+ * the right. #ctlbar keeps its ids and handlers; display:contents lets its buttons sit in the header's own row.
+ * Wide screens show labels; narrower ones fold labels, the search field and the program controls, never GO LIVE
+ * or HIDE ALL. Below 1100 px the live controls take a second row.
+ * ===================================================================================================== */
+body{padding-bottom:0}
+.cmdbar{position:sticky;top:0;z-index:70;display:flex;flex-wrap:nowrap;align-items:center;gap:8px;min-height:56px;padding:6px 12px}
+.cmdbar #ctlbar{display:contents}
+.cmdbar .brand{order:1;flex:0 1 auto;min-width:0}
+.cmdbar .tabs{order:2}
+.cmdbar .gsearch{order:3;flex:0 1 300px;min-width:40px;max-width:340px}
+.cmdbar .lb-scenes{order:4;margin-left:auto}
+.cmdbar .lb-tx{order:5} .cmdbar .lb-auto{order:6} .cmdbar .lb-step{order:7} .cmdbar .lb-slides{order:8} .cmdbar .lb-prog{order:9}
+.cmdbar .live-ind{order:11;margin-left:auto} .cmdbar .sysstat{order:12} .cmdbar .pm-toggle{order:13}
+.cmdbar #ctlbar [data-cb="hideAll"]{order:14}
+.cmdbar .mode{order:15}
+/* compact live controls inside the bar */
+.cmdbar .lb-grp{display:flex;align-items:center;gap:4px;flex:none}
+.cmdbar .cb-btn{height:36px;min-height:36px;padding:0 11px;border-radius:10px;font-size:13px;white-space:nowrap}
+.cmdbar .cb-btn kbd{display:none}
+.cmdbar .cb-btn.take{min-height:42px;height:42px;min-width:168px;max-width:260px;padding:0 16px;border-radius:12px;font-size:15px}
+.cmdbar .cb-btn.take kbd{display:inline-block}
+.cmdbar .cb-btn.take .tk-what{max-width:170px}
+.cmdbar .lb-tx{display:flex;align-items:center;gap:6px}
+.cmdbar .lb-tx select{height:36px;max-width:150px;border-radius:10px}
+.cmdbar .lb-l,.cmdbar .lb-t{display:none}
+.cmdbar .lb-step-t{font-size:12.5px;min-width:0;white-space:nowrap}
+.cmdbar #ctlbar [data-cb="hideAll"]{height:42px;min-height:42px;padding:0 16px;border-radius:12px;font-weight:800;letter-spacing:.04em}
+.cmdbar #ctlbar [data-cb="hideAll"] kbd{display:inline-block}
+/* program controls: inline on wide screens, a small menu below 1700 px (the button turns red while Blackout or Emergency is on) */
+.lb-prog{position:relative;display:flex;align-items:center}
+.lb-prog-btn{display:none !important}
+.lb-prog-menu{display:flex;align-items:center;gap:4px}
+.lb-prog-btn.alert{background:var(--red-soft);border-color:var(--red);color:var(--ink)}
+/* status: one dot button with every output in its menu */
+.cmdbar .sys-sum{display:inline-flex;padding:0 10px}
+.cmdbar .sys-sum .sys-text{display:none}
+.cmdbar .sys-menu{display:none;position:absolute;right:0;top:44px;z-index:80;flex-direction:column;align-items:stretch;gap:6px;padding:8px;min-width:260px;
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--r-2);box-shadow:var(--shadow-pop)}
+.cmdbar .sysstat.open .sys-menu{display:flex}
+.cmdbar .sys-menu .hchip{justify-content:flex-start;border-radius:var(--r-1);height:38px}
+.cmdbar .sys-menu .hchip .hl{flex:1} .cmdbar .sys-menu .hchip b{display:inline !important}
+.cmdbar .live-ind{height:32px;padding:0 12px}
+.cmdbar .live-ind .live-what{max-width:160px}
+.cmdbar .pm-toggle{height:36px;padding:0 10px}
+.cmdbar .pm-toggle span{display:none}
+.cmdbar .tabs .tab{padding:6px 10px}
+.cmdbar .meeting-title{max-width:180px}
+@media (max-width:1880px){ .cmdbar .live-ind .live-what{display:none} .cmdbar .gsearch > kbd{display:none} }
+@media (max-width:1760px){
+  .lb-prog-btn{display:inline-flex !important}
+  .lb-prog-menu{display:none;position:absolute;right:0;top:46px;z-index:85;flex-direction:column;align-items:stretch;gap:6px;padding:8px;min-width:200px;
+    background:var(--surface);border:1px solid var(--line);border-radius:var(--r-2);box-shadow:var(--shadow-pop)}
+  .lb-prog.open .lb-prog-menu{display:flex}
+  .lb-prog-menu .cb-btn{justify-content:flex-start;height:40px}
+}
+@media (max-width:1620px){
+  .cmdbar .brand-text{display:none}
+  .cmdbar .tabs .tab{font-size:0;gap:0;padding:7px 9px}
+  .cmdbar .tabs .tab .ic{width:18px;height:18px}
+  .cmdbar .tabs .tab .tab-badge{font-size:10px}
+  /* search becomes a magnifier that opens over the bar */
+  .cmdbar .gsearch{flex:0 0 40px;width:40px}
+  .cmdbar .gsearch input{padding:0 0 0 38px;width:40px;cursor:pointer;color:transparent}
+  .cmdbar .gsearch input::placeholder{color:transparent}
+  .cmdbar .gsearch:focus-within{position:absolute;left:12px;right:12px;top:7px;z-index:90;width:auto;max-width:none}
+  .cmdbar .gsearch:focus-within input{width:100%;padding:0 14px 0 38px;cursor:text;color:var(--ink)}
+  .cmdbar .gsearch:focus-within input::placeholder{color:var(--faint)}
+}
+@media (max-width:1380px){
+  .cmdbar .lb-tx select{max-width:118px}
+  .cmdbar .cb-btn.take{min-width:136px} .cmdbar .cb-btn.take .tk-what{max-width:120px}
+  .cmdbar .live-ind b{display:none} .cmdbar .live-ind{padding:0 10px}
+}
+@media (max-width:1020px){
+  .cmdbar{flex-wrap:wrap;row-gap:6px}
+  .cmdbar .lb-scenes{order:20;margin-left:0}
+  .cmdbar .lb-tx{order:21} .cmdbar .lb-auto{order:22} .cmdbar .lb-step{order:23} .cmdbar .lb-slides{order:24} .cmdbar .lb-prog{order:25}
+  .cmdbar #ctlbar [data-cb="hideAll"]{order:26;margin-left:auto}
+}
+body.studio-focus .cmdbar{display:flex}
+
+/* ---------- v6.3 Elastic Studio: Scenes / Layers on the left, Preview over Inspector on the right ---------- */
+.kc-split{background:transparent;position:relative;z-index:5;touch-action:none}
+.kc-split::after{content:"";position:absolute;background:var(--line-soft);transition:background-color var(--t-fast)}
+.kc-split:hover::after,.kc-split.dragging::after,.kc-split:focus-visible::after{background:var(--accent)}
+.kc-split:focus-visible{outline:none}
+.kc-vsplit{cursor:col-resize} .kc-vsplit::after{top:0;bottom:0;left:2px;width:2px}
+.kc-hsplit,.kc-lsplit{cursor:row-resize} .kc-hsplit::after,.kc-lsplit::after{left:0;right:0;top:2px;height:2px}
+.kc-lsplit{flex:0 0 6px}
+body.kc-resizing{user-select:none;cursor:grabbing}
+body.kc-resizing iframe{pointer-events:none}
+.kc-reopen{display:none;position:absolute;top:10px;left:4px;width:30px;height:30px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;align-items:center;justify-content:center;padding:0;z-index:6}
+.kc-fold{flex:none;width:28px;height:28px}
+.pane-head .kc-fold{margin-left:0}
+.kc-menu{position:fixed}
+.kc-menu .kc-check{display:inline-flex;width:15px;justify-content:center;font-weight:800;color:var(--accent)}
+
+@media (min-width:1081px){
+  .ws{position:relative;grid-template-columns:var(--kc-left,300px) 6px minmax(0,1fr);grid-template-rows:minmax(180px,var(--kc-canvas,64%)) 6px minmax(0,1fr)}
+  .ws-left{grid-column:1;grid-row:1 / 4;border-right:0;min-width:0}
+  .kc-vsplit{grid-column:2;grid-row:1 / 4}
+  .ws-center{grid-column:3;grid-row:1;min-height:0}
+  .kc-hsplit{grid-column:3;grid-row:2}
+  .ws-right{grid-column:3;grid-row:3;border-left:0;min-height:0}
+  .scenes-pane{flex:0 0 var(--kc-scenes,58%);min-height:0}
+  .layers-pane{flex:1 1 0;border-top:0}
+  /* folded panes: just their header */
+  .ws.c-scenes .scenes-pane{flex:0 0 auto}
+  .ws.c-scenes .scenes-pane > :not(.pane-head){display:none}
+  .ws.c-scenes .layers-pane{flex:1 1 0}
+  .ws.c-layers .scenes-pane{flex:1 1 0}
+  .ws.c-layers .layers-pane{flex:0 0 auto}
+  .ws.c-layers .layers-pane > :not(.pane-head){display:none}
+  .ws.c-scenes .kc-lsplit,.ws.c-layers .kc-lsplit{display:none}
+  .ws.c-scenes .pane-head,.ws.c-layers .layers-pane .pane-head{cursor:pointer}
+  /* the whole left column hidden: a thin handle brings it back */
+  .ws.c-left{grid-template-columns:0 14px minmax(0,1fr)}
+  .ws.c-left .ws-left{visibility:hidden;overflow:hidden}
+  .ws.c-left .kc-reopen{display:inline-flex}
+  .ws.c-left .kc-vsplit{cursor:pointer}
+  /* Inspector folded: header strip only, the preview takes the room */
+  .ws.c-insp{grid-template-rows:minmax(180px,1fr) 6px auto}
+  .ws.c-insp .ws-right > :not(.insp-head){display:none}
+  .ws.c-insp .ws-right .insp-head{cursor:pointer;padding-block:8px}
+  /* auto-hide: folded, and opens over the bottom of the preview while the pointer or keyboard is in it */
+  .ws.autohide .ws-right.peek{position:absolute;left:0;right:0;bottom:0;height:calc(100% - var(--kc-canvas,64%));min-height:280px;z-index:20;
+    box-shadow:0 -18px 40px rgba(0,0,0,.35);border-top:1px solid var(--kc-gold-line)}
+  .ws.autohide .ws-right.peek{grid-template-rows:auto minmax(0,1fr)}
+  .ws.autohide .ws-right.peek > :not(.insp-head){display:revert}
+  .ws.autohide .ws-right.peek > .insp-body{display:block}
+  .ws.autohide .ws-right.peek > nav.insp-tabs{display:flex}
+  .ws.autohide .ws-right.peek > .insp-mode:not([hidden]){display:flex}
+  .ws.autohide .ws-right{grid-column:3;grid-row:3}
+  /* Inspector below the preview: header, detail switch and tabs in one row; wide content flows into columns */
+  .ws-right{display:grid;grid-template-columns:auto auto minmax(0,1fr);grid-template-rows:auto minmax(0,1fr);border-top:1px solid var(--line-soft);container-type:inline-size;container-name:insp}
+  .ws-right .insp-head{grid-column:1;grid-row:1;padding:8px 12px;min-width:220px;max-width:420px}
+  .ws-right .insp-mode{grid-column:2;grid-row:1;align-self:center;margin:0 8px}
+  .ws-right .insp-tabs{grid-column:3;grid-row:1;align-self:stretch;align-items:flex-end;border-bottom:0}
+  .ws-right .insp-body{grid-column:1 / -1;grid-row:2;border-top:1px solid var(--line-soft)}
+  .ws.c-insp .ws-right{grid-template-rows:auto}
+  .ws-right .insp-head .kc-fold{margin-left:4px}
+  /* fullscreen preview: the command bar stays (live controls), everything else gives way */
+  body.studio-focus .console-top.cmdbar{display:flex !important}
+  body.studio-focus .ws{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr);height:calc(100vh - var(--top-h,56px))}
+  body.studio-focus .ws-center{grid-column:1;grid-row:1}
+  body.studio-focus .kc-split,body.studio-focus .ws-left,body.studio-focus .ws-right{display:none}
+  /* Presentation Mode keeps its own simplified layout */
+  body.pm .ws{grid-template-columns:minmax(300px,380px) 6px minmax(0,1fr);grid-template-rows:minmax(0,1fr)}
+  body.pm .ws-center{grid-row:1} body.pm .kc-hsplit,body.pm .kc-lsplit{display:none} body.pm .kc-vsplit{grid-row:1}
+  body.pm .ws-left{grid-row:1}
+}
+@container insp (min-width:760px){
+  .insp-body > #ip-gen:not([hidden]),.insp-body > .ip:not([hidden]){display:block;columns:2 320px;column-gap:28px}
+  .insp-body .ip-sec,.insp-body .field,.insp-body .row,.insp-body .ibox,.insp-body .ip-pin,.insp-body .eq,.insp-body .check,.insp-body .hint,.insp-body .ip-acts{break-inside:avoid}
+  .insp-body .ip > *,.insp-body #ip-gen > *{margin-bottom:10px}
+}
+@container insp (min-width:1180px){ .insp-body > #ip-gen:not([hidden]),.insp-body > .ip:not([hidden]){columns:3 300px} }
+
+/* narrow left column: the Scenes header keeps its buttons as icons */
+.ws-left{container-type:inline-size;container-name:wsleft}
+.pane-head{min-width:0}
+.pane-head h2{white-space:nowrap}
+@container wsleft (max-width:330px){
+  .scenes-pane .pane-head .btn{font-size:0;gap:0;padding:6px 8px}
+  .scenes-pane .pane-head .btn .ic{width:16px;height:16px}
+}
+.cmdbar{min-height:54px;padding-block:5px}
+.cmdbar .lb-grp{padding:2px}
+.cmdbar .cb-btn.take,.cmdbar #ctlbar [data-cb="hideAll"]{height:40px;min-height:40px}

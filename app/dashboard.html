@@ -18,7 +18,7 @@
 </head>
 <body>
 
-<header class="top console-top">
+<header class="top console-top cmdbar">
   <div class="brand">
     <img class="brand-mark" src="img/kc-emblem.webp" alt="" width="30" height="36" decoding="async">
     <div class="brand-text"><h1 id="org-title">Kingdom Connect</h1><span class="meeting-title" id="meeting-title">BSF Meeting</span></div>
@@ -37,6 +37,35 @@
     <kbd class="key">Ctrl+K</kbd>
     <ul class="gsearch-list" id="gsearch-list" role="listbox" hidden></ul>
   </div>
+  <!-- v6.3 one command bar: the live controls that used to be the bottom bar now sit here, in the same header -->
+<div class="ctlbar livebar" id="ctlbar" role="toolbar" aria-label="Live controls">
+  <div class="lb-grp lb-scenes" role="group" aria-label="Scenes">
+    <button class="cb-btn" type="button" id="lb-prev" aria-label="Previous scene (goes live)">◀<span class="lb-t">Scene</span><kbd class="key" data-sc="prevScene"></kbd></button>
+    <button class="cb-btn take" type="button" id="cb-take" aria-label="Go Live: put the selected scene on screen"><span class="tk-ic" aria-hidden="true">▶</span><span class="tk-t"><span class="tl">Go Live</span><span class="tk-what" id="cb-take-what"></span></span><kbd class="key" data-sc="takeLive"></kbd></button>
+    <button class="cb-btn" type="button" id="lb-next" aria-label="Next scene (goes live)"><span class="lb-t">Scene</span>▶<kbd class="key" data-sc="nextScene"></kbd></button>
+  </div>
+  <label class="lb-grp lb-tx" title="Transition for the next take (Scene default = the scene's own, or the profile in Settings → Transitions)"><span class="lb-l">Transition</span><select id="lb-tx" aria-label="Transition for the next take"></select></label>
+  <button class="cb-btn lb-auto" type="button" id="lb-auto" aria-pressed="true" title="Auto advance: scenes set to advance by themselves do so">Auto</button>
+  <div class="lb-grp lb-step" id="lb-step" role="group" aria-label="Step through the list" hidden>
+    <button class="cb-btn" type="button" id="lb-step-prev" aria-label="Previous item">◀<kbd class="key" id="lb-step-kp"></kbd></button>
+    <span class="lb-step-t" id="lb-step-t"></span>
+    <button class="cb-btn" type="button" id="lb-step-next" aria-label="Next item">▶<kbd class="key" id="lb-step-kn"></kbd></button>
+  </div>
+  <div class="lb-grp lb-slides" id="lb-slides" role="group" aria-label="Slides" hidden>
+    <button class="cb-btn" type="button" data-cb="slide" data-step="-1" aria-label="Previous slide">◀</button>
+    <span class="lb-step-t" id="lb-slides-t">Slides</span>
+    <button class="cb-btn" type="button" data-cb="slide" data-step="1" aria-label="Next slide">▶</button>
+  </div>
+    <div class="lb-prog" id="lb-prog">
+    <button class="cb-btn lb-prog-btn" type="button" id="lb-prog-btn" aria-haspopup="true" aria-expanded="false" aria-controls="lb-prog-menu" title="Hide layer, Blackout, Emergency">Program ▾</button>
+    <div class="lb-prog-menu" id="lb-prog-menu" role="group" aria-label="Program">
+  <button class="cb-btn" type="button" id="lb-hide-layer" aria-label="Hide the selected layer">Hide layer</button>
+  <button class="cb-btn lb-black" type="button" id="lb-blackout" aria-pressed="false" title="Black picture on BCC vCam and the overlay page">Blackout</button>
+  <button class="cb-btn lb-emerg" type="button" id="lb-emergency" aria-pressed="false" title="Emergency screen with your message">Emergency</button>
+    </div>
+  </div>
+  <button class="cb-btn hide" type="button" data-cb="hideAll" aria-label="Hide all layers">Hide all<kbd class="key" data-sc="hideAll">Esc</kbd></button>
+</div>
   <!-- LIVE plus every output's status, at a glance and only here (each chip opens its details).
        Narrow windows fold the chips into one status button. -->
   <button class="btn small pm-toggle" type="button" id="pm-toggle" aria-pressed="false" title="Presentation Mode: only the scenes, Previous, Go Live and Next (P)"><i data-icon="presentation" data-size="16"></i><span>Presentation Mode</span></button>
@@ -425,7 +454,7 @@
       <section class="box"><div id="scripture-body"></div></section>
     </section>
     <section class="s-sec" id="sec-transitions" aria-labelledby="sech-transitions" hidden>
-      <header class="s-head"><h2 id="sech-transitions">Transitions</h2><p>The transition every scene uses unless it has its own. The live bar can override it for one take.</p></header>
+      <header class="s-head"><h2 id="sech-transitions">Transitions</h2><p>The transition every scene uses unless it has its own. The Transition menu in the top bar can override it for one take.</p></header>
       <section class="box"><div id="transitions-body"></div></section>
     </section>
     <section class="s-sec" id="sec-recording" aria-labelledby="sech-recording" hidden>
@@ -518,30 +547,7 @@
 <!-- ===================== v6 Live bar =====================
      Scenes: Previous · Go Live · Next, the transition for this take, auto advance. Layers: step the selected list,
      hide the selected layer, hide all. Program: Blackout and the Emergency screen. -->
-<div class="ctlbar livebar" id="ctlbar" role="toolbar" aria-label="Live controls">
-  <div class="lb-grp lb-scenes" role="group" aria-label="Scenes">
-    <button class="cb-btn" type="button" id="lb-prev" aria-label="Previous scene (goes live)">◀<span class="lb-t">Scene</span><kbd class="key" data-sc="prevScene"></kbd></button>
-    <button class="cb-btn take" type="button" id="cb-take" aria-label="Go Live: put the selected scene on screen"><span class="tk-ic" aria-hidden="true">▶</span><span class="tk-t"><span class="tl">Go Live</span><span class="tk-what" id="cb-take-what"></span></span><kbd class="key" data-sc="takeLive"></kbd></button>
-    <button class="cb-btn" type="button" id="lb-next" aria-label="Next scene (goes live)"><span class="lb-t">Scene</span>▶<kbd class="key" data-sc="nextScene"></kbd></button>
-  </div>
-  <label class="lb-grp lb-tx" title="Transition for the next take (Scene default = the scene's own, or the profile in Settings → Transitions)"><span class="lb-l">Transition</span><select id="lb-tx" aria-label="Transition for the next take"></select></label>
-  <button class="cb-btn lb-auto" type="button" id="lb-auto" aria-pressed="true" title="Auto advance: scenes set to advance by themselves do so">Auto</button>
-  <div class="lb-grp lb-step" id="lb-step" role="group" aria-label="Step through the list" hidden>
-    <button class="cb-btn" type="button" id="lb-step-prev" aria-label="Previous item">◀<kbd class="key" id="lb-step-kp"></kbd></button>
-    <span class="lb-step-t" id="lb-step-t"></span>
-    <button class="cb-btn" type="button" id="lb-step-next" aria-label="Next item">▶<kbd class="key" id="lb-step-kn"></kbd></button>
-  </div>
-  <div class="lb-grp lb-slides" id="lb-slides" role="group" aria-label="Slides" hidden>
-    <button class="cb-btn" type="button" data-cb="slide" data-step="-1" aria-label="Previous slide">◀</button>
-    <span class="lb-step-t" id="lb-slides-t">Slides</span>
-    <button class="cb-btn" type="button" data-cb="slide" data-step="1" aria-label="Next slide">▶</button>
-  </div>
-  <span class="lb-spacer"></span>
-  <button class="cb-btn" type="button" id="lb-hide-layer" aria-label="Hide the selected layer">Hide layer</button>
-  <button class="cb-btn lb-black" type="button" id="lb-blackout" aria-pressed="false" title="Black picture on BCC vCam and the overlay page">Blackout</button>
-  <button class="cb-btn lb-emerg" type="button" id="lb-emergency" aria-pressed="false" title="Emergency screen with your message">Emergency</button>
-  <button class="cb-btn hide" type="button" data-cb="hideAll" aria-label="Hide all layers">Hide all<kbd class="key" data-sc="hideAll">Esc</kbd></button>
-</div>
+
 
 <dialog class="about-dlg" id="about-dlg" aria-label="About Kingdom Connect"><div id="about-dlg-body" class="about"></div></dialog>
 
@@ -572,6 +578,7 @@
 <script src="js/content-import.js"></script>
 <script src="js/scripture.js"></script>
 <script src="js/workspace.js"></script>
+<script src="js/panels.js"></script>
 <script src="js/nav.js"></script>
 <script src="js/brand.js"></script>
 <script src="js/about.js"></script>
