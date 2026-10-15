@@ -617,3 +617,23 @@ Full description (flows, data model, template columns, validation rules, file ma
   (dialog, Append / Replace / Cancel, ESV fill, one-commit apply, Undo) + `js/meeting-brand.js` (Settings section).
 - Go Live: one primary action in the live bar (label constant, "● On air" sub-label, canvas flash); no take button
   in the Inspector; remote and menus renamed.
+
+## 25. Version 6.3: one command bar, elastic panels, remote modes
+
+- Command bar: `#ctlbar` moved inside `header.console-top.cmdbar` with `display:contents`; its controls are ordered in
+  the header row by CSS `order`. Ids, handlers and shortcuts are unchanged. `#lb-prog` groups Hide layer, Blackout
+  and Emergency; it becomes the Program ▾ menu below 1760 px. `--cb-h` measures 0 because a `display:contents`
+  element has no height.
+- `js/panels.js`: three splitters (`.kc-vsplit`, `.kc-hsplit`, `.kc-lsplit`) inserted into `#studio-ws`, which is a
+  grid (≥1081 px):
+  - CSS variables `--kc-left` (px), `--kc-canvas` (% of rows) and `--kc-scenes` (% of the left column);
+  - classes `c-left`, `c-scenes`, `c-layers`, `c-insp` (folded) and `autohide` (`.ws-right.peek` opens over the
+    preview);
+  - drag via pointer capture and requestAnimationFrame; one `resize` event after a drag;
+  - keyboard and ARIA separators;
+  - saved in localStorage `kc-layout`;
+  - `window.BSFLayout` {get, set, reset, focus}.
+  The Inspector sits in grid row 3 with a container query that switches its content into columns.
+- Remote: role ids are unchanged; the names are now Simple / Standard / Advanced. `body[data-role="presenter"]` is
+  the thumb-zone layout.
+- Design review: `docs/design/kingdom-connect-redesign.html`.
