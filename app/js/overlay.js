@@ -437,10 +437,13 @@ function TextLayers(root){
 /* ---------- v6 program: Blackout, Emergency screen, scene dips ---------- */
 function Program(root){
   var black = el('div', 'pg-black'), slate = el('div', 'pg-slate'), msg = el('p', 'pg-msg'), dip = el('div', 'pg-dip');
-  slate.appendChild(msg); root.appendChild(dip); root.appendChild(slate); root.appendChild(black);
-  var seq = null, dipT = null, stxT = null;
+  var ink = document.createElement('canvas'); ink.className = 'pg-ink'; ink.width = 1920; ink.height = 1080;     // v6.5 Annotate
+  slate.appendChild(msg); root.appendChild(dip); root.appendChild(slate); root.appendChild(ink); root.appendChild(black);
+  var seq = null, dipT = null, stxT = null, inkSig = '';
   return function(st){
     var L = st.live || {};
+    var isig = JSON.stringify(L.ink && L.ink.on ? L.ink.items : []);
+    if (isig !== inkSig){ inkSig = isig; window.BSFScenes.drawInk(ink, L.ink && L.ink.on ? L.ink.items : []); }
     black.classList.toggle('on', !!L.blackout);
     slate.classList.toggle('on', !!L.emergency && !L.blackout);
     if (msg.textContent !== (L.message || '')) msg.textContent = L.message || '';

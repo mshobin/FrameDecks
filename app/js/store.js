@@ -45,7 +45,7 @@ var DEFAULT_STATE = {
   },
   /* v6: Scenes own Layers; the live scene and the program controls (see BSFScenes below) */
   scenes: [],
-  live: {scene: '', seq: 0, at: 0, tx: 'cut', txMs: 0, auto: true, blackout: false, emergency: false,
+  live: {scene: '', seq: 0, at: 0, tx: 'cut', txMs: 0, auto: true, blackout: false, emergency: false, freeze: false, ink: {on: false, items: []},
          message: 'Please stand by \u2014 we\u2019ll be right back.', on: {}, cd: {}},
   profile: 'bible-study',
   v6: false,
@@ -300,6 +300,39 @@ function cleanLook(kind, o){
   });
   return out;
 }
+/* v6.5 Annotate: drawings on top of everything (positions 0..1 of the picture). Kept small: at most 300 drawings. */
+var INK_TOOLS = ['pen', 'highlighter', 'arrow', 'line', 'rect', 'ellipse', 'text'];
+function cleanInk(o){
+  o = isObj(o) ? o : {};
+  var items = (Array.isArray(o.items) ? o.items : []).filter(function(it){ return isObj(it) && INK_TOOLS.indexOf(it.t) >= 0 && Array.isArray(it.p) && it.p.length; }).slice(-300).map(function(it){
+    return {t: it.t, c: /^#[0-9a-fA-F]{6}$/.test(it.c || '') ? it.c : '#e8b931', w: num(it.w, 0.001, 0.05, 0.005), s: str(it.s, 200),
+      p: it.p.slice(0, 1500).map(function(q){ return [Math.round(num(q && q[0], -0.5, 1.5, 0) * 1e4) / 1e4, Math.round(num(q && q[1], -0.5, 1.5, 0) * 1e4) / 1e4]; })};
+  });
+  return {on: !!o.on, items: items, undone: (Array.isArray(o.undone) ? o.undone : []).filter(isObj).slice(-50).map(function(x){ return cleanInk({items: [x]}).items[0]; }).filter(Boolean)};
+}
+/* v6.5 Annotate: draw live.ink on a canvas, the same way vcam/annotate.py draws it on KingdomConnect */
+function drawInk(cv, items){
+  var c = cv.getContext('2d'), W = cv.width, H = cv.height;
+  c.clearRect(0, 0, W, H);
+  (items || []).forEach(function(it){
+    var p = it.p || [], a = p[0], b = p[p.length - 1]; if (!a) return;
+    var lw = Math.max(1, (it.w || 0.005) * H);
+    c.save(); c.strokeStyle = c.fillStyle = it.c || '#e8b931'; c.lineCap = c.lineJoin = 'round';
+    c.lineWidth = it.t === 'highlighter' ? lw * 4 : lw; c.globalAlpha = it.t === 'highlighter' ? 0.4 : 1;
+    c.beginPath();
+    if (it.t === 'text'){ c.font = '700 ' + Math.max(16, Math.round((it.w || 0.005) * 12 * H)) + 'px "BSF Sans", sans-serif'; c.textBaseline = 'top'; c.fillText(it.s || '', a[0] * W, a[1] * H); c.restore(); return; }
+    if (it.t === 'pen' || it.t === 'highlighter'){ c.moveTo(a[0] * W, a[1] * H); p.forEach(function(q){ c.lineTo(q[0] * W, q[1] * H); }); }
+    else if (it.t === 'line' || it.t === 'arrow'){
+      c.moveTo(a[0] * W, a[1] * H); c.lineTo(b[0] * W, b[1] * H);
+      if (it.t === 'arrow'){ var ang = Math.atan2((b[1] - a[1]) * H, (b[0] - a[0]) * W), hl = Math.max(14, lw * 4.5);
+        [-0.45, 0.45].forEach(function(d){ c.moveTo(b[0] * W, b[1] * H); c.lineTo(b[0] * W - hl * Math.cos(ang + d), b[1] * H - hl * Math.sin(ang + d)); }); }
+    }
+    else if (it.t === 'rect') c.rect(a[0] * W, a[1] * H, (b[0] - a[0]) * W, (b[1] - a[1]) * H);
+    else if (it.t === 'ellipse') c.ellipse((a[0] + b[0]) / 2 * W, (a[1] + b[1]) / 2 * H, Math.abs(b[0] - a[0]) / 2 * W, Math.abs(b[1] - a[1]) / 2 * H, 0, 0, Math.PI * 2);
+    c.stroke(); c.restore();
+  });
+}
+
 function cleanScene(sc){
   if (!isObj(sc)) return null;
   var tx = isObj(sc.tx) ? sc.tx : {}, auto = isObj(sc.auto) ? sc.auto : {}, out = isObj(sc.out) ? sc.out : {};
@@ -402,7 +435,7 @@ var Scenes = {
     var seen = {}; st.scenes = st.scenes.filter(function(sc){ if (seen[sc.id]) return false; return (seen[sc.id] = true); });
     var l = isObj(raw.live) ? raw.live : {};
     st.live = {scene: str(l.scene, 40), seq: Number(l.seq) || 0, at: Number(l.at) || 0, tx: TX_IDS.indexOf(l.tx) >= 0 ? l.tx : 'cut',
-      txMs: num(l.txMs, 0, 5000, 0), auto: l.auto !== false, blackout: !!l.blackout, emergency: !!l.emergency,
+      txMs: num(l.txMs, 0, 5000, 0), auto: l.auto !== false, blackout: !!l.blackout, emergency: !!l.emergency, freeze: !!l.freeze, ink: cleanInk(l.ink),
       message: str(l.message === undefined ? DEFAULT_STATE.live.message : l.message, 300), on: {}, cd: {}};
     if (isObj(l.on)) for (var k in l.on) if (l.on[k]) st.live.on[str(k, 40)] = true;
     if (isObj(l.cd)) for (var j in l.cd) st.live.cd[str(j, 40)] = Number(l.cd[j]) || 0;
@@ -520,6 +553,19 @@ var Scenes = {
     return changed;
   },
   look: LOOK,
+  inkTools: INK_TOOLS, drawInk: drawInk,
+  /* Annotate: add / undo / redo / clear, and switch the drawings on or off */
+  ink: function(n, op, item){
+    var k = n.live.ink = n.live.ink || {on: false, items: [], undone: []};
+    k.undone = k.undone || [];
+    if (op === 'add' && item){ k.items.push(item); if (k.items.length > 300) k.items.shift(); k.undone = []; k.on = true; }
+    else if (op === 'undo' && k.items.length) k.undone.push(k.items.pop());
+    else if (op === 'redo' && k.undone.length) k.items.push(k.undone.pop());
+    else if (op === 'clear'){ if (k.items.length) k.undone = k.items.slice().reverse(); k.items = []; }
+    else if (op === 'on') k.on = true;
+    else if (op === 'off') k.on = false;
+    else if (op === 'toggle') k.on = !k.on;
+  },
   /* the current card settings, to give a new (or converted) Question / Scripture Content its own copy */
   snapshotLook: function(st, kind){
     var d = LOOK[kind], o = {}, card = st[kind === 'scripture' ? 'verse' : 'question'];
@@ -726,7 +772,7 @@ var Scenes = {
     var n = JSON.parse(JSON.stringify(st));
     if (!Scenes.take(n, id, 'cut')) return n;
     ['question', 'verse'].forEach(function(k){ n[k].play = 'none'; });
-    n.live.blackout = false; n.live.emergency = false;
+    n.live.blackout = false; n.live.emergency = false; n.live.freeze = false;            // drawings stay: they sit above any Frame
     return n;
   },
   /* Text layers on the program (for the overlay pages and KingdomConnect) */

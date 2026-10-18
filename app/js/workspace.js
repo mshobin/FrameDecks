@@ -848,7 +848,17 @@ function mediaForm(gen, sc, l){
   gen.appendChild(h('p', {cls: 'hint', text: S ? 'Take this scene live to place this layer directly on the canvas. Until then you can set it up here.' : 'Media layers are part of the KingdomConnect picture. Turn KingdomConnect on in Settings → KingdomConnect Camera to see and arrange them.'}));
   if (['image', 'video', 'pdf'].indexOf(l.kind) >= 0){
     gen.appendChild(row('File', h('span', {cls: 'plain', text: c.file || 'Not chosen yet'})));
-    gen.appendChild(h('div', {cls: 'ip-acts'}, [h('button', {cls: 'btn small', type: 'button', text: c.file ? 'Choose another file…' : 'Choose a file…', onclick: function(){ pickFile(l.kind).then(function(f){ if (f) editLayer(sid, lid, function(x){ x.c.file = f; }); }); }})]));
+    gen.appendChild(h('div', {cls: 'ip-acts'}, [h('button', {cls: 'btn small', type: 'button', text: c.file ? 'Choose another file…' : 'Choose a file…', onclick: function(){ pickFile(l.kind === 'pdf' ? 'powerpoint' : l.kind).then(function(f){ if (f) editLayer(sid, lid, function(x){ x.c.file = f; }); }); }})]));
+  }
+  if (l.kind === 'pdf' || l.kind === 'window'){                  // PowerPoint
+    if (l.kind === 'pdf'){
+      var pg = h('input', {type: 'number', min: 1, max: 999, step: 1, value: String((c.page || 0) + 1), 'aria-label': 'Start at slide'}); pg.addEventListener('keydown', stop);
+      pg.addEventListener('change', function(){ var v = Math.max(1, Math.round(+pg.value || 1)) - 1; editLayer(sid, lid, function(x){ x.c.page = v; }); });
+      gen.appendChild(field('Start at slide', pg, 'Previous / Next slide (top bar, Page Up / Page Down, or the phone) move through the slides.'));
+    }
+    gen.appendChild(checkCtl('Show objects only (hide a plain slide background)', !!c.objectsOnly, function(v){ editLayer(sid, lid, function(x){ x.c.objectsOnly = v; }); }));
+    gen.appendChild(h('p', {cls: 'hint', text: l.kind === 'window' ? 'A live PowerPoint slide show keeps its animations. Objects only works when the slide background is one plain colour.' :
+      'A PowerPoint file becomes still slides (no animations). For animations, show the slide show live: + Content → Free Content → Window.'}));
   }
   if (l.kind === 'text'){
     var ta = h('textarea', {rows: 3, 'aria-label': 'Text'}); ta.value = (c.props && c.props.text) || ''; ta.addEventListener('keydown', stop);

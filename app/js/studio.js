@@ -536,6 +536,8 @@ function renderInspector(fromDrag){
       return h('button', {cls: 'btn small', type: 'button', html: I(c[0], 14) + ' ' + c[1], onclick: function(){ act('layer-control', {id: l.id, cmd: c[1].toLowerCase()}); }}); })));
     insp.appendChild(checkbox('Loop (untick to play once)', l.loop !== false, function(v){ var l = cur(), p = curP(); l.loop = v; }));
   }
+  if (l.type === 'pdf' || l.type === 'window')
+    insp.appendChild(checkbox('Show objects only (hide a plain slide background)', !!l.objectsOnly, function(v){ var x = layerById(lid); if (x) x.objectsOnly = v; }));
   if (l.type === 'pdf' || l.type === 'window' || (l.type === 'screen' && S.screen && S.screen.source && ['pdf', 'window'].indexOf(S.screen.source.kind) >= 0)){
     insp.appendChild(h('div', {cls: 's2-actions'}, [
       h('button', {cls: 'btn small', type: 'button', html: I('chevron-left', 15) + ' Previous slide', onclick: function(){ slideMove(-1); }}),

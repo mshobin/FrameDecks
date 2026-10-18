@@ -5,7 +5,8 @@
 - the scene transition when a scene is taken live (cut, fade, dissolve, dip to black / white, blur fade, zoom fade,
   slide, push, reveal, soft scale, cinema, church service fade) - a blend between the last picture of the old scene and
   the new one, a few cheap whole-image operations per frame for under a second;
-- Blackout (a black picture) and the Emergency screen (a calm slate with your message).
+- Blackout (a black picture) and the Emergency screen (a calm slate with your message);
+- v6.5 Freeze (hold the picture) and Annotate (drawings above everything), see vcam/annotate.py.
 
 Everything is drawn from the shared live state, so the PC, the phone remote and the keyboard all control it.
 Drawing a text card happens on a background thread: the video never waits for it.
@@ -19,6 +20,7 @@ import numpy as np
 
 from PIL import Image, ImageDraw
 
+from .annotate import Ink
 from .cards import CardDrawer, Card, accent_palette, logo_rgba, _premult, GOLD_TEXT as _GOLD_TEXT
 
 TEXT_KINDS = ("announcement", "prayer", "lowerthird", "countdown")
@@ -97,6 +99,7 @@ class _Text:
 class ProgramFX:
     def __init__(self, fonts_dir, get_state, cards_on=lambda: True, logo_path=None):
         self.drawer = CardDrawer(fonts_dir)
+        self.ink = Ink(fonts_dir)
         self.logo_path, self.logo_cache = logo_path, (None, None)      # (version, PIL RGBA)
         self.get_state, self.cards_on = get_state, cards_on
         self.texts = {}                  # layer id -> _Text
@@ -144,6 +147,8 @@ class ProgramFX:
         self.slate_a = self._toward(self.slate_a, 1.0 if live.get("emergency") and not live.get("blackout") else 0.0, dt / 0.3)
         if self.slate_a > 0.001:
             out = cv2.addWeighted(out, 1 - self.slate_a, self._slate(st, W, H), self.slate_a, 0)
+        out = self.ink.freeze(out, bool(live.get("freeze")))       # Freeze: hold the picture (drawings still go on top)
+        out = self.ink.draw(out if out is not frame else frame, live.get("ink"))
         if self.black > 0.001:
             out = cv2.convertScaleAbs(out, alpha=1 - self.black)
         self.last = out if out is not frame else frame.copy()

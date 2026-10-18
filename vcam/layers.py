@@ -86,6 +86,8 @@ def clean_layer(d):
             out["hwnd"] = int(d["hwnd"])
         except (TypeError, ValueError):
             pass
+    if out["type"] in ("pdf", "window") and d.get("objectsOnly"):
+        out["objectsOnly"] = True                # PowerPoint "Show objects only": hide a plain slide background
     return out
 
 
@@ -393,10 +395,12 @@ class LayerManager:
                     img, ver = s.frame()
                 if img is None:
                     continue
+                if l.get("objectsOnly"):
+                    img = self._objects_only(l["id"], img, ver)
                 if t in LIVE and self._fast_paste(frame, img, l, W, H, ver):
                     continue
                 key = (id(img) if t in ("text", "rect", "ellipse") else ver, W, H, l["x"], l["y"], l["w"], l["h"], l["rotation"],
-                       l["opacity"], l["radius"], str(l.get("props")))
+                       l["opacity"], l["radius"], str(l.get("props")), bool(l.get("objectsOnly")))
                 c = self.cache.get(l["id"])
                 if c is None or c[0] != key or t in LIVE:
                     c = (key,) + _transform(img, l, W, H)
@@ -406,6 +410,16 @@ class LayerManager:
             except Exception as e:                       # one broken layer never stops the camera
                 self.errors[l["id"]] = str(e)
         return frame
+
+    def _objects_only(self, lid, img, ver):
+        """Slides without their background: the colour in the slide's corners becomes see-through (once per new
+        picture). Works for plain-colour backgrounds; pictures or gradients behind the slide stay visible."""
+        hit = self.cache.get(lid + ":keyed")
+        if hit and hit[0] == ver and hit[1] is not None:
+            return hit[1]
+        out = key_background(img)
+        self.cache[lid + ":keyed"] = (ver, out)
+        return out
 
     def _fast_paste(self, frame, img, l, W, H, ver=None):
         """Camera/screen in an upright box (no rotation or fade): copy it straight in. Rounded corners only
@@ -576,6 +590,21 @@ def _draw_text(text, p, l, W, H, fonts_dir):
         d.text((x, y + (lh - asc - desc) / 2), s_, font=font, fill=col)
         y += lh
     return np.ascontiguousarray(np.asarray(img)[..., [2, 1, 0, 3]])
+
+
+def key_background(img, tol=18):
+    """Make a slide's plain background colour transparent, with a soft edge so text stays smooth. Returns BGRA."""
+    bgr = img[..., :3]
+    h, w = bgr.shape[:2]
+    k = max(2, min(h, w) // 50)
+    corners = np.concatenate([bgr[:k, :k].reshape(-1, 3), bgr[:k, -k:].reshape(-1, 3),
+                              bgr[-k:, :k].reshape(-1, 3), bgr[-k:, -k:].reshape(-1, 3)])
+    bg = np.median(corners, axis=0).astype(np.int16)
+    diff = np.abs(bgr.astype(np.int16) - bg).max(axis=2)
+    a = np.clip((diff - tol) * (255.0 / tol), 0, 255).astype(np.uint8)
+    if img.shape[2] == 4:
+        a = np.minimum(a, img[..., 3])
+    return np.dstack([bgr, a])
 
 
 def _transform(img, l, W, H):

@@ -21,7 +21,10 @@ var ACTIONS = [
   {id: 'takeLive', name: 'Go Live (the selected scene)', cat: 'live', def: 't'},
   {id: 'nextScene', name: 'Next scene (live)', cat: 'live', def: ']'},
   {id: 'prevScene', name: 'Previous scene (live)', cat: 'live', def: '['},
-  {id: 'presentMode', name: 'Presentation Mode on / off', cat: 'live', def: 'p'}
+  {id: 'presentMode', name: 'Presentation Mode on / off', cat: 'live', def: 'p'},
+  {id: 'annotate', name: 'Annotate on / off (draw on the picture)', cat: 'live', def: 'd'},
+  {id: 'freeze', name: 'Freeze the picture on / off', cat: 'live', def: 'f'},
+  {id: 'blackout', name: 'Black screen on / off', cat: 'danger', def: 'k'}
 ];
 var RESERVED = {'Tab': 1, 'Enter': 1, ' ': 1, 'Shift': 1, 'Control': 1, 'Alt': 1, 'Meta': 1, 'CapsLock': 1, '/': 1};
 var map = load();

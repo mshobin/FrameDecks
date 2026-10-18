@@ -163,19 +163,21 @@ right.addEventListener('pointerleave', function(){ if (L.autohide) peek(false); 
 right.addEventListener('focusin', function(){ if (L.autohide) peek(true); });
 right.addEventListener('focusout', function(){ if (L.autohide) peek(false); });
 
-/* ---------- the command bar's Program menu (Hide layer · Blackout · Emergency) ---------- */
+/* ---------- the command bar's Program menu (Hide · Blackout · Emergency · Annotate · Freeze) ---------- */
 var prog = document.getElementById('lb-prog'), progBtn = document.getElementById('lb-prog-btn');
 if (prog && progBtn){
   progBtn.addEventListener('click', function(e){ e.stopPropagation(); var o = !prog.classList.contains('open'); prog.classList.toggle('open', o); progBtn.setAttribute('aria-expanded', String(o)); });
   document.addEventListener('click', function(e){ if (!prog.contains(e.target)){ prog.classList.remove('open'); progBtn.setAttribute('aria-expanded', 'false'); } });
   prog.addEventListener('click', function(e){ if (e.target.closest('.lb-prog-menu .cb-btn') && prog.classList.contains('open')) setTimeout(function(){ prog.classList.remove('open'); progBtn.setAttribute('aria-expanded', 'false'); }, 120); });
-  var bl = document.getElementById('lb-blackout'), em = document.getElementById('lb-emergency');
+  var bl = document.getElementById('lb-blackout'), em = document.getElementById('lb-emergency'), fz = document.getElementById('lb-freeze'), an = document.getElementById('lb-annotate');
+  var pressed = function(b){ return !!b && b.getAttribute('aria-pressed') === 'true'; };
   var mo = new MutationObserver(function(){
-    var on = bl.getAttribute('aria-pressed') === 'true' || em.getAttribute('aria-pressed') === 'true';
+    var on = pressed(bl) || pressed(em);
     progBtn.classList.toggle('alert', on);
-    progBtn.textContent = on ? (bl.getAttribute('aria-pressed') === 'true' ? 'BLACKOUT ▾' : 'EMERGENCY ▾') : 'Program ▾';
+    progBtn.classList.toggle('held', !on && (pressed(fz) || pressed(an)));
+    progBtn.textContent = on ? (pressed(bl) ? 'BLACKOUT ▾' : 'EMERGENCY ▾') : pressed(fz) ? 'FROZEN ▾' : pressed(an) ? 'ANNOTATING ▾' : 'Program ▾';
   });
-  [bl, em].forEach(function(b){ mo.observe(b, {attributes: true, attributeFilter: ['aria-pressed']}); });
+  [bl, em, fz, an].forEach(function(b){ if (b) mo.observe(b, {attributes: true, attributeFilter: ['aria-pressed']}); });
 }
 
 apply();

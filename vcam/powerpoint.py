@@ -207,3 +207,39 @@ def powerpoint_status(max_age=2.0):
     value = r if isinstance(r, dict) and r.get("page") else None
     _ppt_status.update(at=now, value=value)
     return value
+
+
+def pptx_to_pdf(src, dst, timeout=180.0):
+    """v6.5 PowerPoint Content from a .pptx: the PowerPoint installed on this PC saves it as a PDF (one picture per
+    slide, exactly as PowerPoint draws it). Animations and transitions are not kept in a PDF; for those, show the
+    PowerPoint slide show live with a Window Content (see docs/powerpoint.md).
+    Returns None when it worked, otherwise a plain-language reason."""
+    if os.name != "nt":
+        return "Turning PowerPoint files into slides needs Windows with PowerPoint installed. Save it as PDF in PowerPoint and add the PDF instead."
+    box = {}
+
+    def run():
+        try:
+            import comtypes
+            import comtypes.client as cc
+            comtypes.CoInitialize()
+            try:
+                app = cc.CreateObject("PowerPoint.Application", dynamic=True)
+            except Exception:
+                box["r"] = "PowerPoint is not installed on this PC. Save the file as PDF in PowerPoint and add the PDF instead."
+                return
+            pres = app.Presentations.Open(str(src), True, False, False)          # read-only, untitled, no window
+            try:
+                pres.SaveAs(str(dst), 32)                                         # 32 = ppSaveAsPDF
+            finally:
+                pres.Close()
+            box["r"] = None
+        except Exception as e:
+            box["r"] = f"PowerPoint could not open this file ({type(e).__name__})."
+
+    t = threading.Thread(target=run, name="kc-pptx", daemon=True)
+    t.start()
+    t.join(timeout)
+    if t.is_alive():
+        return "PowerPoint took too long to open this file. Try again, or save it as PDF in PowerPoint."
+    return box.get("r", "PowerPoint did not respond.")

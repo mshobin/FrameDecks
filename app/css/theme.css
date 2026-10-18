@@ -1066,3 +1066,16 @@ html.kc-native img{-webkit-user-drag:none}
 .fl-sec textarea{width:100%;box-sizing:border-box}
 .cs-group{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);padding-top:8px;border-top:1px solid var(--line-soft)}
 .fl-ed-acts{display:flex;gap:6px;flex-wrap:wrap}
+
+/* ---------- v6.5 Annotate (js/annotate.js) ---------- */
+.ann-bar{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin:8px 14px 0;padding:6px 8px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-2);box-shadow:var(--shadow-1)}
+.ann-bar[hidden]{display:none}
+.ann-bar .ib.on{background:var(--gold-soft);border-color:var(--gold);color:var(--gold-strong)}
+.ann-sep{width:1px;align-self:stretch;background:var(--line-soft);margin:0 2px}
+.ann-col{width:22px;height:22px;border-radius:50%;border:2px solid rgba(255,255,255,.25);cursor:pointer;padding:0}
+.ann-col.on{border-color:var(--ink);box-shadow:0 0 0 2px var(--gold)}
+.ann-w{width:auto;flex:none;font:inherit;font-size:13px;background:var(--raised);color:var(--ink);border:1px solid var(--line);border-radius:7px;padding:4px 6px}
+.ann-pad{position:absolute;z-index:6;cursor:crosshair;touch-action:none;border-radius:6px;box-shadow:0 0 0 2px var(--gold)}
+.ann-pad[hidden]{display:none}
+.cb-btn.lb-ann.on,.cb-btn.lb-frz.on{background:var(--gold-soft);border-color:var(--gold);color:var(--ink)}
+.lb-prog-btn.held{border-color:var(--gold);color:var(--ink)}

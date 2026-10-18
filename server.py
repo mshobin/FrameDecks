@@ -1767,8 +1767,8 @@ class Handler(BaseHTTPRequestHandler):
             return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
         name = Path(parse_qs(urlparse(self.path).query).get("name", ["file"])[0]).name
         stem, ext = os.path.splitext(name)
-        if ext.lower() not in (".png", ".jpg", ".jpeg", ".mp4", ".mov", ".webm", ".pdf"):
-            return self.reply(400, json.dumps({"error": "Use PNG, JPG, MP4, MOV, WebM or PDF."}), TYPES[".json"])
+        if ext.lower() not in (".png", ".jpg", ".jpeg", ".mp4", ".mov", ".webm", ".pdf", ".pptx", ".ppt"):
+            return self.reply(400, json.dumps({"error": "Use PNG, JPG, MP4, MOV, WebM, PDF or PowerPoint (PPTX)."}), TYPES[".json"])
         length = int(self.headers.get("Content-Length", 0))
         if length <= 0 or length > 1024 * 1024 * 1024:
             return self.reply(400, json.dumps({"error": "The file must be smaller than 1 GB."}), TYPES[".json"])
@@ -1792,6 +1792,16 @@ class Handler(BaseHTTPRequestHandler):
             tmp.unlink(missing_ok=True)
             return self.reply(400, json.dumps({"error": "The upload was interrupted."}), TYPES[".json"])
         tmp.replace(target)
+        if target.suffix in (".pptx", ".ppt"):         # v6.5 PowerPoint: slides made by the PowerPoint on this PC
+            from vcam.powerpoint import pptx_to_pdf
+            pdf, n = target.with_suffix(".pdf"), 2
+            while pdf.exists():
+                pdf = target.with_name(f"{target.stem} ({n}).pdf")
+                n += 1
+            err = pptx_to_pdf(target.resolve(), pdf.resolve())
+            if err or not pdf.is_file():
+                return self.reply(400, json.dumps({"error": err or "PowerPoint did not save the slides."}), TYPES[".json"])
+            return self.reply(200, json.dumps({"file": pdf.name, "source": target.name}), TYPES[".json"])
         return self.reply(200, json.dumps({"file": target.name}), TYPES[".json"])
 
     def app_action(self, action, data):
