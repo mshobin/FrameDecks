@@ -200,7 +200,9 @@ var HEAD = ['Question number', 'Question text', 'Verse reference', 'Bible versio
 var COLS = [{wch: 10}, {wch: 60}, {wch: 18}, {wch: 10}, {wch: 60}, {wch: 26}, {wch: 18}];
 /* One row per question with its linked verse; verses linked to no question get their own rows at the end */
 function exportRows(st){
-  var lib = st.library, byId = {}, used = {};
+  /* v6.5: the selected Frame's own Question and Scripture lists */
+  var SCN = window.BSFScenes, sid = (window.BSFSelFrame && window.BSFSelFrame()) || st.live.scene;
+  var lib = {questions: SCN.items(st, 'question', sid), verses: SCN.items(st, 'verse', sid)}, byId = {}, used = {};
   lib.verses.forEach(function(v){ byId[v.id] = v; });
   var rows = [HEAD];
   lib.questions.forEach(function(q, i){
@@ -217,7 +219,7 @@ function exportExcel(){
   if (rows.length < 2){ toast('There are no questions or verses to export yet.', true); return; }
   var wb = X.utils.book_new(), ws = X.utils.aoa_to_sheet(rows); ws['!cols'] = COLS;
   X.utils.book_append_sheet(wb, ws, 'Questions & Verses');
-  X.writeFile(wb, 'BSF-Questions-and-Verses-' + new Date().toISOString().slice(0, 10) + '.xlsx');
+  X.writeFile(wb, 'Questions-and-Scriptures-' + new Date().toISOString().slice(0, 10) + '.xlsx');
   toast('Exported ' + (rows.length - 1) + ' rows to your Downloads');
 }
 function downloadTemplate(){

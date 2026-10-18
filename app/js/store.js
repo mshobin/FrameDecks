@@ -52,6 +52,8 @@ var DEFAULT_STATE = {
   /* v6.2 Leader branding: shown only by Branding layers and the layers that ask for it ({meeting} / {org} in their
      text, "Show logo" on text cards). logo = version of the uploaded picture ('' = none; the file is api/brand/logo). */
   brand: {meeting: '', org: '', color: '', logo: '', lw: 0, lh: 0, auto: false},
+  /* v6.5 Meeting Overview (Excel Meeting Workbook): title, date, presenter, notes */
+  meeting: {title: '', date: '', presenter: '', notes: ''},
   /* Saved lists shown in the dashboard (sample placeholder content) */
   library: {
     verses: [
@@ -899,6 +901,8 @@ function normalize(s){
   });
   Scenes.normalizeInto(st, isObj(s) ? s : {});
   Scenes.ownLists(st);                                         // v6.5: lists belong to Frames
+  var mt = isObj(s) && isObj(s.meeting) ? s.meeting : {};
+  st.meeting = {title: str(mt.title, 80), date: str(mt.date, 40), presenter: str(mt.presenter, 80), notes: str(mt.notes, 2000)};
   var b = isObj(s) && isObj(s.brand) ? s.brand : {};
   st.brand = {meeting: str(b.meeting, 80), org: str(b.org, 80), color: /^#[0-9a-fA-F]{6}$/.test(b.color || '') ? b.color.toLowerCase() : '',
     logo: str(b.logo, 40), lw: Number(b.lw) || 0, lh: Number(b.lh) || 0, auto: !!b.auto};

@@ -1,11 +1,10 @@
-/* Kingdom Connect v6.2 - the global meeting Excel template: one file describes a whole meeting.
+/* Kingdom Connect v6.2 one-sheet meeting files (still imported; v6.5 templates and exports are the five-sheet
+ * Meeting Workbook, js/meeting-book.js). Kept so files made with the v6.2 template keep working.
  *
  * One row = one layer. Rows with the same Scene Name make one scene. This file has no user interface (it is also
  * run by the unit tests in Node): columns, validation, building the scenes, the template workbook and the export.
  *   parse(headers, rows, ctx)  -> plan {scenes, errors, warnings, counts, fetch}
  *   apply(n, plan, opts)       -> creates the scenes, layers, questions and verses in state n; returns the new scenes
- *   templateBook(X, brand)     -> the downloadable template (Read Me · Meeting Content · Allowed Values)
- *   exportBook(X, st)          -> this meeting in the same format
  */
 (function(){
 'use strict';
@@ -202,7 +201,6 @@ function apply(n, plan, opts){
     var drop = {}; n.scenes.forEach(function(s){ if (!s.tpl) drop[s.id] = 1; });
     if (drop[n.live.scene]){ SC.hideAll(n); n.live.scene = ''; }
     n.scenes = n.scenes.filter(function(s){ return s.tpl; });
-    if (opts.replaceLists){ n.library.questions = []; n.library.verses = []; }
   }
   var made = [], now = Date.now(), accent = (n.brand && n.brand.color) || '#1f3a6d';
   plan.scenes.forEach(function(P){
@@ -230,23 +228,21 @@ function apply(n, plan, opts){
 function layer(kind, name, c, visible){ return SC.cleanLayer({id: rid(), kind: kind, name: (name || SC.info[kind].name).slice(0, 60), visible: visible !== false, c: c || {}}); }
 function build(n, L){
   var out = [], nm = L.name, vis = L.visible;
+  /* v6.5: each Frame's Question / Scripture Content keeps its own list */
   function addQuestion(pairId){
     var q = {id: rid('q'), text: L.question}; if (pairId) q.pair = pairId;
-    n.library.questions.push(q);
-    return layer('question', L.type === 'qv' ? (nm || 'Question') : nm, {itemId: q.id}, vis);
+    return layer('question', L.type === 'qv' ? (nm || 'Question') : nm, {items: [q], itemId: q.id, look: SC.snapshotLook(n, 'question')}, vis);
   }
-  function addVerse(pairId){
-    var v = {id: rid('v'), ref: L.ref, version: L.version, text: L.vtext}; if (pairId) v.pair = pairId;
-    n.library.verses.push(v);
-    return {item: v, l: layer('scripture', L.type === 'qv' ? 'Scripture' : nm, {ref: L.ref, version: L.version, text: L.vtext}, vis)};
+  function addVerse(){
+    var v = {id: rid('v'), ref: L.ref, version: L.version, text: L.vtext};
+    return {item: v, l: layer('scripture', L.type === 'qv' ? 'Scripture' : nm, {items: [v], itemId: v.id, look: SC.snapshotLook(n, 'scripture')}, vis)};
   }
   var t = L.type;
   if (t === 'question') out.push(addQuestion());
   else if (t === 'verse') out.push(addVerse().l);
   else if (t === 'qv'){
-    var qid = rid('q'), vr = addVerse(qid);
-    var q = {id: qid, text: L.question, pair: vr.item.id}; n.library.questions.push(q);
-    out.push(layer('question', nm || 'Question', {itemId: qid}, vis), vr.l);
+    var vr = addVerse();
+    out.push(addQuestion(vr.item.id), vr.l);
   }
   else if (TEXTISH.indexOf(t) >= 0){
     var kind = t === 'text' ? 'announcement' : t, c = {logo: !!(L.brand && L.logo)};
@@ -279,109 +275,5 @@ function build(n, L){
   return out;
 }
 
-/* ---------- the template workbook ---------- */
-var EXAMPLES = [
-  ['Welcome', 1, 'Welcome', 'Text', '', '', '', 'Welcome to {meeting}! We begin in a moment.', 'Greet people as they join', 'Yes', 'Yes', 'Yes', 'Navy', 1, 'Active'],
-  ['Opening Prayer', 2, 'Prayer', 'Custom', '', '', '', 'Let’s begin by bringing our time together before the Lord.', '', 'No', '', '', 'Prayer', 1, 'Active'],
-  ['Focus Verse', 3, 'Focus Verse', 'Verse', '', 'John 15:5 (ESV)', 'I am the vine; you are the branches. Whoever abides in me and I in him, he it is that bears much fruit, for apart from me you can do nothing.', '', '', 'No', '', '', '', 1, 'Active'],
-  ['Discussion 1', 4, 'Question 1', 'Question + Verse', 'What does Jesus mean when he says “abide in me”?', 'John 15:4 (ESV)', 'Abide in me, and I in you. As the branch cannot bear fruit by itself, unless it abides in the vine, neither can you, unless you abide in me.', '', 'Give everyone time to read the verse', 'Yes', 'Yes', 'No', '', 1, 'Active'],
-  ['Discussion 2', 5, 'Question 2', 'Question', 'How can you stay connected to Jesus this week?', '', '', '', '', 'No', '', '', '', 1, 'Active'],
-  ['Lesson Slides', 6, 'Lesson slides', 'PowerPoint', '', '', '', '', 'Open the PowerPoint first; choose its window after the import', 'No', '', '', '', 1, 'Active'],
-  ['Group Photo', 7, 'Caption', 'Text', '', '', '', 'Thank you for joining us!', '', 'No', '', '', '', 1, 'Active'],
-  ['Group Photo', 7, 'Photo', 'Image', '', '', '', '', 'Choose the picture after the import', 'No', '', '', '', 2, 'Active'],
-  ['Closing', 8, 'Meeting lower third', 'Custom', '', '', '', 'See you next week', '', 'Yes', 'Yes', 'Yes', 'Lower Third', 1, 'Active'],
-  ['Closing', 8, 'Prayer requests', 'Custom', '', '', '', 'Share your prayer requests in the chat.', '', 'No', '', '', 'Prayer', 2, 'Hidden']
-];
-function readMe(brand, title){
-  var b = brand || {}, rows = [
-    [title || 'Kingdom Connect · Meeting Import Template'],
-    b.meeting || b.org ? ['Meeting: ' + [b.meeting, b.org].filter(Boolean).join(' · ')] : [''],
-    [''],
-    ['How to use it'],
-    ['1. Fill in the “Meeting Content” sheet: one row for each layer. Rows with the same Scene Name become one scene.'],
-    ['2. Keep the column names in row 1. Delete the example rows you don’t need (or keep them to try the import).'],
-    ['3. In Kingdom Connect: Studio → + Scene → Import meeting from Excel… (or Settings → Meeting & Branding).'],
-    ['4. Check the preview: how many scenes and layers will be made, and any problems to fix. Nothing changes until you select Import.'],
-    ['5. If you already have scenes you choose: Append (keep them and add these) or Replace (remove them; your saved templates stay).'],
-    [''],
-    ['Columns', 'Needed', 'What to type', 'Example']
-  ];
-  COLUMNS.forEach(function(c){ rows.push([c.name, c.need, c.help, c.ex]); });
-  rows.push([''], ['Layer Types'], ['Question', 'A discussion question card.'], ['Verse', 'A Bible verse card (Verse Reference + Verse Text).'],
-    ['Question + Verse', 'The question and its verse together in one scene (one row makes both).'], ['Text', 'Your own words on a card (Text / Caption).'],
-    ['Image / Video', 'A picture or video on KingdomConnect: choose the file in the Studio after the import.'], ['PowerPoint', 'Your PowerPoint window on KingdomConnect: choose the window after the import.'],
-    ['Custom', 'A ready-made layer: write its template in “Background Style or Template”: Announcement, Prayer, Lower Third, Countdown, Branding, Birthday, Camera, Screen.'],
-    [''], ['Good to know'],
-    ['• A scene shows at most one Question, one Verse, one Birthday and one Branding badge. For the next question, start a new scene.'],
-    ['• Branding uses your Meeting Name and logo from Settings → Meeting & Branding. {meeting} and {org} in any text are replaced by your names.'],
-    ['• Pictures, videos, slides and backgrounds appear on KingdomConnect (Zoom / Teams); questions, verses and text appear on KingdomConnect and the overlay pages.'],
-    ['• Every question and verse is also added to your question and verse lists, so ◀ ▶ can step through them.'],
-    ['• Up to 1000 rows per file. Kingdom Connect reads .xlsx, .xls and .csv files.']);
-  return rows;
-}
-function sheetCols(ws, widths){ ws['!cols'] = widths.map(function(w){ return {wch: w}; }); return ws; }
-function header(){ return COLUMNS.map(function(c){ return c.name; }); }
-function book(X, readRows, dataRows){
-  var wb = X.utils.book_new();
-  X.utils.book_append_sheet(wb, sheetCols(X.utils.aoa_to_sheet(readRows), [30, 16, 100, 34]), 'Read Me');
-  X.utils.book_append_sheet(wb, sheetCols(X.utils.aoa_to_sheet([header()].concat(dataRows)), [18, 11, 20, 18, 46, 20, 60, 44, 34, 10, 10, 18, 26, 11, 10]), 'Meeting Content');
-  var vals = [['Layer Type', 'Custom template (Background Style or Template)', 'Background Style', 'Yes / No columns', 'Status']];
-  var cols = [TYPE_NAMES.concat(EXTRA_TYPES), EXTRA_TYPES, ['None', 'Navy', 'Black', 'White', 'Brand', '#1F3A6D'], ['Yes', 'No'], ['Active', 'Hidden']];
-  for (var i = 0; i < 16; i++){ var r = cols.map(function(c){ return c[i] || ''; }); if (r.some(Boolean)) vals.push(r); }
-  X.utils.book_append_sheet(wb, sheetCols(X.utils.aoa_to_sheet(vals), [18, 40, 18, 18, 12]), 'Allowed Values');
-  return wb;
-}
-function templateBook(X, brand){ return book(X, readMe(brand), EXAMPLES); }
-
-/* ---------- export this meeting (same columns: it can be imported again) ---------- */
-function exportRows(st){
-  var rows = [], qs = st.library.questions, vs = st.library.verses;
-  var bgName = {'#0b1222': 'Navy', '#000000': 'Black', '#ffffff': 'White'};
-  st.scenes.filter(function(s){ return !s.tpl; }).forEach(function(sc, si){
-    var b = SC.first(sc, 'brand'), q = SC.first(sc, 'question'), v = SC.first(sc, 'scripture');
-    var bgL = sc.layers.filter(function(l){ return l.kind === 'background'; })[0];
-    var bgv = bgL ? (bgName[(bgL.c.props || {}).color] || (bgL.c.props || {}).color || '') : '';
-    var lines = [], k = 0, notes = sc.notes || '';
-    function yn(x){ return x ? 'Yes' : 'No'; }
-    function push(name, type, qt, ref, vt, text, tpl, vis, logo, showName){
-      k++;
-      lines.push([sc.name, si + 1, name, type, qt || '', ref || '', vt || '', text || '', k === 1 ? notes : '', yn(!!b || logo || showName),
-        b || logo || showName ? yn(b ? b.c.logo : logo) : '', b || logo || showName ? yn(b ? b.c.name : showName) : '', tpl || (k === 1 ? bgv : ''), k, vis ? 'Active' : 'Hidden']);
-    }
-    function qText(l){ var it = l.c.itemId ? qs.filter(function(x){ return x.id === l.c.itemId; })[0] : null; return it ? it.text : ''; }
-    function verse(l){ var it = l.c.itemId ? vs.filter(function(x){ return x.id === l.c.itemId; })[0] : null;
-      var ref = it ? it.ref : l.c.ref, ver = it ? it.version : l.c.version; return {ref: (ref || '') + (ver ? ' (' + ver + ')' : ''), text: it ? it.text : l.c.text}; }
-    var both = q && v;
-    sc.layers.forEach(function(l){
-      if (l.kind === 'brand' || l.kind === 'background') return;
-      if (l.kind === 'question' && both){ var vv = verse(v); push(l.name, 'Question + Verse', qText(l), vv.ref, vv.text, '', '', l.visible || v.visible); return; }
-      if (l.kind === 'scripture' && both) return;
-      if (l.kind === 'question'){ push(l.name, 'Question', qText(l), '', '', '', '', l.visible); return; }
-      if (l.kind === 'scripture'){ var v1 = verse(l); push(l.name, 'Verse', '', v1.ref, v1.text, '', '', l.visible); return; }
-      var c = l.c, nameTok = /\{meeting\}/i.test(c.title || '');
-      if (l.kind === 'announcement' && !c.label && !c.title) push(l.name, 'Text', '', '', '', c.text, '', l.visible, c.logo, false);
-      else if (l.kind === 'announcement') push(l.name, 'Custom', '', '', '', c.text, 'Announcement', l.visible, c.logo, nameTok);
-      else if (l.kind === 'prayer') push(l.name, 'Custom', '', '', '', c.text, 'Prayer', l.visible, c.logo, nameTok);
-      else if (l.kind === 'lowerthird') push(l.name, 'Custom', '', '', '', nameTok ? c.text : [c.title, c.text].filter(Boolean).join(' | '), 'Lower Third', l.visible, c.logo, nameTok);
-      else if (l.kind === 'countdown') push(l.name, 'Custom', '', '', '', c.mode === 'until' ? c.until : String(c.minutes), 'Countdown', l.visible, c.logo, nameTok);
-      else if (l.kind === 'birthday') push(l.name, 'Custom', '', '', '', '', 'Birthday', l.visible);
-      else if (l.kind === 'image') push(l.name, 'Image', '', '', '', '', '', l.visible);
-      else if (l.kind === 'video') push(l.name, 'Video', '', '', '', '', '', l.visible);
-      else if (l.kind === 'pdf') push(l.name, 'PDF', '', '', '', '', '', l.visible);
-      else if (l.kind === 'window') push(l.name, 'PowerPoint', '', '', '', '', '', l.visible);
-      else if (l.kind === 'camera') push(l.name, 'Custom', '', '', '', '', 'Camera', l.visible);
-      else if (l.kind === 'screen') push(l.name, 'Custom', '', '', '', '', 'Screen', l.visible);
-    });
-    if (!lines.length && b) push('Branding', 'Branding', '', '', '', '', '', b.visible);
-    rows = rows.concat(lines);
-  });
-  return rows;
-}
-function exportBook(X, st){
-  var b = st.brand || {};
-  return book(X, readMe(b, (b.meeting || 'Kingdom Connect meeting') + ' · exported ' + new Date().toLocaleDateString()), exportRows(st));
-}
-
-window.BSFMeetingSheet = {COLUMNS: COLUMNS, TYPE_NAMES: TYPE_NAMES, EXTRA_TYPES: EXTRA_TYPES, KIND_LABEL: KIND_LABEL, parse: parse, apply: apply,
-  templateBook: templateBook, exportBook: exportBook, exportRows: exportRows, header: header, examples: EXAMPLES, splitRef: splitRef};
+window.BSFMeetingSheet = {COLUMNS: COLUMNS, TYPE_NAMES: TYPE_NAMES, EXTRA_TYPES: EXTRA_TYPES, KIND_LABEL: KIND_LABEL, parse: parse, apply: apply, splitRef: splitRef};
 })();

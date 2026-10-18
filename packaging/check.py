@@ -11,7 +11,7 @@ assert srv is not None, "could not start"
 threading.Thread(target=srv.serve_forever, daemon=True).start()
 base = f"http://127.0.0.1:{srv.server_address[1]}/"
 for page in ["", "dashboard.html", "remote.html", "stage.html", "focus-verse.html", "discussion-question.html",
-             "birthday.html", "js/app-bridge.js", "js/brand.js", "js/workspace.js", "js/scripture.js", "js/meeting-sheet.js", "js/meeting-import.js", "js/meeting-brand.js", "js/panels.js", "js/about.js", "remote-manifest.json", "icons/remote-192.png"]:
+             "birthday.html", "js/app-bridge.js", "js/brand.js", "js/workspace.js", "js/scripture.js", "js/meeting-sheet.js", "js/meeting-import.js", "js/meeting-book.js", "js/frame-lists.js", "js/annotate.js", "templates/Kingdom-Connect-Meeting-Workbook.xlsx", "js/meeting-brand.js", "js/panels.js", "js/about.js", "remote-manifest.json", "icons/remote-192.png"]:
     with urllib.request.urlopen(base + page, timeout=5) as r:
         assert r.status == 200, page
 ping = json.loads(urllib.request.urlopen(base + "api/app/ping").read())
