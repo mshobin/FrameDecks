@@ -746,3 +746,32 @@ state keep the old names (`scenes`, `layers`, `BSFScenes`), so existing data loa
   tested by `tools/test_meeting_workbook.js`. The app is the source of truth after an import.
 - **Removed:** Team Space (peer-to-peer collaboration). Local save, autosave, backups, export and version history
   stay.
+
+## 28. Version 6.6: edit on the canvas, phone drawing pad, simpler Content Settings
+
+- **Excel only through the Meeting Workbook.** `app/js/content-import.js` (the per-Content "Import questions & verses"
+  bar) was removed with its markup (`#imp-host`) and CSS. Excel import and export are in the Meeting menu
+  (`meeting-import.js`, `meeting-book.js`), which build whole Frames.
+- **Edit on the canvas** (`app/js/preview-edit.js`):
+  - Frame preview: the overlay page in `#program-frame` takes no pointer events, so `dblclick` is caught on `#program`;
+    the point is mapped into the page (÷ the iframe's scale) and hit-tested against `.card-question` / `.card-verse`.
+  - Live KingdomConnect canvas (`#s2-stage`): cards are drawn into the video, so the card zones are estimated from
+    `layout` (`qWidth`, `qBottom`, `qScale`, `verseY`, `verseWidth`, `verseAlign`); a double-click outside a zone is
+    left to the canvas.
+  - The shown item comes from `live` (live Frame) or `SC.previewState(live, sid)`; saving goes through
+    `BSFFrameLists.save(kind, sid, id, patch)`, which also updates the screen when that item is on it.
+- **Phone drawing pad** (`app/js/remote.js`, `app/css/remote.css`):
+  - `GET /api/remote/live.jpg` (in `REMOTE_SIGNED_IN`, so PIN-protected) returns the engine's preview JPEG with an
+    ETag; 204 when the camera is off. The pad polls it about 5 times a second and falls back to `stage.html` (cards
+    only) on 204, so the pad is never a black box.
+  - `padFit()` sizes the stage to the largest 16:9 box in `.dp-area`, so the canvas, picture and pointer mapping line
+    up exactly. In landscape (`max-height:560px`) the tools become a side column and the page asks for fullscreen
+    where the browser allows it (not iPhone Safari).
+- **Content Settings merges:**
+  - the Frame-level Behavior group (`sc.out`) was folded into each card / text Content's Behavior: `cleanScene()`
+    moves an older Frame-wide "off" onto those layers (`foldOut`) and keeps `sc.out` true (camera and media layers
+    never followed it). `vcam/program.py` still honours `sc.out` for older saved state;
+  - text Content: "Show the title" sits under the Title field (it was in Appearance);
+  - Timer: only the field for the chosen way of counting (Minutes or Until) is shown;
+  - Branding: Position only in the Position group (it was also in Appearance);
+  - Scripture: the fetch selector is "Fetch from" (ESV online / Type it myself), so it is not a second "Translation".

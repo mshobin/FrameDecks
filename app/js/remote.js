@@ -361,14 +361,59 @@ $('rehearse').addEventListener('click', guard('rh', function(){ rehearse = !rehe
 $('ssearch').addEventListener('input', function(e){ query = e.target.value; sceneSig = ''; renderScenes(); });
 
 /* ---------- Drawing pad (Annotate): the live picture with the drawings; draw with a finger ---------- */
-var pad = {tool: 'pen', color: '#e8b931', stroke: null}, cv = $('dp-canvas');
+var pad = {tool: 'pen', color: '#e8b931', stroke: null, timer: 0, tag: '', url: ''}, cv = $('dp-canvas');
 function openPad(){
   $('drawpad').hidden = false;
+  document.body.classList.add('drawing');
   var f = $('dp-frame'); if (f.dataset.src !== 'on'){ f.dataset.src = 'on'; f.src = 'stage.html?bg=preview&preview=1'; }
-  padScale();
+  padFit(); padLive();
+  if (matchMedia('(orientation: landscape)').matches) padFull(true);
 }
-function padScale(){ var st = $('dp-stage'); if (st.clientWidth) $('dp-frame').style.transform = 'scale(' + (st.clientWidth / 1920) + ')'; }
-window.addEventListener('resize', padScale);
+function closePad(){
+  $('drawpad').hidden = true; document.body.classList.remove('drawing');
+  var f = $('dp-frame'); f.dataset.src = ''; f.src = 'about:blank';
+  clearTimeout(pad.timer); pad.timer = 0; pad.tag = '';
+  var img = $('dp-live'); img.hidden = true; if (pad.url){ URL.revokeObjectURL(pad.url); pad.url = ''; } img.removeAttribute('src');
+  padFull(false);
+}
+/* the largest 16:9 box that fits the space left by the tools: the canvas, the picture and the stage line up exactly */
+function padFit(){
+  if ($('drawpad').hidden) return;
+  var a = $('dp-area'), st = $('dp-stage'), w = a.clientWidth, hh = a.clientHeight;
+  if (!w || !hh) return;
+  var ww = Math.min(w, hh * 16 / 9);
+  st.style.width = Math.floor(ww) + 'px'; st.style.height = Math.floor(ww * 9 / 16) + 'px';
+  $('dp-frame').style.transform = 'scale(' + (ww / 1920) + ')';
+}
+window.addEventListener('resize', padFit);
+window.addEventListener('orientationchange', function(){ setTimeout(function(){ padFit(); if (!$('drawpad').hidden && matchMedia('(orientation: landscape)').matches) padFull(true); }, 250); });
+/* sideways: hide the browser bars where the phone allows it (Android; iPhone Safari keeps them) */
+function padFull(on){
+  var d = document, el = d.documentElement;
+  try {
+    if (on && !d.fullscreenElement && el.requestFullscreen) el.requestFullscreen({navigationUI: 'hide'}).then(padFit, function(){});
+    else if (!on && d.fullscreenElement && d.exitFullscreen) d.exitFullscreen().catch(function(){});
+  } catch(e){}
+}
+/* The real picture (what Zoom / Teams see, from KingdomConnect), refreshed about 5 times a second while the pad is
+ * open. When the camera is off the phone shows the Frame's cards (stage.html) instead, never a black box. */
+function padLive(){
+  clearTimeout(pad.timer);
+  if ($('drawpad').hidden) return;
+  var h = {}; if (pad.tag) h['If-None-Match'] = pad.tag;
+  fetch('api/remote/live.jpg?t=' + Date.now(), {cache: 'no-store', credentials: 'same-origin', headers: h}).then(function(r){
+    if (r.status === 304) return null;
+    if (r.status !== 200){ pad.tag = ''; $('dp-live').hidden = true; return null; }
+    pad.tag = r.headers.get('ETag') || '';
+    return r.blob();
+  }).then(function(b){
+    if (!b || $('drawpad').hidden) return;
+    var img = $('dp-live'), u = URL.createObjectURL(b);
+    img.onload = function(){ if (pad.url && pad.url !== u) URL.revokeObjectURL(pad.url); pad.url = u; img.hidden = false; };
+    img.src = u;
+  }).catch(function(){ $('dp-live').hidden = true; })
+    .then(function(){ if (!$('drawpad').hidden) pad.timer = setTimeout(padLive, document.hidden ? 1500 : 200); });
+}
 function padPt(e){ var r = cv.getBoundingClientRect(); return [Math.round((e.clientX - r.left) / r.width * 1e4) / 1e4, Math.round((e.clientY - r.top) / r.height * 1e4) / 1e4]; }
 function padDraw(){ var c = cv.getContext('2d'); c.clearRect(0, 0, cv.width, cv.height); if (pad.stroke) SC.drawInk(cv, [pad.stroke]); }
 cv.addEventListener('pointerdown', function(e){ e.preventDefault(); try { cv.setPointerCapture(e.pointerId); } catch(err){} var p = padPt(e); pad.stroke = {t: pad.tool, c: pad.color, w: 0.006, p: [p, p]}; padDraw(); });
@@ -389,7 +434,7 @@ all('.dp-col').forEach(function(b){ b.addEventListener('click', function(){ pad.
 $('dp-undo').addEventListener('click', guard('du', function(){ update(function(n){ SC.ink(n, 'undo'); }); }));
 $('dp-clear').addEventListener('click', guard('dc', function(){ update(function(n){ SC.ink(n, 'clear'); }); }));
 $('dp-done').addEventListener('click', function(){
-  $('drawpad').hidden = true; var f = $('dp-frame'); f.dataset.src = ''; f.src = 'about:blank';
+  closePad();
   update(function(n){ SC.ink(n, 'off'); }, 'Drawings hidden');
 });
 

@@ -626,7 +626,7 @@ function pickFile(kind){
 /* ===================================================================================================== */
 /* v6.5 Content Settings: one panel, every setting visible, in groups (no Basic / Advanced, no tabs).
  * The group names along the top jump to their group. */
-var GROUPS = {scene: [['scene', 'Frame'], ['transition', 'Timing'], ['output', 'Behavior'], ['history', 'History']],
+var GROUPS = {scene: [['scene', 'Frame'], ['transition', 'Timing'], ['history', 'History']],
   card: [['content', 'Content'], ['style', 'Appearance'], ['layout', 'Position'], ['animation', 'Animation'], ['output', 'Behavior']],
   text: [['content', 'Content'], ['style', 'Appearance'], ['layout', 'Position'], ['animation', 'Animation'], ['output', 'Behavior']],
   media: [['content', 'Media']]};
@@ -740,11 +740,6 @@ function sceneForm(gen, sc, tab){
       h('p', {cls: 'hint', text: 'Plays on the whole KingdomConnect picture. On the OBS / browser overlay page the dips cover the screen and the cards follow. The top bar can override it for a take.'})]));
     gen.appendChild(h('div', {cls: 'ip-sec'}, [checkCtl('Auto advance to the next Frame', sc.auto.on, function(v){ edit(sid, function(x){ x.auto.on = v; }); }), field('After (seconds)', sec),
       h('p', {cls: 'hint', text: 'Only while Auto is on in the top bar.'})]));
-  } else if (tab === 'output'){
-    gen.appendChild(h('div', {cls: 'ip-sec'}, [h('b', {text: 'When this Frame is live, show its cards and text Content on'}),
-      checkCtl('KingdomConnect (Zoom / Teams camera, recording, Presentation window)', sc.out.vcam, function(v){ edit(sid, function(x){ x.out.vcam = v; }); }),
-      checkCtl('OBS / browser overlay pages', sc.out.obs, function(v){ edit(sid, function(x){ x.out.obs = v; }); }),
-      h('p', {cls: 'hint', text: 'Takes effect the next time the Frame is taken live. Each piece of Content can also be limited in its own Behavior group. Camera and media Content is the KingdomConnect picture itself.'})]));
   } else {
     var par = sc.parent ? SC.find(live, sc.parent) : null;
     gen.appendChild(h('dl', {cls: 'hist'}, [
@@ -781,9 +776,6 @@ function textForm(gen, sc, l, tab){
       var bsz = [['small', 'Small', 0.75], ['standard', 'Standard', 1], ['large', 'Large', 1.4], ['title', 'Title', 2]];
       var bnear = function(v){ return bsz.reduce(function(a, t){ return Math.abs(t[2] - v) < Math.abs(a[2] - v) ? t : a; }); };
       gen.appendChild(row('Size', segCtl(bnear(c.scale)[0], bsz.map(function(t){ return [t[0], t[1]]; }), function(v){ var t = bsz.filter(function(x){ return x[0] === v; })[0]; set(function(x){ x.c.scale = t[2]; }, true); })));
-      var bp = h('select', {'aria-label': 'Position', id: 'tl-pos'}, SC.positions.map(function(p){ return h('option', {value: p, text: POS_NAMES[p]}); })); bp.value = c.pos;
-      bp.addEventListener('change', function(){ set(function(x){ x.c.pos = bp.value; }, true); });
-      gen.appendChild(field('Position', bp));
       gen.appendChild(h('p', {cls: 'hint', text: 'The badge uses your accent colour when one is set.'}));
     }
     return;
@@ -792,6 +784,7 @@ function textForm(gen, sc, l, tab){
     var title = h('input', {type: 'text', value: c.title, 'aria-label': l.kind === 'lowerthird' ? 'Name' : 'Title', id: 'tl-title'}); title.addEventListener('keydown', stop);
     title.addEventListener('input', function(){ var v = title.value; set(function(x){ x.c.title = v; }); });
     gen.appendChild(field(l.kind === 'lowerthird' ? 'Name (first line)' : l.kind === 'countdown' ? 'Label' : 'Title', title));
+    gen.appendChild(checkCtl(l.kind === 'lowerthird' ? 'Show the name' : l.kind === 'countdown' ? 'Show the label' : 'Show the title', c.label, function(v){ set(function(x){ x.c.label = v; }, true); }));
     if (l.kind === 'countdown'){
       var mode = segCtl(c.mode, [['duration', 'Duration'], ['until', 'Until a time']], function(v){ set(function(x){ x.c.mode = v; }, true); });
       var mins = h('input', {type: 'number', min: 0, max: 600, step: 0.5, value: String(c.minutes), 'aria-label': 'Minutes'}); mins.addEventListener('keydown', stop);
@@ -800,7 +793,7 @@ function textForm(gen, sc, l, tab){
       until.addEventListener('change', function(){ set(function(x){ x.c.until = until.value; }, true); });
       var end = h('input', {type: 'text', value: c.text, 'aria-label': 'When it reaches zero'}); end.addEventListener('keydown', stop);
       end.addEventListener('input', function(){ var v = end.value; set(function(x){ x.c.text = v; }); });
-      gen.appendChild(row('Count', mode)); gen.appendChild(field('Minutes', mins)); gen.appendChild(field('Until (time of day)', until)); gen.appendChild(field('At zero, show', end));
+      gen.appendChild(row('Count', mode)); gen.appendChild(c.mode === 'until' ? field('Until (time of day)', until) : field('Minutes', mins)); gen.appendChild(field('At zero, show', end));
       gen.appendChild(h('div', {cls: 'ip-acts'}, [h('button', {cls: 'btn small', type: 'button', text: 'Restart the countdown', disabled: isLiveScene(sid) ? null : 'disabled',
         onclick: function(){ commit(function(n){ n.live.cd[lid] = Date.now(); n.live.on[lid] = true; }); }})]));
     } else {
@@ -811,20 +804,10 @@ function textForm(gen, sc, l, tab){
     gen.appendChild(checkCtl('Show my logo on this card', c.logo, function(v){ set(function(x){ x.c.logo = v; }, true); }));
     gen.appendChild(h('p', {cls: 'hint', html: 'Type <b>{meeting}</b> or <b>{org}</b> to show your Meeting Name or organization.'}));
     gen.appendChild(h('p', {cls: 'hint', text: isLiveScene(sid) ? 'This Frame is live: changes appear on screen as you type.' : 'Shown when this Frame is taken live.'}));
-  } else if (tab === 'style' && false){
-    gen.appendChild(checkCtl('Show the title / label', c.label, function(v){ set(function(x){ x.c.label = v; }, true); }));
-    var sizes = [['small', 'Small', 0.85], ['standard', 'Standard', 1], ['large', 'Large', 1.3], ['xl', 'Extra large', 1.7]];
-    var near = function(v){ return sizes.reduce(function(a, t){ return Math.abs(t[2] - v) < Math.abs(a[2] - v) ? t : a; }); };
-    gen.appendChild(row('Theme', segCtl(near(c.scale)[0], sizes.map(function(t){ return [t[0], t[1]]; }), function(v){ var t = sizes.filter(function(x){ return x[0] === v; })[0]; set(function(x){ x.c.scale = t[2]; }, true); })));
-    var pos2 = h('select', {'aria-label': 'Position', id: 'tl-pos'}, SC.positions.map(function(p){ return h('option', {value: p, text: POS_NAMES[p]}); })); pos2.value = c.pos;
-    pos2.addEventListener('change', function(){ set(function(x){ x.c.pos = pos2.value; }, true); });
-    gen.appendChild(field('Position', pos2));
-    gen.appendChild(h('p', {cls: 'hint', text: 'Advanced (above) has exact text size, width, opacity and animation.'}));
   } else if (tab === 'style'){
-    gen.appendChild(checkCtl('Show the title / label', c.label, function(v){ set(function(x){ x.c.label = v; }, true); }));
     gen.appendChild(row('Text size', rangeCtl(c.scale, 0.4, 3, 0.05, function(v){ return Math.round(v * 100) + '%'; }, function(v){ set(function(x){ x.c.scale = v; }); })));
     gen.appendChild(row('Opacity', rangeCtl(l.opacity, 0, 1, 0.01, function(v){ return Math.round(v * 100) + '%'; }, function(v){ set(function(x){ x.opacity = v; }); })));
-    gen.appendChild(h('p', {cls: 'hint', text: 'Card opacity (how much video shows through) is shared with the question and verse cards: Question or Scripture Content → Style.'}));
+    gen.appendChild(h('p', {cls: 'hint', text: 'Card opacity (how much video shows through) is shared with the question and verse cards: Question or Scripture Content → Appearance.'}));
   } else if (tab === 'layout'){
     var pos = h('select', {'aria-label': 'Position', id: 'tl-pos'}, SC.positions.map(function(p){ return h('option', {value: p, text: POS_NAMES[p]}); })); pos.value = c.pos;
     pos.addEventListener('change', function(){ set(function(x){ x.c.pos = pos.value; }, true); });

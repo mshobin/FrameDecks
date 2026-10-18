@@ -344,8 +344,18 @@ function cleanScene(sc){
     notes: str(sc.notes, 2000),                                   /* v6.2 leader notes (Excel import), never on screen */
     tx: {type: tx.type === 'profile' || TX_IDS.indexOf(tx.type) >= 0 ? tx.type : 'profile', ms: num(tx.ms, 0, 5000, 500)},
     auto: {on: !!auto.on, sec: num(auto.sec, 2, 3600, 30)},
-    out: {vcam: out.vcam !== false, obs: out.obs !== false},
-    layers: (Array.isArray(sc.layers) ? sc.layers : []).map(cleanLayer).filter(Boolean).slice(0, 60)};
+    out: {vcam: true, obs: true},
+    layers: foldOut((Array.isArray(sc.layers) ? sc.layers : []).map(cleanLayer).filter(Boolean).slice(0, 60), out)};
+}
+/* v6.6: where cards and text appear is set on each Content (Behavior) only. An older Frame-wide "off" moves onto
+ * its cards and text Content, so nothing changes on screen. Camera and media Content never followed it. */
+function foldOut(layers, out){
+  if (out.vcam === false || out.obs === false) layers.forEach(function(l){
+    if (!(CARD_KINDS.indexOf(l.kind) >= 0 || TEXT_KINDS.indexOf(l.kind) >= 0)) return;
+    if (out.vcam === false) l.c.vcam = false;
+    if (out.obs === false) l.c.obs = false;
+  });
+  return layers;
 }
 function newLayer(kind, extra){
   var l = {id: rid(), kind: kind, name: KIND_INFO[kind].name, visible: true, locked: false, opacity: 1, c: {}};

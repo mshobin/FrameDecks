@@ -508,27 +508,11 @@ body.studio-focus .studio.s2{height:100vh !important}
 .s2-present.on{background:var(--raised);color:var(--ink);border-color:var(--gold)}
 
 /* Import questions & verses from Excel */
-.imp-bar{grid-column:1 / -1;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;background:var(--panel);border:1px dashed var(--line-hover,#3a4c75);border-radius:12px;padding:10px 14px}
-.imp-bar .actions{margin:0}
-.imp-modal{width:min(1100px,96vw);max-height:92vh;overflow:auto}
-.imp-modal h3{margin:16px 0 8px;font-size:13px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
-.imp-map{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
-.imp-field{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted)}
-.imp-field select{font:inherit;font-size:14px;background:var(--raised);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:6px 8px}
-.imp-counts{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
-.imp-counts span{font-size:13px;font-weight:700;border-radius:999px;padding:3px 10px;border:1px solid var(--edge)}
-.imp-counts .ok{color:var(--live);border-color:rgba(52,209,124,.45)}
-.imp-counts .warn{color:var(--warn);border-color:rgba(245,181,71,.5)}
-.imp-counts .bad{color:var(--red);border-color:rgba(242,99,99,.55)}
-.imp-counts .muted{color:var(--faint)}
-.imp-issues ul{margin:0 0 8px;padding-left:18px;max-height:120px;overflow:auto;font-size:13px}
-.imp-issues li.bad{color:var(--red)} .imp-issues li.warn{color:var(--warn)}
 .imp-table-wrap{max-height:300px;overflow:auto;border:1px solid var(--edge);border-radius:10px}
 .imp-table{border-collapse:collapse;width:100%;font-size:13px}
 .imp-table th{position:sticky;top:0;background:var(--panel-2);text-align:left;padding:7px 9px;font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--faint)}
 .imp-table td{padding:6px 9px;border-top:1px solid var(--line-soft);vertical-align:top;max-width:320px;white-space:pre-wrap;word-break:break-word}
 .imp-table tr.bad td{background:rgba(242,99,99,.09)} .imp-table tr.warn td{background:rgba(245,181,71,.07)}
-.imp-mode{display:flex;gap:18px;flex-wrap:wrap}
 
 /* Birthday: who to celebrate (moved here from the old bottom panel) */
 .bday-pick{display:flex;gap:8px;align-items:center;margin-top:6px}

@@ -44,18 +44,19 @@ function editItemSoon(kind, sid, id, patch){
   var k = kind + id; typeT[k] = typeT[k] || {fields: {}};
   Object.assign(typeT[k].fields, patch);
   clearTimeout(typeT[k].t);
-  typeT[k].t = setTimeout(function(){
-    var f = typeT[k].fields; delete typeT[k];
-    editList(kind, sid, function(l, n){
-      var it = l.c.items.filter(function(x){ return x.id === id; })[0]; if (!it) return;
-      Object.assign(it, f);
-      if (onScreen(kind, id)){                                   // on screen: the screen follows the edit
-        var o = n[kind];
-        if (kind === 'question'){ o.text = it.text; o.label = it.label || l.c.label || 'Discussion Question'; }
-        else { o.text = it.text; o.ref = it.ref; o.version = it.version; o.label = it.label || l.c.label || 'Focus Verse'; }
-      }
-    });
-  }, 400);
+  typeT[k].t = setTimeout(function(){ var f = typeT[k].fields; delete typeT[k]; saveItem(kind, sid, id, f); }, 400);
+}
+/* one saved change to an item; on screen, the screen follows the edit */
+function saveItem(kind, sid, id, patch){
+  return editList(kind, sid, function(l, n){
+    var it = l.c.items.filter(function(x){ return x.id === id; })[0]; if (!it) return;
+    Object.assign(it, patch);
+    if (onScreen(kind, id)){
+      var o = n[kind];
+      if (kind === 'question'){ o.text = it.text; o.label = it.label || l.c.label || 'Discussion Question'; }
+      else { o.text = it.text; o.ref = it.ref; o.version = it.version; o.label = it.label || l.c.label || 'Focus Verse'; }
+    }
+  }).then(function(){ sigs[kind] = ''; render(); });
 }
 
 /* ---------- the list ---------- */
@@ -240,5 +241,5 @@ function onVerse(d){
 }
 
 Store.subscribe(function(st){ live = st; render(); });
-window.BSFFrameLists = {render: function(){ render(); }, onVerse: onVerse, edit: openEditor, add: function(kind){ return addItem(kind, frameId()); }};
+window.BSFFrameLists = {render: function(){ render(); }, onVerse: onVerse, edit: openEditor, add: function(kind){ return addItem(kind, frameId()); }, save: saveItem};
 })();

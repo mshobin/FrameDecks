@@ -1,4 +1,4 @@
-# Kingdom Connect: user guide (v6.5)
+# Kingdom Connect: user guide (v6.6)
 
 Kingdom Connect runs your online Bible study, prayer meeting, small group or training on Zoom, Microsoft Teams or
 Google Meet. It is meeting-first:
@@ -61,6 +61,7 @@ Select any Content (or the Frame itself) and every setting is in one panel, in g
 - **Behavior**
 
 The group names along the top jump to their group. There is no Basic / Advanced switch: everything is visible.
+Where each piece of Content appears (KingdomConnect, OBS pages) is set once, in that Content's **Behavior** group.
 
 ### Questions and Scriptures
 A Question (or Scripture) Content holds **its own list**, shown full height in Content Settings:
@@ -72,9 +73,14 @@ A Question (or Scripture) Content holds **its own list**, shown full height in C
   - an **Answer** and **Notes** for you (never on screen);
   - its own transition.
 - Press **Done** (or Esc) to go back to the list.
+- **Or edit it on the canvas:** double-click the question or scripture card on the Studio Canvas (the preview, or the
+  live picture). An editor opens over the card: **Enter** saves, **Shift+Enter** starts a new line, **Esc** cancels,
+  and a click outside saves. If the card is on screen, the screen changes too.
 - **+ Question** / **+ Scripture** adds one; **Add several** pastes many at once.
 - For scripture, type a reference above the list and press **Fetch scripture** (ESV, with a key in Settings →
-  Scripture).
+  Scripture). Choose **Fetch from → Type it myself** for other translations.
+- Questions and scriptures come from Excel only through the **Meeting Workbook** (section 7), which builds whole
+  Frames. There is no Excel import inside a Question or Scripture Content.
 - When the Frame is on screen:
   - **→ / ←** step through its questions;
   - **Shift + → / ←** step through its scriptures.
@@ -102,7 +108,8 @@ KingdomConnect, restart that app.
   - **Current Frame** (*Frame 4 of 18*) with **PREVIOUS FRAME** / **NEXT FRAME**.
   - **Current Content** (*Question 2 of 5*, *Scripture*, or *PowerPoint · Slide 3 of 12*) with **PREVIOUS CONTENT** /
     **NEXT CONTENT**. **Change** appears when a Frame has more than one.
-  - **ANNOTATE**: draw with your finger on the live picture.
+  - **ANNOTATE**: draw with your finger on the live picture (exactly what Zoom / Teams see). Turn the phone sideways
+    and the picture fills the screen, with the tools in a narrow column at the side.
   - **FREEZE** and **BLACK SCREEN**.
   - The connection status is spelled out at the top, next to **HIDE ALL**.
 - **Advanced remote** (⋯ → Advanced remote):

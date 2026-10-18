@@ -153,7 +153,6 @@
       <div class="ip" data-kind="question" data-itab="content" hidden>
         <!-- v6.5: this Frame's own questions (js/frame-lists.js): full-height list, double-click edits in this panel -->
         <div class="fl" id="fl-question" data-fl="question"></div>
-        <div id="imp-host"></div>
       </div>
       <div class="ip" data-kind="question" data-itab="style" hidden>
         <div class="ip-sec" data-fl-label="question"></div>
@@ -178,7 +177,7 @@
       <div class="ip" data-kind="scripture" data-itab="content" hidden>
         <section class="scr" id="scr" aria-label="Fetch scripture">
           <div class="scr-row"><label class="field scr-ref"><span>Reference</span><input type="text" id="scr-ref" list="scr-books" placeholder="e.g. Romans 2:28-29" autocomplete="off"></label>
-            <label class="field scr-tr"><span>Translation</span><select id="scr-tr"><option value="ESV">ESV (online)</option><option value="typed">Typed / Excel</option></select></label></div>
+            <label class="field scr-tr"><span>Fetch from</span><select id="scr-tr"><option value="ESV">ESV (online)</option><option value="typed">Type it myself</option></select></label></div>
           <datalist id="scr-books"></datalist>
           <div class="scr-acts"><button class="btn primary small" type="button" id="scr-fetch">Fetch scripture</button><button class="btn small" type="button" id="scr-refresh" title="Fetch again from the ESV">Refresh</button>
             <button class="btn small" type="button" id="scr-context" title="Read the whole chapter">Context</button><button class="btn small" type="button" id="scr-read" title="Read aloud on this PC (not sent to the meeting)">Read aloud</button>
@@ -497,10 +496,10 @@
 <script src="js/vcam-panel.js"></script>
 <script src="js/studio.js"></script>
 <script src="js/frame-lists.js"></script>
-<script src="js/content-import.js"></script>
 <script src="js/scripture.js"></script>
 <script src="js/workspace.js"></script>
 <script src="js/annotate.js"></script>
+<script src="js/preview-edit.js"></script>
 <script src="js/panels.js"></script>
 <script src="js/nav.js"></script>
 <script src="js/brand.js"></script>

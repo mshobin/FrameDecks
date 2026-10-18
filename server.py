@@ -28,7 +28,7 @@ from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from pathlib import Path
 from urllib.parse import urlparse, parse_qs, unquote
 
-APP_VERSION = "6.5"
+APP_VERSION = "6.6"
 STARTED_AT = time.time()
 FROZEN = getattr(sys, "frozen", False)          # True inside the installed Windows app
 HERE = Path(sys.executable).resolve().parent if FROZEN else Path(__file__).resolve().parent
@@ -66,7 +66,7 @@ COOKIE = "bsf_remote"
 REMOTE_PUBLIC = {"/remote.html", "/css/remote.css", "/js/remote.js", "/js/store.js", "/js/brand.js", "/api/remote-login",
                  "/remote-manifest.json", "/icons/remote-180.png", "/icons/remote-192.png", "/icons/remote-512.png",
                  "/icons/remote-maskable-512.png", "/img/kc-emblem.webp"}
-REMOTE_SIGNED_IN = {"/api/rev", "/api/state", "/api/remote-logout", "/js/overlay.js", "/api/remote/studio", "/api/brand/logo",
+REMOTE_SIGNED_IN = {"/api/rev", "/api/state", "/api/remote-logout", "/js/overlay.js", "/api/remote/studio", "/api/brand/logo", "/api/remote/live.jpg",
                     "/css/overlay.css", "/stage.html", "/focus-verse.html", "/discussion-question.html", "/birthday.html"}
 sessions_lock = threading.Lock()
 failures = {}  # ip -> [count, locked_until]
@@ -309,7 +309,7 @@ REQ = {"counts": {}, "since": time.time()}
 def count_request(path):
     """Count requests by kind, so Diagnostics can show which screens are busy."""
     kind = path if path in ("/api/rev", "/api/state", "/api/presence", "/api/vcam/preview.jpg", "/api/vcam/stage.jpg",
-                            "/api/vcam/status", "/api/vcam/studio", "/api/present.mjpg") else ("page" if not path.startswith("/api/") else "other api")
+                            "/api/vcam/status", "/api/vcam/studio", "/api/present.mjpg", "/api/remote/live.jpg") else ("page" if not path.startswith("/api/") else "other api")
     REQ["counts"][kind] = REQ["counts"].get(kind, 0) + 1
 
 
@@ -1529,6 +1529,21 @@ class Handler(BaseHTTPRequestHandler):
             return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
         if path == "/api/remote/studio":                # scenes + presentation for the remote (PIN-protected)
             return self.reply(200, json.dumps(remote_studio_info()), TYPES[".json"])
+        if path == "/api/remote/live.jpg":              # v6.6 the KingdomConnect picture for the phone's drawing pad (PIN-protected)
+            eng = VCAM.get("engine")
+            if not eng:
+                return self.reply(204, b"", "text/plain")
+            eng.want_preview(3.0)
+            if not eng.preview_jpeg:                    # the camera is starting or off: the phone shows the stage instead
+                return self.reply(204, b"", "text/plain")
+            tag = '"p%d"' % eng.preview_ver
+            if self.headers.get("If-None-Match") == tag:
+                self.send_response(304)
+                self.send_header("ETag", tag)
+                self.send_header("Cache-Control", "no-store")
+                self.end_headers()
+                return
+            return self.reply(200, eng.preview_jpeg, "image/jpeg", headers=[("ETag", tag)])
         if path.startswith("/api/scripture"):            # this PC only (the API key never leaves it)
             if not self.is_local():
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")

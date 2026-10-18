@@ -1,5 +1,5 @@
 /* BSF Command Center v6 - Scripture: type a reference, the text arrives (ESV API with your own key, cached on this PC
- * for offline use). Typed or Excel-imported text works exactly as before. Fetching fills the verse editor (the same
+ * for offline use). Typed text (or text from the Meeting Workbook) works exactly as before. Fetching fills the verse editor (the same
  * fields Show and Save to list use), so every existing verse workflow continues from there. */
 (function(){
 'use strict';
@@ -62,7 +62,7 @@ function fetchRef(ref, fresh){
   var r = parse(ref) || String(ref || '').trim();
   if (!r){ say('Type a reference, for example Romans 2:29.', true); return Promise.resolve(null); }
   if (!Store.served){ say('Fetching needs the installed app. Type or paste the verse text below.', true); return Promise.resolve(null); }
-  if (trSel && trSel.value !== 'ESV'){ say('Typed / Excel: type or paste the verse below (or import it from Excel). Choose ESV (online) to fetch it.'); setField('v-ref', r); return Promise.resolve(null); }
+  if (trSel && trSel.value !== 'ESV'){ say('Type or paste the verse below, with its translation. Choose ESV (online) to fetch it.'); setField('v-ref', r); return Promise.resolve(null); }
   say('Fetching ' + r + '…');
   return fetch('api/scripture?ref=' + encodeURIComponent(r) + '&tr=ESV' + (fresh ? '&fresh=1' : ''), {cache: 'no-store'})
     .then(function(x){ return x.json(); })
@@ -115,7 +115,7 @@ if (refIn){
   trSel.addEventListener('change', function(){
     try { localStorage.setItem('bcc-scr-tr', trSel.value); } catch(e){}
     ['scr-fetch', 'scr-refresh', 'scr-context'].forEach(function(id){ $(id).disabled = trSel.value !== 'ESV'; });
-    say(trSel.value === 'ESV' ? '' : 'Typed / Excel: type or paste the verse below, or import questions and verses from Excel.');
+    say(trSel.value === 'ESV' ? '' : 'Type or paste the verse below, with its translation.');
   });
   try { var t0 = localStorage.getItem('bcc-scr-tr'); if (t0) { trSel.value = t0; trSel.dispatchEvent(new Event('change')); } } catch(e){}
   chips();
@@ -148,7 +148,7 @@ function renderSettings(){
     root.appendChild(status);
     root.appendChild(h('p', {cls: 'hint', text: 'Get a free key for church and non-commercial use at api.esv.org (Create an API application). The key stays on this PC: it is never sent to the phone remote or the overlay pages. ' +
       'Fetched passages are saved here so a Bible study keeps working without internet (up to ' + d.cacheMax + ' passages; the ESV terms limit how much may be stored). ' +
-      'Other translations (NIV, NKJV, KJV, CSB, NLT, NASB…): choose “Typed / Excel” on the Scripture Content and type or import the text, as before.'}));
+      'Other translations (NIV, NKJV, KJV, CSB, NLT, NASB…): choose “Type it myself” on the Scripture Content and type or paste the text.'}));
     show(d);
   }).catch(function(){ root.textContent = 'Not available right now.'; });
 }

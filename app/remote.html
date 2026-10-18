@@ -81,8 +81,10 @@
       <button type="button" class="dp-act" id="dp-undo">Undo</button><button type="button" class="dp-act" id="dp-clear">Clear</button>
       <button type="button" class="dp-act done" id="dp-done">Done</button>
     </div>
-    <div class="dp-stage" id="dp-stage"><iframe id="dp-frame" title="What is on screen now" tabindex="-1"></iframe><canvas id="dp-canvas" width="1920" height="1080" aria-label="Draw here"></canvas></div>
-    <p class="dp-hint">Draw with your finger. It appears on the screen when you lift it.</p>
+    <div class="dp-area" id="dp-area">
+      <div class="dp-stage" id="dp-stage"><iframe id="dp-frame" title="What is on screen now" tabindex="-1"></iframe><img id="dp-live" alt="" hidden><canvas id="dp-canvas" width="1920" height="1080" aria-label="Draw here"></canvas></div>
+    </div>
+    <p class="dp-hint" id="dp-hint">Draw with your finger. It appears on the screen when you lift it. Turn your phone sideways for a bigger picture.</p>
   </div>
 
   <div class="layout">
