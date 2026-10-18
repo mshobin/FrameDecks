@@ -1,0 +1,84 @@
+name: Bug report
+description: Something in Kingdom Connect doesn't work the way it should.
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for taking the time to report this.
+        **Please never post a phone-remote PIN, an ESV API key, or member names, phone numbers, emails or birthdays.**
+        If something went wrong *during a live service*, the **Service-day problem** form is triaged first.
+  - type: input
+    id: version
+    attributes:
+      label: Kingdom Connect version
+      description: Settings → About (for example 6.6).
+      placeholder: "6.6"
+    validations:
+      required: true
+  - type: input
+    id: windows
+    attributes:
+      label: Windows version
+      placeholder: "Windows 11 23H2"
+    validations:
+      required: true
+  - type: dropdown
+    id: live
+    attributes:
+      label: Did this happen during a live service or meeting?
+      options:
+        - "No, while preparing or testing"
+        - "Yes, during a live service or meeting"
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: Describe what you saw. Screenshots help (remove personal information first).
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: The steps that make it happen, one per line.
+      placeholder: |
+        1. Select the Frame "Bible Study"
+        2. Press Go Live
+        3. Press → to show the next question
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect to happen?
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Which part of the app?
+      multiple: true
+      options:
+        - Frames and Content (Studio)
+        - Questions and scriptures
+        - PowerPoint, images or video
+        - KingdomConnect camera (Zoom / Teams / Google Meet / OBS)
+        - Presentation window or Speaker View
+        - Phone remote
+        - Annotate / Freeze / Blackout
+        - Excel Meeting Workbook
+        - Members
+        - Installation or updates
+        - Other
+  - type: textarea
+    id: diagnostics
+    attributes:
+      label: Diagnostics
+      description: |
+        Settings → Diagnostics → **Copy diagnostics**, then paste here. It contains no PIN or member details,
+        but please read it and remove anything personal before posting.
+      render: text

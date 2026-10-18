@@ -900,7 +900,7 @@ def scripture_lookup(ref, translation="ESV", fresh=False):
     if not ref:
         raise ValueError("Type a reference first, for example Romans 2:29.")
     if translation != "ESV":
-        raise ValueError("Only the ESV can be fetched. For other translations type or paste the text (or import it from Excel).")
+        raise ValueError("Only the ESV can be fetched. For other translations type or paste the text (or plan them in the Meeting Workbook).")
     key = "ESV|" + ref.lower()
     with _scr_lock:
         cache = _scr_cache()

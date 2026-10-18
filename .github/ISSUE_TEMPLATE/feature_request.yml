@@ -1,0 +1,42 @@
+name: Feature request
+description: Suggest an idea that would help your church or ministry.
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        The best feature requests start with the ministry situation, not the solution.
+        Kingdom Connect stays simple, reliable and offline-first; see [ROADMAP.md](https://github.com/mshobin/KINGDOM-CONNECT/blob/main/ROADMAP.md).
+  - type: textarea
+    id: context
+    attributes:
+      label: Ministry context
+      description: What kind of gathering is this for, who is running it, and who is watching (in the room, online, both)?
+      placeholder: "Sunday service, one volunteer at the media desk, projector in the hall and a Zoom stream for the housebound."
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: What gets in the way today?
+      description: Describe the problem or the extra work you have now.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What would help?
+      description: Describe what you'd like to happen. Sketches or screenshots from other software are welcome.
+    validations:
+      required: true
+  - type: textarea
+    id: who
+    attributes:
+      label: Who benefits?
+      description: Worship leaders, media team, volunteers, speakers, the congregation, people watching online…
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: How do you manage today?
+      description: Any workaround you use now.
