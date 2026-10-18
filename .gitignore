@@ -16,6 +16,7 @@ webview/
 *.csv
 !samples/*.xlsx
 !docs/templates/*.xlsx
+!app/templates/*.xlsx
 # ---- Build output ----
 dist/
 build/
