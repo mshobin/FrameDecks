@@ -6,8 +6,8 @@ This guide turns the Kingdom Connect folder (formerly BSF Command Center) into a
 - its **own app window**, with no address bar or browser controls;
 - the **KingdomConnect** camera for Zoom, Teams, Google Meet and OBS.
 
-After installing, see `docs/configuration-guide.md` to set up the camera and **Team Space** (which needs WireGuard),
-and `docs/user-guide.md` for everyday use.
+After installing, see `docs/configuration-guide.md` to set up the camera and the phone remote, and
+`docs/user-guide.md` for everyday use.
 
 GitHub builds the installer for you on a clean Windows computer, so you don't need to install
 any programming tools. You only need a free GitHub account.
@@ -37,14 +37,14 @@ GitHub now starts building your installer automatically.
 2. Click the **Actions** tab. You'll see **Build Windows installer** running (yellow dot).
    It takes about 5–10 minutes. A green tick means it worked.
 3. Click the finished run. At the bottom, under **Artifacts**, click
-   **Kingdom Connect v6.4** (the version number) to download it. It is a .zip containing the Setup .exe.
-4. Unzip it. You now have **Kingdom Connect v6.4.exe**.
+   **Kingdom Connect v6.5** (the version number) to download it. It is a .zip containing the Setup .exe.
+4. Unzip it. You now have **Kingdom Connect v6.5.exe**.
 
 If you see a red cross instead, click the run to read the error, and send it to me.
 
 ## Part 3 · Install
 
-1. Close Zoom, Teams and OBS (they keep the camera in use), then double-click **Kingdom Connect v6.4.exe**.
+1. Close Zoom, Teams and OBS (they keep the camera in use), then double-click **Kingdom Connect v6.5.exe**.
 2. Windows may show **"Windows protected your PC"**. This appears because the installer isn't
    code-signed (signing costs money every year). Click **More info → Run anyway**.
 3. Follow the wizard. Leave **Create a desktop icon** ticked.
@@ -63,8 +63,6 @@ If you see a red cross instead, click the run to read the error, and send it to 
       the top left and the tabs Studio · Members · Settings (Alt+1, Alt+3, Alt+4). Minimize, Maximize and Close work
       as usual, and the title bar is dark (or light, in light mode).
 - [ ] Zoom, Teams, Google Meet and OBS list the camera as **KingdomConnect** (restart them after installing).
-- [ ] Optional, **Team Space**: install WireGuard and follow `docs/configuration-guide.md`, section 2. The Team
-      button in the command bar shows a green dot when a co-leader is online.
 - [ ] Your members and saved lists are there (after importing).
 - [ ] **OBS / Camo:** your existing overlay links still work (same address: `http://localhost:8750/...`).
       Check the top bar shows **OBS · 1 open**.
@@ -227,8 +225,6 @@ The installer appears in the `dist` folder.
   Everything works in the meantime. The Edge app window has no address bar or tabs.
 - **Zoom / Teams / OBS still shows "BCC vCam" or no KingdomConnect:** restart that app. If it is still missing, run
   the installer again with **Install the KingdomConnect camera** ticked.
-- **Team Space shows "No connected WireGuard tunnel was found":** open WireGuard and **Activate** your tunnel. See
-  `docs/configuration-guide.md`, section 2.4.
 - **Antivirus blocks or quarantines the app:** this is a known false alarm with unsigned apps made
   with Python. Restore it and add an exception for `%LOCALAPPDATA%\Programs\BSF Command Center`.
 - **"Port 8750 is in use" message:** another program is using the address the overlays need.

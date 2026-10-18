@@ -1,92 +1,145 @@
-# Kingdom Connect: user guide (v6.4)
+# Kingdom Connect: user guide (v6.5)
 
-Kingdom Connect runs your online Bible study, prayer meeting or fellowship group on Zoom, Microsoft Teams or Google
-Meet:
-- scenes with questions, Scripture, prayer and announcements;
-- your own camera, **KingdomConnect**;
-- a phone remote;
-- **Team Space** for co-leaders.
+Kingdom Connect runs your online Bible study, prayer meeting, small group or training on Zoom, Microsoft Teams or
+Google Meet. It is meeting-first:
+
+1. **Meeting**: one meeting, for example *Romans · Week 5*.
+2. **+ Frame**: one screen or one step of the meeting (Welcome, Worship, Scripture Reading, Questions, Closing).
+3. **+ Content**: what is shown inside a Frame (a question, a scripture, text, a picture, a video, a timer, PowerPoint).
+4. **Present**: Go Live, then step through the Frames.
+5. **Annotate**: draw on the picture.
+6. **Phone**: run all of it from a phone if you like.
 
 Everything runs on your PC.
 
 - Installing: `BUILD-AND-INSTALL.md` (Installation Guide)
-- Setting up the camera, Team Space and WireGuard: `docs/configuration-guide.md`
-- How each feature works: `docs/features.md`, `docs/meeting-import-and-branding.md`
+- Setting up the camera and the phone remote: `docs/configuration-guide.md`
+- How each feature works: `docs/features.md`
+- PowerPoint (what works, and why): `docs/powerpoint.md`
+- The Excel Meeting Workbook: `docs/meeting-import-and-branding.md`
 
 ---
 
 ## 1. The window
-Kingdom Connect opens as a desktop app, like Teams or Slack. It has no address bar or browser buttons. Minimize,
-Maximize/Restore and Close are at the top right as in any Windows app, and the title bar matches the app's dark or
-light theme.
-
 The **command bar** across the top holds everything you need live:
 
 | Part | What it does |
 | --- | --- |
-| Book + Candle logo | Kingdom Connect. Hover over it to see your Meeting Name |
 | Studio · Members · Settings | The three sections (Alt+1, Alt+3, Alt+4) |
-| Search (Ctrl+K) | Scenes, layers, Bible references, questions, members, settings |
-| ◀ Scene · **Go Live** · Scene ▶ | Put the selected scene on screen (T), or step to the previous or next scene |
-| Transition · Auto · Program ▾ · Hide all | How the next scene appears; auto-advance; Hide layer / Blackout / Emergency; hide everything (Esc) |
-| ● Off air / On air | What is live now |
-| **Team** | Team Space: co-leaders, shared notes, actions, Ask to Go Live |
-| Status | KingdomConnect camera, overlays, phone remote, recording, slides, program |
-| Presentation Mode | Only the scenes and Go Live (P) |
+| Search (Ctrl+K) | Frames, Content, Bible references, questions, members, settings |
+| ◀ Frame · **Go Live** · Frame ▶ | Put the selected Frame on screen (T), or step to the previous or next Frame |
+| Transition · Auto · ◀ Question ▶ | How the next Frame appears; auto-advance; step through the Frame's questions or scriptures |
+| Program | Hide Content · **Blackout** (K) · Emergency · **Annotate** (D) · **Freeze** (F) |
+| Hide all | Hide everything (Esc) |
+| ● Off air / LIVE | What is on screen now |
 
-**Close (X)** asks whether to keep running in the background (the camera, overlays and Team Space keep working) or
-quit.
-
-## 2. Studio: scenes and layers
-- A **scene** is what you put on screen. It is a stack of **layers**: a question, a verse, text, pictures, video,
-  slides, your camera, your branding.
-- Select a scene, check the preview, then press **Go Live**.
-- **+ Scene** offers:
-  - Quick Start sets;
+## 2. Frames and Content
+- **Meeting** (the ✨ button next to + Frame) has:
+  - Import / Export / Download the Excel Meeting Workbook;
+  - Quick Start;
   - the Content Library;
-  - your templates;
-  - **Import meeting from Excel…**, which builds the whole meeting from one file.
-- Drag the dividers to resize the panels. The Layout menu folds them away.
+  - your Frame templates.
+- **+ Frame** adds one **blank** Frame after the selected one. Name it by double-clicking it, or under
+  *Content Settings → Frame*.
+- Select the Frame, then **+ Content**:
+  - **Question**, **Scripture**, **Text**, **Image**, **Video**, **Timer**, **PowerPoint**;
+  - **Free Content**: announcement, prayer point, lower third, birthday, branding, camera, screen share, a live
+    window, logo, watermark, free text, shape, background.
+- **Content belongs to its Frame.** Changing it never changes another Frame.
+- **Duplicate** (⋯ on a Frame) makes a completely separate copy. Every question, scripture, label and setting is
+  copied, not shared.
+- Select a Frame and press **Go Live**. Double-click a Frame, or press **T**, to do the same.
 
-## 3. The KingdomConnect camera
-Choose **KingdomConnect** as the camera in Zoom, Teams, Google Meet or OBS. Participants see your webcam with your
-live scene on top: cards, verses, lower thirds and branding. Background blur and Camera Looks are in **Settings →
-KingdomConnect Camera**.
+## 3. Content Settings
+Select any Content (or the Frame itself) and every setting is in one panel, in groups:
+- **Content**
+- **Appearance**
+- **Position**
+- **Timing**
+- **Animation**
+- **Media**
+- **Behavior**
 
-If an app doesn't list KingdomConnect, restart that app. Apps look for cameras when they start.
+The group names along the top jump to their group. There is no Basic / Advanced switch: everything is visible.
 
-## 4. Team Space (co-leaders)
-> **Team Space is available only when authorized peers are online through a secure WireGuard network. No cloud
-> relay or third-party server is required.**
+### Questions and Scriptures
+A Question (or Scripture) Content holds **its own list**, shown full height in Content Settings:
+- **Click** an item to make it the Frame's current one.
+- **Show** puts it on screen.
+- **Double-click** (or Enter) opens it for editing **in the same panel**:
+  - its own **Label** (for example *Question 1*, *Opening question* or *John 15:5*);
+  - the text;
+  - an **Answer** and **Notes** for you (never on screen);
+  - its own transition.
+- Press **Done** (or Esc) to go back to the list.
+- **+ Question** / **+ Scripture** adds one; **Add several** pastes many at once.
+- For scripture, type a reference above the list and press **Fetch scripture** (ESV, with a key in Settings →
+  Scripture).
+- When the Frame is on screen:
+  - **→ / ←** step through its questions;
+  - **Shift + → / ←** step through its scriptures.
 
-Once your team has set up WireGuard and Team Space (Configuration Guide, section 2), press **Team** in the command bar:
-- **Co-leaders**: each one shows **Online** or **Offline**.
-- **Shared notes**: type notes for the team. They sync while co-leaders are connected.
-- **Actions**: add an item and tick it off. The list syncs while connected.
-- **Ask to Go Live**: choose an online co-leader and one of their scenes, then press **Ask to Go Live**. Their PC
-  asks them to **Approve & Go Live** or **Decline**. Nothing goes on air without their approval.
+## 4. Present, Annotate, Freeze, Black screen
+- **Go Live** puts the selected Frame on screen; **◀ Frame / Frame ▶** step through the meeting.
+- **Annotate (D)** turns the canvas into a drawing surface:
+  - Tools: **Pen** (P), **Highlighter** (H), **Arrow** (A), **Line** (L), **Rectangle** (R), **Ellipse** (E),
+    **Text** (T).
+  - Six colours and three thicknesses.
+  - **Eraser** or **Undo** (Ctrl+Z), **Redo** (Ctrl+Y), **Clear**.
+  - The drawings appear above everything: slides, PowerPoint, cards. Everyone sees them in Zoom or Teams. **Esc**
+    hides them.
+- **Freeze (F)** holds the picture while you get the next thing ready. You can still draw on it.
+- **Blackout (K)** makes the picture black.
 
-When a co-leader asks you, a dialog appears on your PC. **Approve & Go Live** puts their chosen scene on air at once.
+## 5. The KingdomConnect camera
+Choose **KingdomConnect** as the camera in Zoom, Teams, Google Meet or OBS. Participants see your webcam with the live
+Frame on top. Background blur and Camera Looks are in **Settings → KingdomConnect Camera**. If an app doesn't list
+KingdomConnect, restart that app.
 
-Team Space works only while both PCs are online and connected through WireGuard. Nothing is stored on, or passed
-through, any other server.
+## 6. Phone and tablet remote
+**Settings → Phone & iPad Remote** → turn it on, scan the QR code, enter the PIN.
+- **Simple remote** (the default): one screen, very large buttons, nothing to set up.
+  - **Current Frame** (*Frame 4 of 18*) with **PREVIOUS FRAME** / **NEXT FRAME**.
+  - **Current Content** (*Question 2 of 5*, *Scripture*, or *PowerPoint · Slide 3 of 12*) with **PREVIOUS CONTENT** /
+    **NEXT CONTENT**. **Change** appears when a Frame has more than one.
+  - **ANNOTATE**: draw with your finger on the live picture.
+  - **FREEZE** and **BLACK SCREEN**.
+  - The connection status is spelled out at the top, next to **HIDE ALL**.
+- **Advanced remote** (⋯ → Advanced remote):
+  - every Frame, with search across Frames and Content;
+  - the Frame's Content (tap to show or hide);
+  - presenter notes and the question's answer;
+  - PowerPoint slides;
+  - **Run-through**: step through Frames on your phone without changing the screen;
+  - Annotate, Freeze, Blackout and Emergency.
 
-## 5. Your branding
+## 7. Excel (optional)
+Kingdom Connect works fully without Excel. The **Meeting Workbook** is for planning, review, handover and bulk editing.
+
+It has five sheets:
+- **Meeting Overview**
+- **Frames**
+- **Content**
+- **Questions**
+- **Scriptures**
+
+Use it through **Meeting**:
+- **Download the Excel template** (drop-down lists, examples);
+- **Import meeting from Excel…** (preview with every problem and its row, Append or Replace, Undo);
+- **Export this meeting to Excel**.
+
+After an import the app is the source of truth.
+
+## 8. Your branding
 **Settings → Meeting & Branding**: your Meeting Name, organisation, logo and accent colour. They appear only where you
-put them:
-- Branding layers;
-- text cards that use `{meeting}` / `{org}`;
-- **Show my logo on this card**.
+put them: Branding Content, text that uses `{meeting}` / `{org}`, and **Show my logo on this card**.
 
-Kingdom Connect's own branding is just the Book + Candle logo in the command bar.
+## 9. Saving and backups
+Everything saves automatically on this PC. **Settings → Data / Backup** keeps daily backups and lets you make one now or
+restore one. Each Frame keeps its version and history (Content Settings → History). Kingdom Connect has no accounts,
+shared workspaces or cloud: your meeting stays on your PC unless you export it.
 
-## 6. Phone remote
-**Settings → Phone & iPad Remote** → turn it on, then scan the QR code and enter the PIN. The remote has three modes:
-- **Simple**: the live scene and two large Previous / Next buttons.
-- **Standard**: Go Live, the scenes and transitions.
-- **Advanced**: everything.
-
-## 7. Help
-- **Settings → Diagnostics → Copy diagnostics** collects the information needed for support. It contains no PIN,
-  team key or member details.
+## 10. Help
+- **Settings → Diagnostics → Copy diagnostics** collects the information needed for support. It contains no PIN or
+  member details.
 - **Settings → About** has the story, contact and version.

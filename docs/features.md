@@ -1,9 +1,26 @@
-# Kingdom Connect: feature documentation (v6.4)
+# Kingdom Connect: feature documentation (v6.5)
+
+## v6.5 at a glance
+| Feature | What it does | Where it lives |
+| --- | --- | --- |
+| **Meeting → Frame → Content** | **+ Frame** makes one blank Frame. **+ Content** adds Question, Scripture, Text, Image, Video, Timer, PowerPoint or Free Content to the selected Frame | `app/js/workspace.js` |
+| **Independent Frames** | Each Question / Scripture Content owns its list (`layer.c.items`) and its appearance (`layer.c.look`). Duplicate gives new ids to the Frame, every Content and every item. Older data is converted on load with ids derived from the old ones | `app/js/store.js` (`ownLists`, `freshIds`, `applyLook`) |
+| **Content Settings** | One panel per selection, every setting visible in groups (Content, Appearance, Position, Timing, Animation, Media, Behavior); no Basic / Advanced | `app/js/workspace.js` (`renderInspector`) |
+| **Question / Scripture lists** | Full-height list; click = current, double-click = edit in the same panel (label, text, answer, notes, transition) | `app/js/frame-lists.js` |
+| **Annotate** | Pen, highlighter, arrow, line, rectangle, ellipse, text; colours, thickness, undo / redo / clear; above all Content, PowerPoint and cards on KingdomConnect, the overlay pages and the phone | `app/js/annotate.js`, `vcam/annotate.py`, state `live.ink` |
+| **Freeze / Black screen** | Hold the picture (drawings stay on top) / black picture; keys F and K | `vcam/program.py`, state `live.freeze`, `live.blackout` |
+| **PowerPoint** | A .pptx becomes slides via the installed PowerPoint (COM SaveAs PDF); a live window keeps animations; **Show objects only** keys out a plain slide background | `vcam/powerpoint.py` (`pptx_to_pdf`), `vcam/layers.py` (`key_background`), `docs/powerpoint.md` |
+| **Simple / Advanced remote** | Simple (default): Frame and Content steppers, Annotate, Freeze, Black Screen. Advanced: search, notes, run-through, PowerPoint, annotation | `app/remote.html`, `app/js/remote.js` |
+| **Meeting Workbook** | Five-sheet Excel template with drop-downs, import with preview, export | `app/js/meeting-book.js`, `tools/make_meeting_workbook.py` |
+| **No collaboration** | Team Space removed; local save, autosave, export, backups and Frame history remain | — |
+
+The rest of this document describes the v6.4 features that are still current: the KingdomConnect camera, logo-only
+branding and native desktop behaviour.
+
 
 This document describes what each v6.4 feature does, how it is built and where its limits are:
 
 - the KingdomConnect camera;
-- Team Space, peer-to-peer over WireGuard;
 - logo-only branding;
 - native desktop behaviour.
 
@@ -44,84 +61,12 @@ The app also still recognises its old name, so it never captures its own picture
 
 ---
 
-## 2. Team Space: peer-to-peer over WireGuard
+## 2. Team Space (removed in v6.5)
 
-> **Team Space is available only when authorized peers are online through a secure WireGuard network. No cloud
-> relay or third-party server is required.**
-
-Team Space lets co-leaders on different PCs coordinate during a meeting:
-- **Presence**: each co-leader shows **Online** or **Offline**.
-- **Shared notes**: one notes area for the team.
-- **Actions**: a shared checklist.
-- **Ask to Go Live**: ask the meeting PC to put one of its scenes on air. The person at that PC approves it.
-
-### Architecture
-```
- Kingdom Connect PC (Anna)                       Kingdom Connect PC (Ben)
- ┌──────────────────────────┐   WireGuard tunnel  ┌──────────────────────────┐
- │ app server 127.0.0.1     │   (encrypted, UDP)  │ app server 127.0.0.1     │
- │ Team Space 10.8.0.2:8790 │◀───────────────────▶│ Team Space 10.8.0.3:8790 │
- └──────────────────────────┘   signed messages   └──────────────────────────┘
-            No relay, no cloud service, no third-party server in between.
-```
-- **Transport:** each PC listens for Team Space on its own WireGuard address only, port 8790 by default. It never
-  listens on Wi-Fi, the LAN or the internet. The dashboard and everything else stay on `127.0.0.1`.
-- **Encryption:** WireGuard encrypts all traffic between the two PCs end to end (Curve25519, ChaCha20-Poly1305).
-  WireGuard only accepts a packet from a peer's tunnel address if it was sent with that peer's key, so a source
-  address on the tunnel can be trusted.
-- **Authorization:** a message is accepted only when all of these hold:
-  1. it arrives on the WireGuard address;
-  2. it comes from an address in this PC's **co-leaders** list;
-  3. it is signed with the shared **team key** (HMAC-SHA256);
-  4. it names this PC as the recipient;
-  5. it is less than 2 minutes old;
-  6. its single-use nonce has not been seen before.
-
-  Replies are signed and checked the same way. Anything else gets `403`.
-- **Presence:** every 4 seconds each PC sends a signed `sync` to each co-leader over the tunnel. A co-leader that
-  answered within the last 12 seconds is **Online**; otherwise they are **Offline**. Presence is never stored or
-  reported anywhere else.
-- **Sync:** the same exchange carries the shared notes and the action list. They are merged on both sides with last
-  writer wins: for the notes as a whole, and for each action item separately. Edits made while nobody else is online
-  stay on this PC and are exchanged the next time both PCs are connected. **Nothing is queued, forwarded or relayed.**
-- **Ask to Go Live:**
-  - It is sent only if the other PC is Online at that moment. Otherwise it is refused straight away.
-  - The other PC shows a dialog: **Approve & Go Live** or **Decline**.
-  - Approving puts the scene on air with the transition chosen in the command bar, and the asker sees *approved*.
-  - A request lapses after 2 minutes, or as soon as either PC disconnects.
-- **What travels:**
-  - the display name;
-  - the shared notes and actions;
-  - the list of scene names and ids, so co-leaders can choose one to ask for;
-  - which scene is live;
-  - the app version.
-
-  Member data, the phone-remote PIN, the team key and the ESV key never leave the PC.
-
-### Files and endpoints
-| Item | Where |
-| --- | --- |
-| Settings (enabled, your name, your WireGuard address, port, team key, co-leaders) | `kc-teamspace.json` in the data folder |
-| Notes and actions | `kc-teamspace-doc.json` in the data folder |
-| Peer protocol | `POST /team/v1` on `<WireGuard address>:8790`. Header `X-KC-Sig` = HMAC-SHA256 of the body |
-| Dashboard API (this PC only) | `GET api/team`, `GET api/team/key`, `POST api/team/settings`, `POST api/team/notes`, `POST api/team/action`, `POST api/team/ask`, `POST api/team/answer` |
-| Code | `teamspace.py` (protocol, presence, sync, WireGuard detection), `app/js/teamspace.js` (Team drawer, Settings → Team Space, approval dialog) |
-| Test | `KC_TEAMSPACE_ALLOW_ANY_ADDRESS=1 python3 tools/test_teamspace.py`: two PCs on loopback addresses, 27 checks |
-
-### WireGuard detection
-Team Space starts only when the address you chose belongs to a connected WireGuard tunnel:
-- **Windows:** a network adapter whose description contains "WireGuard" and whose status is Up.
-- **Linux:** an interface of type `wireguard`.
-- **macOS:** a `utun` interface.
-
-It is checked every 15 seconds. Team Space starts listening when the tunnel comes up and stops when it goes down.
-
-### Limits
-- Both PCs must be online at the same time. There is no offline delivery, by design.
-- The PCs' clocks must agree within 2 minutes (Windows sets its clock automatically by default).
-- At most 16 co-leaders; notes up to 20,000 characters; up to 200 actions.
-- Setting up WireGuard itself (keys, the tunnel, any port forwarding for the WireGuard UDP port) is done in the
-  WireGuard app. See the Configuration Guide.
+Team Space (co-leaders' presence, shared notes and actions, Ask to Go Live over WireGuard) was removed in v6.5 to keep
+Kingdom Connect a simple, single-PC app. No settings, listener or peer protocol remain. Old `kc-teamspace*.json`
+files in the data folder are ignored and can be deleted. Meetings are shared by **exporting** them (Excel Meeting
+Workbook or a Frame file) instead.
 
 ---
 

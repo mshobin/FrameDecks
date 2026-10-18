@@ -61,6 +61,9 @@ jobs:
       - name: Self-check (program starts and serves its pages)
         run: python packaging/check.py
 
+      - name: Test the Meeting Workbook import (Node.js)
+        run: node tools/test_meeting_workbook.js
+
       - name: Read version number
         id: ver
         shell: pwsh
@@ -92,11 +95,22 @@ jobs:
           & $iscc "/DAppVersion=${{ steps.ver.outputs.version }}" packaging/installer.iss
           if ($LASTEXITCODE -ne 0) { throw "Inno Setup failed" }
 
+      - name: Write the SHA-256 checksum
+        shell: pwsh
+        run: |
+          Get-ChildItem "dist/Kingdom Connect v*.exe" | ForEach-Object {
+            $hash = (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLower()
+            "$hash  $($_.Name)" | Set-Content -Encoding ascii "$($_.FullName).sha256"
+            Write-Host "$hash  $($_.Name)"
+          }
+
       - name: Attach the installer to this run
         uses: actions/upload-artifact@v4
         with:
           name: Kingdom Connect v${{ steps.ver.outputs.version }}
-          path: dist/Kingdom Connect v*.exe
+          path: |
+            dist/Kingdom Connect v*.exe
+            dist/Kingdom Connect v*.exe.sha256
           if-no-files-found: error
 
       - name: Publish on the Releases page (version tags only)
@@ -105,5 +119,7 @@ jobs:
         with:
           name: Version ${{ steps.ver.outputs.version }}
           body_path: docs/releases/v${{ steps.ver.outputs.version }}.md
-          files: dist/Kingdom Connect v*.exe
+          files: |
+            dist/Kingdom Connect v*.exe
+            dist/Kingdom Connect v*.exe.sha256
           generate_release_notes: false

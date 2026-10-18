@@ -1,4 +1,4 @@
-NOTE (v6.4): this is the original manual from version 4.6, kept for
+NOTE (v6.5): this is the original manual from version 4.6, kept for
 reference. The current guides are docs/user-guide.md,
 BUILD-AND-INSTALL.md, docs/configuration-guide.md and docs/features.md.
 The built-in camera is now called "KingdomConnect".

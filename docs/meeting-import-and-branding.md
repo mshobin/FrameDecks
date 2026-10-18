@@ -1,4 +1,62 @@
-# Leader branding, the meeting Excel template, and Go Live (v6.2)
+# The Excel Meeting Workbook (v6.5), leader branding and Go Live
+
+> **v6.5:** the Excel template is now the five-sheet **Meeting Workbook** (section 0). Files made with the v6.2
+> one-sheet template ("Scene Name" column) still import. Sections 1–4 describe v6.2 and use its words: a *scene* is now
+> a **Frame**, and a *layer* is now **Content**.
+
+## 0. The Meeting Workbook (v6.5)
+
+Excel is **optional**. Kingdom Connect is fully usable without it. The workbook is a **planning, review, handover and
+bulk-editing** tool. After an import, the app is the source of truth: the file is not linked, and **Export** gives you
+a fresh copy.
+
+### Where
+**Meeting** (the ✨ button next to + Frame) has three items:
+- **Download the Excel template**: `templates/Kingdom-Connect-Meeting-Workbook.xlsx`. It has drop-down lists,
+  whole-number checks, example rows, a Read Me and a Lists sheet.
+- **Import meeting from Excel…**:
+  1. A preview shows the Frames, Content, questions and scriptures that will be made, and every problem with its
+     **sheet and row**.
+  2. Choose **Append** or **Replace**.
+  3. Text left empty in the Scriptures sheet is filled from the ESV.
+  4. **Undo** is offered afterwards.
+- **Export this meeting to Excel**: the same five sheets, filled in. An export imports again.
+
+### The sheets
+| Sheet | Columns | Notes |
+| --- | --- | --- |
+| **Meeting Overview** | Field · Value | Rows: Meeting Title, Date, Presenter, Notes. The title names the group of imported Frames |
+| **Frames** | Frame Number · Frame Name · Description · Background · Transition · Presenter Notes | One row per Frame, numbered 1, 2, 3… Background: None, Navy, Black, White, Brand or #RRGGBB. Transition: Frame default, Cut, Fade, Cross Dissolve, Dip to Black / White, Slide Left / Right, Push, Zoom Fade, Soft Scale, Cinema Fade |
+| **Content** | Frame Number · Content Order · Content Type · Content Name · Main Content · Label · Duration · Animation · PowerPoint Background Visibility · Notes | One row per Content. Types: Question, Scripture, Text, Image, Video, Timer, PowerPoint, Free Content, plus Announcement, Prayer Point, Lower Third, Birthday, Branding, Camera, Screen. Audio and Web Page are accepted but skipped with a note (not yet available). Timer: Duration in minutes or a time (10:30). PowerPoint: Main Content = file name (choose it in the app afterwards); PowerPoint Background Visibility Hide = Show objects only |
+| **Questions** | Frame Number · Content Name · Question Number · Label · Question Text · Answer Text · Media · Timer · Animation · Notes | The list of a Question Content (same Frame Number and Content Name), in Question Number order. Labels and answers are per question; answers and notes are never on screen |
+| **Scriptures** | Frame Number · Content Name · Scripture Number · Label · Reference · Text · Translation · Animation · Notes | The list of a Scripture Content. Empty Text is fetched from the ESV when a key is set |
+
+### Validation (the import is refused until these are fixed; each problem names its sheet and row)
+- The Frames and Content sheets must exist and have a Frame Number column.
+- Frame Numbers must be whole numbers, and each must be used once.
+- Content, Questions and Scriptures rows must point to an existing Frame. Questions and Scriptures rows must also
+  point to a Content Name in that Frame.
+- Content Types, Backgrounds, Transitions, Animations and PowerPoint Background Visibility must come from the lists.
+- Content Names must be unique within a Frame.
+- A Frame has at most one Question, one Scripture, one Birthday and one Branding Content. Put all of a Frame's
+  questions in its one Question Content.
+- Question Text is required.
+- Every scripture needs a Reference, and Text unless an ESV key is set.
+- At most 400 Frames.
+
+**Notes** let the import go ahead. For example: a picture or PowerPoint file to choose afterwards, Audio / Web Page
+skipped, a Timer value that isn't minutes or a time.
+
+### Code
+- `app/js/meeting-book.js`: the sheets, validation, building Frames, export (no UI; tested in Node by
+  `tools/test_meeting_workbook.js`).
+- `app/js/meeting-import.js`: the dialog.
+- `app/js/import-worker.js`: reads every sheet in the background.
+- `tools/make_meeting_workbook.py`: writes the template with openpyxl.
+
+---
+
+# v6.2: leader branding, the one-sheet Excel template, and Go Live
 
 This document covers the three v6.2 features: leader branding, the global Excel template and import, and the single
 Go Live action. For each one it describes the user flow, the data model, the template structure, the validation rules
