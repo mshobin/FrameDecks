@@ -65,7 +65,7 @@ function importDialog(candidates, firstRun){
     });
   } else list.appendChild(h('p', {cls: 'hint', text: 'No earlier BSF Command Center folder was found on your Desktop, Downloads or Documents. Choose it yourself, or start fresh.'}));
   var closeFn = modal(firstRun ? 'Welcome! Bring in your existing data?' : 'Import from an earlier version', [
-    h('p', {text: 'This copies your saved verses and questions, members, settings and phone-remote PIN from the folder where you used the Command Center before. The original folder is not changed.'}),
+    h('p', {text: 'This copies your saved verses and questions, members, settings and phone-remote PIN from the folder where you used Kingdom Connect before. The original folder is not changed.'}),
     list
   ], [
     {text: 'Choose a folder…', onclick: function(){ pickFolder().then(function(f){ if (f) doImport(f, closeFn); }); return false; }},
@@ -94,7 +94,7 @@ function renderDataCard(){
     var t = h('table', {cls: 'plain'}, [h('tr', {}, [h('th', {text: 'Backup'}), h('th', {text: 'Contains'})])]);
     info.backups.forEach(function(b){ t.appendChild(h('tr', {}, [h('td', {cls: 'mono', text: b.name}), h('td', {text: b.files.join(', ')})])); });
     card.appendChild(t);
-    card.appendChild(h('p', {cls: 'hint', text: 'To restore one: open the backups folder, then use “Load a backup file” below or Members → Import Excel, or copy the files into the data folder while the Command Center is closed.'}));
+    card.appendChild(h('p', {cls: 'hint', text: 'To restore one: open the backups folder, then use “Load a backup file” below or Members → Import Excel, or copy the files into the data folder while Kingdom Connect is closed.'}));
   }
 }
 /* About line in General */
@@ -102,7 +102,7 @@ function renderAbout(){
   var sec = $('sec-general'); if (!sec || !info) return;
   var p = $('app-about');
   if (!p){ p = h('p', {cls: 'hint', id: 'app-about'}); sec.appendChild(p); }
-  p.textContent = 'BSF Command Center version ' + info.version + (info.installedApp ? ' (installed app)' : '') + '.';
+  p.textContent = 'Kingdom Connect version ' + info.version + (info.installedApp ? ' (installed app)' : '') + '.';
 }
 /* Settings > General > Performance (installed app): draw this window without the graphics card */
 function renderPerf(){
@@ -111,7 +111,7 @@ function renderPerf(){
   if (!box){
     var cb = h('input', {type: 'checkbox', id: 'app-lowgpu'});
     cb.addEventListener('change', function(){
-      post('settings', {lowGpu: cb.checked}).then(function(){ toast('Saved. Restart BSF Command Center to apply it.'); refresh(); });
+      post('settings', {lowGpu: cb.checked}).then(function(){ toast('Saved. Restart Kingdom Connect to apply it.'); refresh(); });
     });
     box = h('section', {cls: 'box', id: 'app-perf', 'aria-labelledby': 'app-perf-title'}, [
       h('div', {cls: 'box-head'}, [h('h2', {id: 'app-perf-title', text: 'Performance'})]),
@@ -138,7 +138,7 @@ window.BSFAppClosing = function(){
   });
   var body = [h('p', {text: 'Keep it running in the background so your overlays keep working in OBS and Camo and your phone stays connected. It stays in the tray near the clock; click the icon to open this window again.'})];
   if (live.length) body.unshift(h('div', {cls: 'alert warn'}, [h('b', {text: 'On screen now: '}), live.join(', ') + '. Quitting removes it from your Zoom video.']));
-  modal('Close BSF Command Center?', body, [
+  modal('Close Kingdom Connect?', body, [
     {text: 'Keep running in the background', cls: 'primary', onclick: function(){ post('hide'); }},
     {text: 'Quit', cls: live.length ? 'danger' : '', onclick: function(){ post('quit'); }},
     {text: 'Cancel', cls: 'quiet', onclick: function(){}}
@@ -161,6 +161,43 @@ window.open = function(url){
   if (info && info.desktop && url){ external(new URL(url, location.href).href); return null; }
   return nativeOpen.apply(window, arguments);
 };
+
+/* ---------- v6.4 native app window ----------
+ * In the app window (WebView2, or the Edge/Chrome app window used when WebView2 is missing) Kingdom Connect behaves
+ * like a desktop app, not a web page: no browser reload / print / view-source / find / zoom keys, no browser
+ * right-click menu outside text boxes, and files dropped outside a drop zone don't replace the page.
+ * The title bar follows the app's dark or light theme. In an ordinary browser tab nothing here applies. */
+var appShell = false;
+try { if (/[?&]shell=app\b/.test(location.search)) sessionStorage.setItem('kc-shell', 'app'); appShell = sessionStorage.getItem('kc-shell') === 'app'; } catch(e){}
+function isNative(){ return appShell || !!(info && info.shell === 'webview' && info.desktop); }
+function editable(t){ return t && t.closest && t.closest('input, textarea, select, [contenteditable=""], [contenteditable="true"]'); }
+document.addEventListener('keydown', function(e){
+  if (!isNative()) return;
+  var k = (e.key || '').toLowerCase(), mod = e.ctrlKey || e.metaKey;
+  var block = k === 'f5' || k === 'browserback' || k === 'browserforward' || k === 'f7' ||
+    (mod && ['r', 'p', 'u', 's', 'j', 'h', 'n', 't', 'w', 'g', 'o', '+', '=', '-', '0'].indexOf(k) >= 0 && !e.altKey) ||
+    (e.altKey && (k === 'arrowleft' || k === 'arrowright') && !editable(e.target)) || (mod && e.shiftKey && (k === 'i' || k === 'c' || k === 'delete'));
+  if (block && !e.defaultPrevented) e.preventDefault();
+}, false);
+window.addEventListener('wheel', function(e){ if (isNative() && (e.ctrlKey || e.metaKey)) e.preventDefault(); }, {passive: false});
+document.addEventListener('contextmenu', function(e){ if (isNative() && !editable(e.target)) e.preventDefault(); });
+window.addEventListener('dragover', function(e){ if (isNative()) e.preventDefault(); });
+window.addEventListener('drop', function(e){ if (isNative()) e.preventDefault(); });
+function themeNow(){
+  var t = document.documentElement.getAttribute('data-theme');
+  if (t === 'light' || t === 'dark') return t;
+  return window.matchMedia && matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+}
+var sentTheme = '';
+function syncTitleBar(){
+  if (!(info && info.shell === 'webview')) return;
+  var t = themeNow(); if (t === sentTheme) return; sentTheme = t;
+  post('window', {theme: t}).catch(function(){ sentTheme = ''; });
+}
+new MutationObserver(syncTitleBar).observe(document.documentElement, {attributes: true, attributeFilter: ['data-theme']});
+if (window.matchMedia) try { matchMedia('(prefers-color-scheme: light)').addEventListener('change', syncTitleBar); } catch(e){}
+document.documentElement.classList.toggle('kc-native', appShell);
+document.addEventListener('bsf-app-info', function(){ document.documentElement.classList.toggle('kc-native', isNative()); syncTitleBar(); });
 
 refresh().then(function(d){
   if (d.migration.needed) importDialog(d.migration.candidates, true);

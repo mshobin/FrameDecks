@@ -18,10 +18,13 @@ function showSection(id){
   if (!$('sec-' + id)) id = 'general';
   current = id;
   Array.prototype.forEach.call(document.querySelectorAll('.s-sec'), function(s){ s.hidden = s.id !== 'sec-' + id; });
+  document.body.classList.toggle('s-about-open', id === 'about');
   Array.prototype.forEach.call(document.querySelectorAll('#s-nav button'), function(b){ b.setAttribute('aria-current', String(b.dataset.sec === id)); });
   try { localStorage.setItem(SEC_KEY, id); } catch(e){}
   if (id === 'diag') renderDiag();
   if (id === 'security') renderSecurity();
+  if (id === 'recording' && window.BSFLoadRecordings) window.BSFLoadRecordings();
+  (window.BSFSectionHooks || []).forEach(function(f){ try { f(id); } catch(e){} });     // v6: Scripture, Transitions
 }
 window.BSFShowSection = showSection;
 $('s-nav').addEventListener('click', function(e){ var b = e.target.closest('[data-sec]'); if (b) showSection(b.dataset.sec); });
@@ -43,7 +46,7 @@ if (Store.served){
     dot('sn-ipad', ok ? 'ok' : 'info');
   });
   Status.on('presence', function(p){ var n = 0; for (var k in p) n += p[k]; dot('sn-display', n ? 'ok' : ''); });
-  setInterval(function(){ if (!document.hidden) dot('sn-diag', Store.online ? 'ok' : 'bad'); }, 1500);
+  setInterval(function(){ if (!document.hidden) dot('sn-diag', Store.online ? 'ok' : 'bad'); }, 3000);
 }
 
 /* ---------- Security ---------- */
@@ -58,17 +61,17 @@ function renderSecurity(){
     'Everything runs on this PC. Nothing is uploaded, and no cloud account is used. Unless the phone remote is switched on, only this PC can connect.'));
   g.appendChild(card('Phone & iPad Remote', r.enabled ? pill('info', 'On (PIN protected)') : pill('ok', 'Off'),
     r.enabled ? 'Other devices on your Wi-Fi need the 6-digit PIN. After 5 wrong tries a device waits 60 seconds. The remote controls overlays only and cannot open member details.'
-              : 'Only this PC can reach the Command Center. Turn it on in Settings → Phone & iPad Remote when you want to use your phone.',
+              : 'Only this PC can reach Kingdom Connect. Turn it on in Settings → Phone & iPad Remote when you want to use your phone.',
     r.enabled ? [h('button', {cls: 'btn small', type: 'button', text: 'New PIN (disconnects all phones)', onclick: function(){
       if (!confirm('Create a new PIN? Every connected phone or iPad will need the new PIN.')) return;
       fetch('api/remote-reset', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: '{}'}).then(function(){ window.BSFActions.toast('New PIN created. All phones and phones and iPads were disconnected.'); });
     }})] : []));
-  g.appendChild(card('BCC vCam camera', pill('ok', 'Stays on this PC'),
-    'Your webcam picture is processed on this PC (including background blur) and only goes to the meeting app you choose. The webcam is only switched on while Zoom, Teams or the preview is using BCC vCam.'));
+  g.appendChild(card('KingdomConnect camera', pill('ok', 'Stays on this PC'),
+    'Your webcam picture is processed on this PC (including background blur) and only goes to the meeting app you choose. The webcam is only switched on while Zoom, Teams or the preview is using KingdomConnect.'));
   g.appendChild(card('Member details', pill('ok', 'Private'),
     'Stored only in bsf-members-private.json on this PC. Never sent to overlays or the phone remote. The birthday overlay receives only the greeting you choose to show.'));
   g.appendChild(card('Windows Firewall', pill('ok', 'Never changed automatically'),
-    'The Command Center does not change firewall settings by itself. The optional “Allow iPad Remote” helper asks first, only affects private networks, and can be undone with “Undo iPad Remote permission”.'));
+    'Kingdom Connect does not change firewall settings by itself. The optional “Allow iPad Remote” helper asks first, only affects private networks, and can be undone with “Undo iPad Remote permission”.'));
   g.appendChild(card('Emails', pill('ok', 'Never sent automatically'),
     'Email preparation only opens a draft in Outlook or your mail app. You review and send it yourself.'));
 }
@@ -89,7 +92,7 @@ function renderDiag(){
   row('Local program', Store.served ? (Store.online ? '● Connected' : '● Not responding') : 'Not used (no-install mode)');
   row('Browser window', info.window + ' at ' + info.zoom + ' display scale');
   box.appendChild(kv); root.appendChild(box);
-  if (!Store.served){ root.appendChild(h('p', {cls: 'hint', text: 'Start the Command Center program for full diagnostics.'})); return; }
+  if (!Store.served){ root.appendChild(h('p', {cls: 'hint', text: 'Start the Kingdom Connect program for full diagnostics.'})); return; }
   fetch('api/diagnostics', {cache: 'no-store'}).then(function(r){ return r.json(); }).then(function(d){
     lastDiag = d;
     row('Version', d.version);
@@ -105,22 +108,22 @@ function renderDiag(){
       var r = d.resources, rq = r.requestsPerMinute || {};
       var total = Object.keys(rq).reduce(function(a, k){ return a + rq[k]; }, 0);
       row('Resources', (r.memoryMB != null ? r.memoryMB + ' MB memory · ' : '') + r.threads + ' threads · ' + Math.round(total) + ' requests/min' +
-        (r.presentationWindows ? ' · Presentation window open' : '') + ' · ' + r.layers + ' Studio layers (' + r.layerCacheEntries + ' cached pictures)');
+        (r.presentationWindows ? ' · Presentation window open' : '') + ' · ' + r.layers + ' Studio Content (' + r.layerCacheEntries + ' cached pictures)');
       var busiest = Object.keys(rq).slice(0, 4).map(function(k){ return k.replace('/api/', '') + ' ' + rq[k] + '/min'; }).join(' · ');
       if (busiest) row('Busiest requests', busiest);
       var tips = [];
       if (r.memoryMB > 900) tips.push('memory is high: restart the app after the meeting');
-      if (r.camera && r.camera.msPerFrame > 25) tips.push('camera work is heavy: use 720p, a lower blur, or fewer Studio layers');
-      if ((rq['/api/vcam/preview.jpg'] || 0) > 400) tips.push('a preview is being watched: close Studio or BCC vCam preview when not needed');
+      if (r.camera && r.camera.msPerFrame > 25) tips.push('camera work is heavy: use 720p, a lower blur, or fewer Studio Content');
+      if ((rq['/api/vcam/preview.jpg'] || 0) > 400) tips.push('a preview is being watched: close Studio or KingdomConnect preview when not needed');
       row('Performance tips', tips.length ? tips.join('; ') : 'Everything looks light.');
     }
     if (d.vcam && d.vcam.status && d.vcam.status.fps){
       var v = d.vcam.status;
       if (v.captureInfo) row('Webcam picture', v.captureInfo);
-      row('BCC vCam performance', 'camera ' + (v.captureFps || 0) + ' fps → output ' + v.fps + ' fps · ' + v.msPerFrame + ' ms work per frame · capture-to-send ' +
+      row('KingdomConnect performance', 'camera ' + (v.captureFps || 0) + ' fps → output ' + v.fps + ' fps · ' + v.msPerFrame + ' ms work per frame · capture-to-send ' +
         (v.latencyMs || 0) + ' ms · dropped frames ' + (v.dropped || 0) + ' · CPU ' + (v.cpuPercent || 0) + '% of this PC · GPU: not used (CPU pipeline)');
     }
-    row('BCC vCam', d.vcam && !d.vcam.status && d.vcam.detail ? 'Not available (' + d.vcam.detail + ')' : d.vcam && d.vcam.status ? d.vcam.status.state + (d.vcam.status.fps ? ' · ' + d.vcam.status.fps + ' fps · ' + d.vcam.status.msPerFrame + ' ms per frame' : '') + (d.vcam.status.state === 'error' ? ' · ' + d.vcam.status.message : '') : (d.vcam && d.vcam.reason) || 'Not available');
+    row('KingdomConnect', d.vcam && !d.vcam.status && d.vcam.detail ? 'Not available (' + d.vcam.detail + ')' : d.vcam && d.vcam.status ? d.vcam.status.state + (d.vcam.status.fps ? ' · ' + d.vcam.status.fps + ' fps · ' + d.vcam.status.msPerFrame + ' ms per frame' : '') + (d.vcam.status.state === 'error' ? ' · ' + d.vcam.status.message : '') : (d.vcam && d.vcam.reason) || 'Not available');
     var files = h('table', {cls: 'plain'}, [h('tr', {}, [h('th', {text: 'Data file'}), h('th', {text: 'Status'})])]);
     Object.keys(d.files).forEach(function(n){ var f = d.files[n]; files.appendChild(h('tr', {}, [h('td', {cls: 'mono', text: n}), h('td', {text: f.exists ? 'Present (' + Math.max(1, Math.round(f.bytes / 1024)) + ' KB)' : 'Not created yet'})])); });
     var fb = h('section', {cls: 'box'}, [h('div', {cls: 'box-head'}, [h('h2', {text: 'Data files'})]), files]);
@@ -135,18 +138,18 @@ function renderDiag(){
     if (!errors.length) eb.appendChild(h('p', {cls: 'hint', style: 'margin:0', text: 'None. Everything is running normally.'}));
     errors.slice(-10).reverse().forEach(function(e){ eb.appendChild(h('p', {cls: 'mono', text: e.time + '  ' + e.message})); });
     root.appendChild(eb);
-  }).catch(function(){ root.appendChild(h('div', {cls: 'alert bad', text: 'The local program is not responding. Check the black BSF Command Center window is open.'})); });
+  }).catch(function(){ root.appendChild(h('div', {cls: 'alert bad', text: 'The local program is not responding. Check the black Kingdom Connect window is open.'})); });
 }
 var lastDiag = null;
 function copyReport(){
   // No PIN, secret key or member data is ever included.
   var d = lastDiag || {};
-  var lines = ['BSF Command Center diagnostics', 'Version: ' + (d.version || '?'), 'Mode: ' + (Store.served ? 'local program' : 'no-install'),
+  var lines = ['Kingdom Connect diagnostics', 'Version: ' + (d.version || '?'), 'Mode: ' + (Store.served ? 'local program' : 'no-install'),
     'Program: ' + (Store.online ? 'connected' : 'not responding'), 'Port: ' + (d.port || '?'), 'Listening on: ' + (d.listeningOn || '?'),
     'Addresses: ' + (d.addresses || []).join(', '), 'Python: ' + (d.python || '?'), 'OS: ' + (d.os || '?'),
     'Signed-in phones/iPads: ' + (d.remoteSessions != null ? d.remoteSessions : '?'),
     'Installed app: ' + (d.installedApp ? 'yes' : 'no'),
-    'BCC vCam: ' + (d.vcam ? JSON.stringify(d.vcam.status || {reason: d.vcam.reason, detail: d.vcam.detail}) : 'n/a'),
+    'KingdomConnect: ' + (d.vcam ? JSON.stringify(d.vcam.status || {reason: d.vcam.reason, detail: d.vcam.detail}) : 'n/a'),
     'Resources: ' + JSON.stringify(d.resources || {}),
     'Network: ' + (d.network ? JSON.stringify(d.network) : 'n/a'),
     'Files: ' + (d.files ? Object.keys(d.files).map(function(n){ return n + '=' + (d.files[n].exists ? 'yes' : 'no'); }).join(', ') : '?'),

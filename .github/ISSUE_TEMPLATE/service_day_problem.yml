@@ -1,0 +1,65 @@
+name: Service-day problem
+description: Something went wrong during a live service or meeting. These reports are looked at first.
+title: "[Service]: "
+labels: ["service-day", "bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        We're sorry something went wrong during your service. Reports like this make next week safer for every church.
+        **Please never post a phone-remote PIN, an ESV API key, or member names, phone numbers, emails or birthdays.**
+  - type: input
+    id: version
+    attributes:
+      label: Kingdom Connect version
+      description: Settings → About.
+      placeholder: "6.6"
+    validations:
+      required: true
+  - type: input
+    id: windows
+    attributes:
+      label: Windows version
+      placeholder: "Windows 10 22H2"
+  - type: dropdown
+    id: setting
+    attributes:
+      label: Where was the picture going?
+      multiple: true
+      options:
+        - Zoom / Microsoft Teams / Google Meet (KingdomConnect camera)
+        - Projector or TV (Presentation window)
+        - OBS or a live stream (overlay pages or the camera)
+        - Shared screen
+        - Other
+  - type: textarea
+    id: what
+    attributes:
+      label: What went wrong?
+      description: What did the congregation or online viewers see? What were you doing at that moment?
+    validations:
+      required: true
+  - type: textarea
+    id: recovery
+    attributes:
+      label: How did you recover?
+      description: For example Hide all, Blackout, restarting the app or Zoom, switching to the PC's keyboard. Knowing what worked helps us improve the recovery steps.
+    validations:
+      required: true
+  - type: dropdown
+    id: again
+    attributes:
+      label: Can you make it happen again?
+      options:
+        - "Yes, every time"
+        - "Sometimes"
+        - "No, it happened once"
+        - "I haven't tried"
+  - type: textarea
+    id: diagnostics
+    attributes:
+      label: Diagnostics
+      description: |
+        If you can: Settings → Diagnostics → **Copy diagnostics**, then paste here.
+        Read it and remove anything personal before posting.
+      render: text

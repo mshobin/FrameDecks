@@ -1,5 +1,8 @@
-/* BSF Command Center - four main tabs (Meetings & Content · Studio · Members · Settings) with sub-tabs,
- * the Members directory table and the Recordings list. */
+/* BSF Command Center - three main tabs (Studio · Members · Settings) with sub-views, the Members directory
+ * table and the Recordings list.
+ * v4.9: "Meetings & Content" moved into the Studio. The view ids are unchanged (meeting, overlays, studio,
+ * recordings), so BSFSetTab('meeting'), data-goto links and every screen that checks body.dataset.tab work as
+ * before; only the grouping and the layout changed. */
 (function(){
 'use strict';
 var $ = function(id){ return document.getElementById(id); };
@@ -14,11 +17,12 @@ function icons(root){ Array.prototype.forEach.call((root || document).querySelec
 icons();
 
 /* ---------- groups ---------- */
-var GROUPS = {meetings: ['meeting', 'overlays', 'recordings'], studio: ['studio'], members: ['directory', 'members', 'birthdays', 'email'], settings: ['settings']};
+var GROUPS = {studio: ['studio'], members: ['directory', 'members', 'birthdays', 'email'], settings: ['settings']};
 var KEY = 'bsf-cc-subtab';
 var last = {};
 try { last = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch(e){}
-function groupOf(t){ for (var g in GROUPS) if (GROUPS[g].indexOf(t) >= 0) return g; return 'meetings'; }
+if (last.meetings && !last.studioV49){ last.studio = last.meetings; delete last.meetings; last.studioV49 = 1; }   // saved by 4.8 and older
+function groupOf(t){ for (var g in GROUPS) if (GROUPS[g].indexOf(t) >= 0) return g; return 'studio'; }
 function show(t){
   var g = groupOf(t);
   last[g] = t;
@@ -28,22 +32,191 @@ function show(t){
     b.setAttribute('aria-selected', String(on)); b.classList.toggle('on', on);
     if (GROUPS[b.dataset.group].length > 1) b.dataset.tab = last[b.dataset.group] || GROUPS[b.dataset.group][0];
   });
-  $('sub-meetings').hidden = g !== 'meetings';
+  $('studio-ws').hidden = g !== 'studio';
   $('sub-members').hidden = g !== 'members';
   document.body.dataset.group = g;
   if (t === 'directory') renderDirectory();
-  if (t === 'recordings') loadRecordings();
+  if (t === 'settings' && $('sec-recording') && !$('sec-recording').hidden) loadRecordings();
+  if ((t === 'studio' || t === 'settings') && window.BSFRenderLists) window.BSFRenderLists();   // drawn when shown
+  if (window.BSFMeasure) window.BSFMeasure();
 }
 var prev = window.BSFOnTab;
 window.BSFOnTab = function(t){ if (prev) prev(t); show(t); };
+/* Alt+1 Studio (Meeting view) · Alt+2 Studio (Canvas) · Alt+3 Members · Alt+4 Settings - the same places
+ * these keys opened before the Meetings & Content tab moved into the Studio. */
 window.BSFNavAlt = function(n){
-  var g = ['meetings', 'studio', 'members', 'settings'][n - 1];
+  if (n === 1 || n === 2) return window.BSFSetTab('studio');      // v6: Meeting and Canvas are the one Studio
+  var g = n === 3 ? 'members' : 'settings';
   window.BSFSetTab(last[g] || GROUPS[g][0]);
 };
 Array.prototype.forEach.call(document.querySelectorAll('.subtabs'), function(bar){
   bar.addEventListener('click', function(e){ var b = e.target.closest('[data-tab]'); if (b) window.BSFSetTab(b.dataset.tab); });
 });
-show(document.body.dataset.tab || 'meeting');
+show(document.body.dataset.tab || 'studio');
+
+/* Heights the layout needs: the sticky header (the rail stays below it) and the control bar (pages end above it) */
+(function(){
+  var top = document.querySelector('.console-top'), cb = $('ctlbar'), ws = $('studio-ws'), root = document.documentElement;
+  function measure(){
+    if (top) root.style.setProperty('--top-h', top.offsetHeight + 'px');
+    if (ws && !ws.hidden) root.style.setProperty('--ws-top', Math.round(ws.getBoundingClientRect().top + window.scrollY) + 'px');
+    root.style.setProperty('--cb-h', (cb && cb.offsetHeight ? cb.offsetHeight : 0) + 'px');
+  }
+  measure(); window.BSFMeasure = measure;
+  if (window.ResizeObserver){ var ro = new ResizeObserver(measure); [top, cb, document.querySelector('.tabs'), $('bday-reminder')].forEach(function(e){ if (e) ro.observe(e); }); }
+  else window.addEventListener('resize', measure);
+})();
+
+/* Appearance: Dark (default) · Light · Match Windows - remembered on this PC */
+(function(){
+  var seg = $('theme-seg'), d = document.documentElement, KEYT = 'bsf-cc-theme';
+  var mq = window.matchMedia ? window.matchMedia('(prefers-color-scheme: light)') : null;
+  function resolve(p){ return p === 'system' ? (mq && mq.matches ? 'light' : 'dark') : (p === 'light' ? 'light' : 'dark'); }
+  function set(p){
+    d.dataset.themePref = p; d.dataset.theme = resolve(p);
+    try { localStorage.setItem(KEYT, p); } catch(e){}
+    mark();
+  }
+  function mark(){
+    if (!seg) return;
+    Array.prototype.forEach.call(seg.querySelectorAll('[data-theme-pick]'), function(b){
+      var on = b.dataset.themePick === (d.dataset.themePref || 'dark');
+      b.setAttribute('aria-pressed', String(on)); b.setAttribute('aria-checked', String(on));
+    });
+  }
+  if (mq){ var follow = function(){ if (d.dataset.themePref === 'system') d.dataset.theme = resolve('system'); };
+    if (mq.addEventListener) mq.addEventListener('change', follow); else if (mq.addListener) mq.addListener(follow); }
+  if (seg) seg.addEventListener('click', function(e){ var b = e.target.closest('[data-theme-pick]'); if (b) set(b.dataset.themePick); });
+  mark();
+})();
+
+/* ---------- Header: every output's status chip, visible at a glance (v5.1). Each chip keeps its own code
+ * (vCam, overlays, remote, recording, slides, program); a chip opens its details. On narrow windows the chips
+ * fold into one status button whose colour is the worst of them. ---------- */
+(function(){
+  var box = $('sysstat'); if (!box) return;
+  var btn = $('sys-sum'), menu = $('health');
+  var chips = Array.prototype.slice.call(box.querySelectorAll('.hchip')), dot = box.querySelector('.sys-dot'), txt = box.querySelector('.sys-text');
+  var RANK = {bad: 3, warn: 2, info: 1, ok: 0};
+  function sum(){
+    var worst = 'ok', bad = [];
+    chips.forEach(function(c){
+      if (c.hidden) return;
+      var s = ['bad', 'warn'].filter(function(x){ return c.classList.contains(x); })[0];
+      if (s){ bad.push(c.querySelector('.hl').textContent + ': ' + c.querySelector('b').textContent); if (RANK[s] > RANK[worst]) worst = s; }
+    });
+    var label = worst === 'ok' ? 'All systems ready' : bad[0] + (bad.length > 1 ? ' +' + (bad.length - 1) : '');
+    if (dot.className !== 'sys-dot ' + worst) dot.className = 'sys-dot ' + worst;
+    if (txt.textContent !== label) txt.textContent = label;
+    box.classList.toggle('has-problem', worst !== 'ok');
+    btn.title = chips.filter(function(c){ return !c.hidden; }).map(function(c){ return c.querySelector('.hl').textContent + ': ' + c.querySelector('b').textContent; }).join(' · ');
+  }
+  var mo = new MutationObserver(sum);
+  chips.forEach(function(c){ mo.observe(c, {attributes: true, attributeFilter: ['class', 'hidden'], subtree: true, childList: true, characterData: true}); });
+  sum();
+  function setOpen(on){ box.classList.toggle('open', on); btn.setAttribute('aria-expanded', String(on)); }
+  btn.addEventListener('click', function(e){ e.stopPropagation(); setOpen(!box.classList.contains('open')); });
+  chips.forEach(function(c){ c.addEventListener('click', function(){ setOpen(false); }); });
+  document.addEventListener('click', function(e){ if (box.classList.contains('open') && !box.contains(e.target)) setOpen(false); });
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && box.classList.contains('open')) setOpen(false); }, true);   // Esc still hides all as well
+})();
+
+/* ---------- Header search: questions, verses, birthdays, members, scenes, slides and settings. Choosing a
+ * question or verse shows where it is in the Run sheet (nothing goes on screen); a member or birthday opens the
+ * member's card; a scene is pointed out in the Scenes list (switching stays a click on the scene); a settings
+ * page opens. Ctrl+K focuses it. ---------- */
+(function(){
+  var inp = $('gsearch'), ul = $('gsearch-list'); if (!inp || !ul) return;
+  var results = [], active = -1, lib = null, fullState = null;
+  var SECTIONS = [['general', 'General', 'appearance theme dark light meeting title your name group name email wording'],
+    ['overlays', 'Birthdays', 'birthday reminders dates leap'], ['scripture', 'Scripture', 'bible esv api key translation offline cache'],
+    ['transitions', 'Transitions', 'transition profile fade dip cut sunday bible study'], ['recording', 'Recording', 'record recordings mp4'],
+    ['display', 'Zoom / Display', 'overlay links obs camo browser source zoom display'], ['vcam', 'KingdomConnect Camera', 'kingdomconnect camera zoom teams blur background look filter resolution'],
+    ['ipad', 'Phone & iPad Remote', 'remote pin qr phone tablet android'], ['keys', 'Keyboard shortcuts', 'keys hotkeys shortcuts'],
+    ['security', 'Security', 'pin privacy'], ['data', 'Data & backup', 'backup restore export import excel'],
+    ['diag', 'Diagnostics', 'problems errors logs'], ['about', 'About', 'version credits']];
+  var KINDS = {question: 'Question', verse: 'Verse', member: 'Member', birthday: 'Birthday', scene: 'Frame', layer: 'Content', media: 'Media', bible: 'Bible', slides: 'Slides', setting: 'Settings'};
+  Store.subscribe(function(st){ lib = st.library; fullState = st; });
+  function norm(s){ return String(s || '').toLowerCase(); }
+  function find(q){
+    q = norm(q).trim(); if (!q || !lib) return [];
+    var out = [];
+    lib.questions.forEach(function(it, i){ if (out.length < 30 && norm(it.text).indexOf(q) >= 0) out.push({kind: 'question', i: i, title: it.text, sub: 'Question ' + (i + 1)}); });
+    lib.verses.forEach(function(it, i){ if (out.length < 30 && norm((it.ref || '') + ' ' + it.text).indexOf(q) >= 0) out.push({kind: 'verse', i: i, title: (it.ref || 'Verse') + (it.version ? ' · ' + it.version : ''), sub: it.text}); });
+    var api = window.BSFMembersAPI;
+    var dirRows = api && api.directory ? api.directory() : [];
+    var bq = q === 'birthday' || q === 'birthdays' || q === 'bday';
+    dirRows.filter(function(m){ return m.b && (bq ? m.b.days <= 31 : (m.b.days <= 31 && norm(m.name).indexOf(q) >= 0)); })
+      .sort(function(a, b){ return a.b.days - b.b.days; }).slice(0, 8).forEach(function(m){
+        out.push({kind: 'birthday', id: m.id, title: m.name, sub: m.b.days === 0 ? 'Birthday today' : m.b.days === 1 ? 'Birthday tomorrow' : 'Birthday in ' + m.b.days + ' days'}); });
+    dirRows.forEach(function(m){ if (out.length < 46 && norm(m.name + ' ' + m.email + ' ' + m.role).indexOf(q) >= 0) out.push({kind: 'member', id: m.id, title: m.name, sub: m.role || m.email || 'Member'}); });
+    var SC = window.BSFScenes;
+    if (SC && fullState){
+      fullState.scenes.forEach(function(sc){
+        if (norm(sc.name + ' ' + sc.group).indexOf(q) >= 0 || q === 'frame' || q === 'frames' || q === 'scene' || q === 'scenes' || (q === 'template' || q === 'templates') && sc.tpl)
+          out.unshift({kind: 'scene', id: sc.id, title: sc.name, sub: (fullState.live.scene === sc.id ? 'Live · ' : '') + (sc.tpl ? 'Template' : sc.group || 'Frame') + ' · ' + (sc.layers.map(function(l){ return SC.info[l.kind].name; }).join(', ') || 'empty')});
+        sc.layers.forEach(function(l){
+          var media = l.c && l.c.file ? ' ' + l.c.file : '';
+          if (norm(l.name + ' ' + SC.info[l.kind].name + media + ' ' + (l.c.text || '') + ' ' + (l.c.title || '')).indexOf(q) >= 0 && out.length < 60)
+            out.push({kind: SC.isMedia(l.kind) ? 'media' : 'layer', id: sc.id, layer: l.id, title: l.name, sub: SC.info[l.kind].name + ' · ' + sc.name});
+        });
+      });
+    }
+    var ref = window.BSFScripture && window.BSFScripture.parse(inp.value);
+    if (ref) out.unshift({kind: 'bible', ref: ref, title: ref, sub: 'Fetch into the Scripture Content (ESV)'});
+    SECTIONS.forEach(function(x){ if (norm(x[1] + ' ' + x[2]).indexOf(q) >= 0) out.push({kind: 'setting', sec: x[0], title: x[1], sub: 'Settings · ' + x[2]}); });
+    return out.slice(0, 60);
+  }
+  function draw(){
+    ul.innerHTML = '';
+    results.forEach(function(r, n){
+      var li = h('li', {role: 'option', id: 'gs-' + n, 'aria-selected': String(n === active), cls: 'gs-' + r.kind}, [
+        h('span', {cls: 'gs-kind', text: KINDS[r.kind]}),
+        h('span', {cls: 'gs-text'}, [h('b', {text: r.title}), h('small', {text: r.sub})])]);
+      li.addEventListener('mousedown', function(e){ e.preventDefault(); pick(r); });
+      ul.appendChild(li);
+    });
+    if (!results.length && inp.value.trim()) ul.appendChild(h('li', {cls: 'gs-none', text: 'Nothing found'}));
+    ul.hidden = !inp.value.trim();
+    inp.setAttribute('aria-expanded', String(!ul.hidden));
+    if (active >= 0) inp.setAttribute('aria-activedescendant', 'gs-' + active); else inp.removeAttribute('aria-activedescendant');
+  }
+  function close(){ ul.hidden = true; inp.setAttribute('aria-expanded', 'false'); active = -1; }
+  function pick(r){
+    close(); inp.value = ''; inp.blur();
+    if (r.kind === 'member' || r.kind === 'birthday'){ if (window.BSFMembersAPI) window.BSFMembersAPI.open(r.id); return; }
+    if (r.kind === 'setting'){ window.BSFSetTab('settings'); if (window.BSFShowSection) setTimeout(function(){ window.BSFShowSection(r.sec); }, 0); return; }
+    if (r.kind === 'scene' || r.kind === 'layer' || r.kind === 'media'){ window.BSFSetTab('studio'); if (window.BSFWorkspace) window.BSFWorkspace.select(r.id, r.layer || null, true); return; }
+    if (r.kind === 'bible'){ window.BSFSetTab('studio'); if (window.BSFWorkspace) window.BSFWorkspace.fetchVerse(r.ref); return; }
+    if (r.kind === 'question' || r.kind === 'verse'){ window.BSFSetTab('studio'); if (window.BSFWorkspace) window.BSFWorkspace.findItem(r.kind, r.i); return; }
+  }
+  var t = null;
+  inp.addEventListener('input', function(){ clearTimeout(t); t = setTimeout(function(){ results = find(inp.value); active = results.length ? 0 : -1; draw(); }, 80); });
+  inp.addEventListener('keydown', function(e){
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp'){ e.preventDefault(); if (!results.length) return; active = (active + (e.key === 'ArrowDown' ? 1 : -1) + results.length) % results.length; draw(); }
+    else if (e.key === 'Enter'){ e.preventDefault(); if (results[active]) pick(results[active]); }
+    else if (e.key === 'Escape'){ e.preventDefault(); e.stopPropagation(); inp.value = ''; close(); inp.blur(); }
+  });
+  inp.addEventListener('blur', function(){ setTimeout(close, 120); });
+  document.addEventListener('keydown', function(e){
+    if ((e.ctrlKey || e.metaKey) && (e.key === 'k' || e.key === 'K') && !document.querySelector('dialog[open], .app-modal-back')){ e.preventDefault(); inp.focus(); inp.select(); }
+  });
+})();
+
+/* Studio rail (Scenes & Layers): can be folded away to give a meeting more room; remembered on this PC */
+(function(){
+  var b = $('rail-toggle'), RK = 'bsf-cc-rail';
+  if (!b) return;
+  function setRail(open){
+    document.body.classList.toggle('rail-hidden', !open);
+    b.setAttribute('aria-expanded', String(open));
+    try { localStorage.setItem(RK, open ? '1' : '0'); } catch(e){}
+    window.dispatchEvent(new Event('resize'));          // the Meeting view and the canvas re-fit
+  }
+  var saved = null; try { saved = localStorage.getItem(RK); } catch(e){}
+  if (saved === '0') setRail(false);
+  b.addEventListener('click', function(){ setRail(document.body.classList.contains('rail-hidden')); });
+})();
 
 /* Members tab shows the birthday count too */
 (function(){
@@ -96,6 +269,7 @@ function renderDirectory(){
   root.appendChild(h('div', {cls: 'dir-wrap'}, [table]));
 }
 window.BSFRenderDirectory = renderDirectory;
+window.BSFLoadRecordings = function(){ loadRecordings(); };
 
 /* ---------- Meetings & Content > Recordings ---------- */
 function rec(op, name){
@@ -108,11 +282,11 @@ function loadRecordings(){
   fetch('api/vcam/recordings', {cache: 'no-store'}).then(function(r){ return r.json(); }).then(function(d){
     root.innerHTML = '';
     root.appendChild(h('div', {cls: 'dir-head'}, [
-      h('div', {}, [h('h2', {text: 'Recordings'}), h('p', {cls: 'hint', text: 'Test recordings of exactly what BCC vCam sent. Saved in ' + d.folder})]),
+      h('div', {}, [h('h2', {text: 'Recordings'}), h('p', {cls: 'hint', text: 'Recordings of exactly what KingdomConnect sent. Saved in ' + d.folder})]),
       h('div', {cls: 'dir-tools'}, [
         h('button', {cls: 'btn', type: 'button', html: window.BSFIcon('folder-open', 16) + ' Open folder', onclick: function(){ rec('folder'); }}),
-        h('button', {cls: 'btn primary', type: 'button', html: window.BSFIcon('circle-dot', 16) + ' Record in Studio', onclick: function(){ window.BSFSetTab('studio'); }})])]));
-    if (!d.items.length){ root.appendChild(h('p', {cls: 'empty-card', text: 'No recordings yet. In Studio, press Record to save a test recording.'})); return; }
+      ])]));
+    if (!d.items.length){ root.appendChild(h('p', {cls: 'empty-card', text: 'No recordings yet. Press Record above to record what KingdomConnect sends.'})); return; }
     var t = h('table', {cls: 'dir-table'}, [h('thead', {}, [h('tr', {}, ['Recording', 'Date', 'Size', ''].map(function(x){ return h('th', {text: x}); }))])]);
     var tb = h('tbody');
     d.items.forEach(function(it){

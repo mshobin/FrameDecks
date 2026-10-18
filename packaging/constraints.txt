@@ -1,0 +1,31 @@
+# Exact versions from the last good installer build (GitHub Actions run 27, Python 3.12, windows-latest).
+# The build installs packaging/requirements-desktop.txt with these constraints, so every build uses the same,
+# already-tested packages. To update: change requirements-desktop.txt, run a build, test the installer on a real
+# PC, then copy the "Successfully installed ..." versions from the build log into this file.
+#
+# Note: opencv-python (pulled in by another package) and opencv-python-headless are both installed and share the
+# cv2 module. This exact pair is the tested combination; change them together and re-test the camera.
+altgraph==0.17.5
+bottle==0.13.4
+cffi==2.1.1
+clr_loader==0.3.1
+comtypes==1.4.17
+cv2-enumerate-cameras==1.4.0
+numpy==2.5.4
+opencv-python==5.0.0.93
+opencv-python-headless==4.14.0.94
+pefile==2024.8.26
+pillow==13.0.0
+proxy_tools==0.1.0
+pycparser==3.11
+pyinstaller==6.22.3
+pyinstaller-hooks-contrib==2026.8
+pypdfium2==5.14.0
+pystray==0.19.5
+pythonnet==3.2.1
+pywebview==6.2.1
+pywin32-ctypes==0.2.3
+setuptools==84.0.0
+six==1.17.0
+typing_extensions==4.16.0
+windows-capture==2.0.1

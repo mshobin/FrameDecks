@@ -1,5 +1,5 @@
-# Builds BSF-Command-Center-Setup-<version>.exe on a clean Windows machine at GitHub.
-#   - Every push to "main" (or "Run workflow" on the Actions tab): the installer is attached to that run
+# Builds the installer "Kingdom Connect v<version>.exe" on a clean Windows machine at GitHub.
+#   - Every push to "main" (or "Run workflow" on the Actions tab): the installer ("Kingdom Connect v<version>.exe") is attached to that run
 #     under "Artifacts" (kept for 90 days).
 #   - A version tag such as v3.1: the installer is also published on the Releases page (kept forever).
 name: Build Windows installer
@@ -31,35 +31,41 @@ jobs:
       - name: Install build tools
         run: |
           python -m pip install --upgrade pip
-          python -m pip install -r packaging/requirements-desktop.txt
+          python -m pip install -r packaging/requirements-desktop.txt -c packaging/constraints.txt
 
-      - name: Get softcam (MIT licence) for BCC vCam
+      - name: Get softcam (MIT licence) for KingdomConnect
         run: git clone --depth 1 --branch v1.8.1 https://github.com/tshino/softcam.git vcam_build/softcam
 
-      - name: Prepare BCC vCam (name and ID)
+      - name: Prepare KingdomConnect (name and ID)
         run: python packaging/build_vcam.py vcam_build/softcam
 
       - name: Set up the Microsoft C++ compiler
         uses: microsoft/setup-msbuild@v2
 
-      - name: Build BCC vCam (64-bit and 32-bit)
+      - name: Build KingdomConnect (64-bit and 32-bit)
         shell: pwsh
         run: |
           foreach ($p in 'x64', 'Win32') {
             msbuild vcam_build/softcam/softcam.sln /m /t:softcam /p:Configuration=Release /p:Platform=$p
-            if ($LASTEXITCODE -ne 0) { throw "BCC vCam build failed ($p)" }
+            if ($LASTEXITCODE -ne 0) { throw "KingdomConnect build failed ($p)" }
           }
-          Copy-Item vcam_build/softcam/x64/Release/softcam.dll vcam/bin/bcc_vcam64.dll
-          Copy-Item vcam_build/softcam/Win32/Release/softcam.dll vcam/bin/bcc_vcam32.dll
+          Copy-Item vcam_build/softcam/x64/Release/softcam.dll vcam/bin/kingdomconnect_vcam64.dll
+          Copy-Item vcam_build/softcam/Win32/Release/softcam.dll vcam/bin/kingdomconnect_vcam32.dll
           # A record of what was built, so the app can tell "never built" from "removed after installing"
           $files = @{}
-          foreach ($f in 'bcc_vcam64.dll', 'bcc_vcam32.dll') { $files[$f] = (Get-FileHash "vcam/bin/$f" -Algorithm SHA256).Hash }
+          foreach ($f in 'kingdomconnect_vcam64.dll', 'kingdomconnect_vcam32.dll') { $files[$f] = (Get-FileHash "vcam/bin/$f" -Algorithm SHA256).Hash }
           @{ builtBy = 'GitHub Actions'; run = '${{ github.run_number }}'; commit = '${{ github.sha }}'; files = $files } |
             ConvertTo-Json | Set-Content -Encoding utf8 vcam/bin/build-info.json
           Get-ChildItem vcam/bin
 
       - name: Self-check (program starts and serves its pages)
         run: python packaging/check.py
+
+      - name: Run the tests (Node.js)
+        run: node tests/run.js
+
+      - name: Check documentation links
+        run: python tools/check_doc_links.py
 
       - name: Read version number
         id: ver
@@ -77,7 +83,7 @@ jobs:
         run: |
           if (-not (Test-Path "dist/BSF Command Center/BSF Command Center.exe")) { throw "The app was not built" }
           if (-not (Get-ChildItem -Recurse "dist/BSF Command Center" -Filter dashboard.html)) { throw "App pages are missing" }
-          if (-not (Get-ChildItem -Recurse "dist/BSF Command Center" -Filter bcc_vcam64.dll)) { throw "BCC vCam is missing" }
+          if (-not (Get-ChildItem -Recurse "dist/BSF Command Center" -Filter kingdomconnect_vcam64.dll)) { throw "KingdomConnect is missing" }
 
       - name: Install Inno Setup (if needed)
         shell: pwsh
@@ -92,16 +98,31 @@ jobs:
           & $iscc "/DAppVersion=${{ steps.ver.outputs.version }}" packaging/installer.iss
           if ($LASTEXITCODE -ne 0) { throw "Inno Setup failed" }
 
+      - name: Write the SHA-256 checksum
+        shell: pwsh
+        run: |
+          Get-ChildItem "dist/Kingdom Connect v*.exe" | ForEach-Object {
+            $hash = (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLower()
+            "$hash  $($_.Name)" | Set-Content -Encoding ascii "$($_.FullName).sha256"
+            Write-Host "$hash  $($_.Name)"
+          }
+
       - name: Attach the installer to this run
         uses: actions/upload-artifact@v4
         with:
-          name: BSF-Command-Center-Setup-${{ steps.ver.outputs.version }}
-          path: dist/BSF-Command-Center-Setup-*.exe
+          name: Kingdom Connect v${{ steps.ver.outputs.version }}
+          path: |
+            dist/Kingdom Connect v*.exe
+            dist/Kingdom Connect v*.exe.sha256
           if-no-files-found: error
 
       - name: Publish on the Releases page (version tags only)
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
-          files: dist/BSF-Command-Center-Setup-*.exe
-          generate_release_notes: true
+          name: Version ${{ steps.ver.outputs.version }}
+          body_path: docs/releases/v${{ steps.ver.outputs.version }}.md
+          files: |
+            dist/Kingdom Connect v*.exe
+            dist/Kingdom Connect v*.exe.sha256
+          generate_release_notes: false

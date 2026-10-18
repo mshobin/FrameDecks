@@ -348,6 +348,121 @@ function BirthdayCard(zone){
   };
 }
 
+/* ---------- Presentation mode Both: the question leads, the verse supports it ----------
+ * Only when a question is shown in Both mode (Question · Both · Verse). Everything else is laid out exactly as before.
+ * KingdomConnect uses the same numbers (vcam/cards.py effective_layout). */
+var BOTH_VERSE = 0.86, BOTH_QUESTION = 1.06;
+function effective(st){
+  var P = window.BSFPresent;
+  if (!P || !P.combined(st)) return st;
+  var L = Object.assign({}, st.layout);
+  L.verseScale = L.verseScale * BOTH_VERSE; L.qScale = L.qScale * BOTH_QUESTION;
+  return Object.assign({}, st, {layout: L});
+}
+
+/* ---------- v6 text layers (Announcement, Prayer Point, Lower Third, Countdown) ----------
+ * The live scene's text layers, in the same navy and gold card as the question, at their chosen position. */
+var TEXT_ICON = {
+  announcement: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg>',
+  prayer: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 14c1.5-1.5 3-3.2 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.8 0-3 .5-4.5 2-1.5-1.5-2.7-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4 3 5.5l7 7Z"/></svg>',
+  countdown: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M9 2h6"/></svg>',
+  lowerthird: ''
+};
+function TextLayers(root){
+  var shown = {};                                  // id -> {el, sig}
+  function make(l){
+    var card = el('section', 'card card-x card-' + l.kind + ' out');
+    if (l.kind === 'brand'){                                  // v6.2 Branding: logo + Meeting Name (+ organization)
+      var lg = document.createElement('img'); lg.className = 'brand-logo'; lg.alt = '';
+      var bt = el('div', 'brand-t'), bn = el('b', 'brand-name'), bo = el('span', 'brand-org');
+      bt.appendChild(bn); bt.appendChild(bo); card.appendChild(lg); card.appendChild(bt);
+      var z = el('div', 'zone-x zone-brand'); z.appendChild(card); root.appendChild(z);
+      return {zone: z, card: card, logo: lg, name: bn, org: bo};
+    }
+    var label = el('header', 'card-label', TEXT_ICON[l.kind] || ''), lt = el('span'); label.appendChild(lt);
+    var logo = document.createElement('img'); logo.className = 'card-logo'; logo.alt = ''; label.appendChild(logo);
+    card.appendChild(label); card.appendChild(el('div', 'card-rule')); card.appendChild(el('p', 'card-text'));
+    var zone = el('div', 'zone-x'); zone.appendChild(card); root.appendChild(zone);
+    return {zone: zone, card: card, lt: lt, logo: logo, text: card.querySelector('.card-text')};
+  }
+  function logoSrc(st){ return st.brand && st.brand.logo ? 'api/brand/logo?v=' + encodeURIComponent(st.brand.logo) : ''; }
+  function setLogo(img, src){ if (img.getAttribute('src') !== src){ if (src) img.setAttribute('src', src); else img.removeAttribute('src'); } img.hidden = !src; }
+  function fill(x, l, st){
+    var c = l.c, S = window.BSFScenes;
+    if (l.kind === 'brand'){
+      var b = st.brand || {};
+      x.zone.className = 'zone-x zone-brand pos-' + c.pos;
+      x.card.style.setProperty('--xs', c.scale);
+      setLogo(x.logo, c.logo ? logoSrc(st) : '');
+      x.name.textContent = c.name ? b.meeting : ''; x.org.textContent = c.org ? b.org : '';
+      x.name.hidden = !x.name.textContent; x.org.hidden = !x.org.textContent;
+      x.zone.style.opacity = String(l.opacity == null ? 1 : l.opacity);
+      return;
+    }
+    x.zone.className = 'zone-x pos-' + c.pos;
+    x.card.style.setProperty('--xs', c.scale); x.card.style.setProperty('--xw', c.w);
+    x.card.style.opacity = '';
+    var title = S.brandText(st, c.title);
+    x.lt.textContent = title;
+    setLogo(x.logo, c.logo ? logoSrc(st) : '');
+    x.card.classList.toggle('no-label', !(c.label && title.trim()) && !(c.logo && logoSrc(st)));
+    var t = l.kind === 'countdown' ? S.countdown(st, l) : S.brandText(st, c.text);
+    if (x.text.textContent !== t) x.text.textContent = t;
+    x.zone.style.opacity = String(l.opacity == null ? 1 : l.opacity);
+  }
+  return {
+    update: function(st, list){
+      var want = {};
+      list.forEach(function(l){ want[l.id] = l; });
+      Object.keys(shown).forEach(function(id){
+        if (want[id]) return;
+        var x = shown[id]; delete shown[id];
+        x.card.classList.add('out'); setTimeout(function(){ x.zone.remove(); }, OUT_MS);
+      });
+      list.forEach(function(l){
+        var x = shown[l.id];
+        if (!x){
+          x = shown[l.id] = make(l); fill(x, l, st);
+          if (l.c.anim === 'none'){ x.card.style.transition = 'none'; x.card.classList.remove('out'); void x.card.offsetWidth; x.card.style.transition = ''; }
+          else { if (l.c.anim === 'rise'){ x.card.style.transition = 'none'; x.card.classList.add('rise-from'); void x.card.offsetWidth; x.card.style.transition = ''; }
+            requestAnimationFrame(function(){ x.card.classList.remove('out', 'rise-from'); }); }
+        } else fill(x, l, st);
+      });
+    },
+    tick: function(st, list){ list.forEach(function(l){ if (l.kind === 'countdown' && shown[l.id]) fill(shown[l.id], l, st); }); },
+    any: function(){ return Object.keys(shown).length > 0; }
+  };
+}
+
+/* ---------- v6 program: Blackout, Emergency screen, scene dips ---------- */
+function Program(root){
+  var black = el('div', 'pg-black'), slate = el('div', 'pg-slate'), msg = el('p', 'pg-msg'), dip = el('div', 'pg-dip');
+  var ink = document.createElement('canvas'); ink.className = 'pg-ink'; ink.width = 1920; ink.height = 1080;     // v6.5 Annotate
+  slate.appendChild(msg); root.appendChild(dip); root.appendChild(slate); root.appendChild(ink); root.appendChild(black);
+  var seq = null, dipT = null, stxT = null, inkSig = '';
+  return function(st){
+    var L = st.live || {};
+    var isig = JSON.stringify(L.ink && L.ink.on ? L.ink.items : []);
+    if (isig !== inkSig){ inkSig = isig; window.BSFScenes.drawInk(ink, L.ink && L.ink.on ? L.ink.items : []); }
+    black.classList.toggle('on', !!L.blackout);
+    slate.classList.toggle('on', !!L.emergency && !L.blackout);
+    if (msg.textContent !== (L.message || '')) msg.textContent = L.message || '';
+    if (seq === null){ seq = L.seq; return; }
+    if (L.seq === seq) return;
+    seq = L.seq;
+    var tx = L.tx, ms = Math.max(0, Number(L.txMs) || 0);
+    document.body.dataset.stx = tx;                  // card entries follow the scene transition (CSS), for this change only
+    document.documentElement.style.setProperty('--stx-ms', ms + 'ms');
+    clearTimeout(dipT); clearTimeout(stxT);
+    stxT = setTimeout(function(){ delete document.body.dataset.stx; }, ms + 1500);
+    if ((tx === 'dip-black' || tx === 'dip-white') && ms > 0){
+      dip.className = 'pg-dip ' + tx; dip.style.transitionDuration = (ms / 2) + 'ms';
+      void dip.offsetWidth; dip.classList.add('on');
+      dipT = setTimeout(function(){ dip.classList.remove('on'); }, ms / 2);
+    }
+  };
+}
+
 /* ---------- Page setup ---------- */
 function applyLayout(L){
   var r = document.documentElement.style;
@@ -384,21 +499,42 @@ function mount(opts){
     var bz = el('div', 'zone zone-birthday pos-top'); document.body.appendChild(bz);
     cards.birthday = BirthdayCard(bz);
   }
-  var Store = window.BSFStore;
+  var Store = window.BSFStore, SC = window.BSFScenes;
+  var texts = opts.extras ? TextLayers(document.body) : null, program = opts.program ? Program(document.body) : null;
+  var isPreview = /[?&]preview=1/.test(location.search), sceneQ = params.get('scene');
+  /* Output rules: the OBS / browser pages leave out what is set to "not on overlay pages" (previews show everything) */
+  function forObs(d){ return !isPreview && d.out && d.out.obs === false ? Object.assign({}, d, {visible: false}) : d; }
+  function held(st, d){ return st.live && (st.live.blackout || st.live.emergency) ? Object.assign({}, d, {visible: false}) : d; }
   var ready = (document.fonts && document.fonts.ready) ? document.fonts.ready : Promise.resolve();
   ready.then(function(){
-    Store.subscribe(function(st){
+    var pending = /[?&]pending=1/.test(location.search) && window.BSFPresent;
+    Store.subscribe(function(raw){
+      // pending=1: a preview of what SHOW will put on screen (Question · Both · Verse), not what is on screen now
+      // scene=ID: a preview of another scene, as if it were taken live (the Studio Canvas)
+      var src = sceneQ && SC ? SC.previewState(raw, sceneQ) : pending ? window.BSFPresent.preview(raw) : raw;
+      var st = effective(src);
       last = st;
+      document.body.classList.toggle('mode-both', !!(window.BSFPresent && window.BSFPresent.combined(st)));
       applyLayout(st.layout);
       placeVerse(st);
-      if (cards.verse) cards.verse.update(st.verse);
-      if (cards.question) cards.question.update(st.question);
-      if (cards.birthday) cards.birthday.update(st.birthday);
+      if (cards.verse) cards.verse.update(held(st, forObs(st.verse)));
+      if (cards.question) cards.question.update(held(st, forObs(st.question)));
+      if (cards.birthday) cards.birthday.update(held(st, forObs(st.birthday)));
+      brandPalette(st);
+      if (texts && SC){ lastText = st.live && (st.live.blackout || st.live.emergency) ? [] : SC.liveText(st, isPreview ? null : 'obs').concat(SC.liveBrand(st, isPreview ? null : 'obs')); texts.update(st, lastText); }
+      if (program) program(st);
     });
     Store.start();
     Store.presence(opts.page);
   });
-  var rt, last = null;
+  var rt, last = null, lastText = [], palette = '';
+  /* v6.2 the leader's accent colour replaces the gold of every card on this page (cleared when removed) */
+  function brandPalette(st){
+    var c = (st.brand && st.brand.color) || ''; if (c === palette || !SC) return; palette = c;
+    var p = SC.brandPalette(c), r = document.documentElement.style;
+    [['--gold-1', 'g1'], ['--gold-2', 'g2'], ['--gold-3', 'g3'], ['--gold-4', 'g4'], ['--gold-text', 'text']].forEach(function(k){ if (p) r.setProperty(k[0], p[k[1]]); else r.removeProperty(k[0]); });
+  }
+  if (texts) setInterval(function(){ if (last && lastText.length) texts.tick(last, lastText); }, 250);   // countdowns
   window.addEventListener('resize', function(){
     clearTimeout(rt);
     rt = setTimeout(function(){ if (last) placeVerse(last); for (var k in cards) cards[k].refit(); }, 150);

@@ -1,10 +1,10 @@
-"""The one place where the final BCC vCam picture is built:
+"""The one place where the final KingdomConnect picture is built:
 
     base layout (camera / screen / picture-in-picture / side-by-side)
       -> layers (images, videos, presentations; bottom to top)
       -> verse, question and birthday cards (always on top)
       -> [latency-test clock]
-    = FINAL FRAME  ->  BCC vCam, the preview, and the test recording
+    = FINAL FRAME  ->  KingdomConnect, the preview, and the test recording
 
 Everything is reused between frames: the shared screen is only resized when it changes, layers cache their
 transformed pictures, cards are drawn once. Nothing here runs on the user-interface thread.
@@ -59,7 +59,7 @@ def fill(img, w, h):
 
 
 class Recorder:
-    """Test recording of the exact BCC vCam output. Encodes on its own thread; if it can't keep up it skips
+    """Test recording of the exact KingdomConnect output. Encodes on its own thread; if it can't keep up it skips
     recording frames (counted) instead of slowing the camera."""
     def __init__(self, path, w, h, fps=30):
         self.path, self.frames, self.skipped = str(path), 0, 0
@@ -111,6 +111,7 @@ class Compositor:
         self.layout = clean_layout({})
         self.layers = LayerManager(layer_folder)
         self.cards, self.cards_on = cards, cards_on
+        self.program_fx = None         # v6: text layers, scene transitions, Blackout / Emergency screen (vcam/program.py)
         self.screen_src, self.screen = None, None
         self._screen_fit = (None, None)        # (key, image) - resized only when the screen changes
         self.recorder, self.last_recording = None, None
@@ -218,7 +219,7 @@ class Compositor:
         if self.recorder:
             return self.recorder
         Path(folder).mkdir(parents=True, exist_ok=True)
-        name = time.strftime("BCC vCam test %Y-%m-%d %H-%M-%S.mp4")
+        name = time.strftime("KingdomConnect test %Y-%m-%d %H-%M-%S.mp4")
         self.recorder = Recorder(Path(folder) / name, w, h)
         return self.recorder
 
@@ -292,6 +293,12 @@ class Compositor:
     def _finish(self, frame, w, h, t):
         if self.cards is not None and self.cards_on():
             frame = self.cards(frame)
+        if self.program_fx is not None:
+            try:
+                frame = self.program_fx(frame)
+            except Exception as e:                    # never let an effect stop the camera
+                print("KingdomConnect: program effect:", e)
+                self.program_fx = None
         if self.latency_test:
             stamp = time.time()
             txt = time.strftime("%H:%M:%S", time.localtime(stamp)) + ".%03d" % int(stamp % 1 * 1000)

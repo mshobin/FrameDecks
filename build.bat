@@ -2,7 +2,7 @@
 setlocal
 REM ------------------------------------------------------------------
 REM  Builds BSF-Command-Center-Setup-<version>.exe on THIS PC.
-REM  (The usual way is GitHub Actions - see BUILD-AND-INSTALL.md.)
+REM  (The usual way is GitHub Actions - see docs/development/building-the-installer.md.)
 REM  Needs: Python 3.10 or newer, and Inno Setup 6 (free, jrsoftware.org).
 REM ------------------------------------------------------------------
 cd /d "%~dp0"
@@ -17,10 +17,10 @@ call ".build-venv\Scripts\activate.bat" || goto :fail
 
 echo  [2/5] Installing build tools (first time takes a few minutes)...
 python -m pip install --upgrade pip >nul || goto :fail
-python -m pip install -r packaging\requirements-desktop.txt || goto :fail
+python -m pip install -r packaging\requirements-desktop.txt -c packaging\constraints.txt || goto :fail
 
-echo  [2b] BCC vCam camera...
-if exist "vcam\bin\bcc_vcam64.dll" goto :vcamdone
+echo  [2b] KingdomConnect camera...
+if exist "vcam\bin\kingdomconnect_vcam64.dll" goto :vcamdone
 set "VSWHERE=%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe"
 if not exist "%VSWHERE%" goto :novcam
 for /f "usebackq delims=" %%m in (`"%VSWHERE%" -latest -requires Microsoft.Component.MSBuild -find MSBuild\**\Bin\MSBuild.exe`) do set "MSBUILD=%%m"
@@ -32,12 +32,12 @@ if not exist "vcam_build\softcam" (
 )
 "%MSBUILD%" vcam_build\softcam\softcam.sln /m /t:softcam /p:Configuration=Release /p:Platform=x64 || goto :fail
 "%MSBUILD%" vcam_build\softcam\softcam.sln /m /t:softcam /p:Configuration=Release /p:Platform=Win32 || goto :fail
-copy /y "vcam_build\softcam\x64\Release\softcam.dll" "vcam\bin\bcc_vcam64.dll" >nul || goto :fail
-copy /y "vcam_build\softcam\Win32\Release\softcam.dll" "vcam\bin\bcc_vcam32.dll" >nul || goto :fail
+copy /y "vcam_build\softcam\x64\Release\softcam.dll" "vcam\bin\kingdomconnect_vcam64.dll" >nul || goto :fail
+copy /y "vcam_build\softcam\Win32\Release\softcam.dll" "vcam\bin\kingdomconnect_vcam32.dll" >nul || goto :fail
 goto :vcamdone
 :novcam
 echo.
-echo  NOTE: BCC vCam was skipped. Building it needs "Build Tools for Visual Studio" (free, with
+echo  NOTE: KingdomConnect was skipped. Building it needs "Build Tools for Visual Studio" (free, with
 echo  "Desktop development with C++") and Git. Everything else still builds. (GitHub builds it for you.)
 echo.
 :vcamdone

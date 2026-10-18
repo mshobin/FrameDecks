@@ -6,21 +6,21 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="BSF Remote">
-<meta name="theme-color" content="#0a1222">
+<meta name="apple-mobile-web-app-title" content="KC Director">
+<meta name="theme-color" content="#0a1426">
 <link rel="manifest" href="remote-manifest.json">
 <link rel="apple-touch-icon" href="icons/remote-180.png">
 <link rel="icon" type="image/png" href="icons/remote-192.png">
-<title>BSF Remote</title>
+<title>Kingdom Connect Director</title>
 <link rel="stylesheet" href="css/remote.css">
 </head>
-<body data-pt="question">
+<body data-tab="live" data-role="presenter">
 
 <!-- PIN screen -->
 <section class="login" id="login" hidden>
   <div class="login-card">
-    <svg class="logo" viewBox="0 0 36 26" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" aria-hidden="true"><path d="M18 5.5C14 2.6 8.6 2 3 3v18.5c5.6-1 11-.4 15 2.5 4-2.9 9.4-3.5 15-2.5V3c-5.6-1-11-.4-15 2.5z"/><path d="M18 5.5V24"/></svg>
-    <h1>BSF Remote</h1>
+    <img class="logo" src="img/kc-emblem.webp" alt="Kingdom Connect" width="84" height="102">
+    <h1 class="sr-only">Kingdom Connect Mobile Director</h1>
     <p>Enter the 6-digit PIN shown on your PC<br>(Settings → Phone &amp; iPad Remote).</p>
     <form id="login-form" autocomplete="off">
       <input id="pin" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="••••••" aria-label="PIN" autocomplete="one-time-code">
@@ -31,90 +31,139 @@
   </div>
 </section>
 
-<!-- Control surface -->
+<!-- Director: Scene → Layer → Canvas -->
 <div class="app" id="app" hidden>
   <header class="bar">
-    <div class="title">BSF Remote</div>
+    <div class="brand" title="Kingdom Connect"><img class="brand-mark" src="img/kc-emblem.webp" alt="Kingdom Connect" width="26" height="32">
+      <div class="brand-t"><b class="title sr-only">Kingdom Connect</b><small id="role-name">Admin</small></div></div>
     <span class="conn" id="conn"><i></i><b>Connecting…</b></span>
-    <div class="air-chips" aria-label="On screen now">
-      <span class="ac q" data-air="question"><i></i>Question</span>
-      <span class="ac v" data-air="verse"><i></i>Verse</span>
-      <span class="ac b" data-air="birthday"><i></i>Birthday</span>
-    </div>
-  <!-- Phones: one Live Control screen; these jump to a section (and show which one you're on) -->
-    <nav class="ptabs" id="ptabs" aria-label="Jump to a section">
-      <button type="button" class="pt q" data-pt="question">Questions<i data-dot="question"></i></button>
-      <button type="button" class="pt v" data-pt="verse">Verses<i data-dot="verse"></i></button>
-      <button type="button" class="pt b" data-pt="more">Birthday<i data-dot="birthday"></i></button>
-      <button type="button" class="pt s" data-pt="studio" id="pt-studio" hidden>Studio</button>
-    </nav>
-    <button class="tool" type="button" id="lists-btn">Lists</button>
-    <button class="hideall" type="button" id="hide-all">HIDE ALL</button>
+    <span class="onair" id="onair" role="status" aria-live="polite"><i></i><b>OFF AIR</b></span>
+    <button class="tool more-btn" type="button" id="more-btn" aria-label="More: layout, disconnect" aria-haspopup="dialog"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg></button>
+    <button class="hideall" type="button" id="hide-all" aria-label="Hide every Content now">HIDE ALL</button>
   </header>
   <div class="offline" id="offline" hidden>Not connected to the PC — reconnecting… Buttons are paused.</div>
+  <div class="chips" id="chips" aria-label="Outputs"><span class="chip" id="ch-vcam" hidden></span><span class="chip" id="ch-rec" hidden></span><span class="chip" id="ch-slide" hidden></span><span class="chip" id="ch-black" hidden></span></div>
 
-  <main class="surface">
-    <section class="pane q" data-k="question" aria-label="Question">
-      <div class="phead"><span class="cat">Question</span><span class="state" data-state="question">—</span><span class="label" id="q-label"></span></div>
-      <p class="now" data-now="question"></p>
-      <p class="next"><span>Next</span><em data-next="question"></em></p>
-      <div class="pad">
-        <button class="pb nav" type="button" data-do="prev" data-k="question" aria-label="Previous question">◀<small>Prev</small></button>
-        <button class="pb toggle" type="button" data-do="toggle" data-k="question"><span class="tl">SHOW</span></button>
-        <button class="pb nav" type="button" data-do="next" data-k="question" aria-label="Next question">▶<small>Next</small></button>
+  <!-- v6.5 SIMPLE REMOTE (the default): one screen, very large buttons, nothing to set up -->
+  <main class="p-simple" id="simple" aria-label="Simple remote">
+    <section class="sr-block">
+      <p class="sr-kicker">Current Frame</p>
+      <p class="sr-big" id="sr-frame">—</p>
+      <p class="sr-sub" id="sr-frame-name"></p>
+      <div class="sr-row">
+        <button class="sr-btn" type="button" id="sr-prev-frame"><span class="ar" aria-hidden="true">◀</span>PREVIOUS FRAME</button>
+        <button class="sr-btn go" type="button" id="sr-next-frame">NEXT FRAME<span class="ar" aria-hidden="true">▶</span></button>
       </div>
-      <button class="hold" type="button" data-hold="clear" data-k="question"><span class="fill"></span><span class="ht">Hold to clear question</span></button>
     </section>
-
-    <section class="pane v" data-k="verse" aria-label="Verse">
-      <div class="phead"><span class="cat">Verse</span><span class="state" data-state="verse">—</span><span class="label" id="v-label"></span></div>
-      <p class="now serif" data-now="verse"></p>
-      <p class="next"><span>Next</span><em data-next="verse"></em></p>
-      <div class="pad">
-        <button class="pb nav" type="button" data-do="prev" data-k="verse" aria-label="Previous verse">◀<small>Prev</small></button>
-        <button class="pb toggle" type="button" data-do="toggle" data-k="verse"><span class="tl">SHOW</span></button>
-        <button class="pb nav" type="button" data-do="next" data-k="verse" aria-label="Next verse">▶<small>Next</small></button>
+    <section class="sr-block">
+      <p class="sr-kicker">Current Content <button class="sr-switch" type="button" id="sr-kind" hidden>Change</button></p>
+      <p class="sr-big" id="sr-content">—</p>
+      <p class="sr-sub" id="sr-content-detail"></p>
+      <div class="sr-row">
+        <button class="sr-btn" type="button" id="sr-prev-content"><span class="ar" aria-hidden="true">◀</span>PREVIOUS CONTENT</button>
+        <button class="sr-btn go" type="button" id="sr-next-content">NEXT CONTENT<span class="ar" aria-hidden="true">▶</span></button>
       </div>
-      <button class="hold" type="button" data-hold="clear" data-k="verse"><span class="fill"></span><span class="ht">Hold to clear verse</span></button>
     </section>
-
-    <aside class="side">
-      <section class="pane b" data-k="birthday" aria-label="Birthday">
-        <div class="phead"><span class="cat">Birthday</span><span class="state" data-state="birthday">—</span></div>
-        <p class="now small" data-now="birthday"></p>
-        <button class="pb toggle wide" type="button" data-do="toggle" data-k="birthday"><span class="tl">SHOW</span></button>
-      </section>
-      <section class="pane sc" data-k="scenes" aria-label="Studio scenes" hidden>
-        <div class="phead"><span class="cat">Scenes</span><span class="state" id="sc-state">—</span></div>
-        <div class="scene-grid" id="scene-grid"></div>
-      </section>
-      <section class="pane sl" data-k="slides" aria-label="Slides" hidden>
-        <div class="phead"><span class="cat">Slides</span><span class="state" id="sl-state">—</span></div>
-        <p class="now small" id="sl-name"></p>
-        <div class="pad two">
-          <button class="pb" type="button" data-slide="-1"><span class="ar">◀</span><span>PREV</span></button>
-          <button class="pb" type="button" data-slide="1"><span class="ar">▶</span><span>NEXT</span></button>
-        </div>
-      </section>
-      <section class="pane preview-pane">
-        <div class="phead"><span class="cat plain">Preview</span><button class="tool small" type="button" id="pv-btn">Show preview</button></div>
-        <div class="preview" id="preview" hidden><iframe id="frame" title="What Zoom participants see" tabindex="-1"></iframe></div>
-        <p class="foot">Change questions and verses on the PC; they appear here automatically.
-          <button class="linkish" type="button" id="logout">Disconnect this device</button></p>
-        <p class="credit" data-credit></p>
-      </section>
-    </aside>
+    <section class="sr-row three" aria-label="Presenter tools">
+      <button class="sr-btn tool-btn" type="button" id="sr-annotate" aria-pressed="false">ANNOTATE</button>
+      <button class="sr-btn tool-btn" type="button" id="sr-freeze" aria-pressed="false">FREEZE</button>
+      <button class="sr-btn tool-btn black" type="button" id="sr-black" aria-pressed="false">BLACK SCREEN</button>
+    </section>
+    <p class="sr-note" id="sr-note" role="status"></p>
   </main>
 
-  <!-- Lists drawer -->
-  <div class="drawer" id="drawer" hidden>
-    <div class="drawer-card">
-      <div class="drawer-head"><h2>Lists</h2><div class="dtabs"><button type="button" class="dt on" data-list="question">Questions</button><button type="button" class="dt" data-list="verse">Verses</button></div>
-        <button class="tool" type="button" id="drawer-close">Close</button></div>
-      <p class="drawer-hint">Tap an item to show it on screen.</p>
-      <ol class="dlist" id="dlist"></ol>
+  <!-- Annotate from the phone or tablet: draw with a finger; it appears on screen when you lift it -->
+  <div class="drawpad" id="drawpad" hidden>
+    <div class="dp-bar">
+      <button type="button" class="dp-tool on" data-tool="pen">Pen</button><button type="button" class="dp-tool" data-tool="highlighter">Highlight</button>
+      <button type="button" class="dp-tool" data-tool="arrow">Arrow</button><button type="button" class="dp-tool" data-tool="rect">Box</button><button type="button" class="dp-tool" data-tool="ellipse">Circle</button>
+      <span class="dp-cols"><button type="button" class="dp-col on" data-c="#e8b931" style="background:#e8b931" aria-label="Gold"></button><button type="button" class="dp-col" data-c="#ff4b4b" style="background:#ff4b4b" aria-label="Red"></button><button type="button" class="dp-col" data-c="#ffffff" style="background:#ffffff" aria-label="White"></button></span>
+      <button type="button" class="dp-act" id="dp-undo">Undo</button><button type="button" class="dp-act" id="dp-clear">Clear</button>
+      <button type="button" class="dp-act done" id="dp-done">Done</button>
+    </div>
+    <div class="dp-area" id="dp-area">
+      <div class="dp-stage" id="dp-stage"><iframe id="dp-frame" title="What is on screen now" tabindex="-1"></iframe><img id="dp-live" alt="" hidden><canvas id="dp-canvas" width="1920" height="1080" aria-label="Draw here"></canvas></div>
+    </div>
+    <p class="dp-hint" id="dp-hint">Draw with your finger. It appears on the screen when you lift it. Turn your phone sideways for a bigger picture.</p>
+  </div>
+
+  <div class="layout">
+    <!-- SCENES (a tab on phones; the left pane on tablets) -->
+    <section class="pane p-scenes" aria-labelledby="sc-title">
+      <header class="pane-head"><h2 id="sc-title">Frames</h2><button class="tool sm" type="button" id="rehearse" aria-pressed="false" title="Run-through: step through the Frames here without changing the screen">Run-through</button><button class="tool sm" type="button" id="auto" aria-pressed="true" title="Auto advance">Auto</button></header>
+      <input type="search" class="ssearch" id="ssearch" placeholder="Search Frames and Content" aria-label="Search Frames and Content">
+      <ol class="slist" id="slist" aria-label="Frames"></ol>
+    </section>
+
+    <!-- CANVAS + live controls (the Live tab; the middle pane on tablets) -->
+    <section class="pane p-live" aria-labelledby="now-title">
+      <div class="now" id="now">
+        <div class="now-top"><span class="now-label" id="now-title">Live Frame</span><span class="now-meta" id="now-meta"></span></div>
+        <p class="now-name" id="now-name">Nothing live yet</p>
+        <p class="now-sub" id="now-sub"></p>
+        <p class="now-notes" id="now-notes" hidden></p>
+      </div>
+      <div class="canvas" id="canvas"><iframe id="frame" title="What Zoom participants see" tabindex="-1"></iframe><span class="cv-badge">LIVE</span></div>
+      <div class="next-pv" id="next-pv" hidden><span class="np-l">Next</span><b id="np-name"></b><div class="canvas small" id="canvas-next"><iframe id="frame-next" title="The next Frame" tabindex="-1"></iframe></div></div>
+      <div class="deck" role="group" aria-label="Frames">
+        <button class="pb nav" type="button" id="prev" aria-label="Previous Frame"><span class="ar" aria-hidden="true">◀</span><small>Frame</small></button>
+        <button class="pb take" type="button" id="take"><span class="tl">GO LIVE</span><small id="take-what"></small></button>
+        <button class="pb nav" type="button" id="next" aria-label="Next Frame"><span class="ar" aria-hidden="true">▶</span><small>Frame</small></button>
+      </div>
+      <label class="txrow"><span>Transition</span><select id="tx" aria-label="Transition for the next take"></select></label>
+      <div class="qs" id="qs" hidden>
+        <div class="seg" role="radiogroup" aria-label="Question and scripture">
+          <button type="button" role="radio" data-qs="question" aria-checked="false">Question</button><button type="button" role="radio" data-qs="both" aria-checked="false">Q + Scripture</button><button type="button" role="radio" data-qs="verse" aria-checked="false">Scripture</button></div>
+      </div>
+      <div class="stepper" id="stepper" hidden>
+        <button class="pb nav sm" type="button" id="st-prev" aria-label="Previous item"><span class="ar" aria-hidden="true">◀</span></button>
+        <span class="st-t" id="st-t"></span>
+        <button class="pb nav sm" type="button" id="st-next" aria-label="Next item"><span class="ar" aria-hidden="true">▶</span></button>
+      </div>
+      <div class="stepper slides" id="slides" hidden>
+        <button class="pb nav sm" type="button" data-slide="-1" aria-label="Previous slide"><span class="ar" aria-hidden="true">◀</span></button>
+        <span class="st-t" id="sl-t">Slides</span>
+        <button class="pb nav sm" type="button" data-slide="1" aria-label="Next slide"><span class="ar" aria-hidden="true">▶</span></button>
+      </div>
+      <div class="prog" role="group" aria-label="Program">
+        <button class="tool" type="button" id="hide-layer">Hide Content</button>
+        <button class="tool" type="button" id="blackout" aria-pressed="false">Blackout</button>
+        <button class="tool" type="button" id="emergency" aria-pressed="false">Emergency</button>
+        <button class="tool" type="button" id="annotate" aria-pressed="false">Annotate</button>
+        <button class="tool" type="button" id="freeze" aria-pressed="false">Freeze</button>
+      </div>
+    </section>
+
+    <!-- LAYERS of the live scene (a tab on phones; the right pane on tablets) -->
+    <section class="pane p-layers" aria-labelledby="ly-title">
+      <header class="pane-head"><h2 id="ly-title">Content</h2><span class="pane-sub" id="ly-of"></span></header>
+      <ol class="llist" id="llist" aria-label="Content of the live Frame"></ol>
+      <p class="hint" id="ly-hint">Tap Content to select it; the eye shows or hides it on screen.</p>
+    </section>
+  </div>
+
+  <!-- Phones: one job per tab, at your thumb -->
+  <nav class="tabbar" id="tabbar" aria-label="Sections">
+    <button type="button" data-tab="live" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="2.5"/><path d="M16.2 7.8a6 6 0 0 1 0 8.4M7.8 16.2a6 6 0 0 1 0-8.4M19 5a10 10 0 0 1 0 14M5 19A10 10 0 0 1 5 5"/></svg><span>Live</span></button>
+    <button type="button" data-tab="scenes"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span>Frames</span></button>
+    <button type="button" data-tab="layers"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 2 10 5-10 5L2 7z"/><path d="m2 17 10 5 10-5M2 12l10 5 10-5"/></svg><span>Content</span></button>
+  </nav>
+
+  <!-- More: layout for this device, disconnect -->
+  <div class="sheet" id="more" hidden>
+    <div class="sheet-card" role="dialog" aria-modal="true" aria-labelledby="more-title">
+      <div class="sheet-head"><h2 id="more-title">This device</h2><button class="tool" type="button" id="more-close">Done</button></div>
+      <h3>Layout</h3>
+      <div class="roles" role="radiogroup" aria-label="Layout for this device">
+        <button type="button" role="radio" data-role-pick="presenter" aria-checked="true"><b>Simple remote</b><span>One screen: Previous / Next Frame, Previous / Next Content, Annotate, Freeze and Black Screen. Run a whole meeting from here.</span></button>
+        <button type="button" role="radio" data-role-pick="admin" aria-checked="false"><b>Advanced remote</b><span>Everything: the Frames with search, the Content, presenter notes, PowerPoint, run-through, annotation, Blackout and Emergency</span></button>
+      </div>
+      <p class="hint">The layout only changes what this device shows. Anyone with the PIN can control the meeting; HIDE ALL is always at the top.</p>
+      <p class="dash-foot"><button class="linkish" type="button" id="dash-logout">Disconnect this device</button></p>
+      <p class="credit" data-credit></p>
     </div>
   </div>
+  <button class="linkish" type="button" id="logout" hidden>Disconnect this device</button>
 </div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 

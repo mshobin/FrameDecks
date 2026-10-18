@@ -17,7 +17,14 @@ var ACTIONS = [
   {id: 'prevV',   name: 'Previous verse',       cat: 'verse',    def: 'Shift+ArrowLeft'},
   {id: 'toggleV', name: 'Show / hide verse',    cat: 'verse',    def: 'v'},
   {id: 'toggleB', name: 'Show / hide birthday', cat: 'birthday', def: 'b'},
-  {id: 'hideAll', name: 'Hide all overlays',    cat: 'danger',   def: 'Escape'}
+  {id: 'hideAll', name: 'Hide all overlays',    cat: 'danger',   def: 'Escape'},
+  {id: 'takeLive', name: 'Go Live (the selected Frame)', cat: 'live', def: 't'},
+  {id: 'nextScene', name: 'Next Frame (live)', cat: 'live', def: ']'},
+  {id: 'prevScene', name: 'Previous Frame (live)', cat: 'live', def: '['},
+  {id: 'presentMode', name: 'Presentation Mode on / off', cat: 'live', def: 'p'},
+  {id: 'annotate', name: 'Annotate on / off (draw on the picture)', cat: 'live', def: 'd'},
+  {id: 'freeze', name: 'Freeze the picture on / off', cat: 'live', def: 'f'},
+  {id: 'blackout', name: 'Black screen on / off', cat: 'danger', def: 'k'}
 ];
 var RESERVED = {'Tab': 1, 'Enter': 1, ' ': 1, 'Shift': 1, 'Control': 1, 'Alt': 1, 'Meta': 1, 'CapsLock': 1, '/': 1};
 var map = load();
@@ -100,7 +107,7 @@ window.BSFShortcuts = {
         h('button', {'class': 'btn small', type: 'button', text: 'Restore default keys', onclick: function(){
           ACTIONS.forEach(function(a){ map[a.id] = a.def; }); save(); render('Default keys restored.'); }})
       ]));
-      root.appendChild(h('p', {'class': 'hint', text: msg || 'Shortcuts work on the Meeting and Content tabs whenever you are not typing in a box. Holding a key down triggers it only once. Changes are saved in this browser.'}));
+      root.appendChild(h('p', {'class': 'hint', text: msg || 'Shortcuts work in the Studio whenever you are not typing in a box. Holding a key down triggers it only once. Changes are saved in this browser.'}));
     }
     render();
   }

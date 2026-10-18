@@ -1,0 +1,356 @@
+"""v6 program effects on the KingdomConnect picture, after the cards:
+
+- the live scene's text layers (Announcement, Prayer Point, Lower Third, Countdown), drawn like the question card
+  (same CardDrawer, same look as the overlay pages) at their chosen position, fading in and out;
+- the scene transition when a scene is taken live (cut, fade, dissolve, dip to black / white, blur fade, zoom fade,
+  slide, push, reveal, soft scale, cinema, church service fade) - a blend between the last picture of the old scene and
+  the new one, a few cheap whole-image operations per frame for under a second;
+- Blackout (a black picture) and the Emergency screen (a calm slate with your message);
+- v6.5 Freeze (hold the picture) and Annotate (drawings above everything), see vcam/annotate.py.
+
+Everything is drawn from the shared live state, so the PC, the phone remote and the keyboard all control it.
+Drawing a text card happens on a background thread: the video never waits for it.
+"""
+import math
+import threading
+import time
+
+import cv2
+import numpy as np
+
+from PIL import Image, ImageDraw
+
+from .annotate import Ink
+from .cards import CardDrawer, Card, accent_palette, logo_rgba, _premult, GOLD_TEXT as _GOLD_TEXT
+
+TEXT_KINDS = ("announcement", "prayer", "lowerthird", "countdown")
+
+
+def brand_text(st, s):
+    """v6.2 {meeting} and {org} in a text layer become the leader's Meeting Name and Leader / Organization."""
+    b = st.get("brand") or {}
+    s = str(s or "")
+    for k, v in (("{meeting}", b.get("meeting") or ""), ("{org}", b.get("org") or "")):
+        i = s.lower().find(k)
+        while i >= 0:
+            s = s[:i] + v + s[i + len(k):]
+            i = s.lower().find(k, i + len(v))
+    return s
+
+
+def live_brand(st, output="vcam"):
+    """v6.2 The live scene's Branding layers that have something to show (same rules as BSFScenes.liveBrand)."""
+    live = st.get("live") or {}
+    sc = next((x for x in st.get("scenes") or [] if isinstance(x, dict) and x.get("id") == live.get("scene")), None)
+    if not sc or (sc.get("out") or {}).get(output) is False:
+        return []
+    b, on = st.get("brand") or {}, live.get("on") or {}
+    return [l for l in sc.get("layers") or [] if isinstance(l, dict) and l.get("kind") == "brand" and on.get(l.get("id"))
+            and (l.get("c") or {}).get(output) is not False
+            and (((l.get("c") or {}).get("logo") and b.get("logo")) or ((l.get("c") or {}).get("name") and b.get("meeting"))
+                 or ((l.get("c") or {}).get("org") and b.get("org")))]
+
+
+def _ease(t):
+    t = max(0.0, min(1.0, t))
+    return t * t * (3 - 2 * t)
+
+
+def live_text(st, output="vcam"):
+    """The live scene's text layers shown on this output (same rules as BSFScenes.liveText)."""
+    live = st.get("live") or {}
+    sid = live.get("scene")
+    if not sid:
+        return []
+    sc = next((x for x in st.get("scenes") or [] if isinstance(x, dict) and x.get("id") == sid), None)
+    if not sc or (sc.get("out") or {}).get(output) is False:
+        return []
+    on = live.get("on") or {}
+    return [l for l in sc.get("layers") or [] if isinstance(l, dict) and l.get("kind") in TEXT_KINDS and on.get(l.get("id"))
+            and (l.get("c") or {}).get(output) is not False
+            and (l.get("kind") == "countdown" or brand_text(st, (l.get("c") or {}).get("text")).strip() or brand_text(st, (l.get("c") or {}).get("title")).strip())]
+
+
+def countdown_text(st, l, now=None):
+    c = l.get("c") or {}
+    now = time.time() if now is None else now
+    if c.get("mode") == "until":
+        try:
+            hh, mm = [int(x) for x in str(c.get("until") or "").strip().split(":")]
+            t = time.localtime(now)
+            end = time.mktime((t.tm_year, t.tm_mon, t.tm_mday, hh, mm, 0, 0, 0, -1))
+        except (ValueError, OverflowError):
+            return str(c.get("text") or "")
+    else:
+        start = ((st.get("live") or {}).get("cd") or {}).get(l.get("id")) or now * 1000
+        end = start / 1000.0 + float(c.get("minutes") or 0) * 60
+    left = int(math.ceil(end - now))
+    if left <= 0:
+        return str(c.get("text") or "0:00")
+    h, m, s = left // 3600, left % 3600 // 60, left % 60
+    return (f"{h}:{m:02d}" if h else f"{m}") + f":{s:02d}"
+
+
+class _Text:
+    def __init__(self):
+        self.alpha, self.target, self.key, self.card, self.anim, self.t0 = 0.0, 0.0, None, None, "fade", 0.0
+
+
+class ProgramFX:
+    def __init__(self, fonts_dir, get_state, cards_on=lambda: True, logo_path=None):
+        self.drawer = CardDrawer(fonts_dir)
+        self.ink = Ink(fonts_dir)
+        self.logo_path, self.logo_cache = logo_path, (None, None)      # (version, PIL RGBA)
+        self.get_state, self.cards_on = get_state, cards_on
+        self.texts = {}                  # layer id -> _Text
+        self.jobs, self.cond = {}, threading.Condition()
+        self.last = None                 # the previous output picture (for transitions)
+        self.seq = None
+        self.tx = None                   # (type, ms, t0, from_frame)
+        self.black = 0.0
+        self.slate_a = 0.0
+        self.slate = None                # (key, image)
+        self.prev_t = time.monotonic()
+        threading.Thread(target=self._worker, name="bcc-vcam-program", daemon=True).start()
+
+    # ---------- per frame ----------
+    def __call__(self, frame):
+        try:
+            st = self.get_state() or {}
+        except Exception:
+            return frame
+        now = time.monotonic()
+        dt, self.prev_t = min(0.2, now - self.prev_t), now
+        H, W = frame.shape[:2]
+        live = st.get("live") or {}
+        hold = bool(live.get("blackout") or live.get("emergency"))
+        self._texts(frame, st, live, W, H, now, dt, hold)
+        # scene transition: started by a new live sequence number
+        seq = live.get("seq", 0)
+        if self.seq is None:
+            self.seq = seq
+        elif seq != self.seq:
+            self.seq = seq
+            kind, ms = str(live.get("tx") or "cut"), float(live.get("txMs") or 0)
+            if kind != "cut" and ms > 0 and self.last is not None and self.last.shape == frame.shape:
+                self.tx = (kind, ms / 1000.0, now, self.last)
+        out = frame
+        if self.tx is not None:
+            kind, dur, t0, a = self.tx
+            p = (now - t0) / dur
+            if p >= 1 or a.shape != frame.shape:
+                self.tx = None
+            else:
+                out = self._transition(kind, _ease(p), a, frame)
+        # Blackout and the Emergency screen fade in and out over 0.3 s
+        self.black = self._toward(self.black, 1.0 if live.get("blackout") else 0.0, dt / 0.3)
+        self.slate_a = self._toward(self.slate_a, 1.0 if live.get("emergency") and not live.get("blackout") else 0.0, dt / 0.3)
+        if self.slate_a > 0.001:
+            out = cv2.addWeighted(out, 1 - self.slate_a, self._slate(st, W, H), self.slate_a, 0)
+        out = self.ink.freeze(out, bool(live.get("freeze")))       # Freeze: hold the picture (drawings still go on top)
+        out = self.ink.draw(out if out is not frame else frame, live.get("ink"))
+        if self.black > 0.001:
+            out = cv2.convertScaleAbs(out, alpha=1 - self.black)
+        self.last = out if out is not frame else frame.copy()
+        return out
+
+    @staticmethod
+    def _toward(v, target, step):
+        return min(target, v + step) if v < target else max(target, v - step)
+
+    # ---------- transitions: a = last picture of the old scene, b = the new one, e = 0..1 ----------
+    def _transition(self, kind, e, a, b):
+        H, W = b.shape[:2]
+        if kind in ("dip-black", "dip-white"):
+            col = np.zeros_like(b) if kind == "dip-black" else np.full_like(b, 255)
+            return cv2.addWeighted(a, 1 - e * 2, col, e * 2, 0) if e < 0.5 else cv2.addWeighted(col, 2 - e * 2, b, e * 2 - 1, 0)
+        if kind in ("slide-left", "slide-right"):
+            off = int(W * (1 - e))
+            out = a.copy()
+            if kind == "slide-left":
+                out[:, off:] = b[:, :W - off] if off < W else out[:, off:]
+            else:
+                out[:, :W - off] = b[:, off:] if off < W else out[:, :W - off]
+            return out
+        if kind == "push":
+            dx = int(W * e)
+            out = np.empty_like(b)
+            out[:, :W - dx] = a[:, dx:]
+            out[:, W - dx:] = b[:, :dx]
+            return out
+        if kind == "reveal":
+            x = int(W * e)
+            out = a.copy()
+            out[:, :x] = b[:, :x]
+            return out
+        if kind in ("zoom-fade", "soft-scale"):
+            s = 1 + (0.06 if kind == "zoom-fade" else -0.04) * (1 - e)
+            if s > 1:
+                cw, ch = int(W / s), int(H / s)
+                x0, y0 = (W - cw) // 2, (H - ch) // 2
+                bb = cv2.resize(b[y0:y0 + ch, x0:x0 + cw], (W, H), interpolation=cv2.INTER_LINEAR)
+            else:
+                small = cv2.resize(b, (int(W * s), int(H * s)), interpolation=cv2.INTER_AREA)
+                bb = a.copy()
+                y0, x0 = (H - small.shape[0]) // 2, (W - small.shape[1]) // 2
+                bb[y0:y0 + small.shape[0], x0:x0 + small.shape[1]] = small
+            return cv2.addWeighted(a, 1 - e, bb, e, 0)
+        if kind == "blur-fade":
+            k = max(1, int(round(14 * (1 - e))))
+            small = cv2.resize(a, (W // 4, H // 4), interpolation=cv2.INTER_AREA)
+            blurred = cv2.resize(cv2.GaussianBlur(small, (0, 0), k / 2 + 0.5), (W, H), interpolation=cv2.INTER_LINEAR)
+            return cv2.addWeighted(blurred, 1 - e, b, e, 0)
+        return cv2.addWeighted(a, 1 - e, b, e, 0)          # fade, dissolve, cinema, church
+
+    # ---------- Emergency screen ----------
+    def _slate(self, st, W, H):
+        msg = str((st.get("live") or {}).get("message") or "Please stand by")
+        key = (W, H, msg, (st.get("layout") or {}).get("panel"))
+        if self.slate and self.slate[0] == key:
+            return self.slate[1]
+        img = np.zeros((H, W, 3), np.uint8)
+        img[:] = (34, 18, 11)
+        try:
+            L = {"qScale": 1.5, "qWidth": 70, "qBottom": 50, "panel": 100}
+            card = self.drawer.draw("question", {"label": "", "showLabel": False, "text": msg}, L, W, H)
+            from .overlay import OverlayLayer
+            OverlayLayer._prepare(card)
+            x0, y0 = int((W - card.w) / 2 - card.margin), int((H - card.h) / 2 - card.margin)
+            OverlayLayer._blend(img, card.full8, x0, y0)
+        except Exception as e:
+            print("KingdomConnect: emergency screen:", e)
+        self.slate = (key, img)
+        return img
+
+    # ---------- v6.2 branding ----------
+    def _logo(self, version):
+        """The leader's logo (PIL RGBA), read again only when a new one is uploaded."""
+        if not version or not self.logo_path:
+            return None
+        if self.logo_cache[0] != version:
+            self.logo_cache = (version, logo_rgba(self.logo_path))
+        return self.logo_cache[1]
+
+    def _badge(self, d, L, W, H):
+        """A Branding layer: the logo and/or the Meeting Name (and Leader / Organization) on a small navy plate."""
+        u = min(W / 100, H * 1.7778 / 100)
+        s = u * float(L.get("scale", 1))
+        pal = accent_palette(L.get("accent"))
+        gold = pal[0] if pal else _GOLD_TEXT
+        edge = pal[1][1][1] if pal else (217, 171, 74)
+        fonts = self.drawer.fonts
+        lines = []
+        if d.get("name") and d.get("meeting"):
+            lines.append((d["meeting"], fonts.get("sans", 700, 1.9 * s), (251, 246, 234)))
+        if d.get("show_org") and d.get("org"):
+            lines.append((d["org"], fonts.get("sans", 600, 1.35 * s), gold))
+        logo = self._logo(d.get("logo")) if d.get("logo") else None
+        pad, gap = 1.3 * s, 1.1 * s
+        text_h = sum(f.size * 1.25 for _, f, _ in lines)
+        text_w = max([f.getlength(t) for t, f, _ in lines] or [0])
+        logo_h = max(text_h, 4.4 * s) if lines else 6.0 * s
+        lw = lh = 0
+        if logo is not None:
+            lh = int(round(logo_h))
+            lw = max(1, int(round(lh * logo.width / max(1, logo.height))))
+            if lw > 24 * s:                                   # very wide logos
+                lw = int(24 * s)
+                lh = max(1, int(round(lw * logo.height / max(1, logo.width))))
+        inner_h = max(lh, text_h)
+        w = int(round(2 * pad + lw + (gap if lw and lines else 0) + text_w))
+        h = int(round(2 * pad + inner_h))
+        img = Image.new("RGBA", (max(1, w), max(1, h)), (0, 0, 0, 0))
+        dr = ImageDraw.Draw(img)
+        bw = max(2, int(round(u * 0.13)))
+        dr.rounded_rectangle([0, 0, w - 1, h - 1], radius=int(1.1 * s), fill=edge + (255,))
+        dr.rounded_rectangle([bw, bw, w - 1 - bw, h - 1 - bw], radius=max(0, int(1.1 * s) - bw), fill=(14, 30, 62, 225))
+        x = pad
+        if logo is not None:
+            img.alpha_composite(logo.resize((lw, lh), Image.LANCZOS), (int(round(x)), int(round((h - lh) / 2))))
+            x += lw + (gap if lines else 0)
+        y = (h - text_h) / 2
+        for t, f, col in lines:
+            dr.text((x, y + f.size * 0.125), t, font=f, fill=col + (255,))
+            y += f.size * 1.25
+        base = _premult(img)
+        empty = np.zeros_like(base)
+        card = Card("brand", w, h, 0, (base, empty, empty.copy()), [], [], 0, None)
+        return card
+
+    # ---------- text layers ----------
+    def _texts(self, frame, st, live, W, H, now, dt, hold):
+        want = {} if hold or not self.cards_on() else {l["id"]: l for l in live_text(st, "vcam") + live_brand(st, "vcam")}
+        b = st.get("brand") or {}
+        for lid, l in want.items():
+            t = self.texts.setdefault(lid, _Text())
+            c = l.get("c") or {}
+            accent = b.get("color") or ""
+            if l["kind"] == "brand":
+                data = {"brand": True, "meeting": b.get("meeting") or "", "org": b.get("org") or "", "logo": c.get("logo") and b.get("logo"),
+                        "name": bool(c.get("name")), "show_org": bool(c.get("org"))}
+                L = {"scale": float(c.get("scale") or 1), "accent": accent}
+                key = ("brand", data["meeting"], data["org"], data["logo"], data["name"], data["show_org"], L["scale"], accent, c.get("pos"), W, H)
+            else:
+                text = countdown_text(st, l) if l["kind"] == "countdown" else brand_text(st, c.get("text"))
+                title = brand_text(st, c.get("title"))
+                data = {"label": title, "showLabel": c.get("label", True) is not False and bool(title.strip()), "text": text or " ",
+                        "logo": (b.get("logo") or None) if c.get("logo") else None}
+                L = {"qScale": float(c.get("scale") or 1), "qWidth": float(c.get("w") or 70), "qBottom": 8,
+                     "panel": float((st.get("layout") or {}).get("panel", 92)), "accent": accent}
+                key = (data["label"], data["showLabel"], data["text"], data["logo"], accent, L["qScale"], L["qWidth"], L["panel"], c.get("pos"), W, H)
+            if t.target < 1:
+                t.anim, t.t0 = str(c.get("anim") or "fade"), now
+            t.target = 1.0
+            t.opacity = float(l.get("opacity", 1) if l.get("opacity") is not None else 1)
+            if t.key != key:
+                with self.cond:
+                    self.jobs[lid] = (key, data, L, W, H, str(c.get("pos") or "center"))
+                    self.cond.notify()
+        for lid, t in list(self.texts.items()):
+            if lid not in want:
+                t.target = 0.0
+            if t.anim == "none":
+                t.alpha = t.target
+            else:
+                t.alpha = self._toward(t.alpha, t.target, dt / 0.35)
+            if t.alpha <= 0.001 and t.target == 0:
+                if lid not in want:
+                    self.texts.pop(lid, None)
+                continue
+            if t.card is None:
+                continue
+            from .overlay import OverlayLayer
+            card = t.card
+            u = min(W / 100, H * 1.7778 / 100)
+            dy = (1 - _ease(min(1.0, (now - t.t0) / 0.9))) * u * 1.6 if t.anim == "rise" and t.target == 1 else 0
+            a = t.alpha * getattr(t, "opacity", 1.0)
+            x0, y0 = int(round(card.x - card.margin)), int(round(card.y - card.margin + dy))
+            OverlayLayer._blend(frame, OverlayLayer._scale(card.full8, a) if a < 0.999 else card.full8, x0, y0, card.full_inv3 if a >= 0.999 else None)
+
+    def _worker(self):
+        from .priority import lower_this_thread
+        from .overlay import OverlayLayer
+        lower_this_thread()
+        while True:
+            with self.cond:
+                while not self.jobs:
+                    self.cond.wait()
+                lid, (key, data, L, W, H, pos) = self.jobs.popitem()
+            try:
+                if data.get("brand"):
+                    card = self._badge(data, L, W, H)
+                else:
+                    if data.get("logo"):
+                        data = dict(data, logo=self._logo(data["logo"]))
+                    card = self.drawer.draw("question", data, L, W, H)
+                OverlayLayer._prepare(card)
+                u = min(W / 100, H * 1.7778 / 100)
+                left, right = 4 * u, W - 4 * u - card.w
+                card.x = left if pos.endswith("left") else right if pos.endswith("right") else (W - card.w) / 2
+                card.y = (H * 0.06 if pos in ("top", "upper-left", "upper-right") else (H - card.h) / 2 if pos == "center"
+                          else H * 0.92 - card.h)
+                t = self.texts.get(lid)
+                if t is not None:
+                    t.card, t.key = card, key
+            except Exception as e:                      # never let a drawing problem stop the camera
+                print("KingdomConnect: could not draw a text layer:", e)

@@ -1,1 +1,1 @@
-"""BCC vCam - the BSF Command Center's built-in virtual camera (Windows)."""
+"""KingdomConnect - the BSF Command Center's built-in virtual camera (Windows)."""

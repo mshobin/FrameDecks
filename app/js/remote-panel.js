@@ -19,7 +19,7 @@ function ago(t, now){ var s = Math.max(0, Math.round(now - t)); return s < 5 ? '
 box.hidden = false; box.innerHTML = '';
 if (!Store.served){
   box.appendChild(h('div', {cls: 'box-head'}, [h('h2', {text: 'Phone & iPad Remote'})]));
-  box.appendChild(h('p', {cls: 'plain', text: 'The phone remote needs the Command Center program. Start it with “Start BSF Command Center with iPad Remote.bat”.'}));
+  box.appendChild(h('p', {cls: 'plain', text: 'The phone remote needs the Kingdom Connect program. Start it with “Start BSF Command Center with iPad Remote.bat”.'}));
   return;
 }
 
@@ -45,11 +45,11 @@ sw.addEventListener('change', function(){
     .then(function(){ busy = false; sw.disabled = false; });
 });
 var auto = h('input', {type: 'checkbox', id: 'remote-autostart'});
-auto.addEventListener('change', function(){ post('settings', {remoteAutostart: auto.checked}).then(function(){ toast(auto.checked ? 'The phone remote will turn on whenever the Command Center starts' : 'The phone remote will start switched off'); }); });
+auto.addEventListener('change', function(){ post('settings', {remoteAutostart: auto.checked}).then(function(){ toast(auto.checked ? 'The phone remote will turn on whenever Kingdom Connect starts' : 'The phone remote will start switched off'); }); });
 document.addEventListener('bsf-app-info', function(e){ auto.checked = !!e.detail.settings.remoteAutostart; });
 box.appendChild(h('div', {cls: 'big-switch'}, [sw, h('div', {}, [swText,
   h('div', {cls: 'hint', text: 'When on, phones and iPads on your Wi-Fi can connect using the PIN. When off, nothing on the network can reach this PC.'})])]));
-box.appendChild(h('label', {cls: 'check', style: 'margin-bottom:10px'}, [auto, ' Turn on automatically when the Command Center starts']));
+box.appendChild(h('label', {cls: 'check', style: 'margin-bottom:10px'}, [auto, ' Turn on automatically when Kingdom Connect starts']));
 box.appendChild(h('div', {cls: 'box-head'}, [h('h2', {text: 'Remote status'}),
   h('button', {cls: 'btn small', type: 'button', text: 'Connection test', onclick: runTest})]));
 box.appendChild(pillEl); box.appendChild(msgEl); box.appendChild(testOut);
@@ -156,7 +156,7 @@ function runTest(){
     var ok = t.results.filter(function(x){ return x.ok; });
     if (ok.length) testOut.appendChild(h('div', {cls: 'alert ok'}, [h('b', {text: 'This PC is ready. '}),
       'It answers on ' + ok.map(function(x){ return x.ip; }).join(', ') + '. If the phone or iPad still cannot open the page, Windows Firewall, security software or the router is blocking it. (This test cannot see the phone or iPad’s side.)']));
-    else testOut.appendChild(h('div', {cls: 'alert bad', text: 'The program is not answering on its network address. Turn the switch off and on again, or restart the Command Center.'}));
+    else testOut.appendChild(h('div', {cls: 'alert bad', text: 'The program is not answering on its network address. Turn the switch off and on again, or restart Kingdom Connect.'}));
   }).catch(function(){ testOut.innerHTML = ''; testOut.appendChild(h('div', {cls: 'alert bad', text: 'The local program is not responding.'})); });
 }
 Status.on('remote', update);

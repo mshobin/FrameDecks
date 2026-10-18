@@ -1,4 +1,5 @@
-"""Camera Looks for BCC vCam: colour grading of the webcam picture only (never the cards).
+"""Camera Looks for KingdomConnect: colour grading of the webcam picture only (never the cards).
+Each look is a "filter" with an intensity 0-100 (at_intensity); 100 is the look as defined here.
 
 Same steps and order as the reference shader:
     colour += brightness
@@ -45,6 +46,18 @@ def clean(look):
             v = default
         out[k] = min(hi, max(lo, v)) if v == v else default      # NaN -> default
     return out
+
+
+def at_intensity(look, intensity):
+    """The look scaled toward neutral: 100 = the look exactly, 0 = no change at all (None: nothing to apply).
+    Every value moves in a straight line from its neutral default, so the steps in between stay subtle."""
+    g = clean(look)
+    t = min(100.0, max(0.0, float(intensity))) / 100.0
+    if t <= 0:
+        return None
+    if t >= 1:
+        return g
+    return {"name": g["name"], **{k: d + (g[k] - d) * t for k, (_lo, _hi, d) in LIMITS.items()}}
 
 
 def load(path):

@@ -1,4 +1,4 @@
-"""Puts the verse, question and birthday cards onto BCC vCam, with the same transitions as the overlay pages.
+"""Puts the verse, question and birthday cards onto KingdomConnect, with the same transitions as the overlay pages.
 
 Each video frame: read the live state (shared with the dashboard, keyboard and phone remote), follow the same
 show / hide / replace / clear rules as app/js/overlay.js, and blend the cards onto the picture.
@@ -12,7 +12,7 @@ import time
 import cv2
 import numpy as np
 
-from .cards import CardDrawer, place_verse
+from .cards import CardDrawer, effective_layout, place_verse
 
 TYPE_MS = {"slow": 0.070, "normal": 0.038, "fast": 0.018}
 WORD_MS = {"slow": 0.260, "normal": 0.150, "fast": 0.080}
@@ -158,8 +158,13 @@ class OverlayLayer:
             return frame
         now = time.monotonic()
         H, W = frame.shape[:2]
+        live = st.get("live") or {}
+        hold = bool(live.get("blackout") or live.get("emergency"))
         for kind, tr in self.tracks.items():
-            tr.update(st.get(kind) or {}, now, self.alpha[kind])
+            d = st.get(kind) or {}
+            if hold or (d.get("out") or {}).get("vcam") is False:      # v6: Blackout / Emergency, or "not on KingdomConnect"
+                d = dict(d, visible=False)
+            tr.update(d, now, self.alpha[kind])
             tr.tick(now)
         # birthday first (behind), then verse, then question - same stacking as the stage page
         for kind in ("birthday", "verse", "question"):
@@ -191,12 +196,13 @@ class OverlayLayer:
                     self.cards[kind] = (key, card)
                     self.drawing.discard(kind)
             except Exception as e:                      # never let a drawing problem stop the camera
-                print("BCC vCam: could not draw the " + kind + " card:", e)
+                print("KingdomConnect: could not draw the " + kind + " card:", e)
                 with self.cond:
                     self.drawing.discard(kind)
 
     def _card(self, kind, tr, st, W, H, now):
-        L = dict(st.get("layout", {}) or {})
+        L = dict(effective_layout(st))                # Both mode: the question leads (same as the overlay pages)
+        L["accent"] = ((st.get("brand") or {}).get("color") or "")   # v6.2 the leader's accent colour
         band = place_verse(st, W, H) if kind == "verse" else None
         key = (tr.sig(tr.data), W, H, tuple(sorted((k, str(v)) for k, v in L.items())), band and (round(band[1] - band[0])))
         with self.cond:

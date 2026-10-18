@@ -1,4 +1,4 @@
-"""Layers for BCC vCam: images, videos and presentations stacked on top of the base picture
+"""Layers for KingdomConnect: images, videos and presentations stacked on top of the base picture
 (camera / screen layout), under the verse, question and birthday cards.
 
 A layer is plain data (saved in scenes):
@@ -86,6 +86,8 @@ def clean_layer(d):
             out["hwnd"] = int(d["hwnd"])
         except (TypeError, ValueError):
             pass
+    if out["type"] in ("pdf", "window") and d.get("objectsOnly"):
+        out["objectsOnly"] = True                # PowerPoint "Show objects only": hide a plain slide background
     return out
 
 
@@ -264,104 +266,7 @@ class WindowSource:
         self.cap.stop()
 
 
-class _PowerPointControl:
-    """All PowerPoint commands run on ONE helper thread with COM initialised (COM requires it, and the web
-    request threads never had it - that is why Next slide silently did nothing before)."""
-    def __init__(self):
-        import queue as _q
-        self.q = _q.Queue()
-        threading.Thread(target=self._run, name="bcc-powerpoint", daemon=True).start()
-
-    def _run(self):
-        try:
-            import comtypes
-            comtypes.CoInitialize()
-        except Exception as e:
-            self.init_error = str(e)
-        while True:
-            step, hwnd, box, done = self.q.get()
-            try:
-                box["r"] = self._move(step, hwnd)
-            except Exception as e:
-                box["r"] = {"error": f"PowerPoint did not respond ({type(e).__name__})"}
-            done.set()
-
-    @staticmethod
-    def _move(step, hwnd):
-        import comtypes.client as cc
-        try:
-            app = cc.GetActiveObject("PowerPoint.Application", dynamic=True)   # dynamic: no code generation needed
-        except Exception:
-            return None                                                          # PowerPoint isn't running
-        shows = app.SlideShowWindows
-        if shows.Count >= 1:                                                     # a slide show is running
-            win = None
-            for i in range(1, shows.Count + 1):
-                w = shows.Item(i)
-                try:
-                    if hwnd and int(w.HWND) == int(hwnd):
-                        win = w
-                        break
-                except Exception:
-                    pass
-            win = win or shows.Item(1)
-            view = win.View
-            (view.Next if step > 0 else view.Previous)()
-            try:
-                return {"page": int(view.CurrentShowPosition), "pages": int(win.Presentation.Slides.Count), "via": "slide show"}
-            except Exception:
-                return {"result": "ok", "via": "slide show"}
-        if app.Windows.Count >= 1:                                               # normal (editing) view
-            w = app.ActiveWindow
-            total = int(w.Presentation.Slides.Count)
-            cur = int(w.View.Slide.SlideIndex)
-            new = max(1, min(total, cur + step))
-            w.View.GotoSlide(new)
-            return {"page": new, "pages": total, "via": "editing view"}
-        return None
-
-    def move(self, step, hwnd, timeout=5.0):
-        box, done = {}, threading.Event()
-        self.q.put((step, hwnd, box, done))
-        return box.get("r") if done.wait(timeout) else {"error": "PowerPoint is busy - try again"}
-
-
-_ppt = None
-
-
-def _post_keys(hwnd, step):
-    """Last resort (no PowerPoint COM): Page Down / Up to the window AND its inner windows (PowerPoint reads keys
-    in an inner window, so keys sent only to the main window were ignored)."""
-    import ctypes
-    from ctypes import wintypes as W
-    u32 = ctypes.windll.user32
-    vk = 0x22 if step > 0 else 0x21                                              # VK_NEXT / VK_PRIOR
-    targets = [int(hwnd)]
-    PROC = ctypes.WINFUNCTYPE(ctypes.c_bool, W.HWND, W.LPARAM)
-    u32.EnumChildWindows(W.HWND(int(hwnd)), PROC(lambda h, lp: targets.append(int(h)) or True), 0)
-    for t in targets:
-        u32.PostMessageW(W.HWND(t), 0x0100, vk, 0)
-        u32.PostMessageW(W.HWND(t), 0x0101, vk, 0)
-
-
-def powerpoint_slide(step, hwnd=None):
-    """Next (+1) / Previous (-1) slide in PowerPoint (slide show or editing view). Returns a status dict,
-    e.g. {"page": 4, "pages": 12} or {"error": "..."}."""
-    global _ppt
-    if os.name != "nt":
-        return {"error": "Only on Windows"}
-    if _ppt is None:
-        _ppt = _PowerPointControl()
-    res = _ppt.move(step, hwnd)
-    if res and not res.get("error"):
-        return res
-    if hwnd:                                                                     # not PowerPoint (or no COM): keys
-        try:
-            _post_keys(hwnd, step)
-            return {"result": "sent Page Down" if step > 0 else "sent Page Up", "via": "keys"}
-        except Exception:
-            pass
-    return res or {"error": "PowerPoint isn't open. Open your presentation (or start the slide show) and try again."}
+from .powerpoint import powerpoint_slide, powerpoint_status  # noqa: E402,F401  (used by WindowSource, compositor)
 
 
 # ---------- the stack ----------
@@ -490,10 +395,12 @@ class LayerManager:
                     img, ver = s.frame()
                 if img is None:
                     continue
+                if l.get("objectsOnly"):
+                    img = self._objects_only(l["id"], img, ver)
                 if t in LIVE and self._fast_paste(frame, img, l, W, H, ver):
                     continue
                 key = (id(img) if t in ("text", "rect", "ellipse") else ver, W, H, l["x"], l["y"], l["w"], l["h"], l["rotation"],
-                       l["opacity"], l["radius"], str(l.get("props")))
+                       l["opacity"], l["radius"], str(l.get("props")), bool(l.get("objectsOnly")))
                 c = self.cache.get(l["id"])
                 if c is None or c[0] != key or t in LIVE:
                     c = (key,) + _transform(img, l, W, H)
@@ -503,6 +410,16 @@ class LayerManager:
             except Exception as e:                       # one broken layer never stops the camera
                 self.errors[l["id"]] = str(e)
         return frame
+
+    def _objects_only(self, lid, img, ver):
+        """Slides without their background: the colour in the slide's corners becomes see-through (once per new
+        picture). Works for plain-colour backgrounds; pictures or gradients behind the slide stay visible."""
+        hit = self.cache.get(lid + ":keyed")
+        if hit and hit[0] == ver and hit[1] is not None:
+            return hit[1]
+        out = key_background(img)
+        self.cache[lid + ":keyed"] = (ver, out)
+        return out
 
     def _fast_paste(self, frame, img, l, W, H, ver=None):
         """Camera/screen in an upright box (no rotation or fade): copy it straight in. Rounded corners only
@@ -673,6 +590,21 @@ def _draw_text(text, p, l, W, H, fonts_dir):
         d.text((x, y + (lh - asc - desc) / 2), s_, font=font, fill=col)
         y += lh
     return np.ascontiguousarray(np.asarray(img)[..., [2, 1, 0, 3]])
+
+
+def key_background(img, tol=18):
+    """Make a slide's plain background colour transparent, with a soft edge so text stays smooth. Returns BGRA."""
+    bgr = img[..., :3]
+    h, w = bgr.shape[:2]
+    k = max(2, min(h, w) // 50)
+    corners = np.concatenate([bgr[:k, :k].reshape(-1, 3), bgr[:k, -k:].reshape(-1, 3),
+                              bgr[-k:, :k].reshape(-1, 3), bgr[-k:, -k:].reshape(-1, 3)])
+    bg = np.median(corners, axis=0).astype(np.int16)
+    diff = np.abs(bgr.astype(np.int16) - bg).max(axis=2)
+    a = np.clip((diff - tol) * (255.0 / tol), 0, 255).astype(np.uint8)
+    if img.shape[2] == 4:
+        a = np.minimum(a, img[..., 3])
+    return np.dstack([bgr, a])
 
 
 def _transform(img, l, W, H):

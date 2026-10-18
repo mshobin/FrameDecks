@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Kingdom Connect · Speaker View</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="css/dashboard.css">
+<link rel="stylesheet" href="css/theme.css">
+<link rel="stylesheet" href="css/speaker.css">
+<script>/* the same appearance as the main window (Settings > General > Appearance) */
+(function(){ var d = document.documentElement, p = 'dark';
+  try { p = localStorage.getItem('bsf-cc-theme') || 'dark'; } catch(e){}
+  d.dataset.theme = p === 'system' ? (window.matchMedia && matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark') : (p === 'light' ? 'light' : 'dark');
+})();</script>
+</head>
+<body class="speaker">
+  <!-- Speaker View (this PC only): what is on screen now, its answer and notes, what comes next, and a clock.
+       Nothing here is ever shown to the meeting. Built by js/speaker.js. -->
+  <header class="sp-top">
+    <img class="sp-mark" src="img/kc-emblem.webp" alt="">
+    <div class="sp-title"><b id="sp-meeting">Speaker View</b><small id="sp-frame-pos"></small></div>
+    <div class="sp-chips" id="sp-chips" aria-live="polite"></div>
+    <div class="sp-clocks">
+      <div class="sp-clock"><span>Time</span><b id="sp-clock">--:--</b></div>
+      <div class="sp-clock"><span>This Frame</span><b id="sp-frame-time">0:00</b></div>
+      <div class="sp-clock sp-watch"><span>Timer</span><b id="sp-watch">0:00</b>
+        <div class="sp-watch-btns"><button class="btn small" type="button" id="sp-watch-go">Start</button><button class="btn quiet small" type="button" id="sp-watch-reset">Reset</button></div></div>
+    </div>
+  </header>
+  <main class="sp-main">
+    <section class="sp-now" aria-labelledby="sp-now-h">
+      <h2 class="sp-h" id="sp-now-h">Now</h2>
+      <div id="sp-now"></div>
+    </section>
+    <aside class="sp-side">
+      <section aria-labelledby="sp-next-h"><h2 class="sp-h" id="sp-next-h">Next</h2><div id="sp-next"></div></section>
+      <section aria-labelledby="sp-fnotes-h"><h2 class="sp-h" id="sp-fnotes-h">Frame notes</h2><div id="sp-fnotes"></div></section>
+    </aside>
+  </main>
+  <p class="sp-foot">Only you see this window. Move it to a second screen, or keep it beside Zoom. Change what is on screen from the main window or the phone.</p>
+<script src="js/store.js"></script>
+<script src="js/speaker.js"></script>
+</body>
+</html>

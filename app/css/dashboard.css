@@ -19,7 +19,7 @@ button,input,textarea,select{font:inherit;color:inherit}
 
 /* ---------- Header ---------- */
 .top{position:sticky;top:0;z-index:10;display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;
-  padding:12px 22px;background:rgba(12,20,38,.985);border-bottom:1px solid var(--line-soft)}   /* no backdrop blur: it made the GPU re-blur the page behind it on every change */
+  padding:12px 22px;background:var(--chrome-bg,rgba(12,20,38,.985));border-bottom:1px solid var(--line-soft)}   /* no backdrop blur: it made the GPU re-blur the page behind it on every change */
 .brand{display:flex;align-items:center;gap:10px;margin-right:auto}
 .brand svg{width:30px;height:auto;color:var(--gold)}
 .brand h1{margin:0;font-family:var(--serif);font-weight:500;font-size:24px;letter-spacing:.01em}
@@ -48,7 +48,7 @@ h3{font-size:14px;font-weight:700;color:var(--muted);margin:18px 0 8px;letter-sp
 /* ---------- Controls ---------- */
 .btn{border:1px solid var(--line);background:var(--raised);color:var(--ink);border-radius:8px;padding:8px 14px;
   font-weight:600;font-size:14px;cursor:pointer;white-space:nowrap}
-.btn:hover{border-color:#3a4c75}
+.btn:hover{border-color:var(--line-hover,#3a4c75)}
 .btn.primary{background:var(--gold);border-color:var(--gold);color:var(--gold-ink)}
 .btn.primary:hover{background:var(--gold-strong)}
 .btn.quiet{background:transparent;font-weight:500;padding:6px 11px}
@@ -90,7 +90,7 @@ input[type=range]{flex:1;accent-color:var(--gold)}
 .item .txt{min-width:0;cursor:pointer;background:none;border:0;padding:0;text-align:left}
 .item .t1{font-size:14px;font-weight:600;color:var(--ink);display:block}
 .item .t2{font-size:13px;color:var(--muted);display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.item.loaded{background:rgba(255,255,255,.03)}
+.item.loaded{background:var(--hover,rgba(255,255,255,.03))}
 .item.live{background:var(--gold-soft);box-shadow:inset 3px 0 0 var(--gold)}
 .item.live .num{color:var(--gold)}
 .item .ops{display:flex;gap:4px}
@@ -98,7 +98,7 @@ input[type=range]{flex:1;accent-color:var(--gold)}
 .bulk textarea{min-height:110px;font-size:14px}
 
 /* ---------- Preview ---------- */
-.preview{position:relative;width:100%;aspect-ratio:16/9;border-radius:9px;overflow:hidden;background:#1f2533;border:1px solid var(--line)}
+.preview{position:relative;width:100%;aspect-ratio:16/9;border-radius:9px;overflow:hidden;background:var(--video-bg,#1f2533);border:1px solid var(--line)}
 .preview iframe{position:absolute;left:0;top:0;width:1920px;height:1080px;border:0;transform-origin:0 0;pointer-events:none}
 .preview-cap{display:flex;justify-content:space-between;gap:10px;font-size:12px;color:var(--faint);margin-top:6px}
 
@@ -120,3 +120,9 @@ input[type=range]{flex:1;accent-color:var(--gold)}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .toast.bad{border-color:var(--danger);color:var(--danger)}
 .main > .box{margin-top:0}
+
+/* KingdomConnect: quality diagnostics and fine-tune */
+.vcam-diag{display:grid;grid-template-columns:150px 1fr;gap:4px 12px;margin:6px 0 0;font-size:13px}
+.vcam-diag dt{color:var(--muted)} .vcam-diag dd{margin:0;overflow-wrap:anywhere}
+.vcam-fine{margin-top:8px} .vcam-fine summary{cursor:pointer;font-weight:700;padding:6px 0}
+.range .val{min-width:56px;font-variant-numeric:tabular-nums}

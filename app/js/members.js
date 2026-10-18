@@ -122,7 +122,7 @@ function loadPrivate(){
 }
 var saveT, saveChain = Promise.resolve(), loadFailed = false;
 function persist(){
-  if (loadFailed){ toast('Changes can’t be saved because member data didn’t load. Restart the BSF Command Center and reload this page.', true); return; }
+  if (loadFailed){ toast('Changes can’t be saved because member data didn’t load. Restart Kingdom Connect and reload this page.', true); return; }
   clearTimeout(saveT);
   saveT = setTimeout(function(){
     var payload = JSON.stringify({members: data.members, settings: data.settings});
@@ -132,7 +132,7 @@ function persist(){
           .then(function(r){ if (!r.ok) throw new Error(); });
       }
       localStorage.setItem(PKEY, payload);
-    }).catch(function(){ toast('Member data couldn’t be saved. Check that the BSF Command Center window is open.', true); });
+    }).catch(function(){ toast('Member data couldn’t be saved. Check that the Kingdom Connect window is open.', true); });
   }, 250);
 }
 
@@ -154,8 +154,15 @@ function whenText(b){ return b.days === 0 ? 'Today' : b.days === 1 ? 'Tomorrow' 
 function turningText(b){ return b.turning ? (b.days === 0 ? 'Turns ' + b.turning + ' today' : 'Turns ' + b.turning) : ''; }
 
 /* ---------- Tabs ---------- */
-var TABS = ['meeting', 'overlays', 'recordings', 'studio', 'directory', 'members', 'birthdays', 'email', 'settings'];
+var TABS = ['studio', 'directory', 'members', 'birthdays', 'email', 'settings'];
+/* v6: Meeting, Content and Canvas are the one Studio workspace; Recordings is Settings > Recording.
+ * The old names still work everywhere (links, shortcuts, saved views). */
+var TAB_ALIAS = {meeting: 'studio', overlays: 'studio', canvas: 'studio', recordings: 'settings'};
 function setTab(t){
+  var sec = t === 'recordings' ? 'recording' : null;
+  t = TAB_ALIAS[t] || t;
+  if (TABS.indexOf(t) < 0) t = 'studio';
+  if (sec && window.BSFShowSection) setTimeout(function(){ window.BSFShowSection(sec); }, 0);
   ui.tab = t; document.body.dataset.tab = t;
   TABS.forEach(function(k){
     var b = $('tabbtn-' + k); if (b) b.setAttribute('aria-selected', String(k === t));
@@ -849,7 +856,7 @@ function renderBar(){
 }
 function renderBarStatus(){
   var on = !!(live && live.birthday.visible && live.birthday.greeting);
-  var top = $('pill-birthday'); top.className = 'pill' + (on ? ' on' : ''); top.querySelector('b').textContent = on ? 'On screen' : 'Hidden';
+  var top = $('pill-birthday'); if (top){ top.className = 'pill' + (on ? ' on' : ''); top.querySelector('b').textContent = on ? 'On screen' : 'Hidden'; }
 }
 function bdayPayload(m){
   var st = data.settings, display = st.bdayNameStyle === 'first' ? m.name.split(/\s+/)[0] : m.name;
@@ -1056,6 +1063,6 @@ function setup(){
 
 loadPrivate().then(function(d){ data = normalizeData(d); }, function(){
   loadFailed = true;
-  toast('Member data couldn’t be loaded. Check that the BSF Command Center window is open, then reload.', true);
+  toast('Member data couldn’t be loaded. Check that the Kingdom Connect window is open, then reload.', true);
 }).then(function(){ setup(); renderAll(); });
 })();

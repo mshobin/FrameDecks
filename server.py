@@ -11,8 +11,8 @@ Windows: double-click "Start BSF Command Center.bat"
 Mac:     double-click "Start BSF Command Center (Mac).command"
          (for the phone remote: python3 server.py --remote)
 """
+import hashlib
 import json
-import math
 import os
 import platform
 import re
@@ -28,7 +28,7 @@ from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from pathlib import Path
 from urllib.parse import urlparse, parse_qs, unquote
 
-APP_VERSION = "4.6"
+APP_VERSION = "6.6"
 STARTED_AT = time.time()
 FROZEN = getattr(sys, "frozen", False)          # True inside the installed Windows app
 HERE = Path(sys.executable).resolve().parent if FROZEN else Path(__file__).resolve().parent
@@ -65,8 +65,8 @@ COOKIE = "bsf_remote"
 # What a signed-in phone or iPad may open. Member data and the dashboard are never on this list.
 REMOTE_PUBLIC = {"/remote.html", "/css/remote.css", "/js/remote.js", "/js/store.js", "/js/brand.js", "/api/remote-login",
                  "/remote-manifest.json", "/icons/remote-180.png", "/icons/remote-192.png", "/icons/remote-512.png",
-                 "/icons/remote-maskable-512.png"}
-REMOTE_SIGNED_IN = {"/api/rev", "/api/state", "/api/remote-logout", "/js/overlay.js", "/api/remote/studio",
+                 "/icons/remote-maskable-512.png", "/img/kc-emblem.webp"}
+REMOTE_SIGNED_IN = {"/api/rev", "/api/state", "/api/remote-logout", "/js/overlay.js", "/api/remote/studio", "/api/brand/logo", "/api/remote/live.jpg",
                     "/css/overlay.css", "/stage.html", "/focus-verse.html", "/discussion-question.html", "/birthday.html"}
 sessions_lock = threading.Lock()
 failures = {}  # ip -> [count, locked_until]
@@ -105,7 +105,19 @@ def save_sessions():
 sessions = load_sessions()
 
 
-def lan_addresses():
+_lan_cache = {"at": 0.0, "value": []}
+
+
+def lan_addresses(max_age=10.0):
+    """This PC's network addresses (cached 10 s: the host-name lookup can be slow on some networks)."""
+    if time.monotonic() - _lan_cache["at"] < max_age:
+        return list(_lan_cache["value"])
+    out = _lan_addresses()
+    _lan_cache.update(at=time.monotonic(), value=out)
+    return list(out)
+
+
+def _lan_addresses():
     ips = []
     try:  # finds the Wi-Fi/Ethernet address; nothing is actually sent
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -140,12 +152,28 @@ def load_state():
 
 
 state = load_state()
+# Revision at which the question/verse library last changed. Screens that already have that library can leave it
+# out of what they send and receive (a big imported library made every Show/Next tap from the phone slow).
+LIBRARY = {"rev": int(state.get("rev", 0) or 0)}
+
+
+def state_body(lib_rev=None):
+    """The state as JSON; without the library when the asker already has this library (lib_rev matches)."""
+    if lib_rev is not None and str(lib_rev) == str(LIBRARY["rev"]):
+        out = {k: v for k, v in state.items() if k != "library"}
+        out.update(libraryRev=LIBRARY["rev"], libraryOmitted=True)
+        return json.dumps(out)
+    return json.dumps(dict(state, libraryRev=LIBRARY["rev"]))
 
 
 def save_state(new):
     global state
     with cond:
+        new.pop("libraryRev", None)
+        new.pop("libraryOmitted", None)
         new["rev"] = int(state.get("rev", 0)) + 1
+        if new.get("library") != state.get("library"):
+            LIBRARY["rev"] = new["rev"]
         state = new
         tmp = STATE_FILE.with_suffix(".tmp")
         tmp.write_text(json.dumps(state, indent=2, ensure_ascii=False), encoding="utf-8")
@@ -154,7 +182,67 @@ def save_state(new):
         eng = VCAM.get("engine") if "VCAM" in globals() else None
         if eng:
             eng.kick()                     # a card was shown/hidden: draw it now, even in the idle rhythm
+        if "VCAM" in globals():
+            apply_live_media(state)
         return state
+
+
+# ---------- v6 Scenes: the live scene's media layers are the KingdomConnect picture ----------
+MEDIA_KINDS = ("camera", "screen", "window", "image", "video", "pdf", "background", "text", "rect", "ellipse")
+
+
+def scene_media(st):
+    """The compositor layers (bottom first) of the live scene, or None when no scene is live."""
+    live = st.get("live") if isinstance(st.get("live"), dict) else {}
+    sid = live.get("scene")
+    if not sid:
+        return None
+    sc = next((x for x in st.get("scenes") or [] if isinstance(x, dict) and x.get("id") == sid), None)
+    if sc is None:
+        return None
+    out = []
+    for l in reversed([l for l in sc.get("layers") or [] if isinstance(l, dict)]):
+        if l.get("kind") not in MEDIA_KINDS:
+            continue
+        c = dict(l.get("c") or {})
+        c.pop("vcam", None)
+        c.pop("obs", None)
+        if l["kind"] in ("image", "video", "pdf") and not c.get("file"):
+            continue                                   # not chosen yet: nothing to draw
+        if l["kind"] == "window" and c.get("hwnd") is None:
+            continue
+        c.update(id=str(l.get("id") or ""), name=l.get("name") or l["kind"], type=l["kind"],
+                 visible=l.get("visible", True) is not False, locked=bool(l.get("locked")), opacity=l.get("opacity", 1))
+        out.append(c)
+    return out
+
+
+def media_sig(layers):
+    from vcam.layers import clean_layer
+    return json.dumps([clean_layer(l) for l in layers if l.get("id")], sort_keys=True)
+
+
+def apply_live_media(st):
+    """Called after every save: when the live scene (or its media layers) changed, the camera picture follows.
+    Studio edits on the PC write the same layers back, so nothing is applied twice."""
+    comp = VCAM.get("compositor")
+    if not comp:
+        return
+    media = scene_media(st)
+    if media is None:
+        return
+    try:
+        sig = media_sig(media)
+    except Exception:
+        return
+    if sig == VCAM.get("mediaSig"):
+        return
+    VCAM["mediaSig"] = sig
+    try:
+        comp.layers.set_layers(media)
+        studio_save()
+    except Exception as e:                              # never let a scene stop the camera
+        print("KingdomConnect: could not apply the scene:", e)
 
 
 def update_state(change):
@@ -171,13 +259,14 @@ _net_cache = {"at": 0, "value": None}
 _net_lock = threading.Lock()
 
 
-def windows_network_check():
+def windows_network_check(max_age=900):
     """On Windows, report the network type (Private/Public) and whether the optional firewall
-    rule exists. Read-only: nothing is changed. Runs in the background and is cached for 60 s,
-    so it never slows the dashboard. Returns None on other systems or while first checking."""
+    rule exists. Read-only: nothing is changed. Runs in the background (PowerShell) and is cached: 15 minutes
+    normally (the header light asks every 3 s during a meeting - starting PowerShell every minute was wasted
+    work), 60 s while Settings > Phone & iPad Remote is open. Returns None on other systems or while first checking."""
     if os.name != "nt":
         return None
-    if time.time() - _net_cache["at"] > 60 and _net_lock.acquire(blocking=False):
+    if time.time() - _net_cache["at"] > max_age and _net_lock.acquire(blocking=False):
         def work():
             try:
                 _refresh_network_check()
@@ -220,7 +309,7 @@ REQ = {"counts": {}, "since": time.time()}
 def count_request(path):
     """Count requests by kind, so Diagnostics can show which screens are busy."""
     kind = path if path in ("/api/rev", "/api/state", "/api/presence", "/api/vcam/preview.jpg", "/api/vcam/stage.jpg",
-                            "/api/vcam/status", "/api/vcam/studio", "/api/present.mjpg") else ("page" if not path.startswith("/api/") else "other api")
+                            "/api/vcam/status", "/api/vcam/studio", "/api/present.mjpg", "/api/remote/live.jpg") else ("page" if not path.startswith("/api/") else "other api")
     REQ["counts"][kind] = REQ["counts"].get(kind, 0) + 1
 
 
@@ -573,22 +662,48 @@ def firewall(action):
     return r.returncode == 0, ("Done." if r.returncode == 0 else "Windows reported a problem.")
 
 
-# ---------- BCC vCam (built-in virtual camera, Windows) ----------
+# ---------- KingdomConnect (built-in virtual camera, Windows) ----------
 VCAM_SETTINGS_FILE = DATA / "bsf-vcam-settings.json"
-VCAM_DEFAULTS = {"enabled": True, "cameraName": "", "resolution": "720p", "mirror": False, "blur": "off", "blurStrength": 0, "cards": True, "look": "off", "presentFps": 15}
+VCAM_DEFAULTS = {"enabled": True, "cameraName": "", "resolution": "720p", "mirror": False, "blur": "off", "blurStrength": 0, "cards": True, "look": "off", "presentFps": 15,
+                 "blurStyle": "natural"}
 LOOKS_FILE = DATA / "bsf-looks.json"
 VCAM = {"engine": None, "reason": "", "detail": "", "cameras": None, "camerasAt": 0}
 
 
+def _picture():
+    """vcam/picture.py (profiles, schema). Needs OpenCV; without it the version-1 settings still work."""
+    try:
+        from vcam import picture
+        return picture
+    except Exception:
+        return None
+
+
 def vcam_settings():
+    """Saved KingdomConnect settings, migrated to the current schema and validated; defaults fill the gaps
+    (a damaged or older file never stops the camera)."""
     out = dict(VCAM_DEFAULTS)
+    pic = _picture()
+    if pic:
+        out.update(pic.defaults(), schemaVersion=pic.SCHEMA_VERSION)
     try:
         data = json.loads(VCAM_SETTINGS_FILE.read_text(encoding="utf-8"))
         if isinstance(data, dict):
+            if pic:
+                data, _ = pic.migrate(data)
             out.update(clean_vcam(data))
     except (OSError, ValueError):
         pass
+    if pic:
+        out["filterName"] = out["look"]                       # the filter is the Camera Look (alias)
+        out["backgroundMode"] = pic.background_mode(out.get("blurStrength"))
     return out
+
+
+def vcam_save(cur):
+    """Write the settings file (only stored keys; derived ones like filterName are recomputed on read)."""
+    data = {k: v for k, v in cur.items() if k not in ("filterName", "backgroundMode")}
+    VCAM_SETTINGS_FILE.write_text(json.dumps(data, indent=2), encoding="utf-8")
 
 
 def clean_vcam(d):
@@ -609,18 +724,66 @@ def clean_vcam(d):
         out["blur"] = d["blur"]
     if d.get("presentFps") in (15, 30):
         out["presentFps"] = d["presentFps"]
-    if isinstance(d.get("blurStrength"), (int, float)) and not isinstance(d.get("blurStrength"), bool):
-        raw = float(d["blurStrength"])
-        n = math.floor(raw * 10 + 0.5) / 10                        # steps of 0.1 % (halves round up, like the screen)
-        n = 0 if raw <= 0 else max(0.1, min(100.0, n))            # 0 = off; any positive value is at least 0.1 %
-        out["blurStrength"] = int(n) if n == int(n) else round(n, 1)
+    if d.get("blurStyle") in ("natural", "classic"):
+        out["blurStyle"] = d["blurStyle"]
+    if isinstance(d.get("blurStrength"), (int, float, str)) and not isinstance(d.get("blurStrength"), bool):
+        try:
+            raw = float(d["blurStrength"])
+        except ValueError:
+            raw = float("nan")
+        if raw == raw and abs(raw) != float("inf"):
+            # Steps of 0.001 % (v4.9; 0.1 before). Rounded in decimal from the number's shortest text form, so
+            # 12.345 stays 12.345 (binary floats would make some halves round down) - no drift on save/reload.
+            from decimal import Decimal, ROUND_HALF_UP
+            n = float(Decimal(repr(raw)).quantize(Decimal("0.001"), rounding=ROUND_HALF_UP))
+            n = 0 if raw <= 0 else max(0.001, min(100.0, n))       # 0 = off; any positive value is at least 0.001 %
+            out["blurStrength"] = int(n) if n == int(n) else n
     elif "blur" in out:                                   # older settings: off / light / strong
         out["blurStrength"] = {"off": 0, "light": 30, "strong": 80}[out["blur"]]
+    # Version 2 (picture settings): filterName is accepted as another name for look; backgroundMode none/blur
+    fn = d.get("filterName")
+    if "look" not in d and isinstance(fn, str) and (fn in ("off", "none") or (fn.isidentifier() and len(fn) <= 40)):
+        out["look"] = "off" if fn == "none" else fn
+    if d.get("backgroundMode") in ("none", "blur") and "blurStrength" not in d:
+        n = 0 if d["backgroundMode"] == "none" else (vcam_settings_raw_blur() or 30)
+        out["blurStrength"], out["blur"] = n, "off" if n == 0 else ("light" if n <= 45 else "strong")
+    pic = _picture()
+    if pic:
+        out.update(pic.clean(d))
+        if isinstance(d.get("schemaVersion"), int):
+            out["schemaVersion"] = pic.SCHEMA_VERSION
     return out
 
 
+def vcam_settings_raw_blur():
+    """The saved blur strength (0 if none), without going through clean_vcam (avoids recursion)."""
+    try:
+        v = json.loads(VCAM_SETTINGS_FILE.read_text(encoding="utf-8")).get("blurStrength", 0)
+        return v if isinstance(v, (int, float)) and not isinstance(v, bool) else 0
+    except (OSError, ValueError, AttributeError):
+        return 0
+
+
+def vcam_apply_changes(data):
+    """Validated changes for a settings POST: {"applyProfile": "meetings"} applies a profile; editing a
+    setting the active profile controls switches the profile to "custom" (the values stay as they are)."""
+    pic = _picture()
+    if pic and isinstance(data.get("applyProfile"), str):
+        prof = pic.profile_changes(data["applyProfile"])
+        if prof is None:
+            raise ValueError("Unknown profile")
+        return clean_vcam(prof)
+    changes = clean_vcam(data)
+    if pic and "outputProfile" not in data:
+        cur = vcam_settings()
+        prof = pic.PROFILES.get(cur.get("outputProfile"), {}).get("settings", {})
+        if any(k in prof and changes[k] != cur.get(k) for k in changes):
+            changes["outputProfile"] = "custom"
+    return changes
+
+
 def vcam_list_cameras():
-    """Webcams by name (BCC vCam itself excluded). Refreshed at most every 10 s; never turns a webcam on."""
+    """Webcams by name (KingdomConnect itself excluded). Refreshed at most every 10 s; never turns a webcam on."""
     if VCAM["cameras"] is not None and time.time() - VCAM["camerasAt"] < 10:
         return VCAM["cameras"]
     cams = []
@@ -673,7 +836,7 @@ def studio_load():
     collections = [{"id": str(c["id"])[:40], "name": str(c.get("name") or "Collection")[:40]} for c in d.get("collections", [])
                    if isinstance(c, dict) and str(c.get("id", "")).isidentifier()] if isinstance(d.get("collections"), list) else []
     if not collections:
-        collections = [{"id": "main", "name": "My scenes"}]
+        collections = [{"id": "main", "name": "My Frames"}]
     ids = {c["id"] for c in collections}
     for sc in scenes:
         raw = next((x for x in d.get("scenes", []) if isinstance(x, dict) and x.get("id") == sc["id"]), {})
@@ -693,11 +856,148 @@ def studio_save():
     STUDIO_FILE.write_text(json.dumps(cur, indent=2), encoding="utf-8")
 
 
+# ---------- v6.2 Branding: the leader's logo (always stored as PNG) ----------
+BRAND_LOGO = DATA / "bcc-brand-logo.png"
+
+
+def png_size(data):
+    """(width, height) of a PNG, or None if the bytes are not a PNG."""
+    if len(data) < 24 or data[:8] != b"\x89PNG\r\n\x1a\n" or data[12:16] != b"IHDR":
+        return None
+    w, h = int.from_bytes(data[16:20], "big"), int.from_bytes(data[20:24], "big")
+    return (w, h) if 0 < w <= 8192 and 0 < h <= 8192 else None
+
+
+# ---------- v6 Scripture: ESV API (your own key) with an offline cache; typed / Excel text works as before ----------
+SCRIPTURE_FILE = DATA / "bcc-scripture.json"
+SCRIPTURE_CACHE = DATA / "bcc-scripture-cache.json"
+ESV_URL = os.environ.get("BSF_ESV_URL", "https://api.esv.org/v3/passage/text/")
+SCRIPTURE_CACHE_MAX = 400                     # passages kept for offline use (oldest dropped first)
+_scr_lock = threading.Lock()
+SCRIPTURE_HEALTH = {"ok": None, "message": "", "at": 0}
+
+
+def scripture_settings():
+    try:
+        d = json.loads(SCRIPTURE_FILE.read_text(encoding="utf-8"))
+        d = d if isinstance(d, dict) else {}
+    except (OSError, ValueError):
+        d = {}
+    return {"provider": "esv", "key": str(d.get("key") or "")[:200], "translation": "ESV" if d.get("translation", "ESV") == "ESV" else "typed"}
+
+
+def _scr_cache():
+    try:
+        d = json.loads(SCRIPTURE_CACHE.read_text(encoding="utf-8"))
+        return d if isinstance(d, dict) else {}
+    except (OSError, ValueError):
+        return {}
+
+
+def scripture_lookup(ref, translation="ESV", fresh=False):
+    """{ref, text, version, cached, stale?} for a reference such as "Romans 2:28-29"; raises ValueError with a plain message."""
+    ref = re.sub(r"\s+", " ", str(ref or "")).strip()[:120]
+    if not ref:
+        raise ValueError("Type a reference first, for example Romans 2:29.")
+    if translation != "ESV":
+        raise ValueError("Only the ESV can be fetched. For other translations type or paste the text (or plan them in the Meeting Workbook).")
+    key = "ESV|" + ref.lower()
+    with _scr_lock:
+        cache = _scr_cache()
+    hit = cache.get(key)
+    if hit and not fresh:
+        hit["at"] = time.time()
+        return {"ref": hit["ref"], "text": hit["text"], "version": "ESV", "cached": True}
+    api_key = scripture_settings()["key"]
+    if not api_key:
+        if hit:
+            return {"ref": hit["ref"], "text": hit["text"], "version": "ESV", "cached": True, "stale": True}
+        raise ValueError("Add your ESV API key in Settings → Scripture (free for churches at api.esv.org), or type the verse text.")
+    from urllib.request import Request, urlopen
+    from urllib.parse import urlencode
+    q = urlencode({"q": ref, "include-passage-references": "false", "include-verse-numbers": "false", "include-first-verse-numbers": "false",
+                   "include-footnotes": "false", "include-footnote-body": "false", "include-headings": "false", "include-short-copyright": "false",
+                   "include-selahs": "true", "indent-paragraphs": "0", "indent-poetry": "false", "indent-declares": "0", "indent-psalm-doxology": "0"})
+    try:
+        with urlopen(Request(ESV_URL + "?" + q, headers={"Authorization": "Token " + api_key, "User-Agent": "KingdomConnect/" + APP_VERSION}), timeout=8) as r:
+            data = json.loads(r.read().decode("utf-8"))
+    except Exception as e:
+        code = getattr(e, "code", None)
+        SCRIPTURE_HEALTH.update(ok=False, at=time.time(), message="The ESV key was not accepted." if code in (401, 403) else "Can’t reach api.esv.org.")
+        if hit:
+            return {"ref": hit["ref"], "text": hit["text"], "version": "ESV", "cached": True, "stale": True}
+        if code in (401, 403):
+            raise ValueError("The ESV API key was not accepted. Check it in Settings → Scripture.")
+        raise ValueError("No internet connection, and this passage isn’t saved on this PC yet. Type the text, or try again when online.")
+    passages = [p for p in (data.get("passages") or []) if isinstance(p, str) and p.strip()]
+    if not passages:
+        raise ValueError("That reference wasn’t found. Try e.g. John 3:16, Psalm 23 or Matthew 5:1-12.")
+    text = "\n".join(re.sub(r"[ \t]+", " ", p).strip() for p in passages)
+    text = re.sub(r"\s*\(ESV\)\s*$", "", text).strip()
+    text = re.sub(r"\n{3,}", "\n\n", text)
+    canon = str(data.get("canonical") or ref)[:120]
+    SCRIPTURE_HEALTH.update(ok=True, at=time.time(), message="Connected to api.esv.org")
+    with _scr_lock:
+        cache = _scr_cache()
+        cache[key] = {"ref": canon, "text": text, "at": time.time()}
+        if len(cache) > SCRIPTURE_CACHE_MAX:
+            for k in sorted(cache, key=lambda k: cache[k].get("at", 0))[:len(cache) - SCRIPTURE_CACHE_MAX]:
+                cache.pop(k, None)
+        tmp = SCRIPTURE_CACHE.with_suffix(".tmp")
+        tmp.write_text(json.dumps(cache, ensure_ascii=False), encoding="utf-8")
+        os.replace(tmp, SCRIPTURE_CACHE)
+    return {"ref": canon, "text": text, "version": "ESV", "cached": False}
+
+
+def scripture_info():
+    st = scripture_settings()
+    return {"provider": "ESV API (api.esv.org)", "hasKey": bool(st["key"]), "keyHint": ("…" + st["key"][-4:]) if st["key"] else "",
+            "translation": st["translation"], "cached": len(_scr_cache()), "cacheMax": SCRIPTURE_CACHE_MAX, "health": SCRIPTURE_HEALTH}
+
+
+def powerpoint_show():
+    """The PowerPoint slide show running on this PC (full screen or windowed), or None. Cached ~2 s."""
+    try:
+        from vcam.powerpoint import powerpoint_status
+        s = powerpoint_status()
+    except Exception:
+        return None
+    return {"name": s.get("name") or "PowerPoint", "page": s.get("page"), "pages": s.get("pages"), "kind": "powerpoint"} if s else None
+
+
+def slide_move(step):
+    """Next (+1) / Previous (-1) for whatever is being presented: the Studio's shared screen or presentation layer
+    (PDF deck or captured window) first, else the PowerPoint slide show running on this PC - e.g. full screen and
+    shared directly in Zoom/Teams, which Kingdom Connect is not capturing. Works without the camera engine."""
+    try:
+        step = 1 if int(step) > 0 else -1
+    except (TypeError, ValueError):
+        raise ValueError("Unknown slide step")
+    comp = VCAM.get("compositor")
+    res = None
+    if comp:
+        res = comp.slide(step)
+        if res is None:                                        # no shared presentation: the top presentation layer
+            pres = [l for l in comp.layers.layers[::-1] if l["type"] in ("pdf", "window") and l["visible"]]
+            res = comp.layers.slide(pres[0]["id"], step) if pres else None
+    if res is None:
+        try:
+            from vcam.powerpoint import powerpoint_slide
+            res = powerpoint_slide(step)
+        except Exception as e:
+            res = {"error": f"Slides are not available ({type(e).__name__})"}
+    if isinstance(res, dict) and res.get("page"):
+        VCAM["lastSlide"] = res
+    return res
+
+
 def remote_studio_info():
-    """What the phone/iPad remote may see of the Studio: scene names, the active scene, and the presentation."""
+    """What the phone/iPad remote may see of the Studio: scene names, the active scene, and the presentation
+    (a Studio deck/window, or a PowerPoint slide show running on this PC)."""
     comp = VCAM.get("compositor")
     if not comp:
-        return {"available": False}
+        ppt = powerpoint_show()
+        return {"available": False, "scenes": [], "activeScene": "", "presentation": ppt}
     st = studio_load()
     pres = None
     src = comp.screen_src or {}
@@ -712,10 +1012,21 @@ def remote_studio_info():
                 comp.layers._source(l)                         # load the deck so the slide number is known
             ls = comp.layers.status().get(l["id"], {})
             pres = {"name": l["name"], "page": ls.get("page"), "pages": ls.get("pages")}
+    if pres is None:
+        pres = powerpoint_show()
     if pres and not pres.get("page") and VCAM.get("lastSlide", {}).get("page"):
         pres.update(page=VCAM["lastSlide"]["page"], pages=VCAM["lastSlide"].get("pages"))
+    eng = VCAM.get("engine")
+    est = {}
+    try:
+        est = dict(eng.status) if eng else {}
+    except Exception:
+        est = {}
+    rec = comp.recorder
     return {"available": True, "scenes": [{"id": x["id"], "name": x["name"]} for x in st["scenes"]],
-            "activeScene": st["activeScene"], "presentation": pres}
+            "activeScene": st["activeScene"], "presentation": pres,
+            "vcam": {"state": est.get("state", ""), "inUse": bool(est.get("inUse")), "fps": est.get("fps", 0)},
+            "recording": {"on": rec is not None, "seconds": round(time.time() - rec.started, 1) if rec else 0}}
 
 
 def remote_studio_action(d):
@@ -725,10 +1036,7 @@ def remote_studio_action(d):
         studio_action({"op": "scene-apply", "id": str(d.get("id") or "")})
         return {}
     if op == "slide":
-        res = studio_action({"op": "slide", "step": 1 if int(d.get("step", 1)) > 0 else -1}).get("slide")
-        if isinstance(res, dict) and res.get("page"):
-            VCAM["lastSlide"] = res
-        return {"slide": res}
+        return {"slide": slide_move(d.get("step", 1))}
     raise ValueError("Not allowed from the remote")
 
 
@@ -749,7 +1057,7 @@ def studio_status():
     return {"available": True, "layout": comp.layout, "layers": [dict(l, status=lay_status.get(l["id"], {})) for l in comp.layers.layers],
             "staged": staged is not None, "stagedLayers": staged or [], "collections": st["collections"],
             "sceneMode": comp.scene_mode(staged if staged is not None else comp.layers.layers),
-            "screen": comp.screen_status(), "sources": list_sources(),
+            "screen": comp.screen_status(), "sources": _cached_sources(list_sources),
             "scenes": [{"id": x["id"], "name": x["name"], "collection": x["collection"],
                         "thumb": int((SCENES_DIR / (x["id"] + ".jpg")).stat().st_mtime) if (SCENES_DIR / (x["id"] + ".jpg")).exists() else 0} for x in st["scenes"]],
             "activeScene": st["activeScene"], "presets": {k: {"name": v["name"], "needs": v["needs"]} for k, v in QUICK_PRESETS.items()},
@@ -759,6 +1067,17 @@ def studio_status():
             "presentation": {"open": bool(comp.present["clients"]) or bool(DESKTOP.get("present_open") and DESKTOP["present_open"]()),
                              "desktop": bool(DESKTOP.get("present")), "framesSent": comp.present["sent"]},
             "pdfs": sorted(p.name for p in LAYERS_DIR.glob("*.pdf")) if LAYERS_DIR.is_dir() else []}
+
+
+_SOURCES = {"at": 0.0, "list": []}
+
+
+def _cached_sources(list_sources):
+    """Displays and windows for the Studio's screen-share menu, listed at most every 3 s (the Studio asks every
+    second while it is open; enumerating every window that often is wasted work during a meeting)."""
+    if time.monotonic() - _SOURCES["at"] > 3.0:
+        _SOURCES.update(at=time.monotonic(), list=list_sources())
+    return _SOURCES["list"]
 
 
 def _layer_id():
@@ -775,9 +1094,11 @@ def studio_action(d):
 
 def _studio_action(d):
     comp, eng = VCAM.get("compositor"), VCAM.get("engine")
-    if not comp:
-        raise ValueError(VCAM.get("reason") or "BCC vCam is not available.")
     op = d.get("op")
+    if op == "slide":                                          # slides work even without the camera engine
+        return {"slide": slide_move(d.get("step", 1))}
+    if not comp:
+        raise ValueError(VCAM.get("reason") or "KingdomConnect is not available.")
     if op == "layout":
         comp.set_layout(d.get("layout") or {})
     elif op == "screen":
@@ -787,7 +1108,7 @@ def _studio_action(d):
             if src.get("kind") == "pdf":
                 name = Path(str(src.get("file", ""))).name
                 if not (LAYERS_DIR / name).is_file():
-                    raise ValueError("That PDF is not in the layers folder.")
+                    raise ValueError("That PDF is not in the Content folder.")
                 src = {"kind": "pdf", "file": name, "name": name}
             else:
                 known = {x["id"]: x for x in list_sources()}
@@ -806,6 +1127,10 @@ def _studio_action(d):
             comp.staged = [clean_layer(l) for l in layers]       # Preview mode: not on the output yet
             return {}
         comp.layers.set_layers(layers)
+        try:
+            VCAM["mediaSig"] = media_sig(comp.layers.layers)     # the scene will be written back with these: no re-apply
+        except Exception:
+            pass
     elif op == "stage":
         comp.staged = [dict(l) for l in comp.layers.layers] if d.get("on") else None
         return {}
@@ -839,13 +1164,6 @@ def _studio_action(d):
             comp.layers.set_layers(layers)
             return {"layer": order[n]["name"], "visible": order[n]["visible"]}
         return {"layer": None}
-    elif op == "slide":
-        step = 1 if int(d.get("step", 1)) > 0 else -1
-        res = comp.slide(step)
-        if res is None:                                        # no shared presentation: the top presentation layer
-            pres = [l for l in comp.layers.layers[::-1] if l["type"] in ("pdf", "window") and l["visible"]]
-            res = comp.layers.slide(pres[0]["id"], step) if pres else None
-        return {"slide": res}
     elif op == "record":
         if d.get("on"):
             w, h = SIZES_FOR_REC.get(vcam_settings()["resolution"], (1280, 720))
@@ -896,7 +1214,7 @@ def _studio_action(d):
         else:
             sc = next((x for x in st["scenes"] if x["id"] == d.get("id")), None)
             if not sc:
-                raise ValueError("Scene not found")
+                raise ValueError("Frame not found")
             # switching reuses everything that is already running (camera, layer sources, cards)
             comp.set_layout(sc["layout"])
             if comp.staged is not None:
@@ -912,7 +1230,7 @@ def _studio_action(d):
             cur = vcam_settings()
             if sc["look"] != cur["look"]:
                 cur["look"] = sc["look"]
-                VCAM_SETTINGS_FILE.write_text(json.dumps(cur, indent=2), encoding="utf-8")
+                vcam_save(cur)
                 if eng:
                     eng.configure(grade=vcam_grade(sc["look"]))
             st["activeScene"] = sc["id"]
@@ -939,15 +1257,17 @@ def vcam_looks():
     return found, note
 
 
-def vcam_grade(look_id):
-    """The Grade to apply for a look id, or None for Off / unknown looks."""
+def vcam_grade(look_id, intensity=None):
+    """The Grade to apply for a look id at the saved filter intensity (0-100), or None for Off / unknown
+    looks / intensity 0 (the picture is then left exactly as it is)."""
     if look_id == "off":
         return None
     found, _ = vcam_looks()
     if look_id not in found:
         return None
-    from vcam.looks import Grade
-    return Grade(found[look_id])
+    from vcam.looks import Grade, at_intensity
+    look = at_intensity(found[look_id], vcam_settings().get("filterIntensity", 100) if intensity is None else intensity)
+    return Grade(look) if look is not None else None
 
 
 def _vcam_blockers():
@@ -960,7 +1280,7 @@ def _vcam_blockers():
 
 def vcam_effective(settings):
     """The settings the engine should use: an empty camera choice means the first usable webcam."""
-    out = {k: v for k, v in settings.items() if k not in ("enabled", "cards", "look")}
+    out = {k: v for k, v in settings.items() if k not in ("enabled", "cards", "look", "filterName", "backgroundMode", "schemaVersion")}
     if VCAM.get("blurSession") is not None:               # a blur strength being tried, not saved yet
         out["blurStrength"] = VCAM["blurSession"]
     if not out.get("cameraName"):
@@ -970,11 +1290,11 @@ def vcam_effective(settings):
 
 
 def vcam_start():
-    """Create the engine (idle until Zoom/Teams uses BCC vCam). Safe to call when unavailable."""
+    """Create the engine (idle until Zoom/Teams uses KingdomConnect). Safe to call when unavailable."""
     if VCAM["engine"] is not None:
         return
     demo = os.environ.get("BSF_VCAM_DEMO") == "1"
-    start_files_msg = ("You’re using the start-file version (the black window). BCC vCam is only in the installed app: "
+    start_files_msg = ("You’re using the start-file version (the black window). KingdomConnect is only in the installed app: "
                        "close the black window, then open BSF Command Center from its desktop or Start-menu icon.")
     os.environ.setdefault("OPENCV_VIDEOIO_MSMF_ENABLE_HW_TRANSFORMS", "0")   # before OpenCV loads
     try:
@@ -987,8 +1307,8 @@ def vcam_start():
         VCAM["detail"] = f"{type(e).__name__}: {e}"
         if FROZEN:
             import traceback
-            print("BCC vCam could not load:\n" + traceback.format_exc())
-            VCAM["reason"] = ("BCC vCam couldn’t start because part of it is missing. Please send Settings → Diagnostics "
+            print("KingdomConnect could not load:\n" + traceback.format_exc())
+            VCAM["reason"] = ("KingdomConnect couldn’t start because part of it is missing. Please send Settings → Diagnostics "
                               "→ Copy diagnostics to the developer.")
         else:
             VCAM["reason"] = start_files_msg
@@ -1000,7 +1320,7 @@ def vcam_start():
         make_sink, make_cam = (lambda w, h: vsink.FakeSink(w, h, connected=False)), DemoCamera
     else:
         if os.name != "nt":
-            VCAM["reason"] = start_files_msg if not FROZEN else "BCC vCam works on Windows."
+            VCAM["reason"] = start_files_msg if not FROZEN else "KingdomConnect works on Windows."
             return
         dll = vsink.dll_path(RES) if vsink.dll_path(RES).exists() else vsink.dll_path(HERE)
         if not dll.exists():
@@ -1010,14 +1330,14 @@ def vcam_start():
             if not FROZEN:
                 VCAM["reason"] = start_files_msg
             elif (folder / "build-info.json").exists():
-                VCAM["reason"] = ("The camera file bcc_vcam64.dll was installed but has since been removed, most likely by "
+                VCAM["reason"] = ("The camera file kingdomconnect_vcam64.dll was installed but has since been removed, most likely by "
                                   "Windows Security or another antivirus. Open Windows Security → Virus & threat protection → "
-                                  "Protection history, restore or allow bcc_vcam64.dll, then run the installer again.")
+                                  "Protection history, restore or allow kingdomconnect_vcam64.dll, then run the installer again.")
             else:
                 VCAM["reason"] = ("This installer was built without the camera, because the GitHub build recipe is out of date. "
                                   "Copy the .github folder from the latest BSF-Command-Center.zip into your repository, commit "
                                   "and push, then install the new installer.")
-            print("BCC vCam not available: " + VCAM["detail"])
+            print("KingdomConnect not available: " + VCAM["detail"])
             return
         make_sink, make_cam = (lambda w, h: vsink.SoftcamSink(dll, w, h)), (lambda name, w, h: Camera(name, w, h, vcam_list_cameras()))
     # The verse, question and birthday cards, drawn onto every frame from the same live state as the overlay pages
@@ -1030,6 +1350,8 @@ def vcam_start():
     from vcam.compositor import Compositor
     LAYERS_DIR.mkdir(parents=True, exist_ok=True)
     comp = Compositor(LAYERS_DIR, cards=layer, cards_on=lambda: VCAM.get("cardsOn", True))
+    from vcam.program import ProgramFX
+    comp.program_fx = ProgramFX(APP / "fonts", lambda: state, lambda: VCAM.get("cardsOn", True), logo_path=BRAND_LOGO)
     VCAM["compositor"] = comp
     st = studio_load()
     comp.set_layout(st["layout"])
@@ -1052,30 +1374,35 @@ def _looks_list():
     return VCAM["looksCache"]
 
 
-def vcam_status():
+def vcam_status(lite=False):
+    """KingdomConnect status for the PC screens. lite: only what the top-bar light needs (no webcam or looks listing)."""
     eng = VCAM["engine"]
     try:
         from vcam import sink as vsink
         registered = vsink.is_registered() or os.environ.get("BSF_VCAM_DEMO") == "1"
     except Exception:
         registered = False
+    if lite:
+        return {"available": eng is not None, "reason": VCAM["reason"], "registered": registered, "lite": True,
+                "settings": vcam_settings(), "status": dict(eng.status) if eng else None}
     return {"available": eng is not None, "reason": VCAM["reason"], "registered": registered,
             "settings": vcam_settings(), "status": dict(eng.status) if eng else None,
             "cameras": [{"name": n, "ir": any(c["ir"] for c in vcam_list_cameras() if c["name"] == n)}
                         for n in dict.fromkeys(c["name"] for c in vcam_list_cameras())] if eng else [],
-            "activeCamera": vcam_effective(vcam_settings())["cameraName"] if eng else "", "name": "BCC vCam",
+            "activeCamera": vcam_effective(vcam_settings())["cameraName"] if eng else "", "name": "KingdomConnect",
             "blurNow": VCAM["blurSession"] if VCAM.get("blurSession") is not None else vcam_settings()["blurStrength"],
-            "looks": _looks_list(), "looksNote": VCAM.get("looksNote", "")}
+            "looks": _looks_list(), "looksNote": VCAM.get("looksNote", ""),
+            "profiles": [{"id": k, "name": v["name"]} for k, v in (_picture().PROFILES.items() if _picture() else [])]}
 
 
 def vcam_install(action):
-    """Register (or remove) BCC vCam with Windows. Asks for administrator permission (UAC)."""
+    """Register (or remove) KingdomConnect with Windows. Asks for administrator permission (UAC)."""
     if os.name != "nt":
         return False, "Only available on Windows."
-    name = "unregister-bcc-vcam.cmd" if action == "uninstall" else "register-bcc-vcam.cmd"
+    name = "unregister-kingdomconnect-camera.cmd" if action == "uninstall" else "register-kingdomconnect-camera.cmd"
     helper = next((p for p in (RES / "vcam" / "bin" / name, HERE / "vcam" / "bin" / name) if p.exists()), None)
-    if helper is None or not (helper.parent / "bcc_vcam64.dll").exists():
-        return False, "The BCC vCam files are missing. Reinstall the app."
+    if helper is None or not (helper.parent / "kingdomconnect_vcam64.dll").exists():
+        return False, "The KingdomConnect files are missing. Reinstall the app."
     path = str(helper).replace("'", "''")
     outer = ("try { Start-Process -FilePath '" + path + "' -Verb RunAs -Wait -WindowStyle Hidden; exit 0 } catch { exit 5 }")
     try:
@@ -1092,7 +1419,7 @@ TYPES = {
     ".html": "text/html; charset=utf-8", ".js": "application/javascript; charset=utf-8",
     ".css": "text/css; charset=utf-8", ".json": "application/json; charset=utf-8",
     ".ttf": "font/ttf", ".woff2": "font/woff2", ".svg": "image/svg+xml",
-    ".png": "image/png", ".jpg": "image/jpeg", ".txt": "text/plain; charset=utf-8",
+    ".png": "image/png", ".jpg": "image/jpeg", ".webp": "image/webp", ".txt": "text/plain; charset=utf-8",
 }
 
 
@@ -1202,6 +1529,36 @@ class Handler(BaseHTTPRequestHandler):
             return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
         if path == "/api/remote/studio":                # scenes + presentation for the remote (PIN-protected)
             return self.reply(200, json.dumps(remote_studio_info()), TYPES[".json"])
+        if path == "/api/remote/live.jpg":              # v6.6 the KingdomConnect picture for the phone's drawing pad (PIN-protected)
+            eng = VCAM.get("engine")
+            if not eng:
+                return self.reply(204, b"", "text/plain")
+            eng.want_preview(3.0, sharp=True)           # 960 wide while the pad is open (640 otherwise)
+            if not eng.preview_jpeg:                    # the camera is starting or off: the phone shows the stage instead
+                return self.reply(204, b"", "text/plain")
+            tag = '"p%d"' % eng.preview_ver
+            if self.headers.get("If-None-Match") == tag:
+                self.send_response(304)
+                self.send_header("ETag", tag)
+                self.send_header("Cache-Control", "no-store")
+                self.end_headers()
+                return
+            return self.reply(200, eng.preview_jpeg, "image/jpeg", headers=[("ETag", tag)])
+        if path.startswith("/api/scripture"):            # this PC only (the API key never leaves it)
+            if not self.is_local():
+                return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
+            if path == "/api/scripture/settings":
+                return self.reply(200, json.dumps(scripture_info()), TYPES[".json"])
+            qs = parse_qs(url.query)
+            try:
+                res = scripture_lookup(qs.get("ref", [""])[0], qs.get("tr", ["ESV"])[0], fresh=qs.get("fresh", ["0"])[0] == "1")
+                return self.reply(200, json.dumps(res), TYPES[".json"])
+            except ValueError as e:
+                return self.reply(400, json.dumps({"error": str(e)}), TYPES[".json"])
+        if path == "/api/brand/logo":                    # v6.2 the leader's logo (PNG), for overlays, the camera and the remote
+            if not BRAND_LOGO.exists():
+                return self.reply(404, "No logo", "text/plain; charset=utf-8")
+            return self.reply(200, BRAND_LOGO.read_bytes(), "image/png", [("Cache-Control", "private, max-age=31536000")])
         if path == "/api/present.mjpg":                 # Presentation window (this PC only)
             if not self.is_local():
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
@@ -1210,7 +1567,7 @@ class Handler(BaseHTTPRequestHandler):
             if not self.is_local():
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
             if path == "/api/vcam/status":
-                return self.reply(200, json.dumps(vcam_status()), TYPES[".json"])
+                return self.reply(200, json.dumps(vcam_status(lite="lite=1" in url.query)), TYPES[".json"])
             if path == "/api/vcam/studio":
                 return self.reply(200, json.dumps(studio_status()), TYPES[".json"])
             if path in ("/api/vcam/scene-thumb", "/api/vcam/stage.jpg"):
@@ -1260,7 +1617,7 @@ class Handler(BaseHTTPRequestHandler):
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
             info = {"version": APP_VERSION, "installedApp": FROZEN, "desktop": DESKTOP["active"], "dataFolder": str(DATA),
                     "separateData": SEPARATE_DATA, "windows": os.name == "nt", "settings": app_settings(),
-                    "lowGpuActive": bool(DESKTOP.get("low_gpu")),
+                    "lowGpuActive": bool(DESKTOP.get("low_gpu")), "shell": DESKTOP.get("shell", "browser"),
                     "remote": {"enabled": REMOTE, "listening": sorted(remote_servers), "failed": list(remote_errors)},
                     "backups": list_backups()[:KEEP_BACKUPS], "migration": migration_status()}
             return self.reply(200, json.dumps(info), TYPES[".json"])
@@ -1276,7 +1633,7 @@ class Handler(BaseHTTPRequestHandler):
                 own = set() if os.environ.get("BSF_TEST_COUNT_OWN_ADDRESS") == "1" else set(ips)
                 info["devices"] = [{"ip": ip, "lastSeen": d["last"], "firstSeen": d["first"], "signedIn": d["signedIn"]}
                                    for ip, d in sorted(devices.items(), key=lambda kv: -kv[1]["last"]) if ip not in own]
-                info["network"] = windows_network_check()
+                info["network"] = windows_network_check(60 if "fresh=1" in url.query else 900)
             return self.reply(200, json.dumps(info), TYPES[".json"])
         if path == "/api/remote-selftest":
             # Checks the PC is listening on its network address. It cannot see the phone or iPad's side,
@@ -1297,12 +1654,17 @@ class Handler(BaseHTTPRequestHandler):
             data["storedAt"] = str(PRIVATE_FILE)
             return self.reply(200, json.dumps(data), TYPES[".json"])
         if path == "/api/state":
-            since = parse_qs(url.query).get("since", [None])[0]
+            q = parse_qs(url.query)
+            since = q.get("since", [None])[0]
+            try:
+                wait = min(25.0, max(1.0, float(q.get("wait", ["25"])[0])))
+            except ValueError:
+                wait = 25.0
             with cond:
                 if since is not None:
-                    # Long-poll: answer as soon as something changes (or after 25 s)
-                    cond.wait_for(lambda: str(state.get("rev")) != since, timeout=25)
-                body = json.dumps(state)
+                    # Long-poll: answer as soon as something changes (or after `wait` seconds, at most 25)
+                    cond.wait_for(lambda: str(state.get("rev")) != since, timeout=wait)
+                body = state_body(q.get("librev", [None])[0])
             return self.reply(200, body, TYPES[".json"])
         if path == "/api/rev":
             return self.reply(200, json.dumps({"rev": state.get("rev", 0)}), TYPES[".json"])
@@ -1332,12 +1694,12 @@ class Handler(BaseHTTPRequestHandler):
         return origin in (f"http://{host}",)
 
     def present_stream(self):
-        """The Presentation window's picture: a motion-JPEG stream of the final BCC vCam frame.
+        """The Presentation window's picture: a motion-JPEG stream of the final KingdomConnect frame.
         A frame is sent only when the picture changed (at most 30 per second), so a still slide costs
         almost nothing. Each frame is encoded here, not in the camera thread."""
         comp, eng = VCAM.get("compositor"), VCAM.get("engine")
         if not comp or not eng:
-            return self.reply(404, "BCC vCam is not available", "text/plain; charset=utf-8")
+            return self.reply(404, "KingdomConnect is not available", "text/plain; charset=utf-8")
         import cv2 as _cv2
         from vcam.priority import lower_this_thread
         lower_this_thread()                          # picture encoding for the window: background priority
@@ -1395,14 +1757,33 @@ class Handler(BaseHTTPRequestHandler):
             with comp.present_cond:
                 pres["clients"] = max(0, pres["clients"] - 1)
 
+    def upload_brand_logo(self):
+        """v6.2 The leader's logo: a PNG made by the dashboard (PNG, JPG and SVG are converted there). ?remove=1 deletes it."""
+        if not self.is_local():
+            return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
+        if parse_qs(urlparse(self.path).query).get("remove", ["0"])[0] == "1":
+            BRAND_LOGO.unlink(missing_ok=True)
+            return self.reply(200, json.dumps({"logo": "", "w": 0, "h": 0}), TYPES[".json"])
+        length = int(self.headers.get("Content-Length", 0))
+        if length <= 0 or length > 8 * 1024 * 1024:
+            return self.reply(400, json.dumps({"error": "The logo must be smaller than 8 MB."}), TYPES[".json"])
+        data = self.rfile.read(length)
+        info = png_size(data)
+        if not info:
+            return self.reply(400, json.dumps({"error": "That is not a picture Kingdom Connect can use. Choose a PNG, JPG or SVG file."}), TYPES[".json"])
+        tmp = BRAND_LOGO.with_suffix(".part")
+        tmp.write_bytes(data)
+        os.replace(tmp, BRAND_LOGO)
+        return self.reply(200, json.dumps({"logo": hashlib.sha1(data).hexdigest()[:12], "w": info[0], "h": info[1]}), TYPES[".json"])
+
     def upload_layer_file(self):
         """A picture, video or PDF for a layer, copied into the data folder's layers folder (this PC only)."""
         if not self.is_local():
             return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
         name = Path(parse_qs(urlparse(self.path).query).get("name", ["file"])[0]).name
         stem, ext = os.path.splitext(name)
-        if ext.lower() not in (".png", ".jpg", ".jpeg", ".mp4", ".mov", ".webm", ".pdf"):
-            return self.reply(400, json.dumps({"error": "Use PNG, JPG, MP4, MOV, WebM or PDF."}), TYPES[".json"])
+        if ext.lower() not in (".png", ".jpg", ".jpeg", ".mp4", ".mov", ".webm", ".pdf", ".pptx", ".ppt"):
+            return self.reply(400, json.dumps({"error": "Use PNG, JPG, MP4, MOV, WebM, PDF or PowerPoint (PPTX)."}), TYPES[".json"])
         length = int(self.headers.get("Content-Length", 0))
         if length <= 0 or length > 1024 * 1024 * 1024:
             return self.reply(400, json.dumps({"error": "The file must be smaller than 1 GB."}), TYPES[".json"])
@@ -1426,6 +1807,16 @@ class Handler(BaseHTTPRequestHandler):
             tmp.unlink(missing_ok=True)
             return self.reply(400, json.dumps({"error": "The upload was interrupted."}), TYPES[".json"])
         tmp.replace(target)
+        if target.suffix in (".pptx", ".ppt"):         # v6.5 PowerPoint: slides made by the PowerPoint on this PC
+            from vcam.powerpoint import pptx_to_pdf
+            pdf, n = target.with_suffix(".pdf"), 2
+            while pdf.exists():
+                pdf = target.with_name(f"{target.stem} ({n}).pdf")
+                n += 1
+            err = pptx_to_pdf(target.resolve(), pdf.resolve())
+            if err or not pdf.is_file():
+                return self.reply(400, json.dumps({"error": err or "PowerPoint did not save the slides."}), TYPES[".json"])
+            return self.reply(200, json.dumps({"file": pdf.name, "source": target.name}), TYPES[".json"])
         return self.reply(200, json.dumps({"file": target.name}), TYPES[".json"])
 
     def app_action(self, action, data):
@@ -1444,6 +1835,17 @@ class Handler(BaseHTTPRequestHandler):
                 return ok({"desktop": True, "fullscreen": bool(fs(want)) if fs else False})
             hook(bool(data.get("on", True)))
             return ok({"desktop": True, "open": bool(data.get("on", True))})
+        if action == "speaker":
+            # v6.6 Speaker View: its own window in the desktop app (the browser opens a pop-up itself)
+            hook = DESKTOP.get("speaker")
+            if not hook:
+                return ok({"desktop": False})
+            hook()
+            return ok({"desktop": True})
+        if action == "window":
+            # v6.4 native window: the page says whether it is dark or light; the title bar follows
+            hook = DESKTOP.get("window_theme")
+            return ok({"styled": bool(hook(data.get("theme") != "light")) if hook else False})
         if action == "remote":
             res = set_remote(bool(data.get("enabled")))
             return ok(res)
@@ -1489,6 +1891,8 @@ class Handler(BaseHTTPRequestHandler):
             return self.reply(403, "Forbidden", "text/plain; charset=utf-8")
         if urlparse(self.path).path == "/api/vcam/upload":
             return self.upload_layer_file()
+        if urlparse(self.path).path == "/api/brand/logo":
+            return self.upload_brand_logo()
         path = urlparse(self.path).path
         if not self.allowed(path):
             return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
@@ -1498,6 +1902,29 @@ class Handler(BaseHTTPRequestHandler):
             return self.reply(400, "Invalid data", "text/plain; charset=utf-8")
         if path == "/api/remote-login":
             return self.remote_login(data)
+        if path == "/api/scripture/settings":
+            if not self.is_local():
+                return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
+            d = data if isinstance(data, dict) else {}
+            cur = scripture_settings()
+            if "key" in d:
+                cur["key"] = re.sub(r"[^A-Za-z0-9]", "", str(d.get("key") or ""))[:200]
+            if d.get("translation") in ("ESV", "typed"):
+                cur["translation"] = d["translation"]
+            SCRIPTURE_FILE.write_text(json.dumps(cur), encoding="utf-8")
+            if d.get("clearCache"):
+                with _scr_lock:
+                    try:
+                        SCRIPTURE_CACHE.unlink()
+                    except OSError:
+                        pass
+            if d.get("test"):
+                try:
+                    scripture_lookup("John 3:16", "ESV", fresh=True)
+                except ValueError as e:
+                    return self.reply(200, json.dumps(dict(scripture_info(), test=str(e))), TYPES[".json"])
+                return self.reply(200, json.dumps(dict(scripture_info(), test="ok")), TYPES[".json"])
+            return self.reply(200, json.dumps(scripture_info()), TYPES[".json"])
         if path.startswith("/api/vcam/"):
             if not self.is_local():
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
@@ -1509,7 +1936,7 @@ class Handler(BaseHTTPRequestHandler):
                     n = cur["blurStrength"] if n is None else n
                     cur["blurStrength"] = n
                     cur["blur"] = "off" if n == 0 else ("light" if n <= 45 else "strong")   # for older versions
-                    VCAM_SETTINGS_FILE.write_text(json.dumps(cur, indent=2), encoding="utf-8")
+                    vcam_save(cur)
                     VCAM["blurSession"] = None
                 else:
                     c = clean_vcam({"blurStrength": data.get("blurStrength")})
@@ -1520,14 +1947,18 @@ class Handler(BaseHTTPRequestHandler):
                     eng.configure(**vcam_effective(cur))
                 return self.reply(200, json.dumps(vcam_status()), TYPES[".json"])
             if path == "/api/vcam/settings" and isinstance(data, dict):
-                changes = clean_vcam(data)
+                try:
+                    changes = vcam_apply_changes(data)
+                except ValueError as e:
+                    return self.reply(400, json.dumps({"error": str(e)}), TYPES[".json"])
                 cur = vcam_settings()
                 cur.update(changes)
-                VCAM_SETTINGS_FILE.write_text(json.dumps(cur, indent=2), encoding="utf-8")
+                vcam_save(cur)
                 eng = VCAM["engine"]
                 VCAM["cardsOn"] = cur["cards"]
+                regrade = "look" in changes or "filterIntensity" in changes
                 if eng:
-                    eng.configure(**vcam_effective(cur), **({"grade": vcam_grade(cur["look"])} if "look" in changes else {}))
+                    eng.configure(**vcam_effective(cur), **({"grade": vcam_grade(cur["look"], cur.get("filterIntensity", 100))} if regrade else {}))
                     if "enabled" in changes:
                         (eng.start if changes["enabled"] else eng.stop)()
                 return self.reply(200, json.dumps(vcam_status()), TYPES[".json"])
@@ -1588,11 +2019,17 @@ class Handler(BaseHTTPRequestHandler):
                 return self.reply(400, "Invalid data", "text/plain; charset=utf-8")
             data.pop("rev", None)
             base = data.pop("baseRev", None)
+            keep = data.pop("keepLibrary", False) is True
             with cond:
                 # Two devices changed things at the same moment: send back the latest so it can redo its change
                 if base is not None and str(base) != str(state.get("rev", 0)):
-                    return self.reply(409, json.dumps(state), TYPES[".json"])
-                return self.reply(200, json.dumps(save_state(data)), TYPES[".json"])
+                    return self.reply(409, state_body(), TYPES[".json"])
+                if keep:                                   # "library unchanged": only valid on top of the latest state
+                    if base is None:
+                        return self.reply(409, state_body(), TYPES[".json"])
+                    data["library"] = state.get("library")
+                save_state(data)
+                return self.reply(200, state_body(LIBRARY["rev"] if keep else None), TYPES[".json"])
         if path == "/api/private":
             if not isinstance(data, dict) or not isinstance(data.get("members", []), list):
                 return self.reply(400, "Invalid data", "text/plain; charset=utf-8")
@@ -1618,7 +2055,7 @@ def start_main_server():
         return None
     server.daemon_threads = True
     MAIN["server"], MAIN["port"] = server, server.server_address[1]
-    threading.Thread(target=vcam_start, daemon=True).start()   # idle until Zoom/Teams uses BCC vCam
+    threading.Thread(target=vcam_start, daemon=True).start()   # idle until Zoom/Teams uses KingdomConnect
     threading.Thread(target=_backup_loop, daemon=True).start()
     threading.Thread(target=_remote_watcher, daemon=True).start()
     return server

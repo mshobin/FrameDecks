@@ -1,5 +1,7 @@
-/* BSF Command Center - Studio (Camo-style): layers on the left, live canvas in the centre,
- * scenes and inspector on the right. Everything you see is exactly what BCC vCam sends. */
+/* BSF Command Center - Studio. v4.9 layout: the rail on the left of the whole Studio (Scenes on top, the
+ * OBS-style Layers list beneath) stays visible in every Studio view (Meeting, Content, Canvas, Recordings);
+ * the Canvas view shows the live canvas with the Inspector beside it. Everything you see is exactly what
+ * KingdomConnect sends. The layer/scene logic below is unchanged - only where the panels are placed moved. */
 (function(){
 'use strict';
 var Store = window.BSFStore, I = window.BSFIcon;
@@ -14,7 +16,7 @@ function h(tag, attrs, kids){
 }
 function ib(icon, label, onclick, cls){ return h('button', {cls: 'ib ' + (cls || ''), type: 'button', title: label, 'aria-label': label, html: I(icon, 16), onclick: onclick}); }
 function toast(m, bad){ if (window.BSFActions) window.BSFActions.toast(m, bad); }
-if (!Store.served){ root.appendChild(h('p', {cls: 'plain', style: 'padding:20px', text: 'The Studio needs the installed BSF Command Center app (BCC vCam).'})); return; }
+if (!Store.served){ root.appendChild(h('p', {cls: 'plain', style: 'padding:20px', text: 'The Studio needs the installed Kingdom Connect app.'})); return; }
 
 var REF_W = 1920, REF_H = 1080;            // inspector numbers use a 1920×1080 canvas
 var TYPES = {camera: ['video', 'Video source'], screen: ['monitor', 'Screen capture'], text: ['type', 'Text'], image: ['image', 'Image'],
@@ -33,11 +35,11 @@ function act(op, body){
     .then(function(d){ if (d.studio) apply(d.studio); return d; })
     .catch(function(e){ toast(e.message, true); throw e; });
 }
-var sendT = null;
+var sendT = null, pushHooks = [], selHooks = [], lastSelSig = '';
 function pushLayers(now){
   clearTimeout(sendT);
   dirtyUntil = Date.now() + 400;
-  var go = function(){ act('layers', {layers: L.map(strip), target: 'output'}).catch(function(){}); };
+  var go = function(){ act('layers', {layers: L.map(strip), target: 'output'}).then(function(){ pushHooks.forEach(function(f){ try { f(L.map(strip)); } catch(e){} }); }).catch(function(){}); };
   if (now) go(); else sendT = setTimeout(go, 70);
 }
 function strip(l){ var c = Object.assign({}, l); delete c.status; return c; }
@@ -66,10 +68,10 @@ function pickFile(accept){
   });
 }
 function addFile(kind){
-  var accept = {image: '.png,.jpg,.jpeg,.svg', video: '.mp4,.mov,.webm', pdf: '.pdf'}[kind];
+  var accept = {image: '.png,.jpg,.jpeg,.svg', video: '.mp4,.mov,.webm', pdf: '.pdf', powerpoint: '.pptx,.ppt,.pdf'}[kind];
   return pickFile(accept).then(function(f){
     if (!f) return null;
-    toast('Adding ' + f.name + '…');
+    toast(/\.pptx?$/i.test(f.name) ? 'Opening ' + f.name + ' in PowerPoint to prepare the slides… this can take a minute' : 'Adding ' + f.name + '…');
     if (/\.svg$/i.test(f.name)) return svgToPng(f).then(function(b){ return upload(b, f.name.replace(/\.svg$/i, '.png')); });
     return upload(f);
   });
@@ -78,17 +80,23 @@ function addFile(kind){
 /* ---------- layout of the tab ---------- */
 root.classList.add('s2');
 var top = h('div', {cls: 's2-top'});
-var left = h('aside', {cls: 's2-left', 'aria-label': 'Layers'});
+var scenesSec = h('section', {cls: 'rail-sec rail-scenes', 'aria-label': 'Frames'});
+var left = h('section', {cls: 's2-left rail-sec rail-layers', 'aria-label': 'Content'});
+var railNote = h('p', {cls: 'rail-note', hidden: 'hidden'});
 var centre = h('section', {cls: 's2-centre', 'aria-label': 'Canvas'});
-var right = h('aside', {cls: 's2-right', 'aria-label': 'Scenes and inspector'});
-root.appendChild(top); root.appendChild(h('div', {cls: 's2-body'}, [left, centre, right]));
+var right = h('aside', {cls: 's2-right', 'aria-label': 'Inspector'});
+/* v6: the canvas is the Studio Canvas (centre), its inspector sits in the Inspector for media layers, its tools in
+ * the canvas header, Record in Settings > Recording. The old Scenes gallery and Layers list are replaced by the
+ * workspace's Scenes and Layers (js/workspace.js); they are kept here, unattached, for the code that fills them. */
+root.appendChild(centre);
+var mediaHost = $('insp-media'); if (mediaHost) mediaHost.appendChild(right);
 
 /* Top bar: scene selector with collection filter · Preview/Output · Record · Look · Focus · Hide window */
-var colFilter = h('select', {id: 's2-colfilter', 'aria-label': 'Scene collection'});
-var sceneSel = h('select', {id: 's2-scene', 'aria-label': 'Scene'});
-/* Presentation Mode: a separate "BSF Presentation" window showing only the scene, for Zoom > Share > window */
-var presBtn = h('button', {cls: 'btn primary s2-present', type: 'button', id: 's2-present', html: I('presentation', 16) + ' Presentation Mode',
-  title: 'Open a separate window with only the scene, to share in Zoom (Share Screen → BSF Presentation)'});
+var colFilter = h('select', {id: 's2-colfilter', 'aria-label': 'Frame collection'});
+var sceneSel = h('select', {id: 's2-scene', 'aria-label': 'Frame'});
+/* Share Window (was "Presentation Mode" before 6.1): a separate window showing only the scene, for Zoom > Share > window */
+var presBtn = h('button', {cls: 'btn primary s2-present', type: 'button', id: 's2-present', html: I('presentation', 16) + ' Share Window',
+  title: 'Open a separate window with only the Frame, to share in Zoom (Share Screen → BSF Presentation)'});
 var recBtn = h('button', {cls: 'btn s2-rec', type: 'button', id: 's2-rec', html: '<span class="dot"></span> Record'});
 var lookSel = h('select', {id: 's2-look', 'aria-label': 'Camera look'});
 var focusBtn = ib('maximize-2', 'Focus: hide the rest of the app', function(){ document.body.classList.toggle('studio-focus'); focusBtn.innerHTML = I(document.body.classList.contains('studio-focus') ? 'minimize-2' : 'maximize-2', 16); setTimeout(fitStage, 50); });
@@ -96,12 +104,17 @@ focusBtn.id = 's2-focus';
 var hideBtn = ib('panel-left', 'Hide the app window (keeps running near the clock)', function(){
   fetch('api/app/hide', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: '{}'}).then(function(r){ if (!r.ok) toast('Only in the installed app', true); }); });
 var shareChip = h('span', {cls: 's2-chip', id: 's2-share', hidden: 'hidden'});
-top.appendChild(h('div', {cls: 's2-top-l'}, [h('span', {cls: 's2-lbl', html: I('layout-template', 15)}), colFilter, sceneSel]));
-top.appendChild(h('div', {cls: 's2-top-c'}, [presBtn, shareChip]));
-top.appendChild(h('div', {cls: 's2-top-r'}, [lookSel, recBtn, focusBtn, hideBtn]));
+/* v5: the scene picker and collection filter are the Scenes list beside the canvas, and the Look is in
+ * Settings > KingdomConnect Camera (and Ctrl+Alt+1/2/3/0) - the bar shows the active scene instead of repeating them. */
+var sceneNow = h('span', {cls: 's2-scene-now', id: 's2-scene-now'});
+var tools = $('canvas-tools');
+if (tools){ [shareChip, presBtn, focusBtn, hideBtn].forEach(function(b){ tools.appendChild(b); }); }
+var recHost = $('rec-host');
+if (recHost){ recHost.appendChild(recBtn); recHost.appendChild(h('span', {cls: 'hint rec-note', id: 's2-rec-note', text: 'Records exactly what KingdomConnect sends to Zoom or Teams.'})); }
+presBtn.classList.remove('primary'); presBtn.classList.add('small');
 
 colFilter.addEventListener('change', renderScenes);
-sceneSel.addEventListener('change', function(){ if (sceneSel.value) act('scene-apply', {id: sceneSel.value}).then(function(){ toast('Scene: ' + sceneSel.options[sceneSel.selectedIndex].text); }); });
+sceneSel.addEventListener('change', function(){ if (sceneSel.value) act('scene-apply', {id: sceneSel.value}).then(function(){ toast('Frame: ' + sceneSel.options[sceneSel.selectedIndex].text); }); });
 var popup = null;
 presBtn.addEventListener('click', function(){
   var open = S && S.presentation && S.presentation.open;
@@ -116,18 +129,18 @@ presBtn.addEventListener('click', function(){
 });
 recBtn.addEventListener('click', function(){
   var on = !(S.recording && S.recording.on);
-  act('record', {on: on}).then(function(d){ if (on) toast('Recording the BCC vCam output'); else if (d.result) toast('Saved: ' + d.result.file.split(/[\\/]/).pop() + ' (' + d.result.seconds + ' s)'); });
+  act('record', {on: on}).then(function(d){ if (on) toast('Recording the KingdomConnect output'); else if (d.result) toast('Saved: ' + d.result.file.split(/[\\/]/).pop() + ' (' + d.result.seconds + ' s)'); });
 });
 lookSel.addEventListener('change', function(){ if (window.BSFLook) window.BSFLook.set(lookSel.value); });
 
 /* ---------- Left: layers ---------- */
-var addBtn = h('button', {cls: 'btn primary small', type: 'button', id: 's2-add', 'aria-haspopup': 'menu', html: I('plus', 15) + ' Add layer'});
+var addBtn = h('button', {cls: 'btn primary small', type: 'button', id: 's2-add', 'aria-haspopup': 'menu', html: I('plus', 15) + ' Add Content'});
 var addMenu = h('div', {cls: 's2-menu', id: 's2-addmenu', role: 'menu', hidden: 'hidden'});
-var list = h('ol', {cls: 's2-list', id: 's2-list', 'aria-label': 'Layer stack (top = in front)'});
-left.appendChild(h('div', {cls: 's2-head'}, [h('h2', {html: I('layers', 16) + ' Layers'}), addBtn]));
+var list = h('ol', {cls: 's2-list', id: 's2-list', 'aria-label': 'Content stack (top = in front)'});
+left.appendChild(h('div', {cls: 's2-head'}, [h('h2', {html: I('layers', 16) + ' Content'}), addBtn]));
 left.appendChild(addMenu);
 left.appendChild(list);
-left.appendChild(h('p', {cls: 'hint s2-tip', text: 'Higher layers appear in front. Ctrl/Cmd+Click or Shift+Click to select several. Double-click a name to rename. Your verse, question and birthday cards always stay on top.'}));
+left.appendChild(h('p', {cls: 'hint s2-tip', text: 'Content higher in the list appears in front. Ctrl/Cmd+Click or Shift+Click to select several. Double-click a name to rename. Your verse, question and birthday cards always stay on top.'}));
 function menuItem(icon, label, fn, id){ return h('button', {type: 'button', role: 'menuitem', id: id || null, html: I(icon, 16) + '<span>' + label + '</span>', onclick: function(){ addMenu.hidden = true; fn(); }}); }
 addMenu.appendChild(menuItem('video', 'Video Source (camera)', function(){ addLayer({type: 'camera', name: 'Camera', w: 0.5, h: 0.5}); }, 'add-camera'));
 addMenu.appendChild(menuItem('monitor', 'Screen Capture…', chooseScreen, 'add-screen'));
@@ -152,10 +165,11 @@ document.addEventListener('click', function(e){ if (!addMenu.hidden && !addMenu.
 function slideMove(step){
   act('slide', {step: step}).then(function(d){
     var r = d.slide || {};
+    if (r.busy) return;                                    // the previous press is still being carried out
     if (r.page) toast('Slide ' + r.page + (r.pages ? ' of ' + r.pages : ''));
     else if (r.error) toast(r.error, true);
     else if (r.result) toast(r.result === 'ok' ? 'Next slide' : r.result);
-    else toast('No presentation to move. Add Slides (PDF) or a PowerPoint window as a layer.', true);
+    else toast('No presentation is running. Start the PowerPoint slide show, or add Slides (PDF) in the Studio.', true);
   }).catch(function(){});
 }
 function uid(){ return 'L' + Math.random().toString(16).slice(2, 10); }
@@ -208,7 +222,7 @@ function renderList(){
   if (list.contains(document.activeElement) && document.activeElement.tagName === 'INPUT') return;
   list.innerHTML = '';
   var shown = L.slice().reverse();
-  if (!shown.length) list.appendChild(h('li', {cls: 's2-empty', text: 'No layers yet. Use Add layer, or a layout template.'}));
+  if (!shown.length) list.appendChild(h('li', {cls: 's2-empty', text: 'No Content yet. Use Add Content, or a layout template.'}));
   shown.forEach(function(l){
     var t = TYPES[l.type] || ['square', l.type];
     var name = h('span', {cls: 's2-name', text: l.name || t[1]});
@@ -249,10 +263,10 @@ function selectFromList(id, e){
 }
 
 /* ---------- Centre: the canvas ---------- */
-var img = h('img', {alt: 'The live BCC vCam picture', id: 's2-img', draggable: 'false'});
+var img = h('img', {alt: 'The live KingdomConnect picture', id: 's2-img', draggable: 'false'});
 var boxes = h('div', {cls: 's2-boxes'});
 var guides = h('div', {cls: 's2-guides'});
-var stage = h('div', {cls: 's2-stage', id: 's2-stage', tabindex: '0', 'aria-label': 'Canvas: drag layers to move them; use the handles to resize'}, [img, boxes, guides,
+var stage = h('div', {cls: 's2-stage', id: 's2-stage', tabindex: '0', 'aria-label': 'Canvas: drag Content to move them; use the handles to resize'}, [img, boxes, guides,
   h('span', {cls: 's2-badge', id: 's2-badge', text: 'OUTPUT'})]);
 var stageWrap = h('div', {cls: 's2-stagewrap'}, [stage]);
 var metrics = h('p', {cls: 'hint s2-metrics', id: 's2-metrics'});
@@ -260,12 +274,6 @@ var snapCb = h('input', {type: 'checkbox', id: 's2-snap', checked: 'checked'});
 centre.appendChild(stageWrap);
 centre.appendChild(h('div', {cls: 's2-under'}, [h('label', {cls: 'check'}, [snapCb, ' Snap to guides']), metrics]));
 function fitStage(){
-  if (!root.hidden){                     // fill the space between the tabs and the birthday bar
-    var bar = document.querySelector('.bday-bar');
-    var focus = document.body.classList.contains('studio-focus');
-    var avail = window.innerHeight - root.getBoundingClientRect().top - (focus || !bar ? 0 : bar.offsetHeight);
-    root.style.setProperty('--s2h', Math.max(520, Math.floor(avail)) + 'px');
-  }
   var r = stageWrap.getBoundingClientRect(), w = Math.max(200, r.width), hh = Math.max(120, r.height);
   var sw = Math.min(w, hh * 16 / 9); stage.style.width = sw + 'px'; stage.style.height = (sw * 9 / 16) + 'px';
 }
@@ -388,12 +396,12 @@ stage.addEventListener('keydown', function(e){
 });
 
 /* ---------- Right: scenes + inspector + personalise ---------- */
-var colSel = h('select', {id: 's2-collection', 'aria-label': 'Scene collection'});
+var colSel = h('select', {id: 's2-collection', 'aria-label': 'Frame collection'});
 var gallery = h('div', {cls: 's2-gallery', id: 's2-gallery'});
 var insp = h('div', {cls: 's2-insp', id: 's2-insp'});
-right.appendChild(h('div', {cls: 's2-head'}, [h('h2', {html: I('layout-template', 16) + ' Scenes'}), colSel,
+scenesSec.appendChild(h('div', {cls: 's2-head'}, [h('h2', {html: I('layout-template', 16) + ' Frames'}), colSel,
   ib('plus', 'New collection', function(){ var n = prompt('Name for the new collection:'); if (n && n.trim()) act('collection-add', {name: n.trim()}).then(function(d){ colSel.dataset.sig = ''; refresh().then(function(){ colSel.value = d.collection; renderScenes(); }); }); })]));
-right.appendChild(gallery);
+scenesSec.appendChild(gallery);
 right.appendChild(h('div', {cls: 's2-head'}, [h('h2', {html: I('sparkles', 16) + ' Inspector'})]));
 right.appendChild(insp);
 colSel.addEventListener('change', renderScenes);
@@ -412,20 +420,22 @@ function renderScenes(){
   if (gallery.dataset.sig !== gsig){
     gallery.dataset.sig = gsig; gallery.innerHTML = '';
     (S.scenes || []).filter(function(sc){ return sc.collection === col; }).forEach(function(sc){
-      var card = h('button', {cls: 's2-scene' + (S.activeScene === sc.id ? ' on' : ''), type: 'button', title: 'Switch to ' + sc.name}, [
+      var card = h('button', {cls: 's2-scene' + (S.activeScene === sc.id ? ' on' : ''), type: 'button', title: 'Switch to ' + sc.name, 'aria-pressed': String(S.activeScene === sc.id), 'data-scene': sc.id}, [
         sc.thumb ? h('img', {src: 'api/vcam/scene-thumb?id=' + encodeURIComponent(sc.id) + '&t=' + sc.thumb, alt: ''}) : h('span', {cls: 's2-nothumb', html: I('image', 20)}),
         h('span', {cls: 's2-scname', text: sc.name})]);
-      card.addEventListener('click', function(){ act('scene-apply', {id: sc.id}).then(function(){ toast('Scene: ' + sc.name); refresh(); }); });
-      var del = ib('x', 'Delete scene', function(e){ e.stopPropagation(); if (confirm('Delete scene “' + sc.name + '”?')) act('scene-delete', {id: sc.id}).then(refresh); }, 's2-scdel');
+      card.addEventListener('click', function(){ act('scene-apply', {id: sc.id}).then(function(){ toast('Frame: ' + sc.name); refresh(); }); });
+      var del = ib('x', 'Delete Frame', function(e){ e.stopPropagation(); if (confirm('Delete Frame “' + sc.name + '”?')) act('scene-delete', {id: sc.id}).then(refresh); }, 's2-scdel');
       gallery.appendChild(h('div', {cls: 's2-scwrap'}, [card, del]));
     });
-    gallery.appendChild(h('button', {cls: 's2-scene add', type: 'button', id: 's2-savescene', html: I('plus', 20) + '<span class="s2-scname">Save as scene</span>', onclick: function(){
-      var n = prompt('Name for this scene (e.g. “Meeting Default”):'); if (n && n.trim()) act('scene-save', {name: n.trim(), collection: col}).then(function(){ toast('Scene saved'); refresh(); }); }}));
+    gallery.appendChild(h('button', {cls: 's2-scene add', type: 'button', id: 's2-savescene', html: I('plus', 20) + '<span class="s2-scname">Save as Frame</span>', onclick: function(){
+      var n = prompt('Name for this Frame (e.g. “Meeting Default”):'); if (n && n.trim()) act('scene-save', {name: n.trim(), collection: col}).then(function(){ toast('Frame saved'); refresh(); }); }}));
   }
+  var act_ = (S.scenes || []).filter(function(sc){ return sc.id === S.activeScene; })[0];
+  sceneNow.textContent = act_ ? act_.name : 'No Frame chosen';
   var f = colFilter.value, opts = (S.scenes || []).filter(function(sc){ return !f || sc.collection === f; });
   var ssig = JSON.stringify(opts) + S.activeScene;
   if (sceneSel.dataset.sig !== ssig){ sceneSel.dataset.sig = ssig; sceneSel.innerHTML = '';
-    sceneSel.appendChild(h('option', {value: '', text: opts.length ? 'Choose a scene…' : 'No scenes yet'}));
+    sceneSel.appendChild(h('option', {value: '', text: opts.length ? 'Choose a Frame…' : 'No Frames yet'}));
     opts.forEach(function(sc){ sceneSel.appendChild(h('option', {value: sc.id, text: sc.name})); });
     sceneSel.value = S.activeScene && opts.some(function(o){ return o.id === S.activeScene; }) ? S.activeScene : ''; }
 }
@@ -468,11 +478,11 @@ function renderInspector(fromDrag){
   var sig = JSON.stringify([chosen.map(strip), S && S.screen]);
   if (sig === inspSig) return; inspSig = sig;
   insp.innerHTML = '';
-  if (!chosen.length){ insp.appendChild(h('p', {cls: 'hint', text: 'Select a layer on the canvas or in the Layers list.'})); return; }
+  if (!chosen.length){ insp.appendChild(h('p', {cls: 'hint', text: 'Select Content on the canvas or in the Content list.'})); return; }
   var actions = h('div', {cls: 's2-actions'}, [
     ib('copy', 'Duplicate (Ctrl+D)', duplicateSelected), ib('trash-2', 'Delete (Del)', removeSelected),
     ib('arrow-up', 'Move up (forward)', function(){ moveSelected(1); }), ib('arrow-down', 'Move down (backward)', function(){ moveSelected(-1); })]);
-  if (chosen.length > 1){ insp.appendChild(h('p', {cls: 'plain', text: chosen.length + ' layers selected'})); insp.appendChild(actions); return; }
+  if (chosen.length > 1){ insp.appendChild(h('p', {cls: 'plain', text: chosen.length + ' items selected'})); insp.appendChild(actions); return; }
   var l = chosen[0], bx = boxOf(l), p = l.props || (l.props = {}), lid = l.id;
   var cur = function(){ return layerById(lid) || l; }, curP = function(){ var x = cur(); return x.props || (x.props = {}); };
   var title = h('div', {cls: 's2-insp-title', html: I((TYPES[l.type] || ['square'])[0], 16) + ' <b></b>'});
@@ -526,6 +536,8 @@ function renderInspector(fromDrag){
       return h('button', {cls: 'btn small', type: 'button', html: I(c[0], 14) + ' ' + c[1], onclick: function(){ act('layer-control', {id: l.id, cmd: c[1].toLowerCase()}); }}); })));
     insp.appendChild(checkbox('Loop (untick to play once)', l.loop !== false, function(v){ var l = cur(), p = curP(); l.loop = v; }));
   }
+  if (l.type === 'pdf' || l.type === 'window')
+    insp.appendChild(checkbox('Show objects only (hide a plain slide background)', !!l.objectsOnly, function(v){ var x = layerById(lid); if (x) x.objectsOnly = v; }));
   if (l.type === 'pdf' || l.type === 'window' || (l.type === 'screen' && S.screen && S.screen.source && ['pdf', 'window'].indexOf(S.screen.source.kind) >= 0)){
     insp.appendChild(h('div', {cls: 's2-actions'}, [
       h('button', {cls: 'btn small', type: 'button', html: I('chevron-left', 15) + ' Previous slide', onclick: function(){ slideMove(-1); }}),
@@ -551,10 +563,19 @@ function moveSelected(dir){
 }
 
 /* ---------- show the state ---------- */
-function draw(){ renderList(); drawBoxes(); renderInspector(); }
+function draw(){
+  renderList(); drawBoxes(); renderInspector();
+  var sig = sel.join(','); if (sig !== lastSelSig){ lastSelSig = sig; selHooks.forEach(function(f){ try { f(sel.slice()); } catch(e){} }); }
+}
 function apply(d){
   S = d;
-  if (!d.available){ root.innerHTML = ''; root.appendChild(h('p', {cls: 'plain', style: 'padding:20px', text: d.reason || 'BCC vCam is not available.'})); return; }
+  if (!d.available){
+    root.innerHTML = ''; root.appendChild(h('p', {cls: 'plain', style: 'padding:20px', text: d.reason || 'KingdomConnect is not available.'}));
+    scenesSec.hidden = left.hidden = true; railNote.hidden = false;
+    railNote.textContent = 'Frames and Content appear here when KingdomConnect is running. ' + (d.reason || '');
+    return;
+  }
+  scenesSec.hidden = left.hidden = false; railNote.hidden = true;
   if (!drag && Date.now() > dirtyUntil){
     var fresh = (d.staged ? d.stagedLayers : d.layers).map(function(l){ return Object.assign({}, l); });
     var status = {}; d.layers.forEach(function(l){ status[l.id] = l.status; });
@@ -564,7 +585,7 @@ function apply(d){
   }
   if (d.staged && !apply.committed){ apply.committed = true; act('stage-commit').catch(function(){}); }   // an old private preview: apply it once
   var po = d.presentation && d.presentation.open;
-  presBtn.innerHTML = I(po ? 'x' : 'presentation', 16) + (po ? ' Close Presentation' : ' Presentation Mode');
+  presBtn.innerHTML = I(po ? 'x' : 'presentation', 16) + (po ? ' Close Share Window' : ' Share Window');
   presBtn.classList.toggle('on', !!po);
   $('s2-badge').textContent = po ? 'LIVE · also in the Presentation window' : 'LIVE · what Zoom / Teams receive';
   var r = d.recording;
@@ -588,10 +609,19 @@ function metricsLine(){
   return 'Camera ' + (st.captureFps || 0) + ' fps → output ' + (st.fps || 0) + ' fps · ' + (st.msPerFrame || 0) + ' ms per frame · capture-to-send ' +
     (st.latencyMs || 0) + ' ms · dropped ' + (st.dropped || 0) + ' · CPU ' + (st.cpuPercent || 0) + '%';
 }
-function visible(){ return !root.hidden && document.body.dataset.tab === 'studio' && !document.hidden; }   // minimised: no pictures, no polling
+function visible(){ return !root.hidden && document.body.dataset.tab === 'studio' && !document.hidden; }   // the canvas: minimised = no pictures, no polling
+/* The rail (scenes, layers) is on screen in every Studio view: it refreshes every 3 s there, every second
+ * with the canvas open, and not at all while the app is minimised or on Members / Settings. */
+function railVisible(){ return document.body.dataset.tab === 'studio' && !document.hidden; }   // v6: the Studio workspace (layers, status chips)
 function refresh(){ return fetch('api/vcam/studio', {cache: 'no-store'}).then(function(r){ return r.json(); }).then(apply).catch(function(){}); }
+var pollT = null;
 function poll(){
-  (visible() || !S ? refresh() : Promise.resolve()).then(function(){ metrics.textContent = metricsLine(); setTimeout(poll, visible() ? 1000 : window.BSFStore.pace(4000)); });
+  clearTimeout(pollT);
+  var recOn = !!(S && S.recording && S.recording.on);       // v5.1: the Recording chip and output card keep counting
+  (visible() || railVisible() || !S || (recOn && !document.hidden) ? refresh() : Promise.resolve()).then(function(){
+    if (visible()) metrics.textContent = metricsLine();
+    pollT = setTimeout(poll, visible() || (S && S.recording && S.recording.on && !document.hidden) ? 1000 : railVisible() ? 3000 : window.BSFStore.pace(4000));
+  });
 }
 poll();
 var pulling = false, imgTag = {};
@@ -605,12 +635,18 @@ function pullImage(){
 var prevOnTab = window.BSFOnTab;
 window.BSFOnTab = function(t){
   if (prevOnTab) prevOnTab(t);
-  if (t === 'studio'){ setTimeout(fitStage, 0); if (!pulling) pullImage(); refresh(); }
+  if (t === 'studio'){ setTimeout(fitStage, 0); if (!pulling) pullImage(); }
   else document.body.classList.remove('studio-focus');
+  if (t === 'studio' && S) poll();                              // fresh layers at once
 };
 if (window.ResizeObserver) new ResizeObserver(fitStage).observe(stageWrap);
 document.addEventListener('visibilitychange', function(){ if (visible() && !pulling) pullImage(); });   // shown again: resume the picture
-window.BSFStudio = {layers: function(){ return L; }, select: function(ids){ sel = ids.slice(); draw(); }};
+window.BSFStudio = {layers: function(){ return L; }, select: function(ids){ sel = ids.slice(); lastSelSig = sel.join(','); draw(); }, slide: slideMove,
+  state: function(){ return S; },                          // read-only, for the header chips and the workspace
+  /* v6 workspace hooks: pushed layers (written back into the live scene), canvas selection, file / source pickers */
+  onPush: function(f){ pushHooks.push(f); }, onSelect: function(f){ selHooks.push(f); },
+  addFile: addFile, chooseScreen: function(){ chooseScreen(true); }, chooser: chooser, refresh: refresh, fit: function(){ fitStage(); if (visible() && !pulling) pullImage(); },
+  menu: function(id){ var m = addMenu.querySelector('#' + id); if (m) m.click(); }, remove: removeSelected, duplicate: duplicateSelected, move: moveSelected};
 
 /* ---------- hotkeys: Ctrl+Shift+1/2/3 = layers 1-3, Page Up/Down = slides ---------- */
 document.addEventListener('keydown', function(e){
@@ -620,10 +656,10 @@ document.addEventListener('keydown', function(e){
     var n = {Digit1: 0, Digit2: 1, Digit3: 2}[e.code];
     if (n === undefined) return;
     e.preventDefault();
-    act('toggle-layer', {index: n}).then(function(d){ if (d.layer) toast((d.visible ? 'Showing ' : 'Hiding ') + d.layer); else toast('There is no layer ' + (n + 1) + ' yet', true); });
+    act('toggle-layer', {index: n}).then(function(d){ if (d.layer) toast((d.visible ? 'Showing ' : 'Hiding ') + d.layer); else toast('There is no Content ' + (n + 1) + ' yet', true); });
     return;
   }
-  if ((e.key === 'PageDown' || e.key === 'PageUp') && !e.ctrlKey && !e.altKey && S && S.available){
+  if ((e.key === 'PageDown' || e.key === 'PageUp') && !e.ctrlKey && !e.altKey && !e.repeat && S && S.available){
     var pres = (S.screen && S.screen.active && S.screen.source && ['pdf', 'window'].indexOf(S.screen.source.kind) >= 0) ||
       (S.layers || []).some(function(l){ return l.type === 'pdf' || l.type === 'window'; });
     if (!pres) return;
