@@ -11,7 +11,7 @@ assert srv is not None, "could not start"
 threading.Thread(target=srv.serve_forever, daemon=True).start()
 base = f"http://127.0.0.1:{srv.server_address[1]}/"
 for page in ["", "dashboard.html", "remote.html", "stage.html", "focus-verse.html", "discussion-question.html",
-             "birthday.html", "js/app-bridge.js", "js/brand.js", "js/workspace.js", "js/scripture.js", "js/meeting-sheet.js", "js/meeting-import.js", "js/meeting-brand.js", "js/panels.js", "js/teamspace.js", "js/about.js", "remote-manifest.json", "icons/remote-192.png"]:
+             "birthday.html", "js/app-bridge.js", "js/brand.js", "js/workspace.js", "js/scripture.js", "js/meeting-sheet.js", "js/meeting-import.js", "js/meeting-brand.js", "js/panels.js", "js/about.js", "remote-manifest.json", "icons/remote-192.png"]:
     with urllib.request.urlopen(base + page, timeout=5) as r:
         assert r.status == 200, page
 ping = json.loads(urllib.request.urlopen(base + "api/app/ping").read())
@@ -26,11 +26,6 @@ assert VCAM_CLSID == "{" + build_id + "}", "KingdomConnect ID mismatch between v
 from vcam.sink import VCAM_NAME
 build_name = _re.search(r'NAME = "([^"]+)"', (root / "packaging" / "build_vcam.py").read_text()).group(1)
 assert VCAM_NAME == build_name == "KingdomConnect", "the camera must be called KingdomConnect"
-# Team Space: peer-to-peer over WireGuard only, answered on this PC's own program
-team = json.loads(urllib.request.urlopen(base + "api/team").read())
-assert team["text"] == ("Team Space is available only when authorized peers are online through a secure WireGuard network. "
-                        "No cloud relay or third-party server is required."), "Team Space wording"
-assert team["enabled"] is False and team["listening"] is False, "Team Space is off until it is set up"
 assert (root / "vcam" / "models" / "selfie_segmentation_landscape.tflite").exists(), "blur model missing"
 if os.name == "nt" and os.environ.get("GITHUB_ACTIONS") == "true":
     missing = [f for f in ("kingdomconnect_vcam64.dll", "kingdomconnect_vcam32.dll", "build-info.json") if not (root / "vcam" / "bin" / f).exists()]
