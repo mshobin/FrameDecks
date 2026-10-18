@@ -61,8 +61,8 @@ jobs:
       - name: Self-check (program starts and serves its pages)
         run: python packaging/check.py
 
-      - name: Test the Meeting Workbook import (Node.js)
-        run: node tools/test_meeting_workbook.js
+      - name: Run the tests (Node.js)
+        run: node tests/run.js
 
       - name: Read version number
         id: ver

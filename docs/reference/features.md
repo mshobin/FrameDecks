@@ -9,7 +9,7 @@
 | **Question / Scripture lists** | Full-height list; click = current, double-click = edit in the same panel (label, text, answer, notes, transition) | `app/js/frame-lists.js` |
 | **Annotate** | Pen, highlighter, arrow, line, rectangle, ellipse, text; colours, thickness, undo / redo / clear; above all Content, PowerPoint and cards on KingdomConnect, the overlay pages and the phone | `app/js/annotate.js`, `vcam/annotate.py`, state `live.ink` |
 | **Freeze / Black screen** | Hold the picture (drawings stay on top) / black picture; keys F and K | `vcam/program.py`, state `live.freeze`, `live.blackout` |
-| **PowerPoint** | A .pptx becomes slides via the installed PowerPoint (COM SaveAs PDF); a live window keeps animations; **Show objects only** keys out a plain slide background | `vcam/powerpoint.py` (`pptx_to_pdf`), `vcam/layers.py` (`key_background`), `docs/powerpoint.md` |
+| **PowerPoint** | A .pptx becomes slides via the installed PowerPoint (COM SaveAs PDF); a live window keeps animations; **Show objects only** keys out a plain slide background | `vcam/powerpoint.py` (`pptx_to_pdf`), `vcam/layers.py` (`key_background`), `docs/reference/powerpoint.md` |
 | **Simple / Advanced remote** | Simple (default): Frame and Content steppers, Annotate, Freeze, Black Screen. Advanced: search, notes, run-through, PowerPoint, annotation | `app/remote.html`, `app/js/remote.js` |
 | **Meeting Workbook** | Five-sheet Excel template with drop-downs, import with preview, export | `app/js/meeting-book.js`, `tools/make_meeting_workbook.py` |
 | **No collaboration** | Team Space removed; local save, autosave, export, backups and Frame history remain | — |
@@ -24,7 +24,7 @@ This document describes what each v6.4 feature does, how it is built and where i
 - logo-only branding;
 - native desktop behaviour.
 
-For the earlier features, see `docs/meeting-import-and-branding.md` (v6.2), `ARCHITECTURE.md` and the release notes in
+For the earlier features, see `docs/reference/meeting-workbook-and-branding.md` (v6.2), `docs/architecture/design-history.md` and the release notes in
 `docs/releases/`.
 
 ---

@@ -1,5 +1,5 @@
 /* Checks the Meeting Workbook: the template imports without errors, and an imported meeting exports and imports again.
- *   node tools/test_meeting_workbook.js
+ *   node tests/meeting-workbook.test.js
  * Uses the app's own code (app/js/store.js, app/js/meeting-book.js) and SheetJS (app/vendor). */
 'use strict';
 const fs = require('fs'), vm = require('vm'), path = require('path'), assert = require('assert');

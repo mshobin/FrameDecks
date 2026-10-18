@@ -49,7 +49,7 @@ skipped, a Timer value that isn't minutes or a time.
 
 ### Code
 - `app/js/meeting-book.js`: the sheets, validation, building Frames, export (no UI; tested in Node by
-  `tools/test_meeting_workbook.js`).
+  `tests/meeting-workbook.test.js`).
 - `app/js/meeting-import.js`: the dialog.
 - `app/js/import-worker.js`: reads every sheet in the background.
 - `tools/make_meeting_workbook.py`: writes the template with openpyxl.

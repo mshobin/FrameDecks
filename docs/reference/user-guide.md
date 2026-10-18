@@ -12,11 +12,11 @@ Google Meet. It is meeting-first:
 
 Everything runs on your PC.
 
-- Installing: `BUILD-AND-INSTALL.md` (Installation Guide)
-- Setting up the camera and the phone remote: `docs/configuration-guide.md`
-- How each feature works: `docs/features.md`
-- PowerPoint (what works, and why): `docs/powerpoint.md`
-- The Excel Meeting Workbook: `docs/meeting-import-and-branding.md`
+- Installing: `docs/development/building-the-installer.md` (Installation Guide)
+- Setting up the camera and the phone remote: `docs/reference/configuration-guide.md`
+- How each feature works: `docs/reference/features.md`
+- PowerPoint (what works, and why): `docs/reference/powerpoint.md`
+- The Excel Meeting Workbook: `docs/reference/meeting-workbook-and-branding.md`
 
 ---
 

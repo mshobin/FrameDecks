@@ -296,6 +296,6 @@ def apply_controls(cap, s, previous=None):
         res["backlight"] = "applied" if put(cv2.CAP_PROP_BACKLIGHT, 1 if bl == "on" else 0) else "not supported by this webcam"
     else:
         res["backlight"] = "driver default"
-    # Power-line frequency is not exposed by OpenCV's capture backends; see ARCHITECTURE.md section 17.
+    # Power-line frequency is not exposed by OpenCV's capture backends; see docs/architecture/design-history.md section 17.
     res["antiFlicker"] = "driver default" if s.get("antiFlicker", "off") == "off" else "not available in this version (driver default kept)"
     return res

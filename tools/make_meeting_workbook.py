@@ -4,7 +4,7 @@
 
 Output: app/templates/Kingdom-Connect-Meeting-Workbook.xlsx (downloaded from the app: Meeting → Download the Excel
 template) and a copy in docs/templates/. The column names and allowed values must match app/js/meeting-book.js;
-tools/test_meeting_workbook.js checks that the template imports without errors.
+tests/meeting-workbook.test.js checks that the template imports without errors.
 """
 from pathlib import Path
 

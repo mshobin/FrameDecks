@@ -2,7 +2,7 @@
 setlocal
 REM ------------------------------------------------------------------
 REM  Builds BSF-Command-Center-Setup-<version>.exe on THIS PC.
-REM  (The usual way is GitHub Actions - see BUILD-AND-INSTALL.md.)
+REM  (The usual way is GitHub Actions - see docs/development/building-the-installer.md.)
 REM  Needs: Python 3.10 or newer, and Inno Setup 6 (free, jrsoftware.org).
 REM ------------------------------------------------------------------
 cd /d "%~dp0"

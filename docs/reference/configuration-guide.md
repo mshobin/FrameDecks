@@ -5,7 +5,7 @@ This guide covers what to set up after installing:
 - the app window;
 - where settings are stored.
 
-For installing, see `BUILD-AND-INSTALL.md`. For what each feature does, see `docs/features.md`.
+For installing, see `docs/development/building-the-installer.md`. For what each feature does, see `docs/reference/features.md`.
 
 ---
 

@@ -212,7 +212,7 @@ def powerpoint_status(max_age=2.0):
 def pptx_to_pdf(src, dst, timeout=180.0):
     """v6.5 PowerPoint Content from a .pptx: the PowerPoint installed on this PC saves it as a PDF (one picture per
     slide, exactly as PowerPoint draws it). Animations and transitions are not kept in a PDF; for those, show the
-    PowerPoint slide show live with a Window Content (see docs/powerpoint.md).
+    PowerPoint slide show live with a Window Content (see docs/reference/powerpoint.md).
     Returns None when it worked, otherwise a plain-language reason."""
     if os.name != "nt":
         return "Turning PowerPoint files into slides needs Windows with PowerPoint installed. Save it as PDF in PowerPoint and add the PDF instead."

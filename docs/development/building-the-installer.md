@@ -6,8 +6,8 @@ This guide turns the Kingdom Connect folder (formerly BSF Command Center) into a
 - its **own app window**, with no address bar or browser controls;
 - the **KingdomConnect** camera for Zoom, Teams, Google Meet and OBS.
 
-After installing, see `docs/configuration-guide.md` to set up the camera and the phone remote, and
-`docs/user-guide.md` for everyday use.
+After installing, see `docs/reference/configuration-guide.md` to set up the camera and the phone remote, and
+`docs/reference/user-guide.md` for everyday use.
 
 GitHub builds the installer for you on a clean Windows computer, so you don't need to install
 any programming tools. You only need a free GitHub account.

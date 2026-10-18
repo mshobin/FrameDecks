@@ -1,6 +1,6 @@
 NOTE (v6.6): this is the original manual from version 4.6, kept for
-reference. The current guides are docs/user-guide.md,
-BUILD-AND-INSTALL.md, docs/configuration-guide.md and docs/features.md.
+reference. The current guides are docs/reference/user-guide.md,
+docs/development/building-the-installer.md, docs/reference/configuration-guide.md and docs/reference/features.md.
 The built-in camera is now called "KingdomConnect".
 
 ================================================================
@@ -27,7 +27,7 @@ THE INSTALLED WINDOWS APP (recommended)
 
   This folder can be turned into a normal Windows program with its
   own window, a desktop icon and an icon near the clock. See
-  BUILD-AND-INSTALL.md for step-by-step instructions (GitHub builds
+  docs/development/building-the-installer.md for step-by-step instructions (GitHub builds
   the installer for you). Everything in this README applies to both
   the app and the start files below. The differences:
     - The app keeps your data in %APPDATA%\BSF Command Center
@@ -84,7 +84,7 @@ KingdomConnect: THE BUILT-IN CAMERA (installed Windows app)
                  rest of the app) and Hide window.
       Ctrl+Shift+1/2/3 show or hide the top three layers; Page Down /
       Page Up change slides. Recordings are listed under Meetings &
-      Content > Recordings. ARCHITECTURE.md has the details.
+      Content > Recordings. docs/architecture/design-history.md has the details.
 
 
 ----------------------------------------------------------------
@@ -247,7 +247,7 @@ WHAT'S NEW IN VERSION 3 (the meeting control console)
   tools/                                 Scripts used by the two files above
   Start BSF Command Center (Mac).command Double-click to start (Mac)
   server.py                              The small local program
-  README.txt                             This guide
+  docs/reference/legacy-manual-v4.6.txt                             This guide
   app/dashboard.html                     The command-center dashboard
   app/focus-verse.html                   "BSF Focus Verse" overlay
   app/discussion-question.html           "BSF Discussion Question1" overlay
@@ -256,7 +256,7 @@ WHAT'S NEW IN VERSION 3 (the meeting control console)
   app/remote.html                        The phone/iPad remote
   desktop_app.py, packaging/, build.bat, .github/
                                          Used to build the installable
-                                         Windows app (BUILD-AND-INSTALL.md)
+                                         Windows app (docs/development/building-the-installer.md)
   app/css, app/js, app/fonts, app/vendor Styles, code, fonts and the
                                          bundled Excel library
   samples/BSF-Members-Template.xlsx      Empty template to fill in
@@ -833,7 +833,7 @@ BSF Command Center: created by Shobin Mathews (mshobin@gmail.com).
 Mission: help BSF leaders run smoother, more focused Zoom Bible
 studies with clear, easy-to-use overlays that keep attention on
 God's Word and the group discussion.
-The About text is kept in app/js/brand.js (see BUILD-AND-INSTALL.md
+The About text is kept in app/js/brand.js (see docs/development/building-the-installer.md
 to change it). BSF Command Center is an independent tool; it is not
 officially affiliated with, endorsed by, or produced by Bible Study
 Fellowship International.
