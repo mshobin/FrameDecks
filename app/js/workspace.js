@@ -246,26 +246,27 @@ function menu(anchor, items, ev){
 }
 var TPL_ICON = {'bible-study': 'book-open', scripture: 'book-open', question: 'message-circle', 'question-scripture': 'message-circle', birthday: 'cake',
   announcement: 'megaphone', prayer: 'heart', slides: 'presentation', media: 'film', countdown: 'timer', zoom: 'video', teams: 'video', blank: 'square'};
-$('scene-add').addEventListener('click', function(e){
-  e.stopPropagation();
-  var saved = live.scenes.filter(function(s){ return s.tpl; });
-  var MI = window.BSFMeetingImport;
-  var items = [{icon: 'sparkles', text: 'Quick Start…', run: openQuickStart}, {icon: 'library', text: 'Browse the Content Library', run: function(){ setFilter('tpl'); }},
-    MI ? {icon: 'file-text', text: 'Import meeting from Excel…', run: MI.pick} : null,
+/* + Frame: always one blank Frame, right after the selected one. Content is added afterwards with + Content. */
+$('scene-add').addEventListener('click', function(e){ e.stopPropagation(); newScene('blank'); });
+/* Meeting: ready-made Frames, the Excel workbook and Frame files (never part of + Frame) */
+function meetingMenu(anchor){
+  var saved = live.scenes.filter(function(s){ return s.tpl; }), MI = window.BSFMeetingImport;
+  var items = [{label: 'Meeting'},
+    MI ? {icon: 'file-spreadsheet', text: 'Import meeting from Excel…', run: MI.pick} : null,
     MI ? {icon: 'arrow-down', text: 'Download the Excel template', run: MI.template} : null,
+    MI && MI.exportMeeting ? {icon: 'external-link', text: 'Export this meeting to Excel', run: MI.exportMeeting} : null,
     MI && MI.canUndo() ? {icon: 'refresh-cw', text: 'Undo the last Excel import', run: MI.undo} : null,
-    '-', {label: 'New scene'}].concat(SC.templates.map(function(t){
-    return {icon: TPL_ICON[t.id] || 'square', text: t.name + ' Scene', run: function(){ newScene(t.id); }};
-  }));
+    '-', {label: 'Ready-made Frames'},
+    {icon: 'sparkles', text: 'Quick Start…', run: openQuickStart}, {icon: 'library', text: 'Browse the Content Library', run: function(){ setFilter('tpl'); }}];
   if (saved.length){ items.push('-', {label: 'From your templates'}); saved.forEach(function(t){ items.push({icon: 'layout-template', text: t.name, run: function(){ fromTemplate(t.id); }}); }); }
-  items.push('-', {icon: 'copy', text: 'Duplicate the selected scene', disabled: !scene(), run: function(){ duplicate(selScene, {}); }},
-    {icon: 'folder-open', text: 'Import a scene file…', run: importScene});
-  menu($('scene-add'), items);
-});
+  items.push('-', {icon: 'folder-open', text: 'Import a Frame file…', run: importScene});
+  menu(anchor, items);
+}
 function newScene(tid){
   var made = null;
-  commit(function(n){ made = SC.create(n, tid, {after: selScene || null, creator: creator(), group: scene() && !scene().tpl ? scene().group : ''}); })
-    .then(function(){ if (made){ select(made.id, null, true); toast('Scene created: ' + made.name); } });
+  commit(function(n){ made = SC.create(n, tid, {after: selScene || null, creator: creator(), group: scene() && !scene().tpl ? scene().group : '',
+    name: tid === 'blank' ? SC.uniqueName(n, 'Frame ' + (SC.order(n).length + 1)) : undefined}); })
+    .then(function(){ if (made){ select(made.id, null, true); toast(tid === 'blank' ? made.name + ' added. Now select + Content.' : 'Frame created: ' + made.name); } });
 }
 function fromTemplate(tid){
   var made = null;
@@ -318,7 +319,7 @@ function runQuickStart(q){
   });
 }
 window.BSFQuickStart = {open: openQuickStart};
-$('quick-start').addEventListener('click', openQuickStart);
+$('quick-start').addEventListener('click', function(e){ e.stopPropagation(); meetingMenu($('quick-start')); });
 
 /* ---------- Duplicate → Edit question → Done ---------- */
 var editQ = null;                                  // {sid, lid, src, from}
@@ -556,28 +557,29 @@ function toggleLayer(sid, lid){
     }
   });
 }
-/* + Layer */
-var CONTENT_ADD = [['scripture', 'Scripture'], ['question', 'Question'], ['birthday', 'Birthday'], ['announcement', 'Announcement'], ['prayer', 'Prayer Point'], ['lowerthird', 'Lower Third'], ['countdown', 'Countdown'], ['brand', 'Branding (logo + Meeting Name)']];
-var MEDIA_ADD = [['camera', 'Camera (KingdomConnect)'], ['screen', 'Screen…'], ['window', 'Window (e.g. PowerPoint)…'], ['image', 'Image…'], ['logo', 'Logo…'], ['watermark', 'Watermark…'],
-  ['video', 'Video…'], ['pdf', 'Slides (PDF)…'], ['background', 'Background'], ['text', 'Text'], ['rect', 'Shape']];
+/* + Content: the content types, then Free Content */
+var CONTENT_ADD = [['question', 'Question', 'message-circle'], ['scripture', 'Scripture', 'book-open'], ['text', 'Text', 'type'],
+  ['image', 'Image…', 'image'], ['video', 'Video…', 'film'], ['countdown', 'Timer', 'timer'], ['pptx', 'PowerPoint…', 'presentation']];
+var FREE_ADD = [['announcement', 'Announcement', 'megaphone'], ['prayer', 'Prayer Point', 'heart'], ['lowerthird', 'Lower Third', 'panel-bottom'], ['birthday', 'Birthday', 'cake'],
+  ['brand', 'Branding (logo + Meeting Name)', 'star'], ['camera', 'Camera', 'video'], ['screen', 'Screen…', 'monitor'], ['window', 'Window (live PowerPoint or any app)…', 'app-window'],
+  ['logo', 'Logo…', 'image'], ['watermark', 'Watermark…', 'image'], ['freetext', 'Free text on the picture', 'type'], ['rect', 'Shape', 'shapes'], ['background', 'Background', 'paint-bucket']];
+var NEEDS_CAM = {image: 1, video: 1, pptx: 1, camera: 1, screen: 1, window: 1, logo: 1, watermark: 1, freetext: 1, rect: 1, background: 1};
 $('layer-add').addEventListener('click', function(e){
-  e.stopPropagation(); var sc = scene(); if (!sc) return;
+  e.stopPropagation(); var sc = scene();
+  if (!sc){ toast('Select a Frame first (or add one with + Frame).', true); return; }
   var S = studio();
-  var items = [{label: 'Content (cards on every output)'}].concat(CONTENT_ADD.map(function(k){
+  function item(k){
     var has = SC.isCard(k[0]) && SC.first(sc, k[0]);
-    return {icon: SC.info[k[0]].icon, text: k[1] + ' Layer', hint: has ? 'in this scene' : '', run: function(){ addLayer(k[0]); }};
-  }));
-  items.push('-', {label: 'Media (KingdomConnect picture)'});
-  MEDIA_ADD.forEach(function(k){
-    var kind = k[0] === 'logo' || k[0] === 'watermark' ? 'image' : k[0];
-    items.push({icon: SC.info[kind].icon, text: k[1], disabled: !S, title: S ? '' : 'Needs KingdomConnect (Settings → KingdomConnect Camera)', run: function(){ addLayer(k[0]); }});
-  });
-  menu($('layer-add'), items);
+    return {icon: k[2], text: k[1], hint: has ? 'in this Frame' : '', disabled: NEEDS_CAM[k[0]] && !S, title: NEEDS_CAM[k[0]] && !S ? 'Needs the KingdomConnect camera (Settings → KingdomConnect Camera)' : '', run: function(){ addLayer(k[0]); }};
+  }
+  menu($('layer-add'), [{label: 'Add to “' + sc.name + '”'}].concat(CONTENT_ADD.map(item), ['-', {label: 'Free Content'}], FREE_ADD.map(item)));
 });
 function addLayer(what){
   var sc = scene(); if (!sc) return;
-  var kind = what === 'logo' || what === 'watermark' ? 'image' : what;
-  if ((SC.isCard(kind) || kind === 'brand') && SC.first(sc, kind)){ select(sc.id, SC.first(sc, kind).id); toast('This scene already has a ' + SC.info[kind].name + ' layer.'); return; }
+  var plainText = what === 'text';
+  if (plainText) what = 'announcement';                         // Text = a text card (works on every output)
+  var kind = what === 'logo' || what === 'watermark' ? 'image' : what === 'freetext' ? 'text' : what === 'pptx' ? 'pdf' : what;
+  if ((SC.isCard(kind) || kind === 'brand') && SC.first(sc, kind)){ select(sc.id, SC.first(sc, kind).id); toast('This Frame already has ' + SC.info[kind].name + ' Content: add to its list.'); return; }
   if (kind === 'brand' && !SC.hasBrand(live)) toast('Add your Meeting Name or logo in Settings → Meeting & Branding; the badge shows them.');
   function put(extra){
     var made = null;
@@ -585,17 +587,18 @@ function addLayer(what){
     return edit(sc.id, function(x, n){
       var l = SC.cleanLayer({id: 'L' + Math.random().toString(36).slice(2, 9), kind: kind, name: extra.name || SC.info[kind].name, visible: true,
         opacity: extra.opacity == null ? 1 : extra.opacity, c: SC.isMedia(kind) ? Object.assign(defaults(kind), extra.c || {}) :
-          kind === 'question' || kind === 'scripture' ? {items: [], look: SC.snapshotLook(n, kind)} : {}});   // a new, empty list of its own
+          kind === 'question' || kind === 'scripture' ? {items: [], look: SC.snapshotLook(n, kind)} : Object.assign({}, extra.c || {})});   // a new, empty list of its own
       if (SC.isMedia(kind)){                       // media go under the cards and text layers (that is how they render)
         var at = x.layers.findIndex(function(y){ return SC.isMedia(y.kind); });
         if (at < 0) x.layers.push(l); else x.layers.splice(at, 0, l);
       } else x.layers.unshift(l);
       if (n.live.scene === x.id && SC.isText(kind)){ n.live.on[l.id] = true; if (kind === 'countdown') n.live.cd[l.id] = Date.now(); }
       made = l;
-    }).then(function(){ if (made){ select(sc.id, made.id, true); toast(SC.info[kind].name + ' layer added'); } return made; });
+    }).then(function(){ if (made){ select(sc.id, made.id, true); toast(SC.info[kind].name + ' added to ' + sc.name); if (kind === 'question' || kind === 'scripture') setTimeout(function(){ if (window.BSFFrameLists) window.BSFFrameLists.add(kind === 'question' ? 'question' : 'verse'); }, 120); } return made; });
   }
   if (what === 'logo') return pickFile('image').then(function(f){ if (f) put({name: 'Logo', c: {file: f, x: 0.88, y: 0.13, w: 0.16}, opacity: 0.95}); });
   if (what === 'watermark') return pickFile('image').then(function(f){ if (f) put({name: 'Watermark', c: {file: f, x: 0.9, y: 0.9, w: 0.12}, opacity: 0.35}); });
+  if (what === 'pptx') return pickFile('powerpoint').then(function(f){ if (f) put({name: f.replace(/\.[^.]+$/, ''), c: {file: f, w: 1, h: 1}}); });
   if (['image', 'video', 'pdf'].indexOf(kind) >= 0) return pickFile(kind).then(function(f){ if (f) put({name: f.replace(/\.[^.]+$/, ''), c: {file: f}}); });
   if (kind === 'screen'){ return put({}).then(function(){ if (isLiveScene(sc.id) && window.BSFStudio) window.BSFStudio.chooseScreen(); else toast('Take this scene live, then choose which screen to share (Properties).'); }); }
   if (kind === 'window'){
@@ -603,6 +606,7 @@ function addLayer(what){
     window.BSFStudio.chooser('Capture which window?', wins.map(function(w){ return {icon: 'app-window', name: w.name, w: w}; }), function(o){ put({name: o.w.name.slice(0, 40), c: {hwnd: o.w.hwnd, w: 0.6}}); });
     return;
   }
+  if (plainText) return put({name: 'Text', c: {title: '', text: '', label: false}});
   return put({});
 }
 function defaults(kind){
@@ -619,95 +623,71 @@ function pickFile(kind){
 /* ===================================================================================================== */
 /* Inspector                                                                                             */
 /* ===================================================================================================== */
-var TABS = {scene: [['scene', 'Scene'], ['transition', 'Transition'], ['output', 'Output'], ['history', 'History']],
-  card: [['content', 'Content'], ['style', 'Style'], ['layout', 'Layout'], ['animation', 'Animation'], ['output', 'Output']],
-  text: [['content', 'Content'], ['style', 'Style'], ['layout', 'Layout'], ['animation', 'Animation'], ['output', 'Output']],
-  media: [['content', 'Properties']]};
+/* v6.5 Content Settings: one panel, every setting visible, in groups (no Basic / Advanced, no tabs).
+ * The group names along the top jump to their group. */
+var GROUPS = {scene: [['scene', 'Frame'], ['transition', 'Timing'], ['output', 'Behavior'], ['history', 'History']],
+  card: [['content', 'Content'], ['style', 'Appearance'], ['layout', 'Position'], ['animation', 'Animation'], ['output', 'Behavior']],
+  text: [['content', 'Content'], ['style', 'Appearance'], ['layout', 'Position'], ['animation', 'Animation'], ['output', 'Behavior']],
+  media: [['content', 'Media']]};
 var inspSig = '', curTabs = '';
+var adv = true;                                    // older code paths: everything is shown
 function group(kind){ return !kind ? 'scene' : SC.isCard(kind) ? 'card' : SC.isText(kind) ? 'text' : 'media'; }
-function setTab(t){ var g = curKind(); tabFor[g] = t; lsSet('bcc-insp-tabs', JSON.stringify(tabFor)); inspSig = ''; renderInspector(); }
 function curKind(){ var l = layer(); return l ? l.kind : ''; }
-/* Basic (Label · Theme · Position) or Advanced (typography, layout, animation) for content layers; Basic by default */
-var adv = lsGet('kc-insp-adv', '0') === '1';
-function tabsFor(g){ return adv || (g !== 'card' && g !== 'text') ? TABS[g] : TABS[g].filter(function(t){ return t[0] === 'content' || t[0] === 'style' || t[0] === 'output'; }); }
-function setAdv(on){
-  adv = !!on; lsSet('kc-insp-adv', adv ? '1' : '0'); inspSig = ''; curTabs = '';
-  Array.prototype.forEach.call(document.querySelectorAll('#insp-mode [data-im]'), function(b){ b.setAttribute('aria-checked', String((b.dataset.im === 'adv') === adv)); });
-  renderInspector();
+function refreshBasicSegs(){}
+function groupHead(key, name){ return h('div', {cls: 'cs-group cs-anchor', 'data-grp': key, text: name}); }
+function jumpTo(key){
+  var el = document.querySelector('#insp-body [data-grp="' + key + '"]'); if (!el) return;
+  el.scrollIntoView({block: 'start', behavior: 'smooth'});
+  Array.prototype.forEach.call(document.querySelectorAll('#insp-tabs button'), function(b){ b.setAttribute('aria-selected', String(b.dataset.itab === key)); });
 }
-Array.prototype.forEach.call(document.querySelectorAll('#insp-mode [data-im]'), function(b){ b.addEventListener('click', function(){ setAdv(b.dataset.im === 'adv'); }); });
-/* Card themes: a look = card opacity + text size (the same settings Advanced shows as sliders) */
-var THEMES = [['classic', 'Classic', 92, 1], ['bold', 'Bold', 100, 1.15], ['soft', 'Soft', 76, 1], ['large', 'Large print', 100, 1.35]];
-var QPOS = [['low', 'Low', 6], ['middle', 'Middle', 12], ['high', 'High', 20]];
-function buildBasicSegs(){
-  Array.prototype.forEach.call(document.querySelectorAll('[data-kc-theme]'), function(seg){
-    var key = seg.dataset.kcTheme === 'question' ? 'qScale' : 'verseScale';
-    THEMES.forEach(function(t){ seg.appendChild(h('button', {type: 'button', 'data-val': t[0], text: t[1], title: 'Card ' + t[2] + '% · text ' + Math.round(t[3] * 100) + '%',
-      onclick: function(){ commit(function(n){ n.layout.panel = t[2]; n.layout[key] = t[3]; }); }})); });
-  });
-  Array.prototype.forEach.call(document.querySelectorAll('[data-kc-qpos]'), function(seg){
-    QPOS.forEach(function(p){ seg.appendChild(h('button', {type: 'button', 'data-val': p[0], text: p[1], onclick: function(){ commit(function(n){ n.layout.qBottom = p[2]; }); }})); });
-  });
-}
-buildBasicSegs();
-function refreshBasicSegs(){
-  var L = live.layout;
-  Array.prototype.forEach.call(document.querySelectorAll('[data-kc-theme]'), function(seg){
-    var sc = seg.dataset.kcTheme === 'question' ? L.qScale : L.verseScale;
-    Array.prototype.forEach.call(seg.children, function(b, i){ var t = THEMES[i]; b.setAttribute('aria-pressed', String(Math.round(L.panel) === t[2] && Math.abs(sc - t[3]) < 0.01)); });
-  });
-  Array.prototype.forEach.call(document.querySelectorAll('[data-kc-qpos]'), function(seg){
-    Array.prototype.forEach.call(seg.children, function(b, i){ b.setAttribute('aria-pressed', String(Math.round(L.qBottom) === QPOS[i][2])); });
-  });
-}
+var genAtEnd = false;
 function renderInspector(){
   var sc = scene(), l = layer(), kind = l ? l.kind : '', g = group(kind);
   if (editQ && (selScene !== editQ.sid || selLayer !== editQ.lid)) editQ = null;
-  document.body.classList.toggle('insp-basic', !adv);
-  var im = $('insp-mode'); if (im){ var showIm = !editQ && (g === 'card' || g === 'text'); if (im.hidden === showIm) im.hidden = !showIm; }
-  // birthday: in Basic its position sits on the Style tab
-  var bp = $('bday-pos-sec'), bdst = document.querySelector('.ip[data-kind="birthday"][data-itab="' + (adv ? 'layout' : 'style') + '"]');
-  if (bp && bdst && bp.parentNode !== bdst) bdst.appendChild(bp);
-  var tabs = tabsFor(g), tab = tabFor[kind || 'scene'] || tabs[0][0];
-  if (!tabs.some(function(t){ return t[0] === tab; })) tab = tabs[0][0];
+  if (!genAtEnd){ genAtEnd = true; $('insp-body').appendChild($('ip-gen')); }          // generated groups follow the editors
+  var im = $('insp-mode'); if (im) im.hidden = true;
+  var groups = GROUPS[g];
+  var mediaLive = SC.isMedia(kind) && sc && isLiveScene(sc.id) && studio();
   // head
   $('insp-ic').innerHTML = I(l ? SC.info[l.kind].icon : 'layout-template', 18);
-  $('insp-title').textContent = l ? l.name : sc ? sc.name : 'Inspector';
-  $('insp-sub').textContent = l ? SC.info[l.kind].name + ' layer · ' + sc.name : sc ? (sc.tpl ? 'Scene template' : 'Scene') + (sc.group ? ' · ' + sc.group : '') : 'Select a scene';
+  $('insp-title').textContent = l ? l.name : sc ? sc.name : 'Content Settings';
+  $('insp-sub').textContent = l ? SC.info[l.kind].name + ' · ' + sc.name : sc ? (sc.tpl ? 'Frame template' : 'Frame') + (sc.group ? ' · ' + sc.group : '') : 'Select a Frame';
   var on = sc && isLiveScene(sc.id) && (!l || SC.layerOn(live, sc, l));
   $('insp-live').textContent = on ? 'LIVE' : ''; $('insp-live').className = 'insp-live' + (on ? ' on' : '');
-  // tabs
-  var tsig = (kind || 'scene') + '|' + tab + '|' + adv + '|' + !!editQ;
+  // the group names: jump links
+  var tsig = (kind || 'scene') + '|' + !!editQ;
   if (tsig !== curTabs){
     curTabs = tsig;
-    var nav = $('insp-tabs'); nav.innerHTML = '';
-    tabs.forEach(function(t){ nav.appendChild(h('button', {type: 'button', role: 'tab', 'data-itab': t[0], 'aria-selected': String(t[0] === tab), text: t[1], onclick: function(){ tabFor[kind || 'scene'] = t[0]; lsSet('bcc-insp-tabs', JSON.stringify(tabFor)); inspSig = ''; renderInspector(); }})); });
-    nav.hidden = !!editQ || tabs.length < 2;
+    var nav = $('insp-tabs'); nav.innerHTML = ''; nav.setAttribute('aria-label', 'Jump to a group');
+    groups.forEach(function(t, i){ nav.appendChild(h('button', {type: 'button', 'data-itab': t[0], 'aria-selected': String(i === 0), text: t[1], onclick: function(){ jumpTo(t[0]); }})); });
+    nav.hidden = !!editQ || groups.length < 2;
   }
-  // panels: the existing editors for Question / Scripture / Birthday; generated forms for the rest
-  var panelKind = SC.isCard(kind) ? kind : SC.isMedia(kind) ? 'media' : null;
-  var useGen = !!editQ || !sc || !l || SC.isText(kind) || (SC.isCard(kind) && tab === 'output') || (SC.isMedia(kind) && !(isLiveScene(sc.id) && studio()));
-  $('insp-tabs').hidden = !!editQ || tabs.length < 2;
+  // the editors for Question / Scripture / Birthday (all their groups at once); generated groups for the rest
+  var panelKind = SC.isCard(kind) ? kind : mediaLive ? 'media' : null;
   Array.prototype.forEach.call(document.querySelectorAll('#insp-body > .ip[data-kind]'), function(p){
-    var show = !useGen && p.dataset.kind === panelKind && p.dataset.itab === tab;
+    var show = !editQ && !!sc && !!l && p.dataset.kind === panelKind;
+    if (show && !p.querySelector(':scope > .cs-anchor')){
+      var gg = groups.filter(function(t){ return t[0] === p.dataset.itab; })[0];
+      if (gg) p.insertBefore(groupHead(gg[0], gg[1]), p.firstChild);
+    }
     if (p.hidden === show) p.hidden = !show;
   });
-  var gen = $('ip-gen'); gen.hidden = !useGen;
-  if (SC.isCard(kind) && !useGen){ refreshBasicSegs(); if (window.BSFRenderLists) window.BSFRenderLists(); if (window.BSFRefreshControls) window.BSFRefreshControls(); if (kind === 'birthday' && window.BSFRenderBirthday) window.BSFRenderBirthday(); }
-  if (useGen){
-    var sig = JSON.stringify([editQ, adv, sc && sc.id, l, tab, sc && !l ? [sc.name, sc.group, sc.fav, sc.tpl, sc.tx, sc.auto, sc.out, sc.modified, live.profile, !!SC.first(sc, 'brand')] : 0, l && l.kind === 'brand' ? live.brand : 0, isLiveScene(sc && sc.id), live.live.on]);
-    var ae = document.activeElement;
-    if (ae && gen.contains(ae) && /INPUT|TEXTAREA|SELECT/.test(ae.tagName) && inspSig.split('|')[0] === (sc && sc.id) + ':' + (l && l.id) + ':' + tab) return;   // typing: don't redraw under the cursor
-    if (sig === inspSig.slice(inspSig.indexOf('|') + 1)) return;
-    inspSig = (sc && sc.id) + ':' + (l && l.id) + ':' + tab + '|' + sig;
-    gen.innerHTML = '';
-    if (!sc){ gen.appendChild(h('p', {cls: 'hint', text: 'Select or create a scene on the left.'})); return; }
-    if (editQ) editQuestionForm(gen);
-    else if (!l) sceneForm(gen, sc, tab);
-    else if (tab === 'output') outputForm(gen, sc, l);
-    else if (SC.isText(kind)) textForm(gen, sc, l, tab);
-    else mediaForm(gen, sc, l);
-  }
+  var gen = $('ip-gen'); gen.hidden = false;
+  if (SC.isCard(kind) && !editQ){ if (window.BSFRenderLists) window.BSFRenderLists(); if (window.BSFRefreshControls) window.BSFRefreshControls(); if (kind === 'birthday' && window.BSFRenderBirthday) window.BSFRenderBirthday(); }
+  var sig = JSON.stringify([editQ, sc && sc.id, l, sc && !l ? [sc.name, sc.group, sc.fav, sc.tpl, sc.tx, sc.auto, sc.out, sc.modified, sc.notes, live.profile, !!SC.first(sc, 'brand')] : 0, l && l.kind === 'brand' ? live.brand : 0, isLiveScene(sc && sc.id), live.live.on, !!mediaLive]);
+  var ae = document.activeElement;
+  if (ae && gen.contains(ae) && /INPUT|TEXTAREA|SELECT/.test(ae.tagName) && inspSig.split('|')[0] === (sc && sc.id) + ':' + (l && l.id)) return;   // typing: don't redraw under the cursor
+  if (sig === inspSig.slice(inspSig.indexOf('|') + 1)) return;
+  inspSig = (sc && sc.id) + ':' + (l && l.id) + '|' + sig;
+  gen.innerHTML = '';
+  if (!sc){ gen.appendChild(h('p', {cls: 'hint', text: 'Select a Frame on the left, or add one with + Frame.'})); return; }
+  if (editQ){ editQuestionForm(gen); return; }
+  function each(fn){ groups.forEach(function(t){ var box = h('div', {cls: 'cs-sec'}); gen.appendChild(groupHead(t[0], t[1])); gen.appendChild(box); fn(box, t[0]); }); }
+  if (!l) each(function(box, t){ sceneForm(box, sc, t); });
+  else if (SC.isCard(kind)){ gen.appendChild(groupHead('output', 'Behavior')); outputForm(gen, sc, l); }
+  else if (SC.isText(kind)) each(function(box, t){ if (t === 'output') outputForm(box, sc, l); else textForm(box, sc, l, t); });
+  else if (!mediaLive){ gen.appendChild(groupHead('content', 'Media')); mediaForm(gen, sc, l); }
+  else { gen.appendChild(groupHead('output', 'Behavior')); gen.appendChild(h('p', {cls: 'hint', text: 'Position, size and the rest of this Content: drag it on the picture, or use the settings above.'})); }
 }
 function field(label, input, hint){ return h('label', {cls: 'field'}, [h('span', {text: label}), input, hint ? h('small', {cls: 'hint', text: hint}) : null]); }
 function row(label, ctl){ return h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: label}), ctl]); }
@@ -830,7 +810,7 @@ function textForm(gen, sc, l, tab){
     gen.appendChild(checkCtl('Show my logo on this card', c.logo, function(v){ set(function(x){ x.c.logo = v; }, true); }));
     gen.appendChild(h('p', {cls: 'hint', html: 'Type <b>{meeting}</b> or <b>{org}</b> to show your Meeting Name or organization.'}));
     gen.appendChild(h('p', {cls: 'hint', text: isLiveScene(sid) ? 'This scene is live: changes appear on screen as you type.' : 'Shown when this scene is taken live.'}));
-  } else if (tab === 'style' && !adv){
+  } else if (tab === 'style' && false){
     gen.appendChild(checkCtl('Show the title / label', c.label, function(v){ set(function(x){ x.c.label = v; }, true); }));
     var sizes = [['small', 'Small', 0.85], ['standard', 'Standard', 1], ['large', 'Large', 1.3], ['xl', 'Extra large', 1.7]];
     var near = function(v){ return sizes.reduce(function(a, t){ return Math.abs(t[2] - v) < Math.abs(a[2] - v) ? t : a; }); };

@@ -68,10 +68,10 @@ function pickFile(accept){
   });
 }
 function addFile(kind){
-  var accept = {image: '.png,.jpg,.jpeg,.svg', video: '.mp4,.mov,.webm', pdf: '.pdf'}[kind];
+  var accept = {image: '.png,.jpg,.jpeg,.svg', video: '.mp4,.mov,.webm', pdf: '.pdf', powerpoint: '.pptx,.ppt,.pdf'}[kind];
   return pickFile(accept).then(function(f){
     if (!f) return null;
-    toast('Adding ' + f.name + '…');
+    toast(/\.pptx?$/i.test(f.name) ? 'Opening ' + f.name + ' in PowerPoint to prepare the slides… this can take a minute' : 'Adding ' + f.name + '…');
     if (/\.svg$/i.test(f.name)) return svgToPng(f).then(function(b){ return upload(b, f.name.replace(/\.svg$/i, '.png')); });
     return upload(f);
   });

@@ -159,7 +159,7 @@ function renderEditor(host, kind, sid, l, it){
   var grid = h('div', {cls: 'fl-ed-grid'}), sec = null;
   host.appendChild(grid);
   var g = function(name){ sec = h('section', {cls: 'fl-sec'}, [h('div', {cls: 'cs-group', text: name})]); grid.appendChild(sec); return sec; };
-  g('Content');
+  g(N.One);
   sec.appendChild(fieldEl('Label', input('text', it.label, 'fl-ed-label-' + kind, 'label', {placeholder: l.c.label || (kind === 'question' ? 'Discussion Question' : 'Focus Verse')}),
     'Shown above this ' + N.one + ' on screen. Empty = the Content’s label.'));
   if (kind === 'question'){
