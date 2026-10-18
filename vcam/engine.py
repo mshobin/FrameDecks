@@ -143,6 +143,8 @@ class VCamEngine:
         self.cam = None
         self.blur = None
         self.preview_until = 0.0
+        self.sharp_until = 0.0                    # the phone's drawing pad is open: previews 960 wide instead of 640
+        self._preview_w = 0
         self.awake_until = 0.0                    # e.g. the Presentation window is open (no preview pictures needed)
         self.preview_ver, self.preview_t = 0, 0.0  # numbered previews: screens skip pictures they already have
         self.kick_evt = threading.Event()         # set when something changes (a card shown, a Studio edit)
@@ -194,8 +196,10 @@ class VCamEngine:
     def keep_awake(self, seconds=3.0):
         self.awake_until = time.time() + seconds
 
-    def want_preview(self, seconds=3.0):
+    def want_preview(self, seconds=3.0, sharp=False):
         self.preview_until = time.time() + seconds
+        if sharp:
+            self.sharp_until = self.preview_until
 
     # ---------- internals ----------
     def _set(self, **kw):
@@ -332,14 +336,15 @@ class VCamEngine:
                     self.compositor.after_send(frame)         # test recording
                 busy += time.perf_counter() - t0
                 frames += 1
-                unchanged = (self.compositor is not None and self.preview_jpeg is not None
+                pw = min(960 if time.time() < self.sharp_until else 640, w)   # previews: clear but light (only while a preview is open)
+                unchanged = (self.compositor is not None and self.preview_jpeg is not None and self._preview_w == pw
                              and self.compositor.last_change < self.preview_t)          # nothing new to show
                 if previewing and not unchanged and (self.preview_jpeg is None or frames % 3 == 0):
-                    pw = min(640, w)                     # previews: clear but light (only while a preview is open)
                     small = frame if pw == w else cv2.resize(frame, (pw, int(pw * h / w)), interpolation=cv2.INTER_AREA)
                     ok, jpg = cv2.imencode(".jpg", small, [cv2.IMWRITE_JPEG_QUALITY, 80])
                     if ok:
                         self.preview_jpeg = jpg.tobytes()
+                        self._preview_w = pw
                         self.preview_ver += 1
                         self.preview_t = time.time()
                 now = time.time()

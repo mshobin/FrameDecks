@@ -767,6 +767,16 @@ state keep the old names (`scenes`, `layers`, `BSFScenes`), so existing data loa
   - `padFit()` sizes the stage to the largest 16:9 box in `.dp-area`, so the canvas, picture and pointer mapping line
     up exactly. In landscape (`max-height:560px`) the tools become a side column and the page asks for fullscreen
     where the browser allows it (not iPhone Safari).
+- **Speaker View** (`app/speaker.html`, `app/js/speaker.js`, `app/css/speaker.css`; this PC only, not in the remote
+  lists): reads the shared state and shows the live Frame's item on screen (else the Frame's current item) with its
+  answer and notes, the next item or Frame, Frame and meeting notes, a clock, time on this Frame (`live.at`) and a
+  local stopwatch. It never writes. Opened from Program → Speaker View: in the desktop app `POST /api/app/speaker`
+  calls `DESKTOP["speaker"]` (`desktop_app.py`, a pywebview window); in a browser, a pop-up.
+- **Drag to reorder** (`frame-lists.js` `dragHooks` / `moveTo`): HTML5 drag and drop on list items, dropping above or
+  below by the pointer's half of the target; the list does not redraw while a drag is active.
+- **Sharper phone picture:** `engine.want_preview(seconds, sharp=True)` (only from `/api/remote/live.jpg`) sets
+  `sharp_until`; previews are 960 wide until it lapses, 640 otherwise. `_preview_w` forces a new picture when the
+  width changes, even if nothing else did.
 - **Content Settings merges:**
   - the Frame-level Behavior group (`sc.out`) was folded into each card / text Content's Behavior: `cleanScene()`
     moves an older Frame-wide "off" onto those layers (`foldOut`) and keeps `sc.out` true (camera and media layers

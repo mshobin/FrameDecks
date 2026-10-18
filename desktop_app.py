@@ -434,6 +434,24 @@ def main():
         state["present"] = w
         refresh_tray()
 
+    def speaker():
+        """v6.6 Speaker View: answers, notes, what comes next and a clock, in a window of its own (never shared)."""
+        w = state.get("speaker")
+        if w:
+            try:
+                w.restore()
+                w.show()
+                return
+            except Exception:
+                state["speaker"] = None
+        w = webview.create_window(DISPLAY_NAME + " · Speaker View", url + "speaker.html", width=1200, height=780,
+                                  min_size=(640, 420), background_color="#0b0e13", text_select=True)
+        def closed():
+            if state.get("speaker") is w:
+                state["speaker"] = None
+        w.events.closed += closed
+        state["speaker"] = w
+
     def present_fullscreen(want=None):
         """Full Screen in the Presentation window: the window itself fills the screen (no frame at all)."""
         w = state.get("present")
@@ -462,7 +480,7 @@ def main():
     state["tray"] = build_tray(show, quit_app)
     server.DESKTOP.update(active=True, show=show, hide=hide, quit=quit_app, choose_folder=choose_folder, window_theme=set_theme,
                           on_remote_change=refresh_tray, present=present, present_fullscreen=present_fullscreen,
-                          present_fs_state=present_fs_state, present_open=present_open)
+                          present_fs_state=present_fs_state, present_open=present_open, speaker=speaker)
     # "Light on graphics card" (Settings > General, on by default): the app's windows are drawn without the GPU.
     # The dashboard is mostly still, so the CPU handles it easily, and the GPU stays free for Windows and Zoom.
     # (pywebview's own argument is kept; the variable takes precedence over arguments set in code.)

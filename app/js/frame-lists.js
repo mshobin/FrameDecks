@@ -94,7 +94,8 @@ function renderList(host, kind, sid, l){
     var t1 = kind === 'verse' ? (it.ref || 'Untitled scripture') + (it.version ? ' · ' + it.version : '') : it.text || '(empty question)';
     var t2 = kind === 'verse' ? String(it.text || '').replace(/\s+/g, ' ') : '';
     var li = h('li', {cls: 'item' + (on ? ' live' : '') + (isCur ? ' loaded' : ''), role: 'option', tabindex: '0', 'aria-selected': String(isCur), 'data-id': it.id,
-      title: 'Click: make it current · Double-click: edit'}, [
+      draggable: list.length > 1 ? 'true' : null, title: 'Click: make it current · Double-click: edit · Drag to move'}, [
+      list.length > 1 ? h('span', {cls: 'fl-grip', 'aria-hidden': 'true', html: I('grip-vertical', 14)}) : null,
       h('span', {cls: 'num', text: String(i + 1)}),
       h('span', {cls: 'txt'}, [it.label ? h('span', {cls: 'fl-lbl', text: it.label}) : null, h('span', {cls: 't1', text: t1}), t2 ? h('span', {cls: 't2', text: t2}) : null]),
       h('span', {cls: 'ops'}, [
@@ -105,6 +106,7 @@ function renderList(host, kind, sid, l){
         h('button', {cls: 'btn quiet small', type: 'button', text: '↓', title: 'Move down', 'aria-label': 'Move down', disabled: i === list.length - 1 ? 'disabled' : null, onclick: function(e){ e.stopPropagation(); move(kind, sid, it.id, 1); }}),
         h('button', {cls: 'btn quiet small danger', type: 'button', text: '✕', title: 'Remove', 'aria-label': 'Remove', onclick: function(e){ e.stopPropagation(); remove(kind, sid, it.id); }})])]);
     li.addEventListener('click', function(){ makeCurrent(kind, sid, it.id); });
+    dragHooks(li, kind, sid, it.id);
     li.addEventListener('dblclick', function(){ openEditor(kind, it.id); });
     li.addEventListener('keydown', function(e){
       if (e.target !== li) return;
@@ -134,6 +136,39 @@ function showItem(kind, sid, it){
 }
 function move(kind, sid, id, d){
   editList(kind, sid, function(l){ var a = l.c.items, i = a.findIndex(function(x){ return x.id === id; }), j = i + d; if (i < 0 || j < 0 || j >= a.length) return; var t = a[i]; a[i] = a[j]; a[j] = t; });
+}
+/* drag and drop: the line shows where it lands (above or below the item under the pointer) */
+var drag = null;
+function dropMarks(ol){ Array.prototype.forEach.call(ol.querySelectorAll('.fl-drop-above, .fl-drop-below'), function(x){ x.classList.remove('fl-drop-above', 'fl-drop-below'); }); }
+function dragHooks(li, kind, sid, id){
+  li.addEventListener('dragstart', function(e){
+    if (e.target !== li){ return; }
+    drag = {kind: kind, sid: sid, id: id};
+    e.dataTransfer.effectAllowed = 'move';
+    try { e.dataTransfer.setData('text/plain', id); } catch(err){}
+    setTimeout(function(){ li.classList.add('fl-dragging'); }, 0);
+  });
+  li.addEventListener('dragend', function(){ li.classList.remove('fl-dragging'); if (li.parentNode) dropMarks(li.parentNode); if (drag){ drag = null; sigs[kind] = ''; render(); } });
+  li.addEventListener('dragover', function(e){
+    if (!drag || drag.kind !== kind || drag.id === id) return;
+    e.preventDefault(); e.dataTransfer.dropEffect = 'move';
+    var r = li.getBoundingClientRect(), below = e.clientY > r.top + r.height / 2;
+    if (!li.classList.contains(below ? 'fl-drop-below' : 'fl-drop-above')){ dropMarks(li.parentNode); li.classList.add(below ? 'fl-drop-below' : 'fl-drop-above'); }
+  });
+  li.addEventListener('dragleave', function(e){ if (!li.contains(e.relatedTarget)) li.classList.remove('fl-drop-above', 'fl-drop-below'); });
+  li.addEventListener('drop', function(e){
+    if (!drag || drag.kind !== kind) return;
+    e.preventDefault();
+    var below = li.classList.contains('fl-drop-below'), from = drag.id; dropMarks(li.parentNode); drag = null;
+    if (from !== id) moveTo(kind, sid, from, id, below); else { sigs[kind] = ''; render(); }
+  });
+}
+function moveTo(kind, sid, id, targetId, after){
+  editList(kind, sid, function(l){
+    var a = l.c.items, i = a.findIndex(function(x){ return x.id === id; }); if (i < 0) return;
+    var it = a.splice(i, 1)[0], j = a.findIndex(function(x){ return x.id === targetId; }); if (j < 0){ a.splice(i, 0, it); return; }
+    a.splice(after ? j + 1 : j, 0, it);
+  });
 }
 function remove(kind, sid, id){
   if (editing && editing.id === id) editing = null;
@@ -210,7 +245,7 @@ function renderLabel(kind, sid, l){
 }
 
 function render(){
-  if (!live) return;
+  if (!live || drag) return;                      // never redraw the list under a drag (it redraws when the drag ends)
   var sid = frameId();
   ['question', 'verse'].forEach(function(kind){
     var host = $('fl-' + kind); if (!host || host.offsetParent === null) return;      // hidden: drawn when it opens

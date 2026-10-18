@@ -29,7 +29,7 @@ The **command bar** across the top holds everything you need live:
 | Search (Ctrl+K) | Frames, Content, Bible references, questions, members, settings |
 | ◀ Frame · **Go Live** · Frame ▶ | Put the selected Frame on screen (T), or step to the previous or next Frame |
 | Transition · Auto · ◀ Question ▶ | How the next Frame appears; auto-advance; step through the Frame's questions or scriptures |
-| Program | Hide Content · **Blackout** (K) · Emergency · **Annotate** (D) · **Freeze** (F) |
+| Program | Hide Content · **Blackout** (K) · Emergency · **Annotate** (D) · **Freeze** (F) · **Speaker View** |
 | Hide all | Hide everything (Esc) |
 | ● Off air / LIVE | What is on screen now |
 
@@ -77,6 +77,7 @@ A Question (or Scripture) Content holds **its own list**, shown full height in C
   live picture). An editor opens over the card: **Enter** saves, **Shift+Enter** starts a new line, **Esc** cancels,
   and a click outside saves. If the card is on screen, the screen changes too.
 - **+ Question** / **+ Scripture** adds one; **Add several** pastes many at once.
+- **Drag** an item by its handle (⋮⋮) to move it, or use the ↑ / ↓ buttons. A line shows where it will land.
 - For scripture, type a reference above the list and press **Fetch scripture** (ESV, with a key in Settings →
   Scripture). Choose **Fetch from → Type it myself** for other translations.
 - Questions and scriptures come from Excel only through the **Meeting Workbook** (section 7), which builds whole
@@ -96,6 +97,13 @@ A Question (or Scripture) Content holds **its own list**, shown full height in C
     hides them.
 - **Freeze (F)** holds the picture while you get the next thing ready. You can still draw on it.
 - **Blackout (K)** makes the picture black.
+- **Speaker View** (Program → Speaker View) opens a window only you see, ideal on a second screen:
+  - the question or scripture on screen now, with its **Answer** and **Notes**;
+  - what comes **next** (the next item, then the next Frame);
+  - the Frame's leader notes and the meeting notes;
+  - the **time**, how long this Frame has been on screen, and a **Timer** you can start, pause and reset.
+
+  It follows the meeting by itself; change what is on screen from the main window or the phone.
 
 ## 5. The KingdomConnect camera
 Choose **KingdomConnect** as the camera in Zoom, Teams, Google Meet or OBS. Participants see your webcam with the live

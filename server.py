@@ -1533,7 +1533,7 @@ class Handler(BaseHTTPRequestHandler):
             eng = VCAM.get("engine")
             if not eng:
                 return self.reply(204, b"", "text/plain")
-            eng.want_preview(3.0)
+            eng.want_preview(3.0, sharp=True)           # 960 wide while the pad is open (640 otherwise)
             if not eng.preview_jpeg:                    # the camera is starting or off: the phone shows the stage instead
                 return self.reply(204, b"", "text/plain")
             tag = '"p%d"' % eng.preview_ver
@@ -1835,6 +1835,13 @@ class Handler(BaseHTTPRequestHandler):
                 return ok({"desktop": True, "fullscreen": bool(fs(want)) if fs else False})
             hook(bool(data.get("on", True)))
             return ok({"desktop": True, "open": bool(data.get("on", True))})
+        if action == "speaker":
+            # v6.6 Speaker View: its own window in the desktop app (the browser opens a pop-up itself)
+            hook = DESKTOP.get("speaker")
+            if not hook:
+                return ok({"desktop": False})
+            hook()
+            return ok({"desktop": True})
         if action == "window":
             # v6.4 native window: the page says whether it is dark or light; the title bar follows
             hook = DESKTOP.get("window_theme")
