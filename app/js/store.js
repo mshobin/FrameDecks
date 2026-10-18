@@ -213,7 +213,7 @@ var KIND_INFO = {
   prayer: {name: 'Prayer Point', icon: 'heart'}, lowerthird: {name: 'Lower Third', icon: 'panel-bottom'},
   countdown: {name: 'Countdown', icon: 'timer'}, brand: {name: 'Branding', icon: 'star'}, camera: {name: 'Camera', icon: 'video'}, screen: {name: 'Screen', icon: 'monitor'},
   window: {name: 'Window', icon: 'app-window'}, image: {name: 'Image', icon: 'image'}, video: {name: 'Video', icon: 'film'},
-  pdf: {name: 'Slides', icon: 'presentation'}, background: {name: 'Background', icon: 'paint-bucket'}, text: {name: 'Text', icon: 'type'},
+  pdf: {name: 'PowerPoint', icon: 'presentation'}, background: {name: 'Background', icon: 'paint-bucket'}, text: {name: 'Text', icon: 'type'},
   rect: {name: 'Shape', icon: 'square'}, ellipse: {name: 'Ellipse', icon: 'circle'}
 };
 /* Scene transitions. In KingdomConnect every type plays on the whole picture; on the overlay pages the dips cover the
@@ -338,7 +338,7 @@ function drawInk(cv, items){
 function cleanScene(sc){
   if (!isObj(sc)) return null;
   var tx = isObj(sc.tx) ? sc.tx : {}, auto = isObj(sc.auto) ? sc.auto : {}, out = isObj(sc.out) ? sc.out : {};
-  return {id: str(sc.id || rid('sc_'), 40), name: str(sc.name || 'Scene', 80), group: str(sc.group, 60), fav: !!sc.fav, tpl: !!sc.tpl,
+  return {id: str(sc.id || rid('sc_'), 40), name: str(sc.name || 'Frame', 80), group: str(sc.group, 60), fav: !!sc.fav, tpl: !!sc.tpl,
     created: Number(sc.created) || 0, modified: Number(sc.modified) || 0, version: Math.max(1, Number(sc.version) || 1),
     creator: str(sc.creator, 80), from: str(sc.from, 80), template: str(sc.template, 80), parent: str(sc.parent, 40),
     notes: str(sc.notes, 2000),                                   /* v6.2 leader notes (Excel import), never on screen */
@@ -499,7 +499,7 @@ var Scenes = {
     while (used[g]) g = group + ' (' + (k++) + ')';
     return q.scenes.map(function(e){
       var lib = LIBRARY.filter(function(x){ return x.id === e[0]; })[0], tpl = TEMPLATES.filter(function(x){ return '@' + x.id === e[0]; })[0];
-      var sc = Scenes.fromLibrary(st, e[0], {group: g, creator: opts.creator, name: e[1] || (lib ? lib.name : tpl ? tpl.name : 'Scene')});   // names are unique within the new group
+      var sc = Scenes.fromLibrary(st, e[0], {group: g, creator: opts.creator, name: e[1] || (lib ? lib.name : tpl ? tpl.name : 'Frame')});   // names are unique within the new group
       if (sc && e[0].charAt(0) === '@'){ sc.template = e[1] || sc.template; }
       return sc;
     }).filter(Boolean);
@@ -839,7 +839,7 @@ var Scenes = {
     make('Birthday', ['birthday']);
     (studioScenes || []).forEach(function(s){
       var lay = (s.layers || []).map(compToMedia).filter(Boolean).reverse();
-      var sc = make(s.name || 'Studio scene', ['scripture', 'question'], lay); sc.from = 'Studio scene'; sc.template = '';
+      var sc = make(s.name || 'Studio Frame', ['scripture', 'question'], lay); sc.from = 'Studio Frame'; sc.template = '';
     });
     Scenes.ownLists(n);                                       // each new Frame gets its own copy of the lists
     return true;

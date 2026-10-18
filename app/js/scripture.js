@@ -148,7 +148,7 @@ function renderSettings(){
     root.appendChild(status);
     root.appendChild(h('p', {cls: 'hint', text: 'Get a free key for church and non-commercial use at api.esv.org (Create an API application). The key stays on this PC: it is never sent to the phone remote or the overlay pages. ' +
       'Fetched passages are saved here so a Bible study keeps working without internet (up to ' + d.cacheMax + ' passages; the ESV terms limit how much may be stored). ' +
-      'Other translations (NIV, NKJV, KJV, CSB, NLT, NASB…): choose “Typed / Excel” on the Scripture layer and type or import the text, as before.'}));
+      'Other translations (NIV, NKJV, KJV, CSB, NLT, NASB…): choose “Typed / Excel” on the Scripture Content and type or import the text, as before.'}));
     show(d);
   }).catch(function(){ root.textContent = 'Not available right now.'; });
 }

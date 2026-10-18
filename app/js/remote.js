@@ -99,7 +99,7 @@ function stepKind(){
 /* ---------- controls ---------- */
 $('take').addEventListener('click', guard('take', function(){
   var id = selScene && SC.find(live, selScene) ? selScene : (SC.neighbour(live, live.live.scene, 1) || {}).id;
-  if (!id){ toast('Choose a scene in Scenes first.', true); return; }
+  if (!id){ toast('Choose a Frame in Frames first.', true); return; }
   take(id);
 }));
 $('prev').addEventListener('click', guard('prev', function(){ stepScene(-1); }));
@@ -112,7 +112,7 @@ $('blackout').addEventListener('click', guard('bk', function(){ update(function(
 $('emergency').addEventListener('click', guard('em', function(){ update(function(n){ n.live.emergency = !n.live.emergency; }, live.live.emergency ? 'Emergency screen off' : 'Emergency screen on'); }));
 $('hide-layer').addEventListener('click', guard('hl', function(){
   var ls = SC.liveScene(live), l = ls && SC.layer(ls, selLayer);
-  if (!l || !SC.layerOn(live, ls, l)){ toast('Select a layer that is on screen (Layers).', true); return; }
+  if (!l || !SC.layerOn(live, ls, l)){ toast('Select Content that is on screen (Content tab).', true); return; }
   update(function(n){ SC.setOn(n, ls.id, l.id, false); }, l.name + ' hidden');
 }));
 /* Question + Scripture: one toggle for the live scene's two cards */
@@ -125,7 +125,7 @@ all('[data-qs]').forEach(function(b){
   }));
 });
 var txSel = $('tx');
-txSel.appendChild(h('option', null, 'Scene default')); txSel.firstChild.value = '';
+txSel.appendChild(h('option', null, 'Frame default')); txSel.firstChild.value = '';
 SC.transitions.forEach(function(t){ var o = h('option', null, t[1]); o.value = t[0]; txSel.appendChild(o); });
 
 /* ---------- Scenes ---------- */
@@ -164,8 +164,8 @@ function renderScenes(){
 function actions(sc){
   var back = h('div', 'sheet'), card = h('div', 'sheet-card'); card.setAttribute('role', 'dialog');
   var head = h('div', 'sheet-head'); head.appendChild(h('h2', null, sc.name)); var close = h('button', 'tool', 'Close'); close.type = 'button'; head.appendChild(close); card.appendChild(head);
-  [['Go Live', function(){ take(sc.id); }], ['Duplicate', function(){ var made; update(function(n){ made = SC.duplicate(n, sc.id, {}); }, 'Scene duplicated').then(function(){ if (made){ selScene = made.id; render(); } }); }],
-   ['Duplicate layer structure only', function(){ update(function(n){ SC.duplicate(n, sc.id, {content: 'empty'}); }, 'Scene duplicated (empty)'); }],
+  [['Go Live', function(){ take(sc.id); }], ['Duplicate', function(){ var made; update(function(n){ made = SC.duplicate(n, sc.id, {}); }, 'Frame duplicated').then(function(){ if (made){ selScene = made.id; render(); } }); }],
+   ['Duplicate Content structure only', function(){ update(function(n){ SC.duplicate(n, sc.id, {content: 'empty'}); }, 'Frame duplicated (empty)'); }],
    ['Create variant', function(){ update(function(n){ SC.duplicate(n, sc.id, {variant: true, name: SC.uniqueName(n, sc.name + ' variant')}); }, 'Variant created'); }]].forEach(function(a){
     var b = h('button', 'roles-btn', a[0]); b.type = 'button'; b.addEventListener('click', function(){ back.remove(); buzz(10); a[1](); }); card.appendChild(b);
   });
@@ -181,7 +181,7 @@ function renderLayers(){
   var sig = JSON.stringify([sc, selLayer, live.live.on, live.question.visible, live.verse.visible, live.birthday.visible, live.live.scene]);
   if (sig === layerSig) return; layerSig = sig;
   ol.innerHTML = '';
-  if (!sc){ ol.appendChild(h('li', 'empty', 'No scene yet.')); return; }
+  if (!sc){ ol.appendChild(h('li', 'empty', 'No Frame yet.')); return; }
   sc.layers.forEach(function(l){
     var on = SC.isLive(live, sc.id) ? SC.layerOn(live, sc, l) : l.visible;
     var li = h('li', 'lrow' + (on ? ' on' : '') + (l.id === selLayer ? ' sel' : '') + (SC.isMedia(l.kind) ? ' media' : ''));
@@ -232,7 +232,7 @@ function render(){
   if (live.verse.visible && live.verse.text.trim()) bits.push((live.verse.ref || 'Scripture') + (live.verse.version ? ' (' + live.verse.version + ')' : ''));
   if (live.birthday.visible) bits.push('Birthday: ' + (live.birthday.name || ''));
   SC.liveText(live).forEach(function(l){ bits.push(l.name); });
-  setText($('now-sub'), bits.join(' · ') || (ls ? 'Nothing on screen in this scene' : 'Choose a scene, then Go Live'));
+  setText($('now-sub'), bits.join(' · ') || (ls ? 'Nothing on screen in this Frame' : 'Choose a Frame, then Go Live'));
   $('now').classList.toggle('on', anyOn);
   // take button: the chosen scene (else the next one)
   var target = selScene && SC.find(live, selScene) ? SC.find(live, selScene) : (L.scene ? SC.neighbour(live, L.scene, 1) : SC.order(live)[0]);
@@ -261,7 +261,7 @@ function render(){
   var k = stepKind(); $('stepper').hidden = !k;
   if (k){ var items = library(k), cur = currentIndex(k); setText($('st-t'), (k === 'question' ? 'Question ' : 'Verse ') + (cur >= 0 ? (cur + 1) + ' / ' + items.length : '– / ' + items.length)); }
   var sl = ls && SC.layer(ls, selLayer); $('hide-layer').disabled = !(sl && SC.layerOn(live, ls, sl));
-  setText($('hide-layer'), sl ? 'Hide ' + sl.name : 'Hide layer');
+  setText($('hide-layer'), sl ? 'Hide ' + sl.name : 'Hide Content');
   renderScenes(); renderLayers(); renderCanvas(); renderChips(); renderSimple();
 }
 Store.subscribe(function(st){ live = st; if (!$('login').hidden) showApp(); render(); });

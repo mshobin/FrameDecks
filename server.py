@@ -836,7 +836,7 @@ def studio_load():
     collections = [{"id": str(c["id"])[:40], "name": str(c.get("name") or "Collection")[:40]} for c in d.get("collections", [])
                    if isinstance(c, dict) and str(c.get("id", "")).isidentifier()] if isinstance(d.get("collections"), list) else []
     if not collections:
-        collections = [{"id": "main", "name": "My scenes"}]
+        collections = [{"id": "main", "name": "My Frames"}]
     ids = {c["id"] for c in collections}
     for sc in scenes:
         raw = next((x for x in d.get("scenes", []) if isinstance(x, dict) and x.get("id") == sc["id"]), {})
@@ -1108,7 +1108,7 @@ def _studio_action(d):
             if src.get("kind") == "pdf":
                 name = Path(str(src.get("file", ""))).name
                 if not (LAYERS_DIR / name).is_file():
-                    raise ValueError("That PDF is not in the layers folder.")
+                    raise ValueError("That PDF is not in the Content folder.")
                 src = {"kind": "pdf", "file": name, "name": name}
             else:
                 known = {x["id"]: x for x in list_sources()}
@@ -1214,7 +1214,7 @@ def _studio_action(d):
         else:
             sc = next((x for x in st["scenes"] if x["id"] == d.get("id")), None)
             if not sc:
-                raise ValueError("Scene not found")
+                raise ValueError("Frame not found")
             # switching reuses everything that is already running (camera, layer sources, cards)
             comp.set_layout(sc["layout"])
             if comp.staged is not None:

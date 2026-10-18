@@ -51,11 +51,11 @@ function uploadLogo(file){
   toPng(file).then(function(png){
     return fetch('api/brand/logo', {method: 'POST', headers: {'Content-Type': 'image/png'}, body: png}).then(function(r){ return r.json().then(function(d){ if (!r.ok) throw new Error(d.error || 'Upload failed'); return d; }); });
   }).then(function(d){
-    return commit(function(n){ n.brand.logo = d.logo; n.brand.lw = d.w; n.brand.lh = d.h; }).then(function(){ toast('Logo saved. It appears on every scene with Branding switched on.'); offerScenes(); });
+    return commit(function(n){ n.brand.logo = d.logo; n.brand.lw = d.w; n.brand.lh = d.h; }).then(function(){ toast('Logo saved. It appears on every Frame with Branding switched on.'); offerScenes(); });
   }).catch(function(e){ toast(e.message || 'The logo could not be saved.', true); });
 }
 function removeLogo(){
-  if (!confirm('Remove the logo? Branding layers then show only the Meeting Name.')) return;
+  if (!confirm('Remove the logo? Branding Content then show only the Meeting Name.')) return;
   fetch('api/brand/logo?remove=1', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: '{}'}).catch(function(){})
     .then(function(){ return commit(function(n){ n.brand.logo = ''; n.brand.lw = 0; n.brand.lh = 0; }); }).then(function(){ toast('Logo removed'); });
 }
@@ -127,21 +127,21 @@ function build(){
   el.preview = h('div', {cls: 'mb-preview', 'aria-hidden': 'true'});
   root.appendChild(h('section', {cls: 'box', id: 'mb-scenes'}, [
     h('div', {cls: 'box-head'}, [h('h2', {text: 'Where branding appears'})]),
-    h('p', {cls: 'plain', text: 'Tick the scenes that show the Branding badge (your logo and Meeting Name). Untick to remove it. You can also add Branding to any scene in the Studio: + Layer → Branding.'}),
+    h('p', {cls: 'plain', text: 'Tick the Frames that show the Branding badge (your logo and Meeting Name). Untick to remove it. You can also add Branding to any Frame in the Studio: + Content → Branding.'}),
     el.preview,
     h('div', {cls: 'actions'}, [
-      h('button', {cls: 'btn small', type: 'button', text: 'Brand every scene', onclick: function(){ setBranding(live.scenes.filter(function(s){ return !s.tpl; }).map(function(s){ return s.id; }), true).then(function(){ toast('Branding added to every scene'); }); }}),
-      h('button', {cls: 'btn quiet small', type: 'button', text: 'Remove from every scene', onclick: function(){ if (confirm('Remove the Branding badge from every scene?')) setBranding(live.scenes.map(function(s){ return s.id; }), false); }}),
+      h('button', {cls: 'btn small', type: 'button', text: 'Brand every Frame', onclick: function(){ setBranding(live.scenes.filter(function(s){ return !s.tpl; }).map(function(s){ return s.id; }), true).then(function(){ toast('Branding added to every Frame'); }); }}),
+      h('button', {cls: 'btn quiet small', type: 'button', text: 'Remove from every Frame', onclick: function(){ if (confirm('Remove the Branding badge from every Frame?')) setBranding(live.scenes.map(function(s){ return s.id; }), false); }}),
       h('label', {cls: 'mb-inline'}, [h('span', {text: 'Badge position'}), el.pos]),
       h('button', {cls: 'btn quiet small', type: 'button', text: 'Apply to all badges', onclick: function(){ var p = el.pos.value; commit(function(n){ n.scenes.forEach(function(sc){ sc.layers.forEach(function(l){ if (l.kind === 'brand') l.c.pos = p; }); }); }).then(function(){ toast('Every badge moved'); }); }})]),
     el.list,
-    h('label', {cls: 'check'}, [el.auto, ' New scenes include branding (Quick Start, Library, + Scene)'])]));
+    h('label', {cls: 'check'}, [el.auto, ' New Frames include branding (Quick Start, Library, + Frame)'])]));
   // materials
   root.appendChild(h('section', {cls: 'box'}, [
     h('div', {cls: 'box-head'}, [h('h2', {text: 'Branded templates & meeting materials'})]),
     h('div', {cls: 'actions mb-acts'}, [
-      h('button', {cls: 'btn small', type: 'button', html: I('star', 15) + ' Add a Meeting Title scene', onclick: function(){ addLib('lib-meeting-title'); }}),
-      h('button', {cls: 'btn small', type: 'button', html: I('panel-bottom', 15) + ' Add a Meeting lower third scene', onclick: function(){ addLib('lib-meeting-lower'); }})]),
+      h('button', {cls: 'btn small', type: 'button', html: I('star', 15) + ' Add a Meeting Title Frame', onclick: function(){ addLib('lib-meeting-title'); }}),
+      h('button', {cls: 'btn small', type: 'button', html: I('panel-bottom', 15) + ' Add a Meeting lower third Frame', onclick: function(){ addLib('lib-meeting-lower'); }})]),
     h('div', {cls: 'actions mb-acts'}, [
       h('button', {cls: 'btn small', type: 'button', html: I('file-text', 15) + ' Download the Excel template', onclick: function(){ if (window.BSFMeetingImport) window.BSFMeetingImport.template(); }}),
       h('button', {cls: 'btn small', type: 'button', html: I('folder-open', 15) + ' Import a meeting from Excel…', onclick: function(){ if (window.BSFMeetingImport) window.BSFMeetingImport.pick(); }}),
@@ -181,7 +181,7 @@ function render(){
   if (el.list.dataset.sig !== sig){
     el.list.dataset.sig = sig; el.list.innerHTML = '';
     var scenes = live.scenes.filter(function(s){ return !s.tpl; });
-    if (!scenes.length) el.list.appendChild(h('li', {cls: 'hint', text: 'No scenes yet. Create some in the Studio (Quick Start or Import from Excel).'}));
+    if (!scenes.length) el.list.appendChild(h('li', {cls: 'hint', text: 'No Frames yet. Create some in the Studio (Quick Start or Import from Excel).'}));
     scenes.forEach(function(sc){
       var cb = h('input', {type: 'checkbox', 'data-sid': sc.id}); cb.checked = !!SC.first(sc, 'brand');
       cb.addEventListener('change', function(){ setBranding([sc.id], cb.checked); });

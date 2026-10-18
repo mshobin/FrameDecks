@@ -27,10 +27,10 @@ function I(n, s){ return window.BSFIcon ? window.BSFIcon(n, s || 15) : ''; }
 function el(tag, cls, attrs){ var e = document.createElement(tag); if (cls) e.className = cls; for (var k in (attrs || {})) e.setAttribute(k, attrs[k]); return e; }
 
 /* ---------- splitters ---------- */
-var vsplit = el('div', 'kc-split kc-vsplit', {role: 'separator', 'aria-orientation': 'vertical', tabindex: '0', 'aria-label': 'Resize the Scenes and Layers column', title: 'Drag to resize · double-click to reset · Enter to hide or show the column'});
+var vsplit = el('div', 'kc-split kc-vsplit', {role: 'separator', 'aria-orientation': 'vertical', tabindex: '0', 'aria-label': 'Resize the Frames and Content column', title: 'Drag to resize · double-click to reset · Enter to hide or show the column'});
 var hsplit = el('div', 'kc-split kc-hsplit', {role: 'separator', 'aria-orientation': 'horizontal', tabindex: '0', 'aria-label': 'Resize the preview and the Inspector', title: 'Drag to resize · double-click to reset · Enter to fold or unfold the Inspector'});
-var lsplit = el('div', 'kc-split kc-lsplit', {role: 'separator', 'aria-orientation': 'horizontal', tabindex: '0', 'aria-label': 'Resize Scenes and Layers', title: 'Drag to resize · double-click to reset'});
-var reopen = el('button', 'kc-reopen', {type: 'button', title: 'Show Scenes and Layers', 'aria-label': 'Show Scenes and Layers'}); reopen.innerHTML = I('panel-left', 16);
+var lsplit = el('div', 'kc-split kc-lsplit', {role: 'separator', 'aria-orientation': 'horizontal', tabindex: '0', 'aria-label': 'Resize Frames and Content', title: 'Drag to resize · double-click to reset'});
+var reopen = el('button', 'kc-reopen', {type: 'button', title: 'Show Frames and Content', 'aria-label': 'Show Frames and Content'}); reopen.innerHTML = I('panel-left', 16);
 vsplit.appendChild(reopen);
 ws.insertBefore(vsplit, center); ws.insertBefore(hsplit, right); left.insertBefore(lsplit, layers);
 reopen.addEventListener('click', function(e){ e.stopPropagation(); set('left', false); });
@@ -90,8 +90,8 @@ function foldBtn(k, label){
   b.addEventListener('click', function(e){ e.stopPropagation(); set(k, !L.c[k]); });
   return b;
 }
-var foldScenes = foldBtn('scenes', 'Fold Scenes'), foldLayers = foldBtn('layers', 'Fold Layers'), foldInsp = foldBtn('insp', 'Fold the Inspector');
-var foldLeft = foldBtn('left', 'Hide the Scenes and Layers column');
+var foldScenes = foldBtn('scenes', 'Fold Frames'), foldLayers = foldBtn('layers', 'Fold Content'), foldInsp = foldBtn('insp', 'Fold the Inspector');
+var foldLeft = foldBtn('left', 'Hide the Frames and Content column');
 scenes.querySelector('.pane-head').appendChild(foldScenes);
 scenes.querySelector('.pane-head').insertBefore(foldLeft, scenes.querySelector('.pane-head h2').nextSibling);
 layers.querySelector('.pane-head').appendChild(foldLayers);
@@ -100,10 +100,10 @@ var ih = right.querySelector('.insp-head'); ih.appendChild(foldInsp);
 [[scenes, 'scenes'], [layers, 'layers']].forEach(function(p){ p[0].querySelector('.pane-head').addEventListener('click', function(e){ if (L.c[p[1]] && !e.target.closest('button,input,select')) set(p[1], false); }); });
 ih.addEventListener('click', function(e){ if (L.c.insp && !L.autohide && !e.target.closest('button,input,select')) set('insp', false); });
 function syncButtons(){
-  foldScenes.innerHTML = I(L.c.scenes ? 'chevron-down' : 'minimize-2', 14); foldScenes.title = L.c.scenes ? 'Show Scenes' : 'Fold Scenes';
-  foldLayers.innerHTML = I(L.c.layers ? 'chevron-down' : 'minimize-2', 14); foldLayers.title = L.c.layers ? 'Show Layers' : 'Fold Layers';
+  foldScenes.innerHTML = I(L.c.scenes ? 'chevron-down' : 'minimize-2', 14); foldScenes.title = L.c.scenes ? 'Show Frames' : 'Fold Frames';
+  foldLayers.innerHTML = I(L.c.layers ? 'chevron-down' : 'minimize-2', 14); foldLayers.title = L.c.layers ? 'Show Content' : 'Fold Content';
   foldInsp.innerHTML = I(L.c.insp ? 'arrow-up' : 'arrow-down', 14); foldInsp.title = L.c.insp ? 'Show the Inspector' : 'Fold the Inspector';
-  foldLeft.innerHTML = I('chevron-left', 14); foldLeft.title = 'Hide the Scenes and Layers column';
+  foldLeft.innerHTML = I('chevron-left', 14); foldLeft.title = 'Hide the Frames and Content column';
   foldScenes.setAttribute('aria-expanded', String(!L.c.scenes)); foldLayers.setAttribute('aria-expanded', String(!L.c.layers)); foldInsp.setAttribute('aria-expanded', String(!L.c.insp));
   if (menuItems) menuItems.forEach(function(m){ if (m.sync) m.sync(); });
 }
@@ -123,7 +123,7 @@ function openMenu(){
   closeMenu();
   menuEl = el('div', 'ws-menu kc-menu', {role: 'menu', id: 'kc-layout-menu'});
   menuItems = [
-    {t: 'Scenes & Layers column', k: 'left', inv: true}, {t: 'Scenes', k: 'scenes', inv: true}, {t: 'Layers', k: 'layers', inv: true}, {t: 'Inspector', k: 'insp', inv: true},
+    {t: 'Frames & Content column', k: 'left', inv: true}, {t: 'Frames', k: 'scenes', inv: true}, {t: 'Content', k: 'layers', inv: true}, {t: 'Inspector', k: 'insp', inv: true},
     '-',
     {t: 'Auto-hide the Inspector', ah: true},
     {t: 'Preview only (Focus)', run: function(){ focusMode(); }, icon: 'maximize-2'},

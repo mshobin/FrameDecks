@@ -236,14 +236,14 @@ def main():
                 return lambda icon, item: tray_do({"op": "scene-apply", "id": sid})
             st = server.studio_load()
             if not st["scenes"]:
-                return [pystray.MenuItem("No scenes saved yet", None, enabled=False)]
+                return [pystray.MenuItem("No Frames saved yet", None, enabled=False)]
             return [pystray.MenuItem(x["name"], pick(x["id"]), checked=(lambda item, sid=x["id"]: server.studio_load()["activeScene"] == sid), radio=True)
                     for x in st["scenes"]]
         menu = pystray.Menu(
             pystray.MenuItem("Open Kingdom Connect", lambda icon, item: on_open(), default=True),
             pystray.Menu.SEPARATOR,
             pystray.MenuItem("Look", pystray.Menu(look_items)),
-            pystray.MenuItem("Scene", pystray.Menu(scene_items)),
+            pystray.MenuItem("Frame", pystray.Menu(scene_items)),
             pystray.MenuItem("Stop screen share", lambda icon, item: tray_do({"op": "screen", "source": None}),
                              enabled=lambda item: bool(server.VCAM.get("compositor") and server.VCAM["compositor"].screen)),
             pystray.MenuItem("Hide all overlays", lambda icon, item: tray_hide_all()),

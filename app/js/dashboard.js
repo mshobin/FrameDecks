@@ -270,7 +270,7 @@ function refreshStatus(){
   if (isOn('verse')) on.push('Verse');
   if (live.birthday.visible && live.birthday.greeting.trim()) on.push('Birthday');
   var SC = window.BSFScenes, ls = SC && SC.liveScene(live), tl = SC ? SC.liveText(live).length : 0;
-  if (tl) on.push(tl === 1 ? '1 text layer' : tl + ' text layers');
+  if (tl) on.push(tl === 1 ? '1 text Content' : tl + ' text Content');
   if (live.live && live.live.blackout) on = ['Blackout'];
   else if (live.live && live.live.emergency) on = ['Emergency screen'];
   var cls = 'live-ind' + (on.length ? ' on' : ''), what = (ls ? ls.name + (on.length ? ' · ' : '') : '') + on.join(' + ');

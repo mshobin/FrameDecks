@@ -1079,3 +1079,4 @@ html.kc-native img{-webkit-user-drag:none}
 .ann-pad[hidden]{display:none}
 .cb-btn.lb-ann.on,.cb-btn.lb-frz.on{background:var(--gold-soft);border-color:var(--gold);color:var(--ink)}
 .lb-prog-btn.held{border-color:var(--gold);color:var(--ink)}
+.insp-body .scr{break-inside:avoid;column-span:all}

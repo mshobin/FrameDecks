@@ -108,12 +108,12 @@ function renderDiag(){
       var r = d.resources, rq = r.requestsPerMinute || {};
       var total = Object.keys(rq).reduce(function(a, k){ return a + rq[k]; }, 0);
       row('Resources', (r.memoryMB != null ? r.memoryMB + ' MB memory · ' : '') + r.threads + ' threads · ' + Math.round(total) + ' requests/min' +
-        (r.presentationWindows ? ' · Presentation window open' : '') + ' · ' + r.layers + ' Studio layers (' + r.layerCacheEntries + ' cached pictures)');
+        (r.presentationWindows ? ' · Presentation window open' : '') + ' · ' + r.layers + ' Studio Content (' + r.layerCacheEntries + ' cached pictures)');
       var busiest = Object.keys(rq).slice(0, 4).map(function(k){ return k.replace('/api/', '') + ' ' + rq[k] + '/min'; }).join(' · ');
       if (busiest) row('Busiest requests', busiest);
       var tips = [];
       if (r.memoryMB > 900) tips.push('memory is high: restart the app after the meeting');
-      if (r.camera && r.camera.msPerFrame > 25) tips.push('camera work is heavy: use 720p, a lower blur, or fewer Studio layers');
+      if (r.camera && r.camera.msPerFrame > 25) tips.push('camera work is heavy: use 720p, a lower blur, or fewer Studio Content');
       if ((rq['/api/vcam/preview.jpg'] || 0) > 400) tips.push('a preview is being watched: close Studio or KingdomConnect preview when not needed');
       row('Performance tips', tips.length ? tips.join('; ') : 'Everything looks light.');
     }

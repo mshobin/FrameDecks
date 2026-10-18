@@ -65,7 +65,8 @@ function select(sid, lid, focusList){
 var sceneSig = '';
 function sceneSub(sc){
   var t = sc.tx.type === 'profile' ? SC.profile(live).name : SC.txName(sc.tx.type);
-  return sc.layers.length + (sc.layers.length === 1 ? ' layer' : ' layers') + ' · ' + t + (sc.auto.on ? ' · auto ' + sc.auto.sec + ' s' : '');
+  var kinds = sc.layers.map(function(l){ return SC.info[l.kind].name; }).filter(function(k, i, a){ return a.indexOf(k) === i; });   // what is in this Frame
+  return (kinds.join(' · ') || 'Empty Frame') + ' · ' + t + (sc.auto.on ? ' · auto ' + sc.auto.sec + ' s' : '');
 }
 function visibleScenes(){
   var q = search.trim().toLowerCase(), list = live.scenes.filter(function(sc){
@@ -81,7 +82,7 @@ function visibleScenes(){
 var QS_OPTS = [['question', 'Question', 'Question only'], ['verse', 'Scripture', 'Scripture only'], ['both', 'Q + S', 'Question + Scripture']];
 function qsPill(sc){
   var m = SC.qsMode(sc); if (!m) return null;
-  var g = h('span', {cls: 'si-qs', role: 'radiogroup', 'aria-label': 'What this scene shows'});
+  var g = h('span', {cls: 'si-qs', role: 'radiogroup', 'aria-label': 'What this Frame shows'});
   QS_OPTS.forEach(function(o){
     g.appendChild(h('button', {type: 'button', role: 'radio', 'aria-checked': String(m === o[0]), title: o[2], text: o[1], onclick: function(e){
       e.stopPropagation(); if (m === o[0]) return;
@@ -99,7 +100,7 @@ function libDesc(e){ return e.layers.map(function(d){ return (d[1] && d[1].name)
 function addFromLibrary(id, name){
   var made = null, base = scene();
   commit(function(n){ made = SC.fromLibrary(n, id, {after: selScene || null, group: base && !base.tpl ? base.group : '', creator: creator()}); })
-    .then(function(){ if (made){ select(made.id, null); toast('Added to your scenes: ' + made.name); } });
+    .then(function(){ if (made){ select(made.id, null); toast('Added to your Frames: ' + made.name); } });
 }
 function renderLibrary(ol){
   var q = search.trim().toLowerCase(), mine = live.scenes.filter(function(s){ return s.tpl && (!q || s.name.toLowerCase().indexOf(q) >= 0); });
@@ -113,7 +114,7 @@ function renderLibrary(ol){
     return open;
   }
   function item(icon, name, desc, onAdd, onOpen, sel){
-    var li = h('li', {cls: 'lib-item' + (sel ? ' sel' : ''), tabindex: '0', role: 'option', title: onOpen ? 'Select to edit · + adds a scene made from it' : 'Add this scene to your running order'}, [
+    var li = h('li', {cls: 'lib-item' + (sel ? ' sel' : ''), tabindex: '0', role: 'option', title: onOpen ? 'Select to edit · + adds a Frame made from it' : 'Add this Frame to your running order'}, [
       h('span', {cls: 'lib-ic', html: I(icon, 16)}), h('span', {cls: 'si-t'}, [h('b', {text: name}), h('small', {text: desc})]),
       h('button', {cls: 'btn small lib-add', type: 'button', 'aria-label': 'Add ' + name, html: I('plus', 14) + ' Add', onclick: function(e){ e.stopPropagation(); onAdd(); }})]);
     li.addEventListener('click', onOpen || onAdd);
@@ -130,7 +131,7 @@ function renderLibrary(ol){
     if (head('Your templates', mine.length)) mine.forEach(function(t){ item('layout-template', t.name, sceneSub(t), function(){ fromTemplate(t.id); }, function(){ select(t.id, null); }, t.id === selScene); });
   }
   if (!any) ol.appendChild(h('li', {cls: 'pane-empty', text: 'Nothing in the Library matches.'}));
-  ol.appendChild(h('li', {cls: 'pane-note lib-note', text: 'Save any scene as your own template: ⋯ → Duplicate as template.'}));
+  ol.appendChild(h('li', {cls: 'pane-note lib-note', text: 'Save any Frame as your own template: ⋯ → Duplicate as template.'}));
 }
 function renderScenes(){
   var ol = $('scene-list'), next = live.live.scene ? SC.neighbour(live, live.live.scene, 1) : null;
@@ -140,8 +141,8 @@ function renderScenes(){
   if (sig === sceneSig) return; sceneSig = sig;
   ol.innerHTML = '';
   if (!list.length){
-    if (live.scenes.length){ ol.appendChild(h('li', {cls: 'pane-empty', text: 'No scenes match.'})); return; }
-    ol.appendChild(h('li', {cls: 'pane-empty start'}, [h('b', {text: 'Ready when you are'}), h('span', {text: 'Quick Start makes a full set of scenes for a Bible study, prayer meeting, youth gathering or fellowship meeting in one click.'}),
+    if (live.scenes.length){ ol.appendChild(h('li', {cls: 'pane-empty', text: 'No Frames match.'})); return; }
+    ol.appendChild(h('li', {cls: 'pane-empty start'}, [h('b', {text: 'Ready when you are'}), h('span', {text: 'Quick Start makes a full set of Frames for a Bible study, prayer meeting, youth gathering or fellowship meeting in one click.'}),
       h('button', {cls: 'btn primary small', type: 'button', html: I('sparkles', 15) + ' Quick Start', onclick: function(){ openQuickStart(); }}),
       h('button', {cls: 'btn small', type: 'button', html: I('file-text', 15) + ' Import from Excel', onclick: function(){ if (window.BSFMeetingImport) window.BSFMeetingImport.pick(); }}),
       h('button', {cls: 'btn quiet small', type: 'button', text: 'Browse the Library', onclick: function(){ setFilter('tpl'); }})]));
@@ -172,7 +173,7 @@ function renderScenes(){
         isLive ? h('span', {cls: 'si-badge live', text: 'LIVE'}) : isNext ? h('span', {cls: 'si-badge next', text: 'NEXT'}) : null,
         h('button', {cls: 'ib si-fav' + (sc.fav ? ' on' : ''), type: 'button', title: sc.fav ? 'Remove from favourites' : 'Add to favourites', 'aria-label': 'Favourite', html: sc.fav ? '★' : '☆',
           onclick: function(e){ e.stopPropagation(); edit(sc.id, function(x){ x.fav = !x.fav; }); }}),
-        h('button', {cls: 'ib si-more', type: 'button', title: 'Scene actions', 'aria-label': 'Scene actions', html: '⋯', onclick: function(e){ e.stopPropagation(); sceneMenu(sc.id, e.currentTarget); }}),
+        h('button', {cls: 'ib si-more', type: 'button', title: 'Frame actions', 'aria-label': 'Frame actions', html: '⋯', onclick: function(e){ e.stopPropagation(); sceneMenu(sc.id, e.currentTarget); }}),
         qsPill(sc)]);
       li.addEventListener('click', function(){ select(sc.id, null); });
       li.addEventListener('dblclick', function(){ takeScene(sc.id); });
@@ -276,13 +277,13 @@ function fromTemplate(tid){
 function duplicate(id, opts){
   var made = null;
   opts.creator = creator();
-  return commit(function(n){ made = SC.duplicate(n, id, opts); }).then(function(){ if (made){ select(made.id, null, true); toast((opts.template ? 'Template saved: ' : 'Scene duplicated: ') + made.name); } return made; });
+  return commit(function(n){ made = SC.duplicate(n, id, opts); }).then(function(){ if (made){ select(made.id, null, true); toast((opts.template ? 'Template saved: ' : 'Frame duplicated: ') + made.name); } return made; });
 }
 /* ---------- Quick Start: one click, a ready-to-run set of scenes ---------- */
 function qsSceneName(e){
   if (e[1]) return e[1];
   var lib = SC.library.filter(function(x){ return x.id === e[0]; })[0], tpl = SC.templates.filter(function(x){ return '@' + x.id === e[0]; })[0];
-  return lib ? lib.name : tpl ? tpl.name : 'Scene';
+  return lib ? lib.name : tpl ? tpl.name : 'Frame';
 }
 function openQuickStart(){
   var dlg = $('qs-dlg');
@@ -300,7 +301,7 @@ function openQuickStart(){
   });
   dlg.appendChild(h('div', {cls: 'kc-dlg-in'}, [
     h('p', {cls: 'kc-dlg-kicker', text: 'Quick Start'}), h('h2', {id: 'qs-title', text: 'What are you leading today?'}),
-    h('p', {cls: 'kc-dlg-sub', text: 'Pick one and a complete set of scenes is ready in its own group. Change any of them afterwards; nothing goes on screen until you press Go Live.'}),
+    h('p', {cls: 'kc-dlg-sub', text: 'Pick one and a complete set of Frames is ready in its own group. Change any of them afterwards; nothing goes on screen until you press Go Live.'}),
     grid,
     h('div', {cls: 'kc-dlg-foot'}, [h('button', {cls: 'btn quiet', type: 'button', text: 'Browse the Library instead', onclick: function(){ dlg.close(); setFilter('tpl'); }}),
       h('button', {cls: 'btn', type: 'button', text: 'Cancel', onclick: function(){ dlg.close(); }})])]));
@@ -315,7 +316,7 @@ function runQuickStart(q){
     if (!made.length) return;
     delete collapsed[made[0].group]; setFilter('all');
     select(made[0].id, null, true);
-    toast(q.name + ' is ready: ' + made.length + ' scenes in “' + made[0].group + '”. Select a scene and press Go Live.');
+    toast(q.name + ' is ready: ' + made.length + ' Frames in “' + made[0].group + '”. Select a Frame and press Go Live.');
   });
 }
 window.BSFQuickStart = {open: openQuickStart};
@@ -339,7 +340,7 @@ function editQuestionForm(gen){
   var i = items.findIndex(function(x){ return x.id === l.c.itemId; }); if (i < 0 && items.length) i = 0;
   var cur = i >= 0 ? items[i].text : '';
   var name = h('input', {type: 'text', value: sc.name, id: 'eq-name', 'aria-label': 'Scene name'}); name.addEventListener('keydown', stop);
-  var ta = h('textarea', {rows: 5, id: 'eq-text', 'aria-label': 'Question for this scene'}); ta.value = cur;
+  var ta = h('textarea', {rows: 5, id: 'eq-text', 'aria-label': 'Question for this Frame'}); ta.value = cur;
   ta.addEventListener('keydown', function(e){ stop(e); if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)){ e.preventDefault(); done(); } });
   var picks = h('div', {cls: 'eq-picks'});
   [[i + 1, 'Next in the list'], [i - 1, 'Previous']].forEach(function(p){
@@ -377,33 +378,33 @@ function sceneMenu(id, anchor, ev){
     hasQ ? {icon: 'copy', text: 'Duplicate (keep the question)', run: function(){ duplicate(id, {}); }} : null,
     {icon: 'copy', text: 'Duplicate with options…', run: function(){ smartDuplicate(id); }},
     {icon: 'layout-template', text: 'Duplicate as template', run: function(){ duplicate(id, {template: true, name: SC.uniqueName(live, sc.name + ' template')}); }},
-    {icon: 'layers', text: 'Duplicate layer structure only', run: function(){ duplicate(id, {content: 'empty'}); }},
+    {icon: 'layers', text: 'Duplicate Content structure only', run: function(){ duplicate(id, {content: 'empty'}); }},
     {icon: 'git-branch', text: 'Create variant', run: function(){ duplicate(id, {variant: true, name: SC.uniqueName(live, sc.name + ' variant')}); }},
     {icon: 'folder-open', text: 'Duplicate to group…', run: function(){ var g = prompt('Duplicate into which group (e.g. “Romans Study” or “Sunday Service”)?', sc.group || ''); if (g !== null) duplicate(id, {group: g.trim()}); }},
-    hasQ ? {icon: 'list', text: 'Make one scene per question', title: 'Each question in the list gets its own scene (pinned to it), right after this one', run: function(){ explode(id, 'question'); }} : null,
-    hasV ? {icon: 'list', text: 'Make one scene per verse', run: function(){ explode(id, 'verse'); }} : null,
+    hasQ ? {icon: 'list', text: 'Make one Frame per question', title: 'Each question in the list gets its own Frame (pinned to it), right after this one', run: function(){ explode(id, 'question'); }} : null,
+    hasV ? {icon: 'list', text: 'Make one Frame per verse', run: function(){ explode(id, 'verse'); }} : null,
     '-',
     {icon: 'type', text: 'Rename', hint: 'F2', run: function(){ renameScene(id); }},
     {icon: 'folder-open', text: 'Move to group…', run: function(){ var g = prompt('Group name (leave empty for none):', sc.group || ''); if (g !== null) edit(id, function(x){ x.group = g.trim(); }); }},
     {icon: 'arrow-up', text: 'Move up', run: function(){ shiftScene(id, -1); }}, {icon: 'arrow-down', text: 'Move down', run: function(){ shiftScene(id, 1); }},
-    {icon: 'external-link', text: 'Export scene file', run: function(){ exportScene(id); }},
+    {icon: 'external-link', text: 'Export Frame file', run: function(){ exportScene(id); }},
     '-',
-    {icon: 'trash-2', text: 'Delete scene', danger: true, run: function(){ deleteScene(id); }}], ev);
+    {icon: 'trash-2', text: 'Delete Frame', danger: true, run: function(){ deleteScene(id); }}], ev);
 }
-function renameScene(id){ var sc = SC.find(live, id); var n = prompt('Scene name:', sc.name); if (n && n.trim()) edit(id, function(x){ x.name = n.trim().slice(0, 80); }); }
+function renameScene(id){ var sc = SC.find(live, id); var n = prompt('Frame name:', sc.name); if (n && n.trim()) edit(id, function(x){ x.name = n.trim().slice(0, 80); }); }
 function deleteScene(id){
   var sc = SC.find(live, id); if (!sc) return;
-  if (isLiveScene(id)){ toast('This scene is live. Take another scene live first.', true); return; }
-  if (!confirm('Delete the scene “' + sc.name + '”? Its layers go with it (your question and verse lists stay).')) return;
-  commit(function(n){ n.scenes = n.scenes.filter(function(s){ return s.id !== id; }); }).then(function(){ if (selScene === id){ var f = live.scenes[0]; select(f ? f.id : '', null); } toast('Scene deleted'); });
+  if (isLiveScene(id)){ toast('This Frame is live. Take another Frame live first.', true); return; }
+  if (!confirm('Delete the Frame “' + sc.name + '”? Its Content goes with it.')) return;
+  commit(function(n){ n.scenes = n.scenes.filter(function(s){ return s.id !== id; }); }).then(function(){ if (selScene === id){ var f = live.scenes[0]; select(f ? f.id : '', null); } toast('Frame deleted'); });
 }
 function explode(id, kind){
   var own = SC.first(SC.find(live, id), kind === 'verse' ? 'scripture' : 'question'), list = (own && own.c.items) || [];
   if (!list.length){ toast('The ' + (kind === 'verse' ? 'verse' : 'question') + ' list is empty.', true); return; }
-  if (!confirm('Create ' + Math.min(200, list.length) + ' scenes, one per ' + (kind === 'verse' ? 'verse' : 'question') + ', right after this scene?')) return;
+  if (!confirm('Create ' + Math.min(200, list.length) + ' Frames, one per ' + (kind === 'verse' ? 'verse' : 'question') + ', right after this Frame?')) return;
   var made = [];
   commit(function(n){ made = SC.explode(n, id, kind); made.forEach(function(s){ s.creator = creator(); }); })
-    .then(function(){ toast(made.length + ' scenes created'); if (made[0]) select(made[0].id, null, true); });
+    .then(function(){ toast(made.length + ' Frames created'); if (made[0]) select(made[0].id, null, true); });
 }
 function exportScene(id){
   var sc = SC.find(live, id); if (!sc) return;
@@ -419,8 +420,8 @@ function importScene(){
       var sc = SC.cleanScene(src); if (!sc) throw new Error('bad');
       var made = null;
       commit(function(n){ sc.id = 'sc_' + Math.random().toString(36).slice(2, 9); sc.name = SC.uniqueName(n, sc.name); sc.created = sc.modified = Date.now(); sc.from = file.name; SC.insert(n, sc, selScene); made = sc; })
-        .then(function(){ if (made) select(made.id, null, true); toast('Scene imported: ' + made.name); });
-    }).catch(function(){ toast('That file is not a Kingdom Connect scene.', true); });
+        .then(function(){ if (made) select(made.id, null, true); toast('Frame imported: ' + made.name); });
+    }).catch(function(){ toast('That file is not a Kingdom Connect Frame.', true); });
   });
   document.body.appendChild(f); f.click();
 }
@@ -433,13 +434,13 @@ function smartDuplicate(id){
   function check(k, label, on){ return h('label', {cls: 'check'}, [h('input', {type: 'checkbox', 'data-dk': k, checked: on ? 'checked' : null}), ' ' + label]); }
   card.appendChild(h('h2', {id: 'dup-title', text: 'Duplicate “' + sc.name + '”'}));
   card.appendChild(h('div', {cls: 'two'}, [h('label', {cls: 'field'}, [h('span', {text: 'New name'}), name]), h('label', {cls: 'field'}, [h('span', {text: 'Group'}), group, groups])]));
-  card.appendChild(h('div', {cls: 'dup-grid'}, [check('layers', 'Layers', true), check('layout', 'Layout (positions and sizes)', true), check('branding', 'Branding (logo layers)', true),
+  card.appendChild(h('div', {cls: 'dup-grid'}, [check('layers', 'Content', true), check('layout', 'Layout (positions and sizes)', true), check('branding', 'Branding (logo Content)', true),
     check('animations', 'Animations', true), check('transitions', 'Transitions and auto advance', true), check('outputs', 'Output routing', true)]));
   card.appendChild(h('div', {cls: 'dup-content', role: 'radiogroup', 'aria-label': 'Content'}, [h('b', {text: 'Content'}),
     h('label', {cls: 'check'}, [h('input', {type: 'radio', name: 'dup-c', value: 'keep', checked: 'checked'}), ' Keep the content']),
     h('label', {cls: 'check'}, [h('input', {type: 'radio', name: 'dup-c', value: 'only'}), ' Content only (looks back to the defaults)']),
-    h('label', {cls: 'check'}, [h('input', {type: 'radio', name: 'dup-c', value: 'empty'}), ' Empty layer content (ready for next week)'])]));
-  card.appendChild(h('p', {cls: 'hint', text: 'KingdomConnect, Zoom / Teams camera, recording and remote settings belong to this PC, so every scene - including the copy - uses them.'}));
+    h('label', {cls: 'check'}, [h('input', {type: 'radio', name: 'dup-c', value: 'empty'}), ' Empty Content content (ready for next week)'])]));
+  card.appendChild(h('p', {cls: 'hint', text: 'KingdomConnect, Zoom / Teams camera, recording and remote settings belong to this PC, so every Frame - including the copy - uses them.'}));
   var ok = h('button', {cls: 'btn primary', type: 'button', text: 'Duplicate', id: 'dup-ok'});
   card.appendChild(h('div', {cls: 'app-modal-actions'}, [h('button', {cls: 'btn quiet', type: 'button', text: 'Cancel', onclick: function(){ back.remove(); }}), ok]));
   ok.addEventListener('click', function(){
@@ -478,8 +479,8 @@ function renderLayers(){
   if (sig === layerSig) return; layerSig = sig;
   ol.innerHTML = '';
   $('layer-add').disabled = !sc;
-  if (!sc){ ol.appendChild(h('li', {cls: 'pane-empty', text: 'Select a scene to see its layers.'})); $('layers-note').textContent = ''; return; }
-  if (!sc.layers.length) ol.appendChild(h('li', {cls: 'pane-empty', text: 'No layers yet. Use + Layer.'}));
+  if (!sc){ ol.appendChild(h('li', {cls: 'pane-empty', text: 'Select a Frame to see its Content.'})); $('layers-note').textContent = ''; return; }
+  if (!sc.layers.length) ol.appendChild(h('li', {cls: 'pane-empty', text: 'No Content yet. Use + Content.'}));
   var n = sc.layers.length;
   sc.layers.forEach(function(l, i){
     var on = isLiveScene(sc.id) ? SC.layerOn(live, sc, l) : l.visible, st = status[l.id] || {};
@@ -508,7 +509,7 @@ function renderLayers(){
     ol.appendChild(li);
   });
   var mixed = sc.layers.some(function(l){ return SC.isMedia(l.kind); }) && sc.layers.some(function(l){ return !SC.isMedia(l.kind); });
-  $('layers-note').textContent = mixed ? 'Question, scripture, birthday and text layers always appear in front of camera and media layers.' : '';
+  $('layers-note').textContent = mixed ? 'Questions, scriptures, birthdays and text always appear in front of camera and media Content.' : '';
 }
 var dragLayer = null;
 function reorderLayer(sid, id, beforeId){
@@ -521,16 +522,16 @@ function reorderLayer(sid, id, beforeId){
 function shiftLayer(sid, id, d){
   edit(sid, function(sc){ var a = sc.layers, i = a.findIndex(function(l){ return l.id === id; }), j = i + d; if (i < 0 || j < 0 || j >= a.length) return; var t = a[i]; a[i] = a[j]; a[j] = t; });
 }
-function renameLayer(sid, lid){ var l = SC.layer(SC.find(live, sid), lid); var n = prompt('Layer name:', l.name); if (n && n.trim()) editLayer(sid, lid, function(x){ x.name = n.trim().slice(0, 60); }); }
+function renameLayer(sid, lid){ var l = SC.layer(SC.find(live, sid), lid); var n = prompt('Content name:', l.name); if (n && n.trim()) editLayer(sid, lid, function(x){ x.name = n.trim().slice(0, 60); }); }
 function deleteLayer(sid, lid){
   var l = SC.layer(SC.find(live, sid), lid); if (!l) return;
-  if (l.locked){ toast('Unlock the layer first.', true); return; }
-  edit(sid, function(sc, n){ if (n.live.scene === sid) SC.setOn(n, sid, lid, false); sc.layers = sc.layers.filter(function(x){ return x.id !== lid; }); }, 'Layer deleted');
+  if (l.locked){ toast('Unlock the Content first.', true); return; }
+  edit(sid, function(sc, n){ if (n.live.scene === sid) SC.setOn(n, sid, lid, false); sc.layers = sc.layers.filter(function(x){ return x.id !== lid; }); }, 'Content deleted');
   if (selLayer === lid) selLayer = null;
 }
 function duplicateLayer(sid, lid){
   var l = SC.layer(SC.find(live, sid), lid); if (!l) return;
-  if (SC.isCard(l.kind)){ toast('A scene has one ' + SC.info[l.kind].name + ' layer. Duplicate the scene instead.', true); return; }
+  if (SC.isCard(l.kind)){ toast('A Frame has one ' + SC.info[l.kind].name + ' Content. Duplicate the Frame instead.', true); return; }
   var copy = null;
   edit(sid, function(sc){ var i = sc.layers.indexOf(SC.layer(sc, lid)); copy = JSON.parse(JSON.stringify(sc.layers[i])); copy.id = 'L' + Math.random().toString(36).slice(2, 9); copy.name = l.name + ' copy'; copy.locked = false;
     if (copy.c.x != null){ copy.c.x += 0.02; copy.c.y += 0.02; } sc.layers.splice(i, 0, copy); })
@@ -544,11 +545,11 @@ function layerMenu(sid, lid, anchor, ev){
     {icon: 'copy', text: 'Duplicate', run: function(){ duplicateLayer(sid, lid); }},
     {icon: 'arrow-up', text: 'Move forward', run: function(){ shiftLayer(sid, lid, -1); }}, {icon: 'arrow-down', text: 'Move backward', run: function(){ shiftLayer(sid, lid, 1); }},
     {icon: l.locked ? 'lock-open' : 'lock', text: l.locked ? 'Unlock' : 'Lock', run: function(){ editLayer(sid, lid, function(x){ x.locked = !x.locked; }); }},
-    '-', {icon: 'trash-2', text: 'Delete layer', danger: true, run: function(){ deleteLayer(sid, lid); }}], ev);
+    '-', {icon: 'trash-2', text: 'Delete Content', danger: true, run: function(){ deleteLayer(sid, lid); }}], ev);
 }
 function toggleLayer(sid, lid){
   var l = SC.layer(SC.find(live, sid), lid); if (!l) return;
-  if (l.locked){ toast('This layer is locked.', true); return; }
+  if (l.locked){ toast('This Content is locked.', true); return; }
   var wasOn = isLiveScene(sid) ? SC.layerOn(live, SC.find(live, sid), l) : l.visible;
   edit(sid, function(sc, n){ SC.toggleVisible(n, sid, lid); }).then(function(){
     if (isLiveScene(sid) && !wasOn){
@@ -600,7 +601,7 @@ function addLayer(what){
   if (what === 'watermark') return pickFile('image').then(function(f){ if (f) put({name: 'Watermark', c: {file: f, x: 0.9, y: 0.9, w: 0.12}, opacity: 0.35}); });
   if (what === 'pptx') return pickFile('powerpoint').then(function(f){ if (f) put({name: f.replace(/\.[^.]+$/, ''), c: {file: f, w: 1, h: 1}}); });
   if (['image', 'video', 'pdf'].indexOf(kind) >= 0) return pickFile(kind).then(function(f){ if (f) put({name: f.replace(/\.[^.]+$/, ''), c: {file: f}}); });
-  if (kind === 'screen'){ return put({}).then(function(){ if (isLiveScene(sc.id) && window.BSFStudio) window.BSFStudio.chooseScreen(); else toast('Take this scene live, then choose which screen to share (Properties).'); }); }
+  if (kind === 'screen'){ return put({}).then(function(){ if (isLiveScene(sc.id) && window.BSFStudio) window.BSFStudio.chooseScreen(); else toast('Take this Frame live, then choose which screen to share (Properties).'); }); }
   if (kind === 'window'){
     var S = studio(), wins = S ? (S.sources || []).filter(function(s){ return s.kind === 'window'; }) : [];
     window.BSFStudio.chooser('Capture which window?', wins.map(function(w){ return {icon: 'app-window', name: w.name, w: w}; }), function(o){ put({name: o.w.name.slice(0, 40), c: {hwnd: o.w.hwnd, w: 0.6}}); });
@@ -715,14 +716,14 @@ function sceneForm(gen, sc, tab){
     gr.addEventListener('input', function(){ later('gr', function(){ edit(sid, function(x){ x.group = gr.value.trim().slice(0, 60); }); }); });
     gen.appendChild(h('div', {cls: 'ip-sec'}, [field('Name', nm), field('Group', gr), dl,
       checkCtl('Favourite', sc.fav, function(v){ edit(sid, function(x){ x.fav = v; }); }),
-      checkCtl('Template (kept for making new scenes; not in Previous / Next)', sc.tpl, function(v){ edit(sid, function(x){ x.tpl = v; }); }),
+      checkCtl('Template (kept for making new Frames; not in Previous / Next)', sc.tpl, function(v){ edit(sid, function(x){ x.tpl = v; }); }),
       notesCtl(sc),
-      checkCtl('Branding: show my logo and Meeting Name in this scene', !!SC.first(sc, 'brand'), function(v){ if (window.BSFBrandSettings) window.BSFBrandSettings.setBranding([sid], v).then(function(){ toast(v ? 'Branding added to ' + sc.name : 'Branding removed from ' + sc.name); }); })]));
+      checkCtl('Branding: show my logo and Meeting Name in this Frame', !!SC.first(sc, 'brand'), function(v){ if (window.BSFBrandSettings) window.BSFBrandSettings.setBranding([sid], v).then(function(){ toast(v ? 'Branding added to ' + sc.name : 'Branding removed from ' + sc.name); }); })]));
     gen.appendChild(h('div', {cls: 'ip-sec ip-acts'}, [
       h('button', {cls: 'btn small', type: 'button', text: 'Duplicate…', onclick: function(){ smartDuplicate(sid); }}),
       h('button', {cls: 'btn small', type: 'button', text: 'Save as template', onclick: function(){ duplicate(sid, {template: true, name: SC.uniqueName(live, sc.name + ' template')}); }}),
-      SC.first(sc, 'question') ? h('button', {cls: 'btn quiet small', type: 'button', text: 'One scene per question', onclick: function(){ explode(sid, 'question'); }}) : null]));
-    gen.appendChild(h('p', {cls: 'hint', text: 'A scene owns its layers, its transition and its output rules. Select a layer to edit its content. Go Live (top bar, T, or double-click a scene) puts it on screen.'}));
+      SC.first(sc, 'question') ? h('button', {cls: 'btn quiet small', type: 'button', text: 'One Frame per question', onclick: function(){ explode(sid, 'question'); }}) : null]));
+    gen.appendChild(h('p', {cls: 'hint', text: 'A Frame owns its Content, its transition and its output rules. Select Content on the left to change it. Go Live (top bar, T, or double-click a Frame) puts it on screen.'}));
   } else if (tab === 'transition'){
     var p = SC.profile(live);
     var sel = h('select', {'aria-label': 'Transition', id: 'sc-tx'}, [h('option', {value: 'profile', text: 'Profile: ' + p.name + ' (' + SC.txName(p.type) + (p.ms ? ', ' + p.ms + ' ms' : '') + ')'})]
@@ -735,22 +736,22 @@ function sceneForm(gen, sc, tab){
     var sec = h('input', {type: 'number', min: 2, max: 3600, step: 1, value: String(sc.auto.sec), 'aria-label': 'Seconds', id: 'sc-auto-sec'});
     sec.addEventListener('keydown', stop);
     sec.addEventListener('change', function(){ edit(sid, function(x){ x.auto.sec = Math.max(2, Math.min(3600, +sec.value || 30)); }); });
-    gen.appendChild(h('div', {cls: 'ip-sec'}, [field('Transition into this scene', sel), field('Duration (ms)', ms),
+    gen.appendChild(h('div', {cls: 'ip-sec'}, [field('Transition into this Frame', sel), field('Duration (ms)', ms),
       h('p', {cls: 'hint', text: 'Plays on the whole KingdomConnect picture. On the OBS / browser overlay page the dips cover the screen and the cards follow. The top bar can override it for a take.'})]));
-    gen.appendChild(h('div', {cls: 'ip-sec'}, [checkCtl('Auto advance to the next scene', sc.auto.on, function(v){ edit(sid, function(x){ x.auto.on = v; }); }), field('After (seconds)', sec),
+    gen.appendChild(h('div', {cls: 'ip-sec'}, [checkCtl('Auto advance to the next Frame', sc.auto.on, function(v){ edit(sid, function(x){ x.auto.on = v; }); }), field('After (seconds)', sec),
       h('p', {cls: 'hint', text: 'Only while Auto is on in the top bar.'})]));
   } else if (tab === 'output'){
-    gen.appendChild(h('div', {cls: 'ip-sec'}, [h('b', {text: 'When this scene is live, show its cards and text layers on'}),
+    gen.appendChild(h('div', {cls: 'ip-sec'}, [h('b', {text: 'When this Frame is live, show its cards and text Content on'}),
       checkCtl('KingdomConnect (Zoom / Teams camera, recording, Presentation window)', sc.out.vcam, function(v){ edit(sid, function(x){ x.out.vcam = v; }); }),
       checkCtl('OBS / browser overlay pages', sc.out.obs, function(v){ edit(sid, function(x){ x.out.obs = v; }); }),
-      h('p', {cls: 'hint', text: 'Takes effect the next time the scene is taken live. Each layer can also be limited in its own Output tab. Camera and media layers are the KingdomConnect picture itself.'})]));
+      h('p', {cls: 'hint', text: 'Takes effect the next time the Frame is taken live. Each piece of Content can also be limited in its own Behavior group. Camera and media Content is the KingdomConnect picture itself.'})]));
   } else {
     var par = sc.parent ? SC.find(live, sc.parent) : null;
     gen.appendChild(h('dl', {cls: 'hist'}, [
       h('dt', {text: 'Created'}), h('dd', {text: fmtDate(sc.created)}), h('dt', {text: 'Modified'}), h('dd', {text: fmtDate(sc.modified)}),
       h('dt', {text: 'Version'}), h('dd', {text: String(sc.version)}), h('dt', {text: 'Creator'}), h('dd', {text: sc.creator || '—'}),
       h('dt', {text: 'Duplicated from'}), h('dd', {text: sc.from || '—'}), h('dt', {text: 'Template'}), h('dd', {text: sc.template || '—'}),
-      h('dt', {text: 'Parent scene'}), h('dd', {}, [par ? h('button', {cls: 'linkish', type: 'button', text: par.name, onclick: function(){ select(par.id, null, true); }}) : document.createTextNode('—')])]));
+      h('dt', {text: 'Parent Frame'}), h('dd', {}, [par ? h('button', {cls: 'linkish', type: 'button', text: par.name, onclick: function(){ select(par.id, null, true); }}) : document.createTextNode('—')])]));
   }
 }
 /* ---------- Text layers ---------- */
@@ -809,7 +810,7 @@ function textForm(gen, sc, l, tab){
     }
     gen.appendChild(checkCtl('Show my logo on this card', c.logo, function(v){ set(function(x){ x.c.logo = v; }, true); }));
     gen.appendChild(h('p', {cls: 'hint', html: 'Type <b>{meeting}</b> or <b>{org}</b> to show your Meeting Name or organization.'}));
-    gen.appendChild(h('p', {cls: 'hint', text: isLiveScene(sid) ? 'This scene is live: changes appear on screen as you type.' : 'Shown when this scene is taken live.'}));
+    gen.appendChild(h('p', {cls: 'hint', text: isLiveScene(sid) ? 'This Frame is live: changes appear on screen as you type.' : 'Shown when this Frame is taken live.'}));
   } else if (tab === 'style' && false){
     gen.appendChild(checkCtl('Show the title / label', c.label, function(v){ set(function(x){ x.c.label = v; }, true); }));
     var sizes = [['small', 'Small', 0.85], ['standard', 'Standard', 1], ['large', 'Large', 1.3], ['xl', 'Extra large', 1.7]];
@@ -823,7 +824,7 @@ function textForm(gen, sc, l, tab){
     gen.appendChild(checkCtl('Show the title / label', c.label, function(v){ set(function(x){ x.c.label = v; }, true); }));
     gen.appendChild(row('Text size', rangeCtl(c.scale, 0.4, 3, 0.05, function(v){ return Math.round(v * 100) + '%'; }, function(v){ set(function(x){ x.c.scale = v; }); })));
     gen.appendChild(row('Opacity', rangeCtl(l.opacity, 0, 1, 0.01, function(v){ return Math.round(v * 100) + '%'; }, function(v){ set(function(x){ x.opacity = v; }); })));
-    gen.appendChild(h('p', {cls: 'hint', text: 'Card opacity (how much video shows through) is shared with the question and verse cards: Question or Scripture layer → Style.'}));
+    gen.appendChild(h('p', {cls: 'hint', text: 'Card opacity (how much video shows through) is shared with the question and verse cards: Question or Scripture Content → Style.'}));
   } else if (tab === 'layout'){
     var pos = h('select', {'aria-label': 'Position', id: 'tl-pos'}, SC.positions.map(function(p){ return h('option', {value: p, text: POS_NAMES[p]}); })); pos.value = c.pos;
     pos.addEventListener('change', function(){ set(function(x){ x.c.pos = pos.value; }, true); });
@@ -831,21 +832,21 @@ function textForm(gen, sc, l, tab){
     gen.appendChild(row('Width', rangeCtl(c.w, 20, 96, 1, function(v){ return Math.round(v) + '%'; }, function(v){ set(function(x){ x.c.w = v; }); })));
   } else if (tab === 'animation'){
     gen.appendChild(row('Appears with', segCtl(c.anim, [['fade', 'Fade'], ['rise', 'Gentle rise'], ['none', 'Cut']], function(v){ set(function(x){ x.c.anim = v; }, true); })));
-    gen.appendChild(h('p', {cls: 'hint', text: 'The scene’s transition (Scene → Transition) plays when the whole scene changes.'}));
+    gen.appendChild(h('p', {cls: 'hint', text: 'The Frame’s transition (Frame → Transition) plays when the whole Frame changes.'}));
   }
 }
 function outputForm(gen, sc, l){
   var sid = sc.id, lid = l.id;
-  gen.appendChild(h('div', {cls: 'ip-sec'}, [h('b', {text: 'Show this layer on'}),
+  gen.appendChild(h('div', {cls: 'ip-sec'}, [h('b', {text: 'Show this Content on'}),
     checkCtl('KingdomConnect (Zoom / Teams camera, recording, Presentation window)', l.c.vcam, function(v){ editLayer(sid, lid, function(x){ x.c.vcam = v; }); }),
     checkCtl('OBS / browser overlay pages', l.c.obs, function(v){ editLayer(sid, lid, function(x){ x.c.obs = v; }); }),
-    h('p', {cls: 'hint', text: SC.isCard(l.kind) ? 'Applies when the scene is taken live.' : 'Applies at once.'})]));
+    h('p', {cls: 'hint', text: SC.isCard(l.kind) ? 'Applies when the Frame is taken live.' : 'Applies at once.'})]));
 }
 /* ---------- Media layers that are not on the canvas right now ---------- */
 function mediaForm(gen, sc, l){
   var sid = sc.id, lid = l.id, c = l.c;
   var S = studio();
-  gen.appendChild(h('p', {cls: 'hint', text: S ? 'Take this scene live to place this layer directly on the canvas. Until then you can set it up here.' : 'Media layers are part of the KingdomConnect picture. Turn KingdomConnect on in Settings → KingdomConnect Camera to see and arrange them.'}));
+  gen.appendChild(h('p', {cls: 'hint', text: S ? 'Take this Frame live to place this Content directly on the canvas. Until then you can set it up here.' : 'Media Content is part of the KingdomConnect picture. Turn KingdomConnect on in Settings → KingdomConnect Camera to see and arrange them.'}));
   if (['image', 'video', 'pdf'].indexOf(l.kind) >= 0){
     gen.appendChild(row('File', h('span', {cls: 'plain', text: c.file || 'Not chosen yet'})));
     gen.appendChild(h('div', {cls: 'ip-acts'}, [h('button', {cls: 'btn small', type: 'button', text: c.file ? 'Choose another file…' : 'Choose a file…', onclick: function(){ pickFile(l.kind === 'pdf' ? 'powerpoint' : l.kind).then(function(f){ if (f) editLayer(sid, lid, function(x){ x.c.file = f; }); }); }})]));
@@ -899,9 +900,9 @@ function renderCanvas(){
   pb.textContent = isLive ? (anyOn ? '● LIVE' : 'LIVE · nothing shown') : 'PREVIEW'; pb.className = 'program-badge' + (isLive && anyOn ? ' on' : '');
   var tx = sc ? SC.transitionOf(live, sc) : null;
   $('mt-section').textContent = sc ? SC.txName(tx.type) + (tx.ms ? ' ' + tx.ms + ' ms' : '') + (sc.auto.on ? ' · auto ' + sc.auto.sec + ' s' : '') : '';
-  $('canvas-note').textContent = !sc ? '' : useStudio ? 'Exactly what Zoom / Teams receive. Drag media layers to move them, the handles to resize.' :
-    isLive ? 'Live. The overlay page shown here is what OBS receives' + (S ? '' : ' (turn KingdomConnect on to see the camera picture and arrange media layers)') + '.' :
-    'Preview of this scene: not on air. Go Live (T) puts it on screen.' + (sc.layers.some(function(l){ return SC.isMedia(l.kind); }) ? ' Outlines show where its media layers go.' : '');
+  $('canvas-note').textContent = !sc ? '' : useStudio ? 'Exactly what Zoom / Teams receive. Drag media Content to move it, the handles to resize.' :
+    isLive ? 'Live. The overlay page shown here is what OBS receives' + (S ? '' : ' (turn KingdomConnect on to see the camera picture and arrange media Content)') + '.' :
+    'Preview of this Frame: not on air. Go Live (T) puts it on screen.' + (sc.layers.some(function(l){ return SC.isMedia(l.kind); }) ? ' Outlines show where its media Content goes.' : '');
   // media outlines for a scene that is not live
   var boxes = $('canvas-boxes'), bsig = !useStudio && sc && !isLive ? JSON.stringify(sc.layers.filter(function(l){ return SC.isMedia(l.kind) && l.visible; }).map(function(l){ return [l.id, l.name, l.c.x, l.c.y, l.c.w, l.c.h, l.kind]; })) : '';
   if (boxes.dataset.sig !== bsig){
@@ -940,7 +941,7 @@ if (window.BSFStudio && window.BSFStudio.onPush){
 /* Live bar                                                                                              */
 /* ===================================================================================================== */
 var txSel = $('lb-tx');
-txSel.appendChild(h('option', {value: '', text: 'Scene default'}));
+txSel.appendChild(h('option', {value: '', text: 'Frame default'}));
 SC.transitions.forEach(function(t){ txSel.appendChild(h('option', {value: t[0], text: t[1]})); });
 txSel.value = lsGet('bcc-tx-override', '');
 txSel.addEventListener('change', function(){ lsSet('bcc-tx-override', txSel.value); txSel.classList.toggle('set', !!txSel.value); });
@@ -948,8 +949,8 @@ txSel.classList.toggle('set', !!txSel.value);
 var takeAt = 0;
 function takeScene(id){
   var now = Date.now(); if (now - takeAt < 450) return; takeAt = now;            // no accidental double takes
-  var sc = SC.find(live, id); if (!sc){ toast('Select a scene first.', true); return; }
-  if (sc.tpl){ toast('This is a template. Use + Scene → From your templates to make a scene from it.', true); return; }
+  var sc = SC.find(live, id); if (!sc){ toast('Select a Frame first.', true); return; }
+  if (sc.tpl){ toast('This is a template. Use + Frame → From your templates to make a Frame from it.', true); return; }
   var b = SC.first(sc, 'birthday'), needBday = b && b.visible && !live.birthday.greeting.trim();
   commit(function(n){ SC.take(n, id, txSel.value || null); }).then(function(){
     if (needBday && window.BSFBirthday && window.BSFBirthday.candidate()) window.BSFBirthday.show();
@@ -959,7 +960,7 @@ function takeScene(id){
 }
 function stepScene(d){
   var base = live.live.scene || selScene, nx = SC.neighbour(live, base, d);
-  if (!nx){ toast(d > 0 ? 'That’s the last scene.' : 'That’s the first scene.'); return; }
+  if (!nx){ toast(d > 0 ? 'That’s the last Frame.' : 'That’s the first Frame.'); return; }
   selScene = nx.id; lsSet('bcc-sel-scene', nx.id); selLayer = null;
   takeScene(nx.id);
 }
@@ -974,7 +975,7 @@ $('lb-emergency').addEventListener('click', function(e){
 });
 $('lb-hide-layer').addEventListener('click', function(){
   var sc = scene(), l = layer();
-  if (!sc || !l || !isLiveScene(sc.id) || !SC.layerOn(live, sc, l)){ toast('Select a layer of the live scene that is on screen.', true); return; }
+  if (!sc || !l || !isLiveScene(sc.id) || !SC.layerOn(live, sc, l)){ toast('Select Content of the live Frame that is on screen.', true); return; }
   commit(function(n){ SC.setOn(n, sc.id, l.id, false); }).then(function(){ toast(l.name + ' hidden'); });
 });
 document.querySelector('#ctlbar [data-cb="hideAll"]').addEventListener('click', function(){ A.hideAll(); });
@@ -1000,10 +1001,10 @@ Array.prototype.forEach.call(document.querySelectorAll('#ctlbar [data-cb="slide"
 var slideInfo = null;
 function renderLiveBar(){
   var sc = scene(), L = live.live;
-  var what = sc ? sc.name : 'Select a scene';
+  var what = sc ? sc.name : 'Select a Frame';
   var onAir = !!(sc && isLiveScene(sc.id));
   $('cb-take-what').textContent = onAir ? '● On air: ' + what : what;
-  $('cb-take').title = onAir ? sc.name + ' is on air. Go Live again re-shows it from the start of its transition.' : 'Go Live: put the selected scene on screen (T)';
+  $('cb-take').title = onAir ? sc.name + ' is on air. Go Live again re-shows it from the start of its transition.' : 'Go Live: put the selected Frame on screen (T)';
   $('cb-take').disabled = !sc || sc.tpl;
   $('cb-take').classList.toggle('is-live', !!(sc && isLiveScene(sc.id)));
   var order = SC.order(live), li = order.findIndex(function(s){ return s.id === (L.scene || selScene); });
@@ -1040,7 +1041,7 @@ var migrating = false;
 function migrate(){
   if (migrating || !live || live.v6) return;
   migrating = true;
-  var go = function(media, scenes){ commit(function(n){ SC.migrate(n, media, scenes, creator()); }).then(function(){ var f = live.scenes[0]; if (f && !SC.find(live, selScene)) select(f.id, null); toast('Welcome to BCC 6: your content is now in scenes.'); }); };
+  var go = function(media, scenes){ commit(function(n){ SC.migrate(n, media, scenes, creator()); }).then(function(){ var f = live.scenes[0]; if (f && !SC.find(live, selScene)) select(f.id, null); toast('Welcome to BCC 6: your content is now in Frames.'); }); };
   if (!Store.served) return go([], []);
   fetch('api/vcam/studio', {cache: 'no-store'}).then(function(r){ return r.json(); })
     .then(function(d){ go(d && d.available ? d.layers : [], d && d.available ? d.scenes : []); })
@@ -1067,7 +1068,7 @@ function setPresentation(on){
   document.body.classList.toggle('pm', on);
   var b = $('pm-toggle'); b.setAttribute('aria-pressed', String(on));
   b.querySelector('span').textContent = on ? 'Exit Presentation Mode' : 'Presentation Mode';
-  b.title = on ? 'Back to the full Studio (P)' : 'Presentation Mode: only the scenes, Previous, Go Live and Next (P)';
+  b.title = on ? 'Back to the full Studio (P)' : 'Presentation Mode: only the Frames, Previous, Go Live and Next (P)';
   if (filter === 'tpl' && on) setFilter('all');
   closeMenu();
   setTimeout(function(){ window.dispatchEvent(new Event('resize')); var el = document.querySelector('#scene-list .scene-item.live, #scene-list .scene-item.sel'); if (el) el.scrollIntoView({block: 'nearest'}); }, 60);
@@ -1095,7 +1096,7 @@ function renderTransitions(){
   sel.addEventListener('change', function(){ var v = sel.value; commit(function(n){ n.profile = v; }).then(function(){ toast('Transition profile: ' + SC.profile(live).name); renderTransitions(); }); });
   root.appendChild(h('label', {cls: 'field'}, [h('span', {text: 'Profile'}), sel]));
   var own = live.scenes.filter(function(sc){ return sc.tx.type !== 'profile'; }).length;
-  root.appendChild(h('p', {cls: 'hint', text: live.scenes.length - own + ' of ' + live.scenes.length + ' scenes use the profile; ' + own + ' have their own transition (Scene → Transition).'}));
+  root.appendChild(h('p', {cls: 'hint', text: live.scenes.length - own + ' of ' + live.scenes.length + ' Frames use the profile; ' + own + ' have their own transition (Frame → Transition).'}));
   var t = h('table', {cls: 'dir-table'}, [h('thead', {}, [h('tr', {}, ['Profile', 'Transition', 'Duration'].map(function(x){ return h('th', {text: x}); }))])]), tb = h('tbody');
   SC.profiles.forEach(function(p){ tb.appendChild(h('tr', {cls: p.id === live.profile ? 'today' : ''}, [h('td', {text: p.name}), h('td', {text: SC.txName(p.type)}), h('td', {text: p.ms ? p.ms + ' ms' : '-'})])); });
   t.appendChild(tb); root.appendChild(h('div', {cls: 'dir-wrap'}, [t]));
@@ -1111,14 +1112,14 @@ window.BSFWorkspace = {
   fetchVerse: function(ref){
     var sc = scene(), l = sc && SC.first(sc, 'scripture');
     if (!l){ var s2 = live.scenes.filter(function(s){ return !s.tpl && SC.first(s, 'scripture'); })[0]; if (s2){ sc = s2; l = SC.first(s2, 'scripture'); } }
-    if (!l){ toast('Add a Scripture layer to a scene first (+ Layer → Scripture Layer).', true); return; }
+    if (!l){ toast('Add Scripture to a Frame first (+ Content → Scripture).', true); return; }
     tabFor.scripture = 'content'; select(sc.id, l.id);
     setTimeout(function(){ if (window.BSFScripture){ window.BSFScripture.focus(ref); window.BSFScripture.fetch(ref); } }, 30);
   },
   findItem: function(kind, i){
     var lk = kind === 'verse' ? 'scripture' : 'question', sc = scene(), l = sc && SC.first(sc, lk);
     if (!l){ var s2 = live.scenes.filter(function(s){ return !s.tpl && SC.first(s, lk); })[0]; if (s2){ sc = s2; l = SC.first(s2, lk); } }
-    if (!l){ toast('No scene has a ' + (lk === 'question' ? 'Question' : 'Scripture') + ' layer yet.', true); return; }
+    if (!l){ toast('No Frame has a ' + (lk === 'question' ? 'Question' : 'Scripture') + ' Content yet.', true); return; }
     tabFor[lk] = 'content'; select(sc.id, l.id);
     setTimeout(function(){
       var row = document.querySelectorAll(kind === 'verse' ? '#v-items > li' : '#q-items > li')[i]; if (!row) return;

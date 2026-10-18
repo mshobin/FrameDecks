@@ -135,7 +135,7 @@ show(document.body.dataset.tab || 'studio');
     ['ipad', 'Phone & iPad Remote', 'remote pin qr phone tablet android'], ['keys', 'Keyboard shortcuts', 'keys hotkeys shortcuts'],
     ['security', 'Security', 'pin privacy'], ['data', 'Data & backup', 'backup restore export import excel'],
     ['diag', 'Diagnostics', 'problems errors logs'], ['about', 'About', 'version credits']];
-  var KINDS = {question: 'Question', verse: 'Verse', member: 'Member', birthday: 'Birthday', scene: 'Scene', layer: 'Layer', media: 'Media', bible: 'Bible', slides: 'Slides', setting: 'Settings'};
+  var KINDS = {question: 'Question', verse: 'Verse', member: 'Member', birthday: 'Birthday', scene: 'Frame', layer: 'Content', media: 'Media', bible: 'Bible', slides: 'Slides', setting: 'Settings'};
   Store.subscribe(function(st){ lib = st.library; fullState = st; });
   function norm(s){ return String(s || '').toLowerCase(); }
   function find(q){
@@ -153,17 +153,17 @@ show(document.body.dataset.tab || 'studio');
     var SC = window.BSFScenes;
     if (SC && fullState){
       fullState.scenes.forEach(function(sc){
-        if (norm(sc.name + ' ' + sc.group).indexOf(q) >= 0 || q === 'scene' || q === 'scenes' || (q === 'template' || q === 'templates') && sc.tpl)
-          out.unshift({kind: 'scene', id: sc.id, title: sc.name, sub: (fullState.live.scene === sc.id ? 'Live · ' : '') + (sc.tpl ? 'Template' : sc.group || 'Scene') + ' · ' + sc.layers.length + ' layers'});
+        if (norm(sc.name + ' ' + sc.group).indexOf(q) >= 0 || q === 'frame' || q === 'frames' || q === 'scene' || q === 'scenes' || (q === 'template' || q === 'templates') && sc.tpl)
+          out.unshift({kind: 'scene', id: sc.id, title: sc.name, sub: (fullState.live.scene === sc.id ? 'Live · ' : '') + (sc.tpl ? 'Template' : sc.group || 'Frame') + ' · ' + (sc.layers.map(function(l){ return SC.info[l.kind].name; }).join(', ') || 'empty')});
         sc.layers.forEach(function(l){
           var media = l.c && l.c.file ? ' ' + l.c.file : '';
           if (norm(l.name + ' ' + SC.info[l.kind].name + media + ' ' + (l.c.text || '') + ' ' + (l.c.title || '')).indexOf(q) >= 0 && out.length < 60)
-            out.push({kind: SC.isMedia(l.kind) ? 'media' : 'layer', id: sc.id, layer: l.id, title: l.name, sub: SC.info[l.kind].name + ' layer · ' + sc.name});
+            out.push({kind: SC.isMedia(l.kind) ? 'media' : 'layer', id: sc.id, layer: l.id, title: l.name, sub: SC.info[l.kind].name + ' · ' + sc.name});
         });
       });
     }
     var ref = window.BSFScripture && window.BSFScripture.parse(inp.value);
-    if (ref) out.unshift({kind: 'bible', ref: ref, title: ref, sub: 'Fetch into the Scripture layer (ESV)'});
+    if (ref) out.unshift({kind: 'bible', ref: ref, title: ref, sub: 'Fetch into the Scripture Content (ESV)'});
     SECTIONS.forEach(function(x){ if (norm(x[1] + ' ' + x[2]).indexOf(q) >= 0) out.push({kind: 'setting', sec: x[0], title: x[1], sub: 'Settings · ' + x[2]}); });
     return out.slice(0, 60);
   }

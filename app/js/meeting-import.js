@@ -110,7 +110,7 @@ function preview(){
   var c = plan.counts, errs = plan.errors, warns = plan.warnings;
   var existing = live.scenes.filter(function(s){ return !s.tpl; }).length;
   var mode = 'append';
-  var summary = h('div', {cls: 'mi-chips'}, [chip(c.scenes, c.scenes === 1 ? 'scene' : 'scenes', 'big'), chip(c.layers, c.layers === 1 ? 'layer' : 'layers', 'big'),
+  var summary = h('div', {cls: 'mi-chips'}, [chip(c.scenes, c.scenes === 1 ? 'Frame' : 'Frames', 'big'), chip(c.layers, 'Content', 'big'),
     c.questions ? chip(c.questions, c.questions === 1 ? 'question' : 'questions') : null, c.verses ? chip(c.verses, c.verses === 1 ? 'verse' : 'verses') : null,
     c.text ? chip(c.text, 'text') : null, c.media ? chip(c.media, 'media') : null, c.branded ? chip(c.branded, 'branded') : null, c.hidden ? chip(c.hidden, 'hidden') : null,
     plan.fetch.length ? chip(plan.fetch.length, 'from the ESV') : null]);
@@ -135,16 +135,16 @@ function preview(){
     var r1 = h('input', {type: 'radio', name: 'mi-mode', value: 'append', checked: 'checked'}), r2 = h('input', {type: 'radio', name: 'mi-mode', value: 'replace'});
     var listRow = h('label', {cls: 'check mi-lists', hidden: 'hidden'}, [lists, ' Also replace the question and verse lists']);
     [r1, r2].forEach(function(r){ r.addEventListener('change', function(){ mode = r.value; listRow.hidden = mode !== 'replace'; go.textContent = mode === 'replace' ? 'Replace and import' : 'Import'; go.classList.toggle('danger', mode === 'replace'); }); });
-    choice = h('fieldset', {cls: 'mi-mode'}, [h('legend', {text: 'This meeting already has ' + existing + (existing === 1 ? ' scene' : ' scenes') + '. What should happen to ' + (existing === 1 ? 'it' : 'them') + '?'}),
-      h('label', {cls: 'radio'}, [r1, h('span', {}, [h('b', {text: 'Append'}), ' – keep your scenes and add these after them'])]),
-      h('label', {cls: 'radio'}, [r2, h('span', {}, [h('b', {text: 'Replace'}), ' – remove your scenes and use only these (saved templates are kept; Undo is offered afterwards)'])]),
+    choice = h('fieldset', {cls: 'mi-mode'}, [h('legend', {text: 'This meeting already has ' + existing + (existing === 1 ? ' Frame' : ' Frames') + '. What should happen to ' + (existing === 1 ? 'it' : 'them') + '?'}),
+      h('label', {cls: 'radio'}, [r1, h('span', {}, [h('b', {text: 'Append'}), ' – keep your Frames and add these after them'])]),
+      h('label', {cls: 'radio'}, [r2, h('span', {}, [h('b', {text: 'Replace'}), ' – remove your Frames and use only these (saved templates are kept; Undo is offered afterwards)'])]),
       listRow]);
   }
   var go = h('button', {cls: 'btn primary', type: 'button', id: 'mi-go', text: 'Import', disabled: errs.length ? 'disabled' : null, onclick: function(){ run(mode, lists.checked); }});
   frame([h('h2', {id: 'mi-title', text: errs.length ? 'Fix the file, then import again' : 'Ready to import'}),
     h('p', {cls: 'kc-dlg-sub'}, ['From ', h('b', {text: fileName}), plan.sheet ? ' (sheet “' + plan.sheet + '”)' : '', '.']),
     summary,
-    plan.scenes.length ? h('details', {cls: 'mi-details', open: errs.length ? null : 'open'}, [h('summary', {text: 'Scenes in order'}), table]) : null,
+    plan.scenes.length ? h('details', {cls: 'mi-details', open: errs.length ? null : 'open'}, [h('summary', {text: 'Frames in order'}), table]) : null,
     issues, choice,
     h('div', {cls: 'kc-dlg-foot'}, [
       h('button', {cls: 'btn quiet', type: 'button', text: 'Choose another file', onclick: function(){ fileIn.click(); }}),

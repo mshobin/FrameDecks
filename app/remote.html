@@ -39,7 +39,7 @@
     <span class="conn" id="conn"><i></i><b>Connecting…</b></span>
     <span class="onair" id="onair" role="status" aria-live="polite"><i></i><b>OFF AIR</b></span>
     <button class="tool more-btn" type="button" id="more-btn" aria-label="More: layout, disconnect" aria-haspopup="dialog"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg></button>
-    <button class="hideall" type="button" id="hide-all" aria-label="Hide every layer now">HIDE ALL</button>
+    <button class="hideall" type="button" id="hide-all" aria-label="Hide every Content now">HIDE ALL</button>
   </header>
   <div class="offline" id="offline" hidden>Not connected to the PC — reconnecting… Buttons are paused.</div>
   <div class="chips" id="chips" aria-label="Outputs"><span class="chip" id="ch-vcam" hidden></span><span class="chip" id="ch-rec" hidden></span><span class="chip" id="ch-slide" hidden></span><span class="chip" id="ch-black" hidden></span></div>
@@ -96,17 +96,17 @@
     <!-- CANVAS + live controls (the Live tab; the middle pane on tablets) -->
     <section class="pane p-live" aria-labelledby="now-title">
       <div class="now" id="now">
-        <div class="now-top"><span class="now-label" id="now-title">Live scene</span><span class="now-meta" id="now-meta"></span></div>
+        <div class="now-top"><span class="now-label" id="now-title">Live Frame</span><span class="now-meta" id="now-meta"></span></div>
         <p class="now-name" id="now-name">Nothing live yet</p>
         <p class="now-sub" id="now-sub"></p>
         <p class="now-notes" id="now-notes" hidden></p>
       </div>
       <div class="canvas" id="canvas"><iframe id="frame" title="What Zoom participants see" tabindex="-1"></iframe><span class="cv-badge">LIVE</span></div>
-      <div class="next-pv" id="next-pv" hidden><span class="np-l">Next</span><b id="np-name"></b><div class="canvas small" id="canvas-next"><iframe id="frame-next" title="The next scene" tabindex="-1"></iframe></div></div>
-      <div class="deck" role="group" aria-label="Scenes">
-        <button class="pb nav" type="button" id="prev" aria-label="Previous scene"><span class="ar" aria-hidden="true">◀</span><small>Scene</small></button>
+      <div class="next-pv" id="next-pv" hidden><span class="np-l">Next</span><b id="np-name"></b><div class="canvas small" id="canvas-next"><iframe id="frame-next" title="The next Frame" tabindex="-1"></iframe></div></div>
+      <div class="deck" role="group" aria-label="Frames">
+        <button class="pb nav" type="button" id="prev" aria-label="Previous Frame"><span class="ar" aria-hidden="true">◀</span><small>Frame</small></button>
         <button class="pb take" type="button" id="take"><span class="tl">GO LIVE</span><small id="take-what"></small></button>
-        <button class="pb nav" type="button" id="next" aria-label="Next scene"><span class="ar" aria-hidden="true">▶</span><small>Scene</small></button>
+        <button class="pb nav" type="button" id="next" aria-label="Next Frame"><span class="ar" aria-hidden="true">▶</span><small>Frame</small></button>
       </div>
       <label class="txrow"><span>Transition</span><select id="tx" aria-label="Transition for the next take"></select></label>
       <div class="qs" id="qs" hidden>
@@ -124,7 +124,7 @@
         <button class="pb nav sm" type="button" data-slide="1" aria-label="Next slide"><span class="ar" aria-hidden="true">▶</span></button>
       </div>
       <div class="prog" role="group" aria-label="Program">
-        <button class="tool" type="button" id="hide-layer">Hide layer</button>
+        <button class="tool" type="button" id="hide-layer">Hide Content</button>
         <button class="tool" type="button" id="blackout" aria-pressed="false">Blackout</button>
         <button class="tool" type="button" id="emergency" aria-pressed="false">Emergency</button>
         <button class="tool" type="button" id="annotate" aria-pressed="false">Annotate</button>
@@ -134,17 +134,17 @@
 
     <!-- LAYERS of the live scene (a tab on phones; the right pane on tablets) -->
     <section class="pane p-layers" aria-labelledby="ly-title">
-      <header class="pane-head"><h2 id="ly-title">Layers</h2><span class="pane-sub" id="ly-of"></span></header>
-      <ol class="llist" id="llist" aria-label="Layers of the live scene"></ol>
-      <p class="hint" id="ly-hint">Tap a layer to select it; the eye shows or hides it on screen.</p>
+      <header class="pane-head"><h2 id="ly-title">Content</h2><span class="pane-sub" id="ly-of"></span></header>
+      <ol class="llist" id="llist" aria-label="Content of the live Frame"></ol>
+      <p class="hint" id="ly-hint">Tap Content to select it; the eye shows or hides it on screen.</p>
     </section>
   </div>
 
   <!-- Phones: one job per tab, at your thumb -->
   <nav class="tabbar" id="tabbar" aria-label="Sections">
     <button type="button" data-tab="live" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="2.5"/><path d="M16.2 7.8a6 6 0 0 1 0 8.4M7.8 16.2a6 6 0 0 1 0-8.4M19 5a10 10 0 0 1 0 14M5 19A10 10 0 0 1 5 5"/></svg><span>Live</span></button>
-    <button type="button" data-tab="scenes"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span>Scenes</span></button>
-    <button type="button" data-tab="layers"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 2 10 5-10 5L2 7z"/><path d="m2 17 10 5 10-5M2 12l10 5 10-5"/></svg><span>Layers</span></button>
+    <button type="button" data-tab="scenes"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span>Frames</span></button>
+    <button type="button" data-tab="layers"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 2 10 5-10 5L2 7z"/><path d="m2 17 10 5 10-5M2 12l10 5 10-5"/></svg><span>Content</span></button>
   </nav>
 
   <!-- More: layout for this device, disconnect -->

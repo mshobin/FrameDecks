@@ -80,8 +80,8 @@ function addFile(kind){
 /* ---------- layout of the tab ---------- */
 root.classList.add('s2');
 var top = h('div', {cls: 's2-top'});
-var scenesSec = h('section', {cls: 'rail-sec rail-scenes', 'aria-label': 'Scenes'});
-var left = h('section', {cls: 's2-left rail-sec rail-layers', 'aria-label': 'Layers'});
+var scenesSec = h('section', {cls: 'rail-sec rail-scenes', 'aria-label': 'Frames'});
+var left = h('section', {cls: 's2-left rail-sec rail-layers', 'aria-label': 'Content'});
 var railNote = h('p', {cls: 'rail-note', hidden: 'hidden'});
 var centre = h('section', {cls: 's2-centre', 'aria-label': 'Canvas'});
 var right = h('aside', {cls: 's2-right', 'aria-label': 'Inspector'});
@@ -92,11 +92,11 @@ root.appendChild(centre);
 var mediaHost = $('insp-media'); if (mediaHost) mediaHost.appendChild(right);
 
 /* Top bar: scene selector with collection filter · Preview/Output · Record · Look · Focus · Hide window */
-var colFilter = h('select', {id: 's2-colfilter', 'aria-label': 'Scene collection'});
-var sceneSel = h('select', {id: 's2-scene', 'aria-label': 'Scene'});
+var colFilter = h('select', {id: 's2-colfilter', 'aria-label': 'Frame collection'});
+var sceneSel = h('select', {id: 's2-scene', 'aria-label': 'Frame'});
 /* Share Window (was "Presentation Mode" before 6.1): a separate window showing only the scene, for Zoom > Share > window */
 var presBtn = h('button', {cls: 'btn primary s2-present', type: 'button', id: 's2-present', html: I('presentation', 16) + ' Share Window',
-  title: 'Open a separate window with only the scene, to share in Zoom (Share Screen → BSF Presentation)'});
+  title: 'Open a separate window with only the Frame, to share in Zoom (Share Screen → BSF Presentation)'});
 var recBtn = h('button', {cls: 'btn s2-rec', type: 'button', id: 's2-rec', html: '<span class="dot"></span> Record'});
 var lookSel = h('select', {id: 's2-look', 'aria-label': 'Camera look'});
 var focusBtn = ib('maximize-2', 'Focus: hide the rest of the app', function(){ document.body.classList.toggle('studio-focus'); focusBtn.innerHTML = I(document.body.classList.contains('studio-focus') ? 'minimize-2' : 'maximize-2', 16); setTimeout(fitStage, 50); });
@@ -114,7 +114,7 @@ if (recHost){ recHost.appendChild(recBtn); recHost.appendChild(h('span', {cls: '
 presBtn.classList.remove('primary'); presBtn.classList.add('small');
 
 colFilter.addEventListener('change', renderScenes);
-sceneSel.addEventListener('change', function(){ if (sceneSel.value) act('scene-apply', {id: sceneSel.value}).then(function(){ toast('Scene: ' + sceneSel.options[sceneSel.selectedIndex].text); }); });
+sceneSel.addEventListener('change', function(){ if (sceneSel.value) act('scene-apply', {id: sceneSel.value}).then(function(){ toast('Frame: ' + sceneSel.options[sceneSel.selectedIndex].text); }); });
 var popup = null;
 presBtn.addEventListener('click', function(){
   var open = S && S.presentation && S.presentation.open;
@@ -134,13 +134,13 @@ recBtn.addEventListener('click', function(){
 lookSel.addEventListener('change', function(){ if (window.BSFLook) window.BSFLook.set(lookSel.value); });
 
 /* ---------- Left: layers ---------- */
-var addBtn = h('button', {cls: 'btn primary small', type: 'button', id: 's2-add', 'aria-haspopup': 'menu', html: I('plus', 15) + ' Add layer'});
+var addBtn = h('button', {cls: 'btn primary small', type: 'button', id: 's2-add', 'aria-haspopup': 'menu', html: I('plus', 15) + ' Add Content'});
 var addMenu = h('div', {cls: 's2-menu', id: 's2-addmenu', role: 'menu', hidden: 'hidden'});
-var list = h('ol', {cls: 's2-list', id: 's2-list', 'aria-label': 'Layer stack (top = in front)'});
-left.appendChild(h('div', {cls: 's2-head'}, [h('h2', {html: I('layers', 16) + ' Layers'}), addBtn]));
+var list = h('ol', {cls: 's2-list', id: 's2-list', 'aria-label': 'Content stack (top = in front)'});
+left.appendChild(h('div', {cls: 's2-head'}, [h('h2', {html: I('layers', 16) + ' Content'}), addBtn]));
 left.appendChild(addMenu);
 left.appendChild(list);
-left.appendChild(h('p', {cls: 'hint s2-tip', text: 'Higher layers appear in front. Ctrl/Cmd+Click or Shift+Click to select several. Double-click a name to rename. Your verse, question and birthday cards always stay on top.'}));
+left.appendChild(h('p', {cls: 'hint s2-tip', text: 'Content higher in the list appears in front. Ctrl/Cmd+Click or Shift+Click to select several. Double-click a name to rename. Your verse, question and birthday cards always stay on top.'}));
 function menuItem(icon, label, fn, id){ return h('button', {type: 'button', role: 'menuitem', id: id || null, html: I(icon, 16) + '<span>' + label + '</span>', onclick: function(){ addMenu.hidden = true; fn(); }}); }
 addMenu.appendChild(menuItem('video', 'Video Source (camera)', function(){ addLayer({type: 'camera', name: 'Camera', w: 0.5, h: 0.5}); }, 'add-camera'));
 addMenu.appendChild(menuItem('monitor', 'Screen Capture…', chooseScreen, 'add-screen'));
@@ -222,7 +222,7 @@ function renderList(){
   if (list.contains(document.activeElement) && document.activeElement.tagName === 'INPUT') return;
   list.innerHTML = '';
   var shown = L.slice().reverse();
-  if (!shown.length) list.appendChild(h('li', {cls: 's2-empty', text: 'No layers yet. Use Add layer, or a layout template.'}));
+  if (!shown.length) list.appendChild(h('li', {cls: 's2-empty', text: 'No Content yet. Use Add Content, or a layout template.'}));
   shown.forEach(function(l){
     var t = TYPES[l.type] || ['square', l.type];
     var name = h('span', {cls: 's2-name', text: l.name || t[1]});
@@ -266,7 +266,7 @@ function selectFromList(id, e){
 var img = h('img', {alt: 'The live KingdomConnect picture', id: 's2-img', draggable: 'false'});
 var boxes = h('div', {cls: 's2-boxes'});
 var guides = h('div', {cls: 's2-guides'});
-var stage = h('div', {cls: 's2-stage', id: 's2-stage', tabindex: '0', 'aria-label': 'Canvas: drag layers to move them; use the handles to resize'}, [img, boxes, guides,
+var stage = h('div', {cls: 's2-stage', id: 's2-stage', tabindex: '0', 'aria-label': 'Canvas: drag Content to move them; use the handles to resize'}, [img, boxes, guides,
   h('span', {cls: 's2-badge', id: 's2-badge', text: 'OUTPUT'})]);
 var stageWrap = h('div', {cls: 's2-stagewrap'}, [stage]);
 var metrics = h('p', {cls: 'hint s2-metrics', id: 's2-metrics'});
@@ -396,10 +396,10 @@ stage.addEventListener('keydown', function(e){
 });
 
 /* ---------- Right: scenes + inspector + personalise ---------- */
-var colSel = h('select', {id: 's2-collection', 'aria-label': 'Scene collection'});
+var colSel = h('select', {id: 's2-collection', 'aria-label': 'Frame collection'});
 var gallery = h('div', {cls: 's2-gallery', id: 's2-gallery'});
 var insp = h('div', {cls: 's2-insp', id: 's2-insp'});
-scenesSec.appendChild(h('div', {cls: 's2-head'}, [h('h2', {html: I('layout-template', 16) + ' Scenes'}), colSel,
+scenesSec.appendChild(h('div', {cls: 's2-head'}, [h('h2', {html: I('layout-template', 16) + ' Frames'}), colSel,
   ib('plus', 'New collection', function(){ var n = prompt('Name for the new collection:'); if (n && n.trim()) act('collection-add', {name: n.trim()}).then(function(d){ colSel.dataset.sig = ''; refresh().then(function(){ colSel.value = d.collection; renderScenes(); }); }); })]));
 scenesSec.appendChild(gallery);
 right.appendChild(h('div', {cls: 's2-head'}, [h('h2', {html: I('sparkles', 16) + ' Inspector'})]));
@@ -423,19 +423,19 @@ function renderScenes(){
       var card = h('button', {cls: 's2-scene' + (S.activeScene === sc.id ? ' on' : ''), type: 'button', title: 'Switch to ' + sc.name, 'aria-pressed': String(S.activeScene === sc.id), 'data-scene': sc.id}, [
         sc.thumb ? h('img', {src: 'api/vcam/scene-thumb?id=' + encodeURIComponent(sc.id) + '&t=' + sc.thumb, alt: ''}) : h('span', {cls: 's2-nothumb', html: I('image', 20)}),
         h('span', {cls: 's2-scname', text: sc.name})]);
-      card.addEventListener('click', function(){ act('scene-apply', {id: sc.id}).then(function(){ toast('Scene: ' + sc.name); refresh(); }); });
-      var del = ib('x', 'Delete scene', function(e){ e.stopPropagation(); if (confirm('Delete scene “' + sc.name + '”?')) act('scene-delete', {id: sc.id}).then(refresh); }, 's2-scdel');
+      card.addEventListener('click', function(){ act('scene-apply', {id: sc.id}).then(function(){ toast('Frame: ' + sc.name); refresh(); }); });
+      var del = ib('x', 'Delete Frame', function(e){ e.stopPropagation(); if (confirm('Delete Frame “' + sc.name + '”?')) act('scene-delete', {id: sc.id}).then(refresh); }, 's2-scdel');
       gallery.appendChild(h('div', {cls: 's2-scwrap'}, [card, del]));
     });
-    gallery.appendChild(h('button', {cls: 's2-scene add', type: 'button', id: 's2-savescene', html: I('plus', 20) + '<span class="s2-scname">Save as scene</span>', onclick: function(){
-      var n = prompt('Name for this scene (e.g. “Meeting Default”):'); if (n && n.trim()) act('scene-save', {name: n.trim(), collection: col}).then(function(){ toast('Scene saved'); refresh(); }); }}));
+    gallery.appendChild(h('button', {cls: 's2-scene add', type: 'button', id: 's2-savescene', html: I('plus', 20) + '<span class="s2-scname">Save as Frame</span>', onclick: function(){
+      var n = prompt('Name for this Frame (e.g. “Meeting Default”):'); if (n && n.trim()) act('scene-save', {name: n.trim(), collection: col}).then(function(){ toast('Frame saved'); refresh(); }); }}));
   }
   var act_ = (S.scenes || []).filter(function(sc){ return sc.id === S.activeScene; })[0];
-  sceneNow.textContent = act_ ? act_.name : 'No scene chosen';
+  sceneNow.textContent = act_ ? act_.name : 'No Frame chosen';
   var f = colFilter.value, opts = (S.scenes || []).filter(function(sc){ return !f || sc.collection === f; });
   var ssig = JSON.stringify(opts) + S.activeScene;
   if (sceneSel.dataset.sig !== ssig){ sceneSel.dataset.sig = ssig; sceneSel.innerHTML = '';
-    sceneSel.appendChild(h('option', {value: '', text: opts.length ? 'Choose a scene…' : 'No scenes yet'}));
+    sceneSel.appendChild(h('option', {value: '', text: opts.length ? 'Choose a Frame…' : 'No Frames yet'}));
     opts.forEach(function(sc){ sceneSel.appendChild(h('option', {value: sc.id, text: sc.name})); });
     sceneSel.value = S.activeScene && opts.some(function(o){ return o.id === S.activeScene; }) ? S.activeScene : ''; }
 }
@@ -478,11 +478,11 @@ function renderInspector(fromDrag){
   var sig = JSON.stringify([chosen.map(strip), S && S.screen]);
   if (sig === inspSig) return; inspSig = sig;
   insp.innerHTML = '';
-  if (!chosen.length){ insp.appendChild(h('p', {cls: 'hint', text: 'Select a layer on the canvas or in the Layers list.'})); return; }
+  if (!chosen.length){ insp.appendChild(h('p', {cls: 'hint', text: 'Select Content on the canvas or in the Content list.'})); return; }
   var actions = h('div', {cls: 's2-actions'}, [
     ib('copy', 'Duplicate (Ctrl+D)', duplicateSelected), ib('trash-2', 'Delete (Del)', removeSelected),
     ib('arrow-up', 'Move up (forward)', function(){ moveSelected(1); }), ib('arrow-down', 'Move down (backward)', function(){ moveSelected(-1); })]);
-  if (chosen.length > 1){ insp.appendChild(h('p', {cls: 'plain', text: chosen.length + ' layers selected'})); insp.appendChild(actions); return; }
+  if (chosen.length > 1){ insp.appendChild(h('p', {cls: 'plain', text: chosen.length + ' items selected'})); insp.appendChild(actions); return; }
   var l = chosen[0], bx = boxOf(l), p = l.props || (l.props = {}), lid = l.id;
   var cur = function(){ return layerById(lid) || l; }, curP = function(){ var x = cur(); return x.props || (x.props = {}); };
   var title = h('div', {cls: 's2-insp-title', html: I((TYPES[l.type] || ['square'])[0], 16) + ' <b></b>'});
@@ -572,7 +572,7 @@ function apply(d){
   if (!d.available){
     root.innerHTML = ''; root.appendChild(h('p', {cls: 'plain', style: 'padding:20px', text: d.reason || 'KingdomConnect is not available.'}));
     scenesSec.hidden = left.hidden = true; railNote.hidden = false;
-    railNote.textContent = 'Scenes and layers appear here when KingdomConnect is running. ' + (d.reason || '');
+    railNote.textContent = 'Frames and Content appear here when KingdomConnect is running. ' + (d.reason || '');
     return;
   }
   scenesSec.hidden = left.hidden = false; railNote.hidden = true;
@@ -656,7 +656,7 @@ document.addEventListener('keydown', function(e){
     var n = {Digit1: 0, Digit2: 1, Digit3: 2}[e.code];
     if (n === undefined) return;
     e.preventDefault();
-    act('toggle-layer', {index: n}).then(function(d){ if (d.layer) toast((d.visible ? 'Showing ' : 'Hiding ') + d.layer); else toast('There is no layer ' + (n + 1) + ' yet', true); });
+    act('toggle-layer', {index: n}).then(function(d){ if (d.layer) toast((d.visible ? 'Showing ' : 'Hiding ') + d.layer); else toast('There is no Content ' + (n + 1) + ' yet', true); });
     return;
   }
   if ((e.key === 'PageDown' || e.key === 'PageUp') && !e.ctrlKey && !e.altKey && !e.repeat && S && S.available){
