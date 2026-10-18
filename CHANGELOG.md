@@ -25,6 +25,9 @@ Versions before 4.9 (when the product was called BSF Command Center, then BCC) a
 - Repository organization: earlier guides moved to `docs/reference/`, the engineering log to
   `docs/architecture/design-history.md`, the installer build guide to `docs/development/building-the-installer.md`,
   and tests to `tests/`. Program code and the installer are unchanged.
+- Installer builds use the exact package versions of the last good build (`packaging/constraints.txt`), so every
+  build of the same code produces the same app.
+- The scripture message for non-ESV translations no longer mentions the Excel import removed in 6.6.
 
 ## [6.6] - 2026-10-18
 

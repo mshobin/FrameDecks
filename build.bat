@@ -17,7 +17,7 @@ call ".build-venv\Scripts\activate.bat" || goto :fail
 
 echo  [2/5] Installing build tools (first time takes a few minutes)...
 python -m pip install --upgrade pip >nul || goto :fail
-python -m pip install -r packaging\requirements-desktop.txt || goto :fail
+python -m pip install -r packaging\requirements-desktop.txt -c packaging\constraints.txt || goto :fail
 
 echo  [2b] KingdomConnect camera...
 if exist "vcam\bin\kingdomconnect_vcam64.dll" goto :vcamdone

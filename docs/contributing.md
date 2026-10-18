@@ -25,7 +25,7 @@ what "done" means for a pull request, start with [CONTRIBUTING.md](../CONTRIBUTI
 | Packages in `packaging/requirements-desktop.txt` | see the file | The desktop window (pywebview, pystray), the camera pipeline (OpenCV, NumPy), screen capture, PDF slides (pypdfium2), PowerPoint control (comtypes) and PyInstaller. Install them only if you work on those parts. |
 
 ```bash
-python -m pip install -r packaging/requirements-desktop.txt   # optional: desktop window, camera, slides
+python -m pip install -r packaging/requirements-desktop.txt -c packaging/constraints.txt   # optional: desktop window, camera, slides
 ```
 
 ---

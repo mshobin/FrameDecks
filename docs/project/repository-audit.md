@@ -122,7 +122,8 @@ so two builds months apart may differ; pinning exact versions for releases would
 | 4 | Large single files (`server.py`, `store.js`, `workspace.js`) | Harder review, merge conflicts | Split by responsibility |
 | 5 | No licence file | Unclear terms for churches and contributors | Maintainer to choose and publish a licence |
 | 6 | Windows-only camera | Mac churches cannot use the camera features | Document clearly; consider only with demand |
-| 7 | Dependency ranges, no lock file | Builds can drift | Pin versions for release builds |
+| 7 | Dependency ranges, no lock file | Builds can drift | **Done:** `packaging/constraints.txt` pins every package to the last good build |
+| 7a | Two OpenCV packages installed together (`opencv-python` 5.0 via a dependency, `opencv-python-headless` 4.14) sharing one module | A future version change could break the camera | Pinned as a tested pair; remove one when the dependency allows it |
 | 8 | Internal names still "BSF Command Center" (data folder, install folder, exe) | Confusing in support conversations | Keep for upgrade safety; document (done) |
 | 9 | GitHub Actions on Node 20 actions | Deprecation warnings today, failures later | Update action versions once verified |
 
@@ -192,7 +193,7 @@ the Roadmap delivers it.
 **Next 30 days**
 1. Publish a licence.
 2. Add Playwright smoke tests (Go Live, step, Hide all, phone remote) to CI.
-3. Pin dependency versions for release builds; update GitHub Actions versions.
+3. ~~Pin dependency versions for release builds~~ (done: `packaging/constraints.txt`); update GitHub Actions versions.
 
 **Next quarter**
 1. Song and lyrics library (sections, arrangement, CCLI number field).

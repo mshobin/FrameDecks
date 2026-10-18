@@ -31,6 +31,9 @@ Versions are **major.minor** (6.5, 6.6, 7.0). The number lives in one place: `AP
    [docs/architecture/design-history.md](../architecture/design-history.md) describing design decisions and anything a
    future maintainer needs to know.
 5. **Update the user documentation** for any changed behaviour.
+   - **Changed a Python package?** Builds install `packaging/requirements-desktop.txt` with the exact versions in
+     `packaging/constraints.txt`. After changing a requirement, run a build, test the installer, then copy the
+     build log's "Successfully installed …" versions into `constraints.txt`.
 6. **Run the checks locally:**
    ```bash
    node tests/run.js
