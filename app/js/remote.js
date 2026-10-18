@@ -64,17 +64,17 @@ function stepScene(d){
   take(nx.id);
 }
 /* Step the list (question / verse): show the next item, as on the PC */
-function library(k){ return k === 'verse' ? live.library.verses : live.library.questions; }
+function library(k){ return SC.items(live, k); }                  // v6.5: the list of the Frame on screen
 function currentIndex(k){ var l = library(k), id = live[k].itemId; for (var i = 0; i < l.length; i++) if (l[i].id === id) return i; return -1; }
-function qLabel(q, idx){ var numbered = /\s\d+$/.test(q.label), base = q.label.replace(/\s+\d+$/, ''); return numbered && idx >= 0 ? base + ' ' + (idx + 1) : q.label; }
 function showItem(k, idx){
   var it = library(k)[idx]; if (!it) return;
   update(function(n){
-    var o = n[k]; o.text = it.text; o.itemId = it.id; o.visible = true; o.seq = (o.seq || 0) + 1;
-    if (k === 'verse'){ o.ref = it.ref; o.version = it.version; } else o.label = qLabel(o, idx);
+    var f = SC.itemById(n, k, it.id, true); if (!f) return;
+    if (k === 'question') SC._loadQuestion(n, it.id); else { f.layer.c.itemId = it.id; SC._loadVerse(n, f.layer); }
+    var o = n[k]; o.visible = true; o.seq = (o.seq || 0) + 1;
     T.resolve(n, k, it.id);
     if (k === 'question') P.afterShow(n);
-  }, (k === 'verse' ? 'Verse ' : 'Question ') + (idx + 1));
+  }, (k === 'verse' ? 'Scripture ' : 'Question ') + (idx + 1));
 }
 function stepList(d){
   var k = stepKind(); if (!k) return;

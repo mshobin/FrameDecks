@@ -1042,3 +1042,27 @@ html.kc-native{overscroll-behavior:none}
 html.kc-native body{overscroll-behavior:none}
 html.kc-native .cmdbar,html.kc-native .s-nav,html.kc-native .tabs,html.kc-native .subtabs,html.kc-native button,html.kc-native .scene-item,html.kc-native .layer-item{-webkit-user-select:none;user-select:none}
 html.kc-native img{-webkit-user-drag:none}
+
+/* ---------- v6.5 Frame-owned Question / Scripture lists (js/frame-lists.js) ---------- */
+.insp-body .fl{column-span:all;break-inside:avoid;display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+.fl-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.fl-head h3{margin:0;font-size:var(--fs-section);font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.fl-count{min-width:22px;height:20px;padding:0 6px;border-radius:10px;background:var(--raised);border:1px solid var(--line-soft);font-size:12px;font-weight:700;line-height:18px;text-align:center;margin-right:auto;color:var(--ink)}
+.fl-sub{display:flex;align-items:center;gap:8px}
+.fl-list{max-height:none;overflow:visible}
+.fl-list .item{cursor:pointer}
+.fl-list .item:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.fl-list .txt{display:flex;flex-direction:column;gap:1px}
+.fl-lbl{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--gold)}
+.fl-empty{padding:14px;color:var(--faint);font-size:14px;list-style:none}
+.fl-foot{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.fl-bulk{display:flex;flex-direction:column;gap:6px}
+.fl-bulk textarea{width:100%;box-sizing:border-box}
+.fl-ed-head{display:flex;align-items:center;gap:6px}
+.fl-pos{margin-right:auto;font-size:13px;font-weight:700;color:var(--muted)}
+.fl-ed-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px 24px;align-items:start}
+.fl-sec{display:flex;flex-direction:column;gap:8px}
+.fl-sec .field{margin:0}
+.fl-sec textarea{width:100%;box-sizing:border-box}
+.cs-group{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);padding-top:8px;border-top:1px solid var(--line-soft)}
+.fl-ed-acts{display:flex;gap:6px;flex-wrap:wrap}

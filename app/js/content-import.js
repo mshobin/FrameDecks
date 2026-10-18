@@ -94,9 +94,15 @@ function doImport(result, mode){
     if (q) qs.push(q);
     if (v) vs.push(v);
   });
+  /* v6.5: into the selected Frame's own Question and Scripture lists (each Frame keeps its own) */
+  var SCN = window.BSFScenes, sid = (window.BSFSelFrame && window.BSFSelFrame()) || '';
   return Store.update(function(n){
-    if (mode === 'replace'){ n.library.questions = qs; n.library.verses = vs; }
-    else { n.library.questions = n.library.questions.concat(qs); n.library.verses = n.library.verses.concat(vs); }
+    var oq = SCN.owner(n, 'question', sid || n.live.scene), ov = SCN.owner(n, 'verse', sid || n.live.scene);
+    if (!oq) qs.forEach(function(q){ delete q.pair; });
+    if (!ov) vs = [];
+    if (oq) oq.c.items = mode === 'replace' ? qs : oq.c.items.concat(qs);
+    if (ov) ov.c.items = mode === 'replace' ? vs : ov.c.items.concat(vs);
+    if (!oq) qs = [];
   }).then(function(){ return {q: qs.length, v: vs.length}; });
 }
 

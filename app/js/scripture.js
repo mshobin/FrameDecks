@@ -53,7 +53,8 @@ var refIn = $('scr-ref'), trSel = $('scr-tr'), msg = $('scr-msg');
 function say(t, bad){ if (!msg) return; msg.textContent = t || ''; msg.className = 'scr-msg' + (bad ? ' bad' : ''); }
 function setField(id, v){ var f = $(id); if (!f) return; f.value = v; f.dispatchEvent(new Event('input', {bubbles: true})); }
 function fill(d){
-  setField('v-ref', d.ref); setField('v-version', d.version || 'ESV'); setField('v-text', d.text);
+  if ($('v-text')){ setField('v-ref', d.ref); setField('v-version', d.version || 'ESV'); setField('v-text', d.text); }   // the open editor
+  else if (window.BSFFrameLists) window.BSFFrameLists.onVerse(d);                  // v6.5: a new scripture in this Frame
   if (refIn) refIn.value = d.ref;
   remember(d.ref); chips();
 }
@@ -68,7 +69,7 @@ function fetchRef(ref, fresh){
     .then(function(d){
       if (d.error){ say(d.error, true); return null; }
       fill(d);
-      say(d.stale ? 'Offline: the copy saved on this PC is shown.' : d.cached ? 'From this PC (saved for offline use). Show it, save it to the list or pin it to this layer.' : 'Fetched from the ESV and saved for offline use. Show it, save it to the list or pin it to this layer.');
+      say(d.stale ? 'Offline: the copy saved on this PC is shown.' : d.cached ? 'From this PC (saved for offline use). It is in this Frame’s list.' : 'Fetched from the ESV and saved for offline use. It is in this Frame’s list.');
       return d;
     })
     .catch(function(){ say('The program did not answer. Try again in a moment.', true); return null; });

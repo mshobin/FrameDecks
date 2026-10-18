@@ -150,55 +150,12 @@
 
       <!-- Question layer -->
       <div class="ip" data-kind="question" data-itab="content" hidden>
-        <div class="ip-pin" id="q-pin"></div>
-<section class="box ibox" id="question-box" aria-labelledby="question-title">
-    <div class="box-head">
-      <h2 id="question-title"><svg viewBox="0 0 34 30" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2" width="30" height="20" rx="5"/><path d="M8 22l-3.5 6 9-6" fill="currentColor"/></svg>BSF Discussion Question</h2>
-      <div class="actions">
-        <div class="pmode" role="radiogroup" aria-label="Presentation mode: what Show puts on screen" data-pmode-group>
-          <button type="button" role="radio" data-pmode="question" aria-checked="true">Question</button><button type="button" role="radio" data-pmode="both" aria-checked="false">Both</button><button type="button" role="radio" data-pmode="verse" aria-checked="false">Verse</button></div>
-        <button class="btn primary" type="button" data-act="show" data-kind="question" title="Show the question in this editor">Show question</button>
-      </div>
-    </div>
-
-    <label class="field"><span>Question</span>
-      <textarea id="q-text" class="q" rows="4" placeholder="Type or paste the question. Press Ctrl+Enter to show it."></textarea></label>
-    <div class="checks">
-      <label class="check"><input type="checkbox" id="q-livetype"> Update on screen as I type</label>
-      <button class="btn quiet small" type="button" data-act="blank" data-kind="question">Empty the editor</button>
-    </div>
-
-    
-
-    <div class="list-head">
-      <h3 id="q-list-title">Question list</h3>
-      <button class="btn small" type="button" data-act="save" data-kind="question" id="q-save">Save to list</button>
-    </div>
-    <ol class="items" id="q-items" data-empty="No questions yet. Type one above and select Save to list, or add several at once below."></ol>
-    <details class="adv more"><summary>More</summary>
-      <div class="actions"><button class="btn quiet small" type="button" id="q-bulk-toggle">Add several questions</button>
-        <button class="btn quiet small danger" type="button" data-act="clearlist" data-kind="question">Remove all questions</button></div>
-    </details>
-    <div class="bulk" id="q-bulk" hidden>
-      <label class="field"><span>Paste your questions. Put each question on its own line.</span>
-        <textarea id="q-bulk-text" placeholder="What does verse 3 teach us about God?&#10;How can you apply this passage this week?"></textarea></label>
-      <div class="actions">
-        <button class="btn primary small" type="button" id="q-bulk-add">Add to list</button>
-        <button class="btn quiet small" type="button" id="q-bulk-cancel">Cancel</button>
-      </div>
-    </div>
-    <div id="imp-host"></div>
-    <p class="hint">Keyboard (when not typing): <kbd>→</kbd> next question · <kbd>←</kbd> previous · <kbd>Q</kbd> show/hide question · <kbd>V</kbd> show/hide verse · <kbd>Esc</kbd> hide all</p>
-  </section>
+        <!-- v6.5: this Frame's own questions (js/frame-lists.js): full-height list, double-click edits in this panel -->
+        <div class="fl" id="fl-question" data-fl="question"></div>
+        <div id="imp-host"></div>
       </div>
       <div class="ip" data-kind="question" data-itab="style" hidden>
-        <div class="ip-sec"><div class="row"><span class="lbl">Label</span>
-      <div class="two" style="grid-template-columns:1fr auto;align-items:center">
-        <input type="text" id="q-label" aria-label="Question label">
-        <label class="check"><input type="checkbox" id="q-showlabel"> Show</label>
-      </div></div>
-    <div class="row"><span class="lbl"></span>
-      <label class="check"><input type="checkbox" id="q-numbered"> Add the question number from the list (e.g. “Discussion Question 2”)</label></div></div>
+        <div class="ip-sec" data-fl-label="question"></div>
         <div class="ip-sec basic-only"><div class="row"><span class="lbl">Theme</span><div class="seg" data-kc-theme="question"></div></div>
           <div class="row"><span class="lbl">Position</span><div class="seg" data-kc-qpos></div></div></div>
         <div class="ip-sec adv"><div class="row"><span class="lbl">Text size</span><div class="range"><input type="range" data-range="qScale" min="0.6" max="1.6" step="0.05" aria-label="Question text size"><span class="val"></span></div></div>
@@ -220,7 +177,6 @@
 
       <!-- Scripture layer -->
       <div class="ip" data-kind="scripture" data-itab="content" hidden>
-        <div class="ip-pin" id="v-pin"></div>
         <section class="scr" id="scr" aria-label="Fetch scripture">
           <div class="scr-row"><label class="field scr-ref"><span>Reference</span><input type="text" id="scr-ref" list="scr-books" placeholder="e.g. Romans 2:28-29" autocomplete="off"></label>
             <label class="field scr-tr"><span>Translation</span><select id="scr-tr"><option value="ESV">ESV (online)</option><option value="typed">Typed / Excel</option></select></label></div>
@@ -232,44 +188,10 @@
           <div class="scr-chips" id="scr-chips"></div>
           <div class="scr-context" id="scr-context-box" hidden></div>
         </section>
-<section class="box ibox" id="verse-box" aria-labelledby="verse-title">
-    <div class="box-head">
-      <h2 id="verse-title"><svg viewBox="0 0 36 26" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" aria-hidden="true"><path d="M18 5.5C14 2.6 8.6 2 3 3v18.5c5.6-1 11-.4 15 2.5 4-2.9 9.4-3.5 15-2.5V3c-5.6-1-11-.4-15 2.5z"/><path d="M18 5.5V24"/></svg>BSF Focus Verse</h2>
-      <div class="actions">
-        <button class="btn primary" type="button" data-act="show" data-kind="verse" title="Show the verse in this editor">Show verse</button>
-      </div>
-    </div>
-
-    <div class="two">
-      <label class="field"><span>Reference</span><input type="text" id="v-ref" placeholder="e.g. John 15:5"></label>
-      <label class="field"><span>Translation</span><input type="text" id="v-version" placeholder="e.g. NIV"></label>
-    </div>
-    <label class="field"><span>Verse text</span>
-      <textarea id="v-text" class="serif" rows="5" placeholder="Type or paste the verse. Press Ctrl+Enter to show it."></textarea></label>
-    <div class="checks">
-      <label class="check"><input type="checkbox" id="v-livetype"> Update on screen as I type</label>
-      <button class="btn quiet small" type="button" data-act="blank" data-kind="verse">Empty the editor</button>
-    </div>
-
-    
-
-    <div class="list-head">
-      <h3 id="v-list-title">Saved verses</h3>
-      <button class="btn small" type="button" data-act="save" data-kind="verse" id="v-save">Save to list</button>
-    </div>
-    <ol class="items" id="v-items" data-empty="No saved verses yet. Type one above and select Save to list."></ol>
-    <details class="adv more"><summary>More</summary>
-      <div class="actions"><button class="btn quiet small danger" type="button" data-act="clearlist" data-kind="verse">Remove all verses</button></div>
-    </details>
-    <p class="hint">Select a saved verse to load it into the editor, or <b>Show</b> to put it on screen right away. <kbd>Shift</kbd>+<kbd>→</kbd> shows the next verse.</p>
-  </section>
+        <div class="fl" id="fl-verse" data-fl="verse"></div>
       </div>
       <div class="ip" data-kind="scripture" data-itab="style" hidden>
-        <div class="ip-sec"><div class="row"><span class="lbl">Label</span>
-      <div class="two" style="grid-template-columns:1fr auto;align-items:center">
-        <input type="text" id="v-label" aria-label="Verse label">
-        <label class="check"><input type="checkbox" id="v-showlabel"> Show</label>
-      </div></div></div>
+        <div class="ip-sec" data-fl-label="verse"></div>
         <div class="ip-sec basic-only"><div class="row"><span class="lbl">Theme</span><div class="seg" data-kc-theme="verse"></div></div>
           <div class="row"><span class="lbl">Position</span><div class="seg" data-seg="verseAlign"></div></div></div>
         <div class="ip-sec adv"><div class="row"><span class="lbl">Text size</span><div class="range"><input type="range" data-range="verseScale" min="0.6" max="1.6" step="0.05" aria-label="Verse text size"><span class="val"></span></div></div>
@@ -577,6 +499,7 @@
 <script src="js/remote-panel.js"></script>
 <script src="js/vcam-panel.js"></script>
 <script src="js/studio.js"></script>
+<script src="js/frame-lists.js"></script>
 <script src="js/content-import.js"></script>
 <script src="js/scripture.js"></script>
 <script src="js/workspace.js"></script>

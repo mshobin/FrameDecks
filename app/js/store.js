@@ -86,11 +86,7 @@ function pickFrom(pool, avoid){
   var c = p.length > 1 ? p.filter(function(t){ return t !== avoid; }) : p;
   return c[Math.floor(Math.random() * c.length)];
 }
-function itemOf(st, kind, id){
-  var arr = st.library[kind === 'verse' ? 'verses' : 'questions'];
-  for (var i = 0; i < arr.length; i++) if (arr[i].id === id) return arr[i];
-  return null;
-}
+function itemOf(st, kind, id){ return Scenes.itemById(st, kind, id); }
 /* Which effect a show will use: the item's own choice, else Random (if on), else the default. */
 function preference(st, kind, id){
   var it = id ? itemOf(st, kind, id) : null;
@@ -128,7 +124,7 @@ var MODES = ['question', 'both', 'verse'];
 var Present = {
   modes: MODES,
   names: {question: 'Question', both: 'Both', verse: 'Verse'},
-  item: function(st, id){ id = id || st.question.itemId; var a = st.library.questions; for (var i = 0; i < a.length; i++) if (a[i].id === id) return a[i]; return null; },
+  item: function(st, id){ return Scenes.itemById(st, 'question', id || st.question.itemId); },
   /* the mode this question will be shown in */
   mode: function(st, id){
     var it = Present.item(st, id);
@@ -138,8 +134,7 @@ var Present = {
   /* the verse that goes with the question: its linked verse, else the verse already loaded */
   verseFor: function(st, id){
     var it = Present.item(st, id);
-    if (it && it.pair){ var a = st.library.verses; for (var i = 0; i < a.length; i++) if (a[i].id === it.pair) return a[i]; }
-    return null;
+    return it && it.pair ? Scenes.itemById(st, 'verse', it.pair) : null;
   },
   hasVerse: function(st, id){ return !!Present.verseFor(st, id) || !!String(st.verse.text || '').trim(); },
   /* is "this question in its mode" on screen? */
@@ -263,10 +258,46 @@ function cleanLayer(l){
     if (['duration', 'until'].indexOf(c.mode) < 0) c.mode = d.mode;
   }
   if (CARD_KINDS.indexOf(kind) >= 0){
-    c.itemId = str(c.itemId, 40);                       // '' = follows the list (Prev / Next); else this item
+    c.itemId = str(c.itemId, 40);                       // the item of this Frame's own list that is shown now
+    c.label = str(c.label, 80);                         // this Content's label ('' = the default label)
     if (kind === 'scripture'){ c.ref = str(c.ref, 120); c.version = str(c.version, 40); c.text = str(c.text, 8000); }
+    /* v6.5: every Question / Scripture Content owns its list (never shared with another Frame).
+       undefined = an older layer that still followed the shared list; Scenes.ownLists gives it its own copy. */
+    if (Array.isArray(c.items)) c.items = c.items.filter(isObj).slice(0, 1000).map(function(it){ return cleanItem(kind, it); });
+    else delete c.items;
+    if (isObj(c.look)) c.look = cleanLook(kind, c.look); else delete c.look;
   }
   c.vcam = c.vcam !== false; c.obs = c.obs !== false;     // Output: where this layer appears
+  return out;
+}
+var ITEM_FIELDS = {question: ['label', 'text', 'answer', 'note', 'pair', 'mode', 'media', 'timer', 'anim'],
+  scripture: ['label', 'ref', 'version', 'text', 'note', 'anim']};
+function cleanItem(kind, it){
+  var o = {id: str(it.id || rid('i'), 40)};
+  (ITEM_FIELDS[kind] || []).forEach(function(f){ o[f] = str(it[f], f === 'text' || f === 'answer' || f === 'note' ? 8000 : 200); });
+  if (kind === 'question' && MODES.indexOf(o.mode) < 0) o.mode = '';
+  var t = String(it.transition || '');
+  if (t === 'random' || TRANSITIONS.indexOf(t) >= 0) o.transition = t;
+  return o;
+}
+/* v6.5: a card's appearance and animation belong to its Frame (applied when the Frame goes live) */
+var LOOK = {question: {layout: ['qScale', 'qWidth', 'qBottom', 'panel'], card: ['transition', 'speed', 'random', 'pool', 'burst', 'showLabel']},
+  scripture: {layout: ['verseScale', 'verseY', 'verseWidth', 'verseAlign', 'panel'], card: ['transition', 'speed', 'random', 'pool', 'burst', 'showLabel']}};
+var LOOK_RANGE = {qScale: [.6, 1.6], qWidth: [50, 94], qBottom: [4, 24], panel: [50, 100], verseScale: [.6, 1.6], verseY: [22, 60], verseWidth: [40, 88]};
+function cleanLook(kind, o){
+  var d = LOOK[kind]; if (!d) return undefined;
+  var out = {};
+  d.layout.concat(d.card).forEach(function(k){
+    if (o[k] === undefined) return;
+    var v = o[k];
+    if (LOOK_RANGE[k]) out[k] = num(v, LOOK_RANGE[k][0], LOOK_RANGE[k][1], LOOK_RANGE[k][0]);
+    else if (k === 'verseAlign') out[k] = ['left', 'center', 'right'].indexOf(v) >= 0 ? v : 'center';
+    else if (k === 'transition') out[k] = TRANSITIONS.indexOf(v) >= 0 ? v : 'fade';
+    else if (k === 'speed') out[k] = SPEEDS.indexOf(v) >= 0 ? v : 'normal';
+    else if (k === 'burst') out[k] = v === 'bold' ? 'bold' : 'gentle';
+    else if (k === 'pool') out[k] = (Array.isArray(v) ? v : []).filter(function(t){ return TRANSITIONS.indexOf(t) >= 0; });
+    else out[k] = !!v;
+  });
   return out;
 }
 function cleanScene(sc){
@@ -292,7 +323,11 @@ function newLayer(kind, extra){
   else if (kind === 'image') l.c = {x: 0.5, y: 0.5, w: 0.25, file: ''};
   else if (kind === 'video') l.c = {x: 0.5, y: 0.5, w: 0.5, file: '', loop: true};
   else if (kind === 'pdf') l.c = {x: 0.5, y: 0.5, w: 0.6, file: ''};
+  else if (kind === 'question' || kind === 'scripture') l.c = {items: []};       // a new list of its own
   if (extra) for (var k in extra) if (k === 'c') Object.assign(l.c, extra.c); else l[k] = extra[k];
+  if (kind === 'scripture' && Array.isArray(l.c.items) && !l.c.items.length && String(l.c.text || '').trim()){   // a ready-made verse
+    l.c.items.push({id: rid('v'), ref: l.c.ref, version: l.c.version, text: l.c.text}); l.c.text = ''; l.c.ref = ''; l.c.version = '';
+  }
   return cleanLayer(l);
 }
 /* Built-in templates (the + Scene menu) */
@@ -357,10 +392,6 @@ function compToMedia(o){
   return cleanLayer(keep);
 }
 function profileOf(st){ for (var i = 0; i < PROFILES.length; i++) if (PROFILES[i].id === st.profile) return PROFILES[i]; return PROFILES[1]; }
-function qLabel(st, idx){
-  var q = st.question, numbered = /\s\d+$/.test(q.label), base = q.label.replace(/\s+\d+$/, '');
-  return numbered && idx >= 0 ? base + ' ' + (idx + 1) : q.label;
-}
 var Scenes = {
   CARD: CARD_KINDS, TEXT: TEXT_KINDS, MEDIA: MEDIA_KINDS, info: KIND_INFO, transitions: TX, txMs: TX_MS, profiles: PROFILES, templates: TEMPLATES, library: LIBRARY, libraryCats: LIBRARY_CATS, quickStarts: QUICK_START,
   positions: POS, textDefaults: TEXT_DEFAULTS, cleanLayer: cleanLayer, cleanScene: cleanScene, mediaToComp: mediaToComp, compToMedia: compToMedia,
@@ -438,16 +469,68 @@ var Scenes = {
       return sc;
     }).filter(Boolean);
   },
-  /* Duplicate → Edit question → Done: pin this question text to the scene's question layer.
-     Reuses a list item with the same text, else adds one right after `afterId` (the source scene's question). */
-  pinQuestionText: function(n, sid, lid, text, afterId){
-    var sc = Scenes.find(n, sid), l = Scenes.layer(sc, lid), t = String(text || '').trim(); if (!l || !t) return null;
-    var a = n.library.questions, hit = null, at = -1;
-    for (var i = 0; i < a.length; i++){ if (String(a[i].text).trim() === t) hit = a[i]; if (a[i].id === afterId) at = i; }
-    if (!hit){ hit = {id: rid('q'), text: t}; if (at >= 0) a.splice(at + 1, 0, hit); else a.push(hit); }
-    l.c.itemId = hit.id; Scenes.stamp(sc);
-    if (n.live.scene === sid && n.question.visible) Scenes._loadQuestion(n, hit.id);
-    return hit;
+  /* ---------- v6.5: each Frame's Question / Scripture Content owns its list ----------
+   * kind: 'question' or 'verse'. The list of a Frame = the items of its first Question (or Scripture) Content. */
+  cardKind: function(kind){ return kind === 'verse' || kind === 'scripture' ? 'scripture' : 'question'; },
+  owner: function(st, kind, sid){
+    var sc = Scenes.find(st, sid || st.live.scene); var l = sc && Scenes.first(sc, Scenes.cardKind(kind));
+    return l && Array.isArray(l.c.items) ? l : null;
+  },
+  items: function(st, kind, sid){ var l = Scenes.owner(st, kind, sid); return l ? l.c.items : []; },
+  /* an item anywhere (ids are unique across Frames); returns the item, or {item, layer, index, scene} with full */
+  itemById: function(st, kind, id, full){
+    if (!id) return null;
+    var k = Scenes.cardKind(kind);
+    for (var i = 0; i < st.scenes.length; i++){
+      var ls = st.scenes[i].layers;
+      for (var j = 0; j < ls.length; j++){
+        var l = ls[j]; if (l.kind !== k || !Array.isArray(l.c.items)) continue;
+        for (var m = 0; m < l.c.items.length; m++) if (l.c.items[m].id === id) return full ? {item: l.c.items[m], layer: l, index: m, scene: st.scenes[i]} : l.c.items[m];
+      }
+    }
+    return null;
+  },
+  newItemId: function(kind){ return rid(kind === 'question' ? 'q' : 'v'); },
+  /* Older data: a Question / Scripture layer that followed the shared list (or pinned one item) gets its own copy.
+   * New ids are derived from the old id and the layer id, so every screen converting the same data agrees. */
+  ownLists: function(st){
+    var lib = st.library || {questions: [], verses: []}, changed = false;
+    st.scenes.forEach(function(sc){
+      var map = {};
+      sc.layers.forEach(function(l){
+        if ((l.kind !== 'question' && l.kind !== 'scripture') || Array.isArray(l.c.items)) return;
+        var q = l.kind === 'question', src = q ? lib.questions : lib.verses, pick = l.c.itemId;
+        var from = pick ? src.filter(function(x){ return x.id === pick; }) : src.slice();
+        if (!q && !from.length && String(l.c.text || '').trim()) from = [{id: 'inline', ref: l.c.ref, version: l.c.version, text: l.c.text}];
+        l.c.items = from.slice(0, 1000).map(function(it){
+          var nid = (it.id + '_' + l.id).slice(0, 40); map[it.id] = nid;
+          return cleanItem(l.kind, Object.assign({}, it, {id: nid}));
+        });
+        var curId = q ? st.question.itemId : st.verse.itemId;
+        l.c.itemId = map[pick] || (map[curId] && !pick ? map[curId] : '') || '';
+        if (!l.c.look) l.c.look = Scenes.snapshotLook(st, l.kind);
+        changed = true;
+      });
+      sc.layers.forEach(function(l){ if (l.kind === 'question' && l.c.items) l.c.items.forEach(function(it){ if (it.pair && map[it.pair]) it.pair = map[it.pair]; else if (it.pair && it.pair.indexOf('_') < 0) it.pair = ''; }); });
+      if (sc.id === st.live.scene){
+        if (map[st.question.itemId]) st.question.itemId = map[st.question.itemId];
+        if (map[st.verse.itemId]) st.verse.itemId = map[st.verse.itemId];
+      }
+    });
+    return changed;
+  },
+  look: LOOK,
+  /* the current card settings, to give a new (or converted) Question / Scripture Content its own copy */
+  snapshotLook: function(st, kind){
+    var d = LOOK[kind], o = {}, card = st[kind === 'scripture' ? 'verse' : 'question'];
+    d.layout.forEach(function(k){ o[k] = st.layout[k]; }); d.card.forEach(function(k){ o[k] = JSON.parse(JSON.stringify(card[k])); });
+    return cleanLook(kind, o);
+  },
+  applyLook: function(n, l){
+    var d = LOOK[l.kind], lk = l.c.look; if (!d || !lk) return;
+    var card = n[l.kind === 'scripture' ? 'verse' : 'question'];
+    d.layout.forEach(function(k){ if (lk[k] !== undefined) n.layout[k] = lk[k]; });
+    d.card.forEach(function(k){ if (lk[k] !== undefined) card[k] = JSON.parse(JSON.stringify(lk[k])); });
   },
   /* Question · Scripture · Both for a scene that has both cards ('' when it doesn't) */
   qsMode: function(sc){
@@ -502,28 +585,43 @@ var Scenes = {
       if (!keep('animations') && TEXT_KINDS.indexOf(l.kind) >= 0) l.c.anim = TEXT_DEFAULTS[l.kind].anim;
       if (opts.content === 'empty'){
         if (TEXT_KINDS.indexOf(l.kind) >= 0){ l.c.text = ''; if (l.kind === 'lowerthird') l.c.title = ''; }
-        if (CARD_KINDS.indexOf(l.kind) >= 0){ l.c.itemId = ''; if (l.kind === 'scripture'){ l.c.ref = ''; l.c.text = ''; l.c.version = ''; } }
+        if (CARD_KINDS.indexOf(l.kind) >= 0){ l.c.itemId = ''; if (Array.isArray(l.c.items)) l.c.items = []; if (l.kind === 'scripture'){ l.c.ref = ''; l.c.text = ''; l.c.version = ''; } }
         if (['image', 'video', 'pdf'].indexOf(l.kind) >= 0) l.c.file = '';
       }
       if (opts.content === 'only'){                       // the words and files only; looks reset to the defaults
         var keepC = {};
-        ['text', 'title', 'itemId', 'ref', 'version', 'file', 'minutes', 'until', 'mode', 'props', 'hwnd'].forEach(function(k){ if (l.c[k] !== undefined) keepC[k] = l.c[k]; });
+        ['text', 'title', 'itemId', 'items', 'label', 'ref', 'version', 'file', 'minutes', 'until', 'mode', 'props', 'hwnd'].forEach(function(k){ if (l.c[k] !== undefined) keepC[k] = l.c[k]; });
         l.c = Object.assign(fresh.c, keepC); l.opacity = 1; l.visible = true;
       }
     });
+    Scenes.freshIds(sc);
     Scenes.insert(st, cleanScene(sc), src.id);
     return Scenes.find(st, sc.id);
+  },
+  /* A copy is fully independent: new ids for every Content and every item in its lists (links follow) */
+  freshIds: function(sc){
+    var map = {};
+    sc.layers.forEach(function(l){
+      l.id = rid();
+      if (Array.isArray(l.c.items)) l.c.items.forEach(function(it){ var nid = Scenes.newItemId(l.kind === 'question' ? 'question' : 'verse'); map[it.id] = nid; it.id = nid; });
+    });
+    sc.layers.forEach(function(l){
+      if (l.c.itemId) l.c.itemId = map[l.c.itemId] || '';
+      if (Array.isArray(l.c.items)) l.c.items.forEach(function(it){ if (it.pair) it.pair = map[it.pair] || ''; });
+    });
+    return sc;
   },
   /* Explode a list into scenes: one scene per question (or verse), each pinned to its item, from this scene */
   explode: function(st, id, kind){
     var src = Scenes.find(st, id); if (!src) return [];
-    var lk = kind === 'verse' ? 'scripture' : 'question', items = st.library[kind === 'verse' ? 'verses' : 'questions'];
-    if (!Scenes.first(src, lk)) return [];
+    var lk = kind === 'verse' ? 'scripture' : 'question', own = Scenes.first(src, lk), items = own && Array.isArray(own.c.items) ? own.c.items : [];
+    if (!own) return [];
     var made = [], after = src.id, group = src.group || src.name;
     items.slice(0, 200).forEach(function(it, i){
       var sc = Scenes.duplicate(st, src.id, {name: src.name + ' · ' + (kind === 'verse' ? (it.ref || 'Verse ' + (i + 1)) : 'Q' + (i + 1)), group: group, variant: true});
-      var l = Scenes.first(sc, lk); l.c.itemId = it.id;
-      if (lk === 'question' && it.pair){ var sl = Scenes.first(sc, 'scripture'); if (sl && !sl.c.itemId && !sl.c.text) sl.c.itemId = it.pair; }
+      var l = Scenes.first(sc, lk), mine = l.c.items[i];               // this Frame keeps only its own item
+      l.c.items = mine ? [mine] : []; l.c.itemId = mine ? mine.id : '';
+      if (lk === 'question' && mine && mine.pair){ var sl = Scenes.first(sc, 'scripture'); if (sl && sl.c.items) sl.c.itemId = mine.pair; }
       st.scenes.splice(st.scenes.indexOf(sc), 1);
       var at = -1; for (var k = 0; k < st.scenes.length; k++) if (st.scenes[k].id === after) at = k;
       st.scenes.splice(at + 1, 0, sc); after = sc.id;
@@ -542,21 +640,24 @@ var Scenes = {
     if (TEXT_KINDS.indexOf(l.kind) >= 0) return !!st.live.on[l.id];
     return l.visible;
   },
+  /* Load an item of a Frame's list into the card (its own label, else the Content's label, else the default) */
   _loadQuestion: function(n, itemId){
-    var a = n.library.questions;
-    for (var i = 0; i < a.length; i++) if (a[i].id === itemId){
-      n.question.text = a[i].text; n.question.itemId = a[i].id; n.question.label = qLabel(n, i); return true;
-    }
-    return false;
+    var f = Scenes.itemById(n, 'question', itemId, true); if (!f) return false;
+    var it = f.item, l = f.layer;
+    n.question.text = it.text; n.question.itemId = it.id; l.c.itemId = it.id;
+    n.question.label = it.label || l.c.label || 'Discussion Question';
+    return true;
   },
   _loadVerse: function(n, l){
-    if (l.c.itemId){
-      var a = n.library.verses;
-      for (var i = 0; i < a.length; i++) if (a[i].id === l.c.itemId){ n.verse.text = a[i].text; n.verse.ref = a[i].ref; n.verse.version = a[i].version; n.verse.itemId = a[i].id; return true; }
-    }
-    if (String(l.c.text || '').trim()){ n.verse.text = l.c.text; n.verse.ref = l.c.ref; n.verse.version = l.c.version; n.verse.itemId = ''; return true; }
+    var a = Array.isArray(l.c.items) ? l.c.items : [], it = null;
+    for (var i = 0; i < a.length; i++) if (a[i].id === l.c.itemId) it = a[i];
+    it = it || a[0];
+    if (it){ n.verse.text = it.text; n.verse.ref = it.ref; n.verse.version = it.version; n.verse.itemId = it.id; l.c.itemId = it.id;
+      n.verse.label = it.label || l.c.label || 'Focus Verse'; return String(it.text || '').trim() !== ''; }
     return false;
   },
+  /* the item a Frame's Question Content shows when the Frame goes live: the one it was on, else its first */
+  _firstQuestion: function(l){ var a = Array.isArray(l.c.items) ? l.c.items : []; for (var i = 0; i < a.length; i++) if (a[i].id === l.c.itemId) return a[i].id; return a[0] ? a[0].id : ''; },
   _showCard: function(n, kind, cut){
     var o = n[kind];
     if (kind !== 'birthday') resolveTransition(n, kind, o.itemId);
@@ -569,9 +670,10 @@ var Scenes = {
     var tx = Scenes.transitionOf(n, sc, override), cut = tx.type === 'cut';
     var q = Scenes.first(sc, 'question'), v = Scenes.first(sc, 'scripture'), b = Scenes.first(sc, 'birthday');
     var qOn = !!(q && q.visible), vOn = !!(v && v.visible);
+    if (q) Scenes.applyLook(n, q); if (v) Scenes.applyLook(n, v);           // this Frame's own appearance
     var vcamOk = function(l){ return sc.out.vcam && (!l || l.c.vcam !== false); }, obsOk = function(l){ return sc.out.obs && (!l || l.c.obs !== false); };
     // question
-    if (qOn && q.c.itemId) Scenes._loadQuestion(n, q.c.itemId);
+    if (qOn && !Scenes._loadQuestion(n, Scenes._firstQuestion(q))){ n.question.text = ''; n.question.itemId = ''; }   // this Frame's own question
     if (qOn && String(n.question.text).trim()){
       n.question.mode = vOn ? 'both' : 'question';
       var it = Present.item(n); if (it && it.mode && it.mode !== n.question.mode) it.mode = n.question.mode;   // the scene decides
@@ -580,7 +682,8 @@ var Scenes = {
     // scripture
     if (vOn){
       var had = Scenes._loadVerse(n, v);
-      if (!had && qOn) Present._loadVerse(n);                 // the question's own verse (Excel: same row)
+      if (!had && qOn && Present._loadVerse(n)) had = true;   // the question's own verse (Excel: same row)
+      if (!had){ n.verse.text = ''; n.verse.itemId = ''; }
       if (String(n.verse.text).trim()) Scenes._showCard(n, 'verse', cut); else n.verse.visible = false;
     } else n.verse.visible = false;
     // birthday
@@ -599,7 +702,7 @@ var Scenes = {
   setOn: function(n, sceneId, layerId, on){
     var sc = Scenes.find(n, sceneId), l = Scenes.layer(sc, layerId); if (!l || n.live.scene !== sceneId) return;
     if (l.kind === 'question'){
-      if (on){ if (l.c.itemId) Scenes._loadQuestion(n, l.c.itemId); if (String(n.question.text).trim()) Scenes._showCard(n, 'question'); }
+      if (on){ Scenes._loadQuestion(n, Scenes._firstQuestion(l)); if (String(n.question.text).trim()) Scenes._showCard(n, 'question'); }
       else n.question.visible = false;
     } else if (l.kind === 'scripture'){
       if (on){ var had = Scenes._loadVerse(n, l); if (!had && !String(n.verse.text).trim()) Present._loadVerse(n); if (String(n.verse.text).trim()) Scenes._showCard(n, 'verse'); }
@@ -681,7 +784,7 @@ var Scenes = {
     var now = Date.now(), m = (media || []).map(compToMedia).filter(Boolean).reverse();
     function make(name, kinds, extra){
       var sc = cleanScene({id: rid('sc_'), name: name, created: now, modified: now, creator: who || '', template: name, layers: []});
-      sc.layers = kinds.map(function(k){ return newLayer(k); }).concat(JSON.parse(JSON.stringify(extra || m)));
+      sc.layers = kinds.map(function(k){ var l = newLayer(k); delete l.c.items; return l; }).concat(JSON.parse(JSON.stringify(extra || m)));
       n.scenes.push(sc); return sc;
     }
     make('Bible Study', ['scripture', 'question']);
@@ -690,6 +793,7 @@ var Scenes = {
       var lay = (s.layers || []).map(compToMedia).filter(Boolean).reverse();
       var sc = make(s.name || 'Studio scene', ['scripture', 'question'], lay); sc.from = 'Studio scene'; sc.template = '';
     });
+    Scenes.ownLists(n);                                       // each new Frame gets its own copy of the lists
     return true;
   }
 };
@@ -748,6 +852,7 @@ function normalize(s){
     st[k].out = {vcam: o.vcam !== false, obs: o.obs !== false};
   });
   Scenes.normalizeInto(st, isObj(s) ? s : {});
+  Scenes.ownLists(st);                                         // v6.5: lists belong to Frames
   var b = isObj(s) && isObj(s.brand) ? s.brand : {};
   st.brand = {meeting: str(b.meeting, 80), org: str(b.org, 80), color: /^#[0-9a-fA-F]{6}$/.test(b.color || '') ? b.color.toLowerCase() : '',
     logo: str(b.logo, 40), lw: Number(b.lw) || 0, lh: Number(b.lh) || 0, auto: !!b.auto};

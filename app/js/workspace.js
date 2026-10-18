@@ -27,6 +27,7 @@ var selScene = lsGet('bcc-sel-scene', ''), selLayer = null, filter = 'all', sear
 var tabFor = {};                                   // remembered Inspector tab per kind
 try { tabFor = JSON.parse(lsGet('bcc-insp-tabs', '{}')) || {}; } catch(e){}
 function scene(){ return live ? SC.find(live, selScene) : null; }
+window.BSFSelFrame = function(){ return live && SC.find(live, selScene) ? selScene : ''; };   // the Frame being edited (lists, Content Settings)
 function layer(){ var sc = scene(); return sc ? SC.layer(sc, selLayer) : null; }
 function isLiveScene(id){ return !!(live && id && live.live.scene === id); }
 function studio(){ var S = window.BSFStudio && window.BSFStudio.state ? window.BSFStudio.state() : null; return S && S.available ? S : null; }
@@ -324,19 +325,18 @@ var editQ = null;                                  // {sid, lid, src, from}
 function dupAndEdit(id){
   var sc = SC.find(live, id), q = sc && SC.first(sc, 'question');
   if (!q || sc.tpl) return duplicate(id, {});
-  var src = q.c.itemId || live.question.itemId || '';
   return duplicate(id, {}).then(function(made){
     if (!made) return;
     var nl = SC.first(made, 'question'); if (!nl) return;
-    editQ = {sid: made.id, lid: nl.id, src: src, from: sc.name};
+    editQ = {sid: made.id, lid: nl.id, from: sc.name};
     inspSig = ''; select(made.id, nl.id);
     setTimeout(function(){ var t = $('eq-text'); if (t){ t.focus(); t.select(); } }, 60);
   });
 }
 function editQuestionForm(gen){
-  var sc = scene(), l = layer(), items = live.library.questions;
-  var i = items.findIndex(function(x){ return x.id === editQ.src; });
-  var cur = i >= 0 ? items[i].text : String(live.question.text || '');
+  var sc = scene(), l = layer(), items = (l && l.c.items) || [];
+  var i = items.findIndex(function(x){ return x.id === l.c.itemId; }); if (i < 0 && items.length) i = 0;
+  var cur = i >= 0 ? items[i].text : '';
   var name = h('input', {type: 'text', value: sc.name, id: 'eq-name', 'aria-label': 'Scene name'}); name.addEventListener('keydown', stop);
   var ta = h('textarea', {rows: 5, id: 'eq-text', 'aria-label': 'Question for this scene'}); ta.value = cur;
   ta.addEventListener('keydown', function(e){ stop(e); if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)){ e.preventDefault(); done(); } });
@@ -346,14 +346,15 @@ function editQuestionForm(gen){
     picks.appendChild(h('button', {type: 'button', cls: 'chip eq-pick', title: it.text, onclick: function(){ ta.value = it.text; ta.focus(); }}, [h('b', {text: p[1] + ' (' + (p[0] + 1) + '): '}), it.text.slice(0, 70) + (it.text.length > 70 ? '…' : '')]));
   });
   function done(){
-    var text = ta.value.trim(), nm = name.value.trim(), sid = editQ.sid, lid = editQ.lid, src = editQ.src;
-    if (!text){ toast('Type the question for this scene first.', true); ta.focus(); return; }
-    var hit = null;
-    commit(function(n){ var x = SC.find(n, sid); if (x && nm) x.name = nm; hit = SC.pinQuestionText(n, sid, lid, text, src); }).then(function(){
-      editQ = null; inspSig = ''; select(sid, null);
-      var k = hit ? live.library.questions.findIndex(function(x){ return x.id === hit.id; }) : -1;
-      toast('Scene ready: ' + (nm || sc.name) + (k >= 0 ? ' · question ' + (k + 1) : ''));
-    });
+    var text = ta.value.trim(), nm = name.value.trim(), sid = editQ.sid, lid = editQ.lid;
+    if (!text){ toast('Type the question for this Frame first.', true); ta.focus(); return; }
+    commit(function(n){
+      var x = SC.find(n, sid); if (!x) return; if (nm) x.name = nm.slice(0, 80);
+      var y = SC.layer(x, lid); if (!y) return; y.c.items = y.c.items || [];
+      var it = y.c.items.filter(function(q){ return q.id === y.c.itemId; })[0] || y.c.items[0];
+      if (it) it.text = text; else { it = {id: SC.newItemId('question'), text: text}; y.c.items.push(it); }
+      y.c.itemId = it.id; SC.stamp(x);
+    }).then(function(){ editQ = null; inspSig = ''; select(sid, null); toast('Frame ready: ' + (nm || sc.name)); });
   }
   gen.appendChild(h('div', {cls: 'eq'}, [
     h('p', {cls: 'eq-steps'}, [h('span', {cls: 'ok', text: '✓ Duplicated'}), h('span', {cls: 'on', text: '2 Edit question'}), h('span', {text: '3 Done'})]),
@@ -362,7 +363,7 @@ function editQuestionForm(gen){
     h('div', {cls: 'ip-acts eq-acts'}, [
       h('button', {cls: 'btn primary', type: 'button', id: 'eq-done', html: I('check', 16) + ' Done', onclick: done}),
       h('button', {cls: 'btn quiet', type: 'button', text: 'Keep the copied question', onclick: function(){ editQ = null; inspSig = ''; select(sc.id, null); }})]),
-    h('p', {cls: 'hint', text: 'Ctrl+Enter = Done. A new question is added to the list right after the original one, and this scene is pinned to it.'})]));
+    h('p', {cls: 'hint', text: 'Ctrl+Enter = Done. Only this copy changes; the original Frame keeps its own question.'})]));
 }
 
 function sceneMenu(id, anchor, ev){
@@ -396,7 +397,7 @@ function deleteScene(id){
   commit(function(n){ n.scenes = n.scenes.filter(function(s){ return s.id !== id; }); }).then(function(){ if (selScene === id){ var f = live.scenes[0]; select(f ? f.id : '', null); } toast('Scene deleted'); });
 }
 function explode(id, kind){
-  var list = live.library[kind === 'verse' ? 'verses' : 'questions'];
+  var own = SC.first(SC.find(live, id), kind === 'verse' ? 'scripture' : 'question'), list = (own && own.c.items) || [];
   if (!list.length){ toast('The ' + (kind === 'verse' ? 'verse' : 'question') + ' list is empty.', true); return; }
   if (!confirm('Create ' + Math.min(200, list.length) + ' scenes, one per ' + (kind === 'verse' ? 'verse' : 'question') + ', right after this scene?')) return;
   var made = [];
@@ -455,11 +456,11 @@ function smartDuplicate(id){
 var layerSig = '';
 function layerSub(sc, l){
   var c = l.c || {};
-  if (l.kind === 'question'){ if (c.itemId){ var i = live.library.questions.findIndex(function(q){ return q.id === c.itemId; }); return i >= 0 ? 'Question ' + (i + 1) + ' (pinned)' : 'Pinned item missing'; }
-    return 'Follows the list' + (live.question.text.trim() ? ' · ' + live.question.text.trim().slice(0, 40) : ''); }
-  if (l.kind === 'scripture'){ if (c.itemId){ var v = live.library.verses.filter(function(x){ return x.id === c.itemId; })[0]; return v ? (v.ref || 'Verse') + ' (pinned)' : 'Pinned item missing'; }
-    if (String(c.text || '').trim()) return (c.ref || 'Scripture') + (c.version ? ' · ' + c.version : '') + ' (pinned)';
-    return 'Follows the list' + (live.verse.ref ? ' · ' + live.verse.ref : ''); }
+  if (l.kind === 'question' || l.kind === 'scripture'){
+    var a = c.items || [], i = a.findIndex(function(x){ return x.id === c.itemId; }), it = a[i < 0 ? 0 : i];
+    if (!a.length) return l.kind === 'question' ? 'No questions yet' : 'No scripture yet';
+    return (i < 0 ? 1 : i + 1) + ' of ' + a.length + ' · ' + (l.kind === 'question' ? String(it.text || '').slice(0, 40) : (it.ref || 'Scripture'));
+  }
   if (l.kind === 'birthday') return live.birthday.name ? 'For ' + live.birthday.name : 'Choose who to celebrate';
   if (l.kind === 'countdown') return c.mode === 'until' ? 'Until ' + c.until : c.minutes + ' min';
   if (l.kind === 'brand') return [c.logo ? 'Logo' : '', c.name ? 'Meeting Name' : '', c.org ? 'Organization' : ''].filter(Boolean).join(' · ') + (SC.hasBrand(live) ? '' : ' (set them in Settings)') || 'Nothing chosen';
@@ -472,7 +473,7 @@ function renderLayers(){
   var sc = scene(), ol = $('layer-list');
   $('layers-of').textContent = sc ? sc.name : '';
   var S = studio(), status = {}; if (S && isLiveScene(selScene)) S.layers.forEach(function(x){ status[x.id] = x.status; });
-  var sig = JSON.stringify([sc, selLayer, live.live.on, live.question.visible, live.verse.visible, live.birthday.visible, live.live.scene, live.question.text.length, live.verse.ref, live.birthday.name, status, live.library.questions.length, live.brand]);
+  var sig = JSON.stringify([sc, selLayer, live.live.on, live.question.visible, live.verse.visible, live.birthday.visible, live.live.scene, live.question.text.length, live.verse.ref, live.birthday.name, status, live.brand]);
   if (sig === layerSig) return; layerSig = sig;
   ol.innerHTML = '';
   $('layer-add').disabled = !sc;
@@ -583,7 +584,8 @@ function addLayer(what){
     extra = extra || {};
     return edit(sc.id, function(x, n){
       var l = SC.cleanLayer({id: 'L' + Math.random().toString(36).slice(2, 9), kind: kind, name: extra.name || SC.info[kind].name, visible: true,
-        opacity: extra.opacity == null ? 1 : extra.opacity, c: SC.isMedia(kind) ? Object.assign(defaults(kind), extra.c || {}) : {}});
+        opacity: extra.opacity == null ? 1 : extra.opacity, c: SC.isMedia(kind) ? Object.assign(defaults(kind), extra.c || {}) :
+          kind === 'question' || kind === 'scripture' ? {items: [], look: SC.snapshotLook(n, kind)} : {}});   // a new, empty list of its own
       if (SC.isMedia(kind)){                       // media go under the cards and text layers (that is how they render)
         var at = x.layers.findIndex(function(y){ return SC.isMedia(y.kind); });
         if (at < 0) x.layers.push(l); else x.layers.splice(at, 0, l);
@@ -691,7 +693,7 @@ function renderInspector(){
     if (p.hidden === show) p.hidden = !show;
   });
   var gen = $('ip-gen'); gen.hidden = !useGen;
-  if (SC.isCard(kind) && !useGen){ refreshBasicSegs(); renderPin(sc, l); if (window.BSFRenderLists) window.BSFRenderLists(); if (window.BSFRefreshControls) window.BSFRefreshControls(); if (kind === 'birthday' && window.BSFRenderBirthday) window.BSFRenderBirthday(); }
+  if (SC.isCard(kind) && !useGen){ refreshBasicSegs(); if (window.BSFRenderLists) window.BSFRenderLists(); if (window.BSFRefreshControls) window.BSFRefreshControls(); if (kind === 'birthday' && window.BSFRenderBirthday) window.BSFRenderBirthday(); }
   if (useGen){
     var sig = JSON.stringify([editQ, adv, sc && sc.id, l, tab, sc && !l ? [sc.name, sc.group, sc.fav, sc.tpl, sc.tx, sc.auto, sc.out, sc.modified, live.profile, !!SC.first(sc, 'brand')] : 0, l && l.kind === 'brand' ? live.brand : 0, isLiveScene(sc && sc.id), live.live.on]);
     var ae = document.activeElement;
@@ -883,36 +885,6 @@ function mediaForm(gen, sc, l){
     gen.appendChild(g);
   }
   gen.appendChild(row('Opacity', rangeCtl(l.opacity, 0, 1, 0.01, function(v){ return Math.round(v * 100) + '%'; }, function(v){ editLayerSoon(sid, lid, function(x){ x.opacity = v; }); })));
-}
-/* ---------- Question / Scripture: follows the list, or pinned to one item ---------- */
-function renderPin(sc, l){
-  var box = $(l.kind === 'question' ? 'q-pin' : l.kind === 'scripture' ? 'v-pin' : ''); if (!box) return;
-  var sig = JSON.stringify([sc.id, l.c, live.question.itemId, live.verse.itemId]);
-  if (box.dataset.sig === sig) return; box.dataset.sig = sig; box.innerHTML = '';
-  var sid = sc.id, lid = l.id;
-  if (l.kind === 'question'){
-    var items = live.library.questions, i = items.findIndex(function(q){ return q.id === l.c.itemId; });
-    if (l.c.itemId){
-      box.appendChild(h('p', {cls: 'pin-on'}, [h('b', {text: 'This scene shows question ' + (i + 1) + ': '}), document.createTextNode(i >= 0 ? items[i].text : '(no longer in the list)')]));
-      box.appendChild(h('button', {cls: 'btn quiet small', type: 'button', text: 'Follow the list instead', onclick: function(){ editLayer(sid, lid, function(x){ x.c.itemId = ''; }); }}));
-    } else {
-      box.appendChild(h('p', {cls: 'hint', text: 'This layer follows the question list: ◀ ▶ in the top bar (or ← →) step through it.'}));
-      var cur = live.question.itemId && items.some(function(q){ return q.id === live.question.itemId; });
-      box.appendChild(h('button', {cls: 'btn quiet small', type: 'button', text: 'Pin the current question to this scene', disabled: cur ? null : 'disabled', onclick: function(){ var id = live.question.itemId; editLayer(sid, lid, function(x){ x.c.itemId = id; }, 'Question pinned to this scene'); }}));
-    }
-  } else {
-    var c = l.c, v = c.itemId ? live.library.verses.filter(function(x){ return x.id === c.itemId; })[0] : null;
-    if (c.itemId || String(c.text || '').trim()){
-      box.appendChild(h('p', {cls: 'pin-on'}, [h('b', {text: 'This scene shows ' + (v ? v.ref : c.ref || 'its verse') + ((v ? v.version : c.version) ? ' (' + (v ? v.version : c.version) + ')' : '') + '. '}),
-        document.createTextNode(String(v ? v.text : c.text).slice(0, 140))]));
-      box.appendChild(h('button', {cls: 'btn quiet small', type: 'button', text: 'Follow the list instead', onclick: function(){ editLayer(sid, lid, function(x){ x.c.itemId = ''; x.c.ref = ''; x.c.text = ''; x.c.version = ''; }); }}));
-    } else box.appendChild(h('p', {cls: 'hint', text: 'This layer follows the verse list (Shift + ← →), or the question’s own verse. Fetch or type a verse, then pin it to this scene.'}));
-    box.appendChild(h('button', {cls: 'btn quiet small', type: 'button', text: 'Pin the verse in the editor to this scene', onclick: function(){
-      var ref = $('v-ref').value.trim(), ver = $('v-version').value.trim(), txt = $('v-text').value.trim();
-      if (!txt){ toast('Fetch or type a verse first.', true); return; }
-      editLayer(sid, lid, function(x){ x.c.itemId = ''; x.c.ref = ref; x.c.version = ver; x.c.text = txt; }, 'Verse pinned to this scene');
-    }}));
-  }
 }
 /* "Recommended layout" for the verse uses the same reset */
 Array.prototype.forEach.call(document.querySelectorAll('[data-layout-reset]'), function(b){ b.addEventListener('click', function(){ var r = $('layout-reset'); if (r) r.click(); }); });
