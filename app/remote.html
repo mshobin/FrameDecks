@@ -14,7 +14,7 @@
 <title>Kingdom Connect Director</title>
 <link rel="stylesheet" href="css/remote.css">
 </head>
-<body data-tab="live" data-role="admin">
+<body data-tab="live" data-role="presenter">
 
 <!-- PIN screen -->
 <section class="login" id="login" hidden>
@@ -44,11 +44,53 @@
   <div class="offline" id="offline" hidden>Not connected to the PC — reconnecting… Buttons are paused.</div>
   <div class="chips" id="chips" aria-label="Outputs"><span class="chip" id="ch-vcam" hidden></span><span class="chip" id="ch-rec" hidden></span><span class="chip" id="ch-slide" hidden></span><span class="chip" id="ch-black" hidden></span></div>
 
+  <!-- v6.5 SIMPLE REMOTE (the default): one screen, very large buttons, nothing to set up -->
+  <main class="p-simple" id="simple" aria-label="Simple remote">
+    <section class="sr-block">
+      <p class="sr-kicker">Current Frame</p>
+      <p class="sr-big" id="sr-frame">—</p>
+      <p class="sr-sub" id="sr-frame-name"></p>
+      <div class="sr-row">
+        <button class="sr-btn" type="button" id="sr-prev-frame"><span class="ar" aria-hidden="true">◀</span>PREVIOUS FRAME</button>
+        <button class="sr-btn go" type="button" id="sr-next-frame">NEXT FRAME<span class="ar" aria-hidden="true">▶</span></button>
+      </div>
+    </section>
+    <section class="sr-block">
+      <p class="sr-kicker">Current Content <button class="sr-switch" type="button" id="sr-kind" hidden>Change</button></p>
+      <p class="sr-big" id="sr-content">—</p>
+      <p class="sr-sub" id="sr-content-detail"></p>
+      <div class="sr-row">
+        <button class="sr-btn" type="button" id="sr-prev-content"><span class="ar" aria-hidden="true">◀</span>PREVIOUS CONTENT</button>
+        <button class="sr-btn go" type="button" id="sr-next-content">NEXT CONTENT<span class="ar" aria-hidden="true">▶</span></button>
+      </div>
+    </section>
+    <section class="sr-row three" aria-label="Presenter tools">
+      <button class="sr-btn tool-btn" type="button" id="sr-annotate" aria-pressed="false">ANNOTATE</button>
+      <button class="sr-btn tool-btn" type="button" id="sr-freeze" aria-pressed="false">FREEZE</button>
+      <button class="sr-btn tool-btn black" type="button" id="sr-black" aria-pressed="false">BLACK SCREEN</button>
+    </section>
+    <p class="sr-note" id="sr-note" role="status"></p>
+  </main>
+
+  <!-- Annotate from the phone or tablet: draw with a finger; it appears on screen when you lift it -->
+  <div class="drawpad" id="drawpad" hidden>
+    <div class="dp-bar">
+      <button type="button" class="dp-tool on" data-tool="pen">Pen</button><button type="button" class="dp-tool" data-tool="highlighter">Highlight</button>
+      <button type="button" class="dp-tool" data-tool="arrow">Arrow</button><button type="button" class="dp-tool" data-tool="rect">Box</button><button type="button" class="dp-tool" data-tool="ellipse">Circle</button>
+      <span class="dp-cols"><button type="button" class="dp-col on" data-c="#e8b931" style="background:#e8b931" aria-label="Gold"></button><button type="button" class="dp-col" data-c="#ff4b4b" style="background:#ff4b4b" aria-label="Red"></button><button type="button" class="dp-col" data-c="#ffffff" style="background:#ffffff" aria-label="White"></button></span>
+      <button type="button" class="dp-act" id="dp-undo">Undo</button><button type="button" class="dp-act" id="dp-clear">Clear</button>
+      <button type="button" class="dp-act done" id="dp-done">Done</button>
+    </div>
+    <div class="dp-stage" id="dp-stage"><iframe id="dp-frame" title="What is on screen now" tabindex="-1"></iframe><canvas id="dp-canvas" width="1920" height="1080" aria-label="Draw here"></canvas></div>
+    <p class="dp-hint">Draw with your finger. It appears on the screen when you lift it.</p>
+  </div>
+
   <div class="layout">
     <!-- SCENES (a tab on phones; the left pane on tablets) -->
     <section class="pane p-scenes" aria-labelledby="sc-title">
-      <header class="pane-head"><h2 id="sc-title">Scenes</h2><button class="tool sm" type="button" id="auto" aria-pressed="true" title="Auto advance">Auto</button></header>
-      <ol class="slist" id="slist" aria-label="Scenes"></ol>
+      <header class="pane-head"><h2 id="sc-title">Frames</h2><button class="tool sm" type="button" id="rehearse" aria-pressed="false" title="Run-through: step through the Frames here without changing the screen">Run-through</button><button class="tool sm" type="button" id="auto" aria-pressed="true" title="Auto advance">Auto</button></header>
+      <input type="search" class="ssearch" id="ssearch" placeholder="Search Frames and Content" aria-label="Search Frames and Content">
+      <ol class="slist" id="slist" aria-label="Frames"></ol>
     </section>
 
     <!-- CANVAS + live controls (the Live tab; the middle pane on tablets) -->
@@ -57,6 +99,7 @@
         <div class="now-top"><span class="now-label" id="now-title">Live scene</span><span class="now-meta" id="now-meta"></span></div>
         <p class="now-name" id="now-name">Nothing live yet</p>
         <p class="now-sub" id="now-sub"></p>
+        <p class="now-notes" id="now-notes" hidden></p>
       </div>
       <div class="canvas" id="canvas"><iframe id="frame" title="What Zoom participants see" tabindex="-1"></iframe><span class="cv-badge">LIVE</span></div>
       <div class="next-pv" id="next-pv" hidden><span class="np-l">Next</span><b id="np-name"></b><div class="canvas small" id="canvas-next"><iframe id="frame-next" title="The next scene" tabindex="-1"></iframe></div></div>
@@ -84,6 +127,8 @@
         <button class="tool" type="button" id="hide-layer">Hide layer</button>
         <button class="tool" type="button" id="blackout" aria-pressed="false">Blackout</button>
         <button class="tool" type="button" id="emergency" aria-pressed="false">Emergency</button>
+        <button class="tool" type="button" id="annotate" aria-pressed="false">Annotate</button>
+        <button class="tool" type="button" id="freeze" aria-pressed="false">Freeze</button>
       </div>
     </section>
 
@@ -108,9 +153,8 @@
       <div class="sheet-head"><h2 id="more-title">This device</h2><button class="tool" type="button" id="more-close">Done</button></div>
       <h3>Layout</h3>
       <div class="roles" role="radiogroup" aria-label="Layout for this device">
-        <button type="button" role="radio" data-role-pick="presenter" aria-checked="false"><b>Simple</b><span>Very large Previous / Next and the question list, at your thumb. Nothing else to think about.</span></button>
-        <button type="button" role="radio" data-role-pick="leader" aria-checked="false"><b>Standard</b><span>Go Live, the scenes, transitions and the Question / Scripture switch</span></button>
-        <button type="button" role="radio" data-role-pick="admin" aria-checked="true"><b>Advanced</b><span>Everything: scenes, layers, Blackout, Emergency and outputs</span></button>
+        <button type="button" role="radio" data-role-pick="presenter" aria-checked="true"><b>Simple remote</b><span>One screen: Previous / Next Frame, Previous / Next Content, Annotate, Freeze and Black Screen. Run a whole meeting from here.</span></button>
+        <button type="button" role="radio" data-role-pick="admin" aria-checked="false"><b>Advanced remote</b><span>Everything: the Frames with search, the Content, presenter notes, PowerPoint, run-through, annotation, Blackout and Emergency</span></button>
       </div>
       <p class="hint">The layout only changes what this device shows. Anyone with the PIN can control the meeting; HIDE ALL is always at the top.</p>
       <p class="dash-foot"><button class="linkish" type="button" id="dash-logout">Disconnect this device</button></p>

@@ -3,7 +3,9 @@
  * take, a layer's eye or a duplicate here is exactly the same action as on the PC. Member data never comes here.
  *   phones  : Live (canvas, Prev · Go Live · Next, transition, Q + Scripture, list stepper, program) · Scenes · Layers
  *   tablets : three panes - Scenes | Canvas + live controls | Layers - a control surface
- *   layouts : Simple · Standard · Advanced (ids presenter · leader · admin) choose what this device shows (not a permission) */
+ *   layouts : v6.5 Simple (default: Previous / Next Frame, Previous / Next Content, Annotate, Freeze, Black Screen on one
+ *             screen) · Advanced (everything: Frames with search, Content, notes, PowerPoint, run-through, annotation).
+ *             Ids presenter · admin; a saved "leader" (Standard) opens Advanced. A layout is a display choice, not a permission. */
 (function(){
 'use strict';
 var Store = window.BSFStore, SC = window.BSFScenes, P = window.BSFPresent, T = window.BSFTransitions;
@@ -58,9 +60,12 @@ function take(id){
   update(function(n){ SC.take(n, id, txOverride()); }, sc.name + ' is live');
   selScene = id;
 }
+var rehearse = false, query = '';                  // Run-through: Previous / Next only move the preview here
 function stepScene(d){
-  var nx = SC.neighbour(live, live.live.scene || selScene, d);
-  if (!nx){ toast(d > 0 ? 'That’s the last scene.' : 'That’s the first scene.'); return; }
+  var from = rehearse ? (selScene || live.live.scene) : (live.live.scene || selScene);
+  var nx = SC.neighbour(live, from, d);
+  if (!nx){ toast(d > 0 ? 'That’s the last Frame.' : 'That’s the first Frame.'); return; }
+  if (rehearse){ selScene = nx.id; sceneSig = ''; render(); toast('Run-through: ' + nx.name + ' (not on screen)'); return; }
   take(nx.id);
 }
 /* Step the list (question / verse): show the next item, as on the PC */
@@ -126,11 +131,15 @@ SC.transitions.forEach(function(t){ var o = h('option', null, t[1]); o.value = t
 /* ---------- Scenes ---------- */
 var sceneSig = '';
 function renderScenes(){
-  var ol = $('slist'), next = live.live.scene ? SC.neighbour(live, live.live.scene, 1) : null, list = SC.order(live);
-  var sig = JSON.stringify([list.map(function(s){ return [s.id, s.name, s.group, s.layers.length, s.tx.type]; }), live.live.scene, selScene, next && next.id]);
+  var ol = $('slist'), next = live.live.scene ? SC.neighbour(live, live.live.scene, 1) : null, all_ = SC.order(live), q = query.trim().toLowerCase();
+  var list = !q ? all_ : all_.filter(function(sc){            // search the Frames and their Content (names, questions, scriptures)
+    var words = [sc.name, sc.group, sc.notes].concat(sc.layers.map(function(l){ return [l.name, l.c.title, l.c.text].concat((l.c.items || []).map(function(it){ return [it.label, it.text, it.ref].join(' '); })).join(' '); }));
+    return words.join(' ').toLowerCase().indexOf(q) >= 0;
+  });
+  var sig = JSON.stringify([list.map(function(s){ return [s.id, s.name, s.group, s.layers.length, s.tx.type]; }), live.live.scene, selScene, next && next.id, q]);
   if (sig === sceneSig) return; sceneSig = sig;
   ol.innerHTML = '';
-  if (!list.length){ ol.appendChild(h('li', 'empty', 'No scenes yet. Create them on the PC (Studio → + Scene).')); return; }
+  if (!list.length){ ol.appendChild(h('li', 'empty', q ? 'No Frame matches “' + query.trim() + '”.' : 'No Frames yet. Create them on the PC (Studio → + Frame).')); return; }
   var lastGroup = null;
   list.forEach(function(sc, i){
     if (sc.group !== lastGroup && sc.group){ ol.appendChild(h('li', 'sg', sc.group)); }
@@ -138,8 +147,8 @@ function renderScenes(){
     var isLive = live.live.scene === sc.id, isNext = next && next.id === sc.id;
     var li = h('li', 'srow' + (isLive ? ' live' : '') + (sc.id === selScene ? ' sel' : '') + (isNext ? ' nx' : ''));
     var b = h('button', 'sbtn'); b.type = 'button';
-    b.appendChild(h('span', 'n', String(i + 1)));
-    var t = h('span', 't'); t.appendChild(h('b', null, sc.name)); t.appendChild(h('small', null, sc.layers.length + (sc.layers.length === 1 ? ' layer · ' : ' layers · ') + (sc.tx.type === 'profile' ? SC.profile(live).name : SC.txName(sc.tx.type))));
+    b.appendChild(h('span', 'n', String(all_.indexOf(sc) + 1)));
+    var t = h('span', 't'); t.appendChild(h('b', null, sc.name)); t.appendChild(h('small', null, sc.layers.map(function(l){ return SC.info[l.kind].name; }).join(' · ') || 'Empty Frame'));
     b.appendChild(t);
     b.appendChild(h('span', 'tag', isLive ? 'LIVE' : isNext ? 'NEXT' : ''));
     b.addEventListener('click', function(){ buzz(8); selScene = sc.id; sceneSig = ''; render(); });
@@ -191,7 +200,9 @@ var tablet = window.matchMedia ? window.matchMedia('(min-width: 900px)') : {matc
 function canvasOn(){ return !$('app').hidden && !document.hidden && (tablet.matches || curTab() === 'live'); }
 function setFrame(f, src){ if (f.dataset.src !== src){ f.dataset.src = src; f.src = src; } }
 function renderCanvas(){
-  setFrame($('frame'), canvasOn() ? 'stage.html?bg=preview&preview=1' : 'about:blank');
+  var rs = rehearse && selScene && selScene !== live.live.scene ? selScene : '';
+  setFrame($('frame'), canvasOn() ? 'stage.html?bg=preview&preview=1' + (rs ? '&scene=' + encodeURIComponent(rs) : '') : 'about:blank');
+  document.body.classList.toggle('rehearsing', !!rs);
   var nx = live.live.scene ? SC.neighbour(live, live.live.scene, 1) : null;
   var showNext = tablet.matches && nx && canvasOn();
   $('next-pv').hidden = !showNext;
@@ -231,6 +242,14 @@ function render(){
   $('auto').setAttribute('aria-pressed', String(L.auto));
   $('blackout').setAttribute('aria-pressed', String(L.blackout)); $('blackout').classList.toggle('on', L.blackout);
   $('emergency').setAttribute('aria-pressed', String(L.emergency)); $('emergency').classList.toggle('on', L.emergency);
+  var inkOn = !!(L.ink && L.ink.on);
+  $('annotate').setAttribute('aria-pressed', String(inkOn)); $('annotate').classList.toggle('on', inkOn);
+  $('freeze').setAttribute('aria-pressed', String(!!L.freeze)); $('freeze').classList.toggle('on', !!L.freeze);
+  $('rehearse').setAttribute('aria-pressed', String(rehearse));
+  var ns = rehearse && selScene ? SC.find(live, selScene) : ls;               // presenter notes of the Frame (and its current question)
+  var cq = ls && SC.itemById(live, 'question', live.question.itemId);
+  var notes = [ns && ns.notes, cq && cq.note ? 'Question: ' + cq.note : '', cq && cq.answer ? 'Answer: ' + cq.answer : ''].filter(Boolean).join('\n');
+  $('now-notes').hidden = !notes; setText($('now-notes'), notes);
   // Q + Scripture
   var q = ls && SC.first(ls, 'question'), v = ls && SC.first(ls, 'scripture');
   $('qs').hidden = !(q && v);
@@ -243,7 +262,7 @@ function render(){
   if (k){ var items = library(k), cur = currentIndex(k); setText($('st-t'), (k === 'question' ? 'Question ' : 'Verse ') + (cur >= 0 ? (cur + 1) + ' / ' + items.length : '– / ' + items.length)); }
   var sl = ls && SC.layer(ls, selLayer); $('hide-layer').disabled = !(sl && SC.layerOn(live, ls, sl));
   setText($('hide-layer'), sl ? 'Hide ' + sl.name : 'Hide layer');
-  renderScenes(); renderLayers(); renderCanvas(); renderChips();
+  renderScenes(); renderLayers(); renderCanvas(); renderChips(); renderSimple();
 }
 Store.subscribe(function(st){ live = st; if (!$('login').hidden) showApp(); render(); });
 
@@ -278,8 +297,104 @@ function pollStudio(){
 }
 document.addEventListener('visibilitychange', function(){ if (!document.hidden && !$('app').hidden){ pollStudio(); } if (live) renderCanvas(); });
 
+/* ---------- v6.5 Simple remote ---------- */
+var KIND_NAMES = {slides: 'PowerPoint', question: 'Question', verse: 'Scripture'}, contentKind = null;
+/* what Previous / Next Content move through in the Frame on screen: its slides, its questions or its scriptures */
+function contentKinds(){
+  var ls = SC.liveScene(live), k = [];
+  if (studioInfo && studioInfo.presentation && ls && ls.layers.some(function(l){ return l.kind === 'pdf' || l.kind === 'window'; })) k.push('slides');
+  if (ls && SC.items(live, 'question').length) k.push('question');
+  if (ls && SC.items(live, 'verse').length) k.push('verse');
+  return k;
+}
+function curKind(){
+  var k = contentKinds();
+  if (contentKind && k.indexOf(contentKind) >= 0) return contentKind;
+  if (k.indexOf('slides') >= 0) return 'slides';
+  if (live.verse.visible && !live.question.visible && k.indexOf('verse') >= 0) return 'verse';
+  return k[0] || null;
+}
+function renderSimple(){
+  if (document.body.dataset.role !== 'presenter') return;
+  var ls = SC.liveScene(live), order = SC.order(live), i = ls ? order.indexOf(ls) : -1, L = live.live;
+  setText($('sr-frame'), order.length ? (i >= 0 ? 'Frame ' + (i + 1) + ' of ' + order.length : 'Not started · ' + order.length + ' Frames') : 'No Frames yet');
+  setText($('sr-frame-name'), ls ? ls.name : order.length ? 'NEXT FRAME starts with ' + order[0].name : 'Add Frames on the PC');
+  var k = curKind(), detail = '';
+  if (k === 'slides'){ var p = studioInfo.presentation; detail = p.page ? 'Slide ' + p.page + (p.pages ? ' of ' + p.pages : '') : 'Ready'; }
+  else if (k){ var items = SC.items(live, k), ci = currentIndex(k); detail = (ci >= 0 ? (ci + 1) + ' of ' + items.length : items.length + ' ready') + ((k === 'question' ? live.question.visible : live.verse.visible) ? ' · ON SCREEN' : ''); }
+  setText($('sr-content'), k ? KIND_NAMES[k] : 'Nothing to step through');
+  setText($('sr-content-detail'), k ? detail : ls ? 'This Frame has no questions, scriptures or slides' : '');
+  $('sr-kind').hidden = contentKinds().length < 2;
+  $('sr-prev-content').disabled = $('sr-next-content').disabled = !k || !Store.online;
+  var ink = !!(L.ink && L.ink.on);
+  [['sr-annotate', ink, 'ANNOTATE', 'DRAWING ON'], ['sr-freeze', !!L.freeze, 'FREEZE', 'UNFREEZE'], ['sr-black', !!L.blackout, 'BLACK SCREEN', 'SHOW PICTURE']].forEach(function(b){
+    var el = $(b[0]); el.classList.toggle('on', b[1]); el.setAttribute('aria-pressed', String(b[1])); setText(el, b[1] ? b[3] : b[2]);
+  });
+  setText($('sr-note'), L.blackout ? 'The screen is black. Tap SHOW PICTURE to bring it back.' : L.freeze ? 'The picture is frozen. Tap UNFREEZE to go live again.' : L.emergency ? 'The Emergency screen is on (Advanced remote or the PC).' : '');
+}
+function contentStep(d){
+  var k = curKind(); if (!k) return;
+  if (k === 'slides'){
+    if (slideBusy) return; slideBusy = true;
+    studioPost({op: 'slide', step: d}).then(function(r){ studioInfo = r.studio || studioInfo; var s = r.slide || {}; if (s.error && !s.busy) toast(s.error, true); else if (s.page) toast('Slide ' + s.page + (s.pages ? ' of ' + s.pages : '')); renderChips(); renderSimple(); })
+      .catch(function(e){ toast(e.message, true); }).then(function(){ setTimeout(function(){ slideBusy = false; }, 150); });
+    return;
+  }
+  var l = SC.items(live, k), ci = currentIndex(k), j = ci < 0 ? (d > 0 ? 0 : l.length - 1) : ci + d;
+  if (j < 0){ toast('That’s the first one.'); return; } if (j >= l.length){ toast('That’s the last one.'); return; }
+  showItem(k, j);
+}
+$('sr-prev-frame').addEventListener('click', guard('spf', function(){ stepScene(-1); }));
+$('sr-next-frame').addEventListener('click', guard('snf', function(){ stepScene(1); }));
+$('sr-prev-content').addEventListener('click', guard('spc', function(){ contentStep(-1); }));
+$('sr-next-content').addEventListener('click', guard('snc', function(){ contentStep(1); }));
+$('sr-kind').addEventListener('click', guard('kind', function(){ var k = contentKinds(), i = k.indexOf(curKind()); contentKind = k[(i + 1) % k.length]; renderSimple(); toast('Content buttons now move: ' + KIND_NAMES[contentKind]); }));
+function blackout(){ update(function(n){ n.live.blackout = !n.live.blackout; }, live.live.blackout ? 'Picture back' : 'Black screen'); }
+function freeze(){ update(function(n){ n.live.freeze = !n.live.freeze; }, live.live.freeze ? 'Picture live again' : 'Picture frozen'); }
+function annotate(){ if (live.live.ink && live.live.ink.on) openPad(); else update(function(n){ SC.ink(n, 'on'); }).then(openPad); }
+$('sr-black').addEventListener('click', guard('sb', blackout));
+$('sr-freeze').addEventListener('click', guard('sfz', freeze));
+$('sr-annotate').addEventListener('click', guard('san', annotate));
+$('freeze').addEventListener('click', guard('fz', freeze));
+$('annotate').addEventListener('click', guard('an', annotate));
+$('rehearse').addEventListener('click', guard('rh', function(){ rehearse = !rehearse; if (!rehearse) selScene = live.live.scene || selScene; sceneSig = ''; render(); toast(rehearse ? 'Run-through: Previous / Next only move the preview on this device' : 'Run-through off'); }));
+$('ssearch').addEventListener('input', function(e){ query = e.target.value; sceneSig = ''; renderScenes(); });
+
+/* ---------- Drawing pad (Annotate): the live picture with the drawings; draw with a finger ---------- */
+var pad = {tool: 'pen', color: '#e8b931', stroke: null}, cv = $('dp-canvas');
+function openPad(){
+  $('drawpad').hidden = false;
+  var f = $('dp-frame'); if (f.dataset.src !== 'on'){ f.dataset.src = 'on'; f.src = 'stage.html?bg=preview&preview=1'; }
+  padScale();
+}
+function padScale(){ var st = $('dp-stage'); if (st.clientWidth) $('dp-frame').style.transform = 'scale(' + (st.clientWidth / 1920) + ')'; }
+window.addEventListener('resize', padScale);
+function padPt(e){ var r = cv.getBoundingClientRect(); return [Math.round((e.clientX - r.left) / r.width * 1e4) / 1e4, Math.round((e.clientY - r.top) / r.height * 1e4) / 1e4]; }
+function padDraw(){ var c = cv.getContext('2d'); c.clearRect(0, 0, cv.width, cv.height); if (pad.stroke) SC.drawInk(cv, [pad.stroke]); }
+cv.addEventListener('pointerdown', function(e){ e.preventDefault(); try { cv.setPointerCapture(e.pointerId); } catch(err){} var p = padPt(e); pad.stroke = {t: pad.tool, c: pad.color, w: 0.006, p: [p, p]}; padDraw(); });
+cv.addEventListener('pointermove', function(e){
+  if (!pad.stroke) return; var p = padPt(e);
+  if (pad.stroke.t === 'pen' || pad.stroke.t === 'highlighter') pad.stroke.p.push(p); else pad.stroke.p[1] = p;
+  padDraw();
+});
+function padUp(){
+  if (!pad.stroke) return; var it = pad.stroke; pad.stroke = null;
+  if (it.p.length > 600){ var step = Math.ceil(it.p.length / 600); it.p = it.p.filter(function(_, i){ return i % step === 0; }).concat([it.p[it.p.length - 1]]); }
+  buzz(8);
+  update(function(n){ SC.ink(n, 'add', it); }).then(function(){ setTimeout(padDraw, 350); });
+}
+cv.addEventListener('pointerup', padUp); cv.addEventListener('pointercancel', padUp);
+all('.dp-tool').forEach(function(b){ b.addEventListener('click', function(){ pad.tool = b.dataset.tool; all('.dp-tool').forEach(function(x){ x.classList.toggle('on', x === b); }); }); });
+all('.dp-col').forEach(function(b){ b.addEventListener('click', function(){ pad.color = b.dataset.c; all('.dp-col').forEach(function(x){ x.classList.toggle('on', x === b); }); }); });
+$('dp-undo').addEventListener('click', guard('du', function(){ update(function(n){ SC.ink(n, 'undo'); }); }));
+$('dp-clear').addEventListener('click', guard('dc', function(){ update(function(n){ SC.ink(n, 'clear'); }); }));
+$('dp-done').addEventListener('click', function(){
+  $('drawpad').hidden = true; var f = $('dp-frame'); f.dataset.src = ''; f.src = 'about:blank';
+  update(function(n){ SC.ink(n, 'off'); }, 'Drawings hidden');
+});
+
 /* ---------- Tabs (phones) and layouts ---------- */
-var ROLES = {presenter: {name: 'Simple', tabs: ['live']}, leader: {name: 'Standard', tabs: ['live', 'scenes']}, admin: {name: 'Advanced', tabs: ['live', 'scenes', 'layers']}};   // ids kept so saved choices carry over
+var ROLES = {presenter: {name: 'Simple', tabs: ['live']}, admin: {name: 'Advanced', tabs: ['live', 'scenes', 'layers']}};   // ids kept so saved choices carry over
 function role(){ return ROLES[document.body.dataset.role] || ROLES.admin; }
 function curTab(){ return document.body.dataset.tab || 'live'; }
 function setTab(t, quiet){
@@ -290,13 +405,15 @@ function setTab(t, quiet){
   if (live) renderCanvas();
 }
 function setRole(r){
-  if (!ROLES[r]) r = 'admin';
+  if (r === 'leader') r = 'admin';                 // v6.3 "Standard" became part of Advanced
+  if (!ROLES[r]) r = 'presenter';
   document.body.dataset.role = r; lsSet('bcc-remote-role', r);
   setText($('role-name'), ROLES[r].name);
   all('[data-role-pick]').forEach(function(b){ b.setAttribute('aria-checked', String(b.dataset.rolePick === r)); });
   all('#tabbar [data-tab]').forEach(function(b){ b.hidden = ROLES[r].tabs.indexOf(b.dataset.tab) < 0; });
   $('tabbar').hidden = ROLES[r].tabs.length < 2;
   if (ROLES[r].tabs.indexOf(curTab()) < 0) setTab('live', true);
+  if (live) render();
 }
 all('#tabbar [data-tab]').forEach(function(b){ b.addEventListener('click', function(){ buzz(8); setTab(b.dataset.tab); }); });
 function openMore(){ $('more').hidden = false; $('more-close').focus(); }
@@ -318,12 +435,12 @@ setInterval(function(){
   lastOk = ok; lastOnline = Store.online;
   var c = $('conn');
   c.className = 'conn ' + (Store.online ? 'ok' : ok ? '' : 'bad'); c.querySelector('b').textContent = Store.online ? 'Connected' : ok ? 'Connecting…' : 'Reconnecting…';
-  all('.pb, #hide-all, .tool, .sgo, .eye').forEach(function(b){ if (b.id !== 'more-btn' && b.id !== 'more-close') b.disabled = !ok; });
+  all('.pb, #hide-all, .tool, .sgo, .eye, .sr-btn').forEach(function(b){ if (b.id !== 'more-btn' && b.id !== 'more-close') b.disabled = !ok; });
   if (ok && live) render();
 }, 700);
 
 /* This device's layout and tab (remembered) */
-setRole(lsGet('bcc-remote-role', 'admin'));
+setRole(lsGet('bcc-remote-role', 'presenter'));
 document.body.dataset.tab = role().tabs.indexOf(lsGet('bcc-remote-tab', 'live')) >= 0 ? lsGet('bcc-remote-tab', 'live') : 'live';
 /* Start: find out whether this device is already signed in. Updates arrive the moment they happen (long-poll). */
 fetch('api/rev', {cache: 'no-store'}).then(function(r){
