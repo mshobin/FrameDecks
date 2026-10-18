@@ -64,6 +64,9 @@ jobs:
       - name: Run the tests (Node.js)
         run: node tests/run.js
 
+      - name: Check documentation links
+        run: python tools/check_doc_links.py
+
       - name: Read version number
         id: ver
         shell: pwsh
