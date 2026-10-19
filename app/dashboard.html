@@ -32,7 +32,7 @@
     <button class="tab grp" role="tab" type="button" id="grp-members" data-group="members" data-tab="directory" aria-selected="false"><i data-icon="users"></i>Members <span class="tab-badge" id="grp-bday-badge" hidden></span> <kbd>Alt+3</kbd></button>
     <button class="tab grp" role="tab" type="button" id="tabbtn-settings" data-group="settings" data-tab="settings" aria-selected="false"><i data-icon="settings"></i>Settings <kbd>Alt+4</kbd></button>
   </nav>
-  <!-- Search (Ctrl+K): scenes, layers, Bible references, questions, verses, members, birthdays, media and settings.
+  <!-- Search (Ctrl+K / Ctrl+Space): opens the command palette (js/palette.js) with scenes, layers, Bible references, questions, verses, members, birthdays, media and settings.
        Choosing one selects or opens it; nothing goes on screen until Go Live. -->
   <div class="gsearch" role="search">
     <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
@@ -416,6 +416,7 @@
     <section class="s-sec" id="sec-keys" aria-labelledby="sech-keys" hidden>
       <header class="s-head"><h2 id="sech-keys">Keyboard shortcuts</h2><p>Keys that work in the Studio (not while typing in a box).</p></header>
     <section class="box"><div id="keys-body"></div></section>
+    <section class="box"><div class="box-head"><h2>Command palette</h2></div><div id="pal-keys"></div></section>
     <section class="box"><div class="box-head"><h2>Camera Look (KingdomConnect)</h2></div>
       <div class="kb-table">
         <div class="kb-row"><span class="cat-dot live"></span><span class="kb-name">Warm</span><span class="kb-keys"><kbd class="key">Ctrl</kbd><kbd class="key">Alt</kbd><kbd class="key">1</kbd></span><span></span><span></span></div>
@@ -508,6 +509,7 @@
 <script src="js/preview-edit.js"></script>
 <script src="js/panels.js"></script>
 <script src="js/nav.js"></script>
+<script src="js/palette.js"></script>
 <script src="js/brand.js"></script>
 <script src="js/about.js"></script>
 <script src="js/meeting-sheet.js"></script>

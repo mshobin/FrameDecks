@@ -1359,6 +1359,21 @@ window.BSFWorkspace = {
     tabFor.scripture = 'content'; select(sc.id, l.id);
     setTimeout(function(){ if (window.BSFScripture){ window.BSFScripture.focus(ref); window.BSFScripture.fetch(ref); } }, 30);
   },
+  /* 6.7 command palette */
+  newFrame: function(){ newScene('blank'); }, addContent: function(what){ addLayer(what); },
+  duplicate: function(){ var ids = framesSel(); if (ids.length) duplicateFrames(ids); else toast('Select a Frame first.', true); },
+  quickStart: function(){ openQuickStart(); }, library: function(){ setFilter('tpl'); }, addFromLibrary: addFromLibrary, fromTemplate: function(id){ fromTemplate(id); },
+  contentKinds: function(){ return CONTENT_ADD.concat(FREE_ADD).map(function(x){ return {id: x[0], name: x[1].replace(/…$/, ''), icon: x[2]}; }); },
+  /* select a Frame's question or scripture by its id (the Frame's own list) and point it out */
+  showItem: function(sid, lid, itemId){
+    var sc = SC.find(live, sid), l = sc && SC.layer(sc, lid); if (!l) return;
+    tabFor[l.kind] = 'content'; select(sid, lid, true);
+    setTimeout(function(){
+      var row = document.querySelector((l.kind === 'scripture' ? '#v-items' : '#q-items') + ' > li[data-id="' + itemId + '"]'); if (!row) return;
+      row.scrollIntoView({block: 'center'}); row.classList.add('found'); setTimeout(function(){ row.classList.remove('found'); }, 1600);
+      row.focus({preventScroll: true});
+    }, 80);
+  },
   findItem: function(kind, i){
     var lk = kind === 'verse' ? 'scripture' : 'question', sc = scene(), l = sc && SC.first(sc, lk);
     if (!l){ var s2 = live.scenes.filter(function(s){ return !s.tpl && SC.first(s, lk); })[0]; if (s2){ sc = s2; l = SC.first(s2, lk); } }
