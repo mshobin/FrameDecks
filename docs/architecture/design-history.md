@@ -785,3 +785,47 @@ state keep the old names (`scenes`, `layers`, `BSFScenes`), so existing data loa
   - Timer: only the field for the chosen way of counting (Minutes or Until) is shown;
   - Branding: Position only in the Position group (it was also in Appearance);
   - Scripture: the fetch selector is "Fetch from" (ESV online / Type it myself), so it is not a second "Translation".
+
+## 29. Version 6.7: inline editing, Teleprompter, multi-select, command palette, branding options
+
+The audit, reuse plan and decisions are in [docs/project/v6.7-plan.md](../project/v6.7-plan.md); measurements in
+[docs/project/performance.md](../project/performance.md). Still no framework, no build step and no new dependency.
+
+- **EditableField** (`app/js/editable.js`, `window.BSFEditable`): one in-place editor for every name, label and text.
+  `inline(el, opts)` edits an element where it is; `float(host, rect, opts)` opens over a canvas card (with extra
+  `fields`, e.g. reference and translation); `bind(el, opts)` attaches double-click / F2. One editor at a time; keys
+  are stopped at the editor so Studio shortcuts never fire while typing; a click outside saves. Lists skip their
+  redraw while `BSFEditable.within(list)` and redraw on the `bsf-edit-done` window event.
+- **Canvas editing of every Content** (`preview-edit.js`): text cards carry `data-layer` (overlay.js); `cardAt` takes
+  the last (front-most) hit. The live picture is hit-tested by laying `stage.html?preview=1` invisibly
+  (`.pv-measure`, opacity 0) over `#s2-stage`, so positions are exact instead of estimated from `layout`; the frame is
+  removed after a minute.
+- **Answers and notes** are no longer read by any screen. `cleanItem` keeps non-empty older values (never shown);
+  `meeting-book.js` marks the old Answer / Notes columns `legacy` (read on import, never written) and appends them to
+  the Frame's `notes`, which is now the Teleprompter script (`cleanScene`: 20,000 characters).
+- **Inspector** (`workspace.js` `GROUPS`, `orderPanels`): card and text Content show Label, Content, Display Settings,
+  Visual Settings, with Animation and Show on as sub-groups; Question / Scripture label panels moved to
+  `data-itab="label"`.
+- **Teleprompter** (`teleprompter.js`, `BSFPrompter.create(host, opts)`): renders `sc.notes` after escaping
+  (`render()`: `#`, `-`, `**`, `*`, `[CUE]`, `---`); scrolls with `requestAnimationFrame` only while playing; settings
+  per surface in `localStorage` (`kc-tp-<key>`). Used by the main-window dock (`prompter-dock.js`: body classes
+  `tp-dock-left|right|bottom|float`, `--tp-w` / `--tp-h`, only in the Studio tab), the Teleprompter window
+  (`speaker.html`, rebuilt from the Speaker View) and the phone (`remote.js`; `teleprompter.js/.css` added to
+  `REMOTE_PUBLIC`). `tests/teleprompter.test.js` fails if any output page, its scripts or `vcam/*.py` reads `notes`.
+- **Multi-select** (`workspace.js`): `picked{frames, layers}` with anchor ranges, marquee selection from empty list
+  space, `deleteFrames` / `deleteLayers` with Undo through `BSFActions.toastAction`, copy / paste with fresh ids
+  (`SC.freshIds`), `BIG_DELETE = 5` for the confirmation.
+- **Command palette** (`palette.js`): builds an index from the state when opened (commands, Frames, templates,
+  Content, Frame-owned items, Library, brand, settings, members); ranks each query in one pass (word start > inside >
+  keywords > letters in order, plus kind and recency bonuses); draws the top 50. Opening keys in
+  `localStorage['kc-palette-keys']`, edited in Settings > Keyboard shortcuts; captured on `keydown` in the capture
+  phase so they work while typing. `nav.js` keeps the old header search only as a fallback.
+- **Branding** (`store.js` brand defaults `plate`, `pad`, `margin` with `TEXT_RANGE`): overlay.css uses `--bp` / `--bm`
+  and `.no-plate`; `vcam/program.py` `_badge` scales padding, skips the plate and draws a blurred shadow instead
+  (`_shadow`), and `_worker` places Branding with its own margin. Remove background (`meeting-brand.js knockOut`):
+  edge-average colour, flood fill from the border within a tolerance plus a soft band, refusing photos (busy edge),
+  near-empty or near-total results; the previous PNG stays in memory for Undo.
+- **Lazy Excel** (`dashboard.js BSFNeedXLSX`): the 930 KB library is injected on first use by members import /
+  export / template and meeting export (`meeting-import.js`; workbook import already used a worker).
+- **Release pages** (`tools/make_release_notes.py`): header from `app/js/brand.js` (tagline, motto) and
+  `assets/brand/kc-mark.png`, sections in a fixed order; relative links made absolute; `--check` runs in CI.

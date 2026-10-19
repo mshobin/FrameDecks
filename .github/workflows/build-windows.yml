@@ -67,6 +67,9 @@ jobs:
       - name: Check documentation links
         run: python tools/check_doc_links.py
 
+      - name: Check this version's release notes (What's New, Enhancements, Fixes, Performance, Known Issues)
+        run: python tools/make_release_notes.py --check
+
       - name: Read version number
         id: ver
         shell: pwsh
@@ -116,12 +119,16 @@ jobs:
             dist/Kingdom Connect v*.exe.sha256
           if-no-files-found: error
 
+      - name: Write the branded release notes (the About screen's header, then the notes)
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: python tools/make_release_notes.py --version ${{ steps.ver.outputs.version }} --repo ${{ github.repository }} --ref ${{ github.sha }} --out dist/release-notes.md
+
       - name: Publish on the Releases page (version tags only)
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
-          name: Version ${{ steps.ver.outputs.version }}
-          body_path: docs/releases/v${{ steps.ver.outputs.version }}.md
+          name: Kingdom Connect ${{ steps.ver.outputs.version }}
+          body_path: dist/release-notes.md
           files: |
             dist/Kingdom Connect v*.exe
             dist/Kingdom Connect v*.exe.sha256

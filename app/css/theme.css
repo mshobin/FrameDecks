@@ -1209,3 +1209,19 @@ body.tp-dock-bottom .tpd-head .tpd-row:first-child{order:2;flex:none}
 .pal-keys-hint{margin-left:auto}
 @media (max-width:640px){ .pal-back{padding-top:8vh} .pal-kind{width:64px} }
 @media (prefers-reduced-motion:reduce){ .pal{animation:none} }
+
+/* ---------- v6.7 polish: short, subtle motion (off with Windows' "reduce animations") ---------- */
+@keyframes kc-pop{from{opacity:0;transform:translateY(-3px) scale(.985)}to{opacity:1;transform:none}}
+@keyframes kc-fade{from{opacity:0}to{opacity:1}}
+.ef-float,.ws-menu,.ef-menu{animation:kc-pop .12s ease-out}
+.ef-input{transition:box-shadow .15s ease,border-color .15s ease}
+.scene-item.picked,.layer-item.picked{transition:background-color .12s ease,box-shadow .12s ease}
+.insp-body .ip:not([hidden]){animation:kc-fade .14s ease-out}
+body.tp-open .tpd:not([hidden]){animation:kc-fade .16s ease-out}
+.tp-text{transition:font-size .12s ease}
+.pal-row{transition:background-color .08s linear}
+:where(.tpd,.pal,.tp) :focus-visible{outline:2px solid var(--accent,#4c8dff);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){
+  .ef-float,.ws-menu,.ef-menu,.insp-body .ip,body.tp-open .tpd{animation:none}
+  .ef-input,.scene-item.picked,.layer-item.picked,.tp-text,.pal-row{transition:none}
+}
