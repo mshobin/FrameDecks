@@ -1,8 +1,4 @@
-<p align="center"><img src="assets/brand/kc-banner.svg" alt="Kingdom Connect — Connect. Present. Worship." width="620"></p>
-
-# Kingdom Connect
-
-**Connect. Present. Worship.**
+<p align="center"><img src="assets/brand/kc-about-header.webp" alt="Kingdom Connect. Christ-Centered Fellowship. Connecting Believers. Sharing Christ. Growing Together. Version 6.7" width="900"></p>
 
 A service presentation platform for churches and ministries. Plan each service as **Frames** — Welcome, Worship,
 Scripture, Discussion, Prayer, Closing — fill them with questions, scriptures, text, timers, pictures, video and
