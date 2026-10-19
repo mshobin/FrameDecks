@@ -31,7 +31,9 @@ function template(){
   toast('Template downloaded: ' + TEMPLATE_NAME);
 }
 function exportMeeting(){
-  if (!X()) return toast('The Excel library did not load. Restart Kingdom Connect and try again.', true);
+  window.BSFNeedXLSX().then(exportNow).catch(function(){ toast('The Excel library did not load. Restart Kingdom Connect and try again.', true); });
+}
+function exportNow(){
   var frames = live.scenes.filter(function(s){ return !s.tpl; });
   if (!frames.length){ toast('There are no Frames to export yet.', true); return; }
   var name = ((live.meeting && live.meeting.title) || (live.brand && live.brand.meeting) || 'Meeting').replace(/[^\w\- ]+/g, '').trim() || 'Meeting';

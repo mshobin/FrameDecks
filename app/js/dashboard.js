@@ -64,6 +64,18 @@ function commit(fn){
   return chain;
 }
 window.BSFCommit = commit;  // shared with members.js so every change goes through one queue
+/* 6.7: the Excel library (930 KB) loads the first time it is needed (import, export, template), not at start-up */
+var xlsxP = null;
+window.BSFNeedXLSX = function(){
+  if (window.XLSX) return Promise.resolve(window.XLSX);
+  if (!xlsxP) xlsxP = new Promise(function(resolve, reject){
+    var s = document.createElement('script'); s.src = 'vendor/xlsx.full.min.js'; s.async = true;
+    s.onload = function(){ if (window.XLSX) resolve(window.XLSX); else { xlsxP = null; reject(new Error('Excel library')); } };
+    s.onerror = function(){ xlsxP = null; s.remove(); reject(new Error('Excel library')); };
+    document.head.appendChild(s);
+  });
+  return xlsxP;
+};
 /* Shared with Meeting Mode, so every screen uses the same tested actions */
 window.BSFActions = {
   show: function(k){ show(k); }, hide: function(k){ hide(k); }, toggle: function(k){ toggle(k); },

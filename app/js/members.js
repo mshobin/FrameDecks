@@ -2,7 +2,7 @@
 (function(){
 'use strict';
 
-var M = window.BSFMembers, Store = window.BSFStore, XLSX = window.XLSX;
+var M = window.BSFMembers, Store = window.BSFStore, XLSX = window.XLSX || null;   // 6.7: loaded on first use (needXlsx)
 var $ = function(id){ return document.getElementById(id); };
 var PKEY = 'bsf-cc-members-v1';
 var ACK_KEY = 'bsf-cc-birthday-ack';
@@ -460,8 +460,11 @@ function dateCode(v){
   var d = XLSX.SSF.parse_date_code(v);
   return d && d.y ? {y: d.y, m: d.m, d: d.d} : null;
 }
-function readFile(file){
-  if (!XLSX){ toast('The Excel reader is missing (vendor/xlsx.full.min.js).', true); return; }
+function needXlsx(run){
+  window.BSFNeedXLSX().then(function(x){ XLSX = x; run(); }).catch(function(){ toast('The Excel reader could not load. Restart Kingdom Connect and try again.', true); });
+}
+function readFile(file){ needXlsx(function(){ readFileNow(file); }); }
+function readFileNow(file){
   if (file.size > 10 * 1024 * 1024){ toast('That file is larger than 10 MB. Please use a smaller file.', true); return; }
   var reader = new FileReader();
   reader.onerror = function(){ toast('That file couldn’t be read.', true); };
@@ -587,7 +590,8 @@ function sheetFrom(rows){
   ws['!cols'] = [{wch: 28}, {wch: 18}, {wch: 20}, {wch: 30}, {wch: 14}, {wch: 22}];
   return ws;
 }
-function exportXlsx(){
+function exportXlsx(){ needXlsx(exportXlsxNow); }
+function exportXlsxNow(){
   if (!data.members.length){ toast('There are no members to export.', true); return; }
   var wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, sheetFrom([M.EXPORT_COLUMNS].concat(memberRows())), 'Members');
@@ -599,7 +603,8 @@ function exportCsv(){
   download(new Blob([M.toCsv(M.EXPORT_COLUMNS, memberRows(), 2)], {type: 'text/csv;charset=utf-8'}), 'BSF-Members-' + stamp() + '.csv');
   toast('Exported ' + data.members.length + ' members to CSV (saved to Downloads)');
 }
-function downloadTemplate(){
+function downloadTemplate(){ needXlsx(downloadTemplateNow); }
+function downloadTemplateNow(){
   var wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, sheetFrom([M.EXPORT_COLUMNS,
     ['Grace Mensah', 'Ghana', '+233 20 000 0001', 'grace@example.com', '1985-03-15', 'Group Leader'],
