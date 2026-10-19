@@ -30,7 +30,7 @@ SHEETS = {
     "Meeting Overview": (["Field", "Value"], [18, 70], [
         ["Meeting Title", "Romans · Week 5"], ["Date", "2026-10-25"], ["Presenter", "Your name"],
         ["Notes", "Anything the team should know about this meeting."]]),
-    "Frames": (["Frame Number", "Frame Name", "Description", "Background", "Transition", "Presenter Notes"], [14, 26, 40, 14, 16, 50], [
+    "Frames": (["Frame Number", "Frame Name", "Description", "Background", "Transition", "Teleprompter Script"], [14, 26, 40, 14, 16, 50], [
         [1, "Welcome", "People arrive and settle in", "Navy", "Fade", "Greet people by name as they join."],
         [2, "Worship", "Opening song", "None", "Frame default", "Song lyrics are on the shared screen."],
         [3, "Scripture Reading", "Romans 8:1-4", "None", "Cross Dissolve", "Ask a volunteer to read."],
@@ -47,15 +47,15 @@ SHEETS = {
         [5, 1, "PowerPoint", "Lesson", "Romans Week 5.pptx", "", "", "", "Show", "Choose the file in the app after the import."],
         [6, 1, "Prayer Point", "Closing prayer", "Let’s close our time together in prayer.", "Closing Prayer", "", "Fade", "", ""],
         [6, 2, "Lower Third", "Goodbye", "See you next week", "Thank you for joining!", "", "Gentle Rise", "", ""]]),
-    "Questions": (["Frame Number", "Content Name", "Question Number", "Label", "Question Text", "Answer Text", "Media", "Timer", "Animation", "Notes"],
-                  [14, 20, 16, 22, 60, 44, 16, 8, 16, 30], [
-        [4, "Discussion", 1, "Question 1", "What does “no condemnation” mean for you this week?", "Freedom from guilt because of Christ.", "", 3, "Fade", "Start with this one."],
-        [4, "Discussion", 2, "Question 2", "How does the Spirit help us live differently?", "", "", 3, "Word by Word", ""],
-        [4, "Discussion", 3, "Question 3", "What is one step you will take before we meet again?", "", "", "", "Fade", "Close the discussion."]]),
-    "Scriptures": (["Frame Number", "Content Name", "Scripture Number", "Label", "Reference", "Text", "Translation", "Animation", "Notes"],
-                   [14, 20, 16, 22, 20, 70, 12, 16, 30], [
-        [3, "Reading", 1, "Focus Verse", "Romans 8:1", "There is therefore now no condemnation for those who are in Christ Jesus.", "ESV", "Gentle Rise", ""],
-        [3, "Reading", 2, "Read together", "Romans 8:2", "For the law of the Spirit of life has set you free in Christ Jesus from the law of sin and death.", "ESV", "", "Leave Text empty to fetch it from the ESV."]]),
+    "Questions": (["Frame Number", "Content Name", "Question Number", "Label", "Question Text", "Media", "Timer", "Animation"],
+                  [14, 20, 16, 22, 70, 16, 8, 16], [
+        [4, "Discussion", 1, "Question 1", "What does “no condemnation” mean for you this week?", "", 3, "Fade"],
+        [4, "Discussion", 2, "Question 2", "How does the Spirit help us live differently?", "", 3, "Word by Word"],
+        [4, "Discussion", 3, "Question 3", "What is one step you will take before we meet again?", "", "", "Fade"]]),
+    "Scriptures": (["Frame Number", "Content Name", "Scripture Number", "Label", "Reference", "Text", "Translation", "Animation"],
+                   [14, 20, 16, 22, 20, 70, 12, 16], [
+        [3, "Reading", 1, "Focus Verse", "Romans 8:1", "There is therefore now no condemnation for those who are in Christ Jesus.", "ESV", "Gentle Rise"],
+        [3, "Reading", 2, "Read together", "Romans 8:2", "For the law of the Spirit of life has set you free in Christ Jesus from the law of sin and death.", "ESV", ""]]),
 }
 READ_ME = [
     "Kingdom Connect · Meeting Workbook",
@@ -65,6 +65,7 @@ READ_ME = [
     "",
     "1. Meeting Overview: the meeting title, date, presenter and notes.",
     "2. Frames: one row per Frame (one screen or one step of your meeting), numbered 1, 2, 3…",
+    "   Teleprompter Script: what the presenter says during this Frame. Only the presenter sees it (Teleprompter); it is never on screen.",
     "3. Content: one row per piece of Content inside a Frame. Frame Number says which Frame; Content Order says the order inside it.",
     "   Content Types: Question, Scripture, Text, Image, Video, Timer, PowerPoint, Free Content (Audio and Web Page are planned, not yet available).",
     "   Free Content: write its kind first in Main Content, e.g. “Announcement: …”, or use the kind as the Content Type (Prayer Point, Lower Third…).",
@@ -137,7 +138,7 @@ def main():
     for ws in (q, s):
         whole(ws, "A", "The Frame Number from the Frames sheet.")
         whole(ws, "C", "1 = first.")
-    dropdown(q, "I", ref["Animation"], "How the question appears.")
+    dropdown(q, "H", ref["Animation"], "How the question appears.")
     dropdown(s, "H", ref["Animation"], "How the scripture appears.")
     # Frames' background accepts colours too: show the list but allow other values
     for dv in f.data_validations.dataValidation:

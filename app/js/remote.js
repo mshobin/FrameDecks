@@ -246,10 +246,8 @@ function render(){
   $('annotate').setAttribute('aria-pressed', String(inkOn)); $('annotate').classList.toggle('on', inkOn);
   $('freeze').setAttribute('aria-pressed', String(!!L.freeze)); $('freeze').classList.toggle('on', !!L.freeze);
   $('rehearse').setAttribute('aria-pressed', String(rehearse));
-  var ns = rehearse && selScene ? SC.find(live, selScene) : ls;               // presenter notes of the Frame (and its current question)
-  var cq = ls && SC.itemById(live, 'question', live.question.itemId);
-  var notes = [ns && ns.notes, cq && cq.note ? 'Question: ' + cq.note : '', cq && cq.answer ? 'Answer: ' + cq.answer : ''].filter(Boolean).join('\n');
-  $('now-notes').hidden = !notes; setText($('now-notes'), notes);
+  var ns = rehearse && selScene ? SC.find(live, selScene) : ls;               // the Frame's teleprompter script (6.7)
+  if (window.BSFPrompter) window.BSFPrompter.update(live, ns); else { $('now-notes').hidden = !(ns && ns.notes); setText($('now-notes'), ns ? ns.notes : ''); }
   // Q + Scripture
   var q = ls && SC.first(ls, 'question'), v = ls && SC.first(ls, 'scripture');
   $('qs').hidden = !(q && v);

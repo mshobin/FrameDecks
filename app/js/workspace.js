@@ -843,16 +843,20 @@ function pickFile(kind){
 /* ===================================================================================================== */
 /* v6.5 Content Settings: one panel, every setting visible, in groups (no Basic / Advanced, no tabs).
  * The group names along the top jump to their group. */
+/* v6.7 Content Settings in priority order: Label · Content · Display Settings · Visual Settings.
+ * [key, name, sub]: a sub-section sits inside the group above it (smaller heading, no jump link). */
 var GROUPS = {scene: [['scene', 'Frame'], ['transition', 'Timing'], ['history', 'History']],
-  card: [['content', 'Content'], ['style', 'Appearance'], ['layout', 'Position'], ['animation', 'Animation'], ['output', 'Behavior']],
-  text: [['content', 'Content'], ['style', 'Appearance'], ['layout', 'Position'], ['animation', 'Animation'], ['output', 'Behavior']],
+  card: [['label', 'Label'], ['content', 'Content'], ['layout', 'Display Settings'], ['animation', 'Animation', true], ['output', 'Show on', true], ['style', 'Visual Settings']],
+  text: [['label', 'Label'], ['content', 'Content'], ['layout', 'Display Settings'], ['animation', 'Animation', true], ['output', 'Show on', true], ['style', 'Visual Settings']],
+  brand: [['content', 'Content'], ['layout', 'Display Settings'], ['output', 'Show on', true], ['style', 'Visual Settings']],
   media: [['content', 'Media']]};
 var inspSig = '', curTabs = '';
 var adv = true;                                    // older code paths: everything is shown
-function group(kind){ return !kind ? 'scene' : SC.isCard(kind) ? 'card' : SC.isText(kind) ? 'text' : 'media'; }
+function group(kind){ return !kind ? 'scene' : kind === 'brand' ? 'brand' : SC.isCard(kind) ? 'card' : SC.isText(kind) ? 'text' : 'media'; }
 function curKind(){ var l = layer(); return l ? l.kind : ''; }
 function refreshBasicSegs(){}
-function groupHead(key, name){ return h('div', {cls: 'cs-group cs-anchor', 'data-grp': key, text: name}); }
+function groupHead(key, name, sub){ return h('div', {cls: 'cs-group cs-anchor' + (sub ? ' cs-sub' : ''), 'data-grp': key, text: name}); }
+function headFor(groups, key){ var g = groups.filter(function(t){ return t[0] === key; })[0]; return g ? groupHead(g[0], g[1], g[2]) : null; }
 function jumpTo(key){
   var el = document.querySelector('#insp-body [data-grp="' + key + '"]'); if (!el) return;
   el.scrollIntoView({block: 'start', behavior: 'smooth'});
@@ -877,20 +881,19 @@ function renderInspector(){
   if (tsig !== curTabs){
     curTabs = tsig;
     var nav = $('insp-tabs'); nav.innerHTML = ''; nav.setAttribute('aria-label', 'Jump to a group');
-    groups.forEach(function(t, i){ nav.appendChild(h('button', {type: 'button', 'data-itab': t[0], 'aria-selected': String(i === 0), text: t[1], onclick: function(){ jumpTo(t[0]); }})); });
-    nav.hidden = !!editQ || groups.length < 2;
+    var top = groups.filter(function(t){ return !t[2] && !(t[0] === 'label' && kind === 'birthday'); });
+    top.forEach(function(t, i){ nav.appendChild(h('button', {type: 'button', 'data-itab': t[0], 'aria-selected': String(i === 0), text: t[1], onclick: function(){ jumpTo(t[0]); }})); });
+    nav.hidden = !!editQ || top.length < 2;
   }
   // the editors for Question / Scripture / Birthday (all their groups at once); generated groups for the rest
   var panelKind = SC.isCard(kind) ? kind : mediaLive ? 'media' : null;
   Array.prototype.forEach.call(document.querySelectorAll('#insp-body > .ip[data-kind]'), function(p){
     var show = !editQ && !!sc && !!l && p.dataset.kind === panelKind;
-    if (show && !p.querySelector(':scope > .cs-anchor')){
-      var gg = groups.filter(function(t){ return t[0] === p.dataset.itab; })[0];
-      if (gg) p.insertBefore(groupHead(gg[0], gg[1]), p.firstChild);
-    }
+    if (show && !p.querySelector(':scope > .cs-anchor')){ var hd = headFor(groups, p.dataset.itab); if (hd) p.insertBefore(hd, p.firstChild); }
     if (p.hidden === show) p.hidden = !show;
   });
   var gen = $('ip-gen'); gen.hidden = false;
+  orderPanels(panelKind, groups, gen);
   if (SC.isCard(kind) && !editQ){ if (window.BSFRenderLists) window.BSFRenderLists(); if (window.BSFRefreshControls) window.BSFRefreshControls(); if (kind === 'birthday' && window.BSFRenderBirthday) window.BSFRenderBirthday(); }
   var sig = JSON.stringify([editQ, sc && sc.id, l, sc && !l ? [sc.name, sc.group, sc.fav, sc.tpl, sc.tx, sc.auto, sc.out, sc.modified, sc.notes, live.profile, !!SC.first(sc, 'brand')] : 0, l && l.kind === 'brand' ? live.brand : 0, isLiveScene(sc && sc.id), live.live.on, !!mediaLive]);
   var ae = document.activeElement;
@@ -900,9 +903,9 @@ function renderInspector(){
   gen.innerHTML = '';
   if (!sc){ gen.appendChild(h('p', {cls: 'hint', text: 'Select a Frame on the left, or add one with + Frame.'})); return; }
   if (editQ){ editQuestionForm(gen); return; }
-  function each(fn){ groups.forEach(function(t){ var box = h('div', {cls: 'cs-sec'}); gen.appendChild(groupHead(t[0], t[1])); gen.appendChild(box); fn(box, t[0]); }); }
+  function each(fn){ groups.forEach(function(t){ var box = h('div', {cls: 'cs-sec' + (t[2] ? ' cs-sec-sub' : '')}); gen.appendChild(groupHead(t[0], t[1], t[2])); gen.appendChild(box); fn(box, t[0]); }); }
   if (!l) each(function(box, t){ sceneForm(box, sc, t); });
-  else if (SC.isCard(kind)){ gen.appendChild(groupHead('output', 'Behavior')); outputForm(gen, sc, l); }
+  else if (SC.isCard(kind)){ gen.appendChild(headFor(groups, 'output')); outputForm(gen, sc, l); }
   else if (SC.isText(kind)) each(function(box, t){ if (t === 'output') outputForm(box, sc, l); else textForm(box, sc, l, t); });
   else if (!mediaLive){ gen.appendChild(groupHead('content', 'Media')); mediaForm(gen, sc, l); }
   else { gen.appendChild(groupHead('output', 'Behavior')); gen.appendChild(h('p', {cls: 'hint', text: 'Position, size and the rest of this Content: drag it on the picture, or use the settings above.'})); }
@@ -923,6 +926,17 @@ function checkCtl(label, val, onset){ var c = h('input', {type: 'checkbox'}); c.
 function stop(e){ e.stopPropagation(); }
 /* ---------- Scene ---------- */
 function fmtDate(t){ return t ? new Date(t).toLocaleString([], {dateStyle: 'medium', timeStyle: 'short'}) : '—'; }
+var orderSig = '';
+function orderPanels(kind, groups, gen){
+  var sig = kind + '|' + groups.map(function(g){ return g[0]; }).join(','); if (sig === orderSig) return; orderSig = sig;
+  var body = $('insp-body');
+  if (!kind){ body.appendChild(gen); return; }                // generated forms only: they build their own order
+  groups.forEach(function(g){
+    if (g[0] === 'output') body.appendChild(gen);
+    Array.prototype.forEach.call(body.querySelectorAll(':scope > .ip[data-kind="' + kind + '"][data-itab="' + g[0] + '"]'), function(p){ body.appendChild(p); });
+  });
+  if (!groups.some(function(g){ return g[0] === 'output'; })) body.appendChild(gen);
+}
 function sceneForm(gen, sc, tab){
   var sid = sc.id;
   if (tab === 'scene'){
@@ -997,11 +1011,16 @@ function textForm(gen, sc, l, tab){
     }
     return;
   }
-  if (tab === 'content'){
-    var title = h('input', {type: 'text', value: c.title, 'aria-label': l.kind === 'lowerthird' ? 'Name' : 'Title', id: 'tl-title'}); title.addEventListener('keydown', stop);
+  if (tab === 'label'){                                          // v6.7 the label first (also editable on the canvas)
+    var title = h('input', {type: 'text', value: c.title, 'aria-label': l.kind === 'lowerthird' ? 'Name' : 'Label', id: 'tl-title', cls: 'tl-label-in',
+      placeholder: l.kind === 'lowerthird' ? 'Name (first line)' : 'e.g. Group Discussion, Opening Thought'}); title.addEventListener('keydown', stop);
     title.addEventListener('input', function(){ var v = title.value; set(function(x){ x.c.title = v; }); });
-    gen.appendChild(field(l.kind === 'lowerthird' ? 'Name (first line)' : l.kind === 'countdown' ? 'Label' : 'Title', title));
-    gen.appendChild(checkCtl(l.kind === 'lowerthird' ? 'Show the name' : l.kind === 'countdown' ? 'Show the label' : 'Show the title', c.label, function(v){ set(function(x){ x.c.label = v; }, true); }));
+    gen.appendChild(h('div', {cls: 'two tl-label-row'}, [title,
+      checkCtl(l.kind === 'lowerthird' ? 'Show the name' : 'Show', c.label, function(v){ set(function(x){ x.c.label = v; }, true); })]));
+    gen.appendChild(h('p', {cls: 'hint', text: 'Double-click the label on the canvas to change it there.'}));
+    return;
+  }
+  if (tab === 'content'){
     if (l.kind === 'countdown'){
       var mode = segCtl(c.mode, [['duration', 'Duration'], ['until', 'Until a time']], function(v){ set(function(x){ x.c.mode = v; }, true); });
       var mins = h('input', {type: 'number', min: 0, max: 600, step: 0.5, value: String(c.minutes), 'aria-label': 'Minutes'}); mins.addEventListener('keydown', stop);

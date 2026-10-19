@@ -1127,3 +1127,18 @@ html.kc-native img{-webkit-user-drag:none}
 .fl-ed-grid > .fl-sec:first-child input[type=text]{font-size:15px}
 /* v6.7 the overlay page laid out invisibly over the live picture, to find the card under a double-click */
 .pv-measure{position:absolute;width:1920px;height:1080px;border:0;transform-origin:0 0;opacity:0;pointer-events:none;z-index:0}
+
+/* ---------- v6.7 Content Settings: Label · Content · Display Settings · Visual Settings ---------- */
+.cs-group.cs-sub{font-size:10.5px;border-top:0;padding-top:4px;color:var(--faint);letter-spacing:.07em}
+.cs-sec-sub{margin-top:-2px}
+.tl-label-row{grid-template-columns:1fr auto;align-items:center;gap:10px}
+.tl-label-in,.fl-label-sec input[type=text]{font-size:16px;font-weight:600;padding:9px 12px}
+.fl-label-sec .row{grid-template-columns:1fr}
+.fl-label-sec .row > .lbl{display:none}
+/* group headings run across the whole panel; the label sits on one row, wide */
+.insp-body .cs-anchor{column-span:all}
+.insp-body > .ip[data-itab="label"]:not([hidden]){columns:auto}
+.fl-label-sec{max-width:760px}
+.fl-label-sec .two{grid-template-columns:minmax(0,1fr) auto !important}
+.insp-body .cs-anchor:not(:first-child){margin-top:14px}
+.insp-body .cs-anchor.cs-sub:not(:first-child){margin-top:6px}

@@ -276,7 +276,10 @@ var ITEM_FIELDS = {question: ['label', 'text', 'answer', 'note', 'pair', 'mode',
   scripture: ['label', 'ref', 'version', 'text', 'note', 'anim']};
 function cleanItem(kind, it){
   var o = {id: str(it.id || rid('i'), 40)};
-  (ITEM_FIELDS[kind] || []).forEach(function(f){ o[f] = str(it[f], f === 'text' || f === 'answer' || f === 'note' ? 8000 : 200); });
+  (ITEM_FIELDS[kind] || []).forEach(function(f){
+    if ((f === 'answer' || f === 'note') && !it[f]) return;     // 6.7: answers and notes are no longer used; older text is kept, never shown
+    o[f] = str(it[f], f === 'text' || f === 'answer' || f === 'note' ? 8000 : 200);
+  });
   if (kind === 'question' && MODES.indexOf(o.mode) < 0) o.mode = '';
   var t = String(it.transition || '');
   if (t === 'random' || TRANSITIONS.indexOf(t) >= 0) o.transition = t;
