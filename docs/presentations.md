@@ -172,6 +172,8 @@ camera, the Presentation window, the OBS pages or the phone's drawing pad.
 3. **Follows: Live** shows the script of the Frame on screen. **Follows: Selected** shows the Frame you selected,
    so you can read ahead or rehearse.
 
+![The Teleprompter docked on the right of the Studio](images/teleprompter.png)
+
 **Open it in its own window**
 **Program → Teleprompter window** (called *Speaker View* in 6.6) opens the Teleprompter in a separate window, ideal
 on a second monitor or beside Zoom on a laptop. It also shows the clocks, a **Timer**, what is on screen now and what
@@ -209,6 +211,8 @@ The **command palette** finds anything and does most things, from the keyboard.
 3. It also runs commands, such as **Go Live**, **New Frame**, **Duplicate**, **Teleprompter**, **Export meeting**,
    switching the theme or **Add Content…**.
 4. Use **↑ / ↓** to choose and **Enter** to open or run it. **Esc** closes the palette.
+
+![The command palette, with "bible" typed](images/command-palette.png)
 
 You can change the keys in **Settings → Keyboard shortcuts → Command palette**.
 

@@ -10,21 +10,24 @@ PowerPoint, and present to the room, to Zoom / Teams / Google Meet and to your s
 the PC, a phone or an iPad. It runs **entirely on your PC**: no accounts, no subscriptions, no cloud, no telemetry.
 The only feature that ever goes online is the optional ESV scripture fetch.
 
-> **Status: Kingdom Connect 6.6 is ready for teaching, Bible study, small-group and hybrid services, with documented
+> **Status: Kingdom Connect 6.7 is ready for teaching, Bible study, small-group and hybrid services, with documented
 > gaps.** The biggest: no song / lyrics library yet (lyrics are shown as Text Content or a PowerPoint), an unsigned
 > installer, no automated UI tests, and no published licence. See the
 > [repository audit](docs/project/repository-audit.md) and the [roadmap](ROADMAP.md).
 
 ## What it does
 - **Frames and Content**: one Frame per moment of the service; **+ Content** adds a Question, Scripture, Text,
-  Image, Video, Timer, PowerPoint or Free Content (announcement, prayer, lower third, branding, camera, screen,
-  window, shapes). Every Frame owns its Content, so duplicating last week's service never changes it
-  ([FRAMES](docs/frames.md) · [CONTENT](docs/content.md)).
+  Discussion topic, Icebreaker, Poll (show of hands), Image, Video, Timer, PowerPoint or Free Content (announcement,
+  prayer, lower third, branding, camera, screen, window, shapes). Every Frame owns its Content, so duplicating last
+  week's service never changes it. Rename and edit in place (double-click; no pop-ups); select several Frames or
+  Contents to copy, paste, duplicate, move or delete them with Undo ([FRAMES](docs/frames.md) ·
+  [CONTENT](docs/content.md)).
 - **Presenting**: **Go Live** (T), Frame and item steppers, transitions and auto-advance, Hide all (Esc), Blackout
-  (K), Emergency screen, Freeze (F) and Annotate (D) — pen, highlighter, arrow, shapes and text above everything
+  (K), Emergency screen, Freeze (F) and Annotate (D) — pen, highlighter, arrow, shapes and text above everything.
+  A **command palette** (Ctrl+K or Ctrl+Space) finds any Frame, question, scripture or setting and runs commands
   ([PRESENTATIONS](docs/presentations.md)).
-- **Questions and scriptures**: per-Frame lists with labels, answers and notes; Show question, scripture or both;
-  drag to reorder; double-click a card on the canvas to edit it in place. ESV fetch online, or any translation
+- **Questions and scriptures**: per-Frame lists with labels; Show question, scripture or both; drag to reorder;
+  double-click an item in the list, or any card on the canvas, to edit it in place. ESV fetch online, or any translation
   typed for offline use.
 - **Outputs**: the **KingdomConnect** virtual camera (your webcam with the Frame on top, background blur, Camera
   Looks) for Zoom, Teams, Google Meet and OBS; a full-screen **Presentation window** for a projector; transparent
@@ -33,17 +36,21 @@ The only feature that ever goes online is the optional ESV scripture fetch.
   capture that keeps PowerPoint animations, screen capture, and *Show objects only* for plain slide backgrounds
   ([POWERPOINT](docs/reference/powerpoint.md)).
 - **Phone remote**: a **Simple** remote with large PREVIOUS / NEXT FRAME and CONTENT, ANNOTATE, FREEZE and BLACK
-  SCREEN buttons, and an **Advanced** remote with search, notes and run-through. PIN-protected, local network only;
+  SCREEN buttons, a TELEPROMPTER button, and an **Advanced** remote with search, a Teleprompter panel and run-through. PIN-protected, local network only;
   draw on the real live picture, full screen in landscape ([REMOTE_CONTROL](docs/remote-control.md)).
-- **Speaker View**: a window only the leader sees — the answer, notes, what comes next, the time, time on this
-  Frame and a timer.
-- **Planning**: Quick Start, templates, groups, favourites, leader notes, and the five-sheet **Excel Meeting
-  Workbook** with import preview, undo and export ([SERVICE_PLANNING](docs/service-planning.md)).
+- **Teleprompter**: each Frame's script, seen only by the presenter — docked in the Studio (R), in its own
+  **Teleprompter window** on a second screen with clocks and what comes next, or on the phone. Scrolls by itself,
+  with speed, text size, high contrast and focus mode. Never on any output.
+- **Branding**: your logo and Meeting Name in a corner, with size, margin, opacity, padding and an optional plate;
+  **Remove background** makes a plain logo background transparent, on the PC.
+- **Planning**: Quick Start, templates, groups, favourites, and the five-sheet **Excel Meeting Workbook** with
+  import preview, undo and export; the Excel library loads only when needed
+  ([SERVICE_PLANNING](docs/service-planning.md)).
 - **Data**: everything in one folder on the PC, saved atomically, with daily backups and Frame history.
 
 ## Install
 See [INSTALLATION](docs/installation.md) and [GETTING_STARTED](docs/getting-started.md). In short: run
-`Kingdom Connect v6.6.exe` (unsigned, so check it against its `.sha256` file first and choose **More info → Run
+`Kingdom Connect v6.7.exe` (unsigned, so check it against its `.sha256` file first and choose **More info → Run
 anyway** at the SmartScreen prompt), keep **Install the KingdomConnect camera** ticked, and allow the one
 administrator prompt. Windows 10 or 11 (64-bit) is required. The installer comes from the **Build Windows
 installer** workflow ([BUILDING_THE_INSTALLER](docs/development/building-the-installer.md)).

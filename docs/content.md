@@ -16,7 +16,7 @@ Every kind of Content you can put in a Frame, and every setting that controls ho
 - [Timer](#timer)
 - [Image, Video and PowerPoint](#image-video-and-powerpoint)
 - [Free Content](#free-content)
-- [Behavior: where Content appears](#behavior-where-content-appears)
+- [Show on: where Content appears](#show-on-where-content-appears)
 - [Placeholders: {meeting} and {org}](#placeholders-meeting-and-org)
 
 ---
@@ -261,7 +261,7 @@ slide show as **Free Content → Window** instead. See [Media](media.md) and
 | **Shape** | A rectangle, for example behind text (the live Studio's own Add menu also has an Ellipse) |
 | **Background** | A colour or picture behind everything |
 
-## Behavior: where Content appears
+## Show on: where Content appears
 
 Cards and text have a **Show on** group (inside Display Settings):
 - **KingdomConnect** (the Zoom / Teams camera, recordings and the Presentation window);

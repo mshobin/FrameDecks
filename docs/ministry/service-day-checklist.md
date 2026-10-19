@@ -18,7 +18,7 @@ A printable timeline for running a service with Kingdom Connect, plus an emergen
 ## The day before
 
 - [ ] The meeting is complete: every Frame in order, with its Content.
-- [ ] The leader has reviewed it and added answers and notes.
+- [ ] The leader has reviewed it and written the Teleprompter script for each Frame.
 - [ ] Every scripture has its text; every PowerPoint and video opens.
 - [ ] Song words and lyrics licences checked.
 - [ ] **Settings → Data / Backup → Back up now**.
@@ -35,7 +35,7 @@ A printable timeline for running a service with Kingdom Connect, plus an emergen
 
 - [ ] Phone remote on; remote operator connected (**Connected** shown).
 - [ ] Walk through the first Frames with **Go Live**; check the projector and the meeting app's self-view.
-- [ ] **Speaker View** open where the leader can see it.
+- [ ] **Teleprompter** open where the leader can see it (docked in the Studio, the **Teleprompter window** on a second screen, or on the leader's phone).
 - [ ] Agree who controls Next (PC or phone) and the hand signals.
 
 ## 10 minutes before

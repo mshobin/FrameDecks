@@ -26,9 +26,9 @@ How to prepare a meeting in Kingdom Connect so the service runs smoothly: Frames
 
 ## Five things to know
 
-1. **+ Frame, then + Content.** + Frame adds a blank Frame after the selected one; select it, then **+ Content** to add a Question, Scripture, Text, Image, Video, Timer or PowerPoint.
+1. **+ Frame, then + Content.** + Frame adds a blank Frame after the selected one; select it, then **+ Content** to add a Question, Scripture, Text, Discussion topic, Icebreaker, Poll (show of hands), Image, Video, Timer or PowerPoint.
 2. **Every Frame owns its Content.** Changing a question in one Frame never changes another. **Duplicate** makes a fully separate copy.
-3. **Content Settings has everything.** One panel, in groups: Content, Appearance, Position, Timing, Animation, Media, Behavior.
+3. **Content Settings has everything.** One panel, most used first: Label, Content, Display Settings (with Animation and Show on), Visual Settings; Media for pictures, video and slides.
 4. **Kingdom Connect keeps copies of your files.** Added pictures, videos and slides keep working if the originals move.
 5. **Excel is optional.** The Meeting Workbook builds a whole meeting from a spreadsheet; the app is the source of truth after import.
 
@@ -36,16 +36,20 @@ How to prepare a meeting in Kingdom Connect so the service runs smoothly: Frames
 
 ## Building the meeting
 
-1. Make one Frame per part of the service, in order. Name each one clearly (double-click its name): *Welcome*, *Worship 1*, *Reading*, *Discussion*, *Closing*.
+1. Make one Frame per part of the service, in order. Name each one clearly (double-click its name, type, **Enter**): *Welcome*, *Worship 1*, *Reading*, *Discussion*, *Closing*.
 2. Add Content to each Frame:
-   - **Question**: add questions to its list; double-click one to add its label, answer and notes.
+   - **Question**: add questions to its list; double-click a question's label or text to edit it in place.
    - **Scripture**: type a reference and **Fetch scripture** (ESV), or choose **Fetch from → Type it myself**.
    - **Text**: announcements, song words (one Frame per verse or chorus), prayer points.
    - **PowerPoint**: a .pptx or PDF; set **Start at slide** if needed.
    - **Video / Image**: choose the file, then place it.
    - **Timer**: a countdown before the service starts.
+   - **Discussion topic**, **Icebreaker**, **Poll (show of hands)**: ready-made text cards; double-click the card on the canvas to change the words. The Poll only shows the choices; nothing is counted.
 3. Arrange the order of questions or scriptures by **dragging** them, or with ↑ / ↓.
-4. Check the look in **Appearance** and **Position** (text size, width, card opacity).
+4. Check the look in **Display Settings** and **Visual Settings** (position, width, text size, opacity).
+5. Paste the leader's talking points into each Frame's **Teleprompter script** (Content Settings → Frame) if they send them. Only the leader sees it.
+6. To change several Frames at once, **Ctrl+Click** or **Shift+Click** them, then copy (**Ctrl+C**), paste (**Ctrl+V**), duplicate (**Ctrl+D**) or delete them. **Ctrl+K** finds any Frame, question or setting.
+7. For the Branding badge, choose Logo only / Name only / Logo + Name, a corner, size and plate in its Content Settings. If the logo has a white box around it, use **Remove background** (Settings → Meeting & Branding).
 
 See [Content](../content.md) and [Media](../media.md) for every option.
 

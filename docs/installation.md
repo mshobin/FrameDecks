@@ -35,12 +35,12 @@ administrator.
 
 ## Get the installer
 
-The installer is a single file named **Kingdom Connect v6.6.exe** (the number is the version).
+The installer is a single file named **Kingdom Connect v6.7.exe** (the number is the version).
 
 - **From a release:** on the repository's **Releases** page, download the `.exe` (and, if you like, the matching
   `.sha256` file).
 - **From a build:** in the repository's **Actions** tab, open the latest green **Build Windows installer** run and
-  download the **Kingdom Connect v6.6** artifact. It is a `.zip`; unzip it to get the `.exe` and the `.sha256` file.
+  download the **Kingdom Connect v6.7** artifact. It is a `.zip`; unzip it to get the `.exe` and the `.sha256` file.
 
 If you build the installer yourself, see [Building the installer](development/building-the-installer.md).
 
@@ -52,15 +52,15 @@ unchanged:
 1. Open **PowerShell** in the folder with the files.
 2. Run:
    ```powershell
-   Get-FileHash ".\Kingdom Connect v6.6.exe" -Algorithm SHA256
+   Get-FileHash ".\Kingdom Connect v6.7.exe" -Algorithm SHA256
    ```
-3. Compare the **Hash** with the text in `Kingdom Connect v6.6.exe.sha256`. Upper or lower case does not matter. They
+3. Compare the **Hash** with the text in `Kingdom Connect v6.7.exe.sha256`. Upper or lower case does not matter. They
    must match exactly.
 
 ## Install
 
 1. Close **Zoom, Teams and OBS**. They keep the camera in use and can block the camera installation.
-2. Double-click **Kingdom Connect v6.6.exe**.
+2. Double-click **Kingdom Connect v6.7.exe**.
 3. Windows may show **"Windows protected your PC"**. The installer is not code-signed, so Windows does not recognise
    it yet. Select **More info → Run anyway**.
 4. Follow the wizard. The options are:

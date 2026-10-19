@@ -150,7 +150,7 @@ If you already produce your stream in OBS, you can use Kingdom Connect's overlay
 
 - The pages are served from your PC at `http://localhost:8750/` (for example `http://localhost:8750/stage.html`).
 - The command bar's status shows how many overlay pages are open (for example **OBS · 1 open**).
-- Each piece of Content can be limited to the KingdomConnect camera or the overlay pages in **Content Settings → Behavior**.
+- Each piece of Content can be limited to the KingdomConnect camera or the overlay pages in **Content Settings → Show on**.
 
 > **Note:** Overlay pages show cards and text. Camera and media Content are part of the KingdomConnect picture, so in OBS use the **KingdomConnect** camera source for those.
 

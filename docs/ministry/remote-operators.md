@@ -23,7 +23,7 @@ How to run a service, or draw on the screen, from a phone or iPad with the Kingd
 
 ## Five things to know
 
-1. **Simple or Advanced.** The **Simple** remote has big buttons for Frames and Content. **⋯ → Advanced remote** adds search, presenter notes and answers, slides and Run-through.
+1. **Simple or Advanced.** The **Simple** remote has big buttons for Frames and Content. **⋯ → Advanced remote** adds search, a Teleprompter panel, slides and Run-through.
 2. **CHANGE** switches between questions, scriptures and slides when a Frame has more than one.
 3. **ANNOTATE** shows the live picture; draw with your finger, and it appears on screen when you lift it. Turn the phone sideways for a full-screen picture.
 4. **Run-through** (Advanced) lets you look ahead on the phone without changing the screen.
@@ -43,7 +43,7 @@ How to run a service, or draw on the screen, from a phone or iPad with the Kingd
 
 - Follow the leader's pace; glance at **Current Frame** and **Current Content** to stay oriented.
 - When drawing, use short, simple marks; **Undo** removes the last one; **Done** hides all drawings.
-- In the Advanced remote, read the question's **answer** and notes if you help lead the discussion.
+- If you help lead the discussion, read the Frame's script: **TELEPROMPTER** in the Simple remote (full screen), or the **Teleprompter** panel on the Advanced remote's **Live** tab. Only you see it.
 
 ## After the service
 

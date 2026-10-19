@@ -64,7 +64,7 @@ Overlay pages and the phone remote expect port 8750. Another program is using it
 | **"Windows protected your PC"** when installing | The installer isn't code-signed | Select **More info → Run anyway** |
 | Antivirus blocks or quarantines the app | A known false alarm with unsigned apps made with Python | Restore it and add an exception for `%LOCALAPPDATA%\Programs\BSF Command Center` |
 
-> **Note:** Check the download first: the installer comes with a `.sha256` file you can compare with `certutil -hashfile "Kingdom Connect v6.6.exe" SHA256`.
+> **Note:** Check the download first: the installer comes with a `.sha256` file you can compare with `certutil -hashfile "Kingdom Connect v6.7.exe" SHA256`.
 
 ## The KingdomConnect camera
 
