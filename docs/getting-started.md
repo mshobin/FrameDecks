@@ -66,11 +66,11 @@ A webcam is optional. You need one only if people should see you on the KingdomC
 
 | Area | Where | What it does |
 | --- | --- | --- |
-| **Command bar** | Across the top | Studio · Members · Settings (Alt+1, Alt+3, Alt+4), Search (Ctrl+K), **◀ Frame · Go Live · Frame ▶**, transitions, the question and scripture steppers, the **Program** menu, **Hide all** and the LIVE status |
+| **Command bar** | Across the top | Studio · Members · Settings (Alt+1, Alt+3, Alt+4), the search box (the command palette, Ctrl+K), **◀ Frame · Go Live · Frame ▶**, transitions, the question and scripture steppers, the **Program** menu, **Hide all** and the LIVE status |
 | **Frames** | Left, top | Every Frame in your meetings, in order. The live Frame is marked **LIVE**, the next one **NEXT** |
 | **Content** | Left, bottom | The Content inside the selected Frame. The top of the list is in front |
 | **Studio Canvas** | Middle | A preview of the selected Frame, or the live picture. The badge says **PREVIEW · not on air** or **LIVE** |
-| **Content Settings** | Below the canvas | Every setting for what you selected, in groups: Content, Appearance, Position, Timing, Animation, Media, Behavior |
+| **Content Settings** | Below the canvas | Every setting for what you selected, most used first: Label, Content, Display Settings, Visual Settings (a Frame has Frame, Timing and History) |
 
 > **Tip:** The canvas badge is your safety check. **PREVIEW · not on air** means nobody sees what you are editing.
 
@@ -89,14 +89,14 @@ There are two quick ways to start.
 ### Option B: Build it yourself
 
 1. Select **+ Frame**. A blank Frame appears after the selected one.
-2. Double-click its name (or press **F2**) and type a name, such as *Discussion*.
+2. Double-click its name (or press **F2**), type a name such as *Discussion*, and press **Enter**.
 3. With the Frame selected, select **+ Content** and choose **Question**.
 4. Type your first question in the editor and select **Done**. Add more with **+ Question**, or paste many at once
    with **Add several**.
 5. Repeat for the other parts of your meeting: a **Scripture**, a **Timer**, a **Text** welcome and so on.
 
 > **Tip:** To change a question quickly, double-click the card on the Studio Canvas and type. **Enter** saves,
-> **Esc** cancels.
+> **Esc** cancels. This works on any card, and on its label (the top line).
 
 See [Service planning](service-planning.md), [Frames](frames.md) and [Content](content.md) for more.
 
@@ -110,7 +110,8 @@ See [Service planning](service-planning.md), [Frames](frames.md) and [Content](c
    - **Shift + → / ←** step through its scriptures.
 4. When you need a clean screen, press **Esc** (**Hide all**).
 
-See [Presentations](presentations.md) for transitions, Blackout, Freeze, Annotate and the Speaker View.
+See [Presentations](presentations.md) for transitions, Blackout, Freeze, Annotate, the Teleprompter and the command
+palette.
 
 ## Add your phone (optional)
 
@@ -134,8 +135,8 @@ Do this once, a day or two before your first real meeting.
 - [ ] **Hide all (Esc)** and **Blackout (K)** work.
 - [ ] If you use a projector: **Share Window** opens the Presentation window and it fills the projector screen.
 - [ ] If you use your phone: it connects, and **NEXT FRAME** works.
-- [ ] You know where the **Speaker View** is (Program → Speaker View) if you want your answers and notes on screen
-      for yourself.
+- [ ] You know where the **Teleprompter** is (Program → Teleprompter, or **R**) if you want your script in front of
+      you. Only you see it.
 - [ ] Do a 10-minute rehearsal with one other person on a test Zoom call.
 
 > **Important:** Rehearse on the same PC, network and room you will use on the day. Most problems are found in the

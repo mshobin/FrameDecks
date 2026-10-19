@@ -1,4 +1,4 @@
-# Kingdom Connect: user guide (v6.6)
+# Kingdom Connect: user guide (v6.7)
 
 Kingdom Connect runs your online Bible study, prayer meeting, small group or training on Zoom, Microsoft Teams or
 Google Meet. It is meeting-first:
@@ -26,10 +26,10 @@ The **command bar** across the top holds everything you need live:
 | Part | What it does |
 | --- | --- |
 | Studio · Members · Settings | The three sections (Alt+1, Alt+3, Alt+4) |
-| Search (Ctrl+K) | Frames, Content, Bible references, questions, members, settings |
+| Search box (or Ctrl+K / Ctrl+Space) | Opens the **command palette**: finds Frames, Content, questions, scriptures, text, templates, the Library, branding, settings, members, Bible references and recent items, and runs commands such as Go Live, New Frame, Duplicate, Teleprompter, Export meeting, switch theme and Add Content. **↑ / ↓** and **Enter** choose; **Esc** closes. Change the keys in Settings → Keyboard shortcuts → Command palette |
 | ◀ Frame · **Go Live** · Frame ▶ | Put the selected Frame on screen (T), or step to the previous or next Frame |
 | Transition · Auto · ◀ Question ▶ | How the next Frame appears; auto-advance; step through the Frame's questions or scriptures |
-| Program | Hide Content · **Blackout** (K) · Emergency · **Annotate** (D) · **Freeze** (F) · **Speaker View** |
+| Program | Hide Content · **Blackout** (K) · Emergency · **Annotate** (D) · **Freeze** (F) · **Teleprompter** (R) · **Teleprompter window** |
 | Hide all | Hide everything (Esc) |
 | ● Off air / LIVE | What is on screen now |
 
@@ -39,43 +39,54 @@ The **command bar** across the top holds everything you need live:
   - Quick Start;
   - the Content Library;
   - your Frame templates.
-- **+ Frame** adds one **blank** Frame after the selected one. Name it by double-clicking it, or under
-  *Content Settings → Frame*.
+- **+ Frame** adds one **blank** Frame after the selected one. Name it by double-clicking its **name** (or F2), or
+  under *Content Settings → Frame*. The name is edited right in the list: **Enter** saves, **Esc** cancels.
 - Select the Frame, then **+ Content**:
-  - **Question**, **Scripture**, **Text**, **Image**, **Video**, **Timer**, **PowerPoint**;
+  - **Question**, **Scripture**, **Text**, **Discussion topic**, **Icebreaker**, **Poll (show of hands)**, **Image**,
+    **Video**, **Timer**, **PowerPoint**. The Poll only shows the choices; people answer by a show of hands or in the
+    chat, and nothing is counted;
   - **Free Content**: announcement, prayer point, lower third, birthday, branding, camera, screen share, a live
     window, logo, watermark, free text, shape, background.
 - **Content belongs to its Frame.** Changing it never changes another Frame.
 - **Duplicate** (⋯ on a Frame) makes a completely separate copy. Every question, scripture, label and setting is
   copied, not shared.
-- Select a Frame and press **Go Live**. Double-click a Frame, or press **T**, to do the same.
+- Select a Frame and press **Go Live**. Double-click the Frame's row (not its name), or press **T**, to do the same.
+- **Select several** Frames or Contents with **Ctrl+Click**, **Shift+Click** or by dragging a box in empty list
+  space (**Ctrl+A** selects all). Then:
+  - **Delete** / **Backspace** deletes them; the message offers **Undo**, and you are asked first only for 5 or more;
+  - **Ctrl+C** / **Ctrl+X** / **Ctrl+V** copy, cut and paste; **Ctrl+D** duplicates;
+  - drag them to move them, or right-click for a menu.
 
 ## 3. Content Settings
-Select any Content (or the Frame itself) and every setting is in one panel, in groups:
+Select any Content and every setting is in one panel, most used first:
+- **Label**
 - **Content**
-- **Appearance**
-- **Position**
-- **Timing**
-- **Animation**
-- **Media**
-- **Behavior**
+- **Display Settings** (with **Animation** and **Show on** inside it)
+- **Visual Settings**
+
+Pictures, video and PowerPoint have a **Media** group. A Frame on its own has **Frame**, **Timing** and **History**.
 
 The group names along the top jump to their group. There is no Basic / Advanced switch: everything is visible.
-Where each piece of Content appears (KingdomConnect, OBS pages) is set once, in that Content's **Behavior** group.
+Where each piece of Content appears (KingdomConnect, OBS pages) is set once, in that Content's **Show on** group.
+
+**Branding Content** has: **Display** (Logo only, Name only, Logo + Name, and optionally the Organization Name);
+**Position** (a corner, or centred at the top, centre or bottom) and **Safe margin**; **Size** (Small, Medium,
+Large, plus a fine size), **Opacity**, **Padding** and **Background plate** (off = a soft shadow). It looks the same
+on the camera and the OBS pages, at any resolution.
 
 ### Questions and Scriptures
 A Question (or Scripture) Content holds **its own list**, shown full height in Content Settings:
 - **Click** an item to make it the Frame's current one.
 - **Show** puts it on screen.
-- **Double-click** (or Enter) opens it for editing **in the same panel**:
-  - its own **Label** (for example *Question 1*, *Opening question* or *John 15:5*);
-  - the text;
-  - an **Answer** and **Notes** for you (never on screen);
-  - its own transition.
-- Press **Done** (or Esc) to go back to the list.
-- **Or edit it on the canvas:** double-click the question or scripture card on the Studio Canvas (the preview, or the
-  live picture). An editor opens over the card: **Enter** saves, **Shift+Enter** starts a new line, **Esc** cancels,
-  and a click outside saves. If the card is on screen, the screen changes too.
+- **Double-click** its **label** or its **text** to edit it right there in the list. **Enter** saves,
+  **Shift+Enter** starts a new line, **Esc** cancels, and a click outside saves.
+- **Enter** on a selected item opens all its settings **in the same panel**: its own **Label** (for example
+  *Question 1* or *John 15:5*), the text and its own transition. Press **Done** (or Esc) to go back to the list.
+- **Or edit it on the canvas:** double-click any card on the Studio Canvas (question, scripture, announcement,
+  prayer, discussion topic, icebreaker, poll, lower third, timer) to edit its text; double-click the card's label
+  (its top line) to edit the label. The same keys apply. If the card is on screen, the screen changes too.
+- Questions have no Answer or Notes fields any more (6.7). Old ones are kept in your data but not shown; put
+  reminders in the Frame's **Teleprompter script**.
 - **+ Question** / **+ Scripture** adds one; **Add several** pastes many at once.
 - **Drag** an item by its handle (⋮⋮) to move it, or use the ↑ / ↓ buttons. A line shows where it will land.
 - For scripture, type a reference above the list and press **Fetch scripture** (ESV, with a key in Settings →
@@ -97,13 +108,18 @@ A Question (or Scripture) Content holds **its own list**, shown full height in C
     hides them.
 - **Freeze (F)** holds the picture while you get the next thing ready. You can still draw on it.
 - **Blackout (K)** makes the picture black.
-- **Speaker View** (Program → Speaker View) opens a window only you see, ideal on a second screen:
-  - the question or scripture on screen now, with its **Answer** and **Notes**;
-  - what comes **next** (the next item, then the next Frame);
-  - the Frame's leader notes and the meeting notes;
-  - the **time**, how long this Frame has been on screen, and a **Timer** you can start, pause and reset.
-
-  It follows the meeting by itself; change what is on screen from the main window or the phone.
+- **Teleprompter** (Program → Teleprompter, or **R**) shows the Frame's **Teleprompter script**. Only you see it;
+  it is never on any output.
+  - Write the script in Frame settings → **Teleprompter script** (up to 20,000 characters), or double-click the
+    teleprompter text (or **✎**). Markup: `# Heading`, `- bullet`, `**bold**`, `*italic*`, `[PAUSE]` cue chips,
+    `---` divider.
+  - Dock it **Left**, **Right** or **Bottom** of the Studio, or **Float** it; drag to resize. **Follows: Live / Selected**
+    chooses which Frame's script it shows.
+  - Scroll play / pause (Space), speeds from Very slow to Very fast, **A− / A+** (− / + keys), line spacing, high
+    contrast, Focus mode (F), back to top (Home), arrow and Page keys, the mouse wheel and touch.
+  - The cue line shows *Frame 3 of 9*, **LIVE**, the next Frame and the next question or scripture.
+- **Teleprompter window** (Program → Teleprompter window; it was Speaker View) opens the Teleprompter in its own
+  window for a second screen, with the clocks, a timer, what is on screen and what comes next.
 
 ## 5. The KingdomConnect camera
 Choose **KingdomConnect** as the camera in Zoom, Teams, Google Meet or OBS. Participants see your webcam with the live
@@ -119,11 +135,12 @@ KingdomConnect, restart that app.
   - **ANNOTATE**: draw with your finger on the live picture (exactly what Zoom / Teams see). Turn the phone sideways
     and the picture fills the screen, with the tools in a narrow column at the side.
   - **FREEZE** and **BLACK SCREEN**.
+  - **TELEPROMPTER** opens the Frame's script full screen on the phone.
   - The connection status is spelled out at the top, next to **HIDE ALL**.
 - **Advanced remote** (⋯ → Advanced remote):
   - every Frame, with search across Frames and Content;
   - the Frame's Content (tap to show or hide);
-  - presenter notes and the question's answer;
+  - a **Teleprompter** panel on the **Live** tab;
   - PowerPoint slides;
   - **Run-through**: step through Frames on your phone without changing the screen;
   - Annotate, Freeze, Blackout and Emergency.
@@ -143,11 +160,14 @@ Use it through **Meeting**:
 - **Import meeting from Excel…** (preview with every problem and its row, Append or Replace, Undo);
 - **Export this meeting to Excel**.
 
-After an import the app is the source of truth.
+After an import the app is the source of truth. The Questions and Scriptures sheets have no Answer or Notes
+columns since 6.7. Older workbooks still import: their answers and notes go into the Frame's Teleprompter script.
+The Excel library loads only when you first need it, so the app starts faster.
 
 ## 8. Your branding
 **Settings → Meeting & Branding**: your Meeting Name, organisation, logo and accent colour. They appear only where you
 put them: Branding Content, text that uses `{meeting}` / `{org}`, and **Show my logo on this card**.
+**Remove background** makes a plain logo background transparent, on this PC, with **Undo**.
 
 ## 9. Saving and backups
 Everything saves automatically on this PC. **Settings → Data / Backup** keeps daily backups and lets you make one now or

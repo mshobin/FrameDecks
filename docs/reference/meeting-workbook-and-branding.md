@@ -1,5 +1,9 @@
 # The Excel Meeting Workbook (v6.5), leader branding and Go Live
 
+> **v6.7:** the Questions and Scriptures sheets no longer have Answer or Notes columns, and the Frames sheet's last
+> column is now **Teleprompter Script** (section 0). The Branding Content has new options, and a logo's plain
+> background can be removed ([Branding options](#branding-options-v67)).
+>
 > **v6.5:** the Excel template is now the five-sheet **Meeting Workbook** (section 0). Files made with the v6.2
 > one-sheet template ("Scene Name" column) still import. Sections 1–4 describe v6.2 and use its words: a *scene* is now
 > a **Frame**, and a *layer* is now **Content**.
@@ -26,10 +30,14 @@ a fresh copy.
 | Sheet | Columns | Notes |
 | --- | --- | --- |
 | **Meeting Overview** | Field · Value | Rows: Meeting Title, Date, Presenter, Notes. The title names the group of imported Frames |
-| **Frames** | Frame Number · Frame Name · Description · Background · Transition · Presenter Notes | One row per Frame, numbered 1, 2, 3… Background: None, Navy, Black, White, Brand or #RRGGBB. Transition: Frame default, Cut, Fade, Cross Dissolve, Dip to Black / White, Slide Left / Right, Push, Zoom Fade, Soft Scale, Cinema Fade |
+| **Frames** | Frame Number · Frame Name · Description · Background · Transition · Teleprompter Script | One row per Frame, numbered 1, 2, 3… Teleprompter Script becomes the Frame's script (only the presenter sees it). Background: None, Navy, Black, White, Brand or #RRGGBB. Transition: Frame default, Cut, Fade, Cross Dissolve, Dip to Black / White, Slide Left / Right, Push, Zoom Fade, Soft Scale, Cinema Fade |
 | **Content** | Frame Number · Content Order · Content Type · Content Name · Main Content · Label · Duration · Animation · PowerPoint Background Visibility · Notes | One row per Content. Types: Question, Scripture, Text, Image, Video, Timer, PowerPoint, Free Content, plus Announcement, Prayer Point, Lower Third, Birthday, Branding, Camera, Screen. Audio and Web Page are accepted but skipped with a note (not yet available). Timer: Duration in minutes or a time (10:30). PowerPoint: Main Content = file name (choose it in the app afterwards); PowerPoint Background Visibility Hide = Show objects only |
-| **Questions** | Frame Number · Content Name · Question Number · Label · Question Text · Answer Text · Media · Timer · Animation · Notes | The list of a Question Content (same Frame Number and Content Name), in Question Number order. Labels and answers are per question; answers and notes are never on screen |
-| **Scriptures** | Frame Number · Content Name · Scripture Number · Label · Reference · Text · Translation · Animation · Notes | The list of a Scripture Content. Empty Text is fetched from the ESV when a key is set |
+| **Questions** | Frame Number · Content Name · Question Number · Label · Question Text · Media · Timer · Animation | The list of a Question Content (same Frame Number and Content Name), in Question Number order. Labels are per question |
+| **Scriptures** | Frame Number · Content Name · Scripture Number · Label · Reference · Text · Translation · Animation | The list of a Scripture Content. Empty Text is fetched from the ESV when a key is set |
+
+**Older workbooks** (6.6 and before) still import. A **Presenter Notes** column on the Frames sheet is read as the
+Teleprompter Script. **Answer Text** and **Notes** on the Questions and Scriptures sheets are added to that Frame's
+Teleprompter script, so nothing is lost and nothing appears on screen. Export no longer writes these columns.
 
 ### Validation (the import is refused until these are fixed; each problem names its sheet and row)
 - The Frames and Content sheets must exist and have a Frame Number column.
@@ -53,6 +61,34 @@ skipped, a Timer value that isn't minutes or a time.
 - `app/js/meeting-import.js`: the dialog.
 - `app/js/import-worker.js`: reads every sheet in the background.
 - `tools/make_meeting_workbook.py`: writes the template with openpyxl.
+- The Excel library (SheetJS) loads only the first time you import, export or download a workbook, so Kingdom
+  Connect starts faster.
+
+## Branding options (v6.7)
+
+### The Branding Content
+Select the Branding Content in a Frame. Its settings are in Content Settings:
+
+| Group | Setting | Choices |
+| --- | --- | --- |
+| Content | **Display** | **Logo only**, **Name only** or **Logo + Name** |
+| Content | **Also show the Leader / Organization Name** | On or off |
+| Display Settings | **Position** | **Top left**, **Top right**, **Bottom left**, **Bottom right**, or **Or centred**: Top, Centre, Bottom |
+| Display Settings | **Safe margin** | The distance from the edges of the picture, from the edge to 12% |
+| Visual Settings | **Size** | **Small**, **Medium** or **Large**, then **Fine size** to adjust it exactly |
+| Visual Settings | **Opacity** · **Padding** | How see-through it is · the space around the logo and name |
+| Visual Settings | **Background plate** | On: a navy plate with your accent edge. Off: no plate, and a soft shadow keeps it readable |
+
+The badge is drawn the same way on the KingdomConnect camera and on the OBS overlay pages. Its size follows the
+picture, so it looks the same at 720p, 1080p or 4K.
+
+### Remove a logo's background
+Many church logos come as a JPG with a white box around them. **Settings → Meeting & Branding → Remove background**
+(also in the Branding Content's settings) makes that plain background transparent.
+- It works on this PC only; the logo is never uploaded anywhere.
+- It keeps parts that are already transparent, and the colours inside the logo.
+- **Undo** puts the original logo back.
+- It works best on one plain background colour. For a busy background, use a transparent PNG or SVG instead.
 
 ---
 

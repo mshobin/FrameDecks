@@ -10,6 +10,7 @@ Run the service from a phone or iPad: step through Frames and Content, draw on t
 - [Security](#security)
 - [Simple remote](#simple-remote)
 - [Advanced remote](#advanced-remote)
+- [Teleprompter on the phone](#teleprompter-on-the-phone)
 - [Drawing from the phone](#drawing-from-the-phone)
 - [Run-through mode](#run-through-mode)
 - [iPad and tablet layout](#ipad-and-tablet-layout)
@@ -74,18 +75,30 @@ The **Simple** remote is the default. It has one screen with very large buttons,
 | **ANNOTATE** | Opens the drawing pad |
 | **FREEZE** | Holds the picture while you get the next thing ready |
 | **BLACK SCREEN** | Makes the picture black. Select it again (**SHOW PICTURE**) to bring it back |
+| **TELEPROMPTER** | Opens the Frame's Teleprompter script full screen, on this phone only |
 
 ## Advanced remote
 
 Open the **⋯** menu and choose **Advanced remote** for more control:
 - every Frame in a list, with **search** across Frames and Content;
 - the Frame's Content (tap to show or hide each one);
-- **presenter notes** and the question's **answer**, visible only on the phone;
+- a **Teleprompter** panel on the **Live** tab, visible only on the phone;
 - **PowerPoint** slide control;
 - **Run-through** mode (below);
 - **Annotate**, **Freeze**, **Blackout** and **Emergency**.
 
 The choice is remembered on that phone. Switch back to **Simple** from the same menu.
+
+## Teleprompter on the phone
+
+The phone can show the Frame's **Teleprompter script**, the same one you see on the PC. Only the phone shows it;
+nobody watching sees it.
+
+- **Simple remote:** select **TELEPROMPTER**. The script opens full screen.
+- **Advanced remote:** open the **Teleprompter** panel on the **Live** tab.
+
+Scroll with your finger, or use the play button to scroll by itself. See
+[Presentations](presentations.md#teleprompter) for how to write the script.
 
 ## Drawing from the phone
 

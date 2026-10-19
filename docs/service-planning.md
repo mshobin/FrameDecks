@@ -40,10 +40,10 @@ During the meeting you move from one Frame to the next with **Frame ▶**, on th
 
 | Frame | Suggested Content | Notes |
 | --- | --- | --- |
-| **Welcome** | Text ("Welcome to {meeting}"), Timer counting down to the start | `{meeting}` shows your Meeting Name |
+| **Welcome** | Text ("Welcome to {meeting}"), Timer counting down to the start, Icebreaker | `{meeting}` shows your Meeting Name |
 | **Worship** | Text with the lyrics, or a PowerPoint of the lyrics | See [Planning worship lyrics today](#planning-worship-lyrics-today) |
 | **Scripture Reading** | Scripture with the passage | Fetch ESV text, or type any translation |
-| **Message / Discussion** | Question list, Scripture list, or PowerPoint slides | Answers and notes stay private |
+| **Message / Discussion** | Question list, Scripture list, Discussion topic, Poll, or PowerPoint slides | Your talking points go in the Teleprompter script |
 | **Prayer** | Prayer Point | |
 | **Announcements** | Text, Image | |
 | **Closing** | Text, Branding (your logo and Meeting Name) | |
@@ -62,7 +62,7 @@ If you saved a Frame as a template (see [Frames](frames.md#templates)), it appea
 
 ### 3. From scratch
 1. Select **+ Frame** for each part of the service. Each new Frame is blank and goes after the selected one.
-2. Name each Frame (double-click its name or press **F2**).
+2. Name each Frame (double-click its name or press **F2**, type, then **Enter**).
 3. Select a Frame, then **+ Content**, and add what it needs. See [Content](content.md).
 
 ## Organize your Frames
@@ -71,7 +71,10 @@ If you saved a Frame as a template (see [Frames](frames.md#templates)), it appea
   **Frame → Group**, or from the Frame's **⋯** menu → **Move to group…**.
 - **Order:** drag Frames in the list, or use **⋯ → Move up / Move down**.
 - **Favourites:** star the Frames you reuse often, then use the **Favorites** filter.
-- **Search:** type in **Search Frames**, or press **Ctrl+K** to search everything.
+- **Search:** type in **Search Frames**, or press **Ctrl+K** (or **Ctrl+Space**) to open the command palette and
+  find anything. See [Presentations](presentations.md#command-palette).
+- **Several at once:** **Ctrl+Click** or **Shift+Click** Frames to select several, then drag, copy (**Ctrl+C**),
+  paste (**Ctrl+V**), duplicate (**Ctrl+D**) or delete them. See [Frames](frames.md#select-several-frames).
 - **Library:** the **Library** filter shows ready-made Frames you can add.
 
 ## Reuse last week's service
@@ -90,15 +93,19 @@ If you saved a Frame as a template (see [Frames](frames.md#templates)), it appea
 
 ## Notes for the leader
 
-Kingdom Connect has three kinds of private notes. None of them is ever shown on screen.
+Each Frame has one **Teleprompter script**: what you plan to say while that Frame is on screen. Only you see it.
+It is never shown on any output.
 
-| Note | Where you write it | Where you read it during the meeting |
-| --- | --- | --- |
-| **Leader notes** on a Frame | Content Settings → Frame → **Leader notes** | Speaker View, Advanced phone remote |
-| **Answer** for a question | The question's editor → **Answer** | Speaker View, Advanced phone remote |
-| **Notes** for a question or scripture | The item's editor → **Notes** | Speaker View, Advanced phone remote |
+| Where you write it | Where you read it during the meeting |
+| --- | --- |
+| Content Settings → **Frame → Teleprompter script**, or double-click the text in the Teleprompter | **Program → Teleprompter** (R), the **Teleprompter window** on a second screen, or the phone remote's Teleprompter |
 
-The **Meeting Overview** notes from the Excel workbook appear in the Speaker View as **Meeting notes**.
+Use `# Heading`, `- bullet`, `**bold**`, `*italic*`, `[PAUSE]` and `---` to make it easy to read at a glance. See
+[Presentations](presentations.md#teleprompter).
+
+> **Note:** Before 6.7 this was called *Leader notes*, and questions and scriptures had their own Answer and Notes.
+> Those are no longer shown anywhere, but they are kept in your data. Older workbooks still import: their answers
+> and notes go into the Frame's Teleprompter script.
 
 ## Plan in Excel with the Meeting Workbook
 
@@ -110,10 +117,10 @@ when you want to type a whole series of questions at once.
 | Sheet | One row per… | Main columns |
 | --- | --- | --- |
 | **Meeting Overview** | detail | Meeting Title, Date, Presenter, Notes |
-| **Frames** | Frame | Frame Number, Frame Name, Description, Background, Transition, Presenter Notes |
+| **Frames** | Frame | Frame Number, Frame Name, Description, Background, Transition, Teleprompter Script |
 | **Content** | Content | Frame Number, Content Order, Content Type, Content Name, Main Content, Label, Duration, Animation, Notes |
-| **Questions** | question | Frame Number, Content Name, Question Number, Label, Question Text, Answer Text, Notes |
-| **Scriptures** | scripture | Frame Number, Content Name, Scripture Number, Label, Reference, Text, Translation, Notes |
+| **Questions** | question | Frame Number, Content Name, Question Number, Label, Question Text |
+| **Scriptures** | scripture | Frame Number, Content Name, Scripture Number, Label, Reference, Text, Translation |
 
 The template has drop-down lists and example rows. Full column details are in
 [reference/meeting-workbook-and-branding.md](reference/meeting-workbook-and-branding.md).
@@ -153,7 +160,7 @@ Today, churches show lyrics in one of two ways:
 
 - [ ] Duplicate last week's service into a new group, or start from Quick Start.
 - [ ] Update every Frame name so the volunteer running it knows what comes next.
-- [ ] Add this week's questions and scriptures, with answers and leader notes.
+- [ ] Add this week's questions and scriptures, and write each Frame's Teleprompter script.
 - [ ] Preview each Frame on the Studio Canvas (select it; the badge says PREVIEW).
 - [ ] Check spelling by double-clicking cards on the canvas.
 - [ ] Add any videos, images and PowerPoint files, and check they open.
