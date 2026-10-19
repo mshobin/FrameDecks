@@ -234,7 +234,16 @@ body[data-stx="cinema"] .card,body[data-stx="church"] .card{transition-duration:
 /* Branding layer: the logo and the Meeting Name on a small navy plate with the accent edge */
 .zone-brand.pos-center{top:50%}
 .card-brand{--s:calc(var(--u) * var(--xs,1));width:auto;max-width:60vw;display:flex;align-items:center;gap:calc(var(--s)*1.1);
-  padding:calc(var(--s)*1.3);border-radius:calc(var(--s)*1.1)}
+  padding:calc(var(--s)*1.3*var(--bp,1));border-radius:calc(var(--s)*1.1)}
+/* 6.7: the safe margin from the picture's edges (Branding → Display Settings), the badge in front of other Content */
+.zone-x.zone-brand{z-index:5;padding:0 calc(var(--u)*var(--bm,4))}
+.zone-brand.pos-top,.zone-brand.pos-upper-left,.zone-brand.pos-upper-right{top:calc(var(--u)*var(--bm,4))}
+.zone-brand.pos-bottom,.zone-brand.pos-lower-left,.zone-brand.pos-lower-right{bottom:calc(var(--u)*var(--bm,4))}
+/* no plate: the logo and the names alone, with a soft shadow so they stay readable on any picture */
+.card-brand.no-plate{background:none;box-shadow:none}
+.card-brand.no-plate::before{display:none}
+.card-brand.no-plate .brand-logo{filter:drop-shadow(0 calc(var(--u)*.08) calc(var(--u)*.3) rgba(0,0,0,.55))}
+.card-brand.no-plate .brand-name,.card-brand.no-plate .brand-org{text-shadow:0 calc(var(--u)*.08) calc(var(--u)*.4) rgba(0,0,0,.85),0 0 calc(var(--u)*.15) rgba(0,0,0,.6)}
 .card-brand .brand-logo{height:calc(var(--s)*4.4);width:auto;max-width:calc(var(--s)*24);object-fit:contain;flex:none}
 .card-brand .brand-logo[hidden]{display:none}
 .card-brand .brand-t{display:flex;flex-direction:column;min-width:0}

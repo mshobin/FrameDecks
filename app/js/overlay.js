@@ -393,7 +393,9 @@ function TextLayers(root){
     if (l.kind === 'brand'){
       var b = st.brand || {};
       x.zone.className = 'zone-x zone-brand pos-' + c.pos;
-      x.card.style.setProperty('--xs', c.scale);
+      x.zone.style.setProperty('--bm', c.margin == null ? 4 : c.margin);          // 6.7 safe margin, padding, plate
+      x.card.style.setProperty('--xs', c.scale); x.card.style.setProperty('--bp', c.pad == null ? 1 : c.pad);
+      x.card.classList.toggle('no-plate', c.plate === false);
       setLogo(x.logo, c.logo ? logoSrc(st) : '');
       x.name.textContent = c.name ? b.meeting : ''; x.org.textContent = c.org ? b.org : '';
       x.name.hidden = !x.name.textContent; x.org.hidden = !x.org.textContent;

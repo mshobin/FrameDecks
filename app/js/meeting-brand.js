@@ -54,6 +54,81 @@ function uploadLogo(file){
     return commit(function(n){ n.brand.logo = d.logo; n.brand.lw = d.w; n.brand.lh = d.h; }).then(function(){ toast('Logo saved. It appears on every Frame with Branding switched on.'); offerScenes(); });
   }).catch(function(e){ toast(e.message || 'The logo could not be saved.', true); });
 }
+/* ---------- 6.7 Remove background: done here, on this PC (no service, no download) ----------
+ * The colour all around the logo's edge is taken as the background. Starting from the edge, every connected pixel close
+ * to that colour becomes transparent, with a soft edge so the logo is not jagged. Colours inside the logo that merely
+ * match the background stay (they are not connected to the edge). Transparency the PNG already has is kept.
+ * The logo before the change is kept in memory, so Undo puts it back. */
+function knockOut(img, tol){
+  var W = img.naturalWidth, H = img.naturalHeight, cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+  var cx = cv.getContext('2d'); cx.drawImage(img, 0, 0);
+  var id = cx.getImageData(0, 0, W, H), d = id.data, n = W * H;
+  // the background colour: the average of the opaque pixels along the edge
+  var r = 0, g = 0, b = 0, k = 0, edge = 0, i, x, y;
+  function add(p){ edge++; if (d[p * 4 + 3] < 200) return; r += d[p * 4]; g += d[p * 4 + 1]; b += d[p * 4 + 2]; k++; }
+  for (x = 0; x < W; x++){ add(x); add((H - 1) * W + x); }
+  for (y = 1; y < H - 1; y++){ add(y * W); add(y * W + W - 1); }
+  if (k < edge * 0.5) return {canvas: null, reason: 'transparent'};             // the edge is already mostly transparent
+  r /= k; g /= k; b /= k;
+  // how even the edge is: a photo has no plain background to remove
+  var off = 0;
+  function far(p){ var dr = d[p * 4] - r, dg = d[p * 4 + 1] - g, db = d[p * 4 + 2] - b; return Math.sqrt(dr * dr + dg * dg + db * db); }
+  for (x = 0; x < W; x++){ if (far(x) > tol * 1.5) off++; if (far((H - 1) * W + x) > tol * 1.5) off++; }
+  if (off > W * 0.6) return {canvas: null, reason: 'busy'};
+  var seen = new Uint8Array(n), q = new Int32Array(n), qh = 0, qt = 0, soft = tol * 1.6, cleared = 0;
+  function push(p){ if (!seen[p]){ seen[p] = 1; q[qt++] = p; } }
+  for (x = 0; x < W; x++){ push(x); push((H - 1) * W + x); }
+  for (y = 0; y < H; y++){ push(y * W); push(y * W + W - 1); }
+  while (qh < qt){
+    var p = q[qh++], dist = far(p);
+    if (d[p * 4 + 3] === 0 || dist <= tol){
+      if (d[p * 4 + 3]){ d[p * 4 + 3] = 0; cleared++; }
+      x = p % W; y = (p - x) / W;
+      if (x > 0) push(p - 1); if (x < W - 1) push(p + 1); if (y > 0) push(p - W); if (y < H - 1) push(p + W);
+    } else if (dist <= soft){                                    // the soft edge: partly transparent, not spread further
+      d[p * 4 + 3] = Math.round(d[p * 4 + 3] * (dist - tol) / (soft - tol));
+    }
+  }
+  if (cleared < n * 0.01) return {canvas: null, reason: 'nothing'};
+  if (cleared > n * 0.97) return {canvas: null, reason: 'everything'};
+  cx.putImageData(id, 0, 0);
+  return {canvas: cv, cleared: cleared / n};
+}
+function loadLogo(){
+  return new Promise(function(resolve, reject){
+    var b = live && live.brand; if (!b || !b.logo) return reject(new Error('Upload a logo first.'));
+    var img = new Image();
+    img.onload = function(){ resolve(img); };
+    img.onerror = function(){ reject(new Error('The logo could not be read.')); };
+    img.src = 'api/brand/logo?v=' + encodeURIComponent(b.logo);
+  });
+}
+function savePng(blob){
+  return fetch('api/brand/logo', {method: 'POST', headers: {'Content-Type': 'image/png'}, body: blob}).then(function(r){ return r.json().then(function(d){ if (!r.ok) throw new Error(d.error || 'Upload failed'); return d; }); })
+    .then(function(d){ return commit(function(n){ n.brand.logo = d.logo; n.brand.lw = d.w; n.brand.lh = d.h; }); });
+}
+var bgBusy = false;
+function removeBackground(){
+  if (bgBusy) return;
+  if (!Store.served){ toast('Changing the logo needs the Kingdom Connect program (installed app).', true); return; }
+  bgBusy = true;
+  var before = null;
+  loadLogo().then(function(img){
+    return fetch(img.src).then(function(r){ return r.blob(); }).then(function(b){ before = b; return knockOut(img, 42); });
+  }).then(function(res){
+    if (!res.canvas){
+      var why = {transparent: 'The logo already has a transparent background.', busy: 'This picture has no plain background to remove (it looks like a photo).',
+        nothing: 'No plain background was found around the logo.', everything: 'That would remove the whole logo, so nothing was changed.'}[res.reason];
+      toast(why, res.reason !== 'transparent'); return;
+    }
+    return new Promise(function(ok){ res.canvas.toBlob(ok, 'image/png'); }).then(savePng).then(function(){
+      var msg = 'Background removed';
+      if (window.BSFActions && window.BSFActions.toastAction) window.BSFActions.toastAction(msg, 'Undo', function(){ savePng(before).then(function(){ toast('Logo restored'); }); });
+      else toast(msg);
+    });
+  }).catch(function(e){ toast(e.message || 'The background could not be removed.', true); })
+    .then(function(){ bgBusy = false; });
+}
 function removeLogo(){
   if (!confirm('Remove the logo? Branding Content then show only the Meeting Name.')) return;
   fetch('api/brand/logo?remove=1', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: '{}'}).catch(function(){})
@@ -91,6 +166,7 @@ function build(){
   el.file = h('input', {type: 'file', accept: '.png,.jpg,.jpeg,.svg,image/png,image/jpeg,image/svg+xml', hidden: 'hidden', id: 'mb-file'});
   el.file.addEventListener('change', function(){ var f = el.file.files[0]; el.file.value = ''; if (f) uploadLogo(f); });
   el.remove = h('button', {cls: 'btn quiet small', type: 'button', text: 'Remove logo', onclick: removeLogo});
+  el.knock = h('button', {cls: 'btn small', type: 'button', text: 'Remove background', id: 'mb-knock', title: 'Make the plain background around the logo transparent (on this PC, with Undo)', onclick: removeBackground});
   var drop = h('div', {cls: 'mb-logo', title: 'Drop a PNG, JPG or SVG here'}, [el.logoImg, el.logoEmpty]);
   drop.addEventListener('dragover', function(e){ e.preventDefault(); drop.classList.add('over'); });
   drop.addEventListener('dragleave', function(){ drop.classList.remove('over'); });
@@ -113,8 +189,8 @@ function build(){
         h('p', {cls: 'hint', html: 'In any Announcement, Prayer, Lower Third or Countdown, type <b>{meeting}</b> or <b>{org}</b> and it is replaced by these names on screen.'})]),
       h('div', {}, [
         h('span', {cls: 'mb-lbl', text: 'Logo'}), drop,
-        h('div', {cls: 'actions'}, [h('button', {cls: 'btn small', type: 'button', html: I('image', 15) + ' Upload logo…', onclick: function(){ el.file.click(); }}), el.remove, el.file]),
-        h('p', {cls: 'hint', text: 'PNG, JPG or SVG. A transparent PNG or SVG looks best. Kept on this PC only.'})])]),
+        h('div', {cls: 'actions'}, [h('button', {cls: 'btn small', type: 'button', html: I('image', 15) + ' Upload logo…', onclick: function(){ el.file.click(); }}), el.knock, el.remove, el.file]),
+        h('p', {cls: 'hint', text: 'PNG, JPG or SVG. A transparent PNG or SVG looks best; Remove background makes a plain background transparent. Kept on this PC only.'})])]),
     h('div', {cls: 'mb-colour'}, [
       h('label', {cls: 'check'}, [el.colorOn, ' Use my accent colour for the cards and badges (instead of gold)']),
       h('div', {cls: 'mb-colour-row'}, [el.sw, el.color])])]));
@@ -164,7 +240,7 @@ function render(){
   if (document.activeElement !== el.org && el.org.value !== b.org) el.org.value = b.org;
   var src = b.logo ? 'api/brand/logo?v=' + encodeURIComponent(b.logo) : '';
   if (el.logoImg.getAttribute('src') !== src){ if (src) el.logoImg.setAttribute('src', src); else el.logoImg.removeAttribute('src'); }
-  el.logoImg.hidden = !src; el.logoEmpty.hidden = !!src; el.remove.disabled = !src;
+  el.logoImg.hidden = !src; el.logoEmpty.hidden = !!src; el.remove.disabled = !src; el.knock.disabled = !src;
   el.colorOn.checked = !!b.color; if (b.color && document.activeElement !== el.color) el.color.value = b.color;
   Array.prototype.forEach.call(el.sw.children, function(x){ x.setAttribute('aria-checked', String(x.dataset.c === b.color)); });
   el.auto.checked = !!b.auto;
@@ -201,5 +277,5 @@ Store.subscribe(function(st){
   render();
 });
 (window.BSFSectionHooks = window.BSFSectionHooks || []).push(function(id){ if (id === 'meeting') render(); });
-window.BSFBrandSettings = {render: render, setBranding: setBranding};
+window.BSFBrandSettings = {render: render, setBranding: setBranding, removeBackground: removeBackground, knockOut: knockOut};
 })();

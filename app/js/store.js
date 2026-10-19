@@ -239,8 +239,12 @@ var TEXT_DEFAULTS = {
   lowerthird: {title: '', text: '', pos: 'lower-left', w: 46, scale: 0.9, label: true, anim: 'rise', logo: false},
   countdown: {title: 'Starting in', text: 'Starting now', mode: 'duration', minutes: 5, until: '10:30', pos: 'center', w: 36, scale: 1.6, label: true, anim: 'fade', logo: false},
   /* the meeting's logo and/or name as a small badge (logo = show the logo, name = the Meeting Name, org = Leader / Organization) */
-  brand: {title: '', text: '', pos: 'upper-right', w: 30, scale: 1, label: false, anim: 'fade', logo: true, name: true, org: false}
+  brand: {title: '', text: '', pos: 'upper-right', w: 30, scale: 1, label: false, anim: 'fade', logo: true, name: true, org: false,
+    /* 6.7: plate = the navy plate behind the badge (off: the logo / name alone, with a soft shadow); pad = inner padding
+       (x the standard); margin = the safe margin from the picture's edges (in 1/100 of the picture width) */
+    plate: true, pad: 1, margin: 4}
 };
+var TEXT_RANGE = {w: [20, 96], minutes: [0, 600], pad: [0, 3], margin: [0, 12]};      // numbers; anything else 0.4 .. 3
 function cleanLayer(l){
   if (!isObj(l)) return null;
   var kind = CARD_KINDS.concat(TEXT_KINDS, MEDIA_KINDS).indexOf(l.kind) >= 0 ? l.kind : null;
@@ -251,7 +255,7 @@ function cleanLayer(l){
   if (TEXT_KINDS.indexOf(kind) >= 0){
     var d = TEXT_DEFAULTS[kind];
     for (var k in d){
-      if (typeof d[k] === 'number') c[k] = num(c[k], k === 'w' ? 20 : k === 'minutes' ? 0 : 0.4, k === 'w' ? 96 : k === 'minutes' ? 600 : 3, d[k]);
+      if (typeof d[k] === 'number') c[k] = num(c[k], (TEXT_RANGE[k] || [0.4])[0], (TEXT_RANGE[k] || [0, 3])[1], d[k]);
       else if (typeof d[k] === 'boolean') c[k] = c[k] === undefined ? d[k] : !!c[k];
       else c[k] = str(c[k] === undefined ? d[k] : c[k], k === 'text' ? 2000 : 200);
     }

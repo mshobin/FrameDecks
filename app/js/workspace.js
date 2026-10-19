@@ -995,24 +995,45 @@ function brandStatus(){
   return h('p', {cls: 'hint'}, [bits.length ? 'Your branding: ' + bits.join(', ') + '. ' : 'No Meeting Name or logo yet. ',
     h('button', {cls: 'linkish', type: 'button', 'data-goto': 'settings', 'data-sec': 'meeting', text: 'Settings → Meeting & Branding', onclick: function(){ if (window.BSFSetTab) window.BSFSetTab('settings'); }})]);
 }
+/* 6.7 Branding: what the badge shows, where (a corner, inside a safe margin) and how (size, padding, plate, opacity).
+ * The same settings draw the badge on the camera picture (vcam/program.py) and on the overlay pages (overlay.js). */
+var BRAND_CORNERS = [['upper-left', 'Top left'], ['upper-right', 'Top right'], ['lower-left', 'Bottom left'], ['lower-right', 'Bottom right']];
+var BRAND_SIZES = [['s', 'Small', 0.75], ['m', 'Medium', 1], ['l', 'Large', 1.4]];
+function brandForm(gen, sc, l, tab, set){
+  var c = l.c;
+  if (tab === 'content'){
+    var show = c.logo && c.name ? 'both' : c.logo ? 'logo' : c.name ? 'name' : 'both';
+    gen.appendChild(row('Display', segCtl(show, [['logo', 'Logo only'], ['name', 'Name only'], ['both', 'Logo + Name']], function(v){
+      set(function(x){ x.c.logo = v !== 'name'; x.c.name = v !== 'logo'; }, true); })));
+    gen.appendChild(checkCtl('Also show the Leader / Organization Name', c.org, function(v){ set(function(x){ x.c.org = v; }, true); }));
+    gen.appendChild(brandStatus());
+    if (live.brand.logo) gen.appendChild(h('div', {cls: 'ip-acts'}, [h('button', {cls: 'btn small', type: 'button', text: 'Remove the logo’s background',
+      title: 'Makes the plain background around your logo transparent. Done on this PC; you can undo it.',
+      onclick: function(){ if (window.BSFBrandSettings && window.BSFBrandSettings.removeBackground) window.BSFBrandSettings.removeBackground(); }})]));
+  } else if (tab === 'layout'){
+    var corner = BRAND_CORNERS.some(function(p){ return p[0] === c.pos; });
+    gen.appendChild(row('Position', segCtl(corner ? c.pos : '', BRAND_CORNERS, function(v){ set(function(x){ x.c.pos = v; }, true); })));
+    var pos = h('select', {'aria-label': 'Other positions', id: 'tl-pos'}, [h('option', {value: '', text: 'A corner (above)'})].concat(['top', 'center', 'bottom'].map(function(p){ return h('option', {value: p, text: POS_NAMES[p]}); })));
+    pos.value = corner ? '' : c.pos;
+    pos.addEventListener('change', function(){ if (pos.value) set(function(x){ x.c.pos = pos.value; }, true); });
+    gen.appendChild(field('Or centred', pos));
+    gen.appendChild(row('Safe margin', rangeCtl(c.margin, 0, 12, 0.5, function(v){ return v ? (+v).toFixed(1).replace(/\.0$/, '') + '%' : 'Edge'; }, function(v){ set(function(x){ x.c.margin = v; }); })));
+    gen.appendChild(h('p', {cls: 'hint', text: 'Distance from the edges of the picture. Sizes follow the picture, so the badge looks the same at 720p, 1080p or 4K.'}));
+  } else {
+    var near = BRAND_SIZES.reduce(function(a, t){ return Math.abs(t[2] - c.scale) < Math.abs(a[2] - c.scale) ? t : a; });
+    gen.appendChild(row('Size', segCtl(Math.abs(near[2] - c.scale) < 0.06 ? near[0] : '', BRAND_SIZES.map(function(t){ return [t[0], t[1]]; }), function(v){
+      var t = BRAND_SIZES.filter(function(x){ return x[0] === v; })[0]; set(function(x){ x.c.scale = t[2]; }, true); })));
+    gen.appendChild(row('Fine size', rangeCtl(c.scale, 0.4, 3, 0.05, function(v){ return Math.round(v * 100) + '%'; }, function(v){ set(function(x){ x.c.scale = v; }); })));
+    gen.appendChild(row('Opacity', rangeCtl(l.opacity, 0.1, 1, 0.01, function(v){ return Math.round(v * 100) + '%'; }, function(v){ set(function(x){ x.opacity = v; }); })));
+    gen.appendChild(row('Padding', rangeCtl(c.pad, 0, 3, 0.05, function(v){ return Math.round(v * 100) + '%'; }, function(v){ set(function(x){ x.c.pad = v; }); })));
+    gen.appendChild(checkCtl('Background plate (navy, with the accent edge)', c.plate, function(v){ set(function(x){ x.c.plate = v; }, true); }));
+    gen.appendChild(h('p', {cls: 'hint', text: c.plate ? 'The badge uses your accent colour when one is set.' : 'Without the plate, a soft shadow keeps the logo and name readable on any picture.'}));
+  }
+}
 function textForm(gen, sc, l, tab){
   var sid = sc.id, lid = l.id, c = l.c;
   function set(fn, now){ if (now) editLayer(sid, lid, fn); else editLayerSoon(sid, lid, fn); }
-  if (l.kind === 'brand' && (tab === 'content' || tab === 'style')){
-    if (tab === 'content'){
-      gen.appendChild(h('p', {cls: 'plain', text: 'A small badge with your logo and Meeting Name. Choose what it shows:'}));
-      gen.appendChild(checkCtl('Logo', c.logo, function(v){ set(function(x){ x.c.logo = v; }, true); }));
-      gen.appendChild(checkCtl('Meeting Name', c.name, function(v){ set(function(x){ x.c.name = v; }, true); }));
-      gen.appendChild(checkCtl('Leader / Organization Name', c.org, function(v){ set(function(x){ x.c.org = v; }, true); }));
-      gen.appendChild(brandStatus());
-    } else {
-      var bsz = [['small', 'Small', 0.75], ['standard', 'Standard', 1], ['large', 'Large', 1.4], ['title', 'Title', 2]];
-      var bnear = function(v){ return bsz.reduce(function(a, t){ return Math.abs(t[2] - v) < Math.abs(a[2] - v) ? t : a; }); };
-      gen.appendChild(row('Size', segCtl(bnear(c.scale)[0], bsz.map(function(t){ return [t[0], t[1]]; }), function(v){ var t = bsz.filter(function(x){ return x[0] === v; })[0]; set(function(x){ x.c.scale = t[2]; }, true); })));
-      gen.appendChild(h('p', {cls: 'hint', text: 'The badge uses your accent colour when one is set.'}));
-    }
-    return;
-  }
+  if (l.kind === 'brand' && (tab === 'content' || tab === 'layout' || tab === 'style')){ brandForm(gen, sc, l, tab, set); return; }
   if (tab === 'label'){                                          // v6.7 the label first (also editable on the canvas)
     var title = h('input', {type: 'text', value: c.title, 'aria-label': l.kind === 'lowerthird' ? 'Name' : 'Label', id: 'tl-title', cls: 'tl-label-in',
       placeholder: l.kind === 'lowerthird' ? 'Name (first line)' : 'e.g. Group Discussion, Opening Thought'}); title.addEventListener('keydown', stop);

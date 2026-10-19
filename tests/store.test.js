@@ -51,4 +51,12 @@ assert.notStrictEqual(sc3.layers[1].c.vcam, false);
 const again = env.Store.normalize(JSON.parse(JSON.stringify(st3)));
 assert.strictEqual(JSON.stringify(again.scenes[0]), JSON.stringify(sc3));
 
+/* ---------- 6.7 Branding: plate, padding and safe margin, with defaults for older data ---------- */
+const br = env.Store.normalize({v6: true, scenes: [{id: 'sc_b1', name: 'B', layers: [
+  {id: 'B1', kind: 'brand', c: {pos: 'upper-left'}},                                   // a 6.6 badge: no new fields
+  {id: 'B2', kind: 'brand', c: {plate: false, pad: 9, margin: -3, scale: 0.75}}]}]});
+const [b1, b2] = br.scenes[0].layers;
+assert.deepStrictEqual([b1.c.plate, b1.c.pad, b1.c.margin, b1.c.pos], [true, 1, 4, 'upper-left'], 'older badges look the same');
+assert.deepStrictEqual([b2.c.plate, b2.c.pad, b2.c.margin, b2.c.scale], [false, 3, 0, 0.75], 'new values are kept within range');
+
 console.log('store: OK');

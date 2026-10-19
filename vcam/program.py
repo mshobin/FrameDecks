@@ -18,7 +18,7 @@ import time
 import cv2
 import numpy as np
 
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageFilter
 
 from .annotate import Ink
 from .cards import CardDrawer, Card, accent_palette, logo_rgba, _premult, GOLD_TEXT as _GOLD_TEXT
@@ -90,6 +90,23 @@ def countdown_text(st, l, now=None):
     h, m, s = left // 3600, left % 3600 // 60, left % 60
     return (f"{h}:{m:02d}" if h else f"{m}") + f":{s:02d}"
 
+
+
+def _num(v, default):
+    """A number from the state, or the default."""
+    try:
+        f = float(v)
+        return f if math.isfinite(f) else default
+    except (TypeError, ValueError):
+        return default
+
+
+def _shadow(img, u):
+    """A soft black shadow of a picture's shape (6.7 Branding without its plate)."""
+    a = img.getchannel("A").point(lambda v: int(v * 0.6))
+    sh = Image.new("RGBA", img.size, (0, 0, 0, 0))
+    sh.putalpha(a)
+    return sh.filter(ImageFilter.GaussianBlur(max(1.0, u * 0.2)))
 
 class _Text:
     def __init__(self):
@@ -245,7 +262,7 @@ class ProgramFX:
         if d.get("show_org") and d.get("org"):
             lines.append((d["org"], fonts.get("sans", 600, 1.35 * s), gold))
         logo = self._logo(d.get("logo")) if d.get("logo") else None
-        pad, gap = 1.3 * s, 1.1 * s
+        pad, gap = 1.3 * s * float(L.get("pad", 1)), 1.1 * s
         text_h = sum(f.size * 1.25 for _, f, _ in lines)
         text_w = max([f.getlength(t) for t, f, _ in lines] or [0])
         logo_h = max(text_h, 4.4 * s) if lines else 6.0 * s
@@ -261,15 +278,25 @@ class ProgramFX:
         h = int(round(2 * pad + inner_h))
         img = Image.new("RGBA", (max(1, w), max(1, h)), (0, 0, 0, 0))
         dr = ImageDraw.Draw(img)
-        bw = max(2, int(round(u * 0.13)))
-        dr.rounded_rectangle([0, 0, w - 1, h - 1], radius=int(1.1 * s), fill=edge + (255,))
-        dr.rounded_rectangle([bw, bw, w - 1 - bw, h - 1 - bw], radius=max(0, int(1.1 * s) - bw), fill=(14, 30, 62, 225))
+        plate = L.get("plate", True) is not False
+        if plate:
+            bw = max(2, int(round(u * 0.13)))
+            dr.rounded_rectangle([0, 0, w - 1, h - 1], radius=int(1.1 * s), fill=edge + (255,))
+            dr.rounded_rectangle([bw, bw, w - 1 - bw, h - 1 - bw], radius=max(0, int(1.1 * s) - bw), fill=(14, 30, 62, 225))
         x = pad
         if logo is not None:
-            img.alpha_composite(logo.resize((lw, lh), Image.LANCZOS), (int(round(x)), int(round((h - lh) / 2))))
+            lg = logo.resize((lw, lh), Image.LANCZOS)
+            at = (int(round(x)), int(round((h - lh) / 2)))
+            if not plate:                                     # 6.7 no plate: a soft shadow keeps the logo readable
+                img.alpha_composite(_shadow(lg, u), (at[0], at[1] + max(1, int(round(u * 0.08)))))
+            img.alpha_composite(lg, at)
             x += lw + (gap if lines else 0)
         y = (h - text_h) / 2
         for t, f, col in lines:
+            if not plate:
+                sh = Image.new("RGBA", img.size, (0, 0, 0, 0))
+                ImageDraw.Draw(sh).text((x, y + f.size * 0.125 + max(1, u * 0.08)), t, font=f, fill=(0, 0, 0, 215))
+                img.alpha_composite(sh.filter(ImageFilter.GaussianBlur(max(1.0, u * 0.25))))
             dr.text((x, y + f.size * 0.125), t, font=f, fill=col + (255,))
             y += f.size * 1.25
         base = _premult(img)
@@ -288,8 +315,10 @@ class ProgramFX:
             if l["kind"] == "brand":
                 data = {"brand": True, "meeting": b.get("meeting") or "", "org": b.get("org") or "", "logo": c.get("logo") and b.get("logo"),
                         "name": bool(c.get("name")), "show_org": bool(c.get("org"))}
-                L = {"scale": float(c.get("scale") or 1), "accent": accent}
-                key = ("brand", data["meeting"], data["org"], data["logo"], data["name"], data["show_org"], L["scale"], accent, c.get("pos"), W, H)
+                L = {"scale": float(c.get("scale") or 1), "accent": accent, "pad": _num(c.get("pad"), 1.0), "plate": c.get("plate", True) is not False,
+                     "margin": _num(c.get("margin"), 4.0)}
+                key = ("brand", data["meeting"], data["org"], data["logo"], data["name"], data["show_org"], L["scale"], accent, c.get("pos"),
+                       L["pad"], L["plate"], L["margin"], W, H)
             else:
                 text = countdown_text(st, l) if l["kind"] == "countdown" else brand_text(st, c.get("text"))
                 title = brand_text(st, c.get("title"))
@@ -345,10 +374,14 @@ class ProgramFX:
                     card = self.drawer.draw("question", data, L, W, H)
                 OverlayLayer._prepare(card)
                 u = min(W / 100, H * 1.7778 / 100)
-                left, right = 4 * u, W - 4 * u - card.w
+                if data.get("brand"):                       # 6.7 Branding: its own safe margin on every edge
+                    m = float(L.get("margin", 4)) * u
+                    top, bottom = m, H - m - card.h
+                else:
+                    m, top, bottom = 4 * u, H * 0.06, H * 0.92 - card.h
+                left, right = m, W - m - card.w
                 card.x = left if pos.endswith("left") else right if pos.endswith("right") else (W - card.w) / 2
-                card.y = (H * 0.06 if pos in ("top", "upper-left", "upper-right") else (H - card.h) / 2 if pos == "center"
-                          else H * 0.92 - card.h)
+                card.y = (top if pos in ("top", "upper-left", "upper-right") else (H - card.h) / 2 if pos == "center" else bottom)
                 t = self.texts.get(lid)
                 if t is not None:
                     t.card, t.key = card, key
