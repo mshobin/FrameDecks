@@ -1220,7 +1220,7 @@ body.tp-dock-bottom .tpd-head .tpd-row:first-child{order:2;flex:none}
 body.tp-open .tpd:not([hidden]){animation:kc-fade .16s ease-out}
 .tp-text{transition:font-size .12s ease}
 .pal-row{transition:background-color .08s linear}
-:where(.tpd,.pal,.tp) :focus-visible{outline:2px solid var(--accent,#4c8dff);outline-offset:2px}
+:where(.tpd,.pal,.tp) :focus-visible:not(.tp-scroll){outline:2px solid var(--accent,#4c8dff);outline-offset:2px}
 @media (prefers-reduced-motion:reduce){
   .ef-float,.ws-menu,.ef-menu,.insp-body .ip,body.tp-open .tpd{animation:none}
   .ef-input,.scene-item.picked,.layer-item.picked,.tp-text,.pal-row{transition:none}

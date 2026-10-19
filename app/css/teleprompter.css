@@ -11,7 +11,7 @@
 .tp-next{flex:none;max-width:45%}
 .tp-up{color:var(--tp-gold);opacity:.9}
 .tp-scroll{flex:1 1 auto;min-height:0;overflow:auto;padding:18px 22px;scroll-behavior:auto;outline:none;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
-.tp-scroll:focus-visible{box-shadow:inset 0 0 0 2px var(--accent,#4c8dff)}
+.tp-scroll:focus-visible{box-shadow:inset 3px 0 0 var(--accent,#4c8dff)}
 .tp-text{font-size:var(--tp-size);line-height:var(--tp-line);font-weight:600;max-width:44em;margin:0 auto;overflow-wrap:break-word}
 .tp-text p{margin:0 0 .35em}
 .tp-text h3{margin:.4em 0 .3em;font-size:.82em;letter-spacing:.06em;text-transform:uppercase;color:var(--tp-gold)}
