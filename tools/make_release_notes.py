@@ -1,8 +1,8 @@
 """Kingdom Connect - the GitHub release page, branded like the About screen (6.7).
 
-Builds the release notes for one version: the Kingdom Connect logo, KINGDOM CONNECT, the tagline and motto (read from
-app/js/brand.js, the same words the About screen shows) and "Version X.Y", then the notes from
-docs/releases/vX.Y.md in a fixed order:
+Builds the release notes for one version: the About screen's header (assets/brand/kc-about-header.webp, captured from
+the app by tools/make_readme_header.py: the logo, KINGDOM CONNECT, the tagline, the motto and "Version X.Y"; its
+alternative text uses the words in app/js/brand.js), then the notes from docs/releases/vX.Y.md in a fixed order:
 
     What's New · Enhancements · Fixes · Performance Improvements · Known Issues
 
@@ -12,7 +12,7 @@ as they are, under the header.
 Usage:
     python tools/make_release_notes.py                       # this version (server.py APP_VERSION), to stdout
     python tools/make_release_notes.py --out dist/release-notes.md --repo owner/name --ref v6.7
-    python tools/make_release_notes.py --check               # fails if this version's notes are missing a section
+    python tools/make_release_notes.py --check               # fails if a section is missing or the header shows another version
 
 Standard library only (it runs on the GitHub build machine before anything is installed).
 """
@@ -23,7 +23,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 SECTIONS = ["What's New", "Enhancements", "Fixes", "Performance Improvements", "Known Issues"]
-LOGO = "assets/brand/kc-mark.png"
+HEADER = "assets/brand/kc-about-header.webp"          # the About screen, captured by tools/make_readme_header.py
+HEADER_VERSION = "assets/brand/kc-about-header.version"
 
 
 def app_version():
@@ -57,20 +58,14 @@ def canonical(name):
 
 
 def header(version, repo, ref):
+    """The About screen's header: the captured picture, with its words as the alternative text."""
     tagline, motto = brand_words()
     if repo:      # an image in a release body needs a full link; "?raw=true" also works for private repositories
-        src = "https://github.com/%s/blob/%s/%s?raw=true" % (repo, ref or ("v" + version), LOGO)
+        src = "https://github.com/%s/blob/%s/%s?raw=true" % (repo, ref or ("v" + version), HEADER)
     else:
-        src = LOGO
-    return "\n".join([
-        '<p align="center"><img src="%s" alt="Kingdom Connect" width="96"></p>' % src,
-        '<h1 align="center">KINGDOM CONNECT</h1>',
-        '<p align="center"><b>%s</b></p>' % tagline,
-        '<p align="center"><i>%s</i></p>' % motto,
-        '<p align="center">Version %s</p>' % version,
-        "",
-        "---",
-        ""])
+        src = HEADER
+    alt = "Kingdom Connect. %s. %s Version %s" % (tagline, motto, version)
+    return "\n".join(['<p align="center"><img src="%s" alt="%s" width="900"></p>' % (src, alt), "", "---", ""])
 
 
 def absolute_links(text, repo, ref):
@@ -115,6 +110,10 @@ def check(version):
     src = ROOT / "docs/releases" / ("v%s.md" % version)
     if not src.exists():
         return ["missing %s" % src.relative_to(ROOT)]
+    hv = ROOT / HEADER_VERSION
+    shown = hv.read_text(encoding="ascii").strip() if hv.exists() else "?"
+    if shown != version:
+        return ["%s shows version %s, not %s: run tools/make_readme_header.py" % (HEADER, shown, version)]
     _, found = split_sections(src.read_text(encoding="utf-8"))
     have = {canonical(k) for k in found}
     return ["%s: no '## %s' section" % (src.relative_to(ROOT), s) for s in SECTIONS if s not in have]

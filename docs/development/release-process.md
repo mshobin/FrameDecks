@@ -21,10 +21,15 @@ Versions are **major.minor** (6.5, 6.6, 7.0). The number lives in one place: `AP
 
 1. **Bump the version.** Set `APP_VERSION = "X.Y"` in `server.py`. Update places that name the installer file, such
    as the version in [building-the-installer.md](building-the-installer.md).
-2. **Write the release notes** in `docs/releases/vX.Y.md`. The file name must match the version exactly: the workflow
-   publishes it as the body of the GitHub Release. Write for volunteers (see
-   [changelog standards](changelog-standards.md)), starting with the download instruction and ending with known
-   limitations.
+   Then refresh the header picture, which shows the version: start the app (`python server.py --no-browser`) and run
+   `python tools/make_readme_header.py`. It captures the About screen's header into
+   `assets/brand/kc-about-header.webp`, used at the top of the README and of the GitHub Release. The build fails if
+   the picture shows another version.
+2. **Write the release notes** in `docs/releases/vX.Y.md`, with the sections `## What's New`, `## Enhancements`,
+   `## Fixes`, `## Performance Improvements` and `## Known Issues`. The file name must match the version exactly.
+   On a version tag, the workflow runs `tools/make_release_notes.py`, which puts the About screen's header first and
+   the sections in that order, and publishes the result as the GitHub Release. Write for volunteers (see
+   [changelog standards](changelog-standards.md)), starting with the download instruction.
 3. **Update `CHANGELOG.md`.** Move the **Unreleased** entries into a new `## [X.Y] - YYYY-MM-DD` section and add the
    link at the bottom.
 4. **Update the design history.** Add a section `## N. Version X.Y: …` to
@@ -38,6 +43,8 @@ Versions are **major.minor** (6.5, 6.6, 7.0). The number lives in one place: `AP
    ```bash
    node tests/run.js
    python packaging/check.py
+   python tools/check_doc_links.py
+   python tools/make_release_notes.py --check
    ```
 7. **Build.** Push to `main`, or run **Build Windows installer** on the release branch. Download the
    **Kingdom Connect vX.Y** artifact.

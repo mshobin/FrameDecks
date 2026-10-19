@@ -827,5 +827,8 @@ The audit, reuse plan and decisions are in [docs/project/v6.7-plan.md](../projec
   near-empty or near-total results; the previous PNG stays in memory for Undo.
 - **Lazy Excel** (`dashboard.js BSFNeedXLSX`): the 930 KB library is injected on first use by members import /
   export / template and meeting export (`meeting-import.js`; workbook import already used a worker).
-- **Release pages** (`tools/make_release_notes.py`): header from `app/js/brand.js` (tagline, motto) and
-  `assets/brand/kc-mark.png`, sections in a fixed order; relative links made absolute; `--check` runs in CI.
+- **Release pages and README header**: `tools/make_readme_header.py` captures the About screen's hero from the
+  running app into `assets/brand/kc-about-header.webp` (and the version it shows into `kc-about-header.version`); the
+  README and every release start with it. `tools/make_release_notes.py` adds the notes in a fixed section order and
+  makes relative links absolute; `--check` (in CI) fails on a missing section or a header showing another version.
+  The older `kc-banner.svg` ("Connect · Present · Worship") was removed.
