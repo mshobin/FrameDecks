@@ -1,143 +1,114 @@
-/* Kingdom Connect v6.6 - edit a question or scripture straight on the Studio Canvas.
+/* Kingdom Connect v6.7 - edit any Content straight on the Studio Canvas.
  *
- * Double-click the question or scripture card on the canvas (the Frame preview, or the live KingdomConnect picture)
- * and an editor opens over the card. Enter (or a click outside) saves, Shift+Enter starts a new line, Esc cancels.
- * The change goes into this Frame's own list (js/frame-lists.js), so the list, the preview and the screen all follow. */
+ * Double-click a card on the canvas (the Frame preview, or the live KingdomConnect picture) to edit it in place:
+ *   - the label (top line of the card): Question / Scripture label, or the title of a text Content;
+ *   - the body: the question, the scripture (with reference and translation), or the text of an announcement,
+ *     prayer, discussion topic, icebreaker, poll, lower third or timer message.
+ * Enter saves, Shift+Enter starts a new line, Esc cancels, a click outside saves (js/editable.js).
+ *
+ * The cards are found where they really are: the overlay page (the same page OBS uses) is hit-tested. On the live
+ * KingdomConnect picture the cards are part of the video, so the same page is laid out invisibly over it (only while
+ * editing, and removed again after a minute) instead of guessing positions. */
 (function(){
 'use strict';
-var SC = window.BSFScenes, Store = window.BSFStore;
+var SC = window.BSFScenes, Store = window.BSFStore, E = window.BSFEditable;
 var $ = function(id){ return document.getElementById(id); };
 var wrap = $('canvas-wrap'), frame = $('program-frame');
-if (!wrap || !frame || !SC) return;
-function h(tag, attrs, kids){
-  var el = document.createElement(tag);
-  for (var k in (attrs || {})){ var v = attrs[k]; if (k.slice(0, 2) === 'on') el.addEventListener(k.slice(2), v); else if (k === 'text') el.textContent = v; else if (k === 'cls') el.className = v; else if (v != null && v !== false) el.setAttribute(k, v); }
-  (kids || []).forEach(function(c){ if (c != null) el.appendChild(typeof c === 'string' ? document.createTextNode(c) : c); });
-  return el;
-}
+if (!wrap || !frame || !SC || !E) return;
 function toast(m, bad){ if (window.BSFActions) window.BSFActions.toast(m, bad); }
-var live = null, ed = null;
+var live = null;
 Store.subscribe(function(st){ live = st; });
 
 function frameId(){ return (window.BSFSelFrame && window.BSFSelFrame()) || (live ? live.live.scene : ''); }
-function layerKind(kind){ return kind === 'verse' ? 'scripture' : 'question'; }
-/* the item the canvas shows for this Frame: the live one, or the one its preview shows */
-function shownItem(kind){
-  var sid = frameId(); if (!live || !sid) return null;
-  var sc = SC.find(live, sid), l = sc ? SC.first(sc, layerKind(kind)) : null;
+function studioOn(){ var t = $('tab-studio'); return !!(t && !t.hidden); }
+var KIND = {question: {one: 'Question', layer: 'question', def: 'Discussion Question'}, verse: {one: 'Scripture', layer: 'scripture', def: 'Focus Verse'}};
+var TEXT_NAME = {announcement: 'Announcement', prayer: 'Prayer', lowerthird: 'Lower Third', countdown: 'Timer'};
+
+/* The item a Question / Scripture card shows for this Frame: the live one, or the one its preview shows */
+function shownItem(kind, sid){
+  if (!live || !sid) return null;
+  var sc = SC.find(live, sid), l = sc ? SC.first(sc, KIND[kind].layer) : null;
   if (!l || !Array.isArray(l.c.items) || !l.c.items.length) return null;
   var st = live.live.scene === sid ? live : SC.previewState(live, sid);
   var id = st[kind] && st[kind].visible ? st[kind].itemId : '';
   var it = l.c.items.filter(function(x){ return x.id === id; })[0] || l.c.items.filter(function(x){ return x.id === l.c.itemId; })[0];
   return it ? {sid: sid, kind: kind, it: it, l: l} : null;
 }
-function studioOn(){ var t = $('tab-studio'); return !!(t && !t.hidden); }
 
-/* ---------- the editor, over the card ---------- */
-function close(save){
-  if (!ed) return;
-  var e = ed; ed = null;
-  document.removeEventListener('pointerdown', outside, true);
-  window.removeEventListener('resize', reclose);
-  e.box.remove();
-  if (!save) return;
-  var patch = {text: e.text.value.replace(/\s+$/, '')}, it = e.target.it;
-  if (e.kind === 'verse'){ patch.ref = e.ref.value.trim(); patch.version = e.ver.value.trim(); }
-  if (Object.keys(patch).every(function(k){ return (it[k] || '') === patch[k]; })) return;          // nothing changed
-  if (e.kind === 'question' && !patch.text.trim()){ toast('A question needs some text. Nothing was changed.', true); return; }
-  window.BSFFrameLists.save(e.kind, e.target.sid, it.id, patch).then(function(){ toast(e.kind === 'question' ? 'Question saved' : 'Scripture saved'); });
+/* ---------- what was double-clicked, and how to edit it ---------- */
+function within(b, x, y){ return x >= b.left && x <= b.right && y >= b.top && y <= b.bottom; }
+function cardAt(doc, x, y){
+  var hit = Array.prototype.filter.call(doc.querySelectorAll('.card-question, .card-verse, .card-x[data-layer]'), function(c){
+    return !c.classList.contains('out') && !c.classList.contains('empty') && !c.classList.contains('card-brand') && within(c.getBoundingClientRect(), x, y);
+  });
+  return hit.length ? hit[hit.length - 1] : null;                 // the one in front (drawn last)
 }
-function reclose(){ close(true); }
-function outside(e){ if (ed && !ed.box.contains(e.target)) close(true); }
-function keys(e){
-  e.stopPropagation();                                        // the meeting shortcuts stay quiet while typing
-  if (e.key === 'Escape'){ e.preventDefault(); close(false); }
-  else if (e.key === 'Enter' && !e.shiftKey && !e.isComposing){ e.preventDefault(); close(true); }
-}
-function fit(ta){ ta.style.height = 'auto'; ta.style.height = Math.min(ta.scrollHeight + 2, 320) + 'px'; }
-/* rect: where the card is, in #canvas-wrap's coordinates */
-function open(target, rect){
-  close(true);
-  if (!window.BSFFrameLists || !window.BSFFrameLists.save) return;
-  var kind = target.kind, it = target.it, N = kind === 'question' ? 'Question' : 'Scripture';
-  var text = h('textarea', {cls: 'pv-text' + (kind === 'verse' ? ' serif' : ''), rows: 2, id: 'pv-text', 'aria-label': N + ' text'});
-  text.value = it.text || '';
-  var ref = null, ver = null, kids = [];
-  if (kind === 'verse'){
-    ref = h('input', {type: 'text', id: 'pv-ref', 'aria-label': 'Reference', placeholder: 'e.g. John 15:5'}); ref.value = it.ref || '';
-    ver = h('input', {type: 'text', id: 'pv-ver', 'aria-label': 'Translation', placeholder: 'e.g. ESV'}); ver.value = it.version || '';
-    kids.push(h('div', {cls: 'pv-ref'}, [ref, ver]));
+/* edit(card, x, y, map): map turns the page's coordinates into #canvas-wrap's */
+function edit(card, x, y, map, sid){
+  var lbl = card.querySelector('.card-label'), onLabel = lbl && lbl.offsetParent !== null && within(lbl.getBoundingClientRect(), x, y);
+  var r = map((onLabel ? lbl : card).getBoundingClientRect());
+  if (card.classList.contains('card-question') || card.classList.contains('card-verse')){
+    var kind = card.classList.contains('card-verse') ? 'verse' : 'question', t = shownItem(kind, sid);
+    if (!t){ toast('Add a ' + KIND[kind].one.toLowerCase() + ' to this Frame first.', true); return; }
+    var def = t.l.c.label || KIND[kind].def, save = function(patch){ return window.BSFFrameLists.save(kind, t.sid, t.it.id, patch).then(function(){ toast(KIND[kind].one + ' saved'); }); };
+    if (onLabel) return E.float(wrap, r, {title: 'Label', value: t.it.label || '', placeholder: def, maxLength: 80, label: KIND[kind].one + ' label', save: function(v){ return save({label: v}); }});
+    if (kind === 'question') return E.float(wrap, r, {title: 'Edit ' + (t.it.label || def), value: t.it.text || '', multiline: true, maxLength: 2000, label: 'Question',
+      save: function(v){ if (!v.trim()){ toast('A question needs some text. Nothing was changed.', true); return; } return save({text: v}); }});
+    return E.float(wrap, r, {title: 'Edit ' + (t.it.label || def), value: t.it.text || '', multiline: true, serif: true, maxLength: 4000, label: 'Scripture text',
+      fields: [{key: 'ref', value: t.it.ref || '', placeholder: 'e.g. John 15:5', label: 'Reference'}, {key: 'version', value: t.it.version || '', placeholder: 'ESV', label: 'Translation', width: '110px'}],
+      save: function(v, extra){ return save({text: v, ref: (extra.ref || '').trim(), version: (extra.version || '').trim()}); }});
   }
-  kids.push(text);
-  var box = h('div', {cls: 'pv-ed', id: 'pv-ed', role: 'dialog', 'aria-label': 'Edit this ' + N.toLowerCase()}, [
-    h('div', {cls: 'pv-head'}, [h('b', {text: 'Edit ' + (it.label || N)}), h('span', {cls: 'hint', text: 'Enter saves · Shift+Enter new line · Esc cancels'})])]
-    .concat(kids, [h('div', {cls: 'pv-acts'}, [
-      h('button', {cls: 'btn small', type: 'button', text: 'Cancel', onclick: function(){ close(false); }}),
-      h('button', {cls: 'btn small primary', type: 'button', id: 'pv-save', text: 'Save', onclick: function(){ close(true); }})])]));
-  [text, ref, ver].forEach(function(f){ if (f) f.addEventListener('keydown', keys); });
-  text.addEventListener('input', function(){ fit(text); });
-  wrap.appendChild(box);
-  var W = wrap.clientWidth, Hh = wrap.clientHeight;
-  var w = Math.min(Math.max(rect.width, 380), W - 16);
-  box.style.width = w + 'px';
-  box.style.left = Math.max(8, Math.min(rect.left + (rect.width - w) / 2, W - w - 8)) + wrap.scrollLeft + 'px';
-  fit(text);
-  var top = Math.max(8, Math.min(rect.top, Hh - box.offsetHeight - 8));
-  box.style.top = top + wrap.scrollTop + 'px';
-  ed = {box: box, kind: kind, target: target, text: text, ref: ref, ver: ver};
-  setTimeout(function(){ document.addEventListener('pointerdown', outside, true); }, 0);
-  window.addEventListener('resize', reclose);
-  text.focus(); text.setSelectionRange(text.value.length, text.value.length);
+  /* a text Content: announcement, prayer, discussion, icebreaker, poll, lower third, timer */
+  var sc = SC.find(live, sid), l = sc && SC.layer(sc, card.getAttribute('data-layer'));
+  if (!l){ toast('That Content is not in this Frame.', true); return; }
+  var setC = function(key){ return function(v){ return window.BSFCommit(function(n){ var s2 = SC.find(n, sid), x = s2 && SC.layer(s2, l.id); if (!x) return; x.c[key] = v; SC.stamp(s2); }).then(function(){ toast(l.name + ' saved'); }); }; };
+  var what = TEXT_NAME[l.kind] || 'Text';
+  if (onLabel || l.kind === 'countdown')
+    return E.float(wrap, r, {title: l.kind === 'lowerthird' ? 'Name' : 'Label', value: l.c.title || '', maxLength: 120, label: what + ' label', placeholder: what, save: setC('title')});
+  return E.float(wrap, r, {title: 'Edit ' + (l.c.title || l.name), value: l.c.text || '', multiline: true, maxLength: 2000, label: l.kind === 'lowerthird' ? 'Second line' : what + ' text', selectAll: false, save: setC('text')});
 }
 
-/* ---------- the Frame preview (the overlay page in the canvas): the real card ----------
- * The page itself takes no clicks (it is a picture of the output), so the double-click is caught on its box here
- * and the card under the pointer is found inside the page. */
-var box0 = $('program');
-box0.addEventListener('dblclick', function(e){
+/* ---------- the Frame preview: the overlay page in the canvas (it takes no clicks itself) ---------- */
+$('program').addEventListener('dblclick', function(e){
   var doc; try { doc = frame.contentDocument; } catch(err){ return; }
   if (!doc) return;
   var f = frame.getBoundingClientRect(), s = f.width / 1920, x = (e.clientX - f.left) / s, y = (e.clientY - f.top) / s;
-  var card = Array.prototype.filter.call(doc.querySelectorAll('.card-question, .card-verse'), function(c){
-    if (c.classList.contains('out') || c.classList.contains('empty')) return false;
-    var b = c.getBoundingClientRect(); return x >= b.left && x <= b.right && y >= b.top && y <= b.bottom;
-  })[0];
-  if (!card) return;
-  var kind = card.classList.contains('card-verse') ? 'verse' : 'question', t = shownItem(kind);
-  if (!t){ toast('Add a ' + (kind === 'verse' ? 'scripture' : 'question') + ' to this Frame first.', true); return; }
-  e.preventDefault(); e.stopPropagation();
-  var r = card.getBoundingClientRect(), wr = wrap.getBoundingClientRect();
-  open(t, {left: f.left - wr.left + r.left * s, top: f.top - wr.top + r.top * s, width: r.width * s, height: r.height * s});
-});
-
-/* ---------- the live KingdomConnect picture (cards are drawn into the video): found from the layout ---------- */
-function zones(st, W, H){
-  var L = st.layout, out = [], u = Math.min(W / 100, H * 1.7778 / 100);
-  if (st.question.visible && String(st.question.text || '').trim()){
-    var qw = Math.min(L.qWidth / 100 * W, W - 8 * u), qh = Math.min(H * 0.36, H * 0.12 * L.qScale + H * 0.06);
-    var qb = H - L.qBottom / 100 * H;
-    out.push({kind: 'question', left: (W - qw) / 2, top: qb - qh, width: qw, height: qh});
-  }
-  if (st.verse.visible && String(st.verse.text || '').trim()){
-    var vw = Math.min(L.verseWidth / 100 * W, W - 8 * u), vh = H * 0.36, cy = L.verseY / 100 * H;
-    var vl = L.verseAlign === 'left' ? 4 * u : L.verseAlign === 'right' ? W - 4 * u - vw : (W - vw) / 2;
-    out.push({kind: 'verse', left: vl, top: Math.max(0, cy - vh / 2), width: vw, height: vh});
-  }
-  return out;
-}
-document.addEventListener('dblclick', function(e){
-  if (!studioOn() || !live) return;
-  var stage = e.target.closest && e.target.closest('#s2-stage'); if (!stage) return;
-  var img = stage.querySelector('img') || stage, r = img.getBoundingClientRect();
-  var W = r.width, H = Math.min(r.height, W * 9 / 16), top = r.top + (r.height - H) / 2;
-  var x = e.clientX - r.left, y = e.clientY - top;
-  var hit = zones(live, W, H).filter(function(z){ return x >= z.left && x <= z.left + z.width && y >= z.top && y <= z.top + z.height; })[0];
-  if (!hit) return;                                            // not on a card: the canvas keeps its own double-click
-  var t = shownItem(hit.kind); if (!t) return;
+  var card = cardAt(doc, x, y); if (!card) return;
   e.preventDefault(); e.stopPropagation();
   var wr = wrap.getBoundingClientRect();
-  open(t, {left: r.left - wr.left + hit.left, top: top - wr.top + hit.top, width: hit.width, height: hit.height});
+  edit(card, x, y, function(b){ return {left: f.left - wr.left + b.left * s, top: f.top - wr.top + b.top * s, width: b.width * s, height: b.height * s}; }, frameId());
+});
+
+/* ---------- the live KingdomConnect picture: the same overlay page, laid out invisibly over it ---------- */
+var measure = null, measureT = 0;
+function measurer(stage, done){
+  clearTimeout(measureT); measureT = setTimeout(function(){ if (measure){ measure.remove(); measure = null; } }, 60000);
+  var r = stage.getBoundingClientRect(), wr = wrap.getBoundingClientRect();
+  var H = Math.min(r.height, r.width * 9 / 16), W = H * 16 / 9;
+  var left = r.left - wr.left + (r.width - W) / 2 + wrap.scrollLeft, top = r.top - wr.top + (r.height - H) / 2 + wrap.scrollTop;
+  var fresh = !measure;
+  if (fresh){
+    measure = document.createElement('iframe');
+    measure.className = 'pv-measure'; measure.setAttribute('aria-hidden', 'true'); measure.tabIndex = -1;
+    measure.src = 'stage.html?bg=preview&preview=1';
+    wrap.appendChild(measure);
+  }
+  measure.style.left = left + 'px'; measure.style.top = top + 'px'; measure.style.transform = 'scale(' + (W / 1920) + ')';
+  var go = function(){ done(measure, {left: left - wrap.scrollLeft, top: top - wrap.scrollTop, scale: W / 1920}); };
+  if (fresh) measure.addEventListener('load', function(){ setTimeout(go, 350); }, {once: true}); else go();
+}
+document.addEventListener('dblclick', function(e){
+  if (!studioOn() || !live || E.active()) return;
+  var stage = e.target.closest && e.target.closest('#s2-stage'); if (!stage) return;
+  var cx = e.clientX, cy = e.clientY, wr = wrap.getBoundingClientRect();
+  measurer(stage, function(m, at){
+    var doc; try { doc = m.contentDocument; } catch(err){ return; }
+    if (!doc) return;
+    var x = (cx - wr.left - at.left) / at.scale, y = (cy - wr.top - at.top) / at.scale;
+    var card = cardAt(doc, x, y); if (!card) return;                          // not on a card: nothing to edit here
+    edit(card, x, y, function(b){ return {left: at.left + b.left * at.scale, top: at.top + b.top * at.scale, width: b.width * at.scale, height: b.height * at.scale}; }, live.live.scene);
+  });
 }, true);
 
-window.BSFPreviewEdit = {open: function(kind){ var t = shownItem(kind); if (t) open(t, {left: 40, top: 40, width: 480, height: 120}); return !!t; }, close: close};
+window.BSFPreviewEdit = {close: function(){ E.close(true); }};
 })();

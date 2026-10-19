@@ -49,7 +49,11 @@ function editLayerSoon(sid, lid, fn){
 /* Selection                                                                                             */
 /* ===================================================================================================== */
 function select(sid, lid, focusList){
-  if (sid !== selScene){ selScene = sid; lsSet('bcc-sel-scene', sid); }
+  if (!picking){                                     // selected from elsewhere (search, palette, a new Frame): a single selection
+    if (sid !== selScene || picked.frames.indexOf(sid) < 0) picked.frames = sid ? [sid] : [];
+    picked.layers = lid ? [lid] : [];
+  }
+  if (sid !== selScene){ selScene = sid; lsSet('bcc-sel-scene', sid); if (!picking) picked.layers = lid ? [lid] : []; }
   selLayer = lid || null;
   if (lid && window.BSFStudio && isLiveScene(sid)){ var l = layer(); if (l && SC.isMedia(l.kind)) window.BSFStudio.select([lid]); }
   renderAll(true);
@@ -58,6 +62,192 @@ function select(sid, lid, focusList){
     if (el){ el.scrollIntoView({block: 'nearest'}); el.focus({preventScroll: true}); }
   }
 }
+
+/* ---------- v6.7 Multi-select: Frames and Content ----------
+ * Click selects one; Ctrl+Click adds or removes; Shift+Click (or Shift+↑/↓) selects a range; dragging across empty
+ * space in a list draws a selection box. Delete / Backspace, Ctrl+C / Ctrl+V / Ctrl+D and the right-click menu act on
+ * the whole selection. Deleting can be undone from the message that follows (larger deletes ask first). */
+var picked = {frames: selScene ? [selScene] : [], layers: []}, pickAnchor = {frames: null, layers: null}, picking = false, clip = null;
+var BIG_DELETE = 5;                                  // ask before deleting this many or more at once
+function listIds(ol){ return Array.prototype.map.call(ol.querySelectorAll(ol.id === 'scene-list' ? '.scene-item' : '.layer-item'), function(x){ return x.dataset.id; }); }
+function applyPick(kind){
+  picking = true;
+  try {
+    var ids = picked[kind];
+    if (kind === 'frames'){ var keep = ids.indexOf(selScene) >= 0 ? selScene : ids[ids.length - 1]; select(keep || '', null); }
+    else { var lk = ids.indexOf(selLayer) >= 0 ? selLayer : ids[ids.length - 1]; select(selScene, lk || null); }
+  } finally { picking = false; }
+}
+function pickOnly(kind, id){
+  var same = picked[kind].length === 1 && picked[kind][0] === id && (kind === 'frames' ? selScene === id && !selLayer : selLayer === id);
+  pickAnchor[kind] = id;
+  if (same) return;                                  // nothing changed: no redraw (a double-click must land on the same row)
+  picked[kind] = id ? [id] : []; if (kind === 'frames') picked.layers = []; applyPick(kind);
+}
+function pickRange(kind, id, ol){
+  var ids = listIds(ol), a = ids.indexOf(pickAnchor[kind] || (kind === 'frames' ? selScene : selLayer)), b = ids.indexOf(id);
+  if (a < 0) a = b;
+  picked[kind] = ids.slice(Math.min(a, b), Math.max(a, b) + 1);
+  if (kind === 'frames') picked.layers = [];
+  picking = true; try { if (kind === 'frames') select(id, null); else select(selScene, id); } finally { picking = false; }
+}
+function pickClick(kind, id, e, ol){
+  if (e.shiftKey){ e.preventDefault(); pickRange(kind, id, ol); return; }
+  if (e.ctrlKey || e.metaKey){
+    e.preventDefault();
+    var cur = picked[kind].slice(), i = cur.indexOf(id);
+    if (i >= 0 && cur.length > 1) cur.splice(i, 1); else if (i < 0) cur.push(id);
+    picked[kind] = cur; pickAnchor[kind] = id;
+    if (kind === 'frames') picked.layers = [];
+    picking = true; try { if (kind === 'frames') select(cur.indexOf(id) >= 0 ? id : cur[cur.length - 1], null); else select(selScene, cur.indexOf(id) >= 0 ? id : cur[cur.length - 1]); } finally { picking = false; }
+    return;
+  }
+  pickOnly(kind, id);
+}
+function focusItem(ol, id){ var el = ol.querySelector('[data-id="' + id + '"]'); if (el){ el.focus({preventScroll: true}); el.scrollIntoView({block: 'nearest'}); } }
+function orderedFrames(ids){ return live.scenes.filter(function(s){ return ids.indexOf(s.id) >= 0; }).map(function(s){ return s.id; }); }
+function framesSel(){ var ids = orderedFrames(picked.frames.indexOf(selScene) >= 0 || !selScene ? picked.frames : [selScene]); return ids.length ? ids : selScene ? [selScene] : []; }
+function layersSel(){ var sc = scene(); if (!sc) return []; var ids = picked.layers.indexOf(selLayer) >= 0 || !selLayer ? picked.layers : [selLayer];
+  return sc.layers.filter(function(l){ return ids.indexOf(l.id) >= 0; }).map(function(l){ return l.id; }); }
+function plural(n, one){ return n + ' ' + one + (n === 1 ? '' : 's'); }
+
+/* Delete with Undo. Frames go back to the places they came from; Content goes back into its Frame. */
+function deleteFrames(ids){
+  ids = orderedFrames(ids); if (!ids.length) return;
+  if (live.live.scene && ids.indexOf(live.live.scene) >= 0){
+    if (ids.length === 1){ toast('This Frame is live. Take another Frame live first.', true); return; }
+    ids = ids.filter(function(x){ return x !== live.live.scene; }); toast('The live Frame stays; the others are deleted.');
+  }
+  if (ids.length >= BIG_DELETE && !confirm('Delete ' + ids.length + ' Frames and their Content?')) return;
+  var saved = [];
+  live.scenes.forEach(function(s, i){ if (ids.indexOf(s.id) >= 0) saved.push({at: i, sc: JSON.parse(JSON.stringify(s))}); });
+  var keep = live.scenes.filter(function(s){ return ids.indexOf(s.id) < 0; });
+  commit(function(n){ n.scenes = n.scenes.filter(function(s){ return ids.indexOf(s.id) < 0; }); }).then(function(){
+    var next = keep.filter(function(s){ return live.scenes.some(function(x){ return x.id === s.id; }); })[0];
+    if (ids.indexOf(selScene) >= 0) pickOnly('frames', next ? next.id : '');
+    A.toastAction((saved.length === 1 ? '“' + saved[0].sc.name + '” deleted.' : plural(saved.length, 'Frame') + ' deleted.'), 'Undo', function(){
+      commit(function(n){ saved.forEach(function(x){ if (!SC.find(n, x.sc.id)) n.scenes.splice(Math.min(x.at, n.scenes.length), 0, SC.cleanScene(x.sc)); }); })
+        .then(function(){ picked.frames = saved.map(function(x){ return x.sc.id; }); applyPick('frames'); toast('Restored'); });
+    });
+  });
+}
+function deleteLayers(sid, ids){
+  var sc = SC.find(live, sid); if (!sc || !ids.length) return;
+  var locked = sc.layers.filter(function(l){ return ids.indexOf(l.id) >= 0 && l.locked; });
+  if (locked.length){ ids = ids.filter(function(id){ return !locked.some(function(l){ return l.id === id; }); }); toast(locked.length === 1 ? '“' + locked[0].name + '” is locked and stays.' : plural(locked.length, 'locked Content') + ' stay.', true); }
+  if (!ids.length) return;
+  if (ids.length >= BIG_DELETE && !confirm('Delete ' + ids.length + ' pieces of Content from “' + sc.name + '”?')) return;
+  var saved = []; sc.layers.forEach(function(l, i){ if (ids.indexOf(l.id) >= 0) saved.push({at: i, l: JSON.parse(JSON.stringify(l))}); });
+  edit(sid, function(x, n){ ids.forEach(function(id){ if (n.live.scene === sid) SC.setOn(n, sid, id, false); }); x.layers = x.layers.filter(function(l){ return ids.indexOf(l.id) < 0; }); }).then(function(){
+    if (ids.indexOf(selLayer) >= 0){ selLayer = null; picked.layers = []; renderAll(true); }
+    A.toastAction(saved.length === 1 ? '“' + saved[0].l.name + '” deleted.' : plural(saved.length, 'piece') + ' of Content deleted.', 'Undo', function(){
+      edit(sid, function(x){ saved.forEach(function(s){ if (!SC.layer(x, s.l.id)) x.layers.splice(Math.min(s.at, x.layers.length), 0, s.l); }); }).then(function(){ toast('Restored'); });
+    });
+  });
+}
+/* Copy / paste: copies are fully independent (new ids for everything) */
+function newSceneId(){ return 'sc_' + Math.random().toString(36).slice(2, 9); }
+function newLayerId(){ return 'L' + Math.random().toString(36).slice(2, 9); }
+function copyFrames(ids){ clip = {kind: 'frames', items: orderedFrames(ids).map(function(id){ return JSON.parse(JSON.stringify(SC.find(live, id))); })}; toast(plural(clip.items.length, 'Frame') + ' copied'); }
+function copyLayers(sid, ids){ var sc = SC.find(live, sid); clip = {kind: 'layers', items: sc.layers.filter(function(l){ return ids.indexOf(l.id) >= 0; }).map(function(l){ return JSON.parse(JSON.stringify(l)); })}; toast(plural(clip.items.length, 'piece') + ' of Content copied'); }
+function pasteFrames(items, afterId){
+  var made = [];
+  return commit(function(n){
+    var after = afterId;
+    items.forEach(function(src){
+      var sc = JSON.parse(JSON.stringify(src)); sc.id = newSceneId(); sc.name = SC.uniqueName(n, src.name); sc.tpl = false; sc.fav = false;
+      sc.created = sc.modified = Date.now(); sc.version = 1; sc.from = src.name;
+      SC.freshIds(sc); sc = SC.cleanScene(sc); SC.insert(n, sc, after); after = sc.id; made.push(sc.id);
+    });
+  }).then(function(){ picked.frames = made.slice(); applyPick('frames'); toast(plural(made.length, 'Frame') + ' added'); return made; });
+}
+function pasteLayers(sid, items){
+  var skipped = 0, made = [];
+  return edit(sid, function(sc){
+    items.slice().reverse().forEach(function(src){
+      if (SC.isCard(src.kind) && SC.first(sc, src.kind)){ skipped++; return; }    // one Question / Scripture / Birthday per Frame
+      var l = JSON.parse(JSON.stringify(src)); l.id = newLayerId(); l.locked = false;
+      if (Array.isArray(l.c.items)){ var tmp = {layers: [l]}; SC.freshIds(tmp); l = tmp.layers[0]; }
+      sc.layers.unshift(l); made.push(l.id);
+    });
+  }).then(function(){
+    if (made.length){ picked.layers = made.slice(); applyPick('layers'); }
+    toast((made.length ? plural(made.length, 'piece') + ' of Content added' : 'Nothing added') + (skipped ? ' · ' + skipped + ' skipped (this Frame already has that kind)' : ''), !made.length);
+  });
+}
+function duplicateFrames(ids){ var items = orderedFrames(ids).map(function(id){ return SC.find(live, id); }); return pasteFrames(items, ids[ids.length - 1]); }
+/* Keys shared by both lists (only when the list itself has the focus, never while typing) */
+function listKeys(e, kind){
+  var mod = e.ctrlKey || e.metaKey, k = (e.key || '').toLowerCase();
+  if (e.key === 'Delete' || e.key === 'Backspace'){ e.preventDefault(); e.stopPropagation(); if (kind === 'frames') deleteFrames(framesSel()); else deleteLayers(selScene, layersSel()); return; }
+  if (mod && k === 'a'){ e.preventDefault(); e.stopPropagation(); var ol = $(kind === 'frames' ? 'scene-list' : 'layer-list'); picked[kind] = listIds(ol); applyPick(kind); return; }
+  if (mod && k === 'c'){ e.preventDefault(); e.stopPropagation(); if (kind === 'frames') copyFrames(framesSel()); else copyLayers(selScene, layersSel()); return; }
+  if (mod && k === 'x'){ e.preventDefault(); e.stopPropagation(); if (kind === 'frames'){ copyFrames(framesSel()); deleteFrames(framesSel()); } else { copyLayers(selScene, layersSel()); deleteLayers(selScene, layersSel()); } return; }
+  if (mod && k === 'v'){ e.preventDefault(); e.stopPropagation(); pasteClip(kind); return; }
+  if (mod && k === 'd' && !e.shiftKey){ e.preventDefault(); e.stopPropagation(); if (kind === 'frames'){ var f = framesSel(); if (f.length > 1) duplicateFrames(f); else if (f[0]) dupAndEdit(f[0]); } else layersSel().forEach(function(id){ duplicateLayer(selScene, id); }); return; }
+}
+function pasteClip(kind){
+  if (!clip){ toast('Nothing copied yet. Select Frames or Content and press Ctrl+C.', true); return; }
+  if (clip.kind === 'frames') pasteFrames(clip.items, kind === 'frames' ? (framesSel().slice(-1)[0] || selScene) : selScene);
+  else if (scene()) pasteLayers(selScene, clip.items); else toast('Select a Frame to paste Content into.', true);
+}
+function framesMenu(anchor, ev){
+  var ids = framesSel(), n = ids.length;
+  menu(anchor, [{label: plural(n, 'Frame') + ' selected'},
+    {icon: 'copy', text: 'Duplicate ' + plural(n, 'Frame'), hint: 'Ctrl+D', run: function(){ duplicateFrames(ids); }},
+    {icon: 'copy', text: 'Copy', hint: 'Ctrl+C', run: function(){ copyFrames(ids); }},
+    {icon: 'copy', text: 'Paste after', hint: 'Ctrl+V', disabled: !clip, run: function(){ pasteClip('frames'); }},
+    {icon: 'folder-open', text: 'Move to group…', run: function(){ groupPicker(anchor, ev, function(g){ commit(function(x){ ids.forEach(function(id){ var s = SC.find(x, id); if (s) s.group = g; }); }).then(function(){ toast(plural(n, 'Frame') + (g ? ' moved to “' + g + '”' : ' moved out of their group')); }); }); }},
+    {icon: 'star', text: 'Add to favourites', run: function(){ commit(function(x){ ids.forEach(function(id){ var s = SC.find(x, id); if (s) s.fav = true; }); }); }},
+    '-', {icon: 'trash-2', text: 'Delete ' + plural(n, 'Frame'), hint: 'Del', danger: true, run: function(){ deleteFrames(ids); }}], ev);
+}
+function layersMenu(anchor, ev){
+  var ids = layersSel(), n = ids.length, sid = selScene;
+  menu(anchor, [{label: plural(n, 'piece') + ' of Content selected'},
+    {icon: 'copy', text: 'Duplicate', hint: 'Ctrl+D', run: function(){ ids.forEach(function(id){ duplicateLayer(sid, id); }); }},
+    {icon: 'copy', text: 'Copy', hint: 'Ctrl+C', run: function(){ copyLayers(sid, ids); }},
+    {icon: 'copy', text: 'Paste into this Frame', hint: 'Ctrl+V', disabled: !clip || clip.kind !== 'layers', run: function(){ pasteClip('layers'); }},
+    {icon: 'eye-off', text: 'Hide all of them', run: function(){ ids.forEach(function(id){ var l = SC.layer(SC.find(live, sid), id); if (l && (isLiveScene(sid) ? SC.layerOn(live, SC.find(live, sid), l) : l.visible)) toggleLayer(sid, id); }); }},
+    '-', {icon: 'trash-2', text: 'Delete ' + plural(n, 'piece') + ' of Content', hint: 'Del', danger: true, run: function(){ deleteLayers(sid, ids); }}], ev);
+}
+/* Group names in place of a prompt: the existing groups, or type a new one */
+function groupPicker(anchor, ev, done){
+  var groups = []; live.scenes.forEach(function(s){ if (s.group && groups.indexOf(s.group) < 0) groups.push(s.group); });
+  var items = [{label: 'Move to group'}].concat(groups.map(function(g){ return {icon: 'folder-open', text: g, run: function(){ done(g); }}; }),
+    ['-', {icon: 'plus', text: 'New group…', run: function(){
+      var box = h('div', {cls: 'ws-menu ef-menu'}); document.body.appendChild(box);
+      var r = ev ? {left: ev.clientX, top: ev.clientY} : anchor.getBoundingClientRect(); box.style.left = Math.max(8, Math.min(r.left, window.innerWidth - 260)) + 'px'; box.style.top = Math.max(8, Math.min(r.top, window.innerHeight - 60)) + 'px';
+      var span = h('span', {text: 'New group'}); box.appendChild(span);
+      BSFEditable.inline(span, {value: '', placeholder: 'Group name', maxLength: 60, label: 'New group name', save: function(v){ if (v) done(v); }, done: function(){ box.remove(); }});
+    }}, {icon: 'x', text: 'No group', run: function(){ done(''); }}]);
+  menu(anchor, items, ev);
+}
+/* Drag across empty space in a list to select with a box */
+function marquee(ol, kind){
+  ol.addEventListener('pointerdown', function(e){
+    if (e.button !== 0 || e.target.closest('.scene-item, .layer-item, button, input, .sg-head')) return;
+    var r0 = ol.getBoundingClientRect(), x0 = e.clientX, y0 = e.clientY, box = null, base = (e.ctrlKey || e.metaKey) ? picked[kind].slice() : [];
+    function move(ev){
+      var x1 = ev.clientX, y1 = ev.clientY;
+      if (!box){ if (Math.abs(x1 - x0) + Math.abs(y1 - y0) < 6) return; box = h('div', {cls: 'pick-box'}); document.body.appendChild(box); }
+      var L = Math.min(x0, x1), T = Math.min(y0, y1), R = Math.max(x0, x1), B = Math.max(y0, y1);
+      box.style.left = L + 'px'; box.style.top = T + 'px'; box.style.width = (R - L) + 'px'; box.style.height = (B - T) + 'px';
+      var hit = Array.prototype.filter.call(ol.querySelectorAll(kind === 'frames' ? '.scene-item' : '.layer-item'), function(li){ var b = li.getBoundingClientRect(); return b.bottom >= T && b.top <= B && b.right >= L && b.left <= R; })
+        .map(function(li){ return li.dataset.id; });
+      Array.prototype.forEach.call(ol.querySelectorAll('[data-id]'), function(li){ li.classList.toggle('pick-hover', hit.indexOf(li.dataset.id) >= 0); });
+      move.hit = base.concat(hit.filter(function(id){ return base.indexOf(id) < 0; }));
+    }
+    function up(){
+      document.removeEventListener('pointermove', move); document.removeEventListener('pointerup', up);
+      if (!box) return; box.remove();
+      Array.prototype.forEach.call(ol.querySelectorAll('.pick-hover'), function(li){ li.classList.remove('pick-hover'); });
+      if (move.hit && move.hit.length){ picked[kind] = move.hit; applyPick(kind); }
+    }
+    document.addEventListener('pointermove', move); document.addEventListener('pointerup', up);
+    void r0;
+  });
+}
+marquee($('scene-list'), 'frames'); marquee($('layer-list'), 'layers');
 
 /* ===================================================================================================== */
 /* Scenes panel                                                                                          */
@@ -136,8 +326,9 @@ function renderLibrary(ol){
 function renderScenes(){
   var ol = $('scene-list'), next = live.live.scene ? SC.neighbour(live, live.live.scene, 1) : null;
   if (filter === 'tpl') return renderLibrary(ol);
+  if (BSFEditable.within(ol)){ sceneSig = ''; return; }            // renaming here: redraw when the editor closes
   var list = visibleScenes();
-  var sig = JSON.stringify([list.map(function(s){ return [s.id, s.name, s.group, s.fav, s.tpl, s.layers.length, s.tx, s.auto.on, s.auto.sec, SC.qsMode(s)]; }), live.live.scene, next && next.id, selScene, filter, collapsed, live.profile]);
+  var sig = JSON.stringify([list.map(function(s){ return [s.id, s.name, s.group, s.fav, s.tpl, s.layers.length, s.tx, s.auto.on, s.auto.sec, SC.qsMode(s)]; }), live.live.scene, next && next.id, selScene, filter, collapsed, live.profile, picked.frames]);
   if (sig === sceneSig) return; sceneSig = sig;
   ol.innerHTML = '';
   if (!list.length){
@@ -166,39 +357,49 @@ function renderScenes(){
     byGroup[g].forEach(function(sc){
       n++;
       var isLive = isLiveScene(sc.id), isNext = !!(next && next.id === sc.id && !isLive);
-      var li = h('li', {cls: 'scene-item' + (sc.id === selScene ? ' sel' : '') + (isLive ? ' live' : '') + (isNext ? ' next' : '') + (sc.tpl ? ' tpl' : ''),
-        'data-id': sc.id, tabindex: '0', draggable: 'true', role: 'option', 'aria-selected': String(sc.id === selScene)}, [
+      var many = picked.frames.length > 1, inSel = many && picked.frames.indexOf(sc.id) >= 0;
+      var nameEl = h('b', {cls: 'si-name', text: sc.name, title: 'Double-click to rename'});
+      var li = h('li', {cls: 'scene-item' + (sc.id === selScene ? ' sel' : '') + (inSel ? ' picked' : '') + (isLive ? ' live' : '') + (isNext ? ' next' : '') + (sc.tpl ? ' tpl' : ''),
+        'data-id': sc.id, tabindex: '0', draggable: 'true', role: 'option', 'aria-selected': String(sc.id === selScene || inSel)}, [
         h('span', {cls: 'si-num', text: sc.tpl ? '◇' : String(n)}),
-        h('span', {cls: 'si-t'}, [h('b', {text: sc.name}), h('small', {text: sceneSub(sc)})]),
+        h('span', {cls: 'si-t'}, [nameEl, h('small', {text: sceneSub(sc)})]),
         isLive ? h('span', {cls: 'si-badge live', text: 'LIVE'}) : isNext ? h('span', {cls: 'si-badge next', text: 'NEXT'}) : null,
         h('button', {cls: 'ib si-fav' + (sc.fav ? ' on' : ''), type: 'button', title: sc.fav ? 'Remove from favourites' : 'Add to favourites', 'aria-label': 'Favourite', html: sc.fav ? '★' : '☆',
           onclick: function(e){ e.stopPropagation(); edit(sc.id, function(x){ x.fav = !x.fav; }); }}),
         h('button', {cls: 'ib si-more', type: 'button', title: 'Frame actions', 'aria-label': 'Frame actions', html: '⋯', onclick: function(e){ e.stopPropagation(); sceneMenu(sc.id, e.currentTarget); }}),
         qsPill(sc)]);
-      li.addEventListener('click', function(){ select(sc.id, null); });
-      li.addEventListener('dblclick', function(){ takeScene(sc.id); });
-      li.addEventListener('contextmenu', function(e){ e.preventDefault(); select(sc.id, null); sceneMenu(sc.id, li, e); });
+      li.addEventListener('click', function(e){ pickClick('frames', sc.id, e, ol); });
+      li.addEventListener('dblclick', function(e){ if (e.ctrlKey || e.metaKey || e.shiftKey || BSFEditable.active()) return; takeScene(sc.id); });   // double-click the name renames instead
+      BSFEditable.bind(nameEl, {value: function(){ var x = SC.find(live, sc.id); return x ? x.name : sc.name; }, maxLength: 80, label: 'Frame name',
+        save: function(v){ if (v) return edit(sc.id, function(x){ x.name = v.slice(0, 80); }); }});
+      li.addEventListener('contextmenu', function(e){ e.preventDefault(); if (picked.frames.indexOf(sc.id) < 0) pickOnly('frames', sc.id); if (picked.frames.length > 1) framesMenu(li, e); else { select(sc.id, null); sceneMenu(sc.id, li, e); } });
       li.addEventListener('keydown', function(e){
+        if (e.target !== li) return;
         if (e.key === 'Enter'){ e.preventDefault(); select(sc.id, null); }
-        if (e.key === 'ArrowDown' || e.key === 'ArrowUp'){ e.preventDefault(); e.stopPropagation(); var all = Array.prototype.slice.call(ol.querySelectorAll('.scene-item')), i = all.indexOf(li), j = all[i + (e.key === 'ArrowDown' ? 1 : -1)]; if (j){ j.focus(); select(j.dataset.id, null); } }
+        if (e.key === 'ArrowDown' || e.key === 'ArrowUp'){ e.preventDefault(); e.stopPropagation(); var all = Array.prototype.slice.call(ol.querySelectorAll('.scene-item')), i = all.indexOf(li), j = all[i + (e.key === 'ArrowDown' ? 1 : -1)];
+          if (j){ if (e.shiftKey) pickRange('frames', j.dataset.id, ol); else { pickOnly('frames', j.dataset.id); select(j.dataset.id, null); } focusItem(ol, j.dataset.id); } }
         if (e.key === 'F2'){ e.preventDefault(); renameScene(sc.id); }
-        if (e.key === 'Delete'){ e.preventDefault(); e.stopPropagation(); deleteScene(sc.id); }
+        listKeys(e, 'frames');
       });
-      li.addEventListener('dragstart', function(e){ dragScene = sc.id; e.dataTransfer.effectAllowed = 'move'; li.classList.add('drag'); });
+      li.addEventListener('dragstart', function(e){ dragScene = picked.frames.indexOf(sc.id) >= 0 && picked.frames.length > 1 ? orderedFrames(picked.frames) : [sc.id]; e.dataTransfer.effectAllowed = 'move'; li.classList.add('drag'); });
       li.addEventListener('dragend', function(){ li.classList.remove('drag'); });
       li.addEventListener('dragover', function(e){ if (dragScene) e.preventDefault(); });
-      li.addEventListener('drop', function(e){ e.preventDefault(); if (dragScene && dragScene !== sc.id) moveScene(dragScene, sc.id); dragScene = null; });
+      li.addEventListener('drop', function(e){ e.preventDefault(); if (dragScene && dragScene.indexOf(sc.id) < 0) moveScenes(dragScene, sc.id); dragScene = null; });
       ol.appendChild(li);
     });
   });
 }
 var dragScene = null;
-function moveScene(id, beforeId){
-  commit(function(n){
-    var a = n.scenes, i = a.findIndex(function(s){ return s.id === id; }); if (i < 0) return;
-    var s = a.splice(i, 1)[0], j = a.findIndex(function(x){ return x.id === beforeId; });
-    var target = SC.find(n, beforeId); if (target) s.group = target.group;
-    a.splice(j < 0 ? a.length : j, 0, s);
+function moveScene(id, beforeId){ return moveScenes([id], beforeId); }
+/* Several Frames move together, in their running order, to just before beforeId (and into its group) */
+function moveScenes(ids, beforeId){
+  return commit(function(n){
+    var a = n.scenes, target = SC.find(n, beforeId), moving = a.filter(function(s){ return ids.indexOf(s.id) >= 0; });
+    if (!moving.length) return;
+    n.scenes = a = a.filter(function(s){ return ids.indexOf(s.id) < 0; });
+    var j = a.findIndex(function(x){ return x.id === beforeId; });
+    moving.forEach(function(s){ if (target) s.group = target.group; });
+    a.splice.apply(a, [j < 0 ? a.length : j, 0].concat(moving));
   });
 }
 function shiftScene(id, d){
@@ -391,13 +592,12 @@ function sceneMenu(id, anchor, ev){
     '-',
     {icon: 'trash-2', text: 'Delete Frame', danger: true, run: function(){ deleteScene(id); }}], ev);
 }
-function renameScene(id){ var sc = SC.find(live, id); var n = prompt('Frame name:', sc.name); if (n && n.trim()) edit(id, function(x){ x.name = n.trim().slice(0, 80); }); }
-function deleteScene(id){
-  var sc = SC.find(live, id); if (!sc) return;
-  if (isLiveScene(id)){ toast('This Frame is live. Take another Frame live first.', true); return; }
-  if (!confirm('Delete the Frame “' + sc.name + '”? Its Content goes with it.')) return;
-  commit(function(n){ n.scenes = n.scenes.filter(function(s){ return s.id !== id; }); }).then(function(){ if (selScene === id){ var f = live.scenes[0]; select(f ? f.id : '', null); } toast('Frame deleted'); });
+/* Rename in place (the Frame's name in the list becomes an editor) */
+function renameScene(id){
+  if (selScene !== id) select(id, null);
+  setTimeout(function(){ var b = document.querySelector('#scene-list .scene-item[data-id="' + id + '"] .si-name'); if (b) b.dispatchEvent(new MouseEvent('dblclick', {bubbles: true})); }, 0);
 }
+function deleteScene(id){ deleteFrames([id]); }
 function explode(id, kind){
   var own = SC.first(SC.find(live, id), kind === 'verse' ? 'scripture' : 'question'), list = (own && own.c.items) || [];
   if (!list.length){ toast('The ' + (kind === 'verse' ? 'verse' : 'question') + ' list is empty.', true); return; }
@@ -473,9 +673,10 @@ function layerSub(sc, l){
 }
 function renderLayers(){
   var sc = scene(), ol = $('layer-list');
+  if (BSFEditable.within(ol)){ layerSig = ''; return; }
   $('layers-of').textContent = sc ? sc.name : '';
   var S = studio(), status = {}; if (S && isLiveScene(selScene)) S.layers.forEach(function(x){ status[x.id] = x.status; });
-  var sig = JSON.stringify([sc, selLayer, live.live.on, live.question.visible, live.verse.visible, live.birthday.visible, live.live.scene, live.question.text.length, live.verse.ref, live.birthday.name, status, live.brand]);
+  var sig = JSON.stringify([sc, selLayer, live.live.on, live.question.visible, live.verse.visible, live.birthday.visible, live.live.scene, live.question.text.length, live.verse.ref, live.birthday.name, status, live.brand, picked.layers]);
   if (sig === layerSig) return; layerSig = sig;
   ol.innerHTML = '';
   $('layer-add').disabled = !sc;
@@ -489,45 +690,53 @@ function renderLayers(){
     var lock = h('button', {cls: 'ib s2-lock' + (l.locked ? ' on' : ''), type: 'button', title: l.locked ? 'Unlock' : 'Lock', 'aria-label': l.locked ? 'Unlock' : 'Lock', html: I(l.locked ? 'lock' : 'lock-open', 14),
       onclick: function(e){ e.stopPropagation(); editLayer(sc.id, l.id, function(x){ x.locked = !x.locked; }); }});
     var name = h('span', {cls: 'li-name', text: l.name});
-    name.addEventListener('dblclick', function(e){ e.stopPropagation(); renameLayer(sc.id, l.id); });
-    var li = h('li', {cls: 'layer-item k-' + l.kind + (l.id === selLayer ? ' sel' : '') + (on && isLiveScene(sc.id) ? ' on' : '') + (!l.visible ? ' off' : '') + (SC.isMedia(l.kind) ? ' media' : ''),
-      'data-id': l.id, tabindex: '0', draggable: 'true', role: 'option', 'aria-selected': String(l.id === selLayer)}, [
+    BSFEditable.bind(name, {value: function(){ var x = SC.layer(SC.find(live, sc.id), l.id); return x ? x.name : l.name; }, maxLength: 60, label: 'Content name',
+      save: function(v){ if (v) return editLayer(sc.id, l.id, function(x){ x.name = v.slice(0, 60); }); }});
+    var lInSel = picked.layers.length > 1 && picked.layers.indexOf(l.id) >= 0;
+    var li = h('li', {cls: 'layer-item k-' + l.kind + (l.id === selLayer ? ' sel' : '') + (lInSel ? ' picked' : '') + (on && isLiveScene(sc.id) ? ' on' : '') + (!l.visible ? ' off' : '') + (SC.isMedia(l.kind) ? ' media' : ''),
+      'data-id': l.id, tabindex: '0', draggable: 'true', role: 'option', 'aria-selected': String(l.id === selLayer || lInSel)}, [
       h('span', {cls: 'li-n', text: 'L' + (i + 1)}), h('span', {cls: 'li-ic', html: I(SC.info[l.kind].icon, 16)}),
       h('span', {cls: 'li-t'}, [name, h('small', {text: (st.error ? '⚠ ' + st.error : layerSub(sc, l))})]),
       on && isLiveScene(sc.id) ? h('span', {cls: 'si-badge live', text: 'LIVE'}) : null, lock, eye]);
-    li.addEventListener('click', function(){ select(sc.id, l.id); });
-    li.addEventListener('contextmenu', function(e){ e.preventDefault(); select(sc.id, l.id); layerMenu(sc.id, l.id, li, e); });
+    li.addEventListener('click', function(e){ pickClick('layers', l.id, e, ol); });
+    li.addEventListener('contextmenu', function(e){ e.preventDefault(); if (picked.layers.indexOf(l.id) < 0) pickOnly('layers', l.id); if (picked.layers.length > 1) layersMenu(li, e); else { select(sc.id, l.id); layerMenu(sc.id, l.id, li, e); } });
     li.addEventListener('keydown', function(e){
+      if (e.target !== li) return;
       if (e.key === 'Enter'){ e.preventDefault(); select(sc.id, l.id); }
       if (e.key === 'F2'){ e.preventDefault(); renameLayer(sc.id, l.id); }
-      if (e.key === 'Delete'){ e.preventDefault(); e.stopPropagation(); deleteLayer(sc.id, l.id); }
-      if (e.key === 'ArrowDown' || e.key === 'ArrowUp'){ e.preventDefault(); e.stopPropagation(); var nx = sc.layers[i + (e.key === 'ArrowDown' ? 1 : -1)]; if (nx) select(sc.id, nx.id, true); }
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp'){ e.preventDefault(); e.stopPropagation(); var nx = sc.layers[i + (e.key === 'ArrowDown' ? 1 : -1)];
+        if (nx){ if (e.shiftKey) pickRange('layers', nx.id, ol); else { pickOnly('layers', nx.id); select(sc.id, nx.id, true); } focusItem(ol, nx.id); } }
+      listKeys(e, 'layers');
     });
-    li.addEventListener('dragstart', function(e){ dragLayer = l.id; e.dataTransfer.effectAllowed = 'move'; });
+    li.addEventListener('dragstart', function(e){ dragLayer = picked.layers.indexOf(l.id) >= 0 && picked.layers.length > 1 ? picked.layers.slice() : [l.id]; e.dataTransfer.effectAllowed = 'move'; });
     li.addEventListener('dragover', function(e){ if (dragLayer) e.preventDefault(); });
-    li.addEventListener('drop', function(e){ e.preventDefault(); if (dragLayer && dragLayer !== l.id) reorderLayer(sc.id, dragLayer, l.id); dragLayer = null; });
+    li.addEventListener('drop', function(e){ e.preventDefault(); if (dragLayer && dragLayer.indexOf(l.id) < 0) reorderLayers(sc.id, dragLayer, l.id); dragLayer = null; });
     ol.appendChild(li);
   });
   var mixed = sc.layers.some(function(l){ return SC.isMedia(l.kind); }) && sc.layers.some(function(l){ return !SC.isMedia(l.kind); });
   $('layers-note').textContent = mixed ? 'Questions, scriptures, birthdays and text always appear in front of camera and media Content.' : '';
 }
 var dragLayer = null;
-function reorderLayer(sid, id, beforeId){
-  edit(sid, function(sc){
-    var a = sc.layers, i = a.findIndex(function(l){ return l.id === id; }); if (i < 0) return;
-    var l = a.splice(i, 1)[0], j = a.findIndex(function(x){ return x.id === beforeId; });
-    a.splice(j < 0 ? a.length : j, 0, l);
+function reorderLayer(sid, id, beforeId){ return reorderLayers(sid, [id], beforeId); }
+function reorderLayers(sid, ids, beforeId){
+  return edit(sid, function(sc){
+    var moving = sc.layers.filter(function(l){ return ids.indexOf(l.id) >= 0; }); if (!moving.length) return;
+    var a = sc.layers = sc.layers.filter(function(l){ return ids.indexOf(l.id) < 0; });
+    var j = a.findIndex(function(x){ return x.id === beforeId; });
+    a.splice.apply(a, [j < 0 ? a.length : j, 0].concat(moving));
   });
 }
 function shiftLayer(sid, id, d){
   edit(sid, function(sc){ var a = sc.layers, i = a.findIndex(function(l){ return l.id === id; }), j = i + d; if (i < 0 || j < 0 || j >= a.length) return; var t = a[i]; a[i] = a[j]; a[j] = t; });
 }
-function renameLayer(sid, lid){ var l = SC.layer(SC.find(live, sid), lid); var n = prompt('Content name:', l.name); if (n && n.trim()) editLayer(sid, lid, function(x){ x.name = n.trim().slice(0, 60); }); }
+function renameLayer(sid, lid){
+  if (selScene !== sid || selLayer !== lid) select(sid, lid);
+  setTimeout(function(){ var b = document.querySelector('#layer-list .layer-item[data-id="' + lid + '"] .li-name'); if (b) b.dispatchEvent(new MouseEvent('dblclick', {bubbles: true})); }, 0);
+}
 function deleteLayer(sid, lid){
   var l = SC.layer(SC.find(live, sid), lid); if (!l) return;
   if (l.locked){ toast('Unlock the Content first.', true); return; }
-  edit(sid, function(sc, n){ if (n.live.scene === sid) SC.setOn(n, sid, lid, false); sc.layers = sc.layers.filter(function(x){ return x.id !== lid; }); }, 'Content deleted');
-  if (selLayer === lid) selLayer = null;
+  deleteLayers(sid, [lid]);
 }
 function duplicateLayer(sid, lid){
   var l = SC.layer(SC.find(live, sid), lid); if (!l) return;
@@ -560,6 +769,7 @@ function toggleLayer(sid, lid){
 }
 /* + Content: the content types, then Free Content */
 var CONTENT_ADD = [['question', 'Question', 'message-circle'], ['scripture', 'Scripture', 'book-open'], ['text', 'Text', 'type'],
+  ['discussion', 'Discussion topic', 'users'], ['icebreaker', 'Icebreaker', 'sparkles'], ['poll', 'Poll (show of hands)', 'list'],
   ['image', 'Image…', 'image'], ['video', 'Video…', 'film'], ['countdown', 'Timer', 'timer'], ['pptx', 'PowerPoint…', 'presentation']];
 var FREE_ADD = [['announcement', 'Announcement', 'megaphone'], ['prayer', 'Prayer Point', 'heart'], ['lowerthird', 'Lower Third', 'panel-bottom'], ['birthday', 'Birthday', 'cake'],
   ['brand', 'Branding (logo + Meeting Name)', 'star'], ['camera', 'Camera', 'video'], ['screen', 'Screen…', 'monitor'], ['window', 'Window (live PowerPoint or any app)…', 'app-window'],
@@ -575,8 +785,14 @@ $('layer-add').addEventListener('click', function(e){
   }
   menu($('layer-add'), [{label: 'Add to “' + sc.name + '”'}].concat(CONTENT_ADD.map(item), ['-', {label: 'Free Content'}], FREE_ADD.map(item)));
 });
+/* v6.7 text Content with a ready label: edit both on the canvas or in the list (double-click) */
+var TEXT_PRESETS = {
+  discussion: {name: 'Discussion', c: {title: 'Group Discussion', text: 'Talk together about what stood out to you.', label: true}},
+  icebreaker: {name: 'Icebreaker', c: {title: 'Opening Thought', text: 'Share one good thing from your week.', label: true}},
+  poll: {name: 'Poll', c: {title: 'Quick Poll', text: 'A.  Yes\nB.  No\nC.  Not sure yet\n\nRaise your hand, or type A, B or C in the chat.', label: true}}};
 function addLayer(what){
   var sc = scene(); if (!sc) return;
+  var preset = TEXT_PRESETS[what]; if (preset) what = 'announcement';
   var plainText = what === 'text';
   if (plainText) what = 'announcement';                         // Text = a text card (works on every output)
   var kind = what === 'logo' || what === 'watermark' ? 'image' : what === 'freetext' ? 'text' : what === 'pptx' ? 'pdf' : what;
@@ -608,6 +824,7 @@ function addLayer(what){
     return;
   }
   if (plainText) return put({name: 'Text', c: {title: '', text: '', label: false}});
+  if (preset) return put(JSON.parse(JSON.stringify(preset)));
   return put({});
 }
 function defaults(kind){
@@ -1034,6 +1251,7 @@ function migrate(){
 /* ===================================================================================================== */
 /* Render                                                                                                */
 /* ===================================================================================================== */
+window.addEventListener('bsf-edit-done', function(){ renderAll(); });
 function renderAll(force){
   if (!live) return;
   if (force){ sceneSig = ''; layerSig = ''; inspSig = ''; }

@@ -32,6 +32,15 @@ function toast(msg, bad){
   t.textContent = msg; t.className = 'toast show' + (bad ? ' bad' : '');
   clearTimeout(toastT); toastT = setTimeout(function(){ t.className = 'toast' + (bad ? ' bad' : ''); }, bad ? 4200 : 2200);
 }
+/* v6.7 a toast with one action (e.g. Undo after a delete); it stays a little longer */
+function toastAction(msg, label, run){
+  var t = $('toast'), b = document.createElement('button');
+  t.textContent = msg + ' '; t.className = 'toast show has-act';
+  b.type = 'button'; b.className = 'toast-act'; b.textContent = label;
+  b.addEventListener('click', function(){ clearTimeout(toastT); t.className = 'toast'; run(); });
+  t.appendChild(b);
+  clearTimeout(toastT); toastT = setTimeout(function(){ t.className = 'toast'; }, 7000);
+}
 function isOn(kind){ return !!(live && live[kind].visible && live[kind].text.trim()); }
 /* v6.5: lists belong to Frames. The editors show the selected Frame's list; Previous / Next step through the
  * list of the Frame on screen. */
@@ -63,7 +72,8 @@ window.BSFActions = {
   setMode: function(m){ setMode(m); }, mode: function(){ return live ? P.mode(live) : 'question'; },
   questionLive: function(){ return !!(live && P.live(live)); },
   current: function(k){ return liveIndexOf(k, live && live[k].itemId); },
-  toast: function(m, bad){ toast(m, bad); }
+  toast: function(m, bad){ toast(m, bad); },
+  toastAction: toastAction
 };
 
 /* ---------- Actions ----------

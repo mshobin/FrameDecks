@@ -372,6 +372,7 @@ function TextLayers(root){
   var shown = {};                                  // id -> {el, sig}
   function make(l){
     var card = el('section', 'card card-x card-' + l.kind + ' out');
+    card.setAttribute('data-layer', l.id);                    // v6.7 the canvas finds which Content to edit
     if (l.kind === 'brand'){                                  // v6.2 Branding: logo + Meeting Name (+ organization)
       var lg = document.createElement('img'); lg.className = 'brand-logo'; lg.alt = '';
       var bt = el('div', 'brand-t'), bn = el('b', 'brand-name'), bo = el('span', 'brand-org');

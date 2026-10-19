@@ -1095,3 +1095,35 @@ html.kc-native img{-webkit-user-drag:none}
 .pv-ed textarea{font-size:16px;line-height:1.4;resize:none;min-height:56px}
 .pv-ed textarea.serif{font-family:var(--serif,Georgia,serif)}
 .pv-acts{display:flex;justify-content:flex-end;gap:6px}
+
+/* ---------- v6.7 toast with an action (Undo) ---------- */
+.toast.has-act{pointer-events:auto;display:flex;align-items:center;gap:12px}
+.toast-act{font:inherit;font-weight:700;color:var(--accent);background:none;border:0;padding:2px 4px;cursor:pointer;border-radius:6px}
+.toast-act:hover,.toast-act:focus-visible{background:var(--accent-soft);outline:none}
+
+/* ---------- v6.7 Multi-select (Frames and Content lists) ---------- */
+.scene-item.picked,.layer-item.picked{background:var(--accent-soft);box-shadow:inset 3px 0 0 var(--accent)}
+.scene-item.pick-hover,.layer-item.pick-hover{background:var(--accent-soft)}
+.pick-box{position:fixed;z-index:60;border:1px solid var(--accent);background:rgba(76,141,255,.12);border-radius:4px;pointer-events:none}
+.scene-list,.layer-list{padding-bottom:28px}                 /* room to start a selection box below the last item */
+
+/* ---------- v6.7 EditableField (js/editable.js) ---------- */
+.ef-target{cursor:text}
+.ef-input{font:inherit;color:var(--ink);background:var(--field);border:1px solid var(--accent);border-radius:6px;padding:1px 6px;margin:-2px -7px;
+  box-shadow:0 0 0 3px var(--accent-soft);outline:none;box-sizing:border-box;width:calc(100% + 14px);min-width:0}
+.ef-input.ef-multi{resize:none;overflow:hidden;line-height:1.35;display:block}
+.ef-float .ef-input{margin:0;width:100%;padding:8px 10px;font-size:16px;line-height:1.4}
+.ef-float .ef-input.serif{font-family:var(--serif,Georgia,serif)}
+.ef-float textarea.ef-input{min-height:56px}
+.ef-row{display:flex;gap:6px}
+.ef-row .ef-input{flex:1 1 auto}
+.ef-menu{padding:10px 12px;min-width:240px}
+/* v6.7 Question / Scripture lists: labels always visible (a dimmed one comes from the Content); editor wider */
+.fl-list .fl-lbl.inherit{opacity:.55}
+.fl-list .fl-lbl.ef-target,.fl-list .t1.ef-target,.fl-list .t2.ef-target{border-radius:4px}
+.fl-list .ef-target:hover{background:var(--accent-soft)}
+.fl-ed-grid > .fl-sec:first-child{grid-column:1 / -1}
+.fl-ed-grid > .fl-sec:first-child textarea{min-height:120px;font-size:16px;line-height:1.45}
+.fl-ed-grid > .fl-sec:first-child input[type=text]{font-size:15px}
+/* v6.7 the overlay page laid out invisibly over the live picture, to find the card under a double-click */
+.pv-measure{position:absolute;width:1920px;height:1080px;border:0;transform-origin:0 0;opacity:0;pointer-events:none;z-index:0}
