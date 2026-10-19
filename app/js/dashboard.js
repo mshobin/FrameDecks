@@ -447,6 +447,7 @@ function setup(){
     else if (a === 'prevScene' && window.BSFWorkspace) window.BSFWorkspace.step(-1);
     else if (a === 'presentMode' && window.BSFPresentation) window.BSFPresentation(!document.body.classList.contains('pm'));
     else if ((a === 'annotate' || a === 'freeze' || a === 'blackout') && window.BSFPresenterTools) window.BSFPresenterTools[a]();
+    else if (a === 'prompter' && window.BSFTeleprompter) window.BSFTeleprompter.toggle();
   });
 
   buildTransitionExtras();

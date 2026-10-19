@@ -1,11 +1,12 @@
-/* Kingdom Connect v6.6 - Speaker View (speaker.html, this PC only).
+/* Kingdom Connect v6.7 - the Teleprompter window (speaker.html, this PC only; it was the 6.6 Speaker View).
  *
- * Follows the shared state like every other page: the live Frame, the question or scripture on screen with its
- * answer and notes, the next item (or the next Frame) and the Frame's own notes, plus the time of day, how long this
- * Frame has been on screen and a stopwatch. It only reads; nothing on this page changes the meeting. */
+ * Follows the shared state like every other page: the Frame on screen (or the first Frame, to rehearse before the
+ * meeting) and its Teleprompter script, what is on screen now (the question or scripture, never answers or notes),
+ * what comes next, plus the time of day, how long this Frame has been on screen and a stopwatch.
+ * The only change it can make is to the Frame's script (double-click to edit). */
 (function(){
 'use strict';
-var Store = window.BSFStore, SC = window.BSFScenes;
+var Store = window.BSFStore, SC = window.BSFScenes, P = window.BSFPrompter;
 var $ = function(id){ return document.getElementById(id); };
 function h(tag, attrs, kids){
   var el = document.createElement(tag);
@@ -15,6 +16,11 @@ function h(tag, attrs, kids){
 }
 var live = null, sig = '';
 var KIND = {question: {one: 'Question', layer: 'question'}, verse: {one: 'Scripture', layer: 'scripture'}};
+
+/* the Teleprompter itself (shared with the main window and the phone) */
+var prompter = P.create($('sp-prompt'), {key: 'window', editable: true, edit: function(sid, text){
+  return Store.update(function(n){ var sc = SC.find(n, sid); if (!sc) return; sc.notes = String(text || '').slice(0, 20000); SC.stamp(sc); });
+}});
 
 /* the Frame's list, and the item it is on: the one on screen, else the Frame's current one, else the first */
 function listOf(st, sc, kind){ var l = sc && SC.first(sc, KIND[kind].layer); return l && Array.isArray(l.c.items) ? {l: l, items: l.c.items} : null; }
@@ -28,32 +34,26 @@ function currentIn(st, sc, kind){
 }
 function title(kind, it){ return kind === 'verse' ? (it.ref || 'Scripture') + (it.version ? ' · ' + it.version : '') : (it.text || '(empty question)'); }
 function para(text, cls){ return h('p', {cls: cls}, [String(text || '')]); }
-function noteBox(label, text, empty, cls){
-  return h('div', {cls: 'sp-box ' + (cls || '') + (text ? '' : ' empty')}, [h('span', {cls: 'sp-lbl', text: label}), para(text || empty, 'sp-note')]);
-}
 
+/* what is on screen: the question or scripture only (answers and notes are gone in 6.7) */
 function itemCard(c){
   var it = c.it, n = c.items.length, head = [h('span', {cls: 'sp-kind', text: KIND[c.kind].one + ' ' + (c.i + 1) + ' of ' + n})];
   if (it.label) head.push(h('span', {cls: 'sp-label', text: it.label}));
   head.push(c.onScreen ? h('span', {cls: 'sp-chip on', text: 'On screen'}) : h('span', {cls: 'sp-chip', text: 'Ready'}));
   var body = [h('div', {cls: 'sp-item-head'}, head)];
-  if (c.kind === 'question'){
-    body.push(para(it.text || '(empty question)', 'sp-q'));
-    body.push(noteBox('Answer', it.answer, 'No answer written for this question.', 'sp-answer'));
-  } else {
-    body.push(h('p', {cls: 'sp-ref', text: title('verse', it)}));
-    body.push(para(it.text || '(no text yet)', 'sp-verse'));
-  }
-  body.push(noteBox('Notes', it.note, 'No notes.'));
+  if (c.kind === 'question') body.push(para(it.text || '(empty question)', 'sp-q'));
+  else { body.push(h('p', {cls: 'sp-ref', text: title('verse', it)})); body.push(para(it.text || '(no text yet)', 'sp-verse')); }
   return h('article', {cls: 'sp-item' + (c.onScreen ? ' on' : '')}, body);
 }
+/* the Frame the Teleprompter shows: the one on screen, else the first (rehearse before going live) */
+function shown(st){ return SC.liveScene(st) || SC.order(st)[0] || null; }
 
 function render(st){
   var sc = SC.liveScene(st), order = SC.order(st), pos = sc ? order.findIndex(function(x){ return x.id === sc.id; }) : -1;
-  var m = (st.meeting && st.meeting.title) || (st.brand && st.brand.meeting) || 'Speaker View';
+  var m = (st.meeting && st.meeting.title) || (st.brand && st.brand.meeting) || 'Teleprompter';
   $('sp-meeting').textContent = m;
-  document.title = 'Speaker View · ' + m;
-  $('sp-frame-pos').textContent = sc ? (sc.name + (pos >= 0 ? ' · Frame ' + (pos + 1) + ' of ' + order.length : '')) : 'Nothing on screen';
+  document.title = 'Teleprompter · ' + m;
+  $('sp-frame-pos').textContent = sc ? (sc.name + (pos >= 0 ? ' · Frame ' + (pos + 1) + ' of ' + order.length : '')) : 'Nothing on screen · rehearsing';
   // status
   var L = st.live, chips = $('sp-chips'); chips.innerHTML = '';
   chips.appendChild(h('span', {cls: 'sp-chip ' + (sc ? 'live' : ''), text: sc ? 'LIVE' : 'OFF AIR'}));
@@ -61,12 +61,12 @@ function render(st){
   if (L.emergency) chips.appendChild(h('span', {cls: 'sp-chip bad', text: 'EMERGENCY'}));
   if (L.freeze) chips.appendChild(h('span', {cls: 'sp-chip warn', text: 'FROZEN'}));
   if (L.ink && L.ink.on) chips.appendChild(h('span', {cls: 'sp-chip warn', text: 'DRAWING'}));
-  // now
+  // on screen
   var now = $('sp-now'); now.innerHTML = '';
   var cur = sc ? ['question', 'verse'].map(function(k){ return currentIn(st, sc, k); }).filter(Boolean) : [];
   cur.sort(function(a, b){ return b.onScreen - a.onScreen; });                 // what is on screen first
   if (!sc) now.appendChild(h('p', {cls: 'sp-empty', text: 'Nothing is on screen yet. Go Live in the main window, and this page follows.'}));
-  else if (!cur.length) now.appendChild(h('p', {cls: 'sp-empty', text: '“' + sc.name + '” has no questions or scriptures. ' + (SC.liveText(st).length ? 'Its text Content is on screen.' : '')}));
+  else if (!cur.length) now.appendChild(h('p', {cls: 'sp-empty', text: '“' + sc.name + '” has no questions or scriptures.' + (SC.liveText(st).length ? ' Its text Content is on screen.' : '')}));
   cur.forEach(function(c){ now.appendChild(itemCard(c)); });
   // next: the next item in this Frame, then the next Frame
   var nx = $('sp-next'); nx.innerHTML = '';
@@ -82,10 +82,6 @@ function render(st){
     nx.appendChild(h('div', {cls: 'sp-box sp-next-frame'}, [h('span', {cls: 'sp-lbl', text: 'Next Frame'}), h('p', {cls: 'sp-next-name', text: nf.name}),
       first ? para(KIND[first.k].one + ': ' + title(first.k, first.it), 'sp-note') : null]));
   } else if (!(main && main.i + 1 < main.items.length)) nx.appendChild(h('p', {cls: 'sp-empty', text: 'This is the last Frame.'}));
-  // Frame notes
-  var fn = $('sp-fnotes'); fn.innerHTML = '';
-  fn.appendChild(noteBox('Leader notes', sc && sc.notes, sc ? 'No notes for this Frame.' : '—'));
-  if (st.meeting && st.meeting.notes) fn.appendChild(noteBox('Meeting notes', st.meeting.notes, ''));
 }
 
 /* ---------- clocks ---------- */
@@ -109,8 +105,9 @@ Store.subscribe(function(st){
   live = st;
   var sc = SC.liveScene(st);
   var s = JSON.stringify([st.live.scene, st.live.blackout, st.live.emergency, st.live.freeze, st.live.ink && st.live.ink.on, st.question, st.verse,
-    sc, (SC.neighbour(st, st.live.scene, 1) || {}).id, st.meeting, st.brand && st.brand.meeting, st.scenes.length]);
+    sc, (SC.neighbour(st, st.live.scene, 1) || {}).id, st.meeting && st.meeting.title, st.brand && st.brand.meeting, st.scenes.length]);
   if (s !== sig){ sig = s; render(st); }
+  prompter.update(st, shown(st));                                       // cheap: it redraws only when the script changes
   tick();
 });
 Store.start();

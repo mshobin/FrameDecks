@@ -118,19 +118,19 @@ document.addEventListener('keydown', function(e){
 
 $('lb-annotate').addEventListener('click', function(){ setAnnotate(!annotating()); });
 $('lb-freeze').addEventListener('click', function(){ setFreeze(!(live && live.live.freeze)); });
-/* Speaker View: its own window in the desktop app; a pop-up window in a browser (opened inside the click) */
+/* Teleprompter window (the old Speaker View): its own window in the desktop app; a pop-up window in a browser (opened inside the click) */
 var speakerWin = null;
 function openSpeaker(){
   var app = window.BSFAppInfo;
   if (!(app && app.desktop)){
     if (speakerWin && !speakerWin.closed){ speakerWin.focus(); return; }
     speakerWin = window.open('speaker.html', 'kc-speaker', 'popup,width=1200,height=780');
-    if (!speakerWin) toast('Allow pop-ups for this page to open the Speaker View', true);
+    if (!speakerWin) toast('Allow pop-ups for this page to open the Teleprompter window', true);
     return;
   }
   fetch('api/app/speaker', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: '{}'}).then(function(r){ return r.json(); })
-    .then(function(d){ toast(d.desktop ? 'Speaker View is open. Move it to a second screen if you have one.' : 'Speaker View could not open', !d.desktop); })
-    .catch(function(){ toast('Speaker View could not open', true); });
+    .then(function(d){ toast(d.desktop ? 'The Teleprompter window is open. Move it to a second screen if you have one.' : 'The Teleprompter window could not open', !d.desktop); })
+    .catch(function(){ toast('The Teleprompter window could not open', true); });
 }
 var spk = $('lb-speaker'); if (spk) spk.addEventListener('click', openSpeaker);
 

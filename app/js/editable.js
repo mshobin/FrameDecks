@@ -9,6 +9,7 @@
  *
  * opts: value, multiline, placeholder, maxLength, label (accessible name), title (heading shown in a float),
  *       fields (float only: extra one-line fields [{key, value, placeholder, label, width}]),
+ *       enterNewline (long texts such as a teleprompter script: Enter = new line, Ctrl+Enter saves),
  *       save(value, extra) -> promise | value   called only when something changed,
  *       cancel(), done()                         after closing either way. */
 (function(){
@@ -47,7 +48,10 @@ function session(o, root, fields, restore){
     f.el.addEventListener('keydown', function(e){
       e.stopPropagation();                                         // meeting shortcuts stay quiet while typing
       if (e.key === 'Escape'){ e.preventDefault(); close(false); }
-      else if (e.key === 'Enter' && !e.isComposing && !(e.shiftKey && f.multiline)){ e.preventDefault(); close(true); }
+      else if (e.key === 'Enter' && !e.isComposing){
+        var newline = f.multiline && (e.shiftKey || (o.enterNewline && !(e.ctrlKey || e.metaKey)));   // scripts: Enter = new line, Ctrl+Enter saves
+        if (!newline){ e.preventDefault(); close(true); }
+      }
     });
     f.el.addEventListener('keyup', function(e){ e.stopPropagation(); });
     if (f.multiline) f.el.addEventListener('input', function(){ fit(f.el); });

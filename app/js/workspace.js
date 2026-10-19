@@ -983,10 +983,12 @@ function sceneForm(gen, sc, tab){
 /* ---------- Text layers ---------- */
 var POS_NAMES = {top: 'Top', center: 'Centre', bottom: 'Bottom', 'lower-left': 'Lower left', 'lower-right': 'Lower right', 'upper-left': 'Upper left', 'upper-right': 'Upper right'};
 function notesCtl(sc){
-  var ta = h('textarea', {rows: sc.notes ? 3 : 2, 'aria-label': 'Leader notes', placeholder: 'Notes for you (never shown on screen)'}); ta.value = sc.notes || '';
+  /* 6.7: the Frame's notes are its Teleprompter script (only you see it; no output ever reads it) */
+  var ta = h('textarea', {cls: 'tp-script-in', rows: 8, 'aria-label': 'Teleprompter script', placeholder: 'What you want to say on this Frame. Only you see it, in the Teleprompter.'}); ta.value = sc.notes || '';
   ta.addEventListener('keydown', stop);
-  ta.addEventListener('input', function(){ var v = ta.value; later('notes', function(){ edit(sc.id, function(x){ x.notes = v.slice(0, 2000); }); }); });
-  return field('Leader notes', ta);
+  ta.addEventListener('input', function(){ var v = ta.value; later('notes', function(){ edit(sc.id, function(x){ x.notes = v.slice(0, 20000); }); }); });
+  var open = h('button', {cls: 'btn small', type: 'button', text: 'Open the Teleprompter', onclick: function(e){ e.preventDefault(); if (window.BSFTeleprompter) window.BSFTeleprompter.open(); }});
+  return h('div', {cls: 'tp-script-field'}, [field('Teleprompter script', ta, '# Heading · - bullet · **bold** · *italic* · [PAUSE] cue · --- divider. Never shown to the audience.'), open]);
 }
 function brandStatus(){
   var b = live.brand, bits = [b.logo ? 'logo' : '', b.meeting ? '“' + b.meeting + '”' : '', b.org ? '“' + b.org + '”' : ''].filter(Boolean);

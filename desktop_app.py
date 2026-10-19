@@ -435,7 +435,7 @@ def main():
         refresh_tray()
 
     def speaker():
-        """v6.6 Speaker View: answers, notes, what comes next and a clock, in a window of its own (never shared)."""
+        """v6.7 Teleprompter window: the Frame script, what comes next and a clock, in a window of its own (never shared)."""
         w = state.get("speaker")
         if w:
             try:
@@ -444,7 +444,7 @@ def main():
                 return
             except Exception:
                 state["speaker"] = None
-        w = webview.create_window(DISPLAY_NAME + " · Speaker View", url + "speaker.html", width=1200, height=780,
+        w = webview.create_window(DISPLAY_NAME + " · Teleprompter", url + "speaker.html", width=1200, height=780,
                                   min_size=(640, 420), background_color="#0b0e13", text_select=True)
         def closed():
             if state.get("speaker") is w:

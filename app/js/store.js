@@ -344,7 +344,7 @@ function cleanScene(sc){
   return {id: str(sc.id || rid('sc_'), 40), name: str(sc.name || 'Frame', 80), group: str(sc.group, 60), fav: !!sc.fav, tpl: !!sc.tpl,
     created: Number(sc.created) || 0, modified: Number(sc.modified) || 0, version: Math.max(1, Number(sc.version) || 1),
     creator: str(sc.creator, 80), from: str(sc.from, 80), template: str(sc.template, 80), parent: str(sc.parent, 40),
-    notes: str(sc.notes, 2000),                                   /* v6.2 leader notes (Excel import), never on screen */
+    notes: str(sc.notes, 20000),                                  /* the Teleprompter script (6.7; v6.2 leader notes), never on screen */
     tx: {type: tx.type === 'profile' || TX_IDS.indexOf(tx.type) >= 0 ? tx.type : 'profile', ms: num(tx.ms, 0, 5000, 500)},
     auto: {on: !!auto.on, sec: num(auto.sec, 2, 3600, 30)},
     out: {vcam: true, obs: true},

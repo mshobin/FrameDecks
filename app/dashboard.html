@@ -8,6 +8,7 @@
 <link rel="stylesheet" href="css/members.css">
 <link rel="stylesheet" href="css/console.css">
 <link rel="stylesheet" href="css/theme.css">
+<link rel="stylesheet" href="css/teleprompter.css">
 <link rel="stylesheet" href="css/about.css">
 <script>/* Appearance before the first paint (Settings > General > Appearance): dark (default), light or match Windows */
 (function(){ var d = document.documentElement, p = 'dark';
@@ -59,14 +60,15 @@
     <button class="cb-btn" type="button" data-cb="slide" data-step="1" aria-label="Next slide">▶</button>
   </div>
     <div class="lb-prog" id="lb-prog">
-    <button class="cb-btn lb-prog-btn" type="button" id="lb-prog-btn" aria-haspopup="true" aria-expanded="false" aria-controls="lb-prog-menu" title="Hide, Blackout, Emergency, Annotate, Freeze, Speaker View">Program ▾</button>
+    <button class="cb-btn lb-prog-btn" type="button" id="lb-prog-btn" aria-haspopup="true" aria-expanded="false" aria-controls="lb-prog-menu" title="Hide, Blackout, Emergency, Annotate, Freeze, Teleprompter">Program ▾</button>
     <div class="lb-prog-menu" id="lb-prog-menu" role="group" aria-label="Program">
   <button class="cb-btn" type="button" id="lb-hide-layer" aria-label="Hide the selected Content">Hide Content</button>
   <button class="cb-btn lb-black" type="button" id="lb-blackout" aria-pressed="false" title="Black picture on KingdomConnect and the overlay page">Blackout</button>
   <button class="cb-btn lb-emerg" type="button" id="lb-emergency" aria-pressed="false" title="Emergency screen with your message">Emergency</button>
   <button class="cb-btn lb-ann" type="button" id="lb-annotate" aria-pressed="false" title="Annotate: draw on the picture (D)">Annotate</button>
   <button class="cb-btn lb-frz" type="button" id="lb-freeze" aria-pressed="false" title="Freeze: hold the picture (F)">Freeze</button>
-  <button class="cb-btn lb-spk" type="button" id="lb-speaker" title="Speaker View: the answer, your notes, what comes next and a clock, on this PC only">Speaker View</button>
+  <button class="cb-btn lb-tp" type="button" id="lb-prompter" aria-pressed="false" title="Teleprompter: the Frame's script, docked in this window. Only you see it (R)">Teleprompter</button>
+  <button class="cb-btn lb-spk" type="button" id="lb-speaker" title="Teleprompter window: the script, what comes next and a clock, in its own window for a second screen. Never shown to the audience">Teleprompter window</button>
     </div>
   </div>
   <button class="cb-btn hide" type="button" data-cb="hideAll" aria-label="Hide all Content">Hide all<kbd class="key" data-sc="hideAll">Esc</kbd></button>
@@ -501,6 +503,8 @@
 <script src="js/scripture.js"></script>
 <script src="js/workspace.js"></script>
 <script src="js/annotate.js"></script>
+<script src="js/teleprompter.js"></script>
+<script src="js/prompter-dock.js"></script>
 <script src="js/preview-edit.js"></script>
 <script src="js/panels.js"></script>
 <script src="js/nav.js"></script>
