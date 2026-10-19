@@ -1,7 +1,7 @@
 # Presentations: running the service live
 
 Everything you need while the meeting is happening: going live, moving through Frames, handling the unexpected and
-keeping your notes in view.
+keeping your script in view.
 
 **Who this is for:** service operators, worship leaders and small-group leaders who run the screen during a service
 or meeting.
@@ -14,7 +14,8 @@ or meeting.
 - [Transitions](#transitions)
 - [When something goes wrong: Hide all, Blackout, Emergency, Freeze](#when-something-goes-wrong-hide-all-blackout-emergency-freeze)
 - [Annotate: draw on the picture](#annotate-draw-on-the-picture)
-- [Speaker View](#speaker-view)
+- [Teleprompter](#teleprompter)
+- [Command palette](#command-palette)
 - [Projector, TV and screen sharing](#projector-tv-and-screen-sharing)
 - [Keyboard shortcuts](#keyboard-shortcuts)
 - [Live-safety tips](#live-safety-tips)
@@ -49,7 +50,8 @@ The **Studio Canvas** always tells you whether you are looking at the screen peo
 | **LIVE** | This is what Zoom, Teams, the projector and OBS show right now |
 
 1. Select a Frame in the **Frames** list. The canvas previews it.
-2. Check it, then select **Go Live** (or press **T**). You can also double-click the Frame.
+2. Check it, then select **Go Live** (or press **T**). You can also double-click the Frame's row. Double-clicking
+   the Frame's **name** renames it instead.
 3. The Frame is marked **LIVE** in the list and the next Frame is marked **NEXT**.
 
 > **Tip:** You can edit a Frame that is not live while another Frame is live. Prepare the next Frame calmly while the
@@ -87,7 +89,9 @@ A Frame with a Question or Scripture list shows one item at a time.
 - **Scripture**: the scripture only.
 
 > **Tip:** Found a typo while it is on screen? Double-click the card on the Studio Canvas, correct it and press
-> **Enter**. The screen updates immediately.
+> **Enter**. The screen updates immediately. This works for every card: question, scripture, announcement, prayer,
+> discussion topic, icebreaker, poll, lower third and timer. Double-click the card's label (its top line) to change
+> the label.
 
 ![Editing a question directly on the Studio Canvas](images/canvas-edit.png)
 
@@ -110,7 +114,7 @@ A Frame with a Question or Scripture list shows one item at a time.
 | **Freeze** | **F** | The picture held still | You are changing things and do not want people to see it |
 | **Hide Content** | — | The selected Content is hidden | One item should go away, the rest stays |
 
-Blackout, Emergency, Annotate, Freeze and Speaker View are in the **Program** menu. The menu button changes to
+Blackout, Emergency, Annotate, Freeze, the Teleprompter and the Teleprompter window are in the **Program** menu. The menu button changes to
 **BLACKOUT ▾**, **EMERGENCY ▾**, **FROZEN ▾** or **ANNOTATING ▾** so you never forget one is on. Press the same
 control again to turn it off.
 
@@ -143,19 +147,74 @@ drawing. You can draw on a frozen picture.
 
 You can also draw with your finger on the phone. See [Remote control](remote-control.md#drawing-from-the-phone).
 
-## Speaker View
+## Teleprompter
 
-The **Speaker View** is a window only you see. It is ideal on a second monitor, or beside Zoom on a laptop.
+The **Teleprompter** shows what you plan to say on each Frame. Only you see it. It is never on the KingdomConnect
+camera, the Presentation window, the OBS pages or the phone's drawing pad.
 
-Open it with **Program → Speaker View**. It shows:
-- the question or scripture on screen now, with its **Answer** and **Notes**;
-- what comes **next**: the next item, then the next Frame;
-- the Frame's **Leader notes** and the meeting notes;
-- the **time**, how long this Frame has been on screen, and a **Timer** you can start, pause and reset.
+**Write the script**
+- Each Frame has its own **Teleprompter script**: Content Settings → **Frame → Teleprompter script** (up to 20,000
+  characters). In 6.6 this field was called *Leader notes*.
+- Or double-click the text in the Teleprompter (or select **✎**) and type there.
+- Simple markup, all optional:
 
-It follows the meeting by itself. It cannot change what is on screen, so you cannot press anything by mistake.
+| Type | You get |
+| --- | --- |
+| `# Heading` | A heading |
+| `- bullet` | A bullet point |
+| `**bold**` · `*italic*` | **Bold** · *italic* |
+| `[PAUSE]` | A cue chip, such as a reminder to pause or pray |
+| `---` | A divider line |
 
-![The Speaker View: the question on screen with its answer and notes, the next Frame and a clock](images/speaker-view.png)
+**Open it in the Studio**
+1. Choose **Program → Teleprompter**, or press **R**.
+2. Dock it **Left**, **Right** or **Bottom** of the Studio, or **Float** it. Drag its edge to resize it.
+3. **Follows: Live** shows the script of the Frame on screen. **Follows: Selected** shows the Frame you selected,
+   so you can read ahead or rehearse.
+
+![The Teleprompter docked on the right of the Studio](images/teleprompter.png)
+
+**Open it in its own window**
+**Program → Teleprompter window** (called *Speaker View* in 6.6) opens the Teleprompter in a separate window, ideal
+on a second monitor or beside Zoom on a laptop. It also shows the clocks, a **Timer**, what is on screen now and what
+comes next.
+
+![The Teleprompter window: the script, what is on screen, what comes next and a clock](images/speaker-view.png)
+
+**Controls**
+
+| Control | Key (while the Teleprompter has focus) |
+| --- | --- |
+| Scroll: play / pause | **Space** |
+| Speed: Very slow, Slow, Normal, Fast, Very fast | — |
+| Text smaller / larger (**A−** / **A+**) | **−** / **+** |
+| Line spacing, high contrast | — |
+| Focus mode | **F** |
+| Back to the top | **Home** |
+| Scroll by hand | **↑ ↓**, **Page Up / Page Down**, the mouse wheel or touch |
+
+The cue line at the top shows **Frame 3 of 9**, **LIVE** when that Frame is on screen, the next Frame, and the next
+question or scripture.
+
+> **Note:** Answers and presenter notes on questions and scriptures were removed in 6.7. Nothing was deleted from
+> your data. Put what you want to remember in the Frame's Teleprompter script.
+
+On the phone, the Teleprompter is on the remote too. See [Remote control](remote-control.md#teleprompter-on-the-phone).
+
+## Command palette
+
+The **command palette** finds anything and does most things, from the keyboard.
+
+1. Press **Ctrl+K** or **Ctrl+Space**, or select the search box in the command bar.
+2. Type a few letters. It finds Frames, Content, the Frames' questions and scriptures, text, templates, the Library,
+   branding, settings, members, Bible references and recent items.
+3. It also runs commands, such as **Go Live**, **New Frame**, **Duplicate**, **Teleprompter**, **Export meeting**,
+   switching the theme or **Add Content…**.
+4. Use **↑ / ↓** to choose and **Enter** to open or run it. **Esc** closes the palette.
+
+![The command palette, with "bible" typed](images/command-palette.png)
+
+You can change the keys in **Settings → Keyboard shortcuts → Command palette**.
 
 ## Projector, TV and screen sharing
 
@@ -191,9 +250,13 @@ meeting shortcuts in **Settings**.
 | **F** | Freeze on / off |
 | **D** | Annotate on / off |
 | **P** | Presentation Mode on / off |
-| **Ctrl + K** | Search |
+| **R** | Teleprompter on / off |
+| **Ctrl + K** or **Ctrl + Space** | Command palette |
 | **F2** | Rename the selected Frame or Content |
-| **Ctrl + D** | Duplicate the selected Frame |
+| **Ctrl + D** | Duplicate the selected Frame or Content |
+| **Ctrl + C** · **Ctrl + X** · **Ctrl + V** | Copy · cut · paste the selected Frames or Content |
+| **Ctrl + A** | Select every Frame (or every Content) in the list |
+| **Delete** / **Backspace** | Delete the selected Frames or Content (Undo is offered) |
 | **Alt + 1 / 3 / 4** | Studio / Members / Settings |
 
 ## Live-safety tips

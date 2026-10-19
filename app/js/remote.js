@@ -215,6 +215,37 @@ window.addEventListener('resize', scale);
 if (window.ResizeObserver) new ResizeObserver(scale).observe($('canvas'));
 
 /* ---------- Render ---------- */
+/* 6.7 Teleprompter: the Frame's script (only you see it). Built the first time it is opened; full screen on request
+ * (the simple remote opens it straight to full screen). */
+var tp = null, tpFrame = null, tpFullBtn = null, tpHome = null;
+function prompterShow(sc){
+  var box = $('now-tp'); if (!box || !window.BSFPrompter) return;
+  tpFrame = sc || null; box.hidden = !sc && !box.classList.contains('full');
+  if (tp && box.open) tp.update(live, tpFrame);
+}
+function prompterFull(on){
+  var box = $('now-tp'); if (!box) return;
+  if (on){ tpHome = tpHome || box.parentNode; document.body.appendChild(box); box.hidden = false; box.open = true; }
+  else if (tpHome){ tpHome.appendChild(box); box.hidden = !tpFrame; }
+  box.classList.toggle('full', on);
+  if (tpFullBtn){ tpFullBtn.textContent = on ? '✕' : '⤢'; tpFullBtn.title = on ? 'Close full screen' : 'Full screen'; tpFullBtn.setAttribute('aria-label', tpFullBtn.title); }
+  if (tp && live) tp.update(live, tpFrame);
+}
+(function(){
+  var box = $('now-tp'); if (!box || !window.BSFPrompter) return;
+  try { box.open = localStorage.getItem('kc-tp-remote-open') === '1'; } catch(e){}
+  box.addEventListener('toggle', function(){
+    if (!box.classList.contains('full')) try { localStorage.setItem('kc-tp-remote-open', box.open ? '1' : '0'); } catch(e){}
+    if (box.open && !tp){
+      tpFullBtn = document.createElement('button'); tpFullBtn.type = 'button'; tpFullBtn.className = 'tp-btn tp-full'; tpFullBtn.textContent = '⤢'; tpFullBtn.title = 'Full screen'; tpFullBtn.setAttribute('aria-label', 'Full screen');
+      tpFullBtn.addEventListener('click', function(){ prompterFull(!box.classList.contains('full')); });
+      tp = window.BSFPrompter.create($('now-tp-body'), {key: 'remote', compact: true, extra: [tpFullBtn]});
+    }
+    if (tp){ if (box.open && live) tp.update(live, tpFrame); else tp.play(false); }
+  });
+  var sb = $('sr-prompter'); if (sb) sb.addEventListener('click', function(){ prompterFull(true); });
+})();
+
 function render(){
   if (!live) return;
   var ls = SC.liveScene(live), L = live.live;
@@ -246,10 +277,8 @@ function render(){
   $('annotate').setAttribute('aria-pressed', String(inkOn)); $('annotate').classList.toggle('on', inkOn);
   $('freeze').setAttribute('aria-pressed', String(!!L.freeze)); $('freeze').classList.toggle('on', !!L.freeze);
   $('rehearse').setAttribute('aria-pressed', String(rehearse));
-  var ns = rehearse && selScene ? SC.find(live, selScene) : ls;               // presenter notes of the Frame (and its current question)
-  var cq = ls && SC.itemById(live, 'question', live.question.itemId);
-  var notes = [ns && ns.notes, cq && cq.note ? 'Question: ' + cq.note : '', cq && cq.answer ? 'Answer: ' + cq.answer : ''].filter(Boolean).join('\n');
-  $('now-notes').hidden = !notes; setText($('now-notes'), notes);
+  var ns = rehearse && selScene ? SC.find(live, selScene) : ls;               // the Frame's teleprompter script (6.7)
+  prompterShow(ns);
   // Q + Scripture
   var q = ls && SC.first(ls, 'question'), v = ls && SC.first(ls, 'scripture');
   $('qs').hidden = !(q && v);

@@ -84,12 +84,12 @@ Remote.bat`, `Start BSF Command Center (Mac).command`) run `server.py` the same 
 | Path | What lives there |
 | --- | --- |
 | `server.py` | The local program: HTTP server on 127.0.0.1, the shared state, uploads, scripture lookup, backups, the phone remote (PIN, sessions, allow-list) and `APP_VERSION`. |
-| `desktop_app.py` | The Windows app shell: pywebview window, tray icon, close-to-background, the Presentation and Speaker View windows. |
+| `desktop_app.py` | The Windows app shell: pywebview window, tray icon, close-to-background, the Presentation and Teleprompter windows. |
 | `app/` | The web interface, served as static files. No build step and no npm packages. |
 | `app/dashboard.html` | The main window (Studio · Members · Settings). |
 | `app/remote.html` | The phone and tablet remote. |
 | `app/stage.html`, `focus-verse.html`, `discussion-question.html`, `birthday.html` | Overlay pages for OBS and browser sources; the Studio Canvas preview uses `stage.html`. |
-| `app/present.html`, `app/speaker.html` | The Presentation window fallback and the Speaker View. |
+| `app/present.html`, `app/speaker.html` | The Presentation window fallback and the Teleprompter window (called Speaker View before 6.7). |
 | `app/js/store.js` | The shared state: defaults, `normalize`, the Frame helpers (`BSFScenes`), syncing with `server.py`. |
 | `app/js/workspace.js` | Frames, Content, the Content Settings panel and the Studio Canvas. |
 | `app/js/frame-lists.js` | A Frame's own question and scripture lists, and the in-panel editor. |
@@ -114,7 +114,7 @@ flowchart LR
   Remote["Phone remote"] -- "Store.update" --> Store
   Store -- "POST /api/state" --> Server["server.py save_state"]
   Server -- "atomic write" --> File[("bsf-saved-content.json")]
-  Server -- "rev changes (long poll)" --> Pages["Overlay pages, remote, Speaker View"]
+  Server -- "rev changes (long poll)" --> Pages["Overlay pages, remote, Teleprompter window"]
   Server -- "kick()" --> Engine["vcam engine + compositor"]
   Engine --> Cam["KingdomConnect camera"]
 ```
@@ -123,7 +123,7 @@ flowchart LR
    the state; `store.js` runs `normalize` so every field is valid, then posts it to `POST /api/state`.
 2. `server.py` `save_state` bumps `rev`, writes `bsf-saved-content.json` atomically (temporary file, then replace),
    wakes every waiting page and kicks the camera engine so a shown card appears at once.
-3. Every other page (overlays, the remote, the Speaker View, other windows) learns about the new `rev` and reloads the
+3. Every other page (overlays, the remote, the Teleprompter window, other windows) learns about the new `rev` and reloads the
    state. The camera pipeline reads the same state on its next frame.
 
 The state is the single source of truth: never keep a second copy of meeting content in a page. Frames are called
@@ -138,7 +138,7 @@ The state is the single source of truth: never keep a second copy of meeting con
 1. Add the field and its default in `app/js/store.js`, and clean it in `cleanLayer` (clamp numbers, limit strings).
    `normalize` runs on every load and save, so old saved data gets the default automatically.
 2. Add the control in `app/js/workspace.js` (`textForm`, `mediaForm`, or the card panels in `dashboard.html`), in the
-   right group: Content, Appearance, Position, Timing, Animation, Media or Behavior. Don't add a second control for
+   right group: Label, Content, Display Settings (with Animation and Show on), Visual Settings or Media (`GROUPS`). Don't add a second control for
    something that already has one.
 3. Use the value where it is drawn: `app/js/overlay.js` for the overlay pages and preview, and `vcam/` for the
    KingdomConnect camera, so both outputs agree.

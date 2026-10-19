@@ -37,14 +37,14 @@ GitHub now starts building your installer automatically.
 2. Click the **Actions** tab. You'll see **Build Windows installer** running (yellow dot).
    It takes about 5–10 minutes. A green tick means it worked.
 3. Click the finished run. At the bottom, under **Artifacts**, click
-   **Kingdom Connect v6.6** (the version number) to download it. It is a .zip containing the Setup .exe.
-4. Unzip it. You now have **Kingdom Connect v6.6.exe**.
+   **Kingdom Connect v6.7** (the version number) to download it. It is a .zip containing the Setup .exe.
+4. Unzip it. You now have **Kingdom Connect v6.7.exe**.
 
 If you see a red cross instead, click the run to read the error, and send it to me.
 
 ## Part 3 · Install
 
-1. Close Zoom, Teams and OBS (they keep the camera in use), then double-click **Kingdom Connect v6.6.exe**.
+1. Close Zoom, Teams and OBS (they keep the camera in use), then double-click **Kingdom Connect v6.7.exe**.
 2. Windows may show **"Windows protected your PC"**. This appears because the installer isn't
    code-signed (signing costs money every year). Click **More info → Run anyway**.
 3. Follow the wizard. Leave **Create a desktop icon** ticked.

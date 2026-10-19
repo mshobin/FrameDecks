@@ -8,6 +8,7 @@ How to create, organize and reuse Frames, the building blocks of every meeting.
 - [What a Frame is](#what-a-frame-is)
 - [Create a Frame](#create-a-frame)
 - [Name, group and order](#name-group-and-order)
+- [Select several Frames](#select-several-frames)
 - [Frame settings](#frame-settings)
 - [Duplicate a Frame](#duplicate-a-frame)
 - [One Frame per question](#one-frame-per-question)
@@ -21,7 +22,7 @@ How to create, organize and reuse Frames, the building blocks of every meeting.
 ## What a Frame is
 
 A **Frame** is one screen or one step of your meeting, such as *Welcome*, *Worship*, *Scripture Reading*,
-*Discussion* or *Closing*. It holds the **Content** shown at that moment, and its own transition, timing and notes.
+*Discussion* or *Closing*. It holds the **Content** shown at that moment, and its own transition, timing and Teleprompter script.
 
 ```mermaid
 flowchart TD
@@ -51,14 +52,34 @@ After creating a Frame, add Content with **+ Content**. See [Content](content.md
 
 ## Name, group and order
 
-- **Rename:** double-click the Frame's name, press **F2**, or type in Content Settings → **Frame → Name**.
+- **Rename:** double-click the Frame's **name**, press **F2**, or type in Content Settings → **Frame → Name**. The
+  name becomes a text box right in the list: **Enter** saves, **Esc** cancels, and clicking away saves. Double-clicking
+  anywhere else on the Frame's row puts it on screen (**Go Live**).
 - **Group:** Content Settings → **Frame → Group**, or **⋯ → Move to group…**. Groups fold away in the list; use one
   group per service, such as *Sunday 12 May* or *Romans · Week 5*.
 - **Order:** drag a Frame up or down, or use **⋯ → Move up / Move down**. The order is the order of
   **Frame ▶**.
 - **Favourite:** select the star on a Frame. The **Favorites** filter shows only starred Frames.
 - **Recent:** the **Recent** filter shows what you worked on last.
-- **Search:** type in **Search Frames** above the list.
+- **Search:** type in **Search Frames** above the list, or press **Ctrl+K** to open the command palette and find any
+  Frame, question or scripture. See [Presentations](presentations.md#command-palette).
+
+## Select several Frames
+
+You can work on several Frames at once.
+
+| To | Do this |
+| --- | --- |
+| Add a Frame to the selection | **Ctrl+Click** it |
+| Select a run of Frames | Click the first, then **Shift+Click** the last |
+| Select with the mouse | Drag a box from empty space in the list |
+| Select every Frame | **Ctrl+A** |
+| Delete the selected Frames | **Delete** or **Backspace**. The message offers **Undo**. You are asked to confirm only for 5 or more |
+| Copy, cut, paste | **Ctrl+C**, **Ctrl+X**, **Ctrl+V** |
+| Duplicate | **Ctrl+D** |
+| Move them | Drag them up or down |
+
+Right-click the selection for the same actions in a menu.
 
 ## Frame settings
 
@@ -67,11 +88,11 @@ Select a Frame (and no Content) to see its settings in **Content Settings**.
 ### Frame
 | Setting | What it does |
 | --- | --- |
-| **Name** | Shown in the Frames list, on the phone remote and in the Speaker View |
+| **Name** | Shown in the Frames list, on the phone remote and in the Teleprompter |
 | **Group** | Which group the Frame belongs to |
 | **Favourite** | Shows the Frame under **Favorites** |
 | **Template** | Keeps the Frame as a template for making new Frames. Templates are skipped by **Frame ▶** |
-| **Leader notes** | Private notes for you. Shown in the Speaker View and the Advanced phone remote, never on screen |
+| **Teleprompter script** | What you plan to say on this Frame, up to 20,000 characters. Only you see it, in the Teleprompter (on the PC and the phone), never on screen. Called *Leader notes* before 6.7. See [Presentations](presentations.md#teleprompter) |
 | **Branding** | Adds or removes your logo and Meeting Name badge in this Frame |
 
 Buttons below: **Duplicate…**, **Save as template** and, when the Frame has questions, **One Frame per question**.
@@ -148,7 +169,7 @@ To share a whole meeting, export it to Excel instead: **✨ Meeting → Export t
 - **Name Frames for the volunteer**, not for yourself: *Scripture: Romans 8*, not *Frame 4*.
 - **One group per service.** It keeps Frame ▶ in the right order and makes the next service easy to copy.
 - **Keep a few templates** for parts that never change, such as Welcome, Offering and Closing.
-- **Put private reminders in Leader notes**, not in on-screen text.
+- **Put private reminders in the Teleprompter script**, not in on-screen text.
 - **Preview every Frame** before the service by selecting it. The canvas shows PREVIEW until you Go Live.
 
 ## Related

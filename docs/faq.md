@@ -56,6 +56,9 @@ Yes. Each Frame can **Auto advance** after a number of seconds (Content Settings
 **Is there a countdown timer?**
 Yes. **+ Content → Timer** counts down a number of minutes, or until a time of day, and shows your message at zero.
 
+**Can we run a poll?**
+A simple one. **+ Content → Poll (show of hands)** shows a question with choices A, B and C. People answer by raising a hand or typing in the chat. Kingdom Connect does not collect or count votes. There are also **Discussion topic** and **Icebreaker** cards for small groups.
+
 ## Worship and lyrics
 
 **Does Kingdom Connect have a song library?**
@@ -122,6 +125,9 @@ No. The remote opens in the phone's browser. You can add it to the home screen s
 **Does the phone need internet?**
 No, only the same Wi-Fi network as the PC.
 
+**Can I see my script on the phone?**
+Yes. In the Simple remote, select **TELEPROMPTER** to see the Frame's script full screen. The Advanced remote has a Teleprompter panel on its **Live** tab.
+
 **Can someone outside the church take control?**
 The remote works only on your local network, and only with the 6-digit PIN. After 5 wrong tries a device must wait 60 seconds. **New PIN** signs everyone out.
 
@@ -140,7 +146,16 @@ Five things: **Go Live**, **NEXT FRAME**, **NEXT CONTENT**, **HIDE ALL**, and **
 Press **HIDE ALL** (or **Esc** on the PC), then put the right Frame back with **Go Live**. Nothing is ever deleted by these buttons.
 
 **Can the leader see notes that the congregation can't?**
-Yes. Answers and notes are never shown on screen. They appear in **Speaker View** on the PC and in the Advanced phone remote.
+Yes. Write them in each Frame's **Teleprompter script** (Frame settings). Open it with **Program → Teleprompter** (**R**), in the **Teleprompter window** on a second screen, or with **TELEPROMPTER** on the phone remote. See [Presentations](presentations.md#teleprompter).
+
+**Can the audience see the teleprompter?**
+No. The Teleprompter is only for the presenter. It is never on the KingdomConnect camera, the Presentation window, the OBS pages or the phone's drawing pad.
+
+**Where did the answers and notes on my questions go?**
+Since 6.7, questions and scriptures have no Answer or Notes fields, and no screen shows them. Nothing was deleted from your data. When you import an older Meeting Workbook, its answers and notes go into the Frame's Teleprompter script.
+
+**Is there a quick way to find something?**
+Yes. Press **Ctrl+K** or **Ctrl+Space** (or select the search box at the top) to open the command palette. Type a few letters to find a Frame, a question, a scripture, a setting or a member, or to run a command such as **Go Live**. See [Presentations](presentations.md#command-palette).
 
 ## Data, privacy and offline use
 

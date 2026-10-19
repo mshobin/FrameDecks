@@ -24,7 +24,7 @@ var SHEETS = {
   meeting: {name: 'Meeting Overview', cols: [['field', 'Field', ['field', 'item', 'name']], ['value', 'Value', ['value', 'answer', 'details']]]},
   frames: {name: 'Frames', cols: [['frame', 'Frame Number', ['framenumber', 'frame', 'frameno', 'frame#', 'number']], ['name', 'Frame Name', ['framename', 'name', 'title']],
     ['desc', 'Description', ['description', 'desc', 'purpose']], ['bg', 'Background', ['background', 'backgroundstyle', 'bg']],
-    ['tx', 'Transition', ['transition', 'tx']], ['notes', 'Presenter Notes', ['presenternotes', 'notes', 'leadernotes']]]},
+    ['tx', 'Transition', ['transition', 'tx']], ['notes', 'Teleprompter Script', ['teleprompterscript', 'teleprompter', 'script', 'presenternotes', 'notes', 'leadernotes']]]},
   content: {name: 'Content', cols: [['frame', 'Frame Number', ['framenumber', 'frame', 'frameno', 'frame#']], ['order', 'Content Order', ['contentorder', 'order', 'contentno']],
     ['type', 'Content Type', ['contenttype', 'type']], ['name', 'Content Name', ['contentname', 'name']], ['main', 'Main Content', ['maincontent', 'content', 'text', 'file']],
     ['label', 'Label', ['label', 'title', 'heading']], ['duration', 'Duration', ['duration', 'minutes', 'time']], ['anim', 'Animation', ['animation', 'effect', 'transition']],
@@ -32,12 +32,14 @@ var SHEETS = {
     ['notes', 'Notes', ['notes', 'note']]]},
   questions: {name: 'Questions', cols: [['frame', 'Frame Number', ['framenumber', 'frame', 'frameno', 'frame#']], ['content', 'Content Name', ['contentname', 'content']],
     ['num', 'Question Number', ['questionnumber', 'number', 'no', 'question#']], ['label', 'Label', ['label']], ['text', 'Question Text', ['questiontext', 'question', 'text']],
-    ['answer', 'Answer Text', ['answertext', 'answer']], ['media', 'Media', ['media']], ['timer', 'Timer', ['timer', 'minutes']], ['anim', 'Animation', ['animation', 'effect', 'transition']],
-    ['notes', 'Notes', ['notes', 'note']]]},
+    ['media', 'Media', ['media']], ['timer', 'Timer', ['timer', 'minutes']], ['anim', 'Animation', ['animation', 'effect', 'transition']],
+    /* 6.7: answers and notes were removed from questions. Older workbooks still import: they go into the Frame's
+       teleprompter script as talking points (never on screen). Legacy columns are read, never written. */
+    ['answer', 'Answer Text', ['answertext', 'answer'], {legacy: true}], ['notes', 'Notes', ['notes', 'note'], {legacy: true}]]},
   scriptures: {name: 'Scriptures', cols: [['frame', 'Frame Number', ['framenumber', 'frame', 'frameno', 'frame#']], ['content', 'Content Name', ['contentname', 'content']],
     ['num', 'Scripture Number', ['scripturenumber', 'number', 'no', 'scripture#']], ['label', 'Label', ['label']], ['ref', 'Reference', ['reference', 'ref', 'versereference']],
     ['text', 'Text', ['text', 'versetext', 'scripturetext']], ['version', 'Translation', ['translation', 'version', 'bibleversion']], ['anim', 'Animation', ['animation', 'effect', 'transition']],
-    ['notes', 'Notes', ['notes', 'note']]]}
+    ['notes', 'Notes', ['notes', 'note'], {legacy: true}]]}
 };
 /* Allowed values (the template's dropdowns use the same lists) */
 var CONTENT_TYPES = ['Question', 'Scripture', 'Text', 'Image', 'Video', 'Audio', 'Timer', 'PowerPoint', 'Web Page', 'Free Content'];
@@ -159,10 +161,13 @@ function parse(book, ctx){
       if (!C){ err(sheet, r.row, 'Frame ' + n + ' has no ' + TYPE_NAME[kind] + ' Content called “' + r.content + '” (Content sheet).'); return; }
       var num = intOf(r.num); if (num === 'bad'){ err(sheet, r.row, (kind === 'question' ? 'Question' : 'Scripture') + ' Number “' + r.num + '” is not a whole number.'); return; }
       var anim = ANIM[norm(r.anim)]; if (r.anim && anim == null){ err(sheet, r.row, 'Animation “' + r.anim + '” is not one of: ' + ANIMATIONS.join(', ') + '.'); return; }
-      var it = {row: r.row, num: num, idx: C.items.length, label: r.label.slice(0, 80), transition: anim || '', note: r.notes};
+      var it = {row: r.row, num: num, idx: C.items.length, label: r.label.slice(0, 80), transition: anim || ''};
+      var tag = (kind === 'question' ? 'Q' : 'Scripture ') + (num || C.items.length + 1);
+      if (r.answer) (F.prompts = F.prompts || []).push(tag + ' answer: ' + r.answer);
+      if (r.notes) (F.prompts = F.prompts || []).push(tag + ' note: ' + r.notes);
       if (kind === 'question'){
         if (!r.text){ err(sheet, r.row, 'Question Text is empty.'); return; }
-        it.text = r.text; it.answer = r.answer;
+        it.text = r.text;
         if (r.media) it.media = r.media;
         if (r.timer){ if (/^\d{1,3}(\.\d)?$/.test(r.timer)) it.timer = r.timer; else warn(sheet, r.row, 'Timer “' + r.timer + '”: use minutes, for example 3.'); }
       } else {
@@ -226,7 +231,7 @@ function apply(n, plan, opts){
   if (m.title || m.date || m.presenter || m.notes) n.meeting = {title: m.title, date: m.date, presenter: m.presenter, notes: m.notes};
   plan.frames.forEach(function(F){
     var sc = SC.cleanScene({id: rid('sc_'), name: SC.uniqueName(n, F.name), group: group, created: now, modified: now, creator: opts.creator || '', from: 'Excel import',
-      template: opts.file || 'Excel', notes: [F.notes, F.desc ? 'About this Frame: ' + F.desc : ''].filter(Boolean).join('\n'), tx: {type: F.tx, ms: 500}});
+      template: opts.file || 'Excel', notes: [F.notes, F.prompts && F.prompts.length ? F.prompts.join('\n') : '', F.desc ? 'About this Frame: ' + F.desc : ''].filter(Boolean).join('\n'), tx: {type: F.tx, ms: 500}});
     var front = [], back = [];
     F.content.forEach(function(C){ build(n, C).forEach(function(l){ (SC.isMedia(l.kind) ? back : front).push(l); }); });
     if (F.bg) back.push(layer('background', 'Background', {props: {color: F.bg === 'brand' ? accent : F.bg}}));
@@ -240,8 +245,8 @@ function build(n, C){
   if (t === 'question' || t === 'scripture'){
     look = SC.snapshotLook(n, t); if (C.anim) look.transition = C.anim;
     var items = C.items.map(function(it){
-      var o = t === 'question' ? {id: SC.newItemId('question'), label: it.label, text: it.text, answer: it.answer || '', note: it.note || '', media: it.media || '', timer: it.timer || ''}
-        : {id: SC.newItemId('verse'), label: it.label, ref: it.ref, version: it.version, text: it.text, note: it.note || ''};
+      var o = t === 'question' ? {id: SC.newItemId('question'), label: it.label, text: it.text, media: it.media || '', timer: it.timer || ''}
+        : {id: SC.newItemId('verse'), label: it.label, ref: it.ref, version: it.version, text: it.text};
       if (it.transition) o.transition = it.transition;
       return o;
     });
@@ -272,7 +277,7 @@ var TX_NAME = {}; Object.keys(TX).forEach(function(k){ if (!TX_NAME[TX[k]] && k)
 TX_NAME.profile = 'Frame default';
 var ANIM_NAME = {'': 'Content default', fade: 'Fade', rise: 'Gentle Rise', words: 'Word by Word', typewriter: 'Typewriter', burst: 'Burst', none: 'Cut'};
 var BG_NAME = {'#0b1222': 'Navy', '#000000': 'Black', '#ffffff': 'White'};
-function header(key){ return SHEETS[key].cols.map(function(c){ return c[1]; }); }
+function header(key){ return SHEETS[key].cols.filter(function(c){ return !(c[3] && c[3].legacy); }).map(function(c){ return c[1]; }); }
 function exportSheets(st){
   var m = st.meeting || {}, frames = st.scenes.filter(function(s){ return !s.tpl; });
   var out = {meeting: [['Field', 'Value'], ['Meeting Title', m.title || (st.brand && st.brand.meeting) || ''], ['Date', m.date || ''], ['Presenter', m.presenter || ''], ['Notes', m.notes || '']],
@@ -290,8 +295,8 @@ function exportSheets(st){
       if (l.kind === 'question' || l.kind === 'scripture'){
         row = [num, order, l.kind === 'question' ? 'Question' : 'Scripture', l.name, '', c.label || '', '', ANIM_NAME[(c.look || {}).transition || ''] || 'Content default', '', ''];
         (c.items || []).forEach(function(it, j){
-          if (l.kind === 'question') out.questions.push([num, l.name, j + 1, it.label || '', it.text || '', it.answer || '', it.media || '', it.timer || '', ANIM_NAME[it.transition || ''] || '', it.note || '']);
-          else out.scriptures.push([num, l.name, j + 1, it.label || '', it.ref || '', it.text || '', it.version || '', ANIM_NAME[it.transition || ''] || '', it.note || '']);
+          if (l.kind === 'question') out.questions.push([num, l.name, j + 1, it.label || '', it.text || '', it.media || '', it.timer || '', ANIM_NAME[it.transition || ''] || '']);
+          else out.scriptures.push([num, l.name, j + 1, it.label || '', it.ref || '', it.text || '', it.version || '', ANIM_NAME[it.transition || ''] || '']);
         });
       }
       else if (l.kind === 'announcement' && !c.label) row = [num, order, 'Text', l.name, c.text || '', '', '', ANIM_NAME[c.anim] || '', '', ''];

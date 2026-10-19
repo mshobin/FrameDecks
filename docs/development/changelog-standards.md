@@ -30,7 +30,7 @@ The changelog follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   - Good: "**Drag to reorder** questions and scriptures in a Frame's list."
   - Not: "Added HTML5 DnD handlers to frame-lists.js."
 - **Start with the feature name in bold** when it is a feature people will look for.
-- **Say where to find it** when it is new: "**Speaker View** (Program → Speaker View)".
+- **Say where to find it** when it is new: "**Teleprompter** (Program → Teleprompter)".
 - **One line per change** in the changelog; the release notes can explain more.
 - **Be honest about limits.** If something needs PowerPoint installed, or works only on Windows, say so.
 - **Never include personal data** (church names, member names) in examples.

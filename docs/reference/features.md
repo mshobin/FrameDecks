@@ -1,6 +1,26 @@
-# Kingdom Connect: feature documentation (v6.5)
+# Kingdom Connect: feature documentation (v6.7)
+
+## v6.7 at a glance
+| Feature | What it does | Where it lives |
+| --- | --- | --- |
+| **Inline editing** | No pop-up windows. Double-click a Frame's or Content's **name** to rename it (or F2); double-clicking elsewhere on a Frame row still Goes Live. In a Frame's question / scripture list, double-click the label or text. On the Studio Canvas, double-click any card (question, scripture, announcement, prayer, discussion topic, icebreaker, poll, lower third, timer) to edit its body, or its label (top line) to edit the label. Enter saves, Shift+Enter new line, Esc cancels, clicking away saves | `app/js/editable.js`, `app/js/preview-edit.js`, `app/js/frame-lists.js` |
+| **New Content presets** | **+ Content → Discussion topic, Icebreaker, Poll (show of hands)**: text cards with a ready label and sample text. The Poll is display only (no voting devices, nothing counted). Also in the Content Library, under Discussion Questions | `app/js/workspace.js` (`TEXT_PRESETS`), `app/js/store.js` (Library) |
+| **No answers or presenter notes on screens** | Removed from the main app, the Teleprompter window, the phone remote and Content Settings. Old data is kept, not deleted | `app/js/frame-lists.js`, `app/js/speaker.js`, `app/js/remote.js` |
+| **Content Settings order** | **Label**, **Content**, **Display Settings** (with **Animation** and **Show on**), **Visual Settings**; Media for pictures, video and PowerPoint | `app/js/workspace.js` (`GROUPS`) |
+| **Teleprompter** | The Frame's **Teleprompter script** (was Leader notes; up to 20,000 characters; `# Heading`, `- bullet`, `**bold**`, `*italic*`, `[PAUSE]`, `---`). Program → Teleprompter (R) docks it Left / Right / Bottom or Float, resizable, **Follows: Live / Selected**. Scroll play / pause (Space), five speeds, A− / A+, line spacing, high contrast, Focus mode (F), Home, arrow / Page keys, wheel and touch. Cue line: Frame i of n, LIVE, next Frame, next question or scripture. Never on any output | `app/js/teleprompter.js`, `app/js/prompter-dock.js` |
+| **Teleprompter window** | Program → Teleprompter window (was Speaker View): the Teleprompter in its own window for a second screen, with clocks, a timer, what is on screen and what is next | `app/speaker.html`, `app/js/speaker.js` |
+| **Phone teleprompter** | A Teleprompter panel on the Live tab of the Advanced remote; a **TELEPROMPTER** button in the Simple remote opens it full screen | `app/remote.html`, `app/js/remote.js` |
+| **Branding options** | Display (Logo only / Name only / Logo + Name, optional Organization), Position (four corners or centred), Safe margin, Size (Small / Medium / Large + fine size), Opacity, Padding, Background plate (off = soft shadow). The same on the camera and the OBS pages; scales with resolution. **Remove background** makes a plain logo background transparent on the PC, with Undo | `app/js/workspace.js` (`brandForm`), `app/js/meeting-brand.js`, `vcam/program.py`, `app/js/overlay.js` |
+| **Multi-select** | Ctrl+Click, Shift+Click or a drag box in empty list space selects several Frames or Contents. Delete / Backspace (Undo in the message; confirmation only for 5 or more), Ctrl+C / X / V, Ctrl+D, Ctrl+A, right-click menu, drag to move | `app/js/workspace.js` |
+| **Command palette** | Ctrl+K or Ctrl+Space (Settings → Keyboard shortcuts → Command palette), or the header search box. Finds Frames, Content, questions, scriptures, text, templates, Library, branding, settings, members, Bible references, recent items; runs commands (Go Live, New Frame, Duplicate, Teleprompter, Export meeting, theme, Add Content…). Arrow keys + Enter; Esc closes | `app/js/palette.js` |
+| **Meeting Workbook** | No Answer / Notes columns; the Frames sheet's last column is Teleprompter Script. Older workbooks still import, with answers and notes going into the Frame's Teleprompter script | `app/js/meeting-book.js` |
+| **Faster start-up** | The Excel library loads only when first needed | `app/js/dashboard.js` |
 
 ## v6.5 at a glance
+
+Some rows below changed in 6.7 (Content Settings groups, the list editor, the Advanced remote's notes); the table
+above describes them as they are now.
+
 | Feature | What it does | Where it lives |
 | --- | --- | --- |
 | **Meeting → Frame → Content** | **+ Frame** makes one blank Frame. **+ Content** adds Question, Scripture, Text, Image, Video, Timer, PowerPoint or Free Content to the selected Frame | `app/js/workspace.js` |

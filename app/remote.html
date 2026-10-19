@@ -13,6 +13,7 @@
 <link rel="icon" type="image/png" href="icons/remote-192.png">
 <title>Kingdom Connect Director</title>
 <link rel="stylesheet" href="css/remote.css">
+<link rel="stylesheet" href="css/teleprompter.css">
 </head>
 <body data-tab="live" data-role="presenter">
 
@@ -69,6 +70,7 @@
       <button class="sr-btn tool-btn" type="button" id="sr-freeze" aria-pressed="false">FREEZE</button>
       <button class="sr-btn tool-btn black" type="button" id="sr-black" aria-pressed="false">BLACK SCREEN</button>
     </section>
+    <button class="sr-btn tool-btn sr-tp" type="button" id="sr-prompter">TELEPROMPTER <small>only you see it</small></button>
     <p class="sr-note" id="sr-note" role="status"></p>
   </main>
 
@@ -101,7 +103,7 @@
         <div class="now-top"><span class="now-label" id="now-title">Live Frame</span><span class="now-meta" id="now-meta"></span></div>
         <p class="now-name" id="now-name">Nothing live yet</p>
         <p class="now-sub" id="now-sub"></p>
-        <p class="now-notes" id="now-notes" hidden></p>
+        <details class="now-tp" id="now-tp" hidden><summary>Teleprompter <small>only you see it</small></summary><div class="now-tp-body" id="now-tp-body"></div></details>
       </div>
       <div class="canvas" id="canvas"><iframe id="frame" title="What Zoom participants see" tabindex="-1"></iframe><span class="cv-badge">LIVE</span></div>
       <div class="next-pv" id="next-pv" hidden><span class="np-l">Next</span><b id="np-name"></b><div class="canvas small" id="canvas-next"><iframe id="frame-next" title="The next Frame" tabindex="-1"></iframe></div></div>
@@ -155,8 +157,8 @@
       <div class="sheet-head"><h2 id="more-title">This device</h2><button class="tool" type="button" id="more-close">Done</button></div>
       <h3>Layout</h3>
       <div class="roles" role="radiogroup" aria-label="Layout for this device">
-        <button type="button" role="radio" data-role-pick="presenter" aria-checked="true"><b>Simple remote</b><span>One screen: Previous / Next Frame, Previous / Next Content, Annotate, Freeze and Black Screen. Run a whole meeting from here.</span></button>
-        <button type="button" role="radio" data-role-pick="admin" aria-checked="false"><b>Advanced remote</b><span>Everything: the Frames with search, the Content, presenter notes, PowerPoint, run-through, annotation, Blackout and Emergency</span></button>
+        <button type="button" role="radio" data-role-pick="presenter" aria-checked="true"><b>Simple remote</b><span>One screen: Previous / Next Frame, Previous / Next Content, Annotate, Freeze, Black Screen and the Teleprompter. Run a whole meeting from here.</span></button>
+        <button type="button" role="radio" data-role-pick="admin" aria-checked="false"><b>Advanced remote</b><span>Everything: the Frames with search, the Content, the Teleprompter, PowerPoint, run-through, annotation, Blackout and Emergency</span></button>
       </div>
       <p class="hint">The layout only changes what this device shows. Anyone with the PIN can control the meeting; HIDE ALL is always at the top.</p>
       <p class="dash-foot"><button class="linkish" type="button" id="dash-logout">Disconnect this device</button></p>
@@ -169,6 +171,7 @@
 
 <script src="js/store.js"></script>
 <script src="js/brand.js"></script>
+<script src="js/teleprompter.js"></script>
 <script src="js/remote.js"></script>
 </body>
 </html>

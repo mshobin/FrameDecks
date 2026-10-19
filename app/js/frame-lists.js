@@ -93,21 +93,31 @@ function renderList(host, kind, sid, l){
     var isCur = it.id === cur || (!cur && i === 0), on = onScreen(kind, it.id);
     var t1 = kind === 'verse' ? (it.ref || 'Untitled scripture') + (it.version ? ' · ' + it.version : '') : it.text || '(empty question)';
     var t2 = kind === 'verse' ? String(it.text || '').replace(/\s+/g, ' ') : '';
+    /* v6.7 the label, the text (and a scripture's reference) are edited right here: double-click them */
+    var defLbl = l.c.label || (kind === 'question' ? 'Discussion Question' : 'Focus Verse');
+    var lblEl = h('span', {cls: 'fl-lbl' + (it.label ? '' : ' inherit'), text: it.label || defLbl, title: it.label ? 'Double-click to rename this label' : 'Label from the Content (' + defLbl + '). Double-click to give this ' + N.one + ' its own'});
+    var t1El = h('span', {cls: 't1', text: t1}), t2El = t2 ? h('span', {cls: 't2', text: t2}) : null;
+    BSFEditable.bind(lblEl, {value: it.label || '', placeholder: defLbl, maxLength: 80, label: N.One + ' label', save: function(v){ return saveItem(kind, sid, it.id, {label: v}); }});
+    if (kind === 'question') BSFEditable.bind(t1El, {value: it.text || '', multiline: true, maxLength: 2000, label: 'Question', placeholder: 'Type the question', selectAll: false, save: function(v){ if (!v.trim()){ toast('A question needs some text. Nothing was changed.', true); return; } return saveItem(kind, sid, it.id, {text: v}); }});
+    else {
+      BSFEditable.bind(t1El, {value: it.ref || '', maxLength: 80, label: 'Reference', placeholder: 'e.g. John 15:5', save: function(v){ return saveItem(kind, sid, it.id, {ref: v}); }});
+      if (t2El) BSFEditable.bind(t2El, {value: it.text || '', multiline: true, maxLength: 4000, label: 'Scripture text', selectAll: false, save: function(v){ return saveItem(kind, sid, it.id, {text: v}); }});
+    }
     var li = h('li', {cls: 'item' + (on ? ' live' : '') + (isCur ? ' loaded' : ''), role: 'option', tabindex: '0', 'aria-selected': String(isCur), 'data-id': it.id,
-      draggable: list.length > 1 ? 'true' : null, title: 'Click: make it current · Double-click: edit · Drag to move'}, [
+      draggable: list.length > 1 ? 'true' : null, title: 'Click: make it current · Double-click the label or text to edit it · Drag to move'}, [
       list.length > 1 ? h('span', {cls: 'fl-grip', 'aria-hidden': 'true', html: I('grip-vertical', 14)}) : null,
       h('span', {cls: 'num', text: String(i + 1)}),
-      h('span', {cls: 'txt'}, [it.label ? h('span', {cls: 'fl-lbl', text: it.label}) : null, h('span', {cls: 't1', text: t1}), t2 ? h('span', {cls: 't2', text: t2}) : null]),
+      h('span', {cls: 'txt'}, [lblEl, t1El, t2El]),
       h('span', {cls: 'ops'}, [
         on ? h('span', {cls: 'btn quiet small fl-on', text: 'On screen'}) :
           h('button', {cls: 'btn small', type: 'button', text: 'Show', onclick: function(e){ e.stopPropagation(); showItem(kind, sid, it); }}),
-        h('button', {cls: 'btn quiet small', type: 'button', html: I('type', 13), title: 'Edit', 'aria-label': 'Edit', onclick: function(e){ e.stopPropagation(); openEditor(kind, it.id); }}),
+        h('button', {cls: 'btn quiet small', type: 'button', html: I('type', 13), title: 'All settings for this ' + N.one + ' (transition, what Show puts on screen)', 'aria-label': 'Settings', onclick: function(e){ e.stopPropagation(); openEditor(kind, it.id); }}),
         h('button', {cls: 'btn quiet small', type: 'button', text: '↑', title: 'Move up', 'aria-label': 'Move up', disabled: i === 0 ? 'disabled' : null, onclick: function(e){ e.stopPropagation(); move(kind, sid, it.id, -1); }}),
         h('button', {cls: 'btn quiet small', type: 'button', text: '↓', title: 'Move down', 'aria-label': 'Move down', disabled: i === list.length - 1 ? 'disabled' : null, onclick: function(e){ e.stopPropagation(); move(kind, sid, it.id, 1); }}),
         h('button', {cls: 'btn quiet small danger', type: 'button', text: '✕', title: 'Remove', 'aria-label': 'Remove', onclick: function(e){ e.stopPropagation(); remove(kind, sid, it.id); }})])]);
     li.addEventListener('click', function(){ makeCurrent(kind, sid, it.id); });
     dragHooks(li, kind, sid, it.id);
-    li.addEventListener('dblclick', function(){ openEditor(kind, it.id); });
+    li.addEventListener('dblclick', function(e){ if (!BSFEditable.active()) t1El.dispatchEvent(new MouseEvent('dblclick', {bubbles: false})); });   // anywhere else on the row edits the text
     li.addEventListener('keydown', function(e){
       if (e.target !== li) return;
       if (e.key === 'Enter'){ e.preventDefault(); openEditor(kind, it.id); }
@@ -205,9 +215,6 @@ function renderEditor(host, kind, sid, l, it){
       fieldEl('Translation', input('text', it.version, 'v-version', 'version', {placeholder: 'e.g. ESV'}))]));
     sec.appendChild(fieldEl('Text', input('textarea', it.text, 'v-text', 'text', {cls: 'serif'}), 'Or type the reference in the bar above and select Fetch scripture.'));
   }
-  g('Presenter only');
-  if (kind === 'question') sec.appendChild(fieldEl('Answer', input('textarea', it.answer, 'fl-ed-answer', 'answer', {rows: 3}), 'For the leader. Never on screen.'));
-  sec.appendChild(fieldEl('Notes', input('textarea', it.note, 'fl-ed-note-' + kind, 'note', {rows: 2}), 'Shown on the phone remote (Advanced), never on screen.'));
   g('Animation');
   var sel = h('select', {'aria-label': 'Transition for this ' + N.one, id: 'fl-ed-fx-' + kind});
   TRANS.forEach(function(o){ var op = h('option', {value: o[0], text: o[1]}); if ((it.transition || '') === o[0]) op.selected = true; sel.appendChild(op); });
@@ -249,6 +256,7 @@ function render(){
   var sid = frameId();
   ['question', 'verse'].forEach(function(kind){
     var host = $('fl-' + kind); if (!host || host.offsetParent === null) return;      // hidden: drawn when it opens
+    if (BSFEditable.within(host)){ sigs[kind] = ''; return; }                           // an in-place editor is open here
     var l = cardOf(live, kind, sid);
     renderLabel(kind, sid, l);
     var ed = editing && editing.kind === kind ? items(l).filter(function(x){ return x.id === editing.id; })[0] : null;
@@ -276,5 +284,6 @@ function onVerse(d){
 }
 
 Store.subscribe(function(st){ live = st; render(); });
+window.addEventListener('bsf-edit-done', function(){ render(); });
 window.BSFFrameLists = {render: function(){ render(); }, onVerse: onVerse, edit: openEditor, add: function(kind){ return addItem(kind, frameId()); }, save: saveItem};
 })();

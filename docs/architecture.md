@@ -38,7 +38,7 @@ service PC. Volunteers do not need this page; start with [Getting started](getti
 flowchart LR
   subgraph PC["Service PC (Windows)"]
     UI["Main window<br/>app/dashboard.html"]
-    SPK["Speaker View<br/>app/speaker.html"]
+    SPK["Teleprompter window<br/>app/speaker.html"]
     SRV["Control server<br/>server.py :8750"]
     ENG["Camera engine<br/>vcam/"]
     PRES["Presentation window"]
@@ -83,7 +83,7 @@ flowchart LR
 | Prepare | Content Settings → Media; PowerPoint conversion; Scripture fetch or typed text |
 | Rehearse | Studio Canvas preview (any Frame, not on air); phone **Run-through** |
 | Go Live | **Go Live** (T), ◀ Frame / Frame ▶, the phone's NEXT FRAME |
-| Lead | → / ← questions, Shift + → / ← scriptures, Annotate (D), Freeze (F), Speaker View |
+| Lead | → / ← questions, Shift + → / ← scriptures, Annotate (D), Freeze (F), Teleprompter (R) and Teleprompter window, command palette (Ctrl+K) |
 | Recover | Hide all (Esc), Blackout (K), Emergency |
 | After | Export to Excel, Settings → Data / Backup, Duplicate Frames |
 
@@ -209,7 +209,7 @@ flowchart LR
   C2 --> OUT2
 ```
 
-- **Behavior** (Content Settings) decides whether each card or text Content appears on the camera, on the
+- **Show on** (Content Settings → Display Settings) decides whether each card or text Content appears on the camera, on the
   overlay pages, or both.
 - A Frame **owns** its Question and Scripture lists (`layer.c.items`) and its card appearance (`layer.c.look`).
   Going live applies that Frame's look. Duplicating a Frame gives every Content and item a new id.
@@ -258,14 +258,14 @@ sequenceDiagram
 | Part | Files | Role |
 | --- | --- | --- |
 | Control server | `server.py` | HTTP on `127.0.0.1:8750` (plus the LAN when the remote is on), state, uploads, settings, scripture lookup, remote sign-in, backups |
-| Desktop shell | `desktop_app.py` | WebView2 window via pywebview, tray icon, Presentation window, Speaker View window, single instance |
+| Desktop shell | `desktop_app.py` | WebView2 window via pywebview, tray icon, Presentation window, Teleprompter window, single instance |
 | Camera engine | `vcam/engine.py`, `compositor.py`, `layers.py`, `cards.py`, `overlay.py`, `program.py`, `annotate.py`, `blur.py`, `looks.py`, `picture.py`, `screen.py`, `devices.py`, `sink.py`, `powerpoint.py` | Capture, compose, draw cards and drawings, send to the KingdomConnect camera |
 | Shared state (UI) | `app/js/store.js` | Normalizes state, Frames and Content model (`BSFScenes`), sync loops |
-| Main window | `app/dashboard.html`, `app/js/workspace.js`, `frame-lists.js`, `dashboard.js`, `annotate.js`, `preview-edit.js`, `studio.js`, … | Studio, Content Settings, lists, annotation, canvas editing |
+| Main window | `app/dashboard.html`, `app/js/workspace.js`, `frame-lists.js`, `dashboard.js`, `annotate.js`, `preview-edit.js`, `editable.js`, `palette.js`, `prompter-dock.js`, `studio.js`, … | Studio, Content Settings, lists, multi-select, annotation, inline and canvas editing, command palette, docked Teleprompter |
 | Phone remote | `app/remote.html`, `app/js/remote.js`, `app/css/remote.css` | Simple and Advanced profiles, drawing pad |
-| Speaker View | `app/speaker.html`, `app/js/speaker.js` | Answers, notes, what's next, clocks (read-only) |
+| Teleprompter | `app/js/teleprompter.js` (shared), `app/speaker.html`, `app/js/speaker.js` (the Teleprompter window) | The Frame's Teleprompter script, what's on screen, what's next, clocks. No output reads a Frame's script |
 | Overlay pages | `app/stage.html` and others, `app/js/overlay.js` | Cards and text for OBS / browser sources |
-| Excel | `app/js/meeting-book.js`, `meeting-import.js`, `import-worker.js`, `app/vendor/xlsx.full.min.js` | Meeting Workbook import and export |
+| Excel | `app/js/meeting-book.js`, `meeting-import.js`, `import-worker.js`, `app/vendor/xlsx.full.min.js` | Meeting Workbook import and export. The Excel library loads on first use, not at start-up |
 | Packaging | `packaging/` | PyInstaller spec, Inno Setup installer, camera build, self-check |
 | Tests | `tests/`, `packaging/check.py` | Store and workbook tests; start-up self-check |
 

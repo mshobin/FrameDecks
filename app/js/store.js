@@ -239,8 +239,12 @@ var TEXT_DEFAULTS = {
   lowerthird: {title: '', text: '', pos: 'lower-left', w: 46, scale: 0.9, label: true, anim: 'rise', logo: false},
   countdown: {title: 'Starting in', text: 'Starting now', mode: 'duration', minutes: 5, until: '10:30', pos: 'center', w: 36, scale: 1.6, label: true, anim: 'fade', logo: false},
   /* the meeting's logo and/or name as a small badge (logo = show the logo, name = the Meeting Name, org = Leader / Organization) */
-  brand: {title: '', text: '', pos: 'upper-right', w: 30, scale: 1, label: false, anim: 'fade', logo: true, name: true, org: false}
+  brand: {title: '', text: '', pos: 'upper-right', w: 30, scale: 1, label: false, anim: 'fade', logo: true, name: true, org: false,
+    /* 6.7: plate = the navy plate behind the badge (off: the logo / name alone, with a soft shadow); pad = inner padding
+       (x the standard); margin = the safe margin from the picture's edges (in 1/100 of the picture width) */
+    plate: true, pad: 1, margin: 4}
 };
+var TEXT_RANGE = {w: [20, 96], minutes: [0, 600], pad: [0, 3], margin: [0, 12]};      // numbers; anything else 0.4 .. 3
 function cleanLayer(l){
   if (!isObj(l)) return null;
   var kind = CARD_KINDS.concat(TEXT_KINDS, MEDIA_KINDS).indexOf(l.kind) >= 0 ? l.kind : null;
@@ -251,7 +255,7 @@ function cleanLayer(l){
   if (TEXT_KINDS.indexOf(kind) >= 0){
     var d = TEXT_DEFAULTS[kind];
     for (var k in d){
-      if (typeof d[k] === 'number') c[k] = num(c[k], k === 'w' ? 20 : k === 'minutes' ? 0 : 0.4, k === 'w' ? 96 : k === 'minutes' ? 600 : 3, d[k]);
+      if (typeof d[k] === 'number') c[k] = num(c[k], (TEXT_RANGE[k] || [0.4])[0], (TEXT_RANGE[k] || [0, 3])[1], d[k]);
       else if (typeof d[k] === 'boolean') c[k] = c[k] === undefined ? d[k] : !!c[k];
       else c[k] = str(c[k] === undefined ? d[k] : c[k], k === 'text' ? 2000 : 200);
     }
@@ -276,7 +280,10 @@ var ITEM_FIELDS = {question: ['label', 'text', 'answer', 'note', 'pair', 'mode',
   scripture: ['label', 'ref', 'version', 'text', 'note', 'anim']};
 function cleanItem(kind, it){
   var o = {id: str(it.id || rid('i'), 40)};
-  (ITEM_FIELDS[kind] || []).forEach(function(f){ o[f] = str(it[f], f === 'text' || f === 'answer' || f === 'note' ? 8000 : 200); });
+  (ITEM_FIELDS[kind] || []).forEach(function(f){
+    if ((f === 'answer' || f === 'note') && !it[f]) return;     // 6.7: answers and notes are no longer used; older text is kept, never shown
+    o[f] = str(it[f], f === 'text' || f === 'answer' || f === 'note' ? 8000 : 200);
+  });
   if (kind === 'question' && MODES.indexOf(o.mode) < 0) o.mode = '';
   var t = String(it.transition || '');
   if (t === 'random' || TRANSITIONS.indexOf(t) >= 0) o.transition = t;
@@ -341,7 +348,7 @@ function cleanScene(sc){
   return {id: str(sc.id || rid('sc_'), 40), name: str(sc.name || 'Frame', 80), group: str(sc.group, 60), fav: !!sc.fav, tpl: !!sc.tpl,
     created: Number(sc.created) || 0, modified: Number(sc.modified) || 0, version: Math.max(1, Number(sc.version) || 1),
     creator: str(sc.creator, 80), from: str(sc.from, 80), template: str(sc.template, 80), parent: str(sc.parent, 40),
-    notes: str(sc.notes, 2000),                                   /* v6.2 leader notes (Excel import), never on screen */
+    notes: str(sc.notes, 20000),                                  /* the Teleprompter script (6.7; v6.2 leader notes), never on screen */
     tx: {type: tx.type === 'profile' || TX_IDS.indexOf(tx.type) >= 0 ? tx.type : 'profile', ms: num(tx.ms, 0, 5000, 500)},
     auto: {on: !!auto.on, sec: num(auto.sec, 2, 3600, 30)},
     out: {vcam: true, obs: true},
@@ -405,6 +412,9 @@ var LIBRARY = [
   {id: 'lib-prayer-close', cat: 'prayer', name: 'Closing Prayer', layers: [['prayer', {name: 'Closing Prayer', c: {title: 'Closing Prayer', text: 'Let’s close our time together in prayer.'}}]]},
   {id: 'lib-question', cat: 'discussion', name: 'Discussion Question', layers: [['question', {}]]},
   {id: 'lib-question-scripture', cat: 'discussion', name: 'Question + Scripture', layers: [['question', {}], ['scripture', {}]]},
+  {id: 'lib-discussion-topic', cat: 'discussion', name: 'Discussion Topic', layers: [['announcement', {name: 'Discussion', c: {title: 'Group Discussion', text: 'Talk together about what stood out to you.'}}]]},
+  {id: 'lib-icebreaker', cat: 'discussion', name: 'Icebreaker', layers: [['announcement', {name: 'Icebreaker', c: {title: 'Opening Thought', text: 'Share one good thing from your week.'}}]]},
+  {id: 'lib-poll', cat: 'discussion', name: 'Poll (show of hands)', layers: [['announcement', {name: 'Poll', c: {title: 'Quick Poll', text: 'A.  Yes\nB.  No\nC.  Not sure yet\n\nRaise your hand, or type A, B or C in the chat.'}}]]},
   {id: 'lib-breakout', cat: 'discussion', name: 'Small-Group Breakout', layers: [['announcement', {name: 'Breakout', c: {title: 'Small Groups', text: 'Discuss the next question together in your small group.'}}]]},
   {id: 'lib-focus-verse', cat: 'scripture', name: 'Focus Verse', layers: [['scripture', {name: 'Focus Verse'}]]},
   {id: 'lib-reading', cat: 'scripture', name: 'Scripture Reading', layers: [['scripture', {name: 'Reading'}], ['lowerthird', {name: 'Reader', c: {title: 'Scripture Reading', text: ''}}]]},

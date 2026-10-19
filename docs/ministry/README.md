@@ -19,7 +19,7 @@ Small groups often have one person doing everything. Larger services split the w
 
 | Role | Main job | Uses | Guide |
 | --- | --- | --- | --- |
-| **Worship leader / teacher** | Leads the service; decides what is said and shown | Speaker View, sometimes the phone remote | [Worship leaders](worship-leaders.md) |
+| **Worship leader / teacher** | Leads the service; decides what is said and shown | The Teleprompter (or Teleprompter window), sometimes the phone remote | [Worship leaders](worship-leaders.md) |
 | **Media team** | Prepares Frames, slides, videos and scripture before the service | The Studio on the PC | [Media team](media-team.md) |
 | **Service operator** | Runs the PC during the service: Go Live, Next, recovery | The PC (command bar, Program menu) | [Service operators](service-operators.md) |
 | **Remote operator** | Runs the service, or draws, from a phone or iPad | The phone remote | [Remote operators](remote-operators.md) |
@@ -36,17 +36,17 @@ flowchart LR
   subgraph Sunday["Service day"]
     SO["Service operator<br/>checks PC, camera, projector"] --> RO["Remote operator<br/>connects phone"]
     RO --> LIVE["Service runs:<br/>Go Live · Next · Annotate"]
-    WL2["Leader reads<br/>Speaker View"] --> LIVE
+    WL2["Leader reads<br/>the Teleprompter"] --> LIVE
   end
   RV --> SO
   LIVE --> AFTER["After: back up,<br/>note what to improve"]
 ```
 
 A typical Sunday:
-1. **Day before:** the media team finishes the meeting; the leader checks it on the Studio Canvas and in Speaker View.
+1. **Day before:** the media team finishes the meeting; the leader checks it on the Studio Canvas and reads through the Teleprompter script.
 2. **One hour before:** the service operator starts the PC, Kingdom Connect, the meeting app and the projector.
 3. **30 minutes before:** the remote operator connects the phone; everyone runs through the first Frames together.
-4. **During:** the operator (or phone) steps through Frames; the leader reads answers and notes in Speaker View.
+4. **During:** the operator (or phone) steps through Frames; the leader reads the script in the Teleprompter.
 5. **After:** back up, and write down anything to improve next week.
 
 The [service-day checklist](service-day-checklist.md) has the full timeline.
@@ -78,7 +78,7 @@ A one-hour team training session that covers everyone:
 | 0:10 | Building a Frame: + Frame, + Content, Content Settings | Media team |
 | 0:25 | Presenting: Go Live, Next, Hide all, Blackout, Freeze | Operators |
 | 0:35 | The phone remote: connect, Simple remote, drawing | Remote operators, volunteers |
-| 0:45 | Speaker View: answers, notes, what's next, timer | Leaders |
+| 0:45 | The Teleprompter: the script, what's next, timer | Leaders |
 | 0:50 | Something goes wrong: practise recovery | All |
 | 0:55 | Questions; schedule shadow weeks | All |
 

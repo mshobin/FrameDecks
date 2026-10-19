@@ -28,7 +28,7 @@ How to run the Kingdom Connect PC during a service: setup, presenting, and calm 
 1. **Selecting a Frame does not put it on air.** The Studio Canvas shows a **PREVIEW**. **Go Live** (**T**) puts it on screen; the badge then reads **LIVE**.
 2. **◀ Frame / Frame ▶** in the command bar move to the previous or next Frame and put it on screen.
 3. **◀ Question ▶** (or the arrow keys) step through the live Frame's questions; **Shift + arrows** step through its scriptures; **Page Up / Page Down** step through slides.
-4. **The Program menu is your safety kit:** Hide Content, **Blackout** (K), Emergency, **Annotate** (D), **Freeze** (F), **Speaker View**.
+4. **The Program menu is your safety kit:** Hide Content, **Blackout** (K), Emergency, **Annotate** (D), **Freeze** (F), **Teleprompter** (R), **Teleprompter window**.
 5. **Hide all** (**Esc**) clears everything and deletes nothing.
 
 ![The Studio during a service](../images/studio.png)
@@ -45,7 +45,8 @@ How to run the Kingdom Connect PC during a service: setup, presenting, and calm 
 | **F** | Freeze |
 | **D** | Annotate |
 | **Esc** | Hide all (or stop annotating) |
-| **Ctrl+K** | Search Frames, Content, references, settings |
+| **R** | Teleprompter on / off (only you see it) |
+| **Ctrl+K** or **Ctrl+Space** | Command palette: find Frames, Content, questions, references, settings; run commands such as Go Live |
 
 Shortcuts are ignored while you type in a box. Shortcut keys can be changed in Settings.
 

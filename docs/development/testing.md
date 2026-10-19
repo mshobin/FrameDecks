@@ -90,7 +90,10 @@ flow. Use a test Zoom or Teams meeting, a real webcam and a phone on the same Wi
 - [ ] **Freeze** (F) holds the picture; unfreeze returns to live video.
 - [ ] **Annotate** (D): draw with the pen and a rectangle; undo; Esc hides the drawings.
 - [ ] A PowerPoint Content shows its slides and Page Down / Page Up move through them.
-- [ ] Double-click a question on the canvas, change it, press Enter: the screen updates.
+- [ ] Double-click a question on the canvas, change it, press Enter: the screen updates. Double-click its label, change it, press Esc: nothing changes.
+- [ ] Double-click a Frame's name: it renames in place. Double-click elsewhere on the row: the Frame goes live.
+- [ ] Ctrl+Click two Frames, press Delete, then **Undo** in the message: both come back.
+- [ ] **Ctrl+K** opens the command palette; type a Frame's name and press Enter.
 
 **Phone remote**
 - [ ] Turn on the remote, scan the QR code, sign in with the PIN.
@@ -99,7 +102,9 @@ flow. Use a test Zoom or Teams meeting, a real webcam and a phone on the same Wi
 - [ ] Turn off the PC's Wi-Fi for 10 seconds and back on: the remote shows it is disconnected, then reconnects.
 
 **Other windows**
-- [ ] **Speaker View** shows the item on screen, its answer and notes, and the next item.
+- [ ] **Teleprompter** (R) docks Left, Right, Bottom and Float; **Space** scrolls it. Its text never appears in Zoom, the Presentation window or the OBS pages.
+- [ ] **Teleprompter window** shows the Frame's script, the item on screen and the next item (no answers or notes).
+- [ ] The phone's **TELEPROMPTER** button opens the script full screen.
 - [ ] The **Presentation window** opens and can be shared in Zoom as "BSF Presentation".
 
 **Closing**

@@ -45,4 +45,19 @@ const plan2 = B.parse(readBook(again), {});
 same(plan2.errors, [], 'an exported meeting imports again');
 assert.strictEqual(plan2.counts.frames, 6);
 assert.strictEqual(plan2.counts.questions, 3);
+/* 6.7: an older workbook (v6.5 / 6.6) with Answer Text and Notes columns still imports. The answers and notes are not
+   stored on the questions any more; they become talking points in that Frame's teleprompter script. */
+const old = JSON.parse(JSON.stringify(book));
+old.Frames.headers[5] = 'Presenter Notes';
+old.Questions.headers = ['Frame Number', 'Content Name', 'Question Number', 'Label', 'Question Text', 'Answer Text', 'Media', 'Timer', 'Animation', 'Notes'];
+old.Questions.rows = old.Questions.rows.map((r, i) => [r[0], r[1], r[2], r[3], r[4], i === 0 ? 'Freedom from guilt because of Christ.' : '', r[5], r[6], r[7], i === 0 ? 'Start with this one.' : '']);
+const plan3 = B.parse(old, {});
+same(plan3.errors, [], 'an older workbook with Answer and Notes columns imports');
+const st3 = Store.defaults(); B.apply(st3, plan3, {});
+const qf = st3.scenes.filter(s => s.layers.some(l => l.kind === 'question'))[0], ql = qf.layers.filter(l => l.kind === 'question')[0];
+assert.ok(qf.notes.indexOf('Q1 answer: Freedom from guilt because of Christ.') >= 0, 'answer → teleprompter script');
+assert.ok(qf.notes.indexOf('Q1 note: Start with this one.') >= 0, 'note → teleprompter script');
+assert.ok(qf.notes.indexOf('Allow 10 minutes per question.') >= 0, 'Presenter Notes column still read');
+assert.ok(ql.c.items.every(it => it.answer === undefined && it.note === undefined), 'questions no longer carry answers or notes');
+['Answer Text', 'Notes'].forEach(h => assert.ok(B.header('questions').indexOf(h) < 0, h + ' is not exported any more'));
 console.log('Meeting Workbook: template and export OK (' + plan.counts.frames + ' Frames, ' + plan.counts.content + ' Content, ' + plan.warnings.length + ' notes)');

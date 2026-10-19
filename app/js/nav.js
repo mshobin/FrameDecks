@@ -88,6 +88,7 @@ show(document.body.dataset.tab || 'studio');
     if (mq.addEventListener) mq.addEventListener('change', follow); else if (mq.addListener) mq.addListener(follow); }
   if (seg) seg.addEventListener('click', function(e){ var b = e.target.closest('[data-theme-pick]'); if (b) set(b.dataset.themePick); });
   mark();
+  window.BSFTheme = {set: set, get: function(){ return d.dataset.themePref || 'dark'; }};     // 6.7 the command palette
 })();
 
 /* ---------- Header: every output's status chip, visible at a glance (v5.1). Each chip keeps its own code
@@ -198,7 +199,9 @@ show(document.body.dataset.tab || 'studio');
     else if (e.key === 'Escape'){ e.preventDefault(); e.stopPropagation(); inp.value = ''; close(); inp.blur(); }
   });
   inp.addEventListener('blur', function(){ setTimeout(close, 120); });
+  /* 6.7: Ctrl+K / Ctrl+Space open the command palette (js/palette.js); this box stays as the fallback without it */
   document.addEventListener('keydown', function(e){
+    if (window.BSFPalette) return;
     if ((e.ctrlKey || e.metaKey) && (e.key === 'k' || e.key === 'K') && !document.querySelector('dialog[open], .app-modal-back')){ e.preventDefault(); inp.focus(); inp.select(); }
   });
 })();

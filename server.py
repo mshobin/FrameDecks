@@ -28,7 +28,7 @@ from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from pathlib import Path
 from urllib.parse import urlparse, parse_qs, unquote
 
-APP_VERSION = "6.6"
+APP_VERSION = "6.7"
 STARTED_AT = time.time()
 FROZEN = getattr(sys, "frozen", False)          # True inside the installed Windows app
 HERE = Path(sys.executable).resolve().parent if FROZEN else Path(__file__).resolve().parent
@@ -64,6 +64,7 @@ SESSION_DAYS = 30
 COOKIE = "bsf_remote"
 # What a signed-in phone or iPad may open. Member data and the dashboard are never on this list.
 REMOTE_PUBLIC = {"/remote.html", "/css/remote.css", "/js/remote.js", "/js/store.js", "/js/brand.js", "/api/remote-login",
+                 "/js/teleprompter.js", "/css/teleprompter.css",
                  "/remote-manifest.json", "/icons/remote-180.png", "/icons/remote-192.png", "/icons/remote-512.png",
                  "/icons/remote-maskable-512.png", "/img/kc-emblem.webp"}
 REMOTE_SIGNED_IN = {"/api/rev", "/api/state", "/api/remote-logout", "/js/overlay.js", "/api/remote/studio", "/api/brand/logo", "/api/remote/live.jpg",

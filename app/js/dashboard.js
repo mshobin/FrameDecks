@@ -32,6 +32,15 @@ function toast(msg, bad){
   t.textContent = msg; t.className = 'toast show' + (bad ? ' bad' : '');
   clearTimeout(toastT); toastT = setTimeout(function(){ t.className = 'toast' + (bad ? ' bad' : ''); }, bad ? 4200 : 2200);
 }
+/* v6.7 a toast with one action (e.g. Undo after a delete); it stays a little longer */
+function toastAction(msg, label, run){
+  var t = $('toast'), b = document.createElement('button');
+  t.textContent = msg + ' '; t.className = 'toast show has-act';
+  b.type = 'button'; b.className = 'toast-act'; b.textContent = label;
+  b.addEventListener('click', function(){ clearTimeout(toastT); t.className = 'toast'; run(); });
+  t.appendChild(b);
+  clearTimeout(toastT); toastT = setTimeout(function(){ t.className = 'toast'; }, 7000);
+}
 function isOn(kind){ return !!(live && live[kind].visible && live[kind].text.trim()); }
 /* v6.5: lists belong to Frames. The editors show the selected Frame's list; Previous / Next step through the
  * list of the Frame on screen. */
@@ -55,6 +64,18 @@ function commit(fn){
   return chain;
 }
 window.BSFCommit = commit;  // shared with members.js so every change goes through one queue
+/* 6.7: the Excel library (930 KB) loads the first time it is needed (import, export, template), not at start-up */
+var xlsxP = null;
+window.BSFNeedXLSX = function(){
+  if (window.XLSX) return Promise.resolve(window.XLSX);
+  if (!xlsxP) xlsxP = new Promise(function(resolve, reject){
+    var s = document.createElement('script'); s.src = 'vendor/xlsx.full.min.js'; s.async = true;
+    s.onload = function(){ if (window.XLSX) resolve(window.XLSX); else { xlsxP = null; reject(new Error('Excel library')); } };
+    s.onerror = function(){ xlsxP = null; s.remove(); reject(new Error('Excel library')); };
+    document.head.appendChild(s);
+  });
+  return xlsxP;
+};
 /* Shared with Meeting Mode, so every screen uses the same tested actions */
 window.BSFActions = {
   show: function(k){ show(k); }, hide: function(k){ hide(k); }, toggle: function(k){ toggle(k); },
@@ -63,7 +84,8 @@ window.BSFActions = {
   setMode: function(m){ setMode(m); }, mode: function(){ return live ? P.mode(live) : 'question'; },
   questionLive: function(){ return !!(live && P.live(live)); },
   current: function(k){ return liveIndexOf(k, live && live[k].itemId); },
-  toast: function(m, bad){ toast(m, bad); }
+  toast: function(m, bad){ toast(m, bad); },
+  toastAction: toastAction
 };
 
 /* ---------- Actions ----------
@@ -437,6 +459,7 @@ function setup(){
     else if (a === 'prevScene' && window.BSFWorkspace) window.BSFWorkspace.step(-1);
     else if (a === 'presentMode' && window.BSFPresentation) window.BSFPresentation(!document.body.classList.contains('pm'));
     else if ((a === 'annotate' || a === 'freeze' || a === 'blackout') && window.BSFPresenterTools) window.BSFPresenterTools[a]();
+    else if (a === 'prompter' && window.BSFTeleprompter) window.BSFTeleprompter.toggle();
   });
 
   buildTransitionExtras();
