@@ -33,13 +33,9 @@ jobs:
           cache: true
       - name: Get packages
         run: flutter pub get
-      - name: Generated database code is up to date
-        run: |
-          dart run build_runner build
-          git diff --exit-code -- lib/data/models/
       - name: Analyse
         run: flutter analyze
-      - name: Tests (unit, widget, and the real Isar database)
+      - name: Tests (the engine against the Windows app's store.js, and the screens)
         run: flutter test
 
   build:
@@ -54,7 +50,7 @@ jobs:
           - { os: ubuntu-latest, target: apk, artifact: build/app/outputs/flutter-apk }
           - { os: ubuntu-latest, target: linux, artifact: build/linux/x64/release/bundle }
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 45
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
       - if: matrix.target == 'apk'
@@ -71,7 +67,7 @@ jobs:
           channel: stable
           cache: true
       - run: flutter pub get
-      # iOS is built without signing here; signed builds come with the store set-up (docs/project/flutter-platform-plan.md §10)
+      # iOS is built without signing here; signed builds come with the store set-up (docs/project/flutter-platform-plan.md)
       - name: Build ${{ matrix.target }}
         shell: bash
         run: |

@@ -1,5 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- the remote talks to Kingdom Connect on the PC over the local Wi-Fi (plain http, like remote.html) -->
+    <uses-permission android:name="android.permission.INTERNET" />
     <application
+        android:usesCleartextTraffic="true"
         android:label="Kingdom Connect"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">

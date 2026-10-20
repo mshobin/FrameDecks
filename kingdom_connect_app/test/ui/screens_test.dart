@@ -75,6 +75,13 @@ Json demoState() {
 Future<void> shot(WidgetTester tester, String name) async {
   final dir = Platform.environment['KC_SHOTS'];
   if (dir == null) return;
+  // images (the logo) decode on real time: let them, then draw
+  await tester.runAsync(() async {
+    for (final e in find.byType(Image).evaluate()) {
+      await precacheImage((e.widget as Image).image, e);
+    }
+  });
+  await tester.pump();
   await tester.runAsync(() async {
     final ro = tester.renderObject<RenderRepaintBoundary>(find.byKey(const ValueKey('shot')));
     final img = await ro.toImage(pixelRatio: 1);

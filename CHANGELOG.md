@@ -11,14 +11,14 @@ Versions before 4.9 (when the program had its earlier name) are described in the
 ## [Unreleased]
 
 ### Added
-- **Kingdom Connect for every platform (Flutter, Phase 1)** in `kingdom_connect_app/`. It is local-first and runs on
-  Windows, macOS, iPhone, iPad and Android:
-  - an Executive Dashboard and a guided Meeting Form;
-  - follow-ups, prayer requests, volunteers, ministries and service schedules;
-  - backups, Excel and PDF export, and a read-only import from the Windows program;
-  - Isar storage, Riverpod and GoRouter, with roles, an audit log and storage providers prepared for later.
+- **Kingdom Connect for every platform (Flutter)** in `kingdom_connect_app/`: a native rebuild of the Windows app
+  with the same design, Frames and saved file.
+  - Windows, macOS and Linux get the Studio (top bar, Frames, Content, canvas, inspector, Settings) and a
+    full-screen Share Window.
+  - iPhone, iPad and Android get the remote control for Kingdom Connect on the PC, signed in with its PIN.
+  - Its engine is a port of `store.js`, checked against the JavaScript with parity tests.
 
-  It runs next to the Windows program, which is unchanged. Plan:
+  Plan and what still lives only in the Windows program:
   [docs/project/flutter-platform-plan.md](docs/project/flutter-platform-plan.md). CI:
   `.github/workflows/flutter-app.yml`.
 
