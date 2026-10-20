@@ -24,3 +24,13 @@
 .wc-ask-acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
 @keyframes wc-in{from{opacity:0;transform:translateY(-4px) scale(.985)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){ .wc-btn{transition:none} .wc-ask-card{animation:none} }
+/* resize handles: 6 px edges, 14 px corners, above everything; hidden while maximized */
+.wc-edge{position:fixed;z-index:2147483000;background:transparent}
+.wc-top{top:0;left:14px;right:14px;height:5px;cursor:ns-resize}
+.wc-bottom{bottom:0;left:14px;right:14px;height:6px;cursor:ns-resize}
+.wc-left{left:0;top:14px;bottom:14px;width:6px;cursor:ew-resize}
+.wc-right{right:0;top:14px;bottom:14px;width:6px;cursor:ew-resize}
+.wc-topleft,.wc-topright,.wc-bottomleft,.wc-bottomright{width:14px;height:14px}
+.wc-topleft{top:0;left:0;cursor:nwse-resize} .wc-bottomright{bottom:0;right:0;cursor:nwse-resize}
+.wc-topright{top:0;right:0;cursor:nesw-resize} .wc-bottomleft{bottom:0;left:0;cursor:nesw-resize}
+.win-maximized .wc-edge{display:none}
