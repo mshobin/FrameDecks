@@ -42,7 +42,7 @@ Media Content is part of the **KingdomConnect picture**: the finished 16:9 image
 
 1. Select the Frame in the **Frames** list.
 2. Select **+ Content** and choose the type.
-3. Choose the file. Kingdom Connect keeps its own copy in the data folder (`%APPDATA%\BSF Command Center\layers\`), so the Frame keeps working if the original file is moved or deleted.
+3. Choose the file. Kingdom Connect keeps its own copy in the data folder (`%APPDATA%\Kingdom Connect\layers\`), so the Frame keeps working if the original file is moved or deleted.
 4. Set it up in **Content Settings → Media**: the file, position (Centre X / Y), size (Width / Height) and **Opacity**.
 5. When the Frame is live and the KingdomConnect camera is on, you can also **drag** the Content on the Studio Canvas and resize it with its handles. Turn on **Snap to guides** for neat alignment.
 
@@ -138,9 +138,9 @@ Kingdom Connect has its own camera, listed as **KingdomConnect** in Windows. It 
 
 For an in-room projector or TV, use the **Presentation window**:
 
-1. On the Studio Canvas, select **Share Window**. A separate window called **BSF Presentation** opens, showing only the live picture.
+1. On the Studio Canvas, select **Share Window**. A separate window called **Kingdom Connect Share Window** opens, showing only the live picture.
 2. Drag it to the projector display and switch it to **full screen**.
-3. To share it in Zoom instead, choose **Share Screen → BSF Presentation**.
+3. To share it in Zoom instead, choose **Share Screen → Kingdom Connect Share Window**.
 
 The Presentation window, the KingdomConnect camera and the Studio Canvas all show the same picture.
 

@@ -38,7 +38,7 @@ assert.strictEqual(st.scenes[0].name, 'A');
 console.log('my feature: OK');
 ```
 
-Prefer testing behaviour through the same helpers the app uses (`Store.normalize`, `BSFScenes`), not internal details.
+Prefer testing behaviour through the same helpers the app uses (`Store.normalize`, `KCScenes`), not internal details.
 
 ## Self-check
 
@@ -71,11 +71,11 @@ these flows in CI is on the [roadmap](../../ROADMAP.md).
 Useful set-up for any manual or automated test:
 
 ```bash
-BSF_DATA_DIR=/tmp/kc-test BSF_VCAM_DEMO=1 python server.py --no-browser --remote
+KC_DATA_DIR=/tmp/kc-test KC_VCAM_DEMO=1 python server.py --no-browser --remote
 ```
 
-- `BSF_DATA_DIR` keeps test data away from real meetings and members.
-- `BSF_VCAM_DEMO=1` gives a moving test picture, so the camera pipeline, previews and the phone's live picture work
+- `KC_DATA_DIR` keeps test data away from real meetings and members.
+- `KC_VCAM_DEMO=1` gives a moving test picture, so the camera pipeline, previews and the phone's live picture work
   without a webcam.
 - `http://localhost:8750/api/remote-info` shows the phone remote's PIN and addresses on this PC.
 
@@ -112,7 +112,7 @@ flow. Use a test Zoom or Teams meeting, a real webcam and a phone on the same Wi
 - [ ] **Teleprompter** (R) docks Left, Right, Bottom and Float; **Space** scrolls it. Its text never appears in Zoom, the Presentation window or the OBS pages.
 - [ ] **Teleprompter window** shows the Frame's script, the item on screen and the next item (no answers or notes).
 - [ ] The phone's **TELEPROMPTER** button opens the script full screen.
-- [ ] The **Presentation window** opens and can be shared in Zoom as "BSF Presentation".
+- [ ] The **Presentation window** opens and can be shared in Zoom as "Kingdom Connect Share Window".
 
 **Window, tray and Spotlight (6.8)**
 

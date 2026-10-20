@@ -124,7 +124,7 @@ so two builds months apart may differ; pinning exact versions for releases would
 | 6 | Windows-only camera | Mac churches cannot use the camera features | Document clearly; consider only with demand |
 | 7 | Dependency ranges, no lock file | Builds can drift | **Done:** `packaging/constraints.txt` pins every package to the last good build |
 | 7a | Two OpenCV packages installed together (`opencv-python` 5.0 via a dependency, `opencv-python-headless` 4.14) sharing one module | A future version change could break the camera | Pinned as a tested pair; remove one when the dependency allows it |
-| 8 | Internal names still "BSF Command Center" (data folder, install folder, exe) | Confusing in support conversations | Keep for upgrade safety; document (done) |
+| 8 | Internal names (data folder, install folder, exe) still carried the program's earlier name | Confusing in support conversations | **Done (6.9):** everything uses Kingdom Connect; `legacy.py` moves earlier data once |
 | 9 | GitHub Actions on Node 20 actions | Deprecation warnings today, failures later | Update action versions once verified |
 
 ## 7. UX review

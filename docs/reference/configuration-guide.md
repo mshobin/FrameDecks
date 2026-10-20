@@ -26,8 +26,8 @@ For installing, see `docs/development/building-the-installer.md`. For what each 
    - the Camera Look;
    - whether your cards appear on the camera.
 
-**Upgrading from a version before 6.4:** the camera was called *BCC vCam*. The installer renames it and keeps the
-same device ID. In OBS, point any old "BCC vCam" source at KingdomConnect once.
+**Upgrading from a version before 6.4:** the camera had its earlier name. The installer renames it and keeps the
+same device ID. In OBS, point any old source that used the camera's earlier name at KingdomConnect once.
 
 ---
 
@@ -53,15 +53,16 @@ same device ID. In OBS, point any old "BCC vCam" source at KingdomConnect once.
 
 ## 3. Where settings are stored
 
-Everything is in the data folder, `%APPDATA%\BSF Command Center`. The folder keeps its original name so upgrades
-keep your data.
+Everything is in the data folder, `%APPDATA%\Kingdom Connect`. Earlier versions, published under the program's
+earlier name, used a folder and file names carrying that name; on first start, 6.9 moves them here once (including
+backups and recordings) and never overwrites newer data.
 
 | File | Contents |
 | --- | --- |
-| `bsf-saved-content.json` | Frames, their Content (with their own question and scripture lists), branding, the Meeting Overview, live state (including drawings) |
-| `bsf-members-private.json` | Members and member settings (never sent to the remote or the overlays) |
-| `bsf-app-settings.json` | App options: remote autostart, Light on graphics card, native Presentation window |
-| `bsf-remote-pin.txt`, `bsf-remote-sessions.json` | Phone remote PIN and signed-in phones |
+| `kc-saved-content.json` | Frames, their Content (with their own question and scripture lists), branding, the Meeting Overview, live state (including drawings) |
+| `kc-members-private.json` | Members and member settings (never sent to the remote or the overlays) |
+| `kc-app-settings.json` | App options: remote autostart, Light on graphics card, native Presentation window |
+| `kc-remote-pin.txt`, `kc-remote-sessions.json` | Phone remote PIN and signed-in phones |
 | `bcc-brand-logo.png` | Your uploaded logo (internal file name kept for compatibility) |
 | `webview\`, `appwindow\` | The app window's browser storage |
 | `backups\` | Daily and manual backups |
@@ -71,4 +72,4 @@ keep your data.
 ### Environment variables (developers and tests)
 | Variable | Effect |
 | --- | --- |
-| `BSF_DATA_DIR` | Use another data folder |
+| `KC_DATA_DIR` | Use another data folder |

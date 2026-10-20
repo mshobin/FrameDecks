@@ -167,12 +167,12 @@ The same entry points are on the empty Scenes list and in Settings → Meeting &
 | | `auto` | New scenes get a Branding layer |
 | layer kind `brand` | `c.logo`, `c.name`, `c.org`, `c.pos`, `c.scale` | The Branding badge (a text-type layer: switched on and off with the scene like the other text layers) |
 | text layers | `c.logo` | Show the logo in the card's label row |
-| text layers | `{meeting}`, `{org}` in `c.title` / `c.text` | Replaced on screen (`BSFScenes.brandText`) |
+| text layers | `{meeting}`, `{org}` in `c.title` / `c.text` | Replaced on screen (`KCScenes.brandText`) |
 | scene | `notes` | Leader notes from the Excel Notes column, editable in the Scene Inspector, never shown on screen |
 | library | `lib-meeting-title`, `lib-meeting-lower` | Branded templates |
 
-New helpers in `BSFScenes`: `liveBrand`, `brandText`, `hasBrand`, `brandPalette` (accent → card colours, the same
-maths as `vcam/cards.py accent_palette`), `addBrand`, `autoBrand`. `BSFStore.brand()` gives the header a cheap read.
+New helpers in `KCScenes`: `liveBrand`, `brandText`, `hasBrand`, `brandPalette` (accent → card colours, the same
+maths as `vcam/cards.py accent_palette`), `addBrand`, `autoBrand`. `KCStore.brand()` gives the header a cheap read.
 
 **Server** (`server.py`):
 - `POST api/brand/logo` (this PC only): stores a PNG of up to 8 MB. The PNG header is checked; the response is
@@ -194,7 +194,7 @@ maths as `vcam/cards.py accent_palette`), `addBrand`, `autoBrand`. `BSFStore.bra
 
 ## 3. Excel template structure
 
-The file is made by `BSFMeetingSheet.templateBook`, which is the same code for the in-app download and
+The file is made by `KCMeetingSheet.templateBook`, which is the same code for the in-app download and
 `docs/templates/Kingdom-Connect-Meeting-Template.xlsx` (written by `node tools/make_meeting_template.js`).
 
 **Sheets:**

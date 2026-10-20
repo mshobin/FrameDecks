@@ -335,7 +335,7 @@ The **Presentation window** shows the same finished picture as the KingdomConnec
 > **Important:** **Esc** inside the Presentation window closes it (**✕ Exit**). Press Esc in the main Kingdom Connect
 > window instead when you mean **Hide all**.
 
-To share it in Zoom instead, choose **Share Screen**, then the window named **BSF Presentation**.
+To share it in Zoom instead, choose **Share Screen**, then the window named **Kingdom Connect Share Window**.
 
 > **Note:** Media Content (camera, images, video, PowerPoint, screen and window sharing) is part of the KingdomConnect
 > picture, so turn on the KingdomConnect camera in **Settings → KingdomConnect Camera** if you use it.

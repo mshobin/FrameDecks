@@ -63,7 +63,7 @@ See [CONTRIBUTING](CONTRIBUTING.md) and the [developer guide](docs/contributing.
 
 ```powershell
 python server.py                                    # run from source in your browser at http://localhost:8750
-$env:BSF_VCAM_DEMO=1; python server.py --remote     # with a built-in test camera and the phone remote on
+$env:KC_VCAM_DEMO=1; python server.py --remote      # with a built-in test camera and the phone remote on
 python -m pip install -r packaging/requirements-desktop.txt -c packaging/constraints.txt   # desktop + camera
 python desktop_app.py                               # the desktop app window (WebView2)
 node tests/run.js                                   # the automated tests
@@ -111,5 +111,5 @@ No licence has been published yet; until one is, all rights are reserved by the 
 their own licences: softcam (MIT), MediaPipe selfie segmentation model (Apache 2.0), SheetJS and Lucide icons (see
 `app/vendor/`), EB Garamond and Source Sans 3 (SIL Open Font License).
 
-<sub>Formerly **BSF Command Center**: the install folder, data folder and program file keep that name so every update
-installs over the previous one and keeps each church's data.</sub>
+<sub>Kingdom Connect was first published under an earlier name. Version 6.9 installs over every earlier version and,
+on first start, moves the data saved under that name to the Kingdom Connect folder, so each church keeps its data.</sub>

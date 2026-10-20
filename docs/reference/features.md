@@ -78,13 +78,13 @@ blur and a Camera Look, plus the live scene (cards, text, pictures, slides, bran
 | Settings | **Settings → KingdomConnect Camera** |
 | Status | The status menu in the command bar: **KingdomConnect** · Off / Ready / In use |
 
-### Upgrading from "BCC vCam"
-Before 6.4 the same camera was called **BCC vCam**. Installing 6.4 does the following:
+### Upgrading from the camera's earlier name
+Before 6.4 the same camera had an earlier name. Installing 6.4 does the following:
 - It registers the camera again under its new name. This happens even if the option is not ticked, as long as the
   camera was already installed, because the driver file was renamed.
 - Zoom, Teams, Meet and OBS show **KingdomConnect** after they are restarted. They read the camera list when they
   start.
-- An OBS scene that used "BCC vCam" as a *Video Capture Device* may need that source pointed at KingdomConnect once.
+- An OBS scene that used the camera under its earlier name as a *Video Capture Device* may need that source pointed at KingdomConnect once.
 
 The app also still recognises its old name, so it never captures its own picture during the upgrade.
 
@@ -113,7 +113,7 @@ The app's own branding is the **Book + Candle** mark (`app/img/kc-emblem.webp`) 
 - **Phone remote:** the sign-in screen shows the mark alone, and the remote's top bar shows the mark and the mode
   (Simple / Standard / Advanced).
 - **Home-screen icons** (`app/icons/remote-*.png`): the mark on a navy tile, with no text. The Windows app icon
-  (`packaging/bsf.ico`) was already the mark alone.
+  (`packaging/kingdom-connect.ico`) was already the mark alone.
 - **Dialogs and overlays** show no product branding. The leader's own logo and Meeting Name (Settings → Meeting &
   Branding) still appear only where the leader puts them.
 - **About page:** unchanged. It keeps its own branding and content.

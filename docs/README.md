@@ -56,7 +56,6 @@ Detailed guides written alongside earlier versions. They remain accurate for the
 | [Configuration guide](reference/configuration-guide.md) | Camera, app window, settings files, environment variables |
 | [Meeting Workbook and branding](reference/meeting-workbook-and-branding.md) | The Excel workbook in detail; Meeting Name, logo and colours |
 | [PowerPoint](reference/powerpoint.md) | What is technically possible with PowerPoint, and what the app does |
-| [Legacy manual (v4.6)](reference/legacy-manual-v4.6.txt) | The original manual, kept for reference |
 
 ## Releases
 

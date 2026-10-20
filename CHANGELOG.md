@@ -5,10 +5,19 @@ All notable changes to Kingdom Connect are recorded here. The format follows
 [docs/development/changelog-standards.md](docs/development/changelog-standards.md)). Each version links to its full
 release notes in [`docs/releases/`](docs/releases/). Dates are the dates of the release commits.
 
-Versions before 4.9 (when the product was called BSF Command Center, then BCC) are described in the engineering log,
+Versions before 4.9 (when the program had its earlier name) are described in the engineering log,
 [docs/architecture/design-history.md](docs/architecture/design-history.md).
 
 ## [Unreleased]
+
+### Changed
+- The program now uses the Kingdom Connect name everywhere: the program (`Kingdom Connect.exe`), the program folder,
+  the data folder (`%APPDATA%\Kingdom Connect`), the data files (`kc-*.json`), the start files, the recordings folder,
+  the firewall rule and the Share Window title (*Kingdom Connect Share Window*). Default labels and the About text no
+  longer mention the program's earlier name, and the default Group Name is empty.
+- On first start, 6.9 moves data saved by earlier versions (folder, files, backups, recordings and browser settings)
+  to the new names once, never overwriting newer data. The installer installs over every earlier version and removes
+  the old program folder and shortcuts.
 
 ## [6.8] - 2026-10-20
 
@@ -180,7 +189,7 @@ Full notes: [docs/releases/v6.1.md](docs/releases/v6.1.md)
   Library of ready-made scenes; Duplicate & edit question.
 
 ### Changed
-- New name: **Kingdom Connect** (formerly BSF Command Center / BCC), with a navy and gold design in dark and light
+- The program got its current name, **Kingdom Connect**, with a navy and gold design in dark and light
   themes, and a new About page.
 
 ## [6.0] - 2026-10-12

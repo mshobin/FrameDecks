@@ -52,8 +52,9 @@ A webcam is optional. You need one only if people should see you on the KingdomC
 ## First launch
 
 1. Open **Kingdom Connect** from the desktop icon.
-2. If you used an earlier version (*BSF Command Center*), the app offers to **import your existing data**. Choose
-   your old folder (it is usually found automatically) and select **Import**. Your old folder is not changed.
+2. If you used the zip version of Kingdom Connect before, the app offers to **import your existing data**. Choose
+   your old folder (it is usually found automatically) and select **Import**. Your old folder is not changed. (An
+   installed earlier version needs nothing: the installer updates it and your data is kept.)
 3. The app opens on the **Studio**, where you build and run meetings.
 
 > **Note:** Everything you do is saved automatically on this PC. There is no Save button to remember.

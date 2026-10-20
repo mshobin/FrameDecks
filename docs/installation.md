@@ -78,7 +78,7 @@ unchanged:
 
 ## First run
 
-1. If an earlier version is on this PC (*BSF Command Center*), the app offers to **import your existing data**. Choose
+1. If you used the zip version of Kingdom Connect on this PC, the app offers to **import your existing data**. Choose
    the old folder and select **Import**. Members, saved questions and scriptures, settings and the phone PIN are
    copied. The old folder is not changed.
 2. Restart Zoom, Teams, OBS or your browser for Google Meet. They read the list of cameras only when they start.
@@ -108,6 +108,10 @@ If the phone still cannot connect, see [Troubleshooting](troubleshooting.md).
 2. Run the new installer. It installs over the old version.
 3. Your meetings, settings, members, backups and phone PIN are kept.
 
+> **Note:** Kingdom Connect was first published under an earlier name. Version 6.9 installs over every earlier
+> version, removes the old program folder and shortcuts, and on first start moves your data (including backups and
+> recordings) to the Kingdom Connect folders below. Nothing newer is overwritten.
+
 Read the release notes in [CHANGELOG.md](../CHANGELOG.md) before a big update, and avoid updating on the morning of a
 service.
 
@@ -115,11 +119,9 @@ service.
 
 | What | Where |
 | --- | --- |
-| The program | `%LOCALAPPDATA%\Programs\BSF Command Center` |
-| Your data (meetings, settings, members, PIN) | `%APPDATA%\BSF Command Center` |
-| Backups | `%APPDATA%\BSF Command Center\backups` (daily, plus any you make) |
-
-The folders keep the product's original name so that updates find your data.
+| The program | `%LOCALAPPDATA%\Programs\Kingdom Connect` |
+| Your data (meetings, settings, members, PIN) | `%APPDATA%\Kingdom Connect` |
+| Backups | `%APPDATA%\Kingdom Connect\backups` (daily, plus any you make) |
 
 **Settings → Data / Backup** shows the data folder, lets you make a backup now and restore one. See
 [reference/configuration-guide.md](reference/configuration-guide.md) for the files inside.
@@ -127,10 +129,10 @@ The folders keep the product's original name so that updates find your data.
 ## Uninstall
 
 1. Open Windows **Settings → Apps → Installed apps**.
-2. Find **Kingdom Connect** (it may be listed as *BSF Command Center*) and choose **Uninstall**.
+2. Find **Kingdom Connect** and choose **Uninstall**.
 
 Your data folder is left in place, so reinstalling brings everything back. Delete
-`%APPDATA%\BSF Command Center` yourself only if you want to remove your data for good, and make a backup first.
+`%APPDATA%\Kingdom Connect` yourself only if you want to remove your data for good, and make a backup first.
 
 ## If the app window looks like a browser
 

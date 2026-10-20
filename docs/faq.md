@@ -25,7 +25,7 @@ Straight answers to the questions churches ask most about Kingdom Connect.
 A presentation app for churches and faith communities. You plan a meeting as a list of **Frames** (Welcome, Worship, Scripture Reading, Discussion, Closing), fill each Frame with **Content** (questions, scriptures, text, pictures, videos, PowerPoint, a timer), and present it to Zoom, Teams, Google Meet, OBS or a projector, from the PC or a phone.
 
 **Who is it for?**
-Bible studies, small groups, prayer meetings, trainings and services, especially ones with people joining online. It was first built for Bible Study Fellowship groups meeting on Zoom.
+Bible studies, small groups, prayer meetings, trainings and services, especially ones with people joining online. It was first built for Bible study groups meeting on Zoom.
 
 **Does it replace ProPresenter or EasyWorship?**
 Not completely. Kingdom Connect focuses on Bible study, discussion and teaching, online or hybrid, with a built-in camera for meeting apps and a very simple phone remote. It has no song library, multi-screen stage display layouts or lighting control. Many churches use it for midweek groups and online gatherings alongside their Sunday software.
@@ -165,7 +165,7 @@ Yes. Press **Ctrl+K** or **Ctrl+Space** (or select the search box at the top) to
 ## Data, privacy and offline use
 
 **Where is our data stored?**
-Only on your PC, in `%APPDATA%\BSF Command Center`. Nothing is uploaded. There are no accounts and no cloud.
+Only on your PC, in `%APPDATA%\Kingdom Connect`. Nothing is uploaded. There are no accounts and no cloud.
 
 **Does Kingdom Connect work without the internet?**
 Yes. Everything works offline except fetching new ESV verses, and whatever your meeting app needs (Zoom itself needs the internet).
