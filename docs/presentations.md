@@ -15,7 +15,8 @@ or meeting.
 - [When something goes wrong: Hide all, Blackout, Emergency, Freeze](#when-something-goes-wrong-hide-all-blackout-emergency-freeze)
 - [Annotate: draw on the picture](#annotate-draw-on-the-picture)
 - [Teleprompter](#teleprompter)
-- [Command palette](#command-palette)
+- [Teleprompter overlay (Meeting Leader mode)](#teleprompter-overlay-meeting-leader-mode)
+- [Command palette](#command-palette) and [Spotlight](#spotlight)
 - [Projector, TV and screen sharing](#projector-tv-and-screen-sharing)
 - [Keyboard shortcuts](#keyboard-shortcuts)
 - [Live-safety tips](#live-safety-tips)
@@ -114,7 +115,8 @@ A Frame with a Question or Scripture list shows one item at a time.
 | **Freeze** | **F** | The picture held still | You are changing things and do not want people to see it |
 | **Hide Content** | — | The selected Content is hidden | One item should go away, the rest stays |
 
-Blackout, Emergency, Annotate, Freeze, the Teleprompter and the Teleprompter window are in the **Program** menu. The menu button changes to
+Blackout, Emergency, Annotate, Freeze, the Teleprompter, the Teleprompter window and the Teleprompter overlay are in
+the **Program** menu. The menu button changes to
 **BLACKOUT ▾**, **EMERGENCY ▾**, **FROZEN ▾** or **ANNOTATING ▾** so you never forget one is on. Press the same
 control again to turn it off.
 
@@ -176,8 +178,16 @@ camera, the Presentation window, the OBS pages or the phone's drawing pad.
 
 **Open it in its own window**
 **Program → Teleprompter window** (called *Speaker View* in 6.6) opens the Teleprompter in a separate window, ideal
-on a second monitor or beside Zoom on a laptop. It also shows the clocks, a **Timer**, what is on screen now and what
-comes next.
+on a second monitor or beside Zoom on a laptop.
+
+- The script takes the whole width of the window.
+- Select **On screen & next** to slide in the side panel with the clocks, a **Timer**, what is on screen now and what
+  comes next. It is hidden at first, and the window remembers your choice.
+- The controls float at the bottom and fade after a few seconds, as in the overlay. Move the mouse to bring them back.
+- The ribbon at the top has the window buttons. Drag it to move the window.
+- The Teleprompter window is left out of screen sharing, so Zoom participants do not see it.
+
+To read your script on top of Zoom or Teams instead, use the [Teleprompter overlay](#teleprompter-overlay-meeting-leader-mode).
 
 ![The Teleprompter window: the script, what is on screen, what comes next and a clock](images/speaker-view.png)
 
@@ -190,6 +200,7 @@ comes next.
 | Text smaller / larger (**A−** / **A+**) | **−** / **+** |
 | Line spacing, high contrast | — |
 | Focus mode | **F** |
+| Mirror the text (for a teleprompter glass) | **M** |
 | Back to the top | **Home** |
 | Scroll by hand | **↑ ↓**, **Page Up / Page Down**, the mouse wheel or touch |
 
@@ -200,6 +211,82 @@ question or scripture.
 > your data. Put what you want to remember in the Frame's Teleprompter script.
 
 On the phone, the Teleprompter is on the remote too. See [Remote control](remote-control.md#teleprompter-on-the-phone).
+
+## Teleprompter overlay (Meeting Leader mode)
+
+The **Teleprompter overlay** shows your script in a see-through window that you place over Zoom, Teams or Google
+Meet. You read your script and still see the participants, shared screens and chat behind it. Only you see it.
+
+**Open it**
+- **Program → Teleprompter overlay**, or press **Shift+R**.
+- In the docked Teleprompter, select **Overlay** in its header.
+- From the tray icon near the clock: **Teleprompter**.
+- From [Spotlight](#spotlight) or the [command palette](#command-palette): type *overlay*.
+
+The overlay shows the script of the Frame on screen. Before you go live, it shows the first Frame, so you can
+rehearse.
+
+**Choose how see-through it is**
+
+| Mode | Transparent | Key | Good for |
+| --- | --- | --- | --- |
+| **Solid** | 0 % | **1** | Reading only, nothing behind it |
+| **Presenter** | 20 % | **2** | Mostly script, a hint of the meeting |
+| **Meeting** | 40 % (the default) | **3** | Reading while you watch the participants |
+| **Conference** | 65 % | **4** | Keeping a close eye on faces and shared screens |
+| **Ghost** | 85 % | **5** | Short reminders over a busy screen |
+
+The more see-through it is, the stronger the outline around the letters, so the text stays easy to read.
+
+- **Frosted glass** blurs what is behind the overlay, so the text stands out. On Windows 11 (22H2 and later) it is
+  Acrylic glass; on Windows 10 it is a plain blur.
+- **Stay on top** (📌, or press **P**) keeps the overlay above Zoom, Teams, PowerPoint and browsers. The overlay
+  remembers this and your other choices.
+
+> **Note:** The overlay is never shown in screen sharing or recordings, even when you share your whole screen
+> (Windows 10 version 2004 or later). It is never on the KingdomConnect camera either. The Teleprompter window and
+> Spotlight are left out of screen sharing too.
+
+**The toolbar and the ribbon**
+
+The script takes nearly the whole width of the window. A small glass toolbar floats at the bottom and fades after
+about three seconds. Move the mouse to bring it back.
+
+| Control | Key |
+| --- | --- |
+| Play / pause | **Space** |
+| Speed | — |
+| Text smaller / larger (**A−** / **A+**) | **−** / **+** |
+| Line spacing, high contrast | — |
+| Mirror the text (for a teleprompter glass) | **M** |
+| Back to the top | **Home** |
+| Edit the script (**✎**) | — |
+| Transparency mode | **1** to **5** |
+| Frosted glass | — |
+| Stay on top (📌) | **P** |
+| Exit | **Esc** |
+
+A thin ribbon at the top, with the window buttons, appears with the toolbar. Drag the ribbon to move the overlay.
+Drag an edge to resize it.
+
+**Place it in Zoom or Teams**
+1. Start the meeting and open the overlay (**Shift+R**).
+2. Drag it over the part of the meeting you need to see least, for example the lower part of the gallery or beside
+   the shared screen. Keep it close to your camera so your eyes stay near the lens.
+3. Make it as small as you can still read comfortably. Use **A−** / **A+** for the text.
+4. Start with **Meeting** (3). Go to **Conference** (4) if you need to see faces, or **Presenter** (2) if the text is
+   hard to read.
+5. Check that **Stay on top** (📌) is on, then click into Zoom or Teams: the overlay should stay in front.
+
+> **Important:** With **Light on graphics card** on (the default), the overlay fades as a whole, text included. For
+> solid text over a see-through background, turn off **Settings → General → Performance → Light on graphics card**
+> and restart Kingdom Connect. If your meeting does not show through on your PC, turn on **Compatibility
+> transparency** in **Settings → General → Window and tray**: the whole window then fades.
+
+You can set the overlay's starting transparency, frosted glass, stay on top and compatibility transparency in
+**Settings → General → Window and tray**.
+
+> **Note:** In a web browser (not the installed app), the overlay cannot be see-through or stay on top.
 
 ## Command palette
 
@@ -215,6 +302,27 @@ The **command palette** finds anything and does most things, from the keyboard.
 ![The command palette, with "bible" typed](images/command-palette.png)
 
 You can change the keys in **Settings → Keyboard shortcuts → Command palette**.
+
+### Spotlight
+
+**Spotlight** is the command palette for the whole of Windows. It works when another program is in front, and when
+Kingdom Connect is hidden in the tray.
+
+1. Press **Alt+Space** anywhere. Spotlight opens in the middle of the screen where your mouse is, above everything.
+2. Type, then choose with **↑ / ↓** and **Enter**. It finds the same things as the command palette.
+3. **Esc**, or a click somewhere else, closes it.
+
+With an empty search, Spotlight shows **Recent**, **Frequently used** and **Suggested** items.
+
+**Go Live**, **Next / Previous Frame**, **Hide all**, **Blackout**, **Freeze**, the **Teleprompter window** and the
+**Teleprompter overlay** run without bringing the main window back. Everything else opens the main window.
+
+If another program already uses Alt+Space (for example PowerToys Run), Kingdom Connect uses **Ctrl+Alt+Space**
+instead. **Settings → General → Window and tray → Spotlight** shows which shortcut works. You can choose Alt+Space,
+Ctrl+Space, Ctrl+Alt+Space, Ctrl+Shift+Space, Win+Shift+K, or Off.
+
+> **Note:** Alt+Space normally opens the window menu of the program in front. If you need that menu, choose another
+> Spotlight shortcut.
 
 ## Projector, TV and screen sharing
 
@@ -234,7 +342,8 @@ To share it in Zoom instead, choose **Share Screen**, then the window named **BS
 
 ## Keyboard shortcuts
 
-Shortcuts work while the Kingdom Connect window has focus, and never while you type in a box. You can change the
+Shortcuts work while the Kingdom Connect window has focus, and never while you type in a box. Spotlight's shortcut
+is the exception: it works everywhere. You can change the
 meeting shortcuts in **Settings**.
 
 | Key | Action |
@@ -251,7 +360,12 @@ meeting shortcuts in **Settings**.
 | **D** | Annotate on / off |
 | **P** | Presentation Mode on / off |
 | **R** | Teleprompter on / off |
+| **Shift + R** | Teleprompter overlay on / off |
+| **1** to **5** | Overlay transparency: Solid, Presenter, Meeting, Conference, Ghost (in the overlay) |
+| **M** | Mirror the text (in the Teleprompter or the overlay) |
+| **P** | Stay on top on / off (in the overlay) |
 | **Ctrl + K** or **Ctrl + Space** | Command palette |
+| **Alt + Space** | Spotlight, from anywhere in Windows (you can change it in Settings) |
 | **F2** | Rename the selected Frame or Content |
 | **Ctrl + D** | Duplicate the selected Frame or Content |
 | **Ctrl + C** · **Ctrl + X** · **Ctrl + V** | Copy · cut · paste the selected Frames or Content |
