@@ -1,22 +1,52 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:window_manager/window_manager.dart';
 
-import 'app.dart';
-import 'data/database/app_database.dart';
-import 'services/settings/app_settings.dart';
-import 'shared/providers.dart';
+import 'engine/backend.dart';
+import 'ui/providers.dart';
+import 'ui/remote/remote_app.dart';
+import 'ui/studio/share_window.dart' show isDesktop;
+import 'ui/studio/studio_screen.dart';
+import 'ui/theme.dart';
 
-/// Start-up (budget: under 2 s to the dashboard). The database and the preferences open in parallel; nothing else
-/// waits before the first frame (the engine status, charts and lists load lazily).
+/// Kingdom Connect.
+///
+/// - Windows, macOS, Linux: the Studio, the same as the Windows app. When Kingdom Connect (the Windows program) is
+///   running on this PC, this window works on its Frames; otherwise the Frames are kept in this computer's own
+///   kc-saved-content.json.
+/// - iPhone, iPad, Android: the remote control for Kingdom Connect on the PC.
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final results = await Future.wait<Object>([AppDatabase.open(), SharedPreferences.getInstance()]);
-  runApp(ProviderScope(
-    overrides: [
-      databaseProvider.overrideWithValue(results[0] as AppDatabase),
-      settingsStoreProvider.overrideWithValue(SettingsStore(results[1] as SharedPreferences)),
-    ],
-    child: const KingdomConnectApp(),
-  ));
+  if (!isDesktop) return runApp(const RemoteApp());
+
+  await windowManager.ensureInitialized();
+  await windowManager.waitUntilReadyToShow(
+    const WindowOptions(title: 'Kingdom Connect', minimumSize: Size(1100, 700), size: Size(1440, 900), center: true),
+    () async {
+      await windowManager.show();
+      await windowManager.focus();
+    },
+  );
+  final backend = await chooseBackend();
+  await backend.start();
+  runApp(ProviderScope(overrides: [backendProvider.overrideWithValue(backend)], child: const StudioApp()));
+}
+
+/// The program on this PC when it is running, else this computer's own file.
+Future<StateBackend> chooseBackend() async {
+  final engine = Uri.parse('http://127.0.0.1:8750/');
+  if (await EngineBackend.isKingdomConnect(engine)) return EngineBackend(engine);
+  final dir = await getApplicationSupportDirectory();
+  return LocalBackend(File('${dir.path}${Platform.pathSeparator}kc-saved-content.json'), label: Platform.isMacOS ? 'This Mac' : 'This computer');
+}
+
+class StudioApp extends StatelessWidget {
+  const StudioApp({super.key});
+
+  @override
+  Widget build(BuildContext context) =>
+      MaterialApp(title: 'Kingdom Connect', debugShowCheckedModeBanner: false, theme: kcTheme(), home: const StudioScreen());
 }

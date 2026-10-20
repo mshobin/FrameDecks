@@ -1,0 +1,6088 @@
+{
+ "clockStart": 1792500000000,
+ "initial": {
+  "rev": 0,
+  "verse": {
+   "label": "Focus Verse",
+   "showLabel": true,
+   "text": "Thy word is a lamp unto my feet, and a light unto my path.",
+   "ref": "Psalm 119:105",
+   "version": "KJV",
+   "visible": false,
+   "seq": 0,
+   "cut": 0,
+   "itemId": "s1",
+   "transition": "rise",
+   "speed": "normal",
+   "random": false,
+   "pool": [
+    "fade",
+    "rise",
+    "words",
+    "burst"
+   ],
+   "burst": "gentle",
+   "play": "",
+   "upcoming": "",
+   "out": {
+    "vcam": true,
+    "obs": true
+   }
+  },
+  "question": {
+   "label": "Discussion Question",
+   "showLabel": true,
+   "text": "What does this passage reveal about the character of God?",
+   "visible": false,
+   "seq": 0,
+   "cut": 0,
+   "itemId": "q1",
+   "mode": "",
+   "transition": "fade",
+   "speed": "normal",
+   "random": false,
+   "pool": [
+    "fade",
+    "rise",
+    "words",
+    "burst"
+   ],
+   "burst": "gentle",
+   "play": "",
+   "upcoming": "",
+   "out": {
+    "vcam": true,
+    "obs": true
+   }
+  },
+  "birthday": {
+   "label": "Birthday Celebration",
+   "showLabel": true,
+   "name": "",
+   "greeting": "",
+   "message": "",
+   "country": "",
+   "visible": false,
+   "seq": 0,
+   "cut": 0,
+   "transition": "rise",
+   "out": {
+    "vcam": true,
+    "obs": true
+   }
+  },
+  "layout": {
+   "bdayPos": "top",
+   "bdayScale": 1,
+   "verseAlign": "center",
+   "verseY": 40,
+   "verseWidth": 70,
+   "verseScale": 1,
+   "qBottom": 10,
+   "qWidth": 84,
+   "qScale": 1,
+   "panel": 92
+  },
+  "scenes": [
+   {
+    "id": "sc_00fc3no",
+    "name": "Bible Study",
+    "group": "Romans · Week 5",
+    "fav": false,
+    "tpl": false,
+    "created": 1792500000000,
+    "modified": 1792500000000,
+    "version": 1,
+    "creator": "",
+    "from": "",
+    "template": "Bible Study",
+    "parent": "",
+    "notes": "",
+    "tx": {
+     "type": "profile",
+     "ms": 500
+    },
+    "auto": {
+     "on": false,
+     "sec": 30
+    },
+    "out": {
+     "vcam": true,
+     "obs": true
+    },
+    "layers": [
+     {
+      "id": "Livv4w0v",
+      "kind": "scripture",
+      "name": "Scripture",
+      "visible": true,
+      "locked": false,
+      "opacity": 1,
+      "c": {
+       "items": [
+        {
+         "id": "va",
+         "label": "",
+         "ref": "Romans 8:1",
+         "version": "ESV",
+         "text": "There is therefore now no condemnation."
+        },
+        {
+         "id": "vb",
+         "label": "Read together",
+         "ref": "Romans 8:2",
+         "version": "ESV",
+         "text": "For the law of the Spirit of life has set you free."
+        }
+       ],
+       "itemId": "",
+       "label": "",
+       "ref": "",
+       "version": "",
+       "text": "",
+       "vcam": true,
+       "obs": true
+      }
+     },
+     {
+      "id": "Lqh3x4q3",
+      "kind": "question",
+      "name": "Question",
+      "visible": true,
+      "locked": false,
+      "opacity": 1,
+      "c": {
+       "items": [
+        {
+         "id": "qa",
+         "label": "",
+         "text": "What stood out to you?"
+        },
+        {
+         "id": "qb",
+         "label": "Application",
+         "text": "How will you live this out?",
+         "mode": ""
+        },
+        {
+         "id": "qc",
+         "label": "",
+         "text": "What will you pray about?"
+        }
+       ],
+       "itemId": "",
+       "label": "",
+       "vcam": true,
+       "obs": true
+      }
+     }
+    ]
+   },
+   {
+    "id": "sc_9h8s75e",
+    "name": "Welcome",
+    "group": "",
+    "fav": false,
+    "tpl": false,
+    "created": 1792500000000,
+    "modified": 1792500000000,
+    "version": 1,
+    "creator": "",
+    "from": "",
+    "template": "Announcement",
+    "parent": "",
+    "notes": "",
+    "tx": {
+     "type": "dissolve",
+     "ms": 450
+    },
+    "auto": {
+     "on": false,
+     "sec": 30
+    },
+    "out": {
+     "vcam": true,
+     "obs": true
+    },
+    "layers": [
+     {
+      "id": "Ldjl3suh",
+      "kind": "announcement",
+      "name": "Announcement",
+      "visible": true,
+      "locked": false,
+      "opacity": 1,
+      "c": {
+       "title": "Welcome",
+       "text": "We begin in a moment.",
+       "pos": "center",
+       "w": 70,
+       "scale": 1,
+       "label": true,
+       "anim": "fade",
+       "logo": false,
+       "vcam": true,
+       "obs": true
+      }
+     },
+     {
+      "id": "cd1",
+      "kind": "countdown",
+      "name": "Countdown",
+      "visible": true,
+      "locked": false,
+      "opacity": 1,
+      "c": {
+       "minutes": 5,
+       "title": "Starting in",
+       "text": "Starting now",
+       "mode": "duration",
+       "until": "10:30",
+       "pos": "center",
+       "w": 36,
+       "scale": 1.6,
+       "label": true,
+       "anim": "fade",
+       "logo": false,
+       "vcam": true,
+       "obs": true
+      }
+     }
+    ]
+   },
+   {
+    "id": "sc_72dwt9j",
+    "name": "Questions only",
+    "group": "",
+    "fav": false,
+    "tpl": false,
+    "created": 1792500000000,
+    "modified": 1792500000000,
+    "version": 1,
+    "creator": "",
+    "from": "",
+    "template": "Question",
+    "parent": "",
+    "notes": "",
+    "tx": {
+     "type": "profile",
+     "ms": 500
+    },
+    "auto": {
+     "on": false,
+     "sec": 30
+    },
+    "out": {
+     "vcam": true,
+     "obs": true
+    },
+    "layers": [
+     {
+      "id": "Lz4qddub",
+      "kind": "question",
+      "name": "Question",
+      "visible": true,
+      "locked": false,
+      "opacity": 1,
+      "c": {
+       "items": [
+        {
+         "id": "qx",
+         "label": "",
+         "text": "One question."
+        }
+       ],
+       "itemId": "",
+       "label": "",
+       "vcam": true,
+       "obs": true
+      }
+     }
+    ]
+   },
+   {
+    "id": "sc_ifypowf",
+    "name": "My template",
+    "group": "",
+    "fav": false,
+    "tpl": true,
+    "created": 1792500000000,
+    "modified": 1792500000000,
+    "version": 1,
+    "creator": "",
+    "from": "",
+    "template": "",
+    "parent": "",
+    "notes": "",
+    "tx": {
+     "type": "profile",
+     "ms": 500
+    },
+    "auto": {
+     "on": false,
+     "sec": 30
+    },
+    "out": {
+     "vcam": true,
+     "obs": true
+    },
+    "layers": []
+   }
+  ],
+  "live": {
+   "scene": "",
+   "seq": 0,
+   "at": 0,
+   "tx": "cut",
+   "txMs": 0,
+   "auto": true,
+   "blackout": false,
+   "emergency": false,
+   "freeze": false,
+   "ink": {
+    "on": false,
+    "items": [],
+    "undone": []
+   },
+   "message": "Please stand by — we’ll be right back.",
+   "on": {},
+   "cd": {}
+  },
+  "profile": "bible-study",
+  "v6": false,
+  "brand": {
+   "meeting": "",
+   "org": "",
+   "color": "",
+   "logo": "",
+   "lw": 0,
+   "lh": 0,
+   "auto": false
+  },
+  "meeting": {
+   "title": "",
+   "date": "",
+   "time": "",
+   "location": "",
+   "presenter": "",
+   "contact": "",
+   "attendees": "",
+   "attendeeNotes": "",
+   "owner": "",
+   "contentNotes": "",
+   "notes": "",
+   "extra": ""
+  },
+  "library": {
+   "verses": [
+    {
+     "id": "s1",
+     "ref": "Psalm 119:105",
+     "version": "KJV",
+     "text": "Thy word is a lamp unto my feet, and a light unto my path.",
+     "pair": ""
+    },
+    {
+     "id": "s2",
+     "ref": "Isaiah 40:8",
+     "version": "KJV",
+     "text": "The grass withereth, the flower fadeth: but the word of our God shall stand for ever.",
+     "pair": ""
+    },
+    {
+     "id": "s3",
+     "ref": "Romans 8:38-39",
+     "version": "KJV",
+     "text": "For I am persuaded, that neither death, nor life, nor angels, nor principalities, nor powers, nor things present, nor things to come,\nnor height, nor depth, nor any other creature, shall be able to separate us from the love of God, which is in Christ Jesus our Lord.",
+     "pair": ""
+    }
+   ],
+   "questions": [
+    {
+     "id": "q1",
+     "text": "What does this passage reveal about the character of God?",
+     "num": "",
+     "note": "",
+     "pair": "",
+     "mode": ""
+    },
+    {
+     "id": "q2",
+     "text": "Which phrase in today’s focus verse stood out to you most this week, and why?",
+     "num": "",
+     "note": "",
+     "pair": "",
+     "mode": ""
+    },
+    {
+     "id": "q3",
+     "text": "Think of a situation you are facing right now. How could the truth of this passage change the way you respond to it, and what is one practical step you could take before we meet again next week?",
+     "num": "",
+     "note": "",
+     "pair": "",
+     "mode": ""
+    }
+   ]
+  }
+ },
+ "steps": [
+  {
+   "name": "take bible study",
+   "state": {
+    "rev": 0,
+    "verse": {
+     "label": "Focus Verse",
+     "showLabel": true,
+     "text": "There is therefore now no condemnation.",
+     "ref": "Romans 8:1",
+     "version": "ESV",
+     "visible": true,
+     "seq": 1,
+     "cut": 0,
+     "itemId": "va",
+     "transition": "rise",
+     "speed": "normal",
+     "random": false,
+     "pool": [
+      "fade",
+      "rise",
+      "words",
+      "burst"
+     ],
+     "burst": "gentle",
+     "play": "rise",
+     "upcoming": "",
+     "out": {
+      "vcam": true,
+      "obs": true
+     }
+    },
+    "question": {
+     "label": "Discussion Question",
+     "showLabel": true,
+     "text": "What stood out to you?",
+     "visible": true,
+     "seq": 1,
+     "cut": 0,
+     "itemId": "qa",
+     "mode": "both",
+     "transition": "fade",
+     "speed": "normal",
+     "random": false,
+     "pool": [
+      "fade",
+      "rise",
+      "words",
+      "burst"
+     ],
+     "burst": "gentle",
+     "play": "fade",
+     "upcoming": "",
+     "out": {
+      "vcam": true,
+      "obs": true
+     }
+    },
+    "birthday": {
+     "label": "Birthday Celebration",
+     "showLabel": true,
+     "name": "",
+     "greeting": "",
+     "message": "",
+     "country": "",
+     "visible": false,
+     "seq": 0,
+     "cut": 0,
+     "transition": "rise",
+     "out": {
+      "vcam": true,
+      "obs": true
+     }
+    },
+    "layout": {
+     "bdayPos": "top",
+     "bdayScale": 1,
+     "verseAlign": "center",
+     "verseY": 40,
+     "verseWidth": 70,
+     "verseScale": 1,
+     "qBottom": 10,
+     "qWidth": 84,
+     "qScale": 1,
+     "panel": 92
+    },
+    "scenes": [
+     {
+      "id": "sc_00fc3no",
+      "name": "Bible Study",
+      "group": "Romans · Week 5",
+      "fav": false,
+      "tpl": false,
+      "created": 1792500000000,
+      "modified": 1792500000000,
+      "version": 1,
+      "creator": "",
+      "from": "",
+      "template": "Bible Study",
+      "parent": "",
+      "notes": "",
+      "tx": {
+       "type": "profile",
+       "ms": 500
+      },
+      "auto": {
+       "on": false,
+       "sec": 30
+      },
+      "out": {
+       "vcam": true,
+       "obs": true
+      },
+      "layers": [
+       {
+        "id": "Livv4w0v",
+        "kind": "scripture",
+        "name": "Scripture",
+        "visible": true,
+        "locked": false,
+        "opacity": 1,
+        "c": {
+         "items": [
+          {
+           "id": "va",
+           "label": "",
+           "ref": "Romans 8:1",
+           "version": "ESV",
+           "text": "There is therefore now no condemnation."
+          },
+          {
+           "id": "vb",
+           "label": "Read together",
+           "ref": "Romans 8:2",
+           "version": "ESV",
+           "text": "For the law of the Spirit of life has set you free."
+          }
+         ],
+         "itemId": "va",
+         "label": "",
+         "ref": "",
+         "version": "",
+         "text": "",
+         "vcam": true,
+         "obs": true
+        }
+       },
+       {
+        "id": "Lqh3x4q3",
+        "kind": "question",
+        "name": "Question",
+        "visible": true,
+        "locked": false,
+        "opacity": 1,
+        "c": {
+         "items": [
+          {
+           "id": "qa",
+           "label": "",
+           "text": "What stood out to you?"
+          },
+          {
+           "id": "qb",
+           "label": "Application",
+           "text": "How will you live this out?",
+           "mode": ""
+          },
+          {
+           "id": "qc",
+           "label": "",
+           "text": "What will you pray about?"
+          }
+         ],
+         "itemId": "qa",
+         "label": "",
+         "vcam": true,
+         "obs": true
+        }
+       }
+      ]
+     },
+     {
+      "id": "sc_9h8s75e",
+      "name": "Welcome",
+      "group": "",
+      "fav": false,
+      "tpl": false,
+      "created": 1792500000000,
+      "modified": 1792500000000,
+      "version": 1,
+      "creator": "",
+      "from": "",
+      "template": "Announcement",
+      "parent": "",
+      "notes": "",
+      "tx": {
+       "type": "dissolve",
+       "ms": 450
+      },
+      "auto": {
+       "on": false,
+       "sec": 30
+      },
+      "out": {
+       "vcam": true,
+       "obs": true
+      },
+      "layers": [
+       {
+        "id": "Ldjl3suh",
+        "kind": "announcement",
+        "name": "Announcement",
+        "visible": true,
+        "locked": false,
+        "opacity": 1,
+        "c": {
+         "title": "Welcome",
+         "text": "We begin in a moment.",
+         "pos": "center",
+         "w": 70,
+         "scale": 1,
+         "label": true,
+         "anim": "fade",
+         "logo": false,
+         "vcam": true,
+         "obs": true
+        }
+       },
+       {
+        "id": "cd1",
+        "kind": "countdown",
+        "name": "Countdown",
+        "visible": true,
+        "locked": false,
+        "opacity": 1,
+        "c": {
+         "minutes": 5,
+         "title": "Starting in",
+         "text": "Starting now",
+         "mode": "duration",
+         "until": "10:30",
+         "pos": "center",
+         "w": 36,
+         "scale": 1.6,
+         "label": true,
+         "anim": "fade",
+         "logo": false,
+         "vcam": true,
+         "obs": true
+        }
+       }
+      ]
+     },
+     {
+      "id": "sc_72dwt9j",
+      "name": "Questions only",
+      "group": "",
+      "fav": false,
+      "tpl": false,
+      "created": 1792500000000,
+      "modified": 1792500000000,
+      "version": 1,
+      "creator": "",
+      "from": "",
+      "template": "Question",
+      "parent": "",
+      "notes": "",
+      "tx": {
+       "type": "profile",
+       "ms": 500
+      },
+      "auto": {
+       "on": false,
+       "sec": 30
+      },
+      "out": {
+       "vcam": true,
+       "obs": true
+      },
+      "layers": [
+       {
+        "id": "Lz4qddub",
+        "kind": "question",
+        "name": "Question",
+        "visible": true,
+        "locked": false,
+        "opacity": 1,
+        "c": {
+         "items": [
+          {
+           "id": "qx",
+           "label": "",
+           "text": "One question."
+          }
+         ],
+         "itemId": "",
+         "label": "",
+         "vcam": true,
+         "obs": true
+        }
+       }
+      ]
+     },
+     {
+      "id": "sc_ifypowf",
+      "name": "My template",
+      "group": "",
+      "fav": false,
+      "tpl": true,
+      "created": 1792500000000,
+      "modified": 1792500000000,
+      "version": 1,
+      "creator": "",
+      "from": "",
+      "template": "",
+      "parent": "",
+      "notes": "",
+      "tx": {
+       "type": "profile",
+       "ms": 500
+      },
+      "auto": {
+       "on": false,
+       "sec": 30
+      },
+      "out": {
+       "vcam": true,
+       "obs": true
+      },
+      "layers": []
+     }
+    ],
+    "live": {
+     "scene": "sc_00fc3no",
+     "seq": 1,
+     "at": 1792500001000,
+     "tx": "fade",
+     "txMs": 350,
+     "auto": true,
+     "blackout": false,
+     "emergency": false,
+     "freeze": false,
+     "ink": {
+      "on": false,
+      "items": [],
+      "undone": []
+     },
+     "message": "Please stand by — we’ll be right back.",
+     "on": {},
+     "cd": {}
+    },
+    "profile": "bible-study",
+    "v6": false,
+    "brand": {
+     "meeting": "",
+     "org": "",
+     "color": "",
+     "logo": "",
+     "lw": 0,
+     "lh": 0,
+     "auto": false
+    },
+    "meeting": {
+     "title": "",
+     "date": "",
+     "time": "",
+     "location": "",
+     "presenter": "",
+     "contact": "",
+     "attendees": "",
+     "attendeeNotes": "",
+     "owner": "",
+     "contentNotes": "",
+     "notes": "",
+     "extra": ""
+    },
+    "library": {
+     "verses": [
+      {
+       "id": "s1",
+       "ref": "Psalm 119:105",
+       "version": "KJV",
+       "text": "Thy word is a lamp unto my feet, and a light unto my path.",
+       "pair": ""
+      },
+      {
+       "id": "s2",
+       "ref": "Isaiah 40:8",
+       "version": "KJV",
+       "text": "The grass withereth, the flower fadeth: but the word of our God shall stand for ever.",
+       "pair": ""
+      },
+      {
+       "id": "s3",
+       "ref": "Romans 8:38-39",
+       "version": "KJV",
+       "text": "For I am persuaded, that neither death, nor life, nor angels, nor principalities, nor powers, nor things present, nor things to come,\nnor height, nor depth, nor any other creature, shall be able to separate us from the love of God, which is in Christ Jesus our Lord.",
+       "pair": ""
+      }
+     ],
+     "questions": [
+      {
+       "id": "q1",
+       "text": "What does this passage reveal about the character of God?",
+       "num": "",
+       "note": "",
+       "pair": "",
+       "mode": ""
+      },
+      {
+       "id": "q2",
+       "text": "Which phrase in today’s focus verse stood out to you most this week, and why?",
+       "num": "",
+       "note": "",
+       "pair": "",
+       "mode": ""
+      },
+      {
+       "id": "q3",
+       "text": "Think of a situation you are facing right now. How could the truth of this passage change the way you respond to it, and what is one practical step you could take before we meet again next week?",
+       "num": "",
+       "note": "",
+       "pair": "",
+       "mode": ""
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "next question",
+   "state": {
+    "rev": 0,
+    "verse": {
+     "label": "Focus Verse",
+     "showLabel": true,
+     "text": "There is therefore now no condemnation.",
+     "ref": "Romans 8:1",
+     "version": "ESV",
+     "visible": true,
+     "seq": 1,
+     "cut": 0,
+     "itemId": "va",
+     "transition": "rise",
+     "speed": "normal",
+     "random": false,
+     "pool": [
+      "fade",
+      "rise",
+      "words",
+      "burst"
+     ],
+     "burst": "gentle",
+     "play": "rise",
+     "upcoming": "",
+     "out": {
+      "vcam": true,
+      "obs": true
+     }
+    },
+    "question": {
+     "label": "Application",
+     "showLabel": true,
+     "text": "How will you live this out?",
+     "visible": true,
+     "seq": 2,
+     "cut": 0,
+     "itemId": "qb",
+     "mode": "both",
+     "transition": "fade",
+     "speed": "normal",
+     "random": false,
+     "pool": [
+      "fade",
+      "rise",
+      "words",
+      "burst"
+     ],
+     "burst": "gentle",
+     "play": "fade",
+     "upcoming": "",
+     "out": {
+      "vcam": true,
+      "obs": true
+     }
+    },
+    "birthday": {
+     "label": "Birthday Celebration",
+     "showLabel": true,
+     "name": "",
+     "greeting": "",
+     "message": "",
+     "country": "",
+     "visible": false,
+     "seq": 0,
+     "cut": 0,
+     "transition": "rise",
+     "out": {
+      "vcam": true,
+      "obs": true
+     }
+    },
+    "layout": {
+     "bdayPos": "top",
+     "bdayScale": 1,
+     "verseAlign": "center",
+     "verseY": 40,
+     "verseWidth": 70,
+     "verseScale": 1,
+     "qBottom": 10,
+     "qWidth": 84,
+     "qScale": 1,
+     "panel": 92
+    },
+    "scenes": [
+     {
+      "id": "sc_00fc3no",
+      "name": "Bible Study",
+      "group": "Romans · Week 5",
+      "fav": false,
+      "tpl": false,
+      "created": 1792500000000,
+      "modified": 1792500000000,
+      "version": 1,
+      "creator": "",
+      "from": "",
+      "template": "Bible Study",
+      "parent": "",
+      "notes": "",
+      "tx": {
+       "type": "profile",
+       "ms": 500
+      },
+      "auto": {
+       "on": false,
+       "sec": 30
+      },
+      "out": {
+       "vcam": true,
+       "obs": true
+      },
+      "layers": [
+       {
+        "id": "Livv4w0v",
+        "kind": "scripture",
+        "name": "Scripture",
+        "visible": true,
+        "locked": false,
+        "opacity": 1,
+        "c": {
+         "items": [
+          {
+           "id": "va",
+           "label": "",
+           "ref": "Romans 8:1",
+           "version": "ESV",
+           "text": "There is therefore now no condemnation."
+          },
+          {
+           "id": "vb",
+           "label": "Read together",
+           "ref": "Romans 8:2",
+           "version": "ESV",
+           "text": "For the law of the Spirit of life has set you free."
+          }
+         ],
+         "itemId": "va",
+         "label": "",
+         "ref": "",
+         "version": "",
+         "text": "",
+         "vcam": true,
+         "obs": true
+        }
+       },
+       {
+        "id": "Lqh3x4q3",
+        "kind": "question",
+        "name": "Question",
+        "visible": true,
+        "locked": false,
+        "opacity": 1,
+        "c": {
+         "items": [
+          {
+           "id": "qa",
+           "label": "",
+           "text": "What stood out to you?"
+          },
+          {
+           "id": "qb",
+           "label": "Application",
+           "text": "How will you live this out?",
+           "mode": ""
+          },
+          {
+           "id": "qc",
+           "label": "",
+           "text": "What will you pray about?"
+          }
+         ],
+         "itemId": "qb",
+         "label": "",
+         "vcam": true,
+         "obs": true
+        }
+       }
+      ]
+     },
+     {
+      "id": "sc_9h8s75e",
+      "name": "Welcome",
+      "group": "",
+      "fav": false,
+      "tpl": false,
+      "created": 1792500000000,
+      "modified": 1792500000000,
+      "version": 1,
+      "creator": "",
+      "from": "",
+      "template": "Announcement",
+      "parent": "",
+      "notes": "",
+      "tx": {
+       "type": "dissolve",
+       "ms": 450
+      },
+      "auto": {
+       "on": false,
+       "sec": 30
+      },
+      "out": {
+       "vcam": true,
+       "obs": true
+      },
+      "layers": [
+       {
+        "id": "Ldjl3suh",
+        "kind": "announcement",
+        "name": "Announcement",
+        "visible": true,
+        "locked": false,
+        "opacity": 1,
+        "c": {
+         "title": "Welcome",
+         "text": "We begin in a moment.",
+         "pos": "center",
+         "w": 70,
+         "scale": 1,
+         "label": true,
+         "anim": "fade",
+         "logo": false,
+         "vcam": true,
+         "obs": true
+        }
+       },
+       {
+        "id": "cd1",
+        "kind": "countdown",
+        "name": "Countdown",
+        "visible": true,
+        "locked": false,
+        "opacity": 1,
+        "c": {
+         "minutes": 5,
+         "title": "Starting in",
+         "text": "Starting now",
+         "mode": "duration",
+         "until": "10:30",
+         "pos": "center",
+         "w": 36,
+         "scale": 1.6,
+         "label": true,
+         "anim": "fade",
+         "logo": false,
+         "vcam": true,
+         "obs": true
+        }
+       }
+      ]
+     },
+     {
+      "id": "sc_72dwt9j",
+      "name": "Questions only",
+      "group": "",
+      "fav": false,
+      "tpl": false,
+      "created": 1792500000000,
+      "modified": 1792500000000,
+      "version": 1,
+      "creator": "",
+      "from": "",
+      "template": "Question",
+      "parent": "",
+      "notes": "",
+      "tx": {
+       "type": "profile",
+       "ms": 500
+      },
+      "auto": {
+       "on": false,
+       "sec": 30
+      },
+      "out": {
+       "vcam": true,
+       "obs": true
+      },
+      "layers": [
+       {
+        "id": "Lz4qddub",
+        "kind": "question",
+        "name": "Question",
+        "visible": true,
+        "locked": false,
+        "opacity": 1,
+        "c": {
+         "items": [
+          {
+           "id": "qx",
+           "label": "",
+           "text": "One question."
+          }
+         ],
+         "itemId": "",
+         "label": "",
+         "vcam": true,
+         "obs": true
+        }
+       }
+      ]
+     },
+     {
+      "id": "sc_ifypowf",
+      "name": "My template",
+      "group": "",
+      "fav": false,
+      "tpl": true,
+      "created": 1792500000000,
+      "modified": 1792500000000,
+      "version": 1,
+      "creator": "",
+      "from": "",
+      "template": "",
+      "parent": "",
+      "notes": "",
+      "tx": {
+       "type": "profile",
+       "ms": 500
+      },
+      "auto": {
+       "on": false,
+       "sec": 30
+      },
+      "out": {
+       "vcam": true,
+       "obs": true
+      },
+      "layers": []
+     }
+    ],
+    "live": {
+     "scene": "sc_00fc3no",
+     "seq": 1,
+     "at": 1792500001000,
+     "tx": "fade",
+     "txMs": 350,
+     "auto": true,
+     "blackout": false,
+     "emergency": false,
+     "freeze": false,
+     "ink": {
+      "on": false,
+      "items": [],
+      "undone": []
+     },
+     "message": "Please stand by — we’ll be right back.",
+     "on": {},
+     "cd": {}
+    },
+    "profile": "bible-study",
+    "v6": false,
+    "brand": {
+     "meeting": "",
+     "org": "",
+     "color": "",
+     "logo": "",
+     "lw": 0,
+     "lh": 0,
+     "auto": false
+    },
+    "meeting": {
+     "title": "",
+     "date": "",
+     "time": "",
+     "location": "",
+     "presenter": "",
+     "contact": "",
+     "attendees": "",
+     "attendeeNotes": "",
+     "owner": "",
+     "contentNotes": "",
+     "notes": "",
+     "extra": ""
+    },
+    "library": {
+     "verses": [
+      {
+       "id": "s1",
+       "ref": "Psalm 119:105",
+       "version": "KJV",
+       "text": "Thy word is a lamp unto my feet, and a light unto my path.",
+       "pair": ""
+      },
+      {
+       "id": "s2",
+       "ref": "Isaiah 40:8",
+       "version": "KJV",
+       "text": "The grass withereth, the flower fadeth: but the word of our God shall stand for ever.",
+       "pair": ""
+      },
+      {
+       "id": "s3",
+       "ref": "Romans 8:38-39",
+       "version": "KJV",
+       "text": "For I am persuaded, that neither death, nor life, nor angels, nor principalities, nor powers, nor things present, nor things to come,\nnor height, nor depth, nor any other creature, shall be able to separate us from the love of God, which is in Christ Jesus our Lord.",
+       "pair": ""
+      }
+     ],
+     "questions": [
+      {
+       "id": "q1",
+       "text": "What does this passage reveal about the character of God?",
+       "num": "",
+       "note": "",
+       "pair": "",
+       "mode": ""
+      },
+      {
+       "id": "q2",
+       "text": "Which phrase in today’s focus verse stood out to you most this week, and why?",
+       "num": "",
+       "note": "",
+       "pair": "",
+       "mode": ""
+      },
+      {
+       "id": "q3",
+       "text": "Think of a situation you are facing right now. How could the truth of this passage change the way you respond to it, and what is one practical step you could take before we meet again next week?",
+       "num": "",
+       "note": "",
+       "pair": "",
+       "mode": ""
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "next scripture",
+   "state": {
+    "rev": 0,
+    "verse": {
+     "label": "Read together",
+     "showLabel": true,
+     "text": "For the law of the Spirit of life has set you free.",
+     "ref": "Romans 8:2",
+     "version": "ESV",
+     "visible": true,
+     "seq": 2,
+     "cut": 0,
+     "itemId": "vb",
+     "transition": "rise",
+     "speed": "normal",
+     "random": false,
+     "pool": [
+      "fade",
+      "rise",
+      "words",
+      "burst"
+     ],
+     "burst": "gentle",
+     "play": "rise",
+     "upcoming": "",
+     "out": {
+      "vcam": true,
+      "obs": true
+     }
+    },
+    "question": {
+     "label": "Application",
+     "showLabel": true,
+     "text": "How will you live this out?",
+     "visible": true,
+     "seq": 2,
+     "cut": 0,
+     "itemId": "qb",
+     "mode": "both",
+     "transition": "fade",
+     "speed": "normal",
+     "random": false,
+     "pool": [
+      "fade",
+      "rise",
+      "words",
+      "burst"
+     ],
+     "burst": "gentle",
+     "play": "fade",
+     "upcoming": "",
+     "out": {
+      "vcam": true,
+      "obs": true
+     }
+    },
+    "birthday": {
+     "label": "Birthday Celebration",
+     "showLabel": true,
+     "name": "",
+     "greeting": "",
+     "message": "",
+     "country": "",
+     "visible": false,
+     "seq": 0,
+     "cut": 0,
+     "transition": "rise",
+     "out": {
+      "vcam": true,
+      "obs": true
+     }
+    },
+    "layout": {
+     "bdayPos": "top",
+     "bdayScale": 1,
+     "verseAlign": "center",
+     "verseY": 40,
+     "verseWidth": 70,
+     "verseScale": 1,
+     "qBottom": 10,
+     "qWidth": 84,
+     "qScale": 1,
+     "panel": 92
+    },
+    "scenes": [
+     {
+      "id": "sc_00fc3no",
+      "name": "Bible Study",
+      "group": "Romans · Week 5",
+      "fav": false,
+      "tpl": false,
+      "created": 1792500000000,
+      "modified": 1792500000000,
+      "version": 1,
+      "creator": "",
+      "from": "",
+      "template": "Bible Study",
+      "parent": "",
+      "notes": "",
+      "tx": {
+       "type": "profile",
+       "ms": 500
+      },
+      "auto": {
+       "on": false,
+       "sec": 30
+      },
+      "out": {
+       "vcam": true,
+       "obs": true
+      },
+      "layers": [
+       {
+        "id": "Livv4w0v",
+        "kind": "scripture",
+        "name": "Scripture",
+        "visible": true,
+        "locked": false,
+        "opacity": 1,
+        "c": {
+         "items": [
+          {
+           "id": "va",
+           "label": "",
+           "ref": "Romans 8:1",
+           "version": "ESV",
+           "text": "There is therefore now no condemnation."
+          },
+          {
+           "id": "vb",
+           "label": "Read together",
+           "ref": "Romans 8:2",
+           "version": "ESV",
+           "text": "For the law of the Spirit of life has set you free."
+          }
+         ],
+         "itemId": "vb",
+         "label": "",
+         "ref": "",
+         "version": "",
+         "text": "",
+         "vcam": true,
+         "obs": true
+        }
+       },
+       {
+        "id": "Lqh3x4q3",
+        "kind": "question",
+        "name": "Question",
+        "visible": true,
+        "locked": false,
+        "opacity": 1,
+        "c": {
+         "items": [
+          {
+           "id": "qa",
+           "label": "",
+           "text": "What stood out to you?"
+          },
+          {
+           "id": "qb",
+           "label": "Application",
+           "text": "How will you live this out?",
+           "mode": ""
+          },
+          {
+           "id": "qc",
+           "label": "",
+           "text": "What will you pray about?"
+          }
+         ],
+         "itemId": "qb",
+         "label": "",
+         "vcam": true,
+         "obs": true
+        }
+       }
+      ]
+     },
+     {
+      "id": "sc_9h8s75e",
+      "name": "Welcome",
+      "group": "",
+      "fav": false,
+      "tpl": false,
+      "created": 1792500000000,
+      "modified": 1792500000000,
+      "version": 1,
+      "creator": "",
+      "from": "",
+      "template": "Announcement",
+      "parent": "",
+      "notes": "",
+      "tx": {
+       "type": "dissolve",
+       "ms": 450
+      },
+      "auto": {
+       "on": false,
+       "sec": 30
+      },
+      "out": {
+       "vcam": true,
+       "obs": true
+      },
+      "layers": [
+       {
+        "id": "Ldjl3suh",
+        "kind": "announcement",
+        "name": "Announcement",
+        "visible": true,
+        "locked": false,
+        "opacity": 1,
+        "c": {
+         "title": "Welcome",
+         "text": "We begin in a moment.",
+         "pos": "center",
+         "w": 70,
+         "scale": 1,
+         "label": true,
+         "anim": "fade",
+         "logo": false,
+         "vcam": true,
+         "obs": true
+        }
+       },
+       {
+        "id": "cd1",
+        "kind": "countdown",
+        "name": "Countdown",
+        "visible": true,
+        "locked": false,
+        "opacity": 1,
+        "c": {
+         "minutes": 5,
+         "title": "Starting in",
+         "text": "Starting now",
+         "mode": "duration",
+         "until": "10:30",
+         "pos": "center",
+         "w": 36,
+         "scale": 1.6,
+         "label": true,
+         "anim": "fade",
+         "logo": false,
+         "vcam": true,
+         "obs": true
+        }
+       }
+      ]
+     },
+     {
+      "id": "sc_72dwt9j",
+      "name": "Questions only",
+      "group": "",
+      "fav": false,
+      "tpl": false,
+      "created": 1792500000000,
+      "modified": 1792500000000,
+      "version": 1,
+      "creator": "",
+      "from": "",
+      "template": "Question",
+      "parent": "",
+      "notes": "",
+      "tx": {
+       "type": "profile",
+       "ms": 500
+      },
+      "auto": {
+       "on": false,
+       "sec": 30
+      },
+      "out": {
+       "vcam": true,
+       "obs": true
+      },
+      "layers": [
+       {
+        "id": "Lz4qddub",
+        "kind": "question",
+        "name": "Question",
+        "visible": true,
+        "locked": false,
+        "opacity": 1,
+        "c": {
+         "items": [
+          {
+           "id": "qx",
+           "label": "",
+           "text": "One question."
+          }
+         ],
+         "itemId": "",
+         "label": "",
+         "vcam": true,
+         "obs": true
+        }
+       }
+      ]
+     },
+     {
+      "id": "sc_ifypowf",
+      "name": "My template",
+      "group": "",
+      "fav": false,
+      "tpl": true,
+      "created": 1792500000000,
+      "modified": 1792500000000,
+      "version": 1,
+      "creator": "",
+      "from": "",
+      "template": "",
+      "parent": "",
+      "notes": "",
+      "tx": {
+       "type": "profile",
+       "ms": 500
+      },
+      "auto": {
+       "on": false,
+       "sec": 30
+      },
+      "out": {
+       "vcam": true,
+       "obs": true
+      },
+      "layers": []
+     }
+    ],
+    "live": {
+     "scene": "sc_00fc3no",
+     "seq": 1,
+     "at": 1792500001000,
+     "tx": "fade",
+     "txMs": 350,
+     "auto": true,
+     "blackout": false,
+     "emergency": false,
+     "freeze": false,
+     "ink": {
+      "on": false,
+      "items": [],
+      "undone": []
+     },
+     "message": "Please stand by — we’ll be right back.",
+     "on": {},
+     "cd": {}
+    },
+    "profile": "bible-study",
+    "v6": false,
+    "brand": {
+     "meeting": "",
+     "org": "",
+     "color": "",
+     "logo": "",
+     "lw": 0,
+     "lh": 0,
+     "auto": false
+    },
+    "meeting": {
+     "title": "",
+     "date": "",
+     "time": "",
+     "location": "",
+     "presenter": "",
+     "contact": "",
+     "attendees": "",
+     "attendeeNotes": "",
+     "owner": "",
+     "contentNotes": "",
+     "notes": "",
+     "extra": ""
+    },
+    "library": {
+     "verses": [
+      {
+       "id": "s1",
+       "ref": "Psalm 119:105",
+       "version": "KJV",
+       "text": "Thy word is a lamp unto my feet, and a light unto my path.",
+       "pair": ""
+      },
+      {
+       "id": "s2",
+       "ref": "Isaiah 40:8",
+       "version": "KJV",
+       "text": "The grass withereth, the flower fadeth: but the word of our God shall stand for ever.",
+       "pair": ""
+      },
+      {
+       "id": "s3",
+       "ref": "Romans 8:38-39",
+       "version": "KJV",
+       "text": "For I am persuaded, that neither death, nor life, nor angels, nor principalities, nor powers, nor things present, nor things to come,\nnor height, nor depth, nor any other creature, shall be able to separate us from the love of God, which is in Christ Jesus our Lord.",
+       "pair": ""
+      }
+     ],
+     "questions": [
+      {
+       "id": "q1",
+       "text": "What does this passage reveal about the character of God?",
+       "num": "",
+       "note": "",
+       "pair": "",
+       "mode": ""
+      },
+      {
+       "id": "q2",
+       "text": "Which phrase in today’s focus verse stood out to you most this week, and why?",
+       "num": "",
+       "note": "",
+       "pair": "",
+       "mode": ""
+      },
+      {
+       "id": "q3",
+       "text": "Think of a situation you are facing right now. How could the truth of this passage change the way you respond to it, and what is one practical step you could take before we meet again next week?",
+       "num": "",
+       "note": "",
+       "pair": "",
+       "mode": ""
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "hide all",
+   "state": {
+    "rev": 0,
+    "verse": {
+     "label": "Read together",
+     "showLabel": true,
+     "text": "For the law of the Spirit of life has set you free.",
+     "ref": "Romans 8:2",
+     "version": "ESV",
+     "visible": false,
+     "seq": 2,
+     "cut": 0,
+     "itemId": "vb",
+     "transition": "rise",
+     "speed": "normal",
+     "random": false,
+     "pool": [
+      "fade",
+      "rise",
+      "words",
+      "burst"
+     ],
+     "burst": "gentle",
+     "play": "rise",
+     "upcoming": "",
+     "out": {
+      "vcam": true,
+      "obs": true
+     }
+    },
+    "question": {
+     "label": "Application",
+     "showLabel": true,
+     "text": "How will you live this out?",
+     "visible": false,
+     "seq": 2,
+     "cut": 0,
+     "itemId": "qb",
+     "mode": "both",
+     "transition": "fade",
+     "speed": "normal",
+     "random": false,
+     "pool": [
+      "fade",
+      "rise",
+      "words",
+      "burst"
+     ],
+     "burst": "gentle",
+     "play": "fade",
+     "upcoming": "",
+     "out": {
+      "vcam": true,
+      "obs": true
+     }
+    },
+    "birthday": {
+     "label": "Birthday Celebration",
+     "showLabel": true,
+     "name": "",
+     "greeting": "",
+     "message": "",
+     "country": "",
+     "visible": false,
+     "seq": 0,
+     "cut": 0,
+     "transition": "rise",
+     "out": {
+      "vcam": true,
+      "obs": true
+     }
+    },
+    "layout": {
+     "bdayPos": "top",
+     "bdayScale": 1,
+     "verseAlign": "center",
+     "verseY": 40,
+     "verseWidth": 70,
+     "verseScale": 1,
+     "qBottom": 10,
+     "qWidth": 84,
+     "qScale": 1,
+     "panel": 92
+    },
+    "scenes": [
+     {
+      "id": "sc_00fc3no",
+      "name": "Bible Study",
+      "group": "Romans · Week 5",
+      "fav": false,
+      "tpl": false,
+      "created": 1792500000000,
+      "modified": 1792500000000,
+      "version": 1,
+      "creator": "",
+      "from": "",
+      "template": "Bible Study",
+      "parent": "",
+      "notes": "",
+      "tx": {
+       "type": "profile",
+       "ms": 500
+      },
+      "auto": {
+       "on": false,
+       "sec": 30
+      },
+      "out": {
+       "vcam": true,
+       "obs": true
+      },
+      "layers": [
+       {
+        "id": "Livv4w0v",
+        "kind": "scripture",
+        "name": "Scripture",
+        "visible": true,
+        "locked": false,
+        "opacity": 1,
+        "c": {
+         "items": [
+          {
+           "id": "va",
+           "label": "",
+           "ref": "Romans 8:1",
+           "version": "ESV",
+           "text": "There is therefore now no condemnation."
+          },
+          {
+           "id": "vb",
+           "label": "Read together",
+           "ref": "Romans 8:2",
+           "version": "ESV",
+           "text": "For the law of the Spirit of life has set you free."
+          }
+         ],
+         "itemId": "vb",
+         "label": "",
+         "ref": "",
+         "version": "",
+         "text": "",
+         "vcam": true,
+         "obs": true
+        }
+       },
+       {
+        "id": "Lqh3x4q3",
+        "kind": "question",
+        "name": "Question",
+        "visible": true,
+        "locked": false,
+        "opacity": 1,
+        "c": {
+         "items": [
+          {
+           "id": "qa",
+           "label": "",
+           "text": "What stood out to you?"
+          },
+          {
+           "id": "qb",
+           "label": "Application",
+           "text": "How will you live this out?",
+           "mode": ""
+          },
+          {
+           "id": "qc",
+           "label": "",
+           "text": "What will you pray about?"
+          }
+         ],
+         "itemId": "qb",
+         "label": "",
+         "vcam": true,
+         "obs": true
+        }
+       }
+      ]
+     },
+     {
+      "id": "sc_9h8s75e",
+      "name": "Welcome",
+      "group": "",
+      "fav": false,
+      "tpl": false,
+      "created": 1792500000000,
+      "modified": 1792500000000,
+      "version": 1,
+      "creator": "",
+      "from": "",
+      "template": "Announcement",
+      "parent": "",
+      "notes": "",
+      "tx": {
+       "type": "dissolve",
+       "ms": 450
+      },
+      "auto": {
+       "on": false,
+       "sec": 30
+      },
+      "out": {
+       "vcam": true,
+       "obs": true
+      },
+      "layers": [
+       {
+        "id": "Ldjl3suh",
+        "kind": "announcement",
+        "name": "Announcement",
+        "visible": true,
+        "locked": false,
+        "opacity": 1,
+        "c": {
+         "title": "Welcome",
+         "text": "We begin in a moment.",
+         "pos": "center",
+         "w": 70,
+         "scale": 1,
+         "label": true,
+         "anim": "fade",
+         "logo": false,
+         "vcam": true,
+         "obs": true
+        }
+       },
+       {
+        "id": "cd1",
+        "kind": "countdown",
+        "name": "Countdown",
+        "visible": true,
+        "locked": false,
+        "opacity": 1,
+        "c": {
+         "minutes": 5,
+         "title": "Starting in",
+         "text": "Starting now",
+         "mode": "duration",
+         "until": "10:30",
+         "pos": "center",
+         "w": 36,
+         "scale": 1.6,
+         "label": true,
+         "anim": "fade",
+         "logo": false,
+         "vcam": true,
+         "obs": true
+        }
+       }
+      ]
+     },
+     {
+      "id": "sc_72dwt9j",
+      "name": "Questions only",
+      "group": "",
+      "fav": false,
+      "tpl": false,
+      "created": 1792500000000,
+      "modified": 1792500000000,
+      "version": 1,
+      "creator": "",
+      "from": "",
+      "template": "Question",
+      "parent": "",
+      "notes": "",
+      "tx": {
+       "type": "profile",
+       "ms": 500
+      },
+      "auto": {
+       "on": false,
+       "sec": 30
+      },
+      "out": {
+       "vcam": true,
+       "obs": true
+      },
+      "layers": [
+       {
+        "id": "Lz4qddub",
+        "kind": "question",
+        "name": "Question",
+        "visible": true,
+        "locked": false,
+        "opacity": 1,
+        "c": {
+         "items": [
+          {
+           "id": "qx",
+           "label": "",
+           "text": "One question."
+          }
+         ],
+         "itemId": "",
+         "label": "",
+         "vcam": true,
+         "obs": true
+        }
+       }
+      ]
+     },
+     {
+      "id": "sc_ifypowf",
+      "name": "My template",
+      "group": "",
+      "fav": false,
+      "tpl": true,
+      "created": 1792500000000,
+      "modified": 1792500000000,
+      "version": 1,
+      "creator": "",
+      "from": "",
+      "template": "",
+      "parent": "",
+      "notes": "",
+      "tx": {
+       "type": "profile",
+       "ms": 500
+      },
+      "auto": {
+       "on": false,
+       "sec": 30
+      },
+      "out": {
+       "vcam": true,
+       "obs": true
+      },
+      "layers": []
+     }
+    ],
+    "live": {
+     "scene": "sc_00fc3no",
+     "seq": 1,
+     "at": 1792500001000,
+     "tx": "fade",
+     "txMs": 350,
+     "auto": true,
+     "blackout": false,
+     "emergency": false,
+     "freeze": false,
+     "ink": {
+      "on": false,
+      "items": [],
+      "undone": []
+     },
+     "message": "Please stand by — we’ll be right back.",
+     "on": {},
+     "cd": {}
+    },
+    "profile": "bible-study",
+    "v6": false,
+    "brand": {
+     "meeting": "",
+     "org": "",
+     "color": "",
+     "logo": "",
+     "lw": 0,
+     "lh": 0,
+     "auto": false
+    },
+    "meeting": {
+     "title": "",
+     "date": "",
+     "time": "",
+     "location": "",
+     "presenter": "",
+     "contact": "",
+     "attendees": "",
+     "attendeeNotes": "",
+     "owner": "",
+     "contentNotes": "",
+     "notes": "",
+     "extra": ""
+    },
+    "library": {
+     "verses": [
+      {
+       "id": "s1",
+       "ref": "Psalm 119:105",
+       "version": "KJV",
+       "text": "Thy word is a lamp unto my feet, and a light unto my path.",
+       "pair": ""
+      },
+      {
+       "id": "s2",
+       "ref": "Isaiah 40:8",
+       "version": "KJV",
+       "text": "The grass withereth, the flower fadeth: but the word of our God shall stand for ever.",
+       "pair": ""
+      },
+      {
+       "id": "s3",
+       "ref": "Romans 8:38-39",
+       "version": "KJV",
+       "text": "For I am persuaded, that neither death, nor life, nor angels, nor principalities, nor powers, nor things present, nor things to come,\nnor height, nor depth, nor any other creature, shall be able to separate us from the love of God, which is in Christ Jesus our Lord.",
+       "pair": ""
+      }
+     ],
+     "questions": [
+      {
+       "id": "q1",
+       "text": "What does this passage reveal about the character of God?",
+       "num": "",
+       "note": "",
+       "pair": "",
+       "mode": ""
+      },
+      {
+       "id": "q2",
+       "text": "Which phrase in today’s focus verse stood out to you most this week, and why?",
+       "num": "",
+       "note": "",
+       "pair": "",
+       "mode": ""
+      },
+      {
+       "id": "q3",
+       "text": "Think of a situation you are facing right now. How could the truth of this passage change the way you respond to it, and what is one practical step you could take before we meet again next week?",
+       "num": "",
+       "note": "",
+       "pair": "",
+       "mode": ""
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "take welcome with dip to black",
+   "state": {
+    "rev": 0,
+    "verse": {
+     "label": "Read together",
+     "showLabel": true,
+     "text": "For the law of the Spirit of life has set you free.",
+     "ref": "Romans 8:2",
+     "version": "ESV",
+     "visible": false,
+     "seq": 2,
+     "cut": 0,
+     "itemId": "vb",
+     "transition": "rise",
+     "speed": "normal",
+     "random": false,
+     "pool": [
+      "fade",
+      "rise",
+      "words",
+      "burst"
+     ],
+     "burst": "gentle",
+     "play": "rise",
+     "upcoming": "",
+     "out": {
+      "vcam": true,
+      "obs": true
+     }
+    },
+    "question": {
+     "label": "Application",
+     "showLabel": true,
+     "text": "How will you live this out?",
+     "visible": false,
+     "seq": 2,
+     "cut": 0,
+     "itemId": "qb",
+     "mode": "both",
+     "transition": "fade",
+     "speed": "normal",
+     "random": false,
+     "pool": [
+      "fade",
+      "rise",
+      "words",
+      "burst"
+     ],
+     "burst": "gentle",
+     "play": "fade",
+     "upcoming": "",
+     "out": {
+      "vcam": true,
+      "obs": true
+     }
+    },
+    "birthday": {
+     "label": "Birthday Celebration",
+     "showLabel": true,
+     "name": "",
+     "greeting": "",
+     "message": "",
+     "country": "",
+     "visible": false,
+     "seq": 0,
+     "cut": 0,
+     "transition": "rise",
+     "out": {
+      "vcam": true,
+      "obs": true
+     }
+    },
+    "layout": {
+     "bdayPos": "top",
+     "bdayScale": 1,
+     "verseAlign": "center",
+     "verseY": 40,
+     "verseWidth": 70,
+     "verseScale": 1,
+     "qBottom": 10,
+     "qWidth": 84,
+     "qScale": 1,
+     "panel": 92
+    },
+    "scenes": [
+     {
+      "id": "sc_00fc3no",
+      "name": "Bible Study",
+      "group": "Romans · Week 5",
+      "fav": false,
+      "tpl": false,
+      "created": 1792500000000,
+      "modified": 1792500000000,
+      "version": 1,
+      "creator": "",
+      "from": "",
+      "template": "Bible Study",
+      "parent": "",
+      "notes": "",
+      "tx": {
+       "type": "profile",
+       "ms": 500
+      },
+      "auto": {
+       "on": false,
+       "sec": 30
+      },
+      "out": {
+       "vcam": true,
+       "obs": true
+      },
+      "layers": [
+       {
+        "id": "Livv4w0v",
+        "kind": "scripture",
+        "name": "Scripture",
+        "visible": true,
+        "locked": false,
+        "opacity": 1,
+        "c": {
+         "items": [
+          {
+           "id": "va",
+           "label": "",
+           "ref": "Romans 8:1",
+           "version": "ESV",
+           "text": "There is therefore now no condemnation."
+          },
+          {
+           "id": "vb",
+           "label": "Read together",
+           "ref": "Romans 8:2",
+           "version": "ESV",
+           "text": "For the law of the Spirit of life has set you free."
+          }
+         ],
+         "itemId": "vb",
+         "label": "",
+         "ref": "",
+         "version": "",
+         "text": "",
+         "vcam": true,
+         "obs": true
+        }
+       },
+       {
+        "id": "Lqh3x4q3",
+        "kind": "question",
+        "name": "Question",
+        "visible": true,
+        "locked": false,
+        "opacity": 1,
+        "c": {
+         "items": [
+          {
+           "id": "qa",
+           "label": "",
+           "text": "What stood out to you?"
+          },
+          {
+           "id": "qb",
+           "label": "Application",
+           "text": "How will you live this out?",
+           "mode": ""
+          },
+          {
+           "id": "qc",
+           "label": "",
+           "text": "What will you pray about?"
+          }
+         ],
+         "itemId": "qb",
+         "label": "",
+         "vcam": true,
+         "obs": true
+        }
+       }
+      ]
+     },
+     {
+      "id": "sc_9h8s75e",
+      "name": "Welcome",
+      "group": "",
+      "fav": false,
+      "tpl": false,
+      "created": 1792500000000,
+      "modified": 1792500000000,
+      "version": 1,
+      "creator": "",
+      "from": "",
+      "template": "Announcement",
+      "parent": "",
+      "notes": "",
+      "tx": {
+       "type": "dissolve",
+       "ms": 450
+      },
+      "auto": {
+       "on": false,
+       "sec": 30
+      },
+      "out": {
+       "vcam": true,
+       "obs": true
+      },
+      "layers": [
+       {
+        "id": "Ldjl3suh",
+        "kind": "announcement",
+        "name": "Announcement",
+        "visible": true,
+        "locked": false,
+        "opacity": 1,
+        "c": {
+         "title": "Welcome",
+         "text": "We begin in a moment.",
+         "pos": "center",
+         "w": 70,
+         "scale": 1,
+         "label": true,
+         "anim": "fade",
+         "logo": false,
+         "vcam": true,
+         "obs": true
+        }
+       },
+       {
+        "id": "cd1",
+        "kind": "countdown",
+        "name": "Countdown",
+        "visible": true,
+        "locked": false,
+        "opacity": 1,
+        "c": {
+         "minutes": 5,
+         "title": "Starting in",
+         "text": "Starting now",
+         "mode": "duration",
+         "until": "10:30",
+         "pos": "center",
+         "w": 36,
+         "scale": 1.6,
+         "label": true,
+         "anim": "fade",
+         "logo": false,
+         "vcam": true,
+         "obs": true
+        }
+       }
+      ]
+     },
+     {
+      "id": "sc_72dwt9j",
+      "name": "Questions only",
+      "group": "",
+      "fav": false,
+      "tpl": false,
+      "created": 1792500000000,
+      "modified": 1792500000000,
+      "version": 1,
+      "creator": "",
+      "from": "",
+      "template": "Question",
+      "parent": "",
+      "notes": "",
+      "tx": {
+       "type": "profile",
+       "ms": 500
+      },
+      "auto": {
+       "on": false,
+       "sec": 30
+      },
+      "out": {
+       "vcam": true,
+       "obs": true
+      },
+      "layers": [
+       {
+        "id": "Lz4qddub",
+        "kind": "question",
+        "name": "Question",
+        "visible": true,
+        "locked": false,
+        "opacity": 1,
+        "c": {
+         "items": [
+          {
+           "id": "qx",
+           "label": "",
+           "text": "One question."
+          }
+         ],
+         "itemId": "",
+         "label": "",
+         "vcam": true,
+         "obs": true
+        }
+       }
+      ]
+     },
+     {
+      "id": "sc_ifypowf",
+      "name": "My template",
+      "group": "",
+      "fav": false,
+      "tpl": true,
+      "created": 1792500000000,
+      "modified": 1792500000000,
+      "version": 1,
+      "creator": "",
+      "from": "",
+      "template": "",
+      "parent": "",
+      "notes": "",
+      "tx": {
+       "type": "profile",
+       "ms": 500
+      },
+      "auto": {
+       "on": false,
+       "sec": 30
+      },
+      "out": {
+       "vcam": true,
+       "obs": true
+      },
+      "layers": []
+     }
+    ],
+    "live": {
+     "scene": "sc_9h8s75e",
+     "seq": 2,
+     "at": 1792500005000,
+     "tx": "dip-black",
+     "txMs": 700,
+     "auto": true,
+     "blackout": false,
+     "emergency": false,
+     "freeze": false,
+     "ink": {
+      "on": false,
+      "items": [],
+      "undone": []
+     },
+     "message": "Please stand by — we’ll be right back.",
+     "on": {
+      "Ldjl3suh": true,
+      "cd1": true
+     },
+     "cd": {
+      "cd1": 1792500005000
+     }
+    },
+    "profile": "bible-study",
+    "v6": false,
+    "brand": {
+     "meeting": "",
+     "org": "",
+     "color": "",
+     "logo": "",
+     "lw": 0,
+     "lh": 0,
+     "auto": false
+    },
+    "meeting": {
+     "title": "",
+     "date": "",
+     "time": "",
+     "location": "",
+     "presenter": "",
+     "contact": "",
+     "attendees": "",
+     "attendeeNotes": "",
+     "owner": "",
+     "contentNotes": "",
+     "notes": "",
+     "extra": ""
+    },
+    "library": {
+     "verses": [
+      {
+       "id": "s1",
+       "ref": "Psalm 119:105",
+       "version": "KJV",
+       "text": "Thy word is a lamp unto my feet, and a light unto my path.",
+       "pair": ""
+      },
+      {
+       "id": "s2",
+       "ref": "Isaiah 40:8",
+       "version": "KJV",
+       "text": "The grass withereth, the flower fadeth: but the word of our God shall stand for ever.",
+       "pair": ""
+      },
+      {
+       "id": "s3",
+       "ref": "Romans 8:38-39",
+       "version": "KJV",
+       "text": "For I am persuaded, that neither death, nor life, nor angels, nor principalities, nor powers, nor things present, nor things to come,\nnor height, nor depth, nor any other creature, shall be able to separate us from the love of God, which is in Christ Jesus our Lord.",
+       "pair": ""
+      }
+     ],
+     "questions": [
+      {
+       "id": "q1",
+       "text": "What does this passage reveal about the character of God?",
+       "num": "",
+       "note": "",
+       "pair": "",
+       "mode": ""
+      },
+      {
+       "id": "q2",
+       "text": "Which phrase in today’s focus verse stood out to you most this week, and why?",
+       "num": "",
+       "note": "",
+       "pair": "",
+       "mode": ""
+      },
+      {
+       "id": "q3",
+       "text": "Think of a situation you are facing right now. How could the truth of this passage change the way you respond to it, and what is one practical step you could take before we meet again next week?",
+       "num": "",
+       "note": "",
+       "pair": "",
+       "mode": ""
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "countdown off",
+   "state": {
+    "rev": 0,
+    "verse": {
+     "label": "Read together",
+     "showLabel": true,
+     "text": "For the law of the Spirit of life has set you free.",
+     "ref": "Romans 8:2",
+     "version": "ESV",
+     "visible": false,
+     "seq": 2,
+     "cut": 0,
+     "itemId": "vb",
+     "transition": "rise",
+     "speed": "normal",
+     "random": false,
+     "pool": [
+      "fade",
+      "rise",
+      "words",
+      "burst"
+     ],
+     "burst": "gentle",
+     "play": "rise",
+     "upcoming": "",
+     "out": {
+      "vcam": true,
+      "obs": true
+     }
+    },
+    "question": {
+     "label": "Application",
+     "showLabel": true,
+     "text": "How will you live this out?",
+     "visible": false,
+     "seq": 2,
+     "cut": 0,
+     "itemId": "qb",
+     "mode": "both",
+     "transition": "fade",
+     "speed": "normal",
+     "random": false,
+     "pool": [
+      "fade",
+      "rise",
+      "words",
+      "burst"
+     ],
+     "burst": "gentle",
+     "play": "fade",
+     "upcoming": "",
+     "out": {
+      "vcam": true,
+      "obs": true
+     }
+    },
+    "birthday": {
+     "label": "Birthday Celebration",
+     "showLabel": true,
+     "name": "",
+     "greeting": "",
+     "message": "",
+     "country": "",
+     "visible": false,
+     "seq": 0,
+     "cut": 0,
+     "transition": "rise",
+     "out": {
+      "vcam": true,
+      "obs": true
+     }
+    },
+    "layout": {
+     "bdayPos": "top",
+     "bdayScale": 1,
+     "verseAlign": "center",
+     "verseY": 40,
+     "verseWidth": 70,
+     "verseScale": 1,
+     "qBottom": 10,
+     "qWidth": 84,
+     "qScale": 1,
+     "panel": 92
+    },
+    "scenes": [
+     {
+      "id": "sc_00fc3no",
+      "name": "Bible Study",
+      "group": "Romans · Week 5",
+      "fav": false,
+      "tpl": false,
+      "created": 1792500000000,
+      "modified": 1792500000000,
+      "version": 1,
+      "creator": "",
+      "from": "",
+      "template": "Bible Study",
+      "parent": "",
+      "notes": "",
+      "tx": {
+       "type": "profile",
+       "ms": 500
+      },
+      "auto": {
+       "on": false,
+       "sec": 30
+      },
+      "out": {
+       "vcam": true,
+       "obs": true
+      },
+      "layers": [
+       {
+        "id": "Livv4w0v",
+        "kind": "scripture",
+        "name": "Scripture",
+        "visible": true,
+        "locked": false,
+        "opacity": 1,
+        "c": {
+         "items": [
+          {
+           "id": "va",
+           "label": "",
+           "ref": "Romans 8:1",
+           "version": "ESV",
+           "text": "There is therefore now no condemnation."
+          },
+          {
+           "id": "vb",
+           "label": "Read together",
+           "ref": "Romans 8:2",
+           "version": "ESV",
+           "text": "For the law of the Spirit of life has set you free."
+          }
+         ],
+         "itemId": "vb",
+         "label": "",
+         "ref": "",
+         "version": "",
+         "text": "",
+         "vcam": true,
+         "obs": true
+        }
+       },
+       {
+        "id": "Lqh3x4q3",
+        "kind": "question",
+        "name": "Question",
+        "visible": true,
+        "locked": false,
+        "opacity": 1,
+        "c": {
+         "items": [
+          {
+           "id": "qa",
+           "label": "",
+           "text": "What stood out to you?"
+          },
+          {
+           "id": "qb",
+           "label": "Application",
+           "text": "How will you live this out?",
+           "mode": ""
+          },
+          {
+           "id": "qc",
+           "label": "",
+           "text": "What will you pray about?"
+          }
+         ],
+         "itemId": "qb",
+         "label": "",
+         "vcam": true,
+         "obs": true
+        }
+       }
+      ]
+     },
+     {
+      "id": "sc_9h8s75e",
+      "name": "Welcome",
+      "group": "",
+      "fav": false,
+      "tpl": false,
+      "created": 1792500000000,
+      "modified": 1792500000000,
+      "version": 1,
+      "creator": "",
+      "from": "",
+      "template": "Announcement",
+      "parent": "",
+      "notes": "",
+      "tx": {
+       "type": "dissolve",
+       "ms": 450
+      },
+      "auto": {
+       "on": false,
+       "sec": 30
+      },
+      "out": {
+       "vcam": true,
+       "obs": true
+      },
+      "layers": [
+       {
+        "id": "Ldjl3suh",
+        "kind": "announcement",
+        "name": "Announcement",
+        "visible": true,
+        "locked": false,
+        "opacity": 1,
+        "c": {
+         "title": "Welcome",
+         "text": "We begin in a moment.",
+         "pos": "center",
+         "w": 70,
+         "scale": 1,
+         "label": true,
+         "anim": "fade",
+         "logo": false,
+         "vcam": true,
+         "obs": true
+        }
+       },
+       {
+        "id": "cd1",
+        "kind": "countdown",
+        "name": "Countdown",
+        "visible": true,
+        "locked": false,
+        "opacity": 1,
+        "c": {
+         "minutes": 5,
+         "title": "Starting in",
+         "text": "Starting now",
+         "mode": "duration",
+         "until": "10:30",
+         "pos": "center",
+         "w": 36,
+         "scale": 1.6,
+         "label": true,
+         "anim": "fade",
+         "logo": false,
+         "vcam": true,
+         "obs": true
+        }
+       }
+      ]
+     },
+     {
+      "id": "sc_72dwt9j",
+      "name": "Questions only",
+      "group": "",
+      "fav": false,
+      "tpl": false,
+      "created": 1792500000000,
+      "modified": 1792500000000,
+      "version": 1,
+      "creator": "",
+      "from": "",
+      "template": "Question",
+      "parent": "",
+      "notes": "",
+      "tx": {
+       "type": "profile",
+       "ms": 500
+      },
+      "auto": {
+       "on": false,
+       "sec": 30
+      },
+      "out": {
+       "vcam": true,
+       "obs": true
+      },
+      "layers": [
+       {
+        "id": "Lz4qddub",
+        "kind": "question",
+        "name": "Question",
+        "visible": true,
+        "locked": false,
+        "opacity": 1,
+        "c": {
+         "items": [
+          {
+           "id": "qx",
+           "label": "",
+           "text": "One question."
+          }
+         ],
+         "itemId": "",
+         "label": "",
+         "vcam": true,
+         "obs": true
+        }
+       }
+      ]
+     },
+     {
+      "id": "sc_ifypowf",
+      "name": "My template",
+      "group": "",
+      "fav": false,
+      "tpl": true,
+      "created": 1792500000000,
+      "modified": 1792500000000,
+      "version": 1,
+      "creator": "",
+      "from": "",
+      "template": "",
+      "parent": "",
+      "notes": "",
+      "tx": {
+       "type": "profile",
+       "ms": 500
+      },
+      "auto": {
+       "on": false,
+       "sec": 30
+      },
+      "out": {
+       "vcam": true,
+       "obs": true
+      },
+      "layers": []
+     }
+    ],
+    "live": {
+     "scene": "sc_9h8s75e",
+     "seq": 2,
+     "at": 1792500005000,
+     "tx": "dip-black",
+     "txMs": 700,
+     "auto": true,
+     "blackout": false,
+     "emergency": false,
+     "freeze": false,
+     "ink": {
+      "on": false,
+      "items": [],
+      "undone": []
+     },
+     "message": "Please stand by — we’ll be right back.",
+     "on": {
+      "Ldjl3suh": true
+     },
+     "cd": {
+      "cd1": 1792500005000
+     }
+    },
+    "profile": "bible-study",
+    "v6": false,
+    "brand": {
+     "meeting": "",
+     "org": "",
+     "color": "",
+     "logo": "",
+     "lw": 0,
+     "lh": 0,
+     "auto": false
+    },
+    "meeting": {
+     "title": "",
+     "date": "",
+     "time": "",
+     "location": "",
+     "presenter": "",
+     "contact": "",
+     "attendees": "",
+     "attendeeNotes": "",
+     "owner": "",
+     "contentNotes": "",
+     "notes": "",
+     "extra": ""
+    },
+    "library": {
+     "verses": [
+      {
+       "id": "s1",
+       "ref": "Psalm 119:105",
+       "version": "KJV",
+       "text": "Thy word is a lamp unto my feet, and a light unto my path.",
+       "pair": ""
+      },
+      {
+       "id": "s2",
+       "ref": "Isaiah 40:8",
+       "version": "KJV",
+       "text": "The grass withereth, the flower fadeth: but the word of our God shall stand for ever.",
+       "pair": ""
+      },
+      {
+       "id": "s3",
+       "ref": "Romans 8:38-39",
+       "version": "KJV",
+       "text": "For I am persuaded, that neither death, nor life, nor angels, nor principalities, nor powers, nor things present, nor things to come,\nnor height, nor depth, nor any other creature, shall be able to separate us from the love of God, which is in Christ Jesus our Lord.",
+       "pair": ""
+      }
+     ],
+     "questions": [
+      {
+       "id": "q1",
+       "text": "What does this passage reveal about the character of God?",
+       "num": "",
+       "note": "",
+       "pair": "",
+       "mode": ""
+      },
+      {
+       "id": "q2",
+       "text": "Which phrase in today’s focus verse stood out to you most this week, and why?",
+       "num": "",
+       "note": "",
+       "pair": "",
+       "mode": ""
+      },
+      {
+       "id": "q3",
+       "text": "Think of a situation you are facing right now. How could the truth of this passage change the way you respond to it, and what is one practical step you could take before we meet again next week?",
+       "num": "",
+       "note": "",
+       "pair": "",
+       "mode": ""
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "eye on countdown",
+   "state": {
+    "rev": 0,
+    "verse": {
+     "label": "Read together",
+     "showLabel": true,
+     "text": "For the law of the Spirit of life has set you free.",
+     "ref": "Romans 8:2",
+     "version": "ESV",
+     "visible": false,
+     "seq": 2,
+     "cut": 0,
+     "itemId": "vb",
+     "transition": "rise",
+     "speed": "normal",
+     "random": false,
+     "pool": [
+      "fade",
+      "rise",
+      "words",
+      "burst"
+     ],
+     "burst": "gentle",
+     "play": "rise",
+     "upcoming": "",
+     "out": {
+      "vcam": true,
+      "obs": true
+     }
+    },
+    "question": {
+     "label": "Application",
+     "showLabel": true,
+     "text": "How will you live this out?",
+     "visible": false,
+     "seq": 2,
+     "cut": 0,
+     "itemId": "qb",
+     "mode": "both",
+     "transition": "fade",
+     "speed": "normal",
+     "random": false,
+     "pool": [
+      "fade",
+      "rise",
+      "words",
+      "burst"
+     ],
+     "burst": "gentle",
+     "play": "fade",
+     "upcoming": "",
+     "out": {
+      "vcam": true,
+      "obs": true
+     }
+    },
+    "birthday": {
+     "label": "Birthday Celebration",
+     "showLabel": true,
+     "name": "",
+     "greeting": "",
+     "message": "",
+     "country": "",
+     "visible": false,
+     "seq": 0,
+     "cut": 0,
+     "transition": "rise",
+     "out": {
+      "vcam": true,
+      "obs": true
+     }
+    },
+    "layout": {
+     "bdayPos": "top",
+     "bdayScale": 1,
+     "verseAlign": "center",
+     "verseY": 40,
+     "verseWidth": 70,
+     "verseScale": 1,
+     "qBottom": 10,
+     "qWidth": 84,
+     "qScale": 1,
+     "panel": 92
+    },
+    "scenes": [
+     {
+      "id": "sc_00fc3no",
+      "name": "Bible Study",
+      "group": "Romans · Week 5",
+      "fav": false,
+      "tpl": false,
+      "created": 1792500000000,
+      "modified": 1792500000000,
+      "version": 1,
+      "creator": "",
+      "from": "",
+      "template": "Bible Study",
+      "parent": "",
+      "notes": "",
+      "tx": {
+       "type": "profile",
+       "ms": 500
+      },
+      "auto": {
+       "on": false,
+       "sec": 30
+      },
+      "out": {
+       "vcam": true,
+       "obs": true
+      },
+      "layers": [
+       {
+        "id": "Livv4w0v",
+        "kind": "scripture",
+        "name": "Scripture",
+        "visible": true,
+        "locked": false,
+        "opacity": 1,
+        "c": {
+         "items": [
+          {
+           "id": "va",
+           "label": "",
+           "ref": "Romans 8:1",
+           "version": "ESV",
+           "text": "There is therefore now no condemnation."
+          },
+          {
+           "id": "vb",
+           "label": "Read together",
+           "ref": "Romans 8:2",
+           "version": "ESV",
+           "text": "For the law of the Spirit of life has set you free."
+          }
+         ],
+         "itemId": "vb",
+         "label": "",
+         "ref": "",
+         "version": "",
+         "text": "",
+         "vcam": true,
+         "obs": true
+        }
+       },
+       {
+        "id": "Lqh3x4q3",
+        "kind": "question",
+        "name": "Question",
+        "visible": true,
+        "locked": false,
+        "opacity": 1,
+        "c": {
+         "items": [
+          {
+           "id": "qa",
+           "label": "",
+           "text": "What stood out to you?"
+          },
+          {
+           "id": "qb",
+           "label": "Application",
+           "text": "How will you live this out?",
+           "mode": ""
+          },
+          {
+           "id": "qc",
+           "label": "",
+           "text": "What will you pray about?"
+          }
+         ],
+         "itemId": "qb",
+         "label": "",
+         "vcam": true,
+         "obs": true
+        }
+       }
+      ]
+     },
+     {
+      "id": "sc_9h8s75e",
+      "name": "Welcome",
+      "group": "",
+      "fav": false,
+      "tpl": false,
+      "created": 1792500000000,
+      "modified": 1792500000000,
+      "version": 1,
+      "creator": "",
+      "from": "",
+      "template": "Announcement",
+      "parent": "",
+      "notes": "",
+      "tx": {
+       "type": "dissolve",
+       "ms": 450
+      },
+      "auto": {
+       "on": false,
+       "sec": 30
+      },
+      "out": {
+       "vcam": true,
+       "obs": true
+      },
+      "layers": [
+       {
+        "id": "Ldjl3suh",
+        "kind": "announcement",
+        "name": "Announcement",
+        "visible": true,
+        "locked": false,
+        "opacity": 1,
+        "c": {
+         "title": "Welcome",
+         "text": "We begin in a moment.",
+         "pos": "center",
+         "w": 70,
+         "scale": 1,
+         "label": true,
+         "anim": "fade",
+         "logo": false,
+         "vcam": true,
+         "obs": true
+        }
+       },
+       {
+        "id": "cd1",
+        "kind": "countdown",
+        "name": "Countdown",
+        "visible": true,
+        "locked": false,
+        "opacity": 1,
+        "c": {
+         "minutes": 5,
+         "title": "Starting in",
+         "text": "Starting now",
+         "mode": "duration",
+         "until": "10:30",
+         "pos": "center",
+         "w": 36,
+         "scale": 1.6,
+         "label": true,
+         "anim": "fade",
+         "logo": false,
+         "vcam": true,
+         "obs": true
+        }
+       }
+      ]
+     },
+     {
+      "id": "sc_72dwt9j",
+      "name": "Questions only",
+      "group": "",
+      "fav": false,
+      "tpl": false,
+      "created": 1792500000000,
+      "modified": 1792500000000,
+      "version": 1,
+      "creator": "",
+      "from": "",
+      "template": "Question",
+      "parent": "",
+      "notes": "",
+      "tx": {
+       "type": "profile",
+       "ms": 500
+      },
+      "auto": {
+       "on": false,
+       "sec": 30
+      },
+      "out": {
+       "vcam": true,
+       "obs": true
+      },
+      "layers": [
+       {
+        "id": "Lz4qddub",
+        "kind": "question",
+        "name": "Question",
+        "visible": true,
+        "locked": false,
+        "opacity": 1,
+        "c": {
+         "items": [
+          {
+           "id": "qx",
+           "label": "",
+           "text": "One question."
+          }
+         ],
+         "itemId": "",
+         "label": "",
+         "vcam": true,
+         "obs": true
+        }
+       }
+      ]
+     },
+     {
+      "id": "sc_ifypowf",
+      "name": "My template",
+      "group": "",
+      "fav": false,
+      "tpl": true,
+      "created": 1792500000000,
+      "modified": 1792500000000,
+      "version": 1,
+      "creator": "",
+      "from": "",
+      "template": "",
+      "parent": "",
+      "notes": "",
+      "tx": {
+       "type": "profile",
+       "ms": 500
+      },
+      "auto": {
+       "on": false,
+       "sec": 30
+      },
+      "out": {
+       "vcam": true,
+       "obs": true
+      },
+      "layers": []
+     }
+    ],
+    "live": {
+     "scene": "sc_9h8s75e",
+     "seq": 2,
+     "at": 1792500005000,
+     "tx": "dip-black",
+     "txMs": 700,
+     "auto": true,
+     "blackout": false,
+     "emergency": false,
+     "freeze": false,
+     "ink": {
+      "on": false,
+      "items": [],
+      "undone": []
+     },
+     "message": "Please stand by — we’ll be right back.",
+     "on": {
+      "Ldjl3suh": true,
+      "cd1": true
+     },
+     "cd": {
+      "cd1": 1792500005000
+     }
+    },
+    "profile": "bible-study",
+    "v6": false,
+    "brand": {
+     "meeting": "",
+     "org": "",
+     "color": "",
+     "logo": "",
+     "lw": 0,
+     "lh": 0,
+     "auto": false
+    },
+    "meeting": {
+     "title": "",
+     "date": "",
+     "time": "",
+     "location": "",
+     "presenter": "",
+     "contact": "",
+     "attendees": "",
+     "attendeeNotes": "",
+     "owner": "",
+     "contentNotes": "",
+     "notes": "",
+     "extra": ""
+    },
+    "library": {
+     "verses": [
+      {
+       "id": "s1",
+       "ref": "Psalm 119:105",
+       "version": "KJV",
+       "text": "Thy word is a lamp unto my feet, and a light unto my path.",
+       "pair": ""
+      },
+      {
+       "id": "s2",
+       "ref": "Isaiah 40:8",
+       "version": "KJV",
+       "text": "The grass withereth, the flower fadeth: but the word of our God shall stand for ever.",
+       "pair": ""
+      },
+      {
+       "id": "s3",
+       "ref": "Romans 8:38-39",
+       "version": "KJV",
+       "text": "For I am persuaded, that neither death, nor life, nor angels, nor principalities, nor powers, nor things present, nor things to come,\nnor height, nor depth, nor any other creature, shall be able to separate us from the love of God, which is in Christ Jesus our Lord.",
+       "pair": ""
+      }
+     ],
+     "questions": [
+      {
+       "id": "q1",
+       "text": "What does this passage reveal about the character of God?",
+       "num": "",
+       "note": "",
+       "pair": "",
+       "mode": ""
+      },
+      {
+       "id": "q2",
+       "text": "Which phrase in today’s focus verse stood out to you most this week, and why?",
+       "num": "",
+       "note": "",
+       "pair": "",
+       "mode": ""
+      },
+      {
+       "id": "q3",
+       "text": "Think of a situation you are facing right now. How could the truth of this passage change the way you respond to it, and what is one practical step you could take before we meet again next week?",
+       "num": "",
+       "note": "",
+       "pair": "",
+       "mode": ""
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "take bible study again (cut)",
+   "state": {
+    "rev": 0,
+    "verse": {
+     "label": "Read together",
+     "showLabel": true,
+     "text": "For the law of the Spirit of life has set you free.",
+     "ref": "Romans 8:2",
+     "version": "ESV",
+     "visible": true,
+     "seq": 3,
+     "cut": 0,
+     "itemId": "vb",
+     "transition": "rise",
+     "speed": "normal",
+     "random": false,
+     "pool": [
+      "fade",
+      "rise",
+      "words",
+      "burst"
+     ],
+     "burst": "gentle",
+     "play": "none",
+     "upcoming": "",
+     "out": {
+      "vcam": true,
+      "obs": true
+     }
+    },
+    "question": {
+     "label": "Application",
+     "showLabel": true,
+     "text": "How will you live this out?",
+     "visible": true,
+     "seq": 3,
+     "cut": 0,
+     "itemId": "qb",
+     "mode": "both",
+     "transition": "fade",
+     "speed": "normal",
+     "random": false,
+     "pool": [
+      "fade",
+      "rise",
+      "words",
+      "burst"
+     ],
+     "burst": "gentle",
+     "play": "none",
+     "upcoming": "",
+     "out": {
+      "vcam": true,
+      "obs": true
+     }
+    },
+    "birthday": {
+     "label": "Birthday Celebration",
+     "showLabel": true,
+     "name": "",
+     "greeting": "",
+     "message": "",
+     "country": "",
+     "visible": false,
+     "seq": 0,
+     "cut": 0,
+     "transition": "rise",
+     "out": {
+      "vcam": true,
+      "obs": true
+     }
+    },
+    "layout": {
+     "bdayPos": "top",
+     "bdayScale": 1,
+     "verseAlign": "center",
+     "verseY": 40,
+     "verseWidth": 70,
+     "verseScale": 1,
+     "qBottom": 10,
+     "qWidth": 84,
+     "qScale": 1,
+     "panel": 92
+    },
+    "scenes": [
+     {
+      "id": "sc_00fc3no",
+      "name": "Bible Study",
+      "group": "Romans · Week 5",
+      "fav": false,
+      "tpl": false,
+      "created": 1792500000000,
+      "modified": 1792500000000,
+      "version": 1,
+      "creator": "",
+      "from": "",
+      "template": "Bible Study",
+      "parent": "",
+      "notes": "",
+      "tx": {
+       "type": "profile",
+       "ms": 500
+      },
+      "auto": {
+       "on": false,
+       "sec": 30
+      },
+      "out": {
+       "vcam": true,
+       "obs": true
+      },
+      "layers": [
+       {
+        "id": "Livv4w0v",
+        "kind": "scripture",
+        "name": "Scripture",
+        "visible": true,
+        "locked": false,
+        "opacity": 1,
+        "c": {
+         "items": [
+          {
+           "id": "va",
+           "label": "",
+           "ref": "Romans 8:1",
+           "version": "ESV",
+           "text": "There is therefore now no condemnation."
+          },
+          {
+           "id": "vb",
+           "label": "Read together",
+           "ref": "Romans 8:2",
+           "version": "ESV",
+           "text": "For the law of the Spirit of life has set you free."
+          }
+         ],
+         "itemId": "vb",
+         "label": "",
+         "ref": "",
+         "version": "",
+         "text": "",
+         "vcam": true,
+         "obs": true
+        }
+       },
+       {
+        "id": "Lqh3x4q3",
+        "kind": "question",
+        "name": "Question",
+        "visible": true,
+        "locked": false,
+        "opacity": 1,
+        "c": {
+         "items": [
+          {
+           "id": "qa",
+           "label": "",
+           "text": "What stood out to you?"
+          },
+          {
+           "id": "qb",
+           "label": "Application",
+           "text": "How will you live this out?",
+           "mode": ""
+          },
+          {
+           "id": "qc",
+           "label": "",
+           "text": "What will you pray about?"
+          }
+         ],
+         "itemId": "qb",
+         "label": "",
+         "vcam": true,
+         "obs": true
+        }
+       }
+      ]
+     },
+     {
+      "id": "sc_9h8s75e",
+      "name": "Welcome",
+      "group": "",
+      "fav": false,
+      "tpl": false,
+      "created": 1792500000000,
+      "modified": 1792500000000,
+      "version": 1,
+      "creator": "",
+      "from": "",
+      "template": "Announcement",
+      "parent": "",
+      "notes": "",
+      "tx": {
+       "type": "dissolve",
+       "ms": 450
+      },
+      "auto": {
+       "on": false,
+       "sec": 30
+      },
+      "out": {
+       "vcam": true,
+       "obs": true
+      },
+      "layers": [
+       {
+        "id": "Ldjl3suh",
+        "kind": "announcement",
+        "name": "Announcement",
+        "visible": true,
+        "locked": false,
+        "opacity": 1,
+        "c": {
+         "title": "Welcome",
+         "text": "We begin in a moment.",
+         "pos": "center",
+         "w": 70,
+         "scale": 1,
+         "label": true,
+         "anim": "fade",
+         "logo": false,
+         "vcam": true,
+         "obs": true
+        }
+       },
+       {
+        "id": "cd1",
+        "kind": "countdown",
+        "name": "Countdown",
+        "visible": true,
+        "locked": false,
+        "opacity": 1,
+        "c": {
+         "minutes": 5,
+         "title": "Starting in",
+         "text": "Starting now",
+         "mode": "duration",
+         "until": "10:30",
+         "pos": "center",
+         "w": 36,
+         "scale": 1.6,
+         "label": true,
+         "anim": "fade",
+         "logo": false,
+         "vcam": true,
+         "obs": true
+        }
+       }
+      ]
+     },
+     {
+      "id": "sc_72dwt9j",
+      "name": "Questions only",
+      "group": "",
+      "fav": false,
+      "tpl": false,
+      "created": 1792500000000,
+      "modified": 1792500000000,
+      "version": 1,
+      "creator": "",
+      "from": "",
+      "template": "Question",
+      "parent": "",
+      "notes": "",
+      "tx": {
+       "type": "profile",
+       "ms": 500
+      },
+      "auto": {
+       "on": false,
+       "sec": 30
+      },
+      "out": {
+       "vcam": true,
+       "obs": true
+      },
+      "layers": [
+       {
+        "id": "Lz4qddub",
+        "kind": "question",
+        "name": "Question",
+        "visible": true,
+        "locked": false,
+        "opacity": 1,
+        "c": {
+         "items": [
+          {
+           "id": "qx",
+           "label": "",
+           "text": "One question."
+          }
+         ],
+         "itemId": "",
+         "label": "",
+         "vcam": true,
+         "obs": true
+        }
+       }
+      ]
+     },
+     {
+      "id": "sc_ifypowf",
+      "name": "My template",
+      "group": "",
+      "fav": false,
+      "tpl": true,
+      "created": 1792500000000,
+      "modified": 1792500000000,
+      "version": 1,
+      "creator": "",
+      "from": "",
+      "template": "",
+      "parent": "",
+      "notes": "",
+      "tx": {
+       "type": "profile",
+       "ms": 500
+      },
+      "auto": {
+       "on": false,
+       "sec": 30
+      },
+      "out": {
+       "vcam": true,
+       "obs": true
+      },
+      "layers": []
+     }
+    ],
+    "live": {
+     "scene": "sc_00fc3no",
+     "seq": 3,
+     "at": 1792500008000,
+     "tx": "cut",
+     "txMs": 0,
+     "auto": true,
+     "blackout": false,
+     "emergency": false,
+     "freeze": false,
+     "ink": {
+      "on": false,
+      "items": [],
+      "undone": []
+     },
+     "message": "Please stand by — we’ll be right back.",
+     "on": {},
+     "cd": {}
+    },
+    "profile": "bible-study",
+    "v6": false,
+    "brand": {
+     "meeting": "",
+     "org": "",
+     "color": "",
+     "logo": "",
+     "lw": 0,
+     "lh": 0,
+     "auto": false
+    },
+    "meeting": {
+     "title": "",
+     "date": "",
+     "time": "",
+     "location": "",
+     "presenter": "",
+     "contact": "",
+     "attendees": "",
+     "attendeeNotes": "",
+     "owner": "",
+     "contentNotes": "",
+     "notes": "",
+     "extra": ""
+    },
+    "library": {
+     "verses": [
+      {
+       "id": "s1",
+       "ref": "Psalm 119:105",
+       "version": "KJV",
+       "text": "Thy word is a lamp unto my feet, and a light unto my path.",
+       "pair": ""
+      },
+      {
+       "id": "s2",
+       "ref": "Isaiah 40:8",
+       "version": "KJV",
+       "text": "The grass withereth, the flower fadeth: but the word of our God shall stand for ever.",
+       "pair": ""
+      },
+      {
+       "id": "s3",
+       "ref": "Romans 8:38-39",
+       "version": "KJV",
+       "text": "For I am persuaded, that neither death, nor life, nor angels, nor principalities, nor powers, nor things present, nor things to come,\nnor height, nor depth, nor any other creature, shall be able to separate us from the love of God, which is in Christ Jesus our Lord.",
+       "pair": ""
+      }
+     ],
+     "questions": [
+      {
+       "id": "q1",
+       "text": "What does this passage reveal about the character of God?",
+       "num": "",
+       "note": "",
+       "pair": "",
+       "mode": ""
+      },
+      {
+       "id": "q2",
+       "text": "Which phrase in today’s focus verse stood out to you most this week, and why?",
+       "num": "",
+       "note": "",
+       "pair": "",
+       "mode": ""
+      },
+      {
+       "id": "q3",
+       "text": "Think of a situation you are facing right now. How could the truth of this passage change the way you respond to it, and what is one practical step you could take before we meet again next week?",
+       "num": "",
+       "note": "",
+       "pair": "",
+       "mode": ""
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "scripture only",
+   "state": {
+    "rev": 0,
+    "verse": {
+     "label": "Read together",
+     "showLabel": true,
+     "text": "For the law of the Spirit of life has set you free.",
+     "ref": "Romans 8:2",
+     "version": "ESV",
+     "visible": true,
+     "seq": 4,
+     "cut": 0,
+     "itemId": "vb",
+     "transition": "rise",
+     "speed": "normal",
+     "random": false,
+     "pool": [
+      "fade",
+      "rise",
+      "words",
+      "burst"
+     ],
+     "burst": "gentle",
+     "play": "rise",
+     "upcoming": "",
+     "out": {
+      "vcam": true,
+      "obs": true
+     }
+    },
+    "question": {
+     "label": "Application",
+     "showLabel": true,
+     "text": "How will you live this out?",
+     "visible": false,
+     "seq": 3,
+     "cut": 0,
+     "itemId": "qb",
+     "mode": "question",
+     "transition": "fade",
+     "speed": "normal",
+     "random": false,
+     "pool": [
+      "fade",
+      "rise",
+      "words",
+      "burst"
+     ],
+     "burst": "gentle",
+     "play": "none",
+     "upcoming": "",
+     "out": {
+      "vcam": true,
+      "obs": true
+     }
+    },
+    "birthday": {
+     "label": "Birthday Celebration",
+     "showLabel": true,
+     "name": "",
+     "greeting": "",
+     "message": "",
+     "country": "",
+     "visible": false,
+     "seq": 0,
+     "cut": 0,
+     "transition": "rise",
+     "out": {
+      "vcam": true,
+      "obs": true
+     }
+    },
+    "layout": {
+     "bdayPos": "top",
+     "bdayScale": 1,
+     "verseAlign": "center",
+     "verseY": 40,
+     "verseWidth": 70,
+     "verseScale": 1,
+     "qBottom": 10,
+     "qWidth": 84,
+     "qScale": 1,
+     "panel": 92
+    },
+    "scenes": [
+     {
+      "id": "sc_00fc3no",
+      "name": "Bible Study",
+      "group": "Romans · Week 5",
+      "fav": false,
+      "tpl": false,
+      "created": 1792500000000,
+      "modified": 1792500009000,
+      "version": 2,
+      "creator": "",
+      "from": "",
+      "template": "Bible Study",
+      "parent": "",
+      "notes": "",
+      "tx": {
+       "type": "profile",
+       "ms": 500
+      },
+      "auto": {
+       "on": false,
+       "sec": 30
+      },
+      "out": {
+       "vcam": true,
+       "obs": true
+      },
+      "layers": [
+       {
+        "id": "Livv4w0v",
+        "kind": "scripture",
+        "name": "Scripture",
+        "visible": true,
+        "locked": false,
+        "opacity": 1,
+        "c": {
+         "items": [
+          {
+           "id": "va",
+           "label": "",
+           "ref": "Romans 8:1",
+           "version": "ESV",
+           "text": "There is therefore now no condemnation."
+          },
+          {
+           "id": "vb",
+           "label": "Read together",
+           "ref": "Romans 8:2",
+           "version": "ESV",
+           "text": "For the law of the Spirit of life has set you free."
+          }
+         ],
+         "itemId": "vb",
+         "label": "",
+         "ref": "",
+         "version": "",
+         "text": "",
+         "vcam": true,
+         "obs": true
+        }
+       },
+       {
+        "id": "Lqh3x4q3",
+        "kind": "question",
+        "name": "Question",
+        "visible": false,
+        "locked": false,
+        "opacity": 1,
+        "c": {
+         "items": [
+          {
+           "id": "qa",
+           "label": "",
+           "text": "What stood out to you?"
+          },
+          {
+           "id": "qb",
+           "label": "Application",
+           "text": "How will you live this out?",
+           "mode": ""
+          },
+          {
+           "id": "qc",
+           "label": "",
+           "text": "What will you pray about?"
+          }
+         ],
+         "itemId": "qb",
+         "label": "",
+         "vcam": true,
+         "obs": true
+        }
+       }
+      ]
+     },
+     {
+      "id": "sc_9h8s75e",
+      "name": "Welcome",
+      "group": "",
+      "fav": false,
+      "tpl": false,
+      "created": 1792500000000,
+      "modified": 1792500000000,
+      "version": 1,
+      "creator": "",
+      "from": "",
+      "template": "Announcement",
+      "parent": "",
+      "notes": "",
+      "tx": {
+       "type": "dissolve",
+       "ms": 450
+      },
+      "auto": {
+       "on": false,
+       "sec": 30
+      },
+      "out": {
+       "vcam": true,
+       "obs": true
+      },
+      "layers": [
+       {
+        "id": "Ldjl3suh",
+        "kind": "announcement",
+        "name": "Announcement",
+        "visible": true,
+        "locked": false,
+        "opacity": 1,
+        "c": {
+         "title": "Welcome",
+         "text": "We begin in a moment.",
+         "pos": "center",
+         "w": 70,
+         "scale": 1,
+         "label": true,
+         "anim": "fade",
+         "logo": false,
+         "vcam": true,
+         "obs": true
+        }
+       },
+       {
+        "id": "cd1",
+        "kind": "countdown",
+        "name": "Countdown",
+        "visible": true,
+        "locked": false,
+        "opacity": 1,
+        "c": {
+         "minutes": 5,
+         "title": "Starting in",
+         "text": "Starting now",
+         "mode": "duration",
+         "until": "10:30",
+         "pos": "center",
+         "w": 36,
+         "scale": 1.6,
+         "label": true,
+         "anim": "fade",
+         "logo": false,
+         "vcam": true,
+         "obs": true
+        }
+       }
+      ]
+     },
+     {
+      "id": "sc_72dwt9j",
+      "name": "Questions only",
+      "group": "",
+      "fav": false,
+      "tpl": false,
+      "created": 1792500000000,
+      "modified": 1792500000000,
+      "version": 1,
+      "creator": "",
+      "from": "",
+      "template": "Question",
+      "parent": "",
+      "notes": "",
+      "tx": {
+       "type": "profile",
+       "ms": 500
+      },
+      "auto": {
+       "on": false,
+       "sec": 30
+      },
+      "out": {
+       "vcam": true,
+       "obs": true
+      },
+      "layers": [
+       {
+        "id": "Lz4qddub",
+        "kind": "question",
+        "name": "Question",
+        "visible": true,
+        "locked": false,
+        "opacity": 1,
+        "c": {
+         "items": [
+          {
+           "id": "qx",
+           "label": "",
+           "text": "One question."
+          }
+         ],
+         "itemId": "",
+         "label": "",
+         "vcam": true,
+         "obs": true
+        }
+       }
+      ]
+     },
+     {
+      "id": "sc_ifypowf",
+      "name": "My template",
+      "group": "",
+      "fav": false,
+      "tpl": true,
+      "created": 1792500000000,
+      "modified": 1792500000000,
+      "version": 1,
+      "creator": "",
+      "from": "",
+      "template": "",
+      "parent": "",
+      "notes": "",
+      "tx": {
+       "type": "profile",
+       "ms": 500
+      },
+      "auto": {
+       "on": false,
+       "sec": 30
+      },
+      "out": {
+       "vcam": true,
+       "obs": true
+      },
+      "layers": []
+     }
+    ],
+    "live": {
+     "scene": "sc_00fc3no",
+     "seq": 3,
+     "at": 1792500008000,
+     "tx": "cut",
+     "txMs": 0,
+     "auto": true,
+     "blackout": false,
+     "emergency": false,
+     "freeze": false,
+     "ink": {
+      "on": false,
+      "items": [],
+      "undone": []
+     },
+     "message": "Please stand by — we’ll be right back.",
+     "on": {},
+     "cd": {}
+    },
+    "profile": "bible-study",
+    "v6": false,
+    "brand": {
+     "meeting": "",
+     "org": "",
+     "color": "",
+     "logo": "",
+     "lw": 0,
+     "lh": 0,
+     "auto": false
+    },
+    "meeting": {
+     "title": "",
+     "date": "",
+     "time": "",
+     "location": "",
+     "presenter": "",
+     "contact": "",
+     "attendees": "",
+     "attendeeNotes": "",
+     "owner": "",
+     "contentNotes": "",
+     "notes": "",
+     "extra": ""
+    },
+    "library": {
+     "verses": [
+      {
+       "id": "s1",
+       "ref": "Psalm 119:105",
+       "version": "KJV",
+       "text": "Thy word is a lamp unto my feet, and a light unto my path.",
+       "pair": ""
+      },
+      {
+       "id": "s2",
+       "ref": "Isaiah 40:8",
+       "version": "KJV",
+       "text": "The grass withereth, the flower fadeth: but the word of our God shall stand for ever.",
+       "pair": ""
+      },
+      {
+       "id": "s3",
+       "ref": "Romans 8:38-39",
+       "version": "KJV",
+       "text": "For I am persuaded, that neither death, nor life, nor angels, nor principalities, nor powers, nor things present, nor things to come,\nnor height, nor depth, nor any other creature, shall be able to separate us from the love of God, which is in Christ Jesus our Lord.",
+       "pair": ""
+      }
+     ],
+     "questions": [
+      {
+       "id": "q1",
+       "text": "What does this passage reveal about the character of God?",
+       "num": "",
+       "note": "",
+       "pair": "",
+       "mode": ""
+      },
+      {
+       "id": "q2",
+       "text": "Which phrase in today’s focus verse stood out to you most this week, and why?",
+       "num": "",
+       "note": "",
+       "pair": "",
+       "mode": ""
+      },
+      {
+       "id": "q3",
+       "text": "Think of a situation you are facing right now. How could the truth of this passage change the way you respond to it, and what is one practical step you could take before we meet again next week?",
+       "num": "",
+       "note": "",
+       "pair": "",
+       "mode": ""
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "both",
+   "state": {
+    "rev": 0,
+    "verse": {
+     "label": "Read together",
+     "showLabel": true,
+     "text": "For the law of the Spirit of life has set you free.",
+     "ref": "Romans 8:2",
+     "version": "ESV",
+     "visible": true,
+     "seq": 5,
+     "cut": 0,
+     "itemId": "vb",
+     "transition": "rise",
+     "speed": "normal",
+     "random": false,
+     "pool": [
+      "fade",
+      "rise",
+      "words",
+      "burst"
+     ],
+     "burst": "gentle",
+     "play": "rise",
+     "upcoming": "",
+     "out": {
+      "vcam": true,
+      "obs": true
+     }
+    },
+    "question": {
+     "label": "Application",
+     "showLabel": true,
+     "text": "How will you live this out?",
+     "visible": true,
+     "seq": 4,
+     "cut": 0,
+     "itemId": "qb",
+     "mode": "both",
+     "transition": "fade",
+     "speed": "normal",
+     "random": false,
+     "pool": [
+      "fade",
+      "rise",
+      "words",
+      "burst"
+     ],
+     "burst": "gentle",
+     "play": "fade",
+     "upcoming": "",
+     "out": {
+      "vcam": true,
+      "obs": true
+     }
+    },
+    "birthday": {
+     "label": "Birthday Celebration",
+     "showLabel": true,
+     "name": "",
+     "greeting": "",
+     "message": "",
+     "country": "",
+     "visible": false,
+     "seq": 0,
+     "cut": 0,
+     "transition": "rise",
+     "out": {
+      "vcam": true,
+      "obs": true
+     }
+    },
+    "layout": {
+     "bdayPos": "top",
+     "bdayScale": 1,
+     "verseAlign": "center",
+     "verseY": 40,
+     "verseWidth": 70,
+     "verseScale": 1,
+     "qBottom": 10,
+     "qWidth": 84,
+     "qScale": 1,
+     "panel": 92
+    },
+    "scenes": [
+     {
+      "id": "sc_00fc3no",
+      "name": "Bible Study",
+      "group": "Romans · Week 5",
+      "fav": false,
+      "tpl": false,
+      "created": 1792500000000,
+      "modified": 1792500010000,
+      "version": 3,
+      "creator": "",
+      "from": "",
+      "template": "Bible Study",
+      "parent": "",
+      "notes": "",
+      "tx": {
+       "type": "profile",
+       "ms": 500
+      },
+      "auto": {
+       "on": false,
+       "sec": 30
+      },
+      "out": {
+       "vcam": true,
+       "obs": true
+      },
+      "layers": [
+       {
+        "id": "Livv4w0v",
+        "kind": "scripture",
+        "name": "Scripture",
+        "visible": true,
+        "locked": false,
+        "opacity": 1,
+        "c": {
+         "items": [
+          {
+           "id": "va",
+           "label": "",
+           "ref": "Romans 8:1",
+           "version": "ESV",
+           "text": "There is therefore now no condemnation."
+          },
+          {
+           "id": "vb",
+           "label": "Read together",
+           "ref": "Romans 8:2",
+           "version": "ESV",
+           "text": "For the law of the Spirit of life has set you free."
+          }
+         ],
+         "itemId": "vb",
+         "label": "",
+         "ref": "",
+         "version": "",
+         "text": "",
+         "vcam": true,
+         "obs": true
+        }
+       },
+       {
+        "id": "Lqh3x4q3",
+        "kind": "question",
+        "name": "Question",
+        "visible": true,
+        "locked": false,
+        "opacity": 1,
+        "c": {
+         "items": [
+          {
+           "id": "qa",
+           "label": "",
+           "text": "What stood out to you?"
+          },
+          {
+           "id": "qb",
+           "label": "Application",
+           "text": "How will you live this out?",
+           "mode": ""
+          },
+          {
+           "id": "qc",
+           "label": "",
+           "text": "What will you pray about?"
+          }
+         ],
+         "itemId": "qb",
+         "label": "",
+         "vcam": true,
+         "obs": true
+        }
+       }
+      ]
+     },
+     {
+      "id": "sc_9h8s75e",
+      "name": "Welcome",
+      "group": "",
+      "fav": false,
+      "tpl": false,
+      "created": 1792500000000,
+      "modified": 1792500000000,
+      "version": 1,
+      "creator": "",
+      "from": "",
+      "template": "Announcement",
+      "parent": "",
+      "notes": "",
+      "tx": {
+       "type": "dissolve",
+       "ms": 450
+      },
+      "auto": {
+       "on": false,
+       "sec": 30
+      },
+      "out": {
+       "vcam": true,
+       "obs": true
+      },
+      "layers": [
+       {
+        "id": "Ldjl3suh",
+        "kind": "announcement",
+        "name": "Announcement",
+        "visible": true,
+        "locked": false,
+        "opacity": 1,
+        "c": {
+         "title": "Welcome",
+         "text": "We begin in a moment.",
+         "pos": "center",
+         "w": 70,
+         "scale": 1,
+         "label": true,
+         "anim": "fade",
+         "logo": false,
+         "vcam": true,
+         "obs": true
+        }
+       },
+       {
+        "id": "cd1",
+        "kind": "countdown",
+        "name": "Countdown",
+        "visible": true,
+        "locked": false,
+        "opacity": 1,
+        "c": {
+         "minutes": 5,
+         "title": "Starting in",
+         "text": "Starting now",
+         "mode": "duration",
+         "until": "10:30",
+         "pos": "center",
+         "w": 36,
+         "scale": 1.6,
+         "label": true,
+         "anim": "fade",
+         "logo": false,
+         "vcam": true,
+         "obs": true
+        }
+       }
+      ]
+     },
+     {
+      "id": "sc_72dwt9j",
+      "name": "Questions only",
+      "group": "",
+      "fav": false,
+      "tpl": false,
+      "created": 1792500000000,
+      "modified": 1792500000000,
+      "version": 1,
+      "creator": "",
+      "from": "",
+      "template": "Question",
+      "parent": "",
+      "notes": "",
+      "tx": {
+       "type": "profile",
+       "ms": 500
+      },
+      "auto": {
+       "on": false,
+       "sec": 30
+      },
+      "out": {
+       "vcam": true,
+       "obs": true
+      },
+      "layers": [
+       {
+        "id": "Lz4qddub",
+        "kind": "question",
+        "name": "Question",
+        "visible": true,
+        "locked": false,
+        "opacity": 1,
+        "c": {
+         "items": [
+          {
+           "id": "qx",
+           "label": "",
+           "text": "One question."
+          }
+         ],
+         "itemId": "",
+         "label": "",
+         "vcam": true,
+         "obs": true
+        }
+       }
+      ]
+     },
+     {
+      "id": "sc_ifypowf",
+      "name": "My template",
+      "group": "",
+      "fav": false,
+      "tpl": true,
+      "created": 1792500000000,
+      "modified": 1792500000000,
+      "version": 1,
+      "creator": "",
+      "from": "",
+      "template": "",
+      "parent": "",
+      "notes": "",
+      "tx": {
+       "type": "profile",
+       "ms": 500
+      },
+      "auto": {
+       "on": false,
+       "sec": 30
+      },
+      "out": {
+       "vcam": true,
+       "obs": true
+      },
+      "layers": []
+     }
+    ],
+    "live": {
+     "scene": "sc_00fc3no",
+     "seq": 3,
+     "at": 1792500008000,
+     "tx": "cut",
+     "txMs": 0,
+     "auto": true,
+     "blackout": false,
+     "emergency": false,
+     "freeze": false,
+     "ink": {
+      "on": false,
+      "items": [],
+      "undone": []
+     },
+     "message": "Please stand by — we’ll be right back.",
+     "on": {},
+     "cd": {}
+    },
+    "profile": "bible-study",
+    "v6": false,
+    "brand": {
+     "meeting": "",
+     "org": "",
+     "color": "",
+     "logo": "",
+     "lw": 0,
+     "lh": 0,
+     "auto": false
+    },
+    "meeting": {
+     "title": "",
+     "date": "",
+     "time": "",
+     "location": "",
+     "presenter": "",
+     "contact": "",
+     "attendees": "",
+     "attendeeNotes": "",
+     "owner": "",
+     "contentNotes": "",
+     "notes": "",
+     "extra": ""
+    },
+    "library": {
+     "verses": [
+      {
+       "id": "s1",
+       "ref": "Psalm 119:105",
+       "version": "KJV",
+       "text": "Thy word is a lamp unto my feet, and a light unto my path.",
+       "pair": ""
+      },
+      {
+       "id": "s2",
+       "ref": "Isaiah 40:8",
+       "version": "KJV",
+       "text": "The grass withereth, the flower fadeth: but the word of our God shall stand for ever.",
+       "pair": ""
+      },
+      {
+       "id": "s3",
+       "ref": "Romans 8:38-39",
+       "version": "KJV",
+       "text": "For I am persuaded, that neither death, nor life, nor angels, nor principalities, nor powers, nor things present, nor things to come,\nnor height, nor depth, nor any other creature, shall be able to separate us from the love of God, which is in Christ Jesus our Lord.",
+       "pair": ""
+      }
+     ],
+     "questions": [
+      {
+       "id": "q1",
+       "text": "What does this passage reveal about the character of God?",
+       "num": "",
+       "note": "",
+       "pair": "",
+       "mode": ""
+      },
+      {
+       "id": "q2",
+       "text": "Which phrase in today’s focus verse stood out to you most this week, and why?",
+       "num": "",
+       "note": "",
+       "pair": "",
+       "mode": ""
+      },
+      {
+       "id": "q3",
+       "text": "Think of a situation you are facing right now. How could the truth of this passage change the way you respond to it, and what is one practical step you could take before we meet again next week?",
+       "num": "",
+       "note": "",
+       "pair": "",
+       "mode": ""
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "take questions only",
+   "state": {
+    "rev": 0,
+    "verse": {
+     "label": "Read together",
+     "showLabel": true,
+     "text": "For the law of the Spirit of life has set you free.",
+     "ref": "Romans 8:2",
+     "version": "ESV",
+     "visible": false,
+     "seq": 5,
+     "cut": 0,
+     "itemId": "vb",
+     "transition": "rise",
+     "speed": "normal",
+     "random": false,
+     "pool": [
+      "fade",
+      "rise",
+      "words",
+      "burst"
+     ],
+     "burst": "gentle",
+     "play": "rise",
+     "upcoming": "",
+     "out": {
+      "vcam": true,
+      "obs": true
+     }
+    },
+    "question": {
+     "label": "Discussion Question",
+     "showLabel": true,
+     "text": "One question.",
+     "visible": true,
+     "seq": 5,
+     "cut": 0,
+     "itemId": "qx",
+     "mode": "question",
+     "transition": "fade",
+     "speed": "normal",
+     "random": false,
+     "pool": [
+      "fade",
+      "rise",
+      "words",
+      "burst"
+     ],
+     "burst": "gentle",
+     "play": "fade",
+     "upcoming": "",
+     "out": {
+      "vcam": true,
+      "obs": true
+     }
+    },
+    "birthday": {
+     "label": "Birthday Celebration",
+     "showLabel": true,
+     "name": "",
+     "greeting": "",
+     "message": "",
+     "country": "",
+     "visible": false,
+     "seq": 0,
+     "cut": 0,
+     "transition": "rise",
+     "out": {
+      "vcam": true,
+      "obs": true
+     }
+    },
+    "layout": {
+     "bdayPos": "top",
+     "bdayScale": 1,
+     "verseAlign": "center",
+     "verseY": 40,
+     "verseWidth": 70,
+     "verseScale": 1,
+     "qBottom": 10,
+     "qWidth": 84,
+     "qScale": 1,
+     "panel": 92
+    },
+    "scenes": [
+     {
+      "id": "sc_00fc3no",
+      "name": "Bible Study",
+      "group": "Romans · Week 5",
+      "fav": false,
+      "tpl": false,
+      "created": 1792500000000,
+      "modified": 1792500010000,
+      "version": 3,
+      "creator": "",
+      "from": "",
+      "template": "Bible Study",
+      "parent": "",
+      "notes": "",
+      "tx": {
+       "type": "profile",
+       "ms": 500
+      },
+      "auto": {
+       "on": false,
+       "sec": 30
+      },
+      "out": {
+       "vcam": true,
+       "obs": true
+      },
+      "layers": [
+       {
+        "id": "Livv4w0v",
+        "kind": "scripture",
+        "name": "Scripture",
+        "visible": true,
+        "locked": false,
+        "opacity": 1,
+        "c": {
+         "items": [
+          {
+           "id": "va",
+           "label": "",
+           "ref": "Romans 8:1",
+           "version": "ESV",
+           "text": "There is therefore now no condemnation."
+          },
+          {
+           "id": "vb",
+           "label": "Read together",
+           "ref": "Romans 8:2",
+           "version": "ESV",
+           "text": "For the law of the Spirit of life has set you free."
+          }
+         ],
+         "itemId": "vb",
+         "label": "",
+         "ref": "",
+         "version": "",
+         "text": "",
+         "vcam": true,
+         "obs": true
+        }
+       },
+       {
+        "id": "Lqh3x4q3",
+        "kind": "question",
+        "name": "Question",
+        "visible": true,
+        "locked": false,
+        "opacity": 1,
+        "c": {
+         "items": [
+          {
+           "id": "qa",
+           "label": "",
+           "text": "What stood out to you?"
+          },
+          {
+           "id": "qb",
+           "label": "Application",
+           "text": "How will you live this out?",
+           "mode": ""
+          },
+          {
+           "id": "qc",
+           "label": "",
+           "text": "What will you pray about?"
+          }
+         ],
+         "itemId": "qb",
+         "label": "",
+         "vcam": true,
+         "obs": true
+        }
+       }
+      ]
+     },
+     {
+      "id": "sc_9h8s75e",
+      "name": "Welcome",
+      "group": "",
+      "fav": false,
+      "tpl": false,
+      "created": 1792500000000,
+      "modified": 1792500000000,
+      "version": 1,
+      "creator": "",
+      "from": "",
+      "template": "Announcement",
+      "parent": "",
+      "notes": "",
+      "tx": {
+       "type": "dissolve",
+       "ms": 450
+      },
+      "auto": {
+       "on": false,
+       "sec": 30
+      },
+      "out": {
+       "vcam": true,
+       "obs": true
+      },
+      "layers": [
+       {
+        "id": "Ldjl3suh",
+        "kind": "announcement",
+        "name": "Announcement",
+        "visible": true,
+        "locked": false,
+        "opacity": 1,
+        "c": {
+         "title": "Welcome",
+         "text": "We begin in a moment.",
+         "pos": "center",
+         "w": 70,
+         "scale": 1,
+         "label": true,
+         "anim": "fade",
+         "logo": false,
+         "vcam": true,
+         "obs": true
+        }
+       },
+       {
+        "id": "cd1",
+        "kind": "countdown",
+        "name": "Countdown",
+        "visible": true,
+        "locked": false,
+        "opacity": 1,
+        "c": {
+         "minutes": 5,
+         "title": "Starting in",
+         "text": "Starting now",
+         "mode": "duration",
+         "until": "10:30",
+         "pos": "center",
+         "w": 36,
+         "scale": 1.6,
+         "label": true,
+         "anim": "fade",
+         "logo": false,
+         "vcam": true,
+         "obs": true
+        }
+       }
+      ]
+     },
+     {
+      "id": "sc_72dwt9j",
+      "name": "Questions only",
+      "group": "",
+      "fav": false,
+      "tpl": false,
+      "created": 1792500000000,
+      "modified": 1792500000000,
+      "version": 1,
+      "creator": "",
+      "from": "",
+      "template": "Question",
+      "parent": "",
+      "notes": "",
+      "tx": {
+       "type": "profile",
+       "ms": 500
+      },
+      "auto": {
+       "on": false,
+       "sec": 30
+      },
+      "out": {
+       "vcam": true,
+       "obs": true
+      },
+      "layers": [
+       {
+        "id": "Lz4qddub",
+        "kind": "question",
+        "name": "Question",
+        "visible": true,
+        "locked": false,
+        "opacity": 1,
+        "c": {
+         "items": [
+          {
+           "id": "qx",
+           "label": "",
+           "text": "One question."
+          }
+         ],
+         "itemId": "qx",
+         "label": "",
+         "vcam": true,
+         "obs": true
+        }
+       }
+      ]
+     },
+     {
+      "id": "sc_ifypowf",
+      "name": "My template",
+      "group": "",
+      "fav": false,
+      "tpl": true,
+      "created": 1792500000000,
+      "modified": 1792500000000,
+      "version": 1,
+      "creator": "",
+      "from": "",
+      "template": "",
+      "parent": "",
+      "notes": "",
+      "tx": {
+       "type": "profile",
+       "ms": 500
+      },
+      "auto": {
+       "on": false,
+       "sec": 30
+      },
+      "out": {
+       "vcam": true,
+       "obs": true
+      },
+      "layers": []
+     }
+    ],
+    "live": {
+     "scene": "sc_72dwt9j",
+     "seq": 4,
+     "at": 1792500011000,
+     "tx": "fade",
+     "txMs": 350,
+     "auto": true,
+     "blackout": false,
+     "emergency": false,
+     "freeze": false,
+     "ink": {
+      "on": false,
+      "items": [],
+      "undone": []
+     },
+     "message": "Please stand by — we’ll be right back.",
+     "on": {},
+     "cd": {}
+    },
+    "profile": "bible-study",
+    "v6": false,
+    "brand": {
+     "meeting": "",
+     "org": "",
+     "color": "",
+     "logo": "",
+     "lw": 0,
+     "lh": 0,
+     "auto": false
+    },
+    "meeting": {
+     "title": "",
+     "date": "",
+     "time": "",
+     "location": "",
+     "presenter": "",
+     "contact": "",
+     "attendees": "",
+     "attendeeNotes": "",
+     "owner": "",
+     "contentNotes": "",
+     "notes": "",
+     "extra": ""
+    },
+    "library": {
+     "verses": [
+      {
+       "id": "s1",
+       "ref": "Psalm 119:105",
+       "version": "KJV",
+       "text": "Thy word is a lamp unto my feet, and a light unto my path.",
+       "pair": ""
+      },
+      {
+       "id": "s2",
+       "ref": "Isaiah 40:8",
+       "version": "KJV",
+       "text": "The grass withereth, the flower fadeth: but the word of our God shall stand for ever.",
+       "pair": ""
+      },
+      {
+       "id": "s3",
+       "ref": "Romans 8:38-39",
+       "version": "KJV",
+       "text": "For I am persuaded, that neither death, nor life, nor angels, nor principalities, nor powers, nor things present, nor things to come,\nnor height, nor depth, nor any other creature, shall be able to separate us from the love of God, which is in Christ Jesus our Lord.",
+       "pair": ""
+      }
+     ],
+     "questions": [
+      {
+       "id": "q1",
+       "text": "What does this passage reveal about the character of God?",
+       "num": "",
+       "note": "",
+       "pair": "",
+       "mode": ""
+      },
+      {
+       "id": "q2",
+       "text": "Which phrase in today’s focus verse stood out to you most this week, and why?",
+       "num": "",
+       "note": "",
+       "pair": "",
+       "mode": ""
+      },
+      {
+       "id": "q3",
+       "text": "Think of a situation you are facing right now. How could the truth of this passage change the way you respond to it, and what is one practical step you could take before we meet again next week?",
+       "num": "",
+       "note": "",
+       "pair": "",
+       "mode": ""
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "profile youth, take welcome",
+   "state": {
+    "rev": 0,
+    "verse": {
+     "label": "Read together",
+     "showLabel": true,
+     "text": "For the law of the Spirit of life has set you free.",
+     "ref": "Romans 8:2",
+     "version": "ESV",
+     "visible": false,
+     "seq": 5,
+     "cut": 0,
+     "itemId": "vb",
+     "transition": "rise",
+     "speed": "normal",
+     "random": false,
+     "pool": [
+      "fade",
+      "rise",
+      "words",
+      "burst"
+     ],
+     "burst": "gentle",
+     "play": "rise",
+     "upcoming": "",
+     "out": {
+      "vcam": true,
+      "obs": true
+     }
+    },
+    "question": {
+     "label": "Discussion Question",
+     "showLabel": true,
+     "text": "One question.",
+     "visible": false,
+     "seq": 5,
+     "cut": 0,
+     "itemId": "qx",
+     "mode": "question",
+     "transition": "fade",
+     "speed": "normal",
+     "random": false,
+     "pool": [
+      "fade",
+      "rise",
+      "words",
+      "burst"
+     ],
+     "burst": "gentle",
+     "play": "fade",
+     "upcoming": "",
+     "out": {
+      "vcam": true,
+      "obs": true
+     }
+    },
+    "birthday": {
+     "label": "Birthday Celebration",
+     "showLabel": true,
+     "name": "",
+     "greeting": "",
+     "message": "",
+     "country": "",
+     "visible": false,
+     "seq": 0,
+     "cut": 0,
+     "transition": "rise",
+     "out": {
+      "vcam": true,
+      "obs": true
+     }
+    },
+    "layout": {
+     "bdayPos": "top",
+     "bdayScale": 1,
+     "verseAlign": "center",
+     "verseY": 40,
+     "verseWidth": 70,
+     "verseScale": 1,
+     "qBottom": 10,
+     "qWidth": 84,
+     "qScale": 1,
+     "panel": 92
+    },
+    "scenes": [
+     {
+      "id": "sc_00fc3no",
+      "name": "Bible Study",
+      "group": "Romans · Week 5",
+      "fav": false,
+      "tpl": false,
+      "created": 1792500000000,
+      "modified": 1792500010000,
+      "version": 3,
+      "creator": "",
+      "from": "",
+      "template": "Bible Study",
+      "parent": "",
+      "notes": "",
+      "tx": {
+       "type": "profile",
+       "ms": 500
+      },
+      "auto": {
+       "on": false,
+       "sec": 30
+      },
+      "out": {
+       "vcam": true,
+       "obs": true
+      },
+      "layers": [
+       {
+        "id": "Livv4w0v",
+        "kind": "scripture",
+        "name": "Scripture",
+        "visible": true,
+        "locked": false,
+        "opacity": 1,
+        "c": {
+         "items": [
+          {
+           "id": "va",
+           "label": "",
+           "ref": "Romans 8:1",
+           "version": "ESV",
+           "text": "There is therefore now no condemnation."
+          },
+          {
+           "id": "vb",
+           "label": "Read together",
+           "ref": "Romans 8:2",
+           "version": "ESV",
+           "text": "For the law of the Spirit of life has set you free."
+          }
+         ],
+         "itemId": "vb",
+         "label": "",
+         "ref": "",
+         "version": "",
+         "text": "",
+         "vcam": true,
+         "obs": true
+        }
+       },
+       {
+        "id": "Lqh3x4q3",
+        "kind": "question",
+        "name": "Question",
+        "visible": true,
+        "locked": false,
+        "opacity": 1,
+        "c": {
+         "items": [
+          {
+           "id": "qa",
+           "label": "",
+           "text": "What stood out to you?"
+          },
+          {
+           "id": "qb",
+           "label": "Application",
+           "text": "How will you live this out?",
+           "mode": ""
+          },
+          {
+           "id": "qc",
+           "label": "",
+           "text": "What will you pray about?"
+          }
+         ],
+         "itemId": "qb",
+         "label": "",
+         "vcam": true,
+         "obs": true
+        }
+       }
+      ]
+     },
+     {
+      "id": "sc_9h8s75e",
+      "name": "Welcome",
+      "group": "",
+      "fav": false,
+      "tpl": false,
+      "created": 1792500000000,
+      "modified": 1792500000000,
+      "version": 1,
+      "creator": "",
+      "from": "",
+      "template": "Announcement",
+      "parent": "",
+      "notes": "",
+      "tx": {
+       "type": "dissolve",
+       "ms": 450
+      },
+      "auto": {
+       "on": false,
+       "sec": 30
+      },
+      "out": {
+       "vcam": true,
+       "obs": true
+      },
+      "layers": [
+       {
+        "id": "Ldjl3suh",
+        "kind": "announcement",
+        "name": "Announcement",
+        "visible": true,
+        "locked": false,
+        "opacity": 1,
+        "c": {
+         "title": "Welcome",
+         "text": "We begin in a moment.",
+         "pos": "center",
+         "w": 70,
+         "scale": 1,
+         "label": true,
+         "anim": "fade",
+         "logo": false,
+         "vcam": true,
+         "obs": true
+        }
+       },
+       {
+        "id": "cd1",
+        "kind": "countdown",
+        "name": "Countdown",
+        "visible": true,
+        "locked": false,
+        "opacity": 1,
+        "c": {
+         "minutes": 5,
+         "title": "Starting in",
+         "text": "Starting now",
+         "mode": "duration",
+         "until": "10:30",
+         "pos": "center",
+         "w": 36,
+         "scale": 1.6,
+         "label": true,
+         "anim": "fade",
+         "logo": false,
+         "vcam": true,
+         "obs": true
+        }
+       }
+      ]
+     },
+     {
+      "id": "sc_72dwt9j",
+      "name": "Questions only",
+      "group": "",
+      "fav": false,
+      "tpl": false,
+      "created": 1792500000000,
+      "modified": 1792500000000,
+      "version": 1,
+      "creator": "",
+      "from": "",
+      "template": "Question",
+      "parent": "",
+      "notes": "",
+      "tx": {
+       "type": "profile",
+       "ms": 500
+      },
+      "auto": {
+       "on": false,
+       "sec": 30
+      },
+      "out": {
+       "vcam": true,
+       "obs": true
+      },
+      "layers": [
+       {
+        "id": "Lz4qddub",
+        "kind": "question",
+        "name": "Question",
+        "visible": true,
+        "locked": false,
+        "opacity": 1,
+        "c": {
+         "items": [
+          {
+           "id": "qx",
+           "label": "",
+           "text": "One question."
+          }
+         ],
+         "itemId": "qx",
+         "label": "",
+         "vcam": true,
+         "obs": true
+        }
+       }
+      ]
+     },
+     {
+      "id": "sc_ifypowf",
+      "name": "My template",
+      "group": "",
+      "fav": false,
+      "tpl": true,
+      "created": 1792500000000,
+      "modified": 1792500000000,
+      "version": 1,
+      "creator": "",
+      "from": "",
+      "template": "",
+      "parent": "",
+      "notes": "",
+      "tx": {
+       "type": "profile",
+       "ms": 500
+      },
+      "auto": {
+       "on": false,
+       "sec": 30
+      },
+      "out": {
+       "vcam": true,
+       "obs": true
+      },
+      "layers": []
+     }
+    ],
+    "live": {
+     "scene": "sc_9h8s75e",
+     "seq": 5,
+     "at": 1792500012000,
+     "tx": "dissolve",
+     "txMs": 450,
+     "auto": true,
+     "blackout": false,
+     "emergency": false,
+     "freeze": false,
+     "ink": {
+      "on": false,
+      "items": [],
+      "undone": []
+     },
+     "message": "Please stand by — we’ll be right back.",
+     "on": {
+      "Ldjl3suh": true,
+      "cd1": true
+     },
+     "cd": {
+      "cd1": 1792500012000
+     }
+    },
+    "profile": "youth",
+    "v6": false,
+    "brand": {
+     "meeting": "",
+     "org": "",
+     "color": "",
+     "logo": "",
+     "lw": 0,
+     "lh": 0,
+     "auto": false
+    },
+    "meeting": {
+     "title": "",
+     "date": "",
+     "time": "",
+     "location": "",
+     "presenter": "",
+     "contact": "",
+     "attendees": "",
+     "attendeeNotes": "",
+     "owner": "",
+     "contentNotes": "",
+     "notes": "",
+     "extra": ""
+    },
+    "library": {
+     "verses": [
+      {
+       "id": "s1",
+       "ref": "Psalm 119:105",
+       "version": "KJV",
+       "text": "Thy word is a lamp unto my feet, and a light unto my path.",
+       "pair": ""
+      },
+      {
+       "id": "s2",
+       "ref": "Isaiah 40:8",
+       "version": "KJV",
+       "text": "The grass withereth, the flower fadeth: but the word of our God shall stand for ever.",
+       "pair": ""
+      },
+      {
+       "id": "s3",
+       "ref": "Romans 8:38-39",
+       "version": "KJV",
+       "text": "For I am persuaded, that neither death, nor life, nor angels, nor principalities, nor powers, nor things present, nor things to come,\nnor height, nor depth, nor any other creature, shall be able to separate us from the love of God, which is in Christ Jesus our Lord.",
+       "pair": ""
+      }
+     ],
+     "questions": [
+      {
+       "id": "q1",
+       "text": "What does this passage reveal about the character of God?",
+       "num": "",
+       "note": "",
+       "pair": "",
+       "mode": ""
+      },
+      {
+       "id": "q2",
+       "text": "Which phrase in today’s focus verse stood out to you most this week, and why?",
+       "num": "",
+       "note": "",
+       "pair": "",
+       "mode": ""
+      },
+      {
+       "id": "q3",
+       "text": "Think of a situation you are facing right now. How could the truth of this passage change the way you respond to it, and what is one practical step you could take before we meet again next week?",
+       "num": "",
+       "note": "",
+       "pair": "",
+       "mode": ""
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "messy": {
+  "rev": "7",
+  "profile": "nope",
+  "question": {
+   "text": "Old shared question",
+   "itemId": "q2",
+   "visible": 1,
+   "transition": "spin",
+   "pool": [
+    "fade",
+    "fade",
+    "x"
+   ],
+   "label": "Q"
+  },
+  "verse": {
+   "text": "Old verse",
+   "ref": "John 3:16",
+   "version": "KJV",
+   "itemId": "s1",
+   "speed": "warp"
+  },
+  "layout": {
+   "qScale": 9,
+   "verseY": "abc",
+   "verseAlign": "up"
+  },
+  "library": {
+   "questions": [
+    {
+     "id": "q1",
+     "text": "First"
+    },
+    {
+     "id": "q2",
+     "text": "Second",
+     "mode": "both",
+     "pair": "s1"
+    }
+   ],
+   "verses": [
+    {
+     "id": "s1",
+     "ref": "Psalm 23:1",
+     "version": "KJV",
+     "text": "The Lord is my shepherd."
+    }
+   ]
+  },
+  "scenes": [
+   {
+    "id": "old1",
+    "name": "",
+    "layers": [
+     {
+      "id": "l1",
+      "kind": "question",
+      "c": {}
+     },
+     {
+      "id": "l2",
+      "kind": "scripture",
+      "c": {
+       "itemId": "s1"
+      }
+     },
+     {
+      "id": "l3",
+      "kind": "lowerthird",
+      "c": {
+       "w": 400,
+       "pos": "nowhere",
+       "anim": "spin",
+       "title": 7
+      }
+     },
+     {
+      "id": "l4",
+      "kind": "unknown"
+     }
+    ],
+    "tx": {
+     "type": "zoom",
+     "ms": 99999
+    },
+    "auto": {
+     "on": 1,
+     "sec": 1
+    },
+    "out": {
+     "vcam": false
+    }
+   },
+   {
+    "id": "old1",
+    "name": "Duplicate id"
+   },
+   {
+    "id": "old2",
+    "name": "Shapes",
+    "fav": "yes",
+    "layers": [
+     {
+      "id": "r1",
+      "kind": "rect",
+      "opacity": 3
+     }
+    ]
+   }
+  ],
+  "live": {
+   "scene": "old1",
+   "on": {
+    "l3": 1,
+    "x": 0
+   },
+   "cd": {
+    "l3": "12"
+   },
+   "tx": "nope",
+   "txMs": -5,
+   "ink": {
+    "items": [
+     {
+      "t": "pen",
+      "p": [
+       [
+        0.123456,
+        2
+       ]
+      ],
+      "c": "red"
+     }
+    ]
+   }
+  },
+  "brand": {
+   "color": "#ABCDEF",
+   "meeting": "Romans"
+  },
+  "birthday": {
+   "transition": "x",
+   "greeting": 5
+  }
+ },
+ "messyNormalized": {
+  "rev": 7,
+  "verse": {
+   "label": "Focus Verse",
+   "showLabel": true,
+   "text": "Old verse",
+   "ref": "John 3:16",
+   "version": "KJV",
+   "visible": false,
+   "seq": 0,
+   "cut": 0,
+   "itemId": "s1_l2",
+   "transition": "rise",
+   "speed": "normal",
+   "random": false,
+   "pool": [
+    "fade",
+    "rise",
+    "words",
+    "burst"
+   ],
+   "burst": "gentle",
+   "play": "",
+   "upcoming": "",
+   "out": {
+    "vcam": true,
+    "obs": true
+   }
+  },
+  "question": {
+   "label": "Q",
+   "showLabel": true,
+   "text": "Old shared question",
+   "visible": true,
+   "seq": 0,
+   "cut": 0,
+   "itemId": "q2_l1",
+   "mode": "",
+   "transition": "fade",
+   "speed": "normal",
+   "random": false,
+   "pool": [
+    "fade"
+   ],
+   "burst": "gentle",
+   "play": "",
+   "upcoming": "",
+   "out": {
+    "vcam": true,
+    "obs": true
+   }
+  },
+  "birthday": {
+   "label": "Birthday Celebration",
+   "showLabel": true,
+   "name": "",
+   "greeting": "5",
+   "message": "",
+   "country": "",
+   "visible": false,
+   "seq": 0,
+   "cut": 0,
+   "transition": "rise",
+   "out": {
+    "vcam": true,
+    "obs": true
+   }
+  },
+  "layout": {
+   "bdayPos": "top",
+   "bdayScale": 1,
+   "verseAlign": "center",
+   "verseY": 40,
+   "verseWidth": 70,
+   "verseScale": 1,
+   "qBottom": 10,
+   "qWidth": 84,
+   "qScale": 1.6,
+   "panel": 92
+  },
+  "scenes": [
+   {
+    "id": "old1",
+    "name": "Frame",
+    "group": "",
+    "fav": false,
+    "tpl": false,
+    "created": 0,
+    "modified": 0,
+    "version": 1,
+    "creator": "",
+    "from": "",
+    "template": "",
+    "parent": "",
+    "notes": "",
+    "tx": {
+     "type": "profile",
+     "ms": 5000
+    },
+    "auto": {
+     "on": true,
+     "sec": 2
+    },
+    "out": {
+     "vcam": true,
+     "obs": true
+    },
+    "layers": [
+     {
+      "id": "l1",
+      "kind": "question",
+      "name": "Question",
+      "visible": true,
+      "locked": false,
+      "opacity": 1,
+      "c": {
+       "itemId": "q2_l1",
+       "label": "",
+       "vcam": false,
+       "obs": true,
+       "items": [
+        {
+         "id": "q1_l1",
+         "label": "",
+         "text": "First",
+         "pair": "",
+         "mode": "",
+         "media": "",
+         "timer": "",
+         "anim": ""
+        },
+        {
+         "id": "q2_l1",
+         "label": "",
+         "text": "Second",
+         "pair": "s1_l2",
+         "mode": "both",
+         "media": "",
+         "timer": "",
+         "anim": ""
+        }
+       ],
+       "look": {
+        "qScale": 1.6,
+        "qWidth": 84,
+        "qBottom": 10,
+        "panel": 92,
+        "transition": "fade",
+        "speed": "normal",
+        "random": false,
+        "pool": [
+         "fade"
+        ],
+        "burst": "gentle",
+        "showLabel": true
+       }
+      }
+     },
+     {
+      "id": "l2",
+      "kind": "scripture",
+      "name": "Scripture",
+      "visible": true,
+      "locked": false,
+      "opacity": 1,
+      "c": {
+       "itemId": "s1_l2",
+       "label": "",
+       "ref": "",
+       "version": "",
+       "text": "",
+       "vcam": false,
+       "obs": true,
+       "items": [
+        {
+         "id": "s1_l2",
+         "label": "",
+         "ref": "Psalm 23:1",
+         "version": "KJV",
+         "text": "The Lord is my shepherd.",
+         "anim": ""
+        }
+       ],
+       "look": {
+        "verseScale": 1,
+        "verseY": 40,
+        "verseWidth": 70,
+        "verseAlign": "center",
+        "panel": 92,
+        "transition": "rise",
+        "speed": "normal",
+        "random": false,
+        "pool": [
+         "fade",
+         "rise",
+         "words",
+         "burst"
+        ],
+        "burst": "gentle",
+        "showLabel": true
+       }
+      }
+     },
+     {
+      "id": "l3",
+      "kind": "lowerthird",
+      "name": "Lower Third",
+      "visible": true,
+      "locked": false,
+      "opacity": 1,
+      "c": {
+       "w": 96,
+       "pos": "lower-left",
+       "anim": "rise",
+       "title": "7",
+       "text": "",
+       "scale": 0.9,
+       "label": true,
+       "logo": false,
+       "vcam": false,
+       "obs": true
+      }
+     }
+    ]
+   },
+   {
+    "id": "old2",
+    "name": "Shapes",
+    "group": "",
+    "fav": true,
+    "tpl": false,
+    "created": 0,
+    "modified": 0,
+    "version": 1,
+    "creator": "",
+    "from": "",
+    "template": "",
+    "parent": "",
+    "notes": "",
+    "tx": {
+     "type": "profile",
+     "ms": 500
+    },
+    "auto": {
+     "on": false,
+     "sec": 30
+    },
+    "out": {
+     "vcam": true,
+     "obs": true
+    },
+    "layers": [
+     {
+      "id": "r1",
+      "kind": "rect",
+      "name": "Shape",
+      "visible": true,
+      "locked": false,
+      "opacity": 1,
+      "c": {
+       "vcam": true,
+       "obs": true
+      }
+     }
+    ]
+   }
+  ],
+  "live": {
+   "scene": "old1",
+   "seq": 0,
+   "at": 0,
+   "tx": "cut",
+   "txMs": 0,
+   "auto": true,
+   "blackout": false,
+   "emergency": false,
+   "freeze": false,
+   "ink": {
+    "on": false,
+    "items": [
+     {
+      "t": "pen",
+      "c": "#e8b931",
+      "w": 0.005,
+      "s": "",
+      "p": [
+       [
+        0.1235,
+        1.5
+       ]
+      ]
+     }
+    ],
+    "undone": []
+   },
+   "message": "Please stand by — we’ll be right back.",
+   "on": {
+    "l3": true
+   },
+   "cd": {
+    "l3": 12
+   }
+  },
+  "profile": "bible-study",
+  "v6": false,
+  "brand": {
+   "meeting": "Romans",
+   "org": "",
+   "color": "#abcdef",
+   "logo": "",
+   "lw": 0,
+   "lh": 0,
+   "auto": false
+  },
+  "meeting": {
+   "title": "",
+   "date": "",
+   "time": "",
+   "location": "",
+   "presenter": "",
+   "contact": "",
+   "attendees": "",
+   "attendeeNotes": "",
+   "owner": "",
+   "contentNotes": "",
+   "notes": "",
+   "extra": ""
+  },
+  "library": {
+   "verses": [
+    {
+     "id": "s1",
+     "ref": "Psalm 23:1",
+     "version": "KJV",
+     "text": "The Lord is my shepherd.",
+     "pair": ""
+    }
+   ],
+   "questions": [
+    {
+     "id": "q1",
+     "text": "First",
+     "num": "",
+     "note": "",
+     "pair": "",
+     "mode": ""
+    },
+    {
+     "id": "q2",
+     "text": "Second",
+     "num": "",
+     "note": "",
+     "pair": "s1",
+     "mode": "both"
+    }
+   ]
+  }
+ }
+}
