@@ -867,7 +867,7 @@ The full plan, with the Electron-to-pywebview mapping, is [docs/project/v6.8-pla
   desktop. CI runs the shortcut and settings unit tests on Windows; the browser side was tested with a mocked desktop
   API.
 
-## 31. Version 6.9: one name everywhere
+## 31. Version 6.9: one name everywhere, a two-tab Meeting Workbook, a quieter top bar
 
 Everything that still carried the program's earlier name now uses Kingdom Connect: `APP_NAME` and the data folder
 (`%APPDATA%\Kingdom Connect`), the program folder and `Kingdom Connect.exe`, the data files (`kc-*.json`, `kc-*.txt`),
@@ -891,3 +891,34 @@ Group Name no longer carry a group's name.
 
 A few internal file names that people never see, such as `bcc-brand-logo.png` and `bcc-scripture-cache.json`, are
 unchanged.
+
+**Meeting Workbook.** The workbook used to have seven sheets: Read Me, Meeting Overview, Frames, Content, Questions,
+Scriptures and Lists. That was too much for people who only want to plan one meeting. It now has two tabs:
+- **Dashboard** holds formulas only. The program never reads or writes it, so it can't break an import.
+- **Meeting Form** is one page with numbered sections.
+
+The layout lives in one Python module, `meeting_form.py`:
+- `tools/make_meeting_workbook.py` (openpyxl, at development time) draws the template from it.
+- `fill()` writes a meeting into that template for Export. It uses the standard library only, because the
+  installed program ships no Excel library. It edits the form sheet's XML in place, keeps every cell's style,
+  unfolds only the rows in use and asks Excel to recalculate on open.
+
+The browser no longer builds the export with SheetJS, except when the program is not running, or when a table is
+longer than the form. In those cases it saves a plain one-sheet form.
+
+Reading stays in `app/js/meeting-book.js`. `formBook()` turns the form into the same five lists the older workbooks
+had, so `parse()` and `apply()` did not change and the 6.5–6.8 layouts still import:
+- A table starts at a header row with "Frame #" plus a column that names it.
+- It ends at the next numbered section heading.
+- A detail is a known label with its value in the next filled cell on the row.
+
+This is why a hand-made form like the one people sent in imports as well. `FIELDS` (JS) and `DETAILS` (Python)
+list the meeting details. `FORM_TABLES` (JS) and `TABLES` (Python) list the columns. `tests/test_meeting_form.py`
+checks that each pair agrees. `tests/meeting-workbook.test.js` round-trips the template, both exports, a hand-made
+form and an older workbook.
+
+**Top bar.** The header search box duplicated the command palette and Spotlight, so it is gone. So are Presentation
+Mode, which hid panels that people then could not find, and the Studio's **Hide the app window** button, which the
+tray now does better. Hide All is a single flex unit with its Esc hint inside it (`flex:none`). The Program menu is
+always a drop-down, so the bar can't overflow. Under 1140 px the bar wraps. This was checked at widths from 1000 to
+3440 px and at device-pixel ratios from 1.25 to 2.

@@ -122,21 +122,6 @@ show(document.body.dataset.tab || 'studio');
   document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && box.classList.contains('open')) setOpen(false); }, true);   // Esc still hides all as well
 })();
 
-/* Studio rail (Scenes & Layers): can be folded away to give a meeting more room; remembered on this PC */
-(function(){
-  var b = $('rail-toggle'), RK = 'kc-rail';
-  if (!b) return;
-  function setRail(open){
-    document.body.classList.toggle('rail-hidden', !open);
-    b.setAttribute('aria-expanded', String(open));
-    try { localStorage.setItem(RK, open ? '1' : '0'); } catch(e){}
-    window.dispatchEvent(new Event('resize'));          // the Meeting view and the canvas re-fit
-  }
-  var saved = null; try { saved = localStorage.getItem(RK); } catch(e){}
-  if (saved === '0') setRail(false);
-  b.addEventListener('click', function(){ setRail(document.body.classList.contains('rail-hidden')); });
-})();
-
 /* Members tab shows the birthday count too */
 (function(){
   var src = $('tab-bday-badge'), dst = $('grp-bday-badge');

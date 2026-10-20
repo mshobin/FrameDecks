@@ -81,10 +81,9 @@ input[type=text],input[type=number],input[type=search],textarea,select{border-ra
 .studio-ws{display:grid;grid-template-columns:var(--rail-w) minmax(0,1fr);align-items:start;min-width:0;
   min-height:calc(100vh - var(--ws-top,114px) - var(--cb-h));
   background:linear-gradient(90deg,var(--panel) 0 var(--rail-w),var(--line-soft) var(--rail-w) calc(var(--rail-w) + 1px),transparent 0)}   /* the rail's surface, full height, one static paint */
-body.rail-hidden .studio-ws,body.studio-focus .studio-ws{background:none}
+body.studio-focus .studio-ws{background:none}
 .studio-ws[hidden]{display:none !important}
-body.rail-hidden .studio-ws{grid-template-columns:minmax(0,1fr)}
-body.rail-hidden .rail,body.studio-focus .rail{display:none}
+body.studio-focus .rail{display:none}
 body.studio-focus .studio-ws{grid-template-columns:minmax(0,1fr)}
 .ws-main{min-width:0;container-type:inline-size;container-name:ws}
 .rail{position:sticky;top:var(--top-h);max-height:calc(100vh - var(--ws-top,114px) - var(--cb-h));overflow:auto;overscroll-behavior:contain;
@@ -673,8 +672,6 @@ html[data-theme="light"] .console-top .brand h1{background:linear-gradient(180de
 .qs-btn{border-color:var(--kc-gold-line);color:var(--gold-strong)}
 .qs-btn .ic{color:var(--gold)}
 
-/* Header toggle: Presentation Mode */
-
 /* Empty Scenes list: a friendly start */
 .pane-empty.start{display:flex;flex-direction:column;align-items:flex-start;gap:8px;padding:16px 10px;margin:4px 2px;border:1px dashed var(--kc-gold-line);border-radius:var(--r-2);color:var(--muted)}
 .pane-empty.start b{color:var(--ink);font-size:14px}
@@ -743,8 +740,6 @@ html[data-theme="light"] .qs-ic{color:#9a6a12;background:rgba(214,160,60,.12)}
 .insp-mode button[aria-checked="true"]{background:var(--surface);color:var(--ink);box-shadow:var(--shadow-1)}
 body.insp-basic #insp-body .adv{display:none!important}
 body:not(.insp-basic) #insp-body .basic-only{display:none!important}
-
-/* Presentation Mode: the scenes, the canvas, Previous · Take live · Next (HIDE ALL always stays) */
 
 .console-top .brand{flex:none}
 .console-top .brand-text{min-width:0}

@@ -11,6 +11,7 @@ template) and a copy in docs/templates/. The column names and allowed values mus
 tests/meeting-workbook.test.js checks that the template imports without errors.
 """
 import datetime
+import io
 import sys
 from pathlib import Path
 
@@ -20,6 +21,7 @@ from openpyxl.drawing.image import Image
 from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from openpyxl.worksheet.datavalidation import DataValidation
 from openpyxl.worksheet.hyperlink import Hyperlink
+from PIL import Image as PILImage
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
@@ -270,8 +272,12 @@ def dashboard(wb):
     # header: logo, name, status
     logo = ROOT / "assets" / "brand" / "kc-mark.png"
     if logo.is_file():
-        img = Image(str(logo))
-        img.width = img.height = 56
+        mark = PILImage.open(logo).convert("RGBA")
+        mark.thumbnail((112, 112), PILImage.LANCZOS)        # 2x the 56 px it is shown at: sharp, and a few kilobytes
+        buf = io.BytesIO()
+        mark.save(buf, "PNG", optimize=True)
+        img = Image(buf)
+        img.width, img.height = mark.width // 2, mark.height // 2
         ws.add_image(img, "B2")
     ws.merge_cells("C2:H2")
     ws["C2"] = "KINGDOM CONNECT"

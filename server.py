@@ -31,7 +31,7 @@ from urllib.parse import urlparse, parse_qs, unquote
 import legacy   # 6.9: moves data saved under the program's earlier name
 import meeting_form   # 6.9: fills the Meeting Workbook's form for Export
 
-APP_VERSION = "6.8"
+APP_VERSION = "6.9"
 STARTED_AT = time.time()
 FROZEN = getattr(sys, "frozen", False)          # True inside the installed Windows app
 HERE = Path(sys.executable).resolve().parent if FROZEN else Path(__file__).resolve().parent
