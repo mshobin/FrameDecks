@@ -1,4 +1,4 @@
-<p align="center"><img src="assets/brand/kc-about-header.webp" alt="Kingdom Connect. Christ-Centered Fellowship. Connecting Believers. Sharing Christ. Growing Together. Version 6.8" width="900"></p>
+<p align="center"><img src="assets/brand/kc-about-header.webp" alt="Kingdom Connect. Christ-Centered Fellowship. Connecting Believers. Sharing Christ. Growing Together. Version 6.9" width="900"></p>
 
 A service presentation platform for churches and ministries. Plan each service as **Frames** — Welcome, Worship,
 Scripture, Discussion, Prayer, Closing — fill them with questions, scriptures, text, timers, pictures, video and
@@ -6,7 +6,7 @@ PowerPoint, and present to the room, to Zoom / Teams / Google Meet and to your s
 the PC, a phone or an iPad. It runs **entirely on your PC**: no accounts, no subscriptions, no cloud, no telemetry.
 The only feature that ever goes online is the optional ESV scripture fetch.
 
-> **Status: Kingdom Connect 6.8 is ready for teaching, Bible study, small-group and hybrid services, with documented
+> **Status: Kingdom Connect 6.9 is ready for teaching, Bible study, small-group and hybrid services, with documented
 > gaps.** The biggest: no song / lyrics library yet (lyrics are shown as Text Content or a PowerPoint), an unsigned
 > installer, no automated UI tests, and no published licence. See the
 > [repository audit](docs/project/repository-audit.md) and the [roadmap](ROADMAP.md).
@@ -45,14 +45,16 @@ The only feature that ever goes online is the optional ESV scripture fetch.
   the command palette from anywhere in Windows, even from the tray ([GETTING_STARTED](docs/getting-started.md#the-window-buttons-and-the-tray)).
 - **Branding**: your logo and Meeting Name in a corner, with size, margin, opacity, padding and an optional plate;
   **Remove background** makes a plain logo background transparent, on the PC.
-- **Planning**: Quick Start, templates, groups, favourites, and the **Excel Meeting Workbook** (a guided **Meeting
-  Form** and a **Dashboard** that sums it up) with import preview, undo and export; the Excel library loads only
-  when needed ([SERVICE_PLANNING](docs/service-planning.md)).
+- **Planning**: Quick Start, templates, groups, favourites, and the **Excel Meeting Workbook**: two tabs, a guided
+  **Meeting Form** (meeting details, speaker, attendees, presentation, then the Frames, Content, questions and
+  scriptures) and a **Dashboard** that sums it up with KPI tiles, readiness checks and a meeting log. Import shows a
+  preview with every problem and its row, and can be undone; export gives back the same two tabs, filled in
+  ([SERVICE_PLANNING](docs/service-planning.md) · [MEETING_WORKBOOK](docs/reference/meeting-workbook-and-branding.md)).
 - **Data**: everything in one folder on the PC, saved atomically, with daily backups and Frame history.
 
 ## Install
 See [INSTALLATION](docs/installation.md) and [GETTING_STARTED](docs/getting-started.md). In short: run
-`Kingdom Connect v6.8.exe` (unsigned, so check it against its `.sha256` file first and choose **More info → Run
+`Kingdom Connect v6.9.exe` (unsigned, so check it against its `.sha256` file first and choose **More info → Run
 anyway** at the SmartScreen prompt), keep **Install the KingdomConnect camera** ticked, and allow the one
 administrator prompt. Windows 10 or 11 (64-bit) is required. The installer comes from the **Build Windows
 installer** workflow ([BUILDING_THE_INSTALLER](docs/development/building-the-installer.md)).
@@ -66,7 +68,9 @@ python server.py                                    # run from source in your br
 $env:KC_VCAM_DEMO=1; python server.py --remote      # with a built-in test camera and the phone remote on
 python -m pip install -r packaging/requirements-desktop.txt -c packaging/constraints.txt   # desktop + camera
 python desktop_app.py                               # the desktop app window (WebView2)
-node tests/run.js                                   # the automated tests
+node tests/run.js                                   # the automated tests (JavaScript)
+python -m unittest discover -s tests -p "test_*.py" # the automated tests (Python)
+python tools/make_meeting_workbook.py               # rebuild the Excel template after changing meeting_form.py
 python packaging/check.py                           # start-up self-check
 python tools/check_doc_links.py                     # every documentation link and anchor
 build.bat                                           # local Windows build (CI is the usual way)
@@ -78,6 +82,7 @@ build.bat                                           # local Windows build (CI is
 | camera build | Builds the KingdomConnect camera (softcam, 64- and 32-bit) and records SHA-256 hashes of the DLLs |
 | self-check | `packaging/check.py`: the program starts, serves every page and script, camera name and ID match the build, blur model loads |
 | tests | `node tests/run.js`: Frame-owned lists, independent duplicates, conversion of older data, output folding, Meeting Workbook template, import and export |
+| Python tests | `python -m unittest`: the Spotlight shortcut and desktop settings, moving data saved under the earlier name, and the Meeting Form layout and export |
 | doc-links | `tools/check_doc_links.py`: every relative link and heading anchor in the Markdown docs resolves |
 | pinned packages | Builds install `packaging/constraints.txt`: the exact versions of the last good build |
 | app folder | The built app contains its window, pages and camera driver |
