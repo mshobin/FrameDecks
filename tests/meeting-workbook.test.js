@@ -12,7 +12,7 @@ const ctx = {console, Math, Date, JSON, setTimeout, clearTimeout, Promise, Objec
 ctx.window = ctx;
 vm.createContext(ctx);
 ['app/js/store.js', 'app/js/meeting-book.js'].forEach(f => vm.runInContext(fs.readFileSync(path.join(root, f), 'utf8'), ctx));
-const B = ctx.BSFMeetingBook, Store = ctx.BSFStore;
+const B = ctx.KCMeetingBook, Store = ctx.KCStore;
 const same = (a, b, msg) => assert.strictEqual(JSON.stringify(a), JSON.stringify(b), msg);
 
 function readBook(wb){            // the same reading as app/js/import-worker.js (all sheets)

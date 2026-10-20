@@ -1,1 +1,1 @@
-"""KingdomConnect - the BSF Command Center's built-in virtual camera (Windows)."""
+"""KingdomConnect - the Kingdom Connect's built-in virtual camera (Windows)."""

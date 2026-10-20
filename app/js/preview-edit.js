@@ -11,15 +11,15 @@
  * editing, and removed again after a minute) instead of guessing positions. */
 (function(){
 'use strict';
-var SC = window.BSFScenes, Store = window.BSFStore, E = window.BSFEditable;
+var SC = window.KCScenes, Store = window.KCStore, E = window.KCEditable;
 var $ = function(id){ return document.getElementById(id); };
 var wrap = $('canvas-wrap'), frame = $('program-frame');
 if (!wrap || !frame || !SC || !E) return;
-function toast(m, bad){ if (window.BSFActions) window.BSFActions.toast(m, bad); }
+function toast(m, bad){ if (window.KCActions) window.KCActions.toast(m, bad); }
 var live = null;
 Store.subscribe(function(st){ live = st; });
 
-function frameId(){ return (window.BSFSelFrame && window.BSFSelFrame()) || (live ? live.live.scene : ''); }
+function frameId(){ return (window.KCSelFrame && window.KCSelFrame()) || (live ? live.live.scene : ''); }
 function studioOn(){ var t = $('tab-studio'); return !!(t && !t.hidden); }
 var KIND = {question: {one: 'Question', layer: 'question', def: 'Discussion Question'}, verse: {one: 'Scripture', layer: 'scripture', def: 'Focus Verse'}};
 var TEXT_NAME = {announcement: 'Announcement', prayer: 'Prayer', lowerthird: 'Lower Third', countdown: 'Timer'};
@@ -50,7 +50,7 @@ function edit(card, x, y, map, sid){
   if (card.classList.contains('card-question') || card.classList.contains('card-verse')){
     var kind = card.classList.contains('card-verse') ? 'verse' : 'question', t = shownItem(kind, sid);
     if (!t){ toast('Add a ' + KIND[kind].one.toLowerCase() + ' to this Frame first.', true); return; }
-    var def = t.l.c.label || KIND[kind].def, save = function(patch){ return window.BSFFrameLists.save(kind, t.sid, t.it.id, patch).then(function(){ toast(KIND[kind].one + ' saved'); }); };
+    var def = t.l.c.label || KIND[kind].def, save = function(patch){ return window.KCFrameLists.save(kind, t.sid, t.it.id, patch).then(function(){ toast(KIND[kind].one + ' saved'); }); };
     if (onLabel) return E.float(wrap, r, {title: 'Label', value: t.it.label || '', placeholder: def, maxLength: 80, label: KIND[kind].one + ' label', save: function(v){ return save({label: v}); }});
     if (kind === 'question') return E.float(wrap, r, {title: 'Edit ' + (t.it.label || def), value: t.it.text || '', multiline: true, maxLength: 2000, label: 'Question',
       save: function(v){ if (!v.trim()){ toast('A question needs some text. Nothing was changed.', true); return; } return save({text: v}); }});
@@ -61,7 +61,7 @@ function edit(card, x, y, map, sid){
   /* a text Content: announcement, prayer, discussion, icebreaker, poll, lower third, timer */
   var sc = SC.find(live, sid), l = sc && SC.layer(sc, card.getAttribute('data-layer'));
   if (!l){ toast('That Content is not in this Frame.', true); return; }
-  var setC = function(key){ return function(v){ return window.BSFCommit(function(n){ var s2 = SC.find(n, sid), x = s2 && SC.layer(s2, l.id); if (!x) return; x.c[key] = v; SC.stamp(s2); }).then(function(){ toast(l.name + ' saved'); }); }; };
+  var setC = function(key){ return function(v){ return window.KCCommit(function(n){ var s2 = SC.find(n, sid), x = s2 && SC.layer(s2, l.id); if (!x) return; x.c[key] = v; SC.stamp(s2); }).then(function(){ toast(l.name + ' saved'); }); }; };
   var what = TEXT_NAME[l.kind] || 'Text';
   if (onLabel || l.kind === 'countdown')
     return E.float(wrap, r, {title: l.kind === 'lowerthird' ? 'Name' : 'Label', value: l.c.title || '', maxLength: 120, label: what + ' label', placeholder: what, save: setC('title')});
@@ -110,5 +110,5 @@ document.addEventListener('dblclick', function(e){
   });
 }, true);
 
-window.BSFPreviewEdit = {close: function(){ E.close(true); }};
+window.KCPreviewEdit = {close: function(){ E.close(true); }};
 })();

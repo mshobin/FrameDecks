@@ -1,11 +1,11 @@
-/* BSF Command Center v6 - Scripture: type a reference, the text arrives (ESV API with your own key, cached on this PC
+/* Kingdom Connect v6 - Scripture: type a reference, the text arrives (ESV API with your own key, cached on this PC
  * for offline use). Typed text (or text from the Meeting Workbook) works exactly as before. Fetching fills the verse editor (the same
  * fields Show and Save to list use), so every existing verse workflow continues from there. */
 (function(){
 'use strict';
 var $ = function(id){ return document.getElementById(id); };
-var Store = window.BSFStore;
-function toast(m, bad){ if (window.BSFActions) window.BSFActions.toast(m, bad); }
+var Store = window.KCStore;
+function toast(m, bad){ if (window.KCActions) window.KCActions.toast(m, bad); }
 function h(tag, attrs, kids){
   var el = document.createElement(tag);
   for (var k in (attrs || {})){ var v = attrs[k]; if (k.slice(0, 2) === 'on') el.addEventListener(k.slice(2), v); else if (k === 'text') el.textContent = v; else if (k === 'cls') el.className = v; else if (v != null && v !== false) el.setAttribute(k, v); }
@@ -54,7 +54,7 @@ function say(t, bad){ if (!msg) return; msg.textContent = t || ''; msg.className
 function setField(id, v){ var f = $(id); if (!f) return; f.value = v; f.dispatchEvent(new Event('input', {bubbles: true})); }
 function fill(d){
   if ($('v-text')){ setField('v-ref', d.ref); setField('v-version', d.version || 'ESV'); setField('v-text', d.text); }   // the open editor
-  else if (window.BSFFrameLists) window.BSFFrameLists.onVerse(d);                  // v6.5: a new scripture in this Frame
+  else if (window.KCFrameLists) window.KCFrameLists.onVerse(d);                  // v6.5: a new scripture in this Frame
   if (refIn) refIn.value = d.ref;
   remember(d.ref); chips();
 }
@@ -152,8 +152,8 @@ function renderSettings(){
     show(d);
   }).catch(function(){ root.textContent = 'Not available right now.'; });
 }
-(window.BSFSectionHooks = window.BSFSectionHooks || []).push(function(id){ if (id === 'scripture') renderSettings(); });
+(window.KCSectionHooks = window.KCSectionHooks || []).push(function(id){ if (id === 'scripture') renderSettings(); });
 
-window.BSFScripture = {parse: parse, books: BOOKS, fetch: fetchRef, chapterOf: chapterOf,
+window.KCScripture = {parse: parse, books: BOOKS, fetch: fetchRef, chapterOf: chapterOf,
   focus: function(ref){ if (refIn){ if (ref) refIn.value = ref; refIn.focus(); } }};
 })();

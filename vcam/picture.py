@@ -1,6 +1,6 @@
 """Picture settings for KingdomConnect: profiles, validation/migration, user adjustments and camera controls.
 
-Settings schema (bsf-vcam-settings.json, "schemaVersion": 2). Version 1 files (no schemaVersion) keep working:
+Settings schema (kc-vcam-settings.json, "schemaVersion": 2). Version 1 files (no schemaVersion) keep working:
 missing keys get defaults that reproduce the version-1 picture exactly (filterIntensity 100, zoom 1.0,
 captureResolution "auto", every adjustment neutral, camera controls untouched).
 

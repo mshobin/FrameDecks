@@ -1,8 +1,8 @@
 @echo off
-title BSF Command Center
+title Kingdom Connect
 cd /d "%~dp0"
 echo.
-echo  Starting BSF Command Center...
+echo  Starting Kingdom Connect...
 echo.
 py -3 --version >nul 2>&1
 if %errorlevel%==0 (

@@ -1,5 +1,5 @@
-# PyInstaller recipe for the BSF Command Center Windows app.
-# Build:  pyinstaller --noconfirm --clean packaging/bsf.spec --distpath dist --workpath build
+# PyInstaller recipe for the Kingdom Connect Windows app.
+# Build:  pyinstaller --noconfirm --clean packaging/kingdom-connect.spec --distpath dist --workpath build
 # "Folder" mode (not one-file): starts faster and triggers fewer antivirus false alarms.
 from pathlib import Path
 
@@ -17,12 +17,12 @@ try:  # needs "pefile", which PyInstaller installs automatically on Windows
         ffi=FixedFileInfo(filevers=tuple(nums), prodvers=tuple(nums)),
         kids=[StringFileInfo([StringTable("040904B0", [
             StringStruct("CompanyName", "Shobin Mathews"),
-            StringStruct("FileDescription", "BSF Command Center"),
+            StringStruct("FileDescription", "Kingdom Connect"),
             StringStruct("FileVersion", VERSION),
-            StringStruct("InternalName", "BSF Command Center"),
+            StringStruct("InternalName", "Kingdom Connect"),
             StringStruct("LegalCopyright", "Copyright (C) Shobin Mathews"),
-            StringStruct("OriginalFilename", "BSF Command Center.exe"),
-            StringStruct("ProductName", "BSF Command Center"),
+            StringStruct("OriginalFilename", "Kingdom Connect.exe"),
+            StringStruct("ProductName", "Kingdom Connect"),
             StringStruct("ProductVersion", VERSION),
             StringStruct("Comments", "Independent tool by Shobin Mathews. Not affiliated with or endorsed by Bible Study Fellowship International."),
         ])]), VarFileInfo([VarStruct("Translation", [1033, 1200])])])
@@ -37,7 +37,7 @@ a = Analysis(
     [str(root / "desktop_app.py")],
     pathex=[str(root)],
     datas=[(str(root / "app"), "app"), (str(root / "vcam" / "models"), "vcam/models"), (str(root / "vcam" / "bin"), "vcam/bin")],
-    hiddenimports=["server", "pystray._win32", "PIL.Image", "vcam.engine", "vcam.blur", "vcam.sink", "vcam.devices", "vcam.overlay", "vcam.cards", "vcam.looks", "vcam.screen", "vcam.layers", "vcam.compositor", "vcam.program", "vcam.priority", "vcam.present_window", "desktop_win",
+    hiddenimports=["server", "pystray._win32", "PIL.Image", "vcam.engine", "vcam.blur", "vcam.sink", "vcam.devices", "vcam.overlay", "vcam.cards", "vcam.looks", "vcam.screen", "vcam.layers", "vcam.compositor", "vcam.program", "vcam.priority", "vcam.present_window", "desktop_win", "legacy",
                    "windows_capture", "pypdfium2", "comtypes", "comtypes.client", "cv2", "numpy",
                    "cv2_enumerate_cameras", "cv2_enumerate_cameras.windows_backend", "cv2_enumerate_cameras._windows_backend"],
     excludes=["tkinter", "unittest", "pydoc_data"],
@@ -49,10 +49,10 @@ exe = EXE(
     a.scripts,
     [],
     exclude_binaries=True,
-    name="BSF Command Center",
-    icon=str(root / "packaging" / "bsf.ico"),
+    name="Kingdom Connect",
+    icon=str(root / "packaging" / "kingdom-connect.ico"),
     console=False,          # no black window
     upx=False,              # compression tools are a common cause of antivirus false alarms
     version=str(version_file) if version_file else None,
 )
-coll = COLLECT(exe, a.binaries, a.datas, name="BSF Command Center", upx=False)
+coll = COLLECT(exe, a.binaries, a.datas, name="Kingdom Connect", upx=False)

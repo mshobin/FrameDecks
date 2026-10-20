@@ -10,7 +10,7 @@
  */
 (function(){
 'use strict';
-var Store = window.BSFStore, SC = window.BSFScenes, M = window.BSFMeetingSheet, MB = window.BSFMeetingBook, I = window.BSFIcon;
+var Store = window.KCStore, SC = window.KCScenes, M = window.KCMeetingSheet, MB = window.KCMeetingBook, I = window.KCIcon;
 if (!Store || !SC || !M || !MB) return;
 function h(tag, attrs, kids){
   var el = document.createElement(tag);
@@ -18,8 +18,8 @@ function h(tag, attrs, kids){
   (kids || []).forEach(function(c){ if (c != null) el.appendChild(typeof c === 'string' ? document.createTextNode(c) : c); });
   return el;
 }
-function toast(m, bad){ if (window.BSFActions) window.BSFActions.toast(m, bad); }
-function commit(fn){ return window.BSFCommit(fn); }
+function toast(m, bad){ if (window.KCActions) window.KCActions.toast(m, bad); }
+function commit(fn){ return window.KCCommit(fn); }
 var live = null; Store.subscribe(function(st){ live = st; });
 var X = function(){ return window.XLSX; };
 var TEMPLATE_NAME = 'Kingdom-Connect-Meeting-Workbook.xlsx';
@@ -31,7 +31,7 @@ function template(){
   toast('Template downloaded: ' + TEMPLATE_NAME);
 }
 function exportMeeting(){
-  window.BSFNeedXLSX().then(exportNow).catch(function(){ toast('The Excel library did not load. Restart Kingdom Connect and try again.', true); });
+  window.KCNeedXLSX().then(exportNow).catch(function(){ toast('The Excel library did not load. Restart Kingdom Connect and try again.', true); });
 }
 function exportNow(){
   var frames = live.scenes.filter(function(s){ return !s.tpl; });
@@ -225,7 +225,7 @@ function run(mode, replaceLists){
   }).then(function(){
     delete dlg.dataset.busy;
     undo = before;
-    if (made.length && window.BSFWorkspace){ window.BSFWorkspace.select(made[0].id); }
+    if (made.length && window.KCWorkspace){ window.KCWorkspace.select(made[0].id); }
     var media = plan.counts.media, grp = made[0] ? made[0].group || group : group;
     frame([h('h2', {id: 'mi-title', text: '✓ ' + made.length + (made.length === 1 ? ' Frame' : ' Frames') + ' imported'}),
       h('p', {cls: 'kc-dlg-sub', text: (isBook ? plan.counts.content + ' Content' : plan.counts.layers + ' Content') + ' in “' + grp + '”' + (mode === 'replace' ? ', replacing your previous Frames' : ', after your existing Frames') + '. The first Frame is selected in the Studio; press Go Live when you are ready. From now on the app is the source of truth.'}),
@@ -233,7 +233,7 @@ function run(mode, replaceLists){
       h('div', {cls: 'kc-dlg-foot'}, [
         h('button', {cls: 'btn quiet', type: 'button', id: 'mi-undo', html: I('refresh-cw', 15) + ' Undo this import', onclick: undoImport}),
         h('span', {cls: 'mi-spacer'}),
-        h('button', {cls: 'btn primary', type: 'button', text: 'Done', onclick: function(){ dlg.close(); if (window.BSFSetTab) window.BSFSetTab('studio'); }})])]);
+        h('button', {cls: 'btn primary', type: 'button', text: 'Done', onclick: function(){ dlg.close(); if (window.KCSetTab) window.KCSetTab('studio'); }})])]);
   }).catch(function(e){
     delete dlg.dataset.busy;
     problem((e && e.message) || 'The import did not finish. Nothing was changed.');
@@ -248,5 +248,5 @@ function undoImport(){
   });
 }
 
-window.BSFMeetingImport = {pick: pick, read: read, template: template, exportMeeting: exportMeeting, undo: function(){ undoImport(); }, canUndo: function(){ return !!undo; }};
+window.KCMeetingImport = {pick: pick, read: read, template: template, exportMeeting: exportMeeting, undo: function(){ undoImport(); }, canUndo: function(){ return !!undo; }};
 })();

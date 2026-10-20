@@ -8,7 +8,7 @@
  * The version number lives in server.py (APP_VERSION) so the app,
  * the installer and the About page always show the same number.
  * ================================================================== */
-window.BSFBrand = {
+window.KCBrand = {
   name: 'Kingdom Connect',
   tagline: 'Christ-Centered Fellowship',
   motto: ['Connecting Believers.', 'Sharing Christ.', 'Growing Together.'],
@@ -54,7 +54,7 @@ window.BSFBrand = {
 
   creator: {
     name: 'Shobin Mathews',
-    roles: ['Enterprise IT Consultant', 'Ministry Servant', 'BSF Leader', 'Follower of Jesus Christ'],
+    roles: ['Enterprise IT Consultant', 'Ministry Servant', 'Leader', 'Follower of Jesus Christ'],
     email: 'mshobin@gmail.com',
     badge: 'Inspired by Service',
     // DRAFT - written for you to replace with your own words before release.
@@ -66,7 +66,7 @@ window.BSFBrand = {
     journey: [
       {title: 'Follower of Jesus Christ', text: 'Where every part of this story begins.'},
       {title: 'Enterprise IT Consultant', text: 'Building dependable systems for organizations.'},
-      {title: 'BSF Leader', text: 'Serving and leading in online Bible study groups.'},
+      {title: 'Leader', text: 'Serving and leading in online Bible study groups.'},
       {title: 'Ministry Servant', text: 'Seeing leaders wrestle with technology during gatherings.'},
       {title: 'Kingdom Connect', text: 'A platform that lets leaders focus on people and the Word.'}
     ]
@@ -85,5 +85,5 @@ window.BSFBrand = {
   footer: 'Built for ministry, discipleship, prayer, fellowship, and the glory of God.',
 
   // Always keep this accurate:
-  disclaimer: 'Kingdom Connect (formerly BSF Command Center) is an independent ministry tool created by Shobin Mathews. It is not officially affiliated with, endorsed by, or produced by Bible Study Fellowship International.'
+  disclaimer: 'Kingdom Connect is an independent ministry tool created by Shobin Mathews.'
 };

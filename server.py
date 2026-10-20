@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """
-BSF Command Center - local program.
+Kingdom Connect - local program.
 
 Serves the dashboard and overlays at http://localhost:8750 on THIS computer only.
 No internet, cloud account, or extra installs are needed beyond Python 3
-(standard library only). Your content is saved in "bsf-saved-content.json".
+(standard library only). Your content is saved in "kc-saved-content.json".
 
-Windows: double-click "Start BSF Command Center.bat"
-         or "Start BSF Command Center with iPad Remote.bat" (adds the phone remote)
-Mac:     double-click "Start BSF Command Center (Mac).command"
+Windows: double-click "Start Kingdom Connect.bat"
+         or "Start Kingdom Connect with iPad Remote.bat" (adds the phone remote)
+Mac:     double-click "Start Kingdom Connect (Mac).command"
          (for the phone remote: python3 server.py --remote)
 """
 import hashlib
@@ -28,6 +28,8 @@ from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from pathlib import Path
 from urllib.parse import urlparse, parse_qs, unquote
 
+import legacy   # 6.9: moves data saved under the program's earlier name
+
 APP_VERSION = "6.8"
 STARTED_AT = time.time()
 FROZEN = getattr(sys, "frozen", False)          # True inside the installed Windows app
@@ -37,20 +39,25 @@ APP = RES / "app"
 
 
 def _data_dir():
-    """Installed app: %APPDATA%\\BSF Command Center. Script/zip version: next to server.py (as before)."""
-    if os.environ.get("BSF_DATA_DIR"):
-        return Path(os.environ["BSF_DATA_DIR"])
-    if FROZEN:
-        return Path(os.environ.get("APPDATA") or Path.home()) / "BSF Command Center"
-    return HERE
+    """Installed app: %APPDATA%\\Kingdom Connect. Script/zip version: next to server.py (as before).
+    6.9: data saved under the program's earlier name is moved here first (legacy.py), so nothing is lost."""
+    if os.environ.get("KC_DATA_DIR"):
+        folder = Path(os.environ["KC_DATA_DIR"])
+    elif FROZEN:
+        folder = legacy.migrate_app_data(Path(os.environ.get("APPDATA") or Path.home()))
+    else:
+        folder = HERE
+    if folder.is_dir():
+        legacy.migrate_files(folder)
+    return folder
 
 
 DATA = _data_dir()
 DATA.mkdir(parents=True, exist_ok=True)
 SEPARATE_DATA = DATA.resolve() != HERE.resolve()
-STATE_FILE = DATA / "bsf-saved-content.json"
-PRIVATE_FILE = DATA / "bsf-members-private.json"  # member list + settings; never sent to overlays
-APP_SETTINGS_FILE = DATA / "bsf-app-settings.json"
+STATE_FILE = DATA / "kc-saved-content.json"
+PRIVATE_FILE = DATA / "kc-members-private.json"  # member list + settings; never sent to overlays
+APP_SETTINGS_FILE = DATA / "kc-app-settings.json"
 BACKUP_DIR = DATA / "backups"
 PREFERRED_PORT = 8750
 PORTS = [PREFERRED_PORT] + list(range(8751, 8761))
@@ -58,10 +65,10 @@ MAX_BODY = 8 * 1024 * 1024
 
 # ---------- phone remote (off unless started with --remote) ----------
 REMOTE = "--remote" in sys.argv
-PIN_FILE = DATA / "bsf-remote-pin.txt"
-SESSIONS_FILE = DATA / "bsf-remote-sessions.json"
+PIN_FILE = DATA / "kc-remote-pin.txt"
+SESSIONS_FILE = DATA / "kc-remote-sessions.json"
 SESSION_DAYS = 30
-COOKIE = "bsf_remote"
+COOKIE = "kc_remote"
 # What a signed-in phone or iPad may open. Member data and the dashboard are never on this list.
 REMOTE_PUBLIC = {"/remote.html", "/css/remote.css", "/js/remote.js", "/js/store.js", "/js/brand.js", "/api/remote-login",
                  "/js/teleprompter.js", "/css/teleprompter.css",
@@ -295,7 +302,7 @@ def _refresh_network_check():
     except Exception:
         pass
     try:
-        r = subprocess.run(["netsh", "advfirewall", "firewall", "show", "rule", "name=BSF Command Center iPad Remote"],
+        r = subprocess.run(["netsh", "advfirewall", "firewall", "show", "rule", f"name={FIREWALL_RULE}"],
                            capture_output=True, text=True, timeout=8, creationflags=flags)
         out["ruleExists"] = r.returncode == 0
     except Exception:
@@ -562,32 +569,32 @@ def _backup_loop():
         time.sleep(3600)
 
 
-DATA_FILE_NAMES = ["bsf-saved-content.json", "bsf-members-private.json", "bsf-remote-pin.txt", "bsf-remote-sessions.json"]
+DATA_FILE_NAMES = ["kc-saved-content.json", "kc-members-private.json", "kc-remote-pin.txt", "kc-remote-sessions.json"]
 
 
 def looks_like_data(folder):
-    return (folder / DATA_FILE_NAMES[0]).is_file() or (folder / DATA_FILE_NAMES[1]).is_file()
+    return bool(legacy.find(folder, DATA_FILE_NAMES[0]) or legacy.find(folder, DATA_FILE_NAMES[1]))
 
 
 def _describe(folder):
     info = {"folder": str(folder), "modified": 0, "members": None, "questions": None}
     for name in DATA_FILE_NAMES[:2]:
-        f = folder / name
-        if f.is_file():
+        f = legacy.find(folder, name)
+        if f:
             info["modified"] = max(info["modified"], f.stat().st_mtime)
     try:
-        info["members"] = len(json.loads((folder / DATA_FILE_NAMES[1]).read_text(encoding="utf-8")).get("members") or [])
+        info["members"] = len(json.loads(legacy.find(folder, DATA_FILE_NAMES[1]).read_text(encoding="utf-8")).get("members") or [])
     except (OSError, ValueError, AttributeError):
         pass
     try:
-        info["questions"] = len((json.loads((folder / DATA_FILE_NAMES[0]).read_text(encoding="utf-8")).get("library") or {}).get("questions") or [])
+        info["questions"] = len((json.loads(legacy.find(folder, DATA_FILE_NAMES[0]).read_text(encoding="utf-8")).get("library") or {}).get("questions") or [])
     except (OSError, ValueError, AttributeError):
         pass
     return info
 
 
 def migration_candidates():
-    """Look (two folders deep) in Desktop, Downloads, Documents and OneDrive for an earlier BSF Command Center folder."""
+    """Look (two folders deep) in Desktop, Downloads, Documents and OneDrive for an earlier Kingdom Connect folder."""
     home = Path.home()
     roots = [home / "Desktop", home / "Downloads", home / "Documents", home / "OneDrive" / "Desktop", home / "OneDrive" / "Documents"]
     found, seen, budget = [], set(), [2500]
@@ -631,14 +638,15 @@ def import_from(folder):
     global sessions
     src = Path(folder)
     if not src.is_dir() or not looks_like_data(src):
-        raise ValueError("That folder doesn’t contain BSF Command Center data (bsf-saved-content.json or bsf-members-private.json).")
+        raise ValueError("That folder doesn’t contain Kingdom Connect data (its saved content or member list).")
     if src.resolve() == DATA.resolve():
-        raise ValueError("That is already the folder the Command Center uses.")
+        raise ValueError("That is already the folder Kingdom Connect uses.")
     backup_now("before-import")
     copied = []
     for name in DATA_FILE_NAMES:
-        if (src / name).is_file():
-            shutil.copy2(src / name, DATA / name)
+        f = legacy.find(src, name)                          # also an older folder that uses the earlier file names
+        if f:
+            shutil.copy2(f, DATA / name)
             copied.append(name)
     with sessions_lock:
         sessions = load_sessions()
@@ -665,7 +673,8 @@ def open_external(url):
     return True
 
 
-FIREWALL_RULE = "BSF Command Center iPad Remote"   # same name the earlier helper used
+FIREWALL_RULE = "Kingdom Connect Phone Remote"
+OLD_FIREWALL_RULES = (legacy.OLD_FIREWALL_RULE,)      # removed whenever the rule is set or undone
 
 
 def firewall(action):
@@ -674,12 +683,13 @@ def firewall(action):
         return False, "Only available on Windows."
     import base64
     prog = sys.executable.replace("'", "''")
+    old = "".join(f"Remove-NetFirewallRule -DisplayName '{n}' -ErrorAction SilentlyContinue; " for n in OLD_FIREWALL_RULES)
     if action == "allow":
-        inner = (f"Remove-NetFirewallRule -DisplayName '{FIREWALL_RULE}' -ErrorAction SilentlyContinue; "
+        inner = (old + f"Remove-NetFirewallRule -DisplayName '{FIREWALL_RULE}' -ErrorAction SilentlyContinue; "
                  f"New-NetFirewallRule -DisplayName '{FIREWALL_RULE}' -Direction Inbound -Action Allow "
                  f"-Program '{prog}' -Protocol TCP -Profile Private | Out-Null")
     else:
-        inner = f"Remove-NetFirewallRule -DisplayName '{FIREWALL_RULE}' -ErrorAction SilentlyContinue"
+        inner = old + f"Remove-NetFirewallRule -DisplayName '{FIREWALL_RULE}' -ErrorAction SilentlyContinue"
     enc = base64.b64encode(inner.encode("utf-16-le")).decode()
     outer = ("try { Start-Process powershell -Verb RunAs -Wait -WindowStyle Hidden "
              f"-ArgumentList '-NoProfile','-EncodedCommand','{enc}'; exit 0 }} catch {{ exit 5 }}")
@@ -695,10 +705,10 @@ def firewall(action):
 
 
 # ---------- KingdomConnect (built-in virtual camera, Windows) ----------
-VCAM_SETTINGS_FILE = DATA / "bsf-vcam-settings.json"
+VCAM_SETTINGS_FILE = DATA / "kc-vcam-settings.json"
 VCAM_DEFAULTS = {"enabled": True, "cameraName": "", "resolution": "720p", "mirror": False, "blur": "off", "blurStrength": 0, "cards": True, "look": "off", "presentFps": 15,
                  "blurStyle": "natural"}
-LOOKS_FILE = DATA / "bsf-looks.json"
+LOOKS_FILE = DATA / "kc-looks.json"
 VCAM = {"engine": None, "reason": "", "detail": "", "cameras": None, "camerasAt": 0}
 
 
@@ -819,7 +829,7 @@ def vcam_list_cameras():
     if VCAM["cameras"] is not None and time.time() - VCAM["camerasAt"] < 10:
         return VCAM["cameras"]
     cams = []
-    if os.environ.get("BSF_VCAM_DEMO") == "1":
+    if os.environ.get("KC_VCAM_DEMO") == "1":
         cams = [{"name": "Demo webcam (test)", "backend": "demo", "index": 0, "ir": False},
                 {"name": "Integrated IR Camera", "backend": "demo", "index": 1, "ir": True}]
     else:
@@ -832,8 +842,8 @@ def vcam_list_cameras():
     return cams
 
 
-# ---------- Studio: layout, screen sharing, layers, scenes (saved in bsf-studio.json) ----------
-STUDIO_FILE = DATA / "bsf-studio.json"
+# ---------- Studio: layout, screen sharing, layers, scenes (saved in kc-studio.json) ----------
+STUDIO_FILE = DATA / "kc-studio.json"
 SCENES_DIR = DATA / "scenes"            # scene thumbnails
 LAYERS_DIR = DATA / "layers"
 STUDIO_VERSION = 1
@@ -903,7 +913,7 @@ def png_size(data):
 # ---------- v6 Scripture: ESV API (your own key) with an offline cache; typed / Excel text works as before ----------
 SCRIPTURE_FILE = DATA / "bcc-scripture.json"
 SCRIPTURE_CACHE = DATA / "bcc-scripture-cache.json"
-ESV_URL = os.environ.get("BSF_ESV_URL", "https://api.esv.org/v3/passage/text/")
+ESV_URL = os.environ.get("KC_ESV_URL", "https://api.esv.org/v3/passage/text/")
 SCRIPTURE_CACHE_MAX = 400                     # passages kept for offline use (oldest dropped first)
 _scr_lock = threading.Lock()
 SCRIPTURE_HEALTH = {"ok": None, "message": "", "at": 0}
@@ -1074,7 +1084,8 @@ def remote_studio_action(d):
 
 def recordings_dir():
     vids = Path.home() / "Videos"
-    return (vids if vids.is_dir() else DATA) / "BSF Command Center"
+    legacy.migrate_recordings(vids if vids.is_dir() else DATA)
+    return (vids if vids.is_dir() else DATA) / "Kingdom Connect"
 
 
 def studio_status():
@@ -1279,7 +1290,7 @@ SIZES_FOR_REC = {"720p": (1280, 720), "1080p": (1920, 1080)}
 
 
 def vcam_looks():
-    """All looks (built-in + bsf-looks.json). Re-read each time, so looks added to the file appear."""
+    """All looks (built-in + kc-looks.json). Re-read each time, so looks added to the file appear."""
     try:
         from vcam import looks
         found, note = looks.load(LOOKS_FILE)
@@ -1325,9 +1336,9 @@ def vcam_start():
     """Create the engine (idle until Zoom/Teams uses KingdomConnect). Safe to call when unavailable."""
     if VCAM["engine"] is not None:
         return
-    demo = os.environ.get("BSF_VCAM_DEMO") == "1"
+    demo = os.environ.get("KC_VCAM_DEMO") == "1"
     start_files_msg = ("You’re using the start-file version (the black window). KingdomConnect is only in the installed app: "
-                       "close the black window, then open BSF Command Center from its desktop or Start-menu icon.")
+                       "close the black window, then open Kingdom Connect from its desktop or Start-menu icon.")
     os.environ.setdefault("OPENCV_VIDEOIO_MSMF_ENABLE_HW_TRANSFORMS", "0")   # before OpenCV loads
     try:
         import cv2  # noqa: F401
@@ -1367,7 +1378,7 @@ def vcam_start():
                                   "Protection history, restore or allow kingdomconnect_vcam64.dll, then run the installer again.")
             else:
                 VCAM["reason"] = ("This installer was built without the camera, because the GitHub build recipe is out of date. "
-                                  "Copy the .github folder from the latest BSF-Command-Center.zip into your repository, commit "
+                                  "Copy the .github folder from the latest Kingdom-Connect.zip into your repository, commit "
                                   "and push, then install the new installer.")
             print("KingdomConnect not available: " + VCAM["detail"])
             return
@@ -1411,7 +1422,7 @@ def vcam_status(lite=False):
     eng = VCAM["engine"]
     try:
         from vcam import sink as vsink
-        registered = vsink.is_registered() or os.environ.get("BSF_VCAM_DEMO") == "1"
+        registered = vsink.is_registered() or os.environ.get("KC_VCAM_DEMO") == "1"
     except Exception:
         registered = False
     if lite:
@@ -1643,7 +1654,7 @@ class Handler(BaseHTTPRequestHandler):
                 return self.reply(200, eng.preview_jpeg, "image/jpeg", headers=[("ETag", tag)])
             return self.reply(404, "Not found", "text/plain; charset=utf-8")
         if path == "/api/app/ping":
-            return self.reply(200, json.dumps({"app": "BSF Command Center", "version": APP_VERSION, "installedApp": FROZEN}), TYPES[".json"])
+            return self.reply(200, json.dumps({"app": "Kingdom Connect", "version": APP_VERSION, "installedApp": FROZEN}), TYPES[".json"])
         if path == "/api/app/info":
             if not self.is_local():
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
@@ -1663,7 +1674,7 @@ class Handler(BaseHTTPRequestHandler):
                 info["addresses"] = ips
                 info["urls"] = [f"http://{ip}:{port}/remote.html" for ip in ips]
                 # The PC opening its own network address is not an iPad (a test-only switch can count it)
-                own = set() if os.environ.get("BSF_TEST_COUNT_OWN_ADDRESS") == "1" else set(ips)
+                own = set() if os.environ.get("KC_TEST_COUNT_OWN_ADDRESS") == "1" else set(ips)
                 info["devices"] = [{"ip": ip, "lastSeen": d["last"], "firstSeen": d["first"], "signedIn": d["signedIn"]}
                                    for ip, d in sorted(devices.items(), key=lambda kv: -kv[1]["last"]) if ip not in own]
                 info["network"] = windows_network_check(60 if "fresh=1" in url.query else 900)
@@ -1738,12 +1749,12 @@ class Handler(BaseHTTPRequestHandler):
         lower_this_thread()                          # picture encoding for the window: background priority
         fps = vcam_settings().get("presentFps", 15)
         self.send_response(200)
-        self.send_header("Content-Type", "multipart/x-mixed-replace; boundary=bsfframe")
+        self.send_header("Content-Type", "multipart/x-mixed-replace; boundary=kcframe")
         self.send_header("Cache-Control", "no-store")
         self.send_header("X-Content-Type-Options", "nosniff")
         self.end_headers()
         import select as _select, socket as _socket
-        self.wfile.write(b"--bsfframe\r\n")                # boundary first: each frame then ends with the next one,
+        self.wfile.write(b"--kcframe\r\n")                # boundary first: each frame then ends with the next one,
         self.wfile.flush()                                   # so the browser shows it at once (even a still slide)
         pres = comp.present
         with comp.present_cond:
@@ -1778,7 +1789,7 @@ class Handler(BaseHTTPRequestHandler):
                 if not ok:
                     continue
                 data = jpg.tobytes()
-                part = b"Content-Type: image/jpeg\r\nContent-Length: " + str(len(data)).encode() + b"\r\n\r\n" + data + b"\r\n--bsfframe\r\n"
+                part = b"Content-Type: image/jpeg\r\nContent-Length: " + str(len(data)).encode() + b"\r\n\r\n" + data + b"\r\n--kcframe\r\n"
                 self.wfile.write(part)
                 self.wfile.flush()
                 repeat = part
@@ -1856,7 +1867,7 @@ class Handler(BaseHTTPRequestHandler):
         ok = lambda obj: self.reply(200, json.dumps(obj), TYPES[".json"])
         bad = lambda msg, code=400: self.reply(code, json.dumps({"error": msg}), TYPES[".json"])
         if action == "present":
-            # A separate, frameless "BSF Presentation" window (selectable in Zoom > Share > specific window).
+            # A separate, frameless "Kingdom Connect Share Window" window (selectable in Zoom > Share > specific window).
             hook, fs = DESKTOP.get("present"), DESKTOP.get("present_fullscreen")
             if not hook:
                 return ok({"desktop": False})    # browser: the page opens its own popup window
@@ -2133,11 +2144,11 @@ def main():
         set_remote(True)
     base = f"http://localhost:{port}"
     print()
-    print("  BSF Command Center is running.")
+    print("  Kingdom Connect is running.")
     print()
     print(f"  Dashboard (opens automatically):  {base}/")
-    print(f"  BSF Focus Verse overlay:          {base}/focus-verse.html")
-    print(f"  BSF Discussion Question1 overlay: {base}/discussion-question.html")
+    print(f"  Focus Verse overlay:          {base}/focus-verse.html")
+    print(f"  Discussion Question overlay: {base}/discussion-question.html")
     print(f"  Birthday Celebration overlay:     {base}/birthday.html")
     print(f"  All overlays in one page:         {base}/stage.html")
     if port != PREFERRED_PORT:

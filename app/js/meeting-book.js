@@ -18,7 +18,7 @@
  */
 (function(){
 'use strict';
-var SC = window.BSFScenes;
+var SC = window.KCScenes;
 
 var SHEETS = {
   meeting: {name: 'Meeting Overview', cols: [['field', 'Field', ['field', 'item', 'name']], ['value', 'Value', ['value', 'answer', 'details']]]},
@@ -349,6 +349,6 @@ function lists(){
   return rows;
 }
 
-window.BSFMeetingBook = {SHEETS: SHEETS, CONTENT_TYPES: CONTENT_TYPES, FREE_TYPES: FREE_TYPES, BACKGROUNDS: BACKGROUNDS, TRANSITIONS: TRANSITIONS, ANIMATIONS: ANIMATIONS,
+window.KCMeetingBook = {SHEETS: SHEETS, CONTENT_TYPES: CONTENT_TYPES, FREE_TYPES: FREE_TYPES, BACKGROUNDS: BACKGROUNDS, TRANSITIONS: TRANSITIONS, ANIMATIONS: ANIMATIONS,
   PPT_BG: PPT_BG, TYPE_NAME: TYPE_NAME, isBook: isBook, parse: parse, apply: apply, exportSheets: exportSheets, exportBook: exportBook, lists: lists, header: header, readMe: readMe};
 })();

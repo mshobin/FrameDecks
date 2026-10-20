@@ -1,12 +1,12 @@
-@font-face{font-family:'BSF Serif';src:url('../fonts/EBGaramond.ttf') format('truetype');font-weight:400 800;font-display:swap}
-@font-face{font-family:'BSF Sans';src:url('../fonts/SourceSans3.ttf') format('truetype');font-weight:200 900;font-display:swap}
+@font-face{font-family:'KC Serif';src:url('../fonts/EBGaramond.ttf') format('truetype');font-weight:400 800;font-display:swap}
+@font-face{font-family:'KC Sans';src:url('../fonts/SourceSans3.ttf') format('truetype');font-weight:200 900;font-display:swap}
 /* Kingdom Connect Mobile Director (v6): Scene → Layer → Canvas. Same colours as the Command Center: green = live, red = hide,
  * blue = chosen. Static surfaces only (no backdrop blur, no endless animation) so the phone stays cool. */
 :root{--bg:#0b0e13;--panel:#12161d;--panel2:#181d26;--raised:#1d232d;--edge:#262d38;--edge2:#333b48;--ink:#eef1f6;--muted:#9ba5b4;--faint:#6a7482;
   --accent:#4c8dff;--accent-soft:rgba(76,141,255,.14);--live:#34d17c;--live-strong:#16a34a;--live-soft:rgba(52,209,124,.14);--hid:#7b8599;
   --red:#f26363;--red-strong:#dc2626;--gold:#e3b75a;--warn:#f5b547;
   --mica:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,0) 70%);
-  --serif:'BSF Serif',Georgia,serif;--sans:'BSF Sans',-apple-system,'Segoe UI',Roboto,system-ui,sans-serif;
+  --serif:'KC Serif',Georgia,serif;--sans:'KC Sans',-apple-system,'Segoe UI',Roboto,system-ui,sans-serif;
   --tap:68px;--radius:18px;--tabbar:64px;color-scheme:dark}
 *,*::before,*::after{box-sizing:border-box}
 html,body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:17px;line-height:1.35;

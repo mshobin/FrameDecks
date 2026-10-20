@@ -1,24 +1,24 @@
-/* BSF Command Center - three main tabs (Studio · Members · Settings) with sub-views, the Members directory
+/* Kingdom Connect - three main tabs (Studio · Members · Settings) with sub-views, the Members directory
  * table and the Recordings list.
  * v4.9: "Meetings & Content" moved into the Studio. The view ids are unchanged (meeting, overlays, studio,
- * recordings), so BSFSetTab('meeting'), data-goto links and every screen that checks body.dataset.tab work as
+ * recordings), so KCSetTab('meeting'), data-goto links and every screen that checks body.dataset.tab work as
  * before; only the grouping and the layout changed. */
 (function(){
 'use strict';
 var $ = function(id){ return document.getElementById(id); };
-var Store = window.BSFStore;
+var Store = window.KCStore;
 function h(tag, attrs, kids){
   var el = document.createElement(tag);
   for (var k in (attrs || {})){ var v = attrs[k]; if (k.slice(0, 2) === 'on') el.addEventListener(k.slice(2), v); else if (k === 'text') el.textContent = v; else if (k === 'cls') el.className = v; else if (k === 'html') el.innerHTML = v; else if (v != null && v !== false) el.setAttribute(k, v); }
   (kids || []).forEach(function(c){ if (c != null) el.appendChild(typeof c === 'string' ? document.createTextNode(c) : c); });
   return el;
 }
-function icons(root){ Array.prototype.forEach.call((root || document).querySelectorAll('i[data-icon]'), function(i){ i.outerHTML = window.BSFIcon(i.dataset.icon, +(i.dataset.size || 17)); }); }
+function icons(root){ Array.prototype.forEach.call((root || document).querySelectorAll('i[data-icon]'), function(i){ i.outerHTML = window.KCIcon(i.dataset.icon, +(i.dataset.size || 17)); }); }
 icons();
 
 /* ---------- groups ---------- */
 var GROUPS = {studio: ['studio'], members: ['directory', 'members', 'birthdays', 'email'], settings: ['settings']};
-var KEY = 'bsf-cc-subtab';
+var KEY = 'kc-subtab';
 var last = {};
 try { last = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch(e){}
 if (last.meetings && !last.studioV49){ last.studio = last.meetings; delete last.meetings; last.studioV49 = 1; }   // saved by 4.8 and older
@@ -37,20 +37,20 @@ function show(t){
   document.body.dataset.group = g;
   if (t === 'directory') renderDirectory();
   if (t === 'settings' && $('sec-recording') && !$('sec-recording').hidden) loadRecordings();
-  if ((t === 'studio' || t === 'settings') && window.BSFRenderLists) window.BSFRenderLists();   // drawn when shown
-  if (window.BSFMeasure) window.BSFMeasure();
+  if ((t === 'studio' || t === 'settings') && window.KCRenderLists) window.KCRenderLists();   // drawn when shown
+  if (window.KCMeasure) window.KCMeasure();
 }
-var prev = window.BSFOnTab;
-window.BSFOnTab = function(t){ if (prev) prev(t); show(t); };
+var prev = window.KCOnTab;
+window.KCOnTab = function(t){ if (prev) prev(t); show(t); };
 /* Alt+1 Studio (Meeting view) · Alt+2 Studio (Canvas) · Alt+3 Members · Alt+4 Settings - the same places
  * these keys opened before the Meetings & Content tab moved into the Studio. */
-window.BSFNavAlt = function(n){
-  if (n === 1 || n === 2) return window.BSFSetTab('studio');      // v6: Meeting and Canvas are the one Studio
+window.KCNavAlt = function(n){
+  if (n === 1 || n === 2) return window.KCSetTab('studio');      // v6: Meeting and Canvas are the one Studio
   var g = n === 3 ? 'members' : 'settings';
-  window.BSFSetTab(last[g] || GROUPS[g][0]);
+  window.KCSetTab(last[g] || GROUPS[g][0]);
 };
 Array.prototype.forEach.call(document.querySelectorAll('.subtabs'), function(bar){
-  bar.addEventListener('click', function(e){ var b = e.target.closest('[data-tab]'); if (b) window.BSFSetTab(b.dataset.tab); });
+  bar.addEventListener('click', function(e){ var b = e.target.closest('[data-tab]'); if (b) window.KCSetTab(b.dataset.tab); });
 });
 show(document.body.dataset.tab || 'studio');
 
@@ -62,14 +62,14 @@ show(document.body.dataset.tab || 'studio');
     if (ws && !ws.hidden) root.style.setProperty('--ws-top', Math.round(ws.getBoundingClientRect().top + window.scrollY) + 'px');
     root.style.setProperty('--cb-h', (cb && cb.offsetHeight ? cb.offsetHeight : 0) + 'px');
   }
-  measure(); window.BSFMeasure = measure;
+  measure(); window.KCMeasure = measure;
   if (window.ResizeObserver){ var ro = new ResizeObserver(measure); [top, cb, document.querySelector('.tabs'), $('bday-reminder')].forEach(function(e){ if (e) ro.observe(e); }); }
   else window.addEventListener('resize', measure);
 })();
 
 /* Appearance: Dark (default) · Light · Match Windows - remembered on this PC */
 (function(){
-  var seg = $('theme-seg'), d = document.documentElement, KEYT = 'bsf-cc-theme';
+  var seg = $('theme-seg'), d = document.documentElement, KEYT = 'kc-theme';
   var mq = window.matchMedia ? window.matchMedia('(prefers-color-scheme: light)') : null;
   function resolve(p){ return p === 'system' ? (mq && mq.matches ? 'light' : 'dark') : (p === 'light' ? 'light' : 'dark'); }
   function set(p){
@@ -88,7 +88,7 @@ show(document.body.dataset.tab || 'studio');
     if (mq.addEventListener) mq.addEventListener('change', follow); else if (mq.addListener) mq.addListener(follow); }
   if (seg) seg.addEventListener('click', function(e){ var b = e.target.closest('[data-theme-pick]'); if (b) set(b.dataset.themePick); });
   mark();
-  window.BSFTheme = {set: set, get: function(){ return d.dataset.themePref || 'dark'; }};     // 6.7 the command palette
+  window.KCTheme = {set: set, get: function(){ return d.dataset.themePref || 'dark'; }};     // 6.7 the command palette
 })();
 
 /* ---------- Header: every output's status chip, visible at a glance (v5.1). Each chip keeps its own code
@@ -124,7 +124,7 @@ show(document.body.dataset.tab || 'studio');
 
 /* Studio rail (Scenes & Layers): can be folded away to give a meeting more room; remembered on this PC */
 (function(){
-  var b = $('rail-toggle'), RK = 'bsf-cc-rail';
+  var b = $('rail-toggle'), RK = 'kc-rail';
   if (!b) return;
   function setRail(open){
     document.body.classList.toggle('rail-hidden', !open);
@@ -149,7 +149,7 @@ show(document.body.dataset.tab || 'studio');
 /* ---------- Members > Directory: Name, Role, Email, Birthday ---------- */
 var dir = {q: '', sort: 'name'};
 function renderDirectory(){
-  var root = $('tab-directory'), api = window.BSFMembersAPI;
+  var root = $('tab-directory'), api = window.KCMembersAPI;
   if (!root || !api || !api.directory) return;
   var rows = api.directory(), n = api.reminderDays();
   var q = dir.q.toLowerCase();
@@ -165,7 +165,7 @@ function renderDirectory(){
   root.appendChild(h('div', {cls: 'dir-head'}, [
     h('div', {}, [h('h2', {text: 'Members directory'}), h('p', {cls: 'hint', text: rows.length + ' member' + (rows.length === 1 ? '' : 's') + (soon ? ' · ' + soon + ' birthday' + (soon === 1 ? '' : 's') + ' in the next ' + n + ' days (highlighted)' : '')})]),
     h('div', {cls: 'dir-tools'}, [search, sortSel,
-      h('button', {cls: 'btn primary', type: 'button', html: window.BSFIcon('plus', 16) + ' Add member', onclick: function(){ api.add(); setTimeout(renderDirectory, 400); }})])]));
+      h('button', {cls: 'btn primary', type: 'button', html: window.KCIcon('plus', 16) + ' Add member', onclick: function(){ api.add(); setTimeout(renderDirectory, 400); }})])]));
   if (!rows.length){
     root.appendChild(h('p', {cls: 'empty-card', text: dir.q ? 'No members match your search.' : 'No members yet. Use Add member, or Manage → Import Excel.'}));
     return;
@@ -187,8 +187,8 @@ function renderDirectory(){
   table.appendChild(tb);
   root.appendChild(h('div', {cls: 'dir-wrap'}, [table]));
 }
-window.BSFRenderDirectory = renderDirectory;
-window.BSFLoadRecordings = function(){ loadRecordings(); };
+window.KCRenderDirectory = renderDirectory;
+window.KCLoadRecordings = function(){ loadRecordings(); };
 
 /* ---------- Meetings & Content > Recordings ---------- */
 function rec(op, name){
@@ -203,19 +203,19 @@ function loadRecordings(){
     root.appendChild(h('div', {cls: 'dir-head'}, [
       h('div', {}, [h('h2', {text: 'Recordings'}), h('p', {cls: 'hint', text: 'Recordings of exactly what KingdomConnect sent. Saved in ' + d.folder})]),
       h('div', {cls: 'dir-tools'}, [
-        h('button', {cls: 'btn', type: 'button', html: window.BSFIcon('folder-open', 16) + ' Open folder', onclick: function(){ rec('folder'); }}),
+        h('button', {cls: 'btn', type: 'button', html: window.KCIcon('folder-open', 16) + ' Open folder', onclick: function(){ rec('folder'); }}),
       ])]));
     if (!d.items.length){ root.appendChild(h('p', {cls: 'empty-card', text: 'No recordings yet. Press Record above to record what KingdomConnect sends.'})); return; }
     var t = h('table', {cls: 'dir-table'}, [h('thead', {}, [h('tr', {}, ['Recording', 'Date', 'Size', ''].map(function(x){ return h('th', {text: x}); }))])]);
     var tb = h('tbody');
     d.items.forEach(function(it){
       tb.appendChild(h('tr', {}, [
-        h('td', {}, [h('span', {cls: 'rec-ico', html: window.BSFIcon('film', 18)}), h('b', {text: it.name})]),
+        h('td', {}, [h('span', {cls: 'rec-ico', html: window.KCIcon('film', 18)}), h('b', {text: it.name})]),
         h('td', {text: new Date(it.modified * 1000).toLocaleString([], {dateStyle: 'medium', timeStyle: 'short'})}),
         h('td', {text: (it.bytes / 1048576).toFixed(1) + ' MB'}),
         h('td', {cls: 'rec-actions'}, [
-          h('button', {cls: 'btn small', type: 'button', html: window.BSFIcon('play', 14) + ' Open', onclick: function(){ rec('open', it.name); }}),
-          h('button', {cls: 'btn small quiet', type: 'button', html: window.BSFIcon('trash-2', 14) + ' Delete', onclick: function(){
+          h('button', {cls: 'btn small', type: 'button', html: window.KCIcon('play', 14) + ' Open', onclick: function(){ rec('open', it.name); }}),
+          h('button', {cls: 'btn small quiet', type: 'button', html: window.KCIcon('trash-2', 14) + ' Delete', onclick: function(){
             if (confirm('Delete “' + it.name + '”?')) rec('delete', it.name).then(loadRecordings); }})])]));
     });
     t.appendChild(tb); root.appendChild(h('div', {cls: 'dir-wrap'}, [t]));

@@ -64,7 +64,7 @@ def list_windows():
         user32.GetWindowTextW(hwnd, buf, n + 1)
         title = buf.value.strip()
         ex = user32.GetWindowLongW(hwnd, -20)                                # GWL_EXSTYLE
-        if title and not ex & 0x80 and title not in ("Program Manager", "BSF Command Center"):   # 0x80 = tool window
+        if title and not ex & 0x80 and title not in ("Program Manager", "Kingdom Connect"):   # 0x80 = tool window
             out.append({"id": f"window:{int(hwnd)}", "kind": "window", "hwnd": int(hwnd), "name": title[:80]})
         return True
     user32.EnumWindows(PROC(cb), 0)
@@ -72,7 +72,7 @@ def list_windows():
 
 
 def list_sources():
-    if os.environ.get("BSF_VCAM_DEMO") == "1":
+    if os.environ.get("KC_VCAM_DEMO") == "1":
         return [{"id": "demo:1", "kind": "demo", "name": "Demo screen (test)"}]
     try:
         return list_monitors() + list_windows()
@@ -138,7 +138,7 @@ class ScreenCapture:
                 self.attempts.append("unknown source")
             if self.alive:
                 self.error = ("Screen sharing could not start. " + " | ".join(self.attempts[-4:]) +
-                              ". Tips: update Windows; on laptops with two graphics chips set Python/BSF Command Center to the "
+                              ". Tips: update Windows; on laptops with two graphics chips set Python/Kingdom Connect to the "
                               "graphics chip that drives your screen (Windows Settings > System > Display > Graphics).")
                 print("KingdomConnect screen capture failed:", self.attempts)
         except Exception as e:

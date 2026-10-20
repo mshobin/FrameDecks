@@ -9,14 +9,14 @@
  *
  * Script markup (all optional):  # Heading   - bullet   **bold**   *italic*   [CUE]   --- (a divider)
  *
- * BSFPrompter.create(host, {key, compact, editable, edit(sid, text), toolbar: 'bar' | 'float', extra: [buttons]})
+ * KCPrompter.create(host, {key, compact, editable, edit(sid, text), toolbar: 'bar' | 'float', extra: [buttons]})
  *   → {update(st, sc), play(on), playing(), showControls(), focus(), el}
  * toolbar 'float' (6.8): the controls float over the script as a small glass bar that hides itself; the script takes
  * nearly the whole width (95 %, narrower only for small text on a wide screen, so lines stay readable).
- * BSFPrompter.render(text) → safe HTML;  BSFPrompter.cues(st, sc) → {pos, name, next, upcoming} */
+ * KCPrompter.render(text) → safe HTML;  KCPrompter.cues(st, sc) → {pos, name, next, upcoming} */
 (function(){
 'use strict';
-var SC = window.BSFScenes;
+var SC = window.KCScenes;
 function esc(s){ return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
 function inline(s){
   return esc(s).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/(^|[^*])\*([^*\s][^*]*?)\*(?!\*)/g, '$1<i>$2</i>')
@@ -139,9 +139,9 @@ function create(host, opts){
     last = t; raf = requestAnimationFrame(step);
   }
   function editScript(){
-    if (!curSc || !opts.edit || !window.BSFEditable) return;
+    if (!curSc || !opts.edit || !window.KCEditable) return;
     setPlay(false);
-    window.BSFEditable.inline(text, {value: curText, multiline: true, enterNewline: true, maxLength: 20000, selectAll: false, label: 'Teleprompter script for ' + curSc.name,
+    window.KCEditable.inline(text, {value: curText, multiline: true, enterNewline: true, maxLength: 20000, selectAll: false, label: 'Teleprompter script for ' + curSc.name,
       placeholder: 'Type what you will say during “' + curSc.name + '”. # Heading, - bullet, **bold**, [CUE]', save: function(v){ return opts.edit(curSc.id, v); }});
   }
   scroll.addEventListener('dblclick', function(e){ if (opts.editable){ e.preventDefault(); editScript(); } });
@@ -179,12 +179,12 @@ function create(host, opts){
       curSc = sc;
       var t = sc ? String(sc.notes || '') : '', s = (sc ? sc.id : '') + '\u0000' + t;
       if (s === sig) return; sig = s;
-      if (window.BSFEditable && window.BSFEditable.within(root)) { sig = ''; return; }     // editing: keep the editor
+      if (window.KCEditable && window.KCEditable.within(root)) { sig = ''; return; }     // editing: keep the editor
       var newFrame = (sc ? sc.id : '') !== curSid; curSid = sc ? sc.id : ''; curText = t;
       text.innerHTML = t.trim() ? render(t) : '<p class="tp-empty">' + (sc ? 'No script for “' + esc(sc.name) + '” yet.' + (opts.editable ? ' Double-click here, or use ✎, to write one.' : ' Add one in the main window: Frame settings → Teleprompter script.') : 'Select a Frame.') + '</p>';
       if (newFrame){ scroll.scrollTop = 0; acc = 0; }
     }
   };
 }
-window.BSFPrompter = {create: create, render: render, cues: cues, speeds: SPEEDS};
+window.KCPrompter = {create: create, render: render, cues: cues, speeds: SPEEDS};
 })();

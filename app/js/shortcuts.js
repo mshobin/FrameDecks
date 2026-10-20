@@ -1,14 +1,14 @@
-/* BSF Command Center - keyboard shortcuts (defaults keep the original keys; changes are stored in this browser only) */
+/* Kingdom Connect - keyboard shortcuts (defaults keep the original keys; changes are stored in this browser only) */
 /* Problems are recorded quietly for Settings > Diagnostics instead of interrupting the meeting screen */
-window.BSFErrors = window.BSFErrors || [];
+window.KCErrors = window.KCErrors || [];
 (function(){
-  function push(msg){ var d = new Date(); window.BSFErrors.push({time: d.toTimeString().slice(0, 8), message: String(msg).slice(0, 200)}); if (window.BSFErrors.length > 50) window.BSFErrors.shift(); }
+  function push(msg){ var d = new Date(); window.KCErrors.push({time: d.toTimeString().slice(0, 8), message: String(msg).slice(0, 200)}); if (window.KCErrors.length > 50) window.KCErrors.shift(); }
   window.addEventListener('error', function(e){ push(e.message || 'Script error'); });
   window.addEventListener('unhandledrejection', function(e){ push((e.reason && e.reason.message) || 'Request failed'); });
 })();
 (function(){
 'use strict';
-var KEY = 'bsf-cc-shortcuts-v1';
+var KEY = 'kc-shortcuts-v1';
 var ACTIONS = [
   {id: 'nextQ',   name: 'Next question',        cat: 'question', def: 'ArrowRight'},
   {id: 'prevQ',   name: 'Previous question',    cat: 'question', def: 'ArrowLeft'},
@@ -57,7 +57,7 @@ function match(e){
   return null;
 }
 
-window.BSFShortcuts = {
+window.KCShortcuts = {
   actions: ACTIONS, match: match, pretty: pretty,
   label: function(id){ return pretty(map[id]); },
   short: function(id){ return pretty(map[id]).replace('Shift + ', '⇧'); },
@@ -79,11 +79,11 @@ window.BSFShortcuts = {
         var btn = h('button', {'class': 'btn small', type: 'button', text: 'Change'});
         btn.addEventListener('click', function(){
           btn.textContent = 'Press a key…'; btn.classList.add('capturing');
-          window.BSFShortcutsCapturing = true;
+          window.KCShortcutsCapturing = true;
           function onKey(e){
             e.preventDefault(); e.stopPropagation();
             document.removeEventListener('keydown', onKey, true);
-            window.BSFShortcutsCapturing = false;
+            window.KCShortcutsCapturing = false;
             var c = comboOf(e);
             if (!c){ render('That key can’t be used. Tab, Enter, Space and / are kept for typing and navigation.'); return; }
             var clash = null; for (var k in map) if (k !== a.id && map[k] === c) clash = k;

@@ -1,4 +1,4 @@
-/* BSF Command Center - reads an Excel (.xlsx/.xls) or CSV file in the background, so the window never freezes.
+/* Kingdom Connect - reads an Excel (.xlsx/.xls) or CSV file in the background, so the window never freezes.
  * In:  {buffer: ArrayBuffer, name: string}
  * Out: {ok, sheets, sheet, headerRow, headers, rows}  (rows = arrays of cell text below the header row)
  *      with {all: true}: {ok, sheets, book: {sheet name: {headers, headerRow, rows}}} (v6.5 Meeting Workbook)

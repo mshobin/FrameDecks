@@ -32,7 +32,7 @@ async def capture(url, chromium):
         pg = await b.new_page(viewport={"width": 1180, "height": 900}, device_scale_factor=2, reduced_motion="reduce")
         await pg.goto(url)
         await pg.wait_for_timeout(1500)
-        await pg.evaluate("BSFSetTab('settings'); BSFShowSection('about')")
+        await pg.evaluate("KCSetTab('settings'); KCShowSection('about')")
         await pg.wait_for_timeout(1500)
         hero = pg.locator("#about-body .kc-hero")
         await hero.screenshot(path=str(PNG), animations="disabled", omit_background=True)

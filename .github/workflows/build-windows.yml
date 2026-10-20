@@ -82,14 +82,14 @@ jobs:
           Write-Host "Version $v"
 
       - name: Build the app (PyInstaller)
-        run: pyinstaller --noconfirm --clean packaging/bsf.spec --distpath dist --workpath build
+        run: pyinstaller --noconfirm --clean packaging/kingdom-connect.spec --distpath dist --workpath build
 
       - name: Check the app folder
         shell: pwsh
         run: |
-          if (-not (Test-Path "dist/BSF Command Center/BSF Command Center.exe")) { throw "The app was not built" }
-          if (-not (Get-ChildItem -Recurse "dist/BSF Command Center" -Filter dashboard.html)) { throw "App pages are missing" }
-          if (-not (Get-ChildItem -Recurse "dist/BSF Command Center" -Filter kingdomconnect_vcam64.dll)) { throw "KingdomConnect is missing" }
+          if (-not (Test-Path "dist/Kingdom Connect/Kingdom Connect.exe")) { throw "The app was not built" }
+          if (-not (Get-ChildItem -Recurse "dist/Kingdom Connect" -Filter dashboard.html)) { throw "App pages are missing" }
+          if (-not (Get-ChildItem -Recurse "dist/Kingdom Connect" -Filter kingdomconnect_vcam64.dll)) { throw "KingdomConnect is missing" }
 
       - name: Install Inno Setup (if needed)
         shell: pwsh

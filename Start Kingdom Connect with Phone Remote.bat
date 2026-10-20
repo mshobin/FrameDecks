@@ -1,8 +1,8 @@
 @echo off
-title BSF Command Center (iPad remote ON)
+title Kingdom Connect (iPad remote ON)
 cd /d "%~dp0"
 echo.
-echo  Starting BSF Command Center with the iPad remote...
+echo  Starting Kingdom Connect with the iPad remote...
 echo  If Windows asks whether Python may use the network, choose
 echo  PRIVATE networks only, then select Allow.
 echo.

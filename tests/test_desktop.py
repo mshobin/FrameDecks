@@ -10,7 +10,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
-os.environ.setdefault("BSF_DATA_DIR", tempfile.mkdtemp(prefix="kc-test-"))
+os.environ.setdefault("KC_DATA_DIR", tempfile.mkdtemp(prefix="kc-test-"))
 
 import desktop_win as dw  # noqa: E402
 import server  # noqa: E402

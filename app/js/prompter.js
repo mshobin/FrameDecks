@@ -12,7 +12,7 @@
  * edit the script. Uses the same Teleprompter as the main window (js/teleprompter.js). */
 (function(){
 'use strict';
-var Store = window.BSFStore, SC = window.BSFScenes, P = window.BSFPrompter, W = window.BSFWindow;
+var Store = window.KCStore, SC = window.KCScenes, P = window.KCPrompter, W = window.KCWindow;
 if (!Store || !SC || !P) return;
 var body = document.body;
 var MODES = [['solid', 'Solid', '0 %'], ['presenter', 'Presenter', '20 %'], ['meeting', 'Meeting', '40 %'], ['conference', 'Conference', '65 %'], ['ghost', 'Ghost', '85 %']];
@@ -87,7 +87,7 @@ setTimeout(function(){
 paint();
 
 document.addEventListener('keydown', function(e){
-  var t = e.target; if (t && /INPUT|TEXTAREA|SELECT/.test(t.tagName) || (window.BSFEditable && window.BSFEditable.active())) return;
+  var t = e.target; if (t && /INPUT|TEXTAREA|SELECT/.test(t.tagName) || (window.KCEditable && window.KCEditable.active())) return;
   if (e.ctrlKey || e.metaKey || e.altKey) return;
   var k = e.key, n = +k;
   if (n >= 1 && n <= 5){ setLook({mode: MODES[n - 1][0]}); prompter.showControls(); e.preventDefault(); }
@@ -99,5 +99,5 @@ document.addEventListener('keydown', function(e){
 Store.subscribe(function(st){ prompter.update(st, SC.liveScene(st) || SC.order(st)[0] || null); });
 Store.start();
 setTimeout(function(){ prompter.focus(); }, 300);
-window.BSFOverlay = {look: function(){ return Object.assign({}, look); }, setLook: setLook};
+window.KCOverlay = {look: function(){ return Object.assign({}, look); }, setLook: setLook};
 })();

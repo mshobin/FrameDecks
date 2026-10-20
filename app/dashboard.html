@@ -13,7 +13,7 @@
 <link rel="stylesheet" href="css/about.css">
 <script>/* Appearance before the first paint (Settings > General > Appearance): dark (default), light or match Windows */
 (function(){ var d = document.documentElement, p = 'dark';
-  try { p = localStorage.getItem('bsf-cc-theme') || 'dark'; } catch(e){}
+  try { p = localStorage.getItem('kc-theme') || 'dark'; } catch(e){}
   d.dataset.themePref = p;
   d.dataset.theme = p === 'system' ? (window.matchMedia && matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark') : (p === 'light' ? 'light' : 'dark');
 })();</script>
@@ -25,7 +25,7 @@
        the tooltip and the window title. -->
   <div class="brand" id="brand" title="Kingdom Connect">
     <img class="brand-mark" src="img/kc-emblem.webp" alt="Kingdom Connect" width="30" height="36" decoding="async">
-    <div class="brand-text sr-only"><h1 id="org-title">Kingdom Connect</h1><span class="meeting-title" id="meeting-title">BSF Meeting</span></div>
+    <div class="brand-text sr-only"><h1 id="org-title">Kingdom Connect</h1><span class="meeting-title" id="meeting-title">Meeting</span></div>
   </div>
   <!-- Studio (the workspace), Members, Settings: same buttons, ids and Alt keys as before -->
   <nav class="tabs" role="tablist" aria-label="Sections">
@@ -428,7 +428,7 @@
       <header class="s-head"><h2 id="sech-data">Data / Backup</h2><p>Where everything is stored, backups and resets.</p></header>
     <section class="box" aria-labelledby="s-content-data">
       <div class="box-head"><h2 id="s-content-data">Verses, questions &amp; overlay settings</h2></div>
-      <p class="plain">Saved automatically in <b>bsf-saved-content.json</b> in the BSF Command Center folder.</p>
+      <p class="plain">Saved automatically in <b>kc-saved-content.json</b> in the Kingdom Connect folder.</p>
       <div class="actions">
         <button class="btn small" type="button" id="export">Save a backup file</button>
         <button class="btn small" type="button" id="import">Load a backup file</button>
@@ -446,7 +446,7 @@
       <button class="btn quiet" type="button" id="s-samples">Load sample members for testing</button>
       <button class="btn danger" type="button" id="s-clear">Clear all member data</button>
     </div>
-    <p class="hint">To restore a backup, use Import Excel in the BSF Members tab.</p>
+    <p class="hint">To restore a backup, use Import Excel in the Members tab.</p>
   </section>
     </section>
     <section class="s-sec" id="sec-diag" aria-labelledby="sech-diag" hidden>

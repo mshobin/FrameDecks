@@ -13,7 +13,7 @@ The first four steps act on each channel on its own, so they are folded into one
 table per channel (computed once when the look changes; applied with cv2.LUT). Saturation mixes the
 channels, so it is one 3x3 colour matrix (cv2.transform). Optional vignette: a precomputed gain map.
 
-Looks are data (bsf-looks.json), so new looks need no code changes.
+Looks are data (kc-looks.json), so new looks need no code changes.
 """
 import json
 import time
@@ -61,7 +61,7 @@ def at_intensity(look, intensity):
 
 
 def load(path):
-    """Built-in looks, plus any added in bsf-looks.json. A damaged file never stops the camera."""
+    """Built-in looks, plus any added in kc-looks.json. A damaged file never stops the camera."""
     looks = {k: clean(v) for k, v in BUILT_IN.items()}
     note = ""
     try:
@@ -74,7 +74,7 @@ def load(path):
     except FileNotFoundError:
         save_default(path)
     except (OSError, ValueError) as e:
-        note = f"bsf-looks.json could not be read ({e}); the built-in looks are used."
+        note = f"kc-looks.json could not be read ({e}); the built-in looks are used."
     return looks, note
 
 

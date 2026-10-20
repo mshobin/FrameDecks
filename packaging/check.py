@@ -2,7 +2,7 @@
 import json, os, sys, tempfile, threading, urllib.request
 from pathlib import Path
 root = Path(__file__).resolve().parent.parent
-os.environ["BSF_DATA_DIR"] = tempfile.mkdtemp(prefix="bsf-check-")
+os.environ["KC_DATA_DIR"] = tempfile.mkdtemp(prefix="kc-check-")
 sys.path.insert(0, str(root))
 import server  # noqa: E402
 
@@ -18,7 +18,7 @@ for page in ["", "dashboard.html", "remote.html", "stage.html", "focus-verse.htm
 import desktop_win as _dw
 assert _dw.parse_hotkey("Alt+Space") == (1, 32) and _dw.parse_hotkey("Space") is None and _dw.format_hotkey("ctrl+alt+space") == "Ctrl+Alt+Space"
 ping = json.loads(urllib.request.urlopen(base + "api/app/ping").read())
-assert ping["app"] == "BSF Command Center"
+assert ping["app"] == "Kingdom Connect"
 for name in ["app/js/overlay.js", "app/js/store.js", "app/fonts/EBGaramond.ttf", "app/vendor/xlsx.full.min.js", "desktop_app.py", "desktop_win.py"]:
     assert (root / name).exists(), name
 # KingdomConnect: the camera ID in the app must match the one compiled into the camera
@@ -35,14 +35,14 @@ if os.name == "nt" and os.environ.get("GITHUB_ACTIONS") == "true":
     if missing:
         sys.exit("STOP: the KingdomConnect camera was not built (" + ", ".join(missing) + " missing).\n"
                  "The build recipe .github/workflows/build-windows.yml in your repository is out of date.\n"
-                 "Copy the .github folder from the latest BSF-Command-Center.zip into your repository, then commit and push.")
+                 "Copy the .github folder from the latest Kingdom-Connect.zip into your repository, then commit and push.")
 try:
     import cv2
     from vcam.blur import BackgroundBlur
     BackgroundBlur(root / "vcam" / "models" / "selfie_segmentation_landscape.tflite").close()
     from vcam.cards import CardDrawer, place_verse      # the cards drawn onto KingdomConnect
     _st = {"layout": {}, "question": {"visible": True, "text": "Self-check question?", "label": "Discussion Question"}, "birthday": {}}
-    _c = CardDrawer(root / "app" / "fonts").draw("verse", {"text": "Self-check verse", "ref": "John 1:1", "label": "BSF Focus Verse"}, {}, 1280, 720, place_verse(_st, 1280, 720))
+    _c = CardDrawer(root / "app" / "fonts").draw("verse", {"text": "Self-check verse", "ref": "John 1:1", "label": "Focus Verse"}, {}, 1280, 720, place_verse(_st, 1280, 720))
     assert _c.w > 100 and _c.h > 50, "card drawing failed"
     import numpy as _np
     from vcam.looks import Grade, BUILT_IN               # Camera Looks

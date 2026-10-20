@@ -6,7 +6,7 @@
  * Ctrl+Z / Ctrl+Y undo and redo. Freeze (F) holds the picture; drawings still go on top of it. */
 (function(){
 'use strict';
-var Store = window.BSFStore, SC = window.BSFScenes, I = window.BSFIcon;
+var Store = window.KCStore, SC = window.KCScenes, I = window.KCIcon;
 var $ = function(id){ return document.getElementById(id); };
 var wrap = $('canvas-wrap');
 if (!wrap || !SC) return;
@@ -16,8 +16,8 @@ function h(tag, attrs, kids){
   (kids || []).forEach(function(c){ if (c != null) el.appendChild(typeof c === 'string' ? document.createTextNode(c) : c); });
   return el;
 }
-function toast(m, bad){ if (window.BSFActions) window.BSFActions.toast(m, bad); }
-function commit(fn){ return window.BSFCommit(fn); }
+function toast(m, bad){ if (window.KCActions) window.KCActions.toast(m, bad); }
+function commit(fn){ return window.KCCommit(fn); }
 var live = null;
 var TOOL = {t: 'pen', c: '#e8b931', w: 0.005};
 var TOOLS = [['pen', 'pencil', 'Pen (P)'], ['highlighter', 'highlighter', 'Highlighter (H)'], ['arrow', 'move-up-right', 'Arrow (A)'], ['line', 'minus', 'Line (L)'],
@@ -121,7 +121,7 @@ $('lb-freeze').addEventListener('click', function(){ setFreeze(!(live && live.li
 /* Teleprompter window (the old Speaker View): its own window in the desktop app; a pop-up window in a browser (opened inside the click) */
 var speakerWin = null;
 function openSpeaker(){
-  var app = window.BSFAppInfo;
+  var app = window.KCAppInfo;
   if (!(app && app.desktop)){
     if (speakerWin && !speakerWin.closed){ speakerWin.focus(); return; }
     speakerWin = window.open('speaker.html', 'kc-speaker', 'popup,width=1200,height=780');
@@ -136,7 +136,7 @@ var spk = $('lb-speaker'); if (spk) spk.addEventListener('click', openSpeaker);
 /* 6.8 Teleprompter overlay (Meeting Leader mode): see-through, above Zoom / Teams, kept out of screen sharing */
 var overlayWin = null;
 function openOverlay(){
-  var app = window.BSFAppInfo;
+  var app = window.KCAppInfo;
   if (!(app && app.desktop)){
     if (overlayWin && !overlayWin.closed){ overlayWin.focus(); return; }
     overlayWin = window.open('prompter.html', 'kc-overlay', 'popup,width=1100,height=640');
@@ -160,7 +160,7 @@ function render(){
   f.setAttribute('aria-pressed', String(fz)); f.classList.toggle('on', fz);
 }
 Store.subscribe(function(st){ live = st; render(); });
-window.BSFPresenterTools = {
+window.KCPresenterTools = {
   annotate: function(){ setAnnotate(!annotating()); },
   freeze: function(){ setFreeze(!(live && live.live.freeze)); },
   blackout: function(){ var b = $('lb-blackout'); if (b) b.click(); },
