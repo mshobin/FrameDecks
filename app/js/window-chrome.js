@@ -6,6 +6,8 @@
  * and the buttons at its right minimize, maximize / restore and close. In a browser nothing here shows.
  *
  *   <header data-win-drag> ... <div data-win-controls></div></header>     (body data-win="main|teleprompter|overlay")
+ *   data-win-drag="move": press and move there to move the window, but a double-click does not maximize
+ * Every window also gets thin resize handles on its edges and corners.
  *
  * BSFWindow.call(op, data) talks to the program (POST api/app/win); BSFWindow.minimize() follows Settings ("Ask",
  * "Hide to tray", "Stay in taskbar"). */
@@ -99,7 +101,7 @@ document.addEventListener('mousedown', function(e){
   if (!state.chrome || e.button !== 0) return;
   var area = e.target.closest && e.target.closest('[data-win-drag]');
   if (!area || e.target.closest(NO_DRAG)) return;
-  e.preventDefault();
+  if (area.getAttribute('data-win-drag') !== 'move') e.preventDefault();   // a 'move' area (the overlay's script) keeps focus
   press = {x: e.screenX, y: e.screenY};
 });
 document.addEventListener('mousemove', function(e){
@@ -112,9 +114,21 @@ document.addEventListener('mouseup', function(){ press = null; });
 document.addEventListener('dblclick', function(e){
   if (!state.chrome || WIN === 'spotlight') return;
   var area = e.target.closest && e.target.closest('[data-win-drag]');
-  if (!area || e.target.closest(NO_DRAG)) return;
+  if (!area || area.getAttribute('data-win-drag') === 'move' || e.target.closest(NO_DRAG)) return;   // 'move': drag only
   call('toggle-max');
 });
+
+/* Resize from every edge and corner: thin handles inside the window, so resizing works the same in every window,
+   see-through or not (Windows then runs the resize, with its usual minimum sizes and Snap). */
+var EDGES = ['top', 'bottom', 'left', 'right', 'topleft', 'topright', 'bottomleft', 'bottomright'];
+function edges(){
+  if (WIN === 'spotlight' || document.querySelector('.wc-edge')) return;
+  EDGES.forEach(function(edge){
+    var d = document.createElement('div'); d.className = 'wc-edge wc-' + edge; d.setAttribute('aria-hidden', 'true');
+    d.addEventListener('mousedown', function(e){ if (e.button !== 0) return; e.preventDefault(); e.stopPropagation(); call('resize', {edge: edge}); });
+    document.body.appendChild(d);
+  });
+}
 
 function start(){
   if (!served) return;
@@ -128,6 +142,7 @@ function start(){
     document.documentElement.classList.toggle('win-chrome', state.chrome);
     if (!state.chrome) return;
     Array.prototype.forEach.call(document.querySelectorAll('[data-win-controls]'), mount);
+    edges();
   });
   window.addEventListener('resize', function(){ if (state.chrome){ clearTimeout(start.t); start.t = setTimeout(function(){ call('state'); }, 250); } });
 }

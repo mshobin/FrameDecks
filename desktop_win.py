@@ -1,5 +1,6 @@
 """Kingdom Connect 6.8 - Windows window features, in one place (ctypes only; no new packages).
 
+  * mouse_move_or_size()   move the window, or resize it from an edge, following the mouse (on the UI thread)
   * Chrome(hwnd)            the app's own ribbon instead of the Windows title bar, keeping everything Windows does for a
                             normal window: resizing from the edges, Snap, the maximize animation, the shadow, Alt+Tab.
                             (WM_NCCALCSIZE gives the caption back to the page; the sizing frame stays.)
@@ -84,6 +85,8 @@ if IS_WIN:
     user32.CallWindowProcW.argtypes = [ctypes.c_ssize_t, wintypes.HWND, wintypes.UINT, wintypes.WPARAM, wintypes.LPARAM]
     user32.SetWindowPos.argtypes = [wintypes.HWND, wintypes.HWND, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int, wintypes.UINT]
     user32.PostMessageW.argtypes = [wintypes.HWND, wintypes.UINT, wintypes.WPARAM, wintypes.LPARAM]
+    user32.SendMessageW.argtypes = [wintypes.HWND, wintypes.UINT, wintypes.WPARAM, wintypes.LPARAM]
+    user32.SendMessageW.restype = LRESULT
     user32.IsZoomed.argtypes = [wintypes.HWND]
     dwmapi.DwmSetWindowAttribute.argtypes = [wintypes.HWND, wintypes.DWORD, ctypes.c_void_p, wintypes.DWORD]
 
@@ -166,22 +169,54 @@ class Chrome:
             return res
         return user32.CallWindowProcW(self._old, hwnd, msg, wparam, lparam)
 
-    def drag(self):
-        """Start moving the window with the mouse (the page calls this on mousedown in the ribbon). Windows runs the
+    def drag(self, form=None):
+        """Start moving the window with the mouse (the page asks when the ribbon is pressed and moved). Windows runs the
         move, so Snap and dragging to the top to maximize work as usual."""
-        if IS_WIN and self.hwnd:
-            user32.ReleaseCapture()
-            user32.PostMessageW(self.hwnd, WM_SYSCOMMAND, SC_DRAGMOVE, 0)
+        return mouse_move_or_size(form, self.hwnd, "caption")
 
 
-def drag(hwnd):
-    """Move any window with the mouse (also windows without Chrome)."""
-    if IS_WIN and hwnd:
+HIT = {"caption": 2, "left": 10, "right": 11, "top": 12, "topleft": 13, "topright": 14, "bottom": 15,
+       "bottomleft": 16, "bottomright": 17}
+WM_NCLBUTTONDOWN = 0x00A1
+
+
+def mouse_move_or_size(form, hwnd, edge="caption"):
+    """Let Windows move the window (edge 'caption') or resize it from an edge or corner, following the mouse, exactly
+    as if the title bar or the border had been pressed. This must happen on the window's own UI thread (that is where
+    the mouse is captured), so it is handed to WinForms with BeginInvoke; posting from another thread is the fallback.
+    Works for every window: frameless, see-through or faded."""
+    if not (IS_WIN and hwnd) or edge not in HIT:
+        return False
+    code = HIT[edge]
+
+    def run():
         try:
+            pt = wintypes.POINT()
+            user32.GetCursorPos(ctypes.byref(pt))
             user32.ReleaseCapture()
-            user32.PostMessageW(hwnd, WM_SYSCOMMAND, SC_DRAGMOVE, 0)
+            user32.SendMessageW(hwnd, WM_NCLBUTTONDOWN, code, (pt.y & 0xFFFF) << 16 | (pt.x & 0xFFFF))
+        except Exception as e:
+            print("Window move / resize:", e)
+    if form is not None:
+        try:
+            from System import Action                         # pythonnet (pywebview's WinForms window)
+            form.BeginInvoke(Action(run))
+            return True
         except Exception:
             pass
+    try:
+        pt = wintypes.POINT()
+        user32.GetCursorPos(ctypes.byref(pt))
+        user32.ReleaseCapture()
+        user32.PostMessageW(hwnd, WM_NCLBUTTONDOWN, code, (pt.y & 0xFFFF) << 16 | (pt.x & 0xFFFF))
+        return True
+    except Exception:
+        return False
+
+
+def drag(hwnd, form=None):
+    """Move any window with the mouse (also windows without Chrome)."""
+    return mouse_move_or_size(form, hwnd, "caption")
 
 
 def glass(hwnd, frost=False):

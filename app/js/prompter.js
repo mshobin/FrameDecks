@@ -6,6 +6,7 @@
  *   Solid 0 %  ·  Presenter 20 %  ·  Meeting 40 %  ·  Conference 65 %  ·  Ghost 85 %
  * Frost adds the Windows blur behind the overlay; Stay on top keeps it above Zoom, Teams, PowerPoint and browsers. All
  * three are remembered (Settings in the program). Keys: Space play / pause, 1-5 modes, M mirror, P pin, Esc close.
+ * Move it by pressing anywhere on it and moving the mouse (or by its top strip); resize it from any edge or corner.
  *
  * It follows the Frame on screen (the first Frame before the meeting goes live, to rehearse); double-click the text to
  * edit the script. Uses the same Teleprompter as the main window (js/teleprompter.js). */
@@ -48,6 +49,8 @@ prompter.el.appendChild(modes);
 new MutationObserver(function(){ body.classList.toggle('ui-on', prompter.el.classList.contains('tp-ui-on')); if (!prompter.el.classList.contains('tp-ui-on')) modes.hidden = true; })
   .observe(prompter.el, {attributes: true, attributeFilter: ['class']});
 body.classList.add('ui-on');
+/* the ribbon is outside the Teleprompter: hovering or moving there keeps the controls up */
+document.addEventListener('pointermove', function(){ prompter.showControls(); }, {passive: true});
 
 function paint(){
   var m = MODES.filter(function(x){ return x[0] === look.mode; })[0] || MODES[2];

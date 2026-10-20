@@ -602,7 +602,9 @@ def main():
         elif op == "toggle-max":
             (w.restore if maximized() else w.maximize)()
         elif op == "drag":
-            (chromes[name].drag() if name in chromes else dw.drag(hwnd))
+            dw.mouse_move_or_size(getattr(w, "native", None), hwnd, "caption")
+        elif op == "resize":                                # the page's own edges and corners (every window)
+            dw.mouse_move_or_size(getattr(w, "native", None), hwnd, str(data.get("edge") or ""))
         elif op == "hide":
             hide() if name == "main" else (spotlight(False) if name == "spotlight" else w.hide())
         elif op == "close":
