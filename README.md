@@ -103,6 +103,7 @@ Office installs — these are covered by the manual [testing script](docs/develo
 | Development | [CONTRIBUTING](CONTRIBUTING.md) · [DEVELOPER_GUIDE](docs/contributing.md) · [BRANCHING](docs/development/branching.md) · [RELEASE_PROCESS](docs/development/release-process.md) · [TESTING](docs/development/testing.md) · [CODE_STYLE](docs/development/code-style.md) |
 | Quality | [REPOSITORY_AUDIT](docs/project/repository-audit.md) |
 | Reference | [USER_GUIDE](docs/reference/user-guide.md) · [FEATURES](docs/reference/features.md) · [MEETING_WORKBOOK](docs/reference/meeting-workbook-and-branding.md) · [POWERPOINT](docs/reference/powerpoint.md) |
+| Flutter app | [kingdom_connect_app](kingdom_connect_app/README.md) · [FLUTTER_PLATFORM_PLAN](docs/project/flutter-platform-plan.md) (local-first app for Windows, macOS, iOS and Android; Phase 1) |
 | Project | [ROADMAP](ROADMAP.md) · [CHANGELOG](CHANGELOG.md) · [RELEASE_NOTES](docs/releases/) · [DOCS_INDEX](docs/README.md) |
 
 ## Principles

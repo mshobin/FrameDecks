@@ -1,0 +1,87 @@
+# Kingdom Connect (Flutter): analyse, test, and build for every platform.
+# The Windows presentation program has its own workflow (build-windows.yml); this one never touches it.
+name: Flutter app
+
+on:
+  pull_request:
+    paths: ["kingdom_connect_app/**", ".github/workflows/flutter-app.yml"]
+  push:
+    branches: [main]
+    paths: ["kingdom_connect_app/**", ".github/workflows/flutter-app.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  FLUTTER_VERSION: "3.47.7"
+
+defaults:
+  run:
+    working-directory: kingdom_connect_app
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+      - name: Get packages
+        run: flutter pub get
+      - name: Generated database code is up to date
+        run: |
+          dart run build_runner build
+          git diff --exit-code -- lib/data/models/
+      - name: Analyse
+        run: flutter analyze
+      - name: Tests (unit, widget, and the real Isar database)
+        run: flutter test
+
+  build:
+    needs: test
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: windows-latest, target: windows, artifact: build/windows/x64/runner/Release }
+          - { os: macos-latest, target: macos, artifact: build/macos/Build/Products/Release }
+          - { os: macos-latest, target: ios, artifact: build/ios/iphoneos }
+          - { os: ubuntu-latest, target: apk, artifact: build/app/outputs/flutter-apk }
+          - { os: ubuntu-latest, target: linux, artifact: build/linux/x64/release/bundle }
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - if: matrix.target == 'apk'
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - if: matrix.target == 'linux'
+        working-directory: .
+        run: sudo apt-get update && sudo apt-get install -y ninja-build libgtk-3-dev
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      # iOS is built without signing here; signed builds come with the store set-up (docs/project/flutter-platform-plan.md §10)
+      - name: Build ${{ matrix.target }}
+        shell: bash
+        run: |
+          if [ "${{ matrix.target }}" = "ios" ]; then
+            flutter build ios --release --no-codesign
+          else
+            flutter build ${{ matrix.target }} --release
+          fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: kingdom-connect-${{ matrix.target }}
+          path: kingdom_connect_app/${{ matrix.artifact }}
+          if-no-files-found: error

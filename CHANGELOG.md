@@ -10,6 +10,18 @@ Versions before 4.9 (when the program had its earlier name) are described in the
 
 ## [Unreleased]
 
+### Added
+- **Kingdom Connect for every platform (Flutter, Phase 1)** in `kingdom_connect_app/`. It is local-first and runs on
+  Windows, macOS, iPhone, iPad and Android:
+  - an Executive Dashboard and a guided Meeting Form;
+  - follow-ups, prayer requests, volunteers, ministries and service schedules;
+  - backups, Excel and PDF export, and a read-only import from the Windows program;
+  - Isar storage, Riverpod and GoRouter, with roles, an audit log and storage providers prepared for later.
+
+  It runs next to the Windows program, which is unchanged. Plan:
+  [docs/project/flutter-platform-plan.md](docs/project/flutter-platform-plan.md). CI:
+  `.github/workflows/flutter-app.yml`.
+
 ## [6.9] - 2026-10-20
 
 Full notes: [docs/releases/v6.9.md](docs/releases/v6.9.md)
