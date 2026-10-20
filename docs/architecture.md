@@ -28,7 +28,7 @@ service PC. Volunteers do not need this page; start with [Getting started](getti
 | Principle | What it means in the code |
 | --- | --- |
 | **One PC, no cloud** | Everything runs in one process on the service PC. The web UI talks to `127.0.0.1:8750`. Nothing needs an account or the internet (only the optional ESV scripture fetch does). |
-| **One source of truth** | The meeting lives in one state object (`bsf-saved-content.json`). Every screen — the main window, the phone, the overlay pages, the camera — reads the same state. |
+| **One source of truth** | The meeting lives in one state object (`kc-saved-content.json`). Every screen — the main window, the phone, the overlay pages, the camera — reads the same state. |
 | **One final picture** | The KingdomConnect camera, the Presentation window and every preview use the same composed frame. Nothing bypasses the compositor, so what you preview is what Zoom receives. |
 | **Volunteer-proof** | Plain words in the UI, Frames that own their Content (no hidden sharing), safe defaults, Hide all / Blackout always one key away. |
 | **Light on the PC** | Work happens only when something changes. Screens poll cheaply, the phone waits on a long poll, previews are made only while someone is watching. |
@@ -45,7 +45,7 @@ flowchart LR
     SRV["Control server<br/>server.py :8750"]
     ENG["Camera engine<br/>vcam/"]
     PRES["Presentation window"]
-    FILE[("Data folder<br/>%APPDATA%\\BSF Command Center")]
+    FILE[("Data folder<br/>%APPDATA%\\Kingdom Connect")]
   end
   PHONE["Phone remote<br/>app/remote.html"]
   OBS["OBS / browser<br/>overlay pages"]
@@ -283,8 +283,8 @@ window features use Windows' own functions through `desktop_win.py` (ctypes, no 
   shortcut keep running.
 - **The global shortcut thread.** `desktop_win.Hotkeys` registers the Spotlight shortcut with `RegisterHotKey` on its
   own message-loop thread (default Alt+Space, Ctrl+Alt+Space if that is taken). The shortcut centres Spotlight on the
-  monitor under the mouse. Spotlight reads its list from the main window (`BSFPalette.exportIndex()`) and runs the
-  choice there (`BSFPalette.runKey()`); background-safe commands leave the main window in the tray.
+  monitor under the mouse. Spotlight reads its list from the main window (`KCPalette.exportIndex()`) and runs the
+  choice there (`KCPalette.runKey()`); background-safe commands leave the main window in the tray.
 - **Settings.** `customChrome`, `minimizeTo`, `spotlightKey`, `overlayMode`, `overlayFrost`, `overlayOnTop` and
   `overlayFade`, validated by `server.py`.
 
@@ -292,17 +292,18 @@ window features use Windows' own functions through `desktop_win.py` (ctypes, no 
 
 | Part | Files | Role |
 | --- | --- | --- |
-| Control server | `server.py` | HTTP on `127.0.0.1:8750` (plus the LAN when the remote is on), state, uploads, settings, scripture lookup, remote sign-in, backups |
+| Control server | `server.py` | HTTP on `127.0.0.1:8750` (plus the LAN when the remote is on), state, uploads, settings, scripture lookup, remote sign-in, backups, the Meeting Workbook export (`POST api/meeting/workbook`, this PC only) |
 | Desktop shell | `desktop_app.py` | WebView2 windows via pywebview (main, Teleprompter window, Teleprompter overlay, Spotlight, Presentation window), tray icon and menu, global shortcut, single instance |
 | Windows helpers | `desktop_win.py` | Win32 calls via ctypes: the ribbon (`Chrome`, `drag`), see-through glass and fade, capture exclusion, rounded corners, centring on the cursor, the global shortcut thread (`Hotkeys`). Safe no-ops off Windows |
 | Window ribbon | `app/js/window-chrome.js`, `app/css/window.css` | The one ribbon component: window buttons, drag, double-click, the minimize question |
 | Camera engine | `vcam/engine.py`, `compositor.py`, `layers.py`, `cards.py`, `overlay.py`, `program.py`, `annotate.py`, `blur.py`, `looks.py`, `picture.py`, `screen.py`, `devices.py`, `sink.py`, `powerpoint.py` | Capture, compose, draw cards and drawings, send to the KingdomConnect camera |
-| Shared state (UI) | `app/js/store.js` | Normalizes state, Frames and Content model (`BSFScenes`), sync loops |
+| Shared state (UI) | `app/js/store.js` | Normalizes state, Frames and Content model (`KCScenes`), sync loops |
 | Main window | `app/dashboard.html`, `app/js/workspace.js`, `frame-lists.js`, `dashboard.js`, `annotate.js`, `preview-edit.js`, `editable.js`, `palette.js`, `prompter-dock.js`, `studio.js`, … | Studio, Content Settings, lists, multi-select, annotation, inline and canvas editing, command palette (also used by Spotlight, `app/spotlight.html`), docked Teleprompter |
 | Phone remote | `app/remote.html`, `app/js/remote.js`, `app/css/remote.css` | Simple and Advanced profiles, drawing pad |
 | Teleprompter | `app/js/teleprompter.js` (shared, with the floating toolbar), `app/speaker.html`, `app/js/speaker.js` (the Teleprompter window), `app/prompter.html`, `app/js/prompter.js`, `app/css/prompter.css` (the overlay) | The Frame's Teleprompter script, what's on screen, what's next, clocks. No output reads a Frame's script, and the overlay is left out of screen sharing |
 | Overlay pages | `app/stage.html` and others, `app/js/overlay.js` | Cards and text for OBS / browser sources |
-| Excel | `app/js/meeting-book.js`, `meeting-import.js`, `import-worker.js`, `app/vendor/xlsx.full.min.js` | Meeting Workbook import and export. The Excel library loads on first use, not at start-up |
+| Excel | `app/js/meeting-book.js`, `meeting-import.js`, `import-worker.js`, `app/vendor/xlsx.full.min.js`, `meeting_form.py`, `app/templates/Kingdom-Connect-Meeting-Workbook.xlsx` (made by `tools/make_meeting_workbook.py`) | Meeting Workbook import and export. The workbook has two tabs, Dashboard (formulas only) and Meeting Form. `meeting_form.py` holds the form's layout and fills the template for an export (`POST api/meeting/workbook`); `meeting-book.js` reads the form back by its labels and header rows, and still reads the 6.5–6.8 one-sheet-per-list workbooks. The Excel library loads on first use, not at start-up |
+| Earlier-name migration | `legacy.py` (data folder, files, backups, recordings), a marked block at the top of `app/js/store.js` (browser settings), `packaging/installer.iss` (old program folder and shortcuts) | Moves data saved by versions published under the program's earlier name to the Kingdom Connect names, once, never overwriting newer data |
 | Packaging | `packaging/` | PyInstaller spec, Inno Setup installer, camera build, self-check |
 | Tests | `tests/`, `packaging/check.py` | Store and workbook tests; start-up self-check |
 
@@ -311,15 +312,16 @@ The full, version-by-version engineering record is in
 
 ## Data and storage
 
-Everything lives in the data folder, `%APPDATA%\BSF Command Center` (the original name is kept so upgrades keep
-your data). Details: [reference/configuration-guide.md](reference/configuration-guide.md).
+Everything lives in the data folder, `%APPDATA%\Kingdom Connect`. Earlier versions, published under the program's
+earlier name, kept their data in a folder and files carrying that name; on first start, 6.9 moves them here once
+(`legacy.py`), including backups and recordings, and never overwrites newer data. Details: [reference/configuration-guide.md](reference/configuration-guide.md).
 
 | File / folder | Contents |
 | --- | --- |
-| `bsf-saved-content.json` | The meeting: Frames, Content, lists, branding, live state |
-| `bsf-members-private.json` | Members (never sent to the phone or the overlay pages) |
-| `bsf-app-settings.json`, `bsf-vcam-settings.json`, `bsf-studio.json`, `bsf-looks.json` | App, camera, studio and Camera Look settings |
-| `bsf-remote-pin.txt`, `bsf-remote-sessions.json` | Phone remote PIN and signed-in phones |
+| `kc-saved-content.json` | The meeting: Frames, Content, lists, branding, live state |
+| `kc-members-private.json` | Members (never sent to the phone or the overlay pages) |
+| `kc-app-settings.json`, `kc-vcam-settings.json`, `kc-studio.json`, `kc-looks.json` | App, camera, studio and Camera Look settings |
+| `kc-remote-pin.txt`, `kc-remote-sessions.json` | Phone remote PIN and signed-in phones |
 | `layers\` | Copies of images, videos and slide PDFs you added |
 | `backups\` | Daily and manual backups |
 

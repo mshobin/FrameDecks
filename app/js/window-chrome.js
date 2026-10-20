@@ -9,7 +9,7 @@
  *   data-win-drag="move": press and move there to move the window, but a double-click does not maximize
  * Every window also gets thin resize handles on its edges and corners.
  *
- * BSFWindow.call(op, data) talks to the program (POST api/app/win); BSFWindow.minimize() follows Settings ("Ask",
+ * KCWindow.call(op, data) talks to the program (POST api/app/win); KCWindow.minimize() follows Settings ("Ask",
  * "Hide to tray", "Stay in taskbar"). */
 (function(){
 'use strict';
@@ -147,7 +147,7 @@ function start(){
   window.addEventListener('resize', function(){ if (state.chrome){ clearTimeout(start.t); start.t = setTimeout(function(){ call('state'); }, 250); } });
 }
 
-window.BSFWindow = {call: call, minimize: minimize, mount: mount, win: WIN, active: function(){ return state.chrome; },
+window.KCWindow = {call: call, minimize: minimize, mount: mount, win: WIN, active: function(){ return state.chrome; },
   settings: function(){ return state.settings || {}; }, info: function(){ return state.info || {}; }};
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
 })();

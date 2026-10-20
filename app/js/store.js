@@ -1,5 +1,5 @@
 /*
- * BSF Command Center - shared state.
+ * Kingdom Connect - shared state.
  *
  * Two ways to connect, chosen automatically:
  *  - Local program mode (page opened from http://localhost...): state lives in the
@@ -7,16 +7,36 @@
  *  - No-install mode (page opened as a file): state lives in this browser's local
  *    storage and syncs instantly between tabs of the SAME browser only.
  */
+/* LEGACY (6.9): settings this browser saved under the program's earlier name move to the Kingdom Connect names, once.
+ * This and legacy.py are the only places that know the earlier name; they exist so nobody loses their theme,
+ * shortcuts, layout, members (file mode) or saved state. */
+(function(){
+  try {
+    var ls = window.localStorage; if (!ls || ls.getItem('kc-legacy-moved') === '1') return;
+    var OLD = 'bsf-cc-', OLD_STATE = 'bsf-command-center-state-v1', moved = [];
+    var keys = []; for (var i = 0; i < ls.length; i++) keys.push(ls.key(i));   // a snapshot: adding keys reorders them
+    keys.forEach(function(k){
+      if (!k) return;
+      var nk = k.indexOf(OLD) === 0 ? 'kc-' + k.slice(OLD.length) : k === OLD_STATE ? 'kc-state-v1' : null;
+      if (nk && ls.getItem(nk) === null){ ls.setItem(nk, ls.getItem(k)); moved.push(nk); }
+    });
+    ls.setItem('kc-legacy-moved', '1');
+    if (moved.indexOf('kc-theme') >= 0){                    // the first paint used the default: apply the saved theme now
+      var p = ls.getItem('kc-theme'), d = document.documentElement;
+      d.dataset.theme = p === 'system' ? (window.matchMedia && matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark') : (p === 'light' ? 'light' : 'dark');
+    }
+  } catch(e){}
+})();
 (function(){
 'use strict';
 
-var KEY = 'bsf-command-center-state-v1';
-var CHANNEL = 'bsf-command-center';
+var KEY = 'kc-state-v1';
+var CHANNEL = 'kingdom-connect';
 
 var DEFAULT_STATE = {
   rev: 0,
   verse: {
-    label: 'BSF Focus Verse', showLabel: true,
+    label: 'Focus Verse', showLabel: true,
     text: 'Thy word is a lamp unto my feet, and a light unto my path.', ref: 'Psalm 119:105', version: 'KJV',
     visible: false, seq: 0, cut: 0, itemId: 's1',
     transition: 'rise', speed: 'normal',
@@ -43,7 +63,7 @@ var DEFAULT_STATE = {
     qBottom: 10, qWidth: 84, qScale: 1,
     panel: 92
   },
-  /* v6: Scenes own Layers; the live scene and the program controls (see BSFScenes below) */
+  /* v6: Scenes own Layers; the live scene and the program controls (see KCScenes below) */
   scenes: [],
   live: {scene: '', seq: 0, at: 0, tx: 'cut', txMs: 0, auto: true, blackout: false, emergency: false, freeze: false, ink: {on: false, items: []},
          message: 'Please stand by \u2014 we\u2019ll be right back.', on: {}, cd: {}},
@@ -52,8 +72,10 @@ var DEFAULT_STATE = {
   /* v6.2 Leader branding: shown only by Branding layers and the layers that ask for it ({meeting} / {org} in their
      text, "Show logo" on text cards). logo = version of the uploaded picture ('' = none; the file is api/brand/logo). */
   brand: {meeting: '', org: '', color: '', logo: '', lw: 0, lh: 0, auto: false},
-  /* v6.5 Meeting Overview (Excel Meeting Workbook): title, date, presenter, notes */
-  meeting: {title: '', date: '', presenter: '', notes: ''},
+  /* v6.5 Meeting details (Excel Meeting Form, js/meeting-book.js FIELDS); 6.9 adds time, location, speaker contact,
+     attendees, presentation owner and notes */
+  meeting: {title: '', date: '', time: '', location: '', presenter: '', contact: '', attendees: '', attendeeNotes: '', owner: '',
+    contentNotes: '', notes: '', extra: ''},
   /* Saved lists shown in the dashboard (sample placeholder content) */
   library: {
     verses: [
@@ -329,7 +351,7 @@ function drawInk(cv, items){
     c.save(); c.strokeStyle = c.fillStyle = it.c || '#e8b931'; c.lineCap = c.lineJoin = 'round';
     c.lineWidth = it.t === 'highlighter' ? lw * 4 : lw; c.globalAlpha = it.t === 'highlighter' ? 0.4 : 1;
     c.beginPath();
-    if (it.t === 'text'){ c.font = '700 ' + Math.max(16, Math.round((it.w || 0.005) * 12 * H)) + 'px "BSF Sans", sans-serif'; c.textBaseline = 'top'; c.fillText(it.s || '', a[0] * W, a[1] * H); c.restore(); return; }
+    if (it.t === 'text'){ c.font = '700 ' + Math.max(16, Math.round((it.w || 0.005) * 12 * H)) + 'px "KC Sans", sans-serif'; c.textBaseline = 'top'; c.fillText(it.s || '', a[0] * W, a[1] * H); c.restore(); return; }
     if (it.t === 'pen' || it.t === 'highlighter'){ c.moveTo(a[0] * W, a[1] * H); p.forEach(function(q){ c.lineTo(q[0] * W, q[1] * H); }); }
     else if (it.t === 'line' || it.t === 'arrow'){
       c.moveTo(a[0] * W, a[1] * H); c.lineTo(b[0] * W, b[1] * H);
@@ -922,7 +944,9 @@ function normalize(s){
   Scenes.normalizeInto(st, isObj(s) ? s : {});
   Scenes.ownLists(st);                                         // v6.5: lists belong to Frames
   var mt = isObj(s) && isObj(s.meeting) ? s.meeting : {};
-  st.meeting = {title: str(mt.title, 80), date: str(mt.date, 40), presenter: str(mt.presenter, 80), notes: str(mt.notes, 2000)};
+  st.meeting = {title: str(mt.title, 80), date: str(mt.date, 40), time: str(mt.time, 40), location: str(mt.location, 200), presenter: str(mt.presenter, 80),
+    contact: str(mt.contact, 120), attendees: str(mt.attendees, 20), attendeeNotes: str(mt.attendeeNotes, 2000), owner: str(mt.owner, 80),
+    contentNotes: str(mt.contentNotes, 2000), notes: str(mt.notes, 2000), extra: str(mt.extra, 4000)};
   var b = isObj(s) && isObj(s.brand) ? s.brand : {};
   st.brand = {meeting: str(b.meeting, 80), org: str(b.org, 80), color: /^#[0-9a-fA-F]{6}$/.test(b.color || '') ? b.color.toLowerCase() : '',
     logo: str(b.logo, 40), lw: Number(b.lw) || 0, lh: Number(b.lh) || 0, auto: !!b.auto};
@@ -950,7 +974,7 @@ document.addEventListener('visibilitychange', function(){
 var shared = false;
 function shareParent(){
   try {
-    var P = window.parent !== window && window.parent.BSFStore;
+    var P = window.parent !== window && window.parent.KCStore;
     if (!P || !P.served) return false;
     P.subscribe(function(st){
       state = normalize(JSON.parse(JSON.stringify(st))); started = true; Store.online = P.online; emit();
@@ -1102,10 +1126,10 @@ var Store = {
     ping(); setInterval(ping, 4000);
   }
 };
-window.BSFStore = Store;
+window.KCStore = Store;
 /* Transition helpers shared by the dashboard, Meeting Mode and the phone remote */
-window.BSFTransitions = {list: TRANSITIONS, names: TRANSITION_NAMES, defaultPool: DEFAULT_POOL,
+window.KCTransitions = {list: TRANSITIONS, names: TRANSITION_NAMES, defaultPool: DEFAULT_POOL,
   resolve: resolveTransition, describe: describeTransition, preference: preference};
-window.BSFPresent = Present;
-window.BSFScenes = Scenes;
+window.KCPresent = Present;
+window.KCScenes = Scenes;
 })();

@@ -1,5 +1,5 @@
 """
-BSF Command Center - Windows desktop app.
+Kingdom Connect - Windows desktop app.
 
 Runs the same local program as server.py, shows the dashboard in its own window, and keeps an icon
 near the clock (the "tray") so the overlays keep working in OBS/Camo when the window is closed.
@@ -15,16 +15,22 @@ import traceback
 import urllib.request
 import webbrowser
 
-APP_NAME = "BSF Command Center"          # identity: data folder, single-instance check (never changes)
+APP_NAME = "Kingdom Connect"          # identity: data folder name and the single-instance check
 DISPLAY_NAME = "Kingdom Connect"     # what people see
 
 
 # ---------- A windowed app has no console: send messages to a small log file instead ----------
 def _setup_log():
-    base = os.environ.get("BSF_DATA_DIR") or os.path.join(os.environ.get("APPDATA") or os.path.expanduser("~"), APP_NAME)
+    if not os.environ.get("KC_DATA_DIR"):
+        try:                                   # 6.9: data saved under the earlier name moves first, before any file opens
+            import legacy
+            legacy.migrate_app_data(os.environ.get("APPDATA") or os.path.expanduser("~"))
+        except Exception:
+            pass
+    base = os.environ.get("KC_DATA_DIR") or os.path.join(os.environ.get("APPDATA") or os.path.expanduser("~"), APP_NAME)
     try:
         os.makedirs(base, exist_ok=True)
-        path = os.path.join(base, "bsf-app-log.txt")
+        path = os.path.join(base, "kc-app-log.txt")
         if os.path.exists(path) and os.path.getsize(path) > 1_000_000:
             os.replace(path, path + ".old")
         log = open(path, "a", encoding="utf-8", buffering=1)
@@ -261,7 +267,7 @@ def main():
             pystray.MenuItem("More", more),
             pystray.Menu.SEPARATOR,
             pystray.MenuItem("Exit", lambda icon, item: on_quit()))
-        icon = pystray.Icon("bsf-command-center", tray_image(), DISPLAY_NAME, menu)
+        icon = pystray.Icon("kingdom-connect", tray_image(), DISPLAY_NAME, menu)
         icon.run_detached()
         return icon
 
@@ -390,7 +396,7 @@ def main():
     def ask_page_about_closing():
         # The page shows "Keep running in the background / Quit / Cancel" (with a warning if anything is LIVE)
         try:
-            handled = window.evaluate_js("window.BSFAppClosing ? BSFAppClosing() : false")
+            handled = window.evaluate_js("window.KCAppClosing ? KCAppClosing() : false")
         except Exception:
             handled = False
         if not handled:
@@ -405,7 +411,7 @@ def main():
     window.events.closing += on_closing
 
     def present(on=True):
-        """The separate "BSF Presentation" window (Zoom > Share Screen > that window).
+        """The separate "Kingdom Connect Share Window" window (Zoom > Share Screen > that window).
         Preferred: a native window (no browser engine, very light on the graphics card). Fallback: a WebView2 window."""
         w = state.get("present")
         if not on:
@@ -442,7 +448,7 @@ def main():
                 print("Presentation window: native window unavailable, using WebView2 instead:", e)
         # Frameless: no title bar, no minimise/maximise/close buttons, no window frame. Drag anywhere to move it.
         # The title stays internal (never shown) so Zoom can list it under "Share specific window".
-        w = webview.create_window("BSF Presentation", url + "present.html", width=1280, height=720,
+        w = webview.create_window("Kingdom Connect Share Window", url + "present.html", width=1280, height=720,
                                   min_size=(480, 270), background_color="#000000", text_select=False,
                                   frameless=True, easy_drag=True)
         state["present_fs"] = False
@@ -562,13 +568,13 @@ def main():
             pass
         dw.bring_to_front(hwnd)
         try:
-            spot.evaluate_js("window.BSFSpotlight && BSFSpotlight.opened()")
+            spot.evaluate_js("window.KCSpotlight && KCSpotlight.opened()")
         except Exception:
             pass
 
     def palette_index():
         try:
-            raw = window.evaluate_js("JSON.stringify(window.BSFPalette && BSFPalette.exportIndex ? BSFPalette.exportIndex() : [])")
+            raw = window.evaluate_js("JSON.stringify(window.KCPalette && KCPalette.exportIndex ? KCPalette.exportIndex() : [])")
             return json.loads(raw or "[]")
         except Exception as e:
             print("Spotlight index:", e)
@@ -579,14 +585,14 @@ def main():
         if not background:
             show()
         try:
-            window.evaluate_js("window.BSFPalette && BSFPalette.runKey(%s)" % json.dumps(key))
+            window.evaluate_js("window.KCPalette && KCPalette.runKey(%s)" % json.dumps(key))
         except Exception as e:
             print("Spotlight action:", e)
 
     def open_settings():
         show()
         try:
-            window.evaluate_js("window.BSFSetTab && BSFSetTab('settings')")
+            window.evaluate_js("window.KCSetTab && KCSetTab('settings')")
         except Exception:
             pass
 
@@ -699,6 +705,6 @@ if __name__ == "__main__":
     except Exception:
         print(traceback.format_exc())
         message("Kingdom Connect hit an unexpected problem and has to close.\n\n"
-                "Details were saved in bsf-app-log.txt in your data folder (%APPDATA%\\BSF Command Center).", warn=True)
+                "Details were saved in kc-app-log.txt in your data folder (%APPDATA%\\Kingdom Connect).", warn=True)
     finally:
         os._exit(0)

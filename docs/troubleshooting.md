@@ -63,7 +63,7 @@ Overlay pages and the phone remote expect port 8750. Another program is using it
 | Symptom | Cause | Fix |
 | --- | --- | --- |
 | **"Windows protected your PC"** when installing | The installer isn't code-signed | Select **More info → Run anyway** |
-| Antivirus blocks or quarantines the app | A known false alarm with unsigned apps made with Python | Restore it and add an exception for `%LOCALAPPDATA%\Programs\BSF Command Center` |
+| Antivirus blocks or quarantines the app | A known false alarm with unsigned apps made with Python | Restore it and add an exception for `%LOCALAPPDATA%\Programs\Kingdom Connect` |
 
 > **Note:** Check the download first: the installer comes with a `.sha256` file you can compare with `certutil -hashfile "Kingdom Connect v6.8.exe" SHA256`.
 
@@ -116,7 +116,7 @@ Inside Kingdom Connect, **Ctrl+K** always opens the command palette, which finds
 | --- | --- |
 | The app was open before installing | Restart Zoom, Teams, OBS or the browser. They read the camera list when they start |
 | The camera wasn't installed | **Settings → KingdomConnect Camera → Install KingdomConnect** (asks for administrator permission once) |
-| Still shows "BCC vCam" (older versions) | Restart the app. If it is still missing, run the installer again with the camera option ticked |
+| Still shows the camera's earlier name (older versions) | Restart the app. If it is still missing, run the installer again with the camera option ticked |
 | The app reads only Media Foundation cameras | Zoom, Teams, Google Meet in Chrome or Edge, and OBS do list it. Some other apps may not |
 
 ### KingdomConnect is black or frozen
@@ -213,7 +213,7 @@ Kingdom Connect doesn't capture or send sound, and Video Content plays muted. Yo
 
 ### Restoring a backup
 
-Kingdom Connect makes a backup automatically once a day and keeps the newest 10. They are in `%APPDATA%\BSF Command Center\backups\`.
+Kingdom Connect makes a backup automatically once a day and keeps the newest 10. They are in `%APPDATA%\Kingdom Connect\backups\`.
 
 1. **Settings → Data / Backup → Open backups folder**, and find the backup you want (each is a folder named by date).
 2. Restore it in one of these ways:

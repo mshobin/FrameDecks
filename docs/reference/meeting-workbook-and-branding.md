@@ -1,14 +1,16 @@
-# The Excel Meeting Workbook (v6.5), leader branding and Go Live
+# The Excel Meeting Workbook (v6.9), leader branding and Go Live
 
-> **v6.7:** the Questions and Scriptures sheets no longer have Answer or Notes columns, and the Frames sheet's last
-> column is now **Teleprompter Script** (section 0). The Branding Content has new options, and a logo's plain
-> background can be removed ([Branding options](#branding-options-v67)).
+> **v6.9:** the Meeting Workbook now has two tabs, **Dashboard** and **Meeting Form** (section 0). The Read Me, Lists
+> and one-sheet-per-list tabs are gone. Workbooks from 6.5 to 6.8 (Meeting Overview, Frames, Content, Questions,
+> Scriptures) and the v6.2 one-sheet template still import.
 >
-> **v6.5:** the Excel template is now the five-sheet **Meeting Workbook** (section 0). Files made with the v6.2
-> one-sheet template ("Scene Name" column) still import. Sections 1–4 describe v6.2 and use its words: a *scene* is now
-> a **Frame**, and a *layer* is now **Content**.
+> **v6.7:** questions and scriptures have no Answer or Notes columns, and each Frame has a **Presenter script** (the
+> Frame's Teleprompter script). The Branding Content has new options, and a logo's plain background can be removed
+> ([Branding options](#branding-options-v67)).
+>
+> Sections 1–4 describe v6.2 and use its words: a *scene* is now a **Frame**, and a *layer* is now **Content**.
 
-## 0. The Meeting Workbook (v6.5)
+## 0. The Meeting Workbook (v6.9)
 
 Excel is **optional**. Kingdom Connect is fully usable without it. The workbook is a **planning, review, handover and
 bulk-editing** tool. After an import, the app is the source of truth: the file is not linked, and **Export** gives you
@@ -16,51 +18,130 @@ a fresh copy.
 
 ### Where
 **Meeting** (the ✨ button next to + Frame) has three items:
-- **Download the Excel template**: `templates/Kingdom-Connect-Meeting-Workbook.xlsx`. It has drop-down lists,
-  whole-number checks, example rows, a Read Me and a Lists sheet.
+- **Download the Excel template**: `templates/Kingdom-Connect-Meeting-Workbook.xlsx`. It opens on the **Dashboard**,
+  with an example meeting already filled in on the **Meeting Form**. Type over the examples.
 - **Import meeting from Excel…**:
-  1. A preview shows the Frames, Content, questions and scriptures that will be made, and every problem with its
-     **sheet and row**.
+  1. A preview shows the meeting, the Frames, Content, questions and scriptures that will be made, and every problem
+     with where it is, for example *Meeting Form · Content · row 26: …*.
   2. Choose **Append** or **Replace**.
-  3. Text left empty in the Scriptures sheet is filled from the ESV.
+  3. Scripture text left empty is filled from the ESV.
   4. **Undo** is offered afterwards.
-- **Export this meeting to Excel**: the same five sheets, filled in. An export imports again.
+- **Export this meeting to Excel**: the same **Dashboard** and **Meeting Form**, filled in with this meeting. An
+  export imports again.
 
-### The sheets
-| Sheet | Columns | Notes |
+### The two tabs
+| Tab | What it is | Imported? |
 | --- | --- | --- |
-| **Meeting Overview** | Field · Value | Rows: Meeting Title, Date, Presenter, Notes. The title names the group of imported Frames |
-| **Frames** | Frame Number · Frame Name · Description · Background · Transition · Teleprompter Script | One row per Frame, numbered 1, 2, 3… Teleprompter Script becomes the Frame's script (only the presenter sees it). Background: None, Navy, Black, White, Brand or #RRGGBB. Transition: Frame default, Cut, Fade, Cross Dissolve, Dip to Black / White, Slide Left / Right, Push, Zoom Fade, Soft Scale, Cinema Fade |
-| **Content** | Frame Number · Content Order · Content Type · Content Name · Main Content · Label · Duration · Animation · PowerPoint Background Visibility · Notes | One row per Content. Types: Question, Scripture, Text, Image, Video, Timer, PowerPoint, Free Content, plus Announcement, Prayer Point, Lower Third, Birthday, Branding, Camera, Screen. Audio and Web Page are accepted but skipped with a note (not yet available). Timer: Duration in minutes or a time (10:30). PowerPoint: Main Content = file name (choose it in the app afterwards); PowerPoint Background Visibility Hide = Show objects only |
-| **Questions** | Frame Number · Content Name · Question Number · Label · Question Text · Media · Timer · Animation | The list of a Question Content (same Frame Number and Content Name), in Question Number order. Labels are per question |
-| **Scriptures** | Frame Number · Content Name · Scripture Number · Label · Reference · Text · Translation · Animation | The list of a Scripture Content. Empty Text is fetched from the ESV when a key is set |
+| **Dashboard** | A summary of the meeting, made by formulas from the Meeting Form. You never type on it | No |
+| **Meeting Form** | One guided page, read from top to bottom. Everything you plan goes here | Yes |
 
-**Older workbooks** (6.6 and before) still import. A **Presenter Notes** column on the Frames sheet is read as the
-Teleprompter Script. **Answer Text** and **Notes** on the Questions and Scriptures sheets are added to that Frame's
-Teleprompter script, so nothing is lost and nothing appears on screen. Export no longer writes these columns.
+### The Meeting Form
+The form is one page in nine numbered sections. Type in the **cream** boxes; **Tab** moves to the next one.
 
-### Validation (the import is refused until these are fixed; each problem names its sheet and row)
-- The Frames and Content sheets must exist and have a Frame Number column.
-- Frame Numbers must be whole numbers, and each must be used once.
-- Content, Questions and Scriptures rows must point to an existing Frame. Questions and Scriptures rows must also
-  point to a Content Name in that Frame.
-- Content Types, Backgrounds, Transitions, Animations and PowerPoint Background Visibility must come from the lists.
-- Content Names must be unique within a Frame.
-- A Frame has at most one Question, one Scripture, one Birthday and one Branding Content. Put all of a Frame's
-  questions in its one Question Content.
-- Question Text is required.
-- Every scripture needs a Reference, and Text unless an ESV key is set.
+| Section | Boxes or columns |
+| --- | --- |
+| **1 · Meeting details** | Meeting name · Date · Time · Location / link · Meeting notes |
+| **2 · Speaker** | Speaker name · Speaker contact |
+| **3 · Attendees** | Expected attendees · Attendee notes |
+| **4 · Presentation** | Presentation owner · Content notes |
+| **5 · Frames** | Table: Frame # · Frame name · Purpose / description · Background · Transition · Presenter script |
+| **6 · Content** | Table: Frame # · Order · Content type · Item name · Main content / file · On-screen label · Duration (min) · Animation · PPT background · Notes |
+| **7 · Discussion questions** | Table: Frame # · Content name · Question # · Label · Question text · Media · Timer (min) · Animation |
+| **8 · Scripture readings** | Table: Frame # · Content name · Scripture # · Label · Reference · Scripture text · Translation · Animation |
+| **9 · Additional notes** | Anything else: equipment, follow-ups, prayer requests |
+
+**Typing the details**
+- **Date**: type it like `2026-10-25`. **Time**: like `19:00`.
+- **Expected attendees**: a number, for example `24`.
+- The **Meeting name** also names the group of imported Frames.
+
+**The tables**
+- Each table starts with a header row beginning **Frame #**. Below it, a few empty rows are open.
+- Need more rows? Select the **+** button in the left margin next to the table. The extra rows are grouped (folded)
+  until you open them.
+- Room in each table: **Frames 60**, **Content 150**, **Discussion questions 150**, **Scripture readings 100**.
+- Drop-down lists are built into the cells: Content type, Background, Transition, Animation and PPT background.
+  Frame #, Order, Question # and Scripture # accept whole numbers only.
+
+**What the columns mean**
+
+| Table | Column | What to type |
+| --- | --- | --- |
+| Frames | **Frame #** | 1, 2, 3… One row per Frame, each number used once |
+| Frames | **Background** | None, Navy, Black, White, Brand, or a colour like `#1F3A6D` |
+| Frames | **Transition** | Frame default, Cut, Fade, Cross Dissolve, Dip to Black / White, Slide Left / Right, Push, Zoom Fade, Soft Scale, Cinema Fade |
+| Frames | **Presenter script** | Becomes the Frame's Teleprompter script. Only the presenter sees it |
+| Content | **Frame #** · **Order** | Which Frame it belongs to, and its order inside that Frame |
+| Content | **Content type** | Question, Scripture, Text, Image, Video, Timer, PowerPoint, Free Content, plus Announcement, Prayer Point, Lower Third, Birthday, Branding, Camera, Screen. Audio and Web Page are accepted but skipped with a note (not yet available) |
+| Content | **Item name** | Unique within its Frame. Questions and scriptures use it to find their item |
+| Content | **Main content / file** | The text, or a file name for a picture, video or PowerPoint (choose the file in the app afterwards) |
+| Content | **Duration (min)** | For a Timer: minutes (`5`) or a time (`10:30`) |
+| Content | **Animation** | Content default, Fade, Gentle Rise, Word by Word, Typewriter, Burst, Cut |
+| Content | **PPT background** | Show (the whole slide) or Hide (only the slide's objects) |
+| Discussion questions | **Frame #** · **Content name** | The Frame and the Question item it belongs to, in **Question #** order |
+| Scripture readings | **Scripture text** | Leave it empty to fetch it from the ESV (when a key is set in Settings → Scripture) |
+
+### The Dashboard
+The Dashboard fills itself in from the Meeting Form. It has only formulas, so the import never reads it.
+- **Logo and name** at the top, with a **status pill**: *In N days*, *Today*, *Held*, or *Add the date*.
+- **This meeting**: the name, date, time, location, speaker and days to go.
+- **At a glance**: Frames, Content items, Questions, Scriptures and Expected attendees.
+- **Meetings**: Total meetings, Upcoming, Recent (last 30 days), **Ready x / 6** and Files to choose (pictures,
+  videos and PowerPoint files to choose in the app after the import).
+- **Readiness**: a checklist of six things: a meeting name, a date, a speaker, at least one Frame, content in every
+  Frame, and a presenter script for every Frame.
+- **Quick actions**: links that jump to the right place on the Meeting Form.
+- **Content mix**: a chart of the kinds of Content in the meeting.
+- **Recent meetings**: a log. Its first row is this meeting. Add a row after each meeting, and the **Meetings**
+  tiles count them.
+
+### Import
+**Meeting → Import meeting from Excel…** reads the **Meeting Form**. It finds the details by their labels (for
+example *Speaker name*) and each table by its header row (the row starting with **Frame #**). So a form you make by
+hand in the same style imports too. A numbered heading such as *7 · Discussion questions* ends the table above it.
+
+**Older workbooks** still import:
+- 6.5 to 6.8: one sheet per list (**Meeting Overview**, **Frames**, **Content**, **Questions**, **Scriptures**).
+  Their Meeting Title, Presenter and Notes become the Meeting name, Speaker name and Meeting notes.
+- 6.6 and before: a **Presenter Notes** column is read as the Presenter script. **Answer Text** and **Notes** on
+  questions and scriptures are added to that Frame's Teleprompter script, so nothing is lost and nothing appears on
+  screen.
+- The v6.2 one-sheet template ("Scene Name" column; sections 1–4 below).
+
+### Export
+**Meeting → Export this meeting to Excel** gives the same **Dashboard** and **Meeting Form**, filled in with this
+meeting. The program fills in the template, so the file looks exactly like the one you download. It imports again.
+- If the Kingdom Connect program isn't running, or a table has more rows
+  than the form has room for, a plain one-sheet **Meeting Form** is saved instead. It imports again too.
+- The meeting details are kept with your meeting in `kc-saved-content.json` (`meeting`: title, date, time,
+  location, presenter, contact, attendees, attendeeNotes, owner, contentNotes, notes, extra), so an export gives them
+  back.
+
+### Validation (the import is refused until these are fixed; each problem names its place and row)
+- The Meeting Form must have a **Frames** table and a **Content** table (each with a **Frame #** column).
+- Frame numbers must be whole numbers, and each must be used once.
+- Content, question and scripture rows must point to an existing Frame. Question and scripture rows must also point
+  to an item name in that Frame.
+- Content types, Backgrounds, Transitions, Animations and PPT background must come from the lists.
+- Item names must be unique within a Frame.
+- A Frame has at most one Question, one Scripture, one Birthday and one Branding item. Put all of a Frame's
+  questions in its one Question item.
+- Question text is required.
+- Every scripture needs a Reference, and text unless an ESV key is set.
 - At most 400 Frames.
 
 **Notes** let the import go ahead. For example: a picture or PowerPoint file to choose afterwards, Audio / Web Page
 skipped, a Timer value that isn't minutes or a time.
 
 ### Code
-- `app/js/meeting-book.js`: the sheets, validation, building Frames, export (no UI; tested in Node by
-  `tests/meeting-workbook.test.js`).
+- `app/js/meeting-book.js`: reads the Meeting Form (and older workbooks), validation, building Frames, export (no UI;
+  tested in Node by `tests/meeting-workbook.test.js`).
 - `app/js/meeting-import.js`: the dialog.
 - `app/js/import-worker.js`: reads every sheet in the background.
-- `tools/make_meeting_workbook.py`: writes the template with openpyxl.
+- `meeting_form.py`: the layout of the Meeting Form, and filling the template for an export
+  (`POST api/meeting/workbook` in `server.py`).
+- `tools/make_meeting_workbook.py`: draws the template (`app/templates/Kingdom-Connect-Meeting-Workbook.xlsx`) from
+  that layout with openpyxl.
 - The Excel library (SheetJS) loads only the first time you import, export or download a workbook, so Kingdom
   Connect starts faster.
 
@@ -120,8 +201,9 @@ unchanged.
      `{meeting}` / `{org}` (replaced on screen) or have **Show my logo on this card** ticked.
 6. Two branded templates are available here and in the Content Library: **Meeting Title** (a large centred badge)
    and **Meeting Lower Third** (`{meeting}` over `{org}`, with the logo).
-7. **Export this meeting (Excel)** produces the meeting in the template format. The Read Me sheet carries the
-   Meeting Name and organization, so the file can be shared with co-leaders and imported again.
+7. **Export this meeting (Excel)** produces the meeting in the template format, so the file can be shared with
+   co-leaders and imported again. (In v6.2 a Read Me sheet carried the Meeting Name and organization; since 6.9 the
+   export is the Dashboard and Meeting Form, section 0.)
 
 ### Excel import (Studio → + Scene → Import meeting from Excel…)
 The same entry points are on the empty Scenes list and in Settings → Meeting & Branding.
@@ -154,7 +236,7 @@ The same entry points are on the empty Scenes list and in Settings → Meeting &
   - the canvas badge reads **LIVE**;
   - the scene card shows **LIVE**;
   - a toast says **On air: <scene>**.
-- The Inspector no longer has a take button. The scene ⋯ menu, the phone remote (**GO LIVE**), Presentation Mode and
+- The Inspector no longer has a take button. The scene ⋯ menu, the phone remote (**GO LIVE**), Presentation Mode (removed in 6.9) and
   the keyboard-shortcut list all use the words "Go Live".
 
 ## 2. Data model changes (shared state, `app/js/store.js`)
@@ -167,12 +249,12 @@ The same entry points are on the empty Scenes list and in Settings → Meeting &
 | | `auto` | New scenes get a Branding layer |
 | layer kind `brand` | `c.logo`, `c.name`, `c.org`, `c.pos`, `c.scale` | The Branding badge (a text-type layer: switched on and off with the scene like the other text layers) |
 | text layers | `c.logo` | Show the logo in the card's label row |
-| text layers | `{meeting}`, `{org}` in `c.title` / `c.text` | Replaced on screen (`BSFScenes.brandText`) |
+| text layers | `{meeting}`, `{org}` in `c.title` / `c.text` | Replaced on screen (`KCScenes.brandText`) |
 | scene | `notes` | Leader notes from the Excel Notes column, editable in the Scene Inspector, never shown on screen |
 | library | `lib-meeting-title`, `lib-meeting-lower` | Branded templates |
 
-New helpers in `BSFScenes`: `liveBrand`, `brandText`, `hasBrand`, `brandPalette` (accent → card colours, the same
-maths as `vcam/cards.py accent_palette`), `addBrand`, `autoBrand`. `BSFStore.brand()` gives the header a cheap read.
+New helpers in `KCScenes`: `liveBrand`, `brandText`, `hasBrand`, `brandPalette` (accent → card colours, the same
+maths as `vcam/cards.py accent_palette`), `addBrand`, `autoBrand`. `KCStore.brand()` gives the header a cheap read.
 
 **Server** (`server.py`):
 - `POST api/brand/logo` (this PC only): stores a PNG of up to 8 MB. The PNG header is checked; the response is
@@ -194,7 +276,7 @@ maths as `vcam/cards.py accent_palette`), `addBrand`, `autoBrand`. `BSFStore.bra
 
 ## 3. Excel template structure
 
-The file is made by `BSFMeetingSheet.templateBook`, which is the same code for the in-app download and
+The file is made by `KCMeetingSheet.templateBook`, which is the same code for the in-app download and
 `docs/templates/Kingdom-Connect-Meeting-Template.xlsx` (written by `node tools/make_meeting_template.js`).
 
 **Sheets:**

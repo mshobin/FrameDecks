@@ -48,20 +48,20 @@ in your browser.
 
 | Environment variable | Effect |
 | --- | --- |
-| `BSF_DATA_DIR` | Use another data folder. Always set this while developing, so you never touch real meeting or member data. |
-| `BSF_VCAM_DEMO=1` | Use a moving **test camera** instead of a webcam, and treat the KingdomConnect camera as installed. The full camera pipeline (cards, annotation, previews, the phone's live picture) works without a webcam or Windows. |
-| `BSF_ESV_URL` | Point the scripture lookup at another address (tests). |
+| `KC_DATA_DIR` | Use another data folder. Always set this while developing, so you never touch real meeting or member data. |
+| `KC_VCAM_DEMO=1` | Use a moving **test camera** instead of a webcam, and treat the KingdomConnect camera as installed. The full camera pipeline (cards, annotation, previews, the phone's live picture) works without a webcam or Windows. |
+| `KC_ESV_URL` | Point the scripture lookup at another address (tests). |
 
 A typical development start:
 
 ```bash
 # macOS / Linux
-BSF_DATA_DIR=/tmp/kc-dev BSF_VCAM_DEMO=1 python server.py --no-browser --remote
+KC_DATA_DIR=/tmp/kc-dev KC_VCAM_DEMO=1 python server.py --no-browser --remote
 ```
 
 ```powershell
 # Windows PowerShell
-$env:BSF_DATA_DIR = "$env:TEMP\kc-dev"; $env:BSF_VCAM_DEMO = "1"
+$env:KC_DATA_DIR = "$env:TEMP\kc-dev"; $env:KC_VCAM_DEMO = "1"
 python server.py --no-browser --remote
 ```
 
@@ -74,8 +74,8 @@ To run the desktop shell (the installed app's window, tray icon and Presentation
 python desktop_app.py
 ```
 
-The Windows start files in the repository root (`Start BSF Command Center.bat`, `Start BSF Command Center with iPad
-Remote.bat`, `Start BSF Command Center (Mac).command`) run `server.py` the same way for people using the zip version.
+The Windows start files in the repository root (`Start Kingdom Connect.bat`, `Start Kingdom Connect with Phone
+Remote.bat`, `Start Kingdom Connect (Mac).command`) run `server.py` the same way for people using the zip version.
 
 ---
 
@@ -90,14 +90,14 @@ Remote.bat`, `Start BSF Command Center (Mac).command`) run `server.py` the same 
 | `app/remote.html` | The phone and tablet remote. |
 | `app/stage.html`, `focus-verse.html`, `discussion-question.html`, `birthday.html` | Overlay pages for OBS and browser sources; the Studio Canvas preview uses `stage.html`. |
 | `app/present.html`, `app/speaker.html` | The Presentation window fallback and the Teleprompter window (called Speaker View before 6.7). |
-| `app/js/store.js` | The shared state: defaults, `normalize`, the Frame helpers (`BSFScenes`), syncing with `server.py`. |
+| `app/js/store.js` | The shared state: defaults, `normalize`, the Frame helpers (`KCScenes`), syncing with `server.py`. |
 | `app/js/workspace.js` | Frames, Content, the Content Settings panel and the Studio Canvas. |
 | `app/js/frame-lists.js` | A Frame's own question and scripture lists, and the in-panel editor. |
 | `app/js/*.js` | One feature per file (`annotate.js`, `preview-edit.js`, `speaker.js`, `remote.js`, `meeting-book.js` …). |
 | `app/css/theme.css` | Design tokens (colours, radii, type) and most component styles. |
 | `app/vendor/` | Third-party browser libraries (SheetJS for Excel). Don't edit; replace with a newer release. |
 | `vcam/` | The KingdomConnect camera pipeline: engine loop, webcam, blur, Camera Looks, layers, compositor, cards, annotation, PowerPoint, the DirectShow sink. |
-| `packaging/` | PyInstaller spec (`bsf.spec`), Inno Setup script (`installer.iss`), the self-check (`check.py`), version reader (`get_version.py`), camera build helper (`build_vcam.py`), desktop requirements. |
+| `packaging/` | PyInstaller spec (`kingdom-connect.spec`), Inno Setup script (`installer.iss`), the self-check (`check.py`), version reader (`get_version.py`), camera build helper (`build_vcam.py`), desktop requirements. |
 | `tests/` | Automated tests (`*.test.js`) and the runner (`run.js`). |
 | `tools/` | Maintainer scripts: the Meeting Workbook generator, world map generator, iPad remote firewall helpers. |
 | `samples/` | Example member spreadsheets. |
@@ -110,18 +110,18 @@ Remote.bat`, `Start BSF Command Center (Mac).command`) run `server.py` the same 
 
 ```mermaid
 flowchart LR
-  UI["Dashboard (app/js)"] -- "BSFCommit(fn)" --> Store["store.js normalize"]
+  UI["Dashboard (app/js)"] -- "KCCommit(fn)" --> Store["store.js normalize"]
   Remote["Phone remote"] -- "Store.update" --> Store
   Store -- "POST /api/state" --> Server["server.py save_state"]
-  Server -- "atomic write" --> File[("bsf-saved-content.json")]
+  Server -- "atomic write" --> File[("kc-saved-content.json")]
   Server -- "rev changes (long poll)" --> Pages["Overlay pages, remote, Teleprompter window"]
   Server -- "kick()" --> Engine["vcam engine + compositor"]
   Engine --> Cam["KingdomConnect camera"]
 ```
 
-1. A page changes state through `window.BSFCommit(fn)` (or `Store.update(fn)` on the remote). `fn` edits a copy of
+1. A page changes state through `window.KCCommit(fn)` (or `Store.update(fn)` on the remote). `fn` edits a copy of
    the state; `store.js` runs `normalize` so every field is valid, then posts it to `POST /api/state`.
-2. `server.py` `save_state` bumps `rev`, writes `bsf-saved-content.json` atomically (temporary file, then replace),
+2. `server.py` `save_state` bumps `rev`, writes `kc-saved-content.json` atomically (temporary file, then replace),
    wakes every waiting page and kicks the camera engine so a shown card appears at once.
 3. Every other page (overlays, the remote, the Teleprompter window, other windows) learns about the new `rev` and reloads the
    state. The camera pipeline reads the same state on its next frame.
@@ -178,7 +178,7 @@ failure. `tests/helpers/load-store.js` loads `app/js/store.js` with small browse
 - **Look at the state.** <http://localhost:8750/api/state> shows the current state as JSON.
 - **Diagnostics.** Settings → Diagnostics shows request counts, the camera's frame rate, capture-to-send time and
   dropped frames. **Copy diagnostics** gives a support-safe summary.
-- **The camera without a webcam.** `BSF_VCAM_DEMO=1` gives a moving test picture; `/api/vcam/preview.jpg` is the
+- **The camera without a webcam.** `KC_VCAM_DEMO=1` gives a moving test picture; `/api/vcam/preview.jpg` is the
   camera's current picture (this PC only).
 - **The phone remote on one machine.** Start with `--remote`, read the PIN and addresses from
   <http://localhost:8750/api/remote-info>, and open `http://<address>:8750/remote.html` in a narrow browser window or

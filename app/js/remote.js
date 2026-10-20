@@ -1,5 +1,5 @@
-/* BSF Command Center v6 - Kingdom Connect Mobile Director: the phone / tablet remote. Same architecture as the PC:
- * Scene → Layer → Canvas. The scenes, layers and live state are the shared state (js/store.js BSFScenes), so a
+/* Kingdom Connect v6 - Kingdom Connect Mobile Director: the phone / tablet remote. Same architecture as the PC:
+ * Scene → Layer → Canvas. The scenes, layers and live state are the shared state (js/store.js KCScenes), so a
  * take, a layer's eye or a duplicate here is exactly the same action as on the PC. Member data never comes here.
  *   phones  : Live (canvas, Prev · Go Live · Next, transition, Q + Scripture, list stepper, program) · Scenes · Layers
  *   tablets : three panes - Scenes | Canvas + live controls | Layers - a control surface
@@ -8,7 +8,7 @@
  *             Ids presenter · admin; a saved "leader" (Standard) opens Advanced. A layout is a display choice, not a permission. */
 (function(){
 'use strict';
-var Store = window.BSFStore, SC = window.BSFScenes, P = window.BSFPresent, T = window.BSFTransitions;
+var Store = window.KCStore, SC = window.KCScenes, P = window.KCPresent, T = window.KCTransitions;
 var $ = function(id){ return document.getElementById(id); };
 var all = function(sel){ return Array.prototype.slice.call(document.querySelectorAll(sel)); };
 var live = null, selScene = '', selLayer = '';
@@ -18,7 +18,7 @@ var toastT;
 function toast(msg, bad){ var t = $('toast'); t.textContent = msg; t.className = 'toast show' + (bad ? ' bad' : ''); clearTimeout(toastT); toastT = setTimeout(function(){ t.className = 'toast'; }, bad ? 3500 : 1500); }
 /* A short vibration confirms a press on Android phones (iPhone Safari does not allow it) */
 function buzz(ms){ try { if (navigator.vibrate) navigator.vibrate(ms); } catch(e){} }
-if (window.BSFBrand) all('[data-credit]').forEach(function(p){ p.textContent = BSFBrand.name + ' · ' + BSFBrand.tagline + '. By ' + BSFBrand.creator.name + ' · ' + BSFBrand.creator.email + '. ' + BSFBrand.disclaimer; });
+if (window.KCBrand) all('[data-credit]').forEach(function(p){ p.textContent = KCBrand.name + ' · ' + KCBrand.tagline + '. By ' + KCBrand.creator.name + ' · ' + KCBrand.creator.email + '. ' + KCBrand.disclaimer; });
 function lsGet(k, d){ try { var v = localStorage.getItem(k); return v === null ? d : v; } catch(e){ return d; } }
 function lsSet(k, v){ try { localStorage.setItem(k, v); } catch(e){} }
 
@@ -35,7 +35,7 @@ $('login-form').addEventListener('submit', function(e){
       if (res.status === 200){ $('pin').value = ''; showApp(); toast('Connected'); return; }
       $('pin').value = '';
       $('login-msg').textContent = res.status === 429 ? 'Too many tries. Wait ' + res.d.wait + ' seconds and try again.'
-        : res.status === 401 ? 'That PIN isn’t right. Check the PIN on your PC.' : 'Remote mode isn’t on. Start the PC with “Start BSF Command Center with iPad Remote”.';
+        : res.status === 401 ? 'That PIN isn’t right. Check the PIN on your PC.' : 'Remote mode isn’t on. Start the PC with “Start Kingdom Connect with iPad Remote”.';
     })
     .catch(function(){ $('login-msg').textContent = 'Can’t reach your PC. Check it’s on the same Wi-Fi and the program is running.'; });
 });
@@ -219,7 +219,7 @@ if (window.ResizeObserver) new ResizeObserver(scale).observe($('canvas'));
  * (the simple remote opens it straight to full screen). */
 var tp = null, tpFrame = null, tpFullBtn = null, tpHome = null;
 function prompterShow(sc){
-  var box = $('now-tp'); if (!box || !window.BSFPrompter) return;
+  var box = $('now-tp'); if (!box || !window.KCPrompter) return;
   tpFrame = sc || null; box.hidden = !sc && !box.classList.contains('full');
   if (tp && box.open) tp.update(live, tpFrame);
 }
@@ -232,14 +232,14 @@ function prompterFull(on){
   if (tp && live) tp.update(live, tpFrame);
 }
 (function(){
-  var box = $('now-tp'); if (!box || !window.BSFPrompter) return;
+  var box = $('now-tp'); if (!box || !window.KCPrompter) return;
   try { box.open = localStorage.getItem('kc-tp-remote-open') === '1'; } catch(e){}
   box.addEventListener('toggle', function(){
     if (!box.classList.contains('full')) try { localStorage.setItem('kc-tp-remote-open', box.open ? '1' : '0'); } catch(e){}
     if (box.open && !tp){
       tpFullBtn = document.createElement('button'); tpFullBtn.type = 'button'; tpFullBtn.className = 'tp-btn tp-full'; tpFullBtn.textContent = '⤢'; tpFullBtn.title = 'Full screen'; tpFullBtn.setAttribute('aria-label', 'Full screen');
       tpFullBtn.addEventListener('click', function(){ prompterFull(!box.classList.contains('full')); });
-      tp = window.BSFPrompter.create($('now-tp-body'), {key: 'remote', compact: true, extra: [tpFullBtn]});
+      tp = window.KCPrompter.create($('now-tp-body'), {key: 'remote', compact: true, extra: [tpFullBtn]});
     }
     if (tp){ if (box.open && live) tp.update(live, tpFrame); else tp.play(false); }
   });

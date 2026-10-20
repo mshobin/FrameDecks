@@ -39,7 +39,7 @@ def brand_text(st, s):
 
 
 def live_brand(st, output="vcam"):
-    """v6.2 The live scene's Branding layers that have something to show (same rules as BSFScenes.liveBrand)."""
+    """v6.2 The live scene's Branding layers that have something to show (same rules as KCScenes.liveBrand)."""
     live = st.get("live") or {}
     sc = next((x for x in st.get("scenes") or [] if isinstance(x, dict) and x.get("id") == live.get("scene")), None)
     if not sc or (sc.get("out") or {}).get(output) is False:
@@ -57,7 +57,7 @@ def _ease(t):
 
 
 def live_text(st, output="vcam"):
-    """The live scene's text layers shown on this output (same rules as BSFScenes.liveText)."""
+    """The live scene's text layers shown on this output (same rules as KCScenes.liveText)."""
     live = st.get("live") or {}
     sid = live.get("scene")
     if not sid:

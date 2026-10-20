@@ -9,7 +9,7 @@
  */
 (function(){
 'use strict';
-var Store = window.BSFStore, SC = window.BSFScenes, I = window.BSFIcon;
+var Store = window.KCStore, SC = window.KCScenes, I = window.KCIcon;
 var root = document.getElementById('meeting-body'); if (!root || !Store || !SC) return;
 function $(id){ return document.getElementById(id); }
 function h(tag, attrs, kids){
@@ -18,8 +18,8 @@ function h(tag, attrs, kids){
   (kids || []).forEach(function(c){ if (c != null) el.appendChild(typeof c === 'string' ? document.createTextNode(c) : c); });
   return el;
 }
-function toast(m, bad){ if (window.BSFActions) window.BSFActions.toast(m, bad); }
-function commit(fn){ return window.BSFCommit(fn); }
+function toast(m, bad){ if (window.KCActions) window.KCActions.toast(m, bad); }
+function commit(fn){ return window.KCCommit(fn); }
 var live = null, timers = {};
 function later(k, fn){ clearTimeout(timers[k]); timers[k] = setTimeout(fn, 350); }
 var SWATCHES = [['', 'Gold (default)', '#d9ab4a'], ['#1f3a6d', 'Navy'], ['#2f6fb0', 'Blue'], ['#0f766e', 'Teal'], ['#15803d', 'Green'],
@@ -123,7 +123,7 @@ function removeBackground(){
     }
     return new Promise(function(ok){ res.canvas.toBlob(ok, 'image/png'); }).then(savePng).then(function(){
       var msg = 'Background removed';
-      if (window.BSFActions && window.BSFActions.toastAction) window.BSFActions.toastAction(msg, 'Undo', function(){ savePng(before).then(function(){ toast('Logo restored'); }); });
+      if (window.KCActions && window.KCActions.toastAction) window.KCActions.toastAction(msg, 'Undo', function(){ savePng(before).then(function(){ toast('Logo restored'); }); });
       else toast(msg);
     });
   }).catch(function(e){ toast(e.message || 'The background could not be removed.', true); })
@@ -219,10 +219,10 @@ function build(){
       h('button', {cls: 'btn small', type: 'button', html: I('star', 15) + ' Add a Meeting Title Frame', onclick: function(){ addLib('lib-meeting-title'); }}),
       h('button', {cls: 'btn small', type: 'button', html: I('panel-bottom', 15) + ' Add a Meeting lower third Frame', onclick: function(){ addLib('lib-meeting-lower'); }})]),
     h('div', {cls: 'actions mb-acts'}, [
-      h('button', {cls: 'btn small', type: 'button', html: I('file-text', 15) + ' Download the Excel template', onclick: function(){ if (window.BSFMeetingImport) window.BSFMeetingImport.template(); }}),
-      h('button', {cls: 'btn small', type: 'button', html: I('folder-open', 15) + ' Import a meeting from Excel…', onclick: function(){ if (window.BSFMeetingImport) window.BSFMeetingImport.pick(); }}),
-      h('button', {cls: 'btn small', type: 'button', html: I('external-link', 15) + ' Export this meeting (Excel)', onclick: function(){ if (window.BSFMeetingImport) window.BSFMeetingImport.exportMeeting(); }})]),
-    h('p', {cls: 'hint', text: 'The exported file uses the same template, with your Meeting Name and organization on its Read Me sheet, so it can be shared with co-leaders and imported again.'})]));
+      h('button', {cls: 'btn small', type: 'button', html: I('file-text', 15) + ' Download the Excel template', onclick: function(){ if (window.KCMeetingImport) window.KCMeetingImport.template(); }}),
+      h('button', {cls: 'btn small', type: 'button', html: I('folder-open', 15) + ' Import a meeting from Excel…', onclick: function(){ if (window.KCMeetingImport) window.KCMeetingImport.pick(); }}),
+      h('button', {cls: 'btn small', type: 'button', html: I('external-link', 15) + ' Export this meeting (Excel)', onclick: function(){ if (window.KCMeetingImport) window.KCMeetingImport.exportMeeting(); }})]),
+    h('p', {cls: 'hint', text: 'The exported file uses the same template (Dashboard and Meeting Form), filled in, so it can be shared with co-leaders and imported again.'})]));
 }
 function addLib(id){
   var made = null;
@@ -269,13 +269,13 @@ Store.subscribe(function(st){
   live = st;
   // 6.1 and earlier kept a "Meeting title" in General settings: use it once as the Meeting Name
   try {
-    if (!st.brand.meeting && !localStorage.getItem('kc-brand-migrated') && window.BSFMembersAPI){
-      var t = (window.BSFMembersAPI.settings() || {}).meetingTitle;
-      if (t && t !== 'BSF Meeting'){ localStorage.setItem('kc-brand-migrated', '1'); commit(function(n){ if (!n.brand.meeting) n.brand.meeting = String(t).slice(0, 80); }); }
+    if (!st.brand.meeting && !localStorage.getItem('kc-brand-migrated') && window.KCMembersAPI){
+      var t = (window.KCMembersAPI.settings() || {}).meetingTitle;
+      if (t && t !== 'Meeting'){ localStorage.setItem('kc-brand-migrated', '1'); commit(function(n){ if (!n.brand.meeting) n.brand.meeting = String(t).slice(0, 80); }); }
     }
   } catch(e){}
   render();
 });
-(window.BSFSectionHooks = window.BSFSectionHooks || []).push(function(id){ if (id === 'meeting') render(); });
-window.BSFBrandSettings = {render: render, setBranding: setBranding, removeBackground: removeBackground, knockOut: knockOut};
+(window.KCSectionHooks = window.KCSectionHooks || []).push(function(id){ if (id === 'meeting') render(); });
+window.KCBrandSettings = {render: render, setBranding: setBranding, removeBackground: removeBackground, knockOut: knockOut};
 })();

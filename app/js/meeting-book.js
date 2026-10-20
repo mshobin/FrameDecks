@@ -1,5 +1,10 @@
-/* Kingdom Connect v6.5 - the Meeting Workbook: one Excel file with five sheets plans, reviews and hands over a meeting.
+/* Kingdom Connect - the Meeting Workbook: one Excel file plans, reviews and hands over a meeting.
  *
+ * 6.9 the workbook has two tabs: Dashboard (a summary made by formulas; never read) and Meeting Form, one guided page
+ * with the meeting details (label | value) and four tables, each under its own numbered heading ("6 · Frames"):
+ *   Frames · Content · Discussion questions · Scripture readings   (a table starts at its "Frame #" header row)
+ * formBook() turns the Meeting Form into the five lists below, so one parser serves both layouts. Workbooks from
+ * 6.5-6.8 (one sheet per list) still import:
  *   Meeting Overview   Meeting Title · Date · Presenter · Notes                      (Field | Value)
  *   Frames             Frame Number · Frame Name · Description · Background · Transition · Presenter Notes
  *   Content            Frame Number · Content Order · Content Type · Content Name · Main Content · Label · Duration ·
@@ -11,28 +16,31 @@
  *
  * Excel is optional: the app works without it. After an import the app is the source of truth (the file is not linked).
  * This file has no user interface (it also runs in Node for the tests):
- *   isBook(sheetNames)            -> true when the file is a Meeting Workbook (has Frames and Content sheets)
- *   parse(book, ctx)              -> plan {frames, meeting, errors, warnings, counts, fetch}
+ *   isBook(sheetNames)            -> true when the file is a 6.5-6.8 Meeting Workbook (has Frames and Content sheets)
+ *   bookOf(d)                     -> {book, form} from the import worker's result (Meeting Form or older workbook), or null
+ *   parse(book, ctx)              -> plan {frames, meeting, errors, warnings, counts, fetch}  (ctx.form: the form's sheet name)
  *   apply(n, plan, opts)          -> creates the Frames in state n (each with its own Content and lists)
- *   exportBook(X, st)             -> this meeting as a Meeting Workbook (same sheets: it can be imported again)
+ *   exportSheets(st)              -> the meeting details and the four tables (the program fills the styled form with them:
+ *                                    POST api/meeting/workbook, meeting_form.py)
+ *   exportBook(X, st)             -> the same as a plain one-sheet Meeting Form (when the program is not running)
  */
 (function(){
 'use strict';
-var SC = window.BSFScenes;
+var SC = window.KCScenes;
 
 var SHEETS = {
   meeting: {name: 'Meeting Overview', cols: [['field', 'Field', ['field', 'item', 'name']], ['value', 'Value', ['value', 'answer', 'details']]]},
   frames: {name: 'Frames', cols: [['frame', 'Frame Number', ['framenumber', 'frame', 'frameno', 'frame#', 'number']], ['name', 'Frame Name', ['framename', 'name', 'title']],
-    ['desc', 'Description', ['description', 'desc', 'purpose']], ['bg', 'Background', ['background', 'backgroundstyle', 'bg']],
-    ['tx', 'Transition', ['transition', 'tx']], ['notes', 'Teleprompter Script', ['teleprompterscript', 'teleprompter', 'script', 'presenternotes', 'notes', 'leadernotes']]]},
+    ['desc', 'Description', ['description', 'desc', 'purpose', 'purposedescription']], ['bg', 'Background', ['background', 'backgroundstyle', 'bg']],
+    ['tx', 'Transition', ['transition', 'tx']], ['notes', 'Teleprompter Script', ['teleprompterscript', 'teleprompter', 'script', 'presenterscript', 'presenternotes', 'notes', 'leadernotes']]]},
   content: {name: 'Content', cols: [['frame', 'Frame Number', ['framenumber', 'frame', 'frameno', 'frame#']], ['order', 'Content Order', ['contentorder', 'order', 'contentno']],
-    ['type', 'Content Type', ['contenttype', 'type']], ['name', 'Content Name', ['contentname', 'name']], ['main', 'Main Content', ['maincontent', 'content', 'text', 'file']],
-    ['label', 'Label', ['label', 'title', 'heading']], ['duration', 'Duration', ['duration', 'minutes', 'time']], ['anim', 'Animation', ['animation', 'effect', 'transition']],
+    ['type', 'Content Type', ['contenttype', 'type']], ['name', 'Content Name', ['contentname', 'name', 'itemname']], ['main', 'Main Content', ['maincontent', 'content', 'text', 'file', 'maincontentfile']],
+    ['label', 'Label', ['label', 'title', 'heading', 'onscreenlabel']], ['duration', 'Duration', ['duration', 'minutes', 'time', 'durationmin']], ['anim', 'Animation', ['animation', 'effect', 'transition']],
     ['pptbg', 'PowerPoint Background Visibility', ['powerpointbackgroundvisibility', 'pptbackground', 'slidebackground', 'backgroundvisibility']],
     ['notes', 'Notes', ['notes', 'note']]]},
   questions: {name: 'Questions', cols: [['frame', 'Frame Number', ['framenumber', 'frame', 'frameno', 'frame#']], ['content', 'Content Name', ['contentname', 'content']],
     ['num', 'Question Number', ['questionnumber', 'number', 'no', 'question#']], ['label', 'Label', ['label']], ['text', 'Question Text', ['questiontext', 'question', 'text']],
-    ['media', 'Media', ['media']], ['timer', 'Timer', ['timer', 'minutes']], ['anim', 'Animation', ['animation', 'effect', 'transition']],
+    ['media', 'Media', ['media']], ['timer', 'Timer', ['timer', 'minutes', 'timermin']], ['anim', 'Animation', ['animation', 'effect', 'transition']],
     /* 6.7: answers and notes were removed from questions. Older workbooks still import: they go into the Frame's
        teleprompter script as talking points (never on screen). Legacy columns are read, never written. */
     ['answer', 'Answer Text', ['answertext', 'answer'], {legacy: true}], ['notes', 'Notes', ['notes', 'note'], {legacy: true}]]},
@@ -41,6 +49,25 @@ var SHEETS = {
     ['text', 'Text', ['text', 'versetext', 'scripturetext']], ['version', 'Translation', ['translation', 'version', 'bibleversion']], ['anim', 'Animation', ['animation', 'effect', 'transition']],
     ['notes', 'Notes', ['notes', 'note'], {legacy: true}]]}
 };
+/* 6.9 the meeting details: [key, label on the Meeting Form, other labels it is known by, longest length]. The labels of
+   older workbooks (Meeting Title, Presenter, Notes) are in the lists. st.meeting has the same keys (js/store.js). */
+var FIELDS = [
+  ['title', 'Meeting name', ['meetingname', 'meetingtitle', 'title', 'meeting'], 80],
+  ['date', 'Date', ['date', 'meetingdate'], 40],
+  ['time', 'Time', ['time', 'starttime', 'meetingtime'], 40],
+  ['location', 'Location / link', ['locationlink', 'location', 'venue', 'place', 'link', 'meetinglink'], 200],
+  ['presenter', 'Speaker name', ['speakername', 'speaker', 'presenter', 'leader'], 80],
+  ['contact', 'Speaker contact', ['speakercontact', 'contact', 'phoneoremail', 'email', 'phone'], 120],
+  ['attendees', 'Expected attendees', ['expectedattendees', 'attendees', 'attendeecount', 'numberofattendees'], 20],
+  ['attendeeNotes', 'Attendee notes', ['attendeenotes'], 2000],
+  ['owner', 'Presentation owner', ['presentationowner', 'owner'], 80],
+  ['contentNotes', 'Content notes', ['contentnotes', 'presentationnotes'], 2000],
+  ['notes', 'Meeting notes', ['meetingnotes', 'notes'], 2000],
+  ['extra', 'Additional notes', ['additionalnotes', 'othernotes'], 4000]
+];
+function fieldOf(label){ var n = norm(label); for (var i = 0; i < FIELDS.length; i++) if (FIELDS[i][2].indexOf(n) >= 0) return FIELDS[i]; return null; }
+function emptyMeeting(){ var m = {}; FIELDS.forEach(function(f){ m[f[0]] = ''; }); return m; }
+
 /* Allowed values (the template's dropdowns use the same lists) */
 var CONTENT_TYPES = ['Question', 'Scripture', 'Text', 'Image', 'Video', 'Audio', 'Timer', 'PowerPoint', 'Web Page', 'Free Content'];
 var FREE_TYPES = ['Announcement', 'Prayer Point', 'Lower Third', 'Birthday', 'Branding', 'Camera', 'Screen'];
@@ -74,6 +101,64 @@ function sheetOf(book, key){
 }
 function isBook(names){ var s = (names || []).map(norm); return s.indexOf('frames') >= 0 && s.indexOf('content') >= 0; }
 
+/* ---------- 6.9 the Meeting Form: one sheet, read as the five lists ---------- */
+var FRAME_COL = ['frame#', 'framenumber', 'frameno', 'frame'];
+var FORM_TITLE = {'Meeting Overview': 'Meeting details', Frames: 'Frames', Content: 'Content', Questions: 'Discussion questions', Scriptures: 'Scripture readings'};
+/* the Meeting Form's four tables: title and column names (the same order as exportSheets) */
+var FORM_TABLES = [
+  ['frames', 'Frames', ['Frame #', 'Frame name', 'Purpose / description', 'Background', 'Transition', 'Presenter script']],
+  ['content', 'Content', ['Frame #', 'Order', 'Content type', 'Item name', 'Main content / file', 'On-screen label', 'Duration (min)', 'Animation', 'PPT background', 'Notes']],
+  ['questions', 'Discussion questions', ['Frame #', 'Content name', 'Question #', 'Label', 'Question text', 'Media', 'Timer (min)', 'Animation']],
+  ['scriptures', 'Scripture readings', ['Frame #', 'Content name', 'Scripture #', 'Label', 'Reference', 'Scripture text', 'Translation', 'Animation']]];
+function tableKind(cells){
+  var n = cells.map(norm);
+  if (!n.some(function(x){ return FRAME_COL.indexOf(x) >= 0; })) return null;
+  function has(){ for (var i = 0; i < arguments.length; i++) if (n.indexOf(arguments[i]) >= 0) return true; return false; }
+  if (has('framename')) return 'frames';
+  if (has('contenttype')) return 'content';
+  if (has('questiontext', 'question#', 'questionnumber')) return 'questions';
+  if (has('reference', 'scripture#', 'scripturenumber')) return 'scriptures';
+  return null;
+}
+/* a section heading ("6 · Frames", "3. Presentation content") ends the table above it */
+function isHeading(cells){ var f = cells.filter(function(c){ return trim(c) !== ''; }); return f.length === 1 && /^\d{1,2}\s*[·.):\-]\s*\D/.test(trim(f[0])); }
+function isForm(grid){ return (grid || []).some(function(r){ return tableKind(r) === 'frames'; }); }
+/* grid: the sheet's rows as text (row i is Excel row first + i). Returns a book like an older workbook's. */
+function formBook(grid, first){
+  first = first || 1;
+  var book = {}, used = {}, meeting = [['Field', 'Value']];
+  for (var i = 0; i < grid.length; i++){
+    var kind = tableKind(grid[i]);
+    if (!kind || book[SHEETS[kind].name]) continue;
+    used[i] = 1;
+    var sh = book[SHEETS[kind].name] = {headers: grid[i].map(trim), headerRow: first + i, rows: []};
+    for (var j = i + 1; j < grid.length && !isHeading(grid[j]) && !tableKind(grid[j]); j++){ used[j] = 1; sh.rows.push(grid[j]); }
+  }
+  // the details: a known label, and its value in the next filled cell to its right
+  var seen = {};
+  grid.forEach(function(r, i){
+    if (used[i]) return;
+    for (var c = 0; c < r.length; c++){
+      var f = fieldOf(r[c]); if (!f || seen[f[0]]) continue;
+      for (var v = c + 1; v < r.length; v++) if (trim(r[v])){ seen[f[0]] = 1; meeting.push([f[1], trim(r[v])]); c = v; break; }
+    }
+  });
+  book[SHEETS.meeting.name] = {headers: ['Field', 'Value'], headerRow: 0, rows: meeting.slice(1)};
+  return book;
+}
+/* the import worker's result -> {book, form} (form = the Meeting Form's sheet name, '' for an older workbook) */
+function bookOf(d){
+  if (!d) return null;
+  if (isBook(d.sheets)) return {book: d.book, form: ''};
+  var grids = d.grids || {}, names = Object.keys(grids);
+  names.sort(function(a, b){ return (norm(b) === 'meetingform') - (norm(a) === 'meetingform'); });
+  for (var i = 0; i < names.length; i++){
+    var g = grids[names[i]];
+    if (isForm(g.rows)) return {book: formBook(g.rows, g.first), form: names[i]};
+  }
+  return null;
+}
+
 /* Read one sheet into objects {row, <key>: text} using the column names (or their aliases) */
 function rowsOf(book, key, errors){
   var sh = sheetOf(book, key); if (!sh) return null;
@@ -95,18 +180,14 @@ function parse(book, ctx){
   var errors = [], warnings = [], fetchList = [];
   function err(sheet, row, msg){ errors.push({sheet: sheet, row: row, msg: msg}); }
   function warn(sheet, row, msg){ warnings.push({sheet: sheet, row: row, msg: msg}); }
-  var plan = {frames: [], meeting: {title: '', date: '', presenter: '', notes: ''}, errors: errors, warnings: warnings, fetch: fetchList, counts: {}};
-  // Meeting Overview (optional)
+  var plan = {frames: [], meeting: emptyMeeting(), errors: errors, warnings: warnings, fetch: fetchList, counts: {}, form: ctx.form || ''};
+  // the meeting details (optional)
   (rowsOf(book, 'meeting', errors) || []).forEach(function(r){
-    var f = norm(r.field);
-    if (f === 'meetingtitle' || f === 'title' || f === 'meeting') plan.meeting.title = r.value.slice(0, 80);
-    else if (f === 'date') plan.meeting.date = r.value.slice(0, 40);
-    else if (f === 'presenter' || f === 'leader') plan.meeting.presenter = r.value.slice(0, 80);
-    else if (f === 'notes') plan.meeting.notes = r.value.slice(0, 2000);
+    var f = fieldOf(r.field); if (f) plan.meeting[f[0]] = r.value.slice(0, f[3]);
   });
   var frames = rowsOf(book, 'frames', errors), content = rowsOf(book, 'content', errors);
-  if (!frames) err('Frames', 0, 'The workbook has no “Frames” sheet.');
-  if (!content) err('Content', 0, 'The workbook has no “Content” sheet.');
+  if (!frames) err('Frames', 0, ctx.form ? 'The Meeting Form has no Frames table (its header row starts with “Frame #” and “Frame name”).' : 'The workbook has no “Frames” sheet.');
+  if (!content) err('Content', 0, ctx.form ? 'The Meeting Form has no Content table (its header row has “Frame #” and “Content type”).' : 'The workbook has no “Content” sheet.');
   if (errors.length) return finish(plan);
   var byNum = {};
   frames.forEach(function(r){
@@ -213,6 +294,10 @@ function finish(plan){
   plan.counts = c;
   var order = {'Meeting Overview': 0, Frames: 1, Content: 2, Questions: 3, Scriptures: 4};
   [plan.errors, plan.warnings].forEach(function(a){ a.sort(function(x, y){ return (order[x.sheet] || 0) - (order[y.sheet] || 0) || x.row - y.row; }); });
+  if (plan.form) [plan.errors, plan.warnings].forEach(function(a){      // one sheet: say the section, and "section" for "sheet"
+    a.forEach(function(e){ e.sheet = plan.form + ' · ' + (FORM_TITLE[e.sheet] || e.sheet);
+      e.msg = e.msg.replace(/\b(Frames|Content|Questions|Scriptures)( \/ Scriptures)? sheets?\b/g, function(m, a1, a2){ return (FORM_TITLE[a1] || a1) + (a2 ? ' / Scripture readings' : '') + ' table'; }); });
+  });
   return plan;
 }
 
@@ -228,7 +313,7 @@ function apply(n, plan, opts){
     n.scenes = n.scenes.filter(function(s){ return s.tpl; });
   }
   var m = plan.meeting, group = (m.title || opts.group || '').slice(0, 60), now = Date.now(), made = [], accent = (n.brand && n.brand.color) || '#1f3a6d';
-  if (m.title || m.date || m.presenter || m.notes) n.meeting = {title: m.title, date: m.date, presenter: m.presenter, notes: m.notes};
+  if (FIELDS.some(function(f){ return m[f[0]]; })) n.meeting = Object.assign(emptyMeeting(), m);
   plan.frames.forEach(function(F){
     var sc = SC.cleanScene({id: rid('sc_'), name: SC.uniqueName(n, F.name), group: group, created: now, modified: now, creator: opts.creator || '', from: 'Excel import',
       template: opts.file || 'Excel', notes: [F.notes, F.prompts && F.prompts.length ? F.prompts.join('\n') : '', F.desc ? 'About this Frame: ' + F.desc : ''].filter(Boolean).join('\n'), tx: {type: F.tx, ms: 500}});
@@ -280,7 +365,7 @@ var BG_NAME = {'#0b1222': 'Navy', '#000000': 'Black', '#ffffff': 'White'};
 function header(key){ return SHEETS[key].cols.filter(function(c){ return !(c[3] && c[3].legacy); }).map(function(c){ return c[1]; }); }
 function exportSheets(st){
   var m = st.meeting || {}, frames = st.scenes.filter(function(s){ return !s.tpl; });
-  var out = {meeting: [['Field', 'Value'], ['Meeting Title', m.title || (st.brand && st.brand.meeting) || ''], ['Date', m.date || ''], ['Presenter', m.presenter || ''], ['Notes', m.notes || '']],
+  var out = {meeting: [['Field', 'Value']].concat(FIELDS.map(function(f){ return [f[1], f[0] === 'title' ? m.title || (st.brand && st.brand.meeting) || '' : m[f[0]] || '']; })),
     frames: [header('frames')], content: [header('content')], questions: [header('questions')], scriptures: [header('scriptures')]};
   frames.forEach(function(sc, i){
     var num = i + 1, bgL = sc.layers.filter(function(l){ return l.kind === 'background'; })[0], bgc = bgL ? ((bgL.c.props || {}).color || '') : '';
@@ -317,38 +402,25 @@ function exportSheets(st){
   });
   return out;
 }
-function readMe(st){
-  var b = (st && st.brand) || {};
-  return [['Kingdom Connect · Meeting Workbook'], b.meeting || b.org ? ['Meeting: ' + [b.meeting, b.org].filter(Boolean).join(' · ')] : [''], [''],
-    ['Excel is optional: you can build a whole meeting in Kingdom Connect without it. Use this workbook to plan, review, hand over or edit many Frames at once.'],
-    ['After you import it, Kingdom Connect is the source of truth: later changes in the app are not written back here (use Export to get a fresh copy).'], [''],
-    ['1. Meeting Overview: the meeting title, date, presenter and notes.'],
-    ['2. Frames: one row per Frame (one screen, one step of the meeting), numbered 1, 2, 3…'],
-    ['3. Content: one row per piece of Content inside a Frame (Frame Number + Content Order).'],
-    ['4. Questions: the questions of a Question Content (Frame Number + Content Name), in Question Number order.'],
-    ['5. Scriptures: the scriptures of a Scripture Content (Frame Number + Content Name). Leave Text empty to fetch it from the ESV (Settings → Scripture).'], [''],
-    ['Import: Kingdom Connect → Meeting → Import meeting from Excel… You see a preview with every problem and its row number first; nothing changes until you select Import.'],
-    ['Allowed values are on the Lists sheet; the template has drop-down lists for them.']];
-}
-function exportBook(X, st){
-  var s = exportSheets(st), wb = X.utils.book_new();
-  function add(rows, name, widths){ var ws = X.utils.aoa_to_sheet(rows); ws['!cols'] = widths.map(function(w){ return {wch: w}; }); X.utils.book_append_sheet(wb, ws, name); }
-  add(readMe(st), 'Read Me', [110]);
-  add(s.meeting, 'Meeting Overview', [18, 60]);
-  add(s.frames, 'Frames', [13, 28, 36, 14, 16, 50]);
-  add(s.content, 'Content', [13, 14, 16, 24, 50, 24, 10, 16, 22, 36]);
-  add(s.questions, 'Questions', [13, 20, 16, 22, 60, 44, 18, 8, 16, 30]);
-  add(s.scriptures, 'Scriptures', [13, 20, 16, 22, 22, 70, 12, 16, 30]);
-  add(lists(), 'Lists', [16, 16, 18, 18, 22]);
-  return wb;
-}
-function lists(){
-  var cols = [['Content Type'].concat(CONTENT_TYPES), ['Free Content'].concat(FREE_TYPES), ['Background'].concat(BACKGROUNDS), ['Transition'].concat(TRANSITIONS), ['Animation'].concat(ANIMATIONS), ['PowerPoint Background'].concat(PPT_BG)];
-  var rows = [], max = Math.max.apply(null, cols.map(function(c){ return c.length; }));
-  for (var i = 0; i < max; i++) rows.push(cols.map(function(c){ return c[i] || ''; }));
+/* Without the program (no styled template to fill): the same Meeting Form as one plain sheet, which imports again */
+function formRows(st){
+  var s = exportSheets(st), rows = [['Kingdom Connect · Meeting Form'], ['']], n = 0;
+  rows.push([++n + ' · Meeting details']);
+  s.meeting.slice(1).forEach(function(r){ rows.push(r); });
+  FORM_TABLES.forEach(function(t){
+    rows.push([''], [++n + ' · ' + t[1]], t[2]);
+    s[t[0]].slice(1).forEach(function(r){ rows.push(r); });
+  });
   return rows;
 }
+function exportBook(X, st){
+  var wb = X.utils.book_new(), ws = X.utils.aoa_to_sheet(formRows(st));
+  ws['!cols'] = [22, 22, 20, 22, 44, 26, 14, 16, 14, 30].map(function(w){ return {wch: w}; });
+  X.utils.book_append_sheet(wb, ws, 'Meeting Form');
+  return wb;
+}
 
-window.BSFMeetingBook = {SHEETS: SHEETS, CONTENT_TYPES: CONTENT_TYPES, FREE_TYPES: FREE_TYPES, BACKGROUNDS: BACKGROUNDS, TRANSITIONS: TRANSITIONS, ANIMATIONS: ANIMATIONS,
-  PPT_BG: PPT_BG, TYPE_NAME: TYPE_NAME, isBook: isBook, parse: parse, apply: apply, exportSheets: exportSheets, exportBook: exportBook, lists: lists, header: header, readMe: readMe};
+window.KCMeetingBook = {SHEETS: SHEETS, FIELDS: FIELDS, FORM_TABLES: FORM_TABLES, CONTENT_TYPES: CONTENT_TYPES, FREE_TYPES: FREE_TYPES, BACKGROUNDS: BACKGROUNDS,
+  TRANSITIONS: TRANSITIONS, ANIMATIONS: ANIMATIONS, PPT_BG: PPT_BG, TYPE_NAME: TYPE_NAME, isBook: isBook, isForm: isForm, formBook: formBook, bookOf: bookOf,
+  parse: parse, apply: apply, exportSheets: exportSheets, exportBook: exportBook, formRows: formRows, header: header};
 })();

@@ -5,10 +5,52 @@ All notable changes to Kingdom Connect are recorded here. The format follows
 [docs/development/changelog-standards.md](docs/development/changelog-standards.md)). Each version links to its full
 release notes in [`docs/releases/`](docs/releases/). Dates are the dates of the release commits.
 
-Versions before 4.9 (when the product was called BSF Command Center, then BCC) are described in the engineering log,
+Versions before 4.9 (when the program had its earlier name) are described in the engineering log,
 [docs/architecture/design-history.md](docs/architecture/design-history.md).
 
 ## [Unreleased]
+
+## [6.9] - 2026-10-20
+
+Full notes: [docs/releases/v6.9.md](docs/releases/v6.9.md)
+
+### Added
+- **Meeting Workbook with two tabs.**
+  - **Dashboard**, made only of formulas: this meeting, KPI tiles, meeting counts from a log, readiness checks,
+    quick links into the form and a content-mix chart.
+  - **Meeting Form**, one guided page: meeting details, speaker, attendees, presentation, the Frames, Content,
+    question and scripture tables, and additional notes. Spare rows fold away behind Excel's + button.
+- `meeting_form.py` holds the form's layout. It also fills the form for **Export this meeting to Excel**, through
+  `POST api/meeting/workbook`, so an export looks like the template.
+- The import reads the form by its labels and header rows, so a hand-made form in the same style imports too.
+- The meeting now stores time, location, speaker contact, expected attendees, attendee notes, presentation owner,
+  content notes and additional notes.
+- `legacy.py` moves data saved under the program's earlier name (tested by `tests/test_legacy.py`).
+- `tests/test_meeting_form.py`.
+
+### Changed
+- The program now uses the Kingdom Connect name everywhere: the program (`Kingdom Connect.exe`), the program folder,
+  the data folder (`%APPDATA%\Kingdom Connect`), the data files (`kc-*.json`), the start files, the recordings folder,
+  the firewall rule and the Share Window title (*Kingdom Connect Share Window*). Default labels and the About text no
+  longer mention the program's earlier name, and the default Group Name is empty.
+- On first start, 6.9 moves data saved by earlier versions (folder, files, backups, recordings and browser settings)
+  to the new names once, never overwriting newer data. The installer installs over every earlier version and removes
+  the old program folder and shortcuts.
+- **Hide All** and its **Esc** hint form one unit that never overlaps or clips. The top bar wraps under 1140 px, and
+  the Program menu is always a drop-down.
+- The import preview shows the meeting's date, time, location and speaker. Problems name the form section, for
+  example *Meeting Form · Content · row 26*.
+
+### Removed
+- The search box in the top bar, with its shortcuts and code. The command palette and Spotlight cover search.
+- **Presentation Mode**: its button, its **P** shortcut, its command and its state.
+- The **Hide the app window** button in the Studio.
+- The workbook's Read Me and Lists sheets, and the one-sheet-per-list layout. Older workbooks still import.
+- The unused rail toggle code and styles.
+- `docs/reference/legacy-manual-v4.6.txt`.
+
+### Fixed
+- The Teleprompter overlay and the other frameless windows can be moved and resized again (6.8).
 
 ## [6.8] - 2026-10-20
 
@@ -180,7 +222,7 @@ Full notes: [docs/releases/v6.1.md](docs/releases/v6.1.md)
   Library of ready-made scenes; Duplicate & edit question.
 
 ### Changed
-- New name: **Kingdom Connect** (formerly BSF Command Center / BCC), with a navy and gold design in dark and light
+- The program got its current name, **Kingdom Connect**, with a navy and gold design in dark and light
   themes, and a new About page.
 
 ## [6.0] - 2026-10-12

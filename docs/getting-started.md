@@ -52,8 +52,9 @@ A webcam is optional. You need one only if people should see you on the KingdomC
 ## First launch
 
 1. Open **Kingdom Connect** from the desktop icon.
-2. If you used an earlier version (*BSF Command Center*), the app offers to **import your existing data**. Choose
-   your old folder (it is usually found automatically) and select **Import**. Your old folder is not changed.
+2. If you used the zip version of Kingdom Connect before, the app offers to **import your existing data**. Choose
+   your old folder (it is usually found automatically) and select **Import**. Your old folder is not changed. (An
+   installed earlier version needs nothing: the installer updates it and your data is kept.)
 3. The app opens on the **Studio**, where you build and run meetings.
 
 > **Note:** Everything you do is saved automatically on this PC. There is no Save button to remember.
@@ -66,13 +67,16 @@ A webcam is optional. You need one only if people should see you on the KingdomC
 
 | Area | Where | What it does |
 | --- | --- | --- |
-| **Command bar** | Across the top | Studio · Members · Settings (Alt+1, Alt+3, Alt+4), the search box (the command palette, Ctrl+K), **◀ Frame · Go Live · Frame ▶**, transitions, the question and scripture steppers, the **Program** menu, **Hide all** and the LIVE status |
+| **Command bar** | Across the top | Studio · Members · Settings (Alt+1, Alt+3, Alt+4), **◀ Frame · Go Live · Frame ▶**, transitions, the question and scripture steppers, the **Program** menu, **Hide all** (with its **Esc** key) and the LIVE status |
 | **Frames** | Left, top | Every Frame in your meetings, in order. The live Frame is marked **LIVE**, the next one **NEXT** |
 | **Content** | Left, bottom | The Content inside the selected Frame. The top of the list is in front |
 | **Studio Canvas** | Middle | A preview of the selected Frame, or the live picture. The badge says **PREVIEW · not on air** or **LIVE** |
 | **Content Settings** | Below the canvas | Every setting for what you selected, most used first: Label, Content, Display Settings, Visual Settings (a Frame has Frame, Timing and History) |
 
 > **Tip:** The canvas badge is your safety check. **PREVIEW · not on air** means nobody sees what you are editing.
+
+To find anything, press **Ctrl+K** (or **Ctrl+Space**) for the **command palette**. The command bar has no search box.
+On a narrow window (under 1140 px wide) the command bar wraps onto two rows, so every button stays visible.
 
 ### The window buttons and the tray
 

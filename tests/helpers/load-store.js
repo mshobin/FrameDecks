@@ -8,5 +8,5 @@ module.exports = function(){
   ctx.window = ctx; ctx.self = ctx;
   vm.createContext(ctx);
   vm.runInContext(fs.readFileSync(require('path').join(__dirname, '..', '..', 'app', 'js', 'store.js'), 'utf8'), ctx);
-  return {Store: ctx.BSFStore, Scenes: ctx.BSFScenes, Present: ctx.BSFPresent};
+  return {Store: ctx.KCStore, Scenes: ctx.KCScenes, Present: ctx.KCPresent};
 };

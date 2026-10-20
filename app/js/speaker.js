@@ -6,7 +6,7 @@
  * The only change it can make is to the Frame's script (double-click to edit). */
 (function(){
 'use strict';
-var Store = window.BSFStore, SC = window.BSFScenes, P = window.BSFPrompter;
+var Store = window.KCStore, SC = window.KCScenes, P = window.KCPrompter;
 var $ = function(id){ return document.getElementById(id); };
 function h(tag, attrs, kids){
   var el = document.createElement(tag);

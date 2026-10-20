@@ -1,13 +1,13 @@
-/* BSF Command Center - dashboard */
-@font-face{font-family:'BSF Serif';src:url('../fonts/EBGaramond.ttf') format('truetype');font-weight:400 800}
-@font-face{font-family:'BSF Sans';src:url('../fonts/SourceSans3.ttf') format('truetype');font-weight:200 900}
+/* Kingdom Connect - dashboard */
+@font-face{font-family:'KC Serif';src:url('../fonts/EBGaramond.ttf') format('truetype');font-weight:400 800}
+@font-face{font-family:'KC Sans';src:url('../fonts/SourceSans3.ttf') format('truetype');font-weight:200 900}
 :root{
   --bg:#0c1426; --surface:#131e36; --raised:#1a2744; --field:#0f182d; --line:#26365a; --line-soft:#1f2d4b;
   --ink:#eaeef6; --muted:#9ba8c2; --faint:#6f7d99;
   --gold:#e3b75a; --gold-strong:#f0c96d; --gold-ink:#1a1405; --gold-soft:rgba(227,183,90,.14);
   --on:#7fd1a0; --danger:#f08a7a;
-  --serif:'BSF Serif',Georgia,'Palatino Linotype',serif;
-  --sans:'BSF Sans','Segoe UI',system-ui,-apple-system,Arial,sans-serif;
+  --serif:'KC Serif',Georgia,'Palatino Linotype',serif;
+  --sans:'KC Sans','Segoe UI',system-ui,-apple-system,Arial,sans-serif;
   color-scheme:dark;
 }
 *,*::before,*::after{box-sizing:border-box}

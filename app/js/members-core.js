@@ -1,5 +1,5 @@
 /*
- * BSF Command Center - member logic (no user interface here).
+ * Kingdom Connect - member logic (no user interface here).
  * Dates, birthdays, phone numbers, email drafts, CSV. Used by the dashboard only;
  * none of this is ever sent to the overlay pages.
  */
@@ -196,7 +196,7 @@ function context(members, settings){
     'Role': group ? '' : (m.role || ''),
     'Birth Date': group ? '' : formatDate(m.birthDate, false),
     "Today's Date": formatToday(), 'Date': formatToday(),
-    'Group Name': settings.groupName || 'BSF',
+    'Group Name': settings.groupName || '',
     'Your Name': settings.yourName || '[Your Name]'
   };
   ctx['Greeting'] = fill(group ? settings.groupGreeting : settings.greeting, ctx);
@@ -266,7 +266,7 @@ function checkMember(input, order, dateCode){
   return {member: m, errors: errors, warnings: warnings, notes: notes};
 }
 
-root.BSFMembers = {
+root.KCMembers = {
   COLUMNS: COLUMNS, OPTIONAL_COLUMNS: OPTIONAL_COLUMNS, EXPORT_COLUMNS: EXPORT_COLUMNS, headerName: headerName, checkMember: checkMember, uid: uid, clean: clean,
   parseDate: parseDate, formatDate: formatDate, formatToday: formatToday, birthday: birthday, setToday: setToday, today: today,
   parsePhone: parsePhone, withCountryCode: withCountryCode, whatsappUrl: whatsappUrl, telUrl: telUrl,

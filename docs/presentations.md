@@ -71,9 +71,6 @@ The **Studio Canvas** always tells you whether you are looking at the screen peo
 **Auto advance:** a Frame can move to the next one by itself after a number of seconds (Content Settings → Frame →
 **Timing**). It only happens while **Auto** in the command bar is on.
 
-**Presentation Mode (P)** hides everything except the Frames, Previous, Go Live and Next. Use it when you want fewer
-buttons in front of you.
-
 ## Questions and scriptures
 
 A Frame with a Question or Scripture list shows one item at a time.
@@ -292,7 +289,8 @@ You can set the overlay's starting transparency, frosted glass, stay on top and 
 
 The **command palette** finds anything and does most things, from the keyboard.
 
-1. Press **Ctrl+K** or **Ctrl+Space**, or select the search box in the command bar.
+1. Press **Ctrl+K** or **Ctrl+Space**. (Since 6.9 the command bar has no search box: the palette and **Spotlight**
+   are where you search.)
 2. Type a few letters. It finds Frames, Content, the Frames' questions and scriptures, text, templates, the Library,
    branding, settings, members, Bible references and recent items.
 3. It also runs commands, such as **Go Live**, **New Frame**, **Duplicate**, **Teleprompter**, **Export meeting**,
@@ -335,7 +333,7 @@ The **Presentation window** shows the same finished picture as the KingdomConnec
 > **Important:** **Esc** inside the Presentation window closes it (**✕ Exit**). Press Esc in the main Kingdom Connect
 > window instead when you mean **Hide all**.
 
-To share it in Zoom instead, choose **Share Screen**, then the window named **BSF Presentation**.
+To share it in Zoom instead, choose **Share Screen**, then the window named **Kingdom Connect Share Window**.
 
 > **Note:** Media Content (camera, images, video, PowerPoint, screen and window sharing) is part of the KingdomConnect
 > picture, so turn on the KingdomConnect camera in **Settings → KingdomConnect Camera** if you use it.
@@ -358,7 +356,6 @@ meeting shortcuts in **Settings**.
 | **K** | Blackout on / off |
 | **F** | Freeze on / off |
 | **D** | Annotate on / off |
-| **P** | Presentation Mode on / off |
 | **R** | Teleprompter on / off |
 | **Shift + R** | Teleprompter overlay on / off |
 | **1** to **5** | Overlay transparency: Solid, Presenter, Meeting, Conference, Ghost (in the overlay) |

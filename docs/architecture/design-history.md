@@ -1,7 +1,7 @@
 # KingdomConnect: architecture, implementation plan and test plan
 
 Covers Camera Looks, screen sharing, layers (image / video / presentation), scenes, diagnostics and test
-recording in the BSF Command Center's built-in virtual camera, **KingdomConnect**.
+recording in the program's built-in virtual camera, **KingdomConnect**.
 
 > **Design decision: "path A".** This build extends the existing working pipeline, which processes frames
 > in system memory with OpenCV/NumPy (CPU), instead of adding a native GPU (D3D11) compositor. The working
@@ -14,7 +14,7 @@ recording in the BSF Command Center's built-in virtual camera, **KingdomConnect*
 ## 1. Architecture overview
 
 ```
-              ┌────────────────────────────── BSF Command Center (one process) ─────────────────────────────┐
+              ┌──────────────────────────────── Kingdom Connect (one process) ──────────────────────────────┐
  Webcam ──MF──▶ Grabber thread ─▶ mirror ─▶ Camera Look ─▶ background blur ──┐                              │
  (OpenCV MSMF; │                 (flip)    (LUT + 3x3 matrix  (MediaPipe     │                              │
   off when not │                            + vignette)       selfie model)  ▼                              │
@@ -36,7 +36,7 @@ composed frame; nothing bypasses the compositor.
 |---|---|---|
 | Engine | `vcam/engine.py` | Frame loop, webcam on/off, look, blur, compositor, sink, measurements |
 | Webcam | `vcam/devices.py` | Webcams by name (Media Foundation, DirectShow fallback), "why it won't open" |
-| Camera Looks | `vcam/looks.py` | Data-driven colour grading (`bsf-looks.json`) |
+| Camera Looks | `vcam/looks.py` | Data-driven colour grading (`kc-looks.json`) |
 | Background blur | `vcam/blur.py` | Person mask (separate thread, 10 Hz) and blur |
 | Screen sharing | `vcam/screen.py` | DXGI Desktop Duplication (displays), Windows Graphics Capture (windows) |
 | Layers | `vcam/layers.py` | Image, video, PDF and window sources; transforms; z-order |
@@ -169,10 +169,10 @@ Center window has focus (no system-wide keyboard hooks).
 
 ## 7. Storage (versioned JSON in the data folder)
 
-* **`bsf-looks.json`** — `{"version": 1, "looks": {"warm": {...}, "dark": {...}, "neutral": {...}, "<your id>": {...}}}`.
+* **`kc-looks.json`** — `{"version": 1, "looks": {"warm": {...}, "dark": {...}, "neutral": {...}, "<your id>": {...}}}`.
   Values are clamped to safe ranges; a damaged file falls back to the built-in looks with a note.
-* **`bsf-vcam-settings.json`** — on/off, webcam name, resolution, mirror, blur, cards, active look id.
-* **`bsf-studio.json`**
+* **`kc-vcam-settings.json`** — on/off, webcam name, resolution, mirror, blur, cards, active look id.
+* **`kc-studio.json`**
 ```json
 { "version": 1,
   "layout": {"mode": "pip", "corner": "br", "size": "small", "custom": false, "x": 0.82, "y": 0.78, "scale": 0.3},
@@ -245,7 +245,7 @@ deliver frames only on change). Measured (camera + screen with rounded corners +
 two graphics chips, includes the cursor), DXGI Desktop Duplication as fallback. Each attempt must deliver a
 first frame within 3 s; options step down from (cursor + borderless) → (cursor) → (Windows defaults) because
 borderless/dirty-region/update-interval settings are only available on newer Windows builds. Every attempt
-and its error is reported in the Screen layer's inspector, Diagnostics and `bsf-app-log.txt`.
+and its error is reported in the Screen layer's inspector, Diagnostics and `kc-app-log.txt`.
 
 ## 11. Version 4.2: changes and performance review
 
@@ -295,7 +295,7 @@ requests/min by kind, Presentation windows, per-stage camera timings, plain-lang
   the delivered webcam mode is shown as `captureInfo`.
 * **Personalise / variables removed** from the Studio UI and API (`op: "variables"`, `variables`,
   `builtinVariables`); new text layers default to plain text. Values saved by older versions in
-  `bsf-studio.json` are still applied to existing text layers so they don't suddenly show `{{…}}`.
+  `kc-studio.json` are still applied to existing text layers so they don't suddenly show `{{…}}`.
 
 ## 13. Version 4.4: smooth multitasking (GPU / compositor load)
 
@@ -317,7 +317,7 @@ Report after 4.4: "Microsoft Edge WebView2" still used ~90 % GPU, including the 
 
 * **Native Presentation window** (`vcam/present_window.py`): a Win32 popup window (WS_POPUP + WS_THICKFRAME with
   WM_NCCALCSIZE → frameless but resizable and snappable; WM_NCHITTEST → drag to move / resize edges; WS_EX_APPWINDOW
-  so Zoom lists "BSF Presentation"). Frames come in-process from the compositor (no JPEG), are converted to 32-bit
+  so Zoom lists the window by its title). Frames come in-process from the compositor (no JPEG), are converted to 32-bit
   once per new picture (~0.5 ms) and drawn with GDI: `SetDIBitsToDevice` at 1:1, `StretchDIBits` (HALFTONE) when
   scaled, black bars with `PatBlt`. The Full screen / Exit buttons (Pillow, Source Sans, same design as the web
   version) are two small patches drawn only while shown (~0.5 ms). Repaints only when the picture changes, at
@@ -368,7 +368,7 @@ hue, sharpness). Exposure and white balance act on linear light inside one 256-e
 hue are 3×3 matrices (folded into one when vibrance is 0); vibrance is a per-pixel blend with a saturated copy weighted by
 1 − chroma (4–6 ms at 720p here); sharpness is an unsharp mask (amount ≤ 0.8, σ 1). All neutral → nothing runs.
 
-**Settings schema 2** (`bsf-vcam-settings.json`, `schemaVersion: 2`). Files without `schemaVersion` are migrated on read;
+**Settings schema 2** (`kc-vcam-settings.json`, `schemaVersion: 2`). Files without `schemaVersion` are migrated on read;
 the defaults reproduce the version-1 picture exactly (`filterIntensity` 100, `zoom` 1.0, `captureResolution` "auto",
 adjustments 0, camera controls untouched). Older app versions ignore the new keys. `filterName` is an alias of `look`;
 `backgroundMode` (none/blur) is derived from `blurStrength`. `POST /api/vcam/settings {"applyProfile": "meetings"}` applies
@@ -421,10 +421,10 @@ safety re-render 2 s -> 10 s; background polls slow down while minimised.
 ## 19. Version 4.9: Studio workspace, control bar, natural blur, design system
 
 **Navigation.** Three top tabs: Studio · Members · Settings (`nav.js` GROUPS). The former *Meetings & Content* views
-moved into the Studio. **View ids are unchanged** (`meeting`, `overlays`, `studio`, `recordings`): `BSFSetTab()`,
+moved into the Studio. **View ids are unchanged** (`meeting`, `overlays`, `studio`, `recordings`): `KCSetTab()`,
 `data-goto`, `body.dataset.tab` checks, keyboard shortcuts and the startup view (`meeting`) all behave as before.
 Alt+1 Meeting · Alt+2 Canvas · Alt+3 Members · Alt+4 Settings (the old destinations). The saved "last sub-view"
-(`bsf-cc-subtab`) is migrated from `meetings` to `studio`.
+(`kc-subtab`) is migrated from `meetings` to `studio`.
 
 **Studio workspace** (`dashboard.html` `#studio-ws`): `#studio-rail` (Scenes on top, Layers beneath, built by
 `studio.js` - same functions, new parent) | `#ws-main` (view switcher `#sub-studio` + the four view panels). The
@@ -432,14 +432,14 @@ Canvas view is canvas + Inspector. The rail folds (`body.rail-hidden`, remembere
 `/api/vcam/studio` every 1 s with the Canvas open, every 3 s while the rail is visible, otherwise not
 (minimised: paced). `.ws-main` is a CSS container; the Meeting grid follows its width (`@container ws`).
 
-**Control bar** (`#ctlbar`, wired in `meeting.js`): calls `BSFActions.step/toggle/hideAll`, `BSFBirthday.toggle`,
-`BSFStudio.slide` (or `POST /api/vcam/studio {op:"slide"}`) through the same `guard()` (450 ms) as the Meeting view.
+**Control bar** (`#ctlbar`, wired in `meeting.js`): calls `KCActions.step/toggle/hideAll`, `KCBirthday.toggle`,
+`KCStudio.slide` (or `POST /api/vcam/studio {op:"slide"}`) through the same `guard()` (450 ms) as the Meeting view.
 Layout heights `--top-h`, `--ws-top`, `--cb-h` are measured in `nav.js`; `meeting.js fit()` and `studio.js fitStage()`
 subtract the bar.
 
 **Design system** (`css/theme.css`, loaded last): radius 8/12/16/20, type scale, motion tokens, dark (default) and
 light palettes. Dark-only colours in `dashboard.css`/`console.css`/`members.css` were replaced by tokens whose
-fallback is the old value. Appearance (`bsf-cc-theme`: dark | light | system) is applied by an inline script before
+fallback is the old value. Appearance (`kc-theme`: dark | light | system) is applied by an inline script before
 the first paint. No backdrop-filter, no endless animation; transitions on colour/transform only.
 
 **Blur** (`vcam/blur.py`, `server.clean_vcam`, `vcam-panel.js`): `blurStrength` 0.001…100 in 0.001 steps (decimal
@@ -451,7 +451,7 @@ values held as integer thousandths in JS.
 
 **Performance (large lists).** Each Next/Show used to rebuild the hidden Content lists (2 × N rows), a hidden picker
 and the whole run sheet (~0.7 s at N = 1,000). Now: Content lists and effect controls are drawn only while Content /
-Settings is open (`BSFRenderLists` on open), only rows whose state changed are replaced, the run sheet patches the
+Settings is open (`KCRenderLists` on open), only rows whose state changed are replaced, the run sheet patches the
 rows between the old and new position, and fixed elements are looked up once. ~25 ms per step at N = 1,000.
 
 **Mobile remote protection boundary.** `remote.html`, `js/remote.js`, `css/remote.css`, `js/store.js`,
@@ -461,7 +461,7 @@ endpoints; `theme.css` is linked only from `dashboard.html`.
 
 ## 20. Version 5.0: simpler surface and Question · Both · Verse
 
-**Presentation mode** (`js/store.js` → `window.BSFPresent`, shared by the dashboard, the remote and the overlays).
+**Presentation mode** (`js/store.js` → `window.KCPresent`, shared by the dashboard, the remote and the overlays).
 State: optional `question.mode` (last chosen) and `library.questions[].mode` (per question; Excel `PresentationMode`);
 `''` = unset = `question` = the pre-5.0 behaviour. `mode(st)` = the item's mode, else the last chosen. Hooks (inside
 `Store.update`): `afterShow(n)` after existing code makes the question visible (Both: load the linked verse -
@@ -496,22 +496,22 @@ storage are unchanged. New code reads existing state; every button calls an exis
 
 **Desktop**
 - Command bar (`dashboard.html` header): brand (`#org-title` = Settings `groupName` + " Command Center", long names
-  keep "BSF") · the three section tabs (moved into the header; same ids, `data-group`, Alt keys) · search · `#live-ind`
+  keep only the group name) · the three section tabs (moved into the header; same ids, `data-group`, Alt keys) · search · `#live-ind`
   · `#sysstat`: the `.hchip` chips are inline on wide windows; ≤1480 px they fold into `#sys-sum` (a button toggling
   `.open`; Esc closes it and still hides all). New chips `#h-rec` / `#h-slides` show only while recording / presenting.
   Search (`nav.js`) adds birthdays, scenes (pointed out in the rail, never applied), PDF decks and Settings pages.
 - Rail (`js/rail.js`, new, loaded after `studio.js`): "Broadcast layers" = the three cards as the pinned top of the
-  stack (eye = `BSFActions.toggle` / `BSFBirthday.toggle`, row = open in the Inspector), quick add (clicks the existing
+  stack (eye = `KCActions.toggle` / `KCBirthday.toggle`, row = open in the Inspector), quick add (clicks the existing
   `#add-text/#add-image/#add-camera/#add-pdf` menu items) and a Library (counts from the store, members API and
-  `BSFStudio.state()`; each row navigates). `studio.js` exposes `BSFStudio.state()` (read-only), marks scene cards
+  `KCStudio.state()`; each row navigates). `studio.js` exposes `KCStudio.state()` (read-only), marks scene cards
   with `data-scene`, and keeps polling while the Meeting view or a recording is on screen.
 - Meeting view: run sheet | program + Live outputs (`#outputs`, `meeting.js renderOutputs()` once a second, DOM
-  written only on change: KingdomConnect status/size/fps/latency/dropped from `BSFVcamStatus`, overlay pages from
-  presence, Presentation window and Recording from `BSFStudio.state()`, slides from `GET api/remote/studio` every 5 s
+  written only on change: KingdomConnect status/size/fps/latency/dropped from `KCVcamStatus`, overlay pages from
+  presence, Presentation window and Recording from `KCStudio.state()`, slides from `GET api/remote/studio` every 5 s
   while the view is visible, remote from `remote-info`) | Inspector (`[data-ctx]` target, `[data-itab]` Content / Style).
   Style hosts extra `data-range` / `data-seg` controls bound by the existing `bindRanges` / `buildSegs`;
-  `controlsVisible()` counts the Style tab and `BSFRefreshControls()` refreshes them when it opens.
-- Command bar (bottom): unchanged groups + `#cb-take` "Take live" = `A.toggle(ctxNow)` (birthday: `BSFBirthday.toggle`),
+  `controlsVisible()` counts the Style tab and `KCRefreshControls()` refreshes them when it opens.
+- Command bar (bottom): unchanged groups + `#cb-take` "Take live" = `A.toggle(ctxNow)` (birthday: `KCBirthday.toggle`),
   shortcut `takeLive` (default T, configurable; Space/Enter are reserved by the shortcut editor).
 - Theme: cooler graphite tokens, `--accent` (selection/focus), `--take`, `--mica` (a static gradient, no backdrop blur).
 
@@ -530,7 +530,7 @@ One Studio workspace replaces the Meeting / Content / Canvas / Recordings tabs a
 inside the Inspector where possible, so the existing editors (`dashboard.js`, `content-import.js`, birthday) still
 bind unchanged; `rail.js` is removed.
 
-**Model** (`store.js`, `window.BSFScenes`; new top-level keys must also be in `DEFAULT_STATE` because `normalize`
+**Model** (`store.js`, `window.KCScenes`; new top-level keys must also be in `DEFAULT_STATE` because `normalize`
 only merges known keys)
 - `scenes[]`: `{id, name, group, fav, tpl, created, modified, version, creator, from, template, parent,
   tx {type, ms}, auto {on, sec}, out {vcam, obs}, layers[]}`. Layer: `{id, kind, name, visible, locked, opacity, c}`.
@@ -539,7 +539,7 @@ only merges known keys)
   `video`, `pdf`, `background`, `text`, `rect`, `ellipse` - converted to/from compositor layers by
   `mediaToComp` / `compToMedia`).
 - `live`: `{scene, seq, at, tx, txMs, auto, blackout, emergency, message, on {layerId: bool}, cd {layerId: start}}`;
-  `profile` = global transition profile; `v6` = migration done (`BSFScenes.migrate`, run once by `workspace.js`).
+  `profile` = global transition profile; `v6` = migration done (`KCScenes.migrate`, run once by `workspace.js`).
 - `take(st, id, tx)` applies a scene in one `Store.update`; `duplicate(opts)`, `explode`, `uniqueName`,
   `previewState` (a scene as if live, for `stage.html?scene=ID`), `liveText(st, output)` (empty text layers are
   skipped, countdown excepted).
@@ -548,7 +548,7 @@ only merges known keys)
 - `save_state` → `apply_live_media`: the live scene's media layers become the compositor layers; `media_sig` avoids
   write-back loops (the `layers` op stores `VCAM["mediaSig"]`).
 - Scripture: `GET /api/scripture?ref=&fresh=`, `GET/POST /api/scripture/settings` (local only; the key never reaches
-  the remote). ESV v3 text API (`BSF_ESV_URL` overrides it for tests), cache `bcc-scripture-cache.json` (400 entries,
+  the remote). ESV v3 text API (`KC_ESV_URL` overrides it for tests), cache `bcc-scripture-cache.json` (400 entries,
   stale entries served when offline), settings `bcc-scripture.json`.
 - `remote_studio_info` adds `vcam {state, inUse, fps}` and `recording {on, seconds}`.
 
@@ -565,8 +565,8 @@ only merges known keys)
   media outlines) | Inspector (`#insp-tabs` per selection; `.ip[data-kind][data-itab]` panels hold the moved editors)
   | Live bar (`#ctlbar.livebar`).
 - `studio.js` mounts only its centre into `#tab-studio`; canvas edits flow back to the scene via
-  `BSFStudio.onPush`, canvas selection via `BSFStudio.onSelect`.
-- Settings gains Scripture, Transitions and Recording (`#tab-recordings` moved there; `BSFLoadRecordings` on open).
+  `KCStudio.onPush`, canvas selection via `KCStudio.onSelect`.
+- Settings gains Scripture, Transitions and Recording (`#tab-recordings` moved there; `KCLoadRecordings` on open).
   Tab aliases (`members.js`): meeting / overlays / canvas → studio, recordings → settings › recording.
 - Shortcuts: `takeLive` T, `nextScene` ], `prevScene` [; Ctrl+D duplicates the selected scene.
 
@@ -577,21 +577,22 @@ phones use tabs, ≥900 px shows three panes. Every action writes through the sa
 
 **Name.** Visible name "Kingdom Connect" (window title `DISPLAY_NAME` in `desktop_app.py`, tray, messages, dashboard,
 remote, installer `AppName`, shortcuts, output file `Kingdom Connect v<ver>.exe`, workflow artifact). Identity is
-unchanged on purpose: `APP_NAME` (data folder `%APPDATA%\BSF Command Center`, single-instance ping `app` field), install
+unchanged on purpose: `APP_NAME` (data folder under the program's earlier name, single-instance ping `app` field), install
 folder and exe name (the phone-remote firewall rule is tied to the exe path), backup file `app` tag, Videos folder,
-camera name "KingdomConnect" and its CLSID. `[InstallDelete]` removes the old-named shortcuts.
+camera name "KingdomConnect" and its CLSID. `[InstallDelete]` removes the old-named shortcuts. (6.9 moved the
+remaining identity to the Kingdom Connect name; see section 31.)
 
 **Brand assets** (`app/img`): `kc-emblem.webp` (header, About, remote; in `REMOTE_PUBLIC`),
 `kc-world.svg` (dotted map generated by `tools/make_world_map.py` from rough continent outlines; one `<path>`, shown as an
-`<img>`). Icons `app/icons/remote-*.png` and `packaging/bsf.ico` are cut from the supplied logo. `server.py` serves `.webp`.
+`<img>`). Icons `app/icons/remote-*.png` and `packaging/kingdom-connect.ico` are cut from the supplied logo. `server.py` serves `.webp`.
 
 **About** (`js/about.js` + `css/about.css`, words in `js/brand.js`): hero (static map image, three inline network SVG
 layers, two of them fading by `opacity` with `will-change`, a radial glow drifting by `transform` - compositor-only,
 off under `prefers-reduced-motion`, stopped when the section is hidden), then mission/vision, why, audiences, values,
 impact, rotating Scripture card (14 s, only while visible and not hovered), heart, founder card + story + journey,
-commitment, join (Start a Session → `BSFQuickStart.open()`, Contact Us = mailto), footer. Header logo → Settings › About.
+commitment, join (Start a Session → `KCQuickStart.open()`, Contact Us = mailto), footer. Header logo → Settings › About.
 
-**Model** (`store.js` `BSFScenes`): `library` (16 entries, `libraryCats` five categories), `quickStarts` (four sets of
+**Model** (`store.js` `KCScenes`): `library` (16 entries, `libraryCats` five categories), `quickStarts` (four sets of
 six), `fromLibrary(st, id | '@kind', opts)`, `quickStart(st, id, opts)` (new group "<Name> · <date>", unique per group),
 `qsMode(sc)` / `setQS(n, sid, 'question'|'verse'|'both')` (scene layer visibility; on the live scene also the cards and
 `question.mode`; the remote's Q + Scripture control uses it too), `pinQuestionText(n, sid, lid, text, afterId)`.
@@ -600,7 +601,7 @@ six), `fromLibrary(st, id | '@kind', opts)`, `quickStart(st, id, opts)` (new gro
 row via `:has()`); Quick Start dialog (`#qs-dlg`, empty-state and + Scene entries); `dupAndEdit` → `editQ` state renders
 `editQuestionForm` in the Inspector until Done/Keep; Presentation Mode = `body.pm` (CSS hides Inspector, Layers, tools,
 menus and live-bar extras; HIDE ALL stays), shortcut `presentMode` (P, configurable); Basic/Advanced = `kc-insp-adv`
-(localStorage), `tabsFor()` filters tabs, `body.insp-basic` hides `.adv` rows and shows `.basic-only` rows (Theme =
+(localStorage), a per-mode tab list filters the tabs, `body.insp-basic` hides `.adv` rows and shows `.basic-only` rows (Theme =
 `layout.panel` + `qScale`/`verseScale`; question Position = `qBottom` presets; scripture reuses `data-seg="verseAlign"`;
 the birthday position block moves to Style in Basic). The Studio "Presentation Mode" window button is now "Share Window".
 
@@ -632,7 +633,7 @@ Full description (flows, data model, template columns, validation rules, file ma
   - drag via pointer capture and requestAnimationFrame; one `resize` event after a drag;
   - keyboard and ARIA separators;
   - saved in localStorage `kc-layout`;
-  - `window.BSFLayout` {get, set, reset, focus}.
+  - `window.KCLayout` {get, set, reset, focus}.
   The Inspector sits in grid row 3 with a container query that switches its content into columns.
 - Remote: role ids are unchanged; the names are now Simple / Standard / Advanced. `body[data-role="presenter"]` is
   the thumb-zone layout.
@@ -669,7 +670,7 @@ Full description: `docs/reference/features.md`. Set-up: `docs/reference/configur
     - `ask` is refused locally unless the peer is Online;
     - the receiver keeps it pending; it expires after 120 s or when the sender goes offline;
     - `answer` is sent back if the asker is still connected;
-    - the approving dashboard selects the scene and calls `BSFWorkspace.take()`.
+    - the approving dashboard selects the scene and calls `KCWorkspace.take()`.
   - WireGuard detection:
     - Windows: `Get-NetAdapter`, description `*WireGuard*`, status Up;
     - Linux: `DEVTYPE=wireguard`;
@@ -706,7 +707,7 @@ Full description: `docs/reference/features.md`. Set-up: `docs/reference/configur
 ## 27. Version 6.5: Frames and Content, per-Frame lists, annotation, Simple remote, Meeting Workbook
 
 User-facing names changed: a **scene** is now a **Frame**, and a **layer** is now **Content**. The code and the saved
-state keep the old names (`scenes`, `layers`, `BSFScenes`), so existing data loads unchanged.
+state keep the old names (`scenes`, `layers`, `KCScenes`), so existing data loads unchanged.
 
 - **Frame-owned lists** (`app/js/store.js`):
   - Question and Scripture Content holds its own list in `layer.c.items`, with `c.itemId` as the current item and
@@ -721,15 +722,15 @@ state keep the old names (`scenes`, `layers`, `BSFScenes`), so existing data loa
 - **Content Settings** (`app/js/workspace.js` `renderInspector`): one panel, in groups (Content, Appearance,
   Position, Timing, Animation, Media, Behavior) with jump links. Basic / Advanced was removed.
 - **Lists in the panel** (`app/js/frame-lists.js`): full-height list; click = current, Show, double-click / Enter =
-  edit in place; 400 ms debounced autosave; live update when the edited item is on screen. `window.BSFCardLook`
-  (renamed from `BSFLook`, which `studio.js` uses for camera looks) reads and writes `c.look`.
+  edit in place; 400 ms debounced autosave; live update when the edited item is on screen. `window.KCCardLook`
+  (renamed from `KCLook`, which `studio.js` uses for camera looks) reads and writes `c.look`.
 - **+ Frame / + Content** (`workspace.js`): + Frame adds a blank Frame; the Content menu is `CONTENT_ADD` (Question,
   Scripture, Text, Image, Video, Timer, PowerPoint) plus `FREE_ADD`. The Meeting menu sits on `#quick-start`.
 - **Annotation and Freeze**:
   - state: `live.ink {on, items, undone}` and `live.freeze`, cleaned by `cleanInk` (at most 300 items, 1,500 points
-    each), changed only through `BSFScenes.ink(n, op, item)`;
+    each), changed only through `KCScenes.ink(n, op, item)`;
   - PC: `app/js/annotate.js` (toolbar, `#ann-pad` over the 16:9 picture, keys P/H/A/L/R/E/T, Ctrl+Z / Ctrl+Y, Esc);
-  - overlay pages: `.pg-ink` canvas drawn by `BSFScenes.drawInk` (above Content, below Blackout);
+  - overlay pages: `.pg-ink` canvas drawn by `KCScenes.drawInk` (above Content, below Blackout);
   - KingdomConnect: `vcam/annotate.py` `Ink.draw()` / `Ink.freeze()`, called by `ProgramFX` before the black fade.
     The rasterised ink is cached by a crc32 of the items; solid pixels use `cv2.copyTo` and soft pixels a precomputed
     index (about 3 ms at 1080p).
@@ -759,7 +760,7 @@ state keep the old names (`scenes`, `layers`, `BSFScenes`), so existing data loa
     `layout` (`qWidth`, `qBottom`, `qScale`, `verseY`, `verseWidth`, `verseAlign`); a double-click outside a zone is
     left to the canvas.
   - The shown item comes from `live` (live Frame) or `SC.previewState(live, sid)`; saving goes through
-    `BSFFrameLists.save(kind, sid, id, patch)`, which also updates the screen when that item is on it.
+    `KCFrameLists.save(kind, sid, id, patch)`, which also updates the screen when that item is on it.
 - **Phone drawing pad** (`app/js/remote.js`, `app/css/remote.css`):
   - `GET /api/remote/live.jpg` (in `REMOTE_SIGNED_IN`, so PIN-protected) returns the engine's preview JPEG with an
     ETag; 204 when the camera is off. The pad polls it about 5 times a second and falls back to `stage.html` (cards
@@ -791,11 +792,11 @@ state keep the old names (`scenes`, `layers`, `BSFScenes`), so existing data loa
 The audit, reuse plan and decisions are in [docs/project/v6.7-plan.md](../project/v6.7-plan.md); measurements in
 [docs/project/performance.md](../project/performance.md). Still no framework, no build step and no new dependency.
 
-- **EditableField** (`app/js/editable.js`, `window.BSFEditable`): one in-place editor for every name, label and text.
+- **EditableField** (`app/js/editable.js`, `window.KCEditable`): one in-place editor for every name, label and text.
   `inline(el, opts)` edits an element where it is; `float(host, rect, opts)` opens over a canvas card (with extra
   `fields`, e.g. reference and translation); `bind(el, opts)` attaches double-click / F2. One editor at a time; keys
   are stopped at the editor so Studio shortcuts never fire while typing; a click outside saves. Lists skip their
-  redraw while `BSFEditable.within(list)` and redraw on the `bsf-edit-done` window event.
+  redraw while `KCEditable.within(list)` and redraw on the `kc-edit-done` window event.
 - **Canvas editing of every Content** (`preview-edit.js`): text cards carry `data-layer` (overlay.js); `cardAt` takes
   the last (front-most) hit. The live picture is hit-tested by laying `stage.html?preview=1` invisibly
   (`.pv-measure`, opacity 0) over `#s2-stage`, so positions are exact instead of estimated from `layout`; the frame is
@@ -806,14 +807,14 @@ The audit, reuse plan and decisions are in [docs/project/v6.7-plan.md](../projec
 - **Inspector** (`workspace.js` `GROUPS`, `orderPanels`): card and text Content show Label, Content, Display Settings,
   Visual Settings, with Animation and Show on as sub-groups; Question / Scripture label panels moved to
   `data-itab="label"`.
-- **Teleprompter** (`teleprompter.js`, `BSFPrompter.create(host, opts)`): renders `sc.notes` after escaping
+- **Teleprompter** (`teleprompter.js`, `KCPrompter.create(host, opts)`): renders `sc.notes` after escaping
   (`render()`: `#`, `-`, `**`, `*`, `[CUE]`, `---`); scrolls with `requestAnimationFrame` only while playing; settings
   per surface in `localStorage` (`kc-tp-<key>`). Used by the main-window dock (`prompter-dock.js`: body classes
   `tp-dock-left|right|bottom|float`, `--tp-w` / `--tp-h`, only in the Studio tab), the Teleprompter window
   (`speaker.html`, rebuilt from the Speaker View) and the phone (`remote.js`; `teleprompter.js/.css` added to
   `REMOTE_PUBLIC`). `tests/teleprompter.test.js` fails if any output page, its scripts or `vcam/*.py` reads `notes`.
 - **Multi-select** (`workspace.js`): `picked{frames, layers}` with anchor ranges, marquee selection from empty list
-  space, `deleteFrames` / `deleteLayers` with Undo through `BSFActions.toastAction`, copy / paste with fresh ids
+  space, `deleteFrames` / `deleteLayers` with Undo through `KCActions.toastAction`, copy / paste with fresh ids
   (`SC.freshIds`), `BIG_DELETE = 5` for the confirmation.
 - **Command palette** (`palette.js`): builds an index from the state when opened (commands, Frames, templates,
   Content, Frame-owned items, Library, brand, settings, members); ranks each query in one pass (word start > inside >
@@ -825,7 +826,7 @@ The audit, reuse plan and decisions are in [docs/project/v6.7-plan.md](../projec
   (`_shadow`), and `_worker` places Branding with its own margin. Remove background (`meeting-brand.js knockOut`):
   edge-average colour, flood fill from the border within a tolerance plus a soft band, refusing photos (busy edge),
   near-empty or near-total results; the previous PNG stays in memory for Undo.
-- **Lazy Excel** (`dashboard.js BSFNeedXLSX`): the 930 KB library is injected on first use by members import /
+- **Lazy Excel** (`dashboard.js KCNeedXLSX`): the 930 KB library is injected on first use by members import /
   export / template and meeting export (`meeting-import.js`; workbook import already used a worker).
 - **Release pages and README header**: `tools/make_readme_header.py` captures the About screen's hero from the
   running app into `assets/brand/kc-about-header.webp` (and the version it shows into `kc-about-header.version`); the
@@ -854,8 +855,8 @@ The full plan, with the Electron-to-pywebview mapping, is [docs/project/v6.8-pla
 - **Spotlight.** Created hidden at start-up (a hidden transparent pywebview window would show itself on first
   navigation, so Spotlight is opaque with DWM rounded corners). `Hotkeys` owns a thread with a message loop for
   `RegisterHotKey` (re-registration is marshalled to that thread with `PostThreadMessageW`). The index comes from the
-  main window (`BSFPalette.exportIndex()` through `evaluate_js`) and is cached in the shared localStorage so the window
-  opens with results; choices run there with `BSFPalette.runKey()`. Commands flagged `bg` keep the main window in the
+  main window (`KCPalette.exportIndex()` through `evaluate_js`) and is cached in the shared localStorage so the window
+  opens with results; choices run there with `KCPalette.runKey()`. Commands flagged `bg` keep the main window in the
   tray.
 - **Tray** (pystray): Open App (default), Teleprompter, Search, Settings, More (the earlier items), Exit.
 - **Settings** gain validated non-boolean values (`APP_SETTING_CHOICES`, shortcut parsing) and a `settings_changed` hook
@@ -865,3 +866,59 @@ The full plan, with the Electron-to-pywebview mapping, is [docs/project/v6.8-pla
 - **Not testable in CI:** the subclass, glass, fade, capture exclusion, global shortcut and foreground focus need a real
   desktop. CI runs the shortcut and settings unit tests on Windows; the browser side was tested with a mocked desktop
   API.
+
+## 31. Version 6.9: one name everywhere, a two-tab Meeting Workbook, a quieter top bar
+
+Everything that still carried the program's earlier name now uses Kingdom Connect: `APP_NAME` and the data folder
+(`%APPDATA%\Kingdom Connect`), the program folder and `Kingdom Connect.exe`, the data files (`kc-*.json`, `kc-*.txt`),
+the recordings folder (`Videos\Kingdom Connect`), the start files, the environment variables (`KC_DATA_DIR`,
+`KC_VCAM_DEMO`, `KC_ESV_URL`, `KC_TEST_COUNT_OWN_ADDRESS`), the PyInstaller spec and icon
+(`packaging/kingdom-connect.spec`, `.ico`), the firewall rule ("Kingdom Connect Phone Remote"), the JavaScript globals
+(`KC*`), browser storage keys (`kc-*`), window events (`kc-edit-done`, `kc-app-info`, `kc-select`), the fonts
+(`KC Sans`, `KC Serif`) and the Share Window title ("Kingdom Connect Share Window"). Default labels and the default
+Group Name no longer carry a group's name.
+
+**Migration.** The earlier name is kept only where it is needed to find existing data, each place marked `LEGACY`:
+- `legacy.py`, run by `server.py` and `desktop_app.py` at start: renames the data folder (or moves its contents one by
+  one when the new folder already exists), renames the data files and the files inside `backups\`, moves the
+  recordings folder and clears the old default Group Name. It never overwrites a file that already exists under the
+  new name. `tests/test_legacy.py` covers it.
+- The block at the top of `app/js/store.js` copies browser settings (theme, shortcuts, layout, file-mode state) to the
+  `kc-` keys once (`kc-legacy-moved`).
+- `packaging/installer.iss`: the same `AppId`, so it installs over every earlier version; `[InstallDelete]` removes the
+  old program folder and shortcuts, and `PrepareToInstall` closes an old copy that is still running.
+- `tools/allow-ipad-remote.ps1` and `tools/undo-ipad-remote.ps1` remove the old firewall rule with the new one.
+
+A few internal file names that people never see, such as `bcc-brand-logo.png` and `bcc-scripture-cache.json`, are
+unchanged.
+
+**Meeting Workbook.** The workbook used to have seven sheets: Read Me, Meeting Overview, Frames, Content, Questions,
+Scriptures and Lists. That was too much for people who only want to plan one meeting. It now has two tabs:
+- **Dashboard** holds formulas only. The program never reads or writes it, so it can't break an import.
+- **Meeting Form** is one page with numbered sections.
+
+The layout lives in one Python module, `meeting_form.py`:
+- `tools/make_meeting_workbook.py` (openpyxl, at development time) draws the template from it.
+- `fill()` writes a meeting into that template for Export. It uses the standard library only, because the
+  installed program ships no Excel library. It edits the form sheet's XML in place, keeps every cell's style,
+  unfolds only the rows in use and asks Excel to recalculate on open.
+
+The browser no longer builds the export with SheetJS, except when the program is not running, or when a table is
+longer than the form. In those cases it saves a plain one-sheet form.
+
+Reading stays in `app/js/meeting-book.js`. `formBook()` turns the form into the same five lists the older workbooks
+had, so `parse()` and `apply()` did not change and the 6.5–6.8 layouts still import:
+- A table starts at a header row with "Frame #" plus a column that names it.
+- It ends at the next numbered section heading.
+- A detail is a known label with its value in the next filled cell on the row.
+
+This is why a hand-made form like the one people sent in imports as well. `FIELDS` (JS) and `DETAILS` (Python)
+list the meeting details. `FORM_TABLES` (JS) and `TABLES` (Python) list the columns. `tests/test_meeting_form.py`
+checks that each pair agrees. `tests/meeting-workbook.test.js` round-trips the template, both exports, a hand-made
+form and an older workbook.
+
+**Top bar.** The header search box duplicated the command palette and Spotlight, so it is gone. So are Presentation
+Mode, which hid panels that people then could not find, and the Studio's **Hide the app window** button, which the
+tray now does better. Hide All is a single flex unit with its Esc hint inside it (`flex:none`). The Program menu is
+always a drop-down, so the bar can't overflow. Under 1140 px the bar wraps. This was checked at widths from 1000 to
+3440 px and at device-pixel ratios from 1.25 to 2.

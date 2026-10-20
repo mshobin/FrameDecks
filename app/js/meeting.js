@@ -1,13 +1,13 @@
-/* BSF Command Center - live status (v6): the header chips for every output, the birthday panel's text and the
+/* Kingdom Connect - live status (v6): the header chips for every output, the birthday panel's text and the
  * keyboard hints. The Studio itself (scenes, layers, canvas, inspector, live bar) is js/workspace.js. */
 (function(){
 'use strict';
-var Store = window.BSFStore, A = window.BSFActions, SC_ = window.BSFShortcuts;
+var Store = window.KCStore, A = window.KCActions, SC_ = window.KCShortcuts;
 var $ = function(id){ return document.getElementById(id); };
 var live = null;
 
 /* ---------- Status shared with Settings (one poller for everything) ---------- */
-var Status = window.BSFStatus = {remote: null, presence: null, subs: {},
+var Status = window.KCStatus = {remote: null, presence: null, subs: {},
   on: function(k, f){ (this.subs[k] = this.subs[k] || []).push(f); if (this[k]) f(this[k]); },
   set: function(k, v){ this[k] = v; (this.subs[k] || []).forEach(function(f){ try { f(v); } catch(e){} }); }};
 /* One request each, never duplicated; minimised they slow right down (Store.pace). With Settings > Phone & iPad
@@ -30,7 +30,7 @@ function h(tag, cls, text){ var e = document.createElement(tag); if (cls) e.clas
 /* ---------- Birthday layer: what the card says, and who it is for ---------- */
 function render(){
   if (!live) return;
-  var tx = document.querySelector('[data-text="birthday"]'), b = live.birthday, c = window.BSFBirthday && window.BSFBirthday.candidate();
+  var tx = document.querySelector('[data-text="birthday"]'), b = live.birthday, c = window.KCBirthday && window.KCBirthday.candidate();
   if (tx){
     tx.textContent = '';
     if (b.greeting.trim()) tx.textContent = b.greeting;
@@ -62,11 +62,11 @@ function chip(id, cls, text, title){                    // touches the page only
 function renderProgram(){
   if (!Store.served) chip('h-program', 'info', 'No-install mode', 'Overlays update only in this browser. Start the program for OBS, Camo and the phone remote.');
   else chip('h-program', Store.online ? 'ok' : 'bad', Store.online ? 'Connected' : 'Not responding', Store.online ? 'The local program is running' : 'Check the black Kingdom Connect window is open');
-  var set = window.BSFMembersAPI ? window.BSFMembersAPI.settings() : {};
-  var br = window.BSFStore && window.BSFStore.brand ? window.BSFStore.brand() : {};
-  var t = br.meeting || set.meetingTitle || 'BSF Meeting', g = String(br.org || set.groupName || 'BSF').trim() || 'BSF';   // v6.2 Settings → Meeting & Branding first
+  var set = window.KCMembersAPI ? window.KCMembersAPI.settings() : {};
+  var br = window.KCStore && window.KCStore.brand ? window.KCStore.brand() : {};
+  var t = br.meeting || set.meetingTitle || 'Meeting', g = String(br.org || set.groupName || '').trim();   // v6.2 Settings → Meeting & Branding first
   var org = 'Kingdom Connect';
-  t = (g && g !== 'BSF' && t.indexOf(g) < 0 ? g + ' · ' : '') + t;      // e.g. "NLFM · Tuesday Evening Group"
+  t = (g && t.indexOf(g) < 0 ? g + ' · ' : '') + t;      // e.g. "NLFM · Tuesday Evening Group"
   if ($('meeting-title').textContent !== t) $('meeting-title').textContent = t;
   var dt = t + ' · ' + org; if (document.title !== dt) document.title = dt;
   var bt = org + ' · ' + t, be = $('brand'); if (be && be.title !== bt) be.title = bt;     // v6.4: logo only; the name is in its tooltip
@@ -76,7 +76,7 @@ setInterval(function(){ if (!document.hidden) renderProgram(); }, 1000); renderP
 Status.on('presence', function(p){
   var n = 0; for (var k in p) n += p[k];
   var anyLive = live && (live.question.visible || live.verse.visible || live.birthday.visible);
-  var vc = window.BSFVcamStatus && window.BSFVcamStatus();
+  var vc = window.KCVcamStatus && window.KCVcamStatus();
   var onVcam = vc && vc.status && vc.status.state === 'live' && vc.settings && vc.settings.cards !== false;
   if (onVcam && !n) chip('h-sources', 'ok', 'On camera', 'Your cards are shown on KingdomConnect');
   else if (n) chip('h-sources', 'ok', n + ' open', n + ' overlay page(s) open in OBS, Camo or a browser');
@@ -103,9 +103,9 @@ if (!Store.served){ chip('h-sources', '', '—', 'Needs the local program'); chi
 /* Recording and Slides chips: shown only while they are running */
 function fmtTime(sec){ sec = Math.round(sec || 0); return Math.floor(sec / 60) + ':' + String(sec % 60).padStart(2, '0'); }
 var slideInfo = null;
-window.BSFSlideInfo = function(){ return slideInfo; };
+window.KCSlideInfo = function(){ return slideInfo; };
 function renderRunning(){
-  var ss = window.BSFStudio && window.BSFStudio.state ? window.BSFStudio.state() : null, rec = ss && ss.recording;
+  var ss = window.KCStudio && window.KCStudio.state ? window.KCStudio.state() : null, rec = ss && ss.recording;
   var hr = $('h-rec'); if (hr){ var on = !!(rec && rec.on); if (hr.hidden === on) hr.hidden = !on; if (on) chip('h-rec', 'rec', fmtTime(rec.seconds), 'Recording the KingdomConnect output (Settings → Recording)'); }
   var pr = slideInfo && slideInfo.presentation, hs = $('h-slides');
   if (hs){ if (hs.hidden === !!pr) hs.hidden = !pr; if (pr) chip('h-slides', 'ok', pr.page ? pr.page + (pr.pages ? '/' + pr.pages : '') : 'Ready', 'Slides: ' + (pr.name || 'presentation')); }
@@ -114,7 +114,7 @@ function renderRunning(){
  * shared - the same answer the phone remote gets) */
 function pollSlides(){
   var want = Store.served && document.body.dataset.tab === 'studio' && !document.hidden;
-  (want ? fetch('api/remote/studio', {cache: 'no-store'}).then(function(r){ return r.ok ? r.json() : null; }).then(function(d){ slideInfo = d; renderRunning(); if (window.BSFWorkspace) window.BSFWorkspace.slides(d); }).catch(function(){})
+  (want ? fetch('api/remote/studio', {cache: 'no-store'}).then(function(r){ return r.ok ? r.json() : null; }).then(function(d){ slideInfo = d; renderRunning(); if (window.KCWorkspace) window.KCWorkspace.slides(d); }).catch(function(){})
         : Promise.resolve()).then(function(){ setTimeout(pollSlides, want ? 5000 : 8000); });
 }
 if (Store.served) setTimeout(pollSlides, 1200);
@@ -122,5 +122,5 @@ setInterval(function(){ if (!document.hidden) renderRunning(); }, 1000);
 
 Store.subscribe(function(st){ live = st; render(); });
 setInterval(function(){ if (!document.hidden) render(); }, 10000);  // birthday candidate and day changes
-window.BSFRenderBirthday = render;
+window.KCRenderBirthday = render;
 })();

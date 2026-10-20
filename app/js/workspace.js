@@ -1,14 +1,14 @@
-/* BSF Command Center v6 - the Studio: Scenes + Layers | Studio Canvas | Inspector, and the live bar.
+/* Kingdom Connect v6 - the Studio: Scenes + Layers | Studio Canvas | Inspector, and the live bar.
  *
  * Three ideas: a Scene owns its Layers, its Transition and its Output rules; a Layer owns its Content; everything
- * renders on the Canvas. Scenes live in the shared state (js/store.js BSFScenes), so the phone remote, the
+ * renders on the Canvas. Scenes live in the shared state (js/store.js KCScenes), so the phone remote, the
  * keyboard and the overlay pages see the same scenes. Question, Scripture and Birthday layers drive the existing
  * cards, and their Inspector holds the existing editors and lists (same elements, same code), so every earlier way
  * of working still works. Media layers are KingdomConnect Studio layers; the program applies the live scene's media
  * layers to the camera picture, and arranging them on the canvas writes them back into the scene. */
 (function(){
 'use strict';
-var Store = window.BSFStore, SC = window.BSFScenes, A = window.BSFActions, I = window.BSFIcon;
+var Store = window.KCStore, SC = window.KCScenes, A = window.KCActions, I = window.KCIcon;
 var $ = function(id){ return document.getElementById(id); };
 if (!$('studio-ws') || !SC) return;
 function h(tag, attrs, kids){
@@ -18,8 +18,8 @@ function h(tag, attrs, kids){
   return el;
 }
 function toast(m, bad){ A.toast(m, bad); }
-function commit(fn){ return window.BSFCommit(fn); }
-function creator(){ var s = window.BSFMembersAPI && window.BSFMembersAPI.settings(); return (s && s.yourName) || ''; }
+function commit(fn){ return window.KCCommit(fn); }
+function creator(){ var s = window.KCMembersAPI && window.KCMembersAPI.settings(); return (s && s.yourName) || ''; }
 function lsGet(k, d){ try { var v = localStorage.getItem(k); return v === null ? d : v; } catch(e){ return d; } }
 function lsSet(k, v){ try { localStorage.setItem(k, v); } catch(e){} }
 var live = null;                                   // the shared state (read-only here)
@@ -27,10 +27,10 @@ var selScene = lsGet('bcc-sel-scene', ''), selLayer = null, filter = 'all', sear
 var tabFor = {};                                   // remembered Inspector tab per kind
 try { tabFor = JSON.parse(lsGet('bcc-insp-tabs', '{}')) || {}; } catch(e){}
 function scene(){ return live ? SC.find(live, selScene) : null; }
-window.BSFSelFrame = function(){ return live && SC.find(live, selScene) ? selScene : ''; };   // the Frame being edited (lists, Content Settings)
+window.KCSelFrame = function(){ return live && SC.find(live, selScene) ? selScene : ''; };   // the Frame being edited (lists, Content Settings)
 function layer(){ var sc = scene(); return sc ? SC.layer(sc, selLayer) : null; }
 function isLiveScene(id){ return !!(live && id && live.live.scene === id); }
-function studio(){ var S = window.BSFStudio && window.BSFStudio.state ? window.BSFStudio.state() : null; return S && S.available ? S : null; }
+function studio(){ var S = window.KCStudio && window.KCStudio.state ? window.KCStudio.state() : null; return S && S.available ? S : null; }
 /* Edit one scene (its version and modified date follow) */
 function edit(id, fn, msg){
   return commit(function(n){ var sc = SC.find(n, id); if (!sc) return; fn(sc, n); SC.stamp(sc, creator()); }).then(function(){ if (msg) toast(msg); });
@@ -55,7 +55,7 @@ function select(sid, lid, focusList){
   }
   if (sid !== selScene){ selScene = sid; lsSet('bcc-sel-scene', sid); if (!picking) picked.layers = lid ? [lid] : []; }
   selLayer = lid || null;
-  if (lid && window.BSFStudio && isLiveScene(sid)){ var l = layer(); if (l && SC.isMedia(l.kind)) window.BSFStudio.select([lid]); }
+  if (lid && window.KCStudio && isLiveScene(sid)){ var l = layer(); if (l && SC.isMedia(l.kind)) window.KCStudio.select([lid]); }
   renderAll(true);
   if (focusList){
     var el = document.querySelector(lid ? '#layer-list [data-id="' + lid + '"]' : '#scene-list [data-id="' + sid + '"]');
@@ -218,7 +218,7 @@ function groupPicker(anchor, ev, done){
       var box = h('div', {cls: 'ws-menu ef-menu'}); document.body.appendChild(box);
       var r = ev ? {left: ev.clientX, top: ev.clientY} : anchor.getBoundingClientRect(); box.style.left = Math.max(8, Math.min(r.left, window.innerWidth - 260)) + 'px'; box.style.top = Math.max(8, Math.min(r.top, window.innerHeight - 60)) + 'px';
       var span = h('span', {text: 'New group'}); box.appendChild(span);
-      BSFEditable.inline(span, {value: '', placeholder: 'Group name', maxLength: 60, label: 'New group name', save: function(v){ if (v) done(v); }, done: function(){ box.remove(); }});
+      KCEditable.inline(span, {value: '', placeholder: 'Group name', maxLength: 60, label: 'New group name', save: function(v){ if (v) done(v); }, done: function(){ box.remove(); }});
     }}, {icon: 'x', text: 'No group', run: function(){ done(''); }}]);
   menu(anchor, items, ev);
 }
@@ -326,7 +326,7 @@ function renderLibrary(ol){
 function renderScenes(){
   var ol = $('scene-list'), next = live.live.scene ? SC.neighbour(live, live.live.scene, 1) : null;
   if (filter === 'tpl') return renderLibrary(ol);
-  if (BSFEditable.within(ol)){ sceneSig = ''; return; }            // renaming here: redraw when the editor closes
+  if (KCEditable.within(ol)){ sceneSig = ''; return; }            // renaming here: redraw when the editor closes
   var list = visibleScenes();
   var sig = JSON.stringify([list.map(function(s){ return [s.id, s.name, s.group, s.fav, s.tpl, s.layers.length, s.tx, s.auto.on, s.auto.sec, SC.qsMode(s)]; }), live.live.scene, next && next.id, selScene, filter, collapsed, live.profile, picked.frames]);
   if (sig === sceneSig) return; sceneSig = sig;
@@ -335,7 +335,7 @@ function renderScenes(){
     if (live.scenes.length){ ol.appendChild(h('li', {cls: 'pane-empty', text: 'No Frames match.'})); return; }
     ol.appendChild(h('li', {cls: 'pane-empty start'}, [h('b', {text: 'Ready when you are'}), h('span', {text: 'Quick Start makes a full set of Frames for a Bible study, prayer meeting, youth gathering or fellowship meeting in one click.'}),
       h('button', {cls: 'btn primary small', type: 'button', html: I('sparkles', 15) + ' Quick Start', onclick: function(){ openQuickStart(); }}),
-      h('button', {cls: 'btn small', type: 'button', html: I('file-text', 15) + ' Import from Excel', onclick: function(){ if (window.BSFMeetingImport) window.BSFMeetingImport.pick(); }}),
+      h('button', {cls: 'btn small', type: 'button', html: I('file-text', 15) + ' Import from Excel', onclick: function(){ if (window.KCMeetingImport) window.KCMeetingImport.pick(); }}),
       h('button', {cls: 'btn quiet small', type: 'button', text: 'Browse the Library', onclick: function(){ setFilter('tpl'); }})]));
     return;
   }
@@ -369,8 +369,8 @@ function renderScenes(){
         h('button', {cls: 'ib si-more', type: 'button', title: 'Frame actions', 'aria-label': 'Frame actions', html: '⋯', onclick: function(e){ e.stopPropagation(); sceneMenu(sc.id, e.currentTarget); }}),
         qsPill(sc)]);
       li.addEventListener('click', function(e){ pickClick('frames', sc.id, e, ol); });
-      li.addEventListener('dblclick', function(e){ if (e.ctrlKey || e.metaKey || e.shiftKey || BSFEditable.active()) return; takeScene(sc.id); });   // double-click the name renames instead
-      BSFEditable.bind(nameEl, {value: function(){ var x = SC.find(live, sc.id); return x ? x.name : sc.name; }, maxLength: 80, label: 'Frame name',
+      li.addEventListener('dblclick', function(e){ if (e.ctrlKey || e.metaKey || e.shiftKey || KCEditable.active()) return; takeScene(sc.id); });   // double-click the name renames instead
+      KCEditable.bind(nameEl, {value: function(){ var x = SC.find(live, sc.id); return x ? x.name : sc.name; }, maxLength: 80, label: 'Frame name',
         save: function(v){ if (v) return edit(sc.id, function(x){ x.name = v.slice(0, 80); }); }});
       li.addEventListener('contextmenu', function(e){ e.preventDefault(); if (picked.frames.indexOf(sc.id) < 0) pickOnly('frames', sc.id); if (picked.frames.length > 1) framesMenu(li, e); else { select(sc.id, null); sceneMenu(sc.id, li, e); } });
       li.addEventListener('keydown', function(e){
@@ -452,7 +452,7 @@ var TPL_ICON = {'bible-study': 'book-open', scripture: 'book-open', question: 'm
 $('scene-add').addEventListener('click', function(e){ e.stopPropagation(); newScene('blank'); });
 /* Meeting: ready-made Frames, the Excel workbook and Frame files (never part of + Frame) */
 function meetingMenu(anchor){
-  var saved = live.scenes.filter(function(s){ return s.tpl; }), MI = window.BSFMeetingImport;
+  var saved = live.scenes.filter(function(s){ return s.tpl; }), MI = window.KCMeetingImport;
   var items = [{label: 'Meeting'},
     MI ? {icon: 'file-spreadsheet', text: 'Import meeting from Excel…', run: MI.pick} : null,
     MI ? {icon: 'arrow-down', text: 'Download the Excel template', run: MI.template} : null,
@@ -506,7 +506,7 @@ function openQuickStart(){
     grid,
     h('div', {cls: 'kc-dlg-foot'}, [h('button', {cls: 'btn quiet', type: 'button', text: 'Browse the Library instead', onclick: function(){ dlg.close(); setFilter('tpl'); }}),
       h('button', {cls: 'btn', type: 'button', text: 'Cancel', onclick: function(){ dlg.close(); }})])]));
-  if (window.BSFSetTab && document.body.dataset.tab !== 'studio') window.BSFSetTab('studio');
+  if (window.KCSetTab && document.body.dataset.tab !== 'studio') window.KCSetTab('studio');
   dlg.showModal();
   var first = dlg.querySelector('.qs-card'); if (first) first.focus();
 }
@@ -520,7 +520,7 @@ function runQuickStart(q){
     toast(q.name + ' is ready: ' + made.length + ' Frames in “' + made[0].group + '”. Select a Frame and press Go Live.');
   });
 }
-window.BSFQuickStart = {open: openQuickStart};
+window.KCQuickStart = {open: openQuickStart};
 $('quick-start').addEventListener('click', function(e){ e.stopPropagation(); meetingMenu($('quick-start')); });
 
 /* ---------- Duplicate → Edit question → Done ---------- */
@@ -673,7 +673,7 @@ function layerSub(sc, l){
 }
 function renderLayers(){
   var sc = scene(), ol = $('layer-list');
-  if (BSFEditable.within(ol)){ layerSig = ''; return; }
+  if (KCEditable.within(ol)){ layerSig = ''; return; }
   $('layers-of').textContent = sc ? sc.name : '';
   var S = studio(), status = {}; if (S && isLiveScene(selScene)) S.layers.forEach(function(x){ status[x.id] = x.status; });
   var sig = JSON.stringify([sc, selLayer, live.live.on, live.question.visible, live.verse.visible, live.birthday.visible, live.live.scene, live.question.text.length, live.verse.ref, live.birthday.name, status, live.brand, picked.layers]);
@@ -690,7 +690,7 @@ function renderLayers(){
     var lock = h('button', {cls: 'ib s2-lock' + (l.locked ? ' on' : ''), type: 'button', title: l.locked ? 'Unlock' : 'Lock', 'aria-label': l.locked ? 'Unlock' : 'Lock', html: I(l.locked ? 'lock' : 'lock-open', 14),
       onclick: function(e){ e.stopPropagation(); editLayer(sc.id, l.id, function(x){ x.locked = !x.locked; }); }});
     var name = h('span', {cls: 'li-name', text: l.name});
-    BSFEditable.bind(name, {value: function(){ var x = SC.layer(SC.find(live, sc.id), l.id); return x ? x.name : l.name; }, maxLength: 60, label: 'Content name',
+    KCEditable.bind(name, {value: function(){ var x = SC.layer(SC.find(live, sc.id), l.id); return x ? x.name : l.name; }, maxLength: 60, label: 'Content name',
       save: function(v){ if (v) return editLayer(sc.id, l.id, function(x){ x.name = v.slice(0, 60); }); }});
     var lInSel = picked.layers.length > 1 && picked.layers.indexOf(l.id) >= 0;
     var li = h('li', {cls: 'layer-item k-' + l.kind + (l.id === selLayer ? ' sel' : '') + (lInSel ? ' picked' : '') + (on && isLiveScene(sc.id) ? ' on' : '') + (!l.visible ? ' off' : '') + (SC.isMedia(l.kind) ? ' media' : ''),
@@ -762,7 +762,7 @@ function toggleLayer(sid, lid){
   var wasOn = isLiveScene(sid) ? SC.layerOn(live, SC.find(live, sid), l) : l.visible;
   edit(sid, function(sc, n){ SC.toggleVisible(n, sid, lid); }).then(function(){
     if (isLiveScene(sid) && !wasOn){
-      if (l.kind === 'birthday' && !live.birthday.greeting.trim() && window.BSFBirthday) window.BSFBirthday.show();      // greeting made on this PC
+      if (l.kind === 'birthday' && !live.birthday.greeting.trim() && window.KCBirthday) window.KCBirthday.show();      // greeting made on this PC
       if ((l.kind === 'question' && !live.question.text.trim()) || (l.kind === 'scripture' && !live.verse.text.trim())) toast('Nothing loaded yet: choose an item in the list.', true);
     }
   });
@@ -811,16 +811,16 @@ function addLayer(what){
       } else x.layers.unshift(l);
       if (n.live.scene === x.id && SC.isText(kind)){ n.live.on[l.id] = true; if (kind === 'countdown') n.live.cd[l.id] = Date.now(); }
       made = l;
-    }).then(function(){ if (made){ select(sc.id, made.id, true); toast(SC.info[kind].name + ' added to ' + sc.name); if (kind === 'question' || kind === 'scripture') setTimeout(function(){ if (window.BSFFrameLists) window.BSFFrameLists.add(kind === 'question' ? 'question' : 'verse'); }, 120); } return made; });
+    }).then(function(){ if (made){ select(sc.id, made.id, true); toast(SC.info[kind].name + ' added to ' + sc.name); if (kind === 'question' || kind === 'scripture') setTimeout(function(){ if (window.KCFrameLists) window.KCFrameLists.add(kind === 'question' ? 'question' : 'verse'); }, 120); } return made; });
   }
   if (what === 'logo') return pickFile('image').then(function(f){ if (f) put({name: 'Logo', c: {file: f, x: 0.88, y: 0.13, w: 0.16}, opacity: 0.95}); });
   if (what === 'watermark') return pickFile('image').then(function(f){ if (f) put({name: 'Watermark', c: {file: f, x: 0.9, y: 0.9, w: 0.12}, opacity: 0.35}); });
   if (what === 'pptx') return pickFile('powerpoint').then(function(f){ if (f) put({name: f.replace(/\.[^.]+$/, ''), c: {file: f, w: 1, h: 1}}); });
   if (['image', 'video', 'pdf'].indexOf(kind) >= 0) return pickFile(kind).then(function(f){ if (f) put({name: f.replace(/\.[^.]+$/, ''), c: {file: f}}); });
-  if (kind === 'screen'){ return put({}).then(function(){ if (isLiveScene(sc.id) && window.BSFStudio) window.BSFStudio.chooseScreen(); else toast('Take this Frame live, then choose which screen to share (Properties).'); }); }
+  if (kind === 'screen'){ return put({}).then(function(){ if (isLiveScene(sc.id) && window.KCStudio) window.KCStudio.chooseScreen(); else toast('Take this Frame live, then choose which screen to share (Properties).'); }); }
   if (kind === 'window'){
     var S = studio(), wins = S ? (S.sources || []).filter(function(s){ return s.kind === 'window'; }) : [];
-    window.BSFStudio.chooser('Capture which window?', wins.map(function(w){ return {icon: 'app-window', name: w.name, w: w}; }), function(o){ put({name: o.w.name.slice(0, 40), c: {hwnd: o.w.hwnd, w: 0.6}}); });
+    window.KCStudio.chooser('Capture which window?', wins.map(function(w){ return {icon: 'app-window', name: w.name, w: w}; }), function(o){ put({name: o.w.name.slice(0, 40), c: {hwnd: o.w.hwnd, w: 0.6}}); });
     return;
   }
   if (plainText) return put({name: 'Text', c: {title: '', text: '', label: false}});
@@ -834,8 +834,8 @@ function defaults(kind){
   return JSON.parse(JSON.stringify(d));
 }
 function pickFile(kind){
-  if (!window.BSFStudio || !window.BSFStudio.addFile){ toast('Needs KingdomConnect (the installed app).', true); return Promise.resolve(null); }
-  return window.BSFStudio.addFile(kind).catch(function(e){ toast(e.message, true); return null; });
+  if (!window.KCStudio || !window.KCStudio.addFile){ toast('Needs KingdomConnect (the installed app).', true); return Promise.resolve(null); }
+  return window.KCStudio.addFile(kind).catch(function(e){ toast(e.message, true); return null; });
 }
 
 /* ===================================================================================================== */
@@ -894,7 +894,7 @@ function renderInspector(){
   });
   var gen = $('ip-gen'); gen.hidden = false;
   orderPanels(panelKind, groups, gen);
-  if (SC.isCard(kind) && !editQ){ if (window.BSFRenderLists) window.BSFRenderLists(); if (window.BSFRefreshControls) window.BSFRefreshControls(); if (kind === 'birthday' && window.BSFRenderBirthday) window.BSFRenderBirthday(); }
+  if (SC.isCard(kind) && !editQ){ if (window.KCRenderLists) window.KCRenderLists(); if (window.KCRefreshControls) window.KCRefreshControls(); if (kind === 'birthday' && window.KCRenderBirthday) window.KCRenderBirthday(); }
   var sig = JSON.stringify([editQ, sc && sc.id, l, sc && !l ? [sc.name, sc.group, sc.fav, sc.tpl, sc.tx, sc.auto, sc.out, sc.modified, sc.notes, live.profile, !!SC.first(sc, 'brand')] : 0, l && l.kind === 'brand' ? live.brand : 0, isLiveScene(sc && sc.id), live.live.on, !!mediaLive]);
   var ae = document.activeElement;
   if (ae && gen.contains(ae) && /INPUT|TEXTAREA|SELECT/.test(ae.tagName) && inspSig.split('|')[0] === (sc && sc.id) + ':' + (l && l.id)) return;   // typing: don't redraw under the cursor
@@ -949,7 +949,7 @@ function sceneForm(gen, sc, tab){
       checkCtl('Favourite', sc.fav, function(v){ edit(sid, function(x){ x.fav = v; }); }),
       checkCtl('Template (kept for making new Frames; not in Previous / Next)', sc.tpl, function(v){ edit(sid, function(x){ x.tpl = v; }); }),
       notesCtl(sc),
-      checkCtl('Branding: show my logo and Meeting Name in this Frame', !!SC.first(sc, 'brand'), function(v){ if (window.BSFBrandSettings) window.BSFBrandSettings.setBranding([sid], v).then(function(){ toast(v ? 'Branding added to ' + sc.name : 'Branding removed from ' + sc.name); }); })]));
+      checkCtl('Branding: show my logo and Meeting Name in this Frame', !!SC.first(sc, 'brand'), function(v){ if (window.KCBrandSettings) window.KCBrandSettings.setBranding([sid], v).then(function(){ toast(v ? 'Branding added to ' + sc.name : 'Branding removed from ' + sc.name); }); })]));
     gen.appendChild(h('div', {cls: 'ip-sec ip-acts'}, [
       h('button', {cls: 'btn small', type: 'button', text: 'Duplicate…', onclick: function(){ smartDuplicate(sid); }}),
       h('button', {cls: 'btn small', type: 'button', text: 'Save as template', onclick: function(){ duplicate(sid, {template: true, name: SC.uniqueName(live, sc.name + ' template')}); }}),
@@ -987,13 +987,13 @@ function notesCtl(sc){
   var ta = h('textarea', {cls: 'tp-script-in', rows: 8, 'aria-label': 'Teleprompter script', placeholder: 'What you want to say on this Frame. Only you see it, in the Teleprompter.'}); ta.value = sc.notes || '';
   ta.addEventListener('keydown', stop);
   ta.addEventListener('input', function(){ var v = ta.value; later('notes', function(){ edit(sc.id, function(x){ x.notes = v.slice(0, 20000); }); }); });
-  var open = h('button', {cls: 'btn small', type: 'button', text: 'Open the Teleprompter', onclick: function(e){ e.preventDefault(); if (window.BSFTeleprompter) window.BSFTeleprompter.open(); }});
+  var open = h('button', {cls: 'btn small', type: 'button', text: 'Open the Teleprompter', onclick: function(e){ e.preventDefault(); if (window.KCTeleprompter) window.KCTeleprompter.open(); }});
   return h('div', {cls: 'tp-script-field'}, [field('Teleprompter script', ta, '# Heading · - bullet · **bold** · *italic* · [PAUSE] cue · --- divider. Never shown to the audience.'), open]);
 }
 function brandStatus(){
   var b = live.brand, bits = [b.logo ? 'logo' : '', b.meeting ? '“' + b.meeting + '”' : '', b.org ? '“' + b.org + '”' : ''].filter(Boolean);
   return h('p', {cls: 'hint'}, [bits.length ? 'Your branding: ' + bits.join(', ') + '. ' : 'No Meeting Name or logo yet. ',
-    h('button', {cls: 'linkish', type: 'button', 'data-goto': 'settings', 'data-sec': 'meeting', text: 'Settings → Meeting & Branding', onclick: function(){ if (window.BSFSetTab) window.BSFSetTab('settings'); }})]);
+    h('button', {cls: 'linkish', type: 'button', 'data-goto': 'settings', 'data-sec': 'meeting', text: 'Settings → Meeting & Branding', onclick: function(){ if (window.KCSetTab) window.KCSetTab('settings'); }})]);
 }
 /* 6.7 Branding: what the badge shows, where (a corner, inside a safe margin) and how (size, padding, plate, opacity).
  * The same settings draw the badge on the camera picture (vcam/program.py) and on the overlay pages (overlay.js). */
@@ -1009,7 +1009,7 @@ function brandForm(gen, sc, l, tab, set){
     gen.appendChild(brandStatus());
     if (live.brand.logo) gen.appendChild(h('div', {cls: 'ip-acts'}, [h('button', {cls: 'btn small', type: 'button', text: 'Remove the logo’s background',
       title: 'Makes the plain background around your logo transparent. Done on this PC; you can undo it.',
-      onclick: function(){ if (window.BSFBrandSettings && window.BSFBrandSettings.removeBackground) window.BSFBrandSettings.removeBackground(); }})]));
+      onclick: function(){ if (window.KCBrandSettings && window.KCBrandSettings.removeBackground) window.KCBrandSettings.removeBackground(); }})]));
   } else if (tab === 'layout'){
     var corner = BRAND_CORNERS.some(function(p){ return p[0] === c.pos; });
     gen.appendChild(row('Position', segCtl(corner ? c.pos : '', BRAND_CORNERS, function(v){ set(function(x){ x.c.pos = v; }, true); })));
@@ -1129,7 +1129,7 @@ var frame = $('program-frame'), frameSrc = '', host = $('tab-studio');
 function renderCanvas(){
   var sc = scene(), isLive = sc && isLiveScene(sc.id), S = studio(), L = live.live;
   var useStudio = !!(isLive && S);
-  if (host.hidden === useStudio){ host.hidden = !useStudio; if (useStudio && window.BSFStudio) setTimeout(window.BSFStudio.fit, 0); }
+  if (host.hidden === useStudio){ host.hidden = !useStudio; if (useStudio && window.KCStudio) setTimeout(window.KCStudio.fit, 0); }
   $('program').hidden = useStudio;
   var src = 'stage.html?bg=preview&preview=1' + (sc && !isLive ? '&scene=' + encodeURIComponent(sc.id) : '');
   if (!useStudio && src !== frameSrc){ frameSrc = src; frame.src = src; }
@@ -1160,8 +1160,8 @@ function renderCanvas(){
 function scaleFrame(){ var box = $('program'); if (box && box.clientWidth) frame.style.transform = 'scale(' + (box.clientWidth / 1920) + ')'; }
 if (window.ResizeObserver) new ResizeObserver(scaleFrame).observe($('program')); window.addEventListener('resize', scaleFrame);
 /* Canvas edits of the live scene's media layers are written back into the scene (the scene owns them) */
-if (window.BSFStudio && window.BSFStudio.onPush){
-  window.BSFStudio.onPush(function(compLayers){
+if (window.KCStudio && window.KCStudio.onPush){
+  window.KCStudio.onPush(function(compLayers){
     var sid = live && live.live.scene; if (!sid) return;
     later('sync', function(){
       commit(function(n){
@@ -1174,7 +1174,7 @@ if (window.BSFStudio && window.BSFStudio.onPush){
       });
     }, 500);
   });
-  window.BSFStudio.onSelect(function(ids){
+  window.KCStudio.onSelect(function(ids){
     if (ids.length === 1 && isLiveScene(selScene) && SC.layer(scene(), ids[0]) && selLayer !== ids[0]){ selLayer = ids[0]; renderAll(true); }
   });
 }
@@ -1195,7 +1195,7 @@ function takeScene(id){
   if (sc.tpl){ toast('This is a template. Use + Frame → From your templates to make a Frame from it.', true); return; }
   var b = SC.first(sc, 'birthday'), needBday = b && b.visible && !live.birthday.greeting.trim();
   commit(function(n){ SC.take(n, id, txSel.value || null); }).then(function(){
-    if (needBday && window.BSFBirthday && window.BSFBirthday.candidate()) window.BSFBirthday.show();
+    if (needBday && window.KCBirthday && window.KCBirthday.candidate()) window.KCBirthday.show();
     toast('On air: ' + sc.name);
     var f = $('program'); if (f){ f.classList.remove('went-live'); void f.offsetWidth; f.classList.add('went-live'); setTimeout(function(){ f.classList.remove('went-live'); }, 1400); }
   });
@@ -1235,7 +1235,7 @@ function guarded(k, fn){ return function(){ var now = Date.now(); if (now - (gl[
 Array.prototype.forEach.call(document.querySelectorAll('#ctlbar [data-cb="slide"]'), function(b){
   b.addEventListener('click', guarded('sl' + b.dataset.step, function(){
     var step = +b.dataset.step;
-    if (window.BSFStudio && window.BSFStudio.slide) return window.BSFStudio.slide(step);
+    if (window.KCStudio && window.KCStudio.slide) return window.KCStudio.slide(step);
     fetch('api/vcam/studio', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({op: 'slide', step: step})})
       .then(function(r){ return r.json(); }).then(function(d){ var s = d.slide || {}; if (s.page) toast('Slide ' + s.page + (s.pages ? ' of ' + s.pages : '')); else if (s.error && !s.busy) toast(s.error, true); }).catch(function(){});
   }));
@@ -1260,7 +1260,7 @@ function renderLiveBar(){
   if (k){
     var items = A.list(k), cur = A.current(k);
     $('lb-step-t').textContent = (k === 'question' ? 'Question ' : 'Verse ') + (cur >= 0 ? (cur + 1) + ' / ' + items.length : '– / ' + items.length);
-    var SCK = window.BSFShortcuts; $('lb-step-kp').textContent = SCK ? SCK.short(k === 'question' ? 'prevQ' : 'prevV') : ''; $('lb-step-kn').textContent = SCK ? SCK.short(k === 'question' ? 'nextQ' : 'nextV') : '';
+    var SCK = window.KCShortcuts; $('lb-step-kp').textContent = SCK ? SCK.short(k === 'question' ? 'prevQ' : 'prevV') : ''; $('lb-step-kn').textContent = SCK ? SCK.short(k === 'question' ? 'nextQ' : 'nextV') : '';
   }
   var ls = SC.liveScene(live), pr = slideInfo && slideInfo.presentation, hasDeck = ls && ls.layers.some(function(x){ return x.kind === 'pdf' || x.kind === 'window'; });
   $('lb-slides').hidden = !(pr || hasDeck);
@@ -1293,7 +1293,7 @@ function migrate(){
 /* ===================================================================================================== */
 /* Render                                                                                                */
 /* ===================================================================================================== */
-window.addEventListener('bsf-edit-done', function(){ renderAll(); });
+window.addEventListener('kc-edit-done', function(){ renderAll(); });
 function renderAll(force){
   if (!live) return;
   if (force){ sceneSig = ''; layerSig = ''; inspSig = ''; }
@@ -1303,21 +1303,6 @@ function renderAll(force){
 }
 Store.subscribe(function(st){ live = st; migrate(); renderAll(false); });
 setInterval(function(){ if (live && !document.hidden && document.body.dataset.tab === 'studio') renderLayers(); }, 3000);   // media layer status from KingdomConnect
-
-/* ---------- Presentation Mode: only the scene list, Previous · Go Live · Next (and HIDE ALL, always) ---------- */
-function setPresentation(on){
-  on = !!on;
-  if (on && window.BSFSetTab && document.body.dataset.tab !== 'studio') window.BSFSetTab('studio');
-  document.body.classList.toggle('pm', on);
-  var b = $('pm-toggle'); b.setAttribute('aria-pressed', String(on));
-  b.querySelector('span').textContent = on ? 'Exit Presentation Mode' : 'Presentation Mode';
-  b.title = on ? 'Back to the full Studio (P)' : 'Presentation Mode: only the Frames, Previous, Go Live and Next (P)';
-  if (filter === 'tpl' && on) setFilter('all');
-  closeMenu();
-  setTimeout(function(){ window.dispatchEvent(new Event('resize')); var el = document.querySelector('#scene-list .scene-item.live, #scene-list .scene-item.sel'); if (el) el.scrollIntoView({block: 'nearest'}); }, 60);
-}
-$('pm-toggle').addEventListener('click', function(){ setPresentation(!document.body.classList.contains('pm')); });
-window.BSFPresentation = setPresentation;
 
 /* Keyboard in the Studio: Ctrl+D duplicates the selected scene (or layer), Delete removes, F2 renames */
 document.addEventListener('keydown', function(e){
@@ -1345,9 +1330,9 @@ function renderTransitions(){
   t.appendChild(tb); root.appendChild(h('div', {cls: 'dir-wrap'}, [t]));
   root.appendChild(h('p', {cls: 'hint', text: 'KingdomConnect plays every transition on the whole picture (a few light operations per frame, under a second). The OBS / browser overlay page covers the screen for the dips and moves the cards for the slides and pushes.'}));
 }
-(window.BSFSectionHooks = window.BSFSectionHooks || []).push(function(id){ if (id === 'transitions') renderTransitions(); });
+(window.KCSectionHooks = window.KCSectionHooks || []).push(function(id){ if (id === 'transitions') renderTransitions(); });
 
-window.BSFWorkspace = {
+window.KCWorkspace = {
   take: function(){ takeScene(selScene); }, step: stepScene, select: select,
   selected: function(){ return {scene: selScene, layer: selLayer}; },
   slides: function(d){ slideInfo = d; if (live) renderLiveBar(); },
@@ -1357,7 +1342,7 @@ window.BSFWorkspace = {
     if (!l){ var s2 = live.scenes.filter(function(s){ return !s.tpl && SC.first(s, 'scripture'); })[0]; if (s2){ sc = s2; l = SC.first(s2, 'scripture'); } }
     if (!l){ toast('Add Scripture to a Frame first (+ Content → Scripture).', true); return; }
     tabFor.scripture = 'content'; select(sc.id, l.id);
-    setTimeout(function(){ if (window.BSFScripture){ window.BSFScripture.focus(ref); window.BSFScripture.fetch(ref); } }, 30);
+    setTimeout(function(){ if (window.KCScripture){ window.KCScripture.focus(ref); window.KCScripture.fetch(ref); } }, 30);
   },
   /* 6.7 command palette */
   newFrame: function(){ newScene('blank'); }, addContent: function(what){ addLayer(what); },
@@ -1372,17 +1357,6 @@ window.BSFWorkspace = {
       var row = document.querySelector((l.kind === 'scripture' ? '#v-items' : '#q-items') + ' > li[data-id="' + itemId + '"]'); if (!row) return;
       row.scrollIntoView({block: 'center'}); row.classList.add('found'); setTimeout(function(){ row.classList.remove('found'); }, 1600);
       row.focus({preventScroll: true});
-    }, 80);
-  },
-  findItem: function(kind, i){
-    var lk = kind === 'verse' ? 'scripture' : 'question', sc = scene(), l = sc && SC.first(sc, lk);
-    if (!l){ var s2 = live.scenes.filter(function(s){ return !s.tpl && SC.first(s, lk); })[0]; if (s2){ sc = s2; l = SC.first(s2, lk); } }
-    if (!l){ toast('No Frame has a ' + (lk === 'question' ? 'Question' : 'Scripture') + ' Content yet.', true); return; }
-    tabFor[lk] = 'content'; select(sc.id, l.id);
-    setTimeout(function(){
-      var row = document.querySelectorAll(kind === 'verse' ? '#v-items > li' : '#q-items > li')[i]; if (!row) return;
-      row.scrollIntoView({block: 'center'}); row.classList.add('found'); setTimeout(function(){ row.classList.remove('found'); }, 1600);
-      var b = row.querySelector('button'); if (b) b.focus({preventScroll: true});
     }, 80);
   }
 };

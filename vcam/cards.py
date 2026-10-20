@@ -25,7 +25,7 @@ _PALETTE = threading.RLock()          # v6.2: cards are drawn on more than one w
 
 
 def accent_palette(hex_color):
-    """v6.2 Leader accent colour -> (text colour, gradient stops). Same maths as BSFScenes.brandPalette."""
+    """v6.2 Leader accent colour -> (text colour, gradient stops). Same maths as KCScenes.brandPalette."""
     m = re.fullmatch(r"#([0-9a-fA-F]{6})", hex_color or "")
     if not m:
         return None
@@ -660,7 +660,7 @@ BOTH_VERSE, BOTH_QUESTION = 0.86, 1.06          # same as overlay.js: in Both mo
 
 
 def presentation_mode(st):
-    """Same as BSFPresent.mode() in store.js: the question's own saved mode, else the mode last chosen."""
+    """Same as KCPresent.mode() in store.js: the question's own saved mode, else the mode last chosen."""
     q = st.get("question", {}) or {}
     for it in (st.get("library", {}) or {}).get("questions", []) or []:
         if it.get("id") == q.get("itemId") and it.get("mode") in MODES:

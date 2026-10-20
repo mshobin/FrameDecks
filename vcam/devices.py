@@ -112,7 +112,7 @@ def camera_blockers(winreg=None):
                     stop = value(winreg.HKEY_CURRENT_USER, path + "\\" + sub, "LastUsedTimeStop")
                     if start and stop == 0:                         # started and not yet stopped = using it now
                         who = _friendly(sub)
-                        if who.lower() != me and "bsf command center" not in sub.lower() and who not in res["inUseBy"]:
+                        if who.lower() != me and "kingdom connect" not in sub.lower() and who not in res["inUseBy"]:
                             res["inUseBy"].append(who)
         except OSError:
             pass

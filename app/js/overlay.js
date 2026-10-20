@@ -1,4 +1,4 @@
-/* BSF Command Center - overlay engine used by every overlay page and the dashboard preview */
+/* Kingdom Connect - overlay engine used by every overlay page and the dashboard preview */
 (function(){
 'use strict';
 
@@ -353,7 +353,7 @@ function BirthdayCard(zone){
  * KingdomConnect uses the same numbers (vcam/cards.py effective_layout). */
 var BOTH_VERSE = 0.86, BOTH_QUESTION = 1.06;
 function effective(st){
-  var P = window.BSFPresent;
+  var P = window.KCPresent;
   if (!P || !P.combined(st)) return st;
   var L = Object.assign({}, st.layout);
   L.verseScale = L.verseScale * BOTH_VERSE; L.qScale = L.qScale * BOTH_QUESTION;
@@ -389,7 +389,7 @@ function TextLayers(root){
   function logoSrc(st){ return st.brand && st.brand.logo ? 'api/brand/logo?v=' + encodeURIComponent(st.brand.logo) : ''; }
   function setLogo(img, src){ if (img.getAttribute('src') !== src){ if (src) img.setAttribute('src', src); else img.removeAttribute('src'); } img.hidden = !src; }
   function fill(x, l, st){
-    var c = l.c, S = window.BSFScenes;
+    var c = l.c, S = window.KCScenes;
     if (l.kind === 'brand'){
       var b = st.brand || {};
       x.zone.className = 'zone-x zone-brand pos-' + c.pos;
@@ -446,7 +446,7 @@ function Program(root){
   return function(st){
     var L = st.live || {};
     var isig = JSON.stringify(L.ink && L.ink.on ? L.ink.items : []);
-    if (isig !== inkSig){ inkSig = isig; window.BSFScenes.drawInk(ink, L.ink && L.ink.on ? L.ink.items : []); }
+    if (isig !== inkSig){ inkSig = isig; window.KCScenes.drawInk(ink, L.ink && L.ink.on ? L.ink.items : []); }
     black.classList.toggle('on', !!L.blackout);
     slate.classList.toggle('on', !!L.emergency && !L.blackout);
     if (msg.textContent !== (L.message || '')) msg.textContent = L.message || '';
@@ -502,7 +502,7 @@ function mount(opts){
     var bz = el('div', 'zone zone-birthday pos-top'); document.body.appendChild(bz);
     cards.birthday = BirthdayCard(bz);
   }
-  var Store = window.BSFStore, SC = window.BSFScenes;
+  var Store = window.KCStore, SC = window.KCScenes;
   var texts = opts.extras ? TextLayers(document.body) : null, program = opts.program ? Program(document.body) : null;
   var isPreview = /[?&]preview=1/.test(location.search), sceneQ = params.get('scene');
   /* Output rules: the OBS / browser pages leave out what is set to "not on overlay pages" (previews show everything) */
@@ -510,14 +510,14 @@ function mount(opts){
   function held(st, d){ return st.live && (st.live.blackout || st.live.emergency) ? Object.assign({}, d, {visible: false}) : d; }
   var ready = (document.fonts && document.fonts.ready) ? document.fonts.ready : Promise.resolve();
   ready.then(function(){
-    var pending = /[?&]pending=1/.test(location.search) && window.BSFPresent;
+    var pending = /[?&]pending=1/.test(location.search) && window.KCPresent;
     Store.subscribe(function(raw){
       // pending=1: a preview of what SHOW will put on screen (Question · Both · Verse), not what is on screen now
       // scene=ID: a preview of another scene, as if it were taken live (the Studio Canvas)
-      var src = sceneQ && SC ? SC.previewState(raw, sceneQ) : pending ? window.BSFPresent.preview(raw) : raw;
+      var src = sceneQ && SC ? SC.previewState(raw, sceneQ) : pending ? window.KCPresent.preview(raw) : raw;
       var st = effective(src);
       last = st;
-      document.body.classList.toggle('mode-both', !!(window.BSFPresent && window.BSFPresent.combined(st)));
+      document.body.classList.toggle('mode-both', !!(window.KCPresent && window.KCPresent.combined(st)));
       applyLayout(st.layout);
       placeVerse(st);
       if (cards.verse) cards.verse.update(held(st, forObs(st.verse)));
@@ -544,5 +544,5 @@ function mount(opts){
   });
 }
 
-window.BSFOverlay = {mount: mount};
+window.KCOverlay = {mount: mount};
 })();

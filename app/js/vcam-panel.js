@@ -1,7 +1,7 @@
-/* BSF Command Center - Settings > KingdomConnect Camera (built-in virtual camera) and the top-bar light */
+/* Kingdom Connect - Settings > KingdomConnect Camera (built-in virtual camera) and the top-bar light */
 (function(){
 'use strict';
-var Store = window.BSFStore;
+var Store = window.KCStore;
 var $ = function(id){ return document.getElementById(id); };
 var root = $('vcam-body');
 if (!root) return;
@@ -11,7 +11,7 @@ function h(tag, attrs, kids){
   (kids || []).forEach(function(c){ if (c != null) el.appendChild(typeof c === 'string' ? document.createTextNode(c) : c); });
   return el;
 }
-function toast(m, bad){ if (window.BSFActions) window.BSFActions.toast(m, bad); }
+function toast(m, bad){ if (window.KCActions) window.KCActions.toast(m, bad); }
 function chip(cls, text, title){                        // touches the page only when something changed
   var c = $('h-vcam'); if (!c) return;
   var k = 'hchip ' + cls, b = c.querySelector('b');
@@ -139,7 +139,7 @@ document.addEventListener('keydown', function(e){
   var order = ['warm', 'dark', 'neutral'];
   setLook(n === 0 ? 'off' : order[n - 1]);
 });
-window.BSFLook = {set: setLook};
+window.KCLook = {set: setLook};
 cardsCb.addEventListener('change', function(){ save('cards', cardsCb.checked); toast(cardsCb.checked ? 'Your cards will appear on KingdomConnect' : 'Cards are off on KingdomConnect (use the OBS/Camo overlay links instead)'); });
 camSel.addEventListener('change', function(){ save('cameraName', camSel.value); });
 previewBtn.addEventListener('click', function(){
@@ -371,7 +371,7 @@ function poll(){
       if (d.lite && current){ d.cameras = current.cameras; d.looks = current.looks; d.profiles = current.profiles; d.looksNote = current.looksNote; d.activeCamera = current.activeCamera; }
       return render(d);
     }).catch(function(){})
-    .then(function(){ setTimeout(poll, window.BSFStore.pace($('sec-vcam') && !$('sec-vcam').hidden ? 1000 : 3000)); });
+    .then(function(){ setTimeout(poll, window.KCStore.pace($('sec-vcam') && !$('sec-vcam').hidden ? 1000 : 3000)); });
 }
 poll();
 
@@ -382,9 +382,9 @@ function pullPreview(){
   if ($('sec-vcam').hidden || document.body.dataset.tab !== 'settings'){
     previewing = false; previewBtn.textContent = 'Show preview'; previewBox.classList.remove('on'); img.removeAttribute('src'); return;
   }
-  window.BSFStore.freshPreview(pvTag).then(function(b){
+  window.KCStore.freshPreview(pvTag).then(function(b){
     if (b){ var u = URL.createObjectURL(b); var old = img.src; img.src = u; if (old && old.slice(0, 5) === 'blob:') URL.revokeObjectURL(old); }
   }).catch(function(){}).then(function(){ setTimeout(pullPreview, 500); });
 }
-window.BSFVcamStatus = function(){ return current; };
+window.KCVcamStatus = function(){ return current; };
 })();

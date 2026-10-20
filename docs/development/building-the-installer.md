@@ -1,6 +1,6 @@
 # Kingdom Connect: Installation Guide (build and install the Windows app)
 
-This guide turns the Kingdom Connect folder (formerly BSF Command Center) into a normal Windows program:
+This guide turns the Kingdom Connect folder into a normal Windows program:
 - a **Setup** file that installs it;
 - a **desktop icon**;
 - its **own app window**, with no address bar or browser controls;
@@ -23,7 +23,7 @@ any programming tools. You only need a free GitHub account.
 1. **Create a GitHub account** at <https://github.com> (free). Use a strong password and turn on
    two-factor sign-in when it offers.
 2. **Install GitHub Desktop** from <https://desktop.github.com> and sign in with your account.
-3. Unzip **BSF-Command-Center.zip** somewhere permanent, for example `Documents\BSF-Command-Center`.
+3. Unzip the **Kingdom Connect** zip file somewhere permanent, for example `Documents\Kingdom-Connect`.
    (Keep using your current folder for meetings until the app is installed; nothing here changes it.)
 4. In GitHub Desktop: **File → Add local repository…** → choose the unzipped folder.
    It will say the folder is not a repository yet: click **create a repository**, then **Create repository**.
@@ -50,12 +50,13 @@ If you see a red cross instead, click the run to read the error, and send it to 
 3. Follow the wizard. Leave **Create a desktop icon** ticked.
    - Leave **Install the KingdomConnect camera for Zoom and Teams** ticked. Windows asks for administrator permission
      once, only for the camera.
-   - If you had the camera before (as "BCC vCam"), it is renamed to **KingdomConnect** automatically.
+   - If you had the camera before under its earlier name, it is renamed to **KingdomConnect** automatically.
    - Tick **Start automatically when I sign in** if you'd like it ready every time.
 4. When it opens for the first time, it offers to **import your existing data**.
-   Choose your current BSF Command Center folder (it's usually found automatically) and click **Import**.
+   Choose your current Kingdom Connect folder (it's usually found automatically) and click **Import**.
    Your members, saved verses and questions, settings and phone PIN are copied across.
-   Your old folder isn't changed.
+   Your old folder isn't changed. (If an earlier installed version is on the PC, its data is moved to the Kingdom
+   Connect data folder automatically instead.)
 
 ## Part 4 · First-run checklist (before a real meeting)
 
@@ -71,8 +72,8 @@ If you see a red cross instead, click the run to read the error, and send it to 
       The first time, Windows Firewall asks about network access: tick **Private networks** only → **Allow**.
       Your phone may need to scan the QR code again, and use the PIN shown.
 - [ ] **Close button (X):** choose **Keep running in the background**. The overlays keep working, and a
-      BSF icon appears near the clock (it may be under the **^** arrow). Click it to open the window again.
-- [ ] **Quit** from that icon's menu (right-click → Quit BSF Command Center), then open the app again
+      Kingdom Connect icon appears near the clock (it may be under the **^** arrow). Click it to open the window again.
+- [ ] **Quit** from that icon's menu (right-click → Exit), then open the app again
       from the desktop icon: everything is still there.
 - [ ] **Email draft and WhatsApp buttons** open your normal email app and browser.
 - [ ] **Excel export and backups** save to your Downloads folder.
@@ -99,25 +100,27 @@ If you see a red cross instead, click the run to read the error, and send it to 
       pick your display. Within a few seconds your screen appears; move the mouse — the cursor shows. If it can't
       start, the Screen layer's inspector shows exactly which capture methods were tried and why: send me that text.
       Also try a PowerPoint slide show window and Page Down / Page Up.
-- [ ] **Presentation Mode (4.2):** Studio → *Presentation Mode*. A separate window "BSF Presentation" opens. In a Zoom
-      test meeting: Share Screen → pick **BSF Presentation**. Show a question from the main window or your phone: it
+- [ ] **Presentation window (4.2):** Studio Canvas → *Share Window*. A separate window "Kingdom Connect Share Window" opens. In a
+      Zoom test meeting: Share Screen → pick **Kingdom Connect Share Window**. Show a question from the main window or your phone: it
       appears in the shared window at once. Esc closes it.
-- [ ] **4.5 Graphics card:** open Presentation Mode and share it in Zoom. In Task Manager the "WebView2: BSF
-      Presentation" line should be gone (the window is now part of BSF Command Center itself), and WebView2's GPU use
+- [ ] **4.5 Graphics card:** open the Presentation window and share it in Zoom. In Task Manager the separate "WebView2" line for the
+      shared window should be gone (the window is now part of Kingdom Connect itself), and WebView2's GPU use
       should be far lower. Send me a new screenshot. If the Presentation window doesn't appear, send Settings →
       Diagnostics → Copy diagnostics (the log says which window type was used).
 - [ ] **4.4 Smoothness:** repeat your meeting setup (Zoom sharing the Presentation window, a question live) and open
       Task Manager → Processes. Compare GPU and "Desktop Window Manager" with your earlier screenshot, and switch
-      between apps. Send me a new screenshot including the **BSF Command Center** process line.
+      between apps. Send me a new screenshot including the **Kingdom Connect** process line.
 - [ ] **4.3 Presentation window:** opens with no title bar or window buttons; drag to move; Full Screen fills the
-      screen with no frame; Esc leaves full screen, Esc again (or ✕) closes. Zoom still lists it as "BSF Presentation".
+      screen with no frame; Esc leaves full screen, Esc again (or ✕) closes. Zoom still lists it as "Kingdom Connect Share Window".
 - [ ] **4.3 Camera quality:** Settings → KingdomConnect Camera: the line under the preview shows "Webcam: 1280×720 MJPG at 30 fps"
       (or similar). If it shows a smaller size, send me that line. In Zoom tick Settings → Video → HD.
 - [ ] **4.3 Blur:** − / + change the blur by 0.5 %; the lowest blur is 0.5 %.
 - [ ] **Acceptance (4.2):** with Zoom in a meeting, KingdomConnect on, and the Presentation window shared, switch between apps,
       move windows, type in a browser for a few minutes. Nothing should lag or freeze. Then send me Settings →
       Diagnostics → *Copy diagnostics* (it includes the new Resources line).
-- [ ] **Excel import:** Content → *Download template*, fill in two rows, *Import from Excel*.
+- [ ] **Excel import:** ✨ Meeting → *Download the Excel template*; on the **Meeting Form** tab add a Frame and a
+      Content row; ✨ Meeting → *Import meeting from Excel…*. Then *Export this meeting to Excel*: the file opens on
+      the **Dashboard**, with the Meeting Form filled in.
 - [ ] **Blur:** Settings → KingdomConnect Camera → try Light and Maximum with the preview on; *Save as default*.
 - [ ] **Studio canvas:** drag a layer (pink guides appear near the centre/edges), resize with a corner handle,
       change Corner radius in the inspector, add a Text layer and type your own text.
@@ -137,10 +140,10 @@ your data. (The old files stay where they are as an extra backup.)
 
 | What | Where |
 |---|---|
-| The program | `%LOCALAPPDATA%\Programs\BSF Command Center` |
-| Your data (verses, questions, members, PIN, settings) | `%APPDATA%\BSF Command Center` |
-| Daily backups (newest 10 kept) | `%APPDATA%\BSF Command Center\backups` |
-| Problem log (for troubleshooting) | `%APPDATA%\BSF Command Center\bsf-app-log.txt` |
+| The program | `%LOCALAPPDATA%\Programs\Kingdom Connect` |
+| Your data (verses, questions, members, PIN, settings) | `%APPDATA%\Kingdom Connect` |
+| Daily backups (newest 10 kept) | `%APPDATA%\Kingdom Connect\backups` |
+| Problem log (for troubleshooting) | `%APPDATA%\Kingdom Connect\kc-app-log.txt` |
 
 Settings → Data / Backup has buttons to open the data and backups folders.
 
@@ -160,7 +163,7 @@ Edit files inside your repository folder (the one GitHub Desktop is tracking). F
 
 Use a plain text editor such as Notepad or VS Code (free). Keep the quote marks, commas and brackets as they are.
 
-**Quick test before building:** double-click `Start BSF Command Center.bat` in the same folder. It runs your changed version in the browser straight away. It uses its own separate data, so it never touches the installed app's data.
+**Quick test before building:** double-click `Start Kingdom Connect.bat` in the same folder. It runs your changed version in the browser straight away. It uses its own separate data, so it never touches the installed app's data.
 
 ### 2. Raise the version number
 
@@ -192,7 +195,7 @@ GitHub builds the installer again and attaches it to that release permanently. T
 ### When I send you an updated zip
 
 1. Unzip it somewhere else (for example your Downloads folder).
-2. Open the new `BSF-Command-Center` folder, select everything inside it (Ctrl+A), copy it, and paste it
+2. Open the new `Kingdom-Connect` folder, select everything inside it (Ctrl+A), copy it, and paste it
    into your repository folder. Choose **Replace the files in the destination**.
    The hidden `.git` folder in your repository folder is not in my zip, so your history is kept.
    **Make sure the `.github` folder is copied too.** It holds the build recipe; if it isn't updated, GitHub
@@ -210,7 +213,7 @@ GitHub builds the installer again and attaches it to that release permanently. T
 
 ## Uninstalling
 
-Windows **Settings → Apps → Installed apps → BSF Command Center → Uninstall**.
+Windows **Settings → Apps → Installed apps → Kingdom Connect → Uninstall**.
 It asks whether to delete your data as well. The default is **No**, which keeps your data for a later reinstall.
 
 ## Building on your own PC instead (optional)
@@ -224,12 +227,12 @@ The installer appears in the `dist` folder.
 - **The app opens in an Edge window (or your browser) instead of its own window:** Windows is missing the free
   "Microsoft Edge WebView2 Runtime". Install it from microsoft.com, then open the app again.
   Everything works in the meantime. The Edge app window has no address bar or tabs.
-- **Zoom / Teams / OBS still shows "BCC vCam" or no KingdomConnect:** restart that app. If it is still missing, run
+- **Zoom / Teams / OBS still shows the camera's earlier name or no KingdomConnect:** restart that app. If it is still missing, run
   the installer again with **Install the KingdomConnect camera** ticked.
 - **Antivirus blocks or quarantines the app:** this is a known false alarm with unsigned apps made
-  with Python. Restore it and add an exception for `%LOCALAPPDATA%\Programs\BSF Command Center`.
+  with Python. Restore it and add an exception for `%LOCALAPPDATA%\Programs\Kingdom Connect`.
 - **"Port 8750 is in use" message:** another program is using the address the overlays need.
-  Close that program and restart BSF Command Center.
+  Close that program and restart Kingdom Connect.
 - **"This installer was built without the camera"** (Settings → KingdomConnect Camera): the build recipe in your repository
   is out of date. Copy the `.github` folder from my latest zip into your repository, commit, push, and install
   the new installer.
@@ -242,4 +245,4 @@ The installer appears in the `dist` folder.
   **Camera access** and **Let desktop apps access your camera**. Also check Settings → KingdomConnect Camera → **Webcam** shows
   your real webcam (infrared "face sign-in" cameras can't be used).
 - Anything else: Settings → Diagnostics → **Copy diagnostics** (it contains no PIN or member details),
-  plus `bsf-app-log.txt` from the data folder.
+  plus `kc-app-log.txt` from the data folder.

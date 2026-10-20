@@ -112,30 +112,49 @@ Use `# Heading`, `- bullet`, `**bold**`, `*italic*`, `[PAUSE]` and `---` to make
 Excel is optional. The **Meeting Workbook** is useful when one person plans the service and another runs it, or
 when you want to type a whole series of questions at once.
 
-### The five sheets
+### Two tabs: Dashboard and Meeting Form
 
-| Sheet | One row per… | Main columns |
-| --- | --- | --- |
-| **Meeting Overview** | detail | Meeting Title, Date, Presenter, Notes |
-| **Frames** | Frame | Frame Number, Frame Name, Description, Background, Transition, Teleprompter Script |
-| **Content** | Content | Frame Number, Content Order, Content Type, Content Name, Main Content, Label, Duration, Animation, Notes |
-| **Questions** | question | Frame Number, Content Name, Question Number, Label, Question Text |
-| **Scriptures** | scripture | Frame Number, Content Name, Scripture Number, Label, Reference, Text, Translation |
+Since 6.9 the workbook has just two tabs.
 
-The template has drop-down lists and example rows. Full column details are in
-[reference/meeting-workbook-and-branding.md](reference/meeting-workbook-and-branding.md).
+**Meeting Form** is where you type. It is one page, read from top to bottom, in numbered sections:
+
+| Section | What you fill in |
+| --- | --- |
+| **1 · Meeting details** | Meeting name, Date, Time, Location / link, Meeting notes |
+| **2 · Speaker** | Speaker name, Speaker contact |
+| **3 · Attendees** | Expected attendees, Attendee notes |
+| **4 · Presentation** | Presentation owner, Content notes |
+| **5 · Frames** | A table: one row per Frame (name, purpose, background, transition, presenter script) |
+| **6 · Content** | A table: what each Frame shows, in order |
+| **7 · Discussion questions** | A table: the questions of each Question item |
+| **8 · Scripture readings** | A table: the scriptures of each Scripture item |
+| **9 · Additional notes** | Anything else: equipment, follow-ups, prayer requests |
+
+- Type in the **cream** boxes. **Tab** moves to the next box.
+- Type the date like `2026-10-25` and the time like `19:00`.
+- Many cells have a drop-down list (Content type, Background, Transition, Animation and so on). Pick from it.
+- Each table shows a few empty rows. Need more? Select the **+** button in the left margin to open the next rows.
+
+**Dashboard** fills itself in from the Meeting Form. You never type on it, and it is never imported. It shows the
+meeting at a glance: how many days to go, the counts of Frames, Content, questions and scriptures, a **Readiness**
+checklist, **Quick actions** that jump into the form, a **Content mix** chart, and a **Recent meetings** log. Add a
+row to that log after each meeting, and the meeting tiles count them.
+
+Full details are in [reference/meeting-workbook-and-branding.md](reference/meeting-workbook-and-branding.md).
 
 ### Import a meeting
-1. **Meeting → Download the Excel template**, then fill it in.
+1. **Meeting → Download the Excel template**, then fill in the **Meeting Form** tab.
 2. **Meeting → Import meeting from Excel…** and choose the file.
-3. Read the **preview**. It lists the Frames and Content that will be made, and every problem with its sheet and
-   row. Fix problems in Excel and import again.
+3. Read the **preview**. It lists the Frames and Content that will be made, and every problem with where it is, for
+   example *Meeting Form · Content · row 26*. Fix problems in Excel and import again.
 4. Choose **Append** (add to what you have) or **Replace**.
 5. Changed your mind? **Meeting → Undo the last Excel import**.
 
+Workbooks from earlier versions (one sheet per list, from 6.5 to 6.8, or the 6.2 one-sheet template) still import.
+
 ### Export a meeting
-**Meeting → Export this meeting to Excel** saves the same five sheets, filled in, to your Downloads folder. You can
-edit that file and import it again.
+**Meeting → Export this meeting to Excel** saves the same **Dashboard** and **Meeting Form**, filled in, to your
+Downloads folder. You can edit that file and import it again, or give it to a co-leader.
 
 > **Important:** After an import, **the app is the source of truth**. The Excel file is not linked. Changes you make
 > in the app do not go back into the file; export again to get an up-to-date copy.

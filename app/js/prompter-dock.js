@@ -3,7 +3,7 @@
  * "Window" opens the same Teleprompter in its own window (for a second screen). Closed, it does no work at all. */
 (function(){
 'use strict';
-var Store = window.BSFStore, SC = window.BSFScenes, P = window.BSFPrompter;
+var Store = window.KCStore, SC = window.KCScenes, P = window.KCPrompter;
 var $ = function(id){ return document.getElementById(id); };
 if (!P || !SC) return;
 function h(tag, attrs, kids){
@@ -12,7 +12,7 @@ function h(tag, attrs, kids){
   (kids || []).forEach(function(c){ if (c != null) el.appendChild(typeof c === 'string' ? document.createTextNode(c) : c); });
   return el;
 }
-function toast(m, bad){ if (window.BSFActions) window.BSFActions.toast(m, bad); }
+function toast(m, bad){ if (window.KCActions) window.KCActions.toast(m, bad); }
 function lsGet(k, d){ try { var v = localStorage.getItem(k); return v === null ? d : v; } catch(e){ return d; } }
 function lsSet(k, v){ try { localStorage.setItem(k, v); } catch(e){} }
 var DOCKS = [['left', 'Left'], ['right', 'Right'], ['bottom', 'Bottom'], ['float', 'Float']];
@@ -28,20 +28,20 @@ var head = h('div', {cls: 'tpd-head'}, [
   h('div', {cls: 'tpd-row'}, [h('b', {cls: 'tpd-title', text: 'Teleprompter'}), h('span', {cls: 'tpd-private', text: 'Only you see this'}),
     h('button', {cls: 'tpd-x', type: 'button', 'aria-label': 'Close the Teleprompter', title: 'Close (R)', text: '×', onclick: function(){ setOpen(false); }})]),
   h('div', {cls: 'tpd-row'}, [dockSeg, followBtn,
-    h('button', {cls: 'tpd-btn', type: 'button', text: 'Window', title: 'Open the Teleprompter in its own window (for a second screen)', onclick: function(){ if (window.BSFPresenterTools && window.BSFPresenterTools.speaker) window.BSFPresenterTools.speaker(); }}),
-    h('button', {cls: 'tpd-btn', type: 'button', text: 'Overlay', title: 'Teleprompter overlay: see-through, over Zoom or Teams (Shift+R)', onclick: function(){ if (window.BSFPresenterTools && window.BSFPresenterTools.overlay) window.BSFPresenterTools.overlay(); }})])]);
+    h('button', {cls: 'tpd-btn', type: 'button', text: 'Window', title: 'Open the Teleprompter in its own window (for a second screen)', onclick: function(){ if (window.KCPresenterTools && window.KCPresenterTools.speaker) window.KCPresenterTools.speaker(); }}),
+    h('button', {cls: 'tpd-btn', type: 'button', text: 'Overlay', title: 'Teleprompter overlay: see-through, over Zoom or Teams (Shift+R)', onclick: function(){ if (window.KCPresenterTools && window.KCPresenterTools.overlay) window.KCPresenterTools.overlay(); }})])]);
 var body = h('div', {cls: 'tpd-body'});
 var grip = h('div', {cls: 'tpd-grip', title: 'Drag to resize', 'aria-hidden': 'true'});
 var panel = h('aside', {cls: 'tpd', id: 'tp-dock', role: 'complementary', 'aria-label': 'Teleprompter', hidden: 'hidden'}, [head, body, grip]);
 document.body.appendChild(panel);
 
 function saveScript(sid, text){
-  return window.BSFCommit(function(n){ var sc = SC.find(n, sid); if (!sc) return; sc.notes = String(text || '').slice(0, 20000); SC.stamp(sc); })
+  return window.KCCommit(function(n){ var sc = SC.find(n, sid); if (!sc) return; sc.notes = String(text || '').slice(0, 20000); SC.stamp(sc); })
     .then(function(){ toast('Teleprompter script saved'); });
 }
 function frame(){
   if (!live) return null;
-  var sel = window.BSFSelFrame && window.BSFSelFrame(), on = live.live.scene;
+  var sel = window.KCSelFrame && window.KCSelFrame(), on = live.live.scene;
   var id = state.follow === 'selected' ? (sel || on) : (on || sel);
   return id ? SC.find(live, id) : null;
 }
@@ -102,9 +102,9 @@ Store.subscribe(function(st){
   var sc = frame(), s = JSON.stringify([sc && sc.id, sc && sc.notes, st.live.scene, st.question.itemId, st.verse.itemId, st.scenes.length, sc && sc.name]);
   if (s !== sig){ sig = s; refresh(); }
 });
-window.addEventListener('bsf-select', refresh);
+window.addEventListener('kc-select', refresh);
 
 var btn = $('lb-prompter'); if (btn) btn.addEventListener('click', function(){ setOpen(!state.open); });
-window.BSFTeleprompter = {open: function(){ setOpen(true); }, close: function(){ setOpen(false); }, toggle: function(){ setOpen(!state.open); }, dock: setDock, isOpen: function(){ return state.open; }};
+window.KCTeleprompter = {open: function(){ setOpen(true); }, close: function(){ setOpen(false); }, toggle: function(){ setOpen(!state.open); }, dock: setDock, isOpen: function(){ return state.open; }};
 if (state.open) setTimeout(function(){ setOpen(true); }, 0);
 })();

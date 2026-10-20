@@ -9,8 +9,9 @@ Write code that reads like the code around it. These are the conventions the rep
 - **Comments explain why**, not what: the reason for a limit, a measurement, a Windows quirk, a compatibility rule.
   Match the comment density of the file you are editing.
 - **Keep compatibility.** Saved data from earlier versions must keep opening. In code and in the saved file, Frames
-  are still `scenes` and Content is still `layers`; the data folder and install folder keep the name
-  "BSF Command Center". Don't rename these.
+  are still `scenes` and Content is still `layers`. Don't rename these. Data saved under the program's earlier
+  name is moved once by `legacy.py` (and a marked block at the top of `app/js/store.js`); keep that name out of
+  every other file.
 - **No new dependencies without discussion.** The program runs on the Python standard library; the interface uses no
   npm packages and has no build step.
 
@@ -21,19 +22,19 @@ Write code that reads like the code around it. These are the conventions the rep
   /* Kingdom Connect v6.6 - <feature>: what it does and why, in a sentence or two. */
   (function(){
   'use strict';
-  var Store = window.BSFStore, SC = window.BSFScenes;
+  var Store = window.KCStore, SC = window.KCScenes;
   var $ = function(id){ return document.getElementById(id); };
   // …
-  window.BSFFeatureName = {open: open};   // only what other files need
+  window.KCFeatureName = {open: open};   // only what other files need
   })();
   ```
 - **ES5 style:** `var`, `function`, plain loops and `Array.prototype` methods. The pages must run in the WebView2
   window, Edge and Chrome app windows, OBS browser sources and phone browsers.
 - **Elements** are built with the small `h(tag, attrs, kids)` helper each file defines, not with HTML strings that
   contain user text. Use `textContent` (the `text` attribute of `h`) for anything a user typed.
-- **Shared objects** are exposed on `window` with a `BSF` prefix (`BSFStore`, `BSFScenes`, `BSFFrameLists`,
-  `BSFPresenterTools` …). Check that a name is not already taken before adding one.
-- **State changes** go through `window.BSFCommit(fn)` (the dashboard) or `Store.update(fn)` (the remote). `fn`
+- **Shared objects** are exposed on `window` with a `KC` prefix (`KCStore`, `KCScenes`, `KCFrameLists`,
+  `KCPresenterTools` …). Check that a name is not already taken before adding one.
+- **State changes** go through `window.KCCommit(fn)` (the dashboard) or `Store.update(fn)` (the remote). `fn`
   changes the given copy of the state; never change a state object you received from `Store.subscribe`.
 - **New state fields** get a default and are cleaned in `app/js/store.js`, so older saved data and bad input can never
   break a page.

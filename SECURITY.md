@@ -29,7 +29,7 @@ you when a fix is released and, if you wish, credit you in the release notes.
 | **Phone remote** | Off unless turned on (Settings → Phone & iPad Remote, or `--remote`). When on, it also listens on this PC's local network addresses, and every page except the sign-in page needs a PIN. |
 | **PIN sign-in** | After 5 wrong PINs from a device, that device must wait 60 seconds. A correct PIN creates a random session token in an `HttpOnly`, `SameSite=Strict` cookie that lasts 30 days. **New PIN** (Settings → Phone & iPad Remote) signs every device out at once. |
 | **What the remote can reach** | Devices other than this PC can reach only an allow-list of pages and APIs (the remote, the shared meeting state, overlay pages, the brand logo and the live picture for the drawing pad). Settings, uploads, backups, members, scripture lookup and the camera controls are this PC only. |
-| **Member data** | Members are kept in a separate file (`bsf-members-private.json`) that is never sent to the phone remote or the overlay pages. The birthday card receives only what the greeting needs (no phone, email or birth date). |
+| **Member data** | Members are kept in a separate file (`kc-members-private.json`) that is never sent to the phone remote or the overlay pages. The birthday card receives only what the greeting needs (no phone, email or birth date). |
 | **Saving** | State is written to a temporary file and then swapped in, so a crash or power cut cannot leave a half-written file. Backups are made daily. |
 | **Outbound connections** | None, except the optional ESV scripture lookup, which sends only the reference you asked for and your ESV API key to `api.esv.org`. The key stays on the PC and is never sent to the remote. |
 | **Telemetry** | None. The program does not report usage, crashes or anything else. |
@@ -40,5 +40,5 @@ you when a fix is released and, if you wish, credit you in the release notes.
   only from this repository's Actions or Releases pages and check the published SHA-256 file.
 - The phone remote uses plain HTTP on the local network (there is no certificate a phone would trust for a local
   address). Use it on a network you trust; a guest Wi-Fi shared with the public is not recommended.
-- Anyone with access to the PC's Windows account can read the data folder (`%APPDATA%\BSF Command Center`). Protect
+- Anyone with access to the PC's Windows account can read the data folder (`%APPDATA%\Kingdom Connect`). Protect
   the PC with a Windows password.

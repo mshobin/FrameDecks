@@ -27,16 +27,16 @@ assert.ok(files.size > 10, 'the output files were found');
 const store = read('app/js/store.js');
 ['liveText', 'previewState'].forEach(fn => {
   const i = store.indexOf(fn + ':'), body = i < 0 ? '' : store.slice(i, i + 1500);
-  assert.ok(!/\.notes\b/.test(body), 'BSFScenes.' + fn + ' must not use notes');
+  assert.ok(!/\.notes\b/.test(body), 'KCScenes.' + fn + ' must not use notes');
 });
 
 /* ---------- 2. Rendering is safe and understands the markup ---------- */
 const env = require('./helpers/load-store.js')();
-const ctx = {window: {BSFScenes: env.Scenes}, console};
+const ctx = {window: {KCScenes: env.Scenes}, console};
 ctx.window.window = ctx.window;
 vm.createContext(ctx.window);
 vm.runInContext(read('app/js/teleprompter.js'), ctx.window);
-const P = ctx.window.BSFPrompter;
+const P = ctx.window.KCPrompter;
 assert.ok(P && typeof P.render === 'function' && typeof P.create === 'function');
 const html = P.render('<script>alert(1)</script>\n# Welcome\n- one **two** *three*\n[PAUSE] then\n---');
 assert.ok(!/<script/i.test(html), 'markup is escaped');

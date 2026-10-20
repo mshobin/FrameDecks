@@ -38,7 +38,7 @@ assert.strictEqual(st.scenes[0].name, 'A');
 console.log('my feature: OK');
 ```
 
-Prefer testing behaviour through the same helpers the app uses (`Store.normalize`, `BSFScenes`), not internal details.
+Prefer testing behaviour through the same helpers the app uses (`Store.normalize`, `KCScenes`), not internal details.
 
 ## Self-check
 
@@ -71,11 +71,11 @@ these flows in CI is on the [roadmap](../../ROADMAP.md).
 Useful set-up for any manual or automated test:
 
 ```bash
-BSF_DATA_DIR=/tmp/kc-test BSF_VCAM_DEMO=1 python server.py --no-browser --remote
+KC_DATA_DIR=/tmp/kc-test KC_VCAM_DEMO=1 python server.py --no-browser --remote
 ```
 
-- `BSF_DATA_DIR` keeps test data away from real meetings and members.
-- `BSF_VCAM_DEMO=1` gives a moving test picture, so the camera pipeline, previews and the phone's live picture work
+- `KC_DATA_DIR` keeps test data away from real meetings and members.
+- `KC_VCAM_DEMO=1` gives a moving test picture, so the camera pipeline, previews and the phone's live picture work
   without a webcam.
 - `http://localhost:8750/api/remote-info` shows the phone remote's PIN and addresses on this PC.
 
@@ -112,7 +112,7 @@ flow. Use a test Zoom or Teams meeting, a real webcam and a phone on the same Wi
 - [ ] **Teleprompter** (R) docks Left, Right, Bottom and Float; **Space** scrolls it. Its text never appears in Zoom, the Presentation window or the OBS pages.
 - [ ] **Teleprompter window** shows the Frame's script, the item on screen and the next item (no answers or notes).
 - [ ] The phone's **TELEPROMPTER** button opens the script full screen.
-- [ ] The **Presentation window** opens and can be shared in Zoom as "BSF Presentation".
+- [ ] The **Presentation window** opens and can be shared in Zoom as "Kingdom Connect Share Window".
 
 **Window, tray and Spotlight (6.8)**
 
@@ -147,6 +147,18 @@ These need a real Windows desktop; CI cannot run them. Test on Windows 10 and Wi
 - [ ] **Modern window off:** Settings → General → Window and tray → **Modern window** off, restart: the Windows
       title bar is back and every window works normally. Turn it on again.
 - [ ] **Compatibility transparency:** turn it on, reopen the overlay: the whole window fades in every mode.
+
+**Command bar and Meeting Workbook (6.9)**
+- [ ] **Command bar:** no search box, no Presentation Mode button, no **Hide the app window** button. **Hide all**
+      shows **Esc** inside the button; **Program ▾** opens as a drop-down. Resize the window below 1140 px wide:
+      the bar wraps to two rows and nothing is cut off. Check maximized, on an ultra-wide screen and at 150 % or
+      200 % display scaling.
+- [ ] **Template:** ✨ Meeting → *Download the Excel template*. It has two tabs, **Dashboard** and **Meeting Form**.
+      The Dashboard updates when you change the Meeting Form (date, speaker, Frames). The **+** buttons on the left
+      open more table rows.
+- [ ] **Import and export:** import the template; the preview names problems as *Meeting Form · Content · row …*.
+      Export the meeting: the file has the same two tabs, filled in, and imports again. A 6.5–6.8 workbook (one
+      sheet per list) still imports.
 
 **Closing**
 - [ ] Close the window and choose **Keep running in the background**: Zoom still shows the picture.

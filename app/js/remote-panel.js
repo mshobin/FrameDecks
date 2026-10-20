@@ -1,7 +1,7 @@
-/* BSF Command Center - Settings > Phone & iPad Remote */
+/* Kingdom Connect - Settings > Phone & iPad Remote */
 (function(){
 'use strict';
-var Store = window.BSFStore, Status = window.BSFStatus;
+var Store = window.KCStore, Status = window.KCStatus;
 var box = document.getElementById('remote-box');
 function h(tag, attrs, kids){
   var el = document.createElement(tag);
@@ -9,7 +9,7 @@ function h(tag, attrs, kids){
   (kids || []).forEach(function(c){ if (c != null) el.appendChild(typeof c === 'string' ? document.createTextNode(c) : c); });
   return el;
 }
-function toast(m, bad){ if (window.BSFActions) window.BSFActions.toast(m, bad); }
+function toast(m, bad){ if (window.KCActions) window.KCActions.toast(m, bad); }
 function copy(text, what){
   var ta = h('textarea'); ta.value = text; document.body.appendChild(ta); ta.select();
   try { document.execCommand('copy'); toast(what + ' copied'); } catch(e){} ta.remove();
@@ -19,7 +19,7 @@ function ago(t, now){ var s = Math.max(0, Math.round(now - t)); return s < 5 ? '
 box.hidden = false; box.innerHTML = '';
 if (!Store.served){
   box.appendChild(h('div', {cls: 'box-head'}, [h('h2', {text: 'Phone & iPad Remote'})]));
-  box.appendChild(h('p', {cls: 'plain', text: 'The phone remote needs the Kingdom Connect program. Start it with “Start BSF Command Center with iPad Remote.bat”.'}));
+  box.appendChild(h('p', {cls: 'plain', text: 'The phone remote needs the Kingdom Connect program. Start it with “Start Kingdom Connect with iPad Remote.bat”.'}));
   return;
 }
 
@@ -46,7 +46,7 @@ sw.addEventListener('change', function(){
 });
 var auto = h('input', {type: 'checkbox', id: 'remote-autostart'});
 auto.addEventListener('change', function(){ post('settings', {remoteAutostart: auto.checked}).then(function(){ toast(auto.checked ? 'The phone remote will turn on whenever Kingdom Connect starts' : 'The phone remote will start switched off'); }); });
-document.addEventListener('bsf-app-info', function(e){ auto.checked = !!e.detail.settings.remoteAutostart; });
+document.addEventListener('kc-app-info', function(e){ auto.checked = !!e.detail.settings.remoteAutostart; });
 box.appendChild(h('div', {cls: 'big-switch'}, [sw, h('div', {}, [swText,
   h('div', {cls: 'hint', text: 'When on, phones and iPads on your Wi-Fi can connect using the PIN. When off, nothing on the network can reach this PC.'})])]));
 box.appendChild(h('label', {cls: 'check', style: 'margin-bottom:10px'}, [auto, ' Turn on automatically when Kingdom Connect starts']));
@@ -65,7 +65,7 @@ var helpBox = h('section', {cls: 'box'}, [h('div', {cls: 'box-head'}, [h('h2', {
     h('li', {}, ['Put the PC and the phone or iPad on the ', h('b', {text: 'same Wi-Fi'}), ' (not a guest network).']),
     h('li', {}, ['Turn on the ', h('b', {text: 'Phone remote'}), ' switch at the top of this page.']),
     h('li', {}, ['On the phone or iPad, point the ', h('b', {text: 'Camera'}), ' at the QR code and tap the link, or type the address into Safari.']),
-    h('li', {}, ['Enter the ', h('b', {text: 'PIN'}), '. Tip: Share → Add to Home Screen gives a one-tap BSF Remote icon.'])
+    h('li', {}, ['Enter the ', h('b', {text: 'PIN'}), '. Tip: Share → Add to Home Screen gives a one-tap Kingdom Connect Remote icon.'])
   ])]);
 [helpBox, fixBox, devBox, connectBox].forEach(function(b){ box.parentNode.insertBefore(b, box.nextSibling); });
 
@@ -86,7 +86,7 @@ function update(r){
   var net = r.network, publicNets = net ? (net.profiles || []).filter(function(p){ return p.category === 'Public'; }) : [];
   if (!urls.length) setPill('bad', 'Network problem', 'This PC is not connected to Wi-Fi or a network. Connect it to the same Wi-Fi as your phone or iPad, then restart the program.');
   else if (recent.length) setPill('ok', 'Connected', recent.length === 1 ? 'Your phone or iPad is connected and ready.' : recent.length + ' devices are connected.');
-  else if (signed.length) setPill('warn', 'Remote disconnected', 'The phone or iPad was connected but has stopped responding. Check its Wi-Fi, or reopen BSF Remote on the phone or iPad.');
+  else if (signed.length) setPill('warn', 'Remote disconnected', 'The phone or iPad was connected but has stopped responding. Check its Wi-Fi, or reopen Kingdom Connect Remote on the phone or iPad.');
   else if (publicNets.length) setPill('warn', 'Firewall problem', 'Windows treats your network as Public, which blocks the phone or iPad. See “Fix the connection” below.');
   else setPill('info', 'Ready, waiting for phone', devs.length ? 'A device reached this PC but has not entered the PIN yet.' : 'Remote is on. Open the address on your phone or iPad and enter the PIN.');
 

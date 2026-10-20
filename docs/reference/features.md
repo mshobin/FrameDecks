@@ -1,4 +1,16 @@
-# Kingdom Connect: feature documentation (v6.8)
+# Kingdom Connect: feature documentation (v6.9)
+
+## v6.9 at a glance
+| Feature | What it does | Where it lives |
+| --- | --- | --- |
+| **Meeting Workbook: Dashboard + Meeting Form** | Two tabs only. **Meeting Form**: one guided page in numbered sections (1 · Meeting details, 2 · Speaker, 3 · Attendees, 4 · Presentation, 5 · Frames, 6 · Content, 7 · Discussion questions, 8 · Scripture readings, 9 · Additional notes); cream boxes to type in, drop-downs in the cells, a few open rows per table and more behind Excel's **+** button (Frames 60, Content 150, questions 150, scriptures 100). **Dashboard**: formulas only, never imported: status pill, This meeting, counts, Meetings tiles, Readiness (x / 6), Quick actions, Content mix chart, Recent meetings log | `meeting_form.py`, `tools/make_meeting_workbook.py`, `app/templates/Kingdom-Connect-Meeting-Workbook.xlsx` |
+| **Meeting Form import** | Finds the details by their labels and the tables by their **Frame #** header rows, so a hand-made form in the same style imports too. Problems read *Meeting Form · Content · row 26: …*. Workbooks from 6.5–6.8 (one sheet per list) and the 6.2 one-sheet template still import | `app/js/meeting-book.js`, `app/js/import-worker.js` |
+| **Meeting Form export** | The program fills the template (`POST api/meeting/workbook`), so the export has the same Dashboard and Meeting Form. Without the program, or when a table is longer than the form, a plain one-sheet Meeting Form. Both import again | `app/js/meeting-import.js`, `server.py`, `meeting_form.py` |
+| **Meeting details** | The meeting keeps title, date, time, location, speaker (`presenter`), contact, attendees, attendee notes, owner, content notes, notes and additional notes (`extra`) | `app/js/store.js` (`meeting`) |
+| **A tidier command bar** | No search box (use the command palette, Ctrl+K / Ctrl+Space, or Spotlight, Alt+Space). No Presentation Mode (and no **P** shortcut for it). No **Hide the app window** button in the Studio (Minimize and the tray do this). **Hide all** shows its **Esc** key inside the button; the **Program** menu always opens as a drop-down. The bar no longer overflows on narrow, maximized, ultra-wide or high-DPI windows: under 1140 px wide it wraps to two rows | `app/dashboard.html`, `app/css/theme.css` |
+
+Rows in the tables below that mention the header search box, Presentation Mode or the five-sheet workbook describe
+those versions; the table above describes the app as it is now.
 
 ## v6.8 at a glance
 | Feature | What it does | Where it lives |
@@ -26,7 +38,7 @@ Windows title bar is replaced by the app's ribbon, as in the table above.
 | **Phone teleprompter** | A Teleprompter panel on the Live tab of the Advanced remote; a **TELEPROMPTER** button in the Simple remote opens it full screen | `app/remote.html`, `app/js/remote.js` |
 | **Branding options** | Display (Logo only / Name only / Logo + Name, optional Organization), Position (four corners or centred), Safe margin, Size (Small / Medium / Large + fine size), Opacity, Padding, Background plate (off = soft shadow). The same on the camera and the OBS pages; scales with resolution. **Remove background** makes a plain logo background transparent on the PC, with Undo | `app/js/workspace.js` (`brandForm`), `app/js/meeting-brand.js`, `vcam/program.py`, `app/js/overlay.js` |
 | **Multi-select** | Ctrl+Click, Shift+Click or a drag box in empty list space selects several Frames or Contents. Delete / Backspace (Undo in the message; confirmation only for 5 or more), Ctrl+C / X / V, Ctrl+D, Ctrl+A, right-click menu, drag to move | `app/js/workspace.js` |
-| **Command palette** | Ctrl+K or Ctrl+Space (Settings → Keyboard shortcuts → Command palette), or the header search box. Finds Frames, Content, questions, scriptures, text, templates, Library, branding, settings, members, Bible references, recent items; runs commands (Go Live, New Frame, Duplicate, Teleprompter, Export meeting, theme, Add Content…). Arrow keys + Enter; Esc closes | `app/js/palette.js` |
+| **Command palette** | Ctrl+K or Ctrl+Space (Settings → Keyboard shortcuts → Command palette); the header search box until 6.9. Finds Frames, Content, questions, scriptures, text, templates, Library, branding, settings, members, Bible references, recent items; runs commands (Go Live, New Frame, Duplicate, Teleprompter, Export meeting, theme, Add Content…). Arrow keys + Enter; Esc closes | `app/js/palette.js` |
 | **Meeting Workbook** | No Answer / Notes columns; the Frames sheet's last column is Teleprompter Script. Older workbooks still import, with answers and notes going into the Frame's Teleprompter script | `app/js/meeting-book.js` |
 | **Faster start-up** | The Excel library loads only when first needed | `app/js/dashboard.js` |
 
@@ -45,7 +57,7 @@ above describes them as they are now.
 | **Freeze / Black screen** | Hold the picture (drawings stay on top) / black picture; keys F and K | `vcam/program.py`, state `live.freeze`, `live.blackout` |
 | **PowerPoint** | A .pptx becomes slides via the installed PowerPoint (COM SaveAs PDF); a live window keeps animations; **Show objects only** keys out a plain slide background | `vcam/powerpoint.py` (`pptx_to_pdf`), `vcam/layers.py` (`key_background`), `docs/reference/powerpoint.md` |
 | **Simple / Advanced remote** | Simple (default): Frame and Content steppers, Annotate, Freeze, Black Screen. Advanced: search, notes, run-through, PowerPoint, annotation | `app/remote.html`, `app/js/remote.js` |
-| **Meeting Workbook** | Five-sheet Excel template with drop-downs, import with preview, export | `app/js/meeting-book.js`, `tools/make_meeting_workbook.py` |
+| **Meeting Workbook** | Five-sheet Excel template (two tabs since 6.9) with drop-downs, import with preview, export | `app/js/meeting-book.js`, `tools/make_meeting_workbook.py` |
 | **No collaboration** | Team Space removed; local save, autosave, export, backups and Frame history remain | — |
 
 The rest of this document describes the v6.4 features that are still current: the KingdomConnect camera, logo-only
@@ -78,13 +90,13 @@ blur and a Camera Look, plus the live scene (cards, text, pictures, slides, bran
 | Settings | **Settings → KingdomConnect Camera** |
 | Status | The status menu in the command bar: **KingdomConnect** · Off / Ready / In use |
 
-### Upgrading from "BCC vCam"
-Before 6.4 the same camera was called **BCC vCam**. Installing 6.4 does the following:
+### Upgrading from the camera's earlier name
+Before 6.4 the same camera had an earlier name. Installing 6.4 does the following:
 - It registers the camera again under its new name. This happens even if the option is not ticked, as long as the
   camera was already installed, because the driver file was renamed.
 - Zoom, Teams, Meet and OBS show **KingdomConnect** after they are restarted. They read the camera list when they
   start.
-- An OBS scene that used "BCC vCam" as a *Video Capture Device* may need that source pointed at KingdomConnect once.
+- An OBS scene that used the camera under its earlier name as a *Video Capture Device* may need that source pointed at KingdomConnect once.
 
 The app also still recognises its old name, so it never captures its own picture during the upgrade.
 
@@ -113,7 +125,7 @@ The app's own branding is the **Book + Candle** mark (`app/img/kc-emblem.webp`) 
 - **Phone remote:** the sign-in screen shows the mark alone, and the remote's top bar shows the mark and the mode
   (Simple / Standard / Advanced).
 - **Home-screen icons** (`app/icons/remote-*.png`): the mark on a navy tile, with no text. The Windows app icon
-  (`packaging/bsf.ico`) was already the mark alone.
+  (`packaging/kingdom-connect.ico`) was already the mark alone.
 - **Dialogs and overlays** show no product branding. The leader's own logo and Meeting Name (Settings → Meeting &
   Branding) still appear only where the leader puts them.
 - **About page:** unchanged. It keeps its own branding and content.

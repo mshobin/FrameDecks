@@ -1,11 +1,11 @@
 # ---- Your private data: never uploaded to GitHub ----
-bsf-saved-content.json
-bsf-members-private.json
-bsf-remote-pin.txt
-bsf-remote-sessions.json
-bsf-control-key.txt
-bsf-app-settings.json
-bsf-app-log.txt*
+kc-saved-content.json
+kc-members-private.json
+kc-remote-pin.txt
+kc-remote-sessions.json
+kc-control-key.txt
+kc-app-settings.json
+kc-app-log.txt*
 ipad-remote-check.txt
 backups/
 webview/
@@ -26,9 +26,9 @@ __pycache__/
 # BCC vCam build files (GitHub builds the camera itself)
 vcam_build/
 vcam/bin/*.dll
-bsf-vcam-settings.json
-bsf-looks.json
-bsf-studio.json
+kc-vcam-settings.json
+kc-looks.json
+kc-studio.json
 layers/
 recordings/
 scenes/

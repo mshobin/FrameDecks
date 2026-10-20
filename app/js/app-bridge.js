@@ -1,8 +1,8 @@
-/* BSF Command Center - installed-app features: first-run import, close dialog, data folder & backups, external links.
+/* Kingdom Connect - installed-app features: first-run import, close dialog, data folder & backups, external links.
  * Everything here talks to the local program; nothing is sent anywhere else. */
 (function(){
 'use strict';
-var Store = window.BSFStore;
+var Store = window.KCStore;
 if (!Store.served) return;
 var $ = function(id){ return document.getElementById(id); };
 function h(tag, attrs, kids){
@@ -11,7 +11,7 @@ function h(tag, attrs, kids){
   (kids || []).forEach(function(c){ if (c != null) el.appendChild(typeof c === 'string' ? document.createTextNode(c) : c); });
   return el;
 }
-function toast(m, bad){ if (window.BSFActions) window.BSFActions.toast(m, bad); }
+function toast(m, bad){ if (window.KCActions) window.KCActions.toast(m, bad); }
 function post(action, body){
   return fetch('api/app/' + action, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body || {})})
     .then(function(r){ return r.json().then(function(d){ if (!r.ok) throw new Error(d.error || 'Something went wrong'); return d; }); });
@@ -50,7 +50,7 @@ function doImport(folder, closeFn){
 }
 function pickFolder(){
   return post('choose-folder').then(function(d){ return d.folder; }).catch(function(){
-    var p = prompt('Type or paste the folder path of your earlier BSF Command Center\n(for example C:\\Users\\You\\Downloads\\BSF-Command-Center):');
+    var p = prompt('Type or paste the folder path of your earlier Kingdom Connect\n(for example C:\\Users\\You\\Downloads\\Kingdom-Connect):');
     return p && p.trim();
   });
 }
@@ -63,7 +63,7 @@ function importDialog(candidates, firstRun){
         h('button', {cls: 'btn primary small', type: 'button', text: 'Import', onclick: function(){ doImport(c.folder, closeFn); }})
       ]));
     });
-  } else list.appendChild(h('p', {cls: 'hint', text: 'No earlier BSF Command Center folder was found on your Desktop, Downloads or Documents. Choose it yourself, or start fresh.'}));
+  } else list.appendChild(h('p', {cls: 'hint', text: 'No earlier Kingdom Connect folder was found on your Desktop, Downloads or Documents. Choose it yourself, or start fresh.'}));
   var closeFn = modal(firstRun ? 'Welcome! Bring in your existing data?' : 'Import from an earlier version', [
     h('p', {text: 'This copies your saved verses and questions, members, settings and phone-remote PIN from the folder where you used Kingdom Connect before. The original folder is not changed.'}),
     list
@@ -165,10 +165,10 @@ function renderWindow(){
   if (!box){ box = h('section', {cls: 'box', id: 'app-win', 'aria-labelledby': 'app-win-title'}); sec.appendChild(box); }
   box.innerHTML = ''; body.forEach(function(n){ box.appendChild(n); });
 }
-function refresh(){ return getInfo().then(function(d){ info = d; window.BSFAppInfo = d; renderDataCard(); renderAbout(); renderPerf(); renderWindow(); document.dispatchEvent(new CustomEvent('bsf-app-info', {detail: d})); return d; }); }
+function refresh(){ return getInfo().then(function(d){ info = d; window.KCAppInfo = d; renderDataCard(); renderAbout(); renderPerf(); renderWindow(); document.dispatchEvent(new CustomEvent('kc-app-info', {detail: d})); return d; }); }
 
 /* ---------- Closing the app window (called by the desktop app) ---------- */
-window.BSFAppClosing = function(){
+window.KCAppClosing = function(){
   if (document.querySelector('.app-modal-back')) return true;
   var st = Store.get(), live = ['question', 'verse', 'birthday'].filter(function(k){
     var o = st[k]; return o && o.visible && String(k === 'birthday' ? o.greeting : o.text).trim();
@@ -234,11 +234,11 @@ function syncTitleBar(){
 new MutationObserver(syncTitleBar).observe(document.documentElement, {attributes: true, attributeFilter: ['data-theme']});
 if (window.matchMedia) try { matchMedia('(prefers-color-scheme: light)').addEventListener('change', syncTitleBar); } catch(e){}
 document.documentElement.classList.toggle('kc-native', appShell);
-document.addEventListener('bsf-app-info', function(){ document.documentElement.classList.toggle('kc-native', isNative()); syncTitleBar(); });
+document.addEventListener('kc-app-info', function(){ document.documentElement.classList.toggle('kc-native', isNative()); syncTitleBar(); });
 
 refresh().then(function(d){
   if (d.migration.needed) importDialog(d.migration.candidates, true);
 });
 setInterval(function(){ var s = $('sec-data'); if (s && !s.hidden) refresh(); }, 15000);
-window.BSFAppRefresh = refresh;
+window.KCAppRefresh = refresh;
 })();

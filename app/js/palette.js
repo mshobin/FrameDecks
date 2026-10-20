@@ -11,7 +11,7 @@
  * as Go Live changes what is on screen. */
 (function(){
 'use strict';
-var Store = window.BSFStore, SC = window.BSFScenes;
+var Store = window.KCStore, SC = window.KCScenes;
 if (!Store || !SC) return;
 var $ = function(id){ return document.getElementById(id); };
 function h(tag, attrs, kids){
@@ -22,13 +22,13 @@ function h(tag, attrs, kids){
 }
 function lsGet(k, d){ try { var v = localStorage.getItem(k); return v === null ? d : v; } catch(e){ return d; } }
 function lsSet(k, v){ try { localStorage.setItem(k, v); } catch(e){} }
-function toast(m, bad){ if (window.BSFActions) window.BSFActions.toast(m, bad); }
+function toast(m, bad){ if (window.KCActions) window.KCActions.toast(m, bad); }
 var live = null;
 Store.subscribe(function(st){ live = st; });
 var STANDALONE = document.body.getAttribute('data-win') === 'spotlight';   // 6.8 the Spotlight window
-var W = function(){ return window.BSFWorkspace; };
-function studio(){ if (window.BSFSetTab) window.BSFSetTab('studio'); }
-function settings(sec){ if (window.BSFSetTab) window.BSFSetTab('settings'); if (window.BSFShowSection) setTimeout(function(){ window.BSFShowSection(sec); }, 0); }
+var W = function(){ return window.KCWorkspace; };
+function studio(){ if (window.KCSetTab) window.KCSetTab('studio'); }
+function settings(sec){ if (window.KCSetTab) window.KCSetTab('settings'); if (window.KCShowSection) setTimeout(function(){ window.KCShowSection(sec); }, 0); }
 function click(el){ if (el) el.click(); }
 
 /* ---------- shortcuts that open it (configurable) ---------- */
@@ -49,7 +49,7 @@ var SECTIONS = [['general', 'General', 'appearance theme dark light'], ['meeting
   ['ipad', 'Phone & iPad Remote', 'remote pin qr phone tablet'], ['keys', 'Keyboard shortcuts', 'keys hotkeys palette'], ['security', 'Security', 'pin privacy'],
   ['data', 'Data / Backup', 'backup restore export import'], ['diag', 'Diagnostics', 'problems errors logs'], ['about', 'About', 'version credits']];
 function commands(){
-  var PT = window.BSFPresenterTools, TP = window.BSFTeleprompter, MI = window.BSFMeetingImport, sel = W() && W().selected();
+  var PT = window.KCPresenterTools, TP = window.KCTeleprompter, MI = window.KCMeetingImport, sel = W() && W().selected();
   var c = [
     ['golive', 'Go Live', 'take selected frame on screen', function(){ if (W()) W().take(); }, 'T'],
     ['next', 'Next Frame', 'forward advance', function(){ if (W()) W().step(1); }, ']'],
@@ -65,19 +65,18 @@ function commands(){
     ['prompter', 'Teleprompter on / off', 'script notes prompter dock', function(){ studio(); if (TP) TP.toggle(); }, 'R'],
     ['prompterwin', 'Teleprompter window', 'second screen speaker view', function(){ if (PT && PT.speaker) PT.speaker(); }],
     ['overlay', 'Teleprompter overlay (over Zoom / Teams)', 'meeting leader transparent see-through glass on top prompter', function(){ if (PT && PT.overlay) PT.overlay(); }, 'Shift+R'],
-    ['present', 'Presentation Mode on / off', 'present simple', function(){ if (window.BSFPresentation) window.BSFPresentation(!document.body.classList.contains('pm')); }, 'P'],
     ['share', 'Share Window (Presentation window)', 'present window zoom share screen', function(){ studio(); click($('s2-present')); }],
     ['export', 'Export this meeting (Excel)', 'save workbook xlsx download', function(){ if (MI) MI.exportMeeting(); }],
     ['import', 'Import a meeting from Excel…', 'workbook xlsx open', function(){ if (MI) MI.pick(); }],
     ['template', 'Download the Excel template', 'workbook xlsx', function(){ if (MI) MI.template(); }],
     ['branding', 'Open Branding', 'logo meeting name colour', function(){ settings('meeting'); }],
-    ['knock', 'Remove the logo background', 'transparent png', function(){ if (window.BSFBrandSettings) window.BSFBrandSettings.removeBackground(); }],
+    ['knock', 'Remove the logo background', 'transparent png', function(){ if (window.KCBrandSettings) window.KCBrandSettings.removeBackground(); }],
     ['camera', 'Camera background (blur, image)', 'kingdomconnect blur background', function(){ settings('vcam'); }],
     ['shortcuts', 'Keyboard shortcuts', 'keys palette', function(){ settings('keys'); }]];
-  if (window.BSFTheme){
-    var t = window.BSFTheme.get();
-    c.push(['theme', t === 'light' ? 'Switch to the dark theme' : 'Switch to the light theme', 'appearance theme dark light mode', function(){ window.BSFTheme.set(t === 'light' ? 'dark' : 'light'); }]);
-    c.push(['themesys', 'Theme: match Windows', 'appearance system', function(){ window.BSFTheme.set('system'); }]);
+  if (window.KCTheme){
+    var t = window.KCTheme.get();
+    c.push(['theme', t === 'light' ? 'Switch to the dark theme' : 'Switch to the light theme', 'appearance theme dark light mode', function(){ window.KCTheme.set(t === 'light' ? 'dark' : 'light'); }]);
+    c.push(['themesys', 'Theme: match Windows', 'appearance system', function(){ window.KCTheme.set('system'); }]);
   }
   if (W() && W().contentKinds && sel && sel.scene){
     W().contentKinds().forEach(function(k){ c.push(['add-' + k.id, 'Add Content: ' + k.name, 'new insert ' + k.id, function(){ studio(); W().addContent(k.id); }]); });
@@ -119,7 +118,7 @@ function index(){
   if (b.logo || b.meeting || b.org) out.push({key: 'brand:assets', kind: 'brand', title: [b.meeting, b.org].filter(Boolean).join(' · ') || 'Your logo', sub: 'Brand assets · logo, names, colour',
     words: 'logo brand assets ' + (b.logo ? 'logo' : ''), run: function(){ settings('meeting'); }});
   SECTIONS.forEach(function(x){ out.push({key: 'set:' + x[0], kind: 'setting', title: x[1], sub: 'Settings', words: x[2], run: function(){ settings(x[0]); }}); });
-  var api = window.BSFMembersAPI, rows = api && api.directory ? api.directory() : [];
+  var api = window.KCMembersAPI, rows = api && api.directory ? api.directory() : [];
   rows.forEach(function(m){
     out.push({key: 'mem:' + m.id, kind: m.b && m.b.days <= 31 ? 'birthday' : 'member', title: m.name,
       sub: m.b && m.b.days <= 31 ? (m.b.days === 0 ? 'Birthday today' : m.b.days === 1 ? 'Birthday tomorrow' : 'Birthday in ' + m.b.days + ' days') : (m.role || m.email || 'Member'),
@@ -229,7 +228,7 @@ function update(){
     draw([{label: rec.length ? 'Recent' : '', items: rec}, {label: 'Frequently used', items: often}, {label: 'Suggested', items: sug}]);
     return;
   }
-  var found = rank(all, q), ref = window.BSFScripture && window.BSFScripture.parse && window.BSFScripture.parse(q);
+  var found = rank(all, q), ref = window.KCScripture && window.KCScripture.parse && window.KCScripture.parse(q);
   if (ref) found.unshift({key: 'bible:' + ref, kind: 'bible', title: ref, sub: 'Fetch into the Scripture Content (ESV)', run: function(){ bible(ref); }});
   items = found; active = 0;
   draw([{label: '', items: found}]);
@@ -263,17 +262,10 @@ function close(chosen){
 }
 
 document.addEventListener('keydown', function(e){
-  if (STANDALONE || window.BSFShortcutsCapturing || capturing) return;
+  if (STANDALONE || window.KCShortcutsCapturing || capturing) return;
   var c = comboOf(e); if (!c) return;
   if (keys().indexOf(c) >= 0){ e.preventDefault(); e.stopPropagation(); if (back && !back.hidden) close(); else open(); }
 }, true);
-/* the header search box opens the palette too (what was typed carries over) */
-var gs = $('gsearch');
-if (gs){
-  gs.addEventListener('focus', function(){ var v = gs.value; gs.value = ''; gs.blur(); open(v); });
-  var kb = gs.parentNode && gs.parentNode.querySelector('kbd'); if (kb) kb.textContent = keys()[0];
-}
-
 /* ---------- Settings > Keyboard shortcuts: the keys that open the palette ---------- */
 var capturing = false;
 function mountKeys(root){
@@ -302,7 +294,6 @@ function mountKeys(root){
     root.appendChild(table);
     root.appendChild(h('div', {cls: 'actions'}, [h('button', {cls: 'btn quiet small', type: 'button', text: 'Reset to Ctrl+K and Ctrl+Space', onclick: function(){ lsSet(KEYS_KEY, JSON.stringify(DEF_KEYS)); render('Reset'); }})]));
     if (msg) root.appendChild(h('p', {cls: 'hint', role: 'status', text: msg}));
-    var kb = gs && gs.parentNode && gs.parentNode.querySelector('kbd'); if (kb) kb.textContent = keys()[0];
   }
   render();
 }
@@ -337,10 +328,10 @@ function runKey(key){
 if (STANDALONE){
   open();
   window.addEventListener('blur', function(){ setTimeout(function(){ if (!document.hasFocus()) close(); }, 120); });
-  window.BSFSpotlight = {opened: function(){ input.value = ''; recentRank = {}; recents().forEach(function(k, i){ recentRank[k] = i + 1; });
+  window.KCSpotlight = {opened: function(){ input.value = ''; recentRank = {}; recents().forEach(function(k, i){ recentRank[k] = i + 1; });
     all = cached(); update(); input.focus(); refreshIndex();
     var box = back.querySelector('.pal'); box.classList.remove('spot-in'); void box.offsetWidth; box.classList.add('spot-in'); }};
 }
 
-window.BSFPalette = {open: open, close: close, rank: rank, score: score, exportIndex: exportIndex, runKey: runKey};
+window.KCPalette = {open: open, close: close, rank: rank, score: score, exportIndex: exportIndex, runKey: runKey};
 })();

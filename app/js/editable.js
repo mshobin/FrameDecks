@@ -1,8 +1,8 @@
 /* Kingdom Connect v6.7 - EditableField: one way to edit text in place, everywhere.
  *
- *   BSFEditable.inline(el, opts)   the element's text becomes an editor in the same spot (lists, names, labels)
- *   BSFEditable.float(host, rect, opts)   an editor floating over something drawn elsewhere (canvas cards)
- *   BSFEditable.bind(el, opts)     double-click (or F2 / Enter while focused) starts BSFEditable.inline
+ *   KCEditable.inline(el, opts)   the element's text becomes an editor in the same spot (lists, names, labels)
+ *   KCEditable.float(host, rect, opts)   an editor floating over something drawn elsewhere (canvas cards)
+ *   KCEditable.bind(el, opts)     double-click (or F2 / Enter while focused) starts KCEditable.inline
  *
  * The same keys everywhere: Enter saves, Shift+Enter starts a new line (multi-line fields), Esc cancels, and
  * clicking away saves. Keys never reach the meeting shortcuts while editing.
@@ -35,7 +35,7 @@ function session(o, root, fields, restore){
     if (current && current.close === close) current = null;
     var now = values();
     restore();
-    setTimeout(function(){ window.dispatchEvent(new Event('bsf-edit-done')); }, 0);
+    setTimeout(function(){ window.dispatchEvent(new Event('kc-edit-done')); }, 0);
     var changed = Object.keys(now).some(function(k){ return now[k] !== before[k]; });
     if (save && changed && o.save){
       var main = now.value.replace(/\s+$/, ''); delete now.value;
@@ -131,5 +131,5 @@ var E = {
     return go;
   }
 };
-window.BSFEditable = E;
+window.KCEditable = E;
 })();

@@ -1,6 +1,7 @@
-; Inno Setup script for the Kingdom Connect Windows installer (formerly BSF Command Center).
-; The install folder, exe name and data folder keep the old name on purpose: updates install over
-; earlier versions, and the firewall rule for the phone remote (tied to the exe path) keeps working.
+; Inno Setup script for the Kingdom Connect Windows installer.
+; 6.9: the program folder, the exe and the data folder carry the Kingdom Connect name. The AppId stays the same, so this
+; installs over every earlier version; the old program folder and shortcuts are removed, and the app moves the data
+; folder itself on first start (legacy.py).
 ; Build (after PyInstaller):  ISCC.exe /DAppVersion=3.0 packaging\installer.iss
 ; Installs for the current user only: no administrator permission needed, updates never need it either.
 
@@ -17,20 +18,22 @@ AppVerName=Kingdom Connect {#AppVersion}
 AppPublisher=Shobin Mathews
 AppContact=mshobin@gmail.com
 AppSupportURL=mailto:mshobin@gmail.com
-AppComments=Independent tool by Shobin Mathews. Not affiliated with or endorsed by Bible Study Fellowship International.
+AppComments=Independent ministry tool by Shobin Mathews.
 VersionInfoVersion={#AppVersion}
 VersionInfoCompany=Shobin Mathews
 VersionInfoDescription=Kingdom Connect Setup
 VersionInfoCopyright=Copyright (C) Shobin Mathews
-DefaultDirName={localappdata}\Programs\BSF Command Center
+DefaultDirName={localappdata}\Programs\Kingdom Connect
+; earlier versions were installed under the program's earlier name: install to the Kingdom Connect folder instead
+UsePreviousAppDir=no
 DisableDirPage=yes
 DefaultGroupName=Kingdom Connect
 DisableProgramGroupPage=yes
 PrivilegesRequired=lowest
 OutputDir=..\dist
 OutputBaseFilename=Kingdom Connect v{#AppVersion}
-SetupIconFile=bsf.ico
-UninstallDisplayIcon={app}\BSF Command Center.exe
+SetupIconFile=kingdom-connect.ico
+UninstallDisplayIcon={app}\Kingdom Connect.exe
 UninstallDisplayName=Kingdom Connect
 Compression=lzma2
 SolidCompression=yes
@@ -46,28 +49,29 @@ Name: "vcam"; Description: "Install the KingdomConnect camera for Zoom and Teams
 Name: "startup"; Description: "Start Kingdom Connect automatically when I sign in to Windows"; GroupDescription: "Options:"; Flags: unchecked
 
 [Files]
-Source: "..\dist\BSF Command Center\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\dist\Kingdom Connect\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [InstallDelete]
 ; remove files left by an older version before copying the new ones
 Type: filesandordirs; Name: "{app}\_internal"
-; shortcuts with the old name (renamed to Kingdom Connect in 6.1)
+; LEGACY (6.9): the program folder and shortcuts of versions published under the program's earlier name
+Type: filesandordirs; Name: "{localappdata}\Programs\BSF Command Center"
 Type: files; Name: "{autoprograms}\BSF Command Center.lnk"
 Type: files; Name: "{autodesktop}\BSF Command Center.lnk"
 Type: files; Name: "{userstartup}\BSF Command Center.lnk"
 
 [Icons]
-Name: "{autoprograms}\Kingdom Connect"; Filename: "{app}\BSF Command Center.exe"
-Name: "{autodesktop}\Kingdom Connect"; Filename: "{app}\BSF Command Center.exe"; Tasks: desktopicon
-Name: "{userstartup}\Kingdom Connect"; Filename: "{app}\BSF Command Center.exe"; Tasks: startup
+Name: "{autoprograms}\Kingdom Connect"; Filename: "{app}\Kingdom Connect.exe"
+Name: "{autodesktop}\Kingdom Connect"; Filename: "{app}\Kingdom Connect.exe"; Tasks: desktopicon
+Name: "{userstartup}\Kingdom Connect"; Filename: "{app}\Kingdom Connect.exe"; Tasks: startup
 
 [Run]
 Filename: "{app}\_internal\vcam\bin\register-kingdomconnect-camera.cmd"; Verb: "runas"; Flags: shellexec waituntilterminated runhidden; Check: ShouldRegisterCamera; StatusMsg: "Installing the KingdomConnect camera..."
-Filename: "{app}\BSF Command Center.exe"; Description: "Open Kingdom Connect now"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\Kingdom Connect.exe"; Description: "Open Kingdom Connect now"; Flags: nowait postinstall skipifsilent
 
 [UninstallRun]
 Filename: "{app}\_internal\vcam\bin\unregister-kingdomconnect-camera.cmd"; Verb: "runas"; Flags: shellexec waituntilterminated runhidden; RunOnceId: "RemoveKingdomConnectCamera"
-Filename: "{sys}\taskkill.exe"; Parameters: "/IM ""BSF Command Center.exe"" /F"; Flags: runhidden; RunOnceId: "StopApp"
+Filename: "{sys}\taskkill.exe"; Parameters: "/IM ""Kingdom Connect.exe"" /F"; Flags: runhidden; RunOnceId: "StopApp"
 
 [Code]
 const
@@ -97,6 +101,14 @@ begin
   Result := WizardIsTaskSelected('vcam') or CameraRegistered;
 end;
 
+// LEGACY (6.9): an earlier version still running under the earlier exe name is closed first, so its folder can go
+function PrepareToInstall(var NeedsRestart: Boolean): String;
+var code: Integer;
+begin
+  Exec(ExpandConstant('{sys}\taskkill.exe'), '/IM "BSF Command Center.exe" /F', '', SW_HIDE, ewWaitUntilTerminated, code);
+  Result := '';
+end;
+
 function InitializeSetup: Boolean;
 begin
   Result := True;
@@ -112,7 +124,7 @@ var dataDir: String;
 begin
   if CurUninstallStep = usPostUninstall then
   begin
-    dataDir := ExpandConstant('{userappdata}\BSF Command Center');
+    dataDir := ExpandConstant('{userappdata}\Kingdom Connect');
     if DirExists(dataDir) then
       if MsgBox('Also delete your Kingdom Connect data?' + #13#10 + #13#10 +
                 'This includes your saved verses and questions, members, settings and backups in:' + #13#10 + dataDir + #13#10 + #13#10 +

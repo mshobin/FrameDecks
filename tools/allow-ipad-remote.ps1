@@ -1,4 +1,4 @@
-# BSF Command Center - allow the iPad remote through Windows Firewall.
+# Kingdom Connect - allow the iPad remote through Windows Firewall.
 # Run by "Allow iPad Remote (run once).bat" (as administrator).
 # Every change is limited to PRIVATE networks and can be undone with
 # "Undo iPad Remote permission.bat".
@@ -6,14 +6,15 @@
 $ErrorActionPreference = 'Continue'
 $LogFile = Join-Path (Split-Path -Parent $PSScriptRoot) 'ipad-remote-check.txt'
 try { Start-Transcript -Path $LogFile -Force | Out-Null } catch { }
-$RuleName = 'BSF Command Center iPad Remote'
+$RuleName = 'Kingdom Connect Phone Remote'
+$OldRuleName = 'BSF Command Center iPad Remote'   # LEGACY (6.9): replaced by the rule above
 $Ports = '8750-8760'
 
 function Say($text, $color) { if ($color) { Write-Host $text -ForegroundColor $color } else { Write-Host $text } }
 function Step($n, $text) { Write-Host ''; Write-Host ("[" + $n + "] " + $text) -ForegroundColor Cyan }
 
 Say ''
-Say '  BSF Command Center - allow the iPad remote' Yellow
+Say '  Kingdom Connect - allow the iPad remote' Yellow
 Say '  ------------------------------------------'
 
 # 1. Network type -------------------------------------------------------------
@@ -63,8 +64,9 @@ if ($blockRules.Count -eq 0) {
 # 3. Allow the Command Center's ports on private networks -----------------------
 Step 3 ('Allowing the Command Center (TCP ports ' + $Ports + ') on private networks')
 Remove-NetFirewallRule -DisplayName $RuleName -ErrorAction SilentlyContinue
+Remove-NetFirewallRule -DisplayName $OldRuleName -ErrorAction SilentlyContinue
 try {
-    New-NetFirewallRule -DisplayName $RuleName -Description 'Lets an iPad or phone on your own Wi-Fi reach the BSF Command Center remote.' `
+    New-NetFirewallRule -DisplayName $RuleName -Description 'Lets an iPad or phone on your own Wi-Fi reach the Kingdom Connect remote.' `
         -Direction Inbound -Action Allow -Protocol TCP -LocalPort $Ports -Profile Private,Domain -ErrorAction Stop | Out-Null
     Say '    Done.' Green
 } catch {
@@ -75,12 +77,12 @@ try {
 Step 4 'Checking the Command Center program'
 $listen = @(Get-NetTCPConnection -State Listen -ErrorAction SilentlyContinue | Where-Object { $_.LocalPort -ge 8750 -and $_.LocalPort -le 8760 })
 if ($listen.Count -eq 0) {
-    Say '    It is not running right now. Start "Start BSF Command Center with iPad Remote.bat" after this.' Yellow
+    Say '    It is not running right now. Start "Start Kingdom Connect with iPad Remote.bat" after this.' Yellow
 } elseif (@($listen | Where-Object { $_.LocalAddress -eq '0.0.0.0' -or $_.LocalAddress -eq '::' }).Count -gt 0) {
     Say ('    Running in iPad remote mode on port ' + $listen[0].LocalPort + '.') Green
 } else {
     Say '    It is running in NORMAL mode (PC only). Close its black window and start' Yellow
-    Say '    "Start BSF Command Center with iPad Remote.bat" instead.' Yellow
+    Say '    "Start Kingdom Connect with iPad Remote.bat" instead.' Yellow
 }
 
 # 5. Other security software -----------------------------------------------------

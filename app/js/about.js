@@ -6,10 +6,10 @@
  */
 (function(){
 'use strict';
-var B = window.BSFBrand, Store = window.BSFStore;
+var B = window.KCBrand, Store = window.KCStore;
 if (!B) return;
 var $ = function(id){ return document.getElementById(id); };
-var I = function(n, s){ return window.BSFIcon ? window.BSFIcon(n, s || 20) : ''; };
+var I = function(n, s){ return window.KCIcon ? window.KCIcon(n, s || 20) : ''; };
 function h(tag, attrs, kids){
   var el = document.createElement(tag);
   for (var k in (attrs || {})){ var v = attrs[k]; if (k.slice(0, 2) === 'on') el.addEventListener(k.slice(2), v); else if (k === 'text') el.textContent = v; else if (k === 'html') el.innerHTML = v; else if (k === 'cls') el.className = v; else if (v != null && v !== false) el.setAttribute(k, v); }
@@ -157,8 +157,8 @@ function footer(){
 }
 function startSession(){
   var dlg = $('about-dlg'); if (dlg && dlg.open) dlg.close();
-  if (window.BSFSetTab) window.BSFSetTab('studio');
-  if (window.BSFQuickStart) setTimeout(function(){ window.BSFQuickStart.open(); }, 60);
+  if (window.KCSetTab) window.KCSetTab('studio');
+  if (window.KCQuickStart) setTimeout(function(){ window.KCQuickStart.open(); }, 60);
 }
 
 function render(root, inDialog){
@@ -181,7 +181,7 @@ var sec = $('about-body'); if (sec) render(sec, false);
 var mark = document.querySelector('.console-top .brand');
 if (mark && sec){
   mark.classList.add('kc-brand-link'); mark.setAttribute('role', 'button'); mark.setAttribute('tabindex', '0'); mark.setAttribute('title', 'About ' + B.name);
-  var go = function(){ if (window.BSFSetTab) window.BSFSetTab('settings'); if (window.BSFShowSection) window.BSFShowSection('about'); requestAnimationFrame(function(){ window.scrollTo(0, 0); }); };
+  var go = function(){ if (window.KCSetTab) window.KCSetTab('settings'); if (window.KCShowSection) window.KCShowSection('about'); requestAnimationFrame(function(){ window.scrollTo(0, 0); }); };
   mark.addEventListener('click', go);
   mark.addEventListener('keydown', function(e){ if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); go(); } });
 }

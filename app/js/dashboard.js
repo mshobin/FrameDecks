@@ -1,11 +1,11 @@
-/* BSF Command Center - dashboard */
+/* Kingdom Connect - dashboard */
 (function(){
 'use strict';
 
-var Store = window.BSFStore;
+var Store = window.KCStore;
 var $ = function(id){ return document.getElementById(id); };
 var TRANS = [['fade','Fade'],['rise','Gentle rise'],['words','Word by word'],['typewriter','Typewriter'],['burst','Burst'],['none','Cut']];
-var T = window.BSFTransitions, P = window.BSFPresent;
+var T = window.KCTransitions, P = window.KCPresent;
 var SPEEDS = [['slow','Slow'],['normal','Medium'],['fast','Fast']];
 var ALIGNS = [['left','Left'],['center','Center'],['right','Right']];
 var NAMES = {verse: 'Focus Verse', question: 'Discussion Question'};
@@ -44,8 +44,8 @@ function toastAction(msg, label, run){
 function isOn(kind){ return !!(live && live[kind].visible && live[kind].text.trim()); }
 /* v6.5: lists belong to Frames. The editors show the selected Frame's list; Previous / Next step through the
  * list of the Frame on screen. */
-var SCN = window.BSFScenes;
-function listSid(){ var s = window.BSFSelFrame && window.BSFSelFrame(); return s || (live ? live.live.scene : ''); }
+var SCN = window.KCScenes;
+function listSid(){ var s = window.KCSelFrame && window.KCSelFrame(); return s || (live ? live.live.scene : ''); }
 function list(kind){ return live ? SCN.items(live, kind, listSid()) : []; }
 function liveList(kind){ return live ? SCN.items(live, kind) : []; }
 function own(n, kind, sid){ return SCN.owner(n, kind, sid); }
@@ -63,10 +63,10 @@ function commit(fn){
   });
   return chain;
 }
-window.BSFCommit = commit;  // shared with members.js so every change goes through one queue
+window.KCCommit = commit;  // shared with members.js so every change goes through one queue
 /* 6.7: the Excel library (930 KB) loads the first time it is needed (import, export, template), not at start-up */
 var xlsxP = null;
-window.BSFNeedXLSX = function(){
+window.KCNeedXLSX = function(){
   if (window.XLSX) return Promise.resolve(window.XLSX);
   if (!xlsxP) xlsxP = new Promise(function(resolve, reject){
     var s = document.createElement('script'); s.src = 'vendor/xlsx.full.min.js'; s.async = true;
@@ -77,7 +77,7 @@ window.BSFNeedXLSX = function(){
   return xlsxP;
 };
 /* Shared with Meeting Mode, so every screen uses the same tested actions */
-window.BSFActions = {
+window.KCActions = {
   show: function(k){ show(k); }, hide: function(k){ hide(k); }, toggle: function(k){ toggle(k); },
   clear: function(k){ clearLive(k); }, step: function(k, d){ step(k, d); }, hideAll: function(){ hideAll(); },
   showItem: function(k, item){ showItem(k, item); }, list: function(k){ return liveList(k); },
@@ -104,7 +104,7 @@ function toggle(kind){
 }
 /* Presentation mode of the current question (Question · Both · Verse). On screen, the change shows at once. */
 function setMode(m){ commit(function(n){ P.setMode(n, m); }); }
-function hideAll(){ commit(function(n){ if (window.BSFScenes) window.BSFScenes.hideAll(n); else { n.verse.visible = false; n.question.visible = false; n.birthday.visible = false; } }); }
+function hideAll(){ commit(function(n){ if (window.KCScenes) window.KCScenes.hideAll(n); else { n.verse.visible = false; n.question.visible = false; n.birthday.visible = false; } }); }
 function clearLive(kind){
   commit(function(n){
     var o = n[kind];
@@ -232,10 +232,10 @@ function refreshSegs(){
 }
 
 var listsDirty = false;
-window.BSFRenderLists = function(){
+window.KCRenderLists = function(){
   if (!live) return;
   if (controlsDirty){ controlsDirty = false; refreshSegs(); refreshRanges(); }
-  if (window.BSFFrameLists) window.BSFFrameLists.render();
+  if (window.KCFrameLists) window.KCFrameLists.render();
 };
 
 /* ---------- Layout controls ---------- */
@@ -291,7 +291,7 @@ function refreshStatus(){
   if (isOn('question')) on.push('Question');
   if (isOn('verse')) on.push('Verse');
   if (live.birthday.visible && live.birthday.greeting.trim()) on.push('Birthday');
-  var SC = window.BSFScenes, ls = SC && SC.liveScene(live), tl = SC ? SC.liveText(live).length : 0;
+  var SC = window.KCScenes, ls = SC && SC.liveScene(live), tl = SC ? SC.liveText(live).length : 0;
   if (tl) on.push(tl === 1 ? '1 text Content' : tl + ' text Content');
   if (live.live && live.live.blackout) on = ['Blackout'];
   else if (live.live && live.live.emergency) on = ['Emergency screen'];
@@ -312,9 +312,9 @@ function refreshMode(){
 
 /* ---------- Links ---------- */
 var LINKS = [
-  {page: 'verse', name: 'BSF Focus Verse', file: 'focus-verse.html'},
-  {page: 'question', name: 'BSF Discussion Question1', file: 'discussion-question.html'},
-  {page: 'birthday', name: 'BSF Birthday Celebration', file: 'birthday.html'},
+  {page: 'verse', name: 'Focus Verse', file: 'focus-verse.html'},
+  {page: 'question', name: 'Discussion Question', file: 'discussion-question.html'},
+  {page: 'birthday', name: 'Birthday Celebration', file: 'birthday.html'},
   {page: 'stage', name: 'All overlays in one source', file: 'stage.html'}
 ];
 function baseUrl(){
@@ -344,7 +344,7 @@ function buildLinks(){
   } else {
     note.className = 'note warn';
     note.innerHTML = '<b>No-install mode.</b> Overlays update only when opened in this same browser. ' +
-      'For OBS, Camo or Zoom, start the local program instead: double-click <b>Start BSF Command Center.bat</b>.';
+      'For OBS, Camo or Zoom, start the local program instead: double-click <b>Start Kingdom Connect.bat</b>.';
   }
 }
 function showPresence(c){
@@ -375,7 +375,7 @@ function setupBackup(){
   $('export').addEventListener('click', function(){
     var data = {app: 'Kingdom Connect', format: 1, saved: new Date().toISOString(), state: Store.get()};
     var blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
-    var a = h('a', {href: URL.createObjectURL(blob), download: 'bsf-command-center-backup-' + new Date().toISOString().slice(0, 10) + '.json'});
+    var a = h('a', {href: URL.createObjectURL(blob), download: 'kingdom-connect-backup-' + new Date().toISOString().slice(0, 10) + '.json'});
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(function(){ URL.revokeObjectURL(a.href); }, 2000);
     toast('Backup file saved to your Downloads');
@@ -400,7 +400,7 @@ function setupBackup(){
         }).then(function(){
           toast('Backup loaded. Both overlays are hidden until you show them.');
         });
-      } catch(e){ toast('That file isn’t a BSF Command Center backup.', true); }
+      } catch(e){ toast('That file isn’t a Kingdom Connect backup.', true); }
     };
     reader.readAsText(f);
   });
@@ -435,12 +435,12 @@ function setup(){
   // Meeting shortcuts (Meeting and Content tabs). Configurable in Settings > Keyboard shortcuts.
   var lastKeyAt = {};
   document.addEventListener('keydown', function(e){
-    if (document.querySelector('dialog[open], .app-modal-back') || window.BSFShortcutsCapturing) return;
+    if (document.querySelector('dialog[open], .app-modal-back') || window.KCShortcutsCapturing) return;
     var tab = document.body.dataset.tab;
     if (tab && tab !== 'studio') return;
     var t = e.target.tagName;
     if (t === 'INPUT' || t === 'TEXTAREA' || t === 'SELECT' || e.ctrlKey || e.metaKey || e.altKey) return;
-    var a = window.BSFShortcuts ? window.BSFShortcuts.match(e) : null;
+    var a = window.KCShortcuts ? window.KCShortcuts.match(e) : null;
     if (!a) return;
     e.preventDefault();
     if (e.repeat) return;                                      // a held-down key fires once
@@ -453,14 +453,13 @@ function setup(){
     else if (a === 'toggleQ') toggle('question');
     else if (a === 'toggleV') toggle('verse');
     else if (a === 'hideAll') hideAll();
-    else if (a === 'toggleB' && window.BSFBirthday) window.BSFBirthday.toggle();
-    else if (a === 'takeLive' && window.BSFWorkspace) window.BSFWorkspace.take();
-    else if (a === 'nextScene' && window.BSFWorkspace) window.BSFWorkspace.step(1);
-    else if (a === 'prevScene' && window.BSFWorkspace) window.BSFWorkspace.step(-1);
-    else if (a === 'presentMode' && window.BSFPresentation) window.BSFPresentation(!document.body.classList.contains('pm'));
-    else if ((a === 'annotate' || a === 'freeze' || a === 'blackout') && window.BSFPresenterTools) window.BSFPresenterTools[a]();
-    else if (a === 'prompter' && window.BSFTeleprompter) window.BSFTeleprompter.toggle();
-    else if (a === 'overlay' && window.BSFPresenterTools) window.BSFPresenterTools.overlay();
+    else if (a === 'toggleB' && window.KCBirthday) window.KCBirthday.toggle();
+    else if (a === 'takeLive' && window.KCWorkspace) window.KCWorkspace.take();
+    else if (a === 'nextScene' && window.KCWorkspace) window.KCWorkspace.step(1);
+    else if (a === 'prevScene' && window.KCWorkspace) window.KCWorkspace.step(-1);
+    else if ((a === 'annotate' || a === 'freeze' || a === 'blackout') && window.KCPresenterTools) window.KCPresenterTools[a]();
+    else if (a === 'prompter' && window.KCTeleprompter) window.KCTeleprompter.toggle();
+    else if (a === 'overlay' && window.KCPresenterTools) window.KCPresenterTools.overlay();
   });
 
   buildTransitionExtras();
@@ -470,7 +469,7 @@ function setup(){
   setupBackup();
   // Overlay "connected" lights: shares the Meeting tab's presence check (one request every 4 s, not two)
   setTimeout(function(){
-    if (window.BSFStatus) window.BSFStatus.on('presence', showPresence);
+    if (window.KCStatus) window.KCStatus.on('presence', showPresence);
     else { pollPresence(); setInterval(function(){ if (!document.hidden) pollPresence(); }, 4000); }
   }, 0);
   refreshMode(); setInterval(function(){ if (!document.hidden) refreshMode(); }, 2000);
@@ -481,9 +480,9 @@ Store.subscribe(function(st){
   if (!setup.done){ setup.done = true; setup(); }
   refreshStatus();
   // The effect/layout controls live in Content and Settings > Overlays: refreshed when one of them is open,
-  // otherwise when it opens (BSFRenderLists) - every Next/Show during a meeting skips this work.
+  // otherwise when it opens (KCRenderLists) - every Next/Show during a meeting skips this work.
   if (controlsVisible()){ refreshSegs(); refreshRanges(); controlsDirty = false; } else controlsDirty = true;
-  if (window.BSFFrameLists) window.BSFFrameLists.render(); refreshMode();
+  if (window.KCFrameLists) window.KCFrameLists.render(); refreshMode();
 });
 var controlsDirty = false;
 /* v6: the lists and the style / layout / animation controls live in the Inspector; they are drawn only while the
@@ -492,9 +491,9 @@ function shown(el){ return !!(el && el.offsetParent !== null); }
 function controlsVisible(){
   return document.body.dataset.tab === 'studio' && !!document.querySelector('#insp-body .ip[data-itab]:not([hidden]) [data-seg], #insp-body .ip[data-itab]:not([hidden]) [data-range]');
 }
-window.BSFListsShown = function(){ if (live && window.BSFFrameLists) window.BSFFrameLists.render(); };
-window.BSFCardLook = {of: lookOf, set: setLook};
+window.KCListsShown = function(){ if (live && window.KCFrameLists) window.KCFrameLists.render(); };
+window.KCCardLook = {of: lookOf, set: setLook};
 /* The Inspector's Style tab was opened: bring its settings up to date (they are skipped while hidden) */
-window.BSFRefreshControls = function(){ if (live && controlsDirty && controlsVisible()){ controlsDirty = false; refreshSegs(); refreshRanges(); } };
+window.KCRefreshControls = function(){ if (live && controlsDirty && controlsVisible()){ controlsDirty = false; refreshSegs(); refreshRanges(); } };
 Store.start({longPoll: true});   // changes (phone remote, overlays) arrive at once; idle = ~6 requests a minute
 })();

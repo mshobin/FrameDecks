@@ -38,7 +38,7 @@ different heap.
 What changed:
 
 - **The Excel library loads on first use.** `vendor/xlsx.full.min.js` (930 KB) used to load and stay in memory at
-  start-up. It now loads the first time you import, export or download a template (`BSFNeedXLSX` in
+  start-up. It now loads the first time you import, export or download a template (`KCNeedXLSX` in
   `dashboard.js`), which takes about 100 ms once.
 - **New features cost nothing while closed.** The Teleprompter builds itself the first time it is opened and
   scrolls with `requestAnimationFrame` only while playing. The command palette builds its list when opened

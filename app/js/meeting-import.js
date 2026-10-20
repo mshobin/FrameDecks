@@ -1,6 +1,7 @@
 /* Kingdom Connect - Import a whole meeting from Excel (and download the template / export the meeting).
  *
- * v6.5 the Meeting Workbook (js/meeting-book.js): Meeting Overview · Frames · Content · Questions · Scriptures.
+ * The Meeting Workbook (js/meeting-book.js): 6.9 a Dashboard tab and a Meeting Form tab (details, Frames, Content,
+ * questions, scriptures on one page). Workbooks of 6.5-6.8 (one sheet per list) still import.
  * Files made with the v6.2 one-sheet template ("Scene Name" column, js/meeting-sheet.js) still import.
  * 1. Choose a file (.xlsx / .xls / .csv). It is read in the background (js/import-worker.js).
  * 2. Preview: how many Frames and how much Content will be made, every problem with its sheet and row number, and -
@@ -10,7 +11,7 @@
  */
 (function(){
 'use strict';
-var Store = window.BSFStore, SC = window.BSFScenes, M = window.BSFMeetingSheet, MB = window.BSFMeetingBook, I = window.BSFIcon;
+var Store = window.KCStore, SC = window.KCScenes, M = window.KCMeetingSheet, MB = window.KCMeetingBook, I = window.KCIcon;
 if (!Store || !SC || !M || !MB) return;
 function h(tag, attrs, kids){
   var el = document.createElement(tag);
@@ -18,8 +19,8 @@ function h(tag, attrs, kids){
   (kids || []).forEach(function(c){ if (c != null) el.appendChild(typeof c === 'string' ? document.createTextNode(c) : c); });
   return el;
 }
-function toast(m, bad){ if (window.BSFActions) window.BSFActions.toast(m, bad); }
-function commit(fn){ return window.BSFCommit(fn); }
+function toast(m, bad){ if (window.KCActions) window.KCActions.toast(m, bad); }
+function commit(fn){ return window.KCCommit(fn); }
 var live = null; Store.subscribe(function(st){ live = st; });
 var X = function(){ return window.XLSX; };
 var TEMPLATE_NAME = 'Kingdom-Connect-Meeting-Workbook.xlsx';
@@ -30,15 +31,27 @@ function template(){
   var a = h('a', {href: 'templates/' + TEMPLATE_NAME, download: TEMPLATE_NAME}); document.body.appendChild(a); a.click(); a.remove();
   toast('Template downloaded: ' + TEMPLATE_NAME);
 }
+/* 6.9 the program fills the template's Dashboard and Meeting Form (api/meeting/workbook), so the export looks exactly
+   like the template. Without the program, or when a table is longer than the form, a plain one-sheet Meeting Form. */
 function exportMeeting(){
-  window.BSFNeedXLSX().then(exportNow).catch(function(){ toast('The Excel library did not load. Restart Kingdom Connect and try again.', true); });
-}
-function exportNow(){
   var frames = live.scenes.filter(function(s){ return !s.tpl; });
   if (!frames.length){ toast('There are no Frames to export yet.', true); return; }
   var name = ((live.meeting && live.meeting.title) || (live.brand && live.brand.meeting) || 'Meeting').replace(/[^\w\- ]+/g, '').trim() || 'Meeting';
-  X().writeFile(MB.exportBook(X(), live), name + ' - ' + new Date().toISOString().slice(0, 10) + '.xlsx');
-  toast('Exported ' + frames.length + ' Frames to Excel');
+  name += ' - ' + new Date().toISOString().slice(0, 10) + '.xlsx';
+  var done = function(){ toast('Exported ' + frames.length + ' Frames to Excel'); };
+  var plain = function(){
+    window.KCNeedXLSX().then(function(){ X().writeFile(MB.exportBook(X(), live), name); done(); })
+      .catch(function(){ toast('The Excel library did not load. Restart Kingdom Connect and try again.', true); });
+  };
+  if (!Store.served) return plain();
+  fetch('api/meeting/workbook', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(MB.exportSheets(live))})
+    .then(function(r){ if (!r.ok) throw new Error('export'); return r.blob(); })
+    .then(function(blob){
+      var url = URL.createObjectURL(blob), a = h('a', {href: url, download: name});
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(function(){ URL.revokeObjectURL(url); }, 4000);
+      done();
+    }).catch(plain);
 }
 
 /* ---------- dialog ---------- */
@@ -70,7 +83,7 @@ function start(){
   drop.addEventListener('dragleave', function(){ drop.classList.remove('over'); });
   drop.addEventListener('drop', function(e){ e.preventDefault(); drop.classList.remove('over'); var f = e.dataTransfer.files[0]; if (f) read(f); });
   frame([h('h2', {id: 'mi-title', text: 'Build a whole meeting from one file'}),
-    h('p', {cls: 'kc-dlg-sub', text: 'The Meeting Workbook has five sheets: Meeting Overview, Frames, Content, Questions and Scriptures. You will see a preview first; nothing changes until you select Import.'}),
+    h('p', {cls: 'kc-dlg-sub', text: 'Fill in the Meeting Form tab of the Meeting Workbook: meeting details, Frames, Content, questions and scriptures, top to bottom. You will see a preview first; nothing changes until you select Import.'}),
     drop,
     h('div', {cls: 'kc-dlg-foot'}, [
       h('button', {cls: 'btn', type: 'button', html: I('file-text', 15) + ' Download the template', onclick: template}),
@@ -91,11 +104,12 @@ function read(file){
   Promise.all([got, keyCheck]).then(function(r){
     var d = r[0]; esv = r[1];
     if (!d.ok){ problem(d.error); return; }
-    isBook = MB.isBook(d.sheets);
-    if (isBook){ plan = MB.parse(d.book, {esv: esv}); previewBook(); return; }
+    var fb = MB.bookOf(d);
+    isBook = !!fb;
+    if (isBook){ plan = MB.parse(fb.book, {esv: esv, form: fb.form}); previewBook(); return; }
     // a v6.2 one-sheet file: the sheet with a "Scene Name" column
     var name = Object.keys(d.book).filter(function(n){ return d.book[n].headers.some(function(x){ return x.trim().toLowerCase() === 'scene name'; }); })[0];
-    if (!name){ problem('This file is not a Kingdom Connect Meeting Workbook: it needs the sheets Frames and Content. Download the template (it has examples) and fill it in.'); return; }
+    if (!name){ problem('This file is not a Kingdom Connect Meeting Workbook: it needs a Meeting Form tab with a Frames table and a Content table. Download the template (it has examples) and fill it in.'); return; }
     var sh = d.book[name];
     plan = M.parse(sh.headers, sh.rows, {headerRow: sh.headerRow, esv: esv, hasBrand: SC.hasBrand(live), existing: live.scenes.filter(function(s){ return !s.tpl; }).map(function(s){ return s.name; })});
     plan.sheet = name;
@@ -163,7 +177,8 @@ function previewBook(){
   var summary = h('div', {cls: 'mi-chips'}, [chip(c.frames, c.frames === 1 ? 'Frame' : 'Frames', 'big'), chip(c.content, 'Content', 'big'),
     c.questions ? chip(c.questions, c.questions === 1 ? 'question' : 'questions') : null, c.scriptures ? chip(c.scriptures, c.scriptures === 1 ? 'scripture' : 'scriptures') : null,
     c.media ? chip(c.media, 'media') : null, plan.fetch.length ? chip(plan.fetch.length, 'from the ESV') : null]);
-  var m = plan.meeting, meet = m.title || m.date || m.presenter ? h('p', {cls: 'kc-dlg-sub'}, [h('b', {text: m.title || 'Meeting'}), [m.date, m.presenter].filter(Boolean).length ? ' · ' + [m.date, m.presenter].filter(Boolean).join(' · ') : '']) : null;
+  var m = plan.meeting, more = [m.date, m.time, m.location, m.presenter].filter(Boolean);
+  var meet = m.title || more.length ? h('p', {cls: 'kc-dlg-sub'}, [h('b', {text: m.title || 'Meeting'}), more.length ? ' · ' + more.join(' · ') : '']) : null;
   var table = h('ol', {cls: 'mi-scenes'}, plan.frames.map(function(F){
     return h('li', {}, [h('b', {text: F.name}), h('span', {text: F.content.map(function(C){ return MB.TYPE_NAME[C.type] + (C.items.length ? ' (' + C.items.length + ')' : ''); }).join(' · ') || 'Empty Frame'})]);
   }));
@@ -225,7 +240,7 @@ function run(mode, replaceLists){
   }).then(function(){
     delete dlg.dataset.busy;
     undo = before;
-    if (made.length && window.BSFWorkspace){ window.BSFWorkspace.select(made[0].id); }
+    if (made.length && window.KCWorkspace){ window.KCWorkspace.select(made[0].id); }
     var media = plan.counts.media, grp = made[0] ? made[0].group || group : group;
     frame([h('h2', {id: 'mi-title', text: '✓ ' + made.length + (made.length === 1 ? ' Frame' : ' Frames') + ' imported'}),
       h('p', {cls: 'kc-dlg-sub', text: (isBook ? plan.counts.content + ' Content' : plan.counts.layers + ' Content') + ' in “' + grp + '”' + (mode === 'replace' ? ', replacing your previous Frames' : ', after your existing Frames') + '. The first Frame is selected in the Studio; press Go Live when you are ready. From now on the app is the source of truth.'}),
@@ -233,7 +248,7 @@ function run(mode, replaceLists){
       h('div', {cls: 'kc-dlg-foot'}, [
         h('button', {cls: 'btn quiet', type: 'button', id: 'mi-undo', html: I('refresh-cw', 15) + ' Undo this import', onclick: undoImport}),
         h('span', {cls: 'mi-spacer'}),
-        h('button', {cls: 'btn primary', type: 'button', text: 'Done', onclick: function(){ dlg.close(); if (window.BSFSetTab) window.BSFSetTab('studio'); }})])]);
+        h('button', {cls: 'btn primary', type: 'button', text: 'Done', onclick: function(){ dlg.close(); if (window.KCSetTab) window.KCSetTab('studio'); }})])]);
   }).catch(function(e){
     delete dlg.dataset.busy;
     problem((e && e.message) || 'The import did not finish. Nothing was changed.');
@@ -248,5 +263,5 @@ function undoImport(){
   });
 }
 
-window.BSFMeetingImport = {pick: pick, read: read, template: template, exportMeeting: exportMeeting, undo: function(){ undoImport(); }, canUndo: function(){ return !!undo; }};
+window.KCMeetingImport = {pick: pick, read: read, template: template, exportMeeting: exportMeeting, undo: function(){ undoImport(); }, canUndo: function(){ return !!undo; }};
 })();

@@ -23,7 +23,7 @@ function merge(v){ return {left: num(v.left, 220, 560, DEF.left), canvas: num(v.
   c: Object.assign({}, DEF.c, v.c || {}), autohide: !!v.autohide}; }
 function num(v, lo, hi, d){ v = Number(v); return isFinite(v) ? Math.min(hi, Math.max(lo, v)) : d; }
 function save(){ try { localStorage.setItem(KEY, JSON.stringify(L)); } catch(e){} }
-function I(n, s){ return window.BSFIcon ? window.BSFIcon(n, s || 15) : ''; }
+function I(n, s){ return window.KCIcon ? window.KCIcon(n, s || 15) : ''; }
 function el(tag, cls, attrs){ var e = document.createElement(tag); if (cls) e.className = cls; for (var k in (attrs || {})) e.setAttribute(k, attrs[k]); return e; }
 
 /* ---------- splitters ---------- */
@@ -47,7 +47,7 @@ function apply(){
   syncButtons();
   void r;
 }
-function refit(){ cancelAnimationFrame(raf); raf = requestAnimationFrame(function(){ window.dispatchEvent(new Event('resize')); if (window.BSFStudio && window.BSFStudio.fit) try { window.BSFStudio.fit(); } catch(e){} }); }
+function refit(){ cancelAnimationFrame(raf); raf = requestAnimationFrame(function(){ window.dispatchEvent(new Event('resize')); if (window.KCStudio && window.KCStudio.fit) try { window.KCStudio.fit(); } catch(e){} }); }
 function drag(split, onMove){
   split.addEventListener('pointerdown', function(e){
     if (e.button !== 0 || e.target.closest('.kc-reopen')) return;
@@ -127,7 +127,6 @@ function openMenu(){
     '-',
     {t: 'Auto-hide the Inspector', ah: true},
     {t: 'Preview only (Focus)', run: function(){ focusMode(); }, icon: 'maximize-2'},
-    {t: 'Presentation Mode', run: function(){ if (window.BSFPresentation) window.BSFPresentation(!document.body.classList.contains('pm')); }, icon: 'presentation'},
     '-',
     {t: 'Reset the layout', run: function(){ L = merge({}); apply(); save(); refit(); }, icon: 'refresh-cw'}];
   menuItems.forEach(function(m){
@@ -181,5 +180,5 @@ if (prog && progBtn){
 }
 
 apply();
-window.BSFLayout = {get: function(){ return JSON.parse(JSON.stringify(L)); }, set: function(v){ L = merge(Object.assign({}, L, v)); apply(); save(); refit(); }, reset: function(){ L = merge({}); apply(); save(); refit(); }, focus: focusMode};
+window.KCLayout = {get: function(){ return JSON.parse(JSON.stringify(L)); }, set: function(v){ L = merge(Object.assign({}, L, v)); apply(); save(); refit(); }, reset: function(){ L = merge({}); apply(); save(); refit(); }, focus: focusMode};
 })();

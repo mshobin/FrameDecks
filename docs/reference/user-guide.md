@@ -26,13 +26,21 @@ The **command bar** across the top holds everything you need live:
 | Part | What it does |
 | --- | --- |
 | Studio · Members · Settings | The three sections (Alt+1, Alt+3, Alt+4) |
-| Search box (or Ctrl+K / Ctrl+Space) | Opens the **command palette** (from anywhere in Windows: **Spotlight**, Alt+Space): finds Frames, Content, questions, scriptures, text, templates, the Library, branding, settings, members, Bible references and recent items, and runs commands such as Go Live, New Frame, Duplicate, Teleprompter, Export meeting, switch theme and Add Content. **↑ / ↓** and **Enter** choose; **Esc** closes. Change the keys in Settings → Keyboard shortcuts → Command palette |
 | ◀ Frame · **Go Live** · Frame ▶ | Put the selected Frame on screen (T), or step to the previous or next Frame |
 | Transition · Auto · ◀ Question ▶ | How the next Frame appears; auto-advance; step through the Frame's questions or scriptures |
-| Program | Hide Content · **Blackout** (K) · Emergency · **Annotate** (D) · **Freeze** (F) · **Teleprompter** (R) · **Teleprompter window** · **Teleprompter overlay** (Shift+R) |
-| Hide all | Hide everything (Esc) |
+| Program ▾ | A drop-down menu: Hide Content · **Blackout** (K) · Emergency · **Annotate** (D) · **Freeze** (F) · **Teleprompter** (R) · **Teleprompter window** · **Teleprompter overlay** (Shift+R) |
+| Hide all **Esc** | Hide everything. The **Esc** key is shown inside the button |
 | ● Off air / LIVE | What is on screen now |
 | Window buttons | Minimize, Maximize / Restore and Close, at the top right |
+
+**Search and commands.** The command bar has no search box (6.9). Press **Ctrl+K** or **Ctrl+Space** for the **command
+palette** (from anywhere in Windows: **Spotlight**, Alt+Space). It finds Frames, Content, questions, scriptures, text,
+templates, the Library, branding, settings, members, Bible references and recent items, and runs commands such as Go
+Live, New Frame, Duplicate, Teleprompter, Export meeting, switch theme and Add Content. **↑ / ↓** and **Enter**
+choose; **Esc** closes. Change the keys in Settings → Keyboard shortcuts → Command palette.
+
+The command bar fits any window: narrow, maximized, ultra-wide or on a high-resolution screen. Under 1140 px wide it
+wraps onto two rows, so nothing is cut off (6.9).
 
 **The window (6.8).** There is no Windows title bar: the command bar is the window's ribbon. Drag its empty space to
 move the window, and double-click it to maximize. Snap and resizing from the edges work as usual. Every Kingdom
@@ -183,21 +191,23 @@ KingdomConnect, restart that app.
 ## 7. Excel (optional)
 Kingdom Connect works fully without Excel. The **Meeting Workbook** is for planning, review, handover and bulk editing.
 
-It has five sheets:
-- **Meeting Overview**
-- **Frames**
-- **Content**
-- **Questions**
-- **Scriptures**
+It has two tabs (6.9):
+- **Meeting Form**: one guided page, top to bottom, in numbered sections: 1 · Meeting details, 2 · Speaker,
+  3 · Attendees, 4 · Presentation, 5 · Frames, 6 · Content, 7 · Discussion questions, 8 · Scripture readings,
+  9 · Additional notes. Type in the cream boxes; **Tab** moves on. Each table shows a few empty rows; the **+**
+  button on the left opens more.
+- **Dashboard**: fills itself in from the form (days to go, counts, a Readiness checklist, Quick actions, a Content
+  mix chart and a Recent meetings log). It is never imported.
 
 Use it through **Meeting**:
-- **Download the Excel template** (drop-down lists, examples);
-- **Import meeting from Excel…** (preview with every problem and its row, Append or Replace, Undo);
-- **Export this meeting to Excel**.
+- **Download the Excel template** (drop-down lists, an example meeting);
+- **Import meeting from Excel…** (preview with every problem and where it is, such as *Meeting Form · Content ·
+  row 26*; Append or Replace; Undo);
+- **Export this meeting to Excel** (the same Dashboard and Meeting Form, filled in).
 
-After an import the app is the source of truth. The Questions and Scriptures sheets have no Answer or Notes
-columns since 6.7. Older workbooks still import: their answers and notes go into the Frame's Teleprompter script.
-The Excel library loads only when you first need it, so the app starts faster.
+After an import the app is the source of truth. Workbooks from 6.5 to 6.8 (one sheet per list) and the 6.2
+one-sheet template still import; their answers and notes go into the Frame's Teleprompter script. The Excel library
+loads only when you first need it, so the app starts faster.
 
 ## 8. Your branding
 **Settings → Meeting & Branding**: your Meeting Name, organisation, logo and accent colour. They appear only where you

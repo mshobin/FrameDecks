@@ -1,16 +1,16 @@
-/* BSF Command Center - Settings sections, Security, Diagnostics, Keyboard editor */
+/* Kingdom Connect - Settings sections, Security, Diagnostics, Keyboard editor */
 (function(){
 'use strict';
-var Store = window.BSFStore, Status = window.BSFStatus;
+var Store = window.KCStore, Status = window.KCStatus;
 var $ = function(id){ return document.getElementById(id); };
-var SEC_KEY = 'bsf-cc-settings-section';
+var SEC_KEY = 'kc-settings-section';
 function h(tag, attrs, kids){
   var el = document.createElement(tag);
   for (var k in (attrs || {})){ var v = attrs[k]; if (k.slice(0, 2) === 'on') el.addEventListener(k.slice(2), v); else if (k === 'text') el.textContent = v; else if (k === 'cls') el.className = v; else if (v != null && v !== false) el.setAttribute(k, v); }
   (kids || []).forEach(function(c){ if (c != null) el.appendChild(typeof c === 'string' ? document.createTextNode(c) : c); });
   return el;
 }
-window.BSFh = h;
+window.KCh = h;
 
 /* ---------- Section navigation ---------- */
 var current = null;
@@ -23,10 +23,10 @@ function showSection(id){
   try { localStorage.setItem(SEC_KEY, id); } catch(e){}
   if (id === 'diag') renderDiag();
   if (id === 'security') renderSecurity();
-  if (id === 'recording' && window.BSFLoadRecordings) window.BSFLoadRecordings();
-  (window.BSFSectionHooks || []).forEach(function(f){ try { f(id); } catch(e){} });     // v6: Scripture, Transitions
+  if (id === 'recording' && window.KCLoadRecordings) window.KCLoadRecordings();
+  (window.KCSectionHooks || []).forEach(function(f){ try { f(id); } catch(e){} });     // v6: Scripture, Transitions
 }
-window.BSFShowSection = showSection;
+window.KCShowSection = showSection;
 $('s-nav').addEventListener('click', function(e){ var b = e.target.closest('[data-sec]'); if (b) showSection(b.dataset.sec); });
 document.addEventListener('click', function(e){
   var b = e.target.closest('[data-goto="settings"][data-sec]'); if (b) setTimeout(function(){ showSection(b.dataset.sec); }, 0);
@@ -35,7 +35,7 @@ var saved = null; try { saved = localStorage.getItem(SEC_KEY); } catch(e){}
 showSection(saved || 'general');
 
 /* ---------- Keyboard shortcuts editor ---------- */
-if (window.BSFShortcuts) window.BSFShortcuts.mountEditor($('keys-body'));
+if (window.KCShortcuts) window.KCShortcuts.mountEditor($('keys-body'));
 
 /* ---------- Nav status dots ---------- */
 function dot(id, cls){ var d = $(id); if (d) d.className = 'sn-dot ' + (cls || ''); }
@@ -64,12 +64,12 @@ function renderSecurity(){
               : 'Only this PC can reach Kingdom Connect. Turn it on in Settings → Phone & iPad Remote when you want to use your phone.',
     r.enabled ? [h('button', {cls: 'btn small', type: 'button', text: 'New PIN (disconnects all phones)', onclick: function(){
       if (!confirm('Create a new PIN? Every connected phone or iPad will need the new PIN.')) return;
-      fetch('api/remote-reset', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: '{}'}).then(function(){ window.BSFActions.toast('New PIN created. All phones and phones and iPads were disconnected.'); });
+      fetch('api/remote-reset', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: '{}'}).then(function(){ window.KCActions.toast('New PIN created. All phones and phones and iPads were disconnected.'); });
     }})] : []));
   g.appendChild(card('KingdomConnect camera', pill('ok', 'Stays on this PC'),
     'Your webcam picture is processed on this PC (including background blur) and only goes to the meeting app you choose. The webcam is only switched on while Zoom, Teams or the preview is using KingdomConnect.'));
   g.appendChild(card('Member details', pill('ok', 'Private'),
-    'Stored only in bsf-members-private.json on this PC. Never sent to overlays or the phone remote. The birthday overlay receives only the greeting you choose to show.'));
+    'Stored only in kc-members-private.json on this PC. Never sent to overlays or the phone remote. The birthday overlay receives only the greeting you choose to show.'));
   g.appendChild(card('Windows Firewall', pill('ok', 'Never changed automatically'),
     'Kingdom Connect does not change firewall settings by itself. The optional “Allow iPad Remote” helper asks first, only affects private networks, and can be undone with “Undo iPad Remote permission”.'));
   g.appendChild(card('Emails', pill('ok', 'Never sent automatically'),
@@ -77,7 +77,7 @@ function renderSecurity(){
 }
 
 /* ---------- Diagnostics ---------- */
-var errors = window.BSFErrors || [];
+var errors = window.KCErrors || [];
 function renderDiag(){
   var root = $('diag-body'); root.innerHTML = '';
   var info = {browser: navigator.userAgent, screen: screen.width + '×' + screen.height, window: window.innerWidth + '×' + window.innerHeight,
@@ -157,7 +157,7 @@ function copyReport(){
     'Recent problems: ' + (errors.length ? errors.slice(-10).map(function(e){ return e.time + ' ' + e.message; }).join(' | ') : 'none')];
   var text = lines.join('\n');
   var ta = h('textarea'); ta.value = text; document.body.appendChild(ta); ta.select();
-  try { document.execCommand('copy'); window.BSFActions.toast('Diagnostics copied (no PIN, keys or member details included)'); } catch(e){}
+  try { document.execCommand('copy'); window.KCActions.toast('Diagnostics copied (no PIN, keys or member details included)'); } catch(e){}
   ta.remove();
 }
 })();

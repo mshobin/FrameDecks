@@ -60,7 +60,7 @@ class Camera:
 
 
 class DemoCamera:
-    """A moving test picture, used only for testing without a webcam (BSF_VCAM_DEMO=1)."""
+    """A moving test picture, used only for testing without a webcam (KC_VCAM_DEMO=1)."""
     def __init__(self, index, width, height, **_options):
         self.w, self.h, self.t = width, height, 0
 

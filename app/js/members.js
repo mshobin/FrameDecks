@@ -1,16 +1,16 @@
-/* BSF Command Center - BSF Members, Birthdays, Email Preparation, Settings */
+/* Kingdom Connect - Members, Birthdays, Email Preparation, Settings */
 (function(){
 'use strict';
 
-var M = window.BSFMembers, Store = window.BSFStore, XLSX = window.XLSX || null;   // 6.7: loaded on first use (needXlsx)
+var M = window.KCMembers, Store = window.KCStore, XLSX = window.XLSX || null;   // 6.7: loaded on first use (needXlsx)
 var $ = function(id){ return document.getElementById(id); };
-var PKEY = 'bsf-cc-members-v1';
-var ACK_KEY = 'bsf-cc-birthday-ack';
+var PKEY = 'kc-members-v1';
+var ACK_KEY = 'kc-birthday-ack';
 
 /* ---------- Defaults ---------- */
 var DEFAULTS = {
-  meetingTitle: 'BSF Meeting',
-  yourName: '', yourEmail: '', groupName: 'BSF',
+  meetingTitle: 'Meeting',
+  yourName: '', yourEmail: '', groupName: '',
   greeting: 'Hello [Member Name],', groupGreeting: 'Hello everyone,',
   signature: 'Regards,\n[Your Name]\n[Group Name]',
   defaultSubject: 'A note from [Group Name]',
@@ -74,7 +74,7 @@ function download(blob, name){
   setTimeout(function(){ URL.revokeObjectURL(a.href); }, 3000);
 }
 function stamp(){ var t = M.today(); return t.y + '-' + (t.m < 10 ? '0' : '') + t.m + '-' + (t.d < 10 ? '0' : '') + t.d; }
-function commit(fn){ return window.BSFCommit(fn); }
+function commit(fn){ return window.KCCommit(fn); }
 var CAKE = '<svg class="cake" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M4 29h24M6 29V18h20v11M6 23c2.5 2 5 2 7.5 0s5-2 7.5 0 3.5 1.5 5 .5"/><path d="M10 18v-4M16 18v-4M22 18v-4"/></svg>';
 
 /* ---------- Dialog ---------- */
@@ -115,7 +115,7 @@ function normalizeData(d){
 function loadPrivate(){
   if (Store.served){
     return fetch('api/private', {cache: 'no-store'}).then(function(r){ if (!r.ok) throw new Error(); return r.json(); })
-      .then(function(d){ storedAt = d.storedAt || 'the BSF Command Center folder'; return d; });
+      .then(function(d){ storedAt = d.storedAt || 'the Kingdom Connect folder'; return d; });
   }
   storedAt = 'This browser’s own storage on this computer (no-install mode). Other browsers and OBS can’t see it.';
   try { return Promise.resolve(JSON.parse(localStorage.getItem(PKEY) || '{}')); } catch(e){ return Promise.resolve({}); }
@@ -162,7 +162,7 @@ function setTab(t){
   var sec = t === 'recordings' ? 'recording' : null;
   t = TAB_ALIAS[t] || t;
   if (TABS.indexOf(t) < 0) t = 'studio';
-  if (sec && window.BSFShowSection) setTimeout(function(){ window.BSFShowSection(sec); }, 0);
+  if (sec && window.KCShowSection) setTimeout(function(){ window.KCShowSection(sec); }, 0);
   ui.tab = t; document.body.dataset.tab = t;
   TABS.forEach(function(k){
     var b = $('tabbtn-' + k); if (b) b.setAttribute('aria-selected', String(k === t));
@@ -173,9 +173,9 @@ function setTab(t){
   if (t === 'birthdays') renderBirthdays();
   if (t === 'settings') renderSettings();
   renderComposer();
-  if (window.BSFOnTab) window.BSFOnTab(t);
+  if (window.KCOnTab) window.KCOnTab(t);
 }
-window.BSFSetTab = function(t){ setTab(t); };
+window.KCSetTab = function(t){ setTab(t); };
 
 /* ---------- Header chips, reminder banner ---------- */
 function renderStatus(){
@@ -461,7 +461,7 @@ function dateCode(v){
   return d && d.y ? {y: d.y, m: d.m, d: d.d} : null;
 }
 function needXlsx(run){
-  window.BSFNeedXLSX().then(function(x){ XLSX = x; run(); }).catch(function(){ toast('The Excel reader could not load. Restart Kingdom Connect and try again.', true); });
+  window.KCNeedXLSX().then(function(x){ XLSX = x; run(); }).catch(function(){ toast('The Excel reader could not load. Restart Kingdom Connect and try again.', true); });
 }
 function readFile(file){ needXlsx(function(){ readFileNow(file); }); }
 function readFileNow(file){
@@ -595,12 +595,12 @@ function exportXlsxNow(){
   if (!data.members.length){ toast('There are no members to export.', true); return; }
   var wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, sheetFrom([M.EXPORT_COLUMNS].concat(memberRows())), 'Members');
-  XLSX.writeFile(wb, 'BSF-Members-' + stamp() + '.xlsx');
+  XLSX.writeFile(wb, 'Kingdom-Connect-Members-' + stamp() + '.xlsx');
   toast('Exported ' + data.members.length + ' members to Excel (saved to Downloads)');
 }
 function exportCsv(){
   if (!data.members.length){ toast('There are no members to export.', true); return; }
-  download(new Blob([M.toCsv(M.EXPORT_COLUMNS, memberRows(), 2)], {type: 'text/csv;charset=utf-8'}), 'BSF-Members-' + stamp() + '.csv');
+  download(new Blob([M.toCsv(M.EXPORT_COLUMNS, memberRows(), 2)], {type: 'text/csv;charset=utf-8'}), 'Kingdom-Connect-Members-' + stamp() + '.csv');
   toast('Exported ' + data.members.length + ' members to CSV (saved to Downloads)');
 }
 function downloadTemplate(){ needXlsx(downloadTemplateNow); }
@@ -611,7 +611,7 @@ function downloadTemplateNow(){
     ['Daniel Okafor', 'Nigeria', '+234 800 000 0002', 'daniel@example.com', '1990-11-02', 'Discussion Leader'],
     ['Priya Nair', 'India', '+91 90000 00003', 'priya@example.com', '--07-21', '']]), 'Members');
   var info = XLSX.utils.aoa_to_sheet([
-    ['BSF Members template - how to fill it in'], [''],
+    ['Members template - how to fill it in'], [''],
     ['Keep the first row of the Members sheet exactly as it is:  Name | Country | Phone Number | Email | Birth Date'],
     ['Replace the example rows with your members (one member per row).'], [''],
     ['Name', 'Required.'],
@@ -623,7 +623,7 @@ function downloadTemplateNow(){
   ]);
   info['!cols'] = [{wch: 16}, {wch: 110}];
   XLSX.utils.book_append_sheet(wb, info, 'Instructions');
-  XLSX.writeFile(wb, 'BSF-Members-Template.xlsx');
+  XLSX.writeFile(wb, 'Kingdom-Connect-Members-Template.xlsx');
   toast('Template saved to your Downloads folder');
 }
 
@@ -762,7 +762,7 @@ function openEmail(){
       actions: [{label: 'Cancel'}, {label: 'Open anyway', onClick: go}, {label: 'Copy message and open', primary: true, onClick: function(){ copyText(body, 'Message'); go(); }}]});
   } else go();
 }
-window.BSFMemberEmail = {mailtoFor: function(){ var a = addresses(); return M.mailto({to: a.to, bcc: a.bcc, subject: composerEl.querySelector('#c-subject').value, body: composerEl.querySelector('#c-body').value, separator: data.settings.separator}); }};
+window.KCMemberEmail = {mailtoFor: function(){ var a = addresses(); return M.mailto({to: a.to, bcc: a.bcc, subject: composerEl.querySelector('#c-subject').value, body: composerEl.querySelector('#c-body').value, separator: data.settings.separator}); }};
 
 /* ---------- Email tab picker ---------- */
 function renderPicker(){
@@ -819,7 +819,7 @@ function renderBirthdays(){
   var up = $('bd-upcoming'); up.innerHTML = '';
   w.filter(function(x){ return x.b.days > 0; }).forEach(function(x){ up.appendChild(bdRow(x)); });
   var none = $('bd-none');
-  if (!all.length) none.textContent = 'No birth dates yet. Add them in the BSF Members tab or import an Excel file.';
+  if (!all.length) none.textContent = 'No birth dates yet. Add them in the Members tab or import an Excel file.';
   else if (!w.length) none.textContent = 'No birthdays today or in the next ' + n + ' days. The next one is ' + all[0].m.name + ' on ' + all[0].b.nextLabel + ' (in ' + all[0].b.days + ' days).';
   else if (!w.filter(function(x){ return x.b.days > 0; }).length) none.textContent = 'No other birthdays in the next ' + n + ' days.';
   else none.textContent = '';
@@ -894,12 +894,12 @@ function clearBirthday(){
     .then(function(){ toast('Birthday overlay cleared'); });
 }
 /* Shared with Meeting Mode and keyboard shortcuts */
-window.BSFBirthday = {
+window.KCBirthday = {
   show: function(){ showBirthday(); }, hide: hideBirthday, clear: clearBirthday,
   toggle: function(){ if (live && live.birthday.visible && live.birthday.greeting) hideBirthday(); else if (byId(ui.celebrateId)) showBirthday(); else toast('No birthday is ready. Choose a member in the Birthday box (Run meeting), or use “Celebrate on screen” on their member card.', true); },
   candidate: function(){ var m = byId(ui.celebrateId); return m ? {name: m.name} : null; }
 };
-window.BSFMembersAPI = {
+window.KCMembersAPI = {
   settings: function(){ return data.settings; },
   /* read-only list for the Directory table (copies; never the private objects themselves) */
   directory: function(){ return data.members.map(function(m){ return {id: m.id, name: m.name, role: m.role || '', email: m.email, birthDate: m.birthDate, b: bInfo(m)}; }); },
@@ -1053,7 +1053,7 @@ function setup(){
 
   document.addEventListener('keydown', function(e){
     if (document.querySelector('dialog[open]')) return;
-    if (e.altKey && !e.ctrlKey && /^[1-4]$/.test(e.key) && window.BSFNavAlt){ e.preventDefault(); window.BSFNavAlt(+e.key); return; }
+    if (e.altKey && !e.ctrlKey && /^[1-4]$/.test(e.key) && window.KCNavAlt){ e.preventDefault(); window.KCNavAlt(+e.key); return; }
     var t = e.target.tagName;
     if (t === 'INPUT' || t === 'TEXTAREA' || t === 'SELECT') return;
     if (e.key === '/' && (ui.tab === 'members' || ui.tab === 'email')){ e.preventDefault(); $(ui.tab === 'members' ? 'm-search' : 'e-search').focus(); }

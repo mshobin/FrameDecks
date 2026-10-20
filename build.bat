@@ -1,7 +1,7 @@
 @echo off
 setlocal
 REM ------------------------------------------------------------------
-REM  Builds BSF-Command-Center-Setup-<version>.exe on THIS PC.
+REM  Builds Kingdom-Connect-Setup-<version>.exe on THIS PC.
 REM  (The usual way is GitHub Actions - see docs/development/building-the-installer.md.)
 REM  Needs: Python 3.10 or newer, and Inno Setup 6 (free, jrsoftware.org).
 REM ------------------------------------------------------------------
@@ -46,7 +46,7 @@ echo  [3/5] Self-check...
 python packaging\check.py || goto :fail
 
 echo  [4/5] Building the app...
-pyinstaller --noconfirm --clean packaging\bsf.spec --distpath dist --workpath build || goto :fail
+pyinstaller --noconfirm --clean packaging\kingdom-connect.spec --distpath dist --workpath build || goto :fail
 for /f "usebackq delims=" %%v in (`python packaging\get_version.py`) do set "VER=%%v"
 
 echo  [5/5] Building the installer...
@@ -57,7 +57,7 @@ if not exist "%ISCC%" goto :noinno
 "%ISCC%" /DAppVersion=%VER% packaging\installer.iss || goto :fail
 
 echo.
-echo  Done!  Your installer is:  dist\BSF-Command-Center-Setup-%VER%.exe
+echo  Done!  Your installer is:  dist\Kingdom-Connect-Setup-%VER%.exe
 echo.
 pause
 exit /b 0
@@ -66,7 +66,7 @@ exit /b 0
 echo.
 echo  Inno Setup 6 was not found. Install it (free) from https://jrsoftware.org/isdl.php
 echo  or run:  winget install JRSoftware.InnoSetup   then run build.bat again.
-echo  (The app itself was built in: dist\BSF Command Center)
+echo  (The app itself was built in: dist\Kingdom Connect)
 echo.
 pause
 exit /b 1

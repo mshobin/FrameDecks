@@ -1,10 +1,10 @@
-/* BSF Command Center - Studio. v4.9 layout: the rail on the left of the whole Studio (Scenes on top, the
+/* Kingdom Connect - Studio. v4.9 layout: the rail on the left of the whole Studio (Scenes on top, the
  * OBS-style Layers list beneath) stays visible in every Studio view (Meeting, Content, Canvas, Recordings);
  * the Canvas view shows the live canvas with the Inspector beside it. Everything you see is exactly what
  * KingdomConnect sends. The layer/scene logic below is unchanged - only where the panels are placed moved. */
 (function(){
 'use strict';
-var Store = window.BSFStore, I = window.BSFIcon;
+var Store = window.KCStore, I = window.KCIcon;
 var $ = function(id){ return document.getElementById(id); };
 var root = $('tab-studio');
 if (!root) return;
@@ -15,7 +15,7 @@ function h(tag, attrs, kids){
   return el;
 }
 function ib(icon, label, onclick, cls){ return h('button', {cls: 'ib ' + (cls || ''), type: 'button', title: label, 'aria-label': label, html: I(icon, 16), onclick: onclick}); }
-function toast(m, bad){ if (window.BSFActions) window.BSFActions.toast(m, bad); }
+function toast(m, bad){ if (window.KCActions) window.KCActions.toast(m, bad); }
 if (!Store.served){ root.appendChild(h('p', {cls: 'plain', style: 'padding:20px', text: 'The Studio needs the installed Kingdom Connect app.'})); return; }
 
 var REF_W = 1920, REF_H = 1080;            // inspector numbers use a 1920×1080 canvas
@@ -91,24 +91,22 @@ var right = h('aside', {cls: 's2-right', 'aria-label': 'Inspector'});
 root.appendChild(centre);
 var mediaHost = $('insp-media'); if (mediaHost) mediaHost.appendChild(right);
 
-/* Top bar: scene selector with collection filter · Preview/Output · Record · Look · Focus · Hide window */
+/* Top bar: scene selector with collection filter · Preview/Output · Record · Look · Focus */
 var colFilter = h('select', {id: 's2-colfilter', 'aria-label': 'Frame collection'});
 var sceneSel = h('select', {id: 's2-scene', 'aria-label': 'Frame'});
 /* Share Window (was "Presentation Mode" before 6.1): a separate window showing only the scene, for Zoom > Share > window */
 var presBtn = h('button', {cls: 'btn primary s2-present', type: 'button', id: 's2-present', html: I('presentation', 16) + ' Share Window',
-  title: 'Open a separate window with only the Frame, to share in Zoom (Share Screen → BSF Presentation)'});
+  title: 'Open a separate window with only the Frame, to share in Zoom (Share Screen → Kingdom Connect Share Window)'});
 var recBtn = h('button', {cls: 'btn s2-rec', type: 'button', id: 's2-rec', html: '<span class="dot"></span> Record'});
 var lookSel = h('select', {id: 's2-look', 'aria-label': 'Camera look'});
 var focusBtn = ib('maximize-2', 'Focus: hide the rest of the app', function(){ document.body.classList.toggle('studio-focus'); focusBtn.innerHTML = I(document.body.classList.contains('studio-focus') ? 'minimize-2' : 'maximize-2', 16); setTimeout(fitStage, 50); });
 focusBtn.id = 's2-focus';
-var hideBtn = ib('panel-left', 'Hide the app window (keeps running near the clock)', function(){
-  fetch('api/app/hide', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: '{}'}).then(function(r){ if (!r.ok) toast('Only in the installed app', true); }); });
 var shareChip = h('span', {cls: 's2-chip', id: 's2-share', hidden: 'hidden'});
 /* v5: the scene picker and collection filter are the Scenes list beside the canvas, and the Look is in
  * Settings > KingdomConnect Camera (and Ctrl+Alt+1/2/3/0) - the bar shows the active scene instead of repeating them. */
 var sceneNow = h('span', {cls: 's2-scene-now', id: 's2-scene-now'});
 var tools = $('canvas-tools');
-if (tools){ [shareChip, presBtn, focusBtn, hideBtn].forEach(function(b){ tools.appendChild(b); }); }
+if (tools){ [shareChip, presBtn, focusBtn].forEach(function(b){ tools.appendChild(b); }); }
 var recHost = $('rec-host');
 if (recHost){ recHost.appendChild(recBtn); recHost.appendChild(h('span', {cls: 'hint rec-note', id: 's2-rec-note', text: 'Records exactly what KingdomConnect sends to Zoom or Teams.'})); }
 presBtn.classList.remove('primary'); presBtn.classList.add('small');
@@ -120,18 +118,18 @@ presBtn.addEventListener('click', function(){
   var open = S && S.presentation && S.presentation.open;
   if (S && S.presentation && !S.presentation.desktop){        // browser: a popup window (opened right away, inside the click)
     if (popup && !popup.closed){ popup.close(); popup = null; return; }
-    popup = window.open('present.html', 'bsf-presentation', 'popup,width=1280,height=760');
+    popup = window.open('present.html', 'kc-presentation', 'popup,width=1280,height=760');
     if (!popup) toast('Allow pop-ups for this page to open the Presentation window', true);
     return;
   }
   fetch('api/app/present', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({on: !open})})
-    .then(function(){ toast(open ? 'Presentation window closed' : 'Presentation window open: in Zoom choose Share Screen → “BSF Presentation”'); setTimeout(refresh, 600); });
+    .then(function(){ toast(open ? 'Presentation window closed' : 'Presentation window open: in Zoom choose Share Screen → “Kingdom Connect Share Window”'); setTimeout(refresh, 600); });
 });
 recBtn.addEventListener('click', function(){
   var on = !(S.recording && S.recording.on);
   act('record', {on: on}).then(function(d){ if (on) toast('Recording the KingdomConnect output'); else if (d.result) toast('Saved: ' + d.result.file.split(/[\\/]/).pop() + ' (' + d.result.seconds + ' s)'); });
 });
-lookSel.addEventListener('change', function(){ if (window.BSFLook) window.BSFLook.set(lookSel.value); });
+lookSel.addEventListener('change', function(){ if (window.KCLook) window.KCLook.set(lookSel.value); });
 
 /* ---------- Left: layers ---------- */
 var addBtn = h('button', {cls: 'btn primary small', type: 'button', id: 's2-add', 'aria-haspopup': 'menu', html: I('plus', 15) + ' Add Content'});
@@ -596,7 +594,7 @@ function apply(d){
   shareChip.innerHTML = I('monitor', 14) + ' ' + (sc.error ? '⚠ Screen sharing problem' : 'Sharing' + (sc.fps ? ' · ' + sc.fps + ' fps' : ''));
   shareChip.title = sc.error || (sc.backend || '');
   shareChip.classList.toggle('bad', !!sc.error);
-  var vs = window.BSFVcamStatus && window.BSFVcamStatus();
+  var vs = window.KCVcamStatus && window.KCVcamStatus();
   if (vs && vs.looks){ var ls = JSON.stringify(vs.looks); if (lookSel.dataset.sig !== ls){ lookSel.dataset.sig = ls; lookSel.innerHTML = '';
       lookSel.appendChild(h('option', {value: 'off', text: 'Look: Off'})); vs.looks.forEach(function(l){ lookSel.appendChild(h('option', {value: l.id, text: 'Look: ' + l.name})); }); }
     if (document.activeElement !== lookSel) lookSel.value = vs.settings.look || 'off'; }
@@ -604,7 +602,7 @@ function apply(d){
 }
 function fmtTime(s){ s = Math.round(s || 0); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); }
 function metricsLine(){
-  var vs = window.BSFVcamStatus && window.BSFVcamStatus(), st = vs && vs.status;
+  var vs = window.KCVcamStatus && window.KCVcamStatus(), st = vs && vs.status;
   if (!st) return '';
   return 'Camera ' + (st.captureFps || 0) + ' fps → output ' + (st.fps || 0) + ' fps · ' + (st.msPerFrame || 0) + ' ms per frame · capture-to-send ' +
     (st.latencyMs || 0) + ' ms · dropped ' + (st.dropped || 0) + ' · CPU ' + (st.cpuPercent || 0) + '%';
@@ -620,7 +618,7 @@ function poll(){
   var recOn = !!(S && S.recording && S.recording.on);       // v5.1: the Recording chip and output card keep counting
   (visible() || railVisible() || !S || (recOn && !document.hidden) ? refresh() : Promise.resolve()).then(function(){
     if (visible()) metrics.textContent = metricsLine();
-    pollT = setTimeout(poll, visible() || (S && S.recording && S.recording.on && !document.hidden) ? 1000 : railVisible() ? 3000 : window.BSFStore.pace(4000));
+    pollT = setTimeout(poll, visible() || (S && S.recording && S.recording.on && !document.hidden) ? 1000 : railVisible() ? 3000 : window.KCStore.pace(4000));
   });
 }
 poll();
@@ -628,12 +626,12 @@ var pulling = false, imgTag = {};
 function pullImage(){
   if (!visible()){ pulling = false; return; }
   pulling = true;
-  window.BSFStore.freshPreview(imgTag).then(function(b){
+  window.KCStore.freshPreview(imgTag).then(function(b){
     if (b){ var u = URL.createObjectURL(b), old = img.src; img.src = u; stage.classList.add('on'); if (old && old.slice(0, 5) === 'blob:') URL.revokeObjectURL(old); }
   }).catch(function(){}).then(function(){ setTimeout(pullImage, document.hidden ? 1000 : (drag ? 140 : 333)); });   // calm when idle, quick while dragging
 }
-var prevOnTab = window.BSFOnTab;
-window.BSFOnTab = function(t){
+var prevOnTab = window.KCOnTab;
+window.KCOnTab = function(t){
   if (prevOnTab) prevOnTab(t);
   if (t === 'studio'){ setTimeout(fitStage, 0); if (!pulling) pullImage(); }
   else document.body.classList.remove('studio-focus');
@@ -641,7 +639,7 @@ window.BSFOnTab = function(t){
 };
 if (window.ResizeObserver) new ResizeObserver(fitStage).observe(stageWrap);
 document.addEventListener('visibilitychange', function(){ if (visible() && !pulling) pullImage(); });   // shown again: resume the picture
-window.BSFStudio = {layers: function(){ return L; }, select: function(ids){ sel = ids.slice(); lastSelSig = sel.join(','); draw(); }, slide: slideMove,
+window.KCStudio = {layers: function(){ return L; }, select: function(ids){ sel = ids.slice(); lastSelSig = sel.join(','); draw(); }, slide: slideMove,
   state: function(){ return S; },                          // read-only, for the header chips and the workspace
   /* v6 workspace hooks: pushed layers (written back into the live scene), canvas selection, file / source pickers */
   onPush: function(f){ pushHooks.push(f); }, onSelect: function(f){ selHooks.push(f); },

@@ -8,7 +8,7 @@
  */
 (function(){
 'use strict';
-var SC = window.BSFScenes;
+var SC = window.KCScenes;
 
 /* ---------- columns (template order) ---------- */
 var COLUMNS = [
@@ -275,5 +275,5 @@ function build(n, L){
   return out;
 }
 
-window.BSFMeetingSheet = {COLUMNS: COLUMNS, TYPE_NAMES: TYPE_NAMES, EXTRA_TYPES: EXTRA_TYPES, KIND_LABEL: KIND_LABEL, parse: parse, apply: apply, splitRef: splitRef};
+window.KCMeetingSheet = {COLUMNS: COLUMNS, TYPE_NAMES: TYPE_NAMES, EXTRA_TYPES: EXTRA_TYPES, KIND_LABEL: KIND_LABEL, parse: parse, apply: apply, splitRef: splitRef};
 })();

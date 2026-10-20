@@ -6,7 +6,7 @@
  * Content. Edits save as you type. */
 (function(){
 'use strict';
-var Store = window.BSFStore, SC = window.BSFScenes, I = window.BSFIcon;
+var Store = window.KCStore, SC = window.KCScenes, I = window.KCIcon;
 var $ = function(id){ return document.getElementById(id); };
 if (!$('fl-question') || !SC) return;
 function h(tag, attrs, kids){
@@ -15,15 +15,15 @@ function h(tag, attrs, kids){
   (kids || []).forEach(function(c){ if (c != null) el.appendChild(typeof c === 'string' ? document.createTextNode(c) : c); });
   return el;
 }
-function toast(m, bad){ if (window.BSFActions) window.BSFActions.toast(m, bad); }
-function commit(fn){ return window.BSFCommit(fn); }
+function toast(m, bad){ if (window.KCActions) window.KCActions.toast(m, bad); }
+function commit(fn){ return window.KCCommit(fn); }
 function stop(e){ e.stopPropagation(); }
 var NAMES = {question: {one: 'question', One: 'Question', many: 'questions', Many: 'Questions', layer: 'question'},
   verse: {one: 'scripture', One: 'Scripture', many: 'scriptures', Many: 'Scriptures', layer: 'scripture'}};
-var TRANS = [['', 'Content default'], ['random', 'Random']].concat((window.BSFTransitions.list || []).map(function(t){ return [t, window.BSFTransitions.names[t]]; }));
+var TRANS = [['', 'Content default'], ['random', 'Random']].concat((window.KCTransitions.list || []).map(function(t){ return [t, window.KCTransitions.names[t]]; }));
 var live = null, editing = null, bulkOpen = {}, sigs = {};
 
-function frameId(){ var s = window.BSFSelFrame && window.BSFSelFrame(); return s || (live ? live.live.scene : ''); }
+function frameId(){ var s = window.KCSelFrame && window.KCSelFrame(); return s || (live ? live.live.scene : ''); }
 function cardOf(st, kind, sid){ var sc = SC.find(st, sid); return sc ? SC.first(sc, NAMES[kind].layer) : null; }
 function items(l){ return l && Array.isArray(l.c.items) ? l.c.items : []; }
 function isLiveFrame(sid){ return !!(live && sid && live.live.scene === sid); }
@@ -66,10 +66,10 @@ function renderList(host, kind, sid, l){
   var more = h('button', {cls: 'btn quiet small', type: 'button', text: 'Add several', id: 'fl-bulk-' + kind, onclick: function(){ bulkOpen[kind] = !bulkOpen[kind]; sigs[kind] = ''; render(); }});
   host.appendChild(h('div', {cls: 'fl-head'}, [h('h3', {text: N.Many + ' in this Frame'}), h('span', {cls: 'fl-count', text: String(list.length)}), add, more]));
   if (kind === 'question'){
-    var m = window.BSFActions && window.BSFActions.mode ? window.BSFActions.mode() : 'question';
+    var m = window.KCActions && window.KCActions.mode ? window.KCActions.mode() : 'question';
     var g = h('div', {cls: 'pmode fl-pmode', role: 'radiogroup', 'aria-label': 'What Show puts on screen'});
     [['question', 'Question'], ['both', 'Both'], ['verse', 'Scripture']].forEach(function(o){
-      g.appendChild(h('button', {type: 'button', role: 'radio', 'aria-checked': String(m === o[0]), text: o[1], onclick: function(){ window.BSFActions.setMode(o[0]); }}));
+      g.appendChild(h('button', {type: 'button', role: 'radio', 'aria-checked': String(m === o[0]), text: o[1], onclick: function(){ window.KCActions.setMode(o[0]); }}));
     });
     host.appendChild(h('div', {cls: 'fl-sub'}, [h('span', {cls: 'hint', text: 'Show:'}), g]));
   }
@@ -97,11 +97,11 @@ function renderList(host, kind, sid, l){
     var defLbl = l.c.label || (kind === 'question' ? 'Discussion Question' : 'Focus Verse');
     var lblEl = h('span', {cls: 'fl-lbl' + (it.label ? '' : ' inherit'), text: it.label || defLbl, title: it.label ? 'Double-click to rename this label' : 'Label from the Content (' + defLbl + '). Double-click to give this ' + N.one + ' its own'});
     var t1El = h('span', {cls: 't1', text: t1}), t2El = t2 ? h('span', {cls: 't2', text: t2}) : null;
-    BSFEditable.bind(lblEl, {value: it.label || '', placeholder: defLbl, maxLength: 80, label: N.One + ' label', save: function(v){ return saveItem(kind, sid, it.id, {label: v}); }});
-    if (kind === 'question') BSFEditable.bind(t1El, {value: it.text || '', multiline: true, maxLength: 2000, label: 'Question', placeholder: 'Type the question', selectAll: false, save: function(v){ if (!v.trim()){ toast('A question needs some text. Nothing was changed.', true); return; } return saveItem(kind, sid, it.id, {text: v}); }});
+    KCEditable.bind(lblEl, {value: it.label || '', placeholder: defLbl, maxLength: 80, label: N.One + ' label', save: function(v){ return saveItem(kind, sid, it.id, {label: v}); }});
+    if (kind === 'question') KCEditable.bind(t1El, {value: it.text || '', multiline: true, maxLength: 2000, label: 'Question', placeholder: 'Type the question', selectAll: false, save: function(v){ if (!v.trim()){ toast('A question needs some text. Nothing was changed.', true); return; } return saveItem(kind, sid, it.id, {text: v}); }});
     else {
-      BSFEditable.bind(t1El, {value: it.ref || '', maxLength: 80, label: 'Reference', placeholder: 'e.g. John 15:5', save: function(v){ return saveItem(kind, sid, it.id, {ref: v}); }});
-      if (t2El) BSFEditable.bind(t2El, {value: it.text || '', multiline: true, maxLength: 4000, label: 'Scripture text', selectAll: false, save: function(v){ return saveItem(kind, sid, it.id, {text: v}); }});
+      KCEditable.bind(t1El, {value: it.ref || '', maxLength: 80, label: 'Reference', placeholder: 'e.g. John 15:5', save: function(v){ return saveItem(kind, sid, it.id, {ref: v}); }});
+      if (t2El) KCEditable.bind(t2El, {value: it.text || '', multiline: true, maxLength: 4000, label: 'Scripture text', selectAll: false, save: function(v){ return saveItem(kind, sid, it.id, {text: v}); }});
     }
     var li = h('li', {cls: 'item' + (on ? ' live' : '') + (isCur ? ' loaded' : ''), role: 'option', tabindex: '0', 'aria-selected': String(isCur), 'data-id': it.id,
       draggable: list.length > 1 ? 'true' : null, title: 'Click: make it current · Double-click the label or text to edit it · Drag to move'}, [
@@ -117,7 +117,7 @@ function renderList(host, kind, sid, l){
         h('button', {cls: 'btn quiet small danger', type: 'button', text: '✕', title: 'Remove', 'aria-label': 'Remove', onclick: function(e){ e.stopPropagation(); remove(kind, sid, it.id); }})])]);
     li.addEventListener('click', function(){ makeCurrent(kind, sid, it.id); });
     dragHooks(li, kind, sid, it.id);
-    li.addEventListener('dblclick', function(e){ if (!BSFEditable.active()) t1El.dispatchEvent(new MouseEvent('dblclick', {bubbles: false})); });   // anywhere else on the row edits the text
+    li.addEventListener('dblclick', function(e){ if (!KCEditable.active()) t1El.dispatchEvent(new MouseEvent('dblclick', {bubbles: false})); });   // anywhere else on the row edits the text
     li.addEventListener('keydown', function(e){
       if (e.target !== li) return;
       if (e.key === 'Enter'){ e.preventDefault(); openEditor(kind, it.id); }
@@ -142,7 +142,7 @@ function addItem(kind, sid, data){
 function makeCurrent(kind, sid, id){ editList(kind, sid, function(l){ l.c.itemId = id; }); }
 function showItem(kind, sid, it){
   if (!isLiveFrame(sid)){ makeCurrent(kind, sid, it.id); toast('This Frame is not on screen. Go Live first; it will start at this ' + NAMES[kind].one + '.'); return; }
-  if (window.BSFActions) window.BSFActions.showItem(kind, it);
+  if (window.KCActions) window.KCActions.showItem(kind, it);
 }
 function move(kind, sid, id, d){
   editList(kind, sid, function(l){ var a = l.c.items, i = a.findIndex(function(x){ return x.id === id; }), j = i + d; if (i < 0 || j < 0 || j >= a.length) return; var t = a[i]; a[i] = a[j]; a[j] = t; });
@@ -245,8 +245,8 @@ function renderLabel(kind, sid, l){
   var t = null;
   inp.addEventListener('input', function(){ clearTimeout(t); t = setTimeout(function(){ editList(kind, sid, function(x, n){ x.c.label = inp.value.trim(); if (isLiveFrame(sid)){ var o = n[kind]; var cur = SC.itemById(n, kind, o.itemId); if (o.visible && !(cur && cur.label)) o.label = x.c.label || (kind === 'question' ? 'Discussion Question' : 'Focus Verse'); } }); }, 400); });
   var show = h('input', {type: 'checkbox', id: kind === 'verse' ? 'v-showlabel' : 'q-showlabel'});
-  show.checked = window.BSFCardLook ? window.BSFCardLook.of(kind, 'showLabel') !== false : true;
-  show.addEventListener('change', function(){ if (window.BSFCardLook) window.BSFCardLook.set(kind, 'showLabel', show.checked); });
+  show.checked = window.KCCardLook ? window.KCCardLook.of(kind, 'showLabel') !== false : true;
+  show.addEventListener('change', function(){ if (window.KCCardLook) window.KCCardLook.set(kind, 'showLabel', show.checked); });
   box.appendChild(h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'Label'}), h('div', {cls: 'two', style: 'grid-template-columns:1fr auto;align-items:center'}, [inp, h('label', {cls: 'check'}, [show, ' Show'])])]));
   box.appendChild(h('p', {cls: 'hint', text: 'Used for every ' + NAMES[kind].one + ' in this Frame that has no label of its own.'}));
 }
@@ -256,7 +256,7 @@ function render(){
   var sid = frameId();
   ['question', 'verse'].forEach(function(kind){
     var host = $('fl-' + kind); if (!host || host.offsetParent === null) return;      // hidden: drawn when it opens
-    if (BSFEditable.within(host)){ sigs[kind] = ''; return; }                           // an in-place editor is open here
+    if (KCEditable.within(host)){ sigs[kind] = ''; return; }                           // an in-place editor is open here
     var l = cardOf(live, kind, sid);
     renderLabel(kind, sid, l);
     var ed = editing && editing.kind === kind ? items(l).filter(function(x){ return x.id === editing.id; })[0] : null;
@@ -284,6 +284,6 @@ function onVerse(d){
 }
 
 Store.subscribe(function(st){ live = st; render(); });
-window.addEventListener('bsf-edit-done', function(){ render(); });
-window.BSFFrameLists = {render: function(){ render(); }, onVerse: onVerse, edit: openEditor, add: function(kind){ return addItem(kind, frameId()); }, save: saveItem};
+window.addEventListener('kc-edit-done', function(){ render(); });
+window.KCFrameLists = {render: function(){ render(); }, onVerse: onVerse, edit: openEditor, add: function(kind){ return addItem(kind, frameId()); }, save: saveItem};
 })();
