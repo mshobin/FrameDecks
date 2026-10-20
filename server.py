@@ -29,6 +29,7 @@ from pathlib import Path
 from urllib.parse import urlparse, parse_qs, unquote
 
 import legacy   # 6.9: moves data saved under the program's earlier name
+import meeting_form   # 6.9: fills the Meeting Workbook's form for Export
 
 APP_VERSION = "6.8"
 STARTED_AT = time.time()
@@ -1975,6 +1976,16 @@ class Handler(BaseHTTPRequestHandler):
             return self.reply(400, "Invalid data", "text/plain; charset=utf-8")
         if path == "/api/remote-login":
             return self.remote_login(data)
+        if path == "/api/meeting/workbook":
+            # 6.9 Export this meeting to Excel: the template's Dashboard and Meeting Form, with this meeting filled in
+            if not self.is_local():
+                return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
+            try:
+                meeting, tables = meeting_form.from_sheets(data if isinstance(data, dict) else {})
+                body = meeting_form.fill((APP / "templates" / "Kingdom-Connect-Meeting-Workbook.xlsx").read_bytes(), meeting, tables)
+            except (OSError, ValueError, KeyError, TypeError) as e:
+                return self.reply(422, json.dumps({"error": str(e)}), TYPES[".json"])
+            return self.reply(200, body, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
         if path == "/api/scripture/settings":
             if not self.is_local():
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")

@@ -17,6 +17,11 @@ for page in ["", "dashboard.html", "remote.html", "stage.html", "focus-verse.htm
 # 6.8 shortcut text checks (pure; the Windows parts are exercised only in the installed app)
 import desktop_win as _dw
 assert _dw.parse_hotkey("Alt+Space") == (1, 32) and _dw.parse_hotkey("Space") is None and _dw.format_hotkey("ctrl+alt+space") == "Ctrl+Alt+Space"
+# 6.9 Export this meeting to Excel: the server fills the template's Meeting Form
+req = urllib.request.Request(base + "api/meeting/workbook", method="POST", headers={"Content-Type": "application/json"},
+                             data=json.dumps({"meeting": [["Field", "Value"], ["Meeting name", "Check"]], "frames": [[], [1, "Welcome"]]}).encode())
+with urllib.request.urlopen(req, timeout=10) as r:
+    assert r.status == 200 and r.read(2) == b"PK", "meeting workbook export"
 ping = json.loads(urllib.request.urlopen(base + "api/app/ping").read())
 assert ping["app"] == "Kingdom Connect"
 for name in ["app/js/overlay.js", "app/js/store.js", "app/fonts/EBGaramond.ttf", "app/vendor/xlsx.full.min.js", "desktop_app.py", "desktop_win.py"]:
