@@ -1,4 +1,18 @@
-# Kingdom Connect: feature documentation (v6.7)
+# Kingdom Connect: feature documentation (v6.8)
+
+## v6.8 at a glance
+| Feature | What it does | Where it lives |
+| --- | --- | --- |
+| **Teleprompter overlay (Meeting Leader mode)** | Program → Teleprompter overlay (Shift+R), the tray (**Teleprompter**), Spotlight, the palette, or **Overlay** in the docked Teleprompter's header. A see-through window over Zoom, Teams or Meet. Modes (keys 1–5): Solid 0 %, Presenter 20 %, Meeting 40 % (default), Conference 65 %, Ghost 85 %; the letter outline grows as it gets more see-through. Frosted glass (Acrylic on Windows 11 22H2+, blur on Windows 10). Stay on top (📌, P), remembered. Left out of screen sharing and recordings (Windows 10 2004+). Script about 95 % of the width; a floating glass toolbar fades after about 3 s (Play / Pause, speed, A− / A+, line spacing, contrast, Mirror (M), top, edit, transparency, frost, pin, Exit (Esc)); a thin ribbon to drag and resize. Follows the Frame on screen (the first Frame before going live). With Light on graphics card on, the window fades as a whole; Compatibility transparency forces that | `app/prompter.html`, `app/js/prompter.js`, `app/js/teleprompter.js`, `desktop_app.py`, `desktop_win.py` |
+| **Modern window** | No Windows title bar: the app's top bar is the ribbon (drag to move, double-click to maximize); Snap and edge resizing kept. Minimize, Maximize / Restore and Close at the top right of every window. Settings → General → Window and tray → **Modern window** off brings the title bar back (restart) | `desktop_win.py`, `desktop_app.py`, `app/js/window-chrome.js` |
+| **Hide to tray** | Minimize asks *Hide application to system tray?* (Hide To Tray / Stay In Taskbar, Remember my choice; or Settings → Minimize button). In the tray the camera, overlays, phone remote and shortcuts keep working. Tray menu: Open App, Teleprompter, Search, Settings, More (Look, Frame, Stop screen share, Hide all overlays, Presentation window, Phone remote), Exit; a click opens the app | `desktop_app.py`, `app/js/window-chrome.js` |
+| **Spotlight** | A system-wide shortcut (default Alt+Space; Ctrl+Alt+Space if another program has Alt+Space; also Ctrl+Space, Ctrl+Shift+Space, Win+Shift+K or Off). Opens centred on the screen with the mouse, above everything, even from the tray. The command palette's search; Go Live, Next / Previous Frame, Hide all, Blackout, Freeze, Teleprompter window and overlay run without bringing the main window back. Empty search: Recent, Frequently used, Suggested. Esc or clicking away closes it | `app/spotlight.html`, `app/js/palette.js`, `desktop_app.py`, `desktop_win.py` |
+| **Teleprompter window** | The script takes the whole width; **On screen & next** slides the side panel in on request (hidden by default, remembered); floating toolbar like the overlay; the ribbon has the window buttons | `app/speaker.html`, `app/js/speaker.js`, `app/js/teleprompter.js` |
+| **Command palette** | A **Teleprompter overlay** command, and **Frequently used** items | `app/js/palette.js` |
+| **Settings → General → Window and tray** | Modern window, Minimize button, Spotlight shortcut (with a status line), and the overlay's Transparency, Frosted glass, Stay on top and Compatibility transparency | `app/js/app-bridge.js` |
+
+Section 4 below describes the window as it was in 6.4–6.7. With **Modern window** on (the default since 6.8), the
+Windows title bar is replaced by the app's ribbon, as in the table above.
 
 ## v6.7 at a glance
 | Feature | What it does | Where it lives |

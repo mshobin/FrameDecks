@@ -1,4 +1,4 @@
-# Kingdom Connect: user guide (v6.7)
+# Kingdom Connect: user guide (v6.8)
 
 Kingdom Connect runs your online Bible study, prayer meeting, small group or training on Zoom, Microsoft Teams or
 Google Meet. It is meeting-first:
@@ -26,12 +26,30 @@ The **command bar** across the top holds everything you need live:
 | Part | What it does |
 | --- | --- |
 | Studio · Members · Settings | The three sections (Alt+1, Alt+3, Alt+4) |
-| Search box (or Ctrl+K / Ctrl+Space) | Opens the **command palette**: finds Frames, Content, questions, scriptures, text, templates, the Library, branding, settings, members, Bible references and recent items, and runs commands such as Go Live, New Frame, Duplicate, Teleprompter, Export meeting, switch theme and Add Content. **↑ / ↓** and **Enter** choose; **Esc** closes. Change the keys in Settings → Keyboard shortcuts → Command palette |
+| Search box (or Ctrl+K / Ctrl+Space) | Opens the **command palette** (from anywhere in Windows: **Spotlight**, Alt+Space): finds Frames, Content, questions, scriptures, text, templates, the Library, branding, settings, members, Bible references and recent items, and runs commands such as Go Live, New Frame, Duplicate, Teleprompter, Export meeting, switch theme and Add Content. **↑ / ↓** and **Enter** choose; **Esc** closes. Change the keys in Settings → Keyboard shortcuts → Command palette |
 | ◀ Frame · **Go Live** · Frame ▶ | Put the selected Frame on screen (T), or step to the previous or next Frame |
 | Transition · Auto · ◀ Question ▶ | How the next Frame appears; auto-advance; step through the Frame's questions or scriptures |
-| Program | Hide Content · **Blackout** (K) · Emergency · **Annotate** (D) · **Freeze** (F) · **Teleprompter** (R) · **Teleprompter window** |
+| Program | Hide Content · **Blackout** (K) · Emergency · **Annotate** (D) · **Freeze** (F) · **Teleprompter** (R) · **Teleprompter window** · **Teleprompter overlay** (Shift+R) |
 | Hide all | Hide everything (Esc) |
 | ● Off air / LIVE | What is on screen now |
+| Window buttons | Minimize, Maximize / Restore and Close, at the top right |
+
+**The window (6.8).** There is no Windows title bar: the command bar is the window's ribbon. Drag its empty space to
+move the window, and double-click it to maximize. Snap and resizing from the edges work as usual. Every Kingdom
+Connect window has the same three buttons at the top right.
+- **Minimize** asks *Hide application to system tray?*: **Hide To Tray** or **Stay In Taskbar**, with **Remember my
+  choice**. In the tray, the camera, overlays, phone remote and shortcuts keep working.
+- The **tray icon** near the clock: click it to open the app. Its menu has **Open App**, **Teleprompter** (the
+  overlay), **Search** (Spotlight), **Settings**, **More** (Look, Frame, Stop screen share, Hide all overlays,
+  Presentation window, Phone remote) and **Exit**.
+- **Spotlight** (Alt+Space, or Ctrl+Alt+Space if another program has Alt+Space) opens the command palette's search in
+  the middle of the screen, from anywhere, even with the app in the tray. Go Live, Next / Previous Frame, Hide all,
+  Blackout, Freeze and the Teleprompter run without bringing the main window back. An empty search shows Recent,
+  Frequently used and Suggested.
+- **Settings → General → Window and tray**: Modern window (off brings the Windows title bar back, after a restart),
+  Minimize button (Ask each time / Hide to tray / Stay in taskbar), the Spotlight shortcut (Alt+Space, Ctrl+Space,
+  Ctrl+Alt+Space, Ctrl+Shift+Space, Win+Shift+K or Off, with a line saying whether it works), and the overlay's
+  starting Transparency, Frosted glass, Stay on top and Compatibility transparency.
 
 ## 2. Frames and Content
 - **Meeting** (the ✨ button next to + Frame) has:
@@ -119,7 +137,24 @@ A Question (or Scripture) Content holds **its own list**, shown full height in C
     contrast, Focus mode (F), back to top (Home), arrow and Page keys, the mouse wheel and touch.
   - The cue line shows *Frame 3 of 9*, **LIVE**, the next Frame and the next question or scripture.
 - **Teleprompter window** (Program → Teleprompter window; it was Speaker View) opens the Teleprompter in its own
-  window for a second screen, with the clocks, a timer, what is on screen and what comes next.
+  window for a second screen. The script takes the whole width; **On screen & next** slides in the clocks, a timer,
+  what is on screen and what comes next (hidden at first, remembered). The controls float and fade. **M** mirrors
+  the text.
+- **Teleprompter overlay** (Program → Teleprompter overlay, **Shift+R**, the tray, Spotlight, the palette, or
+  **Overlay** in the docked Teleprompter) shows the script in a see-through window over Zoom, Teams or Meet.
+  - Five modes, keys **1**–**5**: Solid (0 %), Presenter (20 %), Meeting (40 %, the default), Conference (65 %),
+    Ghost (85 %). The outline around the letters gets stronger as it gets more see-through.
+  - **Frosted glass** (Acrylic on Windows 11 22H2+, blur on Windows 10); **Stay on top** (📌, **P**), remembered.
+  - Never in screen sharing or recordings (Windows 10 2004+). The Teleprompter window and Spotlight are left out
+    too.
+  - The script takes about 95 % of the width. A glass toolbar floats at the bottom and fades after about 3 seconds:
+    Play / Pause (Space), speed, A− / A+, line spacing, contrast, Mirror (M), top, edit ✎, transparency, frost,
+    pin and Exit (Esc). A thin ribbon appears with it at the top: drag it to move the overlay; resize from the
+    edges.
+  - It follows the Frame on screen (the first Frame before you go live).
+  - With **Light on graphics card** on (the default) the overlay fades as a whole, text included. For solid text,
+    turn that setting off and restart. **Compatibility transparency** forces the whole-window fade if the meeting
+    does not show through.
 
 ## 5. The KingdomConnect camera
 Choose **KingdomConnect** as the camera in Zoom, Teams, Google Meet or OBS. Participants see your webcam with the live

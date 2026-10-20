@@ -47,7 +47,7 @@ How to prepare a meeting in Kingdom Connect so the service runs smoothly: Frames
    - **Discussion topic**, **Icebreaker**, **Poll (show of hands)**: ready-made text cards; double-click the card on the canvas to change the words. The Poll only shows the choices; nothing is counted.
 3. Arrange the order of questions or scriptures by **dragging** them, or with ↑ / ↓.
 4. Check the look in **Display Settings** and **Visual Settings** (position, width, text size, opacity).
-5. Paste the leader's talking points into each Frame's **Teleprompter script** (Content Settings → Frame) if they send them. Only the leader sees it.
+5. Paste the leader's talking points into each Frame's **Teleprompter script** (Content Settings → Frame) if they send them. Only the leader sees it, in the Teleprompter, the Teleprompter window or the see-through **Teleprompter overlay** over Zoom or Teams. Read it once in the overlay (**Shift+R**) to check that the lines are not too long for a small window.
 6. To change several Frames at once, **Ctrl+Click** or **Shift+Click** them, then copy (**Ctrl+C**), paste (**Ctrl+V**), duplicate (**Ctrl+D**) or delete them. **Ctrl+K** finds any Frame, question or setting.
 7. For the Branding badge, choose Logo only / Name only / Logo + Name, a corner, size and plate in its Content Settings. If the logo has a white box around it, use **Remove background** (Settings → Meeting & Branding).
 
@@ -67,7 +67,7 @@ See [Content](../content.md) and [Media](../media.md) for every option.
 Usually the service operator runs the controls. Stay available to:
 - fix a typo (double-click the card on the canvas, correct, **Enter**);
 - add a last-minute Text Content (a prayer request, a notice);
-- find a file or slide the leader asks for.
+- find a file or slide the leader asks for. **Alt+Space** opens **Spotlight** from anywhere in Windows, even with Kingdom Connect in the tray; type a few letters of the Frame, question or setting.
 
 > **Important:** Avoid editing the Frame that is live unless you must: changes to it appear on screen as soon as they are saved.
 

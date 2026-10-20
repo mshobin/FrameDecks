@@ -74,6 +74,27 @@ A webcam is optional. You need one only if people should see you on the KingdomC
 
 > **Tip:** The canvas badge is your safety check. **PREVIEW · not on air** means nobody sees what you are editing.
 
+### The window buttons and the tray
+
+Kingdom Connect has no Windows title bar. The command bar at the top is the window's ribbon:
+- drag an empty part of it to move the window, and double-click it to maximize;
+- Snap (dragging to a screen edge, or Windows key + arrows) and resizing from the edges work as usual;
+- **Minimize**, **Maximize / Restore** and **Close** are at the top right of every Kingdom Connect window.
+
+The first time you select **Minimize**, the app asks *Hide application to system tray?*
+- **Hide To Tray** removes the taskbar button. The icon stays in the tray near the clock.
+- **Stay In Taskbar** minimizes as usual.
+
+Tick **Remember my choice** to stop the question. You can change it later in **Settings → General → Window and tray
+→ Minimize button**. In the tray, everything keeps working: the camera, the overlays, the phone remote and the
+shortcuts. Click the tray icon, or choose **Open App** in its menu, to bring the window back.
+
+> **Tip:** Press **Alt+Space** anywhere in Windows to open **Spotlight**, a search box that finds and runs anything
+> in Kingdom Connect, even from the tray. See [Spotlight](presentations.md#spotlight).
+
+If you prefer the Windows title bar, turn off **Modern window** in **Settings → General → Window and tray** and
+restart.
+
 ## Build your first meeting
 
 There are two quick ways to start.
@@ -110,8 +131,8 @@ See [Service planning](service-planning.md), [Frames](frames.md) and [Content](c
    - **Shift + → / ←** step through its scriptures.
 4. When you need a clean screen, press **Esc** (**Hide all**).
 
-See [Presentations](presentations.md) for transitions, Blackout, Freeze, Annotate, the Teleprompter and the command
-palette.
+See [Presentations](presentations.md) for transitions, Blackout, Freeze, Annotate, the Teleprompter, the Teleprompter
+overlay, the command palette and Spotlight.
 
 ## Add your phone (optional)
 
@@ -136,7 +157,7 @@ Do this once, a day or two before your first real meeting.
 - [ ] If you use a projector: **Share Window** opens the Presentation window and it fills the projector screen.
 - [ ] If you use your phone: it connects, and **NEXT FRAME** works.
 - [ ] You know where the **Teleprompter** is (Program → Teleprompter, or **R**) if you want your script in front of
-      you. Only you see it.
+      you. Only you see it. On Zoom or Teams, try the **Teleprompter overlay** (**Shift+R**) over the meeting.
 - [ ] Do a 10-minute rehearsal with one other person on a test Zoom call.
 
 > **Important:** Rehearse on the same PC, network and room you will use on the day. Most problems are found in the

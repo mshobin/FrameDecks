@@ -33,8 +33,15 @@ same device ID. In OBS, point any old "BCC vCam" source at KingdomConnect once.
 
 ## 2. App window
 
-- The installed app opens in its own window, with Windows' **Minimize**, **Maximize/Restore** and **Close**. The
-  title bar follows **Settings → General → Appearance** (dark, light or match Windows).
+- The installed app opens in its own window. Since 6.8 it has no Windows title bar: the top bar is the ribbon (drag
+  to move, double-click to maximize), with **Minimize**, **Maximize/Restore** and **Close** at the top right.
+  **Settings → General → Window and tray**:
+  - **Modern window**: off brings back the Windows title bar (restart), which follows **Settings → General →
+    Appearance** (dark, light or match Windows);
+  - **Minimize button**: Ask each time, Hide to tray, or Stay in taskbar;
+  - **Spotlight**: the system-wide search shortcut (Alt+Space by default; Ctrl+Space, Ctrl+Alt+Space,
+    Ctrl+Shift+Space, Win+Shift+K or Off), with a line saying whether it works;
+  - **Teleprompter overlay**: its starting Transparency, Frosted glass, Stay on top and Compatibility transparency.
 - **Close (X)** asks whether to keep running in the background (camera, overlays and phone remote keep
   working) or quit. The icon near the clock opens it again.
 - If **Microsoft Edge WebView2 Runtime** is missing, the app opens as an Edge app window instead (no address bar or

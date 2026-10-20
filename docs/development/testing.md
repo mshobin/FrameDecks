@@ -12,10 +12,17 @@ VERBOSE=1 node tests/run.js  # also prints each test's output
 
 No packages need to be installed: the tests use only Node.js.
 
+The desktop settings and shortcut logic (6.8) is tested in Python, with no extra packages:
+
+```bash
+python -m unittest discover -s tests -p "test_*.py"
+```
+
 | Test | What it checks |
 | --- | --- |
 | `tests/store.test.js` | The shared state in `app/js/store.js`: older saved data is converted so every Frame owns its question and scripture lists, the conversion gives the same ids every time, taking a Frame live shows its own items, Duplicate makes a fully independent copy, "one Frame per question" works, and an older Frame-wide output switch moves onto its Content. |
 | `tests/meeting-workbook.test.js` | The Excel Meeting Workbook: the bundled template parses into the expected Frames and Content, and an exported meeting reads back the same. |
+| `tests/test_desktop.py` | The 6.8 desktop logic: Spotlight shortcut parsing and formatting, validation of the window and overlay settings, and safe no-ops of `desktop_win.py` off Windows. The window features themselves need a real Windows desktop (see the manual checks below). |
 
 `tests/helpers/load-store.js` loads `app/js/store.js` into Node with small browser stand-ins and returns
 `{Store, Scenes, Present}`, so store behaviour can be tested without a browser.
@@ -106,6 +113,40 @@ flow. Use a test Zoom or Teams meeting, a real webcam and a phone on the same Wi
 - [ ] **Teleprompter window** shows the Frame's script, the item on screen and the next item (no answers or notes).
 - [ ] The phone's **TELEPROMPTER** button opens the script full screen.
 - [ ] The **Presentation window** opens and can be shared in Zoom as "BSF Presentation".
+
+**Window, tray and Spotlight (6.8)**
+
+These need a real Windows desktop; CI cannot run them. Test on Windows 10 and Windows 11 if you can.
+- [ ] **Ribbon:** drag an empty part of the command bar: the window moves. Drag it to a screen edge: Snap works
+      (also Windows key + arrows). Double-click the ribbon: it maximizes; again: it restores. Resize from every edge
+      and corner. A maximized window does not cover the taskbar.
+- [ ] **Buttons:** Minimize, Maximize / Restore (the icon follows the state) and Close at the top right of the main
+      window, the Teleprompter window and the overlay. Close on the main window still asks *keep running or quit*.
+- [ ] **Minimize question:** Minimize asks *Hide application to system tray?* **Hide To Tray** removes the taskbar
+      button and the camera keeps sending to Zoom. **Stay In Taskbar** minimizes as usual. **Remember my choice**
+      stops the question; Settings → General → Window and tray → **Minimize button** changes it back.
+- [ ] **Tray menu:** a click on the icon opens the app. **Open App**, **Teleprompter** (overlay on / off), **Search**
+      (Spotlight), **Settings**, each item under **More** (Look, Frame, Stop screen share, Hide all overlays,
+      Presentation window, Phone remote) and **Exit** all work.
+- [ ] **Spotlight:** with the app hidden in the tray, press **Alt+Space**: Spotlight opens in the middle of the
+      screen under the mouse, in front, with the cursor in the search box. Do it again with Zoom (or another app)
+      focused. **Go Live** and **Next Frame** run without bringing the main window back; a setting opens the main
+      window. **Esc** and a click away close it. With PowerToys Run on Alt+Space, Settings shows
+      **Ctrl+Alt+Space** working. Change the shortcut and set it **Off**.
+- [ ] **Overlay modes:** open the overlay (**Shift+R**) over a Zoom meeting window. With **Light on graphics card**
+      off (restart after changing it), keys **1** to **5** go from Solid to Ghost, the meeting shows through and the
+      text stays solid and readable. With it on, the whole window fades, text included.
+- [ ] **Frost:** frosted glass blurs the meeting behind (Acrylic on Windows 11 22H2+, blur on Windows 10).
+- [ ] **Stay on top:** with 📌 on (or **P**), the overlay stays above Zoom, Teams, a browser and a PowerPoint slide
+      show running full screen. Turn it off and on again; close and reopen the overlay: the choice is remembered.
+- [ ] **Toolbar:** it fades after about 3 seconds and comes back on mouse movement, with the ribbon. Drag the ribbon
+      to move the overlay; resize from the edges. **Space**, **M** (mirror) and **Esc** (exit) work.
+- [ ] **Never shared:** share the whole screen in Zoom and in Teams: participants (a second device) do not see the
+      overlay, the Teleprompter window or Spotlight. An OBS **Display Capture** does not show the overlay either
+      (Windows 10 2004 or later).
+- [ ] **Modern window off:** Settings → General → Window and tray → **Modern window** off, restart: the Windows
+      title bar is back and every window works normally. Turn it on again.
+- [ ] **Compatibility transparency:** turn it on, reopen the overlay: the whole window fades in every mode.
 
 **Closing**
 - [ ] Close the window and choose **Keep running in the background**: Zoom still shows the picture.

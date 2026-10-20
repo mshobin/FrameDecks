@@ -37,14 +37,14 @@ GitHub now starts building your installer automatically.
 2. Click the **Actions** tab. You'll see **Build Windows installer** running (yellow dot).
    It takes about 5–10 minutes. A green tick means it worked.
 3. Click the finished run. At the bottom, under **Artifacts**, click
-   **Kingdom Connect v6.7** (the version number) to download it. It is a .zip containing the Setup .exe.
-4. Unzip it. You now have **Kingdom Connect v6.7.exe**.
+   **Kingdom Connect v6.8** (the version number) to download it. It is a .zip containing the Setup .exe.
+4. Unzip it. You now have **Kingdom Connect v6.8.exe**.
 
 If you see a red cross instead, click the run to read the error, and send it to me.
 
 ## Part 3 · Install
 
-1. Close Zoom, Teams and OBS (they keep the camera in use), then double-click **Kingdom Connect v6.7.exe**.
+1. Close Zoom, Teams and OBS (they keep the camera in use), then double-click **Kingdom Connect v6.8.exe**.
 2. Windows may show **"Windows protected your PC"**. This appears because the installer isn't
    code-signed (signing costs money every year). Click **More info → Run anyway**.
 3. Follow the wizard. Leave **Create a desktop icon** ticked.
@@ -60,8 +60,9 @@ If you see a red cross instead, click the run to read the error, and send it to 
 ## Part 4 · First-run checklist (before a real meeting)
 
 - [ ] The app opens in its own window, with no address bar or browser buttons. It shows the Book + Candle logo at
-      the top left and the tabs Studio · Members · Settings (Alt+1, Alt+3, Alt+4). Minimize, Maximize and Close work
-      as usual, and the title bar is dark (or light, in light mode).
+      the top left and the tabs Studio · Members · Settings (Alt+1, Alt+3, Alt+4). There is no Windows title bar:
+      drag the top bar to move the window and double-click it to maximize. Minimize, Maximize and Close sit at the
+      top right; Minimize asks whether to hide the app to the tray.
 - [ ] Zoom, Teams, Google Meet and OBS list the camera as **KingdomConnect** (restart them after installing).
 - [ ] Your members and saved lists are there (after importing).
 - [ ] **OBS / Camo:** your existing overlay links still work (same address: `http://localhost:8750/...`).
