@@ -10,6 +10,29 @@ Versions before 4.9 (when the product was called BSF Command Center, then BCC) a
 
 ## [Unreleased]
 
+## [6.8] - 2026-10-20
+
+Full notes: [docs/releases/v6.8.md](docs/releases/v6.8.md) · Plan: [docs/project/v6.8-plan.md](docs/project/v6.8-plan.md)
+
+### Added
+- **Teleprompter overlay** (Meeting Leader mode, Shift+R): a see-through window over Zoom, Teams or Meet with five
+  transparency modes (Solid, Presenter, Meeting, Conference, Ghost), frosted glass, stay on top, mirror, a floating
+  toolbar that hides itself, and exclusion from screen sharing and recordings.
+- **Modern window:** no Windows title bar; the app's ribbon moves and maximizes the window, with one shared set of
+  window buttons (`app/js/window-chrome.js`) in every window. Snap and edge resizing keep working.
+- **Minimize to tray** with *Hide application to system tray?* (Hide To Tray / Stay In Taskbar / Remember my choice);
+  tray menu Open App, Teleprompter, Search, Settings, More, Exit.
+- **Spotlight:** a system-wide shortcut (Alt+Space by default) opens the command palette in its own window, also from
+  the tray; background-safe commands run without the main window; Frequently used items.
+- Settings → General → **Window and tray**.
+- `desktop_win.py` (Win32 via ctypes: window chrome, glass, fade, capture exclusion, global shortcuts) and
+  `tests/test_desktop.py`, run in CI.
+
+### Changed
+- Teleprompter window: the script takes the full width; *On screen & next* slides in on request; floating toolbar.
+- Teleprompter engine: optional floating toolbar, mirror mode, reading width that adapts to the text size.
+- The README and release header picture is regenerated for 6.8; CI fails if it shows another version.
+
 ## [6.7] - 2026-10-19
 
 Full notes: [docs/releases/v6.7.md](docs/releases/v6.7.md)

@@ -11,12 +11,15 @@ assert srv is not None, "could not start"
 threading.Thread(target=srv.serve_forever, daemon=True).start()
 base = f"http://127.0.0.1:{srv.server_address[1]}/"
 for page in ["", "dashboard.html", "remote.html", "stage.html", "focus-verse.html", "discussion-question.html",
-             "birthday.html", "js/app-bridge.js", "js/brand.js", "js/workspace.js", "js/scripture.js", "js/meeting-sheet.js", "js/meeting-import.js", "js/meeting-book.js", "js/frame-lists.js", "js/annotate.js", "js/preview-edit.js", "speaker.html", "js/speaker.js", "css/speaker.css", "templates/Kingdom-Connect-Meeting-Workbook.xlsx", "js/meeting-brand.js", "js/panels.js", "js/editable.js", "js/teleprompter.js", "js/prompter-dock.js", "js/palette.js", "css/teleprompter.css", "js/about.js", "remote-manifest.json", "icons/remote-192.png"]:
+             "birthday.html", "js/app-bridge.js", "js/brand.js", "js/workspace.js", "js/scripture.js", "js/meeting-sheet.js", "js/meeting-import.js", "js/meeting-book.js", "js/frame-lists.js", "js/annotate.js", "js/preview-edit.js", "speaker.html", "js/speaker.js", "css/speaker.css", "templates/Kingdom-Connect-Meeting-Workbook.xlsx", "js/meeting-brand.js", "js/panels.js", "js/editable.js", "js/teleprompter.js", "js/prompter-dock.js", "js/palette.js", "css/teleprompter.css", "prompter.html", "spotlight.html", "js/prompter.js", "js/window-chrome.js", "css/window.css", "css/prompter.css", "js/about.js", "remote-manifest.json", "icons/remote-192.png"]:
     with urllib.request.urlopen(base + page, timeout=5) as r:
         assert r.status == 200, page
+# 6.8 shortcut text checks (pure; the Windows parts are exercised only in the installed app)
+import desktop_win as _dw
+assert _dw.parse_hotkey("Alt+Space") == (1, 32) and _dw.parse_hotkey("Space") is None and _dw.format_hotkey("ctrl+alt+space") == "Ctrl+Alt+Space"
 ping = json.loads(urllib.request.urlopen(base + "api/app/ping").read())
 assert ping["app"] == "BSF Command Center"
-for name in ["app/js/overlay.js", "app/js/store.js", "app/fonts/EBGaramond.ttf", "app/vendor/xlsx.full.min.js", "desktop_app.py"]:
+for name in ["app/js/overlay.js", "app/js/store.js", "app/fonts/EBGaramond.ttf", "app/vendor/xlsx.full.min.js", "desktop_app.py", "desktop_win.py"]:
     assert (root / name).exists(), name
 # KingdomConnect: the camera ID in the app must match the one compiled into the camera
 import re as _re

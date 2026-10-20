@@ -1,4 +1,5 @@
 /* Kingdom Connect v6.7 - Command palette (Spotlight style). Ctrl+K or Ctrl+Space (Settings > Keyboard shortcuts).
+ * 6.8: also its own Spotlight window (spotlight.html), opened by a system-wide shortcut even from the tray.
  *
  * One box finds and does everything: Frames, Content, the Frames' own questions and scriptures, announcements and
  * discussion topics, templates and the Content Library, branding, backgrounds, members and birthdays, settings,
@@ -24,6 +25,7 @@ function lsSet(k, v){ try { localStorage.setItem(k, v); } catch(e){} }
 function toast(m, bad){ if (window.BSFActions) window.BSFActions.toast(m, bad); }
 var live = null;
 Store.subscribe(function(st){ live = st; });
+var STANDALONE = document.body.getAttribute('data-win') === 'spotlight';   // 6.8 the Spotlight window
 var W = function(){ return window.BSFWorkspace; };
 function studio(){ if (window.BSFSetTab) window.BSFSetTab('studio'); }
 function settings(sec){ if (window.BSFSetTab) window.BSFSetTab('settings'); if (window.BSFShowSection) setTimeout(function(){ window.BSFShowSection(sec); }, 0); }
@@ -62,6 +64,7 @@ function commands(){
     ['annotate', 'Annotate on / off', 'draw pen ink', function(){ if (PT) PT.annotate(); }, 'D'],
     ['prompter', 'Teleprompter on / off', 'script notes prompter dock', function(){ studio(); if (TP) TP.toggle(); }, 'R'],
     ['prompterwin', 'Teleprompter window', 'second screen speaker view', function(){ if (PT && PT.speaker) PT.speaker(); }],
+    ['overlay', 'Teleprompter overlay (over Zoom / Teams)', 'meeting leader transparent see-through glass on top prompter', function(){ if (PT && PT.overlay) PT.overlay(); }, 'Shift+R'],
     ['present', 'Presentation Mode on / off', 'present simple', function(){ if (window.BSFPresentation) window.BSFPresentation(!document.body.classList.contains('pm')); }, 'P'],
     ['share', 'Share Window (Presentation window)', 'present window zoom share screen', function(){ studio(); click($('s2-present')); }],
     ['export', 'Export this meeting (Excel)', 'save workbook xlsx download', function(){ if (MI) MI.exportMeeting(); }],
@@ -79,7 +82,9 @@ function commands(){
   if (W() && W().contentKinds && sel && sel.scene){
     W().contentKinds().forEach(function(k){ c.push(['add-' + k.id, 'Add Content: ' + k.name, 'new insert ' + k.id, function(){ studio(); W().addContent(k.id); }]); });
   }
-  return c.map(function(x){ return {key: 'cmd:' + x[0], kind: 'cmd', title: x[1], sub: x[4] ? 'Shortcut ' + x[4] : 'Command', words: x[2], run: x[3]}; });
+  /* commands Spotlight can run while the main window stays in the tray */
+  var BG = {golive: 1, next: 1, prev: 1, hideall: 1, blackout: 1, freeze: 1, prompterwin: 1, overlay: 1, share: 0};
+  return c.map(function(x){ return {key: 'cmd:' + x[0], kind: 'cmd', title: x[1], sub: x[4] ? 'Shortcut ' + x[4] : 'Command', words: x[2], run: x[3], bg: !!BG[x[0]]}; });
 }
 function trimmed(s, n){ s = String(s || '').replace(/\s+/g, ' ').trim(); return s.length > n ? s.slice(0, n - 1) + '…' : s; }
 function index(){
@@ -157,7 +162,14 @@ function rank(all, q){
 /* ---------- recent ---------- */
 var RECENT_KEY = 'kc-palette-recent', recentRank = {};
 function recents(){ try { var r = JSON.parse(lsGet(RECENT_KEY, '[]')); return Array.isArray(r) ? r : []; } catch(e){ return []; } }
-function remember(it){ var r = recents().filter(function(k){ return k !== it.key; }); r.unshift(it.key); lsSet(RECENT_KEY, JSON.stringify(r.slice(0, 12))); }
+var FREQ_KEY = 'kc-palette-freq';
+function freq(){ try { var f = JSON.parse(lsGet(FREQ_KEY, '{}')); return f && typeof f === 'object' ? f : {}; } catch(e){ return {}; } }
+function remember(it){
+  var r = recents().filter(function(k){ return k !== it.key; }); r.unshift(it.key); lsSet(RECENT_KEY, JSON.stringify(r.slice(0, 12)));
+  var f = freq(); f[it.key] = (f[it.key] || 0) + 1;                   // 6.8 frequently used (kept to the top 60)
+  var keys = Object.keys(f).sort(function(a, b){ return f[b] - f[a]; }).slice(0, 60), g = {}; keys.forEach(function(k){ g[k] = f[k]; });
+  lsSet(FREQ_KEY, JSON.stringify(g));
+}
 
 /* ---------- the palette ---------- */
 var back = null, input, list, items = [], all = [], active = 0, opener = null, t = 0;
@@ -208,21 +220,27 @@ function update(){
   var q = input.value;
   if (!q.trim()){                                                     // empty: recent items, then useful commands
     var byKey = {}; all.forEach(function(it){ byKey[it.key] = it; });
-    var rec = recents().map(function(k){ return byKey[k]; }).filter(Boolean).slice(0, 8);
-    var sel = W() && W().selected(), sug = ['cmd:golive', 'cmd:newframe', 'cmd:prompter', 'cmd:export', 'cmd:branding', 'cmd:theme'].map(function(k){ return byKey[k]; })
-      .filter(function(x){ return x && rec.indexOf(x) < 0; });
-    items = rec.concat(sug); active = 0;
-    draw([{label: rec.length ? 'Recent' : '', items: rec}, {label: 'Suggested', items: sug}]);
+    var rec = recents().map(function(k){ return byKey[k]; }).filter(Boolean).slice(0, 6);
+    var f = freq(), often = Object.keys(f).filter(function(k){ return f[k] > 1; }).sort(function(a, b){ return f[b] - f[a]; })
+      .map(function(k){ return byKey[k]; }).filter(function(x){ return x && rec.indexOf(x) < 0; }).slice(0, 5);
+    var sug = (STANDALONE ? ['cmd:overlay', 'cmd:golive', 'cmd:next', 'cmd:prompterwin', 'cmd:blackout', 'cmd:hideall'] : ['cmd:golive', 'cmd:newframe', 'cmd:prompter', 'cmd:overlay', 'cmd:export', 'cmd:branding'])
+      .map(function(k){ return byKey[k]; }).filter(function(x){ return x && rec.indexOf(x) < 0 && often.indexOf(x) < 0; });
+    items = rec.concat(often, sug); active = 0;
+    draw([{label: rec.length ? 'Recent' : '', items: rec}, {label: 'Frequently used', items: often}, {label: 'Suggested', items: sug}]);
     return;
   }
   var found = rank(all, q), ref = window.BSFScripture && window.BSFScripture.parse && window.BSFScripture.parse(q);
-  if (ref) found.unshift({key: 'bible:' + ref, kind: 'bible', title: ref, sub: 'Fetch into the Scripture Content (ESV)', run: function(){ studio(); if (W()) W().fetchVerse(ref); }});
+  if (ref) found.unshift({key: 'bible:' + ref, kind: 'bible', title: ref, sub: 'Fetch into the Scripture Content (ESV)', run: function(){ bible(ref); }});
   items = found; active = 0;
   draw([{label: '', items: found}]);
 }
+function bible(ref){ studio(); if (W()) W().fetchVerse(ref); }
 function choose(it){
-  close(true);
   if (it.kind !== 'bible') remember(it);
+  if (STANDALONE){                                                    // Spotlight: the main window does it
+    post('palette-run', {key: it.key, bg: !!it.bg}); input.value = ''; return;
+  }
+  close(true);
   setTimeout(function(){ try { it.run(); } catch(e){ toast('That could not be done: ' + (e.message || e), true); } }, 0);
 }
 function open(q){
@@ -231,19 +249,21 @@ function open(q){
   if (document.querySelector('dialog[open], .app-modal-back')) return;
   opener = document.activeElement;
   recentRank = {}; recents().forEach(function(k, i){ recentRank[k] = i + 1; });
-  all = index();
+  all = STANDALONE ? cached() : index();
   back.hidden = false; document.body.classList.add('pal-open');
   input.value = q || ''; update();
   input.focus(); input.select();
+  if (STANDALONE) refreshIndex();
 }
 function close(chosen){
+  if (STANDALONE){ post('win', {win: 'spotlight', op: 'hide'}); return; }
   if (!back || back.hidden) return;
   back.hidden = true; document.body.classList.remove('pal-open'); all = []; items = []; list.innerHTML = '';
   if (!chosen && opener && opener.focus && document.contains(opener)) opener.focus({preventScroll: true});
 }
 
 document.addEventListener('keydown', function(e){
-  if (window.BSFShortcutsCapturing || capturing) return;
+  if (STANDALONE || window.BSFShortcutsCapturing || capturing) return;
   var c = comboOf(e); if (!c) return;
   if (keys().indexOf(c) >= 0){ e.preventDefault(); e.stopPropagation(); if (back && !back.hidden) close(); else open(); }
 }, true);
@@ -288,5 +308,39 @@ function mountKeys(root){
 }
 var pk = $('pal-keys'); if (pk) mountKeys(pk);
 
-window.BSFPalette = {open: open, close: close, rank: rank, score: score};
+/* ---------- 6.8 Spotlight (spotlight.html, its own window, opened by a system-wide shortcut) ----------
+ * The main window keeps running in the tray, so it builds the list (exportIndex) and runs the choice (runKey). */
+function post(action, body){
+  return fetch('api/app/' + action, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body || {})})
+    .then(function(r){ return r.json(); }).catch(function(){ return {}; });
+}
+var CACHE_KEY = 'kc-spotlight-index';
+function cached(){ try { var c = JSON.parse(lsGet(CACHE_KEY, '[]')); return Array.isArray(c) ? c : []; } catch(e){ return []; } }
+function refreshIndex(){
+  post('palette-index').then(function(d){
+    if (!d || !Array.isArray(d.items) || !d.items.length) return;
+    all = d.items; lsSet(CACHE_KEY, JSON.stringify(all.filter(function(it){ return it.kind !== 'member' && it.kind !== 'birthday'; }).slice(0, 3000)));
+    if (back && !back.hidden) update();
+  });
+}
+function exportIndex(){
+  return index().map(function(it){ return {key: it.key, kind: it.kind, title: it.title, sub: it.sub, words: it.words || '', bg: !!it.bg}; });
+}
+function runKey(key){
+  key = String(key || '');
+  if (key.indexOf('bible:') === 0) return bible(key.slice(6));
+  var it = index().filter(function(x){ return x.key === key; })[0];
+  if (!it){ toast('That item is no longer there.', true); return false; }
+  try { it.run(); } catch(e){ toast('That could not be done: ' + (e.message || e), true); }
+  return true;
+}
+if (STANDALONE){
+  open();
+  window.addEventListener('blur', function(){ setTimeout(function(){ if (!document.hasFocus()) close(); }, 120); });
+  window.BSFSpotlight = {opened: function(){ input.value = ''; recentRank = {}; recents().forEach(function(k, i){ recentRank[k] = i + 1; });
+    all = cached(); update(); input.focus(); refreshIndex();
+    var box = back.querySelector('.pal'); box.classList.remove('spot-in'); void box.offsetWidth; box.classList.add('spot-in'); }};
+}
+
+window.BSFPalette = {open: open, close: close, rank: rank, score: score, exportIndex: exportIndex, runKey: runKey};
 })();

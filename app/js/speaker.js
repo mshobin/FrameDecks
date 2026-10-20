@@ -18,9 +18,22 @@ var live = null, sig = '';
 var KIND = {question: {one: 'Question', layer: 'question'}, verse: {one: 'Scripture', layer: 'scripture'}};
 
 /* the Teleprompter itself (shared with the main window and the phone) */
-var prompter = P.create($('sp-prompt'), {key: 'window', editable: true, edit: function(sid, text){
+var prompter = P.create($('sp-prompt'), {key: 'window', editable: true, toolbar: 'float', edit: function(sid, text){
   return Store.update(function(n){ var sc = SC.find(n, sid); if (!sc) return; sc.notes = String(text || '').slice(0, 20000); SC.stamp(sc); });
 }});
+
+/* 6.8 the side panel (on screen, next) is hidden by default so the script has the whole width; remembered */
+(function(){
+  var b = $('sp-side-btn'), KEY = 'kc-sp-side';
+  function set(on){
+    document.body.classList.toggle('sp-side-open', on); b.setAttribute('aria-expanded', String(on));
+    b.textContent = on ? 'On screen & next ◂' : 'On screen & next ▸';
+    try { localStorage.setItem(KEY, on ? '1' : '0'); } catch(e){}
+  }
+  var saved = '0'; try { saved = localStorage.getItem(KEY) || '0'; } catch(e){}
+  set(saved === '1');
+  b.addEventListener('click', function(){ set(!document.body.classList.contains('sp-side-open')); });
+})();
 
 /* the Frame's list, and the item it is on: the one on screen, else the Frame's current one, else the first */
 function listOf(st, sc, kind){ var l = sc && SC.first(sc, KIND[kind].layer); return l && Array.isArray(l.c.items) ? {l: l, items: l.c.items} : null; }

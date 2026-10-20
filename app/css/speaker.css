@@ -47,3 +47,14 @@ body.speaker{height:100vh}
 .sp-side .sp-q{font-size:19px}
 .sp-side .sp-verse{font-size:18px}
 @media (max-width:900px){ body.speaker{height:auto} .sp-prompt{height:70vh} }
+
+/* 6.8: the script takes the whole width; "On screen & next" slides in from the right when asked for */
+.sp-main{grid-template-columns:minmax(0,1fr);position:relative}
+.sp-side{position:absolute;top:20px;right:20px;bottom:20px;width:min(360px,40vw);padding:14px;border-radius:var(--r-3);
+  background:var(--surface);border:1px solid var(--line);box-shadow:0 16px 40px rgba(0,0,0,.35);
+  transform:translateX(calc(100% + 24px));opacity:0;pointer-events:none;transition:transform .22s ease,opacity .22s ease}
+body.sp-side-open .sp-side{transform:none;opacity:1;pointer-events:auto}
+.sp-side-btn{flex:none}
+.sp-top{padding-right:8px}
+@media (max-width:900px){ .sp-side{width:min(360px,80vw)} }
+@media (prefers-reduced-motion:reduce){ .sp-side{transition:none} }

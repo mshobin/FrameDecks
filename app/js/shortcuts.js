@@ -25,6 +25,7 @@ var ACTIONS = [
   {id: 'annotate', name: 'Annotate on / off (draw on the picture)', cat: 'live', def: 'd'},
   {id: 'freeze', name: 'Freeze the picture on / off', cat: 'live', def: 'f'},
   {id: 'prompter', name: 'Teleprompter on / off (only you see it)', cat: 'live', def: 'r'},
+  {id: 'overlay', name: 'Teleprompter overlay on / off (over Zoom or Teams)', cat: 'live', def: 'Shift+r'},
   {id: 'blackout', name: 'Black screen on / off', cat: 'danger', def: 'k'}
 ];
 var RESERVED = {'Tab': 1, 'Enter': 1, ' ': 1, 'Shift': 1, 'Control': 1, 'Alt': 1, 'Meta': 1, 'CapsLock': 1, '/': 1};

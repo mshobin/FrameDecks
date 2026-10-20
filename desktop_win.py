@@ -1,0 +1,351 @@
+"""Kingdom Connect 6.8 - Windows window features, in one place (ctypes only; no new packages).
+
+  * Chrome(hwnd)            the app's own ribbon instead of the Windows title bar, keeping everything Windows does for a
+                            normal window: resizing from the edges, Snap, the maximize animation, the shadow, Alt+Tab.
+                            (WM_NCCALCSIZE gives the caption back to the page; the sizing frame stays.)
+  * glass(hwnd, frost)      see-through window: the page's transparent pixels show the windows behind it (Zoom, Teams,
+                            PowerPoint...). frost=True adds the Windows blur (Acrylic on Windows 11, blur on Windows 10).
+  * fade(hwnd, alpha)       compatibility transparency: the whole window, text included, at one opacity.
+  * hide_from_capture(hwnd) screen sharing and recording never show the window (Windows 10 2004 and later); older
+                            Windows shows it black in captures instead.
+  * center_on_cursor(hwnd)  centre a window on the monitor the mouse is on.
+  * bring_to_front(hwnd)    show and focus a window, also when another program is in front.
+  * Hotkeys(callback)       system-wide shortcuts (RegisterHotKey) that work while Kingdom Connect is in the tray.
+
+Every function does nothing on other systems and never raises: if Windows refuses something, the window simply keeps
+the standard look and behaviour.
+"""
+import ctypes
+import sys
+import threading
+
+IS_WIN = sys.platform == "win32"
+
+# ---------- shortcut text <-> RegisterHotKey values (pure, tested on every system) ----------
+MODS = {"ctrl": 0x0002, "alt": 0x0001, "shift": 0x0004, "win": 0x0008}
+MOD_NOREPEAT = 0x4000
+NAMED_KEYS = {"space": 0x20, "enter": 0x0D, "tab": 0x09, "pageup": 0x21, "pagedown": 0x22, "home": 0x24, "end": 0x23,
+              "insert": 0x2D, "delete": 0x2E, "backquote": 0xC0, "`": 0xC0}
+NAMED_KEYS.update({"f%d" % i: 0x6F + i for i in range(1, 13)})
+
+
+def parse_hotkey(text):
+    """'Ctrl+Alt+Space' -> (modifiers, virtual key) or None. Needs at least one of Ctrl, Alt or Win (a plain key or
+    Shift+key would take that key away from every other program)."""
+    parts = [p.strip().lower() for p in str(text or "").split("+") if p.strip()]
+    if len(parts) < 2:
+        return None
+    mods = 0
+    for p in parts[:-1]:
+        if p not in MODS:
+            return None
+        mods |= MODS[p]
+    key = parts[-1]
+    if not mods & (MODS["ctrl"] | MODS["alt"] | MODS["win"]):
+        return None
+    if key in NAMED_KEYS:
+        vk = NAMED_KEYS[key]
+    elif len(key) == 1 and key.isalnum():
+        vk = ord(key.upper())
+    else:
+        return None
+    return mods, vk
+
+
+def format_hotkey(text):
+    """Normalised spelling, e.g. 'alt+space' -> 'Alt+Space'."""
+    parsed = parse_hotkey(text)
+    if not parsed:
+        return ""
+    mods, vk = parsed
+    names = [n for n, m in (("Ctrl", 2), ("Alt", 1), ("Shift", 4), ("Win", 8)) if mods & m]
+    key = next((k for k, v in NAMED_KEYS.items() if v == vk and k != "`"), None)
+    key = key.capitalize() if key and not key.startswith("f") else (key.upper() if key else chr(vk))
+    return "+".join(names + [key])
+
+
+if IS_WIN:
+    from ctypes import wintypes
+
+    user32 = ctypes.WinDLL("user32", use_last_error=True)
+    dwmapi = ctypes.WinDLL("dwmapi")
+    gdi32 = ctypes.WinDLL("gdi32")
+    kernel32 = ctypes.WinDLL("kernel32")
+
+    LRESULT = ctypes.c_ssize_t
+    WNDPROC = ctypes.WINFUNCTYPE(LRESULT, wintypes.HWND, wintypes.UINT, wintypes.WPARAM, wintypes.LPARAM)
+    _get_long = getattr(user32, "GetWindowLongPtrW", user32.GetWindowLongW)
+    _set_long = getattr(user32, "SetWindowLongPtrW", user32.SetWindowLongW)
+    _get_long.restype = ctypes.c_ssize_t
+    _get_long.argtypes = [wintypes.HWND, ctypes.c_int]
+    _set_long.restype = ctypes.c_ssize_t
+    _set_long.argtypes = [wintypes.HWND, ctypes.c_int, ctypes.c_ssize_t]
+    user32.CallWindowProcW.restype = LRESULT
+    user32.CallWindowProcW.argtypes = [ctypes.c_ssize_t, wintypes.HWND, wintypes.UINT, wintypes.WPARAM, wintypes.LPARAM]
+    user32.SetWindowPos.argtypes = [wintypes.HWND, wintypes.HWND, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int, wintypes.UINT]
+    user32.PostMessageW.argtypes = [wintypes.HWND, wintypes.UINT, wintypes.WPARAM, wintypes.LPARAM]
+    user32.IsZoomed.argtypes = [wintypes.HWND]
+    dwmapi.DwmSetWindowAttribute.argtypes = [wintypes.HWND, wintypes.DWORD, ctypes.c_void_p, wintypes.DWORD]
+
+    class NCCALCSIZE_PARAMS(ctypes.Structure):
+        _fields_ = [("rgrc", wintypes.RECT * 3), ("lppos", ctypes.c_void_p)]
+
+    class MARGINS(ctypes.Structure):
+        _fields_ = [("left", ctypes.c_int), ("right", ctypes.c_int), ("top", ctypes.c_int), ("bottom", ctypes.c_int)]
+
+    class DWM_BLURBEHIND(ctypes.Structure):
+        _fields_ = [("dwFlags", wintypes.DWORD), ("fEnable", wintypes.BOOL), ("hRgnBlur", wintypes.HRGN),
+                    ("fTransitionOnMaximized", wintypes.BOOL)]
+
+    class ACCENT_POLICY(ctypes.Structure):
+        _fields_ = [("AccentState", ctypes.c_int), ("AccentFlags", ctypes.c_int), ("GradientColor", ctypes.c_uint),
+                    ("AnimationId", ctypes.c_int)]
+
+    class WINCOMPATTRDATA(ctypes.Structure):
+        _fields_ = [("Attribute", ctypes.c_int), ("Data", ctypes.c_void_p), ("SizeOfData", ctypes.c_size_t)]
+
+    class MONITORINFO(ctypes.Structure):
+        _fields_ = [("cbSize", wintypes.DWORD), ("rcMonitor", wintypes.RECT), ("rcWork", wintypes.RECT), ("dwFlags", wintypes.DWORD)]
+
+WM_NCCALCSIZE, WM_SYSCOMMAND, WM_HOTKEY, WM_APP = 0x0083, 0x0112, 0x0312, 0x8000
+GWL_STYLE, GWL_EXSTYLE, GWLP_WNDPROC = -16, -20, -4
+WS_CAPTION, WS_THICKFRAME, WS_SYSMENU, WS_MINIMIZEBOX, WS_MAXIMIZEBOX = 0x00C00000, 0x00040000, 0x00080000, 0x00020000, 0x00010000
+WS_EX_LAYERED = 0x00080000
+SWP_FRAMECHANGED, SWP_NOMOVE, SWP_NOSIZE, SWP_NOZORDER, SWP_NOACTIVATE = 0x0020, 0x0002, 0x0001, 0x0004, 0x0010
+SC_DRAGMOVE = 0xF012
+
+
+def windows_build():
+    if not IS_WIN:
+        return 0
+    try:
+        return sys.getwindowsversion().build
+    except Exception:
+        return 0
+
+
+def _frame_changed(hwnd):
+    user32.SetWindowPos(hwnd, None, 0, 0, 0, 0, SWP_FRAMECHANGED | SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE)
+
+
+class Chrome:
+    """Removes the Windows title bar from a window but keeps its sizing frame, so the window still resizes from its
+    edges, snaps, maximizes with the usual animation and keeps its shadow. The page draws the ribbon (drag area and
+    window buttons, see app/js/window-chrome.js) and moves the window with drag()."""
+
+    def __init__(self, hwnd):
+        self.hwnd, self.ok, self._old = hwnd, False, None
+        if not (IS_WIN and hwnd):
+            return
+        try:
+            style = _get_long(hwnd, GWL_STYLE)
+            _set_long(hwnd, GWL_STYLE, style | WS_THICKFRAME | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_CAPTION)
+            self._proc = WNDPROC(self._wndproc)        # kept on self: the callback must outlive the window
+            self._old = _set_long(hwnd, GWLP_WNDPROC, ctypes.cast(self._proc, ctypes.c_void_p).value)
+            self.ok = bool(self._old)
+            _frame_changed(hwnd)
+        except Exception as e:
+            print("Window chrome: kept the Windows title bar:", e)
+            self.ok = False
+
+    def _frame_y(self):
+        try:
+            dpi = user32.GetDpiForWindow(self.hwnd)
+            return user32.GetSystemMetricsForDpi(33, dpi) + user32.GetSystemMetricsForDpi(92, dpi)  # SM_CYFRAME + padding
+        except Exception:
+            return user32.GetSystemMetrics(33) + user32.GetSystemMetrics(92)
+
+    def _wndproc(self, hwnd, msg, wparam, lparam):
+        if msg == WM_NCCALCSIZE and wparam:
+            # Let Windows size the frame, then give the caption strip back to the page. Maximized windows overhang the
+            # screen by the frame thickness, so the top then keeps that much.
+            p = NCCALCSIZE_PARAMS.from_address(lparam)
+            top = p.rgrc[0].top
+            res = user32.CallWindowProcW(self._old, hwnd, msg, wparam, lparam)
+            p.rgrc[0].top = top + (self._frame_y() if user32.IsZoomed(hwnd) else 0)
+            return res
+        return user32.CallWindowProcW(self._old, hwnd, msg, wparam, lparam)
+
+    def drag(self):
+        """Start moving the window with the mouse (the page calls this on mousedown in the ribbon). Windows runs the
+        move, so Snap and dragging to the top to maximize work as usual."""
+        if IS_WIN and self.hwnd:
+            user32.ReleaseCapture()
+            user32.PostMessageW(self.hwnd, WM_SYSCOMMAND, SC_DRAGMOVE, 0)
+
+
+def drag(hwnd):
+    """Move any window with the mouse (also windows without Chrome)."""
+    if IS_WIN and hwnd:
+        try:
+            user32.ReleaseCapture()
+            user32.PostMessageW(hwnd, WM_SYSCOMMAND, SC_DRAGMOVE, 0)
+        except Exception:
+            pass
+
+
+def glass(hwnd, frost=False):
+    """See-through window. The page paints its own translucent background (rgba), so the text stays fully opaque while
+    Zoom or Teams shows behind it. frost adds the Windows blur behind the window."""
+    if not (IS_WIN and hwnd):
+        return False
+    try:
+        rgn = gdi32.CreateRectRgn(0, 0, -1, -1)              # an empty region: per-pixel transparency, no blur
+        bb = DWM_BLURBEHIND(0x1 | 0x2, True, rgn, False)       # DWM_BB_ENABLE | DWM_BB_BLURREGION
+        dwmapi.DwmEnableBlurBehindWindow(hwnd, ctypes.byref(bb))
+        gdi32.DeleteObject(rgn)
+        build = windows_build()
+        if build >= 22621:                                     # Windows 11 22H2: the system backdrop
+            m = MARGINS(-1, -1, -1, -1)
+            dwmapi.DwmExtendFrameIntoClientArea(hwnd, ctypes.byref(m))
+            kind = ctypes.c_int(3 if frost else 1)             # DWMSBT_TRANSIENTWINDOW (Acrylic) / DWMSBT_NONE
+            dwmapi.DwmSetWindowAttribute(hwnd, 38, ctypes.byref(kind), ctypes.sizeof(kind))
+        else:                                                  # Windows 10 / early 11: blur behind (no tint, no lag)
+            accent = ACCENT_POLICY(3 if frost else 0, 0, 0, 0)  # ACCENT_ENABLE_BLURBEHIND / ACCENT_DISABLED
+            data = WINCOMPATTRDATA(19, ctypes.cast(ctypes.pointer(accent), ctypes.c_void_p), ctypes.sizeof(accent))
+            fn = getattr(user32, "SetWindowCompositionAttribute", None)
+            if fn:
+                fn(hwnd, ctypes.byref(data))
+        return True
+    except Exception as e:
+        print("Glass window:", e)
+        return False
+
+
+def fade(hwnd, alpha):
+    """Compatibility transparency: the whole window at one opacity (0.15-1)."""
+    if not (IS_WIN and hwnd):
+        return False
+    try:
+        a = max(38, min(255, int(round(float(alpha) * 255))))
+        ex = _get_long(hwnd, GWL_EXSTYLE)
+        if a >= 255:
+            if ex & WS_EX_LAYERED:
+                _set_long(hwnd, GWL_EXSTYLE, ex & ~WS_EX_LAYERED)
+            return True
+        if not ex & WS_EX_LAYERED:
+            _set_long(hwnd, GWL_EXSTYLE, ex | WS_EX_LAYERED)
+        return bool(user32.SetLayeredWindowAttributes(hwnd, 0, a, 0x2))   # LWA_ALPHA
+    except Exception:
+        return False
+
+
+def hide_from_capture(hwnd, on=True):
+    """Screen sharing (Zoom, Teams, Meet, OBS) and recordings leave the window out."""
+    if not (IS_WIN and hwnd):
+        return False
+    try:
+        if not on:
+            return bool(user32.SetWindowDisplayAffinity(hwnd, 0))
+        return bool(user32.SetWindowDisplayAffinity(hwnd, 0x11) or user32.SetWindowDisplayAffinity(hwnd, 0x1))
+    except Exception:
+        return False
+
+
+def center_on_cursor(hwnd, top_third=True):
+    """Centre the window on the monitor the mouse is on (Spotlight opens where you are looking)."""
+    if not (IS_WIN and hwnd):
+        return
+    try:
+        pt = wintypes.POINT()
+        user32.GetCursorPos(ctypes.byref(pt))
+        mon = user32.MonitorFromPoint(pt, 2)                   # MONITOR_DEFAULTTONEAREST
+        mi = MONITORINFO()
+        mi.cbSize = ctypes.sizeof(MONITORINFO)
+        user32.GetMonitorInfoW(mon, ctypes.byref(mi))
+        r = wintypes.RECT()
+        user32.GetWindowRect(hwnd, ctypes.byref(r))
+        w, h = r.right - r.left, r.bottom - r.top
+        wa = mi.rcWork
+        x = wa.left + (wa.right - wa.left - w) // 2
+        y = wa.top + ((wa.bottom - wa.top) // 4 - h // 6 if top_third else (wa.bottom - wa.top - h) // 2)
+        user32.SetWindowPos(hwnd, None, x, max(wa.top, y), 0, 0, SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE)
+    except Exception:
+        pass
+
+
+def round_corners(hwnd):
+    """Windows 11: rounded corners for a borderless window (Windows 10 keeps square corners)."""
+    if not (IS_WIN and hwnd):
+        return
+    try:
+        pref = ctypes.c_int(2)                                 # DWMWCP_ROUND
+        dwmapi.DwmSetWindowAttribute(hwnd, 33, ctypes.byref(pref), ctypes.sizeof(pref))
+    except Exception:
+        pass
+
+
+def bring_to_front(hwnd):
+    if not (IS_WIN and hwnd):
+        return
+    try:
+        user32.AllowSetForegroundWindow(-1)                    # ASFW_ANY
+        user32.ShowWindow(hwnd, 5)                             # SW_SHOW
+        user32.SetForegroundWindow(hwnd)
+        user32.SetActiveWindow(hwnd)
+    except Exception:
+        pass
+
+
+class Hotkeys:
+    """System-wide shortcuts. RegisterHotKey needs one thread with a message loop; set() re-registers from any thread.
+    callback(name) runs on that thread. results holds, per name, the shortcut in use or why it could not be used."""
+
+    def __init__(self, callback):
+        self.callback, self.wanted, self.results = callback, {}, {}
+        self._ids, self._tid, self._ready, self._lock, self._next = {}, 0, threading.Event(), threading.Lock(), 0xB001
+        if IS_WIN:
+            threading.Thread(target=self._loop, name="kc-hotkeys", daemon=True).start()
+            self._ready.wait(2)
+
+    def set(self, name, shortcut):
+        """Use shortcut (e.g. 'Alt+Space') for name; '' turns it off. Returns the result text."""
+        self.wanted[name] = shortcut or ""
+        if not IS_WIN:
+            self.results[name] = "Only on Windows"
+            return self.results[name]
+        with self._lock:                                       # one change at a time
+            done = threading.Event()
+            self._pending = (name, done)
+            user32.PostThreadMessageW(self._tid, WM_APP + 1, 0, 0)
+            done.wait(2)
+        return self.results.get(name, "")
+
+    def _register(self, name):
+        old = self._ids.pop(name, None)
+        if old:
+            user32.UnregisterHotKey(None, old)
+        text = self.wanted.get(name, "")
+        if not text:
+            self.results[name] = "off"
+            return
+        parsed = parse_hotkey(text)
+        if not parsed:
+            self.results[name] = "not a valid shortcut"
+            return
+        hid, self._next = self._next, self._next + 1
+        if user32.RegisterHotKey(None, hid, parsed[0] | MOD_NOREPEAT, parsed[1]):
+            self._ids[name] = hid
+            self.results[name] = "ok"
+        else:
+            self.results[name] = "in use by another program"
+
+    def _loop(self):
+        self._tid = kernel32.GetCurrentThreadId()
+        msg = wintypes.MSG()
+        user32.PeekMessageW(ctypes.byref(msg), None, 0, 0, 0)    # create this thread's message queue
+        self._ready.set()
+        while user32.GetMessageW(ctypes.byref(msg), None, 0, 0) > 0:
+            if msg.message == WM_APP + 1:
+                name, done = getattr(self, "_pending", (None, None))
+                if name:
+                    self._register(name)
+                if done:
+                    done.set()
+            elif msg.message == WM_HOTKEY:
+                name = next((n for n, i in self._ids.items() if i == msg.wParam), None)
+                if name:
+                    try:
+                        self.callback(name)
+                    except Exception as e:
+                        print("Shortcut", name, "failed:", e)
