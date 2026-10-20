@@ -119,6 +119,17 @@ class Restart(unittest.TestCase):
         free.close()                                       # nothing listening there
         self.assertIsNone(desktop_app.running_copy(port))
 
+    def test_a_copy_that_answers_is_found(self):
+        import threading
+        import desktop_app
+        srv = server.MainServer(("127.0.0.1", 0), server.Handler)
+        threading.Thread(target=srv.serve_forever, daemon=True).start()
+        try:
+            self.assertEqual(desktop_app.running_copy(srv.server_address[1]), "start-files")   # not the installed app
+        finally:
+            srv.shutdown()
+            srv.server_close()
+
     def test_ending_stuck_copies_only_in_the_installed_app(self):
         import desktop_app
         if os.name != "nt" or not getattr(sys, "frozen", False):

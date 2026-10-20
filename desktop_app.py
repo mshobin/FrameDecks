@@ -141,12 +141,24 @@ def ask(port, action):
 
 def running_copy(port=server.PREFERRED_PORT, wait=1.5):
     """What is already running on this port? None, "app" (this installed app), "start-files" (the black-window
-    version) or "stuck" (something takes the connection but never answers: a copy that did not finish closing)."""
+    version) or "stuck" (something takes the connection but never answers: a copy that did not finish closing).
+    Connecting and answering are timed apart: on Windows a port with nothing on it takes about 2 s to refuse."""
+    import http.client
+    conn = http.client.HTTPConnection("127.0.0.1", port, timeout=3)
     try:
-        with urllib.request.urlopen(f"http://127.0.0.1:{port}/api/app/ping", timeout=wait) as r:
-            d = json.loads(r.read().decode())
-    except Exception as e:
-        return "stuck" if isinstance(getattr(e, "reason", e), TimeoutError) else None
+        conn.connect()
+    except OSError:                                      # refused (nothing there) or no reply to the connection
+        return None
+    try:
+        conn.sock.settimeout(wait)
+        conn.request("GET", "/api/app/ping")
+        d = json.loads(conn.getresponse().read().decode())
+    except TimeoutError:                                 # connected, but no answer
+        return "stuck"
+    except Exception:
+        return None
+    finally:
+        conn.close()
     if d.get("app") != APP_NAME:
         return None
     return "app" if d.get("installedApp") else "start-files"
