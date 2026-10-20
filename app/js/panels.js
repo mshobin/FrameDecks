@@ -127,7 +127,6 @@ function openMenu(){
     '-',
     {t: 'Auto-hide the Inspector', ah: true},
     {t: 'Preview only (Focus)', run: function(){ focusMode(); }, icon: 'maximize-2'},
-    {t: 'Presentation Mode', run: function(){ if (window.BSFPresentation) window.BSFPresentation(!document.body.classList.contains('pm')); }, icon: 'presentation'},
     '-',
     {t: 'Reset the layout', run: function(){ L = merge({}); apply(); save(); refit(); }, icon: 'refresh-cw'}];
   menuItems.forEach(function(m){

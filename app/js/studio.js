@@ -91,7 +91,7 @@ var right = h('aside', {cls: 's2-right', 'aria-label': 'Inspector'});
 root.appendChild(centre);
 var mediaHost = $('insp-media'); if (mediaHost) mediaHost.appendChild(right);
 
-/* Top bar: scene selector with collection filter · Preview/Output · Record · Look · Focus · Hide window */
+/* Top bar: scene selector with collection filter · Preview/Output · Record · Look · Focus */
 var colFilter = h('select', {id: 's2-colfilter', 'aria-label': 'Frame collection'});
 var sceneSel = h('select', {id: 's2-scene', 'aria-label': 'Frame'});
 /* Share Window (was "Presentation Mode" before 6.1): a separate window showing only the scene, for Zoom > Share > window */
@@ -101,14 +101,12 @@ var recBtn = h('button', {cls: 'btn s2-rec', type: 'button', id: 's2-rec', html:
 var lookSel = h('select', {id: 's2-look', 'aria-label': 'Camera look'});
 var focusBtn = ib('maximize-2', 'Focus: hide the rest of the app', function(){ document.body.classList.toggle('studio-focus'); focusBtn.innerHTML = I(document.body.classList.contains('studio-focus') ? 'minimize-2' : 'maximize-2', 16); setTimeout(fitStage, 50); });
 focusBtn.id = 's2-focus';
-var hideBtn = ib('panel-left', 'Hide the app window (keeps running near the clock)', function(){
-  fetch('api/app/hide', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: '{}'}).then(function(r){ if (!r.ok) toast('Only in the installed app', true); }); });
 var shareChip = h('span', {cls: 's2-chip', id: 's2-share', hidden: 'hidden'});
 /* v5: the scene picker and collection filter are the Scenes list beside the canvas, and the Look is in
  * Settings > KingdomConnect Camera (and Ctrl+Alt+1/2/3/0) - the bar shows the active scene instead of repeating them. */
 var sceneNow = h('span', {cls: 's2-scene-now', id: 's2-scene-now'});
 var tools = $('canvas-tools');
-if (tools){ [shareChip, presBtn, focusBtn, hideBtn].forEach(function(b){ tools.appendChild(b); }); }
+if (tools){ [shareChip, presBtn, focusBtn].forEach(function(b){ tools.appendChild(b); }); }
 var recHost = $('rec-host');
 if (recHost){ recHost.appendChild(recBtn); recHost.appendChild(h('span', {cls: 'hint rec-note', id: 's2-rec-note', text: 'Records exactly what KingdomConnect sends to Zoom or Teams.'})); }
 presBtn.classList.remove('primary'); presBtn.classList.add('small');

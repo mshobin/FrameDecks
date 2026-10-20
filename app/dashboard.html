@@ -33,14 +33,6 @@
     <button class="tab grp" role="tab" type="button" id="grp-members" data-group="members" data-tab="directory" aria-selected="false"><i data-icon="users"></i>Members <span class="tab-badge" id="grp-bday-badge" hidden></span> <kbd>Alt+3</kbd></button>
     <button class="tab grp" role="tab" type="button" id="tabbtn-settings" data-group="settings" data-tab="settings" aria-selected="false"><i data-icon="settings"></i>Settings <kbd>Alt+4</kbd></button>
   </nav>
-  <!-- Search (Ctrl+K / Ctrl+Space): opens the command palette (js/palette.js) with scenes, layers, Bible references, questions, verses, members, birthdays, media and settings.
-       Choosing one selects or opens it; nothing goes on screen until Go Live. -->
-  <div class="gsearch" role="search">
-    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-    <input type="search" id="gsearch" placeholder="Search Frames, Content, Romans 2:29, questions, members…" autocomplete="off" aria-label="Search Frames, Content, Bible references, questions, verses, members and settings" aria-controls="gsearch-list" aria-expanded="false">
-    <kbd class="key">Ctrl+K</kbd>
-    <ul class="gsearch-list" id="gsearch-list" role="listbox" hidden></ul>
-  </div>
   <!-- v6.3 one command bar: the live controls that used to be the bottom bar now sit here, in the same header -->
 <div class="ctlbar livebar" id="ctlbar" role="toolbar" aria-label="Live controls">
   <div class="lb-grp lb-scenes" role="group" aria-label="Frames">
@@ -77,7 +69,6 @@
 </div>
   <!-- LIVE plus every output's status, at a glance and only here (each chip opens its details).
        Narrow windows fold the chips into one status button. -->
-  <button class="btn small pm-toggle" type="button" id="pm-toggle" aria-pressed="false" title="Presentation Mode: only the Frames, Previous, Go Live and Next (P)"><i data-icon="presentation" data-size="16"></i><span>Presentation Mode</span></button>
   <span class="live-ind" id="live-ind" role="status" aria-live="polite"><i></i><b>Off air</b><span class="live-what"></span></span>
   <div class="sysstat" id="sysstat">
     <button class="sys-sum" type="button" id="sys-sum" aria-expanded="false" aria-controls="health" aria-label="System status"><i class="sys-dot"></i><span class="sys-text">Checking…</span></button>

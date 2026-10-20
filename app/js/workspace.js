@@ -1304,21 +1304,6 @@ function renderAll(force){
 Store.subscribe(function(st){ live = st; migrate(); renderAll(false); });
 setInterval(function(){ if (live && !document.hidden && document.body.dataset.tab === 'studio') renderLayers(); }, 3000);   // media layer status from KingdomConnect
 
-/* ---------- Presentation Mode: only the scene list, Previous · Go Live · Next (and HIDE ALL, always) ---------- */
-function setPresentation(on){
-  on = !!on;
-  if (on && window.BSFSetTab && document.body.dataset.tab !== 'studio') window.BSFSetTab('studio');
-  document.body.classList.toggle('pm', on);
-  var b = $('pm-toggle'); b.setAttribute('aria-pressed', String(on));
-  b.querySelector('span').textContent = on ? 'Exit Presentation Mode' : 'Presentation Mode';
-  b.title = on ? 'Back to the full Studio (P)' : 'Presentation Mode: only the Frames, Previous, Go Live and Next (P)';
-  if (filter === 'tpl' && on) setFilter('all');
-  closeMenu();
-  setTimeout(function(){ window.dispatchEvent(new Event('resize')); var el = document.querySelector('#scene-list .scene-item.live, #scene-list .scene-item.sel'); if (el) el.scrollIntoView({block: 'nearest'}); }, 60);
-}
-$('pm-toggle').addEventListener('click', function(){ setPresentation(!document.body.classList.contains('pm')); });
-window.BSFPresentation = setPresentation;
-
 /* Keyboard in the Studio: Ctrl+D duplicates the selected scene (or layer), Delete removes, F2 renames */
 document.addEventListener('keydown', function(e){
   if (document.body.dataset.tab !== 'studio' || document.querySelector('dialog[open], .app-modal-back')) return;
@@ -1372,17 +1357,6 @@ window.BSFWorkspace = {
       var row = document.querySelector((l.kind === 'scripture' ? '#v-items' : '#q-items') + ' > li[data-id="' + itemId + '"]'); if (!row) return;
       row.scrollIntoView({block: 'center'}); row.classList.add('found'); setTimeout(function(){ row.classList.remove('found'); }, 1600);
       row.focus({preventScroll: true});
-    }, 80);
-  },
-  findItem: function(kind, i){
-    var lk = kind === 'verse' ? 'scripture' : 'question', sc = scene(), l = sc && SC.first(sc, lk);
-    if (!l){ var s2 = live.scenes.filter(function(s){ return !s.tpl && SC.first(s, lk); })[0]; if (s2){ sc = s2; l = SC.first(s2, lk); } }
-    if (!l){ toast('No Frame has a ' + (lk === 'question' ? 'Question' : 'Scripture') + ' Content yet.', true); return; }
-    tabFor[lk] = 'content'; select(sc.id, l.id);
-    setTimeout(function(){
-      var row = document.querySelectorAll(kind === 'verse' ? '#v-items > li' : '#q-items > li')[i]; if (!row) return;
-      row.scrollIntoView({block: 'center'}); row.classList.add('found'); setTimeout(function(){ row.classList.remove('found'); }, 1600);
-      var b = row.querySelector('button'); if (b) b.focus({preventScroll: true});
     }, 80);
   }
 };

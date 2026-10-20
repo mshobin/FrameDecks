@@ -65,7 +65,6 @@ function commands(){
     ['prompter', 'Teleprompter on / off', 'script notes prompter dock', function(){ studio(); if (TP) TP.toggle(); }, 'R'],
     ['prompterwin', 'Teleprompter window', 'second screen speaker view', function(){ if (PT && PT.speaker) PT.speaker(); }],
     ['overlay', 'Teleprompter overlay (over Zoom / Teams)', 'meeting leader transparent see-through glass on top prompter', function(){ if (PT && PT.overlay) PT.overlay(); }, 'Shift+R'],
-    ['present', 'Presentation Mode on / off', 'present simple', function(){ if (window.BSFPresentation) window.BSFPresentation(!document.body.classList.contains('pm')); }, 'P'],
     ['share', 'Share Window (Presentation window)', 'present window zoom share screen', function(){ studio(); click($('s2-present')); }],
     ['export', 'Export this meeting (Excel)', 'save workbook xlsx download', function(){ if (MI) MI.exportMeeting(); }],
     ['import', 'Import a meeting from Excel…', 'workbook xlsx open', function(){ if (MI) MI.pick(); }],
@@ -267,13 +266,6 @@ document.addEventListener('keydown', function(e){
   var c = comboOf(e); if (!c) return;
   if (keys().indexOf(c) >= 0){ e.preventDefault(); e.stopPropagation(); if (back && !back.hidden) close(); else open(); }
 }, true);
-/* the header search box opens the palette too (what was typed carries over) */
-var gs = $('gsearch');
-if (gs){
-  gs.addEventListener('focus', function(){ var v = gs.value; gs.value = ''; gs.blur(); open(v); });
-  var kb = gs.parentNode && gs.parentNode.querySelector('kbd'); if (kb) kb.textContent = keys()[0];
-}
-
 /* ---------- Settings > Keyboard shortcuts: the keys that open the palette ---------- */
 var capturing = false;
 function mountKeys(root){
@@ -302,7 +294,6 @@ function mountKeys(root){
     root.appendChild(table);
     root.appendChild(h('div', {cls: 'actions'}, [h('button', {cls: 'btn quiet small', type: 'button', text: 'Reset to Ctrl+K and Ctrl+Space', onclick: function(){ lsSet(KEYS_KEY, JSON.stringify(DEF_KEYS)); render('Reset'); }})]));
     if (msg) root.appendChild(h('p', {cls: 'hint', role: 'status', text: msg}));
-    var kb = gs && gs.parentNode && gs.parentNode.querySelector('kbd'); if (kb) kb.textContent = keys()[0];
   }
   render();
 }
