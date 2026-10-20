@@ -1,4 +1,4 @@
-<p align="center"><img src="assets/brand/kc-about-header.webp" alt="Kingdom Connect. Christ-Centered Fellowship. Connecting Believers. Sharing Christ. Growing Together. Version 6.9" width="900"></p>
+<p align="center"><img src="assets/brand/kc-about-header.webp" alt="Kingdom Connect. Christ-Centered Fellowship. Connecting Believers. Sharing Christ. Growing Together. Version 6.10" width="900"></p>
 
 A service presentation platform for churches and ministries. Plan each service as **Frames** — Welcome, Worship,
 Scripture, Discussion, Prayer, Closing — fill them with questions, scriptures, text, timers, pictures, video and
@@ -6,7 +6,7 @@ PowerPoint, and present to the room, to Zoom / Teams / Google Meet and to your s
 the PC, a phone or an iPad. It runs **entirely on your PC**: no accounts, no subscriptions, no cloud, no telemetry.
 The only feature that ever goes online is the optional ESV scripture fetch.
 
-> **Status: Kingdom Connect 6.9 is ready for teaching, Bible study, small-group and hybrid services, with documented
+> **Status: Kingdom Connect 6.10 is ready for teaching, Bible study, small-group and hybrid services, with documented
 > gaps.** The biggest: no song / lyrics library yet (lyrics are shown as Text Content or a PowerPoint), an unsigned
 > installer, no automated UI tests, and no published licence. See the
 > [repository audit](docs/project/repository-audit.md) and the [roadmap](ROADMAP.md).
@@ -54,7 +54,7 @@ The only feature that ever goes online is the optional ESV scripture fetch.
 
 ## Install
 See [INSTALLATION](docs/installation.md) and [GETTING_STARTED](docs/getting-started.md). In short: run
-`Kingdom Connect v6.9.exe` (unsigned, so check it against its `.sha256` file first and choose **More info → Run
+`Kingdom Connect v6.10.exe` (unsigned, so check it against its `.sha256` file first and choose **More info → Run
 anyway** at the SmartScreen prompt), keep **Install the KingdomConnect camera** ticked, and allow the one
 administrator prompt. Windows 10 or 11 (64-bit) is required. The installer comes from the **Build Windows
 installer** workflow ([BUILDING_THE_INSTALLER](docs/development/building-the-installer.md)).

@@ -31,7 +31,7 @@ from urllib.parse import urlparse, parse_qs, unquote
 import legacy   # 6.9: moves data saved under the program's earlier name
 import meeting_form   # 6.9: fills the Meeting Workbook's form for Export
 
-APP_VERSION = "6.9"
+APP_VERSION = "6.10"
 STARTED_AT = time.time()
 FROZEN = getattr(sys, "frozen", False)          # True inside the installed Windows app
 HERE = Path(sys.executable).resolve().parent if FROZEN else Path(__file__).resolve().parent
@@ -2127,11 +2127,23 @@ class Handler(BaseHTTPRequestHandler):
         self.reply(404, "Not found", "text/plain; charset=utf-8")
 
 
+class MainServer(ThreadingHTTPServer):
+    """The program's own server (127.0.0.1). 6.10: on Windows it asks for its port for itself alone. Windows lets
+    SO_REUSEADDR bind a port that another program is still listening on, and then hands connections to either of
+    them: a copy that had not finished closing got the window's requests, and the page said "refused to connect"."""
+    allow_reuse_address = os.name != "nt"
+
+    def server_bind(self):
+        if hasattr(socket, "SO_EXCLUSIVEADDRUSE"):
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_EXCLUSIVEADDRUSE, 1)
+        super().server_bind()
+
+
 def start_main_server():
     """Start listening on this PC only. Returns the server (or None if every port is taken)."""
     for port in PORTS:
         try:
-            server = ThreadingHTTPServer(("127.0.0.1", port), Handler)
+            server = MainServer(("127.0.0.1", port), Handler)
             break
         except OSError:
             continue

@@ -10,6 +10,22 @@ Versions before 4.9 (when the program had its earlier name) are described in the
 
 ## [Unreleased]
 
+## [6.10] - 2026-10-20
+
+Full notes: [docs/releases/v6.10.md](docs/releases/v6.10.md)
+
+### Fixed
+- After **Quit**, the program kept running out of sight: the hidden Spotlight window kept `webview.start()` from
+  returning. The next start then showed *127.0.0.1 refused to connect*, because on Windows its server could share port
+  8750 with the silent copy.
+  - Quit now closes every window, and a five-second safety net ends the process.
+  - The server releases its port at once.
+  - On Windows the main server binds its port exclusively (`SO_EXCLUSIVEADDRUSE`, `server.MainServer`).
+  - A start that finds a copy which holds the port but does not answer ends that copy. Only processes with the
+    program's own name are ended, never the starting one.
+  - The installer closes a running copy before it updates.
+  - Tests: `tests/test_desktop.py` → `Restart`.
+
 ## [6.9] - 2026-10-20
 
 Full notes: [docs/releases/v6.9.md](docs/releases/v6.9.md)
