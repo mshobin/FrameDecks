@@ -1,0 +1,53 @@
+/* Kingdom Connect v6.8 - Teleprompter overlay (prompter.html): Meeting Leader mode.
+ * The window itself is see-through (desktop_win.glass); this page paints a translucent background whose strength is
+ * the transparency mode, so Zoom / Teams participants, shared screens and chat show through while the text stays solid.
+ * The more see-through the mode, the stronger the halo around the letters (contrast that adjusts by itself). */
+:root{color-scheme:dark}
+html,body{margin:0;height:100%;background:transparent;overflow:hidden}
+body.ov{font-family:"Source Sans 3","Segoe UI Variable Text","Segoe UI",system-ui,sans-serif;color:#f4f6fa;
+  --ov-alpha:.6;--ov-tint:10,14,22;--ov-halo:.55;--ov-weight:600}
+body.ov[data-mode="solid"]{--ov-alpha:1;--ov-halo:0;--ov-weight:600}
+body.ov[data-mode="presenter"]{--ov-alpha:.8;--ov-halo:.35;--ov-weight:600}
+body.ov[data-mode="meeting"]{--ov-alpha:.6;--ov-halo:.6;--ov-weight:650}
+body.ov[data-mode="conference"]{--ov-alpha:.35;--ov-halo:.85;--ov-weight:700}
+body.ov[data-mode="ghost"]{--ov-alpha:.14;--ov-halo:1;--ov-weight:700}
+/* frost: a lighter tint reads better over the Windows blur */
+body.ov.frost{--ov-tint:18,24,36}
+/* compatibility (fade) mode: the window fades as a whole, so the page stays solid */
+body.ov.fade{--ov-alpha:1;--ov-halo:.3}
+.ov-bg{position:fixed;inset:0;background:rgba(var(--ov-tint),var(--ov-alpha));border-radius:10px;transition:background-color .25s ease}
+.win-maximized .ov-bg{border-radius:0}
+/* in a browser the page cannot be see-through: a solid background */
+html:not(.win-chrome) .ov-bg{background:rgb(var(--ov-tint))}
+.ov-main{position:fixed;inset:0;display:flex}
+.ov-main .tp{--tp-bg:transparent;--tp-glass:rgba(16,20,28,.78);background:transparent}
+.ov .tp-text{font-weight:var(--ov-weight);color:#fff;
+  text-shadow:0 0 calc(var(--ov-halo) * .12em) rgba(0,0,0,calc(var(--ov-halo) * .95)),0 .03em calc(var(--ov-halo) * .25em) rgba(0,0,0,calc(var(--ov-halo) * .9))}
+.ov .tp-text b{color:#fff}
+.ov .tp-text h3{color:#ffd56b}
+/* ribbon: thin, appears with the toolbar; drag it to move the overlay */
+.ov-ribbon{position:fixed;top:0;left:0;right:0;z-index:5;display:flex;align-items:center;gap:10px;height:34px;padding:0 4px 0 12px;
+  font-size:12.5px;color:rgba(255,255,255,.75);background:linear-gradient(180deg,rgba(10,14,22,.82),rgba(10,14,22,0));
+  transition:opacity .25s ease;cursor:default}
+.ov-ribbon .ov-title{color:#fff;font-size:13px}
+.ov-grip{letter-spacing:-2px;opacity:.6}
+.ov-mode{padding:1px 8px;border-radius:999px;background:rgba(255,255,255,.1)}
+.ov-private{margin-right:auto;opacity:.7}
+.ov-ribbon .wc-btn{min-height:28px;color:rgba(255,255,255,.8)}
+body.ov:not(.ui-on) .ov-ribbon{opacity:0;pointer-events:none}
+html:not(.win-chrome) .ov-ribbon{display:none}
+/* toolbar extras */
+.tp-btn.ov-pin[aria-pressed="true"],.tp-btn.ov-frost[aria-pressed="true"]{background:rgba(232,185,49,.22);color:#ffe08a}
+.tp-btn.ov-exit{color:#ffb4ab}
+.ov-modes{position:absolute;bottom:62px;left:50%;transform:translateX(-50%);z-index:6;display:flex;gap:4px;padding:6px;border-radius:12px;
+  background:rgba(16,20,28,.86);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);box-shadow:0 10px 32px rgba(0,0,0,.4)}
+.ov-modes[hidden]{display:none}
+.ov-modes button{font:inherit;font-size:12.5px;font-weight:700;padding:6px 10px;border:0;border-radius:8px;background:transparent;color:#e8ecf3;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;gap:2px;min-width:78px}
+.ov-modes button small{font-weight:500;opacity:.7}
+.ov-modes button[aria-pressed="true"]{background:rgba(232,185,49,.22);color:#ffe08a}
+.ov-modes button:hover{background:rgba(255,255,255,.08)}
+@media (prefers-reduced-motion:reduce){ .ov-bg,.ov-ribbon{transition:none} }
+/* the cue pill and the script start below the ribbon */
+.win-chrome .ov .tp-float-mode .tp-cues{top:40px}
+.win-chrome .ov .tp-float-mode .tp-scroll{padding-top:64px}

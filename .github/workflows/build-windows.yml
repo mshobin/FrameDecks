@@ -64,6 +64,9 @@ jobs:
       - name: Run the tests (Node.js)
         run: node tests/run.js
 
+      - name: Run the desktop tests (Python, on Windows)
+        run: python -m unittest discover -s tests -p "test_*.py" -v
+
       - name: Check documentation links
         run: python tools/check_doc_links.py
 

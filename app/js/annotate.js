@@ -133,6 +133,22 @@ function openSpeaker(){
     .catch(function(){ toast('The Teleprompter window could not open', true); });
 }
 var spk = $('lb-speaker'); if (spk) spk.addEventListener('click', openSpeaker);
+/* 6.8 Teleprompter overlay (Meeting Leader mode): see-through, above Zoom / Teams, kept out of screen sharing */
+var overlayWin = null;
+function openOverlay(){
+  var app = window.BSFAppInfo;
+  if (!(app && app.desktop)){
+    if (overlayWin && !overlayWin.closed){ overlayWin.focus(); return; }
+    overlayWin = window.open('prompter.html', 'kc-overlay', 'popup,width=1100,height=640');
+    if (!overlayWin) toast('Allow pop-ups for this page to open the Teleprompter overlay', true);
+    return;
+  }
+  fetch('api/app/overlay', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({on: 'toggle'})})
+    .then(function(r){ return r.json(); })
+    .then(function(d){ if (d.desktop && d.open) toast('Teleprompter overlay is open. Move it over your meeting; only you see it.'); })
+    .catch(function(){ toast('The Teleprompter overlay could not open', true); });
+}
+var ovb = $('lb-overlay'); if (ovb) ovb.addEventListener('click', openOverlay);
 
 function render(){
   var on = annotating(), fz = !!(live && live.live.freeze);
@@ -148,6 +164,7 @@ window.BSFPresenterTools = {
   annotate: function(){ setAnnotate(!annotating()); },
   freeze: function(){ setFreeze(!(live && live.live.freeze)); },
   blackout: function(){ var b = $('lb-blackout'); if (b) b.click(); },
-  speaker: openSpeaker
+  speaker: openSpeaker,
+  overlay: openOverlay
 };
 })();

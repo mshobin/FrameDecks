@@ -28,7 +28,7 @@ from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from pathlib import Path
 from urllib.parse import urlparse, parse_qs, unquote
 
-APP_VERSION = "6.7"
+APP_VERSION = "6.8"
 STARTED_AT = time.time()
 FROZEN = getattr(sys, "frozen", False)          # True inside the installed Windows app
 HERE = Path(sys.executable).resolve().parent if FROZEN else Path(__file__).resolve().parent
@@ -457,7 +457,29 @@ def _remote_watcher():
 DESKTOP = {"active": False}  # filled in by desktop_app.py (show/hide/quit/choose_folder hooks)
 APP_SETTINGS_DEFAULTS = {"remoteAutostart": False, "importDecided": False,
                          "lowGpu": True,     # draw the app window without the graphics card (keeps Windows smooth)
-                         "nativePresent": True}   # Presentation window without a browser engine (off = WebView2 window)
+                         "nativePresent": True,   # Presentation window without a browser engine (off = WebView2 window)
+                         # 6.8 window chrome, tray and the Teleprompter overlay
+                         "customChrome": True,    # the app's ribbon instead of the Windows title bar (restart to change)
+                         "minimizeTo": "ask",     # minimize button: ask / tray / taskbar
+                         "spotlightKey": "Alt+Space",   # system-wide shortcut for Spotlight ('' = off)
+                         "overlayMode": "meeting",      # Teleprompter overlay: solid/presenter/meeting/conference/ghost
+                         "overlayFrost": True,    # Windows blur behind the overlay
+                         "overlayOnTop": True,    # the overlay stays above Zoom, Teams, PowerPoint and browsers
+                         "overlayFade": False}    # compatibility transparency (the whole window fades, text included)
+APP_SETTING_CHOICES = {"minimizeTo": ("ask", "tray", "taskbar"),
+                       "overlayMode": ("solid", "presenter", "meeting", "conference", "ghost")}
+
+
+def _valid_setting(k, v):
+    d = APP_SETTINGS_DEFAULTS[k]
+    if isinstance(d, bool):
+        return isinstance(v, bool)
+    if k in APP_SETTING_CHOICES:
+        return v in APP_SETTING_CHOICES[k]
+    if k == "spotlightKey":
+        from desktop_win import parse_hotkey
+        return isinstance(v, str) and (v == "" or parse_hotkey(v) is not None)
+    return False
 
 
 def app_settings():
@@ -466,7 +488,7 @@ def app_settings():
         data = json.loads(APP_SETTINGS_FILE.read_text(encoding="utf-8"))
         if isinstance(data, dict):
             for k in out:
-                if isinstance(data.get(k), bool):
+                if k in data and _valid_setting(k, data[k]):
                     out[k] = data[k]
     except (OSError, ValueError):
         pass
@@ -476,9 +498,18 @@ def app_settings():
 def save_app_settings(changes):
     cur = app_settings()
     for k, v in changes.items():
-        if k in APP_SETTINGS_DEFAULTS and isinstance(v, bool):
+        if k in APP_SETTINGS_DEFAULTS and _valid_setting(k, v):
             cur[k] = v
+    if "spotlightKey" in changes:
+        from desktop_win import format_hotkey
+        cur["spotlightKey"] = format_hotkey(cur["spotlightKey"]) if cur["spotlightKey"] else ""
     APP_SETTINGS_FILE.write_text(json.dumps(cur, indent=2), encoding="utf-8")
+    hook = DESKTOP.get("settings_changed")
+    if hook:
+        try:
+            hook(cur)
+        except Exception as e:
+            print("Applying settings:", e)
     return cur
 
 
@@ -1619,6 +1650,7 @@ class Handler(BaseHTTPRequestHandler):
             info = {"version": APP_VERSION, "installedApp": FROZEN, "desktop": DESKTOP["active"], "dataFolder": str(DATA),
                     "separateData": SEPARATE_DATA, "windows": os.name == "nt", "settings": app_settings(),
                     "lowGpuActive": bool(DESKTOP.get("low_gpu")), "shell": DESKTOP.get("shell", "browser"),
+                    "chrome": bool(DESKTOP.get("chrome")), "hotkeys": dict(DESKTOP.get("hotkey_results") or {}),
                     "remote": {"enabled": REMOTE, "listening": sorted(remote_servers), "failed": list(remote_errors)},
                     "backups": list_backups()[:KEEP_BACKUPS], "migration": migration_status()}
             return self.reply(200, json.dumps(info), TYPES[".json"])
@@ -1878,6 +1910,35 @@ class Handler(BaseHTTPRequestHandler):
         if action == "firewall":
             done, msg = firewall("undo" if data.get("action") == "undo" else "allow")
             return ok({"ok": done, "message": msg})
+        if action == "win":
+            # 6.8 the page's own window buttons and ribbon: {win: main/teleprompter/overlay/spotlight, op: minimize,
+            # toggle-max, close, drag, hide, on-top (value), look (mode, frost, fade)}
+            hook = DESKTOP.get("win")
+            if not hook:
+                return ok({"desktop": False})
+            return ok(dict(hook(str(data.get("win") or "main"), str(data.get("op") or ""), data) or {}, desktop=True))
+        if action == "overlay":
+            # 6.8 the Teleprompter overlay (Meeting Leader mode): a see-through window above Zoom and Teams
+            hook = DESKTOP.get("overlay")
+            if not hook:
+                return ok({"desktop": False})
+            return ok({"desktop": True, "open": bool(hook(data.get("on", "toggle")))})
+        if action == "spotlight":
+            hook = DESKTOP.get("spotlight")
+            if not hook:
+                return ok({"desktop": False})
+            hook(data.get("on", True))
+            return ok({"desktop": True})
+        if action == "palette-index":
+            # Spotlight asks the main window for everything it can find (the main window keeps running in the tray)
+            hook = DESKTOP.get("palette_index")
+            return ok({"items": hook() if hook else []})
+        if action == "palette-run":
+            hook = DESKTOP.get("palette_run")
+            if not hook:
+                return bad("Only available in the installed app.", 501)
+            threading.Thread(target=hook, args=(str(data.get("key") or ""), bool(data.get("bg"))), daemon=True).start()
+            return ok({"ok": True})
         if action in ("show", "hide", "quit"):
             fn = DESKTOP.get(action)
             if not fn:

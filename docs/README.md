@@ -51,7 +51,7 @@ Detailed guides written alongside earlier versions. They remain accurate for the
 
 | Document | Contents |
 | --- | --- |
-| [User guide (v6.7)](reference/user-guide.md) | The original all-in-one user guide |
+| [User guide (v6.8)](reference/user-guide.md) | The original all-in-one user guide |
 | [Feature documentation](reference/features.md) | How each feature is built and its limits |
 | [Configuration guide](reference/configuration-guide.md) | Camera, app window, settings files, environment variables |
 | [Meeting Workbook and branding](reference/meeting-workbook-and-branding.md) | The Excel workbook in detail; Meeting Name, logo and colours |

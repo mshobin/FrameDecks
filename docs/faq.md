@@ -111,6 +111,11 @@ Yes. Open the **Presentation window** (**Share Window** on the Studio Canvas) on
 **Does it work with OBS for livestreaming?**
 Yes. Add **KingdomConnect** as a Video Capture Device, or use the overlay pages (`http://localhost:8750/...`) as Browser Sources on top of your own OBS scenes. See [Media](media.md#obs-and-browser-overlay-pages).
 
+**Will Zoom participants see my teleprompter?**
+No. The **Teleprompter overlay** is left out of screen sharing and recordings, even when you share your whole screen
+(Windows 10 version 2004 or later). The Teleprompter window is left out too. Neither is ever on the KingdomConnect
+camera. See [Teleprompter overlay](presentations.md#teleprompter-overlay-meeting-leader-mode).
+
 **Does it work on a Mac?**
 No. Kingdom Connect is a Windows 10/11 app. The phone remote works on iPhone, iPad and Android.
 
@@ -155,7 +160,7 @@ No. The Teleprompter is only for the presenter. It is never on the KingdomConnec
 Since 6.7, questions and scriptures have no Answer or Notes fields, and no screen shows them. Nothing was deleted from your data. When you import an older Meeting Workbook, its answers and notes go into the Frame's Teleprompter script.
 
 **Is there a quick way to find something?**
-Yes. Press **Ctrl+K** or **Ctrl+Space** (or select the search box at the top) to open the command palette. Type a few letters to find a Frame, a question, a scripture, a setting or a member, or to run a command such as **Go Live**. See [Presentations](presentations.md#command-palette).
+Yes. Press **Ctrl+K** or **Ctrl+Space** (or select the search box at the top) to open the command palette. Type a few letters to find a Frame, a question, a scripture, a setting or a member, or to run a command such as **Go Live**. See [Presentations](presentations.md#command-palette). From anywhere in Windows, even with the app in the tray, press **Alt+Space** to open the same search as **Spotlight**. See [Spotlight](presentations.md#spotlight).
 
 ## Data, privacy and offline use
 
@@ -183,6 +188,9 @@ No. Kingdom Connect has no subscription, billing, accounts or per-seat fees.
 The licence terms aren't published in the repository yet. Please ask the maintainer before redistributing or modifying it. The KingdomConnect camera driver is built from softcam (MIT licence); the background-blur model is from MediaPipe (Apache 2.0).
 
 ## Technical
+
+**Can I keep the app running without a taskbar button?**
+Yes. Select **Minimize** and choose **Hide To Tray**. Kingdom Connect keeps running from its icon near the clock: the camera, the overlays, the phone remote and the shortcuts keep working. Click the icon, or choose **Open App** in its menu, to bring the window back. To make it the default, tick **Remember my choice**, or set **Settings → General → Window and tray → Minimize button**.
 
 **What computer do we need?**
 A Windows 10 or 11 (64-bit) PC, plus a webcam if you want the camera picture. On older or busy PCs use 720p and light background blur; **Settings → Diagnostics** shows whether the PC keeps up (dropped frames should stay at 0).

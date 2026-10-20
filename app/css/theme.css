@@ -1225,3 +1225,12 @@ body.tp-open .tpd:not([hidden]){animation:kc-fade .16s ease-out}
   .ef-float,.ws-menu,.ef-menu,.insp-body .ip,body.tp-open .tpd{animation:none}
   .ef-input,.scene-item.picked,.layer-item.picked,.tp-text,.pal-row{transition:none}
 }
+
+/* ---------- v6.8 Spotlight window (spotlight.html): the palette fills its own small window ---------- */
+body.spotlight{margin:0;height:100vh;overflow:hidden;background:var(--surface,#151a22)}
+body.spotlight .pal-back{position:fixed;inset:0;padding:0;background:transparent}
+body.spotlight .pal{width:100%;height:100%;max-height:none;border:0;border-radius:0;box-shadow:none;animation:none}
+body.spotlight .pal-top{padding:16px 18px}
+body.spotlight .pal-in{font-size:19px}
+body.spotlight .pal.spot-in{animation:pal-in .12s ease-out}
+@media (prefers-reduced-motion:reduce){ body.spotlight .pal.spot-in{animation:none} }

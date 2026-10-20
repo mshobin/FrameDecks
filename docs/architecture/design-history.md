@@ -832,3 +832,36 @@ The audit, reuse plan and decisions are in [docs/project/v6.7-plan.md](../projec
   README and every release start with it. `tools/make_release_notes.py` adds the notes in a fixed section order and
   makes relative links absolute; `--check` (in CI) fails on a missing section or a header showing another version.
   The older `kc-banner.svg` ("Connect · Present · Worship") was removed.
+
+## 30. Version 6.8: frameless windows, Teleprompter overlay, tray and Spotlight
+
+The full plan, with the Electron-to-pywebview mapping, is [docs/project/v6.8-plan.md](../project/v6.8-plan.md).
+
+- **No Electron, no new package.** Everything is Win32 through ctypes in `desktop_win.py`; every function is a no-op off
+  Windows and never raises, so a refusal leaves the previous look.
+- **Title bar removal without `frameless`.** pywebview's `frameless` drops the sizing border (no resize, no Snap,
+  maximize covers the taskbar). `Chrome(hwnd)` instead subclasses the window procedure and, on `WM_NCCALCSIZE`, restores
+  the client top after `DefWindowProc` (plus `SM_CYFRAME + SM_CXPADDEDBORDER` when maximized), the approach Windows
+  Terminal uses. The callback object lives in `chromes[name]` for the window's lifetime. Drag: the page sends `drag` after
+  4 px of movement; Python posts `WM_SYSCOMMAND SC_DRAGMOVE` after `ReleaseCapture`.
+- **See-through overlay.** pywebview's `transparent` only clears the WebView2 background. `glass()` gives the window
+  per-pixel alpha with `DwmEnableBlurBehindWindow` (empty region) and, for frost, `DWMWA_SYSTEMBACKDROP_TYPE = 3`
+  (Windows 11 22H2+) or `ACCENT_ENABLE_BLURBEHIND` (Windows 10). The page paints `rgba(tint, alpha)` per mode and a text
+  halo that grows as alpha falls. WebView2 needs GPU compositing for this, so with *Light on graphics card* on (process-wide
+  `--disable-gpu-compositing`) the overlay uses `fade()` (layered window alpha) instead; `overlayFade` forces it.
+- **Privacy.** `SetWindowDisplayAffinity(WDA_EXCLUDEFROMCAPTURE)` on the overlay, the Teleprompter window and Spotlight
+  (`WDA_MONITOR` on older Windows). The script itself still never reaches an output (tests/teleprompter.test.js).
+- **Spotlight.** Created hidden at start-up (a hidden transparent pywebview window would show itself on first
+  navigation, so Spotlight is opaque with DWM rounded corners). `Hotkeys` owns a thread with a message loop for
+  `RegisterHotKey` (re-registration is marshalled to that thread with `PostThreadMessageW`). The index comes from the
+  main window (`BSFPalette.exportIndex()` through `evaluate_js`) and is cached in the shared localStorage so the window
+  opens with results; choices run there with `BSFPalette.runKey()`. Commands flagged `bg` keep the main window in the
+  tray.
+- **Tray** (pystray): Open App (default), Teleprompter, Search, Settings, More (the earlier items), Exit.
+- **Settings** gain validated non-boolean values (`APP_SETTING_CHOICES`, shortcut parsing) and a `settings_changed` hook
+  so a new Spotlight shortcut applies at once.
+- **Teleprompter engine** `toolbar: 'float'`: controls in an absolutely positioned glass bar, shown on input and hidden
+  after 2.8 s unless hovered or focused; `.tp-text` width `min(95 %, 30 × font size)`; mirror via `scaleX(-1)`.
+- **Not testable in CI:** the subclass, glass, fade, capture exclusion, global shortcut and foreground focus need a real
+  desktop. CI runs the shortcut and settings unit tests on Windows; the browser side was tested with a mocked desktop
+  API.

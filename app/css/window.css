@@ -1,0 +1,36 @@
+/* Kingdom Connect v6.8 - window ribbon buttons and the minimize question (js/window-chrome.js). Shared by every window.
+ * Fluent-style caption buttons: icon only, small, no borders; Close turns red on hover like Windows. */
+.win-controls{display:none}
+.win-chrome .win-controls{display:inline-flex;align-items:center;flex:none;margin-left:6px;order:99}
+.wc-btn{display:inline-grid;place-items:center;width:40px;min-height:30px;padding:0;border:0;border-radius:6px;background:transparent;
+  color:var(--muted,#9ba5b4);cursor:default;transition:background-color .12s ease,color .12s ease}
+.wc-btn svg{width:10px;height:10px;fill:none;stroke:currentColor;stroke-width:1.1;stroke-linecap:round;shape-rendering:geometricPrecision}
+.wc-btn:hover{background:var(--hover-2,rgba(255,255,255,.08));color:var(--ink,#eef1f6)}
+.wc-btn:active{background:var(--hover,rgba(255,255,255,.12))}
+.wc-btn:focus-visible{outline:2px solid var(--accent,#4c8dff);outline-offset:-2px}
+.wc-close:hover{background:#c42b1c;color:#fff}
+.wc-close:active{background:#b22a1b;color:#fff}
+/* the ribbon: no text selection while dragging; the cursor stays an arrow like a title bar */
+.win-chrome [data-win-drag]{-webkit-user-select:none;user-select:none}
+/* maximized windows touch the screen edge: no rounded corners on the ribbon there */
+.win-maximized .win-controls .wc-close{border-top-right-radius:0}
+/* minimize: "Hide application to system tray?" */
+.wc-ask{position:fixed;inset:0;z-index:400;display:grid;place-items:center;padding:16px;background:rgba(4,7,12,.5)}
+.wc-ask-card{width:min(440px,100%);padding:22px 22px 16px;border-radius:14px;background:var(--surface,#151a22);color:var(--ink,#eef1f6);
+  border:1px solid var(--line,#2b323d);box-shadow:0 24px 70px rgba(0,0,0,.5);animation:wc-in .14s ease-out}
+.wc-ask-card h2{margin:0 0 8px;font-size:18px}
+.wc-ask-card p{margin:0 0 12px;color:var(--muted,#9ba5b4);font-size:14px;line-height:1.5}
+.wc-ask-card .hint{margin:12px 0 0;font-size:12.5px}
+.wc-ask-acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+@keyframes wc-in{from{opacity:0;transform:translateY(-4px) scale(.985)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){ .wc-btn{transition:none} .wc-ask-card{animation:none} }
+/* resize handles: 6 px edges, 14 px corners, above everything; hidden while maximized */
+.wc-edge{position:fixed;z-index:2147483000;background:transparent}
+.wc-top{top:0;left:14px;right:14px;height:5px;cursor:ns-resize}
+.wc-bottom{bottom:0;left:14px;right:14px;height:6px;cursor:ns-resize}
+.wc-left{left:0;top:14px;bottom:14px;width:6px;cursor:ew-resize}
+.wc-right{right:0;top:14px;bottom:14px;width:6px;cursor:ew-resize}
+.wc-topleft,.wc-topright,.wc-bottomleft,.wc-bottomright{width:14px;height:14px}
+.wc-topleft{top:0;left:0;cursor:nwse-resize} .wc-bottomright{bottom:0;right:0;cursor:nwse-resize}
+.wc-topright{top:0;right:0;cursor:nesw-resize} .wc-bottomleft{bottom:0;left:0;cursor:nesw-resize}
+.win-maximized .wc-edge{display:none}

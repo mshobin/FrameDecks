@@ -28,7 +28,7 @@ How to run the Kingdom Connect PC during a service: setup, presenting, and calm 
 1. **Selecting a Frame does not put it on air.** The Studio Canvas shows a **PREVIEW**. **Go Live** (**T**) puts it on screen; the badge then reads **LIVE**.
 2. **◀ Frame / Frame ▶** in the command bar move to the previous or next Frame and put it on screen.
 3. **◀ Question ▶** (or the arrow keys) step through the live Frame's questions; **Shift + arrows** step through its scriptures; **Page Up / Page Down** step through slides.
-4. **The Program menu is your safety kit:** Hide Content, **Blackout** (K), Emergency, **Annotate** (D), **Freeze** (F), **Teleprompter** (R), **Teleprompter window**.
+4. **The Program menu is your safety kit:** Hide Content, **Blackout** (K), Emergency, **Annotate** (D), **Freeze** (F), **Teleprompter** (R), **Teleprompter window**, **Teleprompter overlay** (Shift+R).
 5. **Hide all** (**Esc**) clears everything and deletes nothing.
 
 ![The Studio during a service](../images/studio.png)
@@ -46,9 +46,12 @@ How to run the Kingdom Connect PC during a service: setup, presenting, and calm 
 | **D** | Annotate |
 | **Esc** | Hide all (or stop annotating) |
 | **R** | Teleprompter on / off (only you see it) |
+| **Shift+R** | Teleprompter overlay on / off (see-through, over Zoom or Teams; only you see it) |
 | **Ctrl+K** or **Ctrl+Space** | Command palette: find Frames, Content, questions, references, settings; run commands such as Go Live |
+| **Alt+Space** | Spotlight: the same search from anywhere in Windows, even with Kingdom Connect in the tray |
 
-Shortcuts are ignored while you type in a box. Shortcut keys can be changed in Settings.
+Shortcuts are ignored while you type in a box. Shortcut keys can be changed in Settings. Spotlight's shortcut is set
+in **Settings → General → Window and tray**; if another program uses Alt+Space, it is **Ctrl+Alt+Space**.
 
 ## Before the service
 
@@ -66,6 +69,11 @@ Shortcuts are ignored while you type in a box. Shortcut keys can be changed in S
 - Use **Freeze** before switching files or windows on the PC, so viewers don't see the change.
 - Watch the status chips: **BLACKOUT ▾**, **FROZEN ▾** or **ANNOTATING ▾** on the Program button mean that mode is on.
 - If a remote operator is running Next, don't fight them: agree who has control before the service.
+- Working mostly in Zoom or OBS? Hide Kingdom Connect to the tray (**Minimize → Hide To Tray**) and press
+  **Alt+Space** for **Spotlight**. **Go Live**, **Next / Previous Frame**, **Hide all**, **Blackout** and **Freeze**
+  run from Spotlight without bringing the main window back. The tray icon's menu has **Open App**, **Teleprompter**,
+  **Search** and, under **More**, **Hide all overlays** and **Stop screen share**. See
+  [Spotlight](../presentations.md#spotlight).
 
 ## After the service
 

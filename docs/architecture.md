@@ -15,6 +15,7 @@ service PC. Volunteers do not need this page; start with [Getting started](getti
 - [4. Media pipeline](#4-media-pipeline)
 - [5. Content rendering](#5-content-rendering)
 - [6. Synchronization](#6-synchronization)
+- [Desktop windows, tray and shortcut](#desktop-windows-tray-and-shortcut)
 - [Components and files](#components-and-files)
 - [Data and storage](#data-and-storage)
 - [Security boundaries](#security-boundaries)
@@ -39,6 +40,8 @@ flowchart LR
   subgraph PC["Service PC (Windows)"]
     UI["Main window<br/>app/dashboard.html"]
     SPK["Teleprompter window<br/>app/speaker.html"]
+    PRM["Teleprompter overlay<br/>app/prompter.html"]
+    SPOT["Spotlight<br/>app/spotlight.html"]
     SRV["Control server<br/>server.py :8750"]
     ENG["Camera engine<br/>vcam/"]
     PRES["Presentation window"]
@@ -51,6 +54,8 @@ flowchart LR
 
   UI <--> SRV
   SPK <--> SRV
+  PRM <--> SRV
+  SPOT <--> SRV
   PHONE <-- "Wi-Fi, PIN" --> SRV
   OBS <--> SRV
   SRV <--> FILE
@@ -83,7 +88,7 @@ flowchart LR
 | Prepare | Content Settings → Media; PowerPoint conversion; Scripture fetch or typed text |
 | Rehearse | Studio Canvas preview (any Frame, not on air); phone **Run-through** |
 | Go Live | **Go Live** (T), ◀ Frame / Frame ▶, the phone's NEXT FRAME |
-| Lead | → / ← questions, Shift + → / ← scriptures, Annotate (D), Freeze (F), Teleprompter (R) and Teleprompter window, command palette (Ctrl+K) |
+| Lead | → / ← questions, Shift + → / ← scriptures, Annotate (D), Freeze (F), Teleprompter (R), Teleprompter window and Teleprompter overlay (Shift+R), command palette (Ctrl+K), Spotlight (Alt+Space) |
 | Recover | Hide all (Esc), Blackout (K), Emergency |
 | After | Export to Excel, Settings → Data / Backup, Duplicate Frames |
 
@@ -253,17 +258,49 @@ sequenceDiagram
 
 ---
 
+## Desktop windows, tray and shortcut
+
+The installed app is one Python process (`desktop_app.py`) with several pywebview (WebView2) windows. Since 6.8 the
+window features use Windows' own functions through `desktop_win.py` (ctypes, no new package).
+
+| Window | Page | Notes |
+| --- | --- | --- |
+| Main window | `app/dashboard.html` | The command bar is the ribbon (`data-win-drag`) with the window buttons (`data-win-controls`) |
+| Teleprompter window | `app/speaker.html` | The ribbon is its top bar; the script takes the full width and **On screen & next** slides in |
+| Teleprompter overlay | `app/prompter.html` | See-through (`desktop_win.glass`, or the whole-window `desktop_win.fade`), on top, left out of screen sharing (`hide_from_capture`); floating glass toolbar. Exists only while open |
+| Spotlight | `app/spotlight.html` | Created hidden at start-up, then only shown and hidden. Runs the command palette's search in its own window |
+| Presentation window | `app/present.html` / native | Unchanged: shared in Zoom, no window controls |
+
+- **The ribbon.** `desktop_win.Chrome` removes the Windows caption (`WM_NCCALCSIZE`) but keeps the sizing frame, so
+  Snap, edge resizing and the shadow keep working. One shared component, `app/js/window-chrome.js` with
+  `app/css/window.css`, draws Minimize, Maximize / Restore and Close in every window, sends a drag to Windows
+  (`SC_DRAGMOVE`) once the mouse has moved 4 px, maximizes on double-click and asks the minimize question. The page
+  talks to Python through `POST api/app/win`. Settings → General → Window and tray → *Modern window* off keeps the
+  Windows title bar; if Windows refuses the change, the title bar simply stays.
+- **The tray** (pystray): Open App (the default; a click opens it), Teleprompter (overlay on / off), Search
+  (Spotlight), Settings, More (Look, Frame, Stop screen share, Hide all overlays, Presentation window, Phone remote)
+  and Exit. Hidden to the tray, the window leaves the taskbar; the server, camera, overlays, phone remote and
+  shortcut keep running.
+- **The global shortcut thread.** `desktop_win.Hotkeys` registers the Spotlight shortcut with `RegisterHotKey` on its
+  own message-loop thread (default Alt+Space, Ctrl+Alt+Space if that is taken). The shortcut centres Spotlight on the
+  monitor under the mouse. Spotlight reads its list from the main window (`BSFPalette.exportIndex()`) and runs the
+  choice there (`BSFPalette.runKey()`); background-safe commands leave the main window in the tray.
+- **Settings.** `customChrome`, `minimizeTo`, `spotlightKey`, `overlayMode`, `overlayFrost`, `overlayOnTop` and
+  `overlayFade`, validated by `server.py`.
+
 ## Components and files
 
 | Part | Files | Role |
 | --- | --- | --- |
 | Control server | `server.py` | HTTP on `127.0.0.1:8750` (plus the LAN when the remote is on), state, uploads, settings, scripture lookup, remote sign-in, backups |
-| Desktop shell | `desktop_app.py` | WebView2 window via pywebview, tray icon, Presentation window, Teleprompter window, single instance |
+| Desktop shell | `desktop_app.py` | WebView2 windows via pywebview (main, Teleprompter window, Teleprompter overlay, Spotlight, Presentation window), tray icon and menu, global shortcut, single instance |
+| Windows helpers | `desktop_win.py` | Win32 calls via ctypes: the ribbon (`Chrome`, `drag`), see-through glass and fade, capture exclusion, rounded corners, centring on the cursor, the global shortcut thread (`Hotkeys`). Safe no-ops off Windows |
+| Window ribbon | `app/js/window-chrome.js`, `app/css/window.css` | The one ribbon component: window buttons, drag, double-click, the minimize question |
 | Camera engine | `vcam/engine.py`, `compositor.py`, `layers.py`, `cards.py`, `overlay.py`, `program.py`, `annotate.py`, `blur.py`, `looks.py`, `picture.py`, `screen.py`, `devices.py`, `sink.py`, `powerpoint.py` | Capture, compose, draw cards and drawings, send to the KingdomConnect camera |
 | Shared state (UI) | `app/js/store.js` | Normalizes state, Frames and Content model (`BSFScenes`), sync loops |
-| Main window | `app/dashboard.html`, `app/js/workspace.js`, `frame-lists.js`, `dashboard.js`, `annotate.js`, `preview-edit.js`, `editable.js`, `palette.js`, `prompter-dock.js`, `studio.js`, … | Studio, Content Settings, lists, multi-select, annotation, inline and canvas editing, command palette, docked Teleprompter |
+| Main window | `app/dashboard.html`, `app/js/workspace.js`, `frame-lists.js`, `dashboard.js`, `annotate.js`, `preview-edit.js`, `editable.js`, `palette.js`, `prompter-dock.js`, `studio.js`, … | Studio, Content Settings, lists, multi-select, annotation, inline and canvas editing, command palette (also used by Spotlight, `app/spotlight.html`), docked Teleprompter |
 | Phone remote | `app/remote.html`, `app/js/remote.js`, `app/css/remote.css` | Simple and Advanced profiles, drawing pad |
-| Teleprompter | `app/js/teleprompter.js` (shared), `app/speaker.html`, `app/js/speaker.js` (the Teleprompter window) | The Frame's Teleprompter script, what's on screen, what's next, clocks. No output reads a Frame's script |
+| Teleprompter | `app/js/teleprompter.js` (shared, with the floating toolbar), `app/speaker.html`, `app/js/speaker.js` (the Teleprompter window), `app/prompter.html`, `app/js/prompter.js`, `app/css/prompter.css` (the overlay) | The Frame's Teleprompter script, what's on screen, what's next, clocks. No output reads a Frame's script, and the overlay is left out of screen sharing |
 | Overlay pages | `app/stage.html` and others, `app/js/overlay.js` | Cards and text for OBS / browser sources |
 | Excel | `app/js/meeting-book.js`, `meeting-import.js`, `import-worker.js`, `app/vendor/xlsx.full.min.js` | Meeting Workbook import and export. The Excel library loads on first use, not at start-up |
 | Packaging | `packaging/` | PyInstaller spec, Inno Setup installer, camera build, self-check |
@@ -316,7 +353,8 @@ See [../SECURITY.md](../SECURITY.md) for how to report a problem.
 | Hide all / Blackout / Emergency always available | One key recovers any screen |
 | Atomic saves + daily backups | A crash or power cut does not lose the meeting |
 | Previews only on demand | The PC keeps its power for Zoom and the camera |
-| "Light on graphics card" window | The UI does not compete with Zoom for the GPU |
+| "Light on graphics card" window | The UI does not compete with Zoom for the GPU (the overlay then fades as a whole) |
+| Modern window and Compatibility transparency switches | The two riskiest window features can be turned off in Settings; each also falls back by itself if Windows refuses it |
 | Self-check and tests in every build | A broken page or file never reaches the installer |
 
 ## Related

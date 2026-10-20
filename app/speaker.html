@@ -8,16 +8,17 @@
 <link rel="stylesheet" href="css/theme.css">
 <link rel="stylesheet" href="css/speaker.css">
 <link rel="stylesheet" href="css/teleprompter.css">
+<link rel="stylesheet" href="css/window.css">
 <script>/* the same appearance as the main window (Settings > General > Appearance) */
 (function(){ var d = document.documentElement, p = 'dark';
   try { p = localStorage.getItem('bsf-cc-theme') || 'dark'; } catch(e){}
   d.dataset.theme = p === 'system' ? (window.matchMedia && matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark') : (p === 'light' ? 'light' : 'dark');
 })();</script>
 </head>
-<body class="speaker">
+<body class="speaker" data-win="teleprompter">
   <!-- Teleprompter window (this PC only; 6.7, was the Speaker View): the Frame's script, what is on screen, what comes
        next, and a clock. Nothing here is ever shown to the meeting. Built by js/speaker.js with js/teleprompter.js. -->
-  <header class="sp-top">
+  <header class="sp-top" data-win-drag>
     <img class="sp-mark" src="img/kc-emblem.webp" alt="">
     <div class="sp-title"><b id="sp-meeting">Teleprompter</b><small id="sp-frame-pos"></small></div>
     <div class="sp-chips" id="sp-chips" aria-live="polite"></div>
@@ -27,10 +28,12 @@
       <div class="sp-clock sp-watch"><span>Timer</span><b id="sp-watch">0:00</b>
         <div class="sp-watch-btns"><button class="btn small" type="button" id="sp-watch-go">Start</button><button class="btn quiet small" type="button" id="sp-watch-reset">Reset</button></div></div>
     </div>
+    <button class="btn small sp-side-btn" type="button" id="sp-side-btn" aria-expanded="false" aria-controls="sp-side" title="Show what is on screen and what comes next">On screen &amp; next ▸</button>
+    <div data-win-controls></div>
   </header>
   <main class="sp-main">
     <section class="sp-prompt" id="sp-prompt" aria-label="Teleprompter"></section>
-    <aside class="sp-side">
+    <aside class="sp-side" id="sp-side">
       <section aria-labelledby="sp-now-h"><h2 class="sp-h" id="sp-now-h">On screen</h2><div id="sp-now"></div></section>
       <section aria-labelledby="sp-next-h"><h2 class="sp-h" id="sp-next-h">Next</h2><div id="sp-next"></div></section>
     </aside>
@@ -39,6 +42,7 @@
 <script src="js/store.js"></script>
 <script src="js/editable.js"></script>
 <script src="js/teleprompter.js"></script>
+<script src="js/window-chrome.js"></script>
 <script src="js/speaker.js"></script>
 </body>
 </html>

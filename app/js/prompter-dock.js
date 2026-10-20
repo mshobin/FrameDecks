@@ -28,7 +28,8 @@ var head = h('div', {cls: 'tpd-head'}, [
   h('div', {cls: 'tpd-row'}, [h('b', {cls: 'tpd-title', text: 'Teleprompter'}), h('span', {cls: 'tpd-private', text: 'Only you see this'}),
     h('button', {cls: 'tpd-x', type: 'button', 'aria-label': 'Close the Teleprompter', title: 'Close (R)', text: '×', onclick: function(){ setOpen(false); }})]),
   h('div', {cls: 'tpd-row'}, [dockSeg, followBtn,
-    h('button', {cls: 'tpd-btn', type: 'button', text: 'Window', title: 'Open the Teleprompter in its own window (for a second screen)', onclick: function(){ if (window.BSFPresenterTools && window.BSFPresenterTools.speaker) window.BSFPresenterTools.speaker(); }})])]);
+    h('button', {cls: 'tpd-btn', type: 'button', text: 'Window', title: 'Open the Teleprompter in its own window (for a second screen)', onclick: function(){ if (window.BSFPresenterTools && window.BSFPresenterTools.speaker) window.BSFPresenterTools.speaker(); }}),
+    h('button', {cls: 'tpd-btn', type: 'button', text: 'Overlay', title: 'Teleprompter overlay: see-through, over Zoom or Teams (Shift+R)', onclick: function(){ if (window.BSFPresenterTools && window.BSFPresenterTools.overlay) window.BSFPresenterTools.overlay(); }})])]);
 var body = h('div', {cls: 'tpd-body'});
 var grip = h('div', {cls: 'tpd-grip', title: 'Drag to resize', 'aria-hidden': 'true'});
 var panel = h('aside', {cls: 'tpd', id: 'tp-dock', role: 'complementary', 'aria-label': 'Teleprompter', hidden: 'hidden'}, [head, body, grip]);

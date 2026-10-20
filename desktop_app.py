@@ -40,6 +40,7 @@ def _setup_log():
 _setup_log()
 import server  # noqa: E402  (after logging is set up, because it prints)
 from vcam.present_window import NativePresentation  # noqa: E402  (native Presentation window)
+import desktop_win as dw  # noqa: E402  (6.8 ribbon instead of title bars, see-through overlay, global shortcuts)
 
 
 def message(text, title=DISPLAY_NAME, warn=False):
@@ -239,9 +240,7 @@ def main():
                 return [pystray.MenuItem("No Frames saved yet", None, enabled=False)]
             return [pystray.MenuItem(x["name"], pick(x["id"]), checked=(lambda item, sid=x["id"]: server.studio_load()["activeScene"] == sid), radio=True)
                     for x in st["scenes"]]
-        menu = pystray.Menu(
-            pystray.MenuItem("Open Kingdom Connect", lambda icon, item: on_open(), default=True),
-            pystray.Menu.SEPARATOR,
+        more = pystray.Menu(
             pystray.MenuItem("Look", pystray.Menu(look_items)),
             pystray.MenuItem("Frame", pystray.Menu(scene_items)),
             pystray.MenuItem("Stop screen share", lambda icon, item: tray_do({"op": "screen", "source": None}),
@@ -249,11 +248,19 @@ def main():
             pystray.MenuItem("Hide all overlays", lambda icon, item: tray_hide_all()),
             pystray.MenuItem("Presentation window", lambda icon, item: server.DESKTOP["present"](not server.DESKTOP["present_open"]()),
                              checked=lambda item: bool(server.DESKTOP.get("present_open") and server.DESKTOP["present_open"]())),
-            pystray.Menu.SEPARATOR,
             pystray.MenuItem("Phone remote", lambda icon, item: server.set_remote(not server.REMOTE),
-                             checked=lambda item: server.REMOTE),
+                             checked=lambda item: server.REMOTE))
+        hook = lambda name, *a: (lambda icon, item: server.DESKTOP[name](*a) if server.DESKTOP.get(name) else on_open())
+        menu = pystray.Menu(                       # 6.8: the five things people reach for, then everything else
+            pystray.MenuItem("Open App", lambda icon, item: on_open(), default=True),
+            pystray.MenuItem("Teleprompter", hook("overlay", "toggle"),
+                             checked=lambda item: bool(server.DESKTOP.get("overlay_open") and server.DESKTOP["overlay_open"]())),
+            pystray.MenuItem("Search", hook("spotlight", True)),
+            pystray.MenuItem("Settings", hook("open_settings")),
             pystray.Menu.SEPARATOR,
-            pystray.MenuItem("Quit Kingdom Connect", lambda icon, item: on_quit()))
+            pystray.MenuItem("More", more),
+            pystray.Menu.SEPARATOR,
+            pystray.MenuItem("Exit", lambda icon, item: on_quit()))
         icon = pystray.Icon("bsf-command-center", tray_image(), DISPLAY_NAME, menu)
         icon.run_detached()
         return icon
@@ -328,8 +335,21 @@ def main():
         state["dark"] = bool(dark)
         return style_title_bar(window_handle(window), state["dark"])
 
+    settings = server.app_settings()
+    chromes = {}                          # window name -> dw.Chrome (the ribbon replaces the Windows title bar)
+
+    def add_chrome(name, w):
+        """6.8: no Windows title bar; the page's ribbon (app/js/window-chrome.js) moves the window and has the buttons."""
+        if not settings.get("customChrome", True):
+            return False
+        c = dw.Chrome(window_handle(w))
+        if c.ok:
+            chromes[name] = c
+        return c.ok
+
     def on_shown():
         set_theme(state["dark"])
+        server.DESKTOP["chrome"] = add_chrome("main", window)
     try:
         window.events.shown += on_shown
     except Exception:
@@ -449,8 +469,185 @@ def main():
         def closed():
             if state.get("speaker") is w:
                 state["speaker"] = None
+            chromes.pop("teleprompter", None)
+        def shown():
+            add_chrome("teleprompter", w)
+            dw.hide_from_capture(window_handle(w))     # only the leader sees it, even when sharing the whole screen
         w.events.closed += closed
+        w.events.shown += shown
         state["speaker"] = w
+
+    # ---------- 6.8 Teleprompter overlay (Meeting Leader mode): see-through, above Zoom / Teams, not in screen shares
+    OVERLAY_FADE = {"solid": 1.0, "presenter": 0.85, "meeting": 0.65, "conference": 0.4, "ghost": 0.2}
+
+    def overlay_look(w, look):
+        """Glass: the page's own translucent background, the text stays solid. Fade (compatibility): the window."""
+        hwnd = window_handle(w)
+        if look.get("overlayFade") or server.DESKTOP.get("low_gpu"):
+            dw.fade(hwnd, OVERLAY_FADE.get(look.get("overlayMode"), 0.65))
+        else:
+            dw.glass(hwnd, bool(look.get("overlayFrost")))
+
+    def overlay(on="toggle"):
+        w = state.get("overlay")
+        if on == "toggle":
+            on = not w
+        if not on:
+            state["overlay"] = None
+            if w:
+                try:
+                    w.destroy()
+                except Exception:
+                    pass
+            refresh_tray()
+            return False
+        if w:
+            try:
+                w.restore()
+                w.show()
+                dw.bring_to_front(window_handle(w))
+                return True
+            except Exception:
+                state["overlay"] = None
+        cfg = server.app_settings()
+        # see-through text needs the graphics card: with "Light on graphics card" on, the whole window fades instead
+        fade = bool(cfg.get("overlayFade") or server.DESKTOP.get("low_gpu"))
+        w = webview.create_window(DISPLAY_NAME + " · Teleprompter overlay", url + "prompter.html", width=1100, height=640,
+                                  min_size=(420, 240), background_color="#000000", text_select=True,
+                                  transparent=not fade, on_top=bool(cfg.get("overlayOnTop", True)))
+        def shown():
+            if not add_chrome("overlay", w):                      # the overlay never has a title bar
+                c = dw.Chrome(window_handle(w))
+                if c.ok:
+                    chromes["overlay"] = c                           # keep it: its window procedure lives in it
+            overlay_look(w, server.app_settings())
+            dw.hide_from_capture(window_handle(w))
+        def closed():
+            if state.get("overlay") is w:
+                state["overlay"] = None
+            chromes.pop("overlay", None)
+            refresh_tray()
+        w.events.shown += shown
+        w.events.closed += closed
+        state["overlay"] = w
+        refresh_tray()
+        return True
+
+    # ---------- 6.8 Spotlight: one small window, made at start-up and only shown and hidden (instant) ----------
+    spot = webview.create_window(DISPLAY_NAME + " · Spotlight", url + "spotlight.html", width=760, height=500,
+                                 background_color="#0f141c", frameless=True, easy_drag=False, hidden=True,
+                                 on_top=True, text_select=False)
+    state["spot_ready"] = False
+
+    def spotlight(on=True):
+        hwnd = window_handle(spot)
+        if on == "toggle":
+            on = not state.get("spot_open")
+        if not on:
+            state["spot_open"] = False
+            try:
+                spot.hide()
+            except Exception:
+                pass
+            return
+        if not state["spot_ready"]:
+            dw.round_corners(hwnd)
+            dw.hide_from_capture(hwnd)
+            state["spot_ready"] = True
+        dw.center_on_cursor(hwnd)
+        state["spot_open"] = True
+        try:
+            spot.show()
+        except Exception:
+            pass
+        dw.bring_to_front(hwnd)
+        try:
+            spot.evaluate_js("window.BSFSpotlight && BSFSpotlight.opened()")
+        except Exception:
+            pass
+
+    def palette_index():
+        try:
+            raw = window.evaluate_js("JSON.stringify(window.BSFPalette && BSFPalette.exportIndex ? BSFPalette.exportIndex() : [])")
+            return json.loads(raw or "[]")
+        except Exception as e:
+            print("Spotlight index:", e)
+            return []
+
+    def palette_run(key, background):
+        spotlight(False)
+        if not background:
+            show()
+        try:
+            window.evaluate_js("window.BSFPalette && BSFPalette.runKey(%s)" % json.dumps(key))
+        except Exception as e:
+            print("Spotlight action:", e)
+
+    def open_settings():
+        show()
+        try:
+            window.evaluate_js("window.BSFSetTab && BSFSetTab('settings')")
+        except Exception:
+            pass
+
+    # ---------- 6.8 the page's window buttons and ribbon ----------
+    def win(name, op, data):
+        w = {"main": window, "teleprompter": state.get("speaker"), "overlay": state.get("overlay"), "spotlight": spot}.get(name)
+        if w is None:
+            return {"ok": False}
+        hwnd = window_handle(w)
+        maximized = lambda: bool(dw.IS_WIN and hwnd and dw.user32.IsZoomed(hwnd))
+        if op == "minimize":
+            w.minimize()
+        elif op == "toggle-max":
+            (w.restore if maximized() else w.maximize)()
+        elif op == "drag":
+            dw.mouse_move_or_size(getattr(w, "native", None), hwnd, "caption")
+        elif op == "resize":                                # the page's own edges and corners (every window)
+            dw.mouse_move_or_size(getattr(w, "native", None), hwnd, str(data.get("edge") or ""))
+        elif op == "hide":
+            hide() if name == "main" else (spotlight(False) if name == "spotlight" else w.hide())
+        elif op == "close":
+            if name == "main":
+                threading.Thread(target=ask_page_about_closing, daemon=True).start()
+            elif name == "overlay":
+                overlay(False)
+            elif name == "spotlight":
+                spotlight(False)
+            else:
+                w.destroy()
+        elif op == "on-top":
+            w.on_top = bool(data.get("value"))
+            if name == "overlay":
+                server.save_app_settings({"overlayOnTop": bool(data.get("value"))})
+        elif op == "look" and name == "overlay":
+            changes = {k: data[k] for k in ("overlayMode", "overlayFrost", "overlayFade") if k in data}
+            low = bool(server.DESKTOP.get("low_gpu"))
+            before = server.app_settings().get("overlayFade") or low
+            cfg = server.save_app_settings(changes)
+            if bool(cfg.get("overlayFade") or low) != bool(before):  # glass <-> fade needs a new window
+                threading.Thread(target=lambda: (overlay(False), time.sleep(0.3), overlay(True)), daemon=True).start()
+            else:
+                overlay_look(w, cfg)
+        return {"ok": True, "maximized": maximized(), "chrome": name in chromes, "onTop": bool(getattr(w, "on_top", False))}
+
+    # ---------- 6.8 system-wide shortcut (works while the app is in the tray) ----------
+    def on_hotkey(name):
+        if name == "spotlight":
+            spotlight("toggle")
+
+    hotkeys = dw.Hotkeys(on_hotkey)
+
+    def apply_hotkey(key):
+        res = hotkeys.set("spotlight", key)
+        if res == "in use by another program" and key == "Alt+Space":     # e.g. PowerToys Run has it
+            if hotkeys.set("spotlight", "Ctrl+Alt+Space") == "ok":
+                res = "ok (Alt+Space is in use by another program, so Ctrl+Alt+Space is used)"
+        server.DESKTOP["hotkey_results"] = {"spotlight": {"key": hotkeys.wanted.get("spotlight", ""), "result": res}}
+
+    def settings_changed(cfg):
+        if cfg.get("spotlightKey", "") != hotkeys.wanted.get("spotlight"):
+            apply_hotkey(cfg.get("spotlightKey", ""))
 
     def present_fullscreen(want=None):
         """Full Screen in the Presentation window: the window itself fills the screen (no frame at all)."""
@@ -477,10 +674,14 @@ def main():
         if isinstance(w, NativePresentation):
             return w.is_open() and w.fullscreen
         return bool(w and state.get("present_fs"))
-    state["tray"] = build_tray(show, quit_app)
     server.DESKTOP.update(active=True, show=show, hide=hide, quit=quit_app, choose_folder=choose_folder, window_theme=set_theme,
                           on_remote_change=refresh_tray, present=present, present_fullscreen=present_fullscreen,
-                          present_fs_state=present_fs_state, present_open=present_open, speaker=speaker)
+                          present_fs_state=present_fs_state, present_open=present_open, speaker=speaker,
+                          overlay=overlay, overlay_open=lambda: bool(state.get("overlay")), spotlight=spotlight,
+                          palette_index=palette_index, palette_run=palette_run, open_settings=open_settings, win=win,
+                          settings_changed=settings_changed)
+    state["tray"] = build_tray(show, quit_app)
+    apply_hotkey(settings.get("spotlightKey", "Alt+Space"))
     # "Light on graphics card" (Settings > General, on by default): the app's windows are drawn without the GPU.
     # The dashboard is mostly still, so the CPU handles it easily, and the GPU stays free for Windows and Zoom.
     # (pywebview's own argument is kept; the variable takes precedence over arguments set in code.)

@@ -26,7 +26,8 @@ How to lead a service or Bible study with Kingdom Connect, so the technology sup
 
 1. **A meeting is a list of Frames.** Each Frame is one step of the service (Welcome, Scripture Reading, Discussion…). See [Frames](../frames.md).
 2. **Your script is private.** Write what you plan to say in each Frame's **Teleprompter script**. It never appears on screen; only you see it.
-3. **The Teleprompter is your confidence monitor.** **Program → Teleprompter** (**R**) docks it beside the Studio. **Program → Teleprompter window** opens it on a second screen, with what is on screen, what comes next, the time and a timer. The phone remote has it too.
+3. **The Teleprompter is your confidence monitor.** **Program → Teleprompter** (**R**) docks it beside the Studio. **Program → Teleprompter window** opens it on a second screen; select **On screen & next** to see what is on screen, what comes next, the time and a timer. The phone remote has it too.
+   Leading on Zoom or Teams from one laptop? **Program → Teleprompter overlay** (**Shift+R**) puts your script in a see-through window over the meeting, so you still see the participants. Zoom and Teams never share it. See [Teleprompter overlay](../presentations.md#teleprompter-overlay-meeting-leader-mode).
 4. **You can draw.** **Annotate** (**D**) lets you circle a word in a verse or underline a phrase, on the PC or from a phone.
 5. **Hide all is always safe.** **Esc** (or **HIDE ALL** on the phone) clears the screen without deleting anything.
 
@@ -39,14 +40,16 @@ How to lead a service or Bible study with Kingdom Connect, so the technology sup
 - [ ] Write each Frame's **Teleprompter script** (Content Settings → Frame → Teleprompter script, or double-click the text in the Teleprompter). Use `# Heading`, `- bullet` and `[PAUSE]` to make it easy to follow.
 - [ ] Walk through the whole meeting: select each Frame and look at the Studio Canvas, or use **Run-through** on the phone.
 - [ ] Agree hand signals with the operator (for example, a nod = next).
+- [ ] Leading on Zoom or Teams? Open the **Teleprompter overlay** (**Shift+R**) in a test call. Choose **Meeting** (press **3**), place it over the participants near your camera, and check that **Stay on top** (📌) is on.
 
 ## During the service
 
-- Keep the **Teleprompter** where you can see it: docked in the Studio, the **Teleprompter window** on a second screen, or **TELEPROMPTER** on your phone. Press **Space** to scroll it, and **A− / A+** to change the text size.
+- Keep the **Teleprompter** where you can see it: docked in the Studio, the **Teleprompter window** on a second screen, the **Teleprompter overlay** over Zoom or Teams, or **TELEPROMPTER** on your phone. Press **Space** to scroll it, and **A− / A+** to change the text size.
 - Watch the **This Frame** time and the **Timer** to pace discussion.
 - If you run the service yourself, keep the phone in your hand on the **Simple** remote: **NEXT CONTENT** for the next question, **NEXT FRAME** for the next part.
 - To fix a typo you notice on screen, double-click the card on the Studio Canvas, correct it and press **Enter**. The screen updates straight away.
-- To find a Frame or question quickly, press **Ctrl+K** and type a few words.
+- To find a Frame or question quickly, press **Ctrl+K** and type a few words. If Zoom is in front, press **Alt+Space** for **Spotlight**, which finds the same things.
+- In the overlay, press **1** to **5** to make it more or less see-through: **Conference** (4) when you need to see faces, **Presenter** (2) when the text is hard to read. The toolbar fades by itself; move the mouse to bring it back.
 
 ## After the service
 
