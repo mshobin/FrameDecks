@@ -45,7 +45,7 @@ Create a Frame for each part of the service in order, add Content to each, and c
 Yes. **Duplicate** a Frame (⋯ on the Frame) to make a fully independent copy, or **Save as template** to start new Frames from it. You can also export a whole meeting to Excel and import it later.
 
 **Can I plan in Excel?**
-Yes, optionally. The **Meeting Workbook** (Meeting menu → Download the Excel template) has five sheets: Meeting Overview, Frames, Content, Questions and Scriptures. Import shows every problem with its sheet and row before anything changes, and can be undone. See [Meeting Workbook and branding](reference/meeting-workbook-and-branding.md).
+Yes, optionally. The **Meeting Workbook** (Meeting menu → Download the Excel template) has two tabs: the **Meeting Form**, one guided page where you type the meeting details, Frames, Content, questions and scriptures, and the **Dashboard**, which sums it up for you. Import shows every problem with where it is (for example *Meeting Form · Content · row 26*) before anything changes, and can be undone. Workbooks from earlier versions still import. See [Meeting Workbook and branding](reference/meeting-workbook-and-branding.md).
 
 **Can two people edit the same service at once?**
 No. Kingdom Connect runs on one PC with no accounts or shared workspaces. To share a plan, export it (Excel Meeting Workbook or a Frame file) and import it on the other PC.
@@ -160,7 +160,7 @@ No. The Teleprompter is only for the presenter. It is never on the KingdomConnec
 Since 6.7, questions and scriptures have no Answer or Notes fields, and no screen shows them. Nothing was deleted from your data. When you import an older Meeting Workbook, its answers and notes go into the Frame's Teleprompter script.
 
 **Is there a quick way to find something?**
-Yes. Press **Ctrl+K** or **Ctrl+Space** (or select the search box at the top) to open the command palette. Type a few letters to find a Frame, a question, a scripture, a setting or a member, or to run a command such as **Go Live**. See [Presentations](presentations.md#command-palette). From anywhere in Windows, even with the app in the tray, press **Alt+Space** to open the same search as **Spotlight**. See [Spotlight](presentations.md#spotlight).
+Yes. Press **Ctrl+K** or **Ctrl+Space** to open the command palette. (There is no search box in the top bar since 6.9.) Type a few letters to find a Frame, a question, a scripture, a setting or a member, or to run a command such as **Go Live**. See [Presentations](presentations.md#command-palette). From anywhere in Windows, even with the app in the tray, press **Alt+Space** to open the same search as **Spotlight**. See [Spotlight](presentations.md#spotlight).
 
 ## Data, privacy and offline use
 

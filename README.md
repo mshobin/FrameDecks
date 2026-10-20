@@ -45,9 +45,9 @@ The only feature that ever goes online is the optional ESV scripture fetch.
   the command palette from anywhere in Windows, even from the tray ([GETTING_STARTED](docs/getting-started.md#the-window-buttons-and-the-tray)).
 - **Branding**: your logo and Meeting Name in a corner, with size, margin, opacity, padding and an optional plate;
   **Remove background** makes a plain logo background transparent, on the PC.
-- **Planning**: Quick Start, templates, groups, favourites, and the five-sheet **Excel Meeting Workbook** with
-  import preview, undo and export; the Excel library loads only when needed
-  ([SERVICE_PLANNING](docs/service-planning.md)).
+- **Planning**: Quick Start, templates, groups, favourites, and the **Excel Meeting Workbook** (a guided **Meeting
+  Form** and a **Dashboard** that sums it up) with import preview, undo and export; the Excel library loads only
+  when needed ([SERVICE_PLANNING](docs/service-planning.md)).
 - **Data**: everything in one folder on the PC, saved atomically, with daily backups and Frame history.
 
 ## Install

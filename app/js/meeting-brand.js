@@ -222,7 +222,7 @@ function build(){
       h('button', {cls: 'btn small', type: 'button', html: I('file-text', 15) + ' Download the Excel template', onclick: function(){ if (window.KCMeetingImport) window.KCMeetingImport.template(); }}),
       h('button', {cls: 'btn small', type: 'button', html: I('folder-open', 15) + ' Import a meeting from Excel…', onclick: function(){ if (window.KCMeetingImport) window.KCMeetingImport.pick(); }}),
       h('button', {cls: 'btn small', type: 'button', html: I('external-link', 15) + ' Export this meeting (Excel)', onclick: function(){ if (window.KCMeetingImport) window.KCMeetingImport.exportMeeting(); }})]),
-    h('p', {cls: 'hint', text: 'The exported file uses the same template, with your Meeting Name and organization on its Read Me sheet, so it can be shared with co-leaders and imported again.'})]));
+    h('p', {cls: 'hint', text: 'The exported file uses the same template (Dashboard and Meeting Form), filled in, so it can be shared with co-leaders and imported again.'})]));
 }
 function addLib(id){
   var made = null;

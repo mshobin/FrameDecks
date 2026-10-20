@@ -66,7 +66,7 @@ Its sweet spot today is **teaching, Bible study, small groups, prayer meetings a
 
 | Area | Today | Gaps |
 | --- | --- | --- |
-| Service planning | Frames, Content, templates, Quick Start, groups, favourites, notes, Excel Meeting Workbook (5 sheets, import preview, undo, export) | No calendar or service-plan integration (by design: no cloud) |
+| Service planning | Frames, Content, templates, Quick Start, groups, favourites, notes, Excel Meeting Workbook (Dashboard and Meeting Form, import preview, undo, export) | No calendar or service-plan integration (by design: no cloud) |
 | Presentation | Go Live, transitions, auto advance, Show modes, Hide all, Blackout, Emergency, Freeze, Annotate, Speaker View | No separate stage display output for musicians |
 | Worship lyrics | Possible with Text Content or a PowerPoint / PDF of the lyrics | No song library, verse / chorus order, CCLI fields |
 | Bible | ESV fetch (online, API key), any translation typed or pasted (offline), per-Frame scripture lists | No offline Bible database (translation licensing) |

@@ -100,10 +100,10 @@ If you see a red cross instead, click the run to read the error, and send it to 
       pick your display. Within a few seconds your screen appears; move the mouse — the cursor shows. If it can't
       start, the Screen layer's inspector shows exactly which capture methods were tried and why: send me that text.
       Also try a PowerPoint slide show window and Page Down / Page Up.
-- [ ] **Presentation Mode (4.2):** Studio → *Presentation Mode*. A separate window "Kingdom Connect Share Window" opens. In a
+- [ ] **Presentation window (4.2):** Studio Canvas → *Share Window*. A separate window "Kingdom Connect Share Window" opens. In a
       Zoom test meeting: Share Screen → pick **Kingdom Connect Share Window**. Show a question from the main window or your phone: it
       appears in the shared window at once. Esc closes it.
-- [ ] **4.5 Graphics card:** open Presentation Mode and share it in Zoom. In Task Manager the separate "WebView2" line for the
+- [ ] **4.5 Graphics card:** open the Presentation window and share it in Zoom. In Task Manager the separate "WebView2" line for the
       shared window should be gone (the window is now part of Kingdom Connect itself), and WebView2's GPU use
       should be far lower. Send me a new screenshot. If the Presentation window doesn't appear, send Settings →
       Diagnostics → Copy diagnostics (the log says which window type was used).
@@ -118,7 +118,9 @@ If you see a red cross instead, click the run to read the error, and send it to 
 - [ ] **Acceptance (4.2):** with Zoom in a meeting, KingdomConnect on, and the Presentation window shared, switch between apps,
       move windows, type in a browser for a few minutes. Nothing should lag or freeze. Then send me Settings →
       Diagnostics → *Copy diagnostics* (it includes the new Resources line).
-- [ ] **Excel import:** Content → *Download template*, fill in two rows, *Import from Excel*.
+- [ ] **Excel import:** ✨ Meeting → *Download the Excel template*; on the **Meeting Form** tab add a Frame and a
+      Content row; ✨ Meeting → *Import meeting from Excel…*. Then *Export this meeting to Excel*: the file opens on
+      the **Dashboard**, with the Meeting Form filled in.
 - [ ] **Blur:** Settings → KingdomConnect Camera → try Light and Maximum with the preview on; *Save as default*.
 - [ ] **Studio canvas:** drag a layer (pink guides appear near the centre/edges), resize with a corner handle,
       change Corner radius in the inspector, add a Text layer and type your own text.

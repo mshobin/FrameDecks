@@ -59,7 +59,7 @@ backups and recordings) and never overwrites newer data.
 
 | File | Contents |
 | --- | --- |
-| `kc-saved-content.json` | Frames, their Content (with their own question and scripture lists), branding, the Meeting Overview, live state (including drawings) |
+| `kc-saved-content.json` | Frames, their Content (with their own question and scripture lists), branding, the meeting details (`meeting`, see below), live state (including drawings) |
 | `kc-members-private.json` | Members and member settings (never sent to the remote or the overlays) |
 | `kc-app-settings.json` | App options: remote autostart, Light on graphics card, native Presentation window |
 | `kc-remote-pin.txt`, `kc-remote-sessions.json` | Phone remote PIN and signed-in phones |
@@ -68,6 +68,20 @@ backups and recordings) and never overwrites newer data.
 | `backups\` | Daily and manual backups |
 
 (Files called `kc-teamspace*.json` from v6.4 are no longer used and can be deleted.)
+
+**The meeting details (6.9).** `kc-saved-content.json` keeps the meeting's details under `meeting`. They come from the
+Meeting Workbook's **Meeting Form** when you import it, and go back into it when you export.
+
+| Field | On the Meeting Form | Longest |
+| --- | --- | --- |
+| `title` | Meeting name (also names the group of imported Frames) | 80 characters |
+| `date` · `time` | Date (`2026-10-25`) · Time (`19:00`) | 40 each |
+| `location` | Location / link | 200 |
+| `presenter` · `contact` | Speaker name · Speaker contact | 80 · 120 |
+| `attendees` · `attendeeNotes` | Expected attendees · Attendee notes | 20 · 2000 |
+| `owner` · `contentNotes` | Presentation owner · Content notes | 80 · 2000 |
+| `notes` | Meeting notes | 2000 |
+| `extra` | Additional notes | 4000 |
 
 ### Environment variables (developers and tests)
 | Variable | Effect |
