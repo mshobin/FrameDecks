@@ -12,7 +12,7 @@
 
 ## 0. The Meeting Workbook (v6.9)
 
-Excel is **optional**. Kingdom Connect is fully usable without it. The workbook is a **planning, review, handover and
+Excel is **optional**. FRAMEDECKS is fully usable without it. The workbook is a **planning, review, handover and
 bulk-editing** tool. After an import, the app is the source of truth: the file is not linked, and **Export** gives you
 a fresh copy.
 
@@ -111,7 +111,7 @@ hand in the same style imports too. A numbered heading such as *7 · Discussion 
 ### Export
 **Meeting → Export this meeting to Excel** gives the same **Dashboard** and **Meeting Form**, filled in with this
 meeting. The program fills in the template, so the file looks exactly like the one you download. It imports again.
-- If the Kingdom Connect program isn't running, or a table has more rows
+- If the FRAMEDECKS program isn't running, or a table has more rows
   than the form has room for, a plain one-sheet **Meeting Form** is saved instead. It imports again too.
 - The meeting details are kept with your meeting in `kc-saved-content.json` (`meeting`: title, date, time,
   location, presenter, contact, attendees, attendeeNotes, owner, contentNotes, notes, extra), so an export gives them

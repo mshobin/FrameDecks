@@ -46,8 +46,8 @@ class SettingsScreen extends ConsumerWidget {
                     CheckRow(value: b['auto'] == true, label: 'Put the Branding badge on every new Frame', onChanged: (v) => brand('auto', v)),
                     Text(
                       (b['logo'] ?? '').toString().isEmpty
-                          ? 'No logo yet. A logo set in Kingdom Connect on Windows shows here and on the program.'
-                          : 'The logo comes from Kingdom Connect on Windows.',
+                          ? 'No logo yet. A logo set in FRAMEDECKS on Windows shows here and on the program.'
+                          : 'The logo comes from FRAMEDECKS on Windows.',
                       style: const TextStyle(color: K.muted, fontSize: 12.5),
                     ),
                   ],
@@ -80,8 +80,8 @@ class SettingsScreen extends ConsumerWidget {
                     Text(backend.label, style: const TextStyle(fontWeight: FontWeight.w700)),
                     Text(
                       backend is LocalBackend
-                          ? 'In ${backend.file.path} — the same file format as Kingdom Connect on Windows (kc-saved-content.json), so you can copy it between computers.'
-                          : 'Kingdom Connect on this PC keeps the file; this window shows and changes the same Frames.',
+                          ? 'In ${backend.file.path} — the same file format as FRAMEDECKS on Windows (kc-saved-content.json), so you can copy it between computers.'
+                          : 'FRAMEDECKS on this PC keeps the file; this window shows and changes the same Frames.',
                       style: const TextStyle(color: K.muted, fontSize: 13, height: 1.45),
                     ),
                   ],
@@ -90,7 +90,7 @@ class SettingsScreen extends ConsumerWidget {
                   title: 'Phone & iPad remote',
                   children: [
                     Text(
-                      'Install Kingdom Connect on the phone or iPad, then enter the PC’s address and the 6-digit PIN shown in Kingdom Connect '
+                      'Install FRAMEDECKS on the phone or iPad, then enter the PC’s address and the 6-digit PIN shown in FRAMEDECKS '
                       'on Windows (Settings → Phone & iPad Remote). The phone and the PC must be on the same Wi-Fi.',
                       style: TextStyle(color: K.muted, fontSize: 13, height: 1.45),
                     ),
@@ -99,7 +99,7 @@ class SettingsScreen extends ConsumerWidget {
                 const _Section(
                   title: 'About',
                   children: [
-                    Text('Kingdom Connect $appVersion', style: TextStyle(fontWeight: FontWeight.w700)),
+                    Text('FRAMEDECKS $appVersion', style: TextStyle(fontWeight: FontWeight.w700)),
                     Text(
                       'The same Studio on Windows, macOS and Linux; a remote control on iPhone, iPad and Android.',
                       style: TextStyle(color: K.muted, fontSize: 13),

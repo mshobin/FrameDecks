@@ -1,4 +1,4 @@
-/* Kingdom Connect - Teleprompter tests (app/js/teleprompter.js, 6.7).
+/* FRAMEDECKS - Teleprompter tests (app/js/teleprompter.js, 6.7).
  * The audience can never see the script: no output reads a Frame's notes. The script markup is always escaped.
  * Run: node tests/run.js */
 const fs = require('fs'), path = require('path'), vm = require('vm'), assert = require('assert');

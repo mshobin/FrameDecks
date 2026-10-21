@@ -1,4 +1,4 @@
-# Kingdom Connect: Installation Guide (build and install the Windows app)
+# FRAMEDECKS: Installation Guide (build and install the Windows app)
 
 This guide turns the Kingdom Connect folder into a normal Windows program:
 - a **Setup** file that installs it;
@@ -23,7 +23,7 @@ any programming tools. You only need a free GitHub account.
 1. **Create a GitHub account** at <https://github.com> (free). Use a strong password and turn on
    two-factor sign-in when it offers.
 2. **Install GitHub Desktop** from <https://desktop.github.com> and sign in with your account.
-3. Unzip the **Kingdom Connect** zip file somewhere permanent, for example `Documents\Kingdom-Connect`.
+3. Unzip the **FRAMEDECKS** zip file somewhere permanent, for example `Documents\Kingdom-Connect`.
    (Keep using your current folder for meetings until the app is installed; nothing here changes it.)
 4. In GitHub Desktop: **File → Add local repository…** → choose the unzipped folder.
    It will say the folder is not a repository yet: click **create a repository**, then **Create repository**.
@@ -72,7 +72,7 @@ If you see a red cross instead, click the run to read the error, and send it to 
       The first time, Windows Firewall asks about network access: tick **Private networks** only → **Allow**.
       Your phone may need to scan the QR code again, and use the PIN shown.
 - [ ] **Close button (X):** choose **Keep running in the background**. The overlays keep working, and a
-      Kingdom Connect icon appears near the clock (it may be under the **^** arrow). Click it to open the window again.
+      FRAMEDECKS icon appears near the clock (it may be under the **^** arrow). Click it to open the window again.
 - [ ] **Quit** from that icon's menu (right-click → Exit), then open the app again
       from the desktop icon: everything is still there.
 - [ ] **Email draft and WhatsApp buttons** open your normal email app and browser.
@@ -100,18 +100,18 @@ If you see a red cross instead, click the run to read the error, and send it to 
       pick your display. Within a few seconds your screen appears; move the mouse — the cursor shows. If it can't
       start, the Screen layer's inspector shows exactly which capture methods were tried and why: send me that text.
       Also try a PowerPoint slide show window and Page Down / Page Up.
-- [ ] **Presentation window (4.2):** Studio Canvas → *Share Window*. A separate window "Kingdom Connect Share Window" opens. In a
-      Zoom test meeting: Share Screen → pick **Kingdom Connect Share Window**. Show a question from the main window or your phone: it
+- [ ] **Presentation window (4.2):** Studio Canvas → *Share Window*. A separate window "FRAMEDECKS Share Window" opens. In a
+      Zoom test meeting: Share Screen → pick **FRAMEDECKS Share Window**. Show a question from the main window or your phone: it
       appears in the shared window at once. Esc closes it.
 - [ ] **4.5 Graphics card:** open the Presentation window and share it in Zoom. In Task Manager the separate "WebView2" line for the
-      shared window should be gone (the window is now part of Kingdom Connect itself), and WebView2's GPU use
+      shared window should be gone (the window is now part of FRAMEDECKS itself), and WebView2's GPU use
       should be far lower. Send me a new screenshot. If the Presentation window doesn't appear, send Settings →
       Diagnostics → Copy diagnostics (the log says which window type was used).
 - [ ] **4.4 Smoothness:** repeat your meeting setup (Zoom sharing the Presentation window, a question live) and open
       Task Manager → Processes. Compare GPU and "Desktop Window Manager" with your earlier screenshot, and switch
-      between apps. Send me a new screenshot including the **Kingdom Connect** process line.
+      between apps. Send me a new screenshot including the **FRAMEDECKS** process line.
 - [ ] **4.3 Presentation window:** opens with no title bar or window buttons; drag to move; Full Screen fills the
-      screen with no frame; Esc leaves full screen, Esc again (or ✕) closes. Zoom still lists it as "Kingdom Connect Share Window".
+      screen with no frame; Esc leaves full screen, Esc again (or ✕) closes. Zoom still lists it as "FRAMEDECKS Share Window".
 - [ ] **4.3 Camera quality:** Settings → KingdomConnect Camera: the line under the preview shows "Webcam: 1280×720 MJPG at 30 fps"
       (or similar). If it shows a smaller size, send me that line. In Zoom tick Settings → Video → HD.
 - [ ] **4.3 Blur:** − / + change the blur by 0.5 %; the lowest blur is 0.5 %.
@@ -213,7 +213,7 @@ GitHub builds the installer again and attaches it to that release permanently. T
 
 ## Uninstalling
 
-Windows **Settings → Apps → Installed apps → Kingdom Connect → Uninstall**.
+Windows **Settings → Apps → Installed apps → FRAMEDECKS → Uninstall**.
 It asks whether to delete your data as well. The default is **No**, which keeps your data for a later reinstall.
 
 ## Building on your own PC instead (optional)
@@ -232,7 +232,7 @@ The installer appears in the `dist` folder.
 - **Antivirus blocks or quarantines the app:** this is a known false alarm with unsigned apps made
   with Python. Restore it and add an exception for `%LOCALAPPDATA%\Programs\Kingdom Connect`.
 - **"Port 8750 is in use" message:** another program is using the address the overlays need.
-  Close that program and restart Kingdom Connect.
+  Close that program and restart FRAMEDECKS.
 - **"This installer was built without the camera"** (Settings → KingdomConnect Camera): the build recipe in your repository
   is out of date. Copy the `.github` folder from my latest zip into your repository, commit, push, and install
   the new installer.

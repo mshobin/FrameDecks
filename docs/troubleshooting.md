@@ -2,7 +2,7 @@
 
 Find the symptom, read the likely cause, apply the fix. Most problems take under a minute to solve.
 
-**Who this is for:** anyone running Kingdom Connect, especially on a Sunday morning with little time.
+**Who this is for:** anyone running FRAMEDECKS, especially on a Sunday morning with little time.
 
 **On this page**
 - [First: stay calm on air](#first-stay-calm-on-air)
@@ -41,13 +41,13 @@ Then put the right Frame back on screen with **Go Live** (**T**).
 | --- | --- |
 | It is already running in the background | Look for its icon near the clock (it may be under the **^** arrow). Click it to open the window |
 | Antivirus quarantined it | See [Antivirus warnings](#antivirus-or-smartscreen-warnings) |
-| Ports 8750–8760 are all in use | Kingdom Connect says so when it starts. Restart the PC, or close the program using those ports |
+| Ports 8750–8760 are all in use | FRAMEDECKS says so when it starts. Restart the PC, or close the program using those ports |
 
 ### The app opens in a browser-like window
 
 | Cause | Fix |
 | --- | --- |
-| **Microsoft Edge WebView2 Runtime** is missing | Kingdom Connect then opens as an Edge app window, which works normally. For the full app window, install WebView2 from microsoft.com and open the app again |
+| **Microsoft Edge WebView2 Runtime** is missing | FRAMEDECKS then opens as an Edge app window, which works normally. For the full app window, install WebView2 from microsoft.com and open the app again |
 
 ### "Port 8750 is in use"
 
@@ -55,7 +55,7 @@ Overlay pages and the phone remote expect port 8750. Another program is using it
 
 | Cause | Fix |
 | --- | --- |
-| A second copy of Kingdom Connect (for example, the start-file version) | Close it, then open the installed app |
+| A second copy of FRAMEDECKS (for example, the start-file version) | Close it, then open the installed app |
 | Another program uses the port | Restart the PC. If it keeps happening, find the program with `netstat -ano | findstr 8750` in Command Prompt |
 
 ### Antivirus or SmartScreen warnings
@@ -71,7 +71,7 @@ Overlay pages and the phone remote expect port 8750. Another program is using it
 
 ### Where did the app go when I minimized?
 
-You chose **Hide To Tray**, so the taskbar button went away. Kingdom Connect is still running: the camera, the
+You chose **Hide To Tray**, so the taskbar button went away. FRAMEDECKS is still running: the camera, the
 overlays, the phone remote and the shortcuts keep working.
 
 | Cause | Fix |
@@ -81,7 +81,7 @@ overlays, the phone remote and the shortcuts keep working.
 
 ### I want the Windows title bar back
 
-Turn off **Modern window** in **Settings → General → Window and tray**, then restart Kingdom Connect. The Windows
+Turn off **Modern window** in **Settings → General → Window and tray**, then restart FRAMEDECKS. The Windows
 title bar comes back. Do the same if the ribbon at the top ever misbehaves on your PC (it does not move, maximize or
 snap as it should).
 
@@ -89,11 +89,11 @@ snap as it should).
 
 | Cause | Fix |
 | --- | --- |
-| Another program already uses Alt+Space (for example PowerToys Run) | Kingdom Connect then uses **Ctrl+Alt+Space**. **Settings → General → Window and tray** shows which shortcut works |
+| Another program already uses Alt+Space (for example PowerToys Run) | FRAMEDECKS then uses **Ctrl+Alt+Space**. **Settings → General → Window and tray** shows which shortcut works |
 | The chosen shortcut is taken too, or set to **Off** | Pick another shortcut in **Settings → General → Window and tray → Spotlight**: Ctrl+Space, Ctrl+Alt+Space, Ctrl+Shift+Space or Win+Shift+K. The line under it says whether it works |
 | You need Alt+Space for the window menu of other programs | Choose another Spotlight shortcut |
 
-Inside Kingdom Connect, **Ctrl+K** always opens the command palette, which finds the same things.
+Inside FRAMEDECKS, **Ctrl+K** always opens the command palette, which finds the same things.
 
 ### I can't see my meeting through the overlay
 
@@ -103,7 +103,7 @@ Inside Kingdom Connect, **Ctrl+K** always opens the command palette, which finds
 | The see-through background does not work on this PC | Turn on **Compatibility transparency** in **Settings → General → Window and tray**, then close and reopen the overlay. The whole window fades instead |
 | The mode is **Solid** | Press **3** (**Meeting**) or higher |
 | The overlay hides behind Zoom or Teams | Turn on **Stay on top** (📌, or press **P**) |
-| You are using Kingdom Connect in a web browser | The overlay can be see-through and stay on top only in the installed app |
+| You are using FRAMEDECKS in a web browser | The overlay can be see-through and stay on top only in the installed app |
 
 > **Note:** Frosted glass is Acrylic on Windows 11 (22H2 and later) and a plain blur on Windows 10. Leaving the
 > overlay out of screen sharing needs Windows 10 version 2004 or later.
@@ -127,7 +127,7 @@ Inside Kingdom Connect, **Ctrl+K** always opens the command palette, which finds
 | KingdomConnect is off | **Settings → KingdomConnect Camera** → turn it on |
 | Another app has the webcam | Choose **KingdomConnect** (not the webcam) in every meeting app. Only one app can open a webcam |
 | The wrong webcam is selected | **Settings → KingdomConnect Camera** → choose the webcam |
-| The webcam is unplugged or asleep | Reconnect it; Kingdom Connect picks it up again |
+| The webcam is unplugged or asleep | Reconnect it; FRAMEDECKS picks it up again |
 
 ### My text looks reversed
 
@@ -207,19 +207,19 @@ Other translations aren't fetched. Choose **Type it myself** and type or paste t
 
 ## Audio
 
-Kingdom Connect doesn't capture or send sound, and Video Content plays muted. Your microphone goes to Zoom or Teams through their own audio settings. When a video's sound matters, play the video in a media player with sound and share it in your meeting app (for example, Zoom's **Share Screen** with **Share Sound**), or play it through your sound desk.
+FRAMEDECKS doesn't capture or send sound, and Video Content plays muted. Your microphone goes to Zoom or Teams through their own audio settings. When a video's sound matters, play the video in a media player with sound and share it in your meeting app (for example, Zoom's **Share Screen** with **Share Sound**), or play it through your sound desk.
 
 ## Data and backups
 
 ### Restoring a backup
 
-Kingdom Connect makes a backup automatically once a day and keeps the newest 10. They are in `%APPDATA%\Kingdom Connect\backups\`.
+FRAMEDECKS makes a backup automatically once a day and keeps the newest 10. They are in `%APPDATA%\Kingdom Connect\backups\`.
 
 1. **Settings → Data / Backup → Open backups folder**, and find the backup you want (each is a folder named by date).
 2. Restore it in one of these ways:
    - use **Load a backup file** in the same Settings section;
    - for member lists, use **Members → Import Excel**;
-   - or close Kingdom Connect completely (icon near the clock → Quit), copy the backup's files into the data folder, then open Kingdom Connect again.
+   - or close FRAMEDECKS completely (icon near the clock → Quit), copy the backup's files into the data folder, then open FRAMEDECKS again.
 
 > **Tip:** Before a big change (a new series, importing a Meeting Workbook), select **Back up now**.
 
@@ -235,7 +235,7 @@ Open the **Meeting** menu (✨ next to **+ Frame**) and choose **Undo the last E
 
 1. Check this page and the [FAQ](faq.md).
 2. Copy diagnostics (above).
-3. Contact the person who installed Kingdom Connect for your church, or see [Support](../SUPPORT.md).
+3. Contact the person who installed FRAMEDECKS for your church, or see [Support](../SUPPORT.md).
 
 ## Related
 - [FAQ](faq.md)

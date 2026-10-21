@@ -19,7 +19,7 @@ Uri? pcAddress(String text) {
   return Uri(scheme: u.scheme == 'https' ? 'https' : 'http', host: u.host, port: u.hasPort ? u.port : 8750, path: '/');
 }
 
-/// Phones and tablets: a remote control for Kingdom Connect on the PC. Sign in with the PC's address and its PIN;
+/// Phones and tablets: a remote control for FRAMEDECKS on the PC. Sign in with the PC's address and its PIN;
 /// the sign-in is remembered (in the phone's secure storage) until the PIN changes.
 class RemoteApp extends StatefulWidget {
   const RemoteApp({super.key, this.storage = const FlutterSecureStorage()});
@@ -113,7 +113,7 @@ class _RemoteAppState extends State<RemoteApp> {
   @override
   Widget build(BuildContext context) {
     // Each state has its own MaterialApp under its provider scope, so pages opened from it (Teleprompter) see the PC.
-    MaterialApp app(Widget home) => MaterialApp(title: 'Kingdom Connect', debugShowCheckedModeBanner: false, theme: kcTheme(), home: home);
+    MaterialApp app(Widget home) => MaterialApp(title: 'FRAMEDECKS', debugShowCheckedModeBanner: false, theme: kcTheme(), home: home);
     final c = _container;
     if (c != null) {
       return UncontrolledProviderScope(
@@ -200,7 +200,7 @@ class _ConnectScreenState extends State<ConnectScreen> {
                   Image.asset('assets/brand/kc-mark.png', height: 64),
                   const SizedBox(height: 14),
                   const Text(
-                    'Kingdom Connect',
+                    'FRAMEDECKS',
                     textAlign: TextAlign.center,
                     style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800),
                   ),

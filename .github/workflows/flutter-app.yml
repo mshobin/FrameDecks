@@ -1,4 +1,4 @@
-# Kingdom Connect (Flutter): analyse, test, and build for every platform.
+# FRAMEDECKS (Flutter): analyse, test, and build for every platform.
 # The Windows presentation program has its own workflow (build-windows.yml); this one never touches it.
 name: Flutter app
 

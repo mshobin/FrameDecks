@@ -1,12 +1,12 @@
 # Getting started
 
-Your first fifteen minutes with Kingdom Connect: install it, find your way around, build a meeting and put it on screen.
+Your first fifteen minutes with FRAMEDECKS: install it, find your way around, build a meeting and put it on screen.
 
-**Who this is for:** anyone opening Kingdom Connect for the first time, such as a small-group leader, a worship
+**Who this is for:** anyone opening FRAMEDECKS for the first time, such as a small-group leader, a worship
 leader or a media volunteer.
 
 **On this page**
-- [What Kingdom Connect is](#what-kingdom-connect-is)
+- [What FRAMEDECKS is](#what-framedecks-is)
 - [Before you start](#before-you-start)
 - [First launch](#first-launch)
 - [A tour of the window](#a-tour-of-the-window)
@@ -17,9 +17,9 @@ leader or a media volunteer.
 
 ---
 
-## What Kingdom Connect is
+## What FRAMEDECKS is
 
-Kingdom Connect is a presentation app for services, Bible studies, prayer meetings and small groups. It runs on one
+FRAMEDECKS is a presentation app for services, Bible studies, prayer meetings and small groups. It runs on one
 Windows PC. It needs no accounts and no cloud, and it works without internet.
 
 You build a **Meeting** (your service or meeting) out of **Frames**. A Frame is one screen or one step, such as
@@ -45,14 +45,14 @@ flowchart LR
 
 You need:
 - a Windows 10 or Windows 11 PC (64-bit);
-- the Kingdom Connect installer. See [Installation](installation.md).
+- the FRAMEDECKS installer. See [Installation](installation.md).
 
 A webcam is optional. You need one only if people should see you on the KingdomConnect camera.
 
 ## First launch
 
-1. Open **Kingdom Connect** from the desktop icon.
-2. If you used the zip version of Kingdom Connect before, the app offers to **import your existing data**. Choose
+1. Open **FRAMEDECKS** from the desktop icon.
+2. If you used the zip version of FRAMEDECKS before, the app offers to **import your existing data**. Choose
    your old folder (it is usually found automatically) and select **Import**. Your old folder is not changed. (An
    installed earlier version needs nothing: the installer updates it and your data is kept.)
 3. The app opens on the **Studio**, where you build and run meetings.
@@ -80,10 +80,10 @@ On a narrow window (under 1140 px wide) the command bar wraps onto two rows, so 
 
 ### The window buttons and the tray
 
-Kingdom Connect has no Windows title bar. The command bar at the top is the window's ribbon:
+FRAMEDECKS has no Windows title bar. The command bar at the top is the window's ribbon:
 - drag an empty part of it to move the window, and double-click it to maximize;
 - Snap (dragging to a screen edge, or Windows key + arrows) and resizing from the edges work as usual;
-- **Minimize**, **Maximize / Restore** and **Close** are at the top right of every Kingdom Connect window.
+- **Minimize**, **Maximize / Restore** and **Close** are at the top right of every FRAMEDECKS window.
 
 The first time you select **Minimize**, the app asks *Hide application to system tray?*
 - **Hide To Tray** removes the taskbar button. The icon stays in the tray near the clock.
@@ -94,7 +94,7 @@ Tick **Remember my choice** to stop the question. You can change it later in **S
 shortcuts. Click the tray icon, or choose **Open App** in its menu, to bring the window back.
 
 > **Tip:** Press **Alt+Space** anywhere in Windows to open **Spotlight**, a search box that finds and runs anything
-> in Kingdom Connect, even from the tray. See [Spotlight](presentations.md#spotlight).
+> in FRAMEDECKS, even from the tray. See [Spotlight](presentations.md#spotlight).
 
 If you prefer the Windows title bar, turn off **Modern window** in **Settings → General → Window and tray** and
 restart.

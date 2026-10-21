@@ -1,10 +1,10 @@
-# Kingdom Connect (Flutter): the same app on every platform
+# FRAMEDECKS (Flutter): the same app on every platform
 
-A native rebuild of the Windows Kingdom Connect app, with the same design, Frames and saved file.
+A native rebuild of the Windows FRAMEDECKS app, with the same design, Frames and saved file.
 
 - **Windows, macOS, Linux:** the Studio (top bar, Frames, Content, canvas, inspector, Settings) and a full-screen
   Share Window.
-- **iPhone, iPad, Android:** the remote control for Kingdom Connect on the PC, signed in with its PIN.
+- **iPhone, iPad, Android:** the remote control for FRAMEDECKS on the PC, signed in with its PIN.
 
 <p>
   <img src="screenshots/studio.png" alt="The Studio on a desktop" width="640">
@@ -33,7 +33,7 @@ after it changes; `flutter test test/engine` must then still pass.
 
 | Folder | What lives there |
 |---|---|
-| `lib/engine` | The state model, normalize, Frames / Content / live operations (a port of store.js), and the backends (this computer's file, or the Kingdom Connect program) |
+| `lib/engine` | The state model, normalize, Frames / Content / live operations (a port of store.js), and the backends (this computer's file, or the FRAMEDECKS program) |
 | `lib/ui` | Theme tokens, the program renderer, shared fields and actions |
 | `lib/ui/studio` | The desktop Studio: top bar, Frames, Content, canvas, inspector, Share Window |
 | `lib/ui/remote` | The phone and tablet remote: sign-in, Live, Frames, Content, Teleprompter |

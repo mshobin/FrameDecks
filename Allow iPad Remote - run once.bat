@@ -1,5 +1,5 @@
 @echo off
-title Allow iPad Remote - Kingdom Connect
+title Allow iPad Remote - FRAMEDECKS
 set "KC_SELF=%~f0"
 set "KC_DIR=%~dp0"
 net session >nul 2>&1

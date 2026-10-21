@@ -1,4 +1,4 @@
-# Kingdom Connect: feature documentation (v6.9)
+# FRAMEDECKS: feature documentation (v6.9)
 
 ## v6.9 at a glance
 | Feature | What it does | Where it lives |
@@ -77,7 +77,7 @@ For the earlier features, see `docs/reference/meeting-workbook-and-branding.md` 
 
 ## 1. The KingdomConnect camera
 
-Kingdom Connect has its own camera for Zoom, Microsoft Teams, Google Meet, OBS and other apps that read Windows
+FRAMEDECKS has its own camera for Zoom, Microsoft Teams, Google Meet, OBS and other apps that read Windows
 cameras. Windows lists it as **KingdomConnect**. It sends the finished picture: your webcam with optional background
 blur and a Camera Look, plus the live scene (cards, text, pictures, slides, branding).
 
@@ -110,7 +110,7 @@ The app also still recognises its old name, so it never captures its own picture
 ## 2. Team Space (removed in v6.5)
 
 Team Space (co-leaders' presence, shared notes and actions, Ask to Go Live over WireGuard) was removed in v6.5 to keep
-Kingdom Connect a simple, single-PC app. No settings, listener or peer protocol remain. Old `kc-teamspace*.json`
+FRAMEDECKS a simple, single-PC app. No settings, listener or peer protocol remain. Old `kc-teamspace*.json`
 files in the data folder are ignored and can be deleted. Meetings are shared by **exporting** them (Excel Meeting
 Workbook or a Frame file) instead.
 
@@ -119,7 +119,7 @@ Workbook or a Frame file) instead.
 ## 3. Logo-only branding
 
 The app's own branding is the **Book + Candle** mark (`app/img/kc-emblem.webp`) and nothing else:
-- **Command bar (dashboard header):** the mark alone, 30 px wide. There is no "Kingdom Connect" wordmark or text
+- **Command bar (dashboard header):** the mark alone, 30 px wide. There is no "FRAMEDECKS" wordmark or text
   beside it. The name and the Meeting Name are kept for screen readers, in the mark's tooltip and in the window
   title.
 - **Phone remote:** the sign-in screen shows the mark alone, and the remote's top bar shows the mark and the mode

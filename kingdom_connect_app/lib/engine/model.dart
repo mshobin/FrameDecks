@@ -1,4 +1,4 @@
-/// Kingdom Connect's state model: a Dart port of app/js/store.js (the Windows app).
+/// FRAMEDECKS's state model: a Dart port of app/js/store.js (the Windows app).
 ///
 /// The state is the same JSON document the Windows app saves (kc-saved-content.json) and serves (api/state), kept as
 /// plain maps so nothing is lost when either app reads what the other wrote. These constants mirror store.js one for

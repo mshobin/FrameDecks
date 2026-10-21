@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Kingdom Connect - local program.
+FRAMEDECKS - local program.
 
 Serves the dashboard and overlays at http://localhost:8750 on THIS computer only.
 No internet, cloud account, or extra installs are needed beyond Python 3
@@ -639,9 +639,9 @@ def import_from(folder):
     global sessions
     src = Path(folder)
     if not src.is_dir() or not looks_like_data(src):
-        raise ValueError("That folder doesn’t contain Kingdom Connect data (its saved content or member list).")
+        raise ValueError("That folder doesn’t contain FRAMEDECKS data (its saved content or member list).")
     if src.resolve() == DATA.resolve():
-        raise ValueError("That is already the folder Kingdom Connect uses.")
+        raise ValueError("That is already the folder FRAMEDECKS uses.")
     backup_now("before-import")
     copied = []
     for name in DATA_FILE_NAMES:
@@ -1011,7 +1011,7 @@ def powerpoint_show():
 def slide_move(step):
     """Next (+1) / Previous (-1) for whatever is being presented: the Studio's shared screen or presentation layer
     (PDF deck or captured window) first, else the PowerPoint slide show running on this PC - e.g. full screen and
-    shared directly in Zoom/Teams, which Kingdom Connect is not capturing. Works without the camera engine."""
+    shared directly in Zoom/Teams, which FRAMEDECKS is not capturing. Works without the camera engine."""
     try:
         step = 1 if int(step) > 0 else -1
     except (TypeError, ValueError):
@@ -1339,7 +1339,7 @@ def vcam_start():
         return
     demo = os.environ.get("KC_VCAM_DEMO") == "1"
     start_files_msg = ("You’re using the start-file version (the black window). KingdomConnect is only in the installed app: "
-                       "close the black window, then open Kingdom Connect from its desktop or Start-menu icon.")
+                       "close the black window, then open FRAMEDECKS from its desktop or Start-menu icon.")
     os.environ.setdefault("OPENCV_VIDEOIO_MSMF_ENABLE_HW_TRANSFORMS", "0")   # before OpenCV loads
     try:
         import cv2  # noqa: F401
@@ -1815,7 +1815,7 @@ class Handler(BaseHTTPRequestHandler):
         data = self.rfile.read(length)
         info = png_size(data)
         if not info:
-            return self.reply(400, json.dumps({"error": "That is not a picture Kingdom Connect can use. Choose a PNG, JPG or SVG file."}), TYPES[".json"])
+            return self.reply(400, json.dumps({"error": "That is not a picture FRAMEDECKS can use. Choose a PNG, JPG or SVG file."}), TYPES[".json"])
         tmp = BRAND_LOGO.with_suffix(".part")
         tmp.write_bytes(data)
         os.replace(tmp, BRAND_LOGO)
@@ -1868,7 +1868,7 @@ class Handler(BaseHTTPRequestHandler):
         ok = lambda obj: self.reply(200, json.dumps(obj), TYPES[".json"])
         bad = lambda msg, code=400: self.reply(code, json.dumps({"error": msg}), TYPES[".json"])
         if action == "present":
-            # A separate, frameless "Kingdom Connect Share Window" window (selectable in Zoom > Share > specific window).
+            # A separate, frameless "FRAMEDECKS Share Window" window (selectable in Zoom > Share > specific window).
             hook, fs = DESKTOP.get("present"), DESKTOP.get("present_fullscreen")
             if not hook:
                 return ok({"desktop": False})    # browser: the page opens its own popup window
@@ -2155,7 +2155,7 @@ def main():
         set_remote(True)
     base = f"http://localhost:{port}"
     print()
-    print("  Kingdom Connect is running.")
+    print("  FRAMEDECKS is running.")
     print()
     print(f"  Dashboard (opens automatically):  {base}/")
     print(f"  Focus Verse overlay:          {base}/focus-verse.html")

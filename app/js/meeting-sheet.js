@@ -67,7 +67,7 @@ function parse(headers, rows, ctx){
     COLUMNS.forEach(function(c){ if (map[c.key] == null && c.alias.indexOf(n) >= 0) map[c.key] = i; });
   });
   ['scene', 'type'].forEach(function(k){
-    if (map[k] == null){ var c = COLUMNS.filter(function(x){ return x.key === k; })[0]; errors.push({row: 0, msg: 'The column “' + c.name + '” is missing. Start from the Kingdom Connect template (Download the Excel template) and keep its column names.'}); }
+    if (map[k] == null){ var c = COLUMNS.filter(function(x){ return x.key === k; })[0]; errors.push({row: 0, msg: 'The column “' + c.name + '” is missing. Start from the FRAMEDECKS template (Download the Excel template) and keep its column names.'}); }
   });
   var plan = {scenes: [], errors: errors, warnings: warnings, counts: {}, fetch: []};
   if (errors.length) return finish(plan);
@@ -167,7 +167,7 @@ function parse(headers, rows, ctx){
   });
   var existing = (ctx.existing || []).map(function(n){ return String(n).toLowerCase(); });
   if (ctx.mode !== 'replace') plan.scenes.forEach(function(sc){ if (existing.indexOf(sc.name.toLowerCase()) >= 0) warnings.push({row: sc.firstRow, msg: 'A scene called “' + sc.name + '” already exists; if you choose Append the new one is named “' + sc.name + ' 2” (or similar).'}); });
-  if ((ctx.mode === 'replace' ? 0 : (ctx.existing || []).length) + plan.scenes.length > 400) errors.push({row: 0, msg: 'Kingdom Connect holds up to 400 scenes; this import would make ' + ((ctx.existing || []).length + plan.scenes.length) + '. Choose Replace or import fewer scenes.'});
+  if ((ctx.mode === 'replace' ? 0 : (ctx.existing || []).length) + plan.scenes.length > 400) errors.push({row: 0, msg: 'FRAMEDECKS holds up to 400 scenes; this import would make ' + ((ctx.existing || []).length + plan.scenes.length) + '. Choose Replace or import fewer scenes.'});
   return finish(plan);
 }
 function finish(plan){

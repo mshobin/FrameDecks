@@ -1,4 +1,4 @@
-/* Kingdom Connect - Members, Birthdays, Email Preparation, Settings */
+/* FRAMEDECKS - Members, Birthdays, Email Preparation, Settings */
 (function(){
 'use strict';
 
@@ -122,7 +122,7 @@ function loadPrivate(){
 }
 var saveT, saveChain = Promise.resolve(), loadFailed = false;
 function persist(){
-  if (loadFailed){ toast('Changes can’t be saved because member data didn’t load. Restart Kingdom Connect and reload this page.', true); return; }
+  if (loadFailed){ toast('Changes can’t be saved because member data didn’t load. Restart FRAMEDECKS and reload this page.', true); return; }
   clearTimeout(saveT);
   saveT = setTimeout(function(){
     var payload = JSON.stringify({members: data.members, settings: data.settings});
@@ -132,7 +132,7 @@ function persist(){
           .then(function(r){ if (!r.ok) throw new Error(); });
       }
       localStorage.setItem(PKEY, payload);
-    }).catch(function(){ toast('Member data couldn’t be saved. Check that the Kingdom Connect window is open.', true); });
+    }).catch(function(){ toast('Member data couldn’t be saved. Check that the FRAMEDECKS window is open.', true); });
   }, 250);
 }
 
@@ -461,7 +461,7 @@ function dateCode(v){
   return d && d.y ? {y: d.y, m: d.m, d: d.d} : null;
 }
 function needXlsx(run){
-  window.KCNeedXLSX().then(function(x){ XLSX = x; run(); }).catch(function(){ toast('The Excel reader could not load. Restart Kingdom Connect and try again.', true); });
+  window.KCNeedXLSX().then(function(x){ XLSX = x; run(); }).catch(function(){ toast('The Excel reader could not load. Restart FRAMEDECKS and try again.', true); });
 }
 function readFile(file){ needXlsx(function(){ readFileNow(file); }); }
 function readFileNow(file){
@@ -1068,6 +1068,6 @@ function setup(){
 
 loadPrivate().then(function(d){ data = normalizeData(d); }, function(){
   loadFailed = true;
-  toast('Member data couldn’t be loaded. Check that the Kingdom Connect window is open, then reload.', true);
+  toast('Member data couldn’t be loaded. Check that the FRAMEDECKS window is open, then reload.', true);
 }).then(function(){ setup(); renderAll(); });
 })();

@@ -41,7 +41,7 @@ Every kind of Content you can put in a Frame, and every setting that controls ho
 | **PowerPoint…** | |
 
 > **Note:** A Frame has at most one Question, one Scripture, one Birthday and one Branding Content. Put all of a
-> Frame's questions into its one Question list. If you choose Question again, Kingdom Connect takes you to the
+> Frame's questions into its one Question list. If you choose Question again, FRAMEDECKS takes you to the
 > existing list.
 
 > **Note:** Picture-based Content (image, video, PowerPoint, camera, screen, window, logo, watermark, free text,

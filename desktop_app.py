@@ -1,5 +1,5 @@
 """
-Kingdom Connect - Windows desktop app.
+FRAMEDECKS - Windows desktop app.
 
 Runs the same local program as server.py, shows the dashboard in its own window, and keeps an icon
 near the clock (the "tray") so the overlays keep working in OBS/Camo when the window is closed.
@@ -16,7 +16,7 @@ import urllib.request
 import webbrowser
 
 APP_NAME = "Kingdom Connect"          # identity: data folder name and the single-instance check
-DISPLAY_NAME = "Kingdom Connect"     # what people see
+DISPLAY_NAME = "FRAMEDECKS"     # what people see
 
 
 # ---------- A windowed app has no console: send messages to a small log file instead ----------
@@ -151,8 +151,8 @@ def running_copy(port=server.PREFERRED_PORT):
     return "app" if d.get("installedApp") else "start-files"
 
 
-START_FILES_RUNNING = ("The start-file version of Kingdom Connect is still running (the black window).\n\n"
-                       "Close that black window first, then open Kingdom Connect again.\n\n"
+START_FILES_RUNNING = ("The start-file version of FRAMEDECKS is still running (the black window).\n\n"
+                       "Close that black window first, then open FRAMEDECKS again.\n\n"
                        "Only one copy can run at a time, and only the installed app has KingdomConnect.")
 
 
@@ -202,8 +202,8 @@ def main():
 
     srv = server.start_main_server()
     if srv is None:
-        message("Kingdom Connect could not start because ports 8750-8760 are all in use.\n\n"
-                "Close the other program using them, then open Kingdom Connect again.", warn=True)
+        message("FRAMEDECKS could not start because ports 8750-8760 are all in use.\n\n"
+                "Close the other program using them, then open FRAMEDECKS again.", warn=True)
         return
     port = srv.server_address[1]
     if port != server.PREFERRED_PORT:
@@ -214,7 +214,7 @@ def main():
             except Exception:
                 pass
             return
-        message(f"Another program is using port {server.PREFERRED_PORT}, so Kingdom Connect is using port {port} today.\n\n"
+        message(f"Another program is using port {server.PREFERRED_PORT}, so FRAMEDECKS is using port {port} today.\n\n"
                 "Your overlay links in OBS or Camo need the new port, or close the other program and restart.", warn=True)
     threading.Thread(target=srv.serve_forever, daemon=True).start()
     if server.app_settings()["remoteAutostart"]:
@@ -323,7 +323,7 @@ def main():
         open_ui()
         if not state["tray"]:
             where = "its own window" if server.DESKTOP.get("shell") == "app-browser" else "your web browser"
-            message(f"Kingdom Connect is open in {where}.\n\nIt keeps running in the background (so your overlays keep "
+            message(f"FRAMEDECKS is open in {where}.\n\nIt keeps running in the background (so your overlays keep "
                     "working) until you restart or sign out of Windows.")
         done.wait()
         stop_everything()
@@ -411,7 +411,7 @@ def main():
     window.events.closing += on_closing
 
     def present(on=True):
-        """The separate "Kingdom Connect Share Window" window (Zoom > Share Screen > that window).
+        """The separate "FRAMEDECKS Share Window" window (Zoom > Share Screen > that window).
         Preferred: a native window (no browser engine, very light on the graphics card). Fallback: a WebView2 window."""
         w = state.get("present")
         if not on:
@@ -448,7 +448,7 @@ def main():
                 print("Presentation window: native window unavailable, using WebView2 instead:", e)
         # Frameless: no title bar, no minimise/maximise/close buttons, no window frame. Drag anywhere to move it.
         # The title stays internal (never shown) so Zoom can list it under "Share specific window".
-        w = webview.create_window("Kingdom Connect Share Window", url + "present.html", width=1280, height=720,
+        w = webview.create_window("FRAMEDECKS Share Window", url + "present.html", width=1280, height=720,
                                   min_size=(480, 270), background_color="#000000", text_select=False,
                                   frameless=True, easy_drag=True)
         state["present_fs"] = False
@@ -704,7 +704,7 @@ if __name__ == "__main__":
         main()
     except Exception:
         print(traceback.format_exc())
-        message("Kingdom Connect hit an unexpected problem and has to close.\n\n"
+        message("FRAMEDECKS hit an unexpected problem and has to close.\n\n"
                 "Details were saved in kc-app-log.txt in your data folder (%APPDATA%\\Kingdom Connect).", warn=True)
     finally:
         os._exit(0)

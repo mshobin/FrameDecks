@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="FRAMEDECKS">
+<title>FRAMEDECKS</title>
+<defs><radialGradient id="bg" cx=".38" cy=".42" r=".85"><stop offset="0" stop-color="#0B2A52"/><stop offset="1" stop-color="#04152D"/></radialGradient></defs><rect width="512" height="512" rx="96" fill="url(#bg)"/>
+<g transform="translate(10.2 10.2) scale(0.9600)">
+<defs>
+  <linearGradient id="idark1-gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFF4CC"/><stop offset=".35" stop-color="#F7E08A"/><stop offset=".7" stop-color="#D4AF37"/><stop offset="1" stop-color="#F7E08A"/></linearGradient>
+  <linearGradient id="idark1-card" x1="0" y1="0" x2=".3" y2="1"><stop offset="0" stop-color="#14325E"/><stop offset=".6" stop-color="#0A2142"/><stop offset="1" stop-color="#04152D"/></linearGradient>
+  <linearGradient id="idark1-hill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1B2C44"/><stop offset="1" stop-color="#04152D"/></linearGradient>
+  <radialGradient id="idark1-glow"><stop offset="0" stop-color="#FFF4CC" stop-opacity=".9"/><stop offset=".3" stop-color="#F7E08A" stop-opacity=".45"/><stop offset="1" stop-color="#D4AF37" stop-opacity="0"/></radialGradient>
+  <radialGradient id="idark1-dawn" cx=".5" cy=".7" r=".6"><stop offset="0" stop-color="#FFF4CC" stop-opacity=".95"/><stop offset=".25" stop-color="#F7E08A" stop-opacity=".6"/><stop offset="1" stop-color="#D4AF37" stop-opacity="0"/></radialGradient>
+</defs>
+<circle cx="256" cy="262" r="216" fill="none" stroke="#D4AF37" stroke-width="10.2" opacity=".8"/>
+<path d="M120.0,136.0 Q120,120 135.4,124.2 L376.6,189.3 Q392,193.44 392.0,209.4 L392.0,387.4 Q392,403.44 376.6,399.3 L135.4,334.2 Q120,330 120.0,314.0 Z" fill="none" stroke="#D4AF37" stroke-width="30" opacity=".12"/>
+<path d="M120.0,136.0 Q120,120 135.4,124.2 L376.6,189.3 Q392,193.44 392.0,209.4 L392.0,387.4 Q392,403.44 376.6,399.3 L135.4,334.2 Q120,330 120.0,314.0 Z" fill="url(#idark1-card)" stroke="url(#idark1-gold)" stroke-width="16" stroke-linejoin="round"/>
+<clipPath id="idark1-clip0"><rect x="4" y="4" width="264" height="202" rx="12"/></clipPath>
+<g transform="matrix(1 0.27 0 1 120 120)" clip-path="url(#idark1-clip0)"><ellipse cx="136.0" cy="147.0" rx="136.0" ry="115.50000000000001" fill="url(#idark1-dawn)"/><rect x="125.0" y="29.400000000000002" width="22" height="147.0" rx="3" fill="#FFF4CC"/><rect x="84.0" y="63.0" width="104" height="22" rx="3" fill="#FFF4CC"/></g>
+</g>
+</svg>

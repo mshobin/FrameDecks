@@ -1,1 +1,1 @@
-"""KingdomConnect - the Kingdom Connect's built-in virtual camera (Windows)."""
+"""KingdomConnect - FRAMEDECKS's built-in virtual camera (Windows)."""

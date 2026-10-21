@@ -1,4 +1,4 @@
-// The engine connection against a real Kingdom Connect program (server.py). Runs when KC_ENGINE_URL is set, e.g.
+// The engine connection against a real FRAMEDECKS program (server.py). Runs when KC_ENGINE_URL is set, e.g.
 //   KC_ENGINE_URL=http://127.0.0.1:8750/ KC_ENGINE_PIN=1234 flutter test test/engine/engine_backend_test.dart
 // Without it, the test is skipped (CI has no running program).
 import 'dart:io';
@@ -41,7 +41,7 @@ void main() {
       await a.dispose();
       await b.dispose();
     },
-    skip: url == null ? 'set KC_ENGINE_URL to run against a Kingdom Connect program' : false,
+    skip: url == null ? 'set KC_ENGINE_URL to run against a FRAMEDECKS program' : false,
     timeout: const Timeout(Duration(minutes: 2)),
   );
 }

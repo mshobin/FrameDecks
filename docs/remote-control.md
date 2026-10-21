@@ -22,11 +22,11 @@ Run the service from a phone or iPad: step through Frames and Content, draw on t
 
 ## How it works
 
-The remote is a web page served by Kingdom Connect on your PC. Your phone opens it over your church's (or home's) Wi-Fi. Nothing goes through the internet or any outside service.
+The remote is a web page served by FRAMEDECKS on your PC. Your phone opens it over your church's (or home's) Wi-Fi. Nothing goes through the internet or any outside service.
 
 ```mermaid
 flowchart LR
-  Phone["Phone or iPad<br/>(browser)"] -- "Wi-Fi, PIN-protected" --> PC["Kingdom Connect<br/>on the PC (port 8750)"]
+  Phone["Phone or iPad<br/>(browser)"] -- "Wi-Fi, PIN-protected" --> PC["FRAMEDECKS<br/>on the PC (port 8750)"]
   PC --> Out["KingdomConnect camera<br/>Presentation window<br/>overlay pages"]
 ```
 
@@ -42,7 +42,7 @@ Every button on the phone changes the same live state as the PC, so the PC, the 
 
 The phone stays signed in for 30 days. After that, or after a new PIN, enter the PIN again.
 
-> **Tip:** In the same Settings section, tick the option to turn the remote on whenever Kingdom Connect starts, so it is ready every Sunday.
+> **Tip:** In the same Settings section, tick the option to turn the remote on whenever FRAMEDECKS starts, so it is ready every Sunday.
 
 ## Security
 

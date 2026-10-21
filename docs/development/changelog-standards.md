@@ -1,6 +1,6 @@
 # Changelog standards
 
-Kingdom Connect keeps two records of every release:
+FRAMEDECKS keeps two records of every release:
 
 | Record | Audience | Where |
 | --- | --- | --- |
@@ -40,9 +40,9 @@ The changelog follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Use this shape:
 
 ```markdown
-## Kingdom Connect vX.Y
+## FRAMEDECKS vX.Y
 
-Download **Kingdom Connect vX.Y.exe** below and run it. It installs over earlier versions and keeps all your data.
+Download **FRAMEDECKS vX.Y.exe** below and run it. It installs over earlier versions and keeps all your data.
 (Any action needed before installing, for example closing Zoom.)
 
 ### <First headline feature>

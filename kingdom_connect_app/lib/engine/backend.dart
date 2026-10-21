@@ -1,8 +1,8 @@
 /// Where the state lives, and how a change is saved. The same two ways the Windows app's store.js works:
 ///
 /// - [LocalBackend]: this device's own file (kc-saved-content.json, the Windows app's format). Used on a Mac, and on
-///   a Windows PC without the Kingdom Connect program running.
-/// - [EngineBackend]: a running Kingdom Connect program (server.py) on this PC (127.0.0.1) or, with its PIN, on the
+///   a Windows PC without the FRAMEDECKS program running.
+/// - [EngineBackend]: a running FRAMEDECKS program (server.py) on this PC (127.0.0.1) or, with its PIN, on the
 ///   network: the phone remote. Changes are sent the way store.js sends them (the whole state, with the revision it
 ///   was based on); when someone else saved first the program answers 409 with the latest state, and the change is
 ///   made again on top of it.
@@ -29,7 +29,7 @@ abstract class StateBackend {
   Link get link;
   Stream<Link> get linkChanges;
 
-  /// "This Mac", "Kingdom Connect on this PC", "Kingdom Connect at 192.168.1.20"…
+  /// "This Mac", "FRAMEDECKS on this PC", "FRAMEDECKS at 192.168.1.20"…
   String get label;
 
   Future<void> start();
@@ -130,7 +130,7 @@ class EngineBackend extends _Base implements StateBackend {
   String? get cookie => _cookie;
 
   @override
-  String get label => isRemote ? 'Kingdom Connect at ${base.host}' : 'Kingdom Connect on this PC';
+  String get label => isRemote ? 'FRAMEDECKS at ${base.host}' : 'FRAMEDECKS on this PC';
   @override
   Json get state => _state;
   @override
@@ -142,14 +142,14 @@ class EngineBackend extends _Base implements StateBackend {
 
   Map<String, String> get _headers => {'Content-Type': 'application/json', 'Cookie': ?_cookie};
 
-  /// Signs in with the PIN shown in Kingdom Connect (Settings → Phone remote). Returns an error in words, or null.
+  /// Signs in with the PIN shown in FRAMEDECKS (Settings → Phone remote). Returns an error in words, or null.
   Future<String?> signIn(String pin) async {
     try {
       final r = await _client
           .post(base.resolve('api/remote-login'), headers: {'Content-Type': 'application/json'}, body: jsonEncode({'pin': pin}))
           .timeout(const Duration(seconds: 8));
       if (r.statusCode == 429) return 'Too many wrong PINs. Wait a minute, then try again.';
-      if (r.statusCode == 401) return 'That PIN is not right. It is shown in Kingdom Connect on the PC.';
+      if (r.statusCode == 401) return 'That PIN is not right. It is shown in FRAMEDECKS on the PC.';
       if (r.statusCode != 200) return 'The PC answered with an error (${r.statusCode}).';
       final set = r.headers['set-cookie'] ?? '';
       final m = RegExp(r'kc_remote=([A-Za-z0-9_\-]+)').firstMatch(set);
@@ -226,14 +226,14 @@ class EngineBackend extends _Base implements StateBackend {
     throw const HttpException('Others kept changing things at the same moment. Try again.');
   }
 
-  /// Is a Kingdom Connect program answering here? (api/app/ping)
+  /// Is a FRAMEDECKS program answering here? (api/app/ping)
   static Future<bool> isKingdomConnect(Uri base, {http.Client? client}) async {
     final c = client ?? http.Client();
     try {
       final r = await c.get(base.resolve('api/app/ping')).timeout(const Duration(milliseconds: 1500));
       if (r.statusCode != 200) return false;
       final d = jsonDecode(r.body);
-      return d is Map && d['app'] == 'Kingdom Connect';
+      return d is Map && d['app'] == 'Kingdom Connect'; // the program's id in api/app/ping, unchanged by the rebrand
     } catch (_) {
       return false;
     } finally {

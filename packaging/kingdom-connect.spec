@@ -1,4 +1,4 @@
-# PyInstaller recipe for the Kingdom Connect Windows app.
+# PyInstaller recipe for the FRAMEDECKS Windows app.
 # Build:  pyinstaller --noconfirm --clean packaging/kingdom-connect.spec --distpath dist --workpath build
 # "Folder" mode (not one-file): starts faster and triggers fewer antivirus false alarms.
 from pathlib import Path
@@ -17,12 +17,12 @@ try:  # needs "pefile", which PyInstaller installs automatically on Windows
         ffi=FixedFileInfo(filevers=tuple(nums), prodvers=tuple(nums)),
         kids=[StringFileInfo([StringTable("040904B0", [
             StringStruct("CompanyName", "Shobin Mathews"),
-            StringStruct("FileDescription", "Kingdom Connect"),
+            StringStruct("FileDescription", "FRAMEDECKS"),
             StringStruct("FileVersion", VERSION),
             StringStruct("InternalName", "Kingdom Connect"),
             StringStruct("LegalCopyright", "Copyright (C) Shobin Mathews"),
             StringStruct("OriginalFilename", "Kingdom Connect.exe"),
-            StringStruct("ProductName", "Kingdom Connect"),
+            StringStruct("ProductName", "FRAMEDECKS"),
             StringStruct("ProductVersion", VERSION),
             StringStruct("Comments", "Independent tool by Shobin Mathews. Not affiliated with or endorsed by Bible Study Fellowship International."),
         ])]), VarFileInfo([VarStruct("Translation", [1033, 1200])])])

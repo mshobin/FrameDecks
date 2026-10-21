@@ -1,4 +1,4 @@
-/* Kingdom Connect - three main tabs (Studio · Members · Settings) with sub-views, the Members directory
+/* FRAMEDECKS - three main tabs (Studio · Members · Settings) with sub-views, the Members directory
  * table and the Recordings list.
  * v4.9: "Meetings & Content" moved into the Studio. The view ids are unchanged (meeting, overlays, studio,
  * recordings), so KCSetTab('meeting'), data-goto links and every screen that checks body.dataset.tab work as

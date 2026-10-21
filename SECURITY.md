@@ -1,6 +1,6 @@
 # Security policy
 
-Kingdom Connect runs on a church's own computer and holds information that matters: member names, phone numbers and
+FRAMEDECKS runs on a church's own computer and holds information that matters: member names, phone numbers and
 birthdays, meeting content, and the phone-remote PIN. We take reports about its security seriously.
 
 ## Supported versions
@@ -21,7 +21,7 @@ Include the version, what an attacker could do, the steps to reproduce and, if y
 real member data, PINs or API keys; use made-up examples. You can expect an acknowledgement within a week. We will tell
 you when a fix is released and, if you wish, credit you in the release notes.
 
-## How Kingdom Connect protects a church's data
+## How FRAMEDECKS protects a church's data
 
 | Area | What the program does |
 | --- | --- |

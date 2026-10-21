@@ -1,4 +1,4 @@
-/* Kingdom Connect - dashboard */
+/* FRAMEDECKS - dashboard */
 (function(){
 'use strict';
 
@@ -59,7 +59,7 @@ function commit(fn){
   chain = chain.then(function(){
     return Store.update(fn);
   }).catch(function(){
-    toast('Can’t reach the Kingdom Connect program. Check that its window is still open.', true);
+    toast('Can’t reach the FRAMEDECKS program. Check that its window is still open.', true);
   });
   return chain;
 }
@@ -400,7 +400,7 @@ function setupBackup(){
         }).then(function(){
           toast('Backup loaded. Both overlays are hidden until you show them.');
         });
-      } catch(e){ toast('That file isn’t a Kingdom Connect backup.', true); }
+      } catch(e){ toast('That file isn’t a FRAMEDECKS backup.', true); }
     };
     reader.readAsText(f);
   });

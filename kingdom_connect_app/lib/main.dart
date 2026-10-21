@@ -12,19 +12,19 @@ import 'ui/studio/share_window.dart' show isDesktop;
 import 'ui/studio/studio_screen.dart';
 import 'ui/theme.dart';
 
-/// Kingdom Connect.
+/// FRAMEDECKS.
 ///
-/// - Windows, macOS, Linux: the Studio, the same as the Windows app. When Kingdom Connect (the Windows program) is
+/// - Windows, macOS, Linux: the Studio, the same as the Windows app. When FRAMEDECKS (the Windows program) is
 ///   running on this PC, this window works on its Frames; otherwise the Frames are kept in this computer's own
 ///   kc-saved-content.json.
-/// - iPhone, iPad, Android: the remote control for Kingdom Connect on the PC.
+/// - iPhone, iPad, Android: the remote control for FRAMEDECKS on the PC.
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   if (!isDesktop) return runApp(const RemoteApp());
 
   await windowManager.ensureInitialized();
   await windowManager.waitUntilReadyToShow(
-    const WindowOptions(title: 'Kingdom Connect', minimumSize: Size(1100, 700), size: Size(1440, 900), center: true),
+    const WindowOptions(title: 'FRAMEDECKS', minimumSize: Size(1100, 700), size: Size(1440, 900), center: true),
     () async {
       await windowManager.show();
       await windowManager.focus();
@@ -48,5 +48,5 @@ class StudioApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) =>
-      MaterialApp(title: 'Kingdom Connect', debugShowCheckedModeBanner: false, theme: kcTheme(), home: const StudioScreen());
+      MaterialApp(title: 'FRAMEDECKS', debugShowCheckedModeBanner: false, theme: kcTheme(), home: const StudioScreen());
 }

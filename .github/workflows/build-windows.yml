@@ -130,7 +130,7 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
-          name: Kingdom Connect ${{ steps.ver.outputs.version }}
+          name: FRAMEDECKS ${{ steps.ver.outputs.version }}
           body_path: dist/release-notes.md
           files: |
             dist/Kingdom Connect v*.exe

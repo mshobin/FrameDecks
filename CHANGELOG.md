@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to Kingdom Connect are recorded here. The format follows
+All notable changes to FRAMEDECKS (earlier: Kingdom Connect) are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are numbered **major.minor** (see
 [docs/development/changelog-standards.md](docs/development/changelog-standards.md)). Each version links to its full
 release notes in [`docs/releases/`](docs/releases/). Dates are the dates of the release commits.
@@ -9,6 +9,17 @@ Versions before 4.9 (when the program had its earlier name) are described in the
 [docs/architecture/design-history.md](docs/architecture/design-history.md).
 
 ## [Unreleased]
+
+### Changed
+- **The program is now FRAMEDECKS** — *Present • Equip • Inspire*. Every name people read is updated: window titles,
+  the About page, the sign-in screens, messages, the installer, the store and web metadata (including Open Graph), and
+  the documentation.
+  - A new logo system replaces every icon, favicon, launcher icon and splash. It comes in horizontal, stacked and
+    icon-only versions, each for light and dark backgrounds, plus Teams, Zoom and marketing pictures. All are drawn by
+    `tools/make_brand_assets.py`. Guide: [docs/brand/framedecks-brand-guide.md](docs/brand/framedecks-brand-guide.md).
+  - Nothing works differently. The data folder, the program folder and exe, saved files, the API, the phone sign-in,
+    the KingdomConnect camera's name and ID, bundle IDs and the installer's AppId keep their names, so every install
+    upgrades in place.
 
 ### Added
 - **Kingdom Connect for every platform (Flutter)** in `kingdom_connect_app/`: a native rebuild of the Windows app

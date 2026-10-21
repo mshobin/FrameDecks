@@ -272,7 +272,7 @@ function mountKeys(root){
   function render(msg){
     root.innerHTML = '';
     var k = keys();
-    root.appendChild(h('p', {cls: 'hint', text: 'Opens the command palette from anywhere in Kingdom Connect, even while typing. Use Ctrl, Alt or both with a key.'}));
+    root.appendChild(h('p', {cls: 'hint', text: 'Opens the command palette from anywhere in FRAMEDECKS, even while typing. Use Ctrl, Alt or both with a key.'}));
     var table = h('div', {cls: 'kb-table'});
     [0, 1].forEach(function(n){
       var btn = h('button', {cls: 'btn small', type: 'button', text: 'Change'});

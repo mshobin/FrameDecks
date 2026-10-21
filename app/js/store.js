@@ -1,5 +1,5 @@
 /*
- * Kingdom Connect - shared state.
+ * FRAMEDECKS - shared state.
  *
  * Two ways to connect, chosen automatically:
  *  - Local program mode (page opened from http://localhost...): state lives in the
@@ -7,7 +7,7 @@
  *  - No-install mode (page opened as a file): state lives in this browser's local
  *    storage and syncs instantly between tabs of the SAME browser only.
  */
-/* LEGACY (6.9): settings this browser saved under the program's earlier name move to the Kingdom Connect names, once.
+/* LEGACY (6.9): settings this browser saved under the program's earlier name move to the FRAMEDECKS names, once.
  * This and legacy.py are the only places that know the earlier name; they exist so nobody loses their theme,
  * shortcuts, layout, members (file mode) or saved state. */
 (function(){

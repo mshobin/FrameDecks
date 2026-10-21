@@ -1,13 +1,13 @@
-# Kingdom Connect documentation
+# FRAMEDECKS documentation
 
-Everything you need to plan, present and support a service with Kingdom Connect — organized by what you want to
+Everything you need to plan, present and support a service with FRAMEDECKS — organized by what you want to
 do.
 
 **New here?** Start with [Getting started](getting-started.md). It takes about 15 minutes.
 
 ---
 
-## Use Kingdom Connect
+## Use FRAMEDECKS
 
 | Guide | What it covers |
 | --- | --- |
@@ -61,7 +61,7 @@ Detailed guides written alongside earlier versions. They remain accurate for the
 
 - [Changelog](../CHANGELOG.md) — every version at a glance
 - [Release notes](releases/) — full notes for each version
-- [Roadmap](../ROADMAP.md) — where Kingdom Connect is going
+- [Roadmap](../ROADMAP.md) — where FRAMEDECKS is going
 
 ## Conventions in these docs
 

@@ -1,6 +1,6 @@
 # Developer guide
 
-This guide is for people who want to change Kingdom Connect's code. For how to report bugs, suggest features and
+This guide is for people who want to change FRAMEDECKS's code. For how to report bugs, suggest features and
 what "done" means for a pull request, start with [CONTRIBUTING.md](../CONTRIBUTING.md).
 
 - [Prerequisites](#prerequisites)
@@ -194,5 +194,5 @@ failure. `tests/helpers/load-store.js` loads `app/js/store.js` with small browse
 
 You don't need to build locally. Push to `main`, push a version tag, or run **Build Windows installer** from the
 Actions tab on your branch; the workflow builds the camera, runs the self-check and tests, packages the app and
-attaches **Kingdom Connect v&lt;version&gt;.exe** (with a `.sha256` file) to the run. Full details, including a
+attaches **FRAMEDECKS v&lt;version&gt;.exe** (with a `.sha256` file) to the run. Full details, including a
 local build with `build.bat`, are in [docs/development/building-the-installer.md](development/building-the-installer.md).

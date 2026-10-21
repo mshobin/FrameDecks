@@ -1,6 +1,6 @@
-# Contributing to Kingdom Connect
+# Contributing to FRAMEDECKS
 
-Thank you for helping. Kingdom Connect is used by volunteers on Sunday mornings and on weeknight Bible studies, often
+Thank you for helping. FRAMEDECKS is used by volunteers on Sunday mornings and on weeknight Bible studies, often
 by people who are not technical and who have no time to troubleshoot while a meeting is running. Every contribution,
 whether a bug report, a test on a real church PC, a clearer sentence in a guide or a line of code, makes those
 services calmer.

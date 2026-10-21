@@ -1,11 +1,11 @@
 {
-    "name": "Kingdom Connect",
-    "short_name": "Kingdom Connect",
+    "name": "FRAMEDECKS",
+    "short_name": "FRAMEDECKS",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0A1120",
+    "background_color": "#04152D",
     "theme_color": "#0F1F3D",
-    "description": "Kingdom Connect: ministry operations, local-first",
+    "description": "The world’s most elegant presentation platform for ministry communication, teaching, discipleship, and digital engagement.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

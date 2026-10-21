@@ -1,4 +1,4 @@
-# Kingdom Connect - allow the iPad remote through Windows Firewall.
+# FRAMEDECKS - allow the iPad remote through Windows Firewall.
 # Run by "Allow iPad Remote (run once).bat" (as administrator).
 # Every change is limited to PRIVATE networks and can be undone with
 # "Undo iPad Remote permission.bat".
@@ -14,7 +14,7 @@ function Say($text, $color) { if ($color) { Write-Host $text -ForegroundColor $c
 function Step($n, $text) { Write-Host ''; Write-Host ("[" + $n + "] " + $text) -ForegroundColor Cyan }
 
 Say ''
-Say '  Kingdom Connect - allow the iPad remote' Yellow
+Say '  FRAMEDECKS - allow the iPad remote' Yellow
 Say '  ------------------------------------------'
 
 # 1. Network type -------------------------------------------------------------
@@ -66,7 +66,7 @@ Step 3 ('Allowing the Command Center (TCP ports ' + $Ports + ') on private netwo
 Remove-NetFirewallRule -DisplayName $RuleName -ErrorAction SilentlyContinue
 Remove-NetFirewallRule -DisplayName $OldRuleName -ErrorAction SilentlyContinue
 try {
-    New-NetFirewallRule -DisplayName $RuleName -Description 'Lets an iPad or phone on your own Wi-Fi reach the Kingdom Connect remote.' `
+    New-NetFirewallRule -DisplayName $RuleName -Description 'Lets an iPad or phone on your own Wi-Fi reach the FRAMEDECKS remote.' `
         -Direction Inbound -Action Allow -Protocol TCP -LocalPort $Ports -Profile Private,Domain -ErrorAction Stop | Out-Null
     Say '    Done.' Green
 } catch {

@@ -1,4 +1,4 @@
-"""Kingdom Connect - the Meeting Form (6.9): where everything sits on the Meeting Workbook's form tab, and filling it in.
+"""FRAMEDECKS - the Meeting Form (6.9): where everything sits on the Meeting Workbook's form tab, and filling it in.
 
 The Meeting Workbook has two tabs: Dashboard (formulas only) and Meeting Form (one guided page, top to bottom):
 

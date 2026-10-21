@@ -621,7 +621,7 @@ function importScene(){
       var made = null;
       commit(function(n){ sc.id = 'sc_' + Math.random().toString(36).slice(2, 9); sc.name = SC.uniqueName(n, sc.name); sc.created = sc.modified = Date.now(); sc.from = file.name; SC.insert(n, sc, selScene); made = sc; })
         .then(function(){ if (made) select(made.id, null, true); toast('Frame imported: ' + made.name); });
-    }).catch(function(){ toast('That file is not a Kingdom Connect Frame.', true); });
+    }).catch(function(){ toast('That file is not a FRAMEDECKS Frame.', true); });
   });
   document.body.appendChild(f); f.click();
 }

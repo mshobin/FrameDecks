@@ -1,4 +1,4 @@
-/* Kingdom Connect - Studio. v4.9 layout: the rail on the left of the whole Studio (Scenes on top, the
+/* FRAMEDECKS - Studio. v4.9 layout: the rail on the left of the whole Studio (Scenes on top, the
  * OBS-style Layers list beneath) stays visible in every Studio view (Meeting, Content, Canvas, Recordings);
  * the Canvas view shows the live canvas with the Inspector beside it. Everything you see is exactly what
  * KingdomConnect sends. The layer/scene logic below is unchanged - only where the panels are placed moved. */
@@ -16,7 +16,7 @@ function h(tag, attrs, kids){
 }
 function ib(icon, label, onclick, cls){ return h('button', {cls: 'ib ' + (cls || ''), type: 'button', title: label, 'aria-label': label, html: I(icon, 16), onclick: onclick}); }
 function toast(m, bad){ if (window.KCActions) window.KCActions.toast(m, bad); }
-if (!Store.served){ root.appendChild(h('p', {cls: 'plain', style: 'padding:20px', text: 'The Studio needs the installed Kingdom Connect app.'})); return; }
+if (!Store.served){ root.appendChild(h('p', {cls: 'plain', style: 'padding:20px', text: 'The Studio needs the installed FRAMEDECKS app.'})); return; }
 
 var REF_W = 1920, REF_H = 1080;            // inspector numbers use a 1920×1080 canvas
 var TYPES = {camera: ['video', 'Video source'], screen: ['monitor', 'Screen capture'], text: ['type', 'Text'], image: ['image', 'Image'],
@@ -96,7 +96,7 @@ var colFilter = h('select', {id: 's2-colfilter', 'aria-label': 'Frame collection
 var sceneSel = h('select', {id: 's2-scene', 'aria-label': 'Frame'});
 /* Share Window (was "Presentation Mode" before 6.1): a separate window showing only the scene, for Zoom > Share > window */
 var presBtn = h('button', {cls: 'btn primary s2-present', type: 'button', id: 's2-present', html: I('presentation', 16) + ' Share Window',
-  title: 'Open a separate window with only the Frame, to share in Zoom (Share Screen → Kingdom Connect Share Window)'});
+  title: 'Open a separate window with only the Frame, to share in Zoom (Share Screen → FRAMEDECKS Share Window)'});
 var recBtn = h('button', {cls: 'btn s2-rec', type: 'button', id: 's2-rec', html: '<span class="dot"></span> Record'});
 var lookSel = h('select', {id: 's2-look', 'aria-label': 'Camera look'});
 var focusBtn = ib('maximize-2', 'Focus: hide the rest of the app', function(){ document.body.classList.toggle('studio-focus'); focusBtn.innerHTML = I(document.body.classList.contains('studio-focus') ? 'minimize-2' : 'maximize-2', 16); setTimeout(fitStage, 50); });
@@ -123,7 +123,7 @@ presBtn.addEventListener('click', function(){
     return;
   }
   fetch('api/app/present', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({on: !open})})
-    .then(function(){ toast(open ? 'Presentation window closed' : 'Presentation window open: in Zoom choose Share Screen → “Kingdom Connect Share Window”'); setTimeout(refresh, 600); });
+    .then(function(){ toast(open ? 'Presentation window closed' : 'Presentation window open: in Zoom choose Share Screen → “FRAMEDECKS Share Window”'); setTimeout(refresh, 600); });
 });
 recBtn.addEventListener('click', function(){
   var on = !(S.recording && S.recording.on);

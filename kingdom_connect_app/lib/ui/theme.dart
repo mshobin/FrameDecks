@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// The Windows app's design tokens (app/css/theme.css, the navy & gold "Kingdom Connect" block) and the overlay
+/// The Windows app's design tokens (app/css/theme.css, the navy & gold "FRAMEDECKS" block) and the overlay
 /// card colours (app/css/overlay.css), so every screen looks the same as on Windows.
 class K {
   const K._();

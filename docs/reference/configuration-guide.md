@@ -1,4 +1,4 @@
-# Kingdom Connect: configuration guide (v6.5)
+# FRAMEDECKS: configuration guide (v6.5)
 
 This guide covers what to set up after installing:
 - the KingdomConnect camera;

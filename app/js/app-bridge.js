@@ -1,4 +1,4 @@
-/* Kingdom Connect - installed-app features: first-run import, close dialog, data folder & backups, external links.
+/* FRAMEDECKS - installed-app features: first-run import, close dialog, data folder & backups, external links.
  * Everything here talks to the local program; nothing is sent anywhere else. */
 (function(){
 'use strict';
@@ -50,7 +50,7 @@ function doImport(folder, closeFn){
 }
 function pickFolder(){
   return post('choose-folder').then(function(d){ return d.folder; }).catch(function(){
-    var p = prompt('Type or paste the folder path of your earlier Kingdom Connect\n(for example C:\\Users\\You\\Downloads\\Kingdom-Connect):');
+    var p = prompt('Type or paste the folder path of your earlier FRAMEDECKS\n(for example C:\\Users\\You\\Downloads\\Kingdom-Connect):');
     return p && p.trim();
   });
 }
@@ -65,7 +65,7 @@ function importDialog(candidates, firstRun){
     });
   } else list.appendChild(h('p', {cls: 'hint', text: 'No earlier Kingdom Connect folder was found on your Desktop, Downloads or Documents. Choose it yourself, or start fresh.'}));
   var closeFn = modal(firstRun ? 'Welcome! Bring in your existing data?' : 'Import from an earlier version', [
-    h('p', {text: 'This copies your saved verses and questions, members, settings and phone-remote PIN from the folder where you used Kingdom Connect before. The original folder is not changed.'}),
+    h('p', {text: 'This copies your saved verses and questions, members, settings and phone-remote PIN from the folder where you used FRAMEDECKS before. The original folder is not changed.'}),
     list
   ], [
     {text: 'Choose a folder…', onclick: function(){ pickFolder().then(function(f){ if (f) doImport(f, closeFn); }); return false; }},
@@ -94,7 +94,7 @@ function renderDataCard(){
     var t = h('table', {cls: 'plain'}, [h('tr', {}, [h('th', {text: 'Backup'}), h('th', {text: 'Contains'})])]);
     info.backups.forEach(function(b){ t.appendChild(h('tr', {}, [h('td', {cls: 'mono', text: b.name}), h('td', {text: b.files.join(', ')})])); });
     card.appendChild(t);
-    card.appendChild(h('p', {cls: 'hint', text: 'To restore one: open the backups folder, then use “Load a backup file” below or Members → Import Excel, or copy the files into the data folder while Kingdom Connect is closed.'}));
+    card.appendChild(h('p', {cls: 'hint', text: 'To restore one: open the backups folder, then use “Load a backup file” below or Members → Import Excel, or copy the files into the data folder while FRAMEDECKS is closed.'}));
   }
 }
 /* About line in General */
@@ -102,7 +102,7 @@ function renderAbout(){
   var sec = $('sec-general'); if (!sec || !info) return;
   var p = $('app-about');
   if (!p){ p = h('p', {cls: 'hint', id: 'app-about'}); sec.appendChild(p); }
-  p.textContent = 'Kingdom Connect version ' + info.version + (info.installedApp ? ' (installed app)' : '') + '.';
+  p.textContent = 'FRAMEDECKS version ' + info.version + (info.installedApp ? ' (installed app)' : '') + '.';
 }
 /* Settings > General > Performance (installed app): draw this window without the graphics card */
 function renderPerf(){
@@ -111,7 +111,7 @@ function renderPerf(){
   if (!box){
     var cb = h('input', {type: 'checkbox', id: 'app-lowgpu'});
     cb.addEventListener('change', function(){
-      post('settings', {lowGpu: cb.checked}).then(function(){ toast('Saved. Restart Kingdom Connect to apply it.'); refresh(); });
+      post('settings', {lowGpu: cb.checked}).then(function(){ toast('Saved. Restart FRAMEDECKS to apply it.'); refresh(); });
     });
     box = h('section', {cls: 'box', id: 'app-perf', 'aria-labelledby': 'app-perf-title'}, [
       h('div', {cls: 'box-head'}, [h('h2', {id: 'app-perf-title', text: 'Performance'})]),
@@ -149,10 +149,10 @@ function renderWindow(){
     hk.result ? 'Not working: ' + hk.key + ' is ' + hk.result + '. Choose another.' : '';
   var body = [
     h('div', {cls: 'box-head'}, [h('h2', {id: 'app-win-title', text: 'Window and tray'})]),
-    h('label', {cls: 'check'}, [check('app-chrome', st.customChrome !== false, 'customChrome', 'Saved. Restart Kingdom Connect to apply it.'),
+    h('label', {cls: 'check'}, [check('app-chrome', st.customChrome !== false, 'customChrome', 'Saved. Restart FRAMEDECKS to apply it.'),
       ' Modern window: the app’s own ribbon instead of the Windows title bar (restart to apply)']),
     h('label', {cls: 'field'}, [h('span', {text: 'Minimize button'}), select('app-min', [['ask', 'Ask each time'], ['tray', 'Hide to tray'], ['taskbar', 'Stay in taskbar']], st.minimizeTo || 'ask', 'minimizeTo', 'Saved')]),
-    h('p', {cls: 'hint', text: 'In the tray (near the clock) Kingdom Connect keeps running: camera, overlays, phone remote and shortcuts keep working.'}),
+    h('p', {cls: 'hint', text: 'In the tray (near the clock) FRAMEDECKS keeps running: camera, overlays, phone remote and shortcuts keep working.'}),
     h('label', {cls: 'field'}, [h('span', {text: 'Spotlight (works everywhere, even from the tray)'}), select('app-spot', SPOT_KEYS, st.spotlightKey == null ? 'Alt+Space' : st.spotlightKey, 'spotlightKey', 'Saved')]),
     h('p', {cls: 'hint', id: 'app-spot-state', text: hkText}),
     h('h3', {cls: 'app-sub', text: 'Teleprompter overlay'}),
@@ -175,7 +175,7 @@ window.KCAppClosing = function(){
   });
   var body = [h('p', {text: 'Keep it running in the background so your overlays keep working in OBS and Camo and your phone stays connected. It stays in the tray near the clock; click the icon to open this window again.'})];
   if (live.length) body.unshift(h('div', {cls: 'alert warn'}, [h('b', {text: 'On screen now: '}), live.join(', ') + '. Quitting removes it from your Zoom video.']));
-  modal('Close Kingdom Connect?', body, [
+  modal('Close FRAMEDECKS?', body, [
     {text: 'Keep running in the background', cls: 'primary', onclick: function(){ post('hide'); }},
     {text: 'Quit', cls: live.length ? 'danger' : '', onclick: function(){ post('quit'); }},
     {text: 'Cancel', cls: 'quiet', onclick: function(){}}
@@ -200,7 +200,7 @@ window.open = function(url){
 };
 
 /* ---------- v6.4 native app window ----------
- * In the app window (WebView2, or the Edge/Chrome app window used when WebView2 is missing) Kingdom Connect behaves
+ * In the app window (WebView2, or the Edge/Chrome app window used when WebView2 is missing) FRAMEDECKS behaves
  * like a desktop app, not a web page: no browser reload / print / view-source / find / zoom keys, no browser
  * right-click menu outside text boxes, and files dropped outside a drop zone don't replace the page.
  * The title bar follows the app's dark or light theme. In an ordinary browser tab nothing here applies. */

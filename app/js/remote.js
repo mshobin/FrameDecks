@@ -1,4 +1,4 @@
-/* Kingdom Connect v6 - Kingdom Connect Mobile Director: the phone / tablet remote. Same architecture as the PC:
+/* Kingdom Connect v6 - FRAMEDECKS Mobile Director: the phone / tablet remote. Same architecture as the PC:
  * Scene → Layer → Canvas. The scenes, layers and live state are the shared state (js/store.js KCScenes), so a
  * take, a layer's eye or a duplicate here is exactly the same action as on the PC. Member data never comes here.
  *   phones  : Live (canvas, Prev · Go Live · Next, transition, Q + Scripture, list stepper, program) · Scenes · Layers

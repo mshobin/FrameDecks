@@ -37,10 +37,10 @@ FIELDS = {
     "exposureMode":         ("enum", ("auto", "manual"), "auto"),
     "shutterSpeed":         ("num", (-13.0, 0.0), -6.0),       # OpenCV exposure units: log2(seconds), -6 = 1/64 s
     "gain":                 ("num", (0.0, 255.0), 0.0),        # camera units; manual exposure only
-    "exposureCompensation": ("num", (-2.0, 2.0), 0.0),         # EV, applied by Kingdom Connect (software)
+    "exposureCompensation": ("num", (-2.0, 2.0), 0.0),         # EV, applied by FRAMEDECKS (software)
     "whiteBalanceMode":     ("enum", ("auto", "manual"), "auto"),
     "whiteBalanceKelvin":   ("num", (2500.0, 7500.0), 4600.0), # manual white balance only (camera control)
-    "temperature":          ("num", (-100.0, 100.0), 0.0),     # Kingdom Connect fine-tune: warmer + / cooler -
+    "temperature":          ("num", (-100.0, 100.0), 0.0),     # FRAMEDECKS fine-tune: warmer + / cooler -
     "tint":                 ("num", (-100.0, 100.0), 0.0),     # magenta + / green -
     "brightness":           ("num", (-100.0, 100.0), 0.0),
     "contrast":             ("num", (-100.0, 100.0), 0.0),
@@ -51,8 +51,8 @@ FIELDS = {
     "sharpness":            ("num", (0.0, 100.0), 0.0),
     "backlightCompensation": ("enum", ("default", "off", "on"), "default"),
     "antiFlicker":          ("enum", ("off", "50", "60", "auto"), "off"),
-    "spotlight":            ("bool", None, False),              # reserved: not implemented by Kingdom Connect (always off)
-    "retouch":              ("bool", None, False),              # reserved: not implemented by Kingdom Connect (always off)
+    "spotlight":            ("bool", None, False),              # reserved: not implemented by FRAMEDECKS (always off)
+    "retouch":              ("bool", None, False),              # reserved: not implemented by FRAMEDECKS (always off)
     "effects":              ("enum", ("none",), "none"),
     "filterIntensity":      ("num", (0.0, 100.0), 100.0),      # 100 = the Camera Look exactly as in version 1
 }

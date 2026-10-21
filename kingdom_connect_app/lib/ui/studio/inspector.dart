@@ -481,7 +481,7 @@ class ContentEditor extends ConsumerWidget {
       left: [
         ...common,
         Text(
-          '${kindInfo[kind]?.name ?? 'This'} Content is drawn by Kingdom Connect on the Windows PC (its camera, screen and media '
+          '${kindInfo[kind]?.name ?? 'This'} Content is drawn by FRAMEDECKS on the Windows PC (its camera, screen and media '
           'capture). Here you can rename it, show or hide it, and delete it.',
           style: const TextStyle(color: K.muted, fontSize: 13, height: 1.45),
         ),

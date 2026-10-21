@@ -1,4 +1,4 @@
-<p align="center"><img src="assets/brand/kc-about-header.webp" alt="Kingdom Connect. Christ-Centered Fellowship. Connecting Believers. Sharing Christ. Growing Together. Version 6.9" width="900"></p>
+<p align="center"><img src="assets/brand/kc-about-header.webp" alt="FRAMEDECKS. Present • Equip • Inspire. Connecting Believers. Sharing Christ. Growing Together. Version 6.9" width="900"></p>
 
 A service presentation platform for churches and ministries. Plan each service as **Frames** — Welcome, Worship,
 Scripture, Discussion, Prayer, Closing — fill them with questions, scriptures, text, timers, pictures, video and
@@ -6,7 +6,7 @@ PowerPoint, and present to the room, to Zoom / Teams / Google Meet and to your s
 the PC, a phone or an iPad. It runs **entirely on your PC**: no accounts, no subscriptions, no cloud, no telemetry.
 The only feature that ever goes online is the optional ESV scripture fetch.
 
-> **Status: Kingdom Connect 6.9 is ready for teaching, Bible study, small-group and hybrid services, with documented
+> **Status: FRAMEDECKS 6.9 is ready for teaching, Bible study, small-group and hybrid services, with documented
 > gaps.** The biggest: no song / lyrics library yet (lyrics are shown as Text Content or a PowerPoint), an unsigned
 > installer, no automated UI tests, and no published licence. See the
 > [repository audit](docs/project/repository-audit.md) and the [roadmap](ROADMAP.md).
@@ -117,5 +117,5 @@ No licence has been published yet; until one is, all rights are reserved by the 
 their own licences: softcam (MIT), MediaPipe selfie segmentation model (Apache 2.0), SheetJS and Lucide icons (see
 `app/vendor/`), EB Garamond and Source Sans 3 (SIL Open Font License).
 
-<sub>Kingdom Connect was first published under an earlier name. Version 6.9 installs over every earlier version and,
+<sub>FRAMEDECKS was first published under an earlier name. Version 6.9 installs over every earlier version and,
 on first start, moves the data saved under that name to the Kingdom Connect folder, so each church keeps its data.</sub>

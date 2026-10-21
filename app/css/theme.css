@@ -625,7 +625,7 @@ html[data-theme="light"] .canvas-frame,html[data-theme="light"] .ws-center{backg
 html[data-theme="light"] .si-badge.live,html[data-theme="light"] .canvas-badge.live{color:#fff}
 
 /* =====================================================================================================
- * v6.1 - Kingdom Connect: one navy & gold design language, plus Quick Start, the Content Library,
+ * v6.1 - FRAMEDECKS: one navy & gold design language, plus Quick Start, the Content Library,
  * the Question · Scripture pill, Duplicate → Edit question, Presentation Mode and Basic / Advanced.
  * Token changes only where possible: no new effects, no backdrop blur, no running animations.
  * ===================================================================================================== */
@@ -652,7 +652,7 @@ html[data-theme="light"]{
 .scene-item.sel,.layer-item.sel{border-color:var(--kc-gold-line)}
 html[data-theme="light"] .scene-item.sel,html[data-theme="light"] .layer-item.sel{border-color:rgba(31,58,109,.35)}
 
-/* Header: the Kingdom Connect wordmark */
+/* Header: the FRAMEDECKS wordmark */
 .console-top{background:linear-gradient(180deg,rgba(227,183,90,.035),rgba(227,183,90,0)),var(--chrome-bg)}
 .console-top .brand h1{font-family:var(--sans);font-weight:800;font-size:13.5px;letter-spacing:.11em;white-space:nowrap;text-transform:uppercase;
   background:linear-gradient(180deg,#fff3cf,#f0c96d 55%,#c9973a);-webkit-background-clip:text;background-clip:text;color:transparent}

@@ -3,7 +3,7 @@
 > **Simple. Reliable. Worship Ready.**
 > **Connect. Present. Worship.**
 
-This roadmap describes where Kingdom Connect is heading. It is a statement of direction, **not a promise of dates or
+This roadmap describes where FRAMEDECKS is heading. It is a statement of direction, **not a promise of dates or
 features**. Priorities change when churches tell us what gets in their way on a Sunday. To suggest something, open a
 **Feature request** issue and describe the ministry situation.
 
@@ -20,7 +20,7 @@ Every item below is weighed against these principles, in this order:
 3. **Offline first.** A service must never depend on the internet, an account or a server. Online features (like the
    ESV lookup) are optional conveniences with an offline fallback.
 4. **Private by default.** Church and member data stays on the church's own computer. No telemetry.
-5. **No subscriptions.** Kingdom Connect is church software, not a service with tiers, seats or billing.
+5. **No subscriptions.** FRAMEDECKS is church software, not a service with tiers, seats or billing.
 6. **Fast operation.** The common actions (Go Live, next, hide, black screen) are one key or one tap, and respond at
    once.
 
@@ -28,7 +28,7 @@ Every item below is weighed against these principles, in this order:
 
 ## Where we are (6.6)
 
-Kingdom Connect runs a complete meeting from one Windows PC: Frames and Content, questions and scriptures with
+FRAMEDECKS runs a complete meeting from one Windows PC: Frames and Content, questions and scriptures with
 answers and notes, PowerPoint and media, the KingdomConnect camera for Zoom, Teams and Google Meet, OBS overlay pages,
 a Presentation window for projectors and screen sharing, annotation, a Speaker View, and a phone remote. See
 [CHANGELOG.md](CHANGELOG.md).

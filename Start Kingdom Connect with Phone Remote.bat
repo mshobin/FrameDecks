@@ -1,8 +1,8 @@
 @echo off
-title Kingdom Connect (iPad remote ON)
+title FRAMEDECKS (iPad remote ON)
 cd /d "%~dp0"
 echo.
-echo  Starting Kingdom Connect with the iPad remote...
+echo  Starting FRAMEDECKS with the iPad remote...
 echo  If Windows asks whether Python may use the network, choose
 echo  PRIVATE networks only, then select Allow.
 echo.

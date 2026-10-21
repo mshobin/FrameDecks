@@ -1,4 +1,4 @@
-/* Kingdom Connect - overlay engine used by every overlay page and the dashboard preview */
+/* FRAMEDECKS - overlay engine used by every overlay page and the dashboard preview */
 (function(){
 'use strict';
 
