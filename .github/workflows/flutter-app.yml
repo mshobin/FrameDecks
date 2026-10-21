@@ -78,6 +78,6 @@ jobs:
           fi
       - uses: actions/upload-artifact@v4
         with:
-          name: kingdom-connect-${{ matrix.target }}
+          name: framedecks-${{ matrix.target }}
           path: kingdom_connect_app/${{ matrix.artifact }}
           if-no-files-found: error

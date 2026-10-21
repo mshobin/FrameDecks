@@ -92,9 +92,9 @@ BEGIN
             VALUE "CompanyName", "org.kingdomconnect" "\0"
             VALUE "FileDescription", "FRAMEDECKS" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "kingdom_connect" "\0"
+            VALUE "InternalName", "FrameDecks" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2026 org.kingdomconnect. All rights reserved." "\0"
-            VALUE "OriginalFilename", "kingdom_connect.exe" "\0"
+            VALUE "OriginalFilename", "FrameDecks.exe" "\0"
             VALUE "ProductName", "FRAMEDECKS" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
