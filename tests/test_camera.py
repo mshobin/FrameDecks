@@ -72,6 +72,9 @@ class Ids(unittest.TestCase):
         self.assertEqual(build_mfcam.guid_init("06BACA0B-14C0-4E9B-8161-ED7D11F73518"),
                          "{ 0x06baca0b,0x14c0,0x4e9b,{0x81,0x61,0xed,0x7d,0x11,0xf7,0x35,0x18} }")
 
+    def test_install_script_knows_the_camera(self):
+        self.assertIn(sink.MF_CLSID, (ROOT / "vcam" / "bin" / "kingdomconnect-camera.ps1").read_text())
+
     def test_errors_in_words(self):
         self.assertIn("not installed", sink.mf_error(0x80040154))
         self.assertIn("0x8000FFFF", sink.mf_error(0x8000FFFF))
@@ -88,7 +91,8 @@ class Windows11Camera(unittest.TestCase):
 
     def run_cmd(self, name):
         r = subprocess.run(["cmd", "/c", str(_bin() / name)], capture_output=True, text=True, timeout=180)
-        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.log = getattr(self, "log", "") + f"--- {name}\n{r.stdout}{r.stderr}"
+        self.assertEqual(r.returncode, 0, self.log)
 
     def test_end_to_end(self):
         import cv2
@@ -100,7 +104,7 @@ class Windows11Camera(unittest.TestCase):
             self.skipTest(f"Windows build {sink.windows_build()} has no virtual cameras")
         self.run_cmd("register-kingdomconnect-camera.cmd")
         try:
-            self.assertTrue(sink.mf_registered(), "the install script did not register the camera")
+            self.assertTrue(sink.mf_registered(), "the install script did not register the camera\n" + self.log)
             self.assertEqual(sink.choose([ROOT])[0], "mf")
             try:
                 cam = sink.MFSink(dll, 1280, 720)
@@ -144,7 +148,7 @@ class Windows11Camera(unittest.TestCase):
                 cam.close()
         finally:
             self.run_cmd("unregister-kingdomconnect-camera.cmd")
-        self.assertFalse(sink.mf_registered(), "the remove script left the camera registered")
+        self.assertFalse(sink.mf_registered(), "the remove script left the camera registered\n" + self.log)
 
 
 if __name__ == "__main__":

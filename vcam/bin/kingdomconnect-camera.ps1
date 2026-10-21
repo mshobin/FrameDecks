@@ -11,11 +11,14 @@ $wow = "$env:SystemRoot\SysWOW64\regsvr32.exe"
 $programFiles = if ($env:ProgramW6432) { $env:ProgramW6432 } else { $env:ProgramFiles }   # the 64-bit folder
 $store = Join-Path $programFiles 'Kingdom Connect Camera'
 $win11 = [Environment]::OSVersion.Version.Build -ge 22000
+# Must match MF_CLSID in vcam/sink.py (the Windows 11 camera)
+$mfClsid = '{06BACA0B-14C0-4E9B-8161-ED7D11F73518}'
 
 function Reg([string]$exe, [string]$dll, [switch]$Remove) {
   if ((Test-Path $exe) -and (Test-Path $dll)) {
     $a = @('/s'); if ($Remove) { $a += '/u' }; $a += "`"$dll`""
-    Start-Process -FilePath $exe -ArgumentList $a -Wait -WindowStyle Hidden
+    $p = Start-Process -FilePath $exe -ArgumentList $a -Wait -WindowStyle Hidden -PassThru
+    Write-Output ("regsvr32 {0} {1}: exit {2}" -f ($(if ($Remove) { 'remove' } else { 'add' })), $dll, $p.ExitCode)
   }
 }
 
@@ -25,6 +28,14 @@ function Remove-MFCam {
       Reg $sys (Join-Path $_.FullName 'kingdomconnect_mfcam64.dll') -Remove
       Reg $wow (Join-Path $_.FullName 'kingdomconnect_mfcam32.dll') -Remove
       Remove-Item $_.FullName -Recurse -Force -ErrorAction SilentlyContinue   # a copy still in use goes after a restart
+    }
+  }
+  # then Windows' own entries for the camera, whatever happened above (both the 64- and the 32-bit view)
+  foreach ($k in "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Classes\CLSID\$mfClsid",
+                 "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Classes\CLSID\$mfClsid") {
+    if (Test-Path $k) {
+      Remove-Item -Path $k -Recurse -Force -ErrorAction SilentlyContinue
+      Write-Output ("removed {0}: {1}" -f $k, -not (Test-Path $k))
     }
   }
 }
