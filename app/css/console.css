@@ -528,3 +528,10 @@ body.studio-focus .studio.s2{height:100vh !important}
 .acct-key{font:600 18px/1.6 Consolas,'Cascadia Mono',monospace;letter-spacing:1px;padding:12px 16px;margin:8px 0;
   border:1px solid var(--gold,#D4AF37);border-radius:8px;user-select:all;word-break:break-word}
 #acct-recovery{min-width:min(100%,420px);font-family:Consolas,'Cascadia Mono',monospace}
+
+/* Phase 4: pairing (Settings > Phone & iPad Remote > Control from anywhere) */
+.pair-panel{margin:14px 0}
+.pair-code{font-size:34px;font-weight:700;letter-spacing:.12em;margin:6px 0}
+.pair-check{font-size:20px;letter-spacing:.08em}
+.pair-role select{margin-left:6px}
+#trusted-devices .table td{vertical-align:middle}

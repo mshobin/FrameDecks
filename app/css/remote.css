@@ -220,10 +220,10 @@ body:has(.tabbar[hidden]) .layout{padding-bottom:16px}
 /* Phase 3: the remote from anywhere (js/cloud-remote.js): sign-in and PC cards, same card and buttons as the PIN */
 #cloud-card{position:fixed;inset:0;z-index:50;overflow:auto}
 #cloud-card form{margin:0}
-#cloud-email,#cloud-code{width:100%;font-size:20px;text-align:center;padding:16px 12px;border-radius:14px;border:1px solid var(--edge2);
+#cloud-email,#cloud-code,#pair-code{width:100%;font-size:20px;text-align:center;padding:16px 12px;border-radius:14px;border:1px solid var(--edge2);
   background:#0b1324;color:var(--ink);margin-bottom:14px;font-family:var(--sans);-webkit-user-select:text;user-select:text}
-#cloud-code{font-size:42px;letter-spacing:.4em;padding:12px}
-#cloud-email:focus,#cloud-code:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(227,183,90,.25)}
+#cloud-code,#pair-code{font-size:42px;letter-spacing:.4em;padding:12px}
+#cloud-email:focus,#cloud-code:focus,#pair-code:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(227,183,90,.25)}
 #cloud-card [data-pc]{margin-bottom:10px}
 #cloud-card [data-pc][disabled]{opacity:.55}
 #cloud-card [data-pc] small{font-weight:600;font-size:15px}
@@ -331,3 +331,4 @@ body.drawing{overflow:hidden}
 .sr-btn.sr-tp{width:100%;min-height:64px;margin-top:12px;display:flex;align-items:center;justify-content:center;gap:10px}
 .sr-btn.sr-tp small{font-size:12px;font-weight:600;letter-spacing:0;color:var(--muted)}
 .now-tp.full > summary{display:none}
+#cloud-card .pair-check{font-size:40px;font-weight:800;letter-spacing:.12em;color:#f7dc95;margin:4px 0 10px}

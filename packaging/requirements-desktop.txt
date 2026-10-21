@@ -8,4 +8,5 @@ cv2-enumerate-cameras>=1.4,<2   # FrameCast: lists webcams by name
 windows-capture>=2.0,<3   # screen sharing: DXGI Desktop Duplication (displays) + Windows Graphics Capture (windows)
 pypdfium2>=4.30           # presentation layers from PDF slides
 comtypes>=1.4             # Next/Previous in a running PowerPoint slide show
+cryptography>=44             # pairing (Phase 4): X25519, HKDF, AES-GCM for the remote from anywhere
 pyinstaller>=6.10

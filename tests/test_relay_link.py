@@ -1,6 +1,6 @@
 """FrameDecks - the remote from anywhere, this PC's side (relay_link.py + server.py RelayHandler), against a small fake
-cloud that hands out tickets and plays the relay (docs/architecture/relay-protocol.md). The real program runs; the
-test is the phone. Run: python -m unittest discover -s tests -p "test_*.py"
+cloud that hands out tickets and plays the relay (docs/architecture/relay-protocol.md, pairing-protocol.md). The real
+program runs; the test is a paired phone that seals its messages. Run: python -m unittest discover -s tests -p "test_*.py"
 """
 import base64
 import hashlib
@@ -21,6 +21,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
+import pairing_crypto  # noqa: E402
 import relay_link  # noqa: E402
 
 PIN = "424242"
@@ -31,6 +32,7 @@ class FakeRelay:
 
     def __init__(self):
         self.inbox, self.sock, self.connected = queue.Queue(), None, threading.Event()
+        self.n = {}
         self.closed = threading.Event()
         relay = self
 
@@ -109,20 +111,34 @@ class FakeRelay:
         head = bytes([0x81]) + (bytes([n]) if n < 126 else bytes([126]) + struct.pack(">H", n) if n < 65536 else bytes([127]) + struct.pack(">Q", n))
         self.sock.sendall(head + data)
 
-    def ask(self, path, method="GET", body=None, cookie=None, ident="d1"):
-        """Send one request as the phone; return the PC's answer."""
-        req = {"t": "req", "id": f"{ident}-{time.time()}", "from": ident, "method": method, "path": path,
-               "headers": {"Content-Type": "application/json"} if body is not None else {}}
-        if body is not None:
-            req["body"] = json.dumps(body)
-        if cookie:
-            req["headers"]["Cookie"] = cookie
+    def raw(self, req):
         self.send(req)
         while True:
             res = self.inbox.get(timeout=20)
             if res.get("t") == "res" and res.get("id") == req["id"]:
-                assert res["to"] == ident
+                assert res["to"] == req["from"]
                 return res
+
+    def ask(self, path, method="GET", body=None, dev=None, conn="c1", n=None, key=None, tamper=False):
+        """One request as a phone. With `dev` (a paired device: its id and key) it is sealed, as since Phase 4."""
+        inner = {"method": method, "path": path, "headers": {"Content-Type": "application/json"} if body is not None else {}}
+        if body is not None:
+            inner["body"] = json.dumps(body)
+        req = {"t": "req", "id": f"q{time.time()}", "from": conn, "dev": dev[0] if dev else None, "role": None}
+        if not dev:
+            req.update(inner)
+            return self.raw(req)
+        self.n[(dev[0], conn)] = n = n if n is not None else self.n.get((dev[0], conn), 0) + 1
+        inner["n"] = n
+        req["seal"] = pairing_crypto.seal(key or dev[1], "req", dev[0], inner)
+        if tamper:
+            req["seal"]["ct"] = req["seal"]["ct"][:-4] + ("AAAA" if req["seal"]["ct"][-4:] != "AAAA" else "BBBB")
+        res = self.raw(req)
+        if "seal" not in res:
+            return res
+        out = pairing_crypto.open_sealed(dev[1], "res", dev[0], res["seal"])
+        assert out["n"] == n, "the answer is for this request"
+        return out
 
 
 class RelayLinkTest(unittest.TestCase):
@@ -149,6 +165,12 @@ class RelayLinkTest(unittest.TestCase):
         assert cls.port, "the program did not start"
         cls.local("email-start", {"email": "ann@example.org"})
         cls.local("email-verify", {"email": "ann@example.org", "code": "123456"})
+        # two phones paired with this PC (as Settings would store them after Approve): an operator and a viewer
+        cls.op = ("dev_op", os.urandom(32))
+        cls.viewer = ("dev_view", os.urandom(32))
+        (cls.data / "kc-devices").write_text(json.dumps({
+            d[0]: {"key": pairing_crypto.b64u(d[1]), "role": role, "rid": "r1", "name": d[0]}
+            for d, role in ((cls.op, "operator"), (cls.viewer, "viewer"))}))
 
     @classmethod
     def tearDownClass(cls):
@@ -174,36 +196,52 @@ class RelayLinkTest(unittest.TestCase):
             time.sleep(0.2)
         self.assertEqual(st["relayLink"]["state"], "online")
 
-    def test_2_a_phone_through_the_relay_is_a_phone(self):
-        r = self.relay.ask("remote.html")
-        self.assertEqual(r["status"], 200)
-        self.assertIn("text/html", r["headers"]["Content-Type"])
-        self.assertEqual(self.relay.ask("api/state")["status"], 403, "no PIN, no state")
+    def test_2_only_paired_devices_and_only_sealed(self):
+        self.assertEqual(json.loads(self.relay.ask("api/state")["body"])["error"], "pair_first", "unsealed: pair first")
+        stranger = ("dev_x", os.urandom(32))
+        self.assertEqual(json.loads(self.relay.ask("api/state", dev=stranger)["body"])["error"], "not_paired")
+        wrong = self.relay.ask("api/state", dev=self.op, key=os.urandom(32), n=1000)
+        self.assertEqual(json.loads(wrong["body"])["error"], "bad_seal", "another key cannot speak for this device")
+        self.assertEqual(json.loads(self.relay.ask("api/state", dev=self.op, tamper=True, n=1001)["body"])["error"], "bad_seal")
+
+    def test_3_a_paired_phone_is_a_phone_without_the_pin(self):
+        r = self.relay.ask("api/state", dev=self.op, conn="c3")
+        self.assertEqual(r["status"], 200, "approved at the PC: no PIN")
+        self.assertIn("rev", json.loads(r["body"]), "the same state the Wi-Fi remote gets")
         for path in ("dashboard.html", "api/private", "api/cloud/status", "api/diagnostics"):
-            self.assertEqual(self.relay.ask(path)["status"], 403, path + " is never reachable through the relay")
-        self.assertEqual(self.relay.ask("api/remote-login", "POST", {"pin": "000000"})["status"], 401)
-        r = self.relay.ask("api/remote-login", "POST", {"pin": PIN})
-        self.assertEqual(r["status"], 200)
-        cookie = r["headers"]["Set-Cookie"].split(";")[0]
-        st = self.relay.ask("api/state", cookie=cookie)
-        self.assertEqual(st["status"], 200)
-        self.assertIn("rev", json.loads(st["body"]), "the same state the Wi-Fi remote gets")
-        self.assertEqual(self.relay.ask("api/private", cookie=cookie)["status"], 403, "the PIN never opens members data")
-        self.assertEqual(self.relay.ask("dashboard.html", cookie=cookie)["status"], 403)
+            self.assertEqual(self.relay.ask(path, dev=self.op, conn="c3")["status"], 403, path + " is never reachable this way")
+        rev = json.loads(r["body"])["rev"]
+        w = self.relay.ask("api/state", "POST", {"rev": rev, "state": json.loads(r["body"]).get("state")}, dev=self.op, conn="c3")
+        self.assertNotEqual(w["status"], 403, "an operator may change things")
 
-    def test_3_wrong_pins_lock_out_that_connection_only(self):
-        for _ in range(5):
-            self.relay.ask("api/remote-login", "POST", {"pin": "111111"}, ident="d9")
-        self.assertEqual(self.relay.ask("api/remote-login", "POST", {"pin": PIN}, ident="d9")["status"], 429)
-        self.assertEqual(self.relay.ask("api/remote-login", "POST", {"pin": PIN}, ident="d2")["status"], 200)
+    def test_4_replays_are_refused(self):
+        self.assertEqual(self.relay.ask("api/rev", dev=self.op, conn="c4", n=5)["status"], 200)
+        r = self.relay.ask("api/rev", dev=self.op, conn="c4", n=5)
+        self.assertEqual((r["status"], json.loads(r["body"])["error"]), (409, "replay"))
+        self.assertEqual(self.relay.ask("api/rev", dev=self.op, conn="c4", n=4)["status"], 409, "reordered")
+        self.assertEqual(self.relay.ask("api/rev", dev=self.op, conn="c4", n=6)["status"], 200)
 
-    def test_4_binary_answers_travel_as_base64(self):
-        r = self.relay.ask("icons/remote-192.png")
+    def test_5_a_viewer_reads_and_changes_nothing(self):
+        r = self.relay.ask("api/state", dev=self.viewer, conn="c5")
         self.assertEqual(r["status"], 200)
-        self.assertEqual(r.get("enc"), "b64")
+        w = self.relay.ask("api/state", "POST", {"rev": json.loads(r["body"])["rev"]}, dev=self.viewer, conn="c5")
+        self.assertEqual((w["status"], json.loads(w["body"])["error"]), (403, "role"))
+
+    def test_6_binary_answers_travel_sealed_as_base64(self):
+        r = self.relay.ask("icons/remote-192.png", dev=self.op, conn="c6")
+        self.assertEqual((r["status"], r.get("enc")), (200, "b64"))
         self.assertTrue(base64.b64decode(r["body"]).startswith(b"\x89PNG"))
 
-    def test_5_switched_off_closes_the_connection(self):
+    def test_7_revoked_at_the_pc_is_cut_off_at_once(self):
+        devices = json.loads((self.data / "kc-devices").read_text())
+        devices.pop(self.viewer[0])
+        (self.data / "kc-devices").write_text(json.dumps(devices))
+        t = time.time()
+        r = self.relay.ask("api/rev", dev=self.viewer, conn="c7")
+        self.assertEqual(json.loads(r["body"])["error"], "not_paired")
+        self.assertLess(time.time() - t, 1.0, "within a second")
+
+    def test_8_switched_off_closes_the_connection(self):
         self.local("settings", {"relay": False})
         self.assertTrue(self.relay.closed.wait(10), "switched off: the socket closes")
 

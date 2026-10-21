@@ -74,7 +74,7 @@ SESSION_DAYS = 30
 COOKIE = "kc_remote"
 # What a signed-in phone or iPad may open. Member data and the dashboard are never on this list.
 REMOTE_PUBLIC = {"/remote.html", "/css/remote.css", "/js/remote.js", "/js/store.js", "/js/brand.js", "/api/remote-login",
-                 "/js/cloud-config.js", "/js/cloud-remote.js",
+                 "/js/cloud-config.js", "/js/cloud-remote.js", "/js/pair-crypto.js",
                  "/js/teleprompter.js", "/css/teleprompter.css",
                  "/remote-manifest.json", "/icons/remote-180.png", "/icons/remote-192.png", "/icons/remote-512.png",
                  "/icons/remote-maskable-512.png", "/img/kc-emblem.webp"}
@@ -325,6 +325,10 @@ def cloud_get(path, query):
         return 200, c.sync_state()
     if path == "members-key":
         return 200, c.members_key()
+    if path == "pairing":
+        return 200, c.pairing_status()
+    if path == "devices":
+        return 200, {"devices": c.devices()}
     if path == "export":
         return 200, c.export()
     return 404, {"error": {"code": "not_found", "message": "Not found"}}
@@ -356,6 +360,16 @@ def cloud_post(path, data):
         return 200, c.sync_post(d.get("changes") or [])
     if path == "members-key":
         return 200, c.set_members_key(d.get("key"))
+    if path == "pairing-start":
+        return 200, c.pairing_start()
+    if path == "pairing-approve":
+        return 200, c.pairing_approve(d.get("role") or "operator")
+    if path == "pairing-reject":
+        return 200, c.pairing_reject()
+    if path == "device-role":
+        return 200, c.device_role(str(d.get("id") or ""), d.get("role"))
+    if path == "device-revoke":
+        return 200, c.device_revoke(str(d.get("id") or ""))
     if path == "delete-account":
         return 200, c.delete_account()
     if path == "sync-state":
@@ -2258,8 +2272,22 @@ class Handler(BaseHTTPRequestHandler):
 
 
 class RelayHandler(Handler):
-    """Requests carried by the cloud relay (relay_link.py). Always a phone on the Wi-Fi, never this PC: the remote's
-    allow-list, the PIN and its lock-out (per relay connection) apply exactly as on the Wi-Fi."""
+    """Requests carried by the cloud relay (relay_link.py), already opened from a paired device's seal. Never this PC:
+    the remote's allow-list applies, the device stands in for the PIN (it was approved at this PC), and its role here
+    decides what it may change (pairing-protocol.md §5)."""
+
+    def role(self):
+        r = self.headers.get("X-FD-Device-Role", "")
+        return r if r in cloud_link.ROLES else ""
+
+    def signed_in(self):
+        return bool(self.role()) or super().signed_in()
+
+    def do_POST(self):
+        path = urlparse(self.path).path
+        if self.role() == "viewer" and path != "/api/presence":
+            return self.reply(403, json.dumps({"error": "role"}), TYPES[".json"])
+        return super().do_POST()
 
     def parse_request(self):
         ok = super().parse_request()

@@ -1,9 +1,11 @@
 """FrameDecks - the remote from anywhere: this PC's side of the cloud relay (SaaS Phase 3).
 
-docs/architecture/relay-protocol.md. While signed in and "Control from anywhere" is on, one outgoing WebSocket to the
-cloud's RuntimeRelay carries the phone's requests here. Each one is replayed against a listener on this PC that treats
-it as a phone on the Wi-Fi (server.py RelayHandler), so the remote's allow-list, the PIN and its lock-out apply exactly
-as they do on the Wi-Fi. Nothing here can block presenting: it runs on its own threads and reconnects quietly.
+docs/architecture/relay-protocol.md and pairing-protocol.md. While signed in and "Control from anywhere" is on, one
+outgoing WebSocket to the cloud's RuntimeRelay carries the phone's requests here. Since Phase 4 only paired devices are
+served: each request arrives sealed with that device's key (the cloud cannot read it), is opened here, checked against
+replay, and replayed on a listener on this PC that treats it as that device with the role this PC gave it
+(server.py RelayHandler); the answer goes back sealed. Nothing here can block presenting: it runs on its own threads
+and reconnects quietly.
 """
 import base64
 import hashlib
@@ -133,6 +135,8 @@ class RelayLink:
         self.state, self.error, self.since = "off", "", 0
         self.ws = None
         self.wake = threading.Event()
+        self.seen = {}                                  # (device, connection) -> the last request number accepted
+        self.seen_lock = threading.Lock()
         threading.Thread(target=self._run, name="relay", daemon=True).start()
 
     def status(self):
@@ -190,7 +194,7 @@ class RelayLink:
                 except ValueError:
                     continue
                 if msg.get("t") == "req":
-                    threading.Thread(target=self._serve, args=(ws, msg), daemon=True).start()
+                    self._dispatch(ws, msg)
         finally:
             ws.close()
 
@@ -202,8 +206,46 @@ class RelayLink:
             except OSError:
                 return
 
-    def _serve(self, ws, msg):
-        """Replay one request on the relay listener (a phone on the Wi-Fi, never this PC) and send the answer back."""
+    def _send(self, ws, obj):
+        out = json.dumps(obj)
+        if len(out) > MAX_MESSAGE:
+            out = json.dumps({"t": "res", "id": obj.get("id"), "to": obj.get("to"), "status": 413,
+                              "headers": {"Content-Type": "application/json"}, "body": '{"error":"too large"}'})
+        try:
+            ws.send(out)
+        except OSError:
+            pass
+
+    def _refuse(self, ws, msg, status, error):
+        self._send(ws, {"t": "res", "id": msg.get("id"), "to": msg.get("from"), "status": status,
+                        "headers": {"Content-Type": "application/json"}, "body": json.dumps({"error": error})})
+
+    def _dispatch(self, ws, msg):
+        """Open a sealed request from a paired device (in order, on the reading thread), then serve it on its own thread."""
+        dev = msg.get("dev")
+        if not msg.get("seal"):
+            return self._refuse(ws, msg, 403, "pair_first")         # since Phase 4: pair the phone first
+        record = self.cloud.device(dev) if dev else None
+        if not record:
+            return self._refuse(ws, msg, 403, "not_paired")         # revoked here, or never paired with this PC
+        import pairing_crypto
+        key = pairing_crypto.unb64u(record["key"])
+        try:
+            inner = pairing_crypto.open_sealed(key, "req", dev, msg["seal"])
+            n = int(inner.get("n"))
+        except (ValueError, TypeError, KeyError):
+            return self._refuse(ws, msg, 400, "bad_seal")
+        slot = (dev, msg.get("from"))
+        with self.seen_lock:
+            if n <= self.seen.get(slot, 0):
+                return self._refuse(ws, msg, 409, "replay")         # a repeated or reordered message
+            self.seen[slot] = n
+        inner.update(id=msg.get("id"), **{"from": msg.get("from")})
+        threading.Thread(target=self._serve, args=(ws, inner, (dev, record, key, n)), daemon=True).start()
+
+    def _serve(self, ws, msg, device):
+        """Replay one request on the relay listener, as the device with this PC's role for it, and seal the answer."""
+        dev, record, key, n = device
         res = {"t": "res", "id": msg.get("id"), "to": msg.get("from")}
         try:
             path = str(msg.get("path") or "")
@@ -217,7 +259,8 @@ class RelayLink:
             for k, v in (msg.get("headers") or {}).items():
                 if k.lower() in ("content-type", "cookie", "accept"):
                     req.add_header(k, str(v))
-            req.add_header("X-FD-Relay-From", str(msg.get("from") or "")[:64])
+            req.add_header("X-FD-Relay-From", str(dev)[:64])
+            req.add_header("X-FD-Device-Role", record.get("role") or "operator")
             try:
                 with urllib.request.urlopen(req, timeout=40) as r:
                     status, headers, data = r.status, r.headers, r.read()
@@ -232,11 +275,7 @@ class RelayLink:
                 res["body"], res["enc"] = base64.b64encode(data).decode(), "b64"
         except Exception:
             res.update(status=502, headers={"Content-Type": "application/json"}, body='{"error":"relay"}')
-        out = json.dumps(res)
-        if len(out) > MAX_MESSAGE:
-            out = json.dumps({"t": "res", "id": msg.get("id"), "to": msg.get("from"), "status": 413,
-                              "headers": {"Content-Type": "application/json"}, "body": '{"error":"too large"}'})
-        try:
-            ws.send(out)
-        except OSError:
-            pass
+        import pairing_crypto
+        inner = {k: res[k] for k in ("status", "headers", "body", "enc") if k in res}
+        inner["n"] = n
+        self._send(ws, {"t": "res", "id": res["id"], "to": res["to"], "seal": pairing_crypto.seal(key, "res", dev, inner)})

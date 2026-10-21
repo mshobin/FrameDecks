@@ -2,9 +2,9 @@
  * It keeps the remote's own files so the app opens instantly and offline (then shows "Not connected to the PC"), and
  * never touches the PC's data: nothing under api/ is cached, and the relay is a WebSocket it never sees. */
 'use strict';
-var CACHE = 'framedecks-remote-v1';
+var CACHE = 'framedecks-remote-v2';
 var SHELL = ['remote.html', 'stage.html', 'remote-manifest.json', 'css/remote.css', 'css/teleprompter.css', 'css/overlay.css',
-  'js/cloud-config.js', 'js/cloud-remote.js', 'js/store.js', 'js/brand.js', 'js/teleprompter.js', 'js/remote.js', 'js/overlay.js',
+  'js/cloud-config.js', 'js/pair-crypto.js', 'js/cloud-remote.js', 'js/store.js', 'js/brand.js', 'js/teleprompter.js', 'js/remote.js', 'js/overlay.js',
   'img/kc-emblem.webp', 'icons/remote-180.png', 'icons/remote-192.png', 'icons/remote-512.png', 'icons/remote-maskable-512.png',
   'fonts/EBGaramond.ttf', 'fonts/SourceSans3.ttf'];
 

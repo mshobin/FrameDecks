@@ -21,6 +21,8 @@ class FakeCloud:
         self.refresh = {}            # token -> {"family", "used"}
         self.n = 0
         self.sessions = {}           # pollToken -> signed in?
+        self.pairing = None          # the pairing in progress: {"id", "pcKey", "status", "deviceKey"?}
+        self.devices = []
         self.calls = []
         self.access_ttl = 600
         cloud = self
@@ -49,6 +51,14 @@ class FakeCloud:
                 cloud.calls.append(("GET", self.path, self.headers.get("Authorization")))
                 if self.path == "/v1/auth/providers":
                     return self.send(200, {"providers": ["google"], "email": True})
+                if self.path.startswith("/v1/pairing/") and cloud.pairing:
+                    p = cloud.pairing
+                    body = {"id": p["id"], "status": p["status"], "expiresAt": 0}
+                    if p["status"] == "claimed":
+                        body.update(device={"name": "iPhone", "platform": "iOS", "browser": "Safari"}, deviceKey=p["deviceKey"])
+                    return self.send(200, body)
+                if self.path.startswith("/v1/devices?runtime="):
+                    return self.send(200, cloud.devices)
                 if self.path == "/v1/me/export":
                     return self.send(200, {"user": {"email": "ann@example.org"}, "entities": []}) if self.authed() else self.send(401, {})
                 if self.path.startswith("/v1/sync"):
@@ -59,6 +69,9 @@ class FakeCloud:
 
             def do_DELETE(self):
                 cloud.calls.append(("DELETE", self.path, self.headers.get("Authorization")))
+                if self.path.startswith("/v1/devices/") and self.authed():
+                    cloud.devices = [d for d in cloud.devices if d["id"] != self.path.rsplit("/", 1)[1]]
+                    return self.send(204)
                 if self.path == "/v1/me" and self.authed():
                     cloud.deleted = True
                     return self.send(204)
@@ -96,6 +109,14 @@ class FakeCloud:
                         return self.send(202, {"pending": True})
                     cloud.sessions.pop(d["pollToken"])
                     return self.send(200, cloud.session({"name": "PC"}))
+                if self.path == "/v1/pairing":
+                    cloud.pairing = {"id": "pr_1", "pcKey": d["pcKey"], "status": "open"}
+                    return self.send(201, {"id": "pr_1", "code": "482913", "token": "tok_qr", "expiresAt": 0})
+                if self.path == "/v1/pairing/pr_1/approve":
+                    cloud.pairing["status"] = "approved"
+                    dev = {"id": "dev_1", "role": d["role"], "name": "iPhone", "platform": "iOS", "browser": "Safari"}
+                    cloud.devices.append(dev)
+                    return self.send(200, {"device": dev})
                 if self.path == "/v1/sync":
                     if not self.authed():
                         return self.send(401, {"error": {"code": "unauthorized", "message": "Sign in again."}})
@@ -130,7 +151,8 @@ class CloudLinkTest(unittest.TestCase):
         self.secret = cloud_link.FileSecret(self.dir / "kc-cloud-token")
         self.keys = cloud_link.FileSecret(self.dir / "kc-members-key")
         self.link = cloud_link.CloudLink(self.dir, "6.9", platform="windows", secret=self.secret, opener=self.opened.append,
-                                         api=self.cloud.url, members_secret=self.keys)
+                                         api=self.cloud.url, members_secret=self.keys,
+                                         devices_secret=cloud_link.FileSecret(self.dir / "kc-devices"))
 
     def tearDown(self):
         self.cloud.stop()
@@ -256,6 +278,41 @@ class CloudLinkTest(unittest.TestCase):
         self.assertFalse(st["signedIn"])
         self.assertIsNone(self.secret.read())
         self.assertEqual(json.loads(self.keys.read()), {}, "the deleted account's members key is forgotten")
+
+    def test_pairing_agrees_with_the_phone_and_approve_keeps_the_device(self):
+        import pairing_crypto
+        self.sign_in()
+        st = self.link.pairing_start("https://remote.example")
+        self.assertEqual((st["status"], st["code"]), ("open", "482913"))
+        self.assertTrue(st["qr"].startswith("https://remote.example/remote.html#pair=tok_qr&k="))
+        self.assertTrue(st["qr"].endswith("&pc=r1"))
+        # the phone claims with its own key; both sides derive the same relay key and check digits
+        phone_priv, phone_pub = pairing_crypto.new_keypair()
+        self.cloud.pairing.update(status="claimed", deviceKey=phone_pub)
+        key, check = pairing_crypto.derive(phone_priv, self.cloud.pairing["pcKey"], "pr_1")
+        st = self.link.pairing_status()
+        self.assertEqual((st["status"], st["check"], st["device"]["name"]), ("claimed", check, "iPhone"))
+        self.assertNotIn("key", st, "Settings never sees the key")
+        self.link.pairing_approve("viewer")
+        dev = self.link.device("dev_1")
+        self.assertEqual(pairing_crypto.unb64u(dev["key"]), key, "the PC keeps the same key the phone has")
+        self.assertEqual(dev["role"], "viewer")
+        self.assertEqual(self.link.pairing_status(), {"status": "none"})
+
+    def test_the_cloud_list_wins_on_revocation_and_revoke_removes_the_key_here_first(self):
+        import pairing_crypto
+        self.sign_in()
+        self.link.pairing_start("https://remote.example")
+        self.cloud.pairing.update(status="claimed", deviceKey=pairing_crypto.new_keypair()[1])
+        self.link.pairing_status()
+        self.link.pairing_approve("operator")
+        self.assertEqual([d["id"] for d in self.link.devices()], ["dev_1"])
+        self.cloud.devices = []                          # revoked from another device
+        self.assertEqual(self.link.devices(), [])
+        self.assertIsNone(self.link.device("dev_1"), "a device the cloud no longer lists loses its key here")
+        self.link._save_devices({"dev_2": {"key": "x", "role": "operator", "rid": "r1"}})
+        self.link.device_revoke("dev_2")
+        self.assertIsNone(self.link.device("dev_2"))
 
 
 if __name__ == "__main__":

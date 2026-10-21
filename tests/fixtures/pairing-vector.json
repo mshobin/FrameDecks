@@ -1,0 +1,23 @@
+{
+  "pairingId": "pr_test1",
+  "device": "dev_test",
+  "pc": {
+    "d": "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8",
+    "x": "j0DFrbaPJWJK5bIU6nZ6bslNgp09e14a0bpvPiE4KF8"
+  },
+  "phone": {
+    "d": "ICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj8",
+    "x": "NYBy1jZYgNGu6jKa35EhODhR7SGijjt16WXQ0s0WYlQ"
+  },
+  "key": "73VbWbGelcnhPS9i0B2ASAK5T9Azc2QMeSQjfvEpv5Q",
+  "check": "353 324",
+  "sealedRes": {
+    "iv": "3i8GsdglgGuJjDk9",
+    "ct": "LdaqlhDaZa3jFvuJW3NiPX15UkOerniW2t69Yd3OFFI5Xjxwe1fFqINWyRo1Ozav9SvjOflBZl29"
+  },
+  "plainRes": {
+    "n": 1,
+    "status": 200,
+    "body": "{\"rev\":5}"
+  }
+}

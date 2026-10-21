@@ -173,7 +173,7 @@ function anywhere(){
     if (!st) return;
     var link = st.relayLink || {}, sig = JSON.stringify([st.signedIn, st.relay, link.state, link.error, st.configured, st.user && st.user.email]);
     if (sig === anySig) return; anySig = sig; anyBody.innerHTML = '';
-    anyBody.appendChild(h('p', {cls: 'plain', text: 'Use the remote away from this Wi-Fi, for example from home or another room on a different network, through your FrameDecks account. It still asks for this PC’s PIN, and members data never goes this way.'}));
+    anyBody.appendChild(h('p', {cls: 'plain', text: 'Use the remote away from this Wi-Fi, for example from home or on mobile data, through your FrameDecks account. Each phone is paired once and approved here; what it sends is sealed end to end, and members data never goes this way.'}));
     if (!st.configured || !st.signedIn){
       anyBody.appendChild(h('div', {cls: 'alert'}, [h('b', {text: 'Sign in first. '}), 'Sign in to your FrameDecks account in ',
         h('a', {href: '#', text: 'Settings → FrameDecks account', onclick: function(e){ e.preventDefault(); if (window.KCShowSection) window.KCShowSection('account'); }}), '.']));
@@ -189,11 +189,88 @@ function anywhere(){
       h('div', {cls: 'hint', text: st.relay ? 'This PC keeps one secure connection open to the FrameDecks cloud.' : 'Off: nothing reaches this PC except over the Wi-Fi.'})])]));
     anyBody.appendChild(h('span', {cls: 'status-pill ' + s[0]}, [h('i'), h('span', {text: s[1]})]));
     if (st.relay && link.error && link.state !== 'online') anyBody.appendChild(h('p', {cls: 'hint', text: link.error + ' Presenting is not affected.'}));
-    if (st.relay) anyBody.appendChild(h('ol', {cls: 'steps'}, [
-      h('li', {}, ['On the phone or iPad, open ', st.remoteUrl ? h('b', {cls: 'mono', text: st.remoteUrl}) : h('b', {text: 'the FrameDecks remote'}), '.']),
-      h('li', {}, ['Sign in as ', h('b', {text: (st.user && st.user.email) || 'you'}), ' and choose ', h('b', {text: st.computerName || 'this PC'}), '.']),
-      h('li', {}, ['Enter this PC’s ', h('b', {text: 'PIN'}), '. Tip: Add to Home Screen (iPhone, iPad) or Install (Android) for a one-tap icon.'])]));
+    if (!st.relay) return;
+    anyBody.appendChild(h('div', {cls: 'actions'}, [h('button', {cls: 'btn primary', type: 'button', id: 'pair-start', text: 'Pair a phone or iPad…', onclick: pairStart})]));
+    anyBody.appendChild(pairBox);
+    anyBody.appendChild(h('h3', {cls: 'acct-h', text: 'Trusted devices'}));
+    anyBody.appendChild(devBodyAny);
+    devicesNow();
   }).catch(function(){});
+}
+
+/* ---------- Phase 4: pairing (docs/architecture/pairing-protocol.md) and the trusted devices ---------- */
+var pairBox = h('div', {id: 'pair-box'}), devBodyAny = h('div', {id: 'trusted-devices'}), pairTimer = null;
+var ROLE_NAMES = {viewer: 'Viewer', operator: 'Operator', presenter: 'Presenter', admin: 'Administrator'};
+var ROLE_HINT = {viewer: 'sees what is live; changes nothing', operator: 'everything the Wi-Fi remote can do', presenter: 'as Operator', admin: 'as Operator'};
+function cloudCall(method, path, body){
+  return KCTransport.fetch('api/cloud/' + path, {method: method, cache: 'no-store', headers: body ? {'Content-Type': 'application/json'} : undefined, body: body ? JSON.stringify(body) : undefined})
+    .then(function(r){ return r.json().then(function(d){ if (!r.ok) throw new Error((d.error && d.error.message) || 'Error ' + r.status); return d; }); });
+}
+function roleSelect(value, onchange){
+  var sel = h('select', {'aria-label': 'Role'});
+  Object.keys(ROLE_NAMES).forEach(function(r){ var o = h('option', {value: r, text: ROLE_NAMES[r] + ' (' + ROLE_HINT[r] + ')'}); if (r === value) o.selected = true; sel.appendChild(o); });
+  if (onchange) sel.addEventListener('change', function(){ onchange(sel.value); });
+  return sel;
+}
+function pairStart(){
+  cloudCall('POST', 'pairing-start', {}).then(function(p){ pairShow(p); pairPoll(); }, function(e){ toast(e.message, true); });
+}
+function pairPoll(){
+  clearTimeout(pairTimer);
+  pairTimer = setTimeout(function(){
+    cloudCall('GET', 'pairing').then(function(p){ pairShow(p); if (p.status === 'open' || p.status === 'claimed') pairPoll(); }, function(){ pairPoll(); });
+  }, 1500);
+}
+var pairSig = '';
+function pairShow(p){
+  var sig = JSON.stringify([p.status, p.id, p.check]);
+  if (sig === pairSig && p.status === 'open'){ var cd = document.getElementById('pair-left'); if (cd) cd.textContent = left(p.expiresAt); return; }
+  pairSig = sig; pairBox.innerHTML = '';
+  if (p.status === 'none') return;
+  var box = h('div', {cls: 'pair-panel'});
+  if (p.status === 'open'){
+    var qr = h('div', {cls: 'qr'});
+    if (p.qr && window.qrcode){ var q = window.qrcode(0, 'M'); q.addData(p.qr); q.make(); qr.innerHTML = q.createSvgTag({cellSize: 4, margin: 2, scalable: true}); }
+    box.appendChild(h('div', {cls: 'remote-grid'}, [p.qr ? qr : null, h('div', {}, [
+      h('p', {cls: 'plain', text: 'On the phone or iPad, scan this code with the Camera, or open the FrameDecks remote, choose this PC and type:'}),
+      h('p', {cls: 'pair-code mono', id: 'pair-code', text: String(p.code).replace(/(\d{3})(\d{3})/, '$1 $2')}),
+      h('p', {cls: 'hint'}, ['Works once, for ', h('b', {id: 'pair-left', text: left(p.expiresAt)}), '. The phone must be signed in to your FrameDecks account.']),
+      h('button', {cls: 'btn quiet', type: 'button', text: 'Cancel', onclick: pairCancel})])]));
+  } else if (p.status === 'claimed'){
+    var d = p.device || {}, role = roleSelect('operator');
+    box.appendChild(h('div', {cls: 'alert', role: 'alertdialog', id: 'pair-ask'}, [
+      h('p', {}, [h('b', {text: 'Allow “' + (d.name || 'a phone') + '”'}), ' (' + [d.browser, d.platform].filter(Boolean).join(', ') + ') to control this PC?']),
+      h('p', {}, ['Check that the phone shows ', h('b', {cls: 'pair-check mono', id: 'pair-check', text: p.check || '…'}), '. If it does not, reject.']),
+      h('label', {cls: 'pair-role'}, ['Role: ', role]),
+      h('div', {cls: 'actions'}, [
+        h('button', {cls: 'btn primary', type: 'button', id: 'pair-approve', text: 'Approve', onclick: function(){
+          cloudCall('POST', 'pairing-approve', {role: role.value}).then(function(r){ toast('“' + r.device.name + '” can now control this PC'); pairSig = ''; pairBox.innerHTML = ''; devicesNow(); }, function(e){ toast(e.message, true); }); }}),
+        h('button', {cls: 'btn danger', type: 'button', id: 'pair-reject', text: 'Reject', onclick: pairCancel})])]));
+  } else {
+    box.appendChild(h('p', {cls: 'hint', text: p.status === 'expired' ? 'The pairing code expired. Start again when the phone is ready.' : p.status === 'rejected' ? 'Rejected.' : ''}));
+  }
+  pairBox.appendChild(box);
+}
+function left(t){ var s = Math.max(0, Math.round((t - Date.now()) / 1000)); return Math.floor(s / 60) + ':' + ('0' + s % 60).slice(-2); }
+function pairCancel(){ clearTimeout(pairTimer); cloudCall('POST', 'pairing-reject', {}).finally(function(){ pairSig = ''; pairBox.innerHTML = ''; }); }
+function devicesNow(){
+  cloudCall('GET', 'devices').then(function(r){
+    var list = r.devices || [];
+    devBodyAny.innerHTML = '';
+    if (!list.length){ devBodyAny.appendChild(h('p', {cls: 'hint', text: 'No phone or iPad is paired with this PC yet.'})); return; }
+    var t = h('table', {cls: 'table'}, [h('thead', {}, [h('tr', {}, ['Device', 'Role', 'Last used', ''].map(function(x){ return h('th', {text: x}); }))])]);
+    var tb = h('tbody'); t.appendChild(tb);
+    list.forEach(function(d){
+      tb.appendChild(h('tr', {'data-device': d.id}, [
+        h('td', {}, [h('b', {text: d.name || 'Phone'}), h('div', {cls: 'hint', text: [d.browser, d.platform].filter(Boolean).join(', ')})]),
+        h('td', {}, [roleSelect(d.role, function(v){ cloudCall('POST', 'device-role', {id: d.id, role: v}).then(function(){ toast('Role changed'); }, function(e){ toast(e.message, true); }); })]),
+        h('td', {text: d.lastUsedAt ? ago(d.lastUsedAt / 1000, Date.now() / 1000) : 'not yet'}),
+        h('td', {}, [h('button', {cls: 'btn small danger', type: 'button', text: 'Revoke', onclick: function(){
+          if (!confirm('Revoke “' + (d.name || 'this device') + '”? It stops controlling this PC at once.')) return;
+          cloudCall('POST', 'device-revoke', {id: d.id}).then(function(){ toast('Revoked'); devicesNow(); }, function(e){ toast(e.message, true); }); }})])]));
+    });
+    devBodyAny.appendChild(t);
+  }, function(e){ devBodyAny.innerHTML = ''; devBodyAny.appendChild(h('p', {cls: 'hint', text: e.message})); });
 }
 anywhere();
 setInterval(function(){ if (!document.hidden && !anyBox.hidden && anyBox.offsetParent) anywhere(); }, 3000);

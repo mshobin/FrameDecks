@@ -15,7 +15,7 @@ ROOT = Path(__file__).resolve().parent.parent
 APP = ROOT / "app"
 FILES = ["remote.html", "stage.html", "remote-manifest.json", "sw.js",
          "css/remote.css", "css/teleprompter.css", "css/overlay.css",
-         "js/cloud-remote.js", "js/store.js", "js/brand.js", "js/teleprompter.js", "js/remote.js", "js/overlay.js",
+         "js/pair-crypto.js", "js/cloud-remote.js", "js/store.js", "js/brand.js", "js/teleprompter.js", "js/remote.js", "js/overlay.js",
          "img/kc-emblem.webp", "icons/remote-180.png", "icons/remote-192.png", "icons/remote-512.png", "icons/remote-maskable-512.png",
          "fonts/EBGaramond.ttf", "fonts/SourceSans3.ttf", "fonts/OFL-EBGaramond.txt", "fonts/OFL-SourceSans3.txt"]
 HEADERS = """/sw.js

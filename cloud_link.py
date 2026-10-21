@@ -21,6 +21,8 @@ from pathlib import Path
 
 CREDENTIAL_TARGET = "FrameDecks/cloud"
 MEMBERS_KEY_TARGET = "FrameDecks/members-key"
+DEVICES_TARGET = "FrameDecks/devices"
+ROLES = ("viewer", "operator", "presenter", "admin")
 TIMEOUT = 15
 
 
@@ -121,7 +123,8 @@ def default_secret(data_dir, target=CREDENTIAL_TARGET, file_name="kc-cloud-token
 class CloudLink:
     """This computer's account link. Thread-safe; every method answers quickly or raises CloudError."""
 
-    def __init__(self, data_dir, app_version, platform=None, secret=None, opener=None, api=None, members_secret=None):
+    def __init__(self, data_dir, app_version, platform=None, secret=None, opener=None, api=None, members_secret=None,
+                 devices_secret=None):
         self.data = Path(data_dir)
         self.prefs_file = self.data / "kc-cloud.json"
         self.state_file = self.data / "kc-cloud-sync.json"
@@ -130,6 +133,9 @@ class CloudLink:
         self.secret = secret or default_secret(self.data)
         # the members list's end-to-end key, one per workspace (D5): {"<workspace id>": "<32 bytes, base64url>"}
         self.members_secret = members_secret or default_secret(self.data, MEMBERS_KEY_TARGET, "kc-members-key")
+        # paired devices (Phase 4): {"<device id>": {"key": base64url, "role", "name", "platform", "browser", "rid"}}
+        self.devices_secret = devices_secret or default_secret(self.data, DEVICES_TARGET, "kc-devices")
+        self.pairing = None                     # the pairing in progress: {"id", "priv", "code", "token", "expiresAt", …}
         self.open_url = opener or webbrowser.open
         self.lock = threading.RLock()
         self.access, self.access_exp = None, 0
@@ -372,6 +378,127 @@ class CloudLink:
             keys = self._members_keys()
             keys[self._workspace_id()] = key
             self.members_secret.write(json.dumps(keys))
+        return {"ok": True}
+
+    # ---- paired devices (Phase 4, docs/architecture/pairing-protocol.md). The PC has the final say on each device.
+    def _devices(self):
+        try:
+            d = json.loads(self.devices_secret.read() or "{}")
+            return d if isinstance(d, dict) else {}
+        except ValueError:
+            return {}
+
+    def _save_devices(self, d):
+        self.devices_secret.write(json.dumps(d))
+
+    def device(self, device_id):
+        """This PC's record of a paired device (with its key), or None: what the relay link trusts."""
+        rid = ((self.prefs.get("account") or {}).get("runtime") or {}).get("id")
+        d = self._devices().get(str(device_id or ""))
+        return d if d and d.get("rid") == rid else None
+
+    def _runtime_id(self):
+        rid = ((self.prefs.get("account") or {}).get("runtime") or {}).get("id")
+        if not rid:
+            raise CloudError(401, "signed_out", "Sign in to your FrameDecks account first.")
+        return rid
+
+    def pairing_start(self, remote_url=""):
+        import pairing_crypto
+        if not pairing_crypto.AVAILABLE:
+            raise CloudError(501, "no_crypto", "Pairing needs the installed FrameDecks app.")
+        rid = self._runtime_id()
+        priv, pub = pairing_crypto.new_keypair()
+        r = self.call("POST", "/pairing", {"pcKey": pub})
+        base = (remote_url or self.settings().get("remoteUrl") or "").rstrip("/")
+        qr = f"{base}/remote.html#pair={r['token']}&k={pub}&pc={rid}" if base else ""
+        with self.lock:
+            self.pairing = {"id": r["id"], "priv": priv, "code": r["code"], "expiresAt": r["expiresAt"], "qr": qr,
+                            "status": "open", "device": None, "check": None, "key": None}
+        return self.pairing_status()
+
+    def pairing_status(self):
+        """The pairing in progress, as Settings shows it (never the private key or the relay key)."""
+        p = self.pairing
+        if not p:
+            return {"status": "none"}
+        if p["status"] in ("open", "claimed"):
+            try:
+                r = self.call("GET", f"/pairing/{p['id']}")
+            except CloudError as e:
+                if e.status in (404, 410):
+                    r = {"status": "expired"}
+                else:
+                    raise
+            p["status"] = r.get("status", p["status"])
+            if p["status"] == "claimed" and not p["key"] and r.get("deviceKey"):
+                import pairing_crypto
+                p["key"], p["check"] = pairing_crypto.derive(p["priv"], r["deviceKey"], p["id"])
+                p["device"] = r.get("device") or {}
+        return {k: p[k] for k in ("id", "code", "expiresAt", "qr", "status", "device", "check")}
+
+    def pairing_approve(self, role="operator"):
+        p = self.pairing
+        if not p or p["status"] != "claimed" or not p["key"]:
+            raise CloudError(409, "not_claimed", "No phone is waiting for approval.")
+        role = role if role in ROLES else "operator"
+        import pairing_crypto
+        r = self.call("POST", f"/pairing/{p['id']}/approve", {"role": role})
+        dev, info = r["device"], p["device"] or {}
+        with self.lock:
+            d = self._devices()
+            d[dev["id"]] = {"key": pairing_crypto.b64u(p["key"]), "role": dev.get("role", role), "rid": self._runtime_id(),
+                            "name": dev.get("name") or info.get("name") or "Phone", "platform": info.get("platform"), "browser": info.get("browser")}
+            self._save_devices(d)
+            self.pairing = None
+        return {"status": "approved", "device": {"id": dev["id"], "role": d[dev["id"]]["role"], "name": d[dev["id"]]["name"]}}
+
+    def pairing_reject(self):
+        p, self.pairing = self.pairing, None
+        if p and p["status"] in ("open", "claimed"):
+            try:
+                self.call("POST", f"/pairing/{p['id']}/reject", {})
+            except CloudError:
+                pass
+        return {"status": "none"}
+
+    def devices(self):
+        """The trusted devices of this PC. The cloud's list wins on revocations; a device the cloud no longer lists, or
+        lists as revoked, loses its key here too."""
+        rid = self._runtime_id()
+        listed = self.call("GET", f"/devices?runtime={rid}")
+        listed = listed if isinstance(listed, list) else listed.get("devices", [])
+        with self.lock:
+            d, live = self._devices(), {x["id"]: x for x in listed if not x.get("revoked")}
+            for dev_id in [k for k, v in d.items() if v.get("rid") == rid and k not in live]:
+                d.pop(dev_id)
+            for dev_id, x in live.items():
+                if dev_id in d:
+                    d[dev_id]["role"] = x.get("role", d[dev_id]["role"])
+            self._save_devices(d)
+        return [dict(x, paired=x["id"] in d) for x in listed if not x.get("revoked")]
+
+    def device_role(self, device_id, role):
+        if role not in ROLES:
+            raise CloudError(400, "bad_role", "Choose Viewer, Operator, Presenter or Administrator.")
+        with self.lock:                                   # this PC first: it enforces the role
+            d = self._devices()
+            if device_id in d:
+                d[device_id]["role"] = role
+                self._save_devices(d)
+        return self.call("PATCH", f"/devices/{device_id}", {"role": role})
+
+    def device_revoke(self, device_id):
+        """Cut a device off: its key goes from this PC first (its next message fails), then the cloud closes it."""
+        with self.lock:
+            d = self._devices()
+            d.pop(device_id, None)
+            self._save_devices(d)
+        try:
+            self.call("DELETE", f"/devices/{device_id}")
+        except CloudError as e:
+            if e.status != 404:
+                raise
         return {"ok": True}
 
     # ---- your data in the account
