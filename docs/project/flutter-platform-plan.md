@@ -81,3 +81,8 @@ CI (`.github/workflows/flutter-app.yml`) analyses, tests, and builds Windows, ma
 | Mac App Store | The Studio is sandbox-friendly (its own file, local network to the PC). A virtual camera, when added, must be a CoreMediaIO Camera Extension (a system extension inside the app, sandboxed, sharing an app group); the old DAL plug-ins are not allowed. Needs signing with the Apple Developer account. |
 | App Store (iPhone, iPad) | Remote only. iOS has no virtual cameras, and the remote does not use the camera. Needs the local-network usage description and signing. |
 | Google Play | Remote only. Needs signing and the target-SDK level Play asks for at the time. |
+
+## 7. Next: SaaS and PWA
+
+The plan for accounts, cloud sync, the installable web remote and secure pairing, built around this app
+without changing it: [saas-pwa-architecture.md](saas-pwa-architecture.md).
