@@ -19,6 +19,7 @@ do.
 | [Content](content.md) | Every kind of Content and every setting in Content Settings |
 | [Media](media.md) | Images, video, PowerPoint, PDF, screen capture, the FrameCast camera, OBS, projectors |
 | [Remote control](remote-control.md) | Setting up the phone remote, Simple and Advanced profiles, drawing from the phone |
+| [Your FrameDecks account](account.md) | Optional: sign in to keep your Frames the same on every computer |
 | [Troubleshooting](troubleshooting.md) | Problems by symptom, with causes and fixes |
 | [FAQ](faq.md) | Church-focused questions and honest answers |
 

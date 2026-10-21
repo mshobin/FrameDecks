@@ -30,6 +30,7 @@ from urllib.parse import urlparse, parse_qs, unquote
 
 import legacy   # 6.9: moves data saved under the program's earlier name
 import meeting_form   # 6.9: fills the Meeting Workbook's form for Export
+import cloud_link     # SaaS Phase 2: this computer's FrameDecks account (optional; signed out = no network)
 
 APP_VERSION = "6.9"
 STARTED_AT = time.time()
@@ -271,6 +272,55 @@ def apply_live_media(st):
         studio_save()
     except Exception as e:                              # never let a scene stop the camera
         print("FrameCast: could not apply the scene:", e)
+
+
+# ---------- SaaS Phase 2: the FrameDecks account (docs/architecture/cloud-api.md), this PC only ----------
+CLOUD = {"link": None}
+
+
+def cloud():
+    if CLOUD["link"] is None:
+        CLOUD["link"] = cloud_link.CloudLink(DATA, APP_VERSION)
+    return CLOUD["link"]
+
+
+def cloud_get(path, query):
+    """GET api/cloud/<path> -> (status, body)."""
+    c = cloud()
+    if path == "status":
+        return 200, c.status()
+    if path == "providers":
+        return 200, c.providers()
+    if path == "me":
+        return 200, c.me()
+    if path == "sync":
+        return 200, c.sync_get(int((query.get("since") or ["0"])[0] or 0), int((query.get("limit") or ["500"])[0] or 500))
+    if path == "sync-state":
+        return 200, c.sync_state()
+    return 404, {"error": {"code": "not_found", "message": "Not found"}}
+
+
+def cloud_post(path, data):
+    """POST api/cloud/<path> -> (status, body)."""
+    c, d = cloud(), (data if isinstance(data, dict) else {})
+    if path == "settings":
+        return 200, c.set_settings(d)
+    if path == "email-start":
+        return 200, c.email_start(d.get("email"))
+    if path == "email-verify":
+        return 200, c.email_verify(d.get("email"), d.get("code"))
+    if path == "browser-start":
+        return 200, c.browser_start()
+    if path == "browser-cancel":
+        c.cancel_browser()
+        return 200, c.status()
+    if path == "logout":
+        return 200, c.logout()
+    if path == "sync":
+        return 200, c.sync_post(d.get("changes") or [])
+    if path == "sync-state":
+        return 200, c.save_sync_state(d)
+    return 404, {"error": {"code": "not_found", "message": "Not found"}}
 
 
 def update_state(change):
@@ -1678,6 +1728,14 @@ class Handler(BaseHTTPRequestHandler):
                     return
                 return self.reply(200, eng.preview_jpeg, "image/jpeg", headers=[("ETag", tag)])
             return self.reply(404, "Not found", "text/plain; charset=utf-8")
+        if path.startswith("/api/cloud/"):
+            if not self.is_local():
+                return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
+            try:
+                code, body = cloud_get(path[len("/api/cloud/"):], parse_qs(url.query))
+            except cloud_link.CloudError as e:
+                code, body = e.status or 502, e.as_dict()
+            return self.reply(code, json.dumps(body), TYPES[".json"])
         if path == "/api/app/ping":
             return self.reply(200, json.dumps({"app": "FrameDecks", "version": APP_VERSION, "installedApp": FROZEN}), TYPES[".json"])
         if path == "/api/app/info":
@@ -2100,6 +2158,14 @@ class Handler(BaseHTTPRequestHandler):
                 return self.reply(200, json.dumps({"ok": True, **res, "studio": remote_studio_info()}), TYPES[".json"])
             except (ValueError, RuntimeError) as e:
                 return self.reply(400, json.dumps({"error": str(e)}), TYPES[".json"])
+        if path.startswith("/api/cloud/"):
+            if not self.is_local():
+                return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
+            try:
+                code, body = cloud_post(path[len("/api/cloud/"):], data)
+            except cloud_link.CloudError as e:
+                code, body = e.status or 502, e.as_dict()
+            return self.reply(code, json.dumps(body), TYPES[".json"])
         if path.startswith("/api/app/"):
             if not self.is_local():
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")

@@ -518,3 +518,9 @@ body.studio-focus .studio.s2{height:100vh !important}
 .bday-pick{display:flex;gap:8px;align-items:center;margin-top:6px}
 .bday-pick select{flex:1;min-width:0;font:inherit;font-size:13.5px;background:var(--raised);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:6px 8px}
 .bday-pick .check{font-size:13px;white-space:nowrap}
+/* SaaS Phase 2: Settings > FrameDecks account */
+.acct-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:10px 0}
+.acct-row input[type=email],.acct-row input[type=text]{flex:1 1 220px;min-width:0;max-width:340px}
+.acct-facts{display:grid;grid-template-columns:max-content 1fr;gap:4px 14px;margin:12px 0;font-size:14px}
+.acct-facts dt{color:var(--muted)} .acct-facts dd{margin:0;font-weight:650}
+.acct-check{margin:6px 0}

@@ -65,7 +65,7 @@ body{font-size:var(--fs-body);-webkit-font-smoothing:antialiased;text-rendering:
 .box-head h2{font-size:var(--fs-title);font-weight:700;letter-spacing:-.005em}
 .btn{border-radius:var(--r-1);transition:background-color var(--t-fast),border-color var(--t-fast),transform var(--t-fast) var(--ease)}
 .btn:active:not(:disabled){transform:scale(.98)}
-input[type=text],input[type=number],input[type=search],textarea,select{border-radius:var(--r-1)}
+input[type=text],input[type=email],input[type=number],input[type=search],textarea,select{border-radius:var(--r-1)}
 .app-modal,dialog{border-radius:var(--r-4)}
 .s2-menu{border-radius:var(--r-2)}
 

@@ -10,6 +10,20 @@ Versions before 4.9 (when the program had its earlier name) are described in the
 
 ## [Unreleased]
 
+### Added (SaaS + PWA, Phase 2: accounts and sync)
+- **FrameDecks account (optional):** Settings → FrameDecks account. Sign in with an email code, or with Google,
+  Microsoft or Apple in the browser, to keep Frames (with their Decks and Content), templates, saved lists, branding
+  and card looks the same on every computer. Guide: [docs/account.md](docs/account.md).
+  - Saved on this computer first, as always; sync follows a few seconds later and checks every minute. Presenting
+    never waits for it, and going live or stepping is never sent.
+  - No Frame is ever lost: a Frame changed on two computers keeps both versions ("‹Frame› (from ‹computer›)").
+  - Meeting details sync only when "Sync meeting details" is on; the members list never syncs.
+  - The sign-in is kept in Windows Credential Manager (`cloud_link.py`); the Studio does the sync
+    (`app/js/cloud-sync.js`).
+- **The cloud** (`cloud/`): email-code and Google / Microsoft / Apple sign-in, rotating sign-in tokens, your account,
+  export and delete, computers, the audit log, and sync with conflict detection
+  ([docs/architecture/cloud-api.md](docs/architecture/cloud-api.md)).
+
 ### Added (SaaS + PWA, Phase 1: Foundation; nothing changes for users yet)
 - **The runtime protocol**, `docs/architecture/runtime-protocol.md`: the `api/*` contract that the remote, the Flutter
   app and the coming cloud relay follow, Deck fields included.

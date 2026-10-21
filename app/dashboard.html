@@ -329,6 +329,7 @@
     <button type="button" data-sec="display"><span class="sn-i">◧</span>Zoom / Display<i class="sn-dot" id="sn-display"></i></button>
     <button type="button" data-sec="vcam"><span class="sn-i">◉</span>FrameCast Camera<i class="sn-dot" id="sn-vcam"></i></button>
     <button type="button" data-sec="ipad"><span class="sn-i">▭</span>Phone &amp; iPad Remote<i class="sn-dot" id="sn-ipad"></i></button>
+    <button type="button" data-sec="account"><span class="sn-i">☁</span>FrameDecks account<i class="sn-dot" id="sn-account"></i></button>
     <button type="button" data-sec="keys"><span class="sn-i">⌨</span>Keyboard shortcuts</button>
     <button type="button" data-sec="security"><span class="sn-i">⛨</span>Security</button>
     <button type="button" data-sec="data"><span class="sn-i">⛁</span>Data / Backup</button>
@@ -418,6 +419,10 @@
       <div id="remote-body"></div>
     </section>
     </section>
+    <section class="s-sec" id="sec-account" aria-labelledby="sech-account" hidden>
+      <header class="s-head"><h2 id="sech-account">FrameDecks account</h2><p>Optional. Sign in to keep your Frames, templates and settings the same on every computer you use. Presenting never needs it, and works without internet.</p></header>
+    <section class="box" id="account-box"><div id="account-body"></div></section>
+    </section>
     <section class="s-sec" id="sec-keys" aria-labelledby="sech-keys" hidden>
       <header class="s-head"><h2 id="sech-keys">Keyboard shortcuts</h2><p>Keys that work in the Studio (not while typing in a box).</p></header>
     <section class="box"><div id="keys-body"></div></section>
@@ -501,6 +506,9 @@
 <script src="vendor/qrcode.js"></script>
 <script src="js/meeting.js"></script>
 <script src="js/remote-panel.js"></script>
+<script src="js/entities.js"></script>
+<script src="js/cloud-sync.js"></script>
+<script src="js/account-panel.js"></script>
 <script src="js/vcam-panel.js"></script>
 <script src="js/studio.js"></script>
 <script src="js/editable.js"></script>

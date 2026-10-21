@@ -59,8 +59,8 @@ h3{font-size:14px;font-weight:700;color:var(--muted);margin:18px 0 8px;letter-sp
 .field{display:block;margin-bottom:10px}
 .field > span{display:block;font-size:13px;color:var(--muted);margin-bottom:4px}
 .two{display:grid;grid-template-columns:1fr 120px;gap:10px}
-input[type=text],textarea{width:100%;background:var(--field);border:1px solid var(--line);border-radius:8px;padding:9px 11px}
-input[type=text]::placeholder,textarea::placeholder{color:var(--faint)}
+input[type=text],input[type=email],textarea{width:100%;background:var(--field);border:1px solid var(--line);border-radius:8px;padding:9px 11px}
+input[type=text]::placeholder,input[type=email]::placeholder,textarea::placeholder{color:var(--faint)}
 textarea{resize:vertical;min-height:120px;line-height:1.45}
 textarea.serif{font-family:var(--serif);font-size:19px;line-height:1.4}
 textarea.q{font-size:17px;font-weight:600;min-height:100px}
