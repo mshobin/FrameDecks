@@ -17,7 +17,10 @@ Versions before 4.9 (when the program had its earlier name) are described in the
   - Saved on this computer first, as always; sync follows a few seconds later and checks every minute. Presenting
     never waits for it, and going live or stepping is never sent.
   - No Frame is ever lost: a Frame changed on two computers keeps both versions ("‹Frame› (from ‹computer›)").
-  - Meeting details sync only when "Sync meeting details" is on; the members list never syncs.
+  - Meeting details sync only when "Sync meeting details" is on.
+  - The members list syncs only when turned on, end-to-end encrypted with a printable recovery key; the cloud stores
+    only the locked copy. Changed on two computers, the lists are combined person by person.
+  - Download a copy of your account, or delete it, from Settings.
   - A new computer joining the account does not double Frames the account already has (such as the starter Frames).
   - The sign-in is kept in Windows Credential Manager (`cloud_link.py`); the Studio does the sync
     (`app/js/cloud-sync.js`).

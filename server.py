@@ -297,6 +297,10 @@ def cloud_get(path, query):
         return 200, c.sync_get(int((query.get("since") or ["0"])[0] or 0), int((query.get("limit") or ["500"])[0] or 500))
     if path == "sync-state":
         return 200, c.sync_state()
+    if path == "members-key":
+        return 200, c.members_key()
+    if path == "export":
+        return 200, c.export()
     return 404, {"error": {"code": "not_found", "message": "Not found"}}
 
 
@@ -318,6 +322,10 @@ def cloud_post(path, data):
         return 200, c.logout()
     if path == "sync":
         return 200, c.sync_post(d.get("changes") or [])
+    if path == "members-key":
+        return 200, c.set_members_key(d.get("key"))
+    if path == "delete-account":
+        return 200, c.delete_account()
     if path == "sync-state":
         return 200, c.save_sync_state(d)
     return 404, {"error": {"code": "not_found", "message": "Not found"}}

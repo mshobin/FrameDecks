@@ -138,8 +138,14 @@ Runtime or admin. `{"changes": [{"kind", "id", "baseRev", "deleted": false, "bod
 | Kind | Rule |
 |---|---|
 | joining (first sync) | A Frame here with the same content as one in the account, ids and times aside (such as the starter Frames every computer makes), is not added twice. Any difference and it is kept. A setting this computer never synced takes the account's. |
+| `members` | **Never lose a person.** Sealed with AES-256-GCM (additional data `framedecks-members-v1`) before it leaves; opened after it arrives. Changed in two places: merged by member id, this computer's version of a person first, then resent. Never deleted by sync. A computer without the key keeps the account's sealed copy aside until the recovery key is entered. |
 | `frame`, `template` | **Never lose a Frame.** Keep the cloud's version under the original id, and add this computer's version as a copy named "‹Frame› (from ‹computer›)" with a new id (pushed as new). |
 | everything else | Last writer wins: this computer's version is sent again with `baseRev` = `current.rev`. The cloud's version stays in the audit log. |
+
+The members key is 32 random bytes made on the first computer that turns members sync on, kept by the program in the
+credential store (one per workspace) and shown as a recovery key: base32, 13 groups of 4. Another computer gets it by
+typing the recovery key; approving it from a computer that has it (sealed end to end, architecture §7) comes with the
+pairing Approve step in Phase 4.
 
 ## 6. Limits
 

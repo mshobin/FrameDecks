@@ -20,6 +20,7 @@ import webbrowser
 from pathlib import Path
 
 CREDENTIAL_TARGET = "FrameDecks/cloud"
+MEMBERS_KEY_TARGET = "FrameDecks/members-key"
 TIMEOUT = 15
 
 
@@ -106,13 +107,13 @@ class WindowsSecret:
         self.CredDeleteW(self.target, 1, 0)
 
 
-def default_secret(data_dir):
+def default_secret(data_dir, target=CREDENTIAL_TARGET, file_name="kc-cloud-token"):
     if os.name == "nt":
         try:
-            return WindowsSecret()
+            return WindowsSecret(target)
         except Exception:                      # Credential Manager unavailable: fall back to a private file
             pass
-    return FileSecret(Path(data_dir) / "kc-cloud-token")
+    return FileSecret(Path(data_dir) / file_name)
 
 
 # ---------------------------------------------------------------- the link
@@ -120,13 +121,15 @@ def default_secret(data_dir):
 class CloudLink:
     """This computer's account link. Thread-safe; every method answers quickly or raises CloudError."""
 
-    def __init__(self, data_dir, app_version, platform=None, secret=None, opener=None, api=None):
+    def __init__(self, data_dir, app_version, platform=None, secret=None, opener=None, api=None, members_secret=None):
         self.data = Path(data_dir)
         self.prefs_file = self.data / "kc-cloud.json"
         self.state_file = self.data / "kc-cloud-sync.json"
         self.app_version = app_version
         self.platform = platform or ("windows" if os.name == "nt" else "macos" if sys.platform == "darwin" else "linux")
         self.secret = secret or default_secret(self.data)
+        # the members list's end-to-end key, one per workspace (D5): {"<workspace id>": "<32 bytes, base64url>"}
+        self.members_secret = members_secret or default_secret(self.data, MEMBERS_KEY_TARGET, "kc-members-key")
         self.open_url = opener or webbrowser.open
         self.lock = threading.RLock()
         self.access, self.access_exp = None, 0
@@ -330,6 +333,52 @@ class CloudLink:
 
     def me(self):
         return self.call("GET", "/me")
+
+    # ---- the members list's key (D5): made and used by the Studio, kept here; never sent to the cloud
+    def _members_keys(self):
+        try:
+            keys = json.loads(self.members_secret.read() or "{}")
+            return keys if isinstance(keys, dict) else {}
+        except ValueError:
+            return {}
+
+    def _workspace_id(self):
+        acct = self.prefs.get("account") or {}
+        ws = (acct.get("workspace") or {}).get("id")
+        if not ws:
+            raise CloudError(401, "signed_out", "Sign in to your FrameDecks account first.")
+        return ws
+
+    def members_key(self):
+        return {"key": self._members_keys().get(self._workspace_id())}
+
+    def set_members_key(self, key):
+        key = str(key or "")
+        if len(key) != 43 or any(ch not in "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_" for ch in key):
+            raise CloudError(400, "bad_key", "That is not a members key.")
+        with self.lock:
+            keys = self._members_keys()
+            keys[self._workspace_id()] = key
+            self.members_secret.write(json.dumps(keys))
+        return {"ok": True}
+
+    # ---- your data in the account
+    def export(self):
+        return self.call("GET", "/me/export")
+
+    def delete_account(self):
+        """Deletes the account in the cloud, then signs this computer out. Everything on this computer stays."""
+        self.call("DELETE", "/me")
+        with self.lock:
+            keys = self._members_keys()
+            keys.pop(self._workspace_id(), None)
+            self.members_secret.write(json.dumps(keys))
+            self._forget()
+            try:
+                self.state_file.unlink()
+            except OSError:
+                pass
+        return self.status()
 
     def sync_state(self):
         return self._load(self.state_file, {"seq": 0, "revs": {}, "snapshot": []})

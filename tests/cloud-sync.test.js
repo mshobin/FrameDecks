@@ -3,6 +3,7 @@
 'use strict';
 const assert = require('assert'), E = require('../app/js/entities.js'), S = require('../app/js/cloud-sync.js');
 const load = require('./helpers/load-store.js');
+const webcrypto = require('crypto').webcrypto;
 const same = (a, b, msg) => assert.strictEqual(E.canon(a), E.canon(b), msg);
 
 /* The cloud: one workspace */
@@ -14,6 +15,8 @@ function Cloud(pageSize){
     return Promise.resolve(JSON.parse(JSON.stringify({entities: page, seq: page.length ? page[page.length - 1].seq : since, more: list.length > page.length})));
   };
   self.push = changes => { self.pushes++;
+    changes.forEach(c => { if (c.kind === 'members' && !c.deleted)
+      assert.deepStrictEqual(Object.keys(c.body).sort(), ['alg', 'ct', 'iv', 'v'], 'the members list only ever leaves sealed'); });
     const results = changes.map(c => {
       const k = c.kind + '/' + c.id, cur = rows[k];
       if ((cur ? cur.rev : 0) !== c.baseRev) return {kind: c.kind, id: c.id, status: 'conflict', current: cur ? {rev: cur.rev, deleted: cur.deleted, body: cur.body} : {rev: 0, deleted: true, body: null}};
@@ -26,16 +29,21 @@ function Cloud(pageSize){
 }
 
 /* A computer: its own store, its own sync state, sharing the cloud */
-function Computer(name, cloud, doc, prefs){
+function Computer(name, cloud, doc, prefs, people){
   const env = load(), saved = {seq: 0, revs: {}, snapshot: {}};
+  const list = {doc: {members: people || [], settings: {leap: 'feb28'}}, key: null};
   if (doc) env.Store.update(n => { Object.keys(n).forEach(k => delete n[k]); Object.assign(n, env.Store.normalize(JSON.parse(JSON.stringify(doc)))); });
   const p = Object.assign({signedIn: true, syncMeeting: false, pauseLive: false, computerName: name}, prefs || {});
   const engine = S.create({
     net: {getState: () => Promise.resolve(JSON.parse(JSON.stringify(saved))), saveState: s => { Object.assign(saved, JSON.parse(JSON.stringify(s))); return Promise.resolve(); },
           pull: cloud.pull, push: cloud.push},
-    store: env.Store, entities: E, scenes: env.Scenes, prefs: () => p, computer: () => name
+    store: env.Store, entities: E, scenes: env.Scenes, prefs: () => p, computer: () => name,
+    subtle: webcrypto.subtle, random: b => webcrypto.getRandomValues(b),
+    members: {key: () => Promise.resolve(list.key), load: () => Promise.resolve(JSON.parse(JSON.stringify(list.doc))),
+              save: d => { list.doc = JSON.parse(JSON.stringify(d)); return Promise.resolve(); }}
   });
-  return {env, SC: env.Scenes, sync: () => engine.syncOnce(), get: () => env.Store.get(), edit: fn => env.Store.update(fn), prefs: p, info: engine.info,
+  return {env, SC: env.Scenes, sync: () => engine.syncOnce(), list, checkKey: engine.checkKey,
+    people: () => list.doc.members.map(m => m.name).sort(), get: () => env.Store.get(), edit: fn => env.Store.update(fn), prefs: p, info: engine.info,
     names: () => env.Store.get().scenes.map(s => s.name)};
 }
 const frames = st => E.split(st).entities.filter(e => e.kind === 'frame' || e.kind === 'template' || e.kind === 'order').map(e => [e.kind, e.id, e.body]);
@@ -132,6 +140,49 @@ const START = {v6: true, scenes: [
   assert.ok(F.get().scenes.some(x => x.id === 'sc_own'), 'a Frame that differs is kept');
   assert.ok(!cloud.rows['frame/sc_twin'] && cloud.rows['frame/sc_own'], 'only the different one reaches the account');
   assert.strictEqual(F.names().filter(n => n === study.name).length, 1);
+
+  /* 11. The members list (D5): off until a key is made; then it leaves this computer only sealed */
+  const K = Buffer.from(webcrypto.getRandomValues(new Uint8Array(32))).toString('base64url');
+  const WRONG = Buffer.from(webcrypto.getRandomValues(new Uint8Array(32))).toString('base64url');
+  const mc = Cloud(), P = Computer('Church PC', mc, START, null, [{id: 'm1', name: 'Ann Lee'}]);
+  await P.sync();
+  assert.ok(!mc.rows['members/members'], 'no key: the members list stays here');
+  assert.strictEqual(P.info().members, 'off');
+  P.list.key = K; await P.sync();
+  const row = mc.rows['members/members'];
+  assert.ok(row && row.body.ct, 'sent sealed');
+  assert.ok(!JSON.stringify(row).includes('Ann'), 'the cloud cannot read a name');
+  assert.strictEqual(P.info().members, 'on');
+
+  /* 12. Another computer without the key: the list waits for it; this computer's own list is untouched */
+  const Q = Computer('Laptop', mc, null, null, [{id: 'm2', name: 'Bob Diaz'}]);
+  await Q.sync();
+  assert.strictEqual(Q.info().members, 'locked');
+  same(Q.people(), ['Bob Diaz']);
+  assert.strictEqual(await Q.checkKey(WRONG), false, 'a wrong recovery key is refused');
+  assert.strictEqual(await Q.checkKey(K), true, 'the right one fits');
+
+  /* 13. With the key: both lists are merged, nobody is lost, on both computers */
+  Q.list.key = K; await Q.sync(); await P.sync();
+  same(Q.people(), ['Ann Lee', 'Bob Diaz']); same(P.people(), ['Ann Lee', 'Bob Diaz']);
+
+  /* 14. Changed on both before syncing: merged person by person */
+  P.list.doc.members.push({id: 'm3', name: 'Cara Moss'});
+  Q.list.doc.members.push({id: 'm4', name: 'Dan Ruiz'});
+  Q.list.doc.members.find(m => m.id === 'm1').name = 'Ann Lee-Smith';
+  await P.sync(); await Q.sync(); await P.sync();
+  same(P.people(), Q.people(), 'both end the same');
+  same(P.people(), ['Ann Lee-Smith', 'Bob Diaz', 'Cara Moss', 'Dan Ruiz']);
+  assert.ok(!mc.rows['members/members'].deleted);
+
+  /* 15. A wrong key is never used: nothing sent, the list here unchanged */
+  const R = Computer('Old PC', mc, null, null, [{id: 'm9', name: 'Eve Park'}]);
+  R.list.key = WRONG; before = mc.pushes;
+  const revBefore = mc.rows['members/members'].rev;
+  await R.sync();
+  assert.strictEqual(R.info().members, 'wrong-key');
+  assert.strictEqual(mc.rows['members/members'].rev, revBefore, 'the account list was not touched');
+  same(R.people(), ['Eve Park']);
 
   console.log('cloud sync: OK');
 })().catch(e => { console.error(e); process.exit(1); });

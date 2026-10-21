@@ -49,11 +49,20 @@ class FakeCloud:
                 cloud.calls.append(("GET", self.path, self.headers.get("Authorization")))
                 if self.path == "/v1/auth/providers":
                     return self.send(200, {"providers": ["google"], "email": True})
+                if self.path == "/v1/me/export":
+                    return self.send(200, {"user": {"email": "ann@example.org"}, "entities": []}) if self.authed() else self.send(401, {})
                 if self.path.startswith("/v1/sync"):
                     if not self.authed():
                         return self.send(401, {"error": {"code": "unauthorized", "message": "Sign in again."}})
                     return self.send(200, {"entities": [], "seq": 7, "more": False})
                 self.send(404, {"error": {"code": "not_found", "message": "nope"}})
+
+            def do_DELETE(self):
+                cloud.calls.append(("DELETE", self.path, self.headers.get("Authorization")))
+                if self.path == "/v1/me" and self.authed():
+                    cloud.deleted = True
+                    return self.send(204)
+                self.send(401, {"error": {"code": "unauthorized", "message": "Sign in again."}})
 
             def do_POST(self):
                 d = self.body()
@@ -119,7 +128,9 @@ class CloudLinkTest(unittest.TestCase):
         self.dir = Path(tempfile.mkdtemp(prefix="fd-cloud-"))
         self.opened = []
         self.secret = cloud_link.FileSecret(self.dir / "kc-cloud-token")
-        self.link = cloud_link.CloudLink(self.dir, "6.9", platform="windows", secret=self.secret, opener=self.opened.append, api=self.cloud.url)
+        self.keys = cloud_link.FileSecret(self.dir / "kc-members-key")
+        self.link = cloud_link.CloudLink(self.dir, "6.9", platform="windows", secret=self.secret, opener=self.opened.append,
+                                         api=self.cloud.url, members_secret=self.keys)
 
     def tearDown(self):
         self.cloud.stop()
@@ -218,6 +229,33 @@ class CloudLinkTest(unittest.TestCase):
             link.providers()
         self.assertEqual(e.exception.code, "offline")
         self.assertIn("Presenting is not affected", e.exception.message)
+
+    def test_members_key_is_kept_per_workspace_and_never_sent(self):
+        with self.assertRaises(cloud_link.CloudError):
+            self.link.members_key()                                # signed out: there is no workspace yet
+        self.sign_in()
+        self.assertIsNone(self.link.members_key()["key"])
+        key = "A" * 43
+        with self.assertRaises(cloud_link.CloudError) as e:
+            self.link.set_members_key("not a key")
+        self.assertEqual(e.exception.code, "bad_key")
+        self.link.set_members_key(key)
+        self.assertEqual(self.link.members_key()["key"], key)
+        self.assertEqual(json.loads(self.keys.read()), {"w1": key})
+        self.assertNotIn(key, (self.dir / "kc-cloud.json").read_text())
+        self.link.sync_get(0)
+        self.link.logout()                                         # signing out keeps the key for that workspace
+        self.assertEqual(json.loads(self.keys.read()), {"w1": key})
+
+    def test_export_and_delete_the_account(self):
+        self.sign_in()
+        self.assertEqual(self.link.export()["user"]["email"], "ann@example.org")
+        self.link.set_members_key("B" * 43)
+        st = self.link.delete_account()
+        self.assertTrue(self.cloud.deleted)
+        self.assertFalse(st["signedIn"])
+        self.assertIsNone(self.secret.read())
+        self.assertEqual(json.loads(self.keys.read()), {}, "the deleted account's members key is forgotten")
 
 
 if __name__ == "__main__":

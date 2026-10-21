@@ -6,7 +6,9 @@
 
 Two computers sign in through Settings > FrameDecks account, then: Frames reach the second computer (the starter Frame
 both made is not doubled), a new Deck travels one way and a new Frame the other, a Frame renamed on both is kept twice
-and both end the same, and going live sends nothing. Use a fresh local database (delete cloud/.wrangler/state).
+and both end the same, and going live sends nothing. Then the members list: turned on with a recovery key on one,
+unlocked with it on the other (both lists merged; the cloud holds only ciphertext), the account downloaded, and deleted.
+Use a fresh local database (delete cloud/.wrangler/state).
 """
 import asyncio, json, os, subprocess, sys, tempfile, time, urllib.request
 from pathlib import Path
@@ -46,6 +48,7 @@ async def main():
                 ctx = await br.new_context(viewport={"width": 1440, "height": 900})
                 pg = await ctx.new_page()
                 pg.on("pageerror", lambda e: print(comp, "PAGE ERROR", e))
+                pg.on("dialog", lambda d: asyncio.ensure_future(d.accept("DELETE") if d.type == "prompt" else d.accept()))
                 urllib.request.urlopen(urllib.request.Request(f"http://127.0.0.1:{port}/api/app/skip-import", data=b"{}", headers={"Content-Type": "application/json"}))
                 await pg.goto(f"http://127.0.0.1:{port}/dashboard.html")
                 await pg.wait_for_function("window.KCStore && window.KCStore.get()")
@@ -114,6 +117,44 @@ async def main():
             await sync(A)
             seq1 = json.load(urllib.request.urlopen(f"http://127.0.0.1:{porta}/api/cloud/sync-state"))["seq"]
             print("5 seq before/after going live:", seq0, seq1); assert seq0 == seq1
+            # 6. The members list: turned on with a recovery key on A, unlocked with it on B
+            post = lambda pg, path, body: pg.evaluate("([p, b]) => fetch(p, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(b)}).then(r => r.status)", [path, body])
+            await post(A, "api/private", {"members": [{"id": "m1", "name": "Ann Lee"}], "settings": {}})
+            await post(B, "api/private", {"members": [{"id": "m2", "name": "Bob Diaz"}], "settings": {}})
+            await A.reload(); await B.reload()
+            for pg in (A, B):
+                await pg.wait_for_function("window.KCStore && window.KCStore.get()")
+                await pg.evaluate("() => { KCSetTab('settings'); KCShowSection('account'); }")
+                await pg.evaluate("() => { window.__sync = () => new Promise(r => { const b = [...document.querySelectorAll('#account-body button')].find(x => x.textContent === 'Sync now'); b.click(); setTimeout(r, 2500); }); }")
+            await A.click("#account-body button:text-is(\"Sync my members list too…\")")
+            await A.wait_for_selector(".acct-key")
+            code = (await A.inner_text(".acct-key")).strip()
+            await A.screenshot(path=str(OUT / "e2e-a-recovery-key.png"))
+            await A.wait_for_timeout(2500); await sync(B)
+            await B.wait_for_selector("#acct-recovery")
+            await B.fill("#acct-recovery", code.lower().replace("-", " "))
+            await B.click("#account-body button:text-is(\"Unlock\")")
+            await B.wait_for_timeout(4000); await sync(A)
+            people = lambda pg: pg.evaluate("() => fetch('api/private').then(r => r.json()).then(d => d.members.map(m => m.name).sort())")
+            pa_, pb_ = await people(A), await people(B)
+            print("6 members  A:", pa_, " B:", pb_)
+            assert pa_ == pb_ == ["Ann Lee", "Bob Diaz"], "both lists merged on both computers"
+            raw = subprocess.run(["npx", "wrangler", "d1", "execute", "framedecks", "--local", "--json", "--command",
+                                  "SELECT body FROM entities WHERE kind = 'members'"], cwd=str(ROOT / "cloud"), capture_output=True, text=True).stdout
+            assert '"ct' in raw and "Ann" not in raw and "Bob" not in raw, "the cloud holds only ciphertext"
+            print("  the cloud's copy is sealed:", raw.count('ct'), "envelope, no names")
+
+            # 7. Download a copy of the account
+            exp = await A.evaluate("() => fetch('api/cloud/export').then(r => r.json())")
+            print("7 export has:", sorted(exp)[:8]); assert exp
+
+            # 8. Delete the account from B: B is signed out, A finds itself signed out on its next sync; both keep everything
+            await B.click("#account-body button:text-is(\"Delete my account…\")")
+            await B.wait_for_selector("#acct-email", timeout=10000)
+            await sync(A); await A.wait_for_timeout(1000)
+            sa = await A.evaluate("() => fetch('api/cloud/status').then(r => r.json())")
+            print("8 after delete: A signed in?", sa["signedIn"], " B Frames kept:", len(await names(B)))
+            assert not sa["signedIn"] and len(await names(B)) >= 4
             print("END TO END: OK  (screenshots and logs in", OUT, ")")
             await br.close()
     finally:

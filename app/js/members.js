@@ -1066,6 +1066,11 @@ function setup(){
   setTab('meeting');
 }
 
+/* for account sync (cloud-sync.js): wait for pending saves; reload after the list changed from another computer */
+window.KCMembersSync = {
+  flush: function(){ return new Promise(function(r){ setTimeout(r, 300); }).then(function(){ return saveChain; }); },  // after persist()'s 250 ms
+  reload: function(){ return loadPrivate().then(function(d){ data = normalizeData(d); renderAll(); }); }
+};
 loadPrivate().then(function(d){ data = normalizeData(d); }, function(){
   loadFailed = true;
   toast('Member data couldn’t be loaded. Check that the FrameDecks window is open, then reload.', true);
