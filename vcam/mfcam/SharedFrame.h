@@ -1,4 +1,4 @@
-// Kingdom Connect - the KingdomConnect camera on Windows 11 (Media Foundation).
+// Kingdom Connect - the FrameCast camera on Windows 11 (Media Foundation).
 // The picture travels from the Kingdom Connect app to the camera through one block of shared memory.
 //
 // The camera's media source runs inside Windows' Frame Server service (session 0), so the block lives in the

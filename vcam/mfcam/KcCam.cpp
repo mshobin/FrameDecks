@@ -1,5 +1,5 @@
 // Kingdom Connect: what the Kingdom Connect app calls (through ctypes, see vcam/sink.py MFSink) to show the
-// KingdomConnect camera on Windows 11 and send it pictures. The same shape as softcam's scCreateCamera /
+// FrameCast camera on Windows 11 and send it pictures. The same shape as softcam's scCreateCamera /
 // scSendFrame / scIsConnected / scDeleteCamera, so the app's camera engine uses either camera the same way.
 //
 // The camera is created for the signed-in user and lasts as long as the app keeps it (MFVirtualCameraLifetime_Session),
@@ -62,7 +62,7 @@ static void Release(KcCam* cam)
 	delete cam;
 }
 
-// Shows the KingdomConnect camera to Zoom, Teams, OBS and the other apps of the signed-in user. Null when Windows
+// Shows the FrameCast camera to Zoom, Teams, OBS and the other apps of the signed-in user. Null when Windows
 // refused (KcCamLastError tells why: 0x80040154 = the media source is not registered).
 extern "C" void* __cdecl KcCamCreate(const wchar_t* friendlyName)
 {
@@ -82,7 +82,7 @@ extern "C" void* __cdecl KcCamCreate(const wchar_t* friendlyName)
 			MFVirtualCameraType_SoftwareCameraSource,
 			MFVirtualCameraLifetime_Session,
 			MFVirtualCameraAccess_CurrentUser,
-			friendlyName && *friendlyName ? friendlyName : L"KingdomConnect",
+			friendlyName && *friendlyName ? friendlyName : L"FrameCast",
 			clsid.c_str(),
 			nullptr,
 			0,

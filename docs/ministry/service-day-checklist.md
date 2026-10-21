@@ -26,9 +26,9 @@ A printable timeline for running a service with Kingdom Connect, plus an emergen
 ## 60 minutes before
 
 - [ ] PC on mains power; Windows updates paused; notifications off.
-- [ ] Kingdom Connect open; **KingdomConnect** camera ready in the command bar status.
+- [ ] Kingdom Connect open; **FrameCast** camera ready in the command bar status.
 - [ ] Webcam, microphone and projector connected.
-- [ ] Meeting app (Zoom / Teams / Meet) or OBS open, with **KingdomConnect** as the camera.
+- [ ] Meeting app (Zoom / Teams / Meet) or OBS open, with **FrameCast** as the camera.
 - [ ] Projector: **Share Window** → Presentation window on the projector → full screen.
 
 ## 30 minutes before
@@ -75,7 +75,7 @@ A printable timeline for running a service with Kingdom Connect, plus an emergen
 
 **Nothing above deletes anything.** When the problem is solved, put the right Frame back with Go Live.
 
-Camera missing in Zoom? Choose **KingdomConnect** again, or restart Zoom.
+Camera missing in Zoom? Choose **FrameCast** again, or restart Zoom.
 Phone disconnected? Carry on from the PC.
 
 ## Related

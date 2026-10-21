@@ -19,7 +19,7 @@ echo  [2/5] Installing build tools (first time takes a few minutes)...
 python -m pip install --upgrade pip >nul || goto :fail
 python -m pip install -r packaging\requirements-desktop.txt -c packaging\constraints.txt || goto :fail
 
-echo  [2b] KingdomConnect camera...
+echo  [2b] FrameCast camera...
 if exist "vcam\bin\kingdomconnect_vcam64.dll" goto :vcamdone
 set "VSWHERE=%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe"
 if not exist "%VSWHERE%" goto :novcam
@@ -37,7 +37,7 @@ copy /y "vcam_build\softcam\Win32\Release\softcam.dll" "vcam\bin\kingdomconnect_
 goto :vcamdone
 :novcam
 echo.
-echo  NOTE: KingdomConnect was skipped. Building it needs "Build Tools for Visual Studio" (free, with
+echo  NOTE: FrameCast was skipped. Building it needs "Build Tools for Visual Studio" (free, with
 echo  "Desktop development with C++") and Git. Everything else still builds. (GitHub builds it for you.)
 echo.
 :vcamdone

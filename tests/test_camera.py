@@ -1,4 +1,4 @@
-"""KingdomConnect camera: which build the app uses, and (on the Windows build machine) the Windows 11 camera end to end.
+"""FrameCast camera: which build the app uses, and (on the Windows build machine) the Windows 11 camera end to end.
 python -m unittest discover -s tests -p "test_*.py"
 
 The end-to-end test needs Windows 11 (or Windows Server 2025), administrator rights and KC_CAMERA_E2E=1, which the
@@ -140,7 +140,7 @@ class Windows11Camera(unittest.TestCase):
                         cap.release()
                     if seen:
                         break
-                self.assertTrue(seen, f"no camera showed the picture sent to KingdomConnect ({opened} cameras opened)")
+                self.assertTrue(seen, f"no camera showed the picture sent to FrameCast ({opened} cameras opened)")
                 self.assertTrue(connected, "the app was not told an app is receiving the camera")
             finally:
                 stop.set()

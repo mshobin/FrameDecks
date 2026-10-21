@@ -1,4 +1,4 @@
-"""v6.5 Annotate and Freeze on the KingdomConnect picture (ZoomIt-style).
+"""v6.5 Annotate and Freeze on the FrameCast picture (ZoomIt-style).
 
 The drawings live in the shared state (live.ink: pen, highlighter, arrow, line, rectangle, ellipse, text; positions
 0..1 of the picture), so the PC, the phone remote and the overlay pages all show the same ink. They are drawn above

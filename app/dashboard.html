@@ -56,7 +56,7 @@
     <button class="cb-btn lb-prog-btn" type="button" id="lb-prog-btn" aria-haspopup="true" aria-expanded="false" aria-controls="lb-prog-menu" title="Hide, Blackout, Emergency, Annotate, Freeze, Teleprompter">Program ▾</button>
     <div class="lb-prog-menu" id="lb-prog-menu" role="group" aria-label="Program">
   <button class="cb-btn" type="button" id="lb-hide-layer" aria-label="Hide the selected Content">Hide Content</button>
-  <button class="cb-btn lb-black" type="button" id="lb-blackout" aria-pressed="false" title="Black picture on KingdomConnect and the overlay page">Blackout</button>
+  <button class="cb-btn lb-black" type="button" id="lb-blackout" aria-pressed="false" title="Black picture on FrameCast and the overlay page">Blackout</button>
   <button class="cb-btn lb-emerg" type="button" id="lb-emergency" aria-pressed="false" title="Emergency screen with your message">Emergency</button>
   <button class="cb-btn lb-ann" type="button" id="lb-annotate" aria-pressed="false" title="Annotate: draw on the picture (D)">Annotate</button>
   <button class="cb-btn lb-frz" type="button" id="lb-freeze" aria-pressed="false" title="Freeze: hold the picture (F)">Freeze</button>
@@ -73,10 +73,10 @@
   <div class="sysstat" id="sysstat">
     <button class="sys-sum" type="button" id="sys-sum" aria-expanded="false" aria-controls="health" aria-label="System status"><i class="sys-dot"></i><span class="sys-text">Checking…</span></button>
     <div class="sys-menu health" id="health" aria-label="Connection status">
-      <button class="hchip" type="button" id="h-vcam" data-goto="settings" data-sec="vcam" title="KingdomConnect camera (the camera you choose in Zoom or Teams)"><i></i><span class="hl">KingdomConnect</span><span class="hs">Zoom · Teams</span><b>—</b></button>
+      <button class="hchip" type="button" id="h-vcam" data-goto="settings" data-sec="vcam" title="FrameCast camera (the camera you choose in Zoom or Teams)"><i></i><span class="hl">FrameCast</span><span class="hs">Zoom · Teams</span><b>—</b></button>
       <button class="hchip" type="button" id="h-sources" data-goto="settings" data-sec="display" title="Overlay pages open in OBS, Camo or a browser"><i></i><span class="hl">Overlays</span><span class="hs">OBS</span><b>—</b></button>
       <button class="hchip" type="button" id="h-ipad" data-goto="settings" data-sec="ipad" title="Phone &amp; iPad remote"><i></i><span class="hl">Remote</span><span class="hs">Remote</span><b>—</b></button>
-      <button class="hchip" type="button" id="h-rec" data-goto="recordings" title="Recording of the KingdomConnect output" hidden><i></i><span class="hl">Recording</span><span class="hs">REC</span><b>—</b></button>
+      <button class="hchip" type="button" id="h-rec" data-goto="recordings" title="Recording of the FrameCast output" hidden><i></i><span class="hl">Recording</span><span class="hs">REC</span><b>—</b></button>
       <button class="hchip" type="button" id="h-slides" data-goto="studio" title="Slides: a PowerPoint slide show or slides shared in the Studio" hidden><i></i><span class="hl">Slides</span><span class="hs">Slides</span><b>—</b></button>
       <button class="hchip" type="button" id="h-program" data-goto="settings" data-sec="diag" title="Local program"><i></i><span class="hl">Program</span><span class="hs">PC</span><b>Connecting…</b></button>
     </div>
@@ -130,7 +130,7 @@
     <div class="canvas-wrap" id="canvas-wrap">
       <div class="program-frame canvas-frame" id="program">
         <iframe id="program-frame" title="What Zoom participants see" tabindex="-1"></iframe>
-        <img id="program-live" alt="The KingdomConnect picture Zoom participants see" hidden>
+        <img id="program-live" alt="The FrameCast picture Zoom participants see" hidden>
         <div class="canvas-boxes" id="canvas-boxes" aria-hidden="true"></div>
         <div class="program-badge" id="program-badge">NOTHING ON SCREEN</div>
       </div>
@@ -223,7 +223,7 @@
       <div class="ip" data-kind="birthday" data-itab="layout" hidden><div class="ip-sec" id="bday-pos-sec"><div class="row"><span class="lbl">Position</span><div class="seg" id="s-bdaypos"></div></div></div></div>
       <div class="ip" data-kind="birthday" data-itab="animation" hidden><div class="ip-sec"><div class="row"><span class="lbl">Transition</span><div class="seg" data-setseg="bdayTransition"></div></div></div></div>
 
-      <!-- Media layers (KingdomConnect Studio): the Studio inspector lives here -->
+      <!-- Media layers (FrameCast Studio): the Studio inspector lives here -->
       <div class="ip" data-kind="media" data-itab="content" hidden><div id="insp-media"></div><div id="insp-media-off"></div></div>
     </div>
   </aside>
@@ -316,7 +316,7 @@
     <button type="button" data-sec="transitions"><span class="sn-i">⇄</span>Transitions</button>
     <button type="button" data-sec="recording"><span class="sn-i">●</span>Recording</button>
     <button type="button" data-sec="display"><span class="sn-i">◧</span>Zoom / Display<i class="sn-dot" id="sn-display"></i></button>
-    <button type="button" data-sec="vcam"><span class="sn-i">◉</span>KingdomConnect Camera<i class="sn-dot" id="sn-vcam"></i></button>
+    <button type="button" data-sec="vcam"><span class="sn-i">◉</span>FrameCast Camera<i class="sn-dot" id="sn-vcam"></i></button>
     <button type="button" data-sec="ipad"><span class="sn-i">▭</span>Phone &amp; iPad Remote<i class="sn-dot" id="sn-ipad"></i></button>
     <button type="button" data-sec="keys"><span class="sn-i">⌨</span>Keyboard shortcuts</button>
     <button type="button" data-sec="security"><span class="sn-i">⛨</span>Security</button>
@@ -375,7 +375,7 @@
       <section class="box"><div id="transitions-body"></div></section>
     </section>
     <section class="s-sec" id="sec-recording" aria-labelledby="sech-recording" hidden>
-      <header class="s-head"><h2 id="sech-recording">Recording</h2><p>Record exactly what KingdomConnect sends to Zoom or Teams. Recordings are saved on this PC.</p></header>
+      <header class="s-head"><h2 id="sech-recording">Recording</h2><p>Record exactly what FrameCast sends to Zoom or Teams. Recordings are saved on this PC.</p></header>
       <section class="box"><div class="rec-ctl" id="rec-host"></div></section>
       <div class="tabpanel" id="tab-recordings"></div>
     </section>
@@ -397,7 +397,7 @@
     </section>
     </section>
     <section class="s-sec" id="sec-vcam" aria-labelledby="sech-vcam" hidden>
-      <header class="s-head"><h2 id="sech-vcam">KingdomConnect Camera</h2><p>Kingdom Connect’s own camera for Zoom and Teams, with optional background blur. No OBS or Camo needed.</p></header>
+      <header class="s-head"><h2 id="sech-vcam">FrameCast Camera</h2><p>Kingdom Connect’s own camera for Zoom and Teams, with optional background blur. No OBS or Camo needed.</p></header>
       <div id="vcam-body"></div>
     </section>
     <section class="s-sec" id="sec-ipad" aria-labelledby="sech-ipad" hidden>
@@ -411,7 +411,7 @@
       <header class="s-head"><h2 id="sech-keys">Keyboard shortcuts</h2><p>Keys that work in the Studio (not while typing in a box).</p></header>
     <section class="box"><div id="keys-body"></div></section>
     <section class="box"><div class="box-head"><h2>Command palette</h2></div><div id="pal-keys"></div></section>
-    <section class="box"><div class="box-head"><h2>Camera Look (KingdomConnect)</h2></div>
+    <section class="box"><div class="box-head"><h2>Camera Look (FrameCast)</h2></div>
       <div class="kb-table">
         <div class="kb-row"><span class="cat-dot live"></span><span class="kb-name">Warm</span><span class="kb-keys"><kbd class="key">Ctrl</kbd><kbd class="key">Alt</kbd><kbd class="key">1</kbd></span><span></span><span></span></div>
         <div class="kb-row"><span class="cat-dot live"></span><span class="kb-name">Dark / Polished</span><span class="kb-keys"><kbd class="key">Ctrl</kbd><kbd class="key">Alt</kbd><kbd class="key">2</kbd></span><span></span><span></span></div>

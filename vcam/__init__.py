@@ -1,1 +1,1 @@
-"""KingdomConnect - the Kingdom Connect's built-in virtual camera (Windows)."""
+"""FrameCast - the Kingdom Connect's built-in virtual camera (Windows)."""

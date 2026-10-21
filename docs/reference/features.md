@@ -53,20 +53,20 @@ above describes them as they are now.
 | **Independent Frames** | Each Question / Scripture Content owns its list (`layer.c.items`) and its appearance (`layer.c.look`). Duplicate gives new ids to the Frame, every Content and every item. Older data is converted on load with ids derived from the old ones | `app/js/store.js` (`ownLists`, `freshIds`, `applyLook`) |
 | **Content Settings** | One panel per selection, every setting visible in groups (Content, Appearance, Position, Timing, Animation, Media, Behavior); no Basic / Advanced | `app/js/workspace.js` (`renderInspector`) |
 | **Question / Scripture lists** | Full-height list; click = current, double-click = edit in the same panel (label, text, answer, notes, transition) | `app/js/frame-lists.js` |
-| **Annotate** | Pen, highlighter, arrow, line, rectangle, ellipse, text; colours, thickness, undo / redo / clear; above all Content, PowerPoint and cards on KingdomConnect, the overlay pages and the phone | `app/js/annotate.js`, `vcam/annotate.py`, state `live.ink` |
+| **Annotate** | Pen, highlighter, arrow, line, rectangle, ellipse, text; colours, thickness, undo / redo / clear; above all Content, PowerPoint and cards on FrameCast, the overlay pages and the phone | `app/js/annotate.js`, `vcam/annotate.py`, state `live.ink` |
 | **Freeze / Black screen** | Hold the picture (drawings stay on top) / black picture; keys F and K | `vcam/program.py`, state `live.freeze`, `live.blackout` |
 | **PowerPoint** | A .pptx becomes slides via the installed PowerPoint (COM SaveAs PDF); a live window keeps animations; **Show objects only** keys out a plain slide background | `vcam/powerpoint.py` (`pptx_to_pdf`), `vcam/layers.py` (`key_background`), `docs/reference/powerpoint.md` |
 | **Simple / Advanced remote** | Simple (default): Frame and Content steppers, Annotate, Freeze, Black Screen. Advanced: search, notes, run-through, PowerPoint, annotation | `app/remote.html`, `app/js/remote.js` |
 | **Meeting Workbook** | Five-sheet Excel template (two tabs since 6.9) with drop-downs, import with preview, export | `app/js/meeting-book.js`, `tools/make_meeting_workbook.py` |
 | **No collaboration** | Team Space removed; local save, autosave, export, backups and Frame history remain | — |
 
-The rest of this document describes the v6.4 features that are still current: the KingdomConnect camera, logo-only
+The rest of this document describes the v6.4 features that are still current: the FrameCast camera, logo-only
 branding and native desktop behaviour.
 
 
 This document describes what each v6.4 feature does, how it is built and where its limits are:
 
-- the KingdomConnect camera;
+- the FrameCast camera;
 - logo-only branding;
 - native desktop behaviour.
 
@@ -75,35 +75,35 @@ For the earlier features, see `docs/reference/meeting-workbook-and-branding.md` 
 
 ---
 
-## 1. The KingdomConnect camera
+## 1. The FrameCast camera
 
 Kingdom Connect has its own camera for Zoom, Microsoft Teams, Google Meet, OBS and other apps that read Windows
-cameras. Windows lists it as **KingdomConnect**. It sends the finished picture: your webcam with optional background
+cameras. Windows lists it as **FrameCast**. It sends the finished picture: your webcam with optional background
 blur and a Camera Look, plus the live scene (cards, text, pictures, slides, branding).
 
 | | |
 | --- | --- |
-| Name in other apps | **KingdomConnect** |
-| Registered by | The installer, with the option **Install the KingdomConnect camera for Zoom and Teams** (asks for administrator permission once) |
+| Name in other apps | **FrameCast** |
+| Registered by | The installer, with the option **Install the FrameCast camera for Zoom and Teams** (asks for administrator permission once) |
 | Driver files | Windows 11: `kingdomconnect_mfcam64.dll` / `32.dll`, a Media Foundation virtual camera built from VCamSample (MIT licence) by `packaging/build_mfcam.py`, copied to `Program Files\Kingdom Connect Camera` when installed. Windows 10: `kingdomconnect_vcam64.dll` / `32.dll`, a DirectShow camera built from softcam (MIT licence) by `packaging/build_vcam.py`. Only one is installed (`vcam\bin\kingdomconnect-camera.ps1`) |
 | Camera ID (CLSID) | `{6F2B8C3E-4D7A-4B9E-9C11-B5CC0A1E7D21}`. This is the same ID as before, so apps that remembered the camera keep it |
-| Settings | **Settings → KingdomConnect Camera** |
-| Status | The status menu in the command bar: **KingdomConnect** · Off / Ready / In use |
+| Settings | **Settings → FrameCast Camera** |
+| Status | The status menu in the command bar: **FrameCast** · Off / Ready / In use |
 
 ### Upgrading from the camera's earlier name
 Before 6.4 the same camera had an earlier name. Installing 6.4 does the following:
 - It registers the camera again under its new name. This happens even if the option is not ticked, as long as the
   camera was already installed, because the driver file was renamed.
-- Zoom, Teams, Meet and OBS show **KingdomConnect** after they are restarted. They read the camera list when they
+- Zoom, Teams, Meet and OBS show **FrameCast** after they are restarted. They read the camera list when they
   start.
-- An OBS scene that used the camera under its earlier name as a *Video Capture Device* may need that source pointed at KingdomConnect once.
+- An OBS scene that used the camera under its earlier name as a *Video Capture Device* may need that source pointed at FrameCast once.
 
 The app also still recognises its old name, so it never captures its own picture during the upgrade.
 
 ### Limits
 - Windows only (DirectShow). Apps that read only Media Foundation cameras without the Windows 11 DirectShow bridge
   may not list it. Zoom, Teams, Google Meet in Chrome or Edge, and OBS do list it.
-- One app at a time can use the webcam behind it. Choose KingdomConnect in every meeting app, not the webcam itself.
+- One app at a time can use the webcam behind it. Choose FrameCast in every meeting app, not the webcam itself.
 
 ---
 

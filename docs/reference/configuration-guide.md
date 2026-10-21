@@ -1,7 +1,7 @@
 # Kingdom Connect: configuration guide (v6.5)
 
 This guide covers what to set up after installing:
-- the KingdomConnect camera;
+- the FrameCast camera;
 - the app window;
 - where settings are stored.
 
@@ -9,17 +9,17 @@ For installing, see `docs/development/building-the-installer.md`. For what each 
 
 ---
 
-## 1. KingdomConnect camera
+## 1. FrameCast camera
 
-1. Install with **Install the KingdomConnect camera for Zoom and Teams** ticked, and allow the administrator prompt.
-   - Already installed without it? Use **Settings → KingdomConnect Camera → Install KingdomConnect**.
+1. Install with **Install the FrameCast camera for Zoom and Teams** ticked, and allow the administrator prompt.
+   - Already installed without it? Use **Settings → FrameCast Camera → Install FrameCast**.
 2. Restart Zoom, Teams, OBS or the browser you use for Google Meet. They read the camera list when they start.
-3. Choose **KingdomConnect** as the camera in each app:
-   - **Zoom:** Settings → Video → Camera → KingdomConnect. Tick **HD**, and turn off Zoom's own background blur.
-   - **Microsoft Teams:** Settings → Devices (or Video and effects) → Camera → KingdomConnect.
-   - **Google Meet:** ⋮ → Settings → Video → Camera → KingdomConnect.
-   - **OBS:** Sources → + → Video Capture Device → Device: KingdomConnect.
-4. **Settings → KingdomConnect Camera** sets:
+3. Choose **FrameCast** as the camera in each app:
+   - **Zoom:** Settings → Video → Camera → FrameCast. Tick **HD**, and turn off Zoom's own background blur.
+   - **Microsoft Teams:** Settings → Devices (or Video and effects) → Camera → FrameCast.
+   - **Google Meet:** ⋮ → Settings → Video → Camera → FrameCast.
+   - **OBS:** Sources → + → Video Capture Device → Device: FrameCast.
+4. **Settings → FrameCast Camera** sets:
    - which webcam is behind it;
    - the resolution (720p or 1080p);
    - background blur;
@@ -27,7 +27,7 @@ For installing, see `docs/development/building-the-installer.md`. For what each 
    - whether your cards appear on the camera.
 
 **Upgrading from a version before 6.4:** the camera had its earlier name. The installer renames it and keeps the
-same device ID. In OBS, point any old source that used the camera's earlier name at KingdomConnect once.
+same device ID. In OBS, point any old source that used the camera's earlier name at FrameCast once.
 
 ---
 

@@ -25,7 +25,7 @@ The only feature that ever goes online is the optional ESV scripture fetch.
 - **Questions and scriptures**: per-Frame lists with labels; Show question, scripture or both; drag to reorder;
   double-click an item in the list, or any card on the canvas, to edit it in place. ESV fetch online, or any translation
   typed for offline use.
-- **Outputs**: the **KingdomConnect** virtual camera (your webcam with the Frame on top, background blur, Camera
+- **Outputs**: the **FrameCast** virtual camera (your webcam with the Frame on top, background blur, Camera
   Looks) for Zoom, Teams, Google Meet and OBS; a full-screen **Presentation window** for a projector; transparent
   **overlay pages** for OBS ([MEDIA](docs/media.md)).
 - **Media**: images, video (muted), PowerPoint (.pptx converted by the PowerPoint on the PC, or PDF), live window
@@ -55,7 +55,7 @@ The only feature that ever goes online is the optional ESV scripture fetch.
 ## Install
 See [INSTALLATION](docs/installation.md) and [GETTING_STARTED](docs/getting-started.md). In short: run
 `Kingdom Connect v6.9.exe` (unsigned, so check it against its `.sha256` file first and choose **More info → Run
-anyway** at the SmartScreen prompt), keep **Install the KingdomConnect camera** ticked, and allow the one
+anyway** at the SmartScreen prompt), keep **Install the FrameCast camera** ticked, and allow the one
 administrator prompt. Windows 10 or 11 (64-bit) is required. The installer comes from the **Build Windows
 installer** workflow ([BUILDING_THE_INSTALLER](docs/development/building-the-installer.md)).
 
@@ -79,7 +79,7 @@ build.bat                                           # local Windows build (CI is
 ## Quality gates (`.github/workflows/build-windows.yml`)
 | Gate | What it checks |
 |---|---|
-| camera build | Builds the KingdomConnect camera (Windows 11: VCamSample media source; Windows 10: softcam; 64- and 32-bit) and records SHA-256 hashes of the DLLs |
+| camera build | Builds the FrameCast camera (Windows 11: VCamSample media source; Windows 10: softcam; 64- and 32-bit) and records SHA-256 hashes of the DLLs |
 | self-check | `packaging/check.py`: the program starts, serves every page and script, camera name and ID match the build, blur model loads |
 | tests | `node tests/run.js`: Frame-owned lists, independent duplicates, conversion of older data, output folding, Meeting Workbook template, import and export |
 | Python tests | `python -m unittest`: the Spotlight shortcut and desktop settings, moving data saved under the earlier name, and the Meeting Form layout and export |

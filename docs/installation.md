@@ -25,7 +25,7 @@ administrator.
 | --- | --- |
 | **Operating system** | Windows 10 or Windows 11, 64-bit. There is no Mac or Linux version |
 | **Processor and memory** | A typical laptop or desktop from the last few years. Background blur and 1080p use more processor time; Settings → Diagnostics shows the app's own load |
-| **Webcam** | Optional. Needed only if people should see you on the KingdomConnect camera |
+| **Webcam** | Optional. Needed only if people should see you on the FrameCast camera |
 | **Microsoft PowerPoint** | Optional. Needed only to turn a **.pptx** file into slides. Without it, save your deck as PDF and add the PDF |
 | **Microsoft Edge WebView2 Runtime** | Included with Windows 11 and most up-to-date Windows 10 PCs. Without it, the app still runs in an Edge app window |
 | **Internet** | Not needed to run a meeting. Needed only to fetch ESV scripture text, to install WebView2, and for your video-call app itself |
@@ -68,13 +68,13 @@ unchanged:
    | Option | Recommended | What it does |
    | --- | --- | --- |
    | **Create a desktop icon** | On | A Kingdom Connect icon on the desktop |
-   | **Install the KingdomConnect camera for Zoom and Teams** | On | Adds the **KingdomConnect** camera to Windows. Windows asks for administrator permission once, only for this |
+   | **Install the FrameCast camera for Zoom and Teams** | On | Adds the **FrameCast** camera to Windows. Windows asks for administrator permission once, only for this |
    | **Start automatically when I sign in** | Your choice | Opens Kingdom Connect when you sign in to Windows |
 
 5. Finish the wizard. Kingdom Connect opens.
 
-> **Tip:** If you skipped the camera, you can add it later in **Settings → KingdomConnect Camera → Install
-> KingdomConnect**.
+> **Tip:** If you skipped the camera, you can add it later in **Settings → FrameCast Camera → Install
+> FrameCast**.
 
 ## First run
 
@@ -82,12 +82,12 @@ unchanged:
    the old folder and select **Import**. Members, saved questions and scriptures, settings and the phone PIN are
    copied. The old folder is not changed.
 2. Restart Zoom, Teams, OBS or your browser for Google Meet. They read the list of cameras only when they start.
-3. In each app, choose **KingdomConnect** as the camera:
-   - **Zoom:** Settings → Video → Camera → KingdomConnect. Tick **HD** and turn off Zoom's own background blur.
-   - **Microsoft Teams:** Settings → Devices (or Video and effects) → Camera → KingdomConnect.
-   - **Google Meet:** ⋮ → Settings → Video → Camera → KingdomConnect.
-   - **OBS:** Sources → + → Video Capture Device → Device: KingdomConnect.
-4. In Kingdom Connect, open **Settings → KingdomConnect Camera** and choose the webcam behind it, the resolution
+3. In each app, choose **FrameCast** as the camera:
+   - **Zoom:** Settings → Video → Camera → FrameCast. Tick **HD** and turn off Zoom's own background blur.
+   - **Microsoft Teams:** Settings → Devices (or Video and effects) → Camera → FrameCast.
+   - **Google Meet:** ⋮ → Settings → Video → Camera → FrameCast.
+   - **OBS:** Sources → + → Video Capture Device → Device: FrameCast.
+4. In Kingdom Connect, open **Settings → FrameCast Camera** and choose the webcam behind it, the resolution
    (720p or 1080p), background blur and Camera Look.
 
 ## Allow the phone remote through the firewall

@@ -27,7 +27,7 @@ You build a **Meeting** (your service or meeting) out of **Frames**. A Frame is 
 timer, an image, a video, a PowerPoint and more.
 
 When the meeting starts, you press **Go Live** and step from Frame to Frame. What you show appears on:
-- **KingdomConnect**, a camera you choose in Zoom, Microsoft Teams, Google Meet or OBS (your webcam with your
+- **FrameCast**, a camera you choose in Zoom, Microsoft Teams, Google Meet or OBS (your webcam with your
   Content on top);
 - the **Presentation window**, which you can share in Zoom or show full screen on a projector or TV;
 - **OBS / browser overlay pages** at `http://localhost:8750/...`, for setups that use OBS.
@@ -47,7 +47,7 @@ You need:
 - a Windows 10 or Windows 11 PC (64-bit);
 - the Kingdom Connect installer. See [Installation](installation.md).
 
-A webcam is optional. You need one only if people should see you on the KingdomConnect camera.
+A webcam is optional. You need one only if people should see you on the FrameCast camera.
 
 ## First launch
 
@@ -153,7 +153,7 @@ See [Remote control](remote-control.md).
 Do this once, a day or two before your first real meeting.
 
 - [ ] The app opens and shows your meetings.
-- [ ] In Zoom, Teams or Meet, the camera **KingdomConnect** is listed and selected (restart the meeting app after
+- [ ] In Zoom, Teams or Meet, the camera **FrameCast** is listed and selected (restart the meeting app after
       installing).
 - [ ] You can **Go Live** on your first Frame and step to the last one.
 - [ ] Your questions and scriptures read correctly on the canvas. Fix typos by double-clicking a card.

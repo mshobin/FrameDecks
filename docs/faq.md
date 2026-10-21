@@ -103,17 +103,17 @@ Yes. **Annotate** (**D**) gives a pen, highlighter, arrow, line, rectangle, elli
 ## Online and hybrid services
 
 **How do people on Zoom see our slides and questions?**
-Choose the **KingdomConnect** camera in Zoom (or Teams, Google Meet, OBS). Participants see your webcam with the live Frame on top. No screen sharing needed.
+Choose the **FrameCast** camera in Zoom (or Teams, Google Meet, OBS). Participants see your webcam with the live Frame on top. No screen sharing needed.
 
 **Can we use a projector in the room at the same time?**
 Yes. Open the **Presentation window** (**Share Window** on the Studio Canvas) on the projector and make it full screen. It shows the same picture as the camera.
 
 **Does it work with OBS for livestreaming?**
-Yes. Add **KingdomConnect** as a Video Capture Device, or use the overlay pages (`http://localhost:8750/...`) as Browser Sources on top of your own OBS scenes. See [Media](media.md#obs-and-browser-overlay-pages).
+Yes. Add **FrameCast** as a Video Capture Device, or use the overlay pages (`http://localhost:8750/...`) as Browser Sources on top of your own OBS scenes. See [Media](media.md#obs-and-browser-overlay-pages).
 
 **Will Zoom participants see my teleprompter?**
 No. The **Teleprompter overlay** is left out of screen sharing and recordings, even when you share your whole screen
-(Windows 10 version 2004 or later). The Teleprompter window is left out too. Neither is ever on the KingdomConnect
+(Windows 10 version 2004 or later). The Teleprompter window is left out too. Neither is ever on the FrameCast
 camera. See [Teleprompter overlay](presentations.md#teleprompter-overlay-meeting-leader-mode).
 
 **Does it work on a Mac?**
@@ -154,7 +154,7 @@ Press **HIDE ALL** (or **Esc** on the PC), then put the right Frame back with **
 Yes. Write them in each Frame's **Teleprompter script** (Frame settings). Open it with **Program → Teleprompter** (**R**), in the **Teleprompter window** on a second screen, or with **TELEPROMPTER** on the phone remote. See [Presentations](presentations.md#teleprompter).
 
 **Can the audience see the teleprompter?**
-No. The Teleprompter is only for the presenter. It is never on the KingdomConnect camera, the Presentation window, the OBS pages or the phone's drawing pad.
+No. The Teleprompter is only for the presenter. It is never on the FrameCast camera, the Presentation window, the OBS pages or the phone's drawing pad.
 
 **Where did the answers and notes on my questions go?**
 Since 6.7, questions and scriptures have no Answer or Notes fields, and no screen shows them. Nothing was deleted from your data. When you import an older Meeting Workbook, its answers and notes go into the Frame's Teleprompter script.
@@ -185,7 +185,7 @@ Install Kingdom Connect on the new PC. On first run it offers to import data fro
 No. Kingdom Connect has no subscription, billing, accounts or per-seat fees.
 
 **What licence is it under?**
-The licence terms aren't published in the repository yet. Please ask the maintainer before redistributing or modifying it. The KingdomConnect camera is built from VCamSample on Windows 11 and softcam on Windows 10 (both MIT licence); the background-blur model is from MediaPipe (Apache 2.0).
+The licence terms aren't published in the repository yet. Please ask the maintainer before redistributing or modifying it. The FrameCast camera is built from VCamSample on Windows 11 and softcam on Windows 10 (both MIT licence); the background-blur model is from MediaPipe (Apache 2.0).
 
 ## Technical
 

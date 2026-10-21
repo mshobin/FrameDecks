@@ -26,17 +26,17 @@ ping = json.loads(urllib.request.urlopen(base + "api/app/ping").read())
 assert ping["app"] == "Kingdom Connect"
 for name in ["app/js/overlay.js", "app/js/store.js", "app/fonts/EBGaramond.ttf", "app/vendor/xlsx.full.min.js", "desktop_app.py", "desktop_win.py"]:
     assert (root / name).exists(), name
-# KingdomConnect: the camera ID in the app must match the one compiled into the camera
+# FrameCast: the camera ID in the app must match the one compiled into the camera
 import re as _re
 build_id = _re.search(r'CLSID = "([0-9A-F-]+)"', (root / "packaging" / "build_vcam.py").read_text()).group(1)
 from vcam.sink import VCAM_CLSID
-assert VCAM_CLSID == "{" + build_id + "}", "KingdomConnect ID mismatch between vcam/sink.py and packaging/build_vcam.py"
+assert VCAM_CLSID == "{" + build_id + "}", "FrameCast ID mismatch between vcam/sink.py and packaging/build_vcam.py"
 from vcam.sink import VCAM_NAME
 build_name = _re.search(r'NAME = "([^"]+)"', (root / "packaging" / "build_vcam.py").read_text()).group(1)
-assert VCAM_NAME == build_name == "KingdomConnect", "the camera must be called KingdomConnect"
+assert VCAM_NAME == build_name == "FrameCast", "the camera must be called FrameCast"
 mf_id = _re.search(r'CLSID = "([0-9A-F-]+)"', (root / "packaging" / "build_mfcam.py").read_text()).group(1)
 from vcam.sink import MF_CLSID
-assert MF_CLSID == "{" + mf_id + "}", "Windows 11 KingdomConnect ID mismatch between vcam/sink.py and packaging/build_mfcam.py"
+assert MF_CLSID == "{" + mf_id + "}", "Windows 11 FrameCast ID mismatch between vcam/sink.py and packaging/build_mfcam.py"
 assert mf_id.upper() in (root / "packaging" / "installer.iss").read_text().upper(), "installer.iss must know the Windows 11 camera ID"
 assert (root / "vcam" / "bin" / "kingdomconnect-camera.ps1").exists(), "camera install script missing"
 assert (root / "vcam" / "models" / "selfie_segmentation_landscape.tflite").exists(), "blur model missing"
@@ -44,14 +44,14 @@ if os.name == "nt" and os.environ.get("GITHUB_ACTIONS") == "true":
     missing = [f for f in ("kingdomconnect_vcam64.dll", "kingdomconnect_vcam32.dll", "kingdomconnect_mfcam64.dll",
                            "kingdomconnect_mfcam32.dll", "build-info.json") if not (root / "vcam" / "bin" / f).exists()]
     if missing:
-        sys.exit("STOP: the KingdomConnect camera was not built (" + ", ".join(missing) + " missing).\n"
+        sys.exit("STOP: the FrameCast camera was not built (" + ", ".join(missing) + " missing).\n"
                  "The build recipe .github/workflows/build-windows.yml in your repository is out of date.\n"
                  "Copy the .github folder from the latest Kingdom-Connect.zip into your repository, then commit and push.")
 try:
     import cv2
     from vcam.blur import BackgroundBlur
     BackgroundBlur(root / "vcam" / "models" / "selfie_segmentation_landscape.tflite").close()
-    from vcam.cards import CardDrawer, place_verse      # the cards drawn onto KingdomConnect
+    from vcam.cards import CardDrawer, place_verse      # the cards drawn onto FrameCast
     _st = {"layout": {}, "question": {"visible": True, "text": "Self-check question?", "label": "Discussion Question"}, "birthday": {}}
     _c = CardDrawer(root / "app" / "fonts").draw("verse", {"text": "Self-check verse", "ref": "John 1:1", "label": "Focus Verse"}, {}, 1280, 720, place_verse(_st, 1280, 720))
     assert _c.w > 100 and _c.h > 50, "card drawing failed"
@@ -68,8 +68,8 @@ try:
     import pypdfium2                                     # PDF slides
     for _k in BUILT_IN:
         assert Grade(BUILT_IN[_k]).apply(_np.full((72, 128, 3), 128, _np.uint8)).shape == (72, 128, 3), "look failed: " + _k
-    print("KingdomConnect: blur model loads with OpenCV", cv2.__version__)
+    print("FrameCast: blur model loads with OpenCV", cv2.__version__)
 except ImportError:
-    print("KingdomConnect: OpenCV not installed here (only needed to build the app)")
+    print("FrameCast: OpenCV not installed here (only needed to build the app)")
 srv.shutdown()
 print("Self-check passed: version", ping["version"])

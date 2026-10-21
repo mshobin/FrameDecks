@@ -1,4 +1,4 @@
-"""Prepares the Windows 11 "KingdomConnect" camera (a Media Foundation virtual camera) before it is compiled.
+"""Prepares the Windows 11 "FrameCast" camera (a Media Foundation virtual camera) before it is compiled.
 
 Takes VCamSample (MIT licence, https://github.com/smourier/VCamSample, a fixed commit) and:
   - replaces its picture (FrameGenerator) with ours: the frames the Kingdom Connect app writes into shared memory
@@ -53,7 +53,7 @@ def main(src):
 
     patch(src / "dllmain.cpp", [
         ("// 3cad447d-f283-4af4-a3b2-6f5363309f52\nGUID CLSID_VCam = { 0x3cad447d,0xf283,0x4af4,{0xa3,0xb2,0x6f,0x53,0x63,0x30,0x9f,0x52} };",
-         f"// KingdomConnect camera (Windows 11): {CLSID.lower()}\nGUID CLSID_VCam = {guid_init(CLSID)};"),
+         f"// FrameCast camera (Windows 11): {CLSID.lower()}\nGUID CLSID_VCam = {guid_init(CLSID)};"),
     ])
     patch(src / "MediaStream.cpp", [
         ("#define NUM_IMAGE_COLS 1280 // 640", "#define NUM_IMAGE_COLS 1920 // Kingdom Connect: 1080p"),
@@ -71,7 +71,7 @@ def main(src):
         ('<ClCompile Include="FrameGenerator.cpp" />', '<ClCompile Include="FrameGenerator.cpp" />\n    <ClCompile Include="KcCam.cpp" />'),
         ('<ClInclude Include="FrameGenerator.h" />', '<ClInclude Include="FrameGenerator.h" />\n    <ClInclude Include="SharedFrame.h" />'),
     ])
-    print(f"Prepared the KingdomConnect camera (Windows 11) with ID {{{CLSID}}}")
+    print(f"Prepared the FrameCast camera (Windows 11) with ID {{{CLSID}}}")
 
 
 if __name__ == "__main__":

@@ -48,7 +48,7 @@
   }
   pic.addEventListener('load', function(){ msg.style.display = 'none'; });
   pic.addEventListener('error', function(){
-    // Not available (start-file version without KingdomConnect): show the overlay page instead.
+    // Not available (start-file version without FrameCast): show the overlay page instead.
     fetch('api/vcam/status', {cache: 'no-store'}).then(function(r){ return r.json(); }).then(function(d){
       if (!d.available && mode === 'stream'){
         mode = 'overlays'; pic.style.display = 'none'; fb.style.display = 'block'; fb.src = 'stage.html?bg=dark'; msg.style.display = 'none';

@@ -1,8 +1,8 @@
-# Installs or removes the KingdomConnect camera (runs as administrator; called by the two .cmd files next to it).
+# Installs or removes the FrameCast camera (runs as administrator; called by the two .cmd files next to it).
 #   Windows 11: the Media Foundation camera (kingdomconnect_mfcam64.dll). Windows' Frame Server service loads it, and
 #               that service cannot read files in a user's folder, so the file is copied to Program Files first.
 #   Windows 10: the DirectShow camera (kingdomconnect_vcam64.dll / 32), registered where it is.
-# Only one of the two is registered, so Zoom, Teams and OBS list KingdomConnect once.
+# Only one of the two is registered, so Zoom, Teams and OBS list FrameCast once.
 param([ValidateSet('install', 'uninstall')][string]$Action = 'install')
 $ErrorActionPreference = 'Continue'
 $here = Split-Path -Parent $MyInvocation.MyCommand.Path

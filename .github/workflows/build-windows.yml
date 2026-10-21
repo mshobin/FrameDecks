@@ -33,29 +33,29 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -r packaging/requirements-desktop.txt -c packaging/constraints.txt
 
-      - name: Get softcam (MIT licence) for KingdomConnect
+      - name: Get softcam (MIT licence) for FrameCast
         run: git clone --depth 1 --branch v1.8.1 https://github.com/tshino/softcam.git vcam_build/softcam
 
-      - name: Prepare KingdomConnect (name and ID)
+      - name: Prepare FrameCast (name and ID)
         run: python packaging/build_vcam.py vcam_build/softcam
 
-      - name: Get VCamSample (MIT licence) for the Windows 11 KingdomConnect camera
+      - name: Get VCamSample (MIT licence) for the Windows 11 FrameCast camera
         run: |
           git clone https://github.com/smourier/VCamSample.git vcam_build/vcamsample
           git -C vcam_build/vcamsample checkout --quiet 58b6d4b0e0c2c97fdffd66d23e7c8da6b89f570d
 
-      - name: Prepare the Windows 11 KingdomConnect camera (picture, name and ID)
+      - name: Prepare the Windows 11 FrameCast camera (picture, name and ID)
         run: python packaging/build_mfcam.py vcam_build/vcamsample
 
       - name: Set up the Microsoft C++ compiler
         uses: microsoft/setup-msbuild@v2
 
-      - name: Build KingdomConnect (64-bit and 32-bit)
+      - name: Build FrameCast (64-bit and 32-bit)
         shell: pwsh
         run: |
           foreach ($p in 'x64', 'Win32') {
             msbuild vcam_build/softcam/softcam.sln /m /t:softcam /p:Configuration=Release /p:Platform=$p
-            if ($LASTEXITCODE -ne 0) { throw "KingdomConnect build failed ($p)" }
+            if ($LASTEXITCODE -ne 0) { throw "FrameCast build failed ($p)" }
           }
           Copy-Item vcam_build/softcam/x64/Release/softcam.dll vcam/bin/kingdomconnect_vcam64.dll
           Copy-Item vcam_build/softcam/Win32/Release/softcam.dll vcam/bin/kingdomconnect_vcam32.dll
@@ -64,11 +64,11 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw "VCamSample packages could not be restored" }
           foreach ($p in 'x64', 'Win32') {
             msbuild vcam_build/vcamsample/VCamSampleSource/VCamSampleSource.vcxproj /m /p:Configuration=Release /p:Platform=$p /p:PlatformToolset=v143 /p:SolutionDir="$PWD/vcam_build/vcamsample/"
-            if ($LASTEXITCODE -ne 0) { throw "KingdomConnect (Windows 11) build failed ($p)" }
+            if ($LASTEXITCODE -ne 0) { throw "FrameCast (Windows 11) build failed ($p)" }
           }
           $mf64 = Get-ChildItem -Recurse vcam_build/vcamsample -Filter VCamSampleSource.dll | Where-Object { $_.FullName -match '\\x64\\Release\\' } | Select-Object -First 1
           $mf32 = Get-ChildItem -Recurse vcam_build/vcamsample -Filter VCamSampleSource.dll | Where-Object { $_.FullName -match '\\Release\\' -and $_.FullName -notmatch '\\x64\\' } | Select-Object -First 1
-          if (-not $mf64 -or -not $mf32) { Get-ChildItem -Recurse vcam_build/vcamsample -Filter *.dll | Format-Table FullName; throw "KingdomConnect (Windows 11) output not found" }
+          if (-not $mf64 -or -not $mf32) { Get-ChildItem -Recurse vcam_build/vcamsample -Filter *.dll | Format-Table FullName; throw "FrameCast (Windows 11) output not found" }
           Copy-Item $mf64.FullName vcam/bin/kingdomconnect_mfcam64.dll
           Copy-Item $mf32.FullName vcam/bin/kingdomconnect_mfcam32.dll
           # A record of what was built, so the app can tell "never built" from "removed after installing"
@@ -97,7 +97,7 @@ jobs:
 
       - name: Run the desktop tests (Python, on Windows)
         env:
-          KC_CAMERA_E2E: "1"   # installs the Windows 11 KingdomConnect camera, reads it back, removes it (needs admin)
+          KC_CAMERA_E2E: "1"   # installs the Windows 11 FrameCast camera, reads it back, removes it (needs admin)
         run: python -m unittest discover -s tests -p "test_*.py" -v
 
       - name: Check documentation links
@@ -122,7 +122,7 @@ jobs:
         run: |
           if (-not (Test-Path "dist/Kingdom Connect/Kingdom Connect.exe")) { throw "The app was not built" }
           if (-not (Get-ChildItem -Recurse "dist/Kingdom Connect" -Filter dashboard.html)) { throw "App pages are missing" }
-          if (-not (Get-ChildItem -Recurse "dist/Kingdom Connect" -Filter kingdomconnect_vcam64.dll)) { throw "KingdomConnect is missing" }
+          if (-not (Get-ChildItem -Recurse "dist/Kingdom Connect" -Filter kingdomconnect_vcam64.dll)) { throw "FrameCast is missing" }
 
       - name: Install Inno Setup (if needed)
         shell: pwsh

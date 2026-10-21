@@ -1,6 +1,6 @@
 """Where finished frames go.
 
-The "KingdomConnect" camera comes in two builds, and Windows lists only one of them (see
+The "FrameCast" camera comes in two builds, and Windows lists only one of them (see
 vcam/bin/kingdomconnect-camera.ps1):
   MFSink       Windows 11: a Media Foundation virtual camera (our build of the MIT-licensed VCamSample media source,
                packaging/build_mfcam.py). Windows' Frame Server serves it to every app.
@@ -16,7 +16,7 @@ from pathlib import Path
 
 # Must match the ID compiled into kingdomconnect_vcam64.dll / kingdomconnect_vcam32.dll (see packaging/build_vcam.py)
 VCAM_CLSID = "{6F2B8C3E-4D7A-4B9E-9C11-B5CC0A1E7D21}"
-VCAM_NAME = "KingdomConnect"
+VCAM_NAME = "FrameCast"
 # Must match CLSID in packaging/build_mfcam.py (the Windows 11 camera)
 MF_CLSID = "{06BACA0B-14C0-4E9B-8161-ED7D11F73518}"
 WINDOWS_11_BUILD = 22000
@@ -69,7 +69,7 @@ def mf_registered():
 
 
 def is_registered():
-    """True if Windows knows about a KingdomConnect camera (read-only registry check)."""
+    """True if Windows knows about a FrameCast camera (read-only registry check)."""
     if os.name != "nt":
         return False
     return mf_registered() or _registered_file(VCAM_CLSID) is not None
@@ -103,7 +103,7 @@ class SoftcamSink:
         # framerate 0 = send each frame immediately (the webcam sets the pace)
         self.cam = self.lib.scCreateCamera(width, height, ctypes.c_float(0.0))
         if not self.cam:
-            raise RuntimeError("KingdomConnect is already in use by another program.")
+            raise RuntimeError("FrameCast is already in use by another program.")
 
     def connected(self):
         return bool(self.cam) and bool(self.lib.scIsConnected(self.cam))
@@ -156,12 +156,12 @@ MF_STEPS = {1: "starting Media Foundation", 2: "creating the camera", 3: "starti
 def mf_error(code, step=0):
     """Windows' answer to "show the camera", in words (step: where it failed, see KcCamLastStep)."""
     words = {
-        0x80040154: "the KingdomConnect camera is not installed (Settings → KingdomConnect → Install)",
+        0x80040154: "the FrameCast camera is not installed (Settings → FrameCast → Install)",
         0x80070005: "Windows refused access to the camera (Settings → Privacy & security → Camera)",
         0x80004001: "this version of Windows has no virtual cameras (Windows 11 is needed)",
     }
     where = f" (while {MF_STEPS[step]}, 0x{code:08X})" if step in MF_STEPS else ""
-    return "KingdomConnect couldn’t start: " + words.get(code, f"Windows error 0x{code:08X}") + where + "."
+    return "FrameCast couldn’t start: " + words.get(code, f"Windows error 0x{code:08X}") + where + "."
 
 
 class FakeSink:

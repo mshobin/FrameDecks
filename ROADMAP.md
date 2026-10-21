@@ -29,7 +29,7 @@ Every item below is weighed against these principles, in this order:
 ## Where we are (6.6)
 
 Kingdom Connect runs a complete meeting from one Windows PC: Frames and Content, questions and scriptures with
-answers and notes, PowerPoint and media, the KingdomConnect camera for Zoom, Teams and Google Meet, OBS overlay pages,
+answers and notes, PowerPoint and media, the FrameCast camera for Zoom, Teams and Google Meet, OBS overlay pages,
 a Presentation window for projectors and screen sharing, annotation, a Speaker View, and a phone remote. See
 [CHANGELOG.md](CHANGELOG.md).
 
@@ -52,7 +52,7 @@ a Presentation window for projectors and screen sharing, annotation, a Speaker V
 | **Song and lyrics library** | Today lyrics are shown with Text Content or PowerPoint. A song library would hold songs with verses, choruses and bridges, an arrangement order, author and copyright lines, and a **CCLI song number** field, with quick stepping by section. |
 | **Stage display for musicians and speakers** | The Speaker View is a start. A stage display would show current and next lyrics, a countdown and messages from the operator, on a second screen or a tablet. |
 | **Service order (run sheet) view** | One view of the whole service, in order, with timings, built from Frames. |
-| **Better multi-output** | Clearer control of what goes to the projector (Presentation window), the stream (KingdomConnect camera, OBS pages) and the stage at the same time. |
+| **Better multi-output** | Clearer control of what goes to the projector (Presentation window), the stream (FrameCast camera, OBS pages) and the stage at the same time. |
 | **Media library** | A searchable place for the church's backgrounds, videos and images, reusable across meetings. |
 
 ## Later: broader ministry
@@ -62,7 +62,7 @@ a Presentation window for projectors and screen sharing, annotation, a Speaker V
 | **Offline Bible translations** | Scripture without the internet, for translations whose licences allow it. Today: ESV online with a key, or typed text. |
 | **Localization** | The interface in the languages our churches speak. Requires separating interface text from the code first. |
 | **Accessibility review** | Keyboard paths, screen reader labels and contrast checked against WCAG for the dashboard and the remote. |
-| **macOS** | Only if there is clear demand. The KingdomConnect camera, screen capture and PowerPoint control are Windows-specific and would need new implementations. |
+| **macOS** | Only if there is clear demand. The FrameCast camera, screen capture and PowerPoint control are Windows-specific and would need new implementations. |
 
 ---
 

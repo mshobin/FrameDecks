@@ -45,7 +45,7 @@ RestartApplications=no
 
 [Tasks]
 Name: "desktopicon"; Description: "Create a desktop icon"; GroupDescription: "Icons:"
-Name: "vcam"; Description: "Install the KingdomConnect camera for Zoom and Teams (Windows asks for administrator permission)"; GroupDescription: "Options:"
+Name: "vcam"; Description: "Install the FrameCast camera for Zoom and Teams (Windows asks for administrator permission)"; GroupDescription: "Options:"
 Name: "startup"; Description: "Start Kingdom Connect automatically when I sign in to Windows"; GroupDescription: "Options:"; Flags: unchecked
 
 [Files]
@@ -66,7 +66,7 @@ Name: "{autodesktop}\Kingdom Connect"; Filename: "{app}\Kingdom Connect.exe"; Ta
 Name: "{userstartup}\Kingdom Connect"; Filename: "{app}\Kingdom Connect.exe"; Tasks: startup
 
 [Run]
-Filename: "{app}\_internal\vcam\bin\register-kingdomconnect-camera.cmd"; Verb: "runas"; Flags: shellexec waituntilterminated runhidden; Check: ShouldRegisterCamera; StatusMsg: "Installing the KingdomConnect camera..."
+Filename: "{app}\_internal\vcam\bin\register-kingdomconnect-camera.cmd"; Verb: "runas"; Flags: shellexec waituntilterminated runhidden; Check: ShouldRegisterCamera; StatusMsg: "Installing the FrameCast camera..."
 Filename: "{app}\Kingdom Connect.exe"; Description: "Open Kingdom Connect now"; Flags: nowait postinstall skipifsilent
 
 [UninstallRun]
@@ -85,7 +85,7 @@ begin
             (RegQueryStringValue(HKCU, WebView2KeyUser, 'pv', v) and (v <> '') and (v <> '0.0.0.0'));
 end;
 
-// The KingdomConnect camera keeps the camera ID it had as "BCC vCam", so Zoom, Teams and OBS see the same device
+// The FrameCast camera keeps the camera ID it had as "BCC vCam", so Zoom, Teams and OBS see the same device
 // under its new name. Its driver file was renamed in 6.4, so a PC that already has the camera registers it again
 // (pointing Windows at the new file) even when the option is not ticked this time.
 // The Windows 11 camera (Media Foundation) has its own ID; an update re-registers it too, so Windows uses the new file.

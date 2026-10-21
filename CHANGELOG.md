@@ -10,12 +10,15 @@ Versions before 4.9 (when the program had its earlier name) are described in the
 
 ## [Unreleased]
 
-**KingdomConnect camera on Windows 11.** On Windows 11, KingdomConnect is now a Media Foundation virtual camera,
+### Changed
+- The virtual camera is now called **FrameCast** (the same camera IDs, so Zoom, Teams and OBS keep the device).
+
+**FrameCast camera on Windows 11.** On Windows 11, FrameCast is now a Media Foundation virtual camera,
 the camera system Microsoft builds Windows 11's own camera features on. Windows' Frame Server offers it to every app:
 Zoom, Teams, OBS, browsers and the Windows Camera app.
 - It is built from VCamSample (MIT licence), with Kingdom Connect's picture, name and ID
   (`packaging/build_mfcam.py`, `vcam/mfcam/`).
-- Windows 10 keeps the DirectShow camera (softcam). Only one of the two is ever installed, so apps list KingdomConnect
+- Windows 10 keeps the DirectShow camera (softcam). Only one of the two is ever installed, so apps list FrameCast
   once.
 - Installing still asks for administrator permission once, because Windows only loads a camera registered for the
   whole PC. The camera file is copied to `Program Files\Kingdom Connect Camera`, where Windows' camera service can

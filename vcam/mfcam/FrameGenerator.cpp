@@ -1,4 +1,4 @@
-// Kingdom Connect: the picture of the KingdomConnect camera on Windows 11 (see FrameGenerator.h and SharedFrame.h).
+// Kingdom Connect: the picture of the FrameCast camera on Windows 11 (see FrameGenerator.h and SharedFrame.h).
 #include "pch.h"
 #include <sddl.h>
 #include "Undocumented.h"
@@ -49,7 +49,7 @@ HRESULT FrameGenerator::OpenShared()
 		_header->seq = 0;
 		_header->magic = KC_FRAME_MAGIC;
 	}
-	WINTRACE(L"KingdomConnect frame block open");
+	WINTRACE(L"FrameCast frame block open");
 	return S_OK;
 }
 
