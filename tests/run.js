@@ -1,4 +1,4 @@
-/* Kingdom Connect - runs every tests/*.test.js file with Node (no packages to install).
+/* FrameDecks - runs every tests/*.test.js file with Node (no packages to install).
  * Usage: node tests/run.js        Exit code 0 = all passed. */
 'use strict';
 const fs = require('fs'), path = require('path'), { spawnSync } = require('child_process');

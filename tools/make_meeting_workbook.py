@@ -1,4 +1,4 @@
-"""Writes the Kingdom Connect Meeting Workbook template (6.9): two tabs, Dashboard and Meeting Form.
+"""Writes the FrameDecks Meeting Workbook template (6.9): two tabs, Dashboard and Meeting Form.
 
     python3 tools/make_meeting_workbook.py
 
@@ -6,7 +6,7 @@ Meeting Form: one guided page, top to bottom (the layout is in meeting_form.py, 
 this meeting to Excel"). Dashboard: a summary of the form made only by formulas: this meeting, KPI tiles, readiness,
 quick links into the form, the content mix and a log of recent meetings. Nothing on the Dashboard is imported.
 
-Output: app/templates/Kingdom-Connect-Meeting-Workbook.xlsx (downloaded from the app: Meeting → Download the Excel
+Output: app/templates/FrameDecks-Meeting-Workbook.xlsx (downloaded from the app: Meeting → Download the Excel
 template) and a copy in docs/templates/. The column names and allowed values must match app/js/meeting-book.js;
 tests/meeting-workbook.test.js checks that the template imports without errors.
 """
@@ -72,14 +72,14 @@ SAMPLE_TABLES = {
         [5, "Lesson Slides", "This week's teaching slides", "None", "Fade", "Open the PowerPoint first."],
         [6, "Closing", "Prayer and goodbye", "Navy", "Dip to Black", "Thank everyone for coming."]],
     "content": [
-        [1, 1, "Text", "Welcome message", "Welcome! We begin in just a moment.", "Welcome", "", "Fade", "", ""],
-        [1, 2, "Timer", "Countdown", "", "Starting in", 5, "", "", "Five-minute countdown"],
-        [2, 1, "Free Content", "Song", "Announcement: Please join in the opening song.", "Worship", "", "Gentle Rise", "", ""],
-        [3, 1, "Scripture", "Reading", "", "Focus Verse", "", "Gentle Rise", "", "The scriptures are in Scripture readings below."],
-        [4, 1, "Question", "Discussion", "", "Discussion Question", "", "Fade", "", "The questions are in Discussion questions below."],
-        [5, 1, "PowerPoint", "Lesson", "Romans Week 5.pptx", "", "", "", "Show", "Choose the file in the app after the import."],
-        [6, 1, "Prayer Point", "Closing prayer", "Let’s close our time together in prayer.", "Closing Prayer", "", "Fade", "", ""],
-        [6, 2, "Lower Third", "Goodbye", "See you next week", "Thank you for joining!", "", "Gentle Rise", "", ""]],
+        [1, 1, "Text", "Welcome message", "Welcome! We begin in just a moment.", "Welcome", "", "Fade", "", "", ""],
+        [1, 2, "Timer", "Countdown", "", "Starting in", 5, "", "", "Five-minute countdown", ""],
+        [2, 1, "Free Content", "Song", "Announcement: Please join in the opening song.", "Worship", "", "Gentle Rise", "", "", ""],
+        [3, 1, "Scripture", "Reading", "", "Focus Verse", "", "Gentle Rise", "", "The scriptures are in Scripture readings below.", ""],
+        [4, 1, "Question", "Discussion", "", "Discussion Question", "", "Fade", "", "The questions are in Discussion questions below.", ""],
+        [5, 1, "PowerPoint", "Lesson", "Romans Week 5.pptx", "", "", "", "Show", "Choose the file in the app after the import.", ""],
+        [6, 1, "Prayer Point", "Closing prayer", "Let’s close our time together in prayer.", "Closing Prayer", "", "Fade", "", "", "Prayer"],
+        [6, 2, "Lower Third", "Goodbye", "See you next week", "Thank you for joining!", "", "Gentle Rise", "", "", "Goodbye"]],
     "questions": [
         [4, "Discussion", 1, "Question 1", "What does “no condemnation” mean for you this week?", "", 3, "Fade"],
         [4, "Discussion", 2, "Question 2", "How does the Spirit help us live differently?", "", 3, "Word by Word"],
@@ -88,7 +88,7 @@ SAMPLE_TABLES = {
         [3, "Reading", 1, "Focus Verse", "Romans 8:1", "There is therefore now no condemnation for those who are in Christ Jesus.", "ESV", "Gentle Rise"],
         [3, "Reading", 2, "Read together", "Romans 8:2", "For the law of the Spirit of life has set you free in Christ Jesus from the law of sin and death.", "ESV", ""]],
 }
-FORM_WIDTHS = [22, 14, 18, 22, 44, 26, 14, 16, 15, 30]
+FORM_WIDTHS = [22, 14, 18, 22, 44, 26, 14, 16, 15, 30, 18]
 LONG = {"frames": {2, 5}, "content": {4, 9}, "questions": {4}, "scriptures": {5}}   # columns that wrap long text
 NUMBERS = {"frames": {0}, "content": {0, 1, 6}, "questions": {0, 2, 6}, "scriptures": {0, 2}}   # centred number columns
 VALUE_SPAN = "F"             # a detail's box: B..F
@@ -132,13 +132,13 @@ def meeting_form(wb):
         if kind == "banner":
             band(ws, row, H_BANNER, NAVY)
             ws.merge_cells(f"A{row}:{last_col}{row}")
-            a.value = "KINGDOM CONNECT   ·   Meeting Form"
+            a.value = "FrameDecks   ·   Meeting Form"
             a.font, a.alignment = font(18, "FFFFFF", bold=True), Alignment(vertical="center", indent=1)
         elif kind == "intro":
             band(ws, row, H_INTRO, CARD)
             ws.merge_cells(f"A{row}:{last_col}{row}")
             a.value = ("Work down the page and fill in the cream boxes (Tab moves to the next one). Each table opens more rows "
-                       "with the + button on the left. Then, in Kingdom Connect: Meeting → Import meeting from Excel…")
+                       "with the + button on the left. Then, in FrameDecks: Meeting → Import meeting from Excel…")
             a.font, a.alignment = font(10, MUTED), LEFT
         elif kind == "gap":
             band(ws, row, H_GAP)
@@ -201,7 +201,7 @@ def meeting_form(wb):
         elif kind == "footer":
             band(ws, row, H_INTRO, CARD)
             ws.merge_cells(f"A{row}:{last_col}{row}")
-            a.value = ("Done? Save this file, then in Kingdom Connect choose Meeting → Import meeting from Excel… "
+            a.value = ("Done? Save this file, then in FrameDecks choose Meeting → Import meeting from Excel… "
                        "You see a preview first; nothing changes until you select Import.")
             a.font, a.alignment = font(10, NAVY, bold=True), LEFT
     ws.sheet_format.outlineLevelRow = 1
@@ -280,7 +280,7 @@ def dashboard(wb):
         img.width, img.height = mark.width // 2, mark.height // 2
         ws.add_image(img, "B2")
     ws.merge_cells("C2:H2")
-    ws["C2"] = "KINGDOM CONNECT"
+    ws["C2"] = "FrameDecks"
     ws["C2"].font = font(20, NAVY, bold=True)
     ws["C2"].alignment = Alignment(vertical="bottom", indent=1)
     ws.merge_cells("C3:H3")
@@ -452,7 +452,7 @@ def dashboard(wb):
     r = LOG_LAST + 2
     ws.row_dimensions[r].height = 30
     ws.merge_cells(f"B{r}:K{r}")
-    ws[f"B{r}"] = ("How it works: plan everything on the Meeting Form tab, save, then in Kingdom Connect choose "
+    ws[f"B{r}"] = ("How it works: plan everything on the Meeting Form tab, save, then in FrameDecks choose "
                    "Meeting → Import meeting from Excel…   This Dashboard is never imported.")
     ws[f"B{r}"].font, ws[f"B{r}"].alignment = font(9, MUTED), LEFT
     card(f"B{r}:K{r}")
@@ -464,14 +464,14 @@ def dashboard(wb):
 
 def main():
     wb = Workbook()
-    wb.properties.creator = wb.properties.lastModifiedBy = "Kingdom Connect"
-    wb.properties.title = "Kingdom Connect Meeting Workbook"
+    wb.properties.creator = wb.properties.lastModifiedBy = "FrameDecks"
+    wb.properties.title = "FrameDecks Meeting Workbook"
     dashboard(wb)
     meeting_form(wb)
     wb.active = 1                    # opens on the Meeting Form: that is where the work happens
     wb[MF.DASHBOARD].sheet_view.tabSelected = False
     wb.calculation.fullCalcOnLoad = True
-    out = ROOT / "app" / "templates" / "Kingdom-Connect-Meeting-Workbook.xlsx"
+    out = ROOT / "app" / "templates" / "FrameDecks-Meeting-Workbook.xlsx"
     out.parent.mkdir(parents=True, exist_ok=True)
     wb.save(out)
     docs = ROOT / "docs" / "templates" / out.name

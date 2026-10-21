@@ -1,6 +1,6 @@
 # Architecture
 
-How Kingdom Connect is built: the parts, how a change travels from a click to the screen, and why it stays
+How FrameDecks is built: the parts, how a change travels from a click to the screen, and why it stays
 reliable on a Sunday morning.
 
 **Who this is for:** contributors, technical media leads, and anyone who wants to understand what runs on the
@@ -29,7 +29,7 @@ service PC. Volunteers do not need this page; start with [Getting started](getti
 | --- | --- |
 | **One PC, no cloud** | Everything runs in one process on the service PC. The web UI talks to `127.0.0.1:8750`. Nothing needs an account or the internet (only the optional ESV scripture fetch does). |
 | **One source of truth** | The meeting lives in one state object (`kc-saved-content.json`). Every screen — the main window, the phone, the overlay pages, the camera — reads the same state. |
-| **One final picture** | The KingdomConnect camera, the Presentation window and every preview use the same composed frame. Nothing bypasses the compositor, so what you preview is what Zoom receives. |
+| **One final picture** | The FrameCast camera, the Presentation window and every preview use the same composed frame. Nothing bypasses the compositor, so what you preview is what Zoom receives. |
 | **Volunteer-proof** | Plain words in the UI, Frames that own their Content (no hidden sharing), safe defaults, Hide all / Blackout always one key away. |
 | **Light on the PC** | Work happens only when something changes. Screens poll cheaply, the phone waits on a long poll, previews are made only while someone is watching. |
 
@@ -45,11 +45,11 @@ flowchart LR
     SRV["Control server<br/>server.py :8750"]
     ENG["Camera engine<br/>vcam/"]
     PRES["Presentation window"]
-    FILE[("Data folder<br/>%APPDATA%\\Kingdom Connect")]
+    FILE[("Data folder<br/>%APPDATA%\\FrameDecks")]
   end
   PHONE["Phone remote<br/>app/remote.html"]
   OBS["OBS / browser<br/>overlay pages"]
-  MEET["Zoom · Teams · Meet · OBS<br/>camera: KingdomConnect"]
+  MEET["Zoom · Teams · Meet · OBS<br/>camera: FrameCast"]
   PROJ["Projector / second screen"]
 
   UI <--> SRV
@@ -108,7 +108,7 @@ flowchart LR
   OV --> CMP
   CMP --> PF --> INK["Annotation · Freeze<br/>vcam/annotate.py"] --> BLK["Blackout fade"]
   BLK --> FINAL(["Final frame"])
-  FINAL --> SINK["KingdomConnect camera<br/>vcam/sink.py + softcam"]
+  FINAL --> SINK["FrameCast camera<br/>vcam/sink.py + softcam"]
   FINAL --> PW["Presentation window"]
   FINAL --> PV["Previews<br/>Studio · phone pad"]
   FINAL --> REC["Test recording"]
@@ -207,7 +207,7 @@ flowchart LR
   S --> C1
   T --> C2["Text layers<br/>camera: vcam/program.py<br/>pages: app/js/overlay.js"]
   M --> C3["Media layers<br/>vcam/layers.py<br/>(camera picture only)"]
-  C1 --> OUT1["KingdomConnect camera ·<br/>Presentation window"]
+  C1 --> OUT1["FrameCast camera ·<br/>Presentation window"]
   C2 --> OUT1
   C3 --> OUT1
   C1 --> OUT2["OBS / browser overlay pages<br/>(transparent background)"]
@@ -296,14 +296,14 @@ window features use Windows' own functions through `desktop_win.py` (ctypes, no 
 | Desktop shell | `desktop_app.py` | WebView2 windows via pywebview (main, Teleprompter window, Teleprompter overlay, Spotlight, Presentation window), tray icon and menu, global shortcut, single instance |
 | Windows helpers | `desktop_win.py` | Win32 calls via ctypes: the ribbon (`Chrome`, `drag`), see-through glass and fade, capture exclusion, rounded corners, centring on the cursor, the global shortcut thread (`Hotkeys`). Safe no-ops off Windows |
 | Window ribbon | `app/js/window-chrome.js`, `app/css/window.css` | The one ribbon component: window buttons, drag, double-click, the minimize question |
-| Camera engine | `vcam/engine.py`, `compositor.py`, `layers.py`, `cards.py`, `overlay.py`, `program.py`, `annotate.py`, `blur.py`, `looks.py`, `picture.py`, `screen.py`, `devices.py`, `sink.py`, `powerpoint.py` | Capture, compose, draw cards and drawings, send to the KingdomConnect camera |
+| Camera engine | `vcam/engine.py`, `compositor.py`, `layers.py`, `cards.py`, `overlay.py`, `program.py`, `annotate.py`, `blur.py`, `looks.py`, `picture.py`, `screen.py`, `devices.py`, `sink.py`, `powerpoint.py` | Capture, compose, draw cards and drawings, send to the FrameCast camera |
 | Shared state (UI) | `app/js/store.js` | Normalizes state, Frames and Content model (`KCScenes`), sync loops |
 | Main window | `app/dashboard.html`, `app/js/workspace.js`, `frame-lists.js`, `dashboard.js`, `annotate.js`, `preview-edit.js`, `editable.js`, `palette.js`, `prompter-dock.js`, `studio.js`, … | Studio, Content Settings, lists, multi-select, annotation, inline and canvas editing, command palette (also used by Spotlight, `app/spotlight.html`), docked Teleprompter |
 | Phone remote | `app/remote.html`, `app/js/remote.js`, `app/css/remote.css` | Simple and Advanced profiles, drawing pad |
 | Teleprompter | `app/js/teleprompter.js` (shared, with the floating toolbar), `app/speaker.html`, `app/js/speaker.js` (the Teleprompter window), `app/prompter.html`, `app/js/prompter.js`, `app/css/prompter.css` (the overlay) | The Frame's Teleprompter script, what's on screen, what's next, clocks. No output reads a Frame's script, and the overlay is left out of screen sharing |
 | Overlay pages | `app/stage.html` and others, `app/js/overlay.js` | Cards and text for OBS / browser sources |
-| Excel | `app/js/meeting-book.js`, `meeting-import.js`, `import-worker.js`, `app/vendor/xlsx.full.min.js`, `meeting_form.py`, `app/templates/Kingdom-Connect-Meeting-Workbook.xlsx` (made by `tools/make_meeting_workbook.py`) | Meeting Workbook import and export. The workbook has two tabs, Dashboard (formulas only) and Meeting Form. `meeting_form.py` holds the form's layout and fills the template for an export (`POST api/meeting/workbook`); `meeting-book.js` reads the form back by its labels and header rows, and still reads the 6.5–6.8 one-sheet-per-list workbooks. The Excel library loads on first use, not at start-up |
-| Earlier-name migration | `legacy.py` (data folder, files, backups, recordings), a marked block at the top of `app/js/store.js` (browser settings), `packaging/installer.iss` (old program folder and shortcuts) | Moves data saved by versions published under the program's earlier name to the Kingdom Connect names, once, never overwriting newer data |
+| Excel | `app/js/meeting-book.js`, `meeting-import.js`, `import-worker.js`, `app/vendor/xlsx.full.min.js`, `meeting_form.py`, `app/templates/FrameDecks-Meeting-Workbook.xlsx` (made by `tools/make_meeting_workbook.py`) | Meeting Workbook import and export. The workbook has two tabs, Dashboard (formulas only) and Meeting Form. `meeting_form.py` holds the form's layout and fills the template for an export (`POST api/meeting/workbook`); `meeting-book.js` reads the form back by its labels and header rows, and still reads the 6.5–6.8 one-sheet-per-list workbooks. The Excel library loads on first use, not at start-up |
+| Earlier-name migration | `legacy.py` (data folder, files, backups, recordings), a marked block at the top of `app/js/store.js` (browser settings), `packaging/installer.iss` (old program folder and shortcuts) | Moves data saved by versions published under the program's earlier name to the FrameDecks names, once, never overwriting newer data |
 | Packaging | `packaging/` | PyInstaller spec, Inno Setup installer, camera build, self-check |
 | Tests | `tests/`, `packaging/check.py` | Store and workbook tests; start-up self-check |
 
@@ -312,7 +312,7 @@ The full, version-by-version engineering record is in
 
 ## Data and storage
 
-Everything lives in the data folder, `%APPDATA%\Kingdom Connect`. Earlier versions, published under the program's
+Everything lives in the data folder, `%APPDATA%\FrameDecks`. Earlier versions, published under the program's
 earlier name, kept their data in a folder and files carrying that name; on first start, 6.9 moves them here once
 (`legacy.py`), including backups and recordings, and never overwrites newer data. Details: [reference/configuration-guide.md](reference/configuration-guide.md).
 

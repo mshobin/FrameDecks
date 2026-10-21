@@ -1,10 +1,10 @@
 """The Presentation window, drawn natively (Win32 + GDI): no browser engine, no JPEG, no browser GPU process.
 
-Frames come straight from the compositor (the same final picture KingdomConnect sends) and are drawn only when the
+Frames come straight from the compositor (the same final picture FrameCast sends) and are drawn only when the
 picture changed, at the chosen rate (15 per second by default). The window is frameless: drag anywhere to move
 it, drag an edge to resize it, double-click / F / the button for full screen, Esc leaves full screen and then
 closes it. Moving the mouse shows the Full screen and Exit buttons for two seconds. The window is called
-"Kingdom Connect Share Window" (never displayed) so Zoom lists it under Share Screen > specific window.
+"FrameDecks Share Window" (never displayed) so Zoom lists it under Share Screen > specific window.
 
 The pure functions at the top (layout, buttons, hit test, drawing) have no Windows dependencies.
 """
@@ -16,7 +16,7 @@ from pathlib import Path
 import cv2
 import numpy as np
 
-TITLE = "Kingdom Connect Share Window"
+TITLE = "FrameDecks Share Window"
 BORDER = 8                       # px from an edge that resizes the window
 UI_SECONDS = 2.0
 

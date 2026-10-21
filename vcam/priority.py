@@ -1,4 +1,4 @@
-"""Windows thread priority for KingdomConnect's background helpers.
+"""Windows thread priority for FrameCast's background helpers.
 
 Background work (blur model, card drawing, video decoding, recording, screen capture, picture encoding for the
 Presentation window) runs at "below normal" priority, so Windows always lets the desktop, the apps you switch to

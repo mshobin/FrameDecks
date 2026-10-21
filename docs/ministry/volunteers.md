@@ -1,6 +1,6 @@
 # Volunteers
 
-Everything a new volunteer needs to help run a service with Kingdom Connect. You can learn it in ten minutes.
+Everything a new volunteer needs to help run a service with FrameDecks. You can learn it in ten minutes.
 
 **Who this is for:** anyone helping for the first time, usually pressing Next on a phone.
 

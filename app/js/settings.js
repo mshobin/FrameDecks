@@ -1,4 +1,4 @@
-/* Kingdom Connect - Settings sections, Security, Diagnostics, Keyboard editor */
+/* FrameDecks - Settings sections, Security, Diagnostics, Keyboard editor */
 (function(){
 'use strict';
 var Store = window.KCStore, Status = window.KCStatus;
@@ -61,17 +61,17 @@ function renderSecurity(){
     'Everything runs on this PC. Nothing is uploaded, and no cloud account is used. Unless the phone remote is switched on, only this PC can connect.'));
   g.appendChild(card('Phone & iPad Remote', r.enabled ? pill('info', 'On (PIN protected)') : pill('ok', 'Off'),
     r.enabled ? 'Other devices on your Wi-Fi need the 6-digit PIN. After 5 wrong tries a device waits 60 seconds. The remote controls overlays only and cannot open member details.'
-              : 'Only this PC can reach Kingdom Connect. Turn it on in Settings → Phone & iPad Remote when you want to use your phone.',
+              : 'Only this PC can reach FrameDecks. Turn it on in Settings → Phone & iPad Remote when you want to use your phone.',
     r.enabled ? [h('button', {cls: 'btn small', type: 'button', text: 'New PIN (disconnects all phones)', onclick: function(){
       if (!confirm('Create a new PIN? Every connected phone or iPad will need the new PIN.')) return;
       fetch('api/remote-reset', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: '{}'}).then(function(){ window.KCActions.toast('New PIN created. All phones and phones and iPads were disconnected.'); });
     }})] : []));
-  g.appendChild(card('KingdomConnect camera', pill('ok', 'Stays on this PC'),
-    'Your webcam picture is processed on this PC (including background blur) and only goes to the meeting app you choose. The webcam is only switched on while Zoom, Teams or the preview is using KingdomConnect.'));
+  g.appendChild(card('FrameCast camera', pill('ok', 'Stays on this PC'),
+    'Your webcam picture is processed on this PC (including background blur) and only goes to the meeting app you choose. The webcam is only switched on while Zoom, Teams or the preview is using FrameCast.'));
   g.appendChild(card('Member details', pill('ok', 'Private'),
     'Stored only in kc-members-private.json on this PC. Never sent to overlays or the phone remote. The birthday overlay receives only the greeting you choose to show.'));
   g.appendChild(card('Windows Firewall', pill('ok', 'Never changed automatically'),
-    'Kingdom Connect does not change firewall settings by itself. The optional “Allow iPad Remote” helper asks first, only affects private networks, and can be undone with “Undo iPad Remote permission”.'));
+    'FrameDecks does not change firewall settings by itself. The optional “Allow iPad Remote” helper asks first, only affects private networks, and can be undone with “Undo iPad Remote permission”.'));
   g.appendChild(card('Emails', pill('ok', 'Never sent automatically'),
     'Email preparation only opens a draft in Outlook or your mail app. You review and send it yourself.'));
 }
@@ -92,7 +92,7 @@ function renderDiag(){
   row('Local program', Store.served ? (Store.online ? '● Connected' : '● Not responding') : 'Not used (no-install mode)');
   row('Browser window', info.window + ' at ' + info.zoom + ' display scale');
   box.appendChild(kv); root.appendChild(box);
-  if (!Store.served){ root.appendChild(h('p', {cls: 'hint', text: 'Start the Kingdom Connect program for full diagnostics.'})); return; }
+  if (!Store.served){ root.appendChild(h('p', {cls: 'hint', text: 'Start the FrameDecks program for full diagnostics.'})); return; }
   fetch('api/diagnostics', {cache: 'no-store'}).then(function(r){ return r.json(); }).then(function(d){
     lastDiag = d;
     row('Version', d.version);
@@ -114,16 +114,16 @@ function renderDiag(){
       var tips = [];
       if (r.memoryMB > 900) tips.push('memory is high: restart the app after the meeting');
       if (r.camera && r.camera.msPerFrame > 25) tips.push('camera work is heavy: use 720p, a lower blur, or fewer Studio Content');
-      if ((rq['/api/vcam/preview.jpg'] || 0) > 400) tips.push('a preview is being watched: close Studio or KingdomConnect preview when not needed');
+      if ((rq['/api/vcam/preview.jpg'] || 0) > 400) tips.push('a preview is being watched: close Studio or FrameCast preview when not needed');
       row('Performance tips', tips.length ? tips.join('; ') : 'Everything looks light.');
     }
     if (d.vcam && d.vcam.status && d.vcam.status.fps){
       var v = d.vcam.status;
       if (v.captureInfo) row('Webcam picture', v.captureInfo);
-      row('KingdomConnect performance', 'camera ' + (v.captureFps || 0) + ' fps → output ' + v.fps + ' fps · ' + v.msPerFrame + ' ms work per frame · capture-to-send ' +
+      row('FrameCast performance', 'camera ' + (v.captureFps || 0) + ' fps → output ' + v.fps + ' fps · ' + v.msPerFrame + ' ms work per frame · capture-to-send ' +
         (v.latencyMs || 0) + ' ms · dropped frames ' + (v.dropped || 0) + ' · CPU ' + (v.cpuPercent || 0) + '% of this PC · GPU: not used (CPU pipeline)');
     }
-    row('KingdomConnect', d.vcam && !d.vcam.status && d.vcam.detail ? 'Not available (' + d.vcam.detail + ')' : d.vcam && d.vcam.status ? d.vcam.status.state + (d.vcam.status.fps ? ' · ' + d.vcam.status.fps + ' fps · ' + d.vcam.status.msPerFrame + ' ms per frame' : '') + (d.vcam.status.state === 'error' ? ' · ' + d.vcam.status.message : '') : (d.vcam && d.vcam.reason) || 'Not available');
+    row('FrameCast', d.vcam && !d.vcam.status && d.vcam.detail ? 'Not available (' + d.vcam.detail + ')' : d.vcam && d.vcam.status ? d.vcam.status.state + (d.vcam.status.fps ? ' · ' + d.vcam.status.fps + ' fps · ' + d.vcam.status.msPerFrame + ' ms per frame' : '') + (d.vcam.status.state === 'error' ? ' · ' + d.vcam.status.message : '') : (d.vcam && d.vcam.reason) || 'Not available');
     var files = h('table', {cls: 'plain'}, [h('tr', {}, [h('th', {text: 'Data file'}), h('th', {text: 'Status'})])]);
     Object.keys(d.files).forEach(function(n){ var f = d.files[n]; files.appendChild(h('tr', {}, [h('td', {cls: 'mono', text: n}), h('td', {text: f.exists ? 'Present (' + Math.max(1, Math.round(f.bytes / 1024)) + ' KB)' : 'Not created yet'})])); });
     var fb = h('section', {cls: 'box'}, [h('div', {cls: 'box-head'}, [h('h2', {text: 'Data files'})]), files]);
@@ -138,18 +138,18 @@ function renderDiag(){
     if (!errors.length) eb.appendChild(h('p', {cls: 'hint', style: 'margin:0', text: 'None. Everything is running normally.'}));
     errors.slice(-10).reverse().forEach(function(e){ eb.appendChild(h('p', {cls: 'mono', text: e.time + '  ' + e.message})); });
     root.appendChild(eb);
-  }).catch(function(){ root.appendChild(h('div', {cls: 'alert bad', text: 'The local program is not responding. Check the black Kingdom Connect window is open.'})); });
+  }).catch(function(){ root.appendChild(h('div', {cls: 'alert bad', text: 'The local program is not responding. Check the black FrameDecks window is open.'})); });
 }
 var lastDiag = null;
 function copyReport(){
   // No PIN, secret key or member data is ever included.
   var d = lastDiag || {};
-  var lines = ['Kingdom Connect diagnostics', 'Version: ' + (d.version || '?'), 'Mode: ' + (Store.served ? 'local program' : 'no-install'),
+  var lines = ['FrameDecks diagnostics', 'Version: ' + (d.version || '?'), 'Mode: ' + (Store.served ? 'local program' : 'no-install'),
     'Program: ' + (Store.online ? 'connected' : 'not responding'), 'Port: ' + (d.port || '?'), 'Listening on: ' + (d.listeningOn || '?'),
     'Addresses: ' + (d.addresses || []).join(', '), 'Python: ' + (d.python || '?'), 'OS: ' + (d.os || '?'),
     'Signed-in phones/iPads: ' + (d.remoteSessions != null ? d.remoteSessions : '?'),
     'Installed app: ' + (d.installedApp ? 'yes' : 'no'),
-    'KingdomConnect: ' + (d.vcam ? JSON.stringify(d.vcam.status || {reason: d.vcam.reason, detail: d.vcam.detail}) : 'n/a'),
+    'FrameCast: ' + (d.vcam ? JSON.stringify(d.vcam.status || {reason: d.vcam.reason, detail: d.vcam.detail}) : 'n/a'),
     'Resources: ' + JSON.stringify(d.resources || {}),
     'Network: ' + (d.network ? JSON.stringify(d.network) : 'n/a'),
     'Files: ' + (d.files ? Object.keys(d.files).map(function(n){ return n + '=' + (d.files[n].exists ? 'yes' : 'no'); }).join(', ') : '?'),

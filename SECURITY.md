@@ -1,6 +1,6 @@
 # Security policy
 
-Kingdom Connect runs on a church's own computer and holds information that matters: member names, phone numbers and
+FrameDecks runs on a church's own computer and holds information that matters: member names, phone numbers and
 birthdays, meeting content, and the phone-remote PIN. We take reports about its security seriously.
 
 ## Supported versions
@@ -21,7 +21,7 @@ Include the version, what an attacker could do, the steps to reproduce and, if y
 real member data, PINs or API keys; use made-up examples. You can expect an acknowledgement within a week. We will tell
 you when a fix is released and, if you wish, credit you in the release notes.
 
-## How Kingdom Connect protects a church's data
+## How FrameDecks protects a church's data
 
 | Area | What the program does |
 | --- | --- |
@@ -40,5 +40,5 @@ you when a fix is released and, if you wish, credit you in the release notes.
   only from this repository's Actions or Releases pages and check the published SHA-256 file.
 - The phone remote uses plain HTTP on the local network (there is no certificate a phone would trust for a local
   address). Use it on a network you trust; a guest Wi-Fi shared with the public is not recommended.
-- Anyone with access to the PC's Windows account can read the data folder (`%APPDATA%\Kingdom Connect`). Protect
+- Anyone with access to the PC's Windows account can read the data folder (`%APPDATA%\FrameDecks`). Protect
   the PC with a Windows password.

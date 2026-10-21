@@ -1,10 +1,10 @@
-/* Kingdom Connect v6 - the Studio: Scenes + Layers | Studio Canvas | Inspector, and the live bar.
+/* FrameDecks v6 - the Studio: Scenes + Layers | Studio Canvas | Inspector, and the live bar.
  *
  * Three ideas: a Scene owns its Layers, its Transition and its Output rules; a Layer owns its Content; everything
  * renders on the Canvas. Scenes live in the shared state (js/store.js KCScenes), so the phone remote, the
  * keyboard and the overlay pages see the same scenes. Question, Scripture and Birthday layers drive the existing
  * cards, and their Inspector holds the existing editors and lists (same elements, same code), so every earlier way
- * of working still works. Media layers are KingdomConnect Studio layers; the program applies the live scene's media
+ * of working still works. Media layers are FrameCast Studio layers; the program applies the live scene's media
  * layers to the camera picture, and arranging them on the canvas writes them back into the scene. */
 (function(){
 'use strict';
@@ -29,6 +29,16 @@ try { tabFor = JSON.parse(lsGet('bcc-insp-tabs', '{}')) || {}; } catch(e){}
 function scene(){ return live ? SC.find(live, selScene) : null; }
 window.KCSelFrame = function(){ return live && SC.find(live, selScene) ? selScene : ''; };   // the Frame being edited (lists, Content Settings)
 function layer(){ var sc = scene(); return sc ? SC.layer(sc, selLayer) : null; }
+/* FrameDecks: the Deck being worked on in the selected Frame (new Content goes here): the one picked in the list,
+ * else the Deck of the selected Content, else the Deck on screen (the first Deck when the Frame is not live) */
+var selDeck = '';
+function deckFor(sc){
+  if (!sc) return '';
+  if (selDeck && SC.deck(sc, selDeck)) return selDeck;
+  var l = SC.layer(sc, selLayer); if (l) return SC.deckOf(sc, l);
+  return SC.liveDeckId(live, sc);
+}
+window.KCSelDeck = function(){ var sc = scene(); return sc ? deckFor(sc) : ''; };   // the canvas previews this Deck
 function isLiveScene(id){ return !!(live && id && live.live.scene === id); }
 function studio(){ var S = window.KCStudio && window.KCStudio.state ? window.KCStudio.state() : null; return S && S.available ? S : null; }
 /* Edit one scene (its version and modified date follow) */
@@ -53,8 +63,9 @@ function select(sid, lid, focusList){
     if (sid !== selScene || picked.frames.indexOf(sid) < 0) picked.frames = sid ? [sid] : [];
     picked.layers = lid ? [lid] : [];
   }
-  if (sid !== selScene){ selScene = sid; lsSet('bcc-sel-scene', sid); if (!picking) picked.layers = lid ? [lid] : []; }
+  if (sid !== selScene){ selScene = sid; selDeck = ''; lsSet('bcc-sel-scene', sid); if (!picking) picked.layers = lid ? [lid] : []; }
   selLayer = lid || null;
+  if (lid){ var lsc = scene(), ll = lsc && SC.layer(lsc, lid); if (ll) selDeck = SC.deckOf(lsc, ll); }
   if (lid && window.KCStudio && isLiveScene(sid)){ var l = layer(); if (l && SC.isMedia(l.kind)) window.KCStudio.select([lid]); }
   renderAll(true);
   if (focusList){
@@ -164,11 +175,12 @@ function pasteFrames(items, afterId){
 function pasteLayers(sid, items){
   var skipped = 0, made = [];
   return edit(sid, function(sc){
+    var dk = deckFor(sc);
     items.slice().reverse().forEach(function(src){
       if (SC.isCard(src.kind) && SC.first(sc, src.kind)){ skipped++; return; }    // one Question / Scripture / Birthday per Frame
       var l = JSON.parse(JSON.stringify(src)); l.id = newLayerId(); l.locked = false;
       if (Array.isArray(l.c.items)){ var tmp = {layers: [l]}; SC.freshIds(tmp); l = tmp.layers[0]; }
-      sc.layers.unshift(l); made.push(l.id);
+      l.deck = dk; sc.layers.unshift(l); made.push(l.id);
     });
   }).then(function(){
     if (made.length){ picked.layers = made.slice(); applyPick('layers'); }
@@ -256,7 +268,8 @@ var sceneSig = '';
 function sceneSub(sc){
   var t = sc.tx.type === 'profile' ? SC.profile(live).name : SC.txName(sc.tx.type);
   var kinds = sc.layers.map(function(l){ return SC.info[l.kind].name; }).filter(function(k, i, a){ return a.indexOf(k) === i; });   // what is in this Frame
-  return (kinds.join(' · ') || 'Empty Frame') + ' · ' + t + (sc.auto.on ? ' · auto ' + sc.auto.sec + ' s' : '');
+  var decks = sc.decks && sc.decks.length > 1 ? sc.decks.length + ' Decks · ' : '';
+  return decks + (kinds.join(' · ') || 'Empty Frame') + ' · ' + t + (sc.auto.on ? ' · auto ' + sc.auto.sec + ' s' : '');
 }
 function visibleScenes(){
   var q = search.trim().toLowerCase(), list = live.scenes.filter(function(sc){
@@ -271,7 +284,7 @@ function visibleScenes(){
 /* Question · Scripture · Both, right on the scene card (scenes with both cards) */
 var QS_OPTS = [['question', 'Question', 'Question only'], ['verse', 'Scripture', 'Scripture only'], ['both', 'Q + S', 'Question + Scripture']];
 function qsPill(sc){
-  var m = SC.qsMode(sc); if (!m) return null;
+  var m = SC.qsMode(sc, live); if (!m) return null;
   var g = h('span', {cls: 'si-qs', role: 'radiogroup', 'aria-label': 'What this Frame shows'});
   QS_OPTS.forEach(function(o){
     g.appendChild(h('button', {type: 'button', role: 'radio', 'aria-checked': String(m === o[0]), title: o[2], text: o[1], onclick: function(e){
@@ -328,7 +341,7 @@ function renderScenes(){
   if (filter === 'tpl') return renderLibrary(ol);
   if (KCEditable.within(ol)){ sceneSig = ''; return; }            // renaming here: redraw when the editor closes
   var list = visibleScenes();
-  var sig = JSON.stringify([list.map(function(s){ return [s.id, s.name, s.group, s.fav, s.tpl, s.layers.length, s.tx, s.auto.on, s.auto.sec, SC.qsMode(s)]; }), live.live.scene, next && next.id, selScene, filter, collapsed, live.profile, picked.frames]);
+  var sig = JSON.stringify([list.map(function(s){ return [s.id, s.name, s.group, s.fav, s.tpl, s.layers.length, s.decks, s.tx, s.auto.on, s.auto.sec, SC.qsMode(s, live)]; }), live.live.scene, live.live.deck, next && next.id, selScene, filter, collapsed, live.profile, picked.frames]);
   if (sig === sceneSig) return; sceneSig = sig;
   ol.innerHTML = '';
   if (!list.length){
@@ -621,7 +634,7 @@ function importScene(){
       var made = null;
       commit(function(n){ sc.id = 'sc_' + Math.random().toString(36).slice(2, 9); sc.name = SC.uniqueName(n, sc.name); sc.created = sc.modified = Date.now(); sc.from = file.name; SC.insert(n, sc, selScene); made = sc; })
         .then(function(){ if (made) select(made.id, null, true); toast('Frame imported: ' + made.name); });
-    }).catch(function(){ toast('That file is not a Kingdom Connect Frame.', true); });
+    }).catch(function(){ toast('That file is not a FrameDecks Frame.', true); });
   });
   document.body.appendChild(f); f.click();
 }
@@ -640,7 +653,7 @@ function smartDuplicate(id){
     h('label', {cls: 'check'}, [h('input', {type: 'radio', name: 'dup-c', value: 'keep', checked: 'checked'}), ' Keep the content']),
     h('label', {cls: 'check'}, [h('input', {type: 'radio', name: 'dup-c', value: 'only'}), ' Content only (looks back to the defaults)']),
     h('label', {cls: 'check'}, [h('input', {type: 'radio', name: 'dup-c', value: 'empty'}), ' Empty Content content (ready for next week)'])]));
-  card.appendChild(h('p', {cls: 'hint', text: 'KingdomConnect, Zoom / Teams camera, recording and remote settings belong to this PC, so every Frame - including the copy - uses them.'}));
+  card.appendChild(h('p', {cls: 'hint', text: 'FrameCast, Zoom / Teams camera, recording and remote settings belong to this PC, so every Frame - including the copy - uses them.'}));
   var ok = h('button', {cls: 'btn primary', type: 'button', text: 'Duplicate', id: 'dup-ok'});
   card.appendChild(h('div', {cls: 'app-modal-actions'}, [h('button', {cls: 'btn quiet', type: 'button', text: 'Cancel', onclick: function(){ back.remove(); }}), ok]));
   ok.addEventListener('click', function(){
@@ -676,15 +689,22 @@ function renderLayers(){
   if (KCEditable.within(ol)){ layerSig = ''; return; }
   $('layers-of').textContent = sc ? sc.name : '';
   var S = studio(), status = {}; if (S && isLiveScene(selScene)) S.layers.forEach(function(x){ status[x.id] = x.status; });
-  var sig = JSON.stringify([sc, selLayer, live.live.on, live.question.visible, live.verse.visible, live.birthday.visible, live.live.scene, live.question.text.length, live.verse.ref, live.birthday.name, status, live.brand, picked.layers]);
+  var sig = JSON.stringify([sc, selLayer, live.live.on, live.question.visible, live.verse.visible, live.birthday.visible, live.live.scene, live.live.deck, live.question.text.length, live.verse.ref, live.birthday.name, status, live.brand, picked.layers, sc && deckFor(sc)]);
   if (sig === layerSig) return; layerSig = sig;
   ol.innerHTML = '';
   $('layer-add').disabled = !sc;
   if (!sc){ ol.appendChild(h('li', {cls: 'pane-empty', text: 'Select a Frame to see its Content.'})); $('layers-note').textContent = ''; return; }
-  if (!sc.layers.length) ol.appendChild(h('li', {cls: 'pane-empty', text: 'No Content yet. Use + Content.'}));
-  var n = sc.layers.length;
-  sc.layers.forEach(function(l, i){
-    var on = isLiveScene(sc.id) ? SC.layerOn(live, sc, l) : l.visible, st = status[l.id] || {};
+  var n = sc.layers.length, cur = deckFor(sc), onAir = isLiveScene(sc.id) ? SC.liveDeckId(live, sc) : '', num = 0;
+  sc.decks.forEach(function(dk, di){
+    ol.appendChild(deckHead(sc, dk, di, cur, onAir));
+    var mine = SC.deckLayers(sc, dk.id);
+    if (!mine.length) ol.appendChild(h('li', {cls: 'pane-empty deck-empty', text: 'No Content in this Deck yet. Use + Content.'}));
+    mine.forEach(function(l){ layerRow(l, sc.layers.indexOf(l), num++); });
+  });
+  ol.appendChild(h('li', {cls: 'deck-add', role: 'presentation'}, [h('button', {cls: 'btn quiet small', type: 'button', html: I('plus', 14) + ' Deck',
+    title: 'Add a Deck to this Frame: one Deck is on screen at a time, and Next steps through them', onclick: function(){ addDeck(sc.id); }})]));
+  function layerRow(l, i, shown){
+    var onDeck = isLiveScene(sc.id) && SC.deckOf(sc, l) === onAir, on = onDeck ? SC.layerOn(live, sc, l) : l.visible, st = status[l.id] || {};
     var eye = h('button', {cls: 'ib s2-eye' + (on ? ' on' : ''), type: 'button', title: on ? 'Hide' : 'Show', 'aria-label': (on ? 'Hide ' : 'Show ') + l.name, html: I(on ? 'eye' : 'eye-off', 16),
       onclick: function(e){ e.stopPropagation(); toggleLayer(sc.id, l.id); }});
     var lock = h('button', {cls: 'ib s2-lock' + (l.locked ? ' on' : ''), type: 'button', title: l.locked ? 'Unlock' : 'Lock', 'aria-label': l.locked ? 'Unlock' : 'Lock', html: I(l.locked ? 'lock' : 'lock-open', 14),
@@ -693,11 +713,11 @@ function renderLayers(){
     KCEditable.bind(name, {value: function(){ var x = SC.layer(SC.find(live, sc.id), l.id); return x ? x.name : l.name; }, maxLength: 60, label: 'Content name',
       save: function(v){ if (v) return editLayer(sc.id, l.id, function(x){ x.name = v.slice(0, 60); }); }});
     var lInSel = picked.layers.length > 1 && picked.layers.indexOf(l.id) >= 0;
-    var li = h('li', {cls: 'layer-item k-' + l.kind + (l.id === selLayer ? ' sel' : '') + (lInSel ? ' picked' : '') + (on && isLiveScene(sc.id) ? ' on' : '') + (!l.visible ? ' off' : '') + (SC.isMedia(l.kind) ? ' media' : ''),
+    var li = h('li', {cls: 'layer-item k-' + l.kind + (l.id === selLayer ? ' sel' : '') + (lInSel ? ' picked' : '') + (on && onDeck ? ' on' : '') + (!l.visible ? ' off' : '') + (SC.isMedia(l.kind) ? ' media' : ''),
       'data-id': l.id, tabindex: '0', draggable: 'true', role: 'option', 'aria-selected': String(l.id === selLayer || lInSel)}, [
-      h('span', {cls: 'li-n', text: 'L' + (i + 1)}), h('span', {cls: 'li-ic', html: I(SC.info[l.kind].icon, 16)}),
+      h('span', {cls: 'li-n', text: 'L' + (shown + 1)}), h('span', {cls: 'li-ic', html: I(SC.info[l.kind].icon, 16)}),
       h('span', {cls: 'li-t'}, [name, h('small', {text: (st.error ? '⚠ ' + st.error : layerSub(sc, l))})]),
-      on && isLiveScene(sc.id) ? h('span', {cls: 'si-badge live', text: 'LIVE'}) : null, lock, eye]);
+      on && onDeck ? h('span', {cls: 'si-badge live', text: 'LIVE'}) : null, lock, eye]);
     li.addEventListener('click', function(e){ pickClick('layers', l.id, e, ol); });
     li.addEventListener('contextmenu', function(e){ e.preventDefault(); if (picked.layers.indexOf(l.id) < 0) pickOnly('layers', l.id); if (picked.layers.length > 1) layersMenu(li, e); else { select(sc.id, l.id); layerMenu(sc.id, l.id, li, e); } });
     li.addEventListener('keydown', function(e){
@@ -712,15 +732,64 @@ function renderLayers(){
     li.addEventListener('dragover', function(e){ if (dragLayer) e.preventDefault(); });
     li.addEventListener('drop', function(e){ e.preventDefault(); if (dragLayer && dragLayer.indexOf(l.id) < 0) reorderLayers(sc.id, dragLayer, l.id); dragLayer = null; });
     ol.appendChild(li);
-  });
+  }
   var mixed = sc.layers.some(function(l){ return SC.isMedia(l.kind); }) && sc.layers.some(function(l){ return !SC.isMedia(l.kind); });
   $('layers-note').textContent = mixed ? 'Questions, scriptures, birthdays and text always appear in front of camera and media Content.' : '';
+}
+/* ---------- FrameDecks: a Deck's heading in the Content list ---------- */
+function deckHead(sc, dk, di, cur, onAir){
+  var name = h('b', {cls: 'dh-name', text: dk.name, title: 'Double-click to rename'});
+  KCEditable.bind(name, {value: function(){ var x = SC.deck(SC.find(live, sc.id), dk.id); return x ? x.name : dk.name; }, maxLength: 60, label: 'Deck name',
+    save: function(v){ if (v) return edit(sc.id, function(x){ SC.renameDeck(x, dk.id, v); }); }});
+  var isOn = onAir === dk.id, count = SC.deckLayers(sc, dk.id).length;
+  var li = h('li', {cls: 'deck-head' + (cur === dk.id ? ' sel' : '') + (isOn ? ' on' : ''), 'data-deck': dk.id, role: 'presentation'}, [
+    h('span', {cls: 'dh-ic', html: I('layers', 14)}),
+    h('span', {cls: 'dh-t'}, [name, h('small', {text: 'Deck ' + (di + 1) + ' of ' + sc.decks.length + ' · ' + plural(count, 'piece') + ' of Content'})]),
+    isOn ? h('span', {cls: 'si-badge live', text: 'LIVE'}) : null,
+    h('button', {cls: 'ib dh-go', type: 'button', title: 'Show this Deck now (takes the Frame live on this Deck)', 'aria-label': 'Show ' + dk.name + ' now', html: I('play', 14),
+      onclick: function(e){ e.stopPropagation(); takeScene(sc.id, dk.id); }}),
+    h('button', {cls: 'ib dh-more', type: 'button', title: 'Deck actions', 'aria-label': 'Deck actions', html: '⋯', onclick: function(e){ e.stopPropagation(); deckMenu(sc.id, dk.id, e.currentTarget); }})]);
+  li.addEventListener('click', function(){ selDeck = dk.id; layerSig = ''; renderAll(true); });
+  li.addEventListener('dblclick', function(e){ if (!e.target.closest('.dh-name')) takeScene(sc.id, dk.id); });
+  li.addEventListener('contextmenu', function(e){ e.preventDefault(); deckMenu(sc.id, dk.id, li, e); });
+  li.addEventListener('dragover', function(e){ if (dragLayer) e.preventDefault(); });
+  li.addEventListener('drop', function(e){ e.preventDefault(); if (dragLayer) moveToDeck(sc.id, dragLayer, dk.id); dragLayer = null; });
+  return li;
+}
+function deckMenu(sid, did, anchor, ev){
+  var sc = SC.find(live, sid), dk = SC.deck(sc, did); if (!dk) return;
+  var i = SC.deckIndex(sc, did);
+  menu(anchor, [{label: dk.name},
+    {icon: 'play', text: 'Show this Deck now', run: function(){ takeScene(sid, did); }},
+    {icon: 'plus', text: 'Add Content to this Deck…', run: function(){ selDeck = did; $('layer-add').click(); }},
+    {icon: 'type', text: 'Rename', run: function(){ var b = document.querySelector('#layer-list .deck-head[data-deck="' + did + '"] .dh-name'); if (b) b.dispatchEvent(new MouseEvent('dblclick', {bubbles: true})); }},
+    {icon: 'copy-plus', text: 'New Deck after this one', run: function(){ addDeck(sid, did); }},
+    {icon: 'arrow-up', text: 'Move up', disabled: i <= 0, run: function(){ edit(sid, function(x){ SC.moveDeck(x, did, -1); }); }},
+    {icon: 'arrow-down', text: 'Move down', disabled: i >= sc.decks.length - 1, run: function(){ edit(sid, function(x){ SC.moveDeck(x, did, 1); }); }},
+    '-', {icon: 'trash-2', text: 'Delete Deck and its Content', danger: true, disabled: sc.decks.length < 2, title: sc.decks.length < 2 ? 'A Frame keeps at least one Deck' : '',
+      run: function(){ deleteDeck(sid, did); }}], ev);
+}
+function addDeck(sid, afterId){
+  var made = null;
+  return edit(sid, function(x){ made = SC.addDeck(x, '', afterId); }).then(function(){ if (made){ selDeck = made.id; layerSig = ''; renderAll(true); toast(made.name + ' added: add its Content with + Content'); } });
+}
+function deleteDeck(sid, did){
+  var sc = SC.find(live, sid), dk = SC.deck(sc, did); if (!dk) return;
+  var count = SC.deckLayers(sc, did).length;
+  if (count && !confirm('Delete “' + dk.name + '” and its ' + plural(count, 'piece') + ' of Content?')) return;
+  edit(sid, function(x, n){ SC.removeDeck(n, x, did); }, dk.name + ' deleted').then(function(){ if (selDeck === did) selDeck = ''; });
+}
+function moveToDeck(sid, ids, did){
+  var sc = SC.find(live, sid), dk = SC.deck(sc, did); if (!dk) return;
+  edit(sid, function(x, n){ SC.moveToDeck(n, x, ids, did); }, (ids.length > 1 ? plural(ids.length, 'piece') + ' of Content' : 'Content') + ' moved to ' + dk.name)
+    .then(function(){ selDeck = did; });
 }
 var dragLayer = null;
 function reorderLayer(sid, id, beforeId){ return reorderLayers(sid, [id], beforeId); }
 function reorderLayers(sid, ids, beforeId){
   return edit(sid, function(sc){
     var moving = sc.layers.filter(function(l){ return ids.indexOf(l.id) >= 0; }); if (!moving.length) return;
+    var target = SC.layer(sc, beforeId); if (target) moving.forEach(function(l){ l.deck = SC.deckOf(sc, target); });   // dropped into another Deck
     var a = sc.layers = sc.layers.filter(function(l){ return ids.indexOf(l.id) < 0; });
     var j = a.findIndex(function(x){ return x.id === beforeId; });
     a.splice.apply(a, [j < 0 ? a.length : j, 0].concat(moving));
@@ -753,15 +822,18 @@ function layerMenu(sid, lid, anchor, ev){
     {icon: 'type', text: 'Rename', hint: 'F2', run: function(){ renameLayer(sid, lid); }},
     {icon: 'copy', text: 'Duplicate', run: function(){ duplicateLayer(sid, lid); }},
     {icon: 'arrow-up', text: 'Move forward', run: function(){ shiftLayer(sid, lid, -1); }}, {icon: 'arrow-down', text: 'Move backward', run: function(){ shiftLayer(sid, lid, 1); }},
-    {icon: l.locked ? 'lock-open' : 'lock', text: l.locked ? 'Unlock' : 'Lock', run: function(){ editLayer(sid, lid, function(x){ x.locked = !x.locked; }); }},
-    '-', {icon: 'trash-2', text: 'Delete Content', danger: true, run: function(){ deleteLayer(sid, lid); }}], ev);
+    {icon: l.locked ? 'lock-open' : 'lock', text: l.locked ? 'Unlock' : 'Lock', run: function(){ editLayer(sid, lid, function(x){ x.locked = !x.locked; }); }}]
+    .concat(sc.decks.length > 1 ? ['-', {label: 'Move to Deck'}].concat(sc.decks.filter(function(d){ return d.id !== SC.deckOf(sc, l); }).map(function(d){
+      return {icon: 'layers', text: d.name, run: function(){ moveToDeck(sid, picked.layers.indexOf(lid) >= 0 && picked.layers.length > 1 ? picked.layers.slice() : [lid], d.id); }}; })) : [])
+    .concat(['-', {icon: 'trash-2', text: 'Delete Content', danger: true, run: function(){ deleteLayer(sid, lid); }}]), ev);
 }
 function toggleLayer(sid, lid){
   var l = SC.layer(SC.find(live, sid), lid); if (!l) return;
   if (l.locked){ toast('This Content is locked.', true); return; }
-  var wasOn = isLiveScene(sid) ? SC.layerOn(live, SC.find(live, sid), l) : l.visible;
+  var tsc = SC.find(live, sid), onAirDeck = isLiveScene(sid) && SC.deckOf(tsc, l) === SC.liveDeckId(live, tsc);
+  var wasOn = onAirDeck ? SC.layerOn(live, tsc, l) : l.visible;
   edit(sid, function(sc, n){ SC.toggleVisible(n, sid, lid); }).then(function(){
-    if (isLiveScene(sid) && !wasOn){
+    if (onAirDeck && !wasOn){
       if (l.kind === 'birthday' && !live.birthday.greeting.trim() && window.KCBirthday) window.KCBirthday.show();      // greeting made on this PC
       if ((l.kind === 'question' && !live.question.text.trim()) || (l.kind === 'scripture' && !live.verse.text.trim())) toast('Nothing loaded yet: choose an item in the list.', true);
     }
@@ -781,9 +853,10 @@ $('layer-add').addEventListener('click', function(e){
   var S = studio();
   function item(k){
     var has = SC.isCard(k[0]) && SC.first(sc, k[0]);
-    return {icon: k[2], text: k[1], hint: has ? 'in this Frame' : '', disabled: NEEDS_CAM[k[0]] && !S, title: NEEDS_CAM[k[0]] && !S ? 'Needs the KingdomConnect camera (Settings → KingdomConnect Camera)' : '', run: function(){ addLayer(k[0]); }};
+    return {icon: k[2], text: k[1], hint: has ? 'in this Frame' : '', disabled: NEEDS_CAM[k[0]] && !S, title: NEEDS_CAM[k[0]] && !S ? 'Needs the FrameCast camera (Settings → FrameCast Camera)' : '', run: function(){ addLayer(k[0]); }};
   }
-  menu($('layer-add'), [{label: 'Add to “' + sc.name + '”'}].concat(CONTENT_ADD.map(item), ['-', {label: 'Free Content'}], FREE_ADD.map(item)));
+  var dkn = (SC.deck(sc, deckFor(sc)) || {}).name || '';
+  menu($('layer-add'), [{label: 'Add to “' + sc.name + (sc.decks.length > 1 ? ' · ' + dkn : '') + '”'}].concat(CONTENT_ADD.map(item), ['-', {label: 'Free Content'}], FREE_ADD.map(item)));
 });
 /* v6.7 text Content with a ready label: edit both on the canvas or in the list (double-click) */
 var TEXT_PRESETS = {
@@ -801,15 +874,16 @@ function addLayer(what){
   function put(extra){
     var made = null;
     extra = extra || {};
+    var dk = deckFor(sc);
     return edit(sc.id, function(x, n){
-      var l = SC.cleanLayer({id: 'L' + Math.random().toString(36).slice(2, 9), kind: kind, name: extra.name || SC.info[kind].name, visible: true,
+      var l = SC.cleanLayer({id: 'L' + Math.random().toString(36).slice(2, 9), kind: kind, deck: SC.deck(x, dk) ? dk : SC.decksOf(x)[0].id, name: extra.name || SC.info[kind].name, visible: true,
         opacity: extra.opacity == null ? 1 : extra.opacity, c: SC.isMedia(kind) ? Object.assign(defaults(kind), extra.c || {}) :
           kind === 'question' || kind === 'scripture' ? {items: [], look: SC.snapshotLook(n, kind)} : Object.assign({}, extra.c || {})});   // a new, empty list of its own
       if (SC.isMedia(kind)){                       // media go under the cards and text layers (that is how they render)
         var at = x.layers.findIndex(function(y){ return SC.isMedia(y.kind); });
         if (at < 0) x.layers.push(l); else x.layers.splice(at, 0, l);
       } else x.layers.unshift(l);
-      if (n.live.scene === x.id && SC.isText(kind)){ n.live.on[l.id] = true; if (kind === 'countdown') n.live.cd[l.id] = Date.now(); }
+      if (n.live.scene === x.id && SC.isText(kind) && l.deck === SC.liveDeckId(n, x)){ n.live.on[l.id] = true; if (kind === 'countdown') n.live.cd[l.id] = Date.now(); }
       made = l;
     }).then(function(){ if (made){ select(sc.id, made.id, true); toast(SC.info[kind].name + ' added to ' + sc.name); if (kind === 'question' || kind === 'scripture') setTimeout(function(){ if (window.KCFrameLists) window.KCFrameLists.add(kind === 'question' ? 'question' : 'verse'); }, 120); } return made; });
   }
@@ -834,7 +908,7 @@ function defaults(kind){
   return JSON.parse(JSON.stringify(d));
 }
 function pickFile(kind){
-  if (!window.KCStudio || !window.KCStudio.addFile){ toast('Needs KingdomConnect (the installed app).', true); return Promise.resolve(null); }
+  if (!window.KCStudio || !window.KCStudio.addFile){ toast('Needs FrameCast (the installed app).', true); return Promise.resolve(null); }
   return window.KCStudio.addFile(kind).catch(function(e){ toast(e.message, true); return null; });
 }
 
@@ -968,7 +1042,7 @@ function sceneForm(gen, sc, tab){
     sec.addEventListener('keydown', stop);
     sec.addEventListener('change', function(){ edit(sid, function(x){ x.auto.sec = Math.max(2, Math.min(3600, +sec.value || 30)); }); });
     gen.appendChild(h('div', {cls: 'ip-sec'}, [field('Transition into this Frame', sel), field('Duration (ms)', ms),
-      h('p', {cls: 'hint', text: 'Plays on the whole KingdomConnect picture. On the OBS / browser overlay page the dips cover the screen and the cards follow. The top bar can override it for a take.'})]));
+      h('p', {cls: 'hint', text: 'Plays on the whole FrameCast picture. On the OBS / browser overlay page the dips cover the screen and the cards follow. The top bar can override it for a take.'})]));
     gen.appendChild(h('div', {cls: 'ip-sec'}, [checkCtl('Auto advance to the next Frame', sc.auto.on, function(v){ edit(sid, function(x){ x.auto.on = v; }); }), field('After (seconds)', sec),
       h('p', {cls: 'hint', text: 'Only while Auto is on in the top bar.'})]));
   } else {
@@ -1080,7 +1154,7 @@ function textForm(gen, sc, l, tab){
 function outputForm(gen, sc, l){
   var sid = sc.id, lid = l.id;
   gen.appendChild(h('div', {cls: 'ip-sec'}, [h('b', {text: 'Show this Content on'}),
-    checkCtl('KingdomConnect (Zoom / Teams camera, recording, Presentation window)', l.c.vcam, function(v){ editLayer(sid, lid, function(x){ x.c.vcam = v; }); }),
+    checkCtl('FrameCast (Zoom / Teams camera, recording, Presentation window)', l.c.vcam, function(v){ editLayer(sid, lid, function(x){ x.c.vcam = v; }); }),
     checkCtl('OBS / browser overlay pages', l.c.obs, function(v){ editLayer(sid, lid, function(x){ x.c.obs = v; }); }),
     h('p', {cls: 'hint', text: SC.isCard(l.kind) ? 'Applies when the Frame is taken live.' : 'Applies at once.'})]));
 }
@@ -1088,7 +1162,7 @@ function outputForm(gen, sc, l){
 function mediaForm(gen, sc, l){
   var sid = sc.id, lid = l.id, c = l.c;
   var S = studio();
-  gen.appendChild(h('p', {cls: 'hint', text: S ? 'Take this Frame live to place this Content directly on the canvas. Until then you can set it up here.' : 'Media Content is part of the KingdomConnect picture. Turn KingdomConnect on in Settings → KingdomConnect Camera to see and arrange them.'}));
+  gen.appendChild(h('p', {cls: 'hint', text: S ? 'Take this Frame live to place this Content directly on the canvas. Until then you can set it up here.' : 'Media Content is part of the FrameCast picture. Turn FrameCast on in Settings → FrameCast Camera to see and arrange them.'}));
   if (['image', 'video', 'pdf'].indexOf(l.kind) >= 0){
     gen.appendChild(row('File', h('span', {cls: 'plain', text: c.file || 'Not chosen yet'})));
     gen.appendChild(h('div', {cls: 'ip-acts'}, [h('button', {cls: 'btn small', type: 'button', text: c.file ? 'Choose another file…' : 'Choose a file…', onclick: function(){ pickFile(l.kind === 'pdf' ? 'powerpoint' : l.kind).then(function(f){ if (f) editLayer(sid, lid, function(x){ x.c.file = f; }); }); }})]));
@@ -1127,13 +1201,14 @@ Array.prototype.forEach.call(document.querySelectorAll('[data-layout-reset]'), f
 /* ===================================================================================================== */
 var frame = $('program-frame'), frameSrc = '', host = $('tab-studio');
 function renderCanvas(){
-  var sc = scene(), isLive = sc && isLiveScene(sc.id), S = studio(), L = live.live;
+  var sc = scene(), S = studio(), L = live.live, dk = sc ? deckFor(sc) : '';
+  var isLive = sc && isLiveScene(sc.id) && dk === SC.liveDeckId(live, sc);          // another Deck of the live Frame: a preview
   var useStudio = !!(isLive && S);
   if (host.hidden === useStudio){ host.hidden = !useStudio; if (useStudio && window.KCStudio) setTimeout(window.KCStudio.fit, 0); }
   $('program').hidden = useStudio;
-  var src = 'stage.html?bg=preview&preview=1' + (sc && !isLive ? '&scene=' + encodeURIComponent(sc.id) : '');
+  var src = 'stage.html?bg=preview&preview=1' + (sc && !isLive ? '&scene=' + encodeURIComponent(sc.id) + '&deck=' + encodeURIComponent(dk) : '');
   if (!useStudio && src !== frameSrc){ frameSrc = src; frame.src = src; }
-  $('canvas-scene').textContent = sc ? sc.name : '';
+  $('canvas-scene').textContent = sc ? sc.name + (sc.decks.length > 1 ? ' · ' + ((SC.deck(sc, dk) || {}).name || '') : '') : '';
   var badge = $('canvas-badge'), bt, bc;
   if (L.blackout){ bt = 'BLACKOUT'; bc = 'bad'; } else if (L.emergency){ bt = 'EMERGENCY SCREEN'; bc = 'bad'; }
   else if (isLive){ bt = 'LIVE'; bc = 'live'; } else { bt = 'PREVIEW · not on air'; bc = ''; }
@@ -1143,7 +1218,7 @@ function renderCanvas(){
   var tx = sc ? SC.transitionOf(live, sc) : null;
   $('mt-section').textContent = sc ? SC.txName(tx.type) + (tx.ms ? ' ' + tx.ms + ' ms' : '') + (sc.auto.on ? ' · auto ' + sc.auto.sec + ' s' : '') : '';
   $('canvas-note').textContent = !sc ? '' : useStudio ? 'Exactly what Zoom / Teams receive. Drag media Content to move it, the handles to resize.' :
-    isLive ? 'Live. The overlay page shown here is what OBS receives' + (S ? '' : ' (turn KingdomConnect on to see the camera picture and arrange media Content)') + '.' :
+    isLive ? 'Live. The overlay page shown here is what OBS receives' + (S ? '' : ' (turn FrameCast on to see the camera picture and arrange media Content)') + '.' :
     'Preview of this Frame: not on air. Go Live (T) puts it on screen.' + (sc.layers.some(function(l){ return SC.isMedia(l.kind); }) ? ' Outlines show where its media Content goes.' : '');
   // media outlines for a scene that is not live
   var boxes = $('canvas-boxes'), bsig = !useStudio && sc && !isLive ? JSON.stringify(sc.layers.filter(function(l){ return SC.isMedia(l.kind) && l.visible; }).map(function(l){ return [l.id, l.name, l.c.x, l.c.y, l.c.w, l.c.h, l.kind]; })) : '';
@@ -1166,9 +1241,10 @@ if (window.KCStudio && window.KCStudio.onPush){
     later('sync', function(){
       commit(function(n){
         var sc = SC.find(n, sid); if (!sc || n.live.scene !== sid) return;
-        var media = compLayers.map(SC.compToMedia).filter(Boolean).reverse();
-        var others = sc.layers.filter(function(l){ return !SC.isMedia(l.kind); });
-        var before = JSON.stringify(sc.layers.filter(function(l){ return SC.isMedia(l.kind); }));
+        var dk = SC.liveDeckId(n, sc), mineMedia = function(l){ return SC.isMedia(l.kind) && SC.deckOf(sc, l) === dk; };   // the Deck on screen
+        var media = compLayers.map(SC.compToMedia).filter(Boolean).reverse(); media.forEach(function(l){ l.deck = dk; });
+        var others = sc.layers.filter(function(l){ return !mineMedia(l); });
+        var before = JSON.stringify(sc.layers.filter(mineMedia));
         if (before === JSON.stringify(media)) return;
         sc.layers = others.concat(media); SC.stamp(sc, creator());
       });
@@ -1189,22 +1265,26 @@ txSel.value = lsGet('bcc-tx-override', '');
 txSel.addEventListener('change', function(){ lsSet('bcc-tx-override', txSel.value); txSel.classList.toggle('set', !!txSel.value); });
 txSel.classList.toggle('set', !!txSel.value);
 var takeAt = 0;
-function takeScene(id){
+function takeScene(id, deckId){
   var now = Date.now(); if (now - takeAt < 450) return; takeAt = now;            // no accidental double takes
   var sc = SC.find(live, id); if (!sc){ toast('Select a Frame first.', true); return; }
   if (sc.tpl){ toast('This is a template. Use + Frame → From your templates to make a Frame from it.', true); return; }
   var b = SC.first(sc, 'birthday'), needBday = b && b.visible && !live.birthday.greeting.trim();
-  commit(function(n){ SC.take(n, id, txSel.value || null); }).then(function(){
+  var dk = SC.deck(sc, deckId) || (id === selScene && SC.deck(sc, selDeck) && !isLiveScene(id) ? SC.deck(sc, selDeck) : null);
+  commit(function(n){ SC.take(n, id, txSel.value || null, dk ? dk.id : null); }).then(function(){
     if (needBday && window.KCBirthday && window.KCBirthday.candidate()) window.KCBirthday.show();
-    toast('On air: ' + sc.name);
+    toast('On air: ' + sc.name + (sc.decks.length > 1 ? ' · ' + (dk || sc.decks[0]).name : ''));
     var f = $('program'); if (f){ f.classList.remove('went-live'); void f.offsetWidth; f.classList.add('went-live'); setTimeout(function(){ f.classList.remove('went-live'); }, 1400); }
   });
 }
+/* Previous / Next: through the live Frame's Decks, then to the next Frame (FrameDecks) */
 function stepScene(d){
-  var base = live.live.scene || selScene, nx = SC.neighbour(live, base, d);
-  if (!nx){ toast(d > 0 ? 'That’s the last Frame.' : 'That’s the first Frame.'); return; }
-  selScene = nx.id; lsSet('bcc-sel-scene', nx.id); selLayer = null;
-  takeScene(nx.id);
+  var t = live.live.scene ? SC.stepTarget(live, d) : null;
+  if (!live.live.scene){ var nx = SC.neighbour(live, selScene, d); t = nx ? {scene: nx, deck: SC.decksOf(nx)[0]} : null; }
+  if (!t){ toast(d > 0 ? 'That’s the last Frame.' : 'That’s the first Frame.'); return; }
+  if (t.scene.id !== selScene){ selScene = t.scene.id; lsSet('bcc-sel-scene', t.scene.id); selLayer = null; }
+  selDeck = t.deck.id;
+  takeScene(t.scene.id, t.deck.id);
 }
 $('cb-take').addEventListener('click', function(){ takeScene(selScene); });
 $('lb-prev').addEventListener('click', function(){ stepScene(-1); });
@@ -1272,8 +1352,8 @@ setInterval(function(){
   if (!live || !live.live.auto || live.live.blackout || live.live.emergency) return;
   var ls = SC.liveScene(live); if (!ls || !ls.auto.on) return;
   if (Date.now() - live.live.at < ls.auto.sec * 1000) return;
-  var nx = SC.neighbour(live, ls.id, 1), seq = live.live.seq; if (!nx) return;
-  commit(function(n){ if (n.live.seq !== seq) return; SC.take(n, nx.id, txSel.value || null); });
+  var t = SC.stepTarget(live, 1), seq = live.live.seq; if (!t) return;               // the next Deck, then the next Frame
+  commit(function(n){ if (n.live.seq !== seq) return; SC.take(n, t.scene.id, txSel.value || null, t.deck.id); });
 }, 500);
 
 /* ===================================================================================================== */
@@ -1302,7 +1382,7 @@ function renderAll(force){
   renderScenes(); renderLayers(); renderInspector(); renderCanvas(); renderLiveBar();
 }
 Store.subscribe(function(st){ live = st; migrate(); renderAll(false); });
-setInterval(function(){ if (live && !document.hidden && document.body.dataset.tab === 'studio') renderLayers(); }, 3000);   // media layer status from KingdomConnect
+setInterval(function(){ if (live && !document.hidden && document.body.dataset.tab === 'studio') renderLayers(); }, 3000);   // media layer status from FrameCast
 
 /* Keyboard in the Studio: Ctrl+D duplicates the selected scene (or layer), Delete removes, F2 renames */
 document.addEventListener('keydown', function(e){
@@ -1328,7 +1408,7 @@ function renderTransitions(){
   var t = h('table', {cls: 'dir-table'}, [h('thead', {}, [h('tr', {}, ['Profile', 'Transition', 'Duration'].map(function(x){ return h('th', {text: x}); }))])]), tb = h('tbody');
   SC.profiles.forEach(function(p){ tb.appendChild(h('tr', {cls: p.id === live.profile ? 'today' : ''}, [h('td', {text: p.name}), h('td', {text: SC.txName(p.type)}), h('td', {text: p.ms ? p.ms + ' ms' : '-'})])); });
   t.appendChild(tb); root.appendChild(h('div', {cls: 'dir-wrap'}, [t]));
-  root.appendChild(h('p', {cls: 'hint', text: 'KingdomConnect plays every transition on the whole picture (a few light operations per frame, under a second). The OBS / browser overlay page covers the screen for the dips and moves the cards for the slides and pushes.'}));
+  root.appendChild(h('p', {cls: 'hint', text: 'FrameCast plays every transition on the whole picture (a few light operations per frame, under a second). The OBS / browser overlay page covers the screen for the dips and moves the cards for the slides and pushes.'}));
 }
 (window.KCSectionHooks = window.KCSectionHooks || []).push(function(id){ if (id === 'transitions') renderTransitions(); });
 

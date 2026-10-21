@@ -1,6 +1,6 @@
 # Getting help
 
-Kingdom Connect is maintained by a small team. These steps get you an answer fastest.
+FrameDecks is maintained by a small team. These steps get you an answer fastest.
 
 ## 1. Look in the documentation
 

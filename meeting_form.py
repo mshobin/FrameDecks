@@ -1,4 +1,4 @@
-"""Kingdom Connect - the Meeting Form (6.9): where everything sits on the Meeting Workbook's form tab, and filling it in.
+"""FrameDecks - the Meeting Form (6.9): where everything sits on the Meeting Workbook's form tab, and filling it in.
 
 The Meeting Workbook has two tabs: Dashboard (formulas only) and Meeting Form (one guided page, top to bottom):
 
@@ -25,7 +25,7 @@ from xml.sax.saxutils import escape
 
 SHEET = "Meeting Form"
 DASHBOARD = "Dashboard"
-COLUMNS = "ABCDEFGHIJ"
+COLUMNS = "ABCDEFGHIJK"
 
 # (section title, hint, [(key, label, height in lines)]) - the keys are those of the meeting in app/js/store.js
 DETAILS = [
@@ -42,9 +42,10 @@ DETAILS = [
 TABLES = [
     ("frames", "Frames", "One row per Frame: one screen, one step of the meeting. Number them 1, 2, 3…",
      ["Frame #", "Frame name", "Purpose / description", "Background", "Transition", "Presenter script"], 60),
-    ("content", "Content", "What each Frame shows. Frame # says which Frame; Order is the order inside it.",
+    ("content", "Content", "What each Frame shows. Frame # says which Frame; Order is the order inside it; Deck groups a "
+                "Frame's Content (one Deck on screen at a time; empty = the first Deck).",
      ["Frame #", "Order", "Content type", "Item name", "Main content / file", "On-screen label", "Duration (min)", "Animation",
-      "PPT background", "Notes"], 150),
+      "PPT background", "Notes", "Deck"], 150),
     ("questions", "Discussion questions", "The questions of a Question item (same Frame # and item name), in order.",
      ["Frame #", "Content name", "Question #", "Label", "Question text", "Media", "Timer (min)", "Animation"], 150),
     ("scriptures", "Scripture readings", "The scriptures of a Scripture item. Leave the text empty to fetch it from the ESV.",

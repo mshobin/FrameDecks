@@ -22,12 +22,12 @@ Run the service from a phone or iPad: step through Frames and Content, draw on t
 
 ## How it works
 
-The remote is a web page served by Kingdom Connect on your PC. Your phone opens it over your church's (or home's) Wi-Fi. Nothing goes through the internet or any outside service.
+The remote is a web page served by FrameDecks on your PC. Your phone opens it over your church's (or home's) Wi-Fi. Nothing goes through the internet or any outside service.
 
 ```mermaid
 flowchart LR
-  Phone["Phone or iPad<br/>(browser)"] -- "Wi-Fi, PIN-protected" --> PC["Kingdom Connect<br/>on the PC (port 8750)"]
-  PC --> Out["KingdomConnect camera<br/>Presentation window<br/>overlay pages"]
+  Phone["Phone or iPad<br/>(browser)"] -- "Wi-Fi, PIN-protected" --> PC["FrameDecks<br/>on the PC (port 8750)"]
+  PC --> Out["FrameCast camera<br/>Presentation window<br/>overlay pages"]
 ```
 
 Every button on the phone changes the same live state as the PC, so the PC, the phone and everyone watching always agree.
@@ -42,7 +42,7 @@ Every button on the phone changes the same live state as the PC, so the PC, the 
 
 The phone stays signed in for 30 days. After that, or after a new PIN, enter the PIN again.
 
-> **Tip:** In the same Settings section, tick the option to turn the remote on whenever Kingdom Connect starts, so it is ready every Sunday.
+> **Tip:** In the same Settings section, tick the option to turn the remote on whenever FrameDecks starts, so it is ready every Sunday.
 
 ## Security
 
@@ -52,7 +52,7 @@ The phone stays signed in for 30 days. After that, or after a new PIN, enter the
 | **Same network only** | The remote works on your local network; it isn't reachable from the internet |
 | **Lockout** | After 5 wrong PINs, that device must wait 60 seconds before trying again |
 | **New PIN** | **Settings → Phone & iPad Remote → New PIN** signs out every phone and iPad at once |
-| **PC-only settings** | Phones can't open Settings, member lists, the Scripture API key or the KingdomConnect camera settings |
+| **PC-only settings** | Phones can't open Settings, member lists, the Scripture API key or the FrameCast camera settings |
 | **Live picture** | The picture on the phone's drawing pad is PIN-protected, like the rest of the remote |
 
 > **Important:** Treat the PIN like a key to the sound desk. Share it only with the people running the service, and choose **New PIN** if it has been shared too widely.
@@ -112,7 +112,7 @@ Scroll with your finger, or use the play button to scroll by itself. See
 
 ![Drawing from a phone held sideways](images/remote-annotate.png)
 
-While the pad is open, the phone gets a sharper picture (960 pixels wide). If the KingdomConnect camera is off, the pad shows the Frame's cards instead, so you are never drawing on a black box.
+While the pad is open, the phone gets a sharper picture (960 pixels wide). If the FrameCast camera is off, the pad shows the Frame's cards instead, so you are never drawing on a black box.
 
 ## Run-through mode
 
@@ -143,7 +143,7 @@ The icon opens the remote directly. You still need to be on the same Wi-Fi as th
 | --- | --- |
 | The remote is off | **Settings → Phone & iPad Remote** → turn it on |
 | The phone is on a different network (mobile data, guest Wi-Fi) | Join the same Wi-Fi as the PC. Guest networks often block devices from seeing each other |
-| Windows Firewall blocks it | On the PC, run **Allow iPad Remote - run once.bat** (in the Kingdom Connect folder) once, or allow the app for **Private networks** |
+| Windows Firewall blocks it | On the PC, run **Allow iPad Remote - run once.bat** (in the FrameDecks folder) once, or allow the app for **Private networks** |
 | The network is set to **Public** in Windows | Settings → Network & internet → your Wi-Fi → **Private network** |
 | Wrong PIN too many times | Wait 60 seconds, then try again |
 | The PC's address changed | Scan the QR code in Settings again |

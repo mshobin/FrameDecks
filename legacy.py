@@ -1,22 +1,24 @@
-"""Kingdom Connect - moving data from the program's earlier name (6.9).
+"""FrameDecks - moving data saved under the program's earlier names.
 
-Kingdom Connect was first published under another name. Installs from that time keep their data in a folder and in
-files carrying that name, a Windows Firewall rule with it, and recordings in a folder named after it. This module is the
-only Python code that knows the earlier name: it finds that data once and moves it to the Kingdom Connect names, so
+FrameDecks was published under two earlier names. Installs from those times keep their data in a folder and in files
+carrying those names, a Windows Firewall rule with them, and recordings in a folder named after them. This module is
+the only Python code that knows the earlier names: it finds that data once and moves it to the FrameDecks names, so
 nobody loses their meetings, members, settings or recordings. Nothing here is ever shown to people.
 
-(The other places that must know the earlier name, for the same reason: the browser-settings block at the top of
-app/js/store.js, the clean-up of the old program folder and shortcuts in packaging/installer.iss, and
-tools/undo-ipad-remote.ps1, which removes the old firewall rule.)
+(The other places that must know the earlier names, for the same reason: the browser-settings block at the top of
+app/js/store.js, the clean-up of the old program folders and shortcuts in packaging/installer.iss, and
+tools/undo-ipad-remote.ps1, which removes the old firewall rules.)
 """
 import json
 import shutil
 from pathlib import Path
 
-NEW_NAME = "Kingdom Connect"
-OLD_NAME = "BSF Command Center"            # the earlier product name (data folder, program folder, recordings folder)
+NEW_NAME = "FrameDecks"
+# the earlier product names, newest first (data folder, program folder, recordings folder)
+OLD_NAMES = ("Kingdom Connect", "BSF Command Center")
+OLD_NAME = OLD_NAMES[-1]                   # the first name, whose data files were called bsf-*
 OLD_PREFIX, NEW_PREFIX = "bsf-", "kc-"     # data file names: bsf-saved-content.json -> kc-saved-content.json
-OLD_FIREWALL_RULE = OLD_NAME + " iPad Remote"
+OLD_FIREWALL_RULES = ("Kingdom Connect Phone Remote", "BSF Command Center iPad Remote")
 OLD_GROUP_DEFAULT = "BSF"                  # the old default "Group Name" (Members > Settings), shown in meeting titles
 
 
@@ -31,7 +33,7 @@ def old_file_name(name):
 
 
 def find(folder, name):
-    """The file `name` in `folder`, under its Kingdom Connect name or its earlier name (None if neither)."""
+    """The file `name` in `folder`, under its current name or its first name (None if neither)."""
     folder = Path(folder)
     for n in (name, old_file_name(name)):
         if (folder / n).is_file():
@@ -51,27 +53,31 @@ def _move_children(src, dst):
 
 
 def migrate_folder(parent):
-    """parent/<earlier name> -> parent/Kingdom Connect. A rename when possible (instant, same disk); otherwise the
-    contents are moved one by one, never overwriting anything already in the new folder. Returns True if it moved."""
+    """parent/<an earlier name> -> parent/FrameDecks, the newest earlier name first. A rename when possible (instant,
+    same disk); otherwise the contents are moved one by one, never overwriting anything already in the new folder.
+    Returns True if anything moved."""
     parent = Path(parent)
-    old, new = parent / OLD_NAME, parent / NEW_NAME
-    if not old.is_dir():
-        return False
-    try:
-        if not new.exists():
-            old.rename(new)
-            print(f"Moved the data folder to {new}")
-            return True
-        _move_children(old, new)
+    new = parent / NEW_NAME
+    moved = False
+    for name in OLD_NAMES:
+        old = parent / name
+        if not old.is_dir():
+            continue
         try:
-            old.rmdir()                     # only if it is now empty
-        except OSError:
-            pass
-        print(f"Moved earlier data into {new}")
-        return True
-    except OSError as e:
-        print("Could not move the earlier data folder:", e)
-        return False
+            if not new.exists():
+                old.rename(new)
+                print(f"Moved the data folder to {new}")
+            else:
+                _move_children(old, new)
+                try:
+                    old.rmdir()                     # only if it is now empty
+                except OSError:
+                    pass
+                print(f"Moved earlier data into {new}")
+            moved = True
+        except OSError as e:
+            print("Could not move the earlier data folder:", e)
+    return moved
 
 
 def migrate_files(folder):
@@ -128,5 +134,5 @@ def migrate_app_data(appdata_dir):
 
 
 def migrate_recordings(videos_dir):
-    """Videos/<earlier name> -> Videos/Kingdom Connect (recordings made before the rename)."""
+    """Videos/<an earlier name> -> Videos/FrameDecks (recordings made before the rename)."""
     return migrate_folder(videos_dir) if Path(videos_dir).is_dir() else False

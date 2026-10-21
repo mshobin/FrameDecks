@@ -1,6 +1,6 @@
 # Testing
 
-Kingdom Connect is tested in three layers: automated tests that run in seconds, a self-check that proves the program
+FrameDecks is tested in three layers: automated tests that run in seconds, a self-check that proves the program
 starts and serves everything it needs, and a manual service-safety test on a real Windows PC before each release.
 
 ## Automated tests
@@ -49,14 +49,14 @@ python packaging/check.py
 The self-check starts the program on a temporary data folder and checks that:
 
 - every page and script the app needs is served (the list in `packaging/check.py`; add new files there);
-- the camera ID and name in the app match the ones compiled into the KingdomConnect camera;
+- the camera ID and name in the app match the ones compiled into the FrameCast camera;
 - the background-blur model loads, and the camera's card drawing works;
 - in the GitHub build, the camera driver files were built.
 
 ## Continuous integration
 
 The **Build Windows installer** workflow (`.github/workflows/build-windows.yml`) runs on `windows-latest` for every
-push to `main`, every version tag and every manual run. It builds the KingdomConnect camera, runs the self-check and
+push to `main`, every version tag and every manual run. It builds the FrameCast camera, runs the self-check and
 the tests, and only then packages the app and the installer. A failing check stops the build, so a broken installer is
 never produced.
 
@@ -86,7 +86,7 @@ flow. Use a test Zoom or Teams meeting, a real webcam and a phone on the same Wi
 
 **Preparation**
 - [ ] Install over the previous version. Meetings, members and settings are still there.
-- [ ] Zoom or Teams lists **KingdomConnect**; choose it. Your webcam picture appears.
+- [ ] Zoom or Teams lists **FrameCast**; choose it. Your webcam picture appears.
 
 **Running a meeting**
 - [ ] Select a Frame and press **Go Live** (or T). It appears in Zoom.
@@ -112,7 +112,7 @@ flow. Use a test Zoom or Teams meeting, a real webcam and a phone on the same Wi
 - [ ] **Teleprompter** (R) docks Left, Right, Bottom and Float; **Space** scrolls it. Its text never appears in Zoom, the Presentation window or the OBS pages.
 - [ ] **Teleprompter window** shows the Frame's script, the item on screen and the next item (no answers or notes).
 - [ ] The phone's **TELEPROMPTER** button opens the script full screen.
-- [ ] The **Presentation window** opens and can be shared in Zoom as "Kingdom Connect Share Window".
+- [ ] The **Presentation window** opens and can be shared in Zoom as "FrameDecks Share Window".
 
 **Window, tray and Spotlight (6.8)**
 

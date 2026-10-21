@@ -1,4 +1,4 @@
-/* Kingdom Connect - overlay engine used by every overlay page and the dashboard preview */
+/* FrameDecks - overlay engine used by every overlay page and the dashboard preview */
 (function(){
 'use strict';
 
@@ -350,7 +350,7 @@ function BirthdayCard(zone){
 
 /* ---------- Presentation mode Both: the question leads, the verse supports it ----------
  * Only when a question is shown in Both mode (Question · Both · Verse). Everything else is laid out exactly as before.
- * KingdomConnect uses the same numbers (vcam/cards.py effective_layout). */
+ * FrameCast uses the same numbers (vcam/cards.py effective_layout). */
 var BOTH_VERSE = 0.86, BOTH_QUESTION = 1.06;
 function effective(st){
   var P = window.KCPresent;
@@ -514,7 +514,7 @@ function mount(opts){
     Store.subscribe(function(raw){
       // pending=1: a preview of what SHOW will put on screen (Question · Both · Verse), not what is on screen now
       // scene=ID: a preview of another scene, as if it were taken live (the Studio Canvas)
-      var src = sceneQ && SC ? SC.previewState(raw, sceneQ) : pending ? window.KCPresent.preview(raw) : raw;
+      var src = sceneQ && SC ? SC.previewState(raw, sceneQ, params.get('deck')) : pending ? window.KCPresent.preview(raw) : raw;
       var st = effective(src);
       last = st;
       document.body.classList.toggle('mode-both', !!(window.KCPresent && window.KCPresent.combined(st)));

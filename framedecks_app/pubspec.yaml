@@ -1,0 +1,36 @@
+name: framedecks
+description: "FrameDecks for every platform: the Windows app's Studio, outputs and phone remote, in Flutter."
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.13.5
+
+# Versions are pinned (at least two weeks old when chosen). See docs/project/flutter-platform-plan.md.
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_riverpod: 3.4.3
+  flutter_secure_storage: 11.2.0
+  path_provider: 2.1.6
+  http: 1.6.0
+  intl: 0.20.3
+  window_manager: 0.5.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/brand/
+  # The Windows app's own fonts (app/fonts): Source Sans 3 for the interface and cards, EB Garamond for scripture.
+  fonts:
+    - family: KC Sans
+      fonts:
+        - asset: assets/fonts/SourceSans3.ttf
+    - family: KC Serif
+      fonts:
+        - asset: assets/fonts/EBGaramond.ttf

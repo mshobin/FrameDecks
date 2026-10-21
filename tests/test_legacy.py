@@ -1,4 +1,4 @@
-"""Kingdom Connect 6.9 - data saved under the program's earlier name moves to the Kingdom Connect names, nothing lost.
+"""FrameDecks - data saved under the program's earlier names moves to the FrameDecks names, nothing lost.
 Run: python -m unittest discover -s tests -p "test_*.py\""""
 import json
 import sys
@@ -73,7 +73,22 @@ class DataFolder(unittest.TestCase):
     def test_recordings(self):
         write(self.root / legacy.OLD_NAME / "2026-10-01 Meeting.mp4", "video")
         self.assertTrue(legacy.migrate_recordings(self.root))
-        self.assertTrue((self.root / "Kingdom Connect" / "2026-10-01 Meeting.mp4").is_file())
+        self.assertTrue((self.root / legacy.NEW_NAME / "2026-10-01 Meeting.mp4").is_file())
+
+    def test_both_earlier_names(self):
+        """The newest earlier name moves by rename; the first name's files join it, never overwriting newer ones."""
+        newest, first = self.root / legacy.OLD_NAMES[0], self.root / legacy.OLD_NAMES[-1]
+        write(newest / "kc-saved-content.json", '{"rev": 9}')
+        write(newest / "kc-pin.txt", "123456")
+        write(first / "bsf-saved-content.json", '{"rev": 2}')
+        write(first / "bsf-studio.json", "{}")
+        new = legacy.migrate_app_data(self.root)
+        self.assertEqual(new, self.new)
+        self.assertFalse(newest.exists())
+        self.assertEqual((new / "kc-saved-content.json").read_text(), '{"rev": 9}')    # the newer data wins
+        self.assertTrue((new / "kc-pin.txt").is_file())
+        self.assertTrue((new / "kc-studio.json").is_file())                            # what only the first folder had
+        self.assertEqual(legacy.migrate_app_data(self.root), self.new)                 # safe to run again
 
 
 if __name__ == "__main__":

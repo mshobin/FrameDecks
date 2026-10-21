@@ -41,12 +41,12 @@ Every kind of Content you can put in a Frame, and every setting that controls ho
 | **PowerPoint…** | |
 
 > **Note:** A Frame has at most one Question, one Scripture, one Birthday and one Branding Content. Put all of a
-> Frame's questions into its one Question list. If you choose Question again, Kingdom Connect takes you to the
+> Frame's questions into its one Question list. If you choose Question again, FrameDecks takes you to the
 > existing list.
 
 > **Note:** Picture-based Content (image, video, PowerPoint, camera, screen, window, logo, watermark, free text,
-> shape and background) is part of the **KingdomConnect** picture. These items are greyed out until the
-> KingdomConnect camera is on (**Settings → KingdomConnect Camera**).
+> shape and background) is part of the **FrameCast** picture. These items are greyed out until the
+> FrameCast camera is on (**Settings → FrameCast Camera**).
 
 ## The Content list
 
@@ -74,7 +74,7 @@ visible at once, in groups, with the most used first. The group names at the top
 | --- | --- |
 | **Label** | The small heading on the card, and whether it shows |
 | **Content** | What it says or shows: the list, the text, the countdown |
-| **Display Settings** | Where it sits on the picture and how wide it is. Inside it: **Animation** (how it appears) and **Show on** (KingdomConnect, OBS pages, or both) |
+| **Display Settings** | Where it sits on the picture and how wide it is. Inside it: **Animation** (how it appears) and **Show on** (FrameCast, OBS pages, or both) |
 | **Visual Settings** | Text size and opacity |
 | **Media** | File, slide and placement settings for pictures, video and PowerPoint |
 
@@ -209,7 +209,7 @@ Branding**. A quick way to add or remove it is the **Branding** tick in a Frame'
 | Visual Settings | **Opacity** and **Padding** | How see-through the badge is, and the space around the logo and name |
 | Visual Settings | **Background plate** | On: a navy plate with your accent edge. Off: a soft shadow keeps it readable on any picture |
 
-The badge looks the same on the KingdomConnect camera and the OBS pages, and it keeps its size at 720p, 1080p or
+The badge looks the same on the FrameCast camera and the OBS pages, and it keeps its size at 720p, 1080p or
 4K.
 
 ## Timer
@@ -228,7 +228,7 @@ Display Settings, Visual Settings and Animation work as for Text.
 
 ## Image, Video and PowerPoint
 
-These are part of the KingdomConnect picture. Their **Media** group has:
+These are part of the FrameCast picture. Their **Media** group has:
 
 | Setting | What it does |
 | --- | --- |
@@ -264,13 +264,13 @@ slide show as **Free Content → Window** instead. See [Media](media.md) and
 ## Show on: where Content appears
 
 Cards and text have a **Show on** group (inside Display Settings):
-- **KingdomConnect** (the Zoom / Teams camera, recordings and the Presentation window);
+- **FrameCast** (the Zoom / Teams camera, recordings and the Presentation window);
 - **OBS / browser overlay pages**.
 
 Untick one to keep that Content off that output. For cards it applies when the Frame is taken live; for text it
 applies at once.
 
-Camera and media Content is the KingdomConnect picture itself, so it has no Show on group.
+Camera and media Content is the FrameCast picture itself, so it has no Show on group.
 
 ## Placeholders: {meeting} and {org}
 

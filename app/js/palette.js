@@ -1,4 +1,4 @@
-/* Kingdom Connect v6.7 - Command palette (Spotlight style). Ctrl+K or Ctrl+Space (Settings > Keyboard shortcuts).
+/* FrameDecks v6.7 - Command palette (Spotlight style). Ctrl+K or Ctrl+Space (Settings > Keyboard shortcuts).
  * 6.8: also its own Spotlight window (spotlight.html), opened by a system-wide shortcut even from the tray.
  *
  * One box finds and does everything: Frames, Content, the Frames' own questions and scriptures, announcements and
@@ -45,7 +45,7 @@ var KIND = {cmd: 'Command', frame: 'Frame', tpl: 'Template', lib: 'Library', con
   text: 'Text', brand: 'Branding', bg: 'Background', member: 'Member', birthday: 'Birthday', setting: 'Settings', bible: 'Bible', recent: 'Recent'};
 var SECTIONS = [['general', 'General', 'appearance theme dark light'], ['meeting', 'Meeting & Branding', 'logo brand meeting name organization colour accent'],
   ['overlays', 'Birthdays', 'birthday reminders'], ['scripture', 'Scripture', 'bible esv api key translation'], ['transitions', 'Transitions', 'fade dip cut profile'],
-  ['recording', 'Recording', 'record mp4'], ['display', 'Zoom / Display', 'overlay obs browser source links'], ['vcam', 'KingdomConnect Camera', 'camera zoom teams blur background look resolution'],
+  ['recording', 'Recording', 'record mp4'], ['display', 'Zoom / Display', 'overlay obs browser source links'], ['vcam', 'FrameCast Camera', 'camera zoom teams blur background look resolution'],
   ['ipad', 'Phone & iPad Remote', 'remote pin qr phone tablet'], ['keys', 'Keyboard shortcuts', 'keys hotkeys palette'], ['security', 'Security', 'pin privacy'],
   ['data', 'Data / Backup', 'backup restore export import'], ['diag', 'Diagnostics', 'problems errors logs'], ['about', 'About', 'version credits']];
 function commands(){
@@ -71,7 +71,7 @@ function commands(){
     ['template', 'Download the Excel template', 'workbook xlsx', function(){ if (MI) MI.template(); }],
     ['branding', 'Open Branding', 'logo meeting name colour', function(){ settings('meeting'); }],
     ['knock', 'Remove the logo background', 'transparent png', function(){ if (window.KCBrandSettings) window.KCBrandSettings.removeBackground(); }],
-    ['camera', 'Camera background (blur, image)', 'kingdomconnect blur background', function(){ settings('vcam'); }],
+    ['camera', 'Camera background (blur, image)', 'framecast blur background', function(){ settings('vcam'); }],
     ['shortcuts', 'Keyboard shortcuts', 'keys palette', function(){ settings('keys'); }]];
   if (window.KCTheme){
     var t = window.KCTheme.get();
@@ -272,7 +272,7 @@ function mountKeys(root){
   function render(msg){
     root.innerHTML = '';
     var k = keys();
-    root.appendChild(h('p', {cls: 'hint', text: 'Opens the command palette from anywhere in Kingdom Connect, even while typing. Use Ctrl, Alt or both with a key.'}));
+    root.appendChild(h('p', {cls: 'hint', text: 'Opens the command palette from anywhere in FrameDecks, even while typing. Use Ctrl, Alt or both with a key.'}));
     var table = h('div', {cls: 'kb-table'});
     [0, 1].forEach(function(n){
       var btn = h('button', {cls: 'btn small', type: 'button', text: 'Change'});

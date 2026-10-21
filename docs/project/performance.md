@@ -1,6 +1,6 @@
 # Performance
 
-How Kingdom Connect stays fast on an ordinary 8 GB Windows PC, and the numbers behind it.
+How FrameDecks stays fast on an ordinary 8 GB Windows PC, and the numbers behind it.
 
 **Who this is for:** the maintainer and contributors.
 

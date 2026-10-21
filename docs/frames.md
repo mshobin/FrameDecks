@@ -2,10 +2,11 @@
 
 How to create, organize and reuse Frames, the building blocks of every meeting.
 
-**Who this is for:** anyone who builds services or meetings in Kingdom Connect.
+**Who this is for:** anyone who builds services or meetings in FrameDecks.
 
 **On this page**
 - [What a Frame is](#what-a-frame-is)
+- [Decks: one Frame, several steps](#decks-one-frame-several-steps)
 - [Create a Frame](#create-a-frame)
 - [Name, group and order](#name-group-and-order)
 - [Select several Frames](#select-several-frames)
@@ -21,21 +22,43 @@ How to create, organize and reuse Frames, the building blocks of every meeting.
 
 ## What a Frame is
 
-A **Frame** is one screen or one step of your meeting, such as *Welcome*, *Worship*, *Scripture Reading*,
-*Discussion* or *Closing*. It holds the **Content** shown at that moment, and its own transition, timing and Teleprompter script.
+A **Frame** is one part of your meeting, such as *Welcome*, *Worship*, *Scripture Reading*, *Discussion* or
+*Closing*. A Frame holds one or more **Decks**, and each Deck holds the **Content** shown at that moment:
+**Frame → Deck → Content**. The Frame also has its own transition, timing and Teleprompter script.
 
 ```mermaid
 flowchart TD
   M["Meeting: Romans · Week 5"] --> F1["Frame: Welcome"]
   M --> F2["Frame: Scripture Reading"]
   M --> F3["Frame: Discussion"]
-  F3 --> C1["Content: Question (list of 3)"]
-  F3 --> C2["Content: Scripture (list of 2)"]
-  F3 --> C3["Content: Timer"]
+  F3 --> D1["Deck 1: Read"]
+  F3 --> D2["Deck 2: Discuss"]
+  D1 --> C2["Content: Scripture (list of 2)"]
+  D2 --> C1["Content: Question (list of 3)"]
+  D2 --> C3["Content: Timer"]
 ```
 
 **Every Frame owns its Content.** Two Frames never share a question, a scripture or a setting, so changing one Frame
 never changes another.
+
+## Decks: one Frame, several steps
+
+A Frame starts with one Deck, **Deck 1**, so a simple Frame works exactly as before. Add Decks when one part of the
+meeting has several steps, like reading a passage and then discussing it.
+
+- **One Deck is on screen at a time.** **Go Live** shows the Frame's first Deck. **Next** (**Frame ▶**, **]**, NEXT FRAME
+  on the phone, and Auto advance) shows the Frame's next Deck, and after its last Deck the next Frame. **Previous**
+  goes back the same way.
+- **In the Content list** each Deck has a heading: its name, how much Content it holds, **LIVE** when it is on screen,
+  **▶** to show that Deck now, and **⋯** for Rename, New Deck after this one, Move up / down and Delete Deck. **+ Deck**
+  below the list adds one.
+- **New Content goes into the selected Deck** (click a Deck's heading to select it). To move Content, drag it onto
+  another Deck's heading or Content, or use **⋯ → Move to Deck**.
+- **Deleting a Deck deletes its Content.** A Frame always keeps at least one Deck.
+- **Camera and background Content belong to a Deck too**, so each Deck is a complete picture. Add a camera or background
+  to every Deck that should show it.
+- In the **Meeting Workbook**, the optional **Deck** column of the Content table names each row's Deck; an empty cell
+  is the first Deck.
 
 ## Create a Frame
 

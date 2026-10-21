@@ -11,7 +11,7 @@ body:
   - type: input
     id: version
     attributes:
-      label: Kingdom Connect version
+      label: FrameDecks version
       description: Settings → About.
       placeholder: "6.6"
     validations:
@@ -27,7 +27,7 @@ body:
       label: Where was the picture going?
       multiple: true
       options:
-        - Zoom / Microsoft Teams / Google Meet (KingdomConnect camera)
+        - Zoom / Microsoft Teams / Google Meet (FrameCast camera)
         - Projector or TV (Presentation window)
         - OBS or a live stream (overlay pages or the camera)
         - Shared screen

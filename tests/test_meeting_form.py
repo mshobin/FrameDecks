@@ -12,7 +12,7 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 import meeting_form as MF  # noqa: E402
 
-TEMPLATE = (ROOT / "app" / "templates" / "Kingdom-Connect-Meeting-Workbook.xlsx").read_bytes()
+TEMPLATE = (ROOT / "app" / "templates" / "FrameDecks-Meeting-Workbook.xlsx").read_bytes()
 JS = (ROOT / "app" / "js" / "meeting-book.js").read_text(encoding="utf-8")
 
 

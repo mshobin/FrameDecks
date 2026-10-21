@@ -1,6 +1,6 @@
-# Contributing to Kingdom Connect
+# Contributing to FrameDecks
 
-Thank you for helping. Kingdom Connect is used by volunteers on Sunday mornings and on weeknight Bible studies, often
+Thank you for helping. FrameDecks is used by volunteers on Sunday mornings and on weeknight Bible studies, often
 by people who are not technical and who have no time to troubleshoot while a meeting is running. Every contribution,
 whether a bug report, a test on a real church PC, a clearer sentence in a guide or a line of code, makes those
 services calmer.
@@ -29,7 +29,7 @@ or a screenshot.
 ## Ground rules
 
 1. **Reliability before features.** A change must never put a live service at risk. If a change touches Go Live,
-   stepping, Hide all, Blackout, Freeze, the phone remote or the KingdomConnect camera, say so in the pull request
+   stepping, Hide all, Blackout, Freeze, the phone remote or the FrameCast camera, say so in the pull request
    and describe how you tested it.
 2. **Volunteers first.** Use the words the app uses (**Frame**, **Content**, **Go Live**, **Speaker View**), plain
    English, and no jargon. If a setting needs a paragraph to explain, look for a simpler design.
@@ -49,14 +49,14 @@ or a screenshot.
 The short version (the full guide is [docs/contributing.md](docs/contributing.md)):
 
 ```bash
-git clone https://github.com/mshobin/KINGDOM-CONNECT.git
-cd KINGDOM-CONNECT
+git clone https://github.com/mshobin/FrameDecks.git
+cd FrameDecks
 python server.py                 # opens http://localhost:8750 in your browser
 node tests/run.js                # automated tests (Node.js, no packages to install)
 python packaging/check.py        # self-check: the program starts and serves its pages
 ```
 
-The program itself needs only Python 3 and its standard library. The KingdomConnect camera, background blur,
+The program itself needs only Python 3 and its standard library. The FrameCast camera, background blur,
 screen capture and the desktop window need the packages in `packaging/requirements-desktop.txt` and Windows.
 
 ---

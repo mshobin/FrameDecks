@@ -1,4 +1,4 @@
-/* Kingdom Connect - meeting control console (layered on dashboard.css + members.css) */
+/* FrameDecks - meeting control console (layered on dashboard.css + members.css) */
 :root{
   /* One colour vocabulary everywhere: dashboard and phone remote */
   --q:#6aa1ff; --q-strong:#2563eb; --q-soft:rgba(106,161,255,.14);
@@ -293,7 +293,7 @@ select.item-fx.set{color:var(--gold-strong);border-color:rgba(227,183,90,.55)}
 /* Camera Look picker (Meeting tab) */
 .look-pick{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;color:var(--muted);margin-left:10px;text-transform:uppercase;letter-spacing:.05em}
 .look-pick select,#vcam-look{font:inherit;font-size:13px;text-transform:none;letter-spacing:0;background:var(--raised);color:var(--ink);border:1px solid var(--line);border-radius:7px;padding:3px 6px}
-/* KingdomConnect preview */
+/* FrameCast preview */
 .vcam-preview{position:relative;width:min(480px,100%);aspect-ratio:16/9;border-radius:10px;overflow:hidden;background:#05080f;border:1px solid var(--edge)}
 .vcam-preview img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none}
 .vcam-preview.on img{display:block}

@@ -47,7 +47,7 @@ Versions are **major.minor** (6.5, 6.6, 7.0). The number lives in one place: `AP
    python tools/make_release_notes.py --check
    ```
 7. **Build.** Push to `main`, or run **Build Windows installer** on the release branch. Download the
-   **Kingdom Connect vX.Y** artifact.
+   **FrameDecks vX.Y** artifact.
 8. **Test the installer on a real Windows PC** (not only a development machine):
    - install over the previous version, and check that meetings, members and settings are still there;
    - run the [manual service-safety test](testing.md#manual-service-safety-test) with a real webcam, Zoom or Teams,
@@ -61,7 +61,7 @@ Versions are **major.minor** (6.5, 6.6, 7.0). The number lives in one place: `AP
    `.sha256` file.
 10. **Verify the release.** Download the installer from the Releases page and check its SHA-256:
     ```powershell
-    Get-FileHash ".\Kingdom Connect vX.Y.exe" -Algorithm SHA256
+    Get-FileHash ".\FrameDecks vX.Y.exe" -Algorithm SHA256
     ```
     The hash must match the `.sha256` file.
 11. **Announce** the release to the churches using it, with a link to the release notes and any action volunteers

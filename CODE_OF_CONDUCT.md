@@ -1,6 +1,6 @@
 # Code of Conduct
 
-Kingdom Connect is built by and for people who serve in churches and ministries. We want taking part in this project
+FrameDecks is built by and for people who serve in churches and ministries. We want taking part in this project
 to be a good experience for everyone, whatever their background, tradition, experience or role.
 
 This code is adapted from the [Contributor Covenant](https://www.contributor-covenant.org/version/2/1/code_of_conduct/),

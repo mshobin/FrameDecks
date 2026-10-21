@@ -1,4 +1,4 @@
-/* Kingdom Connect v6.7 - Teleprompter (js/teleprompter.js): the main window's dock, the Teleprompter window and the phone */
+/* FrameDecks v6.7 - Teleprompter (js/teleprompter.js): the main window's dock, the Teleprompter window and the phone */
 .tp{--tp-size:34px;--tp-line:1.5;--tp-bg:var(--panel,#12161d);--tp-ink:var(--ink,#eef1f6);--tp-muted:var(--muted,#9ba5b4);--tp-edge:var(--line,#2b323d);
   --tp-gold:var(--gold,#e8b931);display:flex;flex-direction:column;min-height:0;min-width:0;width:100%;height:100%;background:var(--tp-bg);color:var(--tp-ink);border-radius:inherit}
 .tp-cues{flex:none;display:flex;flex-direction:column;gap:2px;padding:10px 14px;border-bottom:1px solid var(--tp-edge)}

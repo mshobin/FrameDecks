@@ -1,8 +1,8 @@
 # Frequently asked questions
 
-Straight answers to the questions churches ask most about Kingdom Connect.
+Straight answers to the questions churches ask most about FrameDecks.
 
-**Who this is for:** pastors, worship leaders, small-group leaders, media teams and anyone deciding whether Kingdom Connect fits their ministry.
+**Who this is for:** pastors, worship leaders, small-group leaders, media teams and anyone deciding whether FrameDecks fits their ministry.
 
 **On this page**
 - [General](#general)
@@ -21,14 +21,14 @@ Straight answers to the questions churches ask most about Kingdom Connect.
 
 ## General
 
-**What is Kingdom Connect?**
+**What is FrameDecks?**
 A presentation app for churches and faith communities. You plan a meeting as a list of **Frames** (Welcome, Worship, Scripture Reading, Discussion, Closing), fill each Frame with **Content** (questions, scriptures, text, pictures, videos, PowerPoint, a timer), and present it to Zoom, Teams, Google Meet, OBS or a projector, from the PC or a phone.
 
 **Who is it for?**
 Bible studies, small groups, prayer meetings, trainings and services, especially ones with people joining online. It was first built for Bible study groups meeting on Zoom.
 
 **Does it replace ProPresenter or EasyWorship?**
-Not completely. Kingdom Connect focuses on Bible study, discussion and teaching, online or hybrid, with a built-in camera for meeting apps and a very simple phone remote. It has no song library, multi-screen stage display layouts or lighting control. Many churches use it for midweek groups and online gatherings alongside their Sunday software.
+Not completely. FrameDecks focuses on Bible study, discussion and teaching, online or hybrid, with a built-in camera for meeting apps and a very simple phone remote. It has no song library, multi-screen stage display layouts or lighting control. Many churches use it for midweek groups and online gatherings alongside their Sunday software.
 
 **Is it difficult to learn?**
 No. A volunteer can run a meeting from the **Simple** phone remote with six buttons. Building a meeting takes most leaders one session to learn. See [Getting started](getting-started.md).
@@ -48,7 +48,7 @@ Yes. **Duplicate** a Frame (⋯ on the Frame) to make a fully independent copy, 
 Yes, optionally. The **Meeting Workbook** (Meeting menu → Download the Excel template) has two tabs: the **Meeting Form**, one guided page where you type the meeting details, Frames, Content, questions and scriptures, and the **Dashboard**, which sums it up for you. Import shows every problem with where it is (for example *Meeting Form · Content · row 26*) before anything changes, and can be undone. Workbooks from earlier versions still import. See [Meeting Workbook and branding](reference/meeting-workbook-and-branding.md).
 
 **Can two people edit the same service at once?**
-No. Kingdom Connect runs on one PC with no accounts or shared workspaces. To share a plan, export it (Excel Meeting Workbook or a Frame file) and import it on the other PC.
+No. FrameDecks runs on one PC with no accounts or shared workspaces. To share a plan, export it (Excel Meeting Workbook or a Frame file) and import it on the other PC.
 
 **Can it advance automatically?**
 Yes. Each Frame can **Auto advance** after a number of seconds (Content Settings → Timing), while **Auto** is on in the command bar.
@@ -57,11 +57,11 @@ Yes. Each Frame can **Auto advance** after a number of seconds (Content Settings
 Yes. **+ Content → Timer** counts down a number of minutes, or until a time of day, and shows your message at zero.
 
 **Can we run a poll?**
-A simple one. **+ Content → Poll (show of hands)** shows a question with choices A, B and C. People answer by raising a hand or typing in the chat. Kingdom Connect does not collect or count votes. There are also **Discussion topic** and **Icebreaker** cards for small groups.
+A simple one. **+ Content → Poll (show of hands)** shows a question with choices A, B and C. People answer by raising a hand or typing in the chat. FrameDecks does not collect or count votes. There are also **Discussion topic** and **Icebreaker** cards for small groups.
 
 ## Worship and lyrics
 
-**Does Kingdom Connect have a song library?**
+**Does FrameDecks have a song library?**
 Not yet. There is no song database, verse/chorus arrangement or CCLI reporting today. A song library is on the [Roadmap](../ROADMAP.md).
 
 **So how do we show song words?**
@@ -70,7 +70,7 @@ Two good ways:
 2. **PowerPoint or PDF**: use your existing lyric slides, added as PowerPoint Content. Step through with **NEXT CONTENT** or **Page Down**.
 
 **Do we still need a CCLI licence?**
-Kingdom Connect doesn't change your copyright responsibilities. If you show or stream song lyrics, you need the licences your church normally holds (for example, CCLI Copyright and Streaming licences). Kingdom Connect doesn't report usage for you.
+FrameDecks doesn't change your copyright responsibilities. If you show or stream song lyrics, you need the licences your church normally holds (for example, CCLI Copyright and Streaming licences). FrameDecks doesn't report usage for you.
 
 ## Bible
 
@@ -95,7 +95,7 @@ Yes, with **Show objects only**, if the slides have one plain background colour.
 MP4 (H.264) is the safest. Keep videos on the PC rather than a USB stick.
 
 **Can I play a video with sound to people online?**
-Not through Kingdom Connect: Video Content plays muted. For a video with sound, play it in a media player and share it in the meeting app (for example, Zoom's **Share Screen** with **Share Sound**), or play it through your sound desk.
+Not through FrameDecks: Video Content plays muted. For a video with sound, play it in a media player and share it in the meeting app (for example, Zoom's **Share Screen** with **Share Sound**), or play it through your sound desk.
 
 **Can I draw on the screen while teaching?**
 Yes. **Annotate** (**D**) gives a pen, highlighter, arrow, line, rectangle, ellipse and text, in six colours. Everyone sees the drawings, in the room and online. You can also draw from your phone.
@@ -103,21 +103,21 @@ Yes. **Annotate** (**D**) gives a pen, highlighter, arrow, line, rectangle, elli
 ## Online and hybrid services
 
 **How do people on Zoom see our slides and questions?**
-Choose the **KingdomConnect** camera in Zoom (or Teams, Google Meet, OBS). Participants see your webcam with the live Frame on top. No screen sharing needed.
+Choose the **FrameCast** camera in Zoom (or Teams, Google Meet, OBS). Participants see your webcam with the live Frame on top. No screen sharing needed.
 
 **Can we use a projector in the room at the same time?**
 Yes. Open the **Presentation window** (**Share Window** on the Studio Canvas) on the projector and make it full screen. It shows the same picture as the camera.
 
 **Does it work with OBS for livestreaming?**
-Yes. Add **KingdomConnect** as a Video Capture Device, or use the overlay pages (`http://localhost:8750/...`) as Browser Sources on top of your own OBS scenes. See [Media](media.md#obs-and-browser-overlay-pages).
+Yes. Add **FrameCast** as a Video Capture Device, or use the overlay pages (`http://localhost:8750/...`) as Browser Sources on top of your own OBS scenes. See [Media](media.md#obs-and-browser-overlay-pages).
 
 **Will Zoom participants see my teleprompter?**
 No. The **Teleprompter overlay** is left out of screen sharing and recordings, even when you share your whole screen
-(Windows 10 version 2004 or later). The Teleprompter window is left out too. Neither is ever on the KingdomConnect
+(Windows 10 version 2004 or later). The Teleprompter window is left out too. Neither is ever on the FrameCast
 camera. See [Teleprompter overlay](presentations.md#teleprompter-overlay-meeting-leader-mode).
 
 **Does it work on a Mac?**
-No. Kingdom Connect is a Windows 10/11 app. The phone remote works on iPhone, iPad and Android.
+No. FrameDecks is a Windows 10/11 app. The phone remote works on iPhone, iPad and Android.
 
 ## Phone remote
 
@@ -154,7 +154,7 @@ Press **HIDE ALL** (or **Esc** on the PC), then put the right Frame back with **
 Yes. Write them in each Frame's **Teleprompter script** (Frame settings). Open it with **Program → Teleprompter** (**R**), in the **Teleprompter window** on a second screen, or with **TELEPROMPTER** on the phone remote. See [Presentations](presentations.md#teleprompter).
 
 **Can the audience see the teleprompter?**
-No. The Teleprompter is only for the presenter. It is never on the KingdomConnect camera, the Presentation window, the OBS pages or the phone's drawing pad.
+No. The Teleprompter is only for the presenter. It is never on the FrameCast camera, the Presentation window, the OBS pages or the phone's drawing pad.
 
 **Where did the answers and notes on my questions go?**
 Since 6.7, questions and scriptures have no Answer or Notes fields, and no screen shows them. Nothing was deleted from your data. When you import an older Meeting Workbook, its answers and notes go into the Frame's Teleprompter script.
@@ -165,9 +165,9 @@ Yes. Press **Ctrl+K** or **Ctrl+Space** to open the command palette. (There is n
 ## Data, privacy and offline use
 
 **Where is our data stored?**
-Only on your PC, in `%APPDATA%\Kingdom Connect`. Nothing is uploaded. There are no accounts and no cloud.
+Only on your PC, in `%APPDATA%\FrameDecks`. Nothing is uploaded. There are no accounts and no cloud.
 
-**Does Kingdom Connect work without the internet?**
+**Does FrameDecks work without the internet?**
 Yes. Everything works offline except fetching new ESV verses, and whatever your meeting app needs (Zoom itself needs the internet).
 
 **Are backups made?**
@@ -177,20 +177,20 @@ Yes, automatically once a day (the newest 10 are kept), plus **Back up now** in 
 The Members section stays on the PC. Member details are never sent to the phone remote or the overlay pages, and **Copy diagnostics** never includes them.
 
 **How do we move to a new PC?**
-Install Kingdom Connect on the new PC. On first run it offers to import data from an earlier installation, or copy your data folder across while the app is closed.
+Install FrameDecks on the new PC. On first run it offers to import data from an earlier installation, or copy your data folder across while the app is closed.
 
 ## Cost and licensing
 
 **Is there a subscription?**
-No. Kingdom Connect has no subscription, billing, accounts or per-seat fees.
+No. FrameDecks has no subscription, billing, accounts or per-seat fees.
 
 **What licence is it under?**
-The licence terms aren't published in the repository yet. Please ask the maintainer before redistributing or modifying it. The KingdomConnect camera driver is built from softcam (MIT licence); the background-blur model is from MediaPipe (Apache 2.0).
+The licence terms aren't published in the repository yet. Please ask the maintainer before redistributing or modifying it. The FrameCast camera driver is built from softcam (MIT licence); the background-blur model is from MediaPipe (Apache 2.0).
 
 ## Technical
 
 **Can I keep the app running without a taskbar button?**
-Yes. Select **Minimize** and choose **Hide To Tray**. Kingdom Connect keeps running from its icon near the clock: the camera, the overlays, the phone remote and the shortcuts keep working. Click the icon, or choose **Open App** in its menu, to bring the window back. To make it the default, tick **Remember my choice**, or set **Settings → General → Window and tray → Minimize button**.
+Yes. Select **Minimize** and choose **Hide To Tray**. FrameDecks keeps running from its icon near the clock: the camera, the overlays, the phone remote and the shortcuts keep working. Click the icon, or choose **Open App** in its menu, to bring the window back. To make it the default, tick **Remember my choice**, or set **Settings → General → Window and tray → Minimize button**.
 
 **What computer do we need?**
 A Windows 10 or 11 (64-bit) PC, plus a webcam if you want the camera picture. On older or busy PCs use 720p and light background blur; **Settings → Diagnostics** shows whether the PC keeps up (dropped frames should stay at 0).

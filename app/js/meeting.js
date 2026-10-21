@@ -1,4 +1,4 @@
-/* Kingdom Connect - live status (v6): the header chips for every output, the birthday panel's text and the
+/* FrameDecks - live status (v6): the header chips for every output, the birthday panel's text and the
  * keyboard hints. The Studio itself (scenes, layers, canvas, inspector, live bar) is js/workspace.js. */
 (function(){
 'use strict';
@@ -61,11 +61,11 @@ function chip(id, cls, text, title){                    // touches the page only
 }
 function renderProgram(){
   if (!Store.served) chip('h-program', 'info', 'No-install mode', 'Overlays update only in this browser. Start the program for OBS, Camo and the phone remote.');
-  else chip('h-program', Store.online ? 'ok' : 'bad', Store.online ? 'Connected' : 'Not responding', Store.online ? 'The local program is running' : 'Check the black Kingdom Connect window is open');
+  else chip('h-program', Store.online ? 'ok' : 'bad', Store.online ? 'Connected' : 'Not responding', Store.online ? 'The local program is running' : 'Check the black FrameDecks window is open');
   var set = window.KCMembersAPI ? window.KCMembersAPI.settings() : {};
   var br = window.KCStore && window.KCStore.brand ? window.KCStore.brand() : {};
   var t = br.meeting || set.meetingTitle || 'Meeting', g = String(br.org || set.groupName || '').trim();   // v6.2 Settings → Meeting & Branding first
-  var org = 'Kingdom Connect';
+  var org = 'FrameDecks';
   t = (g && t.indexOf(g) < 0 ? g + ' · ' : '') + t;      // e.g. "NLFM · Tuesday Evening Group"
   if ($('meeting-title').textContent !== t) $('meeting-title').textContent = t;
   var dt = t + ' · ' + org; if (document.title !== dt) document.title = dt;
@@ -78,7 +78,7 @@ Status.on('presence', function(p){
   var anyLive = live && (live.question.visible || live.verse.visible || live.birthday.visible);
   var vc = window.KCVcamStatus && window.KCVcamStatus();
   var onVcam = vc && vc.status && vc.status.state === 'live' && vc.settings && vc.settings.cards !== false;
-  if (onVcam && !n) chip('h-sources', 'ok', 'On camera', 'Your cards are shown on KingdomConnect');
+  if (onVcam && !n) chip('h-sources', 'ok', 'On camera', 'Your cards are shown on FrameCast');
   else if (n) chip('h-sources', 'ok', n + ' open', n + ' overlay page(s) open in OBS, Camo or a browser');
   else chip('h-sources', anyLive ? 'warn' : '', 'None open', anyLive ? 'Something is on screen, but no overlay page is open in OBS or Camo' : 'No overlay page is open yet');
 });
@@ -106,7 +106,7 @@ var slideInfo = null;
 window.KCSlideInfo = function(){ return slideInfo; };
 function renderRunning(){
   var ss = window.KCStudio && window.KCStudio.state ? window.KCStudio.state() : null, rec = ss && ss.recording;
-  var hr = $('h-rec'); if (hr){ var on = !!(rec && rec.on); if (hr.hidden === on) hr.hidden = !on; if (on) chip('h-rec', 'rec', fmtTime(rec.seconds), 'Recording the KingdomConnect output (Settings → Recording)'); }
+  var hr = $('h-rec'); if (hr){ var on = !!(rec && rec.on); if (hr.hidden === on) hr.hidden = !on; if (on) chip('h-rec', 'rec', fmtTime(rec.seconds), 'Recording the FrameCast output (Settings → Recording)'); }
   var pr = slideInfo && slideInfo.presentation, hs = $('h-slides');
   if (hs){ if (hs.hidden === !!pr) hs.hidden = !pr; if (pr) chip('h-slides', 'ok', pr.page ? pr.page + (pr.pages ? '/' + pr.pages : '') : 'Ready', 'Slides: ' + (pr.name || 'presentation')); }
 }

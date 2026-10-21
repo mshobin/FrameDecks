@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to Kingdom Connect are recorded here. The format follows
+All notable changes to FrameDecks (earlier: FrameDecks) are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are numbered **major.minor** (see
 [docs/development/changelog-standards.md](docs/development/changelog-standards.md)). Each version links to its full
 release notes in [`docs/releases/`](docs/releases/). Dates are the dates of the release commits.
@@ -10,12 +10,37 @@ Versions before 4.9 (when the program had its earlier name) are described in the
 
 ## [Unreleased]
 
+### Changed
+- **The program is now FrameDecks** — *Present • Equip • Inspire*. Every name people read is updated: window titles,
+  the About page, the sign-in screens, messages, the installer, the store and web metadata (including Open Graph), and
+  the documentation.
+  - A new logo system replaces every icon, favicon, launcher icon and splash. It comes in horizontal, stacked and
+    icon-only versions, each for light and dark backgrounds, plus Teams, Zoom and marketing pictures. All are drawn by
+    `tools/make_brand_assets.py`. Guide: [docs/brand/framedecks-brand-guide.md](docs/brand/framedecks-brand-guide.md).
+  - Every internal name is FrameDecks too: the program (**FrameDecks.exe** in `%LOCALAPPDATA%\Programs\FrameDecks`),
+    the installer (`FrameDecks v<version>.exe`), the data and recordings folders, the firewall rule, the start files,
+    the Meeting Workbook and downloads, and the Flutter app (`framedecks_app`, IDs `org.framedecks.framedecks`).
+  - The virtual camera is now **FrameCast**. It keeps its camera ID, so Zoom, Teams and OBS keep the device and show the
+    new name.
+  - Updating keeps everything: data and recordings move to the new folders on first start (`legacy.py`), the installer
+    removes the earlier program folder and shortcuts, and the old firewall rule is replaced when the phone remote is
+    allowed again (Settings → Phone & iPad Remote).
+
 ### Added
-- **Kingdom Connect for every platform (Flutter)** in `kingdom_connect_app/`: a native rebuild of the Windows app
+- **Decks: Frame → Deck → Content.** A Frame now holds one or more Decks, and each Deck holds its Content. One Deck is
+  on screen at a time; Next and Previous (PC, phone, Auto advance) step through the live Frame's Decks before moving to
+  the next Frame.
+  - The Content list groups Content under Deck headings: show a Deck now, rename, reorder, delete, **+ Deck**, **Move to
+    Deck**. The phone shows "Deck 2 of 3 · name"; FrameCast shows the live Deck's camera and media; the Meeting Workbook
+    has an optional **Deck** column.
+  - Existing Frames get one Deck holding all their Content, so they look and work as before. A file saved now still
+    opens in an earlier version (all of a Frame's Content as one list).
+  - The Flutter app has the same Decks, checked against `store.js` with parity tests.
+- **FrameDecks for every platform (Flutter)** in `framedecks_app/`: a native rebuild of the Windows app
   with the same design, Frames and saved file.
   - Windows, macOS and Linux get the Studio (top bar, Frames, Content, canvas, inspector, Settings) and a
     full-screen Share Window.
-  - iPhone, iPad and Android get the remote control for Kingdom Connect on the PC, signed in with its PIN.
+  - iPhone, iPad and Android get the remote control for FrameDecks on the PC, signed in with its PIN.
   - Its engine is a port of `store.js`, checked against the JavaScript with parity tests.
 
   Plan and what still lives only in the Windows program:
@@ -41,9 +66,9 @@ Full notes: [docs/releases/v6.9.md](docs/releases/v6.9.md)
 - `tests/test_meeting_form.py`.
 
 ### Changed
-- The program now uses the Kingdom Connect name everywhere: the program (`Kingdom Connect.exe`), the program folder,
-  the data folder (`%APPDATA%\Kingdom Connect`), the data files (`kc-*.json`), the start files, the recordings folder,
-  the firewall rule and the Share Window title (*Kingdom Connect Share Window*). Default labels and the About text no
+- The program now uses the FrameDecks name everywhere: the program (`FrameDecks.exe`), the program folder,
+  the data folder (`%APPDATA%\FrameDecks`), the data files (`kc-*.json`), the start files, the recordings folder,
+  the firewall rule and the Share Window title (*FrameDecks Share Window*). Default labels and the About text no
   longer mention the program's earlier name, and the default Group Name is empty.
 - On first start, 6.9 moves data saved by earlier versions (folder, files, backups, recordings and browser settings)
   to the new names once, never overwriting newer data. The installer installs over every earlier version and removes
@@ -199,7 +224,7 @@ Full notes: [docs/releases/v6.4.md](docs/releases/v6.4.md)
 - New guides: user, installation, configuration and feature documentation.
 
 ### Changed
-- The camera is called **KingdomConnect** in Zoom, Teams, Google Meet and OBS (same device ID as before).
+- The camera is called **FrameCast** in Zoom, Teams, Google Meet and OBS (same device ID as before).
 - The app shows only the Book + Candle logo as its branding.
 - The installed app is a real desktop window: no address bar or browser controls, and the title bar follows the
   theme.
@@ -234,7 +259,7 @@ Full notes: [docs/releases/v6.1.md](docs/releases/v6.1.md)
   Library of ready-made scenes; Duplicate & edit question.
 
 ### Changed
-- The program got its current name, **Kingdom Connect**, with a navy and gold design in dark and light
+- The program got its current name, **FrameDecks**, with a navy and gold design in dark and light
   themes, and a new About page.
 
 ## [6.0] - 2026-10-12

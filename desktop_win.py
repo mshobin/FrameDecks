@@ -1,4 +1,4 @@
-"""Kingdom Connect 6.8 - Windows window features, in one place (ctypes only; no new packages).
+"""FrameDecks 6.8 - Windows window features, in one place (ctypes only; no new packages).
 
   * mouse_move_or_size()   move the window, or resize it from an edge, following the mouse (on the UI thread)
   * Chrome(hwnd)            the app's own ribbon instead of the Windows title bar, keeping everything Windows does for a
@@ -11,7 +11,7 @@
                             Windows shows it black in captures instead.
   * center_on_cursor(hwnd)  centre a window on the monitor the mouse is on.
   * bring_to_front(hwnd)    show and focus a window, also when another program is in front.
-  * Hotkeys(callback)       system-wide shortcuts (RegisterHotKey) that work while Kingdom Connect is in the tray.
+  * Hotkeys(callback)       system-wide shortcuts (RegisterHotKey) that work while FrameDecks is in the tray.
 
 Every function does nothing on other systems and never raises: if Windows refuses something, the window simply keeps
 the standard look and behaviour.

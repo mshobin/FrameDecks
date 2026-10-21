@@ -1,14 +1,14 @@
-# Kingdom Connect on Flutter: the same app on every platform
+# FrameDecks on Flutter: the same app on every platform
 
 Status: **Studio and phone remote built** (October 2026).
 
-The Flutter app in [`kingdom_connect_app/`](../../kingdom_connect_app/) is a native rebuild of the Windows app: the
+The Flutter app in [`framedecks_app/`](../../framedecks_app/) is a native rebuild of the Windows app: the
 same design, the same Frames and Content, the same saved file. It is not a new product.
 
 | Device | What it is |
 |---|---|
 | Windows, macOS, Linux | The **Studio**: top bar, Frames, Content, canvas, inspector, Settings, and a full-screen **Share Window** for the projector or for sharing in Zoom / Teams |
-| iPhone, iPad, Android | The **remote control** for Kingdom Connect on the PC (remote.html): PIN sign-in, Live, Frames, Content, Teleprompter. On a tablet the three are side by side |
+| iPhone, iPad, Android | The **remote control** for FrameDecks on the PC (remote.html): PIN sign-in, Live, Frames, Content, Teleprompter. On a tablet the three are side by side |
 
 ## 1. How it stays the same as the Windows app
 
@@ -28,7 +28,7 @@ same design, the same Frames and Content, the same saved file. It is not a new p
 
 | Situation | Backend |
 |---|---|
-| Desktop, Kingdom Connect (Windows program) running on this PC | `EngineBackend` on `127.0.0.1:8750`: the same long-poll and save-with-revision as store.js, 409 = someone saved first, make the change again on top |
+| Desktop, FrameDecks (Windows program) running on this PC | `EngineBackend` on `127.0.0.1:8750`: the same long-poll and save-with-revision as store.js, 409 = someone saved first, make the change again on top |
 | Desktop, no program running (Mac, Linux, or a PC without it) | `LocalBackend`: `kc-saved-content.json` in the app's support folder, written atomically |
 | Phone or tablet | `EngineBackend` to the PC's address, signed in with the PIN (`api/remote-login`); the sign-in is kept in the device's secure storage |
 
@@ -55,7 +55,7 @@ Stated plainly so nobody expects them in this version:
 
 1. Camera, screen, window, image, video and PowerPoint Content (capture and media). The Flutter Studio shows them in
    the list and lets you rename, show, hide and delete them; the Windows program draws them.
-2. The **KingdomConnect camera**: on Windows a new Windows 11 camera built on Media Foundation (no administrator
+2. The **FrameCast camera**: on Windows a new Windows 11 camera built on Media Foundation (no administrator
    permission, Store-ready) is next; on the Mac a CoreMediaIO Camera Extension follows the port (see §6).
 3. Members, birthdays and email; the Meeting Workbook; the command palette; Annotate; the Teleprompter dock.
 4. The Flutter desktop hosting the phone remote itself (today phones connect to the Windows program).
@@ -63,7 +63,7 @@ Stated plainly so nobody expects them in this version:
 ## 5. Build and test
 
 ```bash
-cd kingdom_connect_app
+cd framedecks_app
 flutter pub get
 flutter analyze
 flutter test                                   # parity with store.js, the backends, the Studio and the remote
@@ -77,7 +77,7 @@ CI (`.github/workflows/flutter-app.yml`) analyses, tests, and builds Windows, ma
 
 | Store | Status |
 |---|---|
-| Microsoft Store | The Studio packages as MSIX. The current KingdomConnect camera (softcam, a DirectShow filter registered with `regsvr32` as administrator during install) does not meet the Store's rules for a silent, per-user install. It is being replaced by a Windows 11 Media Foundation virtual camera (`MFCreateVirtualCamera`, current-user access, no administrator permission). |
+| Microsoft Store | The Studio packages as MSIX. The current FrameCast camera (softcam, a DirectShow filter registered with `regsvr32` as administrator during install) does not meet the Store's rules for a silent, per-user install. It is being replaced by a Windows 11 Media Foundation virtual camera (`MFCreateVirtualCamera`, current-user access, no administrator permission). |
 | Mac App Store | The Studio is sandbox-friendly (its own file, local network to the PC). A virtual camera, when added, must be a CoreMediaIO Camera Extension (a system extension inside the app, sandboxed, sharing an app group); the old DAL plug-ins are not allowed. Needs signing with the Apple Developer account. |
 | App Store (iPhone, iPad) | Remote only. iOS has no virtual cameras, and the remote does not use the camera. Needs the local-network usage description and signing. |
 | Google Play | Remote only. Needs signing and the target-SDK level Play asks for at the time. |

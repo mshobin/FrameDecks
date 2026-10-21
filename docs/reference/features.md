@@ -1,9 +1,9 @@
-# Kingdom Connect: feature documentation (v6.9)
+# FrameDecks: feature documentation (v6.9)
 
 ## v6.9 at a glance
 | Feature | What it does | Where it lives |
 | --- | --- | --- |
-| **Meeting Workbook: Dashboard + Meeting Form** | Two tabs only. **Meeting Form**: one guided page in numbered sections (1 · Meeting details, 2 · Speaker, 3 · Attendees, 4 · Presentation, 5 · Frames, 6 · Content, 7 · Discussion questions, 8 · Scripture readings, 9 · Additional notes); cream boxes to type in, drop-downs in the cells, a few open rows per table and more behind Excel's **+** button (Frames 60, Content 150, questions 150, scriptures 100). **Dashboard**: formulas only, never imported: status pill, This meeting, counts, Meetings tiles, Readiness (x / 6), Quick actions, Content mix chart, Recent meetings log | `meeting_form.py`, `tools/make_meeting_workbook.py`, `app/templates/Kingdom-Connect-Meeting-Workbook.xlsx` |
+| **Meeting Workbook: Dashboard + Meeting Form** | Two tabs only. **Meeting Form**: one guided page in numbered sections (1 · Meeting details, 2 · Speaker, 3 · Attendees, 4 · Presentation, 5 · Frames, 6 · Content, 7 · Discussion questions, 8 · Scripture readings, 9 · Additional notes); cream boxes to type in, drop-downs in the cells, a few open rows per table and more behind Excel's **+** button (Frames 60, Content 150, questions 150, scriptures 100). **Dashboard**: formulas only, never imported: status pill, This meeting, counts, Meetings tiles, Readiness (x / 6), Quick actions, Content mix chart, Recent meetings log | `meeting_form.py`, `tools/make_meeting_workbook.py`, `app/templates/FrameDecks-Meeting-Workbook.xlsx` |
 | **Meeting Form import** | Finds the details by their labels and the tables by their **Frame #** header rows, so a hand-made form in the same style imports too. Problems read *Meeting Form · Content · row 26: …*. Workbooks from 6.5–6.8 (one sheet per list) and the 6.2 one-sheet template still import | `app/js/meeting-book.js`, `app/js/import-worker.js` |
 | **Meeting Form export** | The program fills the template (`POST api/meeting/workbook`), so the export has the same Dashboard and Meeting Form. Without the program, or when a table is longer than the form, a plain one-sheet Meeting Form. Both import again | `app/js/meeting-import.js`, `server.py`, `meeting_form.py` |
 | **Meeting details** | The meeting keeps title, date, time, location, speaker (`presenter`), contact, attendees, attendee notes, owner, content notes, notes and additional notes (`extra`) | `app/js/store.js` (`meeting`) |
@@ -53,20 +53,20 @@ above describes them as they are now.
 | **Independent Frames** | Each Question / Scripture Content owns its list (`layer.c.items`) and its appearance (`layer.c.look`). Duplicate gives new ids to the Frame, every Content and every item. Older data is converted on load with ids derived from the old ones | `app/js/store.js` (`ownLists`, `freshIds`, `applyLook`) |
 | **Content Settings** | One panel per selection, every setting visible in groups (Content, Appearance, Position, Timing, Animation, Media, Behavior); no Basic / Advanced | `app/js/workspace.js` (`renderInspector`) |
 | **Question / Scripture lists** | Full-height list; click = current, double-click = edit in the same panel (label, text, answer, notes, transition) | `app/js/frame-lists.js` |
-| **Annotate** | Pen, highlighter, arrow, line, rectangle, ellipse, text; colours, thickness, undo / redo / clear; above all Content, PowerPoint and cards on KingdomConnect, the overlay pages and the phone | `app/js/annotate.js`, `vcam/annotate.py`, state `live.ink` |
+| **Annotate** | Pen, highlighter, arrow, line, rectangle, ellipse, text; colours, thickness, undo / redo / clear; above all Content, PowerPoint and cards on FrameCast, the overlay pages and the phone | `app/js/annotate.js`, `vcam/annotate.py`, state `live.ink` |
 | **Freeze / Black screen** | Hold the picture (drawings stay on top) / black picture; keys F and K | `vcam/program.py`, state `live.freeze`, `live.blackout` |
 | **PowerPoint** | A .pptx becomes slides via the installed PowerPoint (COM SaveAs PDF); a live window keeps animations; **Show objects only** keys out a plain slide background | `vcam/powerpoint.py` (`pptx_to_pdf`), `vcam/layers.py` (`key_background`), `docs/reference/powerpoint.md` |
 | **Simple / Advanced remote** | Simple (default): Frame and Content steppers, Annotate, Freeze, Black Screen. Advanced: search, notes, run-through, PowerPoint, annotation | `app/remote.html`, `app/js/remote.js` |
 | **Meeting Workbook** | Five-sheet Excel template (two tabs since 6.9) with drop-downs, import with preview, export | `app/js/meeting-book.js`, `tools/make_meeting_workbook.py` |
 | **No collaboration** | Team Space removed; local save, autosave, export, backups and Frame history remain | — |
 
-The rest of this document describes the v6.4 features that are still current: the KingdomConnect camera, logo-only
+The rest of this document describes the v6.4 features that are still current: the FrameCast camera, logo-only
 branding and native desktop behaviour.
 
 
 This document describes what each v6.4 feature does, how it is built and where its limits are:
 
-- the KingdomConnect camera;
+- the FrameCast camera;
 - logo-only branding;
 - native desktop behaviour.
 
@@ -75,42 +75,42 @@ For the earlier features, see `docs/reference/meeting-workbook-and-branding.md` 
 
 ---
 
-## 1. The KingdomConnect camera
+## 1. The FrameCast camera
 
-Kingdom Connect has its own camera for Zoom, Microsoft Teams, Google Meet, OBS and other apps that read Windows
-cameras. Windows lists it as **KingdomConnect**. It sends the finished picture: your webcam with optional background
+FrameDecks has its own camera for Zoom, Microsoft Teams, Google Meet, OBS and other apps that read Windows
+cameras. Windows lists it as **FrameCast**. It sends the finished picture: your webcam with optional background
 blur and a Camera Look, plus the live scene (cards, text, pictures, slides, branding).
 
 | | |
 | --- | --- |
-| Name in other apps | **KingdomConnect** |
-| Registered by | The installer, with the option **Install the KingdomConnect camera for Zoom and Teams** (asks for administrator permission once) |
-| Driver files | `kingdomconnect_vcam64.dll` and `kingdomconnect_vcam32.dll` in `_internal\vcam\bin`. They are built from softcam (MIT licence) by `packaging/build_vcam.py` |
+| Name in other apps | **FrameCast** |
+| Registered by | The installer, with the option **Install the FrameCast camera for Zoom and Teams** (asks for administrator permission once) |
+| Driver files | `framecast_vcam64.dll` and `framecast_vcam32.dll` in `_internal\vcam\bin`. They are built from softcam (MIT licence) by `packaging/build_vcam.py` |
 | Camera ID (CLSID) | `{6F2B8C3E-4D7A-4B9E-9C11-B5CC0A1E7D21}`. This is the same ID as before, so apps that remembered the camera keep it |
-| Settings | **Settings → KingdomConnect Camera** |
-| Status | The status menu in the command bar: **KingdomConnect** · Off / Ready / In use |
+| Settings | **Settings → FrameCast Camera** |
+| Status | The status menu in the command bar: **FrameCast** · Off / Ready / In use |
 
 ### Upgrading from the camera's earlier name
 Before 6.4 the same camera had an earlier name. Installing 6.4 does the following:
 - It registers the camera again under its new name. This happens even if the option is not ticked, as long as the
   camera was already installed, because the driver file was renamed.
-- Zoom, Teams, Meet and OBS show **KingdomConnect** after they are restarted. They read the camera list when they
+- Zoom, Teams, Meet and OBS show **FrameCast** after they are restarted. They read the camera list when they
   start.
-- An OBS scene that used the camera under its earlier name as a *Video Capture Device* may need that source pointed at KingdomConnect once.
+- An OBS scene that used the camera under its earlier name as a *Video Capture Device* may need that source pointed at FrameCast once.
 
 The app also still recognises its old name, so it never captures its own picture during the upgrade.
 
 ### Limits
 - Windows only (DirectShow). Apps that read only Media Foundation cameras without the Windows 11 DirectShow bridge
   may not list it. Zoom, Teams, Google Meet in Chrome or Edge, and OBS do list it.
-- One app at a time can use the webcam behind it. Choose KingdomConnect in every meeting app, not the webcam itself.
+- One app at a time can use the webcam behind it. Choose FrameCast in every meeting app, not the webcam itself.
 
 ---
 
 ## 2. Team Space (removed in v6.5)
 
 Team Space (co-leaders' presence, shared notes and actions, Ask to Go Live over WireGuard) was removed in v6.5 to keep
-Kingdom Connect a simple, single-PC app. No settings, listener or peer protocol remain. Old `kc-teamspace*.json`
+FrameDecks a simple, single-PC app. No settings, listener or peer protocol remain. Old `kc-teamspace*.json`
 files in the data folder are ignored and can be deleted. Meetings are shared by **exporting** them (Excel Meeting
 Workbook or a Frame file) instead.
 
@@ -119,13 +119,13 @@ Workbook or a Frame file) instead.
 ## 3. Logo-only branding
 
 The app's own branding is the **Book + Candle** mark (`app/img/kc-emblem.webp`) and nothing else:
-- **Command bar (dashboard header):** the mark alone, 30 px wide. There is no "Kingdom Connect" wordmark or text
+- **Command bar (dashboard header):** the mark alone, 30 px wide. There is no "FrameDecks" wordmark or text
   beside it. The name and the Meeting Name are kept for screen readers, in the mark's tooltip and in the window
   title.
 - **Phone remote:** the sign-in screen shows the mark alone, and the remote's top bar shows the mark and the mode
   (Simple / Standard / Advanced).
 - **Home-screen icons** (`app/icons/remote-*.png`): the mark on a navy tile, with no text. The Windows app icon
-  (`packaging/kingdom-connect.ico`) was already the mark alone.
+  (`packaging/framedecks.ico`) was already the mark alone.
 - **Dialogs and overlays** show no product branding. The leader's own logo and Meeting Name (Settings → Meeting &
   Branding) still appear only where the leader puts them.
 - **About page:** unchanged. It keeps its own branding and content.

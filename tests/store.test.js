@@ -1,4 +1,4 @@
-/* Kingdom Connect - store tests (app/js/store.js, run in Node with small browser stand-ins).
+/* FrameDecks - store tests (app/js/store.js, run in Node with small browser stand-ins).
  * Frames own their lists, duplicates are independent, older data converts the same way every time,
  * and an older Frame-wide output switch moves onto its Content (v6.6). Run: node tests/run.js */
 const env = require('./helpers/load-store.js')(), SC = env.Scenes, assert = require('assert');
@@ -58,5 +58,47 @@ const br = env.Store.normalize({v6: true, scenes: [{id: 'sc_b1', name: 'B', laye
 const [b1, b2] = br.scenes[0].layers;
 assert.deepStrictEqual([b1.c.plate, b1.c.pad, b1.c.margin, b1.c.pos], [true, 1, 4, 'upper-left'], 'older badges look the same');
 assert.deepStrictEqual([b2.c.plate, b2.c.pad, b2.c.margin, b2.c.scale], [false, 3, 0, 0.75], 'new values are kept within range');
+
+/* ---------- FrameDecks: Frame -> Deck -> Content ---------- */
+// an older Frame gets one Deck ('d1', the same on every screen) holding all its Content
+const fd = env.Store.normalize({v6: true, scenes: [
+  {id: 'sc_1', name: 'Study', layers: [{id: 'A1', kind: 'announcement', c: {title: 'Welcome', text: 'Hi'}}, {id: 'Q1', kind: 'question', c: {items: [{id: 'q1', text: 'One?'}]}}]},
+  {id: 'sc_2', name: 'Close', layers: [{id: 'P1', kind: 'prayer', c: {title: 'Pray', text: 'Amen'}}]}]});
+const s1 = fd.scenes[0];
+assert.deepStrictEqual(JSON.parse(JSON.stringify(s1.decks)), [{id: 'd1', name: 'Deck 1'}]);
+assert.ok(s1.layers.every(l => l.deck === 'd1'));
+assert.strictEqual(JSON.stringify(env.Store.normalize(JSON.parse(JSON.stringify(fd))).scenes), JSON.stringify(fd.scenes), 'stable');
+// with one Deck everything behaves as before: Go Live shows all the Content
+SC.take(fd, 'sc_1', 'cut');
+assert.strictEqual(fd.live.deck, 'd1'); assert.ok(fd.live.on.A1); assert.ok(fd.question.visible);
+// a second Deck: the question moves there; Go Live shows Deck 1 only
+const dk2 = SC.addDeck(s1, 'Discussion'); assert.strictEqual(s1.decks.length, 2); assert.strictEqual(dk2.name, 'Discussion');
+SC.moveToDeck(fd, s1, ['Q1'], dk2.id);
+assert.strictEqual(fd.live.deck, 'd1'); assert.ok(fd.live.on.A1); assert.strictEqual(fd.question.visible, false, 'Deck 2 is not on screen');
+assert.strictEqual(SC.layerOn(fd, s1, SC.layer(s1, 'Q1')), false);
+// Next: the next Deck of the live Frame, then the next Frame; Previous goes back through the Decks
+assert.strictEqual(SC.stepTarget(fd, 1).deck.id, dk2.id);
+SC.step(fd, 1, 'cut');
+assert.strictEqual(fd.live.scene, 'sc_1'); assert.strictEqual(fd.live.deck, dk2.id);
+assert.ok(!fd.live.on.A1, 'Deck 1 left the screen'); assert.ok(fd.question.visible); assert.strictEqual(fd.question.text, 'One?');
+SC.step(fd, 1, 'cut'); assert.strictEqual(fd.live.scene, 'sc_2'); assert.strictEqual(fd.live.deck, 'd1'); assert.ok(fd.live.on.P1);
+SC.step(fd, -1, 'cut'); assert.strictEqual(fd.live.scene, 'sc_1'); assert.strictEqual(fd.live.deck, dk2.id, 'back to the last Deck');
+SC.step(fd, -1, 'cut'); assert.strictEqual(fd.live.deck, 'd1');
+// the eye of Content in another Deck changes the Deck, not the screen
+SC.toggleVisible(fd, 'sc_1', 'Q1'); assert.strictEqual(SC.layer(s1, 'Q1').visible, false); assert.strictEqual(fd.question.visible, false);
+SC.toggleVisible(fd, 'sc_1', 'Q1'); assert.strictEqual(SC.layer(s1, 'Q1').visible, true);
+// Content added without a Deck belongs to the first one
+s1.layers.push({id: 'X1', kind: 'announcement', name: 'New', visible: true, c: {title: 'x', text: 'y'}}); SC.fixDecks(fd);
+assert.strictEqual(SC.layer(s1, 'X1').deck, 'd1');
+// deleting a Deck deletes its Content; the last Deck stays
+SC.step(fd, 1, 'cut'); assert.strictEqual(fd.live.deck, dk2.id);
+assert.ok(SC.removeDeck(fd, s1, dk2.id)); assert.strictEqual(s1.decks.length, 1); assert.ok(!SC.layer(s1, 'Q1'));
+assert.strictEqual(fd.live.deck, 'd1', 'the live Deck moved to its neighbour');
+assert.strictEqual(SC.removeDeck(fd, s1, 'd1'), false, 'a Frame keeps one Deck');
+// a duplicate keeps the Decks; the preview of a Deck shows only that Deck
+const d2 = SC.addDeck(s1, ''); assert.strictEqual(d2.name, 'Deck 2');
+SC.moveToDeck(fd, s1, ['X1'], d2.id);
+const dup = SC.duplicate(fd, 'sc_1', {}); assert.strictEqual(dup.decks.length, 2); assert.strictEqual(dup.layers.filter(l => l.deck === d2.id).length, 1);
+const pv = SC.previewState(fd, 'sc_1', d2.id); assert.strictEqual(pv.live.deck, d2.id); assert.ok(pv.live.on[SC.deckLayers(SC.find(pv, 'sc_1'), d2.id)[0].id]);
 
 console.log('store: OK');

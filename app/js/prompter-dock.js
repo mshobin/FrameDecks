@@ -1,4 +1,4 @@
-/* Kingdom Connect v6.7 - the Teleprompter in the main window: docked left, right or bottom, or floating.
+/* FrameDecks v6.7 - the Teleprompter in the main window: docked left, right or bottom, or floating.
  * It shows the script of the Frame on screen (or of the selected Frame while nothing is live, so you can rehearse).
  * "Window" opens the same Teleprompter in its own window (for a second screen). Closed, it does no work at all. */
 (function(){

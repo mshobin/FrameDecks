@@ -1,7 +1,7 @@
-; Inno Setup script for the Kingdom Connect Windows installer.
-; 6.9: the program folder, the exe and the data folder carry the Kingdom Connect name. The AppId stays the same, so this
-; installs over every earlier version; the old program folder and shortcuts are removed, and the app moves the data
-; folder itself on first start (legacy.py).
+; Inno Setup script for the FrameDecks Windows installer.
+; The program is FrameDecks.exe in the FrameDecks program folder; its data is in %APPDATA%\FrameDecks. The AppId stays
+; the same, so this installs over every earlier version: the program folders and shortcuts of the earlier names are
+; removed, and the app moves data saved under those names itself on first start (legacy.py).
 ; Build (after PyInstaller):  ISCC.exe /DAppVersion=3.0 packaging\installer.iss
 ; Installs for the current user only: no administrator permission needed, updates never need it either.
 
@@ -12,29 +12,29 @@
 [Setup]
 ; Keep this AppId the same forever, so new versions install over old ones
 AppId={{D0EFEBEA-94E5-50C7-A69D-45F04529103B}
-AppName=Kingdom Connect
+AppName=FrameDecks
 AppVersion={#AppVersion}
-AppVerName=Kingdom Connect {#AppVersion}
+AppVerName=FrameDecks {#AppVersion}
 AppPublisher=Shobin Mathews
 AppContact=mshobin@gmail.com
 AppSupportURL=mailto:mshobin@gmail.com
 AppComments=Independent ministry tool by Shobin Mathews.
 VersionInfoVersion={#AppVersion}
 VersionInfoCompany=Shobin Mathews
-VersionInfoDescription=Kingdom Connect Setup
+VersionInfoDescription=FrameDecks Setup
 VersionInfoCopyright=Copyright (C) Shobin Mathews
-DefaultDirName={localappdata}\Programs\Kingdom Connect
-; earlier versions were installed under the program's earlier name: install to the Kingdom Connect folder instead
+DefaultDirName={localappdata}\Programs\FrameDecks
+; earlier versions were installed under the program's earlier names: install to the FrameDecks folder instead
 UsePreviousAppDir=no
 DisableDirPage=yes
-DefaultGroupName=Kingdom Connect
+DefaultGroupName=FrameDecks
 DisableProgramGroupPage=yes
 PrivilegesRequired=lowest
 OutputDir=..\dist
-OutputBaseFilename=Kingdom Connect v{#AppVersion}
-SetupIconFile=kingdom-connect.ico
-UninstallDisplayIcon={app}\Kingdom Connect.exe
-UninstallDisplayName=Kingdom Connect
+OutputBaseFilename=FrameDecks v{#AppVersion}
+SetupIconFile=framedecks.ico
+UninstallDisplayIcon={app}\FrameDecks.exe
+UninstallDisplayName=FrameDecks
 Compression=lzma2
 SolidCompression=yes
 WizardStyle=modern
@@ -45,11 +45,11 @@ RestartApplications=no
 
 [Tasks]
 Name: "desktopicon"; Description: "Create a desktop icon"; GroupDescription: "Icons:"
-Name: "vcam"; Description: "Install the KingdomConnect camera for Zoom and Teams (Windows asks for administrator permission)"; GroupDescription: "Options:"
-Name: "startup"; Description: "Start Kingdom Connect automatically when I sign in to Windows"; GroupDescription: "Options:"; Flags: unchecked
+Name: "vcam"; Description: "Install the FrameCast camera for Zoom and Teams (Windows asks for administrator permission)"; GroupDescription: "Options:"
+Name: "startup"; Description: "Start FrameDecks automatically when I sign in to Windows"; GroupDescription: "Options:"; Flags: unchecked
 
 [Files]
-Source: "..\dist\Kingdom Connect\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\dist\FrameDecks\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [InstallDelete]
 ; remove files left by an older version before copying the new ones
@@ -59,19 +59,25 @@ Type: filesandordirs; Name: "{localappdata}\Programs\BSF Command Center"
 Type: files; Name: "{autoprograms}\BSF Command Center.lnk"
 Type: files; Name: "{autodesktop}\BSF Command Center.lnk"
 Type: files; Name: "{userstartup}\BSF Command Center.lnk"
+; LEGACY: the program folder and shortcuts of the versions published as Kingdom Connect (the camera is registered
+; again from the new folder, see ShouldRegisterCamera)
+Type: filesandordirs; Name: "{localappdata}\Programs\Kingdom Connect"
+Type: files; Name: "{autoprograms}\Kingdom Connect.lnk"
+Type: files; Name: "{autodesktop}\Kingdom Connect.lnk"
+Type: files; Name: "{userstartup}\Kingdom Connect.lnk"
 
 [Icons]
-Name: "{autoprograms}\Kingdom Connect"; Filename: "{app}\Kingdom Connect.exe"
-Name: "{autodesktop}\Kingdom Connect"; Filename: "{app}\Kingdom Connect.exe"; Tasks: desktopicon
-Name: "{userstartup}\Kingdom Connect"; Filename: "{app}\Kingdom Connect.exe"; Tasks: startup
+Name: "{autoprograms}\FrameDecks"; Filename: "{app}\FrameDecks.exe"
+Name: "{autodesktop}\FrameDecks"; Filename: "{app}\FrameDecks.exe"; Tasks: desktopicon
+Name: "{userstartup}\FrameDecks"; Filename: "{app}\FrameDecks.exe"; Tasks: startup
 
 [Run]
-Filename: "{app}\_internal\vcam\bin\register-kingdomconnect-camera.cmd"; Verb: "runas"; Flags: shellexec waituntilterminated runhidden; Check: ShouldRegisterCamera; StatusMsg: "Installing the KingdomConnect camera..."
-Filename: "{app}\Kingdom Connect.exe"; Description: "Open Kingdom Connect now"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\_internal\vcam\bin\register-framecast-camera.cmd"; Verb: "runas"; Flags: shellexec waituntilterminated runhidden; Check: ShouldRegisterCamera; StatusMsg: "Installing the FrameCast camera..."
+Filename: "{app}\FrameDecks.exe"; Description: "Open FrameDecks now"; Flags: nowait postinstall skipifsilent
 
 [UninstallRun]
-Filename: "{app}\_internal\vcam\bin\unregister-kingdomconnect-camera.cmd"; Verb: "runas"; Flags: shellexec waituntilterminated runhidden; RunOnceId: "RemoveKingdomConnectCamera"
-Filename: "{sys}\taskkill.exe"; Parameters: "/IM ""Kingdom Connect.exe"" /F"; Flags: runhidden; RunOnceId: "StopApp"
+Filename: "{app}\_internal\vcam\bin\unregister-framecast-camera.cmd"; Verb: "runas"; Flags: shellexec waituntilterminated runhidden; RunOnceId: "RemoveFrameCastCamera"
+Filename: "{sys}\taskkill.exe"; Parameters: "/IM ""FrameDecks.exe"" /F"; Flags: runhidden; RunOnceId: "StopApp"
 
 [Code]
 const
@@ -85,7 +91,7 @@ begin
             (RegQueryStringValue(HKCU, WebView2KeyUser, 'pv', v) and (v <> '') and (v <> '0.0.0.0'));
 end;
 
-// The KingdomConnect camera keeps the camera ID it had as "BCC vCam", so Zoom, Teams and OBS see the same device
+// The FrameCast camera keeps the camera ID it had as "BCC vCam", so Zoom, Teams and OBS see the same device
 // under its new name. Its driver file was renamed in 6.4, so a PC that already has the camera registers it again
 // (pointing Windows at the new file) even when the option is not ticked this time.
 const
@@ -101,11 +107,12 @@ begin
   Result := WizardIsTaskSelected('vcam') or CameraRegistered;
 end;
 
-// LEGACY (6.9): an earlier version still running under the earlier exe name is closed first, so its folder can go
+// LEGACY: a version still running under an earlier exe name is closed first, so its folder can go
 function PrepareToInstall(var NeedsRestart: Boolean): String;
 var code: Integer;
 begin
   Exec(ExpandConstant('{sys}\taskkill.exe'), '/IM "BSF Command Center.exe" /F', '', SW_HIDE, ewWaitUntilTerminated, code);
+  Exec(ExpandConstant('{sys}\taskkill.exe'), '/IM "Kingdom Connect.exe" /F', '', SW_HIDE, ewWaitUntilTerminated, code);   // the exe of the versions before
   Result := '';
 end;
 
@@ -114,7 +121,7 @@ begin
   Result := True;
   if not HasWebView2 then
     MsgBox('Microsoft Edge WebView2 (a free Windows component) was not found.' + #13#10 + #13#10 +
-           'Kingdom Connect will still work, but it will open in your web browser instead of its own window.' + #13#10 +
+           'FrameDecks will still work, but it will open in your web browser instead of its own window.' + #13#10 +
            'To get the app window, install "WebView2 Runtime" from microsoft.com (search "WebView2 Runtime download").',
            mbInformation, MB_OK);
 end;
@@ -124,9 +131,9 @@ var dataDir: String;
 begin
   if CurUninstallStep = usPostUninstall then
   begin
-    dataDir := ExpandConstant('{userappdata}\Kingdom Connect');
+    dataDir := ExpandConstant('{userappdata}\FrameDecks');
     if DirExists(dataDir) then
-      if MsgBox('Also delete your Kingdom Connect data?' + #13#10 + #13#10 +
+      if MsgBox('Also delete your FrameDecks data?' + #13#10 + #13#10 +
                 'This includes your saved verses and questions, members, settings and backups in:' + #13#10 + dataDir + #13#10 + #13#10 +
                 'Choose No to keep it (recommended if you will install again).',
                 mbConfirmation, MB_YESNO or MB_DEFBUTTON2) = IDYES then

@@ -1,6 +1,6 @@
 # Branching strategy
 
-Kingdom Connect uses **trunk-based development**: one long-lived branch, `main`, and short-lived branches for each
+FrameDecks uses **trunk-based development**: one long-lived branch, `main`, and short-lived branches for each
 change. The goal is that `main` is always something a church could install on Saturday night.
 
 ## Branches
