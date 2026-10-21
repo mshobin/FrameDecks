@@ -31,6 +31,7 @@ from urllib.parse import urlparse, parse_qs, unquote
 import legacy   # 6.9: moves data saved under the program's earlier name
 import meeting_form   # 6.9: fills the Meeting Workbook's form for Export
 import cloud_link     # SaaS Phase 2: this computer's FrameDecks account (optional; signed out = no network)
+import relay_link     # SaaS Phase 3: the remote from anywhere, through the cloud relay (off unless switched on)
 
 APP_VERSION = "6.9"
 STARTED_AT = time.time()
@@ -73,6 +74,7 @@ SESSION_DAYS = 30
 COOKIE = "kc_remote"
 # What a signed-in phone or iPad may open. Member data and the dashboard are never on this list.
 REMOTE_PUBLIC = {"/remote.html", "/css/remote.css", "/js/remote.js", "/js/store.js", "/js/brand.js", "/api/remote-login",
+                 "/js/cloud-config.js", "/js/cloud-remote.js",
                  "/js/teleprompter.js", "/css/teleprompter.css",
                  "/remote-manifest.json", "/icons/remote-180.png", "/icons/remote-192.png", "/icons/remote-512.png",
                  "/icons/remote-maskable-512.png", "/img/kc-emblem.webp"}
@@ -284,11 +286,35 @@ def cloud():
     return CLOUD["link"]
 
 
+# ---------- SaaS Phase 3: the remote from anywhere (docs/architecture/relay-protocol.md) ----------
+RELAY = {"link": None, "server": None}
+
+
+def relay_enabled():
+    return bool(cloud().settings().get("relay"))
+
+
+def relay_start():
+    """The relay listener (this PC only; every request on it is a phone, never this PC) and the outgoing link."""
+    if RELAY["link"] is not None:
+        return RELAY["link"]
+    server = ThreadingHTTPServer(("127.0.0.1", 0), RelayHandler)
+    server.daemon_threads = True
+    threading.Thread(target=server.serve_forever, name="relay-listener", daemon=True).start()
+    RELAY["server"] = server
+    RELAY["link"] = relay_link.RelayLink(cloud(), lambda: server.server_address[1], relay_enabled)
+    return RELAY["link"]
+
+
+def relay_status():
+    return RELAY["link"].status() if RELAY["link"] else {"state": "off", "error": "", "since": 0}
+
+
 def cloud_get(path, query):
     """GET api/cloud/<path> -> (status, body)."""
     c = cloud()
     if path == "status":
-        return 200, c.status()
+        return 200, dict(c.status(), relayLink=relay_status())
     if path == "providers":
         return 200, c.providers()
     if path == "me":
@@ -308,7 +334,10 @@ def cloud_post(path, data):
     """POST api/cloud/<path> -> (status, body)."""
     c, d = cloud(), (data if isinstance(data, dict) else {})
     if path == "settings":
-        return 200, c.set_settings(d)
+        out = c.set_settings(d)
+        if "relay" in d:
+            relay_start().poke()
+        return 200, out
     if path == "email-start":
         return 200, c.email_start(d.get("email"))
     if path == "email-verify":
@@ -319,7 +348,10 @@ def cloud_post(path, data):
         c.cancel_browser()
         return 200, c.status()
     if path == "logout":
-        return 200, c.logout()
+        out = c.logout()
+        if RELAY["link"]:
+            RELAY["link"].poke()
+        return 200, out
     if path == "sync":
         return 200, c.sync_post(d.get("changes") or [])
     if path == "members-key":
@@ -2225,6 +2257,30 @@ class Handler(BaseHTTPRequestHandler):
         self.reply(404, "Not found", "text/plain; charset=utf-8")
 
 
+class RelayHandler(Handler):
+    """Requests carried by the cloud relay (relay_link.py). Always a phone on the Wi-Fi, never this PC: the remote's
+    allow-list, the PIN and its lock-out (per relay connection) apply exactly as on the Wi-Fi."""
+
+    def parse_request(self):
+        ok = super().parse_request()
+        if ok:                                          # one relay connection = one "device address" for the PIN lock-out
+            self.client_address = ("relay:" + re.sub(r"[^A-Za-z0-9_-]", "", self.headers.get("X-FD-Relay-From", ""))[:64], 0)
+        return ok
+
+    def is_local(self):
+        return False
+
+    def host_ok(self):
+        return True
+
+    def allowed(self, path):
+        if not relay_enabled():
+            return False
+        if path in REMOTE_PUBLIC or path.startswith("/fonts/"):
+            return True
+        return path in REMOTE_SIGNED_IN and self.signed_in()
+
+
 def start_main_server():
     """Start listening on this PC only. Returns the server (or None if every port is taken)."""
     for port in PORTS:
@@ -2240,6 +2296,8 @@ def start_main_server():
     threading.Thread(target=vcam_start, daemon=True).start()   # idle until Zoom/Teams uses FrameCast
     threading.Thread(target=_backup_loop, daemon=True).start()
     threading.Thread(target=_remote_watcher, daemon=True).start()
+    if relay_enabled():
+        threading.Thread(target=relay_start, daemon=True).start()
     return server
 
 

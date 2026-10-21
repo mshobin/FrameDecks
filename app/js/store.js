@@ -34,7 +34,11 @@ var KEY = 'kc-state-v1';
 /* SaaS Phase 1: every request to the runtime goes through KCTransport.fetch (docs/architecture/runtime-protocol.md §8).
  * Today that is the browser's own fetch ("direct"); the cloud relay (Phase 3) is another transport with the same
  * shape, set with KCTransport.use({name, fetch}), so the remote and its screens never change. */
-var KCTransport = window.KCTransport = window.KCTransport || {
+var KCTransport = window.KCTransport = window.KCTransport || (function(){
+  // a preview frame (stage.html) inside the remote from anywhere uses its parent's relay (Phase 3)
+  try { if (window.parent !== window && window.parent.KCTransport && window.parent.KCTransport.name === 'relay') return window.parent.KCTransport; } catch(e){}
+  return null;
+})() || {
   name: 'direct',
   fetch: function(path, init){ return window.fetch(path, init); },
   use: function(t){ this.name = t.name; this.fetch = t.fetch; }

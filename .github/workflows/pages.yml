@@ -1,0 +1,60 @@
+# FrameDecks remote from anywhere (the PWA): build it on every change to the remote; on main, publish it to Cloudflare
+# Pages when the Cloudflare secrets and the cloud's address (FRAMEDECKS_API) are set (cloud/README.md).
+# The files are the remote's own, unchanged (architecture §2, §14).
+name: Remote PWA
+
+on:
+  push:
+    paths: ["app/remote.html", "app/stage.html", "app/sw.js", "app/remote-manifest.json", "app/css/**", "app/js/**",
+            "app/icons/**", "tools/build_pwa.py", ".github/workflows/pages.yml"]
+  pull_request:
+    paths: ["app/remote.html", "app/stage.html", "app/sw.js", "app/remote-manifest.json", "app/css/**", "app/js/**",
+            "app/icons/**", "tools/build_pwa.py", ".github/workflows/pages.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Build (checks that everything the service worker keeps is published)
+        run: python tools/build_pwa.py --api "${{ vars.FRAMEDECKS_API || 'https://framedecks-api.invalid' }}" --out dist
+      - uses: actions/upload-artifact@v4
+        with:
+          name: remote-pwa
+          path: dist
+
+  deploy:
+    needs: build
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      FRAMEDECKS_API: ${{ vars.FRAMEDECKS_API }}
+    steps:
+      - name: Cloudflare secrets and the cloud's address set?
+        id: ready
+        run: |
+          if [ -n "$CLOUDFLARE_API_TOKEN" ] && [ -n "$CLOUDFLARE_ACCOUNT_ID" ] && [ -n "$FRAMEDECKS_API" ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Cloudflare secrets or the FRAMEDECKS_API variable are not set, so the remote is not published (see cloud/README.md)."
+          fi
+      - if: steps.ready.outputs.ready == 'true'
+        uses: actions/download-artifact@v4
+        with:
+          name: remote-pwa
+          path: dist
+      - name: Publish to Cloudflare Pages
+        if: steps.ready.outputs.ready == 'true'
+        run: npx --yes wrangler@4.147.0 pages deploy dist --project-name framedecks --branch main

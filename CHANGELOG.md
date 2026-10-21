@@ -10,6 +10,20 @@ Versions before 4.9 (when the program had its earlier name) are described in the
 
 ## [Unreleased]
 
+### Added (SaaS + PWA, Phase 3: the remote from anywhere)
+- **Control from anywhere (optional):** Settings → Phone & iPad Remote. The phone or iPad remote reaches the PC
+  through the FrameDecks account when it is not on the same Wi-Fi. Same remote, same PIN. Guide:
+  [docs/remote-anywhere.md](docs/remote-anywhere.md).
+  - Off until switched on at the PC. The PC connects outward (no port, no router change), and through it a phone is
+    exactly a phone on the Wi-Fi: PIN needed, members data and the Studio never reachable.
+  - The remote installs as an app (Add to Home Screen, Install) and opens offline.
+- The cloud relay (one per PC, stores nothing), tickets, the list of PCs and CORS; the remote published to Cloudflare
+  Pages unchanged (`tools/build_pwa.py`, `.github/workflows/pages.yml`). Contract:
+  [docs/architecture/relay-protocol.md](docs/architecture/relay-protocol.md).
+- `tools/relay_e2e.py`: the real cloud, the program and the published remote: identical pictures and answers
+  through the relay, and a press on the phone reaches the PC.
+- The PC's name in the account follows Settings (a computer may rename itself).
+
 ### Added (SaaS + PWA, Phase 2: accounts and sync)
 - **FrameDecks account (optional):** Settings → FrameDecks account. Sign in with an email code, or with Google,
   Microsoft or Apple in the browser, to keep Frames (with their Decks and Content), templates, saved lists, branding

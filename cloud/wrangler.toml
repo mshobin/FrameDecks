@@ -15,6 +15,8 @@ workers_dev = true
 # GOOGLE_CLIENT_ID/SECRET, MICROSOFT_CLIENT_ID/SECRET, APPLE_CLIENT_ID/TEAM_ID/KEY_ID/PRIVATE_KEY.
 [vars]
 ENVIRONMENT = "dev"
+# Origins the PWA may call the API from (CORS), comma-separated; "host:*" allows any port.
+CORS_ORIGINS = "http://127.0.0.1:*,http://localhost:*"
 
 [[d1_databases]]
 binding = "DB"
@@ -22,11 +24,21 @@ database_name = "framedecks"
 database_id = "00000000-0000-0000-0000-000000000000"
 migrations_dir = "migrations"
 
+# The relay: one Durable Object per runtime (docs/architecture/relay-protocol.md). SQLite-backed (the free plan).
+[[durable_objects.bindings]]
+name = "RELAY"
+class_name = "RuntimeRelay"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["RuntimeRelay"]
+
 [env.staging]
 name = "framedecks-api-staging"
 
 [env.staging.vars]
 ENVIRONMENT = "staging"
+CORS_ORIGINS = "https://framedecks.pages.dev"
 
 [[env.staging.d1_databases]]
 binding = "DB"
@@ -34,14 +46,31 @@ database_name = "framedecks-staging"
 database_id = "00000000-0000-0000-0000-000000000000"
 migrations_dir = "migrations"
 
+[[env.staging.durable_objects.bindings]]
+name = "RELAY"
+class_name = "RuntimeRelay"
+
+[[env.staging.migrations]]
+tag = "v1"
+new_sqlite_classes = ["RuntimeRelay"]
+
 [env.production]
 name = "framedecks-api"
 
 [env.production.vars]
 ENVIRONMENT = "production"
+CORS_ORIGINS = "https://framedecks.pages.dev"
 
 [[env.production.d1_databases]]
 binding = "DB"
 database_name = "framedecks"
 database_id = "00000000-0000-0000-0000-000000000000"
 migrations_dir = "migrations"
+
+[[env.production.durable_objects.bindings]]
+name = "RELAY"
+class_name = "RuntimeRelay"
+
+[[env.production.migrations]]
+tag = "v1"
+new_sqlite_classes = ["RuntimeRelay"]

@@ -122,3 +122,41 @@ export async function importPemEs256(pem: string): Promise<CryptoKey> {
   const der = Uint8Array.from(atob(body), (c) => c.charCodeAt(0));
   return crypto.subtle.importKey("pkcs8", der, ES256, false, ["sign"]);
 }
+
+// ---------- relay tickets (docs/architecture/relay-protocol.md §1) ----------
+
+/** Tickets carry their own audience, so a ticket is never an access token and an access token never a ticket. */
+export const TICKET_AUDIENCE = "framedecks-relay";
+export const TICKET_TTL_S = 60;
+
+export interface TicketClaims {
+  sub: string;                // the user id (a device) or the runtime id
+  role: "runtime" | "device";
+  rid: string;                // the runtime this socket is for
+  jti: string;
+  exp: number;                // seconds
+}
+
+export async function signTicket(env: Env, claims: Omit<TicketClaims, "exp">, now = Date.now(), ttlS = TICKET_TTL_S): Promise<string> {
+  const k = await ourKeys(env);
+  const iat = Math.floor(now / 1000);
+  return signEs256({ kid: k.kid }, { ...claims, iss: ISSUER, aud: TICKET_AUDIENCE, iat, exp: iat + ttlS }, k.privateKey);
+}
+
+/** The claims of a valid, unexpired ticket for `rid`, or null. (Whether its jti was used is the relay's to know.) */
+export async function verifyTicket(env: Env, token: string, rid: string, now = Date.now()): Promise<TicketClaims | null> {
+  try {
+    const k = await ourKeys(env);
+    const { header, claims } = await verifySignature(token, k.publicJwk);
+    if (header.kid !== k.kid || header.alg !== "ES256") return null;
+    const c = claims as unknown as TicketClaims & { iss?: string; aud?: string };
+    if (c.iss !== ISSUER || c.aud !== TICKET_AUDIENCE) return null;
+    if (typeof c.exp !== "number" || c.exp * 1000 <= now) return null;
+    if (c.role !== "runtime" && c.role !== "device") return null;
+    if (typeof c.sub !== "string" || !c.sub || typeof c.jti !== "string" || !c.jti || c.rid !== rid) return null;
+    if (c.role === "runtime" && c.sub !== rid) return null;
+    return { sub: c.sub, role: c.role, rid: c.rid, jti: c.jti, exp: c.exp };
+  } catch {
+    return null;
+  }
+}

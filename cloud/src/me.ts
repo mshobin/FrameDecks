@@ -86,7 +86,7 @@ export async function deleteMe(request: Request, env: Env, auth: Auth): Promise<
 
 /** PATCH /runtimes/{id} (admin) */
 export async function renameRuntime(request: Request, env: Env, auth: Auth, id: string): Promise<Response> {
-  requireAdmin(auth);
+  if (!(auth.typ === "runtime" && auth.sub === id)) requireAdmin(auth);       // a computer may rename itself
   const body = await readJson<{ name?: unknown }>(request);
   const name = String(body.name ?? "").trim().slice(0, 80);
   if (!name) throw new HttpError(400, "bad_name", "Please give the computer a name.");

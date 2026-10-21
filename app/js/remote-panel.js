@@ -161,4 +161,40 @@ function runTest(){
   }).catch(function(){ testOut.innerHTML = ''; testOut.appendChild(h('div', {cls: 'alert bad', text: 'The local program is not responding.'})); });
 }
 Status.on('remote', update);
+
+/* ---------- Phase 3: control from anywhere, through the FrameDecks account (docs/architecture/relay-protocol.md) ---------- */
+var anyBody = h('div');
+var anyBox = h('section', {cls: 'box', id: 'remote-anywhere'}, [h('div', {cls: 'box-head'}, [h('h2', {text: 'Control from anywhere'})]), anyBody]);
+connectBox.parentNode.insertBefore(anyBox, connectBox.nextSibling);
+var anySig = '';
+var STATES = {online: ['ok', 'Reachable from anywhere'], connecting: ['warn', 'Connecting…'], waiting: ['warn', 'Trying again…'], off: ['', 'Off']};
+function anywhere(){
+  KCTransport.fetch('api/cloud/status', {cache: 'no-store'}).then(function(r){ return r.ok ? r.json() : null; }).then(function(st){
+    if (!st) return;
+    var link = st.relayLink || {}, sig = JSON.stringify([st.signedIn, st.relay, link.state, link.error, st.configured, st.user && st.user.email]);
+    if (sig === anySig) return; anySig = sig; anyBody.innerHTML = '';
+    anyBody.appendChild(h('p', {cls: 'plain', text: 'Use the remote away from this Wi-Fi, for example from home or another room on a different network, through your FrameDecks account. It still asks for this PC’s PIN, and members data never goes this way.'}));
+    if (!st.configured || !st.signedIn){
+      anyBody.appendChild(h('div', {cls: 'alert'}, [h('b', {text: 'Sign in first. '}), 'Sign in to your FrameDecks account in ',
+        h('a', {href: '#', text: 'Settings → FrameDecks account', onclick: function(e){ e.preventDefault(); if (window.KCShowSection) window.KCShowSection('account'); }}), '.']));
+      return;
+    }
+    var cb = h('input', {type: 'checkbox', role: 'switch', id: 'relay-switch', 'aria-label': 'Control from anywhere'}); cb.checked = !!st.relay;
+    cb.addEventListener('change', function(){
+      KCTransport.fetch('api/cloud/settings', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({relay: cb.checked})})
+        .then(function(){ toast(cb.checked ? 'Control from anywhere is on' : 'Control from anywhere is off'); anySig = ''; setTimeout(anywhere, 800); });
+    });
+    var s = STATES[st.relay ? (link.state || 'connecting') : 'off'] || STATES.off;
+    anyBody.appendChild(h('div', {cls: 'big-switch'}, [cb, h('div', {}, [h('b', {text: 'Control from anywhere'}),
+      h('div', {cls: 'hint', text: st.relay ? 'This PC keeps one secure connection open to the FrameDecks cloud.' : 'Off: nothing reaches this PC except over the Wi-Fi.'})])]));
+    anyBody.appendChild(h('span', {cls: 'status-pill ' + s[0]}, [h('i'), h('span', {text: s[1]})]));
+    if (st.relay && link.error && link.state !== 'online') anyBody.appendChild(h('p', {cls: 'hint', text: link.error + ' Presenting is not affected.'}));
+    if (st.relay) anyBody.appendChild(h('ol', {cls: 'steps'}, [
+      h('li', {}, ['On the phone or iPad, open ', st.remoteUrl ? h('b', {cls: 'mono', text: st.remoteUrl}) : h('b', {text: 'the FrameDecks remote'}), '.']),
+      h('li', {}, ['Sign in as ', h('b', {text: (st.user && st.user.email) || 'you'}), ' and choose ', h('b', {text: st.computerName || 'this PC'}), '.']),
+      h('li', {}, ['Enter this PC’s ', h('b', {text: 'PIN'}), '. Tip: Add to Home Screen (iPhone, iPad) or Install (Android) for a one-tap icon.'])]));
+  }).catch(function(){});
+}
+anywhere();
+setInterval(function(){ if (!document.hidden && !anyBox.hidden && anyBox.offsetParent) anywhere(); }, 3000);
 })();

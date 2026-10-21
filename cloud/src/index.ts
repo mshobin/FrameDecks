@@ -6,15 +6,20 @@ import { audit, listAudit } from "./audit";
 import * as email from "./auth/email";
 import { configuredProviders } from "./auth/oidc";
 import * as session from "./auth/session";
+import { isPreflight, preflight, withCors } from "./cors";
 import type { Env } from "./env";
 import { authenticate } from "./guard";
 import { clientIp, empty, error, HttpError, json, readJson } from "./http";
 import { jwks } from "./jwt";
 import { deleteMe, exportMe, me, renameRuntime, revokeRuntime } from "./me";
+import * as relay from "./relay-routes";
 import { pull, push } from "./sync";
 import { logout, rotate } from "./tokens";
 
-// The Workers runtime treats every named export of this module as an entry point: export only the handler.
+// The Workers runtime treats every named export of this module as an entry point: export only the handler and the
+// Durable Object class (the relay).
+export { RuntimeRelay } from "./relay";
+
 const VERSION: string = pkg.version;
 
 async function health(env: Env): Promise<Response> {
@@ -73,6 +78,11 @@ on("GET", "/audit", async (r, env, _p, url) => listAudit(env, await authenticate
 on("GET", "/sync", async (r, env, _p, url) => pull(env, await authenticate(r, env), url));
 on("POST", "/sync", async (r, env) => push(r, env, await authenticate(r, env)));
 
+// the relay (docs/architecture/relay-protocol.md); /relay/runtimes comes before /relay/{id}
+on("GET", "/relay/runtimes", async (r, env) => relay.runtimes(env, await authenticate(r, env)));
+on("POST", "/relay/{id}/ticket", async (r, env, p) => relay.ticket(env, await authenticate(r, env), p[0]));
+on("GET", "/relay/{id}", (r, env, p, url) => relay.connect(r, env, p[0], url));
+
 async function route(request: Request, env: Env): Promise<Response> {
   const url = new URL(request.url);
   const method = request.method === "HEAD" ? "GET" : request.method;
@@ -95,5 +105,8 @@ async function route(request: Request, env: Env): Promise<Response> {
 }
 
 export default {
-  fetch: (request: Request, env: Env) => route(request, env),
+  fetch: async (request: Request, env: Env) => {
+    if (isPreflight(request)) return preflight(env, request);
+    return withCors(env, request, await route(request, env));
+  },
 } satisfies ExportedHandler<Env>;

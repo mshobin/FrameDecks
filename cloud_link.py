@@ -159,7 +159,9 @@ class CloudLink:
 
     def settings(self):
         return {"api": self.api(), "syncMeeting": bool(self.prefs.get("syncMeeting", False)),          # D6: off by default
-                "pauseLive": bool(self.prefs.get("pauseLive", False)), "computerName": self.computer_name()}
+                "pauseLive": bool(self.prefs.get("pauseLive", False)), "computerName": self.computer_name(),
+                "relay": bool(self.prefs.get("relay", False)),                                         # Phase 3: off by default
+                "remoteUrl": (os.environ.get("FRAMEDECKS_REMOTE") or self.prefs.get("remoteUrl") or "").rstrip("/")}
 
     def set_settings(self, changes):
         with self.lock:
@@ -168,12 +170,22 @@ class CloudLink:
                 if api and not api.startswith("https://") and not api.startswith("http://127.0.0.1") and not api.startswith("http://localhost"):
                     raise CloudError(400, "api_not_https", "The cloud address must start with https://")
                 self.prefs["api"] = api
-            for k in ("syncMeeting", "pauseLive"):
+            for k in ("syncMeeting", "pauseLive", "relay"):
                 if k in changes:
                     self.prefs[k] = bool(changes[k])
+            renamed = "computerName" in changes and str(changes["computerName"] or "").strip()[:60] != self.prefs.get("computerName")
             if "computerName" in changes:
                 self.prefs["computerName"] = str(changes["computerName"] or "").strip()[:60]
             self._save_prefs()
+        rid = ((self.prefs.get("account") or {}).get("runtime") or {}).get("id")
+        if renamed and rid and self.secret.read():                    # the name the phone's list of PCs shows
+            try:
+                self.call("PATCH", f"/runtimes/{rid}", {"name": self.computer_name()})
+                with self.lock:
+                    self.prefs["account"]["runtime"]["name"] = self.computer_name()
+                    self._save_prefs()
+            except CloudError:
+                pass                                                   # offline: the next sign-in carries the name
         return self.settings()
 
     def computer_name(self):

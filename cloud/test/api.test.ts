@@ -39,7 +39,49 @@ describe("unknown addresses", () => {
 });
 
 describe("the worker entry", () => {
-  it("exports only the handler (the Workers runtime refuses to start on any other named export)", () => {
-    expect(Object.keys(entry)).toEqual(["default"]);
+  it("exports only the handler and the relay's Durable Object (the Workers runtime refuses any other named export)", () => {
+    expect(Object.keys(entry).sort()).toEqual(["RuntimeRelay", "default"]);
+  });
+});
+
+describe("CORS (the PWA on another origin; CORS_ORIGINS in wrangler.toml)", () => {
+  it("answers a preflight from an allowed origin", async () => {
+    const res = await call("/v1/relay/runtimes", {
+      method: "OPTIONS",
+      headers: { Origin: "http://localhost:5173", "Access-Control-Request-Method": "GET", "Access-Control-Request-Headers": "authorization" },
+    });
+    expect(res.status).toBe(204);
+    expect(res.headers.get("Access-Control-Allow-Origin")).toBe("http://localhost:5173");
+    expect(res.headers.get("Access-Control-Allow-Methods")).toBe("GET, POST, PATCH, DELETE");
+    expect(res.headers.get("Access-Control-Allow-Headers")).toBe("Authorization, Content-Type");
+    expect(res.headers.get("Access-Control-Max-Age")).toBe("600");
+    expect(res.headers.get("Access-Control-Allow-Credentials")).toBeNull();
+  });
+
+  it("gives a preflight from another origin no CORS headers", async () => {
+    const res = await call("/v1/health", { method: "OPTIONS", headers: { Origin: "https://evil.example", "Access-Control-Request-Method": "GET" } });
+    expect(res.headers.get("Access-Control-Allow-Origin")).toBeNull();
+    expect(res.headers.get("Access-Control-Allow-Methods")).toBeNull();
+  });
+
+  it("adds Allow-Origin and Vary for an allowed origin (any local port), and nothing otherwise", async () => {
+    for (const origin of ["http://127.0.0.1:8080", "http://localhost:3000"]) {
+      const ok = await call("/v1/health", { headers: { Origin: origin } });
+      expect(ok.status).toBe(200);
+      expect(ok.headers.get("Access-Control-Allow-Origin")).toBe(origin);
+      expect(ok.headers.get("Vary")).toContain("Origin");
+      expect(ok.headers.get("Access-Control-Allow-Credentials")).toBeNull();
+    }
+    // errors carry them too, so the PWA can read them
+    expect((await call("/v1/me", { headers: { Origin: "http://localhost:3000" } })).headers.get("Access-Control-Allow-Origin")).toBe("http://localhost:3000");
+
+    for (const origin of ["https://evil.example", "http://localhost.evil.example:80", "http://127.0.0.1:80abc", "https://127.0.0.1:8080"]) {
+      const no = await call("/v1/health", { headers: { Origin: origin } });
+      expect(no.status).toBe(200);    // answered: native clients and others are not refused
+      expect(no.headers.get("Access-Control-Allow-Origin")).toBeNull();
+    }
+    const none = await call("/v1/health");
+    expect(none.status).toBe(200);
+    expect(none.headers.get("Access-Control-Allow-Origin")).toBeNull();
   });
 });

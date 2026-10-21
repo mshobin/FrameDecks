@@ -3,7 +3,7 @@
 The FrameDecks cloud: a Cloudflare Worker (TypeScript) with a D1 database. It will hold accounts, metadata sync,
 pairing and the encrypted relay (docs/project/saas-pwa-architecture.md, §4 and §7).
 
-This is **Phase 2**: sign-in and sync. The exact contract is `docs/architecture/cloud-api.md`; the schema is
+This is **Phase 2**: sign-in and sync, plus the **Phase 3** relay. The exact contract is `docs/architecture/cloud-api.md`; the schema is
 `migrations/0001_init.sql` plus `migrations/0002_auth.sql`. Presenting never depends on the cloud.
 
 Until a domain exists (decision D4), the API is served on its free Cloudflare address,
@@ -37,6 +37,33 @@ Until a domain exists (decision D4), the API is served on its free Cloudflare ad
 | `PATCH /runtimes/{id}`, `DELETE /runtimes/{id}` | Rename or revoke a computer (admin) |
 | `GET /audit` | The workspace log (admin) |
 | `GET /sync?since=&limit=`, `POST /sync` | Sync (cloud-api.md §4) |
+| `POST /relay/{runtimeId}/ticket` | A one-socket relay ticket, `{ticket, expiresIn: 60}` (a member's user token, or the runtime itself) |
+| `GET /relay/{runtimeId}?ticket=…` | The relay WebSocket (`Upgrade: websocket`); 401 `bad_ticket`, 426 without an upgrade |
+| `GET /relay/runtimes` | The workspace's computers that are not revoked, `[{id, name, platform, online}]` (user token) |
+
+## The relay (Phase 3)
+
+The phone reaches a PC away from its Wi-Fi through `RuntimeRelay`, one Durable Object per runtime (`src/relay.ts`,
+binding `RELAY`, SQLite-backed). The message shapes are in `docs/architecture/relay-protocol.md`.
+
+- Browsers cannot send `Authorization` on a WebSocket, so both sides first ask for a **ticket**: an ES256 JWT (the
+  API's key, audience `framedecks-relay`) with `sub`, `role` (`runtime` or `device`), `rid`, `jti` and a 60-second
+  expiry. Each ticket opens one socket: the relay keeps used `jti`s in its own storage until they expire. A runtime
+  may only ask for its own ticket; a user must be a member of the runtime's workspace. 60 tickets a minute per caller.
+- The upgrade re-checks that the runtime is not revoked, then hands the socket to the relay. One runtime socket at
+  a time (a new one closes the old with `4000 replaced`); any number of device sockets.
+- The relay uses the WebSocket Hibernation API, so idle sockets cost nothing, and `{"t":"ping"}` is answered with
+  `{"t":"pong"}` without waking it. It never logs or stores what passes through. A frame over 1 MiB, malformed JSON,
+  or a type the sender may not send is dropped, and the sender gets `{"t": "error", "code": "too_large" |
+  "bad_json" | "unknown_type" | "bad_message", "message"}`.
+
+## CORS
+
+The PWA calls the API from another origin. `CORS_ORIGINS` in `wrangler.toml` is the allow-list (comma-separated;
+`http://localhost:*` allows any port: the dev environment allows any `http://127.0.0.1:*` and `http://localhost:*`).
+An allowed origin gets `Access-Control-Allow-Origin: <origin>` and `Vary: Origin` on every answer, and preflights
+allow `GET, POST, PATCH, DELETE` with `Authorization, Content-Type` (cached 600 s). Credentials are never allowed
+(tokens are bearer). Other origins get no CORS headers but are still answered: native clients send no Origin.
 
 ## Secrets
 
@@ -74,7 +101,8 @@ npm test            # vitest in the Workers runtime (Miniflare), with the migrat
 
 The tests cover health and the schema; email codes (wrong, expired, too many tries, rate limits); refresh rotation,
 reuse and logout; `/me`, export and deleting an account; runtimes; sync (new, update, conflict, delete, paging and
-what is refused); access-token expiry and tampering; and the providers, with Google, Microsoft and Apple mocked.
+what is refused); access-token expiry and tampering; the providers, with Google, Microsoft and Apple mocked; CORS;
+and the relay (tickets, expired and reused tickets, routing, online notices, replacement, ping, bad messages).
 The test JWT key is generated fresh by `vitest.config.ts`.
 
 `.npmrc` sets `legacy-peer-deps`: npm 10 fails while resolving Vitest's optional browser peers, and the peers this
@@ -104,3 +132,11 @@ npx wrangler d1 migrations apply framedecks-staging --env staging --remote
 # the secrets above, once: npx wrangler secret put JWT_PRIVATE_KEY --env staging (and the rest)
 npx wrangler deploy --env staging
 ```
+
+## Publishing the remote (Cloudflare Pages)
+
+`.github/workflows/pages.yml` builds the remote with `tools/build_pwa.py` on every change and publishes it on `main`
+to the Pages project `framedecks` when `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID` (secrets) and
+`FRAMEDECKS_API` (a repository variable: the API's https address) are set. Put the Pages address in `CORS_ORIGINS`
+(wrangler.toml, staging and production), and give it to the program as the remote's address (`FRAMEDECKS_REMOTE`, or
+`remoteUrl` in kc-cloud.json) so Settings shows it.

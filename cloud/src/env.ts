@@ -2,7 +2,9 @@
 // secrets are missing reports itself as not set up instead of failing.
 export interface Env {
   DB: D1Database;
+  RELAY: DurableObjectNamespace<import("./relay").RuntimeRelay>;   // one RuntimeRelay per runtime
   ENVIRONMENT?: string;                 // production | staging | dev | test
+  CORS_ORIGINS?: string;                // origins the PWA is served from, comma-separated ("http://localhost:*": any port)
   PUBLIC_ORIGIN?: string;               // the API's public address, when it differs from the request's
   JWT_PRIVATE_KEY?: string;             // ES256 private key, JWK JSON
   JWT_KID?: string;

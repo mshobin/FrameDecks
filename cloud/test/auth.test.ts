@@ -178,6 +178,13 @@ describe("you and your computers", () => {
     expect((await call("/v1/runtimes/r_unknown", { method: "DELETE", token: admin.access })).status).toBe(404);
   });
 
+  it("a computer renames itself (the name the remote's list of PCs shows)", async () => {
+    const pc = await signIn(newEmail(), RUNTIME);
+    const ren = await call(`/v1/runtimes/${pc.runtime!.id}`, { method: "PATCH", token: pc.access, body: JSON.stringify({ name: "Sanctuary PC" }) });
+    expect(ren.status).toBe(200);
+    expect(ren.body.name).toBe("Sanctuary PC");
+  });
+
   it("someone who is not an administrator cannot manage runtimes or read the audit log", async () => {
     const owner = await signIn(newEmail(), RUNTIME);
     const other = await signIn(newEmail(), { type: "browser" });

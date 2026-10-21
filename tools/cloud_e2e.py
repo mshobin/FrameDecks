@@ -13,6 +13,7 @@ Use a fresh local database (delete cloud/.wrangler/state).
 import asyncio, json, os, subprocess, sys, tempfile, time, urllib.request
 from pathlib import Path
 import argparse
+EMAIL = f"ann+{int(time.time())}@example.org"   # a new account each run (5 email codes an hour per address)
 ROOT = Path(__file__).resolve().parent.parent
 ARGS = argparse.ArgumentParser(description="FrameDecks cloud sync, end to end")
 ARGS.add_argument("--api", default="http://127.0.0.1:8787")
@@ -59,7 +60,7 @@ async def main():
             async def sign_in(pg, shot):
                 await pg.evaluate("() => { KCSetTab('settings'); KCShowSection('account'); }")
                 await pg.wait_for_selector("#acct-email")
-                await pg.fill("#acct-email", "ann@example.org")
+                await pg.fill("#acct-email", EMAIL)
                 await pg.click("#account-body button:text-is(\"Email me a code\")")
                 await pg.wait_for_selector("#acct-code")
                 code = await pg.evaluate("""() => new Promise(r => { const f = () => { const t = [...document.querySelectorAll('.toast, [class*=toast]')].map(e => e.textContent).join(' '); const m = t.match(/Test code: (\\d{6})/); m ? r(m[1]) : setTimeout(f, 100); }; f(); })""")

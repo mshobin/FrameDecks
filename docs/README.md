@@ -20,6 +20,7 @@ do.
 | [Media](media.md) | Images, video, PowerPoint, PDF, screen capture, the FrameCast camera, OBS, projectors |
 | [Remote control](remote-control.md) | Setting up the phone remote, Simple and Advanced profiles, drawing from the phone |
 | [Your FrameDecks account](account.md) | Optional: sign in to keep your Frames the same on every computer |
+| [The remote from anywhere](remote-anywhere.md) | Optional: control the PC from a phone that is not on its Wi-Fi |
 | [Troubleshooting](troubleshooting.md) | Problems by symptom, with causes and fixes |
 | [FAQ](faq.md) | Church-focused questions and honest answers |
 

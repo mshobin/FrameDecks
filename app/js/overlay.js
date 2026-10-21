@@ -387,7 +387,17 @@ function TextLayers(root){
     return {zone: zone, card: card, lt: lt, logo: logo, text: card.querySelector('.card-text')};
   }
   function logoSrc(st){ return st.brand && st.brand.logo ? 'api/brand/logo?v=' + encodeURIComponent(st.brand.logo) : ''; }
-  function setLogo(img, src){ if (img.getAttribute('src') !== src){ if (src) img.setAttribute('src', src); else img.removeAttribute('src'); } img.hidden = !src; }
+  function setLogo(img, src){
+    img.hidden = !src;
+    if (img.dataset.want === src) return;
+    img.dataset.want = src;
+    if (!src){ img.removeAttribute('src'); return; }
+    // through the cloud relay (Phase 3) the logo is not at an address of its own: fetch it with the remote's transport
+    if (!window.KCTransport || KCTransport.name === 'direct'){ img.setAttribute('src', src); return; }
+    KCTransport.fetch(src, {cache: 'no-store'}).then(function(r){ return r.ok ? r.blob() : null; }).then(function(b){
+      if (b && img.dataset.want === src){ if (img.src.slice(0, 5) === 'blob:') URL.revokeObjectURL(img.src); img.src = URL.createObjectURL(b); }
+    }).catch(function(){});
+  }
   function fill(x, l, st){
     var c = l.c, S = window.KCScenes;
     if (l.kind === 'brand'){
