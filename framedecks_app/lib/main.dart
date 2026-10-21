@@ -6,8 +6,10 @@ import 'package:path_provider/path_provider.dart';
 import 'package:window_manager/window_manager.dart';
 
 import 'engine/backend.dart';
+import 'engine/cloud_client.dart';
 import 'ui/providers.dart';
 import 'ui/remote/remote_app.dart';
+import 'ui/settings_screen.dart' show appVersion;
 import 'ui/studio/share_window.dart' show isDesktop;
 import 'ui/studio/studio_screen.dart';
 import 'ui/theme.dart';
@@ -32,7 +34,18 @@ Future<void> main() async {
   );
   final backend = await chooseBackend();
   await backend.start();
-  runApp(ProviderScope(overrides: [backendProvider.overrideWithValue(backend)], child: const StudioApp()));
+  // The FrameDecks account (optional): sync runs only for this computer's own file, while signed in
+  CloudLink? cloud;
+  if (backend is LocalBackend) {
+    cloud = CloudLink(CloudClient(dir: backend.file.parent, appVersion: appVersion), backend);
+    await cloud.start();
+  }
+  runApp(
+    ProviderScope(
+      overrides: [backendProvider.overrideWithValue(backend), cloudProvider.overrideWithValue(cloud)],
+      child: const StudioApp(),
+    ),
+  );
 }
 
 /// The program on this PC when it is running, else this computer's own file.

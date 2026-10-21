@@ -758,6 +758,36 @@ void insertScene(Json st, Json sc, [Object? afterId]) {
   }
 }
 
+/// A copy is fully independent: new ids for every Content and every item in its lists (links follow). store.js
+/// Scenes.freshIds; cloud sync uses it for the copy it keeps when a Frame changed on two computers at once.
+Json freshIds(Json sc) {
+  final map = <Object?, String>{};
+  final layers = (sc['layers'] as List? ?? const []).whereType<Json>().toList();
+  for (final l in layers) {
+    l['id'] = rid();
+    final its = l['c'] is Map ? (l['c'] as Map)['items'] : null;
+    if (its is! List) continue;
+    for (final it in its.whereType<Map<String, dynamic>>()) {
+      final nid = newItemId(l['kind'] == 'question' ? 'question' : 'verse');
+      map[it['id']] = nid;
+      it['id'] = nid;
+    }
+  }
+  for (final l in layers) {
+    if (l['c'] is! Map) continue;
+    final c = l['c'] as Map;
+    final itemId = c['itemId'];
+    if (itemId != null && itemId != '' && itemId != false && itemId != 0) c['itemId'] = map[itemId] ?? '';
+    final its = c['items'];
+    if (its is! List) continue;
+    for (final it in its.whereType<Map<String, dynamic>>()) {
+      final p = it['pair'];
+      if (p != null && p != '' && p != false && p != 0) it['pair'] = map[p] ?? '';
+    }
+  }
+  return sc;
+}
+
 bool hasBrand(Json st) {
   final b = st['brand'] as Json? ?? const {};
   return (b['logo'] ?? '') != '' || (b['meeting'] ?? '') != '' || (b['org'] ?? '') != '';

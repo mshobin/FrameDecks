@@ -21,6 +21,8 @@ Versions before 4.9 (when the program had its earlier name) are described in the
   - The members list syncs only when turned on, end-to-end encrypted with a printable recovery key; the cloud stores
     only the locked copy. Changed on two computers, the lists are combined person by person.
   - Download a copy of your account, or delete it, from Settings.
+  - The Mac and desktop app (Flutter) syncs the same way: Settings → FrameDecks account, the same rules
+    (`framedecks_app/lib/engine/cloud_sync.dart`), its sign-in in the system keychain.
   - A new computer joining the account does not double Frames the account already has (such as the starter Frames).
   - The sign-in is kept in Windows Credential Manager (`cloud_link.py`); the Studio does the sync
     (`app/js/cloud-sync.js`).

@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../engine/backend.dart';
+import '../engine/cloud_client.dart';
 import '../engine/model.dart';
 import '../engine/scenes.dart' as sc;
 
@@ -13,6 +14,10 @@ final stateProvider = StreamProvider<Json>((ref) async* {
   yield b.state;
   yield* b.changes;
 });
+
+/// The FrameDecks account and its sync (set in main.dart for this computer's own file; null when FrameDecks on this PC
+/// keeps the Frames, since the program syncs them itself).
+final cloudProvider = Provider<CloudLink?>((ref) => null);
 
 final linkProvider = StreamProvider<Link>((ref) async* {
   final b = ref.watch(backendProvider);
