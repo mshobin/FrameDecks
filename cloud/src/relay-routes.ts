@@ -8,7 +8,7 @@ import { signTicket, TICKET_TTL_S, verifyTicket } from "./jwt";
 import { limit, MINUTE } from "./ratelimit";
 import { RELAY_HEADERS } from "./relay";
 
-const relay = (env: Env, runtimeId: string) => env.RELAY.get(env.RELAY.idFromName(runtimeId));
+export const relay = (env: Env, runtimeId: string) => env.RELAY.get(env.RELAY.idFromName(runtimeId));
 
 const notFound = () => new HttpError(404, "not_found", "That computer is not connected to this account.");
 const badTicket = () => error(401, "bad_ticket", "This connection ticket is not valid. Please try again.");
@@ -24,6 +24,9 @@ export async function ticket(env: Env, auth: Auth, runtimeId: string): Promise<R
   if (auth.typ === "runtime" && auth.sub !== runtimeId) {
     throw new HttpError(403, "forbidden", "A computer can only open its own connection.");
   }
+  if (auth.typ === "device" && auth.rid !== runtimeId) {
+    throw new HttpError(403, "forbidden", "This device is paired with another computer.");
+  }
   const rt = await liveRuntime(env, runtimeId);
   if (!rt || rt.revoked_at) throw notFound();
   if (auth.typ === "user") {
@@ -32,6 +35,12 @@ export async function ticket(env: Env, auth: Auth, runtimeId: string): Promise<R
     if (!member || rt.workspace_id !== auth.ws) throw new HttpError(403, "forbidden", "That computer belongs to another workspace.");
   } else if (rt.workspace_id !== auth.ws) {
     throw new HttpError(403, "forbidden", "That computer belongs to another workspace.");
+  }
+  if (auth.typ === "device") {
+    // the guard has just checked the device is not revoked; its role is the one stored now
+    await env.DB.prepare("UPDATE devices SET last_used_at = ? WHERE id = ?").bind(Date.now(), auth.sub).run();
+    const t = await signTicket(env, { sub: auth.uid, role: "device", rid: runtimeId, jti: randomId("j"), dev: auth.sub, devRole: auth.role });
+    return json({ ticket: t, expiresIn: TICKET_TTL_S });
   }
   const t = await signTicket(env, { sub: auth.sub, role: auth.typ === "runtime" ? "runtime" : "device", rid: runtimeId, jti: randomId("j") });
   return json({ ticket: t, expiresIn: TICKET_TTL_S });
@@ -46,15 +55,22 @@ export async function connect(request: Request, env: Env, runtimeId: string, url
   if (!claims) return badTicket();
   const rt = await liveRuntime(env, runtimeId);
   if (!rt || rt.revoked_at) return badTicket();
-  const forward = new Request("https://relay/connect", {
-    headers: {
-      Upgrade: "websocket",
-      [RELAY_HEADERS.role]: claims.role,
-      [RELAY_HEADERS.sub]: claims.sub,
-      [RELAY_HEADERS.jti]: claims.jti,
-      [RELAY_HEADERS.exp]: String(claims.exp),
-    },
-  });
+  const headers: Record<string, string> = {
+    Upgrade: "websocket",
+    [RELAY_HEADERS.role]: claims.role,
+    [RELAY_HEADERS.sub]: claims.sub,
+    [RELAY_HEADERS.jti]: claims.jti,
+    [RELAY_HEADERS.exp]: String(claims.exp),
+  };
+  if (claims.dev) {
+    // a device revoked after its ticket was issued gets no socket
+    const d = await env.DB.prepare("SELECT revoked_at, runtime_id, role FROM devices WHERE id = ?")
+      .bind(claims.dev).first<{ revoked_at: number | null; runtime_id: string; role: string }>();
+    if (!d || d.revoked_at || d.runtime_id !== runtimeId) return badTicket();
+    headers[RELAY_HEADERS.dev] = claims.dev;
+    headers[RELAY_HEADERS.devRole] = d.role;
+  }
+  const forward = new Request("https://relay/connect", { headers });
   const res = await relay(env, runtimeId).fetch(forward);
   if (res.status === 401) return badTicket();   // the ticket was already used
   return res;

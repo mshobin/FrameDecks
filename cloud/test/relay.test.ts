@@ -6,7 +6,7 @@ import worker from "../src/index";
 import type { Env } from "../src/env";
 import { signTicket } from "../src/jwt";
 import { RuntimeRelay } from "../src/relay";
-import { call, newEmail, post, RUNTIME, signIn } from "./helpers";
+import { call, newEmail, pairDevice, post, RUNTIME, signIn } from "./helpers";
 
 const E = env as unknown as Env;
 
@@ -289,5 +289,89 @@ describe("GET /v1/relay/runtimes", () => {
 
     expect((await call("/v1/relay/runtimes", { token: a.access })).status).toBe(403);
     expect((await call("/v1/relay/runtimes")).status).toBe(401);
+  });
+});
+
+describe("paired devices on the relay (pairing-protocol.md §4)", () => {
+  const claimsOf = (jwt: string) => JSON.parse(atob(jwt.split(".")[1].replace(/-/g, "+").replace(/_/g, "/")));
+
+  it("a device token gets a ticket for its own PC only, carrying dev and its role, and sets last_used_at", async () => {
+    const { rid, credential, device, email } = await pairDevice("presenter");
+    const r = await post(`/v1/relay/${rid}/ticket`, {}, { token: credential.access });
+    expect(r.status).toBe(200);
+    expect(claimsOf(r.body.ticket)).toMatchObject({ rid, role: "device", dev: device.id, devRole: "presenter" });
+    const row = await E.DB.prepare("SELECT last_used_at FROM devices WHERE id = ?").bind(device.id).first<{ last_used_at: number }>();
+    expect(row!.last_used_at).toBeGreaterThan(Date.now() - 10_000);
+
+    const other = await signIn(newEmail(), RUNTIME);
+    const no = await post(`/v1/relay/${other.runtime!.id}/ticket`, {}, { token: credential.access });
+    expect(no.status).toBe(403);
+    // another PC of the same account is "another" too
+    const laptop = await signIn(email, { ...RUNTIME, name: "Laptop" });
+    const sameWs = await post(`/v1/relay/${laptop.runtime!.id}/ticket`, {}, { token: credential.access });
+    expect(sameWs.status).toBe(403);
+  });
+
+  it("a device revoked after its ticket was issued gets no socket", async () => {
+    const { rid, credential, device, pc } = await pairDevice();
+    const t = await getTicket(rid, credential.access);
+    await call(`/v1/devices/${device.id}`, { method: "DELETE", token: pc.access });
+    expect((await upgrade(rid, t)).status).toBe(401);
+  });
+
+  it("adds dev and role to a device socket's req (null for a user ticket), and a device cannot set them itself", async () => {
+    const { rid, pc, phone, credential, device } = await pairDevice("viewer");
+    const rt = await connect(rid, pc.access);
+    const paired = await connect(rid, credential.access);
+    const browser = await connect(rid, phone.access);
+    await paired.next();
+    await browser.next();
+
+    paired.ws.send(JSON.stringify({ t: "req", id: "1", method: "GET", path: "api/state", headers: {}, body: "", dev: "d_forged", role: "admin" }));
+    expect(await rt.next()).toMatchObject({ t: "req", id: "1", dev: device.id, role: "viewer" });
+    browser.ws.send(JSON.stringify({ t: "req", id: "2", method: "GET", path: "api/state", headers: {}, body: "", dev: "d_forged", role: "admin" }));
+    expect(await rt.next()).toMatchObject({ t: "req", id: "2", dev: null, role: null });
+
+    // a role change reaches the open socket
+    expect((await call(`/v1/devices/${device.id}`, { method: "PATCH", token: pc.access, body: JSON.stringify({ role: "operator" }) })).status).toBe(200);
+    paired.ws.send(JSON.stringify({ t: "req", id: "3", method: "GET", path: "api/state", headers: {}, body: "" }));
+    expect(await rt.next()).toMatchObject({ id: "3", dev: device.id, role: "operator" });
+  });
+
+  it("passes a sealed req and a sealed res through untouched", async () => {
+    const { rid, pc, credential, device } = await pairDevice();
+    const rt = await connect(rid, pc.access);
+    const paired = await connect(rid, credential.access);
+    expect(await paired.next()).toEqual({ t: "runtime", online: true });
+
+    const seal = { iv: "AAECAwQFBgcICQoL", ct: "q83vEjRWeJA_-w" };
+    paired.ws.send(JSON.stringify({ t: "req", id: "s1", seal }));
+    const got = await rt.next();
+    expect(got).toEqual({ t: "req", id: "s1", seal, from: expect.any(String), dev: device.id, role: "operator" });
+
+    const resSeal = { iv: "CwoJCAcGBQQDAgEA", ct: "3q2-7w" };
+    rt.ws.send(JSON.stringify({ t: "res", id: "s1", to: got.from, seal: resSeal }));
+    expect(await paired.next()).toEqual({ t: "res", id: "s1", seal: resSeal });
+  });
+
+  it("DELETE /devices/{id} closes the device's open sockets at once with 4001 revoked; others stay", async () => {
+    const { rid, pc, phone, credential, device } = await pairDevice();
+    const rt = await connect(rid, pc.access);
+    const a = await connect(rid, credential.access);
+    const b = await connect(rid, credential.access);
+    const browser = await connect(rid, phone.access);
+    for (const s of [a, b, browser]) expect(await s.next()).toEqual({ t: "runtime", online: true });
+
+    const t0 = Date.now();
+    expect((await call(`/v1/devices/${device.id}`, { method: "DELETE", token: pc.access })).status).toBe(204);
+    const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error("not closed within 1 s")), 1000));
+    for (const s of [a, b]) expect(await Promise.race([s.closed, timeout])).toEqual({ code: 4001, reason: "revoked" });
+    expect(Date.now() - t0).toBeLessThan(1000);
+
+    // the PC and the user-ticket socket are still connected
+    browser.ws.send(JSON.stringify({ t: "req", id: "x", method: "GET", path: "api/state", headers: {}, body: "" }));
+    expect(await rt.next()).toMatchObject({ id: "x", dev: null });
+    // and the device cannot come back
+    expect((await post(`/v1/relay/${rid}/ticket`, {}, { token: credential.access })).status).toBe(401);
   });
 });

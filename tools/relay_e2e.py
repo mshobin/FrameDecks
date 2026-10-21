@@ -161,6 +161,9 @@ async def run(pwa, local, out, chromium):
         # 3. pair by code, as a Viewer
         vctx = await browser.new_context(viewport={"width": 390, "height": 844}, device_scale_factor=2)
         viewer = await vctx.new_page()
+        if os.environ.get("FD_E2E_DEBUG"):
+            viewer.on("console", lambda m: print("VIEWER CONSOLE", m.type, m.text))
+            viewer.on("response", lambda r: print("VIEWER", r.request.method, r.url.split("/v1")[-1], r.status) if "/v1/" in r.url else None)
         await viewer.goto(pwa + "/remote.html")
         await sign_in(viewer)
         await viewer.click("[data-pc]:not([disabled])")
@@ -171,7 +174,10 @@ async def run(pwa, local, out, chromium):
         await viewer.fill("#pair-code", code)
         await viewer.screenshot(path=str(out / "pair-3-phone-code.png"))
         await viewer.click("#pair-form button")
-        await viewer.wait_for_selector("#cloud-card #pair-check")
+        try:
+            await viewer.wait_for_selector("#cloud-card #pair-check", timeout=15000)
+        except Exception:
+            raise SystemExit("Pairing by code did not reach the waiting card; the phone shows: " + await viewer.inner_text("#cloud-card"))
         await pc.wait_for_selector("#pair-ask #pair-check", timeout=10000)
         assert (await viewer.inner_text("#cloud-card #pair-check")).strip() == (await pc.inner_text("#pair-ask #pair-check")).strip()
         await pc.select_option("#pair-ask select", "viewer")

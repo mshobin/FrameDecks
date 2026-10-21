@@ -9,11 +9,12 @@ export const AUDIENCE = "framedecks-api";
 export const ACCESS_TTL_MS = 10 * 60 * 1000;
 
 export interface AccessClaims {
-  sub: string;                // the user id, or the runtime id
-  typ: "user" | "runtime";
-  uid: string;                // the user
+  sub: string;                // the user id, the runtime id, or the device id
+  typ: "user" | "runtime" | "device";
+  uid: string;                // the user (for a device: the person who paired it)
   ws: string;                 // the workspace
-  role: string;               // the user's role in it
+  role: string;               // the user's role in it (for a device: the device's role)
+  rid?: string;               // a device's PC (runtime id)
   jti: string;
   iat: number;                // seconds
   exp: number;
@@ -109,7 +110,8 @@ export async function verifyAccess(env: Env, token: string, now = Date.now()): P
     const c = claims as unknown as AccessClaims;
     if (c.iss !== ISSUER || c.aud !== AUDIENCE) throw new Error("issuer");
     if (typeof c.exp !== "number" || c.exp * 1000 <= now) throw new Error("expired");
-    if ((c.typ !== "user" && c.typ !== "runtime") || !c.sub || !c.uid || !c.ws) throw new Error("claims");
+    if ((c.typ !== "user" && c.typ !== "runtime" && c.typ !== "device") || !c.sub || !c.uid || !c.ws) throw new Error("claims");
+    if (c.typ === "device" && (typeof c.rid !== "string" || !c.rid)) throw new Error("claims");
     return c;
   } catch {
     throw unauthorized;
@@ -131,10 +133,12 @@ export const TICKET_TTL_S = 60;
 
 export interface TicketClaims {
   sub: string;                // the user id (a device) or the runtime id
-  role: "runtime" | "device";
+  role: "runtime" | "device"; // which side of the relay this socket is
   rid: string;                // the runtime this socket is for
   jti: string;
   exp: number;                // seconds
+  dev?: string | null;        // a paired device's id (a ticket asked for with a device token), else absent/null
+  devRole?: string | null;    // that device's role (viewer | operator | presenter | admin)
 }
 
 export async function signTicket(env: Env, claims: Omit<TicketClaims, "exp">, now = Date.now(), ttlS = TICKET_TTL_S): Promise<string> {
@@ -155,7 +159,9 @@ export async function verifyTicket(env: Env, token: string, rid: string, now = D
     if (c.role !== "runtime" && c.role !== "device") return null;
     if (typeof c.sub !== "string" || !c.sub || typeof c.jti !== "string" || !c.jti || c.rid !== rid) return null;
     if (c.role === "runtime" && c.sub !== rid) return null;
-    return { sub: c.sub, role: c.role, rid: c.rid, jti: c.jti, exp: c.exp };
+    const dev = typeof c.dev === "string" && c.dev ? c.dev : null;
+    if (dev && (c.role !== "device" || typeof c.devRole !== "string" || !c.devRole)) return null;
+    return { sub: c.sub, role: c.role, rid: c.rid, jti: c.jti, exp: c.exp, dev, devRole: dev ? (c.devRole as string) : null };
   } catch {
     return null;
   }

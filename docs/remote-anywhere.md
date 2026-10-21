@@ -1,8 +1,8 @@
 # The remote from anywhere (optional)
 
 Use the phone or iPad remote when it is not on the same Wi-Fi as the PC: from another building, on mobile data, or
-on a guest network that keeps devices apart. It is the same remote, with the same buttons and the same PIN. It just
-reaches the PC through your FrameDecks account.
+on a guest network that keeps devices apart. It is the same remote, with the same buttons. It reaches the PC through
+your FrameDecks account, and each phone is paired with the PC once and approved there.
 
 **Who this is for:** a presenter or helper who cannot join the PC's Wi-Fi.
 
@@ -11,7 +11,8 @@ no internet.
 
 **On this page**
 - [Turn it on at the PC](#turn-it-on-at-the-pc)
-- [Connect the phone or iPad](#connect-the-phone-or-ipad)
+- [Pair a phone or iPad](#pair-a-phone-or-ipad)
+- [Trusted devices: roles and Revoke](#trusted-devices-roles-and-revoke)
 - [Install it as an app](#install-it-as-an-app)
 - [What is safe](#what-is-safe)
 - [If it does not connect](#if-it-does-not-connect)
@@ -27,15 +28,33 @@ no internet.
 
 Turn it off at any time: nothing then reaches the PC except over its Wi-Fi.
 
-## Connect the phone or iPad
+## Pair a phone or iPad
 
-1. Open the FrameDecks remote address (it is shown under **Control from anywhere** on the PC).
-2. Sign in with the **same account**: type your email, then the 6-digit code from the email.
-3. Choose your PC. A PC that is off, or has **Control from anywhere** turned off, shows "not reachable".
-4. Enter the PC's **PIN**, as on the Wi-Fi.
+Once per phone. Under **Control from anywhere** at the PC, select **Pair a phone or iPad**. A QR code and a 6-digit
+code appear; they work once, for 5 minutes.
 
-The remote remembers the account and the PC. Next time it opens straight at the remote, or at the PIN card. On the
-PIN card, **Choose another PC** goes back to the list.
+1. On the phone, point the **Camera** at the QR code and open the link. (Or open the FrameDecks remote address, sign
+   in, choose the PC, and type the 6-digit code.)
+2. Sign in with the **same account** as the PC, if the phone is not signed in yet.
+3. The phone shows six digits, for example **569 680**. The PC asks "Allow ‹iPhone› (Safari, iOS) to control this
+   PC?" with digits too. **If they are the same**, choose a role and select **Approve**. If not, select **Reject**.
+4. The remote opens. From now on it opens straight away, with no PIN.
+
+Everything the paired phone and the PC send each other is sealed with a key only they have; the FrameDecks cloud only
+passes it on and cannot read it.
+
+## Trusted devices: roles and Revoke
+
+The PC lists every paired phone and tablet with its role and when it was last used.
+
+| Role | Can |
+| --- | --- |
+| Viewer | See what is live and the Teleprompter; changes nothing |
+| Operator (the usual) | Everything the Wi-Fi remote can do |
+| Presenter, Administrator | As Operator, for now |
+
+Change a role at any time. **Revoke** cuts a phone off at once (within a second); to use it again, pair it again. Lost
+a phone? Revoke it at the PC.
 
 ## Install it as an app
 
@@ -47,11 +66,11 @@ until the signal is back).
 
 ## What is safe
 
-- The PC's PIN is still needed, and too many wrong PINs lock that phone out for a minute, as on the Wi-Fi.
+- Only phones approved at the PC can connect, and only with the role you gave them.
+- What they send is sealed end to end; the cloud cannot read it, and a copied or replayed message is refused.
 - Only the remote can be reached this way. The members list, birthdays, email list, the Studio and your account
   settings never can.
 - Presenting never depends on it: if the internet drops, the PC carries on and the Wi-Fi remote keeps working.
-- Coming next: pairing a phone with a code and approving it at the PC, roles, and a list of trusted devices.
 
 ## If it does not connect
 
@@ -60,4 +79,5 @@ until the signal is back).
 | The PC is "not reachable" in the list | At the PC: is FrameDecks running, signed in, with **Control from anywhere** on and **Reachable from anywhere** showing? |
 | "No PC in your account yet" | Sign in on the phone with the same email as on the PC. |
 | "Not connected to the PC" in the remote | The phone or the PC lost the internet. It reconnects by itself. |
-| "That PIN isn't right" | The PIN is on the PC: **Settings → Phone & iPad Remote**. |
+| "This phone was removed from ‹PC›" | It was revoked at the PC. Pair it again. |
+| The digits on the phone and the PC differ | Select **Reject** at the PC and pair again: something is in the way. |

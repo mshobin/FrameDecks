@@ -39,6 +39,12 @@ describe("migrations", () => {
     expect(rt).not.toBeNull();
   });
 
+  it("0003 adds the pairing columns", async () => {
+    const { results } = await env.DB.prepare("SELECT name FROM pragma_table_info('pairing_requests')").all<{ name: string }>();
+    const cols = results.map((r) => r.name);
+    for (const c of ["workspace_id", "code_salt", "pc_key", "device_key", "device_id", "credential_delivered"]) expect(cols).toContain(c);
+  });
+
   it("rejects an unknown entity kind", async () => {
     await expect(entity("slide", "x1")).rejects.toThrow(/CHECK constraint failed/);
   });

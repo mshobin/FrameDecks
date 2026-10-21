@@ -3,7 +3,9 @@
 //
 // Hibernation API: sockets are accepted with ctx.acceptWebSocket, so an idle relay is evicted from memory and costs
 // nothing; each socket's role and connection id live in its attachment and tags. The relay never logs, stores or
-// reads `path`, `headers` or `body`: it parses a frame only to find `t`, `id` and `to`, and passes the rest on.
+// reads `path`, `headers` or `body`: it parses a frame only to find `t`, `id` and `to`, and passes the rest on. A paired
+// device's frames carry `seal` (ciphertext) instead, which the relay passes on just the same
+// (docs/architecture/pairing-protocol.md §4).
 import { DurableObject } from "cloudflare:workers";
 import type { Env } from "./env";
 import { randomId } from "./crypto";
@@ -12,10 +14,18 @@ import { randomId } from "./crypto";
 export const MAX_MESSAGE = 1024 * 1024;
 
 /** Internal headers the Worker sets when it forwards a checked upgrade (never taken from the outside). */
-export const RELAY_HEADERS = { role: "X-Relay-Role", sub: "X-Relay-Sub", jti: "X-Relay-Jti", exp: "X-Relay-Exp" } as const;
+export const RELAY_HEADERS = {
+  role: "X-Relay-Role", sub: "X-Relay-Sub", jti: "X-Relay-Jti", exp: "X-Relay-Exp", dev: "X-Relay-Dev", devRole: "X-Relay-Dev-Role",
+} as const;
+
+/** Close code and reason sent to a revoked device's sockets. */
+export const REVOKED_CLOSE = { code: 4001, reason: "revoked" } as const;
 
 type Role = "runtime" | "device";
-interface Attachment { role: Role; id: string; sub: string; replaced?: boolean }
+/** dev / devRole: the paired device behind a device socket opened with a device ticket (null for a user ticket). */
+interface Attachment { role: Role; id: string; sub: string; dev?: string | null; devRole?: string | null; replaced?: boolean }
+
+const DEV_TAG = "dev:";
 
 const OFFLINE_BODY = JSON.stringify({ error: "offline" });
 const JTI_PREFIX = "jti:";
@@ -36,6 +46,21 @@ export class RuntimeRelay extends DurableObject<Env> {
       return plain(200, { online: this.runtimeSocket() !== null, devices: this.ctx.getWebSockets("device").length });
     }
     if (url.pathname === "/connect") return this.accept(request);
+    if (url.pathname === "/revoke" && request.method === "POST") {
+      const { device } = await request.json<{ device?: unknown }>();
+      if (typeof device !== "string" || !device) return plain(400, { error: "bad_request" });
+      return plain(200, { closed: this.revoke(device) });
+    }
+    if (url.pathname === "/role" && request.method === "POST") {
+      const { device, role } = await request.json<{ device?: unknown; role?: unknown }>();
+      if (typeof device !== "string" || !device || typeof role !== "string" || !role) return plain(400, { error: "bad_request" });
+      let n = 0;
+      for (const s of this.ctx.getWebSockets(DEV_TAG + device)) {
+        const a = s.deserializeAttachment() as Attachment | null;
+        if (a?.dev === device) { s.serializeAttachment({ ...a, devRole: role }); n++; }
+      }
+      return plain(200, { updated: n });
+    }
     return plain(404, { error: "not_found" });
   }
 
@@ -46,6 +71,9 @@ export class RuntimeRelay extends DurableObject<Env> {
     const sub = request.headers.get(RELAY_HEADERS.sub) || "";
     const jti = request.headers.get(RELAY_HEADERS.jti) || "";
     const exp = Number(request.headers.get(RELAY_HEADERS.exp));
+    const dev = request.headers.get(RELAY_HEADERS.dev) || null;
+    const devRole = dev ? request.headers.get(RELAY_HEADERS.devRole) || null : null;
+    if (dev && (role !== "device" || !devRole)) return plain(400, { error: "bad_request" });
     if ((role !== "runtime" && role !== "device") || !sub || !jti || !Number.isFinite(exp)) return plain(400, { error: "bad_request" });
 
     // each ticket opens one socket: its jti is remembered until it expires (input gates make get+put atomic here)
@@ -68,8 +96,8 @@ export class RuntimeRelay extends DurableObject<Env> {
       this.broadcastOnline(true);
     } else {
       const id = randomId("c");
-      this.ctx.acceptWebSocket(server, ["device", id]);
-      server.serializeAttachment({ role, id, sub } satisfies Attachment);
+      this.ctx.acceptWebSocket(server, dev ? ["device", id, DEV_TAG + dev] : ["device", id]);
+      server.serializeAttachment({ role, id, sub, dev, devRole } satisfies Attachment);
       send(server, { t: "runtime", online: this.runtimeSocket() !== null });
     }
     return new Response(null, { status: 101, webSocket: client });
@@ -97,7 +125,8 @@ export class RuntimeRelay extends DurableObject<Env> {
       if (!runtime) {
         return send(ws, { t: "res", id: m.id, status: 503, headers: { "Content-Type": "application/json" }, body: OFFLINE_BODY });
       }
-      return send(runtime, { ...m, from: me.id });
+      // who is asking, as the relay knows it (a device cannot set these itself)
+      return send(runtime, { ...m, from: me.id, dev: me.dev ?? null, role: me.dev ? me.devRole ?? null : null });
     }
 
     if (me.role === "runtime" && m.t === "res") {
@@ -120,6 +149,17 @@ export class RuntimeRelay extends DurableObject<Env> {
 
   async webSocketError(ws: WebSocket): Promise<void> {
     this.gone(ws);
+  }
+
+  /** Closes every socket of a revoked device at once. */
+  private revoke(device: string): number {
+    let n = 0;
+    for (const s of this.ctx.getWebSockets(DEV_TAG + device)) {
+      const a = s.deserializeAttachment() as Attachment | null;
+      if (a?.dev !== device) continue;
+      try { s.close(REVOKED_CLOSE.code, REVOKED_CLOSE.reason); n++; } catch { /* already closing */ }
+    }
+    return n;
   }
 
   /** Forgets used tickets once they have expired. */

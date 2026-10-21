@@ -5,6 +5,7 @@ import pkg from "../package.json";
 import { audit, listAudit } from "./audit";
 import * as email from "./auth/email";
 import { configuredProviders } from "./auth/oidc";
+import * as devices from "./devices";
 import * as session from "./auth/session";
 import { isPreflight, preflight, withCors } from "./cors";
 import type { Env } from "./env";
@@ -12,6 +13,7 @@ import { authenticate } from "./guard";
 import { clientIp, empty, error, HttpError, json, readJson } from "./http";
 import { jwks } from "./jwt";
 import { deleteMe, exportMe, me, renameRuntime, revokeRuntime } from "./me";
+import * as pairing from "./pairing";
 import * as relay from "./relay-routes";
 import { pull, push } from "./sync";
 import { logout, rotate } from "./tokens";
@@ -62,7 +64,7 @@ on("POST", "/auth/refresh", async (r, env) => {
 on("POST", "/auth/logout", async (r, env) => {
   const body = await readJson<{ refresh?: unknown }>(r);
   const who = await logout(env, String(body.refresh ?? ""));
-  if (who) await audit(env, null, { type: who.type === "runtime" ? "runtime" : "user", id: who.id }, "sign_out", null, clientIp(r));
+  if (who) await audit(env, null, { type: who.type === "runtime" || who.type === "device" ? who.type : "user", id: who.id }, "sign_out", null, clientIp(r));
   return empty();
 });
 
@@ -80,8 +82,19 @@ on("POST", "/sync", async (r, env) => push(r, env, await authenticate(r, env)));
 
 // the relay (docs/architecture/relay-protocol.md); /relay/runtimes comes before /relay/{id}
 on("GET", "/relay/runtimes", async (r, env) => relay.runtimes(env, await authenticate(r, env)));
-on("POST", "/relay/{id}/ticket", async (r, env, p) => relay.ticket(env, await authenticate(r, env), p[0]));
+on("POST", "/relay/{id}/ticket", async (r, env, p) => relay.ticket(env, await authenticate(r, env, { device: true }), p[0]));
 on("GET", "/relay/{id}", (r, env, p, url) => relay.connect(r, env, p[0], url));
+
+// pairing and trusted devices (docs/architecture/pairing-protocol.md §2, §3); /pairing/claim comes before /pairing/{id}.
+// A device token may only refresh, ask for its own PC's ticket and delete itself: every other route refuses it (403).
+on("POST", "/pairing", async (r, env) => pairing.start(r, env, await authenticate(r, env)));
+on("POST", "/pairing/claim", async (r, env) => pairing.claim(r, env, await authenticate(r, env)));
+on("GET", "/pairing/{id}", async (r, env, p) => pairing.get(env, await authenticate(r, env), p[0]));
+on("POST", "/pairing/{id}/approve", async (r, env, p) => pairing.approve(r, env, await authenticate(r, env), p[0]));
+on("POST", "/pairing/{id}/reject", async (r, env, p) => pairing.reject(r, env, await authenticate(r, env), p[0]));
+on("GET", "/devices", async (r, env, _p, url) => devices.list(env, await authenticate(r, env), url));
+on("PATCH", "/devices/{id}", async (r, env, p) => devices.setRole(r, env, await authenticate(r, env), p[0]));
+on("DELETE", "/devices/{id}", async (r, env, p) => devices.revoke(r, env, await authenticate(r, env, { device: true }), p[0]));
 
 async function route(request: Request, env: Env): Promise<Response> {
   const url = new URL(request.url);

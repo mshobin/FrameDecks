@@ -39,6 +39,19 @@ All `/v1`, errors `{"error": {"code", "message"}}`. Pairing requests expire 5 mi
 
 Rate limits: `POST /pairing` 30 an hour per runtime; `claim` 10 a minute per user and 30 an hour per IP.
 
+Details:
+- The code is stored as SHA-256 with a per-request salt; the QR token (128 random bits) as SHA-256 with a fixed
+  domain prefix, so it can be looked up directly. Comparisons are constant-time.
+- A wrong code answers `400 code_wrong`; the fifth ends every open request of the workspace and answers
+  `410 pair_expired`, as do later tries, an unknown token, or a code when nothing is open.
+- Approving before a claim: `409 not_claimed`; approving or rejecting an expired or answered request:
+  `410 pair_expired`; a bad role or key: `400 bad_role` / `bad_key`. Anyone but the PC that started it and the claimer
+  gets `404` for `GET /pairing/{id}`.
+- Once approved a request stays `approved`; its credential is collected once. A claimed request still expires 5
+  minutes after it started, and then it cannot be approved.
+- Audit: `pair_started`, `pair_claimed`, `pair_approved`, `pair_rejected`, `device_role_changed`, `device_revoked`
+  (a device removing itself is recorded with actor type `device`).
+
 ## 3. Devices
 
 | Method & path | Who | What |
@@ -47,13 +60,19 @@ Rate limits: `POST /pairing` 30 an hour per runtime; `claim` 10 a minute per use
 | `PATCH /devices/{id}` | the device's runtime, or an admin user | `{"role"}` → the device |
 | `DELETE /devices/{id}` | the device's runtime, an admin user, or the device itself | `204`. Revokes the device and its refresh tokens and **closes its relay sockets at once** |
 
-**Device tokens.** The credential is a refresh token (subject `device`, rotating, reuse-detecting, like the others)
-and a 10-minute access token with `typ: "device"`, `sub` = device id, `rid` = its PC, `role`. A device token may only
-refresh, ask for a relay ticket for its own PC, and delete itself. `last_used_at` is set when it gets a ticket.
+**Device tokens.** The credential is a refresh token (subject `device`, rotating, reuse-detecting, like the others;
+180 days, renewed on every use) and a 10-minute access token with `typ: "device"`, `sub` = device id, `rid` = its PC,
+`role`. A device token may only refresh, ask for a relay ticket for its own PC, and delete itself (`403` for anything
+else). It stops working at once when the device or its PC is revoked, or when the person who paired it leaves the
+workspace or deletes the account. `last_used_at` is set when it gets a ticket.
+
+"An admin user" means a user token (not a runtime's) with the admin role in that workspace. `PATCH` on a revoked device
+answers `409 device_revoked`. A role change reaches the device's open sockets at once.
 
 ## 4. The relay, sealed
 
-- `POST /relay/{rid}/ticket` also accepts a device token (its own `rid` only). The ticket carries `dev` and `role`.
+- `POST /relay/{rid}/ticket` also accepts a device token (its own `rid` only). The ticket carries `dev` and
+  `devRole` (its `role` claim stays the socket's side, `runtime` or `device`).
 - The relay adds `"dev"` and `"role"` to every `req` it passes from a device socket opened with a device ticket
   (`null` for a user-ticket socket).
 - **A paired device's messages are sealed.** Instead of `method`, `path`, `headers`, `body`:
@@ -81,7 +100,20 @@ refresh, ask for a relay ticket for its own PC, and delete itself. `last_used_at
 | Presenter | As Operator. |
 | Administrator | As Operator. (Managing devices and editing Frames from the cloud come with later phases.) |
 
-## 6. On the phone
+## 6. How it is tested
+
+- `tests/pair-crypto.test.js`: the phone's keys, check digits and seals against a vector made by the PC's code
+  (`tools/make_pairing_vector.py`), both ways.
+- `tests/test_relay_link.py`: the real program; unsealed, unpaired, wrong-key, tampered and replayed messages are
+  refused, a paired phone needs no PIN, a Viewer changes nothing, and a device removed at the PC is cut off at once.
+- `tests/test_cloud_link.py`: the PC's check digits and key equal the phone's; the cloud's list wins on revocation.
+- `cloud/test/pairing.test.ts`, `relay.test.ts`: the API, tokens, limits, audit, and revoke closing sockets (4001).
+- `tools/relay_e2e.py`, the exit test: the real cloud, the program, its Settings and the published remote. Pair by QR
+  (both screens show the same digits; Approve; open with no PIN, in about 3 seconds), identical pictures and answers
+  through the sealed relay, pair by code as a Viewer (changes refused), and Revoke (the phone is cut off in about
+  0.2 seconds and asked to pair again).
+
+## 7. On the phone
 
 1. Scanning the QR opens the remote at `…/remote.html#pair=<token>&k=<PC key>&pc=<runtime id>`. The fragment is read
    and removed from the address bar.

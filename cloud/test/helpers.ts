@@ -45,3 +45,31 @@ export async function signIn(email = newEmail(), client: unknown = RUNTIME, ip =
     runtime?: { id: string; name: string };
   };
 }
+
+/** A public X25519 key's shape (32 random bytes, base64url): the cloud only stores and passes it on. */
+export function fakeKey(): string {
+  const b = crypto.getRandomValues(new Uint8Array(32));
+  return btoa(String.fromCharCode(...b)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+
+export const PHONE = { name: "iPhone", platform: "iOS", browser: "Safari" };
+
+/** A PC and a phone of one person, paired: start, claim with the QR token, approve, collect the credential. */
+export async function pairDevice(role = "operator") {
+  const email = newEmail();
+  const pc = await signIn(email, RUNTIME);
+  const phone = await signIn(email, { type: "browser" });
+  const start = await post("/v1/pairing", { pcKey: fakeKey() }, { token: pc.access });
+  if (start.status !== 201) throw new Error(`start ${start.status} ${start.text}`);
+  const claim = await post("/v1/pairing/claim", { token: start.body.token, device: PHONE, deviceKey: fakeKey() }, { token: phone.access, ip: newIp() });
+  if (claim.status !== 200) throw new Error(`claim ${claim.status} ${claim.text}`);
+  const ok = await post(`/v1/pairing/${start.body.id}/approve`, { role }, { token: pc.access });
+  if (ok.status !== 200) throw new Error(`approve ${ok.status} ${ok.text}`);
+  const got = await call(`/v1/pairing/${start.body.id}`, { token: phone.access });
+  if (!got.body?.credential) throw new Error(`credential ${got.status} ${got.text}`);
+  const credential = got.body.credential as {
+    device: { id: string; role: string; name: string }; runtime: { id: string; name: string };
+    access: string; accessExpiresAt: number; refresh: string;
+  };
+  return { email, pc, phone, rid: pc.runtime!.id, pairingId: start.body.id as string, credential, device: credential.device };
+}

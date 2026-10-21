@@ -3,8 +3,9 @@
 The FrameDecks cloud: a Cloudflare Worker (TypeScript) with a D1 database. It will hold accounts, metadata sync,
 pairing and the encrypted relay (docs/project/saas-pwa-architecture.md, §4 and §7).
 
-This is **Phase 2**: sign-in and sync, plus the **Phase 3** relay. The exact contract is `docs/architecture/cloud-api.md`; the schema is
-`migrations/0001_init.sql` plus `migrations/0002_auth.sql`. Presenting never depends on the cloud.
+This is **Phase 2**: sign-in and sync, plus the **Phase 3** relay and the **Phase 4** pairing of trusted devices. The
+exact contract is `docs/architecture/cloud-api.md` and `docs/architecture/pairing-protocol.md`; the schema is
+`migrations/0001_init.sql` plus `0002_auth.sql` and `0003_pairing.sql`. Presenting never depends on the cloud.
 
 Until a domain exists (decision D4), the API is served on its free Cloudflare address,
 `https://framedecks-api-staging.<account>.workers.dev` (staging) and `https://framedecks-api.<account>.workers.dev`.
@@ -40,6 +41,12 @@ Until a domain exists (decision D4), the API is served on its free Cloudflare ad
 | `POST /relay/{runtimeId}/ticket` | A one-socket relay ticket, `{ticket, expiresIn: 60}` (a member's user token, or the runtime itself) |
 | `GET /relay/{runtimeId}?ticket=…` | The relay WebSocket (`Upgrade: websocket`); 401 `bad_ticket`, 426 without an upgrade |
 | `GET /relay/runtimes` | The workspace's computers that are not revoked, `[{id, name, platform, online}]` (user token) |
+| `POST /pairing` | A runtime starts pairing a phone: `{pcKey}` → 201 `{id, code, token, expiresAt}` (5 minutes; ends its other open one) |
+| `POST /pairing/claim` | A member claims it: `{token}` or `{code}`, `device: {name, platform, browser}`, `deviceKey` → `{id, runtime, pcKey, expiresAt}` |
+| `GET /pairing/{id}` | Its status; the runtime also sees the device and its key, the claimer collects its credential once after approval |
+| `POST /pairing/{id}/approve`, `/reject` | The runtime answers: `{role}` (default `operator`) → `{device}`; reject → 204 |
+| `GET /devices?runtime={id}` | That PC's paired devices (that runtime, or an admin user) |
+| `PATCH /devices/{id}`, `DELETE /devices/{id}` | Change a device's role; revoke it and close its relay sockets at once (its runtime, an admin user; DELETE also the device itself) |
 
 ## The relay (Phase 3)
 
@@ -56,6 +63,38 @@ binding `RELAY`, SQLite-backed). The message shapes are in `docs/architecture/re
   `{"t":"pong"}` without waking it. It never logs or stores what passes through. A frame over 1 MiB, malformed JSON,
   or a type the sender may not send is dropped, and the sender gets `{"t": "error", "code": "too_large" |
   "bad_json" | "unknown_type" | "bad_message", "message"}`.
+
+## Pairing and trusted devices (Phase 4)
+
+The contract is `docs/architecture/pairing-protocol.md` (§2–§4); the code is `src/pairing.ts` and `src/devices.ts`.
+
+- **Starting.** `POST /pairing` (a runtime token) with the PC's X25519 public key gives a 6-digit code and a QR token
+  (16 random bytes, base64url), valid 5 minutes; a new one ends the PC's other open request. The code is stored only
+  as SHA-256 with a per-request salt (`code_salt`); the token as SHA-256 with a fixed domain salt, so it can be looked
+  up. Hashes are compared in constant time. 30 starts an hour per runtime.
+- **Claiming.** A user token (never a runtime's or a device's) of a member of the PC's workspace, with the phone's
+  key. By token: the token names the request. By code: only the open, unexpired requests of the claimer's workspace
+  are searched; each wrong code adds one to `attempts` of every open request there, and the fifth ends them
+  (`400 code_wrong`, then `410 pair_expired`). Expired, used or unknown: `410 pair_expired`. 10 claims a minute per user,
+  30 an hour per IP.
+- **Answering.** `GET /pairing/{id}` shows `open | claimed | approved | rejected | expired` (open and claimed read as
+  expired after `expiresAt`) to the runtime that started it (plus the device and `deviceKey` once claimed) and to the
+  user who claimed it. Approve makes the `devices` row with its role; the claimer's next `GET` carries, exactly once,
+  `credential: {device, runtime, access, accessExpiresAt, refresh}`. Audited: `pair_started`, `pair_claimed`,
+  `pair_approved`, `pair_rejected`.
+- **Device tokens.** Access tokens with `typ: "device"`, `sub` = device id, `rid`, `role`, `ws` (10 minutes); refresh
+  tokens with subject `device` (180 days, renewed on every rotation) rotate and detect reuse like the others. Every
+  request re-checks the device (and its PC and the person who paired it), so revoking takes effect at once. A device
+  token may only refresh, get a ticket for its own PC (which sets `last_used_at`), and `DELETE /devices/{its id}`;
+  everything else answers 403.
+- **Devices.** `GET /devices?runtime=`, `PATCH /devices/{id} {role}` (audited `device_role_changed`), and
+  `DELETE /devices/{id}` (audited `device_revoked`): it revokes the device and its refresh tokens and tells the
+  PC's relay (`POST /revoke {"device"}` inside the Durable Object), which closes that device's sockets with
+  `4001 revoked`. Deleting the account that paired a device, or revoking its PC, ends the device too.
+- **The relay.** A device ticket carries `dev` and `devRole` (`role` stays the socket's side, `device`); the upgrade
+  re-checks the device. The relay adds `"dev"` and `"role"` to every `req` from a device socket (`null` for a socket
+  opened with a user ticket), overwriting whatever the sender put there, and passes sealed frames (`seal` instead of
+  `method` / `path` / `headers` / `body`) on unread. A role change reaches open sockets at once.
 
 ## CORS
 
@@ -102,7 +141,10 @@ npm test            # vitest in the Workers runtime (Miniflare), with the migrat
 The tests cover health and the schema; email codes (wrong, expired, too many tries, rate limits); refresh rotation,
 reuse and logout; `/me`, export and deleting an account; runtimes; sync (new, update, conflict, delete, paging and
 what is refused); access-token expiry and tampering; the providers, with Google, Microsoft and Apple mocked; CORS;
-and the relay (tickets, expired and reused tickets, routing, online notices, replacement, ping, bad messages).
+the relay (tickets, expired and reused tickets, routing, online notices, replacement, ping, bad messages); and pairing
+(start, claim by token and by code, wrong codes, expiry, who may claim and see, approve, the credential once, reject,
+rate limits, audit), device tokens (refresh, reuse, what they may call, revocation) and paired devices on the relay
+(their own ticket, dev and role on each request, sealed frames, `4001 revoked` on DELETE).
 The test JWT key is generated fresh by `vitest.config.ts`.
 
 `.npmrc` sets `legacy-peer-deps`: npm 10 fails while resolving Vitest's optional browser peers, and the peers this

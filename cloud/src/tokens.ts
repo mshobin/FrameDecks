@@ -8,15 +8,40 @@ import { signAccess } from "./jwt";
 
 export const USER_REFRESH_MS = 30 * 24 * 60 * 60 * 1000;
 export const RUNTIME_REFRESH_MS = 10 * 365 * 24 * 60 * 60 * 1000;     // "until signed out or revoked"
+export const DEVICE_REFRESH_MS = 180 * 24 * 60 * 60 * 1000;           // a paired phone; each refresh starts it again
 
-export type Subject = { type: "user"; userId: string } | { type: "runtime"; runtimeId: string };
+export type Subject =
+  | { type: "user"; userId: string }
+  | { type: "runtime"; runtimeId: string }
+  | { type: "device"; deviceId: string };
 
 export interface TokenPair { access: string; accessExpiresAt: number; refresh: string }
 
-interface Identity { typ: "user" | "runtime"; sub: string; uid: string; ws: string; role: string }
+interface Identity { typ: "user" | "runtime" | "device"; sub: string; uid: string; ws: string; role: string; rid?: string }
+
+const subjectId = (s: Subject): string => s.type === "runtime" ? s.runtimeId : s.type === "device" ? s.deviceId : s.userId;
+const refreshTtl = (s: Subject): number => s.type === "runtime" ? RUNTIME_REFRESH_MS : s.type === "device" ? DEVICE_REFRESH_MS : USER_REFRESH_MS;
+
+function subjectOf(type: string, id: string): Subject {
+  if (type === "runtime") return { type: "runtime", runtimeId: id };
+  if (type === "device") return { type: "device", deviceId: id };
+  return { type: "user", userId: id };
+}
 
 /** Who a subject is now (its user, workspace and role), or null when it can no longer sign in. */
 async function identityOf(env: Env, s: Subject): Promise<Identity | null> {
+  if (s.type === "device") {
+    // a device lives while it is not revoked, its PC is not revoked, and the person who paired it is still a member
+    const d = await env.DB.prepare(
+      `SELECT d.runtime_id AS rid, d.user_id AS uid, d.role, d.revoked_at, r.workspace_id AS ws, r.revoked_at AS rt_revoked,
+              u.deleted_at, m.user_id AS member
+       FROM devices d JOIN runtimes r ON r.id = d.runtime_id JOIN users u ON u.id = d.user_id
+       LEFT JOIN workspace_members m ON m.workspace_id = r.workspace_id AND m.user_id = d.user_id
+       WHERE d.id = ?`,
+    ).bind(s.deviceId).first<{ rid: string; uid: string; role: string; revoked_at: number | null; ws: string; rt_revoked: number | null; deleted_at: number | null; member: string | null }>();
+    if (!d || d.revoked_at || d.rt_revoked || d.deleted_at || !d.member) return null;
+    return { typ: "device", sub: s.deviceId, uid: d.uid, ws: d.ws, role: d.role, rid: d.rid };
+  }
   if (s.type === "runtime") {
     const r = await env.DB.prepare(
       `SELECT r.workspace_id AS ws, r.user_id AS uid, r.revoked_at, u.deleted_at, m.role
@@ -36,7 +61,9 @@ async function identityOf(env: Env, s: Subject): Promise<Identity | null> {
 }
 
 async function access(env: Env, id: Identity): Promise<{ access: string; accessExpiresAt: number }> {
-  const { token, expiresAt } = await signAccess(env, { sub: id.sub, typ: id.typ, uid: id.uid, ws: id.ws, role: id.role, jti: randomId("j") });
+  const { token, expiresAt } = await signAccess(env, {
+    sub: id.sub, typ: id.typ, uid: id.uid, ws: id.ws, role: id.role, jti: randomId("j"), ...(id.rid ? { rid: id.rid } : {}),
+  });
   return { access: token, accessExpiresAt: expiresAt };
 }
 
@@ -45,8 +72,7 @@ async function storeRefresh(env: Env, s: Subject, familyId: string): Promise<str
   const now = Date.now();
   await env.DB.prepare(
     "INSERT INTO refresh_tokens (id, family_id, subject_type, subject_id, token_hash, expires_at) VALUES (?, ?, ?, ?, ?, ?)",
-  ).bind(randomId("t"), familyId, s.type, s.type === "runtime" ? s.runtimeId : s.userId, await sha256(token),
-    now + (s.type === "runtime" ? RUNTIME_REFRESH_MS : USER_REFRESH_MS)).run();
+  ).bind(randomId("t"), familyId, s.type, subjectId(s), await sha256(token), now + refreshTtl(s)).run();
   return token;
 }
 
@@ -66,7 +92,7 @@ export async function rotate(env: Env, refresh: string, ip?: string): Promise<To
     "SELECT id, family_id, subject_type, subject_id, expires_at, used_at, revoked_at FROM refresh_tokens WHERE token_hash = ?",
   ).bind(await sha256(refresh)).first<{ id: string; family_id: string; subject_type: string; subject_id: string; expires_at: number; used_at: number | null; revoked_at: number | null }>();
   if (!row || row.revoked_at || row.expires_at <= Date.now()) throw unauthorized;
-  const s: Subject = row.subject_type === "runtime" ? { type: "runtime", runtimeId: row.subject_id } : { type: "user", userId: row.subject_id };
+  const s = subjectOf(row.subject_type, row.subject_id);
   if (row.used_at) {                                     // a retired token came back: the family is compromised
     await revokeFamily(env, row.family_id);
     const id = await identityOf(env, s);

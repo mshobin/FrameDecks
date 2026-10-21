@@ -61,13 +61,17 @@ export async function deleteMe(request: Request, env: Env, auth: Auth): Promise<
     env.DB.prepare("DELETE FROM identities WHERE user_id = ?").bind(auth.uid),
     env.DB.prepare("DELETE FROM email_codes WHERE email = (SELECT email FROM users WHERE id = ?)").bind(auth.uid),
     env.DB.prepare("UPDATE runtimes SET revoked_at = COALESCE(revoked_at, ?) WHERE user_id = ?").bind(now, auth.uid),
+    // the phones this person paired stop working too
+    env.DB.prepare("UPDATE refresh_tokens SET revoked_at = ? WHERE subject_type = 'device' AND revoked_at IS NULL AND subject_id IN (SELECT id FROM devices WHERE user_id = ?)").bind(now, auth.uid),
+    env.DB.prepare("UPDATE devices SET revoked_at = COALESCE(revoked_at, ?) WHERE user_id = ?").bind(now, auth.uid),
   ];
   if ((members?.n ?? 0) <= 1) {
     // the only member: the workspace and everything in it goes
     stmts.push(
       env.DB.prepare("DELETE FROM entities WHERE workspace_id = ?").bind(auth.ws),
-      env.DB.prepare("DELETE FROM devices WHERE runtime_id IN (SELECT id FROM runtimes WHERE workspace_id = ?)").bind(auth.ws),
       env.DB.prepare("DELETE FROM pairing_requests WHERE runtime_id IN (SELECT id FROM runtimes WHERE workspace_id = ?)").bind(auth.ws),
+      env.DB.prepare("DELETE FROM refresh_tokens WHERE subject_type = 'device' AND subject_id IN (SELECT d.id FROM devices d JOIN runtimes r ON r.id = d.runtime_id WHERE r.workspace_id = ?)").bind(auth.ws),
+      env.DB.prepare("DELETE FROM devices WHERE runtime_id IN (SELECT id FROM runtimes WHERE workspace_id = ?)").bind(auth.ws),
       env.DB.prepare("DELETE FROM refresh_tokens WHERE subject_type = 'runtime' AND subject_id IN (SELECT id FROM runtimes WHERE workspace_id = ?)").bind(auth.ws),
       env.DB.prepare("DELETE FROM runtimes WHERE workspace_id = ?").bind(auth.ws),
       env.DB.prepare("DELETE FROM audit_log WHERE workspace_id = ?").bind(auth.ws),

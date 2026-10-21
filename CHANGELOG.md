@@ -10,6 +10,19 @@ Versions before 4.9 (when the program had its earlier name) are described in the
 
 ## [Unreleased]
 
+### Added (SaaS + PWA, Phase 4: pairing)
+- **Pair a phone or iPad** (Settings → Phone & iPad Remote → Control from anywhere): a QR code or 6-digit code (5
+  minutes, once), the same six check digits on both screens, and Approve at the PC with a role. A paired phone opens
+  the remote with no PIN. Guide: [docs/remote-anywhere.md](docs/remote-anywhere.md).
+  - Everything a paired phone and the PC send each other is sealed end to end (X25519, AES-GCM); the cloud cannot
+    read it, and replayed or reordered messages are refused.
+  - Trusted devices: Viewer (changes nothing), Operator, Presenter, Administrator; Revoke cuts a phone off within a
+    second. The PC has the final say on every role.
+  - Since Phase 4 the remote from anywhere needs a paired phone; the Wi-Fi remote and its PIN are unchanged.
+- The cloud: pairing, devices, device credentials, revoke closing the phone's connection
+  ([docs/architecture/pairing-protocol.md](docs/architecture/pairing-protocol.md)). The Windows build adds the
+  `cryptography` package.
+
 ### Added (SaaS + PWA, Phase 3: the remote from anywhere)
 - **Control from anywhere (optional):** Settings → Phone & iPad Remote. The phone or iPad remote reaches the PC
   through the FrameDecks account when it is not on the same Wi-Fi. Same remote, same PIN. Guide:

@@ -49,7 +49,7 @@ function deviceFor(rid){ return Holder(':dev:' + rid); }
 function device(){
   var ua = navigator.userAgent, ipad = /iPad/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
   return {name: ipad ? 'iPad' : /iPhone/.test(ua) ? 'iPhone' : /Android/.test(ua) ? 'Android phone' : 'Browser',
-    platform: ipad || /iPhone/.test(ua) ? 'iOS' : /Android/.test(ua) ? 'Android' : /Windows/.test(ua) ? 'Windows' : /Mac/.test(ua) ? 'macOS' : 'Other',
+    platform: ipad || /iPhone/.test(ua) ? 'iOS' : /Android/.test(ua) ? 'Android' : /Windows/.test(ua) ? 'Windows' : /Mac/.test(ua) ? 'macOS' : /Linux|CrOS/.test(ua) ? 'Linux' : 'Other',
     browser: /Edg\//.test(ua) ? 'Edge' : /SamsungBrowser/.test(ua) ? 'Samsung Internet' : /CriOS|Chrome\//.test(ua) ? 'Chrome' : /FxiOS|Firefox\//.test(ua) ? 'Firefox' : /Safari\//.test(ua) ? 'Safari' : 'Browser'};
 }
 
@@ -225,7 +225,7 @@ var card = (function(){
     }, function(e){ if (e.code === 'signed_out' || e.status === 401) signIn(); else show([msg(e.message), h('button', {cls: 'big-btn', type: 'button', text: 'Try again', onclick: pick})]); });
   }
   function pair(id, name, note){
-    var c = h('input', {id: 'pair-code', inputmode: 'numeric', pattern: '[0-9]*', maxlength: '7', placeholder: '••• •••', autocomplete: 'off', 'aria-label': 'Pairing code from the PC'});
+    var c = h('input', {id: 'pair-code', inputmode: 'numeric', maxlength: '7', placeholder: '••• •••', autocomplete: 'off', 'aria-label': 'Pairing code from the PC'});
     var out = msg(note);
     show([h('p', {}, ['Pair this phone with ', h('b', {text: name || 'the PC'}), ' once. On the PC: Settings → Phone & iPad Remote → ', h('b', {text: 'Pair a phone or iPad'}), '. Scan its QR code with the Camera, or type its code:']),
       h('form', {id: 'pair-form', onsubmit: function(e){

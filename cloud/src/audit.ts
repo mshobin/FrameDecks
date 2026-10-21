@@ -5,7 +5,7 @@ import type { Env } from "./env";
 import { HttpError, json } from "./http";
 import type { Auth } from "./guard";
 
-export interface AuditActor { type: "user" | "runtime" | "system"; id: string }
+export interface AuditActor { type: "user" | "runtime" | "device" | "system"; id: string }
 
 export async function audit(env: Env, workspaceId: string | null, actor: AuditActor, action: string, detail: unknown = null, ip?: string): Promise<void> {
   await env.DB.prepare(
