@@ -1789,6 +1789,8 @@ class Handler(BaseHTTPRequestHandler):
                 code, body = cloud_get(path[len("/api/cloud/"):], parse_qs(url.query))
             except cloud_link.CloudError as e:
                 code, body = e.status or 502, e.as_dict()
+            except OSError as e:                         # e.g. Windows Credential Manager refused to keep the sign-in
+                code, body = 500, cloud_link.CloudError(500, "store", f"This computer could not keep the sign-in ({e}).").as_dict()
             return self.reply(code, json.dumps(body), TYPES[".json"])
         if path == "/api/app/ping":
             return self.reply(200, json.dumps({"app": "FrameDecks", "version": APP_VERSION, "installedApp": FROZEN}), TYPES[".json"])
@@ -2219,6 +2221,8 @@ class Handler(BaseHTTPRequestHandler):
                 code, body = cloud_post(path[len("/api/cloud/"):], data)
             except cloud_link.CloudError as e:
                 code, body = e.status or 502, e.as_dict()
+            except OSError as e:                         # e.g. Windows Credential Manager refused to keep the sign-in
+                code, body = 500, cloud_link.CloudError(500, "store", f"This computer could not keep the sign-in ({e}).").as_dict()
             return self.reply(code, json.dumps(body), TYPES[".json"])
         if path.startswith("/api/app/"):
             if not self.is_local():

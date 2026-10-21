@@ -147,7 +147,7 @@ class RelayLinkTest(unittest.TestCase):
         cls.relay = FakeRelay()
         cls.data = Path(tempfile.mkdtemp(prefix="fd-relay-"))
         (cls.data / "kc-remote-pin.txt").write_text(PIN + "\n")
-        env = dict(os.environ, KC_DATA_DIR=str(cls.data), FRAMEDECKS_API=cls.relay.url)
+        env = dict(os.environ, KC_DATA_DIR=str(cls.data), FRAMEDECKS_API=cls.relay.url, FRAMEDECKS_SECRET_STORE="file")
         cls.proc = subprocess.Popen([sys.executable, str(ROOT / "server.py"), "--no-browser"], cwd=str(ROOT), env=env,
                                     stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         cls.port = None

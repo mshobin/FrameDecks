@@ -110,7 +110,9 @@ class WindowsSecret:
 
 
 def default_secret(data_dir, target=CREDENTIAL_TARGET, file_name="kc-cloud-token"):
-    if os.name == "nt":
+    """Windows Credential Manager on Windows; a private file elsewhere, or when FRAMEDECKS_SECRET_STORE=file (tests,
+    and machines without a signed-in Windows profile, such as build servers)."""
+    if os.name == "nt" and os.environ.get("FRAMEDECKS_SECRET_STORE") != "file":
         try:
             return WindowsSecret(target)
         except Exception:                      # Credential Manager unavailable: fall back to a private file
