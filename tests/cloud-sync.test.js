@@ -120,5 +120,18 @@ const START = {v6: true, scenes: [
   same(D.names().slice().sort(), A.names().slice().sort(), 'every page arrives');
   assert.ok(small.pulls > 3, 'several pages');
 
+  /* 10. Joining an account: a Frame the account already has (the same content under other ids, like the starter
+   *     Frames every computer makes) is not added twice; one that differs at all is kept */
+  const study = JSON.parse(JSON.stringify(A.SC.find(A.get(), 'sc_b')));
+  const twin = Object.assign(JSON.parse(JSON.stringify(study)), {id: 'sc_twin', created: 1, modified: 2, creator: 'Laptop'});
+  twin.layers.forEach((l, i) => { l.id = 'T' + i; (l.c.items || []).forEach((it, j) => { it.id = 't' + i + j; }); });
+  const own = Object.assign(JSON.parse(JSON.stringify(study)), {id: 'sc_own', name: study.name + ' (laptop notes)'});
+  const F = Computer('Laptop', cloud, {v6: true, scenes: [twin, own]});
+  await F.sync();
+  assert.ok(!F.get().scenes.some(x => x.id === 'sc_twin'), 'the same Frame is not added twice: ' + F.names());
+  assert.ok(F.get().scenes.some(x => x.id === 'sc_own'), 'a Frame that differs is kept');
+  assert.ok(!cloud.rows['frame/sc_twin'] && cloud.rows['frame/sc_own'], 'only the different one reaches the account');
+  assert.strictEqual(F.names().filter(n => n === study.name).length, 1);
+
   console.log('cloud sync: OK');
 })().catch(e => { console.error(e); process.exit(1); });

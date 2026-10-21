@@ -83,11 +83,16 @@ function render(){
   // redraw only when something changed, so a half-typed email or code is never wiped
   var sig = JSON.stringify([st, step, email, busy, info.lastSync, info.error, info.copies]);
   if (sig === shown) return; shown = sig;
+  // what is half-typed in the email and code boxes survives the redraw (with the cursor, if it was there)
+  var kept = {}, focus = document.activeElement && document.activeElement.id;
+  ['acct-email', 'acct-code'].forEach(function(id){ var el = document.getElementById(id); if (el) kept[id] = el.value; });
   body.innerHTML = '';
   var dot = document.getElementById('sn-account');
   if (!st){ body.appendChild(h('p', {cls: 'plain', text: 'Checking…'})); return; }
   if (dot) dot.className = 'sn-dot' + (st.signedIn && link.info().error ? ' warn' : '');
   (st.signedIn ? signedIn(st) : signedOut(st)).forEach(function(el){ if (el) body.appendChild(el); });
+  Object.keys(kept).forEach(function(id){ var el = document.getElementById(id); if (el && kept[id]) el.value = kept[id]; });
+  if (focus && kept[focus] !== undefined && document.getElementById(focus)) document.getElementById(focus).focus();
   if (st.lastError && !st.signedIn) body.appendChild(h('p', {cls: 'hint', text: st.lastError}));
 }
 link.onChange(render);

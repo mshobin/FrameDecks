@@ -37,7 +37,8 @@ A Frame that uses an image or video shows it on another computer once that file 
 3. The first time you sign in, an account is made for you, with a workspace for your ministry.
 
 On a computer that already has Frames, they are added to the account. If the account already has Frames from
-another computer, both sets are kept.
+another computer, both sets are kept, except a Frame that is exactly the same as one already in the account (such as
+the starter Frames every new computer makes), which is not added twice.
 
 ## How sync works
 

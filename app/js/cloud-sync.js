@@ -41,6 +41,15 @@ function create(deps){
     return snap === undefined || E.canon(local.body) !== E.canon(snap);
   }
 
+  /* A Frame's content without its ids and times: the starter Frames every computer makes are the same Frame */
+  var NOISE = {id: 1, created: 1, modified: 1, creator: 1, version: 1};
+  function look(v){
+    if (Array.isArray(v)) return v.map(look);
+    if (!v || typeof v !== 'object') return v;
+    var o = {}; Object.keys(v).forEach(function(k){ if (!NOISE[k]) o[k] = look(v[k]); }); return o;
+  }
+  function fingerprint(body){ return E.canon(look(body)); }
+
   /* A Frame changed in both places: this computer's version becomes a copy with fresh ids, so nothing is lost */
   function frameCopy(body){
     var c = copy(body);
@@ -65,12 +74,13 @@ function create(deps){
   }
 
   function pull(){
-    var sets = {}, deletes = [], extra = [];
+    var sets = {}, deletes = [], extra = [], joining = !Object.keys(state.revs).length, theirs = {};
     function page(){
       return deps.net.pull(state.seq).then(function(res){
         var local = byKey(mine(deps.store.get()));
         (res.entities || []).forEach(function(r){
           var k = key(r), L = local[k], body = r.deleted ? undefined : r.body;
+          if (joining && r.kind === 'frame' && body !== undefined) theirs[fingerprint(body)] = 1;
           var known = k in state.revs;                                   // has this computer synced this record before?
           state.revs[k] = r.rev;
           var same = L && body !== undefined && E.canon(L.body) === E.canon(body);
@@ -97,7 +107,15 @@ function create(deps){
         return res.more ? page() : null;
       });
     }
-    return page().then(function(){ return apply(sets, deletes, extra); });
+    return page().then(function(){
+      // Joining an account: a Frame here that the account already has (the same content under other ids, such as the
+      // starter Frames) is not added twice. Any difference and it is kept.
+      if (joining) mine(deps.store.get()).forEach(function(e){
+        var k = key(e);
+        if (e.kind === 'frame' && !(k in state.revs) && theirs[fingerprint(e.body)]) deletes.push(k);
+      });
+      return apply(sets, deletes, extra);
+    });
   }
 
   function push(){

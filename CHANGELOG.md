@@ -18,11 +18,14 @@ Versions before 4.9 (when the program had its earlier name) are described in the
     never waits for it, and going live or stepping is never sent.
   - No Frame is ever lost: a Frame changed on two computers keeps both versions ("‹Frame› (from ‹computer›)").
   - Meeting details sync only when "Sync meeting details" is on; the members list never syncs.
+  - A new computer joining the account does not double Frames the account already has (such as the starter Frames).
   - The sign-in is kept in Windows Credential Manager (`cloud_link.py`); the Studio does the sync
     (`app/js/cloud-sync.js`).
 - **The cloud** (`cloud/`): email-code and Google / Microsoft / Apple sign-in, rotating sign-in tokens, your account,
   export and delete, computers, the audit log, and sync with conflict detection
   ([docs/architecture/cloud-api.md](docs/architecture/cloud-api.md)).
+- `tools/cloud_e2e.py`: the real cloud (`wrangler dev`) and two copies of the program, syncing both ways, a conflict
+  included.
 
 ### Added (SaaS + PWA, Phase 1: Foundation; nothing changes for users yet)
 - **The runtime protocol**, `docs/architecture/runtime-protocol.md`: the `api/*` contract that the remote, the Flutter

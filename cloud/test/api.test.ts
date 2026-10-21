@@ -1,6 +1,7 @@
 import { exports } from "cloudflare:workers";
 import { describe, expect, it } from "vitest";
 import pkg from "../package.json";
+import * as entry from "../src/index";
 
 const call = (path: string, init?: RequestInit) => exports.default.fetch(new Request(`https://api.test${path}`, init));
 
@@ -34,5 +35,11 @@ describe("unknown addresses", () => {
     const body = (await res.json()) as { error: { code: string; message: string } };
     expect(body.error.code).toBe("not_found");
     expect(body.error.message.length).toBeGreaterThan(0);
+  });
+});
+
+describe("the worker entry", () => {
+  it("exports only the handler (the Workers runtime refuses to start on any other named export)", () => {
+    expect(Object.keys(entry)).toEqual(["default"]);
   });
 });

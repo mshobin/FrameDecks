@@ -5,7 +5,14 @@ The exact contract between the cloud (`cloud/`, Cloudflare Workers + D1) and its
 [saas-pwa-architecture.md](../project/saas-pwa-architecture.md) §7–§11 and §15; this page is the precise shape.
 
 Base address: `https://<api>/v1`. Until a domain exists it is the Worker's `workers.dev` address (D4). Every body is
-JSON. Errors: `{"error": {"code": "<snake_case>", "message": "<words for people>"}}`.
+JSON. Errors: `{"error": {"code": "<snake_case>", "message": "<words for people>"}}`. Besides the codes named below:
+`bad_json`, `too_large`, `bad_client` (a runtime's platform is `windows`, `macos` or `linux`), `bad_email`,
+`too_many_changes`, `bad_change`, `bad_changes`, `provider_not_configured`, `rate_limited` (429, with `retryAfter`
+in seconds) and `not_configured` (503: the cloud has no signing key yet).
+
+A computer signing in again sends `client.runtimeId`, so it keeps the same entry in the list of computers. A runtime's
+access token stops working the moment the runtime is revoked (each request checks it). Audit `actor` is
+`{"type", "id"}`.
 
 ---
 
@@ -54,12 +61,15 @@ email creates the user and a workspace named "<name or email>'s ministry", with 
 
 A runtime has no web page of its own, so it borrows the browser:
 
-1. `POST /auth/session` with `{"client"}` → `{"id", "url", "pollToken", "expiresAt"}` (10 minutes).
+1. `POST /auth/session` with `{"client"}` → `201 {"id", "url", "pollToken", "expiresAt"}` (10 minutes).
 2. The runtime opens `url` in the system browser: a small cloud page with **Continue with Google / Microsoft / Apple**
-   (only those that are set up) and **Email me a code**.
+   (only those that are set up) and **Email me a code** (its forms post to `/auth/session/{id}/email` and
+   `/auth/session/{id}/email/verify`).
 3. The provider sends the person back to `GET /auth/oidc/{provider}/callback`. The cloud checks the `state`, swaps the
    code for an ID token (PKCE), checks the token's signature (the provider's JWKS), issuer, audience, expiry and
-   `email_verified`, and marks the session signed in. The page says "You can close this window."
+   `email_verified`, and marks the session signed in. A Microsoft address links to an existing account only from the
+   personal-account tenant or when Microsoft marks its domain as verified; otherwise, if the address already has an
+   account, the answer is `409 {"code": "email_in_use"}`. The page says "You can close this window."
 4. The runtime polls `POST /auth/session/poll` with `{"pollToken"}` every 2 seconds: `202 {"pending": true}` until
    then, then `200` session (once), or `410 {"code": "session_expired"}`.
 
@@ -100,7 +110,7 @@ maximum 500):
  "seq": 1042, "more": false}
 ```
 
-`seq` is the cursor for the next call. Deleted entities come with `"deleted": true` and `"body": null`.
+`seq` is the cursor for the next call; numbers can have gaps (two writes racing). Deleted entities come with `"deleted": true` and `"body": null`.
 
 ### `POST /sync`
 
@@ -115,7 +125,8 @@ Runtime or admin. `{"changes": [{"kind", "id", "baseRev", "deleted": false, "bod
 ```
 
 - **`ok`:** stored with `rev` = old rev + 1 and a new workspace `seq`.
-- **`conflict`:** someone else changed it since `baseRev`; nothing was stored. The client decides (§5) and may send
+- **`conflict`:** someone else changed it since `baseRev`; nothing was stored. For a record the cloud does not have,
+  `current` is `{"rev": 0, "deleted": true, "body": null, "updatedBy": null}`. The client decides (§5) and may send
   again with `baseRev` = `current.rev`.
 - Each change stands alone: some can be `ok` and others `conflict` in one call.
 - `members` bodies must be `{"v": 1, "alg": "A256GCM", "iv": "<base64url>", "ct": "<base64url>"}` (end-to-end
@@ -126,6 +137,7 @@ Runtime or admin. `{"changes": [{"kind", "id", "baseRev", "deleted": false, "bod
 
 | Kind | Rule |
 |---|---|
+| joining (first sync) | A Frame here with the same content as one in the account, ids and times aside (such as the starter Frames every computer makes), is not added twice. Any difference and it is kept. A setting this computer never synced takes the account's. |
 | `frame`, `template` | **Never lose a Frame.** Keep the cloud's version under the original id, and add this computer's version as a copy named "‹Frame› (from ‹computer›)" with a new id (pushed as new). |
 | everything else | Last writer wins: this computer's version is sent again with `baseRev` = `current.rev`. The cloud's version stays in the audit log. |
 

@@ -2,7 +2,7 @@ import type { D1Migration } from "cloudflare:test";
 
 declare global {
   namespace Cloudflare {
-    interface Env {
+    interface Env extends Omit<import("../src/env").Env, "DB"> {
       DB: D1Database;
       TEST_MIGRATIONS: D1Migration[];
     }

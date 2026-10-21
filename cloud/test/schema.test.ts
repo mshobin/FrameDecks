@@ -1,8 +1,8 @@
 import { env } from "cloudflare:workers";
 import { describe, expect, it } from "vitest";
 
-const TABLES = ["audit_log", "devices", "entities", "identities", "pairing_requests", "refresh_tokens", "runtimes",
-  "users", "workspace_members", "workspaces"];
+const TABLES = ["audit_log", "auth_sessions", "devices", "email_codes", "entities", "identities", "pairing_requests",
+  "rate_limits", "refresh_tokens", "runtimes", "users", "workspace_members", "workspaces"];
 const KINDS = ["frame", "template", "order", "theme", "library_verse", "library_question", "brand", "profile", "layout",
   "meeting", "members"];
 
@@ -13,8 +13,8 @@ async function entity(kind: string, id: string) {
   ).bind(kind, id).run();
 }
 
-describe("migration 0001", () => {
-  it("creates every table of the design (§7)", async () => {
+describe("migrations", () => {
+  it("create every table of the design (§7) and of sign-in (0002)", async () => {
     const { results } = await env.DB.prepare(
       "SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE 'd1_%' AND name NOT LIKE '_cf_%' ORDER BY name",
     ).all<{ name: string }>();
@@ -30,6 +30,13 @@ describe("migration 0001", () => {
     for (const [i, kind] of KINDS.entries()) await entity(kind, `e${i}`);
     const { results } = await env.DB.prepare("SELECT kind FROM entities ORDER BY kind").all<{ kind: string }>();
     expect(results.map((r) => r.kind)).toEqual([...KINDS].sort());
+  });
+
+  it("0002 adds the workspace change sequence and who registered a runtime", async () => {
+    const ws = await env.DB.prepare("SELECT name FROM pragma_table_info('workspaces') WHERE name = 'seq'").first();
+    const rt = await env.DB.prepare("SELECT name FROM pragma_table_info('runtimes') WHERE name = 'user_id'").first();
+    expect(ws).not.toBeNull();
+    expect(rt).not.toBeNull();
   });
 
   it("rejects an unknown entity kind", async () => {

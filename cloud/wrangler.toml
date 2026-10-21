@@ -11,6 +11,11 @@ main = "src/index.ts"
 compatibility_date = "2026-09-15"
 workers_dev = true
 
+# Secrets (wrangler secret put …, see README): JWT_PRIVATE_KEY, JWT_KID, RESEND_API_KEY, EMAIL_FROM,
+# GOOGLE_CLIENT_ID/SECRET, MICROSOFT_CLIENT_ID/SECRET, APPLE_CLIENT_ID/TEAM_ID/KEY_ID/PRIVATE_KEY.
+[vars]
+ENVIRONMENT = "dev"
+
 [[d1_databases]]
 binding = "DB"
 database_name = "framedecks"
@@ -20,6 +25,9 @@ migrations_dir = "migrations"
 [env.staging]
 name = "framedecks-api-staging"
 
+[env.staging.vars]
+ENVIRONMENT = "staging"
+
 [[env.staging.d1_databases]]
 binding = "DB"
 database_name = "framedecks-staging"
@@ -28,6 +36,9 @@ migrations_dir = "migrations"
 
 [env.production]
 name = "framedecks-api"
+
+[env.production.vars]
+ENVIRONMENT = "production"
 
 [[env.production.d1_databases]]
 binding = "DB"

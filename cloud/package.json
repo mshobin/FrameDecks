@@ -1,8 +1,8 @@
 {
   "name": "framedecks-api",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
-  "description": "FrameDecks cloud API (Cloudflare Workers + D1): metadata sync, sign-in, pairing and the relay. Phase 1: the skeleton.",
+  "description": "FrameDecks cloud API (Cloudflare Workers + D1): metadata sync, sign-in, pairing and the relay. Phase 2: sign-in and sync.",
   "type": "module",
   "scripts": {
     "dev": "wrangler dev",
