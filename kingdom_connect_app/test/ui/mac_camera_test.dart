@@ -1,5 +1,4 @@
 // The Mac camera's channel, as the Swift side (macos/Runner/CameraBridge.swift) answers it.
-import 'dart:typed_data';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
