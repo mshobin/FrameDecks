@@ -90,6 +90,16 @@ Future<void> shot(WidgetTester tester, String name) async {
   });
 }
 
+/// Saving goes to a real file on real time: wait until the change has landed (or 5 s), not a fixed delay.
+Future<void> waitUntil(WidgetTester tester, bool Function() done) async {
+  await tester.runAsync(() async {
+    for (var i = 0; i < 100 && !done(); i++) {
+      await Future<void>.delayed(const Duration(milliseconds: 50));
+    }
+  });
+  await tester.pumpAndSettle();
+}
+
 Future<LocalBackend> backendWith(Json st) async {
   final dir = Directory.systemTemp.createTempSync('kc');
   final f = File('${dir.path}/kc-saved-content.json')..writeAsStringSync(jsonEncode(st));
@@ -128,18 +138,16 @@ void main() {
     // the stepper shows the next question
     await tester.runAsync(() async {
       await tester.tap(find.byTooltip('Next item'));
-      await Future<void>.delayed(const Duration(milliseconds: 400));
     });
-    await tester.pumpAndSettle();
+    await waitUntil(tester, () => (b.state['question'] as Json)['itemId'] == 'qc');
     expect((b.state['question'] as Json)['itemId'], 'qc');
     expect(find.text('Question 3 / 3'), findsOneWidget);
 
     // Hide All with Esc
     await tester.runAsync(() async {
       await tester.sendKeyEvent(LogicalKeyboardKey.escape);
-      await Future<void>.delayed(const Duration(milliseconds: 400));
     });
-    await tester.pumpAndSettle();
+    await waitUntil(tester, () => (b.state['question'] as Json)['visible'] == false);
     expect((b.state['question'] as Json)['visible'], false);
 
     // select Welcome, Go Live with T
@@ -147,9 +155,8 @@ void main() {
     await tester.pumpAndSettle();
     await tester.runAsync(() async {
       await tester.sendKeyEvent(LogicalKeyboardKey.keyT);
-      await Future<void>.delayed(const Duration(milliseconds: 400));
     });
-    await tester.pumpAndSettle();
+    await waitUntil(tester, () => sc.liveScene(b.state)?['name'] == 'Welcome');
     expect(sc.liveScene(b.state)!['name'], 'Welcome');
     await tester.pump(const Duration(seconds: 2));
     await shot(tester, 'studio-welcome');
@@ -173,9 +180,8 @@ void main() {
 
     await tester.runAsync(() async {
       await tester.tap(find.text('NEXT FRAME'));
-      await Future<void>.delayed(const Duration(milliseconds: 400));
     });
-    await tester.pumpAndSettle();
+    await waitUntil(tester, () => sc.liveScene(b.state)?['name'] == 'Prayer');
     expect(sc.liveScene(b.state)!['name'], 'Prayer');
     expect(find.text('Frame 3 of 4'), findsOneWidget);
 
