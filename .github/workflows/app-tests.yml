@@ -29,6 +29,8 @@ jobs:
         run: |
           node tools/make_entity_fixtures.js
           git diff --exit-code tests/fixtures/entities || (echo "Run: node tools/make_entity_fixtures.js" && exit 1)
+      - name: The app's own Python packages (pairing needs cryptography, as in the Windows build)
+        run: python -m pip install cryptography==50.0.1
       - name: Python tests
         run: python -m unittest discover -s tests -p "test_*.py" -v
       - name: Install Playwright and Chromium
