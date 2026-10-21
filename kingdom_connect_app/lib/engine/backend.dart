@@ -16,6 +16,7 @@ import 'package:http/http.dart' as http;
 
 import 'model.dart';
 import 'normalize.dart';
+import 'scenes.dart' show fixDecks;
 
 enum Link { connecting, online, offline, needsPin }
 
@@ -100,6 +101,7 @@ class LocalBackend extends _Base implements StateBackend {
   Future<Json> update(void Function(Json n) fn) async {
     final next = deepCopy(_state);
     fn(next);
+    fixDecks(next); // new Content gets a Deck before saving, like store.js Store.update
     next['rev'] = ((_state['rev'] as num?) ?? 0) + 1;
     await file.parent.create(recursive: true);
     final tmp = File('${file.path}.tmp');
@@ -209,6 +211,7 @@ class EngineBackend extends _Base implements StateBackend {
     for (var attempt = 0; attempt < 3; attempt++) {
       final next = deepCopy(_state);
       fn(next);
+      fixDecks(next);
       final body = {...next, 'baseRev': _state['rev']}..remove('rev');
       final r = await _client.post(base.resolve('api/state'), headers: _headers, body: jsonEncode(body)).timeout(const Duration(seconds: 10));
       if (r.statusCode == 409) {

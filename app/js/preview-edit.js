@@ -1,13 +1,13 @@
 /* Kingdom Connect v6.7 - edit any Content straight on the Studio Canvas.
  *
- * Double-click a card on the canvas (the Frame preview, or the live KingdomConnect picture) to edit it in place:
+ * Double-click a card on the canvas (the Frame preview, or the live FrameCast picture) to edit it in place:
  *   - the label (top line of the card): Question / Scripture label, or the title of a text Content;
  *   - the body: the question, the scripture (with reference and translation), or the text of an announcement,
  *     prayer, discussion topic, icebreaker, poll, lower third or timer message.
  * Enter saves, Shift+Enter starts a new line, Esc cancels, a click outside saves (js/editable.js).
  *
  * The cards are found where they really are: the overlay page (the same page OBS uses) is hit-tested. On the live
- * KingdomConnect picture the cards are part of the video, so the same page is laid out invisibly over it (only while
+ * FrameCast picture the cards are part of the video, so the same page is laid out invisibly over it (only while
  * editing, and removed again after a minute) instead of guessing positions. */
 (function(){
 'use strict';
@@ -27,9 +27,10 @@ var TEXT_NAME = {announcement: 'Announcement', prayer: 'Prayer', lowerthird: 'Lo
 /* The item a Question / Scripture card shows for this Frame: the live one, or the one its preview shows */
 function shownItem(kind, sid){
   if (!live || !sid) return null;
-  var sc = SC.find(live, sid), l = sc ? SC.first(sc, KIND[kind].layer) : null;
+  var sc = SC.find(live, sid), dk = window.KCSelDeck ? window.KCSelDeck() : '';
+  var l = sc ? SC.firstIn(sc, dk || SC.liveDeckId(live, sc), KIND[kind].layer) || SC.first(sc, KIND[kind].layer) : null;
   if (!l || !Array.isArray(l.c.items) || !l.c.items.length) return null;
-  var st = live.live.scene === sid ? live : SC.previewState(live, sid);
+  var st = live.live.scene === sid && (!dk || dk === SC.liveDeckId(live, sc)) ? live : SC.previewState(live, sid, dk);   // FRAMEDECKS: the Deck being edited
   var id = st[kind] && st[kind].visible ? st[kind].itemId : '';
   var it = l.c.items.filter(function(x){ return x.id === id; })[0] || l.c.items.filter(function(x){ return x.id === l.c.itemId; })[0];
   return it ? {sid: sid, kind: kind, it: it, l: l} : null;
@@ -79,7 +80,7 @@ $('program').addEventListener('dblclick', function(e){
   edit(card, x, y, function(b){ return {left: f.left - wr.left + b.left * s, top: f.top - wr.top + b.top * s, width: b.width * s, height: b.height * s}; }, frameId());
 });
 
-/* ---------- the live KingdomConnect picture: the same overlay page, laid out invisibly over it ---------- */
+/* ---------- the live FrameCast picture: the same overlay page, laid out invisibly over it ---------- */
 var measure = null, measureT = 0;
 function measurer(stage, done){
   clearTimeout(measureT); measureT = setTimeout(function(){ if (measure){ measure.remove(); measure = null; } }, 60000);

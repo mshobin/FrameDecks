@@ -32,6 +32,15 @@ an.layers.push(SC.cleanLayer({id: 'cd1', kind: 'countdown', name: 'Countdown', c
 an.tx = {type: 'dissolve', ms: 450};
 const qo = SC.create(st, 'question', {name: 'Questions only'});
 SC.first(qo, 'question').c.items = [{id: 'qx', label: '', text: 'One question.'}];
+// FRAMEDECKS: a Frame with three Decks (Opening, Discussion, Prayer), placed after Welcome
+const ds = SC.cleanScene({id: 'sc_decks', name: 'Deck study', tx: {type: 'cut', ms: 0},
+  decks: [{id: 'd1', name: 'Opening'}, {id: 'dk2', name: 'Discussion'}, {id: 'dk3', name: 'Prayer'}],
+  layers: [{id: 'dl1', kind: 'announcement', deck: 'd1', c: {title: 'Welcome', text: 'Opening words'}},
+    {id: 'dl2', kind: 'question', deck: 'dk2', c: {items: [{id: 'dq1', text: 'Deck question one?'}, {id: 'dq2', text: 'Deck question two?'}]}},
+    {id: 'dl3', kind: 'scripture', deck: 'dk2', c: {items: [{id: 'dv1', ref: 'John 1:1', version: 'ESV', text: 'In the beginning was the Word.'}]}},
+    {id: 'dl4', kind: 'prayer', deck: 'dk3', c: {title: 'Let us pray', text: 'Amen'}},
+    {id: 'dl5', kind: 'lowerthird', c: {title: 'No deck yet', text: 'goes to the first'}}]});
+SC.insert(st, ds, an.id);
 const tpl = SC.create(st, 'blank', {name: 'My template'}); tpl.tpl = true;
 const initial = Store.defaults();          // round trip through normalize, as loading a saved file does
 Object.assign(initial, copy(st));
@@ -59,6 +68,24 @@ step('scripture only', s => SC.setQS(s, bs.id, 'verse'));
 step('both', s => SC.setQS(s, bs.id, 'both'));
 step('take questions only', s => SC.take(s, qo.id));
 step('profile youth, take welcome', s => { s.profile = 'youth'; SC.take(s, an.id); });
+// ---- FRAMEDECKS: Frame -> Deck -> Content ----
+const D = s => SC.find(s, 'sc_decks');
+step('deck: take deck study', s => SC.take(s, 'sc_decks'));
+step('deck: next goes to deck 2', s => SC.step(s, 1));
+step('deck: next goes to deck 3', s => SC.step(s, 1));
+step('deck: next goes to the next frame', s => SC.step(s, 1));
+step('deck: previous comes back to the last deck', s => SC.step(s, -1));
+step('deck: previous goes to deck 2', s => SC.step(s, -1));
+step('deck: eye on content in another deck', s => SC.toggleVisible(s, 'sc_decks', 'dl4'));
+step('deck: setOn content in another deck', s => SC.setOn(s, 'sc_decks', 'dl1', false));
+step('deck: scripture only on the live deck', s => SC.setQS(s, 'sc_decks', 'verse'));
+step('deck: move prayer into the live deck', s => SC.moveToDeck(s, D(s), ['dl4'], 'dk2'));
+step('deck: take a given deck', s => SC.take(s, 'sc_decks', 'cut', 'dk3'));
+step('deck: back to deck 2', s => SC.take(s, 'sc_decks', null, 'dk2'));
+step('deck: remove the live deck', s => SC.removeDeck(s, D(s), 'dk2'));
+step('deck: rename and move a deck', s => { SC.renameDeck(D(s), 'dk3', '  Closing  '); SC.moveDeck(D(s), 'dk3', -1); });
+step('deck: add a deck', s => SC.addDeck(D(s), '', 'd1'));
+step('deck: fix decks before saving', s => { D(s).layers.push(SC.cleanLayer({id: 'dl9', kind: 'countdown', c: {minutes: 2}})); SC.fixDecks(s); });
 
 // ---- normalize: an older, untidy saved file ----
 const messy = {
@@ -73,12 +100,17 @@ const messy = {
       {id: 'l3', kind: 'lowerthird', c: {w: 400, pos: 'nowhere', anim: 'spin', title: 7}}, {id: 'l4', kind: 'unknown'}],
      tx: {type: 'zoom', ms: 99999}, auto: {on: 1, sec: 1}, out: {vcam: false}},
     {id: 'old1', name: 'Duplicate id'},
-    {id: 'old2', name: 'Shapes', fav: 'yes', layers: [{id: 'r1', kind: 'rect', opacity: 3}]}],
-  live: {scene: 'old1', on: {l3: 1, x: 0}, cd: {l3: '12'}, tx: 'nope', txMs: -5, ink: {items: [{t: 'pen', p: [[0.123456, 2]], c: 'red'}]}},
+    {id: 'old2', name: 'Shapes', fav: 'yes', layers: [{id: 'r1', kind: 'rect', opacity: 3}]},
+    {id: 'old3', name: 'Untidy decks', decks: [{id: 'a', name: ''}, {id: 'a', name: 'Again'}, {id: '', name: 'No id'}, 'x', {id: 'b', name: 7}],
+      layers: [{id: 'm1', kind: 'announcement', deck: 'zzz'}, {id: 'm2', kind: 'prayer', deck: 'b'}, {id: 'm3', kind: 'rect', deck: 0}]}],
+  live: {scene: 'old1', deck: 'd9', on: {l3: 1, x: 0}, cd: {l3: '12'}, tx: 'nope', txMs: -5, ink: {items: [{t: 'pen', p: [[0.123456, 2]], c: 'red'}]}},
   brand: {color: '#ABCDEF', meeting: 'Romans'},
   birthday: {transition: 'x', greeting: 5},
 };
 const messyNormalized = Store.normalize(copy(messy));
+// the canvas preview of one Deck of a Frame that is not live
+clock += 1000;
+const previewClock = clock, previewFrom = copy(n), deckPreview = SC.previewState(previewFrom, 'sc_decks', 'd1');
 fs.writeFileSync(path.join(root, 'kingdom_connect_app/test/engine/fixtures.json'),
-  JSON.stringify({clockStart: 1792500000000, initial, steps, messy, messyNormalized}, null, 1));
+  JSON.stringify({clockStart: 1792500000000, initial, steps, messy, messyNormalized, previewClock, previewFrom, deckPreview}, null, 1));
 console.log('fixtures: initial + ' + steps.length + ' steps');

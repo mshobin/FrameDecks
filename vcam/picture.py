@@ -1,4 +1,4 @@
-"""Picture settings for KingdomConnect: profiles, validation/migration, user adjustments and camera controls.
+"""Picture settings for FrameCast: profiles, validation/migration, user adjustments and camera controls.
 
 Settings schema (kc-vcam-settings.json, "schemaVersion": 2). Version 1 files (no schemaVersion) keep working:
 missing keys get defaults that reproduce the version-1 picture exactly (filterIntensity 100, zoom 1.0,
@@ -6,7 +6,7 @@ captureResolution "auto", every adjustment neutral, camera controls untouched).
 
 Processing order in the engine (one resample, then per-pixel stages at output size):
     capture -> crop + zoom + resize (one high-quality resample) -> mirror -> colour-range fix
-    -> background blur -> filter (Camera Look x intensity) -> adjustments -> layers/cards -> KingdomConnect (RGB24)
+    -> background blur -> filter (Camera Look x intensity) -> adjustments -> layers/cards -> FrameCast (RGB24)
 
 Adjustments (this module) run in this order:
     1 exposure compensation  2 white balance (temperature/tint)          } per channel: one 256-entry

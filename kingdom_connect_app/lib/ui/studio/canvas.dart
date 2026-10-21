@@ -6,10 +6,11 @@ import '../program_view.dart';
 import '../theme.dart';
 
 /// What a Frame would look like on screen, without putting it there: the state as if it had just gone live.
-Json previewState(Json st, Json scene) {
+/// For a Frame with several Decks, [deck] chooses which one.
+Json previewState(Json st, Json scene, [String? deck]) {
   if (sc.isLive(st, scene['id'])) return st;
   final p = deepCopy(st);
-  sc.take(p, scene['id'], 'cut');
+  sc.take(p, scene['id'], 'cut', deck);
   final l = sc.liveOf(p);
   l['blackout'] = false;
   l['emergency'] = false;
@@ -18,10 +19,13 @@ Json previewState(Json st, Json scene) {
 
 /// STUDIO CANVAS: the selected Frame's name, LIVE, its transition, Share Window, and the 16:9 picture.
 class StudioCanvas extends StatelessWidget {
-  const StudioCanvas({super.key, required this.state, required this.scene, required this.onShare});
+  const StudioCanvas({super.key, required this.state, required this.scene, required this.onShare, this.deck});
 
   final Json state;
   final Json? scene;
+
+  /// The Deck to preview when the Frame is not live (null = its first).
+  final String? deck;
   final VoidCallback onShare;
 
   @override
@@ -29,7 +33,9 @@ class StudioCanvas extends StatelessWidget {
     final s = scene;
     final live = s != null && sc.isLive(state, s['id']);
     final t = s == null ? null : sc.transitionOf(state, s);
-    final shown = s == null ? state : previewState(state, s);
+    final shown = s == null ? state : previewState(state, s, deck);
+    final decks = s == null ? const <Json>[] : sc.decksOf(s);
+    final deckName = decks.length < 2 ? '' : (sc.deckById(s, live ? sc.liveDeckId(state, s) : deck) ?? decks.first)['name'] as String;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -51,6 +57,13 @@ class StudioCanvas extends StatelessWidget {
                     style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
                   ),
                 ),
+              if (deckName.isNotEmpty) ...[
+                const SizedBox(width: 8),
+                Text(
+                  '· $deckName',
+                  style: const TextStyle(color: K.muted, fontWeight: FontWeight.w700, fontSize: 13),
+                ),
+              ],
               if (live) ...[const SizedBox(width: 10), const LiveBadge(small: true)],
               if (t != null) ...[
                 const SizedBox(width: 12),

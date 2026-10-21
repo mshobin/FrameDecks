@@ -11,7 +11,7 @@ How to show pictures, videos, PowerPoint, PDFs, windows, your screen and your ca
 - [Videos](#videos)
 - [PowerPoint and PDF](#powerpoint-and-pdf)
 - [Windows, screens and cameras](#windows-screens-and-cameras)
-- [The KingdomConnect camera](#the-kingdomconnect-camera)
+- [The FrameCast camera](#the-framecast-camera)
 - [Camera Looks and background blur](#camera-looks-and-background-blur)
 - [Projectors and the Presentation window](#projectors-and-the-presentation-window)
 - [OBS and browser overlay pages](#obs-and-browser-overlay-pages)
@@ -22,7 +22,7 @@ How to show pictures, videos, PowerPoint, PDFs, windows, your screen and your ca
 
 ## Media at a glance
 
-Media Content is part of the **KingdomConnect picture**: the finished 16:9 image that FRAMEDECKS builds on your PC and sends to your meeting app, your projector and your recordings. Cards (questions, scriptures, birthdays) and text Content are always drawn in front of camera and media Content.
+Media Content is part of the **FrameCast picture**: the finished 16:9 image that FRAMEDECKS builds on your PC and sends to your meeting app, your projector and your recordings. Cards (questions, scriptures, birthdays) and text Content are always drawn in front of camera and media Content.
 
 | Content | What it shows | Where you add it |
 | --- | --- | --- |
@@ -44,7 +44,7 @@ Media Content is part of the **KingdomConnect picture**: the finished 16:9 image
 2. Select **+ Content** and choose the type.
 3. Choose the file. FRAMEDECKS keeps its own copy in the data folder (`%APPDATA%\Kingdom Connect\layers\`), so the Frame keeps working if the original file is moved or deleted.
 4. Set it up in **Content Settings → Media**: the file, position (Centre X / Y), size (Width / Height) and **Opacity**.
-5. When the Frame is live and the KingdomConnect camera is on, you can also **drag** the Content on the Studio Canvas and resize it with its handles. Turn on **Snap to guides** for neat alignment.
+5. When the Frame is live and the FrameCast camera is on, you can also **drag** the Content on the Studio Canvas and resize it with its handles. Turn on **Snap to guides** for neat alignment.
 
 > **Tip:** The order in the **Content** list is the stacking order: the top item is in front. Drag items to change it.
 
@@ -104,35 +104,35 @@ For the technical background, limits and the formats that were evaluated (transp
 
 > **Important:** Keep a captured window open and not minimised. On some graphics drivers a covered or minimised window stops updating. A second display, or a separate window for the slide show, is the most reliable.
 
-## The KingdomConnect camera
+## The FrameCast camera
 
-FRAMEDECKS has its own camera, listed as **KingdomConnect** in Windows. It sends the finished picture: your webcam (with optional blur and Camera Look) plus the live Frame. Zoom and Teams then see your cards, slides and drawings exactly as you see them in the Studio Canvas.
+FRAMEDECKS has its own camera, listed as **FrameCast** in Windows. It sends the finished picture: your webcam (with optional blur and Camera Look) plus the live Frame. Zoom and Teams then see your cards, slides and drawings exactly as you see them in the Studio Canvas.
 
-1. Install FRAMEDECKS with **Install the KingdomConnect camera for Zoom and Teams** ticked (Windows asks for administrator permission once). Missed it? Use **Settings → KingdomConnect Camera → Install KingdomConnect**.
+1. Install FRAMEDECKS with **Install the FrameCast camera for Zoom and Teams** ticked (Windows asks for administrator permission once). Missed it? Use **Settings → FrameCast Camera → Install FrameCast**.
 2. **Restart** your meeting app. Apps read the camera list when they start.
-3. Choose **KingdomConnect** as the camera:
+3. Choose **FrameCast** as the camera:
 
 | App | Where to choose it |
 | --- | --- |
-| **Zoom** | Settings → Video → Camera → **KingdomConnect**. Tick **HD**. Turn off Zoom's own background blur and "mirror my video" if text looks reversed to you only. |
-| **Microsoft Teams** | Settings → Devices (or Video and effects) → Camera → **KingdomConnect** |
-| **Google Meet** | ⋮ → Settings → Video → Camera → **KingdomConnect** (in Chrome or Edge) |
-| **OBS Studio** | Sources → **+** → Video Capture Device → Device: **KingdomConnect** |
+| **Zoom** | Settings → Video → Camera → **FrameCast**. Tick **HD**. Turn off Zoom's own background blur and "mirror my video" if text looks reversed to you only. |
+| **Microsoft Teams** | Settings → Devices (or Video and effects) → Camera → **FrameCast** |
+| **Google Meet** | ⋮ → Settings → Video → Camera → **FrameCast** (in Chrome or Edge) |
+| **OBS Studio** | Sources → **+** → Video Capture Device → Device: **FrameCast** |
 
-4. In **Settings → KingdomConnect Camera**, choose:
+4. In **Settings → FrameCast Camera**, choose:
    - the **webcam** behind it;
    - the **resolution** (720p or 1080p);
    - **background blur**;
    - the **Camera Look** (colour style);
    - whether your **cards** appear on the camera.
 
-> **Important:** Choose **KingdomConnect** in every meeting app, not your webcam itself. Only one app at a time can open a webcam.
+> **Important:** Choose **FrameCast** in every meeting app, not your webcam itself. Only one app at a time can open a webcam.
 
 ## Camera Looks and background blur
 
 - **Camera Looks** adjust colour and warmth (Warm, Dark / Polished, Neutral / Clean, or Off). Use them to make a dim room or a lamp-lit home look natural.
 - **Background blur** softens what is behind the speaker, using a person-detection model on your PC. No video leaves the PC for this.
-- Both are in **Settings → KingdomConnect Camera** and apply to the webcam only, never to your cards or slides.
+- Both are in **Settings → FrameCast Camera** and apply to the webcam only, never to your cards or slides.
 
 ## Projectors and the Presentation window
 
@@ -142,7 +142,7 @@ For an in-room projector or TV, use the **Presentation window**:
 2. Drag it to the projector display and switch it to **full screen**.
 3. To share it in Zoom instead, choose **Share Screen → FRAMEDECKS Share Window**.
 
-The Presentation window, the KingdomConnect camera and the Studio Canvas all show the same picture.
+The Presentation window, the FrameCast camera and the Studio Canvas all show the same picture.
 
 ## OBS and browser overlay pages
 
@@ -150,9 +150,9 @@ If you already produce your stream in OBS, you can use FRAMEDECKS's overlay page
 
 - The pages are served from your PC at `http://localhost:8750/` (for example `http://localhost:8750/stage.html`).
 - The command bar's status shows how many overlay pages are open (for example **OBS · 1 open**).
-- Each piece of Content can be limited to the KingdomConnect camera or the overlay pages in **Content Settings → Show on**.
+- Each piece of Content can be limited to the FrameCast camera or the overlay pages in **Content Settings → Show on**.
 
-> **Note:** Overlay pages show cards and text. Camera and media Content are part of the KingdomConnect picture, so in OBS use the **KingdomConnect** camera source for those.
+> **Note:** Overlay pages show cards and text. Camera and media Content are part of the FrameCast picture, so in OBS use the **FrameCast** camera source for those.
 
 ## Preparing media
 

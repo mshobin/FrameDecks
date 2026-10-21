@@ -34,6 +34,7 @@ Json? cleanLayer(Object? raw) {
     'opacity': numIn(l['opacity'], 0, 1, 1),
     'c': c,
   };
+  if (_truthy(l['deck'])) out['deck'] = str(l['deck'], 40);
   if (textKinds.contains(kind)) {
     final d = textDefaults[kind]!;
     for (final k in d.keys) {
@@ -172,6 +173,11 @@ Json? cleanScene(Object? raw) {
     }
   }
   final txType = tx['type'] == 'profile' || txIds.contains(tx['type']) ? tx['type'] : 'profile';
+  final decks = cleanDecks(sc['decks']);
+  final deckIds = [for (final d in decks) d['id']];
+  for (final l in layers) {
+    if (!deckIds.contains(l['deck'])) l['deck'] = deckIds.first; // older Content: the first Deck
+  }
   return {
     'id': str((sc['id'] == null || sc['id'] == '') ? rid('sc_') : sc['id'], 40),
     'name': str((sc['name'] == null || sc['name'] == '') ? 'Frame' : sc['name'], 80),
@@ -189,8 +195,24 @@ Json? cleanScene(Object? raw) {
     'tx': {'type': txType, 'ms': numIn(tx['ms'], 0, 5000, 500)},
     'auto': {'on': _truthy(auto['on']), 'sec': numIn(auto['sec'], 2, 3600, 30)},
     'out': {'vcam': true, 'obs': true},
+    'decks': decks,
     'layers': layers,
   };
+}
+
+/// A Frame's Decks: at least one. An older Frame gets "Deck 1" with the fixed id 'd1', so every screen that converts
+/// the same file agrees (ids only need to be unique within their Frame). store.js cleanDecks.
+List<Json> cleanDecks(Object? a) {
+  final seen = <String>{};
+  final out = <Json>[
+    for (final d in (a is List ? a : const []))
+      if (d is Map) {'id': str(d['id'], 40), 'name': str(_truthy(d['name']) ? d['name'] : 'Deck', 60)},
+  ].where((d) => (d['id'] as String).isNotEmpty && seen.add(d['id'] as String)).take(30).toList();
+  return out.isNotEmpty
+      ? out
+      : [
+          {'id': 'd1', 'name': 'Deck 1'},
+        ];
 }
 
 num _max1(num v) => v < 1 ? 1 : v;
@@ -312,6 +334,7 @@ void _normalizeInto(Json st, Map<dynamic, dynamic> raw) {
   final l = raw['live'] is Map ? raw['live'] as Map : const {};
   final live = <String, dynamic>{
     'scene': str(l['scene'], 40),
+    'deck': str(l['deck'], 40),
     'seq': numOr0(l['seq']),
     'at': numOr0(l['at']),
     'tx': txIds.contains(l['tx']) ? l['tx'] : 'cut',

@@ -93,7 +93,7 @@ Select any Content and every setting is in one panel, most used first:
 Pictures, video and PowerPoint have a **Media** group. A Frame on its own has **Frame**, **Timing** and **History**.
 
 The group names along the top jump to their group. There is no Basic / Advanced switch: everything is visible.
-Where each piece of Content appears (KingdomConnect, OBS pages) is set once, in that Content's **Show on** group.
+Where each piece of Content appears (FrameCast, OBS pages) is set once, in that Content's **Show on** group.
 
 **Branding Content** has: **Display** (Logo only, Name only, Logo + Name, and optionally the Organization Name);
 **Position** (a corner, or centred at the top, centre or bottom) and **Safe margin**; **Size** (Small, Medium,
@@ -164,10 +164,10 @@ A Question (or Scripture) Content holds **its own list**, shown full height in C
     turn that setting off and restart. **Compatibility transparency** forces the whole-window fade if the meeting
     does not show through.
 
-## 5. The KingdomConnect camera
-Choose **KingdomConnect** as the camera in Zoom, Teams, Google Meet or OBS. Participants see your webcam with the live
-Frame on top. Background blur and Camera Looks are in **Settings → KingdomConnect Camera**. If an app doesn't list
-KingdomConnect, restart that app.
+## 5. The FrameCast camera
+Choose **FrameCast** as the camera in Zoom, Teams, Google Meet or OBS. Participants see your webcam with the live
+Frame on top. Background blur and Camera Looks are in **Settings → FrameCast Camera**. If an app doesn't list
+FrameCast, restart that app.
 
 ## 6. Phone and tablet remote
 **Settings → Phone & iPad Remote** → turn it on, scan the QR code, enter the PIN.

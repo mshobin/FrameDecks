@@ -3,7 +3,7 @@
 Leaders want to bring their PowerPoint into a Frame. Often they also want only the slide's objects (animated text,
 shapes, pictures) on top of the camera, without the slide's background. This page sets out:
 - what is technically possible;
-- what Kingdom Connect v6.5 does;
+- what FrameDecks v6.5 does;
 - the risks and limits.
 
 It does not assume that transparent PowerPoint rendering exists, because it does not.
@@ -48,7 +48,7 @@ of them is "simple for non-technical volunteers". Transparent WebM is the most p
 
 ---
 
-## 3. What Kingdom Connect v6.5 does (production-ready choice)
+## 3. What FrameDecks v6.5 does (production-ready choice)
 
 The recommendation is to cover the two real needs with tools that are dependable on a Sunday morning.
 

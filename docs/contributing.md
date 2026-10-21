@@ -21,7 +21,7 @@ what "done" means for a pull request, start with [CONTRIBUTING.md](../CONTRIBUTI
 | Python | 3.12 (the version the installer is built with) | Running the program. `server.py` uses only the standard library. |
 | Node.js | 18 or newer | Running `tests/` (no npm packages; nothing to install). |
 | Git | any recent version | Cloning and branches. |
-| Windows 10 or 11 | — | The KingdomConnect camera, screen capture, PowerPoint conversion and the desktop window. The web interface, overlays and phone remote also run on macOS and Linux for development. |
+| Windows 10 or 11 | — | The FrameCast camera, screen capture, PowerPoint conversion and the desktop window. The web interface, overlays and phone remote also run on macOS and Linux for development. |
 | Packages in `packaging/requirements-desktop.txt` | see the file | The desktop window (pywebview, pystray), the camera pipeline (OpenCV, NumPy), screen capture, PDF slides (pypdfium2), PowerPoint control (comtypes) and PyInstaller. Install them only if you work on those parts. |
 
 ```bash
@@ -49,7 +49,7 @@ in your browser.
 | Environment variable | Effect |
 | --- | --- |
 | `KC_DATA_DIR` | Use another data folder. Always set this while developing, so you never touch real meeting or member data. |
-| `KC_VCAM_DEMO=1` | Use a moving **test camera** instead of a webcam, and treat the KingdomConnect camera as installed. The full camera pipeline (cards, annotation, previews, the phone's live picture) works without a webcam or Windows. |
+| `KC_VCAM_DEMO=1` | Use a moving **test camera** instead of a webcam, and treat the FrameCast camera as installed. The full camera pipeline (cards, annotation, previews, the phone's live picture) works without a webcam or Windows. |
 | `KC_ESV_URL` | Point the scripture lookup at another address (tests). |
 
 A typical development start:
@@ -96,7 +96,7 @@ Remote.bat`, `Start Kingdom Connect (Mac).command`) run `server.py` the same way
 | `app/js/*.js` | One feature per file (`annotate.js`, `preview-edit.js`, `speaker.js`, `remote.js`, `meeting-book.js` …). |
 | `app/css/theme.css` | Design tokens (colours, radii, type) and most component styles. |
 | `app/vendor/` | Third-party browser libraries (SheetJS for Excel). Don't edit; replace with a newer release. |
-| `vcam/` | The KingdomConnect camera pipeline: engine loop, webcam, blur, Camera Looks, layers, compositor, cards, annotation, PowerPoint, the DirectShow sink. |
+| `vcam/` | The FrameCast camera pipeline: engine loop, webcam, blur, Camera Looks, layers, compositor, cards, annotation, PowerPoint, the DirectShow sink. |
 | `packaging/` | PyInstaller spec (`kingdom-connect.spec`), Inno Setup script (`installer.iss`), the self-check (`check.py`), version reader (`get_version.py`), camera build helper (`build_vcam.py`), desktop requirements. |
 | `tests/` | Automated tests (`*.test.js`) and the runner (`run.js`). |
 | `tools/` | Maintainer scripts: the Meeting Workbook generator, world map generator, iPad remote firewall helpers. |
@@ -116,7 +116,7 @@ flowchart LR
   Server -- "atomic write" --> File[("kc-saved-content.json")]
   Server -- "rev changes (long poll)" --> Pages["Overlay pages, remote, Teleprompter window"]
   Server -- "kick()" --> Engine["vcam engine + compositor"]
-  Engine --> Cam["KingdomConnect camera"]
+  Engine --> Cam["FrameCast camera"]
 ```
 
 1. A page changes state through `window.KCCommit(fn)` (or `Store.update(fn)` on the remote). `fn` edits a copy of
@@ -141,7 +141,7 @@ The state is the single source of truth: never keep a second copy of meeting con
    right group: Label, Content, Display Settings (with Animation and Show on), Visual Settings or Media (`GROUPS`). Don't add a second control for
    something that already has one.
 3. Use the value where it is drawn: `app/js/overlay.js` for the overlay pages and preview, and `vcam/` for the
-   KingdomConnect camera, so both outputs agree.
+   FrameCast camera, so both outputs agree.
 4. Add a test in `tests/store.test.js` for the cleaning and the default.
 
 ### Add a Content type

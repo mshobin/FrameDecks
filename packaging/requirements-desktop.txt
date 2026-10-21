@@ -1,10 +1,10 @@
 # Tools used only to BUILD the Windows app (not needed to run the zip version)
 pywebview>=6.1,<7
 pystray>=0.19.5
-pillow>=10.1   # fractional font sizes for KingdomConnect cards
-opencv-python-headless>=4.9,<5   # KingdomConnect: webcam, blur model, image work
+pillow>=10.1   # fractional font sizes for FrameCast cards
+opencv-python-headless>=4.9,<5   # FrameCast: webcam, blur model, image work
 numpy>=1.26
-cv2-enumerate-cameras>=1.4,<2   # KingdomConnect: lists webcams by name
+cv2-enumerate-cameras>=1.4,<2   # FrameCast: lists webcams by name
 windows-capture>=2.0,<3   # screen sharing: DXGI Desktop Duplication (displays) + Windows Graphics Capture (windows)
 pypdfium2>=4.30           # presentation layers from PDF slides
 comtypes>=1.4             # Next/Previous in a running PowerPoint slide show

@@ -55,7 +55,7 @@ Stated plainly so nobody expects them in this version:
 
 1. Camera, screen, window, image, video and PowerPoint Content (capture and media). The Flutter Studio shows them in
    the list and lets you rename, show, hide and delete them; the Windows program draws them.
-2. The **KingdomConnect camera**: on Windows a new Windows 11 camera built on Media Foundation (no administrator
+2. The **FrameCast camera**: on Windows a new Windows 11 camera built on Media Foundation (no administrator
    permission, Store-ready) is next; on the Mac a CoreMediaIO Camera Extension follows the port (see §6).
 3. Members, birthdays and email; the Meeting Workbook; the command palette; Annotate; the Teleprompter dock.
 4. The Flutter desktop hosting the phone remote itself (today phones connect to the Windows program).
@@ -77,7 +77,7 @@ CI (`.github/workflows/flutter-app.yml`) analyses, tests, and builds Windows, ma
 
 | Store | Status |
 |---|---|
-| Microsoft Store | The Studio packages as MSIX. The current KingdomConnect camera (softcam, a DirectShow filter registered with `regsvr32` as administrator during install) does not meet the Store's rules for a silent, per-user install. It is being replaced by a Windows 11 Media Foundation virtual camera (`MFCreateVirtualCamera`, current-user access, no administrator permission). |
+| Microsoft Store | The Studio packages as MSIX. The current FrameCast camera (softcam, a DirectShow filter registered with `regsvr32` as administrator during install) does not meet the Store's rules for a silent, per-user install. It is being replaced by a Windows 11 Media Foundation virtual camera (`MFCreateVirtualCamera`, current-user access, no administrator permission). |
 | Mac App Store | The Studio is sandbox-friendly (its own file, local network to the PC). A virtual camera, when added, must be a CoreMediaIO Camera Extension (a system extension inside the app, sandboxed, sharing an app group); the old DAL plug-ins are not allowed. Needs signing with the Apple Developer account. |
 | App Store (iPhone, iPad) | Remote only. iOS has no virtual cameras, and the remote does not use the camera. Needs the local-network usage description and signing. |
 | Google Play | Remote only. Needs signing and the target-SDK level Play asks for at the time. |

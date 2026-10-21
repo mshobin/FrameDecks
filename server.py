@@ -196,7 +196,7 @@ def save_state(new):
         return state
 
 
-# ---------- v6 Scenes: the live scene's media layers are the KingdomConnect picture ----------
+# ---------- v6 Scenes: the live scene's media layers are the FrameCast picture ----------
 MEDIA_KINDS = ("camera", "screen", "window", "image", "video", "pdf", "background", "text", "rect", "ellipse")
 
 
@@ -209,10 +209,11 @@ def scene_media(st):
     sc = next((x for x in st.get("scenes") or [] if isinstance(x, dict) and x.get("id") == sid), None)
     if sc is None:
         return None
+    deck = live_deck(sc, live)
     out = []
     for l in reversed([l for l in sc.get("layers") or [] if isinstance(l, dict)]):
-        if l.get("kind") not in MEDIA_KINDS:
-            continue
+        if l.get("kind") not in MEDIA_KINDS or layer_deck(sc, l) != deck:
+            continue                                   # FRAMEDECKS: only the Deck on screen
         c = dict(l.get("c") or {})
         c.pop("vcam", None)
         c.pop("obs", None)
@@ -224,6 +225,24 @@ def scene_media(st):
                  visible=l.get("visible", True) is not False, locked=bool(l.get("locked")), opacity=l.get("opacity", 1))
         out.append(c)
     return out
+
+
+def deck_ids(sc):
+    """FRAMEDECKS: the ids of a Frame's Decks, in order (an older Frame has one, "d1"; same rule as store.js)."""
+    ids = [str(d.get("id")) for d in sc.get("decks") or [] if isinstance(d, dict) and d.get("id")]
+    return ids or ["d1"]
+
+
+def layer_deck(sc, l):
+    """The Deck a Content belongs to (no Deck, or an unknown one: the first)."""
+    ids = deck_ids(sc)
+    return l.get("deck") if l.get("deck") in ids else ids[0]
+
+
+def live_deck(sc, live):
+    """The Deck of the live Frame that is on screen (live.deck, else the first)."""
+    ids = deck_ids(sc)
+    return live.get("deck") if live.get("deck") in ids else ids[0]
 
 
 def media_sig(layers):
@@ -251,7 +270,7 @@ def apply_live_media(st):
         comp.layers.set_layers(media)
         studio_save()
     except Exception as e:                              # never let a scene stop the camera
-        print("KingdomConnect: could not apply the scene:", e)
+        print("FrameCast: could not apply the scene:", e)
 
 
 def update_state(change):
@@ -306,6 +325,11 @@ def _refresh_network_check():
         r = subprocess.run(["netsh", "advfirewall", "firewall", "show", "rule", f"name={FIREWALL_RULE}"],
                            capture_output=True, text=True, timeout=8, creationflags=flags)
         out["ruleExists"] = r.returncode == 0
+        if out["ruleExists"] and FROZEN:
+            v = subprocess.run(["netsh", "advfirewall", "firewall", "show", "rule", f"name={FIREWALL_RULE}", "verbose"],
+                               capture_output=True, text=True, timeout=8, creationflags=flags)
+            # FRAMEDECKS: a permission given to the program under its earlier file name no longer lets this one in
+            out["ruleOutdated"] = sys.executable.lower() not in (v.stdout or "").lower()
     except Exception:
         pass
     _net_cache.update({"at": time.time(), "value": out})
@@ -705,7 +729,7 @@ def firewall(action):
     return r.returncode == 0, ("Done." if r.returncode == 0 else "Windows reported a problem.")
 
 
-# ---------- KingdomConnect (built-in virtual camera, Windows) ----------
+# ---------- FrameCast (built-in virtual camera, Windows) ----------
 VCAM_SETTINGS_FILE = DATA / "kc-vcam-settings.json"
 VCAM_DEFAULTS = {"enabled": True, "cameraName": "", "resolution": "720p", "mirror": False, "blur": "off", "blurStrength": 0, "cards": True, "look": "off", "presentFps": 15,
                  "blurStyle": "natural"}
@@ -723,7 +747,7 @@ def _picture():
 
 
 def vcam_settings():
-    """Saved KingdomConnect settings, migrated to the current schema and validated; defaults fill the gaps
+    """Saved FrameCast settings, migrated to the current schema and validated; defaults fill the gaps
     (a damaged or older file never stops the camera)."""
     out = dict(VCAM_DEFAULTS)
     pic = _picture()
@@ -826,7 +850,7 @@ def vcam_apply_changes(data):
 
 
 def vcam_list_cameras():
-    """Webcams by name (KingdomConnect itself excluded). Refreshed at most every 10 s; never turns a webcam on."""
+    """Webcams by name (FrameCast itself excluded). Refreshed at most every 10 s; never turns a webcam on."""
     if VCAM["cameras"] is not None and time.time() - VCAM["camerasAt"] < 10:
         return VCAM["cameras"]
     cams = []
@@ -962,7 +986,7 @@ def scripture_lookup(ref, translation="ESV", fresh=False):
                    "include-footnotes": "false", "include-footnote-body": "false", "include-headings": "false", "include-short-copyright": "false",
                    "include-selahs": "true", "indent-paragraphs": "0", "indent-poetry": "false", "indent-declares": "0", "indent-psalm-doxology": "0"})
     try:
-        with urlopen(Request(ESV_URL + "?" + q, headers={"Authorization": "Token " + api_key, "User-Agent": "KingdomConnect/" + APP_VERSION}), timeout=8) as r:
+        with urlopen(Request(ESV_URL + "?" + q, headers={"Authorization": "Token " + api_key, "User-Agent": "FrameCast/" + APP_VERSION}), timeout=8) as r:
             data = json.loads(r.read().decode("utf-8"))
     except Exception as e:
         code = getattr(e, "code", None)
@@ -1142,7 +1166,7 @@ def _studio_action(d):
     if op == "slide":                                          # slides work even without the camera engine
         return {"slide": slide_move(d.get("step", 1))}
     if not comp:
-        raise ValueError(VCAM.get("reason") or "KingdomConnect is not available.")
+        raise ValueError(VCAM.get("reason") or "FrameCast is not available.")
     if op == "layout":
         comp.set_layout(d.get("layout") or {})
     elif op == "screen":
@@ -1334,11 +1358,11 @@ def vcam_effective(settings):
 
 
 def vcam_start():
-    """Create the engine (idle until Zoom/Teams uses KingdomConnect). Safe to call when unavailable."""
+    """Create the engine (idle until Zoom/Teams uses FrameCast). Safe to call when unavailable."""
     if VCAM["engine"] is not None:
         return
     demo = os.environ.get("KC_VCAM_DEMO") == "1"
-    start_files_msg = ("You’re using the start-file version (the black window). KingdomConnect is only in the installed app: "
+    start_files_msg = ("You’re using the start-file version (the black window). FrameCast is only in the installed app: "
                        "close the black window, then open FRAMEDECKS from its desktop or Start-menu icon.")
     os.environ.setdefault("OPENCV_VIDEOIO_MSMF_ENABLE_HW_TRANSFORMS", "0")   # before OpenCV loads
     try:
@@ -1351,8 +1375,8 @@ def vcam_start():
         VCAM["detail"] = f"{type(e).__name__}: {e}"
         if FROZEN:
             import traceback
-            print("KingdomConnect could not load:\n" + traceback.format_exc())
-            VCAM["reason"] = ("KingdomConnect couldn’t start because part of it is missing. Please send Settings → Diagnostics "
+            print("FrameCast could not load:\n" + traceback.format_exc())
+            VCAM["reason"] = ("FrameCast couldn’t start because part of it is missing. Please send Settings → Diagnostics "
                               "→ Copy diagnostics to the developer.")
         else:
             VCAM["reason"] = start_files_msg
@@ -1364,7 +1388,7 @@ def vcam_start():
         make_sink, make_cam = (lambda w, h: vsink.FakeSink(w, h, connected=False)), DemoCamera
     else:
         if os.name != "nt":
-            VCAM["reason"] = start_files_msg if not FROZEN else "KingdomConnect works on Windows."
+            VCAM["reason"] = start_files_msg if not FROZEN else "FrameCast works on Windows."
             return
         dll = vsink.dll_path(RES) if vsink.dll_path(RES).exists() else vsink.dll_path(HERE)
         if not dll.exists():
@@ -1381,7 +1405,7 @@ def vcam_start():
                 VCAM["reason"] = ("This installer was built without the camera, because the GitHub build recipe is out of date. "
                                   "Copy the .github folder from the latest Kingdom-Connect.zip into your repository, commit "
                                   "and push, then install the new installer.")
-            print("KingdomConnect not available: " + VCAM["detail"])
+            print("FrameCast not available: " + VCAM["detail"])
             return
         make_sink, make_cam = (lambda w, h: vsink.SoftcamSink(dll, w, h)), (lambda name, w, h: Camera(name, w, h, vcam_list_cameras()))
     # The verse, question and birthday cards, drawn onto every frame from the same live state as the overlay pages
@@ -1419,7 +1443,7 @@ def _looks_list():
 
 
 def vcam_status(lite=False):
-    """KingdomConnect status for the PC screens. lite: only what the top-bar light needs (no webcam or looks listing)."""
+    """FrameCast status for the PC screens. lite: only what the top-bar light needs (no webcam or looks listing)."""
     eng = VCAM["engine"]
     try:
         from vcam import sink as vsink
@@ -1433,20 +1457,20 @@ def vcam_status(lite=False):
             "settings": vcam_settings(), "status": dict(eng.status) if eng else None,
             "cameras": [{"name": n, "ir": any(c["ir"] for c in vcam_list_cameras() if c["name"] == n)}
                         for n in dict.fromkeys(c["name"] for c in vcam_list_cameras())] if eng else [],
-            "activeCamera": vcam_effective(vcam_settings())["cameraName"] if eng else "", "name": "KingdomConnect",
+            "activeCamera": vcam_effective(vcam_settings())["cameraName"] if eng else "", "name": "FrameCast",
             "blurNow": VCAM["blurSession"] if VCAM.get("blurSession") is not None else vcam_settings()["blurStrength"],
             "looks": _looks_list(), "looksNote": VCAM.get("looksNote", ""),
             "profiles": [{"id": k, "name": v["name"]} for k, v in (_picture().PROFILES.items() if _picture() else [])]}
 
 
 def vcam_install(action):
-    """Register (or remove) KingdomConnect with Windows. Asks for administrator permission (UAC)."""
+    """Register (or remove) FrameCast with Windows. Asks for administrator permission (UAC)."""
     if os.name != "nt":
         return False, "Only available on Windows."
     name = "unregister-kingdomconnect-camera.cmd" if action == "uninstall" else "register-kingdomconnect-camera.cmd"
     helper = next((p for p in (RES / "vcam" / "bin" / name, HERE / "vcam" / "bin" / name) if p.exists()), None)
     if helper is None or not (helper.parent / "kingdomconnect_vcam64.dll").exists():
-        return False, "The KingdomConnect files are missing. Reinstall the app."
+        return False, "The FrameCast files are missing. Reinstall the app."
     path = str(helper).replace("'", "''")
     outer = ("try { Start-Process -FilePath '" + path + "' -Verb RunAs -Wait -WindowStyle Hidden; exit 0 } catch { exit 5 }")
     try:
@@ -1573,7 +1597,7 @@ class Handler(BaseHTTPRequestHandler):
             return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
         if path == "/api/remote/studio":                # scenes + presentation for the remote (PIN-protected)
             return self.reply(200, json.dumps(remote_studio_info()), TYPES[".json"])
-        if path == "/api/remote/live.jpg":              # v6.6 the KingdomConnect picture for the phone's drawing pad (PIN-protected)
+        if path == "/api/remote/live.jpg":              # v6.6 the FrameCast picture for the phone's drawing pad (PIN-protected)
             eng = VCAM.get("engine")
             if not eng:
                 return self.reply(204, b"", "text/plain")
@@ -1739,12 +1763,12 @@ class Handler(BaseHTTPRequestHandler):
         return origin in (f"http://{host}",)
 
     def present_stream(self):
-        """The Presentation window's picture: a motion-JPEG stream of the final KingdomConnect frame.
+        """The Presentation window's picture: a motion-JPEG stream of the final FrameCast frame.
         A frame is sent only when the picture changed (at most 30 per second), so a still slide costs
         almost nothing. Each frame is encoded here, not in the camera thread."""
         comp, eng = VCAM.get("compositor"), VCAM.get("engine")
         if not comp or not eng:
-            return self.reply(404, "KingdomConnect is not available", "text/plain; charset=utf-8")
+            return self.reply(404, "FrameCast is not available", "text/plain; charset=utf-8")
         import cv2 as _cv2
         from vcam.priority import lower_this_thread
         lower_this_thread()                          # picture encoding for the window: background priority
@@ -2139,7 +2163,7 @@ def start_main_server():
         return None
     server.daemon_threads = True
     MAIN["server"], MAIN["port"] = server, server.server_address[1]
-    threading.Thread(target=vcam_start, daemon=True).start()   # idle until Zoom/Teams uses KingdomConnect
+    threading.Thread(target=vcam_start, daemon=True).start()   # idle until Zoom/Teams uses FrameCast
     threading.Thread(target=_backup_loop, daemon=True).start()
     threading.Thread(target=_remote_watcher, daemon=True).start()
     return server

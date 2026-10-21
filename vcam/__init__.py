@@ -1,1 +1,1 @@
-"""KingdomConnect - FRAMEDECKS's built-in virtual camera (Windows)."""
+"""FrameCast - FRAMEDECKS's built-in virtual camera (Windows)."""

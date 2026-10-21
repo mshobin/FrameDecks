@@ -45,7 +45,7 @@ var KIND = {cmd: 'Command', frame: 'Frame', tpl: 'Template', lib: 'Library', con
   text: 'Text', brand: 'Branding', bg: 'Background', member: 'Member', birthday: 'Birthday', setting: 'Settings', bible: 'Bible', recent: 'Recent'};
 var SECTIONS = [['general', 'General', 'appearance theme dark light'], ['meeting', 'Meeting & Branding', 'logo brand meeting name organization colour accent'],
   ['overlays', 'Birthdays', 'birthday reminders'], ['scripture', 'Scripture', 'bible esv api key translation'], ['transitions', 'Transitions', 'fade dip cut profile'],
-  ['recording', 'Recording', 'record mp4'], ['display', 'Zoom / Display', 'overlay obs browser source links'], ['vcam', 'KingdomConnect Camera', 'camera zoom teams blur background look resolution'],
+  ['recording', 'Recording', 'record mp4'], ['display', 'Zoom / Display', 'overlay obs browser source links'], ['vcam', 'FrameCast Camera', 'camera zoom teams blur background look resolution'],
   ['ipad', 'Phone & iPad Remote', 'remote pin qr phone tablet'], ['keys', 'Keyboard shortcuts', 'keys hotkeys palette'], ['security', 'Security', 'pin privacy'],
   ['data', 'Data / Backup', 'backup restore export import'], ['diag', 'Diagnostics', 'problems errors logs'], ['about', 'About', 'version credits']];
 function commands(){

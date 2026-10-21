@@ -14,7 +14,7 @@ engagement.
 | Product name | **FRAMEDECKS** (all capitals, one word) |
 | Tagline | **Present • Equip • Inspire** (bullets with a space either side; in capitals on the logo) |
 | Positioning line | The world's most elegant presentation platform for ministry communication, teaching, discipleship, and digital engagement. |
-| How the work is organised | **Frame → Deck → Content**. A Frame is one screen of the service; its **Content** is what appears on it. The lists in the app keep their names: **Frames** and **Content**. "Decks & Content" replaces the older wording "Decks & Elements". |
+| How the work is organised | **Frame → Deck → Content**. A Frame is one part of the service; it holds one or more Decks, shown one at a time; each Deck holds the **Content** that appears on screen. Say "Decks & Content" (not "Decks & Elements"). |
 
 ## 2. The logo
 
@@ -77,16 +77,23 @@ The README header (`assets/brand/kc-about-header.webp`) is captured from the Abo
 
 ## 5. What keeps the old name (on purpose)
 
-The rebrand changes what people read and see. Everything that other programs, saved files or existing installs depend
-on keeps its name, so nothing breaks and every install upgrades in place:
+The rebrand changes what people read and see, and two names on the PC:
+
+| Renamed | Now | Notes |
+|---|---|---|
+| The program file and its folder | `FrameDecks.exe` in `%LOCALAPPDATA%\Programs\FrameDecks`; installer `FrameDecks v<version>.exe` | The installer closes and removes the Kingdom Connect program folder and shortcuts, and registers the camera again from the new folder. A phone-remote firewall permission given to the old exe is shown as outdated in Settings → Phone & iPad Remote, with **Allow again** |
+| The virtual camera | **FrameCast** | Same camera ID (CLSID), so Zoom, Teams and OBS keep the device; they show the new name after the update. If an app had remembered the camera by name, choose **FrameCast** once |
+
+Everything that other programs, saved files or existing installs depend on keeps its name, so every install upgrades in
+place:
 
 | Kept | Why |
 |---|---|
-| The data folder `%APPDATA%\Kingdom Connect`, the program folder, `Kingdom Connect.exe`, the recordings folder | Existing data, shortcuts and settings point there |
-| The installer's AppId, file name `Kingdom Connect v<version>.exe` and the CI artifact names | Upgrades install over the old version; release automation finds the file by name |
+| The data folder `%APPDATA%\Kingdom Connect` and the recordings folder | Existing data and settings live there |
+| The installer's AppId | Upgrades install over the old version |
 | `kc-*.json` files, the `kc_remote` cookie, `api/*` and its `"app": "Kingdom Connect"` value | Saved files, signed-in phones and the Flutter app's check of the program |
-| The camera device name **KingdomConnect** and its CLSIDs | Zoom, Teams and OBS remember the camera by name and ID |
-| The firewall rule "Kingdom Connect Phone Remote" | The helper scripts find and remove it by that name |
+| The camera's CLSIDs and driver file names (`kingdomconnect_vcam*.dll`, `register-kingdomconnect-camera.cmd`) | Windows and the meeting apps know the camera by its ID |
+| The firewall rule's name "Kingdom Connect Phone Remote" | The helper scripts find and remove it by that name |
 | The `.bat` / `.command` start files, the Meeting Workbook file name | Existing guides and shortcuts open them by name |
 | Bundle IDs, application IDs, package names (`org.kingdomconnect.*`, `kingdom_connect`), the macOS bundle file name | Store listings, signing, app data and the camera extension depend on them |
 

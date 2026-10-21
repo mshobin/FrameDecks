@@ -198,7 +198,8 @@ class _FrameCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final id = scene['id'] as String;
-    final qs = live ? sc.qsMode(scene) : '';
+    final qs = live ? sc.qsMode(scene, state) : '';
+    final decks = sc.decksOf(scene).length;
     final border = live ? K.live : (selected ? K.accent : Colors.transparent);
     return Padding(
       padding: const EdgeInsets.only(bottom: 4),
@@ -240,7 +241,7 @@ class _FrameCard extends ConsumerWidget {
                             ),
                             const SizedBox(height: 2),
                             Text(
-                              sc.sceneSummary(state, scene),
+                              '${sc.sceneSummary(state, scene)}${decks > 1 ? ' · $decks Decks' : ''}',
                               overflow: TextOverflow.ellipsis,
                               style: const TextStyle(color: K.muted, fontSize: 12),
                             ),

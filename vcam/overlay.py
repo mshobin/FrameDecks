@@ -1,4 +1,4 @@
-"""Puts the verse, question and birthday cards onto KingdomConnect, with the same transitions as the overlay pages.
+"""Puts the verse, question and birthday cards onto FrameCast, with the same transitions as the overlay pages.
 
 Each video frame: read the live state (shared with the dashboard, keyboard and phone remote), follow the same
 show / hide / replace / clear rules as app/js/overlay.js, and blend the cards onto the picture.
@@ -162,7 +162,7 @@ class OverlayLayer:
         hold = bool(live.get("blackout") or live.get("emergency"))
         for kind, tr in self.tracks.items():
             d = st.get(kind) or {}
-            if hold or (d.get("out") or {}).get("vcam") is False:      # v6: Blackout / Emergency, or "not on KingdomConnect"
+            if hold or (d.get("out") or {}).get("vcam") is False:      # v6: Blackout / Emergency, or "not on FrameCast"
                 d = dict(d, visible=False)
             tr.update(d, now, self.alpha[kind])
             tr.tick(now)
@@ -196,7 +196,7 @@ class OverlayLayer:
                     self.cards[kind] = (key, card)
                     self.drawing.discard(kind)
             except Exception as e:                      # never let a drawing problem stop the camera
-                print("KingdomConnect: could not draw the " + kind + " card:", e)
+                print("FrameCast: could not draw the " + kind + " card:", e)
                 with self.cond:
                     self.drawing.discard(kind)
 

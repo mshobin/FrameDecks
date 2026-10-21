@@ -1,7 +1,7 @@
 ; Inno Setup script for the FRAMEDECKS Windows installer.
-; 6.9: the program folder, the exe and the data folder carry the Kingdom Connect name. The AppId stays the same, so this
-; installs over every earlier version; the old program folder and shortcuts are removed, and the app moves the data
-; folder itself on first start (legacy.py).
+; FRAMEDECKS: the program is FrameDecks.exe in the FrameDecks program folder; the data folder keeps the Kingdom Connect
+; name (6.9). The AppId stays the same, so this installs over every earlier version; the old program folders and
+; shortcuts are removed, and the app moves data from the earliest name itself on first start (legacy.py).
 ; Build (after PyInstaller):  ISCC.exe /DAppVersion=3.0 packaging\installer.iss
 ; Installs for the current user only: no administrator permission needed, updates never need it either.
 
@@ -23,17 +23,17 @@ VersionInfoVersion={#AppVersion}
 VersionInfoCompany=Shobin Mathews
 VersionInfoDescription=FRAMEDECKS Setup
 VersionInfoCopyright=Copyright (C) Shobin Mathews
-DefaultDirName={localappdata}\Programs\Kingdom Connect
-; earlier versions were installed under the program's earlier name: install to the Kingdom Connect folder instead
+DefaultDirName={localappdata}\Programs\FrameDecks
+; earlier versions were installed under the program's earlier names: install to the FrameDecks folder instead
 UsePreviousAppDir=no
 DisableDirPage=yes
 DefaultGroupName=Kingdom Connect
 DisableProgramGroupPage=yes
 PrivilegesRequired=lowest
 OutputDir=..\dist
-OutputBaseFilename=Kingdom Connect v{#AppVersion}
+OutputBaseFilename=FrameDecks v{#AppVersion}
 SetupIconFile=kingdom-connect.ico
-UninstallDisplayIcon={app}\Kingdom Connect.exe
+UninstallDisplayIcon={app}\FrameDecks.exe
 UninstallDisplayName=FRAMEDECKS
 Compression=lzma2
 SolidCompression=yes
@@ -45,11 +45,11 @@ RestartApplications=no
 
 [Tasks]
 Name: "desktopicon"; Description: "Create a desktop icon"; GroupDescription: "Icons:"
-Name: "vcam"; Description: "Install the KingdomConnect camera for Zoom and Teams (Windows asks for administrator permission)"; GroupDescription: "Options:"
+Name: "vcam"; Description: "Install the FrameCast camera for Zoom and Teams (Windows asks for administrator permission)"; GroupDescription: "Options:"
 Name: "startup"; Description: "Start FRAMEDECKS automatically when I sign in to Windows"; GroupDescription: "Options:"; Flags: unchecked
 
 [Files]
-Source: "..\dist\Kingdom Connect\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\dist\FrameDecks\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [InstallDelete]
 ; remove files left by an older version before copying the new ones
@@ -59,23 +59,25 @@ Type: filesandordirs; Name: "{localappdata}\Programs\BSF Command Center"
 Type: files; Name: "{autoprograms}\BSF Command Center.lnk"
 Type: files; Name: "{autodesktop}\BSF Command Center.lnk"
 Type: files; Name: "{userstartup}\BSF Command Center.lnk"
-; FRAMEDECKS: the shortcuts carry the new name; the program, its folders and the exe keep theirs
+; FRAMEDECKS: the program is FrameDecks.exe in the FrameDecks folder; the shortcuts and the program folder of the
+; Kingdom Connect versions go (the camera is registered again from the new folder, see ShouldRegisterCamera)
+Type: filesandordirs; Name: "{localappdata}\Programs\Kingdom Connect"
 Type: files; Name: "{autoprograms}\Kingdom Connect.lnk"
 Type: files; Name: "{autodesktop}\Kingdom Connect.lnk"
 Type: files; Name: "{userstartup}\Kingdom Connect.lnk"
 
 [Icons]
-Name: "{autoprograms}\FRAMEDECKS"; Filename: "{app}\Kingdom Connect.exe"
-Name: "{autodesktop}\FRAMEDECKS"; Filename: "{app}\Kingdom Connect.exe"; Tasks: desktopicon
-Name: "{userstartup}\FRAMEDECKS"; Filename: "{app}\Kingdom Connect.exe"; Tasks: startup
+Name: "{autoprograms}\FRAMEDECKS"; Filename: "{app}\FrameDecks.exe"
+Name: "{autodesktop}\FRAMEDECKS"; Filename: "{app}\FrameDecks.exe"; Tasks: desktopicon
+Name: "{userstartup}\FRAMEDECKS"; Filename: "{app}\FrameDecks.exe"; Tasks: startup
 
 [Run]
-Filename: "{app}\_internal\vcam\bin\register-kingdomconnect-camera.cmd"; Verb: "runas"; Flags: shellexec waituntilterminated runhidden; Check: ShouldRegisterCamera; StatusMsg: "Installing the KingdomConnect camera..."
-Filename: "{app}\Kingdom Connect.exe"; Description: "Open FRAMEDECKS now"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\_internal\vcam\bin\register-kingdomconnect-camera.cmd"; Verb: "runas"; Flags: shellexec waituntilterminated runhidden; Check: ShouldRegisterCamera; StatusMsg: "Installing the FrameCast camera..."
+Filename: "{app}\FrameDecks.exe"; Description: "Open FRAMEDECKS now"; Flags: nowait postinstall skipifsilent
 
 [UninstallRun]
 Filename: "{app}\_internal\vcam\bin\unregister-kingdomconnect-camera.cmd"; Verb: "runas"; Flags: shellexec waituntilterminated runhidden; RunOnceId: "RemoveKingdomConnectCamera"
-Filename: "{sys}\taskkill.exe"; Parameters: "/IM ""Kingdom Connect.exe"" /F"; Flags: runhidden; RunOnceId: "StopApp"
+Filename: "{sys}\taskkill.exe"; Parameters: "/IM ""FrameDecks.exe"" /F"; Flags: runhidden; RunOnceId: "StopApp"
 
 [Code]
 const
@@ -89,7 +91,7 @@ begin
             (RegQueryStringValue(HKCU, WebView2KeyUser, 'pv', v) and (v <> '') and (v <> '0.0.0.0'));
 end;
 
-// The KingdomConnect camera keeps the camera ID it had as "BCC vCam", so Zoom, Teams and OBS see the same device
+// The FrameCast camera keeps the camera ID it had as "BCC vCam", so Zoom, Teams and OBS see the same device
 // under its new name. Its driver file was renamed in 6.4, so a PC that already has the camera registers it again
 // (pointing Windows at the new file) even when the option is not ticked this time.
 const
@@ -105,11 +107,12 @@ begin
   Result := WizardIsTaskSelected('vcam') or CameraRegistered;
 end;
 
-// LEGACY (6.9): an earlier version still running under the earlier exe name is closed first, so its folder can go
+// LEGACY: a version still running under an earlier exe name is closed first, so its folder can go
 function PrepareToInstall(var NeedsRestart: Boolean): String;
 var code: Integer;
 begin
   Exec(ExpandConstant('{sys}\taskkill.exe'), '/IM "BSF Command Center.exe" /F', '', SW_HIDE, ewWaitUntilTerminated, code);
+  Exec(ExpandConstant('{sys}\taskkill.exe'), '/IM "Kingdom Connect.exe" /F', '', SW_HIDE, ewWaitUntilTerminated, code);   // FRAMEDECKS: the exe before
   Result := '';
 end;
 

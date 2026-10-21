@@ -17,11 +17,24 @@ Versions before 4.9 (when the program had its earlier name) are described in the
   - A new logo system replaces every icon, favicon, launcher icon and splash. It comes in horizontal, stacked and
     icon-only versions, each for light and dark backgrounds, plus Teams, Zoom and marketing pictures. All are drawn by
     `tools/make_brand_assets.py`. Guide: [docs/brand/framedecks-brand-guide.md](docs/brand/framedecks-brand-guide.md).
-  - Nothing works differently. The data folder, the program folder and exe, saved files, the API, the phone sign-in,
-    the KingdomConnect camera's name and ID, bundle IDs and the installer's AppId keep their names, so every install
-    upgrades in place.
+  - The program is installed as **FrameDecks.exe** in `%LOCALAPPDATA%\Programs\FrameDecks`, and the installer is
+    `FrameDecks v<version>.exe`. Updating removes the Kingdom Connect program folder and shortcuts. A phone-remote
+    firewall permission given to the old exe shows as outdated, with **Allow again**.
+  - The virtual camera is now **FrameCast**. It keeps its camera ID, so Zoom, Teams and OBS keep the device and show the
+    new name.
+  - The data folder, saved files, the API, the phone sign-in, bundle IDs and the installer's AppId keep their names, so
+    every install upgrades in place.
 
 ### Added
+- **Decks: Frame → Deck → Content.** A Frame now holds one or more Decks, and each Deck holds its Content. One Deck is
+  on screen at a time; Next and Previous (PC, phone, Auto advance) step through the live Frame's Decks before moving to
+  the next Frame.
+  - The Content list groups Content under Deck headings: show a Deck now, rename, reorder, delete, **+ Deck**, **Move to
+    Deck**. The phone shows "Deck 2 of 3 · name"; FrameCast shows the live Deck's camera and media; the Meeting Workbook
+    has an optional **Deck** column.
+  - Existing Frames get one Deck holding all their Content, so they look and work as before. A file saved now still
+    opens in an earlier version (all of a Frame's Content as one list).
+  - The Flutter app has the same Decks, checked against `store.js` with parity tests.
 - **Kingdom Connect for every platform (Flutter)** in `kingdom_connect_app/`: a native rebuild of the Windows app
   with the same design, Frames and saved file.
   - Windows, macOS and Linux get the Studio (top bar, Frames, Content, canvas, inspector, Settings) and a

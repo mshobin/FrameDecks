@@ -208,7 +208,7 @@ var Present = {
     }
     return n;
   },
-  /* Both on screen in Both mode: the question leads, the verse supports it (used by the overlays and KingdomConnect) */
+  /* Both on screen in Both mode: the question leads, the verse supports it (used by the overlays and FrameCast) */
   combined: function(st){
     return Present.mode(st) === 'both' && st.question.visible && String(st.question.text || '').trim() !== '' &&
       st.verse.visible && String(st.verse.text || '').trim() !== '';
@@ -218,11 +218,15 @@ var Present = {
 /* =====================================================================================================
  * v6 Scenes: everything belongs to a Scene, everything visible is a Layer, everything renders on the Canvas.
  *   Scene  {id, name, group, fav, tpl, created, modified, version, creator, from, template, parent,
- *           tx: {type, ms}, auto: {on, sec}, out: {vcam, obs}, layers: [Layer]}            (layers: top first)
- *   Layer  {id, kind, name, visible, locked, opacity, c: {...content / media fields}}
+ *           tx: {type, ms}, auto: {on, sec}, out: {vcam, obs}, decks: [Deck], layers: [Layer]}   (layers: top first)
+ *   Deck   {id, name}   FRAMEDECKS: Frame -> Deck -> Content. A Frame holds one or more Decks; one Deck of the live
+ *           Frame is on screen at a time (live.deck), and Next / Previous step through the Decks before the Frames.
+ *   Layer  {id, kind, name, deck, visible, locked, opacity, c: {...content / media fields}}   (deck: its Deck's id)
+ * The Content stays one list per Frame (each Content names its Deck), so a file opened by an older version still
+ * shows every Frame with all of its Content.
  * Card kinds (scripture, question, birthday) drive the existing verse / question / birthday cards, so the
  * keyboard, the remote and every overlay keep working. Text kinds (announcement, prayer, lowerthird,
- * countdown) are drawn by the overlay pages and KingdomConnect. Media kinds are KingdomConnect Studio layers (the program
+ * countdown) are drawn by the overlay pages and FrameCast. Media kinds are FrameCast Studio layers (the program
  * applies the live scene's media layers to the camera picture).
  * All helpers edit a copy inside Store.update(); they never send anything themselves.
  * ===================================================================================================== */
@@ -238,7 +242,7 @@ var KIND_INFO = {
   pdf: {name: 'PowerPoint', icon: 'presentation'}, background: {name: 'Background', icon: 'paint-bucket'}, text: {name: 'Text', icon: 'type'},
   rect: {name: 'Shape', icon: 'square'}, ellipse: {name: 'Ellipse', icon: 'circle'}
 };
-/* Scene transitions. In KingdomConnect every type plays on the whole picture; on the overlay pages the dips cover the
+/* Scene transitions. In FrameCast every type plays on the whole picture; on the overlay pages the dips cover the
  * screen and the cards follow (cut = instant). */
 var TX = [['cut', 'Cut'], ['fade', 'Fade'], ['dissolve', 'Cross Dissolve'], ['dip-black', 'Dip to Black'], ['dip-white', 'Dip to White'],
   ['blur-fade', 'Blur Fade'], ['zoom-fade', 'Zoom Fade'], ['slide-left', 'Slide Left'], ['slide-right', 'Slide Right'], ['push', 'Push'],
@@ -274,6 +278,7 @@ function cleanLayer(l){
   var c = isObj(l.c) ? JSON.parse(JSON.stringify(l.c)) : {};
   var out = {id: str(l.id || rid(), 40), kind: kind, name: str(l.name || KIND_INFO[kind].name, 60),
     visible: l.visible !== false, locked: !!l.locked, opacity: num(l.opacity, 0, 1, 1), c: c};
+  if (l.deck) out.deck = str(l.deck, 40);
   if (TEXT_KINDS.indexOf(kind) >= 0){
     var d = TEXT_DEFAULTS[kind];
     for (var k in d){
@@ -341,7 +346,7 @@ function cleanInk(o){
   });
   return {on: !!o.on, items: items, undone: (Array.isArray(o.undone) ? o.undone : []).filter(isObj).slice(-50).map(function(x){ return cleanInk({items: [x]}).items[0]; }).filter(Boolean)};
 }
-/* v6.5 Annotate: draw live.ink on a canvas, the same way vcam/annotate.py draws it on KingdomConnect */
+/* v6.5 Annotate: draw live.ink on a canvas, the same way vcam/annotate.py draws it on FrameCast */
 function drawInk(cv, items){
   var c = cv.getContext('2d'), W = cv.width, H = cv.height;
   c.clearRect(0, 0, W, H);
@@ -367,14 +372,25 @@ function drawInk(cv, items){
 function cleanScene(sc){
   if (!isObj(sc)) return null;
   var tx = isObj(sc.tx) ? sc.tx : {}, auto = isObj(sc.auto) ? sc.auto : {}, out = isObj(sc.out) ? sc.out : {};
-  return {id: str(sc.id || rid('sc_'), 40), name: str(sc.name || 'Frame', 80), group: str(sc.group, 60), fav: !!sc.fav, tpl: !!sc.tpl,
+  var r = {id: str(sc.id || rid('sc_'), 40), name: str(sc.name || 'Frame', 80), group: str(sc.group, 60), fav: !!sc.fav, tpl: !!sc.tpl,
     created: Number(sc.created) || 0, modified: Number(sc.modified) || 0, version: Math.max(1, Number(sc.version) || 1),
     creator: str(sc.creator, 80), from: str(sc.from, 80), template: str(sc.template, 80), parent: str(sc.parent, 40),
     notes: str(sc.notes, 20000),                                  /* the Teleprompter script (6.7; v6.2 leader notes), never on screen */
     tx: {type: tx.type === 'profile' || TX_IDS.indexOf(tx.type) >= 0 ? tx.type : 'profile', ms: num(tx.ms, 0, 5000, 500)},
     auto: {on: !!auto.on, sec: num(auto.sec, 2, 3600, 30)},
     out: {vcam: true, obs: true},
+    decks: cleanDecks(sc.decks),
     layers: foldOut((Array.isArray(sc.layers) ? sc.layers : []).map(cleanLayer).filter(Boolean).slice(0, 60), out)};
+  var ids = r.decks.map(function(d){ return d.id; });
+  r.layers.forEach(function(l){ if (ids.indexOf(l.deck) < 0) l.deck = ids[0]; });    // older Content: the first Deck
+  return r;
+}
+/* A Frame's Decks: at least one. An older Frame gets "Deck 1" with the fixed id 'd1', so every screen that converts
+ * the same file agrees (ids only need to be unique within their Frame). */
+function cleanDecks(a){
+  var seen = {}, out = (Array.isArray(a) ? a : []).filter(isObj).map(function(d){ return {id: str(d.id, 40), name: str(d.name || 'Deck', 60)}; })
+    .filter(function(d){ if (!d.id || seen[d.id]) return false; return (seen[d.id] = true); }).slice(0, 30);
+  return out.length ? out : [{id: 'd1', name: 'Deck 1'}];
 }
 /* v6.6: where cards and text appear is set on each Content (Behavior) only. An older Frame-wide "off" moves onto
  * its cards and text Content, so nothing changes on screen. Camera and media Content never followed it. */
@@ -478,7 +494,7 @@ var Scenes = {
     st.scenes = (Array.isArray(raw.scenes) ? raw.scenes : []).map(cleanScene).filter(Boolean).slice(0, 400);
     var seen = {}; st.scenes = st.scenes.filter(function(sc){ if (seen[sc.id]) return false; return (seen[sc.id] = true); });
     var l = isObj(raw.live) ? raw.live : {};
-    st.live = {scene: str(l.scene, 40), seq: Number(l.seq) || 0, at: Number(l.at) || 0, tx: TX_IDS.indexOf(l.tx) >= 0 ? l.tx : 'cut',
+    st.live = {scene: str(l.scene, 40), deck: str(l.deck, 40), seq: Number(l.seq) || 0, at: Number(l.at) || 0, tx: TX_IDS.indexOf(l.tx) >= 0 ? l.tx : 'cut',
       txMs: num(l.txMs, 0, 5000, 0), auto: l.auto !== false, blackout: !!l.blackout, emergency: !!l.emergency, freeze: !!l.freeze, ink: cleanInk(l.ink),
       message: str(l.message === undefined ? DEFAULT_STATE.live.message : l.message, 300), on: {}, cd: {}};
     if (isObj(l.on)) for (var k in l.on) if (l.on[k]) st.live.on[str(k, 40)] = true;
@@ -490,6 +506,68 @@ var Scenes = {
   layer: function(sc, id){ if (!sc) return null; for (var i = 0; i < sc.layers.length; i++) if (sc.layers[i].id === id) return sc.layers[i]; return null; },
   first: function(sc, kind){ if (!sc) return null; for (var i = 0; i < sc.layers.length; i++) if (sc.layers[i].kind === kind) return sc.layers[i]; return null; },
   liveScene: function(st){ return Scenes.find(st, st.live.scene); },
+  /* ---------- FRAMEDECKS: Decks ---------- */
+  /* a Frame's Decks (a Frame made before its first save gets its "Deck 1" here) */
+  decksOf: function(sc){ if (!Array.isArray(sc.decks) || !sc.decks.length) sc.decks = cleanDecks(sc.decks); return sc.decks; },
+  deck: function(sc, id){ if (!sc) return null; var a = Scenes.decksOf(sc); for (var i = 0; i < a.length; i++) if (a[i].id === id) return a[i]; return null; },
+  /* the Deck a Content belongs to (Content added without one belongs to the first Deck) */
+  deckOf: function(sc, l){ return Scenes.deck(sc, l.deck) ? l.deck : Scenes.decksOf(sc)[0].id; },
+  /* give every Content of every Frame a valid Deck (Store.update runs it before saving) */
+  fixDecks: function(st){ (st.scenes || []).forEach(function(sc){ sc.layers.forEach(function(l){ l.deck = Scenes.deckOf(sc, l); }); }); },
+  /* the Deck of this Frame that is (or would be) on screen: the live Deck of the live Frame, else the first */
+  liveDeckId: function(st, sc){
+    if (!sc) return '';
+    return st.live.scene === sc.id && Scenes.deck(sc, st.live.deck) ? st.live.deck : Scenes.decksOf(sc)[0].id;
+  },
+  deckLayers: function(sc, deckId){ return sc ? sc.layers.filter(function(l){ return Scenes.deckOf(sc, l) === deckId; }) : []; },
+  deckIndex: function(sc, deckId){ var a = sc ? Scenes.decksOf(sc) : []; for (var i = 0; i < a.length; i++) if (a[i].id === deckId) return i; return -1; },
+  /* first Content of a kind in one Deck */
+  firstIn: function(sc, deckId, kind){ if (!sc) return null; for (var i = 0; i < sc.layers.length; i++) if (sc.layers[i].kind === kind && Scenes.deckOf(sc, sc.layers[i]) === deckId) return sc.layers[i]; return null; },
+  addDeck: function(sc, name, afterId){
+    var used = {}; Scenes.decksOf(sc).forEach(function(d){ used[d.name.toLowerCase()] = 1; });
+    var nm = name, k = sc.decks.length + 1; while (!nm || used[nm.toLowerCase()]) nm = 'Deck ' + (k++);
+    var d = {id: rid('d'), name: str(nm, 60)}, i = Scenes.deckIndex(sc, afterId);
+    if (i < 0) sc.decks.push(d); else sc.decks.splice(i + 1, 0, d);
+    return d;
+  },
+  renameDeck: function(sc, id, name){ var d = Scenes.deck(sc, id); if (d && String(name || '').trim()) d.name = str(String(name).trim(), 60); return !!d; },
+  /* Delete a Deck and its Content (a Frame keeps at least one Deck); the live Deck moves to a neighbour */
+  removeDeck: function(n, sc, id){
+    var i = Scenes.deckIndex(sc, id); if (i < 0 || sc.decks.length < 2) return false;
+    Scenes.fixDecks({scenes: [sc]});
+    var wasLive = n.live.scene === sc.id && Scenes.liveDeckId(n, sc) === id;
+    sc.decks.splice(i, 1);
+    sc.layers = sc.layers.filter(function(l){ return l.deck !== id; });
+    if (wasLive) Scenes.take(n, sc.id, 'cut', sc.decks[Math.min(i, sc.decks.length - 1)].id);
+    return true;
+  },
+  moveDeck: function(sc, id, d){
+    var i = Scenes.deckIndex(sc, id), j = i + d; if (i < 0 || j < 0 || j >= sc.decks.length) return false;
+    var x = sc.decks.splice(i, 1)[0]; sc.decks.splice(j, 0, x); return true;
+  },
+  /* Move Content to another Deck of the same Frame (the program follows when the Frame is live) */
+  moveToDeck: function(n, sc, layerIds, deckId){
+    if (!Scenes.deck(sc, deckId)) return false;
+    Scenes.fixDecks({scenes: [sc]});
+    sc.layers.forEach(function(l){ if (layerIds.indexOf(l.id) >= 0) l.deck = deckId; });
+    if (n.live.scene === sc.id) Scenes.take(n, sc.id, 'cut', Scenes.liveDeckId(n, sc));
+    return true;
+  },
+  /* Where Next (d = 1) or Previous (d = -1) goes: the live Frame's next Deck, else the next Frame (its first Deck;
+   * going back, its last). {scene, deck} or null. */
+  stepTarget: function(st, d, fromScene){
+    var sc = Scenes.find(st, fromScene || st.live.scene);
+    if (sc && (!fromScene || fromScene === st.live.scene)){
+      var i = Scenes.deckIndex(sc, Scenes.liveDeckId(st, sc)) + d;
+      if (st.live.scene === sc.id && i >= 0 && i < sc.decks.length) return {scene: sc, deck: sc.decks[i]};
+    }
+    var nx = Scenes.neighbour(st, sc ? sc.id : '', d); if (!nx) return null;
+    var nd = Scenes.decksOf(nx); return {scene: nx, deck: d < 0 && sc ? nd[nd.length - 1] : nd[0]};
+  },
+  step: function(n, d, override){
+    var t = Scenes.stepTarget(n, d); if (!t) return false;
+    return Scenes.take(n, t.scene.id, override, t.deck.id);
+  },
   /* scenes you step through with Prev / Next (templates are not part of the running order) */
   order: function(st){ return st.scenes.filter(function(sc){ return !sc.tpl; }); },
   neighbour: function(st, id, d){
@@ -550,7 +628,8 @@ var Scenes = {
    * kind: 'question' or 'verse'. The list of a Frame = the items of its first Question (or Scripture) Content. */
   cardKind: function(kind){ return kind === 'verse' || kind === 'scripture' ? 'scripture' : 'question'; },
   owner: function(st, kind, sid){
-    var sc = Scenes.find(st, sid || st.live.scene); var l = sc && Scenes.first(sc, Scenes.cardKind(kind));
+    var sc = Scenes.find(st, sid || st.live.scene), k = Scenes.cardKind(kind);
+    var l = sc && (Scenes.firstIn(sc, Scenes.liveDeckId(st, sc), k) || Scenes.first(sc, k));   // the Deck on screen first
     return l && Array.isArray(l.c.items) ? l : null;
   },
   items: function(st, kind, sid){ var l = Scenes.owner(st, kind, sid); return l ? l.c.items : []; },
@@ -623,13 +702,13 @@ var Scenes = {
     d.card.forEach(function(k){ if (lk[k] !== undefined) card[k] = JSON.parse(JSON.stringify(lk[k])); });
   },
   /* Question · Scripture · Both for a scene that has both cards ('' when it doesn't) */
-  qsMode: function(sc){
-    var q = Scenes.first(sc, 'question'), v = Scenes.first(sc, 'scripture');
+  qsMode: function(sc, st){                                     // st given: the Deck on screen (else the first Deck)
+    var dk = st ? Scenes.liveDeckId(st, sc) : Scenes.decksOf(sc)[0].id, q = Scenes.firstIn(sc, dk, 'question'), v = Scenes.firstIn(sc, dk, 'scripture');
     if (!q || !v) return '';
     return q.visible && v.visible ? 'both' : v.visible ? 'verse' : 'question';
   },
   setQS: function(n, sid, m){
-    var sc = Scenes.find(n, sid), q = sc && Scenes.first(sc, 'question'), v = sc && Scenes.first(sc, 'scripture');
+    var sc = Scenes.find(n, sid), dk = Scenes.liveDeckId(n, sc), q = sc && Scenes.firstIn(sc, dk, 'question'), v = sc && Scenes.firstIn(sc, dk, 'scripture');
     if (!q || !v) return false;
     q.visible = m !== 'verse'; v.visible = m !== 'question';
     if (n.live.scene === sid){
@@ -724,6 +803,7 @@ var Scenes = {
   /* Is this layer on the program right now? (cards: the card itself; text: the live map; media: its visibility) */
   layerOn: function(st, sc, l){
     if (!sc || st.live.scene !== sc.id) return false;
+    if (Scenes.deckOf(sc, l) !== Scenes.liveDeckId(st, sc)) return false;                   // another Deck of the live Frame
     if (l.kind === 'question') return st.question.visible && String(st.question.text).trim() !== '';
     if (l.kind === 'scripture') return st.verse.visible && String(st.verse.text).trim() !== '';
     if (l.kind === 'birthday') return st.birthday.visible && String(st.birthday.greeting).trim() !== '';
@@ -755,10 +835,11 @@ var Scenes = {
     if (cut) o.play = 'none';
   },
   /* Take a scene live: its layers decide what the cards show; its transition plays (override = the live bar's choice). */
-  take: function(n, id, override){
+  take: function(n, id, override, deckId){
     var sc = Scenes.find(n, id); if (!sc) return false;
     var tx = Scenes.transitionOf(n, sc, override), cut = tx.type === 'cut';
-    var q = Scenes.first(sc, 'question'), v = Scenes.first(sc, 'scripture'), b = Scenes.first(sc, 'birthday');
+    var dk = Scenes.deck(sc, deckId) ? deckId : Scenes.decksOf(sc)[0].id;           // FRAMEDECKS: only this Deck's Content shows
+    var q = Scenes.firstIn(sc, dk, 'question'), v = Scenes.firstIn(sc, dk, 'scripture'), b = Scenes.firstIn(sc, dk, 'birthday');
     var qOn = !!(q && q.visible), vOn = !!(v && v.visible);
     if (q) Scenes.applyLook(n, q); if (v) Scenes.applyLook(n, v);           // this Frame's own appearance
     var vcamOk = function(l){ return sc.out.vcam && (!l || l.c.vcam !== false); }, obsOk = function(l){ return sc.out.obs && (!l || l.c.obs !== false); };
@@ -782,8 +863,8 @@ var Scenes = {
     n.question.out = {vcam: vcamOk(q), obs: obsOk(q)}; n.verse.out = {vcam: vcamOk(v), obs: obsOk(v)}; n.birthday.out = {vcam: vcamOk(b), obs: obsOk(b)};
     // text layers
     n.live.on = {}; n.live.cd = {};
-    sc.layers.forEach(function(l){ if (TEXT_KINDS.indexOf(l.kind) >= 0 && l.visible){ n.live.on[l.id] = true; if (l.kind === 'countdown') n.live.cd[l.id] = Date.now(); } });
-    n.live.scene = sc.id; n.live.seq = (n.live.seq || 0) + 1; n.live.at = Date.now(); n.live.tx = tx.type; n.live.txMs = tx.ms;
+    sc.layers.forEach(function(l){ if (Scenes.deckOf(sc, l) === dk && TEXT_KINDS.indexOf(l.kind) >= 0 && l.visible){ n.live.on[l.id] = true; if (l.kind === 'countdown') n.live.cd[l.id] = Date.now(); } });
+    n.live.scene = sc.id; n.live.deck = dk; n.live.seq = (n.live.seq || 0) + 1; n.live.at = Date.now(); n.live.tx = tx.type; n.live.txMs = tx.ms;
     return true;
   },
   /* Hide every layer (cards and text layers); the scene stays live. Media layers stay (they are the picture). */
@@ -791,6 +872,7 @@ var Scenes = {
   /* Show / hide one layer on the program (live scene only). Used by Hide selected and the live layer eyes. */
   setOn: function(n, sceneId, layerId, on){
     var sc = Scenes.find(n, sceneId), l = Scenes.layer(sc, layerId); if (!l || n.live.scene !== sceneId) return;
+    if (Scenes.deckOf(sc, l) !== Scenes.liveDeckId(n, sc)){ if (!Scenes.isCard(l.kind) && !Scenes.isText(l.kind)) l.visible = !!on; return; }   // another Deck: not on screen
     if (l.kind === 'question'){
       if (on){ Scenes._loadQuestion(n, Scenes._firstQuestion(l)); if (String(n.question.text).trim()) Scenes._showCard(n, 'question'); }
       else n.question.visible = false;
@@ -807,19 +889,20 @@ var Scenes = {
   /* The layer's eye: its visibility in the scene; on the live scene the program follows at once */
   toggleVisible: function(n, sceneId, layerId){
     var sc = Scenes.find(n, sceneId), l = Scenes.layer(sc, layerId); if (!l) return;
-    var on = n.live.scene === sceneId ? !Scenes.layerOn(n, sc, l) : !l.visible;
+    var onAir = n.live.scene === sceneId && Scenes.deckOf(sc, l) === Scenes.liveDeckId(n, sc);
+    var on = onAir ? !Scenes.layerOn(n, sc, l) : !l.visible;
     l.visible = on;
     if (n.live.scene === sceneId) Scenes.setOn(n, sceneId, layerId, on);
   },
   /* What the program would show if this scene were taken live now (canvas preview of another scene) */
-  previewState: function(st, id){
+  previewState: function(st, id, deckId){
     var n = JSON.parse(JSON.stringify(st));
-    if (!Scenes.take(n, id, 'cut')) return n;
+    if (!Scenes.take(n, id, 'cut', deckId)) return n;
     ['question', 'verse'].forEach(function(k){ n[k].play = 'none'; });
     n.live.blackout = false; n.live.emergency = false; n.live.freeze = false;            // drawings stay: they sit above any Frame
     return n;
   },
-  /* Text layers on the program (for the overlay pages and KingdomConnect) */
+  /* Text layers on the program (for the overlay pages and FrameCast) */
   liveText: function(st, output){
     var sc = Scenes.liveScene(st); if (!sc) return [];
     if (output && sc.out[output] === false) return [];
@@ -850,7 +933,7 @@ var Scenes = {
   autoBrand: function(st, sc){ if (st.brand && st.brand.auto && !sc.tpl && Scenes.hasBrand(st)) Scenes.addBrand(sc); },
   addBrand: function(sc, opts){
     if (!sc || Scenes.first(sc, 'brand')) return null;
-    var l = newLayer('brand', {c: opts || {}}); sc.layers.unshift(l); return l;
+    var l = newLayer('brand', {c: opts || {}}); l.deck = Scenes.decksOf(sc)[0].id; sc.layers.unshift(l); return l;
   },
   countdown: function(st, l, now){
     now = now || Date.now();
@@ -865,7 +948,7 @@ var Scenes = {
     var h = Math.floor(left / 3600), mm = Math.floor(left % 3600 / 60), ss = left % 60;
     return (h ? h + ':' + String(mm).padStart(2, '0') : mm) + ':' + String(ss).padStart(2, '0');
   },
-  /* First run of v6: the content you already have becomes scenes (nothing is lost). media = the KingdomConnect layers
+  /* First run of v6: the content you already have becomes scenes (nothing is lost). media = the FrameCast layers
    * now on the picture (they go into every scene, so the picture looks the same), studioScenes = saved Studio scenes. */
   migrate: function(n, media, studioScenes, who){
     if (n.v6) return false;
@@ -1094,6 +1177,7 @@ var Store = {
     function attempt(){
       var next = Store.get(), base = next.rev;
       fn(next);
+      Scenes.fixDecks(next);
       var p = served ? serverSave(next, base) : fileSave(next);
       return p.catch(function(e){ if (e && e.conflict && tries++ < 5) return attempt(); throw e; });
     }
@@ -1105,7 +1189,7 @@ var Store = {
     else fileStart();
   },
   pace: pace,
-  /* Fetch the KingdomConnect preview only when it's new: the program answers "not modified" for a picture this
+  /* Fetch the FrameCast preview only when it's new: the program answers "not modified" for a picture this
    * screen already has, so nothing is downloaded, decoded or redrawn. tag = {etag} remembered per screen. */
   freshPreview: function(tag){
     var h = tag.etag ? {'If-None-Match': tag.etag} : {};

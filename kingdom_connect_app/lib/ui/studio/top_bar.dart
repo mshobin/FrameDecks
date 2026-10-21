@@ -28,8 +28,21 @@ Future<void> goLive(WidgetRef ref, BuildContext context, Json st, [String? id]) 
   ref.read(selectionProvider.notifier).scene(target!);
 }
 
+/// Previous / Next: the live Frame's Decks first, then the next (or previous) Frame (FRAMEDECKS: Frame → Deck → Content).
 Future<void> stepFrame(WidgetRef ref, BuildContext context, Json st, int d) async {
-  final nx = sc.neighbour(st, sc.liveOf(st)['scene'] == '' ? ref.read(selectionProvider).scene : sc.liveOf(st)['scene'], d);
+  if (sc.liveOf(st)['scene'] != '') {
+    final t = sc.stepTarget(st, d);
+    if (t == null) {
+      toast(ScaffoldMessenger.maybeOf(context), d > 0 ? 'That’s the last Frame.' : 'That’s the first Frame.');
+      return;
+    }
+    final tx = ref.read(selectionProvider).tx;
+    final many = sc.decksOf(t.scene).length > 1;
+    await act(ref, context, (n) => sc.step(n, d, tx.isEmpty ? null : tx), '${t.scene['name']}${many ? ' · ${t.deck['name']}' : ''} is live');
+    ref.read(selectionProvider.notifier).scene(t.scene['id'] as String);
+    return;
+  }
+  final nx = sc.neighbour(st, ref.read(selectionProvider).scene, d);
   if (nx == null) {
     toast(ScaffoldMessenger.maybeOf(context), d > 0 ? 'That’s the last Frame.' : 'That’s the first Frame.');
     return;
@@ -92,9 +105,9 @@ class TopBar extends ConsumerWidget {
           // ◀  GO LIVE  ▶
           _Group(
             children: [
-              _IconBtn(icon: Icons.arrow_left, tooltip: 'Previous Frame (live)', onTap: () => stepFrame(ref, context, st, -1)),
+              _IconBtn(icon: Icons.arrow_left, tooltip: 'Previous Deck or Frame (live)', onTap: () => stepFrame(ref, context, st, -1)),
               _GoLive(onAir: ls?['name'] as String?, onTap: () => goLive(ref, context, st)),
-              _IconBtn(icon: Icons.arrow_right, tooltip: 'Next Frame (live)', onTap: () => stepFrame(ref, context, st, 1)),
+              _IconBtn(icon: Icons.arrow_right, tooltip: 'Next Deck or Frame (live)', onTap: () => stepFrame(ref, context, st, 1)),
             ],
           ),
           const SizedBox(width: 10),

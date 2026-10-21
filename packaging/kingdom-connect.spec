@@ -19,9 +19,9 @@ try:  # needs "pefile", which PyInstaller installs automatically on Windows
             StringStruct("CompanyName", "Shobin Mathews"),
             StringStruct("FileDescription", "FRAMEDECKS"),
             StringStruct("FileVersion", VERSION),
-            StringStruct("InternalName", "Kingdom Connect"),
+            StringStruct("InternalName", "FrameDecks"),
             StringStruct("LegalCopyright", "Copyright (C) Shobin Mathews"),
-            StringStruct("OriginalFilename", "Kingdom Connect.exe"),
+            StringStruct("OriginalFilename", "FrameDecks.exe"),
             StringStruct("ProductName", "FRAMEDECKS"),
             StringStruct("ProductVersion", VERSION),
             StringStruct("Comments", "Independent tool by Shobin Mathews. Not affiliated with or endorsed by Bible Study Fellowship International."),
@@ -49,10 +49,10 @@ exe = EXE(
     a.scripts,
     [],
     exclude_binaries=True,
-    name="Kingdom Connect",
+    name="FrameDecks",
     icon=str(root / "packaging" / "kingdom-connect.ico"),
     console=False,          # no black window
     upx=False,              # compression tools are a common cause of antivirus false alarms
     version=str(version_file) if version_file else None,
 )
-coll = COLLECT(exe, a.binaries, a.datas, name="Kingdom Connect", upx=False)
+coll = COLLECT(exe, a.binaries, a.datas, name="FrameDecks", upx=False)

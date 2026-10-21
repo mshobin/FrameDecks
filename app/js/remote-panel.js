@@ -131,10 +131,11 @@ function update(r){
     if (publicNets.length) fixBox.appendChild(h('div', {cls: 'alert warn'}, [h('b', {text: 'Network set to Public. '}),
       'Windows blocks other devices on Public networks. If “' + (publicNets[0].name || 'this network') + '” is your own home or church Wi-Fi: Settings → Network & internet → Wi-Fi → ' + (publicNets[0].name || 'your network') + ' → Private.']));
     if (net) fixBox.appendChild(h('div', {cls: 'alert'}, [
+      net.ruleOutdated ? h('b', {text: 'The Windows Firewall permission was given to the program under its earlier name (Kingdom Connect). Allow it again so the phone can connect. '}) :
       h('b', {text: net.ruleExists ? 'Windows Firewall permission is added. ' : 'Optional Windows Firewall permission is not added. '}),
       net.ruleExists ? 'If you no longer need it, you can remove it.' : 'If the phone still cannot connect, allow it. Windows asks for administrator permission first; it only lets this program accept connections on private networks.',
       h('div', {cls: 'actions', style: 'margin-top:8px'}, [
-        net.ruleExists ? null : h('button', {cls: 'btn small', type: 'button', text: 'Allow through Windows Firewall', onclick: function(){ firewall('allow'); }}),
+        net.ruleExists && !net.ruleOutdated ? null : h('button', {cls: 'btn small', type: 'button', text: net.ruleOutdated ? 'Allow again' : 'Allow through Windows Firewall', onclick: function(){ firewall('allow'); }}),
         net.ruleExists ? h('button', {cls: 'btn small', type: 'button', text: 'Undo (remove the permission)', onclick: function(){ firewall('undo'); }}) : null])]));
     fixBox.appendChild(h('ol', {cls: 'steps'}, [
       h('li', {text: 'Run “Connection test” above. If it passes, this PC is ready and something between the phone or iPad and the PC is blocking it.'}),

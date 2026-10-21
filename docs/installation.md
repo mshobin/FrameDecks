@@ -25,7 +25,7 @@ administrator.
 | --- | --- |
 | **Operating system** | Windows 10 or Windows 11, 64-bit. There is no Mac or Linux version |
 | **Processor and memory** | A typical laptop or desktop from the last few years. Background blur and 1080p use more processor time; Settings → Diagnostics shows the app's own load |
-| **Webcam** | Optional. Needed only if people should see you on the KingdomConnect camera |
+| **Webcam** | Optional. Needed only if people should see you on the FrameCast camera |
 | **Microsoft PowerPoint** | Optional. Needed only to turn a **.pptx** file into slides. Without it, save your deck as PDF and add the PDF |
 | **Microsoft Edge WebView2 Runtime** | Included with Windows 11 and most up-to-date Windows 10 PCs. Without it, the app still runs in an Edge app window |
 | **Internet** | Not needed to run a meeting. Needed only to fetch ESV scripture text, to install WebView2, and for your video-call app itself |
@@ -35,12 +35,12 @@ administrator.
 
 ## Get the installer
 
-The installer is a single file named **Kingdom Connect v6.8.exe** (the number is the version).
+The installer is a single file named **FrameDecks v6.8.exe** (the number is the version).
 
 - **From a release:** on the repository's **Releases** page, download the `.exe` (and, if you like, the matching
   `.sha256` file).
 - **From a build:** in the repository's **Actions** tab, open the latest green **Build Windows installer** run and
-  download the **Kingdom Connect v6.8** artifact. It is a `.zip`; unzip it to get the `.exe` and the `.sha256` file.
+  download the **FrameDecks v6.8** artifact. It is a `.zip`; unzip it to get the `.exe` and the `.sha256` file.
 
 If you build the installer yourself, see [Building the installer](development/building-the-installer.md).
 
@@ -52,15 +52,15 @@ unchanged:
 1. Open **PowerShell** in the folder with the files.
 2. Run:
    ```powershell
-   Get-FileHash ".\Kingdom Connect v6.8.exe" -Algorithm SHA256
+   Get-FileHash ".\FrameDecks v6.8.exe" -Algorithm SHA256
    ```
-3. Compare the **Hash** with the text in `Kingdom Connect v6.8.exe.sha256`. Upper or lower case does not matter. They
+3. Compare the **Hash** with the text in `FrameDecks v6.8.exe.sha256`. Upper or lower case does not matter. They
    must match exactly.
 
 ## Install
 
 1. Close **Zoom, Teams and OBS**. They keep the camera in use and can block the camera installation.
-2. Double-click **Kingdom Connect v6.8.exe**.
+2. Double-click **FrameDecks v6.8.exe**.
 3. Windows may show **"Windows protected your PC"**. The installer is not code-signed, so Windows does not recognise
    it yet. Select **More info → Run anyway**.
 4. Follow the wizard. The options are:
@@ -68,13 +68,13 @@ unchanged:
    | Option | Recommended | What it does |
    | --- | --- | --- |
    | **Create a desktop icon** | On | A FRAMEDECKS icon on the desktop |
-   | **Install the KingdomConnect camera for Zoom and Teams** | On | Adds the **KingdomConnect** camera to Windows. Windows asks for administrator permission once, only for this |
+   | **Install the FrameCast camera for Zoom and Teams** | On | Adds the **FrameCast** camera to Windows. Windows asks for administrator permission once, only for this |
    | **Start automatically when I sign in** | Your choice | Opens FRAMEDECKS when you sign in to Windows |
 
 5. Finish the wizard. FRAMEDECKS opens.
 
-> **Tip:** If you skipped the camera, you can add it later in **Settings → KingdomConnect Camera → Install
-> KingdomConnect**.
+> **Tip:** If you skipped the camera, you can add it later in **Settings → FrameCast Camera → Install
+> FrameCast**.
 
 ## First run
 
@@ -82,12 +82,12 @@ unchanged:
    the old folder and select **Import**. Members, saved questions and scriptures, settings and the phone PIN are
    copied. The old folder is not changed.
 2. Restart Zoom, Teams, OBS or your browser for Google Meet. They read the list of cameras only when they start.
-3. In each app, choose **KingdomConnect** as the camera:
-   - **Zoom:** Settings → Video → Camera → KingdomConnect. Tick **HD** and turn off Zoom's own background blur.
-   - **Microsoft Teams:** Settings → Devices (or Video and effects) → Camera → KingdomConnect.
-   - **Google Meet:** ⋮ → Settings → Video → Camera → KingdomConnect.
-   - **OBS:** Sources → + → Video Capture Device → Device: KingdomConnect.
-4. In FRAMEDECKS, open **Settings → KingdomConnect Camera** and choose the webcam behind it, the resolution
+3. In each app, choose **FrameCast** as the camera:
+   - **Zoom:** Settings → Video → Camera → FrameCast. Tick **HD** and turn off Zoom's own background blur.
+   - **Microsoft Teams:** Settings → Devices (or Video and effects) → Camera → FrameCast.
+   - **Google Meet:** ⋮ → Settings → Video → Camera → FrameCast.
+   - **OBS:** Sources → + → Video Capture Device → Device: FrameCast.
+4. In FRAMEDECKS, open **Settings → FrameCast Camera** and choose the webcam behind it, the resolution
    (720p or 1080p), background blur and Camera Look.
 
 ## Allow the phone remote through the firewall
@@ -119,7 +119,7 @@ service.
 
 | What | Where |
 | --- | --- |
-| The program | `%LOCALAPPDATA%\Programs\Kingdom Connect` |
+| The program | `%LOCALAPPDATA%\Programs\FrameDecks` |
 | Your data (meetings, settings, members, PIN) | `%APPDATA%\Kingdom Connect` |
 | Backups | `%APPDATA%\Kingdom Connect\backups` (daily, plus any you make) |
 

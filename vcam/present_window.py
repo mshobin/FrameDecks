@@ -1,6 +1,6 @@
 """The Presentation window, drawn natively (Win32 + GDI): no browser engine, no JPEG, no browser GPU process.
 
-Frames come straight from the compositor (the same final picture KingdomConnect sends) and are drawn only when the
+Frames come straight from the compositor (the same final picture FrameCast sends) and are drawn only when the
 picture changed, at the chosen rate (15 per second by default). The window is frameless: drag anywhere to move
 it, drag an edge to resize it, double-click / F / the button for full screen, Esc leaves full screen and then
 closes it. Moving the mouse shows the Full screen and Exit buttons for two seconds. The window is called

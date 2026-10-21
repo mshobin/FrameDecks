@@ -188,15 +188,23 @@ class _Bar extends ConsumerWidget {
 
 // ------------------------------------------------------------------ actions (the same as the PC)
 
-Future<void> remoteTake(WidgetRef ref, BuildContext context, Json st, String id) async {
+/// Go Live with a Frame (deck: one of its Decks; null = its first).
+Future<void> remoteTake(WidgetRef ref, BuildContext context, Json st, String id, [String? deck]) async {
   final s = sc.findScene(st, id);
   if (s == null) return;
   final tx = ref.read(selectionProvider).tx;
-  await act(ref, context, (n) => sc.take(n, id, tx.isEmpty ? null : tx), '${s['name']} is live');
+  final d = sc.decksOf(s).length > 1 ? sc.deckById(s, deck) ?? sc.decksOf(s).first : null;
+  await act(ref, context, (n) => sc.take(n, id, tx.isEmpty ? null : tx, deck), '${s['name']}${d == null ? '' : ' · ${d['name']}'} is live');
   ref.read(selectionProvider.notifier).scene(id);
 }
 
+/// PREVIOUS / NEXT FRAME: the live Frame's Decks first, then the Frames (FRAMEDECKS: Frame → Deck → Content).
 Future<void> remoteStepFrame(WidgetRef ref, BuildContext context, Json st, int d) async {
+  if (sc.liveOf(st)['scene'] != '') {
+    final t = sc.stepTarget(st, d);
+    if (t == null) return toast(ScaffoldMessenger.maybeOf(context), d > 0 ? 'That’s the last Frame.' : 'That’s the first Frame.');
+    return remoteTake(ref, context, st, t.scene['id'] as String, t.deck['id'] as String);
+  }
   final from = sc.liveOf(st)['scene'] == '' ? ref.read(selectionProvider).scene : sc.liveOf(st)['scene'];
   final nx = sc.neighbour(st, from, d);
   if (nx == null) return toast(ScaffoldMessenger.maybeOf(context), d > 0 ? 'That’s the last Frame.' : 'That’s the first Frame.');
@@ -217,6 +225,14 @@ String? currentKind(Json st, String? chosen) {
 }
 
 // ------------------------------------------------------------------ Live
+
+/// " · Deck 2 of 3 · Discussion" for a Frame with several Decks ('' with one).
+String deckLine(Json st, Json frame) {
+  final decks = sc.decksOf(frame);
+  if (decks.length < 2) return '';
+  final id = sc.liveDeckId(st, frame);
+  return ' · Deck ${sc.deckIndex(frame, id) + 1} of ${decks.length} · ${sc.deckById(frame, id)!['name']}';
+}
 
 class LiveTab extends ConsumerStatefulWidget {
   const LiveTab({super.key, required this.state});
@@ -269,7 +285,9 @@ class _LiveTabState extends ConsumerState<LiveTab> {
         _Panel(
           eyebrow: 'Current frame',
           title: order.isEmpty ? 'No Frames yet' : (i >= 0 ? 'Frame ${i + 1} of ${order.length}' : 'Not started · ${order.length} Frames'),
-          subtitle: ls != null ? ls['name'] as String : (order.isEmpty ? 'Add Frames on the PC' : 'NEXT FRAME starts with ${order.first['name']}'),
+          subtitle: ls != null
+              ? '${ls['name']}${deckLine(st, ls)}'
+              : (order.isEmpty ? 'Add Frames on the PC' : 'NEXT FRAME starts with ${order.first['name']}'),
           children: [
             _BigButton(label: 'PREVIOUS FRAME', icon: Icons.arrow_left, onTap: () => remoteStepFrame(ref, context, st, -1)),
             _BigButton(label: 'NEXT FRAME', icon: Icons.arrow_right, green: true, iconBelow: true, onTap: () => remoteStepFrame(ref, context, st, 1)),
@@ -512,58 +530,74 @@ class _FramesTabState extends ConsumerState<FramesTab> {
             borderRadius: BorderRadius.circular(12),
             border: Border.all(color: isLive ? K.live : K.line),
           ),
-          child: Row(
+          child: Column(
             children: [
-              Expanded(
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(12),
-                  onTap: () => ref.read(selectionProvider.notifier).scene(s['id'] as String),
-                  child: Padding(
-                    padding: const EdgeInsets.all(12),
-                    child: Row(
-                      children: [
-                        SizedBox(
-                          width: 26,
-                          child: Text(
-                            '${all.indexOf(s) + 1}',
-                            style: const TextStyle(color: K.faint, fontWeight: FontWeight.w800),
-                          ),
-                        ),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(s['name'] as String, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15.5)),
-                              Text(
-                                sc.layersOf(s).map((l) => kindInfo[l['kind']]?.name ?? '').toSet().join(' · ').ifEmpty('Empty Frame'),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(color: K.muted, fontSize: 12.5),
+              Row(
+                children: [
+                  Expanded(
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(12),
+                      onTap: () => ref.read(selectionProvider.notifier).scene(s['id'] as String),
+                      child: Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: Row(
+                          children: [
+                            SizedBox(
+                              width: 26,
+                              child: Text(
+                                '${all.indexOf(s) + 1}',
+                                style: const TextStyle(color: K.faint, fontWeight: FontWeight.w800),
                               ),
-                            ],
-                          ),
+                            ),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(s['name'] as String, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15.5)),
+                                  Text(
+                                    sc.layersOf(s).map((l) => kindInfo[l['kind']]?.name ?? '').toSet().join(' · ').ifEmpty('Empty Frame'),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(color: K.muted, fontSize: 12.5),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            if (isLive) const LiveBadge(small: true),
+                            if (isNext && !isLive)
+                              const Text(
+                                'NEXT',
+                                style: TextStyle(color: K.muted, fontWeight: FontWeight.w800, fontSize: 11, letterSpacing: 1),
+                              ),
+                          ],
                         ),
-                        if (isLive) const LiveBadge(small: true),
-                        if (isNext && !isLive)
-                          const Text(
-                            'NEXT',
-                            style: TextStyle(color: K.muted, fontWeight: FontWeight.w800, fontSize: 11, letterSpacing: 1),
-                          ),
-                      ],
+                      ),
                     ),
                   ),
-                ),
+                  IconButton(
+                    tooltip: 'Take ${s['name']} live',
+                    iconSize: 28,
+                    icon: Icon(isLive ? Icons.refresh : Icons.play_arrow_rounded, color: K.take),
+                    onPressed: () async {
+                      unawaited(HapticFeedback.lightImpact());
+                      await remoteTake(ref, context, st, s['id'] as String);
+                      widget.onTaken();
+                    },
+                  ),
+                ],
               ),
-              IconButton(
-                tooltip: 'Take ${s['name']} live',
-                iconSize: 28,
-                icon: Icon(isLive ? Icons.refresh : Icons.play_arrow_rounded, color: K.take),
-                onPressed: () async {
-                  unawaited(HapticFeedback.lightImpact());
-                  await remoteTake(ref, context, st, s['id'] as String);
-                  widget.onTaken();
-                },
-              ),
+              // a Frame with several Decks lists them: tap one to put that Deck on screen
+              if (sc.decksOf(s).length > 1)
+                for (final d in sc.decksOf(s))
+                  _DeckRow(
+                    name: d['name'] as String,
+                    live: isLive && sc.liveDeckId(st, s) == d['id'],
+                    onTap: () async {
+                      unawaited(HapticFeedback.lightImpact());
+                      await remoteTake(ref, context, st, s['id'] as String, d['id'] as String);
+                      widget.onTaken();
+                    },
+                  ),
             ],
           ),
         ),
@@ -722,4 +756,34 @@ class _TeleprompterPageState extends ConsumerState<TeleprompterPage> {
       ),
     );
   }
+}
+
+/// One Deck under its Frame in the Frames tab.
+class _DeckRow extends StatelessWidget {
+  const _DeckRow({required this.name, required this.live, required this.onTap});
+
+  final String name;
+  final bool live;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) => InkWell(
+    onTap: onTap,
+    child: Padding(
+      padding: const EdgeInsets.fromLTRB(38, 8, 12, 8),
+      child: Row(
+        children: [
+          Icon(Icons.layers_outlined, size: 16, color: live ? K.liveText : K.muted),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              name,
+              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: live ? K.liveText : K.ink),
+            ),
+          ),
+          if (live) const LiveBadge(small: true) else const Icon(Icons.play_arrow_rounded, size: 22, color: K.take),
+        ],
+      ),
+    ),
+  );
 }

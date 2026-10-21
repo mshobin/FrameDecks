@@ -1,4 +1,4 @@
-"""Screen sharing sources for KingdomConnect, behind one small interface (so a macOS backend could be added later).
+"""Screen sharing sources for FrameCast, behind one small interface (so a macOS backend could be added later).
 
     Displays : DXGI Desktop Duplication. Frames arrive only when the screen changed (frame-level dirty
                tracking), so an unchanged screen costs nothing. DXGI leaves the cursor out, so it is drawn here.
@@ -140,10 +140,10 @@ class ScreenCapture:
                 self.error = ("Screen sharing could not start. " + " | ".join(self.attempts[-4:]) +
                               ". Tips: update Windows; on laptops with two graphics chips set Python/FRAMEDECKS to the "
                               "graphics chip that drives your screen (Windows Settings > System > Display > Graphics).")
-                print("KingdomConnect screen capture failed:", self.attempts)
+                print("FrameCast screen capture failed:", self.attempts)
         except Exception as e:
             self.error = f"Screen sharing stopped: {e}"
-            print("KingdomConnect screen capture:", repr(e))
+            print("FrameCast screen capture:", repr(e))
 
     def _demo(self):
         """A moving test 'screen' (for testing without Windows)."""

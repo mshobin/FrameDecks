@@ -72,14 +72,14 @@ SAMPLE_TABLES = {
         [5, "Lesson Slides", "This week's teaching slides", "None", "Fade", "Open the PowerPoint first."],
         [6, "Closing", "Prayer and goodbye", "Navy", "Dip to Black", "Thank everyone for coming."]],
     "content": [
-        [1, 1, "Text", "Welcome message", "Welcome! We begin in just a moment.", "Welcome", "", "Fade", "", ""],
-        [1, 2, "Timer", "Countdown", "", "Starting in", 5, "", "", "Five-minute countdown"],
-        [2, 1, "Free Content", "Song", "Announcement: Please join in the opening song.", "Worship", "", "Gentle Rise", "", ""],
-        [3, 1, "Scripture", "Reading", "", "Focus Verse", "", "Gentle Rise", "", "The scriptures are in Scripture readings below."],
-        [4, 1, "Question", "Discussion", "", "Discussion Question", "", "Fade", "", "The questions are in Discussion questions below."],
-        [5, 1, "PowerPoint", "Lesson", "Romans Week 5.pptx", "", "", "", "Show", "Choose the file in the app after the import."],
-        [6, 1, "Prayer Point", "Closing prayer", "Let’s close our time together in prayer.", "Closing Prayer", "", "Fade", "", ""],
-        [6, 2, "Lower Third", "Goodbye", "See you next week", "Thank you for joining!", "", "Gentle Rise", "", ""]],
+        [1, 1, "Text", "Welcome message", "Welcome! We begin in just a moment.", "Welcome", "", "Fade", "", "", ""],
+        [1, 2, "Timer", "Countdown", "", "Starting in", 5, "", "", "Five-minute countdown", ""],
+        [2, 1, "Free Content", "Song", "Announcement: Please join in the opening song.", "Worship", "", "Gentle Rise", "", "", ""],
+        [3, 1, "Scripture", "Reading", "", "Focus Verse", "", "Gentle Rise", "", "The scriptures are in Scripture readings below.", ""],
+        [4, 1, "Question", "Discussion", "", "Discussion Question", "", "Fade", "", "The questions are in Discussion questions below.", ""],
+        [5, 1, "PowerPoint", "Lesson", "Romans Week 5.pptx", "", "", "", "Show", "Choose the file in the app after the import.", ""],
+        [6, 1, "Prayer Point", "Closing prayer", "Let’s close our time together in prayer.", "Closing Prayer", "", "Fade", "", "", "Prayer"],
+        [6, 2, "Lower Third", "Goodbye", "See you next week", "Thank you for joining!", "", "Gentle Rise", "", "", "Goodbye"]],
     "questions": [
         [4, "Discussion", 1, "Question 1", "What does “no condemnation” mean for you this week?", "", 3, "Fade"],
         [4, "Discussion", 2, "Question 2", "How does the Spirit help us live differently?", "", 3, "Word by Word"],
@@ -88,7 +88,7 @@ SAMPLE_TABLES = {
         [3, "Reading", 1, "Focus Verse", "Romans 8:1", "There is therefore now no condemnation for those who are in Christ Jesus.", "ESV", "Gentle Rise"],
         [3, "Reading", 2, "Read together", "Romans 8:2", "For the law of the Spirit of life has set you free in Christ Jesus from the law of sin and death.", "ESV", ""]],
 }
-FORM_WIDTHS = [22, 14, 18, 22, 44, 26, 14, 16, 15, 30]
+FORM_WIDTHS = [22, 14, 18, 22, 44, 26, 14, 16, 15, 30, 18]
 LONG = {"frames": {2, 5}, "content": {4, 9}, "questions": {4}, "scriptures": {5}}   # columns that wrap long text
 NUMBERS = {"frames": {0}, "content": {0, 1, 6}, "questions": {0, 2, 6}, "scriptures": {0, 2}}   # centred number columns
 VALUE_SPAN = "F"             # a detail's box: B..F

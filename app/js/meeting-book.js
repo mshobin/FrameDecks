@@ -37,7 +37,7 @@ var SHEETS = {
     ['type', 'Content Type', ['contenttype', 'type']], ['name', 'Content Name', ['contentname', 'name', 'itemname']], ['main', 'Main Content', ['maincontent', 'content', 'text', 'file', 'maincontentfile']],
     ['label', 'Label', ['label', 'title', 'heading', 'onscreenlabel']], ['duration', 'Duration', ['duration', 'minutes', 'time', 'durationmin']], ['anim', 'Animation', ['animation', 'effect', 'transition']],
     ['pptbg', 'PowerPoint Background Visibility', ['powerpointbackgroundvisibility', 'pptbackground', 'slidebackground', 'backgroundvisibility']],
-    ['notes', 'Notes', ['notes', 'note']]]},
+    ['notes', 'Notes', ['notes', 'note']], ['deck', 'Deck', ['deck', 'deckname']]]},
   questions: {name: 'Questions', cols: [['frame', 'Frame Number', ['framenumber', 'frame', 'frameno', 'frame#']], ['content', 'Content Name', ['contentname', 'content']],
     ['num', 'Question Number', ['questionnumber', 'number', 'no', 'question#']], ['label', 'Label', ['label']], ['text', 'Question Text', ['questiontext', 'question', 'text']],
     ['media', 'Media', ['media']], ['timer', 'Timer', ['timer', 'minutes', 'timermin']], ['anim', 'Animation', ['animation', 'effect', 'transition']],
@@ -107,7 +107,7 @@ var FORM_TITLE = {'Meeting Overview': 'Meeting details', Frames: 'Frames', Conte
 /* the Meeting Form's four tables: title and column names (the same order as exportSheets) */
 var FORM_TABLES = [
   ['frames', 'Frames', ['Frame #', 'Frame name', 'Purpose / description', 'Background', 'Transition', 'Presenter script']],
-  ['content', 'Content', ['Frame #', 'Order', 'Content type', 'Item name', 'Main content / file', 'On-screen label', 'Duration (min)', 'Animation', 'PPT background', 'Notes']],
+  ['content', 'Content', ['Frame #', 'Order', 'Content type', 'Item name', 'Main content / file', 'On-screen label', 'Duration (min)', 'Animation', 'PPT background', 'Notes', 'Deck']],
   ['questions', 'Discussion questions', ['Frame #', 'Content name', 'Question #', 'Label', 'Question text', 'Media', 'Timer (min)', 'Animation']],
   ['scriptures', 'Scripture readings', ['Frame #', 'Content name', 'Scripture #', 'Label', 'Reference', 'Scripture text', 'Translation', 'Animation']]];
 function tableKind(cells){
@@ -216,7 +216,7 @@ function parse(book, ctx){
     var pb = norm(r.pptbg); if (pb && pb !== 'show' && pb !== 'hide'){ err('Content', r.row, 'PowerPoint Background Visibility must be Show or Hide (not “' + r.pptbg + '”).'); return; }
     if (t === 'audio' || t === 'web'){ warn('Content', r.row, TYPE_NAME[t] + ' Content is not available in this version of FRAMEDECKS: this row is skipped.'); return; }
     var C = {row: r.row, type: t, order: order, idx: F.content.length, name: (r.name || TYPE_NAME[t]).slice(0, 60), main: r.main, label: r.label.slice(0, 80), duration: r.duration,
-      anim: anim || '', objectsOnly: pb === 'hide', notes: r.notes, items: []};
+      anim: anim || '', objectsOnly: pb === 'hide', notes: r.notes, deck: String(r.deck || '').trim().slice(0, 60), items: []};
     if (t === 'free'){ var ft = TYPE_KEY[norm(r.main.split(/\n|:/)[0])]; if (ft && FREE_TYPES.map(norm).indexOf(norm(TYPE_NAME[ft])) >= 0){ C.type = ft; C.main = r.main.replace(/^[^\n:]*[:\n]?\s*/, ''); } else C.type = 'announcement'; }
     var dup = (byFrameName[n] = byFrameName[n] || {});
     if (dup[C.name.toLowerCase()]){ err('Content', r.row, 'Content Name “' + C.name + '” is used twice in Frame ' + n + '. Give each Content in a Frame its own name.'); return; }
@@ -317,9 +317,13 @@ function apply(n, plan, opts){
   plan.frames.forEach(function(F){
     var sc = SC.cleanScene({id: rid('sc_'), name: SC.uniqueName(n, F.name), group: group, created: now, modified: now, creator: opts.creator || '', from: 'Excel import',
       template: opts.file || 'Excel', notes: [F.notes, F.prompts && F.prompts.length ? F.prompts.join('\n') : '', F.desc ? 'About this Frame: ' + F.desc : ''].filter(Boolean).join('\n'), tx: {type: F.tx, ms: 500}});
+    // FRAMEDECKS: the Deck column groups the Frame's Content (in the order the Decks first appear; empty = the first)
+    var names = []; F.content.forEach(function(C){ if (C.deck && names.map(norm).indexOf(norm(C.deck)) < 0) names.push(C.deck); });
+    if (names.length) sc.decks = names.map(function(nm, i){ return {id: i ? rid('d') : 'd1', name: nm}; });
+    function deckId(C){ var i = names.map(norm).indexOf(norm(C.deck || '')); return sc.decks[i < 0 ? 0 : i].id; }
     var front = [], back = [];
-    F.content.forEach(function(C){ build(n, C).forEach(function(l){ (SC.isMedia(l.kind) ? back : front).push(l); }); });
-    if (F.bg) back.push(layer('background', 'Background', {props: {color: F.bg === 'brand' ? accent : F.bg}}));
+    F.content.forEach(function(C){ build(n, C).forEach(function(l){ l.deck = deckId(C); (SC.isMedia(l.kind) ? back : front).push(l); }); });
+    if (F.bg) sc.decks.forEach(function(d){ var b = layer('background', 'Background', {props: {color: F.bg === 'brand' ? accent : F.bg}}); b.deck = d.id; back.push(b); });   // every Deck
     sc.layers = front.concat(back);
     n.scenes.push(sc); made.push(sc);
   });
@@ -372,8 +376,9 @@ function exportSheets(st){
     var notes = String(sc.notes || ''), desc = '';
     var dm = /\n?About this Frame: ([^\n]*)/.exec(notes); if (dm){ desc = dm[1]; notes = notes.replace(dm[0], '').trim(); }
     out.frames.push([num, sc.name, desc, bgL ? (BG_NAME[bgc] || bgc) : 'None', TX_NAME[sc.tx.type] || sc.tx.type, notes]);
-    var order = 0;
-    sc.layers.forEach(function(l){
+    var order = 0, many = sc.decks && sc.decks.length > 1;
+    var byDeck = many ? sc.decks.reduce(function(a, d){ return a.concat(SC.deckLayers(sc, d.id)); }, []) : sc.layers;   // Deck by Deck
+    byDeck.forEach(function(l){
       if (l.kind === 'background') return;
       var c = l.c || {}, row = null;
       order++;
@@ -397,6 +402,7 @@ function exportSheets(st){
       else if (l.kind === 'camera') row = [num, order, 'Camera', l.name, '', '', '', '', '', ''];
       else if (l.kind === 'screen') row = [num, order, 'Screen', l.name, '', '', '', '', '', ''];
       else { order--; return; }
+      row.push(many ? SC.deck(sc, SC.deckOf(sc, l)).name : '');                     // Deck
       out.content.push(row);
     });
   });
@@ -415,7 +421,7 @@ function formRows(st){
 }
 function exportBook(X, st){
   var wb = X.utils.book_new(), ws = X.utils.aoa_to_sheet(formRows(st));
-  ws['!cols'] = [22, 22, 20, 22, 44, 26, 14, 16, 14, 30].map(function(w){ return {wch: w}; });
+  ws['!cols'] = [22, 22, 20, 22, 44, 26, 14, 16, 14, 30, 18].map(function(w){ return {wch: w}; });
   X.utils.book_append_sheet(wb, ws, 'Meeting Form');
   return wb;
 }

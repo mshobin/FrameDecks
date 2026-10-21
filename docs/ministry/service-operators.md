@@ -56,8 +56,8 @@ in **Settings → General → Window and tray**; if another program uses Alt+Spa
 ## Before the service
 
 - [ ] PC on mains power; Windows updates paused; notifications off (Focus / Do Not Disturb).
-- [ ] FRAMEDECKS open; the command bar status shows **KingdomConnect** ready.
-- [ ] Meeting app open with **KingdomConnect** chosen as its camera (restart the app if it isn't listed).
+- [ ] FRAMEDECKS open; the command bar status shows **FrameCast** ready.
+- [ ] Meeting app open with **FrameCast** chosen as its camera (restart the app if it isn't listed).
 - [ ] Projector: **Share Window** on the Studio Canvas → move the Presentation window to the projector → full screen.
 - [ ] Phone remote on (**Settings → Phone & iPad Remote**) and the remote operator connected.
 - [ ] Walk through the first three Frames with **Go Live** and check the projector and the meeting app's self-view.
@@ -90,7 +90,7 @@ in **Settings → General → Window and tray**; if another program uses Alt+Spa
 | Must go dark now | **K** (Blackout) | Press **K** again when ready |
 | Need time to fix something | **F** (Freeze) | Fix it, then **F** again |
 | A message for everyone (technical problem) | **Program → Emergency** | Turn it off when solved |
-| Meeting app shows no camera | Choose **KingdomConnect** again in the app | Restart the app if it isn't listed |
+| Meeting app shows no camera | Choose **FrameCast** again in the app | Restart the app if it isn't listed |
 | Phone remote stopped | Carry on from the PC | See [Troubleshooting](../troubleshooting.md#phone-remote) |
 
 ## Getting started in this role

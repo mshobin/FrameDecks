@@ -1,7 +1,7 @@
 """Finding and opening the webcam, and explaining clearly when Windows won't let us.
 
 - Webcams are listed (and remembered) by name, through Windows Media Foundation and DirectShow.
-- KingdomConnect itself is always skipped, so the engine can never capture its own picture.
+- FrameCast itself is always skipped, so the engine can never capture its own picture.
 - If a webcam won't open, Windows' own records are read (read-only) to say why: privacy settings,
   or which program is currently using the webcam.
 """
@@ -11,7 +11,7 @@ import time
 
 import cv2
 
-OWN_NAMES = ("kingdomconnect", "bcc vcam")   # the camera's name, and its name before 6.4
+OWN_NAMES = ("framecast", "kingdomconnect", "bcc vcam")   # the camera's name, and its earlier names (Kingdom Connect, before 6.4)
 IR_HINT = re.compile(r"\b(ir|infrared)\b|hello", re.I)   # Windows Hello face sign-in cameras
 
 
@@ -23,7 +23,7 @@ def _backends():
 
 
 def list_cameras():
-    """[{name, backend, index, ir}] for every webcam, KingdomConnect excluded. Never turns a webcam on."""
+    """[{name, backend, index, ir}] for every webcam, FrameCast excluded. Never turns a webcam on."""
     try:
         from cv2_enumerate_cameras import enumerate_cameras
     except Exception:
@@ -112,7 +112,7 @@ def camera_blockers(winreg=None):
                     stop = value(winreg.HKEY_CURRENT_USER, path + "\\" + sub, "LastUsedTimeStop")
                     if start and stop == 0:                         # started and not yet stopped = using it now
                         who = _friendly(sub)
-                        if who.lower() != me and "kingdom connect" not in sub.lower() and who not in res["inUseBy"]:
+                        if who.lower() != me and "kingdom connect" not in sub.lower() and "framedecks" not in sub.lower() and who not in res["inUseBy"]:
                             res["inUseBy"].append(who)
         except OSError:
             pass
@@ -131,7 +131,7 @@ def explain(blockers):
         who = " and ".join(blockers["inUseBy"])
         tip = ""
         if any(w in ("Zoom", "Microsoft Teams") for w in blockers["inUseBy"]):
-            tip = " In Zoom or Teams, choose “KingdomConnect” as the camera instead of your webcam."
+            tip = " In Zoom or Teams, choose “FrameCast” as the camera instead of your webcam."
         return f"Your webcam is being used by {who}, and only one app can use it at a time.{tip} Or close {who}."
     return ""
 
@@ -141,7 +141,7 @@ class CameraUnavailable(RuntimeError):
 
 
 class Camera:
-    """Opens the chosen webcam: Media Foundation first, DirectShow as a second try (never KingdomConnect).
+    """Opens the chosen webcam: Media Foundation first, DirectShow as a second try (never FrameCast).
     Only counts as open once a real picture has arrived."""
     def __init__(self, name, width, height, cams=None, fps=30, pixel_format="auto"):
         cams = list_cameras() if cams is None else cams

@@ -55,18 +55,31 @@ function update(fn, done){
 var tapAt = {};
 function guard(key, fn){ return function(e){ var now = Date.now(); if (now - (tapAt[key] || 0) < 600) return; tapAt[key] = now; buzz(12); fn(e); }; }   // a double tap never acts twice
 function txOverride(){ return $('tx').value || null; }
-function take(id){
+function take(id, deckId){
   var sc = SC.find(live, id); if (!sc) return;
-  update(function(n){ SC.take(n, id, txOverride()); }, sc.name + ' is live');
+  var dk = SC.deck(sc, deckId);
+  update(function(n){ SC.take(n, id, txOverride(), dk ? dk.id : null); }, sc.name + (dk && sc.decks.length > 1 ? ' · ' + dk.name : '') + ' is live');
   selScene = id;
 }
 var rehearse = false, query = '';                  // Run-through: Previous / Next only move the preview here
+/* Previous / Next: through the live Frame's Decks, then the Frames (FRAMEDECKS). Run-through steps the Frames. */
 function stepScene(d){
+  if (!rehearse && live.live.scene){
+    var t = SC.stepTarget(live, d);
+    if (!t){ toast(d > 0 ? 'That’s the last Frame.' : 'That’s the first Frame.'); return; }
+    take(t.scene.id, t.deck.id); return;
+  }
   var from = rehearse ? (selScene || live.live.scene) : (live.live.scene || selScene);
   var nx = SC.neighbour(live, from, d);
   if (!nx){ toast(d > 0 ? 'That’s the last Frame.' : 'That’s the first Frame.'); return; }
   if (rehearse){ selScene = nx.id; sceneSig = ''; render(); toast('Run-through: ' + nx.name + ' (not on screen)'); return; }
   take(nx.id);
+}
+/* "Deck 2 of 3 · Discussion" for a live Frame with more than one Deck ('' otherwise) */
+function deckLine(sc){
+  if (!sc || !sc.decks || sc.decks.length < 2) return '';
+  var id = SC.liveDeckId(live, sc), i = SC.deckIndex(sc, id);
+  return 'Deck ' + (i + 1) + ' of ' + sc.decks.length + ' · ' + SC.deck(sc, id).name;
 }
 /* Step the list (question / verse): show the next item, as on the PC */
 function library(k){ return SC.items(live, k); }                  // v6.5: the list of the Frame on screen
@@ -136,7 +149,7 @@ function renderScenes(){
     var words = [sc.name, sc.group, sc.notes].concat(sc.layers.map(function(l){ return [l.name, l.c.title, l.c.text].concat((l.c.items || []).map(function(it){ return [it.label, it.text, it.ref].join(' '); })).join(' '); }));
     return words.join(' ').toLowerCase().indexOf(q) >= 0;
   });
-  var sig = JSON.stringify([list.map(function(s){ return [s.id, s.name, s.group, s.layers.length, s.tx.type]; }), live.live.scene, selScene, next && next.id, q]);
+  var sig = JSON.stringify([list.map(function(s){ return [s.id, s.name, s.group, s.layers.length, s.decks, s.tx.type]; }), live.live.scene, live.live.deck, selScene, next && next.id, q]);
   if (sig === sceneSig) return; sceneSig = sig;
   ol.innerHTML = '';
   if (!list.length){ ol.appendChild(h('li', 'empty', q ? 'No Frame matches “' + query.trim() + '”.' : 'No Frames yet. Create them on the PC (Studio → + Frame).')); return; }
@@ -148,7 +161,8 @@ function renderScenes(){
     var li = h('li', 'srow' + (isLive ? ' live' : '') + (sc.id === selScene ? ' sel' : '') + (isNext ? ' nx' : ''));
     var b = h('button', 'sbtn'); b.type = 'button';
     b.appendChild(h('span', 'n', String(all_.indexOf(sc) + 1)));
-    var t = h('span', 't'); t.appendChild(h('b', null, sc.name)); t.appendChild(h('small', null, sc.layers.map(function(l){ return SC.info[l.kind].name; }).join(' · ') || 'Empty Frame'));
+    var t = h('span', 't'); t.appendChild(h('b', null, sc.name)); t.appendChild(h('small', null, (sc.decks.length > 1 ? (isLive ? deckLine(sc) : sc.decks.length + ' Decks') + ' · ' : '') +
+      (sc.layers.map(function(l){ return SC.info[l.kind].name; }).filter(function(k, j, a){ return a.indexOf(k) === j; }).join(' · ') || 'Empty Frame')));
     b.appendChild(t);
     b.appendChild(h('span', 'tag', isLive ? 'LIVE' : isNext ? 'NEXT' : ''));
     b.addEventListener('click', function(){ buzz(8); selScene = sc.id; sceneSig = ''; render(); });
@@ -164,9 +178,10 @@ function renderScenes(){
 function actions(sc){
   var back = h('div', 'sheet'), card = h('div', 'sheet-card'); card.setAttribute('role', 'dialog');
   var head = h('div', 'sheet-head'); head.appendChild(h('h2', null, sc.name)); var close = h('button', 'tool', 'Close'); close.type = 'button'; head.appendChild(close); card.appendChild(head);
-  [['Go Live', function(){ take(sc.id); }], ['Duplicate', function(){ var made; update(function(n){ made = SC.duplicate(n, sc.id, {}); }, 'Frame duplicated').then(function(){ if (made){ selScene = made.id; render(); } }); }],
+  var goes = sc.decks.length > 1 ? sc.decks.map(function(d, i){ return ['Go Live · Deck ' + (i + 1) + ' · ' + d.name, function(){ take(sc.id, d.id); }]; }) : [['Go Live', function(){ take(sc.id); }]];
+  goes.concat([['Duplicate', function(){ var made; update(function(n){ made = SC.duplicate(n, sc.id, {}); }, 'Frame duplicated').then(function(){ if (made){ selScene = made.id; render(); } }); }],
    ['Duplicate Content structure only', function(){ update(function(n){ SC.duplicate(n, sc.id, {content: 'empty'}); }, 'Frame duplicated (empty)'); }],
-   ['Create variant', function(){ update(function(n){ SC.duplicate(n, sc.id, {variant: true, name: SC.uniqueName(n, sc.name + ' variant')}); }, 'Variant created'); }]].forEach(function(a){
+   ['Create variant', function(){ update(function(n){ SC.duplicate(n, sc.id, {variant: true, name: SC.uniqueName(n, sc.name + ' variant')}); }, 'Variant created'); }]]).forEach(function(a){
     var b = h('button', 'roles-btn', a[0]); b.type = 'button'; b.addEventListener('click', function(){ back.remove(); buzz(10); a[1](); }); card.appendChild(b);
   });
   close.addEventListener('click', function(){ back.remove(); }); back.addEventListener('click', function(e){ if (e.target === back) back.remove(); });
@@ -177,12 +192,15 @@ function actions(sc){
 var layerSig = '';
 function renderLayers(){
   var sc = SC.liveScene(live) || SC.find(live, selScene), ol = $('llist');
-  setText($('ly-of'), sc ? sc.name + (SC.isLive(live, sc.id) ? ' · live' : '') : '');
-  var sig = JSON.stringify([sc, selLayer, live.live.on, live.question.visible, live.verse.visible, live.birthday.visible, live.live.scene]);
+  var dk = sc ? SC.liveDeckId(live, sc) : '';
+  setText($('ly-of'), sc ? sc.name + (sc.decks.length > 1 ? ' · ' + SC.deck(sc, dk).name : '') + (SC.isLive(live, sc.id) ? ' · live' : '') : '');
+  var sig = JSON.stringify([sc, selLayer, live.live.on, live.question.visible, live.verse.visible, live.birthday.visible, live.live.scene, live.live.deck]);
   if (sig === layerSig) return; layerSig = sig;
   ol.innerHTML = '';
   if (!sc){ ol.appendChild(h('li', 'empty', 'No Frame yet.')); return; }
-  sc.layers.forEach(function(l){
+  var mine = SC.deckLayers(sc, dk);                                   // FRAMEDECKS: the Deck on screen
+  if (!mine.length) ol.appendChild(h('li', 'empty', 'No Content in this Deck.'));
+  mine.forEach(function(l){
     var on = SC.isLive(live, sc.id) ? SC.layerOn(live, sc, l) : l.visible;
     var li = h('li', 'lrow' + (on ? ' on' : '') + (l.id === selLayer ? ' sel' : '') + (SC.isMedia(l.kind) ? ' media' : ''));
     var b = h('button', 'lbtn'); b.type = 'button';
@@ -295,12 +313,12 @@ function render(){
 }
 Store.subscribe(function(st){ live = st; if (!$('login').hidden) showApp(); render(); });
 
-/* ---------- Status chips and slides (from the PC: KingdomConnect, recording, the slide show) ---------- */
+/* ---------- Status chips and slides (from the PC: FrameCast, recording, the slide show) ---------- */
 var studioInfo = null, slideBusy = false;
 function renderChips(){
   var d = studioInfo || {}, vc = d.vcam || {}, rec = d.recording || {}, pres = d.presentation, L = live ? live.live : {};
   var c1 = $('ch-vcam'); c1.hidden = !vc.state;
-  if (vc.state){ setText(c1, 'KingdomConnect · ' + (vc.state === 'live' ? (vc.inUse ? 'in a meeting' : 'live') : vc.state === 'error' ? 'problem' : vc.state)); c1.className = 'chip' + (vc.state === 'live' ? ' ok' : vc.state === 'error' ? ' bad' : ''); }
+  if (vc.state){ setText(c1, 'FrameCast · ' + (vc.state === 'live' ? (vc.inUse ? 'in a meeting' : 'live') : vc.state === 'error' ? 'problem' : vc.state)); c1.className = 'chip' + (vc.state === 'live' ? ' ok' : vc.state === 'error' ? ' bad' : ''); }
   var c2 = $('ch-rec'); c2.hidden = !rec.on; if (rec.on){ var s = Math.round(rec.seconds || 0); setText(c2, '● REC ' + Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0')); c2.className = 'chip bad'; }
   var c3 = $('ch-slide'); c3.hidden = !pres; if (pres) setText(c3, 'Slide ' + (pres.page ? pres.page + (pres.pages ? ' / ' + pres.pages : '') : '–'));
   var c4 = $('ch-black'); c4.hidden = !(L.blackout || L.emergency); setText(c4, L.blackout ? 'Blackout' : 'Emergency screen'); c4.className = 'chip bad';
@@ -347,7 +365,7 @@ function renderSimple(){
   if (document.body.dataset.role !== 'presenter') return;
   var ls = SC.liveScene(live), order = SC.order(live), i = ls ? order.indexOf(ls) : -1, L = live.live;
   setText($('sr-frame'), order.length ? (i >= 0 ? 'Frame ' + (i + 1) + ' of ' + order.length : 'Not started · ' + order.length + ' Frames') : 'No Frames yet');
-  setText($('sr-frame-name'), ls ? ls.name : order.length ? 'NEXT FRAME starts with ' + order[0].name : 'Add Frames on the PC');
+  setText($('sr-frame-name'), ls ? ls.name + (deckLine(ls) ? ' — ' + deckLine(ls) : '') : order.length ? 'NEXT FRAME starts with ' + order[0].name : 'Add Frames on the PC');
   var k = curKind(), detail = '';
   if (k === 'slides'){ var p = studioInfo.presentation; detail = p.page ? 'Slide ' + p.page + (p.pages ? ' of ' + p.pages : '') : 'Ready'; }
   else if (k){ var items = SC.items(live, k), ci = currentIndex(k); detail = (ci >= 0 ? (ci + 1) + ' of ' + items.length : items.length + ' ready') + ((k === 'question' ? live.question.visible : live.verse.visible) ? ' · ON SCREEN' : ''); }
@@ -424,7 +442,7 @@ function padFull(on){
     else if (!on && d.fullscreenElement && d.exitFullscreen) d.exitFullscreen().catch(function(){});
   } catch(e){}
 }
-/* The real picture (what Zoom / Teams see, from KingdomConnect), refreshed about 5 times a second while the pad is
+/* The real picture (what Zoom / Teams see, from FrameCast), refreshed about 5 times a second while the pad is
  * open. When the camera is off the phone shows the Frame's cards (stage.html) instead, never a black box. */
 function padLive(){
   clearTimeout(pad.timer);

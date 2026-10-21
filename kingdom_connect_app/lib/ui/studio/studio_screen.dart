@@ -45,10 +45,10 @@ class _StudioScreenState extends ConsumerState<StudioScreen> {
     if (ls == null || live['auto'] != true || (ls['auto'] as Json)['on'] != true) return;
     final due = ((live['at'] as num?) ?? 0) + ((ls['auto'] as Json)['sec'] as num) * 1000;
     if (sc.nowMs() < due) return;
-    final nx = sc.neighbour(st, ls['id'], 1);
-    if (nx == null) return;
+    final deck = live['deck'];
+    if (sc.stepTarget(st, 1) == null) return;
     act(ref, context, (n) {
-      if (sc.liveOf(n)['scene'] == ls['id']) sc.take(n, nx['id']);
+      if (sc.liveOf(n)['scene'] == ls['id'] && sc.liveOf(n)['deck'] == deck) sc.step(n, 1); // the next Deck, then the next Frame
     });
   }
 
@@ -123,7 +123,12 @@ class _StudioScreenState extends ConsumerState<StudioScreen> {
                             children: [
                               Expanded(
                                 flex: 11,
-                                child: StudioCanvas(state: st, scene: scene, onShare: () => ShareWindow.open(context)),
+                                child: StudioCanvas(
+                                  state: st,
+                                  scene: scene,
+                                  deck: selectedDeck(st, scene, sel),
+                                  onShare: () => ShareWindow.open(context),
+                                ),
                               ),
                               const Divider(),
                               Expanded(

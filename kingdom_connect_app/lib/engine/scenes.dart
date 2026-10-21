@@ -47,6 +47,146 @@ Json? firstOf(Json? sc, String kind) {
 
 Json? liveScene(Json st) => findScene(st, liveOf(st)['scene']);
 
+// ---------- FRAMEDECKS: Frame -> Deck -> Content ----------
+// A Frame holds one or more Decks; one Deck of the live Frame is on screen at a time (live.deck). Each Content names
+// its Deck (layer.deck); the Content stays one list per Frame, as store.js keeps it.
+
+/// A Frame's Decks (a Frame made before its first save gets its "Deck 1" here).
+List<Json> decksOf(Json sc) {
+  if (sc['decks'] is! List || (sc['decks'] as List).isEmpty) sc['decks'] = cleanDecks(sc['decks']);
+  return (sc['decks'] as List).cast<Json>();
+}
+
+Json? deckById(Json? sc, Object? id) {
+  if (sc == null) return null;
+  for (final d in decksOf(sc)) {
+    if (d['id'] == id) return d;
+  }
+  return null;
+}
+
+/// The Deck a Content belongs to (Content added without one belongs to the first Deck).
+String deckOf(Json sc, Json l) => deckById(sc, l['deck']) != null ? l['deck'] as String : decksOf(sc).first['id'] as String;
+
+/// Gives every Content of every Frame a valid Deck (the backends run it before saving, like Store.update).
+void fixDecks(Json st) {
+  for (final sc in (st['scenes'] as List? ?? const []).cast<Json>()) {
+    for (final l in layersOf(sc)) {
+      l['deck'] = deckOf(sc, l);
+    }
+  }
+}
+
+/// The Deck of this Frame that is (or would be) on screen: the live Deck of the live Frame, else the first.
+String liveDeckId(Json st, Json? sc) {
+  if (sc == null) return '';
+  return liveOf(st)['scene'] == sc['id'] && deckById(sc, liveOf(st)['deck']) != null
+      ? liveOf(st)['deck'] as String
+      : decksOf(sc).first['id'] as String;
+}
+
+List<Json> deckLayers(Json? sc, Object? deckId) => sc == null ? const [] : layersOf(sc).where((l) => deckOf(sc, l) == deckId).toList();
+
+int deckIndex(Json? sc, Object? deckId) {
+  final a = sc == null ? const <Json>[] : decksOf(sc);
+  for (var i = 0; i < a.length; i++) {
+    if (a[i]['id'] == deckId) return i;
+  }
+  return -1;
+}
+
+/// The first Content of a kind in one Deck.
+Json? firstIn(Json? sc, Object? deckId, String kind) {
+  if (sc == null) return null;
+  for (final l in layersOf(sc)) {
+    if (l['kind'] == kind && deckOf(sc, l) == deckId) return l;
+  }
+  return null;
+}
+
+Json addDeck(Json sc, [String? name, Object? afterId]) {
+  final decks = decksOf(sc);
+  final used = {for (final d in decks) (d['name'] as String).toLowerCase()};
+  var nm = name ?? '';
+  var k = decks.length + 1;
+  while (nm.isEmpty || used.contains(nm.toLowerCase())) {
+    nm = 'Deck ${k++}';
+  }
+  final d = <String, dynamic>{'id': rid('d'), 'name': str(nm, 60)};
+  final i = deckIndex(sc, afterId);
+  if (i < 0) {
+    decks.add(d);
+  } else {
+    decks.insert(i + 1, d);
+  }
+  return d;
+}
+
+bool renameDeck(Json sc, Object? id, String? name) {
+  final d = deckById(sc, id);
+  if (d != null && (name ?? '').trim().isNotEmpty) d['name'] = str(name!.trim(), 60);
+  return d != null;
+}
+
+/// Deletes a Deck and its Content (a Frame keeps at least one Deck); the live Deck moves to a neighbour.
+bool removeDeck(Json n, Json sc, Object? id) {
+  final i = deckIndex(sc, id);
+  final decks = decksOf(sc);
+  if (i < 0 || decks.length < 2) return false;
+  fixDecks({
+    'scenes': [sc],
+  });
+  final wasLive = liveOf(n)['scene'] == sc['id'] && liveDeckId(n, sc) == id;
+  decks.removeAt(i);
+  sc['layers'] = layersOf(sc).where((l) => l['deck'] != id).toList();
+  if (wasLive) take(n, sc['id'], 'cut', decks[min(i, decks.length - 1)]['id'] as String);
+  return true;
+}
+
+bool moveDeck(Json sc, Object? id, int d) {
+  final i = deckIndex(sc, id), j = i + d;
+  final decks = decksOf(sc);
+  if (i < 0 || j < 0 || j >= decks.length) return false;
+  final x = decks.removeAt(i);
+  decks.insert(j, x);
+  return true;
+}
+
+/// Moves Content to another Deck of the same Frame (the program follows when the Frame is live).
+bool moveToDeck(Json n, Json sc, List<Object?> layerIds, Object? deckId) {
+  if (deckById(sc, deckId) == null) return false;
+  fixDecks({
+    'scenes': [sc],
+  });
+  for (final l in layersOf(sc)) {
+    if (layerIds.contains(l['id'])) l['deck'] = deckId;
+  }
+  if (liveOf(n)['scene'] == sc['id']) take(n, sc['id'], 'cut', liveDeckId(n, sc));
+  return true;
+}
+
+/// Where Next (d = 1) or Previous (d = -1) goes: the live Frame's next Deck, else the next Frame (its first Deck;
+/// going back, its last). Null at the end.
+({Json scene, Json deck})? stepTarget(Json st, int d, [String? fromScene]) {
+  final from = fromScene == null || fromScene == '' ? liveOf(st)['scene'] : fromScene;
+  final s = findScene(st, from);
+  if (s != null && (fromScene == null || fromScene == '' || fromScene == liveOf(st)['scene'])) {
+    final i = deckIndex(s, liveDeckId(st, s)) + d;
+    final decks = decksOf(s);
+    if (liveOf(st)['scene'] == s['id'] && i >= 0 && i < decks.length) return (scene: s, deck: decks[i]);
+  }
+  final nx = neighbour(st, s?['id'] ?? '', d);
+  if (nx == null) return null;
+  final nd = decksOf(nx);
+  return (scene: nx, deck: d < 0 && s != null ? nd.last : nd.first);
+}
+
+bool step(Json n, int d, [String? override]) {
+  final t = stepTarget(n, d);
+  if (t == null) return false;
+  return take(n, t.scene['id'], override, t.deck['id'] as String);
+}
+
 /// The Frames you step through with Previous / Next (templates are not in the running order).
 List<Json> order(Json st) => scenesOf(st).where((sc) => sc['tpl'] != true).toList();
 
@@ -85,7 +225,8 @@ String cardKind(String kind) => kind == 'verse' || kind == 'scripture' ? 'script
 /// The live (or given) Frame's Question / Scripture Content that owns a list.
 Json? owner(Json st, String kind, [String? sid]) {
   final sc = findScene(st, sid ?? liveOf(st)['scene']);
-  final l = firstOf(sc, cardKind(kind));
+  final k = cardKind(kind);
+  final l = firstIn(sc, liveDeckId(st, sc), k) ?? firstOf(sc, k); // the Deck on screen first
   return l != null && cOf(l)['items'] is List ? l : null;
 }
 
@@ -228,6 +369,7 @@ bool isLive(Json st, Object? sceneId) => sceneId != null && sceneId != '' && liv
 /// Is this Content on the program right now?
 bool layerOn(Json st, Json? sc, Json l) {
   if (sc == null || liveOf(st)['scene'] != sc['id']) return false;
+  if (deckOf(sc, l) != liveDeckId(st, sc)) return false; // another Deck of the live Frame
   bool shown(String k, String f) => (st[k] as Json)['visible'] == true && ((st[k] as Json)[f] ?? '').toString().trim().isNotEmpty;
   switch (l['kind']) {
     case 'question':
@@ -294,12 +436,13 @@ void _showCard(Json n, String kind, bool cut) {
 }
 
 /// Go Live: the Frame's Content decides what the cards show, and its transition plays (override = the top bar's choice).
-bool take(Json n, Object? id, [String? override]) {
+bool take(Json n, Object? id, [String? override, String? deckId]) {
   final sc = findScene(n, id);
   if (sc == null) return false;
   final tx = transitionOf(n, sc, override);
   final cut = tx.type == 'cut';
-  final q = firstOf(sc, 'question'), v = firstOf(sc, 'scripture'), b = firstOf(sc, 'birthday');
+  final dk = deckById(sc, deckId) != null ? deckId! : decksOf(sc).first['id'] as String; // only this Deck's Content shows
+  final q = firstIn(sc, dk, 'question'), v = firstIn(sc, dk, 'scripture'), b = firstIn(sc, dk, 'birthday');
   final qOn = q != null && q['visible'] == true, vOn = v != null && v['visible'] == true;
   if (q != null) applyLook(n, q);
   if (v != null) applyLook(n, v);
@@ -350,7 +493,7 @@ bool take(Json n, Object? id, [String? override]) {
   final live = liveOf(n);
   final on = <String, dynamic>{}, cd = <String, dynamic>{};
   for (final l in layersOf(sc)) {
-    if (isText(l['kind'] as String) && l['visible'] == true) {
+    if (deckOf(sc, l) == dk && isText(l['kind'] as String) && l['visible'] == true) {
       on[l['id'] as String] = true;
       if (l['kind'] == 'countdown') cd[l['id'] as String] = nowMs();
     }
@@ -358,11 +501,26 @@ bool take(Json n, Object? id, [String? override]) {
   live['on'] = on;
   live['cd'] = cd;
   live['scene'] = sc['id'];
+  live['deck'] = dk;
   live['seq'] = ((live['seq'] as num?) ?? 0) + 1;
   live['at'] = nowMs();
   live['tx'] = tx.type;
   live['txMs'] = tx.ms;
   return true;
+}
+
+/// What the program would show if this Frame (and Deck) were taken live now (store.js previewState).
+Json previewState(Json st, Object? id, [String? deckId]) {
+  final n = deepCopy(st);
+  if (!take(n, id, 'cut', deckId)) return n;
+  for (final k in ['question', 'verse']) {
+    (n[k] as Json)['play'] = 'none';
+  }
+  final live = liveOf(n);
+  live['blackout'] = false;
+  live['emergency'] = false;
+  live['freeze'] = false;
+  return n;
 }
 
 /// Hide All: every card and text Content off; the Frame stays live, media stays (it is the picture).
@@ -378,6 +536,10 @@ void setOn(Json n, Object? sceneId, Object? layerId, bool on) {
   final sc = findScene(n, sceneId);
   final l = layerOf(sc, layerId);
   if (l == null || liveOf(n)['scene'] != sceneId) return;
+  if (deckOf(sc!, l) != liveDeckId(n, sc)) {
+    if (!isCard(l['kind'] as String) && !isText(l['kind'] as String)) l['visible'] = on; // another Deck: not on screen
+    return;
+  }
   final question = n['question'] as Json, verse = n['verse'] as Json, birthday = n['birthday'] as Json;
   switch (l['kind']) {
     case 'question':
@@ -423,21 +585,25 @@ void toggleVisible(Json n, Object? sceneId, Object? layerId) {
   final sc = findScene(n, sceneId);
   final l = layerOf(sc, layerId);
   if (l == null) return;
-  final on = liveOf(n)['scene'] == sceneId ? !layerOn(n, sc, l) : l['visible'] != true;
+  final onAir = liveOf(n)['scene'] == sceneId && deckOf(sc!, l) == liveDeckId(n, sc);
+  final on = onAir ? !layerOn(n, sc, l) : l['visible'] != true;
   l['visible'] = on;
   if (liveOf(n)['scene'] == sceneId) setOn(n, sceneId, layerId, on);
 }
 
 /// Question · Scripture · Both for a Frame that has both cards ('' when it does not).
-String qsMode(Json sc) {
-  final q = firstOf(sc, 'question'), v = firstOf(sc, 'scripture');
+/// st given: the Deck on screen (else the first Deck).
+String qsMode(Json sc, [Json? st]) {
+  final dk = st != null ? liveDeckId(st, sc) : decksOf(sc).first['id'];
+  final q = firstIn(sc, dk, 'question'), v = firstIn(sc, dk, 'scripture');
   if (q == null || v == null) return '';
   return q['visible'] == true && v['visible'] == true ? 'both' : (v['visible'] == true ? 'verse' : 'question');
 }
 
 bool setQS(Json n, Object? sid, String m) {
   final sc = findScene(n, sid);
-  final q = firstOf(sc, 'question'), v = firstOf(sc, 'scripture');
+  final dk = liveDeckId(n, sc);
+  final q = firstIn(sc, dk, 'question'), v = firstIn(sc, dk, 'scripture');
   if (q == null || v == null) return false;
   q['visible'] = m != 'verse';
   v['visible'] = m != 'question';
@@ -474,8 +640,9 @@ String? stepKind(Json st, [Object? selectedLayer]) {
   final ls = liveScene(st);
   final sl = layerOf(ls, selectedLayer);
   if (sl != null && (sl['kind'] == 'question' || sl['kind'] == 'scripture')) return sl['kind'] == 'question' ? 'question' : 'verse';
-  if (firstOf(ls, 'question') != null) return 'question';
-  if (firstOf(ls, 'scripture') != null) return 'verse';
+  final dk = liveDeckId(st, ls);
+  if ((firstIn(ls, dk, 'question') ?? firstOf(ls, 'question')) != null) return 'question';
+  if ((firstIn(ls, dk, 'scripture') ?? firstOf(ls, 'scripture')) != null) return 'verse';
   return null;
 }
 
@@ -599,6 +766,7 @@ bool hasBrand(Json st) {
 Json? addBrand(Json sc, [Json? opts]) {
   if (firstOf(sc, 'brand') != null) return null;
   final l = newLayer('brand', {'c': opts ?? <String, dynamic>{}});
+  l['deck'] = decksOf(sc).first['id'];
   (sc['layers'] as List).insert(0, l);
   return l;
 }

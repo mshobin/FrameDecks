@@ -63,6 +63,12 @@ const st = Store.defaults();
 assert.strictEqual(B.apply(st, plan, {}).length, 6);
 assert.strictEqual(st.meeting.title, 'Romans · Week 5');
 assert.strictEqual(st.meeting.location, 'Fellowship Hall, or paste the Zoom / Teams link');
+// FRAMEDECKS: the template's Frame 6 has two Decks (Deck column); the others one
+const closing = st.scenes[5], deckNames = sc => sc.decks.map(d => d.name);
+same(deckNames(closing), ['Prayer', 'Goodbye'], 'the Deck column makes the Decks');
+same(closing.layers.filter(l => l.kind !== 'background').map(l => closing.decks.find(d => d.id === l.deck).name), ['Prayer', 'Goodbye']);
+same(deckNames(st.scenes[0]), ['Deck 1'], 'no Deck column: one Deck');
+assert.ok(st.scenes[0].layers.some(l => l.kind === 'background'), 'Frame 1 has its background');
 const kept = Store.normalize ? Store.normalize(JSON.parse(JSON.stringify(st))) : st;
 assert.strictEqual(kept.meeting.attendeeNotes, 'Two newcomers expected: welcome them by name.', 'the store keeps the new details');
 
@@ -73,6 +79,8 @@ const plan2 = planOf(plainWb);
 same(plan2.errors, [], 'a plain export imports again');
 same([plan2.counts.frames, plan2.counts.content, plan2.counts.questions, plan2.counts.scriptures], [6, 8, 3, 2]);
 assert.strictEqual(plan2.meeting.contact, 'name@example.com · 555 0100');
+const st2 = Store.defaults(); B.apply(st2, plan2, {});
+same(st2.scenes[5].decks.map(d => d.name), ['Prayer', 'Goodbye'], 'the Decks survive the plain export');
 
 /* 3. export: the program's styled form (meeting_form.py fills the template) imports again */
 const sheetsJson = path.join(os.tmpdir(), 'kc-mb-' + process.pid + '.json'), filled = sheetsJson.replace('.json', '.xlsx');
@@ -89,6 +97,8 @@ if (py && py.status === 0){
   same(plan3.errors, [], 'a styled export imports again');
   same([plan3.counts.frames, plan3.counts.content, plan3.counts.questions, plan3.counts.scriptures], [6, 8, 3, 2]);
   same(plan3.meeting, plan.meeting, 'the meeting details survive the round trip');
+  const st3 = Store.defaults(); B.apply(st3, plan3, {});
+  same(st3.scenes[5].decks.map(d => d.name), ['Prayer', 'Goodbye'], 'the Decks survive the styled export');
   [sheetsJson, filled].forEach(f => fs.unlinkSync(f));
 } else {
   assert.ok(!py || py.status === 0, 'meeting_form.py failed: ' + (py && py.stderr));
