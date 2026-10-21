@@ -8,6 +8,7 @@ import '../../engine/backend.dart';
 import '../../engine/model.dart';
 import '../../engine/scenes.dart' as sc;
 import '../actions.dart';
+import '../camera/mac_camera.dart';
 import '../providers.dart';
 import '../settings_screen.dart';
 import '../theme.dart';
@@ -88,61 +89,70 @@ class _StudioScreenState extends ConsumerState<StudioScreen> {
     final sel = ref.watch(selectionProvider);
     final scene = sc.findScene(st, sel.scene) ?? sc.liveScene(st) ?? (sc.scenesOf(st).isEmpty ? null : sc.scenesOf(st).first);
 
-    return Scaffold(
-      body: Focus(
-        autofocus: true,
-        onKeyEvent: _key,
-        child: Column(
-          children: [
-            TopBar(state: st),
-            Expanded(
-              child: page == AppPage.settings
-                  ? SettingsScreen(state: st)
-                  : Row(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Container(
-                          width: 300,
-                          decoration: const BoxDecoration(
-                            color: K.panel,
-                            border: Border(right: BorderSide(color: K.line)),
-                          ),
-                          child: Column(
-                            children: [
-                              Expanded(flex: 3, child: FramesPanel(state: st)),
-                              const Divider(),
-                              Expanded(
-                                flex: 2,
-                                child: ContentPanel(state: st, scene: scene),
-                              ),
-                            ],
-                          ),
+    final studio = Focus(
+      autofocus: true,
+      onKeyEvent: _key,
+      child: Column(
+        children: [
+          TopBar(state: st),
+          Expanded(
+            child: page == AppPage.settings
+                ? SettingsScreen(state: st)
+                : Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Container(
+                        width: 300,
+                        decoration: const BoxDecoration(
+                          color: K.panel,
+                          border: Border(right: BorderSide(color: K.line)),
                         ),
-                        Expanded(
-                          child: Column(
-                            children: [
-                              Expanded(
-                                flex: 11,
-                                child: StudioCanvas(state: st, scene: scene, onShare: () => ShareWindow.open(context)),
-                              ),
-                              const Divider(),
-                              Expanded(
-                                flex: 9,
-                                child: scene == null
-                                    ? const Center(
-                                        child: Text('Make your first Frame with + in FRAMES.', style: TextStyle(color: K.muted)),
-                                      )
-                                    : Inspector(state: st, scene: scene),
-                              ),
-                            ],
-                          ),
+                        child: Column(
+                          children: [
+                            Expanded(flex: 3, child: FramesPanel(state: st)),
+                            const Divider(),
+                            Expanded(
+                              flex: 2,
+                              child: ContentPanel(state: st, scene: scene),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-            ),
-          ],
-        ),
+                      ),
+                      Expanded(
+                        child: Column(
+                          children: [
+                            Expanded(
+                              flex: 11,
+                              child: StudioCanvas(state: st, scene: scene, onShare: () => ShareWindow.open(context)),
+                            ),
+                            const Divider(),
+                            Expanded(
+                              flex: 9,
+                              child: scene == null
+                                  ? const Center(
+                                      child: Text('Make your first Frame with + in FRAMES.', style: TextStyle(color: K.muted)),
+                                    )
+                                  : Inspector(state: st, scene: scene),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+          ),
+        ],
       ),
+    );
+    return Scaffold(
+      // on the Mac the KingdomConnect camera gets the program from here (only while an app is receiving it)
+      body: MacCamera.available
+          ? Stack(
+              children: [
+                Positioned.fill(child: studio),
+                const CameraFeeder(),
+              ],
+            )
+          : studio,
     );
   }
 }

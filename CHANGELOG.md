@@ -17,6 +17,9 @@ Versions before 4.9 (when the program had its earlier name) are described in the
     full-screen Share Window.
   - iPhone, iPad and Android get the remote control for Kingdom Connect on the PC, signed in with its PIN.
   - Its engine is a port of `store.js`, checked against the JavaScript with parity tests.
+  - On the Mac, the **KingdomConnect camera** is a CoreMedia IO camera extension inside the app (allowed in the Mac
+    App Store). Install it from Settings; Zoom, Teams and FaceTime then see the program. It needs the app signed with
+    your Apple Developer team (`macos/Runner/Configs/Signing.xcconfig.example`).
 
   Plan and what still lives only in the Windows program:
   [docs/project/flutter-platform-plan.md](docs/project/flutter-platform-plan.md). CI:

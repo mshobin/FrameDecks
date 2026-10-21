@@ -1,0 +1,2 @@
+// The KingdomConnect camera (macos/KingdomConnectCamera). Signed with the same team as the app (Signing.xcconfig).
+#include? "Signing.xcconfig"

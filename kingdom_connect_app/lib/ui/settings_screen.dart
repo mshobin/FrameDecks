@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -5,6 +7,7 @@ import '../engine/backend.dart';
 import '../engine/model.dart';
 import '../engine/scenes.dart' as sc;
 import 'actions.dart';
+import 'camera/mac_camera.dart';
 import 'fields.dart';
 import 'providers.dart';
 import 'theme.dart';
@@ -86,6 +89,7 @@ class SettingsScreen extends ConsumerWidget {
                     ),
                   ],
                 ),
+                if (MacCamera.available) const _Section(title: 'KingdomConnect camera', children: [_MacCameraSettings()]),
                 const _Section(
                   title: 'Phone & iPad remote',
                   children: [
@@ -139,4 +143,77 @@ class _Section extends StatelessWidget {
       ],
     ),
   );
+}
+
+/// Install or remove the KingdomConnect camera on the Mac, and what it is doing.
+class _MacCameraSettings extends StatefulWidget {
+  const _MacCameraSettings();
+
+  @override
+  State<_MacCameraSettings> createState() => _MacCameraSettingsState();
+}
+
+class _MacCameraSettingsState extends State<_MacCameraSettings> {
+  final _camera = MacCamera();
+  CameraStatus? _status;
+  Timer? _poll;
+
+  @override
+  void initState() {
+    super.initState();
+    _refresh();
+    _poll = Timer.periodic(const Duration(seconds: 2), (_) => _refresh());
+  }
+
+  Future<void> _refresh() async {
+    final s = await _camera.status();
+    if (mounted) setState(() => _status = s);
+  }
+
+  @override
+  void dispose() {
+    _poll?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final s = _status;
+    if (s == null) return const Text('Checking…', style: TextStyle(color: K.muted, fontSize: 13));
+    final state = !s.supported
+        ? 'Not available on this Mac.'
+        : !s.installed
+        ? 'Not installed.'
+        : s.watched
+        ? 'On: an app is showing the KingdomConnect camera.'
+        : 'Installed. Choose “KingdomConnect” as the camera in Zoom, Teams or FaceTime.';
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(state, style: const TextStyle(fontWeight: FontWeight.w700)),
+        if (s.message.isNotEmpty) ...[const SizedBox(height: 4), Text(s.message, style: const TextStyle(color: K.muted, fontSize: 13, height: 1.45))],
+        const SizedBox(height: 10),
+        const Text(
+          'The camera shows your program — the cards, branding and Black screen — to Zoom, Teams, FaceTime and other apps. '
+          'macOS asks you to allow it once (System Settings → General → Login Items & Extensions → Camera Extensions).',
+          style: TextStyle(color: K.muted, fontSize: 13, height: 1.45),
+        ),
+        if (s.supported) ...[
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              KButton(
+                gold: !s.installed,
+                onPressed: () async {
+                  await (s.installed ? _camera.uninstall() : _camera.install());
+                  await _refresh();
+                },
+                child: Text(s.installed ? 'Remove the camera' : 'Install the camera'),
+              ),
+            ],
+          ),
+        ],
+      ],
+    );
+  }
 }

@@ -1,0 +1,14 @@
+// Copy this file to Signing.xcconfig (it is not committed) and fill in your Apple Developer team, to build
+// Kingdom Connect with the KingdomConnect camera. macOS only installs a camera extension from a signed app, and the
+// app and the camera must share an app group, which needs the team.
+//
+// Then: open macos/Runner.xcworkspace in Xcode once so it can create the signing profiles (Signing & Capabilities),
+// or run `flutter build macos`. The app must be in /Applications before its camera can be installed.
+
+DEVELOPMENT_TEAM = ABCDE12345
+CODE_SIGN_STYLE = Automatic
+CODE_SIGN_IDENTITY = Apple Development
+
+KC_ENTITLEMENTS_Debug = Runner/DebugProfileCamera.entitlements
+KC_ENTITLEMENTS_Profile = Runner/DebugProfileCamera.entitlements
+KC_ENTITLEMENTS_Release = Runner/ReleaseCamera.entitlements

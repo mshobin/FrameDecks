@@ -12,3 +12,11 @@ PRODUCT_BUNDLE_IDENTIFIER = org.kingdomconnect.kingdomConnect
 
 // The copyright displayed in application information
 PRODUCT_COPYRIGHT = Copyright © 2026 org.kingdomconnect. All rights reserved.
+
+// The app's entitlements. Without signing they leave the KingdomConnect camera out (macOS only runs a camera extension
+// from a signed app); Signing.xcconfig (see Signing.xcconfig.example) switches the camera's entitlements on.
+KC_ENTITLEMENTS_Debug = Runner/DebugProfile.entitlements
+KC_ENTITLEMENTS_Profile = Runner/DebugProfile.entitlements
+KC_ENTITLEMENTS_Release = Runner/Release.entitlements
+
+#include? "Signing.xcconfig"

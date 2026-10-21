@@ -21,13 +21,23 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		1D1791E85189E561E6F6F077 /* SystemExtensions.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2336CB7B01F88E6EB1CBAFF9 /* SystemExtensions.framework */; };
+		28F75C2ED0A543595F29D111 /* CameraProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADBD2268ECE59C1D1CADB977 /* CameraProvider.swift */; };
 		331C80D8294CF71000263BE5 /* RunnerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 331C80D7294CF71000263BE5 /* RunnerTests.swift */; };
 		335BBD1B22A9A15E00E9071D /* GeneratedPluginRegistrant.swift in Sources */ = {isa = PBXBuildFile; fileRef = 335BBD1A22A9A15E00E9071D /* GeneratedPluginRegistrant.swift */; };
 		33CC10F12044A3C60003C045 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33CC10F02044A3C60003C045 /* AppDelegate.swift */; };
 		33CC10F32044A3C60003C045 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 33CC10F22044A3C60003C045 /* Assets.xcassets */; };
 		33CC10F62044A3C60003C045 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 33CC10F42044A3C60003C045 /* MainMenu.xib */; };
 		33CC11132044BFA00003C045 /* MainFlutterWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33CC11122044BFA00003C045 /* MainFlutterWindow.swift */; };
+		38D97DAFD9A7D248FB9A10CF /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 267BC5B5A8324A8AC06FE972 /* main.swift */; };
+		4058ABC7991C11D257A8F6BE /* CameraBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08E89BEB7ABB23053CB29F4A /* CameraBridge.swift */; };
+		5E4AE5E41FF3379BF3089C9E /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 91D9364A7AB99FBB4F63415B /* Cocoa.framework */; };
+		6597990E4233E7DB03961A97 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 35CA985906FEB2A0F2382007 /* IOKit.framework */; };
 		78A318202AECB46A00862997 /* FlutterGeneratedPluginSwiftPackage in Frameworks */ = {isa = PBXBuildFile; productRef = 78A3181F2AECB46A00862997 /* FlutterGeneratedPluginSwiftPackage */; };
+		A04C086EA03A1638CBB77B88 /* KingdomConnectCamera.systemextension in Embed System Extensions */ = {isa = PBXBuildFile; fileRef = F40C54C49004581ACACDF2F6 /* KingdomConnectCamera.systemextension */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		C6282903E17177984BF24FE9 /* CoreMediaIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9ACA6EC0761879EA45C40D6F /* CoreMediaIO.framework */; };
+		C83401A00188169E4E1C1FB1 /* CoreMediaIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9ACA6EC0761879EA45C40D6F /* CoreMediaIO.framework */; };
+		C8F914B2A6FA741A67D87FDC /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5EBE80853C5831766BBBBA3A /* Accelerate.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -45,9 +55,27 @@
 			remoteGlobalIDString = 33CC111A2044C6BA0003C045;
 			remoteInfo = FLX;
 		};
+		B7449F7475A3EFAABFEF79A5 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 33CC10E52044A3C60003C045 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 91F2CF42C206BF4A5A812092;
+			remoteInfo = KingdomConnectCamera;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		0ACC51CE12903816788144FF /* Embed System Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(SYSTEM_EXTENSIONS_FOLDER_PATH)";
+			dstSubfolderSpec = 16;
+			files = (
+				A04C086EA03A1638CBB77B88 /* KingdomConnectCamera.systemextension in Embed System Extensions */,
+			);
+			name = "Embed System Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		33CC110E2044A8840003C045 /* Bundle Framework */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -61,11 +89,15 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		08CDD18B1FC5C0FC7EFD5E91 /* KingdomConnectCamera.entitlements */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.entitlements; path = KingdomConnectCamera.entitlements; sourceTree = "<group>"; };
+		08E89BEB7ABB23053CB29F4A /* CameraBridge.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CameraBridge.swift; sourceTree = "<group>"; };
+		2336CB7B01F88E6EB1CBAFF9 /* SystemExtensions.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemExtensions.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.0.sdk/System/Library/Frameworks/SystemExtensions.framework; sourceTree = DEVELOPER_DIR; };
+		267BC5B5A8324A8AC06FE972 /* main.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		331C80D5294CF71000263BE5 /* RunnerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RunnerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		331C80D7294CF71000263BE5 /* RunnerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunnerTests.swift; sourceTree = "<group>"; };
 		333000ED22D3DE5D00554162 /* Warnings.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Warnings.xcconfig; sourceTree = "<group>"; };
 		335BBD1A22A9A15E00E9071D /* GeneratedPluginRegistrant.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GeneratedPluginRegistrant.swift; sourceTree = "<group>"; };
-		33CC10ED2044A3C60003C045 /* kingdom_connect.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "kingdom_connect.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		33CC10ED2044A3C60003C045 /* kingdom_connect.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = kingdom_connect.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		33CC10F02044A3C60003C045 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		33CC10F22044A3C60003C045 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Assets.xcassets; path = Runner/Assets.xcassets; sourceTree = "<group>"; };
 		33CC10F52044A3C60003C045 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
@@ -77,9 +109,18 @@
 		33E51913231747F40026EE4D /* DebugProfile.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = DebugProfile.entitlements; sourceTree = "<group>"; };
 		33E51914231749380026EE4D /* Release.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = Release.entitlements; sourceTree = "<group>"; };
 		33E5194F232828860026EE4D /* AppInfo.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = AppInfo.xcconfig; sourceTree = "<group>"; };
+		35CA985906FEB2A0F2382007 /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.0.sdk/System/Library/Frameworks/IOKit.framework; sourceTree = DEVELOPER_DIR; };
+		5EBE80853C5831766BBBBA3A /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.0.sdk/System/Library/Frameworks/Accelerate.framework; sourceTree = DEVELOPER_DIR; };
 		78E0A7A72DC9AD7400C4905E /* FlutterGeneratedPluginSwiftPackage */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = FlutterGeneratedPluginSwiftPackage; path = ephemeral/Packages/FlutterGeneratedPluginSwiftPackage; sourceTree = "<group>"; };
 		7AFA3C8E1D35360C0083082E /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Release.xcconfig; sourceTree = "<group>"; };
+		91D9364A7AB99FBB4F63415B /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.0.sdk/System/Library/Frameworks/Cocoa.framework; sourceTree = DEVELOPER_DIR; };
 		9740EEB21CF90195004384FC /* Debug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = Debug.xcconfig; sourceTree = "<group>"; };
+		9ACA6EC0761879EA45C40D6F /* CoreMediaIO.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMediaIO.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.0.sdk/System/Library/Frameworks/CoreMediaIO.framework; sourceTree = DEVELOPER_DIR; };
+		9C9903625DDB257E3403D6B4 /* LICENSE-cameraextension-MIT.txt */ = {isa = PBXFileReference; includeInIndex = 1; path = "LICENSE-cameraextension-MIT.txt"; sourceTree = "<group>"; };
+		9EC4541867A7F620296BC208 /* Camera.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = Camera.xcconfig; sourceTree = "<group>"; };
+		ADBD2268ECE59C1D1CADB977 /* CameraProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CameraProvider.swift; sourceTree = "<group>"; };
+		BFBE51DB9824F5A49EF6C1D2 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		F40C54C49004581ACACDF2F6 /* KingdomConnectCamera.systemextension */ = {isa = PBXFileReference; explicitFileType = "wrapper.system-extension"; includeInIndex = 0; name = KingdomConnectCamera.systemextension; path = org.kingdomconnect.kingdomConnect.Camera.systemextension; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -95,12 +136,38 @@
 			buildActionMask = 2147483647;
 			files = (
 				78A318202AECB46A00862997 /* FlutterGeneratedPluginSwiftPackage in Frameworks */,
+				1D1791E85189E561E6F6F077 /* SystemExtensions.framework in Frameworks */,
+				C6282903E17177984BF24FE9 /* CoreMediaIO.framework in Frameworks */,
+				C8F914B2A6FA741A67D87FDC /* Accelerate.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		59AC980D1102F04C5912C53E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5E4AE5E41FF3379BF3089C9E /* Cocoa.framework in Frameworks */,
+				C83401A00188169E4E1C1FB1 /* CoreMediaIO.framework in Frameworks */,
+				6597990E4233E7DB03961A97 /* IOKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		24A82D3DA94FAEACD286793E /* KingdomConnectCamera */ = {
+			isa = PBXGroup;
+			children = (
+				267BC5B5A8324A8AC06FE972 /* main.swift */,
+				ADBD2268ECE59C1D1CADB977 /* CameraProvider.swift */,
+				BFBE51DB9824F5A49EF6C1D2 /* Info.plist */,
+				08CDD18B1FC5C0FC7EFD5E91 /* KingdomConnectCamera.entitlements */,
+				9C9903625DDB257E3403D6B4 /* LICENSE-cameraextension-MIT.txt */,
+			);
+			name = KingdomConnectCamera;
+			path = KingdomConnectCamera;
+			sourceTree = "<group>";
+		};
 		331C80D6294CF71000263BE5 /* RunnerTests */ = {
 			isa = PBXGroup;
 			children = (
@@ -116,6 +183,7 @@
 				9740EEB21CF90195004384FC /* Debug.xcconfig */,
 				7AFA3C8E1D35360C0083082E /* Release.xcconfig */,
 				333000ED22D3DE5D00554162 /* Warnings.xcconfig */,
+				9EC4541867A7F620296BC208 /* Camera.xcconfig */,
 			);
 			path = Configs;
 			sourceTree = "<group>";
@@ -128,6 +196,7 @@
 				331C80D6294CF71000263BE5 /* RunnerTests */,
 				33CC10EE2044A3C60003C045 /* Products */,
 				D73912EC22F37F3D000D13A0 /* Frameworks */,
+				24A82D3DA94FAEACD286793E /* KingdomConnectCamera */,
 			);
 			sourceTree = "<group>";
 		};
@@ -136,6 +205,7 @@
 			children = (
 				33CC10ED2044A3C60003C045 /* kingdom_connect.app */,
 				331C80D5294CF71000263BE5 /* RunnerTests.xctest */,
+				F40C54C49004581ACACDF2F6 /* KingdomConnectCamera.systemextension */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -172,6 +242,7 @@
 				33E51914231749380026EE4D /* Release.entitlements */,
 				33CC11242044D66E0003C045 /* Resources */,
 				33BA886A226E78AF003329D5 /* Configs */,
+				08E89BEB7ABB23053CB29F4A /* CameraBridge.swift */,
 			);
 			path = Runner;
 			sourceTree = "<group>";
@@ -179,8 +250,21 @@
 		D73912EC22F37F3D000D13A0 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				E0C8C524BABFEA7B5648FD29 /* OS X */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		E0C8C524BABFEA7B5648FD29 /* OS X */ = {
+			isa = PBXGroup;
+			children = (
+				91D9364A7AB99FBB4F63415B /* Cocoa.framework */,
+				9ACA6EC0761879EA45C40D6F /* CoreMediaIO.framework */,
+				35CA985906FEB2A0F2382007 /* IOKit.framework */,
+				2336CB7B01F88E6EB1CBAFF9 /* SystemExtensions.framework */,
+				5EBE80853C5831766BBBBA3A /* Accelerate.framework */,
+			);
+			name = "OS X";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -213,11 +297,13 @@
 				33CC10EB2044A3C60003C045 /* Resources */,
 				33CC110E2044A8840003C045 /* Bundle Framework */,
 				3399D490228B24CF009A79C7 /* ShellScript */,
+				0ACC51CE12903816788144FF /* Embed System Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 				33CC11202044C79F0003C045 /* PBXTargetDependency */,
+				2F5A6A749250453695E09550 /* PBXTargetDependency */,
 			);
 			name = Runner;
 			packageProductDependencies = (
@@ -226,6 +312,23 @@
 			productName = Runner;
 			productReference = 33CC10ED2044A3C60003C045 /* kingdom_connect.app */;
 			productType = "com.apple.product-type.application";
+		};
+		91F2CF42C206BF4A5A812092 /* KingdomConnectCamera */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 9A4CAD4050987390F52100E8 /* Build configuration list for PBXNativeTarget "KingdomConnectCamera" */;
+			buildPhases = (
+				ED5A62DECF22058A9B8995B6 /* Sources */,
+				59AC980D1102F04C5912C53E /* Frameworks */,
+				3CFCC9EE2BFE022D0A7A6A7B /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = KingdomConnectCamera;
+			productName = KingdomConnectCamera;
+			productReference = F40C54C49004581ACACDF2F6 /* KingdomConnectCamera.systemextension */;
+			productType = "com.apple.product-type.system-extension";
 		};
 /* End PBXNativeTarget section */
 
@@ -268,7 +371,7 @@
 			);
 			mainGroup = 33CC10E42044A3C60003C045;
 			packageReferences = (
-				781AD8BC2B33823900A9FFBB /* XCLocalSwiftPackageReference "Flutter/ephemeral/Packages/FlutterGeneratedPluginSwiftPackage" */,
+				781AD8BC2B33823900A9FFBB /* XCLocalSwiftPackageReference "FlutterGeneratedPluginSwiftPackage" */,
 			);
 			productRefGroup = 33CC10EE2044A3C60003C045 /* Products */;
 			projectDirPath = "";
@@ -277,6 +380,7 @@
 				33CC10EC2044A3C60003C045 /* Runner */,
 				331C80D4294CF70F00263BE5 /* RunnerTests */,
 				33CC111A2044C6BA0003C045 /* Flutter Assemble */,
+				91F2CF42C206BF4A5A812092 /* KingdomConnectCamera */,
 			);
 		};
 /* End PBXProject section */
@@ -295,6 +399,13 @@
 			files = (
 				33CC10F32044A3C60003C045 /* Assets.xcassets in Resources */,
 				33CC10F62044A3C60003C045 /* MainMenu.xib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3CFCC9EE2BFE022D0A7A6A7B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -357,12 +468,28 @@
 				33CC11132044BFA00003C045 /* MainFlutterWindow.swift in Sources */,
 				33CC10F12044A3C60003C045 /* AppDelegate.swift in Sources */,
 				335BBD1B22A9A15E00E9071D /* GeneratedPluginRegistrant.swift in Sources */,
+				4058ABC7991C11D257A8F6BE /* CameraBridge.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		ED5A62DECF22058A9B8995B6 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				38D97DAFD9A7D248FB9A10CF /* main.swift in Sources */,
+				28F75C2ED0A543595F29D111 /* CameraProvider.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		2F5A6A749250453695E09550 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = KingdomConnectCamera;
+			target = 91F2CF42C206BF4A5A812092 /* KingdomConnectCamera */;
+			targetProxy = B7449F7475A3EFAABFEF79A5 /* PBXContainerItemProxy */;
+		};
 		331C80DA294CF71000263BE5 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 33CC10EC2044A3C60003C045 /* Runner */;
@@ -485,7 +612,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_ENTITLEMENTS = Runner/DebugProfile.entitlements;
+				CODE_SIGN_ENTITLEMENTS = "$(KC_ENTITLEMENTS_$(CONFIGURATION))";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = Runner/Info.plist;
@@ -505,6 +632,29 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Profile;
+		};
+		33B71854DEC6E6E720AE8556 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 9EC4541867A7F620296BC208 /* Camera.xcconfig */;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = KingdomConnectCamera/KingdomConnectCamera.entitlements;
+				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
+				ENABLE_HARDENED_RUNTIME = YES;
+				INFOPLIST_FILE = KingdomConnectCamera/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 12.3;
+				MARKETING_VERSION = "$(FLUTTER_BUILD_NAME)";
+				PRODUCT_BUNDLE_IDENTIFIER = org.kingdomconnect.kingdomConnect.Camera;
+				PRODUCT_NAME = org.kingdomconnect.kingdomConnect.Camera;
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
 		};
 		33CC10F92044A3C60003C045 /* Debug */ = {
 			isa = XCBuildConfiguration;
@@ -617,7 +767,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_ENTITLEMENTS = Runner/DebugProfile.entitlements;
+				CODE_SIGN_ENTITLEMENTS = "$(KC_ENTITLEMENTS_$(CONFIGURATION))";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = Runner/Info.plist;
@@ -637,7 +787,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_ENTITLEMENTS = Runner/Release.entitlements;
+				CODE_SIGN_ENTITLEMENTS = "$(KC_ENTITLEMENTS_$(CONFIGURATION))";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = Runner/Info.plist;
@@ -665,6 +815,52 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
+		};
+		BBBB376AED5F09010FDE092B /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 9EC4541867A7F620296BC208 /* Camera.xcconfig */;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = KingdomConnectCamera/KingdomConnectCamera.entitlements;
+				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
+				ENABLE_HARDENED_RUNTIME = YES;
+				INFOPLIST_FILE = KingdomConnectCamera/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 12.3;
+				MARKETING_VERSION = "$(FLUTTER_BUILD_NAME)";
+				PRODUCT_BUNDLE_IDENTIFIER = org.kingdomconnect.kingdomConnect.Camera;
+				PRODUCT_NAME = org.kingdomconnect.kingdomConnect.Camera;
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		EF2494CCEF790AA6182ECA74 /* Profile */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 9EC4541867A7F620296BC208 /* Camera.xcconfig */;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = KingdomConnectCamera/KingdomConnectCamera.entitlements;
+				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
+				ENABLE_HARDENED_RUNTIME = YES;
+				INFOPLIST_FILE = KingdomConnectCamera/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 12.3;
+				MARKETING_VERSION = "$(FLUTTER_BUILD_NAME)";
+				PRODUCT_BUNDLE_IDENTIFIER = org.kingdomconnect.kingdomConnect.Camera;
+				PRODUCT_NAME = org.kingdomconnect.kingdomConnect.Camera;
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Profile;
 		};
 /* End XCBuildConfiguration section */
 
@@ -709,10 +905,20 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
+		9A4CAD4050987390F52100E8 /* Build configuration list for PBXNativeTarget "KingdomConnectCamera" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BBBB376AED5F09010FDE092B /* Release */,
+				33B71854DEC6E6E720AE8556 /* Debug */,
+				EF2494CCEF790AA6182ECA74 /* Profile */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		781AD8BC2B33823900A9FFBB /* XCLocalSwiftPackageReference "Flutter/ephemeral/Packages/FlutterGeneratedPluginSwiftPackage" */ = {
+		781AD8BC2B33823900A9FFBB /* XCLocalSwiftPackageReference "FlutterGeneratedPluginSwiftPackage" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = Flutter/ephemeral/Packages/FlutterGeneratedPluginSwiftPackage;
 		};
