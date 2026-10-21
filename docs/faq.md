@@ -185,7 +185,7 @@ Install Kingdom Connect on the new PC. On first run it offers to import data fro
 No. Kingdom Connect has no subscription, billing, accounts or per-seat fees.
 
 **What licence is it under?**
-The licence terms aren't published in the repository yet. Please ask the maintainer before redistributing or modifying it. The KingdomConnect camera driver is built from softcam (MIT licence); the background-blur model is from MediaPipe (Apache 2.0).
+The licence terms aren't published in the repository yet. Please ask the maintainer before redistributing or modifying it. The KingdomConnect camera is built from VCamSample on Windows 11 and softcam on Windows 10 (both MIT licence); the background-blur model is from MediaPipe (Apache 2.0).
 
 ## Technical
 

@@ -1366,7 +1366,11 @@ def vcam_start():
         if os.name != "nt":
             VCAM["reason"] = start_files_msg if not FROZEN else "KingdomConnect works on Windows."
             return
-        dll = vsink.dll_path(RES) if vsink.dll_path(RES).exists() else vsink.dll_path(HERE)
+        # Windows 11 uses its Media Foundation camera once it is installed; Windows 10 (or before installing) softcam
+        kind, dll = vsink.choose([RES, HERE])
+        VCAM["kind"] = kind
+        if dll is None:
+            dll = vsink.dll_path(RES)
         if not dll.exists():
             folder = dll.parent
             present = sorted(p.name for p in folder.iterdir()) if folder.is_dir() else []
@@ -1383,7 +1387,7 @@ def vcam_start():
                                   "and push, then install the new installer.")
             print("KingdomConnect not available: " + VCAM["detail"])
             return
-        make_sink, make_cam = (lambda w, h: vsink.SoftcamSink(dll, w, h)), (lambda name, w, h: Camera(name, w, h, vcam_list_cameras()))
+        make_sink, make_cam = _sink_factory(kind, dll), (lambda name, w, h: Camera(name, w, h, vcam_list_cameras()))
     # The verse, question and birthday cards, drawn onto every frame from the same live state as the overlay pages
     from vcam.overlay import OverlayLayer
     layer = OverlayLayer(APP / "fonts", lambda: state)
@@ -1418,6 +1422,24 @@ def _looks_list():
     return VCAM["looksCache"]
 
 
+def _sink_factory(kind, dll):
+    from vcam import sink as vsink
+    sink_class = vsink.MFSink if kind == "mf" else vsink.SoftcamSink
+    return lambda w, h: sink_class(dll, w, h)
+
+
+def vcam_rechoose():
+    """After installing or removing the camera: on Windows 11 the running engine moves to the camera Windows now has."""
+    eng = VCAM.get("engine")
+    if eng is None or os.name != "nt" or os.environ.get("KC_VCAM_DEMO") == "1":
+        return
+    from vcam import sink as vsink
+    kind, dll = vsink.choose([RES, HERE])
+    if dll is not None and kind != VCAM.get("kind"):
+        VCAM["kind"] = kind
+        eng.replace_sink(_sink_factory(kind, dll))
+
+
 def vcam_status(lite=False):
     """KingdomConnect status for the PC screens. lite: only what the top-bar light needs (no webcam or looks listing)."""
     eng = VCAM["engine"]
@@ -1429,7 +1451,7 @@ def vcam_status(lite=False):
     if lite:
         return {"available": eng is not None, "reason": VCAM["reason"], "registered": registered, "lite": True,
                 "settings": vcam_settings(), "status": dict(eng.status) if eng else None}
-    return {"available": eng is not None, "reason": VCAM["reason"], "registered": registered,
+    return {"available": eng is not None, "reason": VCAM["reason"], "registered": registered, "build": VCAM.get("kind", ""),
             "settings": vcam_settings(), "status": dict(eng.status) if eng else None,
             "cameras": [{"name": n, "ir": any(c["ir"] for c in vcam_list_cameras() if c["name"] == n)}
                         for n in dict.fromkeys(c["name"] for c in vcam_list_cameras())] if eng else [],
@@ -2068,6 +2090,8 @@ class Handler(BaseHTTPRequestHandler):
                 return self.reply(400, json.dumps({"error": "Unknown action"}), TYPES[".json"])
             if path == "/api/vcam/install":
                 done, msg = vcam_install("uninstall" if data.get("action") == "uninstall" else "install")
+                if done:
+                    vcam_rechoose()
                 return self.reply(200, json.dumps({"ok": done, "message": msg, **vcam_status()}), TYPES[".json"])
             return self.reply(404, "Not found", "text/plain; charset=utf-8")
         if path == "/api/remote/studio":                 # switch scene / next-previous slide from the remote

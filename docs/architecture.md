@@ -108,7 +108,7 @@ flowchart LR
   OV --> CMP
   CMP --> PF --> INK["Annotation · Freeze<br/>vcam/annotate.py"] --> BLK["Blackout fade"]
   BLK --> FINAL(["Final frame"])
-  FINAL --> SINK["KingdomConnect camera<br/>vcam/sink.py + softcam"]
+  FINAL --> SINK["KingdomConnect camera<br/>vcam/sink.py: Windows 11 media source (VCamSample) or softcam"]
   FINAL --> PW["Presentation window"]
   FINAL --> PV["Previews<br/>Studio · phone pad"]
   FINAL --> REC["Test recording"]

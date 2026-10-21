@@ -39,6 +39,14 @@ jobs:
       - name: Prepare KingdomConnect (name and ID)
         run: python packaging/build_vcam.py vcam_build/softcam
 
+      - name: Get VCamSample (MIT licence) for the Windows 11 KingdomConnect camera
+        run: |
+          git clone https://github.com/smourier/VCamSample.git vcam_build/vcamsample
+          git -C vcam_build/vcamsample checkout --quiet 58b6d4b0e0c2c97fdffd66d23e7c8da6b89f570d
+
+      - name: Prepare the Windows 11 KingdomConnect camera (picture, name and ID)
+        run: python packaging/build_mfcam.py vcam_build/vcamsample
+
       - name: Set up the Microsoft C++ compiler
         uses: microsoft/setup-msbuild@v2
 
@@ -51,9 +59,21 @@ jobs:
           }
           Copy-Item vcam_build/softcam/x64/Release/softcam.dll vcam/bin/kingdomconnect_vcam64.dll
           Copy-Item vcam_build/softcam/Win32/Release/softcam.dll vcam/bin/kingdomconnect_vcam32.dll
+          # The Windows 11 camera (Media Foundation). The Visual Studio on the build machine sets the C++ toolset.
+          nuget restore vcam_build/vcamsample/VCamSampleSource/packages.config -PackagesDirectory vcam_build/vcamsample/packages
+          if ($LASTEXITCODE -ne 0) { throw "VCamSample packages could not be restored" }
+          foreach ($p in 'x64', 'Win32') {
+            msbuild vcam_build/vcamsample/VCamSampleSource/VCamSampleSource.vcxproj /m /p:Configuration=Release /p:Platform=$p /p:PlatformToolset=v143 /p:SolutionDir="$PWD/vcam_build/vcamsample/"
+            if ($LASTEXITCODE -ne 0) { throw "KingdomConnect (Windows 11) build failed ($p)" }
+          }
+          $mf64 = Get-ChildItem -Recurse vcam_build/vcamsample -Filter VCamSampleSource.dll | Where-Object { $_.FullName -match '\\x64\\Release\\' } | Select-Object -First 1
+          $mf32 = Get-ChildItem -Recurse vcam_build/vcamsample -Filter VCamSampleSource.dll | Where-Object { $_.FullName -match '\\Release\\' -and $_.FullName -notmatch '\\x64\\' } | Select-Object -First 1
+          if (-not $mf64 -or -not $mf32) { Get-ChildItem -Recurse vcam_build/vcamsample -Filter *.dll | Format-Table FullName; throw "KingdomConnect (Windows 11) output not found" }
+          Copy-Item $mf64.FullName vcam/bin/kingdomconnect_mfcam64.dll
+          Copy-Item $mf32.FullName vcam/bin/kingdomconnect_mfcam32.dll
           # A record of what was built, so the app can tell "never built" from "removed after installing"
           $files = @{}
-          foreach ($f in 'kingdomconnect_vcam64.dll', 'kingdomconnect_vcam32.dll') { $files[$f] = (Get-FileHash "vcam/bin/$f" -Algorithm SHA256).Hash }
+          foreach ($f in 'kingdomconnect_vcam64.dll', 'kingdomconnect_vcam32.dll', 'kingdomconnect_mfcam64.dll', 'kingdomconnect_mfcam32.dll') { $files[$f] = (Get-FileHash "vcam/bin/$f" -Algorithm SHA256).Hash }
           @{ builtBy = 'GitHub Actions'; run = '${{ github.run_number }}'; commit = '${{ github.sha }}'; files = $files } |
             ConvertTo-Json | Set-Content -Encoding utf8 vcam/bin/build-info.json
           Get-ChildItem vcam/bin
@@ -65,6 +85,8 @@ jobs:
         run: node tests/run.js
 
       - name: Run the desktop tests (Python, on Windows)
+        env:
+          KC_CAMERA_E2E: "1"   # installs the Windows 11 KingdomConnect camera, reads it back, removes it (needs admin)
         run: python -m unittest discover -s tests -p "test_*.py" -v
 
       - name: Check documentation links

@@ -88,12 +88,15 @@ end;
 // The KingdomConnect camera keeps the camera ID it had as "BCC vCam", so Zoom, Teams and OBS see the same device
 // under its new name. Its driver file was renamed in 6.4, so a PC that already has the camera registers it again
 // (pointing Windows at the new file) even when the option is not ticked this time.
+// The Windows 11 camera (Media Foundation) has its own ID; an update re-registers it too, so Windows uses the new file.
 const
   CameraKey = 'CLSID\{6F2B8C3E-4D7A-4B9E-9C11-B5CC0A1E7D21}';
+  CameraKeyWin11 = 'CLSID\{06BACA0B-14C0-4E9B-8161-ED7D11F73518}';
 
 function CameraRegistered: Boolean;
 begin
-  Result := RegKeyExists(HKCR64, CameraKey) or RegKeyExists(HKCR32, CameraKey);
+  Result := RegKeyExists(HKCR64, CameraKey) or RegKeyExists(HKCR32, CameraKey) or
+            RegKeyExists(HKCR64, CameraKeyWin11) or RegKeyExists(HKCR32, CameraKeyWin11);
 end;
 
 function ShouldRegisterCamera: Boolean;

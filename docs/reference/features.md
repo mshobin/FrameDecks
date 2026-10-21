@@ -85,7 +85,7 @@ blur and a Camera Look, plus the live scene (cards, text, pictures, slides, bran
 | --- | --- |
 | Name in other apps | **KingdomConnect** |
 | Registered by | The installer, with the option **Install the KingdomConnect camera for Zoom and Teams** (asks for administrator permission once) |
-| Driver files | `kingdomconnect_vcam64.dll` and `kingdomconnect_vcam32.dll` in `_internal\vcam\bin`. They are built from softcam (MIT licence) by `packaging/build_vcam.py` |
+| Driver files | Windows 11: `kingdomconnect_mfcam64.dll` / `32.dll`, a Media Foundation virtual camera built from VCamSample (MIT licence) by `packaging/build_mfcam.py`, copied to `Program Files\Kingdom Connect Camera` when installed. Windows 10: `kingdomconnect_vcam64.dll` / `32.dll`, a DirectShow camera built from softcam (MIT licence) by `packaging/build_vcam.py`. Only one is installed (`vcam\bin\kingdomconnect-camera.ps1`) |
 | Camera ID (CLSID) | `{6F2B8C3E-4D7A-4B9E-9C11-B5CC0A1E7D21}`. This is the same ID as before, so apps that remembered the camera keep it |
 | Settings | **Settings → KingdomConnect Camera** |
 | Status | The status menu in the command bar: **KingdomConnect** · Off / Ready / In use |

@@ -79,7 +79,7 @@ build.bat                                           # local Windows build (CI is
 ## Quality gates (`.github/workflows/build-windows.yml`)
 | Gate | What it checks |
 |---|---|
-| camera build | Builds the KingdomConnect camera (softcam, 64- and 32-bit) and records SHA-256 hashes of the DLLs |
+| camera build | Builds the KingdomConnect camera (Windows 11: VCamSample media source; Windows 10: softcam; 64- and 32-bit) and records SHA-256 hashes of the DLLs |
 | self-check | `packaging/check.py`: the program starts, serves every page and script, camera name and ID match the build, blur model loads |
 | tests | `node tests/run.js`: Frame-owned lists, independent duplicates, conversion of older data, output folding, Meeting Workbook template, import and export |
 | Python tests | `python -m unittest`: the Spotlight shortcut and desktop settings, moving data saved under the earlier name, and the Meeting Form layout and export |
@@ -113,7 +113,7 @@ the docs say so.
 
 ## License
 No licence has been published yet; until one is, all rights are reserved by the author. Third-party components keep
-their own licences: softcam (MIT), MediaPipe selfie segmentation model (Apache 2.0), SheetJS and Lucide icons (see
+their own licences: softcam (MIT), VCamSample (MIT), MediaPipe selfie segmentation model (Apache 2.0), SheetJS and Lucide icons (see
 `app/vendor/`), EB Garamond and Source Sans 3 (SIL Open Font License).
 
 <sub>Kingdom Connect was first published under an earlier name. Version 6.9 installs over every earlier version and,

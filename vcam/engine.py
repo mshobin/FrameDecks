@@ -189,6 +189,12 @@ class VCamEngine:
             self._resink = getattr(self, "_resink", False) or restart_sink
             self._recontrol = getattr(self, "_recontrol", False) or controls
 
+    def replace_sink(self, sink_factory):
+        """Send frames to another camera from the next frame on (after the Windows 11 camera is installed)."""
+        with self.lock:
+            self.sink_factory = sink_factory
+            self._resink = True
+
     def kick(self):
         """Something changed: draw the next frame now (wakes the idle rhythm)."""
         self.kick_evt.set()

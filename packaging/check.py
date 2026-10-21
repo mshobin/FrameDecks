@@ -34,9 +34,15 @@ assert VCAM_CLSID == "{" + build_id + "}", "KingdomConnect ID mismatch between v
 from vcam.sink import VCAM_NAME
 build_name = _re.search(r'NAME = "([^"]+)"', (root / "packaging" / "build_vcam.py").read_text()).group(1)
 assert VCAM_NAME == build_name == "KingdomConnect", "the camera must be called KingdomConnect"
+mf_id = _re.search(r'CLSID = "([0-9A-F-]+)"', (root / "packaging" / "build_mfcam.py").read_text()).group(1)
+from vcam.sink import MF_CLSID
+assert MF_CLSID == "{" + mf_id + "}", "Windows 11 KingdomConnect ID mismatch between vcam/sink.py and packaging/build_mfcam.py"
+assert mf_id.upper() in (root / "packaging" / "installer.iss").read_text().upper(), "installer.iss must know the Windows 11 camera ID"
+assert (root / "vcam" / "bin" / "kingdomconnect-camera.ps1").exists(), "camera install script missing"
 assert (root / "vcam" / "models" / "selfie_segmentation_landscape.tflite").exists(), "blur model missing"
 if os.name == "nt" and os.environ.get("GITHUB_ACTIONS") == "true":
-    missing = [f for f in ("kingdomconnect_vcam64.dll", "kingdomconnect_vcam32.dll", "build-info.json") if not (root / "vcam" / "bin" / f).exists()]
+    missing = [f for f in ("kingdomconnect_vcam64.dll", "kingdomconnect_vcam32.dll", "kingdomconnect_mfcam64.dll",
+                           "kingdomconnect_mfcam32.dll", "build-info.json") if not (root / "vcam" / "bin" / f).exists()]
     if missing:
         sys.exit("STOP: the KingdomConnect camera was not built (" + ", ".join(missing) + " missing).\n"
                  "The build recipe .github/workflows/build-windows.yml in your repository is out of date.\n"
