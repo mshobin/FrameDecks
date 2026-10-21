@@ -1,6 +1,6 @@
 # Service-day checklist
 
-A printable timeline for running a service with FRAMEDECKS, plus an emergency card to keep beside the PC.
+A printable timeline for running a service with FrameDecks, plus an emergency card to keep beside the PC.
 
 **Who this is for:** service operators, remote operators and leaders. Print it, or keep it open on a second screen.
 
@@ -26,7 +26,7 @@ A printable timeline for running a service with FRAMEDECKS, plus an emergency ca
 ## 60 minutes before
 
 - [ ] PC on mains power; Windows updates paused; notifications off.
-- [ ] FRAMEDECKS open; **FrameCast** camera ready in the command bar status.
+- [ ] FrameDecks open; **FrameCast** camera ready in the command bar status.
 - [ ] Webcam, microphone and projector connected.
 - [ ] Meeting app (Zoom / Teams / Meet) or OBS open, with **FrameCast** as the camera.
 - [ ] Projector: **Share Window** → Presentation window on the projector → full screen.

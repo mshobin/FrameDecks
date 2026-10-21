@@ -1,5 +1,5 @@
 /*
- * FRAMEDECKS - shared state.
+ * FrameDecks - shared state.
  *
  * Two ways to connect, chosen automatically:
  *  - Local program mode (page opened from http://localhost...): state lives in the
@@ -7,7 +7,7 @@
  *  - No-install mode (page opened as a file): state lives in this browser's local
  *    storage and syncs instantly between tabs of the SAME browser only.
  */
-/* LEGACY (6.9): settings this browser saved under the program's earlier name move to the FRAMEDECKS names, once.
+/* LEGACY (6.9): settings this browser saved under the program's earlier name move to the FrameDecks names, once.
  * This and legacy.py are the only places that know the earlier name; they exist so nobody loses their theme,
  * shortcuts, layout, members (file mode) or saved state. */
 (function(){
@@ -31,7 +31,7 @@
 'use strict';
 
 var KEY = 'kc-state-v1';
-var CHANNEL = 'kingdom-connect';
+var CHANNEL = 'framedecks';
 
 var DEFAULT_STATE = {
   rev: 0,
@@ -219,7 +219,7 @@ var Present = {
  * v6 Scenes: everything belongs to a Scene, everything visible is a Layer, everything renders on the Canvas.
  *   Scene  {id, name, group, fav, tpl, created, modified, version, creator, from, template, parent,
  *           tx: {type, ms}, auto: {on, sec}, out: {vcam, obs}, decks: [Deck], layers: [Layer]}   (layers: top first)
- *   Deck   {id, name}   FRAMEDECKS: Frame -> Deck -> Content. A Frame holds one or more Decks; one Deck of the live
+ *   Deck   {id, name}   FrameDecks: Frame -> Deck -> Content. A Frame holds one or more Decks; one Deck of the live
  *           Frame is on screen at a time (live.deck), and Next / Previous step through the Decks before the Frames.
  *   Layer  {id, kind, name, deck, visible, locked, opacity, c: {...content / media fields}}   (deck: its Deck's id)
  * The Content stays one list per Frame (each Content names its Deck), so a file opened by an older version still
@@ -506,7 +506,7 @@ var Scenes = {
   layer: function(sc, id){ if (!sc) return null; for (var i = 0; i < sc.layers.length; i++) if (sc.layers[i].id === id) return sc.layers[i]; return null; },
   first: function(sc, kind){ if (!sc) return null; for (var i = 0; i < sc.layers.length; i++) if (sc.layers[i].kind === kind) return sc.layers[i]; return null; },
   liveScene: function(st){ return Scenes.find(st, st.live.scene); },
-  /* ---------- FRAMEDECKS: Decks ---------- */
+  /* ---------- FrameDecks: Decks ---------- */
   /* a Frame's Decks (a Frame made before its first save gets its "Deck 1" here) */
   decksOf: function(sc){ if (!Array.isArray(sc.decks) || !sc.decks.length) sc.decks = cleanDecks(sc.decks); return sc.decks; },
   deck: function(sc, id){ if (!sc) return null; var a = Scenes.decksOf(sc); for (var i = 0; i < a.length; i++) if (a[i].id === id) return a[i]; return null; },
@@ -838,7 +838,7 @@ var Scenes = {
   take: function(n, id, override, deckId){
     var sc = Scenes.find(n, id); if (!sc) return false;
     var tx = Scenes.transitionOf(n, sc, override), cut = tx.type === 'cut';
-    var dk = Scenes.deck(sc, deckId) ? deckId : Scenes.decksOf(sc)[0].id;           // FRAMEDECKS: only this Deck's Content shows
+    var dk = Scenes.deck(sc, deckId) ? deckId : Scenes.decksOf(sc)[0].id;           // FrameDecks: only this Deck's Content shows
     var q = Scenes.firstIn(sc, dk, 'question'), v = Scenes.firstIn(sc, dk, 'scripture'), b = Scenes.firstIn(sc, dk, 'birthday');
     var qOn = !!(q && q.visible), vOn = !!(v && v.visible);
     if (q) Scenes.applyLook(n, q); if (v) Scenes.applyLook(n, v);           // this Frame's own appearance

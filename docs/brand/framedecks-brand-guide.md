@@ -1,17 +1,17 @@
-# FRAMEDECKS brand guide
+# FrameDecks brand guide
 
-**FRAMEDECKS** — *Present • Equip • Inspire*
+**FrameDecks** — *Present • Equip • Inspire*
 
 The world's most elegant presentation platform for ministry communication, teaching, discipleship, and digital
 engagement.
 
-<p align="center"><img src="../../assets/brand/framedecks/png/framedecks-badge-1024.png" alt="FRAMEDECKS app badge" width="360"></p>
+<p align="center"><img src="../../assets/brand/framedecks/png/framedecks-badge-1024.png" alt="FrameDecks app badge" width="360"></p>
 
 ## 1. The name and the words
 
 | Use | Write |
 |---|---|
-| Product name | **FRAMEDECKS** (all capitals, one word) |
+| Product name | **FrameDecks** (all capitals, one word) |
 | Tagline | **Present • Equip • Inspire** (bullets with a space either side; in capitals on the logo) |
 | Positioning line | The world's most elegant presentation platform for ministry communication, teaching, discipleship, and digital engagement. |
 | How the work is organised | **Frame → Deck → Content**. A Frame is one part of the service; it holds one or more Decks, shown one at a time; each Deck holds the **Content** that appears on screen. Say "Decks & Content" (not "Decks & Elements"). |
@@ -68,33 +68,30 @@ python tools/make_brand_assets.py
 
 It writes the platform icons under the file names the apps already use, so no code changes:
 
-- the Windows program: `app/img/kc-emblem.webp`, `app/icons/remote-*.png`, `packaging/kingdom-connect.ico`;
-- the Flutter app: `kingdom_connect_app/assets/brand/kc-mark.png`, and the Android, iOS, macOS, Windows and web icons
+- the Windows program: `app/img/kc-emblem.webp`, `app/icons/remote-*.png`, `packaging/framedecks.ico`;
+- the Flutter app: `framedecks_app/assets/brand/kc-mark.png`, and the Android, iOS, macOS, Windows and web icons
   and launch images.
 
 The README header (`assets/brand/kc-about-header.webp`) is captured from the About screen by
 `tools/make_readme_header.py`.
 
-## 5. What keeps the old name (on purpose)
+## 5. One name everywhere
 
-The rebrand changes what people read and see, and two names on the PC:
+Everything carries the FrameDecks name: the program (`FrameDecks.exe` in `%LOCALAPPDATA%\Programs\FrameDecks`), the
+installer (`FrameDecks v<version>.exe`), the data folder (`%APPDATA%\FrameDecks`), the recordings folder, the
+firewall rule ("FrameDecks Phone Remote"), the start files, the Meeting Workbook and downloads, the Flutter app
+(`framedecks_app`, package `framedecks`, IDs `org.framedecks.framedecks`) and the virtual camera, **FrameCast**
+(`framecast_vcam*.dll`).
 
-| Renamed | Now | Notes |
-|---|---|---|
-| The program file and its folder | `FrameDecks.exe` in `%LOCALAPPDATA%\Programs\FrameDecks`; installer `FrameDecks v<version>.exe` | The installer closes and removes the Kingdom Connect program folder and shortcuts, and registers the camera again from the new folder. A phone-remote firewall permission given to the old exe is shown as outdated in Settings → Phone & iPad Remote, with **Allow again** |
-| The virtual camera | **FrameCast** | Same camera ID (CLSID), so Zoom, Teams and OBS keep the device; they show the new name after the update. If an app had remembered the camera by name, choose **FrameCast** once |
+Updating from an earlier version keeps everything:
 
-Everything that other programs, saved files or existing installs depend on keeps its name, so every install upgrades in
-place:
-
-| Kept | Why |
+| What | How |
 |---|---|
-| The data folder `%APPDATA%\Kingdom Connect` and the recordings folder | Existing data and settings live there |
-| The installer's AppId | Upgrades install over the old version |
-| `kc-*.json` files, the `kc_remote` cookie, `api/*` and its `"app": "Kingdom Connect"` value | Saved files, signed-in phones and the Flutter app's check of the program |
-| The camera's CLSIDs and driver file names (`kingdomconnect_vcam*.dll`, `register-kingdomconnect-camera.cmd`) | Windows and the meeting apps know the camera by its ID |
-| The firewall rule's name "Kingdom Connect Phone Remote" | The helper scripts find and remove it by that name |
-| The `.bat` / `.command` start files, the Meeting Workbook file name | Existing guides and shortcuts open them by name |
-| Bundle IDs, application IDs, package names (`org.kingdomconnect.*`, `kingdom_connect`), the macOS bundle file name | Store listings, signing, app data and the camera extension depend on them |
+| Your data and recordings | Moved to the FrameDecks folders on first start (`legacy.py`), never overwriting anything newer |
+| The program folder and shortcuts | The installer closes the earlier program and removes its folder and shortcuts |
+| The camera | Registered again from the new folder with the same camera ID, so Zoom, Teams and OBS keep the device and show the name FrameCast |
+| The phone remote's firewall permission | The old rule is removed when you allow the new one (Settings → Phone & iPad Remote) |
+| The installer's AppId and the `kc-` data file names | Unchanged, so every version installs over the last and files open as before |
 
-The installer replaces the old "Kingdom Connect" Start-menu, desktop and startup shortcuts with "FRAMEDECKS" ones.
+The earlier names appear only in that migration code (`legacy.py`, the marked block in `app/js/store.js`, the clean-up
+in `packaging/installer.iss` and the firewall helper scripts), which people never see.

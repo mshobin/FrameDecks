@@ -11,7 +11,7 @@ import time
 
 import cv2
 
-OWN_NAMES = ("framecast", "kingdomconnect", "bcc vcam")   # the camera's name, and its earlier names (Kingdom Connect, before 6.4)
+OWN_NAMES = ("framecast", "bcc vcam")   # the camera's name, and its name before 6.4
 IR_HINT = re.compile(r"\b(ir|infrared)\b|hello", re.I)   # Windows Hello face sign-in cameras
 
 
@@ -112,7 +112,7 @@ def camera_blockers(winreg=None):
                     stop = value(winreg.HKEY_CURRENT_USER, path + "\\" + sub, "LastUsedTimeStop")
                     if start and stop == 0:                         # started and not yet stopped = using it now
                         who = _friendly(sub)
-                        if who.lower() != me and "kingdom connect" not in sub.lower() and "framedecks" not in sub.lower() and who not in res["inUseBy"]:
+                        if who.lower() != me and "framedecks" not in sub.lower() and who not in res["inUseBy"]:
                             res["inUseBy"].append(who)
         except OSError:
             pass

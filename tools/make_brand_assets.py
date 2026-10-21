@@ -4,7 +4,7 @@ One drawing, in code: three presentation frames in perspective, a radiant diamon
 negative space, and thin gold orbit rings with connection nodes. This script writes the master SVGs to
 assets/brand/framedecks/ and renders every icon, favicon, splash, store and marketing picture from them. The
 pictures keep the file names the app already uses (app/img/kc-emblem.webp, app/icons/remote-*.png,
-packaging/kingdom-connect.ico, the Flutter launcher icons...), so no code or path changes.
+packaging/framedecks.ico, the Flutter launcher icons...), so no code or path changes.
 
     pip install cairosvg fonttools pillow
     python tools/make_brand_assets.py
@@ -25,7 +25,7 @@ from PIL import Image
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "assets" / "brand" / "framedecks"
-FLUTTER = ROOT / "kingdom_connect_app"
+FLUTTER = ROOT / "framedecks_app"
 
 NAME = "FRAMEDECKS"
 TAGLINE = "Present • Equip • Inspire"
@@ -376,7 +376,7 @@ def main():
     save(png(favicon, 16), FLUTTER / "web" / "favicon.png")
 
     # 7: app icons, at the paths each platform already uses
-    ico(app_icon, favicon, ROOT / "packaging" / "kingdom-connect.ico")
+    ico(app_icon, favicon, ROOT / "packaging" / "framedecks.ico")
     ico(app_icon, favicon, FLUTTER / "windows" / "runner" / "resources" / "app_icon.ico")
     save(png(square_icon, 180), ROOT / "app" / "icons" / "remote-180.png")      # iOS home screen (it rounds it)
     save(png(app_icon, 192), ROOT / "app" / "icons" / "remote-192.png")

@@ -1,4 +1,4 @@
-/* Kingdom Connect v6.8 - window ribbon buttons and the minimize question (js/window-chrome.js). Shared by every window.
+/* FrameDecks v6.8 - window ribbon buttons and the minimize question (js/window-chrome.js). Shared by every window.
  * Fluent-style caption buttons: icon only, small, no borders; Close turns red on hover like Windows. */
 .win-controls{display:none}
 .win-chrome .win-controls{display:inline-flex;align-items:center;flex:none;margin-left:6px;order:99}

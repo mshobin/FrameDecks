@@ -1,6 +1,6 @@
 # Remote operators
 
-How to run a service, or draw on the screen, from a phone or iPad with the FRAMEDECKS remote.
+How to run a service, or draw on the screen, from a phone or iPad with the FrameDecks remote.
 
 **Who this is for:** anyone controlling the service from a phone or tablet, in the room or nearby.
 

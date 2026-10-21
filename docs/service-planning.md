@@ -1,6 +1,6 @@
 # Service planning
 
-How to plan a service, Bible study or meeting in FRAMEDECKS, from a blank page or from Excel.
+How to plan a service, Bible study or meeting in FrameDecks, from a blank page or from Excel.
 
 **Who this is for:** worship leaders, small-group leaders and whoever prepares the order of service each week.
 
@@ -164,7 +164,7 @@ Downloads folder. You can edit that file and import it again, or give it to a co
 
 ## Planning worship lyrics today
 
-FRAMEDECKS does not have a song library yet. A dedicated song library is on the [roadmap](../ROADMAP.md).
+FrameDecks does not have a song library yet. A dedicated song library is on the [roadmap](../ROADMAP.md).
 Today, churches show lyrics in one of two ways:
 
 1. **Text Content:** one Frame per verse or chorus. Add **+ Content → Text**, give it a title (the song name) and
@@ -172,7 +172,7 @@ Today, churches show lyrics in one of two ways:
 2. **PowerPoint or PDF:** add your existing lyric slides with **+ Content → PowerPoint…** and step through the slides
    with Page Up / Page Down or the phone.
 
-> **Important:** Make sure your church has the right licence to project the songs you use. FRAMEDECKS does not
+> **Important:** Make sure your church has the right licence to project the songs you use. FrameDecks does not
 > track or report song usage.
 
 ## Weekly planning checklist

@@ -49,11 +49,11 @@ jobs:
             msbuild vcam_build/softcam/softcam.sln /m /t:softcam /p:Configuration=Release /p:Platform=$p
             if ($LASTEXITCODE -ne 0) { throw "FrameCast build failed ($p)" }
           }
-          Copy-Item vcam_build/softcam/x64/Release/softcam.dll vcam/bin/kingdomconnect_vcam64.dll
-          Copy-Item vcam_build/softcam/Win32/Release/softcam.dll vcam/bin/kingdomconnect_vcam32.dll
+          Copy-Item vcam_build/softcam/x64/Release/softcam.dll vcam/bin/framecast_vcam64.dll
+          Copy-Item vcam_build/softcam/Win32/Release/softcam.dll vcam/bin/framecast_vcam32.dll
           # A record of what was built, so the app can tell "never built" from "removed after installing"
           $files = @{}
-          foreach ($f in 'kingdomconnect_vcam64.dll', 'kingdomconnect_vcam32.dll') { $files[$f] = (Get-FileHash "vcam/bin/$f" -Algorithm SHA256).Hash }
+          foreach ($f in 'framecast_vcam64.dll', 'framecast_vcam32.dll') { $files[$f] = (Get-FileHash "vcam/bin/$f" -Algorithm SHA256).Hash }
           @{ builtBy = 'GitHub Actions'; run = '${{ github.run_number }}'; commit = '${{ github.sha }}'; files = $files } |
             ConvertTo-Json | Set-Content -Encoding utf8 vcam/bin/build-info.json
           Get-ChildItem vcam/bin
@@ -82,14 +82,14 @@ jobs:
           Write-Host "Version $v"
 
       - name: Build the app (PyInstaller)
-        run: pyinstaller --noconfirm --clean packaging/kingdom-connect.spec --distpath dist --workpath build
+        run: pyinstaller --noconfirm --clean packaging/framedecks.spec --distpath dist --workpath build
 
       - name: Check the app folder
         shell: pwsh
         run: |
           if (-not (Test-Path "dist/FrameDecks/FrameDecks.exe")) { throw "The app was not built" }
           if (-not (Get-ChildItem -Recurse "dist/FrameDecks" -Filter dashboard.html)) { throw "App pages are missing" }
-          if (-not (Get-ChildItem -Recurse "dist/FrameDecks" -Filter kingdomconnect_vcam64.dll)) { throw "FrameCast is missing" }
+          if (-not (Get-ChildItem -Recurse "dist/FrameDecks" -Filter framecast_vcam64.dll)) { throw "FrameCast is missing" }
 
       - name: Install Inno Setup (if needed)
         shell: pwsh
@@ -130,7 +130,7 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
-          name: FRAMEDECKS ${{ steps.ver.outputs.version }}
+          name: FrameDecks ${{ steps.ver.outputs.version }}
           body_path: dist/release-notes.md
           files: |
             dist/FrameDecks v*.exe

@@ -1,6 +1,6 @@
 # Developer guide
 
-This guide is for people who want to change FRAMEDECKS's code. For how to report bugs, suggest features and
+This guide is for people who want to change FrameDecks's code. For how to report bugs, suggest features and
 what "done" means for a pull request, start with [CONTRIBUTING.md](../CONTRIBUTING.md).
 
 - [Prerequisites](#prerequisites)
@@ -33,8 +33,8 @@ python -m pip install -r packaging/requirements-desktop.txt -c packaging/constra
 ## Run from source
 
 ```bash
-git clone https://github.com/mshobin/KINGDOM-CONNECT.git
-cd KINGDOM-CONNECT
+git clone https://github.com/mshobin/FrameDecks.git
+cd FrameDecks
 python server.py
 ```
 
@@ -74,8 +74,8 @@ To run the desktop shell (the installed app's window, tray icon and Presentation
 python desktop_app.py
 ```
 
-The Windows start files in the repository root (`Start Kingdom Connect.bat`, `Start Kingdom Connect with Phone
-Remote.bat`, `Start Kingdom Connect (Mac).command`) run `server.py` the same way for people using the zip version.
+The Windows start files in the repository root (`Start FrameDecks.bat`, `Start FrameDecks with Phone
+Remote.bat`, `Start FrameDecks (Mac).command`) run `server.py` the same way for people using the zip version.
 
 ---
 
@@ -97,7 +97,7 @@ Remote.bat`, `Start Kingdom Connect (Mac).command`) run `server.py` the same way
 | `app/css/theme.css` | Design tokens (colours, radii, type) and most component styles. |
 | `app/vendor/` | Third-party browser libraries (SheetJS for Excel). Don't edit; replace with a newer release. |
 | `vcam/` | The FrameCast camera pipeline: engine loop, webcam, blur, Camera Looks, layers, compositor, cards, annotation, PowerPoint, the DirectShow sink. |
-| `packaging/` | PyInstaller spec (`kingdom-connect.spec`), Inno Setup script (`installer.iss`), the self-check (`check.py`), version reader (`get_version.py`), camera build helper (`build_vcam.py`), desktop requirements. |
+| `packaging/` | PyInstaller spec (`framedecks.spec`), Inno Setup script (`installer.iss`), the self-check (`check.py`), version reader (`get_version.py`), camera build helper (`build_vcam.py`), desktop requirements. |
 | `tests/` | Automated tests (`*.test.js`) and the runner (`run.js`). |
 | `tools/` | Maintainer scripts: the Meeting Workbook generator, world map generator, iPad remote firewall helpers. |
 | `samples/` | Example member spreadsheets. |
@@ -194,5 +194,5 @@ failure. `tests/helpers/load-store.js` loads `app/js/store.js` with small browse
 
 You don't need to build locally. Push to `main`, push a version tag, or run **Build Windows installer** from the
 Actions tab on your branch; the workflow builds the camera, runs the self-check and tests, packages the app and
-attaches **FRAMEDECKS v&lt;version&gt;.exe** (with a `.sha256` file) to the run. Full details, including a
+attaches **FrameDecks v&lt;version&gt;.exe** (with a `.sha256` file) to the run. Full details, including a
 local build with `build.bat`, are in [docs/development/building-the-installer.md](development/building-the-installer.md).

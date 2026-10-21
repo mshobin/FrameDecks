@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """
-FRAMEDECKS - local program.
+FrameDecks - local program.
 
 Serves the dashboard and overlays at http://localhost:8750 on THIS computer only.
 No internet, cloud account, or extra installs are needed beyond Python 3
 (standard library only). Your content is saved in "kc-saved-content.json".
 
-Windows: double-click "Start Kingdom Connect.bat"
-         or "Start Kingdom Connect with iPad Remote.bat" (adds the phone remote)
-Mac:     double-click "Start Kingdom Connect (Mac).command"
+Windows: double-click "Start FrameDecks.bat"
+         or "Start FrameDecks with iPad Remote.bat" (adds the phone remote)
+Mac:     double-click "Start FrameDecks (Mac).command"
          (for the phone remote: python3 server.py --remote)
 """
 import hashlib
@@ -40,7 +40,7 @@ APP = RES / "app"
 
 
 def _data_dir():
-    """Installed app: %APPDATA%\\Kingdom Connect. Script/zip version: next to server.py (as before).
+    """Installed app: %APPDATA%\\FrameDecks. Script/zip version: next to server.py (as before).
     6.9: data saved under the program's earlier name is moved here first (legacy.py), so nothing is lost."""
     if os.environ.get("KC_DATA_DIR"):
         folder = Path(os.environ["KC_DATA_DIR"])
@@ -213,7 +213,7 @@ def scene_media(st):
     out = []
     for l in reversed([l for l in sc.get("layers") or [] if isinstance(l, dict)]):
         if l.get("kind") not in MEDIA_KINDS or layer_deck(sc, l) != deck:
-            continue                                   # FRAMEDECKS: only the Deck on screen
+            continue                                   # FrameDecks: only the Deck on screen
         c = dict(l.get("c") or {})
         c.pop("vcam", None)
         c.pop("obs", None)
@@ -228,7 +228,7 @@ def scene_media(st):
 
 
 def deck_ids(sc):
-    """FRAMEDECKS: the ids of a Frame's Decks, in order (an older Frame has one, "d1"; same rule as store.js)."""
+    """FrameDecks: the ids of a Frame's Decks, in order (an older Frame has one, "d1"; same rule as store.js)."""
     ids = [str(d.get("id")) for d in sc.get("decks") or [] if isinstance(d, dict) and d.get("id")]
     return ids or ["d1"]
 
@@ -328,7 +328,7 @@ def _refresh_network_check():
         if out["ruleExists"] and FROZEN:
             v = subprocess.run(["netsh", "advfirewall", "firewall", "show", "rule", f"name={FIREWALL_RULE}", "verbose"],
                                capture_output=True, text=True, timeout=8, creationflags=flags)
-            # FRAMEDECKS: a permission given to the program under its earlier file name no longer lets this one in
+            # FrameDecks: a permission given to the program under its earlier file name no longer lets this one in
             out["ruleOutdated"] = sys.executable.lower() not in (v.stdout or "").lower()
     except Exception:
         pass
@@ -619,7 +619,7 @@ def _describe(folder):
 
 
 def migration_candidates():
-    """Look (two folders deep) in Desktop, Downloads, Documents and OneDrive for an earlier Kingdom Connect folder."""
+    """Look (two folders deep) in Desktop, Downloads, Documents and OneDrive for an earlier FrameDecks folder."""
     home = Path.home()
     roots = [home / "Desktop", home / "Downloads", home / "Documents", home / "OneDrive" / "Desktop", home / "OneDrive" / "Documents"]
     found, seen, budget = [], set(), [2500]
@@ -663,9 +663,9 @@ def import_from(folder):
     global sessions
     src = Path(folder)
     if not src.is_dir() or not looks_like_data(src):
-        raise ValueError("That folder doesn’t contain FRAMEDECKS data (its saved content or member list).")
+        raise ValueError("That folder doesn’t contain FrameDecks data (its saved content or member list).")
     if src.resolve() == DATA.resolve():
-        raise ValueError("That is already the folder FRAMEDECKS uses.")
+        raise ValueError("That is already the folder FrameDecks uses.")
     backup_now("before-import")
     copied = []
     for name in DATA_FILE_NAMES:
@@ -698,8 +698,8 @@ def open_external(url):
     return True
 
 
-FIREWALL_RULE = "Kingdom Connect Phone Remote"
-OLD_FIREWALL_RULES = (legacy.OLD_FIREWALL_RULE,)      # removed whenever the rule is set or undone
+FIREWALL_RULE = "FrameDecks Phone Remote"
+OLD_FIREWALL_RULES = legacy.OLD_FIREWALL_RULES            # removed whenever the rule is set or undone
 
 
 def firewall(action):
@@ -1035,7 +1035,7 @@ def powerpoint_show():
 def slide_move(step):
     """Next (+1) / Previous (-1) for whatever is being presented: the Studio's shared screen or presentation layer
     (PDF deck or captured window) first, else the PowerPoint slide show running on this PC - e.g. full screen and
-    shared directly in Zoom/Teams, which FRAMEDECKS is not capturing. Works without the camera engine."""
+    shared directly in Zoom/Teams, which FrameDecks is not capturing. Works without the camera engine."""
     try:
         step = 1 if int(step) > 0 else -1
     except (TypeError, ValueError):
@@ -1110,7 +1110,7 @@ def remote_studio_action(d):
 def recordings_dir():
     vids = Path.home() / "Videos"
     legacy.migrate_recordings(vids if vids.is_dir() else DATA)
-    return (vids if vids.is_dir() else DATA) / "Kingdom Connect"
+    return (vids if vids.is_dir() else DATA) / "FrameDecks"
 
 
 def studio_status():
@@ -1363,7 +1363,7 @@ def vcam_start():
         return
     demo = os.environ.get("KC_VCAM_DEMO") == "1"
     start_files_msg = ("You’re using the start-file version (the black window). FrameCast is only in the installed app: "
-                       "close the black window, then open FRAMEDECKS from its desktop or Start-menu icon.")
+                       "close the black window, then open FrameDecks from its desktop or Start-menu icon.")
     os.environ.setdefault("OPENCV_VIDEOIO_MSMF_ENABLE_HW_TRANSFORMS", "0")   # before OpenCV loads
     try:
         import cv2  # noqa: F401
@@ -1398,12 +1398,12 @@ def vcam_start():
             if not FROZEN:
                 VCAM["reason"] = start_files_msg
             elif (folder / "build-info.json").exists():
-                VCAM["reason"] = ("The camera file kingdomconnect_vcam64.dll was installed but has since been removed, most likely by "
+                VCAM["reason"] = ("The camera file framecast_vcam64.dll was installed but has since been removed, most likely by "
                                   "Windows Security or another antivirus. Open Windows Security → Virus & threat protection → "
-                                  "Protection history, restore or allow kingdomconnect_vcam64.dll, then run the installer again.")
+                                  "Protection history, restore or allow framecast_vcam64.dll, then run the installer again.")
             else:
                 VCAM["reason"] = ("This installer was built without the camera, because the GitHub build recipe is out of date. "
-                                  "Copy the .github folder from the latest Kingdom-Connect.zip into your repository, commit "
+                                  "Copy the .github folder from the latest FrameDecks.zip into your repository, commit "
                                   "and push, then install the new installer.")
             print("FrameCast not available: " + VCAM["detail"])
             return
@@ -1467,9 +1467,9 @@ def vcam_install(action):
     """Register (or remove) FrameCast with Windows. Asks for administrator permission (UAC)."""
     if os.name != "nt":
         return False, "Only available on Windows."
-    name = "unregister-kingdomconnect-camera.cmd" if action == "uninstall" else "register-kingdomconnect-camera.cmd"
+    name = "unregister-framecast-camera.cmd" if action == "uninstall" else "register-framecast-camera.cmd"
     helper = next((p for p in (RES / "vcam" / "bin" / name, HERE / "vcam" / "bin" / name) if p.exists()), None)
-    if helper is None or not (helper.parent / "kingdomconnect_vcam64.dll").exists():
+    if helper is None or not (helper.parent / "framecast_vcam64.dll").exists():
         return False, "The FrameCast files are missing. Reinstall the app."
     path = str(helper).replace("'", "''")
     outer = ("try { Start-Process -FilePath '" + path + "' -Verb RunAs -Wait -WindowStyle Hidden; exit 0 } catch { exit 5 }")
@@ -1679,7 +1679,7 @@ class Handler(BaseHTTPRequestHandler):
                 return self.reply(200, eng.preview_jpeg, "image/jpeg", headers=[("ETag", tag)])
             return self.reply(404, "Not found", "text/plain; charset=utf-8")
         if path == "/api/app/ping":
-            return self.reply(200, json.dumps({"app": "Kingdom Connect", "version": APP_VERSION, "installedApp": FROZEN}), TYPES[".json"])
+            return self.reply(200, json.dumps({"app": "FrameDecks", "version": APP_VERSION, "installedApp": FROZEN}), TYPES[".json"])
         if path == "/api/app/info":
             if not self.is_local():
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
@@ -1839,7 +1839,7 @@ class Handler(BaseHTTPRequestHandler):
         data = self.rfile.read(length)
         info = png_size(data)
         if not info:
-            return self.reply(400, json.dumps({"error": "That is not a picture FRAMEDECKS can use. Choose a PNG, JPG or SVG file."}), TYPES[".json"])
+            return self.reply(400, json.dumps({"error": "That is not a picture FrameDecks can use. Choose a PNG, JPG or SVG file."}), TYPES[".json"])
         tmp = BRAND_LOGO.with_suffix(".part")
         tmp.write_bytes(data)
         os.replace(tmp, BRAND_LOGO)
@@ -1892,7 +1892,7 @@ class Handler(BaseHTTPRequestHandler):
         ok = lambda obj: self.reply(200, json.dumps(obj), TYPES[".json"])
         bad = lambda msg, code=400: self.reply(code, json.dumps({"error": msg}), TYPES[".json"])
         if action == "present":
-            # A separate, frameless "FRAMEDECKS Share Window" window (selectable in Zoom > Share > specific window).
+            # A separate, frameless "FrameDecks Share Window" window (selectable in Zoom > Share > specific window).
             hook, fs = DESKTOP.get("present"), DESKTOP.get("present_fullscreen")
             if not hook:
                 return ok({"desktop": False})    # browser: the page opens its own popup window
@@ -2006,7 +2006,7 @@ class Handler(BaseHTTPRequestHandler):
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
             try:
                 meeting, tables = meeting_form.from_sheets(data if isinstance(data, dict) else {})
-                body = meeting_form.fill((APP / "templates" / "Kingdom-Connect-Meeting-Workbook.xlsx").read_bytes(), meeting, tables)
+                body = meeting_form.fill((APP / "templates" / "FrameDecks-Meeting-Workbook.xlsx").read_bytes(), meeting, tables)
             except (OSError, ValueError, KeyError, TypeError) as e:
                 return self.reply(422, json.dumps({"error": str(e)}), TYPES[".json"])
             return self.reply(200, body, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
@@ -2179,7 +2179,7 @@ def main():
         set_remote(True)
     base = f"http://localhost:{port}"
     print()
-    print("  FRAMEDECKS is running.")
+    print("  FrameDecks is running.")
     print()
     print(f"  Dashboard (opens automatically):  {base}/")
     print(f"  Focus Verse overlay:          {base}/focus-verse.html")

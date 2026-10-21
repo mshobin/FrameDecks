@@ -1,4 +1,4 @@
-"""FRAMEDECKS 6.8 - desktop settings and shortcut tests (python -m unittest discover -s tests -p "test_*.py").
+"""FrameDecks 6.8 - desktop settings and shortcut tests (python -m unittest discover -s tests -p "test_*.py").
 The Windows window features themselves (ribbon, glass, tray, global shortcut) need a real Windows desktop; these tests
 cover the logic around them on any system."""
 import json

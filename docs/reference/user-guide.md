@@ -1,6 +1,6 @@
-# FRAMEDECKS: user guide (v6.8)
+# FrameDecks: user guide (v6.8)
 
-FRAMEDECKS runs your online Bible study, prayer meeting, small group or training on Zoom, Microsoft Teams or
+FrameDecks runs your online Bible study, prayer meeting, small group or training on Zoom, Microsoft Teams or
 Google Meet. It is meeting-first:
 
 1. **Meeting**: one meeting, for example *Romans · Week 5*.
@@ -43,8 +43,8 @@ The command bar fits any window: narrow, maximized, ultra-wide or on a high-reso
 wraps onto two rows, so nothing is cut off (6.9).
 
 **The window (6.8).** There is no Windows title bar: the command bar is the window's ribbon. Drag its empty space to
-move the window, and double-click it to maximize. Snap and resizing from the edges work as usual. Every Kingdom
-Connect window has the same three buttons at the top right.
+move the window, and double-click it to maximize. Snap and resizing from the edges work as usual. Every FrameDecks
+window has the same three buttons at the top right.
 - **Minimize** asks *Hide application to system tray?*: **Hide To Tray** or **Stay In Taskbar**, with **Remember my
   choice**. In the tray, the camera, overlays, phone remote and shortcuts keep working.
 - The **tray icon** near the clock: click it to open the app. Its menu has **Open App**, **Teleprompter** (the
@@ -189,7 +189,7 @@ FrameCast, restart that app.
   - Annotate, Freeze, Blackout and Emergency.
 
 ## 7. Excel (optional)
-FRAMEDECKS works fully without Excel. The **Meeting Workbook** is for planning, review, handover and bulk editing.
+FrameDecks works fully without Excel. The **Meeting Workbook** is for planning, review, handover and bulk editing.
 
 It has two tabs (6.9):
 - **Meeting Form**: one guided page, top to bottom, in numbered sections: 1 · Meeting details, 2 · Speaker,
@@ -216,7 +216,7 @@ put them: Branding Content, text that uses `{meeting}` / `{org}`, and **Show my 
 
 ## 9. Saving and backups
 Everything saves automatically on this PC. **Settings → Data / Backup** keeps daily backups and lets you make one now or
-restore one. Each Frame keeps its version and history (Content Settings → History). FRAMEDECKS has no accounts,
+restore one. Each Frame keeps its version and history (Content Settings → History). FrameDecks has no accounts,
 shared workspaces or cloud: your meeting stays on your PC unless you export it.
 
 ## 10. Help

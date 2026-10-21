@@ -1,4 +1,4 @@
-/* Kingdom Connect v6.7 - edit any Content straight on the Studio Canvas.
+/* FrameDecks v6.7 - edit any Content straight on the Studio Canvas.
  *
  * Double-click a card on the canvas (the Frame preview, or the live FrameCast picture) to edit it in place:
  *   - the label (top line of the card): Question / Scripture label, or the title of a text Content;
@@ -30,7 +30,7 @@ function shownItem(kind, sid){
   var sc = SC.find(live, sid), dk = window.KCSelDeck ? window.KCSelDeck() : '';
   var l = sc ? SC.firstIn(sc, dk || SC.liveDeckId(live, sc), KIND[kind].layer) || SC.first(sc, KIND[kind].layer) : null;
   if (!l || !Array.isArray(l.c.items) || !l.c.items.length) return null;
-  var st = live.live.scene === sid && (!dk || dk === SC.liveDeckId(live, sc)) ? live : SC.previewState(live, sid, dk);   // FRAMEDECKS: the Deck being edited
+  var st = live.live.scene === sid && (!dk || dk === SC.liveDeckId(live, sc)) ? live : SC.previewState(live, sid, dk);   // FrameDecks: the Deck being edited
   var id = st[kind] && st[kind].visible ? st[kind].itemId : '';
   var it = l.c.items.filter(function(x){ return x.id === id; })[0] || l.c.items.filter(function(x){ return x.id === l.c.itemId; })[0];
   return it ? {sid: sid, kind: kind, it: it, l: l} : null;

@@ -1,4 +1,4 @@
-/* Kingdom Connect v6 - the Studio: Scenes + Layers | Studio Canvas | Inspector, and the live bar.
+/* FrameDecks v6 - the Studio: Scenes + Layers | Studio Canvas | Inspector, and the live bar.
  *
  * Three ideas: a Scene owns its Layers, its Transition and its Output rules; a Layer owns its Content; everything
  * renders on the Canvas. Scenes live in the shared state (js/store.js KCScenes), so the phone remote, the
@@ -29,7 +29,7 @@ try { tabFor = JSON.parse(lsGet('bcc-insp-tabs', '{}')) || {}; } catch(e){}
 function scene(){ return live ? SC.find(live, selScene) : null; }
 window.KCSelFrame = function(){ return live && SC.find(live, selScene) ? selScene : ''; };   // the Frame being edited (lists, Content Settings)
 function layer(){ var sc = scene(); return sc ? SC.layer(sc, selLayer) : null; }
-/* FRAMEDECKS: the Deck being worked on in the selected Frame (new Content goes here): the one picked in the list,
+/* FrameDecks: the Deck being worked on in the selected Frame (new Content goes here): the one picked in the list,
  * else the Deck of the selected Content, else the Deck on screen (the first Deck when the Frame is not live) */
 var selDeck = '';
 function deckFor(sc){
@@ -634,7 +634,7 @@ function importScene(){
       var made = null;
       commit(function(n){ sc.id = 'sc_' + Math.random().toString(36).slice(2, 9); sc.name = SC.uniqueName(n, sc.name); sc.created = sc.modified = Date.now(); sc.from = file.name; SC.insert(n, sc, selScene); made = sc; })
         .then(function(){ if (made) select(made.id, null, true); toast('Frame imported: ' + made.name); });
-    }).catch(function(){ toast('That file is not a FRAMEDECKS Frame.', true); });
+    }).catch(function(){ toast('That file is not a FrameDecks Frame.', true); });
   });
   document.body.appendChild(f); f.click();
 }
@@ -736,7 +736,7 @@ function renderLayers(){
   var mixed = sc.layers.some(function(l){ return SC.isMedia(l.kind); }) && sc.layers.some(function(l){ return !SC.isMedia(l.kind); });
   $('layers-note').textContent = mixed ? 'Questions, scriptures, birthdays and text always appear in front of camera and media Content.' : '';
 }
-/* ---------- FRAMEDECKS: a Deck's heading in the Content list ---------- */
+/* ---------- FrameDecks: a Deck's heading in the Content list ---------- */
 function deckHead(sc, dk, di, cur, onAir){
   var name = h('b', {cls: 'dh-name', text: dk.name, title: 'Double-click to rename'});
   KCEditable.bind(name, {value: function(){ var x = SC.deck(SC.find(live, sc.id), dk.id); return x ? x.name : dk.name; }, maxLength: 60, label: 'Deck name',
@@ -1277,7 +1277,7 @@ function takeScene(id, deckId){
     var f = $('program'); if (f){ f.classList.remove('went-live'); void f.offsetWidth; f.classList.add('went-live'); setTimeout(function(){ f.classList.remove('went-live'); }, 1400); }
   });
 }
-/* Previous / Next: through the live Frame's Decks, then to the next Frame (FRAMEDECKS) */
+/* Previous / Next: through the live Frame's Decks, then to the next Frame (FrameDecks) */
 function stepScene(d){
   var t = live.live.scene ? SC.stepTarget(live, d) : null;
   if (!live.live.scene){ var nx = SC.neighbour(live, selScene, d); t = nx ? {scene: nx, deck: SC.decksOf(nx)[0]} : null; }

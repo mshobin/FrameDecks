@@ -1,6 +1,6 @@
-# Contributing to FRAMEDECKS
+# Contributing to FrameDecks
 
-Thank you for helping. FRAMEDECKS is used by volunteers on Sunday mornings and on weeknight Bible studies, often
+Thank you for helping. FrameDecks is used by volunteers on Sunday mornings and on weeknight Bible studies, often
 by people who are not technical and who have no time to troubleshoot while a meeting is running. Every contribution,
 whether a bug report, a test on a real church PC, a clearer sentence in a guide or a line of code, makes those
 services calmer.
@@ -49,8 +49,8 @@ or a screenshot.
 The short version (the full guide is [docs/contributing.md](docs/contributing.md)):
 
 ```bash
-git clone https://github.com/mshobin/KINGDOM-CONNECT.git
-cd KINGDOM-CONNECT
+git clone https://github.com/mshobin/FrameDecks.git
+cd FrameDecks
 python server.py                 # opens http://localhost:8750 in your browser
 node tests/run.js                # automated tests (Node.js, no packages to install)
 python packaging/check.py        # self-check: the program starts and serves its pages

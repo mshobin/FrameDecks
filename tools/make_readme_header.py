@@ -1,6 +1,6 @@
-"""FRAMEDECKS - the README header, captured from the About screen (6.7).
+"""FrameDecks - the README header, captured from the About screen (6.7).
 
-Renders the About screen's hero (logo, FRAMEDECKS, tagline, motto, introduction and version) from the running
+Renders the About screen's hero (logo, FrameDecks, tagline, motto, introduction and version) from the running
 app and saves it as assets/brand/kc-about-header.webp, so the GitHub page looks exactly like the About screen.
 
 Run it after changing app/js/brand.js, the About screen or the version (server.py APP_VERSION):

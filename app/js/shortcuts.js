@@ -1,4 +1,4 @@
-/* FRAMEDECKS - keyboard shortcuts (defaults keep the original keys; changes are stored in this browser only) */
+/* FrameDecks - keyboard shortcuts (defaults keep the original keys; changes are stored in this browser only) */
 /* Problems are recorded quietly for Settings > Diagnostics instead of interrupting the meeting screen */
 window.KCErrors = window.KCErrors || [];
 (function(){

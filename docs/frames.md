@@ -2,7 +2,7 @@
 
 How to create, organize and reuse Frames, the building blocks of every meeting.
 
-**Who this is for:** anyone who builds services or meetings in FRAMEDECKS.
+**Who this is for:** anyone who builds services or meetings in FrameDecks.
 
 **On this page**
 - [What a Frame is](#what-a-frame-is)

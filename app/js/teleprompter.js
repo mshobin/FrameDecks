@@ -1,4 +1,4 @@
-/* Kingdom Connect v6.7 - Teleprompter (shared by the main window, the Teleprompter window and the phone remote).
+/* FrameDecks v6.7 - Teleprompter (shared by the main window, the Teleprompter window and the phone remote).
  *
  * The script is the Frame's own notes (Frame settings → Teleprompter script). It is only ever read here: no output
  * (the FrameCast camera, the Presentation window, the OBS / browser overlay pages, the phone's drawing pad)

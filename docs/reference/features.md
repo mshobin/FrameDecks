@@ -1,9 +1,9 @@
-# FRAMEDECKS: feature documentation (v6.9)
+# FrameDecks: feature documentation (v6.9)
 
 ## v6.9 at a glance
 | Feature | What it does | Where it lives |
 | --- | --- | --- |
-| **Meeting Workbook: Dashboard + Meeting Form** | Two tabs only. **Meeting Form**: one guided page in numbered sections (1 · Meeting details, 2 · Speaker, 3 · Attendees, 4 · Presentation, 5 · Frames, 6 · Content, 7 · Discussion questions, 8 · Scripture readings, 9 · Additional notes); cream boxes to type in, drop-downs in the cells, a few open rows per table and more behind Excel's **+** button (Frames 60, Content 150, questions 150, scriptures 100). **Dashboard**: formulas only, never imported: status pill, This meeting, counts, Meetings tiles, Readiness (x / 6), Quick actions, Content mix chart, Recent meetings log | `meeting_form.py`, `tools/make_meeting_workbook.py`, `app/templates/Kingdom-Connect-Meeting-Workbook.xlsx` |
+| **Meeting Workbook: Dashboard + Meeting Form** | Two tabs only. **Meeting Form**: one guided page in numbered sections (1 · Meeting details, 2 · Speaker, 3 · Attendees, 4 · Presentation, 5 · Frames, 6 · Content, 7 · Discussion questions, 8 · Scripture readings, 9 · Additional notes); cream boxes to type in, drop-downs in the cells, a few open rows per table and more behind Excel's **+** button (Frames 60, Content 150, questions 150, scriptures 100). **Dashboard**: formulas only, never imported: status pill, This meeting, counts, Meetings tiles, Readiness (x / 6), Quick actions, Content mix chart, Recent meetings log | `meeting_form.py`, `tools/make_meeting_workbook.py`, `app/templates/FrameDecks-Meeting-Workbook.xlsx` |
 | **Meeting Form import** | Finds the details by their labels and the tables by their **Frame #** header rows, so a hand-made form in the same style imports too. Problems read *Meeting Form · Content · row 26: …*. Workbooks from 6.5–6.8 (one sheet per list) and the 6.2 one-sheet template still import | `app/js/meeting-book.js`, `app/js/import-worker.js` |
 | **Meeting Form export** | The program fills the template (`POST api/meeting/workbook`), so the export has the same Dashboard and Meeting Form. Without the program, or when a table is longer than the form, a plain one-sheet Meeting Form. Both import again | `app/js/meeting-import.js`, `server.py`, `meeting_form.py` |
 | **Meeting details** | The meeting keeps title, date, time, location, speaker (`presenter`), contact, attendees, attendee notes, owner, content notes, notes and additional notes (`extra`) | `app/js/store.js` (`meeting`) |
@@ -77,7 +77,7 @@ For the earlier features, see `docs/reference/meeting-workbook-and-branding.md` 
 
 ## 1. The FrameCast camera
 
-FRAMEDECKS has its own camera for Zoom, Microsoft Teams, Google Meet, OBS and other apps that read Windows
+FrameDecks has its own camera for Zoom, Microsoft Teams, Google Meet, OBS and other apps that read Windows
 cameras. Windows lists it as **FrameCast**. It sends the finished picture: your webcam with optional background
 blur and a Camera Look, plus the live scene (cards, text, pictures, slides, branding).
 
@@ -85,7 +85,7 @@ blur and a Camera Look, plus the live scene (cards, text, pictures, slides, bran
 | --- | --- |
 | Name in other apps | **FrameCast** |
 | Registered by | The installer, with the option **Install the FrameCast camera for Zoom and Teams** (asks for administrator permission once) |
-| Driver files | `kingdomconnect_vcam64.dll` and `kingdomconnect_vcam32.dll` in `_internal\vcam\bin`. They are built from softcam (MIT licence) by `packaging/build_vcam.py` |
+| Driver files | `framecast_vcam64.dll` and `framecast_vcam32.dll` in `_internal\vcam\bin`. They are built from softcam (MIT licence) by `packaging/build_vcam.py` |
 | Camera ID (CLSID) | `{6F2B8C3E-4D7A-4B9E-9C11-B5CC0A1E7D21}`. This is the same ID as before, so apps that remembered the camera keep it |
 | Settings | **Settings → FrameCast Camera** |
 | Status | The status menu in the command bar: **FrameCast** · Off / Ready / In use |
@@ -110,7 +110,7 @@ The app also still recognises its old name, so it never captures its own picture
 ## 2. Team Space (removed in v6.5)
 
 Team Space (co-leaders' presence, shared notes and actions, Ask to Go Live over WireGuard) was removed in v6.5 to keep
-FRAMEDECKS a simple, single-PC app. No settings, listener or peer protocol remain. Old `kc-teamspace*.json`
+FrameDecks a simple, single-PC app. No settings, listener or peer protocol remain. Old `kc-teamspace*.json`
 files in the data folder are ignored and can be deleted. Meetings are shared by **exporting** them (Excel Meeting
 Workbook or a Frame file) instead.
 
@@ -119,13 +119,13 @@ Workbook or a Frame file) instead.
 ## 3. Logo-only branding
 
 The app's own branding is the **Book + Candle** mark (`app/img/kc-emblem.webp`) and nothing else:
-- **Command bar (dashboard header):** the mark alone, 30 px wide. There is no "FRAMEDECKS" wordmark or text
+- **Command bar (dashboard header):** the mark alone, 30 px wide. There is no "FrameDecks" wordmark or text
   beside it. The name and the Meeting Name are kept for screen readers, in the mark's tooltip and in the window
   title.
 - **Phone remote:** the sign-in screen shows the mark alone, and the remote's top bar shows the mark and the mode
   (Simple / Standard / Advanced).
 - **Home-screen icons** (`app/icons/remote-*.png`): the mark on a navy tile, with no text. The Windows app icon
-  (`packaging/kingdom-connect.ico`) was already the mark alone.
+  (`packaging/framedecks.ico`) was already the mark alone.
 - **Dialogs and overlays** show no product branding. The leader's own logo and Meeting Name (Settings → Meeting &
   Branding) still appear only where the leader puts them.
 - **About page:** unchanged. It keeps its own branding and content.

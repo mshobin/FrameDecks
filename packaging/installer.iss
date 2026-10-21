@@ -1,7 +1,7 @@
-; Inno Setup script for the FRAMEDECKS Windows installer.
-; FRAMEDECKS: the program is FrameDecks.exe in the FrameDecks program folder; the data folder keeps the Kingdom Connect
-; name (6.9). The AppId stays the same, so this installs over every earlier version; the old program folders and
-; shortcuts are removed, and the app moves data from the earliest name itself on first start (legacy.py).
+; Inno Setup script for the FrameDecks Windows installer.
+; The program is FrameDecks.exe in the FrameDecks program folder; its data is in %APPDATA%\FrameDecks. The AppId stays
+; the same, so this installs over every earlier version: the program folders and shortcuts of the earlier names are
+; removed, and the app moves data saved under those names itself on first start (legacy.py).
 ; Build (after PyInstaller):  ISCC.exe /DAppVersion=3.0 packaging\installer.iss
 ; Installs for the current user only: no administrator permission needed, updates never need it either.
 
@@ -12,29 +12,29 @@
 [Setup]
 ; Keep this AppId the same forever, so new versions install over old ones
 AppId={{D0EFEBEA-94E5-50C7-A69D-45F04529103B}
-AppName=FRAMEDECKS
+AppName=FrameDecks
 AppVersion={#AppVersion}
-AppVerName=FRAMEDECKS {#AppVersion}
+AppVerName=FrameDecks {#AppVersion}
 AppPublisher=Shobin Mathews
 AppContact=mshobin@gmail.com
 AppSupportURL=mailto:mshobin@gmail.com
 AppComments=Independent ministry tool by Shobin Mathews.
 VersionInfoVersion={#AppVersion}
 VersionInfoCompany=Shobin Mathews
-VersionInfoDescription=FRAMEDECKS Setup
+VersionInfoDescription=FrameDecks Setup
 VersionInfoCopyright=Copyright (C) Shobin Mathews
 DefaultDirName={localappdata}\Programs\FrameDecks
 ; earlier versions were installed under the program's earlier names: install to the FrameDecks folder instead
 UsePreviousAppDir=no
 DisableDirPage=yes
-DefaultGroupName=Kingdom Connect
+DefaultGroupName=FrameDecks
 DisableProgramGroupPage=yes
 PrivilegesRequired=lowest
 OutputDir=..\dist
 OutputBaseFilename=FrameDecks v{#AppVersion}
-SetupIconFile=kingdom-connect.ico
+SetupIconFile=framedecks.ico
 UninstallDisplayIcon={app}\FrameDecks.exe
-UninstallDisplayName=FRAMEDECKS
+UninstallDisplayName=FrameDecks
 Compression=lzma2
 SolidCompression=yes
 WizardStyle=modern
@@ -46,7 +46,7 @@ RestartApplications=no
 [Tasks]
 Name: "desktopicon"; Description: "Create a desktop icon"; GroupDescription: "Icons:"
 Name: "vcam"; Description: "Install the FrameCast camera for Zoom and Teams (Windows asks for administrator permission)"; GroupDescription: "Options:"
-Name: "startup"; Description: "Start FRAMEDECKS automatically when I sign in to Windows"; GroupDescription: "Options:"; Flags: unchecked
+Name: "startup"; Description: "Start FrameDecks automatically when I sign in to Windows"; GroupDescription: "Options:"; Flags: unchecked
 
 [Files]
 Source: "..\dist\FrameDecks\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
@@ -59,24 +59,24 @@ Type: filesandordirs; Name: "{localappdata}\Programs\BSF Command Center"
 Type: files; Name: "{autoprograms}\BSF Command Center.lnk"
 Type: files; Name: "{autodesktop}\BSF Command Center.lnk"
 Type: files; Name: "{userstartup}\BSF Command Center.lnk"
-; FRAMEDECKS: the program is FrameDecks.exe in the FrameDecks folder; the shortcuts and the program folder of the
-; Kingdom Connect versions go (the camera is registered again from the new folder, see ShouldRegisterCamera)
+; LEGACY: the program folder and shortcuts of the versions published as Kingdom Connect (the camera is registered
+; again from the new folder, see ShouldRegisterCamera)
 Type: filesandordirs; Name: "{localappdata}\Programs\Kingdom Connect"
 Type: files; Name: "{autoprograms}\Kingdom Connect.lnk"
 Type: files; Name: "{autodesktop}\Kingdom Connect.lnk"
 Type: files; Name: "{userstartup}\Kingdom Connect.lnk"
 
 [Icons]
-Name: "{autoprograms}\FRAMEDECKS"; Filename: "{app}\FrameDecks.exe"
-Name: "{autodesktop}\FRAMEDECKS"; Filename: "{app}\FrameDecks.exe"; Tasks: desktopicon
-Name: "{userstartup}\FRAMEDECKS"; Filename: "{app}\FrameDecks.exe"; Tasks: startup
+Name: "{autoprograms}\FrameDecks"; Filename: "{app}\FrameDecks.exe"
+Name: "{autodesktop}\FrameDecks"; Filename: "{app}\FrameDecks.exe"; Tasks: desktopicon
+Name: "{userstartup}\FrameDecks"; Filename: "{app}\FrameDecks.exe"; Tasks: startup
 
 [Run]
-Filename: "{app}\_internal\vcam\bin\register-kingdomconnect-camera.cmd"; Verb: "runas"; Flags: shellexec waituntilterminated runhidden; Check: ShouldRegisterCamera; StatusMsg: "Installing the FrameCast camera..."
-Filename: "{app}\FrameDecks.exe"; Description: "Open FRAMEDECKS now"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\_internal\vcam\bin\register-framecast-camera.cmd"; Verb: "runas"; Flags: shellexec waituntilterminated runhidden; Check: ShouldRegisterCamera; StatusMsg: "Installing the FrameCast camera..."
+Filename: "{app}\FrameDecks.exe"; Description: "Open FrameDecks now"; Flags: nowait postinstall skipifsilent
 
 [UninstallRun]
-Filename: "{app}\_internal\vcam\bin\unregister-kingdomconnect-camera.cmd"; Verb: "runas"; Flags: shellexec waituntilterminated runhidden; RunOnceId: "RemoveKingdomConnectCamera"
+Filename: "{app}\_internal\vcam\bin\unregister-framecast-camera.cmd"; Verb: "runas"; Flags: shellexec waituntilterminated runhidden; RunOnceId: "RemoveFrameCastCamera"
 Filename: "{sys}\taskkill.exe"; Parameters: "/IM ""FrameDecks.exe"" /F"; Flags: runhidden; RunOnceId: "StopApp"
 
 [Code]
@@ -112,7 +112,7 @@ function PrepareToInstall(var NeedsRestart: Boolean): String;
 var code: Integer;
 begin
   Exec(ExpandConstant('{sys}\taskkill.exe'), '/IM "BSF Command Center.exe" /F', '', SW_HIDE, ewWaitUntilTerminated, code);
-  Exec(ExpandConstant('{sys}\taskkill.exe'), '/IM "Kingdom Connect.exe" /F', '', SW_HIDE, ewWaitUntilTerminated, code);   // FRAMEDECKS: the exe before
+  Exec(ExpandConstant('{sys}\taskkill.exe'), '/IM "Kingdom Connect.exe" /F', '', SW_HIDE, ewWaitUntilTerminated, code);   // the exe of the versions before
   Result := '';
 end;
 
@@ -121,7 +121,7 @@ begin
   Result := True;
   if not HasWebView2 then
     MsgBox('Microsoft Edge WebView2 (a free Windows component) was not found.' + #13#10 + #13#10 +
-           'FRAMEDECKS will still work, but it will open in your web browser instead of its own window.' + #13#10 +
+           'FrameDecks will still work, but it will open in your web browser instead of its own window.' + #13#10 +
            'To get the app window, install "WebView2 Runtime" from microsoft.com (search "WebView2 Runtime download").',
            mbInformation, MB_OK);
 end;
@@ -131,9 +131,9 @@ var dataDir: String;
 begin
   if CurUninstallStep = usPostUninstall then
   begin
-    dataDir := ExpandConstant('{userappdata}\Kingdom Connect');
+    dataDir := ExpandConstant('{userappdata}\FrameDecks');
     if DirExists(dataDir) then
-      if MsgBox('Also delete your FRAMEDECKS data?' + #13#10 + #13#10 +
+      if MsgBox('Also delete your FrameDecks data?' + #13#10 + #13#10 +
                 'This includes your saved verses and questions, members, settings and backups in:' + #13#10 + dataDir + #13#10 + #13#10 +
                 'Choose No to keep it (recommended if you will install again).',
                 mbConfirmation, MB_YESNO or MB_DEFBUTTON2) = IDYES then

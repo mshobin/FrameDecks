@@ -1,13 +1,13 @@
-# FRAMEDECKS (Flutter): analyse, test, and build for every platform.
+# FrameDecks (Flutter): analyse, test, and build for every platform.
 # The Windows presentation program has its own workflow (build-windows.yml); this one never touches it.
 name: Flutter app
 
 on:
   pull_request:
-    paths: ["kingdom_connect_app/**", ".github/workflows/flutter-app.yml"]
+    paths: ["framedecks_app/**", ".github/workflows/flutter-app.yml"]
   push:
     branches: [main]
-    paths: ["kingdom_connect_app/**", ".github/workflows/flutter-app.yml"]
+    paths: ["framedecks_app/**", ".github/workflows/flutter-app.yml"]
   workflow_dispatch:
 
 permissions:
@@ -18,7 +18,7 @@ env:
 
 defaults:
   run:
-    working-directory: kingdom_connect_app
+    working-directory: framedecks_app
 
 jobs:
   test:
@@ -79,5 +79,5 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: framedecks-${{ matrix.target }}
-          path: kingdom_connect_app/${{ matrix.artifact }}
+          path: framedecks_app/${{ matrix.artifact }}
           if-no-files-found: error

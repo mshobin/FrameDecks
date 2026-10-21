@@ -1,4 +1,4 @@
-/* FRAMEDECKS - Import a whole meeting from Excel (and download the template / export the meeting).
+/* FrameDecks - Import a whole meeting from Excel (and download the template / export the meeting).
  *
  * The Meeting Workbook (js/meeting-book.js): 6.9 a Dashboard tab and a Meeting Form tab (details, Frames, Content,
  * questions, scriptures on one page). Workbooks of 6.5-6.8 (one sheet per list) still import.
@@ -23,7 +23,7 @@ function toast(m, bad){ if (window.KCActions) window.KCActions.toast(m, bad); }
 function commit(fn){ return window.KCCommit(fn); }
 var live = null; Store.subscribe(function(st){ live = st; });
 var X = function(){ return window.XLSX; };
-var TEMPLATE_NAME = 'Kingdom-Connect-Meeting-Workbook.xlsx';
+var TEMPLATE_NAME = 'FrameDecks-Meeting-Workbook.xlsx';
 
 /* ---------- template + export ---------- */
 /* The template (made by tools/make_meeting_workbook.py) has drop-down lists, checks and example rows */
@@ -41,7 +41,7 @@ function exportMeeting(){
   var done = function(){ toast('Exported ' + frames.length + ' Frames to Excel'); };
   var plain = function(){
     window.KCNeedXLSX().then(function(){ X().writeFile(MB.exportBook(X(), live), name); done(); })
-      .catch(function(){ toast('The Excel library did not load. Restart FRAMEDECKS and try again.', true); });
+      .catch(function(){ toast('The Excel library did not load. Restart FrameDecks and try again.', true); });
   };
   if (!Store.served) return plain();
   fetch('api/meeting/workbook', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(MB.exportSheets(live))})
@@ -94,7 +94,7 @@ function pick(){ start(); }
 
 function read(file){
   fileName = file.name;
-  if (!/\.(xlsx|xls|csv)$/i.test(file.name)){ problem('“' + file.name + '” is not an Excel file. FRAMEDECKS reads .xlsx, .xls or .csv files: save your sheet in one of those formats.'); return; }
+  if (!/\.(xlsx|xls|csv)$/i.test(file.name)){ problem('“' + file.name + '” is not an Excel file. FrameDecks reads .xlsx, .xls or .csv files: save your sheet in one of those formats.'); return; }
   if (file.size > 20 * 1024 * 1024){ problem('That file is larger than 20 MB. The template is only a few kilobytes: check you chose the right file.'); return; }
   frame([h('h2', {id: 'mi-title', text: 'Reading ' + file.name + '…'}), h('p', {cls: 'kc-dlg-sub', text: 'Checking every row.'})]);
   var keyCheck = Store.served ? fetch('api/scripture/settings', {cache: 'no-store'}).then(function(r){ return r.json(); }).then(function(d){ return !!d.hasKey; }).catch(function(){ return false; }) : Promise.resolve(false);
@@ -109,7 +109,7 @@ function read(file){
     if (isBook){ plan = MB.parse(fb.book, {esv: esv, form: fb.form}); previewBook(); return; }
     // a v6.2 one-sheet file: the sheet with a "Scene Name" column
     var name = Object.keys(d.book).filter(function(n){ return d.book[n].headers.some(function(x){ return x.trim().toLowerCase() === 'scene name'; }); })[0];
-    if (!name){ problem('This file is not a FRAMEDECKS Meeting Workbook: it needs a Meeting Form tab with a Frames table and a Content table. Download the template (it has examples) and fill it in.'); return; }
+    if (!name){ problem('This file is not a FrameDecks Meeting Workbook: it needs a Meeting Form tab with a Frames table and a Content table. Download the template (it has examples) and fill it in.'); return; }
     var sh = d.book[name];
     plan = M.parse(sh.headers, sh.rows, {headerRow: sh.headerRow, esv: esv, hasBrand: SC.hasBrand(live), existing: live.scenes.filter(function(s){ return !s.tpl; }).map(function(s){ return s.name; })});
     plan.sheet = name;
@@ -233,7 +233,7 @@ function run(mode, replaceLists){
   dlg.dataset.busy = '1';
   frame([h('h2', {id: 'mi-title', text: 'Importing…'}), h('p', {cls: 'kc-dlg-sub', id: 'mi-busy', text: 'Creating Frames and Content.'})]);
   var before = {scenes: live.scenes, library: live.library, live: live.live, question: live.question, verse: live.verse, meeting: live.meeting};
-  var made = [], group = fileName.replace(/\.[^.]+$/, '').replace(/[_]+/g, ' ').replace(/^Kingdom-Connect-Meeting-Template$/i, 'Imported meeting').slice(0, 60);
+  var made = [], group = fileName.replace(/\.[^.]+$/, '').replace(/[_]+/g, ' ').replace(/^FrameDecks-Meeting-Template$/i, 'Imported meeting').slice(0, 60);
   fillVerses().then(function(){
     setBusy('Creating Frames and Content.');
     return commit(function(n){ made = isBook ? MB.apply(n, plan, {mode: mode, group: group, file: fileName}) : M.apply(n, plan, {mode: mode, replaceLists: replaceLists, group: group, file: fileName}); });

@@ -1,4 +1,4 @@
-# Repository audit — Kingdom Connect v6.6
+# Repository audit — FrameDecks v6.6
 
 An independent review of the product and the repository: what it is, how it is built, how ready it is for
 churches, and what to improve next. Scores are out of 10.
@@ -50,11 +50,11 @@ Code behaviour did not change in this pass, so the product scores are the same i
 
 ## 1. Product purpose
 
-Kingdom Connect is a Windows presentation app for churches and ministries. One leader's PC builds the meeting
+FrameDecks is a Windows presentation app for churches and ministries. One leader's PC builds the meeting
 as **Frames** (Welcome, Worship, Scripture, Discussion, Prayer, Closing), each holding **Content** (questions,
 scriptures, text, timers, pictures, video, PowerPoint). It presents in three ways at once:
 
-- the **KingdomConnect camera** — a virtual webcam, so Zoom, Teams, Google Meet and OBS show the webcam with the
+- the **FrameCast camera** — a virtual webcam, so Zoom, Teams, Google Meet and OBS show the webcam with the
   live Frame on top;
 - the **Presentation window** — a clean full-screen picture for a projector or a "share window" in Zoom;
 - **overlay pages** — transparent browser sources for OBS.
@@ -93,7 +93,7 @@ large (about 1,100 lines each). Splitting them into modules would make review an
 | Desktop shell | Python 3.12, pywebview (WebView2), pystray |
 | Server | Python standard library `http.server` (threaded), JSON files |
 | Camera engine | OpenCV, NumPy, MediaPipe selfie model (blur), pypdfium2, windows-capture (DXGI / WGC), comtypes (PowerPoint) |
-| Virtual camera | softcam (MIT), built in CI as `kingdomconnect_vcam64/32.dll` |
+| Virtual camera | softcam (MIT), built in CI as `framecast_vcam64/32.dll` |
 | UI | HTML, CSS (design tokens), vanilla JavaScript (no framework, no npm) |
 | Excel | SheetJS (vendored) in a Web Worker |
 | Packaging | PyInstaller, Inno Setup, GitHub Actions (`windows-latest`) |
@@ -124,7 +124,7 @@ so two builds months apart may differ; pinning exact versions for releases would
 | 6 | Windows-only camera | Mac churches cannot use the camera features | Document clearly; consider only with demand |
 | 7 | Dependency ranges, no lock file | Builds can drift | **Done:** `packaging/constraints.txt` pins every package to the last good build |
 | 7a | Two OpenCV packages installed together (`opencv-python` 5.0 via a dependency, `opencv-python-headless` 4.14) sharing one module | A future version change could break the camera | Pinned as a tested pair; remove one when the dependency allows it |
-| 8 | Internal names (data folder, install folder, exe) still carried the program's earlier name | Confusing in support conversations | **Done (6.9):** everything uses Kingdom Connect; `legacy.py` moves earlier data once |
+| 8 | Internal names (data folder, install folder, exe) still carried the program's earlier name | Confusing in support conversations | **Done (6.9):** everything uses FrameDecks; `legacy.py` moves earlier data once |
 | 9 | GitHub Actions on Node 20 actions | Deprecation warnings today, failures later | Update action versions once verified |
 
 ## 7. UX review

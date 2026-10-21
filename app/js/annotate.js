@@ -1,4 +1,4 @@
-/* Kingdom Connect v6.5 - Annotate (ZoomIt-style) and Freeze, on the PC.
+/* FrameDecks v6.5 - Annotate (ZoomIt-style) and Freeze, on the PC.
  *
  * Annotate: press D (or Annotate in the command bar) and draw on the Studio Canvas with the pen, highlighter, arrow,
  * line, rectangle, ellipse or text. The drawings go into the shared state (live.ink), so FrameCast (Zoom / Teams),

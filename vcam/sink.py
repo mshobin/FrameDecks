@@ -9,13 +9,13 @@ import sys
 import threading
 from pathlib import Path
 
-# Must match the ID compiled into kingdomconnect_vcam64.dll / kingdomconnect_vcam32.dll (see packaging/build_vcam.py)
+# Must match the ID compiled into framecast_vcam64.dll / framecast_vcam32.dll (see packaging/build_vcam.py)
 VCAM_CLSID = "{6F2B8C3E-4D7A-4B9E-9C11-B5CC0A1E7D21}"
 VCAM_NAME = "FrameCast"
 
 
 def dll_path(base):
-    return Path(base) / "vcam" / "bin" / ("kingdomconnect_vcam64.dll" if sys.maxsize > 2**32 else "kingdomconnect_vcam32.dll")
+    return Path(base) / "vcam" / "bin" / ("framecast_vcam64.dll" if sys.maxsize > 2**32 else "framecast_vcam32.dll")
 
 
 def is_registered():

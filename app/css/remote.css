@@ -1,6 +1,6 @@
 @font-face{font-family:'KC Serif';src:url('../fonts/EBGaramond.ttf') format('truetype');font-weight:400 800;font-display:swap}
 @font-face{font-family:'KC Sans';src:url('../fonts/SourceSans3.ttf') format('truetype');font-weight:200 900;font-display:swap}
-/* FRAMEDECKS Mobile Director (v6): Scene → Layer → Canvas. Same colours as the Command Center: green = live, red = hide,
+/* FrameDecks Mobile Director (v6): Scene → Layer → Canvas. Same colours as the Command Center: green = live, red = hide,
  * blue = chosen. Static surfaces only (no backdrop blur, no endless animation) so the phone stays cool. */
 :root{--bg:#0b0e13;--panel:#12161d;--panel2:#181d26;--raised:#1d232d;--edge:#262d38;--edge2:#333b48;--ink:#eef1f6;--muted:#9ba5b4;--faint:#6a7482;
   --accent:#4c8dff;--accent-soft:rgba(76,141,255,.14);--live:#34d17c;--live-strong:#16a34a;--live-soft:rgba(52,209,124,.14);--hid:#7b8599;
@@ -207,7 +207,7 @@ body:has(.tabbar[hidden]) .layout{padding-bottom:16px}
 }
 @media (prefers-reduced-motion:reduce){ .pb,.toast{transition:none} }
 
-/* ---------- v6.1 FRAMEDECKS: navy & gold (tokens only) ---------- */
+/* ---------- v6.1 FrameDecks: navy & gold (tokens only) ---------- */
 :root{--bg:#0a1120;--panel:#0f182b;--panel2:#152039;--raised:#18233a;--edge:#1e2a42;--edge2:#2b3a58;--ink:#eef2f9;--muted:#9fabc2;--faint:#6b7894;
   --accent:#e3b75a;--accent-soft:rgba(227,183,90,.14);--mica:linear-gradient(180deg,rgba(227,183,90,.03),rgba(255,255,255,0) 60%)}
 .login{background:radial-gradient(120% 70% at 50% 0%,#16294d 0%,#0f1f3d 40%,#0a1120 100%)}

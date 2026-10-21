@@ -1,4 +1,4 @@
-/* Kingdom Connect v6 - FRAMEDECKS Mobile Director: the phone / tablet remote. Same architecture as the PC:
+/* FrameDecks v6 - FrameDecks Mobile Director: the phone / tablet remote. Same architecture as the PC:
  * Scene → Layer → Canvas. The scenes, layers and live state are the shared state (js/store.js KCScenes), so a
  * take, a layer's eye or a duplicate here is exactly the same action as on the PC. Member data never comes here.
  *   phones  : Live (canvas, Prev · Go Live · Next, transition, Q + Scripture, list stepper, program) · Scenes · Layers
@@ -35,7 +35,7 @@ $('login-form').addEventListener('submit', function(e){
       if (res.status === 200){ $('pin').value = ''; showApp(); toast('Connected'); return; }
       $('pin').value = '';
       $('login-msg').textContent = res.status === 429 ? 'Too many tries. Wait ' + res.d.wait + ' seconds and try again.'
-        : res.status === 401 ? 'That PIN isn’t right. Check the PIN on your PC.' : 'Remote mode isn’t on. Start the PC with “Start Kingdom Connect with iPad Remote”.';
+        : res.status === 401 ? 'That PIN isn’t right. Check the PIN on your PC.' : 'Remote mode isn’t on. Start the PC with “Start FrameDecks with iPad Remote”.';
     })
     .catch(function(){ $('login-msg').textContent = 'Can’t reach your PC. Check it’s on the same Wi-Fi and the program is running.'; });
 });
@@ -62,7 +62,7 @@ function take(id, deckId){
   selScene = id;
 }
 var rehearse = false, query = '';                  // Run-through: Previous / Next only move the preview here
-/* Previous / Next: through the live Frame's Decks, then the Frames (FRAMEDECKS). Run-through steps the Frames. */
+/* Previous / Next: through the live Frame's Decks, then the Frames (FrameDecks). Run-through steps the Frames. */
 function stepScene(d){
   if (!rehearse && live.live.scene){
     var t = SC.stepTarget(live, d);
@@ -198,7 +198,7 @@ function renderLayers(){
   if (sig === layerSig) return; layerSig = sig;
   ol.innerHTML = '';
   if (!sc){ ol.appendChild(h('li', 'empty', 'No Frame yet.')); return; }
-  var mine = SC.deckLayers(sc, dk);                                   // FRAMEDECKS: the Deck on screen
+  var mine = SC.deckLayers(sc, dk);                                   // FrameDecks: the Deck on screen
   if (!mine.length) ol.appendChild(h('li', 'empty', 'No Content in this Deck.'));
   mine.forEach(function(l){
     var on = SC.isLive(live, sc.id) ? SC.layerOn(live, sc, l) : l.visible;

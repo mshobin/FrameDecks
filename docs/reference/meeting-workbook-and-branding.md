@@ -12,13 +12,13 @@
 
 ## 0. The Meeting Workbook (v6.9)
 
-Excel is **optional**. FRAMEDECKS is fully usable without it. The workbook is a **planning, review, handover and
+Excel is **optional**. FrameDecks is fully usable without it. The workbook is a **planning, review, handover and
 bulk-editing** tool. After an import, the app is the source of truth: the file is not linked, and **Export** gives you
 a fresh copy.
 
 ### Where
 **Meeting** (the ✨ button next to + Frame) has three items:
-- **Download the Excel template**: `templates/Kingdom-Connect-Meeting-Workbook.xlsx`. It opens on the **Dashboard**,
+- **Download the Excel template**: `templates/FrameDecks-Meeting-Workbook.xlsx`. It opens on the **Dashboard**,
   with an example meeting already filled in on the **Meeting Form**. Type over the examples.
 - **Import meeting from Excel…**:
   1. A preview shows the meeting, the Frames, Content, questions and scriptures that will be made, and every problem
@@ -111,7 +111,7 @@ hand in the same style imports too. A numbered heading such as *7 · Discussion 
 ### Export
 **Meeting → Export this meeting to Excel** gives the same **Dashboard** and **Meeting Form**, filled in with this
 meeting. The program fills in the template, so the file looks exactly like the one you download. It imports again.
-- If the FRAMEDECKS program isn't running, or a table has more rows
+- If the FrameDecks program isn't running, or a table has more rows
   than the form has room for, a plain one-sheet **Meeting Form** is saved instead. It imports again too.
 - The meeting details are kept with your meeting in `kc-saved-content.json` (`meeting`: title, date, time,
   location, presenter, contact, attendees, attendeeNotes, owner, contentNotes, notes, extra), so an export gives them
@@ -140,10 +140,10 @@ skipped, a Timer value that isn't minutes or a time.
 - `app/js/import-worker.js`: reads every sheet in the background.
 - `meeting_form.py`: the layout of the Meeting Form, and filling the template for an export
   (`POST api/meeting/workbook` in `server.py`).
-- `tools/make_meeting_workbook.py`: draws the template (`app/templates/Kingdom-Connect-Meeting-Workbook.xlsx`) from
+- `tools/make_meeting_workbook.py`: draws the template (`app/templates/FrameDecks-Meeting-Workbook.xlsx`) from
   that layout with openpyxl.
-- The Excel library (SheetJS) loads only the first time you import, export or download a workbook, so Kingdom
-  Connect starts faster.
+- The Excel library (SheetJS) loads only the first time you import, export or download a workbook, so FrameDecks
+  starts faster.
 
 ## Branding options (v6.7)
 
@@ -277,7 +277,7 @@ maths as `vcam/cards.py accent_palette`), `addBrand`, `autoBrand`. `KCStore.bran
 ## 3. Excel template structure
 
 The file is made by `KCMeetingSheet.templateBook`, which is the same code for the in-app download and
-`docs/templates/Kingdom-Connect-Meeting-Template.xlsx` (written by `node tools/make_meeting_template.js`).
+`docs/templates/FrameDecks-Meeting-Template.xlsx` (written by `node tools/make_meeting_template.js`).
 
 **Sheets:**
 - **Read Me**: how to use the file, every column (needed or not, what to type, an example), the layer types, and
@@ -371,4 +371,4 @@ The file is made by `KCMeetingSheet.templateBook`, which is the same code for th
 | `app/js/overlay.js`, `app/css/overlay.css` | Overlay rendering of branding |
 | `vcam/program.py`, `vcam/cards.py`, `vcam/overlay.py` | FrameCast rendering of branding and the accent colour |
 | `server.py` | Logo endpoints; version 6.2 |
-| `tools/make_meeting_template.js` | Regenerates `docs/templates/Kingdom-Connect-Meeting-Template.xlsx` |
+| `tools/make_meeting_template.js` | Regenerates `docs/templates/FrameDecks-Meeting-Template.xlsx` |

@@ -1,4 +1,4 @@
-/* FRAMEDECKS - the Meeting Workbook: one Excel file plans, reviews and hands over a meeting.
+/* FrameDecks - the Meeting Workbook: one Excel file plans, reviews and hands over a meeting.
  *
  * 6.9 the workbook has two tabs: Dashboard (a summary made by formulas; never read) and Meeting Form, one guided page
  * with the meeting details (label | value) and four tables, each under its own numbered heading ("6 · Frames"):
@@ -165,7 +165,7 @@ function rowsOf(book, key, errors){
   var map = {}, cols = SHEETS[key].cols;
   sh.headers.forEach(function(hd, i){ var n = norm(hd); cols.forEach(function(c){ if (map[c[0]] == null && (norm(c[1]) === n || c[2].indexOf(n) >= 0)) map[c[0]] = i; }); });
   var first = (sh.headerRow || 1) + 1, out = [];
-  if (key !== 'meeting' && map.frame == null) errors.push({sheet: SHEETS[key].name, row: 0, msg: 'The “' + SHEETS[key].name + '” sheet needs a “Frame Number” column. Start from the FRAMEDECKS Meeting Workbook template.'});
+  if (key !== 'meeting' && map.frame == null) errors.push({sheet: SHEETS[key].name, row: 0, msg: 'The “' + SHEETS[key].name + '” sheet needs a “Frame Number” column. Start from the FrameDecks Meeting Workbook template.'});
   sh.rows.forEach(function(r, i){
     var o = {row: first + i}, any = false;
     cols.forEach(function(c){ o[c[0]] = map[c[0]] == null ? '' : trim(r[map[c[0]]]); if (o[c[0]]) any = true; });
@@ -214,7 +214,7 @@ function parse(book, ctx){
     var order = intOf(r.order); if (order === 'bad'){ err('Content', r.row, 'Content Order “' + r.order + '” is not a whole number.'); return; }
     var anim = ANIM[norm(r.anim)]; if (r.anim && anim == null){ err('Content', r.row, 'Animation “' + r.anim + '” is not one of: ' + ANIMATIONS.join(', ') + '.'); return; }
     var pb = norm(r.pptbg); if (pb && pb !== 'show' && pb !== 'hide'){ err('Content', r.row, 'PowerPoint Background Visibility must be Show or Hide (not “' + r.pptbg + '”).'); return; }
-    if (t === 'audio' || t === 'web'){ warn('Content', r.row, TYPE_NAME[t] + ' Content is not available in this version of FRAMEDECKS: this row is skipped.'); return; }
+    if (t === 'audio' || t === 'web'){ warn('Content', r.row, TYPE_NAME[t] + ' Content is not available in this version of FrameDecks: this row is skipped.'); return; }
     var C = {row: r.row, type: t, order: order, idx: F.content.length, name: (r.name || TYPE_NAME[t]).slice(0, 60), main: r.main, label: r.label.slice(0, 80), duration: r.duration,
       anim: anim || '', objectsOnly: pb === 'hide', notes: r.notes, deck: String(r.deck || '').trim().slice(0, 60), items: []};
     if (t === 'free'){ var ft = TYPE_KEY[norm(r.main.split(/\n|:/)[0])]; if (ft && FREE_TYPES.map(norm).indexOf(norm(TYPE_NAME[ft])) >= 0){ C.type = ft; C.main = r.main.replace(/^[^\n:]*[:\n]?\s*/, ''); } else C.type = 'announcement'; }
@@ -284,7 +284,7 @@ function parse(book, ctx){
     return F;
   });
   if (!plan.frames.length && !errors.length) err('Frames', 0, 'The Frames sheet has no Frames. Add one row per Frame.');
-  if (plan.frames.length > 400) err('Frames', 0, 'FRAMEDECKS holds up to 400 Frames; this workbook has ' + plan.frames.length + '.');
+  if (plan.frames.length > 400) err('Frames', 0, 'FrameDecks holds up to 400 Frames; this workbook has ' + plan.frames.length + '.');
   return finish(plan);
 }
 function finish(plan){
@@ -317,7 +317,7 @@ function apply(n, plan, opts){
   plan.frames.forEach(function(F){
     var sc = SC.cleanScene({id: rid('sc_'), name: SC.uniqueName(n, F.name), group: group, created: now, modified: now, creator: opts.creator || '', from: 'Excel import',
       template: opts.file || 'Excel', notes: [F.notes, F.prompts && F.prompts.length ? F.prompts.join('\n') : '', F.desc ? 'About this Frame: ' + F.desc : ''].filter(Boolean).join('\n'), tx: {type: F.tx, ms: 500}});
-    // FRAMEDECKS: the Deck column groups the Frame's Content (in the order the Decks first appear; empty = the first)
+    // FrameDecks: the Deck column groups the Frame's Content (in the order the Decks first appear; empty = the first)
     var names = []; F.content.forEach(function(C){ if (C.deck && names.map(norm).indexOf(norm(C.deck)) < 0) names.push(C.deck); });
     if (names.length) sc.decks = names.map(function(nm, i){ return {id: i ? rid('d') : 'd1', name: nm}; });
     function deckId(C){ var i = names.map(norm).indexOf(norm(C.deck || '')); return sc.decks[i < 0 ? 0 : i].id; }
@@ -410,7 +410,7 @@ function exportSheets(st){
 }
 /* Without the program (no styled template to fill): the same Meeting Form as one plain sheet, which imports again */
 function formRows(st){
-  var s = exportSheets(st), rows = [['FRAMEDECKS · Meeting Form'], ['']], n = 0;
+  var s = exportSheets(st), rows = [['FrameDecks · Meeting Form'], ['']], n = 0;
   rows.push([++n + ' · Meeting details']);
   s.meeting.slice(1).forEach(function(r){ rows.push(r); });
   FORM_TABLES.forEach(function(t){

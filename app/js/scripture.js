@@ -1,4 +1,4 @@
-/* Kingdom Connect v6 - Scripture: type a reference, the text arrives (ESV API with your own key, cached on this PC
+/* FrameDecks v6 - Scripture: type a reference, the text arrives (ESV API with your own key, cached on this PC
  * for offline use). Typed text (or text from the Meeting Workbook) works exactly as before. Fetching fills the verse editor (the same
  * fields Show and Save to list use), so every existing verse workflow continues from there. */
 (function(){

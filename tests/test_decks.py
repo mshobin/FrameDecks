@@ -1,4 +1,4 @@
-"""FRAMEDECKS - the camera picture shows the media Content of the live Deck only (server.scene_media).
+"""FrameDecks - the camera picture shows the media Content of the live Deck only (server.scene_media).
 
 python -m unittest discover -s tests -p "test_*.py"
 """

@@ -1,4 +1,4 @@
-/* Kingdom Connect v4.9 - design system (loaded after dashboard.css, members.css and console.css).
+/* FrameDecks v4.9 - design system (loaded after dashboard.css, members.css and console.css).
  *
  * Only tokens and calm, static surfaces: no backdrop-filter, no blur, no endless animations, transitions on
  * transform/opacity/colour only - the app has to stay light next to Zoom, Teams, OBS and PowerPoint.
@@ -484,7 +484,7 @@ body.studio-focus .ws{grid-template-columns:minmax(0,1fr);height:100vh} body.stu
 .layer-item .s2-eye.on{color:var(--live)}
 .layer-item .s2-lock{opacity:.4} .layer-item .s2-lock.on{opacity:1;color:var(--gold-strong)}
 .layer-item.off .li-t,.layer-item.off .li-ic{opacity:.45}
-/* FRAMEDECKS: a Deck's heading in the Content list; its Content is indented under it */
+/* FrameDecks: a Deck's heading in the Content list; its Content is indented under it */
 .deck-head{display:flex;align-items:center;gap:7px;margin:8px 0 3px;padding:5px 6px 5px 8px;border-radius:var(--r-2);cursor:pointer;
   border:1px solid var(--line);background:var(--raised);transition:background-color var(--t-fast),border-color var(--t-fast)}
 .deck-head:first-child{margin-top:2px}
@@ -641,7 +641,7 @@ html[data-theme="light"] .canvas-frame,html[data-theme="light"] .ws-center{backg
 html[data-theme="light"] .si-badge.live,html[data-theme="light"] .canvas-badge.live{color:#fff}
 
 /* =====================================================================================================
- * v6.1 - FRAMEDECKS: one navy & gold design language, plus Quick Start, the Content Library,
+ * v6.1 - FrameDecks: one navy & gold design language, plus Quick Start, the Content Library,
  * the Question · Scripture pill, Duplicate → Edit question, Presentation Mode and Basic / Advanced.
  * Token changes only where possible: no new effects, no backdrop blur, no running animations.
  * ===================================================================================================== */
@@ -668,7 +668,7 @@ html[data-theme="light"]{
 .scene-item.sel,.layer-item.sel{border-color:var(--kc-gold-line)}
 html[data-theme="light"] .scene-item.sel,html[data-theme="light"] .layer-item.sel{border-color:rgba(31,58,109,.35)}
 
-/* Header: the FRAMEDECKS wordmark */
+/* Header: the FrameDecks wordmark */
 .console-top{background:linear-gradient(180deg,rgba(227,183,90,.035),rgba(227,183,90,0)),var(--chrome-bg)}
 .console-top .brand h1{font-family:var(--sans);font-weight:800;font-size:13.5px;letter-spacing:.11em;white-space:nowrap;text-transform:uppercase;
   background:linear-gradient(180deg,#fff3cf,#f0c96d 55%,#c9973a);-webkit-background-clip:text;background-clip:text;color:transparent}

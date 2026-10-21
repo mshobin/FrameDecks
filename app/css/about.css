@@ -1,4 +1,4 @@
-/* FRAMEDECKS - About page (Settings > About).
+/* FrameDecks - About page (Settings > About).
  * Beautiful through composition and type, not effects: one static map image, gradients, borders.
  * The only motion: three layers fading (opacity) and a slow glow drift (transform) - compositor-only,
  * stopped entirely when the page is hidden or the person prefers reduced motion. */

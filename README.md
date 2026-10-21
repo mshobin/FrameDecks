@@ -1,4 +1,4 @@
-<p align="center"><img src="assets/brand/kc-about-header.webp" alt="FRAMEDECKS. Present • Equip • Inspire. Connecting Believers. Sharing Christ. Growing Together. Version 6.9" width="900"></p>
+<p align="center"><img src="assets/brand/kc-about-header.webp" alt="FrameDecks. Present • Equip • Inspire. Connecting Believers. Sharing Christ. Growing Together. Version 6.9" width="900"></p>
 
 A service presentation platform for churches and ministries. Plan each service as **Frames** — Welcome, Worship,
 Scripture, Discussion, Prayer, Closing — fill them with questions, scriptures, text, timers, pictures, video and
@@ -6,7 +6,7 @@ PowerPoint, and present to the room, to Zoom / Teams / Google Meet and to your s
 the PC, a phone or an iPad. It runs **entirely on your PC**: no accounts, no subscriptions, no cloud, no telemetry.
 The only feature that ever goes online is the optional ESV scripture fetch.
 
-> **Status: FRAMEDECKS 6.9 is ready for teaching, Bible study, small-group and hybrid services, with documented
+> **Status: FrameDecks 6.9 is ready for teaching, Bible study, small-group and hybrid services, with documented
 > gaps.** The biggest: no song / lyrics library yet (lyrics are shown as Text Content or a PowerPoint), an unsigned
 > installer, no automated UI tests, and no published licence. See the
 > [repository audit](docs/project/repository-audit.md) and the [roadmap](ROADMAP.md).
@@ -103,7 +103,7 @@ Office installs — these are covered by the manual [testing script](docs/develo
 | Development | [CONTRIBUTING](CONTRIBUTING.md) · [DEVELOPER_GUIDE](docs/contributing.md) · [BRANCHING](docs/development/branching.md) · [RELEASE_PROCESS](docs/development/release-process.md) · [TESTING](docs/development/testing.md) · [CODE_STYLE](docs/development/code-style.md) |
 | Quality | [REPOSITORY_AUDIT](docs/project/repository-audit.md) |
 | Reference | [USER_GUIDE](docs/reference/user-guide.md) · [FEATURES](docs/reference/features.md) · [MEETING_WORKBOOK](docs/reference/meeting-workbook-and-branding.md) · [POWERPOINT](docs/reference/powerpoint.md) |
-| Flutter app | [kingdom_connect_app](kingdom_connect_app/README.md) · [FLUTTER_PLATFORM_PLAN](docs/project/flutter-platform-plan.md) (the Studio on Windows, macOS and Linux; the remote on iPhone, iPad and Android) |
+| Flutter app | [framedecks_app](framedecks_app/README.md) · [FLUTTER_PLATFORM_PLAN](docs/project/flutter-platform-plan.md) (the Studio on Windows, macOS and Linux; the remote on iPhone, iPad and Android) |
 | Project | [ROADMAP](ROADMAP.md) · [CHANGELOG](CHANGELOG.md) · [RELEASE_NOTES](docs/releases/) · [DOCS_INDEX](docs/README.md) |
 
 ## Principles
@@ -117,5 +117,5 @@ No licence has been published yet; until one is, all rights are reserved by the 
 their own licences: softcam (MIT), MediaPipe selfie segmentation model (Apache 2.0), SheetJS and Lucide icons (see
 `app/vendor/`), EB Garamond and Source Sans 3 (SIL Open Font License).
 
-<sub>FRAMEDECKS was first published under an earlier name. Version 6.9 installs over every earlier version and,
-on first start, moves the data saved under that name to the Kingdom Connect folder, so each church keeps its data.</sub>
+<sub>FrameDecks was first published under an earlier name. Version 6.9 installs over every earlier version and,
+on first start, moves the data saved under that name to the FrameDecks folder, so each church keeps its data.</sub>

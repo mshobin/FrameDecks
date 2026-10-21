@@ -18,7 +18,7 @@ vm.createContext(ctx);
 ['app/js/store.js', 'app/js/meeting-book.js'].forEach(f => vm.runInContext(fs.readFileSync(path.join(root, f), 'utf8'), ctx));
 const B = ctx.KCMeetingBook, Store = ctx.KCStore;
 const same = (a, b, msg) => assert.strictEqual(JSON.stringify(a), JSON.stringify(b), msg);
-const TEMPLATE = path.join(root, 'app/templates/Kingdom-Connect-Meeting-Workbook.xlsx');
+const TEMPLATE = path.join(root, 'app/templates/FrameDecks-Meeting-Workbook.xlsx');
 
 function text(c){ return String(c == null ? '' : c).replace(/\r\n?/g, '\n').trim(); }
 function readWorker(wb){          // the same reading as app/js/import-worker.js with {all: true}
@@ -63,7 +63,7 @@ const st = Store.defaults();
 assert.strictEqual(B.apply(st, plan, {}).length, 6);
 assert.strictEqual(st.meeting.title, 'Romans · Week 5');
 assert.strictEqual(st.meeting.location, 'Fellowship Hall, or paste the Zoom / Teams link');
-// FRAMEDECKS: the template's Frame 6 has two Decks (Deck column); the others one
+// FrameDecks: the template's Frame 6 has two Decks (Deck column); the others one
 const closing = st.scenes[5], deckNames = sc => sc.decks.map(d => d.name);
 same(deckNames(closing), ['Prayer', 'Goodbye'], 'the Deck column makes the Decks');
 same(closing.layers.filter(l => l.kind !== 'background').map(l => closing.decks.find(d => d.id === l.deck).name), ['Prayer', 'Goodbye']);
@@ -106,7 +106,7 @@ if (py && py.status === 0){
 }
 
 /* 4. a hand-made form: labels anywhere on the row, its own section names, "None" animations */
-const hand = [['KINGDOM CONNECT | MEETING FORM'], ['Fill the highlighted fields.'], [], ['1 · MEETING DETAILS'],
+const hand = [['FrameDecks | MEETING FORM'], ['Fill the highlighted fields.'], [], ['1 · MEETING DETAILS'],
   ['Meeting title', 'Hand made', '', '', 'Date', '2026-12-01'], ['Presenter', 'Sam'], [],
   ['2 · MEETING FRAMES'], ['Frame #', 'Frame name', 'Purpose / description', 'Background', 'Transition', 'Presenter script'],
   [1, 'Welcome', '', 'Navy', 'Fade', 'Say hello'], [2, 'Talk', '', '', '', ''], [],

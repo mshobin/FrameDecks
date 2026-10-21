@@ -1,14 +1,14 @@
-# FRAMEDECKS on Flutter: the same app on every platform
+# FrameDecks on Flutter: the same app on every platform
 
 Status: **Studio and phone remote built** (October 2026).
 
-The Flutter app in [`kingdom_connect_app/`](../../kingdom_connect_app/) is a native rebuild of the Windows app: the
+The Flutter app in [`framedecks_app/`](../../framedecks_app/) is a native rebuild of the Windows app: the
 same design, the same Frames and Content, the same saved file. It is not a new product.
 
 | Device | What it is |
 |---|---|
 | Windows, macOS, Linux | The **Studio**: top bar, Frames, Content, canvas, inspector, Settings, and a full-screen **Share Window** for the projector or for sharing in Zoom / Teams |
-| iPhone, iPad, Android | The **remote control** for FRAMEDECKS on the PC (remote.html): PIN sign-in, Live, Frames, Content, Teleprompter. On a tablet the three are side by side |
+| iPhone, iPad, Android | The **remote control** for FrameDecks on the PC (remote.html): PIN sign-in, Live, Frames, Content, Teleprompter. On a tablet the three are side by side |
 
 ## 1. How it stays the same as the Windows app
 
@@ -28,7 +28,7 @@ same design, the same Frames and Content, the same saved file. It is not a new p
 
 | Situation | Backend |
 |---|---|
-| Desktop, FRAMEDECKS (Windows program) running on this PC | `EngineBackend` on `127.0.0.1:8750`: the same long-poll and save-with-revision as store.js, 409 = someone saved first, make the change again on top |
+| Desktop, FrameDecks (Windows program) running on this PC | `EngineBackend` on `127.0.0.1:8750`: the same long-poll and save-with-revision as store.js, 409 = someone saved first, make the change again on top |
 | Desktop, no program running (Mac, Linux, or a PC without it) | `LocalBackend`: `kc-saved-content.json` in the app's support folder, written atomically |
 | Phone or tablet | `EngineBackend` to the PC's address, signed in with the PIN (`api/remote-login`); the sign-in is kept in the device's secure storage |
 
@@ -63,7 +63,7 @@ Stated plainly so nobody expects them in this version:
 ## 5. Build and test
 
 ```bash
-cd kingdom_connect_app
+cd framedecks_app
 flutter pub get
 flutter analyze
 flutter test                                   # parity with store.js, the backends, the Studio and the remote

@@ -1,6 +1,6 @@
 # Worship leaders and teachers
 
-How to lead a service or Bible study with FRAMEDECKS, so the technology supports what you say instead of distracting from it.
+How to lead a service or Bible study with FrameDecks, so the technology supports what you say instead of distracting from it.
 
 **Who this is for:** pastors, worship leaders, Bible study and small-group leaders, and teachers.
 

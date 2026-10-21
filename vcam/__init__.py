@@ -1,1 +1,1 @@
-"""FrameCast - FRAMEDECKS's built-in virtual camera (Windows)."""
+"""FrameCast - FrameDecks's built-in virtual camera (Windows)."""

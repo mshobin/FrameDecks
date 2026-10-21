@@ -1,4 +1,4 @@
-/* FRAMEDECKS - Settings sections, Security, Diagnostics, Keyboard editor */
+/* FrameDecks - Settings sections, Security, Diagnostics, Keyboard editor */
 (function(){
 'use strict';
 var Store = window.KCStore, Status = window.KCStatus;
@@ -61,7 +61,7 @@ function renderSecurity(){
     'Everything runs on this PC. Nothing is uploaded, and no cloud account is used. Unless the phone remote is switched on, only this PC can connect.'));
   g.appendChild(card('Phone & iPad Remote', r.enabled ? pill('info', 'On (PIN protected)') : pill('ok', 'Off'),
     r.enabled ? 'Other devices on your Wi-Fi need the 6-digit PIN. After 5 wrong tries a device waits 60 seconds. The remote controls overlays only and cannot open member details.'
-              : 'Only this PC can reach FRAMEDECKS. Turn it on in Settings → Phone & iPad Remote when you want to use your phone.',
+              : 'Only this PC can reach FrameDecks. Turn it on in Settings → Phone & iPad Remote when you want to use your phone.',
     r.enabled ? [h('button', {cls: 'btn small', type: 'button', text: 'New PIN (disconnects all phones)', onclick: function(){
       if (!confirm('Create a new PIN? Every connected phone or iPad will need the new PIN.')) return;
       fetch('api/remote-reset', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: '{}'}).then(function(){ window.KCActions.toast('New PIN created. All phones and phones and iPads were disconnected.'); });
@@ -71,7 +71,7 @@ function renderSecurity(){
   g.appendChild(card('Member details', pill('ok', 'Private'),
     'Stored only in kc-members-private.json on this PC. Never sent to overlays or the phone remote. The birthday overlay receives only the greeting you choose to show.'));
   g.appendChild(card('Windows Firewall', pill('ok', 'Never changed automatically'),
-    'FRAMEDECKS does not change firewall settings by itself. The optional “Allow iPad Remote” helper asks first, only affects private networks, and can be undone with “Undo iPad Remote permission”.'));
+    'FrameDecks does not change firewall settings by itself. The optional “Allow iPad Remote” helper asks first, only affects private networks, and can be undone with “Undo iPad Remote permission”.'));
   g.appendChild(card('Emails', pill('ok', 'Never sent automatically'),
     'Email preparation only opens a draft in Outlook or your mail app. You review and send it yourself.'));
 }
@@ -92,7 +92,7 @@ function renderDiag(){
   row('Local program', Store.served ? (Store.online ? '● Connected' : '● Not responding') : 'Not used (no-install mode)');
   row('Browser window', info.window + ' at ' + info.zoom + ' display scale');
   box.appendChild(kv); root.appendChild(box);
-  if (!Store.served){ root.appendChild(h('p', {cls: 'hint', text: 'Start the FRAMEDECKS program for full diagnostics.'})); return; }
+  if (!Store.served){ root.appendChild(h('p', {cls: 'hint', text: 'Start the FrameDecks program for full diagnostics.'})); return; }
   fetch('api/diagnostics', {cache: 'no-store'}).then(function(r){ return r.json(); }).then(function(d){
     lastDiag = d;
     row('Version', d.version);
@@ -138,13 +138,13 @@ function renderDiag(){
     if (!errors.length) eb.appendChild(h('p', {cls: 'hint', style: 'margin:0', text: 'None. Everything is running normally.'}));
     errors.slice(-10).reverse().forEach(function(e){ eb.appendChild(h('p', {cls: 'mono', text: e.time + '  ' + e.message})); });
     root.appendChild(eb);
-  }).catch(function(){ root.appendChild(h('div', {cls: 'alert bad', text: 'The local program is not responding. Check the black FRAMEDECKS window is open.'})); });
+  }).catch(function(){ root.appendChild(h('div', {cls: 'alert bad', text: 'The local program is not responding. Check the black FrameDecks window is open.'})); });
 }
 var lastDiag = null;
 function copyReport(){
   // No PIN, secret key or member data is ever included.
   var d = lastDiag || {};
-  var lines = ['FRAMEDECKS diagnostics', 'Version: ' + (d.version || '?'), 'Mode: ' + (Store.served ? 'local program' : 'no-install'),
+  var lines = ['FrameDecks diagnostics', 'Version: ' + (d.version || '?'), 'Mode: ' + (Store.served ? 'local program' : 'no-install'),
     'Program: ' + (Store.online ? 'connected' : 'not responding'), 'Port: ' + (d.port || '?'), 'Listening on: ' + (d.listeningOn || '?'),
     'Addresses: ' + (d.addresses || []).join(', '), 'Python: ' + (d.python || '?'), 'OS: ' + (d.os || '?'),
     'Signed-in phones/iPads: ' + (d.remoteSessions != null ? d.remoteSessions : '?'),

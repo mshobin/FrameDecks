@@ -1,4 +1,4 @@
-# FRAMEDECKS: configuration guide (v6.5)
+# FrameDecks: configuration guide (v6.5)
 
 This guide covers what to set up after installing:
 - the FrameCast camera;
@@ -53,7 +53,7 @@ same device ID. In OBS, point any old source that used the camera's earlier name
 
 ## 3. Where settings are stored
 
-Everything is in the data folder, `%APPDATA%\Kingdom Connect`. Earlier versions, published under the program's
+Everything is in the data folder, `%APPDATA%\FrameDecks`. Earlier versions, published under the program's
 earlier name, used a folder and file names carrying that name; on first start, 6.9 moves them here once (including
 backups and recordings) and never overwrites newer data.
 

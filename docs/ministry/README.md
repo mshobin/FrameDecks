@@ -1,6 +1,6 @@
 # Church operations
 
-How a church team runs services with FRAMEDECKS: who does what, how the roles work together, and how to train new volunteers.
+How a church team runs services with FrameDecks: who does what, how the roles work together, and how to train new volunteers.
 
 **Who this is for:** pastors, worship leaders, media team leads and anyone who schedules or trains volunteers.
 
@@ -44,7 +44,7 @@ flowchart LR
 
 A typical Sunday:
 1. **Day before:** the media team finishes the meeting; the leader checks it on the Studio Canvas and reads through the Teleprompter script.
-2. **One hour before:** the service operator starts the PC, FRAMEDECKS, the meeting app and the projector.
+2. **One hour before:** the service operator starts the PC, FrameDecks, the meeting app and the projector.
 3. **30 minutes before:** the remote operator connects the phone; everyone runs through the first Frames together.
 4. **During:** the operator (or phone) steps through Frames; the leader reads the script in the Teleprompter.
 5. **After:** back up, and write down anything to improve next week.
@@ -74,7 +74,7 @@ A one-hour team training session that covers everyone:
 
 | Time | Topic | Who |
 | --- | --- | --- |
-| 0:00 | What FRAMEDECKS is: Meeting → Frame → Content → Present | All |
+| 0:00 | What FrameDecks is: Meeting → Frame → Content → Present | All |
 | 0:10 | Building a Frame: + Frame, + Content, Content Settings | Media team |
 | 0:25 | Presenting: Go Live, Next, Hide all, Blackout, Freeze | Operators |
 | 0:35 | The phone remote: connect, Simple remote, drawing | Remote operators, volunteers |

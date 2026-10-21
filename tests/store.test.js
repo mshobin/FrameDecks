@@ -1,4 +1,4 @@
-/* FRAMEDECKS - store tests (app/js/store.js, run in Node with small browser stand-ins).
+/* FrameDecks - store tests (app/js/store.js, run in Node with small browser stand-ins).
  * Frames own their lists, duplicates are independent, older data converts the same way every time,
  * and an older Frame-wide output switch moves onto its Content (v6.6). Run: node tests/run.js */
 const env = require('./helpers/load-store.js')(), SC = env.Scenes, assert = require('assert');
@@ -59,7 +59,7 @@ const [b1, b2] = br.scenes[0].layers;
 assert.deepStrictEqual([b1.c.plate, b1.c.pad, b1.c.margin, b1.c.pos], [true, 1, 4, 'upper-left'], 'older badges look the same');
 assert.deepStrictEqual([b2.c.plate, b2.c.pad, b2.c.margin, b2.c.scale], [false, 3, 0, 0.75], 'new values are kept within range');
 
-/* ---------- FRAMEDECKS: Frame -> Deck -> Content ---------- */
+/* ---------- FrameDecks: Frame -> Deck -> Content ---------- */
 // an older Frame gets one Deck ('d1', the same on every screen) holding all its Content
 const fd = env.Store.normalize({v6: true, scenes: [
   {id: 'sc_1', name: 'Study', layers: [{id: 'A1', kind: 'announcement', c: {title: 'Welcome', text: 'Hi'}}, {id: 'Q1', kind: 'question', c: {items: [{id: 'q1', text: 'One?'}]}}]},
