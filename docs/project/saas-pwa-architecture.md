@@ -1,8 +1,12 @@
-# Kingdom Connect: SaaS + PWA architecture
+# FrameDecks: SaaS + PWA architecture
 
-Status: **design agreed**, October 2026 (decisions D1–D6 below). Nothing here is built yet.
+Status: **design agreed**, October 2026 (decisions D1–D6 below). **Phase 1 (Foundation) is being built** (§23).
 
-This is a plan to add accounts, cloud sync, an installable web remote and secure pairing to Kingdom Connect,
+Updated after the agreement for two changes that came first (PR #12): the program is now **FrameDecks** (camera:
+**FrameCast**, Flutter app: `framedecks_app/`), and Frames hold **Decks** (Frame → Deck → Content). Neither changes
+a decision; they change names and what a Frame contains (§0, §7, §11).
+
+This is a plan to add accounts, cloud sync, an installable web remote and secure pairing to FrameDecks,
 **around** the existing app. The app's screens, workflows, design, remote and presentation behaviour stay as they
 are.
 
@@ -17,10 +21,11 @@ The design has to fit the real product, so it starts from it.
 
 | Part | What it is today | Where |
 |---|---|---|
-| **Windows runtime** | The Kingdom Connect program. A Python engine (`server.py`) with the Studio in a window (pywebview + `app/`). It does all rendering, media, PowerPoint, Speaker View and the KingdomConnect camera (softcam today; Windows 11 Media Foundation camera in PR #9). It saves one JSON document, `kc-saved-content.json`. | repo root |
+| **Windows runtime** | The FrameDecks program (`FrameDecks.exe`). A Python engine (`server.py`) with the Studio in a window (pywebview + `app/`). It does all rendering, media, PowerPoint, Speaker View and the FrameCast camera (softcam today; Windows 11 Media Foundation camera in PR #9). It saves one JSON document, `kc-saved-content.json`, in `%APPDATA%\FrameDecks`. | repo root |
+| **The model** | **Frame → Deck → Content.** A Frame holds one or more Decks (`decks: [{id, name}]`); each Content names its Deck (`deck`). One Deck of the live Frame is on screen (`live.deck`); Next / Previous step through the Decks before the Frames. | `app/js/store.js`, `framedecks_app/lib/engine/` |
 | **The remote** | `app/remote.html` + `app/js/remote.js`, served **by the Windows program** to phones on the same Wi-Fi after a 6-digit PIN. Simple layout (Previous / Next Frame and Content, Annotate, Freeze, Black screen, Teleprompter) and Advanced layout (Frames with search, Content, live canvas and next-Frame preview, transitions, Q + Scripture, stepper, slides, run-through, Emergency, Auto). | `app/` |
-| **Flutter app** | `kingdom_connect_app/` (PR #8). The same Studio on Windows / macOS / Linux, and a native remote on iPhone / iPad / Android that copies the remote's **Simple** layout. It uses the same JSON document and the same `api/state` protocol. | `kingdom_connect_app/` |
-| **Mac camera** | A CoreMedia IO camera extension in the Flutter Mac app (PR #10). | `kingdom_connect_app/macos/` |
+| **Flutter app** | `framedecks_app/` (PR #8). The same Studio on Windows / macOS / Linux, and a native remote on iPhone / iPad / Android that copies the remote's **Simple** layout. It uses the same JSON document and the same `api/state` protocol. | `framedecks_app/` |
+| **Mac camera** | A CoreMedia IO camera extension in the Flutter Mac app (PR #10). | `framedecks_app/macos/` |
 
 Three facts in this table decide much of the architecture:
 
@@ -42,15 +47,15 @@ Following "do not invent new workflows", every requested capability is mapped to
 
 | Requested | Existing equivalent | Status |
 |---|---|---|
-| Next / Previous Slide | NEXT / PREVIOUS FRAME; NEXT / PREVIOUS CONTENT; PowerPoint slide stepping (`slides`) | ✅ exists |
+| Next / Previous Slide | NEXT / PREVIOUS FRAME (through the live Frame's Decks, then the Frames); NEXT / PREVIOUS CONTENT; PowerPoint slide stepping (`slides`) | ✅ exists |
 | Start / Stop Presentation | GO LIVE (take); HIDE ALL; BLACK SCREEN | ✅ exists |
-| Jump to Slide | Frames tab: tap a Frame's ▶; the question / scripture stepper | ✅ exists |
+| Jump to Slide | Frames tab: tap a Frame's ▶, or Go Live on one of its Decks; the question / scripture stepper | ✅ exists |
 | Notes View | TELEPROMPTER ("only you see it") | ✅ exists |
 | Timer View | The Countdown Content shown on the live picture | ⚠️ partly: there is no separate timer screen, and none is added (it would be a new workflow) |
 | Confidence Monitor | The live canvas plus next-Frame preview (Advanced layout / tablet) | ✅ exists |
 | Search Slides | Frames search | ✅ exists |
 | Trigger Media | Content tab ON / OFF for media Content (the runtime plays it) | ✅ exists |
-| Scene Selection | Frames | ✅ exists |
+| Scene Selection | Frames and their Decks | ✅ exists |
 | Lower Third Controls | Lower Third Content ON / OFF | ✅ exists |
 | Service Flow Navigation | Frame order and groups; Run-through | ✅ exists |
 | Presentation Queue Navigation | NEXT badge and next-Frame preview | ✅ exists |
@@ -62,11 +67,11 @@ Following "do not invent new workflows", every requested capability is mapped to
 | D1 | Cloud provider | **Cloudflare** (Pages + Workers + D1 + Durable Objects): the lowest cost for this shape of service (§17) |
 | D2 | Which remote becomes the PWA | **`remote.html` itself** (fact 1 above) |
 | D3 | How people sign in | Google, Microsoft and Apple sign-in, plus a one-time email code. No passwords to store. |
-| D4 | Domain | **None yet.** Until one is chosen, the service runs on Cloudflare's free HTTPS addresses (`kingdom-connect.pages.dev` for the PWA, `kingdom-connect-api.<account>.workers.dev` for the API). Moving to a custom domain later is a configuration change (§14). |
+| D4 | Domain | **None yet.** Until one is chosen, the service runs on Cloudflare's free HTTPS addresses (`framedecks.pages.dev` for the PWA, `framedecks-api.<account>.workers.dev` for the API). Moving to a custom domain later is a configuration change (§14). |
 | D5 | Members, birthdays, email list | **Synced, because it costs nothing** (a few kilobytes per ministry, within the free allowances). Because this is personal data about other people, it is **end-to-end encrypted**: the cloud stores only ciphertext it cannot read, and only the ministry's own signed-in computers hold the key (§7, §15). |
 | D6 | Meeting details (presenter, contact, attendees) | **Off by default**, with an opt-in "Sync meeting details" setting |
 
-In this document, `app.kingdomconnect` and `api.kingdomconnect` mean "the PWA address" and "the API address": the
+In this document, `app.framedecks` and `api.framedecks` mean "the PWA address" and "the API address": the
 `pages.dev` / `workers.dev` addresses above until a domain exists.
 
 ---
@@ -75,18 +80,18 @@ In this document, `app.kingdomconnect` and `api.kingdomconnect` mean "the PWA ad
 
 ```mermaid
 flowchart TB
-  subgraph Cloud["Kingdom Connect Cloud (metadata only)"]
-    PWA["app.kingdomconnect<br/>Pages: PWA shell (remote.html), sign-in, pairing"]
+  subgraph Cloud["FrameDecks Cloud (metadata only)"]
+    PWA["app.framedecks<br/>Pages: PWA shell (remote.html), sign-in, pairing"]
     API["API (Workers)<br/>auth · sync · pairing · devices · audit"]
     DB[("D1 (SQLite)<br/>accounts · Frames metadata · templates<br/>themes · settings · devices · audit")]
     RELAY["Relay (Durable Object per runtime)<br/>encrypted tunnel, stores nothing"]
     API --- DB
     RELAY --- API
   end
-  subgraph Win["Windows runtime (Kingdom Connect program)"]
+  subgraph Win["Windows runtime (FrameDecks program)"]
     ENG["server.py engine<br/>kc-saved-content.json (source of truth)"]
     MEDIA["Local media · PowerPoint · rendering"]
-    CAM["KingdomConnect camera → Zoom · Teams · OBS"]
+    CAM["FrameCast camera → Zoom · Teams · OBS"]
     CONN["Cloud connector (new, optional)"]
     ENG --- MEDIA --- CAM
     ENG --- CONN
@@ -123,7 +128,7 @@ The PWA is the existing remote, made installable and reachable from anywhere.
 | Piece | Design |
 |---|---|
 | Files | `app/remote.html`, `app/js/remote.js`, `store.js`, CSS, fonts and icons. **The same files** the runtime serves, published unchanged to Pages by CI. |
-| Manifest | `remote.webmanifest`: name "Kingdom Connect Remote", the app's icons, `display: standalone`, theme `#0A1120` (the app's navy), `start_url: /remote` |
+| Manifest | The existing `remote-manifest.json` (name "FrameDecks Director", short name "FrameDecks", the FrameDecks icons), with `display: standalone`, theme `#04152D` (FrameDecks Midnight) and the cloud `start_url` |
 | Service worker | A small hand-written worker. It precaches the remote's files (app-shell caching) and never caches `api/*`. When offline it shows the shell plus the "Not connected to the PC" state the remote already has. (Flutter's generated service worker is not used: the PWA is not a Flutter web build.) |
 | Install | Android / Chrome: the standard install prompt. iPhone / iPad: Share → Add to Home Screen, shown once as a hint on the existing sign-in card (text only, no layout change). |
 | Sign-in | On the cloud origin, the existing PIN card becomes a sign-in / pairing card with the same card, logo and button style (§9). On the Wi-Fi origin it stays the PIN card. |
@@ -138,7 +143,7 @@ web apps). The remote uses no APIs beyond what it uses today.
 The Flutter app keeps its structure. New code goes into new folders behind the existing seams.
 
 ```
-kingdom_connect_app/lib/
+framedecks_app/lib/
   engine/                 (unchanged) model, normalize, scenes, backend
     backend.dart          + CloudSyncBackend: wraps LocalBackend, syncs in the background
   cloud/                  NEW, used only when signed in
@@ -149,7 +154,7 @@ kingdom_connect_app/lib/
     api/                  typed client for /v1
   runtime_server/         NEW (Phase 5), the local api/* server for the Mac runtime: serves remote.html
   ui/                     (unchanged screens) plus:
-    settings_screen.dart  + "Kingdom Connect account" and "Paired devices" sections
+    settings_screen.dart  + "FrameDecks account" and "Paired devices" sections
     pairing_dialog.dart   + the Approve / Reject dialog
 cloud/                    NEW, repo root: the backend (Workers, TypeScript)
   src/{auth,sync,pairing,devices,audit,relay}/
@@ -209,7 +214,7 @@ sequenceDiagram
   participant C as Cloud
   participant R as Runtime (PC / Mac)
   R->>C: POST /v1/pairing (runtime token)
-  C-->>R: code 482 913 + QR (app.kingdomconnect/pair#t=…), expires in 5 min
+  C-->>R: code 482 913 + QR (app.framedecks/pair#t=…), expires in 5 min
   R->>R: shows QR + code (Settings → Phone & iPad remote)
   P->>W: scans QR or enters code
   W->>C: signs in (OIDC / email code), then POST /v1/pairing/claim
@@ -261,7 +266,7 @@ CREATE TABLE workspace_members (
   role TEXT NOT NULL CHECK (role IN ('viewer','operator','presenter','admin')),
   PRIMARY KEY (workspace_id, user_id)
 );
-CREATE TABLE runtimes (                   -- a PC or Mac running Kingdom Connect
+CREATE TABLE runtimes (                   -- a PC or Mac running FrameDecks
   id TEXT PRIMARY KEY, workspace_id TEXT NOT NULL REFERENCES workspaces(id),
   name TEXT NOT NULL, platform TEXT NOT NULL CHECK (platform IN ('windows','macos','linux')),
   app_version TEXT, last_seen_at INTEGER, revoked_at INTEGER
@@ -297,7 +302,8 @@ CREATE TABLE entities (                   -- synced metadata: one row per Frame 
   updated_by TEXT NOT NULL,               -- runtime or device id
   updated_at INTEGER NOT NULL,
   deleted INTEGER NOT NULL DEFAULT 0,
-  body TEXT NOT NULL,                     -- JSON exactly as in kc-saved-content.json (local file paths, never bytes)
+  body TEXT NOT NULL,                     -- JSON exactly as in kc-saved-content.json (local file paths, never bytes);
+                                          -- a frame's body carries its decks and its Content (each with its deck)
   PRIMARY KEY (workspace_id, kind, id)
 );
 CREATE INDEX entities_seq ON entities(workspace_id, seq);
@@ -316,14 +322,14 @@ members data, just as today.
 
 **Never stored in the cloud:**
 - media files, logos and other images (only a content hash, so another device can say "logo missing on this computer");
-- what is live (`live`);
+- what is live (`live`, including the Deck on screen, `live.deck`);
 - camera settings;
 - recordings;
 - PowerPoint files.
 
 ## 8. API design
 
-Base: `https://api.kingdomconnect/v1` (the `workers.dev` address until a domain exists, D4). All requests and responses are JSON, and every request must carry a
+Base: `https://api.framedecks/v1` (the `workers.dev` address until a domain exists, D4). All requests and responses are JSON, and every request must carry a
 token unless marked public.
 
 | Method & path | Who | What |
@@ -384,8 +390,9 @@ app's plain style.
 
 ## 11. Synchronization design
 
-The state document is split into **entities**, one per Frame (with its Content and items), library item, template,
-theme and setting block. They are synced by version.
+The state document is split into **entities**, one per Frame (with its Decks, its Content and their items), library
+item, template, theme and setting block. They are synced by version. A Deck is part of its Frame, not an entity of
+its own: adding, renaming or reordering Decks, or moving Content between them, is a change to that one Frame.
 
 - **Map:** `kc-saved-content.json` ⇄ entities, by a pure function in each engine. It is tested so that splitting
   and joining gives back the identical document (the same parity approach as `store.js` ⇄ Dart).
@@ -397,7 +404,7 @@ theme and setting block. They are synced by version.
   - Settings blocks: last writer wins, with the losing version kept in the audit log.
   - **Frames are never silently lost:** the cloud keeps one version, and the other becomes a copy named
     "‹Frame› (from ‹PC name›)" in the same group. This is the existing Duplicate outcome, so it is a familiar result.
-- **What is live is never synced.** Live state belongs to one runtime at a time.
+- **What is live is never synced**, including which Deck is on screen. Live state belongs to one runtime at a time.
 - **Timing:** sync runs shortly after edits settle, and at start-up. An optional setting, "Pause sync during
   services" (off by default), holds it while something is live.
 
@@ -528,12 +535,12 @@ sequenceDiagram
 ## 18. Migration strategy
 
 1. Ship the cloud connector **switched off**. Existing users notice nothing.
-2. Settings → "Kingdom Connect account" lets a user sign in.
+2. Settings → "FrameDecks account" lets a user sign in.
    - At first sign-in, the local document is uploaded as entities. The local file stays the source of truth.
    - If the account already has data from another computer, the person chooses: **Merge**, which uses the conflict
      rules, or **Use this computer's Frames**. Nothing is ever deleted without that choice.
 3. The Wi-Fi PIN remote stays the default. "Pair with a code" is offered beside it.
-4. The PWA goes live at `app.kingdomconnect/remote` (the `pages.dev` address until a domain exists). The old `http://PC:8750/remote.html` keeps working
+4. The PWA goes live at `app.framedecks/remote` (the `pages.dev` address until a domain exists). The old `http://PC:8750/remote.html` keeps working
    forever.
 5. **Rollback:** disabling the connector returns a runtime to exactly today's behaviour. Cloud data stays until the
    user deletes it.
@@ -544,7 +551,7 @@ Only add seams; never move existing behaviour.
 
 | Seam | Change | Risk control |
 |---|---|---|
-| `store.js` transport | Extract the 3 network calls behind an interface; default = today's `fetch` | Existing Node tests + new transport tests; Playwright screenshots of `remote.html` before and after must match |
+| Transport | Route the network calls of `store.js` and `remote.js` (state, revision, sign-in, Studio actions, live picture) through one `KCTransport.fetch`; default = today's `fetch` | Existing Node tests + new transport tests; Playwright screenshots of `remote.html` before and after must match |
 | `server.py` connector | New module with only two hooks: "document saved" and "replay this API request" | Off by default; unit tests; the existing Python test suite |
 | Dart `CloudSyncBackend` | Decorator around `StateBackend` | Parity tests for entity split / join |
 | Settings | Two new sections, in the existing section style | Widget tests; screenshots |
@@ -581,7 +588,7 @@ Only add seams; never move existing behaviour.
 
 | Phase | Delivers | Depends on | Size |
 |---|---|---|---|
-| 1 Foundation | Protocol spec, entity split / join + parity tests, `store.js` transport seam, cloud skeleton (health, CI deploy, D1 migrations), Playwright golden screenshots of the remote | PRs #8–#10 merged | M |
+| 1 Foundation | Protocol spec, entity split / join + parity tests, transport seam, cloud skeleton (health, CI deploy, D1 migrations), Playwright golden screenshots of the remote | PR #8 and PR #12 (FrameDecks, Decks); PRs #9 and #10 for the cameras | M |
 | 2 SaaS | Sign-in, workspaces, runtime registration, sync (Windows connector + Dart backend), Settings sections, audit, export / delete | 1 | L |
 | 3 PWA | Manifest, service worker, Pages publishing of `remote.html`, install hints, relay transport + RuntimeRelay | 2 | M |
 | 4 Pairing | Codes and QR, approval dialog, roles, device registry, revoke, end-to-end encryption | 3 | M |
@@ -590,13 +597,15 @@ Only add seams; never move existing behaviour.
 ## 23. Phase 1: Foundation
 
 1. Write `docs/architecture/runtime-protocol.md`, the `api/*` endpoints as they exist today (the spec both engines
-   and the relay follow).
-2. Entity split / join in JS (`store.js`) and Dart, with shared fixtures. Prove that splitting and joining gives
-   back an identical document.
-3. Move `store.js` behind a transport interface, with the default unchanged. Add Playwright golden tests of
-   `remote.html` (phone and tablet, Simple and Advanced).
-4. Create `cloud/` (Workers + D1 + wrangler), with `/v1/health`, staging and production deploys from CI, and the
-   migrations in §7.
+   and the relay follow), including the Deck fields.
+2. Entity split / join in JS (`app/js/entities.js`) and Dart (`framedecks_app/lib/engine/entities.dart`), with
+   shared fixtures (`tests/fixtures/entities/`). Prove that splitting and joining gives back an identical document,
+   Decks included.
+3. Route the network calls of `store.js` and `remote.js` through `KCTransport.fetch` (`app/js/transport.js`),
+   default unchanged. Add Playwright golden tests of `remote.html` (phone and tablet, Simple and Advanced) that must
+   look the same before and after.
+4. Create `cloud/` (Workers + D1 + wrangler, TypeScript), with `/v1/health`, the migrations in §7, tests, and a CI
+   workflow that tests on every push and deploys only when the Cloudflare secrets are set.
 
 Exit: everything as today, plus the safety nets that later phases rely on.
 
