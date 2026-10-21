@@ -89,7 +89,7 @@ class SettingsScreen extends ConsumerWidget {
                     ),
                   ],
                 ),
-                if (MacCamera.available) const _Section(title: 'KingdomConnect camera', children: [_MacCameraSettings()]),
+                if (MacCamera.available) const _Section(title: 'FrameCast camera', children: [_MacCameraSettings()]),
                 const _Section(
                   title: 'Phone & iPad remote',
                   children: [
@@ -145,7 +145,7 @@ class _Section extends StatelessWidget {
   );
 }
 
-/// Install or remove the KingdomConnect camera on the Mac, and what it is doing.
+/// Install or remove the FrameCast camera on the Mac, and what it is doing.
 class _MacCameraSettings extends StatefulWidget {
   const _MacCameraSettings();
 
@@ -185,8 +185,8 @@ class _MacCameraSettingsState extends State<_MacCameraSettings> {
         : !s.installed
         ? 'Not installed.'
         : s.watched
-        ? 'On: an app is showing the KingdomConnect camera.'
-        : 'Installed. Choose “KingdomConnect” as the camera in Zoom, Teams or FaceTime.';
+        ? 'On: an app is showing the FrameCast camera.'
+        : 'Installed. Choose “FrameCast” as the camera in Zoom, Teams or FaceTime.';
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [

@@ -11,7 +11,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../program_view.dart';
 import '../providers.dart';
 
-/// The KingdomConnect camera on the Mac (macos/KingdomConnectCamera, macos/Runner/CameraBridge.swift).
+/// The FrameCast camera on the Mac (macos/KingdomConnectCamera, macos/Runner/CameraBridge.swift).
 class MacCamera {
   MacCamera({MethodChannel? channel}) : _channel = channel ?? const MethodChannel('kingdom_connect/camera');
 
@@ -59,7 +59,7 @@ class CameraStatus {
   final String message;
 }
 
-/// Draws the program off screen and gives it to the KingdomConnect camera, only while an app (Zoom, Teams, FaceTime…)
+/// Draws the program off screen and gives it to the FrameCast camera, only while an app (Zoom, Teams, FaceTime…)
 /// is receiving the camera. Put it once in the Studio; it shows nothing.
 class CameraFeeder extends ConsumerStatefulWidget {
   const CameraFeeder({super.key, this.camera});

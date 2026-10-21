@@ -1,4 +1,4 @@
-// The KingdomConnect camera on the Mac, seen from the app (channel "kingdom_connect/camera", lib/ui/camera/mac_camera.dart):
+// The FrameCast camera on the Mac, seen from the app (channel "kingdom_connect/camera", lib/ui/camera/mac_camera.dart):
 //   status     → {supported, installed, watched, message}
 //   install    → asks macOS to add the camera (the person approves it once in System Settings)
 //   uninstall  → removes it
@@ -13,7 +13,7 @@ import Foundation
 import SystemExtensions
 
 final class CameraBridge: NSObject, OSSystemExtensionRequestDelegate {
-    static let cameraName = "KingdomConnect"
+    static let cameraName = "FrameCast"
     private let channel: FlutterMethodChannel
     private var message = ""
     private var activating = true
@@ -55,7 +55,7 @@ final class CameraBridge: NSObject, OSSystemExtensionRequestDelegate {
 
     private func status() -> [String: Any] {
         guard supported else {
-            return ["supported": false, "installed": false, "watched": false, "message": "The KingdomConnect camera needs macOS 12.3 or later."]
+            return ["supported": false, "installed": false, "watched": false, "message": "The FrameCast camera needs macOS 12.3 or later."]
         }
         let installed = connect()
         return ["supported": true, "installed": installed, "watched": installed && watched(), "message": message]
@@ -152,7 +152,7 @@ final class CameraBridge: NSObject, OSSystemExtensionRequestDelegate {
     }
 
     private func submit(activate: Bool) {
-        guard supported else { message = "The KingdomConnect camera needs macOS 12.3 or later."; return }
+        guard supported else { message = "The FrameCast camera needs macOS 12.3 or later."; return }
         guard let id = extensionIdentifier() else {
             message = "This copy of Kingdom Connect was built without the camera."
             return
@@ -172,14 +172,14 @@ final class CameraBridge: NSObject, OSSystemExtensionRequestDelegate {
     }
 
     func requestNeedsUserApproval(_ request: OSSystemExtensionRequest) {
-        message = "Allow the KingdomConnect camera in System Settings → General → Login Items & Extensions → Camera Extensions."
+        message = "Allow the FrameCast camera in System Settings → General → Login Items & Extensions → Camera Extensions."
     }
 
     func request(_ request: OSSystemExtensionRequest, didFinishWithResult result: OSSystemExtensionRequest.Result) {
         if result == .willCompleteAfterReboot {
             message = "Restart the Mac to finish."
         } else {
-            message = activating ? "The KingdomConnect camera is installed." : "The KingdomConnect camera was removed."
+            message = activating ? "The FrameCast camera is installed." : "The FrameCast camera was removed."
         }
         deviceID = nil
     }

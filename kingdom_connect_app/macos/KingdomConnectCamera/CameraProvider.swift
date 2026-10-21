@@ -1,4 +1,4 @@
-// The KingdomConnect camera on the Mac. Adapted from ldenoue/cameraextension (MIT licence, see
+// The FrameCast camera on the Mac. Adapted from ldenoue/cameraextension (MIT licence, see
 // LICENSE-cameraextension-MIT.txt), the design Apple describes for camera extensions that show an app's picture:
 //
 //   - the source stream is what Zoom, Teams, FaceTime, OBS… receive;
@@ -13,7 +13,7 @@ import Foundation
 import IOKit.audio
 import os.log
 
-let cameraName = "KingdomConnect"
+let cameraName = "FrameCast"
 let cameraWidth: Int32 = 1280
 let cameraHeight: Int32 = 720
 let cameraFrameRate = 30
@@ -31,7 +31,7 @@ final class CameraDeviceSource: NSObject, CMIOExtensionDeviceSource {
     private var sinkRunning = false
     private var lastSinkFrame = DispatchTime(uptimeNanoseconds: 0)
     private var timer: DispatchSourceTimer?
-    private let timerQueue = DispatchQueue(label: "KingdomConnect.camera.idle", qos: .userInteractive)
+    private let timerQueue = DispatchQueue(label: "FrameCast.camera.idle", qos: .userInteractive)
     private var description_: CMFormatDescription!
     private var pool: CVPixelBufferPool!
     private var idleFrame: CVPixelBuffer?
@@ -53,13 +53,13 @@ final class CameraDeviceSource: NSObject, CMIOExtensionDeviceSource {
         let frameDuration = CMTime(value: 1, timescale: Int32(cameraFrameRate))
         let format = CMIOExtensionStreamFormat(formatDescription: description_, maxFrameDuration: frameDuration,
                                                minFrameDuration: frameDuration, validFrameDurations: nil)
-        sourceStream = CameraStreamSource(localizedName: "KingdomConnect.Video", streamID: UUID(), streamFormat: format, device: device)
-        sinkStream = CameraStreamSink(localizedName: "KingdomConnect.Video.Sink", streamID: UUID(), streamFormat: format, device: device)
+        sourceStream = CameraStreamSource(localizedName: "FrameCast.Video", streamID: UUID(), streamFormat: format, device: device)
+        sinkStream = CameraStreamSink(localizedName: "FrameCast.Video.Sink", streamID: UUID(), streamFormat: format, device: device)
         do {
             try device.addStream(sourceStream.stream)
             try device.addStream(sinkStream.stream)
         } catch {
-            fatalError("KingdomConnect: could not add the camera's streams: \(error.localizedDescription)")
+            fatalError("FrameCast: could not add the camera's streams: \(error.localizedDescription)")
         }
     }
 
@@ -267,7 +267,7 @@ final class CameraProviderSource: NSObject, CMIOExtensionProviderSource {
         do {
             try provider.addDevice(deviceSource.device)
         } catch {
-            fatalError("KingdomConnect: could not add the camera: \(error.localizedDescription)")
+            fatalError("FrameCast: could not add the camera: \(error.localizedDescription)")
         }
     }
 

@@ -26,9 +26,9 @@ flutter analyze
 flutter test
 ```
 
-**The KingdomConnect camera on the Mac** (`macos/KingdomConnectCamera`) needs the app signed with your Apple
+**The FrameCast camera on the Mac** (`macos/KingdomConnectCamera`) needs the app signed with your Apple
 Developer team: copy `macos/Runner/Configs/Signing.xcconfig.example` to `Signing.xcconfig`, fill in the team, build,
-put the app in /Applications and use Settings → KingdomConnect camera. `tool/macos/add_camera_target.rb` is how the
+put the app in /Applications and use Settings → FrameCast camera. `tool/macos/add_camera_target.rb` is how the
 camera target was added to the Xcode project.
 
 `node tool/parity/make_fixtures.js` regenerates `test/engine/fixtures.json` from the Windows app's `app/js/store.js`

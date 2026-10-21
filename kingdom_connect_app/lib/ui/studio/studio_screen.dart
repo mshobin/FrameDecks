@@ -144,7 +144,7 @@ class _StudioScreenState extends ConsumerState<StudioScreen> {
       ),
     );
     return Scaffold(
-      // on the Mac the KingdomConnect camera gets the program from here (only while an app is receiving it)
+      // on the Mac the FrameCast camera gets the program from here (only while an app is receiving it)
       body: MacCamera.available
           ? Stack(
               children: [

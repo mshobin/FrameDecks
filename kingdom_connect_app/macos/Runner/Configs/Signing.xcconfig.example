@@ -1,5 +1,5 @@
 // Copy this file to Signing.xcconfig (it is not committed) and fill in your Apple Developer team, to build
-// Kingdom Connect with the KingdomConnect camera. macOS only installs a camera extension from a signed app, and the
+// Kingdom Connect with the FrameCast camera. macOS only installs a camera extension from a signed app, and the
 // app and the camera must share an app group, which needs the team.
 //
 // Then: open macos/Runner.xcworkspace in Xcode once so it can create the signing profiles (Signing & Capabilities),

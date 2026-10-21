@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>KingdomConnect</string>
+	<string>FrameCast</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -29,6 +29,6 @@
 		<string>$(TeamIdentifierPrefix)org.kingdomconnect.kingdomConnect.Camera</string>
 	</dict>
 	<key>NSSystemExtensionUsageDescription</key>
-	<string>The KingdomConnect camera shows your Kingdom Connect program in Zoom, Teams, FaceTime and other apps.</string>
+	<string>The FrameCast camera shows your Kingdom Connect program in Zoom, Teams, FaceTime and other apps.</string>
 </dict>
 </plist>
