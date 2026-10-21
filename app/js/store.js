@@ -31,6 +31,14 @@
 'use strict';
 
 var KEY = 'kc-state-v1';
+/* SaaS Phase 1: every request to the runtime goes through KCTransport.fetch (docs/architecture/runtime-protocol.md §8).
+ * Today that is the browser's own fetch ("direct"); the cloud relay (Phase 3) is another transport with the same
+ * shape, set with KCTransport.use({name, fetch}), so the remote and its screens never change. */
+var KCTransport = window.KCTransport = window.KCTransport || {
+  name: 'direct',
+  fetch: function(path, init){ return window.fetch(path, init); },
+  use: function(t){ this.name = t.name; this.fetch = t.fetch; }
+};
 var CHANNEL = 'framedecks';
 
 var DEFAULT_STATE = {
@@ -1071,12 +1079,12 @@ function shareParent(){
  * ever held open (browsers only allow about six per address, shared by every overlay). */
 function serverLoop(){
   loopT = null;
-  fetch('api/rev', {cache: 'no-store'})
+  KCTransport.fetch('api/rev', {cache: 'no-store'})
     .then(function(r){ if (r.status === 401 || r.status === 403){ Store.authFailed = true; if (Store.onAuthFailed) Store.onAuthFailed(); } if (!r.ok) throw new Error(r.status); Store.authFailed = false; return r.json(); })
     .then(function(v){
       Store.online = true;
       if (started && v.rev === state.rev) return;
-      return fetch('api/state', {cache: 'no-store'}).then(function(r){ if (!r.ok) throw new Error(r.status); return r.json(); })
+      return KCTransport.fetch('api/state', {cache: 'no-store'}).then(function(r){ if (!r.ok) throw new Error(r.status); return r.json(); })
         .then(function(data){ var next = normalize(data); var changed = !started || next.rev !== state.rev; started = true; if (changed){ state = next; emit(); } });
     })
     .then(function(){ loopT = setTimeout(serverLoop, pace(300)); })
@@ -1100,7 +1108,7 @@ function longLoop(){
   lpAbort = ctl;
   if (ctl) guard = setTimeout(function(){ ctl.abort(); }, 15000);
   var q = started ? '?since=' + encodeURIComponent(state.rev) + '&wait=10' + (libRev != null ? '&librev=' + encodeURIComponent(libRev) : '') : '';
-  fetch('api/state' + q, {cache: 'no-store', signal: ctl ? ctl.signal : undefined})
+  KCTransport.fetch('api/state' + q, {cache: 'no-store', signal: ctl ? ctl.signal : undefined})
     .then(function(r){ if (r.status === 401 || r.status === 403){ Store.authFailed = true; if (Store.onAuthFailed) Store.onAuthFailed(); } if (!r.ok) throw new Error(r.status); Store.authFailed = false; return r.json(); })
     .then(function(data){
       clearTimeout(guard); Store.online = true;
@@ -1126,7 +1134,7 @@ function serverSave(next, baseRev){
   if (baseRev !== undefined && libRev != null && JSON.stringify(next.library) === JSON.stringify(state.library)){
     body = Object.assign({}, body, {keepLibrary: true}); delete body.library;     // unchanged: don't send it again
   }
-  return fetch('api/state', {
+  return KCTransport.fetch('api/state', {
     method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body)
   }).then(function(r){
     if (r.status === 409) return r.json().then(function(d){ state = adopt(d); emit(); var e = new Error('conflict'); e.conflict = true; throw e; });
@@ -1193,7 +1201,7 @@ var Store = {
    * screen already has, so nothing is downloaded, decoded or redrawn. tag = {etag} remembered per screen. */
   freshPreview: function(tag){
     var h = tag.etag ? {'If-None-Match': tag.etag} : {};
-    return fetch('api/vcam/preview.jpg?t=' + Date.now(), {cache: 'no-store', headers: h}).then(function(r){
+    return KCTransport.fetch('api/vcam/preview.jpg?t=' + Date.now(), {cache: 'no-store', headers: h}).then(function(r){
       if (r.status !== 200) return null;
       tag.etag = r.headers.get('ETag') || '';
       return r.blob();
@@ -1204,7 +1212,7 @@ var Store = {
     if (!served || /[?&]preview=1/.test(location.search)) return;
     var id = page + '-' + Math.random().toString(36).slice(2, 9);
     function ping(){
-      fetch('api/presence', {method: 'POST', headers: {'Content-Type': 'application/json'},
+      KCTransport.fetch('api/presence', {method: 'POST', headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({id: id, page: page})}).catch(function(){});
     }
     ping(); setInterval(ping, 4000);

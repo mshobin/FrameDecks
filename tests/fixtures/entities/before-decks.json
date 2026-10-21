@@ -1,0 +1,967 @@
+{
+ "name": "before-decks",
+ "input": {
+  "rev": 41,
+  "v6": true,
+  "profile": "sunday",
+  "scenes": [
+   {
+    "id": "sc_welcome",
+    "name": "Welcome",
+    "group": "Romans",
+    "created": 1,
+    "modified": 2,
+    "layers": [
+     {
+      "id": "L1",
+      "kind": "announcement",
+      "name": "Welcome",
+      "c": {
+       "title": "Welcome",
+       "text": "Glad you are here"
+      }
+     }
+    ]
+   },
+   {
+    "id": "sc_study",
+    "name": "Bible Study",
+    "group": "Romans",
+    "created": 3,
+    "modified": 4,
+    "layers": [
+     {
+      "id": "L2",
+      "kind": "question",
+      "c": {
+       "items": [
+        {
+         "id": "q_a",
+         "text": "What stands out?"
+        }
+       ],
+       "itemId": "q_a"
+      }
+     },
+     {
+      "id": "L3",
+      "kind": "scripture",
+      "c": {
+       "items": [
+        {
+         "id": "v_a",
+         "ref": "Romans 8:1",
+         "text": "There is therefore now no condemnation"
+        }
+       ]
+      }
+     }
+    ]
+   },
+   {
+    "id": "sc_tpl",
+    "name": "My template",
+    "tpl": true,
+    "layers": [
+     {
+      "id": "L4",
+      "kind": "countdown",
+      "c": {
+       "minutes": 5
+      }
+     }
+    ]
+   }
+  ],
+  "library": {
+   "questions": [
+    {
+     "id": "q1",
+     "text": "One"
+    },
+    {
+     "id": "q1",
+     "text": "One again"
+    },
+    {
+     "id": "q2",
+     "text": "Two"
+    }
+   ],
+   "verses": [
+    {
+     "id": "s1",
+     "ref": "Psalm 23:1",
+     "version": "ESV",
+     "text": "The Lord is my shepherd"
+    }
+   ]
+  },
+  "live": {
+   "scene": "sc_study",
+   "seq": 7,
+   "at": 1700000000000,
+   "on": {}
+  },
+  "question": {
+   "text": "What stands out?",
+   "visible": true,
+   "itemId": "q_a",
+   "label": "Discussion",
+   "transition": "rise"
+  },
+  "birthday": {
+   "name": "Ann",
+   "greeting": "Happy birthday, Ann!",
+   "visible": false,
+   "label": "Birthday"
+  },
+  "brand": {
+   "meeting": "Tuesday Study",
+   "org": "Grace Church",
+   "color": "#1f3a6d"
+  },
+  "meeting": {
+   "title": "Romans · Week 5",
+   "presenter": "Sam",
+   "attendees": "24"
+  },
+  "layout": {
+   "qWidth": 80
+  }
+ },
+ "normalized": {
+  "rev": 41,
+  "verse": {
+   "label": "Focus Verse",
+   "showLabel": true,
+   "text": "Thy word is a lamp unto my feet, and a light unto my path.",
+   "ref": "Psalm 119:105",
+   "version": "KJV",
+   "visible": false,
+   "seq": 0,
+   "cut": 0,
+   "itemId": "s1",
+   "transition": "rise",
+   "speed": "normal",
+   "random": false,
+   "pool": [
+    "fade",
+    "rise",
+    "words",
+    "burst"
+   ],
+   "burst": "gentle",
+   "play": "",
+   "upcoming": "",
+   "out": {
+    "vcam": true,
+    "obs": true
+   }
+  },
+  "question": {
+   "label": "Discussion",
+   "showLabel": true,
+   "text": "What stands out?",
+   "visible": true,
+   "seq": 0,
+   "cut": 0,
+   "itemId": "q_a",
+   "mode": "",
+   "transition": "rise",
+   "speed": "normal",
+   "random": false,
+   "pool": [
+    "fade",
+    "rise",
+    "words",
+    "burst"
+   ],
+   "burst": "gentle",
+   "play": "",
+   "upcoming": "",
+   "out": {
+    "vcam": true,
+    "obs": true
+   }
+  },
+  "birthday": {
+   "label": "Birthday",
+   "showLabel": true,
+   "name": "Ann",
+   "greeting": "Happy birthday, Ann!",
+   "message": "",
+   "country": "",
+   "visible": false,
+   "seq": 0,
+   "cut": 0,
+   "transition": "rise",
+   "out": {
+    "vcam": true,
+    "obs": true
+   }
+  },
+  "layout": {
+   "bdayPos": "top",
+   "bdayScale": 1,
+   "verseAlign": "center",
+   "verseY": 40,
+   "verseWidth": 70,
+   "verseScale": 1,
+   "qBottom": 10,
+   "qWidth": 80,
+   "qScale": 1,
+   "panel": 92
+  },
+  "scenes": [
+   {
+    "id": "sc_welcome",
+    "name": "Welcome",
+    "group": "Romans",
+    "fav": false,
+    "tpl": false,
+    "created": 1,
+    "modified": 2,
+    "version": 1,
+    "creator": "",
+    "from": "",
+    "template": "",
+    "parent": "",
+    "notes": "",
+    "tx": {
+     "type": "profile",
+     "ms": 500
+    },
+    "auto": {
+     "on": false,
+     "sec": 30
+    },
+    "out": {
+     "vcam": true,
+     "obs": true
+    },
+    "decks": [
+     {
+      "id": "d1",
+      "name": "Deck 1"
+     }
+    ],
+    "layers": [
+     {
+      "id": "L1",
+      "kind": "announcement",
+      "name": "Welcome",
+      "visible": true,
+      "locked": false,
+      "opacity": 1,
+      "c": {
+       "title": "Welcome",
+       "text": "Glad you are here",
+       "pos": "center",
+       "w": 70,
+       "scale": 1,
+       "label": true,
+       "anim": "fade",
+       "logo": false,
+       "vcam": true,
+       "obs": true
+      },
+      "deck": "d1"
+     }
+    ]
+   },
+   {
+    "id": "sc_study",
+    "name": "Bible Study",
+    "group": "Romans",
+    "fav": false,
+    "tpl": false,
+    "created": 3,
+    "modified": 4,
+    "version": 1,
+    "creator": "",
+    "from": "",
+    "template": "",
+    "parent": "",
+    "notes": "",
+    "tx": {
+     "type": "profile",
+     "ms": 500
+    },
+    "auto": {
+     "on": false,
+     "sec": 30
+    },
+    "out": {
+     "vcam": true,
+     "obs": true
+    },
+    "decks": [
+     {
+      "id": "d1",
+      "name": "Deck 1"
+     }
+    ],
+    "layers": [
+     {
+      "id": "L2",
+      "kind": "question",
+      "name": "Question",
+      "visible": true,
+      "locked": false,
+      "opacity": 1,
+      "c": {
+       "items": [
+        {
+         "id": "q_a",
+         "label": "",
+         "text": "What stands out?",
+         "pair": "",
+         "mode": "",
+         "media": "",
+         "timer": "",
+         "anim": ""
+        }
+       ],
+       "itemId": "q_a",
+       "label": "",
+       "vcam": true,
+       "obs": true
+      },
+      "deck": "d1"
+     },
+     {
+      "id": "L3",
+      "kind": "scripture",
+      "name": "Scripture",
+      "visible": true,
+      "locked": false,
+      "opacity": 1,
+      "c": {
+       "items": [
+        {
+         "id": "v_a",
+         "label": "",
+         "ref": "Romans 8:1",
+         "version": "",
+         "text": "There is therefore now no condemnation",
+         "anim": ""
+        }
+       ],
+       "itemId": "",
+       "label": "",
+       "ref": "",
+       "version": "",
+       "text": "",
+       "vcam": true,
+       "obs": true
+      },
+      "deck": "d1"
+     }
+    ]
+   },
+   {
+    "id": "sc_tpl",
+    "name": "My template",
+    "group": "",
+    "fav": false,
+    "tpl": true,
+    "created": 0,
+    "modified": 0,
+    "version": 1,
+    "creator": "",
+    "from": "",
+    "template": "",
+    "parent": "",
+    "notes": "",
+    "tx": {
+     "type": "profile",
+     "ms": 500
+    },
+    "auto": {
+     "on": false,
+     "sec": 30
+    },
+    "out": {
+     "vcam": true,
+     "obs": true
+    },
+    "decks": [
+     {
+      "id": "d1",
+      "name": "Deck 1"
+     }
+    ],
+    "layers": [
+     {
+      "id": "L4",
+      "kind": "countdown",
+      "name": "Countdown",
+      "visible": true,
+      "locked": false,
+      "opacity": 1,
+      "c": {
+       "minutes": 5,
+       "title": "Starting in",
+       "text": "Starting now",
+       "mode": "duration",
+       "until": "10:30",
+       "pos": "center",
+       "w": 36,
+       "scale": 1.6,
+       "label": true,
+       "anim": "fade",
+       "logo": false,
+       "vcam": true,
+       "obs": true
+      },
+      "deck": "d1"
+     }
+    ]
+   }
+  ],
+  "live": {
+   "scene": "sc_study",
+   "deck": "",
+   "seq": 7,
+   "at": 1700000000000,
+   "tx": "cut",
+   "txMs": 0,
+   "auto": true,
+   "blackout": false,
+   "emergency": false,
+   "freeze": false,
+   "ink": {
+    "on": false,
+    "items": [],
+    "undone": []
+   },
+   "message": "Please stand by — we’ll be right back.",
+   "on": {},
+   "cd": {}
+  },
+  "profile": "sunday",
+  "v6": true,
+  "brand": {
+   "meeting": "Tuesday Study",
+   "org": "Grace Church",
+   "color": "#1f3a6d",
+   "logo": "",
+   "lw": 0,
+   "lh": 0,
+   "auto": false
+  },
+  "meeting": {
+   "title": "Romans · Week 5",
+   "date": "",
+   "time": "",
+   "location": "",
+   "presenter": "Sam",
+   "contact": "",
+   "attendees": "24",
+   "attendeeNotes": "",
+   "owner": "",
+   "contentNotes": "",
+   "notes": "",
+   "extra": ""
+  },
+  "library": {
+   "verses": [
+    {
+     "id": "s1",
+     "ref": "Psalm 23:1",
+     "version": "ESV",
+     "text": "The Lord is my shepherd",
+     "pair": ""
+    }
+   ],
+   "questions": [
+    {
+     "id": "q1",
+     "text": "One",
+     "num": "",
+     "note": "",
+     "pair": "",
+     "mode": ""
+    },
+    {
+     "id": "q1",
+     "text": "One again",
+     "num": "",
+     "note": "",
+     "pair": "",
+     "mode": ""
+    },
+    {
+     "id": "q2",
+     "text": "Two",
+     "num": "",
+     "note": "",
+     "pair": "",
+     "mode": ""
+    }
+   ]
+  }
+ },
+ "split": {
+  "entities": [
+   {
+    "kind": "frame",
+    "id": "sc_welcome",
+    "body": {
+     "id": "sc_welcome",
+     "name": "Welcome",
+     "group": "Romans",
+     "fav": false,
+     "tpl": false,
+     "created": 1,
+     "modified": 2,
+     "version": 1,
+     "creator": "",
+     "from": "",
+     "template": "",
+     "parent": "",
+     "notes": "",
+     "tx": {
+      "type": "profile",
+      "ms": 500
+     },
+     "auto": {
+      "on": false,
+      "sec": 30
+     },
+     "out": {
+      "vcam": true,
+      "obs": true
+     },
+     "decks": [
+      {
+       "id": "d1",
+       "name": "Deck 1"
+      }
+     ],
+     "layers": [
+      {
+       "id": "L1",
+       "kind": "announcement",
+       "name": "Welcome",
+       "visible": true,
+       "locked": false,
+       "opacity": 1,
+       "c": {
+        "title": "Welcome",
+        "text": "Glad you are here",
+        "pos": "center",
+        "w": 70,
+        "scale": 1,
+        "label": true,
+        "anim": "fade",
+        "logo": false,
+        "vcam": true,
+        "obs": true
+       },
+       "deck": "d1"
+      }
+     ]
+    }
+   },
+   {
+    "kind": "frame",
+    "id": "sc_study",
+    "body": {
+     "id": "sc_study",
+     "name": "Bible Study",
+     "group": "Romans",
+     "fav": false,
+     "tpl": false,
+     "created": 3,
+     "modified": 4,
+     "version": 1,
+     "creator": "",
+     "from": "",
+     "template": "",
+     "parent": "",
+     "notes": "",
+     "tx": {
+      "type": "profile",
+      "ms": 500
+     },
+     "auto": {
+      "on": false,
+      "sec": 30
+     },
+     "out": {
+      "vcam": true,
+      "obs": true
+     },
+     "decks": [
+      {
+       "id": "d1",
+       "name": "Deck 1"
+      }
+     ],
+     "layers": [
+      {
+       "id": "L2",
+       "kind": "question",
+       "name": "Question",
+       "visible": true,
+       "locked": false,
+       "opacity": 1,
+       "c": {
+        "items": [
+         {
+          "id": "q_a",
+          "label": "",
+          "text": "What stands out?",
+          "pair": "",
+          "mode": "",
+          "media": "",
+          "timer": "",
+          "anim": ""
+         }
+        ],
+        "itemId": "q_a",
+        "label": "",
+        "vcam": true,
+        "obs": true
+       },
+       "deck": "d1"
+      },
+      {
+       "id": "L3",
+       "kind": "scripture",
+       "name": "Scripture",
+       "visible": true,
+       "locked": false,
+       "opacity": 1,
+       "c": {
+        "items": [
+         {
+          "id": "v_a",
+          "label": "",
+          "ref": "Romans 8:1",
+          "version": "",
+          "text": "There is therefore now no condemnation",
+          "anim": ""
+         }
+        ],
+        "itemId": "",
+        "label": "",
+        "ref": "",
+        "version": "",
+        "text": "",
+        "vcam": true,
+        "obs": true
+       },
+       "deck": "d1"
+      }
+     ]
+    }
+   },
+   {
+    "kind": "template",
+    "id": "sc_tpl",
+    "body": {
+     "id": "sc_tpl",
+     "name": "My template",
+     "group": "",
+     "fav": false,
+     "tpl": true,
+     "created": 0,
+     "modified": 0,
+     "version": 1,
+     "creator": "",
+     "from": "",
+     "template": "",
+     "parent": "",
+     "notes": "",
+     "tx": {
+      "type": "profile",
+      "ms": 500
+     },
+     "auto": {
+      "on": false,
+      "sec": 30
+     },
+     "out": {
+      "vcam": true,
+      "obs": true
+     },
+     "decks": [
+      {
+       "id": "d1",
+       "name": "Deck 1"
+      }
+     ],
+     "layers": [
+      {
+       "id": "L4",
+       "kind": "countdown",
+       "name": "Countdown",
+       "visible": true,
+       "locked": false,
+       "opacity": 1,
+       "c": {
+        "minutes": 5,
+        "title": "Starting in",
+        "text": "Starting now",
+        "mode": "duration",
+        "until": "10:30",
+        "pos": "center",
+        "w": 36,
+        "scale": 1.6,
+        "label": true,
+        "anim": "fade",
+        "logo": false,
+        "vcam": true,
+        "obs": true
+       },
+       "deck": "d1"
+      }
+     ]
+    }
+   },
+   {
+    "kind": "library_question",
+    "id": "q1",
+    "body": {
+     "id": "q1",
+     "text": "One",
+     "num": "",
+     "note": "",
+     "pair": "",
+     "mode": ""
+    }
+   },
+   {
+    "kind": "library_question",
+    "id": "q1#2",
+    "body": {
+     "id": "q1",
+     "text": "One again",
+     "num": "",
+     "note": "",
+     "pair": "",
+     "mode": ""
+    }
+   },
+   {
+    "kind": "library_question",
+    "id": "q2",
+    "body": {
+     "id": "q2",
+     "text": "Two",
+     "num": "",
+     "note": "",
+     "pair": "",
+     "mode": ""
+    }
+   },
+   {
+    "kind": "library_verse",
+    "id": "s1",
+    "body": {
+     "id": "s1",
+     "ref": "Psalm 23:1",
+     "version": "ESV",
+     "text": "The Lord is my shepherd",
+     "pair": ""
+    }
+   },
+   {
+    "kind": "order",
+    "id": "order",
+    "body": {
+     "scenes": [
+      "sc_welcome",
+      "sc_study",
+      "sc_tpl"
+     ],
+     "questions": [
+      "q1",
+      "q1#2",
+      "q2"
+     ],
+     "verses": [
+      "s1"
+     ]
+    }
+   },
+   {
+    "kind": "theme",
+    "id": "cards",
+    "body": {
+     "question": {
+      "label": "Discussion",
+      "showLabel": true,
+      "transition": "rise",
+      "speed": "normal",
+      "random": false,
+      "pool": [
+       "fade",
+       "rise",
+       "words",
+       "burst"
+      ],
+      "burst": "gentle"
+     },
+     "verse": {
+      "label": "Focus Verse",
+      "showLabel": true,
+      "transition": "rise",
+      "speed": "normal",
+      "random": false,
+      "pool": [
+       "fade",
+       "rise",
+       "words",
+       "burst"
+      ],
+      "burst": "gentle"
+     },
+     "birthday": {
+      "label": "Birthday",
+      "showLabel": true,
+      "transition": "rise"
+     }
+    }
+   },
+   {
+    "kind": "brand",
+    "id": "brand",
+    "body": {
+     "meeting": "Tuesday Study",
+     "org": "Grace Church",
+     "color": "#1f3a6d",
+     "logo": "",
+     "lw": 0,
+     "lh": 0,
+     "auto": false
+    }
+   },
+   {
+    "kind": "layout",
+    "id": "layout",
+    "body": {
+     "bdayPos": "top",
+     "bdayScale": 1,
+     "verseAlign": "center",
+     "verseY": 40,
+     "verseWidth": 70,
+     "verseScale": 1,
+     "qBottom": 10,
+     "qWidth": 80,
+     "qScale": 1,
+     "panel": 92
+    }
+   },
+   {
+    "kind": "meeting",
+    "id": "meeting",
+    "body": {
+     "title": "Romans · Week 5",
+     "date": "",
+     "time": "",
+     "location": "",
+     "presenter": "Sam",
+     "contact": "",
+     "attendees": "24",
+     "attendeeNotes": "",
+     "owner": "",
+     "contentNotes": "",
+     "notes": "",
+     "extra": ""
+    }
+   },
+   {
+    "kind": "profile",
+    "id": "profile",
+    "body": {
+     "value": "sunday"
+    }
+   }
+  ],
+  "local": {
+   "rev": 41,
+   "verse": {
+    "text": "Thy word is a lamp unto my feet, and a light unto my path.",
+    "ref": "Psalm 119:105",
+    "version": "KJV",
+    "visible": false,
+    "seq": 0,
+    "cut": 0,
+    "itemId": "s1",
+    "play": "",
+    "upcoming": "",
+    "out": {
+     "vcam": true,
+     "obs": true
+    }
+   },
+   "question": {
+    "text": "What stands out?",
+    "visible": true,
+    "seq": 0,
+    "cut": 0,
+    "itemId": "q_a",
+    "mode": "",
+    "play": "",
+    "upcoming": "",
+    "out": {
+     "vcam": true,
+     "obs": true
+    }
+   },
+   "birthday": {
+    "name": "Ann",
+    "greeting": "Happy birthday, Ann!",
+    "message": "",
+    "country": "",
+    "visible": false,
+    "seq": 0,
+    "cut": 0,
+    "out": {
+     "vcam": true,
+     "obs": true
+    }
+   },
+   "live": {
+    "scene": "sc_study",
+    "deck": "",
+    "seq": 7,
+    "at": 1700000000000,
+    "tx": "cut",
+    "txMs": 0,
+    "auto": true,
+    "blackout": false,
+    "emergency": false,
+    "freeze": false,
+    "ink": {
+     "on": false,
+     "items": [],
+     "undone": []
+    },
+    "message": "Please stand by — we’ll be right back.",
+    "on": {},
+    "cd": {}
+   },
+   "v6": true,
+   "library": {},
+   "keys": [
+    "rev",
+    "verse",
+    "question",
+    "birthday",
+    "layout",
+    "scenes",
+    "live",
+    "profile",
+    "v6",
+    "brand",
+    "meeting",
+    "library"
+   ]
+  }
+ }
+}

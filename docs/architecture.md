@@ -363,4 +363,5 @@ See [../SECURITY.md](../SECURITY.md) for how to report a problem.
 - [Getting started](getting-started.md)
 - [Media](media.md) · [Remote control](remote-control.md)
 - [Design history (engineering log)](architecture/design-history.md)
+- [Runtime protocol: the `api/*` contract](architecture/runtime-protocol.md) · [SaaS + PWA architecture](project/saas-pwa-architecture.md)
 - [Developer guide](contributing.md) · [Building the installer](development/building-the-installer.md)

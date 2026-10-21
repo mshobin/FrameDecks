@@ -293,9 +293,10 @@ CREATE TABLE refresh_tokens (             -- users, runtimes and devices; rotati
 );
 CREATE TABLE entities (                   -- synced metadata: one row per Frame / template / theme / setting
   workspace_id TEXT NOT NULL REFERENCES workspaces(id),
-  kind TEXT NOT NULL CHECK (kind IN ('frame','template','theme','library_verse','library_question',
+  kind TEXT NOT NULL CHECK (kind IN ('frame','template','order','theme','library_verse','library_question',
                                      'brand','profile','layout','meeting',
                                      'members')),     -- members: body is ciphertext (D5)
+                                          -- order: one per workspace, the running order of Frames and library lists
   id TEXT NOT NULL,
   rev INTEGER NOT NULL,                   -- per-entity version
   seq INTEGER NOT NULL,                   -- workspace-wide change sequence (pull cursor)
@@ -394,7 +395,10 @@ The state document is split into **entities**, one per Frame (with its Decks, it
 item, template, theme and setting block. They are synced by version. A Deck is part of its Frame, not an entity of
 its own: adding, renaming or reordering Decks, or moving Content between them, is a change to that one Frame.
 
-- **Map:** `kc-saved-content.json` ⇄ entities, by a pure function in each engine. It is tested so that splitting
+- **Map:** `kc-saved-content.json` ⇄ entities, by a pure function in each engine (`app/js/entities.js`,
+  `framedecks_app/lib/engine/entities.dart`). The running order is its own `order` entity, so inserting a Frame
+  sends that Frame and the order, not every Frame after it; card looks are one `theme` entity, and what a card shows
+  at the moment stays local. It is tested so that splitting
   and joining gives back the identical document (the same parity approach as `store.js` ⇄ Dart).
 - **Push:** when the document changes, the connector diffs it against the last synced copy and sends the changed
   entities with their `baseRev`.
@@ -551,7 +555,7 @@ Only add seams; never move existing behaviour.
 
 | Seam | Change | Risk control |
 |---|---|---|
-| Transport | Route the network calls of `store.js` and `remote.js` (state, revision, sign-in, Studio actions, live picture) through one `KCTransport.fetch`; default = today's `fetch` | Existing Node tests + new transport tests; Playwright screenshots of `remote.html` before and after must match |
+| Transport | Route the network calls of `store.js` and `remote.js` (state, revision, sign-in, Studio actions, live picture) through one `KCTransport.fetch`; default = today's `fetch` | Existing Node tests; `tools/remote_screens.py`: pictures of `remote.html` identical before and after, and through a loopback relay |
 | `server.py` connector | New module with only two hooks: "document saved" and "replay this API request" | Off by default; unit tests; the existing Python test suite |
 | Dart `CloudSyncBackend` | Decorator around `StateBackend` | Parity tests for entity split / join |
 | Settings | Two new sections, in the existing section style | Widget tests; screenshots |
@@ -601,9 +605,10 @@ Only add seams; never move existing behaviour.
 2. Entity split / join in JS (`app/js/entities.js`) and Dart (`framedecks_app/lib/engine/entities.dart`), with
    shared fixtures (`tests/fixtures/entities/`). Prove that splitting and joining gives back an identical document,
    Decks included.
-3. Route the network calls of `store.js` and `remote.js` through `KCTransport.fetch` (`app/js/transport.js`),
-   default unchanged. Add Playwright golden tests of `remote.html` (phone and tablet, Simple and Advanced) that must
-   look the same before and after.
+3. Route the network calls of `store.js` and `remote.js` through `KCTransport.fetch` (defined at the top of
+   `store.js`, which every page, the remote included, already loads), default unchanged. `tools/remote_screens.py`
+   takes pictures of `remote.html` (phone and tablet, Simple and Advanced): they must be identical before and after,
+   and identical through the direct transport and a loopback relay transport (in CI, `app-tests.yml`).
 4. Create `cloud/` (Workers + D1 + wrangler, TypeScript), with `/v1/health`, the migrations in §7, tests, and a CI
    workflow that tests on every push and deploys only when the Cloudflare secrets are set.
 

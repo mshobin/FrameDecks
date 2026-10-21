@@ -10,6 +10,23 @@ Versions before 4.9 (when the program had its earlier name) are described in the
 
 ## [Unreleased]
 
+### Added (SaaS + PWA, Phase 1: Foundation; nothing changes for users yet)
+- **The runtime protocol**, `docs/architecture/runtime-protocol.md`: the `api/*` contract that the remote, the Flutter
+  app and the coming cloud relay follow, Deck fields included.
+- **Sync entities:** `app/js/entities.js` and `framedecks_app/lib/engine/entities.dart` split the saved document into the
+  records the cloud will store and join them back exactly.
+  - Each Frame (with its Decks and Content) is one record; the running order, the card looks and the settings are
+    their own records.
+  - What is live and what the cards show at the moment never leave the computer.
+  - Shared fixtures (`tests/fixtures/entities/`, `tools/make_entity_fixtures.js`) keep the two engines identical.
+- **One transport seam:** every request of `store.js` and `remote.js` goes through `KCTransport.fetch` (the browser's
+  `fetch` today, the cloud relay from Phase 3). `tools/remote_screens.py` proves the remote looks the same before and
+  after, and through a loopback relay.
+- **The cloud skeleton**, `cloud/`: a Cloudflare Worker (`framedecks-api`) with `GET /v1/health`, the D1 schema
+  (`migrations/0001_init.sql`), tests, and CI that deploys to staging only when the Cloudflare secrets are set.
+- **CI:** `app-tests.yml` runs the JavaScript and Python tests and the remote check on every push and pull request;
+  `cloud.yml` tests the Worker.
+
 ### Changed
 - **The program is now FrameDecks** — *Present • Equip • Inspire*. Every name people read is updated: window titles,
   the About page, the sign-in screens, messages, the installer, the store and web metadata (including Open Graph), and

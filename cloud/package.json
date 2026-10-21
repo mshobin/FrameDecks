@@ -1,0 +1,22 @@
+{
+  "name": "framedecks-api",
+  "version": "0.1.0",
+  "private": true,
+  "description": "FrameDecks cloud API (Cloudflare Workers + D1): metadata sync, sign-in, pairing and the relay. Phase 1: the skeleton.",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "migrate:local": "wrangler d1 migrations apply framedecks --local"
+  },
+  "devDependencies": {
+    "@cloudflare/vitest-plugin": "1.3.6",
+    "@cloudflare/workers-types": "5.20260923.1",
+    "@vitest/runner": "4.1.11",
+    "@vitest/snapshot": "4.1.11",
+    "typescript": "5.9.3",
+    "vitest": "4.1.11",
+    "wrangler": "4.147.0"
+  }
+}

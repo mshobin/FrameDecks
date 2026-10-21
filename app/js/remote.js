@@ -29,7 +29,7 @@ $('login-form').addEventListener('submit', function(e){
   e.preventDefault();
   var pin = $('pin').value.replace(/\D/g, '');
   if (pin.length !== 6){ $('login-msg').textContent = 'The PIN has 6 digits.'; return; }
-  fetch('api/remote-login', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({pin: pin})})
+  KCTransport.fetch('api/remote-login', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({pin: pin})})
     .then(function(r){ return r.json().then(function(d){ return {status: r.status, d: d}; }); })
     .then(function(res){
       if (res.status === 200){ $('pin').value = ''; showApp(); toast('Connected'); return; }
@@ -41,7 +41,7 @@ $('login-form').addEventListener('submit', function(e){
 });
 $('dash-logout').addEventListener('click', function(){ $('logout').click(); });
 $('logout').addEventListener('click', function(){
-  fetch('api/remote-logout', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: '{}'}).finally(function(){ showLogin('Disconnected. Enter the PIN to connect again.'); });
+  KCTransport.fetch('api/remote-logout', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: '{}'}).finally(function(){ showLogin('Disconnected. Enter the PIN to connect again.'); });
 });
 Store.onAuthFailed = function(){ if ($('login').hidden) showLogin('Please enter the PIN again.'); };
 
@@ -325,7 +325,7 @@ function renderChips(){
   $('slides').hidden = !pres; if (pres) setText($('sl-t'), 'Slide ' + (pres.page ? pres.page + (pres.pages ? ' / ' + pres.pages : '') : ''));
 }
 function studioPost(body){
-  return fetch('api/remote/studio', {method: 'POST', headers: {'Content-Type': 'application/json'}, credentials: 'same-origin', body: JSON.stringify(body)})
+  return KCTransport.fetch('api/remote/studio', {method: 'POST', headers: {'Content-Type': 'application/json'}, credentials: 'same-origin', body: JSON.stringify(body)})
     .then(function(r){ return r.json().then(function(d){ if (!r.ok) throw new Error(d.error || 'Not available'); return d; }); });
 }
 all('[data-slide]').forEach(function(b){
@@ -339,7 +339,7 @@ var studioT = null;
 function pollStudio(){
   clearTimeout(studioT);
   if (!$('app').hidden && !document.hidden)
-    fetch('api/remote/studio', {cache: 'no-store', credentials: 'same-origin'}).then(function(r){ return r.ok ? r.json() : null; }).then(function(d){ if (d){ studioInfo = d; renderChips(); } }).catch(function(){});
+    KCTransport.fetch('api/remote/studio', {cache: 'no-store', credentials: 'same-origin'}).then(function(r){ return r.ok ? r.json() : null; }).then(function(d){ if (d){ studioInfo = d; renderChips(); } }).catch(function(){});
   studioT = setTimeout(pollStudio, document.hidden ? 15000 : 4000);
 }
 document.addEventListener('visibilitychange', function(){ if (!document.hidden && !$('app').hidden){ pollStudio(); } if (live) renderCanvas(); });
@@ -448,7 +448,7 @@ function padLive(){
   clearTimeout(pad.timer);
   if ($('drawpad').hidden) return;
   var h = {}; if (pad.tag) h['If-None-Match'] = pad.tag;
-  fetch('api/remote/live.jpg?t=' + Date.now(), {cache: 'no-store', credentials: 'same-origin', headers: h}).then(function(r){
+  KCTransport.fetch('api/remote/live.jpg?t=' + Date.now(), {cache: 'no-store', credentials: 'same-origin', headers: h}).then(function(r){
     if (r.status === 304) return null;
     if (r.status !== 200){ pad.tag = ''; $('dp-live').hidden = true; return null; }
     pad.tag = r.headers.get('ETag') || '';
@@ -535,7 +535,7 @@ setInterval(function(){
 setRole(lsGet('bcc-remote-role', 'presenter'));
 document.body.dataset.tab = role().tabs.indexOf(lsGet('bcc-remote-tab', 'live')) >= 0 ? lsGet('bcc-remote-tab', 'live') : 'live';
 /* Start: find out whether this device is already signed in. Updates arrive the moment they happen (long-poll). */
-fetch('api/rev', {cache: 'no-store'}).then(function(r){
+KCTransport.fetch('api/rev', {cache: 'no-store'}).then(function(r){
   if (r.status === 403 || r.status === 401) showLogin(); else showApp();
   Store.start({longPoll: true});
 }).catch(function(){ showLogin('Can’t reach your PC. Check it’s on the same Wi-Fi and the program is running.'); Store.start({longPoll: true}); });
