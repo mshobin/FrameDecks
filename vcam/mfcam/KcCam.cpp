@@ -22,6 +22,7 @@ struct KcCam
 };
 
 static volatile HRESULT _lastError = S_OK;
+static volatile int _lastStep = 0;   // 1 MFStartup, 2 MFCreateVirtualCamera, 3 IMFVirtualCamera::Start
 
 static bool OpenFrames(KcCam* cam)
 {
@@ -70,10 +71,12 @@ extern "C" void* __cdecl KcCamCreate(const wchar_t* friendlyName)
 		return nullptr;
 	auto hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
 	cam->comInit = SUCCEEDED(hr);   // RPC_E_CHANGED_MODE: this thread already has COM, which is fine
+	_lastStep = 1;
 	hr = MFStartup(MF_VERSION);
 	if (SUCCEEDED(hr))
 	{
 		cam->mfInit = true;
+		_lastStep = 2;
 		auto clsid = GUID_ToStringW(CLSID_VCam, false);   // "{…}" (true would give the name "CLSID_VCam")
 		hr = MFCreateVirtualCamera(
 			MFVirtualCameraType_SoftwareCameraSource,
@@ -86,7 +89,10 @@ extern "C" void* __cdecl KcCamCreate(const wchar_t* friendlyName)
 			&cam->vcam);
 	}
 	if (SUCCEEDED(hr))
+	{
+		_lastStep = 3;
 		hr = cam->vcam->Start(nullptr);
+	}
 	_lastError = hr;
 	if (FAILED(hr))
 	{
@@ -99,6 +105,12 @@ extern "C" void* __cdecl KcCamCreate(const wchar_t* friendlyName)
 extern "C" int __cdecl KcCamLastError()
 {
 	return (int)_lastError;
+}
+
+// Which step KcCamLastError comes from: 1 starting Media Foundation, 2 creating the camera, 3 starting it.
+extern "C" int __cdecl KcCamLastStep()
+{
+	return _lastStep;
 }
 
 // 1 while an app (Zoom, Teams, OBS…) is receiving the camera.

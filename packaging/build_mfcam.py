@@ -18,7 +18,7 @@ CLSID = "06BACA0B-14C0-4E9B-8161-ED7D11F73518"
 HERE = Path(__file__).resolve().parent.parent
 OURS = HERE / "vcam" / "mfcam"
 OVERLAY = ["FrameGenerator.h", "FrameGenerator.cpp", "SharedFrame.h", "KcCam.cpp"]
-EXPORTS = ["KcCamCreate", "KcCamLastError", "KcCamIsConnected", "KcCamSend", "KcCamDelete"]
+EXPORTS = ["KcCamCreate", "KcCamLastError", "KcCamLastStep", "KcCamIsConnected", "KcCamSend", "KcCamDelete"]
 
 
 def guid_init(g):

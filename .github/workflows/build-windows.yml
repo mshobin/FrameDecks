@@ -84,6 +84,17 @@ jobs:
       - name: Run the tests (Node.js)
         run: node tests/run.js
 
+      - name: Let desktop apps use cameras on this build machine (for the camera end-to-end test)
+        shell: pwsh
+        run: |
+          $base = 'SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\webcam'
+          foreach ($k in "HKLM:\$base", "HKCU:\$base", "HKCU:\$base\NonPackaged") {
+            New-Item -Force -Path $k | Out-Null
+            Set-ItemProperty -Path $k -Name Value -Value Allow
+          }
+          [Environment]::OSVersion.Version
+          Get-Service FrameServer, FrameServerMonitor -ErrorAction SilentlyContinue | Format-Table Name, Status, StartType
+
       - name: Run the desktop tests (Python, on Windows)
         env:
           KC_CAMERA_E2E: "1"   # installs the Windows 11 KingdomConnect camera, reads it back, removes it (needs admin)

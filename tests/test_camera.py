@@ -75,6 +75,7 @@ class Ids(unittest.TestCase):
     def test_errors_in_words(self):
         self.assertIn("not installed", sink.mf_error(0x80040154))
         self.assertIn("0x8000FFFF", sink.mf_error(0x8000FFFF))
+        self.assertIn("while starting the camera, 0x80070005", sink.mf_error(0x80070005, 3))
 
 
 def _bin():

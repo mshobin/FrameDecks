@@ -125,6 +125,7 @@ class MFSink:
         self.lib.KcCamCreate.restype = ctypes.c_void_p
         self.lib.KcCamCreate.argtypes = [ctypes.c_wchar_p]
         self.lib.KcCamLastError.restype = ctypes.c_int
+        self.lib.KcCamLastStep.restype = ctypes.c_int
         self.lib.KcCamIsConnected.argtypes = [ctypes.c_void_p]
         self.lib.KcCamIsConnected.restype = ctypes.c_int
         self.lib.KcCamSend.argtypes = [ctypes.c_void_p, ctypes.c_void_p, ctypes.c_int, ctypes.c_int]
@@ -134,7 +135,7 @@ class MFSink:
         self.cam = self.lib.KcCamCreate(VCAM_NAME)
         if not self.cam:
             code = self.lib.KcCamLastError() & 0xFFFFFFFF
-            raise RuntimeError(mf_error(code))
+            raise RuntimeError(mf_error(code, self.lib.KcCamLastStep()))
 
     def connected(self):
         return bool(self.cam) and bool(self.lib.KcCamIsConnected(self.cam))
@@ -149,14 +150,18 @@ class MFSink:
             self.cam = None
 
 
-def mf_error(code):
-    """Windows' answer to "show the camera", in words."""
+MF_STEPS = {1: "starting Media Foundation", 2: "creating the camera", 3: "starting the camera"}
+
+
+def mf_error(code, step=0):
+    """Windows' answer to "show the camera", in words (step: where it failed, see KcCamLastStep)."""
     words = {
         0x80040154: "the KingdomConnect camera is not installed (Settings → KingdomConnect → Install)",
         0x80070005: "Windows refused access to the camera (Settings → Privacy & security → Camera)",
         0x80004001: "this version of Windows has no virtual cameras (Windows 11 is needed)",
     }
-    return "KingdomConnect couldn’t start: " + words.get(code, f"Windows error 0x{code:08X}") + "."
+    where = f" (while {MF_STEPS[step]}, 0x{code:08X})" if step in MF_STEPS else ""
+    return "KingdomConnect couldn’t start: " + words.get(code, f"Windows error 0x{code:08X}") + where + "."
 
 
 class FakeSink:
