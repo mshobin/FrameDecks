@@ -107,11 +107,7 @@ final class CameraBridge: NSObject, OSSystemExtensionRequestDelegate {
         CMIOObjectGetPropertyData(CMIOObjectID(kCMIOObjectSystemObject), &address, 0, nil, size, &used, &ids)
         address.mSelector = CMIOObjectPropertySelector(kCMIODevicePropertyDeviceUID)
         for id in ids {
-            var uidSize: UInt32 = 0
-            CMIOObjectGetPropertyDataSize(id, &address, 0, nil, &uidSize)
-            var name: CFString = "" as CFString
-            CMIOObjectGetPropertyData(id, &address, 0, nil, uidSize, &used, &name)
-            if (name as String) == uid { return id }
+            if stringProperty(id, &address) == uid { return id }
         }
         return nil
     }
@@ -135,12 +131,16 @@ final class CameraBridge: NSObject, OSSystemExtensionRequestDelegate {
                                                 mScope: CMIOObjectPropertyScope(kCMIOObjectPropertyScopeGlobal),
                                                 mElement: CMIOObjectPropertyElement(kCMIOObjectPropertyElementMain))
         guard CMIOObjectHasProperty(sourceStream, &address) else { return false }
-        var size: UInt32 = 0
+        return stringProperty(sourceStream, &address) == "1"
+    }
+
+    /// A text property. CoreMedia IO hands over its own reference to the string, which is released here.
+    private func stringProperty(_ object: CMIOObjectID, _ address: inout CMIOObjectPropertyAddress) -> String? {
+        var value: Unmanaged<CFString>?
         var used: UInt32 = 0
-        CMIOObjectGetPropertyDataSize(sourceStream, &address, 0, nil, &size)
-        var value: CFString = "" as CFString
-        CMIOObjectGetPropertyData(sourceStream, &address, 0, nil, size, &used, &value)
-        return (value as String) == "1"
+        let size = UInt32(MemoryLayout<Unmanaged<CFString>?>.size)
+        guard CMIOObjectGetPropertyData(object, &address, 0, nil, size, &used, &value) == 0 else { return nil }
+        return value?.takeRetainedValue() as String?
     }
 
     // ---------- install / remove ----------
