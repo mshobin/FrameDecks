@@ -1,6 +1,6 @@
 # Kingdom Connect: SaaS + PWA architecture
 
-Status: **proposal**, October 2026. Nothing here is built yet.
+Status: **design agreed**, October 2026 (decisions D1–D6 below). Nothing here is built yet.
 
 This is a plan to add accounts, cloud sync, an installable web remote and secure pairing to Kingdom Connect,
 **around** the existing app. The app's screens, workflows, design, remote and presentation behaviour stay as they
@@ -55,16 +55,19 @@ Following "do not invent new workflows", every requested capability is mapped to
 | Service Flow Navigation | Frame order and groups; Run-through | ✅ exists |
 | Presentation Queue Navigation | NEXT badge and next-Frame preview | ✅ exists |
 
-### Decisions needed from you
+### Decisions (agreed)
 
-| # | Decision | Recommendation |
+| # | Decision | Agreed |
 |---|---|---|
 | D1 | Cloud provider | **Cloudflare** (Pages + Workers + D1 + Durable Objects): the lowest cost for this shape of service (§17) |
 | D2 | Which remote becomes the PWA | **`remote.html` itself** (fact 1 above) |
 | D3 | How people sign in | Google, Microsoft and Apple sign-in, plus a one-time email code. No passwords to store. |
-| D4 | Domain | `app.kingdomconnect.<tld>`: which domain do you own? |
-| D5 | Members, birthdays, email list | **Never synced.** They are personal data and stay on the PC (§7). |
-| D6 | Meeting details (presenter, contact, attendees) | Off by default, with an opt-in "Sync meeting details" setting |
+| D4 | Domain | **None yet.** Until one is chosen, the service runs on Cloudflare's free HTTPS addresses (`kingdom-connect.pages.dev` for the PWA, `kingdom-connect-api.<account>.workers.dev` for the API). Moving to a custom domain later is a configuration change (§14). |
+| D5 | Members, birthdays, email list | **Synced, because it costs nothing** (a few kilobytes per ministry, within the free allowances). Because this is personal data about other people, it is **end-to-end encrypted**: the cloud stores only ciphertext it cannot read, and only the ministry's own signed-in computers hold the key (§7, §15). |
+| D6 | Meeting details (presenter, contact, attendees) | **Off by default**, with an opt-in "Sync meeting details" setting |
+
+In this document, `app.kingdomconnect` and `api.kingdomconnect` mean "the PWA address" and "the API address": the
+`pages.dev` / `workers.dev` addresses above until a domain exists.
 
 ---
 
@@ -286,7 +289,8 @@ CREATE TABLE refresh_tokens (             -- users, runtimes and devices; rotati
 CREATE TABLE entities (                   -- synced metadata: one row per Frame / template / theme / setting
   workspace_id TEXT NOT NULL REFERENCES workspaces(id),
   kind TEXT NOT NULL CHECK (kind IN ('frame','template','theme','library_verse','library_question',
-                                     'brand','profile','layout','meeting')),
+                                     'brand','profile','layout','meeting',
+                                     'members')),     -- members: body is ciphertext (D5)
   id TEXT NOT NULL,
   rev INTEGER NOT NULL,                   -- per-entity version
   seq INTEGER NOT NULL,                   -- workspace-wide change sequence (pull cursor)
@@ -304,9 +308,14 @@ CREATE TABLE audit_log (
 );
 ```
 
+**Stored only end-to-end encrypted** (D5): members, birthdays and the email list, as `members` entities whose
+`body` is ciphertext. The key is created on the first signed-in computer. Another computer gets it when it joins the
+workspace and is approved from a computer that already has it (the same Approve step as pairing, §6), sent sealed
+end to end; the cloud never has it. Remote devices (phones) never receive
+members data, just as today.
+
 **Never stored in the cloud:**
 - media files, logos and other images (only a content hash, so another device can say "logo missing on this computer");
-- members, birthdays and the email list;
 - what is live (`live`);
 - camera settings;
 - recordings;
@@ -314,7 +323,7 @@ CREATE TABLE audit_log (
 
 ## 8. API design
 
-Base: `https://api.kingdomconnect.<tld>/v1`. All requests and responses are JSON, and every request must carry a
+Base: `https://api.kingdomconnect/v1` (the `workers.dev` address until a domain exists, D4). All requests and responses are JSON, and every request must carry a
 token unless marked public.
 
 | Method & path | Who | What |
@@ -445,6 +454,10 @@ flowchart LR
 | Mac runtime | Signed app (and Mac App Store) | PR #10 |
 | Native remotes | App Store / Play | From the Flutter app (PR #8) |
 
+Addresses: until a domain is chosen (D4), Pages and Workers use their free `pages.dev` / `workers.dev` HTTPS
+addresses. Adding a domain later means adding it in Cloudflare, pointing the PWA and API there, and keeping the old
+addresses redirecting, so installed remotes keep working.
+
 Observability: Workers logs and analytics (no personal data in logs), uptime checks on `/v1/health`, and alerts by
 email.
 
@@ -464,7 +477,8 @@ email.
 | Session revocation | Revoking a refresh family closes live sockets through the RuntimeRelay object |
 | Rate limiting | Per IP and per account on sign-in, email codes, pairing claims and API writes |
 | End-to-end relay encryption | At pairing, the device and runtime do an X25519 key agreement bound to the QR / pair token. Relay payloads use AES-GCM, so the cloud cannot read meeting content in transit. |
-| Data minimisation | Metadata only; no members data; delete-account and export endpoints |
+| Members data (D5) | End-to-end encrypted with a per-workspace key (AES-256-GCM) that only the ministry's computers hold; the cloud stores ciphertext. Losing every computer loses the key, so Settings offers a printable recovery key. |
+| Data minimisation | Metadata only; members data unreadable by the cloud; delete-account and export endpoints |
 
 ## 16. Data flow diagrams
 
@@ -519,7 +533,7 @@ sequenceDiagram
    - If the account already has data from another computer, the person chooses: **Merge**, which uses the conflict
      rules, or **Use this computer's Frames**. Nothing is ever deleted without that choice.
 3. The Wi-Fi PIN remote stays the default. "Pair with a code" is offered beside it.
-4. The PWA goes live at `app.kingdomconnect.<tld>/remote`. The old `http://PC:8750/remote.html` keeps working
+4. The PWA goes live at `app.kingdomconnect/remote` (the `pages.dev` address until a domain exists). The old `http://PC:8750/remote.html` keeps working
    forever.
 5. **Rollback:** disabling the connector returns a runtime to exactly today's behaviour. Cloud data stays until the
    user deletes it.
@@ -558,7 +572,8 @@ Only add seams; never move existing behaviour.
 | Account takeover | Low | High | OIDC, rotating refresh with reuse detection, approval at the runtime, revocation |
 | Two engines (Python, Dart) diverge | Medium | Medium | One protocol spec; shared conformance fixtures, like the parity tests |
 | Free service costs grow | Low | Medium | Metadata only; kill-switches; cost alerts |
-| Privacy / GDPR | Medium | Medium | No members data; export / delete; minimal logs; privacy notice before launch |
+| Privacy / GDPR (members data is about other people) | Medium | Medium | End-to-end encryption, so the cloud cannot read it; export / delete; minimal logs; a privacy notice before launch |
+| Members encryption key lost | Low | Medium | Key on every signed-in computer, plus a printable recovery key; the PC's local copy is always kept |
 | Teams does not send a virtual camera to the call (PR #9) | Unknown | High | Test before release; Share Window remains the fallback |
 | Mac runtime lacks media and PowerPoint | Certain today | Medium | Phase 5 |
 
@@ -589,7 +604,8 @@ Exit: everything as today, plus the safety nets that later phases rely on.
 
 Sign-in (D3) · workspaces and members · runtime registration and tokens in the OS keychain · `/sync` with conflict
 rules · Windows connector (`server.py` module) · `CloudSyncBackend` (Dart) · Settings: account, sync status, "Sync
-meeting details" (D6) · templates and themes as shared entities · audit log · export and delete.
+meeting details" (D6) · members sync, end-to-end encrypted, with a recovery key (D5) · templates and themes as shared
+entities · audit log · export and delete.
 
 Exit: two PCs signed into one account show the same Frames, and every existing test passes with the cloud on or off.
 
