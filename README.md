@@ -3,13 +3,16 @@
 A service presentation platform for churches and ministries. Plan each service as **Frames** — Welcome, Worship,
 Scripture, Discussion, Prayer, Closing — fill them with questions, scriptures, text, timers, pictures, video and
 PowerPoint, and present to the room, to Zoom / Teams / Google Meet and to your stream at the same time. Run it from
-the PC, a phone or an iPad. It runs **entirely on your PC**: no accounts, no subscriptions, no cloud, no telemetry.
-The only feature that ever goes online is the optional ESV scripture fetch.
+the PC, a phone or an iPad. **FRAMEDECKS 6.9 runs locally**: no account or cloud connection is required for a
+service, and the only current online feature is the optional ESV scripture fetch. The modernization plan adds
+optional cloud accounts and metadata sync while keeping presentation media and live output local. FRAMEDECKS
+remains free, with no payments or feature restrictions.
 
 > **Status: FRAMEDECKS 6.9 is ready for teaching, Bible study, small-group and hybrid services, with documented
 > gaps.** The biggest: no song / lyrics library yet (lyrics are shown as Text Content or a PowerPoint), an unsigned
 > installer, no automated UI tests, and no published licence. See the
-> [repository audit](docs/project/repository-audit.md) and the [roadmap](ROADMAP.md).
+> [repository audit](docs/project/repository-audit.md), [modernization status](docs/FRAMEDECKS_MODERNIZATION_STATUS.md),
+> and the [roadmap](ROADMAP.md).
 
 ## What it does
 - **Frames and Content**: one Frame per moment of the service; **+ Content** adds a Question, Scripture, Text,

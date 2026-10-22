@@ -17,21 +17,39 @@ Every item below is weighed against these principles, in this order:
    time is not ready.
 2. **Volunteer-friendly.** A new volunteer should run a meeting after one short walkthrough. Defaults must be right;
    settings are for exceptions.
-3. **Offline first.** A service must never depend on the internet, an account or a server. Online features (like the
-   ESV lookup) are optional conveniences with an offline fallback.
-4. **Private by default.** Church and member data stays on the church's own computer. No telemetry.
+3. **Local-first presenting.** Live presentation, media playback, camera output, and service-day operation must not
+   depend on the internet. Optional cloud metadata sync must resume after reconnection.
+4. **Private by default.** Presentation media and member data stay on the church's own computer. Cloud sync is
+   limited to account/profile data, settings, themes, templates, presentation definitions, pairing records, and
+   security audit logs. No product-usage telemetry.
 5. **No subscriptions.** FRAMEDECKS is church software, not a service with tiers, seats or billing.
 6. **Fast operation.** The common actions (Go Live, next, hide, black screen) are one key or one tap, and respond at
    once.
 
 ---
 
-## Where we are (6.6)
+## Where we are (6.9)
 
 FRAMEDECKS runs a complete meeting from one Windows PC: Frames and Content, questions and scriptures with
 answers and notes, PowerPoint and media, the FRAMEDECKS camera for Zoom, Teams and Google Meet, OBS overlay pages,
 a Presentation window for projectors and screen sharing, annotation, a Speaker View, and a phone remote. See
 [CHANGELOG.md](CHANGELOG.md).
+
+## Modernization direction
+
+FRAMEDECKS is being modernized incrementally as a free, cloud-connected platform while preserving the current
+local presentation runtime and user workflows. The hosted control plane is planned around Next.js, TypeScript,
+Tailwind CSS, shadcn/ui, Supabase, and Vercel. The mobile PWA remains a remote-control client; presentation rendering
+and media playback remain on local runtimes.
+
+Cloud synchronization is metadata-only. Images, video, audio, presentation assets, and media libraries remain local.
+The product remains completely free: no payments, subscriptions, paywalls, trials, licensing restrictions, or
+feature gating. Initial deployments use Vercel-provided URLs; Cloudflare edge integration is deferred until a custom
+domain is available.
+
+Implementation is tracked in [the modernization status](docs/FRAMEDECKS_MODERNIZATION_STATUS.md), with the
+[architecture and migration plan](docs/FRAMEDECKS_MODERNIZATION.md). This direction does not authorize removing
+existing features or making live presenting dependent on cloud connectivity.
 
 ---
 
@@ -68,6 +86,7 @@ a Presentation window for projectors and screen sharing, annotation, a Speaker V
 
 ## Not planned
 
-- Accounts, cloud sync, subscriptions or multi-church hosting.
-- Advertising or telemetry.
+- Payments, subscriptions, paywalls, trials, licensing restrictions, or feature gating.
+- Cloud storage or streaming of presentation media.
+- Advertising or product-usage telemetry.
 - Features that need a permanent internet connection to run a service.
