@@ -2,7 +2,7 @@
 
 **Last updated:** 22 October 2026  
 **Working branch:** `modernization-v1`  
-**Current milestone:** Hosted foundation validated locally; provided Vercel previews return 404
+**Current milestone:** Hosted foundation validated locally; Vercel branch/root configuration needs correction
 
 **Overall implementation state:** Repository assessment, branding, and architecture are documented. The HTTPS-to-local-HTTP path is rejected; the hosted PWA is a separate online-first companion. A responsive static Next.js shell, shadcn-style UI base, boundary test, and independent CI workflow now exist and pass local checks. Vercel deployment, authentication, tenant data, pairing, and PWA install/cache remain unimplemented.
 
@@ -34,7 +34,7 @@
 | Milestone | Status | Next action / acceptance gate |
 |---|---|---|
 | Phase 1 — Repository audit and architecture | Completed | Baseline checks pass; constraints, target design, risks, rollback, and preservation matrix documented. |
-| Phase 2 — Next.js / TypeScript / Tailwind / shadcn foundation | Partially Complete | Separate responsive app shell and CI pass locally without changing the desktop UI. All three provided Vercel URLs currently return `404: NOT_FOUND`; verify that the project has a successful deployment and that these domains are assigned to it. |
+| Phase 2 — Next.js / TypeScript / Tailwind / shadcn foundation | Partially Complete | Separate responsive app shell and CI pass locally without changing the desktop UI. Vercel's default branch is `main`, which does not contain `hosted/`; the app exists on `modernization-v1`. Set the Vercel production branch to `modernization-v1` before setting Root Directory to `hosted`, or merge the app into the intended production branch. |
 | Phase 3 — Supabase Auth and tenant foundation | Not Started | Email, Google, Microsoft providers; define organization roles; add migrations and deny-by-default RLS tests before real data. |
 | Phase 4 — Metadata-only synchronization | Not Started | Define versioned contracts, local outbox, idempotency, conflict handling, and 6.9 import/export; prove no media bytes sync. |
 | Phase 5 — Hosted PWA and secure device pairing | Not Started | Online-first hosted companion; implement five-minute QR/6-digit challenge, authenticated user, runtime approval, trusted devices, roles, replay protection, revocation. No connection to the LAN HTTP server. |
@@ -53,7 +53,7 @@ distinct from the target-architecture workstreams above.
 | Phase 2 — Branding asset migration | Completed | Supplied logo is canonical; current app, remote/PWA, favicon, installer, workbook, and header assets were regenerated and checked. |
 | Phase 3 — Architecture/foundation planning | Completed | Target architecture, preservation boundaries, and staged modernization plans are documented. |
 | Phase 4 — PWA transport decision and architecture | Completed | Rejected HTTPS-to-local-HTTP. Approved the separate online-first hosted companion with Supabase auth and a paired outbound runtime channel; the current LAN remote remains unchanged. |
-| Phase 5 — Next.js hosted foundation | Partially Complete | Static responsive shell, shadcn-style base, no-local-HTTP test, and independent lint/typecheck/test/build workflow are implemented. Local checks pass. All three supplied URLs return Vercel `404: NOT_FOUND`; deployment remains unavailable for validation. |
+| Phase 5 — Next.js hosted foundation | Partially Complete | Static responsive shell, shadcn-style base, no-local-HTTP test, and independent lint/typecheck/test/build workflow are implemented. Local checks pass. Vercel root selection fails because the default `main` branch lacks `hosted/`; the app is on `modernization-v1`. Correct the branch/root configuration and provide a Ready URL to validate deployment. |
 | Phase 6 — Supabase authentication and tenancy | Not Started | Requires implementation and project/provider credentials before OAuth or hosted auth can be end-to-end validated. |
 | Phase 7 — Metadata sync, hosted control, and pairing | Not Started | Requires versioned contracts, tenant RLS, runtime adapter, pairing, and authorization tests. |
 | Phase 8 — PWA install/cache and operations | Not Started | Safe app-shell cache only, real-device acceptance, and Vercel deployment/operations. |
@@ -82,7 +82,7 @@ weakened Origin check, shared cookie, or service-worker proxy may bridge the hos
 | Cloud data is metadata only | Completed | Account/profile/settings/themes/templates/presentation definitions/pairing/audit logs only; no cloud media, media libraries, or media backups. |
 | Existing local presentation remains offline | Completed | Must not depend on Vercel, Supabase, or internet for rendering, navigation, local media playback, virtual camera, Zoom, Teams, or OBS output. |
 | HTTPS hosted PWA to local HTTP | Resolved by scope | Hosted companion is online-first and separate; it never calls the legacy server. Keep the existing LAN remote unchanged. Future secure local transport is optional research, not a prerequisite for hosted PWA implementation. |
-| Vercel preview | Blocked | The original `https://framedecks.vercel.app/` URL and two supplied deployment-specific URLs all currently return Vercel `404: NOT_FOUND`. Verify a successful deployment, project root (`hosted/`), and domain assignment before continuing. |
+| Vercel preview | Blocked | The repository default branch is `main`, where `hosted/` is absent; `hosted/` exists on `modernization-v1`. This explains Vercel's “specified Root Directory does not exist” message. Set the project's production branch to `modernization-v1` before selecting Root Directory `hosted`, or merge the app to the intended production branch. A successful Ready deployment is still required before continuing. |
 | Legacy project assessment references | Partially Complete | The active root roadmap and README are aligned to the approved modernization direction; older project assessment documents still contain historical 6.6 references and should be refreshed when those audits are next revised. |
 | Mac runtime parity | Blocked | Current camera/capture/native runtime is Windows-oriented. Scope and implement a Mac-native runtime before claiming feature parity. |
 | Cloudflare edge | Blocked | No custom domain exists. Start with Vercel-provided URLs; do not make Cloudflare a deployment prerequisite. |

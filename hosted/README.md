@@ -31,8 +31,15 @@ hosted source. It does not replace security review or browser/device testing.
 
 ## Vercel preview setup
 
-Import the repository into Vercel and set the project root to `hosted/`. Use
-the default Next.js framework settings and build command. The app currently
+The hosted app currently exists on the `modernization-v1` branch. The repository
+default branch, `main`, does not contain `hosted/`. In the Vercel project, first
+set the production branch to `modernization-v1` (or merge the hosted app into
+the branch Vercel should deploy). Then set the project Root Directory to
+`hosted`, relative to the repository root. If Vercel reports that this
+directory does not exist, verify the selected repository and branch contain
+`hosted/` before changing build commands.
+
+Use the default Next.js framework settings and build command. The app currently
 requires no environment variables. Keep preview and production credentials
 separate when authenticated services are introduced. The app uses the
 Vercel-provided HTTPS URL; no custom domain or Cloudflare configuration is
