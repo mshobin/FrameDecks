@@ -1,5 +1,5 @@
 @echo off
-title Undo iPad Remote permission - Kingdom Connect
+title Undo iPad Remote permission - FRAMEDECKS
 set "KC_SELF=%~f0"
 set "KC_DIR=%~dp0"
 net session >nul 2>&1

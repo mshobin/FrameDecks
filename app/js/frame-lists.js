@@ -1,4 +1,4 @@
-/* Kingdom Connect v6.5 - the Question and Scripture lists of a Frame.
+/* FRAMEDECKS v6.5 - the Question and Scripture lists of a Frame.
  *
  * Every Question / Scripture Content owns its list (layer.c.items), so changing one Frame never changes another.
  * The list fills the Content Settings panel; a click makes an item the Frame's current one, Show puts it on screen,

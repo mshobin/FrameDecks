@@ -6,12 +6,12 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="KC Director">
+<meta name="apple-mobile-web-app-title" content="FRAMEDECKS">
 <meta name="theme-color" content="#0a1426">
 <link rel="manifest" href="remote-manifest.json">
 <link rel="apple-touch-icon" href="icons/remote-180.png">
 <link rel="icon" type="image/png" href="icons/remote-192.png">
-<title>Kingdom Connect Director</title>
+<title>FRAMEDECKS Director</title>
 <link rel="stylesheet" href="css/remote.css">
 <link rel="stylesheet" href="css/teleprompter.css">
 </head>
@@ -20,8 +20,8 @@
 <!-- PIN screen -->
 <section class="login" id="login" hidden>
   <div class="login-card">
-    <img class="logo" src="img/kc-emblem.webp" alt="Kingdom Connect" width="84" height="102">
-    <h1 class="sr-only">Kingdom Connect Mobile Director</h1>
+    <img class="logo" src="img/kc-emblem.webp" alt="FRAMEDECKS" width="84" height="102">
+    <h1 class="sr-only">FRAMEDECKS Mobile Director</h1>
     <p>Enter the 6-digit PIN shown on your PC<br>(Settings → Phone &amp; iPad Remote).</p>
     <form id="login-form" autocomplete="off">
       <input id="pin" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="••••••" aria-label="PIN" autocomplete="one-time-code">
@@ -35,8 +35,8 @@
 <!-- Director: Scene → Layer → Canvas -->
 <div class="app" id="app" hidden>
   <header class="bar">
-    <div class="brand" title="Kingdom Connect"><img class="brand-mark" src="img/kc-emblem.webp" alt="Kingdom Connect" width="26" height="32">
-      <div class="brand-t"><b class="title sr-only">Kingdom Connect</b><small id="role-name">Admin</small></div></div>
+    <div class="brand" title="FRAMEDECKS"><img class="brand-mark" src="img/kc-emblem.webp" alt="FRAMEDECKS" width="26" height="32">
+      <div class="brand-t"><b class="title sr-only">FRAMEDECKS</b><small id="role-name">Admin</small></div></div>
     <span class="conn" id="conn"><i></i><b>Connecting…</b></span>
     <span class="onair" id="onair" role="status" aria-live="polite"><i></i><b>OFF AIR</b></span>
     <button class="tool more-btn" type="button" id="more-btn" aria-label="More: layout, disconnect" aria-haspopup="dialog"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg></button>

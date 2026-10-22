@@ -1,4 +1,4 @@
-/* Kingdom Connect - reads an Excel (.xlsx/.xls) or CSV file in the background, so the window never freezes.
+/* FRAMEDECKS - reads an Excel (.xlsx/.xls) or CSV file in the background, so the window never freezes.
  * In:  {buffer: ArrayBuffer, name: string}
  * Out: {ok, sheets, sheet, headerRow, headers, rows}  (rows = arrays of cell text below the header row)
  *      with {all: true}: {ok, sheets, book: {sheet name: {headers, headerRow, rows}}, grids: {sheet name: {first, rows}}}
@@ -43,7 +43,7 @@ self.onmessage = function(e){
       if (want && !rows.slice(0, 10).some(function(r){ return r.some(function(c){ return cellText(c).toLowerCase() === want; }); })) return;
       if (!pick && rows.length) { pick = n; best = rows; }
     });
-    if (!pick && want) { self.postMessage({ok: false, error: 'No sheet in this file has a “' + e.data.want + '” column. Use the Kingdom Connect meeting template (Download the Excel template).'}); return; }
+    if (!pick && want) { self.postMessage({ok: false, error: 'No sheet in this file has a “' + e.data.want + '” column. Use the FRAMEDECKS meeting template (Download the Excel template).'}); return; }
     if (!pick) { self.postMessage({ok: false, error: 'The file has no rows to import.'}); return; }
     // The header row: the first of the first 10 rows with at least two filled cells
     var hr = 0;

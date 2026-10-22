@@ -1,5 +1,5 @@
-# PyInstaller recipe for the Kingdom Connect Windows app.
-# Build:  pyinstaller --noconfirm --clean packaging/kingdom-connect.spec --distpath dist --workpath build
+# PyInstaller recipe for the FRAMEDECKS Windows app.
+# Build:  pyinstaller --noconfirm --clean packaging/framedecks.spec --distpath dist --workpath build
 # "Folder" mode (not one-file): starts faster and triggers fewer antivirus false alarms.
 from pathlib import Path
 
@@ -17,12 +17,12 @@ try:  # needs "pefile", which PyInstaller installs automatically on Windows
         ffi=FixedFileInfo(filevers=tuple(nums), prodvers=tuple(nums)),
         kids=[StringFileInfo([StringTable("040904B0", [
             StringStruct("CompanyName", "Shobin Mathews"),
-            StringStruct("FileDescription", "Kingdom Connect"),
+            StringStruct("FileDescription", "FRAMEDECKS"),
             StringStruct("FileVersion", VERSION),
-            StringStruct("InternalName", "Kingdom Connect"),
+            StringStruct("InternalName", "FRAMEDECKS"),
             StringStruct("LegalCopyright", "Copyright (C) Shobin Mathews"),
-            StringStruct("OriginalFilename", "Kingdom Connect.exe"),
-            StringStruct("ProductName", "Kingdom Connect"),
+            StringStruct("OriginalFilename", "FRAMEDECKS.exe"),
+            StringStruct("ProductName", "FRAMEDECKS"),
             StringStruct("ProductVersion", VERSION),
             StringStruct("Comments", "Independent tool by Shobin Mathews. Not affiliated with or endorsed by Bible Study Fellowship International."),
         ])]), VarFileInfo([VarStruct("Translation", [1033, 1200])])])
@@ -49,10 +49,10 @@ exe = EXE(
     a.scripts,
     [],
     exclude_binaries=True,
-    name="Kingdom Connect",
+    name="FRAMEDECKS",
     icon=str(root / "packaging" / "kingdom-connect.ico"),
     console=False,          # no black window
     upx=False,              # compression tools are a common cause of antivirus false alarms
     version=str(version_file) if version_file else None,
 )
-coll = COLLECT(exe, a.binaries, a.datas, name="Kingdom Connect", upx=False)
+coll = COLLECT(exe, a.binaries, a.datas, name="FRAMEDECKS", upx=False)

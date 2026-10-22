@@ -11,7 +11,7 @@ How to show pictures, videos, PowerPoint, PDFs, windows, your screen and your ca
 - [Videos](#videos)
 - [PowerPoint and PDF](#powerpoint-and-pdf)
 - [Windows, screens and cameras](#windows-screens-and-cameras)
-- [The KingdomConnect camera](#the-kingdomconnect-camera)
+- [The FRAMEDECKS camera](#the-framedecks-camera)
 - [Camera Looks and background blur](#camera-looks-and-background-blur)
 - [Projectors and the Presentation window](#projectors-and-the-presentation-window)
 - [OBS and browser overlay pages](#obs-and-browser-overlay-pages)
@@ -22,7 +22,7 @@ How to show pictures, videos, PowerPoint, PDFs, windows, your screen and your ca
 
 ## Media at a glance
 
-Media Content is part of the **KingdomConnect picture**: the finished 16:9 image that Kingdom Connect builds on your PC and sends to your meeting app, your projector and your recordings. Cards (questions, scriptures, birthdays) and text Content are always drawn in front of camera and media Content.
+Media Content is part of the **FRAMEDECKS picture**: the finished 16:9 image that FRAMEDECKS builds on your PC and sends to your meeting app, your projector and your recordings. Cards (questions, scriptures, birthdays) and text Content are always drawn in front of camera and media Content.
 
 | Content | What it shows | Where you add it |
 | --- | --- | --- |
@@ -36,15 +36,15 @@ Media Content is part of the **KingdomConnect picture**: the finished 16:9 image
 | **Logo / Watermark** | Your logo in a corner | + Content → Free Content |
 | **Shape / free text** | A rectangle, ellipse or simple text on the picture | + Content → Free Content |
 
-> **Note:** Kingdom Connect does not carry sound. Audio from your microphone (and from a video you play) reaches Zoom or Teams through your normal audio settings. See [Troubleshooting](troubleshooting.md#audio).
+> **Note:** FRAMEDECKS does not carry sound. Audio from your microphone (and from a video you play) reaches Zoom or Teams through your normal audio settings. See [Troubleshooting](troubleshooting.md#audio).
 
 ## Adding media to a Frame
 
 1. Select the Frame in the **Frames** list.
 2. Select **+ Content** and choose the type.
-3. Choose the file. Kingdom Connect keeps its own copy in the data folder (`%APPDATA%\Kingdom Connect\layers\`), so the Frame keeps working if the original file is moved or deleted.
+3. Choose the file. FRAMEDECKS keeps its own copy in the data folder (`%APPDATA%\FRAMEDECKS\layers\`), so the Frame keeps working if the original file is moved or deleted.
 4. Set it up in **Content Settings → Media**: the file, position (Centre X / Y), size (Width / Height) and **Opacity**.
-5. When the Frame is live and the KingdomConnect camera is on, you can also **drag** the Content on the Studio Canvas and resize it with its handles. Turn on **Snap to guides** for neat alignment.
+5. When the Frame is live and the FRAMEDECKS camera is on, you can also **drag** the Content on the Studio Canvas and resize it with its handles. Turn on **Snap to guides** for neat alignment.
 
 > **Tip:** The order in the **Content** list is the stacking order: the top item is in front. Drag items to change it.
 
@@ -62,11 +62,11 @@ Your organisation's own logo and Meeting Name are set once in **Settings → Mee
 2. Set its position and size in **Content Settings → Media**, or drag it on the canvas.
 3. The video plays while its Frame is live.
 
-> **Important:** Video Content plays **without sound** — Kingdom Connect shows the picture only. If people need to hear a video, play it in a media player with sound and share that (for example, Zoom's **Share Screen** with **Share Sound**), or play it through your sound desk.
+> **Important:** Video Content plays **without sound** — FRAMEDECKS shows the picture only. If people need to hear a video, play it in a media player with sound and share that (for example, Zoom's **Share Screen** with **Share Sound**), or play it through your sound desk.
 
 ## PowerPoint and PDF
 
-Kingdom Connect offers two ways to show a PowerPoint. Choose the one that fits the deck.
+FRAMEDECKS offers two ways to show a PowerPoint. Choose the one that fits the deck.
 
 | | **PowerPoint Content (slides)** | **Live slide show (Window Content)** |
 | --- | --- | --- |
@@ -80,7 +80,7 @@ Kingdom Connect offers two ways to show a PowerPoint. Choose the one that fits t
 ### Adding a PowerPoint file
 
 1. **+ Content → PowerPoint**, then choose the **.pptx**.
-2. The PowerPoint installed on this PC saves it as a PDF. This can take a moment for a big deck. Kingdom Connect gives it up to **3 minutes**, so a stuck PowerPoint never freezes the app.
+2. The PowerPoint installed on this PC saves it as a PDF. This can take a moment for a big deck. FRAMEDECKS gives it up to **3 minutes**, so a stuck PowerPoint never freezes the app.
 3. Set **Start at slide** in **Content Settings → Media** if you want to begin part-way through.
 4. During the service, step through the slides with **Page Down / Page Up**, the slide buttons in the command bar, or the phone.
 
@@ -104,55 +104,55 @@ For the technical background, limits and the formats that were evaluated (transp
 
 > **Important:** Keep a captured window open and not minimised. On some graphics drivers a covered or minimised window stops updating. A second display, or a separate window for the slide show, is the most reliable.
 
-## The KingdomConnect camera
+## The FRAMEDECKS camera
 
-Kingdom Connect has its own camera, listed as **KingdomConnect** in Windows. It sends the finished picture: your webcam (with optional blur and Camera Look) plus the live Frame. Zoom and Teams then see your cards, slides and drawings exactly as you see them in the Studio Canvas.
+FRAMEDECKS has its own camera, listed as **FRAMEDECKS** in Windows. It sends the finished picture: your webcam (with optional blur and Camera Look) plus the live Frame. Zoom and Teams then see your cards, slides and drawings exactly as you see them in the Studio Canvas.
 
-1. Install Kingdom Connect with **Install the KingdomConnect camera for Zoom and Teams** ticked (Windows asks for administrator permission once). Missed it? Use **Settings → KingdomConnect Camera → Install KingdomConnect**.
+1. Install FRAMEDECKS with **Install the FRAMEDECKS camera for Zoom and Teams** ticked (Windows asks for administrator permission once). Missed it? Use **Settings → FRAMEDECKS Camera → Install FRAMEDECKS**.
 2. **Restart** your meeting app. Apps read the camera list when they start.
-3. Choose **KingdomConnect** as the camera:
+3. Choose **FRAMEDECKS** as the camera:
 
 | App | Where to choose it |
 | --- | --- |
-| **Zoom** | Settings → Video → Camera → **KingdomConnect**. Tick **HD**. Turn off Zoom's own background blur and "mirror my video" if text looks reversed to you only. |
-| **Microsoft Teams** | Settings → Devices (or Video and effects) → Camera → **KingdomConnect** |
-| **Google Meet** | ⋮ → Settings → Video → Camera → **KingdomConnect** (in Chrome or Edge) |
-| **OBS Studio** | Sources → **+** → Video Capture Device → Device: **KingdomConnect** |
+| **Zoom** | Settings → Video → Camera → **FRAMEDECKS**. Tick **HD**. Turn off Zoom's own background blur and "mirror my video" if text looks reversed to you only. |
+| **Microsoft Teams** | Settings → Devices (or Video and effects) → Camera → **FRAMEDECKS** |
+| **Google Meet** | ⋮ → Settings → Video → Camera → **FRAMEDECKS** (in Chrome or Edge) |
+| **OBS Studio** | Sources → **+** → Video Capture Device → Device: **FRAMEDECKS** |
 
-4. In **Settings → KingdomConnect Camera**, choose:
+4. In **Settings → FRAMEDECKS Camera**, choose:
    - the **webcam** behind it;
    - the **resolution** (720p or 1080p);
    - **background blur**;
    - the **Camera Look** (colour style);
    - whether your **cards** appear on the camera.
 
-> **Important:** Choose **KingdomConnect** in every meeting app, not your webcam itself. Only one app at a time can open a webcam.
+> **Important:** Choose **FRAMEDECKS** in every meeting app, not your webcam itself. Only one app at a time can open a webcam.
 
 ## Camera Looks and background blur
 
 - **Camera Looks** adjust colour and warmth (Warm, Dark / Polished, Neutral / Clean, or Off). Use them to make a dim room or a lamp-lit home look natural.
 - **Background blur** softens what is behind the speaker, using a person-detection model on your PC. No video leaves the PC for this.
-- Both are in **Settings → KingdomConnect Camera** and apply to the webcam only, never to your cards or slides.
+- Both are in **Settings → FRAMEDECKS Camera** and apply to the webcam only, never to your cards or slides.
 
 ## Projectors and the Presentation window
 
 For an in-room projector or TV, use the **Presentation window**:
 
-1. On the Studio Canvas, select **Share Window**. A separate window called **Kingdom Connect Share Window** opens, showing only the live picture.
+1. On the Studio Canvas, select **Share Window**. A separate window called **FRAMEDECKS Share Window** opens, showing only the live picture.
 2. Drag it to the projector display and switch it to **full screen**.
-3. To share it in Zoom instead, choose **Share Screen → Kingdom Connect Share Window**.
+3. To share it in Zoom instead, choose **Share Screen → FRAMEDECKS Share Window**.
 
-The Presentation window, the KingdomConnect camera and the Studio Canvas all show the same picture.
+The Presentation window, the FRAMEDECKS camera and the Studio Canvas all show the same picture.
 
 ## OBS and browser overlay pages
 
-If you already produce your stream in OBS, you can use Kingdom Connect's overlay pages as **Browser Sources**. They show the cards and text on a transparent background, so they sit on top of your OBS scenes.
+If you already produce your stream in OBS, you can use FRAMEDECKS's overlay pages as **Browser Sources**. They show the cards and text on a transparent background, so they sit on top of your OBS scenes.
 
 - The pages are served from your PC at `http://localhost:8750/` (for example `http://localhost:8750/stage.html`).
 - The command bar's status shows how many overlay pages are open (for example **OBS · 1 open**).
-- Each piece of Content can be limited to the KingdomConnect camera or the overlay pages in **Content Settings → Show on**.
+- Each piece of Content can be limited to the FRAMEDECKS camera or the overlay pages in **Content Settings → Show on**.
 
-> **Note:** Overlay pages show cards and text. Camera and media Content are part of the KingdomConnect picture, so in OBS use the **KingdomConnect** camera source for those.
+> **Note:** Overlay pages show cards and text. Camera and media Content are part of the FRAMEDECKS picture, so in OBS use the **FRAMEDECKS** camera source for those.
 
 ## Preparing media
 

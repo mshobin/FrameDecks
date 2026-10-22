@@ -1,4 +1,4 @@
-"""v6 program effects on the KingdomConnect picture, after the cards:
+"""v6 program effects on the FRAMEDECKS picture, after the cards:
 
 - the live scene's text layers (Announcement, Prayer Point, Lower Third, Countdown), drawn like the question card
   (same CardDrawer, same look as the overlay pages) at their chosen position, fading in and out;
@@ -235,7 +235,7 @@ class ProgramFX:
             x0, y0 = int((W - card.w) / 2 - card.margin), int((H - card.h) / 2 - card.margin)
             OverlayLayer._blend(img, card.full8, x0, y0)
         except Exception as e:
-            print("KingdomConnect: emergency screen:", e)
+            print("FRAMEDECKS: emergency screen:", e)
         self.slate = (key, img)
         return img
 
@@ -386,4 +386,4 @@ class ProgramFX:
                 if t is not None:
                     t.card, t.key = card, key
             except Exception as e:                      # never let a drawing problem stop the camera
-                print("KingdomConnect: could not draw a text layer:", e)
+                print("FRAMEDECKS: could not draw a text layer:", e)

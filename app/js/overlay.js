@@ -1,4 +1,4 @@
-/* Kingdom Connect - overlay engine used by every overlay page and the dashboard preview */
+/* FRAMEDECKS - overlay engine used by every overlay page and the dashboard preview */
 (function(){
 'use strict';
 
@@ -350,7 +350,7 @@ function BirthdayCard(zone){
 
 /* ---------- Presentation mode Both: the question leads, the verse supports it ----------
  * Only when a question is shown in Both mode (Question · Both · Verse). Everything else is laid out exactly as before.
- * KingdomConnect uses the same numbers (vcam/cards.py effective_layout). */
+ * FRAMEDECKS uses the same numbers (vcam/cards.py effective_layout). */
 var BOTH_VERSE = 0.86, BOTH_QUESTION = 1.06;
 function effective(st){
   var P = window.KCPresent;

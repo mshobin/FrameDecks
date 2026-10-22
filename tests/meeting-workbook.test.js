@@ -18,7 +18,7 @@ vm.createContext(ctx);
 ['app/js/store.js', 'app/js/meeting-book.js'].forEach(f => vm.runInContext(fs.readFileSync(path.join(root, f), 'utf8'), ctx));
 const B = ctx.KCMeetingBook, Store = ctx.KCStore;
 const same = (a, b, msg) => assert.strictEqual(JSON.stringify(a), JSON.stringify(b), msg);
-const TEMPLATE = path.join(root, 'app/templates/Kingdom-Connect-Meeting-Workbook.xlsx');
+const TEMPLATE = path.join(root, 'app/templates/FRAMEDECKS-Meeting-Workbook.xlsx');
 
 function text(c){ return String(c == null ? '' : c).replace(/\r\n?/g, '\n').trim(); }
 function readWorker(wb){          // the same reading as app/js/import-worker.js with {all: true}
@@ -81,7 +81,7 @@ const py = ['python3', 'python'].map(p => spawnSync(p, ['-c', [
   'import json, sys; sys.path.insert(0, sys.argv[1]); import meeting_form as M',
   'm, t = M.from_sheets(json.load(open(sys.argv[2], encoding="utf-8")))',
   'open(sys.argv[3], "wb").write(M.fill(open(sys.argv[4], "rb").read(), m, t))'].join('\n'), root, sheetsJson, filled, TEMPLATE], {encoding: 'utf8'}))
-  .find(r => !r.error);
+  .find(r => !r.error && r.status === 0);
 if (py && py.status === 0){
   const styled = X.read(fs.readFileSync(filled), {type: 'buffer'});
   same(styled.SheetNames, ['Dashboard', 'Meeting Form'], 'the styled export keeps both tabs');
@@ -96,7 +96,7 @@ if (py && py.status === 0){
 }
 
 /* 4. a hand-made form: labels anywhere on the row, its own section names, "None" animations */
-const hand = [['KINGDOM CONNECT | MEETING FORM'], ['Fill the highlighted fields.'], [], ['1 · MEETING DETAILS'],
+const hand = [['FRAMEDECKS | MEETING FORM'], ['Fill the highlighted fields.'], [], ['1 · MEETING DETAILS'],
   ['Meeting title', 'Hand made', '', '', 'Date', '2026-12-01'], ['Presenter', 'Sam'], [],
   ['2 · MEETING FRAMES'], ['Frame #', 'Frame name', 'Purpose / description', 'Background', 'Transition', 'Presenter script'],
   [1, 'Welcome', '', 'Navy', 'Fade', 'Say hello'], [2, 'Talk', '', '', '', ''], [],

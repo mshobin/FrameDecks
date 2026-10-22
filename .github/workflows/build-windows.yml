@@ -1,5 +1,5 @@
-# Builds the installer "Kingdom Connect v<version>.exe" on a clean Windows machine at GitHub.
-#   - Every push to "main" (or "Run workflow" on the Actions tab): the installer ("Kingdom Connect v<version>.exe") is attached to that run
+# Builds the installer "FRAMEDECKS v<version>.exe" on a clean Windows machine at GitHub.
+#   - Every push to "main" (or "Run workflow" on the Actions tab): the installer ("FRAMEDECKS v<version>.exe") is attached to that run
 #     under "Artifacts" (kept for 90 days).
 #   - A version tag such as v3.1: the installer is also published on the Releases page (kept forever).
 name: Build Windows installer
@@ -33,21 +33,21 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -r packaging/requirements-desktop.txt -c packaging/constraints.txt
 
-      - name: Get softcam (MIT licence) for KingdomConnect
+      - name: Get softcam (MIT licence) for FRAMEDECKS
         run: git clone --depth 1 --branch v1.8.1 https://github.com/tshino/softcam.git vcam_build/softcam
 
-      - name: Prepare KingdomConnect (name and ID)
+      - name: Prepare FRAMEDECKS (name and ID)
         run: python packaging/build_vcam.py vcam_build/softcam
 
       - name: Set up the Microsoft C++ compiler
         uses: microsoft/setup-msbuild@v2
 
-      - name: Build KingdomConnect (64-bit and 32-bit)
+      - name: Build FRAMEDECKS (64-bit and 32-bit)
         shell: pwsh
         run: |
           foreach ($p in 'x64', 'Win32') {
             msbuild vcam_build/softcam/softcam.sln /m /t:softcam /p:Configuration=Release /p:Platform=$p
-            if ($LASTEXITCODE -ne 0) { throw "KingdomConnect build failed ($p)" }
+            if ($LASTEXITCODE -ne 0) { throw "FRAMEDECKS build failed ($p)" }
           }
           Copy-Item vcam_build/softcam/x64/Release/softcam.dll vcam/bin/kingdomconnect_vcam64.dll
           Copy-Item vcam_build/softcam/Win32/Release/softcam.dll vcam/bin/kingdomconnect_vcam32.dll
@@ -82,14 +82,14 @@ jobs:
           Write-Host "Version $v"
 
       - name: Build the app (PyInstaller)
-        run: pyinstaller --noconfirm --clean packaging/kingdom-connect.spec --distpath dist --workpath build
+        run: pyinstaller --noconfirm --clean packaging/framedecks.spec --distpath dist --workpath build
 
       - name: Check the app folder
         shell: pwsh
         run: |
-          if (-not (Test-Path "dist/Kingdom Connect/Kingdom Connect.exe")) { throw "The app was not built" }
-          if (-not (Get-ChildItem -Recurse "dist/Kingdom Connect" -Filter dashboard.html)) { throw "App pages are missing" }
-          if (-not (Get-ChildItem -Recurse "dist/Kingdom Connect" -Filter kingdomconnect_vcam64.dll)) { throw "KingdomConnect is missing" }
+          if (-not (Test-Path "dist/FRAMEDECKS/FRAMEDECKS.exe")) { throw "The app was not built" }
+          if (-not (Get-ChildItem -Recurse "dist/FRAMEDECKS" -Filter dashboard.html)) { throw "App pages are missing" }
+          if (-not (Get-ChildItem -Recurse "dist/FRAMEDECKS" -Filter kingdomconnect_vcam64.dll)) { throw "FRAMEDECKS is missing" }
 
       - name: Install Inno Setup (if needed)
         shell: pwsh
@@ -107,7 +107,7 @@ jobs:
       - name: Write the SHA-256 checksum
         shell: pwsh
         run: |
-          Get-ChildItem "dist/Kingdom Connect v*.exe" | ForEach-Object {
+          Get-ChildItem "dist/FRAMEDECKS v*.exe" | ForEach-Object {
             $hash = (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLower()
             "$hash  $($_.Name)" | Set-Content -Encoding ascii "$($_.FullName).sha256"
             Write-Host "$hash  $($_.Name)"
@@ -116,10 +116,10 @@ jobs:
       - name: Attach the installer to this run
         uses: actions/upload-artifact@v4
         with:
-          name: Kingdom Connect v${{ steps.ver.outputs.version }}
+          name: FRAMEDECKS v${{ steps.ver.outputs.version }}
           path: |
-            dist/Kingdom Connect v*.exe
-            dist/Kingdom Connect v*.exe.sha256
+            dist/FRAMEDECKS v*.exe
+            dist/FRAMEDECKS v*.exe.sha256
           if-no-files-found: error
 
       - name: Write the branded release notes (the About screen's header, then the notes)
@@ -130,9 +130,9 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
-          name: Kingdom Connect ${{ steps.ver.outputs.version }}
+          name: FRAMEDECKS ${{ steps.ver.outputs.version }}
           body_path: dist/release-notes.md
           files: |
-            dist/Kingdom Connect v*.exe
-            dist/Kingdom Connect v*.exe.sha256
+            dist/FRAMEDECKS v*.exe
+            dist/FRAMEDECKS v*.exe.sha256
           generate_release_notes: false

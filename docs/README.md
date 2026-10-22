@@ -1,13 +1,13 @@
-# Kingdom Connect documentation
+# FRAMEDECKS documentation
 
-Everything you need to plan, present and support a service with Kingdom Connect — organized by what you want to
+Everything you need to plan, present and support a service with FRAMEDECKS — organized by what you want to
 do.
 
 **New here?** Start with [Getting started](getting-started.md). It takes about 15 minutes.
 
 ---
 
-## Use Kingdom Connect
+## Use FRAMEDECKS
 
 | Guide | What it covers |
 | --- | --- |
@@ -17,7 +17,7 @@ do.
 | [Presentations](presentations.md) | Running the service live: Go Live, stepping, transitions, Annotate, Freeze, the Teleprompter, the command palette |
 | [Frames](frames.md) | Creating, organizing, duplicating and timing Frames |
 | [Content](content.md) | Every kind of Content and every setting in Content Settings |
-| [Media](media.md) | Images, video, PowerPoint, PDF, screen capture, the KingdomConnect camera, OBS, projectors |
+| [Media](media.md) | Images, video, PowerPoint, PDF, screen capture, the FRAMEDECKS camera, OBS, projectors |
 | [Remote control](remote-control.md) | Setting up the phone remote, Simple and Advanced profiles, drawing from the phone |
 | [Troubleshooting](troubleshooting.md) | Problems by symptom, with causes and fixes |
 | [FAQ](faq.md) | Church-focused questions and honest answers |
@@ -42,6 +42,7 @@ do.
 | [Developer guide](contributing.md) | Running from source, project layout, adding features and tests |
 | [Development process](development/README.md) | Branching, releases, changelog standards, testing, code style |
 | [Building the installer](development/building-the-installer.md) | Producing the Windows installer with GitHub Actions |
+| [Engineering assessment](project/engineering-assessment.md) | Current stack, architecture, security, performance, PWA/SaaS readiness, and technical debt |
 | [Repository audit](project/repository-audit.md) | Scored review of the product and the repository |
 | [Design history](architecture/design-history.md) | The engineering log, one section per version |
 
@@ -61,7 +62,7 @@ Detailed guides written alongside earlier versions. They remain accurate for the
 
 - [Changelog](../CHANGELOG.md) — every version at a glance
 - [Release notes](releases/) — full notes for each version
-- [Roadmap](../ROADMAP.md) — where Kingdom Connect is going
+- [Roadmap](../ROADMAP.md) — where FRAMEDECKS is going
 
 ## Conventions in these docs
 

@@ -1,4 +1,4 @@
-<p align="center"><img src="assets/brand/kc-about-header.webp" alt="Kingdom Connect. Christ-Centered Fellowship. Connecting Believers. Sharing Christ. Growing Together. Version 6.9" width="900"></p>
+<p align="center"><img src="assets/brand/kc-about-header.webp" alt="FRAMEDECKS. Christ-Centered Fellowship. Connecting Believers. Sharing Christ. Growing Together. Version 6.9" width="900"></p>
 
 A service presentation platform for churches and ministries. Plan each service as **Frames** — Welcome, Worship,
 Scripture, Discussion, Prayer, Closing — fill them with questions, scriptures, text, timers, pictures, video and
@@ -6,7 +6,7 @@ PowerPoint, and present to the room, to Zoom / Teams / Google Meet and to your s
 the PC, a phone or an iPad. It runs **entirely on your PC**: no accounts, no subscriptions, no cloud, no telemetry.
 The only feature that ever goes online is the optional ESV scripture fetch.
 
-> **Status: Kingdom Connect 6.9 is ready for teaching, Bible study, small-group and hybrid services, with documented
+> **Status: FRAMEDECKS 6.9 is ready for teaching, Bible study, small-group and hybrid services, with documented
 > gaps.** The biggest: no song / lyrics library yet (lyrics are shown as Text Content or a PowerPoint), an unsigned
 > installer, no automated UI tests, and no published licence. See the
 > [repository audit](docs/project/repository-audit.md) and the [roadmap](ROADMAP.md).
@@ -25,7 +25,7 @@ The only feature that ever goes online is the optional ESV scripture fetch.
 - **Questions and scriptures**: per-Frame lists with labels; Show question, scripture or both; drag to reorder;
   double-click an item in the list, or any card on the canvas, to edit it in place. ESV fetch online, or any translation
   typed for offline use.
-- **Outputs**: the **KingdomConnect** virtual camera (your webcam with the Frame on top, background blur, Camera
+- **Outputs**: the **FRAMEDECKS** virtual camera (your webcam with the Frame on top, background blur, Camera
   Looks) for Zoom, Teams, Google Meet and OBS; a full-screen **Presentation window** for a projector; transparent
   **overlay pages** for OBS ([MEDIA](docs/media.md)).
 - **Media**: images, video (muted), PowerPoint (.pptx converted by the PowerPoint on the PC, or PDF), live window
@@ -54,8 +54,8 @@ The only feature that ever goes online is the optional ESV scripture fetch.
 
 ## Install
 See [INSTALLATION](docs/installation.md) and [GETTING_STARTED](docs/getting-started.md). In short: run
-`Kingdom Connect v6.9.exe` (unsigned, so check it against its `.sha256` file first and choose **More info → Run
-anyway** at the SmartScreen prompt), keep **Install the KingdomConnect camera** ticked, and allow the one
+`FRAMEDECKS v6.9.exe` (unsigned, so check it against its `.sha256` file first and choose **More info → Run
+anyway** at the SmartScreen prompt), keep **Install the FRAMEDECKS camera** ticked, and allow the one
 administrator prompt. Windows 10 or 11 (64-bit) is required. The installer comes from the **Build Windows
 installer** workflow ([BUILDING_THE_INSTALLER](docs/development/building-the-installer.md)).
 
@@ -79,14 +79,14 @@ build.bat                                           # local Windows build (CI is
 ## Quality gates (`.github/workflows/build-windows.yml`)
 | Gate | What it checks |
 |---|---|
-| camera build | Builds the KingdomConnect camera (softcam, 64- and 32-bit) and records SHA-256 hashes of the DLLs |
+| camera build | Builds the FRAMEDECKS camera (softcam, 64- and 32-bit) and records SHA-256 hashes of the DLLs |
 | self-check | `packaging/check.py`: the program starts, serves every page and script, camera name and ID match the build, blur model loads |
 | tests | `node tests/run.js`: Frame-owned lists, independent duplicates, conversion of older data, output folding, Meeting Workbook template, import and export |
 | Python tests | `python -m unittest`: the Spotlight shortcut and desktop settings, moving data saved under the earlier name, and the Meeting Form layout and export |
 | doc-links | `tools/check_doc_links.py`: every relative link and heading anchor in the Markdown docs resolves |
 | pinned packages | Builds install `packaging/constraints.txt`: the exact versions of the last good build |
 | app folder | The built app contains its window, pages and camera driver |
-| installer | Inno Setup builds `Kingdom Connect v<version>.exe` with a `.sha256` file |
+| installer | Inno Setup builds `FRAMEDECKS v<version>.exe` with a `.sha256` file |
 | release | On a `v*` tag, publishes the installer and checksum with `docs/releases/v<version>.md` as the notes |
 
 Not automated yet: UI end-to-end tests, the camera in a real Zoom / Teams call, and PowerPoint conversion on real
@@ -116,5 +116,5 @@ No licence has been published yet; until one is, all rights are reserved by the 
 their own licences: softcam (MIT), MediaPipe selfie segmentation model (Apache 2.0), SheetJS and Lucide icons (see
 `app/vendor/`), EB Garamond and Source Sans 3 (SIL Open Font License).
 
-<sub>Kingdom Connect was first published under an earlier name. Version 6.9 installs over every earlier version and,
-on first start, moves the data saved under that name to the Kingdom Connect folder, so each church keeps its data.</sub>
+<sub>Earlier versions were named Kingdom Connect and BSF Command Center. Version 6.9 installs over those versions and
+moves their data into the FRAMEDECKS folder on first start, so each church keeps its data.</sub>

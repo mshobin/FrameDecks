@@ -1,4 +1,4 @@
-"""Layers for KingdomConnect: images, videos and presentations stacked on top of the base picture
+"""Layers for FRAMEDECKS: images, videos and presentations stacked on top of the base picture
 (camera / screen layout), under the verse, question and birthday cards.
 
 A layer is plain data (saved in scenes):

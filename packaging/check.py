@@ -6,12 +6,14 @@ os.environ["KC_DATA_DIR"] = tempfile.mkdtemp(prefix="kc-check-")
 sys.path.insert(0, str(root))
 import server  # noqa: E402
 
+# Use an ephemeral port so the self-check is not coupled to local port policy.
+server.PORTS = [0]
 srv = server.start_main_server()
 assert srv is not None, "could not start"
 threading.Thread(target=srv.serve_forever, daemon=True).start()
 base = f"http://127.0.0.1:{srv.server_address[1]}/"
 for page in ["", "dashboard.html", "remote.html", "stage.html", "focus-verse.html", "discussion-question.html",
-             "birthday.html", "js/app-bridge.js", "js/brand.js", "js/workspace.js", "js/scripture.js", "js/meeting-sheet.js", "js/meeting-import.js", "js/meeting-book.js", "js/frame-lists.js", "js/annotate.js", "js/preview-edit.js", "speaker.html", "js/speaker.js", "css/speaker.css", "templates/Kingdom-Connect-Meeting-Workbook.xlsx", "js/meeting-brand.js", "js/panels.js", "js/editable.js", "js/teleprompter.js", "js/prompter-dock.js", "js/palette.js", "css/teleprompter.css", "prompter.html", "spotlight.html", "js/prompter.js", "js/window-chrome.js", "css/window.css", "css/prompter.css", "js/about.js", "remote-manifest.json", "icons/remote-192.png"]:
+             "birthday.html", "js/app-bridge.js", "js/brand.js", "js/workspace.js", "js/scripture.js", "js/meeting-sheet.js", "js/meeting-import.js", "js/meeting-book.js", "js/frame-lists.js", "js/annotate.js", "js/preview-edit.js", "speaker.html", "js/speaker.js", "css/speaker.css", "templates/FRAMEDECKS-Meeting-Workbook.xlsx", "js/meeting-brand.js", "js/panels.js", "js/editable.js", "js/teleprompter.js", "js/prompter-dock.js", "js/palette.js", "css/teleprompter.css", "prompter.html", "spotlight.html", "js/prompter.js", "js/window-chrome.js", "css/window.css", "css/prompter.css", "js/about.js", "remote-manifest.json", "icons/remote-192.png"]:
     with urllib.request.urlopen(base + page, timeout=5) as r:
         assert r.status == 200, page
 # 6.8 shortcut text checks (pure; the Windows parts are exercised only in the installed app)
@@ -23,29 +25,29 @@ req = urllib.request.Request(base + "api/meeting/workbook", method="POST", heade
 with urllib.request.urlopen(req, timeout=10) as r:
     assert r.status == 200 and r.read(2) == b"PK", "meeting workbook export"
 ping = json.loads(urllib.request.urlopen(base + "api/app/ping").read())
-assert ping["app"] == "Kingdom Connect"
+assert ping["app"] == "FRAMEDECKS"
 for name in ["app/js/overlay.js", "app/js/store.js", "app/fonts/EBGaramond.ttf", "app/vendor/xlsx.full.min.js", "desktop_app.py", "desktop_win.py"]:
     assert (root / name).exists(), name
-# KingdomConnect: the camera ID in the app must match the one compiled into the camera
+# FRAMEDECKS: the camera ID in the app must match the one compiled into the camera
 import re as _re
 build_id = _re.search(r'CLSID = "([0-9A-F-]+)"', (root / "packaging" / "build_vcam.py").read_text()).group(1)
 from vcam.sink import VCAM_CLSID
-assert VCAM_CLSID == "{" + build_id + "}", "KingdomConnect ID mismatch between vcam/sink.py and packaging/build_vcam.py"
+assert VCAM_CLSID == "{" + build_id + "}", "FRAMEDECKS ID mismatch between vcam/sink.py and packaging/build_vcam.py"
 from vcam.sink import VCAM_NAME
 build_name = _re.search(r'NAME = "([^"]+)"', (root / "packaging" / "build_vcam.py").read_text()).group(1)
-assert VCAM_NAME == build_name == "KingdomConnect", "the camera must be called KingdomConnect"
+assert VCAM_NAME == build_name == "FRAMEDECKS", "the camera must be called FRAMEDECKS"
 assert (root / "vcam" / "models" / "selfie_segmentation_landscape.tflite").exists(), "blur model missing"
 if os.name == "nt" and os.environ.get("GITHUB_ACTIONS") == "true":
     missing = [f for f in ("kingdomconnect_vcam64.dll", "kingdomconnect_vcam32.dll", "build-info.json") if not (root / "vcam" / "bin" / f).exists()]
     if missing:
-        sys.exit("STOP: the KingdomConnect camera was not built (" + ", ".join(missing) + " missing).\n"
+        sys.exit("STOP: the FRAMEDECKS camera was not built (" + ", ".join(missing) + " missing).\n"
                  "The build recipe .github/workflows/build-windows.yml in your repository is out of date.\n"
-                 "Copy the .github folder from the latest Kingdom-Connect.zip into your repository, then commit and push.")
+                 "Copy the .github folder from the latest FRAMEDECKS.zip into your repository, then commit and push.")
 try:
     import cv2
     from vcam.blur import BackgroundBlur
     BackgroundBlur(root / "vcam" / "models" / "selfie_segmentation_landscape.tflite").close()
-    from vcam.cards import CardDrawer, place_verse      # the cards drawn onto KingdomConnect
+    from vcam.cards import CardDrawer, place_verse      # the cards drawn onto FRAMEDECKS
     _st = {"layout": {}, "question": {"visible": True, "text": "Self-check question?", "label": "Discussion Question"}, "birthday": {}}
     _c = CardDrawer(root / "app" / "fonts").draw("verse", {"text": "Self-check verse", "ref": "John 1:1", "label": "Focus Verse"}, {}, 1280, 720, place_verse(_st, 1280, 720))
     assert _c.w > 100 and _c.h > 50, "card drawing failed"
@@ -62,8 +64,8 @@ try:
     import pypdfium2                                     # PDF slides
     for _k in BUILT_IN:
         assert Grade(BUILT_IN[_k]).apply(_np.full((72, 128, 3), 128, _np.uint8)).shape == (72, 128, 3), "look failed: " + _k
-    print("KingdomConnect: blur model loads with OpenCV", cv2.__version__)
+    print("FRAMEDECKS: blur model loads with OpenCV", cv2.__version__)
 except ImportError:
-    print("KingdomConnect: OpenCV not installed here (only needed to build the app)")
+    print("FRAMEDECKS: OpenCV not installed here (only needed to build the app)")
 srv.shutdown()
 print("Self-check passed: version", ping["version"])

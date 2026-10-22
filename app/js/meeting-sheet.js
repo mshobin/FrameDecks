@@ -1,4 +1,4 @@
-/* Kingdom Connect v6.2 one-sheet meeting files (still imported; v6.5 templates and exports are the five-sheet
+/* FRAMEDECKS v6.2 one-sheet meeting files (still imported; v6.5 templates and exports are the five-sheet
  * Meeting Workbook, js/meeting-book.js). Kept so files made with the v6.2 template keep working.
  *
  * One row = one layer. Rows with the same Scene Name make one scene. This file has no user interface (it is also
@@ -24,7 +24,7 @@ var COLUMNS = [
   {key: 'branding', name: 'Branding', need: 'No', alias: ['branding', 'brand'], help: 'Yes = this scene shows your branding (Settings → Meeting & Branding). Empty = No.', ex: 'Yes'},
   {key: 'showLogo', name: 'Show Logo', need: 'No', alias: ['showlogo', 'logo'], help: 'With Branding Yes: show your logo. Empty = Yes.', ex: 'Yes'},
   {key: 'showName', name: 'Show Meeting Name', need: 'No', alias: ['showmeetingname', 'meetingname', 'showname'], help: 'With Branding Yes: show your Meeting Name. Empty = Yes.', ex: 'Yes'},
-  {key: 'bg', name: 'Background Style or Template', need: 'For Custom', alias: ['backgroundstyleortemplate', 'backgroundstyle', 'background', 'template', 'style'], help: 'Custom rows: the template (Announcement, Prayer, Lower Third, Countdown, Branding, Birthday, Camera, Screen). Other rows: the scene background on KingdomConnect: None, Navy, Black, White, Brand or a colour like #1F3A6D.', ex: 'Navy'},
+  {key: 'bg', name: 'Background Style or Template', need: 'For Custom', alias: ['backgroundstyleortemplate', 'backgroundstyle', 'background', 'template', 'style'], help: 'Custom rows: the template (Announcement, Prayer, Lower Third, Countdown, Branding, Birthday, Camera, Screen). Other rows: the scene background on FRAMEDECKS: None, Navy, Black, White, Brand or a colour like #1F3A6D.', ex: 'Navy'},
   {key: 'layerOrder', name: 'Layer Order', need: 'No', alias: ['layerorder', 'layerno'], help: 'Whole number inside the scene: 1 = in front. Pictures, videos and slides always sit behind questions, verses and text.', ex: '1'},
   {key: 'status', name: 'Status', need: 'No', alias: ['status', 'visible', 'show'], help: 'Active (shown when the scene goes live) or Hidden (in the scene, switched off). Empty = Active.', ex: 'Active'}
 ];
@@ -67,7 +67,7 @@ function parse(headers, rows, ctx){
     COLUMNS.forEach(function(c){ if (map[c.key] == null && c.alias.indexOf(n) >= 0) map[c.key] = i; });
   });
   ['scene', 'type'].forEach(function(k){
-    if (map[k] == null){ var c = COLUMNS.filter(function(x){ return x.key === k; })[0]; errors.push({row: 0, msg: 'The column “' + c.name + '” is missing. Start from the Kingdom Connect template (Download the Excel template) and keep its column names.'}); }
+    if (map[k] == null){ var c = COLUMNS.filter(function(x){ return x.key === k; })[0]; errors.push({row: 0, msg: 'The column “' + c.name + '” is missing. Start from the FRAMEDECKS template (Download the Excel template) and keep its column names.'}); }
   });
   var plan = {scenes: [], errors: errors, warnings: warnings, counts: {}, fetch: []};
   if (errors.length) return finish(plan);
@@ -167,7 +167,7 @@ function parse(headers, rows, ctx){
   });
   var existing = (ctx.existing || []).map(function(n){ return String(n).toLowerCase(); });
   if (ctx.mode !== 'replace') plan.scenes.forEach(function(sc){ if (existing.indexOf(sc.name.toLowerCase()) >= 0) warnings.push({row: sc.firstRow, msg: 'A scene called “' + sc.name + '” already exists; if you choose Append the new one is named “' + sc.name + ' 2” (or similar).'}); });
-  if ((ctx.mode === 'replace' ? 0 : (ctx.existing || []).length) + plan.scenes.length > 400) errors.push({row: 0, msg: 'Kingdom Connect holds up to 400 scenes; this import would make ' + ((ctx.existing || []).length + plan.scenes.length) + '. Choose Replace or import fewer scenes.'});
+  if ((ctx.mode === 'replace' ? 0 : (ctx.existing || []).length) + plan.scenes.length > 400) errors.push({row: 0, msg: 'FRAMEDECKS holds up to 400 scenes; this import would make ' + ((ctx.existing || []).length + plan.scenes.length) + '. Choose Replace or import fewer scenes.'});
   return finish(plan);
 }
 function finish(plan){
