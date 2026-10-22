@@ -7,7 +7,7 @@ body:
     attributes:
       value: |
         The best feature requests start with the ministry situation, not the solution.
-        FRAMEDECKS stays simple, reliable and offline-first; see [ROADMAP.md](https://github.com/mshobin/KINGDOM-CONNECT/blob/main/ROADMAP.md).
+        FRAMEDECKS stays simple, reliable and offline-first; see [ROADMAP.md](https://github.com/mshobin/FRAMEDECKS/blob/main/ROADMAP.md).
   - type: textarea
     id: context
     attributes:

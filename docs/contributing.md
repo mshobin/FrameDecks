@@ -33,8 +33,8 @@ python -m pip install -r packaging/requirements-desktop.txt -c packaging/constra
 ## Run from source
 
 ```bash
-git clone https://github.com/mshobin/KINGDOM-CONNECT.git
-cd KINGDOM-CONNECT
+git clone https://github.com/mshobin/FRAMEDECKS.git
+cd FRAMEDECKS
 python server.py
 ```
 
