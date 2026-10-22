@@ -98,8 +98,8 @@ Zoom/Teams, Mac, or production-cloud validation.
 5. **Custom server and limited auditing.** Request handling and authorization are app-maintained; request logging
    is suppressed. Add privacy-conscious security/audit events, rate limits, monitoring, and incident handling to the
    hosted service.
-6. **PWA/browser security boundaries are not established.** The local remote is HTTP; there is no service worker,
-   secure hosting model, or cache policy for authenticated content.
+6. **Hosted PWA/browser security boundaries are not implemented.** The existing LAN remote is HTTP. The approved
+   hosted PWA is a separate online-first HTTPS client; direct calls from it to local HTTP are prohibited.
 7. **Pairing and account recovery are new trust boundaries.** Short-lived one-time codes, runtime approval, device
    revocation, scoped roles, replay prevention, and auditable pairing events need a threat model and tests.
 8. **Secret management is new.** Supabase elevated keys and OAuth provider secrets must remain server-side; validate
@@ -160,10 +160,13 @@ templates, presentation definitions/metadata, pairing records, and audit logs.
 
 ## 7. PWA readiness
 
-**Readiness: partial metadata only.** The remote has a web manifest and icons, but no service worker, cache
-strategy, offline shell, install/update lifecycle, or HTTPS-hosted deployment. The remote currently depends on the
-local host and its network. Add PWA capabilities only after a secure hosted origin exists. Do not cache private
-responses by default; clear protected drafts and auth state on logout/revocation.
+**Existing LAN remote: partial metadata only. Hosted companion: architecture approved, implementation not
+started.** The existing remote has a manifest and icons, but no service worker, cache strategy, offline shell,
+install/update lifecycle, or HTTPS deployment; it remains tied to the local host and its network. The new hosted
+Next.js/Supabase companion is scoped as a separate online-first service for cloud administration, notes, monitoring,
+and paired runtime commands. It will not access or proxy the local HTTP listener. Cache only safe app-shell assets;
+do not cache private APIs, pairing challenges, or credentials. Validate installation, storage/lifecycle behavior,
+and recovery on current iOS Safari and Android Chrome before claiming support.
 
 ## 8. Offline capability
 
@@ -176,10 +179,9 @@ playback, virtual-camera output, or the local Zoom/Teams/OBS output paths. Queue
 resume synchronization automatically when connectivity returns, using idempotent operations and explicit version
 conflict handling.
 
-An unresolved design tension is **secure, HTTPS-only remote control while fully offline on a phone**. The existing
-LAN remote is HTTP; a hosted HTTPS PWA cannot safely assume it can call a private HTTP LAN endpoint. Do not remove
-or silently weaken the current remote. Prototype and validate an approved secure local pairing/transport approach
-on iOS and Android before claiming that offline phone control is preserved.
+The hosted PWA may be unavailable offline; the existing LAN remote remains the separate local option. The
+HTTPS-to-local-HTTP conflict is resolved by keeping those origins and transports separate, not by relaxing browser
+security. Do not remove or silently weaken the current remote.
 
 ## 9. Scalability and platform risks
 

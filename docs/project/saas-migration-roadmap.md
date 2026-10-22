@@ -19,10 +19,11 @@ restrictions, trials, or feature gating are in scope. Stripe is therefore exclud
 
 The recommended target is a **hosted collaboration and planning control plane plus an optional local production
 agent**. The hosted app owns accounts, organizations, metadata-only presentation definitions, settings, templates,
-pairing records, audit logs, and browser-based remote control. It does not host presentation media or media
-libraries. A local agent remains responsible for hardware-dependent work such as virtual-camera output,
-PowerPoint automation, local capture, and reliable operation when internet access is unavailable. Do not try to
-host those Windows capabilities in Vercel functions or assume a browser can replace the existing camera pipeline.
+notes, monitoring, pairing records, audit logs, and browser-based remote management. It does not host presentation
+media or media libraries. A local agent remains responsible for hardware-dependent work such as virtual-camera
+output, PowerPoint automation, local capture, and reliable operation when internet access is unavailable. Do not
+try to host those Windows capabilities in Vercel functions or assume a browser can replace the existing camera
+pipeline. The existing LAN phone remote remains unchanged and separate from the hosted PWA.
 
 Use a staged replacement by user workflow, not a big-bang rewrite. Keep the current desktop release working until
 the SaaS product demonstrates tenant isolation, reliable live operation, recoverable data, and a tested migration
@@ -266,22 +267,26 @@ keyboard/accessibility and browser end-to-end smoke tests cover critical plannin
 **Exit criteria:** offline playback tests pass for each existing media type; metadata sync contains no media bytes and
 does not break a runtime's local asset bindings.
 
-### Phase 5 — Live collaboration, secure remote, and PWA
+### Phase 5 — Hosted collaboration, paired runtime, and PWA
 
-**Purpose:** Replace the LAN PIN model with authenticated, recoverable hosted control while preserving service-day
-resilience.
+**Purpose:** Add authenticated, recoverable hosted control without changing the existing LAN PIN remote or
+compromising service-day resilience. The hosted PWA may initially require internet.
 
 - Use Realtime for presence and low-volume control notifications; persist authoritative meeting changes with
   versions. Define ordering, reconnect, duplicate-event, stale-client, and multi-operator behavior.
 - Pair the optional local agent using an authenticated, revocable, short-lived flow. Give it scoped permissions and
-  a visible connected/offline status; never expose the desktop HTTP server directly to the public internet.
+  a visible connected/offline status; it establishes outbound TLS/WSS to the hosted service. Never expose the
+  desktop HTTP server directly to the public internet or proxy hosted HTTPS to local HTTP.
 - Implement the PWA manifest, HTTPS delivery, service worker, update behavior, and an explicit cache policy. Cache
   only the application shell and safe user-approved drafts; define what is unavailable offline.
-- Build Playwright tests for pairing, operator permissions, offline/reconnect, expired sessions, and critical live
-  controls. Test on real phones and representative church Wi-Fi.
+- Build Playwright tests for pairing, operator permissions, online/reconnect, expired sessions, and critical hosted
+  controls. Test on real iOS and Android devices. Verify that internet loss affects only hosted features and never
+  local presentation or existing LAN remote workflows.
 
 **Exit criteria:** reconnect restores a consistent authoritative state; revoked agents lose access; service-worker
-tests confirm private responses are not cached; live-control latency and offline behavior meet agreed budgets.
+tests confirm private responses are not cached; live-control latency meets agreed budgets; real-device PWA lifecycle
+and authentication recovery pass. Hosted features clearly report offline/unpaired state. No secure local HTTPS
+transport is required for this online-first scope, and the legacy LAN remote remains untouched.
 
 ### Phase 6 — Free-service operations and deployment
 
