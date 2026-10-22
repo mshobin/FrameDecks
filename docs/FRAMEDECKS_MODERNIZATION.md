@@ -197,6 +197,14 @@ prototype passes on supported mobile browsers. Candidate approaches must be eval
 first-use onboarding, revocation, discovery, and no-internet behavior. Regardless of this open issue, local PC
 presentation and output must continue offline.
 
+**Verified against the current implementation on 22 October 2026:** `app/remote.html` and `app/js/remote.js` use
+same-origin relative HTTP requests; `server.py` binds the optional remote on the LAN over HTTP, checks
+`http://<Host>` on state-changing requests, does not provide CORS headers, and issues an HttpOnly
+`SameSite=Strict` session cookie. A hosted HTTPS origin cannot reuse that flow by simply registering a service
+worker or changing the page URL. Keep PWA install/offline-control work gated until a secure transport passes real
+iOS Safari and Android Chrome validation, or the first hosted PWA is explicitly scoped as online-only with a
+separate hosted API/auth design.
+
 ## 5. Synchronization and offline architecture
 
 ### Data flow

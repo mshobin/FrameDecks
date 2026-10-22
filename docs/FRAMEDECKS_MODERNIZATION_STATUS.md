@@ -2,9 +2,9 @@
 
 **Last updated:** 22 October 2026  
 **Working branch:** `modernization-v1`  
-**Current milestone:** Phase 7 — existing product branding
+**Current milestone:** Phase 4 — PWA enablement (blocked on secure local transport validation)
 
-**Overall implementation state:** Repository assessment and local branding pass complete; SaaS/cloud modernization not yet implemented
+**Overall implementation state:** Repository assessment, asset migration, and current-reference cleanup are complete. PWA/cloud implementation has not started; safe phone-remote parity is blocked on a validated HTTPS local transport.
 
 ## Status definitions
 
@@ -41,6 +41,38 @@
 | Phase 6 — Vercel operations / future Cloudflare edge | Not Started | Vercel-provided URL first; Cloudflare integration waits for custom domain. Add backup/restore, monitoring, and incident procedures. |
 | Phase 7 — User-facing branding/terminology | Partially Complete | Existing desktop, workbook, remote/PWA, favicon, installer, and marketing-header surfaces use the supplied logo. The phone remote PIN screen is covered; no splash screen or hosted account-login page exists yet. See [branding asset inventory](FRAMEDECKS_BRANDING_ASSETS.md). |
 | Phase 8 — Compatibility rollout | Not Started | Pass preservation matrix on real supported devices; keep local 6.9 rollback available. |
+
+## Autonomous modernization execution milestones
+
+This table tracks the execution order requested for the current modernization run. The numbered phases here are
+distinct from the target-architecture workstreams above.
+
+| Execution phase | Status | Evidence / gate |
+|---|---|---|
+| Phase 1 — Repository audit | Completed | Audit and target architecture documented; no unsupported security test claims. |
+| Phase 2 — Branding asset migration | Completed | Supplied logo is canonical; current app, remote/PWA, favicon, installer, workbook, and header assets were regenerated and checked. |
+| Phase 3 — Remaining branding references | Completed | Current stale repository links and contributor setup instructions were updated; remaining historical/internal matches are classified in [branding audit](FRAMEDECKS_BRANDING_AUDIT.md). Commit `0c7556534190f6a2721fb9fa1afcfdca14a153e9` is pushed to `modernization-v1`. |
+| Phase 4 — PWA enablement | Blocked | The existing remote is tied to the local PC origin and HTTP session. Do not register an offline service worker or claim HTTPS/offline phone-control parity until the transport gate below is met. |
+
+### Phase 4 blocker and acceptance gate
+
+The browser remote in `app/remote.html` and `app/js/remote.js` uses relative HTTP requests to the PC, a PIN login,
+and an HttpOnly `SameSite=Strict` session cookie. `server.py` checks an exact `http://<Host>` origin for state
+changes and does not implement CORS. A hosted HTTPS page cannot direct those relative requests to the PC, and
+repointing them to its HTTP LAN address would introduce cross-origin, mixed-content, private-network, and cookie
+restrictions. A service worker is origin-scoped and cannot bypass those browser controls.
+
+Do not add a service worker to the current LAN remote as a stand-in for a hosted PWA: LAN IP HTTP is not a secure
+context on supported phones, and an offline cached control screen could falsely suggest that the disconnected PC
+is controllable. PWA implementation may resume when either:
+
+1. a secure local transport and onboarding design has been selected and passes the existing remote's required
+   flows on current iOS Safari and Android Chrome, including reconnect, session isolation, and revocation; or
+2. the product explicitly scopes the first hosted PWA to online-only hosted control and postpones local/offline
+   control, with its API, authentication, and user experience defined independently of the current LAN server.
+
+Until then, preserve the existing HTTP LAN remote unchanged. The existing desktop presentation and output must
+remain usable without internet.
 
 ## Product constraints and blockers
 
