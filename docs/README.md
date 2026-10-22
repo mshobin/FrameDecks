@@ -47,6 +47,7 @@ do.
 | [FRAMEDECKS repository audit](FRAMEDECKS_AUDIT.md) | Repository baseline, security, performance, SaaS/PWA/offline readiness, and migration risks |
 | [FRAMEDECKS modernization plan](FRAMEDECKS_MODERNIZATION.md) | Target architecture, authentication, pairing, synchronization, deployment, and rollback |
 | [FRAMEDECKS modernization status](FRAMEDECKS_MODERNIZATION_STATUS.md) | Resumable milestone status, blockers, and validation record |
+| [FRAMEDECKS branding assets](FRAMEDECKS_BRANDING_ASSETS.md) | Logo source, current asset mapping, generated variants, and intentionally retained graphics |
 | [Repository audit](project/repository-audit.md) | Scored review of the product and the repository |
 | [Design history](architecture/design-history.md) | The engineering log, one section per version |
 

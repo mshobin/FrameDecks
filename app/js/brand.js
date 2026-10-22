@@ -10,8 +10,8 @@
  * ================================================================== */
 window.KCBrand = {
   name: 'FRAMEDECKS',
-  tagline: 'Christ-Centered Fellowship',
-  motto: ['Connecting Believers.', 'Sharing Christ.', 'Growing Together.'],
+  tagline: 'Present • Equip • Inspire',
+  motto: [],
   intro: 'A ministry-focused platform designed to help churches, Bible studies, prayer groups, discipleship communities, and Christian fellowship groups create meaningful Christ-centered gatherings.',
 
   mission: 'To strengthen Christian communities by making online meetings more engaging, organized, and centered on biblical truth.',

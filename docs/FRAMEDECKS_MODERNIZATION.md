@@ -384,12 +384,15 @@ runtime(s):
 ## 13. Phase 1 completion record
 
 Phase 1 is complete for the repository assessment and architecture deliverables. This does **not** mean SaaS,
-PWA, Supabase, pairing, or cloud synchronization has been implemented.
+PWA, Supabase, pairing, or cloud synchronization has been implemented. Phase 7 branding work has started in the
+desktop/local product and remains incomplete for future hosted login/splash surfaces.
 
 - Audit: [FRAMEDECKS_AUDIT.md](FRAMEDECKS_AUDIT.md)
 - Status: [FRAMEDECKS_MODERNIZATION_STATUS.md](FRAMEDECKS_MODERNIZATION_STATUS.md)
 - Existing detailed report: [SaaS migration roadmap](project/saas-migration-roadmap.md)
 - Existing Windows/Python application remains the tested production runtime.
+- Supplied logo source and generated application assets are documented in the asset generator at
+  `tools/generate_brand_assets.py`.
 - `Stripe` is explicitly excluded; product is free.
 - Open blockers: secure offline mobile remote transport; product roadmap conflict; Mac-native runtime scope;
   Cloudflare custom domain availability.

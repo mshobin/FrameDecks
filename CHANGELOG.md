@@ -10,6 +10,10 @@ Versions before 4.9 (when the program had its earlier name) are described in the
 
 ## [Unreleased]
 
+### Changed
+- Updated the FRAMEDECKS logo and tagline across the desktop app, phone remote, PWA icons, favicons, workbook,
+  Windows installer, and marketing header. Presentation workflows are unchanged.
+
 ## [6.9] - 2026-10-20
 
 Full notes: [docs/releases/v6.9.md](docs/releases/v6.9.md)
