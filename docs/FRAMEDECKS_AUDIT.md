@@ -56,9 +56,10 @@ These are refactoring risks, not a reason to replace tested behavior in a single
 Build dependencies are declared in [requirements-desktop.txt](../packaging/requirements-desktop.txt) with tested
 versions recorded in [constraints.txt](../packaging/constraints.txt). The pinned build also lists both
 `opencv-python` and `opencv-python-headless`, which share the `cv2` module; the repository marks this as a tested
-pair and a future maintenance risk. The repository has no Next.js, Supabase, PWA service-worker, Flutter, Stripe, or
-Cloudflare integration today. The presence of `app/remote-manifest.json` is manifest metadata only, not a complete
-PWA implementation.
+pair and a future maintenance risk. The desktop application remains separate from the Next.js/TypeScript hosted
+foundation in [hosted/](../hosted/). That foundation currently has no Supabase, authentication, tenant data,
+service-worker, pairing, deployment, Flutter, Stripe, or Cloudflare integration. The presence of
+`app/remote-manifest.json` is manifest metadata only, not a complete PWA implementation.
 
 ### Phase 1 baseline checks
 
@@ -160,13 +161,14 @@ templates, presentation definitions/metadata, pairing records, and audit logs.
 
 ## 7. PWA readiness
 
-**Existing LAN remote: partial metadata only. Hosted companion: architecture approved, implementation not
-started.** The existing remote has a manifest and icons, but no service worker, cache strategy, offline shell,
-install/update lifecycle, or HTTPS deployment; it remains tied to the local host and its network. The new hosted
-Next.js/Supabase companion is scoped as a separate online-first service for cloud administration, notes, monitoring,
-and paired runtime commands. It will not access or proxy the local HTTP listener. Cache only safe app-shell assets;
-do not cache private APIs, pairing challenges, or credentials. Validate installation, storage/lifecycle behavior,
-and recovery on current iOS Safari and Android Chrome before claiming support.
+**Existing LAN remote: partial metadata only. Hosted companion: unconnected foundation implemented.** The existing
+remote has a manifest and icons, but no service worker, cache strategy, offline shell, install/update lifecycle, or
+HTTPS deployment; it remains tied to the local host and its network. The separate hosted Next.js/TypeScript app has
+a responsive static shell, shared UI foundation, boundary test, and independent CI workflow. It has no
+authentication, tenant data, service worker, pairing, or deployment yet and does not access or proxy the local HTTP
+listener. Cache only safe app-shell assets; do not cache private APIs, pairing challenges, or credentials. Validate
+installation, storage/lifecycle behavior, and recovery on current iOS Safari and Android Chrome before claiming
+support.
 
 ## 8. Offline capability
 
