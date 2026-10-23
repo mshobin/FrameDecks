@@ -1,14 +1,14 @@
 {
-  "name": "hosted",
+  "name": "framedecks-hosted",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint",
+    "lint": "eslint src tests/hosted-boundary.test.mjs",
     "typecheck": "tsc --noEmit",
-    "test": "node --test"
+    "test": "node --test tests/hosted-boundary.test.mjs"
   },
   "dependencies": {
     "class-variance-authority": "^0.7.1",

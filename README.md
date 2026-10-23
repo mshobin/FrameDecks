@@ -55,6 +55,13 @@ remains free, with no payments or feature restrictions.
   ([SERVICE_PLANNING](docs/service-planning.md) · [MEETING_WORKBOOK](docs/reference/meeting-workbook-and-branding.md)).
 - **Data**: everything in one folder on the PC, saved atomically, with daily backups and Frame history.
 
+## Hosted companion
+
+The optional Next.js web companion is in `src/` and deploys from the repository
+root. See the [hosted companion guide](docs/development/hosted-companion.md)
+for local development and Vercel setup. It is currently a static foundation
+preview; authentication, cloud data, and device pairing are not implemented.
+
 ## Install
 See [INSTALLATION](docs/installation.md) and [GETTING_STARTED](docs/getting-started.md). In short: run
 `FRAMEDECKS v6.9.exe` (unsigned, so check it against its `.sha256` file first and choose **More info → Run
