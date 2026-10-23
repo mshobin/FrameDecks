@@ -4,28 +4,12 @@ on:
   push:
     branches: [main, modernization-v1]
     paths:
-      - "src/**"
-      - "public/**"
-      - "tests/hosted-boundary.test.mjs"
-      - "package.json"
-      - "package-lock.json"
-      - "next.config.ts"
-      - "tsconfig.json"
-      - "eslint.config.mjs"
-      - "components.json"
+      - "hosted/**"
       - ".github/workflows/hosted.yml"
   pull_request:
     branches: [main, modernization-v1]
     paths:
-      - "src/**"
-      - "public/**"
-      - "tests/hosted-boundary.test.mjs"
-      - "package.json"
-      - "package-lock.json"
-      - "next.config.ts"
-      - "tsconfig.json"
-      - "eslint.config.mjs"
-      - "components.json"
+      - "hosted/**"
       - ".github/workflows/hosted.yml"
   workflow_dispatch:
 
@@ -35,6 +19,9 @@ permissions:
 jobs:
   checks:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: hosted
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -44,7 +31,7 @@ jobs:
         with:
           node-version: 22
           cache: npm
-          cache-dependency-path: package-lock.json
+          cache-dependency-path: hosted/package-lock.json
 
       - name: Install locked dependencies
         run: npm ci

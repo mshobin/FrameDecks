@@ -57,8 +57,8 @@ remains free, with no payments or feature restrictions.
 
 ## Hosted companion
 
-The optional Next.js web companion is in `src/` and deploys from the repository
-root. See the [hosted companion guide](docs/development/hosted-companion.md)
+The optional Next.js web companion is in `hosted/` and deploys to Vercel with
+Root Directory `hosted`. See the [hosted companion guide](hosted/README.md)
 for local development and Vercel setup. It is currently a static foundation
 preview; authentication, cloud data, and device pairing are not implemented.
 

@@ -7,7 +7,7 @@ preview and must not be treated as a live service dashboard.
 
 ## Local development
 
-From the repository root, install the locked dependencies and start Next.js:
+From the `hosted/` directory, install the locked dependencies and start Next.js:
 
 ```powershell
 npm ci
@@ -31,9 +31,11 @@ hosted source. It does not replace security review or browser/device testing.
 
 ## Vercel deployment
 
-After this change is merged into `main`, use `main` as the Production Branch
-and set the Root Directory to `./` (the repository root). Choose the Next.js
-framework preset and leave the build and output settings at their defaults.
+Use `main` as the Production Branch and set the Root Directory to `hosted`.
+The Root Directory must not be the repository root: Next.js gives a root
+`app/` folder priority over `src/app`, and the desktop app's `app/` folder
+would hide this app's routes. Choose the Next.js framework preset and leave
+the build and output settings at their defaults.
 The app currently requires no environment variables. Keep preview and
 production credentials separate when authenticated services are introduced.
 The app uses the Vercel-provided HTTPS URL; no custom domain or Cloudflare
