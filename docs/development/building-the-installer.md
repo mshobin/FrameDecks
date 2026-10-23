@@ -195,7 +195,7 @@ GitHub builds the installer again and attaches it to that release permanently. T
 ### When I send you an updated zip
 
 1. Unzip it somewhere else (for example your Downloads folder).
-2. Open the new `Kingdom-Connect` folder, select everything inside it (Ctrl+A), copy it, and paste it
+2. Open the new `FRAMEDECKS` folder, select everything inside it (Ctrl+A), copy it, and paste it
    into your repository folder. Choose **Replace the files in the destination**.
    The hidden `.git` folder in your repository folder is not in my zip, so your history is kept.
    **Make sure the `.github` folder is copied too.** It holds the build recipe; if it isn't updated, GitHub

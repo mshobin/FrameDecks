@@ -49,8 +49,8 @@ or a screenshot.
 The short version (the full guide is [docs/contributing.md](docs/contributing.md)):
 
 ```bash
-git clone https://github.com/mshobin/KINGDOM-CONNECT.git
-cd KINGDOM-CONNECT
+git clone https://github.com/mshobin/FRAMEDECKS.git
+cd FRAMEDECKS
 python server.py                 # opens http://localhost:8750 in your browser
 node tests/run.js                # automated tests (Node.js, no packages to install)
 python packaging/check.py        # self-check: the program starts and serves its pages

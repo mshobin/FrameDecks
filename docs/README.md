@@ -43,6 +43,12 @@ do.
 | [Development process](development/README.md) | Branching, releases, changelog standards, testing, code style |
 | [Building the installer](development/building-the-installer.md) | Producing the Windows installer with GitHub Actions |
 | [Engineering assessment](project/engineering-assessment.md) | Current stack, architecture, security, performance, PWA/SaaS readiness, and technical debt |
+| [SaaS migration roadmap](project/saas-migration-roadmap.md) | Proposed hosted architecture and phased migration from the local-first desktop product |
+| [FRAMEDECKS repository audit](FRAMEDECKS_AUDIT.md) | Repository baseline, security, performance, SaaS/PWA/offline readiness, and migration risks |
+| [FRAMEDECKS modernization plan](FRAMEDECKS_MODERNIZATION.md) | Target architecture, authentication, pairing, synchronization, deployment, and rollback |
+| [FRAMEDECKS modernization status](FRAMEDECKS_MODERNIZATION_STATUS.md) | Resumable milestone status, blockers, and validation record |
+| [FRAMEDECKS branding assets](FRAMEDECKS_BRANDING_ASSETS.md) | Logo source, current asset mapping, generated variants, and intentionally retained graphics |
+| [FRAMEDECKS branding audit](FRAMEDECKS_BRANDING_AUDIT.md) | Remaining legacy-name references, their locations, and compatibility rationale |
 | [Repository audit](project/repository-audit.md) | Scored review of the product and the repository |
 | [Design history](architecture/design-history.md) | The engineering log, one section per version |
 
