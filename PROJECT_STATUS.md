@@ -15,11 +15,13 @@ lint, typecheck and build pass. Detail lives in
 - Phase 3 (auth): the owner created the Supabase project (`slrsykiknlqlivlnpvrb`) and ran the tenant migration in the
   SQL editor (25 October; its result not yet confirmed in writing). The sign-in UI is built (`/sign-in`, `/auth/callback`,
   top-bar account chip; emailed link, Google/Microsoft when enabled), merged (PR #18) and deployed with the Vercel
-  variables. **The owner signed in on the live site with an emailed link (25 October 2026).** Not yet: Google/Microsoft
-  providers, live RLS tests, organization/profile UI.
+  variables. **The owner signed in on the live site with an emailed link (25 October 2026).** Workspace UI built: display name, create a
+  workspace (creator becomes owner), list own workspaces with role. Not yet: Google/Microsoft providers, live RLS
+  tests, inviting members.
 
 ## Pending
-- Google/Microsoft providers (owner, optional); live RLS tests; organization and profile UI.
+- Google/Microsoft providers (owner, optional); live RLS tests; inviting members to a workspace (needs a server-side
+  lookup by email, so a Supabase function or a Next.js route with a secret held only in Vercel).
 - Real-device PWA install and offline acceptance on the deployed URL.
 - Secure device pairing (QR / 6-digit challenge) and runtime channel.
 - A person looks at the real tray icon on an installed Windows PC (the icons themselves are checked; see below).
