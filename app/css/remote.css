@@ -21,7 +21,7 @@ h1,h2,h3{margin:0}
 /* ---------- Sign in ---------- */
 .login{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
 .login-card{width:min(440px,100%);text-align:center;border:1px solid var(--edge2);border-radius:24px;padding:32px 28px;background:var(--mica),var(--panel);box-shadow:0 20px 60px rgba(0,0,0,.45)}
-.logo{width:52px;color:var(--gold);border-radius:50%}
+.logo{width:52px;color:var(--gold)}
 .login h1{font-weight:800;font-size:28px;margin:10px 0 6px;letter-spacing:-.01em}
 .login p{color:var(--muted);margin:0 0 18px}
 #pin{width:100%;font-size:42px;letter-spacing:.4em;text-align:center;padding:12px;border-radius:14px;border:1px solid var(--edge2);background:#0d1117;color:var(--ink);margin-bottom:14px;font-family:var(--sans);-webkit-user-select:text;user-select:text}
@@ -218,7 +218,7 @@ body:has(.tabbar[hidden]) .layout{padding-bottom:16px}
 #pin{background:#0b1324}
 #pin:focus{box-shadow:0 0 0 3px rgba(227,183,90,.25)}
 .big-btn.gold{background:linear-gradient(180deg,#f7dc95,#e3b75a);color:#1a1405}
-.brand-mark{width:26px;height:auto;flex:none;display:block;border-radius:50%}
+.brand-mark{width:26px;height:auto;flex:none;display:block}
 .brand-t .title{font-size:14px;letter-spacing:.14em;text-transform:uppercase;background:linear-gradient(180deg,#fff3cf,#f0c96d 55%,#c9973a);-webkit-background-clip:text;background-clip:text;color:transparent}
 @media (max-width:380px){ .brand-mark{display:none} }
 .seg button[aria-checked="true"]{color:#1a1405}

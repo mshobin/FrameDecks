@@ -1,7 +1,7 @@
 /* FRAMEDECKS v6.7 - Teleprompter window (speaker.html; the 6.6 Speaker View). Uses the app's own colours and type (dashboard.css, theme.css, teleprompter.css). */
 body.speaker{padding:0;min-height:100vh;display:flex;flex-direction:column;background:var(--app-bg,var(--bg))}
 .sp-top{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:12px 20px;background:var(--chrome-bg,var(--surface));border-bottom:1px solid var(--line)}
-.sp-mark{width:34px;height:34px;object-fit:contain;border-radius:50%}
+.sp-mark{width:34px;height:34px;object-fit:contain}
 .sp-title{display:flex;flex-direction:column;min-width:0;margin-right:auto}
 .sp-title b{font-size:17px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .sp-title small{color:var(--muted);font-size:13.5px}
