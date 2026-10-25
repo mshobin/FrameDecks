@@ -1,6 +1,6 @@
 # NEXT SESSION HANDOFF
 
-Updated 25 October 2026, after PR #27 merged and the companion-editing design was proposed.
+Updated 25 October 2026, after companion editing steps 1–2 (E1–E4 as recommended).
 
 ## Completed
 - **6.10** (Quit really quits) merged (PR #7). Logo QA done, with a heavier small-size emblem for 16–32 px (PR #18;
@@ -51,10 +51,15 @@ Updated 25 October 2026, after PR #27 merged and the companion-editing design wa
   QA pictures: `docs/qa/2026-10-25-companion-live-*.png`, `-can-run-services.png`, `-settings-control-from-companion.png`.
   PR #27 merged; hosted checks and the Windows installer build from `main` passed (run 40207526698, the installer for
   the owner's live tests).
-- **Editing in the companion** (D3's "next step"): design proposed in
-  [companion-editing.md](../docs/architecture/companion-editing.md), waiting for the owner's E1–E4 (recommended: A,
-  names/scripts/questions/references/order; owners and admins; allow editing the live Frame, applied when it leaves the
-  screen; on a conflict reload and ask to save again).
+- **Editing in the companion** (D3's "next step"; [companion-editing.md](../docs/architecture/companion-editing.md),
+  E1–E4 as recommended; design PR #28 merged). Steps 1–2 built: `hosted/src/lib/frame-edit.ts` (name, group, script,
+  questions, scripture reference/translation/text, Frame order; the PC's limits; only changed fields are sent,
+  `applyDraft`/`rebase`) and editing on the Services page for owners and admins (`services-panel.tsx`: Edit, up/down,
+  "on screen" note from `remote_computers` when available, conflict → latest version with the person's changes
+  kept). Saves with `sync_push` (no database change). Tested: `hosted/tests/frame-edit.test.mjs` (6; the desktop's
+  `store.js` normalize keeps every edit unchanged) and a browser run against stand-ins serving the shared fixture
+  (edit, on-screen note, conflict keeps the PC's newer script, reorder, phone, a member sees no Edit). QA pictures
+  `docs/qa/2026-10-25-companion-edit-frame*.png`.
 
 ## Pending
 - **Step 5 (live, the owner):** in the Supabase SQL editor run `hosted/supabase/migrations/0002_invitations.sql`, then
@@ -65,7 +70,9 @@ Updated 25 October 2026, after PR #27 merged and the companion-editing design wa
   account → tick "Allow control from the companion"; on a phone on mobile data, open the companion → Live: the PC shows
   Online; press Next (the Frame moves within about a second; the PC shows "Next Frame · from ‹name›"), Go Live on a
   Frame, Black screen, Hide all; untick the switch: the page shows "Not connected" within 45 s and presses do nothing.
-- After step 5: editing in the companion (D3 "view first"), a second PC, and the record history view.
+- **Companion editing step 3 (live, the owner):** with sync linked, edit a Frame's script on the Services page from a
+  phone; it appears on the PC within a minute; edit the Frame that is on screen: it is applied when it leaves.
+- After step 5: a second PC, and the record history view.
 - Later, together (owner's choice): Google/Microsoft providers and a live test of invitations.
 - Live RLS tests: need `*.supabase.co` allowed in this cloud environment's network settings.
 - A person checks the real tray icon on an installed PC. Real-device PWA install test. Device pairing (Phase 5).
@@ -88,16 +95,15 @@ Step 5 needs the owner to run `0002`–`0005` in Supabase and to have the PR-bui
 (an installer from "Build Windows installer" on `main`, or running `server.py` from source).
 
 ## Recommended Next Task
-Get the owner's answers to E1–E4 of [companion-editing.md](../docs/architecture/companion-editing.md), then build
-its step 1 (editing helpers in `hosted/src/lib/sync-entities.ts`, checked against the shared fixtures and
-`sync_entities.py`) and step 2 (editing on the Services page). In parallel, help the owner through sync step 5 and
-Phase 5 step 4 (both live, installer from run 40207526698, migrations `0002`–`0005`) and fix what they find.
+Help the owner through the live tests, all with the installer from `main` and migrations `0002`–`0005`: sync step 5,
+Phase 5 step 4, and companion editing step 3 (edit a script on the phone; it appears on the PC within a minute;
+editing the live Frame waits until it leaves the screen). Fix what they find. Then: Google/Microsoft sign-in with the
+invitation test (owner's choice, later), live RLS tests, real-device PWA test.
 Read `hosted/node_modules/next/dist/docs/` before hosted code (`cacheComponents` is on). The public Supabase values
 are URL `https://slrsykiknlqlivlnpvrb.supabase.co` and the owner's publishable key; only in `hosted/.env.local`.
 
 ## Files Likely To Change Next
-Companion editing: `hosted/src/lib/sync-entities.ts`, `hosted/src/components/services-panel.tsx`,
-`hosted/tests/`. Whatever the live tests find: `cloud_remote.py`, `app/js/cloud-remote.js`, `hosted/src/components/live-panel.tsx`, `cloud_sync.py`, `hosted/src/components/*-panel.tsx`, `hosted/supabase/migrations/` (a new numbered
+Whatever the live tests find: `hosted/src/lib/frame-edit.ts`, `hosted/src/components/services-panel.tsx`, `cloud_remote.py`, `app/js/cloud-remote.js`, `hosted/src/components/live-panel.tsx`, `cloud_sync.py`, `hosted/src/components/*-panel.tsx`, `hosted/supabase/migrations/` (a new numbered
 migration only, never an edited one), the continuity files.
 
 ## Session Handoff

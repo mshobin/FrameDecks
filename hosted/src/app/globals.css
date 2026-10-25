@@ -1445,3 +1445,129 @@ a.nav-item:hover {
     flex-wrap: wrap;
   }
 }
+
+/* Editing a Frame on the Services page (owners and admins) */
+.frame-actions {
+  display: inline-flex;
+  flex: none;
+  gap: 6px;
+  margin-left: auto;
+}
+
+.frame-actions button,
+.edit-row button {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 1px solid #344365;
+  border-radius: 8px;
+  background: #1a2744;
+  color: #eaeef6;
+  font: inherit;
+  font-size: 13px;
+  padding: 5px 9px;
+  cursor: pointer;
+}
+
+.frame-actions button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.frame-editing {
+  border-color: var(--blue);
+}
+
+.edit-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.edit-grid label,
+.edit-script {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: #aab5ca;
+  font-size: 12px;
+}
+
+.frame-editing input,
+.frame-editing textarea {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid #344365;
+  border-radius: 8px;
+  background: #0c1426;
+  color: var(--foreground);
+  font: inherit;
+  font-size: 14px;
+  padding: 8px 10px;
+  resize: vertical;
+}
+
+.edit-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 12px 0 0;
+  border: 1px solid #26365a;
+  border-radius: 10px;
+  padding: 10px 12px 12px;
+}
+
+.edit-list legend {
+  color: var(--blue);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 0 4px;
+}
+
+.edit-list > .member-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  align-self: flex-start;
+}
+
+.edit-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: start;
+}
+
+.edit-verse {
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) auto;
+}
+
+.edit-verse textarea {
+  grid-column: 1 / -1;
+}
+
+.edit-script {
+  margin-top: 12px;
+}
+
+.edit-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.edit-actions .live-btn {
+  min-width: 120px;
+  padding: 0 18px;
+}
+
+@media (max-width: 620px) {
+  .frame-card header {
+    flex-wrap: wrap;
+  }
+
+  .edit-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

@@ -22,6 +22,10 @@ Versions before 4.9 (when the program had its earlier name) are described in the
   its service plans, Teleprompter scripts and member list sync in the background (pictures, videos, what is live and
   the phone remote PIN stay on the PC). Optional and off until linked; services always run from the PC, online or
   not.
+- Companion: owners and admins can **edit services** on the Services page: a Frame's name, group, Teleprompter
+  script, questions and scripture, and the order of Frames. The service PC picks changes up within about a minute; a
+  Frame that is on screen is changed only when it leaves the screen; if the PC changed the same Frame meanwhile, the
+  companion shows the latest version with your changes kept and asks you to save again.
 - Companion: **Services** (the synced plan, view only: Frames, Content, scripts; pictures and videos named, never
   uploaded), **Members** (owners and admins only) and **Computers** (link a PC with its code, see and disconnect
   linked PCs). Needs `0003_sync.sql` run in Supabase; until then the pages say so.

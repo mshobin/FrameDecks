@@ -24,3 +24,37 @@ export async function pullWorkspace(supabase: SupabaseClient, organizationId: st
   }
   return { records: [...latest.values()].filter((r) => !r.deleted), error: null };
 }
+
+export type PushAnswer =
+  | { status: "ok"; rev: number }
+  | { status: "conflict"; current: { rev: number; deleted: boolean; body: unknown } }
+  | { status: "error"; message: string };
+
+/** One edited record back to the workspace (owners and admins), on top of the revision it was read at. The database
+ * stores it only if nobody changed it since; otherwise it answers with the current version and stores nothing. */
+export async function pushRecord(
+  supabase: SupabaseClient,
+  organizationId: string,
+  record: { kind: string; id: string; rev: number },
+  body: unknown,
+): Promise<PushAnswer> {
+  const { data, error } = await supabase.rpc("sync_push", {
+    org: organizationId,
+    changes: [{ kind: record.kind, id: record.id, baseRev: record.rev, body }],
+  });
+  if (error) {
+    const message =
+      error.code === "42501"
+        ? "Only owners and admins of this workspace can edit services."
+        : error.code === "53400"
+          ? "Too many changes this minute; try again shortly."
+          : error.message;
+    return { status: "error", message };
+  }
+  const result = (data as { results?: { status: string; rev?: number; current?: PushAnswer & object }[] })?.results?.[0];
+  if (result?.status === "ok") return { status: "ok", rev: Number(result.rev) };
+  if (result?.status === "conflict" && result.current) {
+    return { status: "conflict", current: result.current as unknown as { rev: number; deleted: boolean; body: unknown } };
+  }
+  return { status: "error", message: "The workspace did not answer as expected." };
+}
