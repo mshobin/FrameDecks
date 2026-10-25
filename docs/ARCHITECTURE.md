@@ -359,8 +359,17 @@ See [../SECURITY.md](../SECURITY.md) for how to report a problem.
 | Modern window and Compatibility transparency switches | The two riskiest window features can be turned off in Settings; each also falls back by itself if Windows refuses it |
 | Self-check and tests in every build | A broken page or file never reaches the installer |
 
+## Hosted companion boundary
+
+The optional Next.js companion in `hosted/` is a separately built and deployed
+application. It does not connect to the desktop app's local HTTP server; the
+current hosted page is a static preview. Keep its routes, dependencies, and
+deployment configuration inside `hosted/`. See the
+[hosted companion guide](../hosted/README.md).
+
 ## Related
 - [Getting started](getting-started.md)
 - [Media](media.md) · [Remote control](remote-control.md)
 - [Design history (engineering log)](architecture/design-history.md)
-- [Developer guide](contributing.md) · [Building the installer](development/building-the-installer.md)
+- [Developer guide](CONTRIBUTING.md) · [Building the installer](development/building-the-installer.md)
+- [Environment](ENVIRONMENT.md) · [Deployment](DEPLOYMENT.md) · [Coding standards](CODING-STANDARDS.md)

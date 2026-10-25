@@ -19,7 +19,7 @@ services calmer.
 | **Improve the documentation** | Fix unclear steps, add screenshots, answer a question in the [FAQ](docs/faq.md). Plain English for volunteers is a feature. |
 | **Suggest a feature** | Use the **Feature request** form and describe the ministry situation first: who is in the room, what they are trying to do, and what gets in the way. |
 | **Translations** | Not yet possible: the interface text is not yet separated from the code. Localization is on the [roadmap](ROADMAP.md). |
-| **Write code** | Read the [developer guide](docs/contributing.md), pick an issue, and open a pull request. |
+| **Write code** | Read the [developer guide](docs/CONTRIBUTING.md), pick an issue, and open a pull request. |
 
 Never post a phone-remote PIN, member names, phone numbers, birthdays or an ESV API key in an issue, a pull request
 or a screenshot.
@@ -46,7 +46,7 @@ or a screenshot.
 
 ## Getting set up
 
-The short version (the full guide is [docs/contributing.md](docs/contributing.md)):
+The short version (the full guide is [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md)):
 
 ```bash
 git clone https://github.com/mshobin/FRAMEDECKS.git

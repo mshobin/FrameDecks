@@ -38,8 +38,11 @@ do.
 
 | Guide | What it covers |
 | --- | --- |
-| [Architecture](architecture.md) | How the parts fit, with six diagrams |
-| [Developer guide](contributing.md) | Running from source, project layout, adding features and tests |
+| [Architecture](ARCHITECTURE.md) | How the parts fit, with six diagrams |
+| [Developer guide](CONTRIBUTING.md) | Running from source, project layout, adding features and tests |
+| [Environment](ENVIRONMENT.md) | Runtime and development configuration, data locations, and secrets |
+| [Deployment](DEPLOYMENT.md) | Desktop release builds and hosted Vercel deployment |
+| [Coding standards](CODING-STANDARDS.md) | JavaScript, Python, CSS, and interface-writing conventions |
 | [Development process](development/README.md) | Branching, releases, changelog standards, testing, code style |
 | [Building the installer](development/building-the-installer.md) | Producing the Windows installer with GitHub Actions |
 | [Engineering assessment](project/engineering-assessment.md) | Current stack, architecture, security, performance, PWA/SaaS readiness, and technical debt |
