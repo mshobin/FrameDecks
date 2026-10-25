@@ -86,8 +86,8 @@ test("only owners and admins read the log; nobody can write, change or delete it
   assert.equal((await as(INVITEE, "select * from audit_log")).rows.length, 0);
   assert.equal((await as(OUTSIDER, "select * from audit_log")).rows.length, 0);
   assert.ok(await denied(OWNER, "insert into audit_log(organization_id, action) values ($1, 'fake')", [org]));
-  assert.equal((await as(OWNER, "update audit_log set action = 'x' returning id")).rows.length, 0);
-  assert.equal((await as(OWNER, "delete from audit_log returning id")).rows.length, 0);
+  assert.ok(await denied(OWNER, "update audit_log set action = 'x'"));
+  assert.ok(await denied(OWNER, "delete from audit_log"));
   assert.ok(await denied(OWNER, "select audit_write($1, 'fake', null, '{}'::jsonb)", [org]));
 });
 

@@ -104,7 +104,8 @@ Updated 25 October 2026, after the architecture review and migration plan (PR #3
 
 ## Pending
 - **Step 5 (live, the owner):** in the Supabase SQL editor run `hosted/supabase/migrations/0002_invitations.sql`, then
-  `0003_sync.sql`, `0004_remote.sql`, `0005_remote_live.sql`, `0006_audit_log.sql` (once each, in that order). Then on the service PC: Settings → FRAMEDECKS account → Link to a
+  `0003_sync.sql`, `0004_remote.sql`, `0005_remote_live.sql`, `0006_audit_log.sql`, `0007_data_api_grants.sql` (once each, in that order; `0007` is
+  needed since Supabase's 30 October 2026 change and is safe to run again). Then on the service PC: Settings → FRAMEDECKS account → Link to a
   workspace; in the companion: Computers → type the code. Check: Services shows the plan; edit a Frame on the PC and
   it appears within a minute; Members shows the member list. Credential Manager is exercised here for the first time.
 - **Phase 5 step 4 (live, the owner)**, after sync step 5 with the same installer: on the PC, Settings → FRAMEDECKS

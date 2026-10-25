@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readdirSync, readFileSync } from "node:fs";
+import { readdirSync, readFileSync, statSync } from "node:fs";
 import { test } from "node:test";
 
 const dir = new URL("../supabase/migrations/", import.meta.url);
@@ -68,4 +68,23 @@ test("functions open to anon check the computer key or only handle linking", () 
     if (name.startsWith("computer_link_")) continue;
     assert.match(body, /public\.request_computer\(\)/, name);
   }
+});
+
+// Supabase, from 30 October 2026: a table without an explicit GRANT cannot be reached by the companion at all.
+test("every table the companion reads or writes directly is granted to signed-in people", () => {
+  const src = new URL("../src/", import.meta.url);
+  const files = [];
+  const walk = (dir) => {
+    for (const name of readdirSync(dir)) {
+      const url = new URL(name, dir);
+      if (statSync(url).isDirectory()) walk(new URL(`${name}/`, dir));
+      else if (/\.(ts|tsx)$/.test(name)) files.push(readFileSync(url, "utf8"));
+    }
+  };
+  walk(src);
+  const used = new Set(files.flatMap((f) => [...f.matchAll(/\.from\("(\w+)"\)/g)].map((m) => m[1])));
+  assert.ok(used.size >= 5);
+  const grants = [...sql.matchAll(/grant ([^;]+?) on table ([^;]+?) to authenticated;/gi)].map((m) => m[2]).join(",");
+  for (const table of used) assert.match(grants, new RegExp(`public\\.${table}\\b`), table);
+  assert.doesNotMatch(sql, /grant [^;]* on (table|all tables)[^;]* to anon/i);
 });
