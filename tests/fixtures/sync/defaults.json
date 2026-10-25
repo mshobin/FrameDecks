@@ -1,0 +1,448 @@
+{
+ "input": null,
+ "members": [],
+ "normalized": {
+  "rev": 0,
+  "verse": {
+   "label": "Focus Verse",
+   "showLabel": true,
+   "text": "Thy word is a lamp unto my feet, and a light unto my path.",
+   "ref": "Psalm 119:105",
+   "version": "KJV",
+   "visible": false,
+   "seq": 0,
+   "cut": 0,
+   "itemId": "s1",
+   "transition": "rise",
+   "speed": "normal",
+   "random": false,
+   "pool": [
+    "fade",
+    "rise",
+    "words",
+    "burst"
+   ],
+   "burst": "gentle",
+   "play": "",
+   "upcoming": "",
+   "out": {
+    "vcam": true,
+    "obs": true
+   }
+  },
+  "question": {
+   "label": "Discussion Question",
+   "showLabel": true,
+   "text": "What does this passage reveal about the character of God?",
+   "visible": false,
+   "seq": 0,
+   "cut": 0,
+   "itemId": "q1",
+   "mode": "",
+   "transition": "fade",
+   "speed": "normal",
+   "random": false,
+   "pool": [
+    "fade",
+    "rise",
+    "words",
+    "burst"
+   ],
+   "burst": "gentle",
+   "play": "",
+   "upcoming": "",
+   "out": {
+    "vcam": true,
+    "obs": true
+   }
+  },
+  "birthday": {
+   "label": "Birthday Celebration",
+   "showLabel": true,
+   "name": "",
+   "greeting": "",
+   "message": "",
+   "country": "",
+   "visible": false,
+   "seq": 0,
+   "cut": 0,
+   "transition": "rise",
+   "out": {
+    "vcam": true,
+    "obs": true
+   }
+  },
+  "layout": {
+   "bdayPos": "top",
+   "bdayScale": 1,
+   "verseAlign": "center",
+   "verseY": 40,
+   "verseWidth": 70,
+   "verseScale": 1,
+   "qBottom": 10,
+   "qWidth": 84,
+   "qScale": 1,
+   "panel": 92
+  },
+  "scenes": [],
+  "live": {
+   "scene": "",
+   "seq": 0,
+   "at": 0,
+   "tx": "cut",
+   "txMs": 0,
+   "auto": true,
+   "blackout": false,
+   "emergency": false,
+   "freeze": false,
+   "ink": {
+    "on": false,
+    "items": [],
+    "undone": []
+   },
+   "message": "Please stand by — we’ll be right back.",
+   "on": {},
+   "cd": {}
+  },
+  "profile": "bible-study",
+  "v6": false,
+  "brand": {
+   "meeting": "",
+   "org": "",
+   "color": "",
+   "logo": "",
+   "lw": 0,
+   "lh": 0,
+   "auto": false
+  },
+  "meeting": {
+   "title": "",
+   "date": "",
+   "time": "",
+   "location": "",
+   "presenter": "",
+   "contact": "",
+   "attendees": "",
+   "attendeeNotes": "",
+   "owner": "",
+   "contentNotes": "",
+   "notes": "",
+   "extra": ""
+  },
+  "library": {
+   "verses": [
+    {
+     "id": "s1",
+     "ref": "Psalm 119:105",
+     "version": "KJV",
+     "text": "Thy word is a lamp unto my feet, and a light unto my path.",
+     "pair": ""
+    },
+    {
+     "id": "s2",
+     "ref": "Isaiah 40:8",
+     "version": "KJV",
+     "text": "The grass withereth, the flower fadeth: but the word of our God shall stand for ever.",
+     "pair": ""
+    },
+    {
+     "id": "s3",
+     "ref": "Romans 8:38-39",
+     "version": "KJV",
+     "text": "For I am persuaded, that neither death, nor life, nor angels, nor principalities, nor powers, nor things present, nor things to come,\nnor height, nor depth, nor any other creature, shall be able to separate us from the love of God, which is in Christ Jesus our Lord.",
+     "pair": ""
+    }
+   ],
+   "questions": [
+    {
+     "id": "q1",
+     "text": "What does this passage reveal about the character of God?",
+     "num": "",
+     "note": "",
+     "pair": "",
+     "mode": ""
+    },
+    {
+     "id": "q2",
+     "text": "Which phrase in today’s focus verse stood out to you most this week, and why?",
+     "num": "",
+     "note": "",
+     "pair": "",
+     "mode": ""
+    },
+    {
+     "id": "q3",
+     "text": "Think of a situation you are facing right now. How could the truth of this passage change the way you respond to it, and what is one practical step you could take before we meet again next week?",
+     "num": "",
+     "note": "",
+     "pair": "",
+     "mode": ""
+    }
+   ]
+  }
+ },
+ "split": {
+  "entities": [
+   {
+    "kind": "library_question",
+    "id": "q1",
+    "body": {
+     "id": "q1",
+     "text": "What does this passage reveal about the character of God?",
+     "num": "",
+     "note": "",
+     "pair": "",
+     "mode": ""
+    }
+   },
+   {
+    "kind": "library_question",
+    "id": "q2",
+    "body": {
+     "id": "q2",
+     "text": "Which phrase in today’s focus verse stood out to you most this week, and why?",
+     "num": "",
+     "note": "",
+     "pair": "",
+     "mode": ""
+    }
+   },
+   {
+    "kind": "library_question",
+    "id": "q3",
+    "body": {
+     "id": "q3",
+     "text": "Think of a situation you are facing right now. How could the truth of this passage change the way you respond to it, and what is one practical step you could take before we meet again next week?",
+     "num": "",
+     "note": "",
+     "pair": "",
+     "mode": ""
+    }
+   },
+   {
+    "kind": "library_verse",
+    "id": "s1",
+    "body": {
+     "id": "s1",
+     "ref": "Psalm 119:105",
+     "version": "KJV",
+     "text": "Thy word is a lamp unto my feet, and a light unto my path.",
+     "pair": ""
+    }
+   },
+   {
+    "kind": "library_verse",
+    "id": "s2",
+    "body": {
+     "id": "s2",
+     "ref": "Isaiah 40:8",
+     "version": "KJV",
+     "text": "The grass withereth, the flower fadeth: but the word of our God shall stand for ever.",
+     "pair": ""
+    }
+   },
+   {
+    "kind": "library_verse",
+    "id": "s3",
+    "body": {
+     "id": "s3",
+     "ref": "Romans 8:38-39",
+     "version": "KJV",
+     "text": "For I am persuaded, that neither death, nor life, nor angels, nor principalities, nor powers, nor things present, nor things to come,\nnor height, nor depth, nor any other creature, shall be able to separate us from the love of God, which is in Christ Jesus our Lord.",
+     "pair": ""
+    }
+   },
+   {
+    "kind": "order",
+    "id": "order",
+    "body": {
+     "scenes": [],
+     "questions": [
+      "q1",
+      "q2",
+      "q3"
+     ],
+     "verses": [
+      "s1",
+      "s2",
+      "s3"
+     ],
+     "members": []
+    }
+   },
+   {
+    "kind": "theme",
+    "id": "cards",
+    "body": {
+     "question": {
+      "label": "Discussion Question",
+      "showLabel": true,
+      "transition": "fade",
+      "speed": "normal",
+      "random": false,
+      "pool": [
+       "fade",
+       "rise",
+       "words",
+       "burst"
+      ],
+      "burst": "gentle"
+     },
+     "verse": {
+      "label": "Focus Verse",
+      "showLabel": true,
+      "transition": "rise",
+      "speed": "normal",
+      "random": false,
+      "pool": [
+       "fade",
+       "rise",
+       "words",
+       "burst"
+      ],
+      "burst": "gentle"
+     },
+     "birthday": {
+      "label": "Birthday Celebration",
+      "showLabel": true,
+      "transition": "rise"
+     }
+    }
+   },
+   {
+    "kind": "brand",
+    "id": "brand",
+    "body": {
+     "meeting": "",
+     "org": "",
+     "color": "",
+     "logo": "",
+     "lw": 0,
+     "lh": 0,
+     "auto": false
+    }
+   },
+   {
+    "kind": "layout",
+    "id": "layout",
+    "body": {
+     "bdayPos": "top",
+     "bdayScale": 1,
+     "verseAlign": "center",
+     "verseY": 40,
+     "verseWidth": 70,
+     "verseScale": 1,
+     "qBottom": 10,
+     "qWidth": 84,
+     "qScale": 1,
+     "panel": 92
+    }
+   },
+   {
+    "kind": "meeting",
+    "id": "meeting",
+    "body": {
+     "title": "",
+     "date": "",
+     "time": "",
+     "location": "",
+     "presenter": "",
+     "contact": "",
+     "attendees": "",
+     "attendeeNotes": "",
+     "owner": "",
+     "contentNotes": "",
+     "notes": "",
+     "extra": ""
+    }
+   },
+   {
+    "kind": "layout",
+    "id": "profile",
+    "body": {
+     "value": "bible-study"
+    }
+   }
+  ],
+  "local": {
+   "rev": 0,
+   "verse": {
+    "text": "Thy word is a lamp unto my feet, and a light unto my path.",
+    "ref": "Psalm 119:105",
+    "version": "KJV",
+    "visible": false,
+    "seq": 0,
+    "cut": 0,
+    "itemId": "s1",
+    "play": "",
+    "upcoming": "",
+    "out": {
+     "vcam": true,
+     "obs": true
+    }
+   },
+   "question": {
+    "text": "What does this passage reveal about the character of God?",
+    "visible": false,
+    "seq": 0,
+    "cut": 0,
+    "itemId": "q1",
+    "mode": "",
+    "play": "",
+    "upcoming": "",
+    "out": {
+     "vcam": true,
+     "obs": true
+    }
+   },
+   "birthday": {
+    "name": "",
+    "greeting": "",
+    "message": "",
+    "country": "",
+    "visible": false,
+    "seq": 0,
+    "cut": 0,
+    "out": {
+     "vcam": true,
+     "obs": true
+    }
+   },
+   "live": {
+    "scene": "",
+    "seq": 0,
+    "at": 0,
+    "tx": "cut",
+    "txMs": 0,
+    "auto": true,
+    "blackout": false,
+    "emergency": false,
+    "freeze": false,
+    "ink": {
+     "on": false,
+     "items": [],
+     "undone": []
+    },
+    "message": "Please stand by — we’ll be right back.",
+    "on": {},
+    "cd": {}
+   },
+   "v6": false,
+   "library": {},
+   "keys": [
+    "rev",
+    "verse",
+    "question",
+    "birthday",
+    "layout",
+    "scenes",
+    "live",
+    "profile",
+    "v6",
+    "brand",
+    "meeting",
+    "library"
+   ]
+  }
+ }
+}

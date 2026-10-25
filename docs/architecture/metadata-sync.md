@@ -1,8 +1,9 @@
 # Syncing service plans (Phase 4 design)
 
 **Status:** agreed with the owner on 25 October 2026 (decisions in [§10](#10-decisions-for-the-owner)). Step 1 of
-[§9](#9-tests-and-delivery) is built: `hosted/supabase/migrations/0003_sync.sql`, tested by
-`hosted/tests/supabase-sync.test.mjs`.
+[§9](#9-tests-and-delivery) is built (`hosted/supabase/migrations/0003_sync.sql`, tested by
+`hosted/tests/supabase-sync.test.mjs`), and step 2 (`sync_entities.py`, `hosted/src/lib/sync-entities.ts`, shared
+fixtures in `tests/fixtures/sync/`).
 **Scope:** `main`'s plan: Supabase (project `slrsykiknlqlivlnpvrb`) and the hosted companion on Vercel. The desktop app
 stays the place where services run, offline.
 
@@ -64,12 +65,17 @@ Frames never collide. This reuses the mapping designed and tested on the closed 
 | `library_question`, `library_verse` | saved question / scripture | The item |
 | `theme` | workspace (`cards`) | The look of the question, scripture and birthday cards, without what is showing now |
 | `brand` | workspace | Meeting Name, organisation, colour, logo *file name*, size flags |
-| `layout`, `meeting` | workspace | As saved |
+| `layout`, `meeting` | workspace | As saved. The service profile (for example "bible-study") is the `layout` record with id `profile`, body `{"value": …}` |
 | `member` | person in `kc-members-private.json` → `members` | `id`, `name`, `country`, `phone`, `email`, `birthDate`, `role` (as `members-core.js` checks them). **Readable by owners and admins only** |
+
+`order` also lists the member ids, so the member list comes back in the same order.
 
 Stays on the PC (never a record): `live`, `rev`, each card's live fields (`text`, `visible`, `seq`, `itemId`, …, the
 `CARD_LIVE` list in the Phase 2 `entities.js`), and anything unknown to this version. `join(split(doc))` gives back the same
-document; that is the core test, run on shared fixtures from Python (desktop), TypeScript (companion) and, later, Dart.
+document (the same content and section order; field order inside a card may differ, which nothing depends on); that
+is the core test, run on shared fixtures from Python (desktop), TypeScript (companion) and, later, Dart. The fixtures
+(`tests/fixtures/sync/`) are built with the app's own `store.js` by `python tools/make_sync_fixtures.py`, and
+`tests/sync-fixtures.test.js` fails if `normalize` changes so that they need rebuilding.
 
 A media layer synced to a PC that lacks its file shows the layer's usual "file missing" state there; the companion
 shows "media on the service PC". The file is never fetched.
