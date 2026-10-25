@@ -926,3 +926,124 @@ a.account-chip:hover {
     max-width: 150px;
   }
 }
+
+/* Workspace members and invitations */
+.workspace-list li.workspace-item {
+  display: block;
+}
+
+.workspace-item-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.workspace-item-row .workspace-name {
+  flex: 1;
+}
+
+.member-action {
+  flex: none;
+  border: 0;
+  background: none;
+  color: var(--blue);
+  cursor: pointer;
+  font-size: 12px;
+  padding: 2px 4px;
+}
+
+.members {
+  margin-top: 12px;
+  border-top: 1px solid #26365a;
+  padding-top: 12px;
+}
+
+.members-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.members-list li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 0;
+  background: none;
+  padding: 4px 0;
+}
+
+.member-who {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+}
+
+.member-who strong,
+.member-who span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.member-who strong {
+  color: #eaeef6;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.member-who span {
+  color: #7786a3;
+  font-size: 11px;
+}
+
+.member-pending .member-who strong {
+  color: #aab5ca;
+  font-weight: 500;
+}
+
+.workspace-row select {
+  height: 40px;
+  border: 1px solid #344365;
+  border-radius: 8px;
+  background: #0c1426;
+  color: var(--foreground);
+  font: inherit;
+  padding: 0 8px;
+}
+
+.workspace-invites {
+  grid-column: 1 / -1;
+  border-color: rgba(227, 183, 90, 0.45);
+}
+
+.invite-actions {
+  display: flex;
+  flex: none;
+  gap: 8px;
+}
+
+.invite-actions .auth-primary {
+  background: var(--blue);
+  color: #0c1426;
+}
+
+.invite-actions button:not(.auth-primary) {
+  border-color: #344365;
+  background: #1a2744;
+  color: #eaeef6;
+}
+
+@media (max-width: 620px) {
+  .members .workspace-row {
+    flex-wrap: wrap;
+  }
+
+  .members .workspace-row input {
+    flex-basis: 100%;
+  }
+}

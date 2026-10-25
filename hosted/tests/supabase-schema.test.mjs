@@ -1,8 +1,13 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { test } from "node:test";
 
-const sql = readFileSync(new URL("../supabase/migrations/0001_tenant_foundation.sql", import.meta.url), "utf8");
+const dir = new URL("../supabase/migrations/", import.meta.url);
+const sql = readdirSync(dir)
+  .filter((name) => name.endsWith(".sql"))
+  .sort()
+  .map((name) => readFileSync(new URL(name, dir), "utf8"))
+  .join("\n");
 
 test("every public table enables row level security", () => {
   const tables = [...sql.matchAll(/create table public\.(\w+)/g)].map((m) => m[1]);
@@ -29,4 +34,12 @@ test("security definer functions pin search_path", () => {
 
 test("clients cannot grant the owner role", () => {
   assert.match(sql, /role <> 'owner'/);
+});
+
+test("functions that read across tenants are closed to anon", () => {
+  const definers = [...sql.matchAll(/create or replace function public\.(\w+)\(([^)]*)\)[^$]*?security definer/g)];
+  for (const [, name] of definers) {
+    if (["is_org_member", "is_org_admin", "add_creator_as_owner"].includes(name)) continue;
+    assert.match(sql, new RegExp(`revoke execute on function public\\.${name}\\([^)]*\\) from public, anon`), name);
+  }
 });

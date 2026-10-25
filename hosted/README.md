@@ -21,6 +21,14 @@ preview and must not be treated as a live service dashboard.
   their organization and role) with a form to create one. The database trigger
   makes the creator the owner; the browser never chooses a role. Row-level
   security (migration `0001`) decides every read and write.
+- **Members and invitations** (migration `0002_invitations.sql`): each workspace
+  has a **Members** list (names and emails, via `workspace_members()`). Owners and
+  admins invite by email as Member or Admin, cancel invitations and remove
+  members; anyone but the owner can leave. An invitation always waits until the
+  invitee signs in with that email and presses **Join** (`my_invitations()`,
+  `accept_invitation()`), so an admin never learns whether an address already
+  has an account. Until `0002` has been run in the Supabase SQL editor, these
+  controls stay hidden and the rest works as before.
 - Without the two variables below, the site still builds and works; the sign-in
   page says sign-in is not set up and the top bar shows no account button.
 

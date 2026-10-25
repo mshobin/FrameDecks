@@ -1,55 +1,23 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
 import { after, before, test } from "node:test";
 
-import { PGlite } from "@electric-sql/pglite";
+import { supabaseStandIn } from "./pglite-supabase.mjs";
 
-const migration = readFileSync(new URL("../supabase/migrations/0001_tenant_foundation.sql", import.meta.url), "utf8");
 const A = "00000000-0000-0000-0000-00000000000a";
 const B = "00000000-0000-0000-0000-00000000000b";
 const C = "00000000-0000-0000-0000-00000000000c";
 
 let db;
+let as;
+let denied;
 let org;
 
-// Stand-in for Supabase: the two API roles and auth.uid() driven by a session setting.
 before(async () => {
-  db = new PGlite();
-  await db.exec(`
-    create role anon nologin; create role authenticated nologin;
-    create schema auth;
-    create table auth.users (id uuid primary key);
-    create function auth.uid() returns uuid language sql stable as
-      $$ select nullif(current_setting('request.uid', true), '')::uuid $$;
-    grant usage on schema auth to anon, authenticated;
-    grant execute on function auth.uid() to anon, authenticated;
-  `);
-  await db.exec(migration);
-  await db.exec(`grant usage on schema public to anon, authenticated;
-    grant select, insert, update, delete on all tables in schema public to authenticated;`);
-  await db.exec(`insert into auth.users values ('${A}'),('${B}'),('${C}')`);
+  ({ db, as, denied } = await supabaseStandIn({ [A]: "a@example.org", [B]: "b@example.org", [C]: "c@example.org" }));
   org = (await as(A, "insert into organizations(name, created_by) values ('Church A', $1) returning id", [A])).rows[0].id;
 });
 
 after(() => db?.close());
-
-async function as(uid, sql, params) {
-  await db.exec(`set role authenticated; select set_config('request.uid','${uid}',false)`);
-  try {
-    return await db.query(sql, params);
-  } finally {
-    await db.exec("reset role");
-  }
-}
-
-async function denied(uid, sql, params) {
-  try {
-    await as(uid, sql, params);
-    return false;
-  } catch {
-    return true;
-  }
-}
 
 test("creator becomes owner automatically", async () => {
   const r = await as(A, "select role from memberships where organization_id=$1 and user_id=$2", [org, A]);

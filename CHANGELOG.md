@@ -15,6 +15,9 @@ Versions before 4.9 (when the program had its earlier name) are described in the
   a sign-in return page and a top-bar account button. The desktop app is unchanged.
 - Hosted companion: signed-in people can set a display name and create their church's workspace (they become its
   owner) and see the workspaces they belong to, with their role.
+- Hosted companion: workspace members and invitations. Owners and admins invite people by email (as Member or
+  Admin); the invited person sees "You're invited" after signing in and joins with one click. Needs
+  `hosted/supabase/migrations/0002_invitations.sql` run in Supabase.
 
 ### Changed
 - Updated the FRAMEDECKS logo and tagline across the desktop app, phone remote, PWA icons, favicons, workbook,

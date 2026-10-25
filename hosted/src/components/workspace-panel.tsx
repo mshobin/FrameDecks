@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { Building2, UserRound } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { WorkspaceMembers } from "@/components/workspace-members";
 import { browserSupabase } from "@/lib/supabase-browser";
 import type { Organization, Role } from "@/lib/supabase-config";
 import { useSession } from "@/lib/use-session";
@@ -13,6 +14,7 @@ const NAME_LIMIT = 120;
 const roleLabels: Record<Role, string> = { owner: "Owner", admin: "Admin", member: "Member" };
 
 type Workspace = Pick<Organization, "id" | "name" | "created_at"> & { role: Role };
+type InvitationForMe = { id: string; organization_name: string; role: Role };
 type MembershipRow = { role: Role; organizations: Pick<Organization, "id" | "name" | "created_at"> | null };
 
 // The signed-in person's profile and workspaces. Row-level security decides what they can read and write.
@@ -22,6 +24,9 @@ export function WorkspacePanel() {
   const userId = session?.user.id;
 
   const [workspaces, setWorkspaces] = useState<Workspace[] | null>(null);
+  // null until known; stays null when migration 0002 (invitations) has not been run yet.
+  const [invitations, setInvitations] = useState<InvitationForMe[] | null>(null);
+  const [openWorkspace, setOpenWorkspace] = useState<string | null>(null);
   const [displayName, setDisplayName] = useState("");
   const [workspaceName, setWorkspaceName] = useState("");
   const [busy, setBusy] = useState<"profile" | "workspace" | null>(null);
@@ -30,14 +35,16 @@ export function WorkspacePanel() {
 
   const load = useCallback(async () => {
     if (!supabase || !userId) return;
-    const [memberships, profile] = await Promise.all([
+    const [memberships, profile, invited] = await Promise.all([
       supabase
         .from("memberships")
         .select("role, organizations(id, name, created_at)")
         .eq("user_id", userId)
         .overrideTypes<MembershipRow[], { merge: false }>(),
       supabase.from("profiles").select("display_name").eq("user_id", userId).maybeSingle(),
+      supabase.rpc("my_invitations"),
     ]);
+    setInvitations(invited.error ? null : (invited.data as InvitationForMe[]));
     if (memberships.error || profile.error) {
       setProblem((memberships.error ?? profile.error)?.message ?? "Could not load your workspace.");
       setWorkspaces([]);
@@ -86,6 +93,18 @@ export function WorkspacePanel() {
     else setNotice("Your name is saved.");
   }
 
+  async function respond(invitation: InvitationForMe, accept: boolean) {
+    if (!supabase) return;
+    setProblem(null);
+    setNotice(null);
+    const { error } = accept
+      ? await supabase.rpc("accept_invitation", { invitation: invitation.id })
+      : await supabase.from("invitations").delete().eq("id", invitation.id);
+    if (error) setProblem(error.message);
+    else setNotice(accept ? `You joined “${invitation.organization_name}”.` : "Invitation declined.");
+    await load();
+  }
+
   async function createWorkspace(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!supabase || !userId) return;
@@ -108,6 +127,32 @@ export function WorkspacePanel() {
 
   return (
     <section className="workspace-grid" aria-label="Your workspace">
+      {invitations && invitations.length > 0 && (
+        <article className="workspace-card workspace-invites">
+          <header>
+            <Building2 aria-hidden="true" size={18} />
+            <h2>You&apos;re invited</h2>
+          </header>
+          <ul className="workspace-list">
+            {invitations.map((invitation) => (
+              <li key={invitation.id}>
+                <span className="workspace-name">
+                  {invitation.organization_name} · {roleLabels[invitation.role]}
+                </span>
+                <span className="invite-actions">
+                  <Button size="sm" type="button" className="auth-primary" onClick={() => respond(invitation, true)}>
+                    Join
+                  </Button>
+                  <Button size="sm" type="button" variant="outline" onClick={() => respond(invitation, false)}>
+                    Decline
+                  </Button>
+                </span>
+              </li>
+            ))}
+          </ul>
+        </article>
+      )}
+
       <article className="workspace-card">
         <header>
           <UserRound aria-hidden="true" size={18} />
@@ -127,7 +172,9 @@ export function WorkspacePanel() {
               {busy === "profile" ? "Saving…" : "Save"}
             </Button>
           </div>
-          <p className="workspace-hint">Signed in as {session.user.email}. Only you can see your profile.</p>
+          <p className="workspace-hint">
+            Signed in as {session.user.email}. People in your workspaces see this name.
+          </p>
         </form>
       </article>
 
@@ -143,9 +190,32 @@ export function WorkspacePanel() {
         ) : (
           <ul className="workspace-list">
             {workspaces.map((workspace) => (
-              <li key={workspace.id}>
-                <span className="workspace-name">{workspace.name}</span>
-                <span className="workspace-role">{roleLabels[workspace.role]}</span>
+              <li className="workspace-item" key={workspace.id}>
+                <div className="workspace-item-row">
+                  <span className="workspace-name">{workspace.name}</span>
+                  <span className="workspace-role">{roleLabels[workspace.role]}</span>
+                  {invitations !== null && (
+                    <button
+                      aria-expanded={openWorkspace === workspace.id}
+                      className="member-action"
+                      type="button"
+                      onClick={() => setOpenWorkspace(openWorkspace === workspace.id ? null : workspace.id)}
+                    >
+                      {openWorkspace === workspace.id ? "Close" : "Members"}
+                    </button>
+                  )}
+                </div>
+                {openWorkspace === workspace.id && userId && (
+                  <WorkspaceMembers
+                    organizationId={workspace.id}
+                    myRole={workspace.role}
+                    myUserId={userId}
+                    onLeft={() => {
+                      setOpenWorkspace(null);
+                      load();
+                    }}
+                  />
+                )}
               </li>
             ))}
           </ul>
