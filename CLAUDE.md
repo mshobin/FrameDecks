@@ -23,7 +23,15 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
 - `tools/` — generators and checks (`make_emblem_assets.py`, `check_doc_links.py`, `generate_brand_assets.py`).
 - `docs/FRAMEDECKS_MODERNIZATION_STATUS.md` — the detailed phase tracker; `docs/architecture/metadata-sync.md` — the
   agreed sync design and its delivery steps.
-- Continuity: `PROJECT_STATUS.md`, `PROJECT_ROADMAP.md`, `.ai/NEXT_SESSION.md` — update them in every PR.
+- Continuity: `CLAUDE.md`, `PROJECT_STATUS.md`, `PROJECT_ROADMAP.md`, `.ai/NEXT_SESSION.md`.
+- `hosted/src/app/{services,members,computers}` — the synced plan (view only), the member list (owners/admins) and
+  linking PCs; `hosted/src/components/app-shell.tsx` is the shared sidebar and top bar.
+
+## Keeping the handoff current (owner's rule)
+- Update all four continuity files (`CLAUDE.md`, `PROJECT_STATUS.md`, `PROJECT_ROADMAP.md`, `.ai/NEXT_SESSION.md`)
+  at the end of **every** step, in the same PR as the work: what is done, what is live, what the owner must do next.
+- In long steps, push work in progress with the four files describing the partial state, so a session cut off by a
+  usage limit still leaves a correct handoff.
 
 ## Commands
 - Desktop JS tests: `node tests/run.js`; Python: `python -m unittest discover -s tests -p "test_*.py"`; packaging: `python packaging/check.py`.

@@ -4,7 +4,8 @@
 [§9](#9-tests-and-delivery) is built (`hosted/supabase/migrations/0003_sync.sql`, tested by
 `hosted/tests/supabase-sync.test.mjs`), step 2 (`sync_entities.py`, `hosted/src/lib/sync-entities.ts`, shared
 fixtures in `tests/fixtures/sync/`), and step 3 (`cloud_sync.py`, wired into `server.py`, Settings → FRAMEDECKS account,
-tested in `tests/test_cloud_sync.py`; QA picture `docs/qa/2026-10-25-sync-settings.png`).
+tested in `tests/test_cloud_sync.py`; QA picture `docs/qa/2026-10-25-sync-settings.png`), and step 4 (companion
+`/services`, `/members`, `/computers`; QA pictures `docs/qa/2026-10-25-companion-*.png`). Step 5 is the owner's live test.
 **Scope:** `main`'s plan: Supabase (project `slrsykiknlqlivlnpvrb`) and the hosted companion on Vercel. The desktop app
 stays the place where services run, offline.
 
@@ -197,6 +198,10 @@ A conflict means the record changed in the cloud since this PC last saw it. Rule
   Removing a person on the PC removes their record; the history keeps it 30 days, then it is gone.
 
 ## 8. The companion
+
+Built in step 4 (`hosted/src/app/{services,members,computers}`, data from `sync_pull` joined by
+`hosted/src/lib/sync-entities.ts`, display by `hosted/src/lib/services-view.ts`). Before `0003` is run the pages say
+so instead of failing.
 
 First release (D3): **view only.** A "Services" page lists the workspace's Frames in order, with each Frame's Content,
 questions, scriptures and script, and "media on the service PC" in place of pictures and video. Owners and admins
