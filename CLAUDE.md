@@ -6,7 +6,9 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
 - The desktop UI, branding and functions must NOT change. The work is a stack migration to SaaS + PWA only.
   Owner-approved exceptions: the heavier 16–32 px emblem and one Settings section, "FRAMEDECKS account" (sync, D1 in
   `docs/architecture/metadata-sync.md`), which also gets "Allow control from the companion" and its last ten actions
-  (R5 in `docs/architecture/remote-control.md`); a toast on the PC for each companion action.
+  (R5 in `docs/architecture/remote-control.md`); a toast on the PC for each companion action; and from the migration
+  (`docs/migration-plan.md` §8): **Suggest** in a Frame's question list (only when Ollama answers), **Meeting → Export
+  this meeting to PowerPoint**, and **+ Content → Audio…** with its settings. Nothing else visible may change.
 - The codebase is the source of truth; verify docs against it.
 - Do not touch the legacy LAN remote or let the hosted app call the local HTTP server.
 - Never commit secrets. `.env*` is ignored except `hosted/.env.example`. Never the Supabase `service_role` key; the
@@ -38,8 +40,8 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
   watchdog in the installed exe) are built.
 - `docs/architecture-review.md` and `docs/migration-plan.md` — review against the owner's target architecture (cloud
   for people, templates, AI, audit; desktop for media, rendering, camera) and the step order; decisions M-D1–M-D6.
-  Steps 1–3 are built (`docs/post-migration-report.md`); the owner answered M-D1–M-D6 (plan §8); hosting long term:
-  `docs/architecture/hosting.md`.
+  The owner answered M-D1–M-D6 (plan §8); all eight steps are built on PR #32 (`docs/post-migration-report.md`);
+  hosting long term: `docs/architecture/hosting.md`.
 - `streamdeck/` — the Stream Deck plugin (owner's choice); it calls the PC's local `GET /api/command/status` and
   `POST /api/command` (this PC only), which run through the same window bridge as the companion, without a toast.
 - `ai.py` — optional free AI (M-D3): Ollama on this PC, or a self-hosted endpoint; cached; `Suggest` in a Frame's
@@ -57,6 +59,37 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
   (Phase 5), the member list (owners/admins add, edit and remove people; the workspace is its source, M-D2;
   groups, M-D6: `hosted/src/lib/member-edit.ts`, `hosted/src/components/members-panel.tsx`) and linking PCs; `hosted/src/components/app-shell.tsx` is the shared sidebar and top bar.
 
+## Working locally (VS Code on Windows)
+- **Branch.** Work continues on `claude/peaceful-albattani-6m445e` (PR #32), or on `main` once that is merged. Never
+  force-push or rewrite pushed history. The repository is `mshobin/FRAMEDECKS` (formerly `kingdom-connect`).
+- **Set up once (PowerShell, at the repo root):**
+  - `python -m venv .venv`
+  - `.venv\Scripts\Activate.ps1`
+  - `python -m pip install -r packaging/requirements-desktop.txt -c packaging/constraints.txt` (includes python-pptx
+    for the PowerPoint export)
+  - `cd hosted; npm ci; cd ..`
+  - `cd streamdeck; npm ci; cd ..`
+- **Run the program:**
+  - `python desktop_app.py` (the real window).
+  - `python server.py`, then open http://127.0.0.1:8750/dashboard.html in a browser; add `?audio=1` to let a browser
+    tab play Audio Content.
+  - Data lives in `%APPDATA%\FRAMEDECKS`. Set `KC_DATA_DIR` to a scratch folder for experiments.
+- **Companion:**
+  - `cd hosted; npm run dev`.
+  - Put the public Supabase URL and publishable key in `hosted/.env.local` (never committed), named
+    `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
+- **AI (optional):**
+  - Install Ollama (https://ollama.com), then run `ollama pull llama3.2`. **Suggest** then appears in a Frame's
+    question list.
+  - `tests/test_ai.py` uses a stand-in, not a real Ollama.
+- **Local-only checks**, which the cloud sessions could not run:
+  - the virtual camera in Zoom, Teams and OBS;
+  - PowerPoint COM;
+  - Credential Manager (the sync and ESV keys);
+  - audio through the speakers;
+  - a real Stream Deck;
+  - Supabase itself.
+
 ## Keeping the handoff current (owner's rule)
 - Update all four continuity files (`CLAUDE.md`, `PROJECT_STATUS.md`, `PROJECT_ROADMAP.md`, `.ai/NEXT_SESSION.md`)
   at the end of **every** step, in the same PR as the work: what is done, what is live, what the owner must do next.
@@ -64,8 +97,10 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
   usage limit still leaves a correct handoff.
 
 ## Commands
-- Desktop JS tests: `node tests/run.js`; Python: `python -m unittest discover -s tests -p "test_*.py"`; packaging: `python packaging/check.py`.
-- Hosted (run inside `hosted/`, there is no root package.json): `npm test`, `npm run lint`, `npm run typecheck`, `npm run build`.
+- Before and after every change, all of these must pass (the cloud session's last results are in brackets):
+- Desktop JS tests: `node tests/run.js` [4/4]; Python: `python -m unittest discover -s tests -p "test_*.py"` [126 OK];
+  packaging: `python packaging/check.py` [6.10].
+- Hosted (run inside `hosted/`, there is no root package.json): `npm test` [85/85], `npm run lint`, `npm run typecheck`, `npm run build`.
   `npm test` applies every migration to in-memory Postgres (PGlite) and loads `src/lib/sync-entities.ts` with Node's
   type stripping.
 - Sync fixtures: `python tools/make_sync_fixtures.py` rebuilds `tests/fixtures/sync/` (needs Node) after changing

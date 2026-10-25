@@ -1,6 +1,7 @@
 # PROJECT ROADMAP
 
 Phases follow [docs/FRAMEDECKS_MODERNIZATION_STATUS.md](docs/FRAMEDECKS_MODERNIZATION_STATUS.md), which is authoritative for detail.
+Updated 25 October 2026. Work after `main` at `8482c44` is on PR #32 (branch `claude/peaceful-albattani-6m445e`), not merged yet.
 
 | Step | State |
 |---|---|
@@ -14,10 +15,12 @@ Phases follow [docs/FRAMEDECKS_MODERNIZATION_STATUS.md](docs/FRAMEDECKS_MODERNIZ
 | Sync service plans (metadata only) | Design agreed ([metadata-sync.md](docs/architecture/metadata-sync.md)); steps 1–4 built (database, record mapping, PC sync + Settings section, companion Services / Members / Computers); step 5 (live test by the owner) next |
 | Control a service from the companion (Phase 5) | Design agreed ([remote-control.md](docs/architecture/remote-control.md), R1–R5 as recommended); steps 1–3 built (database `0004`/`0005`, PC side `cloud_remote.py` and window bridge, Settings switch, companion Live page, "Can run services"); step 4 (live test by the owner) next |
 | Edit services in the companion (D3 "next step") | Design agreed ([companion-editing.md](docs/architecture/companion-editing.md), E1–E4 as recommended); steps 1–2 built (editing helpers, Services page editing) plus Frame history and restore (30 days); step 3 (live test by the owner) next |
-| Owner's live tests (sync, phone control, editing, history) | Written up as one pass: [live-test-guide.md](docs/qa/live-test-guide.md); waiting for the owner |
-| Architecture audit follow-up ([audit](docs/project/2026-10-25-architecture-audit.md) §9) | Phase 1 built on PR #32: P1–P4 (per-press I/O and sync, image and screen-capture memory), C2 crash watchdog. Code signing: free via SignPath Foundation once open source (M-D1) |
+| Owner's live tests (sync, phone control, editing, history, members, new PC features) | One pass, tests A–F: [live-test-guide.md](docs/qa/live-test-guide.md); waiting for the owner (database `0002`–`0008` first) |
+| Architecture audit follow-up ([audit](docs/project/2026-10-25-architecture-audit.md) §9) | Phase 1 built on PR #32: P1–P4, C2 crash watchdog. C1: signing ready (SignPath, M-D1), auto-update not designed yet |
 | Stream Deck plugin (owner's choice) | Built on PR #32 (`streamdeck/`, CI artifact); owner tests it on a PC with a Stream Deck |
-| Target architecture migration ([review](docs/architecture-review.md), [plan](docs/migration-plan.md)) | Review and plan written; steps 1–3 built ([report](docs/post-migration-report.md): audit log `0006`, owner runs it; ESV key in Credential Manager; missing-media check); owner answered M-D1–M-D6 on 25 Oct (plan §8; hosting: [hosting.md](docs/architecture/hosting.md)); steps 4 (licence, signing ready), 5 (members from the cloud) and 8 (groups) built; 6 (AI: Ollama, discussion questions) and 7 (PowerPoint export, Audio Content) built; all 8 steps done, live tests by the owner next ([report](docs/post-migration-report.md)) |
+| Target architecture migration ([review](docs/architecture-review.md), [plan](docs/migration-plan.md), [report](docs/post-migration-report.md)) | All 8 steps built on PR #32 (owner decisions M-D1–M-D6, 25 Oct): audit log, ESV key, missing-media check, API grants, licence and signing, members from the cloud, free AI (Ollama), PowerPoint export and Audio, member groups. Next: merge, database scripts, live tests |
+| Hosting long term ([hosting.md](docs/architecture/hosting.md)) | Recommended: companion to Cloudflare (static) before a public launch; Supabase Free → Pro when churches depend on it |
+| Later (not designed yet) | Asset references (size/hash) across PCs; on-screen missing-media line (needs approval); auto-update; a shared Template Store |
 | Real-device PWA acceptance, operations | Later |
 | Packaged Windows run, tray icon check | Installer builds pass on GitHub; a person still checks the tray icon and sync's key storage on an installed PC |
 | Logo visual QA (light theme, teleprompter, remote, speaker, 16px favicon) | Done 25 Oct ([report](docs/qa/2026-10-25-logo-visual-qa.md)); heavier small-size emblem added for 16–32 px |

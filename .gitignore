@@ -25,6 +25,7 @@ webview/
 dist/
 build/
 .build-venv/
+.venv/
 __pycache__/
 *.pyc
 # BCC vCam build files (GitHub builds the camera itself)
