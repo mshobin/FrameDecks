@@ -475,7 +475,8 @@ def save_private(data):
 def _sync_read():
     with cond:
         plan = json.loads(json.dumps(state))
-    return plan, list(load_private().get("members") or [])
+    people = load_private().get("members")
+    return plan, (list(people) if isinstance(people, list) else None)   # None: the member file is missing or unreadable
 
 
 def _sync_write(change):
@@ -509,7 +510,7 @@ def _report_missing_media():
 
 
 SYNC = cloud_sync.Service(DATA / "kc-sync.json", cloud_sync.SecretStore(DATA / ".kc-sync-key"), _sync_read, _sync_write,
-                          socket.gethostname() or "FRAMEDECKS PC")
+                          socket.gethostname() or "FRAMEDECKS PC", member_authority=lambda: app_settings()["memberAuthority"])
 
 
 # ---------- Phase 5: running a service from the companion (cloud_remote.py; docs/architecture/remote-control.md) ----------
@@ -636,8 +637,9 @@ APP_SETTINGS_DEFAULTS = {"remoteAutostart": False, "importDecided": False,
                          "overlayFrost": True,    # Windows blur behind the overlay
                          "overlayOnTop": True,    # the overlay stays above Zoom, Teams, PowerPoint and browsers
                          "overlayFade": False,    # compatibility transparency (the whole window fades, text included)
-                         "cloudRemote": False}    # Phase 5: run a service from the companion (Settings > FRAMEDECKS account)
-APP_SETTING_CHOICES = {"minimizeTo": ("ask", "tray", "taskbar"),
+                         "cloudRemote": False,    # Phase 5: run a service from the companion (Settings > FRAMEDECKS account)
+                         "memberAuthority": "cloud"}   # M-D2: the workspace is the member list's source (no switch on screen)
+APP_SETTING_CHOICES = {"minimizeTo": ("ask", "tray", "taskbar"), "memberAuthority": ("cloud", "pc"),
                        "overlayMode": ("solid", "presenter", "meeting", "conference", "ghost")}
 
 

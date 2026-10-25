@@ -87,8 +87,8 @@ class PC:
         self.plan, self.members = change(*self.read())
         self.saves += 1
 
-    def sync(self):
-        return C.Engine(self.api, self.state, self.read, self.write, self.name).run()
+    def sync(self, member_authority="cloud"):
+        return C.Engine(self.api, self.state, self.read, self.write, self.name, member_authority).run()
 
     def frames(self):
         return {s["id"]: s for s in self.plan["scenes"]}
@@ -226,6 +226,55 @@ class TwoPCs(unittest.TestCase):
         next(m for m in self.b.members if m["id"] == "m9")["phone"] = "+965 1234 5678"
         self.round(self.b, self.a)
         self.assertEqual(next(m for m in self.a.members if m["id"] == "m9")["phone"], "+965 1234 5678")
+
+
+class MembersFromTheCloud(unittest.TestCase):
+    """M-D2 (docs/migration-plan.md): the workspace is the member list's source; a PC keeps a copy it can rebuild."""
+
+    def setUp(self):
+        self.cloud = Cloud()
+        plan, members = fixture("service")
+        self.assertTrue(members)
+        self.a = PC(self.cloud, "Church PC", plan, members)
+        self.a.sync()
+        self.a.sync()                                  # its own first upload comes back once; settled after this
+        self.people = copy.deepcopy(self.a.members)
+
+    def cloud_people(self):
+        return sorted(r["body"]["name"] for r in self.cloud.rows.values() if r["kind"] == "member" and not r["deleted"])
+
+    def test_a_lost_member_file_is_rebuilt_from_the_workspace_not_deleted_there(self):
+        before = self.cloud_people()
+        self.a.members = None                          # the file was deleted or could not be read
+        summary = self.a.sync()
+        self.assertEqual(summary["membersRebuilt"], len(self.people))
+        self.assertEqual(self.a.members, self.people, "the same people, in the same order")
+        self.assertEqual(self.cloud_people(), before, "nobody was deleted in the workspace")
+        self.assertEqual(self.a.sync()["pushed"], 0, "and nothing is left to send")
+
+    def test_people_added_in_the_companion_arrive_and_survive_a_rebuild(self):
+        self.cloud.push([{"kind": "member", "id": "m-web", "baseRev": 0,
+                          "body": {"id": "m-web", "name": "Added Online", "country": "Kuwait"}}])
+        self.a.sync()
+        self.assertIn("Added Online", [m["name"] for m in self.a.members])
+        self.a.members = None
+        self.a.sync()
+        self.assertIn("Added Online", [m["name"] for m in self.a.members])
+
+    def test_a_list_emptied_on_purpose_is_an_edit_as_before(self):
+        self.a.members = []
+        self.assertEqual(self.a.sync()["membersRebuilt"], 0)
+        self.assertEqual(self.cloud_people(), [])
+
+    def test_the_old_behaviour_is_one_setting_away(self):
+        self.a.members = None
+        self.a.sync(member_authority="pc")
+        self.assertEqual(self.cloud_people(), [], "pc: a lost file goes up as deletions, as before M-D2")
+
+    def test_a_pc_that_never_had_members_is_left_alone(self):
+        empty, _ = fixture("defaults")
+        b = PC(Cloud(), "Laptop", empty, None)
+        self.assertEqual(b.sync()["membersRebuilt"], 0)
 
 
 class Linking(unittest.TestCase):
@@ -415,6 +464,19 @@ class ServerWiring(unittest.TestCase):
         read_plan, read_members = srv._sync_read()
         self.assertEqual(read_plan["meeting"]["title"], "From the workspace")
         self.assertEqual(len(read_members), 3)
+
+    def test_a_missing_member_file_reads_as_missing_not_empty(self):
+        srv = self.server
+        srv.save_private({"members": [], "settings": {}})
+        self.assertEqual(srv._sync_read()[1], [], "emptied on purpose")
+        srv.PRIVATE_FILE.unlink()
+        self.assertIsNone(srv._sync_read()[1], "gone: the sync engine rebuilds it from the workspace")
+        srv.PRIVATE_FILE.write_text("{not json", encoding="utf-8")
+        self.assertIsNone(srv._sync_read()[1], "unreadable: the same")
+        self.assertEqual(srv.app_settings()["memberAuthority"], "cloud")
+        self.assertTrue(srv._valid_setting("memberAuthority", "pc"))
+        self.assertFalse(srv._valid_setting("memberAuthority", "phone"))
+        srv.save_private({"members": []})
 
 
 if __name__ == "__main__":
