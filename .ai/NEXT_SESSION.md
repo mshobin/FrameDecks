@@ -1,6 +1,6 @@
 # NEXT SESSION HANDOFF
 
-Updated 25 October 2026, after Phase 5 step 3 (Settings switch, "Can run services", companion Live page).
+Updated 25 October 2026, after PR #27 merged and the companion-editing design was proposed.
 
 ## Completed
 - **6.10** (Quit really quits) merged (PR #7). Logo QA done, with a heavier small-size emblem for 16–32 px (PR #18;
@@ -49,6 +49,12 @@ Updated 25 October 2026, after Phase 5 step 3 (Settings switch, "Can run service
   that the PC's status fields match `LiveStatus`, `hosted/tests/live-view.test.mjs`, and browsers against stand-in
   responses (phone and desktop, owner, a member without permission) and the real program (switch, last actions).
   QA pictures: `docs/qa/2026-10-25-companion-live-*.png`, `-can-run-services.png`, `-settings-control-from-companion.png`.
+  PR #27 merged; hosted checks and the Windows installer build from `main` passed (run 40207526698, the installer for
+  the owner's live tests).
+- **Editing in the companion** (D3's "next step"): design proposed in
+  [companion-editing.md](../docs/architecture/companion-editing.md), waiting for the owner's E1–E4 (recommended: A,
+  names/scripts/questions/references/order; owners and admins; allow editing the live Frame, applied when it leaves the
+  screen; on a conflict reload and ask to save again).
 
 ## Pending
 - **Step 5 (live, the owner):** in the Supabase SQL editor run `hosted/supabase/migrations/0002_invitations.sql`, then
@@ -82,14 +88,16 @@ Step 5 needs the owner to run `0002`–`0005` in Supabase and to have the PR-bui
 (an installer from "Build Windows installer" on `main`, or running `server.py` from source).
 
 ## Recommended Next Task
-Help the owner through sync step 5 and Phase 5 step 4 (both live, same installer, migrations `0002`–`0005`) and fix
-what they find. Phase 5 is then complete apart from that live test; next candidates: editing in the companion (D3),
-Google/Microsoft sign-in with the invitation test, live RLS tests.
+Get the owner's answers to E1–E4 of [companion-editing.md](../docs/architecture/companion-editing.md), then build
+its step 1 (editing helpers in `hosted/src/lib/sync-entities.ts`, checked against the shared fixtures and
+`sync_entities.py`) and step 2 (editing on the Services page). In parallel, help the owner through sync step 5 and
+Phase 5 step 4 (both live, installer from run 40207526698, migrations `0002`–`0005`) and fix what they find.
 Read `hosted/node_modules/next/dist/docs/` before hosted code (`cacheComponents` is on). The public Supabase values
 are URL `https://slrsykiknlqlivlnpvrb.supabase.co` and the owner's publishable key; only in `hosted/.env.local`.
 
 ## Files Likely To Change Next
-Whatever the live tests find: `cloud_remote.py`, `app/js/cloud-remote.js`, `hosted/src/components/live-panel.tsx`, `cloud_sync.py`, `hosted/src/components/*-panel.tsx`, `hosted/supabase/migrations/` (a new numbered
+Companion editing: `hosted/src/lib/sync-entities.ts`, `hosted/src/components/services-panel.tsx`,
+`hosted/tests/`. Whatever the live tests find: `cloud_remote.py`, `app/js/cloud-remote.js`, `hosted/src/components/live-panel.tsx`, `cloud_sync.py`, `hosted/src/components/*-panel.tsx`, `hosted/supabase/migrations/` (a new numbered
 migration only, never an edited one), the continuity files.
 
 ## Session Handoff
