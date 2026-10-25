@@ -1,6 +1,6 @@
 # NEXT SESSION HANDOFF
 
-Updated 25 October 2026, after sync step 4 (companion pages; PR open at the time of writing).
+Updated 25 October 2026, after Phase 5 step 1 (the owner chose R1–R5 as recommended).
 
 ## Completed
 - **6.10** (Quit really quits) merged (PR #7). Logo QA done, with a heavier small-size emblem for 16–32 px (PR #18;
@@ -18,17 +18,22 @@ Updated 25 October 2026, after sync step 4 (companion pages; PR open at the time
   - Step 2 record mapping `sync_entities.py` / `hosted/src/lib/sync-entities.ts` with shared fixtures (PR #22).
   - Step 3 PC background sync `cloud_sync.py`, `server.py` `/api/sync`, Settings → FRAMEDECKS account
     (`app/js/account.js`), companion `/api/sync-config` (PR #23; the Windows installer build passed).
-  - Step 4 companion pages (PR after #23): **Services** (view-only plan: Frames, Content, scripts; media named only),
+  - Step 4 companion pages (PR #24, merged; Windows installer built from `main`, run 40201806083): **Services** (view-only plan: Frames, Content, scripts; media named only),
     **Members** (owners/admins), **Computers** (type the PC's code, see and disconnect PCs), a shared sidebar
     (`app-shell.tsx`) and a workspace picker. Browser-tested against stand-in responses as owner, member, on a phone
     and before `0003` is run.
 
 ## In Progress
-Phase 4 sync: steps 1–4 built. Step 5 (live test) needs the owner.
+- Phase 4 sync: steps 1–4 built. Step 5 (live test) needs the owner.
+- Phase 5, design agreed ([remote-control.md](../docs/architecture/remote-control.md); R1–R5 as recommended: actions
+  run in the PC's own window, the listed actions, owners/admins plus members given "Can run services", no end-to-end
+  encryption yet, a Settings switch off by default). Step 1 built: `hosted/supabase/migrations/0004_remote.sql`
+  (`remote_send`, `remote_take`, `remote_report`, `remote_publish`, `memberships.can_run_services`), tested in
+  `hosted/tests/supabase-remote.test.mjs`.
 
 ## Pending
 - **Step 5 (live, the owner):** in the Supabase SQL editor run `hosted/supabase/migrations/0002_invitations.sql`, then
-  `0003_sync.sql` (once each, in that order). Then on the service PC: Settings → FRAMEDECKS account → Link to a
+  `0003_sync.sql` (once each, in that order; `0004_remote.sql` can follow, nothing uses it yet). Then on the service PC: Settings → FRAMEDECKS account → Link to a
   workspace; in the companion: Computers → type the code. Check: Services shows the plan; edit a Frame on the PC and
   it appears within a minute; Members shows the member list. Credential Manager is exercised here for the first time.
 - After step 5: editing in the companion (D3 "view first"), a second PC, and the record history view.
@@ -54,15 +59,16 @@ Step 5 needs the owner to run `0002` and `0003` in Supabase and to have the PR-b
 (an installer from "Build Windows installer" on `main`, or running `server.py` from source).
 
 ## Recommended Next Task
-Help the owner through step 5 and fix what it finds. If the owner is not ready: Phase 5 (secure device pairing),
-starting from the design on branch `claude/saas-phase4` (`docs/architecture/pairing-protocol.md`), adapted to Supabase,
-or companion editing of Frames (`sync_push` with the person's session; owners/admins only, as the database allows).
+Help the owner through sync step 5 and fix what it finds. Then Phase 5 step 2 of
+[remote-control.md](../docs/architecture/remote-control.md) §8: `cloud_remote.py` (takes commands about once a second
+while the Settings switch is on, hands them to the program's own window, which runs the same `KCScenes` code as the
+keys, reports results, publishes the status) with tests against a stand-in cloud and the real program in a browser.
 Read `hosted/node_modules/next/dist/docs/` before hosted code (`cacheComponents` is on). The public Supabase values
 are URL `https://slrsykiknlqlivlnpvrb.supabase.co` and the owner's publishable key; only in `hosted/.env.local`.
 
 ## Files Likely To Change Next
-Whatever step 5 finds: `cloud_sync.py`, `hosted/src/components/*-panel.tsx`, `hosted/supabase/migrations/` (a new
-`0004` only, never an edited `0003`), the continuity files.
+Whatever step 5 finds: `cloud_sync.py`, `hosted/src/components/*-panel.tsx`, `hosted/supabase/migrations/` (a new numbered
+migration only, never an edited one), the continuity files.
 
 ## Session Handoff
 Run `git status`. Before and after changes: desktop `node tests/run.js`, `python -m unittest discover -s tests -p

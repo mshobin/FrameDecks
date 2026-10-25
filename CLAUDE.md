@@ -19,10 +19,11 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
   Phase 4, wired into `server.py` (`SYNC`, `/api/sync`) and Settings (`app/js/account.js`).
 - `hosted/` — Next.js 16 online-first companion, deployed to Vercel (`framedecks.vercel.app`, Root Directory `hosted`).
 - `hosted/supabase/migrations/` — SQL run in order in the Supabase SQL editor: `0001` workspaces, `0002` invitations,
-  `0003` sync. Never edit one that has been run; add the next number.
+  `0003` sync, `0004` remote control. Never edit one that has been run; add the next number.
 - `tools/` — generators and checks (`make_emblem_assets.py`, `check_doc_links.py`, `generate_brand_assets.py`).
 - `docs/FRAMEDECKS_MODERNIZATION_STATUS.md` — the detailed phase tracker; `docs/architecture/metadata-sync.md` — the
-  agreed sync design and its delivery steps.
+  agreed sync design and its delivery steps; `docs/architecture/remote-control.md` — the agreed Phase 5 design
+  (controlling a service from the companion; R1–R5 as recommended) and its four delivery steps.
 - Continuity: `CLAUDE.md`, `PROJECT_STATUS.md`, `PROJECT_ROADMAP.md`, `.ai/NEXT_SESSION.md`.
 - `hosted/src/app/{services,members,computers}` — the synced plan (view only), the member list (owners/admins) and
   linking PCs; `hosted/src/components/app-shell.tsx` is the shared sidebar and top bar.

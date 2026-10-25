@@ -1,0 +1,120 @@
+# Controlling a service from the companion (Phase 5 design)
+
+**Status:** agreed with the owner on 25 October 2026 (R1–R5 as recommended, [§9](#9-decisions-for-the-owner)). Step 1
+of [§8](#8-tests-and-delivery) is built: `hosted/supabase/migrations/0004_remote.sql`, tested by
+`hosted/tests/supabase-remote.test.mjs`.
+**Builds on:** sync ([metadata-sync.md](metadata-sync.md)): the same Supabase project, workspaces, linked PCs and
+computer keys.
+
+## In short (for the owner)
+
+- **What it adds:** on a phone or tablet, anywhere with internet, a signed-in person opens the companion and presses
+  **Next Frame**, **Go Live** on a chosen Frame, **Hide all**, **Black screen**, or reads the Teleprompter. The service PC
+  does it within about a second.
+- **What stays as it is:** the Wi-Fi phone remote with its PIN. It is not changed, and the companion never connects to
+  the PC. The PC fetches instructions from your workspace itself, the same way it syncs plans.
+- **Safe by default:** off until switched on at the PC; only people the workspace allows; only a short list of actions;
+  every action shown on the PC as it happens; one switch at the PC stops it at once.
+
+## 1. Why not the earlier design
+
+The closed Cloudflare branch (`claude/saas-phase4`, `docs/architecture/pairing-protocol.md` and
+`relay-protocol.md`) carried the phone remote's web requests through a relay into the PC's local server, with per-phone
+pairing and end-to-end encryption. `main`'s rules forbid both parts of that: the legacy LAN remote must not be touched,
+and the hosted app must not reach the local HTTP server. Its good ideas are kept: approval at the PC, roles enforced by
+the PC, replay protection, revoking in under a second.
+
+## 2. How it works
+
+```mermaid
+sequenceDiagram
+  participant Ph as Phone (companion)
+  participant DB as Supabase
+  participant PC as Service PC (cloud_remote.py)
+  Ph->>DB: remote_send(workspace, PC, {op: "next"})
+  PC->>DB: remote_take() about once a second while allowed
+  DB-->>PC: [{n: 41, op: "next", by: "Shobin"}]
+  PC->>PC: check the person's permission, do it (§4), toast "Next Frame (Shobin's phone)"
+  PC->>DB: remote_status(now showing: Frame 3 "Prayer", question hidden…)
+  DB-->>Ph: status (Realtime or a 1-second poll)
+```
+
+- **Commands** go into a table `remote_commands` through one function, `remote_send`, which checks the person may
+  control that PC. Each has a number; the PC remembers the last number it ran and never runs one twice or out of order.
+  Commands older than 10 seconds are dropped, not run late.
+- **Status** comes back as one small record per PC, `remote_status`: the live Frame's name and number, what is visible,
+  the Teleprompter script of the live Frame, blackout and freeze. Text only, as in sync; no picture of the screen in
+  this phase.
+- **Who may:** a workspace owner or admin gives a person the permission "Can run services" in the workspace's people
+  list on the companion's Overview (Your workspaces → Members). Owners and admins always have it.
+
+## 3. The PC side
+
+- A small background part, `cloud_remote.py`, used only when the PC is linked **and** "Allow control from the
+  companion" is on in Settings → FRAMEDECKS account (the section the owner already approved; off by default).
+- While allowed, it asks for new commands about once a second (one tiny request; no new package, no open socket),
+  and every 30 seconds when no phone has sent anything for 10 minutes.
+- Every action is shown on the PC as a toast ("Next Frame · from Shobin's phone"), and the Settings section lists the
+  last ten with time and person.
+- Turning the switch off stops it at once; unlinking the PC also stops it.
+
+## 4. Where the actions run (decision R1)
+
+Frame actions (Go Live, Next/Previous Frame, show or hide a card, Hide all) are worked out today by the page's
+JavaScript (`app/js/store.js`, `KCScenes.take`, `step`, `hideAll`), which then saves the new state.
+
+| Option | How | For | Against |
+|---|---|---|---|
+| **A. The PC's own window does it** (recommended) | `cloud_remote.py` hands each allowed command to the program's own window through the existing local channel; the window runs exactly the same code as a key press | One implementation; behaviour identical to the keyboard | Needs the program's window running (it always is while FRAMEDECKS runs, also in the tray) |
+| B. Port the actions to Python | Same actions rewritten in Python, checked against shared test cases | Works with no window | Two copies of the Frame logic that must stay identical |
+
+## 5. Actions in the first release (decision R2)
+
+| Action | Notes |
+|---|---|
+| Next / Previous Frame | as the arrow keys |
+| Go Live on a chosen Frame | from the synced Frame list |
+| Hide all | as Esc |
+| Black screen on / off | as K |
+| Show / hide the question, the scripture | the live Frame's current items |
+| Teleprompter | read only: the live Frame's script, scrolled on the phone |
+
+Not in the first release: editing, annotations, the camera, recording, media upload, settings.
+
+## 6. Security
+
+- Row-level security: only members with "Can run services" (owners and admins always) can call `remote_send` for a PC
+  of their workspace; only that PC (its key) can take its commands and write its status.
+- The PC has the final say: it re-checks the person's permission (from the command) against the workspace and refuses
+  anything outside §5. A refused command is shown on the PC.
+- No end-to-end encryption in this phase: commands carry no personal data and status carries only what is on the
+  screen. Python's standard library has no X25519 or AES-GCM, and adding a crypto package is a decision on its own
+  (R4).
+- Every command is kept 7 days with the person and the result, for "who did what".
+
+## 7. The companion
+
+A **Live** page: the PC's name and whether it is online (status younger than 5 seconds), the live Frame, big
+Previous / Next buttons, Hide all and Black screen, the Frame list to Go Live on, and the Teleprompter. Built for a
+phone first.
+
+## 8. Tests and delivery
+
+| Step | What | Proven by |
+|---|---|---|
+| 1 | `0004_remote.sql`: commands, status, permission, functions | PGlite tests: who may send, only the PC takes, numbering, 10-second expiry, other workspaces |
+| 2 | `cloud_remote.py` and the window bridge (R1) | Python tests against a stand-in cloud; the real program in a browser: a command moves the Frame exactly as the arrow key does; switch off stops it |
+| 3 | Settings switch and recent actions on the PC; the companion's Live page | browser tests on desktop and phone sizes |
+| 4 | Live test by the owner | a phone on mobile data moves Frames on the service PC within a second |
+
+## 9. Decisions for the owner
+
+Answered by the owner on 25 October 2026: **R1–R5 as recommended.**
+
+| # | Question | Decision |
+|---|---|---|
+| R1 | Where the actions run (§4) | **A**, the PC's own window |
+| R2 | The first actions (§5) | As listed; read-only Teleprompter |
+| R3 | Who may control a PC | Owners and admins always; members only when given "Can run services" |
+| R4 | End-to-end encryption of commands | Not in this phase (no personal data in them); revisit with the picture of the screen |
+| R5 | One more item in Settings → FRAMEDECKS account: "Allow control from the companion" (off by default) and the last ten actions | Yes |
