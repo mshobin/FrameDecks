@@ -1,6 +1,6 @@
 # NEXT SESSION HANDOFF
 
-Updated 25 October 2026, after sync step 4 (companion pages; PR open at the time of writing).
+Updated 25 October 2026, after sync step 4 (merged, PR #24) and the Phase 5 design proposal.
 
 ## Completed
 - **6.10** (Quit really quits) merged (PR #7). Logo QA done, with a heavier small-size emblem for 16–32 px (PR #18;
@@ -18,13 +18,16 @@ Updated 25 October 2026, after sync step 4 (companion pages; PR open at the time
   - Step 2 record mapping `sync_entities.py` / `hosted/src/lib/sync-entities.ts` with shared fixtures (PR #22).
   - Step 3 PC background sync `cloud_sync.py`, `server.py` `/api/sync`, Settings → FRAMEDECKS account
     (`app/js/account.js`), companion `/api/sync-config` (PR #23; the Windows installer build passed).
-  - Step 4 companion pages (PR after #23): **Services** (view-only plan: Frames, Content, scripts; media named only),
+  - Step 4 companion pages (PR #24, merged; Windows installer built from `main`, run 40201806083): **Services** (view-only plan: Frames, Content, scripts; media named only),
     **Members** (owners/admins), **Computers** (type the PC's code, see and disconnect PCs), a shared sidebar
     (`app-shell.tsx`) and a workspace picker. Browser-tested against stand-in responses as owner, member, on a phone
     and before `0003` is run.
 
 ## In Progress
-Phase 4 sync: steps 1–4 built. Step 5 (live test) needs the owner.
+- Phase 4 sync: steps 1–4 built. Step 5 (live test) needs the owner.
+- Phase 5 design proposed: [remote-control.md](../docs/architecture/remote-control.md) (phone controls the service
+  through the workspace; the PC fetches commands, so the LAN remote and the local server stay untouched). Waiting for
+  the owner's decisions R1–R5 in its §9.
 
 ## Pending
 - **Step 5 (live, the owner):** in the Supabase SQL editor run `hosted/supabase/migrations/0002_invitations.sql`, then
@@ -54,9 +57,9 @@ Step 5 needs the owner to run `0002` and `0003` in Supabase and to have the PR-b
 (an installer from "Build Windows installer" on `main`, or running `server.py` from source).
 
 ## Recommended Next Task
-Help the owner through step 5 and fix what it finds. If the owner is not ready: Phase 5 (secure device pairing),
-starting from the design on branch `claude/saas-phase4` (`docs/architecture/pairing-protocol.md`), adapted to Supabase,
-or companion editing of Frames (`sync_push` with the person's session; owners/admins only, as the database allows).
+Help the owner through step 5 and fix what it finds. Once the owner answers R1–R5, build Phase 5 in the four steps of
+[remote-control.md](../docs/architecture/remote-control.md) §8 (start with `0004_remote.sql` and its PGlite tests).
+Otherwise: companion editing of Frames (`sync_push` with the person's session; owners/admins only).
 Read `hosted/node_modules/next/dist/docs/` before hosted code (`cacheComponents` is on). The public Supabase values
 are URL `https://slrsykiknlqlivlnpvrb.supabase.co` and the owner's publishable key; only in `hosted/.env.local`.
 

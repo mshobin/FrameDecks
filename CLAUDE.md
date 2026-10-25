@@ -22,7 +22,8 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
   `0003` sync. Never edit one that has been run; add the next number.
 - `tools/` — generators and checks (`make_emblem_assets.py`, `check_doc_links.py`, `generate_brand_assets.py`).
 - `docs/FRAMEDECKS_MODERNIZATION_STATUS.md` — the detailed phase tracker; `docs/architecture/metadata-sync.md` — the
-  agreed sync design and its delivery steps.
+  agreed sync design and its delivery steps; `docs/architecture/remote-control.md` — the Phase 5 proposal (controlling
+  a service from the companion), awaiting the owner's decisions R1–R5.
 - Continuity: `CLAUDE.md`, `PROJECT_STATUS.md`, `PROJECT_ROADMAP.md`, `.ai/NEXT_SESSION.md`.
 - `hosted/src/app/{services,members,computers}` — the synced plan (view only), the member list (owners/admins) and
   linking PCs; `hosted/src/components/app-shell.tsx` is the shared sidebar and top bar.
