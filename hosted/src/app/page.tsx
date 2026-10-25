@@ -53,11 +53,12 @@ export default function Home() {
       <aside className="sidebar" aria-label="Main navigation">
         <Link className="brand" href="/" aria-label="FRAMEDECKS overview">
           <Image
-            src="/framedecks-logo-icon.png"
+            src="/framedecks-emblem.webp"
             alt=""
             width={48}
             height={48}
             priority
+            unoptimized
           />
           <span className="brand-copy">
             <strong>FRAMEDECKS</strong>
@@ -103,12 +104,7 @@ export default function Home() {
             </div>
           </div>
           <div className="sidebar-brand">
-            <Image
-              src="/framedecks-logo-horizontal.png"
-              alt="FRAMEDECKS"
-              width={144}
-              height={33}
-            />
+            <span className="sidebar-brand-name">FRAMEDECKS</span>
             <span>Present · Equip · Inspire</span>
           </div>
         </div>
@@ -140,10 +136,11 @@ export default function Home() {
             </div>
             <div className="welcome-mark" aria-hidden="true">
               <Image
-                src="/framedecks-logo-icon.png"
+                src="/framedecks-emblem.webp"
                 alt=""
                 width={94}
                 height={94}
+                unoptimized
               />
             </div>
           </section>

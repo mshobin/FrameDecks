@@ -42,7 +42,7 @@ body.s-about-open .s-body{max-width:1180px}
 @media (prefers-reduced-motion:reduce){ .kc-net.pulse,.kc-glow{animation:none} .kc-net.pulse.a{opacity:.6} }
 
 .kc-hero-in{position:relative;max-width:760px;padding:44px 28px 40px;text-align:center;display:flex;flex-direction:column;align-items:center}
-.kc-emblem{width:150px;height:auto;margin:-6px 0 6px}
+.kc-emblem{width:150px;height:auto;margin:-6px 0 6px;border-radius:50%}
 .kc-wordmark{margin:0;font-family:var(--sans);font-weight:800;font-size:clamp(30px,4.4vw,52px);letter-spacing:.2em;text-transform:uppercase;line-height:1.05;padding-left:.2em;
   background:linear-gradient(180deg,#fff3cf 0%,var(--kc-gold-hi) 38%,var(--kc-gold) 70%,var(--kc-gold-lo) 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
 .kc-tagline{margin-top:10px!important;font-size:13.5px;font-weight:700;letter-spacing:.32em;text-transform:uppercase;color:var(--kc-mist);padding-left:.32em}
@@ -165,7 +165,7 @@ body.s-about-open .s-body{max-width:1180px}
 /* The header logo opens the About page */
 .kc-brand-link{cursor:pointer;border-radius:10px}
 .kc-brand-link:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
-.brand-mark{display:block;width:30px;height:auto;flex:none}
+.brand-mark{display:block;width:30px;height:auto;flex:none;border-radius:50%}
 
 /* Light theme: the brand surfaces (hero, scripture, principle, founder card, join) stay navy */
 html[data-theme="light"] .kc-sec{box-shadow:0 1px 2px rgba(10,20,38,.05),0 6px 20px rgba(10,20,38,.04)}

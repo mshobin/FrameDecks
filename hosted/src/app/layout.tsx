@@ -11,13 +11,13 @@ export const metadata: Metadata = {
     "The online-first FRAMEDECKS companion for secure service planning and device management.",
   applicationName: "FRAMEDECKS",
   icons: {
-    icon: "/icon.png",
-    apple: "/framedecks-logo-icon.png",
+    icon: "/framedecks-emblem.webp",
+    apple: "/framedecks-emblem.webp",
   },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#f5f7fa",
+  themeColor: "#0a1426",
 };
 
 export default function RootLayout({

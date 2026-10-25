@@ -1,22 +1,22 @@
 @import "tailwindcss";
 
 :root {
-  color-scheme: light;
-  --background: #f5f7fa;
-  --foreground: #18212f;
-  --muted: #748095;
-  --border: #e7ebf0;
-  --blue: #2854a1;
-  --blue-dark: #1d427f;
-  --blue-soft: #edf3ff;
-  --green: #32765f;
-  --green-soft: #eef7f3;
+  color-scheme: dark;
+  --background: #0c1426;
+  --foreground: #eaeef6;
+  --muted: #9ba8c2;
+  --border: #26365a;
+  --blue: #e3b75a;
+  --blue-dark: #f0c96d;
+  --blue-soft: rgba(227, 183, 90, 0.12);
+  --green: #7fd1a0;
+  --green-soft: rgba(127, 209, 160, 0.1);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: Arial, Helvetica, sans-serif;
+  --font-sans: "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
 }
 
 * {
@@ -29,7 +29,7 @@ body {
   margin: 0;
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
   font-size: 14px;
   -webkit-font-smoothing: antialiased;
 }
@@ -57,7 +57,7 @@ a {
   width: 252px;
   flex-direction: column;
   border-right: 1px solid var(--border);
-  background: #fff;
+  background: #0a1222;
   padding: 27px 18px 18px;
 }
 
@@ -69,8 +69,10 @@ a {
 }
 
 .brand img {
-  width: 42px;
-  height: 42px;
+  display: block;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
   object-fit: contain;
 }
 
@@ -81,7 +83,7 @@ a {
 }
 
 .brand-copy strong {
-  color: #1b2d4b;
+  color: #f0c96d;
   font-size: 13px;
   letter-spacing: 0.055em;
 }
@@ -94,7 +96,7 @@ a {
 
 .workspace-label,
 .eyebrow {
-  color: #8490a2;
+  color: #7786a3;
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.105em;
@@ -118,7 +120,7 @@ a {
   border: 0;
   border-radius: 8px;
   background: transparent;
-  color: #596579;
+  color: #aab5ca;
   padding: 0 11px;
   text-align: left;
 }
@@ -136,7 +138,7 @@ a {
 
 .nav-soon {
   margin-left: auto;
-  color: #939dad;
+  color: #7786a3;
   font-size: 10px;
 }
 
@@ -157,7 +159,7 @@ a {
 }
 
 .help-card strong {
-  color: #27354a;
+  color: var(--foreground);
   font-size: 12px;
 }
 
@@ -180,6 +182,13 @@ a {
   height: auto;
 }
 
+.sidebar-brand-name {
+  color: #e3b75a;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+}
+
 .main-panel {
   width: calc(100% - 252px);
   min-height: 100vh;
@@ -192,7 +201,7 @@ a {
   align-items: center;
   justify-content: space-between;
   border-bottom: 1px solid var(--border);
-  background: rgb(255 255 255 / 78%);
+  background: rgb(10 18 34 / 92%);
   padding: 0 5.2%;
 }
 
@@ -200,12 +209,12 @@ a {
   display: flex;
   align-items: center;
   gap: 10px;
-  color: #8993a3;
+  color: #7786a3;
   font-size: 12px;
 }
 
 .breadcrumb strong {
-  color: #354156;
+  color: #eaeef6;
   font-weight: 600;
 }
 
@@ -213,7 +222,7 @@ a {
   display: flex;
   align-items: center;
   gap: 8px;
-  color: #69768a;
+  color: #9ba8c2;
   font-size: 11px;
 }
 
@@ -221,7 +230,7 @@ a {
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: #a4adba;
+  background: #e3b75a;
 }
 
 .page-content {
@@ -240,7 +249,7 @@ a {
 
 .welcome-row .eyebrow {
   margin: 0 0 12px;
-  color: var(--blue);
+  color: #e3b75a;
 }
 
 h1,
@@ -251,7 +260,8 @@ p {
 
 h1 {
   margin-bottom: 10px;
-  color: #1b2a40;
+  color: #f4f0e6;
+  font-family: Georgia, "Times New Roman", serif;
   font-size: clamp(25px, 3vw, 32px);
   font-weight: 650;
   letter-spacing: -0.045em;
@@ -261,25 +271,23 @@ h1 {
 .welcome-copy {
   max-width: 620px;
   margin-bottom: 0;
-  color: #6c788b;
+  color: #aab5ca;
   font-size: 13px;
   line-height: 1.7;
 }
 
 .welcome-mark {
   display: grid;
-  width: 126px;
-  height: 126px;
-  flex: 0 0 126px;
+  width: 150px;
+  height: 150px;
+  flex: 0 0 150px;
   place-items: center;
-  border: 1px solid #e7edf7;
-  border-radius: 50%;
-  background: linear-gradient(145deg, #fff, #f1f5fc);
 }
 
 .welcome-mark img {
-  width: 76px;
-  height: 76px;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
   object-fit: contain;
 }
 
@@ -292,9 +300,9 @@ h1 {
 
 .status-card {
   min-height: 154px;
-  border: 1px solid var(--border);
+  border: 1px solid #26365a;
   border-radius: 11px;
-  background: #fff;
+  background: #131e36;
   padding: 17px 18px;
 }
 
@@ -313,8 +321,8 @@ h1 {
 }
 
 .status-icon-muted {
-  background: #f2f4f7;
-  color: #6e7a8d;
+  background: #1a2744;
+  color: #9ba8c2;
 }
 
 .status-icon-safe {
@@ -324,20 +332,20 @@ h1 {
 
 .card-label {
   margin-bottom: 5px;
-  color: #768195;
+  color: #9ba8c2;
   font-size: 11px;
 }
 
 .card-value {
   margin-bottom: 4px;
-  color: #29374c;
+  color: #eaeef6;
   font-size: 14px;
   font-weight: 700;
 }
 
 .card-detail {
   margin-bottom: 0;
-  color: #8993a2;
+  color: #7786a3;
   font-size: 10px;
   line-height: 1.5;
 }
@@ -347,9 +355,9 @@ h1 {
   align-items: center;
   gap: 17px;
   margin-top: 22px;
-  border: 1px solid #dce5f3;
+  border: 1px solid #26365a;
   border-radius: 11px;
-  background: #fff;
+  background: #131e36;
   padding: 23px;
 }
 
@@ -372,7 +380,8 @@ h1 {
 
 .foundation-copy h2 {
   margin-bottom: 6px;
-  color: #26354a;
+  color: #f4f0e6;
+  font-family: Georgia, "Times New Roman", serif;
   font-size: 16px;
   font-weight: 650;
   letter-spacing: -0.02em;
@@ -381,7 +390,7 @@ h1 {
 .foundation-copy p:last-child {
   max-width: 670px;
   margin-bottom: 0;
-  color: #748095;
+  color: #aab5ca;
   font-size: 12px;
   line-height: 1.7;
 }
@@ -392,7 +401,7 @@ h1 {
   gap: 12px;
   margin-top: 17px;
   border-radius: 9px;
-  background: #edf5f1;
+  background: #132a2a;
   padding: 15px 17px;
 }
 
@@ -400,19 +409,19 @@ h1 {
   width: 27px;
   height: 27px;
   flex: 0 0 27px;
-  background: #dcece4;
-  color: #32765f;
+  background: rgba(127, 209, 160, 0.12);
+  color: #7fd1a0;
 }
 
 .boundary-note p {
   margin: 2px 0 0;
-  color: #587365;
+  color: #b5cbbd;
   font-size: 11px;
   line-height: 1.65;
 }
 
 .boundary-note strong {
-  color: #38614d;
+  color: #d1e7d8;
 }
 
 .page-footer {
@@ -421,9 +430,23 @@ h1 {
   gap: 16px;
   margin-top: 45px;
   border-top: 1px solid var(--border);
-  color: #929bab;
+  color: #7786a3;
   padding-top: 16px;
   font-size: 10px;
+}
+
+.boundary-note {
+  border: 1px solid rgba(127, 209, 160, 0.2);
+}
+
+.foundation-card > button {
+  border-color: #344365;
+  background: #1a2744;
+  color: #aab5ca;
+}
+
+.foundation-card > button:disabled {
+  opacity: 0.55;
 }
 
 @media (max-width: 900px) {
