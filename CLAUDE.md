@@ -30,7 +30,8 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
   agreed sync design and its delivery steps; `docs/architecture/remote-control.md` — the agreed Phase 5 design
   (controlling a service from the companion; R1–R5 as recommended) and its four delivery steps;
   `docs/architecture/companion-editing.md` — editing services in the companion (E1–E4 as recommended).
-- Continuity: `CLAUDE.md`, `PROJECT_STATUS.md`, `PROJECT_ROADMAP.md`, `.ai/NEXT_SESSION.md`.
+- Continuity: `CLAUDE.md`, `PROJECT_STATUS.md`, `PROJECT_ROADMAP.md`, `.ai/NEXT_SESSION.md`. The owner's live tests:
+  `docs/qa/live-test-guide.md` (keep it in step when a tested behaviour changes).
 - `hosted/src/app/{services,live,members,computers}` — the synced plan (owners and admins edit its words and order,
   `hosted/src/lib/frame-edit.ts`, sent with `sync_push`; History and restore from `entity_history`,
   `hosted/src/components/frame-history.tsx`), running a service from a phone

@@ -1,7 +1,6 @@
 # PROJECT STATUS
 
-Last verified: 25 October 2026 on `claude/peaceful-albattani-6m445e` at Frame history (on top of `main` at `5b9bbe6`,
-companion editing merged). Locally: desktop JS 4/4, Python 79 tests OK, `packaging/check.py` (6.10), hosted test 68/68, lint, typecheck and
+Last verified: 25 October 2026 on `main` at `2a418b4` (Frame history merged; its PR checks passed). Locally: desktop JS 4/4, Python 79 tests OK, `packaging/check.py` (6.10), hosted test 68/68, lint, typecheck and
 build pass, doc links 0 problems; the program and the companion checked in browsers against stand-ins. Detail lives in
 [docs/FRAMEDECKS_MODERNIZATION_STATUS.md](docs/FRAMEDECKS_MODERNIZATION_STATUS.md).
 
@@ -37,7 +36,8 @@ build pass, doc links 0 problems; the program and the companion checked in brows
   steps 1–2 built (`hosted/src/lib/frame-edit.ts`, editing on the Services page for owners and admins; 6 Node tests
   incl. the desktop's own normalize, browser run against stand-ins; PR #29, merged). Next step 3, the owner's live test.
 - Frame history and restore on the Services page (30 days, `entity_history`; owners and admins restore, deleted Frames
-  can be brought back), no database change; 4 Node tests and a browser run against stand-ins.
+  can be brought back), no database change; 4 Node tests and a browser run against stand-ins (PR #30, merged).
+- The owner's live tests are written up as one pass: [docs/qa/live-test-guide.md](docs/qa/live-test-guide.md).
 
 ## Pending
 - Owner: run `0002_invitations.sql`, `0003_sync.sql`, `0004_remote.sql` and `0005_remote_live.sql` in the Supabase
