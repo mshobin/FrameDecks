@@ -12,6 +12,8 @@ lint, typecheck and build pass. Detail lives in
 - Supabase tenant migration `0001_tenant_foundation.sql`; row-level-security behaviour is now an in-repo test (`hosted/tests/supabase-rls.test.mjs`, in-memory Postgres via dev-only `@electric-sql/pglite`): 8 test groups covering 16 checks pass.
 
 ## In Progress
+- Phase 4 sync of service plans: design agreed ([metadata-sync.md](docs/architecture/metadata-sync.md)); step 1
+  (database `0003_sync.sql`, PGlite-tested) built; steps 2–5 to come.
 - Phase 3 (auth): the owner created the Supabase project (`slrsykiknlqlivlnpvrb`) and ran the tenant migration in the
   SQL editor (25 October; its result not yet confirmed in writing). The sign-in UI is built (`/sign-in`, `/auth/callback`,
   top-bar account chip; emailed link, Google/Microsoft when enabled), merged (PR #18) and deployed with the Vercel

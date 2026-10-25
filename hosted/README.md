@@ -29,6 +29,11 @@ preview and must not be treated as a live service dashboard.
   `accept_invitation()`), so an admin never learns whether an address already
   has an account. Until `0002` has been run in the Supabase SQL editor, these
   controls stay hidden and the rest works as before.
+- **Database scripts** in `supabase/migrations/` are run in order in the Supabase
+  SQL editor: `0001` (workspaces), `0002` (invitations), `0003` (sync of service
+  plans: records, linked computers; nothing in the companion uses it yet).
+  `npm test` applies all of them to an in-memory Postgres (PGlite) and checks the
+  access rules.
 - Without the two variables below, the site still builds and works; the sign-in
   page says sign-in is not set up and the top bar shows no account button.
 
