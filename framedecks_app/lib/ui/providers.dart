@@ -19,6 +19,14 @@ final stateProvider = StreamProvider<Json>((ref) async* {
 /// keeps the Frames, since the program syncs them itself).
 final cloudProvider = Provider<CloudLink?>((ref) => null);
 
+/// The data folder (the folder of kc-saved-content.json) when this computer keeps the Frames itself: its media folder
+/// holds the pictures and videos Content shows, as in the Windows app. Null when FrameDecks on a PC keeps them (its
+/// own media folder is on that PC).
+final dataDirProvider = Provider<String?>((ref) {
+  final b = ref.watch(backendProvider);
+  return b is LocalBackend ? b.file.parent.path : null;
+});
+
 final linkProvider = StreamProvider<Link>((ref) async* {
   final b = ref.watch(backendProvider);
   yield b.link;

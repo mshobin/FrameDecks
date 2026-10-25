@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../engine/model.dart';
 import '../../engine/scenes.dart' as sc;
 import '../program_view.dart';
+import '../providers.dart';
 import '../theme.dart';
 
 /// What a Frame would look like on screen, without putting it there: the state as if it had just gone live.
@@ -94,7 +96,7 @@ class StudioCanvas extends StatelessWidget {
                   child: Stack(
                     fit: StackFit.expand,
                     children: [
-                      ProgramView(state: shown),
+                      Consumer(builder: (context, ref, _) => ProgramView(state: shown, dataDir: ref.watch(dataDirProvider))),
                       Positioned(
                         left: 10,
                         top: 10,

@@ -84,7 +84,7 @@ class _ShareWindowState extends ConsumerState<ShareWindow> {
                   Center(
                     child: AspectRatio(
                       aspectRatio: 16 / 9,
-                      child: ProgramView(state: st, background: ProgramBackground.dark),
+                      child: ProgramView(state: st, background: ProgramBackground.dark, dataDir: ref.watch(dataDirProvider)),
                     ),
                   ),
                 Positioned(

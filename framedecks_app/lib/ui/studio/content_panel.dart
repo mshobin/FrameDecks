@@ -182,7 +182,8 @@ class _LayerRow extends ConsumerWidget {
   }
 }
 
-/// + Content: the cards and the text Content (camera, screen and media Content are made on the Windows PC).
+/// + Content: the cards, the text Content, and pictures and videos (camera, screen and slides Content are made on
+/// the Windows PC).
 class _AddContent extends ConsumerWidget {
   const _AddContent({required this.scene, required this.deck});
 
@@ -212,7 +213,7 @@ class _AddContent extends ConsumerWidget {
         WidgetsBinding.instance.addPostFrameCallback((_) => ref.read(selectionProvider.notifier).layer(l['id'] as String));
       }, '${kindInfo[k]!.name} added'),
       itemBuilder: (_) => [
-        for (final k in [...cardKinds, ...textKinds])
+        for (final k in [...cardKinds, ...textKinds, 'image', 'video'])
           PopupMenuItem(
             value: k,
             enabled: !(sc.isCard(k) || k == 'brand') || !has.contains(k),

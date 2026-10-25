@@ -712,7 +712,7 @@ Json newLayer(String kind, [Json? extra]) {
   if (extra != null) {
     for (final e in extra.entries) {
       if (e.key == 'c') {
-        (l['c'] as Json).addAll(deepCopy(e.value as Json));
+        l['c'] = <String, dynamic>{...l['c'] as Json, ...deepCopy(e.value as Json)}; // the defaults' map may be Map<String, Object>
       } else {
         l[e.key] = e.value;
       }

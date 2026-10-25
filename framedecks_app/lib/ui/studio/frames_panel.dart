@@ -419,7 +419,7 @@ class _NewFrameButton extends ConsumerWidget {
     itemBuilder: (_) => [
       const PopupMenuItem(enabled: false, height: 28, child: Eyebrow('New Frame')),
       for (final t in templates)
-        if (t.id != 'zoom' && t.id != 'teams' && t.id != 'slides' && t.id != 'media') PopupMenuItem(value: t.id, child: Text(t.name)),
+        if (t.id != 'zoom' && t.id != 'teams' && t.id != 'slides') PopupMenuItem(value: t.id, child: Text(t.name)),
     ],
     child: Container(
       width: 34,

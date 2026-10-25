@@ -8,12 +8,13 @@ import '../engine/backend.dart';
 import '../engine/cloud_client.dart';
 import '../engine/model.dart';
 import '../engine/scenes.dart' as sc;
+import '../engine/version.dart';
 import 'actions.dart';
 import 'fields.dart';
 import 'providers.dart';
 import 'theme.dart';
 
-const appVersion = '6.10';
+export '../engine/version.dart';
 
 /// Settings: Branding, the meeting profile, the Emergency screen's message, where everything is saved, the FrameDecks
 /// account, the phone remote.

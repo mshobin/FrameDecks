@@ -3,18 +3,38 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 
+import '../engine/media.dart';
 import '../engine/model.dart';
 import '../engine/scenes.dart' as sc;
+import 'program_media.dart';
 import 'theme.dart';
 
 /// The program picture (what the audience sees): the Windows app's overlay (app/js/overlay.js + css/overlay.css)
 /// drawn natively. Everything is sized in the overlay's unit u = 1% of the picture's width, so the canvas, the Share
-/// Window and a 4K screen show the same layout.
+/// Window and a 4K screen show the same layout. Image and video Content of the live Deck are drawn under the cards,
+/// as the Windows camera draws them (see [ProgramMediaLayer]).
 class ProgramView extends StatefulWidget {
-  const ProgramView({super.key, required this.state, this.background = ProgramBackground.preview});
+  const ProgramView({
+    super.key,
+    required this.state,
+    this.background = ProgramBackground.preview,
+    this.dataDir,
+    this.videoFactory = playerVideo,
+    this.volume = 0,
+  });
 
   final Json state;
   final ProgramBackground background;
+
+  /// The data folder whose media folder holds the files image and video Content name (null: no media is drawn,
+  /// e.g. on the phone remote, which has no files).
+  final String? dataDir;
+
+  final ProgramVideoFactory videoFactory;
+
+  /// Video sound, 0..1. The Windows camera plays videos muted (vcam/layers.py VideoSource reads no audio), so the
+  /// program does too.
+  final double volume;
 
   @override
   State<ProgramView> createState() => _ProgramViewState();
@@ -89,6 +109,25 @@ class _ProgramViewState extends State<ProgramView> {
             fit: StackFit.expand,
             children: [
               _Backdrop(kind: widget.background),
+              // image and video Content, bottom first, under every card (vcam/layers.py: layers under the cards)
+              if (widget.dataDir != null)
+                Positioned.fill(
+                  child: Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      for (final l in liveMedia(st))
+                        ProgramMediaLayer(
+                          key: ValueKey('${live['scene']}/${l['id']}'),
+                          layer: l,
+                          dataDir: widget.dataDir!,
+                          width: w,
+                          height: h,
+                          videoFactory: widget.videoFactory,
+                          volume: widget.volume,
+                        ),
+                    ],
+                  ),
+                ),
               // focus verse: centred at verseY% of the height
               Positioned(
                 left: 4 * u,

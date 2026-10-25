@@ -106,6 +106,10 @@ String layerDetail(Json st, Json scene, Json l) {
       if (c['org'] == true) b['org'],
     ].where((x) => (x ?? '') != '').join(' · ');
   }
+  if (kind == 'image' || kind == 'video') {
+    final f = (c['file'] ?? '').toString();
+    return f.isEmpty ? 'No file yet' : f;
+  }
   if (sc.isText(kind)) {
     final t = sc.brandText(st, c['text']).trim();
     return t.isEmpty ? sc.brandText(st, c['title']) : t;

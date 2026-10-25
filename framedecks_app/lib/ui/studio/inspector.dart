@@ -1,7 +1,11 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
+import '../../engine/media.dart';
 import '../../engine/model.dart';
 import '../../engine/scenes.dart' as sc;
 import '../actions.dart';
@@ -476,6 +480,30 @@ class ContentEditor extends ConsumerWidget {
         ],
       );
     }
+    if (kind == 'image' || kind == 'video') {
+      return _Two(
+        left: [
+          ...common,
+          const Eyebrow('File'),
+          _MediaFile(layer: layer, enabled: !locked, onChosen: (name) => edit((l, _) => sc.cOf(l)['file'] = name, 'File chosen')),
+        ],
+        right: [
+          const Eyebrow('Display'),
+          SliderRow(
+            label: 'Opacity',
+            value: ((layer['opacity'] as num?) ?? 1) * 100,
+            min: 0,
+            max: 100,
+            step: 1,
+            unit: '%',
+            onChanged: (v) => edit((l, _) => l['opacity'] = v / 100),
+          ),
+          if (kind == 'video')
+            CheckRow(value: c['loop'] != false, label: 'Loop (untick to play once)', onChanged: (v) => edit((l, _) => sc.cOf(l)['loop'] = v)),
+          danger,
+        ],
+      );
+    }
     // camera, screen, slides and other media: shown by the Windows app's capture
     return _Two(
       left: [
@@ -487,6 +515,133 @@ class ContentEditor extends ConsumerWidget {
         ),
       ],
       right: [danger],
+    );
+  }
+}
+
+/// The picture or video an image / video Content shows. A file is copied into the data folder's media folder (the
+/// Windows Studio's upload does the same), and the Content keeps its name there. There is no file picker in this app
+/// yet: the box takes the file's full path, or the name of a file already in the media folder.
+class _MediaFile extends ConsumerStatefulWidget {
+  const _MediaFile({required this.layer, required this.enabled, required this.onChosen});
+
+  final Json layer;
+  final bool enabled;
+  final Future<bool> Function(String name) onChosen;
+
+  @override
+  ConsumerState<_MediaFile> createState() => _MediaFileState();
+}
+
+class _MediaFileState extends ConsumerState<_MediaFile> {
+  final _c = TextEditingController();
+  var _busy = false;
+
+  @override
+  void dispose() {
+    _c.dispose();
+    super.dispose();
+  }
+
+  List<String> get _allowed => widget.layer['kind'] == 'video' ? videoExtensions : imageExtensions;
+
+  Future<void> _use(String dataDir) async {
+    final messenger = ScaffoldMessenger.maybeOf(context);
+    var input = _c.text.trim();
+    if (input.length > 1 && (input.startsWith('"') && input.endsWith('"') || input.startsWith("'") && input.endsWith("'"))) {
+      input = input.substring(1, input.length - 1);
+    }
+    if (input.startsWith('~/')) input = '${Platform.environment['HOME'] ?? ''}${input.substring(1)}';
+    if (input.isEmpty) return;
+    if (!_allowed.contains(extensionOf(input))) {
+      toast(messenger, 'Use ${_allowed.map((e) => e.substring(1).toUpperCase()).join(', ')}.', bad: true);
+      return;
+    }
+    setState(() => _busy = true);
+    try {
+      String? name;
+      final there = mediaFile(dataDir, input);
+      if (there != null && !input.contains('/') && !input.contains(r'\') && there.existsSync()) {
+        name = input; // already in the media folder
+      } else if (File(input).isAbsolute && File(input).existsSync()) {
+        name = await importMedia(dataDir, File(input));
+      }
+      if (name == null) {
+        toast(messenger, 'There is no file “$input”. Type its full path, or the name of a file in the media folder.', bad: true);
+        return;
+      }
+      if (await widget.onChosen(name)) _c.clear();
+    } on FileSystemException catch (e) {
+      toast(messenger, 'FrameDecks could not copy the file: ${e.osError?.message ?? e.message}', bad: true);
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final dataDir = ref.watch(dataDirProvider);
+    final name = (sc.cOf(widget.layer)['file'] ?? '').toString();
+    if (dataDir == null) {
+      return Text(
+        name.isEmpty ? 'No file yet. Choose it in FrameDecks on the PC: its media folder is there.' : name,
+        style: const TextStyle(color: K.muted, fontSize: 13, height: 1.45),
+      );
+    }
+    final missing = name.isNotEmpty && !(mediaFile(dataDir, name)?.existsSync() ?? false);
+    final folder = mediaDir(dataDir).path;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          name.isEmpty ? 'No file yet: nothing shows until one is chosen.' : name,
+          style: TextStyle(fontSize: 13.5, fontWeight: name.isEmpty ? FontWeight.w400 : FontWeight.w700, color: name.isEmpty ? K.muted : null),
+        ),
+        if (missing)
+          const Padding(
+            padding: EdgeInsets.only(top: 4),
+            child: Text(
+              'This file is not on this computer, so nothing shows. Copy it into the media folder, or choose another.',
+              style: TextStyle(color: K.accent, fontSize: 12.5),
+            ),
+          ),
+        const SizedBox(height: 10),
+        Row(
+          children: [
+            Expanded(
+              child: TextField(
+                controller: _c,
+                enabled: widget.enabled && !_busy,
+                style: const TextStyle(fontSize: 14),
+                decoration: InputDecoration(hintText: widget.layer['kind'] == 'video' ? '/Users/me/Movies/welcome.mp4' : '/Users/me/Pictures/logo.png'),
+                onSubmitted: (_) => _use(dataDir),
+              ),
+            ),
+            const SizedBox(width: 8),
+            KButton(onPressed: widget.enabled && !_busy ? () => _use(dataDir) : null, child: const Text('Use')),
+          ],
+        ),
+        const SizedBox(height: 6),
+        Text(
+          'Type the file’s full path (${_allowed.map((e) => e.substring(1).toUpperCase()).join(', ')}): FrameDecks copies it into its '
+          'media folder, as the Windows app does. A file already in the media folder can be typed by its name.',
+          style: const TextStyle(color: K.muted, fontSize: 12, height: 1.4),
+        ),
+        Row(
+          children: [
+            Expanded(
+              child: SelectableText(folder, style: const TextStyle(color: K.faint, fontSize: 11.5)),
+            ),
+            IconButton(
+              visualDensity: VisualDensity.compact,
+              tooltip: 'Copy the media folder’s path',
+              icon: const Icon(Icons.copy, size: 15),
+              onPressed: () => Clipboard.setData(ClipboardData(text: folder)),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }
