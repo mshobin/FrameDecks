@@ -45,6 +45,7 @@ def main():
     wordmark = remove_dark_background(source.crop(WORDMARK_CROP))
     horizontal.alpha_composite(wordmark.resize((850, 192), Image.Resampling.LANCZOS), (610, (560 - 192) // 2))
     horizontal.save(brand / "framedecks-logo-horizontal.png", optimize=True)
+    horizontal.save(ROOT / "hosted/public/framedecks-logo-horizontal.png", optimize=True)
 
     scale = 4
     tile = Image.new("RGBA", (768 * scale, 768 * scale), (0, 0, 0, 0))

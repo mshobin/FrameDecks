@@ -23,7 +23,7 @@ Owner must create the Supabase project and provide the URL and anon key (never t
 
 ## Recommended Next Task
 Blocked on owner credentials. When the Supabase URL and anon key exist: add `@supabase/supabase-js`, a sign-in page reusing the existing hosted styles (`hosted/src/app/globals.css`), env-gated by `readSupabaseConfig()` so the site still works without keys. Read the Next.js docs in `hosted/node_modules/next/dist/docs/` first. Then run the same cases as `hosted/tests/supabase-rls.test.mjs` against the live project.
-Without credentials, the remaining credential-free options are small: PWA wording/docs polish, or the tray-icon and packaged-Windows emblem check (needs a Windows build).
+Without credentials, the best credential-free task is the logo visual QA: light theme, teleprompter, remote and speaker pages (server on port 8750), 16px favicon legibility, then the tray-icon and packaged-Windows emblem check (needs a Windows build). Note: bump the `CACHE` name in `hosted/public/sw.js` whenever hosted emblem files change (now `framedecks-shell-v2`). Emblem files come from `tools/make_emblem_assets.py`; the horizontal/stacked logos (including `hosted/public/framedecks-logo-horizontal.png`) from `tools/generate_brand_assets.py`.
 
 ## Files Likely To Change Next
 `hosted/package.json`, `hosted/src/app/` (new sign-in route), `hosted/src/lib/`, `hosted/tests/`, `docs/FRAMEDECKS_MODERNIZATION_STATUS.md`, `PROJECT_STATUS.md`.

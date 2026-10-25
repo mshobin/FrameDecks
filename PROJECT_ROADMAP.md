@@ -13,3 +13,4 @@ Phases follow [docs/FRAMEDECKS_MODERNIZATION_STATUS.md](docs/FRAMEDECKS_MODERNIZ
 | Secure device pairing + runtime channel | Later |
 | Real-device PWA acceptance, operations | Later |
 | Packaged Windows run, tray icon check | Later |
+| Logo visual QA (light theme, teleprompter, remote, speaker, 16px favicon) | Pending; credential-free |
