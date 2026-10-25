@@ -144,8 +144,8 @@ baseline. Refresh measurements before selecting performance targets.
   incomplete.
 - The current application is Windows-first; Mac camera, capture, native presentation, and PowerPoint behavior are
   not implemented as equivalent runtime capabilities.
-- Some older project assessment documents still refer to version 6.6; the active root roadmap and repository
-  baseline now identify version 6.9. Review legacy audit material when it is next refreshed.
+- Older documents that mention version 6.6 do so as history (measurements taken on 6.6, former names of features);
+  the 6.6 repository audit is marked as a snapshot. The current version is 6.10.
 
 ## 6. SaaS readiness
 

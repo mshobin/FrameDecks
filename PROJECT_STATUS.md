@@ -1,6 +1,7 @@
 # PROJECT STATUS
 
-Last verified: 25 October 2026 on `main` at `2a418b4` (Frame history merged; its PR checks passed). Locally: desktop JS 4/4, Python 79 tests OK, `packaging/check.py` (6.10), hosted test 68/68, lint, typecheck and
+Last verified: 25 October 2026 on `main` at `8482c44` (live test guide merged). On `main` at `2a418b4` the hosted checks
+and the Windows installer build passed (run 40209501557: the installer for the live tests). Locally: desktop JS 4/4, Python 79 tests OK, `packaging/check.py` (6.10), hosted test 68/68, lint, typecheck and
 build pass, doc links 0 problems; the program and the companion checked in browsers against stand-ins. Detail lives in
 [docs/FRAMEDECKS_MODERNIZATION_STATUS.md](docs/FRAMEDECKS_MODERNIZATION_STATUS.md).
 
@@ -54,7 +55,6 @@ build pass, doc links 0 problems; the program and the companion checked in brows
   against live Supabase; D4 (conflict rules) was built as recommended without the owner's explicit answer.
 - `npm audit`: high findings in the dev-only ESLint tree (not applied: fix would downgrade `eslint-config-next`).
 - Emblem is now a vector master (`assets/brand/framedecks-emblem.svg`); the wordmark in the horizontal/stacked logos is still cropped from the legacy raster `framedecks-logo-source.png`, so it is the only raster-limited part of the brand set.
-- Older audit docs still reference version 6.6.
 
 ## Risks
 - Vercel Root Directory `hosted` is assumed from the working deployment, not read from the dashboard.

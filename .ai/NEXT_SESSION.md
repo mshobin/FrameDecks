@@ -1,6 +1,6 @@
 # NEXT SESSION HANDOFF
 
-Updated 25 October 2026, after Frame history (PR #30, merged) and the live test guide.
+Updated 25 October 2026, after the live test guide (PR #31, merged) and a docs tidy-up.
 
 ## Completed
 - **6.10** (Quit really quits) merged (PR #7). Logo QA done, with a heavier small-size emblem for 16–32 px (PR #18;
@@ -68,7 +68,10 @@ Updated 25 October 2026, after Frame history (PR #30, merged) and the live test 
   member view-only on a phone). QA picture `docs/qa/2026-10-25-companion-frame-history.png`. PR #30 merged.
 - **Live test guide** for the owner: [docs/qa/live-test-guide.md](../docs/qa/live-test-guide.md), one pass through the
   database scripts, the installer, and tests A (sync), B (phone control), C (editing), D (history), with what to
-  expect and what to send back.
+  expect and what to send back (PR #31, merged). Installer for it: the latest "Build Windows installer" run on
+  `main` (run 40209501557 at `2a418b4` passed; later runs only add documentation).
+- Tidy-up: the "older docs reference 6.6" debt is closed (they mention 6.6 as history; the 6.6 audit is marked as a
+  snapshot; the coding-standards comment template no longer names a version).
 
 ## Pending
 - **Step 5 (live, the owner):** in the Supabase SQL editor run `hosted/supabase/migrations/0002_invitations.sql`, then

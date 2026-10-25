@@ -19,7 +19,7 @@ Write code that reads like the code around it. These are the conventions the rep
 
 - **One feature per file**, wrapped in an immediately invoked function in strict mode:
   ```js
-  /* FRAMEDECKS v6.6 - <feature>: what it does and why, in a sentence or two. */
+  /* FRAMEDECKS - <feature>: what it does and why, in a sentence or two. */
   (function(){
   'use strict';
   var Store = window.KCStore, SC = window.KCScenes;
