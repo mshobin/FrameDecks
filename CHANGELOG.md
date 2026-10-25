@@ -13,6 +13,8 @@ Versions before 4.9 (when the program had its earlier name) are described in the
 ### Added
 - Hosted companion: sign-in with an emailed link (and Google or Microsoft once they are switched on in Supabase),
   a sign-in return page and a top-bar account button. The desktop app is unchanged.
+- Hosted companion: signed-in people can set a display name and create their church's workspace (they become its
+  owner) and see the workspaces they belong to, with their role.
 
 ### Changed
 - Updated the FRAMEDECKS logo and tagline across the desktop app, phone remote, PWA icons, favicons, workbook,

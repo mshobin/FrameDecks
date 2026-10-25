@@ -15,6 +15,7 @@ import {
 
 import { AccountStatus } from "@/components/account-status";
 import { Button } from "@/components/ui/button";
+import { WorkspacePanel } from "@/components/workspace-panel";
 
 const navigation = [
   { label: "Overview", icon: HomeIcon, active: true },
@@ -27,8 +28,8 @@ const navigation = [
 const statusCards = [
   {
     label: "Cloud workspace",
-    value: "Not connected",
-    detail: "Sign in now; shared workspaces come next",
+    value: "Account and workspaces",
+    detail: "Service plans do not sync yet",
     icon: Activity,
     tone: "muted",
   },
@@ -149,6 +150,8 @@ export default function Home() {
             </div>
           </section>
 
+          <WorkspacePanel />
+
           <section className="status-grid" aria-label="Workspace status">
             {statusCards.map(({ label, value, detail, icon: Icon, tone }) => (
               <article className="status-card" key={label}>
@@ -168,11 +171,12 @@ export default function Home() {
             </div>
             <div className="foundation-copy">
               <p className="eyebrow">FOUNDATION IN PROGRESS</p>
-              <h2 id="foundation-title">This space is not connected yet.</h2>
+              <h2 id="foundation-title">Your services are not connected yet.</h2>
               <p>
-                You can sign in, but cloud workspaces and secure device pairing
-                are not implemented yet. This preview does not read your desktop
-                data or send commands to your local server.
+                You can sign in and create a workspace, but service plans do not
+                sync and secure device pairing is not implemented yet. This
+                preview does not read your desktop data or send commands to your
+                local server.
               </p>
             </div>
             <Button disabled variant="outline">

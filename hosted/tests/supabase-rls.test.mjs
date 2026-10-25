@@ -84,6 +84,20 @@ test("profiles are private to their owner", async () => {
   assert.ok(await denied(B, "insert into profiles(user_id) values ($1)", [A]));
 });
 
+test("the hosted workspace screen's writes work: create-and-return, list by membership, profile upsert", async () => {
+  const created = await as(C, "insert into organizations(name, created_by) values ('Church C', $1) returning id, name", [C]);
+  assert.equal(created.rows[0]?.name, "Church C");
+  const mine = await as(C, `select m.role, o.name from memberships m join organizations o on o.id = m.organization_id
+    where m.user_id = $1`, [C]);
+  assert.deepEqual(mine.rows, [{ role: "owner", name: "Church C" }]);
+  const upsert = `insert into profiles(user_id, display_name) values ($1, $2)
+    on conflict (user_id) do update set display_name = excluded.display_name returning display_name`;
+  assert.equal((await as(C, upsert, [C, "Pastor C"])).rows[0].display_name, "Pastor C");
+  assert.equal((await as(C, upsert, [C, "Pastor C."])).rows[0].display_name, "Pastor C.");
+  assert.ok(await denied(B, upsert, [C, "not mine"]));
+  assert.equal((await as(A, "select id from organizations where name = 'Church C'")).rows.length, 0);
+});
+
 test("anonymous role is denied", async () => {
   await db.exec("set role anon");
   try {

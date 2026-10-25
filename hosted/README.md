@@ -16,6 +16,11 @@ preview and must not be treated as a live service dashboard.
   `/auth/`.
 - The session is kept by `@supabase/supabase-js` in the browser. The top bar shows
   **Sign in**, or the signed-in email with **Sign out**.
+- Signed in, the overview shows **Your profile** (display name, saved with an
+  upsert on `profiles`) and **Your workspaces** (the person's memberships with
+  their organization and role) with a form to create one. The database trigger
+  makes the creator the owner; the browser never chooses a role. Row-level
+  security (migration `0001`) decides every read and write.
 - Without the two variables below, the site still builds and works; the sign-in
   page says sign-in is not set up and the top bar shows no account button.
 
