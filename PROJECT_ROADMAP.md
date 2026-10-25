@@ -13,5 +13,5 @@ Phases follow [docs/FRAMEDECKS_MODERNIZATION_STATUS.md](docs/FRAMEDECKS_MODERNIZ
 | Secure device pairing + runtime channel | Later |
 | Real-device PWA acceptance, operations | Later |
 | Packaged Windows run, tray icon check | Later |
-| Logo visual QA (light theme, teleprompter, remote, speaker, 16px favicon) | Done 25 Oct ([report](docs/qa/2026-10-25-logo-visual-qa.md)); 16 px favicon on light tabs awaits an owner decision |
+| Logo visual QA (light theme, teleprompter, remote, speaker, 16px favicon) | Done 25 Oct ([report](docs/qa/2026-10-25-logo-visual-qa.md)); heavier small-size emblem added for 16–32 px |
 | Resolve drift: open PRs #8–#16 vs this plan (see PROJECT_STATUS.md) | Needs owner decision |

@@ -25,6 +25,18 @@ were drawn at real size on four browser-tab colours and enlarged 8× without smo
 | Tray icon (`app/icons/remote-192.png`, scaled by Windows) and program icon (`packaging/kingdom-connect.ico`, the new emblem despite its old file name; 16–256 px) at 16, 20, 24 and 32 px ([tray-and-ico-6x.png](2026-10-25-logo/tray-and-ico-6x.png); rows: tray, .ico on a dark taskbar, then on a light one) | **Dark taskbar** (the Windows 11 default): readable at 16–20 px, clear at 24–32 px. **Light taskbar:** faint at 16–20 px (100–125 % display scaling), the same thin-outline issue as the favicon; fine from 24 px. A heavier small-size variant would fix both. |
 | Packaged Windows run | The installer is built on GitHub from this branch (Build Windows installer); a person still has to look at the real tray. |
 
+## Follow-up: heavier small-size emblem (approved by the owner, 25 October 2026)
+
+`assets/brand/framedecks-emblem-small.svg` is the same mark drawn for 16–32 px: heavier strokes, no glow, the rear
+frames at full strength and a filled play mark. `tools/make_emblem_assets.py` uses it only for the favicons
+(`app/icons/favicon-16.png`, `favicon-32.png`, `hosted/src/app/icon.png`), the tray icon (`app/icons/tray-64.png`,
+used by `desktop_app.py`) and the 16–32 px images in the program icon. Everything at 48 px and above, and every
+in-app emblem, still uses the approved master unchanged (pixel-identical). In
+[small-emblem-before-after-6x.png](2026-10-25-logo/small-emblem-before-after-6x.png) each background has three rows
+at 16, 20, 24 and 32 px: the old mark, the new small mark, the new tray file as Windows scales it. On white and light
+grey the outline and play mark now read at 16 px; on dark backgrounds both were already fine. Still to do: a person
+looks at the real tray on an installed PC.
+
 ## Seen in passing (not logo-related, not changed)
 
 - Speaker View and the Teleprompter window, at 1280×800 and 1000×700: the floating "Frame 1 of 2 · Next Frame…" pill

@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="145 145 740 740" width="1024" height="1024">
+  <title>FRAMEDECKS emblem, small sizes (16-32 px)</title>
+  <defs>
+    <linearGradient id="g" gradientUnits="userSpaceOnUse" x1="150" y1="290" x2="800" y2="730">
+      <stop offset="0" stop-color="#f6d77a"/>
+      <stop offset=".5" stop-color="#d9a73c"/>
+      <stop offset="1" stop-color="#a0711c"/>
+    </linearGradient>
+    <path id="front" d="M330 336Q330 290 374.8 300.5L755.2 389.5Q800 400 800 446L800 574Q800 620 755.2 630.5L374.8 719.5Q330 730 330 684Z"/>
+    <path id="tri" d="M528 440L528 580L652 510Z"/>
+  </defs>
+  <g transform="translate(38 0)">
+    <rect x="146" y="380" width="30" height="262" rx="15" fill="url(#g)" opacity=".8"/>
+    <rect x="232" y="334" width="44" height="354" rx="22" fill="none" stroke="url(#g)" stroke-width="34"/>
+    <use href="#front" fill="none" stroke="url(#g)" stroke-width="50" stroke-linejoin="round"/>
+    <use href="#tri" fill="url(#g)" stroke="url(#g)" stroke-width="24" stroke-linejoin="round"/>
+  </g>
+</svg>
