@@ -13,6 +13,8 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
   publishable key goes only in Vercel and `hosted/.env.local`. A PC's sync key lives in Windows Credential Manager
   (`kc-sync.json` and `.kc-sync-key` are git-ignored).
 - Sync never sends media or anything live, and never changes the Frame that is on screen (see the design).
+- The workspace is the member list's source (M-D2). A linked PC keeps a copy and rebuilds it from the workspace if
+  its member file goes missing (`cloud_sync.Engine._rebuild_members`; app setting `memberAuthority`, `pc` = before).
 
 ## Layout
 - `app/`, `server.py`, `packaging/` — the unchanged desktop app (Python server, static UI, port 8750).
@@ -24,7 +26,7 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
   phone remote, a different thing.
 - `hosted/` — Next.js 16 online-first companion, deployed to Vercel (`framedecks.vercel.app`, Root Directory `hosted`).
 - `hosted/supabase/migrations/` — SQL run in order in the Supabase SQL editor: `0001` workspaces, `0002` invitations,
-  `0003` sync, `0004` remote control, `0005` the Live page's PC list, `0006` the audit log, `0007` explicit API grants. Never edit one that has been run; add the next number.
+  `0003` sync, `0004` remote control, `0005` the Live page's PC list, `0006` the audit log, `0007` explicit API grants, `0008` member groups. Never edit one that has been run; add the next number.
   Each new one gets an undo script in `hosted/supabase/rollback/` (`NNNN_<name>_down.sql`).
 - `tools/` — generators and checks (`make_emblem_assets.py`, `check_doc_links.py`, `generate_brand_assets.py`).
 - `docs/FRAMEDECKS_MODERNIZATION_STATUS.md` — the detailed phase tracker; `docs/architecture/metadata-sync.md` — the
@@ -47,7 +49,8 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
 - `hosted/src/app/{services,live,members,computers}` — the synced plan (owners and admins edit its words and order,
   `hosted/src/lib/frame-edit.ts`, sent with `sync_push`; History and restore from `entity_history`,
   `hosted/src/components/frame-history.tsx`), running a service from a phone
-  (Phase 5), the member list (owners/admins) and linking PCs; `hosted/src/components/app-shell.tsx` is the shared sidebar and top bar.
+  (Phase 5), the member list (owners/admins add, edit and remove people; the workspace is its source, M-D2;
+  groups, M-D6: `hosted/src/lib/member-edit.ts`, `hosted/src/components/members-panel.tsx`) and linking PCs; `hosted/src/components/app-shell.tsx` is the shared sidebar and top bar.
 
 ## Keeping the handoff current (owner's rule)
 - Update all four continuity files (`CLAUDE.md`, `PROJECT_STATUS.md`, `PROJECT_ROADMAP.md`, `.ai/NEXT_SESSION.md`)

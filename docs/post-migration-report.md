@@ -69,6 +69,28 @@ feature, API or integration was removed or renamed:
 | Owner | Follow [code-signing.md](project/code-signing.md): check, then make the repository public; apply to SignPath Foundation; add the secret and three variables |
 | Checked | Packaging check, Python and JS suites, hosted 77/77, Stream Deck tests and `validate`, `npm ci` with both lockfiles. The SignPath steps cannot be run until SignPath approves the project |
 
+## Step 5: the member list from the cloud (M-D2, option A)
+
+| | |
+|---|---|
+| Cloud is the source | Owners and admins add, edit and remove people on the companion's **Members** page. Changes are records in the workspace (`sync_push`, kind `member`) and reach every linked PC at its next sync. Edits made on a PC still go up, as before. A change made meanwhile elsewhere is never overwritten: the page shows the latest version and asks again |
+| Same shape as the desktop | `hosted/src/lib/member-edit.ts` writes exactly the fields and formats the desktop keeps (`app/js/members.js` normalizeData). Birthdays are `1985-03-15`, or `--03-15` without the year. A test loads the desktop's own `members-core.js` and checks that every saved person passes through its rules unchanged |
+| PC copy rebuilt | If a linked PC's member file goes missing or unreadable, the next sync refills it from the workspace, in the workspace's order (`cloud_sync.Engine._rebuild_members`). Before, it would have sent everyone as deleted. A list emptied on purpose is still an edit |
+| Switch | App setting `memberAuthority`: `cloud` (default) or `pc` (the behaviour before). There is no switch on screen |
+| Offline | Unchanged. The PC keeps its copy; birthdays and cards work without the cloud |
+| Visible | Desktop: nothing. Companion: Add a member, Edit, Remove, and a birthday shown as "15 March 1985" |
+| Checked | 6 sync tests (rebuild, a person added online surviving a rebuild, a deliberate empty list, the `pc` setting, a PC that never had members, a missing or unreadable file); 4 Node tests; a browser run against stand-ins (desktop and phone; screenshots `docs/qa/2026-10-25-companion-members-*.png`) |
+
+## Step 8: member groups (M-D6)
+
+| | |
+|---|---|
+| What | `0008_member_groups.sql` adds `member_groups` and `member_group_members` (people by their member record id), for owners and admins only (RLS). The tables have explicit grants, and the audit log records groups created, renamed and removed. Undo: `rollback/0008_member_groups_down.sql` |
+| Companion | **Manage groups** (add, rename, delete), a **Groups** column, a filter ("Choir (3)"), and group checkboxes when editing a person. Before `0008` is run, the page works as before and says groups will appear |
+| Desktop | Unchanged: member records are not touched, and the PC never sees groups |
+| Checked | 4 PGlite tests (rights, unique names in any case, a group cannot be filled from another workspace, deletion, the undo script) and the browser run above |
+| Owner | Run `0008` after `0007` |
+
 ## Validation after the three steps
 
 | Check | Result |

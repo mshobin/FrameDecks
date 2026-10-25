@@ -56,7 +56,7 @@ build pass, doc links 0 problems; the program and the companion checked in brows
 - Real-device PWA install and offline acceptance on the deployed URL.
 - Phase 5 step 4, the owner's live test; `0004` and `0005` to be run in Supabase after `0003`.
 - A person checks the real tray icon and Windows Credential Manager on an installed PC.
-- Owner: run `0006_audit_log.sql` and then `0007_data_api_grants.sql` after `0005`. **`0007` matters most**: from
+- Owner: run `0006_audit_log.sql`, `0007_data_api_grants.sql` and `0008_member_groups.sql` after `0005`. **`0007` matters most**: from
   30 October 2026 Supabase gives tables created by `0002`–`0006` no API access without it.
 - Owner (M-D1): make the repository public after the checks in [code-signing.md](docs/project/code-signing.md), apply
   to SignPath Foundation, then add `SIGNPATH_API_TOKEN` and the three `SIGNPATH_*` variables.

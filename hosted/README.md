@@ -49,7 +49,8 @@ preview and must not be treated as a live service dashboard.
   phones, the PC's status, the "can run services" permission), `0005` (the
   Live page's list of PCs with their status), `0006` (the audit log of people
   and computers, written by triggers, read by owners and admins), `0007`
-  (explicit API grants, needed since Supabase's 30 October 2026 change). Undo scripts
+  (explicit API grants, needed since Supabase's 30 October 2026 change), `0008`
+  (member groups, companion only). Undo scripts
   live in `supabase/rollback/` (never run by `npm test`'s migration loader).
   `npm test` applies all of them to an in-memory Postgres (PGlite) and checks the
   access rules.

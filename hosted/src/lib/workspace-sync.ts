@@ -40,14 +40,24 @@ export async function pushRecord(
   record: { kind: string; id: string; rev: number },
   body: unknown,
 ): Promise<PushAnswer> {
-  const { data, error } = await supabase.rpc("sync_push", {
-    org: organizationId,
-    changes: [{ kind: record.kind, id: record.id, baseRev: record.rev, body }],
-  });
+  return send(supabase, organizationId, { kind: record.kind, id: record.id, baseRev: record.rev, body });
+}
+
+/** Deletes one record (owners and admins), on top of the revision it was read at; a conflict as for pushRecord. */
+export async function deleteRecord(
+  supabase: SupabaseClient,
+  organizationId: string,
+  record: { kind: string; id: string; rev: number },
+): Promise<PushAnswer> {
+  return send(supabase, organizationId, { kind: record.kind, id: record.id, baseRev: record.rev, deleted: true });
+}
+
+async function send(supabase: SupabaseClient, organizationId: string, change: Record<string, unknown>): Promise<PushAnswer> {
+  const { data, error } = await supabase.rpc("sync_push", { org: organizationId, changes: [change] });
   if (error) {
     const message =
       error.code === "42501"
-        ? "Only owners and admins of this workspace can edit services."
+        ? "Only owners and admins of this workspace can make this change."
         : error.code === "53400"
           ? "Too many changes this minute; try again shortly."
           : error.message;

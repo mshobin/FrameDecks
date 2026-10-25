@@ -104,12 +104,15 @@ Updated 25 October 2026, after the architecture review and migration plan (PR #3
 - **Step 4 (M-D1, licence and signing)**: `LICENSE` (Apache 2.0), `NOTICE`, `THIRD_PARTY_NOTICES.md` (shipped in the
   program folder), README code signing policy, SignPath steps in `build-windows.yml` (off until the
   `SIGNPATH_API_TOKEN` secret exists). Owner steps: [docs/project/code-signing.md](../docs/project/code-signing.md).
+- **Step 5 (M-D2)**: the companion's Members page adds, edits and removes people (`member-edit.ts`, same shape as the
+  desktop's normalize); a linked PC rebuilds a missing member file from the workspace (`memberAuthority`).
+- **Step 8 (M-D6)**: `0008_member_groups.sql`; groups on the companion's Members page only.
 - Tidy-up: the "older docs reference 6.6" debt is closed (they mention 6.6 as history; the 6.6 audit is marked as a
   snapshot; the coding-standards comment template no longer names a version).
 
 ## Pending
 - **Step 5 (live, the owner):** in the Supabase SQL editor run `hosted/supabase/migrations/0002_invitations.sql`, then
-  `0003_sync.sql`, `0004_remote.sql`, `0005_remote_live.sql`, `0006_audit_log.sql`, `0007_data_api_grants.sql` (once each, in that order; `0007` is
+  `0003_sync.sql`, `0004_remote.sql`, `0005_remote_live.sql`, `0006_audit_log.sql`, `0007_data_api_grants.sql`, `0008_member_groups.sql` (once each, in that order; `0007` is
   needed since Supabase's 30 October 2026 change and is safe to run again). Then on the service PC: Settings → FRAMEDECKS account → Link to a
   workspace; in the companion: Computers → type the code. Check: Services shows the plan; edit a Frame on the PC and
   it appears within a minute; Members shows the member list. Credential Manager is exercised here for the first time.

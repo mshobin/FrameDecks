@@ -1222,6 +1222,7 @@ a.nav-item:hover {
 }
 
 .table-wrap {
+  position: relative; /* keeps screen-reader-only labels inside the scrolling table, not widening the page */
   overflow-x: auto;
   border: 1px solid var(--border);
   border-radius: 11px;
@@ -1623,4 +1624,59 @@ a.nav-item:hover {
   flex: none;
   align-items: center;
   gap: 4px;
+}
+
+/* Members page: adding, editing and grouping people (M-D2, M-D6) */
+.members-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 14px;
+}
+
+.members-tools .live-btn {
+  padding: 0 18px;
+}
+
+.members-filter {
+  margin: 0;
+}
+
+.member-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.member-editing {
+  margin: 0 0 14px;
+  white-space: normal;
+}
+
+.member-row-editing td {
+  background: var(--blue-soft);
+}
+
+.member-groups-pick {
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+}
+
+.member-editing .edit-actions {
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.edit-actions .member-remove {
+  margin-left: auto;
+}
+
+.member-groups {
+  margin: 0 0 14px;
+}
+
+@media (max-width: 620px) {
+  .member-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
