@@ -88,8 +88,8 @@ From [architecture review §2](architecture-review.md#2-architecture-gap-analysi
   behaviour. Rollback without a release means turning it off:
   - `memberAuthority` = `pc` / `cloud` (step 5);
   - `ai.provider` = `none` (step 6).
-- **Database.** Every migration ships with a `NNNN_down.sql` beside it. Down scripts drop only what that migration
-  added. Data in existing tables is never changed by a migration.
+- **Database.** Every migration ships with an undo script in `hosted/supabase/rollback/` (`NNNN_<name>_down.sql`;
+  kept out of `migrations/` so it is never run by mistake). Undo scripts drop only what that migration added. Data in existing tables is never changed by a migration.
 - **Sync data.** Fields are additive, so a PC on an older version keeps working against newer records. Record history
   (30 days) can restore any record from the companion.
 - **Member cache (step 5).** Before the cloud becomes the source, a backup of `kc-members-private.json` is kept.

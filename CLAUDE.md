@@ -24,7 +24,8 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
   phone remote, a different thing.
 - `hosted/` — Next.js 16 online-first companion, deployed to Vercel (`framedecks.vercel.app`, Root Directory `hosted`).
 - `hosted/supabase/migrations/` — SQL run in order in the Supabase SQL editor: `0001` workspaces, `0002` invitations,
-  `0003` sync, `0004` remote control, `0005` the Live page's PC list. Never edit one that has been run; add the next number.
+  `0003` sync, `0004` remote control, `0005` the Live page's PC list, `0006` the audit log. Never edit one that has been run; add the next number.
+  Each new one gets an undo script in `hosted/supabase/rollback/` (`NNNN_<name>_down.sql`).
 - `tools/` — generators and checks (`make_emblem_assets.py`, `check_doc_links.py`, `generate_brand_assets.py`).
 - `docs/FRAMEDECKS_MODERNIZATION_STATUS.md` — the detailed phase tracker; `docs/architecture/metadata-sync.md` — the
   agreed sync design and its delivery steps; `docs/architecture/remote-control.md` — the agreed Phase 5 design

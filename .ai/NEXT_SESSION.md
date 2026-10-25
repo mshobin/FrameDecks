@@ -88,12 +88,15 @@ Updated 25 October 2026, after the architecture review and migration plan (PR #3
 - **Target architecture review and migration plan** (owner's MISSION brief; documents first, no code):
   [docs/architecture-review.md](../docs/architecture-review.md), [docs/migration-plan.md](../docs/migration-plan.md).
   Free code signing: SignPath Foundation, only for a public OSI-licensed repository (M-D1).
+- **Migration step 1 (audit log)** on PR #32: `hosted/supabase/migrations/0006_audit_log.sql` (`audit_log`, written
+  only by triggers on memberships, invitations and computers; owners/admins read; kept one year), undo script
+  `hosted/supabase/rollback/0006_audit_log_down.sql`, 8 PGlite tests `hosted/tests/supabase-audit.test.mjs`.
 - Tidy-up: the "older docs reference 6.6" debt is closed (they mention 6.6 as history; the 6.6 audit is marked as a
   snapshot; the coding-standards comment template no longer names a version).
 
 ## Pending
 - **Step 5 (live, the owner):** in the Supabase SQL editor run `hosted/supabase/migrations/0002_invitations.sql`, then
-  `0003_sync.sql`, `0004_remote.sql`, `0005_remote_live.sql` (once each, in that order). Then on the service PC: Settings → FRAMEDECKS account → Link to a
+  `0003_sync.sql`, `0004_remote.sql`, `0005_remote_live.sql`, `0006_audit_log.sql` (once each, in that order). Then on the service PC: Settings → FRAMEDECKS account → Link to a
   workspace; in the companion: Computers → type the code. Check: Services shows the plan; edit a Frame on the PC and
   it appears within a minute; Members shows the member list. Credential Manager is exercised here for the first time.
 - **Phase 5 step 4 (live, the owner)**, after sync step 5 with the same installer: on the PC, Settings → FRAMEDECKS

@@ -10,7 +10,7 @@ The designs behind each part: [metadata-sync.md](../architecture/metadata-sync.m
 
 ## 1. The database (once)
 
-In the Supabase dashboard (project `slrsykiknlqlivlnpvrb`) → **SQL Editor** → **New query**, run these four files from
+In the Supabase dashboard (project `slrsykiknlqlivlnpvrb`) → **SQL Editor** → **New query**, run these five files from
 `hosted/supabase/migrations/`, **in this order, one at a time**:
 
 | Order | File | Adds |
@@ -19,6 +19,7 @@ In the Supabase dashboard (project `slrsykiknlqlivlnpvrb`) → **SQL Editor** �
 | 2 | `0003_sync.sql` | syncing plans, linked computers, the 30-day history |
 | 3 | `0004_remote.sql` | phone control, "Can run services" |
 | 4 | `0005_remote_live.sql` | the Live page's list of PCs |
+| 5 | `0006_audit_log.sql` | a log of who added or removed people, changed roles, invited, linked or unlinked a PC (nothing shows it yet) |
 
 For each: open the file on GitHub, press **Raw**, select all, copy, paste into the SQL editor (not the file's path),
 press **Run**. Expect "Success. No rows returned". An error that something "already exists" means that file was run

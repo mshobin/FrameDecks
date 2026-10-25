@@ -55,6 +55,7 @@ build pass, doc links 0 problems; the program and the companion checked in brows
 - Real-device PWA install and offline acceptance on the deployed URL.
 - Phase 5 step 4, the owner's live test; `0004` and `0005` to be run in Supabase after `0003`.
 - A person checks the real tray icon and Windows Credential Manager on an installed PC.
+- Owner: run `0006_audit_log.sql` after `0005` (migration step 1; nothing reads the log yet).
 - Owner decisions M-D1–M-D6 in [docs/migration-plan.md](docs/migration-plan.md) §8 (licence and free signing, member
   authority, first AI feature, PPTX export and audio, hosting terms, member groups).
 
