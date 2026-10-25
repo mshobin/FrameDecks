@@ -95,6 +95,10 @@ Updated 25 October 2026, after the architecture review and migration plan (PR #3
   `FRAMEDECKS/esv-key`); a key in `bcc-scripture.json` from an older version is moved the first time it is read and
   removed from the file only after the store reads it back; if the store fails the file keeps it. Settings unchanged.
   `tests/test_esv_key.py` (4) and checked against the real program.
+- **Migration step 3 (missing-media check)** on PR #32: `server.py` `media_check` (Frames naming files not in the
+  media folder), `GET /api/media/check` (this PC only), `missingMedia` in Diagnostics, one log line when a sync
+  brings such a Frame; `tests/test_media_check.py` (4). Size/hash in sync records and an on-screen line are not
+  built (design needed; owner approval). Results of steps 1–3: [docs/post-migration-report.md](../docs/post-migration-report.md).
 - Tidy-up: the "older docs reference 6.6" debt is closed (they mention 6.6 as history; the 6.6 audit is marked as a
   snapshot; the coding-standards comment template no longer names a version).
 
@@ -132,9 +136,8 @@ Step 5 needs the owner to run `0002`–`0005` in Supabase and to have the PR-bui
 (an installer from "Build Windows installer" on `main`, or running `server.py` from source).
 
 ## Recommended Next Task
-Migration plan steps 1–3 ([docs/migration-plan.md](../docs/migration-plan.md) §7: audit log `0006`, ESV key in
-Credential Manager, asset references), one PR-sized step at a time with the §6 validation, once the owner says go;
-then steps 4–8 as the owner answers M-D1–M-D6; then `docs/post-migration-report.md`. Meanwhile:
+Migration steps 1–3 are built. Next: steps 4–8 of [docs/migration-plan.md](../docs/migration-plan.md) as the owner
+answers M-D1–M-D6, each with the §6 validation and a section in `docs/post-migration-report.md`. Meanwhile:
 Help the owner through [the live test guide](../docs/qa/live-test-guide.md) (sync step 5, Phase 5 step 4, companion
 editing step 3 and history; installer from the latest "Build Windows installer" run on `main`, migrations
 `0002`–`0005`). Fix what they find and mark each test done in the four files. Then: Google/Microsoft sign-in with the

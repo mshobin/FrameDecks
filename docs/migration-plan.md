@@ -129,13 +129,14 @@ From [architecture review §2](architecture-review.md#2-architecture-gap-analysi
 
 ## 7. Implementation order
 
-Steps 1–3 need no decision and no visible change, and can start now. The rest wait for the decision named.
+Steps 1–3 need no decision and no visible change; **built on PR #32** (see
+[post-migration-report.md](post-migration-report.md)). The rest wait for the decision named.
 
 | # | Step | Needs | Visible change | Size |
 |---|---|---|---|---|
-| 1 | **Audit log.** Migration `0006`: an `audit_log` table (workspace, who, action, target, when, small detail) written by triggers on `memberships`, `invitations`, `computers`, `computer_links`. Readable by owners and admins via RLS; kept 1 year. Nothing reads it yet | — | None | Small |
-| 2 | **ESV key to Windows Credential Manager.** Same store as the PC's sync key; moved on first start; falls back to the file elsewhere (tests, non-Windows) | — | None | Small |
-| 3 | **Asset references** (audit C8). Sync carries a file's size and a hash of its first MB alongside the name (optional fields). A PC that lacks a named file says so in the existing status text before Go Live. No media moves | — | None (existing status text) | Medium |
+| 1 | **Audit log.** Migration `0006`: an `audit_log` table (workspace, who, action, target, when, small detail) written by triggers on `memberships`, `invitations`, `computers` (linking ends in a `computers` row, so `computer_links` needs none). Readable by owners and admins via RLS; kept 1 year. Nothing reads it yet. **Built** | — | None | Small |
+| 2 | **ESV key to Windows Credential Manager.** Same store as the PC's sync key; moved on first start; falls back to the file elsewhere (tests, non-Windows). **Built** | — | None | Small |
+| 3 | **Missing-media check** (audit C8). **Built:** the PC lists Frames whose files are not in its media folder (`/api/media/check`, this PC only; in Diagnostics), and says so in its log when a sync brings such a Frame. No media moves. **Not built yet:** size and hash in sync records (two PCs holding different files under one name would keep rewriting each other's reference; it needs a small design first), and showing the check on screen (one line in an existing status text: owner approval) | — | None | Medium |
 | 4 | **Licence and free signing.** `LICENSE` (Apache 2.0), `NOTICE`, third-party notices. Then make the repository public and apply to SignPath Foundation; sign the installer and DLLs in the Windows build | M-D1 | None | Small + owner |
 | 5 | **Members from the cloud** (option A). When linked, the workspace is the source; the PC's list becomes a cache rebuilt from the cloud; desktop edits go up as today. Unlinked PCs unchanged. Switch `memberAuthority` | M-D2 | None | Medium |
 | 6 | **AI provider layer and first feature.** One interface; Ollama on the PC first; self-hosted endpoint; paid plug-ins through a Supabase Edge Function with server-side keys; cached by hash. Hidden when no provider answers | M-D3 | One entry for the chosen feature | Medium |

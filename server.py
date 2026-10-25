@@ -437,6 +437,7 @@ def diagnostics(address):
         "folder": str(HERE), "dataFolder": str(DATA), "installedApp": FROZEN, "port": address[1], "listeningOn": address[0],
         "remoteMode": REMOTE, "addresses": lan_addresses(), "uptimeSeconds": int(time.time() - STARTED_AT),
         "stateRevision": state.get("rev", 0), "files": files, "remoteSessions": n_sessions,
+        "missingMedia": media_check(state)[:50],
         "devices": [{"ip": ip, "lastSeen": d["last"], "signedIn": d["signedIn"]} for ip, d in devices.items()],
         "network": windows_network_check() if REMOTE else None, "now": time.time(),
         "vcam": {"available": VCAM["engine"] is not None, "reason": VCAM["reason"], "detail": VCAM["detail"],
@@ -487,9 +488,24 @@ def _sync_write(change):
         current.pop("rev", None)
         if json.dumps(plan, sort_keys=True) != json.dumps(current, sort_keys=True):
             save_state(plan)
+            _report_missing_media()
         if members != (private.get("members") or []):
             private["members"] = members
             save_private(private)
+
+
+_MEDIA_REPORTED = {"files": set()}
+
+
+def _report_missing_media():
+    """After the workspace changed the plan: say in the log (kc-app-log.txt) which media files it names that this PC
+    lacks, once per new set, so a support check finds them before the service."""
+    found = media_check(state)
+    files = {f for m in found for f in m["files"]}
+    if files and files != _MEDIA_REPORTED["files"]:
+        print(f"Media check: {len(found)} Frame(s) name files not in this PC's media folder: "
+              + "; ".join(f'{m["name"] or m["frame"]}: {", ".join(m["files"][:5])}' for m in found[:10]))
+    _MEDIA_REPORTED["files"] = files
 
 
 SYNC = cloud_sync.Service(DATA / "kc-sync.json", cloud_sync.SecretStore(DATA / ".kc-sync-key"), _sync_read, _sync_write,
@@ -998,6 +1014,31 @@ STUDIO_FILE = DATA / "kc-studio.json"
 SCENES_DIR = DATA / "scenes"            # scene thumbnails
 LAYERS_DIR = DATA / "layers"
 STUDIO_VERSION = 1
+FILE_KINDS = ("image", "video", "pdf")
+
+
+def media_check(st):
+    """Frames whose pictures, videos or PDFs are not in this PC's media folder (migration step 3, audit C8): a Frame
+    synced from another PC, or a file renamed or deleted, is found before the service rather than as an empty layer.
+    Reads file names only. [{"frame", "name", "files": [...]}], in plan order."""
+    seen, out = {}, []
+    for sc in st.get("scenes") or []:
+        if not isinstance(sc, dict) or sc.get("tpl"):
+            continue
+        missing = []
+        for l in sc.get("layers") or []:
+            f = str(((l.get("c") or {}).get("file") or "") if isinstance(l, dict) and l.get("kind") in FILE_KINDS else "")
+            if f and f not in missing:
+                if f not in seen:
+                    try:
+                        seen[f] = (LAYERS_DIR / f).is_file()
+                    except (OSError, ValueError):
+                        seen[f] = False
+                if not seen[f]:
+                    missing.append(f)
+        if missing:
+            out.append({"frame": str(sc.get("id") or ""), "name": str(sc.get("name") or ""), "files": missing})
+    return out
 QUICK_PRESETS = {
     "logo": {"name": "Logo overlay", "needs": "image", "layer": {"type": "image", "x": 0.88, "y": 0.13, "w": 0.16, "opacity": 0.9}},
     "lower_third": {"name": "Lower third", "needs": "image", "layer": {"type": "image", "x": 0.34, "y": 0.84, "w": 0.6}},
@@ -1884,6 +1925,10 @@ class Handler(BaseHTTPRequestHandler):
             return self.reply(200, json.dumps({"enabled": REMOTE, "results": results}), TYPES[".json"])
         if path == "/api/diagnostics":
             return self.reply(200, json.dumps(diagnostics(self.server.server_address)), TYPES[".json"])
+        if path == "/api/media/check":                   # migration step 3: Frames whose media files are not on this PC
+            if not self.is_local():
+                return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
+            return self.reply(200, json.dumps({"missing": media_check(state)}), TYPES[".json"])
         if path == "/api/sync":                                   # Settings > FRAMEDECKS account (this PC only)
             if not self.is_local():
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")

@@ -44,8 +44,9 @@ build pass, doc links 0 problems; the program and the companion checked in brows
   `vcam/layers.py` caps pictures to what 3840×2160 can show; DXGI capture copies only changed screens) and C2
   (`supervisor.py`: the installed exe restarts the program after a crash, at most 3 times in 5 minutes); the
   **Stream Deck plugin** (`streamdeck/`, local `/api/command`); the [architecture review](docs/architecture-review.md)
-  and [migration plan](docs/migration-plan.md) against the owner's target architecture. Locally: Python 101 tests OK,
-  desktop JS 4/4, packaging check, Stream Deck 5 tests and `validate`, doc links 0 problems.
+  and [migration plan](docs/migration-plan.md) against the owner's target architecture; migration steps 1–3 (audit log
+  `0006`, ESV key in Credential Manager, missing-media check; [report](docs/post-migration-report.md)). Locally:
+  Python 109 tests OK, desktop JS 4/4, packaging check, hosted 76/76, Stream Deck 5 tests and `validate`, doc links 0 problems.
 
 ## Pending
 - Owner: run `0002_invitations.sql`, `0003_sync.sql`, `0004_remote.sql` and `0005_remote_live.sql` in the Supabase
@@ -61,7 +62,7 @@ build pass, doc links 0 problems; the program and the companion checked in brows
 
 ## Technical Debt
 - From the [architecture audit](docs/project/2026-10-25-architecture-audit.md) (25 Oct): unsigned installer and no
-  auto-update (C1); missing media found only at service time (C8, migration step 3). C2–C6 fixed on PR #32.
+  auto-update (C1). C2–C6 fixed on PR #32; C8 partly (missing media found before the service, not yet on screen).
 - From the [architecture review](docs/architecture-review.md) (audit log and ESV key fixed on PR #32): member
   list kept on PCs (rule 3); no LICENSE; Vercel Hobby terms (personal, non-commercial) — see the migration plan.
 - RLS tests run on PGlite with a stubbed `auth.uid()`, not real Supabase; live-database tests are still needed.
