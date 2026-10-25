@@ -28,6 +28,7 @@ from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from pathlib import Path
 from urllib.parse import urlparse, parse_qs, unquote
 
+import cloud_remote   # Phase 5: running a service from the companion (only when linked and switched on)
 import cloud_sync   # Phase 4: syncing service plans with a workspace (only when this PC is linked)
 import legacy   # 6.9: moves data saved under the program's earlier name
 import meeting_form   # 6.9: fills the Meeting Workbook's form for Export
@@ -197,6 +198,8 @@ def save_state(new):
             apply_live_media(state)
         if "SYNC" in globals():
             SYNC.poke()                    # linked to a workspace: send this change after a few quiet seconds
+        if "CLOUD_REMOTE" in globals():
+            CLOUD_REMOTE.changed()         # the companion's Live page shows the new screen soon
         return state
 
 
@@ -433,6 +436,26 @@ SYNC = cloud_sync.Service(DATA / "kc-sync.json", cloud_sync.SecretStore(DATA / "
                           socket.gethostname() or "FRAMEDECKS PC")
 
 
+# ---------- Phase 5: running a service from the companion (cloud_remote.py; docs/architecture/remote-control.md) ----------
+# Only while this PC is linked and Settings > FRAMEDECKS account > "Allow control from the companion" is on. Commands
+# are fetched from the workspace and run by the program's own window (app/js/cloud-remote.js) with the keys' code.
+# Separate from the Wi-Fi phone remote (REMOTE above), which it does not touch.
+
+def _remote_credentials():
+    link, cloud, key = SYNC.state.get("link"), SYNC.state.get("cloud"), SYNC.secrets.get()
+    return (cloud, link["organizationId"], key) if link and cloud and key else None
+
+
+def _remote_plan():
+    with cond:
+        return json.loads(json.dumps(state))
+
+
+CLOUD_BRIDGE = cloud_remote.Bridge()
+CLOUD_REMOTE = cloud_remote.RemoteService(_remote_credentials, lambda: app_settings()["cloudRemote"], _remote_plan,
+                                          CLOUD_BRIDGE)
+
+
 # ---------- Phone remote on/off while running ----------
 # The main server only ever listens on this PC (127.0.0.1). Turning the remote on adds a listener
 # on each Wi-Fi/Ethernet address; turning it off removes them, so nothing on the network can connect.
@@ -508,7 +531,8 @@ APP_SETTINGS_DEFAULTS = {"remoteAutostart": False, "importDecided": False,
                          "overlayMode": "meeting",      # Teleprompter overlay: solid/presenter/meeting/conference/ghost
                          "overlayFrost": True,    # Windows blur behind the overlay
                          "overlayOnTop": True,    # the overlay stays above Zoom, Teams, PowerPoint and browsers
-                         "overlayFade": False}    # compatibility transparency (the whole window fades, text included)
+                         "overlayFade": False,    # compatibility transparency (the whole window fades, text included)
+                         "cloudRemote": False}    # Phase 5: run a service from the companion (Settings > FRAMEDECKS account)
 APP_SETTING_CHOICES = {"minimizeTo": ("ask", "tray", "taskbar"),
                        "overlayMode": ("solid", "presenter", "meeting", "conference", "ghost")}
 
@@ -547,6 +571,8 @@ def save_app_settings(changes):
         from desktop_win import format_hotkey
         cur["spotlightKey"] = format_hotkey(cur["spotlightKey"]) if cur["spotlightKey"] else ""
     APP_SETTINGS_FILE.write_text(json.dumps(cur, indent=2), encoding="utf-8")
+    if "cloudRemote" in changes and "CLOUD_REMOTE" in globals():
+        CLOUD_REMOTE.poke()                # the switch takes effect at once (off: no more asking)
     hook = DESKTOP.get("settings_changed")
     if hook:
         try:
@@ -1732,7 +1758,18 @@ class Handler(BaseHTTPRequestHandler):
         if path == "/api/sync":                                   # Settings > FRAMEDECKS account (this PC only)
             if not self.is_local():
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
-            return self.reply(200, json.dumps(SYNC.info()), TYPES[".json"])
+            return self.reply(200, json.dumps(dict(SYNC.info(), remote=CLOUD_REMOTE.info())), TYPES[".json"])
+        if path == "/api/remote-cloud/next":                       # the program's own window asks for commands
+            if not self.is_local():
+                return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
+            try:
+                wait = min(25.0, max(0.0, float(parse_qs(url.query).get("wait", ["20"])[0])))
+            except ValueError:
+                wait = 20.0
+            # Waits also while switched off: commands only come once it is on, and then the window is already asking
+            commands = CLOUD_BRIDGE.for_window(wait)
+            return self.reply(200, json.dumps({"on": CLOUD_REMOTE.info()["active"], "commands": commands}),
+                              TYPES[".json"])
         if path == "/api/private":
             data = load_private()
             data["storedAt"] = str(PRIVATE_FILE)
@@ -2170,6 +2207,11 @@ class Handler(BaseHTTPRequestHandler):
             except (cloud_sync.Offline, cloud_sync.Refused, OSError) as e:
                 return self.reply(503, json.dumps({"error": str(e)}), TYPES[".json"])
             return self.reply(400, json.dumps({"error": "Unknown action"}), TYPES[".json"])
+        if path == "/api/remote-cloud/done":                       # the window's answers to those commands
+            if not self.is_local():
+                return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
+            CLOUD_BRIDGE.done(data.get("results") if isinstance(data, dict) else None)
+            return self.reply(204, b"", "text/plain")
         if path == "/api/private":
             if not isinstance(data, dict) or not isinstance(data.get("members", []), list):
                 return self.reply(400, "Invalid data", "text/plain; charset=utf-8")
@@ -2211,6 +2253,7 @@ def start_main_server():
     threading.Thread(target=_backup_loop, daemon=True).start()
     threading.Thread(target=_remote_watcher, daemon=True).start()
     SYNC.start()                                                # does nothing unless this PC is linked
+    CLOUD_REMOTE.start()                                        # idle unless linked and switched on in Settings
     return server
 
 

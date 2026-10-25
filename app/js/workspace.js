@@ -1334,6 +1334,7 @@ function renderTransitions(){
 
 window.KCWorkspace = {
   take: function(){ takeScene(selScene); }, step: stepScene, select: select,
+  takeFrame: function(id){ takeScene(id); },          /* Go Live on a chosen Frame (the companion, cloud-remote.js) */
   selected: function(){ return {scene: selScene, layer: selLayer}; },
   slides: function(d){ slideInfo = d; if (live) renderLiveBar(); },
   /* search: a Bible reference -> the Scripture layer, fetched */
