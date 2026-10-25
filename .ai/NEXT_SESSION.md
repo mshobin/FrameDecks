@@ -17,15 +17,14 @@ Sign-in UI, provider setup, live RLS tests, device pairing, real-device PWA test
 See [PROJECT_STATUS.md](../PROJECT_STATUS.md).
 
 ## Risks
-Open PRs #8–#16 (Cloudflare SaaS, Flutter, cameras, alternative branding) conflict with `main`'s decisions; see
-PROJECT_STATUS.md "Drift". Do not build on them until the owner decides.
+Closed PRs #8–#16 (Cloudflare SaaS, Flutter, cameras, alternative branding) are not `main`'s plan; reuse only the
+designs listed in PROJECT_STATUS.md "Worth reusing".
 Vercel Root Directory unverified in dashboard; UI additions (sign-in) must match the existing navy/gold design.
 
 ## Assumptions
 Hosted app is separate from the LAN remote and online-first.
 
 ## Blockers
-Owner decision on the drift table in PROJECT_STATUS.md (and on the 16 px favicon variant).
 Owner must create the Supabase project and provide the URL and anon key (never the service_role key or OAuth secrets), and set them in Vercel.
 
 ## Recommended Next Task

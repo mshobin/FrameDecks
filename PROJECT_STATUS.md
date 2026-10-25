@@ -37,19 +37,30 @@ lint, typecheck and build pass. Detail lives in
 - **Repository drift: parallel work outside `main` contradicts its decisions** (see "Drift" below).
 - Service worker caching must never cover `/api/` or `/auth/` once auth exists (guarded and tested).
 
-## Drift (found 25 October 2026)
-Open pull requests from an earlier workstream predate `main`'s choices and conflict with them. None is merged; each
-needs an owner decision (keep, rework onto `main`'s stack, or close):
+## Drift (found and resolved 25 October 2026)
+Pull requests from an earlier workstream predated `main`'s choices and conflicted with them. Decision (owner asked for
+the recommended course): `main`'s plan stands. #7 was brought up to date and merged; #8–#16 were closed with a note.
+Their branches are kept, so any of them can be reopened or mined:
 
-| PR | What | Conflict with `main` |
+| PR | What | Outcome |
 |---|---|---|
-| #7 | 6.10: Quit really quits (desktop fix) | None now: `main` merged in, conflicts resolved, checks pass. Ready to review. |
-| #8 | Flutter port of the Studio and phone remote | Old name `kingdom_connect_app`; not part of `main`'s plan. |
-| #9, #10 | Windows 11 and Mac virtual cameras | Old camera name; desktop function change. |
-| #11 | SaaS + PWA architecture (Cloudflare Workers + D1) | `main` chose Next.js on Vercel + Supabase. |
-| #12 | FrameDecks rename, its own logo, Decks (Frame → Deck → Content), FrameCast | Different logo from `main`'s approved emblem; changes desktop UI. |
-| #13–#16 | SaaS Phases 1–4 on Cloudflare: sync, members E2E, relay remote, pairing (sealed X25519/AES-GCM) | Different backend; adds desktop Settings and touches `server.py`/`remote.html` (remote pixel-identical by test). Their pairing and relay designs may still be reusable for `main`'s "secure device pairing" step. |
-| branch `claude/saas-phase5` | Unfinished Mac runtime (WIP, no PR) | Paused pending the decision above. |
+| #7 | 6.10: Quit really quits (desktop fix) | Merged after `main` was merged in and every check passed. |
+| #8 | Flutter port of the Studio and phone remote | Closed: outside `main`'s plan. Branch `claude/flutter-platform`. |
+| #9, #10 | Windows 11 and Mac virtual cameras | Closed: desktop function change. Branches `claude/windows11-camera`, `claude/mac-camera`. |
+| #11 | SaaS + PWA architecture (Cloudflare) | Closed: `main` uses Vercel + Supabase. Branch `claude/saas-pwa-architecture`. |
+| #12 | Alternative rename, logo and Decks model | Closed: `main` has its own approved emblem; desktop UI frozen. Branch `claude/framedecks-branding`. |
+| #13–#16 | SaaS Phases 1–4 on Cloudflare | Closed: different backend. Branches `claude/saas-phase1` … `claude/saas-phase4`; unfinished `claude/saas-phase5`. |
+
+**Worth reusing when `main` reaches these steps** (designs and tests, not the Cloudflare code):
+- Secure device pairing (`main` Phase 5): `docs/architecture/pairing-protocol.md` on `claude/saas-phase4`: 5-minute
+  QR / 6-digit code, approval at the PC, X25519 key agreement bound to the QR or six check digits, AES-GCM sealed
+  messages with replay counters, roles enforced by the runtime, revoke in under a second; phone and PC crypto checked
+  against one shared test vector (`tests/pair-crypto.test.js`, `tools/make_pairing_vector.py`).
+- Runtime channel: `docs/architecture/relay-protocol.md` (same branch): the PC connects outward; relayed requests are
+  replayed on a listener that treats them as a phone, never as the PC, so the remote's allow-list and roles hold.
+- Metadata sync (`main` Phase 4): `docs/architecture/cloud-api.md` and `app/js/entities.js` on `claude/saas-phase2`:
+  per-record revisions, a workspace sequence, conflict rules ("never lose a Frame"), members end-to-end encrypted with
+  a recovery key, and a two-computer test harness.
 
 ## Assumptions
 - Hosted companion is online-first and separate from the LAN remote.
