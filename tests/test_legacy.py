@@ -1,4 +1,4 @@
-"""Kingdom Connect 6.9 - data saved under the program's earlier name moves to the Kingdom Connect names, nothing lost.
+"""FRAMEDECKS - prior product data moves without overwriting newer files.
 Run: python -m unittest discover -s tests -p "test_*.py\""""
 import json
 import sys
@@ -58,6 +58,22 @@ class DataFolder(unittest.TestCase):
         legacy.migrate_app_data(self.root)
         self.assertEqual((self.new / "kc-studio.json").read_text(), "{}")
 
+    def test_kingdom_connect_folder_moves_to_framedecks(self):
+        old = self.root / "Kingdom Connect"
+        write(old / "kc-saved-content.json", '{"rev": 8}')
+        self.assertEqual(legacy.migrate_app_data(self.root), self.new)
+        self.assertFalse(old.exists())
+        self.assertEqual((self.new / "kc-saved-content.json").read_text(), '{"rev": 8}')
+
+    def test_moves_both_previous_names_without_overwriting(self):
+        write(self.root / "Kingdom Connect" / "kc-saved-content.json", "newer")
+        write(self.old / "kc-saved-content.json", "older")
+        write(self.old / "kc-members-private.json", '{"members":[]}')
+        legacy.migrate_app_data(self.root)
+        self.assertEqual((self.new / "kc-saved-content.json").read_text(), "newer")
+        self.assertEqual((self.new / "kc-members-private.json").read_text(), '{"members":[]}')
+        self.assertTrue((self.old / "kc-saved-content.json").is_file())
+
     def test_find_either_name(self):
         write(self.root / "older" / "bsf-saved-content.json", "a")
         self.assertEqual(legacy.find(self.root / "older", "kc-saved-content.json").name, "bsf-saved-content.json")
@@ -71,9 +87,9 @@ class DataFolder(unittest.TestCase):
         self.assertEqual(legacy.new_file_name("notes.txt"), "notes.txt")
 
     def test_recordings(self):
-        write(self.root / legacy.OLD_NAME / "2026-10-01 Meeting.mp4", "video")
+        write(self.root / "Kingdom Connect" / "2026-10-01 Meeting.mp4", "video")
         self.assertTrue(legacy.migrate_recordings(self.root))
-        self.assertTrue((self.root / "Kingdom Connect" / "2026-10-01 Meeting.mp4").is_file())
+        self.assertTrue((self.root / "FRAMEDECKS" / "2026-10-01 Meeting.mp4").is_file())
 
 
 if __name__ == "__main__":

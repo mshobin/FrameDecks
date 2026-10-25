@@ -12,13 +12,13 @@
 
 ## 0. The Meeting Workbook (v6.9)
 
-Excel is **optional**. Kingdom Connect is fully usable without it. The workbook is a **planning, review, handover and
+Excel is **optional**. FRAMEDECKS is fully usable without it. The workbook is a **planning, review, handover and
 bulk-editing** tool. After an import, the app is the source of truth: the file is not linked, and **Export** gives you
 a fresh copy.
 
 ### Where
 **Meeting** (the ✨ button next to + Frame) has three items:
-- **Download the Excel template**: `templates/Kingdom-Connect-Meeting-Workbook.xlsx`. It opens on the **Dashboard**,
+- **Download the Excel template**: `templates/FRAMEDECKS-Meeting-Workbook.xlsx`. It opens on the **Dashboard**,
   with an example meeting already filled in on the **Meeting Form**. Type over the examples.
 - **Import meeting from Excel…**:
   1. A preview shows the meeting, the Frames, Content, questions and scriptures that will be made, and every problem
@@ -111,7 +111,7 @@ hand in the same style imports too. A numbered heading such as *7 · Discussion 
 ### Export
 **Meeting → Export this meeting to Excel** gives the same **Dashboard** and **Meeting Form**, filled in with this
 meeting. The program fills in the template, so the file looks exactly like the one you download. It imports again.
-- If the Kingdom Connect program isn't running, or a table has more rows
+- If the FRAMEDECKS program isn't running, or a table has more rows
   than the form has room for, a plain one-sheet **Meeting Form** is saved instead. It imports again too.
 - The meeting details are kept with your meeting in `kc-saved-content.json` (`meeting`: title, date, time,
   location, presenter, contact, attendees, attendeeNotes, owner, contentNotes, notes, extra), so an export gives them
@@ -140,7 +140,7 @@ skipped, a Timer value that isn't minutes or a time.
 - `app/js/import-worker.js`: reads every sheet in the background.
 - `meeting_form.py`: the layout of the Meeting Form, and filling the template for an export
   (`POST api/meeting/workbook` in `server.py`).
-- `tools/make_meeting_workbook.py`: draws the template (`app/templates/Kingdom-Connect-Meeting-Workbook.xlsx`) from
+- `tools/make_meeting_workbook.py`: draws the template (`app/templates/FRAMEDECKS-Meeting-Workbook.xlsx`) from
   that layout with openpyxl.
 - The Excel library (SheetJS) loads only the first time you import, export or download a workbook, so Kingdom
   Connect starts faster.
@@ -160,7 +160,7 @@ Select the Branding Content in a Frame. Its settings are in Content Settings:
 | Visual Settings | **Opacity** · **Padding** | How see-through it is · the space around the logo and name |
 | Visual Settings | **Background plate** | On: a navy plate with your accent edge. Off: no plate, and a soft shadow keeps it readable |
 
-The badge is drawn the same way on the KingdomConnect camera and on the OBS overlay pages. Its size follows the
+The badge is drawn the same way on the FRAMEDECKS camera and on the OBS overlay pages. Its size follows the
 picture, so it looks the same at 720p, 1080p or 4K.
 
 ### Remove a logo's background
@@ -188,7 +188,7 @@ unchanged.
 2. Upload a **logo** (PNG, JPG or SVG) by selecting **Upload logo…** or dropping a file on the logo box. The dashboard
    converts every format to PNG (at most 1024 px) before saving it.
 3. Optionally tick **Use my accent colour**: pick one of eight swatches or any colour. The accent replaces the gold of
-   the cards and badges on KingdomConnect and on the overlay pages. The app's own interface keeps its colours.
+   the cards and badges on FRAMEDECKS and on the overlay pages. The app's own interface keeps its colours.
 4. Under **Where branding appears**, tick the scenes that show the **Branding badge** (logo + Meeting Name). Other
    controls in this section:
    - **Brand every scene** and **Remove from every scene**;
@@ -302,7 +302,7 @@ The file is made by `KCMeetingSheet.templateBook`, which is the same code for th
 | Notes | No | Becomes the scene's leader notes |
 | Branding | No | Yes → branding for this row (see below) |
 | Show Logo / Show Meeting Name | No | Used when Branding is Yes; empty = Yes |
-| Background Style or Template | For Custom | Custom rows: the template name. Other rows: the scene background on KingdomConnect (None, Navy, Black, White, Brand, `#rrggbb`) |
+| Background Style or Template | For Custom | Custom rows: the template name. Other rows: the scene background on FRAMEDECKS (None, Navy, Black, White, Brand, `#rrggbb`) |
 | Layer Order | No | 1 = in front. Media (pictures, video, slides, camera, screen) always sit behind cards and text |
 | Status | No | Active (default) or Hidden (in the scene, switched off) |
 
@@ -369,6 +369,6 @@ The file is made by `KCMeetingSheet.templateBook`, which is the same code for th
 | `app/js/import-worker.js` | Reads the workbook off the main thread; `want: 'Scene Name'` picks the right sheet |
 | `app/js/workspace.js` | + Scene menu entries, empty-state button, Branding layer Inspector, Show logo, scene notes, Go Live bar |
 | `app/js/overlay.js`, `app/css/overlay.css` | Overlay rendering of branding |
-| `vcam/program.py`, `vcam/cards.py`, `vcam/overlay.py` | KingdomConnect rendering of branding and the accent colour |
+| `vcam/program.py`, `vcam/cards.py`, `vcam/overlay.py` | FRAMEDECKS rendering of branding and the accent colour |
 | `server.py` | Logo endpoints; version 6.2 |
 | `tools/make_meeting_template.js` | Regenerates `docs/templates/Kingdom-Connect-Meeting-Template.xlsx` |

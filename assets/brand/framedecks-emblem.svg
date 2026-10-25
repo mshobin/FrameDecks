@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="145 145 740 740" width="1024" height="1024">
+  <title>FRAMEDECKS emblem</title>
+  <defs>
+    <linearGradient id="g" gradientUnits="userSpaceOnUse" x1="150" y1="290" x2="800" y2="730">
+      <stop offset="0" stop-color="#fdeeb4"/>
+      <stop offset=".5" stop-color="#e4b84f"/>
+      <stop offset="1" stop-color="#a97a22"/>
+    </linearGradient>
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="14"/></filter>
+    <path id="front" d="M330 336Q330 290 374.8 300.5L755.2 389.5Q800 400 800 446L800 574Q800 620 755.2 630.5L374.8 719.5Q330 730 330 684Z"/>
+    <path id="tri" d="M528 440L528 580L652 510Z"/>
+  </defs>
+
+  <g transform="translate(38 0)">
+    <rect x="150" y="372" width="46" height="278" rx="23" fill="none" stroke="url(#g)" stroke-width="12" opacity=".45"/>
+    <rect x="238" y="330" width="56" height="362" rx="28" fill="none" stroke="url(#g)" stroke-width="14" opacity=".75"/>
+
+    <use href="#front" fill="none" stroke="#f0c75a" stroke-width="26" stroke-linejoin="round" filter="url(#glow)" opacity=".45"/>
+    <use href="#front" fill="none" stroke="url(#g)" stroke-width="22" stroke-linejoin="round"/>
+
+    <use href="#tri" fill="none" stroke="#f0c75a" stroke-width="22" stroke-linejoin="round" filter="url(#glow)" opacity=".5"/>
+    <use href="#tri" fill="none" stroke="url(#g)" stroke-width="18" stroke-linejoin="round"/>
+  </g>
+</svg>

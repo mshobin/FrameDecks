@@ -1,4 +1,4 @@
-"""Draws the verse, question and birthday cards for KingdomConnect, matching app/css/overlay.css.
+"""Draws the verse, question and birthday cards for FRAMEDECKS, matching app/css/overlay.css.
 
 A card is drawn once (whenever its content, size or layout changes) into three transparent layers:
   base   background, gold border, shadow, divider line (always visible with the card)

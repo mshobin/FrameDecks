@@ -1,4 +1,4 @@
-/* Kingdom Connect v6.3 - the elastic Studio layout and the command bar's Program menu.
+/* FRAMEDECKS v6.3 - the elastic Studio layout and the command bar's Program menu.
  *
  *   ┌──────────── command bar (navigation · live controls · status · HIDE ALL) ────────────┐
  *   │ Scenes        ┃ Preview (the canvas)                                                  │

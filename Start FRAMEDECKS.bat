@@ -1,8 +1,8 @@
 @echo off
-title Kingdom Connect
+title FRAMEDECKS
 cd /d "%~dp0"
 echo.
-echo  Starting Kingdom Connect...
+echo  Starting FRAMEDECKS...
 echo.
 py -3 --version >nul 2>&1
 if %errorlevel%==0 (

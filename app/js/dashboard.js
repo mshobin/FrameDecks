@@ -1,4 +1,4 @@
-/* Kingdom Connect - dashboard */
+/* FRAMEDECKS - dashboard */
 (function(){
 'use strict';
 
@@ -59,7 +59,7 @@ function commit(fn){
   chain = chain.then(function(){
     return Store.update(fn);
   }).catch(function(){
-    toast('Can’t reach the Kingdom Connect program. Check that its window is still open.', true);
+    toast('Can’t reach the FRAMEDECKS program. Check that its window is still open.', true);
   });
   return chain;
 }
@@ -344,7 +344,7 @@ function buildLinks(){
   } else {
     note.className = 'note warn';
     note.innerHTML = '<b>No-install mode.</b> Overlays update only when opened in this same browser. ' +
-      'For OBS, Camo or Zoom, start the local program instead: double-click <b>Start Kingdom Connect.bat</b>.';
+      'For OBS, Camo or Zoom, start the local program instead: double-click <b>Start FRAMEDECKS.bat</b>.';
   }
 }
 function showPresence(c){
@@ -373,9 +373,9 @@ function setupPreview(){
 /* ---------- Backup, reset ---------- */
 function setupBackup(){
   $('export').addEventListener('click', function(){
-    var data = {app: 'Kingdom Connect', format: 1, saved: new Date().toISOString(), state: Store.get()};
+    var data = {app: 'FRAMEDECKS', format: 1, saved: new Date().toISOString(), state: Store.get()};
     var blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
-    var a = h('a', {href: URL.createObjectURL(blob), download: 'kingdom-connect-backup-' + new Date().toISOString().slice(0, 10) + '.json'});
+    var a = h('a', {href: URL.createObjectURL(blob), download: 'framedecks-backup-' + new Date().toISOString().slice(0, 10) + '.json'});
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(function(){ URL.revokeObjectURL(a.href); }, 2000);
     toast('Backup file saved to your Downloads');
@@ -400,7 +400,7 @@ function setupBackup(){
         }).then(function(){
           toast('Backup loaded. Both overlays are hidden until you show them.');
         });
-      } catch(e){ toast('That file isn’t a Kingdom Connect backup.', true); }
+      } catch(e){ toast('That file isn’t a FRAMEDECKS backup.', true); }
     };
     reader.readAsText(f);
   });

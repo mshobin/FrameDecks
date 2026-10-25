@@ -1,4 +1,4 @@
-/* Kingdom Connect v4.9 - design system (loaded after dashboard.css, members.css and console.css).
+/* FRAMEDECKS v4.9 - design system (loaded after dashboard.css, members.css and console.css).
  *
  * Only tokens and calm, static surfaces: no backdrop-filter, no blur, no endless animations, transitions on
  * transform/opacity/colour only - the app has to stay light next to Zoom, Teams, OBS and PowerPoint.
@@ -156,7 +156,7 @@ html[data-theme="light"] .cb-grp.sl .cb-lbl{color:#c2410c}
 @media (max-width:1200px){ .cb-lbl{display:none} .cb-grp{padding-left:6px} .cb-grp.q,.cb-grp.v,.cb-grp.b,.cb-grp.sl{box-shadow:inset 3px 0 0 var(--c,transparent)} .cb-grp.q{--c:var(--q)} .cb-grp.v{--c:var(--v)} .cb-grp.b{--c:var(--b)} .cb-grp.sl{--c:#e48a5c} }
 @media (prefers-reduced-motion:reduce){ .btn,.cb-btn,.tab,.ws-railbtn{transition:none} }
 
-/* ---------- KingdomConnect blur: precise control ---------- */
+/* ---------- FRAMEDECKS blur: precise control ---------- */
 .blur-ctl{display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-width:0}
 .blur-ctl .range{flex:1 1 220px;min-width:180px}
 .blur-num{width:104px;background:var(--field);border:1px solid var(--line);color:var(--ink);padding:6px 8px;font-variant-numeric:tabular-nums;text-align:right}
@@ -491,7 +491,7 @@ body.studio-focus .ws{grid-template-columns:minmax(0,1fr);height:100vh} body.stu
 .layer-item.on{box-shadow:inset 3px 0 0 var(--live)}
 .layer-item.media{border-top-color:transparent}
 .layer-item:not(.media) + .layer-item.media{margin-top:20px;position:relative}
-.layer-item:not(.media) + .layer-item.media::before{content:"Media · KingdomConnect picture";position:absolute;top:-17px;left:6px;font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
+.layer-item:not(.media) + .layer-item.media::before{content:"Media · FRAMEDECKS picture";position:absolute;top:-17px;left:6px;font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
 
 /* Menus */
 .ws-menu{position:fixed;z-index:120;min-width:240px;max-width:320px;max-height:min(70vh,560px);overflow:auto;padding:6px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-2);box-shadow:var(--shadow-pop)}
@@ -625,7 +625,7 @@ html[data-theme="light"] .canvas-frame,html[data-theme="light"] .ws-center{backg
 html[data-theme="light"] .si-badge.live,html[data-theme="light"] .canvas-badge.live{color:#fff}
 
 /* =====================================================================================================
- * v6.1 - Kingdom Connect: one navy & gold design language, plus Quick Start, the Content Library,
+ * v6.1 - FRAMEDECKS: one navy & gold design language, plus Quick Start, the Content Library,
  * the Question · Scripture pill, Duplicate → Edit question, Presentation Mode and Basic / Advanced.
  * Token changes only where possible: no new effects, no backdrop blur, no running animations.
  * ===================================================================================================== */
@@ -652,7 +652,7 @@ html[data-theme="light"]{
 .scene-item.sel,.layer-item.sel{border-color:var(--kc-gold-line)}
 html[data-theme="light"] .scene-item.sel,html[data-theme="light"] .layer-item.sel{border-color:rgba(31,58,109,.35)}
 
-/* Header: the Kingdom Connect wordmark */
+/* Header: the FRAMEDECKS wordmark */
 .console-top{background:linear-gradient(180deg,rgba(227,183,90,.035),rgba(227,183,90,0)),var(--chrome-bg)}
 .console-top .brand h1{font-family:var(--sans);font-weight:800;font-size:13.5px;letter-spacing:.11em;white-space:nowrap;text-transform:uppercase;
   background:linear-gradient(180deg,#fff3cf,#f0c96d 55%,#c9973a);-webkit-background-clip:text;background-clip:text;color:transparent}
@@ -982,8 +982,8 @@ body.kc-resizing iframe{pointer-events:none}
 /* ---------- v6.4 logo-only header: the Book + Candle mark alone, balanced in the command bar ---------- */
 .sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 .cmdbar .brand,.console-top .brand{gap:0;padding:0 4px 0 2px}
-.cmdbar .brand-mark,.console-top .brand-mark{width:30px;height:auto;display:block;filter:drop-shadow(0 1px 2px rgba(0,0,0,.35))}
-html[data-theme="light"] .cmdbar .brand-mark{filter:none}
+.cmdbar .brand-mark,.console-top .brand-mark{width:30px;height:auto;display:block}
+html[data-theme="light"] .cmdbar .brand-mark,html[data-theme="light"] .console-top .brand-mark,html[data-theme="light"] .sp-mark{filter:brightness(.62) saturate(1.5) contrast(1.15)}
 
 /* ---------- v6.4 native app window: chrome behaves like a desktop app, not a web page ---------- */
 html.kc-native{overscroll-behavior:none}

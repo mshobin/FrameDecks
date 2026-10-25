@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to Kingdom Connect are recorded here. The format follows
+All notable changes to FRAMEDECKS and its predecessor names are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are numbered **major.minor** (see
 [docs/development/changelog-standards.md](docs/development/changelog-standards.md)). Each version links to its full
 release notes in [`docs/releases/`](docs/releases/). Dates are the dates of the release commits.
@@ -9,6 +9,10 @@ Versions before 4.9 (when the program had its earlier name) are described in the
 [docs/architecture/design-history.md](docs/architecture/design-history.md).
 
 ## [Unreleased]
+
+### Changed
+- Updated the FRAMEDECKS logo and tagline across the desktop app, phone remote, PWA icons, favicons, workbook,
+  Windows installer, and marketing header. Presentation workflows are unchanged.
 
 ## [6.10] - 2026-10-20
 

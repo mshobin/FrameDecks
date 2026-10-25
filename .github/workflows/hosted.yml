@@ -1,0 +1,49 @@
+name: Hosted companion checks
+
+on:
+  push:
+    branches: [main, modernization-v1]
+    paths:
+      - "hosted/**"
+      - ".github/workflows/hosted.yml"
+  pull_request:
+    branches: [main, modernization-v1]
+    paths:
+      - "hosted/**"
+      - ".github/workflows/hosted.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: hosted
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: hosted/package-lock.json
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Type-check
+        run: npm run typecheck
+
+      - name: Test hosted boundaries
+        run: npm test
+
+      - name: Build
+        run: npm run build

@@ -1,6 +1,6 @@
 # Media team
 
-How to prepare a meeting in Kingdom Connect so the service runs smoothly: Frames, Content, slides, videos and scripture.
+How to prepare a meeting in FRAMEDECKS so the service runs smoothly: Frames, Content, slides, videos and scripture.
 
 **Who this is for:** media team members who build the meeting before the service.
 
@@ -29,7 +29,7 @@ How to prepare a meeting in Kingdom Connect so the service runs smoothly: Frames
 1. **+ Frame, then + Content.** + Frame adds a blank Frame after the selected one; select it, then **+ Content** to add a Question, Scripture, Text, Discussion topic, Icebreaker, Poll (show of hands), Image, Video, Timer or PowerPoint.
 2. **Every Frame owns its Content.** Changing a question in one Frame never changes another. **Duplicate** makes a fully separate copy.
 3. **Content Settings has everything.** One panel, most used first: Label, Content, Display Settings (with Animation and Show on), Visual Settings; Media for pictures, video and slides.
-4. **Kingdom Connect keeps copies of your files.** Added pictures, videos and slides keep working if the originals move.
+4. **FRAMEDECKS keeps copies of your files.** Added pictures, videos and slides keep working if the originals move.
 5. **Excel is optional.** The Meeting Workbook builds a whole meeting from a spreadsheet; the app is the source of truth after import.
 
 ![The Studio: Frames on the left, the canvas, and Content Settings](../images/studio.png)
@@ -58,7 +58,7 @@ See [Content](../content.md) and [Media](../media.md) for every option.
 - [ ] Every Frame checked on the Studio Canvas (select it; the canvas shows a preview without going on air).
 - [ ] Every scripture has its text (fetched ones are kept on the PC for offline use).
 - [ ] Every PowerPoint opens and its slides look right.
-- [ ] Videos play; their sound plan agreed with the sound team (Kingdom Connect doesn't carry audio).
+- [ ] Videos play; their sound plan agreed with the sound team (FRAMEDECKS doesn't carry audio).
 - [ ] Spelling checked; double-click any card on the canvas to correct it.
 - [ ] **Settings → Data / Backup → Back up now**.
 
@@ -67,7 +67,7 @@ See [Content](../content.md) and [Media](../media.md) for every option.
 Usually the service operator runs the controls. Stay available to:
 - fix a typo (double-click the card on the canvas, correct, **Enter**);
 - add a last-minute Text Content (a prayer request, a notice);
-- find a file or slide the leader asks for. **Alt+Space** opens **Spotlight** from anywhere in Windows, even with Kingdom Connect in the tray; type a few letters of the Frame, question or setting.
+- find a file or slide the leader asks for. **Alt+Space** opens **Spotlight** from anywhere in Windows, even with FRAMEDECKS in the tray; type a few letters of the Frame, question or setting.
 
 > **Important:** Avoid editing the Frame that is live unless you must: changes to it appear on screen as soon as they are saved.
 

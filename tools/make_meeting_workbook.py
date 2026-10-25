@@ -1,4 +1,4 @@
-"""Writes the Kingdom Connect Meeting Workbook template (6.9): two tabs, Dashboard and Meeting Form.
+"""Writes the FRAMEDECKS Meeting Workbook template (6.9): two tabs, Dashboard and Meeting Form.
 
     python3 tools/make_meeting_workbook.py
 
@@ -6,7 +6,7 @@ Meeting Form: one guided page, top to bottom (the layout is in meeting_form.py, 
 this meeting to Excel"). Dashboard: a summary of the form made only by formulas: this meeting, KPI tiles, readiness,
 quick links into the form, the content mix and a log of recent meetings. Nothing on the Dashboard is imported.
 
-Output: app/templates/Kingdom-Connect-Meeting-Workbook.xlsx (downloaded from the app: Meeting → Download the Excel
+Output: app/templates/FRAMEDECKS-Meeting-Workbook.xlsx (downloaded from the app: Meeting → Download the Excel
 template) and a copy in docs/templates/. The column names and allowed values must match app/js/meeting-book.js;
 tests/meeting-workbook.test.js checks that the template imports without errors.
 """
@@ -132,13 +132,13 @@ def meeting_form(wb):
         if kind == "banner":
             band(ws, row, H_BANNER, NAVY)
             ws.merge_cells(f"A{row}:{last_col}{row}")
-            a.value = "KINGDOM CONNECT   ·   Meeting Form"
+            a.value = "FRAMEDECKS   ·   Meeting Form"
             a.font, a.alignment = font(18, "FFFFFF", bold=True), Alignment(vertical="center", indent=1)
         elif kind == "intro":
             band(ws, row, H_INTRO, CARD)
             ws.merge_cells(f"A{row}:{last_col}{row}")
             a.value = ("Work down the page and fill in the cream boxes (Tab moves to the next one). Each table opens more rows "
-                       "with the + button on the left. Then, in Kingdom Connect: Meeting → Import meeting from Excel…")
+                       "with the + button on the left. Then, in FRAMEDECKS: Meeting → Import meeting from Excel…")
             a.font, a.alignment = font(10, MUTED), LEFT
         elif kind == "gap":
             band(ws, row, H_GAP)
@@ -201,7 +201,7 @@ def meeting_form(wb):
         elif kind == "footer":
             band(ws, row, H_INTRO, CARD)
             ws.merge_cells(f"A{row}:{last_col}{row}")
-            a.value = ("Done? Save this file, then in Kingdom Connect choose Meeting → Import meeting from Excel… "
+            a.value = ("Done? Save this file, then in FRAMEDECKS choose Meeting → Import meeting from Excel… "
                        "You see a preview first; nothing changes until you select Import.")
             a.font, a.alignment = font(10, NAVY, bold=True), LEFT
     ws.sheet_format.outlineLevelRow = 1
@@ -280,7 +280,7 @@ def dashboard(wb):
         img.width, img.height = mark.width // 2, mark.height // 2
         ws.add_image(img, "B2")
     ws.merge_cells("C2:H2")
-    ws["C2"] = "KINGDOM CONNECT"
+    ws["C2"] = "FRAMEDECKS"
     ws["C2"].font = font(20, NAVY, bold=True)
     ws["C2"].alignment = Alignment(vertical="bottom", indent=1)
     ws.merge_cells("C3:H3")
@@ -452,7 +452,7 @@ def dashboard(wb):
     r = LOG_LAST + 2
     ws.row_dimensions[r].height = 30
     ws.merge_cells(f"B{r}:K{r}")
-    ws[f"B{r}"] = ("How it works: plan everything on the Meeting Form tab, save, then in Kingdom Connect choose "
+    ws[f"B{r}"] = ("How it works: plan everything on the Meeting Form tab, save, then in FRAMEDECKS choose "
                    "Meeting → Import meeting from Excel…   This Dashboard is never imported.")
     ws[f"B{r}"].font, ws[f"B{r}"].alignment = font(9, MUTED), LEFT
     card(f"B{r}:K{r}")
@@ -464,14 +464,14 @@ def dashboard(wb):
 
 def main():
     wb = Workbook()
-    wb.properties.creator = wb.properties.lastModifiedBy = "Kingdom Connect"
-    wb.properties.title = "Kingdom Connect Meeting Workbook"
+    wb.properties.creator = wb.properties.lastModifiedBy = "FRAMEDECKS"
+    wb.properties.title = "FRAMEDECKS Meeting Workbook"
     dashboard(wb)
     meeting_form(wb)
     wb.active = 1                    # opens on the Meeting Form: that is where the work happens
     wb[MF.DASHBOARD].sheet_view.tabSelected = False
     wb.calculation.fullCalcOnLoad = True
-    out = ROOT / "app" / "templates" / "Kingdom-Connect-Meeting-Workbook.xlsx"
+    out = ROOT / "app" / "templates" / "FRAMEDECKS-Meeting-Workbook.xlsx"
     out.parent.mkdir(parents=True, exist_ok=True)
     wb.save(out)
     docs = ROOT / "docs" / "templates" / out.name

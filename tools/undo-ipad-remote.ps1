@@ -1,9 +1,7 @@
-# Kingdom Connect - remove the phone remote firewall permission.
-$RuleName = 'Kingdom Connect Phone Remote'
-$OldRuleName = 'BSF Command Center iPad Remote'   # LEGACY (6.9): the same rule under the program's earlier name
-Remove-NetFirewallRule -DisplayName $RuleName -ErrorAction SilentlyContinue
-Remove-NetFirewallRule -DisplayName $OldRuleName -ErrorAction SilentlyContinue
+# FRAMEDECKS - remove the phone remote firewall permission.
+@('FRAMEDECKS Phone Remote', 'Kingdom Connect Phone Remote', 'BSF Command Center iPad Remote') |
+  ForEach-Object { Remove-NetFirewallRule -DisplayName $_ -ErrorAction SilentlyContinue }
 Write-Host ''
-Write-Host '  The Kingdom Connect Phone Remote firewall rule has been removed.' -ForegroundColor Green
+Write-Host '  The FRAMEDECKS phone remote firewall permissions have been removed.' -ForegroundColor Green
 Write-Host '  (Your network type was not changed. Change it in Settings if you wish.)'
 Write-Host ''

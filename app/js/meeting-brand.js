@@ -1,11 +1,11 @@
-/* Kingdom Connect v6.2 - Settings → Meeting & Branding.
+/* FRAMEDECKS v6.2 - Settings → Meeting & Branding.
  *
  * The leader's Meeting Name, Leader / Organization Name, logo and accent colour (state.brand), and where they appear:
  *   - Branding layers (a small badge with the logo and/or names), added per scene from here or from the Studio;
  *   - text layers (Announcement, Prayer, Lower Third, Countdown) that use {meeting} / {org} or "Show logo";
- *   - the accent colour replaces the gold of the cards on KingdomConnect and the overlay pages.
+ *   - the accent colour replaces the gold of the cards on FRAMEDECKS and the overlay pages.
  * Nothing is forced onto a scene: the leader ticks the scenes that carry the badge.
- * The logo is converted to PNG here (PNG, JPG or SVG in), so every output (browser, OBS, KingdomConnect) reads one file.
+ * The logo is converted to PNG here (PNG, JPG or SVG in), so every output (browser, OBS, FRAMEDECKS) reads one file.
  */
 (function(){
 'use strict';
@@ -47,7 +47,7 @@ function toPng(file){
   });
 }
 function uploadLogo(file){
-  if (!Store.served){ toast('Uploading a logo needs the Kingdom Connect program (installed app).', true); return; }
+  if (!Store.served){ toast('Uploading a logo needs the FRAMEDECKS program (installed app).', true); return; }
   toPng(file).then(function(png){
     return fetch('api/brand/logo', {method: 'POST', headers: {'Content-Type': 'image/png'}, body: png}).then(function(r){ return r.json().then(function(d){ if (!r.ok) throw new Error(d.error || 'Upload failed'); return d; }); });
   }).then(function(d){
@@ -110,7 +110,7 @@ function savePng(blob){
 var bgBusy = false;
 function removeBackground(){
   if (bgBusy) return;
-  if (!Store.served){ toast('Changing the logo needs the Kingdom Connect program (installed app).', true); return; }
+  if (!Store.served){ toast('Changing the logo needs the FRAMEDECKS program (installed app).', true); return; }
   bgBusy = true;
   var before = null;
   loadLogo().then(function(img){

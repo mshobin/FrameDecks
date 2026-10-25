@@ -1,4 +1,4 @@
-/* Kingdom Connect v6.8 - Teleprompter overlay (prompter.html): Meeting Leader mode.
+/* FRAMEDECKS v6.8 - Teleprompter overlay (prompter.html): Meeting Leader mode.
  *
  * The script fills the window (95 % of its width). A small glass toolbar floats at the bottom and hides itself after a
  * few seconds; moving the mouse brings it back. Transparency modes let Zoom / Teams participants, shared screens and

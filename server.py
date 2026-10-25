@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """
-Kingdom Connect - local program.
+FRAMEDECKS - local program.
 
 Serves the dashboard and overlays at http://localhost:8750 on THIS computer only.
 No internet, cloud account, or extra installs are needed beyond Python 3
 (standard library only). Your content is saved in "kc-saved-content.json".
 
-Windows: double-click "Start Kingdom Connect.bat"
-         or "Start Kingdom Connect with iPad Remote.bat" (adds the phone remote)
-Mac:     double-click "Start Kingdom Connect (Mac).command"
+Windows: double-click "Start FRAMEDECKS.bat"
+         or "Start FRAMEDECKS with Phone Remote.bat" (adds the phone remote)
+Mac:     double-click "Start FRAMEDECKS (Mac).command"
          (for the phone remote: python3 server.py --remote)
 """
 import hashlib
@@ -40,7 +40,7 @@ APP = RES / "app"
 
 
 def _data_dir():
-    """Installed app: %APPDATA%\\Kingdom Connect. Script/zip version: next to server.py (as before).
+    """Installed app: %APPDATA%\\FRAMEDECKS. Script/zip version: next to server.py (as before).
     6.9: data saved under the program's earlier name is moved here first (legacy.py), so nothing is lost."""
     if os.environ.get("KC_DATA_DIR"):
         folder = Path(os.environ["KC_DATA_DIR"])
@@ -74,6 +74,7 @@ COOKIE = "kc_remote"
 REMOTE_PUBLIC = {"/remote.html", "/css/remote.css", "/js/remote.js", "/js/store.js", "/js/brand.js", "/api/remote-login",
                  "/js/teleprompter.js", "/css/teleprompter.css",
                  "/remote-manifest.json", "/icons/remote-180.png", "/icons/remote-192.png", "/icons/remote-512.png",
+                 "/icons/favicon-16.png", "/icons/favicon-32.png",
                  "/icons/remote-maskable-512.png", "/img/kc-emblem.webp"}
 REMOTE_SIGNED_IN = {"/api/rev", "/api/state", "/api/remote-logout", "/js/overlay.js", "/api/remote/studio", "/api/brand/logo", "/api/remote/live.jpg",
                     "/css/overlay.css", "/stage.html", "/focus-verse.html", "/discussion-question.html", "/birthday.html"}
@@ -196,7 +197,7 @@ def save_state(new):
         return state
 
 
-# ---------- v6 Scenes: the live scene's media layers are the KingdomConnect picture ----------
+# ---------- v6 Scenes: the live scene's media layers are the FRAMEDECKS picture ----------
 MEDIA_KINDS = ("camera", "screen", "window", "image", "video", "pdf", "background", "text", "rect", "ellipse")
 
 
@@ -251,7 +252,7 @@ def apply_live_media(st):
         comp.layers.set_layers(media)
         studio_save()
     except Exception as e:                              # never let a scene stop the camera
-        print("KingdomConnect: could not apply the scene:", e)
+        print("FRAMEDECKS: could not apply the scene:", e)
 
 
 def update_state(change):
@@ -595,7 +596,7 @@ def _describe(folder):
 
 
 def migration_candidates():
-    """Look (two folders deep) in Desktop, Downloads, Documents and OneDrive for an earlier Kingdom Connect folder."""
+    """Look (two folders deep) in Desktop, Downloads, Documents and OneDrive for an earlier FRAMEDECKS folder."""
     home = Path.home()
     roots = [home / "Desktop", home / "Downloads", home / "Documents", home / "OneDrive" / "Desktop", home / "OneDrive" / "Documents"]
     found, seen, budget = [], set(), [2500]
@@ -639,9 +640,9 @@ def import_from(folder):
     global sessions
     src = Path(folder)
     if not src.is_dir() or not looks_like_data(src):
-        raise ValueError("That folder doesn’t contain Kingdom Connect data (its saved content or member list).")
+        raise ValueError("That folder doesn’t contain FRAMEDECKS data (its saved content or member list).")
     if src.resolve() == DATA.resolve():
-        raise ValueError("That is already the folder Kingdom Connect uses.")
+        raise ValueError("That is already the folder FRAMEDECKS uses.")
     backup_now("before-import")
     copied = []
     for name in DATA_FILE_NAMES:
@@ -674,8 +675,8 @@ def open_external(url):
     return True
 
 
-FIREWALL_RULE = "Kingdom Connect Phone Remote"
-OLD_FIREWALL_RULES = (legacy.OLD_FIREWALL_RULE,)      # removed whenever the rule is set or undone
+FIREWALL_RULE = "FRAMEDECKS Phone Remote"
+OLD_FIREWALL_RULES = ("Kingdom Connect Phone Remote", legacy.OLD_FIREWALL_RULE)
 
 
 def firewall(action):
@@ -705,7 +706,7 @@ def firewall(action):
     return r.returncode == 0, ("Done." if r.returncode == 0 else "Windows reported a problem.")
 
 
-# ---------- KingdomConnect (built-in virtual camera, Windows) ----------
+# ---------- FRAMEDECKS (built-in virtual camera, Windows) ----------
 VCAM_SETTINGS_FILE = DATA / "kc-vcam-settings.json"
 VCAM_DEFAULTS = {"enabled": True, "cameraName": "", "resolution": "720p", "mirror": False, "blur": "off", "blurStrength": 0, "cards": True, "look": "off", "presentFps": 15,
                  "blurStyle": "natural"}
@@ -723,7 +724,7 @@ def _picture():
 
 
 def vcam_settings():
-    """Saved KingdomConnect settings, migrated to the current schema and validated; defaults fill the gaps
+    """Saved FRAMEDECKS settings, migrated to the current schema and validated; defaults fill the gaps
     (a damaged or older file never stops the camera)."""
     out = dict(VCAM_DEFAULTS)
     pic = _picture()
@@ -826,7 +827,7 @@ def vcam_apply_changes(data):
 
 
 def vcam_list_cameras():
-    """Webcams by name (KingdomConnect itself excluded). Refreshed at most every 10 s; never turns a webcam on."""
+    """Webcams by name (FRAMEDECKS itself excluded). Refreshed at most every 10 s; never turns a webcam on."""
     if VCAM["cameras"] is not None and time.time() - VCAM["camerasAt"] < 10:
         return VCAM["cameras"]
     cams = []
@@ -962,7 +963,7 @@ def scripture_lookup(ref, translation="ESV", fresh=False):
                    "include-footnotes": "false", "include-footnote-body": "false", "include-headings": "false", "include-short-copyright": "false",
                    "include-selahs": "true", "indent-paragraphs": "0", "indent-poetry": "false", "indent-declares": "0", "indent-psalm-doxology": "0"})
     try:
-        with urlopen(Request(ESV_URL + "?" + q, headers={"Authorization": "Token " + api_key, "User-Agent": "KingdomConnect/" + APP_VERSION}), timeout=8) as r:
+        with urlopen(Request(ESV_URL + "?" + q, headers={"Authorization": "Token " + api_key, "User-Agent": "FRAMEDECKS/" + APP_VERSION}), timeout=8) as r:
             data = json.loads(r.read().decode("utf-8"))
     except Exception as e:
         code = getattr(e, "code", None)
@@ -1011,7 +1012,7 @@ def powerpoint_show():
 def slide_move(step):
     """Next (+1) / Previous (-1) for whatever is being presented: the Studio's shared screen or presentation layer
     (PDF deck or captured window) first, else the PowerPoint slide show running on this PC - e.g. full screen and
-    shared directly in Zoom/Teams, which Kingdom Connect is not capturing. Works without the camera engine."""
+    shared directly in Zoom/Teams, which FRAMEDECKS is not capturing. Works without the camera engine."""
     try:
         step = 1 if int(step) > 0 else -1
     except (TypeError, ValueError):
@@ -1086,7 +1087,7 @@ def remote_studio_action(d):
 def recordings_dir():
     vids = Path.home() / "Videos"
     legacy.migrate_recordings(vids if vids.is_dir() else DATA)
-    return (vids if vids.is_dir() else DATA) / "Kingdom Connect"
+    return (vids if vids.is_dir() else DATA) / "FRAMEDECKS"
 
 
 def studio_status():
@@ -1142,7 +1143,7 @@ def _studio_action(d):
     if op == "slide":                                          # slides work even without the camera engine
         return {"slide": slide_move(d.get("step", 1))}
     if not comp:
-        raise ValueError(VCAM.get("reason") or "KingdomConnect is not available.")
+        raise ValueError(VCAM.get("reason") or "FRAMEDECKS is not available.")
     if op == "layout":
         comp.set_layout(d.get("layout") or {})
     elif op == "screen":
@@ -1334,12 +1335,12 @@ def vcam_effective(settings):
 
 
 def vcam_start():
-    """Create the engine (idle until Zoom/Teams uses KingdomConnect). Safe to call when unavailable."""
+    """Create the engine (idle until Zoom/Teams uses FRAMEDECKS). Safe to call when unavailable."""
     if VCAM["engine"] is not None:
         return
     demo = os.environ.get("KC_VCAM_DEMO") == "1"
-    start_files_msg = ("You’re using the start-file version (the black window). KingdomConnect is only in the installed app: "
-                       "close the black window, then open Kingdom Connect from its desktop or Start-menu icon.")
+    start_files_msg = ("You’re using the start-file version (the black window). FRAMEDECKS is only in the installed app: "
+                       "close the black window, then open FRAMEDECKS from its desktop or Start-menu icon.")
     os.environ.setdefault("OPENCV_VIDEOIO_MSMF_ENABLE_HW_TRANSFORMS", "0")   # before OpenCV loads
     try:
         import cv2  # noqa: F401
@@ -1351,8 +1352,8 @@ def vcam_start():
         VCAM["detail"] = f"{type(e).__name__}: {e}"
         if FROZEN:
             import traceback
-            print("KingdomConnect could not load:\n" + traceback.format_exc())
-            VCAM["reason"] = ("KingdomConnect couldn’t start because part of it is missing. Please send Settings → Diagnostics "
+            print("FRAMEDECKS could not load:\n" + traceback.format_exc())
+            VCAM["reason"] = ("FRAMEDECKS couldn’t start because part of it is missing. Please send Settings → Diagnostics "
                               "→ Copy diagnostics to the developer.")
         else:
             VCAM["reason"] = start_files_msg
@@ -1364,7 +1365,7 @@ def vcam_start():
         make_sink, make_cam = (lambda w, h: vsink.FakeSink(w, h, connected=False)), DemoCamera
     else:
         if os.name != "nt":
-            VCAM["reason"] = start_files_msg if not FROZEN else "KingdomConnect works on Windows."
+            VCAM["reason"] = start_files_msg if not FROZEN else "FRAMEDECKS works on Windows."
             return
         dll = vsink.dll_path(RES) if vsink.dll_path(RES).exists() else vsink.dll_path(HERE)
         if not dll.exists():
@@ -1379,9 +1380,9 @@ def vcam_start():
                                   "Protection history, restore or allow kingdomconnect_vcam64.dll, then run the installer again.")
             else:
                 VCAM["reason"] = ("This installer was built without the camera, because the GitHub build recipe is out of date. "
-                                  "Copy the .github folder from the latest Kingdom-Connect.zip into your repository, commit "
+                                  "Copy the .github folder from the latest FRAMEDECKS.zip into your repository, commit "
                                   "and push, then install the new installer.")
-            print("KingdomConnect not available: " + VCAM["detail"])
+            print("FRAMEDECKS not available: " + VCAM["detail"])
             return
         make_sink, make_cam = (lambda w, h: vsink.SoftcamSink(dll, w, h)), (lambda name, w, h: Camera(name, w, h, vcam_list_cameras()))
     # The verse, question and birthday cards, drawn onto every frame from the same live state as the overlay pages
@@ -1419,7 +1420,7 @@ def _looks_list():
 
 
 def vcam_status(lite=False):
-    """KingdomConnect status for the PC screens. lite: only what the top-bar light needs (no webcam or looks listing)."""
+    """FRAMEDECKS status for the PC screens. lite: only what the top-bar light needs (no webcam or looks listing)."""
     eng = VCAM["engine"]
     try:
         from vcam import sink as vsink
@@ -1433,20 +1434,20 @@ def vcam_status(lite=False):
             "settings": vcam_settings(), "status": dict(eng.status) if eng else None,
             "cameras": [{"name": n, "ir": any(c["ir"] for c in vcam_list_cameras() if c["name"] == n)}
                         for n in dict.fromkeys(c["name"] for c in vcam_list_cameras())] if eng else [],
-            "activeCamera": vcam_effective(vcam_settings())["cameraName"] if eng else "", "name": "KingdomConnect",
+            "activeCamera": vcam_effective(vcam_settings())["cameraName"] if eng else "", "name": "FRAMEDECKS",
             "blurNow": VCAM["blurSession"] if VCAM.get("blurSession") is not None else vcam_settings()["blurStrength"],
             "looks": _looks_list(), "looksNote": VCAM.get("looksNote", ""),
             "profiles": [{"id": k, "name": v["name"]} for k, v in (_picture().PROFILES.items() if _picture() else [])]}
 
 
 def vcam_install(action):
-    """Register (or remove) KingdomConnect with Windows. Asks for administrator permission (UAC)."""
+    """Register (or remove) FRAMEDECKS with Windows. Asks for administrator permission (UAC)."""
     if os.name != "nt":
         return False, "Only available on Windows."
     name = "unregister-kingdomconnect-camera.cmd" if action == "uninstall" else "register-kingdomconnect-camera.cmd"
     helper = next((p for p in (RES / "vcam" / "bin" / name, HERE / "vcam" / "bin" / name) if p.exists()), None)
     if helper is None or not (helper.parent / "kingdomconnect_vcam64.dll").exists():
-        return False, "The KingdomConnect files are missing. Reinstall the app."
+        return False, "The FRAMEDECKS files are missing. Reinstall the app."
     path = str(helper).replace("'", "''")
     outer = ("try { Start-Process -FilePath '" + path + "' -Verb RunAs -Wait -WindowStyle Hidden; exit 0 } catch { exit 5 }")
     try:
@@ -1573,7 +1574,7 @@ class Handler(BaseHTTPRequestHandler):
             return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
         if path == "/api/remote/studio":                # scenes + presentation for the remote (PIN-protected)
             return self.reply(200, json.dumps(remote_studio_info()), TYPES[".json"])
-        if path == "/api/remote/live.jpg":              # v6.6 the KingdomConnect picture for the phone's drawing pad (PIN-protected)
+        if path == "/api/remote/live.jpg":              # v6.6 the FRAMEDECKS picture for the phone's drawing pad (PIN-protected)
             eng = VCAM.get("engine")
             if not eng:
                 return self.reply(204, b"", "text/plain")
@@ -1655,7 +1656,7 @@ class Handler(BaseHTTPRequestHandler):
                 return self.reply(200, eng.preview_jpeg, "image/jpeg", headers=[("ETag", tag)])
             return self.reply(404, "Not found", "text/plain; charset=utf-8")
         if path == "/api/app/ping":
-            return self.reply(200, json.dumps({"app": "Kingdom Connect", "version": APP_VERSION, "installedApp": FROZEN}), TYPES[".json"])
+            return self.reply(200, json.dumps({"app": "FRAMEDECKS", "version": APP_VERSION, "installedApp": FROZEN}), TYPES[".json"])
         if path == "/api/app/info":
             if not self.is_local():
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
@@ -1739,12 +1740,12 @@ class Handler(BaseHTTPRequestHandler):
         return origin in (f"http://{host}",)
 
     def present_stream(self):
-        """The Presentation window's picture: a motion-JPEG stream of the final KingdomConnect frame.
+        """The Presentation window's picture: a motion-JPEG stream of the final FRAMEDECKS frame.
         A frame is sent only when the picture changed (at most 30 per second), so a still slide costs
         almost nothing. Each frame is encoded here, not in the camera thread."""
         comp, eng = VCAM.get("compositor"), VCAM.get("engine")
         if not comp or not eng:
-            return self.reply(404, "KingdomConnect is not available", "text/plain; charset=utf-8")
+            return self.reply(404, "FRAMEDECKS is not available", "text/plain; charset=utf-8")
         import cv2 as _cv2
         from vcam.priority import lower_this_thread
         lower_this_thread()                          # picture encoding for the window: background priority
@@ -1815,7 +1816,7 @@ class Handler(BaseHTTPRequestHandler):
         data = self.rfile.read(length)
         info = png_size(data)
         if not info:
-            return self.reply(400, json.dumps({"error": "That is not a picture Kingdom Connect can use. Choose a PNG, JPG or SVG file."}), TYPES[".json"])
+            return self.reply(400, json.dumps({"error": "That is not a picture FRAMEDECKS can use. Choose a PNG, JPG or SVG file."}), TYPES[".json"])
         tmp = BRAND_LOGO.with_suffix(".part")
         tmp.write_bytes(data)
         os.replace(tmp, BRAND_LOGO)
@@ -1868,7 +1869,7 @@ class Handler(BaseHTTPRequestHandler):
         ok = lambda obj: self.reply(200, json.dumps(obj), TYPES[".json"])
         bad = lambda msg, code=400: self.reply(code, json.dumps({"error": msg}), TYPES[".json"])
         if action == "present":
-            # A separate, frameless "Kingdom Connect Share Window" window (selectable in Zoom > Share > specific window).
+            # A separate, frameless "FRAMEDECKS Share Window" window (selectable in Zoom > Share > specific window).
             hook, fs = DESKTOP.get("present"), DESKTOP.get("present_fullscreen")
             if not hook:
                 return ok({"desktop": False})    # browser: the page opens its own popup window
@@ -1982,7 +1983,7 @@ class Handler(BaseHTTPRequestHandler):
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
             try:
                 meeting, tables = meeting_form.from_sheets(data if isinstance(data, dict) else {})
-                body = meeting_form.fill((APP / "templates" / "Kingdom-Connect-Meeting-Workbook.xlsx").read_bytes(), meeting, tables)
+                body = meeting_form.fill((APP / "templates" / "FRAMEDECKS-Meeting-Workbook.xlsx").read_bytes(), meeting, tables)
             except (OSError, ValueError, KeyError, TypeError) as e:
                 return self.reply(422, json.dumps({"error": str(e)}), TYPES[".json"])
             return self.reply(200, body, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
@@ -2151,7 +2152,7 @@ def start_main_server():
         return None
     server.daemon_threads = True
     MAIN["server"], MAIN["port"] = server, server.server_address[1]
-    threading.Thread(target=vcam_start, daemon=True).start()   # idle until Zoom/Teams uses KingdomConnect
+    threading.Thread(target=vcam_start, daemon=True).start()   # idle until Zoom/Teams uses FRAMEDECKS
     threading.Thread(target=_backup_loop, daemon=True).start()
     threading.Thread(target=_remote_watcher, daemon=True).start()
     return server
@@ -2167,7 +2168,7 @@ def main():
         set_remote(True)
     base = f"http://localhost:{port}"
     print()
-    print("  Kingdom Connect is running.")
+    print("  FRAMEDECKS is running.")
     print()
     print(f"  Dashboard (opens automatically):  {base}/")
     print(f"  Focus Verse overlay:          {base}/focus-verse.html")

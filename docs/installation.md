@@ -1,6 +1,6 @@
 # Installation
 
-How to install, update and remove Kingdom Connect on a church or ministry PC.
+How to install, update and remove FRAMEDECKS on a church or ministry PC.
 
 **Who this is for:** whoever sets up the presentation PC, such as a media team lead, a volunteer or a church
 administrator.
@@ -25,22 +25,22 @@ administrator.
 | --- | --- |
 | **Operating system** | Windows 10 or Windows 11, 64-bit. There is no Mac or Linux version |
 | **Processor and memory** | A typical laptop or desktop from the last few years. Background blur and 1080p use more processor time; Settings → Diagnostics shows the app's own load |
-| **Webcam** | Optional. Needed only if people should see you on the KingdomConnect camera |
+| **Webcam** | Optional. Needed only if people should see you on the FRAMEDECKS camera |
 | **Microsoft PowerPoint** | Optional. Needed only to turn a **.pptx** file into slides. Without it, save your deck as PDF and add the PDF |
 | **Microsoft Edge WebView2 Runtime** | Included with Windows 11 and most up-to-date Windows 10 PCs. Without it, the app still runs in an Edge app window |
 | **Internet** | Not needed to run a meeting. Needed only to fetch ESV scripture text, to install WebView2, and for your video-call app itself |
 | **Network** | Only for the phone remote: the PC and phone on the same Wi-Fi |
 
-> **Note:** Kingdom Connect runs entirely on one PC. It has no accounts, no subscription and no cloud service.
+> **Note:** FRAMEDECKS runs entirely on one PC. It has no accounts, no subscription and no cloud service.
 
 ## Get the installer
 
-The installer is a single file named **Kingdom Connect v6.8.exe** (the number is the version).
+The installer is a single file named **FRAMEDECKS v6.8.exe** (the number is the version).
 
 - **From a release:** on the repository's **Releases** page, download the `.exe` (and, if you like, the matching
   `.sha256` file).
 - **From a build:** in the repository's **Actions** tab, open the latest green **Build Windows installer** run and
-  download the **Kingdom Connect v6.8** artifact. It is a `.zip`; unzip it to get the `.exe` and the `.sha256` file.
+  download the **FRAMEDECKS v6.8** artifact. It is a `.zip`; unzip it to get the `.exe` and the `.sha256` file.
 
 If you build the installer yourself, see [Building the installer](development/building-the-installer.md).
 
@@ -52,47 +52,47 @@ unchanged:
 1. Open **PowerShell** in the folder with the files.
 2. Run:
    ```powershell
-   Get-FileHash ".\Kingdom Connect v6.8.exe" -Algorithm SHA256
+   Get-FileHash ".\FRAMEDECKS v6.8.exe" -Algorithm SHA256
    ```
-3. Compare the **Hash** with the text in `Kingdom Connect v6.8.exe.sha256`. Upper or lower case does not matter. They
+3. Compare the **Hash** with the text in `FRAMEDECKS v6.8.exe.sha256`. Upper or lower case does not matter. They
    must match exactly.
 
 ## Install
 
 1. Close **Zoom, Teams and OBS**. They keep the camera in use and can block the camera installation.
-2. Double-click **Kingdom Connect v6.8.exe**.
+2. Double-click **FRAMEDECKS v6.8.exe**.
 3. Windows may show **"Windows protected your PC"**. The installer is not code-signed, so Windows does not recognise
    it yet. Select **More info → Run anyway**.
 4. Follow the wizard. The options are:
 
    | Option | Recommended | What it does |
    | --- | --- | --- |
-   | **Create a desktop icon** | On | A Kingdom Connect icon on the desktop |
-   | **Install the KingdomConnect camera for Zoom and Teams** | On | Adds the **KingdomConnect** camera to Windows. Windows asks for administrator permission once, only for this |
-   | **Start automatically when I sign in** | Your choice | Opens Kingdom Connect when you sign in to Windows |
+   | **Create a desktop icon** | On | A FRAMEDECKS icon on the desktop |
+   | **Install the FRAMEDECKS camera for Zoom and Teams** | On | Adds the **FRAMEDECKS** camera to Windows. Windows asks for administrator permission once, only for this |
+   | **Start automatically when I sign in** | Your choice | Opens FRAMEDECKS when you sign in to Windows |
 
-5. Finish the wizard. Kingdom Connect opens.
+5. Finish the wizard. FRAMEDECKS opens.
 
-> **Tip:** If you skipped the camera, you can add it later in **Settings → KingdomConnect Camera → Install
-> KingdomConnect**.
+> **Tip:** If you skipped the camera, you can add it later in **Settings → FRAMEDECKS Camera → Install
+> FRAMEDECKS**.
 
 ## First run
 
-1. If you used the zip version of Kingdom Connect on this PC, the app offers to **import your existing data**. Choose
+1. If you used the zip version of FRAMEDECKS on this PC, the app offers to **import your existing data**. Choose
    the old folder and select **Import**. Members, saved questions and scriptures, settings and the phone PIN are
    copied. The old folder is not changed.
 2. Restart Zoom, Teams, OBS or your browser for Google Meet. They read the list of cameras only when they start.
-3. In each app, choose **KingdomConnect** as the camera:
-   - **Zoom:** Settings → Video → Camera → KingdomConnect. Tick **HD** and turn off Zoom's own background blur.
-   - **Microsoft Teams:** Settings → Devices (or Video and effects) → Camera → KingdomConnect.
-   - **Google Meet:** ⋮ → Settings → Video → Camera → KingdomConnect.
-   - **OBS:** Sources → + → Video Capture Device → Device: KingdomConnect.
-4. In Kingdom Connect, open **Settings → KingdomConnect Camera** and choose the webcam behind it, the resolution
+3. In each app, choose **FRAMEDECKS** as the camera:
+   - **Zoom:** Settings → Video → Camera → FRAMEDECKS. Tick **HD** and turn off Zoom's own background blur.
+   - **Microsoft Teams:** Settings → Devices (or Video and effects) → Camera → FRAMEDECKS.
+   - **Google Meet:** ⋮ → Settings → Video → Camera → FRAMEDECKS.
+   - **OBS:** Sources → + → Video Capture Device → Device: FRAMEDECKS.
+4. In FRAMEDECKS, open **Settings → FRAMEDECKS Camera** and choose the webcam behind it, the resolution
    (720p or 1080p), background blur and Camera Look.
 
 ## Allow the phone remote through the firewall
 
-The first time you turn on **Settings → Phone & iPad Remote**, Windows Firewall asks whether Kingdom Connect may use
+The first time you turn on **Settings → Phone & iPad Remote**, Windows Firewall asks whether FRAMEDECKS may use
 the network.
 
 1. Tick **Private networks** only.
@@ -108,9 +108,9 @@ If the phone still cannot connect, see [Troubleshooting](troubleshooting.md).
 2. Run the new installer. It installs over the old version.
 3. Your meetings, settings, members, backups and phone PIN are kept.
 
-> **Note:** Kingdom Connect was first published under an earlier name. Version 6.9 installs over every earlier
+> **Note:** Earlier releases were named Kingdom Connect and BSF Command Center. Version 6.9 installs over every earlier
 > version, removes the old program folder and shortcuts, and on first start moves your data (including backups and
-> recordings) to the Kingdom Connect folders below. Nothing newer is overwritten.
+> recordings) to the FRAMEDECKS folders below. Nothing newer is overwritten.
 
 Read the release notes in [CHANGELOG.md](../CHANGELOG.md) before a big update, and avoid updating on the morning of a
 service.
@@ -119,9 +119,9 @@ service.
 
 | What | Where |
 | --- | --- |
-| The program | `%LOCALAPPDATA%\Programs\Kingdom Connect` |
-| Your data (meetings, settings, members, PIN) | `%APPDATA%\Kingdom Connect` |
-| Backups | `%APPDATA%\Kingdom Connect\backups` (daily, plus any you make) |
+| The program | `%LOCALAPPDATA%\Programs\FRAMEDECKS` |
+| Your data (meetings, settings, members, PIN) | `%APPDATA%\FRAMEDECKS` |
+| Backups | `%APPDATA%\FRAMEDECKS\backups` (daily, plus any you make) |
 
 **Settings → Data / Backup** shows the data folder, lets you make a backup now and restore one. See
 [reference/configuration-guide.md](reference/configuration-guide.md) for the files inside.
@@ -129,14 +129,14 @@ service.
 ## Uninstall
 
 1. Open Windows **Settings → Apps → Installed apps**.
-2. Find **Kingdom Connect** and choose **Uninstall**.
+2. Find **FRAMEDECKS** and choose **Uninstall**.
 
 Your data folder is left in place, so reinstalling brings everything back. Delete
-`%APPDATA%\Kingdom Connect` yourself only if you want to remove your data for good, and make a backup first.
+`%APPDATA%\FRAMEDECKS` yourself only if you want to remove your data for good, and make a backup first.
 
 ## If the app window looks like a browser
 
-Kingdom Connect normally opens in its own window, without an address bar or tabs. If **Microsoft Edge WebView2
+FRAMEDECKS normally opens in its own window, without an address bar or tabs. If **Microsoft Edge WebView2
 Runtime** is missing, it opens as an Edge app window instead. That works the same way. Install WebView2 from
 microsoft.com for the full app window.
 

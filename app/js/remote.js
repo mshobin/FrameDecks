@@ -1,4 +1,4 @@
-/* Kingdom Connect v6 - Kingdom Connect Mobile Director: the phone / tablet remote. Same architecture as the PC:
+/* FRAMEDECKS v6 - FRAMEDECKS Mobile Director: the phone / tablet remote. Same architecture as the PC:
  * Scene → Layer → Canvas. The scenes, layers and live state are the shared state (js/store.js KCScenes), so a
  * take, a layer's eye or a duplicate here is exactly the same action as on the PC. Member data never comes here.
  *   phones  : Live (canvas, Prev · Go Live · Next, transition, Q + Scripture, list stepper, program) · Scenes · Layers
@@ -35,7 +35,7 @@ $('login-form').addEventListener('submit', function(e){
       if (res.status === 200){ $('pin').value = ''; showApp(); toast('Connected'); return; }
       $('pin').value = '';
       $('login-msg').textContent = res.status === 429 ? 'Too many tries. Wait ' + res.d.wait + ' seconds and try again.'
-        : res.status === 401 ? 'That PIN isn’t right. Check the PIN on your PC.' : 'Remote mode isn’t on. Start the PC with “Start Kingdom Connect with iPad Remote”.';
+        : res.status === 401 ? 'That PIN isn’t right. Check the PIN on your PC.' : 'Remote mode isn’t on. Start the PC with “Start FRAMEDECKS with Phone Remote”.';
     })
     .catch(function(){ $('login-msg').textContent = 'Can’t reach your PC. Check it’s on the same Wi-Fi and the program is running.'; });
 });
@@ -295,12 +295,12 @@ function render(){
 }
 Store.subscribe(function(st){ live = st; if (!$('login').hidden) showApp(); render(); });
 
-/* ---------- Status chips and slides (from the PC: KingdomConnect, recording, the slide show) ---------- */
+/* ---------- Status chips and slides (from the PC: FRAMEDECKS, recording, the slide show) ---------- */
 var studioInfo = null, slideBusy = false;
 function renderChips(){
   var d = studioInfo || {}, vc = d.vcam || {}, rec = d.recording || {}, pres = d.presentation, L = live ? live.live : {};
   var c1 = $('ch-vcam'); c1.hidden = !vc.state;
-  if (vc.state){ setText(c1, 'KingdomConnect · ' + (vc.state === 'live' ? (vc.inUse ? 'in a meeting' : 'live') : vc.state === 'error' ? 'problem' : vc.state)); c1.className = 'chip' + (vc.state === 'live' ? ' ok' : vc.state === 'error' ? ' bad' : ''); }
+  if (vc.state){ setText(c1, 'FRAMEDECKS · ' + (vc.state === 'live' ? (vc.inUse ? 'in a meeting' : 'live') : vc.state === 'error' ? 'problem' : vc.state)); c1.className = 'chip' + (vc.state === 'live' ? ' ok' : vc.state === 'error' ? ' bad' : ''); }
   var c2 = $('ch-rec'); c2.hidden = !rec.on; if (rec.on){ var s = Math.round(rec.seconds || 0); setText(c2, '● REC ' + Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0')); c2.className = 'chip bad'; }
   var c3 = $('ch-slide'); c3.hidden = !pres; if (pres) setText(c3, 'Slide ' + (pres.page ? pres.page + (pres.pages ? ' / ' + pres.pages : '') : '–'));
   var c4 = $('ch-black'); c4.hidden = !(L.blackout || L.emergency); setText(c4, L.blackout ? 'Blackout' : 'Emergency screen'); c4.className = 'chip bad';
@@ -424,7 +424,7 @@ function padFull(on){
     else if (!on && d.fullscreenElement && d.exitFullscreen) d.exitFullscreen().catch(function(){});
   } catch(e){}
 }
-/* The real picture (what Zoom / Teams see, from KingdomConnect), refreshed about 5 times a second while the pad is
+/* The real picture (what Zoom / Teams see, from FRAMEDECKS), refreshed about 5 times a second while the pad is
  * open. When the camera is off the phone shows the Frame's cards (stage.html) instead, never a black box. */
 function padLive(){
   clearTimeout(pad.timer);

@@ -1,4 +1,4 @@
-/* Kingdom Connect - the About page (Settings > About). Every word comes from js/brand.js.
+/* FRAMEDECKS - the About page (Settings > About). Every word comes from js/brand.js.
  *
  * Light by design: the world map is a static image; the fellowship network "breathes" by fading whole
  * layers (opacity only, so the compositor does it and nothing is repainted); the Scripture card changes
@@ -45,12 +45,12 @@ function hero(){
     network('pulse a', LINKS.filter(function(_, i){ return i % 2 === 0; }), ['ny', 'lg', 'kw', 'sg', 'sy', 'la'], true) +
     network('pulse b', LINKS.filter(function(_, i){ return i % 2 === 1; }), ['ld', 'nb', 'ki', 'se', 'sp'], true) +
     '<div class="kc-glow"></div>';
-  var emblem = h('img', {cls: 'kc-emblem', src: 'img/kc-emblem.webp', alt: B.name + ' logo', width: 190, height: 230, decoding: 'async'});
+  var emblem = h('img', {cls: 'kc-emblem', src: 'img/kc-emblem.webp', alt: B.name + ' logo', width: 150, height: 150, decoding: 'async'});
   return h('header', {cls: 'kc-hero'}, [bg, h('div', {cls: 'kc-hero-in'}, [
     emblem,
     h('h1', {cls: 'kc-wordmark', text: B.name}),
     h('p', {cls: 'kc-tagline', text: B.tagline}),
-    h('p', {cls: 'kc-motto'}, B.motto.map(function(m){ return h('span', {text: m}); })),
+    B.motto.length ? h('p', {cls: 'kc-motto'}, B.motto.map(function(m){ return h('span', {text: m}); })) : null,
     h('p', {cls: 'kc-intro', text: B.intro}),
     h('span', {cls: 'kc-version', 'data-about-version': '', text: version ? 'Version ' + version : 'Version'})
   ])]);
@@ -77,7 +77,7 @@ function purpose(){
 function why(){
   var W = B.why;
   return section('kc-why', [
-    h('div', {cls: 'kc-why-text'}, [kicker('Why Kingdom Connect exists'), h('h2', {text: W.lead}), h('p', {text: W.text}),
+    h('div', {cls: 'kc-why-text'}, [kicker('Why FRAMEDECKS exists'), h('h2', {text: W.lead}), h('p', {text: W.text}),
       h('ul', {cls: 'kc-focus'}, W.points.map(function(p){ return h('li', {}, [h('span', {cls: 'kc-dot', 'aria-hidden': 'true'}), p]); }))]),
     h('figure', {cls: 'kc-principle'}, [h('span', {cls: 'kc-ic', html: I('quote', 26)}), h('figcaption', {text: 'Guiding principle'}),
       h('blockquote', {}, W.principle.map(function(l){ return h('p', {text: l}); }))])
@@ -93,7 +93,7 @@ function values(){
       var c = card(VALUE_IC[i % VALUE_IC.length], v.title, v.text, 'kc-value'); c.insertBefore(h('span', {cls: 'kc-num', text: '0' + (i + 1)}), c.firstChild); return c; }))]);
 }
 function impact(){
-  return section('kc-impact', [kicker('Ministry impact'), h('h2', {text: 'Kingdom Connect exists to help leaders'}),
+  return section('kc-impact', [kicker('Ministry impact'), h('h2', {text: 'FRAMEDECKS exists to help leaders'}),
     h('ul', {cls: 'kc-checks'}, B.impact.map(function(t, i){ return h('li', {}, [h('span', {cls: 'kc-ic', html: I(IMPACT_IC[i % IMPACT_IC.length], 18)}), t]); }))]);
 }
 function scripture(){
@@ -134,7 +134,7 @@ function founder(){
 }
 function commitment(){
   var M = B.commitment;
-  return section('kc-commit', [h('div', {}, [kicker('Our commitment'), h('h2', {text: 'Kingdom Connect is committed to'}),
+  return section('kc-commit', [h('div', {}, [kicker('Our commitment'), h('h2', {text: 'FRAMEDECKS is committed to'}),
     h('ul', {cls: 'kc-pills'}, M.points.map(function(p){ return h('li', {}, [h('span', {html: I('shield-check', 15)}), p]); }))]),
     h('div', {cls: 'kc-commit-lines'}, M.lines.map(function(l){ return h('p', {text: l}); }))]);
 }
@@ -149,7 +149,7 @@ function join(){
 }
 function footer(){
   return h('footer', {cls: 'kc-foot'}, [
-    h('img', {src: 'img/kc-emblem.webp', alt: '', width: 40, height: 48, decoding: 'async'}),
+    h('img', {src: 'img/kc-emblem.webp', alt: '', width: 40, height: 40, decoding: 'async'}),
     h('p', {cls: 'kc-foot-line', text: B.footer}),
     h('p', {cls: 'kc-foot-small'}, [h('span', {'data-about-version': '', text: version ? 'Version ' + version : ''}), ' · ', B.disclaimer]),
     h('p', {cls: 'kc-foot-small', text: 'When asking for help, Settings → Diagnostics → “Copy diagnostics” adds useful technical details (it never includes your PIN or member information).'})
