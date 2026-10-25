@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "eslint src tests/hosted-boundary.test.mjs",
     "typecheck": "tsc --noEmit",
-    "test": "node --test tests/hosted-boundary.test.mjs"
+    "test": "node --test tests/hosted-boundary.test.mjs tests/supabase-schema.test.mjs tests/pwa.test.mjs"
   },
   "dependencies": {
     "class-variance-authority": "^0.7.1",
