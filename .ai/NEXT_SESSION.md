@@ -1,6 +1,6 @@
 # NEXT SESSION HANDOFF
 
-Updated 25 October 2026, after the architecture audit (docs/project/2026-10-25-architecture-audit.md).
+Updated 25 October 2026, after the architecture review and migration plan (PR #32).
 
 ## Completed
 - **6.10** (Quit really quits) merged (PR #7). Logo QA done, with a heavier small-size emblem for 16–32 px (PR #18;
@@ -76,6 +76,18 @@ Updated 25 October 2026, after the architecture audit (docs/project/2026-10-25-a
   installer and no auto-update (C1), no restart if the process dies mid-meeting (C2). High: whole-plan disk write
   and a sync round on every live press (C3, C4 → P1, P2), full-resolution images and 4K screen frames held in RAM
   (C5, C6 → P3, P4). Phase 1 of its roadmap is the proposed next work.
+- **Audit Phase 1 on PR #32** (owner: "continue with 2"): P1+P2 (`server.py` `plan_fingerprint`, live presses
+  written behind after 1 s, `flush_state` on quit/backup/import, sync poked only for plan changes;
+  `tests/test_save_state.py`), P3 (`vcam/layers.py` `fit_for_drawing`), P4 (`vcam/screen.py` DXGI stores changed
+  frames only; `tests/test_resources.py`), C2 (`supervisor.py`, `tests/test_supervisor.py`; packaged as a hidden import).
+- **Stream Deck plugin on PR #32** (owner: "I need a plugin"): `streamdeck/` (SDK 3, Node 24; Next, Previous,
+  Go Live with a Frame number, Hide all, Black screen, question, scripture), `server.py` `/api/command` and
+  `/api/command/status` (this PC only), run through the window bridge with `quiet` (no toast);
+  `.github/workflows/streamdeck.yml` builds the `.streamDeckPlugin`; `docs/remote-control.md` "Stream Deck".
+  Checked end to end against the real program in a browser.
+- **Target architecture review and migration plan** (owner's MISSION brief; documents first, no code):
+  [docs/architecture-review.md](../docs/architecture-review.md), [docs/migration-plan.md](../docs/migration-plan.md).
+  Free code signing: SignPath Foundation, only for a public OSI-licensed repository (M-D1).
 - Tidy-up: the "older docs reference 6.6" debt is closed (they mention 6.6 as history; the 6.6 audit is marked as a
   snapshot; the coding-standards comment template no longer names a version).
 
@@ -113,8 +125,9 @@ Step 5 needs the owner to run `0002`–`0005` in Supabase and to have the PR-bui
 (an installer from "Build Windows installer" on `main`, or running `server.py` from source).
 
 ## Recommended Next Task
-After the owner's answer on the audit: its Phase 1 (code signing needs the owner to buy a certificate; the
-supervisor; P1–P4, each with a resource test). Meanwhile:
+Migration plan steps 1–3 ([docs/migration-plan.md](../docs/migration-plan.md) §7: audit log `0006`, ESV key in
+Credential Manager, asset references), one PR-sized step at a time with the §6 validation, once the owner says go;
+then steps 4–8 as the owner answers M-D1–M-D6; then `docs/post-migration-report.md`. Meanwhile:
 Help the owner through [the live test guide](../docs/qa/live-test-guide.md) (sync step 5, Phase 5 step 4, companion
 editing step 3 and history; installer from the latest "Build Windows installer" run on `main`, migrations
 `0002`–`0005`). Fix what they find and mark each test done in the four files. Then: Google/Microsoft sign-in with the

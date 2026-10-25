@@ -39,6 +39,13 @@ build pass, doc links 0 problems; the program and the companion checked in brows
 - Frame history and restore on the Services page (30 days, `entity_history`; owners and admins restore, deleted Frames
   can be brought back), no database change; 4 Node tests and a browser run against stand-ins (PR #30, merged).
 - The owner's live tests are written up as one pass: [docs/qa/live-test-guide.md](docs/qa/live-test-guide.md).
+- On PR #32 (branch `claude/peaceful-albattani-6m445e`): the [architecture audit](docs/project/2026-10-25-architecture-audit.md);
+  its Phase 1: P1–P4 (`server.py` writes a live press at most once a second and starts sync only for plan changes;
+  `vcam/layers.py` caps pictures to what 3840×2160 can show; DXGI capture copies only changed screens) and C2
+  (`supervisor.py`: the installed exe restarts the program after a crash, at most 3 times in 5 minutes); the
+  **Stream Deck plugin** (`streamdeck/`, local `/api/command`); the [architecture review](docs/architecture-review.md)
+  and [migration plan](docs/migration-plan.md) against the owner's target architecture. Locally: Python 101 tests OK,
+  desktop JS 4/4, packaging check, Stream Deck 5 tests and `validate`, doc links 0 problems.
 
 ## Pending
 - Owner: run `0002_invitations.sql`, `0003_sync.sql`, `0004_remote.sql` and `0005_remote_live.sql` in the Supabase
@@ -48,12 +55,14 @@ build pass, doc links 0 problems; the program and the companion checked in brows
 - Real-device PWA install and offline acceptance on the deployed URL.
 - Phase 5 step 4, the owner's live test; `0004` and `0005` to be run in Supabase after `0003`.
 - A person checks the real tray icon and Windows Credential Manager on an installed PC.
+- Owner decisions M-D1–M-D6 in [docs/migration-plan.md](docs/migration-plan.md) §8 (licence and free signing, member
+  authority, first AI feature, PPTX export and audio, hosting terms, member groups).
 
 ## Technical Debt
 - From the [architecture audit](docs/project/2026-10-25-architecture-audit.md) (25 Oct): unsigned installer and no
-  auto-update (C1); no restart when the process dies mid-meeting (C2); the whole plan written and a sync round
-  started on every live press (C3, C4); full-resolution images and 4K screen frames in RAM (C5, C6); missing media
-  found only at service time (C8).
+  auto-update (C1); missing media found only at service time (C8, migration step 3). C2–C6 fixed on PR #32.
+- From the [architecture review](docs/architecture-review.md): no general audit log; ESV key in plain text; member
+  list kept on PCs (rule 3); no LICENSE; Vercel Hobby terms (personal, non-commercial) — see the migration plan.
 - RLS tests run on PGlite with a stubbed `auth.uid()`, not real Supabase; live-database tests are still needed.
 - Sync is tested against a stand-in cloud that follows the database's rules (`tests/test_cloud_sync.py`), not yet
   against live Supabase; D4 (conflict rules) was built as recommended without the owner's explicit answer.

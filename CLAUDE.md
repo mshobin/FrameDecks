@@ -31,7 +31,13 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
   (controlling a service from the companion; R1–R5 as recommended) and its four delivery steps;
   `docs/architecture/companion-editing.md` — editing services in the companion (E1–E4 as recommended).
 - `docs/project/2026-10-25-architecture-audit.md` — architecture, performance and product audit (critical issues
-  C1–C10, optimizations P1–P10, budgets, roadmap); no UI changes.
+  C1–C10, optimizations P1–P10, budgets, roadmap); no UI changes. P1–P4 and C2 (`supervisor.py`, the crash
+  watchdog in the installed exe) are built.
+- `docs/architecture-review.md` and `docs/migration-plan.md` — review against the owner's target architecture (cloud
+  for people, templates, AI, audit; desktop for media, rendering, camera) and the step order; decisions M-D1–M-D6.
+  Steps 1–3 need no decision; steps 4–8 wait for theirs. Results go to `docs/post-migration-report.md`.
+- `streamdeck/` — the Stream Deck plugin (owner's choice); it calls the PC's local `GET /api/command/status` and
+  `POST /api/command` (this PC only), which run through the same window bridge as the companion, without a toast.
 - Continuity: `CLAUDE.md`, `PROJECT_STATUS.md`, `PROJECT_ROADMAP.md`, `.ai/NEXT_SESSION.md`. The owner's live tests:
   `docs/qa/live-test-guide.md` (keep it in step when a tested behaviour changes).
 - `hosted/src/app/{services,live,members,computers}` — the synced plan (owners and admins edit its words and order,
@@ -52,6 +58,7 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
   type stripping.
 - Sync fixtures: `python tools/make_sync_fixtures.py` rebuilds `tests/fixtures/sync/` (needs Node) after changing
   `store.js` normalize or the record mapping; `tests/sync-fixtures.test.js` says when.
+- Stream Deck (inside `streamdeck/`): `npm test`, `npm run build`, `npm run validate`, `npm run pack`.
 - Docs: `python tools/check_doc_links.py`, `git diff --check`.
 
 ## Gotchas
