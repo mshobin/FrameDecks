@@ -117,11 +117,23 @@ test("the PC reports results and publishes its status; only people who may run s
   assert.ok(await denied(OWNER, "insert into remote_status(computer_id, organization_id, status) values ($1, $2, '{}')", [pc, org]));
 });
 
+test("the Live page lists the PCs with their status for people who may run services only (0005)", async () => {
+  const rows = (await as(OWNER, "select * from remote_computers($1)", [org])).rows;
+  assert.deepEqual(rows.map((r) => [r.name, r.status?.frame]), [["CHURCH-PC", "Prayer"]]);
+  assert.ok(rows[0].server_now, "the server's clock, so a phone with a wrong clock still sees online/offline right");
+  assert.equal((await as(VIEWER, "select * from remote_computers($1)", [org])).rows.length, 0);
+  assert.equal((await as(OUTSIDER, "select * from remote_computers($1)", [org])).rows.length, 0);
+  await as(OWNER, "update memberships set can_run_services = true where organization_id = $1 and user_id = $2", [org, VIEWER]);
+  assert.equal((await as(VIEWER, "select * from remote_computers($1)", [org])).rows.length, 1);
+  await as(OWNER, "update memberships set can_run_services = false where organization_id = $1 and user_id = $2", [org, VIEWER]);
+});
+
 test("a revoked PC can neither take, report nor publish, and receives no new commands", async () => {
   await db.query("update computers set revoked_at = now() where id = $1", [pc]);
   assert.ok(await computerDenied(key, "select remote_take()"));
   assert.ok(await computerDenied(key, "select remote_publish('{}'::jsonb)"));
   assert.ok(await denied(OWNER, "select remote_send($1, 'next')", [pc]));
+  assert.equal((await as(OWNER, "select * from remote_computers($1)", [org])).rows.length, 0, "no longer listed");
 });
 
 test("the anonymous role without a key cannot send or take", async () => {

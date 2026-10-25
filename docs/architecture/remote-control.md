@@ -3,7 +3,9 @@
 **Status:** agreed with the owner on 25 October 2026 (R1–R5 as recommended, [§9](#9-decisions-for-the-owner)). Step 1
 of [§8](#8-tests-and-delivery) is built: `hosted/supabase/migrations/0004_remote.sql`, tested by
 `hosted/tests/supabase-remote.test.mjs`. Step 2 is built: `cloud_remote.py`, the window bridge in `server.py` and
-`app/js/cloud-remote.js`, tested by `tests/test_cloud_remote.py` and in the real program in a browser.
+`app/js/cloud-remote.js`, tested by `tests/test_cloud_remote.py` and in the real program in a browser. Step 3 is
+built: the Settings switch with the last ten actions, `0005_remote_live.sql`, the companion's Live page and the "Can
+run services" checkbox. Step 4 (the owner's live test) remains.
 **Builds on:** sync ([metadata-sync.md](metadata-sync.md)): the same Supabase project, workspaces, linked PCs and
 computer keys.
 
@@ -47,7 +49,8 @@ sequenceDiagram
   the Teleprompter script of the live Frame, blackout and freeze. Text only, as in sync; no picture of the screen in
   this phase.
 - **Who may:** a workspace owner or admin gives a person the permission "Can run services" in the workspace's people
-  list on the companion's Overview (Your workspaces → Members). Owners and admins always have it.
+  list on the companion's Overview (Your workspaces → Members). Owners and admins always have it. The checkbox writes
+  `memberships.can_run_services` under the existing admin-only update policy; a member cannot give it to themselves.
 
 ## 3. The PC side
 
@@ -58,7 +61,8 @@ sequenceDiagram
   to 5 seconds, then about one).
 - **Status** goes up when it changes (a saved plan wakes the loop; at most two rounds a second) and at least every
   4 seconds while a phone is active, every 30 seconds otherwise. The Live page counts the PC as online while its
-  status is fresh for the current pace (step 3 decides the exact threshold).
+  status is younger than 45 seconds by the database's clock (`server_now`), so a phone with a wrong clock still
+  shows it right.
 - **The window bridge (R1):** `cloud_remote.py` offers the commands to the program's own window, which asks with a
   20-second long poll on this PC only (`GET /api/remote-cloud/next`; other devices get 403) and answers with
   `POST /api/remote-cloud/done`. `app/js/cloud-remote.js` runs each with the keys' functions (`KCWorkspace.step`,
@@ -107,9 +111,12 @@ Not in the first release: editing, annotations, the camera, recording, media upl
 
 ## 7. The companion
 
-A **Live** page: the PC's name and whether it is online (status younger than 5 seconds), the live Frame, big
-Previous / Next buttons, Hide all and Black screen, the Frame list to Go Live on, and the Teleprompter. Built for a
-phone first.
+A **Live** page (`/live`): the PC's name and whether it is online (status younger than 45 seconds), the live Frame,
+big Previous / Next buttons, Hide all, Black screen, show or hide the question and scripture, the Frame list to Go
+Live on, the Teleprompter script, and the PC's answer to the last press ("Done", or why not). Built for a phone first.
+People who are not owners or admins cannot read `computers`, so the page reads `remote_computers(org)`
+(`0005_remote_live.sql`): the workspace's PCs that are not disconnected, each with its latest status and the
+database's time, only for people who may run services. It polls every 2 seconds while the page is visible.
 
 ## 8. Tests and delivery
 

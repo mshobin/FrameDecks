@@ -33,10 +33,17 @@ preview and must not be treated as a live service dashboard.
   synced from a linked PC (view only), its member list (owners and admins), and
   linking PCs with the code they show. They read with `sync_pull` and
   `computers`, and link with `computer_link_approve` / `computer_revoke`.
+- **Live** (`/live`): run a service from a phone. Shows the linked PC, whether it
+  is online, the Frame on screen, Previous / Next, Hide all, Black screen, show or
+  hide the question and scripture, Go Live on any Frame and the Teleprompter
+  script. Sends with `remote_send`, reads `remote_computers` every 2 seconds. For
+  owners, admins and members given "Can run services" (a checkbox in the member
+  list); the PC must have "Allow control from the companion" on.
 - **Database scripts** in `supabase/migrations/` are run in order in the Supabase
   SQL editor: `0001` (workspaces), `0002` (invitations), `0003` (sync of service
   plans: records, linked computers), `0004` (remote control: commands from
-  phones, the PC's status, the "can run services" permission).
+  phones, the PC's status, the "can run services" permission), `0005` (the
+  Live page's list of PCs with their status).
   `npm test` applies all of them to an in-memory Postgres (PGlite) and checks the
   access rules.
 - Without the two variables below, the site still builds and works; the sign-in

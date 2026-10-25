@@ -27,6 +27,35 @@ function act(action, done){
   };
 }
 
+/* R5: "Allow control from the companion" and the last ten actions (cloud_remote.py; remote-control.md) */
+function setRemote(on, cb){
+  cb.disabled = true;
+  fetch('api/app/settings', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({cloudRemote: on})})
+    .then(function(r){ if (!r.ok) throw new Error('Not saved'); })
+    .then(function(){ window.KCActions.toast(on ? 'People allowed in your workspace can now run services on this PC from the companion' : 'Control from the companion is off'); refresh(); })
+    .catch(function(e){ cb.checked = !on; window.KCActions.toast(e.message, true); })
+    .then(function(){ cb.disabled = false; });
+}
+function renderRemote(root, r){
+  r = r || {};
+  var cb = h('input', {type: 'checkbox', id: 'acct-remote'});
+  cb.checked = !!r.on;
+  cb.addEventListener('change', function(){ setRemote(cb.checked, cb); });
+  var box = h('div', {cls: 'acct-remote'}, [
+    h('h3', {text: 'Control from the companion'}),
+    h('label', {cls: 'check'}, [cb, ' Allow control from the companion']),
+    h('p', {cls: 'hint', text: 'Owners, admins and members given “Can run services” can then press Next Frame, Go Live, Hide all, Black screen and show or hide the question or scripture from the companion’s Live page, on a phone anywhere. Each one shows here and as a message on this PC. Off: nothing is taken from the workspace.'})]);
+  if (r.on && r.error) box.appendChild(h('p', {cls: 'hint', text: r.error}));
+  var list = r.recent || [];
+  if (list.length){
+    box.appendChild(h('p', {cls: 'plain', text: 'Last actions'}));
+    box.appendChild(h('ul', {cls: 'acct-recent'}, list.map(function(e){
+      return h('li', {cls: e.result === 'done' ? '' : 'bad'}, [h('b', {text: e.label}), ' · ' + (e.by || 'someone') + ' · ' + when(e.at) + (e.result === 'done' ? '' : ' · ' + e.result)]);
+    })));
+  }
+  root.appendChild(box);
+}
+
 function render(){
   var root = $('acct-body'); if (!root) return;
   root.innerHTML = '';
@@ -47,6 +76,7 @@ function render(){
         if (!confirm('Stop syncing this PC? Its plans stay here exactly as they are; the workspace keeps its copy.')) return;
         act('unlink').call(e.currentTarget);
       }})]));
+    renderRemote(root, d.remote);
     return;
   }
   if (d.state === 'waiting' && d.code){

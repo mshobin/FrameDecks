@@ -1271,3 +1271,177 @@ a.nav-item:hover {
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+/* Phase 5: "Can run services" on the member list, and the Live page (phone first) */
+.member-runner {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 6px;
+  color: #aab5ca;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.member-runner input {
+  accent-color: var(--blue);
+}
+
+.live {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.live-now header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.live-state {
+  border: 1px solid #344365;
+  border-radius: 999px;
+  color: #aab5ca;
+  font-size: 12px;
+  padding: 2px 10px;
+}
+
+.live-state.live-on {
+  border-color: rgba(127, 209, 160, 0.5);
+  background: var(--green-soft);
+  color: var(--green);
+}
+
+.live-frame {
+  margin: 4px 0 0;
+  color: #eaeef6;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.live-flags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 8px 0 0;
+}
+
+.live-flag {
+  border-radius: 6px;
+  background: var(--blue-soft);
+  color: var(--blue);
+  font-size: 12px;
+  padding: 2px 8px;
+}
+
+.live-flag-warn {
+  background: rgba(220, 38, 38, 0.15);
+  color: #f87171;
+}
+
+.live-controls {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.live-btn {
+  display: inline-flex;
+  min-height: 48px;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 1px solid #344365;
+  border-radius: 10px;
+  background: #1a2744;
+  color: #eaeef6;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.live-btn:disabled {
+  opacity: 0.6;
+}
+
+.live-btn.live-big {
+  grid-column: span 2;
+  min-height: 84px;
+  font-size: 18px;
+}
+
+.live-btn.live-primary {
+  border-color: var(--blue);
+  background: var(--blue);
+  color: #0c1426;
+}
+
+.live-btn.live-active {
+  border-color: var(--blue);
+  background: var(--blue-soft);
+  color: var(--blue);
+}
+
+.live-columns {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  gap: 14px;
+}
+
+.live-script {
+  max-height: 50vh;
+  overflow-y: auto;
+  color: #eaeef6;
+  font-size: 20px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+.live-frames {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.live-frames li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  border-radius: 8px;
+  color: #c7d0e0;
+  font-size: 14px;
+  padding: 6px 8px;
+}
+
+.live-frames li > span:first-child {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.live-frames li.live-current {
+  background: var(--blue-soft);
+  color: #eaeef6;
+}
+
+@media (max-width: 620px) {
+  .live-controls {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .live-columns {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .members-list li {
+    flex-wrap: wrap;
+  }
+}

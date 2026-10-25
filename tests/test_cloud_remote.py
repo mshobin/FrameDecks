@@ -114,6 +114,15 @@ class StatusTest(unittest.TestCase):
         self.assertEqual(len(s["script"]), 20000)
 
 
+    def test_matches_what_the_live_page_reads(self):
+        """hosted/src/lib/live-view.ts LiveStatus names the same fields (the companion reads them as sent)."""
+        import re
+        ts = (ROOT / "hosted" / "src" / "lib" / "live-view.ts").read_text(encoding="utf-8")
+        block = re.search(r"export type LiveStatus = \{(.*?)\n\};", ts, re.S).group(1)
+        fields = set(re.findall(r"^  (\w+):", block, re.M))
+        self.assertEqual(fields, set(R.status_from(PLAN)) - {"at"})
+
+
 class BridgeTest(unittest.TestCase):
     def test_each_command_goes_to_the_window_once(self):
         b = R.Bridge()

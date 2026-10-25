@@ -27,6 +27,8 @@ export function WorkspaceMembers({
   const [role, setRole] = useState<Invitation["role"]>("member");
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
+  // Phase 5 (0004_remote.sql): who may run services from the companion; null until known or before 0004 is run
+  const [runners, setRunners] = useState<Set<string> | null>(null);
 
   const load = useCallback(async () => {
     if (!supabase) return;
@@ -37,6 +39,12 @@ export function WorkspaceMembers({
       return;
     }
     setMembers(people.data as Member[]);
+    const grants = await supabase.from("memberships").select("user_id, can_run_services").eq("organization_id", organizationId);
+    setRunners(
+      grants.error
+        ? null
+        : new Set((grants.data as { user_id: string; can_run_services: boolean }[]).filter((g) => g.can_run_services).map((g) => g.user_id)),
+    );
     if (canManage) {
       const pending = await supabase
         .from("invitations")
@@ -88,6 +96,30 @@ export function WorkspaceMembers({
     await load();
   }
 
+  async function setRunner(member: Member, allowed: boolean) {
+    if (!supabase) return;
+    setRunners((current) => {
+      const next = new Set(current);
+      if (allowed) next.add(member.user_id);
+      else next.delete(member.user_id);
+      return next;
+    });
+    const { error } = await supabase
+      .from("memberships")
+      .update({ can_run_services: allowed })
+      .eq("organization_id", organizationId)
+      .eq("user_id", member.user_id);
+    if (error) setMessage({ ok: false, text: error.message });
+    else
+      setMessage({
+        ok: true,
+        text: allowed
+          ? `${member.display_name ?? member.email} can now run services from the companion's Live page.`
+          : `${member.display_name ?? member.email} can no longer run services.`,
+      });
+    await load();
+  }
+
   async function remove(member: Member) {
     if (!supabase) return;
     const leaving = member.user_id === myUserId;
@@ -124,6 +156,19 @@ export function WorkspaceMembers({
                   {member.display_name && <span>{member.email}</span>}
                 </span>
                 <span className="workspace-role">{roleLabels[member.role]}</span>
+                {runners && member.role === "member" && canManage && (
+                  <label className="member-runner">
+                    <input
+                      type="checkbox"
+                      checked={runners.has(member.user_id)}
+                      onChange={(event) => setRunner(member, event.target.checked)}
+                    />
+                    Can run services
+                  </label>
+                )}
+                {runners && member.role === "member" && !canManage && runners.has(member.user_id) && (
+                  <span className="member-runner">Can run services</span>
+                )}
                 {canRemove && (
                   <button className="member-action" type="button" onClick={() => remove(member)}>
                     {isMe ? "Leave" : "Remove"}

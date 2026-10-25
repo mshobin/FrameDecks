@@ -13,8 +13,11 @@ Versions before 4.9 (when the program had its earlier name) are described in the
 ### Added
 - The program can take commands from the FRAMEDECKS companion (Next/Previous Frame, Go Live, Hide all, black screen,
   question, scripture) and run them exactly as the keys do, showing "‹action› · from ‹person›" on the PC. Off by
-  default and only for a linked PC; the switch arrives in Settings → FRAMEDECKS account with the companion's Live
-  page. The Wi-Fi phone remote is unchanged.
+  default and only for a linked PC: Settings → FRAMEDECKS account → "Allow control from the companion", with the
+  last ten actions. The Wi-Fi phone remote is unchanged.
+- Companion: **Live** page to run a service from a phone (Previous / Next, Go Live on any Frame, Hide all, Black
+  screen, question and scripture, the Teleprompter script, whether the PC is online), and a "Can run services"
+  checkbox for members. Needs `0004_remote.sql` and `0005_remote_live.sql` run in Supabase.
 - Settings → **FRAMEDECKS account**: link this PC to a workspace in the FRAMEDECKS companion with a short code, and
   its service plans, Teleprompter scripts and member list sync in the background (pictures, videos, what is live and
   the phone remote PIN stay on the PC). Optional and off until linked; services always run from the PC, online or
