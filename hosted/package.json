@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "eslint src tests/hosted-boundary.test.mjs",
     "typecheck": "tsc --noEmit",
-    "test": "node --experimental-strip-types --test tests/hosted-boundary.test.mjs tests/supabase-schema.test.mjs tests/pwa.test.mjs tests/supabase-rls.test.mjs tests/supabase-invitations.test.mjs tests/supabase-sync.test.mjs tests/sync-entities.test.mjs tests/auth.test.mjs"
+    "test": "node --experimental-strip-types --test tests/hosted-boundary.test.mjs tests/supabase-schema.test.mjs tests/pwa.test.mjs tests/supabase-rls.test.mjs tests/supabase-invitations.test.mjs tests/supabase-sync.test.mjs tests/sync-entities.test.mjs tests/services-view.test.mjs tests/auth.test.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.118.0",

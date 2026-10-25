@@ -29,6 +29,10 @@ preview and must not be treated as a live service dashboard.
   `accept_invitation()`), so an admin never learns whether an address already
   has an account. Until `0002` has been run in the Supabase SQL editor, these
   controls stay hidden and the rest works as before.
+- **Services, Members, Computers** (`/services`, `/members`, `/computers`): the plan
+  synced from a linked PC (view only), its member list (owners and admins), and
+  linking PCs with the code they show. They read with `sync_pull` and
+  `computers`, and link with `computer_link_approve` / `computer_revoke`.
 - **Database scripts** in `supabase/migrations/` are run in order in the Supabase
   SQL editor: `0001` (workspaces), `0002` (invitations), `0003` (sync of service
   plans: records, linked computers; nothing in the companion uses it yet).

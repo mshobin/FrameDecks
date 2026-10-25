@@ -1,8 +1,8 @@
 # PROJECT STATUS
 
-Last verified: 25 October 2026 on `claude/peaceful-albattani-6m445e` at sync step 3 (PR #23, on top of `main` at
-`592104b`): desktop JS 4/4, Python 65 tests OK, `packaging/check.py` (6.10), hosted test 43/43, lint, typecheck and
-build pass, doc links 0 problems. Detail lives in
+Last verified: 25 October 2026 on `claude/peaceful-albattani-6m445e` at sync step 4 (on top of `main` at `5318ddf`,
+which has step 3): desktop JS 4/4, Python 65 tests OK, `packaging/check.py` (6.10), hosted test 46/46, lint,
+typecheck and build pass, doc links 0 problems; Windows installer build passed for step 3. Detail lives in
 [docs/FRAMEDECKS_MODERNIZATION_STATUS.md](docs/FRAMEDECKS_MODERNIZATION_STATUS.md).
 
 ## Completed
@@ -17,13 +17,13 @@ build pass, doc links 0 problems. Detail lives in
 - **Members and invitations** (`0002_invitations.sql`), PR #20: built and tested in-repo; not run live yet (owner's
   choice, with Google/Microsoft later).
 - Phase 4 sync of service plans, steps 1–3 of 5 ([metadata-sync.md](docs/architecture/metadata-sync.md)): database
-  `0003_sync.sql` (PR #21), record mapping (PR #22), PC background sync and Settings → FRAMEDECKS account (PR #23).
+  `0003_sync.sql` (PR #21), record mapping (PR #22), PC background sync and Settings → FRAMEDECKS account (PR #23),
+  companion Services / Members / Computers pages (step 4, PR after #23).
 - In-repo database tests on PGlite (`hosted/tests/pglite-supabase.mjs` applies every migration): tenant RLS,
   invitations, sync.
 
 ## In Progress
-- Phase 4 sync: step 4 (companion: Computers page to link and revoke PCs, view-only Services page, Members for
-  owners/admins), then step 5 (live test with two PCs).
+- Phase 4 sync: step 5, the live test, which the owner runs (see `.ai/NEXT_SESSION.md` "Pending").
 
 ## Pending
 - Owner: run `0002_invitations.sql` and `0003_sync.sql` in the Supabase SQL editor (needed for step 5); later,
@@ -79,7 +79,7 @@ Their branches are kept, so any of them can be reopened or mined:
 - Hosted companion is online-first and separate from the LAN remote.
 
 ## Blockers
-- None for step 4. Step 5 needs the owner to run `0002` and `0003` in Supabase. Google/Microsoft sign-in needs the
+- Step 5 needs the owner to run `0002` and `0003` in Supabase and to link a PC. Google/Microsoft sign-in needs the
   owner's OAuth apps (their secrets go only into the Supabase dashboard).
 
 ## Recommended Next Task
