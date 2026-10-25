@@ -15,8 +15,8 @@ lint, typecheck and build pass. Detail lives in
 - Phase 3 (auth): the owner created the Supabase project (`slrsykiknlqlivlnpvrb`) and ran the tenant migration in the
   SQL editor (25 October; its result not yet confirmed in writing). The sign-in UI is built (`/sign-in`, `/auth/callback`,
   top-bar account chip; emailed link, Google/Microsoft when enabled), merged (PR #18) and deployed with the Vercel
-  variables. **The owner signed in on the live site with an emailed link (25 October 2026).** Workspace UI built: display name, create a
-  workspace (creator becomes owner), list own workspaces with role. Not yet: Google/Microsoft providers, live RLS
+  variables. **The owner signed in on the live site with an emailed link (25 October 2026).** Workspace UI built and **confirmed live by the owner
+  (25 October 2026): display name saved, workspace "BSF Study" created with the owner role** (PR #19). Not yet: Google/Microsoft providers, live RLS
   tests, inviting members.
 
 ## Pending
