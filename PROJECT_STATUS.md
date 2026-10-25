@@ -18,8 +18,9 @@ lint, typecheck and build pass. Detail lives in
 - Create Supabase project, apply migration, enable Email/Google/Microsoft, sign-in UI, live RLS tests.
 - Real-device PWA install and offline acceptance on the deployed URL.
 - Secure device pairing (QR / 6-digit challenge) and runtime channel.
-- Check the emblem in the tray icon and a packaged Windows build.
-- Owner decision on the 16 px favicon (faint on light tabs; see the logo QA below).
+- A person looks at the real tray icon on an installed Windows PC (the icons themselves are checked; see below).
+- Owner decision on a heavier small-size emblem variant: the 16 px favicon and the 16–20 px tray icon are faint on
+  light backgrounds (light browser tabs, the light Windows taskbar).
 
 ## Technical Debt
 - RLS tests run on PGlite with a stubbed `auth.uid()`, not real Supabase; live-database tests are still needed.
@@ -30,8 +31,9 @@ lint, typecheck and build pass. Detail lives in
 ## Risks
 - Vercel Root Directory `hosted` is assumed from the working deployment, not read from the dashboard.
 - Logo checked on 25 October 2026 ([logo visual QA](docs/qa/2026-10-25-logo-visual-qa.md)): clear in both themes, the
-  Speaker/Teleprompter header and the remote. Still faint: the 16 px favicon on light tabs (needs owner approval for a
-  heavier small-size variant). Unchecked: tray icon, packaged Windows run.
+  Speaker/Teleprompter header and the remote. Still faint: the 16 px favicon and the 16–20 px tray icon on light backgrounds (needs owner
+  approval for a heavier small-size variant). The program icon (.ico) carries the new emblem. Unchecked: the real tray
+  on an installed PC.
 - **Repository drift: parallel work outside `main` contradicts its decisions** (see "Drift" below).
 - Service worker caching must never cover `/api/` or `/auth/` once auth exists (guarded and tested).
 
