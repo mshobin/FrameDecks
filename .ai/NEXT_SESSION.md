@@ -1,6 +1,6 @@
 # NEXT SESSION HANDOFF
 
-Updated 25 October 2026, after Phase 5 step 2 (the PC side of phone control).
+Updated 25 October 2026, after Phase 5 step 3 (Settings switch, "Can run services", companion Live page).
 
 ## Completed
 - **6.10** (Quit really quits) merged (PR #7). Logo QA done, with a heavier small-size emblem for 16–32 px (PR #18;
@@ -36,13 +36,29 @@ Updated 25 October 2026, after Phase 5 step 2 (the PC side of phone control).
   `GET /api/sync`) and `app/js/cloud-remote.js` in the dashboard (runs each command with the keys' functions; toast
   "Go Live · from Shobin"). Tested by `tests/test_cloud_remote.py` (13) and in the real program in a browser against
   a stand-in cloud: Go Live, Next (same Frame as the `]` key), blackout on/off, Hide all, an unknown Frame refused,
-  switch off leaves commands untaken. Nothing visible changes yet: the switch arrives in step 3.
+  switch off leaves commands untaken (PR #26, merged; Windows installer built).
+- Phase 5 step 3 built: Settings → FRAMEDECKS account (linked) gets "Control from the companion": the switch "Allow
+  control from the companion" (app setting `cloudRemote`, off by default) and the last ten actions (`app/js/account.js`).
+  Companion: a **Live** page (`/live`, `hosted/src/components/live-panel.tsx`, helpers in `hosted/src/lib/live-view.ts`):
+  the PC with Online / Not connected (status younger than 45 s by the database's clock), the Frame on screen, big
+  Previous / Next, Hide all, Black screen, show/hide question and scripture, the Frame list with Go Live, the
+  Teleprompter script, and the PC's answer to the last press. Reads `remote_computers(org)` every 2 s, a new
+  `0005_remote_live.sql` (members cannot read `computers`). "Can run services" checkbox per member for owners/admins
+  in the Overview's member list (`workspace-members.tsx`; the existing admin-only update policy on `memberships`
+  allows it, no new function). Tested: PGlite (`remote_computers` only for people who may run services), Python check
+  that the PC's status fields match `LiveStatus`, `hosted/tests/live-view.test.mjs`, and browsers against stand-in
+  responses (phone and desktop, owner, a member without permission) and the real program (switch, last actions).
+  QA pictures: `docs/qa/2026-10-25-companion-live-*.png`, `-can-run-services.png`, `-settings-control-from-companion.png`.
 
 ## Pending
 - **Step 5 (live, the owner):** in the Supabase SQL editor run `hosted/supabase/migrations/0002_invitations.sql`, then
-  `0003_sync.sql` (once each, in that order; `0004_remote.sql` can follow, nothing uses it yet). Then on the service PC: Settings → FRAMEDECKS account → Link to a
+  `0003_sync.sql`, `0004_remote.sql`, `0005_remote_live.sql` (once each, in that order). Then on the service PC: Settings → FRAMEDECKS account → Link to a
   workspace; in the companion: Computers → type the code. Check: Services shows the plan; edit a Frame on the PC and
   it appears within a minute; Members shows the member list. Credential Manager is exercised here for the first time.
+- **Phase 5 step 4 (live, the owner)**, after sync step 5 with the same installer: on the PC, Settings → FRAMEDECKS
+  account → tick "Allow control from the companion"; on a phone on mobile data, open the companion → Live: the PC shows
+  Online; press Next (the Frame moves within about a second; the PC shows "Next Frame · from ‹name›"), Go Live on a
+  Frame, Black screen, Hide all; untick the switch: the page shows "Not connected" within 45 s and presses do nothing.
 - After step 5: editing in the companion (D3 "view first"), a second PC, and the record history view.
 - Later, together (owner's choice): Google/Microsoft providers and a live test of invitations.
 - Live RLS tests: need `*.supabase.co` allowed in this cloud environment's network settings.
@@ -62,22 +78,18 @@ See [PROJECT_STATUS.md](../PROJECT_STATUS.md).
   wins for settings and people).
 
 ## Blockers
-Step 5 needs the owner to run `0002` and `0003` in Supabase and to have the PR-built desktop app on the service PC
+Step 5 needs the owner to run `0002`–`0005` in Supabase and to have the PR-built desktop app on the service PC
 (an installer from "Build Windows installer" on `main`, or running `server.py` from source).
 
 ## Recommended Next Task
-Help the owner through sync step 5 and fix what it finds. Then Phase 5 step 3 of
-[remote-control.md](../docs/architecture/remote-control.md) §8: in Settings → FRAMEDECKS account (`app/js/account.js`)
-the switch "Allow control from the companion" (`POST /api/app/settings {cloudRemote}`) and the last ten actions
-(`GET /api/sync` → `remote.recent`); in the companion a "Can run services" toggle per member
-(`workspace-members.tsx`, needs an owner/admin RPC or policy to set `memberships.can_run_services`, a new migration
-`0005`) and a phone-first **Live** page (reads `remote_status`, sends with `remote_send`).
+Help the owner through sync step 5 and Phase 5 step 4 (both live, same installer, migrations `0002`–`0005`) and fix
+what they find. Phase 5 is then complete apart from that live test; next candidates: editing in the companion (D3),
+Google/Microsoft sign-in with the invitation test, live RLS tests.
 Read `hosted/node_modules/next/dist/docs/` before hosted code (`cacheComponents` is on). The public Supabase values
 are URL `https://slrsykiknlqlivlnpvrb.supabase.co` and the owner's publishable key; only in `hosted/.env.local`.
 
 ## Files Likely To Change Next
-Phase 5 step 3: `app/js/account.js`, `hosted/src/app/live/`, `hosted/src/components/workspace-members.tsx`, a new
-`hosted/supabase/migrations/0005_*.sql`. Whatever sync step 5 finds: `cloud_sync.py`, `hosted/src/components/*-panel.tsx`, `hosted/supabase/migrations/` (a new numbered
+Whatever the live tests find: `cloud_remote.py`, `app/js/cloud-remote.js`, `hosted/src/components/live-panel.tsx`, `cloud_sync.py`, `hosted/src/components/*-panel.tsx`, `hosted/supabase/migrations/` (a new numbered
 migration only, never an edited one), the continuity files.
 
 ## Session Handoff

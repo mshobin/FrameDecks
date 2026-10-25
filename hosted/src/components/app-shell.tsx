@@ -1,14 +1,15 @@
 import Image from "next/image";
 import Link from "next/link";
-import { CircleHelp, Home as HomeIcon, Monitor, NotebookPen, Presentation, Settings2, Users } from "lucide-react";
+import { CircleHelp, Home as HomeIcon, Monitor, NotebookPen, Presentation, Radio, Settings2, Users } from "lucide-react";
 
 import { AccountStatus } from "@/components/account-status";
 
-export type Section = "overview" | "services" | "members" | "computers";
+export type Section = "overview" | "services" | "live" | "members" | "computers";
 
 const navigation = [
   { id: "overview", label: "Overview", href: "/", icon: HomeIcon },
   { id: "services", label: "Services", href: "/services", icon: Presentation },
+  { id: "live", label: "Live", href: "/live", icon: Radio },
   { id: "members", label: "Members", href: "/members", icon: Users },
   { id: "computers", label: "Computers", href: "/computers", icon: Monitor },
   { id: "notes", label: "Notes", icon: NotebookPen },
@@ -18,6 +19,7 @@ const navigation = [
 const titles: Record<Section, string> = {
   overview: "Overview",
   services: "Services",
+  live: "Live",
   members: "Members",
   computers: "Computers",
 };

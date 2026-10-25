@@ -1,8 +1,8 @@
 # PROJECT STATUS
 
-Last verified: 25 October 2026 on `claude/peaceful-albattani-6m445e` at Phase 5 step 2 (on top of `main` at
-`1da7905`): desktop JS 4/4, Python 78 tests OK, `packaging/check.py` (6.10), hosted test 54/54, doc links 0 problems;
-the program checked in a browser against a stand-in cloud. Detail lives in
+Last verified: 25 October 2026 on `claude/peaceful-albattani-6m445e` at Phase 5 step 3 (on top of `main` at
+`437cf3a`): desktop JS 4/4, Python 79 tests OK, `packaging/check.py` (6.10), hosted test 58/58, lint, typecheck and
+build pass, doc links 0 problems; the program and the companion checked in browsers against stand-ins. Detail lives in
 [docs/FRAMEDECKS_MODERNIZATION_STATUS.md](docs/FRAMEDECKS_MODERNIZATION_STATUS.md).
 
 ## Completed
@@ -29,15 +29,17 @@ the program checked in a browser against a stand-in cloud. Detail lives in
   [remote-control.md](docs/architecture/remote-control.md)); step 1 built (`0004_remote.sql`, 8 PGlite tests in
   `hosted/tests/supabase-remote.test.mjs`, PR #25); step 2 built: `cloud_remote.py`, the window bridge
   (`/api/remote-cloud/*`, `app/js/cloud-remote.js`) and the app setting `cloudRemote` (off; no switch on screen
-  until step 3), 13 tests in `tests/test_cloud_remote.py` plus a real-program browser check. Next step 3.
+  until step 3), 13 tests in `tests/test_cloud_remote.py` plus a real-program browser check (PR #26); step 3 built:
+  the Settings switch and last ten actions, the companion's **Live** page (`/live`, `0005_remote_live.sql`) and a
+  "Can run services" checkbox per member. Next step 4, the owner's live test.
 
 ## Pending
-- Owner: run `0002_invitations.sql` and `0003_sync.sql` in the Supabase SQL editor (needed for step 5); later,
+- Owner: run `0002_invitations.sql`, `0003_sync.sql`, `0004_remote.sql` and `0005_remote_live.sql` in the Supabase
+  SQL editor (needed for the live tests); later,
   Google/Microsoft providers and a live test of invitations.
 - Live RLS tests: need `*.supabase.co` allowed in this cloud environment's network settings.
 - Real-device PWA install and offline acceptance on the deployed URL.
-- Phase 5 steps 3–4 (Settings switch and companion Live page, live test); `0004` to be run in Supabase
-  after `0003`.
+- Phase 5 step 4, the owner's live test; `0004` and `0005` to be run in Supabase after `0003`.
 - A person checks the real tray icon and Windows Credential Manager on an installed PC.
 
 ## Technical Debt
