@@ -1,6 +1,6 @@
 # FRAMEDECKS modernization status
 
-**Last updated:** 22 October 2026  
+**Last updated:** 25 October 2026 ·
 **Working branch:** `modernization-v1`  
 **Current milestone:** Hosted foundation validated locally; Vercel branch/root configuration needs correction
 
@@ -39,7 +39,7 @@
 | Phase 4 — Metadata-only synchronization | Not Started | Define versioned contracts, local outbox, idempotency, conflict handling, and 6.9 import/export; prove no media bytes sync. |
 | Phase 5 — Hosted PWA and secure device pairing | Not Started | Online-first hosted companion; implement five-minute QR/6-digit challenge, authenticated user, runtime approval, trusted devices, roles, replay protection, revocation. No connection to the LAN HTTP server. |
 | Phase 6 — Vercel operations / future Cloudflare edge | Not Started | Vercel-provided URL first; Cloudflare integration waits for custom domain. Add backup/restore, monitoring, and incident procedures. |
-| Phase 7 — User-facing branding/terminology | Partially Complete | Existing desktop, workbook, remote/PWA, favicon, installer, and marketing-header surfaces use the supplied logo. The phone remote PIN screen is covered; no splash screen or hosted account-login page exists yet. See [branding asset inventory](FRAMEDECKS_BRANDING_ASSETS.md). |
+| Phase 7 — User-facing branding/terminology | Partially Complete | Existing desktop, workbook, remote/PWA, favicon, installer, and marketing-header surfaces use the supplied logo. The emblem is now a gold-only transparent image so it sits on the page background; the hosted overview uses the same palette and emblem, and the desktop light-theme header logos are darkened for contrast. The phone remote PIN screen is covered; no splash screen or hosted account-login page exists yet. Remaining: confirm the emblem on a real Windows desktop run (About, speaker, tray), and supply a higher-resolution original for true pixel-level sharpness. See [branding asset inventory](FRAMEDECKS_BRANDING_ASSETS.md). |
 | Phase 8 — Compatibility rollout | Not Started | Pass preservation matrix on real supported devices; keep local 6.9 rollback available. |
 
 ## Autonomous modernization execution milestones
@@ -82,7 +82,7 @@ weakened Origin check, shared cookie, or service-worker proxy may bridge the hos
 | Cloud data is metadata only | Completed | Account/profile/settings/themes/templates/presentation definitions/pairing/audit logs only; no cloud media, media libraries, or media backups. |
 | Existing local presentation remains offline | Completed | Must not depend on Vercel, Supabase, or internet for rendering, navigation, local media playback, virtual camera, Zoom, Teams, or OBS output. |
 | HTTPS hosted PWA to local HTTP | Resolved by scope | Hosted companion is online-first and separate; it never calls the legacy server. Keep the existing LAN remote unchanged. Future secure local transport is optional research, not a prerequisite for hosted PWA implementation. |
-| Vercel preview | Blocked | The repository default branch is `main`, where `hosted/` is absent; `hosted/` exists on `modernization-v1`. This explains Vercel's “specified Root Directory does not exist” message. Set the project's production branch to `modernization-v1` before selecting Root Directory `hosted`, or merge the app to the intended production branch. A successful Ready deployment is still required before continuing. |
+| Vercel preview | Blocked (needs re-verification) | This row predates commits `2fc6224` and `1b1c09e`: `hosted/` and a pinned `vercel.json` are now on `main`, so the original "Root Directory does not exist" cause appears resolved in the repository. No Ready deployment URL has been verified since; confirm the Vercel project uses Root Directory `hosted` and open the new deployment before closing this item. |
 | Legacy project assessment references | Partially Complete | The active root roadmap and README are aligned to the approved modernization direction; older project assessment documents still contain historical 6.6 references and should be refreshed when those audits are next revised. |
 | Mac runtime parity | Blocked | Current camera/capture/native runtime is Windows-oriented. Scope and implement a Mac-native runtime before claiming feature parity. |
 | Cloudflare edge | Blocked | No custom domain exists. Start with Vercel-provided URLs; do not make Cloudflare a deployment prerequisite. |
@@ -107,6 +107,12 @@ Commands run from the repository root on `modernization-v1`:
 - From `hosted/`, `npm run build` — passed; static `/` and not-found routes generated.
 - Production-build browser smoke check — passed on desktop and a 390px mobile viewport; the page rendered, disabled future navigation remained unavailable, the local-first notice stayed visible, and the document had no horizontal overflow.
 - From `hosted/`, `npm audit --omit=dev` — passed; no runtime dependency vulnerabilities.
+- 25 October 2026, after the transparent-emblem work: `node tests/run.js` (3/3), Python unittest (24 run, 1 skipped),
+  `python packaging/check.py` (6.9), `python tools/check_doc_links.py` (70 files, 0 problems), `git diff --check`, and
+  hosted `lint`, `typecheck`, `test`, `build` all passed. `python tools/make_transparent_emblem.py` reproduces the
+  committed emblem pixel-for-pixel. Visual check via a static server: dashboard and remote headers show the emblem
+  on the dark theme; the light-theme header logo was low contrast and is now darkened. The data-driven screens were
+  not exercised because no `server.py` backend was running.
 - From `hosted/`, `npm audit` — reports 5 high-severity findings in the development-only Next.js ESLint dependency tree (`braces` through `fast-glob`/`micromatch`); the suggested automated fix downgrades `eslint-config-next` to 14.2.35, so it was not applied to the Next.js 16 app.
 
 The original `https://framedecks.vercel.app/` URL was opened on 22 October 2026 and returned Vercel

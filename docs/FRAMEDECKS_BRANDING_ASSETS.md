@@ -11,7 +11,8 @@ dependencies.
 |---|---|---|
 | `assets/brand/kc-mark.png` | Meeting Workbook header mark | Replaced with the new logo's icon crop; workbook layout and text remain unchanged. |
 | `assets/brand/kc-about-header.webp` | README and release-page marketing header | Regenerate from the updated About page with `python tools/make_readme_header.py`; that preserves the release version marker. |
-| `app/img/kc-emblem.webp` | Dashboard, phone remote, teleprompter, About page, and tray source family | Replaced with the new logo's icon crop so existing placements retain their proportions and function. |
+| `app/img/kc-emblem.webp` | Dashboard, phone remote, teleprompter, About page, and tray source family | Gold-only transparent 1024×1024 version of the new logo's icon crop, so it sits on the page background instead of showing a baked-in matte. Same placements and proportions. See "Transparent emblem" below. |
+| `hosted/public/framedecks-emblem.webp` | Hosted companion sidebar and welcome mark, favicon metadata | Identical copy of `app/img/kc-emblem.webp`. |
 | `app/icons/remote-180.png` | iOS home-screen icon | Regenerated from the new logo icon. |
 | `app/icons/remote-192.png` | PWA icon and Windows tray image | Regenerated from the new logo icon. |
 | `app/icons/remote-512.png` | PWA launcher icon | Regenerated from the new logo icon. |
@@ -36,7 +37,8 @@ and workflows are unchanged.
 
 - No dedicated desktop splash-screen asset or splash screen was found.
 - The only current login screen is the phone remote's local PIN screen; it now uses the new icon.
-- There is no hosted account-login page yet. Apply the supplied logo when that surface is implemented.
+- There is no hosted account-login page yet. Apply the supplied logo when that surface is implemented. The hosted
+  overview page already uses the transparent emblem.
 - No Mac app bundle or Mac launcher icon exists; do not claim Mac packaging parity.
 - Marketplace imagery is not currently part of the application. The supplied source and horizontal/stacked variants
   are suitable inputs if store assets are created later.
@@ -54,3 +56,20 @@ To regenerate the README and release-page header, start the app and capture its 
 
 The generator intentionally preserves existing asset paths consumed by the desktop app, remote PWA, workbook
 generator, PyInstaller, and installer. Run the packaging self-check and tests after regeneration.
+
+## Transparent emblem
+
+`tools/generate_brand_assets.py` writes `app/img/kc-emblem.webp` as an **opaque** 512×512 image. After running it,
+re-apply the transparent treatment, which also refreshes the hosted copy:
+
+```powershell
+python tools/make_transparent_emblem.py
+```
+
+The tool needs numpy (developer-only; not a runtime or build dependency). It reads the last opaque emblem from git
+history (`e02dd52~1`), keeps only the gold artwork, clears glow haze, bleed and edge fringing, upscales to 1024×1024
+and writes both files losslessly. The source is only 512 px, so the result is smooth but cannot add detail; supply a
+higher-resolution original or vector emblem for true pixel-level sharpness at large sizes.
+
+In the desktop light theme, `theme.css` darkens the header logos (`.cmdbar`, `.console-top`, speaker `.sp-mark`) so the
+gold keeps contrast on cream. The About and phone-remote logos sit on fixed navy and are not filtered.
