@@ -1,6 +1,8 @@
 # Controlling a service from the companion (Phase 5 design)
 
-**Status:** proposal for the owner's review (25 October 2026). Nothing here is built. Decisions needed: [§9](#9-decisions-for-the-owner).
+**Status:** agreed with the owner on 25 October 2026 (R1–R5 as recommended, [§9](#9-decisions-for-the-owner)). Step 1
+of [§8](#8-tests-and-delivery) is built: `hosted/supabase/migrations/0004_remote.sql`, tested by
+`hosted/tests/supabase-remote.test.mjs`.
 **Builds on:** sync ([metadata-sync.md](metadata-sync.md)): the same Supabase project, workspaces, linked PCs and
 computer keys.
 
@@ -107,7 +109,9 @@ phone first.
 
 ## 9. Decisions for the owner
 
-| # | Question | Recommendation |
+Answered by the owner on 25 October 2026: **R1–R5 as recommended.**
+
+| # | Question | Decision |
 |---|---|---|
 | R1 | Where the actions run (§4) | **A**, the PC's own window |
 | R2 | The first actions (§5) | As listed; read-only Teleprompter |

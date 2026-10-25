@@ -1,8 +1,8 @@
 # PROJECT STATUS
 
 Last verified: 25 October 2026 on `claude/peaceful-albattani-6m445e` at sync step 4 (on top of `main` at `5318ddf`,
-which has step 3): desktop JS 4/4, Python 65 tests OK, `packaging/check.py` (6.10), hosted test 46/46, lint,
-typecheck and build pass, doc links 0 problems; Windows installer build passed for step 3. Detail lives in
+which has step 3): desktop JS 4/4, Python 65 tests OK, `packaging/check.py` (6.10), hosted test 54/54 (with Phase 5 step 1),
+lint, typecheck and build pass, doc links 0 problems; Windows installer build passed for step 3. Detail lives in
 [docs/FRAMEDECKS_MODERNIZATION_STATUS.md](docs/FRAMEDECKS_MODERNIZATION_STATUS.md).
 
 ## Completed
@@ -25,15 +25,17 @@ typecheck and build pass, doc links 0 problems; Windows installer build passed f
 
 ## In Progress
 - Phase 4 sync: step 5, the live test, which the owner runs (see `.ai/NEXT_SESSION.md` "Pending").
-- Phase 5 (control a service from the companion): design proposed,
-  [remote-control.md](docs/architecture/remote-control.md); waits for the owner's decisions R1–R5.
+- Phase 5 (control a service from the companion): design agreed (R1–R5 as recommended,
+  [remote-control.md](docs/architecture/remote-control.md)); step 1 built (`0004_remote.sql`, 8 PGlite tests in
+  `hosted/tests/supabase-remote.test.mjs`); next step 2, `cloud_remote.py` and the window bridge.
 
 ## Pending
 - Owner: run `0002_invitations.sql` and `0003_sync.sql` in the Supabase SQL editor (needed for step 5); later,
   Google/Microsoft providers and a live test of invitations.
 - Live RLS tests: need `*.supabase.co` allowed in this cloud environment's network settings.
 - Real-device PWA install and offline acceptance on the deployed URL.
-- Phase 5 build, after the owner's decisions (four steps in its design §8).
+- Phase 5 steps 2–4 (PC side, Settings switch and companion Live page, live test); `0004` to be run in Supabase
+  after `0003`.
 - A person checks the real tray icon and Windows Credential Manager on an installed PC.
 
 ## Technical Debt

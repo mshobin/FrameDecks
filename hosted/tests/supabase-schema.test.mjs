@@ -41,7 +41,16 @@ test("clients cannot grant the owner role", () => {
 
 // A linked PC calls with the anon key: these functions are open to anon and authorise it by its key header
 // (request_computer) or, before it has one, only start and poll a link.
-const ANON_BY_DESIGN = ["sync_pull", "sync_push", "computer_revoke", "computer_link_start", "computer_link_poll"];
+const ANON_BY_DESIGN = [
+  "sync_pull",
+  "sync_push",
+  "computer_revoke",
+  "computer_link_start",
+  "computer_link_poll",
+  "remote_take",
+  "remote_report",
+  "remote_publish",
+];
 
 test("functions that read across tenants are closed to anon", () => {
   const definers = [...sql.matchAll(/create or replace function public\.(\w+)\(([^)]*)\)[^$]*?security definer/g)];

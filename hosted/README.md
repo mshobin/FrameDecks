@@ -35,7 +35,8 @@ preview and must not be treated as a live service dashboard.
   `computers`, and link with `computer_link_approve` / `computer_revoke`.
 - **Database scripts** in `supabase/migrations/` are run in order in the Supabase
   SQL editor: `0001` (workspaces), `0002` (invitations), `0003` (sync of service
-  plans: records, linked computers; nothing in the companion uses it yet).
+  plans: records, linked computers), `0004` (remote control: commands from
+  phones, the PC's status, the "can run services" permission).
   `npm test` applies all of them to an in-memory Postgres (PGlite) and checks the
   access rules.
 - Without the two variables below, the site still builds and works; the sign-in
