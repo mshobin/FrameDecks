@@ -8,10 +8,10 @@ passing; the installer's 6.10 "close a running copy" step fixed to end `FRAMEDEC
 Earlier: Hosted shell live on Vercel; PWA manifest and service worker verified locally; tenant migration with an in-repo RLS test (`hosted/tests/supabase-rls.test.mjs`, PGlite, dev-only); transparent emblem pipeline (approved gold-outline vector logo; master `assets/brand/framedecks-emblem.svg`, derivatives via `tools/make_emblem_assets.py`); continuity files created. Hosted `npm test` (15), lint, typecheck and build pass.
 
 ## In Progress
-Phase 3 Supabase auth: scaffold only (`hosted/supabase/migrations/0001_tenant_foundation.sql`, `hosted/src/lib/supabase-config.ts`, `hosted/.env.example`).
+Phase 3 Supabase auth: project `slrsykiknlqlivlnpvrb` exists and the owner ran the migration. Sign-in UI built (`hosted/src/app/sign-in/`, `hosted/src/app/auth/callback/`, `hosted/src/components/{sign-in-form,auth-callback,account-status,auth-shell}.tsx`, `hosted/src/lib/supabase-browser.ts`); browser-tested only against stand-in responses, because this cloud environment's network policy blocks `*.supabase.co`.
 
 ## Pending
-Sign-in UI, provider setup, live RLS tests, device pairing, real-device PWA test.
+Vercel variables and redeploy (owner), a real sign-in on the deployed site, provider setup, live RLS tests (needs `*.supabase.co` allowed in this environment's network settings), organizations/profile UI, device pairing, real-device PWA test.
 
 ## Technical Debt
 See [PROJECT_STATUS.md](../PROJECT_STATUS.md).
@@ -28,7 +28,7 @@ Hosted app is separate from the LAN remote and online-first.
 Owner must create the Supabase project and provide the URL and anon key (never the service_role key or OAuth secrets), and set them in Vercel.
 
 ## Recommended Next Task
-Blocked on owner credentials. When the Supabase URL and anon key exist: add `@supabase/supabase-js`, a sign-in page reusing the existing hosted styles (`hosted/src/app/globals.css`), env-gated by `readSupabaseConfig()` so the site still works without keys. Read the Next.js docs in `hosted/node_modules/next/dist/docs/` first. Then run the same cases as `hosted/tests/supabase-rls.test.mjs` against the live project.
+Confirm a real sign-in on `https://framedecks.vercel.app/sign-in` once the owner has set the Vercel variables. Then: create-organization and profile UI on top of the migration's RLS, and the same cases as `hosted/tests/supabase-rls.test.mjs` against the live project (allow `*.supabase.co` in the environment's network settings first). The public values are URL `https://slrsykiknlqlivlnpvrb.supabase.co` and the publishable key the owner gave (public by design; keep it out of the repo all the same, in `.env.local`). Read the Next.js docs in `hosted/node_modules/next/dist/docs/` before writing hosted code.
 Without credentials: the logo QA is done, PR #7 (6.10) is merged, and the heavier small-size emblem (`assets/brand/framedecks-emblem-small.svg`, 16–32 px only: favicons, `app/icons/tray-64.png`, small .ico images) is in. Remaining credential-free step: a person checks the real tray icon on an installed PC. Note: bump the `CACHE` name in `hosted/public/sw.js` whenever hosted emblem files change (now `framedecks-shell-v2`). Emblem files come from `tools/make_emblem_assets.py`; the horizontal/stacked logos (including `hosted/public/framedecks-logo-horizontal.png`) from `tools/generate_brand_assets.py`.
 
 ## Files Likely To Change Next

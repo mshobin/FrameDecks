@@ -13,6 +13,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 
+import { AccountStatus } from "@/components/account-status";
 import { Button } from "@/components/ui/button";
 
 const navigation = [
@@ -27,7 +28,7 @@ const statusCards = [
   {
     label: "Cloud workspace",
     value: "Not connected",
-    detail: "Account setup is a future step",
+    detail: "Sign in now; shared workspaces come next",
     icon: Activity,
     tone: "muted",
   },
@@ -117,9 +118,12 @@ export default function Home() {
             <span aria-hidden="true">/</span>
             <strong>Overview</strong>
           </div>
-          <div className="topbar-status">
-            <span className="status-dot" />
-            Foundation preview
+          <div className="topbar-right">
+            <div className="topbar-status">
+              <span className="status-dot" />
+              Foundation preview
+            </div>
+            <AccountStatus />
           </div>
         </header>
 
@@ -166,9 +170,9 @@ export default function Home() {
               <p className="eyebrow">FOUNDATION IN PROGRESS</p>
               <h2 id="foundation-title">This space is not connected yet.</h2>
               <p>
-                Sign-in, cloud workspaces, and secure device pairing are not
-                implemented. This preview does not read your desktop data or
-                send commands to your local server.
+                You can sign in, but cloud workspaces and secure device pairing
+                are not implemented yet. This preview does not read your desktop
+                data or send commands to your local server.
               </p>
             </div>
             <Button disabled variant="outline">

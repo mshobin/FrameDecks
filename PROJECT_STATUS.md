@@ -12,10 +12,14 @@ lint, typecheck and build pass. Detail lives in
 - Supabase tenant migration `0001_tenant_foundation.sql`; row-level-security behaviour is now an in-repo test (`hosted/tests/supabase-rls.test.mjs`, in-memory Postgres via dev-only `@electric-sql/pglite`): 8 test groups covering 16 checks pass.
 
 ## In Progress
-- Phase 3 (auth): scaffold only; no Supabase project, providers or sign-in UI.
+- Phase 3 (auth): the owner created the Supabase project (`slrsykiknlqlivlnpvrb`) and ran the tenant migration in the
+  SQL editor (25 October; its result not yet confirmed in writing). The sign-in UI is built (`/sign-in`, `/auth/callback`,
+  top-bar account chip; emailed link, Google/Microsoft when enabled) and tested in a browser against stand-in Supabase
+  responses. Not yet: the Vercel variables, a sign-in against the live project, providers, live RLS tests.
 
 ## Pending
-- Create Supabase project, apply migration, enable Email/Google/Microsoft, sign-in UI, live RLS tests.
+- Owner: set `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY` in Vercel and redeploy; Supabase URL
+  Configuration; Google/Microsoft providers (optional). Then a real sign-in and live RLS tests.
 - Real-device PWA install and offline acceptance on the deployed URL.
 - Secure device pairing (QR / 6-digit challenge) and runtime channel.
 - A person looks at the real tray icon on an installed Windows PC (the icons themselves are checked; see below).

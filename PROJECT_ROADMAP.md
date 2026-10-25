@@ -8,7 +8,7 @@ Phases follow [docs/FRAMEDECKS_MODERNIZATION_STATUS.md](docs/FRAMEDECKS_MODERNIZ
 | Hosted Next.js shell + CI + Vercel | Done |
 | PWA manifest + safe service worker | Done (device acceptance pending) |
 | Tenant schema + RLS | Done; tested in-repo on PGlite; live Supabase DB pending |
-| Supabase project, providers, sign-in UI | Next (needs owner credentials) |
+| Supabase project, providers, sign-in UI | Project created, sign-in UI built; owner sets Vercel variables and providers |
 | Live RLS tests against Supabase | After sign-in |
 | Secure device pairing + runtime channel | Later |
 | Real-device PWA acceptance, operations | Later |
