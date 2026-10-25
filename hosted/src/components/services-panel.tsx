@@ -2,7 +2,9 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
-import { ArrowDown, ArrowUp, Film, Image as ImageIcon, Pencil, Plus, Presentation, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowUp, Film, History, Image as ImageIcon, Pencil, Plus, Presentation, Trash2 } from "lucide-react";
+
+import { DeletedFrames, FrameHistory, loadNames, type Names } from "@/components/frame-history";
 
 import { NotSetUp, WorkspaceGate } from "@/components/workspace-gate";
 import { applyDraft, draftOf, moveFrame, rebase, type ListDraft } from "@/lib/frame-edit";
@@ -29,10 +31,20 @@ function Services({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
   const [editing, setEditing] = useState<string | null>(null);
   const [notice, setNotice] = useState<Notice>(null);
   const [busy, setBusy] = useState(false);
+  const [historyOf, setHistoryOf] = useState<string | null>(null);
+  const [names, setNames] = useState<Names | null>(null);
+
+  useEffect(() => {
+    let live = true;
+    loadNames(workspace.id).then((n) => live && setNames(n));
+    return () => {
+      live = false;
+    };
+  }, [workspace.id]);
 
   const load = useCallback(async () => {
     if (!supabase) return;
-    const { records, error } = await pullWorkspace(supabase, workspace.id);
+    const { records, error } = await pullWorkspace(supabase, workspace.id, true);
     if (error) return setLoaded(syncNotSetUp(error) ? "not-set-up" : { error: error.message });
     // The Frame on screen, when the PC shares it (Phase 5); without 0004/0005 or the switch, simply unknown
     const pcs = await supabase.rpc("remote_computers", { org: workspace.id });
@@ -49,8 +61,9 @@ function Services({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
   if (loaded === "not-set-up") return <NotSetUp />;
   if ("error" in loaded) return <p className="page-note page-problem">{loaded.error}</p>;
 
-  const records = loaded.records;
-  const byKey = new Map(records.map((r) => [key(r.kind, r.id), r]));
+  const records = loaded.records.filter((r) => !r.deleted);
+  const deletedFrames = loaded.records.filter((r) => r.deleted && r.kind === "frame");
+  const byKey = new Map(loaded.records.map((r) => [key(r.kind, r.id), r]));
   const { doc } = join(records, {});
   const all = describeFrames(doc);
   if (!all.length) {
@@ -73,6 +86,12 @@ function Services({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
         ? { ...current, records: current.records.map((r) => (key(r.kind, r.id) === key(record.kind, record.id) ? record : r)) }
         : current,
     );
+  }
+
+  function restored(saved: PulledRecord, text: string) {
+    replace(saved);
+    setHistoryOf(null);
+    setNotice({ ok: true, text });
   }
 
   async function move(id: string, delta: -1 | 1) {
@@ -134,32 +153,49 @@ function Services({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
               key={frame.id}
               number={i + 1}
               onAir={loaded.onAir === frame.id}
+              history={
+                historyOf === frame.id && record ? (
+                  <FrameHistory organizationId={workspace.id} record={record} canEdit={canEdit} names={names} onRestored={restored} />
+                ) : null
+              }
               actions={
-                canEdit && record ? (
+                record ? (
                   <span className="frame-actions">
-                    <button type="button" aria-label={`Move ${frame.name} up`} disabled={busy || i === 0} onClick={() => move(frame.id, -1)}>
-                      <ArrowUp aria-hidden="true" size={15} />
-                    </button>
                     <button
                       type="button"
-                      aria-label={`Move ${frame.name} down`}
-                      disabled={busy || i === frames.length - 1}
-                      onClick={() => move(frame.id, 1)}
+                      aria-label={`History of ${frame.name}`}
+                      aria-expanded={historyOf === frame.id}
+                      onClick={() => setHistoryOf(historyOf === frame.id ? null : frame.id)}
                     >
-                      <ArrowDown aria-hidden="true" size={15} />
+                      <History aria-hidden="true" size={15} />
                     </button>
-                    <button
-                      type="button"
-                      aria-label={`Edit ${frame.name}`}
-                      disabled={editing !== null}
-                      onClick={() => {
-                        setNotice(null);
-                        setEditing(frame.id);
-                      }}
-                    >
-                      <Pencil aria-hidden="true" size={15} />
-                      Edit
-                    </button>
+                    {canEdit && (
+                      <>
+                        <button type="button" aria-label={`Move ${frame.name} up`} disabled={busy || i === 0} onClick={() => move(frame.id, -1)}>
+                          <ArrowUp aria-hidden="true" size={15} />
+                        </button>
+                        <button
+                          type="button"
+                          aria-label={`Move ${frame.name} down`}
+                          disabled={busy || i === frames.length - 1}
+                          onClick={() => move(frame.id, 1)}
+                        >
+                          <ArrowDown aria-hidden="true" size={15} />
+                        </button>
+                        <button
+                          type="button"
+                          aria-label={`Edit ${frame.name}`}
+                          disabled={editing !== null}
+                          onClick={() => {
+                            setNotice(null);
+                            setEditing(frame.id);
+                          }}
+                        >
+                          <Pencil aria-hidden="true" size={15} />
+                          Edit
+                        </button>
+                      </>
+                    )}
                   </span>
                 ) : null
               }
@@ -167,6 +203,7 @@ function Services({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
           );
         })}
       </ol>
+      <DeletedFrames organizationId={workspace.id} records={deletedFrames} canEdit={canEdit} names={names} onRestored={restored} />
       {templates.length > 0 && (
         <>
           <h2 className="section-title">Templates</h2>
@@ -350,7 +387,8 @@ function FrameCard({
   number,
   onAir = false,
   actions = null,
-}: Readonly<{ frame: FrameView; number?: number; onAir?: boolean; actions?: React.ReactNode }>) {
+  history = null,
+}: Readonly<{ frame: FrameView; number?: number; onAir?: boolean; actions?: React.ReactNode; history?: React.ReactNode }>) {
   return (
     <li className="frame-card">
       <header>
@@ -392,6 +430,7 @@ function FrameCard({
           <p>{frame.script}</p>
         </details>
       )}
+      {history}
     </li>
   );
 }

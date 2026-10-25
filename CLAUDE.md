@@ -32,7 +32,8 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
   `docs/architecture/companion-editing.md` — editing services in the companion (E1–E4 as recommended).
 - Continuity: `CLAUDE.md`, `PROJECT_STATUS.md`, `PROJECT_ROADMAP.md`, `.ai/NEXT_SESSION.md`.
 - `hosted/src/app/{services,live,members,computers}` — the synced plan (owners and admins edit its words and order,
-  `hosted/src/lib/frame-edit.ts`, sent with `sync_push`), running a service from a phone
+  `hosted/src/lib/frame-edit.ts`, sent with `sync_push`; History and restore from `entity_history`,
+  `hosted/src/components/frame-history.tsx`), running a service from a phone
   (Phase 5), the member list (owners/admins) and linking PCs; `hosted/src/components/app-shell.tsx` is the shared sidebar and top bar.
 
 ## Keeping the handoff current (owner's rule)

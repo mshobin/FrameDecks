@@ -22,6 +22,8 @@ Versions before 4.9 (when the program had its earlier name) are described in the
   its service plans, Teleprompter scripts and member list sync in the background (pictures, videos, what is live and
   the phone remote PIN stay on the PC). Optional and off until linked; services always run from the PC, online or
   not.
+- Companion: **History** on each Frame of the Services page (the last 30 days: who changed what, and when). Owners and
+  admins can restore an earlier version, and bring back a Frame deleted in the last 30 days.
 - Companion: owners and admins can **edit services** on the Services page: a Frame's name, group, Teleprompter
   script, questions and scripture, and the order of Frames. The service PC picks changes up within about a minute; a
   Frame that is on screen is changed only when it leaves the screen; if the PC changed the same Frame meanwhile, the

@@ -10,8 +10,9 @@ export function syncNotSetUp(error: { code?: string; message?: string } | null):
   return ["PGRST202", "PGRST205", "42883", "42P01"].includes(error.code ?? "") || /could not find the (function|table)/i.test(error.message ?? "");
 }
 
-/** Every record of the workspace, newest version of each, through sync_pull pages (what RLS lets this person see). */
-export async function pullWorkspace(supabase: SupabaseClient, organizationId: string) {
+/** Every record of the workspace, newest version of each, through sync_pull pages (what RLS lets this person see).
+ * Deleted records only when asked (the Services page lists deleted Frames for 30 days). */
+export async function pullWorkspace(supabase: SupabaseClient, organizationId: string, includeDeleted = false) {
   const latest = new Map<string, PulledRecord>();
   let since = 0;
   for (let page = 0; page < 200; page++) {
@@ -22,7 +23,8 @@ export async function pullWorkspace(supabase: SupabaseClient, organizationId: st
     since = answer.seq;
     if (!answer.more) break;
   }
-  return { records: [...latest.values()].filter((r) => !r.deleted), error: null };
+  const records = [...latest.values()];
+  return { records: includeDeleted ? records : records.filter((r) => !r.deleted), error: null };
 }
 
 export type PushAnswer =
