@@ -31,7 +31,9 @@ preview and must not be treated as a live service dashboard.
   controls stay hidden and the rest works as before.
 - **Services, Members, Computers** (`/services`, `/members`, `/computers`): the plan
   synced from a linked PC (owners and admins can edit names, scripts, questions,
-  scripture and the order of Frames, saved with `sync_push`; everyone else views),
+  scripture and the order of Frames, saved with `sync_push`; everyone else views;
+  each Frame's History of the last 30 days from `entity_history`, with Restore and
+  deleted Frames brought back for owners and admins),
   its member list (owners and admins), and
   linking PCs with the code they show. They read with `sync_pull` and
   `computers`, and link with `computer_link_approve` / `computer_revoke`.

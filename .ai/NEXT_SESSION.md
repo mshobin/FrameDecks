@@ -1,6 +1,6 @@
 # NEXT SESSION HANDOFF
 
-Updated 25 October 2026, after companion editing steps 1–2 (E1–E4 as recommended).
+Updated 25 October 2026, after companion editing (PR #29, merged) and Frame history with restore.
 
 ## Completed
 - **6.10** (Quit really quits) merged (PR #7). Logo QA done, with a heavier small-size emblem for 16–32 px (PR #18;
@@ -59,7 +59,13 @@ Updated 25 October 2026, after companion editing steps 1–2 (E1–E4 as recomme
   kept). Saves with `sync_push` (no database change). Tested: `hosted/tests/frame-edit.test.mjs` (6; the desktop's
   `store.js` normalize keeps every edit unchanged) and a browser run against stand-ins serving the shared fixture
   (edit, on-screen note, conflict keeps the PC's newer script, reorder, phone, a member sees no Edit). QA pictures
-  `docs/qa/2026-10-25-companion-edit-frame*.png`.
+  `docs/qa/2026-10-25-companion-edit-frame*.png`. PR #29 merged; Windows installer built from `main` (run 40209063094).
+- **Frame history and restore** (the "record history view" of the plan; [companion-editing.md](../docs/architecture/companion-editing.md) §6):
+  on the Services page every Frame has History (versions kept 30 days by `entity_history`, who/when/what changed;
+  `hosted/src/lib/history-view.ts`, `hosted/src/components/frame-history.tsx`), owners and admins can Restore a
+  version, and "Deleted in the last 30 days" brings a deleted Frame back. No database change. Tested:
+  `hosted/tests/history-view.test.mjs` (4) and a browser run against stand-ins (versions, restore, deleted Frame back,
+  member view-only on a phone). QA picture `docs/qa/2026-10-25-companion-frame-history.png`.
 
 ## Pending
 - **Step 5 (live, the owner):** in the Supabase SQL editor run `hosted/supabase/migrations/0002_invitations.sql`, then
@@ -72,7 +78,7 @@ Updated 25 October 2026, after companion editing steps 1–2 (E1–E4 as recomme
   Frame, Black screen, Hide all; untick the switch: the page shows "Not connected" within 45 s and presses do nothing.
 - **Companion editing step 3 (live, the owner):** with sync linked, edit a Frame's script on the Services page from a
   phone; it appears on the PC within a minute; edit the Frame that is on screen: it is applied when it leaves.
-- After step 5: a second PC, and the record history view.
+- After step 5: a second PC (sync already supports it; test with two data folders or PCs).
 - Later, together (owner's choice): Google/Microsoft providers and a live test of invitations.
 - Live RLS tests: need `*.supabase.co` allowed in this cloud environment's network settings.
 - A person checks the real tray icon on an installed PC. Real-device PWA install test. Device pairing (Phase 5).
@@ -103,7 +109,8 @@ Read `hosted/node_modules/next/dist/docs/` before hosted code (`cacheComponents`
 are URL `https://slrsykiknlqlivlnpvrb.supabase.co` and the owner's publishable key; only in `hosted/.env.local`.
 
 ## Files Likely To Change Next
-Whatever the live tests find: `hosted/src/lib/frame-edit.ts`, `hosted/src/components/services-panel.tsx`, `cloud_remote.py`, `app/js/cloud-remote.js`, `hosted/src/components/live-panel.tsx`, `cloud_sync.py`, `hosted/src/components/*-panel.tsx`, `hosted/supabase/migrations/` (a new numbered
+Whatever the live tests find: `hosted/src/lib/frame-edit.ts`, `hosted/src/components/services-panel.tsx`,
+`hosted/src/components/frame-history.tsx`, `cloud_remote.py`, `app/js/cloud-remote.js`, `hosted/src/components/live-panel.tsx`, `cloud_sync.py`, `hosted/src/components/*-panel.tsx`, `hosted/supabase/migrations/` (a new numbered
 migration only, never an edited one), the continuity files.
 
 ## Session Handoff

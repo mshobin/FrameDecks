@@ -1,9 +1,10 @@
 # Editing services in the companion (design)
 
-**Status:** agreed with the owner on 25 October 2026 (E1–E4 as recommended, [§6](#6-decisions-for-the-owner)).
+**Status:** agreed with the owner on 25 October 2026 (E1–E4 as recommended, [§7](#7-decisions-for-the-owner)).
 Steps 1 and 2 of [§5](#5-tests-and-delivery) are built: `hosted/src/lib/frame-edit.ts` (tested by
 `hosted/tests/frame-edit.test.mjs`) and editing on the Services page (`hosted/src/components/services-panel.tsx`).
-Step 3 (the owner's live test) remains.
+Step 3 (the owner's live test) remains. History and restore ([§6](#6-history-and-restore-built-after-steps-12)) are
+built too.
 **Builds on:** sync ([metadata-sync.md](metadata-sync.md)). D3 there chose "view first; editing as the next step".
 
 ## In short (for the owner)
@@ -83,7 +84,20 @@ C means re-creating much of the Studio on the web, which the rules rule out for 
 | 2 | Services page editing (owners/admins), conflict and live-Frame messages | Browser tests against stand-in responses, phone and desktop; PGlite: a plain member's push refused |
 | 3 | Live test by the owner | Edit a script on the phone; it appears on the PC within a minute; editing the live Frame waits until it leaves the screen |
 
-## 6. Decisions for the owner
+## 6. History and restore (built after steps 1–2)
+
+The database keeps every replaced or deleted version 30 days (`entity_history`, written by `sync_push`; readable by
+workspace members, member records only by owners and admins). The Services page uses it with no database change:
+
+- **History** on every Frame (everyone in the workspace): the current version and the kept ones, newest first, each
+  with who made it (a member's name with "(companion)", the PC's name, or a neutral word when unknown), when, and
+  what changed (name, group, script, questions, scripture, Content or looks, settings). `hosted/src/lib/history-view.ts`.
+- **Restore** (owners and admins, as E2): an older version is saved as the newest with `sync_push`, like an edit, so
+  the PC applies it the same way (the Frame on screen waits until it leaves the screen).
+- **Deleted in the last 30 days**: Frames deleted on the PC or elsewhere, with who deleted them and when, and Restore
+  (back to the last version before the delete; it comes back at the end of the order).
+
+## 7. Decisions for the owner
 
 Answered by the owner on 25 October 2026: **E1–E4 as recommended.**
 

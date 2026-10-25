@@ -1571,3 +1571,56 @@ a.nav-item:hover {
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+/* A Frame's history on the Services page */
+.frame-history {
+  margin-top: 12px;
+  border-top: 1px solid #26365a;
+  padding-top: 10px;
+}
+
+.frame-history h4 {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 6px;
+  color: var(--blue);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.frame-history ol {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.frame-history li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  color: #c7d0e0;
+  font-size: 13px;
+}
+
+.history-what {
+  min-width: 0;
+}
+
+.history-changes {
+  display: block;
+  color: #7786a3;
+  font-size: 12px;
+}
+
+.frame-history .member-action,
+.deleted-frames .member-action {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 4px;
+}
