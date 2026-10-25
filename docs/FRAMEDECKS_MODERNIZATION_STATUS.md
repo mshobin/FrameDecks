@@ -1,7 +1,7 @@
 # FRAMEDECKS modernization status
 
 **Last updated:** 25 October 2026 ·
-**Working branch:** `modernization-v1`  
+**Working branch:** `main`
 **Current milestone:** Hosted foundation validated locally and live on Vercel; next is Supabase auth and tenant foundation (Phase 3)
 
 **Overall implementation state:** Repository assessment, branding, and architecture are documented. The HTTPS-to-local-HTTP path is rejected; the hosted PWA is a separate online-first companion. A responsive static Next.js shell, shadcn-style UI base, boundary test, and independent CI workflow now exist and pass local checks, and the shell is deployed at `https://framedecks.vercel.app/`. Authentication UI, live tenant data, pairing, and real-device PWA install acceptance remain unimplemented; the manifest, safe shell service worker, and Supabase migration scaffold exist.
@@ -36,10 +36,10 @@
 | Phase 1 — Repository audit and architecture | Completed | Baseline checks pass; constraints, target design, risks, rollback, and preservation matrix documented. |
 | Phase 2 — Next.js / TypeScript / Tailwind / shadcn foundation | Completed | Separate responsive app shell and CI pass locally without changing the desktop UI. `hosted/` is on `main` and deployed to Vercel (see the Vercel preview row). |
 | Phase 3 — Supabase Auth and tenant foundation | Partially Complete | Scaffolded without credentials: `hosted/supabase/migrations/0001_tenant_foundation.sql` (organizations, memberships, profiles, deny-by-default RLS, owner trigger), `hosted/.env.example`, `hosted/src/lib/supabase-config.ts`, and static schema tests. Not yet done: create the Supabase project, apply the migration, enable Email/Google/Microsoft providers, sign-in UI, and live RLS tests against a real database. |
-| Phase 4 — Metadata-only synchronization | Not Started | Define versioned contracts, local outbox, idempotency, conflict handling, and 6.9 import/export; prove no media bytes sync. |
+| Phase 4 — Metadata-only synchronization | Partially Complete | Added a strict v1 presentation/sync-operation contract with bounded JSON parsing, opaque media IDs, idempotent queue primitives, explicit base-revision conflicts, and tests that reject paths, bytes, and unsupported fields. Not yet done: durable local outbox, authenticated transport/server writes, 6.9 importer/exporter, round-trip fixture coverage, and local-asset resolution. |
 | Phase 5 — Hosted PWA and secure device pairing | Not Started | Online-first hosted companion; implement five-minute QR/6-digit challenge, authenticated user, runtime approval, trusted devices, roles, replay protection, revocation. No connection to the LAN HTTP server. |
 | Phase 6 — Vercel operations / future Cloudflare edge | Not Started | Vercel-provided URL first; Cloudflare integration waits for custom domain. Add backup/restore, monitoring, and incident procedures. |
-| Phase 7 — User-facing branding/terminology | Partially Complete | Existing desktop, workbook, remote/PWA, favicon, installer, and marketing-header surfaces use the supplied logo. The emblem is now a gold-only transparent image so it sits on the page background; the hosted overview uses the same palette and emblem, and the desktop light-theme header logos are darkened for contrast. The phone remote PIN screen is covered; no splash screen or hosted account-login page exists yet. Remaining: confirm the emblem in the tray icon and a packaged Windows run, and supply a higher-resolution original for true pixel-level sharpness. See [branding asset inventory](FRAMEDECKS_BRANDING_ASSETS.md). |
+| Phase 7 — User-facing branding/terminology | Partially Complete | Existing desktop, workbook, remote/PWA, favicon, installer, and marketing-header surfaces use the supplied logo. The emblem is now a gold-only transparent image so it sits on the page background; the hosted overview uses the same palette and emblem, and the desktop light-theme header logos are darkened for contrast. Local browser QA confirms the emblem in the light-theme desktop header and teleprompter/speaker window and on the dark remote page. Remaining: verify the tray icon in a packaged Windows run, review the known faint 16px favicon with the owner before any mark change, and supply a higher-resolution original for true pixel-level sharpness. See [branding asset inventory](FRAMEDECKS_BRANDING_ASSETS.md). |
 | Phase 8 — Compatibility rollout | Not Started | Pass preservation matrix on real supported devices; keep local 6.9 rollback available. |
 
 ## Autonomous modernization execution milestones
@@ -57,6 +57,12 @@ distinct from the target-architecture workstreams above.
 | Phase 6 — Supabase authentication and tenancy | Not Started | Requires implementation and project/provider credentials before OAuth or hosted auth can be end-to-end validated. |
 | Phase 7 — Metadata sync, hosted control, and pairing | Not Started | Requires versioned contracts, tenant RLS, runtime adapter, pairing, and authorization tests. |
 | Phase 8 — PWA install/cache and operations | Partially Complete | Manifest (`src/app/manifest.ts`), safe app-shell service worker (`public/sw.js`; same-origin GET only, never `/api/` or `/auth/`) and a production-only registrar are implemented with static tests. Real-device install and offline acceptance still need a deployed build. |
+
+### Phase 4 metadata contract foundation
+
+`hosted/src/lib/sync/contracts.mts` defines the first versioned, metadata-only presentation envelope and sync operation. Runtime validation is allowlist-based: presentation content has bounded text fields, media is represented only by an opaque UUID plus media type, and unknown properties (including local paths or raw media fields) are rejected. Operation IDs are stable across retries, duplicate enqueue is idempotent, reuse with changed content is rejected, and a stale base revision returns an explicit conflict rather than applying last-write-wins. JSON operations are capped at 512 KiB; the pure outbox helpers cap the queue at 100 operations / 5 MiB.
+
+This is a contract and queue-logic foundation, not a durable outbox or a claim that sync is active. There is no local runtime adapter, IndexedDB/disk persistence, API/database write path, or import/export bridge yet. The desktop app and LAN remote remain untouched. The next Phase 4 slice is a versioned 6.9 JSON importer/exporter with dry-run validation and representative round-trip fixtures, followed by durable outbox persistence and authenticated transport only after the tenant/auth boundary is ready.
 
 ### Phase 4 transport decision and boundary
 
@@ -89,7 +95,7 @@ weakened Origin check, shared cookie, or service-worker proxy may bridge the hos
 
 ## Validation record
 
-Commands run from the repository root on `modernization-v1`:
+Historical commands below were run from the repository root on `modernization-v1`; later checks are dated inline:
 
 - `node tests/run.js` — passed, 3 of 3 test files.
 - `python -m unittest discover -s tests -p "test_*.py" -v` — passed, 24 tests ran, 1 skipped.
@@ -114,6 +120,8 @@ Commands run from the repository root on `modernization-v1`:
   teleprompter header and the About page show the emblem embedded in the background; the light-theme header logo was
   low contrast and is now darkened. The tray icon and a real packaged Windows run were not checked.
 - From `hosted/`, `npm audit` — reports 5 high-severity findings in the development-only Next.js ESLint dependency tree (`braces` through `fast-glob`/`micromatch`); the suggested automated fix downgrades `eslint-config-next` to 14.2.35, so it was not applied to the Next.js 16 app.
+- 25 October 2026, local browser logo QA: the 1024px emblem loaded at 30px in the light desktop header, 34px in the light teleprompter/speaker window, and 26px in the dark remote. The CSS contrast filter applied in light mode; no desktop code or assets were changed. The 16px favicon remains visibly faint. The tray uses `app/icons/remote-192.png`, whose gold emblem asset is present, but there is no packaged executable in `dist/` and no packaged Windows run was possible: `python -m PyInstaller --version` failed because PyInstaller is absent; `python packaging/check.py` passed and noted that OpenCV is not installed.
+- 25 October 2026, Phase 4 contract slice: `hosted/tests/sync-contract.test.mjs` exercises v1 serialization/parsing, opaque media references, rejection of path/raw-byte/unknown fields and data URLs, byte limits, stable operation-id semantics, and explicit revision conflicts. Hosted tests, lint, typecheck, build, documentation links, and diff whitespace checks are recorded for this change after they run. No cloud service or local desktop state is contacted or modified.
 
 History (22 October 2026, now superseded): the original `https://framedecks.vercel.app/` URL
 returned Vercel `404: NOT_FOUND` (request ID `bom1::wmnz7-1792679474767-cfc0b5588a8e`) because `hosted/` was not yet

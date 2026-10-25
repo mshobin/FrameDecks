@@ -6,9 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint src tests/hosted-boundary.test.mjs",
+    "lint": "eslint src tests/hosted-boundary.test.mjs tests/sync-contract.test.mjs",
     "typecheck": "tsc --noEmit",
-    "test": "node --test tests/hosted-boundary.test.mjs tests/supabase-schema.test.mjs tests/pwa.test.mjs tests/supabase-rls.test.mjs"
+    "test": "node --experimental-strip-types --test tests/hosted-boundary.test.mjs tests/supabase-schema.test.mjs tests/pwa.test.mjs tests/supabase-rls.test.mjs tests/sync-contract.test.mjs"
   },
   "dependencies": {
     "class-variance-authority": "^0.7.1",
