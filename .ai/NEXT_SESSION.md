@@ -1,6 +1,6 @@
 # NEXT SESSION HANDOFF
 
-Updated 25 October 2026, after Phase 5 step 1 (the owner chose R1–R5 as recommended).
+Updated 25 October 2026, after Phase 5 step 2 (the PC side of phone control).
 
 ## Completed
 - **6.10** (Quit really quits) merged (PR #7). Logo QA done, with a heavier small-size emblem for 16–32 px (PR #18;
@@ -29,7 +29,14 @@ Updated 25 October 2026, after Phase 5 step 1 (the owner chose R1–R5 as recomm
   run in the PC's own window, the listed actions, owners/admins plus members given "Can run services", no end-to-end
   encryption yet, a Settings switch off by default). Step 1 built: `hosted/supabase/migrations/0004_remote.sql`
   (`remote_send`, `remote_take`, `remote_report`, `remote_publish`, `memberships.can_run_services`), tested in
-  `hosted/tests/supabase-remote.test.mjs`.
+  `hosted/tests/supabase-remote.test.mjs` (PR #25, merged).
+- Phase 5 step 2 built: `cloud_remote.py` (asks `remote_take` about once a second while a phone is active, every
+  5 seconds otherwise; reports; publishes the status), wired into `server.py` (`CLOUD_REMOTE`, `CLOUD_BRIDGE`,
+  local-only `/api/remote-cloud/next` and `/done`, app setting `cloudRemote` off by default, `remote` in
+  `GET /api/sync`) and `app/js/cloud-remote.js` in the dashboard (runs each command with the keys' functions; toast
+  "Go Live · from Shobin"). Tested by `tests/test_cloud_remote.py` (13) and in the real program in a browser against
+  a stand-in cloud: Go Live, Next (same Frame as the `]` key), blackout on/off, Hide all, an unknown Frame refused,
+  switch off leaves commands untaken. Nothing visible changes yet: the switch arrives in step 3.
 
 ## Pending
 - **Step 5 (live, the owner):** in the Supabase SQL editor run `hosted/supabase/migrations/0002_invitations.sql`, then
@@ -59,15 +66,18 @@ Step 5 needs the owner to run `0002` and `0003` in Supabase and to have the PR-b
 (an installer from "Build Windows installer" on `main`, or running `server.py` from source).
 
 ## Recommended Next Task
-Help the owner through sync step 5 and fix what it finds. Then Phase 5 step 2 of
-[remote-control.md](../docs/architecture/remote-control.md) §8: `cloud_remote.py` (takes commands about once a second
-while the Settings switch is on, hands them to the program's own window, which runs the same `KCScenes` code as the
-keys, reports results, publishes the status) with tests against a stand-in cloud and the real program in a browser.
+Help the owner through sync step 5 and fix what it finds. Then Phase 5 step 3 of
+[remote-control.md](../docs/architecture/remote-control.md) §8: in Settings → FRAMEDECKS account (`app/js/account.js`)
+the switch "Allow control from the companion" (`POST /api/app/settings {cloudRemote}`) and the last ten actions
+(`GET /api/sync` → `remote.recent`); in the companion a "Can run services" toggle per member
+(`workspace-members.tsx`, needs an owner/admin RPC or policy to set `memberships.can_run_services`, a new migration
+`0005`) and a phone-first **Live** page (reads `remote_status`, sends with `remote_send`).
 Read `hosted/node_modules/next/dist/docs/` before hosted code (`cacheComponents` is on). The public Supabase values
 are URL `https://slrsykiknlqlivlnpvrb.supabase.co` and the owner's publishable key; only in `hosted/.env.local`.
 
 ## Files Likely To Change Next
-Whatever step 5 finds: `cloud_sync.py`, `hosted/src/components/*-panel.tsx`, `hosted/supabase/migrations/` (a new numbered
+Phase 5 step 3: `app/js/account.js`, `hosted/src/app/live/`, `hosted/src/components/workspace-members.tsx`, a new
+`hosted/supabase/migrations/0005_*.sql`. Whatever sync step 5 finds: `cloud_sync.py`, `hosted/src/components/*-panel.tsx`, `hosted/supabase/migrations/` (a new numbered
 migration only, never an edited one), the continuity files.
 
 ## Session Handoff

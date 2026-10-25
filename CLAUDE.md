@@ -5,7 +5,8 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
 ## Non-negotiable rules
 - The desktop UI, branding and functions must NOT change. The work is a stack migration to SaaS + PWA only.
   Owner-approved exceptions: the heavier 16–32 px emblem and one Settings section, "FRAMEDECKS account" (sync, D1 in
-  `docs/architecture/metadata-sync.md`).
+  `docs/architecture/metadata-sync.md`), which also gets "Allow control from the companion" and its last ten actions
+  (R5 in `docs/architecture/remote-control.md`); a toast on the PC for each companion action.
 - The codebase is the source of truth; verify docs against it.
 - Do not touch the legacy LAN remote or let the hosted app call the local HTTP server.
 - Never commit secrets. `.env*` is ignored except `hosted/.env.example`. Never the Supabase `service_role` key; the
@@ -17,6 +18,10 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
 - `app/`, `server.py`, `packaging/` — the unchanged desktop app (Python server, static UI, port 8750).
 - `sync_entities.py` (plan ⇄ sync records) and `cloud_sync.py` (background sync, linking; off until a PC is linked) —
   Phase 4, wired into `server.py` (`SYNC`, `/api/sync`) and Settings (`app/js/account.js`).
+- `cloud_remote.py` (Phase 5: commands from the companion, only while linked and the app setting `cloudRemote` is on)
+  — wired into `server.py` (`CLOUD_REMOTE`, `CLOUD_BRIDGE`, `/api/remote-cloud/*`, this PC only) and run by the
+  program's own window with the keys' functions (`app/js/cloud-remote.js`). `REMOTE` in `server.py` is the Wi-Fi
+  phone remote, a different thing.
 - `hosted/` — Next.js 16 online-first companion, deployed to Vercel (`framedecks.vercel.app`, Root Directory `hosted`).
 - `hosted/supabase/migrations/` — SQL run in order in the Supabase SQL editor: `0001` workspaces, `0002` invitations,
   `0003` sync, `0004` remote control. Never edit one that has been run; add the next number.

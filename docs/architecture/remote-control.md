@@ -2,7 +2,8 @@
 
 **Status:** agreed with the owner on 25 October 2026 (R1–R5 as recommended, [§9](#9-decisions-for-the-owner)). Step 1
 of [§8](#8-tests-and-delivery) is built: `hosted/supabase/migrations/0004_remote.sql`, tested by
-`hosted/tests/supabase-remote.test.mjs`.
+`hosted/tests/supabase-remote.test.mjs`. Step 2 is built: `cloud_remote.py`, the window bridge in `server.py` and
+`app/js/cloud-remote.js`, tested by `tests/test_cloud_remote.py` and in the real program in a browser.
 **Builds on:** sync ([metadata-sync.md](metadata-sync.md)): the same Supabase project, workspaces, linked PCs and
 computer keys.
 
@@ -53,10 +54,22 @@ sequenceDiagram
 - A small background part, `cloud_remote.py`, used only when the PC is linked **and** "Allow control from the
   companion" is on in Settings → FRAMEDECKS account (the section the owner already approved; off by default).
 - While allowed, it asks for new commands about once a second (one tiny request; no new package, no open socket),
-  and every 30 seconds when no phone has sent anything for 10 minutes.
-- Every action is shown on the PC as a toast ("Next Frame · from Shobin's phone"), and the Settings section lists the
-  last ten with time and person.
-- Turning the switch off stops it at once; unlinking the PC also stops it.
+  and every 5 seconds when no phone has sent anything for 10 minutes (so the first press after a quiet spell takes up
+  to 5 seconds, then about one).
+- **Status** goes up when it changes (a saved plan wakes the loop; at most two rounds a second) and at least every
+  4 seconds while a phone is active, every 30 seconds otherwise. The Live page counts the PC as online while its
+  status is fresh for the current pace (step 3 decides the exact threshold).
+- **The window bridge (R1):** `cloud_remote.py` offers the commands to the program's own window, which asks with a
+  20-second long poll on this PC only (`GET /api/remote-cloud/next`; other devices get 403) and answers with
+  `POST /api/remote-cloud/done`. `app/js/cloud-remote.js` runs each with the keys' functions (`KCWorkspace.step`,
+  `KCWorkspace.takeFrame`, `KCActions.hideAll`, `KCActions.toggle`, `KCPresenterTools.blackout`), half a second
+  apart like separate key presses. Blackout, question and scripture carry the wanted state (`{on}` / `{show}`) and
+  are only toggled when different. A command the window has not picked up within 3 seconds is answered "not run",
+  never run late.
+- Every action is shown on the PC as a toast ("Next Frame · from Shobin"), and the Settings section lists the
+  last ten with time and person (kept by the program; `GET /api/sync` returns them as `remote.recent`).
+- The switch is the app setting `cloudRemote` (off by default; `POST /api/app/settings`). Turning it off stops it at
+  once; unlinking the PC also stops it.
 
 ## 4. Where the actions run (decision R1)
 

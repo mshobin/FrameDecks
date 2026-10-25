@@ -11,6 +11,10 @@ Versions before 4.9 (when the program had its earlier name) are described in the
 ## [Unreleased]
 
 ### Added
+- The program can take commands from the FRAMEDECKS companion (Next/Previous Frame, Go Live, Hide all, black screen,
+  question, scripture) and run them exactly as the keys do, showing "‹action› · from ‹person›" on the PC. Off by
+  default and only for a linked PC; the switch arrives in Settings → FRAMEDECKS account with the companion's Live
+  page. The Wi-Fi phone remote is unchanged.
 - Settings → **FRAMEDECKS account**: link this PC to a workspace in the FRAMEDECKS companion with a short code, and
   its service plans, Teleprompter scripts and member list sync in the background (pictures, videos, what is live and
   the phone remote PIN stay on the PC). Optional and off until linked; services always run from the PC, online or
