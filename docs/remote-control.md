@@ -156,3 +156,9 @@ More answers: [Troubleshooting](troubleshooting.md#phone-remote).
 - [Troubleshooting](troubleshooting.md)
 - [FAQ](faq.md#phone-remote)
 - [Getting started](getting-started.md)
+
+## Stream Deck
+
+An Elgato Stream Deck on the same PC can run FRAMEDECKS too, while Zoom or Teams has the focus: Next and Previous
+Frame, Go Live, Hide all, Black screen, Question and Scripture. It needs no PIN and no network: the plugin talks only to
+FRAMEDECKS on this PC. Install and details: [streamdeck/README.md](../streamdeck/README.md).

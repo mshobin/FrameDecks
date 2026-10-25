@@ -1,0 +1,4 @@
+node_modules/
+dist/
+com.framedecks.control.sdPlugin/bin/
+com.framedecks.control.sdPlugin/logs/
