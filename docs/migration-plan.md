@@ -156,3 +156,13 @@ Steps 1–3 need no decision and no visible change; **built on PR #32** (see
 | **M-D6** | **Member groups**: add them to the companion (desktop unchanged), or not now | Add, companion only |
 
 None of steps 4–8 starts without its decision.
+
+**The owner's answers (25 October 2026):**
+- **M-D1:** Apache 2.0, a public repository, and SignPath.
+- **M-D2:** option A. The cloud is the source; each PC keeps a copy it can rebuild, so it works offline.
+- **M-D3:** discussion questions from a Bible passage, with Ollama on the PC (free).
+- **M-D4:** build both PPTX export and audio Content. Each adds one entry on screen, in existing styles.
+- **M-D5:** the long-term recommendation is in [architecture/hosting.md](architecture/hosting.md):
+  - the companion moves to Cloudflare as static files before a public launch or a second church;
+  - Supabase stays Free while it is a pilot, then Pro.
+- **M-D6:** member groups in the companion only; the desktop is unchanged.

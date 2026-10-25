@@ -137,8 +137,10 @@ Step 5 needs the owner to run `0002`–`0005` in Supabase and to have the PR-bui
 (an installer from "Build Windows installer" on `main`, or running `server.py` from source).
 
 ## Recommended Next Task
-Migration steps 1–3 are built. Next: steps 4–8 of [docs/migration-plan.md](../docs/migration-plan.md) as the owner
-answers M-D1–M-D6, each with the §6 validation and a section in `docs/post-migration-report.md`. Meanwhile:
+Migration steps 1–3 are built. The owner answered M-D1–M-D6 on 25 October (plan §8; M-D5 →
+[hosting.md](../docs/architecture/hosting.md)). Steps 4–8 of [docs/migration-plan.md](../docs/migration-plan.md) are
+being built in this order: 4 licence, 8 groups, 5 members from the cloud, 6 AI, 7 PPTX export and audio; each with
+the §6 validation and a section in `docs/post-migration-report.md`. Meanwhile:
 Help the owner through [the live test guide](../docs/qa/live-test-guide.md) (sync step 5, Phase 5 step 4, companion
 editing step 3 and history; installer from the latest "Build Windows installer" run on `main`, migrations
 `0002`–`0005`). Fix what they find and mark each test done in the four files. Then: Google/Microsoft sign-in with the

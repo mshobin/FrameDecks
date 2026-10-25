@@ -36,7 +36,8 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
   watchdog in the installed exe) are built.
 - `docs/architecture-review.md` and `docs/migration-plan.md` — review against the owner's target architecture (cloud
   for people, templates, AI, audit; desktop for media, rendering, camera) and the step order; decisions M-D1–M-D6.
-  Steps 1–3 are built (`docs/post-migration-report.md`); steps 4–8 wait for their decisions.
+  Steps 1–3 are built (`docs/post-migration-report.md`); the owner answered M-D1–M-D6 (plan §8); hosting long term:
+  `docs/architecture/hosting.md`.
 - `streamdeck/` — the Stream Deck plugin (owner's choice); it calls the PC's local `GET /api/command/status` and
   `POST /api/command` (this PC only), which run through the same window bridge as the companion, without a toast.
 - Continuity: `CLAUDE.md`, `PROJECT_STATUS.md`, `PROJECT_ROADMAP.md`, `.ai/NEXT_SESSION.md`. The owner's live tests:
