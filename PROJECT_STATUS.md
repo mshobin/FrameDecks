@@ -1,37 +1,42 @@
 # PROJECT STATUS
 
-Last verified: 25 October 2026 against `main` at `ca463f2`, merged into `claude/peaceful-albattani-6m445e` (PR #7, the
-6.10 Quit fix): desktop JS 3/3, Python OK, `packaging/check.py` (6.10), doc links 0 problems, hosted test 15/15,
-lint, typecheck and build pass. Detail lives in
+Last verified: 25 October 2026 on `claude/peaceful-albattani-6m445e` at sync step 3 (PR #23, on top of `main` at
+`592104b`): desktop JS 4/4, Python 65 tests OK, `packaging/check.py` (6.10), hosted test 43/43, lint, typecheck and
+build pass, doc links 0 problems. Detail lives in
 [docs/FRAMEDECKS_MODERNIZATION_STATUS.md](docs/FRAMEDECKS_MODERNIZATION_STATUS.md).
 
 ## Completed
-- Desktop app preserved unchanged; branding migrated; approved gold-outline transparent emblem (reproducible via `tools/make_emblem_assets.py`; horizontal/stacked logos via `tools/generate_brand_assets.py`, README header via `tools/make_readme_header.py`).
-- Hosted Next.js shell in `hosted/` with the desktop navy/gold theme; CI (`.github/workflows/hosted.yml`); live at `https://framedecks.vercel.app/` (HTTP 200, verified).
-- PWA manifest, safe shell service worker, production-only registrar; verified locally (registers, caches, loads offline).
-- Supabase tenant migration `0001_tenant_foundation.sql`; row-level-security behaviour is now an in-repo test (`hosted/tests/supabase-rls.test.mjs`, in-memory Postgres via dev-only `@electric-sql/pglite`): 8 test groups covering 16 checks pass.
+- Desktop app preserved; 6.10 (Quit really quits) merged (PR #7); branding migrated; approved gold-outline emblem
+  (`tools/make_emblem_assets.py`), with a heavier version used only at 16–32 px for favicons, tray and small icon
+  sizes (PR #18).
+- Hosted Next.js companion in `hosted/` (navy/gold theme), CI (`.github/workflows/hosted.yml`), live at
+  `https://framedecks.vercel.app/`; PWA manifest and safe shell service worker.
+- Supabase project `slrsykiknlqlivlnpvrb` with `0001_tenant_foundation.sql` run by the owner.
+- **Sign-in** (emailed link; Google/Microsoft when enabled), PR #18: **confirmed live by the owner**.
+- **Profile and workspaces**, PR #19: **confirmed live** (name saved, workspace "BSF Study" as Owner).
+- **Members and invitations** (`0002_invitations.sql`), PR #20: built and tested in-repo; not run live yet (owner's
+  choice, with Google/Microsoft later).
+- Phase 4 sync of service plans, steps 1–3 of 5 ([metadata-sync.md](docs/architecture/metadata-sync.md)): database
+  `0003_sync.sql` (PR #21), record mapping (PR #22), PC background sync and Settings → FRAMEDECKS account (PR #23).
+- In-repo database tests on PGlite (`hosted/tests/pglite-supabase.mjs` applies every migration): tenant RLS,
+  invitations, sync.
 
 ## In Progress
-- Phase 4 sync of service plans: design agreed ([metadata-sync.md](docs/architecture/metadata-sync.md)); steps 1
-  (database `0003_sync.sql`) 2 (record mapping) and 3 (PC sync `cloud_sync.py`, Settings → FRAMEDECKS account) built; steps 4
-  (companion: link a computer, Services view) and 5 (live two-PC test) to come.
-- Phase 3 (auth): the owner created the Supabase project (`slrsykiknlqlivlnpvrb`) and ran the tenant migration in the
-  SQL editor (25 October; its result not yet confirmed in writing). The sign-in UI is built (`/sign-in`, `/auth/callback`,
-  top-bar account chip; emailed link, Google/Microsoft when enabled), merged (PR #18) and deployed with the Vercel
-  variables. **The owner signed in on the live site with an emailed link (25 October 2026).** Workspace UI built and **confirmed live by the owner
-  (25 October 2026): display name saved, workspace "BSF Study" created with the owner role** (PR #19). Members and invitations built (migration `0002_invitations.sql`,
-  PGlite-tested, browser-tested against stand-in responses); the owner will run `0002` and test invitations live
-  together with Google/Microsoft sign-in at a later stage. Not yet: Google/Microsoft providers, live RLS tests.
+- Phase 4 sync: step 4 (companion: Computers page to link and revoke PCs, view-only Services page, Members for
+  owners/admins), then step 5 (live test with two PCs).
 
 ## Pending
-- Later, together (owner's choice): run `0002_invitations.sql`, set up Google/Microsoft providers, test invitations
-  live. Live RLS tests need `*.supabase.co` allowed in this environment's network settings.
+- Owner: run `0002_invitations.sql` and `0003_sync.sql` in the Supabase SQL editor (needed for step 5); later,
+  Google/Microsoft providers and a live test of invitations.
+- Live RLS tests: need `*.supabase.co` allowed in this cloud environment's network settings.
 - Real-device PWA install and offline acceptance on the deployed URL.
-- Secure device pairing (QR / 6-digit challenge) and runtime channel.
-- A person looks at the real tray icon on an installed Windows PC (the icons themselves are checked; see below).
+- Secure device pairing (QR / 6-digit challenge) and runtime channel (Phase 5).
+- A person checks the real tray icon and Windows Credential Manager on an installed PC.
 
 ## Technical Debt
 - RLS tests run on PGlite with a stubbed `auth.uid()`, not real Supabase; live-database tests are still needed.
+- Sync is tested against a stand-in cloud that follows the database's rules (`tests/test_cloud_sync.py`), not yet
+  against live Supabase; D4 (conflict rules) was built as recommended without the owner's explicit answer.
 - `npm audit`: high findings in the dev-only ESLint tree (not applied: fix would downgrade `eslint-config-next`).
 - Emblem is now a vector master (`assets/brand/framedecks-emblem.svg`); the wordmark in the horizontal/stacked logos is still cropped from the legacy raster `framedecks-logo-source.png`, so it is the only raster-limited part of the brand set.
 - Older audit docs still reference version 6.6.
@@ -74,7 +79,8 @@ Their branches are kept, so any of them can be reopened or mined:
 - Hosted companion is online-first and separate from the LAN remote.
 
 ## Blockers
-- Supabase project URL and anon key, and OAuth client credentials, must come from the owner.
+- None for step 4. Step 5 needs the owner to run `0002` and `0003` in Supabase. Google/Microsoft sign-in needs the
+  owner's OAuth apps (their secrets go only into the Supabase dashboard).
 
 ## Recommended Next Task
 See [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
