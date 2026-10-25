@@ -81,6 +81,18 @@ feature, API or integration was removed or renamed:
 | Visible | Desktop: nothing. Companion: Add a member, Edit, Remove, and a birthday shown as "15 March 1985" |
 | Checked | 6 sync tests (rebuild, a person added online surviving a rebuild, a deliberate empty list, the `pc` setting, a PC that never had members, a missing or unreadable file); 4 Node tests; a browser run against stand-ins (desktop and phone; screenshots `docs/qa/2026-10-25-companion-members-*.png`) |
 
+## Step 6: free AI, discussion questions from a passage (M-D3)
+
+| | |
+|---|---|
+| What | `ai.py`: one provider interface. Tier 1 is Ollama on the PC (free, private, offline); the model is picked from those installed. Tier 2 is a self-hosted OpenAI-compatible endpoint (`FRAMEDECKS_AI_ENDPOINT`). Results are cached by (feature, model, input) in `kc-ai-cache.json`, keeping the latest 300 |
+| Feature | **Suggest** in a Frame's Question Content list. It drafts questions from the Frame's Scripture (a reference without text is looked up in the ESV cache or with the church's key) and opens them in the existing **Add several** box for review. Nothing is added until the person chooses |
+| Endpoints | `GET /api/ai/status` and `POST /api/ai/questions`, this PC only |
+| Visible | One button, in the existing style, **only when Ollama answers**. Without it the program is exactly as before (checked). The owner approved one entry for the AI feature (M-D3) |
+| Off switch | App setting `ai` = `off` |
+| Paid providers | Never called from the PC. If added later, a Supabase Edge Function holds the key server-side (review §6) |
+| Checked | 6 tests with a stand-in Ollama server (model choice, cleaning, cache hit offline, plain messages when absent or off, other answer shapes, self-hosted endpoint), and the real program in a browser: the button appears, drafts four questions, adds them; it is hidden when Ollama is not running. Screenshot `docs/qa/2026-10-25-ai-suggest-questions.png`. User guide: [ai.md](ai.md) |
+
 ## Step 8: member groups (M-D6)
 
 | | |

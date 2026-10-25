@@ -107,6 +107,8 @@ Updated 25 October 2026, after the architecture review and migration plan (PR #3
 - **Step 5 (M-D2)**: the companion's Members page adds, edits and removes people (`member-edit.ts`, same shape as the
   desktop's normalize); a linked PC rebuilds a missing member file from the workspace (`memberAuthority`).
 - **Step 8 (M-D6)**: `0008_member_groups.sql`; groups on the companion's Members page only.
+- **Step 6 (M-D3)**: `ai.py` + `/api/ai/*` + **Suggest** in `app/js/frame-lists.js` (hidden without Ollama);
+  `tests/test_ai.py` (6); user guide `docs/ai.md`.
 - Tidy-up: the "older docs reference 6.6" debt is closed (they mention 6.6 as history; the 6.6 audit is marked as a
   snapshot; the coding-standards comment template no longer names a version).
 

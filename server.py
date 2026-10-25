@@ -32,6 +32,7 @@ from urllib.parse import urlparse, parse_qs, unquote
 import sync_entities   # what is live and what is plan (the same split as sync)
 import cloud_remote   # Phase 5: running a service from the companion (only when linked and switched on)
 import cloud_sync   # Phase 4: syncing service plans with a workspace (only when this PC is linked)
+import ai           # M-D3: optional AI, free by default (Ollama on this PC); hidden when none answers
 import legacy   # 6.9: moves data saved under the program's earlier name
 import meeting_form   # 6.9: fills the Meeting Workbook's form for Export
 
@@ -638,8 +639,9 @@ APP_SETTINGS_DEFAULTS = {"remoteAutostart": False, "importDecided": False,
                          "overlayOnTop": True,    # the overlay stays above Zoom, Teams, PowerPoint and browsers
                          "overlayFade": False,    # compatibility transparency (the whole window fades, text included)
                          "cloudRemote": False,    # Phase 5: run a service from the companion (Settings > FRAMEDECKS account)
-                         "memberAuthority": "cloud"}   # M-D2: the workspace is the member list's source (no switch on screen)
-APP_SETTING_CHOICES = {"minimizeTo": ("ask", "tray", "taskbar"), "memberAuthority": ("cloud", "pc"),
+                         "memberAuthority": "cloud",   # M-D2: the workspace is the member list's source (no switch on screen)
+                         "ai": "auto"}            # M-D3: "auto" = use Ollama on this PC when it answers; "off" = never
+APP_SETTING_CHOICES = {"minimizeTo": ("ask", "tray", "taskbar"), "memberAuthority": ("cloud", "pc"), "ai": ("auto", "off"),
                        "overlayMode": ("solid", "presenter", "meeting", "conference", "ghost")}
 
 
@@ -1223,6 +1225,26 @@ def scripture_lookup(ref, translation="ESV", fresh=False):
         tmp.write_text(json.dumps(cache, ensure_ascii=False), encoding="utf-8")
         os.replace(tmp, SCRIPTURE_CACHE)
     return {"ref": canon, "text": text, "version": "ESV", "cached": False}
+
+
+AI = ai.Service(DATA / "kc-ai-cache.json", enabled=lambda: app_settings()["ai"] != "off")
+
+
+def _passages_with_text(passages):
+    """A Frame's scripture as [{"ref", "text"}]; a reference without text is looked up (the offline cache first, then
+    the ESV with the church's own key); one that cannot be found keeps its reference only."""
+    out = []
+    for p in (passages if isinstance(passages, list) else [])[:6]:
+        if not isinstance(p, dict):
+            continue
+        ref, text = str(p.get("ref") or "")[:120], str(p.get("text") or "")[:6000]
+        if ref and not text.strip():
+            try:
+                text = scripture_lookup(ref).get("text", "")
+            except (ValueError, OSError):
+                text = ""
+        out.append({"ref": ref, "text": text})
+    return out
 
 
 def scripture_info():
@@ -1927,6 +1949,10 @@ class Handler(BaseHTTPRequestHandler):
             return self.reply(200, json.dumps({"enabled": REMOTE, "results": results}), TYPES[".json"])
         if path == "/api/diagnostics":
             return self.reply(200, json.dumps(diagnostics(self.server.server_address)), TYPES[".json"])
+        if path == "/api/ai/status":                     # M-D3: is a free local AI there? (this PC only)
+            if not self.is_local():
+                return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
+            return self.reply(200, json.dumps(AI.status(fresh=parse_qs(url.query).get("fresh", ["0"])[0] == "1")), TYPES[".json"])
         if path == "/api/media/check":                   # migration step 3: Frames whose media files are not on this PC
             if not self.is_local():
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
@@ -2242,6 +2268,15 @@ class Handler(BaseHTTPRequestHandler):
             except (OSError, ValueError, KeyError, TypeError) as e:
                 return self.reply(422, json.dumps({"error": str(e)}), TYPES[".json"])
             return self.reply(200, body, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+        if path == "/api/ai/questions":                  # M-D3: discussion questions drafted from a Frame's scripture
+            if not self.is_local():
+                return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
+            d = data if isinstance(data, dict) else {}
+            try:
+                res = AI.discussion_questions(_passages_with_text(d.get("passages")), d.get("count") or 5)
+            except ai.AiError as e:
+                return self.reply(422, json.dumps({"error": str(e)}), TYPES[".json"])
+            return self.reply(200, json.dumps(res), TYPES[".json"])
         if path == "/api/scripture/settings":
             if not self.is_local():
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")

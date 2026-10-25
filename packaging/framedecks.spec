@@ -38,7 +38,7 @@ a = Analysis(
     pathex=[str(root)],
     datas=[(str(root / "app"), "app"), (str(root / "vcam" / "models"), "vcam/models"), (str(root / "vcam" / "bin"), "vcam/bin"),
            (str(root / "LICENSE"), "."), (str(root / "NOTICE"), "."), (str(root / "THIRD_PARTY_NOTICES.md"), ".")],
-    hiddenimports=["server", "supervisor", "pystray._win32", "PIL.Image", "vcam.engine", "vcam.blur", "vcam.sink", "vcam.devices", "vcam.overlay", "vcam.cards", "vcam.looks", "vcam.screen", "vcam.layers", "vcam.compositor", "vcam.program", "vcam.priority", "vcam.present_window", "desktop_win", "legacy", "meeting_form",
+    hiddenimports=["server", "supervisor", "ai", "pystray._win32", "PIL.Image", "vcam.engine", "vcam.blur", "vcam.sink", "vcam.devices", "vcam.overlay", "vcam.cards", "vcam.looks", "vcam.screen", "vcam.layers", "vcam.compositor", "vcam.program", "vcam.priority", "vcam.present_window", "desktop_win", "legacy", "meeting_form",
                    "windows_capture", "pypdfium2", "comtypes", "comtypes.client", "cv2", "numpy",
                    "cv2_enumerate_cameras", "cv2_enumerate_cameras.windows_backend", "cv2_enumerate_cameras._windows_backend"],
     excludes=["tkinter", "unittest", "pydoc_data"],

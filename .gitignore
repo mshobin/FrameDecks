@@ -7,6 +7,7 @@ kc-control-key.txt
 kc-app-settings.json
 kc-app-log.txt*
 kc-sync.json
+kc-ai-cache.json
 .kc-sync-key
 .kc-esv-key
 ipad-remote-check.txt

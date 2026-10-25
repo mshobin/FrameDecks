@@ -26,7 +26,7 @@ with urllib.request.urlopen(req, timeout=10) as r:
     assert r.status == 200 and r.read(2) == b"PK", "meeting workbook export"
 ping = json.loads(urllib.request.urlopen(base + "api/app/ping").read())
 assert ping["app"] == "FRAMEDECKS"
-for name in ["app/js/overlay.js", "app/js/store.js", "app/fonts/EBGaramond.ttf", "app/vendor/xlsx.full.min.js", "desktop_app.py", "desktop_win.py", "supervisor.py", "LICENSE", "NOTICE", "THIRD_PARTY_NOTICES.md"]:
+for name in ["app/js/overlay.js", "app/js/store.js", "app/fonts/EBGaramond.ttf", "app/vendor/xlsx.full.min.js", "desktop_app.py", "desktop_win.py", "supervisor.py", "ai.py", "LICENSE", "NOTICE", "THIRD_PARTY_NOTICES.md"]:
     assert (root / name).exists(), name
 # FRAMEDECKS: the camera ID in the app must match the one compiled into the camera
 import re as _re
