@@ -1,6 +1,8 @@
 # PROJECT STATUS
 
-Last verified: 25 October 2026 against commit `ab38a40` on `main` (pushed; Vercel serves the new emblem and `framedecks-shell-v2` cache). Detail lives in
+Last verified: 25 October 2026 against `main` at `ca463f2`, merged into `claude/peaceful-albattani-6m445e` (PR #7, the
+6.10 Quit fix): desktop JS 3/3, Python OK, `packaging/check.py` (6.10), doc links 0 problems, hosted test 15/15,
+lint, typecheck and build pass. Detail lives in
 [docs/FRAMEDECKS_MODERNIZATION_STATUS.md](docs/FRAMEDECKS_MODERNIZATION_STATUS.md).
 
 ## Completed
@@ -16,7 +18,9 @@ Last verified: 25 October 2026 against commit `ab38a40` on `main` (pushed; Verce
 - Create Supabase project, apply migration, enable Email/Google/Microsoft, sign-in UI, live RLS tests.
 - Real-device PWA install and offline acceptance on the deployed URL.
 - Secure device pairing (QR / 6-digit challenge) and runtime channel.
-- Check emblem in tray icon and a packaged Windows build; visual QA of the new logo in light theme, teleprompter, remote and speaker pages.
+- A person looks at the real tray icon on an installed Windows PC (the icons themselves are checked; see below).
+- Owner decision on a heavier small-size emblem variant: the 16 px favicon and the 16–20 px tray icon are faint on
+  light backgrounds (light browser tabs, the light Windows taskbar).
 
 ## Technical Debt
 - RLS tests run on PGlite with a stubbed `auth.uid()`, not real Supabase; live-database tests are still needed.
@@ -26,8 +30,37 @@ Last verified: 25 October 2026 against commit `ab38a40` on `main` (pushed; Verce
 
 ## Risks
 - Vercel Root Directory `hosted` is assumed from the working deployment, not read from the dashboard.
-- Logo rebuild unverified in: light theme, teleprompter, remote and speaker pages, tray icon. Checked: the 16px favicon is faint on light tab backgrounds because the outline is thin (32px is fine); a heavier-stroke small-size variant would fix it but changes the approved mark, so it needs owner approval.
+- Logo checked on 25 October 2026 ([logo visual QA](docs/qa/2026-10-25-logo-visual-qa.md)): clear in both themes, the
+  Speaker/Teleprompter header and the remote. Still faint: the 16 px favicon and the 16–20 px tray icon on light backgrounds (needs owner
+  approval for a heavier small-size variant). The program icon (.ico) carries the new emblem. Unchecked: the real tray
+  on an installed PC.
+- **Repository drift: parallel work outside `main` contradicts its decisions** (see "Drift" below).
 - Service worker caching must never cover `/api/` or `/auth/` once auth exists (guarded and tested).
+
+## Drift (found and resolved 25 October 2026)
+Pull requests from an earlier workstream predated `main`'s choices and conflicted with them. Decision (owner asked for
+the recommended course): `main`'s plan stands. #7 was brought up to date and merged; #8–#16 were closed with a note.
+Their branches are kept, so any of them can be reopened or mined:
+
+| PR | What | Outcome |
+|---|---|---|
+| #7 | 6.10: Quit really quits (desktop fix) | Merged after `main` was merged in and every check passed. |
+| #8 | Flutter port of the Studio and phone remote | Closed: outside `main`'s plan. Branch `claude/flutter-platform`. |
+| #9, #10 | Windows 11 and Mac virtual cameras | Closed: desktop function change. Branches `claude/windows11-camera`, `claude/mac-camera`. |
+| #11 | SaaS + PWA architecture (Cloudflare) | Closed: `main` uses Vercel + Supabase. Branch `claude/saas-pwa-architecture`. |
+| #12 | Alternative rename, logo and Decks model | Closed: `main` has its own approved emblem; desktop UI frozen. Branch `claude/framedecks-branding`. |
+| #13–#16 | SaaS Phases 1–4 on Cloudflare | Closed: different backend. Branches `claude/saas-phase1` … `claude/saas-phase4`; unfinished `claude/saas-phase5`. |
+
+**Worth reusing when `main` reaches these steps** (designs and tests, not the Cloudflare code):
+- Secure device pairing (`main` Phase 5): `docs/architecture/pairing-protocol.md` on `claude/saas-phase4`: 5-minute
+  QR / 6-digit code, approval at the PC, X25519 key agreement bound to the QR or six check digits, AES-GCM sealed
+  messages with replay counters, roles enforced by the runtime, revoke in under a second; phone and PC crypto checked
+  against one shared test vector (`tests/pair-crypto.test.js`, `tools/make_pairing_vector.py`).
+- Runtime channel: `docs/architecture/relay-protocol.md` (same branch): the PC connects outward; relayed requests are
+  replayed on a listener that treats them as a phone, never as the PC, so the remote's allow-list and roles hold.
+- Metadata sync (`main` Phase 4): `docs/architecture/cloud-api.md` and `app/js/entities.js` on `claude/saas-phase2`:
+  per-record revisions, a workspace sequence, conflict rules ("never lose a Frame"), members end-to-end encrypted with
+  a recovery key, and a two-computer test harness.
 
 ## Assumptions
 - Hosted companion is online-first and separate from the LAN remote.

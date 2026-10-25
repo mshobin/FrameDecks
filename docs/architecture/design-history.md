@@ -922,3 +922,22 @@ Mode, which hid panels that people then could not find, and the Studio's **Hide 
 tray now does better. Hide All is a single flex unit with its Esc hint inside it (`flex:none`). The Program menu is
 always a drop-down, so the bar can't overflow. Under 1140 px the bar wraps. This was checked at widths from 1000 to
 3440 px and at device-pixel ratios from 1.25 to 2.
+
+## 32. Version 6.10: quitting really quits
+
+6.8 made Spotlight a window that is created at start-up and only ever shown and hidden. pywebview's `webview.start()`
+returns when the last window closes. **Quit** closed the main window, but never the hidden Spotlight, so
+`webview.start()` never returned and the process never reached `os._exit`. The server's request loop had been stopped
+with `shutdown()`, but its socket was never closed, so the port stayed bound and still accepted connections. On
+Windows, `SO_REUSEADDR` (the `http.server` default) let the next start bind the same port, and Windows handed
+connections to either socket. The new window's requests reached the silent copy, and the page said *refused to
+connect*.
+
+The fix closes each link in that chain:
+- `quit_app()` closes every window and arms a five-second `os._exit` safety net.
+- `stop_everything()` calls `server_close()`.
+- `server.MainServer` binds with `SO_EXCLUSIVEADDRUSE` on Windows and never reuses an address there.
+- `running_copy()` reports **stuck** when a connection is accepted but no answer comes. `end_stuck_copies()` then ends
+  other processes with the program's own executable name, and only in the installed app.
+- The installer's `PrepareToInstall` closes a running copy.
+
