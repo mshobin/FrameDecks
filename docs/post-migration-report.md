@@ -49,6 +49,26 @@ feature, API or integration was removed or renamed:
 | Undo | Revert the commit; nothing is stored |
 | Checked | 4 tests in `tests/test_media_check.py`: which Frames are listed (templates and unchosen files are skipped); odd and hostile names; Diagnostics; the log line after a sync, said once. Also checked against the real program: the endpoint and Diagnostics answer, and the dashboard loads |
 
+## Also: explicit Data API grants (`0007`)
+
+| | |
+|---|---|
+| Why | From 30 October 2026, Supabase gives tables created after that date no API access unless they are granted. `0002`–`0006` had not been run yet, so the companion would have been cut off from their tables |
+| What | `0007_data_api_grants.sql` grants signed-in people exactly what each table's RLS policies allow, and nothing to `anon`. It is safe to run again. Undo: `rollback/0007_data_api_grants_down.sql` |
+| Checked | The PGlite stand-in now grants nothing by itself. Without `0007` the tests fail with "permission denied"; with it, 77/77 pass. A schema test fails if a table the companion uses is not granted |
+| Owner | Run `0007` after `0006` |
+
+## Step 4: licence and free code signing (M-D1)
+
+| | |
+|---|---|
+| What | `LICENSE` (Apache 2.0, the canonical text), `NOTICE`, `THIRD_PARTY_NOTICES.md` (every shipped component and its licence), `"license": "Apache-2.0"` in both `package.json` files. README and CONTRIBUTING are updated, and the README has a code signing policy |
+| Installer | The three files are copied into the program folder (`packaging/framedecks.spec`); `packaging/check.py` requires them |
+| Signing | `build-windows.yml` signs `FRAMEDECKS.exe`, both camera DLLs and the installer through SignPath. It checks each signature and fails the build if one is missing. It is **off** until the `SIGNPATH_API_TOKEN` secret exists; until then the build is unchanged |
+| Visible | Nothing in the program. Once signing is on, Windows shows "FRAMEDECKS" as a verified publisher |
+| Owner | Follow [code-signing.md](project/code-signing.md): check, then make the repository public; apply to SignPath Foundation; add the secret and three variables |
+| Checked | Packaging check, Python and JS suites, hosted 77/77, Stream Deck tests and `validate`, `npm ci` with both lockfiles. The SignPath steps cannot be run until SignPath approves the project |
+
 ## Validation after the three steps
 
 | Check | Result |

@@ -16,7 +16,11 @@ permissions:
 jobs:
   build:
     runs-on: windows-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
+    env:
+      # Code signing by SignPath Foundation (free for open source, M-D1: docs/releases/code-signing.md). Off until the
+      # owner adds the SIGNPATH_API_TOKEN secret; until then every signing step is skipped and the build is as before.
+      SIGNPATH_ON: ${{ secrets.SIGNPATH_API_TOKEN != '' }}
     steps:
       - name: Get the code
         uses: actions/checkout@v4
@@ -91,6 +95,28 @@ jobs:
           if (-not (Get-ChildItem -Recurse "dist/FRAMEDECKS" -Filter dashboard.html)) { throw "App pages are missing" }
           if (-not (Get-ChildItem -Recurse "dist/FRAMEDECKS" -Filter kingdomconnect_vcam64.dll)) { throw "FRAMEDECKS is missing" }
 
+      - name: Hand the program folder to SignPath (signing on)
+        id: unsigned_app
+        if: env.SIGNPATH_ON == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: unsigned-program
+          path: dist/FRAMEDECKS
+          if-no-files-found: error
+
+      - name: Sign FRAMEDECKS.exe and the camera DLLs (signing on)
+        if: env.SIGNPATH_ON == 'true'
+        uses: signpath/github-action-submit-signing-request@v1
+        with:
+          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+          organization-id: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
+          project-slug: ${{ vars.SIGNPATH_PROJECT_SLUG }}
+          signing-policy-slug: ${{ vars.SIGNPATH_POLICY_SLUG }}
+          artifact-configuration-slug: program
+          github-artifact-id: ${{ steps.unsigned_app.outputs.artifact-id }}
+          wait-for-completion: true
+          output-artifact-directory: dist/FRAMEDECKS
+
       - name: Install Inno Setup (if needed)
         shell: pwsh
         run: |
@@ -103,6 +129,40 @@ jobs:
           $iscc = @("${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe", "$env:ProgramFiles\Inno Setup 6\ISCC.exe") | Where-Object { Test-Path $_ } | Select-Object -First 1
           & $iscc "/DAppVersion=${{ steps.ver.outputs.version }}" packaging/installer.iss
           if ($LASTEXITCODE -ne 0) { throw "Inno Setup failed" }
+
+      - name: Hand the installer to SignPath (signing on)
+        id: unsigned_installer
+        if: env.SIGNPATH_ON == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: unsigned-installer
+          path: dist/FRAMEDECKS v*.exe
+          if-no-files-found: error
+
+      - name: Sign the installer (signing on)
+        if: env.SIGNPATH_ON == 'true'
+        uses: signpath/github-action-submit-signing-request@v1
+        with:
+          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+          organization-id: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
+          project-slug: ${{ vars.SIGNPATH_PROJECT_SLUG }}
+          signing-policy-slug: ${{ vars.SIGNPATH_POLICY_SLUG }}
+          artifact-configuration-slug: installer
+          github-artifact-id: ${{ steps.unsigned_installer.outputs.artifact-id }}
+          wait-for-completion: true
+          output-artifact-directory: dist
+
+      - name: Check the signatures (signing on)
+        if: env.SIGNPATH_ON == 'true'
+        shell: pwsh
+        run: |
+          $files = @(Get-ChildItem "dist/FRAMEDECKS v*.exe") + @(Get-Item "dist/FRAMEDECKS/FRAMEDECKS.exe") +
+                   @(Get-ChildItem -Recurse "dist/FRAMEDECKS" -Filter "kingdomconnect_vcam*.dll")
+          foreach ($f in $files) {
+            $s = Get-AuthenticodeSignature $f.FullName
+            Write-Host "$($s.Status)  $($f.Name)"
+            if ($s.Status -ne 'Valid') { throw "Not signed: $($f.Name)" }
+          }
 
       - name: Write the SHA-256 checksum
         shell: pwsh

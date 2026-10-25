@@ -58,8 +58,9 @@ build pass, doc links 0 problems; the program and the companion checked in brows
 - A person checks the real tray icon and Windows Credential Manager on an installed PC.
 - Owner: run `0006_audit_log.sql` and then `0007_data_api_grants.sql` after `0005`. **`0007` matters most**: from
   30 October 2026 Supabase gives tables created by `0002`–`0006` no API access without it.
-- Owner decisions M-D1–M-D6 in [docs/migration-plan.md](docs/migration-plan.md) §8 (licence and free signing, member
-  authority, first AI feature, PPTX export and audio, hosting terms, member groups).
+- Owner (M-D1): make the repository public after the checks in [code-signing.md](docs/project/code-signing.md), apply
+  to SignPath Foundation, then add `SIGNPATH_API_TOKEN` and the three `SIGNPATH_*` variables.
+- Owner decisions M-D1–M-D6: answered 25 October ([docs/migration-plan.md](docs/migration-plan.md) §8).
 
 ## Technical Debt
 - From the [architecture audit](docs/project/2026-10-25-architecture-audit.md) (25 Oct): unsigned installer and no

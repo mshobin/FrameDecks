@@ -99,6 +99,11 @@ Updated 25 October 2026, after the architecture review and migration plan (PR #3
   media folder), `GET /api/media/check` (this PC only), `missingMedia` in Diagnostics, one log line when a sync
   brings such a Frame; `tests/test_media_check.py` (4). Size/hash in sync records and an on-screen line are not
   built (design needed; owner approval). Results of steps 1–3: [docs/post-migration-report.md](../docs/post-migration-report.md).
+- **Explicit API grants** `0007_data_api_grants.sql` (Supabase's 30 October 2026 change); the PGlite stand-in grants
+  nothing by itself; a schema test checks every table the companion uses is granted.
+- **Step 4 (M-D1, licence and signing)**: `LICENSE` (Apache 2.0), `NOTICE`, `THIRD_PARTY_NOTICES.md` (shipped in the
+  program folder), README code signing policy, SignPath steps in `build-windows.yml` (off until the
+  `SIGNPATH_API_TOKEN` secret exists). Owner steps: [docs/project/code-signing.md](../docs/project/code-signing.md).
 - Tidy-up: the "older docs reference 6.6" debt is closed (they mention 6.6 as history; the 6.6 audit is marked as a
   snapshot; the coding-standards comment template no longer names a version).
 

@@ -2,6 +2,7 @@
   "name": "framedecks-streamdeck",
   "version": "1.0.0",
   "private": true,
+  "license": "Apache-2.0",
   "description": "FRAMEDECKS plugin for Elgato Stream Deck (runs FRAMEDECKS actions on this PC like its keys).",
   "type": "module",
   "scripts": {

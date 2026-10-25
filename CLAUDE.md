@@ -40,6 +40,8 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
   `docs/architecture/hosting.md`.
 - `streamdeck/` — the Stream Deck plugin (owner's choice); it calls the PC's local `GET /api/command/status` and
   `POST /api/command` (this PC only), which run through the same window bridge as the companion, without a toast.
+- Licence: Apache 2.0 (`LICENSE`, `NOTICE`); every shipped dependency or vendored file needs a row in
+  `THIRD_PARTY_NOTICES.md`. Signing: SignPath, off until its secret exists (`docs/project/code-signing.md`).
 - Continuity: `CLAUDE.md`, `PROJECT_STATUS.md`, `PROJECT_ROADMAP.md`, `.ai/NEXT_SESSION.md`. The owner's live tests:
   `docs/qa/live-test-guide.md` (keep it in step when a tested behaviour changes).
 - `hosted/src/app/{services,live,members,computers}` — the synced plan (owners and admins edit its words and order,
