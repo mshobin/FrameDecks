@@ -27,6 +27,7 @@ function showSection(id){
   (window.KCSectionHooks || []).forEach(function(f){ try { f(id); } catch(e){} });     // v6: Scripture, Transitions
 }
 window.KCShowSection = showSection;
+window.KCRenderSecurity = function(){ if (current === 'security') renderSecurity(); };
 $('s-nav').addEventListener('click', function(e){ var b = e.target.closest('[data-sec]'); if (b) showSection(b.dataset.sec); });
 document.addEventListener('click', function(e){
   var b = e.target.closest('[data-goto="settings"][data-sec]'); if (b) setTimeout(function(){ showSection(b.dataset.sec); }, 0);
@@ -57,7 +58,10 @@ function renderSecurity(){
     return h('div', {cls: 'scard'}, [h('h3', {}, [title]), pill, h('p', {text: text})].concat(extra || []));
   }
   function pill(cls, text){ return h('p', {}, [h('span', {cls: 'status-pill ' + cls}, [h('i'), text])]); }
-  g.appendChild(card('Local only', pill('ok', 'On'),
+  var sync = window.KCSyncInfo ? window.KCSyncInfo() : null, linked = sync && sync.state === 'linked';
+  if (linked) g.appendChild(card('Workspace sync', pill('info', 'On'),
+    'This PC syncs its service plans and member list with the workspace “' + (sync.workspace || '') + '” (Settings → FRAMEDECKS account). Pictures, videos, what is live, the phone remote PIN and private settings stay on this PC, and services run from this PC, online or not.'));
+  else g.appendChild(card('Local only', pill('ok', 'On'),
     'Everything runs on this PC. Nothing is uploaded, and no cloud account is used. Unless the phone remote is switched on, only this PC can connect.'));
   g.appendChild(card('Phone & iPad Remote', r.enabled ? pill('info', 'On (PIN protected)') : pill('ok', 'Off'),
     r.enabled ? 'Other devices on your Wi-Fi need the 6-digit PIN. After 5 wrong tries a device waits 60 seconds. The remote controls overlays only and cannot open member details.'
@@ -68,8 +72,9 @@ function renderSecurity(){
     }})] : []));
   g.appendChild(card('FRAMEDECKS camera', pill('ok', 'Stays on this PC'),
     'Your webcam picture is processed on this PC (including background blur) and only goes to the meeting app you choose. The webcam is only switched on while Zoom, Teams or the preview is using FRAMEDECKS.'));
-  g.appendChild(card('Member details', pill('ok', 'Private'),
-    'Stored only in kc-members-private.json on this PC. Never sent to overlays or the phone remote. The birthday overlay receives only the greeting you choose to show.'));
+  g.appendChild(card('Member details', pill(linked ? 'info' : 'ok', linked ? 'Synced to your workspace' : 'Private'),
+    linked ? 'Stored in kc-members-private.json on this PC and synced to your workspace, where only its owners and admins can see them. Never sent to overlays or the phone remote.'
+           : 'Stored only in kc-members-private.json on this PC. Never sent to overlays or the phone remote. The birthday overlay receives only the greeting you choose to show.'));
   g.appendChild(card('Windows Firewall', pill('ok', 'Never changed automatically'),
     'FRAMEDECKS does not change firewall settings by itself. The optional “Allow iPad Remote” helper asks first, only affects private networks, and can be undone with “Undo iPad Remote permission”.'));
   g.appendChild(card('Emails', pill('ok', 'Never sent automatically'),

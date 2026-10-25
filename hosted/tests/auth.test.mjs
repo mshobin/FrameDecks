@@ -31,3 +31,11 @@ test("sign-in uses PKCE and never a service-role key", () => {
     assert.doesNotMatch(readFileSync(file, "utf8"), /service_role|SERVICE_ROLE|sb_secret_/i, file);
   }
 });
+
+test("the desktop's config route serves only the two public values", () => {
+  const route = read("app/api/sync-config/route.ts");
+  assert.match(route, /readSupabaseConfig\(\)/);
+  assert.match(route, /\{ url: config\.url, anonKey: config\.anonKey \}/);
+  assert.doesNotMatch(route, /process\.env/);
+  assert.ok(route.split("Response.json(").length === 3, "one error answer and one config answer");
+});

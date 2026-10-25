@@ -13,8 +13,8 @@ lint, typecheck and build pass. Detail lives in
 
 ## In Progress
 - Phase 4 sync of service plans: design agreed ([metadata-sync.md](docs/architecture/metadata-sync.md)); steps 1
-  (database `0003_sync.sql`) and 2 (record mapping `sync_entities.py` / `sync-entities.ts`, shared fixtures) built;
-  steps 3–5 to come.
+  (database `0003_sync.sql`) 2 (record mapping) and 3 (PC sync `cloud_sync.py`, Settings → FRAMEDECKS account) built; steps 4
+  (companion: link a computer, Services view) and 5 (live two-PC test) to come.
 - Phase 3 (auth): the owner created the Supabase project (`slrsykiknlqlivlnpvrb`) and ran the tenant migration in the
   SQL editor (25 October; its result not yet confirmed in writing). The sign-in UI is built (`/sign-in`, `/auth/callback`,
   top-bar account chip; emailed link, Google/Microsoft when enabled), merged (PR #18) and deployed with the Vercel

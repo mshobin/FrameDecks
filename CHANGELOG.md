@@ -11,6 +11,10 @@ Versions before 4.9 (when the program had its earlier name) are described in the
 ## [Unreleased]
 
 ### Added
+- Settings → **FRAMEDECKS account**: link this PC to a workspace in the FRAMEDECKS companion with a short code, and
+  its service plans, Teleprompter scripts and member list sync in the background (pictures, videos, what is live and
+  the phone remote PIN stay on the PC). Optional and off until linked; services always run from the PC, online or
+  not. The workspace side (the companion's Computers page) comes next.
 - Hosted companion: sign-in with an emailed link (and Google or Microsoft once they are switched on in Supabase),
   a sign-in return page and a top-bar account button. The desktop app is unchanged.
 - Hosted companion: signed-in people can set a display name and create their church's workspace (they become its

@@ -11,7 +11,7 @@ Phases follow [docs/FRAMEDECKS_MODERNIZATION_STATUS.md](docs/FRAMEDECKS_MODERNIZ
 | Supabase project, providers, sign-in UI | Done for emailed links (live sign-in confirmed 25 Oct); Google/Microsoft need owner setup |
 | Workspaces, members, invitations | Built; workspaces confirmed live; invitations to be tested live with Google/Microsoft later |
 | Live RLS tests against Supabase | Needs `*.supabase.co` allowed in the cloud environment |
-| Sync service plans (metadata only) | Design agreed ([metadata-sync.md](docs/architecture/metadata-sync.md)); steps 1 (database) and 2 (record mapping) built; steps 3–5 next |
+| Sync service plans (metadata only) | Design agreed ([metadata-sync.md](docs/architecture/metadata-sync.md)); steps 1–3 built (database, record mapping, PC sync + Settings section); steps 4 (companion) and 5 (live test) next |
 | Secure device pairing + runtime channel | Later |
 | Real-device PWA acceptance, operations | Later |
 | Packaged Windows run, tray icon check | Later |
