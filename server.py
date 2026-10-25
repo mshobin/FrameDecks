@@ -11,6 +11,7 @@ Windows: double-click "Start FRAMEDECKS.bat"
 Mac:     double-click "Start FRAMEDECKS (Mac).command"
          (for the phone remote: python3 server.py --remote)
 """
+import atexit
 import hashlib
 import json
 import os
@@ -28,6 +29,7 @@ from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from pathlib import Path
 from urllib.parse import urlparse, parse_qs, unquote
 
+import sync_entities   # what is live and what is plan (the same split as sync)
 import cloud_remote   # Phase 5: running a service from the companion (only when linked and switched on)
 import cloud_sync   # Phase 4: syncing service plans with a workspace (only when this PC is linked)
 import legacy   # 6.9: moves data saved under the program's earlier name
@@ -178,29 +180,87 @@ def state_body(lib_rev=None):
     return json.dumps(dict(state, libraryRev=LIBRARY["rev"]))
 
 
+# Saving (architecture audit P1, P2): a change to the plan is written at once. A change to what is live only (Next,
+# Show/Hide, blackout) is written at most once a second: during a service that is most presses, and each one used
+# to rewrite the whole plan with its library. Live state never syncs, so it no longer starts a sync round either.
+LIVE_WRITE_DELAY = 1.0
+DISK = {"plan": None, "dirty": False, "timer": None}
+
+
+def plan_fingerprint(st):
+    """The saved state without what is live (as sync_entities.split leaves out) and without the library, which
+    save_state compares on its own: equal text = same plan. Not key-sorted (cheaper): a different key order only
+    makes a change count as a plan change, which is written at once - never the other way round."""
+    out = {}
+    for k, v in st.items():
+        if k in ("rev", "live", "library", "libraryRev", "libraryOmitted"):
+            continue
+        if k in sync_entities.CARD_LIVE and isinstance(v, dict):
+            v = {kk: vv for kk, vv in v.items() if kk not in sync_entities.CARD_LIVE[k]}
+        out[k] = v
+    return json.dumps(out, ensure_ascii=False)
+
+
+def _write_state_file():
+    """Write the current state now (call with cond held). Compact JSON: the C encoder, several times faster."""
+    t = DISK.get("timer")
+    if t:
+        t.cancel()
+    DISK.update(dirty=False, timer=None)
+    tmp = STATE_FILE.with_suffix(".tmp")
+    tmp.write_text(json.dumps(state, ensure_ascii=False), encoding="utf-8")
+    os.replace(tmp, STATE_FILE)
+
+
+def flush_state():
+    """Write a pending live-only change now (before quitting, a backup or an import)."""
+    with cond:
+        if DISK["dirty"]:
+            _write_state_file()
+
+
+def _write_later():
+    with cond:
+        if DISK["dirty"]:
+            _write_state_file()
+
+
 def save_state(new):
     global state
     with cond:
         new.pop("libraryRev", None)
         new.pop("libraryOmitted", None)
         new["rev"] = int(state.get("rev", 0)) + 1
-        if new.get("library") != state.get("library"):
+        library_changed = new.get("library") != state.get("library")
+        if library_changed:
             LIBRARY["rev"] = new["rev"]
         state = new
-        tmp = STATE_FILE.with_suffix(".tmp")
-        tmp.write_text(json.dumps(state, indent=2, ensure_ascii=False), encoding="utf-8")
-        os.replace(tmp, STATE_FILE)
+        plan = plan_fingerprint(state)
+        plan_changed = library_changed or plan != DISK["plan"]
+        DISK["plan"] = plan
+        if plan_changed:
+            _write_state_file()
+        else:
+            DISK["dirty"] = True
+            if DISK["timer"] is None:
+                DISK["timer"] = threading.Timer(LIVE_WRITE_DELAY, _write_later)
+                DISK["timer"].daemon = True
+                DISK["timer"].start()
         cond.notify_all()
         eng = VCAM.get("engine") if "VCAM" in globals() else None
         if eng:
             eng.kick()                     # a card was shown/hidden: draw it now, even in the idle rhythm
         if "VCAM" in globals():
             apply_live_media(state)
-        if "SYNC" in globals():
+        if plan_changed and "SYNC" in globals():
             SYNC.poke()                    # linked to a workspace: send this change after a few quiet seconds
         if "CLOUD_REMOTE" in globals():
             CLOUD_REMOTE.changed()         # the companion's Live page shows the new screen soon
         return state
+
+
+atexit.register(flush_state)
+DISK["plan"] = plan_fingerprint(state)                    # the plan as loaded: a first live press is not a plan change
 
 
 # ---------- v6 Scenes: the live scene's media layers are the FRAMEDECKS picture ----------
@@ -597,6 +657,7 @@ def list_backups():
 
 def backup_now(tag=""):
     """Copy the verses/questions file and the member file into backups/<date>. Keeps the newest 10."""
+    flush_state()                                         # the file must hold the latest live state too
     with backup_lock:
         files = [f for f in (STATE_FILE, PRIVATE_FILE) if f.exists()]
         if not files:
@@ -703,7 +764,7 @@ def import_from(folder):
         raise ValueError("That folder doesn’t contain FRAMEDECKS data (its saved content or member list).")
     if src.resolve() == DATA.resolve():
         raise ValueError("That is already the folder FRAMEDECKS uses.")
-    backup_now("before-import")
+    backup_now("before-import")                           # also writes any pending change, so none lands later
     copied = []
     for name in DATA_FILE_NAMES:
         f = legacy.find(src, name)                          # also an older folder that uses the earlier file names

@@ -92,6 +92,20 @@ def clean_layer(d):
 
 
 # ---------- sources ----------
+# The largest box a layer is ever drawn in: w and h go up to 2.0 of a 1920 × 1080 picture. A picture bigger than it
+# needs to cover that box is shrunk once on loading (architecture audit P3): nothing visible is lost, and a 24 MP photo
+# takes about 39 MB of memory instead of 96 MB.
+MAX_DRAWN = (3840, 2160)
+
+
+def fit_for_drawing(img, max_w=MAX_DRAWN[0], max_h=MAX_DRAWN[1]):
+    ih, iw = img.shape[:2]
+    k = max(max_w / iw, max_h / ih)
+    if k >= 1:
+        return img
+    return cv2.resize(img, (max(1, round(iw * k)), max(1, round(ih * k))), interpolation=cv2.INTER_AREA)
+
+
 class ImageSource:
     def __init__(self, path):
         img = cv2.imread(str(path), cv2.IMREAD_UNCHANGED)
@@ -101,7 +115,8 @@ class ImageSource:
             img = cv2.cvtColor(img, cv2.COLOR_GRAY2BGRA)
         elif img.shape[2] == 3:
             img = cv2.cvtColor(img, cv2.COLOR_BGR2BGRA)
-        self.img, self.version, self.info = img, 1, f"{img.shape[1]}×{img.shape[0]}"
+        info = f"{img.shape[1]}×{img.shape[0]}"
+        self.img, self.version, self.info = fit_for_drawing(img), 1, info
 
     def frame(self):
         return self.img, self.version
