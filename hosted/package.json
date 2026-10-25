@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "eslint src tests/hosted-boundary.test.mjs",
     "typecheck": "tsc --noEmit",
-    "test": "node --test tests/hosted-boundary.test.mjs tests/supabase-schema.test.mjs tests/pwa.test.mjs"
+    "test": "node --test tests/hosted-boundary.test.mjs tests/supabase-schema.test.mjs tests/pwa.test.mjs tests/supabase-rls.test.mjs"
   },
   "dependencies": {
     "class-variance-authority": "^0.7.1",
@@ -20,6 +20,7 @@
     "tailwind-merge": "^3.3.1"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "^0.5.11",
     "@tailwindcss/turbopack": "^4",
     "@types/node": "^20",
     "@types/react": "^19",

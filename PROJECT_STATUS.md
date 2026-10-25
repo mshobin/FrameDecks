@@ -1,0 +1,38 @@
+# PROJECT STATUS
+
+Last verified: 25 October 2026 against commit `d9c6ded` on `main`. Detail lives in
+[docs/FRAMEDECKS_MODERNIZATION_STATUS.md](docs/FRAMEDECKS_MODERNIZATION_STATUS.md).
+
+## Completed
+- Desktop app preserved unchanged; branding migrated; approved gold-outline transparent emblem (reproducible via `tools/make_emblem_assets.py`; horizontal/stacked logos via `tools/generate_brand_assets.py`, README header via `tools/make_readme_header.py`).
+- Hosted Next.js shell in `hosted/` with the desktop navy/gold theme; CI (`.github/workflows/hosted.yml`); live at `https://framedecks.vercel.app/` (HTTP 200, verified).
+- PWA manifest, safe shell service worker, production-only registrar; verified locally (registers, caches, loads offline).
+- Supabase tenant migration `0001_tenant_foundation.sql`; row-level-security behaviour is now an in-repo test (`hosted/tests/supabase-rls.test.mjs`, in-memory Postgres via dev-only `@electric-sql/pglite`): 8 test groups covering 16 checks pass.
+
+## In Progress
+- Phase 3 (auth): scaffold only; no Supabase project, providers or sign-in UI.
+
+## Pending
+- Create Supabase project, apply migration, enable Email/Google/Microsoft, sign-in UI, live RLS tests.
+- Real-device PWA install and offline acceptance on the deployed URL.
+- Secure device pairing (QR / 6-digit challenge) and runtime channel.
+- Check emblem in tray icon and a packaged Windows build.
+
+## Technical Debt
+- RLS tests run on PGlite with a stubbed `auth.uid()`, not real Supabase; live-database tests are still needed.
+- `npm audit`: high findings in the dev-only ESLint tree (not applied: fix would downgrade `eslint-config-next`).
+- Emblem is a 2x upscale of a 512px source; edges are limited until a higher-resolution original exists.
+- Older audit docs still reference version 6.6.
+
+## Risks
+- Vercel Root Directory `hosted` is assumed from the working deployment, not read from the dashboard.
+- Service worker caching must never cover `/api/` or `/auth/` once auth exists (guarded and tested).
+
+## Assumptions
+- Hosted companion is online-first and separate from the LAN remote.
+
+## Blockers
+- Supabase project URL and anon key, and OAuth client credentials, must come from the owner.
+
+## Recommended Next Task
+See [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).

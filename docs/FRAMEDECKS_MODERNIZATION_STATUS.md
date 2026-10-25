@@ -4,7 +4,7 @@
 **Working branch:** `modernization-v1`  
 **Current milestone:** Hosted foundation validated locally and live on Vercel; next is Supabase auth and tenant foundation (Phase 3)
 
-**Overall implementation state:** Repository assessment, branding, and architecture are documented. The HTTPS-to-local-HTTP path is rejected; the hosted PWA is a separate online-first companion. A responsive static Next.js shell, shadcn-style UI base, boundary test, and independent CI workflow now exist and pass local checks, and the shell is deployed at `https://framedecks.vercel.app/`. Authentication, tenant data, pairing, and PWA install/cache remain unimplemented.
+**Overall implementation state:** Repository assessment, branding, and architecture are documented. The HTTPS-to-local-HTTP path is rejected; the hosted PWA is a separate online-first companion. A responsive static Next.js shell, shadcn-style UI base, boundary test, and independent CI workflow now exist and pass local checks, and the shell is deployed at `https://framedecks.vercel.app/`. Authentication UI, live tenant data, pairing, and real-device PWA install acceptance remain unimplemented; the manifest, safe shell service worker, and Supabase migration scaffold exist.
 
 ## Status definitions
 
@@ -23,7 +23,7 @@
 | Performance assessment | Completed | Current workload and historical 6.6/6.7 metrics documented; current 6.9 hosted performance baseline remains future work. |
 | Technical debt assessment | Completed | Large modules, custom server, cross-language state compatibility, and test gaps recorded. |
 | SaaS readiness | Completed | Low by design; no accounts, tenants, cloud database, or hosted operations model. |
-| PWA readiness | Partially Complete | Existing LAN remote has manifest/icons only. Hosted app now has a static shell and independent checks; no auth, service worker, pairing, or deployment exists yet. |
+| PWA readiness | Partially Complete | Existing LAN remote has manifest/icons only. Hosted app now has a static shell, manifest, safe app-shell service worker (verified locally on a production build: registers, caches, loads offline) and independent checks; no auth, pairing, or real-device install test yet. |
 | Offline capability assessment | Completed | Desktop workflows remain offline; hosted PWA is explicitly online-first and separate from the unchanged LAN remote. |
 | Test baseline | Completed | Node tests: 3/3 files pass. Python tests: 24 run, 1 skipped, pass. Packaging self-check passes; OpenCV unavailable in this environment. |
 | Audit and architecture documents | Completed | [Audit](FRAMEDECKS_AUDIT.md), [modernization architecture](FRAMEDECKS_MODERNIZATION.md), and [migration roadmap](project/saas-migration-roadmap.md) added/updated. |

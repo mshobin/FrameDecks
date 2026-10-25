@@ -59,17 +59,22 @@ generator, PyInstaller, and installer. Run the packaging self-check and tests af
 
 ## Transparent emblem
 
-`tools/generate_brand_assets.py` writes `app/img/kc-emblem.webp` as an **opaque** 512×512 image. After running it,
-re-apply the transparent treatment, which also refreshes the hosted copy:
+The current emblem is a gold-outline, transparent vector mark: `assets/brand/framedecks-emblem.svg` (master) rendered
+to `assets/brand/framedecks-emblem-1024.png`. Every emblem derivative comes from that PNG:
 
 ```powershell
-python tools/make_transparent_emblem.py
+python tools/make_emblem_assets.py
 ```
 
-The tool needs numpy (developer-only; not a runtime or build dependency). It reads the last opaque emblem from git
-history (`e02dd52~1`), keeps only the gold artwork, clears glow haze, bleed and edge fringing, upscales to 1024×1024
-and writes both files losslessly. The source is only 512 px, so the result is smooth but cannot add detail; supply a
-higher-resolution original or vector emblem for true pixel-level sharpness at large sizes.
+It writes `app/img/kc-emblem.webp` and `hosted/public/framedecks-emblem.webp` (identical, lossless 1024 RGBA), the
+`app/icons/` favicons and remote icons, the navy maskable icon, `packaging/kingdom-connect.ico`, `kc-mark.png`,
+`framedecks-logo-icon.png` (brand and hosted) and `hosted/src/app/icon.png`. Pillow only. If the SVG changes,
+re-render the PNG first (resvg at 1024 px width, transparent background).
+
+`tools/generate_brand_assets.py` rebuilds the horizontal and stacked logos from the master emblem PNG, keeping the
+gold wordmark and tagline cropped from the legacy `framedecks-logo-source.png` (that file is now only the wordmark
+source). `kc-about-header.webp` comes from `tools/make_readme_header.py` as before. The previous opaque and gold-only
+emblems remain in git history.
 
 In the desktop light theme, `theme.css` darkens the header logos (`.cmdbar`, `.console-top`, speaker `.sp-mark`) so the
 gold keeps contrast on cream. The About and phone-remote logos sit on fixed navy and are not filtered.

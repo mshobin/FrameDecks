@@ -1,6 +1,6 @@
 // Minimal offline shell. Only same-origin GET navigations and static assets are cached;
 // API, auth and any non-GET traffic always goes to the network.
-const CACHE = "framedecks-shell-v1";
+const CACHE = "framedecks-shell-v2";
 const SHELL = ["/", "/framedecks-emblem.webp"];
 
 self.addEventListener("install", (event) => {
