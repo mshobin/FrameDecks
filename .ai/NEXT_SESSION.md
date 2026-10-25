@@ -1,6 +1,6 @@
 # NEXT SESSION HANDOFF
 
-Updated 25 October 2026, after the live test guide (PR #31, merged) and a docs tidy-up.
+Updated 25 October 2026, after the architecture audit (docs/project/2026-10-25-architecture-audit.md).
 
 ## Completed
 - **6.10** (Quit really quits) merged (PR #7). Logo QA done, with a heavier small-size emblem for 16–32 px (PR #18;
@@ -70,6 +70,12 @@ Updated 25 October 2026, after the live test guide (PR #31, merged) and a docs t
   database scripts, the installer, and tests A (sync), B (phone control), C (editing), D (history), with what to
   expect and what to send back (PR #31, merged). Installer for it: the latest "Build Windows installer" run on
   `main` (run 40209501557 at `2a418b4` passed; later runs only add documentation).
+- **Architecture, performance and product audit** (owner's brief, no UI changes):
+  [docs/project/2026-10-25-architecture-audit.md](../docs/project/2026-10-25-architecture-audit.md). Verdict: the
+  boundaries are right (local rendering and media, text-only cloud, phones send commands). Critical: unsigned
+  installer and no auto-update (C1), no restart if the process dies mid-meeting (C2). High: whole-plan disk write
+  and a sync round on every live press (C3, C4 → P1, P2), full-resolution images and 4K screen frames held in RAM
+  (C5, C6 → P3, P4). Phase 1 of its roadmap is the proposed next work.
 - Tidy-up: the "older docs reference 6.6" debt is closed (they mention 6.6 as history; the 6.6 audit is marked as a
   snapshot; the coding-standards comment template no longer names a version).
 
@@ -107,6 +113,8 @@ Step 5 needs the owner to run `0002`–`0005` in Supabase and to have the PR-bui
 (an installer from "Build Windows installer" on `main`, or running `server.py` from source).
 
 ## Recommended Next Task
+After the owner's answer on the audit: its Phase 1 (code signing needs the owner to buy a certificate; the
+supervisor; P1–P4, each with a resource test). Meanwhile:
 Help the owner through [the live test guide](../docs/qa/live-test-guide.md) (sync step 5, Phase 5 step 4, companion
 editing step 3 and history; installer from the latest "Build Windows installer" run on `main`, migrations
 `0002`–`0005`). Fix what they find and mark each test done in the four files. Then: Google/Microsoft sign-in with the

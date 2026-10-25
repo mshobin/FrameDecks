@@ -50,6 +50,10 @@ build pass, doc links 0 problems; the program and the companion checked in brows
 - A person checks the real tray icon and Windows Credential Manager on an installed PC.
 
 ## Technical Debt
+- From the [architecture audit](docs/project/2026-10-25-architecture-audit.md) (25 Oct): unsigned installer and no
+  auto-update (C1); no restart when the process dies mid-meeting (C2); the whole plan written and a sync round
+  started on every live press (C3, C4); full-resolution images and 4K screen frames in RAM (C5, C6); missing media
+  found only at service time (C8).
 - RLS tests run on PGlite with a stubbed `auth.uid()`, not real Supabase; live-database tests are still needed.
 - Sync is tested against a stand-in cloud that follows the database's rules (`tests/test_cloud_sync.py`), not yet
   against live Supabase; D4 (conflict rules) was built as recommended without the owner's explicit answer.
