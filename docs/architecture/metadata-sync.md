@@ -1,6 +1,8 @@
 # Syncing service plans (Phase 4 design)
 
-**Status:** proposal for the owner's review (25 October 2026). Nothing here is built yet.
+**Status:** agreed with the owner on 25 October 2026 (decisions in [§10](#10-decisions-for-the-owner)). Step 1 of
+[§9](#9-tests-and-delivery) is built: `hosted/supabase/migrations/0003_sync.sql`, tested by
+`hosted/tests/supabase-sync.test.mjs`.
 **Scope:** `main`'s plan: Supabase (project `slrsykiknlqlivlnpvrb`) and the hosted companion on Vercel. The desktop app
 stays the place where services run, offline.
 
@@ -8,14 +10,16 @@ stays the place where services run, offline.
 
 - **What syncs:** the *plan* of a service, as text: Frames and their Content (questions, scriptures, text, timers,
   scripts), Frame order and groups, the question and scripture library, card looks, layout, Meeting Name and colour,
-  and the Meeting Form details.
-- **What never leaves the PC:** pictures, videos, PDFs and PowerPoints; the logo image; the member list with birthdays;
-  the phone-remote PIN; anything that is live on screen.
+  and the Meeting Form details. Also the **member list** (owner decision D2), visible on the web to the workspace's
+  owners and admins only.
+- **What never leaves the PC:** pictures, videos, PDFs and PowerPoints; the logo image; the phone-remote PIN; the
+  private settings; anything that is live on screen.
 - **Nothing changes during a service.** The PC presents from its own copy exactly as today. Sync runs in the
   background, waits while you are offline, and never changes the Frame that is on screen.
 - **Nothing is lost.** If the same Frame was changed in two places, both versions are kept.
 - **To link a PC:** the PC shows a short code; you type it in the companion while signed in, and choose the workspace.
-- **Decisions needed from you:** the four questions in [§10](#10-decisions-for-the-owner).
+  The PC makes its own key and the cloud only ever stores a fingerprint (hash) of it.
+- **Decisions:** recorded in [§10](#10-decisions-for-the-owner).
 
 ## 1. Goals and limits
 
@@ -40,7 +44,7 @@ All of a service plan is one JSON file, `kc-saved-content.json` in the data fold
 | File / folder | Holds | Synced? |
 |---|---|---|
 | `kc-saved-content.json` | Frames (`scenes`, each with its layers and lists), `library`, the three cards, `layout`, `brand`, `meeting`, `profile`, `live`, `rev` | Split into records (§3); `live`, `rev` and live card text stay |
-| `kc-members-private.json` | Member list (names, birthdays) and private settings | **No** (D2) |
+| `kc-members-private.json` | Member list (names, birthdays) and private settings | The `members` list **yes** (D2), one record per person; the private settings no |
 | `layers/` | Pictures, videos, PDFs, PowerPoints used by layers | **No** (media) |
 | `bcc-brand-logo.png` | Logo image | **No** (media); `brand.logo` name only |
 | `kc-remote-pin.txt`, `kc-remote-sessions.json`, `kc-app-settings.json`, `backups/` | Phone-remote PIN and sessions, app settings, backups | **No** |
@@ -49,7 +53,8 @@ All of a service plan is one JSON file, `kc-saved-content.json` in the data fold
 
 The plan is split into small records so that changing one Frame sends one Frame, and two people changing different
 Frames never collide. This reuses the mapping designed and tested on the closed branch `claude/saas-phase2`
-(`app/js/entities.js`, `docs/architecture/cloud-api.md`), minus the member list.
+(`app/js/entities.js`, `docs/architecture/cloud-api.md`), with one change: members are one record per person
+(Phase 2 sealed the whole list as one encrypted record, which the web could not show).
 
 | Kind | One per | Body |
 |---|---|---|
@@ -60,6 +65,7 @@ Frames never collide. This reuses the mapping designed and tested on the closed 
 | `theme` | workspace (`cards`) | The look of the question, scripture and birthday cards, without what is showing now |
 | `brand` | workspace | Meeting Name, organisation, colour, logo *file name*, size flags |
 | `layout`, `meeting` | workspace | As saved |
+| `member` | person in `kc-members-private.json` → `members` | `id`, `name`, `country`, `phone`, `email`, `birthDate`, `role` (as `members-core.js` checks them). **Readable by owners and admins only** |
 
 Stays on the PC (never a record): `live`, `rev`, each card's live fields (`text`, `visible`, `seq`, `itemId`, …, the
 `CARD_LIVE` list in the Phase 2 `entities.js`), and anything unknown to this version. `join(split(doc))` gives back the same
@@ -81,11 +87,13 @@ entities (organization_id, kind, id)  primary key
 
 workspace_sync (organization_id primary key, seq bigint)   -- one counter per workspace
 computers (id, organization_id, name, key_hash, created_by, created_at, last_seen_at, revoked_at)
-computer_links (code_hash, poll_hash, name, organization_id, computer_id, expires_at, approved_at)
+computer_links (code_hash, key_hash, name, expires_at, organization_id, computer_id)   -- waiting links, 10 minutes
+computer_link_failures (user_id, at)   -- wrong codes typed, for the limit of 20 an hour
 entity_history (organization_id, kind, id, rev, body, updated_by, replaced_at)   -- kept 30 days (§7)
 ```
 
-**Row-level security.** Members of a workspace can read its `entities` (the companion's view). Writes go only through
+**Row-level security.** Members of a workspace can read its `entities` (the companion's view), except `member`
+records (people's phone numbers and birthdays), which only the workspace's owners and admins can read. Writes go only through
 the functions below; there is no direct insert or update policy. `computers` is visible to workspace admins (to see
 and revoke linked PCs). `workspace_sync` and `computer_links` have no client policies at all.
 
@@ -96,9 +104,9 @@ before it has a key):
 |---|---|---|
 | `sync_pull(since, limit)` | PC (computer key) or member (session) | Records with `seq > since`, oldest first, at most 500, plus the new cursor and `more` |
 | `sync_push(changes)` | PC, or admin later | For each `{kind, id, baseRev, deleted, body}`: if the stored `rev` equals `baseRev`, store with `rev + 1` and the next `seq`; otherwise answer `conflict` with the current record. Each change stands alone. At most 200 changes / 2 MB a call |
-| `computer_link_start(name)` | PC, no key yet (`anon`) | Returns an 8-character code (shown on the PC) and a secret poll token; both expire in 10 minutes. Rate-limited |
-| `computer_link_approve(code, organization_id)` | Signed-in owner/admin in the companion | Approves the waiting PC for that workspace and creates its `computers` row |
-| `computer_link_poll(poll_token)` | PC (`anon`) | `pending`, or once: the computer id and its key (32 random bytes; only a hash is stored) |
+| `computer_link_start(name, key_hash)` | PC, before it is linked (`anon`) | The PC makes its own key (32 random bytes), keeps it, and sends only its SHA-256 hash. Returns an 8-character code to show; it expires in 10 minutes. At most 1,000 links wait at once |
+| `computer_link_approve(code, organization_id)` | Signed-in owner/admin in the companion | Approves the waiting PC for that workspace and creates its `computers` row with the key hash. 20 wrong codes an hour per person, then a pause |
+| `computer_link_poll(key)` | PC (`anon`) | `pending`, `expired`, or once: `approved` with the computer id and workspace. The key itself never crosses the network except as the request header later, and the cloud stores only its hash |
 | `computer_revoke(id)` | Owner/admin | Sets `revoked_at`; that PC's key stops working at once. The PC keeps working offline |
 
 The PC sends its key in a request header (`x-framedecks-computer`), which the functions read from PostgREST's
@@ -158,6 +166,7 @@ A conflict means the record changed in the cloud since this PC last saw it. Rule
 | `frame`, `template` | **Never lose a Frame.** The cloud's version keeps the id; this PC's version is added as a copy named "‹Frame› (from ‹PC name›)" with a new id, and both appear in the Frames list for a person to tidy. |
 | `order` | Merge: keep the cloud's order, then add Frames and items it lacks at the end. |
 | everything else | Last writer wins: this PC's version is sent again on top. The earlier version stays in the record history (§7). |
+| `member` | **Never lose a person.** One record per person, so two people edited in two places never collide. The same person changed in two places: last writer wins, and the earlier version stays in the history. |
 | Deleted in one place, changed in the other | The change wins and the record comes back: deleting is never allowed to destroy an edit. |
 
 ## 7. History, export and safety
@@ -167,13 +176,15 @@ A conflict means the record changed in the cloud since this PC last saw it. Rule
 - **Export.** The companion gets "Download this workspace" (all records as JSON), and the PC's existing data folder
   remains a complete copy. Importing a 6.9 data folder works as today on the PC, which then syncs it up.
 - **Limits.** 256 KB a record, 2 MB a push, 600 writes a minute per workspace; above that the PC waits and retries.
-- **Privacy.** Records are readable by workspace members only (RLS, tested). No media and no member list leave the PC.
-  Script text in `notes` does sync (it is part of the plan); D2 lets the owner keep it local instead.
+- **Privacy.** Records are readable by workspace members only, and `member` records (names, phones, emails,
+  birthdays) by owners and admins only (RLS, tested). No media leaves the PC. Script text in `notes` syncs (D2).
+  Removing a person on the PC removes their record; the history keeps it 30 days, then it is gone.
 
 ## 8. The companion
 
 First release (D3): **view only.** A "Services" page lists the workspace's Frames in order, with each Frame's Content,
-questions, scriptures and script, and "media on the service PC" in place of pictures and video. A "Computers" section
+questions, scriptures and script, and "media on the service PC" in place of pictures and video. Owners and admins
+also see a "Members" list (names, countries, birthdays, contact details) synced from the PC. A "Computers" section
 lets owners and admins link a PC (type its code) and revoke it. Editing in the companion comes later, using the same
 `sync_push` with the person's session, so it needs no new database work.
 
@@ -191,9 +202,11 @@ Each step is its own PR, merged in order; steps 1 and 2 change nothing visible.
 
 ## 10. Decisions for the owner
 
-| # | Question | Recommendation |
+Answered by the owner on 25 October 2026.
+
+| # | Question | Decision |
 |---|---|---|
-| D1 | The rules say the desktop UI must not change. Linking a PC needs one small place to show a code and the sync status. Allow a **"FRAMEDECKS account" section in Settings** (link / unlink, last synced)? | Yes: one section in Settings, nothing else changes |
-| D2 | Keep the **member list with birthdays** on the PC only? And sync each Frame's **Teleprompter script**? | Members: PC only. Scripts: sync them (they are part of the plan) |
-| D3 | First companion release: **view** services only, or **edit** too? | View first; editing as the next step |
-| D4 | Accept the conflict rules in §6 ("keep both" for Frames, last writer wins for settings)? | Yes |
+| D1 | The rules say the desktop UI must not change. Linking a PC needs one small place to show a code and the sync status. Allow a **"FRAMEDECKS account" section in Settings** (link / unlink, last synced)? | **Yes:** one section in Settings, nothing else changes |
+| D2 | Keep the **member list with birthdays** on the PC only? And sync each Frame's **Teleprompter script**? | **Members sync to the web** (one record per person, owners and admins only). **Scripts sync.** |
+| D3 | First companion release: **view** services only, or **edit** too? | **View first;** editing as the next step |
+| D4 | Accept the conflict rules in §6 ("keep both" for Frames, last writer wins for settings)? | Not answered yet; built as recommended (yes) unless the owner says otherwise. Only the PC side (step 3) depends on it |
