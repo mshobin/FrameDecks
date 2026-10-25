@@ -184,6 +184,7 @@ kbd.key:empty{display:none}
 .status-pill.info{border-color:var(--q);color:var(--q)} .status-pill.info i{background:var(--q)}
 .status-pill.warn{border-color:var(--warn);color:var(--warn)} .status-pill.warn i{background:var(--warn)}
 .status-pill.bad{border-color:var(--red);color:var(--red)} .status-pill.bad i{background:var(--red)}
+.acct-code{font:800 34px/1.2 ui-monospace,Consolas,monospace;letter-spacing:.18em;margin:6px 0 4px}
 .kv{display:grid;grid-template-columns:150px 1fr;gap:6px 14px;font-size:14px;margin:10px 0}
 .kv dt{color:var(--muted)} .kv dd{margin:0;overflow-wrap:anywhere}
 .mono{font-family:ui-monospace,Consolas,Menlo,monospace;font-size:13px}

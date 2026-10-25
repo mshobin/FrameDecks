@@ -319,6 +319,7 @@
     <button type="button" data-sec="vcam"><span class="sn-i">◉</span>FRAMEDECKS Camera<i class="sn-dot" id="sn-vcam"></i></button>
     <button type="button" data-sec="ipad"><span class="sn-i">▭</span>Phone &amp; iPad Remote<i class="sn-dot" id="sn-ipad"></i></button>
     <button type="button" data-sec="keys"><span class="sn-i">⌨</span>Keyboard shortcuts</button>
+    <button type="button" data-sec="account"><span class="sn-i">☁</span>FRAMEDECKS account<i class="sn-dot" id="sn-account"></i></button>
     <button type="button" data-sec="security"><span class="sn-i">⛨</span>Security</button>
     <button type="button" data-sec="data"><span class="sn-i">⛁</span>Data / Backup</button>
     <button type="button" data-sec="diag"><span class="sn-i">✚</span>Diagnostics<i class="sn-dot" id="sn-diag"></i></button>
@@ -420,6 +421,19 @@
       </div>
       <p class="hint">These work on every tab whenever you are not typing in a box. They change the colour of your camera picture only; the cards keep their colours.</p></section>
     </section>
+    <section class="s-sec" id="sec-account" aria-labelledby="sech-account" hidden>
+      <header class="s-head"><h2 id="sech-account">FRAMEDECKS account</h2><p>Keep this PC’s service plans in step with your workspace in the FRAMEDECKS companion. Optional: services always run from this PC, online or not.</p></header>
+    <section class="box" aria-labelledby="acct-title">
+      <div class="box-head"><h2 id="acct-title">Workspace sync</h2></div>
+      <div id="acct-body"><p class="plain">Checking…</p></div>
+    </section>
+    <section class="box" aria-labelledby="acct-what">
+      <div class="box-head"><h2 id="acct-what">What is synced</h2></div>
+      <p class="plain"><b>Synced:</b> Frames and their Content, the order of Frames, questions and scriptures, Teleprompter scripts, card looks, Meeting &amp; Branding names and colour, the Meeting Form, and the member list.</p>
+      <p class="plain"><b>Never leaves this PC:</b> pictures, videos, PDFs and PowerPoints (only their file names), the logo picture, what is live on screen, the phone remote PIN, and your private settings.</p>
+      <p class="hint">A change to the Frame that is live waits until it leaves the screen. If the same Frame was changed on two computers, both versions are kept.</p>
+    </section>
+    </section>
     <section class="s-sec" id="sec-security" aria-labelledby="sech-security" hidden>
       <header class="s-head"><h2 id="sech-security">Security</h2><p>How FRAMEDECKS protects your meeting and your members’ details.</p></header>
     <div class="card-grid" id="sec-cards"></div>
@@ -439,7 +453,7 @@
     </section>
   <section class="box" aria-labelledby="s-data">
     <div class="box-head"><h2 id="s-data">Member data &amp; privacy</h2></div>
-    <p class="plain">Member information stays on this computer. It is never uploaded, and it is never sent to the overlay pages. The birthday overlay only receives the greeting, the name, and the country if you choose to show it.</p>
+    <p class="plain" id="s-members-where">Member information stays on this computer. It is never uploaded, and it is never sent to the overlay pages. The birthday overlay only receives the greeting, the name, and the country if you choose to show it.</p>
     <div class="note"><b>Stored in:</b> <span id="s-location">…</span></div>
     <div class="actions" style="margin-top:12px">
       <button class="btn" type="button" id="s-export">Back up members (Excel)</button>
@@ -510,6 +524,7 @@
 <script src="js/meeting-import.js"></script>
 <script src="js/meeting-brand.js"></script>
 <script src="js/settings.js"></script>
+<script src="js/account.js"></script>
 <script src="js/app-bridge.js"></script>
 <script src="js/window-chrome.js"></script>
 </body>

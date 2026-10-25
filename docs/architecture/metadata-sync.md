@@ -2,8 +2,9 @@
 
 **Status:** agreed with the owner on 25 October 2026 (decisions in [§10](#10-decisions-for-the-owner)). Step 1 of
 [§9](#9-tests-and-delivery) is built (`hosted/supabase/migrations/0003_sync.sql`, tested by
-`hosted/tests/supabase-sync.test.mjs`), and step 2 (`sync_entities.py`, `hosted/src/lib/sync-entities.ts`, shared
-fixtures in `tests/fixtures/sync/`).
+`hosted/tests/supabase-sync.test.mjs`), step 2 (`sync_entities.py`, `hosted/src/lib/sync-entities.ts`, shared
+fixtures in `tests/fixtures/sync/`), and step 3 (`cloud_sync.py`, wired into `server.py`, Settings → FRAMEDECKS account,
+tested in `tests/test_cloud_sync.py`; QA picture `docs/qa/2026-10-25-sync-settings.png`).
 **Scope:** `main`'s plan: Supabase (project `slrsykiknlqlivlnpvrb`) and the hosted companion on Vercel. The desktop app
 stays the place where services run, offline.
 
@@ -159,8 +160,16 @@ sequenceDiagram
 - **Never in the way.** Sync failures are logged and shown in the sync status only; they never block saving,
   presenting, the camera or the phone remote.
 - **No new packages.** HTTPS through the Python standard library (`urllib`), JSON as today.
-- **The computer key** is kept in Windows Credential Manager (through `ctypes`, no new package), never in the data
-  folder or backups. Unlinking deletes it and calls `computer_revoke` when online.
+- **Where the cloud is.** When linking, the PC asks the companion (`https://framedecks.vercel.app/api/sync-config`) for
+  the Supabase address and public key, and keeps them in `kc-sync.json`; nothing about the cloud is written into the
+  program. `FRAMEDECKS_COMPANION_URL` points it elsewhere for testing.
+- **Settings → FRAMEDECKS account** (D1) shows Not linked / the code to type / Linked to ‹workspace› with the last
+  sync, Sync now and Unlink. Once linked, Settings → Security and Data / Backup say that plans and members sync.
+- **The computer key** is made by the PC (32 random bytes) and kept in Windows Credential Manager (through `ctypes`,
+  no new package), never in the data folder or backups; only its hash ever reaches the cloud. On other systems
+  (development only) it is a file readable by its owner, `.kc-sync-key`, which git ignores. Unlinking deletes it and
+  calls `computer_revoke` when online. If the cloud refuses the key (revoked in the companion), the PC stops syncing,
+  forgets the key and says so in Settings.
 
 ## 6. Conflicts
 
@@ -169,6 +178,7 @@ A conflict means the record changed in the cloud since this PC last saw it. Rule
 | Kind | Rule |
 |---|---|
 | First link of a PC to a workspace that already has records | A Frame here identical to one in the workspace (ids and times aside, such as the starter Frames every PC makes) is not added twice; any difference and both are kept. Settings this PC never synced take the workspace's. |
+| First link: the same id made on two PCs for a library item or person (starter questions, imported lists) | The workspace's keeps the id; this PC's is added under a new id. Never overwritten. |
 | `frame`, `template` | **Never lose a Frame.** The cloud's version keeps the id; this PC's version is added as a copy named "‹Frame› (from ‹PC name›)" with a new id, and both appear in the Frames list for a person to tidy. |
 | `order` | Merge: keep the cloud's order, then add Frames and items it lacks at the end. |
 | everything else | Last writer wins: this PC's version is sent again on top. The earlier version stays in the record history (§7). |

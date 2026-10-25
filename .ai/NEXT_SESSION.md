@@ -1,38 +1,68 @@
 # NEXT SESSION HANDOFF
 
+Updated 25 October 2026 (end of the session that built hosted sign-in, workspaces and sync steps 1–3).
+
 ## Completed
-25 October 2026 (this session): `main` merged into the 6.10 branch (PR #7) with conflicts resolved and all checks
-passing; the installer's 6.10 "close a running copy" step fixed to end `FRAMEDECKS.exe`; logo visual QA done
-([docs/qa/2026-10-25-logo-visual-qa.md](../docs/qa/2026-10-25-logo-visual-qa.md)); repository drift recorded in
-[PROJECT_STATUS.md](../PROJECT_STATUS.md) ("Drift").
-Earlier: Hosted shell live on Vercel; PWA manifest and service worker verified locally; tenant migration with an in-repo RLS test (`hosted/tests/supabase-rls.test.mjs`, PGlite, dev-only); transparent emblem pipeline (approved gold-outline vector logo; master `assets/brand/framedecks-emblem.svg`, derivatives via `tools/make_emblem_assets.py`); continuity files created. Hosted `npm test` (15), lint, typecheck and build pass.
+- **6.10** (Quit really quits) merged (PR #7). Logo QA done, with a heavier small-size emblem for 16–32 px (PR #18;
+  [report](../docs/qa/2026-10-25-logo-visual-qa.md)). Repository drift resolved: `main`'s plan stands, PRs #8–#16
+  closed with their branches kept ([PROJECT_STATUS.md](../PROJECT_STATUS.md) "Drift").
+- **Hosted sign-in** (Supabase Auth, emailed link; Google/Microsoft buttons appear once enabled): PR #18, deployed with
+  the Vercel variables, **confirmed live by the owner**.
+- **Profile and workspaces** (`hosted/src/components/workspace-panel.tsx`): PR #19, **confirmed live** (name "Shobin",
+  workspace "BSF Study" as Owner).
+- **Members and invitations** (`0002_invitations.sql`, `hosted/src/components/workspace-members.tsx`): PR #20. Not run
+  live yet: the owner will run `0002` and test it together with Google/Microsoft sign-in later.
+- **Phase 4 sync of service plans**, design agreed ([metadata-sync.md](../docs/architecture/metadata-sync.md), owner
+  decisions in its §10):
+  - Step 1 database `0003_sync.sql` (PR #21).
+  - Step 2 record mapping `sync_entities.py` / `hosted/src/lib/sync-entities.ts` with shared fixtures (PR #22).
+  - Step 3 PC background sync `cloud_sync.py`, `server.py` `/api/sync`, Settings → FRAMEDECKS account
+    (`app/js/account.js`), companion `/api/sync-config` (PR #23, open at the time of writing).
 
 ## In Progress
-Phase 3 Supabase auth: project `slrsykiknlqlivlnpvrb` exists and the owner ran the migration. Sign-in UI built (`hosted/src/app/sign-in/`, `hosted/src/app/auth/callback/`, `hosted/src/components/{sign-in-form,auth-callback,account-status,auth-shell}.tsx`, `hosted/src/lib/supabase-browser.ts`); merged (PR #18), deployed, and confirmed by the owner: emailed-link sign-in works on the live site (25 October 2026). This cloud environment's network policy blocks `*.supabase.co` and the Vercel preview hosts, so live checks are the owner's until that is allowed.
+Phase 4 sync, step 4 of 5 (nothing started yet). PR #23 waits for the owner's merge; its Windows installer build was
+started on GitHub (run 40188686889).
 
 ## Pending
-Provider setup (Google/Microsoft, owner), live RLS tests (needs `*.supabase.co` allowed in this environment's network settings), organizations/profile UI, device pairing, real-device PWA test.
+- **Step 4 (companion):** a "Computers" page where an owner/admin types the PC's code (`computer_link_approve`) and
+  sees and revokes linked PCs (`computers` table, `computer_revoke`); a view-only "Services" page from `sync_pull` +
+  `join` in `hosted/src/lib/sync-entities.ts`; a Members view for owners/admins (member records).
+- **Step 5 (live):** the owner runs `0002` and `0003` in the Supabase SQL editor (in that order), links a PC, and checks a
+  change on one PC appears on another and in the companion. Windows Credential Manager is only exercised there.
+- Later, together (owner's choice): Google/Microsoft providers and a live test of invitations.
+- Live RLS tests: need `*.supabase.co` allowed in this cloud environment's network settings (it is blocked, as are
+  the Vercel preview hosts; the production URL is reachable).
+- A person checks the real tray icon on an installed PC. Real-device PWA install test. Device pairing (Phase 5).
 
 ## Technical Debt
 See [PROJECT_STATUS.md](../PROJECT_STATUS.md).
 
 ## Risks
-Closed PRs #8–#16 (Cloudflare SaaS, Flutter, cameras, alternative branding) are not `main`'s plan; reuse only the
-designs listed in PROJECT_STATUS.md "Worth reusing".
-Vercel Root Directory unverified in dashboard; UI additions (sign-in) must match the existing navy/gold design.
+- Sync is tested against a stand-in cloud with the database's rules (`tests/test_cloud_sync.py`) and the database on
+  PGlite, not yet against live Supabase.
+- Closed PRs #8–#16 are not `main`'s plan; reuse only what PROJECT_STATUS.md "Worth reusing" lists.
 
 ## Assumptions
-Hosted app is separate from the LAN remote and online-first.
+- The hosted app is separate from the LAN remote and online-first; it never calls the PC's local server.
+- D4 (sync conflict rules) was not answered by the owner; built as recommended ("keep both" for Frames, last writer
+  wins for settings and people).
 
 ## Blockers
-Owner must create the Supabase project and provide the URL and anon key (never the service_role key or OAuth secrets), and set them in Vercel.
+None for step 4. Step 5 needs the owner to run `0002` and `0003` in Supabase.
 
 ## Recommended Next Task
-Sign-in works live, and the workspace panel (display name, create workspace, list with role: `hosted/src/components/workspace-panel.tsx`, session hook `hosted/src/lib/use-session.ts`) is merged (PR #19) and confirmed live by the owner: name saved, workspace "BSF Study" created as Owner. Members and invitations are built (`0002_invitations.sql`, `hosted/src/components/workspace-members.tsx`, `hosted/tests/supabase-invitations.test.mjs`); the owner chose to run `0002` and test invitations live later, together with Google/Microsoft sign-in. Phase 4 sync: design agreed ([docs/architecture/metadata-sync.md](../docs/architecture/metadata-sync.md); owner decisions in its §10: members sync too, owners/admins only; D4 not answered, built as recommended). Steps 1–2 of its §9 are built (`0003_sync.sql`; `sync_entities.py` and `hosted/src/lib/sync-entities.ts` with fixtures in `tests/fixtures/sync/`, rebuilt by `python tools/make_sync_fixtures.py`). Next is step 3: `cloud_sync.py` on the PC (outbox in `kc-sync.json`, background thread started only when linked, hold back the live Frame, conflict rules of §6, computer key in Windows Credential Manager via ctypes) and the one "FRAMEDECKS account" section in Settings (D1). Also pending: the same cases as `hosted/tests/supabase-rls.test.mjs` against the live project (allow `*.supabase.co` in the environment's network settings first). The public values are URL `https://slrsykiknlqlivlnpvrb.supabase.co` and the publishable key the owner gave (public by design; keep it out of the repo all the same, in `.env.local`). Read the Next.js docs in `hosted/node_modules/next/dist/docs/` before writing hosted code.
-Without credentials: the logo QA is done, PR #7 (6.10) is merged, and the heavier small-size emblem (`assets/brand/framedecks-emblem-small.svg`, 16–32 px only: favicons, `app/icons/tray-64.png`, small .ico images) is in. Remaining credential-free step: a person checks the real tray icon on an installed PC. Note: bump the `CACHE` name in `hosted/public/sw.js` whenever hosted emblem files change (now `framedecks-shell-v2`). Emblem files come from `tools/make_emblem_assets.py`; the horizontal/stacked logos (including `hosted/public/framedecks-logo-horizontal.png`) from `tools/generate_brand_assets.py`.
+Step 4 of [metadata-sync.md](../docs/architecture/metadata-sync.md) §9, in `hosted/`. Read
+`hosted/node_modules/next/dist/docs/` first (this Next.js has `cacheComponents` on). Reuse `browserSupabase()`,
+`useSession()`, the workspace panel's styles and `sync-entities.ts`; test against stand-in responses as for sign-in,
+since `*.supabase.co` is blocked here. The public Supabase values are URL `https://slrsykiknlqlivlnpvrb.supabase.co`
+and the owner's publishable key; put them only in `hosted/.env.local` (ignored), never in the repo.
 
 ## Files Likely To Change Next
-`hosted/package.json`, `hosted/src/app/` (new sign-in route), `hosted/src/lib/`, `hosted/tests/`, `docs/FRAMEDECKS_MODERNIZATION_STATUS.md`, `PROJECT_STATUS.md`.
+`hosted/src/app/` (new `computers/` and `services/` routes), `hosted/src/components/`, `hosted/tests/`,
+`docs/architecture/metadata-sync.md`, the continuity files.
 
 ## Session Handoff
-Run `git status`, then the hosted checks (`npm test`, `lint`, `typecheck`, `build` in `hosted/`) and `python tools/check_doc_links.py` before and after any change. Update this file and `PROJECT_STATUS.md` at the end of each session.
+Run `git status`. Before and after changes: desktop `node tests/run.js`, `python -m unittest discover -s tests -p
+"test_*.py"`, `python packaging/check.py`; hosted (in `hosted/`) `npm test`, `npm run lint`, `npm run typecheck`,
+`npm run build`; `python tools/check_doc_links.py` and `git diff --check`. Update this file, `PROJECT_STATUS.md` and
+`PROJECT_ROADMAP.md` in every PR.

@@ -28,6 +28,7 @@ from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from pathlib import Path
 from urllib.parse import urlparse, parse_qs, unquote
 
+import cloud_sync   # Phase 4: syncing service plans with a workspace (only when this PC is linked)
 import legacy   # 6.9: moves data saved under the program's earlier name
 import meeting_form   # 6.9: fills the Meeting Workbook's form for Export
 
@@ -194,6 +195,8 @@ def save_state(new):
             eng.kick()                     # a card was shown/hidden: draw it now, even in the idle rhythm
         if "VCAM" in globals():
             apply_live_media(state)
+        if "SYNC" in globals():
+            SYNC.poke()                    # linked to a workspace: send this change after a few quiet seconds
         return state
 
 
@@ -397,6 +400,37 @@ def save_private(data):
         tmp = PRIVATE_FILE.with_suffix(".tmp")
         tmp.write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
         os.replace(tmp, PRIVATE_FILE)
+    if "SYNC" in globals():
+        SYNC.poke()
+
+
+# ---------- Phase 4: syncing service plans (cloud_sync.py; docs/architecture/metadata-sync.md) ----------
+# Off until this PC is linked in Settings > FRAMEDECKS account. Only text records leave the PC (no media, nothing
+# live); it runs on its own thread and never stands between a page, the phone remote or the camera and the plan.
+
+def _sync_read():
+    with cond:
+        plan = json.loads(json.dumps(state))
+    return plan, list(load_private().get("members") or [])
+
+
+def _sync_write(change):
+    """Apply changes from the workspace to the latest plan and member list, through the normal save path."""
+    with cond:
+        private = load_private()
+        current = json.loads(json.dumps(state))
+        plan, members = change(json.loads(json.dumps(current)), list(private.get("members") or []))
+        plan.pop("rev", None)
+        current.pop("rev", None)
+        if json.dumps(plan, sort_keys=True) != json.dumps(current, sort_keys=True):
+            save_state(plan)
+        if members != (private.get("members") or []):
+            private["members"] = members
+            save_private(private)
+
+
+SYNC = cloud_sync.Service(DATA / "kc-sync.json", cloud_sync.SecretStore(DATA / ".kc-sync-key"), _sync_read, _sync_write,
+                          socket.gethostname() or "FRAMEDECKS PC")
 
 
 # ---------- Phone remote on/off while running ----------
@@ -1695,6 +1729,10 @@ class Handler(BaseHTTPRequestHandler):
             return self.reply(200, json.dumps({"enabled": REMOTE, "results": results}), TYPES[".json"])
         if path == "/api/diagnostics":
             return self.reply(200, json.dumps(diagnostics(self.server.server_address)), TYPES[".json"])
+        if path == "/api/sync":                                   # Settings > FRAMEDECKS account (this PC only)
+            if not self.is_local():
+                return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
+            return self.reply(200, json.dumps(SYNC.info()), TYPES[".json"])
         if path == "/api/private":
             data = load_private()
             data["storedAt"] = str(PRIVATE_FILE)
@@ -2115,6 +2153,23 @@ class Handler(BaseHTTPRequestHandler):
                     data["library"] = state.get("library")
                 save_state(data)
                 return self.reply(200, state_body(LIBRARY["rev"] if keep else None), TYPES[".json"])
+        if path == "/api/sync":
+            if not self.is_local():
+                return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
+            action = data.get("action") if isinstance(data, dict) else None
+            try:
+                if action == "link":
+                    return self.reply(200, json.dumps(SYNC.link_start()), TYPES[".json"])
+                if action == "cancel":
+                    return self.reply(200, json.dumps(SYNC.link_cancel()), TYPES[".json"])
+                if action == "unlink":
+                    return self.reply(200, json.dumps(SYNC.unlink()), TYPES[".json"])
+                if action == "now":
+                    SYNC.poke(0)
+                    return self.reply(200, json.dumps(SYNC.info()), TYPES[".json"])
+            except (cloud_sync.Offline, cloud_sync.Refused, OSError) as e:
+                return self.reply(503, json.dumps({"error": str(e)}), TYPES[".json"])
+            return self.reply(400, json.dumps({"error": "Unknown action"}), TYPES[".json"])
         if path == "/api/private":
             if not isinstance(data, dict) or not isinstance(data.get("members", []), list):
                 return self.reply(400, "Invalid data", "text/plain; charset=utf-8")
@@ -2155,6 +2210,7 @@ def start_main_server():
     threading.Thread(target=vcam_start, daemon=True).start()   # idle until Zoom/Teams uses FRAMEDECKS
     threading.Thread(target=_backup_loop, daemon=True).start()
     threading.Thread(target=_remote_watcher, daemon=True).start()
+    SYNC.start()                                                # does nothing unless this PC is linked
     return server
 
 
