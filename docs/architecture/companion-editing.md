@@ -1,6 +1,9 @@
 # Editing services in the companion (design)
 
-**Status:** proposed on 25 October 2026, waiting for the owner's answers to E1–E4 ([§6](#6-decisions-for-the-owner)).
+**Status:** agreed with the owner on 25 October 2026 (E1–E4 as recommended, [§6](#6-decisions-for-the-owner)).
+Steps 1 and 2 of [§5](#5-tests-and-delivery) are built: `hosted/src/lib/frame-edit.ts` (tested by
+`hosted/tests/frame-edit.test.mjs`) and editing on the Services page (`hosted/src/components/services-panel.tsx`).
+Step 3 (the owner's live test) remains.
 **Builds on:** sync ([metadata-sync.md](metadata-sync.md)). D3 there chose "view first; editing as the next step".
 
 ## In short (for the owner)
@@ -43,10 +46,13 @@ the workspace, and records who made each change (`updated_by`) for the 30-day hi
 | Frame name, group | yes | yes | yes |
 | Teleprompter script (`notes`) | yes | yes | yes |
 | Questions in a Frame's Question Content (add, edit, remove, reorder) | yes | yes | yes |
-| Scripture references in a Frame's Scripture Content (the PC fetches the text as today) | yes | yes | yes |
+| Scripture in a Frame's Scripture Content: reference, translation and (optional) text | yes | yes | yes |
 | Order of Frames | yes | yes | yes |
 | New Frame from a template, duplicate, delete | — | yes | yes |
 | Looks (theme), layouts, Meeting & Branding, media | — | — | yes |
+
+The PC does not fetch verse text by itself: a reference saved without text shows as the reference until the operator
+fetches it in the Studio's Scripture fetch bar (or the text is typed or pasted in the companion).
 
 A covers getting a service ready from home (the words of the service) and leaves the visual design to the PC. B adds
 making and removing Frames, which needs the templates' layout logic in the companion (more code, more risk).
@@ -65,21 +71,25 @@ C means re-creating much of the Studio on the web, which the rules rule out for 
 - **E4, two people at once.** If the record changed after the companion read it, `sync_push` answers "conflict" and
   stores nothing. Recommended: the companion reloads that Frame, keeps the person's unsaved text in the box, and says
   "Changed on the PC (or by someone else) while you were editing. Check and save again." Nothing is lost and nothing
-  is overwritten silently. Alternative: save the companion's version as a copy ("keep both", as two PCs do).
+  is overwritten silently. As built, a save sends only the fields the person changed in the form (`applyDraft`), and
+  after a conflict the form shows the latest version with those changes on top (`rebase`): a browser test caught a
+  re-save writing back the form's old script over the PC's newer one. Alternative: save the companion's version as a copy ("keep both", as two PCs do).
 
 ## 5. Tests and delivery
 
 | Step | What | Proven by |
 |---|---|---|
-| 1 | Editing helpers in `hosted/src/lib/sync-entities.ts` (change a Frame's name, script, questions, references; reorder) | Node tests on the shared fixtures: the edited record joins on the PC (`sync_entities.py`) to the same plan with only that change; live fields and media untouched |
+| 1 | Editing helpers in `hosted/src/lib/frame-edit.ts` (change a Frame's name, script, questions, references; reorder) | Node tests on the shared fixtures: after joining the edited records, the desktop's own `store.js` normalize changes nothing; only the edited record changes; live fields and media untouched |
 | 2 | Services page editing (owners/admins), conflict and live-Frame messages | Browser tests against stand-in responses, phone and desktop; PGlite: a plain member's push refused |
 | 3 | Live test by the owner | Edit a script on the phone; it appears on the PC within a minute; editing the live Frame waits until it leaves the screen |
 
 ## 6. Decisions for the owner
 
-| # | Question | Recommendation |
+Answered by the owner on 25 October 2026: **E1–E4 as recommended.**
+
+| # | Question | Decision |
 |---|---|---|
-| E1 | What can be edited in the companion (§2) | **A**: names, scripts, questions, scripture references, Frame order |
+| E1 | What can be edited in the companion (§2) | **A**: names, scripts, questions, scripture, Frame order |
 | E2 | Who may edit (§3) | **Owners and admins** (no database change) |
 | E3 | Editing the Frame that is on screen (§4) | **Allow**; the PC applies it when the Frame leaves the screen |
 | E4 | Two people changed the same Frame (§4) | **Reload and ask to save again**, keeping the typed text |

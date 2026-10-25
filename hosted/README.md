@@ -30,7 +30,9 @@ preview and must not be treated as a live service dashboard.
   has an account. Until `0002` has been run in the Supabase SQL editor, these
   controls stay hidden and the rest works as before.
 - **Services, Members, Computers** (`/services`, `/members`, `/computers`): the plan
-  synced from a linked PC (view only), its member list (owners and admins), and
+  synced from a linked PC (owners and admins can edit names, scripts, questions,
+  scripture and the order of Frames, saved with `sync_push`; everyone else views),
+  its member list (owners and admins), and
   linking PCs with the code they show. They read with `sync_pull` and
   `computers`, and link with `computer_link_approve` / `computer_revoke`.
 - **Live** (`/live`): run a service from a phone. Shows the linked PC, whether it

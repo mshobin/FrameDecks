@@ -1,7 +1,7 @@
 # PROJECT STATUS
 
-Last verified: 25 October 2026 on `main` at `e2eaa22` (Phase 5 step 3 merged; GitHub hosted checks and the Windows
-installer build passed there). Locally at step 3: desktop JS 4/4, Python 79 tests OK, `packaging/check.py` (6.10), hosted test 58/58, lint, typecheck and
+Last verified: 25 October 2026 on `claude/peaceful-albattani-6m445e` at companion editing step 2 (on top of `main`
+at `3a7c481`; GitHub hosted checks and the Windows installer build passed on `main` at `e2eaa22`). Locally: desktop JS 4/4, Python 79 tests OK, `packaging/check.py` (6.10), hosted test 64/64, lint, typecheck and
 build pass, doc links 0 problems; the program and the companion checked in browsers against stand-ins. Detail lives in
 [docs/FRAMEDECKS_MODERNIZATION_STATUS.md](docs/FRAMEDECKS_MODERNIZATION_STATUS.md).
 
@@ -33,8 +33,9 @@ build pass, doc links 0 problems; the program and the companion checked in brows
   the Settings switch and last ten actions, the companion's **Live** page (`/live`, `0005_remote_live.sql`) and a
   "Can run services" checkbox per member (PR #27, merged; installer from `main` run 40207526698). Next step 4,
   the owner's live test.
-- Editing in the companion: design proposed ([companion-editing.md](docs/architecture/companion-editing.md)),
-  waiting for the owner's E1–E4.
+- Editing in the companion ([companion-editing.md](docs/architecture/companion-editing.md), E1–E4 as recommended):
+  steps 1–2 built (`hosted/src/lib/frame-edit.ts`, editing on the Services page for owners and admins; 6 Node tests
+  incl. the desktop's own normalize, browser run against stand-ins). Next step 3, the owner's live test.
 
 ## Pending
 - Owner: run `0002_invitations.sql`, `0003_sync.sql`, `0004_remote.sql` and `0005_remote_live.sql` in the Supabase
