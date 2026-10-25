@@ -60,7 +60,7 @@ remains free, with no payments or feature restrictions.
 The optional Next.js web companion is in `hosted/` and deploys to Vercel with
 Root Directory `hosted`. See the [hosted companion guide](hosted/README.md)
 for local development and Vercel setup. It is currently a static foundation
-preview; authentication, cloud data, and device pairing are not implemented.
+preview with sign-in (Supabase Auth); cloud data and device pairing are not implemented.
 
 ## Install
 See [INSTALLATION](docs/installation.md) and [GETTING_STARTED](docs/getting-started.md). In short: run

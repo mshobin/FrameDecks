@@ -22,6 +22,15 @@ export type Profile = {
 
 export type SupabaseConfig = { url: string; anonKey: string };
 
+// Next.js inlines NEXT_PUBLIC_ values into browser code only where each is named in full,
+// so browser code passes this object instead of process.env.
+export function publicSupabaseEnv(): Record<string, string | undefined> {
+  return {
+    NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
+    NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+  };
+}
+
 // Returns null until the project is configured, so the hosted shell keeps working without credentials.
 export function readSupabaseConfig(
   env: Record<string, string | undefined> = process.env,

@@ -215,7 +215,7 @@ def tray_hide_all():
 
 def tray_image():
     from PIL import Image
-    return Image.open(server.APP / "icons" / "remote-192.png")
+    return Image.open(server.APP / "icons" / "tray-64.png")
 
 
 def main():

@@ -10,9 +10,15 @@ Versions before 4.9 (when the program had its earlier name) are described in the
 
 ## [Unreleased]
 
+### Added
+- Hosted companion: sign-in with an emailed link (and Google or Microsoft once they are switched on in Supabase),
+  a sign-in return page and a top-bar account button. The desktop app is unchanged.
+
 ### Changed
 - Updated the FRAMEDECKS logo and tagline across the desktop app, phone remote, PWA icons, favicons, workbook,
   Windows installer, and marketing header. Presentation workflows are unchanged.
+- The favicons, the tray icon and the small program-icon sizes (16–32 px) use a heavier version of the emblem, so it
+  stays visible on light browser tabs and a light taskbar. Larger sizes are unchanged.
 
 ## [6.10] - 2026-10-20
 
