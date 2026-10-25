@@ -25,6 +25,9 @@ change, for anything new that ships.
 | windows-capture | MIT | Screen sharing | https://github.com/NiiightmareXD/windows-capture |
 | pypdfium2, with PDFium | Apache-2.0 or BSD-3-Clause; PDFium BSD-3-Clause | PDF slides | https://github.com/pypdfium2-team/pypdfium2 |
 | comtypes | MIT | PowerPoint control | https://github.com/enthought/comtypes |
+| python-pptx | MIT | Export this meeting to PowerPoint | https://github.com/scanny/python-pptx |
+| lxml (with libxml2 and libxslt) | BSD-3-Clause; libxml2 and libxslt MIT | Used by python-pptx | https://github.com/lxml/lxml |
+| XlsxWriter | BSD-2-Clause | Used by python-pptx (charts) | https://github.com/jmcnamara/XlsxWriter |
 | MediaPipe selfie segmentation model | Apache-2.0 | Background blur | https://github.com/google-ai-edge/mediapipe |
 | SheetJS Community Edition (`app/vendor/xlsx.full.min.js`) | Apache-2.0 (`app/vendor/LICENSE-SheetJS.txt`) | Excel import and export | https://sheetjs.com |
 | Lucide icons | ISC (`app/vendor/LICENSE-lucide.txt`) | Icons | https://lucide.dev |

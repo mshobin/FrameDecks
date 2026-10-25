@@ -59,4 +59,18 @@ const [b1, b2] = br.scenes[0].layers;
 assert.deepStrictEqual([b1.c.plate, b1.c.pad, b1.c.margin, b1.c.pos], [true, 1, 4, 'upper-left'], 'older badges look the same');
 assert.deepStrictEqual([b2.c.plate, b2.c.pad, b2.c.margin, b2.c.scale], [false, 3, 0, 0.75], 'new values are kept within range');
 
+/* ---------- M-D4 Audio Content: kept, cleaned, on with Go Live, off with its eye and Hide all ---------- */
+const au = env.Store.normalize({v6: true, scenes: [{id: 'sc_au', name: 'Worship', layers: [
+  {id: 'A1', kind: 'audio', c: {file: 'Song.mp3', loop: 'yes', volume: 7}}, {id: 'A2', kind: 'audio', visible: false, c: {file: 'Quiet.mp3'}},
+  {id: 'T1', kind: 'announcement', c: {text: 'Welcome'}}]}]});
+const [a1, a2] = au.scenes[0].layers;
+assert.deepStrictEqual([a1.kind, a1.c.file, a1.c.loop, a1.c.volume], ['audio', 'Song.mp3', true, 1], 'an audio layer survives normalize, cleaned');
+assert.deepStrictEqual([a2.c.loop, a2.c.volume], [false, 1]);
+SC.take(au, 'sc_au', 'cut');
+assert.deepStrictEqual([!!au.live.on.A1, !!au.live.on.A2, !!au.live.on.T1], [true, false, true], 'Go Live turns on visible audio, like text');
+assert.ok(SC.layerOn(au, au.scenes[0], a1));
+SC.setOn(au, 'sc_au', 'A1', false); assert.ok(!au.live.on.A1, 'its eye turns it off');
+SC.setOn(au, 'sc_au', 'A1', true); SC.hideAll(au); assert.ok(!au.live.on.A1, 'Hide all silences it');
+assert.strictEqual(JSON.stringify(env.Store.normalize(JSON.parse(JSON.stringify(au))).scenes[0]), JSON.stringify(au.scenes[0]), 'stable');
+
 console.log('store: OK');

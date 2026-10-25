@@ -244,6 +244,22 @@ When the Frame is live, drag Content directly on the canvas to move it, and use 
 slide show as **Free Content → Window** instead. See [Media](media.md) and
 [reference/powerpoint.md](reference/powerpoint.md).
 
+## Audio
+
+**+ Content → Audio…** adds a sound file (MP3, M4A, WAV or OGG) to the Frame, such as a song, a reading, or a bell
+before prayer. It is never part of the picture.
+
+| Setting | What it does |
+| --- | --- |
+| **File** / **Choose a file…** | The sound file (kept in the data folder's `layers` folder) |
+| **Repeat until the Frame leaves the screen** | Plays it again and again, for background music |
+| **Volume** | Its loudness, 0–100% |
+
+It plays from the start, through this PC's speakers, when its Frame goes live. It stops when the Frame leaves the
+screen, when its eye is turned off, or with **Hide all** (Esc). Only the program's own window plays it; a browser
+tab, OBS and phones do not. For an online meeting, share the PC's sound: in Zoom, **Share Screen → Share sound**;
+in Teams, **Include sound**.
+
 ## Free Content
 
 | Type | What it is |

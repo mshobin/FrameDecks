@@ -90,8 +90,17 @@ before: go on to the next one. Any other error: stop and send it.
    `%APPDATA%\FRAMEDECKS\kc-members-private.json` to `.bak`, start FRAMEDECKS. **Expect:** within a minute the member
    list is back (from the workspace), and the companion still lists everyone. Then delete the `.bak` file or put it back.
 
+## 8. Test F: new on the PC (PowerPoint export, Audio, Suggest)
+
+1. **Meeting → Export this meeting to PowerPoint**. **Expect:** a `.pptx` in Downloads. It opens in PowerPoint with
+   one slide per Frame, and each Frame's script is in the speaker notes.
+2. On a Frame: **+ Content → Audio…**, choose an MP3. **Go Live**. **Expect:** it plays through the speakers;
+   **Hide all** (Esc) stops it. In a Zoom test call with **Share sound** on, the other side hears it.
+3. Optional, with Ollama (see [ai.md](../ai.md)): on a Frame with a Bible passage, **Question → Content → Suggest**.
+   **Expect:** draft questions in the Add several box.
+
 ## What to send back
 
 For anything that does not match **Expect**: which test and step, a screenshot of the companion page, the message
 shown under Settings → FRAMEDECKS account on the PC (it shows sync and phone-control errors), and the time.
-If all five pass, say so: the live tests in the continuity files are then marked done.
+If all six pass, say so: the live tests in the continuity files are then marked done.

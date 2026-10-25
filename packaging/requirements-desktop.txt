@@ -8,4 +8,5 @@ cv2-enumerate-cameras>=1.4,<2   # FRAMEDECKS: lists webcams by name
 windows-capture>=2.0,<3   # screen sharing: DXGI Desktop Duplication (displays) + Windows Graphics Capture (windows)
 pypdfium2>=4.30           # presentation layers from PDF slides
 comtypes>=1.4             # Next/Previous in a running PowerPoint slide show
+python-pptx>=1.0,<2       # Export this meeting to PowerPoint (M-D4)
 pyinstaller>=6.10

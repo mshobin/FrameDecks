@@ -457,12 +457,29 @@ function meetingMenu(anchor){
     MI ? {icon: 'file-spreadsheet', text: 'Import meeting from Excel…', run: MI.pick} : null,
     MI ? {icon: 'arrow-down', text: 'Download the Excel template', run: MI.template} : null,
     MI && MI.exportMeeting ? {icon: 'external-link', text: 'Export this meeting to Excel', run: MI.exportMeeting} : null,
+    Store.served ? {icon: 'presentation', text: 'Export this meeting to PowerPoint', run: exportPowerPoint} : null,
     MI && MI.canUndo() ? {icon: 'refresh-cw', text: 'Undo the last Excel import', run: MI.undo} : null,
     '-', {label: 'Ready-made Frames'},
     {icon: 'sparkles', text: 'Quick Start…', run: openQuickStart}, {icon: 'library', text: 'Browse the Content Library', run: function(){ setFilter('tpl'); }}];
   if (saved.length){ items.push('-', {label: 'From your templates'}); saved.forEach(function(t){ items.push({icon: 'layout-template', text: t.name, run: function(){ fromTemplate(t.id); }}); }); }
   items.push('-', {icon: 'folder-open', text: 'Import a Frame file…', run: importScene});
   menu(anchor, items);
+}
+/* M-D4: the whole service as an editable PowerPoint file (one slide per Frame, scripts as speaker notes), made on this PC */
+function exportPowerPoint(){
+  var frames = live.scenes.filter(function(s){ return !s.tpl; });
+  if (!frames.length){ toast('There are no Frames to export yet.', true); return; }
+  var name = ((live.meeting && live.meeting.title) || (live.brand && live.brand.meeting) || 'Meeting').replace(/[^\w\- ]+/g, '').trim() || 'Meeting';
+  name += ' - ' + new Date().toISOString().slice(0, 10) + '.pptx';
+  toast('Making the PowerPoint file…');
+  fetch('api/export/pptx', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: '{}'})
+    .then(function(r){ if (!r.ok) return r.json().then(function(d){ throw new Error(d.error || 'The export did not work.'); }); return r.blob(); })
+    .then(function(blob){
+      var url = URL.createObjectURL(blob), a = document.createElement('a');
+      a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(function(){ URL.revokeObjectURL(url); }, 4000);
+      toast('Exported ' + frames.length + ' Frames to PowerPoint');
+    }).catch(function(e){ toast(e.message || 'The export did not work.', true); });
 }
 function newScene(tid){
   var made = null;
@@ -770,7 +787,7 @@ function toggleLayer(sid, lid){
 /* + Content: the content types, then Free Content */
 var CONTENT_ADD = [['question', 'Question', 'message-circle'], ['scripture', 'Scripture', 'book-open'], ['text', 'Text', 'type'],
   ['discussion', 'Discussion topic', 'users'], ['icebreaker', 'Icebreaker', 'sparkles'], ['poll', 'Poll (show of hands)', 'list'],
-  ['image', 'Image…', 'image'], ['video', 'Video…', 'film'], ['countdown', 'Timer', 'timer'], ['pptx', 'PowerPoint…', 'presentation']];
+  ['image', 'Image…', 'image'], ['video', 'Video…', 'film'], ['audio', 'Audio…', 'volume-2'], ['countdown', 'Timer', 'timer'], ['pptx', 'PowerPoint…', 'presentation']];
 var FREE_ADD = [['announcement', 'Announcement', 'megaphone'], ['prayer', 'Prayer Point', 'heart'], ['lowerthird', 'Lower Third', 'panel-bottom'], ['birthday', 'Birthday', 'cake'],
   ['brand', 'Branding (logo + Meeting Name)', 'star'], ['camera', 'Camera', 'video'], ['screen', 'Screen…', 'monitor'], ['window', 'Window (live PowerPoint or any app)…', 'app-window'],
   ['logo', 'Logo…', 'image'], ['watermark', 'Watermark…', 'image'], ['freetext', 'Free text on the picture', 'type'], ['rect', 'Shape', 'shapes'], ['background', 'Background', 'paint-bucket']];
@@ -817,6 +834,7 @@ function addLayer(what){
   if (what === 'watermark') return pickFile('image').then(function(f){ if (f) put({name: 'Watermark', c: {file: f, x: 0.9, y: 0.9, w: 0.12}, opacity: 0.35}); });
   if (what === 'pptx') return pickFile('powerpoint').then(function(f){ if (f) put({name: f.replace(/\.[^.]+$/, ''), c: {file: f, w: 1, h: 1}}); });
   if (['image', 'video', 'pdf'].indexOf(kind) >= 0) return pickFile(kind).then(function(f){ if (f) put({name: f.replace(/\.[^.]+$/, ''), c: {file: f}}); });
+  if (kind === 'audio') return pickFile('audio').then(function(f){ if (f) put({name: f.replace(/\.[^.]+$/, ''), c: {file: f, loop: false, volume: 1}}); });
   if (kind === 'screen'){ return put({}).then(function(){ if (isLiveScene(sc.id) && window.KCStudio) window.KCStudio.chooseScreen(); else toast('Take this Frame live, then choose which screen to share (Properties).'); }); }
   if (kind === 'window'){
     var S = studio(), wins = S ? (S.sources || []).filter(function(s){ return s.kind === 'window'; }) : [];
@@ -907,6 +925,7 @@ function renderInspector(){
   if (!l) each(function(box, t){ sceneForm(box, sc, t); });
   else if (SC.isCard(kind)){ gen.appendChild(headFor(groups, 'output')); outputForm(gen, sc, l); }
   else if (SC.isText(kind)) each(function(box, t){ if (t === 'output') outputForm(box, sc, l); else textForm(box, sc, l, t); });
+  else if (SC.isSound(kind)){ gen.appendChild(groupHead('content', 'Audio')); audioForm(gen, sc, l); }
   else if (!mediaLive){ gen.appendChild(groupHead('content', 'Media')); mediaForm(gen, sc, l); }
   else { gen.appendChild(groupHead('output', 'Behavior')); gen.appendChild(h('p', {cls: 'hint', text: 'Position, size and the rest of this Content: drag it on the picture, or use the settings above.'})); }
 }
@@ -1085,6 +1104,15 @@ function outputForm(gen, sc, l){
     h('p', {cls: 'hint', text: SC.isCard(l.kind) ? 'Applies when the Frame is taken live.' : 'Applies at once.'})]));
 }
 /* ---------- Media layers that are not on the canvas right now ---------- */
+/* M-D4: Audio Content plays through this PC's speakers while its Frame is live (js/audio-player.js) */
+function audioForm(gen, sc, l){
+  var sid = sc.id, lid = l.id, c = l.c;
+  gen.appendChild(row('File', h('span', {cls: 'plain', text: c.file || 'Not chosen yet'})));
+  gen.appendChild(h('div', {cls: 'ip-acts'}, [h('button', {cls: 'btn small', type: 'button', text: c.file ? 'Choose another file…' : 'Choose a file…', onclick: function(){ pickFile('audio').then(function(f){ if (f) editLayer(sid, lid, function(x){ x.c.file = f; }); }); }})]));
+  gen.appendChild(checkCtl('Repeat until the Frame leaves the screen', !!c.loop, function(v){ editLayer(sid, lid, function(x){ x.c.loop = v; }); }));
+  gen.appendChild(row('Volume', rangeCtl(Math.round((c.volume == null ? 1 : c.volume) * 100), 0, 100, 5, function(v){ return v + '%'; }, function(v){ editLayerSoon(sid, lid, function(x){ x.c.volume = v / 100; }); })));
+  gen.appendChild(h('p', {cls: 'hint', text: 'Plays from the start through this PC’s speakers when this Frame goes live, and stops when it leaves the screen. Hide the Content (the eye) to keep it quiet. In Zoom or Teams, share the sound (Share Screen → Share sound) or play it near the microphone.'}));
+}
 function mediaForm(gen, sc, l){
   var sid = sc.id, lid = l.id, c = l.c;
   var S = studio();

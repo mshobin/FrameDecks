@@ -93,6 +93,17 @@ feature, API or integration was removed or renamed:
 | Paid providers | Never called from the PC. If added later, a Supabase Edge Function holds the key server-side (review §6) |
 | Checked | 6 tests with a stand-in Ollama server (model choice, cleaning, cache hit offline, plain messages when absent or off, other answer shapes, self-hosted endpoint), and the real program in a browser: the button appears, drafts four questions, adds them; it is hidden when Ollama is not running. Screenshot `docs/qa/2026-10-25-ai-suggest-questions.png`. User guide: [ai.md](ai.md) |
 
+## Step 7: PowerPoint export and Audio Content (M-D4)
+
+| | |
+|---|---|
+| PowerPoint export | **Meeting → Export this meeting to PowerPoint** (one menu entry, existing style). `pptx_export.py` (python-pptx, MIT, loaded only when exporting) makes a title slide plus one slide per Frame: scripture, questions and words as editable text, pictures from the media folder, other media by name, the Teleprompter script as speaker notes. `POST /api/export/pptx`, this PC only. Nothing is uploaded |
+| Audio Content | **+ Content → Audio…** (one entry). It plays MP3, M4A, WAV or OGG through the PC's speakers while its Frame is live and the Content is on. It starts with Go Live and stops with the eye, Hide all / Esc, or a new Frame. There are Repeat and Volume settings. Only the program's own window plays it (`app/js/audio-player.js`); overlay pages, the camera picture and phones are untouched. `GET /api/media/audio`, this PC only, audio types only |
+| Build | `packaging/requirements-desktop.txt` and `constraints.txt`: python-pptx 1.0.2, lxml 6.1.3, XlsxWriter 3.2.9 (Windows wheels checked). The spec bundles python-pptx's templates. Third-party notices are updated |
+| Compatibility | An older FRAMEDECKS (6.10 and before) does not know Audio Content and drops it when loading a plan. **Update every linked PC before using Audio**, or a PC on the old version will sync the Frame without it |
+| Visible | Exactly the two approved entries, plus the Audio settings in the existing inspector style |
+| Checked | Store tests (an audio layer is kept and cleaned; Go Live turns it on; the eye and Hide all turn it off; normalize is stable). Python: 4 export tests (the slides, notes, a picture, a missing picture, audio by name) and the media check for audio. The deck renders in LibreOffice (title, words, a centred picture). In the real program: Audio… in + Content, its settings, playing while live, silent after Hide all, the audio route refusing other files |
+
 ## Step 8: member groups (M-D6)
 
 | | |

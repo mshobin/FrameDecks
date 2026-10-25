@@ -229,6 +229,9 @@ var Present = {
 var CARD_KINDS = ['scripture', 'question', 'birthday'];
 var TEXT_KINDS = ['announcement', 'prayer', 'lowerthird', 'countdown', 'brand'];
 var MEDIA_KINDS = ['camera', 'screen', 'window', 'image', 'video', 'pdf', 'background', 'text', 'rect', 'ellipse'];
+/* M-D4: sound only. Plays from the program's own window while its Frame is live (js/audio-player.js); never part of
+ * the picture, the cards or the overlay pages. */
+var SOUND_KINDS = ['audio'];
 var KIND_INFO = {
   scripture: {name: 'Scripture', icon: 'book-open'}, question: {name: 'Question', icon: 'message-circle'},
   birthday: {name: 'Birthday', icon: 'cake'}, announcement: {name: 'Announcement', icon: 'megaphone'},
@@ -236,7 +239,7 @@ var KIND_INFO = {
   countdown: {name: 'Countdown', icon: 'timer'}, brand: {name: 'Branding', icon: 'star'}, camera: {name: 'Camera', icon: 'video'}, screen: {name: 'Screen', icon: 'monitor'},
   window: {name: 'Window', icon: 'app-window'}, image: {name: 'Image', icon: 'image'}, video: {name: 'Video', icon: 'film'},
   pdf: {name: 'PowerPoint', icon: 'presentation'}, background: {name: 'Background', icon: 'paint-bucket'}, text: {name: 'Text', icon: 'type'},
-  rect: {name: 'Shape', icon: 'square'}, ellipse: {name: 'Ellipse', icon: 'circle'}
+  rect: {name: 'Shape', icon: 'square'}, ellipse: {name: 'Ellipse', icon: 'circle'}, audio: {name: 'Audio', icon: 'volume-2'}
 };
 /* Scene transitions. In FRAMEDECKS every type plays on the whole picture; on the overlay pages the dips cover the
  * screen and the cards follow (cut = instant). */
@@ -269,7 +272,7 @@ var TEXT_DEFAULTS = {
 var TEXT_RANGE = {w: [20, 96], minutes: [0, 600], pad: [0, 3], margin: [0, 12]};      // numbers; anything else 0.4 .. 3
 function cleanLayer(l){
   if (!isObj(l)) return null;
-  var kind = CARD_KINDS.concat(TEXT_KINDS, MEDIA_KINDS).indexOf(l.kind) >= 0 ? l.kind : null;
+  var kind = CARD_KINDS.concat(TEXT_KINDS, MEDIA_KINDS, SOUND_KINDS).indexOf(l.kind) >= 0 ? l.kind : null;
   if (!kind) return null;
   var c = isObj(l.c) ? JSON.parse(JSON.stringify(l.c)) : {};
   var out = {id: str(l.id || rid(), 40), kind: kind, name: str(l.name || KIND_INFO[kind].name, 60),
@@ -295,6 +298,7 @@ function cleanLayer(l){
     else delete c.items;
     if (isObj(c.look)) c.look = cleanLook(kind, c.look); else delete c.look;
   }
+  if (kind === 'audio'){ c.file = str(c.file, 200); c.loop = !!c.loop; c.volume = num(c.volume, 0, 1, 1); }
   c.vcam = c.vcam !== false; c.obs = c.obs !== false;     // Output: where this layer appears
   return out;
 }
@@ -397,6 +401,7 @@ function newLayer(kind, extra){
   else if (kind === 'image') l.c = {x: 0.5, y: 0.5, w: 0.25, file: ''};
   else if (kind === 'video') l.c = {x: 0.5, y: 0.5, w: 0.5, file: '', loop: true};
   else if (kind === 'pdf') l.c = {x: 0.5, y: 0.5, w: 0.6, file: ''};
+  else if (kind === 'audio') l.c = {file: '', loop: false, volume: 1};
   else if (kind === 'question' || kind === 'scripture') l.c = {items: []};       // a new list of its own
   if (extra) for (var k in extra) if (k === 'c') Object.assign(l.c, extra.c); else l[k] = extra[k];
   if (kind === 'scripture' && Array.isArray(l.c.items) && !l.c.items.length && String(l.c.text || '').trim()){   // a ready-made verse
@@ -473,7 +478,7 @@ var Scenes = {
   CARD: CARD_KINDS, TEXT: TEXT_KINDS, MEDIA: MEDIA_KINDS, info: KIND_INFO, transitions: TX, txMs: TX_MS, profiles: PROFILES, templates: TEMPLATES, library: LIBRARY, libraryCats: LIBRARY_CATS, quickStarts: QUICK_START,
   positions: POS, textDefaults: TEXT_DEFAULTS, cleanLayer: cleanLayer, cleanScene: cleanScene, mediaToComp: mediaToComp, compToMedia: compToMedia,
   isCard: function(k){ return CARD_KINDS.indexOf(k) >= 0; }, isText: function(k){ return TEXT_KINDS.indexOf(k) >= 0; },
-  isMedia: function(k){ return MEDIA_KINDS.indexOf(k) >= 0; },
+  isMedia: function(k){ return MEDIA_KINDS.indexOf(k) >= 0; }, isSound: function(k){ return SOUND_KINDS.indexOf(k) >= 0; },
   normalizeInto: function(st, raw){
     st.scenes = (Array.isArray(raw.scenes) ? raw.scenes : []).map(cleanScene).filter(Boolean).slice(0, 400);
     var seen = {}; st.scenes = st.scenes.filter(function(sc){ if (seen[sc.id]) return false; return (seen[sc.id] = true); });
@@ -727,7 +732,7 @@ var Scenes = {
     if (l.kind === 'question') return st.question.visible && String(st.question.text).trim() !== '';
     if (l.kind === 'scripture') return st.verse.visible && String(st.verse.text).trim() !== '';
     if (l.kind === 'birthday') return st.birthday.visible && String(st.birthday.greeting).trim() !== '';
-    if (TEXT_KINDS.indexOf(l.kind) >= 0) return !!st.live.on[l.id];
+    if (TEXT_KINDS.indexOf(l.kind) >= 0 || SOUND_KINDS.indexOf(l.kind) >= 0) return !!st.live.on[l.id];
     return l.visible;
   },
   /* Load an item of a Frame's list into the card (its own label, else the Content's label, else the default) */
@@ -782,7 +787,7 @@ var Scenes = {
     n.question.out = {vcam: vcamOk(q), obs: obsOk(q)}; n.verse.out = {vcam: vcamOk(v), obs: obsOk(v)}; n.birthday.out = {vcam: vcamOk(b), obs: obsOk(b)};
     // text layers
     n.live.on = {}; n.live.cd = {};
-    sc.layers.forEach(function(l){ if (TEXT_KINDS.indexOf(l.kind) >= 0 && l.visible){ n.live.on[l.id] = true; if (l.kind === 'countdown') n.live.cd[l.id] = Date.now(); } });
+    sc.layers.forEach(function(l){ if ((TEXT_KINDS.indexOf(l.kind) >= 0 || SOUND_KINDS.indexOf(l.kind) >= 0) && l.visible){ n.live.on[l.id] = true; if (l.kind === 'countdown') n.live.cd[l.id] = Date.now(); } });
     n.live.scene = sc.id; n.live.seq = (n.live.seq || 0) + 1; n.live.at = Date.now(); n.live.tx = tx.type; n.live.txMs = tx.ms;
     return true;
   },
@@ -800,7 +805,7 @@ var Scenes = {
       var qv = n.question.visible; if (qv) n.question.mode = on ? 'both' : 'question';
     } else if (l.kind === 'birthday'){
       if (on && String(n.birthday.greeting).trim()){ n.birthday.visible = true; n.birthday.seq = (n.birthday.seq || 0) + 1; } else n.birthday.visible = false;
-    } else if (TEXT_KINDS.indexOf(l.kind) >= 0){
+    } else if (TEXT_KINDS.indexOf(l.kind) >= 0 || SOUND_KINDS.indexOf(l.kind) >= 0){   // Audio follows the same on/off map (Hide all silences it)
       if (on){ n.live.on[l.id] = true; if (l.kind === 'countdown' && !n.live.cd[l.id]) n.live.cd[l.id] = Date.now(); } else delete n.live.on[l.id];
     } else l.visible = !!on;
   },

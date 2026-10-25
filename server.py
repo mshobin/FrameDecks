@@ -1018,7 +1018,9 @@ STUDIO_FILE = DATA / "kc-studio.json"
 SCENES_DIR = DATA / "scenes"            # scene thumbnails
 LAYERS_DIR = DATA / "layers"
 STUDIO_VERSION = 1
-FILE_KINDS = ("image", "video", "pdf")
+FILE_KINDS = ("image", "video", "pdf", "audio")
+AUDIO_TYPES = {".mp3": "audio/mpeg", ".m4a": "audio/mp4", ".wav": "audio/wav", ".ogg": "audio/ogg"}   # M-D4 Audio Content
+AUDIO_TYPES_EXT = tuple(AUDIO_TYPES)
 
 
 def media_check(st):
@@ -1953,6 +1955,13 @@ class Handler(BaseHTTPRequestHandler):
             if not self.is_local():
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
             return self.reply(200, json.dumps(AI.status(fresh=parse_qs(url.query).get("fresh", ["0"])[0] == "1")), TYPES[".json"])
+        if path == "/api/media/audio":                   # M-D4: an Audio Content's file, for the program window (this PC only)
+            if not self.is_local():
+                return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
+            f = LAYERS_DIR / Path(parse_qs(url.query).get("name", [""])[0]).name
+            if f.suffix.lower() not in AUDIO_TYPES or not f.is_file():
+                return self.reply(404, "Not found", "text/plain; charset=utf-8")
+            return self.reply(200, f.read_bytes(), AUDIO_TYPES[f.suffix.lower()], [("Cache-Control", "no-store")])
         if path == "/api/media/check":                   # migration step 3: Frames whose media files are not on this PC
             if not self.is_local():
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
@@ -2109,8 +2118,8 @@ class Handler(BaseHTTPRequestHandler):
             return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
         name = Path(parse_qs(urlparse(self.path).query).get("name", ["file"])[0]).name
         stem, ext = os.path.splitext(name)
-        if ext.lower() not in (".png", ".jpg", ".jpeg", ".mp4", ".mov", ".webm", ".pdf", ".pptx", ".ppt"):
-            return self.reply(400, json.dumps({"error": "Use PNG, JPG, MP4, MOV, WebM, PDF or PowerPoint (PPTX)."}), TYPES[".json"])
+        if ext.lower() not in (".png", ".jpg", ".jpeg", ".mp4", ".mov", ".webm", ".pdf", ".pptx", ".ppt") + AUDIO_TYPES_EXT:
+            return self.reply(400, json.dumps({"error": "Use PNG, JPG, MP4, MOV, WebM, PDF, PowerPoint (PPTX) or MP3, M4A, WAV, OGG."}), TYPES[".json"])
         length = int(self.headers.get("Content-Length", 0))
         if length <= 0 or length > 1024 * 1024 * 1024:
             return self.reply(400, json.dumps({"error": "The file must be smaller than 1 GB."}), TYPES[".json"])
@@ -2258,6 +2267,19 @@ class Handler(BaseHTTPRequestHandler):
             return self.reply(400, "Invalid data", "text/plain; charset=utf-8")
         if path == "/api/remote-login":
             return self.remote_login(data)
+        if path == "/api/export/pptx":                   # M-D4: the service as a PowerPoint file, made on this PC
+            if not self.is_local():
+                return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
+            try:
+                import pptx_export
+                with cond:
+                    plan = json.loads(json.dumps(state))
+                body, _ = pptx_export.build(plan, LAYERS_DIR)
+            except ImportError:
+                return self.reply(501, json.dumps({"error": "PowerPoint export needs the python-pptx package (it comes with the installer)."}), TYPES[".json"])
+            except (OSError, ValueError, KeyError, TypeError) as e:
+                return self.reply(422, json.dumps({"error": str(e)}), TYPES[".json"])
+            return self.reply(200, body, "application/vnd.openxmlformats-officedocument.presentationml.presentation")
         if path == "/api/meeting/workbook":
             # 6.9 Export this meeting to Excel: the template's Dashboard and Meeting Form, with this meeting filled in
             if not self.is_local():

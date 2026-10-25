@@ -109,6 +109,8 @@ Updated 25 October 2026, after the architecture review and migration plan (PR #3
 - **Step 8 (M-D6)**: `0008_member_groups.sql`; groups on the companion's Members page only.
 - **Step 6 (M-D3)**: `ai.py` + `/api/ai/*` + **Suggest** in `app/js/frame-lists.js` (hidden without Ollama);
   `tests/test_ai.py` (6); user guide `docs/ai.md`.
+- **Step 7 (M-D4)**: PowerPoint export (`pptx_export.py`, `/api/export/pptx`, Meeting menu) and Audio Content
+  (`+ Content → Audio…`, `audio-player.js`, `/api/media/audio`); python-pptx added to the Windows build.
 - Tidy-up: the "older docs reference 6.6" debt is closed (they mention 6.6 as history; the 6.6 audit is marked as a
   snapshot; the coding-standards comment template no longer names a version).
 
@@ -147,10 +149,11 @@ Step 5 needs the owner to run `0002`–`0005` in Supabase and to have the PR-bui
 (an installer from "Build Windows installer" on `main`, or running `server.py` from source).
 
 ## Recommended Next Task
-Migration steps 1–3 are built. The owner answered M-D1–M-D6 on 25 October (plan §8; M-D5 →
-[hosting.md](../docs/architecture/hosting.md)). Steps 4–8 of [docs/migration-plan.md](../docs/migration-plan.md) are
-being built in this order: 4 licence, 8 groups, 5 members from the cloud, 6 AI, 7 PPTX export and audio; each with
-the §6 validation and a section in `docs/post-migration-report.md`. Meanwhile:
+All eight migration steps are built on PR #32 ([report](../docs/post-migration-report.md)). Next: the owner's live
+tests (database `0002`–`0008`, then [the live test guide](../docs/qa/live-test-guide.md) A–F), the owner's M-D1 steps
+([code-signing.md](../docs/project/code-signing.md)), and later the companion's move to Cloudflare
+([hosting.md](../docs/architecture/hosting.md)). Open from step 3: size/hash asset references (design) and an
+on-screen missing-media line (approval). Meanwhile:
 Help the owner through [the live test guide](../docs/qa/live-test-guide.md) (sync step 5, Phase 5 step 4, companion
 editing step 3 and history; installer from the latest "Build Windows installer" run on `main`, migrations
 `0002`–`0005`). Fix what they find and mark each test done in the four files. Then: Google/Microsoft sign-in with the

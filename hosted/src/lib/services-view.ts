@@ -36,13 +36,14 @@ const KIND_NAMES: Record<string, string> = {
   window: "Window",
   image: "Image",
   video: "Video",
+  audio: "Audio",
   pdf: "PowerPoint",
   background: "Background",
   text: "Text",
   rect: "Shape",
   ellipse: "Ellipse",
 };
-const MEDIA = ["image", "video", "pdf"];
+const MEDIA = ["image", "video", "pdf", "audio"];
 const TITLED = ["announcement", "prayer", "lowerthird", "countdown"];
 
 const isObj = (v: unknown): v is Obj => typeof v === "object" && v !== null && !Array.isArray(v);

@@ -41,6 +41,11 @@ class MediaCheckTest(unittest.TestCase):
             {"frame": "e", "name": "Video", "files": ["talk.mp4"]},
         ])
 
+    def test_audio_content_is_checked_too(self):
+        st = {"scenes": [{"id": "w", "name": "Worship", "layers": [{"id": "a", "kind": "audio", "c": {"file": "Song.mp3"}}]}]}
+        self.assertEqual(server.media_check(st), [{"frame": "w", "name": "Worship", "files": ["Song.mp3"]}])
+        self.assertEqual(server.AUDIO_TYPES[".mp3"], "audio/mpeg")
+
     def test_odd_plans_do_not_break_it(self):
         self.assertEqual(server.media_check({}), [])
         self.assertEqual(server.media_check({"scenes": [None, "x", {"layers": [None, {"kind": "image", "c": None}]}]}), [])
