@@ -1070,13 +1070,53 @@ _scr_lock = threading.Lock()
 SCRIPTURE_HEALTH = {"ok": None, "message": "", "at": 0}
 
 
+# The key itself is kept in Windows Credential Manager (migration step 2, docs/migration-plan.md), not in the JSON file;
+# a key an older version saved in the file is moved there the first time it is read.
+ESV_KEY = cloud_sync.SecretStore(DATA / ".kc-esv-key", target="FRAMEDECKS/esv-key")
+
+
+def _esv_key_get():
+    try:
+        return re.sub(r"[^A-Za-z0-9]", "", ESV_KEY.get() or "")[:200]
+    except (OSError, AttributeError, ValueError):
+        return ""
+
+
+def _esv_key_set(key):
+    """Store (or with "" remove) the key; True when the store holds exactly that afterwards."""
+    try:
+        ESV_KEY.set(key) if key else ESV_KEY.delete()
+    except (OSError, AttributeError):
+        return False
+    return _esv_key_get() == key
+
+
 def scripture_settings():
     try:
         d = json.loads(SCRIPTURE_FILE.read_text(encoding="utf-8"))
         d = d if isinstance(d, dict) else {}
     except (OSError, ValueError):
         d = {}
-    return {"provider": "esv", "key": str(d.get("key") or "")[:200], "translation": "ESV" if d.get("translation", "ESV") == "ESV" else "typed"}
+    key = re.sub(r"[^A-Za-z0-9]", "", str(d.get("key") or ""))[:200]
+    if key and _esv_key_set(key):                    # moved out of the file only once the store reads it back
+        _write_scripture_file({k: v for k, v in d.items() if k != "key"})
+    key = key or _esv_key_get()
+    return {"provider": "esv", "key": key, "translation": "ESV" if d.get("translation", "ESV") == "ESV" else "typed"}
+
+
+def _write_scripture_file(d):
+    try:
+        SCRIPTURE_FILE.write_text(json.dumps(d), encoding="utf-8")
+    except OSError:
+        pass
+
+
+def save_scripture_settings(cur):
+    """cur: scripture_settings() with changes. The key goes to the store; the file keeps it only if the store fails."""
+    out = {"provider": "esv", "translation": cur.get("translation", "ESV")}
+    if not _esv_key_set(cur.get("key") or ""):
+        out["key"] = cur.get("key") or ""
+    _write_scripture_file(out)
 
 
 def _scr_cache():
@@ -2164,7 +2204,7 @@ class Handler(BaseHTTPRequestHandler):
                 cur["key"] = re.sub(r"[^A-Za-z0-9]", "", str(d.get("key") or ""))[:200]
             if d.get("translation") in ("ESV", "typed"):
                 cur["translation"] = d["translation"]
-            SCRIPTURE_FILE.write_text(json.dumps(cur), encoding="utf-8")
+            save_scripture_settings(cur)
             if d.get("clearCache"):
                 with _scr_lock:
                     try:

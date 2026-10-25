@@ -317,8 +317,9 @@ class SecretStore:
 
     TARGET = "FRAMEDECKS/computer-key"
 
-    def __init__(self, fallback_file):
+    def __init__(self, fallback_file, target=None):
         self.fallback = Path(fallback_file)
+        self.TARGET = target or self.TARGET          # another secret (the ESV key) under its own name
         # FRAMEDECKS_SECRET_STORE=file: the tests use the file on Windows too (CI machines have no usable vault)
         self.windows = os.name == "nt" and os.environ.get("FRAMEDECKS_SECRET_STORE") != "file"
 

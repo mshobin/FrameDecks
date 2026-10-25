@@ -91,6 +91,10 @@ Updated 25 October 2026, after the architecture review and migration plan (PR #3
 - **Migration step 1 (audit log)** on PR #32: `hosted/supabase/migrations/0006_audit_log.sql` (`audit_log`, written
   only by triggers on memberships, invitations and computers; owners/admins read; kept one year), undo script
   `hosted/supabase/rollback/0006_audit_log_down.sql`, 8 PGlite tests `hosted/tests/supabase-audit.test.mjs`.
+- **Migration step 2 (ESV key)** on PR #32: `server.py` `ESV_KEY` (`cloud_sync.SecretStore` with target
+  `FRAMEDECKS/esv-key`); a key in `bcc-scripture.json` from an older version is moved the first time it is read and
+  removed from the file only after the store reads it back; if the store fails the file keeps it. Settings unchanged.
+  `tests/test_esv_key.py` (4) and checked against the real program.
 - Tidy-up: the "older docs reference 6.6" debt is closed (they mention 6.6 as history; the 6.6 audit is marked as a
   snapshot; the coding-standards comment template no longer names a version).
 

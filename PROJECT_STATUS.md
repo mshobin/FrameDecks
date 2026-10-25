@@ -62,7 +62,7 @@ build pass, doc links 0 problems; the program and the companion checked in brows
 ## Technical Debt
 - From the [architecture audit](docs/project/2026-10-25-architecture-audit.md) (25 Oct): unsigned installer and no
   auto-update (C1); missing media found only at service time (C8, migration step 3). C2–C6 fixed on PR #32.
-- From the [architecture review](docs/architecture-review.md): no general audit log; ESV key in plain text; member
+- From the [architecture review](docs/architecture-review.md) (audit log and ESV key fixed on PR #32): member
   list kept on PCs (rule 3); no LICENSE; Vercel Hobby terms (personal, non-commercial) — see the migration plan.
 - RLS tests run on PGlite with a stubbed `auth.uid()`, not real Supabase; live-database tests are still needed.
 - Sync is tested against a stand-in cloud that follows the database's rules (`tests/test_cloud_sync.py`), not yet

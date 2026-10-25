@@ -8,6 +8,7 @@ kc-app-settings.json
 kc-app-log.txt*
 kc-sync.json
 .kc-sync-key
+.kc-esv-key
 ipad-remote-check.txt
 backups/
 webview/
