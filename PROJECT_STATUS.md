@@ -1,7 +1,7 @@
 # PROJECT STATUS
 
-Last verified: 25 October 2026 on `claude/peaceful-albattani-6m445e` at Phase 5 step 3 (on top of `main` at
-`437cf3a`): desktop JS 4/4, Python 79 tests OK, `packaging/check.py` (6.10), hosted test 58/58, lint, typecheck and
+Last verified: 25 October 2026 on `main` at `e2eaa22` (Phase 5 step 3 merged; GitHub hosted checks and the Windows
+installer build passed there). Locally at step 3: desktop JS 4/4, Python 79 tests OK, `packaging/check.py` (6.10), hosted test 58/58, lint, typecheck and
 build pass, doc links 0 problems; the program and the companion checked in browsers against stand-ins. Detail lives in
 [docs/FRAMEDECKS_MODERNIZATION_STATUS.md](docs/FRAMEDECKS_MODERNIZATION_STATUS.md).
 
@@ -31,7 +31,10 @@ build pass, doc links 0 problems; the program and the companion checked in brows
   (`/api/remote-cloud/*`, `app/js/cloud-remote.js`) and the app setting `cloudRemote` (off; no switch on screen
   until step 3), 13 tests in `tests/test_cloud_remote.py` plus a real-program browser check (PR #26); step 3 built:
   the Settings switch and last ten actions, the companion's **Live** page (`/live`, `0005_remote_live.sql`) and a
-  "Can run services" checkbox per member. Next step 4, the owner's live test.
+  "Can run services" checkbox per member (PR #27, merged; installer from `main` run 40207526698). Next step 4,
+  the owner's live test.
+- Editing in the companion: design proposed ([companion-editing.md](docs/architecture/companion-editing.md)),
+  waiting for the owner's E1–E4.
 
 ## Pending
 - Owner: run `0002_invitations.sql`, `0003_sync.sql`, `0004_remote.sql` and `0005_remote_live.sql` in the Supabase
