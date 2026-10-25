@@ -1,6 +1,6 @@
 # NEXT SESSION HANDOFF
 
-Updated 25 October 2026, after companion editing (PR #29, merged) and Frame history with restore.
+Updated 25 October 2026, after Frame history (PR #30, merged) and the live test guide.
 
 ## Completed
 - **6.10** (Quit really quits) merged (PR #7). Logo QA done, with a heavier small-size emblem for 16–32 px (PR #18;
@@ -65,7 +65,10 @@ Updated 25 October 2026, after companion editing (PR #29, merged) and Frame hist
   `hosted/src/lib/history-view.ts`, `hosted/src/components/frame-history.tsx`), owners and admins can Restore a
   version, and "Deleted in the last 30 days" brings a deleted Frame back. No database change. Tested:
   `hosted/tests/history-view.test.mjs` (4) and a browser run against stand-ins (versions, restore, deleted Frame back,
-  member view-only on a phone). QA picture `docs/qa/2026-10-25-companion-frame-history.png`.
+  member view-only on a phone). QA picture `docs/qa/2026-10-25-companion-frame-history.png`. PR #30 merged.
+- **Live test guide** for the owner: [docs/qa/live-test-guide.md](../docs/qa/live-test-guide.md), one pass through the
+  database scripts, the installer, and tests A (sync), B (phone control), C (editing), D (history), with what to
+  expect and what to send back.
 
 ## Pending
 - **Step 5 (live, the owner):** in the Supabase SQL editor run `hosted/supabase/migrations/0002_invitations.sql`, then
@@ -101,9 +104,9 @@ Step 5 needs the owner to run `0002`–`0005` in Supabase and to have the PR-bui
 (an installer from "Build Windows installer" on `main`, or running `server.py` from source).
 
 ## Recommended Next Task
-Help the owner through the live tests, all with the installer from `main` and migrations `0002`–`0005`: sync step 5,
-Phase 5 step 4, and companion editing step 3 (edit a script on the phone; it appears on the PC within a minute;
-editing the live Frame waits until it leaves the screen). Fix what they find. Then: Google/Microsoft sign-in with the
+Help the owner through [the live test guide](../docs/qa/live-test-guide.md) (sync step 5, Phase 5 step 4, companion
+editing step 3 and history; installer from the latest "Build Windows installer" run on `main`, migrations
+`0002`–`0005`). Fix what they find and mark each test done in the four files. Then: Google/Microsoft sign-in with the
 invitation test (owner's choice, later), live RLS tests, real-device PWA test.
 Read `hosted/node_modules/next/dist/docs/` before hosted code (`cacheComponents` is on). The public Supabase values
 are URL `https://slrsykiknlqlivlnpvrb.supabase.co` and the owner's publishable key; only in `hosted/.env.local`.
