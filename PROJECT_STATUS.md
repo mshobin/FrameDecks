@@ -16,12 +16,13 @@ lint, typecheck and build pass. Detail lives in
   SQL editor (25 October; its result not yet confirmed in writing). The sign-in UI is built (`/sign-in`, `/auth/callback`,
   top-bar account chip; emailed link, Google/Microsoft when enabled), merged (PR #18) and deployed with the Vercel
   variables. **The owner signed in on the live site with an emailed link (25 October 2026).** Workspace UI built and **confirmed live by the owner
-  (25 October 2026): display name saved, workspace "BSF Study" created with the owner role** (PR #19). Not yet: Google/Microsoft providers, live RLS
-  tests, inviting members.
+  (25 October 2026): display name saved, workspace "BSF Study" created with the owner role** (PR #19). Members and invitations built (migration `0002_invitations.sql`,
+  PGlite-tested, browser-tested against stand-in responses); the owner will run `0002` and test invitations live
+  together with Google/Microsoft sign-in at a later stage. Not yet: Google/Microsoft providers, live RLS tests.
 
 ## Pending
-- Google/Microsoft providers (owner, optional); live RLS tests; inviting members to a workspace (needs a server-side
-  lookup by email, so a Supabase function or a Next.js route with a secret held only in Vercel).
+- Later, together (owner's choice): run `0002_invitations.sql`, set up Google/Microsoft providers, test invitations
+  live. Live RLS tests need `*.supabase.co` allowed in this environment's network settings.
 - Real-device PWA install and offline acceptance on the deployed URL.
 - Secure device pairing (QR / 6-digit challenge) and runtime channel.
 - A person looks at the real tray icon on an installed Windows PC (the icons themselves are checked; see below).
