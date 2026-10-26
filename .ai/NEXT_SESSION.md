@@ -62,6 +62,15 @@ VS Code (GitHub Copilot or any assistant). Read [CLAUDE.md](../CLAUDE.md) first.
   8. M-D6: `0008_member_groups.sql`; member groups on the companion's Members page only.
   - M-D5: long-term hosting recommendation, [docs/architecture/hosting.md](../docs/architecture/hosting.md).
 
+## In progress: the free plan (owner's request, 26 October)
+Steps, in order, from `docs/project/free-hosting.md` (next commit):
+1. **Companion as static files** (Cloudflare Pages ready): **code done** on branch
+   `claude/peaceful-albattani-6m445e`. Owner: Part A.
+2. Keep-alive and encrypted nightly backup workflows: next.
+3. Lighter free tier: slower idle polling, status only while watched, 14-day history, 6-month audit (`0009`).
+4. Google/Microsoft sign-in and free email (Brevo): owner setup (Part D).
+5. Public repository, SignPath, GitHub Releases: owner setup (Part E).
+
 ## Pending (owner)
 1. ~~Run the database scripts~~: **done** on 26 October (`0002`–`0008`, all passed).
 2. ~~Merge PR #32~~: **done**. Take the installer from the latest "Build Windows installer" run on `main` (Actions →

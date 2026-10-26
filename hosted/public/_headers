@@ -1,0 +1,9 @@
+# Cloudflare Pages headers for the static companion (ignored by other hosts).
+/api/sync-config
+  Content-Type: application/json; charset=utf-8
+  Cache-Control: public, max-age=300
+/sw.js
+  Cache-Control: no-cache
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin

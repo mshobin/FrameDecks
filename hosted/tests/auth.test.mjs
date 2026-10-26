@@ -32,10 +32,11 @@ test("sign-in uses PKCE and never a service-role key", () => {
   }
 });
 
-test("the desktop's config route serves only the two public values", () => {
-  const route = read("app/api/sync-config/route.ts");
-  assert.match(route, /readSupabaseConfig\(\)/);
-  assert.match(route, /\{ url: config\.url, anonKey: config\.anonKey \}/);
-  assert.doesNotMatch(route, /process\.env/);
-  assert.ok(route.split("Response.json(").length === 3, "one error answer and one config answer");
+test("the desktop's config file holds only the two public values", async () => {
+  const { syncConfig } = await import("../scripts/write-sync-config.mjs");
+  const env = { NEXT_PUBLIC_SUPABASE_URL: "https://x.supabase.co", NEXT_PUBLIC_SUPABASE_ANON_KEY: "pk", SUPABASE_SERVICE_ROLE_KEY: "secret" };
+  assert.deepEqual(syncConfig(env), { url: "https://x.supabase.co", anonKey: "pk" });
+  assert.deepEqual(Object.keys(syncConfig({ NEXT_PUBLIC_SUPABASE_URL: "http://x", NEXT_PUBLIC_SUPABASE_ANON_KEY: "pk" })), ["error"]);
+  assert.deepEqual(Object.keys(syncConfig({})), ["error"]);
+  assert.doesNotMatch(readFileSync(new URL("../scripts/write-sync-config.mjs", import.meta.url), "utf8"), /SERVICE_ROLE|service_role|sb_secret_/);
 });

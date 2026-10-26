@@ -12,6 +12,7 @@ export const metadata: Metadata = {
   description:
     "The online-first FRAMEDECKS companion for secure service planning and device management.",
   applicationName: "FRAMEDECKS",
+  manifest: "/manifest.webmanifest",
   icons: {
     icon: "/framedecks-emblem.webp",
     apple: "/framedecks-emblem.webp",

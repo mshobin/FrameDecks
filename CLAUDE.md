@@ -26,7 +26,10 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
   — wired into `server.py` (`CLOUD_REMOTE`, `CLOUD_BRIDGE`, `/api/remote-cloud/*`, this PC only) and run by the
   program's own window with the keys' functions (`app/js/cloud-remote.js`). `REMOTE` in `server.py` is the Wi-Fi
   phone remote, a different thing.
-- `hosted/` — Next.js 16 online-first companion, deployed to Vercel (`framedecks.vercel.app`, Root Directory `hosted`).
+- `hosted/` — Next.js 16 online-first companion, built as **plain static files** (`output: "export"` → `hosted/out/`;
+  free plan, `docs/project/free-hosting.md`). Deployed to Vercel (`framedecks.vercel.app`, Root Directory `hosted`) until
+  the owner moves it to Cloudflare Pages. No server code: `/api/sync-config` is a file written by
+  `hosted/scripts/write-sync-config.mjs` at build time; the manifest is `hosted/public/manifest.webmanifest`.
 - `hosted/supabase/migrations/` — SQL run in order in the Supabase SQL editor: `0001` workspaces, `0002` invitations,
   `0003` sync, `0004` remote control, `0005` the Live page's PC list, `0006` the audit log, `0007` explicit API grants, `0008` member groups. All of `0001`–`0008` have been run in the live project (26 October 2026): never edit
   one, add the next number.
@@ -110,6 +113,8 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
 - Docs: `python tools/check_doc_links.py`, `git diff --check`.
 
 ## Gotchas
+- The companion must stay a static export: no server routes, cookies, server actions, `dynamic`/`revalidate`, metadata
+  routes that need a server, or cacheComponents/PPR (they break `output: "export"`).
 - `hosted/AGENTS.md`: this Next.js version has breaking changes; read `hosted/node_modules/next/dist/docs/` before writing hosted code.
 - The emblem `app/img/kc-emblem.webp` and `hosted/public/framedecks-emblem.webp` must stay identical. Regenerate all emblem/icon files with `tools/make_emblem_assets.py` (master: `assets/brand/framedecks-emblem.svg`).
 - The repo auto-commits as "Update project files and documentation"; check `git status` before committing.
