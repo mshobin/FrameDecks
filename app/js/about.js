@@ -194,7 +194,25 @@ if ($('about-btn')) $('about-btn').addEventListener('click', function(){
 });
 if (dlg) dlg.addEventListener('click', function(e){ if (e.target === dlg) dlg.close(); });
 
+/* A newer published version (the program asks GitHub once a day): a link beside the version, and one message per
+ * new version. Nothing is downloaded by itself. */
+function showUpdate(u){
+  if (!u || !u.newer || !u.url) return;
+  Array.prototype.forEach.call(document.querySelectorAll('[data-about-version]'), function(e){
+    if (e.parentNode && e.parentNode.querySelector('.kc-update')) return;
+    var a = h('a', {cls: 'kc-update', href: u.url, target: '_blank', rel: 'noopener', text: 'Version ' + u.latest + ' is available'});
+    e.parentNode.insertBefore(document.createTextNode(' · '), e.nextSibling);
+    e.parentNode.insertBefore(a, e.nextSibling.nextSibling);
+  });
+  var seen = null; try { seen = localStorage.getItem('kc-update-told'); } catch(e){}
+  if (seen !== u.latest && window.KCActions){
+    window.KCActions.toast('FRAMEDECKS ' + u.latest + ' is available: Settings → About');
+    try { localStorage.setItem('kc-update-told', u.latest); } catch(e){}
+  }
+}
 if (Store && Store.served){
   fetch('api/app/ping', {cache: 'no-store'}).then(function(r){ return r.json(); }).then(function(d){ setVersion(d.version); }).catch(function(){});
+  var askUpdate = function(){ fetch('api/app/update', {cache: 'no-store'}).then(function(r){ return r.ok ? r.json() : null; }).then(showUpdate).catch(function(){}); };
+  setTimeout(askUpdate, 90000); setInterval(askUpdate, 6 * 3600 * 1000);
 }
 })();

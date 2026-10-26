@@ -102,6 +102,17 @@ function renderSecurity(){
 
 /* ---------- Diagnostics ---------- */
 var errors = window.KCErrors || [];
+/* Audit roadmap step 2: one zip with the log, Diagnostics and settings (never the plan, members, PIN or keys) */
+function saveSupportBundle(){
+  fetch('api/support-bundle', {cache: 'no-store'}).then(function(r){ if (!r.ok) throw new Error(); return r.blob(); })
+    .then(function(blob){
+      var url = URL.createObjectURL(blob), a = document.createElement('a');
+      a.href = url; a.download = 'FRAMEDECKS support ' + new Date().toISOString().slice(0, 10) + '.zip';
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(function(){ URL.revokeObjectURL(url); }, 4000);
+      if (window.KCActions) window.KCActions.toast('Support bundle saved to your Downloads folder');
+    }).catch(function(){ if (window.KCActions) window.KCActions.toast('The support bundle could not be made.', true); });
+}
 function renderDiag(){
   var root = $('diag-body'); root.innerHTML = '';
   var info = {browser: navigator.userAgent, screen: screen.width + '×' + screen.height, window: window.innerWidth + '×' + window.innerHeight,
@@ -109,6 +120,9 @@ function renderDiag(){
   var box = h('section', {cls: 'box'});
   var head = h('div', {cls: 'box-head'}, [h('h2', {text: 'Connection & system'}),
     h('button', {cls: 'btn small', type: 'button', text: 'Copy diagnostics', onclick: function(){ copyReport(); }}),
+    Store.served ? h('button', {cls: 'btn small', type: 'button', text: 'Save support bundle',
+      title: 'One file with the log, Diagnostics and settings, to send when asking for help (no plan, members, PIN or keys)',
+      onclick: saveSupportBundle}) : null,
     h('button', {cls: 'btn small', type: 'button', text: 'Refresh', onclick: renderDiag})]);
   box.appendChild(head);
   var kv = h('dl', {cls: 'kv'});

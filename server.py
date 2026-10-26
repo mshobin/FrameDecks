@@ -472,6 +472,38 @@ def resources():
             "layerCacheEntries": len(comp.layers.cache) if comp else 0}
 
 
+SUPPORT_LOG = "kc-app-log.txt"
+SUPPORT_SETTINGS = ("kc-app-settings.json", "kc-vcam-settings.json", "kc-looks.json")
+
+
+def support_bundle(address):
+    """Settings > Diagnostics > Save support bundle: one zip to send when asking for help. It holds the program's log,
+    the diagnostics and its settings files. It never holds the plan, members, the phone-remote PIN or sessions, or any
+    key (those stay in their files or in Windows Credential Manager)."""
+    import io
+    import zipfile
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as z:
+        z.writestr("README.txt", "FRAMEDECKS support bundle\n\nIncluded: the program's log (the last 2 MB), the Diagnostics "
+                   "page and the settings files listed here.\nNot included: your plan, members, the phone-remote PIN and "
+                   "sessions, and any keys.\n")
+        z.writestr("diagnostics.json", json.dumps(diagnostics(address), indent=1, ensure_ascii=False, default=str))
+        z.writestr("sync.json", json.dumps(SYNC.info(), indent=1, ensure_ascii=False, default=str))
+        listing = sorted(({"name": f.name, "bytes": f.stat().st_size} for f in DATA.iterdir() if f.is_file()),
+                         key=lambda d: d["name"]) if DATA.exists() else []
+        z.writestr("data-folder.json", json.dumps(listing, indent=1))   # names and sizes only
+        for name in (SUPPORT_LOG + ".old", SUPPORT_LOG):
+            f = DATA / name
+            if f.is_file():
+                data = f.read_bytes()
+                z.writestr(name, data[-2_000_000:])
+        for name in SUPPORT_SETTINGS:
+            f = DATA / name
+            if f.is_file():
+                z.writestr(name, f.read_bytes())
+    return buf.getvalue()
+
+
 def diagnostics(address):
     files = {}
     for f in (STATE_FILE, PRIVATE_FILE, PIN_FILE, SESSIONS_FILE):
@@ -1946,6 +1978,10 @@ class Handler(BaseHTTPRequestHandler):
             return self.reply(404, "Not found", "text/plain; charset=utf-8")
         if path == "/api/app/ping":
             return self.reply(200, json.dumps({"app": "FRAMEDECKS", "version": APP_VERSION, "installedApp": FROZEN}), TYPES[".json"])
+        if path == "/api/app/update":                    # About: a newer published version, if any (this PC only)
+            if not self.is_local():
+                return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
+            return self.reply(200, json.dumps(update_info()), TYPES[".json"])
         if path == "/api/app/info":
             if not self.is_local():
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
@@ -1995,6 +2031,11 @@ class Handler(BaseHTTPRequestHandler):
             if f.suffix.lower() not in AUDIO_TYPES or not f.is_file():
                 return self.reply(404, "Not found", "text/plain; charset=utf-8")
             return self.reply(200, f.read_bytes(), AUDIO_TYPES[f.suffix.lower()], [("Cache-Control", "no-store")])
+        if path == "/api/support-bundle":                # Settings > Diagnostics > Save support bundle (this PC only)
+            if not self.is_local():
+                return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
+            return self.reply(200, support_bundle(self.server.server_address), "application/zip",
+                              [("Cache-Control", "no-store")])
         if path == "/api/media/check":                   # migration step 3: Frames whose media files are not on this PC
             if not self.is_local():
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
@@ -2503,6 +2544,51 @@ class MainServer(ThreadingHTTPServer):
         super().server_bind()
 
 
+# ---------- Is there a newer version? (audit roadmap step 2: tells, never downloads) ----------
+# Once a day the program asks GitHub for the latest published release. The About page then says that a newer version
+# is available, with a link to the Releases page; nothing is downloaded or installed by itself. Works once the
+# repository is public; set FRAMEDECKS_NO_UPDATE_CHECK=1 to never ask.
+RELEASES_API = os.environ.get("FRAMEDECKS_RELEASES_API",
+                              "https://api.github.com/repos/mshobin/FRAMEDECKS/releases/latest")
+UPDATE = {"latest": None, "url": None, "checkedAt": 0.0}
+
+
+def version_tuple(v):
+    return tuple(int(x) for x in re.findall(r"\d+", str(v or ""))[:4])
+
+
+def check_for_update(timeout=10):
+    """Ask GitHub once; keeps the answer in UPDATE. Never raises."""
+    from urllib.request import Request, urlopen
+    try:
+        req = Request(RELEASES_API, headers={"Accept": "application/vnd.github+json",
+                                             "User-Agent": "FRAMEDECKS/" + APP_VERSION})
+        with urlopen(req, timeout=timeout) as r:
+            data = json.loads(r.read().decode("utf-8"))
+        tag = str(data.get("tag_name") or "").lstrip("vV")
+        url = str(data.get("html_url") or "")
+        if tag and url.startswith("https://github.com/"):
+            UPDATE.update(latest=tag, url=url)
+    except Exception as _e:                       # offline, private repository, no release yet: say nothing
+        _swallowed("server.check_for_update", _e)
+    UPDATE["checkedAt"] = time.time()
+    return update_info()
+
+
+def update_info():
+    newer = bool(UPDATE["latest"]) and version_tuple(UPDATE["latest"]) > version_tuple(APP_VERSION)
+    return {"current": APP_VERSION, "latest": UPDATE["latest"], "newer": newer, "url": UPDATE["url"] if newer else None}
+
+
+def _update_loop():
+    if os.environ.get("FRAMEDECKS_NO_UPDATE_CHECK"):
+        return
+    time.sleep(60)                                # not during start-up
+    while True:
+        check_for_update()
+        time.sleep(24 * 3600)
+
+
 def start_main_server():
     """Start listening on this PC only. Returns the server (or None if every port is taken)."""
     for port in PORTS:
@@ -2518,6 +2604,7 @@ def start_main_server():
     threading.Thread(target=vcam_start, daemon=True).start()   # idle until Zoom/Teams uses FRAMEDECKS
     threading.Thread(target=_backup_loop, daemon=True).start()
     threading.Thread(target=_remote_watcher, daemon=True).start()
+    threading.Thread(target=_update_loop, daemon=True).start()   # once a day: is a newer version published?
     SYNC.start()                                                # does nothing unless this PC is linked
     CLOUD_REMOTE.start()                                        # idle unless linked and switched on in Settings
     return server
