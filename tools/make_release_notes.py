@@ -87,7 +87,7 @@ def build(version, repo=None, ref=None):
     if not src.exists():
         raise SystemExit("No release notes for %s: write %s" % (version, src.relative_to(ROOT)))
     text = src.read_text(encoding="utf-8")
-    text = re.sub(r"\A#{1,2}\s+(?:FRAMEDECKS|Kingdom Connect) v[\d.]+\s*\n", "", text)  # prior release headings remain readable
+    text = re.sub(r"\A#{1,2}\s+FRAMEDECKS v[\d.]+\s*\n", "", text)  # prior release headings remain readable
     if repo:
         text = absolute_links(text, repo, ref or ("v" + version))
     lead, found = split_sections(text)

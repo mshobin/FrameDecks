@@ -52,7 +52,7 @@ branding.
 | Location | Classification |
 |---|---|
 | `docs/architecture/design-history.md` | Historical architecture/design decisions and identifiers. |
-| `docs/design/kingdom-connect-redesign.html` | Archived design/redesign material. |
+| `docs/design/framedecks-redesign.html` | Archived design/redesign material. |
 | `docs/project/repository-audit.md` | Historical repository audit. |
 | `docs/project/v6.7-plan.md`, `docs/project/v6.8-plan.md` | Historical implementation plans. |
 | `docs/reference/features.md`, `docs/reference/meeting-workbook-and-branding.md` | Maintainer reference material, including old asset/template paths. |
@@ -72,7 +72,7 @@ checks. They are not current user-facing product titles.
 | `server.py` | Removes the old firewall rule; resolves the packaged camera DLL and legacy register/unregister helpers; includes the DLL name in troubleshooting details. |
 | `desktop_app.py` | Internal tray-icon identifier. |
 | `build.bat`, `.github/workflows/build-windows.yml` | Build and hash the existing camera DLL outputs. |
-| `vcam/bin/register-kingdomconnect-camera.cmd`, `vcam/bin/unregister-kingdomconnect-camera.cmd` | Camera DLL registration helper filenames and paths. |
+| `vcam/bin/register-framedecks-camera.cmd`, `vcam/bin/unregister-framedecks-camera.cmd` | Camera DLL registration helper filenames and paths. |
 | `vcam/devices.py`, `vcam/sink.py` | Recognizes existing camera device names and loads the DLL using its established filename. |
 | `packaging/check.py`, `packaging/framedecks.spec` | Build checks and executable icon path. |
 | `packaging/installer.iss` | Preserves the icon/helper filenames, and removes old program folders, shortcuts, and running executable during upgrade/uninstall. |

@@ -45,7 +45,7 @@ every installer build from `main` and every version tag is signed by itself.
          <zip-file>
            <pe-file path="FRAMEDECKS.exe"><authenticode-sign/></pe-file>
            <pe-file-set>
-             <include path="_internal/vcam/bin/kingdomconnect_vcam*.dll" min-matches="2" max-matches="2"/>
+             <include path="_internal/vcam/bin/framedecks_vcam*.dll" min-matches="2" max-matches="2"/>
              <for-each><authenticode-sign/></for-each>
            </pe-file-set>
          </zip-file>

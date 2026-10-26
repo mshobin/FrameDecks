@@ -95,9 +95,9 @@ Full notes: [docs/releases/v6.9.md](docs/releases/v6.9.md)
 - `tests/test_meeting_form.py`.
 
 ### Changed
-- The program now uses the Kingdom Connect name everywhere: the program (`Kingdom Connect.exe`), the program folder,
-  the data folder (`%APPDATA%\Kingdom Connect`), the data files (`kc-*.json`), the start files, the recordings folder,
-  the firewall rule and the Share Window title (*Kingdom Connect Share Window*). Default labels and the About text no
+- The program now uses the FRAMEDECKS name everywhere: the program (`FRAMEDECKS.exe`), the program folder,
+  the data folder (`%APPDATA%\FRAMEDECKS`), the data files (`kc-*.json`), the start files, the recordings folder,
+  the firewall rule and the Share Window title (*FRAMEDECKS Share Window*). Default labels and the About text no
   longer mention the program's earlier name, and the default Group Name is empty.
 - On first start, 6.9 moves data saved by earlier versions (folder, files, backups, recordings and browser settings)
   to the new names once, never overwriting newer data. The installer installs over every earlier version and removes
@@ -253,7 +253,7 @@ Full notes: [docs/releases/v6.4.md](docs/releases/v6.4.md)
 - New guides: user, installation, configuration and feature documentation.
 
 ### Changed
-- The camera is called **KingdomConnect** in Zoom, Teams, Google Meet and OBS (same device ID as before).
+- The camera is called **FRAMEDECKS** in Zoom, Teams, Google Meet and OBS (same device ID as before).
 - The app shows only the Book + Candle logo as its branding.
 - The installed app is a real desktop window: no address bar or browser controls, and the title bar follows the
   theme.
@@ -288,7 +288,7 @@ Full notes: [docs/releases/v6.1.md](docs/releases/v6.1.md)
   Library of ready-made scenes; Duplicate & edit question.
 
 ### Changed
-- The program got its current name, **Kingdom Connect**, with a navy and gold design in dark and light
+- The program got its current name, **FRAMEDECKS**, with a navy and gold design in dark and light
   themes, and a new About page.
 
 ## [6.0] - 2026-10-12

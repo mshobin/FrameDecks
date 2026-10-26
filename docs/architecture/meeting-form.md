@@ -82,7 +82,7 @@ cannot find, and the operator chooses the file in the Studio, as after an Excel 
 - **Detection (Chrome or Edge on Windows):**
   - After the person allows camera access once, `navigator.mediaDevices.enumerateDevices()` names the cameras.
   - A video input whose name contains `FRAMEDECKS` means the program is installed. Older names (`BCC vCam`,
-    `Kingdom Connect`) count too.
+    `FRAMEDECKS`) count too.
   - No camera is ever opened.
 - **Camera missing:** an "Install FRAMEDECKS for Windows" card with the latest release.
 - **Camera found:**

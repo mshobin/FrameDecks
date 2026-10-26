@@ -108,7 +108,7 @@ If the phone still cannot connect, see [Troubleshooting](troubleshooting.md).
 2. Run the new installer. It installs over the old version.
 3. Your meetings, settings, members, backups and phone PIN are kept.
 
-> **Note:** Earlier releases were named Kingdom Connect and BSF Command Center. Version 6.9 installs over every earlier
+> **Note:** Earlier releases were named FRAMEDECKS and BSF Command Center. Version 6.9 installs over every earlier
 > version, removes the old program folder and shortcuts, and on first start moves your data (including backups and
 > recordings) to the FRAMEDECKS folders below. Nothing newer is overwritten.
 

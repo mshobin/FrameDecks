@@ -43,8 +43,8 @@ The command bar fits any window: narrow, maximized, ultra-wide or on a high-reso
 wraps onto two rows, so nothing is cut off (6.9).
 
 **The window (6.8).** There is no Windows title bar: the command bar is the window's ribbon. Drag its empty space to
-move the window, and double-click it to maximize. Snap and resizing from the edges work as usual. Every Kingdom
-Connect window has the same three buttons at the top right.
+move the window, and double-click it to maximize. Snap and resizing from the edges work as usual. Every FRAMEDECKS
+ window has the same three buttons at the top right.
 - **Minimize** asks *Hide application to system tray?*: **Hide To Tray** or **Stay In Taskbar**, with **Remember my
   choice**. In the tray, the camera, overlays, phone remote and shortcuts keep working.
 - The **tray icon** near the clock: click it to open the app. Its menu has **Open App**, **Teleprompter** (the

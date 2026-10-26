@@ -69,7 +69,7 @@ function commands(){
     ['excel', 'Meeting from Excel (Settings → Data / Backup)', 'import export template workbook xlsx', function(){ settings('data'); }],   /* 6.11: Excel lives in Settings */
     ['branding', 'Open Branding', 'logo meeting name colour', function(){ settings('meeting'); }],
     ['knock', 'Remove the logo background', 'transparent png', function(){ if (window.KCBrandSettings) window.KCBrandSettings.removeBackground(); }],
-    ['camera', 'Camera background (blur, image)', 'kingdomconnect blur background', function(){ settings('vcam'); }],
+    ['camera', 'Camera background (blur, image)', 'framedecks blur background', function(){ settings('vcam'); }],
     ['shortcuts', 'Keyboard shortcuts', 'keys palette', function(){ settings('keys'); }]];
   if (window.KCTheme){
     var t = window.KCTheme.get();

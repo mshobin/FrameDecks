@@ -18,7 +18,7 @@ dependencies.
 | `app/icons/remote-512.png` | PWA launcher icon | Regenerated from the new logo icon. |
 | `app/icons/remote-maskable-512.png` | Maskable PWA launcher icon | Regenerated with safe-area padding. |
 | `app/icons/favicon-16.png`, `favicon-32.png` | Browser favicons | Added from the new logo icon and linked in `remote.html`. |
-| `packaging/kingdom-connect.ico` | Windows executable and installer icon | Regenerated with multiple icon sizes; existing reference path retained. |
+| `packaging/framedecks.ico` | Windows executable and installer icon | Regenerated with multiple icon sizes; existing reference path retained. |
 | `assets/brand/framedecks-logo-horizontal.png` | Horizontal logo lockup for future use | Generated from the supplied illustration and wordmark/tagline. |
 | `assets/brand/framedecks-logo-stacked.png` | Stacked logo for future use | Exact copy of the supplied logo artwork. |
 | `assets/brand/framedecks-logo-icon.png` | Standalone icon for future use | Illustration crop from the supplied artwork. |
@@ -67,7 +67,7 @@ python tools/make_emblem_assets.py
 ```
 
 It writes `app/img/kc-emblem.webp` and `hosted/public/framedecks-emblem.webp` (identical, lossless 1024 RGBA), the
-`app/icons/` favicons and remote icons, the navy maskable icon, `packaging/kingdom-connect.ico`, `kc-mark.png`,
+`app/icons/` favicons and remote icons, the navy maskable icon, `packaging/framedecks.ico`, `kc-mark.png`,
 `framedecks-logo-icon.png` (brand and hosted) and `hosted/src/app/icon.png`. Pillow only. If the SVG changes,
 re-render the PNG first (resvg at 1024 px width, transparent background).
 

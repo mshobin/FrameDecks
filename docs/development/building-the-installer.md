@@ -55,8 +55,8 @@ If you see a red cross instead, click the run to read the error, and send it to 
 4. When it opens for the first time, it offers to **import your existing data**.
    Choose your current FRAMEDECKS folder (it's usually found automatically) and click **Import**.
    Your members, saved verses and questions, settings and phone PIN are copied across.
-   Your old folder isn't changed. (If an earlier installed version is on the PC, its data is moved to the Kingdom
-   Connect data folder automatically instead.)
+   Your old folder isn't changed. (If an earlier installed version is on the PC, its data is moved to the FRAMEDECKS
+    data folder automatically instead.)
 
 ## Part 4 · First-run checklist (before a real meeting)
 
@@ -237,7 +237,7 @@ The installer appears in the `dist` folder.
   is out of date. Copy the `.github` folder from my latest zip into your repository, commit, push, and install
   the new installer.
 - **"The camera file was installed but has since been removed"**: Windows Security (or another antivirus)
-  removed `kingdomconnect_vcam64.dll`. Open Windows Security → Virus & threat protection → Protection history, choose
+  removed `framedecks_vcam64.dll`. Open Windows Security → Virus & threat protection → Protection history, choose
   **Restore** (or **Allow**) for it, then run the installer again.
 - **"The webcam could not be opened" / "Your webcam is being used by …"** (Settings → FRAMEDECKS Camera): only one app can
   use a laptop webcam at a time. In Zoom and Teams choose **FRAMEDECKS** as the camera (not your webcam), and close

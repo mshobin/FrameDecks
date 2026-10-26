@@ -41,6 +41,8 @@ Phase detail lives in
   Excel moved into Settings → Data / Backup; version 6.11. Owner: live test G; then 6.12 removes Excel (W3).
 - **Website polish (26 October):** redesign, motion and About; owners delete workspaces; Branding page, Transition style on
   the Meeting Form, Birthdays this week on the dashboard (synced `brand`, `layout/profile` and member records).
+- **Old name removed (26 October):** every Kingdom Connect reference is FRAMEDECKS, except upgrade-only code (CLAUDE.md
+  Gotchas). Camera files renamed `framedecks_vcam*.dll`; owner checks the camera after the next install.
 - **Free plan** ([free-hosting.md](docs/project/free-hosting.md)): steps 1–4 are on `main` (26 October):
   (companion builds as static files; `/api/sync-config` written at build time) and step 2 (keep-alive every 3 days,
   encrypted nightly backup, [restore guide](docs/project/database-backup.md)). Step 3 done (idle

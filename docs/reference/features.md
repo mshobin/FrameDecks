@@ -85,7 +85,7 @@ blur and a Camera Look, plus the live scene (cards, text, pictures, slides, bran
 | --- | --- |
 | Name in other apps | **FRAMEDECKS** |
 | Registered by | The installer, with the option **Install the FRAMEDECKS camera for Zoom and Teams** (asks for administrator permission once) |
-| Driver files | `kingdomconnect_vcam64.dll` and `kingdomconnect_vcam32.dll` in `_internal\vcam\bin`. They are built from softcam (MIT licence) by `packaging/build_vcam.py` |
+| Driver files | `framedecks_vcam64.dll` and `framedecks_vcam32.dll` in `_internal\vcam\bin`. They are built from softcam (MIT licence) by `packaging/build_vcam.py` |
 | Camera ID (CLSID) | `{6F2B8C3E-4D7A-4B9E-9C11-B5CC0A1E7D21}`. This is the same ID as before, so apps that remembered the camera keep it |
 | Settings | **Settings → FRAMEDECKS Camera** |
 | Status | The status menu in the command bar: **FRAMEDECKS** · Off / Ready / In use |
@@ -125,7 +125,7 @@ The app's own branding is the **Book + Candle** mark (`app/img/kc-emblem.webp`) 
 - **Phone remote:** the sign-in screen shows the mark alone, and the remote's top bar shows the mark and the mode
   (Simple / Standard / Advanced).
 - **Home-screen icons** (`app/icons/remote-*.png`): the mark on a navy tile, with no text. The Windows app icon
-  (`packaging/kingdom-connect.ico`) was already the mark alone.
+  (`packaging/framedecks.ico`) was already the mark alone.
 - **Dialogs and overlays** show no product branding. The leader's own logo and Meeting Name (Settings → Meeting &
   Branding) still appear only where the leader puts them.
 - **About page:** unchanged. It keeps its own branding and content.

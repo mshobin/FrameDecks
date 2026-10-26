@@ -53,11 +53,11 @@ jobs:
             msbuild vcam_build/softcam/softcam.sln /m /t:softcam /p:Configuration=Release /p:Platform=$p
             if ($LASTEXITCODE -ne 0) { throw "FRAMEDECKS build failed ($p)" }
           }
-          Copy-Item vcam_build/softcam/x64/Release/softcam.dll vcam/bin/kingdomconnect_vcam64.dll
-          Copy-Item vcam_build/softcam/Win32/Release/softcam.dll vcam/bin/kingdomconnect_vcam32.dll
+          Copy-Item vcam_build/softcam/x64/Release/softcam.dll vcam/bin/framedecks_vcam64.dll
+          Copy-Item vcam_build/softcam/Win32/Release/softcam.dll vcam/bin/framedecks_vcam32.dll
           # A record of what was built, so the app can tell "never built" from "removed after installing"
           $files = @{}
-          foreach ($f in 'kingdomconnect_vcam64.dll', 'kingdomconnect_vcam32.dll') { $files[$f] = (Get-FileHash "vcam/bin/$f" -Algorithm SHA256).Hash }
+          foreach ($f in 'framedecks_vcam64.dll', 'framedecks_vcam32.dll') { $files[$f] = (Get-FileHash "vcam/bin/$f" -Algorithm SHA256).Hash }
           @{ builtBy = 'GitHub Actions'; run = '${{ github.run_number }}'; commit = '${{ github.sha }}'; files = $files } |
             ConvertTo-Json | Set-Content -Encoding utf8 vcam/bin/build-info.json
           Get-ChildItem vcam/bin
@@ -93,7 +93,7 @@ jobs:
         run: |
           if (-not (Test-Path "dist/FRAMEDECKS/FRAMEDECKS.exe")) { throw "The app was not built" }
           if (-not (Get-ChildItem -Recurse "dist/FRAMEDECKS" -Filter dashboard.html)) { throw "App pages are missing" }
-          if (-not (Get-ChildItem -Recurse "dist/FRAMEDECKS" -Filter kingdomconnect_vcam64.dll)) { throw "FRAMEDECKS is missing" }
+          if (-not (Get-ChildItem -Recurse "dist/FRAMEDECKS" -Filter framedecks_vcam64.dll)) { throw "FRAMEDECKS is missing" }
 
       - name: Hand the program folder to SignPath (signing on)
         id: unsigned_app
@@ -157,7 +157,7 @@ jobs:
         shell: pwsh
         run: |
           $files = @(Get-ChildItem "dist/FRAMEDECKS v*.exe") + @(Get-Item "dist/FRAMEDECKS/FRAMEDECKS.exe") +
-                   @(Get-ChildItem -Recurse "dist/FRAMEDECKS" -Filter "kingdomconnect_vcam*.dll")
+                   @(Get-ChildItem -Recurse "dist/FRAMEDECKS" -Filter "framedecks_vcam*.dll")
           foreach ($f in $files) {
             $s = Get-AuthenticodeSignature $f.FullName
             Write-Host "$($s.Status)  $($f.Name)"

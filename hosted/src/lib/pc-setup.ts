@@ -7,7 +7,7 @@ export const OPEN_LINK = "framedecks://open";
 export const DOWNLOADS = "https://github.com/mshobin/FRAMEDECKS/releases";
 
 // The camera's names: today's, and those of versions published under the program's earlier names
-const CAMERA_NAMES = [/framedecks/i, /bcc vcam/i, /kingdom ?connect/i];
+const CAMERA_NAMES = [/framedecks/i, /bcc vcam/i];
 
 export type Place = "windows" | "phone" | "other";
 export type Setup =

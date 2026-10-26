@@ -86,7 +86,7 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
 
 ## Working locally (VS Code on Windows)
 - **Branch.** Work from `main` (PR #32 is merged) on a new branch per change. Never
-  force-push or rewrite pushed history. The repository is `mshobin/FRAMEDECKS` (formerly `kingdom-connect`).
+  force-push or rewrite pushed history. The repository is `mshobin/FRAMEDECKS`.
 - **Set up once (PowerShell, at the repo root):**
   - `python -m venv .venv`
   - `.venv\Scripts\Activate.ps1`
@@ -134,6 +134,9 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
 - Docs: `python tools/check_doc_links.py`, `git diff --check`.
 
 ## Gotchas
+- The old name appears only where upgrades need it: `legacy.py` (moves old data folders), `packaging/installer.iss`
+  (removes old shortcuts, program folder and camera files), `server.py` `OLD_FIREWALL_RULES`, `tools/undo-ipad-remote.ps1`
+  and `tests/test_legacy.py`. Use FRAMEDECKS everywhere else; the camera files are `framedecks_vcam64/32.dll`.
 - The companion must stay a static export: no server routes, cookies, server actions, `dynamic`/`revalidate`, metadata
   routes that need a server, or cacheComponents/PPR (they break `output: "export"`).
 - `hosted/AGENTS.md`: this Next.js version has breaking changes; read `hosted/node_modules/next/dist/docs/` before writing hosted code.

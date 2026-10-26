@@ -309,7 +309,7 @@ def main():
             pystray.MenuItem("More", more),
             pystray.Menu.SEPARATOR,
             pystray.MenuItem("Exit", lambda icon, item: on_quit()))
-        icon = pystray.Icon("kingdom-connect", tray_image(), DISPLAY_NAME, menu)
+        icon = pystray.Icon("framedecks", tray_image(), DISPLAY_NAME, menu)
         icon.run_detached()
         return icon
 

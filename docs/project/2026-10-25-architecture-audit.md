@@ -357,7 +357,7 @@ of them in its "FRAMEDECKS performance" row.
 
 **Phase 1: performance and stability**
 1. **Code-sign the installer and the DLLs** (C1). An OV or EV certificate goes into the GitHub workflow secrets and
-   signtool runs on the `.exe` and `kingdomconnect_vcam*.dll`.
+   signtool runs on the `.exe` and `framedecks_vcam*.dll`.
 2. **Supervisor (C2).** Add a tiny watchdog: the installed shortcut starts it, and it starts FRAMEDECKS and restarts
    it within 2 s if it exits abnormally, at most 3 times in 5 minutes. The single-instance check already prevents
    doubles. Write a crash marker so the next start offers the log in the existing error text.

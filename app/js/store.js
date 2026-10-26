@@ -31,7 +31,7 @@
 'use strict';
 
 var KEY = 'kc-state-v1';
-var CHANNEL = 'kingdom-connect';
+var CHANNEL = 'framedecks';
 
 var DEFAULT_STATE = {
   rev: 0,

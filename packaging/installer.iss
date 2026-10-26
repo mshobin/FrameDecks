@@ -30,7 +30,7 @@ DisableProgramGroupPage=yes
 PrivilegesRequired=lowest
 OutputDir=..\dist
 OutputBaseFilename=FRAMEDECKS v{#AppVersion}
-SetupIconFile=kingdom-connect.ico
+SetupIconFile=framedecks.ico
 UninstallDisplayIcon={app}\FRAMEDECKS.exe
 UninstallDisplayName=FRAMEDECKS
 Compression=lzma2
@@ -62,6 +62,9 @@ Type: filesandordirs; Name: "{localappdata}\Programs\Kingdom Connect"
 Type: files; Name: "{autoprograms}\Kingdom Connect.lnk"
 Type: files; Name: "{autodesktop}\Kingdom Connect.lnk"
 Type: files; Name: "{userstartup}\Kingdom Connect.lnk"
+; LEGACY: the camera files' earlier names (the camera is registered again from the renamed files)
+Type: files; Name: "{app}\_internal\vcam\bin\kingdomconnect_vcam*.dll"
+Type: files; Name: "{app}\_internal\vcam\bin\*register-kingdomconnect-camera.cmd"
 
 [Registry]
 ; 6.11 the website's "Open FRAMEDECKS on this PC" (framedecks://open, docs/architecture/meeting-form.md section 4):
@@ -77,11 +80,11 @@ Name: "{autodesktop}\FRAMEDECKS"; Filename: "{app}\FRAMEDECKS.exe"; Tasks: deskt
 Name: "{userstartup}\FRAMEDECKS"; Filename: "{app}\FRAMEDECKS.exe"; Tasks: startup
 
 [Run]
-Filename: "{app}\_internal\vcam\bin\register-kingdomconnect-camera.cmd"; Verb: "runas"; Flags: shellexec waituntilterminated runhidden; Check: ShouldRegisterCamera; StatusMsg: "Installing the FRAMEDECKS camera..."
+Filename: "{app}\_internal\vcam\bin\register-framedecks-camera.cmd"; Verb: "runas"; Flags: shellexec waituntilterminated runhidden; Check: ShouldRegisterCamera; StatusMsg: "Installing the FRAMEDECKS camera..."
 Filename: "{app}\FRAMEDECKS.exe"; Description: "Open FRAMEDECKS now"; Flags: nowait postinstall skipifsilent
 
 [UninstallRun]
-Filename: "{app}\_internal\vcam\bin\unregister-kingdomconnect-camera.cmd"; Verb: "runas"; Flags: shellexec waituntilterminated runhidden; RunOnceId: "RemoveKingdomConnectCamera"
+Filename: "{app}\_internal\vcam\bin\unregister-framedecks-camera.cmd"; Verb: "runas"; Flags: shellexec waituntilterminated runhidden; RunOnceId: "RemoveCamera"
 Filename: "{sys}\taskkill.exe"; Parameters: "/IM ""FRAMEDECKS.exe"" /F"; Flags: runhidden; RunOnceId: "StopApp"
 
 [Code]

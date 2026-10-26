@@ -190,3 +190,13 @@ continuity files in the same commit (owner's rule). Never force-push.
 - **Birthdays this week** on the dashboard, from the synced member list (ISO or `--MM-DD` birth dates; 29 Feb on 28 Feb).
 - Fixed in passing: things revealed on scroll inside a block that arrived later (the birthday pills) now appear.
 - Owner test: change branding on the website and see it in FRAMEDECKS → Settings → Meeting & Branding within a minute.
+
+## Old name removed (26 October, owner's request)
+- Every "Kingdom Connect" reference is now FRAMEDECKS: docs, release notes, file names (`packaging/framedecks.ico`,
+  `samples/FRAMEDECKS-Members-*.xlsx`, `docs/design/framedecks-redesign.html`), the camera files
+  (`framedecks_vcam64/32.dll`, `register-/unregister-framedecks-camera.cmd`) and internal names.
+- The Excel Meeting Workbook's header said "KINGDOM CONNECT"; regenerated with `tools/make_meeting_workbook.py`.
+- The camera picker now recognises its own "FRAMEDECKS" camera again (it looked for the old name).
+- Kept on purpose (upgrades only): see CLAUDE.md Gotchas. The installer removes the old-named camera files and
+  registers the camera again from the new ones. Owner check: after installing, the camera still shows in Zoom.
+- GitHub's old "Kingdom Connect 6.9" release can only be changed by the owner (publish 6.11; delete or rename 6.9).

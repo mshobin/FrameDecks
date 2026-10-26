@@ -59,7 +59,7 @@ exe = EXE(
     [],
     exclude_binaries=True,
     name="FRAMEDECKS",
-    icon=str(root / "packaging" / "kingdom-connect.ico"),
+    icon=str(root / "packaging" / "framedecks.ico"),
     console=False,          # no black window
     upx=False,              # compression tools are a common cause of antivirus false alarms
     version=str(version_file) if version_file else None,

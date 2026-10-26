@@ -57,7 +57,7 @@ def main():
     # ICO keeps one image per size: 16-32 from the small master, 48 and up from the main one.
     small_ico = [resized(small, size) for size in (16, 20, 24, 32)]
     large_ico = [resized(master, size) for size in (48, 64, 128, 256)]
-    large_ico[-1].save(ROOT / "packaging/kingdom-connect.ico", format="ICO",
+    large_ico[-1].save(ROOT / "packaging/framedecks.ico", format="ICO",
                        sizes=[im.size for im in small_ico + large_ico], append_images=small_ico + large_ico[:-1])
 
 

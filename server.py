@@ -1631,9 +1631,9 @@ def vcam_start():
             if not FROZEN:
                 VCAM["reason"] = start_files_msg
             elif (folder / "build-info.json").exists():
-                VCAM["reason"] = ("The camera file kingdomconnect_vcam64.dll was installed but has since been removed, most likely by "
+                VCAM["reason"] = ("The camera file framedecks_vcam64.dll was installed but has since been removed, most likely by "
                                   "Windows Security or another antivirus. Open Windows Security → Virus & threat protection → "
-                                  "Protection history, restore or allow kingdomconnect_vcam64.dll, then run the installer again.")
+                                  "Protection history, restore or allow framedecks_vcam64.dll, then run the installer again.")
             else:
                 VCAM["reason"] = ("This installer was built without the camera, because the GitHub build recipe is out of date. "
                                   "Copy the .github folder from the latest FRAMEDECKS.zip into your repository, commit "
@@ -1700,9 +1700,9 @@ def vcam_install(action):
     """Register (or remove) FRAMEDECKS with Windows. Asks for administrator permission (UAC)."""
     if os.name != "nt":
         return False, "Only available on Windows."
-    name = "unregister-kingdomconnect-camera.cmd" if action == "uninstall" else "register-kingdomconnect-camera.cmd"
+    name = "unregister-framedecks-camera.cmd" if action == "uninstall" else "register-framedecks-camera.cmd"
     helper = next((p for p in (RES / "vcam" / "bin" / name, HERE / "vcam" / "bin" / name) if p.exists()), None)
-    if helper is None or not (helper.parent / "kingdomconnect_vcam64.dll").exists():
+    if helper is None or not (helper.parent / "framedecks_vcam64.dll").exists():
         return False, "The FRAMEDECKS files are missing. Reinstall the app."
     path = str(helper).replace("'", "''")
     outer = ("try { Start-Process -FilePath '" + path + "' -Verb RunAs -Wait -WindowStyle Hidden; exit 0 } catch { exit 5 }")

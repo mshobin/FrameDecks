@@ -143,8 +143,8 @@ skipped, a Timer value that isn't minutes or a time.
   (`POST api/meeting/workbook` in `server.py`).
 - `tools/make_meeting_workbook.py`: draws the template (`app/templates/FRAMEDECKS-Meeting-Workbook.xlsx`) from
   that layout with openpyxl.
-- The Excel library (SheetJS) loads only the first time you import, export or download a workbook, so Kingdom
-  Connect starts faster.
+- The Excel library (SheetJS) loads only the first time you import, export or download a workbook, so FRAMEDECKS
+   starts faster.
 
 ## Branding options (v6.7)
 
@@ -278,7 +278,7 @@ maths as `vcam/cards.py accent_palette`), `addBrand`, `autoBrand`. `KCStore.bran
 ## 3. Excel template structure
 
 The file is made by `KCMeetingSheet.templateBook`, which is the same code for the in-app download and
-`docs/templates/Kingdom-Connect-Meeting-Template.xlsx` (written by `node tools/make_meeting_template.js`).
+`docs/templates/FRAMEDECKS-Meeting-Workbook.xlsx` (the same file as `app/templates/`, both written by `python3 tools/make_meeting_workbook.py`).
 
 **Sheets:**
 - **Read Me**: how to use the file, every column (needed or not, what to type, an example), the layer types, and
@@ -372,4 +372,4 @@ The file is made by `KCMeetingSheet.templateBook`, which is the same code for th
 | `app/js/overlay.js`, `app/css/overlay.css` | Overlay rendering of branding |
 | `vcam/program.py`, `vcam/cards.py`, `vcam/overlay.py` | FRAMEDECKS rendering of branding and the accent colour |
 | `server.py` | Logo endpoints; version 6.2 |
-| `tools/make_meeting_template.js` | Regenerates `docs/templates/Kingdom-Connect-Meeting-Template.xlsx` |
+| `tools/make_meeting_workbook.py` | Regenerates `app/templates/FRAMEDECKS-Meeting-Workbook.xlsx` and its copy in `docs/templates/` |

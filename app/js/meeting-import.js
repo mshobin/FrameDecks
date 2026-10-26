@@ -233,7 +233,7 @@ function run(mode, replaceLists){
   dlg.dataset.busy = '1';
   frame([h('h2', {id: 'mi-title', text: 'Importing…'}), h('p', {cls: 'kc-dlg-sub', id: 'mi-busy', text: 'Creating Frames and Content.'})]);
   var before = {scenes: live.scenes, library: live.library, live: live.live, question: live.question, verse: live.verse, meeting: live.meeting};
-  var made = [], group = fileName.replace(/\.[^.]+$/, '').replace(/[_]+/g, ' ').replace(/^Kingdom-Connect-Meeting-Template$/i, 'Imported meeting').slice(0, 60);
+  var made = [], group = fileName.replace(/\.[^.]+$/, '').replace(/[_]+/g, ' ').replace(/^FRAMEDECKS-Meeting-Workbook$/i, 'Imported meeting').slice(0, 60);
   fillVerses().then(function(){
     setBusy('Creating Frames and Content.');
     return commit(function(n){ made = isBook ? MB.apply(n, plan, {mode: mode, group: group, file: fileName}) : M.apply(n, plan, {mode: mode, replaceLists: replaceLists, group: group, file: fileName}); });

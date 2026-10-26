@@ -133,5 +133,5 @@ Windows releases are to be signed for free by [SignPath.io](https://signpath.io)
 - FRAMEDECKS sends nothing to anyone unless a church links a PC to its own workspace (see
   [docs/architecture/metadata-sync.md](docs/architecture/metadata-sync.md)); it collects no telemetry.
 
-<sub>Earlier versions were named Kingdom Connect and BSF Command Center. Version 6.9 installs over those versions and
+<sub>Earlier versions were named FRAMEDECKS and BSF Command Center. Version 6.9 installs over those versions and
 moves their data into the FRAMEDECKS folder on first start, so each church keeps its data.</sub>
