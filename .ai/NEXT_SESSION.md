@@ -1,23 +1,15 @@
 # NEXT SESSION HANDOFF
 
-Updated 26 October 2026: PR #32 merged, and the owner ran database scripts `0002`–`0008` in Supabase (all passed). The next session continues locally in
-VS Code (GitHub Copilot or any assistant). Read [CLAUDE.md](../CLAUDE.md) first.
+Updated 26 October 2026 (evening): everything below is on `main` (`0afcc3b` or later). The next session may run in
+VS Code (any assistant). Read [CLAUDE.md](../CLAUDE.md) first.
 
 ## Where things stand
-- **`main`:** `8fe4cf7`, with **PR #32 merged** (26 October). Everything listed under PR #32 below is on `main`.
-- **Live database:** Supabase project `slrsykiknlqlivlnpvrb` has every script, `0001`–`0008`. The owner ran
-  `0002`–`0008` on 26 October and all passed.
-- **Checks on that head:**
-  - Hosted: green on GitHub.
-  - Windows installer build: run 40231518591, **passed**, with python-pptx bundled.
-  - Stream Deck plugin build: green.
-- **Locally on the branch:**
-  - Python: 126 tests OK.
-  - Desktop JS: 4/4.
-  - `packaging/check.py`: passes (6.10).
-  - Hosted: 85/85; lint, typecheck and build pass.
-  - Stream Deck: 5 tests and `validate` pass.
-  - Doc links: 0 problems.
+- **`main`:** has 6.11, the website redesign, motion and About, workspace delete, and the three website settings
+  (Branding, Transition style, Birthdays this week). All pushed; nothing waits on a branch.
+- **Live:** website at `https://framedecks.pages.dev` (Cloudflare Pages, deploys from `main`); Google, Microsoft and
+  email sign-in work; keep-alive and nightly backup run green. Database: `0001`–`0008` run.
+- **Checks (cloud session, 26 October):** Python 128 OK; desktop JS 4/4; `packaging/check.py` 6.11; hosted 107/107,
+  lint, typecheck and build pass. GitHub: "Hosted companion checks" and "Build Windows installer" green on `main`.
 
 ## Completed (merged to `main`, PRs #7–#31)
 - Desktop 6.10, the approved emblem, and the drift cleanup.
@@ -162,8 +154,14 @@ the program's About page in the website's design, with the same words (brand.jso
 - D4 (sync conflict rules): built as recommended (keep both Frames; the last writer wins for settings and people).
 
 ## Recommended Next Task
-Help the owner with Pending 2–3 (the database is ready). Fix what the live tests find, then mark each test done in the four files. Do not
-start new features until the live tests pass, unless the owner asks.
+Nothing is left for an assistant to build without the owner. In order:
+1. **Owner's live tests** with an installed 6.11 build: A–F and G in
+   [docs/qa/live-test-guide.md](../docs/qa/live-test-guide.md), plus the website settings (change Branding on the
+   website, see it in the program within a minute). Fix what they find; mark each test done in the four files.
+2. **6.12 (W3): remove the Excel Meeting Workbook** (import, template, export) — only **after** the owner reports test G
+   passed. Do not start it before.
+3. Owner tasks with no code: publish a v6.11 release; Google brand re-verification; E1–E3 (public repo, SignPath).
+Do not start new features unless the owner asks. If there is nothing to fix, say so and stop.
 
 ## Files Likely To Change Next
 Whatever the live tests find:
