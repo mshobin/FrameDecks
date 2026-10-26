@@ -17,11 +17,22 @@ export function AuthCallback() {
     if (!supabase) return;
     const query = new URLSearchParams(window.location.search);
     const hash = new URLSearchParams(window.location.hash.slice(1));
-    const reported = query.get("error_description") ?? hash.get("error_description");
+    // An empty error_description must still count as a failure, or the page waits forever.
+    const errorCode = query.get("error") || hash.get("error");
+    const reported =
+      query.get("error_description") ||
+      hash.get("error_description") ||
+      (errorCode ? `The sign-in service reported a problem (${errorCode}). Try again, or use another way to sign in.` : null);
+    const slow = window.setTimeout(
+      () => setFailure("Signing in is taking too long. Check your connection and try again."),
+      20000,
+    );
     supabase.auth.getSession().then(({ data, error }) => {
+      window.clearTimeout(slow);
       if (data.session) router.replace("/");
-      else setFailure(reported ?? error?.message ?? "This sign-in link has expired or was already used.");
+      else setFailure(reported || error?.message || "This sign-in link has expired or was already used.");
     });
+    return () => window.clearTimeout(slow);
   }, [router, supabase]);
 
   if (!problem) {

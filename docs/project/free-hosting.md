@@ -151,7 +151,9 @@ but not for many churches.
 Microsoft** by itself, at the top, with "or use your email" below them
 ([picture](../qa/2026-10-26-companion-sign-in-providers-first.png)).
 
-**D3. Free email for the sign-in link.** Brevo's free plan sends 300 emails a day.
+**D3. Free email for the sign-in link (optional; the owner skipped it on 26 October).** Without it, Supabase's
+built-in mail sends only a few emails an hour and may deliver only to the project's own team, so everyone else
+signs in with Google or Microsoft. Brevo's free plan sends 300 emails a day.
 1. Create an account at https://www.brevo.com.
 2. Go to **SMTP & API → SMTP** and generate an SMTP key. Note the server (`smtp-relay.brevo.com`), the port (`587`)
    and your login.
