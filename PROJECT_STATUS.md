@@ -37,11 +37,11 @@ Phase detail lives in
     - M-D5 hosting recommendation ([hosting.md](docs/architecture/hosting.md)).
 
 ## In Progress
-- **Free plan** ([free-hosting.md](docs/project/free-hosting.md)): step 1 done on branch `claude/peaceful-albattani-6m445e`
+- **Free plan** ([free-hosting.md](docs/project/free-hosting.md)): steps 1–4 are on `main` (26 October):
   (companion builds as static files; `/api/sync-config` written at build time) and step 2 (keep-alive every 3 days,
   encrypted nightly backup, [restore guide](docs/project/database-backup.md)). Step 3 done (idle
   phone-control polling 5 → 15 s). Step 4 code done (Google/Microsoft
-  above the email link). Owner setup: Parts A, B, D, E of free-hosting.md. Not on `main` yet.
+  above the email link). Owner setup: Parts A, B, D, E of free-hosting.md.
 - Database live: `0001`–`0008` run in Supabase (26 October). Waiting for the owner's live tests A–F
   ([live-test-guide.md](docs/qa/live-test-guide.md)).
 

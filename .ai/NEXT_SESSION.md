@@ -74,8 +74,9 @@ Steps, in order, from [docs/project/free-hosting.md](../docs/project/free-hostin
    switched on). Owner: Part D (Google, Microsoft, Brevo SMTP in Supabase).
 5. Public repository, SignPath, GitHub Releases: **owner only** (Part E; the build already publishes on version tags).
 
-**Branch state:** steps 1–4 are on `claude/peaceful-albattani-6m445e`, not yet on `main`. Cloudflare Pages builds
-`main`, so merge (or push) the branch to `main` before Part A.
+**Branch state:** steps 1–4 are on `main` (pushed 26 October, together with the owner's sync-contract / legacy-6.9
+work). `hosted/tsconfig.json` gained `allowImportingTsExtensions` so `src/lib/sync/legacy-6.9.mts` typechecks and
+builds. Next: the owner's Parts A, B, D and E.
 
 ## Pending (owner)
 1. ~~Run the database scripts~~: **done** on 26 October (`0002`–`0008`, all passed).
