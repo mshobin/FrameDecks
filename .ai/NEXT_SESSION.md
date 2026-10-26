@@ -66,8 +66,8 @@ VS Code (GitHub Copilot or any assistant). Read [CLAUDE.md](../CLAUDE.md) first.
 Steps, in order, from [docs/project/free-hosting.md](../docs/project/free-hosting.md):
 1. **Companion as static files**: **live on Cloudflare Pages** at `https://framedecks.pages.dev` (26 October; Supabase
    Redirect URL `https://framedecks.pages.dev/auth/callback` added). The PC's built-in companion address
-   (`cloud_sync.COMPANION_URL`) now points there; the next installer uses it. Owner: finish Part A step 7 (sign in and
-   open each page) and retire Vercel after a quiet week (step 8).
+   (`cloud_sync.COMPANION_URL`) now points there; the next installer uses it. The owner signed in there with an emailed link
+   (26 October). Owner: finish Part A step 7 (open each page) and retire Vercel after a quiet week (step 8).
 2. **Keep-alive and encrypted nightly backup**: **code done** (`.github/workflows/db-keepalive.yml`,
    `db-backup.yml`, `tools/db_backup.sh`, restore guide `docs/project/database-backup.md`). Owner: Part B (4 secrets).
 3. **Fewer database requests**: **done** (`cloud_remote.py` `IDLE_EVERY` 5 → 15 s). Shorter history/audit retention
