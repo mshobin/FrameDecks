@@ -16,6 +16,7 @@
 Every function does nothing on other systems and never raises: if Windows refuses something, the window simply keeps
 the standard look and behaviour.
 """
+from errlog import swallowed as _swallowed  # noqa: E402
 import ctypes
 import sys
 import threading
@@ -202,8 +203,8 @@ def mouse_move_or_size(form, hwnd, edge="caption"):
             from System import Action                         # pythonnet (pywebview's WinForms window)
             form.BeginInvoke(Action(run))
             return True
-        except Exception:
-            pass
+        except Exception as _e:
+            _swallowed("desktop_win.mouse_move_or_size", _e)
     try:
         pt = wintypes.POINT()
         user32.GetCursorPos(ctypes.byref(pt))
@@ -295,8 +296,8 @@ def center_on_cursor(hwnd, top_third=True):
         x = wa.left + (wa.right - wa.left - w) // 2
         y = wa.top + ((wa.bottom - wa.top) // 4 - h // 6 if top_third else (wa.bottom - wa.top - h) // 2)
         user32.SetWindowPos(hwnd, None, x, max(wa.top, y), 0, 0, SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE)
-    except Exception:
-        pass
+    except Exception as _e:
+        _swallowed("desktop_win.center_on_cursor", _e)
 
 
 def round_corners(hwnd):
@@ -306,8 +307,8 @@ def round_corners(hwnd):
     try:
         pref = ctypes.c_int(2)                                 # DWMWCP_ROUND
         dwmapi.DwmSetWindowAttribute(hwnd, 33, ctypes.byref(pref), ctypes.sizeof(pref))
-    except Exception:
-        pass
+    except Exception as _e:
+        _swallowed("desktop_win.round_corners", _e)
 
 
 SWP_ASYNCWINDOWPOS = 0x4000
@@ -335,8 +336,8 @@ def bring_to_front(hwnd):
         user32.ShowWindow(hwnd, 5)                             # SW_SHOW
         user32.SetForegroundWindow(hwnd)
         user32.SetActiveWindow(hwnd)
-    except Exception:
-        pass
+    except Exception as _e:
+        _swallowed("desktop_win.bring_to_front", _e)
 
 
 class Hotkeys:

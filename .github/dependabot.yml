@@ -1,0 +1,8 @@
+# Weekly pull requests when a pinned GitHub Action has a newer release (the workflows pin full commits; production
+# audit H3). Nothing merges by itself.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly

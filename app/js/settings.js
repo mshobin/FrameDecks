@@ -128,6 +128,12 @@ function renderDiag(){
     row('Python / Windows', d.python + ' · ' + d.os);
     row('Signed-in phones/iPads', String(d.remoteSessions));
     row('Installed app', d.installedApp ? 'Yes' : 'No (start-file version)');
+    if (d.planRecovery){        // the saved plan could not be read at start-up (it was kept, never overwritten)
+      var pr = d.planRecovery;
+      row('Saved plan', 'Could not be read at start-up (' + pr.problem + '). ' +
+        (pr.restoredFrom ? 'Restored from the backup ' + pr.restoredFrom + '. ' : 'No readable backup: a new plan was started. ') +
+        (pr.keptAs ? 'The unreadable file was kept as ' + pr.keptAs + ' in the data folder.' : ''));
+    }
     if (d.resources){
       var r = d.resources, rq = r.requestsPerMinute || {};
       var total = Object.keys(rq).reduce(function(a, k){ return a + rq[k]; }, 0);

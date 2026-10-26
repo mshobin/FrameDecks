@@ -45,6 +45,26 @@ Versions before 4.9 (when the program had its earlier name) are described in the
 - The favicons, the tray icon and the small program-icon sizes (16–32 px) use a heavier version of the emblem, so it
   stays visible on light browser tabs and a light taskbar. Larger sizes are unchanged.
 
+## [6.11.1] - 2026-10-26
+
+Full notes: [docs/releases/v6.11.1.md](docs/releases/v6.11.1.md)
+
+### Added
+- A damaged saved plan is kept aside and the newest readable daily backup opens instead; a linked PC then restores
+  the plan from its workspace. Settings → Diagnostics says what happened.
+- Settings menu grouped (Your meeting, Presenting, Account, This PC, Help), with descriptions and Find a setting.
+
+### Changed
+- Sync no longer deletes every Frame in the workspace when they all vanish from one PC; they are restored instead.
+- The program's local API refuses calls from other websites (`Sec-Fetch-Site: cross-site`).
+- Errors the program recovers from are logged (at most once a minute each).
+- Build: every GitHub Action and the softcam source pinned to a reviewed commit; only the release job can write.
+- Database `0009_seen_throttle.sql`: a PC's last-seen time is written at most once a minute.
+
+### Fixed
+- "Could not reach https://framedecks.pages.dev: Forbidden" in FRAMEDECKS account (requests now identify FRAMEDECKS).
+- Unpinning the Teleprompter overlay froze the program.
+
 ## [6.11] - 2026-10-26
 
 Full notes: [docs/releases/v6.11.md](docs/releases/v6.11.md)

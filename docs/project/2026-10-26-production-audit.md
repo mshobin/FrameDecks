@@ -1,5 +1,15 @@
 # FRAMEDECKS production audit, 26 October 2026
 
+> **Status (26 October, evening):** roadmap steps 1 and 2 are built on `main` for **6.11.1**:
+> - H3: build inputs pinned, Dependabot, a separate release job;
+> - M1: the anti-framing headers;
+> - M3: the cross-site guard;
+> - M8: swallowed errors logged;
+> - M10: migration `0009`, which the owner runs;
+> - H1: plan-file recovery and the sync mass-delete guard.
+>
+> Everything else below is still open.
+
 This is a read-only review. **No code, UI, settings, data formats or behaviour were changed.** Every recommendation below
 is a proposal that needs the owner's approval.
 

@@ -7,6 +7,7 @@ The laptop webcam is opened only while an app (Zoom, Teams...) is showing FRAMED
 in Settings is open. Otherwise the webcam is released (its light goes off) and the engine just
 checks twice a second whether it is needed, which costs almost nothing.
 """
+from errlog import swallowed as _swallowed  # noqa: E402
 import os
 import threading
 import time
@@ -120,8 +121,8 @@ class Grabber:
         self.alive = False
         try:
             self.camera.close()
-        except Exception:
-            pass
+        except Exception as _e:
+            _swallowed("vcam.engine.close", _e)
 
 
 class VCamEngine:

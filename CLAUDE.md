@@ -38,7 +38,7 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
   (Root Directory `hosted`, output `out`; 26 October); `framedecks.vercel.app` stays until the owner retires it. No server code: `/api/sync-config` is a file written by
   `hosted/scripts/write-sync-config.mjs` at build time; the manifest is `hosted/public/manifest.webmanifest`.
 - `hosted/supabase/migrations/` — SQL run in order in the Supabase SQL editor: `0001` workspaces, `0002` invitations,
-  `0003` sync, `0004` remote control, `0005` the Live page's PC list, `0006` the audit log, `0007` explicit API grants, `0008` member groups. All of `0001`–`0008` have been run in the live project (26 October 2026): never edit
+  `0003` sync, `0004` remote control, `0005` the Live page's PC list, `0006` the audit log, `0007` explicit API grants, `0008` member groups, `0009` last-seen throttle (6.11.1; **not yet run live**). `0001`–`0008` have been run in the live project (26 October 2026): never edit
   one, add the next number.
   Each new one gets an undo script in `hosted/supabase/rollback/` (`NNNN_<name>_down.sql`).
 - `tools/` — generators and checks (`make_emblem_assets.py`, `check_doc_links.py`, `generate_brand_assets.py`).
@@ -128,9 +128,9 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
 
 ## Commands
 - Before and after every change, all of these must pass (the cloud session's last results are in brackets):
-- Desktop JS tests: `node tests/run.js` [4/4]; Python: `python -m unittest discover -s tests -p "test_*.py"` [131 OK];
-  packaging: `python packaging/check.py` [6.11].
-- Hosted (run inside `hosted/`, there is no root package.json): `npm test` [109/109], `npm run lint`, `npm run typecheck`, `npm run build`.
+- Desktop JS tests: `node tests/run.js` [4/4]; Python: `python -m unittest discover -s tests -p "test_*.py"` [141 OK];
+  packaging: `python packaging/check.py` [6.11.1].
+- Hosted (run inside `hosted/`, there is no root package.json): `npm test` [110/110], `npm run lint`, `npm run typecheck`, `npm run build`.
   `npm test` applies every migration to in-memory Postgres (PGlite) and loads `src/lib/sync-entities.ts` with Node's
   type stripping.
 - Sync fixtures: `python tools/make_sync_fixtures.py` rebuilds `tests/fixtures/sync/` (needs Node) after changing
@@ -139,6 +139,15 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
 - Docs: `python tools/check_doc_links.py`, `git diff --check`.
 
 ## Gotchas
+- Production audit (`docs/project/2026-10-26-production-audit.md`), steps 1–2 built in 6.11.1:
+  - every GitHub Action and the softcam clone are pinned to a full commit (update the SHA and its comment together;
+    Dependabot proposes updates); only the `release` job has `contents: write`;
+  - `server.Handler.cross_site_api`: `/api/*` refuses `Sec-Fetch-Site: cross-site` (other websites);
+  - `errlog.swallowed(where, e)`: write it in every `except Exception` that carries on (never a bare `pass`);
+  - `server.load_state` keeps a damaged plan as `kc-saved-content.json.damaged-<time>`, opens the newest readable
+    backup, and records `PLAN_RECOVERY` (Diagnostics); a linked PC then calls `SYNC.adopt_workspace()` (one full
+    pull where the workspace's version wins). `cloud_sync.MASS_DELETE_FRAMES`: when every Frame vanishes at once,
+    no deletions are sent and the Frames are restored from the workspace.
 - The old name appears only where upgrades need it: `legacy.py` (moves old data folders), `packaging/installer.iss`
   (removes old shortcuts, program folder and camera files), `server.py` `OLD_FIREWALL_RULES`, `tools/undo-ipad-remote.ps1`
   and `tests/test_legacy.py`. Use FRAMEDECKS everywhere else; the camera is called FRAMECAST (files `framedecks_vcam64/32.dll`).

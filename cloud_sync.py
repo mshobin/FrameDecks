@@ -35,6 +35,7 @@ QUIET_SECONDS = 3                     # after a save, wait for this much quiet b
 PULL_EVERY = 60                       # and pull at least this often
 MAX_BACKOFF = 600
 FRAME_KINDS = ("frame", "template")
+MASS_DELETE_FRAMES = 3      # all Frames gone at once (at least this many): restore from the workspace, never delete
 LIST_KINDS = ("library_question", "library_verse", "member")
 SETTINGS_KINDS = ("theme", "brand", "layout", "meeting")
 
@@ -106,6 +107,9 @@ class Engine:
         """One round. Returns a summary: {"pulled", "applied", "held", "pushed", "conflicts"}."""
         known = self.state["known"]
         first_link = not known and self.state["cursor"] == 0
+        # The plan here was lost or replaced (a damaged file at start-up, or every Frame gone at once): this round takes
+        # the workspace's version of everything it holds, instead of sending deletions for it (production audit H1)
+        adopt = bool(self.state.pop("adopt", False))
         rebuilt = self._rebuild_members() if self.member_authority == "cloud" else 0
         remote, cursor = self._pull_all()
         remote = self.state["held"] + remote          # held changes are tried again first
@@ -127,8 +131,12 @@ class Engine:
             if mine_hash == remote_hash:                # already the same here (our own change coming back)
                 known[k] = {"rev": r["rev"], "hash": remote_hash}
                 continue
-            if r["kind"] in FRAME_KINDS and r["id"] == live and live:
+            if r["kind"] in FRAME_KINDS and r["id"] == live and live and mine is not None:
                 held.append(r)                          # never change the Frame on screen; try again next round
+                continue
+            if adopt:                                   # restoring from the workspace: its version wins, no copies
+                apply[k] = r
+                known[k] = {"rev": r["rev"], "hash": remote_hash}
                 continue
             if not changed_here or mine is None:
                 # Unchanged here, or deleted here while changed there (an edit beats a delete): take theirs.
@@ -249,10 +257,24 @@ class Engine:
             if fingerprint(r["body"]) != (agreed["hash"] if agreed else None):
                 changes.append({"kind": r["kind"], "id": r["id"], "baseRev": agreed["rev"] if agreed else 0,
                                 "deleted": False, "body": r["body"]})
+        gone = []
         for k, agreed in known.items():
             if k not in local and agreed["hash"] is not None and k not in held_keys:
                 kind, rid = k.split("/", 1)
-                changes.append({"kind": kind, "id": rid, "baseRev": agreed["rev"], "deleted": True})
+                gone.append({"kind": kind, "id": rid, "baseRev": agreed["rev"], "deleted": True})
+        frames_gone = [c for c in gone if c["kind"] in FRAME_KINDS]
+        frames_here = sum(1 for r in local.values() if r["kind"] in FRAME_KINDS)
+        if frames_here == 0 and len(frames_gone) >= MASS_DELETE_FRAMES:
+            # Every Frame vanished at once. Far more likely a lost or reset plan than a choice, and sending it would empty
+            # the workspace and every other PC. Nothing is deleted there; the next round restores the Frames here.
+            print(f"Sync: all {len(frames_gone)} Frames are missing on this PC; not deleting them in the workspace. "
+                  "They are restored from the workspace (delete Frames on the website to remove them everywhere).",
+                  flush=True)
+            gone = [c for c in gone if c["kind"] not in FRAME_KINDS and c["kind"] != "order"]
+            changes = [c for c in changes if c["kind"] != "order"]          # nor an emptied running order
+            self.state["adopt"] = True
+            self.state["cursor"] = 0
+        changes += gone
         sent = 0
         for batch in self._batches(changes):
             answer = self.api.push(batch)
@@ -457,6 +479,17 @@ class Service:
         tmp = self.file.with_suffix(".tmp")
         tmp.write_text(json.dumps(self.state, indent=1, ensure_ascii=False), encoding="utf-8")
         os.replace(tmp, self.file)
+
+    def adopt_workspace(self):
+        """The plan on this PC was replaced (a damaged file at start-up): the next round reads the whole workspace again
+        and takes its version, so nothing is deleted there. Does nothing on a PC that is not linked."""
+        with self.lock:
+            if not self.state.get("link"):
+                return False
+            self.state["cursor"] = 0
+            self.state["adopt"] = True
+            self._save()
+            return True
 
     # -- what Settings shows --
     def info(self):

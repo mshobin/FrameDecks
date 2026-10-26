@@ -478,6 +478,99 @@ class ServerWiring(unittest.TestCase):
         self.assertFalse(srv._valid_setting("memberAuthority", "phone"))
         srv.save_private({"members": []})
 
+class LostPlan(unittest.TestCase):
+    """Production audit H1: a lost or replaced plan on one PC must never empty the workspace."""
+
+    def setUp(self):
+        self.cloud = Cloud()
+        plan, members = fixture("service")
+        self.a = PC(self.cloud, "Church PC", plan, members)
+        self.a.sync()
+        self.a.sync()                                    # its own first upload comes back once; then all is agreed
+        self.frames = sorted(self.a.frames())
+        self.assertGreaterEqual(len(self.frames), C.MASS_DELETE_FRAMES)
+
+    def cloud_frames(self):
+        return sorted(r["id"] for r in self.cloud.rows.values() if r["kind"] in C.FRAME_KINDS and not r["deleted"])
+
+    def test_every_frame_gone_at_once_is_restored_not_deleted(self):
+        before = self.cloud_frames()
+        self.a.plan["scenes"] = []                       # the plan here was lost
+        self.a.sync()
+        self.assertEqual(self.cloud_frames(), before, "nothing was deleted in the workspace")
+        self.a.sync()
+        self.assertEqual(sorted(self.a.frames()), self.frames, "the next round brings the Frames back here")
+
+    def test_deleting_some_frames_still_reaches_the_workspace(self):
+        gone = self.a.plan["scenes"].pop(0)["id"]
+        self.a.sync()
+        self.assertNotIn(gone, self.cloud_frames())
+
+    def test_after_a_damaged_plan_the_workspace_version_wins_without_copies(self):
+        older = copy.deepcopy(self.a.plan)               # what a daily backup would hold
+        frame = self.a.plan["scenes"][0]
+        frame["name"] = "Edited after the backup"
+        self.a.sync()
+        self.a.sync()
+        self.a.plan = older                               # start-up restored the backup
+        self.a.state["adopt"], self.a.state["cursor"] = True, 0      # what Service.adopt_workspace() asks for
+        self.a.sync()
+        self.assertEqual(self.a.frames()[frame["id"]]["name"], "Edited after the backup")
+        self.assertEqual(sorted(self.a.frames()), self.frames, "no duplicate copies")
+        self.assertNotIn("adopt", self.a.state, "only for one round")
+
+
+class DamagedPlanFile(unittest.TestCase):
+    """server.load_state: a damaged plan file is kept aside and the newest readable backup is used."""
+
+    def setUp(self):
+        import server
+        self.server = server
+        self.dir = Path(tempfile.mkdtemp(prefix="kc-plan-"))
+        self.saved = (server.STATE_FILE, server.BACKUP_DIR, dict(server.PLAN_RECOVERY))
+        server.STATE_FILE, server.BACKUP_DIR = self.dir / "kc-saved-content.json", self.dir / "backups"
+        server.PLAN_RECOVERY.clear()
+
+    def tearDown(self):
+        self.server.STATE_FILE, self.server.BACKUP_DIR = self.saved[0], self.saved[1]
+        self.server.PLAN_RECOVERY.clear()
+        self.server.PLAN_RECOVERY.update(self.saved[2])
+
+    def backup(self, name, text, age):
+        d = self.server.BACKUP_DIR / name
+        d.mkdir(parents=True)
+        (d / "kc-saved-content.json").write_text(text, encoding="utf-8")
+        t = time.time() - age
+        os.utime(d, (t, t))
+
+    def test_a_good_file_loads_as_before(self):
+        self.server.STATE_FILE.write_text(json.dumps({"rev": 7, "scenes": []}), encoding="utf-8")
+        self.assertEqual(self.server.load_state()["rev"], 7)
+        self.assertEqual(self.server.PLAN_RECOVERY, {})
+
+    def test_a_damaged_file_is_kept_and_the_newest_readable_backup_used(self):
+        self.server.STATE_FILE.write_text('{"rev": 9, "scenes": [', encoding="utf-8")
+        self.backup("2026-10-25", json.dumps({"rev": 5, "scenes": [{"id": "old"}]}), 3600)
+        self.backup("2026-10-26", "not json", 60)                       # newest, but unreadable: skipped
+        data = self.server.load_state()
+        self.assertEqual(data["scenes"], [{"id": "old"}])
+        self.assertEqual(self.server.PLAN_RECOVERY["restoredFrom"], "2026-10-25")
+        kept = list(self.dir.glob("kc-saved-content.json.damaged-*"))
+        self.assertEqual(len(kept), 1, "the damaged file is kept, never overwritten")
+        self.assertIn('"scenes": [', kept[0].read_text(encoding="utf-8"))
+        self.assertEqual(json.loads(self.server.STATE_FILE.read_text(encoding="utf-8"))["scenes"], [{"id": "old"}])
+
+    def test_no_backup_starts_a_new_plan_but_keeps_the_damaged_file(self):
+        self.server.STATE_FILE.write_text("garbage", encoding="utf-8")
+        self.assertEqual(self.server.load_state(), {"rev": 0})
+        self.assertIsNone(self.server.PLAN_RECOVERY["restoredFrom"])
+        self.assertEqual(len(list(self.dir.glob("kc-saved-content.json.damaged-*"))), 1)
+
+    def test_a_first_start_is_not_a_recovery(self):
+        self.assertEqual(self.server.load_state(), {"rev": 0})
+        self.assertEqual(self.server.PLAN_RECOVERY, {})
+
+
 class WebsiteIdentity(unittest.TestCase):
     """Cloudflare refuses Python's default identity with 403 (owner's report, 26 October): say we are FRAMEDECKS."""
 

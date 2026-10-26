@@ -8,6 +8,7 @@ closes it. Moving the mouse shows the Full screen and Exit buttons for two secon
 
 The pure functions at the top (layout, buttons, hit test, drawing) have no Windows dependencies.
 """
+from errlog import swallowed as _swallowed  # noqa: E402
 import os
 import threading
 import time
@@ -89,8 +90,8 @@ def _button_img(label, w, h, kind, scale, fonts_dir):
         font = ImageFont.truetype(str(Path(fonts_dir) / "SourceSans3.ttf"), int(14 * k * scale))
         try:
             font.set_variation_by_axes([600])
-        except Exception:
-            pass
+        except Exception as _e:
+            _swallowed("vcam.present_window._button_img", _e)
     except Exception:
         font = ImageFont.load_default()
     icon = int(12 * k * scale)
@@ -257,8 +258,8 @@ class NativePresentation:
             if self.on_closed:
                 try:
                     self.on_closed()
-                except Exception:
-                    pass
+                except Exception as _e:
+                    _swallowed("vcam.present_window._window_thread", _e)
 
     WM_APP_FRAME = 0x8000 + 1
     WM_APP_FS = 0x8000 + 2

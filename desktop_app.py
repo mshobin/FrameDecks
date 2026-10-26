@@ -8,6 +8,7 @@ Only one copy runs at a time: opening the app again brings the existing window t
 6.11: the website's "Open FRAMEDECKS on this PC" starts it through a framedecks:// link (registered by the
 installer). That is the same as opening it: the link is never read, so a web page cannot make it do anything else.
 """
+from errlog import swallowed as _swallowed  # noqa: E402
 import json
 import os
 import sys
@@ -32,8 +33,8 @@ def _setup_log():
         try:                                   # 6.9: data saved under the earlier name moves first, before any file opens
             import legacy
             legacy.migrate_app_data(os.environ.get("APPDATA") or os.path.expanduser("~"))
-        except Exception:
-            pass
+        except Exception as _e:
+            _swallowed("desktop_app._setup_log", _e)
     base = os.environ.get("KC_DATA_DIR") or os.path.join(os.environ.get("APPDATA") or os.path.expanduser("~"), APP_NAME)
     try:
         os.makedirs(base, exist_ok=True)
@@ -63,8 +64,8 @@ def message(text, title=DISPLAY_NAME, warn=False):
         try:
             import ctypes
             ctypes.windll.user32.MessageBoxW(None, text, title, 0x30 if warn else 0x40)
-        except Exception:
-            pass
+        except Exception as _e:
+            _swallowed("desktop_app.message", _e)
 
 
 # ---------- v6.4 native window: a title bar in the app's own colours, and an app-mode fallback ----------
@@ -100,14 +101,14 @@ def style_title_bar(hwnd, dark=True):
 def window_handle(window):
     try:
         return int(window.native.Handle.ToInt64())
-    except Exception:
-        pass
+    except Exception as _e:
+        _swallowed("desktop_app.window_handle", _e)
     if os.name == "nt":
         try:
             import ctypes
             return ctypes.windll.user32.FindWindowW(None, DISPLAY_NAME) or 0
-        except Exception:
-            pass
+        except Exception as _e:
+            _swallowed("desktop_app.window_handle", _e)
     return 0
 
 
@@ -236,8 +237,8 @@ def main():
     if other == "app":
         try:
             ask(server.PREFERRED_PORT, "show")
-        except Exception:
-            pass
+        except Exception as _e:
+            _swallowed("desktop_app.main", _e)
         return
     if other == "stuck":
         end_stuck_copies()
@@ -253,8 +254,8 @@ def main():
             srv.server_close()
             try:
                 ask(server.PREFERRED_PORT, "show")
-            except Exception:
-                pass
+            except Exception as _e:
+                _swallowed("desktop_app.main", _e)
             return
         message(f"Another program is using port {server.PREFERRED_PORT}, so FRAMEDECKS is using port {port} today.\n\n"
                 "Your overlay links in OBS or Camo need the new port, or close the other program and restart.", warn=True)
@@ -317,8 +318,8 @@ def main():
         if state["tray"]:
             try:
                 state["tray"].update_menu()
-            except Exception:
-                pass
+            except Exception as _e:
+                _swallowed("desktop_app.refresh_tray", _e)
 
     # 3. The app window (Windows' built-in Edge WebView2). Falls back to the normal browser if it's missing.
     try:
@@ -334,18 +335,18 @@ def main():
         if eng:
             try:
                 eng.stop()               # releases the webcam
-            except Exception:
-                pass
+            except Exception as _e:
+                _swallowed("desktop_app.stop_everything", _e)
         if state["tray"]:
             try:
                 state["tray"].stop()
-            except Exception:
-                pass
+            except Exception as _e:
+                _swallowed("desktop_app.stop_everything", _e)
         try:
             srv.shutdown()
             srv.server_close()           # 6.10: free the port at once, so the next start gets it
-        except Exception:
-            pass
+        except Exception as _e:
+            _swallowed("desktop_app.stop_everything", _e)
 
     if webview is None:
         # Fallback without WebView2: an Edge (or Chrome) app window - its own window, without an address bar, tabs or
@@ -402,15 +403,15 @@ def main():
         server.DESKTOP["chrome"] = add_chrome("main", window)
     try:
         window.events.shown += on_shown
-    except Exception:
-        pass
+    except Exception as _e:
+        _swallowed("desktop_app.main", _e)
 
     def show():
         try:
             window.show()
             window.restore()
-        except Exception:
-            pass
+        except Exception as _e:
+            _swallowed("desktop_app.show", _e)
 
     def hide():
         window.hide()
@@ -419,8 +420,8 @@ def main():
             try:
                 state["tray"].notify("Still running in the background, so your overlays keep working. "
                                      "Click the icon near the clock to open it again.", DISPLAY_NAME)
-            except Exception:
-                pass
+            except Exception as _e:
+                _swallowed("desktop_app.hide", _e)
 
     def quit_app():
         """Quit (the page's close dialog or the tray). 6.10: every window must close, the hidden Spotlight window
@@ -433,8 +434,8 @@ def main():
                       lambda: spot.destroy(), lambda: window.destroy()):
             try:
                 close()
-            except Exception:
-                pass
+            except Exception as _e:
+                _swallowed("desktop_app.quit_app", _e)
 
     def choose_folder():
         kind = getattr(getattr(webview, "FileDialog", None), "FOLDER", None)
@@ -469,8 +470,8 @@ def main():
             if w:
                 try:
                     (w.close if isinstance(w, NativePresentation) else w.destroy)()
-                except Exception:
-                    pass
+                except Exception as _e:
+                    _swallowed("desktop_app.present", _e)
             refresh_tray()
             return
         if w:
@@ -481,8 +482,8 @@ def main():
                     w.restore()
                     w.show()
                     return
-                except Exception:
-                    pass
+                except Exception as _e:
+                    _swallowed("desktop_app.present", _e)
             state["present"] = None
         comp, eng = server.VCAM.get("compositor"), server.VCAM.get("engine")
         if comp and eng and server.app_settings().get("nativePresent", True):
@@ -553,8 +554,8 @@ def main():
             if w:
                 try:
                     w.destroy()
-                except Exception:
-                    pass
+                except Exception as _e:
+                    _swallowed("desktop_app.overlay", _e)
             refresh_tray()
             return False
         if w:
@@ -604,8 +605,8 @@ def main():
             state["spot_open"] = False
             try:
                 spot.hide()
-            except Exception:
-                pass
+            except Exception as _e:
+                _swallowed("desktop_app.spotlight", _e)
             return
         if not state["spot_ready"]:
             dw.round_corners(hwnd)
@@ -615,13 +616,13 @@ def main():
         state["spot_open"] = True
         try:
             spot.show()
-        except Exception:
-            pass
+        except Exception as _e:
+            _swallowed("desktop_app.spotlight", _e)
         dw.bring_to_front(hwnd)
         try:
             spot.evaluate_js("window.KCSpotlight && KCSpotlight.opened()")
-        except Exception:
-            pass
+        except Exception as _e:
+            _swallowed("desktop_app.spotlight", _e)
 
     def palette_index():
         try:
@@ -644,8 +645,8 @@ def main():
         show()
         try:
             window.evaluate_js("window.KCSetTab && KCSetTab('settings')")
-        except Exception:
-            pass
+        except Exception as _e:
+            _swallowed("desktop_app.open_settings", _e)
 
     # ---------- 6.8 the page's window buttons and ribbon ----------
     def win(name, op, data):
@@ -720,8 +721,8 @@ def main():
             try:
                 w.toggle_fullscreen()
                 state["present_fs"] = not cur
-            except Exception:
-                pass
+            except Exception as _e:
+                _swallowed("desktop_app.present_fullscreen", _e)
         return bool(state.get("present_fs"))
 
     def present_open():

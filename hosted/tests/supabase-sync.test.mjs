@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { createHash, randomBytes } from "node:crypto";
+import { readFileSync } from "node:fs";
 import { after, before, test } from "node:test";
 
 import { supabaseStandIn } from "./pglite-supabase.mjs";
@@ -173,6 +174,26 @@ test("bad changes are refused whole: unknown kind, missing body, too many, too l
     assert.ok(await computerDenied(pcKey, "select sync_push($1, $2::jsonb)", [org, JSON.stringify(changes)]), JSON.stringify(changes).slice(0, 60));
   }
   assert.equal((await db.query("select count(*)::int as n from entities where id in ('x', 'big')")).rows[0].n, 0);
+});
+
+test("0009: the PC's last-seen time is written at most once a minute, not on every sync call", async () => {
+  const seen = async () => (await db.query("select last_seen_at from computers where id = $1", [pcId])).rows[0].last_seen_at;
+  await db.query("update computers set last_seen_at = now() - interval '5 minutes' where id = $1", [pcId]);
+  await pull(pcRun);
+  const first = await seen();
+  assert.ok(Date.now() - new Date(first).getTime() < 60_000, "an old time is refreshed");
+  await db.query("update computers set last_seen_at = now() - interval '10 seconds' where id = $1", [pcId]);
+  const recent = await seen();
+  await pull(pcRun);
+  await pull(pcRun);
+  assert.equal(String(await seen()), String(recent), "a recent time is left alone (no write per call)");
+  // The undo script brings back the 0003 behaviour, and 0009 applies again cleanly
+  const sql = (path) => readFileSync(new URL(path, import.meta.url), "utf8");
+  await db.exec(sql("../supabase/rollback/0009_seen_throttle_down.sql"));
+  await pull(pcRun);
+  assert.notEqual(String(await seen()), String(recent), "after the undo every call writes again");
+  await db.exec(sql("../supabase/migrations/0009_seen_throttle.sql"));
+  assert.ok(await pull(pcRun));
 });
 
 test("a revoked PC is refused at once; only admins or the PC itself can revoke", async () => {

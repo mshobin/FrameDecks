@@ -3,6 +3,7 @@ phone remote. Works with a full-screen slide show that FRAMECAST is not capturin
 a captured slide-show window, or the normal editing view. No OpenCV needed, so slides work even when the
 camera engine is not running.
 """
+from errlog import swallowed as _swallowed  # noqa: E402
 import os
 import threading
 import time
@@ -68,14 +69,14 @@ class _PowerPointControl:
             try:
                 if hwnd and int(w.HWND) == int(hwnd):
                     return w
-            except Exception:
-                pass
+            except Exception as _e:
+                _swallowed("vcam.powerpoint._show", _e)
         for w in wins:                                # prefer a show that is actually running (not ended/paused)
             try:
                 if int(w.View.State) in (1, 2):       # ppSlideShowRunning, ppSlideShowPaused
                     return w
-            except Exception:
-                pass
+            except Exception as _e:
+                _swallowed("vcam.powerpoint._show", _e)
         return wins[0]
 
     @staticmethod
@@ -97,8 +98,8 @@ class _PowerPointControl:
             try:
                 if int(view.State) == 2:              # paused / black or white screen: resume first, like a clicker
                     view.State = 1
-            except Exception:
-                pass
+            except Exception as _e:
+                _swallowed("vcam.powerpoint._move", _e)
             (view.Next if step > 0 else view.Previous)()
             return self._position(win)
         if app.Windows.Count >= 1:                    # normal (editing) view
@@ -183,8 +184,8 @@ def powerpoint_slide(step, hwnd=None):
         try:
             _post_keys(hwnd, step)
             return {"result": "sent Page Down" if step > 0 else "sent Page Up", "via": "keys"}
-        except Exception:
-            pass
+        except Exception as _e:
+            _swallowed("vcam.powerpoint.powerpoint_slide", _e)
     if res and not res.get("error"):
         _ppt_status.update(at=time.monotonic(), value=res if res.get("page") else _ppt_status["value"])
     return res or {"error": "PowerPoint isn't open. Open your presentation (or start the slide show) and try again."}

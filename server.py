@@ -11,6 +11,7 @@ Windows: double-click "Start FRAMEDECKS.bat"
 Mac:     double-click "Start FRAMEDECKS (Mac).command"
          (for the phone remote: python3 server.py --remote)
 """
+from errlog import swallowed as _swallowed  # noqa: E402
 import atexit
 import hashlib
 import json
@@ -36,7 +37,7 @@ import ai           # M-D3: optional AI, free by default (Ollama on this PC); hi
 import legacy   # 6.9: moves data saved under the program's earlier name
 import meeting_form   # 6.9: fills the Meeting Workbook's form for Export
 
-APP_VERSION = "6.11"
+APP_VERSION = "6.11.1"
 STARTED_AT = time.time()
 FROZEN = getattr(sys, "frozen", False)          # True inside the installed Windows app
 HERE = Path(sys.executable).resolve().parent if FROZEN else Path(__file__).resolve().parent
@@ -155,15 +156,63 @@ cond = threading.Condition()
 presence = {}  # id -> (page, last_seen)
 
 
+# What happened at start-up if the saved plan could not be read (production audit H1): shown in Diagnostics, and a
+# linked PC then restores the plan from its workspace instead of sending deletions for every Frame.
+PLAN_RECOVERY = {}
+
+
+def _read_plan(path):
+    data = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(data, dict):
+        raise ValueError("not a saved plan")
+    data["rev"] = int(data.get("rev", 1) or 1)
+    return data
+
+
 def load_state():
+    if not STATE_FILE.exists():
+        return {"rev": 0}  # a first start: the pages fill in defaults and sample content
+    problem = None
+    for attempt in range(5):                            # a file held for a moment (antivirus, backup) is not damaged
+        try:
+            return _read_plan(STATE_FILE)
+        except OSError as e:
+            problem = e
+            time.sleep(0.2)
+        except (ValueError, TypeError) as e:
+            problem = e
+            break
+    # Damaged or unreadable: keep it aside (never overwrite it), then take the newest daily backup that reads
+    stamp = time.strftime("%Y%m%d-%H%M%S")
+    aside = STATE_FILE.with_name(f"{STATE_FILE.name}.damaged-{stamp}")
     try:
-        data = json.loads(STATE_FILE.read_text(encoding="utf-8"))
-        if isinstance(data, dict):
-            data["rev"] = int(data.get("rev", 1) or 1)
-            return data
-    except (OSError, ValueError):
-        pass
-    return {"rev": 0}  # the pages fill in defaults and sample content
+        os.replace(STATE_FILE, aside)
+    except OSError:
+        aside = None
+    PLAN_RECOVERY.update(at=stamp, problem=f"{type(problem).__name__}: {problem}", keptAs=aside.name if aside else None,
+                         restoredFrom=None)
+    try:
+        folders = sorted((d for d in BACKUP_DIR.iterdir() if d.is_dir()), key=lambda d: d.stat().st_mtime, reverse=True)
+    except OSError:
+        folders = []
+    for folder in folders:
+        try:
+            data = _read_plan(folder / STATE_FILE.name)
+        except (OSError, ValueError, TypeError):
+            continue
+        PLAN_RECOVERY["restoredFrom"] = folder.name
+        try:                                            # a readable plan file again at once
+            tmp = STATE_FILE.with_suffix(".tmp")
+            tmp.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
+            os.replace(tmp, STATE_FILE)
+        except OSError:
+            pass
+        print(f"  The saved plan could not be read ({PLAN_RECOVERY['problem']}). It was kept as "
+              f"{PLAN_RECOVERY['keptAs']} and the plan was restored from the backup {folder.name}.", flush=True)
+        return data
+    print(f"  The saved plan could not be read ({PLAN_RECOVERY['problem']}) and no backup could be read. It was kept "
+          f"as {PLAN_RECOVERY['keptAs']}; FRAMEDECKS starts with a new plan.", flush=True)
+    return {"rev": 0}
 
 
 state = load_state()
@@ -368,14 +417,14 @@ def _refresh_network_check():
             cat = p.get("NetworkCategory")
             out["profiles"].append({"name": p.get("Name"), "adapter": p.get("InterfaceAlias"),
                                     "category": cats.get(cat, cat) if isinstance(cat, int) else cat})
-    except Exception:
-        pass
+    except Exception as _e:
+        _swallowed("server._refresh_network_check", _e)
     try:
         r = subprocess.run(["netsh", "advfirewall", "firewall", "show", "rule", f"name={FIREWALL_RULE}"],
                            capture_output=True, text=True, timeout=8, creationflags=flags)
         out["ruleExists"] = r.returncode == 0
-    except Exception:
-        pass
+    except Exception as _e:
+        _swallowed("server._refresh_network_check", _e)
     _net_cache.update({"at": time.time(), "value": out})
 
 
@@ -438,6 +487,7 @@ def diagnostics(address):
         "folder": str(HERE), "dataFolder": str(DATA), "installedApp": FROZEN, "port": address[1], "listeningOn": address[0],
         "remoteMode": REMOTE, "addresses": lan_addresses(), "uptimeSeconds": int(time.time() - STARTED_AT),
         "stateRevision": state.get("rev", 0), "files": files, "remoteSessions": n_sessions,
+        "planRecovery": dict(PLAN_RECOVERY) or None,
         "missingMedia": media_check(state)[:50],
         "devices": [{"ip": ip, "lastSeen": d["last"], "signedIn": d["signedIn"]} for ip, d in devices.items()],
         "network": windows_network_check() if REMOTE else None, "now": time.time(),
@@ -512,6 +562,8 @@ def _report_missing_media():
 
 SYNC = cloud_sync.Service(DATA / "kc-sync.json", cloud_sync.SecretStore(DATA / ".kc-sync-key"), _sync_read, _sync_write,
                           socket.gethostname() or "FRAMEDECKS PC", member_authority=lambda: app_settings()["memberAuthority"])
+if PLAN_RECOVERY:                       # the plan here was replaced at start-up: the workspace's plan is the true one
+    SYNC.adopt_workspace()
 
 
 # ---------- Phase 5: running a service from the companion (cloud_remote.py; docs/architecture/remote-control.md) ----------
@@ -613,8 +665,8 @@ def set_remote(enabled):
     if hook:
         try:
             hook(REMOTE)
-        except Exception:
-            pass
+        except Exception as _e:
+            _swallowed("server.set_remote", _e)
     return {"enabled": REMOTE, "listening": sorted(remote_servers), "failed": list(remote_errors)}
 
 
@@ -1430,8 +1482,8 @@ def _studio_action(d):
         comp.layers.set_layers(layers)
         try:
             VCAM["mediaSig"] = media_sig(comp.layers.layers)     # the scene will be written back with these: no re-apply
-        except Exception:
-            pass
+        except Exception as _e:
+            _swallowed("server._studio_action", _e)
     elif op == "stage":
         comp.staged = [dict(l) for l in comp.layers.layers] if d.get("on") else None
         return {}
@@ -1764,6 +1816,12 @@ class Handler(BaseHTTPRequestHandler):
     def is_local(self):
         return self.client_address[0] in ("127.0.0.1", "::1", "::ffff:127.0.0.1")
 
+    def cross_site_api(self, path):
+        """A web page from another site calling the program's API (e.g. an <img> pointing at /api/...). Browsers say so
+        in Sec-Fetch-Site; the program's own pages, the phone remote and OBS are same-origin or direct, and programs
+        such as the Stream Deck plugin send no such header. Pages themselves stay reachable (links, bookmarks)."""
+        return path.startswith("/api/") and self.headers.get("Sec-Fetch-Site", "").lower() == "cross-site"
+
     def signed_in(self):
         m = re.search(COOKIE + r"=([A-Za-z0-9_\-]{20,100})", self.headers.get("Cookie", ""))
         if not m:
@@ -1824,6 +1882,8 @@ class Handler(BaseHTTPRequestHandler):
             return self.reply(403, "Forbidden", "text/plain; charset=utf-8")
         url = urlparse(self.path)
         path = unquote(url.path)
+        if self.cross_site_api(path):
+            return self.reply(403, "Forbidden", "text/plain; charset=utf-8")
         if not self.is_local() and REMOTE and path in ("", "/", "/remote"):
             return self.reply(302, "", "text/plain", [("Location", "/remote.html")])
         if not self.allowed(path):
@@ -2252,7 +2312,7 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_POST(self):
         count_request(urlparse(self.path).path)
-        if not self.host_ok() or not self.origin_ok():
+        if not self.host_ok() or not self.origin_ok() or self.cross_site_api(urlparse(self.path).path):
             return self.reply(403, "Forbidden", "text/plain; charset=utf-8")
         if urlparse(self.path).path == "/api/vcam/upload":
             return self.upload_layer_file()

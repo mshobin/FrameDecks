@@ -7,6 +7,7 @@ A card is drawn once (whenever its content, size or layout changes) into three t
 Layers are stored premultiplied (colour already multiplied by opacity), ready for fast blending.
 Sizes use the same unit as the pages: u = min(1vw, 1.7778vh).
 """
+from errlog import swallowed as _swallowed  # noqa: E402
 import math
 import re
 import threading
@@ -58,8 +59,8 @@ class Fonts:
             f = ImageFont.truetype(str(self.folder / ("EBGaramond.ttf" if family == "serif" else "SourceSans3.ttf")), size)
             try:
                 f.set_variation_by_axes([weight])
-            except Exception:
-                pass
+            except Exception as _e:
+                _swallowed("vcam.cards.get", _e)
             if len(self.cache) > 200:
                 self.cache.clear()
             self.cache[key] = f

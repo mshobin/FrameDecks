@@ -235,3 +235,14 @@ continuity files in the same commit (owner's rule). Never force-push.
 - Verdict: conditional GO for the supervised pilot; NO-GO for a public release until H1 (plan-file recovery and sync
   mass-delete guard), H2 (signing) and H3 (pin build inputs by SHA) are done and live tests A–G pass.
 - Nothing from it is implemented yet: each fix waits for the owner's approval (SAFE items first, then H1 as 6.11.1).
+
+## 6.11.1: audit steps 1 and 2 (26 October, owner's request)
+- Built and on `main`: H3 (Actions and softcam pinned by SHA, Dependabot, release job alone has write access),
+  M1 (X-Frame-Options / frame-ancestors / Permissions-Policy), M3 (local API refuses cross-site calls), M8 (42 silent
+  `except Exception: pass` now log via `errlog.swallowed`, rate-limited), M10 (`0009_seen_throttle.sql` + undo),
+  H1 (damaged plan kept aside, newest backup opened, Diagnostics row; linked PC adopts the workspace; all-Frames-gone
+  guard). Version 6.11.1, release notes `docs/releases/v6.11.1.md`, About header recaptured.
+- Owner: (1) run `hosted/supabase/migrations/0009_seen_throttle.sql` in the Supabase SQL editor; (2) publish the
+  release: tag `v6.11.1` on `main` (Releases → Draft a new release); (3) test on Windows: Teleprompter pin/unpin,
+  FRAMEDECKS account linking, the Settings menu, the camera in Zoom.
+- Next from the audit (step 3): live tests A–G, M9 (other window operations non-blocking), M7 (one OpenCV).

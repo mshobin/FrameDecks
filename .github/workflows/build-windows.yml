@@ -10,23 +10,27 @@ on:
     tags: ["v*"]
   workflow_dispatch:
 
+# Read-only by default; only the "release" job below (version tags) may write, to publish the Release.
+# Every action is pinned to a full commit (the tag is in the comment), so a moved tag cannot change what runs here.
 permissions:
-  contents: write   # needed only to publish Releases for version tags
+  contents: read
 
 jobs:
   build:
     runs-on: windows-latest
     timeout-minutes: 45
+    outputs:
+      version: ${{ steps.ver.outputs.version }}
     env:
       # Code signing by SignPath Foundation (free for open source, M-D1: docs/releases/code-signing.md). Off until the
       # owner adds the SIGNPATH_API_TOKEN secret; until then every signing step is skipped and the build is as before.
       SIGNPATH_ON: ${{ secrets.SIGNPATH_API_TOKEN != '' }}
     steps:
       - name: Get the code
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: "3.12"
           cache: pip
@@ -38,13 +42,18 @@ jobs:
           python -m pip install -r packaging/requirements-desktop.txt -c packaging/constraints.txt
 
       - name: Get softcam (MIT licence) for the FRAMECAST camera
-        run: git clone --depth 1 --branch v1.8.1 https://github.com/tshino/softcam.git vcam_build/softcam
+        shell: pwsh
+        run: |
+          # Pinned to the commit behind v1.8.1: the build stops if the tag ever points somewhere else
+          git clone --depth 1 --branch v1.8.1 https://github.com/tshino/softcam.git vcam_build/softcam
+          $got = (git -C vcam_build/softcam rev-parse HEAD).Trim()
+          if ($got -ne 'afb424c2415b04da627fa1a7b4706575c2ba3010') { throw "softcam v1.8.1 is now $got, not the reviewed commit" }
 
       - name: Prepare the FRAMECAST camera (name and ID)
         run: python packaging/build_vcam.py vcam_build/softcam
 
       - name: Set up the Microsoft C++ compiler
-        uses: microsoft/setup-msbuild@v2
+        uses: microsoft/setup-msbuild@6fb02220983dee41ce7ae257b6f4d8f9bf5ed4ce # v2
 
       - name: Build the FRAMECAST camera (64-bit and 32-bit)
         shell: pwsh
@@ -98,7 +107,7 @@ jobs:
       - name: Hand the program folder to SignPath (signing on)
         id: unsigned_app
         if: env.SIGNPATH_ON == 'true'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: unsigned-program
           path: dist/FRAMEDECKS
@@ -106,7 +115,7 @@ jobs:
 
       - name: Sign FRAMEDECKS.exe and the camera DLLs (signing on)
         if: env.SIGNPATH_ON == 'true'
-        uses: signpath/github-action-submit-signing-request@v1
+        uses: signpath/github-action-submit-signing-request@ced31329c0317e779dad2eec2a7c3bb46ea1343e # v1
         with:
           api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
           organization-id: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
@@ -133,7 +142,7 @@ jobs:
       - name: Hand the installer to SignPath (signing on)
         id: unsigned_installer
         if: env.SIGNPATH_ON == 'true'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: unsigned-installer
           path: dist/FRAMEDECKS v*.exe
@@ -141,7 +150,7 @@ jobs:
 
       - name: Sign the installer (signing on)
         if: env.SIGNPATH_ON == 'true'
-        uses: signpath/github-action-submit-signing-request@v1
+        uses: signpath/github-action-submit-signing-request@ced31329c0317e779dad2eec2a7c3bb46ea1343e # v1
         with:
           api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
           organization-id: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
@@ -174,7 +183,7 @@ jobs:
           }
 
       - name: Attach the installer to this run
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: FRAMEDECKS v${{ steps.ver.outputs.version }}
           path: |
@@ -186,11 +195,39 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/v')
         run: python tools/make_release_notes.py --version ${{ steps.ver.outputs.version }} --repo ${{ github.repository }} --ref ${{ github.sha }} --out dist/release-notes.md
 
-      - name: Publish on the Releases page (version tags only)
+      - name: Keep the release notes for the release job
         if: startsWith(github.ref, 'refs/tags/v')
-        uses: softprops/action-gh-release@v2
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: FRAMEDECKS ${{ steps.ver.outputs.version }}
+          name: release-notes
+          path: dist/release-notes.md
+          if-no-files-found: error
+
+  # Publishing is a separate, short job: the only one with write access, and only for version tags
+  release:
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - name: Get the installer
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: FRAMEDECKS v${{ needs.build.outputs.version }}
+          path: dist
+
+      - name: Get the release notes
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: release-notes
+          path: dist
+
+      - name: Publish on the Releases page
+        uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2
+        with:
+          name: FRAMEDECKS ${{ needs.build.outputs.version }}
           body_path: dist/release-notes.md
           files: |
             dist/FRAMEDECKS v*.exe

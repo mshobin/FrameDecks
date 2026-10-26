@@ -9,6 +9,7 @@
 Everything is reused between frames: the shared screen is only resized when it changes, layers cache their
 transformed pictures, cards are drawn once. Nothing here runs on the user-interface thread.
 """
+from errlog import swallowed as _swallowed  # noqa: E402
 import os
 import queue
 import threading
@@ -197,8 +198,8 @@ class Compositor:
                 q, v = st.get("question", {}) or {}, st.get("verse", {}) or {}
                 b.update(question=q.get("text", "") if q.get("visible") else "", verse=v.get("text", "") if v.get("visible") else "",
                          verseRef=v.get("ref", "") if v.get("visible") else "")
-            except Exception:
-                pass
+            except Exception as _e:
+                _swallowed("vcam.compositor.all_variables", _e)
             self._builtins = (now, b)
         return {**self._builtins[1], **self.variables}
 

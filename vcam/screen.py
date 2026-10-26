@@ -6,6 +6,7 @@
                dirty-region reporting.
 Both come from the MIT-licensed "windows-capture" package. A moving demo source is used for tests.
 """
+from errlog import swallowed as _swallowed  # noqa: E402
 import ctypes
 import os
 import threading
@@ -206,8 +207,8 @@ class ScreenCapture:
                     time.sleep(0.2)
                 try:
                     ctl.stop()
-                except Exception:
-                    pass
+                except Exception as _e:
+                    _swallowed("vcam.screen._wgc", _e)
                 return True
             reason = "no picture within 3 seconds"
             try:
@@ -280,8 +281,8 @@ def _cursor_pos():
         p = wintypes.POINT()
         if ctypes.windll.user32.GetCursorPos(ctypes.byref(p)):
             return p.x, p.y
-    except Exception:
-        pass
+    except Exception as _e:
+        _swallowed("vcam.screen._cursor_pos", _e)
     return None
 
 

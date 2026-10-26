@@ -30,6 +30,10 @@ if not exist "vcam_build\softcam" (
   git clone --depth 1 --branch v1.8.1 https://github.com/tshino/softcam.git vcam_build\softcam || goto :fail
   python packaging\build_vcam.py vcam_build\softcam || goto :fail
 )
+rem softcam must be the reviewed commit behind v1.8.1 (a moved tag must not change what is built)
+set "SOFTCAM="
+for /f %%h in ('git -C vcam_build\softcam rev-parse HEAD') do set "SOFTCAM=%%h"
+if not "%SOFTCAM%"=="afb424c2415b04da627fa1a7b4706575c2ba3010" (echo  softcam is not the reviewed v1.8.1 commit & goto :fail)
 "%MSBUILD%" vcam_build\softcam\softcam.sln /m /t:softcam /p:Configuration=Release /p:Platform=x64 || goto :fail
 "%MSBUILD%" vcam_build\softcam\softcam.sln /m /t:softcam /p:Configuration=Release /p:Platform=Win32 || goto :fail
 copy /y "vcam_build\softcam\x64\Release\softcam.dll" "vcam\bin\framedecks_vcam64.dll" >nul || goto :fail

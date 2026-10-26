@@ -7,6 +7,7 @@ size); each frame copies the solid ink in one step and blends only the soft edge
 
 Freeze (live.freeze) keeps showing the picture of the moment it was switched on; drawings still go on top of it.
 """
+from errlog import swallowed as _swallowed  # noqa: E402
 import json
 import zlib
 from pathlib import Path
@@ -41,8 +42,8 @@ class Ink:
             font = ImageFont.truetype(str(self.fonts / "SourceSans3.ttf"), size) if self.fonts else ImageFont.load_default()
             try:
                 font.set_variation_by_name("Bold")
-            except Exception:
-                pass
+            except Exception as _e:
+                _swallowed("vcam.annotate._text", _e)
             box = font.getbbox(it.get("s") or "")
             tw, th = box[2] + 4, box[3] + 4
             if tw <= 4:
