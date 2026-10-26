@@ -229,3 +229,9 @@ continuity files in the same commit (owner's rule). Never force-push.
   After load nothing animates on its own (only scroll-linked effects while scrolling).
 - The program's server idles at ~0.1% CPU and 62 MB; its page has no running animations; the Studio preview is
   polled only while the Studio canvas is visible, and unchanged pictures answer 304.
+
+## Production audit (26 October, read-only)
+- Report: [docs/project/2026-10-26-production-audit.md](../docs/project/2026-10-26-production-audit.md). No code changed.
+- Verdict: conditional GO for the supervised pilot; NO-GO for a public release until H1 (plan-file recovery and sync
+  mass-delete guard), H2 (signing) and H3 (pin build inputs by SHA) are done and live tests A–G pass.
+- Nothing from it is implemented yet: each fix waits for the owner's approval (SAFE items first, then H1 as 6.11.1).
