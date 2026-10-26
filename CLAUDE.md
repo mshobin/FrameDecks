@@ -53,6 +53,9 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
 - `pptx_export.py` (Meeting → Export this meeting to PowerPoint, python-pptx) and Audio Content (`audio` kind in
   `store.js` SOUND_KINDS, `app/js/audio-player.js`, plays only in the program window while its Frame is live and on).
   Both are owner-approved entries (M-D4). Older versions drop Audio Content: update every linked PC first.
+- Free plan (`docs/project/free-hosting.md`): `.github/workflows/db-keepalive.yml` (pings Supabase every 3 days) and
+  `db-backup.yml` + `tools/db_backup.sh` (nightly, AES-256 encrypted with `BACKUP_PASSPHRASE`, 30 days; restore:
+  `docs/project/database-backup.md`). Both do nothing until their repository secrets exist.
 - Licence: Apache 2.0 (`LICENSE`, `NOTICE`); every shipped dependency or vendored file needs a row in
   `THIRD_PARTY_NOTICES.md`. Signing: SignPath, off until its secret exists (`docs/project/code-signing.md`).
 - Continuity: `CLAUDE.md`, `PROJECT_STATUS.md`, `PROJECT_ROADMAP.md`, `.ai/NEXT_SESSION.md`. The owner's live tests:

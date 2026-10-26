@@ -1,0 +1,32 @@
+# Keeps the free Supabase project awake (free plan, docs/project/free-hosting.md, Part B). Supabase pauses a free
+# project after 7 days without requests; this asks one harmless question every 3 days. Uses only the public URL and
+# publishable key (repository secrets SUPABASE_URL, SUPABASE_ANON_KEY); does nothing until they exist.
+name: Database keep-alive
+
+on:
+  schedule:
+    - cron: "17 6 */3 * *"     # 06:17 UTC (09:17 Kuwait) every third day
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+    steps:
+      - name: Ask the database one harmless question
+        run: |
+          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_ANON_KEY" ]; then
+            echo "::notice::SUPABASE_URL / SUPABASE_ANON_KEY are not set yet (docs/project/free-hosting.md, Part B). Nothing to do."
+            exit 0
+          fi
+          # computer_link_poll with an unknown key answers {"status":"unknown"} after a database read; it changes nothing.
+          answer=$(curl -sS --fail-with-body --max-time 30 -X POST "$SUPABASE_URL/rest/v1/rpc/computer_link_poll" \
+            -H "apikey: $SUPABASE_ANON_KEY" -H "Content-Type: application/json" -d '{"key":"keep-alive"}')
+          echo "Database answered: $answer"
+          echo "$answer" | grep -q '"unknown"'

@@ -1,0 +1,59 @@
+# An encrypted copy of the workspace database every night (free plan, docs/project/free-hosting.md, Part B).
+# Supabase Free has no daily backups. The copy is encrypted with BACKUP_PASSPHRASE (only the owner knows it) before
+# it leaves the runner, and kept 30 days with the run. Needs the repository secrets SUPABASE_DB_URL (Session pooler
+# URI) and BACKUP_PASSPHRASE; does nothing until they exist. Restore: docs/project/database-backup.md.
+name: Database backup
+
+on:
+  schedule:
+    - cron: "23 1 * * *"       # 01:23 UTC (04:23 Kuwait) every night
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+      BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+    steps:
+      - name: Check the secrets
+        id: ready
+        run: |
+          if [ -z "$SUPABASE_DB_URL" ] || [ -z "$BACKUP_PASSPHRASE" ]; then
+            echo "::notice::SUPABASE_DB_URL / BACKUP_PASSPHRASE are not set yet (docs/project/free-hosting.md, Part B). Nothing to do."
+            echo "go=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "go=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Get the code
+        if: steps.ready.outputs.go == 'true'
+        uses: actions/checkout@v4
+
+      - name: Install the PostgreSQL 17 client (matches Supabase)
+        if: steps.ready.outputs.go == 'true'
+        run: |
+          sudo install -d /usr/share/postgresql-common/pgdg
+          sudo curl -fsSL -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc https://www.postgresql.org/media/keys/ACCC4CF8.asc
+          echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" \
+            | sudo tee /etc/apt/sources.list.d/pgdg.list > /dev/null
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq postgresql-client-17
+          echo "/usr/lib/postgresql/17/bin" >> "$GITHUB_PATH"
+
+      - name: Make the encrypted backup
+        if: steps.ready.outputs.go == 'true'
+        run: tools/db_backup.sh backup
+
+      - name: Keep it for 30 days
+        if: steps.ready.outputs.go == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: framedecks-backup-${{ github.run_number }}
+          path: backup/*.tar.enc
+          retention-days: 30
+          if-no-files-found: error

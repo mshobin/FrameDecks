@@ -63,10 +63,11 @@ VS Code (GitHub Copilot or any assistant). Read [CLAUDE.md](../CLAUDE.md) first.
   - M-D5: long-term hosting recommendation, [docs/architecture/hosting.md](../docs/architecture/hosting.md).
 
 ## In progress: the free plan (owner's request, 26 October)
-Steps, in order, from `docs/project/free-hosting.md` (next commit):
+Steps, in order, from [docs/project/free-hosting.md](../docs/project/free-hosting.md):
 1. **Companion as static files** (Cloudflare Pages ready): **code done** on branch
    `claude/peaceful-albattani-6m445e`. Owner: Part A.
-2. Keep-alive and encrypted nightly backup workflows: next.
+2. **Keep-alive and encrypted nightly backup**: **code done** (`.github/workflows/db-keepalive.yml`,
+   `db-backup.yml`, `tools/db_backup.sh`, restore guide `docs/project/database-backup.md`). Owner: Part B (4 secrets).
 3. Lighter free tier: slower idle polling, status only while watched, 14-day history, 6-month audit (`0009`).
 4. Google/Microsoft sign-in and free email (Brevo): owner setup (Part D).
 5. Public repository, SignPath, GitHub Releases: owner setup (Part E).

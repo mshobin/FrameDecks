@@ -37,8 +37,9 @@ Phase detail lives in
     - M-D5 hosting recommendation ([hosting.md](docs/architecture/hosting.md)).
 
 ## In Progress
-- **Free plan** (`docs/project/free-hosting.md`, next commit): step 1 done on branch `claude/peaceful-albattani-6m445e`
-  (companion builds as static files; `/api/sync-config` written at build time). Steps 2–5 follow.
+- **Free plan** ([free-hosting.md](docs/project/free-hosting.md)): step 1 done on branch `claude/peaceful-albattani-6m445e`
+  (companion builds as static files; `/api/sync-config` written at build time) and step 2 (keep-alive every 3 days,
+  encrypted nightly backup, [restore guide](docs/project/database-backup.md)). Steps 3–5 follow.
 - Database live: `0001`–`0008` run in Supabase (26 October). Waiting for the owner's live tests A–F
   ([live-test-guide.md](docs/qa/live-test-guide.md)).
 
