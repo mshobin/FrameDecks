@@ -112,4 +112,4 @@ Their branches are kept, so any of them can be reopened or mined:
   owner's OAuth apps (their secrets go only into the Supabase dashboard).
 
 ## Recommended Next Task
-See [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
+See [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md). The next Phase 4 task is the 6.9 JSON import/export bridge with dry-run validation and representative fixtures. Phase 3 auth still needs owner-supplied Supabase configuration; durable sync transport remains gated on auth/tenant readiness.

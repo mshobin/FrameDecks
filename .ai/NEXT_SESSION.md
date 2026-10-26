@@ -105,6 +105,7 @@ Steps, in order, from [docs/project/free-hosting.md](../docs/project/free-hostin
   reach it; the cloud environment could not.
 
 ## Risks
+- **Logo/branding:** the 16px favicon remains faint on light tab backgrounds; do not change the approved emblem without owner approval. The packaged tray icon has not been run; `desktop_app.py` uses `app/icons/remote-192.png`.
 - **Never tested against live Supabase:** sync, phone control, member editing, groups and grants. They are tested on
   PGlite and against stand-ins only.
 - **Audio Content and older versions:** see Pending 4.
