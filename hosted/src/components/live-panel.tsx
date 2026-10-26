@@ -8,6 +8,7 @@ import { isOnline, label, nowShowing, outcome, type LiveComputer, type Op } from
 import { browserSupabase } from "@/lib/supabase-browser";
 import type { WorkspaceChoice } from "@/lib/use-workspaces";
 import { syncNotSetUp } from "@/lib/workspace-sync";
+import { EmptyState, ErrorState, PageSkeleton } from "@/components/states";
 
 const POLL_MS = 2000;
 
@@ -61,13 +62,13 @@ function Live({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
       </p>
     );
   }
-  if (computers === null) return <p className="page-note">{problem ?? "Loading…"}</p>;
+  if (computers === null) return problem ? <ErrorState text={problem} onRetry={() => (setProblem(null), load())} /> : <PageSkeleton cards={2} />;
   if (computers.length === 0) {
     return (
-      <p className="page-note">
-        No PC to run here. Owners and admins link the service PC under Computers, and can let a member run services
-        with “Can run services” on the Overview’s member list.
-      </p>
+      <EmptyState title="No service PC to run yet">
+        Owners and admins link the service PC under Computers, and can let a member run services with “Can run
+        services” on the Overview’s member list.
+      </EmptyState>
     );
   }
 

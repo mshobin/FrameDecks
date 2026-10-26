@@ -5,6 +5,7 @@ import Link from "next/link";
 import { browserSupabase } from "@/lib/supabase-browser";
 import type { WorkspaceChoice } from "@/lib/use-workspaces";
 import { useWorkspaces } from "@/lib/use-workspaces";
+import { PageSkeleton } from "@/components/states";
 
 /** Shows the page only to a signed-in person with a workspace (and, if asked, only to its owners and admins), with
  * a workspace picker when they have more than one. */
@@ -17,7 +18,7 @@ export function WorkspaceGate({
   const { session, workspaces, selected, select } = useWorkspaces();
 
   if (!supabase) return <p className="page-note">Sign-in is not set up for this site yet.</p>;
-  if (session === undefined || (session && workspaces === null)) return <p className="page-note">Loading…</p>;
+  if (session === undefined || (session && workspaces === null)) return <PageSkeleton />;
   if (!session) {
     return (
       <p className="page-note">

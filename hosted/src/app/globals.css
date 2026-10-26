@@ -21,6 +21,7 @@
   --sidebar: rgba(8, 13, 26, 0.72);
   --gold: #e3b75a;
   --gold-2: #f4d58e;
+  --focus: #f4d58e; /* the keyboard focus ring, everywhere */
   --gold-soft: rgba(227, 183, 90, 0.14);
   --blue: #e3b75a;
   --blue-dark: #f4d58e;

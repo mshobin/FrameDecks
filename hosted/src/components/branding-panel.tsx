@@ -8,6 +8,7 @@ import { browserSupabase } from "@/lib/supabase-browser";
 import { pullWorkspace, pushRecord, syncNotSetUp, type PulledRecord } from "@/lib/workspace-sync";
 import type { WorkspaceChoice } from "@/lib/use-workspaces";
 import { DEFAULT_GOLD, SWATCHES, brandFormOf, brandFromForm, hasLogo, validColor, type BrandForm } from "@/lib/workspace-settings";
+import { ErrorState, PageSkeleton } from "@/components/states";
 
 type Loaded = { record: PulledRecord | null } | "not-set-up" | { error: string };
 
@@ -35,9 +36,9 @@ function Branding({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
     load();
   }, [load]);
 
-  if (loaded === null) return <p className="page-note">Loading…</p>;
+  if (loaded === null) return <PageSkeleton />;
   if (loaded === "not-set-up") return <NotSetUp />;
-  if ("error" in loaded) return <p className="page-note page-problem">{loaded.error}</p>;
+  if ("error" in loaded) return <ErrorState text={loaded.error} onRetry={load} />;
   const record = loaded.record;
 
   async function save() {

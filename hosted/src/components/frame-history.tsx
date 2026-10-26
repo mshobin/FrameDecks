@@ -7,6 +7,7 @@ import { When } from "@/components/when";
 import { lastKept, versionsOf, whoMade, type HistoryRow, type Version } from "@/lib/history-view";
 import { browserSupabase } from "@/lib/supabase-browser";
 import { pushRecord, type PulledRecord } from "@/lib/workspace-sync";
+import { ListSkeleton } from "@/components/states";
 
 export type Names = { people: Record<string, string>; computers: Record<string, string> };
 type Row = HistoryRow & { id: string };
@@ -84,7 +85,7 @@ export function FrameHistory({
     };
   }, [organizationId, record.id, record.rev]);
 
-  if (rows === null) return <p className="workspace-hint">Loading history…</p>;
+  if (rows === null) return <ListSkeleton rows={3} />;
   const versions = versionsOf(record, rows);
   return (
     <div className="frame-history">

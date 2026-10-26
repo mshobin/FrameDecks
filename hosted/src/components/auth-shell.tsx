@@ -43,10 +43,10 @@ export function AuthShell({
   );
   if (document) {
     return (
-      <div className="fd-auth fd-auth-single">
+      <main className="fd-auth fd-auth-single" id="main" tabIndex={-1}>
         {card}
         {foot}
-      </div>
+      </main>
     );
   }
   return (
@@ -57,10 +57,10 @@ export function AuthShell({
         </Link>
         <Workflow compact />
       </aside>
-      <div className="fd-auth-main">
+      <main className="fd-auth-main" id="main" tabIndex={-1}>
         {card}
         {foot}
-      </div>
+      </main>
     </div>
   );
 }

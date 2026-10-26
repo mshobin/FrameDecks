@@ -4,6 +4,7 @@ import { ClipboardList, Ellipsis, Home as HomeIcon, Palette, Monitor, Presentati
 
 import { AboutButton } from "@/components/about-dialog";
 import { AccountStatus } from "@/components/account-status";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { DOWNLOADS } from "@/lib/pc-setup";
 
 export type Section = "overview" | "meeting" | "branding" | "services" | "live" | "members" | "computers";
@@ -105,11 +106,14 @@ export function AppShell({ active, children }: Readonly<{ active: Section; child
             <strong>{titles[active]}</strong>
           </p>
           <div className="fd-topbar-right">
+            <ThemeToggle />
             <AboutButton />
             <AccountStatus />
           </div>
         </header>
-        <main className="fd-page">{children}</main>
+        <main className="fd-page" id="main" tabIndex={-1}>
+          {children}
+        </main>
       </div>
 
       <nav className="fd-tabbar" aria-label="Main navigation">

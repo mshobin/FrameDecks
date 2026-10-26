@@ -8,6 +8,7 @@ import { When } from "@/components/when";
 import { browserSupabase } from "@/lib/supabase-browser";
 import type { WorkspaceChoice } from "@/lib/use-workspaces";
 import { syncNotSetUp } from "@/lib/workspace-sync";
+import { ListSkeleton } from "@/components/states";
 
 type Computer = { id: string; name: string; created_at: string; last_seen_at: string | null; revoked_at: string | null };
 
@@ -112,7 +113,7 @@ function Computers({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
           <h2>Linked PCs</h2>
         </header>
         {computers === null ? (
-          <p className="workspace-hint">Loading…</p>
+          <ListSkeleton />
         ) : active.length === 0 ? (
           <p className="workspace-hint">No PC is linked to “{workspace.name}” yet.</p>
         ) : (

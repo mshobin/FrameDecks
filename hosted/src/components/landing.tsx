@@ -14,6 +14,7 @@ import {
 
 import { AboutButton } from "@/components/about-dialog";
 import { MISSION } from "@/components/brand-hero";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { Words } from "@/components/words";
 import { Workflow } from "@/components/workflow";
 import { DOWNLOADS } from "@/lib/pc-setup";
@@ -46,6 +47,7 @@ export function Landing() {
           <Link href="/privacy">Privacy</Link>
         </nav>
         <div className="fd-topbar-right">
+          <ThemeToggle />
           <AboutButton />
           <Link className="fd-btn fd-btn-primary fd-btn-sm" href="/sign-in">
             Sign in
@@ -53,6 +55,7 @@ export function Landing() {
         </div>
       </header>
 
+      <main id="main" tabIndex={-1}>
       <section className="fd-hero" aria-labelledby="fd-hero-title">
         <h1 id="fd-hero-title" className="fd-hero-title">
           <Words text="Every gathering, beautifully prepared." />
@@ -137,6 +140,8 @@ export function Landing() {
       <section className="fd-mission" aria-label="Why FRAMEDECKS" data-reveal>
         <p>{MISSION}</p>
       </section>
+
+      </main>
 
       <footer className="fd-landing-foot">
         <span>FRAMEDECKS · Present · Equip · Inspire</span>

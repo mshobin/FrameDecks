@@ -18,6 +18,7 @@ import {
 import { browserSupabase } from "@/lib/supabase-browser";
 import type { WorkspaceChoice } from "@/lib/use-workspaces";
 import { deleteRecord, pullWorkspace, pushRecord, syncNotSetUp, type PulledRecord } from "@/lib/workspace-sync";
+import { EmptyState, ErrorState, PageSkeleton } from "@/components/states";
 
 // The member list (owners and admins). M-D2: the workspace is the list's source; people added, edited or removed
 // here reach the service PC at its next sync. M-D6: groups live in the cloud only (0008_member_groups.sql); the
@@ -229,9 +230,9 @@ function Members({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
   const groupName = useMemo(() => new Map((groups ?? []).map((g) => [g.id, g.name])), [groups]);
 
   if (!supabase) return null;
-  if (people === null) return <p className="page-note">Loading…</p>;
+  if (people === null) return <PageSkeleton />;
   if (people === "not-set-up") return <NotSetUp />;
-  if ("error" in people) return <p className="page-note page-problem">{people.error}</p>;
+  if ("error" in people) return <ErrorState text={people.error} onRetry={load} />;
 
   async function saveGroupLinks(memberId: string, want: Set<string>) {
     if (!supabase || !groups) return null;
@@ -376,7 +377,7 @@ function Members({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
         </>
       )}
       {list.length === 0 ? (
-        <p className="page-note">No members yet. Add one here, or on the service PC.</p>
+        <EmptyState title="No members yet">Add the first one here, or on the service PC.</EmptyState>
       ) : shown.length === 0 ? (
         <p className="page-note">Nobody is in this group yet. Edit a member to add them.</p>
       ) : (

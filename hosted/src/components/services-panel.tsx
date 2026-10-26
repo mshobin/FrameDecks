@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
-import { ArrowDown, ArrowUp, Film, History, Image as ImageIcon, Pencil, Plus, Presentation, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowUp, History, Pencil, Plus, Trash2 } from "lucide-react";
 
 import { DeletedFrames, FrameHistory, loadNames, type Names } from "@/components/frame-history";
 
@@ -15,12 +15,12 @@ import { browserSupabase } from "@/lib/supabase-browser";
 import { join, type JsonObject } from "@/lib/sync-entities";
 import { pullWorkspace, pushRecord, syncNotSetUp, type PulledRecord } from "@/lib/workspace-sync";
 import type { WorkspaceChoice } from "@/lib/use-workspaces";
+import { EmptyState, ErrorState, PageSkeleton } from "@/components/states";
 
 type Obj = { [key: string]: unknown };
 type Loaded = { records: PulledRecord[]; onAir: string | null } | "not-set-up" | { error: string };
 type Notice = { ok: boolean; text: string } | null;
 
-const MEDIA_ICON: Record<string, typeof Film> = { video: Film, image: ImageIcon, pdf: Presentation };
 const key = (kind: string, id: string) => `${kind}/${id}`;
 
 // The synced plan. Everyone in the workspace reads it; owners and admins can also change the words of a Frame and
@@ -59,9 +59,9 @@ function Services({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
     load();
   }, [load]);
 
-  if (loaded === null) return <p className="page-note">Loading…</p>;
+  if (loaded === null) return <PageSkeleton />;
   if (loaded === "not-set-up") return <NotSetUp />;
-  if ("error" in loaded) return <p className="page-note page-problem">{loaded.error}</p>;
+  if ("error" in loaded) return <ErrorState text={loaded.error} onRetry={load} />;
 
   const records = loaded.records.filter((r) => !r.deleted);
   const deletedFrames = loaded.records.filter((r) => r.deleted && r.kind === "frame");
@@ -70,10 +70,16 @@ function Services({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
   const all = describeFrames(doc);
   if (!all.length) {
     return (
-      <p className="page-note">
-        No service plan has been synced to “{workspace.name}” yet. Link the service PC under{" "}
-        <Link href="/computers">Computers</Link>.
-      </p>
+      <EmptyState
+        title="No service plan yet"
+        action={
+          <Link className="fd-btn fd-btn-glass fd-btn-sm" href="/computers">
+            Link the service PC
+          </Link>
+        }
+      >
+        The plan appears here once the service PC is linked to “{workspace.name}”, or when you add Frames on the Meeting Form.
+      </EmptyState>
     );
   }
   const frames = all.filter((f) => !f.template);
@@ -405,7 +411,6 @@ function FrameCard({
       ) : (
         <ul className="content-list">
           {frame.content.map((c, i) => {
-            const Icon = MEDIA_ICON[c.kind];
             return (
               <li key={i}>
                 <span className="content-title">
@@ -414,7 +419,6 @@ function FrameCard({
                 </span>
                 {c.media !== undefined ? (
                   <span className="content-media">
-                    {Icon && <Icon aria-hidden="true" size={14} />}
                     {c.media ? `${c.media} · on the service PC` : "No file chosen"}
                   </span>
                 ) : c.lines.length ? (

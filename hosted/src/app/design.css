@@ -28,8 +28,38 @@ body {
 }
 
 :focus-visible {
-  outline: 2px solid var(--gold);
+  outline: 2px solid var(--focus);
   outline-offset: 2px;
+}
+
+/* Inputs show the same ring as everything else when reached by keyboard (design audit DD-18) */
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 1px;
+}
+
+main:focus {
+  outline: none;
+}
+
+.fd-skip {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  z-index: 100;
+  border-radius: 10px;
+  background: var(--surface-solid);
+  box-shadow: 0 0 0 2px var(--focus);
+  color: var(--text);
+  padding: 10px 16px;
+  font-weight: 600;
+  transform: translateY(-150%);
+}
+
+.fd-skip:focus {
+  transform: none;
 }
 
 h1,
@@ -643,14 +673,14 @@ h3 {
     radial-gradient(600px 300px at 80% 40%, rgba(227, 183, 90, 0.12), transparent 70%),
     linear-gradient(160deg, rgba(36, 52, 92, 0.7), rgba(14, 22, 42, 0.7));
   box-shadow: var(--shadow);
-  padding: clamp(28px, 4vw, 48px);
+  padding: clamp(22px, 3vw, 34px);
 }
 
 .fd-welcome-title {
   margin: 0 0 12px;
   color: var(--text);
-  font-size: clamp(30px, 3.6vw, 44px);
-  font-weight: 750;
+  font-size: clamp(26px, 2.8vw, 34px);
+  font-weight: 700;
   letter-spacing: -0.035em;
   line-height: 1.08;
 }
@@ -1788,4 +1818,162 @@ h3 {
   .fd-style-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+}
+
+/* ---------- States (design audit DD-15): skeleton, empty, error ---------- */
+.fd-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.fd-skeleton {
+  display: grid;
+  gap: 14px;
+}
+
+.fd-skeleton-list {
+  gap: 10px;
+  margin: 6px 0;
+}
+
+.fd-skel {
+  border-radius: var(--radius);
+  background: linear-gradient(90deg, var(--fill) 0%, var(--fill-hover) 50%, var(--fill) 100%);
+  background-size: 200% 100%;
+  animation: fd-skel 1.4s ease-in-out 6;
+}
+
+.fd-skel-line {
+  height: 18px;
+  border-radius: 8px;
+}
+
+.fd-skel-card {
+  height: 112px;
+}
+
+.fd-skel-row {
+  height: 40px;
+  border-radius: 10px;
+}
+
+@keyframes fd-skel {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: -100% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fd-skel {
+    animation: none;
+  }
+}
+
+.fd-empty,
+.fd-error {
+  display: grid;
+  justify-items: start;
+  gap: 10px;
+  border: 1px dashed var(--hairline-strong);
+  border-radius: var(--radius-lg);
+  padding: 22px 24px;
+}
+
+.fd-empty h2 {
+  margin: 0;
+  font-size: 17px;
+}
+
+.fd-empty p,
+.fd-error p {
+  margin: 0;
+  color: var(--text-2);
+  line-height: 1.6;
+}
+
+.fd-error {
+  border-style: solid;
+  border-color: rgba(255, 138, 128, 0.35);
+}
+
+.fd-error strong {
+  color: var(--text);
+}
+
+/* ---------- Gold discipline (design audit DD-10) ----------
+ * Gold marks only the main action and what is selected (primary buttons, the current page, the chosen style, the
+ * Frame on screen in Live). Links are the text colour with an underline, labels and small actions are neutral, and
+ * status uses its own colours: green for on screen / online. */
+.fd-link,
+.page-note a,
+.workspace-hint a,
+.fd-assurance a,
+.fd-auth-foot a,
+.auth-link,
+.workspace-signed-out a,
+.auth-legal a,
+.auth-footnote a,
+.pc-setup-copy p a {
+  color: var(--text);
+  text-decoration: underline;
+  text-decoration-color: var(--hairline-strong);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.fd-link:hover,
+.page-note a:hover,
+.workspace-hint a:hover,
+.fd-assurance a:hover,
+.fd-auth-foot a:hover,
+.auth-link:hover,
+.workspace-signed-out a:hover,
+.auth-legal a:hover,
+.auth-footnote a:hover,
+.pc-setup-copy p a:hover {
+  text-decoration-color: currentColor;
+}
+
+.fd-kicker,
+.page-head .eyebrow,
+.pc-setup-copy .eyebrow,
+.edit-list legend,
+.frame-history h4,
+.frame-script summary,
+.member-action {
+  color: var(--text-2);
+}
+
+.member-action:hover {
+  color: var(--text);
+}
+
+.workspace-role,
+.frame-number {
+  background: var(--fill);
+  color: var(--text-2);
+}
+
+.content-icon,
+.fd-tile-icon,
+.pc-setup-icon {
+  color: var(--text-2);
+}
+
+/* status in its own colour, always with words */
+.live-flag {
+  background: var(--green-soft);
+  color: var(--green);
+}
+
+.fd-tile-icon,
+.pc-setup-icon {
+  background: var(--fill);
 }

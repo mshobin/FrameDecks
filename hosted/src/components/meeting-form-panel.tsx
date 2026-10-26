@@ -40,6 +40,7 @@ import { PROFILES, profileOf } from "@/lib/workspace-settings";
 import { join, type JsonObject } from "@/lib/sync-entities";
 import { pullWorkspace, pushChanges, pushRecord, syncNotSetUp, type PulledRecord } from "@/lib/workspace-sync";
 import type { WorkspaceChoice } from "@/lib/use-workspaces";
+import { EmptyState, ErrorState, PageSkeleton } from "@/components/states";
 
 type Obj = { [key: string]: unknown };
 type Loaded = { records: PulledRecord[]; onAir: string | null } | "not-set-up" | { error: string };
@@ -75,9 +76,9 @@ function Planner({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
     load();
   }, [load]);
 
-  if (loaded === null) return <p className="page-note">Loading…</p>;
+  if (loaded === null) return <PageSkeleton />;
   if (loaded === "not-set-up") return <NotSetUp />;
-  if ("error" in loaded) return <p className="page-note page-problem">{loaded.error}</p>;
+  if ("error" in loaded) return <ErrorState text={loaded.error} onRetry={load} />;
 
   const records = loaded.records;
   const byKey = new Map(records.map((r) => [key(r.kind, r.id), r]));
@@ -181,11 +182,10 @@ function Planner({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
 
       <h2 className="section-title">Frames</h2>
       {frames.length === 0 && editing !== "new" && (
-        <p className="page-note">
-          No Frames yet.{" "}
-          {canEdit ? "Add the first one below." : null} The service PC must be linked under <Link href="/computers">Computers</Link>{" "}
-          for them to appear in FRAMEDECKS.
-        </p>
+        <EmptyState title="No Frames yet">
+          {canEdit ? "Add the first one below. " : null}They appear in FRAMEDECKS once the service PC is linked under{" "}
+          <Link href="/computers">Computers</Link>.
+        </EmptyState>
       )}
       <ol className="frame-list">
         {frames.map((frame, i) => {

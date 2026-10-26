@@ -26,9 +26,9 @@ export function Overview() {
   const session = useSession();
   if (supabase && session === undefined) {
     return (
-      <div className="fd-splash" aria-busy="true">
+      <main className="fd-splash" id="main" aria-busy="true">
         <BrandMark size="medium" />
-      </div>
+      </main>
     );
   }
   if (!session) return <Landing />;
@@ -70,18 +70,21 @@ function Dashboard({ name }: Readonly<{ name: string }>) {
 
       <PcSetupCard />
 
-      <section className="fd-block" aria-labelledby="fd-how-title" data-reveal>
-        <div className="fd-block-head">
-          <div>
-            <p className="fd-kicker">How it works</p>
-            <h2 id="fd-how-title">From the plan to the screen.</h2>
+      {/* Task first (design audit DD-24): How it works only until there is a workspace to work in */}
+      {!selected && (
+        <section className="fd-block" aria-labelledby="fd-how-title" data-reveal>
+          <div className="fd-block-head">
+            <div>
+              <p className="fd-kicker">How it works</p>
+              <h2 id="fd-how-title">From the plan to the screen.</h2>
+            </div>
+            <Link className="fd-link" href="/meeting">
+              Start planning <ArrowRight aria-hidden="true" size={15} />
+            </Link>
           </div>
-          <Link className="fd-link" href="/meeting">
-            Start planning <ArrowRight aria-hidden="true" size={15} />
-          </Link>
-        </div>
-        <Workflow />
-      </section>
+          <Workflow />
+        </section>
+      )}
 
       <section className="fd-block" aria-labelledby="fd-account-title" data-reveal>
         <div className="fd-block-head">

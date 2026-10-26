@@ -7,6 +7,7 @@ import "./globals.css";
 import "./design.css";
 import "./motion.css";
 import "./about.css";
+import "./light.css";
 
 export const metadata: Metadata = {
   title: {
@@ -24,7 +25,10 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#070c18",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#f4f5f9" },
+    { media: "(prefers-color-scheme: dark)", color: "#070c18" },
+  ],
 };
 
 export default function RootLayout({
@@ -35,15 +39,20 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        {/* Before the first paint: hide what will rise into view (motion.css), unless the device asks for less motion */}
+        {/* Before the first paint: hide what will rise into view (motion.css), unless the device asks for less motion, and
+            apply the light or dark theme (light.css, components/theme-toggle.tsx) */}
         <script
           dangerouslySetInnerHTML={{
             __html:
-              "if(window.IntersectionObserver&&!matchMedia('(prefers-reduced-motion: reduce)').matches)document.documentElement.classList.add('fd-motion')",
+              "if(window.IntersectionObserver&&!matchMedia('(prefers-reduced-motion: reduce)').matches)document.documentElement.classList.add('fd-motion');" +
+              "try{var t=localStorage.getItem('fd-theme');if(t==='light'||(t!=='dark'&&matchMedia('(prefers-color-scheme: light)').matches))document.documentElement.classList.add('fd-light')}catch(e){}",
           }}
         />
       </head>
       <body>
+        <a className="fd-skip" href="#main">
+          Skip to content
+        </a>
         <Ambient />
         {children}
         <Motion />

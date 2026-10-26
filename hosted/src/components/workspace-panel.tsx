@@ -9,6 +9,7 @@ import { WorkspaceMembers } from "@/components/workspace-members";
 import { browserSupabase } from "@/lib/supabase-browser";
 import type { Organization, Role } from "@/lib/supabase-config";
 import { useSession } from "@/lib/use-session";
+import { ListSkeleton } from "@/components/states";
 
 const NAME_LIMIT = 120;
 const roleLabels: Record<Role, string> = { owner: "Owner", admin: "Admin", member: "Member" };
@@ -210,7 +211,7 @@ export function WorkspacePanel() {
           <h2>Your workspaces</h2>
         </header>
         {workspaces === null ? (
-          <p className="workspace-hint">Loading…</p>
+          <ListSkeleton />
         ) : workspaces.length === 0 ? (
           <p className="workspace-hint">No workspace yet. Create one for your church or ministry.</p>
         ) : (

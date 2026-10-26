@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { browserSupabase } from "@/lib/supabase-browser";
 import type { Role } from "@/lib/supabase-config";
+import { ListSkeleton } from "@/components/states";
 
 type Member = { user_id: string; role: Role; display_name: string | null; email: string };
 type Invitation = { id: string; email: string; role: Exclude<Role, "owner"> };
@@ -144,7 +145,7 @@ export function WorkspaceMembers({
   return (
     <div className="members">
       {members === null ? (
-        <p className="workspace-hint">Loading members…</p>
+        <ListSkeleton />
       ) : (
         <ul className="members-list">
           {members.map((member) => {
