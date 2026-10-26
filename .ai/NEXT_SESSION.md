@@ -152,7 +152,12 @@ the program's About page in the website's design, with the same words (brand.jso
 - D4 (sync conflict rules): built as recommended (keep both Frames; the last writer wins for settings and people).
 
 ## Design audit (26 October, chat only)
-Ranked roadmap from the design audit: ranks 1–7 and 9–11 are done (5–7, 9–11 on 26 October: `hosted/src/lib/when.ts`,
+The design roadmap is complete (ranks 1–21; ranks 8 and 12–21 on 26 October). For any screen change, follow
+`docs/design-system.md`, run `python tools/css_tokens.py` and `node tests/visual/layout.mjs` (needs the program running
+and Playwright), and refresh `docs/design/baselines/` and `hosted/public/product/` when a screen changes on purpose.
+Not done from DD-25: building inactive tabs lazily (they are hidden, so not laid out; DOM count unchanged).
+Gotcha: `next build` reuses its cache; after CSS changes that do not appear, delete `hosted/.next` and `hosted/out`.
+Earlier: ranks 1–7 and 9–11 are done (5–7, 9–11 on 26 October: `hosted/src/lib/when.ts`,
 `content-kind.tsx`, the phone tab bar in `app-shell.tsx`, landing screenshots in `hosted/public/product/`; retake those
 if the Studio or Live page changes look). Earlier: ranks 1–4 are done (DD-01 camera labels, `tests/test_camera_name.py`; DD-03
 first run, DD-02 overlaps and Teleprompter empty state, DD-13 command bar words, `tests/test_ui_labels.py`). Next in

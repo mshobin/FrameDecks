@@ -73,7 +73,7 @@ export function PcSetupCard() {
         {found ? <MonitorCheck aria-hidden="true" size={20} /> : <Monitor aria-hidden="true" size={20} />}
       </div>
       <div className="pc-setup-copy">
-        <p className="eyebrow">THIS COMPUTER</p>
+        <p className="eyebrow">This computer</p>
         {setup === "other" && (
           <>
             <h2 id="pc-setup-title">FRAMEDECKS presents from a Windows PC.</h2>

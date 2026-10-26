@@ -104,7 +104,7 @@ window.KCShortcuts = {
         ]));
       });
       root.appendChild(table);
-      root.appendChild(h('div', {'class': 'actions', style: 'margin-top:12px'}, [
+      root.appendChild(h('div', {'class': 'actions u-mt-12'}, [
         h('button', {'class': 'btn small', type: 'button', text: 'Restore default keys', onclick: function(){
           ACTIONS.forEach(function(a){ map[a.id] = a.def; }); save(); render('Default keys restored.'); }})
       ]));

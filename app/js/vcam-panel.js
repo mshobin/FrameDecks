@@ -34,8 +34,8 @@ function post(path, body){
 
 /* ---------- Build the panel once ---------- */
 var pill = h('span', {cls: 'status-pill'}, [h('i'), h('span', {text: 'Checking…'})]);
-var msg = h('p', {cls: 'plain', style: 'margin:8px 0 0'});
-var perf = h('p', {cls: 'hint', style: 'margin:4px 0 0'});
+var msg = h('p', {cls: 'plain u-mt-8'});
+var perf = h('p', {cls: 'hint u-mt-4'});
 var sw = h('input', {type: 'checkbox', role: 'switch', id: 'vcam-switch', 'aria-label': 'FRAMECAST on or off'});
 var swText = h('b', {text: 'FRAMECAST'});
 var camSel = h('select', {id: 'vcam-camera'});
@@ -204,7 +204,7 @@ var qualityBox = h('section', {cls: 'box'}, [
   h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'Backlight'}), seg('backlightCompensation', [['default', 'Webcam default'], ['off', 'Off'], ['on', 'On']], 'vcam-backlight')]),
   h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'Anti-flicker'}), seg('antiFlicker', [['off', 'Off'], ['50', '50 Hz'], ['60', '60 Hz'], ['auto', 'Auto']], 'vcam-flicker')]),
   h('details', {cls: 'vcam-fine'}, [h('summary', {text: 'Fine-tune (exposure, colour, sharpness)'})].concat(fineRows, [h('div', {cls: 'row'}, [h('span', {cls: 'lbl'}), fineReset])])),
-  h('div', {cls: 'box-head', style: 'margin-top:12px'}, [h('h2', {text: 'Diagnostics'})]),
+  h('div', {cls: 'box-head u-mt-12'}, [h('h2', {text: 'Diagnostics'})]),
   diag
 ]);
 function renderQuality(d){
@@ -257,7 +257,7 @@ var settingsBox = h('section', {cls: 'box'}, [
   h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'Webcam'}), camSel]),
   h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'Picture size'}), resSeg]),
   h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'Camera Look'}), lookSel,
-    h('span', {cls: 'hint', style: 'margin-left:10px', text: 'Ctrl+Alt+1 Warm · 2 Dark · 3 Neutral · 0 Off'})]),
+    h('span', {cls: 'hint u-ml-8', text: 'Ctrl+Alt+1 Warm · 2 Dark · 3 Neutral · 0 Off'})]),
   h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'Presentation window'}), presSeg]),
   h('div', {cls: 'row'}, [h('span', {cls: 'lbl'}), h('span', {cls: 'hint', text: 'Standard is plenty for sharing in Zoom and keeps Windows smooth. Use Smooth only for fast motion.'})]),
   h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'Background blur'}), blurSeg]),
@@ -267,7 +267,7 @@ var settingsBox = h('section', {cls: 'box'}, [
   h('div', {cls: 'row'}, [h('span', {cls: 'lbl'}), blurSave, blurNote]),
   h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'Mirror'}), h('label', {cls: 'check'}, [mirror, ' Flip left-right (only your camera picture; text stays readable)'])]),
   h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'Cards'}), h('label', {cls: 'check'}, [cardsCb, ' Show my verse, question and birthday cards on FRAMECAST'])]),
-  h('div', {cls: 'box-head', style: 'margin-top:12px'}, [h('h2', {text: 'Preview'}), previewBtn]),
+  h('div', {cls: 'box-head u-mt-12'}, [h('h2', {text: 'Preview'}), previewBtn]),
   previewBox,
   h('p', {cls: 'hint', text: 'The preview turns your webcam on while it is showing.'})
 ]);
@@ -349,7 +349,7 @@ function render(d){
   if (!d.registered && !installBox.childNodes.length){
     installBox.appendChild(h('b', {text: 'FRAMECAST is not installed in Windows yet. '}));
     installBox.appendChild(document.createTextNode('Windows asks for administrator permission once, then Zoom and Teams can see it.'));
-    installBox.appendChild(h('div', {cls: 'actions', style: 'margin-top:8px'}, [h('button', {cls: 'btn primary small', type: 'button', text: 'Install FRAMECAST', onclick: function(){
+    installBox.appendChild(h('div', {cls: 'actions u-mt-8'}, [h('button', {cls: 'btn primary small', type: 'button', text: 'Install FRAMECAST', onclick: function(){
       toast('Windows will ask for permission…');
       post('install', {action: 'install'}).then(function(r){ toast(r.ok ? 'FRAMECAST is installed. Restart Zoom or Teams to see it.' : r.message, !r.ok); render(r); });
     }})]));

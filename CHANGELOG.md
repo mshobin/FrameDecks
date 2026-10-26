@@ -60,6 +60,10 @@ Full notes: [docs/releases/v6.11.1.md](docs/releases/v6.11.1.md)
   a backup check that the nightly copy decrypts and lists its tables; failed scheduled runs open a GitHub issue.
 
 ### Changed
+- Design roadmap completed (ranks 8, 12–21): website state kit, skip link and landmarks, gold discipline, task-first
+  Overview, light theme, Source Sans 3; program sentence-case labels in Source Sans 3, Lucide icons, one email composer,
+  Import / Export menu, Frame actions More…, compact About, help text under checkboxes; one type scale, weights, radii
+  and elevations (`tools/css_tokens.py`), visual layout checks in CI (`tests/visual/layout.mjs`), `docs/design-system.md`.
 - Website (design audit ranks 5, 6, 7, 9, 10, 11): one date helper (`src/lib/when.ts`: "2 h ago", exact on hover);
   a bottom tab bar on phones; landing with real product screenshots and specific copy, mission and lockup once;
   destructive actions styled apart with named confirmations; labels at 12 px+ and `--text-3` #8793ad (4.5:1+);

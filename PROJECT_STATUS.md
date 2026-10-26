@@ -51,6 +51,9 @@ Phase detail lives in
 - **Design audit ranks 5–7, 9–11 (26 October, owner-approved):** website dates, phone tab bar, landing with real
   screenshots (`hosted/public/product/`), destructive styling, 12 px / 4.5:1 labels (website and program), card previews.
   Hosted 114/114, lint, typecheck, build, budget (JS 323 KB); Python 147 OK. Screenshots at 1440 px and 390 px.
+- **Design roadmap complete (26 October, owner-approved, ranks 8 and 12–21):** see `docs/design-system.md`. Hosted
+  120/120, lint, typecheck, build, budget (JS 329 KB); Python OK incl. `test_css_tokens`; `tools/css_tokens.py` 0
+  problems; `tests/visual/layout.mjs` 9/9. Website font is a 47 KB Latin subset in `hosted/public/fonts/`.
 - **6.11.1 (26 October):** audit steps 1–2 built (pinned build, cross-site guard, error logging, plan recovery and
   sync guard, `0009`); owner publishes the release and runs `0009`.
 - **Website performance (26 October):** the website no longer animates when idle (older 8 GB PCs next to the program).

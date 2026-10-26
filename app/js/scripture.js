@@ -78,7 +78,10 @@ function chips(){
   var box = $('scr-chips'); if (!box) return;
   box.innerHTML = '';
   var fav = load('bcc-scr-fav'), rec = load('bcc-scr-recent').filter(function(r){ return fav.indexOf(r) < 0; }).slice(0, 6);
-  fav.forEach(function(r){ box.appendChild(h('button', {cls: 'vchip fav', type: 'button', title: 'Favourite: fetch ' + r, text: '★ ' + r, onclick: function(){ refIn.value = r; fetchRef(r); }})); });
+  fav.forEach(function(r){
+    var star = h('span', {'aria-hidden': 'true'}); if (window.KCIcon) star.innerHTML = window.KCIcon('star', 13); else star.textContent = '★';
+    box.appendChild(h('button', {cls: 'vchip fav', type: 'button', title: 'Favourite: fetch ' + r, onclick: function(){ refIn.value = r; fetchRef(r); }}, [star, ' ' + r]));
+  });
   rec.forEach(function(r){ box.appendChild(h('button', {cls: 'vchip', type: 'button', title: 'Recent: fetch ' + r, text: r, onclick: function(){ refIn.value = r; fetchRef(r); }})); });
 }
 if (refIn){

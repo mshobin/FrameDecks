@@ -32,7 +32,7 @@ var FORMATS = {
     body: '[Greeting]\n\nWelcome to our [Group Name] group. We are happy to have you with us.\n\nWe look forward to learning, growing, and fellowshipping together.\n\nPlease feel free to contact us if you have any questions.\n\nMay God bless you.\n\n[Signature]'
   }
 };
-var KIND_NAMES = {plain: 'Email', summary: 'Summary Email', join: 'New Joinee Email'};
+var KIND_NAMES = {plain: 'Email', summary: 'Summary Email', join: 'New member welcome'};
 
 var data = {members: [], settings: JSON.parse(JSON.stringify(DEFAULTS))};
 var storedAt = '';
@@ -168,8 +168,8 @@ function setTab(t){
     var b = $('tabbtn-' + k); if (b) b.setAttribute('aria-selected', String(k === t));
     var p = $('tab-' + k); if (p && k !== 'studio') p.hidden = k !== t;   // #tab-studio is the canvas's camera picture: workspace.js shows it
   });
-  if (t === 'members'){ $('slot-members').appendChild(composerEl); if (ui.compSource === 'ticked' && !anyChecked()) ui.compSource = 'selected'; }
-  if (t === 'email'){ $('slot-email').appendChild(composerEl); ui.compSource = 'ticked'; renderPicker(); }
+  // One email composer, on the Email tab only (design audit DD-14); Manage's Prepare buttons bring you there
+  if (t === 'email'){ $('slot-email').appendChild(composerEl); if (!ui.keepSource) ui.compSource = 'ticked'; ui.keepSource = false; renderPicker(); }
   if (t === 'birthdays') renderBirthdays();
   if (t === 'settings') renderSettings();
   renderComposer();
@@ -285,7 +285,7 @@ function renderSelbar(){
   if (!n){ bar.appendChild(document.createTextNode('Tick members to email several people at once.')); return; }
   bar.appendChild(h('b', {text: n + ' ticked'}));
   bar.appendChild(h('button', {'class': 'btn small primary', type: 'button', text: 'Prepare group email', onclick: function(){
-    ui.compSource = 'ticked'; renderComposer(); composerEl.scrollIntoView({behavior: 'smooth', block: 'start'}); }}));
+    ui.compSource = 'ticked'; ui.keepSource = true; setTab('email'); renderComposer(); }}));
   bar.appendChild(h('button', {'class': 'btn quiet small', type: 'button', text: 'Untick all', onclick: function(){
     ui.checked = {}; renderList(); renderComposer(); renderPicker(); }}));
 }
@@ -307,7 +307,7 @@ function renderDetail(){
   var ph = M.parsePhone(m.phone), b = bInfo(m);
   var card = h('div', {'class': 'mcard'});
   card.appendChild(h('div', {'class': 'mcard-top'}, [
-    h('div', {style: 'flex:1;min-width:0'}, [h('h3', {text: m.name}), m.country ? h('div', {'class': 'country', text: m.country}) : null]),
+    h('div', {'class': 'u-grow'}, [h('h3', {text: m.name}), m.country ? h('div', {'class': 'country', text: m.country}) : null]),
     h('button', {'class': 'btn small', type: 'button', text: 'Edit', onclick: function(){ editMember(m); }}),
     h('button', {'class': 'btn small danger', type: 'button', text: 'Delete', onclick: function(){ deleteMember(m); }})
   ]));
@@ -349,7 +349,7 @@ function renderDetail(){
     stats.appendChild(h('div', {'class': 'stat'}, [h('b', {text: b.age !== null ? String(b.age) : '—'}), h('span', {text: b.age !== null ? 'Age' : 'Age unknown'})]));
     stats.appendChild(h('div', {'class': 'stat'}, [h('b', {text: b.next.d + ' ' + M.MONTH_NAMES[b.next.m - 1].slice(0, 3)}), h('span', {text: 'Next birthday'})]));
     bdV.appendChild(stats);
-    bdV.appendChild(h('div', {'class': 'fhint' + (b.days <= (Number(data.settings.reminderDays) || 14) ? ' warn' : ''), style: 'margin-top:8px',
+    bdV.appendChild(h('div', {'class': 'fhint u-mt-8' + (b.days <= (Number(data.settings.reminderDays) || 14) ? ' warn' : ''),
       text: b.status + (b.turning ? ' · turns ' + b.turning : '') + (b.leapDay && b.next.d !== 29 ? ' · celebrated on ' + b.next.d + ' ' + M.MONTH_NAMES[b.next.m - 1] + ' this year' : '')}));
   }
   card.appendChild(h('div', {'class': 'mrow'}, [h('span', {'class': 'k', text: 'Birthday'}), bdV]));
@@ -358,9 +358,9 @@ function renderDetail(){
   card.appendChild(h('div', {'class': 'actions'}, [
     h('button', {'class': 'btn', type: 'button', text: 'Prepare Email', disabled: !hasEmail, onclick: function(){ prepareFor(m, 'plain'); }}),
     h('button', {'class': 'btn', type: 'button', text: 'Prepare Summary Email', disabled: !hasEmail, onclick: function(){ prepareFor(m, 'summary'); }}),
-    h('button', {'class': 'btn', type: 'button', text: 'Prepare New Joinee Email', disabled: !hasEmail, onclick: function(){ prepareFor(m, 'join'); }})
+    h('button', {'class': 'btn', type: 'button', text: 'Prepare a welcome email', disabled: !hasEmail, onclick: function(){ prepareFor(m, 'join'); }})
   ]));
-  card.appendChild(h('div', {'class': 'actions', style: 'margin-top:10px'}, [
+  card.appendChild(h('div', {'class': 'actions u-mt-12'}, [
     h('button', {'class': 'btn primary', type: 'button', text: 'Celebrate on screen', title: 'Show the birthday overlay for this member',
       onclick: function(){ ui.celebrateId = m.id; renderBar(); showBirthday(); }})
   ]));
@@ -642,7 +642,7 @@ function buildComposer(){
     '<div class="comp-kinds">' +
       '<button class="btn" type="button" data-kind="plain">Prepare Email</button>' +
       '<button class="btn" type="button" data-kind="summary">Prepare Summary Email</button>' +
-      '<button class="btn" type="button" data-kind="join">Prepare New Joinee Email</button></div>' +
+      '<button class="btn" type="button" data-kind="join">Prepare a welcome email</button></div>' +
     '<div id="c-alerts"></div>' +
     '<label class="field"><span>Subject</span><input type="text" id="c-subject"></label>' +
     '<label class="field"><span>Message (edit anything before opening)</span><textarea id="c-body" rows="12"></textarea></label>' +
@@ -666,7 +666,7 @@ function buildComposer(){
     if (!all.length){ toast('No valid email addresses to copy.', true); return; }
     copyText(all.join(data.settings.separator === ',' ? ', ' : '; '), 'Addresses');
   });
-  $('slot-members').appendChild(composerEl);
+  $('slot-email').appendChild(composerEl);
 }
 function addresses(){
   var list = compRecipients(), valid = list.filter(function(m){ return M.validEmail(m.email); });
@@ -686,7 +686,7 @@ function renderComposer(){
     src.appendChild(h('label', {'class': 'radio', style: 'display:inline-flex;margin:0 14px 0 0'}, [
       h('input', {type: 'radio', name: 'csrc', checked: ui.compSource === 'selected', onchange: function(){ ui.compSource = 'selected'; renderComposer(); }}),
       h('span', {text: 'Selected member' + (sel ? ' (' + sel.name + ')' : '')})]));
-    src.appendChild(h('label', {'class': 'radio', style: 'display:inline-flex;margin:0'}, [
+    src.appendChild(h('label', {'class': 'radio u-inline-m0'}, [
       h('input', {type: 'radio', name: 'csrc', checked: ui.compSource === 'ticked', disabled: !nTicked, onchange: function(){ ui.compSource = 'ticked'; renderComposer(); }}),
       h('span', {text: 'Ticked members (' + nTicked + ')'})]));
   } else src.textContent = list.length > 1 ? 'Group email to ' + list.length + ' members' : 'Recipient';
@@ -704,14 +704,14 @@ function renderComposer(){
   box.appendChild(chips);
   if (ui.compSource === 'ticked' && list.length > 1){
     var cb = h('input', {type: 'checkbox', onchange: function(){ comp.bcc = cb.checked; renderPreview(); }}); cb.checked = comp.bcc;
-    box.appendChild(h('label', {'class': 'check', style: 'margin-top:8px'}, [cb, 'Use BCC so members can’t see each other’s addresses (recommended)']));
+    box.appendChild(h('label', {'class': 'check u-mt-8'}, [cb, 'Use BCC so members can’t see each other’s addresses (recommended)']));
   }
   renderPreview();
 }
 function prepareFor(m, kind){
-  ui.selectedId = m.id; ui.compSource = 'selected';
-  if (ui.tab !== 'members' && ui.tab !== 'email') setTab('members');
-  renderList(); renderDetail(); prepare(kind);
+  ui.selectedId = m.id; ui.compSource = 'selected'; ui.keepSource = true;
+  setTab('email');
+  renderList(); renderDetail(); renderComposer(); prepare(kind);
   composerEl.scrollIntoView({behavior: 'smooth', block: 'start'});
 }
 function prepare(kind){
@@ -745,7 +745,7 @@ function renderPreview(){
   ph.appendChild(h('span', {text: 'To'})); ph.appendChild(h('span', {text: a.to.join('; ') || '—'}));
   if (a.bcc.length){ ph.appendChild(h('span', {text: 'Bcc'})); ph.appendChild(h('span', {text: a.bcc.join('; ')})); }
   ph.appendChild(h('span', {text: 'Subject'})); ph.appendChild(h('span', {text: subject || '(no subject)'}));
-  pv.appendChild(ph); pv.appendChild(h('pre', {text: body || 'Choose Prepare Email, Prepare Summary Email or Prepare New Joinee Email.'}));
+  pv.appendChild(ph); pv.appendChild(h('pre', {text: body || 'Choose Prepare Email, Prepare Summary Email or Prepare a welcome email.'}));
   composerEl.querySelector('#c-open').disabled = !a.valid.length;
 }
 function openEmail(){
@@ -1040,6 +1040,7 @@ function setup(){
   $('m-template').addEventListener('click', downloadTemplate);
   $('m-export-xlsx').addEventListener('click', exportXlsx);
   $('m-export-csv').addEventListener('click', exportCsv);
+  Array.prototype.forEach.call(document.querySelectorAll('.io-menu-list .btn'), function(b){ b.addEventListener('click', function(){ b.closest('details').open = false; }); });
   $('e-search').addEventListener('input', function(){ ui.eSearch = this.value; renderPicker(); });
   $('e-all').addEventListener('click', function(){ (ui._pickerShown || []).forEach(function(m){ if (M.validEmail(m.email)) ui.checked[m.id] = true; }); renderPicker(); renderList(); renderComposer(); });
   $('e-none').addEventListener('click', function(){ ui.checked = {}; renderPicker(); renderList(); renderComposer(); });

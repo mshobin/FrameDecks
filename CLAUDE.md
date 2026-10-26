@@ -19,7 +19,12 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
   the Teleprompter's empty state, and the command bar's words (Transition label, Auto-advance, Live tools, Ready / Off air
   in words, sentence-case Go Live and Hide all; `tests/test_ui_labels.py`); and design audit rank 10 (owner's request,
   26 October): no desktop label under 12 px (keyboard hints aside) and `--faint` at 4.5:1 or more in both themes. The
-  legacy phone remote's CSS (`app/css/remote.css`) is unchanged.
+  legacy phone remote's CSS (`app/css/remote.css`) is unchanged; and the rest of the design roadmap (owner's request,
+  26 October, "Complete all pending"): sentence-case headings and labels in Source Sans 3 (serif only for scripture),
+  Lucide icons in the Settings menu and Teleprompter, one email composer on Members → Email with an Import / Export
+  menu, Frame actions Duplicate + More…, a compact Settings → About, help text under checkboxes, and every CSS value
+  on the scale in `docs/design-system.md` (`tools/css_tokens.py`, `tests/visual/layout.mjs`). Follow that document for
+  any new screen.
   Nothing else visible may change.
 - The codebase is the source of truth; verify docs against it.
 - Do not touch the legacy LAN remote or let the hosted app call the local HTTP server.

@@ -57,3 +57,35 @@ class CommandBar(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class DesignSystem(unittest.TestCase):
+    """Ranks 8, 13, 14, 17 (DD-16, DD-04, DD-06, DD-14, DD-20, DD-21)."""
+
+    def test_no_glyph_or_emoji_icons_in_the_settings_menu(self):
+        html = read("dashboard.html")
+        for glyph in "★✝⇄🎂◉◧▭☁⚙⌨⛨⛁✚ⓘ":
+            self.assertNotIn(f'<span class="sn-i">{glyph}</span>', html)
+        self.assertEqual(html.count('<span class="sn-i"><i data-icon="'), 15)
+
+    def test_headings_use_the_interface_typeface(self):
+        css = read("css/theme.css")
+        self.assertIn("one interface typeface (design audit DD-04)", css)
+        self.assertRegex(css, r"\.s-head h2,[^{]*\{font-family:var\(--sans\)")
+
+    def test_one_email_composer_and_an_import_export_menu(self):
+        html = read("dashboard.html")
+        self.assertNotIn('id="slot-members"', html)
+        self.assertIn('<details class="io-menu">', html)
+        js = read("js/members.js")
+        self.assertNotIn("Joinee", js)
+        self.assertNotIn("$('slot-members')", js)
+
+    def test_rare_frame_actions_and_a_compact_about(self):
+        self.assertIn("h('details', {cls: 'ip-more'}", read("js/workspace.js"))
+        self.assertIn("Read our story", read("js/about.js"))
+
+    def test_help_text_sits_under_controls_not_in_brackets(self):
+        js = read("js/workspace.js")
+        self.assertNotIn("checkCtl('Template (", js)
+        self.assertNotIn("text: 'L' + (i + 1)", js)

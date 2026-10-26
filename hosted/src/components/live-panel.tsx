@@ -55,11 +55,10 @@ function Live({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
   if (!supabase) return null;
   if (computers === "not-set-up") {
     return (
-      <p className="page-note">
-        Running services from the companion is not switched on in this workspace’s database yet. The owner runs{" "}
-        <code>0004_remote.sql</code> and then <code>0005_remote_live.sql</code> in the Supabase SQL editor once (after{" "}
-        <code>0003</code>).
-      </p>
+      <EmptyState title="Live control isn’t switched on yet">
+        Whoever set up FRAMEDECKS for your church finishes it once, in the database (steps <code>0004_remote.sql</code>{" "}
+        and <code>0005_remote_live.sql</code>).
+      </EmptyState>
     );
   }
   if (computers === null) return problem ? <ErrorState text={problem} onRetry={() => (setProblem(null), load())} /> : <PageSkeleton cards={2} />;

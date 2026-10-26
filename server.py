@@ -1655,8 +1655,8 @@ def vcam_start():
     if VCAM["engine"] is not None:
         return
     demo = os.environ.get("KC_VCAM_DEMO") == "1"
-    start_files_msg = ("You’re using the start-file version (the black window). The FRAMECAST camera is only in the installed app: "
-                       "close the black window, then open FRAMEDECKS from its desktop or Start-menu icon.")
+    start_files_msg = ("The FRAMECAST camera works only in the installed FRAMEDECKS. Close the window you started it from, then open "
+                       "FRAMEDECKS from its desktop or Start-menu icon.")
     os.environ.setdefault("OPENCV_VIDEOIO_MSMF_ENABLE_HW_TRANSFORMS", "0")   # before OpenCV loads
     try:
         import cv2  # noqa: F401

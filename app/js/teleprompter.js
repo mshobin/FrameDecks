@@ -83,18 +83,20 @@ function create(host, opts){
   speedSel.value = S.speed; speedSel.addEventListener('change', function(){ S.speed = speedSel.value; save(key, S); });
   speedSel.addEventListener('keydown', function(e){ e.stopPropagation(); });
   function btn(label, title, fn, cls){ return h('button', {cls: 'tp-btn' + (cls ? ' ' + cls : ''), type: 'button', title: title, 'aria-label': title, text: label, onclick: fn}); }
+  /* a Lucide icon where the page has them (main window), else the plain-text fallback (design audit DD-06) */
+  function ibtn(icon, fallback, title, fn, cls){ var b = btn(fallback, title, fn, cls); if (window.KCIcon) b.innerHTML = window.KCIcon(icon, 16); return b; }
   var contrastBtn = btn('', 'High contrast', function(){ S.contrast = !S.contrast; apply(); }, 'tp-contrast');
-  contrastBtn.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></svg>';
-  var mirrorBtn = btn('⇋', 'Mirror the text, for a teleprompter glass (M)', function(){ S.mirror = !S.mirror; apply(); }, 'tp-mirror-btn');
-  var focusBtn = btn('⛶', 'Focus mode: large text, dark, few controls (F)', function(){ S.focus = !S.focus; apply(); }, 'tp-focus');
-  var lineBtn = btn('☰', 'Line spacing', function(){ S.line = S.line >= 1.9 ? 1.25 : +(S.line + 0.3).toFixed(2); apply(); }, 'tp-line');
+  contrastBtn.innerHTML = window.KCIcon ? window.KCIcon('contrast', 16) : '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></svg>';
+  var mirrorBtn = ibtn('flip-horizontal-2', '⇋', 'Mirror the text, for a teleprompter glass (M)', function(){ S.mirror = !S.mirror; apply(); }, 'tp-mirror-btn');
+  var focusBtn = ibtn('maximize', '⛶', 'Focus mode: large text, dark, few controls (F)', function(){ S.focus = !S.focus; apply(); }, 'tp-focus');
+  var lineBtn = ibtn('align-justify', '☰', 'Line spacing', function(){ S.line = S.line >= 1.9 ? 1.25 : +(S.line + 0.3).toFixed(2); apply(); }, 'tp-line');
   var controls = h('div', {cls: 'tp-controls', role: 'toolbar', 'aria-label': 'Teleprompter controls'}, [
     playBtn, speedSel,
     btn('A−', 'Smaller text (−)', function(){ S.size = Math.max(14, S.size - 3); apply(); }, 'tp-smaller'),
     btn('A+', 'Larger text (+)', function(){ S.size = Math.min(96, S.size + 3); apply(); }, 'tp-larger'),
     lineBtn, contrastBtn, float ? mirrorBtn : focusBtn,
-    btn('⤒', 'Back to the top (Home)', function(){ scroll.scrollTop = 0; acc = 0; }, 'tp-top'),
-    opts.editable ? btn('✎', 'Edit this Frame’s script', function(){ editScript(); }, 'tp-edit') : null].concat(opts.extra || []));
+    ibtn('arrow-up-to-line', '⤒', 'Back to the top (Home)', function(){ scroll.scrollTop = 0; acc = 0; }, 'tp-top'),
+    opts.editable ? ibtn('pencil', '✎', 'Edit this Frame’s script', function(){ editScript(); }, 'tp-edit') : null].concat(opts.extra || []));
   if (float){ controls.classList.add('tp-float'); controls.setAttribute('data-no-drag', ''); }
   var root = h('div', {cls: 'tp' + (opts.compact ? ' tp-compact' : '') + (float ? ' tp-float-mode tp-ui-on' : '')}, [
     h('div', {cls: 'tp-cues'}, [h('div', {cls: 'tp-cue-row'}, [cuePos, cueNow]), h('div', {cls: 'tp-cue-row tp-cue-sub'}, [cueNext, cueUp])]),

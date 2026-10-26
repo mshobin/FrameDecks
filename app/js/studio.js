@@ -16,7 +16,7 @@ function h(tag, attrs, kids){
 }
 function ib(icon, label, onclick, cls){ return h('button', {cls: 'ib ' + (cls || ''), type: 'button', title: label, 'aria-label': label, html: I(icon, 16), onclick: onclick}); }
 function toast(m, bad){ if (window.KCActions) window.KCActions.toast(m, bad); }
-if (!Store.served){ root.appendChild(h('p', {cls: 'plain', style: 'padding:20px', text: 'The Studio needs the installed FRAMEDECKS app.'})); return; }
+if (!Store.served){ root.appendChild(h('p', {cls: 'plain u-pad-20', text: 'The Studio needs the installed FRAMEDECKS app.'})); return; }
 
 var REF_W = 1920, REF_H = 1080;            // inspector numbers use a 1920×1080 canvas
 var TYPES = {camera: ['video', 'Video source'], screen: ['monitor', 'Screen capture'], text: ['type', 'Text'], image: ['image', 'Image'],
@@ -568,7 +568,7 @@ function draw(){
 function apply(d){
   S = d;
   if (!d.available){
-    root.innerHTML = ''; root.appendChild(h('p', {cls: 'plain', style: 'padding:20px', text: d.reason || 'FRAMECAST is not available.'}));
+    root.innerHTML = ''; root.appendChild(h('p', {cls: 'plain u-pad-20', text: d.reason || 'FRAMECAST is not available.'}));
     scenesSec.hidden = left.hidden = true; railNote.hidden = false;
     railNote.textContent = 'Frames and Content appear here when FRAMECAST is running. ' + (d.reason || '');
     return;

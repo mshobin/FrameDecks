@@ -5,7 +5,7 @@ import Link from "next/link";
 import { browserSupabase } from "@/lib/supabase-browser";
 import type { WorkspaceChoice } from "@/lib/use-workspaces";
 import { useWorkspaces } from "@/lib/use-workspaces";
-import { PageSkeleton } from "@/components/states";
+import { EmptyState, PageSkeleton } from "@/components/states";
 
 /** Shows the page only to a signed-in person with a workspace (and, if asked, only to its owners and admins), with
  * a workspace picker when they have more than one. */
@@ -59,9 +59,8 @@ export function WorkspaceGate({
 
 export function NotSetUp() {
   return (
-    <p className="page-note">
-      Syncing is not switched on in this workspace’s database yet. The owner runs{" "}
-      <code>0003_sync.sql</code> in the Supabase SQL editor once (after <code>0002</code>).
-    </p>
+    <EmptyState title="Syncing isn’t switched on yet">
+      Whoever set up FRAMEDECKS for your church finishes it once, in the database (step <code>0003_sync.sql</code>).
+    </EmptyState>
   );
 }

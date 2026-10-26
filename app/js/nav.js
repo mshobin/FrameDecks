@@ -159,7 +159,7 @@ function renderDirectory(){
   var tb = h('tbody');
   rows.forEach(function(m){
     var b = m.b, cls = b && b.days === 0 ? 'today' : (b && b.days <= n ? 'soon' : '');
-    var when = !b ? '—' : (b.days === 0 ? 'Today 🎂' : b.days === 1 ? 'Tomorrow' : 'in ' + b.days + ' days');
+    var when = !b ? '—' : (b.days === 0 ? 'Today' : b.days === 1 ? 'Tomorrow' : 'in ' + b.days + ' days');
     var tr = h('tr', {cls: cls, tabindex: '0', title: 'Open ' + m.name}, [
       h('td', {}, [h('span', {cls: 'dir-avatar', text: (m.name.match(/\b\w/g) || ['?']).slice(0, 2).join('').toUpperCase()}), h('b', {text: m.name})]),
       h('td', {text: m.role || '—', cls: m.role ? '' : 'muted'}),
@@ -182,7 +182,7 @@ function rec(op, name){
 }
 function loadRecordings(){
   var root = $('tab-recordings'); if (!root) return;
-  if (!Store.served){ root.innerHTML = ''; root.appendChild(h('p', {cls: 'plain', style: 'padding:20px', text: 'Recordings need the installed app.'})); return; }
+  if (!Store.served){ root.innerHTML = ''; root.appendChild(h('p', {cls: 'plain u-pad-20', text: 'Recordings need the installed app.'})); return; }
   fetch('api/vcam/recordings', {cache: 'no-store'}).then(function(r){ return r.json(); }).then(function(d){
     root.innerHTML = '';
     root.appendChild(h('div', {cls: 'dir-head'}, [
@@ -204,6 +204,6 @@ function loadRecordings(){
             if (confirm('Delete “' + it.name + '”?')) rec('delete', it.name).then(loadRecordings); }})])]));
     });
     t.appendChild(tb); root.appendChild(h('div', {cls: 'dir-wrap'}, [t]));
-  }).catch(function(){ root.innerHTML = ''; root.appendChild(h('p', {cls: 'plain', style: 'padding:20px', text: 'Recordings are not available right now.'})); });
+  }).catch(function(){ root.innerHTML = ''; root.appendChild(h('p', {cls: 'plain u-pad-20', text: 'Recordings are not available right now.'})); });
 }
 })();

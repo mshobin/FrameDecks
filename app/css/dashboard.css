@@ -1,6 +1,6 @@
 /* FRAMEDECKS - dashboard */
 @font-face{font-family:'KC Serif';src:url('../fonts/EBGaramond.ttf') format('truetype');font-weight:400 800}
-@font-face{font-family:'KC Sans';src:url('../fonts/SourceSans3.ttf') format('truetype');font-weight:200 900}
+@font-face{font-family:'KC Sans';src:url('../fonts/SourceSans3.ttf') format('truetype');font-weight:400 900}
 :root{
   --bg:#0c1426; --surface:#131e36; --raised:#1a2744; --field:#0f182d; --line:#26365a; --line-soft:#1f2d4b;
   --ink:#eaeef6; --muted:#9ba8c2; --faint:#6f7d99;
@@ -62,8 +62,8 @@ h3{font-size:14px;font-weight:700;color:var(--muted);margin:18px 0 8px;letter-sp
 input[type=text],textarea{width:100%;background:var(--field);border:1px solid var(--line);border-radius:8px;padding:9px 11px}
 input[type=text]::placeholder,textarea::placeholder{color:var(--faint)}
 textarea{resize:vertical;min-height:120px;line-height:1.45}
-textarea.serif{font-family:var(--serif);font-size:19px;line-height:1.4}
-textarea.q{font-size:17px;font-weight:600;min-height:100px}
+textarea.serif{font-family:var(--serif);font-size:20px;line-height:1.4}
+textarea.q{font-size:18px;font-weight:600;min-height:100px}
 .check{display:inline-flex;align-items:center;gap:8px;font-size:14px;color:var(--ink);cursor:pointer}
 .check input{accent-color:var(--gold);width:16px;height:16px}
 .checks{display:flex;flex-wrap:wrap;gap:8px 18px;margin:4px 0 12px}
@@ -82,7 +82,7 @@ input[type=range]{flex:1;accent-color:var(--gold)}
 /* ---------- Saved lists ---------- */
 .list-head{display:flex;align-items:center;gap:6px;margin:18px 0 8px}
 .list-head h3{margin:0 auto 0 0}
-.items{list-style:none;margin:0;padding:0;max-height:340px;overflow:auto;border:1px solid var(--line-soft);border-radius:9px}
+.items{list-style:none;margin:0;padding:0;max-height:340px;overflow:auto;border:1px solid var(--line-soft);border-radius:8px}
 .items:empty::after{content:attr(data-empty);display:block;padding:14px;color:var(--faint);font-size:14px}
 .item{display:grid;grid-template-columns:28px 1fr auto;gap:8px;align-items:center;padding:8px 10px;border-top:1px solid var(--line-soft)}
 .item:first-child{border-top:0}
@@ -98,7 +98,7 @@ input[type=range]{flex:1;accent-color:var(--gold)}
 .bulk textarea{min-height:110px;font-size:14px}
 
 /* ---------- Preview ---------- */
-.preview{position:relative;width:100%;aspect-ratio:16/9;border-radius:9px;overflow:hidden;background:var(--video-bg,#1f2533);border:1px solid var(--line)}
+.preview{position:relative;width:100%;aspect-ratio:16/9;border-radius:8px;overflow:hidden;background:var(--video-bg,#1f2533);border:1px solid var(--line)}
 .preview iframe{position:absolute;left:0;top:0;width:1920px;height:1080px;border:0;transform-origin:0 0;pointer-events:none}
 .preview-cap{display:flex;justify-content:space-between;gap:10px;font-size:12px;color:var(--faint);margin-top:6px}
 
@@ -110,13 +110,13 @@ input[type=range]{flex:1;accent-color:var(--gold)}
 .conn{font-size:12px;color:var(--faint)}
 .conn.ok{color:var(--on)}
 .link-row{display:flex;gap:6px}
-.link-row input{font-family:ui-monospace,Consolas,Menlo,monospace;font-size:12.5px;padding:7px 9px}
+.link-row input{font-family:ui-monospace,Consolas,Menlo,monospace;font-size:13px;padding:7px 9px}
 .note{font-size:13px;color:var(--muted);background:var(--field);border:1px solid var(--line-soft);border-radius:8px;padding:10px 12px;margin-top:12px}
 .note.warn{border-color:rgba(227,183,90,.45)}
 
 .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(20px);opacity:0;
-  background:var(--raised);border:1px solid var(--line);color:var(--ink);border-radius:9px;padding:9px 16px;font-size:14px;
-  box-shadow:0 8px 30px rgba(0,0,0,.4);transition:opacity .25s, transform .25s;pointer-events:none;z-index:50}
+  background:var(--raised);border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:9px 16px;font-size:14px;
+  box-shadow:var(--el-3);transition:opacity .25s, transform .25s;pointer-events:none;z-index:50}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .toast.bad{border-color:var(--danger);color:var(--danger)}
 .main > .box{margin-top:0}

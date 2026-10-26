@@ -164,7 +164,15 @@ function startSession(){
 function render(root, inDialog){
   root.innerHTML = '';
   root.classList.add('kc-about');
-  [hero(), purpose(), why(), serves(), values(), impact(), scripture(), heart(), founder(), commitment(), join(), footer()].forEach(function(s){ root.appendChild(s); });
+  var story = [purpose(), why(), serves(), values(), impact(), scripture(), heart(), founder(), commitment(), join()];
+  if (inDialog) [hero()].concat(story, [footer()]).forEach(function(s){ root.appendChild(s); });
+  else {
+    // Settings > About is compact: the name, version and links; the story waits behind one click (design audit DD-21)
+    root.appendChild(hero()); root.appendChild(footer());
+    var more = h('details', {cls: 'kc-story'}, [h('summary', {cls: 'btn quiet', text: 'Read our story'})]);
+    story.forEach(function(s){ more.appendChild(s); });
+    root.appendChild(more);
+  }
   if (inDialog) root.appendChild(h('div', {cls: 'actions about-close'}, [h('button', {cls: 'btn', type: 'button', text: 'Close', onclick: function(){ $('about-dlg').close(); }})]));
 }
 

@@ -363,7 +363,7 @@ function renderScenes(){
         h('span', {cls: 'si-num', text: sc.tpl ? '◇' : String(n)}),
         h('span', {cls: 'si-t'}, [nameEl, h('small', {text: sceneSub(sc)})]),
         isLive ? h('span', {cls: 'si-badge live', text: 'LIVE'}) : isNext ? h('span', {cls: 'si-badge next', text: 'NEXT'}) : null,
-        h('button', {cls: 'ib si-fav' + (sc.fav ? ' on' : ''), type: 'button', title: sc.fav ? 'Remove from favourites' : 'Add to favourites', 'aria-label': 'Favourite', html: sc.fav ? '★' : '☆',
+        h('button', {cls: 'ib si-fav' + (sc.fav ? ' on' : ''), type: 'button', title: sc.fav ? 'Remove from favourites' : 'Add to favourites', 'aria-label': 'Favourite', 'aria-pressed': String(!!sc.fav), html: window.KCIcon ? window.KCIcon('star', 15) : (sc.fav ? '★' : '☆'),
           onclick: function(e){ e.stopPropagation(); edit(sc.id, function(x){ x.fav = !x.fav; }); }}),
         h('button', {cls: 'ib si-more', type: 'button', title: 'Frame actions', 'aria-label': 'Frame actions', html: '⋯', onclick: function(e){ e.stopPropagation(); sceneMenu(sc.id, e.currentTarget); }}),
         qsPill(sc)]);
@@ -707,7 +707,7 @@ function renderLayers(){
     var lInSel = picked.layers.length > 1 && picked.layers.indexOf(l.id) >= 0;
     var li = h('li', {cls: 'layer-item k-' + l.kind + (l.id === selLayer ? ' sel' : '') + (lInSel ? ' picked' : '') + (on && isLiveScene(sc.id) ? ' on' : '') + (!l.visible ? ' off' : '') + (SC.isMedia(l.kind) ? ' media' : ''),
       'data-id': l.id, tabindex: '0', draggable: 'true', role: 'option', 'aria-selected': String(l.id === selLayer || lInSel)}, [
-      h('span', {cls: 'li-n', text: 'L' + (i + 1)}), h('span', {cls: 'li-ic', html: I(SC.info[l.kind].icon, 16)}),
+      h('span', {cls: 'li-n', text: String(i + 1), title: 'Content ' + (i + 1)}), h('span', {cls: 'li-ic', html: I(SC.info[l.kind].icon, 16)}),
       h('span', {cls: 'li-t'}, [name, h('small', {text: (st.error ? '⚠ ' + st.error : layerSub(sc, l))})]),
       on && isLiveScene(sc.id) ? h('span', {cls: 'si-badge live', text: 'LIVE'}) : null, lock, eye]);
     li.addEventListener('click', function(e){ pickClick('layers', l.id, e, ol); });
@@ -936,7 +936,8 @@ function segCtl(val, opts, onset){
   opts.forEach(function(o){ s.appendChild(h('button', {type: 'button', 'aria-pressed': String(o[0] === val), text: o[1], onclick: function(){ Array.prototype.forEach.call(s.children, function(b){ b.setAttribute('aria-pressed', String(b === this)); }, this); onset(o[0]); }})); });
   return s;
 }
-function checkCtl(label, val, onset){ var c = h('input', {type: 'checkbox'}); c.checked = !!val; c.addEventListener('change', function(){ onset(c.checked); }); return h('label', {cls: 'check'}, [c, ' ' + label]); }
+function checkCtl(label, val, onset, help){ var c = h('input', {type: 'checkbox'}); c.checked = !!val; c.addEventListener('change', function(){ onset(c.checked); });
+  var l = h('label', {cls: 'check'}, [c, ' ' + label]); return help ? h('div', {cls: 'check-help'}, [l, h('p', {cls: 'hint', text: help})]) : l; }   // help: one plain line under the control (DD-16)
 function stop(e){ e.stopPropagation(); }
 /* ---------- Scene ---------- */
 function fmtDate(t){ return t ? new Date(t).toLocaleString([], {dateStyle: 'medium', timeStyle: 'short'}) : '—'; }
@@ -961,13 +962,15 @@ function sceneForm(gen, sc, tab){
     gr.addEventListener('input', function(){ later('gr', function(){ edit(sid, function(x){ x.group = gr.value.trim().slice(0, 60); }); }); });
     gen.appendChild(h('div', {cls: 'ip-sec'}, [field('Name', nm), field('Group', gr), dl,
       checkCtl('Favourite', sc.fav, function(v){ edit(sid, function(x){ x.fav = v; }); }),
-      checkCtl('Template (kept for making new Frames; not in Previous / Next)', sc.tpl, function(v){ edit(sid, function(x){ x.tpl = v; }); }),
+      checkCtl('Template', sc.tpl, function(v){ edit(sid, function(x){ x.tpl = v; }); }, 'Kept for making new Frames; Previous and Next skip it.'),
       notesCtl(sc),
       checkCtl('Branding: show my logo and Meeting Name in this Frame', !!SC.first(sc, 'brand'), function(v){ if (window.KCBrandSettings) window.KCBrandSettings.setBranding([sid], v).then(function(){ toast(v ? 'Branding added to ' + sc.name : 'Branding removed from ' + sc.name); }); })]));
     gen.appendChild(h('div', {cls: 'ip-sec ip-acts'}, [
       h('button', {cls: 'btn small', type: 'button', text: 'Duplicate…', onclick: function(){ smartDuplicate(sid); }}),
-      h('button', {cls: 'btn small', type: 'button', text: 'Save as template', onclick: function(){ duplicate(sid, {template: true, name: SC.uniqueName(live, sc.name + ' template')}); }}),
-      SC.first(sc, 'question') ? h('button', {cls: 'btn quiet small', type: 'button', text: 'One Frame per question', onclick: function(){ explode(sid, 'question'); }}) : null]));
+      // the rarer actions wait in one small menu, so Duplicate is the clear action here (design audit DD-20)
+      h('details', {cls: 'ip-more'}, [h('summary', {cls: 'btn quiet small', text: 'More…'}), h('div', {cls: 'ip-more-list'}, [
+        h('button', {cls: 'btn quiet small', type: 'button', text: 'Save as template', onclick: function(){ duplicate(sid, {template: true, name: SC.uniqueName(live, sc.name + ' template')}); }}),
+        SC.first(sc, 'question') ? h('button', {cls: 'btn quiet small', type: 'button', text: 'One Frame per question', onclick: function(){ explode(sid, 'question'); }}) : null])])]));
     gen.appendChild(h('p', {cls: 'hint', text: 'A Frame owns its Content, its transition and its output rules. Select Content on the left to change it. Go Live (top bar, T, or double-click a Frame) puts it on screen.'}));
   } else if (tab === 'transition'){
     var p = SC.profile(live);
@@ -1040,7 +1043,7 @@ function brandForm(gen, sc, l, tab, set){
     gen.appendChild(row('Fine size', rangeCtl(c.scale, 0.4, 3, 0.05, function(v){ return Math.round(v * 100) + '%'; }, function(v){ set(function(x){ x.c.scale = v; }); })));
     gen.appendChild(row('Opacity', rangeCtl(l.opacity, 0.1, 1, 0.01, function(v){ return Math.round(v * 100) + '%'; }, function(v){ set(function(x){ x.opacity = v; }); })));
     gen.appendChild(row('Padding', rangeCtl(c.pad, 0, 3, 0.05, function(v){ return Math.round(v * 100) + '%'; }, function(v){ set(function(x){ x.c.pad = v; }); })));
-    gen.appendChild(checkCtl('Background plate (navy, with the accent edge)', c.plate, function(v){ set(function(x){ x.c.plate = v; }, true); }));
+    gen.appendChild(checkCtl('Background plate', c.plate, function(v){ set(function(x){ x.c.plate = v; }, true); }, 'A navy plate with the accent edge behind the text.'));
     gen.appendChild(h('p', {cls: 'hint', text: c.plate ? 'The badge uses your accent colour when one is set.' : 'Without the plate, a soft shadow keeps the logo and name readable on any picture.'}));
   }
 }
@@ -1094,7 +1097,7 @@ function textForm(gen, sc, l, tab){
 function outputForm(gen, sc, l){
   var sid = sc.id, lid = l.id;
   gen.appendChild(h('div', {cls: 'ip-sec'}, [h('b', {text: 'Show this Content on'}),
-    checkCtl('FRAMECAST (Zoom / Teams camera, recording, Presentation window)', l.c.vcam, function(v){ editLayer(sid, lid, function(x){ x.c.vcam = v; }); }),
+    checkCtl('FRAMECAST', l.c.vcam, function(v){ editLayer(sid, lid, function(x){ x.c.vcam = v; }); }, 'The Zoom or Teams camera, the recording and the Presentation window.'),
     checkCtl('OBS / browser overlay pages', l.c.obs, function(v){ editLayer(sid, lid, function(x){ x.c.obs = v; }); }),
     h('p', {cls: 'hint', text: SC.isCard(l.kind) ? 'Applies when the Frame is taken live.' : 'Applies at once.'})]));
 }
@@ -1122,7 +1125,7 @@ function mediaForm(gen, sc, l){
       pg.addEventListener('change', function(){ var v = Math.max(1, Math.round(+pg.value || 1)) - 1; editLayer(sid, lid, function(x){ x.c.page = v; }); });
       gen.appendChild(field('Start at slide', pg, 'Previous / Next slide (top bar, Page Up / Page Down, or the phone) move through the slides.'));
     }
-    gen.appendChild(checkCtl('Show objects only (hide a plain slide background)', !!c.objectsOnly, function(v){ editLayer(sid, lid, function(x){ x.c.objectsOnly = v; }); }));
+    gen.appendChild(checkCtl('Show objects only', !!c.objectsOnly, function(v){ editLayer(sid, lid, function(x){ x.c.objectsOnly = v; }); }, 'Hides a plain slide background.'));
     gen.appendChild(h('p', {cls: 'hint', text: l.kind === 'window' ? 'A live PowerPoint slide show keeps its animations. Objects only works when the slide background is one plain colour.' :
       'A PowerPoint file becomes still slides (no animations). For animations, show the slide show live: + Content → Free Content → Window.'}));
   }

@@ -39,3 +39,44 @@ jobs:
 
       - name: Documentation links
         run: python tools/check_doc_links.py
+
+      - name: Design tokens (type scale, weights, radii, elevations; tools/css_tokens.py)
+        run: python tools/css_tokens.py
+
+  # The program's screens in a real browser: the command bar fits, nothing covers the canvas, the first run and the
+  # Teleprompter offer the right action, Settings lines up (tests/visual/layout.mjs; design audit DD-26).
+  visual:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Get the code
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.12"
+
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+
+      - name: Install the browser (Playwright 1.56.1, Chromium only)
+        working-directory: tests/visual
+        run: |
+          npm install --no-save --no-package-lock playwright@1.56.1
+          npx playwright install --with-deps chromium
+
+      - name: Start the program
+        run: |
+          FRAMEDECKS_NO_UPDATE_CHECK=1 nohup python server.py > server.log 2>&1 &
+          for i in $(seq 1 30); do curl -sf http://127.0.0.1:8750/dashboard.html > /dev/null && break; sleep 1; done
+
+      - name: Visual checks
+        run: node tests/visual/layout.mjs
+
+      - name: Program log (on failure)
+        if: failure()
+        run: cat server.log
+

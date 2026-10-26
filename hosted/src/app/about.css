@@ -49,7 +49,7 @@
   margin: auto;
   overflow-y: auto;
   border: 1px solid var(--hairline-strong);
-  border-radius: 28px;
+  border-radius: 20px;
   background:
     radial-gradient(700px 360px at 50% 0%, rgba(227, 183, 90, 0.12), transparent 70%),
     linear-gradient(175deg, #111a30, #070c18 60%);
@@ -135,7 +135,7 @@
   margin: 0 0 12px;
   color: var(--text);
   font-size: clamp(22px, 2.6vw, 30px);
-  font-weight: 750;
+  font-weight: 800;
   letter-spacing: -0.03em;
   line-height: 1.15;
 }
@@ -157,7 +157,7 @@
 .fd-ab-card,
 .fd-ab-verse {
   border: 1px solid var(--hairline);
-  border-radius: 22px;
+  border-radius: 20px;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.015));
   padding: 24px;
 }
@@ -166,7 +166,7 @@
   margin: 0;
   color: var(--text) !important;
   font-family: var(--font-display);
-  font-size: 19px;
+  font-size: 20px;
   font-weight: 600;
   letter-spacing: -0.015em;
   line-height: 1.5 !important;
@@ -198,8 +198,8 @@
   margin: 4px 0;
   color: var(--text) !important;
   font-family: var(--font-display);
-  font-size: 19px;
-  font-weight: 650;
+  font-size: 20px;
+  font-weight: 700;
 }
 
 .fd-ab-pills {
@@ -237,7 +237,7 @@
 .fd-ab-num {
   color: rgba(227, 183, 90, 0.55);
   font-family: var(--font-display);
-  font-size: 28px;
+  font-size: 30px;
   font-weight: 800;
 }
 
@@ -245,7 +245,7 @@
 .fd-ab-card h4 {
   margin: 8px 0 6px;
   color: var(--text);
-  font-size: 17px;
+  font-size: 18px;
   font-weight: 700;
 }
 
@@ -328,7 +328,7 @@
   color: var(--text) !important;
   font-family: var(--font-display);
   font-size: clamp(22px, 3vw, 32px);
-  font-weight: 750;
+  font-weight: 800;
   letter-spacing: -0.03em;
   line-height: 1.25 !important;
 }
@@ -427,7 +427,7 @@
   display: grid;
   justify-items: center;
   border: 1px solid rgba(227, 183, 90, 0.25);
-  border-radius: 26px;
+  border-radius: 20px;
   background:
     radial-gradient(500px 220px at 50% 0%, rgba(227, 183, 90, 0.14), transparent 70%),
     rgba(255, 255, 255, 0.02);
@@ -489,7 +489,7 @@
   .fd-about {
     width: calc(100vw - 16px);
     max-height: calc(100vh - 16px);
-    border-radius: 22px;
+    border-radius: 20px;
   }
 }
 

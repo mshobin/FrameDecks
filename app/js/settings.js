@@ -179,7 +179,7 @@ function renderDiag(){
       root.appendChild(nb);
     }
     var eb = h('section', {cls: 'box'}, [h('div', {cls: 'box-head'}, [h('h2', {text: 'Recent problems on this screen'})])]);
-    if (!errors.length) eb.appendChild(h('p', {cls: 'hint', style: 'margin:0', text: 'None. Everything is running normally.'}));
+    if (!errors.length) eb.appendChild(h('p', {cls: 'hint u-m0', text: 'None. Everything is running normally.'}));
     errors.slice(-10).reverse().forEach(function(e){ eb.appendChild(h('p', {cls: 'mono', text: e.time + '  ' + e.message})); });
     root.appendChild(eb);
   }).catch(function(){ root.appendChild(h('div', {cls: 'alert bad', text: 'The local program is not responding. Check the black FRAMEDECKS window is open.'})); });
