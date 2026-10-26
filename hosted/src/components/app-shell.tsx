@@ -66,6 +66,9 @@ export function AppShell({ active, children }: Readonly<{ active: Section; child
             <div>
               <strong>Need help?</strong>
               <p>Your desktop app works independently of this companion.</p>
+              <Link className="help-link" href="/privacy">
+                Privacy policy
+              </Link>
             </div>
           </div>
           <div className="sidebar-brand">

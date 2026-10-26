@@ -162,6 +162,13 @@ a {
   font-size: 12px;
 }
 
+.help-link {
+  display: inline-block;
+  margin-top: 6px;
+  color: #e3b75a;
+  font-size: 11px;
+}
+
 .help-card p {
   margin: 5px 0 0;
   color: var(--muted);
