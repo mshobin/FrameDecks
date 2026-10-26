@@ -79,3 +79,20 @@ test("members can leave and the owner can delete the organization", async () => 
   assert.equal((await as(B, "delete from memberships where organization_id=$1 and user_id=$2 returning 1", [org, B])).rows.length, 1);
   assert.equal((await as(A, "delete from organizations where id=$1 returning id", [org])).rows.length, 1);
 });
+
+test("only the owner can delete a workspace, and everything in it goes with it", async () => {
+  const { supabaseStandIn } = await import("./pglite-supabase.mjs");
+  const O = "00000000-0000-0000-0000-0000000000e1";
+  const A = "00000000-0000-0000-0000-0000000000e2";
+  const s = await supabaseStandIn({ [O]: "o@x.org", [A]: "a@x.org" });
+  const org = (await s.as(O, "insert into organizations(name, created_by) values ('Gone', $1) returning id", [O])).rows[0].id;
+  await s.as(O, "insert into memberships(organization_id, user_id, role) values ($1, $2, 'admin')", [org, A]);
+  await s.as(O, "insert into invitations(organization_id, email, invited_by) values ($1, 'z@x.org', $2)", [org, O]);
+  await s.as(O, "select sync_push($1, $2::jsonb)", [org, JSON.stringify([{ kind: "frame", id: "f1", baseRev: 0, body: { name: "x" } }])]);
+  assert.equal((await s.as(A, "delete from organizations where id = $1", [org])).affectedRows, 0, "an admin cannot");
+  assert.equal((await s.as(O, "delete from organizations where id = $1", [org])).affectedRows, 1);
+  for (const table of ["memberships", "invitations", "entities", "audit_log"]) {
+    assert.equal(Number((await s.db.query(`select count(*) from ${table} where organization_id = $1`, [org])).rows[0].count), 0, table);
+  }
+  await s.db.close();
+});

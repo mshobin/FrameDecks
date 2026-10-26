@@ -109,6 +109,11 @@ sidebar (Plan / Present / People), sticky glass top bar, split sign-in page, doc
 checked at 1440 and 390 px with stand-in data. The program's dark theme now uses the same palette (last block of
 `app/css/theme.css`, colours only; owner's request); keep the two in step.
 
+## Deleting a workspace (26 October)
+Owners delete a workspace from Overview → Your workspaces → Delete (type its name to confirm). No new migration:
+`organizations_delete` (0001) and the grant (0007) already allow it, and every table cascades
+(`hosted/tests/supabase-rls.test.mjs` checks owner-only and the cascade). Others use Members → Leave.
+
 ## Pending (owner)
 1. ~~Run the database scripts~~: **done** on 26 October (`0002`–`0008`, all passed).
 2. ~~Merge PR #32~~: **done**. Take the installer from the latest "Build Windows installer" run on `main` (Actions →

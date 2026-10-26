@@ -125,6 +125,32 @@ export function WorkspacePanel() {
     await load();
   }
 
+  // Owners only (organizations_delete in 0001). Everything in the workspace goes with it: the plan and its history,
+  // members and groups, invitations, linked PCs and the audit log (all "on delete cascade").
+  async function deleteWorkspace(workspace: Workspace) {
+    if (!supabase) return;
+    const typed = window.prompt(
+      `Delete “${workspace.name}” for everyone?\n\nIts service plan, history, member list, invitations and linked PCs are removed and cannot be restored. ` +
+        `Linked PCs keep their own copy of the plan; unlink them in FRAMEDECKS → Settings → FRAMEDECKS account.\n\nType the workspace name to confirm:`,
+    );
+    if (typed === null) return;
+    if (typed.trim() !== workspace.name) {
+      setNotice(null);
+      setProblem("The name did not match, so nothing was deleted.");
+      return;
+    }
+    setProblem(null);
+    setNotice(null);
+    const { data, error } = await supabase.from("organizations").delete().eq("id", workspace.id).select("id");
+    if (error || !data?.length) {
+      setProblem(error?.message ?? "Only the owner can delete this workspace.");
+      return;
+    }
+    setOpenWorkspace(null);
+    setNotice(`“${workspace.name}” is deleted.`);
+    await load();
+  }
+
   return (
     <section className="workspace-grid" aria-label="Your workspace">
       {invitations && invitations.length > 0 && (
@@ -202,6 +228,16 @@ export function WorkspacePanel() {
                       onClick={() => setOpenWorkspace(openWorkspace === workspace.id ? null : workspace.id)}
                     >
                       {openWorkspace === workspace.id ? "Close" : "Members"}
+                    </button>
+                  )}
+                  {workspace.role === "owner" && (
+                    <button
+                      className="member-action member-danger"
+                      type="button"
+                      aria-label={`Delete ${workspace.name}`}
+                      onClick={() => deleteWorkspace(workspace)}
+                    >
+                      Delete
                     </button>
                   )}
                 </div>

@@ -574,6 +574,10 @@ h3 {
   letter-spacing: -0.01em;
 }
 
+.member-action.member-danger {
+  color: var(--red);
+}
+
 .data-table th {
   background: rgba(255, 255, 255, 0.03);
 }
