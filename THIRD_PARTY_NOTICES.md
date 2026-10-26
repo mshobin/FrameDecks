@@ -19,7 +19,7 @@ change, for anything new that ships.
 | pywebview | BSD-3-Clause | Program window | https://github.com/r0x0r/pywebview |
 | pystray | LGPL-3.0 (used unmodified as a separate, replaceable package in the program folder) | Tray icon | https://github.com/moses-palmer/pystray |
 | Pillow | MIT-CMU (HPND) | Pictures and card text | https://github.com/python-pillow/Pillow |
-| OpenCV (opencv-python-headless) | Apache-2.0 (OpenCV 4.5 and later); the wheel bundles FFmpeg under LGPL-2.1 | Camera, video, image work | https://github.com/opencv/opencv-python |
+| OpenCV (opencv-python) | Apache-2.0 (OpenCV 4.5 and later); the wheel bundles FFmpeg under LGPL-2.1 | Camera, video, image work | https://github.com/opencv/opencv-python |
 | NumPy | BSD-3-Clause | Image arrays | https://github.com/numpy/numpy |
 | cv2-enumerate-cameras | See its project page | Camera names | https://pypi.org/project/cv2-enumerate-cameras/ |
 | windows-capture | MIT | Screen sharing | https://github.com/NiiightmareXD/windows-capture |

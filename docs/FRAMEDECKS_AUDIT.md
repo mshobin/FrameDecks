@@ -54,9 +54,8 @@ These are refactoring risks, not a reason to replace tested behavior in a single
 | Tests | Node test runner with no frontend package installation; Python `unittest`; packaging self-check |
 
 Build dependencies are declared in [requirements-desktop.txt](../packaging/requirements-desktop.txt) with tested
-versions recorded in [constraints.txt](../packaging/constraints.txt). The pinned build also lists both
-`opencv-python` and `opencv-python-headless`, which share the `cv2` module; the repository marks this as a tested
-pair and a future maintenance risk. The desktop application remains separate from the Next.js/TypeScript hosted
+versions recorded in [constraints.txt](../packaging/constraints.txt). Exactly one OpenCV is installed
+(`opencv-python`; 6.11.1 removed the duplicate `opencv-python-headless`, and `packaging/check.py` guards it). The desktop application remains separate from the Next.js/TypeScript hosted
 foundation in [hosted/](../hosted/). That foundation currently has no Supabase, authentication, tenant data,
 service-worker, pairing, deployment, Flutter, Stripe, or Cloudflare integration. The presence of
 `app/remote-manifest.json` is manifest metadata only, not a complete PWA implementation.

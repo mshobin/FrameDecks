@@ -3,8 +3,9 @@
 # already-tested packages. To update: change requirements-desktop.txt, run a build, test the installer on a real
 # PC, then copy the "Successfully installed ..." versions from the build log into this file.
 #
-# Note: opencv-python (pulled in by another package) and opencv-python-headless are both installed and share the
-# cv2 module. This exact pair is the tested combination; change them together and re-test the camera.
+# Note: exactly one OpenCV is installed, opencv-python (windows-capture requires it, and 5.0 is what the camera has run
+# on). The headless 4.x package used to be installed beside it, sharing the cv2 module (audit M7); packaging/check.py
+# now fails if a second OpenCV distribution appears.
 altgraph==0.17.5
 bottle==0.13.4
 cffi==2.1.1
@@ -14,7 +15,6 @@ cv2-enumerate-cameras==1.4.0
 lxml==6.1.3
 numpy==2.5.4
 opencv-python==5.0.0.93
-opencv-python-headless==4.14.0.94
 pefile==2024.8.26
 pillow==13.0.0
 proxy_tools==0.1.0

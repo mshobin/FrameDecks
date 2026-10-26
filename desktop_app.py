@@ -655,25 +655,31 @@ def main():
             return {"ok": False}
         hwnd = window_handle(w)
         maximized = lambda: bool(dw.IS_WIN and hwnd and dw.user32.IsZoomed(hwnd))
+        later = lambda f: threading.Thread(target=f, daemon=True).start()   # never wait on a window's thread here
         if op == "minimize":
-            w.minimize()
+            if not dw.show_async(hwnd, dw.SW_MINIMIZE):
+                later(w.minimize)
         elif op == "toggle-max":
-            (w.restore if maximized() else w.maximize)()
+            was = maximized()
+            if not dw.show_async(hwnd, dw.SW_RESTORE if was else dw.SW_MAXIMIZE):
+                later(w.restore if was else w.maximize)
+            return {"ok": True, "maximized": not was, "chrome": name in chromes,
+                    "onTop": bool(state.get("on_top", {}).get(name, getattr(w, "on_top", False)))}
         elif op == "drag":
             dw.mouse_move_or_size(getattr(w, "native", None), hwnd, "caption")
         elif op == "resize":                                # the page's own edges and corners (every window)
             dw.mouse_move_or_size(getattr(w, "native", None), hwnd, str(data.get("edge") or ""))
         elif op == "hide":
-            hide() if name == "main" else (spotlight(False) if name == "spotlight" else w.hide())
+            later(hide if name == "main" else (lambda: spotlight(False)) if name == "spotlight" else w.hide)
         elif op == "close":
             if name == "main":
-                threading.Thread(target=ask_page_about_closing, daemon=True).start()
+                later(ask_page_about_closing)
             elif name == "overlay":
-                overlay(False)
+                later(lambda: overlay(False))
             elif name == "spotlight":
-                spotlight(False)
+                later(lambda: spotlight(False))
             else:
-                w.destroy()
+                later(w.destroy)
         elif op == "on-top":
             state.setdefault("on_top", {})[name] = bool(data.get("value"))
             if not dw.set_topmost(hwnd, bool(data.get("value"))):

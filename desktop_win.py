@@ -89,6 +89,7 @@ if IS_WIN:
     user32.SendMessageW.argtypes = [wintypes.HWND, wintypes.UINT, wintypes.WPARAM, wintypes.LPARAM]
     user32.SendMessageW.restype = LRESULT
     user32.IsZoomed.argtypes = [wintypes.HWND]
+    user32.ShowWindowAsync.argtypes = [wintypes.HWND, ctypes.c_int]
     dwmapi.DwmSetWindowAttribute.argtypes = [wintypes.HWND, wintypes.DWORD, ctypes.c_void_p, wintypes.DWORD]
 
     class NCCALCSIZE_PARAMS(ctypes.Structure):
@@ -325,6 +326,22 @@ def set_topmost(hwnd, on):
         return bool(user32.SetWindowPos(hwnd, wintypes.HWND(HWND_TOPMOST if on else HWND_NOTOPMOST), 0, 0, 0, 0,
                                         SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_ASYNCWINDOWPOS))
     except Exception:
+        return False
+
+
+SW_HIDE, SW_MAXIMIZE, SW_MINIMIZE, SW_RESTORE = 0, 3, 6, 9
+
+
+def show_async(hwnd, command):
+    """Minimise, maximise or restore a window without waiting for its thread (ShowWindowAsync posts the request), so
+    a web request asking for it never blocks on the window (production audit M9, like set_topmost)."""
+    if not (IS_WIN and hwnd):
+        return False
+    try:
+        user32.ShowWindowAsync(hwnd, command)                # returns the old visibility, not success
+        return True
+    except Exception as _e:
+        _swallowed("desktop_win.show_async", _e)
         return False
 
 

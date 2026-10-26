@@ -40,6 +40,8 @@ class Shortcuts(unittest.TestCase):
         self.assertFalse(dw.fade(0, 0.5))
         self.assertFalse(dw.hide_from_capture(0))
         dw.center_on_cursor(0); dw.bring_to_front(0); dw.round_corners(0); dw.drag(0)
+        self.assertFalse(dw.show_async(0, dw.SW_MINIMIZE))
+        self.assertFalse(dw.set_topmost(0, True))
         self.assertEqual(dw.Hotkeys(lambda n: None).set("spotlight", "Alt+Space"), "Only on Windows")
 
 

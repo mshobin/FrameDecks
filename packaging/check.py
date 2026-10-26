@@ -28,6 +28,10 @@ ping = json.loads(urllib.request.urlopen(base + "api/app/ping").read())
 assert ping["app"] == "FRAMEDECKS"
 for name in ["app/js/overlay.js", "app/js/store.js", "app/fonts/EBGaramond.ttf", "app/vendor/xlsx.full.min.js", "desktop_app.py", "desktop_win.py", "supervisor.py", "ai.py", "pptx_export.py", "LICENSE", "NOTICE", "THIRD_PARTY_NOTICES.md"]:
     assert (root / name).exists(), name
+# Audit M7: exactly one OpenCV distribution (two share the cv2 module and which one loads is undefined)
+from importlib import metadata as _md
+_cv = sorted({d.metadata["Name"].lower() for d in _md.distributions() if (d.metadata["Name"] or "").lower().startswith("opencv")})
+assert len(_cv) <= 1, "more than one OpenCV is installed: " + ", ".join(_cv)
 # FRAMEDECKS: the camera ID in the app must match the one compiled into the camera
 import re as _re
 build_id = _re.search(r'CLSID = "([0-9A-F-]+)"', (root / "packaging" / "build_vcam.py").read_text()).group(1)
