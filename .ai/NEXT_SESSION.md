@@ -160,7 +160,7 @@ Nothing is left for an assistant to build without the owner. In order:
    website, see it in the program within a minute). Fix what they find; mark each test done in the four files.
 2. **6.12 (W3): remove the Excel Meeting Workbook** (import, template, export) — only **after** the owner reports test G
    passed. Do not start it before.
-3. Owner tasks with no code: publish a v6.11 release; Google brand re-verification; E1–E3 (public repo, SignPath).
+3. Owner tasks with no code: Google brand re-verification; E1–E3 (public repo, SignPath).
 Do not start new features unless the owner asks. If there is nothing to fix, say so and stop.
 
 ## Files Likely To Change Next
@@ -206,4 +206,4 @@ continuity files in the same commit (owner's rule). Never force-push.
   device ID). The website's camera check also accepts the earlier name. Owner-approved; recorded in CLAUDE.md.
 - The tag build for v6.11 failed at "Write the branded release notes": `tools/make_release_notes.py` crashed on the
   empty `motto` in `app/js/brand.js`. Fixed, with `tests/test_release_notes.py`. Release notes rewritten.
-- Owner: delete the v6.11 release and its tag, then publish v6.11 again from `main` so the build attaches the exe.
+- **Published** 26 October: Releases → FRAMEDECKS 6.11 with the About header, notes, `FRAMEDECKS.v6.11.exe` and `.sha256`.
