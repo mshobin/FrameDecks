@@ -141,7 +141,7 @@ def main():
         Path(a.out).write_text(notes, encoding="utf-8")
         print("wrote", a.out)
     else:
-        sys.stdout.write(notes)
+        sys.stdout.buffer.write(notes.encode("utf-8"))   # the bullet in the tagline is not in Windows' console code page
     return 0
 
 
