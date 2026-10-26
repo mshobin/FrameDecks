@@ -17,16 +17,17 @@ bulk-editing** tool. After an import, the app is the source of truth: the file i
 a fresh copy.
 
 ### Where
-**Meeting** (the ✨ button next to + Frame) has three items:
+**Settings → Data / Backup → Meeting from Excel** (6.11; before that the ✨ Meeting menu) has these buttons. The website's Meeting Form
+([meeting-form.md](../architecture/meeting-form.md)) plans the same meeting online.
 - **Download the Excel template**: `templates/FRAMEDECKS-Meeting-Workbook.xlsx`. It opens on the **Dashboard**,
   with an example meeting already filled in on the **Meeting Form**. Type over the examples.
-- **Import meeting from Excel…**:
+- **Import a meeting from Excel…**:
   1. A preview shows the meeting, the Frames, Content, questions and scriptures that will be made, and every problem
      with where it is, for example *Meeting Form · Content · row 26: …*.
   2. Choose **Append** or **Replace**.
   3. Scripture text left empty is filled from the ESV.
   4. **Undo** is offered afterwards.
-- **Export this meeting to Excel**: the same **Dashboard** and **Meeting Form**, filled in with this meeting. An
+- **Export this meeting (Excel)**: the same **Dashboard** and **Meeting Form**, filled in with this meeting. An
   export imports again.
 
 ### The two tabs
@@ -96,7 +97,7 @@ The Dashboard fills itself in from the Meeting Form. It has only formulas, so th
   tiles count them.
 
 ### Import
-**Meeting → Import meeting from Excel…** reads the **Meeting Form**. It finds the details by their labels (for
+**Import a meeting from Excel…** reads the **Meeting Form**. It finds the details by their labels (for
 example *Speaker name*) and each table by its header row (the row starting with **Frame #**). So a form you make by
 hand in the same style imports too. A numbered heading such as *7 · Discussion questions* ends the table above it.
 
@@ -109,7 +110,7 @@ hand in the same style imports too. A numbered heading such as *7 · Discussion 
 - The v6.2 one-sheet template ("Scene Name" column; sections 1–4 below).
 
 ### Export
-**Meeting → Export this meeting to Excel** gives the same **Dashboard** and **Meeting Form**, filled in with this
+**Export this meeting (Excel)** gives the same **Dashboard** and **Meeting Form**, filled in with this
 meeting. The program fills in the template, so the file looks exactly like the one you download. It imports again.
 - If the FRAMEDECKS program isn't running, or a table has more rows
   than the form has room for, a plain one-sheet **Meeting Form** is saved instead. It imports again too.

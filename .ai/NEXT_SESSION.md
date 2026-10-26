@@ -95,7 +95,11 @@ Settings; W3 6.12 removes Excel import, template and export (PowerPoint export s
    Excel import in `hosted/tests/meeting-form.test.mjs`; `hosted/src/components/meeting-form-panel.tsx` on
    `/meeting`: meeting details, add / edit / move / delete Frames and every Content type; conflicts keep the
    person's changes on top). Browser-tested with stand-in Supabase; live test G in the guide.
-3. **Excel import into Settings**, version 6.11, release notes, live test G: after step 2.
+3. **Excel into Settings → Data / Backup** (`app/dashboard.html` box "Meeting from Excel", wired in
+   `app/js/meeting-import.js`; removed from the Meeting menu, Meeting tab, empty Studio; one palette entry opens
+   it), **version 6.11** (`server.py`, `docs/releases/v6.11.md`, header picture, CHANGELOG): **built**.
+   Owner next: install 6.11 (release `v6.11` or the latest Build Windows installer run), then live test G.
+4. **6.12 (after test G):** remove the Excel import, template and export (W3); keep Export to PowerPoint.
 
 ## Pending (owner)
 1. ~~Run the database scripts~~: **done** on 26 October (`0002`–`0008`, all passed).

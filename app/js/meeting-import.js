@@ -263,5 +263,11 @@ function undoImport(){
   });
 }
 
+/* 6.11 (owner decision W2): the Excel workbook is reached from Settings → Data / Backup only */
+[['s-xl-import', pick], ['s-xl-template', template], ['s-xl-export', exportMeeting],
+  ['s-xl-undo', function(){ if (undo) undoImport(); else toast('There is no Excel import to undo.'); }]].forEach(function(b){
+  var el = document.getElementById(b[0]); if (el) el.addEventListener('click', b[1]);
+});
+
 window.KCMeetingImport = {pick: pick, read: read, template: template, exportMeeting: exportMeeting, undo: function(){ undoImport(); }, canUndo: function(){ return !!undo; }};
 })();

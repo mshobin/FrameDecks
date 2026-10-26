@@ -335,7 +335,6 @@ function renderScenes(){
     if (live.scenes.length){ ol.appendChild(h('li', {cls: 'pane-empty', text: 'No Frames match.'})); return; }
     ol.appendChild(h('li', {cls: 'pane-empty start'}, [h('b', {text: 'Ready when you are'}), h('span', {text: 'Quick Start makes a full set of Frames for a Bible study, prayer meeting, youth gathering or fellowship meeting in one click.'}),
       h('button', {cls: 'btn primary small', type: 'button', html: I('sparkles', 15) + ' Quick Start', onclick: function(){ openQuickStart(); }}),
-      h('button', {cls: 'btn small', type: 'button', html: I('file-text', 15) + ' Import from Excel', onclick: function(){ if (window.KCMeetingImport) window.KCMeetingImport.pick(); }}),
       h('button', {cls: 'btn quiet small', type: 'button', text: 'Browse the Library', onclick: function(){ setFilter('tpl'); }})]));
     return;
   }
@@ -452,13 +451,9 @@ var TPL_ICON = {'bible-study': 'book-open', scripture: 'book-open', question: 'm
 $('scene-add').addEventListener('click', function(e){ e.stopPropagation(); newScene('blank'); });
 /* Meeting: ready-made Frames, the Excel workbook and Frame files (never part of + Frame) */
 function meetingMenu(anchor){
-  var saved = live.scenes.filter(function(s){ return s.tpl; }), MI = window.KCMeetingImport;
-  var items = [{label: 'Meeting'},
-    MI ? {icon: 'file-spreadsheet', text: 'Import meeting from Excel…', run: MI.pick} : null,
-    MI ? {icon: 'arrow-down', text: 'Download the Excel template', run: MI.template} : null,
-    MI && MI.exportMeeting ? {icon: 'external-link', text: 'Export this meeting to Excel', run: MI.exportMeeting} : null,
+  var saved = live.scenes.filter(function(s){ return s.tpl; });
+  var items = [{label: 'Meeting'},              /* 6.11: the Excel workbook is under Settings → Data / Backup */
     Store.served ? {icon: 'presentation', text: 'Export this meeting to PowerPoint', run: exportPowerPoint} : null,
-    MI && MI.canUndo() ? {icon: 'refresh-cw', text: 'Undo the last Excel import', run: MI.undo} : null,
     '-', {label: 'Ready-made Frames'},
     {icon: 'sparkles', text: 'Quick Start…', run: openQuickStart}, {icon: 'library', text: 'Browse the Content Library', run: function(){ setFilter('tpl'); }}];
   if (saved.length){ items.push('-', {label: 'From your templates'}); saved.forEach(function(t){ items.push({icon: 'layout-template', text: t.name, run: function(){ fromTemplate(t.id); }}); }); }

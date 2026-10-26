@@ -199,11 +199,11 @@ It has two tabs (6.9):
 - **Dashboard**: fills itself in from the form (days to go, counts, a Readiness checklist, Quick actions, a Content
   mix chart and a Recent meetings log). It is never imported.
 
-Use it through **Meeting**:
+Use it through **Settings → Data / Backup → Meeting from Excel** (6.11; the website's Meeting Form does the same online):
 - **Download the Excel template** (drop-down lists, an example meeting);
-- **Import meeting from Excel…** (preview with every problem and where it is, such as *Meeting Form · Content ·
+- **Import a meeting from Excel…** (preview with every problem and where it is, such as *Meeting Form · Content ·
   row 26*; Append or Replace; Undo);
-- **Export this meeting to Excel** (the same Dashboard and Meeting Form, filled in).
+- **Export this meeting (Excel)** (the same Dashboard and Meeting Form, filled in).
 
 After an import the app is the source of truth. Workbooks from 6.5 to 6.8 (one sheet per list) and the 6.2
 one-sheet template still import; their answers and notes go into the Frame's Teleprompter script. The Excel library

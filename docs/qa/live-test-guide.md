@@ -113,7 +113,8 @@ Needs FRAMEDECKS 6.11 on the linked PC.
 4. **Edit** that Frame: change a question, add an Image Content with a file name that is in the PC's media folder.
    **Expect:** the change on the PC; the picture appears (or Diagnostics lists the name if it is not there).
 5. Move it up, then **Delete** it. **Expect:** the PC follows; Services lists it under Deleted in the last 30 days.
-6. On the PC: **Settings → Data → Import a meeting from Excel** still works (W2).
+6. On the PC: **Settings → Data / Backup → Meeting from Excel → Import a meeting from Excel…** still works (W2),
+   and the ✨ Meeting menu no longer lists Excel.
 
 ## What to send back
 

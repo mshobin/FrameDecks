@@ -45,6 +45,20 @@ Versions before 4.9 (when the program had its earlier name) are described in the
 - The favicons, the tray icon and the small program-icon sizes (16–32 px) use a heavier version of the emblem, so it
   stays visible on light browser tabs and a light taskbar. Larger sizes are unchanged.
 
+## [6.11] - 2026-10-26
+
+Full notes: [docs/releases/v6.11.md](docs/releases/v6.11.md)
+
+### Added
+- Companion: **Meeting Form** page. Plan the whole meeting online as in the Excel Meeting Form (meeting details,
+  Frames, every Content type, questions, scripture); a linked PC shows it within about a minute.
+- Companion: on a Windows PC, the Overview checks for the FRAMEDECKS camera and offers the download or **Open
+  FRAMEDECKS on this PC**; the installer registers the `framedecks:` link for the current user.
+
+### Changed
+- The Excel Meeting Workbook (import, template, export, undo) moved to **Settings → Data / Backup**; the Meeting
+  menu, Meeting tab and empty Studio no longer show it (owner decision W2).
+
 ## [6.10] - 2026-10-20
 
 Full notes: [docs/releases/v6.10.md](docs/releases/v6.10.md)

@@ -51,7 +51,7 @@ function comparable(scene) {
     if (l.c) {
       delete l.c.look;
       delete l.c.itemId;
-      if (Array.isArray(l.c.items)) l.c.items = l.c.items.map(({ id, ...rest }) => rest);
+      if (Array.isArray(l.c.items)) l.c.items.forEach((it) => delete it.id);
     }
     return l;
   });

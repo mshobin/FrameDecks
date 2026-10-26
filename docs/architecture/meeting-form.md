@@ -1,7 +1,7 @@
 # Planning a meeting on the website (6.11 design)
 
 **Status:** agreed with the owner on 26 October 2026: W1, W3 as recommended. For W2 the owner chose to keep the
-Excel import in 6.11, but only under Settings in the program. Steps 1 and 2 are built. Step 3 follows. Section 6
+Excel import in 6.11, but only under Settings in the program. Steps 1 to 3 are built (version 6.11). Step 4 (6.12) waits for the owner's live test G. Section 6
 lists the steps.
 **Builds on:**
 - sync ([metadata-sync.md](metadata-sync.md));
@@ -115,6 +115,6 @@ cannot find, and the operator chooses the file in the Studio, as after an Excel 
    `hosted/src/lib/meeting-form.ts`), with tests for the row ⇄ layer mapping against `meeting-book.js`
    (`hosted/tests/meeting-form.test.mjs`) and browser tests with stand-in Supabase. *(built)*
 3. **Program:** Import Excel, the template and the Excel export move from the Meeting tab, the Studio and the
-   palette into **Settings → Data**. Then version 6.11, release notes and the owner's live test (G in
-   `docs/qa/live-test-guide.md`).
+   palette into **Settings → Data / Backup → Meeting from Excel** (the palette keeps one entry that opens it). Then
+   version 6.11, release notes and the owner's live test (G in `docs/qa/live-test-guide.md`). *(built)*
 4. **6.12, after the owner's test:** remove the Excel import, template and export (W3).

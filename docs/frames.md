@@ -45,7 +45,7 @@ never changes another.
 | **Quick Start** | **✨ Meeting → Quick Start…** | A complete set of Frames for a Sunday Service, Bible Study, Youth Service, Conference and more |
 | **Library** | The **Library** filter in the Frames list | Ready-made Frames you can add |
 | **From a template** | **✨ Meeting → From your templates** | A new Frame made from one of your templates |
-| **From Excel** | **✨ Meeting → Import meeting from Excel…** | Every Frame in the workbook. See [Service planning](service-planning.md#plan-in-excel-with-the-meeting-workbook) |
+| **From Excel** | **Settings → Data / Backup → Meeting from Excel** **→ Import a meeting from Excel…** (or the website's Meeting Form, 6.11) | Every Frame in the workbook. See [Service planning](service-planning.md#plan-in-excel-with-the-meeting-workbook) |
 | **From a file** | **✨ Meeting → Import a Frame file…** | A Frame exported from another PC |
 
 After creating a Frame, add Content with **+ Content**. See [Content](content.md).
@@ -149,7 +149,7 @@ A **template** is a Frame you keep for making new Frames, such as your standard 
 - **Export:** **⋯ → Export Frame file** saves the Frame to your Downloads folder.
 - **Import:** **✨ Meeting → Import a Frame file…** on the other PC.
 
-To share a whole meeting, export it to Excel instead: **✨ Meeting → Export this meeting to Excel**.
+To share a whole meeting, export it to Excel instead: **Settings → Data / Backup → Export this meeting (Excel)**.
 
 ## The Frame menu at a glance
 

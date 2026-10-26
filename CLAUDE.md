@@ -8,7 +8,9 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
   `docs/architecture/metadata-sync.md`), which also gets "Allow control from the companion" and its last ten actions
   (R5 in `docs/architecture/remote-control.md`); a toast on the PC for each companion action; and from the migration
   (`docs/migration-plan.md` §8): **Suggest** in a Frame's question list (only when Ollama answers), **Meeting → Export
-  this meeting to PowerPoint**, and **+ Content → Audio…** with its settings. Nothing else visible may change.
+  this meeting to PowerPoint**, and **+ Content → Audio…** with its settings; and 6.11 (`docs/architecture/meeting-form.md`, W2): the Excel Meeting
+  Workbook moved from the Meeting menu, Meeting tab, empty Studio and palette into **Settings → Data / Backup →
+  Meeting from Excel** (it leaves in 6.12, W3). Nothing else visible may change.
 - The codebase is the source of truth; verify docs against it.
 - Do not touch the legacy LAN remote or let the hosted app call the local HTTP server.
 - Never commit secrets. `.env*` is ignored except `hosted/.env.example`. Never the Supabase `service_role` key; the
@@ -108,7 +110,7 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
 ## Commands
 - Before and after every change, all of these must pass (the cloud session's last results are in brackets):
 - Desktop JS tests: `node tests/run.js` [4/4]; Python: `python -m unittest discover -s tests -p "test_*.py"` [128 OK];
-  packaging: `python packaging/check.py` [6.10].
+  packaging: `python packaging/check.py` [6.11].
 - Hosted (run inside `hosted/`, there is no root package.json): `npm test` [102/102], `npm run lint`, `npm run typecheck`, `npm run build`.
   `npm test` applies every migration to in-memory Postgres (PGlite) and loads `src/lib/sync-entities.ts` with Node's
   type stripping.

@@ -49,7 +49,7 @@ var SECTIONS = [['general', 'General', 'appearance theme dark light'], ['meeting
   ['ipad', 'Phone & iPad Remote', 'remote pin qr phone tablet'], ['keys', 'Keyboard shortcuts', 'keys hotkeys palette'], ['security', 'Security', 'pin privacy'],
   ['data', 'Data / Backup', 'backup restore export import'], ['diag', 'Diagnostics', 'problems errors logs'], ['about', 'About', 'version credits']];
 function commands(){
-  var PT = window.KCPresenterTools, TP = window.KCTeleprompter, MI = window.KCMeetingImport, sel = W() && W().selected();
+  var PT = window.KCPresenterTools, TP = window.KCTeleprompter, sel = W() && W().selected();
   var c = [
     ['golive', 'Go Live', 'take selected frame on screen', function(){ if (W()) W().take(); }, 'T'],
     ['next', 'Next Frame', 'forward advance', function(){ if (W()) W().step(1); }, ']'],
@@ -66,9 +66,7 @@ function commands(){
     ['prompterwin', 'Teleprompter window', 'second screen speaker view', function(){ if (PT && PT.speaker) PT.speaker(); }],
     ['overlay', 'Teleprompter overlay (over Zoom / Teams)', 'meeting leader transparent see-through glass on top prompter', function(){ if (PT && PT.overlay) PT.overlay(); }, 'Shift+R'],
     ['share', 'Share Window (Presentation window)', 'present window zoom share screen', function(){ studio(); click($('s2-present')); }],
-    ['export', 'Export this meeting (Excel)', 'save workbook xlsx download', function(){ if (MI) MI.exportMeeting(); }],
-    ['import', 'Import a meeting from Excel…', 'workbook xlsx open', function(){ if (MI) MI.pick(); }],
-    ['template', 'Download the Excel template', 'workbook xlsx', function(){ if (MI) MI.template(); }],
+    ['excel', 'Meeting from Excel (Settings → Data / Backup)', 'import export template workbook xlsx', function(){ settings('data'); }],   /* 6.11: Excel lives in Settings */
     ['branding', 'Open Branding', 'logo meeting name colour', function(){ settings('meeting'); }],
     ['knock', 'Remove the logo background', 'transparent png', function(){ if (window.KCBrandSettings) window.KCBrandSettings.removeBackground(); }],
     ['camera', 'Camera background (blur, image)', 'kingdomconnect blur background', function(){ settings('vcam'); }],

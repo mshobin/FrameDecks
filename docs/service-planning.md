@@ -143,18 +143,23 @@ row to that log after each meeting, and the meeting tiles count them.
 
 Full details are in [reference/meeting-workbook-and-branding.md](reference/meeting-workbook-and-branding.md).
 
+Since 6.11 the same form is on the FRAMEDECKS website: **Meeting Form** in the companion
+(framedecks.pages.dev). It reaches a linked PC by itself, with no file to import
+([design](architecture/meeting-form.md)). The Excel workbook below still works; it is under
+**Settings → Data / Backup → Meeting from Excel** and leaves the program in 6.12.
+
 ### Import a meeting
-1. **Meeting → Download the Excel template**, then fill in the **Meeting Form** tab.
-2. **Meeting → Import meeting from Excel…** and choose the file.
+1. **Settings → Data / Backup → Meeting from Excel** → **Download the Excel template**, then fill in the **Meeting Form** tab.
+2. **Import a meeting from Excel…** (same place) and choose the file.
 3. Read the **preview**. It lists the Frames and Content that will be made, and every problem with where it is, for
    example *Meeting Form · Content · row 26*. Fix problems in Excel and import again.
 4. Choose **Append** (add to what you have) or **Replace**.
-5. Changed your mind? **Meeting → Undo the last Excel import**.
+5. Changed your mind? **Undo the last Excel import** (same place in Settings).
 
 Workbooks from earlier versions (one sheet per list, from 6.5 to 6.8, or the 6.2 one-sheet template) still import.
 
 ### Export a meeting
-**Meeting → Export this meeting to Excel** saves the same **Dashboard** and **Meeting Form**, filled in, to your
+**Export this meeting (Excel)** (**Settings → Data / Backup → Meeting from Excel**) saves the same **Dashboard** and **Meeting Form**, filled in, to your
 Downloads folder. You can edit that file and import it again, or give it to a co-leader.
 
 > **Important:** After an import, **the app is the source of truth**. The Excel file is not linked. Changes you make

@@ -45,7 +45,7 @@ Create a Frame for each part of the service in order, add Content to each, and c
 Yes. **Duplicate** a Frame (⋯ on the Frame) to make a fully independent copy, or **Save as template** to start new Frames from it. You can also export a whole meeting to Excel and import it later.
 
 **Can I plan in Excel?**
-Yes, optionally. The **Meeting Workbook** (Meeting menu → Download the Excel template) has two tabs: the **Meeting Form**, one guided page where you type the meeting details, Frames, Content, questions and scriptures, and the **Dashboard**, which sums it up for you. Import shows every problem with where it is (for example *Meeting Form · Content · row 26*) before anything changes, and can be undone. Workbooks from earlier versions still import. See [Meeting Workbook and branding](reference/meeting-workbook-and-branding.md).
+Yes, optionally. The **Meeting Workbook** (Settings → Data / Backup → Download the Excel template; since 6.11 the website's Meeting Form does the same online) has two tabs: the **Meeting Form**, one guided page where you type the meeting details, Frames, Content, questions and scriptures, and the **Dashboard**, which sums it up for you. Import shows every problem with where it is (for example *Meeting Form · Content · row 26*) before anything changes, and can be undone. Workbooks from earlier versions still import. See [Meeting Workbook and branding](reference/meeting-workbook-and-branding.md).
 
 **Can two people edit the same service at once?**
 No. FRAMEDECKS runs on one PC with no accounts or shared workspaces. To share a plan, export it (Excel Meeting Workbook or a Frame file) and import it on the other PC.

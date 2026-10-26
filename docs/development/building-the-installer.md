@@ -118,8 +118,8 @@ If you see a red cross instead, click the run to read the error, and send it to 
 - [ ] **Acceptance (4.2):** with Zoom in a meeting, FRAMEDECKS on, and the Presentation window shared, switch between apps,
       move windows, type in a browser for a few minutes. Nothing should lag or freeze. Then send me Settings →
       Diagnostics → *Copy diagnostics* (it includes the new Resources line).
-- [ ] **Excel import:** ✨ Meeting → *Download the Excel template*; on the **Meeting Form** tab add a Frame and a
-      Content row; ✨ Meeting → *Import meeting from Excel…*. Then *Export this meeting to Excel*: the file opens on
+- [ ] **Excel import:** Settings → Data / Backup → *Download the Excel template*; on the **Meeting Form** tab add a
+      Frame and a Content row; *Import a meeting from Excel…*. Then *Export this meeting (Excel)*: the file opens on
       the **Dashboard**, with the Meeting Form filled in.
 - [ ] **Blur:** Settings → FRAMEDECKS Camera → try Light and Maximum with the preview on; *Save as default*.
 - [ ] **Studio canvas:** drag a layer (pink guides appear near the centre/edges), resize with a corner handle,
