@@ -91,7 +91,10 @@ Settings; W3 6.12 removes Excel import, template and export (PowerPoint export s
 1. **Camera check and "Open FRAMEDECKS on this PC"**: **built** (`hosted/src/lib/pc-setup.ts`,
    `hosted/src/components/pc-setup-card.tsx` on Overview; installer registers `framedecks:` for this user;
    `desktop_app.py` never reads the link; `tests/test_open_link.py`).
-2. **Website Meeting Form**: next (`hosted/src/lib/meeting-form.ts`, `hosted/src/app/meeting/`).
+2. **Website Meeting Form**: **built** (`hosted/src/lib/meeting-form.ts` row ⇄ layer mapping, checked against the
+   Excel import in `hosted/tests/meeting-form.test.mjs`; `hosted/src/components/meeting-form-panel.tsx` on
+   `/meeting`: meeting details, add / edit / move / delete Frames and every Content type; conflicts keep the
+   person's changes on top). Browser-tested with stand-in Supabase; live test G in the guide.
 3. **Excel import into Settings**, version 6.11, release notes, live test G: after step 2.
 
 ## Pending (owner)

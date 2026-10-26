@@ -52,21 +52,40 @@ export async function deleteRecord(
   return send(supabase, organizationId, { kind: record.kind, id: record.id, baseRev: record.rev, deleted: true });
 }
 
-async function send(supabase: SupabaseClient, organizationId: string, change: Record<string, unknown>): Promise<PushAnswer> {
-  const { data, error } = await supabase.rpc("sync_push", { org: organizationId, changes: [change] });
-  if (error) {
-    const message =
-      error.code === "42501"
-        ? "Only owners and admins of this workspace can make this change."
-        : error.code === "53400"
-          ? "Too many changes this minute; try again shortly."
-          : error.message;
-    return { status: "error", message };
-  }
-  const result = (data as { results?: { status: string; rev?: number; current?: PushAnswer & object }[] })?.results?.[0];
+/** Several records in one push (a new Frame and the order that lists it). Each is stored only if nobody changed it
+ * since it was read; the answers come back in the same order. */
+export async function pushChanges(
+  supabase: SupabaseClient,
+  organizationId: string,
+  changes: ({ kind: string; id: string; rev: number } & ({ body: unknown } | { deleted: true }))[],
+): Promise<PushAnswer[]> {
+  const { data, error } = await supabase.rpc("sync_push", {
+    org: organizationId,
+    changes: changes.map(({ rev, ...c }) => ({ ...c, baseRev: rev })),
+  });
+  if (error) return changes.map(() => ({ status: "error" as const, message: messageOf(error) }));
+  const results = (data as { results?: { status: string; rev?: number; current?: unknown }[] })?.results ?? [];
+  return changes.map((_, i) => answerOf(results[i]));
+}
+
+function messageOf(error: { code?: string; message: string }): string {
+  return error.code === "42501"
+    ? "Only owners and admins of this workspace can make this change."
+    : error.code === "53400"
+      ? "Too many changes this minute; try again shortly."
+      : error.message;
+}
+
+function answerOf(result: { status: string; rev?: number; current?: unknown } | undefined): PushAnswer {
   if (result?.status === "ok") return { status: "ok", rev: Number(result.rev) };
   if (result?.status === "conflict" && result.current) {
-    return { status: "conflict", current: result.current as unknown as { rev: number; deleted: boolean; body: unknown } };
+    return { status: "conflict", current: result.current as { rev: number; deleted: boolean; body: unknown } };
   }
   return { status: "error", message: "The workspace did not answer as expected." };
+}
+
+async function send(supabase: SupabaseClient, organizationId: string, change: Record<string, unknown>): Promise<PushAnswer> {
+  const { data, error } = await supabase.rpc("sync_push", { org: organizationId, changes: [change] });
+  if (error) return { status: "error", message: messageOf(error) };
+  return answerOf((data as { results?: { status: string; rev?: number; current?: unknown }[] })?.results?.[0]);
 }

@@ -1,7 +1,7 @@
 # Planning a meeting on the website (6.11 design)
 
 **Status:** agreed with the owner on 26 October 2026: W1, W3 as recommended. For W2 the owner chose to keep the
-Excel import in 6.11, but only under Settings in the program. Step 1 is built. Steps 2 and 3 follow. Section 6
+Excel import in 6.11, but only under Settings in the program. Steps 1 and 2 are built. Step 3 follows. Section 6
 lists the steps.
 **Builds on:**
 - sync ([metadata-sync.md](metadata-sync.md));
@@ -53,7 +53,7 @@ Frame made on the website matches one imported from Excel. The mapping lives in
 
 | Row | Layer |
 |---|---|
-| Question / Scripture with its list | `question` / `scripture` with `items` (label, text, media, timer / ref, version, text), `label`; animation in `look.transition` |
+| Question / Scripture with its list | `question` / `scripture` with `items` (label, text, media, timer / ref, version, text), `label`; animation in `look.transition`. The Excel import also copies the theme's card look into the Frame; the website leaves it out, so the Frame follows the theme (it looks the same) |
 | Text | `announcement` (title = label, `label` on when there is one) |
 | Announcement, Prayer Point | `announcement`, `prayer` (title = label, text) |
 | Lower Third | `lowerthird` (title, text) |
@@ -111,8 +111,9 @@ cannot find, and the operator chooses the file in the Studio, as after an Excel 
 
 1. **Website:** the camera check and install card, and the **Open FRAMEDECKS on this PC** button. **Installer:**
    registers `framedecks:`. **Program:** accepts the link. *(built)*
-2. **Website:** the Meeting Form page (`hosted/src/app/meeting/`, `hosted/src/lib/meeting-form.ts`), with tests for
-   the row ⇄ layer mapping against `meeting-book.js` and browser tests with stand-in Supabase.
+2. **Website:** the Meeting Form page (`hosted/src/app/meeting/`, `hosted/src/components/meeting-form-panel.tsx`,
+   `hosted/src/lib/meeting-form.ts`), with tests for the row ⇄ layer mapping against `meeting-book.js`
+   (`hosted/tests/meeting-form.test.mjs`) and browser tests with stand-in Supabase. *(built)*
 3. **Program:** Import Excel, the template and the Excel export move from the Meeting tab, the Studio and the
    palette into **Settings → Data**. Then version 6.11, release notes and the owner's live test (G in
    `docs/qa/live-test-guide.md`).

@@ -99,8 +99,24 @@ before: go on to the next one. Any other error: stop and send it.
 3. Optional, with Ollama (see [ai.md](../ai.md)): on a Frame with a Bible passage, **Question → Content → Suggest**.
    **Expect:** draft questions in the Add several box.
 
+## 9. Test G: plan the meeting on the website (6.11)
+
+Needs FRAMEDECKS 6.11 on the linked PC.
+1. On the PC's browser, open the companion's **Overview**. **Expect:** a "This computer" card; press **Check this
+   PC** and allow camera access. **Expect:** "FRAMEDECKS is installed on this PC" (the camera is named FRAMEDECKS).
+   Press **Open FRAMEDECKS on this PC**. **Expect:** the browser asks to open FRAMEDECKS; the program comes forward.
+2. Companion → **Meeting Form** → **Meeting details**: change the speaker, **Save details**. **Expect:** the PC's
+   Meeting tab shows the new speaker within about a minute.
+3. **Add a Frame**: a name, a Question Content with two questions, a Scripture Content with a reference (no text),
+   a Timer of 5 minutes, background Navy. **Add Frame**. **Expect:** within about a minute the PC lists the Frame
+   at the end, with the same Content, laid out as an Excel import would. Fetch the verse text on the PC as usual.
+4. **Edit** that Frame: change a question, add an Image Content with a file name that is in the PC's media folder.
+   **Expect:** the change on the PC; the picture appears (or Diagnostics lists the name if it is not there).
+5. Move it up, then **Delete** it. **Expect:** the PC follows; Services lists it under Deleted in the last 30 days.
+6. On the PC: **Settings → Data → Import a meeting from Excel** still works (W2).
+
 ## What to send back
 
 For anything that does not match **Expect**: which test and step, a screenshot of the companion page, the message
 shown under Settings → FRAMEDECKS account on the PC (it shows sync and phone-control errors), and the time.
-If all six pass, say so: the live tests in the continuity files are then marked done.
+If all seven pass, say so: the live tests in the continuity files are then marked done.

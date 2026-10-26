@@ -61,6 +61,7 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
   `THIRD_PARTY_NOTICES.md`. Signing: SignPath, off until its secret exists (`docs/project/code-signing.md`).
 - Continuity: `CLAUDE.md`, `PROJECT_STATUS.md`, `PROJECT_ROADMAP.md`, `.ai/NEXT_SESSION.md`. The owner's live tests:
   `docs/qa/live-test-guide.md` (keep it in step when a tested behaviour changes).
+- `hosted/src/app/meeting` — 6.11 the Meeting Form: the Excel form's sections on the live plan (`hosted/src/lib/meeting-form.ts`).
 - `hosted/src/app/{services,live,members,computers}` — the synced plan (owners and admins edit its words and order,
   `hosted/src/lib/frame-edit.ts`, sent with `sync_push`; History and restore from `entity_history`,
   `hosted/src/components/frame-history.tsx`), running a service from a phone
@@ -108,7 +109,7 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
 - Before and after every change, all of these must pass (the cloud session's last results are in brackets):
 - Desktop JS tests: `node tests/run.js` [4/4]; Python: `python -m unittest discover -s tests -p "test_*.py"` [128 OK];
   packaging: `python packaging/check.py` [6.10].
-- Hosted (run inside `hosted/`, there is no root package.json): `npm test` [94/94], `npm run lint`, `npm run typecheck`, `npm run build`.
+- Hosted (run inside `hosted/`, there is no root package.json): `npm test` [102/102], `npm run lint`, `npm run typecheck`, `npm run build`.
   `npm test` applies every migration to in-memory Postgres (PGlite) and loads `src/lib/sync-entities.ts` with Node's
   type stripping.
 - Sync fixtures: `python tools/make_sync_fixtures.py` rebuilds `tests/fixtures/sync/` (needs Node) after changing
