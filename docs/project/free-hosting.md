@@ -11,7 +11,7 @@ sign-in without paid email, and free signing and downloads. It covers steps 1–
 | A | Companion as static files on Cloudflare Pages | Done | About 20 minutes |
 | B | Database keep-alive and encrypted nightly backup | Done | About 15 minutes |
 | C | Fewer database requests | Done | Nothing (next PC build) |
-| D | Sign-in with Google / Microsoft, and free email | See Part D | About 40 minutes |
+| D | Sign-in with Google / Microsoft, and free email | Done (buttons first) | About 40 minutes |
 | E | Public repository, free signing, permanent downloads | Prepared | About 30 minutes, then SignPath's review |
 
 Do them in order. Each part works on its own: you can stop after any part, and nothing breaks.
@@ -141,7 +141,9 @@ but not for many churches.
    - turn it on and paste both;
    - Azure Tenant URL: `https://login.microsoftonline.com/common`.
 
-Once the providers are on, the companion shows **Continue with Google** and **Continue with Microsoft** by itself.
+**Done in the code.** Once the providers are on, the companion shows **Continue with Google** and **Continue with
+Microsoft** by itself, at the top, with "or use your email" below them
+([picture](../qa/2026-10-26-companion-sign-in-providers-first.png)).
 
 **D3. Free email for the sign-in link.** Brevo's free plan sends 300 emails a day.
 1. Create an account at https://www.brevo.com.

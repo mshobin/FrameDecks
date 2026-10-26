@@ -717,6 +717,10 @@ a.account-chip:hover {
   background: #22325a;
 }
 
+.auth-providers-first {
+  margin: 0 0 18px;
+}
+
 .auth-divider {
   color: #7786a3;
   font-size: 12px;

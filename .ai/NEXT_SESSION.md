@@ -70,8 +70,12 @@ Steps, in order, from [docs/project/free-hosting.md](../docs/project/free-hostin
    `db-backup.yml`, `tools/db_backup.sh`, restore guide `docs/project/database-backup.md`). Owner: Part B (4 secrets).
 3. **Fewer database requests**: **done** (`cloud_remote.py` `IDLE_EVERY` 5 → 15 s). Shorter history/audit retention
    was left out on purpose (it would replace `sync_push` in the live database for almost no saving).
-4. Google/Microsoft sign-in and free email (Brevo): owner setup (Part D).
-5. Public repository, SignPath, GitHub Releases: owner setup (Part E).
+4. **Google/Microsoft sign-in first**: **code done** (`sign-in-form.tsx`: provider buttons above the email link when
+   switched on). Owner: Part D (Google, Microsoft, Brevo SMTP in Supabase).
+5. Public repository, SignPath, GitHub Releases: **owner only** (Part E; the build already publishes on version tags).
+
+**Branch state:** steps 1–4 are on `claude/peaceful-albattani-6m445e`, not yet on `main`. Cloudflare Pages builds
+`main`, so merge (or push) the branch to `main` before Part A.
 
 ## Pending (owner)
 1. ~~Run the database scripts~~: **done** on 26 October (`0002`–`0008`, all passed).

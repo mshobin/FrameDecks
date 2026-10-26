@@ -64,8 +64,20 @@ export function SignInForm() {
     );
   }
 
+  // Free plan (docs/project/free-hosting.md, Part D): Google and Microsoft come first when they are switched on; they
+  // need no email, and the emailed link uses a small daily email allowance.
   return (
     <>
+      {providers.length > 0 && (
+        <div className="auth-providers auth-providers-first">
+          {providers.map((provider) => (
+            <Button key={provider} variant="outline" type="button" onClick={() => signInWith(provider)}>
+              {providerLabels[provider]}
+            </Button>
+          ))}
+          <span className="auth-divider">or use your email</span>
+        </div>
+      )}
       <form className="auth-form" onSubmit={sendLink}>
         <label htmlFor="email">Email address</label>
         <input
@@ -81,16 +93,6 @@ export function SignInForm() {
           {status.kind === "sending" ? "Sending…" : "Email me a sign-in link"}
         </Button>
       </form>
-      {providers.length > 0 && (
-        <div className="auth-providers">
-          <span className="auth-divider">or</span>
-          {providers.map((provider) => (
-            <Button key={provider} variant="outline" type="button" onClick={() => signInWith(provider)}>
-              {providerLabels[provider]}
-            </Button>
-          ))}
-        </div>
-      )}
       {status.kind === "error" && (
         <p className="auth-error" role="alert">
           {status.message}
