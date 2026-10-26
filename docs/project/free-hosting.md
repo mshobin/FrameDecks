@@ -30,7 +30,9 @@ Vercel keeps working with the same build in the meantime.
 **What you do:**
 1. **Create a free Cloudflare account** at https://dash.cloudflare.com/sign-up.
 2. **Create the Pages project:**
-   1. Go to **Workers & Pages → Create → Pages → Connect to Git**.
+   1. Go to **Workers & Pages → Create**. At the bottom of that page, next to "Looking to deploy Pages?", click
+      **Get started**, then **Import an existing Git repository**. Do not use the Worker setup page (Build command /
+      Deploy command `npx wrangler deploy`): it has no Root directory or Build output directory, and the build fails.
    2. Choose GitHub, allow access to `mshobin/FRAMEDECKS`, and select it.
 3. **Build settings.** Enter exactly:
 
