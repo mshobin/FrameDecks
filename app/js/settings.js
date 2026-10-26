@@ -32,6 +32,25 @@ $('s-nav').addEventListener('click', function(e){ var b = e.target.closest('[dat
 document.addEventListener('click', function(e){
   var b = e.target.closest('[data-goto="settings"][data-sec]'); if (b) setTimeout(function(){ showSection(b.dataset.sec); }, 0);
 });
+/* Find a setting: filters the menu by name, description and keywords; Enter opens the first match */
+function findSetting(q){
+  q = String(q || '').trim().toLowerCase();
+  var any = false;
+  Array.prototype.forEach.call(document.querySelectorAll('#s-nav .sn-group'), function(g){
+    var shown = 0;
+    Array.prototype.forEach.call(g.querySelectorAll('button[data-sec]'), function(b){
+      var hit = !q || (b.textContent + ' ' + (b.dataset.k || '')).toLowerCase().indexOf(q) >= 0;
+      b.hidden = !hit; if (hit) shown++;
+    });
+    g.hidden = !shown; if (shown) any = true;
+  });
+  $('sn-none').hidden = any;
+}
+$('sn-find').addEventListener('input', function(){ findSetting(this.value); });
+$('sn-find').addEventListener('keydown', function(e){
+  if (e.key === 'Enter'){ var b = document.querySelector('#s-nav button[data-sec]:not([hidden])'); if (b){ showSection(b.dataset.sec); b.focus(); } e.preventDefault(); }
+  else if (e.key === 'Escape' && this.value){ this.value = ''; findSetting(''); e.stopPropagation(); }
+});
 var saved = null; try { saved = localStorage.getItem(SEC_KEY); } catch(e){}
 showSection(saved || 'general');
 

@@ -478,6 +478,38 @@ class ServerWiring(unittest.TestCase):
         self.assertFalse(srv._valid_setting("memberAuthority", "phone"))
         srv.save_private({"members": []})
 
+class WebsiteIdentity(unittest.TestCase):
+    """Cloudflare refuses Python's default identity with 403 (owner's report, 26 October): say we are FRAMEDECKS."""
+
+    def capture(self, answer):
+        import urllib.request
+        seen = []
+
+        class Res:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *a):
+                return False
+
+            def read(self):
+                return json.dumps(answer).encode("utf-8")
+
+        real = urllib.request.urlopen
+        urllib.request.urlopen = lambda req, timeout=None: (seen.append(req), Res())[1]
+        self.addCleanup(setattr, urllib.request, "urlopen", real)
+        return seen
+
+    def test_the_config_request_names_framedecks(self):
+        seen = self.capture({"url": "https://x.supabase.co", "anonKey": "k"})
+        self.assertEqual(C.companion_config()["url"], "https://x.supabase.co")
+        self.assertIn("FRAMEDECKS", seen[0].get_header("User-agent"))
+
+    def test_cloud_calls_name_framedecks(self):
+        seen = self.capture([])
+        C.CloudApi("https://x.supabase.co", "k", "org").pull(0)
+        self.assertIn("FRAMEDECKS", seen[0].get_header("User-agent"))
+
 
 if __name__ == "__main__":
     unittest.main()

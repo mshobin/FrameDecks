@@ -586,6 +586,7 @@ def main():
         w.events.shown += shown
         w.events.closed += closed
         state["overlay"] = w
+        state.get("on_top", {}).pop("overlay", None)              # a new window starts as its settings say
         refresh_tray()
         return True
 
@@ -673,7 +674,9 @@ def main():
             else:
                 w.destroy()
         elif op == "on-top":
-            w.on_top = bool(data.get("value"))
+            state.setdefault("on_top", {})[name] = bool(data.get("value"))
+            if not dw.set_topmost(hwnd, bool(data.get("value"))):
+                threading.Thread(target=lambda: setattr(w, "on_top", bool(data.get("value"))), daemon=True).start()
             if name == "overlay":
                 server.save_app_settings({"overlayOnTop": bool(data.get("value"))})
         elif op == "look" and name == "overlay":
@@ -685,7 +688,7 @@ def main():
                 threading.Thread(target=lambda: (overlay(False), time.sleep(0.3), overlay(True)), daemon=True).start()
             else:
                 overlay_look(w, cfg)
-        return {"ok": True, "maximized": maximized(), "chrome": name in chromes, "onTop": bool(getattr(w, "on_top", False))}
+        return {"ok": True, "maximized": maximized(), "chrome": name in chromes, "onTop": bool(state.get("on_top", {}).get(name, getattr(w, "on_top", False)))}
 
     # ---------- 6.8 system-wide shortcut (works while the app is in the tray) ----------
     def on_hotkey(name):

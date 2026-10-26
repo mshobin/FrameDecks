@@ -13,7 +13,8 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
   Meeting from Excel** (it leaves in 6.12, W3); and the website's colour palette in the dark theme (6.11, owner's
   request: the last block of `app/css/theme.css`, colours only; keep it equal to `hosted/src/app/globals.css` :root);
   and the virtual camera's name, **FRAMECAST** (owner's request, 26 October: `packaging/build_vcam.py` NAME,
-  `vcam/sink.py` VCAM_NAME, and the labels that name the camera; the program itself stays FRAMEDECKS).
+  `vcam/sink.py` VCAM_NAME, and the labels that name the camera; the program itself stays FRAMEDECKS); and the Settings menu grouped (Your meeting, Presenting, Account,
+  This PC, Help), each item with a one-line description, plus "Find a setting" (owner's request, 26 October).
   Nothing else visible may change.
 - The codebase is the source of truth; verify docs against it.
 - Do not touch the legacy LAN remote or let the hosted app call the local HTTP server.
@@ -125,7 +126,7 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
 
 ## Commands
 - Before and after every change, all of these must pass (the cloud session's last results are in brackets):
-- Desktop JS tests: `node tests/run.js` [4/4]; Python: `python -m unittest discover -s tests -p "test_*.py"` [129 OK];
+- Desktop JS tests: `node tests/run.js` [4/4]; Python: `python -m unittest discover -s tests -p "test_*.py"` [131 OK];
   packaging: `python packaging/check.py` [6.11].
 - Hosted (run inside `hosted/`, there is no root package.json): `npm test` [107/107], `npm run lint`, `npm run typecheck`, `npm run build`.
   `npm test` applies every migration to in-memory Postgres (PGlite) and loads `src/lib/sync-entities.ts` with Node's

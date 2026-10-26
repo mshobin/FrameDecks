@@ -27,6 +27,8 @@ from pathlib import Path
 import sync_entities as E
 
 COMPANION_URL = os.environ.get("FRAMEDECKS_COMPANION_URL", "https://framedecks.pages.dev").rstrip("/")
+# Cloudflare (the website's host) answers 403 to Python's default "Python-urllib" identity, so every request says who it is
+USER_AGENT = "FRAMEDECKS (Windows; +https://framedecks.pages.dev)"
 PUSH_BATCH = 200                      # sync_push: at most 200 changes and 2 MB a call
 PUSH_BYTES = 1_800_000
 QUIET_SECONDS = 3                     # after a save, wait for this much quiet before syncing
@@ -295,7 +297,8 @@ class CloudApi:
         self.organization_id, self.computer_key, self.timeout = organization_id, computer_key, timeout
 
     def _rpc(self, name, args):
-        headers = {"apikey": self.anon_key, "Content-Type": "application/json", "Accept": "application/json"}
+        headers = {"apikey": self.anon_key, "Content-Type": "application/json", "Accept": "application/json",
+                   "User-Agent": USER_AGENT}
         if self.computer_key:
             headers["x-framedecks-computer"] = self.computer_key
         req = urllib.request.Request(f"{self.url}/rest/v1/rpc/{name}", data=json.dumps(args).encode("utf-8"),
@@ -332,9 +335,13 @@ class CloudApi:
 
 def companion_config(timeout=10):
     """The cloud's address and public key, from the companion (it holds them; nothing secret is in this program)."""
+    req = urllib.request.Request(f"{COMPANION_URL}/api/sync-config",
+                                 headers={"User-Agent": USER_AGENT, "Accept": "application/json"})
     try:
-        with urllib.request.urlopen(f"{COMPANION_URL}/api/sync-config", timeout=timeout) as res:
+        with urllib.request.urlopen(req, timeout=timeout) as res:
             data = json.loads(res.read().decode("utf-8"))
+    except urllib.error.HTTPError as e:
+        raise Offline(f"Could not reach {COMPANION_URL}: the website answered {e.code} {e.reason}")
     except (urllib.error.URLError, OSError, ValueError) as e:
         raise Offline(f"Could not reach {COMPANION_URL}: {getattr(e, 'reason', e)}")
     if not isinstance(data, dict) or not str(data.get("url", "")).startswith("https://") or not data.get("anonKey"):

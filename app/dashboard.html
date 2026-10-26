@@ -309,21 +309,33 @@
 
 <div class="tabpanel settings" id="tab-settings" role="tabpanel" aria-labelledby="tabbtn-settings" hidden>
   <nav class="s-nav" id="s-nav" aria-label="Settings sections">
-    <button type="button" data-sec="general"><span class="sn-i">⚙</span>General</button>
-    <button type="button" data-sec="meeting"><span class="sn-i">★</span>Meeting &amp; Branding</button>
-    <button type="button" data-sec="overlays"><span class="sn-i">🎂</span>Birthdays</button>
-    <button type="button" data-sec="scripture"><span class="sn-i">✝</span>Scripture<i class="sn-dot" id="sn-scripture"></i></button>
-    <button type="button" data-sec="transitions"><span class="sn-i">⇄</span>Transitions</button>
-    <button type="button" data-sec="recording"><span class="sn-i">●</span>Recording</button>
-    <button type="button" data-sec="display"><span class="sn-i">◧</span>Zoom / Display<i class="sn-dot" id="sn-display"></i></button>
-    <button type="button" data-sec="vcam"><span class="sn-i">◉</span>FRAMECAST Camera<i class="sn-dot" id="sn-vcam"></i></button>
-    <button type="button" data-sec="ipad"><span class="sn-i">▭</span>Phone &amp; iPad Remote<i class="sn-dot" id="sn-ipad"></i></button>
-    <button type="button" data-sec="keys"><span class="sn-i">⌨</span>Keyboard shortcuts</button>
-    <button type="button" data-sec="account"><span class="sn-i">☁</span>FRAMEDECKS account<i class="sn-dot" id="sn-account"></i></button>
-    <button type="button" data-sec="security"><span class="sn-i">⛨</span>Security</button>
-    <button type="button" data-sec="data"><span class="sn-i">⛁</span>Data / Backup</button>
-    <button type="button" data-sec="diag"><span class="sn-i">✚</span>Diagnostics<i class="sn-dot" id="sn-diag"></i></button>
-    <button type="button" data-sec="about"><span class="sn-i">ⓘ</span>About</button>
+    <label class="sn-find"><span class="sr-only">Find a setting</span><input type="search" id="sn-find" placeholder="Find a setting…" autocomplete="off" spellcheck="false"></label>
+    <div class="sn-group" role="group" aria-label="Your meeting"><p class="sn-head" aria-hidden="true">Your meeting</p>
+      <button type="button" data-sec="meeting" data-k="meeting name logo colour color brand leader organization"><span class="sn-i">★</span><span class="sn-t"><b>Meeting &amp; Branding</b><small>Name, logo and colours</small></span></button>
+      <button type="button" data-sec="scripture" data-k="bible esv version verse scripture key"><span class="sn-i">✝</span><span class="sn-t"><b>Scripture</b><small>Bible version and verses</small></span><i class="sn-dot" id="sn-scripture"></i></button>
+      <button type="button" data-sec="transitions" data-k="transition fade cut style profile"><span class="sn-i">⇄</span><span class="sn-t"><b>Transitions</b><small>How Frames change on screen</small></span></button>
+      <button type="button" data-sec="overlays" data-k="birthday dates reminder"><span class="sn-i">🎂</span><span class="sn-t"><b>Birthdays</b><small>Birthday reminders</small></span></button>
+    </div>
+    <div class="sn-group" role="group" aria-label="Presenting"><p class="sn-head" aria-hidden="true">Presenting</p>
+      <button type="button" data-sec="vcam" data-k="framecast camera webcam zoom teams blur background virtual"><span class="sn-i">◉</span><span class="sn-t"><b>FRAMECAST Camera</b><small>Your camera in Zoom and Teams</small></span><i class="sn-dot" id="sn-vcam"></i></button>
+      <button type="button" data-sec="display" data-k="zoom display screen obs overlay presentation window monitor"><span class="sn-i">◧</span><span class="sn-t"><b>Zoom / Display</b><small>Screens, OBS and overlay links</small></span><i class="sn-dot" id="sn-display"></i></button>
+      <button type="button" data-sec="recording" data-k="record recording video mp4"><span class="sn-i">●</span><span class="sn-t"><b>Recording</b><small>Save the meeting as a video</small></span></button>
+      <button type="button" data-sec="ipad" data-k="phone ipad remote wifi qr"><span class="sn-i">▭</span><span class="sn-t"><b>Phone &amp; iPad Remote</b><small>Control it from your phone</small></span><i class="sn-dot" id="sn-ipad"></i></button>
+    </div>
+    <div class="sn-group" role="group" aria-label="Account"><p class="sn-head" aria-hidden="true">Account</p>
+      <button type="button" data-sec="account" data-k="account website sync cloud link workspace companion"><span class="sn-i">☁</span><span class="sn-t"><b>FRAMEDECKS account</b><small>Sync with the website</small></span><i class="sn-dot" id="sn-account"></i></button>
+    </div>
+    <div class="sn-group" role="group" aria-label="This PC"><p class="sn-head" aria-hidden="true">This PC</p>
+      <button type="button" data-sec="general" data-k="general theme dark light appearance name email wording greeting signature"><span class="sn-i">⚙</span><span class="sn-t"><b>General</b><small>Theme, your name, email wording</small></span></button>
+      <button type="button" data-sec="keys" data-k="keyboard shortcuts keys hotkey"><span class="sn-i">⌨</span><span class="sn-t"><b>Keyboard shortcuts</b><small>Keys for every action</small></span></button>
+      <button type="button" data-sec="security" data-k="security privacy"><span class="sn-i">⛨</span><span class="sn-t"><b>Security</b><small>What stays on this PC</small></span></button>
+      <button type="button" data-sec="data" data-k="data backup restore reset excel import export folder"><span class="sn-i">⛁</span><span class="sn-t"><b>Data / Backup</b><small>Backups, Excel and resets</small></span></button>
+    </div>
+    <div class="sn-group" role="group" aria-label="Help"><p class="sn-head" aria-hidden="true">Help</p>
+      <button type="button" data-sec="diag" data-k="diagnostics problems help troubleshooting log"><span class="sn-i">✚</span><span class="sn-t"><b>Diagnostics</b><small>Check that everything works</small></span><i class="sn-dot" id="sn-diag"></i></button>
+      <button type="button" data-sec="about" data-k="about version"><span class="sn-i">ⓘ</span><span class="sn-t"><b>About</b><small>Version and mission</small></span></button>
+    </div>
+    <p class="sn-none" id="sn-none" hidden>No setting matches.</p>
   </nav>
   <div class="s-body">
     <section class="s-sec" id="sec-meeting" aria-labelledby="sech-meeting" hidden>

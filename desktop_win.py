@@ -310,6 +310,23 @@ def round_corners(hwnd):
         pass
 
 
+SWP_ASYNCWINDOWPOS = 0x4000
+HWND_TOPMOST, HWND_NOTOPMOST = -1, -2
+
+
+def set_topmost(hwnd, on):
+    """Keep a window above others, or let it go back among them. SWP_ASYNCWINDOWPOS posts the change to the window's own
+    thread instead of waiting for it: the caller (a web request) never blocks on the window, so the program cannot hang
+    (6.11: pywebview's on_top setter waited on the window's thread and froze the program on "unpin")."""
+    if not (IS_WIN and hwnd):
+        return False
+    try:
+        return bool(user32.SetWindowPos(hwnd, wintypes.HWND(HWND_TOPMOST if on else HWND_NOTOPMOST), 0, 0, 0, 0,
+                                        SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_ASYNCWINDOWPOS))
+    except Exception:
+        return False
+
+
 def bring_to_front(hwnd):
     if not (IS_WIN and hwnd):
         return

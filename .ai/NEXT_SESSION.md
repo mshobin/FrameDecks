@@ -207,3 +207,14 @@ continuity files in the same commit (owner's rule). Never force-push.
 - The tag build for v6.11 failed at "Write the branded release notes": `tools/make_release_notes.py` crashed on the
   empty `motto` in `app/js/brand.js`. Fixed, with `tests/test_release_notes.py`. Release notes rewritten.
 - **Published** 26 October: Releases → FRAMEDECKS 6.11 with the About header, notes, `FRAMEDECKS.v6.11.exe` and `.sha256`.
+
+## Fixes from the owner's first 6.11 install (26 October)
+- **"Could not reach framedecks.pages.dev: Forbidden"** in FRAMEDECKS account: Cloudflare refuses Python's default
+  identity. Every request to the website and the database now says `FRAMEDECKS (Windows; ...)` (`cloud_sync.USER_AGENT`,
+  tests in `test_cloud_sync.WebsiteIdentity`). Not verifiable from the cloud session (the host is blocked here).
+- **Teleprompter froze the program on unpin:** the window op `on-top` used pywebview's `on_top` setter, which waits on
+  the window's thread. Now `desktop_win.set_topmost` (SetWindowPos with SWP_ASYNCWINDOWPOS, never waits). Owner to test.
+  If the program is frozen: Task Manager → end every FRAMEDECKS task, then open it again.
+- **Settings menu** grouped and described, with "Find a setting" (owner-approved; CLAUDE.md).
+- These are on `main` but not in the published v6.11 installer: take it from the latest "Build Windows installer" run
+  (Actions → Artifacts), or publish a new release.
