@@ -184,3 +184,11 @@ Start by fetching and checking out the branch:
 
 Before and after every change, run all the checks in CLAUDE.md. At the end of every step, update all four
 continuity files in the same commit (owner's rule). Never force-push.
+
+## Three settings on the website (26 October, owner's request)
+- **Branding** page (Plan → Branding): Meeting Name, Leader or organization, accent colour, "New Frames include branding".
+  Writes the synced `brand` record; the logo is kept as it is (pictures stay on the PC).
+- **Transition style** on the Meeting Form: the program's eight profiles; writes `layout/profile` `{value}`.
+- **Birthdays this week** on the dashboard, from the synced member list (ISO or `--MM-DD` birth dates; 29 Feb on 28 Feb).
+- Fixed in passing: things revealed on scroll inside a block that arrived later (the birthday pills) now appear.
+- Owner test: change branding on the website and see it in FRAMEDECKS → Settings → Meeting & Branding within a minute.

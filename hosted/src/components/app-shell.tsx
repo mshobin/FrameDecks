@@ -1,12 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ClipboardList, Home as HomeIcon, Monitor, Presentation, Radio, Users } from "lucide-react";
+import { ClipboardList, Home as HomeIcon, Palette, Monitor, Presentation, Radio, Users } from "lucide-react";
 
 import { AboutButton } from "@/components/about-dialog";
 import { AccountStatus } from "@/components/account-status";
 import { DOWNLOADS } from "@/lib/pc-setup";
 
-export type Section = "overview" | "meeting" | "services" | "live" | "members" | "computers";
+export type Section = "overview" | "meeting" | "branding" | "services" | "live" | "members" | "computers";
 
 // Grouped as the work flows: plan the meeting, present it, look after the people (docs/architecture/meeting-form.md)
 const groups = [
@@ -16,6 +16,7 @@ const groups = [
       { id: "overview", label: "Overview", href: "/", icon: HomeIcon },
       { id: "meeting", label: "Meeting Form", href: "/meeting", icon: ClipboardList },
       { id: "services", label: "Services", href: "/services", icon: Presentation },
+      { id: "branding", label: "Branding", href: "/branding", icon: Palette },
     ],
   },
   {
@@ -31,6 +32,7 @@ const groups = [
 const titles: Record<Section, string> = {
   overview: "Overview",
   meeting: "Meeting Form",
+  branding: "Branding",
   services: "Services",
   live: "Live",
   members: "Members",

@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { CalendarDays, ChevronRight, Layers, MonitorPlay, Users } from "lucide-react";
+import { CakeSlice, CalendarDays, ChevronRight, Layers, MonitorPlay, Users } from "lucide-react";
 
 import { isOnline, nowShowing, type LiveComputer } from "@/lib/live-view";
 import { browserSupabase } from "@/lib/supabase-browser";
 import { join } from "@/lib/sync-entities";
 import type { WorkspaceChoice } from "@/lib/use-workspaces";
 import { pullWorkspace } from "@/lib/workspace-sync";
+import { upcomingBirthdays, whenLabel, type Birthday } from "@/lib/workspace-settings";
 
 type Glance = {
   title: string;
@@ -16,6 +17,7 @@ type Glance = {
   frames: number;
   lastChange: string | null;
   people: number;
+  birthdays: Birthday[];
   pc: LiveComputer | null;
 };
 
@@ -51,6 +53,7 @@ export function GlanceTiles({ workspace }: Readonly<{ workspace: WorkspaceChoice
           frames: scenes.length,
           lastChange: records.map((r) => r.updatedAt ?? "").sort().at(-1) || null,
           people: members.length,
+          birthdays: upcomingBirthdays(members),
           pc: list[0] ?? null,
         });
     })();
@@ -93,21 +96,64 @@ export function GlanceTiles({ workspace }: Readonly<{ workspace: WorkspaceChoice
   ];
 
   return (
-    <section className="fd-glance" aria-label="At a glance">
-      {tiles.map(({ href, icon: Icon, label, value, detail, tone }, i) => (
-        <Link className={tone === "ok" ? "fd-tile fd-tile-ok" : "fd-tile"} href={href} key={href} data-reveal data-spotlight style={{ "--d": `${i * 110}ms` } as React.CSSProperties}>
-          <span className="fd-tile-icon">
-            <Icon aria-hidden="true" size={18} strokeWidth={1.9} />
-          </span>
-          <span className="fd-tile-label">{label}</span>
-          <strong className="fd-tile-value">
-            {tone === "ok" && <span className="fd-dot" aria-hidden="true" />}
-            {value}
-          </strong>
-          <span className="fd-tile-detail">{detail}</span>
-          <ChevronRight className="fd-tile-go" aria-hidden="true" size={16} />
+    <>
+      <section className="fd-glance" aria-label="At a glance">
+        {tiles.map(({ href, icon: Icon, label, value, detail, tone }, i) => (
+          <Link className={tone === "ok" ? "fd-tile fd-tile-ok" : "fd-tile"} href={href} key={href} data-reveal data-spotlight style={{ "--d": `${i * 110}ms` } as React.CSSProperties}>
+            <span className="fd-tile-icon">
+              <Icon aria-hidden="true" size={18} strokeWidth={1.9} />
+            </span>
+            <span className="fd-tile-label">{label}</span>
+            <strong className="fd-tile-value">
+              {tone === "ok" && <span className="fd-dot" aria-hidden="true" />}
+              {value}
+            </strong>
+            <span className="fd-tile-detail">{detail}</span>
+            <ChevronRight className="fd-tile-go" aria-hidden="true" size={16} />
+          </Link>
+        ))}
+      </section>
+      {glance && <BirthdaysThisWeek birthdays={glance.birthdays} />}
+    </>
+  );
+}
+
+/** The program's birthday reminders, from the workspace's member list (Settings → Birthdays on the PC). */
+function BirthdaysThisWeek({ birthdays }: Readonly<{ birthdays: Birthday[] }>) {
+  return (
+    <section className="fd-birthdays" aria-labelledby="fd-bd-title" data-reveal>
+      <div className="fd-birthdays-head">
+        <span className="fd-tile-icon">
+          <CakeSlice aria-hidden="true" size={18} strokeWidth={1.9} />
+        </span>
+        <h2 id="fd-bd-title">Birthdays this week</h2>
+        <Link className="fd-link" href="/members">
+          Members <ChevronRight aria-hidden="true" size={15} />
         </Link>
-      ))}
+      </div>
+      {birthdays.length === 0 ? (
+        <p className="workspace-hint">No birthdays in the next seven days.</p>
+      ) : (
+        <ul className="fd-birthday-list">
+          {birthdays.map((b, i) => (
+            <li key={b.id || b.name} className={b.inDays === 0 ? "fd-birthday fd-birthday-today" : "fd-birthday"} data-reveal style={{ "--d": `${i * 70}ms` } as React.CSSProperties}>
+              <span className="fd-avatar" aria-hidden="true">
+                {b.name
+                  .split(/\s+/)
+                  .map((w) => w[0])
+                  .join("")
+                  .slice(0, 2)
+                  .toUpperCase()}
+              </span>
+              <span className="fd-birthday-name">{b.name}</span>
+              <span className="fd-birthday-when">
+                {whenLabel(b)}
+                {b.turning ? ` · turns ${b.turning}` : ""}
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
     </section>
   );
 }

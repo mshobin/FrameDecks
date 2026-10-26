@@ -25,7 +25,12 @@ export function Motion() {
     watch(document);
     // Pages fill in after loading (workspace data, dialogs): watch what arrives
     const added = new MutationObserver((records) => {
-      for (const r of records) r.addedNodes.forEach((n) => n instanceof Element && (n.matches("[data-reveal]") ? seen.observe(n) : watch(n)));
+      for (const r of records)
+        for (const n of r.addedNodes) {
+          if (!(n instanceof Element)) continue;
+          if (n.matches("[data-reveal]:not([data-in])")) seen.observe(n);
+          watch(n); // and anything revealed inside it
+        }
     });
     added.observe(document.body, { childList: true, subtree: true });
 

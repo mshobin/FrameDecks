@@ -74,7 +74,10 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
   light drifts behind every page; all of it stops under "reduce motion". The About screen (`about-dialog.tsx`,
   `about.css`, the (i) button) shows `src/lib/brand.json`, written from the program's `app/js/brand.js` and
   `server.py` version by `scripts/write-brand.mjs` on every build (`tests/brand.test.mjs` fails if it is stale).
-- `hosted/src/app/meeting` — 6.11 the Meeting Form: the Excel form's sections on the live plan (`hosted/src/lib/meeting-form.ts`).
+- `hosted/src/app/meeting` — 6.11 the Meeting Form: the Excel form's sections on the live plan (`hosted/src/lib/meeting-form.ts`),
+  plus the meeting's Transition style (the synced `layout/profile` record).
+- `hosted/src/app/branding` — the program's Meeting & Branding settings (the synced `brand` record; the logo stays on the PC).
+  Shapes and the dashboard's "Birthdays this week" live in `hosted/src/lib/workspace-settings.ts`, tested against store.js normalize.
 - `hosted/src/app/{services,live,members,computers}` — the synced plan (owners and admins edit its words and order,
   `hosted/src/lib/frame-edit.ts`, sent with `sync_push`; History and restore from `entity_history`,
   `hosted/src/components/frame-history.tsx`), running a service from a phone
@@ -122,7 +125,7 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
 - Before and after every change, all of these must pass (the cloud session's last results are in brackets):
 - Desktop JS tests: `node tests/run.js` [4/4]; Python: `python -m unittest discover -s tests -p "test_*.py"` [128 OK];
   packaging: `python packaging/check.py` [6.11].
-- Hosted (run inside `hosted/`, there is no root package.json): `npm test` [104/104], `npm run lint`, `npm run typecheck`, `npm run build`.
+- Hosted (run inside `hosted/`, there is no root package.json): `npm test` [107/107], `npm run lint`, `npm run typecheck`, `npm run build`.
   `npm test` applies every migration to in-memory Postgres (PGlite) and loads `src/lib/sync-entities.ts` with Node's
   type stripping.
 - Sync fixtures: `python tools/make_sync_fixtures.py` rebuilds `tests/fixtures/sync/` (needs Node) after changing

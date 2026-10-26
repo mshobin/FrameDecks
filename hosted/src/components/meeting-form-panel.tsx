@@ -34,6 +34,7 @@ import {
   type ScriptureRow,
 } from "@/lib/meeting-form";
 import { browserSupabase } from "@/lib/supabase-browser";
+import { PROFILES, profileOf } from "@/lib/workspace-settings";
 import { join, type JsonObject } from "@/lib/sync-entities";
 import { pullWorkspace, pushChanges, pushRecord, syncNotSetUp, type PulledRecord } from "@/lib/workspace-sync";
 import type { WorkspaceChoice } from "@/lib/use-workspaces";
@@ -165,6 +166,17 @@ function Planner({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
         onConflict={load}
       />
 
+      <TransitionStyle
+        record={byKey.get(key("layout", "profile"))}
+        canEdit={canEdit}
+        workspaceId={workspace.id}
+        onSaved={(r, name) => {
+          upsert(r);
+          setNotice({ ok: true, text: `Transition style: ${name}. The service PC picks it up within about a minute.` });
+        }}
+        onConflict={load}
+      />
+
       <h2 className="section-title">Frames</h2>
       {frames.length === 0 && editing !== "new" && (
         <p className="page-note">
@@ -284,6 +296,71 @@ function summary(row: ContentRow): string {
 }
 
 // ---- Meeting details (the meeting record) ----
+
+// The transition every Frame uses unless it has its own (the program's Settings → Transitions; record layout/profile)
+function TransitionStyle({
+  record,
+  canEdit,
+  workspaceId,
+  onSaved,
+  onConflict,
+}: Readonly<{
+  record: PulledRecord | undefined;
+  canEdit: boolean;
+  workspaceId: string;
+  onSaved: (r: PulledRecord, name: string) => void;
+  onConflict: () => void;
+}>) {
+  const supabase = browserSupabase();
+  const current = profileOf(record?.body);
+  const [busy, setBusy] = useState(false);
+  const [problem, setProblem] = useState<string | null>(null);
+
+  async function choose(id: string) {
+    if (!supabase || id === current || busy) return;
+    setBusy(true);
+    setProblem(null);
+    const base = record ?? { kind: "layout" as const, id: "profile", rev: 0, seq: 0, body: null };
+    const body = { value: id };
+    const answer = await pushRecord(supabase, workspaceId, base, body);
+    setBusy(false);
+    if (answer.status === "ok") onSaved({ ...base, kind: "layout", body, rev: answer.rev }, PROFILES.find((p) => p.id === id)?.name ?? id);
+    else if (answer.status === "conflict") {
+      setProblem("The transition style changed on the PC meanwhile. Here is the latest; choose again if needed.");
+      onConflict();
+    } else setProblem(answer.message);
+  }
+
+  return (
+    <section className="frame-card fd-style-card" data-reveal>
+      <header>
+        <h3>Transition style</h3>
+        <span className="workspace-hint">How every Frame moves on screen, unless a Frame has its own transition.</span>
+      </header>
+      <div className="fd-style-grid" role="radiogroup" aria-label="Transition style">
+        {PROFILES.map((p) => (
+          <button
+            key={p.id}
+            type="button"
+            role="radio"
+            aria-checked={p.id === current}
+            disabled={!canEdit || busy}
+            className={p.id === current ? "fd-style fd-style-on" : "fd-style"}
+            onClick={() => choose(p.id)}
+          >
+            <strong>{p.name}</strong>
+            <span>{p.feel}</span>
+          </button>
+        ))}
+      </div>
+      {problem && (
+        <p className="workspace-problem" role="alert">
+          {problem}
+        </p>
+      )}
+    </section>
+  );
+}
 
 function MeetingDetails({
   record,

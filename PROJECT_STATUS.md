@@ -41,6 +41,8 @@ Phase detail lives in
   Apple-style design (`hosted/src/app/design.css`). On the branch; goes live with the next push to `main`.
 - **6.11** ([meeting-form.md](docs/architecture/meeting-form.md)): built: camera check card and `framedecks://` link; website Meeting Form (`/meeting`);
   Excel moved into Settings → Data / Backup; version 6.11. Owner: live test G; then 6.12 removes Excel (W3).
+- **Website polish (26 October):** redesign, motion and About; owners delete workspaces; Branding page, Transition style on
+  the Meeting Form, Birthdays this week on the dashboard (synced `brand`, `layout/profile` and member records).
 - **Free plan** ([free-hosting.md](docs/project/free-hosting.md)): steps 1–4 are on `main` (26 October):
   (companion builds as static files; `/api/sync-config` written at build time) and step 2 (keep-alive every 3 days,
   encrypted nightly backup, [restore guide](docs/project/database-backup.md)). Step 3 done (idle
