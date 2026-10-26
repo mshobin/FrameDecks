@@ -1184,3 +1184,21 @@ body.spotlight .pal-top{padding:16px 18px}
 body.spotlight .pal-in{font-size:19px}
 body.spotlight .pal.spot-in{animation:pal-in .12s ease-out}
 @media (prefers-reduced-motion:reduce){ body.spotlight .pal.spot-in{animation:none} }
+
+/* =====================================================================================================
+ * 6.11 - the same palette as the FRAMEDECKS website (hosted/src/app/globals.css :root), so the program and
+ * the website feel like one product (owner's request, 26 October 2026). Colours only: layout, sizes and effects
+ * are unchanged, and there is still no backdrop blur. The website's translucent surfaces are given here as the
+ * solid colours they show over its background. The light theme is unchanged.
+ * ===================================================================================================== */
+:root,html[data-theme="dark"]{
+  --app-bg:#070c18; --bg:#070c18; --chrome-bg:#090f1d;
+  --surface:#0f172b; --raised:#1b2540; --field:#0a1020; --panel:#0c1426; --panel-2:#131c33;
+  --line:#313a4d; --line-soft:#222a3c; --edge:#262f42; --line-hover:#3d475c; --line-strong:#4f5a70;
+  --ink:#f5f7fb; --muted:#aeb8cc; --faint:#74819b; --ink-warm:#fbf3df;
+  --neutral-btn:#1f2940; --video-bg:#05080f;
+  --gold:#e3b75a; --gold-strong:#f4d58e; --gold-soft:rgba(227,183,90,.14);
+  --accent:#e3b75a; --accent-strong:#d9a945; --accent-soft:rgba(227,183,90,.14); --accent-ink:#1a1306;
+  --mica:linear-gradient(180deg,rgba(227,183,90,.03),rgba(255,255,255,0) 60%);
+  --kc-navy:#070c18; --kc-gold-line:rgba(227,183,90,.32);
+}

@@ -58,6 +58,7 @@ Full notes: [docs/releases/v6.11.md](docs/releases/v6.11.md)
 ### Changed
 - The Excel Meeting Workbook (import, template, export, undo) moved to **Settings → Data / Backup**; the Meeting
   menu, Meeting tab and empty Studio no longer show it (owner decision W2).
+- The dark theme uses the website's colour palette (colours only), so the program and the website match.
 
 ## [6.10] - 2026-10-20
 

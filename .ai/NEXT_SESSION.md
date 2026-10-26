@@ -106,7 +106,8 @@ Built on the branch: Apple-style design for the whole companion (`hosted/src/app
 `globals.css`): landing page for visitors (brand, "How it works" four-step workflow, features, privacy), signed-in
 dashboard (greeting, brand, live tiles: next meeting, plan, service PC, people; workflow; account), grouped
 sidebar (Plan / Present / People), sticky glass top bar, split sign-in page, document layout for Privacy. All pages
-checked at 1440 and 390 px with stand-in data. Desktop program unchanged.
+checked at 1440 and 390 px with stand-in data. The program's dark theme now uses the same palette (last block of
+`app/css/theme.css`, colours only; owner's request); keep the two in step.
 
 ## Pending (owner)
 1. ~~Run the database scripts~~: **done** on 26 October (`0002`–`0008`, all passed).

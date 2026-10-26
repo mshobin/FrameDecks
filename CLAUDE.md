@@ -10,7 +10,9 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
   (`docs/migration-plan.md` §8): **Suggest** in a Frame's question list (only when Ollama answers), **Meeting → Export
   this meeting to PowerPoint**, and **+ Content → Audio…** with its settings; and 6.11 (`docs/architecture/meeting-form.md`, W2): the Excel Meeting
   Workbook moved from the Meeting menu, Meeting tab, empty Studio and palette into **Settings → Data / Backup →
-  Meeting from Excel** (it leaves in 6.12, W3). Nothing else visible may change.
+  Meeting from Excel** (it leaves in 6.12, W3); and the website's colour palette in the dark theme (6.11, owner's
+  request: the last block of `app/css/theme.css`, colours only; keep it equal to `hosted/src/app/globals.css` :root).
+  Nothing else visible may change.
 - The codebase is the source of truth; verify docs against it.
 - Do not touch the legacy LAN remote or let the hosted app call the local HTTP server.
 - Never commit secrets. `.env*` is ignored except `hosted/.env.example`. Never the Supabase `service_role` key; the

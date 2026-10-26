@@ -376,7 +376,7 @@ def main():
     webview.settings["ALLOW_DOWNLOADS"] = True                 # backups and Excel exports
     webview.settings["OPEN_EXTERNAL_LINKS_IN_BROWSER"] = True  # WhatsApp etc. open in your browser
     window = webview.create_window(DISPLAY_NAME, url, width=1440, height=900, min_size=(1000, 640),
-                                   background_color="#0a1222", text_select=True)
+                                   background_color="#070c18", text_select=True)
     state["window"] = window
     server.DESKTOP["shell"] = "webview"
     state["dark"] = True
@@ -521,7 +521,7 @@ def main():
             except Exception:
                 state["speaker"] = None
         w = webview.create_window(DISPLAY_NAME + " · Teleprompter", url + "speaker.html", width=1200, height=780,
-                                  min_size=(640, 420), background_color="#0b0e13", text_select=True)
+                                  min_size=(640, 420), background_color="#070c18", text_select=True)
         def closed():
             if state.get("speaker") is w:
                 state["speaker"] = None
@@ -591,7 +591,7 @@ def main():
 
     # ---------- 6.8 Spotlight: one small window, made at start-up and only shown and hidden (instant) ----------
     spot = webview.create_window(DISPLAY_NAME + " · Spotlight", url + "spotlight.html", width=760, height=500,
-                                 background_color="#0f141c", frameless=True, easy_drag=False, hidden=True,
+                                 background_color="#0f172b", frameless=True, easy_drag=False, hidden=True,
                                  on_top=True, text_select=False)
     state["spot_ready"] = False
 
