@@ -249,3 +249,13 @@ continuity files in the same commit (owner's rule). Never force-push.
 - Deleted `streamdeck/`, its workflow, `tools/make_streamdeck_icons.py`, the local `/api/command` and
   `/api/command/status` endpoints (`server.run_local_command`, `local_status`) and `tests/test_local_command.py`.
   This also closes audit finding N1 (the plugin's vulnerable zod). Companion and Wi-Fi remotes are unchanged.
+
+## Audit roadmap step 2 (26 October, owner's request; all in 6.11.1, not yet published)
+- Built: non-blocking window buttons (M9); one OpenCV (M7); Save support bundle; update notice (About, once a day,
+  never downloads); Desktop checks workflow (ruff + JS syntax + doc links); website performance budget; installer
+  smoke test (install, start, ping, quit, uninstall) in the Windows build; nightly backup self-check + checksum;
+  failure issues for the DB workflows; offline-cache trimming; fsync of the plan file; release checklist with
+  rollback (`docs/development/release-checklist.md`).
+- Owner: publish v6.11.1 (Releases), run `0009`, then the Windows checks and live tests A–G.
+- Next (step 3, before going public): signing, full CSP, phone-remote sessions/PIN, backup location, outside
+  penetration test, 6.12 Excel removal.

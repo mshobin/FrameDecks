@@ -53,11 +53,17 @@ Full notes: [docs/releases/v6.11.1.md](docs/releases/v6.11.1.md)
 - A damaged saved plan is kept aside and the newest readable daily backup opens instead; a linked PC then restores
   the plan from its workspace. Settings → Diagnostics says what happened.
 - Settings menu grouped (Your meeting, Presenting, Account, This PC, Help), with descriptions and Find a setting.
+- Settings → Diagnostics → Save support bundle (log, Diagnostics, settings; never plan, members, PIN or keys).
+- About announces a newer published version once a day (never downloads; `FRAMEDECKS_NO_UPDATE_CHECK=1` turns it off).
+- CI: Desktop checks (ruff, JS syntax, doc links), the website's performance budget, an installer smoke test, and
+  a backup check that the nightly copy decrypts and lists its tables; failed scheduled runs open a GitHub issue.
 
 ### Changed
 - Sync no longer deletes every Frame in the workspace when they all vanish from one PC; they are restored instead.
 - The program's local API refuses calls from other websites (`Sec-Fetch-Site: cross-site`).
 - Errors the program recovers from are logged (at most once a minute each).
+- Window buttons (minimise, maximise, restore, close) never wait on the window's thread.
+- One OpenCV (opencv-python 5.0); the unused opencv-python-headless 4.14 is gone from the installer.
 - Build: every GitHub Action and the softcam source pinned to a reviewed commit; only the release job can write.
 - Database `0009_seen_throttle.sql`: a PC's last-seen time is written at most once a minute.
 

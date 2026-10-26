@@ -124,7 +124,7 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
 
 ## Commands
 - Before and after every change, all of these must pass (the cloud session's last results are in brackets):
-- Desktop JS tests: `node tests/run.js` [4/4]; Python: `python -m unittest discover -s tests -p "test_*.py"` [141 OK];
+- Desktop JS tests: `node tests/run.js` [4/4]; Python: `python -m unittest discover -s tests -p "test_*.py"` [139 OK];
   packaging: `python packaging/check.py` [6.11.1].
 - Hosted (run inside `hosted/`, there is no root package.json): `npm test` [110/110], `npm run lint`, `npm run typecheck`, `npm run build`.
   `npm test` applies every migration to in-memory Postgres (PGlite) and loads `src/lib/sync-entities.ts` with Node's
@@ -132,8 +132,17 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
 - Sync fixtures: `python tools/make_sync_fixtures.py` rebuilds `tests/fixtures/sync/` (needs Node) after changing
   `store.js` normalize or the record mapping; `tests/sync-fixtures.test.js` says when.
 - Docs: `python tools/check_doc_links.py`, `git diff --check`.
+- Lint: `ruff check .` (`ruff.toml`; CI pins ruff 0.16.8) and `node --check` on `app/js/*.js` (the Desktop checks
+  workflow). Website budget: `node hosted/scripts/check-budget.mjs` after `npm run build`.
+- Releases: [docs/development/release-checklist.md](docs/development/release-checklist.md) (pilot first; rollback).
 
 ## Gotchas
+- Audit roadmap step 2 (6.11.1, 26 October): the Stream Deck plugin is removed (no `/api/command`); window buttons use
+  `desktop_win.show_async` / `set_topmost` and threads, never pywebview setters from the web-server thread; one
+  OpenCV (`opencv-python`; `packaging/check.py` fails on two); `server.support_bundle` (Diagnostics; never plan,
+  members, PIN, sessions or keys); `server.check_for_update` asks GitHub once a day (About shows a link, never
+  downloads; `FRAMEDECKS_NO_UPDATE_CHECK=1` off); the installer smoke test in `build-windows.yml`; the nightly backup
+  proves it decrypts and lists tables; failed DB workflows open a GitHub issue.
 - Production audit (`docs/project/2026-10-26-production-audit.md`), steps 1–2 built in 6.11.1:
   - every GitHub Action and the softcam clone are pinned to a full commit (update the SHA and its comment together;
     Dependabot proposes updates); only the `release` job has `contents: write`;

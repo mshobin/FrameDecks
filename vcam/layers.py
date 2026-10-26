@@ -8,7 +8,6 @@ Each layer's transformed picture is cached (premultiplied, 8-bit) and rebuilt on
 transform changes, so a still logo costs one quick blend per frame. Videos decode on their own thread.
 """
 import math
-import os
 import threading
 import time
 from pathlib import Path

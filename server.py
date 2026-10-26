@@ -258,7 +258,10 @@ def _write_state_file():
         t.cancel()
     DISK.update(dirty=False, timer=None)
     tmp = STATE_FILE.with_suffix(".tmp")
-    tmp.write_text(json.dumps(state, ensure_ascii=False), encoding="utf-8")
+    with open(tmp, "w", encoding="utf-8") as f:   # on disk before it replaces the old file (power cut, audit L2)
+        f.write(json.dumps(state, ensure_ascii=False))
+        f.flush()
+        os.fsync(f.fileno())
     os.replace(tmp, STATE_FILE)
 
 

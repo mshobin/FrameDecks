@@ -11,6 +11,7 @@ on:
 
 permissions:
   contents: read
+  issues: write      # only to open an issue when a run fails (step below)
 
 jobs:
   backup:
@@ -54,6 +55,23 @@ jobs:
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: framedecks-backup-${{ github.run_number }}
-          path: backup/*.tar.enc
+          path: |
+            backup/*.tar.enc
+            backup/*.tar.enc.sha256
           retention-days: 30
           if-no-files-found: error
+
+      - name: Tell the owner when this fails (one open issue, a comment per failure)
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TITLE: "Database backup failed"
+          RUN: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          n=$(gh issue list --repo "$GITHUB_REPOSITORY" --state open --search "\"$TITLE\" in:title" --json number --jq '.[0].number // empty')
+          if [ -n "$n" ]; then
+            gh issue comment "$n" --repo "$GITHUB_REPOSITORY" --body "It failed again: $RUN"
+          else
+            gh issue create --repo "$GITHUB_REPOSITORY" --title "$TITLE" \
+              --body "The scheduled run failed: $RUN. Open it to see the step that failed. Close this issue once it is green again."
+          fi

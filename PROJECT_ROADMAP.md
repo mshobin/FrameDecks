@@ -22,6 +22,7 @@ Updated 26 October 2026. PR #32 is merged; the live Supabase database has every 
 | Free for everyone ([free-hosting.md](docs/project/free-hosting.md)) | In progress: 1 static companion (live at framedecks.pages.dev); 2 keep-alive and encrypted backup (live, first runs green); 3 fewer database requests (done); 4 sign-in providers first (live: Google and Microsoft; Brevo skipped); 5 public repo, signing, Releases (owner) |
 | 6.11: plan on the website ([meeting-form.md](docs/architecture/meeting-form.md)) | In progress: 1 camera check and Open FRAMEDECKS link (built); 2 website Meeting Form (built); 3 Excel into Settings, version 6.11 (built); owner test G. 6.12 removes Excel after the owner's test (W3) |
 | Camera renamed FRAMECAST; v6.11 release notes | Built; v6.11 release published with the installer (26 October) |
+| Audit roadmap step 2 (support bundle, update notice, CI checks, one OpenCV, non-blocking windows) | Built (26 October), ships in 6.11.1 |
 | 6.11.1: production audit steps 1–2 (`docs/project/2026-10-26-production-audit.md`) | Built (26 October); owner publishes v6.11.1 and runs `0009`. Next: step 3 (live tests, M9, M7) |
 | Website idle performance (no endless animations, less blur) | Built and live on push (26 October) |
 | First-install fixes: website "Forbidden", Teleprompter unpin, Settings menu | Built on `main` (26 October); owner tests from the next build |

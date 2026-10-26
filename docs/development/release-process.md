@@ -1,5 +1,7 @@
 # Release process
 
+Step by step, with rollback: [release-checklist.md](release-checklist.md).
+
 A release is something a church volunteer will install and rely on during a service. This process exists so that no
 release surprises them.
 

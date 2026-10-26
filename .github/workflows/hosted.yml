@@ -49,3 +49,6 @@ jobs:
 
       - name: Build
         run: npm run build
+
+      - name: Performance budget (gzipped JavaScript and CSS)
+        run: node scripts/check-budget.mjs

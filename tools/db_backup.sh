@@ -23,3 +23,14 @@ tar -C "$work" -cf "$work/backup.tar" public.dump auth.dump README.txt
 openssl enc -aes-256-cbc -pbkdf2 -iter 200000 -salt -pass env:BACKUP_PASSPHRASE \
   -in "$work/backup.tar" -out "$out/framedecks-backup-$stamp.tar.enc"
 echo "Backup written: $out/framedecks-backup-$stamp.tar.enc ($(stat -c %s "$out/framedecks-backup-$stamp.tar.enc") bytes)"
+# Prove the copy can be restored (audit roadmap step 2): decrypt it again, unpack it and let pg_restore read both
+# archives' tables of contents. A backup that cannot be read fails this run instead of failing on the day it is needed.
+check="$work/check"
+mkdir -p "$check"
+openssl enc -d -aes-256-cbc -pbkdf2 -iter 200000 -pass env:BACKUP_PASSPHRASE \
+  -in "$out/framedecks-backup-$stamp.tar.enc" | tar -C "$check" -xf -
+tables=$(pg_restore --list "$check/public.dump" | grep -c "TABLE DATA" || true)
+pg_restore --list "$check/auth.dump" > /dev/null
+[ "$tables" -gt 0 ] || { echo "The backup holds no table data" >&2; exit 1; }
+sha256sum "$out/framedecks-backup-$stamp.tar.enc" | sed "s|$out/||" > "$out/framedecks-backup-$stamp.tar.enc.sha256"
+echo "Backup verified: it decrypts, unpacks and lists $tables tables with data."

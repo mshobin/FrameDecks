@@ -65,7 +65,7 @@ try:
     from vcam.program import ProgramFX                   # v6: text layers, transitions, Blackout / Emergency
     _cmp.program_fx = ProgramFX(root / "app" / "fonts", lambda: {"live": {"blackout": True}}, lambda: True)
     assert _cmp.compose(_np.full((720, 1280, 3), 90, _np.uint8), 1280, 720).shape == (720, 1280, 3), "program effects failed"
-    import pypdfium2                                     # PDF slides
+    import pypdfium2  # noqa: F401                       # PDF slides: the import itself is the check
     for _k in BUILT_IN:
         assert Grade(BUILT_IN[_k]).apply(_np.full((72, 128, 3), 128, _np.uint8)).shape == (72, 128, 3), "look failed: " + _k
     print("FRAMEDECKS: blur model loads with OpenCV", cv2.__version__)

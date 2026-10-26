@@ -1,0 +1,7 @@
+# Python lint run in CI (audit roadmap step 2): syntax errors and pyflakes (unused names, undefined names, etc.).
+# Start narrow so it stays green; widen the rule set file by file.
+target-version = "py312"
+extend-exclude = ["hosted", "vcam_build", "dist", "build"]
+
+[lint]
+select = ["E9", "F"]

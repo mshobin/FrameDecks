@@ -10,6 +10,7 @@ on:
 
 permissions:
   contents: read
+  issues: write      # only to open an issue when a run fails (step below)
 
 jobs:
   ping:
@@ -30,3 +31,18 @@ jobs:
             -H "apikey: $SUPABASE_ANON_KEY" -H "Content-Type: application/json" -d '{"key":"keep-alive"}')
           echo "Database answered: $answer"
           echo "$answer" | grep -q '"unknown"'
+
+      - name: Tell the owner when this fails (one open issue, a comment per failure)
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TITLE: "Database keep-alive failed"
+          RUN: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          n=$(gh issue list --repo "$GITHUB_REPOSITORY" --state open --search "\"$TITLE\" in:title" --json number --jq '.[0].number // empty')
+          if [ -n "$n" ]; then
+            gh issue comment "$n" --repo "$GITHUB_REPOSITORY" --body "It failed again: $RUN"
+          else
+            gh issue create --repo "$GITHUB_REPOSITORY" --title "$TITLE" \
+              --body "The scheduled run failed: $RUN. Open it to see the step that failed. Close this issue once it is green again."
+          fi

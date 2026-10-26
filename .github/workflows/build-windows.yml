@@ -191,6 +191,39 @@ jobs:
             dist/FRAMEDECKS v*.exe.sha256
           if-no-files-found: error
 
+      - name: Smoke test the installer (install, start, answer, quit, uninstall)
+        shell: pwsh
+        run: |
+          # Audit roadmap step 2: the real installer on a clean Windows machine, without the camera task (it needs
+          # administrator permission). The program must answer on its local port, then uninstall cleanly.
+          $setup = (Get-ChildItem "dist/FRAMEDECKS v*.exe" | Select-Object -First 1).FullName
+          $p = Start-Process $setup -ArgumentList '/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART','/MERGETASKS=!vcam,!desktopicon' -PassThru -Wait
+          if ($p.ExitCode -ne 0) { throw "installer exit code $($p.ExitCode)" }
+          $dir = Join-Path $env:LOCALAPPDATA 'Programs\FRAMEDECKS'
+          if (-not (Test-Path (Join-Path $dir 'FRAMEDECKS.exe'))) { throw "FRAMEDECKS.exe was not installed in $dir" }
+          $env:KC_DATA_DIR = Join-Path $env:RUNNER_TEMP 'fd-smoke-data'
+          $app = Start-Process (Join-Path $dir 'FRAMEDECKS.exe') -PassThru
+          $ok = $false
+          foreach ($i in 1..60) {
+            Start-Sleep -Seconds 2
+            try {
+              $r = Invoke-RestMethod -Uri 'http://127.0.0.1:8750/api/app/ping' -TimeoutSec 3
+              if ($r.app -eq 'FRAMEDECKS') { Write-Host "Answered: FRAMEDECKS $($r.version)"; $ok = $true; break }
+            } catch { }
+          }
+          & taskkill /F /T /IM FRAMEDECKS.exe | Out-Null
+          if (-not $ok) {
+            $log = Join-Path $env:KC_DATA_DIR 'kc-app-log.txt'
+            if (Test-Path $log) { Get-Content $log -Tail 80 }
+            throw "the installed program did not answer on 127.0.0.1:8750 within 2 minutes"
+          }
+          Start-Sleep -Seconds 3
+          $un = Start-Process (Join-Path $dir 'unins000.exe') -ArgumentList '/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART' -PassThru -Wait
+          if ($un.ExitCode -ne 0) { throw "uninstaller exit code $($un.ExitCode)" }
+          Start-Sleep -Seconds 3
+          if (Test-Path (Join-Path $dir 'FRAMEDECKS.exe')) { throw "FRAMEDECKS.exe is still there after uninstalling" }
+          Write-Host "Installed, answered, quit and uninstalled cleanly."
+
       - name: Write the branded release notes (the About screen's header, then the notes)
         if: startsWith(github.ref, 'refs/tags/v')
         run: python tools/make_release_notes.py --version ${{ steps.ver.outputs.version }} --repo ${{ github.repository }} --ref ${{ github.sha }} --out dist/release-notes.md

@@ -276,7 +276,6 @@ def main():
         def look_items():
             def pick(lid):
                 return lambda icon, item: tray_look(lid)
-            cur = server.vcam_settings().get("look", "off")
             looks = [("off", "Off")] + [(l["id"], l["name"]) for l in server._looks_list()]
             return [pystray.MenuItem(name, pick(lid), checked=(lambda item, lid=lid: server.vcam_settings().get("look") == lid), radio=True)
                     for lid, name in looks]
