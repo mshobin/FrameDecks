@@ -89,8 +89,9 @@ export function WorkspaceMembers({
     await load();
   }
 
-  async function cancelInvite(id: string) {
+  async function cancelInvite(id: string, email: string) {
     if (!supabase) return;
+    if (!window.confirm(`Cancel the invitation to ${email}? The link in their email stops working.`)) return;
     const { error } = await supabase.from("invitations").delete().eq("id", id);
     if (error) setMessage({ ok: false, text: error.message });
     await load();
@@ -170,7 +171,7 @@ export function WorkspaceMembers({
                   <span className="member-runner">Can run services</span>
                 )}
                 {canRemove && (
-                  <button className="member-action" type="button" onClick={() => remove(member)}>
+                  <button className="member-action member-danger" type="button" onClick={() => remove(member)}>
                     {isMe ? "Leave" : "Remove"}
                   </button>
                 )}
@@ -184,7 +185,7 @@ export function WorkspaceMembers({
                 <span>Invited · waiting for them to sign in</span>
               </span>
               <span className="workspace-role">{roleLabels[invitation.role]}</span>
-              <button className="member-action" type="button" onClick={() => cancelInvite(invitation.id)}>
+              <button className="member-action member-danger" type="button" aria-label={`Cancel the invitation to ${invitation.email}`} onClick={() => cancelInvite(invitation.id, invitation.email)}>
                 Cancel
               </button>
             </li>

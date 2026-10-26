@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { History, RotateCcw } from "lucide-react";
 
+import { When } from "@/components/when";
 import { lastKept, versionsOf, whoMade, type HistoryRow, type Version } from "@/lib/history-view";
 import { browserSupabase } from "@/lib/supabase-browser";
 import { pushRecord, type PulledRecord } from "@/lib/workspace-sync";
@@ -42,8 +43,6 @@ async function loadHistory(organizationId: string, ids: string[]): Promise<Row[]
     .order("rev", { ascending: false });
   return (data as Row[] | null) ?? [];
 }
-
-const when = (at: string | null) => (at ? new Date(at).toLocaleString() : "earlier");
 
 // An older version back as the newest one, through the same sync_push as an edit (owners and admins)
 async function restore(organizationId: string, current: PulledRecord, version: Version) {
@@ -96,7 +95,7 @@ export function FrameHistory({
         {versions.map((v) => (
           <li key={v.rev}>
             <span className="history-what">
-              <strong>{v.current ? "Now" : `Version ${v.rev}`}</strong> · {when(v.at)} ·{" "}
+              <strong>{v.current ? "Now" : `Version ${v.rev}`}</strong> · <When at={v.at} fallback="earlier" /> ·{" "}
               {whoMade(v.by, names?.people ?? {}, names?.computers ?? {})}
               {v.changes.length > 0 && <span className="history-changes">changed {v.changes.join(", ")}</span>}
             </span>
@@ -170,7 +169,7 @@ export function DeletedFrames({
             <span className="member-who">
               <strong>{String(kept?.body?.name ?? "Frame")}</strong>
               <span>
-                Deleted {when(record.updatedAt ?? null)} by{" "}
+                Deleted <When at={record.updatedAt} fallback="earlier" /> by{" "}
                 {whoMade(record.updatedBy ?? "", names?.people ?? {}, names?.computers ?? {})}
               </span>
             </span>

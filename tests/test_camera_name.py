@@ -23,7 +23,7 @@ VCAM_PANEL_PROGRAM_LINES = (
 class CameraName(unittest.TestCase):
     def test_no_desktop_label_calls_the_camera_framedecks(self):
         found = []
-        for path in sorted(list(APP.glob("js/*.js")) + list(APP.glob("*.html"))):
+        for path in sorted(list(APP.glob("js/*.js")) + list(APP.glob("*.html")) + list(APP.glob("css/*.css"))):
             for n, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
                 if CAMERA_CONTEXT.search(line):
                     found.append(f"{path.relative_to(ROOT)}:{n}: {line.strip()[:120]}")

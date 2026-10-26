@@ -152,10 +152,11 @@ the program's About page in the website's design, with the same words (brand.jso
 - D4 (sync conflict rules): built as recommended (keep both Frames; the last writer wins for settings and people).
 
 ## Design audit (26 October, chat only)
-Ranked roadmap from the design audit: ranks 1–4 are done (DD-01 camera labels, `tests/test_camera_name.py`; DD-03
+Ranked roadmap from the design audit: ranks 1–7 and 9–11 are done (5–7, 9–11 on 26 October: `hosted/src/lib/when.ts`,
+`content-kind.tsx`, the phone tab bar in `app-shell.tsx`, landing screenshots in `hosted/public/product/`; retake those
+if the Studio or Live page changes look). Earlier: ranks 1–4 are done (DD-01 camera labels, `tests/test_camera_name.py`; DD-03
 first run, DD-02 overlaps and Teleprompter empty state, DD-13 command bar words, `tests/test_ui_labels.py`). Next in
-the list: 5 website date/time helper (DD-09), 6 mobile website navigation (DD-12), 9 destructive-action styling,
-10 micro-label contrast. Desktop items need the owner's go-ahead; website items do not.
+the list: 8 microcopy voice pass (DD-16), 12 state kit (DD-15), 13 typography (DD-04), 14 Lucide icons (DD-06). Desktop items need the owner's go-ahead; website items do not.
 Owner checks on Windows: a new data folder shows Welcome to FRAMEDECKS with Start fresh first; the command bar at
 the PC's real width.
 

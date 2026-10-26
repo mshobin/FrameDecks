@@ -4,13 +4,13 @@ import { useCallback, useEffect, useState, type FormEvent } from "react";
 
 import { Button } from "@/components/ui/button";
 import { NotSetUp, WorkspaceGate } from "@/components/workspace-gate";
+import { When } from "@/components/when";
 import { browserSupabase } from "@/lib/supabase-browser";
 import type { WorkspaceChoice } from "@/lib/use-workspaces";
 import { syncNotSetUp } from "@/lib/workspace-sync";
 
 type Computer = { id: string; name: string; created_at: string; last_seen_at: string | null; revoked_at: string | null };
 
-const seen = (at: string | null) => (at ? new Date(at).toLocaleString() : "not yet");
 
 function Computers({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
   const supabase = browserSupabase();
@@ -121,9 +121,9 @@ function Computers({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
               <li key={c.id}>
                 <span className="member-who">
                   <strong>{c.name}</strong>
-                  <span>Linked {seen(c.created_at)} · last synced {seen(c.last_seen_at)}</span>
+                  <span>Linked <When at={c.created_at} /> · last synced <When at={c.last_seen_at} fallback="not yet" /></span>
                 </span>
-                <button className="member-action" type="button" onClick={() => disconnect(c)}>
+                <button className="member-action member-danger" type="button" aria-label={`Disconnect ${c.name}`} onClick={() => disconnect(c)}>
                   Disconnect
                 </button>
               </li>

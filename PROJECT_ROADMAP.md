@@ -25,6 +25,7 @@ Updated 26 October 2026. PR #32 is merged; the live Supabase database has every 
 | Audit roadmap step 2 (support bundle, update notice, CI checks, one OpenCV, non-blocking windows) | Built (26 October), ships in 6.11.1 |
 | Design audit rank 1 (DD-01: every camera label says FRAMECAST, with a test) | Built (26 October), ships in 6.11.1 |
 | Design audit ranks 2–4 (DD-03 first run, DD-02 overlaps and empty states, DD-13 command bar words) | Built (26 October), ships in 6.11.1 |
+| Design audit ranks 5–7, 9–11 (website dates, phone tab bar, landing, destructive actions, contrast, card previews) | Built (26 October); website live on deploy, program part in 6.11.1 |
 | 6.11.1: production audit steps 1–2 (`docs/project/2026-10-26-production-audit.md`) | Built (26 October); owner publishes v6.11.1 and runs `0009`. Next: step 3 (live tests, M9, M7) |
 | Website idle performance (no endless animations, less blur) | Built and live on push (26 October) |
 | First-install fixes: website "Forbidden", Teleprompter unpin, Settings menu | Built on `main` (26 October); owner tests from the next build |

@@ -36,7 +36,15 @@ test("questions, scriptures and text cards read as lines", () => {
   const content = frames.find((f) => f.name === "Study: John 3").content;
   assert.deepEqual(content.find((c) => c.kind === "question").lines, ["What stands out?"]);
   assert.deepEqual(content.find((c) => c.kind === "scripture").lines, ["John 3:16 (ESV): For God so loved"]);
-  assert.deepEqual(frames[0].content[0].lines, ["Announcement", "Welcome, friends"]);
+  assert.deepEqual(frames[0].content[0].lines, ["Welcome, friends"]);     // "Announcement" only repeated its title
+});
+
+test("a card never repeats its title and says when nothing is added yet (design audit DD-17)", () => {
+  const doc = fromRecords().doc;
+  const frames = describeFrames(doc);
+  const study = frames.find((f) => f.name === "Study: John 3").content;
+  for (const c of frames.flatMap((f) => f.content)) assert.ok(!c.lines.some((l) => l.toLowerCase() === c.title.toLowerCase()), c.title);
+  for (const c of study) if (!c.lines.length) assert.match(c.empty, /^No (questions|scripture) yet$/);
 });
 
 test("members come out sorted by name with every field as text", () => {

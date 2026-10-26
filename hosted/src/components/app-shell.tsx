@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ClipboardList, Home as HomeIcon, Palette, Monitor, Presentation, Radio, Users } from "lucide-react";
+import { ClipboardList, Ellipsis, Home as HomeIcon, Palette, Monitor, Presentation, Radio, Users } from "lucide-react";
 
 import { AboutButton } from "@/components/about-dialog";
 import { AccountStatus } from "@/components/account-status";
@@ -27,6 +27,19 @@ const groups = [
     ],
   },
   { title: "People", items: [{ id: "members", label: "Members", href: "/members", icon: Users }] },
+] as const;
+
+// Phones (design audit DD-12): the four pages used during a service sit in a bottom tab bar, the rest under More
+const tabs = [
+  { id: "overview", label: "Overview", href: "/", icon: HomeIcon },
+  { id: "meeting", label: "Meeting", href: "/meeting", icon: ClipboardList },
+  { id: "live", label: "Live", href: "/live", icon: Radio },
+  { id: "members", label: "Members", href: "/members", icon: Users },
+] as const;
+const more = [
+  { id: "services", label: "Services", href: "/services", icon: Presentation },
+  { id: "branding", label: "Branding", href: "/branding", icon: Palette },
+  { id: "computers", label: "Computers", href: "/computers", icon: Monitor },
 ] as const;
 
 const titles: Record<Section, string> = {
@@ -98,6 +111,35 @@ export function AppShell({ active, children }: Readonly<{ active: Section; child
         </header>
         <main className="fd-page">{children}</main>
       </div>
+
+      <nav className="fd-tabbar" aria-label="Main navigation">
+        {tabs.map(({ id, label, href, icon: Icon }) => (
+          <Link className="fd-tab" href={href} key={id} aria-current={id === active ? "page" : undefined}>
+            <Icon aria-hidden="true" size={20} strokeWidth={1.9} />
+            <span>{label}</span>
+          </Link>
+        ))}
+        <details className="fd-more">
+          <summary className="fd-tab" aria-current={more.some((m) => m.id === active) ? "page" : undefined}>
+            <Ellipsis aria-hidden="true" size={20} strokeWidth={1.9} />
+            <span>More</span>
+          </summary>
+          <div className="fd-more-sheet">
+            {more.map(({ id, label, href, icon: Icon }) => (
+              <Link className="fd-nav-item" href={href} key={id} aria-current={id === active ? "page" : undefined}>
+                <Icon aria-hidden="true" size={17} strokeWidth={1.9} />
+                <span>{label}</span>
+              </Link>
+            ))}
+            <a className="fd-nav-item" href={DOWNLOADS} target="_blank" rel="noreferrer">
+              FRAMEDECKS for Windows
+            </a>
+            <Link className="fd-nav-item" href="/privacy">
+              Privacy policy
+            </Link>
+          </div>
+        </details>
+      </nav>
     </div>
   );
 }

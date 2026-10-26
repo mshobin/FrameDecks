@@ -48,6 +48,9 @@ Phase detail lives in
 - **Design audit ranks 2–4 (26 October, owner-approved):** first-run Start fresh + Getting started card (DD-03), nothing
   over the Studio canvas and a Teleprompter empty state (DD-02), command bar in words (DD-13); `tests/test_ui_labels.py`;
   Python 147 OK. Checked in a browser at 1920, 1440, 1280 and 1100 px, idle and live.
+- **Design audit ranks 5–7, 9–11 (26 October, owner-approved):** website dates, phone tab bar, landing with real
+  screenshots (`hosted/public/product/`), destructive styling, 12 px / 4.5:1 labels (website and program), card previews.
+  Hosted 114/114, lint, typecheck, build, budget (JS 323 KB); Python 147 OK. Screenshots at 1440 px and 390 px.
 - **6.11.1 (26 October):** audit steps 1–2 built (pinned build, cross-site guard, error logging, plan recovery and
   sync guard, `0009`); owner publishes the release and runs `0009`.
 - **Website performance (26 October):** the website no longer animates when idle (older 8 GB PCs next to the program).

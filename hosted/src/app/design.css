@@ -155,7 +155,7 @@ h3 {
 
 .fd-brand-copy span {
   color: var(--text-3);
-  font-size: 11px;
+  font-size: 12px;
 }
 
 .fd-mark {
@@ -220,10 +220,56 @@ h3 {
 }
 
 .fd-mark-medium .fd-tagline {
-  font-size: 11px;
+  font-size: 12px;
 }
 
 /* ---------- App shell ---------- */
+.fd-tabbar {
+  display: none;
+}
+
+.fd-tab {
+  display: flex;
+  min-height: 52px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  border-radius: 10px;
+  color: var(--text-2);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  list-style: none;
+}
+
+.fd-tab::-webkit-details-marker {
+  display: none;
+}
+
+.fd-tab[aria-current="page"] {
+  color: var(--gold-2);
+  font-weight: 600;
+}
+
+.fd-more {
+  position: relative;
+}
+
+.fd-more-sheet {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 8px);
+  display: grid;
+  width: min(260px, calc(100vw - 16px));
+  gap: 2px;
+  border: 1px solid var(--hairline);
+  border-radius: 14px;
+  background: var(--surface-solid);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.45);
+  padding: 8px;
+}
+
 .fd-app {
   min-height: 100vh;
 }
@@ -259,7 +305,7 @@ h3 {
   margin: 0 0 6px;
   padding: 0 12px;
   color: var(--text-3);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -377,7 +423,7 @@ h3 {
   border-radius: 50%;
   background: linear-gradient(135deg, #f2cf7c, #b98a2f);
   color: #1a1306;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
 }
 
@@ -557,7 +603,25 @@ h3 {
   letter-spacing: -0.01em;
 }
 
+/* Destructive actions look different from Edit and links (design audit DD-11): neutral text in a red outline, red on
+   hover; each asks first, naming what it acts on */
 .member-action.member-danger {
+  border: 1px solid rgba(255, 138, 128, 0.4);
+  border-radius: 999px;
+  color: var(--text-2);
+  padding: 3px 11px;
+}
+
+.member-action.member-danger:hover,
+.member-action.member-danger:focus-visible {
+  border-color: var(--red);
+  background: rgba(255, 138, 128, 0.12);
+  color: var(--red);
+}
+
+.frame-actions button.is-danger:hover:not(:disabled),
+.frame-actions button.is-danger:focus-visible {
+  border-color: var(--red);
   color: var(--red);
 }
 
@@ -569,7 +633,7 @@ h3 {
 .fd-welcome {
   position: relative;
   display: grid;
-  grid-template-columns: minmax(0, 1.5fr) minmax(220px, 1fr);
+  grid-template-columns: minmax(0, 1fr);
   align-items: center;
   gap: 32px;
   overflow: hidden;
@@ -951,9 +1015,53 @@ h3 {
   text-align: center;
 }
 
+/* The real program and the real phone page (design audit DD-07) */
+.fd-shots {
+  position: relative;
+  width: min(100%, 1080px);
+  margin: clamp(36px, 6vw, 64px) 0 0;
+  padding-right: clamp(40px, 9vw, 120px);
+}
+
+.fd-shot-desktop {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--hairline-strong);
+  border-radius: 14px;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
+}
+
+.fd-shot-phone {
+  position: absolute;
+  right: 0;
+  bottom: -28px;
+  width: clamp(110px, 20vw, 220px);
+  height: auto;
+  border: 1px solid var(--hairline-strong);
+  border-radius: 22px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+}
+
+.fd-shots figcaption {
+  margin-top: 44px;
+  color: var(--text-2);
+  font-size: 13px;
+}
+
+.fd-mission {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 8px 20px 48px;
+  color: var(--text-2);
+  font-size: 15px;
+  line-height: 1.7;
+  text-align: center;
+}
+
 .fd-hero-title {
   max-width: 860px;
-  margin: 46px 0 18px;
+  margin: 0 0 18px;
   background: linear-gradient(180deg, #ffffff 30%, #c9d3e6);
   -webkit-background-clip: text;
   background-clip: text;
@@ -1252,19 +1360,28 @@ h3 {
     display: none;
   }
 
-  .fd-nav,
-  .fd-nav-group {
-    display: flex;
-    gap: 4px;
-  }
-
-  .fd-nav-item {
-    min-height: 34px;
-    white-space: nowrap;
+  .fd-nav {
+    display: none;
   }
 
   .fd-main {
     margin-left: 0;
+  }
+
+  /* Phones: a bottom tab bar instead of a clipped strip (design audit DD-12) */
+  .fd-tabbar {
+    position: fixed;
+    inset: auto 0 0 0;
+    z-index: 30;
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    border-top: 1px solid var(--hairline);
+    background: var(--surface-solid);
+    padding: 4px 4px max(4px, env(safe-area-inset-bottom));
+  }
+
+  .fd-page {
+    padding-bottom: calc(88px + env(safe-area-inset-bottom));
   }
 
   .fd-welcome {
@@ -1296,6 +1413,21 @@ h3 {
 }
 
 @media (max-width: 620px) {
+  .fd-shots {
+    padding-right: 0;
+  }
+
+  .fd-shot-phone {
+    position: static;
+    display: block;
+    width: min(60%, 220px);
+    margin: 18px auto 0;
+  }
+
+  .fd-shots figcaption {
+    margin-top: 14px;
+  }
+
   .fd-glance,
   .fd-flow,
   .fd-features {
@@ -1476,7 +1608,7 @@ h3 {
 .fd-brand-badge small {
   display: block;
   color: var(--text-2);
-  font-size: 11px;
+  font-size: 12px;
 }
 
 .fd-brand-logo {
@@ -1500,7 +1632,7 @@ h3 {
 
 .fd-brand-label {
   color: var(--accent);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;

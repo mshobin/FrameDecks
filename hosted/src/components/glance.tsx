@@ -8,6 +8,7 @@ import { isOnline, nowShowing, type LiveComputer } from "@/lib/live-view";
 import { browserSupabase } from "@/lib/supabase-browser";
 import { join } from "@/lib/sync-entities";
 import type { WorkspaceChoice } from "@/lib/use-workspaces";
+import { relativeTime } from "@/lib/when";
 import { pullWorkspace } from "@/lib/workspace-sync";
 import { upcomingBirthdays, whenLabel, type Birthday } from "@/lib/workspace-settings";
 
@@ -76,7 +77,7 @@ export function GlanceTiles({ workspace }: Readonly<{ workspace: WorkspaceChoice
       icon: Layers,
       label: "Service plan",
       value: glance ? `${glance.frames} Frame${glance.frames === 1 ? "" : "s"}` : "…",
-      detail: glance?.lastChange ? `Updated ${new Date(glance.lastChange).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })}` : glance ? "Link the service PC to sync it" : "",
+      detail: glance?.lastChange ? `Updated ${relativeTime(glance.lastChange)}` : glance ? "Link the service PC to sync it" : "",
     },
     {
       href: "/live",

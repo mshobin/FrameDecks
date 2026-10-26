@@ -4,7 +4,7 @@ import Link from "next/link";
 import { ArrowRight, ClipboardList, MonitorPlay, Radio } from "lucide-react";
 
 import { AppShell } from "@/components/app-shell";
-import { BrandMark, MISSION } from "@/components/brand-hero";
+import { BrandMark } from "@/components/brand-hero";
 import { GlanceTiles } from "@/components/glance";
 import { Landing } from "@/components/landing";
 import { PcSetupCard } from "@/components/pc-setup-card";
@@ -47,9 +47,11 @@ function Dashboard({ name }: Readonly<{ name: string }>) {
             {selected ? ` · ${selected.name}` : ""}
           </p>
           <h1 id="fd-welcome-title" className="fd-welcome-title">
-            <Words text="Every gathering, beautifully prepared." />
+            <Words text="Ready for your next gathering." />
           </h1>
-          <p className="fd-welcome-text fd-enter" style={{ "--d": "600ms" } as React.CSSProperties}>{MISSION}</p>
+          <p className="fd-welcome-text fd-enter" style={{ "--d": "600ms" } as React.CSSProperties}>
+            Plan the meeting, then run it from the service PC or your phone.
+          </p>
           <div className="fd-hero-actions fd-enter" style={{ "--d": "750ms" } as React.CSSProperties}>
             <Link className="fd-btn fd-btn-primary" href="/meeting">
               <ClipboardList aria-hidden="true" size={17} /> Plan the meeting
@@ -62,7 +64,6 @@ function Dashboard({ name }: Readonly<{ name: string }>) {
             </a>
           </div>
         </div>
-        <BrandMark size="medium" />
       </section>
 
       {selected && <GlanceTiles workspace={selected} />}

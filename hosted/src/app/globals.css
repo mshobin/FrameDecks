@@ -7,7 +7,7 @@
   --foreground: #f5f7fb;
   --text: #f5f7fb;
   --text-2: #aeb8cc;
-  --text-3: #74819b;
+  --text-3: #8793ad; /* at least 4.5:1 on every surface (design audit DD-19) */
   --muted: #aeb8cc;
   --surface: rgba(20, 30, 54, 0.62);
   --surface-solid: #111a2f;
@@ -70,7 +70,7 @@ a {
 .workspace-label,
 .eyebrow {
   color: var(--text-3);
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.105em;
 }
@@ -301,7 +301,7 @@ h1 {
   border-radius: 999px;
   background: var(--blue-soft);
   color: var(--blue);
-  font-size: 11px;
+  font-size: 12px;
   padding: 3px 9px;
 }
 
@@ -397,7 +397,7 @@ h1 {
 
 .member-who span {
   color: var(--text-3);
-  font-size: 11px;
+  font-size: 12px;
 }
 
 .member-pending .member-who strong {
@@ -575,11 +575,23 @@ h1 {
 }
 
 .content-title {
-  color: var(--text-3);
-  font-size: 11px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-2);
+  font-size: 13px;
   font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+}
+
+.content-icon {
+  flex: none;
+  color: var(--gold);
+}
+
+.content-empty {
+  color: var(--text-2);
+  font-size: 13px;
+  font-style: italic;
 }
 
 .content-line {
@@ -637,7 +649,7 @@ h1 {
 .data-table th {
   background: var(--surface);
   color: var(--text-3);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.04em;
   text-transform: uppercase;

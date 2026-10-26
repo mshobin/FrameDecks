@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 
 import { AboutButton } from "@/components/about-dialog";
-import { BrandMark, MISSION } from "@/components/brand-hero";
+import { MISSION } from "@/components/brand-hero";
 import { Words } from "@/components/words";
 import { Workflow } from "@/components/workflow";
 import { DOWNLOADS } from "@/lib/pc-setup";
@@ -54,11 +54,13 @@ export function Landing() {
       </header>
 
       <section className="fd-hero" aria-labelledby="fd-hero-title">
-        <BrandMark />
         <h1 id="fd-hero-title" className="fd-hero-title">
           <Words text="Every gathering, beautifully prepared." />
         </h1>
-        <p className="fd-hero-text fd-enter" style={{ "--d": "700ms" } as React.CSSProperties}>{MISSION}</p>
+        <p className="fd-hero-text fd-enter" style={{ "--d": "700ms" } as React.CSSProperties}>
+          Plan the meeting here, from any computer or phone. FRAMEDECKS on your service PC puts it on the room screen,
+          in Zoom or Teams through the FRAMECAST camera, and in OBS, while you guide it from your phone.
+        </p>
         <div className="fd-hero-actions fd-enter" style={{ "--d": "850ms" } as React.CSSProperties}>
           <Link className="fd-btn fd-btn-primary" href="/sign-in">
             Get started <ArrowRight aria-hidden="true" size={17} />
@@ -67,7 +69,31 @@ export function Landing() {
             <Download aria-hidden="true" size={17} /> FRAMEDECKS for Windows
           </a>
         </div>
-        <p className="fd-hero-note fd-enter" style={{ "--d": "1000ms" } as React.CSSProperties}>Free for churches and fellowship groups · Your media never leaves your PC</p>
+        <p className="fd-hero-note fd-enter" style={{ "--d": "1000ms" } as React.CSSProperties}>
+          Free and open source (Apache 2.0) · Windows 10 and 11 · Zoom, Teams, Google Meet and OBS · Your pictures and
+          video never leave your PC
+        </p>
+        {/* Product truth (design audit DD-07): the real program and the real phone page, not an illustration */}
+        <figure className="fd-shots fd-enter" style={{ "--d": "1100ms" } as React.CSSProperties}>
+          <Image
+            className="fd-shot-desktop"
+            src="/product/studio.webp"
+            alt="The FRAMEDECKS Studio on the service PC: the Frames of a Bible study on the left and the verse and discussion question in the preview"
+            width={1200}
+            height={479}
+            priority
+            unoptimized
+          />
+          <Image
+            className="fd-shot-phone"
+            src="/product/live-phone.webp"
+            alt="The website's Live page on a phone: Previous, Next, Hide all and Black screen for the service PC"
+            width={390}
+            height={844}
+            unoptimized
+          />
+          <figcaption>The Studio on the service PC, and the Live page on a phone during the meeting.</figcaption>
+        </figure>
       </section>
 
       <section className="fd-section" id="how" aria-labelledby="fd-how-title">
@@ -106,6 +132,10 @@ export function Landing() {
         <Link className="fd-btn fd-btn-primary" href="/sign-in">
           Sign in to your workspace <ArrowRight aria-hidden="true" size={17} />
         </Link>
+      </section>
+
+      <section className="fd-mission" aria-label="Why FRAMEDECKS" data-reveal>
+        <p>{MISSION}</p>
       </section>
 
       <footer className="fd-landing-foot">

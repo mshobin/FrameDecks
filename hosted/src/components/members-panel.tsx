@@ -95,7 +95,7 @@ function MemberForm({
           Cancel
         </button>
         {onRemove && (
-          <button className="member-action member-remove" type="button" disabled={busy} onClick={onRemove}>
+          <button className="member-action member-remove member-danger" type="button" disabled={busy} onClick={onRemove}>
             Remove from the list
           </button>
         )}
@@ -155,7 +155,7 @@ function GroupsManager({
                 <button className="member-action" type="button" onClick={() => setRenaming({ id: g.id, name: g.name })}>
                   Rename
                 </button>
-                <button className="member-action" type="button" onClick={() => onDelete(g)}>
+                <button className="member-action member-danger" type="button" aria-label={`Delete the group ${g.name}`} onClick={() => onDelete(g)}>
                   Delete
                 </button>
               </>

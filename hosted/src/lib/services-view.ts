@@ -3,7 +3,7 @@
 
 type Obj = { [key: string]: unknown };
 
-export type ContentView = { kind: string; title: string; lines: string[]; media?: string };
+export type ContentView = { kind: string; title: string; lines: string[]; media?: string; empty?: string };
 export type FrameView = {
   id: string;
   name: string;
@@ -45,6 +45,7 @@ const KIND_NAMES: Record<string, string> = {
 };
 const MEDIA = ["image", "video", "pdf", "audio"];
 const TITLED = ["announcement", "prayer", "lowerthird", "countdown"];
+const EMPTY: Record<string, string> = { question: "No questions yet", scripture: "No scripture yet", announcement: "No text yet", prayer: "No text yet", lowerthird: "No text yet", text: "No text yet" };
 
 const isObj = (v: unknown): v is Obj => typeof v === "object" && v !== null && !Array.isArray(v);
 const str = (v: unknown): string => (v === undefined || v === null ? "" : String(v)).trim();
@@ -75,6 +76,9 @@ function describeContent(layer: Obj): ContentView {
     const props = isObj(c.props) ? c.props : {};
     view.lines = [str(props.text)].filter(Boolean);
   }
+  // A line that only repeats the title ("Announcement / Announcement") says nothing (design audit DD-17)
+  view.lines = view.lines.filter((line) => line.toLowerCase() !== title.toLowerCase());
+  if (!view.lines.length) view.empty = EMPTY[kind];
   return view;
 }
 

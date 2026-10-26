@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { AboutButton } from "@/components/about-dialog";
-import { BrandMark, MISSION } from "@/components/brand-hero";
+import { BrandMark } from "@/components/brand-hero";
 import { Workflow } from "@/components/workflow";
 
 /** Sign-in and its return page: the brand and how FRAMEDECKS works beside a glass card. `document` is the single
@@ -55,7 +55,6 @@ export function AuthShell({
         <Link href="/" aria-label="FRAMEDECKS home">
           <BrandMark size="medium" />
         </Link>
-        <p className="fd-auth-mission">{MISSION}</p>
         <Workflow compact />
       </aside>
       <div className="fd-auth-main">

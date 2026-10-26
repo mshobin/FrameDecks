@@ -60,6 +60,10 @@ Full notes: [docs/releases/v6.11.1.md](docs/releases/v6.11.1.md)
   a backup check that the nightly copy decrypts and lists its tables; failed scheduled runs open a GitHub issue.
 
 ### Changed
+- Website (design audit ranks 5, 6, 7, 9, 10, 11): one date helper (`src/lib/when.ts`: "2 h ago", exact on hover);
+  a bottom tab bar on phones; landing with real product screenshots and specific copy, mission and lockup once;
+  destructive actions styled apart with named confirmations; labels at 12 px+ and `--text-3` #8793ad (4.5:1+);
+  Content previews with kind icons on Services and Meeting cards. Program: labels at 12 px+, `--faint` 4.5:1+.
 - Command bar in words (design audit DD-13): Transition label, Auto-advance, Live tools ▾, Ready / Off air,
   sentence-case Go Live and Hide all, tooltips on the icon-only tabs. Teleprompter empty state with Write a script.
 - Sync no longer deletes every Frame in the workspace when they all vanish from one PC; they are restored instead.

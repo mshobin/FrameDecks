@@ -3,7 +3,7 @@
   --tp-gold:var(--gold,#e8b931);display:flex;flex-direction:column;min-height:0;min-width:0;width:100%;height:100%;background:var(--tp-bg);color:var(--tp-ink);border-radius:inherit}
 .tp-cues{flex:none;display:flex;flex-direction:column;gap:2px;padding:10px 14px;border-bottom:1px solid var(--tp-edge)}
 .tp-cue-row{display:flex;gap:10px;align-items:baseline;min-width:0}
-.tp-pos{font-size:11.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--tp-muted);white-space:nowrap}
+.tp-pos{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--tp-muted);white-space:nowrap}
 .tp-live .tp-pos{color:var(--live,#34d17c)}
 .tp-now{font-size:16px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tp-cue-sub{font-size:13px;color:var(--tp-muted)}

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { ArrowDown, ArrowUp, Pencil, Plus, Trash2 } from "lucide-react";
 
+import { KindIcon } from "@/components/content-kind";
 import { NotSetUp, WorkspaceGate } from "@/components/workspace-gate";
 import { moveFrame } from "@/lib/frame-edit";
 import {
@@ -34,6 +35,7 @@ import {
   type ScriptureRow,
 } from "@/lib/meeting-form";
 import { browserSupabase } from "@/lib/supabase-browser";
+import { shortDate } from "@/lib/when";
 import { PROFILES, profileOf } from "@/lib/workspace-settings";
 import { join, type JsonObject } from "@/lib/sync-entities";
 import { pullWorkspace, pushChanges, pushRecord, syncNotSetUp, type PulledRecord } from "@/lib/workspace-sync";
@@ -227,7 +229,7 @@ function Planner({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
                     <button type="button" aria-label={`Edit ${form.name}`} disabled={editing !== null} onClick={() => (setNotice(null), setEditing(id))}>
                       <Pencil aria-hidden="true" size={15} /> Edit
                     </button>
-                    <button type="button" aria-label={`Delete ${form.name}`} disabled={busy || editing !== null || onAir} onClick={() => remove(frame)}>
+                    <button className="is-danger" type="button" aria-label={`Delete ${form.name}`} title={`Delete ${form.name}`} disabled={busy || editing !== null || onAir} onClick={() => remove(frame)}>
                       <Trash2 aria-hidden="true" size={15} />
                     </button>
                   </span>
@@ -240,10 +242,11 @@ function Planner({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
                 <ul className="content-list">
                   {form.content.map((row, j) => (
                     <li key={row.layerId ?? j}>
-                      <span className="content-title">
-                        {row.type === "other" ? row.name : `${TYPE_NAME[row.type]} · ${row.name}`}
+                      <span className="content-title" title={row.type === "other" ? undefined : TYPE_NAME[row.type]}>
+                        <KindIcon kind={row.type === "other" ? String(row.kind ?? "") : row.type} />
+                        {row.name.trim() || (row.type === "other" ? "Content" : TYPE_NAME[row.type])}
                       </span>
-                      <span className="content-line">{summary(row)}</span>
+                      {summary(row) && <span className="content-line">{summary(row)}</span>}
                     </li>
                   ))}
                 </ul>
@@ -288,11 +291,14 @@ function Planner({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
 
 function summary(row: ContentRow): string {
   if (row.type === "other") return "Edited on the service PC";
-  if (row.type === "question") return `${row.questions.length} question${row.questions.length === 1 ? "" : "s"}`;
+  if (row.type === "question") {
+    const asked = row.questions.map((q) => q.text.trim()).filter(Boolean);
+    return asked.length ? asked[0] + (asked.length > 1 ? ` (+${asked.length - 1} more)` : "") : "No questions yet";
+  }
   if (row.type === "scripture") return row.scriptures.map((v) => [v.ref, v.version].filter(Boolean).join(" ")).join(" · ") || "No readings yet";
   if (["image", "video", "powerpoint", "audio"].includes(row.type)) return row.main ? `${row.main} · on the service PC` : "File chosen on the service PC";
   if (row.type === "countdown") return row.duration ? (row.duration.includes(":") ? `Until ${row.duration}` : `${row.duration} min`) : "";
-  return [row.label, row.main].filter(Boolean).join(" · ");
+  return [row.label, row.main].filter((v) => v && v.trim().toLowerCase() !== row.name.trim().toLowerCase()).join(" · ");
 }
 
 // ---- Meeting details (the meeting record) ----
@@ -395,7 +401,7 @@ function MeetingDetails({
     <details className="frame-card frame-editing planner-meeting" open={open} onToggle={(e) => setOpen((e.target as HTMLDetailsElement).open)}>
       <summary>
         <strong>Meeting details</strong>
-        <span className="workspace-hint">{form.title || "No meeting name yet"}{form.date ? ` · ${form.date}` : ""}</span>
+        <span className="workspace-hint">{form.title || "No meeting name yet"}{form.date ? ` · ${shortDate(`${form.date}T12:00:00`)}` : ""}</span>
       </summary>
       <div className="planner-grid">
         {MEETING_FIELDS.map(([k, label, max]) => (

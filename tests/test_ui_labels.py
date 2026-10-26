@@ -42,7 +42,7 @@ class CommandBar(unittest.TestCase):
     def test_labels_are_words_in_sentence_case(self):
         html = read("dashboard.html")
         self.assertIn(">Live tools ▾</button>", html)
-        self.assertIn(">Auto<span class=\"aa-x\">-advance</span></button>", html)
+        self.assertIn("><span>Auto<span class=\"aa-x\">-advance</span></span></button>", html)
         self.assertNotIn("Program ▾", html)
         self.assertNotIn("Program ▾", read("js/panels.js"))
         self.assertNotRegex(read("js/panels.js"), r"'(BLACKOUT|EMERGENCY|FROZEN|ANNOTATING) ▾'")

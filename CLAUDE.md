@@ -17,7 +17,9 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
   This PC, Help), each item with a one-line description, plus "Find a setting" (owner's request, 26 October); and design
   audit ranks 2–4 (owner's request, 26 October): the first-run dialog (Start fresh first, then a Getting started card),
   the Teleprompter's empty state, and the command bar's words (Transition label, Auto-advance, Live tools, Ready / Off air
-  in words, sentence-case Go Live and Hide all; `tests/test_ui_labels.py`).
+  in words, sentence-case Go Live and Hide all; `tests/test_ui_labels.py`); and design audit rank 10 (owner's request,
+  26 October): no desktop label under 12 px (keyboard hints aside) and `--faint` at 4.5:1 or more in both themes. The
+  legacy phone remote's CSS (`app/css/remote.css`) is unchanged.
   Nothing else visible may change.
 - The codebase is the source of truth; verify docs against it.
 - Do not touch the legacy LAN remote or let the hosted app call the local HTTP server.

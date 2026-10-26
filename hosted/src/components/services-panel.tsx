@@ -7,6 +7,8 @@ import { ArrowDown, ArrowUp, Film, History, Image as ImageIcon, Pencil, Plus, Pr
 import { DeletedFrames, FrameHistory, loadNames, type Names } from "@/components/frame-history";
 
 import { NotSetUp, WorkspaceGate } from "@/components/workspace-gate";
+import { KindIcon } from "@/components/content-kind";
+import { When } from "@/components/when";
 import { applyDraft, draftOf, moveFrame, rebase, type ListDraft } from "@/lib/frame-edit";
 import { describeFrames, type FrameView } from "@/lib/services-view";
 import { browserSupabase } from "@/lib/supabase-browser";
@@ -120,7 +122,7 @@ function Services({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
         {title ? <strong>{title}</strong> : null}
         {title ? " · " : null}
         {frames.length} Frame{frames.length === 1 ? "" : "s"}
-        {lastChange ? ` · last change ${new Date(lastChange).toLocaleString()}` : null}.{" "}
+        {lastChange ? <> · last change <When at={lastChange} /></> : null}.{" "}
         {canEdit
           ? "You can change names, scripts, questions, scripture and the order here; pictures, video and looks on the service PC."
           : "View only: owners and admins can edit."}
@@ -406,7 +408,10 @@ function FrameCard({
             const Icon = MEDIA_ICON[c.kind];
             return (
               <li key={i}>
-                <span className="content-title">{c.title}</span>
+                <span className="content-title">
+                  <KindIcon kind={c.kind} />
+                  {c.title}
+                </span>
                 {c.media !== undefined ? (
                   <span className="content-media">
                     {Icon && <Icon aria-hidden="true" size={14} />}
@@ -418,6 +423,8 @@ function FrameCard({
                       {line}
                     </span>
                   ))
+                ) : c.empty ? (
+                  <span className="content-empty">{c.empty}</span>
                 ) : null}
               </li>
             );
