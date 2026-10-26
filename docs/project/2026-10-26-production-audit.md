@@ -246,3 +246,61 @@ None of these needs a UI or workflow change except the optional update notice.
 | 4 | Before going public | H2 signing (SignPath) and update notice; M5 (backup location and crypto); AI-artifact clean-up in docs; M1 full CSP | SAFE / REVIEW |
 | 5 | Next minor release | M2 (remote sessions), M4 (link queue), M12 (export backup), L1–L3, L8 | SAFE / REVIEW |
 | 6 | Dedicated release | M6 (encrypt member data), L6 (split the monolith files), L4 (retire legacy code) | HIGH RISK |
+
+---
+
+## Re-audit after 6.11.1 (26 October, `main` at `2fd852f`)
+
+**Method:**
+- re-checked every fixed finding in the code;
+- re-ran every suite: Python 141 OK, desktop JS 4/4, packaging 6.11.1, website and database 110/110;
+- ran `npm audit` again on both npm projects;
+- re-ran the secret scan;
+- confirmed the CI runs on `2fd852f` (installer, website and Stream Deck builds, and the first Dependabot run) are
+  green.
+
+### Verified fixed
+
+| Finding | Evidence |
+|---|---|
+| H1 plan loss through sync | `server.load_state` recovery and `PLAN_RECOVERY`; `Service.adopt_workspace`; `MASS_DELETE_FRAMES` guard; 7 new tests |
+| H3 build supply chain | 0 unpinned `uses:`; softcam commit checked in CI and `build.bat`; `contents: read` by default, `write` only in the `release` job; Dependabot active |
+| M1 framing | `X-Frame-Options: DENY`, `frame-ancestors 'none'`, Permissions-Policy in `_headers` |
+| M3 cross-site calls | `cross_site_api` on GET and POST; `tests/test_local_guard.py` |
+| M8 swallowed errors | 0 silent `except Exception: pass` left (the one in `errlog.py` is the logger's own safety net) |
+| M10 write per poll | `0009_seen_throttle.sql` with an undo script and tests (**not yet run in the live database**) |
+
+### New finding
+
+**N1: the Stream Deck plugin depends on a vulnerable zod**
+- **Severity:** Medium (High upstream, but low exposure here)
+- **File:** `streamdeck/package-lock.json`. The chain is `@elgato/streamdeck@3.0.3`, which depends on
+  `@elgato/utils@0.6.1`, which depends on `zod@3.25.76`.
+- **Advisory:** GHSA-mrhx-c7xc-m3w5, memory exhaustion when validating oversized collections.
+- **Exposure:** the plugin only talks to the Stream Deck app on the same PC, so practical exposure is low.
+- **Correction:** the first audit wrongly reported 0 vulnerabilities here; its output was read truncated.
+- **Recommendation:** update when Elgato ships `@elgato/utils` on zod ≥ 4.6.6. `npm audit fix --force` would
+  downgrade to 1.4.1, a breaking change, so do not run it. Until then, accept the risk and record it here.
+- **Category:** REVIEW REQUIRED.
+
+### Still open
+
+- **H2:** unsigned installer and no update notice. 6.11.1 is built but **not yet published**.
+- **M2, M4, M5, M6, M7, M9, M11, M12** and the Low items, as listed above.
+- Not yet verified on Windows: the H1 recovery, the Teleprompter fix, the website "Forbidden" fix, and the FRAMECAST
+  camera.
+
+### Scores
+
+| Area | Before | Now | Why it moved |
+|---|---|---|---|
+| Security | 76 | **82** | H3, M1 and M3 fixed. N1 found. M2, M4, M5 and the full CSP are still open |
+| Production readiness | 64 | **72** | H1 fixed and errors are logged. Still unsigned, no update notice, live tests not run, 6.11.1 unpublished, `0009` not run |
+| Maintainability | 66 | **68** | Central error logging and 17 more tests. The monolith files and broad exception handlers remain |
+| Performance | 82 | **84** | M10, plus the idle website. M7 (two OpenCV packages) remains |
+| Technical debt (higher = more debt) | 40 | **37** | Silent failures removed and the pipeline pinned. N1, M7 and L4–L6 remain |
+
+### Release recommendation
+
+- **Pilot (supervised): GO**, once 6.11.1 is published and tested on Windows.
+- **Public release: still NO-GO** until H2 (signing) is done and live tests A–G pass.
