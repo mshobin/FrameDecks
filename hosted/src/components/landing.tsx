@@ -12,7 +12,9 @@ import {
   Video,
 } from "lucide-react";
 
+import { AboutButton } from "@/components/about-dialog";
 import { BrandMark, MISSION } from "@/components/brand-hero";
+import { Words } from "@/components/words";
 import { Workflow } from "@/components/workflow";
 import { DOWNLOADS } from "@/lib/pc-setup";
 
@@ -43,18 +45,21 @@ export function Landing() {
           <a href="#features">Features</a>
           <Link href="/privacy">Privacy</Link>
         </nav>
-        <Link className="fd-btn fd-btn-primary fd-btn-sm" href="/sign-in">
-          Sign in
-        </Link>
+        <div className="fd-topbar-right">
+          <AboutButton />
+          <Link className="fd-btn fd-btn-primary fd-btn-sm" href="/sign-in">
+            Sign in
+          </Link>
+        </div>
       </header>
 
       <section className="fd-hero" aria-labelledby="fd-hero-title">
         <BrandMark />
         <h1 id="fd-hero-title" className="fd-hero-title">
-          Every gathering, beautifully prepared.
+          <Words text="Every gathering, beautifully prepared." />
         </h1>
-        <p className="fd-hero-text">{MISSION}</p>
-        <div className="fd-hero-actions">
+        <p className="fd-hero-text fd-enter" style={{ "--d": "700ms" } as React.CSSProperties}>{MISSION}</p>
+        <div className="fd-hero-actions fd-enter" style={{ "--d": "850ms" } as React.CSSProperties}>
           <Link className="fd-btn fd-btn-primary" href="/sign-in">
             Get started <ArrowRight aria-hidden="true" size={17} />
           </Link>
@@ -62,25 +67,25 @@ export function Landing() {
             <Download aria-hidden="true" size={17} /> FRAMEDECKS for Windows
           </a>
         </div>
-        <p className="fd-hero-note">Free for churches and fellowship groups · Your media never leaves your PC</p>
+        <p className="fd-hero-note fd-enter" style={{ "--d": "1000ms" } as React.CSSProperties}>Free for churches and fellowship groups · Your media never leaves your PC</p>
       </section>
 
       <section className="fd-section" id="how" aria-labelledby="fd-how-title">
-        <p className="fd-kicker">How it works</p>
-        <h2 id="fd-how-title" className="fd-section-title">
+        <p className="fd-kicker" data-reveal>How it works</p>
+        <h2 id="fd-how-title" className="fd-section-title" data-reveal>
           From the plan to the screen in four steps.
         </h2>
         <Workflow />
       </section>
 
       <section className="fd-section" id="features" aria-labelledby="fd-features-title">
-        <p className="fd-kicker">Features</p>
-        <h2 id="fd-features-title" className="fd-section-title">
+        <p className="fd-kicker" data-reveal>Features</p>
+        <h2 id="fd-features-title" className="fd-section-title" data-reveal>
           Everything a gathering needs, in one calm place.
         </h2>
         <div className="fd-features">
-          {FEATURES.map(({ icon: Icon, title, text }) => (
-            <article className="fd-feature" key={title}>
+          {FEATURES.map(({ icon: Icon, title, text }, i) => (
+            <article className="fd-feature" key={title} data-reveal data-spotlight style={{ "--d": `${i * 90}ms` } as React.CSSProperties}>
               <span className="fd-feature-icon">
                 <Icon aria-hidden="true" size={21} strokeWidth={1.8} />
               </span>
@@ -91,7 +96,7 @@ export function Landing() {
         </div>
       </section>
 
-      <section className="fd-cta" aria-labelledby="fd-cta-title">
+      <section className="fd-cta" aria-labelledby="fd-cta-title" data-reveal data-spotlight>
         <Lock aria-hidden="true" size={22} />
         <h2 id="fd-cta-title">Private by design.</h2>
         <p>

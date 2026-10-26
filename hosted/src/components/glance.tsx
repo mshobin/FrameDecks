@@ -94,8 +94,8 @@ export function GlanceTiles({ workspace }: Readonly<{ workspace: WorkspaceChoice
 
   return (
     <section className="fd-glance" aria-label="At a glance">
-      {tiles.map(({ href, icon: Icon, label, value, detail, tone }) => (
-        <Link className={tone === "ok" ? "fd-tile fd-tile-ok" : "fd-tile"} href={href} key={href}>
+      {tiles.map(({ href, icon: Icon, label, value, detail, tone }, i) => (
+        <Link className={tone === "ok" ? "fd-tile fd-tile-ok" : "fd-tile"} href={href} key={href} data-reveal data-spotlight style={{ "--d": `${i * 110}ms` } as React.CSSProperties}>
           <span className="fd-tile-icon">
             <Icon aria-hidden="true" size={18} strokeWidth={1.9} />
           </span>

@@ -8,6 +8,7 @@ import { BrandMark, MISSION } from "@/components/brand-hero";
 import { GlanceTiles } from "@/components/glance";
 import { Landing } from "@/components/landing";
 import { PcSetupCard } from "@/components/pc-setup-card";
+import { Words } from "@/components/words";
 import { Workflow } from "@/components/workflow";
 import { WorkspacePanel } from "@/components/workspace-panel";
 import { OPEN_LINK } from "@/lib/pc-setup";
@@ -38,7 +39,7 @@ function Dashboard({ name }: Readonly<{ name: string }>) {
   const { selected } = useWorkspaces();
   return (
     <AppShell active="overview">
-      <section className="fd-welcome" aria-labelledby="fd-welcome-title">
+      <section className="fd-welcome fd-enter-card" aria-labelledby="fd-welcome-title" data-spotlight>
         <div className="fd-welcome-copy">
           <p className="fd-kicker">
             {greeting(new Date().getHours())}
@@ -46,10 +47,10 @@ function Dashboard({ name }: Readonly<{ name: string }>) {
             {selected ? ` · ${selected.name}` : ""}
           </p>
           <h1 id="fd-welcome-title" className="fd-welcome-title">
-            Every gathering, beautifully prepared.
+            <Words text="Every gathering, beautifully prepared." />
           </h1>
-          <p className="fd-welcome-text">{MISSION}</p>
-          <div className="fd-hero-actions">
+          <p className="fd-welcome-text fd-enter" style={{ "--d": "600ms" } as React.CSSProperties}>{MISSION}</p>
+          <div className="fd-hero-actions fd-enter" style={{ "--d": "750ms" } as React.CSSProperties}>
             <Link className="fd-btn fd-btn-primary" href="/meeting">
               <ClipboardList aria-hidden="true" size={17} /> Plan the meeting
             </Link>
@@ -68,7 +69,7 @@ function Dashboard({ name }: Readonly<{ name: string }>) {
 
       <PcSetupCard />
 
-      <section className="fd-block" aria-labelledby="fd-how-title">
+      <section className="fd-block" aria-labelledby="fd-how-title" data-reveal>
         <div className="fd-block-head">
           <div>
             <p className="fd-kicker">How it works</p>
@@ -81,7 +82,7 @@ function Dashboard({ name }: Readonly<{ name: string }>) {
         <Workflow />
       </section>
 
-      <section className="fd-block" aria-labelledby="fd-account-title">
+      <section className="fd-block" aria-labelledby="fd-account-title" data-reveal>
         <div className="fd-block-head">
           <div>
             <p className="fd-kicker">Your account</p>

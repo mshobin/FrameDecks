@@ -1,0 +1,363 @@
+/* FRAMEDECKS website motion (2026-10): cinematic but quiet. Things rise into place as they enter, light drifts
+   behind the page, the gold catches the light. Only transform, opacity and filter move (the compositor does the
+   work), the palette is unchanged, and everything here stops for people who ask their device for less motion.
+   Scroll reveals: [data-reveal], marked [data-in] by components/motion.tsx. Page-load entrances: .fd-enter, .fd-words, .fd-page. */
+
+:root {
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-soft: cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+/* ---------- The light behind every page ---------- */
+.fd-ambient {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.fd-orb {
+  position: absolute;
+  width: 58vmax;
+  height: 58vmax;
+  border-radius: 50%;
+  filter: blur(70px);
+  opacity: 0.55;
+  will-change: transform;
+}
+
+.fd-orb-gold {
+  top: -26vmax;
+  right: -14vmax;
+  background: radial-gradient(circle, rgba(227, 183, 90, 0.34), rgba(227, 183, 90, 0) 65%);
+  animation: fd-drift-a 26s var(--ease-soft) infinite alternate;
+}
+
+.fd-orb-blue {
+  top: 8vh;
+  left: -24vmax;
+  background: radial-gradient(circle, rgba(70, 108, 205, 0.42), rgba(70, 108, 205, 0) 65%);
+  animation: fd-drift-b 32s var(--ease-soft) infinite alternate;
+}
+
+.fd-orb-deep {
+  bottom: -32vmax;
+  left: 22vw;
+  background: radial-gradient(circle, rgba(52, 80, 160, 0.36), rgba(52, 80, 160, 0) 65%);
+  animation: fd-drift-c 38s var(--ease-soft) infinite alternate;
+}
+
+@keyframes fd-drift-a {
+  to {
+    transform: translate3d(-12vmax, 10vmax, 0) scale(1.15);
+  }
+}
+
+@keyframes fd-drift-b {
+  to {
+    transform: translate3d(14vmax, -6vmax, 0) scale(1.1);
+  }
+}
+
+@keyframes fd-drift-c {
+  to {
+    transform: translate3d(-10vmax, -12vmax, 0) scale(1.2);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* ---------- Reveal on scroll ---------- */
+  html.fd-motion [data-reveal]:not([data-in]) {
+    opacity: 0;
+  }
+
+  html.fd-motion [data-reveal][data-in] {
+    animation: fd-reveal 1s var(--ease-out) var(--d, 0ms) backwards;
+  }
+
+  @keyframes fd-reveal {
+    from {
+      opacity: 0;
+      filter: blur(8px);
+      transform: translate3d(0, 34px, 0) scale(0.985);
+    }
+  }
+
+  /* ---------- Entrances when a page opens ---------- */
+  .fd-enter {
+    animation: fd-reveal 1.05s var(--ease-out) var(--d, 0ms) backwards;
+  }
+
+  .fd-word {
+    display: inline-block;
+    animation: fd-word 1.1s var(--ease-out) var(--d, 0ms) backwards;
+  }
+
+  @keyframes fd-word {
+    from {
+      opacity: 0;
+      filter: blur(10px);
+      transform: translate3d(0, 0.45em, 0) rotateX(35deg);
+    }
+  }
+
+  .fd-enter-card {
+    animation: fd-card-in 1.2s var(--ease-out) backwards;
+  }
+
+  @keyframes fd-card-in {
+    from {
+      opacity: 0;
+      transform: translate3d(0, 28px, 0) scale(0.97);
+    }
+  }
+
+  /* App pages: the title and each block rise in, one after another */
+  .fd-page > * {
+    animation: fd-reveal 0.9s var(--ease-out) backwards;
+  }
+
+  .fd-page > *:nth-child(2) {
+    animation-delay: 70ms;
+  }
+
+  .fd-page > *:nth-child(3) {
+    animation-delay: 140ms;
+  }
+
+  .fd-page > *:nth-child(4) {
+    animation-delay: 210ms;
+  }
+
+  .fd-page > *:nth-child(n + 5) {
+    animation-delay: 280ms;
+  }
+
+  /* Cards in the page's lists follow, gently */
+  .frame-list > .frame-card,
+  .workspace-grid > .workspace-card {
+    animation: fd-reveal 0.8s var(--ease-out) backwards;
+  }
+
+  .frame-list > .frame-card:nth-child(2),
+  .workspace-grid > .workspace-card:nth-child(2) {
+    animation-delay: 60ms;
+  }
+
+  .frame-list > .frame-card:nth-child(3) {
+    animation-delay: 120ms;
+  }
+
+  .frame-list > .frame-card:nth-child(n + 4) {
+    animation-delay: 180ms;
+  }
+
+  /* ---------- The brand mark: floating emblem, breathing light, gold that catches the light ---------- */
+  .fd-mark-emblem,
+  .fd-ab-emblem {
+    animation:
+      fd-rise-in 1.2s var(--ease-out) backwards,
+      fd-float 7s ease-in-out 1.2s infinite;
+  }
+
+  @keyframes fd-rise-in {
+    from {
+      opacity: 0;
+      filter: blur(12px);
+      transform: translate3d(0, 24px, 0) scale(0.9);
+    }
+  }
+
+  @keyframes fd-float {
+    50% {
+      transform: translate3d(0, -8px, 0);
+    }
+  }
+
+  .fd-mark-glow {
+    animation: fd-morph 14s ease-in-out infinite;
+  }
+
+  @keyframes fd-morph {
+    0%,
+    100% {
+      border-radius: 50%;
+      transform: translateX(-50%) scale(1);
+      opacity: 0.85;
+    }
+    33% {
+      border-radius: 44% 56% 58% 42% / 52% 44% 56% 48%;
+      transform: translateX(-50%) scale(1.08) rotate(8deg);
+      opacity: 1;
+    }
+    66% {
+      border-radius: 57% 43% 46% 54% / 45% 58% 42% 55%;
+      transform: translateX(-50%) scale(0.96) rotate(-6deg);
+      opacity: 0.9;
+    }
+  }
+
+  .fd-wordmark {
+    background-image: linear-gradient(100deg, #b98a2f 0%, #e3b75a 30%, #fff1c9 45%, #e3b75a 60%, #b98a2f 100%);
+    background-size: 250% 100%;
+    animation:
+      fd-rise-in 1.2s var(--ease-out) 0.15s backwards,
+      fd-shimmer 7s linear 1.4s infinite;
+  }
+
+  @keyframes fd-shimmer {
+    from {
+      background-position: 120% 0;
+    }
+    to {
+      background-position: -120% 0;
+    }
+  }
+
+  .fd-tagline {
+    animation: fd-tracking 1.6s var(--ease-out) 0.3s backwards;
+  }
+
+  @keyframes fd-tracking {
+    from {
+      opacity: 0;
+      letter-spacing: 0.8em;
+    }
+  }
+
+  /* ---------- How it works: steps arrive in order, then the light runs between them ---------- */
+  .fd-flow-link {
+    transform-origin: left center;
+    transition: transform 0.9s var(--ease-out) calc(var(--d, 0ms) + 450ms);
+  }
+
+  html.fd-motion .fd-flow-step:not([data-in]) .fd-flow-link {
+    transform: scaleX(0);
+  }
+
+  .fd-flow-step[data-in] .fd-flow-icon {
+    animation: fd-pop 0.9s var(--ease-out) calc(var(--d, 0ms) + 150ms) backwards;
+  }
+
+  @keyframes fd-pop {
+    from {
+      opacity: 0;
+      transform: scale(0.6) rotate(-12deg);
+    }
+  }
+
+  /* ---------- Sign-in: the card arrives, the brand settles ---------- */
+  .fd-auth-card {
+    animation: fd-card-in 1.1s var(--ease-out) 0.15s backwards;
+  }
+
+  .fd-auth-side > * {
+    animation: fd-reveal 1.1s var(--ease-out) backwards;
+  }
+
+  .fd-auth-side > *:nth-child(2) {
+    animation-delay: 0.25s;
+  }
+
+  .fd-auth-side > *:nth-child(3) {
+    animation-delay: 0.45s;
+  }
+
+  /* ---------- Buttons: a sweep of light on hover ---------- */
+  .fd-btn-primary,
+  .live-btn.live-primary,
+  .auth-primary {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .fd-btn-primary::after,
+  .live-btn.live-primary::after,
+  .auth-primary::after {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(110deg, transparent 30%, rgba(255, 255, 255, 0.55) 50%, transparent 70%);
+    content: "";
+    pointer-events: none;
+    transform: translateX(-130%);
+    transition: transform 0.9s var(--ease-out);
+  }
+
+  .fd-btn-primary:hover::after,
+  .live-btn.live-primary:hover::after,
+  .auth-primary:hover::after {
+    transform: translateX(130%);
+  }
+
+  /* ---------- Scroll-linked touches where the browser supports them (Chrome, Edge, Safari 26) ---------- */
+  @supports (animation-timeline: scroll()) {
+    .fd-hero .fd-mark {
+      animation: fd-hero-away linear both;
+      animation-timeline: scroll(root);
+      animation-range: 0 70vh;
+    }
+
+    @keyframes fd-hero-away {
+      to {
+        opacity: 0.25;
+        transform: translate3d(0, -70px, 0) scale(0.9);
+      }
+    }
+
+    .fd-landing-bar,
+    .fd-topbar {
+      animation: fd-bar-solid linear both;
+      animation-timeline: scroll(root);
+      animation-range: 0 140px;
+    }
+
+    @keyframes fd-bar-solid {
+      to {
+        background-color: rgba(7, 12, 24, 0.86);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+      }
+    }
+
+    .fd-section-title {
+      animation: fd-title-in linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 35%;
+    }
+
+    @keyframes fd-title-in {
+      from {
+        letter-spacing: 0.02em;
+        opacity: 0.2;
+      }
+    }
+  }
+}
+
+/* ---------- A soft light that follows the pointer over cards ---------- */
+[data-spotlight] {
+  position: relative;
+  isolation: isolate;
+}
+
+[data-spotlight]::before {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 0%), rgba(227, 183, 90, 0.13), transparent 45%);
+  content: "";
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.35s ease;
+}
+
+[data-spotlight]:hover::before {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fd-orb {
+    animation: none;
+  }
+}

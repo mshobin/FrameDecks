@@ -1,9 +1,12 @@
 import type { Metadata, Viewport } from "next";
 
+import { Ambient, Motion } from "@/components/motion";
 import { ServiceWorkerRegister } from "@/components/service-worker-register";
 
 import "./globals.css";
 import "./design.css";
+import "./motion.css";
+import "./about.css";
 
 export const metadata: Metadata = {
   title: {
@@ -21,7 +24,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0a1426",
+  themeColor: "#070c18",
 };
 
 export default function RootLayout({
@@ -30,9 +33,20 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        {/* Before the first paint: hide what will rise into view (motion.css), unless the device asks for less motion */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "if(window.IntersectionObserver&&!matchMedia('(prefers-reduced-motion: reduce)').matches)document.documentElement.classList.add('fd-motion')",
+          }}
+        />
+      </head>
       <body>
+        <Ambient />
         {children}
+        <Motion />
         <ServiceWorkerRegister />
       </body>
     </html>

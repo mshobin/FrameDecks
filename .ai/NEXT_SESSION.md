@@ -114,6 +114,14 @@ Owners delete a workspace from Overview → Your workspaces → Delete (type its
 `organizations_delete` (0001) and the grant (0007) already allow it, and every table cascades
 (`hosted/tests/supabase-rls.test.mjs` checks owner-only and the cascade). Others use Members → Leave.
 
+## Website motion and About (26 October, owner's request)
+Built on the branch: cinematic but quiet motion on every page (words rise in on load, sections rise into view on
+scroll, steps of "How it works" arrive in order with their connectors drawing, a pointer-following light on cards, a
+shimmer on the gold wordmark, a floating emblem with a morphing glow, a slowly drifting ambient light behind every
+page, the hero easing away and the top bar firming up as you scroll where the browser supports it). Palette and
+layout unchanged; everything stops under "reduce motion". An (i) About button (top bar, landing bar, sign-in) opens
+the program's About page in the website's design, with the same words (brand.json from app/js/brand.js).
+
 ## Pending (owner)
 1. ~~Run the database scripts~~: **done** on 26 October (`0002`–`0008`, all passed).
 2. ~~Merge PR #32~~: **done**. Take the installer from the latest "Build Windows installer" run on `main` (Actions →

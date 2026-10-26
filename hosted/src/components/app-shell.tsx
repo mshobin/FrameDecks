@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ClipboardList, Home as HomeIcon, Monitor, Presentation, Radio, Users } from "lucide-react";
 
+import { AboutButton } from "@/components/about-dialog";
 import { AccountStatus } from "@/components/account-status";
 import { DOWNLOADS } from "@/lib/pc-setup";
 
@@ -88,7 +89,10 @@ export function AppShell({ active, children }: Readonly<{ active: Section; child
             <span aria-hidden="true">›</span>
             <strong>{titles[active]}</strong>
           </p>
-          <AccountStatus />
+          <div className="fd-topbar-right">
+            <AboutButton />
+            <AccountStatus />
+          </div>
         </header>
         <main className="fd-page">{children}</main>
       </div>

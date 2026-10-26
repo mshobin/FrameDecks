@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 
+import { AboutButton } from "@/components/about-dialog";
 import { BrandMark, MISSION } from "@/components/brand-hero";
 import { Workflow } from "@/components/workflow";
 
@@ -30,10 +31,15 @@ export function AuthShell({
     </section>
   );
   const foot = (
-    <p className="fd-auth-foot">
-      Your presentation stays on your service PC. This account is only for the FRAMEDECKS website.{" "}
-      <Link href="/privacy">Privacy</Link>
-    </p>
+    <div className="fd-auth-foot">
+      <p>
+        Your presentation stays on your service PC. This account is only for the FRAMEDECKS website.{" "}
+        <Link href="/privacy">Privacy</Link>
+      </p>
+      <div className="fd-auth-about">
+        <AboutButton label />
+      </div>
+    </div>
   );
   if (document) {
     return (

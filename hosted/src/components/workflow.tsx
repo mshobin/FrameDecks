@@ -13,7 +13,7 @@ export function Workflow({ compact = false }: Readonly<{ compact?: boolean }>) {
   return (
     <ol className={compact ? "fd-flow fd-flow-compact" : "fd-flow"} aria-label="How FRAMEDECKS works">
       {STEPS.map(({ icon: Icon, where, title, text }, i) => (
-        <li className="fd-flow-step" key={title}>
+        <li className="fd-flow-step" key={title} data-reveal style={{ "--d": `${i * 110}ms` } as React.CSSProperties}>
           <span className="fd-flow-icon">
             <Icon aria-hidden="true" size={compact ? 17 : 22} strokeWidth={1.8} />
           </span>
