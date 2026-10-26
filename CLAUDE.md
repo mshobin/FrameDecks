@@ -63,6 +63,10 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
   `THIRD_PARTY_NOTICES.md`. Signing: SignPath, off until its secret exists (`docs/project/code-signing.md`).
 - Continuity: `CLAUDE.md`, `PROJECT_STATUS.md`, `PROJECT_ROADMAP.md`, `.ai/NEXT_SESSION.md`. The owner's live tests:
   `docs/qa/live-test-guide.md` (keep it in step when a tested behaviour changes).
+- Companion design (26 October redesign): tokens in `hosted/src/app/globals.css` `:root`, the look in
+  `hosted/src/app/design.css` (glass surfaces, navy and gold, one large title per page). Signed out, `/` is the landing
+  page (`components/landing.tsx`); signed in, the dashboard (`components/overview.tsx`: hero, `glance.tsx` tiles,
+  `workflow.tsx` "How it works"). Sign-in is a split layout (`auth-shell.tsx`). Use the tokens, not new hex colours.
 - `hosted/src/app/meeting` — 6.11 the Meeting Form: the Excel form's sections on the live plan (`hosted/src/lib/meeting-form.ts`).
 - `hosted/src/app/{services,live,members,computers}` — the synced plan (owners and admins edit its words and order,
   `hosted/src/lib/frame-edit.ts`, sent with `sync_push`; History and restore from `entity_history`,

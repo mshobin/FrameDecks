@@ -1,20 +1,30 @@
 import Image from "next/image";
 import Link from "next/link";
-import { CircleHelp, ClipboardList, Home as HomeIcon, Monitor, NotebookPen, Presentation, Radio, Settings2, Users } from "lucide-react";
+import { ClipboardList, Home as HomeIcon, Monitor, Presentation, Radio, Users } from "lucide-react";
 
 import { AccountStatus } from "@/components/account-status";
+import { DOWNLOADS } from "@/lib/pc-setup";
 
 export type Section = "overview" | "meeting" | "services" | "live" | "members" | "computers";
 
-const navigation = [
-  { id: "overview", label: "Overview", href: "/", icon: HomeIcon },
-  { id: "meeting", label: "Meeting Form", href: "/meeting", icon: ClipboardList },
-  { id: "services", label: "Services", href: "/services", icon: Presentation },
-  { id: "live", label: "Live", href: "/live", icon: Radio },
-  { id: "members", label: "Members", href: "/members", icon: Users },
-  { id: "computers", label: "Computers", href: "/computers", icon: Monitor },
-  { id: "notes", label: "Notes", icon: NotebookPen },
-  { id: "settings", label: "Settings", icon: Settings2 },
+// Grouped as the work flows: plan the meeting, present it, look after the people (docs/architecture/meeting-form.md)
+const groups = [
+  {
+    title: "Plan",
+    items: [
+      { id: "overview", label: "Overview", href: "/", icon: HomeIcon },
+      { id: "meeting", label: "Meeting Form", href: "/meeting", icon: ClipboardList },
+      { id: "services", label: "Services", href: "/services", icon: Presentation },
+    ],
+  },
+  {
+    title: "Present",
+    items: [
+      { id: "live", label: "Live", href: "/live", icon: Radio },
+      { id: "computers", label: "Computers", href: "/computers", icon: Monitor },
+    ],
+  },
+  { title: "People", items: [{ id: "members", label: "Members", href: "/members", icon: Users }] },
 ] as const;
 
 const titles: Record<Section, string> = {
@@ -26,77 +36,62 @@ const titles: Record<Section, string> = {
   computers: "Computers",
 };
 
-/** The companion's frame: sidebar, top bar with the account, and the page. */
+/** The companion's frame: a translucent sidebar, a sticky top bar with the account, and the page. */
 export function AppShell({ active, children }: Readonly<{ active: Section; children: React.ReactNode }>) {
   return (
-    <main className="app-frame">
-      <aside className="sidebar" aria-label="Main navigation">
-        <Link className="brand" href="/" aria-label="FRAMEDECKS overview">
-          <Image src="/framedecks-emblem.webp" alt="" width={48} height={48} priority unoptimized />
-          <span className="brand-copy">
+    <div className="fd-app">
+      <aside className="fd-sidebar" aria-label="Main navigation">
+        <Link className="fd-brand" href="/" aria-label="FRAMEDECKS overview">
+          <span className="fd-brand-mark">
+            <Image src="/framedecks-emblem.webp" alt="" width={34} height={34} priority unoptimized />
+          </span>
+          <span className="fd-brand-copy">
             <strong>FRAMEDECKS</strong>
-            <span>Hosted companion</span>
+            <span>Present · Equip · Inspire</span>
           </span>
         </Link>
 
-        <div className="workspace-label">WORKSPACE</div>
-        <nav className="nav-list">
-          {navigation.map(({ id, label, icon: Icon, ...item }) =>
-            "href" in item ? (
-              <Link
-                className={id === active ? "nav-item nav-item-active" : "nav-item"}
-                href={item.href}
-                key={id}
-                aria-current={id === active ? "page" : undefined}
-              >
-                <Icon aria-hidden="true" size={18} />
-                <span>{label}</span>
-              </Link>
-            ) : (
-              <button className="nav-item nav-item-disabled" disabled key={id} title="Not available yet" type="button">
-                <Icon aria-hidden="true" size={18} />
-                <span>{label}</span>
-                <span className="nav-soon">Soon</span>
-              </button>
-            ),
-          )}
+        <nav className="fd-nav">
+          {groups.map((group) => (
+            <div className="fd-nav-group" key={group.title}>
+              <p className="fd-nav-title">{group.title}</p>
+              {group.items.map(({ id, label, href, icon: Icon }) => (
+                <Link
+                  className={id === active ? "fd-nav-item fd-nav-active" : "fd-nav-item"}
+                  href={href}
+                  key={id}
+                  aria-current={id === active ? "page" : undefined}
+                >
+                  <Icon aria-hidden="true" size={17} strokeWidth={1.9} />
+                  <span>{label}</span>
+                </Link>
+              ))}
+            </div>
+          ))}
         </nav>
 
-        <div className="sidebar-bottom">
-          <div className="help-card">
-            <CircleHelp aria-hidden="true" size={18} />
-            <div>
-              <strong>Need help?</strong>
-              <p>Your desktop app works independently of this companion.</p>
-              <Link className="help-link" href="/privacy">
-                Privacy policy
-              </Link>
-            </div>
-          </div>
-          <div className="sidebar-brand">
-            <span className="sidebar-brand-name">FRAMEDECKS</span>
-            <span>Present · Equip · Inspire</span>
-          </div>
+        <div className="fd-sidebar-foot">
+          <a className="fd-foot-link" href={DOWNLOADS} target="_blank" rel="noreferrer">
+            FRAMEDECKS for Windows
+          </a>
+          <Link className="fd-foot-link" href="/privacy">
+            Privacy policy
+          </Link>
+          <p>Your presentation runs on your service PC. This companion plans and guides it.</p>
         </div>
       </aside>
 
-      <section className="main-panel">
-        <header className="topbar">
-          <div className="breadcrumb">
+      <div className="fd-main">
+        <header className="fd-topbar">
+          <p className="fd-crumb">
             <span>Workspace</span>
-            <span aria-hidden="true">/</span>
+            <span aria-hidden="true">›</span>
             <strong>{titles[active]}</strong>
-          </div>
-          <div className="topbar-right">
-            <div className="topbar-status">
-              <span className="status-dot" />
-              Foundation preview
-            </div>
-            <AccountStatus />
-          </div>
+          </p>
+          <AccountStatus />
         </header>
-        <div className="page-content">{children}</div>
-      </section>
-    </main>
+        <main className="fd-page">{children}</main>
+      </div>
+    </div>
   );
 }

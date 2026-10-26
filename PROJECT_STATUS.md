@@ -37,6 +37,8 @@ Phase detail lives in
     - M-D5 hosting recommendation ([hosting.md](docs/architecture/hosting.md)).
 
 ## In Progress
+- **Website redesign** (26 October): landing page, dashboard, workflow diagram, sign-in and every page in one
+  Apple-style design (`hosted/src/app/design.css`). On the branch; goes live with the next push to `main`.
 - **6.11** ([meeting-form.md](docs/architecture/meeting-form.md)): built: camera check card and `framedecks://` link; website Meeting Form (`/meeting`);
   Excel moved into Settings → Data / Backup; version 6.11. Owner: live test G; then 6.12 removes Excel (W3).
 - **Free plan** ([free-hosting.md](docs/project/free-hosting.md)): steps 1–4 are on `main` (26 October):

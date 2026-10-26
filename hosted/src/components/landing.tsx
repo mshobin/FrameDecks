@@ -1,0 +1,112 @@
+import Image from "next/image";
+import Link from "next/link";
+import {
+  ArrowRight,
+  BookOpenText,
+  ClipboardList,
+  Download,
+  History,
+  Lock,
+  Radio,
+  Users,
+  Video,
+} from "lucide-react";
+
+import { BrandMark, MISSION } from "@/components/brand-hero";
+import { Workflow } from "@/components/workflow";
+import { DOWNLOADS } from "@/lib/pc-setup";
+
+const FEATURES = [
+  { icon: ClipboardList, title: "Plan together, online", text: "The Meeting Form holds every Frame, question and reading. Leaders prepare from home; the service PC is ready when they arrive." },
+  { icon: Video, title: "Present anywhere", text: "One program for the room screen, OBS, and Zoom or Teams through the FRAMEDECKS camera, with blur and branding." },
+  { icon: Radio, title: "Guide from your phone", text: "Next Frame, questions, scripture and a black screen, from the back of the room or across town." },
+  { icon: BookOpenText, title: "Scripture and discussion", text: "Readings with their references, discussion questions with timers, and a Teleprompter only the presenter sees." },
+  { icon: Users, title: "Your people", text: "Members, groups and birthdays in one list, kept in step between the website and the service PC." },
+  { icon: History, title: "Nothing is lost", text: "Every change is kept for 30 days: see who changed what, and restore an earlier version or a deleted Frame." },
+] as const;
+
+/** What a visitor who is not signed in sees at the companion's address. */
+export function Landing() {
+  return (
+    <div className="fd-landing">
+      <header className="fd-landing-bar">
+        <Link className="fd-brand" href="/" aria-label="FRAMEDECKS">
+          <span className="fd-brand-mark">
+            <Image src="/framedecks-emblem.webp" alt="" width={30} height={30} priority unoptimized />
+          </span>
+          <span className="fd-brand-copy">
+            <strong>FRAMEDECKS</strong>
+          </span>
+        </Link>
+        <nav className="fd-landing-links" aria-label="On this page">
+          <a href="#how">How it works</a>
+          <a href="#features">Features</a>
+          <Link href="/privacy">Privacy</Link>
+        </nav>
+        <Link className="fd-btn fd-btn-primary fd-btn-sm" href="/sign-in">
+          Sign in
+        </Link>
+      </header>
+
+      <section className="fd-hero" aria-labelledby="fd-hero-title">
+        <BrandMark />
+        <h1 id="fd-hero-title" className="fd-hero-title">
+          Every gathering, beautifully prepared.
+        </h1>
+        <p className="fd-hero-text">{MISSION}</p>
+        <div className="fd-hero-actions">
+          <Link className="fd-btn fd-btn-primary" href="/sign-in">
+            Get started <ArrowRight aria-hidden="true" size={17} />
+          </Link>
+          <a className="fd-btn fd-btn-glass" href={DOWNLOADS} target="_blank" rel="noreferrer">
+            <Download aria-hidden="true" size={17} /> FRAMEDECKS for Windows
+          </a>
+        </div>
+        <p className="fd-hero-note">Free for churches and fellowship groups · Your media never leaves your PC</p>
+      </section>
+
+      <section className="fd-section" id="how" aria-labelledby="fd-how-title">
+        <p className="fd-kicker">How it works</p>
+        <h2 id="fd-how-title" className="fd-section-title">
+          From the plan to the screen in four steps.
+        </h2>
+        <Workflow />
+      </section>
+
+      <section className="fd-section" id="features" aria-labelledby="fd-features-title">
+        <p className="fd-kicker">Features</p>
+        <h2 id="fd-features-title" className="fd-section-title">
+          Everything a gathering needs, in one calm place.
+        </h2>
+        <div className="fd-features">
+          {FEATURES.map(({ icon: Icon, title, text }) => (
+            <article className="fd-feature" key={title}>
+              <span className="fd-feature-icon">
+                <Icon aria-hidden="true" size={21} strokeWidth={1.8} />
+              </span>
+              <h3>{title}</h3>
+              <p>{text}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="fd-cta" aria-labelledby="fd-cta-title">
+        <Lock aria-hidden="true" size={22} />
+        <h2 id="fd-cta-title">Private by design.</h2>
+        <p>
+          The website keeps the words of your plan and your people, and only your workspace sees them. Pictures, video,
+          the camera and what is on screen stay on your service PC.
+        </p>
+        <Link className="fd-btn fd-btn-primary" href="/sign-in">
+          Sign in to your workspace <ArrowRight aria-hidden="true" size={17} />
+        </Link>
+      </section>
+
+      <footer className="fd-landing-foot">
+        <span>FRAMEDECKS · Present · Equip · Inspire</span>
+        <Link href="/privacy">Privacy policy</Link>
+      </footer>
+    </div>
+  );
+}

@@ -7,7 +7,7 @@ export const metadata: Metadata = { title: "Sign in" };
 
 export default function SignInPage() {
   return (
-    <AuthShell eyebrow="FRAMEDECKS ACCOUNT" title="Sign in to your companion">
+    <AuthShell eyebrow="Sign in to FRAMEDECKS" title="Welcome back.">
       <SignInForm />
     </AuthShell>
   );

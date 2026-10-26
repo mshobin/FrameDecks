@@ -7,7 +7,7 @@ export const metadata: Metadata = { title: "Privacy" };
 // Linked from Google's and Microsoft's sign-in consent screens; keep it true to what the companion and sync store.
 export default function PrivacyPage() {
   return (
-    <AuthShell eyebrow="FRAMEDECKS" title="Privacy">
+    <AuthShell eyebrow="Policy" title="Privacy" document>
       <div className="auth-legal">
         <p>Last updated 26 October 2026.</p>
         <h2>What FRAMEDECKS is</h2>

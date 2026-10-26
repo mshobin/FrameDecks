@@ -7,7 +7,7 @@ export const metadata: Metadata = { title: "Signing in" };
 
 export default function AuthCallbackPage() {
   return (
-    <AuthShell eyebrow="FRAMEDECKS ACCOUNT" title="Signing you in">
+    <AuthShell eyebrow="Sign in to FRAMEDECKS" title="Signing you in">
       <AuthCallback />
     </AuthShell>
   );
