@@ -36,8 +36,8 @@ function post(path, body){
 var pill = h('span', {cls: 'status-pill'}, [h('i'), h('span', {text: 'Checking…'})]);
 var msg = h('p', {cls: 'plain', style: 'margin:8px 0 0'});
 var perf = h('p', {cls: 'hint', style: 'margin:4px 0 0'});
-var sw = h('input', {type: 'checkbox', role: 'switch', id: 'vcam-switch', 'aria-label': 'FRAMEDECKS on or off'});
-var swText = h('b', {text: 'FRAMEDECKS'});
+var sw = h('input', {type: 'checkbox', role: 'switch', id: 'vcam-switch', 'aria-label': 'FRAMECAST on or off'});
+var swText = h('b', {text: 'FRAMECAST'});
 var camSel = h('select', {id: 'vcam-camera'});
 var resSeg = h('div', {cls: 'seg', id: 'vcam-res'});
 var blurSeg = h('div', {cls: 'seg', id: 'vcam-blur'});
@@ -48,7 +48,7 @@ var lookSel = h('select', {id: 'vcam-look'});
 var mtLook = $('mt-look');
 var installBox = h('div', {cls: 'alert warn', hidden: 'hidden'});
 var unavailable = h('div', {cls: 'alert', hidden: 'hidden'});
-var img = h('img', {alt: 'FRAMEDECKS preview', id: 'vcam-preview-img'});
+var img = h('img', {alt: 'FRAMECAST preview', id: 'vcam-preview-img'});
 var previewBox = h('div', {cls: 'vcam-preview'}, [img, h('span', {cls: 'vcam-preview-off', text: 'Preview is off'})]);
 var previewBtn = h('button', {cls: 'btn small', type: 'button', id: 'vcam-preview-btn', text: 'Show preview'});
 var previewing = false, current = null, pvTag = {};
@@ -266,7 +266,7 @@ var settingsBox = h('section', {cls: 'box'}, [
   h('div', {cls: 'row'}, [h('span', {cls: 'lbl'}), h('span', {cls: 'hint', text: 'Natural softens the background like a camera lens focused on you - no halo around you, and settings below 10 % stay subtle. Classic is the look of earlier versions.'})]),
   h('div', {cls: 'row'}, [h('span', {cls: 'lbl'}), blurSave, blurNote]),
   h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'Mirror'}), h('label', {cls: 'check'}, [mirror, ' Flip left-right (only your camera picture; text stays readable)'])]),
-  h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'Cards'}), h('label', {cls: 'check'}, [cardsCb, ' Show my verse, question and birthday cards on FRAMEDECKS'])]),
+  h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'Cards'}), h('label', {cls: 'check'}, [cardsCb, ' Show my verse, question and birthday cards on FRAMECAST'])]),
   h('div', {cls: 'box-head', style: 'margin-top:12px'}, [h('h2', {text: 'Preview'}), previewBtn]),
   previewBox,
   h('p', {cls: 'hint', text: 'The preview turns your webcam on while it is showing.'})
@@ -275,21 +275,21 @@ var helpBox = h('section', {cls: 'box'}, [
   h('div', {cls: 'box-head'}, [h('h2', {text: 'Use it in your meeting'})]),
   h('ol', {cls: 'steps'}, [
     h('li', {}, [h('b', {text: 'Zoom: '}), 'Settings → Video → Camera → choose ', h('b', {text: 'FRAMECAST'}), '. Turn off Zoom’s own background blur if it is on, and tick ', h('b', {text: 'HD'}), ' so Zoom sends a sharp picture (without it Zoom sends a low-resolution, softer version).']),
-    h('li', {}, [h('b', {text: 'Microsoft Teams: '}), 'Settings → Devices (or Video and effects) → Camera → choose ', h('b', {text: 'FRAMEDECKS'}), '.']),
+    h('li', {}, [h('b', {text: 'Microsoft Teams: '}), 'Settings → Devices (or Video and effects) → Camera → choose ', h('b', {text: 'FRAMECAST'}), '.']),
     h('li', {text: 'Keep FRAMEDECKS running (closing its window keeps it running in the background).'})
   ]),
-  h('p', {cls: 'hint', text: 'Your verse, question and birthday cards appear on FRAMECAST whenever you select Show, with the same transitions. OBS or Camo are not needed. If you still add the overlay links in OBS on top of FRAMEDECKS, turn off “Cards” above so they don’t appear twice.'})
+  h('p', {cls: 'hint', text: 'Your verse, question and birthday cards appear on FRAMECAST whenever you select Show, with the same transitions. OBS or Camo are not needed. If you still add the overlay links in OBS on top of FRAMECAST, turn off “Cards” above so they don’t appear twice.'})
 ]);
 root.appendChild(main); root.appendChild(settingsBox); root.appendChild(qualityBox); root.appendChild(helpBox);
 
 /* ---------- Show the current state ---------- */
 var STATES = {
-  live: ['ok', 'In use', 'Zoom or Teams is showing FRAMEDECKS.'],
+  live: ['ok', 'In use', 'Zoom or Teams is showing FRAMECAST.'],
   preview: ['info', 'Preview', 'Showing the preview.'],
   ready: ['info', 'Ready', 'Choose “FRAMECAST” as the camera in Zoom or Teams.'],
   starting: ['info', 'Starting…', 'Starting the webcam…'],
   error: ['warn', 'Webcam problem', ''],
-  off: ['', 'Off', 'FRAMEDECKS is switched off.']
+  off: ['', 'Off', 'FRAMECAST is switched off.']
 };
 function render(d){
   current = d;
@@ -304,7 +304,7 @@ function render(d){
   }
   settingsBox.hidden = helpBox.hidden = qualityBox.hidden = false;
   if (s.schemaVersion >= 2) renderQuality(d); else qualityBox.hidden = true;
-  sw.checked = s.enabled; swText.textContent = s.enabled ? 'FRAMEDECKS is on' : 'FRAMEDECKS is off';
+  sw.checked = s.enabled; swText.textContent = s.enabled ? 'FRAMECAST is on' : 'FRAMECAST is off';
   mirror.checked = s.mirror;
   cardsCb.checked = s.cards !== false;
   var lsig = JSON.stringify(d.looks || []);

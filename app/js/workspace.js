@@ -652,7 +652,7 @@ function smartDuplicate(id){
     h('label', {cls: 'check'}, [h('input', {type: 'radio', name: 'dup-c', value: 'keep', checked: 'checked'}), ' Keep the content']),
     h('label', {cls: 'check'}, [h('input', {type: 'radio', name: 'dup-c', value: 'only'}), ' Content only (looks back to the defaults)']),
     h('label', {cls: 'check'}, [h('input', {type: 'radio', name: 'dup-c', value: 'empty'}), ' Empty Content content (ready for next week)'])]));
-  card.appendChild(h('p', {cls: 'hint', text: 'FRAMEDECKS, Zoom / Teams camera, recording and remote settings belong to this PC, so every Frame - including the copy - uses them.'}));
+  card.appendChild(h('p', {cls: 'hint', text: 'FRAMECAST, Zoom / Teams camera, recording and remote settings belong to this PC, so every Frame - including the copy - uses them.'}));
   var ok = h('button', {cls: 'btn primary', type: 'button', text: 'Duplicate', id: 'dup-ok'});
   card.appendChild(h('div', {cls: 'app-modal-actions'}, [h('button', {cls: 'btn quiet', type: 'button', text: 'Cancel', onclick: function(){ back.remove(); }}), ok]));
   ok.addEventListener('click', function(){
@@ -982,7 +982,7 @@ function sceneForm(gen, sc, tab){
     sec.addEventListener('keydown', stop);
     sec.addEventListener('change', function(){ edit(sid, function(x){ x.auto.sec = Math.max(2, Math.min(3600, +sec.value || 30)); }); });
     gen.appendChild(h('div', {cls: 'ip-sec'}, [field('Transition into this Frame', sel), field('Duration (ms)', ms),
-      h('p', {cls: 'hint', text: 'Plays on the whole FRAMEDECKS picture. On the OBS / browser overlay page the dips cover the screen and the cards follow. The top bar can override it for a take.'})]));
+      h('p', {cls: 'hint', text: 'Plays on the whole FRAMECAST picture. On the OBS / browser overlay page the dips cover the screen and the cards follow. The top bar can override it for a take.'})]));
     gen.appendChild(h('div', {cls: 'ip-sec'}, [checkCtl('Auto advance to the next Frame', sc.auto.on, function(v){ edit(sid, function(x){ x.auto.on = v; }); }), field('After (seconds)', sec),
       h('p', {cls: 'hint', text: 'Only while Auto is on in the top bar.'})]));
   } else {
@@ -1166,7 +1166,7 @@ function renderCanvas(){
   var tx = sc ? SC.transitionOf(live, sc) : null;
   $('mt-section').textContent = sc ? SC.txName(tx.type) + (tx.ms ? ' ' + tx.ms + ' ms' : '') + (sc.auto.on ? ' · auto ' + sc.auto.sec + ' s' : '') : '';
   $('canvas-note').textContent = !sc ? '' : useStudio ? 'Exactly what Zoom / Teams receive. Drag media Content to move it, the handles to resize.' :
-    isLive ? 'Live. The overlay page shown here is what OBS receives' + (S ? '' : ' (turn FRAMEDECKS on to see the camera picture and arrange media Content)') + '.' :
+    isLive ? 'Live. The overlay page shown here is what OBS receives' + (S ? '' : ' (turn FRAMECAST on to see the camera picture and arrange media Content)') + '.' :
     'Preview of this Frame: not on air. Go Live (T) puts it on screen.' + (sc.layers.some(function(l){ return SC.isMedia(l.kind); }) ? ' Outlines show where its media Content goes.' : '');
   // media outlines for a scene that is not live
   var boxes = $('canvas-boxes'), bsig = !useStudio && sc && !isLive ? JSON.stringify(sc.layers.filter(function(l){ return SC.isMedia(l.kind) && l.visible; }).map(function(l){ return [l.id, l.name, l.c.x, l.c.y, l.c.w, l.c.h, l.kind]; })) : '';
@@ -1351,7 +1351,7 @@ function renderTransitions(){
   var t = h('table', {cls: 'dir-table'}, [h('thead', {}, [h('tr', {}, ['Profile', 'Transition', 'Duration'].map(function(x){ return h('th', {text: x}); }))])]), tb = h('tbody');
   SC.profiles.forEach(function(p){ tb.appendChild(h('tr', {cls: p.id === live.profile ? 'today' : ''}, [h('td', {text: p.name}), h('td', {text: SC.txName(p.type)}), h('td', {text: p.ms ? p.ms + ' ms' : '-'})])); });
   t.appendChild(tb); root.appendChild(h('div', {cls: 'dir-wrap'}, [t]));
-  root.appendChild(h('p', {cls: 'hint', text: 'FRAMEDECKS plays every transition on the whole picture (a few light operations per frame, under a second). The OBS / browser overlay page covers the screen for the dips and moves the cards for the slides and pushes.'}));
+  root.appendChild(h('p', {cls: 'hint', text: 'FRAMECAST plays every transition on the whole picture (a few light operations per frame, under a second). The OBS / browser overlay page covers the screen for the dips and moves the cards for the slides and pushes.'}));
 }
 (window.KCSectionHooks = window.KCSectionHooks || []).push(function(id){ if (id === 'transitions') renderTransitions(); });
 

@@ -151,6 +151,11 @@ the program's About page in the website's design, with the same words (brand.jso
 - The hosted app is separate from the LAN remote and never calls the PC's local server.
 - D4 (sync conflict rules): built as recommended (keep both Frames; the last writer wins for settings and people).
 
+## Design audit (26 October, chat only)
+Ranked roadmap from the design audit: rank 1 (DD-01, camera labels say FRAMECAST, guarded by
+`tests/test_camera_name.py`) is done. Ranks 2+ (first-run dialog, overlaps, header labels...) change the desktop UI:
+build them only when the owner asks, one at a time.
+
 ## Recommended Next Task
 Nothing is left for an assistant to build without the owner. In order:
 1. **Owner's live tests** with an installed 6.11 build: A–F and G in

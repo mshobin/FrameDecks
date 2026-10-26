@@ -154,7 +154,8 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
     no deletions are sent and the Frames are restored from the workspace.
 - The old name appears only where upgrades need it: `legacy.py` (moves old data folders), `packaging/installer.iss`
   (removes old shortcuts, program folder and camera files), `server.py` `OLD_FIREWALL_RULES`, `tools/undo-ipad-remote.ps1`
-  and `tests/test_legacy.py`. Use FRAMEDECKS everywhere else; the camera is called FRAMECAST (files `framedecks_vcam64/32.dll`).
+  and `tests/test_legacy.py`. Use FRAMEDECKS everywhere else; the camera is called FRAMECAST (files `framedecks_vcam64/32.dll`). Any label that
+  means the camera (switch, status, picture, preview) says FRAMECAST; `tests/test_camera_name.py` fails otherwise.
 - The companion must stay a static export: no server routes, cookies, server actions, `dynamic`/`revalidate`, metadata
   routes that need a server, or cacheComponents/PPR (they break `output: "export"`).
 - `hosted/AGENTS.md`: this Next.js version has breaking changes; read `hosted/node_modules/next/dist/docs/` before writing hosted code.

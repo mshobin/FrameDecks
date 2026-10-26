@@ -261,7 +261,7 @@ function selectFromList(id, e){
 }
 
 /* ---------- Centre: the canvas ---------- */
-var img = h('img', {alt: 'The live FRAMEDECKS picture', id: 's2-img', draggable: 'false'});
+var img = h('img', {alt: 'The live FRAMECAST picture', id: 's2-img', draggable: 'false'});
 var boxes = h('div', {cls: 's2-boxes'});
 var guides = h('div', {cls: 's2-guides'});
 var stage = h('div', {cls: 's2-stage', id: 's2-stage', tabindex: '0', 'aria-label': 'Canvas: drag Content to move them; use the handles to resize'}, [img, boxes, guides,

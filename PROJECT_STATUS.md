@@ -44,6 +44,7 @@ Phase detail lives in
 - **Old name removed (26 October):** every Kingdom Connect reference is FRAMEDECKS, except upgrade-only code (CLAUDE.md
   Gotchas). Camera files renamed `framedecks_vcam*.dll`; owner checks the camera after the next install.
 - **Audit step 2 (26 October):** built on `main` for 6.11.1 (see NEXT_SESSION); Stream Deck plugin removed.
+- **Design audit rank 1 (26 October):** every camera label says FRAMECAST (DD-01), guarded by `tests/test_camera_name.py`; Python 141 OK.
 - **6.11.1 (26 October):** audit steps 1–2 built (pinned build, cross-site guard, error logging, plan recovery and
   sync guard, `0009`); owner publishes the release and runs `0009`.
 - **Website performance (26 October):** the website no longer animates when idle (older 8 GB PCs next to the program).

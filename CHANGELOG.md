@@ -73,6 +73,8 @@ Full notes: [docs/releases/v6.11.1.md](docs/releases/v6.11.1.md)
 ### Fixed
 - "Could not reach https://framedecks.pages.dev: Forbidden" in FRAMEDECKS account (requests now identify FRAMEDECKS).
 - Unpinning the Teleprompter overlay froze the program.
+- Camera labels that still said FRAMEDECKS (switch, status, Teams step, Cards, Camera Look, Diagnostics) now say
+  FRAMECAST; `tests/test_camera_name.py` guards it (design audit DD-01).
 
 ## [6.11] - 2026-10-26
 

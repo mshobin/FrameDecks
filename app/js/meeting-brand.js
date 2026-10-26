@@ -5,7 +5,7 @@
  *   - text layers (Announcement, Prayer, Lower Third, Countdown) that use {meeting} / {org} or "Show logo";
  *   - the accent colour replaces the gold of the cards on FRAMECAST and the overlay pages.
  * Nothing is forced onto a scene: the leader ticks the scenes that carry the badge.
- * The logo is converted to PNG here (PNG, JPG or SVG in), so every output (browser, OBS, FRAMEDECKS) reads one file.
+ * The logo is converted to PNG here (PNG, JPG or SVG in), so every output (browser, OBS, FRAMECAST) reads one file.
  */
 (function(){
 'use strict';

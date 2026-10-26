@@ -1,13 +1,13 @@
 /* FRAMEDECKS v6.7 - edit any Content straight on the Studio Canvas.
  *
- * Double-click a card on the canvas (the Frame preview, or the live FRAMEDECKS picture) to edit it in place:
+ * Double-click a card on the canvas (the Frame preview, or the live FRAMECAST picture) to edit it in place:
  *   - the label (top line of the card): Question / Scripture label, or the title of a text Content;
  *   - the body: the question, the scripture (with reference and translation), or the text of an announcement,
  *     prayer, discussion topic, icebreaker, poll, lower third or timer message.
  * Enter saves, Shift+Enter starts a new line, Esc cancels, a click outside saves (js/editable.js).
  *
  * The cards are found where they really are: the overlay page (the same page OBS uses) is hit-tested. On the live
- * FRAMEDECKS picture the cards are part of the video, so the same page is laid out invisibly over it (only while
+ * FRAMECAST picture the cards are part of the video, so the same page is laid out invisibly over it (only while
  * editing, and removed again after a minute) instead of guessing positions. */
 (function(){
 'use strict';
@@ -79,7 +79,7 @@ $('program').addEventListener('dblclick', function(e){
   edit(card, x, y, function(b){ return {left: f.left - wr.left + b.left * s, top: f.top - wr.top + b.top * s, width: b.width * s, height: b.height * s}; }, frameId());
 });
 
-/* ---------- the live FRAMEDECKS picture: the same overlay page, laid out invisibly over it ---------- */
+/* ---------- the live FRAMECAST picture: the same overlay page, laid out invisibly over it ---------- */
 var measure = null, measureT = 0;
 function measurer(stage, done){
   clearTimeout(measureT); measureT = setTimeout(function(){ if (measure){ measure.remove(); measure = null; } }, 60000);

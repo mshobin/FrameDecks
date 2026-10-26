@@ -1110,7 +1110,7 @@ var Store = {
     else fileStart();
   },
   pace: pace,
-  /* Fetch the FRAMEDECKS preview only when it's new: the program answers "not modified" for a picture this
+  /* Fetch the FRAMECAST preview only when it's new: the program answers "not modified" for a picture this
    * screen already has, so nothing is downloaded, decoded or redrawn. tag = {etag} remembered per screen. */
   freshPreview: function(tag){
     var h = tag.etag ? {'If-None-Match': tag.etag} : {};
