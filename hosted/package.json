@@ -2,15 +2,17 @@
   "name": "framedecks-hosted",
   "version": "0.1.0",
   "private": true,
+  "license": "Apache-2.0",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint src tests/hosted-boundary.test.mjs tests/sync-contract.test.mjs",
     "typecheck": "tsc --noEmit",
-    "test": "node --experimental-strip-types --test tests/hosted-boundary.test.mjs tests/supabase-schema.test.mjs tests/pwa.test.mjs tests/supabase-rls.test.mjs tests/sync-contract.test.mjs"
+    "test": "node --experimental-strip-types --test tests/hosted-boundary.test.mjs tests/supabase-schema.test.mjs tests/pwa.test.mjs tests/supabase-rls.test.mjs tests/supabase-invitations.test.mjs tests/supabase-sync.test.mjs tests/supabase-remote.test.mjs tests/supabase-audit.test.mjs tests/supabase-groups.test.mjs tests/sync-entities.test.mjs tests/services-view.test.mjs tests/live-view.test.mjs tests/frame-edit.test.mjs tests/history-view.test.mjs tests/member-edit.test.mjs tests/auth.test.mjs tests/sync-contract.test.mjs"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.118.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.468.0",

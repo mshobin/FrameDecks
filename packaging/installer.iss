@@ -110,6 +110,8 @@ var code: Integer;
 begin
   Exec(ExpandConstant('{sys}\taskkill.exe'), '/IM "Kingdom Connect.exe" /F', '', SW_HIDE, ewWaitUntilTerminated, code);
   Exec(ExpandConstant('{sys}\taskkill.exe'), '/IM "BSF Command Center.exe" /F', '', SW_HIDE, ewWaitUntilTerminated, code);
+  { 6.10: 6.8 and 6.9 could stay running, unseen, after Quit; close such a copy so its files can be replaced }
+  Exec(ExpandConstant('{sys}\taskkill.exe'), '/IM "FRAMEDECKS.exe" /F', '', SW_HIDE, ewWaitUntilTerminated, code);
   Result := '';
 end;
 

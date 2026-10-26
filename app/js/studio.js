@@ -68,7 +68,7 @@ function pickFile(accept){
   });
 }
 function addFile(kind){
-  var accept = {image: '.png,.jpg,.jpeg,.svg', video: '.mp4,.mov,.webm', pdf: '.pdf', powerpoint: '.pptx,.ppt,.pdf'}[kind];
+  var accept = {image: '.png,.jpg,.jpeg,.svg', video: '.mp4,.mov,.webm', pdf: '.pdf', powerpoint: '.pptx,.ppt,.pdf', audio: '.mp3,.m4a,.wav,.ogg'}[kind];
   return pickFile(accept).then(function(f){
     if (!f) return null;
     toast(/\.pptx?$/i.test(f.name) ? 'Opening ' + f.name + ' in PowerPoint to prepare the slides… this can take a minute' : 'Adding ' + f.name + '…');

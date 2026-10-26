@@ -1,33 +1,126 @@
 # NEXT SESSION HANDOFF
 
-## Completed
-Hosted shell live on Vercel; PWA manifest and service worker verified locally; tenant migration with an in-repo RLS test (`hosted/tests/supabase-rls.test.mjs`, PGlite, dev-only); transparent emblem pipeline (approved gold-outline vector logo; master `assets/brand/framedecks-emblem.svg`, derivatives via `tools/make_emblem_assets.py`). On 25 October, local browser QA confirmed the emblem on the light-theme desktop header, light-theme teleprompter/speaker window, and dark remote page. This work started from `ca463f2` on `main`, synchronized with `origin/main`; the working tree now contains the documented, uncommitted changes from this session. Hosted checks pass after the Phase 4 contract addition.
-Phase 4 has begun: `hosted/src/lib/sync/contracts.mts` defines a strict v1 metadata-only presentation and operation contract, size limits, opaque media references, idempotent queue primitives, and explicit revision conflict results. Tests in `hosted/tests/sync-contract.test.mjs` reject local-path/raw-media fields and cover serialization, limits, retries, and conflicts. This does not persist an outbox or contact a server.
+Updated 26 October 2026: PR #32 merged, and the owner ran database scripts `0002`–`0008` in Supabase (all passed). The next session continues locally in
+VS Code (GitHub Copilot or any assistant). Read [CLAUDE.md](../CLAUDE.md) first.
 
-## In Progress
-Phase 3 Supabase auth: scaffold only (`hosted/supabase/migrations/0001_tenant_foundation.sql`, `hosted/src/lib/supabase-config.ts`, `hosted/.env.example`).
+## Where things stand
+- **`main`:** `8fe4cf7`, with **PR #32 merged** (26 October). Everything listed under PR #32 below is on `main`.
+- **Live database:** Supabase project `slrsykiknlqlivlnpvrb` has every script, `0001`–`0008`. The owner ran
+  `0002`–`0008` on 26 October and all passed.
+- **Checks on that head:**
+  - Hosted: green on GitHub.
+  - Windows installer build: run 40231518591, **passed**, with python-pptx bundled.
+  - Stream Deck plugin build: green.
+- **Locally on the branch:**
+  - Python: 126 tests OK.
+  - Desktop JS: 4/4.
+  - `packaging/check.py`: passes (6.10).
+  - Hosted: 85/85; lint, typecheck and build pass.
+  - Stream Deck: 5 tests and `validate` pass.
+  - Doc links: 0 problems.
 
-## Pending
-Phase 4 import/export bridge for 6.9 state, representative lossless round-trip fixtures, durable local outbox, authenticated server synchronization, sign-in UI, provider setup, live RLS tests, device pairing, real-device PWA test, and a packaged Windows run to verify the tray icon. No packaged build exists; PyInstaller and OpenCV are absent in this environment.
+## Completed (merged to `main`, PRs #7–#31)
+- Desktop 6.10, the approved emblem, and the drift cleanup.
+- Hosted companion on Vercel: sign-in and workspaces confirmed live by the owner; members and invitations.
+- Phase 4 sync of service plans, built and not yet live-tested:
+  - database `0003`;
+  - record mapping;
+  - PC sync with Settings → FRAMEDECKS account;
+  - companion Services / Members / Computers.
+- Phase 5, control from the companion, built and not yet live-tested:
+  - database `0004`/`0005`;
+  - `cloud_remote.py`;
+  - the Settings switch;
+  - the Live page.
+- Companion editing and 30-day Frame history with restore.
+- The owner's live test guide.
 
-## Technical Debt
-See [PROJECT_STATUS.md](../PROJECT_STATUS.md).
+## Completed on PR #32 (merged 26 October)
+- **Audit:**
+  - [architecture audit](../docs/project/2026-10-25-architecture-audit.md);
+  - its Phase 1, P1–P4: writing, sync, image memory and screen-capture copying per press;
+  - C2: `supervisor.py`, a crash watchdog in the installed exe.
+- **Stream Deck plugin:**
+  - `streamdeck/` (SDK 3, Node 24), calling the local `/api/command`;
+  - CI builds the `.streamDeckPlugin`.
+- **Target-architecture migration** (owner's brief):
+  - [review](../docs/architecture-review.md), [plan](../docs/migration-plan.md) (owner decisions M-D1–M-D6 in §8),
+    and [results](../docs/post-migration-report.md).
+  1. `0006_audit_log.sql`: an audit log of people, roles, invitations and PCs.
+  2. ESV key moved to Windows Credential Manager.
+  3. Missing-media check: `/api/media/check` and Diagnostics.
+  - `0007_data_api_grants.sql`: explicit grants for **Supabase's 30 October 2026 change**.
+  4. M-D1: Apache 2.0 `LICENSE`, `NOTICE`, `THIRD_PARTY_NOTICES.md`; SignPath signing in the Windows build, off until
+     the secret exists.
+  5. M-D2: the workspace is the member list's source.
+     - The companion's Members page adds, edits and removes people.
+     - A linked PC rebuilds a lost member file from the workspace.
+  6. M-D3: free AI with Ollama on the PC.
+     - **Suggest** drafts discussion questions from a Frame's passage, and is hidden without Ollama.
+     - Code in `ai.py`; user guide [docs/ai.md](../docs/ai.md).
+  7. M-D4: **Export this meeting to PowerPoint** (`pptx_export.py`) and **Audio** Content (`app/js/audio-player.js`).
+  8. M-D6: `0008_member_groups.sql`; member groups on the companion's Members page only.
+  - M-D5: long-term hosting recommendation, [docs/architecture/hosting.md](../docs/architecture/hosting.md).
+
+## Pending (owner)
+1. ~~Run the database scripts~~: **done** on 26 October (`0002`–`0008`, all passed).
+2. ~~Merge PR #32~~: **done**. Take the installer from the latest "Build Windows installer" run on `main` (Actions →
+   Artifacts); if no run started after the merge, start one with **Run workflow**.
+3. **Live tests:** [docs/qa/live-test-guide.md](../docs/qa/live-test-guide.md), tests A–F:
+   - A sync, B phone control, C editing, D history;
+   - E members from the cloud and groups;
+   - F PowerPoint export, Audio, Suggest.
+4. **Before using Audio Content:** update every linked PC. Older versions drop Audio Content and would sync the Frame
+   without it.
+5. **M-D1 signing:** follow [docs/project/code-signing.md](../docs/project/code-signing.md):
+   - check the history, then make the repository public;
+   - apply to SignPath Foundation;
+   - add the `SIGNPATH_API_TOKEN` secret and the three `SIGNPATH_*` variables.
+6. **Later (owner's choice):**
+   - Google/Microsoft sign-in with the invitation test;
+   - the move of the companion to Cloudflare before a public launch ([hosting.md](../docs/architecture/hosting.md));
+   - Supabase Pro once churches depend on it.
+
+## Open work (needs a decision or a design first)
+- **Media reference checks:** asset references (size and hash in sync records) from migration step 3 need a short
+  design first, because of the risk of two PCs rewriting each other's reference.
+- **Missing-media warning:** a line on screen needs the owner's approval (desktop UI is frozen).
+- **Signing:** C1 (unsigned installer, no auto-update) stays open until signing is on. Auto-update is not designed yet.
+- **Live database tests:** RLS tests against the real Supabase need `*.supabase.co` reachable. A local machine can
+  reach it; the cloud environment could not.
 
 ## Risks
-Vercel Root Directory unverified in dashboard; UI additions (sign-in) must match the existing navy/gold design. The 16px favicon is faint on light tab backgrounds; do not change the approved emblem without owner approval. The packaged tray icon has not been run; `desktop_app.py` uses `app/icons/remote-192.png`.
+- **Logo/branding:** the 16px favicon remains faint on light tab backgrounds; do not change the approved emblem without owner approval. The packaged tray icon has not been run; `desktop_app.py` uses `app/icons/remote-192.png`.
+- **Never tested against live Supabase:** sync, phone control, member editing, groups and grants. They are tested on
+  PGlite and against stand-ins only.
+- **Audio Content and older versions:** see Pending 4.
+- **Vercel Hobby terms:** personal, non-commercial use only; asking for donations counts as commercial (hosting.md).
+- **Closed PRs #8–#16:** not `main`'s plan; reuse only what PROJECT_STATUS.md "Worth reusing" lists.
 
 ## Assumptions
-Hosted app is separate from the LAN remote and online-first.
-
-## Blockers
-Owner must create the Supabase project and provide the URL and anon key (never the service_role key or OAuth secrets), and set them in Vercel.
+- The hosted app is separate from the LAN remote and never calls the PC's local server.
+- D4 (sync conflict rules): built as recommended (keep both Frames; the last writer wins for settings and people).
 
 ## Recommended Next Task
-Blocked on owner credentials. When the Supabase URL and anon key exist: add `@supabase/supabase-js`, a sign-in page reusing the existing hosted styles (`hosted/src/app/globals.css`), env-gated by `readSupabaseConfig()` so the site still works without keys. Read the Next.js docs in `hosted/node_modules/next/dist/docs/` first. Then run the same cases as `hosted/tests/supabase-rls.test.mjs` against the live project.
-Next: implement and test the Phase 4 6.9 import/export bridge using dry-run validation and representative fixtures, then design durable outbox persistence. Keep network sync disabled until tenant/auth and server authorization are ready. Separately, Phase 3 remains blocked on owner credentials. For remaining branding QA, use an isolated environment for the Windows build: `python -m PyInstaller --version` currently fails because PyInstaller is absent; `python packaging/check.py` passes but reports OpenCV is not installed. The 16px favicon remains faint; retain the approved mark unless the owner approves a size-specific design. Note: bump the `CACHE` name in `hosted/public/sw.js` whenever hosted emblem files change (now `framedecks-shell-v2`). Emblem files come from `tools/make_emblem_assets.py`; the horizontal/stacked logos (including `hosted/public/framedecks-logo-horizontal.png`) from `tools/generate_brand_assets.py`.
+Help the owner with Pending 2–3 (the database is ready). Fix what the live tests find, then mark each test done in the four files. Do not
+start new features until the live tests pass, unless the owner asks.
 
 ## Files Likely To Change Next
-`hosted/package.json`, `hosted/src/app/` (new sign-in route), `hosted/src/lib/`, `hosted/tests/`, `docs/FRAMEDECKS_MODERNIZATION_STATUS.md`, `PROJECT_STATUS.md`.
+Whatever the live tests find:
+- `cloud_sync.py`, `cloud_remote.py`, `server.py`, `app/js/frame-lists.js`, `app/js/audio-player.js`,
+  `pptx_export.py`, `ai.py`;
+- `hosted/src/components/*-panel.tsx`, `hosted/src/lib/*.ts`;
+- `hosted/supabase/migrations/`: a **new numbered** migration with its own grants and an undo script in
+  `hosted/supabase/rollback/`; never an edited one;
+- the four continuity files.
 
-## Session Handoff
-Run `git status`, then the hosted checks (`npm test`, `lint`, `typecheck`, `build` in `hosted/`) and `python tools/check_doc_links.py` before and after any change. Update this file and `PROJECT_STATUS.md` at the end of each session.
+## Session Handoff (VS Code on Windows)
+Setup and the full check list are in [CLAUDE.md](../CLAUDE.md) under "Working locally" and "Commands".
+
+Start by fetching and checking out the branch:
+- `git fetch origin`
+- `git checkout main`
+- `git pull`
+
+Before and after every change, run all the checks in CLAUDE.md. At the end of every step, update all four
+continuity files in the same commit (owner's rule). Never force-push.

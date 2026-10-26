@@ -12,6 +12,7 @@ How to plan a service, Bible study or meeting in FRAMEDECKS, from a blank page o
 - [Reuse last week's service](#reuse-last-weeks-service)
 - [Notes for the leader](#notes-for-the-leader)
 - [Plan in Excel with the Meeting Workbook](#plan-in-excel-with-the-meeting-workbook)
+- [Export to PowerPoint](#export-to-powerpoint)
 - [Planning worship lyrics today](#planning-worship-lyrics-today)
 - [Weekly planning checklist](#weekly-planning-checklist)
 
@@ -161,6 +162,16 @@ Downloads folder. You can edit that file and import it again, or give it to a co
 
 > **Note:** Audio and Web Page rows are accepted but skipped with a note, because those Content types are not
 > available yet.
+
+## Export to PowerPoint
+
+**Meeting → Export this meeting to PowerPoint** saves the whole service as a `.pptx` that anyone can open, print or
+send. The file is made on this PC and never uploaded.
+- **Slides.** A title slide, then one slide per Frame in order (templates are left out), in FRAMEDECKS navy and gold.
+- **Words.** Each Frame's scripture (reference and text), questions, and announcement, prayer or text Content, as
+  editable text.
+- **Media.** Its pictures from this PC; videos, audio and PDFs by name.
+- **Notes.** Each Frame's Teleprompter script as the speaker notes.
 
 ## Planning worship lyrics today
 

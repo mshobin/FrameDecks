@@ -1,0 +1,582 @@
+{
+ "input": {
+  "rev": 3,
+  "question": {
+   "text": "Old question",
+   "visible": false
+  },
+  "library": {
+   "questions": [
+    {
+     "id": "a",
+     "text": "Old question"
+    }
+   ],
+   "verses": [
+    {
+     "id": "b",
+     "ref": "Psalm 23:1",
+     "version": "KJV",
+     "text": "The Lord is my shepherd"
+    }
+   ]
+  },
+  "scenes": [
+   {
+    "id": "sc_old",
+    "name": "Old Frame",
+    "layers": [
+     {
+      "id": "L1",
+      "kind": "question",
+      "c": {}
+     }
+    ]
+   }
+  ],
+  "unknownFutureKey": {
+   "kept": true
+  }
+ },
+ "members": [
+  {
+   "id": "m2",
+   "name": "Paul Brown",
+   "country": "India",
+   "phone": "",
+   "email": "",
+   "birthDate": "",
+   "role": ""
+  }
+ ],
+ "normalized": {
+  "rev": 3,
+  "verse": {
+   "label": "Focus Verse",
+   "showLabel": true,
+   "text": "Thy word is a lamp unto my feet, and a light unto my path.",
+   "ref": "Psalm 119:105",
+   "version": "KJV",
+   "visible": false,
+   "seq": 0,
+   "cut": 0,
+   "itemId": "s1",
+   "transition": "rise",
+   "speed": "normal",
+   "random": false,
+   "pool": [
+    "fade",
+    "rise",
+    "words",
+    "burst"
+   ],
+   "burst": "gentle",
+   "play": "",
+   "upcoming": "",
+   "out": {
+    "vcam": true,
+    "obs": true
+   }
+  },
+  "question": {
+   "label": "Discussion Question",
+   "showLabel": true,
+   "text": "Old question",
+   "visible": false,
+   "seq": 0,
+   "cut": 0,
+   "itemId": "q1",
+   "mode": "",
+   "transition": "fade",
+   "speed": "normal",
+   "random": false,
+   "pool": [
+    "fade",
+    "rise",
+    "words",
+    "burst"
+   ],
+   "burst": "gentle",
+   "play": "",
+   "upcoming": "",
+   "out": {
+    "vcam": true,
+    "obs": true
+   }
+  },
+  "birthday": {
+   "label": "Birthday Celebration",
+   "showLabel": true,
+   "name": "",
+   "greeting": "",
+   "message": "",
+   "country": "",
+   "visible": false,
+   "seq": 0,
+   "cut": 0,
+   "transition": "rise",
+   "out": {
+    "vcam": true,
+    "obs": true
+   }
+  },
+  "layout": {
+   "bdayPos": "top",
+   "bdayScale": 1,
+   "verseAlign": "center",
+   "verseY": 40,
+   "verseWidth": 70,
+   "verseScale": 1,
+   "qBottom": 10,
+   "qWidth": 84,
+   "qScale": 1,
+   "panel": 92
+  },
+  "scenes": [
+   {
+    "id": "sc_old",
+    "name": "Old Frame",
+    "group": "",
+    "fav": false,
+    "tpl": false,
+    "created": 0,
+    "modified": 0,
+    "version": 1,
+    "creator": "",
+    "from": "",
+    "template": "",
+    "parent": "",
+    "notes": "",
+    "tx": {
+     "type": "profile",
+     "ms": 500
+    },
+    "auto": {
+     "on": false,
+     "sec": 30
+    },
+    "out": {
+     "vcam": true,
+     "obs": true
+    },
+    "layers": [
+     {
+      "id": "L1",
+      "kind": "question",
+      "name": "Question",
+      "visible": true,
+      "locked": false,
+      "opacity": 1,
+      "c": {
+       "itemId": "",
+       "label": "",
+       "vcam": true,
+       "obs": true,
+       "items": [
+        {
+         "id": "a_L1",
+         "label": "",
+         "text": "Old question",
+         "pair": "",
+         "mode": "",
+         "media": "",
+         "timer": "",
+         "anim": ""
+        }
+       ],
+       "look": {
+        "qScale": 1,
+        "qWidth": 84,
+        "qBottom": 10,
+        "panel": 92,
+        "transition": "fade",
+        "speed": "normal",
+        "random": false,
+        "pool": [
+         "fade",
+         "rise",
+         "words",
+         "burst"
+        ],
+        "burst": "gentle",
+        "showLabel": true
+       }
+      }
+     }
+    ]
+   }
+  ],
+  "live": {
+   "scene": "",
+   "seq": 0,
+   "at": 0,
+   "tx": "cut",
+   "txMs": 0,
+   "auto": true,
+   "blackout": false,
+   "emergency": false,
+   "freeze": false,
+   "ink": {
+    "on": false,
+    "items": [],
+    "undone": []
+   },
+   "message": "Please stand by — we’ll be right back.",
+   "on": {},
+   "cd": {}
+  },
+  "profile": "bible-study",
+  "v6": false,
+  "brand": {
+   "meeting": "",
+   "org": "",
+   "color": "",
+   "logo": "",
+   "lw": 0,
+   "lh": 0,
+   "auto": false
+  },
+  "meeting": {
+   "title": "",
+   "date": "",
+   "time": "",
+   "location": "",
+   "presenter": "",
+   "contact": "",
+   "attendees": "",
+   "attendeeNotes": "",
+   "owner": "",
+   "contentNotes": "",
+   "notes": "",
+   "extra": ""
+  },
+  "library": {
+   "verses": [
+    {
+     "id": "b",
+     "ref": "Psalm 23:1",
+     "version": "KJV",
+     "text": "The Lord is my shepherd",
+     "pair": ""
+    }
+   ],
+   "questions": [
+    {
+     "id": "a",
+     "text": "Old question",
+     "num": "",
+     "note": "",
+     "pair": "",
+     "mode": ""
+    }
+   ]
+  }
+ },
+ "split": {
+  "entities": [
+   {
+    "kind": "frame",
+    "id": "sc_old",
+    "body": {
+     "id": "sc_old",
+     "name": "Old Frame",
+     "group": "",
+     "fav": false,
+     "tpl": false,
+     "created": 0,
+     "modified": 0,
+     "version": 1,
+     "creator": "",
+     "from": "",
+     "template": "",
+     "parent": "",
+     "notes": "",
+     "tx": {
+      "type": "profile",
+      "ms": 500
+     },
+     "auto": {
+      "on": false,
+      "sec": 30
+     },
+     "out": {
+      "vcam": true,
+      "obs": true
+     },
+     "layers": [
+      {
+       "id": "L1",
+       "kind": "question",
+       "name": "Question",
+       "visible": true,
+       "locked": false,
+       "opacity": 1,
+       "c": {
+        "itemId": "",
+        "label": "",
+        "vcam": true,
+        "obs": true,
+        "items": [
+         {
+          "id": "a_L1",
+          "label": "",
+          "text": "Old question",
+          "pair": "",
+          "mode": "",
+          "media": "",
+          "timer": "",
+          "anim": ""
+         }
+        ],
+        "look": {
+         "qScale": 1,
+         "qWidth": 84,
+         "qBottom": 10,
+         "panel": 92,
+         "transition": "fade",
+         "speed": "normal",
+         "random": false,
+         "pool": [
+          "fade",
+          "rise",
+          "words",
+          "burst"
+         ],
+         "burst": "gentle",
+         "showLabel": true
+        }
+       }
+      }
+     ]
+    }
+   },
+   {
+    "kind": "library_question",
+    "id": "a",
+    "body": {
+     "id": "a",
+     "text": "Old question",
+     "num": "",
+     "note": "",
+     "pair": "",
+     "mode": ""
+    }
+   },
+   {
+    "kind": "library_verse",
+    "id": "b",
+    "body": {
+     "id": "b",
+     "ref": "Psalm 23:1",
+     "version": "KJV",
+     "text": "The Lord is my shepherd",
+     "pair": ""
+    }
+   },
+   {
+    "kind": "member",
+    "id": "m2",
+    "body": {
+     "id": "m2",
+     "name": "Paul Brown",
+     "country": "India",
+     "phone": "",
+     "email": "",
+     "birthDate": "",
+     "role": ""
+    }
+   },
+   {
+    "kind": "order",
+    "id": "order",
+    "body": {
+     "scenes": [
+      "sc_old"
+     ],
+     "questions": [
+      "a"
+     ],
+     "verses": [
+      "b"
+     ],
+     "members": [
+      "m2"
+     ]
+    }
+   },
+   {
+    "kind": "theme",
+    "id": "cards",
+    "body": {
+     "question": {
+      "label": "Discussion Question",
+      "showLabel": true,
+      "transition": "fade",
+      "speed": "normal",
+      "random": false,
+      "pool": [
+       "fade",
+       "rise",
+       "words",
+       "burst"
+      ],
+      "burst": "gentle"
+     },
+     "verse": {
+      "label": "Focus Verse",
+      "showLabel": true,
+      "transition": "rise",
+      "speed": "normal",
+      "random": false,
+      "pool": [
+       "fade",
+       "rise",
+       "words",
+       "burst"
+      ],
+      "burst": "gentle"
+     },
+     "birthday": {
+      "label": "Birthday Celebration",
+      "showLabel": true,
+      "transition": "rise"
+     }
+    }
+   },
+   {
+    "kind": "brand",
+    "id": "brand",
+    "body": {
+     "meeting": "",
+     "org": "",
+     "color": "",
+     "logo": "",
+     "lw": 0,
+     "lh": 0,
+     "auto": false
+    }
+   },
+   {
+    "kind": "layout",
+    "id": "layout",
+    "body": {
+     "bdayPos": "top",
+     "bdayScale": 1,
+     "verseAlign": "center",
+     "verseY": 40,
+     "verseWidth": 70,
+     "verseScale": 1,
+     "qBottom": 10,
+     "qWidth": 84,
+     "qScale": 1,
+     "panel": 92
+    }
+   },
+   {
+    "kind": "meeting",
+    "id": "meeting",
+    "body": {
+     "title": "",
+     "date": "",
+     "time": "",
+     "location": "",
+     "presenter": "",
+     "contact": "",
+     "attendees": "",
+     "attendeeNotes": "",
+     "owner": "",
+     "contentNotes": "",
+     "notes": "",
+     "extra": ""
+    }
+   },
+   {
+    "kind": "layout",
+    "id": "profile",
+    "body": {
+     "value": "bible-study"
+    }
+   }
+  ],
+  "local": {
+   "rev": 3,
+   "verse": {
+    "text": "Thy word is a lamp unto my feet, and a light unto my path.",
+    "ref": "Psalm 119:105",
+    "version": "KJV",
+    "visible": false,
+    "seq": 0,
+    "cut": 0,
+    "itemId": "s1",
+    "play": "",
+    "upcoming": "",
+    "out": {
+     "vcam": true,
+     "obs": true
+    }
+   },
+   "question": {
+    "text": "Old question",
+    "visible": false,
+    "seq": 0,
+    "cut": 0,
+    "itemId": "q1",
+    "mode": "",
+    "play": "",
+    "upcoming": "",
+    "out": {
+     "vcam": true,
+     "obs": true
+    }
+   },
+   "birthday": {
+    "name": "",
+    "greeting": "",
+    "message": "",
+    "country": "",
+    "visible": false,
+    "seq": 0,
+    "cut": 0,
+    "out": {
+     "vcam": true,
+     "obs": true
+    }
+   },
+   "live": {
+    "scene": "",
+    "seq": 0,
+    "at": 0,
+    "tx": "cut",
+    "txMs": 0,
+    "auto": true,
+    "blackout": false,
+    "emergency": false,
+    "freeze": false,
+    "ink": {
+     "on": false,
+     "items": [],
+     "undone": []
+    },
+    "message": "Please stand by — we’ll be right back.",
+    "on": {},
+    "cd": {}
+   },
+   "v6": false,
+   "library": {},
+   "keys": [
+    "rev",
+    "verse",
+    "question",
+    "birthday",
+    "layout",
+    "scenes",
+    "live",
+    "profile",
+    "v6",
+    "brand",
+    "meeting",
+    "library"
+   ]
+  }
+ }
+}

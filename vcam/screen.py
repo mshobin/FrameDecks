@@ -247,6 +247,8 @@ class ScreenCapture:
             return False
         self.error = ""
         left, top, w, h = self.source.get("rect", (0, 0, 0, 0))
+        self._store(last)
+        shown_cur = None
         while self.alive:
             try:
                 f = session.acquire_frame(timeout_ms=33)
@@ -260,8 +262,11 @@ class ScreenCapture:
                 continue
             if f is not None:
                 last = f.to_bgr()                     # only when the screen changed
-            img = last
             cur = _cursor_pos()
+            if f is None and cur == shown_cur:
+                continue                              # nothing changed: no copy, and the compositor keeps its resize
+            shown_cur = cur
+            img = last
             if cur and w:
                 img = last.copy()
                 _draw_cursor(img, cur[0] - left, cur[1] - top, img.shape[1] / max(1, w))

@@ -1,4 +1,4 @@
-"""FRAMEDECKS 6.8 - desktop settings and shortcut tests (python -m unittest discover -s tests -p "test_*.py").
+"""FRAMEDECKS 6.8 - desktop settings, shortcut and restart tests (python -m unittest discover -s tests -p "test_*.py").
 The Windows window features themselves (ribbon, glass, tray, global shortcut) need a real Windows desktop; these tests
 cover the logic around them on any system."""
 import json
@@ -80,6 +80,60 @@ class Settings(unittest.TestCase):
         finally:
             server.DESKTOP.pop("settings_changed", None)
         self.assertEqual(seen[-1]["spotlightKey"], "Ctrl+Space")
+
+
+class Restart(unittest.TestCase):
+    """6.10: after Quit the program must free its port, and a copy that holds the port without answering is told
+    apart from another program (it used to make the next start show "127.0.0.1 refused to connect")."""
+
+    def test_quit_frees_the_port(self):
+        import socket
+        srv = server.MainServer(("127.0.0.1", 0), server.Handler)
+        port = srv.server_address[1]
+        import threading
+        threading.Thread(target=srv.serve_forever, daemon=True).start()
+        srv.shutdown()
+        srv.server_close()
+        s = socket.socket()
+        try:
+            s.bind(("127.0.0.1", port))                    # free at once for the next start
+        finally:
+            s.close()
+
+    def test_main_server_never_shares_its_port_on_windows(self):
+        self.assertEqual(server.MainServer.allow_reuse_address, os.name != "nt")
+
+    def test_a_copy_that_does_not_answer_is_stuck(self):
+        import socket
+        import desktop_app
+        silent = socket.socket()
+        silent.bind(("127.0.0.1", 0))
+        silent.listen(5)                                   # takes connections, never answers (a copy left behind)
+        try:
+            self.assertEqual(desktop_app.running_copy(silent.getsockname()[1]), "stuck")
+        finally:
+            silent.close()
+        free = socket.socket()
+        free.bind(("127.0.0.1", 0))
+        port = free.getsockname()[1]
+        free.close()                                       # nothing listening there
+        self.assertIsNone(desktop_app.running_copy(port))
+
+    def test_a_copy_that_answers_is_found(self):
+        import threading
+        import desktop_app
+        srv = server.MainServer(("127.0.0.1", 0), server.Handler)
+        threading.Thread(target=srv.serve_forever, daemon=True).start()
+        try:
+            self.assertEqual(desktop_app.running_copy(srv.server_address[1]), "start-files")   # not the installed app
+        finally:
+            srv.shutdown()
+            srv.server_close()
+
+    def test_ending_stuck_copies_only_in_the_installed_app(self):
+        import desktop_app
+        if os.name != "nt" or not getattr(sys, "frozen", False):
+            self.assertFalse(desktop_app.end_stuck_copies())
 
 
 if __name__ == "__main__":

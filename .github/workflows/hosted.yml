@@ -5,11 +5,13 @@ on:
     branches: [main, modernization-v1]
     paths:
       - "hosted/**"
+      - "tests/fixtures/sync/**"
       - ".github/workflows/hosted.yml"
   pull_request:
     branches: [main, modernization-v1]
     paths:
       - "hosted/**"
+      - "tests/fixtures/sync/**"
       - ".github/workflows/hosted.yml"
   workflow_dispatch:
 

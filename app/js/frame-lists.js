@@ -21,7 +21,30 @@ function stop(e){ e.stopPropagation(); }
 var NAMES = {question: {one: 'question', One: 'Question', many: 'questions', Many: 'Questions', layer: 'question'},
   verse: {one: 'scripture', One: 'Scripture', many: 'scriptures', Many: 'Scriptures', layer: 'scripture'}};
 var TRANS = [['', 'Content default'], ['random', 'Random']].concat((window.KCTransitions.list || []).map(function(t){ return [t, window.KCTransitions.names[t]]; }));
-var live = null, editing = null, bulkOpen = {}, sigs = {};
+var live = null, editing = null, bulkOpen = {}, sigs = {}, prefill = {};
+/* M-D3: free AI on this PC (Ollama). "Suggest" appears only when it answers; without it nothing here changes. */
+var ai = {ok: false, model: '', busy: false};
+function aiCheck(){
+  if (!Store.served) return;
+  fetch('api/ai/status', {cache: 'no-store'}).then(function(r){ return r.ok ? r.json() : null; }).then(function(s){
+    var ok = !!(s && s.ok);
+    if (ok !== ai.ok){ ai.ok = ok; sigs.question = ''; render(); }
+    ai.model = s && s.model || '';
+  }).catch(function(){});
+}
+function suggest(sid){
+  var v = cardOf(live, 'verse', sid);
+  var passages = items(v).map(function(it){ return {ref: it.ref || '', text: it.text || ''}; }).filter(function(x){ return x.ref || x.text.trim(); });
+  ai.busy = true; sigs.question = ''; render();
+  fetch('api/ai/questions', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({passages: passages, count: 5})})
+    .then(function(r){ return r.json().then(function(d){ if (!r.ok) throw new Error(d.error || 'The AI did not answer'); return d; }); })
+    .then(function(d){
+      prefill.question = d.questions.join('\n'); bulkOpen.question = true;
+      toast('Drafted on this PC' + (d.model ? ' by ' + d.model : '') + '. Check and edit them, then Add to this Frame.');
+    })
+    .catch(function(e){ toast(e.message, true); })
+    .then(function(){ ai.busy = false; sigs.question = ''; render(); });
+}
 
 function frameId(){ var s = window.KCSelFrame && window.KCSelFrame(); return s || (live ? live.live.scene : ''); }
 function cardOf(st, kind, sid){ var sc = SC.find(st, sid); return sc ? SC.first(sc, NAMES[kind].layer) : null; }
@@ -64,7 +87,10 @@ function renderList(host, kind, sid, l){
   var N = NAMES[kind], list = items(l), cur = l.c.itemId;
   var add = h('button', {cls: 'btn primary small', type: 'button', id: 'fl-add-' + kind, html: I('plus', 14) + ' ' + N.One, title: 'Add a ' + N.one + ' to this Frame', onclick: function(){ addItem(kind, sid); }});
   var more = h('button', {cls: 'btn quiet small', type: 'button', text: 'Add several', id: 'fl-bulk-' + kind, onclick: function(){ bulkOpen[kind] = !bulkOpen[kind]; sigs[kind] = ''; render(); }});
-  host.appendChild(h('div', {cls: 'fl-head'}, [h('h3', {text: N.Many + ' in this Frame'}), h('span', {cls: 'fl-count', text: String(list.length)}), add, more]));
+  var draft = kind === 'question' && ai.ok ? h('button', {cls: 'btn quiet small', type: 'button', id: 'fl-suggest-question', html: I('sparkles', 14) + ' ' + (ai.busy ? 'Drafting…' : 'Suggest'),
+    disabled: ai.busy ? 'disabled' : null, title: 'Draft discussion questions from this Frame’s scripture with the free AI on this PC (' + (ai.model || 'Ollama') + '). Nothing is added until you choose.',
+    onclick: function(){ suggest(sid); }}) : null;
+  host.appendChild(h('div', {cls: 'fl-head'}, [h('h3', {text: N.Many + ' in this Frame'}), h('span', {cls: 'fl-count', text: String(list.length)}), add, more, draft]));
   if (kind === 'question'){
     var m = window.KCActions && window.KCActions.mode ? window.KCActions.mode() : 'question';
     var g = h('div', {cls: 'pmode fl-pmode', role: 'radiogroup', 'aria-label': 'What Show puts on screen'});
@@ -76,6 +102,7 @@ function renderList(host, kind, sid, l){
   if (bulkOpen[kind]){
     var ta = h('textarea', {rows: 5, id: 'fl-bulk-text-' + kind, placeholder: kind === 'question' ? 'One question per line' : 'One per line: Reference | text   (e.g. John 3:16 | For God so loved the world…)'});
     ta.addEventListener('keydown', stop);
+    if (prefill[kind]){ ta.value = prefill[kind]; prefill[kind] = ''; }
     host.appendChild(h('div', {cls: 'fl-bulk'}, [ta, h('div', {cls: 'actions'}, [
       h('button', {cls: 'btn primary small', type: 'button', text: 'Add to this Frame', onclick: function(){
         var lines = ta.value.split(/\r?\n/).map(function(x){ return x.trim(); }).filter(Boolean);
@@ -261,7 +288,7 @@ function render(){
     renderLabel(kind, sid, l);
     var ed = editing && editing.kind === kind ? items(l).filter(function(x){ return x.id === editing.id; })[0] : null;
     if (editing && editing.kind === kind && !ed) editing = null;
-    var sig = JSON.stringify([sid, l && l.id, ed ? ['ed', ed.id, items(l).length, items(l).indexOf(ed)] : [l && l.c, live[kind].itemId, live[kind].visible, live.live.scene, bulkOpen[kind], live.question.mode]]);
+    var sig = JSON.stringify([sid, l && l.id, ed ? ['ed', ed.id, items(l).length, items(l).indexOf(ed)] : [l && l.c, live[kind].itemId, live[kind].visible, live.live.scene, bulkOpen[kind], live.question.mode, ai.ok, ai.busy]]);
     if (sigs[kind] === sig) return;
     if (ed && host.contains(document.activeElement) && /INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName) && sigs[kind] && sigs[kind].indexOf('"ed"') >= 0) return;   // typing: keep the cursor
     if (!ed && bulkOpen[kind] && host.contains(document.activeElement) && document.activeElement.tagName === 'TEXTAREA') return;
@@ -284,6 +311,7 @@ function onVerse(d){
 }
 
 Store.subscribe(function(st){ live = st; render(); });
+aiCheck(); setInterval(aiCheck, 120000);
 window.addEventListener('kc-edit-done', function(){ render(); });
 window.KCFrameLists = {render: function(){ render(); }, onVerse: onVerse, edit: openEditor, add: function(kind){ return addItem(kind, frameId()); }, save: saveItem};
 })();

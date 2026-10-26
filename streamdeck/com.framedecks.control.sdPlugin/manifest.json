@@ -1,0 +1,142 @@
+{
+  "$schema": "https://schemas.elgato.com/streamdeck/plugins/manifest.json",
+  "UUID": "com.framedecks.control",
+  "Name": "FRAMEDECKS",
+  "Version": "1.0.0.0",
+  "Author": "FRAMEDECKS",
+  "Description": "Run a FRAMEDECKS service from Stream Deck: Next and Previous Frame, Go Live, Hide all, Black screen, question and scripture. Works while Zoom or Teams has the focus. Needs FRAMEDECKS running on the same PC.",
+  "Category": "FRAMEDECKS",
+  "CategoryIcon": "imgs/plugin/category",
+  "Icon": "imgs/plugin/icon",
+  "CodePath": "bin/plugin.js",
+  "SDKVersion": 3,
+  "Nodejs": {
+    "Version": "24"
+  },
+  "Software": {
+    "MinimumVersion": "7.1"
+  },
+  "OS": [
+    {
+      "Platform": "windows",
+      "MinimumVersion": "10"
+    }
+  ],
+  "Actions": [
+    {
+      "UUID": "com.framedecks.control.next",
+      "Name": "Next Frame",
+      "Tooltip": "Put the next Frame on screen (as the Next Frame key)",
+      "Icon": "imgs/actions/next",
+      "Controllers": [
+        "Keypad"
+      ],
+      "States": [
+        {
+          "Image": "imgs/actions/next-key"
+        }
+      ]
+    },
+    {
+      "UUID": "com.framedecks.control.previous",
+      "Name": "Previous Frame",
+      "Tooltip": "Put the previous Frame on screen (as the Previous Frame key)",
+      "Icon": "imgs/actions/previous",
+      "Controllers": [
+        "Keypad"
+      ],
+      "States": [
+        {
+          "Image": "imgs/actions/previous-key"
+        }
+      ]
+    },
+    {
+      "UUID": "com.framedecks.control.golive",
+      "Name": "Go Live",
+      "Tooltip": "Put a chosen Frame on screen; lights up while it is there",
+      "Icon": "imgs/actions/golive",
+      "Controllers": [
+        "Keypad"
+      ],
+      "PropertyInspectorPath": "ui/go-live.html",
+      "DisableAutomaticStates": true,
+      "States": [
+        {
+          "Image": "imgs/actions/golive-key"
+        },
+        {
+          "Image": "imgs/actions/golive-on"
+        }
+      ]
+    },
+    {
+      "UUID": "com.framedecks.control.hideall",
+      "Name": "Hide all",
+      "Tooltip": "Hide the question, scripture and cards (as Esc)",
+      "Icon": "imgs/actions/hideall",
+      "Controllers": [
+        "Keypad"
+      ],
+      "States": [
+        {
+          "Image": "imgs/actions/hideall-key"
+        }
+      ]
+    },
+    {
+      "UUID": "com.framedecks.control.blackout",
+      "Name": "Black screen",
+      "Tooltip": "Black screen on or off; lights up while it is on",
+      "Icon": "imgs/actions/blackout",
+      "Controllers": [
+        "Keypad"
+      ],
+      "DisableAutomaticStates": true,
+      "States": [
+        {
+          "Image": "imgs/actions/blackout-key"
+        },
+        {
+          "Image": "imgs/actions/blackout-on"
+        }
+      ]
+    },
+    {
+      "UUID": "com.framedecks.control.question",
+      "Name": "Question",
+      "Tooltip": "Show or hide the question; lights up while it is shown",
+      "Icon": "imgs/actions/question",
+      "Controllers": [
+        "Keypad"
+      ],
+      "DisableAutomaticStates": true,
+      "States": [
+        {
+          "Image": "imgs/actions/question-key"
+        },
+        {
+          "Image": "imgs/actions/question-on"
+        }
+      ]
+    },
+    {
+      "UUID": "com.framedecks.control.scripture",
+      "Name": "Scripture",
+      "Tooltip": "Show or hide the scripture; lights up while it is shown",
+      "Icon": "imgs/actions/scripture",
+      "Controllers": [
+        "Keypad"
+      ],
+      "DisableAutomaticStates": true,
+      "States": [
+        {
+          "Image": "imgs/actions/scripture-key"
+        },
+        {
+          "Image": "imgs/actions/scripture-on"
+        }
+      ]
+    }
+  ]
+}

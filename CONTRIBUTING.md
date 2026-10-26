@@ -89,9 +89,9 @@ A change is ready to merge when:
 
 ## Licence
 
-The repository does not yet include a licence file. Until the maintainer publishes one, all rights are reserved by
-the maintainer, and contributions are accepted on the understanding that they will be distributed under the terms
-the maintainer publishes. If that matters for your contribution, ask in an issue before you start.
+FRAMEDECKS is licensed under the [Apache License 2.0](LICENSE). By contributing, you agree that your contribution
+is licensed under the same terms (Apache 2.0, section 5). A new dependency or vendored file needs a compatible licence
+and a row in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) in the same change.
 
 ---
 

@@ -15,6 +15,11 @@ import traceback
 import urllib.request
 import webbrowser
 
+if __name__ == "__main__":
+    import supervisor              # the installed app first starts as a small watchdog (restarts it after a crash)
+    if supervisor.wanted():
+        sys.exit(supervisor.run())
+
 APP_NAME = "FRAMEDECKS"          # identity: data folder name and the single-instance check
 DISPLAY_NAME = "FRAMEDECKS"     # what people see
 
@@ -139,16 +144,47 @@ def ask(port, action):
         return r.status
 
 
-def running_copy(port=server.PREFERRED_PORT):
-    """What is already running on this port? None, "app" (this installed app) or "start-files" (the black-window version)."""
+def running_copy(port=server.PREFERRED_PORT, wait=1.5):
+    """What is already running on this port? None, "app" (this installed app), "start-files" (the black-window
+    version) or "stuck" (something takes the connection but never answers: a copy that did not finish closing).
+    Connecting and answering are timed apart: on Windows a port with nothing on it takes about 2 s to refuse."""
+    import http.client
+    conn = http.client.HTTPConnection("127.0.0.1", port, timeout=3)
     try:
-        with urllib.request.urlopen(f"http://127.0.0.1:{port}/api/app/ping", timeout=1.5) as r:
-            d = json.loads(r.read().decode())
+        conn.connect()
+    except OSError:                                      # refused (nothing there) or no reply to the connection
+        return None
+    try:
+        conn.sock.settimeout(wait)
+        conn.request("GET", "/api/app/ping")
+        d = json.loads(conn.getresponse().read().decode())
+    except TimeoutError:                                 # connected, but no answer
+        return "stuck"
     except Exception:
         return None
+    finally:
+        conn.close()
     if d.get("app") != APP_NAME:
         return None
     return "app" if d.get("installedApp") else "start-files"
+
+
+def end_stuck_copies():
+    """6.10: end earlier copies of this program that stopped answering (6.8 and 6.9 could stay behind after Quit, still
+    holding the port). Only processes with this program's own name, never this one."""
+    if os.name != "nt" or not getattr(sys, "frozen", False):
+        return False
+    import subprocess
+    exe = os.path.basename(sys.executable)
+    try:
+        r = subprocess.run(["taskkill", "/F", "/IM", exe, "/FI", f"PID ne {os.getpid()}"], capture_output=True, text=True,
+                           timeout=10, creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
+        print("Ended a copy that had stopped answering:", (r.stdout or r.stderr).strip())
+    except Exception as e:
+        print("Could not end the earlier copy:", e)
+        return False
+    time.sleep(1.0)                                     # Windows frees the port when the process is gone
+    return True
 
 
 START_FILES_RUNNING = ("The start-file version of FRAMEDECKS is still running (the black window).\n\n"
@@ -184,12 +220,14 @@ def tray_hide_all():
 
 def tray_image():
     from PIL import Image
-    return Image.open(server.APP / "icons" / "remote-192.png")
+    return Image.open(server.APP / "icons" / "tray-64.png")
 
 
 def main():
     # 1. Only one copy: if it is already running, bring its window forward and stop here.
     other = running_copy()
+    if other == "stuck":                       # a busy copy may just be slow: ask once more, with more patience
+        other = running_copy(wait=6)
     if other == "start-files":
         message(START_FILES_RUNNING, warn=True)
         return
@@ -199,6 +237,8 @@ def main():
         except Exception:
             pass
         return
+    if other == "stuck":
+        end_stuck_copies()
 
     srv = server.start_main_server()
     if srv is None:
@@ -286,6 +326,7 @@ def main():
         print("App window not available:\n" + traceback.format_exc())
 
     def stop_everything():
+        server.flush_state()             # a live change from the last second (quitting ends the process at once)
         server.set_remote(False)
         eng = server.VCAM.get("engine")
         if eng:
@@ -300,6 +341,7 @@ def main():
                 pass
         try:
             srv.shutdown()
+            srv.server_close()           # 6.10: free the port at once, so the next start gets it
         except Exception:
             pass
 
@@ -379,12 +421,18 @@ def main():
                 pass
 
     def quit_app():
+        """Quit (the page's close dialog or the tray). 6.10: every window must close, the hidden Spotlight window
+        too: while one is left, webview.start() does not return and the process stays behind. A safety net ends the
+        process if a window will not close."""
         state["quitting"] = True
         stop_everything()
-        try:
-            window.destroy()
-        except Exception:
-            pass
+        threading.Timer(5.0, lambda: os._exit(0)).start()
+        for close in (lambda: present(False), lambda: overlay(False), lambda: state.get("speaker") and state["speaker"].destroy(),
+                      lambda: spot.destroy(), lambda: window.destroy()):
+            try:
+                close()
+            except Exception:
+                pass
 
     def choose_folder():
         kind = getattr(getattr(webview, "FileDialog", None), "FOLDER", None)

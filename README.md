@@ -8,9 +8,9 @@ service, and the only current online feature is the optional ESV scripture fetch
 optional cloud accounts and metadata sync while keeping presentation media and live output local. FRAMEDECKS
 remains free, with no payments or feature restrictions.
 
-> **Status: FRAMEDECKS 6.9 is ready for teaching, Bible study, small-group and hybrid services, with documented
+> **Status: FRAMEDECKS 6.10 is ready for teaching, Bible study, small-group and hybrid services, with documented
 > gaps.** The biggest: no song / lyrics library yet (lyrics are shown as Text Content or a PowerPoint), an unsigned
-> installer, no automated UI tests, and no published licence. See the
+> installer (signing is being set up), and no automated UI tests. See the
 > [repository audit](docs/project/repository-audit.md), [modernization status](docs/FRAMEDECKS_MODERNIZATION_STATUS.md),
 > and the [roadmap](ROADMAP.md).
 
@@ -60,11 +60,11 @@ remains free, with no payments or feature restrictions.
 The optional Next.js web companion is in `hosted/` and deploys to Vercel with
 Root Directory `hosted`. See the [hosted companion guide](hosted/README.md)
 for local development and Vercel setup. It is currently a static foundation
-preview; authentication, cloud data, and device pairing are not implemented.
+preview with sign-in (Supabase Auth); cloud data and device pairing are not implemented.
 
 ## Install
 See [INSTALLATION](docs/installation.md) and [GETTING_STARTED](docs/getting-started.md). In short: run
-`FRAMEDECKS v6.9.exe` (unsigned, so check it against its `.sha256` file first and choose **More info → Run
+`FRAMEDECKS v6.10.exe` (unsigned, so check it against its `.sha256` file first and choose **More info → Run
 anyway** at the SmartScreen prompt), keep **Install the FRAMEDECKS camera** ticked, and allow the one
 administrator prompt. Windows 10 or 11 (64-bit) is required. The installer comes from the **Build Windows
 installer** workflow ([BUILDING_THE_INSTALLER](docs/development/building-the-installer.md)).
@@ -122,9 +122,16 @@ No feature, test result or screenshot in this repository is faked; where somethi
 the docs say so.
 
 ## License
-No licence has been published yet; until one is, all rights are reserved by the author. Third-party components keep
-their own licences: softcam (MIT), MediaPipe selfie segmentation model (Apache 2.0), SheetJS and Lucide icons (see
-`app/vendor/`), EB Garamond and Source Sans 3 (SIL Open Font License).
+FRAMEDECKS is open source under the [Apache License 2.0](LICENSE); see also [NOTICE](NOTICE). Third-party components
+keep their own licences, listed in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+
+## Code signing policy
+Windows releases are to be signed for free by [SignPath.io](https://signpath.io), with a certificate from the
+[SignPath Foundation](https://signpath.org) (set-up: [code-signing.md](docs/project/code-signing.md)).
+- Only installers built by this repository's GitHub Actions from `main` or a version tag are signed.
+- The maintainer (Shobin Mathews) reviews every change and approves every signing request.
+- FRAMEDECKS sends nothing to anyone unless a church links a PC to its own workspace (see
+  [docs/architecture/metadata-sync.md](docs/architecture/metadata-sync.md)); it collects no telemetry.
 
 <sub>Earlier versions were named Kingdom Connect and BSF Command Center. Version 6.9 installs over those versions and
 moves their data into the FRAMEDECKS folder on first start, so each church keeps its data.</sub>

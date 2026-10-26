@@ -1,0 +1,45 @@
+name: Stream Deck plugin
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "streamdeck/**"
+      - ".github/workflows/streamdeck.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "streamdeck/**"
+      - ".github/workflows/streamdeck.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  plugin:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: streamdeck
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: streamdeck/package-lock.json
+      - run: npm ci
+      - name: Test
+        run: npm test
+      - name: Build (one file, bin/plugin.js)
+        run: npm run build
+      - name: Validate the manifest
+        run: npm run validate
+      - name: Pack (double-click to install in Stream Deck)
+        run: npm run pack
+      - uses: actions/upload-artifact@v4
+        with:
+          name: FRAMEDECKS Stream Deck plugin
+          path: streamdeck/dist/com.framedecks.control.streamDeckPlugin
+          if-no-files-found: error

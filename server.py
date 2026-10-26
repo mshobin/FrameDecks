@@ -11,6 +11,7 @@ Windows: double-click "Start FRAMEDECKS.bat"
 Mac:     double-click "Start FRAMEDECKS (Mac).command"
          (for the phone remote: python3 server.py --remote)
 """
+import atexit
 import hashlib
 import json
 import os
@@ -28,10 +29,14 @@ from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from pathlib import Path
 from urllib.parse import urlparse, parse_qs, unquote
 
+import sync_entities   # what is live and what is plan (the same split as sync)
+import cloud_remote   # Phase 5: running a service from the companion (only when linked and switched on)
+import cloud_sync   # Phase 4: syncing service plans with a workspace (only when this PC is linked)
+import ai           # M-D3: optional AI, free by default (Ollama on this PC); hidden when none answers
 import legacy   # 6.9: moves data saved under the program's earlier name
 import meeting_form   # 6.9: fills the Meeting Workbook's form for Export
 
-APP_VERSION = "6.9"
+APP_VERSION = "6.10"
 STARTED_AT = time.time()
 FROZEN = getattr(sys, "frozen", False)          # True inside the installed Windows app
 HERE = Path(sys.executable).resolve().parent if FROZEN else Path(__file__).resolve().parent
@@ -176,25 +181,87 @@ def state_body(lib_rev=None):
     return json.dumps(dict(state, libraryRev=LIBRARY["rev"]))
 
 
+# Saving (architecture audit P1, P2): a change to the plan is written at once. A change to what is live only (Next,
+# Show/Hide, blackout) is written at most once a second: during a service that is most presses, and each one used
+# to rewrite the whole plan with its library. Live state never syncs, so it no longer starts a sync round either.
+LIVE_WRITE_DELAY = 1.0
+DISK = {"plan": None, "dirty": False, "timer": None}
+
+
+def plan_fingerprint(st):
+    """The saved state without what is live (as sync_entities.split leaves out) and without the library, which
+    save_state compares on its own: equal text = same plan. Not key-sorted (cheaper): a different key order only
+    makes a change count as a plan change, which is written at once - never the other way round."""
+    out = {}
+    for k, v in st.items():
+        if k in ("rev", "live", "library", "libraryRev", "libraryOmitted"):
+            continue
+        if k in sync_entities.CARD_LIVE and isinstance(v, dict):
+            v = {kk: vv for kk, vv in v.items() if kk not in sync_entities.CARD_LIVE[k]}
+        out[k] = v
+    return json.dumps(out, ensure_ascii=False)
+
+
+def _write_state_file():
+    """Write the current state now (call with cond held). Compact JSON: the C encoder, several times faster."""
+    t = DISK.get("timer")
+    if t:
+        t.cancel()
+    DISK.update(dirty=False, timer=None)
+    tmp = STATE_FILE.with_suffix(".tmp")
+    tmp.write_text(json.dumps(state, ensure_ascii=False), encoding="utf-8")
+    os.replace(tmp, STATE_FILE)
+
+
+def flush_state():
+    """Write a pending live-only change now (before quitting, a backup or an import)."""
+    with cond:
+        if DISK["dirty"]:
+            _write_state_file()
+
+
+def _write_later():
+    with cond:
+        if DISK["dirty"]:
+            _write_state_file()
+
+
 def save_state(new):
     global state
     with cond:
         new.pop("libraryRev", None)
         new.pop("libraryOmitted", None)
         new["rev"] = int(state.get("rev", 0)) + 1
-        if new.get("library") != state.get("library"):
+        library_changed = new.get("library") != state.get("library")
+        if library_changed:
             LIBRARY["rev"] = new["rev"]
         state = new
-        tmp = STATE_FILE.with_suffix(".tmp")
-        tmp.write_text(json.dumps(state, indent=2, ensure_ascii=False), encoding="utf-8")
-        os.replace(tmp, STATE_FILE)
+        plan = plan_fingerprint(state)
+        plan_changed = library_changed or plan != DISK["plan"]
+        DISK["plan"] = plan
+        if plan_changed:
+            _write_state_file()
+        else:
+            DISK["dirty"] = True
+            if DISK["timer"] is None:
+                DISK["timer"] = threading.Timer(LIVE_WRITE_DELAY, _write_later)
+                DISK["timer"].daemon = True
+                DISK["timer"].start()
         cond.notify_all()
         eng = VCAM.get("engine") if "VCAM" in globals() else None
         if eng:
             eng.kick()                     # a card was shown/hidden: draw it now, even in the idle rhythm
         if "VCAM" in globals():
             apply_live_media(state)
+        if plan_changed and "SYNC" in globals():
+            SYNC.poke()                    # linked to a workspace: send this change after a few quiet seconds
+        if "CLOUD_REMOTE" in globals():
+            CLOUD_REMOTE.changed()         # the companion's Live page shows the new screen soon
         return state
+
+
+atexit.register(flush_state)
+DISK["plan"] = plan_fingerprint(state)                    # the plan as loaded: a first live press is not a plan change
 
 
 # ---------- v6 Scenes: the live scene's media layers are the FRAMEDECKS picture ----------
@@ -371,6 +438,7 @@ def diagnostics(address):
         "folder": str(HERE), "dataFolder": str(DATA), "installedApp": FROZEN, "port": address[1], "listeningOn": address[0],
         "remoteMode": REMOTE, "addresses": lan_addresses(), "uptimeSeconds": int(time.time() - STARTED_AT),
         "stateRevision": state.get("rev", 0), "files": files, "remoteSessions": n_sessions,
+        "missingMedia": media_check(state)[:50],
         "devices": [{"ip": ip, "lastSeen": d["last"], "signedIn": d["signedIn"]} for ip, d in devices.items()],
         "network": windows_network_check() if REMOTE else None, "now": time.time(),
         "vcam": {"available": VCAM["engine"] is not None, "reason": VCAM["reason"], "detail": VCAM["detail"],
@@ -397,6 +465,101 @@ def save_private(data):
         tmp = PRIVATE_FILE.with_suffix(".tmp")
         tmp.write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
         os.replace(tmp, PRIVATE_FILE)
+    if "SYNC" in globals():
+        SYNC.poke()
+
+
+# ---------- Phase 4: syncing service plans (cloud_sync.py; docs/architecture/metadata-sync.md) ----------
+# Off until this PC is linked in Settings > FRAMEDECKS account. Only text records leave the PC (no media, nothing
+# live); it runs on its own thread and never stands between a page, the phone remote or the camera and the plan.
+
+def _sync_read():
+    with cond:
+        plan = json.loads(json.dumps(state))
+    people = load_private().get("members")
+    return plan, (list(people) if isinstance(people, list) else None)   # None: the member file is missing or unreadable
+
+
+def _sync_write(change):
+    """Apply changes from the workspace to the latest plan and member list, through the normal save path."""
+    with cond:
+        private = load_private()
+        current = json.loads(json.dumps(state))
+        plan, members = change(json.loads(json.dumps(current)), list(private.get("members") or []))
+        plan.pop("rev", None)
+        current.pop("rev", None)
+        if json.dumps(plan, sort_keys=True) != json.dumps(current, sort_keys=True):
+            save_state(plan)
+            _report_missing_media()
+        if members != (private.get("members") or []):
+            private["members"] = members
+            save_private(private)
+
+
+_MEDIA_REPORTED = {"files": set()}
+
+
+def _report_missing_media():
+    """After the workspace changed the plan: say in the log (kc-app-log.txt) which media files it names that this PC
+    lacks, once per new set, so a support check finds them before the service."""
+    found = media_check(state)
+    files = {f for m in found for f in m["files"]}
+    if files and files != _MEDIA_REPORTED["files"]:
+        print(f"Media check: {len(found)} Frame(s) name files not in this PC's media folder: "
+              + "; ".join(f'{m["name"] or m["frame"]}: {", ".join(m["files"][:5])}' for m in found[:10]))
+    _MEDIA_REPORTED["files"] = files
+
+
+SYNC = cloud_sync.Service(DATA / "kc-sync.json", cloud_sync.SecretStore(DATA / ".kc-sync-key"), _sync_read, _sync_write,
+                          socket.gethostname() or "FRAMEDECKS PC", member_authority=lambda: app_settings()["memberAuthority"])
+
+
+# ---------- Phase 5: running a service from the companion (cloud_remote.py; docs/architecture/remote-control.md) ----------
+# Only while this PC is linked and Settings > FRAMEDECKS account > "Allow control from the companion" is on. Commands
+# are fetched from the workspace and run by the program's own window (app/js/cloud-remote.js) with the keys' code.
+# Separate from the Wi-Fi phone remote (REMOTE above), which it does not touch.
+
+def _remote_credentials():
+    link, cloud, key = SYNC.state.get("link"), SYNC.state.get("cloud"), SYNC.secrets.get()
+    return (cloud, link["organizationId"], key) if link and cloud and key else None
+
+
+def _remote_plan():
+    with cond:
+        return json.loads(json.dumps(state))
+
+
+CLOUD_BRIDGE = cloud_remote.Bridge()
+
+# Stream Deck (and other programs on this PC): the same commands, run by the program's own window with the keys' code
+# (streamdeck/, docs/remote-control.md). Only this PC may call it; it works when the window does not have the focus,
+# for example during a Zoom meeting, which is why keyboard shortcuts alone cannot drive a Stream Deck.
+LOCAL_OPS = ("next", "previous", "go_live", "hide_all", "blackout", "question", "scripture")
+LOCAL_SEQ = {"n": 0}
+
+
+def run_local_command(op, args, by="Stream Deck"):
+    if op not in LOCAL_OPS:
+        return {"ok": False, "result": "not run: unknown action"}
+    args = args if isinstance(args, dict) else {}
+    if len(json.dumps(args)) > 1024:
+        return {"ok": False, "result": "not run: too much data"}
+    with cond:
+        LOCAL_SEQ["n"] += 1
+        cid = f"local-{LOCAL_SEQ['n']}"
+    CLOUD_BRIDGE.offer([{"id": cid, "op": op, "args": args, "by": by, "quiet": True}])
+    result = CLOUD_BRIDGE.collect([cid])[0]["result"]
+    return {"ok": result == "done", "result": result}
+
+
+def local_status():
+    """What a Stream Deck key shows: the Frame on screen and what is visible (text only, small)."""
+    with cond:
+        st = cloud_remote.status_from(state)
+    return {"app": "FRAMEDECKS", "frame": st["frame"], "count": st["count"], "frames": st["frames"],
+            "blackout": st["blackout"], "question": st["question"]["visible"], "scripture": st["scripture"]["visible"]}
+CLOUD_REMOTE = cloud_remote.RemoteService(_remote_credentials, lambda: app_settings()["cloudRemote"], _remote_plan,
+                                          CLOUD_BRIDGE)
 
 
 # ---------- Phone remote on/off while running ----------
@@ -474,8 +637,11 @@ APP_SETTINGS_DEFAULTS = {"remoteAutostart": False, "importDecided": False,
                          "overlayMode": "meeting",      # Teleprompter overlay: solid/presenter/meeting/conference/ghost
                          "overlayFrost": True,    # Windows blur behind the overlay
                          "overlayOnTop": True,    # the overlay stays above Zoom, Teams, PowerPoint and browsers
-                         "overlayFade": False}    # compatibility transparency (the whole window fades, text included)
-APP_SETTING_CHOICES = {"minimizeTo": ("ask", "tray", "taskbar"),
+                         "overlayFade": False,    # compatibility transparency (the whole window fades, text included)
+                         "cloudRemote": False,    # Phase 5: run a service from the companion (Settings > FRAMEDECKS account)
+                         "memberAuthority": "cloud",   # M-D2: the workspace is the member list's source (no switch on screen)
+                         "ai": "auto"}            # M-D3: "auto" = use Ollama on this PC when it answers; "off" = never
+APP_SETTING_CHOICES = {"minimizeTo": ("ask", "tray", "taskbar"), "memberAuthority": ("cloud", "pc"), "ai": ("auto", "off"),
                        "overlayMode": ("solid", "presenter", "meeting", "conference", "ghost")}
 
 
@@ -513,6 +679,8 @@ def save_app_settings(changes):
         from desktop_win import format_hotkey
         cur["spotlightKey"] = format_hotkey(cur["spotlightKey"]) if cur["spotlightKey"] else ""
     APP_SETTINGS_FILE.write_text(json.dumps(cur, indent=2), encoding="utf-8")
+    if "cloudRemote" in changes and "CLOUD_REMOTE" in globals():
+        CLOUD_REMOTE.poke()                # the switch takes effect at once (off: no more asking)
     hook = DESKTOP.get("settings_changed")
     if hook:
         try:
@@ -537,6 +705,7 @@ def list_backups():
 
 def backup_now(tag=""):
     """Copy the verses/questions file and the member file into backups/<date>. Keeps the newest 10."""
+    flush_state()                                         # the file must hold the latest live state too
     with backup_lock:
         files = [f for f in (STATE_FILE, PRIVATE_FILE) if f.exists()]
         if not files:
@@ -643,7 +812,7 @@ def import_from(folder):
         raise ValueError("That folder doesn’t contain FRAMEDECKS data (its saved content or member list).")
     if src.resolve() == DATA.resolve():
         raise ValueError("That is already the folder FRAMEDECKS uses.")
-    backup_now("before-import")
+    backup_now("before-import")                           # also writes any pending change, so none lands later
     copied = []
     for name in DATA_FILE_NAMES:
         f = legacy.find(src, name)                          # also an older folder that uses the earlier file names
@@ -849,6 +1018,33 @@ STUDIO_FILE = DATA / "kc-studio.json"
 SCENES_DIR = DATA / "scenes"            # scene thumbnails
 LAYERS_DIR = DATA / "layers"
 STUDIO_VERSION = 1
+FILE_KINDS = ("image", "video", "pdf", "audio")
+AUDIO_TYPES = {".mp3": "audio/mpeg", ".m4a": "audio/mp4", ".wav": "audio/wav", ".ogg": "audio/ogg"}   # M-D4 Audio Content
+AUDIO_TYPES_EXT = tuple(AUDIO_TYPES)
+
+
+def media_check(st):
+    """Frames whose pictures, videos or PDFs are not in this PC's media folder (migration step 3, audit C8): a Frame
+    synced from another PC, or a file renamed or deleted, is found before the service rather than as an empty layer.
+    Reads file names only. [{"frame", "name", "files": [...]}], in plan order."""
+    seen, out = {}, []
+    for sc in st.get("scenes") or []:
+        if not isinstance(sc, dict) or sc.get("tpl"):
+            continue
+        missing = []
+        for l in sc.get("layers") or []:
+            f = str(((l.get("c") or {}).get("file") or "") if isinstance(l, dict) and l.get("kind") in FILE_KINDS else "")
+            if f and f not in missing:
+                if f not in seen:
+                    try:
+                        seen[f] = (LAYERS_DIR / f).is_file()
+                    except (OSError, ValueError):
+                        seen[f] = False
+                if not seen[f]:
+                    missing.append(f)
+        if missing:
+            out.append({"frame": str(sc.get("id") or ""), "name": str(sc.get("name") or ""), "files": missing})
+    return out
 QUICK_PRESETS = {
     "logo": {"name": "Logo overlay", "needs": "image", "layer": {"type": "image", "x": 0.88, "y": 0.13, "w": 0.16, "opacity": 0.9}},
     "lower_third": {"name": "Lower third", "needs": "image", "layer": {"type": "image", "x": 0.34, "y": 0.84, "w": 0.6}},
@@ -921,13 +1117,53 @@ _scr_lock = threading.Lock()
 SCRIPTURE_HEALTH = {"ok": None, "message": "", "at": 0}
 
 
+# The key itself is kept in Windows Credential Manager (migration step 2, docs/migration-plan.md), not in the JSON file;
+# a key an older version saved in the file is moved there the first time it is read.
+ESV_KEY = cloud_sync.SecretStore(DATA / ".kc-esv-key", target="FRAMEDECKS/esv-key")
+
+
+def _esv_key_get():
+    try:
+        return re.sub(r"[^A-Za-z0-9]", "", ESV_KEY.get() or "")[:200]
+    except (OSError, AttributeError, ValueError):
+        return ""
+
+
+def _esv_key_set(key):
+    """Store (or with "" remove) the key; True when the store holds exactly that afterwards."""
+    try:
+        ESV_KEY.set(key) if key else ESV_KEY.delete()
+    except (OSError, AttributeError):
+        return False
+    return _esv_key_get() == key
+
+
 def scripture_settings():
     try:
         d = json.loads(SCRIPTURE_FILE.read_text(encoding="utf-8"))
         d = d if isinstance(d, dict) else {}
     except (OSError, ValueError):
         d = {}
-    return {"provider": "esv", "key": str(d.get("key") or "")[:200], "translation": "ESV" if d.get("translation", "ESV") == "ESV" else "typed"}
+    key = re.sub(r"[^A-Za-z0-9]", "", str(d.get("key") or ""))[:200]
+    if key and _esv_key_set(key):                    # moved out of the file only once the store reads it back
+        _write_scripture_file({k: v for k, v in d.items() if k != "key"})
+    key = key or _esv_key_get()
+    return {"provider": "esv", "key": key, "translation": "ESV" if d.get("translation", "ESV") == "ESV" else "typed"}
+
+
+def _write_scripture_file(d):
+    try:
+        SCRIPTURE_FILE.write_text(json.dumps(d), encoding="utf-8")
+    except OSError:
+        pass
+
+
+def save_scripture_settings(cur):
+    """cur: scripture_settings() with changes. The key goes to the store; the file keeps it only if the store fails."""
+    out = {"provider": "esv", "translation": cur.get("translation", "ESV")}
+    if not _esv_key_set(cur.get("key") or ""):
+        out["key"] = cur.get("key") or ""
+    _write_scripture_file(out)
 
 
 def _scr_cache():
@@ -991,6 +1227,26 @@ def scripture_lookup(ref, translation="ESV", fresh=False):
         tmp.write_text(json.dumps(cache, ensure_ascii=False), encoding="utf-8")
         os.replace(tmp, SCRIPTURE_CACHE)
     return {"ref": canon, "text": text, "version": "ESV", "cached": False}
+
+
+AI = ai.Service(DATA / "kc-ai-cache.json", enabled=lambda: app_settings()["ai"] != "off")
+
+
+def _passages_with_text(passages):
+    """A Frame's scripture as [{"ref", "text"}]; a reference without text is looked up (the offline cache first, then
+    the ESV with the church's own key); one that cannot be found keeps its reference only."""
+    out = []
+    for p in (passages if isinstance(passages, list) else [])[:6]:
+        if not isinstance(p, dict):
+            continue
+        ref, text = str(p.get("ref") or "")[:120], str(p.get("text") or "")[:6000]
+        if ref and not text.strip():
+            try:
+                text = scripture_lookup(ref).get("text", "")
+            except (ValueError, OSError):
+                text = ""
+        out.append({"ref": ref, "text": text})
+    return out
 
 
 def scripture_info():
@@ -1695,6 +1951,40 @@ class Handler(BaseHTTPRequestHandler):
             return self.reply(200, json.dumps({"enabled": REMOTE, "results": results}), TYPES[".json"])
         if path == "/api/diagnostics":
             return self.reply(200, json.dumps(diagnostics(self.server.server_address)), TYPES[".json"])
+        if path == "/api/ai/status":                     # M-D3: is a free local AI there? (this PC only)
+            if not self.is_local():
+                return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
+            return self.reply(200, json.dumps(AI.status(fresh=parse_qs(url.query).get("fresh", ["0"])[0] == "1")), TYPES[".json"])
+        if path == "/api/media/audio":                   # M-D4: an Audio Content's file, for the program window (this PC only)
+            if not self.is_local():
+                return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
+            f = LAYERS_DIR / Path(parse_qs(url.query).get("name", [""])[0]).name
+            if f.suffix.lower() not in AUDIO_TYPES or not f.is_file():
+                return self.reply(404, "Not found", "text/plain; charset=utf-8")
+            return self.reply(200, f.read_bytes(), AUDIO_TYPES[f.suffix.lower()], [("Cache-Control", "no-store")])
+        if path == "/api/media/check":                   # migration step 3: Frames whose media files are not on this PC
+            if not self.is_local():
+                return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
+            return self.reply(200, json.dumps({"missing": media_check(state)}), TYPES[".json"])
+        if path == "/api/sync":                                   # Settings > FRAMEDECKS account (this PC only)
+            if not self.is_local():
+                return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
+            return self.reply(200, json.dumps(dict(SYNC.info(), remote=CLOUD_REMOTE.info())), TYPES[".json"])
+        if path == "/api/command/status":                          # Stream Deck keys: what is on screen (this PC only)
+            if not self.is_local():
+                return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
+            return self.reply(200, json.dumps(local_status()), TYPES[".json"])
+        if path == "/api/remote-cloud/next":                       # the program's own window asks for commands
+            if not self.is_local():
+                return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
+            try:
+                wait = min(25.0, max(0.0, float(parse_qs(url.query).get("wait", ["20"])[0])))
+            except ValueError:
+                wait = 20.0
+            # Waits also while switched off: commands only come once it is on, and then the window is already asking
+            commands = CLOUD_BRIDGE.for_window(wait)
+            return self.reply(200, json.dumps({"on": CLOUD_REMOTE.info()["active"], "commands": commands}),
+                              TYPES[".json"])
         if path == "/api/private":
             data = load_private()
             data["storedAt"] = str(PRIVATE_FILE)
@@ -1828,8 +2118,8 @@ class Handler(BaseHTTPRequestHandler):
             return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
         name = Path(parse_qs(urlparse(self.path).query).get("name", ["file"])[0]).name
         stem, ext = os.path.splitext(name)
-        if ext.lower() not in (".png", ".jpg", ".jpeg", ".mp4", ".mov", ".webm", ".pdf", ".pptx", ".ppt"):
-            return self.reply(400, json.dumps({"error": "Use PNG, JPG, MP4, MOV, WebM, PDF or PowerPoint (PPTX)."}), TYPES[".json"])
+        if ext.lower() not in (".png", ".jpg", ".jpeg", ".mp4", ".mov", ".webm", ".pdf", ".pptx", ".ppt") + AUDIO_TYPES_EXT:
+            return self.reply(400, json.dumps({"error": "Use PNG, JPG, MP4, MOV, WebM, PDF, PowerPoint (PPTX) or MP3, M4A, WAV, OGG."}), TYPES[".json"])
         length = int(self.headers.get("Content-Length", 0))
         if length <= 0 or length > 1024 * 1024 * 1024:
             return self.reply(400, json.dumps({"error": "The file must be smaller than 1 GB."}), TYPES[".json"])
@@ -1977,6 +2267,19 @@ class Handler(BaseHTTPRequestHandler):
             return self.reply(400, "Invalid data", "text/plain; charset=utf-8")
         if path == "/api/remote-login":
             return self.remote_login(data)
+        if path == "/api/export/pptx":                   # M-D4: the service as a PowerPoint file, made on this PC
+            if not self.is_local():
+                return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
+            try:
+                import pptx_export
+                with cond:
+                    plan = json.loads(json.dumps(state))
+                body, _ = pptx_export.build(plan, LAYERS_DIR)
+            except ImportError:
+                return self.reply(501, json.dumps({"error": "PowerPoint export needs the python-pptx package (it comes with the installer)."}), TYPES[".json"])
+            except (OSError, ValueError, KeyError, TypeError) as e:
+                return self.reply(422, json.dumps({"error": str(e)}), TYPES[".json"])
+            return self.reply(200, body, "application/vnd.openxmlformats-officedocument.presentationml.presentation")
         if path == "/api/meeting/workbook":
             # 6.9 Export this meeting to Excel: the template's Dashboard and Meeting Form, with this meeting filled in
             if not self.is_local():
@@ -1987,6 +2290,15 @@ class Handler(BaseHTTPRequestHandler):
             except (OSError, ValueError, KeyError, TypeError) as e:
                 return self.reply(422, json.dumps({"error": str(e)}), TYPES[".json"])
             return self.reply(200, body, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+        if path == "/api/ai/questions":                  # M-D3: discussion questions drafted from a Frame's scripture
+            if not self.is_local():
+                return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
+            d = data if isinstance(data, dict) else {}
+            try:
+                res = AI.discussion_questions(_passages_with_text(d.get("passages")), d.get("count") or 5)
+            except ai.AiError as e:
+                return self.reply(422, json.dumps({"error": str(e)}), TYPES[".json"])
+            return self.reply(200, json.dumps(res), TYPES[".json"])
         if path == "/api/scripture/settings":
             if not self.is_local():
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
@@ -1996,7 +2308,7 @@ class Handler(BaseHTTPRequestHandler):
                 cur["key"] = re.sub(r"[^A-Za-z0-9]", "", str(d.get("key") or ""))[:200]
             if d.get("translation") in ("ESV", "typed"):
                 cur["translation"] = d["translation"]
-            SCRIPTURE_FILE.write_text(json.dumps(cur), encoding="utf-8")
+            save_scripture_settings(cur)
             if d.get("clearCache"):
                 with _scr_lock:
                     try:
@@ -2115,6 +2427,34 @@ class Handler(BaseHTTPRequestHandler):
                     data["library"] = state.get("library")
                 save_state(data)
                 return self.reply(200, state_body(LIBRARY["rev"] if keep else None), TYPES[".json"])
+        if path == "/api/sync":
+            if not self.is_local():
+                return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
+            action = data.get("action") if isinstance(data, dict) else None
+            try:
+                if action == "link":
+                    return self.reply(200, json.dumps(SYNC.link_start()), TYPES[".json"])
+                if action == "cancel":
+                    return self.reply(200, json.dumps(SYNC.link_cancel()), TYPES[".json"])
+                if action == "unlink":
+                    return self.reply(200, json.dumps(SYNC.unlink()), TYPES[".json"])
+                if action == "now":
+                    SYNC.poke(0)
+                    return self.reply(200, json.dumps(SYNC.info()), TYPES[".json"])
+            except (cloud_sync.Offline, cloud_sync.Refused, OSError) as e:
+                return self.reply(503, json.dumps({"error": str(e)}), TYPES[".json"])
+            return self.reply(400, json.dumps({"error": "Unknown action"}), TYPES[".json"])
+        if path == "/api/command":                                 # Stream Deck: run one action like its key
+            if not self.is_local():
+                return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
+            data = data if isinstance(data, dict) else {}
+            return self.reply(200, json.dumps(run_local_command(str(data.get("op") or ""), data.get("args"))),
+                              TYPES[".json"])
+        if path == "/api/remote-cloud/done":                       # the window's answers to those commands
+            if not self.is_local():
+                return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
+            CLOUD_BRIDGE.done(data.get("results") if isinstance(data, dict) else None)
+            return self.reply(204, b"", "text/plain")
         if path == "/api/private":
             if not isinstance(data, dict) or not isinstance(data.get("members", []), list):
                 return self.reply(400, "Invalid data", "text/plain; charset=utf-8")
@@ -2128,11 +2468,23 @@ class Handler(BaseHTTPRequestHandler):
         self.reply(404, "Not found", "text/plain; charset=utf-8")
 
 
+class MainServer(ThreadingHTTPServer):
+    """The program's own server (127.0.0.1). 6.10: on Windows it asks for its port for itself alone. Windows lets
+    SO_REUSEADDR bind a port that another program is still listening on, and then hands connections to either of
+    them: a copy that had not finished closing got the window's requests, and the page said "refused to connect"."""
+    allow_reuse_address = os.name != "nt"
+
+    def server_bind(self):
+        if hasattr(socket, "SO_EXCLUSIVEADDRUSE"):
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_EXCLUSIVEADDRUSE, 1)
+        super().server_bind()
+
+
 def start_main_server():
     """Start listening on this PC only. Returns the server (or None if every port is taken)."""
     for port in PORTS:
         try:
-            server = ThreadingHTTPServer(("127.0.0.1", port), Handler)
+            server = MainServer(("127.0.0.1", port), Handler)
             break
         except OSError:
             continue
@@ -2143,6 +2495,8 @@ def start_main_server():
     threading.Thread(target=vcam_start, daemon=True).start()   # idle until Zoom/Teams uses FRAMEDECKS
     threading.Thread(target=_backup_loop, daemon=True).start()
     threading.Thread(target=_remote_watcher, daemon=True).start()
+    SYNC.start()                                                # does nothing unless this PC is linked
+    CLOUD_REMOTE.start()                                        # idle unless linked and switched on in Settings
     return server
 
 

@@ -1,0 +1,75 @@
+{
+  "rev": 12,
+  "v6": true,
+  "meeting": {
+    "title": "Sunday Gathering",
+    "contact": "private@example.invalid",
+    "attendees": "42",
+    "attendeeNotes": "Private attendee notes",
+    "owner": "Private owner"
+  },
+  "scenes": [
+    {
+      "id": "scene-bible-study",
+      "name": "Bible Study",
+      "notes": "Welcome the group, then read the passage.",
+      "tx": { "type": "fade", "ms": 350 },
+      "layers": [
+        {
+          "id": "layer-scripture",
+          "kind": "scripture",
+          "name": "Focus Verse",
+          "c": {
+            "items": [
+              {
+                "id": "verse-1",
+                "ref": "Psalm 119:105",
+                "version": "KJV",
+                "text": "Thy word is a lamp unto my feet, and a light unto my path."
+              }
+            ]
+          }
+        },
+        {
+          "id": "layer-question",
+          "kind": "question",
+          "name": "Discussion",
+          "c": {
+            "items": [
+              {
+                "id": "question-1",
+                "text": "What does this passage reveal about the character of God?"
+              }
+            ]
+          }
+        },
+        {
+          "id": "layer-video",
+          "kind": "video",
+          "name": "Opening Video",
+          "c": { "file": "C:\\Meetings\\opening.mp4", "loop": false }
+        },
+        {
+          "id": "layer-camera",
+          "kind": "camera",
+          "name": "Camera",
+          "c": { "x": 0.5, "y": 0.5, "w": 1, "h": 1 }
+        }
+      ]
+    },
+    {
+      "id": "scene-prayer",
+      "name": "Prayer",
+      "notes": "",
+      "tx": { "type": "cut", "ms": 0 },
+      "layers": [
+        {
+          "id": "layer-prayer",
+          "kind": "prayer",
+          "name": "Prayer Point",
+          "c": { "title": "Prayer", "text": "Pray for the community." }
+        }
+      ]
+    }
+  ]
+}

@@ -10,9 +10,56 @@ Versions before 4.9 (when the program had its earlier name) are described in the
 
 ## [Unreleased]
 
+### Added
+- The program can take commands from the FRAMEDECKS companion (Next/Previous Frame, Go Live, Hide all, black screen,
+  question, scripture) and run them exactly as the keys do, showing "‹action› · from ‹person›" on the PC. Off by
+  default and only for a linked PC: Settings → FRAMEDECKS account → "Allow control from the companion", with the
+  last ten actions. The Wi-Fi phone remote is unchanged.
+- Companion: **Live** page to run a service from a phone (Previous / Next, Go Live on any Frame, Hide all, Black
+  screen, question and scripture, the Teleprompter script, whether the PC is online), and a "Can run services"
+  checkbox for members. Needs `0004_remote.sql` and `0005_remote_live.sql` run in Supabase.
+- Settings → **FRAMEDECKS account**: link this PC to a workspace in the FRAMEDECKS companion with a short code, and
+  its service plans, Teleprompter scripts and member list sync in the background (pictures, videos, what is live and
+  the phone remote PIN stay on the PC). Optional and off until linked; services always run from the PC, online or
+  not.
+- Companion: **History** on each Frame of the Services page (the last 30 days: who changed what, and when). Owners and
+  admins can restore an earlier version, and bring back a Frame deleted in the last 30 days.
+- Companion: owners and admins can **edit services** on the Services page: a Frame's name, group, Teleprompter
+  script, questions and scripture, and the order of Frames. The service PC picks changes up within about a minute; a
+  Frame that is on screen is changed only when it leaves the screen; if the PC changed the same Frame meanwhile, the
+  companion shows the latest version with your changes kept and asks you to save again.
+- Companion: **Services** (the synced plan, view only: Frames, Content, scripts; pictures and videos named, never
+  uploaded), **Members** (owners and admins only) and **Computers** (link a PC with its code, see and disconnect
+  linked PCs). Needs `0003_sync.sql` run in Supabase; until then the pages say so.
+- Hosted companion: sign-in with an emailed link (and Google or Microsoft once they are switched on in Supabase),
+  a sign-in return page and a top-bar account button. The desktop app is unchanged.
+- Hosted companion: signed-in people can set a display name and create their church's workspace (they become its
+  owner) and see the workspaces they belong to, with their role.
+- Hosted companion: workspace members and invitations. Owners and admins invite people by email (as Member or
+  Admin); the invited person sees "You're invited" after signing in and joins with one click. Needs
+  `hosted/supabase/migrations/0002_invitations.sql` run in Supabase.
+
 ### Changed
 - Updated the FRAMEDECKS logo and tagline across the desktop app, phone remote, PWA icons, favicons, workbook,
   Windows installer, and marketing header. Presentation workflows are unchanged.
+- The favicons, the tray icon and the small program-icon sizes (16–32 px) use a heavier version of the emblem, so it
+  stays visible on light browser tabs and a light taskbar. Larger sizes are unchanged.
+
+## [6.10] - 2026-10-20
+
+Full notes: [docs/releases/v6.10.md](docs/releases/v6.10.md)
+
+### Fixed
+- After **Quit**, the program kept running out of sight: the hidden Spotlight window kept `webview.start()` from
+  returning. The next start then showed *127.0.0.1 refused to connect*, because on Windows its server could share port
+  8750 with the silent copy.
+  - Quit now closes every window, and a five-second safety net ends the process.
+  - The server releases its port at once.
+  - On Windows the main server binds its port exclusively (`SO_EXCLUSIVEADDRUSE`, `server.MainServer`).
+  - A start that finds a copy which holds the port but does not answer ends that copy. Only processes with the
+    program's own name are ended, never the starting one.
+  - The installer closes a running copy before it updates.
+  - Tests: `tests/test_desktop.py` → `Restart`.
 
 ## [6.9] - 2026-10-20
 
