@@ -27,8 +27,8 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
   program's own window with the keys' functions (`app/js/cloud-remote.js`). `REMOTE` in `server.py` is the Wi-Fi
   phone remote, a different thing.
 - `hosted/` — Next.js 16 online-first companion, built as **plain static files** (`output: "export"` → `hosted/out/`;
-  free plan, `docs/project/free-hosting.md`). Deployed to Vercel (`framedecks.vercel.app`, Root Directory `hosted`) until
-  the owner moves it to Cloudflare Pages. No server code: `/api/sync-config` is a file written by
+  free plan, `docs/project/free-hosting.md`). Deployed on Cloudflare Pages at `https://framedecks.pages.dev`
+  (Root Directory `hosted`, output `out`; 26 October); `framedecks.vercel.app` stays until the owner retires it. No server code: `/api/sync-config` is a file written by
   `hosted/scripts/write-sync-config.mjs` at build time; the manifest is `hosted/public/manifest.webmanifest`.
 - `hosted/supabase/migrations/` — SQL run in order in the Supabase SQL editor: `0001` workspaces, `0002` invitations,
   `0003` sync, `0004` remote control, `0005` the Live page's PC list, `0006` the audit log, `0007` explicit API grants, `0008` member groups. All of `0001`–`0008` have been run in the live project (26 October 2026): never edit

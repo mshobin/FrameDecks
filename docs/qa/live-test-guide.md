@@ -38,7 +38,7 @@ before: go on to the next one. Any other error: stop and send it.
 ## 3. Test A: sync
 
 1. In FRAMEDECKS: **Settings → FRAMEDECKS account → Link to a workspace**. A code like `K7PM 2XQ9` appears.
-2. On any device, open `https://framedecks.vercel.app`, sign in, go to **Computers**, type the code, **Link**.
+2. On any device, open `https://framedecks.pages.dev`, sign in, go to **Computers**, type the code, **Link**.
 3. **Expect:** within a few seconds the PC shows "Linked to BSF Study"; this is also the first time Windows
    Credential Manager stores the PC's key.
 4. In the companion open **Services**. **Expect:** your Frames in order, with their questions, scripture and scripts;

@@ -26,7 +26,7 @@ from pathlib import Path
 
 import sync_entities as E
 
-COMPANION_URL = os.environ.get("FRAMEDECKS_COMPANION_URL", "https://framedecks.vercel.app").rstrip("/")
+COMPANION_URL = os.environ.get("FRAMEDECKS_COMPANION_URL", "https://framedecks.pages.dev").rstrip("/")
 PUSH_BATCH = 200                      # sync_push: at most 200 changes and 2 MB a call
 PUSH_BYTES = 1_800_000
 QUIET_SECONDS = 3                     # after a save, wait for this much quiet before syncing

@@ -41,7 +41,7 @@ Phase detail lives in
   (companion builds as static files; `/api/sync-config` written at build time) and step 2 (keep-alive every 3 days,
   encrypted nightly backup, [restore guide](docs/project/database-backup.md)). Step 3 done (idle
   phone-control polling 5 → 15 s). Step 4 code done (Google/Microsoft
-  above the email link). Owner setup: Parts A, B, D, E of free-hosting.md.
+  above the email link). Companion live at `https://framedecks.pages.dev` (the PC now links through it). Owner setup: finish Part A (test, then retire Vercel); Parts B, D, E.
 - Database live: `0001`–`0008` run in Supabase (26 October). Waiting for the owner's live tests A–F
   ([live-test-guide.md](docs/qa/live-test-guide.md)).
 

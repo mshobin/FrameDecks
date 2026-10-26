@@ -81,7 +81,15 @@ npm run build
 The boundary test prevents explicit local HTTP addresses from being added to
 hosted source. It does not replace security review or browser/device testing.
 
-## Vercel deployment
+## Cloudflare Pages deployment (the main address)
+
+The companion is served from `https://framedecks.pages.dev` (Cloudflare Pages, free): Production branch `main`,
+Framework preset None, Root directory `hosted`, Build command `npm run build`, Build output directory `out`, and the
+variables `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` and `NODE_VERSION=22`. In Supabase, the Site URL
+is `https://framedecks.pages.dev` and `https://framedecks.pages.dev/auth/callback` is an allowed Redirect URL. Full
+steps: `docs/project/free-hosting.md`, Part A.
+
+## Vercel deployment (until it is retired)
 
 Use `main` as the Production Branch and set the Root Directory to `hosted`.
 The Root Directory must not be the repository root: Next.js gives a root
