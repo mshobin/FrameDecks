@@ -43,6 +43,7 @@ Phase detail lives in
   the Meeting Form, Birthdays this week on the dashboard (synced `brand`, `layout/profile` and member records).
 - **Old name removed (26 October):** every Kingdom Connect reference is FRAMEDECKS, except upgrade-only code (CLAUDE.md
   Gotchas). Camera files renamed `framedecks_vcam*.dll`; owner checks the camera after the next install.
+- **Website performance (26 October):** the website no longer animates when idle (older 8 GB PCs next to the program).
 - **First-install fixes (26 October):** website "Forbidden" (request identity), Teleprompter unpin freeze, grouped Settings menu; on `main`, not yet in a release.
 - **FRAMECAST (26 October):** the virtual camera's new name; v6.11 release published with the installer (the
   first tag build failed on the release-notes step, now fixed).

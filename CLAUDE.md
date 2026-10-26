@@ -73,8 +73,10 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
   page (`components/landing.tsx`); signed in, the dashboard (`components/overview.tsx`: hero, `glance.tsx` tiles,
   `workflow.tsx` "How it works"). Sign-in is a split layout (`auth-shell.tsx`). Use the tokens, not new hex colours.
   Motion (`motion.css`, `components/motion.tsx`): `data-reveal` rises into view on scroll (marked `data-in`, never a
-  class: React rewrites classes), `data-spotlight` follows the pointer, `.fd-enter`/`Words` play on load, an ambient
-  light drifts behind every page; all of it stops under "reduce motion". The About screen (`about-dialog.tsx`,
+  class: React rewrites classes), `data-spotlight` follows the pointer (once per frame, mouse only), `.fd-enter`/`Words` play on load, and a
+  static ambient light sits behind every page; all of it stops under "reduce motion". Performance rule (owner, 8 GB
+  PCs next to the program): an idle page draws nothing — no `infinite` animations, no animated `filter`/layout
+  properties, `backdrop-filter` only on the sticky top bars. The About screen (`about-dialog.tsx`,
   `about.css`, the (i) button) shows `src/lib/brand.json`, written from the program's `app/js/brand.js` and
   `server.py` version by `scripts/write-brand.mjs` on every build (`tests/brand.test.mjs` fails if it is stale).
 - `hosted/src/app/meeting` — 6.11 the Meeting Form: the Excel form's sections on the live plan (`hosted/src/lib/meeting-form.ts`),
@@ -128,7 +130,7 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
 - Before and after every change, all of these must pass (the cloud session's last results are in brackets):
 - Desktop JS tests: `node tests/run.js` [4/4]; Python: `python -m unittest discover -s tests -p "test_*.py"` [131 OK];
   packaging: `python packaging/check.py` [6.11].
-- Hosted (run inside `hosted/`, there is no root package.json): `npm test` [107/107], `npm run lint`, `npm run typecheck`, `npm run build`.
+- Hosted (run inside `hosted/`, there is no root package.json): `npm test` [109/109], `npm run lint`, `npm run typecheck`, `npm run build`.
   `npm test` applies every migration to in-memory Postgres (PGlite) and loads `src/lib/sync-entities.ts` with Node's
   type stripping.
 - Sync fixtures: `python tools/make_sync_fixtures.py` rebuilds `tests/fixtures/sync/` (needs Node) after changing

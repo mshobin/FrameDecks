@@ -34,12 +34,23 @@ export function Motion() {
     });
     added.observe(document.body, { childList: true, subtree: true });
 
-    const follow = (event: PointerEvent) => {
-      const el = (event.target as Element | null)?.closest?.("[data-spotlight]") as HTMLElement | null;
-      if (!el) return;
+    // At most once per frame, and only over a card that has the light (a mouse moves ~120 times a second)
+    let pending: PointerEvent | null = null;
+    let frame = 0;
+    const paint = () => {
+      frame = 0;
+      const event = pending;
+      pending = null;
+      const el = (event?.target as Element | null)?.closest?.("[data-spotlight]") as HTMLElement | null;
+      if (!event || !el) return;
       const box = el.getBoundingClientRect();
       el.style.setProperty("--mx", `${event.clientX - box.left}px`);
       el.style.setProperty("--my", `${event.clientY - box.top}px`);
+    };
+    const follow = (event: PointerEvent) => {
+      if (event.pointerType !== "mouse") return; // touch screens have no hover light
+      pending = event;
+      if (!frame) frame = requestAnimationFrame(paint);
     };
     document.addEventListener("pointermove", follow, { passive: true });
 
@@ -47,18 +58,13 @@ export function Motion() {
       seen.disconnect();
       added.disconnect();
       document.removeEventListener("pointermove", follow);
+      if (frame) cancelAnimationFrame(frame);
     };
   }, []);
   return null;
 }
 
-/** The light behind every page: three soft glows drifting slowly (transform only, so it costs almost nothing). */
+/** The light behind every page: soft glows painted once (motion.css), so an idle page costs nothing. */
 export function Ambient() {
-  return (
-    <div className="fd-ambient" aria-hidden="true">
-      <span className="fd-orb fd-orb-gold" />
-      <span className="fd-orb fd-orb-blue" />
-      <span className="fd-orb fd-orb-deep" />
-    </div>
-  );
+  return <div className="fd-ambient" aria-hidden="true" />;
 }

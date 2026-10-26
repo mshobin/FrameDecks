@@ -218,3 +218,14 @@ continuity files in the same commit (owner's rule). Never force-push.
 - **Settings menu** grouped and described, with "Find a setting" (owner-approved; CLAUDE.md).
 - These are on `main` but not in the published v6.11 installer: take it from the latest "Build Windows installer" run
   (Actions → Artifacts), or publish a new release.
+
+## Website performance on older PCs (26 October, owner's request)
+- Measured with Playwright + CDP (stand-in data): the main thread was light (4-5 MB heap), but the landing page and
+  dashboard ran 9 endless animations: three 58vmax blurred glows drifting behind every page, an emblem glow
+  morphing its border-radius (repaint each frame), a wordmark shimmer (repaint), the "How it works" lights moving
+  `left` (layout each frame), and a pulsing dot; seven glass surfaces re-blurred what moved behind them.
+- Now: the ambient light is one static gradient layer; every animation runs a few times and stops; the moving light
+  uses transform; `backdrop-filter` only on the two sticky bars; the pointer light updates once per frame, mouse only.
+  After load nothing animates on its own (only scroll-linked effects while scrolling).
+- The program's server idles at ~0.1% CPU and 62 MB; its page has no running animations; the Studio preview is
+  polled only while the Studio canvas is visible, and unchanged pictures answer 304.

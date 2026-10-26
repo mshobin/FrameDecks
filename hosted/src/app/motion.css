@@ -8,62 +8,18 @@
   --ease-soft: cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
-/* ---------- The light behind every page ---------- */
+/* ---------- The light behind every page ----------
+   One fixed layer painted once with soft gradients: no blur filter and no animation, so an idle page draws nothing
+   (earlier: three blurred glows drifting forever, which kept older PCs' graphics busy next to the program). */
 .fd-ambient {
   position: fixed;
   inset: 0;
   z-index: -1;
-  overflow: hidden;
   pointer-events: none;
-}
-
-.fd-orb {
-  position: absolute;
-  width: 58vmax;
-  height: 58vmax;
-  border-radius: 50%;
-  filter: blur(70px);
-  opacity: 0.55;
-  will-change: transform;
-}
-
-.fd-orb-gold {
-  top: -26vmax;
-  right: -14vmax;
-  background: radial-gradient(circle, rgba(227, 183, 90, 0.34), rgba(227, 183, 90, 0) 65%);
-  animation: fd-drift-a 26s var(--ease-soft) infinite alternate;
-}
-
-.fd-orb-blue {
-  top: 8vh;
-  left: -24vmax;
-  background: radial-gradient(circle, rgba(70, 108, 205, 0.42), rgba(70, 108, 205, 0) 65%);
-  animation: fd-drift-b 32s var(--ease-soft) infinite alternate;
-}
-
-.fd-orb-deep {
-  bottom: -32vmax;
-  left: 22vw;
-  background: radial-gradient(circle, rgba(52, 80, 160, 0.36), rgba(52, 80, 160, 0) 65%);
-  animation: fd-drift-c 38s var(--ease-soft) infinite alternate;
-}
-
-@keyframes fd-drift-a {
-  to {
-    transform: translate3d(-12vmax, 10vmax, 0) scale(1.15);
-  }
-}
-
-@keyframes fd-drift-b {
-  to {
-    transform: translate3d(14vmax, -6vmax, 0) scale(1.1);
-  }
-}
-
-@keyframes fd-drift-c {
-  to {
-    transform: translate3d(-10vmax, -12vmax, 0) scale(1.2);
-  }
+  background:
+    radial-gradient(48vmax 42vmax at 92% -6%, rgba(227, 183, 90, 0.16), transparent 70%),
+    radial-gradient(52vmax 46vmax at -8% 28%, rgba(70, 108, 205, 0.2), transparent 70%),
+    radial-gradient(56vmax 44vmax at 50% 112%, rgba(52, 80, 160, 0.18), transparent 70%);
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -158,7 +114,7 @@
   .fd-ab-emblem {
     animation:
       fd-rise-in 1.2s var(--ease-out) backwards,
-      fd-float 7s ease-in-out 1.2s infinite;
+      fd-float 7s ease-in-out 1.2s 2;
   }
 
   @keyframes fd-rise-in {
@@ -175,42 +131,22 @@
     }
   }
 
-  .fd-mark-glow {
-    animation: fd-morph 14s ease-in-out infinite;
-  }
-
-  @keyframes fd-morph {
-    0%,
-    100% {
-      border-radius: 50%;
-      transform: translateX(-50%) scale(1);
-      opacity: 0.85;
-    }
-    33% {
-      border-radius: 44% 56% 58% 42% / 52% 44% 56% 48%;
-      transform: translateX(-50%) scale(1.08) rotate(8deg);
-      opacity: 1;
-    }
-    66% {
-      border-radius: 57% 43% 46% 54% / 45% 58% 42% 55%;
-      transform: translateX(-50%) scale(0.96) rotate(-6deg);
-      opacity: 0.9;
-    }
-  }
-
+  /* The sweep's gradient exists only while it plays; afterwards the wordmark is exactly its normal gold */
   .fd-wordmark {
-    background-image: linear-gradient(100deg, #b98a2f 0%, #e3b75a 30%, #fff1c9 45%, #e3b75a 60%, #b98a2f 100%);
-    background-size: 250% 100%;
     animation:
       fd-rise-in 1.2s var(--ease-out) 0.15s backwards,
-      fd-shimmer 7s linear 1.4s infinite;
+      fd-shimmer 3.5s linear 1.4s 1; /* one sweep of light, then still */
   }
 
   @keyframes fd-shimmer {
     from {
+      background-image: linear-gradient(100deg, #b98a2f 0%, #e3b75a 30%, #fff1c9 45%, #e3b75a 60%, #b98a2f 100%);
+      background-size: 250% 100%;
       background-position: 120% 0;
     }
     to {
+      background-image: linear-gradient(100deg, #b98a2f 0%, #e3b75a 30%, #fff1c9 45%, #e3b75a 60%, #b98a2f 100%);
+      background-size: 250% 100%;
       background-position: -120% 0;
     }
   }
@@ -354,10 +290,4 @@
 
 [data-spotlight]:hover::before {
   opacity: 1;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .fd-orb {
-    animation: none;
-  }
 }
