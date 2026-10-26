@@ -2,10 +2,10 @@
 
 Last verified: 26 October 2026. PR #32 is merged (`main` at `8fe4cf7`). The owner ran database scripts `0002`–`0008`
 in Supabase, all passed, so the live database is complete (`0001`–`0008`). The checks below are for `f424761`.
-- **GitHub:** hosted checks and the Stream Deck build are green, and the Windows installer build passed (run
+- **GitHub:** hosted checks are green, and the Windows installer build passed (run
   40231518591, with python-pptx bundled).
 - **Locally:** Python 126 tests OK, desktop JS 4/4, `packaging/check.py` (6.10), hosted 85/85 (lint, typecheck,
-  build), Stream Deck 5 tests and `validate`, doc links 0 problems.
+  build), doc links 0 problems.
 
 Phase detail lives in
 [docs/FRAMEDECKS_MODERNIZATION_STATUS.md](docs/FRAMEDECKS_MODERNIZATION_STATUS.md); migration results in
@@ -22,7 +22,7 @@ Phase detail lives in
 - **PR #32 (merged 26 October):**
   - **Audit:** [architecture audit](docs/project/2026-10-25-architecture-audit.md). Its Phase 1 (P1–P4) and the C2
     crash watchdog (`supervisor.py`) are built.
-  - **Stream Deck plugin** (`streamdeck/`).
+  - Stream Deck plugin (later removed, 26 October, owner's request).
   - **Target-architecture migration:** the [review](docs/architecture-review.md),
     [plan](docs/migration-plan.md) and [report](docs/post-migration-report.md).
     1. Audit log `0006`.

@@ -583,33 +583,6 @@ def _remote_plan():
 
 CLOUD_BRIDGE = cloud_remote.Bridge()
 
-# Stream Deck (and other programs on this PC): the same commands, run by the program's own window with the keys' code
-# (streamdeck/, docs/remote-control.md). Only this PC may call it; it works when the window does not have the focus,
-# for example during a Zoom meeting, which is why keyboard shortcuts alone cannot drive a Stream Deck.
-LOCAL_OPS = ("next", "previous", "go_live", "hide_all", "blackout", "question", "scripture")
-LOCAL_SEQ = {"n": 0}
-
-
-def run_local_command(op, args, by="Stream Deck"):
-    if op not in LOCAL_OPS:
-        return {"ok": False, "result": "not run: unknown action"}
-    args = args if isinstance(args, dict) else {}
-    if len(json.dumps(args)) > 1024:
-        return {"ok": False, "result": "not run: too much data"}
-    with cond:
-        LOCAL_SEQ["n"] += 1
-        cid = f"local-{LOCAL_SEQ['n']}"
-    CLOUD_BRIDGE.offer([{"id": cid, "op": op, "args": args, "by": by, "quiet": True}])
-    result = CLOUD_BRIDGE.collect([cid])[0]["result"]
-    return {"ok": result == "done", "result": result}
-
-
-def local_status():
-    """What a Stream Deck key shows: the Frame on screen and what is visible (text only, small)."""
-    with cond:
-        st = cloud_remote.status_from(state)
-    return {"app": "FRAMEDECKS", "frame": st["frame"], "count": st["count"], "frames": st["frames"],
-            "blackout": st["blackout"], "question": st["question"]["visible"], "scripture": st["scripture"]["visible"]}
 CLOUD_REMOTE = cloud_remote.RemoteService(_remote_credentials, lambda: app_settings()["cloudRemote"], _remote_plan,
                                           CLOUD_BRIDGE)
 
@@ -1819,7 +1792,7 @@ class Handler(BaseHTTPRequestHandler):
     def cross_site_api(self, path):
         """A web page from another site calling the program's API (e.g. an <img> pointing at /api/...). Browsers say so
         in Sec-Fetch-Site; the program's own pages, the phone remote and OBS are same-origin or direct, and programs
-        such as the Stream Deck plugin send no such header. Pages themselves stay reachable (links, bookmarks)."""
+        and scripts on this PC send no such header. Pages themselves stay reachable (links, bookmarks)."""
         return path.startswith("/api/") and self.headers.get("Sec-Fetch-Site", "").lower() == "cross-site"
 
     def signed_in(self):
@@ -2030,10 +2003,6 @@ class Handler(BaseHTTPRequestHandler):
             if not self.is_local():
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
             return self.reply(200, json.dumps(dict(SYNC.info(), remote=CLOUD_REMOTE.info())), TYPES[".json"])
-        if path == "/api/command/status":                          # Stream Deck keys: what is on screen (this PC only)
-            if not self.is_local():
-                return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
-            return self.reply(200, json.dumps(local_status()), TYPES[".json"])
         if path == "/api/remote-cloud/next":                       # the program's own window asks for commands
             if not self.is_local():
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
@@ -2504,12 +2473,6 @@ class Handler(BaseHTTPRequestHandler):
             except (cloud_sync.Offline, cloud_sync.Refused, OSError) as e:
                 return self.reply(503, json.dumps({"error": str(e)}), TYPES[".json"])
             return self.reply(400, json.dumps({"error": "Unknown action"}), TYPES[".json"])
-        if path == "/api/command":                                 # Stream Deck: run one action like its key
-            if not self.is_local():
-                return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
-            data = data if isinstance(data, dict) else {}
-            return self.reply(200, json.dumps(run_local_command(str(data.get("op") or ""), data.get("args"))),
-                              TYPES[".json"])
         if path == "/api/remote-cloud/done":                       # the window's answers to those commands
             if not self.is_local():
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")

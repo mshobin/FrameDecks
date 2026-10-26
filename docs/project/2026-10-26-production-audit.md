@@ -272,7 +272,7 @@ None of these needs a UI or workflow change except the optional update notice.
 
 ### New finding
 
-**N1: the Stream Deck plugin depends on a vulnerable zod**
+**N1: the Stream Deck plugin depends on a vulnerable zod** — **resolved**: the plugin was removed (26 October, owner's request)
 - **Severity:** Medium (High upstream, but low exposure here)
 - **File:** `streamdeck/package-lock.json`. The chain is `@elgato/streamdeck@3.0.3`, which depends on
   `@elgato/utils@0.6.1`, which depends on `zod@3.25.76`.

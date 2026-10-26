@@ -35,16 +35,15 @@ change, for anything new that ships.
 | EB Garamond (`app/fonts/`) | SIL Open Font License 1.1 (`app/fonts/OFL-EBGaramond.txt`) | Card text | https://fonts.google.com/specimen/EB+Garamond |
 | Source Sans 3 (`app/fonts/`) | SIL Open Font License 1.1 (`app/fonts/OFL-SourceSans3.txt`) | Interface text | https://fonts.google.com/specimen/Source+Sans+3 |
 
-## The companion website (`hosted/`) and the Stream Deck plugin (`streamdeck/`)
+## The companion website (`hosted/`)
 
-Their npm dependencies are listed with their licences in each folder's `package-lock.json`. The main ones are:
+Its npm dependencies are listed with their licences in `hosted/package-lock.json`. The main ones are:
 - Next.js and React: MIT;
 - supabase-js: MIT;
 - lucide-react: ISC;
-- Tailwind CSS: MIT;
-- the Elgato Stream Deck SDK: MIT.
+- Tailwind CSS: MIT.
 
-They are bundled into the built site or plugin under those licences.
+They are bundled into the built site under those licences.
 
 ## Services, not shipped
 

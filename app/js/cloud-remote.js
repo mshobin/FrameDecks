@@ -2,8 +2,7 @@
  * cloud_remote.py fetches the commands a signed-in person sent from the companion and hands them to this window,
  * which runs each one with exactly the code of the matching key (R1). Commands only come while this PC is linked and
  * Settings > FRAMEDECKS account > "Allow control from the companion" is on; the rest of the time the program simply
- * holds this window's question for 20 seconds. The Wi-Fi phone remote is separate and not involved. A Stream Deck on
- * this PC sends its presses through the same path (server.run_local_command), marked quiet: no "from" message. */
+ * holds this window's question for 20 seconds. The Wi-Fi phone remote is separate and not involved. */
 (function(){
 'use strict';
 var Store = window.KCStore;
@@ -48,7 +47,6 @@ function runAll(list){
       var r;
       try { r = run(c); } catch (e){ r = 'not run: ' + (e && e.message || 'error'); }
       results.push({id: c.id, result: r});
-      if (c.quiet && r === 'done') return;            // Stream Deck: like a key press, no extra message
       var msg = (LABELS[c.op] || c.op) + ' · from ' + (c.by || 'the companion') + (r === 'done' ? '' : ' (' + r + ')');
       setTimeout(function(){ window.KCActions.toast(msg, r !== 'done'); }, 350);   // after the action's own toast ("On air: …")
     });

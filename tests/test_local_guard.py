@@ -1,5 +1,5 @@
 """FRAMEDECKS - the program's local server refuses its API to other websites (production audit M3), while the
-program's own pages, the phone remote, OBS and programs such as the Stream Deck plugin keep working."""
+program's own pages, the phone remote, OBS and scripts on this PC keep working."""
 import http.client
 import os
 import sys
@@ -45,7 +45,7 @@ class LocalGuardTest(unittest.TestCase):
     def test_the_programs_own_pages_and_tools_still_can(self):
         self.assertEqual(self.get("/api/rev", "same-origin"), 200)
         self.assertEqual(self.get("/api/rev", "none"), 200)       # typed address, OBS
-        self.assertEqual(self.get("/api/rev"), 200)               # Stream Deck plugin, scripts (no header)
+        self.assertEqual(self.get("/api/rev"), 200)               # scripts on this PC (no header)
 
     def test_pages_stay_reachable_from_a_link(self):
         self.assertEqual(self.get("/dashboard.html", "cross-site"), 200)

@@ -54,8 +54,6 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
   for people, templates, AI, audit; desktop for media, rendering, camera) and the step order; decisions M-D1–M-D6.
   The owner answered M-D1–M-D6 (plan §8); all eight steps are built and merged (PR #32; `docs/post-migration-report.md`);
   hosting long term: `docs/architecture/hosting.md`.
-- `streamdeck/` — the Stream Deck plugin (owner's choice); it calls the PC's local `GET /api/command/status` and
-  `POST /api/command` (this PC only), which run through the same window bridge as the companion, without a toast.
 - `ai.py` — optional free AI (M-D3): Ollama on this PC, or a self-hosted endpoint; cached; `Suggest` in a Frame's
   question list appears only when one answers (`docs/ai.md`). Never call a paid provider from the PC.
 - `pptx_export.py` (Meeting → Export this meeting to PowerPoint, python-pptx) and Audio Content (`audio` kind in
@@ -98,7 +96,6 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
   - `python -m pip install -r packaging/requirements-desktop.txt -c packaging/constraints.txt` (includes python-pptx
     for the PowerPoint export)
   - `cd hosted; npm ci; cd ..`
-  - `cd streamdeck; npm ci; cd ..`
 - **Run the program:**
   - `python desktop_app.py` (the real window).
   - `python server.py`, then open http://127.0.0.1:8750/dashboard.html in a browser; add `?audio=1` to let a browser
@@ -117,7 +114,6 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
   - PowerPoint COM;
   - Credential Manager (the sync and ESV keys);
   - audio through the speakers;
-  - a real Stream Deck;
   - Supabase itself.
 
 ## Keeping the handoff current (owner's rule)
@@ -135,7 +131,6 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
   type stripping.
 - Sync fixtures: `python tools/make_sync_fixtures.py` rebuilds `tests/fixtures/sync/` (needs Node) after changing
   `store.js` normalize or the record mapping; `tests/sync-fixtures.test.js` says when.
-- Stream Deck (inside `streamdeck/`): `npm test`, `npm run build`, `npm run validate`, `npm run pack`.
 - Docs: `python tools/check_doc_links.py`, `git diff --check`.
 
 ## Gotchas

@@ -61,6 +61,9 @@ Full notes: [docs/releases/v6.11.1.md](docs/releases/v6.11.1.md)
 - Build: every GitHub Action and the softcam source pinned to a reviewed commit; only the release job can write.
 - Database `0009_seen_throttle.sql`: a PC's last-seen time is written at most once a minute.
 
+### Removed
+- The Stream Deck plugin (`streamdeck/`) and the local `/api/command` endpoints it used (owner's decision).
+
 ### Fixed
 - "Could not reach https://framedecks.pages.dev: Forbidden" in FRAMEDECKS account (requests now identify FRAMEDECKS).
 - Unpinning the Teleprompter overlay froze the program.

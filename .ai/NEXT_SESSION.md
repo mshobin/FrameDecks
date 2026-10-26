@@ -32,9 +32,7 @@ VS Code (any assistant). Read [CLAUDE.md](../CLAUDE.md) first.
   - [architecture audit](../docs/project/2026-10-25-architecture-audit.md);
   - its Phase 1, P1–P4: writing, sync, image memory and screen-capture copying per press;
   - C2: `supervisor.py`, a crash watchdog in the installed exe.
-- **Stream Deck plugin:**
-  - `streamdeck/` (SDK 3, Node 24), calling the local `/api/command`;
-  - CI builds the `.streamDeckPlugin`.
+- **Stream Deck plugin:** removed on 26 October at the owner's request (with `/api/command`).
 - **Target-architecture migration** (owner's brief):
   - [review](../docs/architecture-review.md), [plan](../docs/migration-plan.md) (owner decisions M-D1–M-D6 in §8),
     and [results](../docs/post-migration-report.md).
@@ -246,3 +244,8 @@ continuity files in the same commit (owner's rule). Never force-push.
   release: tag `v6.11.1` on `main` (Releases → Draft a new release); (3) test on Windows: Teleprompter pin/unpin,
   FRAMEDECKS account linking, the Settings menu, the camera in Zoom.
 - Next from the audit (step 3): live tests A–G, M9 (other window operations non-blocking), M7 (one OpenCV).
+
+## Stream Deck plugin removed (26 October, owner's request)
+- Deleted `streamdeck/`, its workflow, `tools/make_streamdeck_icons.py`, the local `/api/command` and
+  `/api/command/status` endpoints (`server.run_local_command`, `local_status`) and `tests/test_local_command.py`.
+  This also closes audit finding N1 (the plugin's vulnerable zod). Companion and Wi-Fi remotes are unchanged.
