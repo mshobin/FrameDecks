@@ -1,7 +1,7 @@
-"""Prepares the "FRAMEDECKS" virtual camera source before it is compiled.
+"""Prepares the "FRAMECAST" virtual camera source before it is compiled.
 
 Takes softcam (MIT licence, https://github.com/tshino/softcam, a fixed version) and changes only:
-  - the camera name shown in Zoom/Teams:        "FRAMEDECKS"
+  - the camera name shown in Zoom/Teams:        "FRAMECAST"
   - its unique Windows ID (CLSID):               our own, so it never clashes with other softcam apps
   - the names of the channel that carries frames: our own, for the same reason
 Usage:  python packaging/build_vcam.py <path to softcam source>
@@ -11,7 +11,7 @@ import re
 import sys
 from pathlib import Path
 
-NAME = "FRAMEDECKS"
+NAME = "FRAMECAST"
 CLSID = "6F2B8C3E-4D7A-4B9E-9C11-B5CC0A1E7D21"
 
 

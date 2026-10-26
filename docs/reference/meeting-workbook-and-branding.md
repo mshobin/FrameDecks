@@ -161,7 +161,7 @@ Select the Branding Content in a Frame. Its settings are in Content Settings:
 | Visual Settings | **Opacity** · **Padding** | How see-through it is · the space around the logo and name |
 | Visual Settings | **Background plate** | On: a navy plate with your accent edge. Off: no plate, and a soft shadow keeps it readable |
 
-The badge is drawn the same way on the FRAMEDECKS camera and on the OBS overlay pages. Its size follows the
+The badge is drawn the same way on the FRAMECAST camera and on the OBS overlay pages. Its size follows the
 picture, so it looks the same at 720p, 1080p or 4K.
 
 ### Remove a logo's background

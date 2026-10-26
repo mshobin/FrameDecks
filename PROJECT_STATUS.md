@@ -43,6 +43,8 @@ Phase detail lives in
   the Meeting Form, Birthdays this week on the dashboard (synced `brand`, `layout/profile` and member records).
 - **Old name removed (26 October):** every Kingdom Connect reference is FRAMEDECKS, except upgrade-only code (CLAUDE.md
   Gotchas). Camera files renamed `framedecks_vcam*.dll`; owner checks the camera after the next install.
+- **FRAMECAST (26 October):** the virtual camera's new name; v6.11 release to be re-published from `main` (the
+  first tag build failed on the release-notes step, now fixed).
 - **Free plan** ([free-hosting.md](docs/project/free-hosting.md)): steps 1–4 are on `main` (26 October):
   (companion builds as static files; `/api/sync-config` written at build time) and step 2 (keep-alive every 3 days,
   encrypted nightly backup, [restore guide](docs/project/database-backup.md)). Step 3 done (idle

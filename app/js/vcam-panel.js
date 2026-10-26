@@ -1,4 +1,4 @@
-/* FRAMEDECKS - Settings > FRAMEDECKS Camera (built-in virtual camera) and the top-bar light */
+/* FRAMEDECKS - Settings > FRAMECAST Camera (built-in virtual camera) and the top-bar light */
 (function(){
 'use strict';
 var Store = window.KCStore;
@@ -22,7 +22,7 @@ function chip(cls, text, title){                        // touches the page only
 function dot(cls){ var d = $('sn-vcam'), k = 'sn-dot ' + (cls || ''); if (d && d.className !== k) d.className = k; }
 
 if (!Store.served){
-  root.appendChild(h('p', {cls: 'plain', text: 'The FRAMEDECKS camera needs the FRAMEDECKS program (the installed Windows app).'}));
+  root.appendChild(h('p', {cls: 'plain', text: 'The FRAMECAST camera needs the FRAMEDECKS program (the installed Windows app).'}));
   chip('', '—', 'Needs the installed app');
   return;
 }
@@ -140,7 +140,7 @@ document.addEventListener('keydown', function(e){
   setLook(n === 0 ? 'off' : order[n - 1]);
 });
 window.KCLook = {set: setLook};
-cardsCb.addEventListener('change', function(){ save('cards', cardsCb.checked); toast(cardsCb.checked ? 'Your cards will appear on FRAMEDECKS' : 'Cards are off on FRAMEDECKS (use the OBS/Camo overlay links instead)'); });
+cardsCb.addEventListener('change', function(){ save('cards', cardsCb.checked); toast(cardsCb.checked ? 'Your cards will appear on FRAMECAST' : 'Cards are off on FRAMECAST (use the OBS/Camo overlay links instead)'); });
 camSel.addEventListener('change', function(){ save('cameraName', camSel.value); });
 previewBtn.addEventListener('click', function(){
   previewing = !previewing;
@@ -248,7 +248,7 @@ function renderQuality(d){
 
 var main = h('section', {cls: 'box'}, [
   h('div', {cls: 'big-switch'}, [sw, h('div', {}, [swText,
-    h('div', {cls: 'hint', text: 'A camera called “FRAMEDECKS” for Zoom and Teams. Your webcam only turns on while a meeting app is using it.'})])]),
+    h('div', {cls: 'hint', text: 'A camera called “FRAMECAST” for Zoom and Teams. Your webcam only turns on while a meeting app is using it.'})])]),
   h('div', {cls: 'box-head'}, [h('h2', {text: 'Status'})]),
   pill, msg, perf, unavailable, installBox
 ]);
@@ -274,11 +274,11 @@ var settingsBox = h('section', {cls: 'box'}, [
 var helpBox = h('section', {cls: 'box'}, [
   h('div', {cls: 'box-head'}, [h('h2', {text: 'Use it in your meeting'})]),
   h('ol', {cls: 'steps'}, [
-    h('li', {}, [h('b', {text: 'Zoom: '}), 'Settings → Video → Camera → choose ', h('b', {text: 'FRAMEDECKS'}), '. Turn off Zoom’s own background blur if it is on, and tick ', h('b', {text: 'HD'}), ' so Zoom sends a sharp picture (without it Zoom sends a low-resolution, softer version).']),
+    h('li', {}, [h('b', {text: 'Zoom: '}), 'Settings → Video → Camera → choose ', h('b', {text: 'FRAMECAST'}), '. Turn off Zoom’s own background blur if it is on, and tick ', h('b', {text: 'HD'}), ' so Zoom sends a sharp picture (without it Zoom sends a low-resolution, softer version).']),
     h('li', {}, [h('b', {text: 'Microsoft Teams: '}), 'Settings → Devices (or Video and effects) → Camera → choose ', h('b', {text: 'FRAMEDECKS'}), '.']),
     h('li', {text: 'Keep FRAMEDECKS running (closing its window keeps it running in the background).'})
   ]),
-  h('p', {cls: 'hint', text: 'Your verse, question and birthday cards appear on FRAMEDECKS whenever you select Show, with the same transitions. OBS or Camo are not needed. If you still add the overlay links in OBS on top of FRAMEDECKS, turn off “Cards” above so they don’t appear twice.'})
+  h('p', {cls: 'hint', text: 'Your verse, question and birthday cards appear on FRAMECAST whenever you select Show, with the same transitions. OBS or Camo are not needed. If you still add the overlay links in OBS on top of FRAMEDECKS, turn off “Cards” above so they don’t appear twice.'})
 ]);
 root.appendChild(main); root.appendChild(settingsBox); root.appendChild(qualityBox); root.appendChild(helpBox);
 
@@ -286,7 +286,7 @@ root.appendChild(main); root.appendChild(settingsBox); root.appendChild(qualityB
 var STATES = {
   live: ['ok', 'In use', 'Zoom or Teams is showing FRAMEDECKS.'],
   preview: ['info', 'Preview', 'Showing the preview.'],
-  ready: ['info', 'Ready', 'Choose “FRAMEDECKS” as the camera in Zoom or Teams.'],
+  ready: ['info', 'Ready', 'Choose “FRAMECAST” as the camera in Zoom or Teams.'],
   starting: ['info', 'Starting…', 'Starting the webcam…'],
   error: ['warn', 'Webcam problem', ''],
   off: ['', 'Off', 'FRAMEDECKS is switched off.']
@@ -296,7 +296,7 @@ function render(d){
   var s = d.settings, st = d.status;
   unavailable.hidden = d.available;
   if (!d.available){
-    unavailable.textContent = d.reason || 'FRAMEDECKS is not available here.';
+    unavailable.textContent = d.reason || 'FRAMECAST is not available here.';
     settingsBox.hidden = helpBox.hidden = qualityBox.hidden = true;
     pill.className = 'status-pill'; pill.lastChild.textContent = 'Not available'; msg.textContent = ''; perf.textContent = '';
     chip('', '—', d.reason); dot('');
@@ -347,17 +347,17 @@ function render(d){
   if (d.looksNote) perf.textContent += ' · ' + d.looksNote;
   installBox.hidden = d.registered;
   if (!d.registered && !installBox.childNodes.length){
-    installBox.appendChild(h('b', {text: 'FRAMEDECKS is not installed in Windows yet. '}));
+    installBox.appendChild(h('b', {text: 'FRAMECAST is not installed in Windows yet. '}));
     installBox.appendChild(document.createTextNode('Windows asks for administrator permission once, then Zoom and Teams can see it.'));
-    installBox.appendChild(h('div', {cls: 'actions', style: 'margin-top:8px'}, [h('button', {cls: 'btn primary small', type: 'button', text: 'Install FRAMEDECKS', onclick: function(){
+    installBox.appendChild(h('div', {cls: 'actions', style: 'margin-top:8px'}, [h('button', {cls: 'btn primary small', type: 'button', text: 'Install FRAMECAST', onclick: function(){
       toast('Windows will ask for permission…');
-      post('install', {action: 'install'}).then(function(r){ toast(r.ok ? 'FRAMEDECKS is installed. Restart Zoom or Teams to see it.' : r.message, !r.ok); render(r); });
+      post('install', {action: 'install'}).then(function(r){ toast(r.ok ? 'FRAMECAST is installed. Restart Zoom or Teams to see it.' : r.message, !r.ok); render(r); });
     }})]));
   }
   // top bar + settings nav
   var chipLook = {live: ['ok', 'In a meeting'], preview: ['info', 'Preview'], ready: ['info', 'Ready'], starting: ['info', 'Starting'], error: ['warn', 'Problem'], off: ['', 'Off']}[key] || ['info', 'Ready'];
   chip(chipLook[0], d.registered ? chipLook[1] : 'Not installed', look[2] || msg.textContent);
-  if (!d.registered) chip('warn', 'Not installed', 'Settings → FRAMEDECKS Camera → Install');
+  if (!d.registered) chip('warn', 'Not installed', 'Settings → FRAMECAST Camera → Install');
   dot(key === 'live' ? 'ok' : key === 'error' || !d.registered ? 'warn' : s.enabled ? 'info' : '');
   return d;
 }

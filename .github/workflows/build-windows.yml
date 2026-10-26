@@ -37,21 +37,21 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -r packaging/requirements-desktop.txt -c packaging/constraints.txt
 
-      - name: Get softcam (MIT licence) for FRAMEDECKS
+      - name: Get softcam (MIT licence) for the FRAMECAST camera
         run: git clone --depth 1 --branch v1.8.1 https://github.com/tshino/softcam.git vcam_build/softcam
 
-      - name: Prepare FRAMEDECKS (name and ID)
+      - name: Prepare the FRAMECAST camera (name and ID)
         run: python packaging/build_vcam.py vcam_build/softcam
 
       - name: Set up the Microsoft C++ compiler
         uses: microsoft/setup-msbuild@v2
 
-      - name: Build FRAMEDECKS (64-bit and 32-bit)
+      - name: Build the FRAMECAST camera (64-bit and 32-bit)
         shell: pwsh
         run: |
           foreach ($p in 'x64', 'Win32') {
             msbuild vcam_build/softcam/softcam.sln /m /t:softcam /p:Configuration=Release /p:Platform=$p
-            if ($LASTEXITCODE -ne 0) { throw "FRAMEDECKS build failed ($p)" }
+            if ($LASTEXITCODE -ne 0) { throw "FRAMECAST build failed ($p)" }
           }
           Copy-Item vcam_build/softcam/x64/Release/softcam.dll vcam/bin/framedecks_vcam64.dll
           Copy-Item vcam_build/softcam/Win32/Release/softcam.dll vcam/bin/framedecks_vcam32.dll

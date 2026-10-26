@@ -200,3 +200,10 @@ continuity files in the same commit (owner's rule). Never force-push.
 - Kept on purpose (upgrades only): see CLAUDE.md Gotchas. The installer removes the old-named camera files and
   registers the camera again from the new ones. Owner check: after installing, the camera still shows in Zoom.
 - GitHub's old "Kingdom Connect 6.9" release can only be changed by the owner (publish 6.11; delete or rename 6.9).
+
+## FRAMECAST and the 6.11 release (26 October, owner's request)
+- The virtual camera is now called **FRAMECAST** (Zoom/Teams/OBS name and every label that names the camera; same
+  device ID). The website's camera check also accepts the earlier name. Owner-approved; recorded in CLAUDE.md.
+- The tag build for v6.11 failed at "Write the branded release notes": `tools/make_release_notes.py` crashed on the
+  empty `motto` in `app/js/brand.js`. Fixed, with `tests/test_release_notes.py`. Release notes rewritten.
+- Owner: delete the v6.11 release and its tag, then publish v6.11 again from `main` so the build attaches the exe.

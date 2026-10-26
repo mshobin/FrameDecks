@@ -154,7 +154,7 @@ Press **HIDE ALL** (or **Esc** on the PC), then put the right Frame back with **
 Yes. Write them in each Frame's **Teleprompter script** (Frame settings). Open it with **Program → Teleprompter** (**R**), in the **Teleprompter window** on a second screen, or with **TELEPROMPTER** on the phone remote. See [Presentations](presentations.md#teleprompter).
 
 **Can the audience see the teleprompter?**
-No. The Teleprompter is only for the presenter. It is never on the FRAMEDECKS camera, the Presentation window, the OBS pages or the phone's drawing pad.
+No. The Teleprompter is only for the presenter. It is never on the FRAMECAST camera, the Presentation window, the OBS pages or the phone's drawing pad.
 
 **Where did the answers and notes on my questions go?**
 Since 6.7, questions and scriptures have no Answer or Notes fields, and no screen shows them. Nothing was deleted from your data. When you import an older Meeting Workbook, its answers and notes go into the Frame's Teleprompter script.
@@ -185,7 +185,7 @@ Install FRAMEDECKS on the new PC. On first run it offers to import data from an 
 No. FRAMEDECKS has no subscription, billing, accounts or per-seat fees.
 
 **What licence is it under?**
-The licence terms aren't published in the repository yet. Please ask the maintainer before redistributing or modifying it. The FRAMEDECKS camera driver is built from softcam (MIT licence); the background-blur model is from MediaPipe (Apache 2.0).
+The licence terms aren't published in the repository yet. Please ask the maintainer before redistributing or modifying it. The FRAMECAST camera driver is built from softcam (MIT licence); the background-blur model is from MediaPipe (Apache 2.0).
 
 ## Technical
 

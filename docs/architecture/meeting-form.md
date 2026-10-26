@@ -20,7 +20,7 @@ lists the steps.
   screen is never changed while it is live.
 - **The Excel import moves into Settings** in 6.11 (decision W2). It leaves the program in 6.12, once the owner's
   live test shows the website form covers it (W3).
-- **The website checks for the FRAMEDECKS camera.**
+- **The website checks for the FRAMECAST camera.**
   - If the camera is missing, it offers the installer.
   - If it is found, it offers **Open FRAMEDECKS on this PC**, through a `framedecks://` link the installer registers.
   - The website never talks to the program directly.

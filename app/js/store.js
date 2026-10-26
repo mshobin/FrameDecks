@@ -345,7 +345,7 @@ function cleanInk(o){
   });
   return {on: !!o.on, items: items, undone: (Array.isArray(o.undone) ? o.undone : []).filter(isObj).slice(-50).map(function(x){ return cleanInk({items: [x]}).items[0]; }).filter(Boolean)};
 }
-/* v6.5 Annotate: draw live.ink on a canvas, the same way vcam/annotate.py draws it on FRAMEDECKS */
+/* v6.5 Annotate: draw live.ink on a canvas, the same way vcam/annotate.py draws it on FRAMECAST */
 function drawInk(cv, items){
   var c = cv.getContext('2d'), W = cv.width, H = cv.height;
   c.clearRect(0, 0, W, H);

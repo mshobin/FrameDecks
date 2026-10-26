@@ -70,8 +70,8 @@ function renderSecurity(){
       if (!confirm('Create a new PIN? Every connected phone or iPad will need the new PIN.')) return;
       fetch('api/remote-reset', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: '{}'}).then(function(){ window.KCActions.toast('New PIN created. All phones and phones and iPads were disconnected.'); });
     }})] : []));
-  g.appendChild(card('FRAMEDECKS camera', pill('ok', 'Stays on this PC'),
-    'Your webcam picture is processed on this PC (including background blur) and only goes to the meeting app you choose. The webcam is only switched on while Zoom, Teams or the preview is using FRAMEDECKS.'));
+  g.appendChild(card('FRAMECAST camera', pill('ok', 'Stays on this PC'),
+    'Your webcam picture is processed on this PC (including background blur) and only goes to the meeting app you choose. The webcam is only switched on while Zoom, Teams or the preview is using FRAMECAST.'));
   g.appendChild(card('Member details', pill(linked ? 'info' : 'ok', linked ? 'Synced to your workspace' : 'Private'),
     linked ? 'Stored in kc-members-private.json on this PC and synced to your workspace, where only its owners and admins can see them. Never sent to overlays or the phone remote.'
            : 'Stored only in kc-members-private.json on this PC. Never sent to overlays or the phone remote. The birthday overlay receives only the greeting you choose to show.'));

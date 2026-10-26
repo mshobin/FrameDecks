@@ -168,7 +168,7 @@ flowchart LR
   subgraph PC [Service PC - everything that draws]
     UI[Studio window - WebView2, unchanged] --> S[server.py - plan, commands, 127.0.0.1]
     S --> E[vcam engine - compositor, layers, cards]
-    E --> V[FRAMEDECKS camera - softcam]
+    E --> V[FRAMECAST camera - softcam]
     E --> P[Presentation window - native GDI]
     S --> CS[cloud_sync - text records]
     S --> CR[cloud_remote - commands + status]

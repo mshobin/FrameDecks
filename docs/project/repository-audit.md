@@ -57,7 +57,7 @@ FRAMEDECKS is a Windows presentation app for churches and ministries. One leader
 as **Frames** (Welcome, Worship, Scripture, Discussion, Prayer, Closing), each holding **Content** (questions,
 scriptures, text, timers, pictures, video, PowerPoint). It presents in three ways at once:
 
-- the **FRAMEDECKS camera** — a virtual webcam, so Zoom, Teams, Google Meet and OBS show the webcam with the
+- the **FRAMECAST camera** — a virtual webcam, so Zoom, Teams, Google Meet and OBS show the webcam with the
   live Frame on top;
 - the **Presentation window** — a clean full-screen picture for a projector or a "share window" in Zoom;
 - **overlay pages** — transparent browser sources for OBS.

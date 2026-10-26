@@ -11,7 +11,9 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
   this meeting to PowerPoint**, and **+ Content → Audio…** with its settings; and 6.11 (`docs/architecture/meeting-form.md`, W2): the Excel Meeting
   Workbook moved from the Meeting menu, Meeting tab, empty Studio and palette into **Settings → Data / Backup →
   Meeting from Excel** (it leaves in 6.12, W3); and the website's colour palette in the dark theme (6.11, owner's
-  request: the last block of `app/css/theme.css`, colours only; keep it equal to `hosted/src/app/globals.css` :root).
+  request: the last block of `app/css/theme.css`, colours only; keep it equal to `hosted/src/app/globals.css` :root);
+  and the virtual camera's name, **FRAMECAST** (owner's request, 26 October: `packaging/build_vcam.py` NAME,
+  `vcam/sink.py` VCAM_NAME, and the labels that name the camera; the program itself stays FRAMEDECKS).
   Nothing else visible may change.
 - The codebase is the source of truth; verify docs against it.
 - Do not touch the legacy LAN remote or let the hosted app call the local HTTP server.
@@ -123,7 +125,7 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
 
 ## Commands
 - Before and after every change, all of these must pass (the cloud session's last results are in brackets):
-- Desktop JS tests: `node tests/run.js` [4/4]; Python: `python -m unittest discover -s tests -p "test_*.py"` [128 OK];
+- Desktop JS tests: `node tests/run.js` [4/4]; Python: `python -m unittest discover -s tests -p "test_*.py"` [129 OK];
   packaging: `python packaging/check.py` [6.11].
 - Hosted (run inside `hosted/`, there is no root package.json): `npm test` [107/107], `npm run lint`, `npm run typecheck`, `npm run build`.
   `npm test` applies every migration to in-memory Postgres (PGlite) and loads `src/lib/sync-entities.ts` with Node's
@@ -136,7 +138,7 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
 ## Gotchas
 - The old name appears only where upgrades need it: `legacy.py` (moves old data folders), `packaging/installer.iss`
   (removes old shortcuts, program folder and camera files), `server.py` `OLD_FIREWALL_RULES`, `tools/undo-ipad-remote.ps1`
-  and `tests/test_legacy.py`. Use FRAMEDECKS everywhere else; the camera files are `framedecks_vcam64/32.dll`.
+  and `tests/test_legacy.py`. Use FRAMEDECKS everywhere else; the camera is called FRAMECAST (files `framedecks_vcam64/32.dll`).
 - The companion must stay a static export: no server routes, cookies, server actions, `dynamic`/`revalidate`, metadata
   routes that need a server, or cacheComponents/PPR (they break `output: "export"`).
 - `hosted/AGENTS.md`: this Next.js version has breaking changes; read `hosted/node_modules/next/dist/docs/` before writing hosted code.

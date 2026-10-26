@@ -162,7 +162,7 @@ class OverlayLayer:
         hold = bool(live.get("blackout") or live.get("emergency"))
         for kind, tr in self.tracks.items():
             d = st.get(kind) or {}
-            if hold or (d.get("out") or {}).get("vcam") is False:      # v6: Blackout / Emergency, or "not on FRAMEDECKS"
+            if hold or (d.get("out") or {}).get("vcam") is False:      # v6: Blackout / Emergency, or "not on FRAMECAST"
                 d = dict(d, visible=False)
             tr.update(d, now, self.alpha[kind])
             tr.tick(now)

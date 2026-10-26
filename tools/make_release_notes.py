@@ -35,7 +35,8 @@ def brand_words():
     """The tagline and motto exactly as the About screen shows them (app/js/brand.js)."""
     js = (ROOT / "app/js/brand.js").read_text(encoding="utf-8")
     tagline = re.search(r"tagline:\s*'([^']+)'", js).group(1)
-    motto = " ".join(re.findall(r"'([^']+)'", re.search(r"motto:\s*\[([^\]]+)\]", js).group(1)))
+    found = re.search(r"motto:\s*\[([^\]]*)\]", js)        # the motto may be empty
+    motto = " ".join(re.findall(r"'([^']+)'", found.group(1))) if found else ""
     return tagline, motto
 
 
@@ -64,7 +65,7 @@ def header(version, repo, ref):
         src = "https://github.com/%s/blob/%s/%s?raw=true" % (repo, ref or ("v" + version), HEADER)
     else:
         src = HEADER
-    alt = "FRAMEDECKS. %s. %s Version %s" % (tagline, motto, version)
+    alt = " ".join(w for w in ["FRAMEDECKS.", tagline + ".", motto, "Version %s" % version] if w)
     return "\n".join(['<p align="center"><img src="%s" alt="%s" width="900"></p>' % (src, alt), "", "---", ""])
 
 

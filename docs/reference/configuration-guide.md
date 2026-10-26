@@ -1,7 +1,7 @@
 # FRAMEDECKS: configuration guide (v6.5)
 
 This guide covers what to set up after installing:
-- the FRAMEDECKS camera;
+- the FRAMECAST camera;
 - the app window;
 - where settings are stored.
 
@@ -9,17 +9,17 @@ For installing, see `docs/development/building-the-installer.md`. For what each 
 
 ---
 
-## 1. FRAMEDECKS camera
+## 1. FRAMECAST camera
 
-1. Install with **Install the FRAMEDECKS camera for Zoom and Teams** ticked, and allow the administrator prompt.
-   - Already installed without it? Use **Settings → FRAMEDECKS Camera → Install FRAMEDECKS**.
+1. Install with **Install the FRAMECAST camera for Zoom and Teams** ticked, and allow the administrator prompt.
+   - Already installed without it? Use **Settings → FRAMECAST Camera → Install FRAMECAST**.
 2. Restart Zoom, Teams, OBS or the browser you use for Google Meet. They read the camera list when they start.
 3. Choose **FRAMEDECKS** as the camera in each app:
    - **Zoom:** Settings → Video → Camera → FRAMEDECKS. Tick **HD**, and turn off Zoom's own background blur.
    - **Microsoft Teams:** Settings → Devices (or Video and effects) → Camera → FRAMEDECKS.
    - **Google Meet:** ⋮ → Settings → Video → Camera → FRAMEDECKS.
    - **OBS:** Sources → + → Video Capture Device → Device: FRAMEDECKS.
-4. **Settings → FRAMEDECKS Camera** sets:
+4. **Settings → FRAMECAST Camera** sets:
    - which webcam is behind it;
    - the resolution (720p or 1080p);
    - background blur;

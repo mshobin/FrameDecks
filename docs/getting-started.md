@@ -47,7 +47,7 @@ You need:
 - a Windows 10 or Windows 11 PC (64-bit);
 - the FRAMEDECKS installer. See [Installation](installation.md).
 
-A webcam is optional. You need one only if people should see you on the FRAMEDECKS camera.
+A webcam is optional. You need one only if people should see you on the FRAMECAST camera.
 
 ## First launch
 

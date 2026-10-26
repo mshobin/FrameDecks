@@ -27,7 +27,7 @@ The remote is a web page served by FRAMEDECKS on your PC. Your phone opens it ov
 ```mermaid
 flowchart LR
   Phone["Phone or iPad<br/>(browser)"] -- "Wi-Fi, PIN-protected" --> PC["FRAMEDECKS<br/>on the PC (port 8750)"]
-  PC --> Out["FRAMEDECKS camera<br/>Presentation window<br/>overlay pages"]
+  PC --> Out["FRAMECAST camera<br/>Presentation window<br/>overlay pages"]
 ```
 
 Every button on the phone changes the same live state as the PC, so the PC, the phone and everyone watching always agree.
@@ -52,7 +52,7 @@ The phone stays signed in for 30 days. After that, or after a new PIN, enter the
 | **Same network only** | The remote works on your local network; it isn't reachable from the internet |
 | **Lockout** | After 5 wrong PINs, that device must wait 60 seconds before trying again |
 | **New PIN** | **Settings → Phone & iPad Remote → New PIN** signs out every phone and iPad at once |
-| **PC-only settings** | Phones can't open Settings, member lists, the Scripture API key or the FRAMEDECKS camera settings |
+| **PC-only settings** | Phones can't open Settings, member lists, the Scripture API key or the FRAMECAST camera settings |
 | **Live picture** | The picture on the phone's drawing pad is PIN-protected, like the rest of the remote |
 
 > **Important:** Treat the PIN like a key to the sound desk. Share it only with the people running the service, and choose **New PIN** if it has been shared too widely.
@@ -112,7 +112,7 @@ Scroll with your finger, or use the play button to scroll by itself. See
 
 ![Drawing from a phone held sideways](images/remote-annotate.png)
 
-While the pad is open, the phone gets a sharper picture (960 pixels wide). If the FRAMEDECKS camera is off, the pad shows the Frame's cards instead, so you are never drawing on a black box.
+While the pad is open, the phone gets a sharper picture (960 pixels wide). If the FRAMECAST camera is off, the pad shows the Frame's cards instead, so you are never drawing on a black box.
 
 ## Run-through mode
 

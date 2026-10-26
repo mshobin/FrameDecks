@@ -78,7 +78,7 @@ Status.on('presence', function(p){
   var anyLive = live && (live.question.visible || live.verse.visible || live.birthday.visible);
   var vc = window.KCVcamStatus && window.KCVcamStatus();
   var onVcam = vc && vc.status && vc.status.state === 'live' && vc.settings && vc.settings.cards !== false;
-  if (onVcam && !n) chip('h-sources', 'ok', 'On camera', 'Your cards are shown on FRAMEDECKS');
+  if (onVcam && !n) chip('h-sources', 'ok', 'On camera', 'Your cards are shown on FRAMECAST');
   else if (n) chip('h-sources', 'ok', n + ' open', n + ' overlay page(s) open in OBS, Camo or a browser');
   else chip('h-sources', anyLive ? 'warn' : '', 'None open', anyLive ? 'Something is on screen, but no overlay page is open in OBS or Camo' : 'No overlay page is open yet');
 });

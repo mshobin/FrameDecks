@@ -793,7 +793,7 @@ $('layer-add').addEventListener('click', function(e){
   var S = studio();
   function item(k){
     var has = SC.isCard(k[0]) && SC.first(sc, k[0]);
-    return {icon: k[2], text: k[1], hint: has ? 'in this Frame' : '', disabled: NEEDS_CAM[k[0]] && !S, title: NEEDS_CAM[k[0]] && !S ? 'Needs the FRAMEDECKS camera (Settings → FRAMEDECKS Camera)' : '', run: function(){ addLayer(k[0]); }};
+    return {icon: k[2], text: k[1], hint: has ? 'in this Frame' : '', disabled: NEEDS_CAM[k[0]] && !S, title: NEEDS_CAM[k[0]] && !S ? 'Needs the FRAMECAST camera (Settings → FRAMECAST Camera)' : '', run: function(){ addLayer(k[0]); }};
   }
   menu($('layer-add'), [{label: 'Add to “' + sc.name + '”'}].concat(CONTENT_ADD.map(item), ['-', {label: 'Free Content'}], FREE_ADD.map(item)));
 });
@@ -1094,7 +1094,7 @@ function textForm(gen, sc, l, tab){
 function outputForm(gen, sc, l){
   var sid = sc.id, lid = l.id;
   gen.appendChild(h('div', {cls: 'ip-sec'}, [h('b', {text: 'Show this Content on'}),
-    checkCtl('FRAMEDECKS (Zoom / Teams camera, recording, Presentation window)', l.c.vcam, function(v){ editLayer(sid, lid, function(x){ x.c.vcam = v; }); }),
+    checkCtl('FRAMECAST (Zoom / Teams camera, recording, Presentation window)', l.c.vcam, function(v){ editLayer(sid, lid, function(x){ x.c.vcam = v; }); }),
     checkCtl('OBS / browser overlay pages', l.c.obs, function(v){ editLayer(sid, lid, function(x){ x.c.obs = v; }); }),
     h('p', {cls: 'hint', text: SC.isCard(l.kind) ? 'Applies when the Frame is taken live.' : 'Applies at once.'})]));
 }
@@ -1111,7 +1111,7 @@ function audioForm(gen, sc, l){
 function mediaForm(gen, sc, l){
   var sid = sc.id, lid = l.id, c = l.c;
   var S = studio();
-  gen.appendChild(h('p', {cls: 'hint', text: S ? 'Take this Frame live to place this Content directly on the canvas. Until then you can set it up here.' : 'Media Content is part of the FRAMEDECKS picture. Turn FRAMEDECKS on in Settings → FRAMEDECKS Camera to see and arrange them.'}));
+  gen.appendChild(h('p', {cls: 'hint', text: S ? 'Take this Frame live to place this Content directly on the canvas. Until then you can set it up here.' : 'Media Content is part of the FRAMECAST picture. Turn FRAMECAST on in Settings → FRAMECAST Camera to see and arrange them.'}));
   if (['image', 'video', 'pdf'].indexOf(l.kind) >= 0){
     gen.appendChild(row('File', h('span', {cls: 'plain', text: c.file || 'Not chosen yet'})));
     gen.appendChild(h('div', {cls: 'ip-acts'}, [h('button', {cls: 'btn small', type: 'button', text: c.file ? 'Choose another file…' : 'Choose a file…', onclick: function(){ pickFile(l.kind === 'pdf' ? 'powerpoint' : l.kind).then(function(f){ if (f) editLayer(sid, lid, function(x){ x.c.file = f; }); }); }})]));

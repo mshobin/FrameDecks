@@ -1268,7 +1268,7 @@ def powerpoint_show():
 def slide_move(step):
     """Next (+1) / Previous (-1) for whatever is being presented: the Studio's shared screen or presentation layer
     (PDF deck or captured window) first, else the PowerPoint slide show running on this PC - e.g. full screen and
-    shared directly in Zoom/Teams, which FRAMEDECKS is not capturing. Works without the camera engine."""
+    shared directly in Zoom/Teams, which FRAMECAST is not capturing. Works without the camera engine."""
     try:
         step = 1 if int(step) > 0 else -1
     except (TypeError, ValueError):
@@ -1399,7 +1399,7 @@ def _studio_action(d):
     if op == "slide":                                          # slides work even without the camera engine
         return {"slide": slide_move(d.get("step", 1))}
     if not comp:
-        raise ValueError(VCAM.get("reason") or "FRAMEDECKS is not available.")
+        raise ValueError(VCAM.get("reason") or "FRAMECAST is not available.")
     if op == "layout":
         comp.set_layout(d.get("layout") or {})
     elif op == "screen":
@@ -2035,7 +2035,7 @@ class Handler(BaseHTTPRequestHandler):
         almost nothing. Each frame is encoded here, not in the camera thread."""
         comp, eng = VCAM.get("compositor"), VCAM.get("engine")
         if not comp or not eng:
-            return self.reply(404, "FRAMEDECKS is not available", "text/plain; charset=utf-8")
+            return self.reply(404, "FRAMECAST is not available", "text/plain; charset=utf-8")
         import cv2 as _cv2
         from vcam.priority import lower_this_thread
         lower_this_thread()                          # picture encoding for the window: background priority

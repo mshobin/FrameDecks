@@ -20,7 +20,7 @@ import { DOWNLOADS } from "@/lib/pc-setup";
 
 const FEATURES = [
   { icon: ClipboardList, title: "Plan together, online", text: "The Meeting Form holds every Frame, question and reading. Leaders prepare from home; the service PC is ready when they arrive." },
-  { icon: Video, title: "Present anywhere", text: "One program for the room screen, OBS, and Zoom or Teams through the FRAMEDECKS camera, with blur and branding." },
+  { icon: Video, title: "Present anywhere", text: "One program for the room screen, OBS, and Zoom or Teams through the FRAMECAST camera, with blur and branding." },
   { icon: Radio, title: "Guide from your phone", text: "Next Frame, questions, scripture and a black screen, from the back of the room or across town." },
   { icon: BookOpenText, title: "Scripture and discussion", text: "Readings with their references, discussion questions with timers, and a Teleprompter only the presenter sees." },
   { icon: Users, title: "Your people", text: "Members, groups and birthdays in one list, kept in step between the website and the service PC." },

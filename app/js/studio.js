@@ -103,12 +103,12 @@ var focusBtn = ib('maximize-2', 'Focus: hide the rest of the app', function(){ d
 focusBtn.id = 's2-focus';
 var shareChip = h('span', {cls: 's2-chip', id: 's2-share', hidden: 'hidden'});
 /* v5: the scene picker and collection filter are the Scenes list beside the canvas, and the Look is in
- * Settings > FRAMEDECKS Camera (and Ctrl+Alt+1/2/3/0) - the bar shows the active scene instead of repeating them. */
+ * Settings > FRAMECAST Camera (and Ctrl+Alt+1/2/3/0) - the bar shows the active scene instead of repeating them. */
 var sceneNow = h('span', {cls: 's2-scene-now', id: 's2-scene-now'});
 var tools = $('canvas-tools');
 if (tools){ [shareChip, presBtn, focusBtn].forEach(function(b){ tools.appendChild(b); }); }
 var recHost = $('rec-host');
-if (recHost){ recHost.appendChild(recBtn); recHost.appendChild(h('span', {cls: 'hint rec-note', id: 's2-rec-note', text: 'Records exactly what FRAMEDECKS sends to Zoom or Teams.'})); }
+if (recHost){ recHost.appendChild(recBtn); recHost.appendChild(h('span', {cls: 'hint rec-note', id: 's2-rec-note', text: 'Records exactly what FRAMECAST sends to Zoom or Teams.'})); }
 presBtn.classList.remove('primary'); presBtn.classList.add('small');
 
 colFilter.addEventListener('change', renderScenes);
@@ -568,7 +568,7 @@ function draw(){
 function apply(d){
   S = d;
   if (!d.available){
-    root.innerHTML = ''; root.appendChild(h('p', {cls: 'plain', style: 'padding:20px', text: d.reason || 'FRAMEDECKS is not available.'}));
+    root.innerHTML = ''; root.appendChild(h('p', {cls: 'plain', style: 'padding:20px', text: d.reason || 'FRAMECAST is not available.'}));
     scenesSec.hidden = left.hidden = true; railNote.hidden = false;
     railNote.textContent = 'Frames and Content appear here when FRAMEDECKS is running. ' + (d.reason || '');
     return;
