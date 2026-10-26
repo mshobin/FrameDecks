@@ -53,7 +53,7 @@ before: go on to the next one. Any other error: stop and send it.
 2. On your phone, **on mobile data (Wi-Fi off)**: open the companion → **Live**.
 3. **Expect:** the PC's name with **Online**, and the Frame that is on screen.
 4. Press **Next**. **Expect:** the PC moves to the next Frame within about a second (the first press after a quiet
-   spell can take up to 5 seconds) and shows "Next Frame · from ‹your name›"; the phone says "Next Frame: Done".
+   spell can take up to 15 seconds) and shows "Next Frame · from ‹your name›"; the phone says "Next Frame: Done".
 5. Try **Go Live** on a Frame in the list, **Black screen** (and again to turn it off), **Hide all**.
 6. On the PC, Settings → FRAMEDECKS account now lists these as the last actions.
 7. Untick the switch on the PC. **Expect:** within 45 seconds the phone shows **Not connected**; presses do nothing.

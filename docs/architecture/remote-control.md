@@ -57,8 +57,8 @@ sequenceDiagram
 - A small background part, `cloud_remote.py`, used only when the PC is linked **and** "Allow control from the
   companion" is on in Settings → FRAMEDECKS account (the section the owner already approved; off by default).
 - While allowed, it asks for new commands about once a second (one tiny request; no new package, no open socket),
-  and every 5 seconds when no phone has sent anything for 10 minutes (so the first press after a quiet spell takes up
-  to 5 seconds, then about one).
+  and every 15 seconds when no phone has sent anything for 10 minutes (so the first press after a quiet spell takes up
+  to 15 seconds, then about one). It was 5 seconds until the free plan (26 October 2026) lightened the shared database.
 - **Status** goes up when it changes (a saved plan wakes the loop; at most two rounds a second) and at least every
   4 seconds while a phone is active, every 30 seconds otherwise. The Live page counts the PC as online while its
   status is younger than 45 seconds by the database's clock (`server_now`), so a phone with a wrong clock still

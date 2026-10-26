@@ -1,7 +1,7 @@
 """FRAMEDECKS - running a service from the companion (design: docs/architecture/remote-control.md).
 
 Only while this PC is linked to a workspace (cloud_sync.py) and "Allow control from the companion" is on. The PC asks
-the workspace for commands (remote_take, about once a second while a phone is active, every 5 seconds otherwise) and
+the workspace for commands (remote_take, about once a second while a phone is active, every 15 seconds otherwise) and
 hands each one to the program's own window, which runs it with exactly the code of the matching key (R1: app/js/
 cloud-remote.js). The companion never connects to this PC, and the Wi-Fi phone remote is not involved.
 
@@ -15,7 +15,7 @@ import time
 import cloud_sync
 
 ACTIVE_EVERY = 1.0          # seconds between asks while a phone has sent something in the last 10 minutes
-IDLE_EVERY = 5.0            # otherwise
+IDLE_EVERY = 15.0           # otherwise (free plan: was 5 s; a third of the requests on the shared free database)
 ACTIVE_FOR = 600
 STATUS_EVERY_ACTIVE = 4.0   # the status is also a heartbeat: the phone shows the PC as online while it is fresh
 STATUS_EVERY_IDLE = 30.0

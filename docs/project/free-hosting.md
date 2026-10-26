@@ -9,8 +9,8 @@ sign-in without paid email, and free signing and downloads. It covers steps 1–
 | Part | What | Code | Owner |
 |---|---|---|---|
 | A | Companion as static files on Cloudflare Pages | Done | About 20 minutes |
-| B | Database keep-alive and encrypted nightly backup | See Part B | About 15 minutes |
-| C | Fewer database requests, shorter history | See Part C | 1 script in Supabase |
+| B | Database keep-alive and encrypted nightly backup | Done | About 15 minutes |
+| C | Fewer database requests | Done | Nothing (next PC build) |
 | D | Sign-in with Google / Microsoft, and free email | See Part D | About 40 minutes |
 | E | Public repository, free signing, permanent downloads | Prepared | About 30 minutes, then SignPath's review |
 
@@ -94,18 +94,20 @@ A free Supabase project is paused after 7 days without requests, and it has no d
    - **Database backup → Run workflow**. It should go green and show a `framedecks-backup-…` file under Artifacts.
 4. **Restoring.** You will hopefully never need it; the steps are in [database-backup.md](database-backup.md).
 
-## Part C: fewer database requests, shorter history
+## Part C: fewer database requests
 
 This keeps the shared free database light as more churches join.
-- **Phone control polling.** A linked PC with "Allow control from the companion" turned on asks for commands every
-  30 seconds instead of every 5 while nobody is on the Live page. Once a phone opens the Live page it is fast again
-  within 30 seconds, then asks every second.
-- **PC status.** Status for the Live page is published only while someone has looked recently.
-- **History and audit log.** Frame history is kept 14 days instead of 30, and the audit log 6 months instead of 1 year.
 
-**What you do:**
-- Run `hosted/supabase/migrations/0009_lighter_free_tier.sql` in the Supabase SQL editor, the same way as `0002`–`0008`.
-- Install the next PC build.
+**Done in the code.** A linked PC with "Allow control from the companion" turned on now asks for phone commands every
+15 seconds while nobody is using the Live page, instead of every 5. That is a third of the requests. The first press
+after a quiet spell can take up to 15 seconds; after that it is about one second, as before. The PC still reports
+"Online" to the Live page every 30 seconds.
+
+**Considered and left out on purpose:** shortening the 30-day Frame history and the 1-year audit log. Both are
+small text tables, and shortening them would mean replacing the core sync function in the live database. That is
+too much risk for almost no saving.
+
+**What you do:** nothing except install the next PC build. There is no database script for this part.
 
 ## Part D: sign-in that never needs paid email
 

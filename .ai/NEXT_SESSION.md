@@ -68,7 +68,8 @@ Steps, in order, from [docs/project/free-hosting.md](../docs/project/free-hostin
    `claude/peaceful-albattani-6m445e`. Owner: Part A.
 2. **Keep-alive and encrypted nightly backup**: **code done** (`.github/workflows/db-keepalive.yml`,
    `db-backup.yml`, `tools/db_backup.sh`, restore guide `docs/project/database-backup.md`). Owner: Part B (4 secrets).
-3. Lighter free tier: slower idle polling, status only while watched, 14-day history, 6-month audit (`0009`).
+3. **Fewer database requests**: **done** (`cloud_remote.py` `IDLE_EVERY` 5 → 15 s). Shorter history/audit retention
+   was left out on purpose (it would replace `sync_push` in the live database for almost no saving).
 4. Google/Microsoft sign-in and free email (Brevo): owner setup (Part D).
 5. Public repository, SignPath, GitHub Releases: owner setup (Part E).
 

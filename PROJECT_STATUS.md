@@ -39,7 +39,8 @@ Phase detail lives in
 ## In Progress
 - **Free plan** ([free-hosting.md](docs/project/free-hosting.md)): step 1 done on branch `claude/peaceful-albattani-6m445e`
   (companion builds as static files; `/api/sync-config` written at build time) and step 2 (keep-alive every 3 days,
-  encrypted nightly backup, [restore guide](docs/project/database-backup.md)). Steps 3–5 follow.
+  encrypted nightly backup, [restore guide](docs/project/database-backup.md)). Step 3 done (idle
+  phone-control polling 5 → 15 s). Steps 4–5 are owner setup (free-hosting.md Parts D, E).
 - Database live: `0001`–`0008` run in Supabase (26 October). Waiting for the owner's live tests A–F
   ([live-test-guide.md](docs/qa/live-test-guide.md)).
 
