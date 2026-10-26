@@ -7,7 +7,9 @@ kc-control-key.txt
 kc-app-settings.json
 kc-app-log.txt*
 kc-sync.json
+kc-ai-cache.json
 .kc-sync-key
+.kc-esv-key
 ipad-remote-check.txt
 backups/
 webview/
@@ -23,6 +25,7 @@ webview/
 dist/
 build/
 .build-venv/
+.venv/
 __pycache__/
 *.pyc
 # BCC vCam build files (GitHub builds the camera itself)

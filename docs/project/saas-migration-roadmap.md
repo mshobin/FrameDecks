@@ -136,9 +136,8 @@ independent security review of authentication, RLS policies, local-agent pairing
   remote login, and complete browser workflows are not comprehensively exercised in automated CI.
 - The project lacks hosted-service fundamentals by design: identity, tenant-aware data, database migrations,
   observability/alerting, service-level objectives, cloud disaster recovery, and account support processes.
-- Some older project assessments still describe version 6.6; the root [ROADMAP.md](../../ROADMAP.md) and current
-  engineering assessment describe version 6.9. Refresh historical audit references when those documents are next
-  revised.
+- Older documents mention version 6.6 only as history; the 6.6 repository audit is marked as a snapshot. The current
+  version is 6.10.
 
 ### Scaling boundary
 

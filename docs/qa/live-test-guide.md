@@ -10,7 +10,7 @@ The designs behind each part: [metadata-sync.md](../architecture/metadata-sync.m
 
 ## 1. The database (once)
 
-In the Supabase dashboard (project `slrsykiknlqlivlnpvrb`) → **SQL Editor** → **New query**, run these four files from
+In the Supabase dashboard (project `slrsykiknlqlivlnpvrb`) → **SQL Editor** → **New query**, run these seven files from
 `hosted/supabase/migrations/`, **in this order, one at a time**:
 
 | Order | File | Adds |
@@ -19,6 +19,9 @@ In the Supabase dashboard (project `slrsykiknlqlivlnpvrb`) → **SQL Editor** �
 | 2 | `0003_sync.sql` | syncing plans, linked computers, the 30-day history |
 | 3 | `0004_remote.sql` | phone control, "Can run services" |
 | 4 | `0005_remote_live.sql` | the Live page's list of PCs |
+| 5 | `0006_audit_log.sql` | a log of who added or removed people, changed roles, invited, linked or unlinked a PC (nothing shows it yet) |
+| 6 | `0007_data_api_grants.sql` | lets the companion reach the tables (Supabase stops doing this by itself on 30 October 2026); safe to run again |
+| 7 | `0008_member_groups.sql` | member groups on the companion's Members page |
 
 For each: open the file on GitHub, press **Raw**, select all, copy, paste into the SQL editor (not the file's path),
 press **Run**. Expect "Success. No rows returned". An error that something "already exists" means that file was run
@@ -76,8 +79,28 @@ before: go on to the next one. Any other error: stop and send it.
 3. Delete a spare Frame on the PC, reload Services. **Expect:** it under **Deleted in the last 30 days**; **Restore**
    brings it back at the end of the list on the PC.
 
+## 7. Test E: members from the cloud (M-D2, M-D6)
+
+1. In the companion open **Members** → **Add a member**: a name, a birthday (`03-15` or `1985-03-15`), a country.
+   **Save**. **Expect:** within about a minute the person is in the PC's Members screen.
+2. **Edit** someone the PC added, change the phone, **Save**. **Expect:** the PC shows the new phone after its next sync.
+3. **Manage groups** → add "Choir"; **Edit** a person → tick **Choir** → **Save**. **Expect:** the Groups column and
+   the "Choir (1)" filter. The PC's Members screen does not change (groups are kept online only).
+4. Rebuild test (optional, with a backup): quit FRAMEDECKS on the linked PC, rename
+   `%APPDATA%\FRAMEDECKS\kc-members-private.json` to `.bak`, start FRAMEDECKS. **Expect:** within a minute the member
+   list is back (from the workspace), and the companion still lists everyone. Then delete the `.bak` file or put it back.
+
+## 8. Test F: new on the PC (PowerPoint export, Audio, Suggest)
+
+1. **Meeting → Export this meeting to PowerPoint**. **Expect:** a `.pptx` in Downloads. It opens in PowerPoint with
+   one slide per Frame, and each Frame's script is in the speaker notes.
+2. On a Frame: **+ Content → Audio…**, choose an MP3. **Go Live**. **Expect:** it plays through the speakers;
+   **Hide all** (Esc) stops it. In a Zoom test call with **Share sound** on, the other side hears it.
+3. Optional, with Ollama (see [ai.md](../ai.md)): on a Frame with a Bible passage, **Question → Content → Suggest**.
+   **Expect:** draft questions in the Add several box.
+
 ## What to send back
 
 For anything that does not match **Expect**: which test and step, a screenshot of the companion page, the message
 shown under Settings → FRAMEDECKS account on the PC (it shows sync and phone-control errors), and the time.
-If all four pass, say so: the live tests in the continuity files are then marked done.
+If all six pass, say so: the live tests in the continuity files are then marked done.

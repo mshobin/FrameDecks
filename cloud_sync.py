@@ -71,9 +71,12 @@ class Engine:
     change(plan, members) -> (plan, members) to the latest saved plan and member list. computer_name names the
     copies made when the same Frame changed in two places."""
 
-    def __init__(self, api, state, read, write, computer_name="this PC"):
+    def __init__(self, api, state, read, write, computer_name="this PC", member_authority="cloud"):
         self.api, self.state, self.read, self.write = api, state, read, write
         self.computer_name = computer_name
+        # M-D2 (docs/migration-plan.md): "cloud" = the workspace is the source of the member list and this PC keeps a
+        # copy it can rebuild; "pc" = the behaviour before (a lost member file is sent as deletions)
+        self.member_authority = member_authority
         state.setdefault("cursor", 0)
         state.setdefault("known", {})
         state.setdefault("held", [])
@@ -101,6 +104,7 @@ class Engine:
         """One round. Returns a summary: {"pulled", "applied", "held", "pushed", "conflicts"}."""
         known = self.state["known"]
         first_link = not known and self.state["cursor"] == 0
+        rebuilt = self._rebuild_members() if self.member_authority == "cloud" else 0
         remote, cursor = self._pull_all()
         remote = self.state["held"] + remote          # held changes are tried again first
         self.state["held"] = []
@@ -165,7 +169,36 @@ class Engine:
         self.state["cursor"] = cursor
         pushed = self._push()
         return {"pulled": len(remote), "applied": len(apply), "held": len(held), "pushed": pushed,
-                "conflicts": conflicts}
+                "conflicts": conflicts, "membersRebuilt": rebuilt}
+
+    def _rebuild_members(self):
+        """The member file is gone (deleted, unreadable, a fresh data folder: read() gives None, not []) while this PC
+        had agreed members with the workspace: fill it again from the workspace instead of sending every person as
+        deleted. A list emptied on purpose ([]) is an edit and goes up as before. Returns how many came back."""
+        known = self.state["known"]
+        _, members = self.read()
+        if members is not None or not any(k.startswith("member/") and v.get("hash") for k, v in known.items()):
+            return 0
+        latest, since = {}, 0
+        while True:                                   # the whole workspace, not just what changed since the cursor
+            page = self.api.pull(since)
+            for r in page.get("entities") or []:
+                latest[key_of(r["kind"], r["id"])] = r
+            since = page.get("seq", since)
+            if not page.get("more"):
+                break
+        people = {r["id"]: r for r in latest.values() if r["kind"] == "member" and not r.get("deleted")}
+        order = latest.get("order/order")
+        listed = [i for i in ((order or {}).get("body") or {}).get("members") or [] if i in people]
+        ids = listed + [i for i in people if i not in listed]
+        bodies = [copy.deepcopy(people[i]["body"]) for i in ids]
+        self.write(lambda p, m: (p, bodies))
+        for k in [k for k in known if k.startswith("member/")]:
+            del known[k]
+        for i in ids:
+            known[key_of("member", i)] = {"rev": people[i]["rev"], "hash": fingerprint(people[i]["body"])}
+        print(f"Sync: the member list was missing on this PC; {len(ids)} people restored from the workspace")
+        return len(ids)
 
     def _drop_duplicate_starters(self, local, latest, apply):
         """First link: a Frame or person here with the same content as one in the workspace (ids and times aside),
@@ -317,8 +350,9 @@ class SecretStore:
 
     TARGET = "FRAMEDECKS/computer-key"
 
-    def __init__(self, fallback_file):
+    def __init__(self, fallback_file, target=None):
         self.fallback = Path(fallback_file)
+        self.TARGET = target or self.TARGET          # another secret (the ESV key) under its own name
         # FRAMEDECKS_SECRET_STORE=file: the tests use the file on Windows too (CI machines have no usable vault)
         self.windows = os.name == "nt" and os.environ.get("FRAMEDECKS_SECRET_STORE") != "file"
 
@@ -385,7 +419,9 @@ class Service:
     """state_file: kc-sync.json. read/write: as for Engine, against the program's saved plan and member list.
     make_api(config, organization_id, key) builds the cloud client (the tests pass a stand-in)."""
 
-    def __init__(self, state_file, secrets_store, read, write, computer_name, make_api=None, config_source=None):
+    def __init__(self, state_file, secrets_store, read, write, computer_name, make_api=None, config_source=None,
+                 member_authority=None):
+        self.member_authority = member_authority or (lambda: "cloud")   # read each round (an app setting)
         self.file = Path(state_file)
         self.secrets = secrets_store
         self.read, self.write, self.computer_name = read, write, computer_name
@@ -518,7 +554,7 @@ class Service:
                 self.status.update(state="unlinked")
                 return None
             engine = Engine(self.make_api(cloud, link["organizationId"], key), self.state, self.read, self.write,
-                            self.computer_name)
+                            self.computer_name, self.member_authority())
             try:
                 summary = engine.run()
             finally:

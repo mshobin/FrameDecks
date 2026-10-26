@@ -9,7 +9,7 @@ const dir = new URL("../supabase/migrations/", import.meta.url);
 export async function supabaseStandIn(users) {
   const db = new PGlite();
   await db.exec(`
-    create role anon nologin; create role authenticated nologin;
+    create role anon nologin; create role authenticated nologin; create role service_role nologin;
     create schema auth;
     create table auth.users (id uuid primary key, email text);
     create function auth.uid() returns uuid language sql stable as
@@ -20,8 +20,9 @@ export async function supabaseStandIn(users) {
   for (const name of readdirSync(dir).filter((n) => n.endsWith(".sql")).sort()) {
     await db.exec(readFileSync(new URL(name, dir), "utf8"));
   }
-  await db.exec(`grant usage on schema public to anon, authenticated;
-    grant select, insert, update, delete on all tables in schema public to authenticated;`);
+  // As Supabase behaves from 30 October 2026: tables get no automatic grants, so the migrations' own GRANTs are all
+  // the API roles have (0007_data_api_grants.sql).
+  await db.exec(`grant usage on schema public to anon, authenticated;`);
   for (const [id, email] of Object.entries(users)) {
     await db.query("insert into auth.users values ($1, $2)", [id, email]);
   }

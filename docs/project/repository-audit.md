@@ -7,6 +7,9 @@ churches, and what to improve next. Scores are out of 10.
 
 **Audit date:** October 2026 · **Version reviewed:** 6.6 (branch `claude/peaceful-albattani-6m445e`)
 
+> **A snapshot of version 6.6.** It is kept as it was written; scores and findings describe 6.6, not the current
+> version (6.10, see [PROJECT_STATUS.md](../../PROJECT_STATUS.md)).
+
 **On this page**
 - [Summary scorecard](#summary-scorecard)
 - [1. Product purpose](#1-product-purpose)

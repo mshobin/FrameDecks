@@ -1,123 +1,126 @@
 # NEXT SESSION HANDOFF
 
-Updated 25 October 2026, after Frame history (PR #30, merged) and the live test guide.
+Updated 25 October 2026 (Kuwait evening), at the end of the cloud session. The next session continues locally in
+VS Code (GitHub Copilot or any assistant). Read [CLAUDE.md](../CLAUDE.md) first.
 
-## Completed
-- **6.10** (Quit really quits) merged (PR #7). Logo QA done, with a heavier small-size emblem for 16–32 px (PR #18;
-  [report](../docs/qa/2026-10-25-logo-visual-qa.md)). Repository drift resolved: `main`'s plan stands, PRs #8–#16
-  closed with their branches kept ([PROJECT_STATUS.md](../PROJECT_STATUS.md) "Drift").
-- **Hosted sign-in** (Supabase Auth, emailed link; Google/Microsoft buttons appear once enabled): PR #18, deployed with
-  the Vercel variables, **confirmed live by the owner**.
-- **Profile and workspaces** (`hosted/src/components/workspace-panel.tsx`): PR #19, **confirmed live** (name "Shobin",
-  workspace "BSF Study" as Owner).
-- **Members and invitations** (`0002_invitations.sql`, `hosted/src/components/workspace-members.tsx`): PR #20. Not run
-  live yet: the owner will run `0002` and test it together with Google/Microsoft sign-in later.
-- **Phase 4 sync of service plans**, design agreed ([metadata-sync.md](../docs/architecture/metadata-sync.md), owner
-  decisions in its §10):
-  - Step 1 database `0003_sync.sql` (PR #21).
-  - Step 2 record mapping `sync_entities.py` / `hosted/src/lib/sync-entities.ts` with shared fixtures (PR #22).
-  - Step 3 PC background sync `cloud_sync.py`, `server.py` `/api/sync`, Settings → FRAMEDECKS account
-    (`app/js/account.js`), companion `/api/sync-config` (PR #23; the Windows installer build passed).
-  - Step 4 companion pages (PR #24, merged; Windows installer built from `main`, run 40201806083): **Services** (view-only plan: Frames, Content, scripts; media named only),
-    **Members** (owners/admins), **Computers** (type the PC's code, see and disconnect PCs), a shared sidebar
-    (`app-shell.tsx`) and a workspace picker. Browser-tested against stand-in responses as owner, member, on a phone
-    and before `0003` is run.
+## Where things stand
+- **Branch:** `claude/peaceful-albattani-6m445e`.
+  - Head: `f424761` plus this handoff commit.
+  - Open as **PR #32** (`mshobin/FRAMEDECKS`), not merged yet.
+- **Checks on that head:**
+  - Hosted: green on GitHub.
+  - Windows installer build: run 40231518591, **passed**, with python-pptx bundled.
+  - Stream Deck plugin build: green.
+- **`main`:** `8482c44` (PRs up to #31). Everything below that says "PR #32" is only on the branch until it is merged.
+- **Locally on the branch:**
+  - Python: 126 tests OK.
+  - Desktop JS: 4/4.
+  - `packaging/check.py`: passes (6.10).
+  - Hosted: 85/85; lint, typecheck and build pass.
+  - Stream Deck: 5 tests and `validate` pass.
+  - Doc links: 0 problems.
 
-## In Progress
-- Phase 4 sync: steps 1–4 built. Step 5 (live test) needs the owner.
-- Phase 5, design agreed ([remote-control.md](../docs/architecture/remote-control.md); R1–R5 as recommended: actions
-  run in the PC's own window, the listed actions, owners/admins plus members given "Can run services", no end-to-end
-  encryption yet, a Settings switch off by default). Step 1 built: `hosted/supabase/migrations/0004_remote.sql`
-  (`remote_send`, `remote_take`, `remote_report`, `remote_publish`, `memberships.can_run_services`), tested in
-  `hosted/tests/supabase-remote.test.mjs` (PR #25, merged).
-- Phase 5 step 2 built: `cloud_remote.py` (asks `remote_take` about once a second while a phone is active, every
-  5 seconds otherwise; reports; publishes the status), wired into `server.py` (`CLOUD_REMOTE`, `CLOUD_BRIDGE`,
-  local-only `/api/remote-cloud/next` and `/done`, app setting `cloudRemote` off by default, `remote` in
-  `GET /api/sync`) and `app/js/cloud-remote.js` in the dashboard (runs each command with the keys' functions; toast
-  "Go Live · from Shobin"). Tested by `tests/test_cloud_remote.py` (13) and in the real program in a browser against
-  a stand-in cloud: Go Live, Next (same Frame as the `]` key), blackout on/off, Hide all, an unknown Frame refused,
-  switch off leaves commands untaken (PR #26, merged; Windows installer built).
-- Phase 5 step 3 built: Settings → FRAMEDECKS account (linked) gets "Control from the companion": the switch "Allow
-  control from the companion" (app setting `cloudRemote`, off by default) and the last ten actions (`app/js/account.js`).
-  Companion: a **Live** page (`/live`, `hosted/src/components/live-panel.tsx`, helpers in `hosted/src/lib/live-view.ts`):
-  the PC with Online / Not connected (status younger than 45 s by the database's clock), the Frame on screen, big
-  Previous / Next, Hide all, Black screen, show/hide question and scripture, the Frame list with Go Live, the
-  Teleprompter script, and the PC's answer to the last press. Reads `remote_computers(org)` every 2 s, a new
-  `0005_remote_live.sql` (members cannot read `computers`). "Can run services" checkbox per member for owners/admins
-  in the Overview's member list (`workspace-members.tsx`; the existing admin-only update policy on `memberships`
-  allows it, no new function). Tested: PGlite (`remote_computers` only for people who may run services), Python check
-  that the PC's status fields match `LiveStatus`, `hosted/tests/live-view.test.mjs`, and browsers against stand-in
-  responses (phone and desktop, owner, a member without permission) and the real program (switch, last actions).
-  QA pictures: `docs/qa/2026-10-25-companion-live-*.png`, `-can-run-services.png`, `-settings-control-from-companion.png`.
-  PR #27 merged; hosted checks and the Windows installer build from `main` passed (run 40207526698, the installer for
-  the owner's live tests).
-- **Editing in the companion** (D3's "next step"; [companion-editing.md](../docs/architecture/companion-editing.md),
-  E1–E4 as recommended; design PR #28 merged). Steps 1–2 built: `hosted/src/lib/frame-edit.ts` (name, group, script,
-  questions, scripture reference/translation/text, Frame order; the PC's limits; only changed fields are sent,
-  `applyDraft`/`rebase`) and editing on the Services page for owners and admins (`services-panel.tsx`: Edit, up/down,
-  "on screen" note from `remote_computers` when available, conflict → latest version with the person's changes
-  kept). Saves with `sync_push` (no database change). Tested: `hosted/tests/frame-edit.test.mjs` (6; the desktop's
-  `store.js` normalize keeps every edit unchanged) and a browser run against stand-ins serving the shared fixture
-  (edit, on-screen note, conflict keeps the PC's newer script, reorder, phone, a member sees no Edit). QA pictures
-  `docs/qa/2026-10-25-companion-edit-frame*.png`. PR #29 merged; Windows installer built from `main` (run 40209063094).
-- **Frame history and restore** (the "record history view" of the plan; [companion-editing.md](../docs/architecture/companion-editing.md) §6):
-  on the Services page every Frame has History (versions kept 30 days by `entity_history`, who/when/what changed;
-  `hosted/src/lib/history-view.ts`, `hosted/src/components/frame-history.tsx`), owners and admins can Restore a
-  version, and "Deleted in the last 30 days" brings a deleted Frame back. No database change. Tested:
-  `hosted/tests/history-view.test.mjs` (4) and a browser run against stand-ins (versions, restore, deleted Frame back,
-  member view-only on a phone). QA picture `docs/qa/2026-10-25-companion-frame-history.png`. PR #30 merged.
-- **Live test guide** for the owner: [docs/qa/live-test-guide.md](../docs/qa/live-test-guide.md), one pass through the
-  database scripts, the installer, and tests A (sync), B (phone control), C (editing), D (history), with what to
-  expect and what to send back.
+## Completed (merged to `main`, PRs #7–#31)
+- Desktop 6.10, the approved emblem, and the drift cleanup.
+- Hosted companion on Vercel: sign-in and workspaces confirmed live by the owner; members and invitations.
+- Phase 4 sync of service plans, built and not yet live-tested:
+  - database `0003`;
+  - record mapping;
+  - PC sync with Settings → FRAMEDECKS account;
+  - companion Services / Members / Computers.
+- Phase 5, control from the companion, built and not yet live-tested:
+  - database `0004`/`0005`;
+  - `cloud_remote.py`;
+  - the Settings switch;
+  - the Live page.
+- Companion editing and 30-day Frame history with restore.
+- The owner's live test guide.
 
-## Pending
-- **Step 5 (live, the owner):** in the Supabase SQL editor run `hosted/supabase/migrations/0002_invitations.sql`, then
-  `0003_sync.sql`, `0004_remote.sql`, `0005_remote_live.sql` (once each, in that order). Then on the service PC: Settings → FRAMEDECKS account → Link to a
-  workspace; in the companion: Computers → type the code. Check: Services shows the plan; edit a Frame on the PC and
-  it appears within a minute; Members shows the member list. Credential Manager is exercised here for the first time.
-- **Phase 5 step 4 (live, the owner)**, after sync step 5 with the same installer: on the PC, Settings → FRAMEDECKS
-  account → tick "Allow control from the companion"; on a phone on mobile data, open the companion → Live: the PC shows
-  Online; press Next (the Frame moves within about a second; the PC shows "Next Frame · from ‹name›"), Go Live on a
-  Frame, Black screen, Hide all; untick the switch: the page shows "Not connected" within 45 s and presses do nothing.
-- **Companion editing step 3 (live, the owner):** with sync linked, edit a Frame's script on the Services page from a
-  phone; it appears on the PC within a minute; edit the Frame that is on screen: it is applied when it leaves.
-- After step 5: a second PC (sync already supports it; test with two data folders or PCs).
-- Later, together (owner's choice): Google/Microsoft providers and a live test of invitations.
-- Live RLS tests: need `*.supabase.co` allowed in this cloud environment's network settings.
-- A person checks the real tray icon on an installed PC. Real-device PWA install test. Device pairing (Phase 5).
+## Completed on PR #32 (not merged yet)
+- **Audit:**
+  - [architecture audit](../docs/project/2026-10-25-architecture-audit.md);
+  - its Phase 1, P1–P4: writing, sync, image memory and screen-capture copying per press;
+  - C2: `supervisor.py`, a crash watchdog in the installed exe.
+- **Stream Deck plugin:**
+  - `streamdeck/` (SDK 3, Node 24), calling the local `/api/command`;
+  - CI builds the `.streamDeckPlugin`.
+- **Target-architecture migration** (owner's brief):
+  - [review](../docs/architecture-review.md), [plan](../docs/migration-plan.md) (owner decisions M-D1–M-D6 in §8),
+    and [results](../docs/post-migration-report.md).
+  1. `0006_audit_log.sql`: an audit log of people, roles, invitations and PCs.
+  2. ESV key moved to Windows Credential Manager.
+  3. Missing-media check: `/api/media/check` and Diagnostics.
+  - `0007_data_api_grants.sql`: explicit grants for **Supabase's 30 October 2026 change**.
+  4. M-D1: Apache 2.0 `LICENSE`, `NOTICE`, `THIRD_PARTY_NOTICES.md`; SignPath signing in the Windows build, off until
+     the secret exists.
+  5. M-D2: the workspace is the member list's source.
+     - The companion's Members page adds, edits and removes people.
+     - A linked PC rebuilds a lost member file from the workspace.
+  6. M-D3: free AI with Ollama on the PC.
+     - **Suggest** drafts discussion questions from a Frame's passage, and is hidden without Ollama.
+     - Code in `ai.py`; user guide [docs/ai.md](../docs/ai.md).
+  7. M-D4: **Export this meeting to PowerPoint** (`pptx_export.py`) and **Audio** Content (`app/js/audio-player.js`).
+  8. M-D6: `0008_member_groups.sql`; member groups on the companion's Members page only.
+  - M-D5: long-term hosting recommendation, [docs/architecture/hosting.md](../docs/architecture/hosting.md).
 
-## Technical Debt
-See [PROJECT_STATUS.md](../PROJECT_STATUS.md).
+## Pending (owner)
+1. **Supabase, soon (the 30 October change):** in the SQL editor, run `hosted/supabase/migrations/0002` → `0008`,
+   in order, once each. `0007` is safe to run again.
+2. **Merge PR #32**, then run "Build Windows installer" on `main` for the installer to test with.
+3. **Live tests:** [docs/qa/live-test-guide.md](../docs/qa/live-test-guide.md), tests A–F:
+   - A sync, B phone control, C editing, D history;
+   - E members from the cloud and groups;
+   - F PowerPoint export, Audio, Suggest.
+4. **Before using Audio Content:** update every linked PC. Older versions drop Audio Content and would sync the Frame
+   without it.
+5. **M-D1 signing:** follow [docs/project/code-signing.md](../docs/project/code-signing.md):
+   - check the history, then make the repository public;
+   - apply to SignPath Foundation;
+   - add the `SIGNPATH_API_TOKEN` secret and the three `SIGNPATH_*` variables.
+6. **Later (owner's choice):**
+   - Google/Microsoft sign-in with the invitation test;
+   - the move of the companion to Cloudflare before a public launch ([hosting.md](../docs/architecture/hosting.md));
+   - Supabase Pro once churches depend on it.
+
+## Open work (needs a decision or a design first)
+- **Media reference checks:** asset references (size and hash in sync records) from migration step 3 need a short
+  design first, because of the risk of two PCs rewriting each other's reference.
+- **Missing-media warning:** a line on screen needs the owner's approval (desktop UI is frozen).
+- **Signing:** C1 (unsigned installer, no auto-update) stays open until signing is on. Auto-update is not designed yet.
+- **Live database tests:** RLS tests against the real Supabase need `*.supabase.co` reachable. A local machine can
+  reach it; the cloud environment could not.
 
 ## Risks
-- Sync is tested against a stand-in cloud with the database's rules (`tests/test_cloud_sync.py`) and the database on
-  PGlite, not yet against live Supabase.
-- Closed PRs #8–#16 are not `main`'s plan; reuse only what PROJECT_STATUS.md "Worth reusing" lists.
+- **Never tested against live Supabase:** sync, phone control, member editing, groups and grants. They are tested on
+  PGlite and against stand-ins only.
+- **Audio Content and older versions:** see Pending 4.
+- **Vercel Hobby terms:** personal, non-commercial use only; asking for donations counts as commercial (hosting.md).
+- **Closed PRs #8–#16:** not `main`'s plan; reuse only what PROJECT_STATUS.md "Worth reusing" lists.
 
 ## Assumptions
-- The hosted app is separate from the LAN remote and online-first; it never calls the PC's local server.
-- D4 (sync conflict rules) was not answered by the owner; built as recommended ("keep both" for Frames, last writer
-  wins for settings and people).
-
-## Blockers
-Step 5 needs the owner to run `0002`–`0005` in Supabase and to have the PR-built desktop app on the service PC
-(an installer from "Build Windows installer" on `main`, or running `server.py` from source).
+- The hosted app is separate from the LAN remote and never calls the PC's local server.
+- D4 (sync conflict rules): built as recommended (keep both Frames; the last writer wins for settings and people).
 
 ## Recommended Next Task
-Help the owner through [the live test guide](../docs/qa/live-test-guide.md) (sync step 5, Phase 5 step 4, companion
-editing step 3 and history; installer from the latest "Build Windows installer" run on `main`, migrations
-`0002`–`0005`). Fix what they find and mark each test done in the four files. Then: Google/Microsoft sign-in with the
-invitation test (owner's choice, later), live RLS tests, real-device PWA test.
-Read `hosted/node_modules/next/dist/docs/` before hosted code (`cacheComponents` is on). The public Supabase values
-are URL `https://slrsykiknlqlivlnpvrb.supabase.co` and the owner's publishable key; only in `hosted/.env.local`.
+Help the owner with Pending 1–3. Fix what the live tests find, then mark each test done in the four files. Do not
+start new features until the live tests pass, unless the owner asks.
 
 ## Files Likely To Change Next
-Whatever the live tests find: `hosted/src/lib/frame-edit.ts`, `hosted/src/components/services-panel.tsx`,
-`hosted/src/components/frame-history.tsx`, `cloud_remote.py`, `app/js/cloud-remote.js`, `hosted/src/components/live-panel.tsx`, `cloud_sync.py`, `hosted/src/components/*-panel.tsx`, `hosted/supabase/migrations/` (a new numbered
-migration only, never an edited one), the continuity files.
+Whatever the live tests find:
+- `cloud_sync.py`, `cloud_remote.py`, `server.py`, `app/js/frame-lists.js`, `app/js/audio-player.js`,
+  `pptx_export.py`, `ai.py`;
+- `hosted/src/components/*-panel.tsx`, `hosted/src/lib/*.ts`;
+- `hosted/supabase/migrations/`: a **new numbered** migration with its own grants and an undo script in
+  `hosted/supabase/rollback/`; never an edited one;
+- the four continuity files.
 
-## Session Handoff
-Run `git status`. Before and after changes: desktop `node tests/run.js`, `python -m unittest discover -s tests -p
-"test_*.py"`, `python packaging/check.py`; hosted (in `hosted/`) `npm test`, `npm run lint`, `npm run typecheck`,
-`npm run build`; `python tools/check_doc_links.py` and `git diff --check`. Update all four continuity files
-(`CLAUDE.md`, `PROJECT_STATUS.md`, `PROJECT_ROADMAP.md`, this file) at the end of every step (owner's rule).
+## Session Handoff (VS Code on Windows)
+Setup and the full check list are in [CLAUDE.md](../CLAUDE.md) under "Working locally" and "Commands".
+
+Start by fetching and checking out the branch:
+- `git fetch origin`
+- `git checkout claude/peaceful-albattani-6m445e` (or `main` once PR #32 is merged)
+- `git pull`
+
+Before and after every change, run all the checks in CLAUDE.md. At the end of every step, update all four
+continuity files in the same commit (owner's rule). Never force-push.

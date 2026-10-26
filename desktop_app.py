@@ -15,6 +15,11 @@ import traceback
 import urllib.request
 import webbrowser
 
+if __name__ == "__main__":
+    import supervisor              # the installed app first starts as a small watchdog (restarts it after a crash)
+    if supervisor.wanted():
+        sys.exit(supervisor.run())
+
 APP_NAME = "FRAMEDECKS"          # identity: data folder name and the single-instance check
 DISPLAY_NAME = "FRAMEDECKS"     # what people see
 
@@ -321,6 +326,7 @@ def main():
         print("App window not available:\n" + traceback.format_exc())
 
     def stop_everything():
+        server.flush_state()             # a live change from the last second (quitting ends the process at once)
         server.set_remote(False)
         eng = server.VCAM.get("engine")
         if eng:

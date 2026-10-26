@@ -1,60 +1,70 @@
 # PROJECT STATUS
 
-Last verified: 25 October 2026 on `main` at `2a418b4` (Frame history merged; its PR checks passed). Locally: desktop JS 4/4, Python 79 tests OK, `packaging/check.py` (6.10), hosted test 68/68, lint, typecheck and
-build pass, doc links 0 problems; the program and the companion checked in browsers against stand-ins. Detail lives in
-[docs/FRAMEDECKS_MODERNIZATION_STATUS.md](docs/FRAMEDECKS_MODERNIZATION_STATUS.md).
+Last verified: 25 October 2026 on branch `claude/peaceful-albattani-6m445e` (PR #32, open) at `f424761`.
+- **GitHub:** hosted checks and the Stream Deck build are green, and the Windows installer build passed (run
+  40231518591, with python-pptx bundled).
+- **Locally:** Python 126 tests OK, desktop JS 4/4, `packaging/check.py` (6.10), hosted 85/85 (lint, typecheck,
+  build), Stream Deck 5 tests and `validate`, doc links 0 problems.
+
+`main` is at `8482c44` (PRs up to #31). Phase detail lives in
+[docs/FRAMEDECKS_MODERNIZATION_STATUS.md](docs/FRAMEDECKS_MODERNIZATION_STATUS.md); migration results in
+[docs/post-migration-report.md](docs/post-migration-report.md).
 
 ## Completed
-- Desktop app preserved; 6.10 (Quit really quits) merged (PR #7); branding migrated; approved gold-outline emblem
-  (`tools/make_emblem_assets.py`), with a heavier version used only at 16–32 px for favicons, tray and small icon
-  sizes (PR #18).
-- Hosted Next.js companion in `hosted/` (navy/gold theme), CI (`.github/workflows/hosted.yml`), live at
-  `https://framedecks.vercel.app/`; PWA manifest and safe shell service worker.
-- Supabase project `slrsykiknlqlivlnpvrb` with `0001_tenant_foundation.sql` run by the owner.
-- **Sign-in** (emailed link; Google/Microsoft when enabled), PR #18: **confirmed live by the owner**.
-- **Profile and workspaces**, PR #19: **confirmed live** (name saved, workspace "BSF Study" as Owner).
-- **Members and invitations** (`0002_invitations.sql`), PR #20: built and tested in-repo; not run live yet (owner's
-  choice, with Google/Microsoft later).
-- Phase 4 sync of service plans, steps 1–3 of 5 ([metadata-sync.md](docs/architecture/metadata-sync.md)): database
-  `0003_sync.sql` (PR #21), record mapping (PR #22), PC background sync and Settings → FRAMEDECKS account (PR #23),
-  companion Services / Members / Computers pages (PR #24). Windows installer built from `main` for the live test
-  (run 40201806083).
-- In-repo database tests on PGlite (`hosted/tests/pglite-supabase.mjs` applies every migration): tenant RLS,
-  invitations, sync.
+- **Desktop and brand.** Desktop 6.10 and the approved emblem (PRs #7, #18); drift resolved (see "Drift").
+- **Hosted companion** on Vercel (`hosted/`).
+  - Sign-in (PR #18) and workspaces (PR #19) are **confirmed live**.
+  - Members and invitations (PR #20) are built.
+- **Phase 4 sync** (PRs #21–#24), **Phase 5 control from the companion** (PRs #25–#27), **companion editing and
+  history** (PRs #28–#30), and the live test guide (PR #31). All built and tested against stand-ins; the owner's live
+  tests are pending.
+- **On PR #32 (not merged yet):**
+  - **Audit:** [architecture audit](docs/project/2026-10-25-architecture-audit.md). Its Phase 1 (P1–P4) and the C2
+    crash watchdog (`supervisor.py`) are built.
+  - **Stream Deck plugin** (`streamdeck/`).
+  - **Target-architecture migration:** the [review](docs/architecture-review.md),
+    [plan](docs/migration-plan.md) and [report](docs/post-migration-report.md).
+    1. Audit log `0006`.
+    2. ESV key in Credential Manager.
+    3. Missing-media check.
+    - Explicit API grants `0007`.
+    4. Apache 2.0 licence and SignPath-ready signing.
+    5. Members from the cloud.
+    6. Free AI with Ollama ("Suggest" questions).
+    7. PowerPoint export and Audio Content.
+    8. Member groups `0008`.
+    - M-D5 hosting recommendation ([hosting.md](docs/architecture/hosting.md)).
 
 ## In Progress
-- Phase 4 sync: step 5, the live test, which the owner runs (see `.ai/NEXT_SESSION.md` "Pending").
-- Phase 5 (control a service from the companion): design agreed (R1–R5 as recommended,
-  [remote-control.md](docs/architecture/remote-control.md)); step 1 built (`0004_remote.sql`, 8 PGlite tests in
-  `hosted/tests/supabase-remote.test.mjs`, PR #25); step 2 built: `cloud_remote.py`, the window bridge
-  (`/api/remote-cloud/*`, `app/js/cloud-remote.js`) and the app setting `cloudRemote` (off; no switch on screen
-  until step 3), 13 tests in `tests/test_cloud_remote.py` plus a real-program browser check (PR #26); step 3 built:
-  the Settings switch and last ten actions, the companion's **Live** page (`/live`, `0005_remote_live.sql`) and a
-  "Can run services" checkbox per member (PR #27, merged; installer from `main` run 40207526698). Next step 4,
-  the owner's live test.
-- Editing in the companion ([companion-editing.md](docs/architecture/companion-editing.md), E1–E4 as recommended):
-  steps 1–2 built (`hosted/src/lib/frame-edit.ts`, editing on the Services page for owners and admins; 6 Node tests
-  incl. the desktop's own normalize, browser run against stand-ins; PR #29, merged). Next step 3, the owner's live test.
-- Frame history and restore on the Services page (30 days, `entity_history`; owners and admins restore, deleted Frames
-  can be brought back), no database change; 4 Node tests and a browser run against stand-ins (PR #30, merged).
-- The owner's live tests are written up as one pass: [docs/qa/live-test-guide.md](docs/qa/live-test-guide.md).
+- Waiting for the owner: run the database scripts, merge PR #32, then the live tests A–F
+  ([live-test-guide.md](docs/qa/live-test-guide.md)).
 
 ## Pending
-- Owner: run `0002_invitations.sql`, `0003_sync.sql`, `0004_remote.sql` and `0005_remote_live.sql` in the Supabase
-  SQL editor (needed for the live tests); later,
-  Google/Microsoft providers and a live test of invitations.
-- Live RLS tests: need `*.supabase.co` allowed in this cloud environment's network settings.
-- Real-device PWA install and offline acceptance on the deployed URL.
-- Phase 5 step 4, the owner's live test; `0004` and `0005` to be run in Supabase after `0003`.
-- A person checks the real tray icon and Windows Credential Manager on an installed PC.
+- **Owner, Supabase, soon:** run `0002` → `0008` in order. From 30 October 2026, tables created without `0007`'s
+  grants are unreachable.
+- **Owner:** merge PR #32; build the installer from `main`; run the live tests A–F.
+- **Owner, before using Audio Content:** update every linked PC (older versions drop Audio Content).
+- **Owner, M-D1:** follow [code-signing.md](docs/project/code-signing.md):
+  - make the repository public after the checks;
+  - apply to SignPath Foundation;
+  - add `SIGNPATH_API_TOKEN` and the three `SIGNPATH_*` variables.
+- **Later:**
+  - Google/Microsoft providers with the invitation test;
+  - companion to Cloudflare before a public launch;
+  - Supabase Pro when churches depend on it;
+  - real-device PWA install test;
+  - a person checks the tray icon and Credential Manager on an installed PC;
+  - live RLS tests (they need `*.supabase.co` reachable).
 
 ## Technical Debt
-- RLS tests run on PGlite with a stubbed `auth.uid()`, not real Supabase; live-database tests are still needed.
-- Sync is tested against a stand-in cloud that follows the database's rules (`tests/test_cloud_sync.py`), not yet
-  against live Supabase; D4 (conflict rules) was built as recommended without the owner's explicit answer.
-- `npm audit`: high findings in the dev-only ESLint tree (not applied: fix would downgrade `eslint-config-next`).
-- Emblem is now a vector master (`assets/brand/framedecks-emblem.svg`); the wordmark in the horizontal/stacked logos is still cropped from the legacy raster `framedecks-logo-source.png`, so it is the only raster-limited part of the brand set.
-- Older audit docs still reference version 6.6.
+- **Installer (C1):** unsigned (signing ready, off until SignPath approval); no auto-update yet.
+- **Missing media (C8):** found before the service, not shown on screen. Asset references (size/hash) need a design.
+- **Not tested against live Supabase:** RLS and sync run on PGlite and a stand-in cloud. D4 (conflict rules) was
+  built as recommended without an explicit answer.
+- **Audio Content and older versions:** versions 6.10 and before drop it; every linked PC must be updated.
+- **Hosting terms:** Vercel Hobby is personal and non-commercial; see the hosting recommendation.
+- **`npm audit`:** high findings in the dev-only ESLint tree (a fix would downgrade `eslint-config-next`).
+- **Wordmark:** the horizontal and stacked logos still crop it from the raster `framedecks-logo-source.png`.
 
 ## Risks
 - Vercel Root Directory `hosted` is assumed from the working deployment, not read from the dashboard.
@@ -94,7 +104,7 @@ Their branches are kept, so any of them can be reopened or mined:
 - Hosted companion is online-first and separate from the LAN remote.
 
 ## Blockers
-- Step 5 needs the owner to run `0002` and `0003` in Supabase and to link a PC. Google/Microsoft sign-in needs the
+- The live tests need the owner to run `0002`–`0008` in Supabase and to link a PC. Google/Microsoft sign-in needs the
   owner's OAuth apps (their secrets go only into the Supabase dashboard).
 
 ## Recommended Next Task
