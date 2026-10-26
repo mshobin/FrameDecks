@@ -166,7 +166,7 @@ function setTab(t){
   ui.tab = t; document.body.dataset.tab = t;
   TABS.forEach(function(k){
     var b = $('tabbtn-' + k); if (b) b.setAttribute('aria-selected', String(k === t));
-    var p = $('tab-' + k); if (p) p.hidden = k !== t;
+    var p = $('tab-' + k); if (p && k !== 'studio') p.hidden = k !== t;   // #tab-studio is the canvas's camera picture: workspace.js shows it
   });
   if (t === 'members'){ $('slot-members').appendChild(composerEl); if (ui.compSource === 'ticked' && !anyChecked()) ui.compSource = 'selected'; }
   if (t === 'email'){ $('slot-email').appendChild(composerEl); ui.compSource = 'ticked'; renderPicker(); }

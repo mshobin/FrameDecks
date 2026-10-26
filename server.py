@@ -1655,7 +1655,7 @@ def vcam_start():
     if VCAM["engine"] is not None:
         return
     demo = os.environ.get("KC_VCAM_DEMO") == "1"
-    start_files_msg = ("You’re using the start-file version (the black window). FRAMEDECKS is only in the installed app: "
+    start_files_msg = ("You’re using the start-file version (the black window). The FRAMECAST camera is only in the installed app: "
                        "close the black window, then open FRAMEDECKS from its desktop or Start-menu icon.")
     os.environ.setdefault("OPENCV_VIDEOIO_MSMF_ENABLE_HW_TRANSFORMS", "0")   # before OpenCV loads
     try:
@@ -1669,7 +1669,7 @@ def vcam_start():
         if FROZEN:
             import traceback
             print("FRAMEDECKS could not load:\n" + traceback.format_exc())
-            VCAM["reason"] = ("FRAMEDECKS couldn’t start because part of it is missing. Please send Settings → Diagnostics "
+            VCAM["reason"] = ("FRAMECAST couldn’t start because part of it is missing. Please send Settings → Diagnostics "
                               "→ Copy diagnostics to the developer.")
         else:
             VCAM["reason"] = start_files_msg
@@ -1681,7 +1681,7 @@ def vcam_start():
         make_sink, make_cam = (lambda w, h: vsink.FakeSink(w, h, connected=False)), DemoCamera
     else:
         if os.name != "nt":
-            VCAM["reason"] = start_files_msg if not FROZEN else "FRAMEDECKS works on Windows."
+            VCAM["reason"] = start_files_msg if not FROZEN else "FRAMECAST works on Windows."
             return
         dll = vsink.dll_path(RES) if vsink.dll_path(RES).exists() else vsink.dll_path(HERE)
         if not dll.exists():

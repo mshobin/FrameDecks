@@ -45,6 +45,9 @@ Phase detail lives in
   Gotchas). Camera files renamed `framedecks_vcam*.dll`; owner checks the camera after the next install.
 - **Audit step 2 (26 October):** built on `main` for 6.11.1 (see NEXT_SESSION); Stream Deck plugin removed.
 - **Design audit rank 1 (26 October):** every camera label says FRAMECAST (DD-01), guarded by `tests/test_camera_name.py`; Python 141 OK.
+- **Design audit ranks 2–4 (26 October, owner-approved):** first-run Start fresh + Getting started card (DD-03), nothing
+  over the Studio canvas and a Teleprompter empty state (DD-02), command bar in words (DD-13); `tests/test_ui_labels.py`;
+  Python 147 OK. Checked in a browser at 1920, 1440, 1280 and 1100 px, idle and live.
 - **6.11.1 (26 October):** audit steps 1–2 built (pinned build, cross-site guard, error logging, plan recovery and
   sync guard, `0009`); owner publishes the release and runs `0009`.
 - **Website performance (26 October):** the website no longer animates when idle (older 8 GB PCs next to the program).

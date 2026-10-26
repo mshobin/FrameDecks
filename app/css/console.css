@@ -269,6 +269,18 @@ select.item-fx.set{color:var(--gold-strong);border-color:rgba(227,183,90,.55)}
 .app-modal h2{margin:0 0 10px;font-family:var(--serif);font-weight:500;font-size:24px}
 .app-modal p{color:var(--muted);margin:0 0 12px}
 .app-modal-actions{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end;margin-top:16px}
+/* Getting started (first run): a small card in the corner, never blocking the window */
+.gs-card{position:fixed;left:16px;bottom:16px;z-index:150;width:min(340px,calc(100vw - 32px));background:var(--surface);border:1px solid var(--line);border-radius:12px;
+  box-shadow:var(--shadow-modal,0 20px 60px rgba(0,0,0,.5));padding:12px 14px}
+.gs-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.gs-x{background:none;border:0;color:var(--muted);font-size:20px;line-height:1;cursor:pointer;padding:2px 6px;border-radius:6px}
+.gs-x:hover{color:var(--ink)}
+.gs-list{margin:0;padding:0 0 0 20px;display:flex;flex-direction:column;gap:2px}
+.gs-step{display:flex;flex-direction:column;align-items:flex-start;gap:1px;width:100%;text-align:left;background:none;border:0;color:var(--ink);cursor:pointer;padding:6px 8px;border-radius:8px;font:inherit}
+.gs-step:hover{background:var(--raised,rgba(255,255,255,.04))}
+.gs-t{font-weight:600}
+.gs-s{font-size:12px;color:var(--muted)}
+.gs-list li.done .gs-t{text-decoration:line-through;color:var(--muted)}
 .app-cands{display:flex;flex-direction:column;gap:8px}
 .app-cand{display:flex;gap:12px;align-items:center;justify-content:space-between;border:1px solid var(--line-soft);border-radius:10px;padding:10px 12px}
 .app-cand b{overflow-wrap:anywhere;font-weight:600}

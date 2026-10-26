@@ -28,7 +28,7 @@ How to run the FRAMEDECKS PC during a service: setup, presenting, and calm recov
 1. **Selecting a Frame does not put it on air.** The Studio Canvas shows a **PREVIEW**. **Go Live** (**T**) puts it on screen; the badge then reads **LIVE**.
 2. **◀ Frame / Frame ▶** in the command bar move to the previous or next Frame and put it on screen.
 3. **◀ Question ▶** (or the arrow keys) step through the live Frame's questions; **Shift + arrows** step through its scriptures; **Page Up / Page Down** step through slides.
-4. **The Program menu is your safety kit:** Hide Content, **Blackout** (K), Emergency, **Annotate** (D), **Freeze** (F), **Teleprompter** (R), **Teleprompter window**, **Teleprompter overlay** (Shift+R).
+4. **The Live tools menu is your safety kit:** Hide Content, **Blackout** (K), Emergency, **Annotate** (D), **Freeze** (F), **Teleprompter** (R), **Teleprompter window**, **Teleprompter overlay** (Shift+R).
 5. **Hide all** (**Esc**) clears everything and deletes nothing.
 
 ![The Studio during a service](../images/studio.png)

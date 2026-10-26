@@ -1202,3 +1202,15 @@ body.spotlight .pal.spot-in{animation:pal-in .12s ease-out}
   --mica:linear-gradient(180deg,rgba(227,183,90,.03),rgba(255,255,255,0) 60%);
   --kc-navy:#070c18; --kc-gold-line:rgba(227,183,90,.32);
 }
+
+/* ---------- 6.11.1 command bar for leaders (design audit DD-13): every control says what it is ----------
+ * The Transition list keeps its label, the status button says Ready or what needs attention, Off air / Live stays in
+ * words, and Go Live / Hide all are sentence case. Below 1140 px the bar already wraps to two rows. */
+.cmdbar .lb-l{display:inline;font-size:12.5px;font-weight:600;letter-spacing:0;text-transform:none;color:var(--muted)}
+.cmdbar .sys-sum .sys-text{display:inline;max-width:180px;overflow:hidden;text-overflow:ellipsis}
+.cmdbar .live-ind b{display:inline}
+.cb-btn.take .tl,.cmdbar #ctlbar [data-cb="hideAll"],.cb-btn.hide{text-transform:none;letter-spacing:0}
+@media (max-width:1380px){ .cmdbar .live-ind{padding:0 10px} }
+.cmdbar .lb-auto,.cmdbar .lb-prog-btn{flex:none}
+@media (max-width:1600px){ .cmdbar .sys-sum .sys-text{max-width:110px} .cmdbar .lb-tx select{max-width:130px} }
+@media (max-width:1380px){ .cmdbar .lb-l,.cmdbar .lb-auto .aa-x,.cmdbar .sys-sum .sys-text{display:none} }   /* the dot keeps its tooltip and name */

@@ -570,7 +570,7 @@ function apply(d){
   if (!d.available){
     root.innerHTML = ''; root.appendChild(h('p', {cls: 'plain', style: 'padding:20px', text: d.reason || 'FRAMECAST is not available.'}));
     scenesSec.hidden = left.hidden = true; railNote.hidden = false;
-    railNote.textContent = 'Frames and Content appear here when FRAMEDECKS is running. ' + (d.reason || '');
+    railNote.textContent = 'Frames and Content appear here when FRAMECAST is running. ' + (d.reason || '');
     return;
   }
   scenesSec.hidden = left.hidden = false; railNote.hidden = true;

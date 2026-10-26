@@ -23,6 +23,11 @@
 .tp-cue{display:inline-block;font-size:.55em;font-weight:800;letter-spacing:.08em;text-transform:uppercase;vertical-align:.25em;padding:.15em .55em;border-radius:999px;
   background:var(--tp-gold);color:#1a1405}
 .tp-empty{color:var(--tp-muted);font-size:max(16px,calc(var(--tp-size) * .55));font-weight:500}
+/* no script yet: one centred message and one action */
+.tp-empty-box{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;text-align:center;padding:16px 8px}
+.tp-empty-hint{font-size:13px;font-weight:500;color:var(--tp-muted)}
+.tp-empty-act{font-size:14px}
+.tp-text .tp-empty,.tp-text .tp-empty-hint{margin:0}
 .tp-end{height:55vh}                                   /* the last line can scroll up to the reading line */
 .tp-controls{flex:none;display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding:8px 10px;border-top:1px solid var(--tp-edge)}
 .tp-btn{font:inherit;font-size:13px;font-weight:700;min-height:32px;padding:0 10px;border-radius:8px;border:1px solid var(--tp-edge);background:var(--raised,#1d232d);color:var(--tp-ink);cursor:pointer}

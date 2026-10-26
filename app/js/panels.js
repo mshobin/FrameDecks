@@ -174,7 +174,7 @@ if (prog && progBtn){
     var on = pressed(bl) || pressed(em);
     progBtn.classList.toggle('alert', on);
     progBtn.classList.toggle('held', !on && (pressed(fz) || pressed(an)));
-    progBtn.textContent = on ? (pressed(bl) ? 'BLACKOUT ▾' : 'EMERGENCY ▾') : pressed(fz) ? 'FROZEN ▾' : pressed(an) ? 'ANNOTATING ▾' : 'Program ▾';
+    progBtn.textContent = on ? (pressed(bl) ? 'Blackout on ▾' : 'Emergency on ▾') : pressed(fz) ? 'Frozen ▾' : pressed(an) ? 'Annotating ▾' : 'Live tools ▾';
   });
   [bl, em, fz, an].forEach(function(b){ if (b) mo.observe(b, {attributes: true, attributeFilter: ['aria-pressed']}); });
 }

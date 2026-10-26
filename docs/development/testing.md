@@ -150,7 +150,7 @@ These need a real Windows desktop; CI cannot run them. Test on Windows 10 and Wi
 
 **Command bar and Meeting Workbook (6.9)**
 - [ ] **Command bar:** no search box, no Presentation Mode button, no **Hide the app window** button. **Hide all**
-      shows **Esc** inside the button; **Program ▾** opens as a drop-down. Resize the window below 1140 px wide:
+      shows **Esc** inside the button; **Live tools ▾** opens as a drop-down. Resize the window below 1140 px wide:
       the bar wraps to two rows and nothing is cut off. Check maximized, on an ultra-wide screen and at 150 % or
       200 % display scaling.
 - [ ] **Template:** Settings → Data / Backup → *Download the Excel template*. It has two tabs, **Dashboard** and **Meeting Form**.

@@ -43,7 +43,7 @@ A printable timeline for running a service with FRAMEDECKS, plus an emergency ca
 ## 10 minutes before
 
 - [ ] Opening Frame live (for example, a countdown Timer or Welcome).
-- [ ] Blackout, Freeze and Annotate all **off** (the Program button reads **Program ▾**).
+- [ ] Blackout, Freeze and Annotate all **off** (the button reads **Live tools ▾**).
 - [ ] Phones on Do Not Disturb; screens set to stay awake.
 
 ## During the service

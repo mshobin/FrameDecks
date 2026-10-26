@@ -69,7 +69,7 @@ The **Studio Canvas** always tells you whether you are looking at the screen peo
 | Next slide (PowerPoint) | **Page Down** or the slide ▶ button | **NEXT CONTENT** |
 
 **Auto advance:** a Frame can move to the next one by itself after a number of seconds (Content Settings → Frame →
-**Timing**). It only happens while **Auto** in the command bar is on.
+**Timing**). It only happens while **Auto-advance** in the command bar is on.
 
 ## Questions and scriptures
 
@@ -113,8 +113,8 @@ A Frame with a Question or Scripture list shows one item at a time.
 | **Hide Content** | — | The selected Content is hidden | One item should go away, the rest stays |
 
 Blackout, Emergency, Annotate, Freeze, the Teleprompter, the Teleprompter window and the Teleprompter overlay are in
-the **Program** menu. The menu button changes to
-**BLACKOUT ▾**, **EMERGENCY ▾**, **FROZEN ▾** or **ANNOTATING ▾** so you never forget one is on. Press the same
+the **Live tools** menu. The menu button changes to
+**Blackout on ▾**, **Emergency on ▾**, **Frozen ▾** or **Annotating ▾** so you never forget one is on. Press the same
 control again to turn it off.
 
 > **Important:** Remember to unfreeze. While the picture is frozen, people do not see anything you change. The phone

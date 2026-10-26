@@ -106,7 +106,7 @@ show(document.body.dataset.tab || 'studio');
       var s = ['bad', 'warn'].filter(function(x){ return c.classList.contains(x); })[0];
       if (s){ bad.push(c.querySelector('.hl').textContent + ': ' + c.querySelector('b').textContent); if (RANK[s] > RANK[worst]) worst = s; }
     });
-    var label = worst === 'ok' ? 'All systems ready' : bad[0] + (bad.length > 1 ? ' +' + (bad.length - 1) : '');
+    var label = worst === 'ok' ? 'Ready' : bad[0] + (bad.length > 1 ? ' +' + (bad.length - 1) : '');
     if (dot.className !== 'sys-dot ' + worst) dot.className = 'sys-dot ' + worst;
     if (txt.textContent !== label) txt.textContent = label;
     box.classList.toggle('has-problem', worst !== 'ok');

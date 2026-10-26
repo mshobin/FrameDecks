@@ -145,6 +145,7 @@ function create(host, opts){
       placeholder: 'Type what you will say during “' + curSc.name + '”. # Heading, - bullet, **bold**, [CUE]', save: function(v){ return opts.edit(curSc.id, v); }});
   }
   scroll.addEventListener('dblclick', function(e){ if (opts.editable){ e.preventDefault(); editScript(); } });
+  text.addEventListener('click', function(e){ if (e.target.closest('.tp-empty-act')) editScript(); });
   /* keys while the prompter has focus */
   root.addEventListener('keydown', function(e){
     var t = e.target; if (t && /INPUT|TEXTAREA|SELECT/.test(t.tagName)) return;
@@ -181,7 +182,9 @@ function create(host, opts){
       if (s === sig) return; sig = s;
       if (window.KCEditable && window.KCEditable.within(root)) { sig = ''; return; }     // editing: keep the editor
       var newFrame = (sc ? sc.id : '') !== curSid; curSid = sc ? sc.id : ''; curText = t;
-      text.innerHTML = t.trim() ? render(t) : '<p class="tp-empty">' + (sc ? 'No script for “' + esc(sc.name) + '” yet.' + (opts.editable ? ' Double-click here, or use ✎, to write one.' : ' Add one in the main window: Frame settings → Teleprompter script.') : 'Select a Frame.') + '</p>';
+      text.innerHTML = t.trim() ? render(t) : '<div class="tp-empty-box"><p class="tp-empty">' + (sc ? 'No script for “' + esc(sc.name) + '” yet.' : 'Select a Frame.') + '</p>' +
+        (!sc ? '' : opts.editable && opts.edit ? '<button class="tp-btn tp-empty-act" type="button">Write a script</button><p class="tp-empty-hint">Or double-click here.</p>' :
+          '<p class="tp-empty-hint">Add one in the main window: Frame settings → Teleprompter script.</p>') + '</div>';
       if (newFrame){ scroll.scrollTop = 0; acc = 0; }
     }
   };

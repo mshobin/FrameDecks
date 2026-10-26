@@ -53,12 +53,15 @@ Full notes: [docs/releases/v6.11.1.md](docs/releases/v6.11.1.md)
 - A damaged saved plan is kept aside and the newest readable daily backup opens instead; a linked PC then restores
   the plan from its workspace. Settings → Diagnostics says what happened.
 - Settings menu grouped (Your meeting, Presenting, Account, This PC, Help), with descriptions and Find a setting.
+- First run: Start fresh is the main choice when no earlier data is found; a Getting started card (3 steps) follows.
 - Settings → Diagnostics → Save support bundle (log, Diagnostics, settings; never plan, members, PIN or keys).
 - About announces a newer published version once a day (never downloads; `FRAMEDECKS_NO_UPDATE_CHECK=1` turns it off).
 - CI: Desktop checks (ruff, JS syntax, doc links), the website's performance budget, an installer smoke test, and
   a backup check that the nightly copy decrypts and lists its tables; failed scheduled runs open a GitHub issue.
 
 ### Changed
+- Command bar in words (design audit DD-13): Transition label, Auto-advance, Live tools ▾, Ready / Off air,
+  sentence-case Go Live and Hide all, tooltips on the icon-only tabs. Teleprompter empty state with Write a script.
 - Sync no longer deletes every Frame in the workspace when they all vanish from one PC; they are restored instead.
 - The program's local API refuses calls from other websites (`Sec-Fetch-Site: cross-site`).
 - Errors the program recovers from are logged (at most once a minute each).
@@ -75,6 +78,8 @@ Full notes: [docs/releases/v6.11.1.md](docs/releases/v6.11.1.md)
 - Unpinning the Teleprompter overlay froze the program.
 - Camera labels that still said FRAMEDECKS (switch, status, Teams step, Cards, Camera Look, Diagnostics) now say
   FRAMECAST; `tests/test_camera_name.py` guards it (design audit DD-01).
+- The camera's start-file message no longer sits over the Studio canvas (Members' tab switch showed the camera
+  picture panel on every visit). `tests/test_ui_labels.py` guards ranks 2–4.
 
 ## [6.11] - 2026-10-26
 

@@ -152,9 +152,12 @@ the program's About page in the website's design, with the same words (brand.jso
 - D4 (sync conflict rules): built as recommended (keep both Frames; the last writer wins for settings and people).
 
 ## Design audit (26 October, chat only)
-Ranked roadmap from the design audit: rank 1 (DD-01, camera labels say FRAMECAST, guarded by
-`tests/test_camera_name.py`) is done. Ranks 2+ (first-run dialog, overlaps, header labels...) change the desktop UI:
-build them only when the owner asks, one at a time.
+Ranked roadmap from the design audit: ranks 1–4 are done (DD-01 camera labels, `tests/test_camera_name.py`; DD-03
+first run, DD-02 overlaps and Teleprompter empty state, DD-13 command bar words, `tests/test_ui_labels.py`). Next in
+the list: 5 website date/time helper (DD-09), 6 mobile website navigation (DD-12), 9 destructive-action styling,
+10 micro-label contrast. Desktop items need the owner's go-ahead; website items do not.
+Owner checks on Windows: a new data folder shows Welcome to FRAMEDECKS with Start fresh first; the command bar at
+the PC's real width.
 
 ## Recommended Next Task
 Nothing is left for an assistant to build without the owner. In order:
