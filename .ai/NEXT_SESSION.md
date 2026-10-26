@@ -85,6 +85,15 @@ Steps, in order, from [docs/project/free-hosting.md](../docs/project/free-hostin
 work). `hosted/tsconfig.json` gained `allowImportingTsExtensions` so `src/lib/sync/legacy-6.9.mts` typechecks and
 builds. Next: the owner's Parts A, B, D and E.
 
+## In progress: 6.11 (owner's request, 26 October; design [meeting-form.md](../docs/architecture/meeting-form.md))
+Owner decisions: W1 the website form edits the live plan; W2 keep Excel import in 6.11 but only under the program's
+Settings; W3 6.12 removes Excel import, template and export (PowerPoint export stays).
+1. **Camera check and "Open FRAMEDECKS on this PC"**: **built** (`hosted/src/lib/pc-setup.ts`,
+   `hosted/src/components/pc-setup-card.tsx` on Overview; installer registers `framedecks:` for this user;
+   `desktop_app.py` never reads the link; `tests/test_open_link.py`).
+2. **Website Meeting Form**: next (`hosted/src/lib/meeting-form.ts`, `hosted/src/app/meeting/`).
+3. **Excel import into Settings**, version 6.11, release notes, live test G: after step 2.
+
 ## Pending (owner)
 1. ~~Run the database scripts~~: **done** on 26 October (`0002`–`0008`, all passed).
 2. ~~Merge PR #32~~: **done**. Take the installer from the latest "Build Windows installer" run on `main` (Actions →

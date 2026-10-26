@@ -5,6 +5,8 @@ Runs the same local program as server.py, shows the dashboard in its own window,
 near the clock (the "tray") so the overlays keep working in OBS/Camo when the window is closed.
 
 Only one copy runs at a time: opening the app again brings the existing window to the front.
+6.11: the website's "Open FRAMEDECKS on this PC" starts it through a framedecks:// link (registered by the
+installer). That is the same as opening it: the link is never read, so a web page cannot make it do anything else.
 """
 import json
 import os

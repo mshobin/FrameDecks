@@ -38,7 +38,8 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
 - `docs/FRAMEDECKS_MODERNIZATION_STATUS.md` — the detailed phase tracker; `docs/architecture/metadata-sync.md` — the
   agreed sync design and its delivery steps; `docs/architecture/remote-control.md` — the agreed Phase 5 design
   (controlling a service from the companion; R1–R5 as recommended) and its four delivery steps;
-  `docs/architecture/companion-editing.md` — editing services in the companion (E1–E4 as recommended).
+  `docs/architecture/companion-editing.md` — editing services in the companion (E1–E4 as recommended);
+  `docs/architecture/meeting-form.md` — 6.11: the website Meeting Form, the camera check and `framedecks://` (W1–W3).
 - `docs/project/2026-10-25-architecture-audit.md` — architecture, performance and product audit (critical issues
   C1–C10, optimizations P1–P10, budgets, roadmap); no UI changes. P1–P4 and C2 (`supervisor.py`, the crash
   watchdog in the installed exe) are built.
@@ -105,9 +106,9 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
 
 ## Commands
 - Before and after every change, all of these must pass (the cloud session's last results are in brackets):
-- Desktop JS tests: `node tests/run.js` [4/4]; Python: `python -m unittest discover -s tests -p "test_*.py"` [126 OK];
+- Desktop JS tests: `node tests/run.js` [4/4]; Python: `python -m unittest discover -s tests -p "test_*.py"` [128 OK];
   packaging: `python packaging/check.py` [6.10].
-- Hosted (run inside `hosted/`, there is no root package.json): `npm test` [91/91], `npm run lint`, `npm run typecheck`, `npm run build`.
+- Hosted (run inside `hosted/`, there is no root package.json): `npm test` [94/94], `npm run lint`, `npm run typecheck`, `npm run build`.
   `npm test` applies every migration to in-memory Postgres (PGlite) and loads `src/lib/sync-entities.ts` with Node's
   type stripping.
 - Sync fixtures: `python tools/make_sync_fixtures.py` rebuilds `tests/fixtures/sync/` (needs Node) after changing

@@ -63,6 +63,14 @@ Type: files; Name: "{autoprograms}\Kingdom Connect.lnk"
 Type: files; Name: "{autodesktop}\Kingdom Connect.lnk"
 Type: files; Name: "{userstartup}\Kingdom Connect.lnk"
 
+[Registry]
+; 6.11 the website's "Open FRAMEDECKS on this PC" (framedecks://open, docs/architecture/meeting-form.md section 4):
+; this user only, removed on uninstall. The program only starts or comes forward; it reads nothing from the link.
+Root: HKCU; Subkey: "Software\Classes\framedecks"; ValueType: string; ValueName: ""; ValueData: "URL:FRAMEDECKS"; Flags: uninsdeletekey
+Root: HKCU; Subkey: "Software\Classes\framedecks"; ValueType: string; ValueName: "URL Protocol"; ValueData: ""
+Root: HKCU; Subkey: "Software\Classes\framedecks\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: """{app}\FRAMEDECKS.exe"",0"
+Root: HKCU; Subkey: "Software\Classes\framedecks\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\FRAMEDECKS.exe"" ""%1"""
+
 [Icons]
 Name: "{autoprograms}\FRAMEDECKS"; Filename: "{app}\FRAMEDECKS.exe"
 Name: "{autodesktop}\FRAMEDECKS"; Filename: "{app}\FRAMEDECKS.exe"; Tasks: desktopicon

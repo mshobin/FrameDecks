@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Activity, ArrowUpRight, BookOpen, Monitor, ShieldCheck } from "lucide-react";
 
 import { AppShell } from "@/components/app-shell";
+import { PcSetupCard } from "@/components/pc-setup-card";
 import { buttonVariants } from "@/components/ui/button";
 import { WorkspacePanel } from "@/components/workspace-panel";
 
@@ -53,6 +54,8 @@ export default function Home() {
           />
         </div>
       </section>
+
+      <PcSetupCard />
 
       <WorkspacePanel />
 

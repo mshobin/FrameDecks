@@ -37,6 +37,8 @@ Phase detail lives in
     - M-D5 hosting recommendation ([hosting.md](docs/architecture/hosting.md)).
 
 ## In Progress
+- **6.11** ([meeting-form.md](docs/architecture/meeting-form.md)): step 1 built (camera check card, `framedecks://` link);
+  step 2 (website Meeting Form) and step 3 (Excel import into Settings) next.
 - **Free plan** ([free-hosting.md](docs/project/free-hosting.md)): steps 1–4 are on `main` (26 October):
   (companion builds as static files; `/api/sync-config` written at build time) and step 2 (keep-alive every 3 days,
   encrypted nightly backup, [restore guide](docs/project/database-backup.md)). Step 3 done (idle
