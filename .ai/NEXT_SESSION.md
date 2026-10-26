@@ -75,6 +75,8 @@ Steps, in order, from [docs/project/free-hosting.md](../docs/project/free-hostin
    was left out on purpose (it would replace `sync_push` in the live database for almost no saving).
 4. **Google/Microsoft sign-in first**: **code done** (`sign-in-form.tsx`: provider buttons above the email link when
    switched on). Owner: Part D (Google, Microsoft, Brevo SMTP in Supabase).
+   Google needs a privacy policy link to publish: `hosted/src/app/privacy/page.tsx` (`/privacy`, linked under the
+   sign-in card). Keep it true to what is stored if sync or members change.
 5. Public repository, SignPath, GitHub Releases: **owner only** (Part E; the build already publishes on version tags).
 
 **Branch state:** steps 1–4 are on `main` (pushed 26 October, together with the owner's sync-contract / legacy-6.9

@@ -19,6 +19,8 @@ export function AuthShell({
       </section>
       <p className="auth-footnote">
         Your presentation stays on your service PC. This account is only for the hosted companion.
+        {" "}
+        <Link href="/privacy">Privacy</Link>
       </p>
     </main>
   );

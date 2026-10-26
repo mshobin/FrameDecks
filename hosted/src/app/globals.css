@@ -1684,3 +1684,34 @@ a.nav-item:hover {
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+.auth-card:has(.auth-legal) {
+  width: min(100%, 680px);
+}
+
+.auth-legal {
+  color: #c9d2e3;
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+.auth-legal h2 {
+  margin: 22px 0 6px;
+  color: #eaeef6;
+  font-size: 16px;
+}
+
+.auth-legal ul {
+  margin: 0;
+  padding-left: 20px;
+  list-style: disc;
+}
+
+.auth-legal li + li {
+  margin-top: 4px;
+}
+
+.auth-legal a,
+.auth-footnote a {
+  color: #e3b75a;
+}

@@ -120,16 +120,20 @@ but not for many churches.
 
 **D1. Google (free).**
 1. Open https://console.cloud.google.com and create a project named "FRAMEDECKS".
-2. Go to **APIs & Services → OAuth consent screen**:
-   - user type **External**;
-   - app name FRAMEDECKS, your email as support and developer contact;
-   - scopes: just the default **email**, **profile** and **openid**;
-   - **publish the app** (In production).
-3. Go to **Credentials → Create credentials → OAuth client ID**:
+2. Go to **APIs & Services → OAuth consent screen** (it opens **Google Auth Platform**; click **Get started** the
+   first time): app name FRAMEDECKS, your email as support and developer contact, audience **External**.
+3. **Branding** (left menu):
+   - Application home page: `https://framedecks.pages.dev`
+   - Application privacy policy link: `https://framedecks.pages.dev/privacy`
+   - Authorized domains: `framedecks.pages.dev` and `slrsykiknlqlivlnpvrb.supabase.co` (or `supabase.co`).
+   - No logo: a logo makes Google review the app first. **Save.**
+4. **Audience → Publish app → Confirm** (status **In production**). It stays greyed out until Branding is complete.
+   Scopes need nothing: Supabase asks only for email, profile and openid.
+5. **Clients → Create client**:
    - type **Web application**;
    - **Authorized redirect URI**: `https://slrsykiknlqlivlnpvrb.supabase.co/auth/v1/callback`.
-4. Copy the **Client ID** and **Client secret**.
-5. In Supabase → **Authentication → Sign In / Providers → Google**: turn it on and paste both.
+6. Copy the **Client ID** and **Client secret**.
+7. In Supabase → **Authentication → Sign In / Providers → Google**: turn it on and paste both.
    **The secret goes only here, never in GitHub or the companion.**
 
 **D2. Microsoft (free).**
