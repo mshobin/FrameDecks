@@ -75,7 +75,7 @@ Steps, in order, from [docs/project/free-hosting.md](../docs/project/free-hostin
    was left out on purpose (it would replace `sync_push` in the live database for almost no saving).
 4. **Google/Microsoft sign-in first**: **code done** (`sign-in-form.tsx`: provider buttons above the email link when
    switched on). Owner: Part D. Google sign-in works (brand verification pending, retry
-   after 24 h in Verification Center). Microsoft returned `server_error` (check Supabase Auth logs). Brevo skipped by
+   after 24 h in Verification Center). Microsoft sign-in works too (26 October, after a settings fix). Brevo skipped by
    the owner: the email link stays on Supabase's built-in mail.
    Google needs a privacy policy link to publish: `hosted/src/app/privacy/page.tsx` (`/privacy`, linked under the
    sign-in card). Keep it true to what is stored if sync or members change.
