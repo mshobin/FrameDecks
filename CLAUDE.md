@@ -28,7 +28,8 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
   phone remote, a different thing.
 - `hosted/` — Next.js 16 online-first companion, deployed to Vercel (`framedecks.vercel.app`, Root Directory `hosted`).
 - `hosted/supabase/migrations/` — SQL run in order in the Supabase SQL editor: `0001` workspaces, `0002` invitations,
-  `0003` sync, `0004` remote control, `0005` the Live page's PC list, `0006` the audit log, `0007` explicit API grants, `0008` member groups. Never edit one that has been run; add the next number.
+  `0003` sync, `0004` remote control, `0005` the Live page's PC list, `0006` the audit log, `0007` explicit API grants, `0008` member groups. All of `0001`–`0008` have been run in the live project (26 October 2026): never edit
+  one, add the next number.
   Each new one gets an undo script in `hosted/supabase/rollback/` (`NNNN_<name>_down.sql`).
 - `tools/` — generators and checks (`make_emblem_assets.py`, `check_doc_links.py`, `generate_brand_assets.py`).
 - `docs/FRAMEDECKS_MODERNIZATION_STATUS.md` — the detailed phase tracker; `docs/architecture/metadata-sync.md` — the
@@ -40,7 +41,7 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
   watchdog in the installed exe) are built.
 - `docs/architecture-review.md` and `docs/migration-plan.md` — review against the owner's target architecture (cloud
   for people, templates, AI, audit; desktop for media, rendering, camera) and the step order; decisions M-D1–M-D6.
-  The owner answered M-D1–M-D6 (plan §8); all eight steps are built on PR #32 (`docs/post-migration-report.md`);
+  The owner answered M-D1–M-D6 (plan §8); all eight steps are built and merged (PR #32; `docs/post-migration-report.md`);
   hosting long term: `docs/architecture/hosting.md`.
 - `streamdeck/` — the Stream Deck plugin (owner's choice); it calls the PC's local `GET /api/command/status` and
   `POST /api/command` (this PC only), which run through the same window bridge as the companion, without a toast.
@@ -60,7 +61,7 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
   groups, M-D6: `hosted/src/lib/member-edit.ts`, `hosted/src/components/members-panel.tsx`) and linking PCs; `hosted/src/components/app-shell.tsx` is the shared sidebar and top bar.
 
 ## Working locally (VS Code on Windows)
-- **Branch.** Work continues on `claude/peaceful-albattani-6m445e` (PR #32), or on `main` once that is merged. Never
+- **Branch.** Work from `main` (PR #32 is merged) on a new branch per change. Never
   force-push or rewrite pushed history. The repository is `mshobin/FRAMEDECKS` (formerly `kingdom-connect`).
 - **Set up once (PowerShell, at the repo root):**
   - `python -m venv .venv`

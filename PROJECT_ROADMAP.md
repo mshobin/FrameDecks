@@ -1,24 +1,24 @@
 # PROJECT ROADMAP
 
 Phases follow [docs/FRAMEDECKS_MODERNIZATION_STATUS.md](docs/FRAMEDECKS_MODERNIZATION_STATUS.md), which is authoritative for detail.
-Updated 25 October 2026. Work after `main` at `8482c44` is on PR #32 (branch `claude/peaceful-albattani-6m445e`), not merged yet.
+Updated 26 October 2026. PR #32 is merged; the live Supabase database has every script (`0001`–`0008`, run by the owner 26 Oct).
 
 | Step | State |
 |---|---|
 | Audit, branding, architecture decisions | Done |
 | Hosted Next.js shell + CI + Vercel | Done |
 | PWA manifest + safe service worker | Done (device acceptance pending) |
-| Tenant schema + RLS | Done; tested in-repo on PGlite; live Supabase DB pending |
+| Tenant schema + RLS | Done; tested in-repo on PGlite; all scripts `0001`–`0008` run in live Supabase (26 Oct); live RLS tests pending |
 | Supabase project, providers, sign-in UI | Done for emailed links (live sign-in confirmed 25 Oct); Google/Microsoft need owner setup |
 | Workspaces, members, invitations | Built; workspaces confirmed live; invitations to be tested live with Google/Microsoft later |
 | Live RLS tests against Supabase | Needs `*.supabase.co` allowed in the cloud environment |
 | Sync service plans (metadata only) | Design agreed ([metadata-sync.md](docs/architecture/metadata-sync.md)); steps 1–4 built (database, record mapping, PC sync + Settings section, companion Services / Members / Computers); step 5 (live test by the owner) next |
 | Control a service from the companion (Phase 5) | Design agreed ([remote-control.md](docs/architecture/remote-control.md), R1–R5 as recommended); steps 1–3 built (database `0004`/`0005`, PC side `cloud_remote.py` and window bridge, Settings switch, companion Live page, "Can run services"); step 4 (live test by the owner) next |
 | Edit services in the companion (D3 "next step") | Design agreed ([companion-editing.md](docs/architecture/companion-editing.md), E1–E4 as recommended); steps 1–2 built (editing helpers, Services page editing) plus Frame history and restore (30 days); step 3 (live test by the owner) next |
-| Owner's live tests (sync, phone control, editing, history, members, new PC features) | One pass, tests A–F: [live-test-guide.md](docs/qa/live-test-guide.md); waiting for the owner (database `0002`–`0008` first) |
+| Owner's live tests (sync, phone control, editing, history, members, new PC features) | One pass, tests A–F: [live-test-guide.md](docs/qa/live-test-guide.md); database ready (26 Oct); waiting for the owner's tests |
 | Architecture audit follow-up ([audit](docs/project/2026-10-25-architecture-audit.md) §9) | Phase 1 built on PR #32: P1–P4, C2 crash watchdog. C1: signing ready (SignPath, M-D1), auto-update not designed yet |
 | Stream Deck plugin (owner's choice) | Built on PR #32 (`streamdeck/`, CI artifact); owner tests it on a PC with a Stream Deck |
-| Target architecture migration ([review](docs/architecture-review.md), [plan](docs/migration-plan.md), [report](docs/post-migration-report.md)) | All 8 steps built on PR #32 (owner decisions M-D1–M-D6, 25 Oct): audit log, ESV key, missing-media check, API grants, licence and signing, members from the cloud, free AI (Ollama), PowerPoint export and Audio, member groups. Next: merge, database scripts, live tests |
+| Target architecture migration ([review](docs/architecture-review.md), [plan](docs/migration-plan.md), [report](docs/post-migration-report.md)) | All 8 steps built on PR #32 (owner decisions M-D1–M-D6, 25 Oct): audit log, ESV key, missing-media check, API grants, licence and signing, members from the cloud, free AI (Ollama), PowerPoint export and Audio, member groups. Merged; database scripts run live (26 Oct). Next: live tests |
 | Hosting long term ([hosting.md](docs/architecture/hosting.md)) | Recommended: companion to Cloudflare (static) before a public launch; Supabase Free → Pro when churches depend on it |
 | Later (not designed yet) | Asset references (size/hash) across PCs; on-screen missing-media line (needs approval); auto-update; a shared Template Store |
 | Real-device PWA acceptance, operations | Later |

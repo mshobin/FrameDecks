@@ -1,17 +1,16 @@
 # NEXT SESSION HANDOFF
 
-Updated 25 October 2026 (Kuwait evening), at the end of the cloud session. The next session continues locally in
+Updated 26 October 2026: PR #32 merged, and the owner ran database scripts `0002`–`0008` in Supabase (all passed). The next session continues locally in
 VS Code (GitHub Copilot or any assistant). Read [CLAUDE.md](../CLAUDE.md) first.
 
 ## Where things stand
-- **Branch:** `claude/peaceful-albattani-6m445e`.
-  - Head: `f424761` plus this handoff commit.
-  - Open as **PR #32** (`mshobin/FRAMEDECKS`), not merged yet.
+- **`main`:** `8fe4cf7`, with **PR #32 merged** (26 October). Everything listed under PR #32 below is on `main`.
+- **Live database:** Supabase project `slrsykiknlqlivlnpvrb` has every script, `0001`–`0008`. The owner ran
+  `0002`–`0008` on 26 October and all passed.
 - **Checks on that head:**
   - Hosted: green on GitHub.
   - Windows installer build: run 40231518591, **passed**, with python-pptx bundled.
   - Stream Deck plugin build: green.
-- **`main`:** `8482c44` (PRs up to #31). Everything below that says "PR #32" is only on the branch until it is merged.
 - **Locally on the branch:**
   - Python: 126 tests OK.
   - Desktop JS: 4/4.
@@ -36,7 +35,7 @@ VS Code (GitHub Copilot or any assistant). Read [CLAUDE.md](../CLAUDE.md) first.
 - Companion editing and 30-day Frame history with restore.
 - The owner's live test guide.
 
-## Completed on PR #32 (not merged yet)
+## Completed on PR #32 (merged 26 October)
 - **Audit:**
   - [architecture audit](../docs/project/2026-10-25-architecture-audit.md);
   - its Phase 1, P1–P4: writing, sync, image memory and screen-capture copying per press;
@@ -64,9 +63,9 @@ VS Code (GitHub Copilot or any assistant). Read [CLAUDE.md](../CLAUDE.md) first.
   - M-D5: long-term hosting recommendation, [docs/architecture/hosting.md](../docs/architecture/hosting.md).
 
 ## Pending (owner)
-1. **Supabase, soon (the 30 October change):** in the SQL editor, run `hosted/supabase/migrations/0002` → `0008`,
-   in order, once each. `0007` is safe to run again.
-2. **Merge PR #32**, then run "Build Windows installer" on `main` for the installer to test with.
+1. ~~Run the database scripts~~: **done** on 26 October (`0002`–`0008`, all passed).
+2. ~~Merge PR #32~~: **done**. Take the installer from the latest "Build Windows installer" run on `main` (Actions →
+   Artifacts); if no run started after the merge, start one with **Run workflow**.
 3. **Live tests:** [docs/qa/live-test-guide.md](../docs/qa/live-test-guide.md), tests A–F:
    - A sync, B phone control, C editing, D history;
    - E members from the cloud and groups;
@@ -102,7 +101,7 @@ VS Code (GitHub Copilot or any assistant). Read [CLAUDE.md](../CLAUDE.md) first.
 - D4 (sync conflict rules): built as recommended (keep both Frames; the last writer wins for settings and people).
 
 ## Recommended Next Task
-Help the owner with Pending 1–3. Fix what the live tests find, then mark each test done in the four files. Do not
+Help the owner with Pending 2–3 (the database is ready). Fix what the live tests find, then mark each test done in the four files. Do not
 start new features until the live tests pass, unless the owner asks.
 
 ## Files Likely To Change Next
@@ -119,7 +118,7 @@ Setup and the full check list are in [CLAUDE.md](../CLAUDE.md) under "Working lo
 
 Start by fetching and checking out the branch:
 - `git fetch origin`
-- `git checkout claude/peaceful-albattani-6m445e` (or `main` once PR #32 is merged)
+- `git checkout main`
 - `git pull`
 
 Before and after every change, run all the checks in CLAUDE.md. At the end of every step, update all four

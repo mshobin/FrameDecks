@@ -1,12 +1,13 @@
 # PROJECT STATUS
 
-Last verified: 25 October 2026 on branch `claude/peaceful-albattani-6m445e` (PR #32, open) at `f424761`.
+Last verified: 26 October 2026. PR #32 is merged (`main` at `8fe4cf7`). The owner ran database scripts `0002`–`0008`
+in Supabase, all passed, so the live database is complete (`0001`–`0008`). The checks below are for `f424761`.
 - **GitHub:** hosted checks and the Stream Deck build are green, and the Windows installer build passed (run
   40231518591, with python-pptx bundled).
 - **Locally:** Python 126 tests OK, desktop JS 4/4, `packaging/check.py` (6.10), hosted 85/85 (lint, typecheck,
   build), Stream Deck 5 tests and `validate`, doc links 0 problems.
 
-`main` is at `8482c44` (PRs up to #31). Phase detail lives in
+Phase detail lives in
 [docs/FRAMEDECKS_MODERNIZATION_STATUS.md](docs/FRAMEDECKS_MODERNIZATION_STATUS.md); migration results in
 [docs/post-migration-report.md](docs/post-migration-report.md).
 
@@ -18,7 +19,7 @@ Last verified: 25 October 2026 on branch `claude/peaceful-albattani-6m445e` (PR 
 - **Phase 4 sync** (PRs #21–#24), **Phase 5 control from the companion** (PRs #25–#27), **companion editing and
   history** (PRs #28–#30), and the live test guide (PR #31). All built and tested against stand-ins; the owner's live
   tests are pending.
-- **On PR #32 (not merged yet):**
+- **PR #32 (merged 26 October):**
   - **Audit:** [architecture audit](docs/project/2026-10-25-architecture-audit.md). Its Phase 1 (P1–P4) and the C2
     crash watchdog (`supervisor.py`) are built.
   - **Stream Deck plugin** (`streamdeck/`).
@@ -36,13 +37,11 @@ Last verified: 25 October 2026 on branch `claude/peaceful-albattani-6m445e` (PR 
     - M-D5 hosting recommendation ([hosting.md](docs/architecture/hosting.md)).
 
 ## In Progress
-- Waiting for the owner: run the database scripts, merge PR #32, then the live tests A–F
+- Database live: `0001`–`0008` run in Supabase (26 October). Waiting for the owner's live tests A–F
   ([live-test-guide.md](docs/qa/live-test-guide.md)).
 
 ## Pending
-- **Owner, Supabase, soon:** run `0002` → `0008` in order. From 30 October 2026, tables created without `0007`'s
-  grants are unreachable.
-- **Owner:** merge PR #32; build the installer from `main`; run the live tests A–F.
+- **Owner:** install from the latest "Build Windows installer" run on `main` and run the live tests A–F.
 - **Owner, before using Audio Content:** update every linked PC (older versions drop Audio Content).
 - **Owner, M-D1:** follow [code-signing.md](docs/project/code-signing.md):
   - make the repository public after the checks;
@@ -104,7 +103,7 @@ Their branches are kept, so any of them can be reopened or mined:
 - Hosted companion is online-first and separate from the LAN remote.
 
 ## Blockers
-- The live tests need the owner to run `0002`–`0008` in Supabase and to link a PC. Google/Microsoft sign-in needs the
+- The live tests need the owner to install the build from `main` and link a PC (the database is ready). Google/Microsoft sign-in needs the
   owner's OAuth apps (their secrets go only into the Supabase dashboard).
 
 ## Recommended Next Task
