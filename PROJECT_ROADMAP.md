@@ -31,7 +31,7 @@ Updated 27 October 2026. FrameDecks 6.11.1 is published from tag `v6.11.1`; the 
 | Re-audit steps to 90+ (palette, radii/shadows, `!important`, lazy sections, axe scan in CI) | Built (27 October). Left for the owner: Windows check, a screen-reader pass (NVDA/Narrator), a real quote or usage fact for the landing page |
 | Landing brief: FrameDecks spelling, every audience, motion back, About in Light | Built (27 October). Owner: About story wording, program presets |
 | 10/10 plan: phases 1–2, owner-free parts of 3–4 (website four places, Plan, Home, first-time path, Help, identity, landing, Run polish) | Built (27 October). Owner: Test I; go-ahead for projector legibility, templates by type, the Wi-Fi remote; real quotes and photos |
-| Trust fixes (safe service errors, branded confirmations, current public copy) | Built and locally verified on `fix/trust-layer-errors-confirmations`; PR #39 open, not live |
+| Trust fixes (safe service errors, branded confirmations, current public copy) | PR #39; local checks and preview deployments passed; production verification and owner live tests remain |
 | 6.11.1: production audit steps 1–2 (`docs/project/2026-10-26-production-audit.md`) | Built and published (27 October); owner runs `0009`. Next: step 3 (live tests, M9, M7) |
 | Website idle performance (no endless animations, less blur) | Built and live on push (26 October) |
 | First-install fixes: website "Forbidden", Teleprompter unpin, Settings menu | Built on `main` (26 October); owner tests from the next build |

@@ -1,9 +1,9 @@
 # NEXT SESSION HANDOFF
 
 Updated 27 October 2026: release `v6.11.1` is published; the FrameDecks README and release header refresh merged in
-PR #38. Trust fixes are locally verified in PR #39 on `fix/trust-layer-errors-confirmations`, but are not live.
-Continue from that branch after checking PR/CI status, then read [CLAUDE.md](../CLAUDE.md) ("Working locally" has the
-set-up and run commands).
+PR #38. Trust fixes are locally verified in PR #39 on `fix/trust-layer-errors-confirmations`, and its CI and preview
+deployments passed. After merge, verify the production deployment, then read [CLAUDE.md](../CLAUDE.md) ("Working locally"
+has the set-up and run commands).
 
 ## Where things stand (27 October)
 - **Release:** **FrameDecks 6.11.1 is published** at `v6.11.1`; its build and publish workflow succeeded. The README
@@ -213,7 +213,7 @@ Owner checks on Windows: a new data folder shows Welcome to FrameDecks with Star
 the PC's real width.
 
 ## Recommended Next Task
-Review and merge PR #39 after its checks pass. Then, in order:
+After PR #39 merges, verify the production deployment. Then, in order:
 1. **Owner's live tests** with the installed **6.11.1** release: A–I in
    [docs/qa/live-test-guide.md](../docs/qa/live-test-guide.md) (H: Run, Practice and its reminder; I: the website's new
    places and front page), plus the website settings (change Branding on the website, see it in the program within a
