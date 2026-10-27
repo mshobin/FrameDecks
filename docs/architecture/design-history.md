@@ -947,3 +947,11 @@ The companion now maps known service failures to actionable, user-safe messages 
 authentication or database details. Destructive actions use a shared native dialog with a named action and keyboard
 cancellation; workspace deletion also requires typing the workspace name. The desktop interface, live-service command
 semantics, and PC-local media and presentation state are unchanged.
+
+## 34. Version 6.11.2: repository layout (27 October 2026)
+
+A maintenance release with no change to the desktop interface. The program's Python modules moved to `src/`
+(`python src/server.py`), community files to `.github/`, licences to `legal/`, the changelog and roadmap to
+`docs/`, and ruff's configuration to `config/`. Release notes before 6.8 are in `docs/releases/archive/`; the
+orphaned Stream Deck bundle was removed. `server.py` anchors its data paths to the repository root, and the
+installer spec, tests, workflows and tools read the new paths. A real PyInstaller build was run from the new layout.

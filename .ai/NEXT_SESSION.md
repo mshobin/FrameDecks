@@ -1,6 +1,6 @@
 # NEXT SESSION HANDOFF
 
-Updated 27 October 2026: release `v6.11.1` is published; the FrameDecks README and release header refresh merged in
+Updated 27 October 2026: release `v6.11.2` (repository layout and trust fixes, no desktop change; pilot install on a real PC and SHA-256 check still the owner's) was tagged after `v6.11.1`, which is published; the FrameDecks README and release header refresh merged in
 PR #38. Trust fixes merged in PR #39 (`27cfb4b`). Later the same day: the budget script fixed for Windows
 (`57cd9c3`), the five Dependabot action upgrades merged (#33–#37), and the handoff PR #40. All checks on `main` are
 green, including the Cloudflare Pages deploy (production); a look at the live site is still the owner's. Read [CLAUDE.md](../CLAUDE.md) ("Working locally" has the set-up and run commands).

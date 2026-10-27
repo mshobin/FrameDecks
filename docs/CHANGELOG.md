@@ -45,6 +45,19 @@ Versions before 4.9 (when the program had its earlier name) are described in the
 - The favicons, the tray icon and the small program-icon sizes (16–32 px) use a heavier version of the emblem, so it
   stays visible on light browser tabs and a light taskbar. Larger sizes are unchanged.
 
+## [6.11.2] - 2026-10-27
+
+Full notes: [docs/releases/v6.11.2.md](releases/v6.11.2.md)
+
+### Changed
+- The FrameDecks website explains problems in plain words and asks for confirmation in a FrameDecks dialog (trust
+  fixes, PR #39). The program on the PC is unchanged.
+- Repository layout: the program's Python modules are in `src/`, community files in `.github/`, licences in `legal/`
+  and the changelog and roadmap in `docs/`. The installer, the launchers and the program behave exactly as before.
+
+### Fixed
+- The website's size check (`hosted/scripts/check-budget.mjs`) works on Windows.
+
 ## [6.11.1] - 2026-10-26
 
 Full notes: [docs/releases/v6.11.1.md](releases/v6.11.1.md)
