@@ -8,6 +8,9 @@ Rules (docs/design-system.md):
 - font-weight only 400, 500, 600, 700, 800;
 - border-radius in px only from RADII (999px is the pill);
 - a plain drop shadow uses an elevation token (var(--el-1..4) or var(--shadow-pop / --shadow-modal));
+- a colour is written out only in app/css/palette.css or a custom property definition (the theme tokens); rules use
+  var(--token) or rgba(var(--rgb-…), alpha) (tools/css_palette.py moves new ones there). teleprompter.css keeps its
+  own fallbacks because the legacy phone remote loads it without the palette;
 - no more !important than the recorded baseline.
 Not checked: the room-screen overlay (app/css/overlay.css), which is designed for the projector, and the legacy phone
 remote (app/css/remote.css), which CLAUDE.md says not to touch.
@@ -23,11 +26,16 @@ WEBSITE = [ROOT / "hosted/src/app" / f for f in ("globals.css", "design.css", "a
 TYPE_SCALE = (12, 13, 14, 15, 16, 18, 20, 24, 30)
 WEIGHTS = (400, 500, 600, 700, 800)
 RADII = (4, 8, 12, 16, 20, 999)
-IMPORTANT_BASELINE = {"desktop": 42, "website": 7}
+IMPORTANT_BASELINE = {"desktop": 16, "website": 7}
 
 SIZE = re.compile(r"font-size:\s*(\d+(?:\.\d+)?)px")
 WEIGHT = re.compile(r"font-weight:\s*(\d{3})\b")
 RADIUS = re.compile(r"border-radius:\s*(\d+(?:\.\d+)?)px(?=\s*[;}!])")
+RADIUS_DECL = re.compile(r"border-radius:([^;}]*)")
+COLOUR = re.compile(r"#[0-9a-fA-F]{3,8}\b|rgba?\(\s*\d")
+DEFINITION = re.compile(r"--[\w-]+\s*:[^;}]*")
+BLACK_SHADOW = re.compile(r"box-shadow:[^;}]*rgba\(var\(--rgb-gray-0\)")
+COLOUR_FREE = {"teleprompter.css"}
 # one drop shadow written out by hand: "0 12px 30px rgba(0,0,0,.35)" (rings and insets are not elevations)
 DROP = re.compile(r"box-shadow:\s*0\s+(\d+)px\s+(\d+)px\s+rgba\(\s*0\s*,\s*0\s*,\s*0\s*,\s*[.\d]+\)\s*(?=[;}])")
 
@@ -70,6 +78,15 @@ def problems(path):
                 found.append(f"{path.relative_to(ROOT)}:{n}: border-radius {m.group(1)}px (use {RADII})")
         if DROP.search(line):
             found.append(f"{path.relative_to(ROOT)}:{n}: a hand-written drop shadow (use var(--el-1..4))")
+        for m in RADIUS_DECL.finditer(line):
+            for v in re.findall(r"(\d+(?:\.\d+)?)px", m.group(1)):
+                if float(v) not in RADII and float(v) != 0:
+                    found.append(f"{path.relative_to(ROOT)}:{n}: border-radius {v}px (use {RADII})")
+        if path in DESKTOP and path.name not in COLOUR_FREE:
+            if COLOUR.search(DEFINITION.sub("", line)):
+                found.append(f"{path.relative_to(ROOT)}:{n}: a colour written out (use a token; tools/css_palette.py)")
+            if BLACK_SHADOW.search(DEFINITION.sub("", line)):
+                found.append(f"{path.relative_to(ROOT)}:{n}: a hand-written drop shadow (use var(--el-1..4))")
     return found
 
 

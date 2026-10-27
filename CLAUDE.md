@@ -23,8 +23,8 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
   26 October, "Complete all pending"): sentence-case headings and labels in Source Sans 3 (serif only for scripture),
   Lucide icons in the Settings menu and Teleprompter, one email composer on Members → Email with an Import / Export
   menu, Frame actions Duplicate + More…, a compact Settings → About, help text under checkboxes, and every CSS value
-  on the scale in `docs/design-system.md` (`tools/css_tokens.py`, `tests/visual/layout.mjs`). Follow that document for
-  any new screen.
+  on the scale in `docs/design-system.md` (`tools/css_tokens.py`, `tests/visual/layout.mjs`, `tests/visual/a11y.mjs`).
+  Colours live only in `app/css/palette.css` (`tools/css_palette.py`). Follow that document for any new screen.
   Nothing else visible may change.
 - The codebase is the source of truth; verify docs against it.
 - Do not touch the legacy LAN remote or let the hosted app call the local HTTP server.

@@ -62,10 +62,10 @@ jobs:
         with:
           node-version: 22
 
-      - name: Install the browser (Playwright 1.56.1, Chromium only)
+      - name: Install the browser (Playwright 1.56.1, Chromium only) and axe-core 4.10.3
         working-directory: tests/visual
         run: |
-          npm install --no-save --no-package-lock playwright@1.56.1
+          npm install --no-save --no-package-lock playwright@1.56.1 axe-core@4.10.3
           npx playwright install --with-deps chromium
 
       - name: Start the program
@@ -75,6 +75,9 @@ jobs:
 
       - name: Visual checks
         run: node tests/visual/layout.mjs
+
+      - name: Accessibility scan (axe, WCAG 2.1 AA, both themes)
+        run: node tests/visual/a11y.mjs
 
       - name: Program log (on failure)
         if: failure()

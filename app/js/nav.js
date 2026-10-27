@@ -81,7 +81,7 @@ show(document.body.dataset.tab || 'studio');
     if (!seg) return;
     Array.prototype.forEach.call(seg.querySelectorAll('[data-theme-pick]'), function(b){
       var on = b.dataset.themePick === (d.dataset.themePref || 'dark');
-      b.setAttribute('aria-pressed', String(on)); b.setAttribute('aria-checked', String(on));
+      b.setAttribute('aria-checked', String(on));
     });
   }
   if (mq){ var follow = function(){ if (d.dataset.themePref === 'system') d.dataset.theme = resolve('system'); };

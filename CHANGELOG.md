@@ -64,6 +64,11 @@ Full notes: [docs/releases/v6.11.1.md](docs/releases/v6.11.1.md)
   Overview, light theme, Source Sans 3; program sentence-case labels in Source Sans 3, Lucide icons, one email composer,
   Import / Export menu, Frame actions More…, compact About, help text under checkboxes; one type scale, weights, radii
   and elevations (`tools/css_tokens.py`), visual layout checks in CI (`tests/visual/layout.mjs`), `docs/design-system.md`.
+- Steps to 90+ after the re-audit: every program colour in `app/css/palette.css` (`tools/css_palette.py`; the token
+  check fails on a colour anywhere else), radii and shadows on tokens (`--el-2-up`), `!important` 42 → 16; the keyboard
+  editor and About story built on first open (page 2,220 → 1,796 elements); an axe WCAG 2.1 AA scan in CI
+  (`tests/visual/a11y.mjs`, both themes) and its fixes: list rows, inspector links and Theme radios with the right ARIA,
+  light-theme green `#15803d`, faint `#5f6678`, undimmed light menu text, full-strength Esc hint.
 - Website (design audit ranks 5, 6, 7, 9, 10, 11): one date helper (`src/lib/when.ts`: "2 h ago", exact on hover);
   a bottom tab bar on phones; landing with real product screenshots and specific copy, mission and lockup once;
   destructive actions styled apart with named confirmations; labels at 12 px+ and `--text-3` #8793ad (4.5:1+);

@@ -14,6 +14,8 @@ window.KCh = h;
 
 /* ---------- Section navigation ---------- */
 var current = null;
+/* Sections built on their first visit, so the page carries less while they are hidden (design audit DD-25) */
+var buildOnce = {keys: function(){ if (window.KCShortcuts) window.KCShortcuts.mountEditor($('keys-body')); }};
 function showSection(id){
   if (!$('sec-' + id)) id = 'general';
   current = id;
@@ -21,6 +23,7 @@ function showSection(id){
   document.body.classList.toggle('s-about-open', id === 'about');
   Array.prototype.forEach.call(document.querySelectorAll('#s-nav button'), function(b){ b.setAttribute('aria-current', String(b.dataset.sec === id)); });
   try { localStorage.setItem(SEC_KEY, id); } catch(e){}
+  if (buildOnce[id]){ buildOnce[id](); delete buildOnce[id]; }
   if (id === 'diag') renderDiag();
   if (id === 'security') renderSecurity();
   if (id === 'recording' && window.KCLoadRecordings) window.KCLoadRecordings();
@@ -53,9 +56,6 @@ $('sn-find').addEventListener('keydown', function(e){
 });
 var saved = null; try { saved = localStorage.getItem(SEC_KEY); } catch(e){}
 showSection(saved || 'general');
-
-/* ---------- Keyboard shortcuts editor ---------- */
-if (window.KCShortcuts) window.KCShortcuts.mountEditor($('keys-body'));
 
 /* ---------- Nav status dots ---------- */
 function dot(id, cls){ var d = $(id); if (d) d.className = 'sn-dot ' + (cls || ''); }

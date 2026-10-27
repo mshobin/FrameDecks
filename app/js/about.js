@@ -164,15 +164,14 @@ function startSession(){
 function render(root, inDialog){
   root.innerHTML = '';
   root.classList.add('kc-about');
-  var story = [purpose(), why(), serves(), values(), impact(), scripture(), heart(), founder(), commitment(), join()];
-  if (inDialog) [hero()].concat(story, [footer()]).forEach(function(s){ root.appendChild(s); });
-  else {
-    // Settings > About is compact: the name, version and links; the story waits behind one click (design audit DD-21)
-    root.appendChild(hero()); root.appendChild(footer());
-    var more = h('details', {cls: 'kc-story'}, [h('summary', {cls: 'btn quiet', text: 'Read our story'})]);
-    story.forEach(function(s){ more.appendChild(s); });
-    root.appendChild(more);
-  }
+  // Both About views are compact: the name, version and links. The story waits behind one click and is only built
+  // when it is first opened, so the page carries less while it is closed (design audit DD-21, DD-25)
+  root.appendChild(hero()); root.appendChild(footer());
+  var more = h('details', {cls: 'kc-more', ontoggle: function(){
+    if (!more.open || more.querySelector('section, div')) return;
+    [purpose(), why(), serves(), values(), impact(), scripture(), heart(), founder(), commitment(), join()].forEach(function(s){ more.appendChild(s); });
+  }}, [h('summary', {cls: 'btn quiet', text: 'Read our story'})]);
+  root.appendChild(more);
   if (inDialog) root.appendChild(h('div', {cls: 'actions about-close'}, [h('button', {cls: 'btn', type: 'button', text: 'Close', onclick: function(){ $('about-dlg').close(); }})]));
 }
 

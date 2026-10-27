@@ -54,6 +54,11 @@ Phase detail lives in
 - **Design roadmap complete (26 October, owner-approved, ranks 8 and 12–21):** see `docs/design-system.md`. Hosted
   120/120, lint, typecheck, build, budget (JS 329 KB); Python OK incl. `test_css_tokens`; `tools/css_tokens.py` 0
   problems; `tests/visual/layout.mjs` 9/9. Website font is a 47 KB Latin subset in `hosted/public/fonts/`.
+- **Steps to 90+ after the re-audit (27 October):** all program colours in `app/css/palette.css` (`tools/css_palette.py`,
+  colour literals now fail `css_tokens.py`), radii/shadows on tokens, `!important` 42 → 16, keyboard editor and About
+  story built on first open (2,220 → 1,796 elements), axe WCAG 2.1 AA scan in CI (`tests/visual/a11y.mjs`, 0
+  violations in both themes) and its ARIA and light-theme contrast fixes. Not done: a real screen-reader pass and
+  a Windows check (owner); a landing quote or usage fact (owner supplies a real one).
 - **6.11.1 (26 October):** audit steps 1–2 built (pinned build, cross-site guard, error logging, plan recovery and
   sync guard, `0009`); owner publishes the release and runs `0009`.
 - **Website performance (26 October):** the website no longer animates when idle (older 8 GB PCs next to the program).

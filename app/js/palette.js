@@ -206,7 +206,7 @@ function draw(groups){
     if (g.label) list.appendChild(h('li', {cls: 'pal-group', role: 'presentation', text: g.label}));
     g.items.forEach(function(it){ list.appendChild(row(it, n++)); });
   });
-  if (!n) list.appendChild(h('li', {cls: 'pal-none', role: 'presentation', text: input.value.trim() ? 'Nothing found. Try fewer letters.' : 'Type to search.'}));
+  if (!n) list.appendChild(h('li', {cls: 'pal-none', role: 'option', 'aria-disabled': 'true', text: input.value.trim() ? 'Nothing found. Try fewer letters.' : 'Type to search.'}));
   mark();
 }
 function mark(){

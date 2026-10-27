@@ -359,7 +359,7 @@ function renderScenes(){
       var many = picked.frames.length > 1, inSel = many && picked.frames.indexOf(sc.id) >= 0;
       var nameEl = h('b', {cls: 'si-name', text: sc.name, title: 'Double-click to rename'});
       var li = h('li', {cls: 'scene-item' + (sc.id === selScene ? ' sel' : '') + (inSel ? ' picked' : '') + (isLive ? ' live' : '') + (isNext ? ' next' : '') + (sc.tpl ? ' tpl' : ''),
-        'data-id': sc.id, tabindex: '0', draggable: 'true', role: 'option', 'aria-selected': String(sc.id === selScene || inSel)}, [
+        'data-id': sc.id, tabindex: '0', draggable: 'true', 'aria-current': String(sc.id === selScene || inSel)}, [
         h('span', {cls: 'si-num', text: sc.tpl ? '◇' : String(n)}),
         h('span', {cls: 'si-t'}, [nameEl, h('small', {text: sceneSub(sc)})]),
         isLive ? h('span', {cls: 'si-badge live', text: 'LIVE'}) : isNext ? h('span', {cls: 'si-badge next', text: 'NEXT'}) : null,
@@ -706,7 +706,7 @@ function renderLayers(){
       save: function(v){ if (v) return editLayer(sc.id, l.id, function(x){ x.name = v.slice(0, 60); }); }});
     var lInSel = picked.layers.length > 1 && picked.layers.indexOf(l.id) >= 0;
     var li = h('li', {cls: 'layer-item k-' + l.kind + (l.id === selLayer ? ' sel' : '') + (lInSel ? ' picked' : '') + (on && isLiveScene(sc.id) ? ' on' : '') + (!l.visible ? ' off' : '') + (SC.isMedia(l.kind) ? ' media' : ''),
-      'data-id': l.id, tabindex: '0', draggable: 'true', role: 'option', 'aria-selected': String(l.id === selLayer || lInSel)}, [
+      'data-id': l.id, tabindex: '0', draggable: 'true', 'aria-current': String(l.id === selLayer || lInSel)}, [
       h('span', {cls: 'li-n', text: String(i + 1), title: 'Content ' + (i + 1)}), h('span', {cls: 'li-ic', html: I(SC.info[l.kind].icon, 16)}),
       h('span', {cls: 'li-t'}, [name, h('small', {text: (st.error ? '⚠ ' + st.error : layerSub(sc, l))})]),
       on && isLiveScene(sc.id) ? h('span', {cls: 'si-badge live', text: 'LIVE'}) : null, lock, eye]);
@@ -873,7 +873,7 @@ function headFor(groups, key){ var g = groups.filter(function(t){ return t[0] ==
 function jumpTo(key){
   var el = document.querySelector('#insp-body [data-grp="' + key + '"]'); if (!el) return;
   el.scrollIntoView({block: 'start', behavior: 'smooth'});
-  Array.prototype.forEach.call(document.querySelectorAll('#insp-tabs button'), function(b){ b.setAttribute('aria-selected', String(b.dataset.itab === key)); });
+  Array.prototype.forEach.call(document.querySelectorAll('#insp-tabs button'), function(b){ b.setAttribute('aria-current', String(b.dataset.itab === key)); });
 }
 var genAtEnd = false;
 function renderInspector(){
@@ -895,7 +895,7 @@ function renderInspector(){
     curTabs = tsig;
     var nav = $('insp-tabs'); nav.innerHTML = ''; nav.setAttribute('aria-label', 'Jump to a group');
     var top = groups.filter(function(t){ return !t[2] && !(t[0] === 'label' && kind === 'birthday'); });
-    top.forEach(function(t, i){ nav.appendChild(h('button', {type: 'button', 'data-itab': t[0], 'aria-selected': String(i === 0), text: t[1], onclick: function(){ jumpTo(t[0]); }})); });
+    top.forEach(function(t, i){ nav.appendChild(h('button', {type: 'button', 'data-itab': t[0], 'aria-current': String(i === 0), text: t[1], onclick: function(){ jumpTo(t[0]); }})); });
     nav.hidden = !!editQ || top.length < 2;
   }
   // the editors for Question / Scripture / Birthday (all their groups at once); generated groups for the rest

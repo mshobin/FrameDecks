@@ -19,6 +19,23 @@ class CssTokens(unittest.TestCase):
         self.assertIn("--el-3:var(--shadow-pop)", theme)
         self.assertIn("--el-4:var(--shadow-modal)", theme)
 
+    def test_every_colour_is_already_in_the_palette(self):
+        # rerunning tools/css_palette.py would change nothing: no file holds a colour that is not yet a palette token
+        sys.path.insert(0, str(ROOT / "tools"))
+        import css_palette
+        pal = css_palette.Palette()
+        known = (len(pal.solid), len(pal.channels))
+        for name in css_palette.FILES:
+            text = (css_palette.CSS / name).read_text(encoding="utf-8")
+            self.assertEqual(css_palette.convert(text, pal), text, name)
+        self.assertEqual((len(pal.solid), len(pal.channels)), known)
+
+    def test_every_page_loads_the_palette_first(self):
+        for page in ("dashboard.html", "speaker.html", "prompter.html", "spotlight.html"):
+            html = (ROOT / "app" / page).read_text(encoding="utf-8")
+            first = html.index('rel="stylesheet"')
+            self.assertIn('href="css/palette.css"', html[first:first + 60], page)
+
 
 if __name__ == "__main__":
     unittest.main()

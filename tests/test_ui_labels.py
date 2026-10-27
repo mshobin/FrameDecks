@@ -89,3 +89,25 @@ class DesignSystem(unittest.TestCase):
         js = read("js/workspace.js")
         self.assertNotIn("checkCtl('Template (", js)
         self.assertNotIn("text: 'L' + (i + 1)", js)
+
+
+class LighterPageAndAria(unittest.TestCase):
+    """Steps to 90+: hidden sections built on first visit (DD-25) and the axe scan's fixes (tests/visual/a11y.mjs)."""
+
+    def test_keyboard_editor_and_about_story_are_built_when_first_opened(self):
+        js = read("js/settings.js")
+        self.assertIn("var buildOnce = {keys:", js)
+        self.assertEqual(js.count("mountEditor("), 1)
+        about = read("js/about.js")
+        self.assertIn("h('details', {cls: 'kc-more', ontoggle:", about)
+        self.assertNotIn("if (inDialog) [hero()].concat(story", about)      # the dialog is short too
+
+    def test_frame_and_content_rows_are_list_items_not_options(self):
+        js = read("js/workspace.js")
+        self.assertNotIn("draggable: 'true', role: 'option'", js)
+        self.assertIn("'aria-current': String(sc.id === selScene || inSel)", js)
+
+    def test_inspector_jump_links_and_theme_radios_use_the_right_states(self):
+        self.assertNotIn('id="insp-tabs" role="tablist"', read("dashboard.html"))
+        self.assertNotIn("'data-itab': t[0], 'aria-selected'", read("js/workspace.js"))
+        self.assertNotIn("b.setAttribute('aria-pressed', String(on)); b.setAttribute('aria-checked'", read("js/nav.js"))

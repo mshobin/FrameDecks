@@ -34,6 +34,11 @@ FRAMEDECKS is for church leaders and volunteers, not engineers. Write for the pe
   (gold), `--live` (green), `--red`, `--warn` in `app/css/theme.css`, for dark and light. Website: `--text`, `--text-2`,
   `--text-3`, `--surface`, `--hairline`, `--gold`, `--green`, `--red`, `--focus` in `hosted/src/app/globals.css`, with the
   light values in `light.css`.
+- **One palette file.** Every colour the program writes out lives in `app/css/palette.css`, named by hue and lightness
+  (`--blue-150`, `--gold-650`; 0 is black, 1000 is white). Translucent colours take their channels from `--rgb-*`:
+  `rgba(var(--rgb-gold-650),.14)`. `python tools/css_palette.py` moves any new colour there (safe to rerun);
+  `tools/css_tokens.py` fails on a colour literal anywhere else outside a token definition. The legacy LAN remote's
+  `teleprompter.css` is the one exception (it does not load the palette).
 - **Contrast:** body text and the faintest text are at least 4.5:1 on every surface, in both themes
   (`hosted/tests/design-audit.test.mjs` measures it).
 - **Gold is for two things only:** the main action on a screen (Go Live, Next, Save, Plan the meeting) and what is
@@ -47,7 +52,8 @@ FRAMEDECKS is for church leaders and volunteers, not engineers. Write for the pe
 
 - **Corner radii (px):** 4, 8, 12, 16, 20 and the pill (999).
 - **Elevations:** `--el-1` (hairline lift), `--el-2` (cards and menus), `--el-3` (`--shadow-pop`, pop-overs), `--el-4`
-  (`--shadow-modal`, dialogs). Focus and selection rings are not elevations.
+  (`--shadow-modal`, dialogs), and `--el-2-up` for bars docked to the bottom edge. Focus and selection rings are not
+  elevations. Mixed corners use the same scale (`8px 8px 0 0`).
 - **Spacing helpers in scripts:** `.u-mt-4`, `.u-mt-8`, `.u-mt-12`, `.u-mb-8`, `.u-ml-8`, `.u-m0`, `.u-pad-20`, `.u-grow`,
   `.u-inline-m0`. Inline styles in the scripts are only for values worked out at runtime (positions, chosen colours).
 
@@ -93,14 +99,20 @@ first run says **Welcome to FRAMEDECKS** with **Start fresh** as the main choice
 - A **Skip to content** link and one `<main>` on every website page.
 - Status never by colour alone ("Ready", "Off air", "Online", "On screen").
 - Icon-only buttons have a name and a tooltip.
+- **No axe violations** (WCAG 2.1 A and AA) on any program screen, in either theme: `tests/visual/a11y.mjs`. Rows with
+  their own buttons inside are list items (`aria-current` for the selected one), not `option`s; jump links are not tabs.
+  An automatic scan finds about half of the problems; a pass with NVDA or Narrator is still worth doing before a release.
+- **Build hidden sections on first open** where they are made by a script (`buildOnce` in `settings.js`, the About
+  story's `toggle`), so the page stays light.
 
 ## Checks and baselines
 
 | Check | Where | What fails it |
 | --- | --- | --- |
-| `python tools/css_tokens.py` | Desktop checks (CI), `tests/test_css_tokens.py` | a font size, weight or radius off the scale; a hand-written drop shadow; more `!important` than the baseline |
+| `python tools/css_tokens.py` | Desktop checks (CI), `tests/test_css_tokens.py` | a font size, weight or radius off the scale; a hand-written drop shadow; a colour outside the palette; more `!important` than the baseline (program 16, website 7) |
 | `node tests/visual/layout.mjs` | Desktop checks → visual (CI) | the command bar cut short or scrolling at 1100–1920 px; anything over the Studio canvas; first run not focusing Start fresh; Teleprompter empty state without its action; the Settings menu out of line; serif headings |
 | `hosted/tests/design-audit.test.mjs` | Hosted companion checks (CI) | missing skip link or `<main>`; "Loading…" text instead of the state kit; text under 12 px or under 4.5:1; links in gold; the light theme not applied before paint |
+| `node tests/visual/a11y.mjs` | Desktop checks → visual (CI) | any axe WCAG 2.1 AA violation on any tab, Settings section, the first-run question, or the Speaker, Teleprompter and Spotlight windows, in dark and light |
 | `tests/test_ui_labels.py`, `tests/test_camera_name.py` | Python tests | the program's labels, first run and camera name |
 
 **Reference screens** are in `docs/design/baselines/` (from `node tests/visual/layout.mjs --shots`, saved as WebP). When a
