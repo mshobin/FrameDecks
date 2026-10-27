@@ -113,7 +113,7 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
   groups, M-D6: `hosted/src/lib/member-edit.ts`, `hosted/src/components/members-panel.tsx`) and linking PCs; `hosted/src/components/app-shell.tsx` is the shared sidebar and top bar.
 
 ## Working locally (VS Code on Windows)
-- **Branch.** Work from `main` (6.11.1 is ready on it, 27 October: push tag `v6.11.1` to publish) on a new branch per change. Never
+- **Branch.** Work from `main` (6.11.1 was published on 27 October) on a new branch per change. Never
   force-push or rewrite pushed history. The repository is `mshobin/FRAMEDECKS`.
 - **Set up once (PowerShell, at the repo root):**
   - `python -m venv .venv`
@@ -188,6 +188,9 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
 - `hosted/AGENTS.md`: this Next.js version has breaking changes; read `hosted/node_modules/next/dist/docs/` before writing hosted code.
 - The emblem `app/img/kc-emblem.webp` and `hosted/public/framedecks-emblem.webp` must stay identical. Regenerate all emblem/icon files with `tools/make_emblem_assets.py` (master: `assets/brand/framedecks-emblem.svg`).
 - The repo auto-commits as "Update project files and documentation"; check `git status` before committing.
+- The README header and the GitHub release body both embed `assets/brand/kc-about-header.webp`; after regenerating it,
+  commit and publish the new image, then refresh the existing release body's image link to that commit (the release tag
+  is immutable and still points at its original image).
 - Browser code must name each `NEXT_PUBLIC_` variable in full (`publicSupabaseEnv()`), or Next.js does not inline it.
 - Supabase (from 30 October 2026) gives new tables no API access: every migration that creates a table must `grant`
   the operations its RLS policies allow to `authenticated` (never `anon`). `tests/pglite-supabase.mjs` grants nothing
