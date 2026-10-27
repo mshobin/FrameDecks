@@ -30,7 +30,8 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
   under it), Advanced (Transitions, Keyboard shortcuts, Security, Diagnostics), FRAMECAST presets with Fine-tune,
   Members → People (List / Table), labelled main tabs, worded Previous / Next, Hide all red only while something is on
   screen, one status pill, grouped Live tools (one Teleprompter entry, Esc closes), "Black screen" for Blackout, the
-  four-step first-service card, and the words in `docs/glossary.md`. Nothing else visible may change.
+  four-step first-service card, and the words in `docs/glossary.md`. And the 10/10 plan (owner's request, 27 October): Run's larger Up next with key
+  hints and the Practice reminder at service time (`app/js/service.js`, end of `app/css/theme.css`). Nothing else visible may change.
 - The codebase is the source of truth; verify docs against it.
 - Do not touch the legacy LAN remote or let the hosted app call the local HTTP server.
 - Never commit secrets. `.env*` is ignored except `hosted/.env.example`. Never the Supabase `service_role` key; the
@@ -92,6 +93,10 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
   properties, `backdrop-filter` only on the sticky top bars. The About screen (`about-dialog.tsx`,
   `about.css`, the (i) button) shows `src/lib/brand.json`, written from the program's `app/js/brand.js` and
   `server.py` version by `scripts/write-brand.mjs` on every build (`tests/brand.test.mjs` fails if it is stale).
+- Website places (27 October): Home `/` (`overview.tsx`), Plan `/plan` (also `/meeting`, `/services`; `plan-page.tsx`),
+  Live, People `/members`; Settings: Branding, Service PCs `/computers`, Help `/help`; Your account `/account`. The
+  look on top of `design.css` is `hosted/src/app/identity.css` (no glows, `.fd-framed` corners, EB Garamond for
+  scripture); it wins over the glass and motion notes above.
 - `hosted/src/app/meeting` — 6.11 the Meeting Form: the Excel form's sections on the live plan (`hosted/src/lib/meeting-form.ts`),
   plus the meeting's Transition style (the synced `layout/profile` record).
 - `hosted/src/app/branding` — the program's Meeting & Branding settings (the synced `brand` record; the logo stays on the PC).
@@ -141,7 +146,7 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
 - Before and after every change, all of these must pass (the cloud session's last results are in brackets):
 - Desktop JS tests: `node tests/run.js` [4/4]; Python: `python -m unittest discover -s tests -p "test_*.py"` [139 OK];
   packaging: `python packaging/check.py` [6.11.1].
-- Hosted (run inside `hosted/`, there is no root package.json): `npm test` [110/110], `npm run lint`, `npm run typecheck`, `npm run build`.
+- Hosted (run inside `hosted/`, there is no root package.json): `npm test` [122/122], `npm run lint`, `npm run typecheck`, `npm run build`.
   `npm test` applies every migration to in-memory Postgres (PGlite) and loads `src/lib/sync-entities.ts` with Node's
   type stripping.
 - Sync fixtures: `python tools/make_sync_fixtures.py` rebuilds `tests/fixtures/sync/` (needs Node) after changing

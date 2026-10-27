@@ -12,7 +12,42 @@ const providerLabels: Record<SignInProvider, string> = {
 
 type Status = { kind: "idle" | "sending" | "sent" } | { kind: "error"; message: string };
 
-export function SignInForm() {
+/** Sign in, or start (owner-approved, 27 October): a first visit is greeted as new, not "welcome back". The same
+ * emailed link or Google / Microsoft account does both; Home then walks a new person through three steps. */
+export function SignInChooser() {
+  const [mode, setMode] = useState<"in" | "new">("in");
+  useEffect(() => {
+    // The address is only known in the browser (static export), so the choice is read after the first render.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (window.location.hash === "#new" || new URLSearchParams(window.location.search).has("new")) setMode("new");
+  }, []);
+  return (
+    <>
+      <div className="auth-modes" role="tablist" aria-label="Sign in or start">
+        <button type="button" role="tab" aria-selected={mode === "in"} onClick={() => setMode("in")}>
+          Sign in
+        </button>
+        <button type="button" role="tab" aria-selected={mode === "new"} onClick={() => setMode("new")}>
+          New here?
+        </button>
+      </div>
+      {mode === "in" ? (
+        <>
+          <h1 className="fd-auth-title">Welcome back.</h1>
+          <p className="auth-lede">Use the same email or account as last time.</p>
+        </>
+      ) : (
+        <>
+          <h1 className="fd-auth-title">Start your church&apos;s space.</h1>
+          <p className="auth-lede">Free. No password: use Google or Microsoft, or we email you a link. Next, three short steps.</p>
+        </>
+      )}
+      <SignInForm starting={mode === "new"} />
+    </>
+  );
+}
+
+export function SignInForm({ starting = false }: Readonly<{ starting?: boolean }>) {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<Status>({ kind: "idle" });
   const [providers, setProviders] = useState<SignInProvider[]>([]);
@@ -58,9 +93,15 @@ export function SignInForm() {
 
   if (status.kind === "sent") {
     return (
-      <p className="auth-message" role="status">
-        Check your email. We sent a sign-in link to <strong>{email.trim()}</strong>. Open it on this device.
-      </p>
+      <div className="auth-message" role="status">
+        <p>
+          Check your inbox. We sent a link to <strong>{email.trim()}</strong>. Open it on this device; it works for one
+          hour. Nothing there? Look in Spam or Promotions.
+        </p>
+        <button type="button" className="fd-link" onClick={() => setStatus({ kind: "idle" })}>
+          Use a different email
+        </button>
+      </div>
     );
   }
 
@@ -80,6 +121,7 @@ export function SignInForm() {
       )}
       <form className="auth-form" onSubmit={sendLink}>
         <label htmlFor="email">Email address</label>
+        <span className="auth-hint">No password to remember: the link signs you in.</span>
         <input
           id="email"
           type="email"
@@ -90,7 +132,7 @@ export function SignInForm() {
           placeholder="you@church.org"
         />
         <Button className="auth-primary" disabled={status.kind === "sending"} type="submit">
-          {status.kind === "sending" ? "Sending…" : "Email me a sign-in link"}
+          {status.kind === "sending" ? "Sending…" : starting ? "Email me a link to start" : "Email me a sign-in link"}
         </Button>
       </form>
       {status.kind === "error" && (

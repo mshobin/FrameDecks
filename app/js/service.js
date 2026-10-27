@@ -43,8 +43,19 @@ var practiceBox = h('label', {cls: 'rn-practice check'});
 var practiceCb = h('input', {type: 'checkbox', id: 'practice-mode'});
 practiceBox.appendChild(practiceCb);
 practiceBox.appendChild(h('span', {}, [h('b', {text: 'Practice mode'}), h('small', {text: 'Your audience sees a black screen while you practise. This window still shows everything.'})]));
+// the keys a volunteer needs, read from Settings → Keyboard shortcuts so a changed key shows here too
+var keysBox = h('p', {cls: 'rn-keys'});
+function renderKeys(){
+  var S = window.KCShortcuts; if (!S) return;
+  keysBox.innerHTML = '';
+  [['nextScene', 'Next'], ['prevScene', 'Previous'], ['takeLive', 'Go Live'], ['hideAll', 'Hide all']].forEach(function(k){
+    keysBox.appendChild(h('span', {}, [h('kbd', {cls: 'key', text: S.label(k[0])}), ' ' + k[1]]));
+  });
+}
+if (window.KCShortcuts && window.KCShortcuts.onChange) window.KCShortcuts.onChange(renderKeys);
+renderKeys();
 var panel = h('section', {cls: 'run-next', id: 'run-next', 'aria-labelledby': 'run-next-title'}, [
-  h('h2', {id: 'run-next-title', text: 'Up next'}), frameBox, nextName, nextHow, checkBox, practiceBox]);
+  h('h2', {id: 'run-next-title', text: 'Up next'}), frameBox, nextName, nextHow, keysBox, checkBox, practiceBox]);
 if (ws) ws.appendChild(panel);
 function scaleNext(){ if (frameBox.clientWidth) frame.style.transform = 'scale(' + (frameBox.clientWidth / 1920) + ')'; }
 if (window.ResizeObserver) new ResizeObserver(scaleNext).observe(frameBox);
@@ -140,9 +151,10 @@ document.addEventListener('keydown', function(e){
 }, true);
 
 /* ---------- Practice ---------- */
+var bannerText = h('span', {text: 'Practice: your audience sees a black screen. Stop practising before the service starts.'});
 var banner = h('div', {cls: 'practice-banner', role: 'status', hidden: 'hidden'}, [
   h('span', {html: I('graduation-cap', 16)}),
-  h('span', {text: 'Practice: your audience sees a black screen. Stop practising before the service starts.'}),
+  bannerText,
   h('button', {cls: 'btn small', type: 'button', text: 'Stop practising', onclick: function(){ setPractice(false); }})]);
 document.body.appendChild(banner);
 function blackOn(){ var b = $('lb-blackout'); return !!b && b.getAttribute('aria-pressed') === 'true'; }
@@ -154,6 +166,7 @@ function setPractice(on, quiet){
   document.body.classList.toggle('practice-on', on);
   lsSet(PRACTICE_KEY, on ? 'set' : '');
   practiceCb.checked = on; banner.hidden = !on;
+  if (!on){ banner.classList.remove('due'); bannerText.textContent = 'Practice: your audience sees a black screen. Stop practising before the service starts.'; }
   if (!quiet) toast(on ? 'Practice on: the audience sees a black screen' : 'Practice off: the audience sees the screen again');
   if (W()) W().redraw();
 }
@@ -189,8 +202,26 @@ if (Store) Store.subscribe(function(st){
   if (document.body.classList.contains('practice-on') && st.live && !st.live.blackout){ setPractice(false, true); toast('Practice ended: the audience can see the screen'); }
   refreshNext(); refreshChecks();
 });
+/* The meeting's own date and time (Meeting details): at service time, Practice says so plainly, once */
+var remindedFor = '';
+function serviceStarted(){
+  var m = live && live.meeting; if (!m || !m.time) return '';
+  var t = String(m.time).match(/(\d{1,2})[:.](\d{2})\s*(am|pm)?/i); if (!t) return '';
+  var hh = +t[1] % 12 + (t[3] && /pm/i.test(t[3]) ? 12 : 0) + (!t[3] && +t[1] === 12 ? 12 : 0), now = new Date();
+  var today = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
+  if (m.date && String(m.date).slice(0, 10) !== today) return '';
+  return now.getHours() * 60 + now.getMinutes() >= hh * 60 + +t[2] ? m.time : '';
+}
+function remindPractice(){
+  if (!document.body.classList.contains('practice-on')) return;
+  var at = serviceStarted(); if (!at) return;
+  bannerText.textContent = 'It is service time (' + at + '). Still practising? Your audience sees a black screen.';
+  banner.classList.add('due');
+  if (remindedFor !== at){ remindedFor = at; toast('Service time: stop practising so your audience can see the screen', true); }
+}
 setInterval(function(){
   if (document.hidden) return;
+  remindPractice();
   if (isRun() && document.body.dataset.tab === 'studio') refreshChecks();
   var o = $('sec-output'); if (o && !o.hidden && document.body.dataset.tab === 'settings') renderOutput();
 }, 3000);

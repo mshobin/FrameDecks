@@ -1,24 +1,19 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, ClipboardList, MonitorPlay, Radio } from "lucide-react";
+import { useEffect, useState, type FormEvent } from "react";
+import { ArrowRight, Download } from "lucide-react";
 
 import { AppShell } from "@/components/app-shell";
 import { BrandMark } from "@/components/brand-hero";
-import { GlanceTiles } from "@/components/glance";
+import { NextService } from "@/components/glance";
 import { Landing } from "@/components/landing";
 import { PcSetupCard } from "@/components/pc-setup-card";
-import { Words } from "@/components/words";
-import { Workflow } from "@/components/workflow";
-import { WorkspacePanel } from "@/components/workspace-panel";
-import { OPEN_LINK } from "@/lib/pc-setup";
+import { PageSkeleton } from "@/components/states";
+import { DOWNLOADS } from "@/lib/pc-setup";
 import { browserSupabase } from "@/lib/supabase-browser";
 import { useSession } from "@/lib/use-session";
 import { useWorkspaces } from "@/lib/use-workspaces";
-
-function greeting(hour: number): string {
-  return hour < 5 ? "Good evening" : hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
-}
 
 /** The companion's front page: a landing page before sign-in, the workspace dashboard after. */
 export function Overview() {
@@ -36,70 +31,132 @@ export function Overview() {
 }
 
 function Dashboard({ name }: Readonly<{ name: string }>) {
-  const { selected } = useWorkspaces();
+  const { workspaces, selected } = useWorkspaces();
   return (
-    <AppShell active="overview">
-      <section className="fd-welcome fd-enter-card" aria-labelledby="fd-welcome-title" data-spotlight>
-        <div className="fd-welcome-copy">
-          <p className="fd-kicker">
-            {greeting(new Date().getHours())}
-            {name ? `, ${name}` : ""}
-            {selected ? ` · ${selected.name}` : ""}
-          </p>
-          <h1 id="fd-welcome-title" className="fd-welcome-title">
-            <Words text="Ready for your next gathering." />
-          </h1>
-          <p className="fd-welcome-text fd-enter" style={{ "--d": "600ms" } as React.CSSProperties}>
-            Plan the meeting, then run it from the service PC or your phone.
-          </p>
-          <div className="fd-hero-actions fd-enter" style={{ "--d": "750ms" } as React.CSSProperties}>
-            <Link className="fd-btn fd-btn-primary" href="/meeting">
-              <ClipboardList aria-hidden="true" size={17} /> Plan the meeting
-            </Link>
-            <Link className="fd-btn fd-btn-glass" href="/live">
-              <Radio aria-hidden="true" size={17} /> Go live
-            </Link>
-            <a className="fd-btn fd-btn-ghost" href={OPEN_LINK}>
-              <MonitorPlay aria-hidden="true" size={17} /> Open FRAMEDECKS on this PC
-            </a>
-          </div>
-        </div>
-      </section>
-
-      {selected && <GlanceTiles workspace={selected} />}
-
-      <PcSetupCard />
-
-      {/* Task first (design audit DD-24): How it works only until there is a workspace to work in */}
-      {!selected && (
-        <section className="fd-block" aria-labelledby="fd-how-title" data-reveal>
-          <div className="fd-block-head">
-            <div>
-              <p className="fd-kicker">How it works</p>
-              <h2 id="fd-how-title">From the plan to the screen.</h2>
-            </div>
-            <Link className="fd-link" href="/meeting">
-              Start planning <ArrowRight aria-hidden="true" size={15} />
-            </Link>
-          </div>
-          <Workflow />
-        </section>
+    <AppShell active="home">
+      {workspaces === null ? (
+        <PageSkeleton />
+      ) : selected ? (
+        <>
+          <Invitations />
+          <NextService workspace={selected} name={name} />
+          <PcSetupCard />
+        </>
+      ) : (
+        <FirstSteps name={name} />
       )}
-
-      <section className="fd-block" aria-labelledby="fd-account-title" data-reveal>
-        <div className="fd-block-head">
-          <div>
-            <p className="fd-kicker">Your account</p>
-            <h2 id="fd-account-title">Profile and workspaces.</h2>
-          </div>
-        </div>
-        <WorkspacePanel />
-      </section>
-
       <p className="fd-assurance">
         Your presentation stays on your service PC: pictures, video, the camera and what is on screen never come to this
         website. <Link href="/privacy">Privacy policy</Link>
       </p>
     </AppShell>
+  );
+}
+
+/** A small line when someone has invited you to their church (you accept on Your account). */
+function Invitations() {
+  const supabase = browserSupabase();
+  const [count, setCount] = useState(0);
+  useEffect(() => {
+    if (!supabase) return;
+    let live = true;
+    supabase.rpc("my_invitations").then(({ data, error }) => {
+      if (live && !error) setCount(((data as unknown[] | null) ?? []).length);
+    });
+    return () => {
+      live = false;
+    };
+  }, [supabase]);
+  if (!count) return null;
+  return (
+    <p className="workspace-notice" role="status">
+      You have {count === 1 ? "an invitation" : `${count} invitations`} to join a church.{" "}
+      <Link href="/account">Accept it on Your account</Link>
+    </p>
+  );
+}
+
+/** The first visit (owner-approved, 27 October): three steps, in order, each saying what it is for. */
+function FirstSteps({ name }: Readonly<{ name: string }>) {
+  const supabase = browserSupabase();
+  const session = useSession();
+  const [church, setChurch] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [problem, setProblem] = useState<string | null>(null);
+
+  async function create(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const title = church.trim();
+    if (!supabase || !session || !title) return;
+    setBusy(true);
+    setProblem(null);
+    // The database makes the creator the owner (trigger), so the client never picks a role.
+    const { error } = await supabase.from("organizations").insert({ name: title, created_by: session.user.id });
+    setBusy(false);
+    if (error) setProblem(error.message);
+    else window.location.reload();
+  }
+
+  return (
+    <section className="fd-first" aria-labelledby="fd-first-title">
+      <p className="fd-kicker">Welcome{name ? `, ${name}` : ""}</p>
+      <h1 id="fd-first-title" className="fd-next-title">
+        Let&apos;s get your church ready for Sunday.
+      </h1>
+      <p className="fd-next-when">Three steps, about ten minutes. You can stop after any of them.</p>
+      <Invitations />
+      <ol className="fd-steps">
+        <li className="fd-step">
+          <span className="fd-step-n" aria-hidden="true">
+            1
+          </span>
+          <div>
+            <h2>Name your church or group</h2>
+            <p>Your plans and your people are kept under this name. You can invite others later.</p>
+            <form className="workspace-row" onSubmit={create}>
+              <label className="sr-only" htmlFor="first-church">
+                Church or group name
+              </label>
+              <input id="first-church" maxLength={120} required value={church} onChange={(e) => setChurch(e.target.value)} placeholder="e.g. Grace Church" />
+              <button className="fd-btn fd-btn-primary" type="submit" disabled={busy || !church.trim()}>
+                {busy ? "Adding…" : "Add"}
+              </button>
+            </form>
+            {problem && (
+              <p className="workspace-problem" role="alert">
+                {problem}
+              </p>
+            )}
+          </div>
+        </li>
+        <li className="fd-step">
+          <span className="fd-step-n" aria-hidden="true">
+            2
+          </span>
+          <div>
+            <h2>Install FRAMEDECKS on the service PC</h2>
+            <p>The Windows PC that drives your screen or your Zoom. It is free; the meeting always runs from there.</p>
+            <a className="fd-btn fd-btn-ghost" href={DOWNLOADS} target="_blank" rel="noreferrer">
+              <Download aria-hidden="true" size={17} /> Download for Windows
+            </a>
+          </div>
+        </li>
+        <li className="fd-step">
+          <span className="fd-step-n" aria-hidden="true">
+            3
+          </span>
+          <div>
+            <h2>Link that PC</h2>
+            <p>
+              In FRAMEDECKS: Settings → FRAMEDECKS account shows a short code. Type it under Service PCs here; your plan then
+              reaches the PC within a minute.
+            </p>
+            <Link className="fd-link" href="/computers">
+              Service PCs <ArrowRight aria-hidden="true" size={15} />
+            </Link>
+          </div>
+        </li>
+      </ol>
+    </section>
   );
 }

@@ -38,12 +38,12 @@ before: go on to the next one. Any other error: stop and send it.
 ## 3. Test A: sync
 
 1. In FRAMEDECKS: **Settings → FRAMEDECKS account → Link to a workspace**. A code like `K7PM 2XQ9` appears.
-2. On any device, open `https://framedecks.pages.dev`, sign in, go to **Computers**, type the code, **Link**.
+2. On any device, open `https://framedecks.pages.dev`, sign in, go to **Settings → Service PCs**, type the code, **Link**.
 3. **Expect:** within a few seconds the PC shows "Linked to BSF Study"; this is also the first time Windows
    Credential Manager stores the PC's key.
-4. In the companion open **Running order** (it was called Services). **Expect:** your Frames in order, with their questions, scripture and scripts;
+4. In the companion open **Plan** → **History and restore** (it was the Running order). **Expect:** your Frames in order, with their questions, scripture and scripts;
    pictures and videos only by name.
-5. On the PC change a Frame's name. **Expect:** after reloading the Running order (within about a minute) the new name.
+5. On the PC change a Frame's name. **Expect:** after reloading Plan (within about a minute) the new name.
 6. Open **Members** in the companion. **Expect:** the member list from the PC (owners and admins only).
 
 ## 4. Test B: phone control
@@ -57,12 +57,12 @@ before: go on to the next one. Any other error: stop and send it.
 5. Try **Go Live** on a Frame in the list, **Black screen** (and again to turn it off), **Hide all**.
 6. On the PC, Settings → FRAMEDECKS account now lists these as the last actions.
 7. Untick the switch on the PC. **Expect:** within 45 seconds the phone shows **Not connected**; presses do nothing.
-8. Optional: on the companion's Overview → your workspace → **Members**, tick **Can run services** for a member and
+8. Optional: on the companion's **People**, tick **Can run services** for a member and
    ask them to open Live (without it they see "No PC to run here").
 
 ## 5. Test C: editing in the companion
 
-1. In the companion → **Running order** → **Edit** on a Frame that is **not** on screen. Change its Teleprompter script
+1. In the companion → **Plan** → **Edit the meeting** → **Edit** on a Frame that is **not** on screen. Change its Teleprompter script
    and add a question. **Save**. **Expect:** "Saved. The service PC picks it up within about a minute", and on the
    PC the new script and question within about a minute.
 2. **Edit** the Frame that **is** on screen and change its script. **Expect:** the companion says it is on screen
@@ -73,10 +73,10 @@ before: go on to the next one. Any other error: stop and send it.
 
 ## 6. Test D: history
 
-1. In the **Running order**, press the history (clock) button on the Frame you edited. **Expect:** "Now" and earlier versions,
+1. In **Plan** → **History and restore**, press the history (clock) button on the Frame you edited. **Expect:** "Now" and earlier versions,
    who made each (your name "(companion)" or the PC's name) and what changed.
 2. **Restore** an earlier version. **Expect:** the PC returns to it within about a minute.
-3. Delete a spare Frame on the PC, reload the Running order. **Expect:** it under **Deleted in the last 30 days**; **Restore**
+3. Delete a spare Frame on the PC, reload Plan → History and restore. **Expect:** it under **Deleted in the last 30 days**; **Restore**
    brings it back at the end of the list on the PC.
 
 ## 7. Test E: members from the cloud (M-D2, M-D6)
@@ -102,17 +102,17 @@ before: go on to the next one. Any other error: stop and send it.
 ## 9. Test G: plan the meeting on the website (6.11)
 
 Needs FRAMEDECKS 6.11 on the linked PC.
-1. On the PC's browser, open the companion's **Overview**. **Expect:** a "This computer" card; press **Check this
+1. On the PC's browser, open the companion's **Home**. **Expect:** a "This computer" card; press **Check this
    PC** and allow camera access. **Expect:** "FRAMEDECKS is installed on this PC" (the camera is named FRAMEDECKS).
    Press **Open FRAMEDECKS on this PC**. **Expect:** the browser asks to open FRAMEDECKS; the program comes forward.
-2. Companion → **Meeting Form** → **Meeting details**: change the speaker, **Save details**. **Expect:** the PC's
+2. Companion → **Plan** → **Meeting details**: change the speaker, **Save details**. **Expect:** the PC's
    Meeting tab shows the new speaker within about a minute.
 3. **Add a Frame**: a name, a Question Content with two questions, a Scripture Content with a reference (no text),
    a Timer of 5 minutes, background Navy. **Add Frame**. **Expect:** within about a minute the PC lists the Frame
    at the end, with the same Content, laid out as an Excel import would. Fetch the verse text on the PC as usual.
 4. **Edit** that Frame: change a question, add an Image Content with a file name that is in the PC's media folder.
    **Expect:** the change on the PC; the picture appears (or Diagnostics lists the name if it is not there).
-5. Move it up, then **Delete** it. **Expect:** the PC follows; the Running order lists it under Deleted in the last 30 days.
+5. Move it up, then **Delete** it. **Expect:** the PC follows; Plan → History and restore lists it under Deleted in the last 30 days.
 6. On the PC: **Settings → Data / Backup → Meeting from Excel → Import a meeting from Excel…** still works (W2),
    and the ✨ Meeting menu no longer lists Excel.
 
@@ -128,10 +128,25 @@ On the service PC, no real call needed.
 4. Open **Live tools**, press **Esc**. **Expect:** only the menu closes. Select **Stop practising**. **Expect:** Zoom
    shows the picture again.
 5. **Settings → How people see it** → **Set up FRAMECAST**. **Expect:** the FRAMECAST page with **← How people see it**.
-6. Check the window at your PC's real width: the top bar on one row (two rows below about 1400 px in Prepare).
+6. Under Up next: the keys (] Next, [ Previous, T Go Live, Esc Hide all, or your own). Set the meeting's time to
+   now with Practice mode on. **Expect:** within a few seconds the Practice strip says "It is service time … Still practising?"
+   and a reminder appears once.
+7. Check the window at your PC's real width: the top bar on one row (two rows below about 1400 px in Prepare).
+
+## 11. Test I: the website's new places (27 October)
+
+1. Sign out and open `https://framedecks.pages.dev`. **Expect:** "Your church's screen and Zoom, run from your phone.",
+   **Download for Windows · free** first, a demo where **Next** changes the room screen, and Help, Privacy, Licence,
+   Contact in the footer.
+2. **Sign in** → **New here?** with an address that has no church. **Expect:** Home shows three steps: name your
+   church (type a name, **Create**), install FRAMEDECKS, link the service PC.
+3. With your real church: **Home** shows the next service with the plan and the PC's state. The menu reads Home, Plan,
+   Live, People; Settings: Branding, Service PCs, Help. The avatar opens **Your account**.
+4. Open `/meeting` and `/services`. **Expect:** both open **Plan**.
+5. On a phone and on a tablet, open **Live**. **Expect:** large Previous and Next; on the tablet two even columns.
 
 ## What to send back
 
 For anything that does not match **Expect**: which test and step, a screenshot of the companion page, the message
 shown under Settings → FRAMEDECKS account on the PC (it shows sync and phone-control errors), and the time.
-If all eight pass, say so: the live tests in the continuity files are then marked done.
+If all of them pass, say so: the live tests in the continuity files are then marked done.

@@ -29,7 +29,7 @@ export function WorkspaceGate({
   if (!selected) {
     return (
       <p className="page-note">
-        You are not in a workspace yet. Create one on the <Link href="/">Overview</Link>.
+        You haven&apos;t added your church or group yet. Add it on <Link href="/">Home</Link>.
       </p>
     );
   }
@@ -38,7 +38,7 @@ export function WorkspaceGate({
     <>
       {workspaces && workspaces.length > 1 && (
         <label className="workspace-picker">
-          <span>Workspace</span>
+          <span>Church</span>
           <select value={selected.id} onChange={(e) => select(e.target.value)}>
             {workspaces.map((w) => (
               <option key={w.id} value={w.id}>

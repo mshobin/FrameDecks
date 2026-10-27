@@ -167,6 +167,19 @@ after adding a colour; `css_tokens.py` fails otherwise; `teleprompter.css` is ex
 without the palette), `!important` baseline 16, keyboard editor and About story built on first open (`buildOnce` in
 `settings.js`), and `node tests/visual/a11y.mjs` (axe-core 4.10.3, installed `--no-save` in `tests/visual`) in the CI
 visual job. Left for the owner: Windows check, NVDA/Narrator pass, a real landing quote or usage fact (never invent one).
+27 October, the 10/10 plan, phases 1–2 and the parts of 3–4 that need no owner (owner's request): the website has
+four main places (`app-shell.tsx` `main`: Home `/`, Plan `/plan`, Live `/live`, People `/members`) and Settings
+(Branding, Service PCs `/computers`, Help `/help`); `/meeting` and `/services` render the same `PlanPage`
+(`plan-page.tsx`, `plan-panel.tsx`: Edit the meeting / History and restore, `#history`). Home is `overview.tsx`
+(`NextService` in `glance.tsx`, or `FirstSteps` that creates the church inline); `/account` holds the workspace list
+and invitations. Sign-in: `SignInChooser` (`#new`). The look: `hosted/src/app/identity.css` (restraint overrides,
+`.fd-framed` corners, EB Garamond subset `public/fonts/EBGaramond-latin.woff2`), loaded before `light.css`. Landing:
+`landing.tsx` + `next-demo.tsx`; `public/product/live-phone.webp` was retaken from the new nav. Program: Run's Up next
+is larger, shows keys (`.rn-keys`, from `KCShortcuts`) and the Practice strip turns amber at the meeting's time
+(`remindPractice`). Not done (owner or later): 2–3 design directions (one was built), projector legibility mode and
+templates by type (Quick Start already offers types; both change the program's screens, so they need the owner's
+go-ahead), the Wi-Fi remote redesign (protected), SignPath, public repo, real quotes/photos, screen-reader pass.
+Owner: Test I in `docs/qa/live-test-guide.md` (and Test H step 6).
 The FRAMECAST panel is still built at start (it updates its controls in place every poll).
 Gotcha: `next build` reuses its cache; after CSS changes that do not appear, delete `hosted/.next` and `hosted/out`.
 Earlier: ranks 1–7 and 9–11 are done (5–7, 9–11 on 26 October: `hosted/src/lib/when.ts`,

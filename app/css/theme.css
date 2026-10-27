@@ -1378,3 +1378,12 @@ body.run-mode.studio-focus .run-next{display:none}
 }
 .subtabs-tabs{display:flex;gap:4px}
 html[data-theme="light"] .s2-badge:not(.pv){color:var(--green-500)}     /* the badge sits on the always-dark picture: the bright green reads there */
+/* Run: Up next nearly as large as Live (operators watch what comes next); the keys a volunteer needs */
+@media (min-width:1081px){
+  body.run-mode .ws,body.run-mode .ws.c-insp{grid-template-columns:var(--kc-left,300px) 6px minmax(0,1.25fr) minmax(320px,1fr)}
+  body.run-mode .ws.c-left{grid-template-columns:0 14px minmax(0,1.25fr) minmax(320px,1fr)}
+}
+.run-next .rn-name{font-size:24px}
+.rn-keys{margin:0;display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13px;color:var(--muted)}
+.rn-keys kbd{font-size:12px;padding:1px 6px;border:1px solid var(--line);border-radius:4px;color:var(--ink)}
+.practice-banner.due{border-color:var(--red);background:var(--red-soft)}

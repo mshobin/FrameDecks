@@ -123,7 +123,7 @@ function AboutPage({ onClose }: Readonly<{ onClose: () => void }>) {
         <h3>What shapes every decision</h3>
         <div className="fd-ab-values">
           {brand.values.map((v, i) => (
-            <article key={v.title} className="fd-ab-value" data-reveal style={{ "--d": `${i * 90}ms` } as React.CSSProperties} data-spotlight>
+            <article key={v.title} className="fd-ab-value" data-reveal style={{ "--d": `${i * 90}ms` } as React.CSSProperties}>
               <span className="fd-ab-num">0{i + 1}</span>
               <h4>{v.title}</h4>
               <p>{v.text}</p>

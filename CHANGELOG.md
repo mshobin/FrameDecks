@@ -72,6 +72,20 @@ Full notes: [docs/releases/v6.11.1.md](docs/releases/v6.11.1.md)
   Live tools grouped (one Teleprompter entry) and closed by Esc, Blackout renamed Black screen, Q + S → Both, no
   "350 ms" or double PREVIEW badges, a four-step first-service guide, `docs/glossary.md`. Website: Services is now
   **Running order**, cross-links with the Meeting Form, and a factual trust strip on the front page.
+- Website, one place per job (owner-approved, 27 October): four main places, **Home · Plan · Live · People**, with
+  Branding, **Service PCs** and **Help** under Settings; the Meeting Form and the running order are one **Plan** page
+  (Edit the meeting / History and restore; old addresses still open it); Home shows the next service and whether it is
+  ready (volunteers who may run services get **Run the service**); your churches and invitations moved to **Your
+  account** (the avatar); sign-in asks **New here?** or **Welcome back** and a first visit walks through naming the
+  church, installing and linking the service PC; the transition style is a dropdown; empty lists say **+ Add a
+  question**. A **Help** page (getting started, Sunday morning, problems, words, contact, version) and a tablet layout
+  for Live.
+- Website look (identity): no glows, glass, word-by-word headline or pointer spotlight; one flat gold main action;
+  gold frame corners around product pictures; scripture in EB Garamond. The front page is rebuilt: what it is in one
+  sentence, Download first, a press-Next demo, a week with FRAMEDECKS, a verse, what it does, questions churches ask,
+  and a full footer.
+- Run: **Up next** as large as the picture on screen, keyboard hints under it (from your own shortcuts), and at the
+  meeting's start time a reminder if Practice mode is still on.
 - Steps to 90+ after the re-audit: every program colour in `app/css/palette.css` (`tools/css_palette.py`; the token
   check fails on a colour anywhere else), radii and shadows on tokens (`--el-2-up`), `!important` 42 → 16; the keyboard
   editor and About story built on first open (page 2,220 → 1,796 elements); an axe WCAG 2.1 AA scan in CI

@@ -200,7 +200,7 @@ export function WorkspacePanel() {
             </Button>
           </div>
           <p className="workspace-hint">
-            Signed in as {session.user.email}. People in your workspaces see this name.
+            Signed in as {session.user.email}. People in your church see this name.
           </p>
         </form>
       </article>
@@ -208,12 +208,12 @@ export function WorkspacePanel() {
       <article className="workspace-card">
         <header>
           <Building2 aria-hidden="true" size={18} />
-          <h2>Your workspaces</h2>
+          <h2>Your churches and groups</h2>
         </header>
         {workspaces === null ? (
           <ListSkeleton />
         ) : workspaces.length === 0 ? (
-          <p className="workspace-hint">No workspace yet. Create one for your church or ministry.</p>
+          <p className="workspace-hint">Nothing yet. Add your church, ministry or small group below.</p>
         ) : (
           <ul className="workspace-list">
             {workspaces.map((workspace) => (
@@ -258,7 +258,7 @@ export function WorkspacePanel() {
           </ul>
         )}
         <form className="workspace-form" onSubmit={createWorkspace}>
-          <label htmlFor="workspace-name">New workspace</label>
+          <label htmlFor="workspace-name">Add a church or group</label>
           <div className="workspace-row">
             <input
               id="workspace-name"
@@ -269,7 +269,7 @@ export function WorkspacePanel() {
               placeholder="e.g. Grace Church"
             />
             <Button disabled={busy !== null || !workspaceName.trim()} type="submit" variant="outline">
-              {busy === "workspace" ? "Creating…" : "Create"}
+              {busy === "workspace" ? "Adding…" : "Add"}
             </Button>
           </div>
         </form>

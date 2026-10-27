@@ -5,7 +5,7 @@ import { test } from "node:test";
 
 const src = (p) => readFileSync(new URL(`../src/${p}`, import.meta.url), "utf8");
 const components = readdirSync(new URL("../src/components/", import.meta.url)).filter((f) => f.endsWith(".tsx"));
-const css = ["globals.css", "design.css", "about.css", "motion.css", "light.css"].map((f) => [f, src(`app/${f}`)]);
+const css = ["globals.css", "design.css", "about.css", "motion.css", "identity.css", "light.css"].map((f) => [f, src(`app/${f}`)]);
 
 function luminance(hex) {
   const c = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255).map((v) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4));
@@ -54,6 +54,26 @@ test("the light theme is chosen before the first paint and can be changed (DD-23
 test("the Overview is task first and the mission is said once (DD-24, DD-08)", () => {
   const overview = src("components/overview.tsx");
   assert.doesNotMatch(overview, /MISSION/);
-  assert.match(overview, /\{!selected && \(/);
+  assert.match(overview, /<NextService /);
+  assert.match(overview, /<FirstSteps /);
   assert.doesNotMatch(src("components/auth-shell.tsx"), /MISSION/);
+});
+
+test("four main places, Settings below, and church words (owner-approved, 27 October)", () => {
+  const shell = src("components/app-shell.tsx");
+  for (const label of ["Home", "Plan", "Live", "People", "Branding", "Service PCs", "Help"]) {
+    assert.match(shell, new RegExp(`label: "${label}"`), label);
+  }
+  assert.doesNotMatch(shell, /label: "(?:Running order|Meeting Form|Computers|Members)"/);
+  assert.match(src("app/plan/page.tsx"), /PlanPage/);
+  assert.match(src("app/meeting/page.tsx"), /PlanPage/);
+  assert.match(src("app/help/page.tsx"), /brand\.version/);
+});
+
+test("the landing page leads with the download and keeps glows away (identity)", () => {
+  const landing = src("components/landing.tsx");
+  assert.ok(landing.indexOf("Download for Windows") < landing.indexOf("Or plan online first"));
+  assert.doesNotMatch(landing, /data-spotlight|<Words/);
+  assert.match(src("app/layout.tsx"), /import "\.\/identity\.css";\s*import "\.\/light\.css";/);
+  assert.match(src("app/identity.css"), /\.fd-ambient \{\s*display: none;/);
 });

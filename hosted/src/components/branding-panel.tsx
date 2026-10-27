@@ -128,7 +128,7 @@ function Branding({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
 
       <aside className="fd-settings-side" data-reveal style={{ "--d": "120ms" } as React.CSSProperties}>
         <p className="fd-kicker">Preview</p>
-        <div className="fd-brand-preview" style={{ "--accent": accent } as React.CSSProperties} data-spotlight>
+        <div className="fd-brand-preview" style={{ "--accent": accent } as React.CSSProperties}>
           <div className="fd-brand-badge">
             <span className="fd-brand-logo" aria-hidden="true">
               <ImageIcon size={18} />

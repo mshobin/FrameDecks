@@ -7,6 +7,7 @@ import "./globals.css";
 import "./design.css";
 import "./motion.css";
 import "./about.css";
+import "./identity.css";
 import "./light.css";
 
 export const metadata: Metadata = {

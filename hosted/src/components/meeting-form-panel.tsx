@@ -149,7 +149,7 @@ function Planner({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
         {title ? " · " : null}
         {frames.length} Frame{frames.length === 1 ? "" : "s"}.{" "}
         {canEdit
-          ? "Plan the whole meeting here, as in the Excel Meeting Form: Frames, their Content, questions and scripture. Pictures, video and PowerPoint files stay on the service PC; type their file names."
+          ? "Pictures, video and PowerPoint stay on the service PC: type their file names."
           : "View only: owners and admins can edit."}
       </p>
       {notice && (
@@ -184,7 +184,7 @@ function Planner({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
       {frames.length === 0 && editing !== "new" && (
         <EmptyState title="No Frames yet">
           {canEdit ? "Add the first one below. " : null}They appear in FRAMEDECKS once the service PC is linked under{" "}
-          <Link href="/computers">Computers</Link>.
+          <Link href="/computers">Service PCs</Link>.
         </EmptyState>
       )}
       <ol className="frame-list">
@@ -246,7 +246,14 @@ function Planner({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
                         <KindIcon kind={row.type === "other" ? String(row.kind ?? "") : row.type} />
                         {row.name.trim() || (row.type === "other" ? "Content" : TYPE_NAME[row.type])}
                       </span>
-                      {summary(row) && <span className="content-line">{summary(row)}</span>}
+                      {/* an empty item is an action, not a note (owner-approved, 27 October) */}
+                      {EMPTY[summary(row)] && canEdit ? (
+                        <button type="button" className="content-add" disabled={editing !== null} onClick={() => (setNotice(null), setEditing(id))}>
+                          + {EMPTY[summary(row)]}
+                        </button>
+                      ) : (
+                        summary(row) && <span className="content-line">{summary(row)}</span>
+                      )}
                     </li>
                   ))}
                 </ul>
@@ -288,6 +295,8 @@ function Planner({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
     </>
   );
 }
+
+const EMPTY: Record<string, string> = { "No questions yet": "Add a question", "No readings yet": "Add a reading" };
 
 function summary(row: ContentRow): string {
   if (row.type === "other") return "Edited on the service PC";
@@ -338,27 +347,19 @@ function TransitionStyle({
   }
 
   return (
-    <section className="frame-card fd-style-card" data-reveal>
-      <header>
-        <h3>Transition style</h3>
-        <span className="workspace-hint">How every Frame moves on screen, unless a Frame has its own transition.</span>
-      </header>
-      <div className="fd-style-grid" role="radiogroup" aria-label="Transition style">
-        {PROFILES.map((p) => (
-          <button
-            key={p.id}
-            type="button"
-            role="radio"
-            aria-checked={p.id === current}
-            disabled={!canEdit || busy}
-            className={p.id === current ? "fd-style fd-style-on" : "fd-style"}
-            onClick={() => choose(p.id)}
-          >
-            <strong>{p.name}</strong>
-            <span>{p.feel}</span>
-          </button>
-        ))}
-      </div>
+    // One compact choice, not eight large cards above the Frames (owner-approved simplification, 27 October)
+    <section className="fd-style-row">
+      <label className="fd-style-pick">
+        <span>Transition style</span>
+        <select value={current} disabled={!canEdit || busy} onChange={(e) => choose(e.target.value)}>
+          {PROFILES.map((p) => (
+            <option key={p.id} value={p.id}>
+              {p.name}: {p.feel.toLowerCase()}
+            </option>
+          ))}
+        </select>
+      </label>
+      <span className="workspace-hint">How every Frame moves on screen, unless a Frame has its own.</span>
       {problem && (
         <p className="workspace-problem" role="alert">
           {problem}

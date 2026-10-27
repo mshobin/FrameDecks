@@ -97,6 +97,19 @@ The program has two modes, switched at the top of the window (`js/service.js`; o
 - Settings that few people need (Transitions, Keyboard shortcuts, Security, Diagnostics) are folded under
   **Advanced**; Find a setting searches them. FRAMECAST shows presets first and its exact numbers under **Fine-tune**.
 
+## Identity (website, 27 October)
+
+One direction, built in `hosted/src/app/identity.css` (loaded after the older look, before the light theme):
+
+- **Restraint.** No glows, glass, ambient light, word-by-word headline or pointer spotlight. Section titles do not
+  fade in. The one main action on a page is flat gold (`--gold`, hover `--gold-2`); everything else is bordered.
+- **Frame corners.** `.fd-framed` puts gold corner marks on a product picture or the demo screen: the Frame, the
+  product's own idea. Use it on at most one or two things per page.
+- **Serif for scripture.** EB Garamond (`--serif`, `.fd-serif`; a 36 KB latin subset in `public/fonts/`) for verses,
+  the next service's title and the landing timeline; Source Sans 3 for everything else.
+- **Places.** Home · Plan · Live · People, then Settings: Branding, Service PCs, Help. Your account is the avatar.
+- **Words.** Church, Service PCs, People, Go Live (`docs/glossary.md`).
+
 ## States
 
 Every list or page that loads has the same four states (`hosted/src/components/states.tsx` on the website):

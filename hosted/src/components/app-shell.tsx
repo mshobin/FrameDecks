@@ -1,56 +1,37 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ClipboardList, Ellipsis, Home as HomeIcon, Palette, Monitor, Presentation, Radio, Users } from "lucide-react";
+import { CircleHelp, ClipboardList, Ellipsis, Home as HomeIcon, Monitor, Palette, Radio, Users } from "lucide-react";
 
 import { AboutButton } from "@/components/about-dialog";
 import { AccountStatus } from "@/components/account-status";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { DOWNLOADS } from "@/lib/pc-setup";
 
-export type Section = "overview" | "meeting" | "branding" | "services" | "live" | "members" | "computers";
+export type Section = "home" | "plan" | "live" | "people" | "branding" | "pcs" | "help" | "account";
 
-// Grouped as the work flows: plan the meeting, present it, look after the people (docs/architecture/meeting-form.md)
-const groups = [
-  {
-    title: "Plan",
-    items: [
-      { id: "overview", label: "Overview", href: "/", icon: HomeIcon },
-      { id: "meeting", label: "Meeting Form", href: "/meeting", icon: ClipboardList },
-      { id: "services", label: "Running order", href: "/services", icon: Presentation },
-      { id: "branding", label: "Branding", href: "/branding", icon: Palette },
-    ],
-  },
-  {
-    title: "Present",
-    items: [
-      { id: "live", label: "Live", href: "/live", icon: Radio },
-      { id: "computers", label: "Computers", href: "/computers", icon: Monitor },
-    ],
-  },
-  { title: "People", items: [{ id: "members", label: "Members", href: "/members", icon: Users }] },
-] as const;
-
-// Phones (design audit DD-12): the four pages used during a service sit in a bottom tab bar, the rest under More
-const tabs = [
-  { id: "overview", label: "Overview", href: "/", icon: HomeIcon },
-  { id: "meeting", label: "Meeting", href: "/meeting", icon: ClipboardList },
+// Four places, in the order a week goes (owner-approved, 27 October; docs/glossary.md): Home, Plan, Live, People.
+// What is set once lives under Settings. Phones show the same four as tabs, so both read the same.
+const main = [
+  { id: "home", label: "Home", href: "/", icon: HomeIcon },
+  { id: "plan", label: "Plan", href: "/plan", icon: ClipboardList },
   { id: "live", label: "Live", href: "/live", icon: Radio },
-  { id: "members", label: "Members", href: "/members", icon: Users },
+  { id: "people", label: "People", href: "/members", icon: Users },
 ] as const;
-const more = [
-  { id: "services", label: "Running order", href: "/services", icon: Presentation },
+const settings = [
   { id: "branding", label: "Branding", href: "/branding", icon: Palette },
-  { id: "computers", label: "Computers", href: "/computers", icon: Monitor },
+  { id: "pcs", label: "Service PCs", href: "/computers", icon: Monitor },
+  { id: "help", label: "Help", href: "/help", icon: CircleHelp },
 ] as const;
 
 const titles: Record<Section, string> = {
-  overview: "Overview",
-  meeting: "Meeting Form",
-  branding: "Branding",
-  services: "Running order",
+  home: "Home",
+  plan: "Plan",
   live: "Live",
-  members: "Members",
-  computers: "Computers",
+  people: "People",
+  branding: "Branding",
+  pcs: "Service PCs",
+  help: "Help",
+  account: "Your account",
 };
 
 /** The companion's frame: a translucent sidebar, a sticky top bar with the account, and the page. */
@@ -58,33 +39,43 @@ export function AppShell({ active, children }: Readonly<{ active: Section; child
   return (
     <div className="fd-app">
       <aside className="fd-sidebar" aria-label="Main navigation">
-        <Link className="fd-brand" href="/" aria-label="FRAMEDECKS overview">
+        <Link className="fd-brand" href="/" aria-label="FRAMEDECKS home">
           <span className="fd-brand-mark">
             <Image src="/framedecks-emblem.webp" alt="" width={34} height={34} priority unoptimized />
           </span>
           <span className="fd-brand-copy">
             <strong>FRAMEDECKS</strong>
-            <span>Present · Equip · Inspire</span>
           </span>
         </Link>
 
         <nav className="fd-nav">
-          {groups.map((group) => (
-            <div className="fd-nav-group" key={group.title}>
-              <p className="fd-nav-title">{group.title}</p>
-              {group.items.map(({ id, label, href, icon: Icon }) => (
-                <Link
-                  className={id === active ? "fd-nav-item fd-nav-active" : "fd-nav-item"}
-                  href={href}
-                  key={id}
-                  aria-current={id === active ? "page" : undefined}
-                >
-                  <Icon aria-hidden="true" size={17} strokeWidth={1.9} />
-                  <span>{label}</span>
-                </Link>
-              ))}
-            </div>
-          ))}
+          <div className="fd-nav-group">
+            {main.map(({ id, label, href, icon: Icon }) => (
+              <Link
+                className={id === active ? "fd-nav-item fd-nav-active" : "fd-nav-item"}
+                href={href}
+                key={id}
+                aria-current={id === active ? "page" : undefined}
+              >
+                <Icon aria-hidden="true" size={17} strokeWidth={1.9} />
+                <span>{label}</span>
+              </Link>
+            ))}
+          </div>
+          <div className="fd-nav-group">
+            <p className="fd-nav-title">Settings</p>
+            {settings.map(({ id, label, href, icon: Icon }) => (
+              <Link
+                className={id === active ? "fd-nav-item fd-nav-active" : "fd-nav-item"}
+                href={href}
+                key={id}
+                aria-current={id === active ? "page" : undefined}
+              >
+                <Icon aria-hidden="true" size={17} strokeWidth={1.9} />
+                <span>{label}</span>
+              </Link>
+            ))}
+          </div>
         </nav>
 
         <div className="fd-sidebar-foot">
@@ -101,8 +92,6 @@ export function AppShell({ active, children }: Readonly<{ active: Section; child
       <div className="fd-main">
         <header className="fd-topbar">
           <p className="fd-crumb">
-            <span>Workspace</span>
-            <span aria-hidden="true">›</span>
             <strong>{titles[active]}</strong>
           </p>
           <div className="fd-topbar-right">
@@ -117,19 +106,19 @@ export function AppShell({ active, children }: Readonly<{ active: Section; child
       </div>
 
       <nav className="fd-tabbar" aria-label="Main navigation">
-        {tabs.map(({ id, label, href, icon: Icon }) => (
+        {main.map(({ id, label, href, icon: Icon }) => (
           <Link className="fd-tab" href={href} key={id} aria-current={id === active ? "page" : undefined}>
             <Icon aria-hidden="true" size={20} strokeWidth={1.9} />
             <span>{label}</span>
           </Link>
         ))}
         <details className="fd-more">
-          <summary className="fd-tab" aria-current={more.some((m) => m.id === active) ? "page" : undefined}>
+          <summary className="fd-tab" aria-current={settings.some((m) => m.id === active) ? "page" : undefined}>
             <Ellipsis aria-hidden="true" size={20} strokeWidth={1.9} />
             <span>More</span>
           </summary>
           <div className="fd-more-sheet">
-            {more.map(({ id, label, href, icon: Icon }) => (
+            {settings.map(({ id, label, href, icon: Icon }) => (
               <Link className="fd-nav-item" href={href} key={id} aria-current={id === active ? "page" : undefined}>
                 <Icon aria-hidden="true" size={17} strokeWidth={1.9} />
                 <span>{label}</span>

@@ -65,6 +65,13 @@ Phase detail lives in
   story built on first open (2,220 → 1,796 elements), axe WCAG 2.1 AA scan in CI (`tests/visual/a11y.mjs`, 0
   violations in both themes) and its ARIA and light-theme contrast fixes. Not done: a real screen-reader pass and
   a Windows check (owner); a landing quote or usage fact (owner supplies a real one).
+- **10/10 plan, phases 1–2 and the owner-free parts of 3–4 (27 October):** website Home · Plan · Live · People with
+  Settings (Branding, Service PCs, Help); one Plan page (Meeting Form + running order); next-service Home with
+  volunteer actions; first-time steps; Your account; New here? / Welcome back; Help page with version; tablet Live;
+  restraint identity (`identity.css`: no glows, frame corners, EB Garamond); rebuilt landing (download first, Next
+  demo, week, FAQ, footer); compact transition dropdown and "+ Add a question"; program Run: larger Up next, key
+  hints, Practice reminder at service time. Checks: hosted 122/122, lint, typecheck, build, budget JS 325 KB; Python
+  OK; JS 4/4; layout and axe pass. Owner: Test I; projector legibility and templates by type wait for a go-ahead.
 - **6.11.1 (26 October):** audit steps 1–2 built (pinned build, cross-site guard, error logging, plan recovery and
   sync guard, `0009`); owner publishes the release and runs `0009`.
 - **Website performance (26 October):** the website no longer animates when idle (older 8 GB PCs next to the program).

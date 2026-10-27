@@ -10,7 +10,8 @@ word, the screen is wrong: fix the screen, not this list. (Owner-approved simpli
 | **Frame** | One step of the meeting: what is on screen at one moment. | scene, slide, page |
 | **Content** | What is on a Frame: a verse, a question, a picture, a video, text, a countdown. | layer, element, overlay |
 | **Running order** | The Frames in the order they go on screen. | services list, scene list, playlist |
-| **Meeting Form** | The website page where you plan a meeting: Frames, questions, scripture, the presenter's script. | workbook (the Excel file is the *Meeting Workbook*) |
+| **Plan** | The website page where you plan a meeting (Frames, questions, scripture, the presenter's script) and see its history. It replaced the Meeting Form and Running order pages. | Meeting Form (the Excel file is the *Meeting Workbook*), services |
+| **Home** | The website's first page: your next service and whether it is ready. | Overview, dashboard |
 | **Prepare** | The Studio when you plan and edit Frames. | edit mode, design view |
 | **Run** | The Studio during a service: the running order, what is on screen, what is up next, and nothing to edit by accident. | show mode, live mode, presenter mode |
 | **Go Live** | Put the chosen Frame on screen. | take, cut, send |
@@ -28,8 +29,9 @@ word, the screen is wrong: fix the screen, not this list. (Owner-approved simpli
 | **Share Window** | A clean window with only your Frames, to share in Zoom. | presentation window, present mode |
 | **Live tools** | The menu with Black screen, Freeze, Draw, the Teleprompter and the Emergency screen. | Program menu |
 | **People** | Everyone in your member list (Members → People): the list, or the table. | directory, manage, contacts |
-| **Workspace** | Your church or group on the website: its people, its plans and its linked PCs. | organisation, tenant, account |
-| **Linked PC** | A service PC connected to your workspace. | device, runtime, client |
+| **Church** | Your church or group on the website: its people, its plans and its service PCs (*workspace* in the code). | workspace, organisation, tenant |
+| **Service PC** | The Windows PC that runs the service, linked to your church (*Linked PC* in the program). | computer, device, runtime, client |
+| **Your account** | Your name, your churches and invitations (the avatar at the top). | profile, workspace admin |
 | **Phone remote** | The page on a phone, on the same Wi-Fi, that runs the service (Settings → Phone & iPad Remote). | LAN remote, iPad app |
 | **Live page** | The website page that runs a service from anywhere. | cloud remote, companion remote |
 

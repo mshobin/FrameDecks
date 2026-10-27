@@ -32,7 +32,7 @@ change, for anything new that ships.
 | SheetJS Community Edition (`app/vendor/xlsx.full.min.js`) | Apache-2.0 (`app/vendor/LICENSE-SheetJS.txt`) | Excel import and export | https://sheetjs.com |
 | Lucide icons | ISC (`app/vendor/LICENSE-lucide.txt`) | Icons | https://lucide.dev |
 | QR Code Generator for JavaScript (`app/vendor/qrcode.js`) | MIT, Copyright (c) 2009 Kazuhiko Arase | Phone remote QR code | https://github.com/kazuhikoarase/qrcode-generator |
-| EB Garamond (`app/fonts/`) | SIL Open Font License 1.1 (`app/fonts/OFL-EBGaramond.txt`) | Card text | https://fonts.google.com/specimen/EB+Garamond |
+| EB Garamond (`app/fonts/`; a Latin subset in `hosted/public/fonts/`) | SIL Open Font License 1.1 (`app/fonts/OFL-EBGaramond.txt`, `hosted/public/fonts/OFL-EBGaramond.txt`) | Card text; scripture and quotes on the website | https://fonts.google.com/specimen/EB+Garamond |
 | Source Sans 3 (`app/fonts/`) | SIL Open Font License 1.1 (`app/fonts/OFL-SourceSans3.txt`) | Interface text | https://fonts.google.com/specimen/Source+Sans+3 |
 
 ## The companion website (`hosted/`)

@@ -3,7 +3,6 @@ import Link from "next/link";
 
 import { AboutButton } from "@/components/about-dialog";
 import { BrandMark } from "@/components/brand-hero";
-import { Workflow } from "@/components/workflow";
 
 /** Sign-in and its return page: the brand and how FRAMEDECKS works beside a glass card. `document` is the single
  * column the privacy policy uses. */
@@ -12,7 +11,7 @@ export function AuthShell({
   title,
   children,
   document = false,
-}: Readonly<{ eyebrow: string; title: string; children: React.ReactNode; document?: boolean }>) {
+}: Readonly<{ eyebrow?: string; title?: string; children: React.ReactNode; document?: boolean }>) {
   const card = (
     <section className={document ? "fd-auth-card fd-auth-doc" : "fd-auth-card"}>
       {document && (
@@ -25,8 +24,8 @@ export function AuthShell({
           </span>
         </Link>
       )}
-      <p className="fd-kicker">{eyebrow}</p>
-      <h1 className="fd-auth-title">{title}</h1>
+      {eyebrow && <p className="fd-kicker">{eyebrow}</p>}
+      {title && <h1 className="fd-auth-title">{title}</h1>}
       {children}
     </section>
   );
@@ -55,7 +54,11 @@ export function AuthShell({
         <Link href="/" aria-label="FRAMEDECKS home">
           <BrandMark size="medium" />
         </Link>
-        <Workflow compact />
+        {/* One real screen and one sentence (owner-approved, 27 October), not a second copy of How it works */}
+        <figure className="fd-auth-shot">
+          <Image src="/product/live-phone.webp" alt="The Live page on a phone: Previous, Next, Hide all and Black screen" width={390} height={844} unoptimized />
+          <figcaption>Plan here. Present on your service PC. Guide it from your phone.</figcaption>
+        </figure>
       </aside>
       <main className="fd-auth-main" id="main" tabIndex={-1}>
         {card}

@@ -65,7 +65,7 @@ function Live({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
   if (computers.length === 0) {
     return (
       <EmptyState title="No service PC to run yet">
-        Owners and admins link the service PC under Computers, and can let a member run services with “Can run
+        Owners and admins link the service PC under Service PCs, and can let a member run services with “Can run
         services” on the Overview’s member list.
       </EmptyState>
     );

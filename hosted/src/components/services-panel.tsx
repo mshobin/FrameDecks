@@ -26,7 +26,7 @@ const key = (kind: string, id: string) => `${kind}/${id}`;
 // The synced plan. Everyone in the workspace reads it; owners and admins can also change the words of a Frame and
 // the order of Frames (docs/architecture/companion-editing.md, E1-E4). Each change goes back with sync_push on top
 // of the revision it was read at, and the PC applies it like a change from another PC.
-function Services({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
+function Services({ workspace, historyOnly = false }: Readonly<{ workspace: WorkspaceChoice; historyOnly?: boolean }>) {
   const supabase = browserSupabase();
   const canEdit = workspace.role === "owner" || workspace.role === "admin";
   const [loaded, setLoaded] = useState<Loaded | null>(null);
@@ -129,9 +129,11 @@ function Services({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
         {title ? " · " : null}
         {frames.length} Frame{frames.length === 1 ? "" : "s"}
         {lastChange ? <> · last change <When at={lastChange} /></> : null}.{" "}
-        {canEdit
-          ? "You can change names, scripts, questions, scripture and the order here; pictures, video and looks on the service PC."
-          : "View only: owners and admins can edit."}
+        {historyOnly
+          ? "Open a Frame's history to see who changed what, and restore an earlier version or a deleted Frame from the last 30 days."
+          : canEdit
+            ? "You can change names, scripts, questions, scripture and the order here; pictures, video and looks on the service PC."
+            : "View only: owners and admins can edit."}
       </p>
       {notice && (
         <p className={notice.ok ? "workspace-notice" : "workspace-problem"} role={notice.ok ? "status" : "alert"}>
@@ -177,7 +179,7 @@ function Services({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
                     >
                       <History aria-hidden="true" size={15} />
                     </button>
-                    {canEdit && (
+                    {canEdit && !historyOnly && (
                       <>
                         <button type="button" aria-label={`Move ${frame.name} up`} disabled={busy || i === 0} onClick={() => move(frame.id, -1)}>
                           <ArrowUp aria-hidden="true" size={15} />
@@ -446,6 +448,6 @@ function FrameCard({
   );
 }
 
-export function ServicesPanel() {
-  return <WorkspaceGate what="your services">{(w) => <Services key={w.id} workspace={w} />}</WorkspaceGate>;
+export function ServicesPanel({ historyOnly = false }: Readonly<{ historyOnly?: boolean }>) {
+  return <WorkspaceGate what="your services">{(w) => <Services key={w.id} workspace={w} historyOnly={historyOnly} />}</WorkspaceGate>;
 }

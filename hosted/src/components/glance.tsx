@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { CakeSlice, CalendarDays, ChevronRight, Layers, MonitorPlay, Users } from "lucide-react";
+import { CakeSlice, ChevronRight, CircleCheck, CircleDashed, ClipboardList, Radio } from "lucide-react";
 
 import { isOnline, nowShowing, type LiveComputer } from "@/lib/live-view";
 import { browserSupabase } from "@/lib/supabase-browser";
@@ -32,10 +32,12 @@ function when(date: string): string {
   return days === 0 ? `Today · ${label}` : days === 1 ? `Tomorrow · ${label}` : days > 1 && days < 7 ? `In ${days} days · ${label}` : label;
 }
 
-/** The workspace at a glance: the next meeting, the plan, the people and the service PC, each opening its page. */
-export function GlanceTiles({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
+/** Home's one job (owner-approved, 27 October): the next service, how ready it is, and the one thing to do next.
+ * Volunteers who may only run services get "Run from my phone" as the main button. */
+export function NextService({ workspace, name }: Readonly<{ workspace: WorkspaceChoice; name: string }>) {
   const supabase = browserSupabase();
   const [glance, setGlance] = useState<Glance | null>(null);
+  const [runner, setRunner] = useState(false);
 
   useEffect(() => {
     if (!supabase) return;
@@ -58,86 +60,122 @@ export function GlanceTiles({ workspace }: Readonly<{ workspace: WorkspaceChoice
           pc: list[0] ?? null,
         });
     })();
+    if (workspace.role === "member") {
+      supabase.auth.getUser().then(({ data }) => {
+        if (!data.user) return;
+        supabase
+          .from("memberships")
+          .select("can_run_services")
+          .eq("organization_id", workspace.id)
+          .eq("user_id", data.user.id)
+          .maybeSingle()
+          .then(({ data: row }) => {
+            if (live) setRunner(Boolean((row as { can_run_services?: boolean } | null)?.can_run_services));
+          });
+      });
+    }
     return () => {
       live = false;
     };
-  }, [supabase, workspace.id]);
+  }, [supabase, workspace.id, workspace.role]);
 
   const online = glance?.pc ? isOnline(glance.pc) : false;
-  const tiles = [
+  const editor = workspace.role !== "member";
+  const ready = [
     {
-      href: "/meeting",
-      icon: CalendarDays,
-      label: "Next meeting",
-      value: glance ? glance.title || "Not named yet" : "…",
-      detail: glance ? (glance.date ? when(glance.date) : "Add the date on the Meeting Form") : "",
+      ok: Boolean(glance && glance.frames > 0),
+      text: glance ? (glance.frames ? `The plan has ${glance.frames} Frame${glance.frames === 1 ? "" : "s"}` : "No Frames planned yet") : "Checking the plan…",
+      detail: glance?.lastChange ? `updated ${relativeTime(glance.lastChange)}` : "",
+      href: "/plan",
+      action: glance && !glance.frames ? "Plan it" : "",
     },
     {
-      href: "/services",
-      icon: Layers,
-      label: "Service plan",
-      value: glance ? `${glance.frames} Frame${glance.frames === 1 ? "" : "s"}` : "…",
-      detail: glance?.lastChange ? `Updated ${relativeTime(glance.lastChange)}` : glance ? "Link the service PC to sync it" : "",
-    },
-    {
-      href: "/live",
-      icon: MonitorPlay,
-      label: glance?.pc ? glance.pc.name : "Service PC",
-      value: glance ? (glance.pc ? (online ? "Online" : "Offline") : "Not linked") : "…",
-      detail: glance ? (glance.pc ? (online ? nowShowing(glance.pc.status) : "Open FRAMEDECKS to go live") : "Link it under Computers") : "",
-      tone: online ? "ok" : undefined,
-    },
-    {
-      href: "/members",
-      icon: Users,
-      label: "People",
-      value: glance ? `${glance.people} member${glance.people === 1 ? "" : "s"}` : "…",
-      detail: glance ? `In ${workspace.name}` : "",
+      ok: online,
+      text: glance ? (glance.pc ? `${glance.pc.name} is ${online ? "online" : "offline"}` : "No service PC linked yet") : "Checking the service PC…",
+      detail: glance?.pc && online ? nowShowing(glance.pc.status) : glance?.pc ? "Open FRAMEDECKS on it to run the service" : "",
+      href: "/computers",
+      action: glance && !glance.pc && editor ? "Link one" : "",
     },
   ];
-
+  const title = glance ? glance.title || "Your next meeting" : "…";
   return (
     <>
-      <section className="fd-glance" aria-label="At a glance">
-        {tiles.map(({ href, icon: Icon, label, value, detail, tone }, i) => (
-          <Link className={tone === "ok" ? "fd-tile fd-tile-ok" : "fd-tile"} href={href} key={href} data-reveal data-spotlight style={{ "--d": `${i * 110}ms` } as React.CSSProperties}>
-            <span className="fd-tile-icon">
-              <Icon aria-hidden="true" size={18} strokeWidth={1.9} />
-            </span>
-            <span className="fd-tile-label">{label}</span>
-            <strong className="fd-tile-value">
-              {tone === "ok" && <span className="fd-dot" aria-hidden="true" />}
-              {value}
-            </strong>
-            <span className="fd-tile-detail">{detail}</span>
-            <ChevronRight className="fd-tile-go" aria-hidden="true" size={16} />
-          </Link>
-        ))}
+      <section className="fd-next" aria-labelledby="fd-next-title">
+        <p className="fd-kicker">
+          {greeting(new Date().getHours())}
+          {name ? `, ${name}` : ""} · {workspace.name}
+        </p>
+        <h1 id="fd-next-title" className="fd-next-title">
+          {title}
+        </h1>
+        <p className="fd-next-when">{glance ? (glance.date ? when(glance.date) : "No date yet: add it in Plan") : ""}</p>
+        <ul className="fd-ready" aria-label="Ready for the service">
+          {ready.map((r) => (
+            <li key={r.href} className={r.ok ? "is-ok" : "is-todo"}>
+              {r.ok ? <CircleCheck aria-hidden="true" size={18} /> : <CircleDashed aria-hidden="true" size={18} />}
+              <span>
+                <strong>{r.text}</strong>
+                {r.detail ? <span> · {r.detail}</span> : null}
+              </span>
+              {r.action ? (
+                <Link className="fd-link" href={r.href}>
+                  {r.action} <ChevronRight aria-hidden="true" size={15} />
+                </Link>
+              ) : null}
+              <span className="sr-only">{r.ok ? "(ready)" : "(to do)"}</span>
+            </li>
+          ))}
+        </ul>
+        <div className="fd-hero-actions">
+          {runner || !editor ? (
+            <>
+              <Link className="fd-btn fd-btn-primary" href="/live">
+                <Radio aria-hidden="true" size={17} /> {runner ? "Run the service" : "Follow the service"}
+              </Link>
+              <Link className="fd-btn fd-btn-ghost" href="/plan">
+                <ClipboardList aria-hidden="true" size={17} /> See the plan
+              </Link>
+            </>
+          ) : (
+            <>
+              <Link className="fd-btn fd-btn-primary" href="/plan">
+                <ClipboardList aria-hidden="true" size={17} /> Open the plan
+              </Link>
+              <Link className="fd-btn fd-btn-ghost" href="/live">
+                <Radio aria-hidden="true" size={17} /> Run from my phone
+              </Link>
+            </>
+          )}
+        </div>
       </section>
       {glance && <BirthdaysThisWeek birthdays={glance.birthdays} />}
     </>
   );
 }
 
+function greeting(hour: number): string {
+  return hour < 5 ? "Good evening" : hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
+}
+
 /** The program's birthday reminders, from the workspace's member list (Settings → Birthdays on the PC). */
 function BirthdaysThisWeek({ birthdays }: Readonly<{ birthdays: Birthday[] }>) {
   return (
-    <section className="fd-birthdays" aria-labelledby="fd-bd-title" data-reveal>
+    <section className="fd-birthdays" aria-labelledby="fd-bd-title">
       <div className="fd-birthdays-head">
         <span className="fd-tile-icon">
           <CakeSlice aria-hidden="true" size={18} strokeWidth={1.9} />
         </span>
         <h2 id="fd-bd-title">Birthdays this week</h2>
         <Link className="fd-link" href="/members">
-          Members <ChevronRight aria-hidden="true" size={15} />
+          People <ChevronRight aria-hidden="true" size={15} />
         </Link>
       </div>
       {birthdays.length === 0 ? (
         <p className="workspace-hint">No birthdays in the next seven days.</p>
       ) : (
         <ul className="fd-birthday-list">
-          {birthdays.map((b, i) => (
-            <li key={b.id || b.name} className={b.inDays === 0 ? "fd-birthday fd-birthday-today" : "fd-birthday"} data-reveal style={{ "--d": `${i * 70}ms` } as React.CSSProperties}>
+          {birthdays.map((b) => (
+            <li key={b.id || b.name} className={b.inDays === 0 ? "fd-birthday fd-birthday-today" : "fd-birthday"}>
               <span className="fd-avatar" aria-hidden="true">
                 {b.name
                   .split(/\s+/)

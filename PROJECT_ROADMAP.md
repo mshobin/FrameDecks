@@ -29,6 +29,7 @@ Updated 26 October 2026. PR #32 is merged; the live Supabase database has every 
 | Design audit ranks 8, 12–21 (voice, states, type, icons, a11y, gold, composer, tokens + lint, design system + visual checks, Overview, light theme) | Built (26 October); the whole design roadmap is done |
 | UX simplification (Prepare / Run, Practice, How people see it, Advanced, People, Live tools groups, glossary, website Running order and trust strip) | Built (27 October). Owner: Test H (live test guide) on Windows |
 | Re-audit steps to 90+ (palette, radii/shadows, `!important`, lazy sections, axe scan in CI) | Built (27 October). Left for the owner: Windows check, a screen-reader pass (NVDA/Narrator), a real quote or usage fact for the landing page |
+| 10/10 plan: phases 1–2, owner-free parts of 3–4 (website four places, Plan, Home, first-time path, Help, identity, landing, Run polish) | Built (27 October). Owner: Test I; go-ahead for projector legibility, templates by type, the Wi-Fi remote; real quotes and photos |
 | 6.11.1: production audit steps 1–2 (`docs/project/2026-10-26-production-audit.md`) | Built (26 October); owner publishes v6.11.1 and runs `0009`. Next: step 3 (live tests, M9, M7) |
 | Website idle performance (no endless animations, less blur) | Built and live on push (26 October) |
 | First-install fixes: website "Forbidden", Teleprompter unpin, Settings menu | Built on `main` (26 October); owner tests from the next build |
