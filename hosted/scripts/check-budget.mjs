@@ -3,10 +3,11 @@
 // Budgets were set on 26 October 2026 with about 25% headroom (then: 317 KB JS in 21 files, largest 70 KB, CSS 12 KB).
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { gzipSync } from "node:zlib";
 
 const BUDGET = { totalJsKB: 400, largestJsKB: 90, cssKB: 20 };
-const dir = new URL("../out/_next/static/chunks/", import.meta.url).pathname;
+const dir = fileURLToPath(new URL("../out/_next/static/chunks/", import.meta.url)); // a real path on Windows too (not "/C:/…")
 let js = 0, largest = 0, css = 0, largestName = "";
 for (const f of readdirSync(dir)) {
   const size = gzipSync(readFileSync(join(dir, f))).length / 1024;
