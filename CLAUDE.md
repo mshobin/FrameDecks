@@ -57,8 +57,8 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
   (Root Directory `hosted`, output `out`; 26 October); `framedecks.vercel.app` stays until the owner retires it. No server code: `/api/sync-config` is a file written by
   `hosted/scripts/write-sync-config.mjs` at build time; the manifest is `hosted/public/manifest.webmanifest`.
 - `hosted/supabase/migrations/` — SQL run in order in the Supabase SQL editor: `0001` workspaces, `0002` invitations,
-  `0003` sync, `0004` remote control, `0005` the Live page's PC list, `0006` the audit log, `0007` explicit API grants, `0008` member groups, `0009` last-seen throttle (6.11.1; **not yet run live**). `0001`–`0008` have been run in the live project (26 October 2026): never edit
-  one, add the next number.
+  `0003` sync, `0004` remote control, `0005` the Live page's PC list, `0006` the audit log, `0007` explicit API grants, `0008` member groups, `0009` last-seen throttle (6.11.1). `0001`–`0008` were run in the live project on 26 October 2026 and `0009` on
+  27 October: never edit one (not even a comment), add the next number.
   Each new one gets an undo script in `hosted/supabase/rollback/` (`NNNN_<name>_down.sql`).
 - `tools/` — generators and checks (`make_emblem_assets.py`, `check_doc_links.py`, `generate_brand_assets.py`).
 - `docs/FRAMEDECKS_MODERNIZATION_STATUS.md` — the detailed phase tracker; `docs/architecture/metadata-sync.md` — the
@@ -87,7 +87,7 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
   `docs/qa/live-test-guide.md` (keep it in step when a tested behaviour changes).
 - Current handoff (27 October 2026): v6.11.1 and the README/release wordmark refresh (PR #38) are published. Trust
   fixes merged in PR #39 (`27cfb4b`); production deployment verification and the owner's live tests remain. See
-  `.ai/NEXT_SESSION.md`. Repository cleanup (branch `chore/repo-cleanup`): root clean-up: Python modules are in `src/`
+  `.ai/NEXT_SESSION.md`. Repository clean-up (merged): Python modules are in `src/`
   (`python src/server.py`), `README`/`CONTRIBUTING`/`SECURITY`/`SUPPORT` in `.github/`, licences in `legal/`, `CHANGELOG`/`ROADMAP` in `docs/`,
   `ruff.toml` in `config/`; release notes before v6.8 live in
   `docs/releases/archive/`; deployment docs in `docs/deployment/`; the backup runbook in `docs/operations/`.
@@ -165,6 +165,8 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
 - Docs: `python tools/check_doc_links.py`, `git diff --check`.
 - Lint: `ruff check --config config/ruff.toml .` (`config/ruff.toml`; CI pins ruff 0.16.8) and `node --check` on `app/js/*.js` (the Desktop checks
   workflow). Website budget: `node hosted/scripts/check-budget.mjs` after `npm run build`.
+- Actions (27 October): checkout v7, setup-python v7, setup-msbuild v3, download-artifact v8, action-gh-release v3; the
+  last two run only in the release job, so watch the next tag's release job.
 - Releases: [docs/development/release-checklist.md](docs/development/release-checklist.md) (pilot first; rollback). Publish by
   pushing a tag `vX.Y.Z` on `main`: "Build Windows installer" builds, smoke-tests and publishes `FrameDecks vX.Y.Z.exe` with
   `docs/releases/vX.Y.Z.md` as the notes (`tools/make_release_notes.py`). Cloud sessions cannot push tags: tag locally.

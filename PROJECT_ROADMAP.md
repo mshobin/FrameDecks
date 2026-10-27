@@ -1,14 +1,14 @@
 # PROJECT ROADMAP
 
 Phases follow [docs/FRAMEDECKS_MODERNIZATION_STATUS.md](docs/FRAMEDECKS_MODERNIZATION_STATUS.md), which is authoritative for detail.
-Updated 27 October 2026. FrameDecks 6.11.1 is published from tag `v6.11.1`; the README/release header wordmark was refreshed in PR #38. The live Supabase database has `0001`–`0008`; `0009` waits for the owner.
-Repository cleanup is merged; the root clean-up (modules in `src/`, docs in `.github/` and `legal/`) is on `chore/root-cleanup`. No behaviour change; run a real installer build before the next tag.
+Updated 27 October 2026. FrameDecks 6.11.1 is published from tag `v6.11.1`; the README/release header wordmark was refreshed in PR #38; trust fixes (#39), the Windows budget-script fix and five Action upgrades (#33–#37) are on `main`, all green. The live Supabase database has every script, `0001`–`0009` (`0009` run 27 October).
+Repository clean-up is merged (modules in `src/`, docs in `.github/` and `legal/`); no behaviour change. The frozen build was tested here; the next tag still runs the real installer workflow.
 | Step | State |
 |---|---|
 | Audit, branding, architecture decisions | Done |
 | Hosted Next.js companion + CI + Cloudflare Pages | Done (Vercel remains until retired) |
 | PWA manifest + safe service worker | Done (device acceptance pending) |
-| Tenant schema + RLS | Done; tested in-repo on PGlite; all scripts `0001`–`0008` run in live Supabase (26 Oct); live RLS tests pending |
+| Tenant schema + RLS | Done; tested in-repo on PGlite; all scripts `0001`–`0009` run in live Supabase (`0001`–`0008` 26 Oct, `0009` 27 Oct); live RLS tests pending |
 | Supabase project, providers, sign-in UI | Done for emailed links (live sign-in confirmed 25 Oct); Google/Microsoft need owner setup |
 | Workspaces, members, invitations | Built; workspaces confirmed live; invitations to be tested live with Google/Microsoft later |
 | Live RLS tests against Supabase | Needs `*.supabase.co` allowed in the cloud environment |
@@ -32,7 +32,7 @@ Repository cleanup is merged; the root clean-up (modules in `src/`, docs in `.gi
 | Landing brief: FrameDecks spelling, every audience, motion back, About in Light | Built (27 October). Owner: About story wording, program presets |
 | 10/10 plan: phases 1–2, owner-free parts of 3–4 (website four places, Plan, Home, first-time path, Help, identity, landing, Run polish) | Built (27 October). Owner: Test I; go-ahead for projector legibility, templates by type, the Wi-Fi remote; real quotes and photos |
 | Trust fixes (safe service errors, branded confirmations, current public copy) | Merged in PR #39 (`27cfb4b`); local checks and preview deployments passed; production verification and owner live tests remain |
-| 6.11.1: production audit steps 1–2 (`docs/project/2026-10-26-production-audit.md`) | Built and published (27 October); owner runs `0009`. Next: step 3 (live tests, M9, M7) |
+| 6.11.1: production audit steps 1–2 (`docs/project/2026-10-26-production-audit.md`) | Built and published (27 October); `0009` run by the owner (27 October). Next: step 3 (live tests, M9, M7) |
 | Website idle performance (no endless animations, less blur) | Built and live on push (26 October) |
 | First-install fixes: website "Forbidden", Teleprompter unpin, Settings menu | Built on `main` (26 October); owner tests from the next build |
 | Website settings from the PC | Built: Branding, Transition style, Birthdays this week. Later, if wanted: email wording, card looks |

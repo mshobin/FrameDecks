@@ -1,11 +1,12 @@
 # NEXT SESSION HANDOFF
 
 Updated 27 October 2026: release `v6.11.1` is published; the FrameDecks README and release header refresh merged in
-PR #38. Trust fixes merged in PR #39 (`27cfb4b`); CI and preview deployments passed. Production deployment
-verification remains pending. Read [CLAUDE.md](../CLAUDE.md) ("Working locally" has the set-up and run commands).
+PR #38. Trust fixes merged in PR #39 (`27cfb4b`). Later the same day: the budget script fixed for Windows
+(`57cd9c3`), the five Dependabot action upgrades merged (#33–#37), and the handoff PR #40. All checks on `main` are
+green, including the Cloudflare Pages deploy (production); a look at the live site is still the owner's. Read [CLAUDE.md](../CLAUDE.md) ("Working locally" has the set-up and run commands).
 
 ## Where things stand (27 October)
-- **Repository cleanup (branch `chore/repo-cleanup`, not yet merged):** the orphaned `streamdeck/` bundle is gone;
+- **Repository cleanup (merged to `main`):** the orphaned `streamdeck/` bundle is gone;
   release notes v4.9–v6.7 moved to `docs/releases/archive/` (v6.8–v6.11.1 stay in `docs/releases/`);
   `DEPLOYMENT.md`, `ENVIRONMENT.md`, `free-hosting.md`, `code-signing.md` are in `docs/deployment/` and
   `database-backup.md` in `docs/operations/`. All references updated; doc links 97 files / 0 problems. Root clean-up
@@ -24,12 +25,21 @@ verification remains pending. Read [CLAUDE.md](../CLAUDE.md) ("Working locally" 
   Help and Your account; the owner's landing brief (approved hero words, Day 1–4, Ready to Serve?, every audience,
   motion back with no animated blur); the name written **FrameDecks** everywhere people read it; About readable in Light.
 - **Live:** website at `https://framedecks.pages.dev` (Cloudflare Pages, deploys from `main` by itself); Google,
-  Microsoft and email sign-in work; keep-alive and nightly backup run green. Database: `0001`–`0008` run; **`0009`
-  not yet** (owner, Supabase SQL editor).
+  Microsoft and email sign-in work; keep-alive and nightly backup run green. Database: `0001`–`0009` all run
+  (`0009` by the owner on 27 October).
 - **Checks (trust-fix PR #39):** hosted tests 127/127, lint, typecheck, build; manual budget 330 KB JS / 70 KB largest /
   18 KB CSS; desktop JS 4/4; README fact tests 2/2; CSS tokens 14 files / 0 problems; doc links 97 files / 0 problems;
-  packaging self-check passed. The full Python suite had 4 errors from missing `cv2` (165 run, 3 skipped). The
-  budget script's Windows path handling fails, but the equivalent measurement passed.
+  packaging self-check passed. The full Python suite had 4 errors from missing `cv2` (165 run, 3 skipped): a local
+  set-up gap, fixed by `pip install -r packaging/requirements-desktop.txt -c packaging/constraints.txt` in `.venv`.
+  The budget script now works on Windows too (`57cd9c3`, `fileURLToPath`).
+- **GitHub Actions (27 October):** checkout v7.0.1, setup-python v7.1.0, setup-msbuild v3.0.0 (all exercised: the
+  installer build passed on `be52af2`), download-artifact v8.0.2 and action-gh-release v3.0.3 (used only by the
+  release job, so the **next tag** is their first run; download-artifact now fails on a digest mismatch). If that
+  release job fails, fix the cause and re-run the job; the installer build is unaffected.
+- **Cloudflare Pages gotcha:** the three failed deploys on 27 October (c48006d–91c3bc4) were exactly the commits that
+  had edited comments in `hosted/supabase/migrations/0001`–`0008`; restoring those files fixed it. `0001`–`0009` are
+  all run live now. Never edit a
+  migration that has been run (CLAUDE.md), not even a comment; the dashboard log has the exact reason.
 - **Gotcha for the visual suites:** start `src/server.py` with nothing else on port 8750 (a leftover server makes them test
   the wrong data and fail on things that are fine).
 
@@ -227,7 +237,7 @@ Verify the production deployment for PR #39. Then, in order:
 1. **Owner's live tests** with the installed **6.11.1** release: A–I in
    [docs/qa/live-test-guide.md](../docs/qa/live-test-guide.md) (H: Run, Practice and its reminder; I: the website's new
    places and front page), plus the website settings (change Branding on the website, see it in the program within a
-   minute). Run `0009` in Supabase first. Fix what they find; mark each test done in the four files.
+   minute). (`0009` is run.) Fix what they find; mark each test done in the four files.
 2. **Owner decisions still open:** the About story's wording (`app/js/brand.js`: mission, vision, story are the
    owner's ministry words; the website shows them too); the program's church-flavoured presets and templates
    (`app/js/store.js` PROFILES and templates: Sunday Service, Bible Study, Funeral…; program content, protected);
@@ -316,7 +326,7 @@ continuity files in the same commit (owner's rule). Never force-push.
   `except Exception: pass` now log via `errlog.swallowed`, rate-limited), M10 (`0009_seen_throttle.sql` + undo),
   H1 (damaged plan kept aside, newest backup opened, Diagnostics row; linked PC adopts the workspace; all-Frames-gone
   guard). Version 6.11.1, release notes `docs/releases/v6.11.1.md`, About header recaptured.
-- Owner: (1) run `hosted/supabase/migrations/0009_seen_throttle.sql` in the Supabase SQL editor; (2) test on Windows:
+- Owner: (1) run `hosted/supabase/migrations/0009_seen_throttle.sql` in the Supabase SQL editor (done 27 October); (2) test on Windows:
   Teleprompter pin/unpin, FrameDecks account linking, the Settings menu, and the camera in Zoom.
 - Next from the audit (step 3): live tests A–G, M9 (other window operations non-blocking), M7 (one OpenCV).
 
@@ -331,6 +341,6 @@ continuity files in the same commit (owner's rule). Never force-push.
   smoke test (install, start, ping, quit, uninstall) in the Windows build; nightly backup self-check + checksum;
   failure issues for the DB workflows; offline-cache trimming; fsync of the plan file; release checklist with
   rollback (`docs/development/release-checklist.md`).
-- Owner: run `0009`, then the Windows checks and live tests A–G on the published v6.11.1 release.
+- Owner: `0009` is run (27 October); next the Windows checks and live tests A–G on the published v6.11.1 release.
 - Next (step 3, before going public): signing, full CSP, phone-remote sessions/PIN, backup location, outside
   penetration test, 6.12 Excel removal.

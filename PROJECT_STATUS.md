@@ -2,16 +2,17 @@
 
 Last verified: 27 October 2026. **FrameDecks 6.11.1 is published** at `v6.11.1`; its build and publish workflow passed.
 The FrameDecks README/release header image refresh merged in PR #38; trust fixes merged in PR #39 (`27cfb4b`).
-Production deployment verification and owner live tests remain. The live database has `0001`–`0008`; `0009` waits
-for the owner.
-- **Root clean-up (`chore/root-cleanup`):** Python modules now in `src/` (`python src/server.py`), docs in `.github/`, `legal/`, `docs/`, `config/ruff.toml`; checks unchanged (Python suite baseline, hosted 127/127, build, ruff 0.16.8 clean). Installer build not run here: build once before the next tag.
-- **Cleanup branch `chore/repo-cleanup` (merged):** old release notes archived, Stream Deck leftover removed,
-  deployment and operations docs regrouped under `docs/deployment/` and `docs/operations/`; checks unchanged.
+Since then: the budget script works on Windows (`57cd9c3`), five GitHub Action upgrades merged (#33–#37; the two
+used only for releases first run at the next tag), handoff PR #40 merged; every check on `main` is green, including the
+Cloudflare Pages production deploy. Owner live tests remain. The live database has every script, `0001`–`0009`
+(`0009` run by the owner on 27 October).
+- **Repository clean-up (merged):** Python modules in `src/` (`python src/server.py`), community docs in `.github/`, licences in `legal/`, `CHANGELOG`/`ROADMAP` in `docs/`, `ruff.toml` in `config/`; old release notes in `docs/releases/archive/`; deployment and operations docs under `docs/deployment/` and `docs/operations/`. Checks unchanged (Python baseline, hosted 127/127, build, ruff 0.16.8); a PyInstaller build from the new layout built and answered `/api/app/ping`.
 - **GitHub:** Desktop checks, Hosted companion checks and Build Windows installer (with the installer smoke test) green.
 - **Trust-fix PR #39 checks:** hosted tests 127/127, lint, typecheck, build; manual budget 330 KB JS / 70 KB largest /
   18 KB CSS; desktop JS 4/4; README fact tests 2/2; CSS tokens 14 files / 0 problems; doc links 97 files / 0 problems;
-  packaging self-check passed. The full Python suite had 4 errors from missing `cv2` (165 run, 3 skipped). The
-  budget script's Windows path handling fails, but the equivalent measurement passed.
+  packaging self-check passed. The full Python suite had 4 errors from missing `cv2` (165 run, 3 skipped): a local
+  set-up gap, fixed by `pip install -r packaging/requirements-desktop.txt -c packaging/constraints.txt` in `.venv`.
+  The budget script now works on Windows too (`57cd9c3`, `fileURLToPath`).
 - **Next:** the owner's live tests A–I on 6.11.1 (`docs/qa/live-test-guide.md`); see `.ai/NEXT_SESSION.md`.
 
 Phase detail lives in
@@ -90,7 +91,7 @@ Phase detail lives in
   Local checks, CI and preview deployments passed. Production deployment verification and the owner's live tests
   remain pending.
 - **6.11.1 (26 October):** audit steps 1–2 built (pinned build, cross-site guard, error logging, plan recovery and
-  sync guard, `0009`); published at `v6.11.1` on 27 October. The owner still needs to run `0009`.
+  sync guard, `0009`); published at `v6.11.1` on 27 October. The owner ran `0009` on 27 October.
 - **Website performance (26 October):** the website no longer animates when idle (older 8 GB PCs next to the program).
 - **First-install fixes (26 October):** website "Forbidden" (request identity), Teleprompter unpin freeze, grouped Settings menu; on `main`, not yet in a release.
 - **FRAMECAST (26 October):** the virtual camera's new name; v6.11 release published with the installer (the
@@ -100,7 +101,7 @@ Phase detail lives in
   encrypted nightly backup, [restore guide](docs/operations/database-backup.md)). Step 3 done (idle
   phone-control polling 5 → 15 s). Step 4 code done (Google/Microsoft
   above the email link). Companion live at `https://framedecks.pages.dev` (the PC now links through it; owner signed in there, 26 October). Part B live (keep-alive and nightly backup green, 26 October). Part D live: Google and Microsoft sign-in work (26 October; Google brand verification pending; Brevo skipped). Owner setup: finish Part A (test, then retire Vercel); Part E.
-- Database live: `0001`–`0008` run in Supabase (26 October). Waiting for the owner's live tests A–F
+- Database live: `0001`–`0008` run in Supabase (26 October), `0009` on 27 October. Waiting for the owner's live tests A–I
   ([live-test-guide.md](docs/qa/live-test-guide.md)).
 
 ## Pending
