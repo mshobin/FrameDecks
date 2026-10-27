@@ -86,7 +86,7 @@ Phase detail lives in
   Local checks passed as listed above; PR #39's CI and preview deployments passed. After merge, verify production
   deployment; the owner's live tests remain pending.
 - **6.11.1 (26 October):** audit steps 1–2 built (pinned build, cross-site guard, error logging, plan recovery and
-  sync guard, `0009`); owner publishes the release and runs `0009`.
+  sync guard, `0009`); published at `v6.11.1` on 27 October. The owner still needs to run `0009`.
 - **Website performance (26 October):** the website no longer animates when idle (older 8 GB PCs next to the program).
 - **First-install fixes (26 October):** website "Forbidden" (request identity), Teleprompter unpin freeze, grouped Settings menu; on `main`, not yet in a release.
 - **FRAMECAST (26 October):** the virtual camera's new name; v6.11 release published with the installer (the
