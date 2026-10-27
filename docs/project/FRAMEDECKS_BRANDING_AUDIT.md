@@ -58,7 +58,7 @@ branding.
 | `docs/reference/features.md`, `docs/reference/meeting-workbook-and-branding.md` | Maintainer reference material, including old asset/template paths. |
 | `docs/development/code-style.md` | Documents internal JavaScript global naming conventions. |
 | `docs/development/building-the-installer.md` | Retains the legacy camera DLL name in troubleshooting instructions; the current folder instruction was updated above. |
-| `docs/FRAMEDECKS_BRANDING_ASSETS.md` | Names the existing icon path intentionally retained by packaging. |
+| `docs/project/FRAMEDECKS_BRANDING_ASSETS.md` | Names the existing icon path intentionally retained by packaging. |
 
 ### Runtime, build, and compatibility identifiers
 
