@@ -941,3 +941,9 @@ The fix closes each link in that chain:
   other processes with the program's own executable name, and only in the installed app.
 - The installer's `PrepareToInstall` closes a running copy.
 
+## 33. Companion trust layer (27 October 2026)
+
+The companion now maps known service failures to actionable, user-safe messages instead of presenting raw
+authentication or database details. Destructive actions use a shared native dialog with a named action and keyboard
+cancellation; workspace deletion also requires typing the workspace name. The desktop interface, live-service command
+semantics, and PC-local media and presentation state are unchanged.

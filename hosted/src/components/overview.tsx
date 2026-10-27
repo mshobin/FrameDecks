@@ -14,6 +14,7 @@ import { DOWNLOADS } from "@/lib/pc-setup";
 import { browserSupabase } from "@/lib/supabase-browser";
 import { useSession } from "@/lib/use-session";
 import { useWorkspaces } from "@/lib/use-workspaces";
+import { userSafeError } from "@/lib/user-error";
 
 /** The companion's front page: a landing page before sign-in, the workspace dashboard after. */
 export function Overview() {
@@ -93,7 +94,7 @@ function FirstSteps({ name }: Readonly<{ name: string }>) {
     // The database makes the creator the owner (trigger), so the client never picks a role.
     const { error } = await supabase.from("organizations").insert({ name: title, created_by: session.user.id });
     setBusy(false);
-    if (error) setProblem(error.message);
+    if (error) setProblem(userSafeError(error, "Couldn’t create your team’s space. Check your connection and try again."));
     else window.location.reload();
   }
 

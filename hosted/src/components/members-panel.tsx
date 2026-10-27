@@ -19,6 +19,8 @@ import { browserSupabase } from "@/lib/supabase-browser";
 import type { WorkspaceChoice } from "@/lib/use-workspaces";
 import { deleteRecord, pullWorkspace, pushRecord, syncNotSetUp, type PulledRecord } from "@/lib/workspace-sync";
 import { EmptyState, ErrorState, PageSkeleton } from "@/components/states";
+import { useConfirmation } from "@/components/confirm-dialog";
+import { userSafeError } from "@/lib/user-error";
 
 // The member list (owners and admins). M-D2: the workspace is the list's source; people added, edited or removed
 // here reach the service PC at its next sync. M-D6: groups live in the cloud only (0008_member_groups.sql); the
@@ -185,6 +187,7 @@ function GroupsManager({
 
 function Members({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
   const supabase = browserSupabase();
+  const { ask, dialog } = useConfirmation();
   const [people, setPeople] = useState<Person[] | "not-set-up" | { error: string } | null>(null);
   const [groups, setGroups] = useState<Group[] | null>(null); // null: 0008 not run yet, groups hidden
   const [links, setLinks] = useState<GroupLinks>(new Map());
@@ -197,7 +200,7 @@ function Members({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
   const load = useCallback(async () => {
     if (!supabase) return;
     const { records, error } = await pullWorkspace(supabase, workspace.id);
-    if (error) return setPeople(syncNotSetUp(error) ? "not-set-up" : { error: error.message });
+    if (error) return setPeople(syncNotSetUp(error) ? "not-set-up" : { error: userSafeError(error, "Couldn’t load the member list. Check your connection and try again.") });
     setPeople(
       (records as PulledRecord[])
         .filter((r) => r.kind === "member" && r.body && typeof r.body === "object")
@@ -206,7 +209,7 @@ function Members({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
     const g = await supabase.from("member_groups").select("id, name").eq("organization_id", workspace.id).order("name");
     if (g.error) {
       setGroups(null);
-      if (!groupsNotSetUp(g.error)) setMessage({ ok: false, text: g.error.message });
+      if (!groupsNotSetUp(g.error)) setMessage({ ok: false, text: userSafeError(g.error, "Couldn’t load member groups. Try again.") });
       return;
     }
     setGroups(g.data as Group[]);
@@ -241,11 +244,11 @@ function Members({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
     const drop = [...have].filter((g) => !want.has(g));
     if (add.length) {
       const { error } = await supabase.from("member_group_members").insert(add);
-      if (error) return error.message;
+      if (error) return userSafeError(error, "The member was saved, but its groups could not be updated.");
     }
     if (drop.length) {
       const { error } = await supabase.from("member_group_members").delete().eq("member_id", memberId).in("group_id", drop);
-      if (error) return error.message;
+      if (error) return userSafeError(error, "The member was saved, but its groups could not be updated.");
     }
     return null;
   }
@@ -280,7 +283,11 @@ function Members({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
 
   async function remove(person: Person) {
     if (!supabase) return;
-    if (!window.confirm(`Remove ${person.name} from the member list? This removes them on the service PC too.`)) return;
+    if (!(await ask({
+      title: `Remove ${person.name}?`,
+      description: "They’ll be removed from the member list here and on the service PC. A copy stays in History for 30 days.",
+      confirmLabel: "Remove person",
+    }))) return;
     setBusy(true);
     const answer = await deleteRecord(supabase, workspace.id, { kind: "member", id: person.id, rev: person.rev });
     if (answer.status === "ok" && groups) await supabase.from("member_group_members").delete().eq("organization_id", workspace.id).eq("member_id", person.id);
@@ -298,7 +305,7 @@ function Members({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
     if (!name) return false;
     const { error } = await supabase.from("member_groups").insert({ organization_id: workspace.id, name });
     if (error) {
-      setMessage({ ok: false, text: error.code === "23505" ? `There is already a group called “${name}”.` : error.message });
+      setMessage({ ok: false, text: error.code === "23505" ? `There is already a group called “${name}”.` : userSafeError(error, "Couldn’t add this group. Try again.") });
       return false;
     }
     await load();
@@ -311,7 +318,7 @@ function Members({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
     if (!name) return false;
     const { error } = await supabase.from("member_groups").update({ name }).eq("id", g.id);
     if (error) {
-      setMessage({ ok: false, text: error.code === "23505" ? `There is already a group called “${name}”.` : error.message });
+      setMessage({ ok: false, text: error.code === "23505" ? `There is already a group called “${name}”.` : userSafeError(error, "Couldn’t rename this group. Try again.") });
       return false;
     }
     await load();
@@ -320,9 +327,13 @@ function Members({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
 
   async function deleteGroup(g: Group) {
     if (!supabase) return;
-    if (!window.confirm(`Delete the group “${g.name}”? The people in it stay on the member list.`)) return;
+    if (!(await ask({
+      title: `Delete the group “${g.name}”?`,
+      description: "People in the group stay on the member list, but this group and its assignments are removed.",
+      confirmLabel: "Delete group",
+    }))) return;
     const { error } = await supabase.from("member_groups").delete().eq("id", g.id);
-    if (error) setMessage({ ok: false, text: error.message });
+    if (error) setMessage({ ok: false, text: userSafeError(error, "Couldn’t delete this group. Try again.") });
     if (filter === g.id) setFilter("");
     await load();
   }
@@ -434,7 +445,8 @@ function Members({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
           </table>
         </div>
       )}
-      {!groups && <p className="workspace-hint">Member groups appear here once the database script 0008_member_groups.sql has been run.</p>}
+      {!groups && <p className="workspace-hint">Member groups aren’t ready yet. Ask your workspace owner to finish setting them up.</p>}
+      {dialog}
     </>
   );
 }

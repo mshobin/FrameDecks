@@ -1,11 +1,13 @@
 # PROJECT STATUS
 
 Last verified: 27 October 2026. **FrameDecks 6.11.1 is published** at `v6.11.1`; its build and publish workflow passed.
-The README/release header image refresh is being prepared on a branch. The live database has `0001`–`0008`; `0009`
+The FrameDecks README/release header image refresh merged in PR #38. The live database has `0001`–`0008`; `0009`
 waits for the owner.
 - **GitHub:** Desktop checks, Hosted companion checks and Build Windows installer (with the installer smoke test) green.
-- **Locally (cloud session):** Python OK, desktop JS 4/4, `packaging/check.py` 6.11.1, css tokens 0, doc links 0,
-  ruff clean, layout and axe pass; hosted 124/124, lint, typecheck, build, budget.
+- **Trust-fix branch checks:** hosted tests 127/127, lint, typecheck, build; manual budget 330 KB JS / 70 KB largest /
+  18 KB CSS; desktop JS 4/4; README fact tests 2/2; CSS tokens 14 files / 0 problems; doc links 97 files / 0 problems;
+  packaging self-check passed. The full Python suite had 4 errors from missing `cv2` (165 run, 3 skipped). The
+  budget script's Windows path handling fails, but the equivalent measurement passed.
 - **Next:** the owner's live tests A–I on 6.11.1 (`docs/qa/live-test-guide.md`); see `.ai/NEXT_SESSION.md`.
 
 Phase detail lives in
@@ -14,7 +16,7 @@ Phase detail lives in
 
 ## Completed
 - **Desktop and brand.** Desktop 6.10 and the approved emblem (PRs #7, #18); drift resolved (see "Drift").
-- **Hosted companion** on Vercel (`hosted/`).
+- **Hosted companion** on Cloudflare Pages (`hosted/`); Vercel remains until retired.
   - Sign-in (PR #18) and workspaces (PR #19) are **confirmed live**.
   - Members and invitations (PR #20) are built.
 - **Phase 4 sync** (PRs #21–#24), **Phase 5 control from the companion** (PRs #25–#27), **companion editing and
@@ -36,6 +38,7 @@ Phase detail lives in
     7. PowerPoint export and Audio Content.
     8. Member groups `0008`.
     - M-D5 hosting recommendation ([hosting.md](docs/architecture/hosting.md)).
+- **PR #38 (merged 27 October):** refreshed the README and release header to use the FrameDecks wordmark.
 
 ## In Progress
 - **6.11** ([meeting-form.md](docs/architecture/meeting-form.md)): built: camera check card and `framedecks://` link; website Meeting Form (`/meeting`);
@@ -78,8 +81,12 @@ Phase detail lives in
   demo, week, FAQ, footer); compact transition dropdown and "+ Add a question"; program Run: larger Up next, key
   hints, Practice reminder at service time. Checks: hosted 122/122, lint, typecheck, build, budget JS 325 KB; Python
   OK; JS 4/4; layout and axe pass. Owner: Test I; projector legibility and templates by type wait for a go-ahead.
+- **Trust fixes (`fix/trust-layer-errors-confirmations`):** service errors use safe, actionable copy; destructive
+  confirmations use a branded dialog; README and hosted companion docs describe the current release and live features.
+  Local checks passed as listed above; PR #39's CI and preview deployments passed. After merge, verify production
+  deployment; the owner's live tests remain pending.
 - **6.11.1 (26 October):** audit steps 1–2 built (pinned build, cross-site guard, error logging, plan recovery and
-  sync guard, `0009`); owner publishes the release and runs `0009`.
+  sync guard, `0009`); published at `v6.11.1` on 27 October. The owner still needs to run `0009`.
 - **Website performance (26 October):** the website no longer animates when idle (older 8 GB PCs next to the program).
 - **First-install fixes (26 October):** website "Forbidden" (request identity), Teleprompter unpin freeze, grouped Settings menu; on `main`, not yet in a release.
 - **FRAMECAST (26 October):** the virtual camera's new name; v6.11 release published with the installer (the

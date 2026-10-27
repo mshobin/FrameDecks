@@ -5,11 +5,13 @@ import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { Building2, UserRound } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { useConfirmation } from "@/components/confirm-dialog";
 import { WorkspaceMembers } from "@/components/workspace-members";
 import { browserSupabase } from "@/lib/supabase-browser";
 import type { Organization, Role } from "@/lib/supabase-config";
 import { useSession } from "@/lib/use-session";
 import { ListSkeleton } from "@/components/states";
+import { userSafeError } from "@/lib/user-error";
 
 const NAME_LIMIT = 120;
 const roleLabels: Record<Role, string> = { owner: "Owner", admin: "Admin", member: "Member" };
@@ -21,6 +23,7 @@ type MembershipRow = { role: Role; organizations: Pick<Organization, "id" | "nam
 // The signed-in person's profile and workspaces. Row-level security decides what they can read and write.
 export function WorkspacePanel() {
   const supabase = browserSupabase();
+  const { ask, dialog } = useConfirmation();
   const session = useSession();
   const userId = session?.user.id;
 
@@ -47,7 +50,7 @@ export function WorkspacePanel() {
     ]);
     setInvitations(invited.error ? null : (invited.data as InvitationForMe[]));
     if (memberships.error || profile.error) {
-      setProblem((memberships.error ?? profile.error)?.message ?? "Could not load your workspace.");
+      setProblem(userSafeError(memberships.error ?? profile.error, "Couldn’t load your teams. Check your connection and try again."));
       setWorkspaces([]);
       return;
     }
@@ -90,7 +93,7 @@ export function WorkspacePanel() {
       .from("profiles")
       .upsert({ user_id: userId, display_name: name || null }, { onConflict: "user_id" });
     setBusy(null);
-    if (error) setProblem(error.message);
+    if (error) setProblem(userSafeError(error, "Couldn’t save your profile. Try again."));
     else setNotice("Your name is saved.");
   }
 
@@ -101,7 +104,7 @@ export function WorkspacePanel() {
     const { error } = accept
       ? await supabase.rpc("accept_invitation", { invitation: invitation.id })
       : await supabase.from("invitations").delete().eq("id", invitation.id);
-    if (error) setProblem(error.message);
+    if (error) setProblem(userSafeError(error, "Couldn’t update this invitation. Try again."));
     else setNotice(accept ? `You joined “${invitation.organization_name}”.` : "Invitation declined.");
     await load();
   }
@@ -118,7 +121,7 @@ export function WorkspacePanel() {
     const { error } = await supabase.from("organizations").insert({ name, created_by: userId });
     setBusy(null);
     if (error) {
-      setProblem(error.message);
+      setProblem(userSafeError(error, "Couldn’t create your team. Check your connection and try again."));
       return;
     }
     setWorkspaceName("");
@@ -130,21 +133,22 @@ export function WorkspacePanel() {
   // members and groups, invitations, linked PCs and the audit log (all "on delete cascade").
   async function deleteWorkspace(workspace: Workspace) {
     if (!supabase) return;
-    const typed = window.prompt(
-      `Delete “${workspace.name}” for everyone?\n\nIts service plan, history, member list, invitations and linked PCs are removed and cannot be restored. ` +
-        `Linked PCs keep their own copy of the plan; unlink them in FrameDecks → Settings → FrameDecks account.\n\nType the workspace name to confirm:`,
-    );
-    if (typed === null) return;
-    if (typed.trim() !== workspace.name) {
-      setNotice(null);
-      setProblem("The name did not match, so nothing was deleted.");
-      return;
-    }
+    if (!(await ask({
+      title: `Delete “${workspace.name}” for everyone?`,
+      description: "The shared plan, history, member list, invitations and linked-PC records are removed and can’t be restored. Each linked PC keeps its local copy. Type the team name below to confirm.",
+      confirmLabel: "Delete team",
+      confirmationText: workspace.name,
+      confirmationLabel: `Type “${workspace.name}” to confirm`,
+    }))) return;
     setProblem(null);
     setNotice(null);
     const { data, error } = await supabase.from("organizations").delete().eq("id", workspace.id).select("id");
-    if (error || !data?.length) {
-      setProblem(error?.message ?? "Only the owner can delete this workspace.");
+    if (error) {
+      setProblem(userSafeError(error, "Couldn’t delete this team. Ask a workspace owner for help."));
+      return;
+    }
+    if (!data?.length) {
+      setProblem("Only a workspace owner can delete this team.");
       return;
     }
     setOpenWorkspace(null);
@@ -280,6 +284,7 @@ export function WorkspacePanel() {
           {problem ?? notice}
         </p>
       )}
+      {dialog}
     </section>
   );
 }

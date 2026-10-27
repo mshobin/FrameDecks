@@ -1,13 +1,13 @@
 # NEXT SESSION HANDOFF
 
-Updated 27 October 2026: release `v6.11.1` is published; the README and release header image refresh is being prepared
-on a branch. Continue locally in VS Code: `git checkout main && git pull`, then
-read [CLAUDE.md](../CLAUDE.md) ("Working locally" has the set-up and run commands).
+Updated 27 October 2026: release `v6.11.1` is published; the FrameDecks README and release header refresh merged in
+PR #38. Trust fixes are locally verified in PR #39 on `fix/trust-layer-errors-confirmations`, and its CI and preview
+deployments passed. After merge, verify the production deployment, then read [CLAUDE.md](../CLAUDE.md) ("Working locally"
+has the set-up and run commands).
 
 ## Where things stand (27 October)
 - **Release:** **FrameDecks 6.11.1 is published** at `v6.11.1`; its build and publish workflow succeeded. The README
-  header image has been regenerated; refresh the release body's image URL to the committed image and merge the README
-  image update so both published surfaces display the new FrameDecks wordmark.
+  and release body both show the refreshed FrameDecks wordmark (PR #38).
 - **`main` since 6.11:** audit steps 1–2 (plan recovery, safe sync, support bundle, update notice, pinned build); the
   design roadmap and UX simplification (Prepare / Run, Up next with keys, Practice mode and its start-time reminder,
   How people see it, Advanced, People); the website's four places (Home · Plan · Live · People), first-time steps,
@@ -16,15 +16,16 @@ read [CLAUDE.md](../CLAUDE.md) ("Working locally" has the set-up and run command
 - **Live:** website at `https://framedecks.pages.dev` (Cloudflare Pages, deploys from `main` by itself); Google,
   Microsoft and email sign-in work; keep-alive and nightly backup run green. Database: `0001`–`0008` run; **`0009`
   not yet** (owner, Supabase SQL editor).
-- **Checks (cloud session, 27 October):** Python OK; desktop JS 4/4; `packaging/check.py` 6.11.1; `css_tokens` 0;
-  doc links 0; ruff clean; layout and axe (both themes) pass; hosted 124/124, lint, typecheck, build, budget (JS 327 KB,
-  CSS 18 KB of 20). GitHub: Desktop checks, Hosted companion checks and Build Windows installer green on `main`.
+- **Checks (trust-fix branch):** hosted tests 127/127, lint, typecheck, build; manual budget 330 KB JS / 70 KB largest /
+  18 KB CSS; desktop JS 4/4; README fact tests 2/2; CSS tokens 14 files / 0 problems; doc links 97 files / 0 problems;
+  packaging self-check passed. The full Python suite had 4 errors from missing `cv2` (165 run, 3 skipped). The
+  budget script's Windows path handling fails, but the equivalent measurement passed.
 - **Gotcha for the visual suites:** start `server.py` with nothing else on port 8750 (a leftover server makes them test
   the wrong data and fail on things that are fine).
 
-## Completed (merged to `main`, PRs #7–#31)
+## Completed (merged to `main`, PRs #7–#32 and #38)
 - Desktop 6.10, the approved emblem, and the drift cleanup.
-- Hosted companion on Vercel: sign-in and workspaces confirmed live by the owner; members and invitations.
+- Hosted companion on Cloudflare Pages (Vercel remains until retired): sign-in and workspaces confirmed live by the owner; members and invitations.
 - Phase 4 sync of service plans, built and not yet live-tested:
   - database `0003`;
   - record mapping;
@@ -212,8 +213,8 @@ Owner checks on Windows: a new data folder shows Welcome to FrameDecks with Star
 the PC's real width.
 
 ## Recommended Next Task
-Nothing is left for an assistant to build without the owner. In order:
-1. **Publish 6.11.1** (push the tag, above), then the **owner's live tests** with the installed **6.11.1** release: A–I in
+After PR #39 merges, verify the production deployment. Then, in order:
+1. **Owner's live tests** with the installed **6.11.1** release: A–I in
    [docs/qa/live-test-guide.md](../docs/qa/live-test-guide.md) (H: Run, Practice and its reminder; I: the website's new
    places and front page), plus the website settings (change Branding on the website, see it in the program within a
    minute). Run `0009` in Supabase first. Fix what they find; mark each test done in the four files.
@@ -305,9 +306,8 @@ continuity files in the same commit (owner's rule). Never force-push.
   `except Exception: pass` now log via `errlog.swallowed`, rate-limited), M10 (`0009_seen_throttle.sql` + undo),
   H1 (damaged plan kept aside, newest backup opened, Diagnostics row; linked PC adopts the workspace; all-Frames-gone
   guard). Version 6.11.1, release notes `docs/releases/v6.11.1.md`, About header recaptured.
-- Owner: (1) run `hosted/supabase/migrations/0009_seen_throttle.sql` in the Supabase SQL editor; (2) publish the
-  release: tag `v6.11.1` on `main` (Releases → Draft a new release); (3) test on Windows: Teleprompter pin/unpin,
-  FrameDecks account linking, the Settings menu, the camera in Zoom.
+- Owner: (1) run `hosted/supabase/migrations/0009_seen_throttle.sql` in the Supabase SQL editor; (2) test on Windows:
+  Teleprompter pin/unpin, FrameDecks account linking, the Settings menu, and the camera in Zoom.
 - Next from the audit (step 3): live tests A–G, M9 (other window operations non-blocking), M7 (one OpenCV).
 
 ## Stream Deck plugin removed (26 October, owner's request)
@@ -321,6 +321,6 @@ continuity files in the same commit (owner's rule). Never force-push.
   smoke test (install, start, ping, quit, uninstall) in the Windows build; nightly backup self-check + checksum;
   failure issues for the DB workflows; offline-cache trimming; fsync of the plan file; release checklist with
   rollback (`docs/development/release-checklist.md`).
-- Owner: publish v6.11.1 (Releases), run `0009`, then the Windows checks and live tests A–G.
+- Owner: run `0009`, then the Windows checks and live tests A–G on the published v6.11.1 release.
 - Next (step 3, before going public): signing, full CSP, phone-remote sessions/PIN, backup location, outside
   penetration test, 6.12 Excel removal.

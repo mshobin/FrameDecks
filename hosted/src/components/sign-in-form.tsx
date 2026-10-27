@@ -4,6 +4,7 @@ import { useEffect, useState, type FormEvent } from "react";
 
 import { Button } from "@/components/ui/button";
 import { browserSupabase, callbackUrl, enabledProviders, type SignInProvider } from "@/lib/supabase-browser";
+import { userSafeError } from "@/lib/user-error";
 
 const providerLabels: Record<SignInProvider, string> = {
   google: "Continue with Google",
@@ -79,7 +80,7 @@ export function SignInForm({ starting = false }: Readonly<{ starting?: boolean }
       email: email.trim(),
       options: { emailRedirectTo: callbackUrl() },
     });
-    setStatus(error ? { kind: "error", message: error.message } : { kind: "sent" });
+    setStatus(error ? { kind: "error", message: userSafeError(error, "Couldn’t send a sign-in link. Check your email address and try again.") } : { kind: "sent" });
   }
 
   async function signInWith(provider: SignInProvider) {
@@ -88,7 +89,7 @@ export function SignInForm({ starting = false }: Readonly<{ starting?: boolean }
       provider,
       options: { redirectTo: callbackUrl(), scopes: provider === "azure" ? "email" : undefined },
     });
-    if (error) setStatus({ kind: "error", message: error.message });
+    if (error) setStatus({ kind: "error", message: userSafeError(error, `Couldn’t start ${providerLabels[provider].replace("Continue with ", "")} sign-in. Try again or use email.`) });
   }
 
   if (status.kind === "sent") {

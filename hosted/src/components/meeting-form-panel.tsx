@@ -35,9 +35,11 @@ import {
   type ScriptureRow,
 } from "@/lib/meeting-form";
 import { browserSupabase } from "@/lib/supabase-browser";
+import { useConfirmation } from "@/components/confirm-dialog";
 import { shortDate } from "@/lib/when";
 import { PROFILES, profileOf } from "@/lib/workspace-settings";
 import { join, type JsonObject } from "@/lib/sync-entities";
+import { userSafeError } from "@/lib/user-error";
 import { pullWorkspace, pushChanges, pushRecord, syncNotSetUp, type PulledRecord } from "@/lib/workspace-sync";
 import type { WorkspaceChoice } from "@/lib/use-workspaces";
 import { EmptyState, ErrorState, PageSkeleton } from "@/components/states";
@@ -56,6 +58,7 @@ const SAVED_LIVE = "Saved. This Frame is on screen now: the PC applies your chan
 // to the workspace with sync_push on top of the revision it was read at, and the PC applies it like any other edit.
 function Planner({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
   const supabase = browserSupabase();
+  const { ask, dialog } = useConfirmation();
   const canEdit = workspace.role === "owner" || workspace.role === "admin";
   const [loaded, setLoaded] = useState<Loaded | null>(null);
   const [editing, setEditing] = useState<string | null>(null); // a Frame id, or "new"
@@ -65,7 +68,7 @@ function Planner({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
   const load = useCallback(async () => {
     if (!supabase) return;
     const { records, error } = await pullWorkspace(supabase, workspace.id);
-    if (error) return setLoaded(syncNotSetUp(error) ? "not-set-up" : { error: error.message });
+    if (error) return setLoaded(syncNotSetUp(error) ? "not-set-up" : { error: userSafeError(error, "Couldn’t load the meeting plan. Check your connection and try again.") });
     const pcs = await supabase.rpc("remote_computers", { org: workspace.id });
     const statuses = ((pcs.data as { status: { frame?: { id: string } | null } | null }[] | null) ?? []).map((p) => p.status);
     setLoaded({ records, onAir: statuses.find((s) => s?.frame)?.frame?.id ?? null });
@@ -124,7 +127,11 @@ function Planner({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
   async function remove(frame: Obj) {
     const record = byKey.get(key("frame", String(frame.id)));
     if (!supabase || !record || busy) return;
-    if (!window.confirm(`Delete “${String(frame.name)}”? It stays under Running order → Deleted in the last 30 days.`)) return;
+    if (!(await ask({
+      title: `Delete “${String(frame.name)}”?`,
+      description: "You can restore this Frame from the Running order within 30 days.",
+      confirmLabel: "Delete Frame",
+    }))) return;
     setBusy(true);
     setNotice(null);
     const changes: Parameters<typeof pushChanges>[2] = [{ kind: "frame", id: record.id, rev: record.rev, deleted: true }];
@@ -292,6 +299,7 @@ function Planner({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
           <Plus aria-hidden="true" size={16} /> Add a Frame
         </button>
       )}
+      {dialog}
     </>
   );
 }

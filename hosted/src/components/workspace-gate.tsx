@@ -59,8 +59,8 @@ export function WorkspaceGate({
 
 export function NotSetUp() {
   return (
-    <EmptyState title="Syncing isn’t switched on yet">
-      Whoever set up FrameDecks for your team finishes it once, in the database (step <code>0003_sync.sql</code>).
+    <EmptyState title="Workspace syncing isn’t ready yet">
+      Ask your workspace owner to finish setting it up. Your service PC keeps its local plan.
     </EmptyState>
   );
 }

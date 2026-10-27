@@ -1,12 +1,12 @@
 # PROJECT ROADMAP
 
 Phases follow [docs/FRAMEDECKS_MODERNIZATION_STATUS.md](docs/FRAMEDECKS_MODERNIZATION_STATUS.md), which is authoritative for detail.
-Updated 27 October 2026. FrameDecks 6.11.1 is published from tag `v6.11.1`; the README/release header image refresh is in progress. The live Supabase database has `0001`–`0008`; `0009` waits for the owner.
+Updated 27 October 2026. FrameDecks 6.11.1 is published from tag `v6.11.1`; the README/release header wordmark was refreshed in PR #38. The live Supabase database has `0001`–`0008`; `0009` waits for the owner.
 
 | Step | State |
 |---|---|
 | Audit, branding, architecture decisions | Done |
-| Hosted Next.js shell + CI + Vercel | Done |
+| Hosted Next.js companion + CI + Cloudflare Pages | Done (Vercel remains until retired) |
 | PWA manifest + safe service worker | Done (device acceptance pending) |
 | Tenant schema + RLS | Done; tested in-repo on PGlite; all scripts `0001`–`0008` run in live Supabase (26 Oct); live RLS tests pending |
 | Supabase project, providers, sign-in UI | Done for emailed links (live sign-in confirmed 25 Oct); Google/Microsoft need owner setup |
@@ -31,11 +31,12 @@ Updated 27 October 2026. FrameDecks 6.11.1 is published from tag `v6.11.1`; the 
 | Re-audit steps to 90+ (palette, radii/shadows, `!important`, lazy sections, axe scan in CI) | Built (27 October). Left for the owner: Windows check, a screen-reader pass (NVDA/Narrator), a real quote or usage fact for the landing page |
 | Landing brief: FrameDecks spelling, every audience, motion back, About in Light | Built (27 October). Owner: About story wording, program presets |
 | 10/10 plan: phases 1–2, owner-free parts of 3–4 (website four places, Plan, Home, first-time path, Help, identity, landing, Run polish) | Built (27 October). Owner: Test I; go-ahead for projector legibility, templates by type, the Wi-Fi remote; real quotes and photos |
+| Trust fixes (safe service errors, branded confirmations, current public copy) | PR #39; local checks and preview deployments passed; production verification and owner live tests remain |
 | 6.11.1: production audit steps 1–2 (`docs/project/2026-10-26-production-audit.md`) | Built and published (27 October); owner runs `0009`. Next: step 3 (live tests, M9, M7) |
 | Website idle performance (no endless animations, less blur) | Built and live on push (26 October) |
 | First-install fixes: website "Forbidden", Teleprompter unpin, Settings menu | Built on `main` (26 October); owner tests from the next build |
 | Website settings from the PC | Built: Branding, Transition style, Birthdays this week. Later, if wanted: email wording, card looks |
-| Hosting long term ([hosting.md](docs/architecture/hosting.md)) | Recommended: companion to Cloudflare (static) before a public launch; Supabase Free → Pro when churches depend on it |
+| Hosting long term ([hosting.md](docs/architecture/hosting.md)) | Companion is live on Cloudflare Pages (static); Vercel remains until retired. Supabase Free → Pro when churches depend on it |
 | Later (not designed yet) | Asset references (size/hash) across PCs; on-screen missing-media line (needs approval); auto-update; a shared Template Store |
 | Real-device PWA acceptance, operations | Later |
 | Packaged Windows run, tray icon check | Installer builds pass on GitHub; a person still checks the tray icon and sync's key storage on an installed PC |

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight, EyeOff, Moon } from "lucide-react";
 
 import { WorkspaceGate } from "@/components/workspace-gate";
+import { userSafeError } from "@/lib/user-error";
 import { isOnline, label, nowShowing, outcome, type LiveComputer, type Op } from "@/lib/live-view";
 import { browserSupabase } from "@/lib/supabase-browser";
 import type { WorkspaceChoice } from "@/lib/use-workspaces";
@@ -31,7 +32,7 @@ function Live({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
     const { data, error } = await supabase.rpc("remote_computers", { org: workspace.id });
     if (error) {
       if (syncNotSetUp(error)) setComputers("not-set-up");
-      else setProblem(error.message);
+      else setProblem(userSafeError(error, "Couldn’t check the service PC. Check your connection and try again."));
       return;
     }
     setComputers((data as LiveComputer[]) ?? []);
@@ -56,8 +57,7 @@ function Live({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
   if (computers === "not-set-up") {
     return (
       <EmptyState title="Live control isn’t switched on yet">
-        Whoever set up FrameDecks for your team finishes it once, in the database (steps <code>0004_remote.sql</code>{" "}
-        and <code>0005_remote_live.sql</code>).
+          Ask your workspace owner to finish setting up service control.
       </EmptyState>
     );
   }
@@ -87,7 +87,7 @@ function Live({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
           ? "Too many presses: wait a moment."
           : error.code === "42501"
             ? "You are not allowed to run services on this PC."
-            : error.message,
+            : userSafeError(error, "Couldn’t send that action to the service PC. Check its connection and try again."),
       );
       return;
     }
