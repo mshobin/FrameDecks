@@ -1,14 +1,13 @@
 # NEXT SESSION HANDOFF
 
-Updated 27 October 2026: everything is on `main`; nothing waits on a branch (the cloud session's branch
-`claude/peaceful-albattani-6m445e` equals `main`). Continue locally in VS Code: `git checkout main && git pull`, then
+Updated 27 October 2026: release `v6.11.1` is published; the README and release header image refresh is being prepared
+on a branch. Continue locally in VS Code: `git checkout main && git pull`, then
 read [CLAUDE.md](../CLAUDE.md) ("Working locally" has the set-up and run commands).
 
 ## Where things stand (27 October)
-- **Release:** **FrameDecks 6.11.1 is ready on `main` but not yet published** (the cloud session may push branches,
-  not tags). Publish it from VS Code: `git pull`, then `git tag -a v6.11.1 -m "FrameDecks 6.11.1"` and
-  `git push origin v6.11.1`. The "Build Windows installer" workflow then builds, smoke-tests and publishes
-  `FrameDecks v6.11.1.exe` with `docs/releases/v6.11.1.md` as the notes. The latest published release is 6.11.
+- **Release:** **FrameDecks 6.11.1 is published** at `v6.11.1`; its build and publish workflow succeeded. The README
+  header image has been regenerated; refresh the release body's image URL to the committed image and merge the README
+  image update so both published surfaces display the new FrameDecks wordmark.
 - **`main` since 6.11:** audit steps 1–2 (plan recovery, safe sync, support bundle, update notice, pinned build); the
   design roadmap and UX simplification (Prepare / Run, Up next with keys, Practice mode and its start-time reminder,
   How people see it, Advanced, People); the website's four places (Home · Plan · Live · People), first-time steps,
@@ -316,7 +315,7 @@ continuity files in the same commit (owner's rule). Never force-push.
   `/api/command/status` endpoints (`server.run_local_command`, `local_status`) and `tests/test_local_command.py`.
   This also closes audit finding N1 (the plugin's vulnerable zod). Companion and Wi-Fi remotes are unchanged.
 
-## Audit roadmap step 2 (26 October, owner's request; all in 6.11.1, not yet published)
+## Audit roadmap step 2 (26 October, owner's request; all in published 6.11.1)
 - Built: non-blocking window buttons (M9); one OpenCV (M7); Save support bundle; update notice (About, once a day,
   never downloads); Desktop checks workflow (ruff + JS syntax + doc links); website performance budget; installer
   smoke test (install, start, ping, quit, uninstall) in the Windows build; nightly backup self-check + checksum;
