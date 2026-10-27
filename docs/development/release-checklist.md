@@ -36,5 +36,5 @@ It follows the production audit's roadmap ([2026-10-26 audit](../project/2026-10
   "Latest"), so the update notice and the website's download link point back to the previous one. Fix forward with
   a `.patch` release.
 - **The database:** run the migration's undo script from `hosted/supabase/rollback/`, in reverse order of the
-  migrations. If data was lost, restore the nightly backup ([database backup guide](../project/database-backup.md)).
+  migrations. If data was lost, restore the nightly backup ([database backup guide](../operations/database-backup.md)).
 - **The website:** Cloudflare Pages → the project → Deployments → the previous deployment → Rollback.

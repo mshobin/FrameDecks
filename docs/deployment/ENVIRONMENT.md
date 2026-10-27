@@ -13,12 +13,12 @@ companion currently has no required environment variables.
 
 Desktop settings and private user data are stored in the app's data folder,
 normally `%APPDATA%\FRAMEDECKS` on Windows. See the
-[configuration guide](reference/configuration-guide.md) for file contents and
-the [developer guide](CONTRIBUTING.md) for local setup.
+[configuration guide](../reference/configuration-guide.md) for file contents and
+the [developer guide](../CONTRIBUTING.md) for local setup.
 
 ## Hosted companion
 
 The hosted app currently needs no environment variables. When credentials are
 introduced, keep them in the deployment provider's environment settings, never
 in source control, client-side code, or committed `.env` files. See the
-[hosted companion guide](../hosted/README.md).
+[hosted companion guide](../../hosted/README.md).

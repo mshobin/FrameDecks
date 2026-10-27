@@ -372,4 +372,4 @@ deployment configuration inside `hosted/`. See the
 - [Media](media.md) · [Remote control](remote-control.md)
 - [Design history (engineering log)](architecture/design-history.md)
 - [Developer guide](CONTRIBUTING.md) · [Building the installer](development/building-the-installer.md)
-- [Environment](ENVIRONMENT.md) · [Deployment](DEPLOYMENT.md) · [Coding standards](CODING-STANDARDS.md)
+- [Environment](deployment/ENVIRONMENT.md) · [Deployment](deployment/DEPLOYMENT.md) · [Coding standards](CODING-STANDARDS.md)

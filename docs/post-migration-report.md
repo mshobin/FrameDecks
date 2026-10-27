@@ -66,7 +66,7 @@ feature, API or integration was removed or renamed:
 | Installer | The three files are copied into the program folder (`packaging/framedecks.spec`); `packaging/check.py` requires them |
 | Signing | `build-windows.yml` signs `FRAMEDECKS.exe`, both camera DLLs and the installer through SignPath. It checks each signature and fails the build if one is missing. It is **off** until the `SIGNPATH_API_TOKEN` secret exists; until then the build is unchanged |
 | Visible | Nothing in the program. Once signing is on, Windows shows "FrameDecks" as a verified publisher |
-| Owner | Follow [code-signing.md](project/code-signing.md): check, then make the repository public; apply to SignPath Foundation; add the secret and three variables |
+| Owner | Follow [code-signing.md](deployment/code-signing.md): check, then make the repository public; apply to SignPath Foundation; add the secret and three variables |
 | Checked | Packaging check, Python and JS suites, hosted 77/77, Stream Deck tests and `validate`, `npm ci` with both lockfiles. The SignPath steps cannot be run until SignPath approves the project |
 
 ## Step 5: the member list from the cloud (M-D2, option A)

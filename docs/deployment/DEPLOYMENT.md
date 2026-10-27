@@ -10,15 +10,15 @@ dependencies, runs the self-check and desktop tests, packages the application
 with PyInstaller, then creates the installer with Inno Setup. Pushes to `main`
 produce workflow artifacts; version tags publish a GitHub Release. For local
 prerequisites and full steps, see
-[Building the installer](development/building-the-installer.md) and the
-[release process](development/release-process.md).
+[Building the installer](../development/building-the-installer.md) and the
+[release process](../development/release-process.md).
 
 ## Hosted companion
 
 The Next.js app deploys to Vercel with `hosted/` as its Root Directory and the
 Next.js framework preset. The hosted workflow runs lint, type-check, tests, and
 a production build; it does not deploy to Vercel. Deployment is handled by the
-Vercel project integration. See the [hosted companion guide](../hosted/README.md)
+Vercel project integration. See the [hosted companion guide](../../hosted/README.md)
 for setup details.
 
 The hosted companion is currently a static preview, not a live service. It

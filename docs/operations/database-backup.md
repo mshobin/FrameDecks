@@ -2,7 +2,7 @@
 
 The free Supabase plan has no daily backups, so FrameDecks makes its own. The **Database backup** GitHub Action runs
 every night at 04:23 Kuwait time. It saves an **encrypted** copy of the workspace database and keeps each copy for
-30 days. Setup is in [free-hosting.md](free-hosting.md), Part B.
+30 days. Setup is in [free-hosting.md](../deployment/free-hosting.md), Part B.
 
 **Who this is for:** the owner, and whoever helps them if the database is ever lost.
 

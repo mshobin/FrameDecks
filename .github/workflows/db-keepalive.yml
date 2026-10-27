@@ -1,4 +1,4 @@
-# Keeps the free Supabase project awake (free plan, docs/project/free-hosting.md, Part B). Supabase pauses a free
+# Keeps the free Supabase project awake (free plan, docs/deployment/free-hosting.md, Part B). Supabase pauses a free
 # project after 7 days without requests; this asks one harmless question every 3 days. Uses only the public URL and
 # publishable key (repository secrets SUPABASE_URL, SUPABASE_ANON_KEY); does nothing until they exist.
 name: Database keep-alive
@@ -23,7 +23,7 @@ jobs:
       - name: Ask the database one harmless question
         run: |
           if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_ANON_KEY" ]; then
-            echo "::notice::SUPABASE_URL / SUPABASE_ANON_KEY are not set yet (docs/project/free-hosting.md, Part B). Nothing to do."
+            echo "::notice::SUPABASE_URL / SUPABASE_ANON_KEY are not set yet (docs/deployment/free-hosting.md, Part B). Nothing to do."
             exit 0
           fi
           # computer_link_poll with an unknown key answers {"status":"unknown"} after a database read; it changes nothing.

@@ -106,7 +106,7 @@ export function SignInForm({ starting = false }: Readonly<{ starting?: boolean }
     );
   }
 
-  // Free plan (docs/project/free-hosting.md, Part D): Google and Microsoft come first when they are switched on; they
+  // Free plan (docs/deployment/free-hosting.md, Part D): Google and Microsoft come first when they are switched on; they
   // need no email, and the emailed link uses a small daily email allowance.
   return (
     <>

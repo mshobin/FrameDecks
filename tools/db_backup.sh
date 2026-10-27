@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# FrameDecks - an encrypted copy of the workspace database (free plan, docs/project/database-backup.md).
+# FrameDecks - an encrypted copy of the workspace database (free plan, docs/operations/database-backup.md).
 #   tools/db_backup.sh <out-folder>
 # Needs SUPABASE_DB_URL (the Session pooler URI, password included) and BACKUP_PASSPHRASE in the environment.
 # Writes <out-folder>/framedecks-backup-<UTC time>.tar.enc: everything FrameDecks keeps (schema public, schema and
 # data) plus the sign-in accounts (auth.users, auth.identities, data only), packed and encrypted with AES-256
-# (openssl, PBKDF2). Nothing unencrypted is left behind. Restore: docs/project/database-backup.md.
+# (openssl, PBKDF2). Nothing unencrypted is left behind. Restore: docs/operations/database-backup.md.
 set -euo pipefail
 out="${1:?usage: tools/db_backup.sh <out-folder>}"
 : "${SUPABASE_DB_URL:?SUPABASE_DB_URL is not set}"

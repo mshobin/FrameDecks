@@ -1,10 +1,13 @@
 # PROJECT STATUS
 
 Last verified: 27 October 2026. **FrameDecks 6.11.1 is published** at `v6.11.1`; its build and publish workflow passed.
-The FrameDecks README/release header image refresh merged in PR #38. The live database has `0001`–`0008`; `0009`
-waits for the owner.
+The FrameDecks README/release header image refresh merged in PR #38; trust fixes merged in PR #39 (`27cfb4b`).
+Production deployment verification and owner live tests remain. The live database has `0001`–`0008`; `0009` waits
+for the owner.
+- **Cleanup branch `chore/repo-cleanup` (awaiting merge):** old release notes archived, Stream Deck leftover removed,
+  deployment and operations docs regrouped under `docs/deployment/` and `docs/operations/`; checks unchanged.
 - **GitHub:** Desktop checks, Hosted companion checks and Build Windows installer (with the installer smoke test) green.
-- **Trust-fix branch checks:** hosted tests 127/127, lint, typecheck, build; manual budget 330 KB JS / 70 KB largest /
+- **Trust-fix PR #39 checks:** hosted tests 127/127, lint, typecheck, build; manual budget 330 KB JS / 70 KB largest /
   18 KB CSS; desktop JS 4/4; README fact tests 2/2; CSS tokens 14 files / 0 problems; doc links 97 files / 0 problems;
   packaging self-check passed. The full Python suite had 4 errors from missing `cv2` (165 run, 3 skipped). The
   budget script's Windows path handling fails, but the equivalent measurement passed.
@@ -81,19 +84,19 @@ Phase detail lives in
   demo, week, FAQ, footer); compact transition dropdown and "+ Add a question"; program Run: larger Up next, key
   hints, Practice reminder at service time. Checks: hosted 122/122, lint, typecheck, build, budget JS 325 KB; Python
   OK; JS 4/4; layout and axe pass. Owner: Test I; projector legibility and templates by type wait for a go-ahead.
-- **Trust fixes (`fix/trust-layer-errors-confirmations`):** service errors use safe, actionable copy; destructive
+- **Trust fixes (PR #39, merged as `27cfb4b`):** service errors use safe, actionable copy; destructive
   confirmations use a branded dialog; README and hosted companion docs describe the current release and live features.
-  Local checks passed as listed above; PR #39's CI and preview deployments passed. After merge, verify production
-  deployment; the owner's live tests remain pending.
+  Local checks, CI and preview deployments passed. Production deployment verification and the owner's live tests
+  remain pending.
 - **6.11.1 (26 October):** audit steps 1–2 built (pinned build, cross-site guard, error logging, plan recovery and
   sync guard, `0009`); published at `v6.11.1` on 27 October. The owner still needs to run `0009`.
 - **Website performance (26 October):** the website no longer animates when idle (older 8 GB PCs next to the program).
 - **First-install fixes (26 October):** website "Forbidden" (request identity), Teleprompter unpin freeze, grouped Settings menu; on `main`, not yet in a release.
 - **FRAMECAST (26 October):** the virtual camera's new name; v6.11 release published with the installer (the
   first tag build failed on the release-notes step, now fixed).
-- **Free plan** ([free-hosting.md](docs/project/free-hosting.md)): steps 1–4 are on `main` (26 October):
+- **Free plan** ([free-hosting.md](docs/deployment/free-hosting.md)): steps 1–4 are on `main` (26 October):
   (companion builds as static files; `/api/sync-config` written at build time) and step 2 (keep-alive every 3 days,
-  encrypted nightly backup, [restore guide](docs/project/database-backup.md)). Step 3 done (idle
+  encrypted nightly backup, [restore guide](docs/operations/database-backup.md)). Step 3 done (idle
   phone-control polling 5 → 15 s). Step 4 code done (Google/Microsoft
   above the email link). Companion live at `https://framedecks.pages.dev` (the PC now links through it; owner signed in there, 26 October). Part B live (keep-alive and nightly backup green, 26 October). Part D live: Google and Microsoft sign-in work (26 October; Google brand verification pending; Brevo skipped). Owner setup: finish Part A (test, then retire Vercel); Part E.
 - Database live: `0001`–`0008` run in Supabase (26 October). Waiting for the owner's live tests A–F
@@ -102,7 +105,7 @@ Phase detail lives in
 ## Pending
 - **Owner:** install from the latest "Build Windows installer" run on `main` and run the live tests A–F.
 - **Owner, before using Audio Content:** update every linked PC (older versions drop Audio Content).
-- **Owner, M-D1:** follow [code-signing.md](docs/project/code-signing.md):
+- **Owner, M-D1:** follow [code-signing.md](docs/deployment/code-signing.md):
   - make the repository public after the checks;
   - apply to SignPath Foundation;
   - add `SIGNPATH_API_TOKEN` and the three `SIGNPATH_*` variables.

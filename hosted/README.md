@@ -92,7 +92,7 @@ The companion is served from `https://framedecks.pages.dev` (Cloudflare Pages, f
 Framework preset None, Root directory `hosted`, Build command `npm run build`, Build output directory `out`, and the
 variables `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` and `NODE_VERSION=22`. In Supabase, the Site URL
 is `https://framedecks.pages.dev` and `https://framedecks.pages.dev/auth/callback` is an allowed Redirect URL. Full
-steps: `docs/project/free-hosting.md`, Part A.
+steps: `docs/deployment/free-hosting.md`, Part A.
 
 ## Vercel deployment (until it is retired)
 

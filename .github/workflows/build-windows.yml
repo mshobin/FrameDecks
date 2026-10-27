@@ -22,7 +22,7 @@ jobs:
     outputs:
       version: ${{ steps.ver.outputs.version }}
     env:
-      # Code signing by SignPath Foundation (free for open source, M-D1: docs/releases/code-signing.md). Off until the
+      # Code signing by SignPath Foundation (free for open source, M-D1: docs/deployment/code-signing.md). Off until the
       # owner adds the SIGNPATH_API_TOKEN secret; until then every signing step is skipped and the build is as before.
       SIGNPATH_ON: ${{ secrets.SIGNPATH_API_TOKEN != '' }}
     steps:

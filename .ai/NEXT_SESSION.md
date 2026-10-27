@@ -1,11 +1,16 @@
 # NEXT SESSION HANDOFF
 
 Updated 27 October 2026: release `v6.11.1` is published; the FrameDecks README and release header refresh merged in
-PR #38. Trust fixes are locally verified in PR #39 on `fix/trust-layer-errors-confirmations`, and its CI and preview
-deployments passed. After merge, verify the production deployment, then read [CLAUDE.md](../CLAUDE.md) ("Working locally"
-has the set-up and run commands).
+PR #38. Trust fixes merged in PR #39 (`27cfb4b`); CI and preview deployments passed. Production deployment
+verification remains pending. Read [CLAUDE.md](../CLAUDE.md) ("Working locally" has the set-up and run commands).
 
 ## Where things stand (27 October)
+- **Repository cleanup (branch `chore/repo-cleanup`, not yet merged):** the orphaned `streamdeck/` bundle is gone;
+  release notes v4.9–v6.7 moved to `docs/releases/archive/` (v6.8–v6.11.1 stay in `docs/releases/`);
+  `DEPLOYMENT.md`, `ENVIRONMENT.md`, `free-hosting.md`, `code-signing.md` are in `docs/deployment/` and
+  `database-backup.md` in `docs/operations/`. All references updated; doc links 97 files / 0 problems. Root Python
+  modules, `app/`, `hosted/` and the root `.bat` launchers stay where they are on purpose (installer, tests and CI use
+  those paths). The owner reviews and merges.
 - **Release:** **FrameDecks 6.11.1 is published** at `v6.11.1`; its build and publish workflow succeeded. The README
   and release body both show the refreshed FrameDecks wordmark (PR #38).
 - **`main` since 6.11:** audit steps 1–2 (plan recovery, safe sync, support bundle, update notice, pinned build); the
@@ -16,14 +21,14 @@ has the set-up and run commands).
 - **Live:** website at `https://framedecks.pages.dev` (Cloudflare Pages, deploys from `main` by itself); Google,
   Microsoft and email sign-in work; keep-alive and nightly backup run green. Database: `0001`–`0008` run; **`0009`
   not yet** (owner, Supabase SQL editor).
-- **Checks (trust-fix branch):** hosted tests 127/127, lint, typecheck, build; manual budget 330 KB JS / 70 KB largest /
+- **Checks (trust-fix PR #39):** hosted tests 127/127, lint, typecheck, build; manual budget 330 KB JS / 70 KB largest /
   18 KB CSS; desktop JS 4/4; README fact tests 2/2; CSS tokens 14 files / 0 problems; doc links 97 files / 0 problems;
   packaging self-check passed. The full Python suite had 4 errors from missing `cv2` (165 run, 3 skipped). The
   budget script's Windows path handling fails, but the equivalent measurement passed.
 - **Gotcha for the visual suites:** start `server.py` with nothing else on port 8750 (a leftover server makes them test
   the wrong data and fail on things that are fine).
 
-## Completed (merged to `main`, PRs #7–#32 and #38)
+## Completed (merged to `main`, PRs #7–#32 and #38–#39)
 - Desktop 6.10, the approved emblem, and the drift cleanup.
 - Hosted companion on Cloudflare Pages (Vercel remains until retired): sign-in and workspaces confirmed live by the owner; members and invitations.
 - Phase 4 sync of service plans, built and not yet live-tested:
@@ -65,13 +70,13 @@ has the set-up and run commands).
   - M-D5: long-term hosting recommendation, [docs/architecture/hosting.md](../docs/architecture/hosting.md).
 
 ## In progress: the free plan (owner's request, 26 October)
-Steps, in order, from [docs/project/free-hosting.md](../docs/project/free-hosting.md):
+Steps, in order, from [docs/deployment/free-hosting.md](../docs/deployment/free-hosting.md):
 1. **Companion as static files**: **live on Cloudflare Pages** at `https://framedecks.pages.dev` (26 October; Supabase
    Redirect URL `https://framedecks.pages.dev/auth/callback` added). The PC's built-in companion address
    (`cloud_sync.COMPANION_URL`) now points there; the next installer uses it. The owner signed in there with an emailed link
    (26 October). Owner: finish Part A step 7 (open each page) and retire Vercel after a quiet week (step 8).
 2. **Keep-alive and encrypted nightly backup**: **code done** (`.github/workflows/db-keepalive.yml`,
-   `db-backup.yml`, `tools/db_backup.sh`, restore guide `docs/project/database-backup.md`). **Live:** the owner added the 4 secrets; first runs on 26 October were green (keep-alive: the
+   `db-backup.yml`, `tools/db_backup.sh`, restore guide `docs/operations/database-backup.md`). **Live:** the owner added the 4 secrets; first runs on 26 October were green (keep-alive: the
    database answered; backup: `framedecks-backup-1`, 113 KB, kept to 25 November).
 3. **Fewer database requests**: **done** (`cloud_remote.py` `IDLE_EVERY` 5 → 15 s). Shorter history/audit retention
    was left out on purpose (it would replace `sync_push` in the live database for almost no saving).
@@ -134,7 +139,7 @@ the program's About page in the website's design, with the same words (brand.jso
    - F PowerPoint export, Audio, Suggest.
 4. **Before using Audio Content:** update every linked PC. Older versions drop Audio Content and would sync the Frame
    without it.
-5. **M-D1 signing:** follow [docs/project/code-signing.md](../docs/project/code-signing.md):
+5. **M-D1 signing:** follow [docs/deployment/code-signing.md](../docs/deployment/code-signing.md):
    - check the history, then make the repository public;
    - apply to SignPath Foundation;
    - add the `SIGNPATH_API_TOKEN` secret and the three `SIGNPATH_*` variables.
@@ -213,7 +218,7 @@ Owner checks on Windows: a new data folder shows Welcome to FrameDecks with Star
 the PC's real width.
 
 ## Recommended Next Task
-After PR #39 merges, verify the production deployment. Then, in order:
+Verify the production deployment for PR #39. Then, in order:
 1. **Owner's live tests** with the installed **6.11.1** release: A–I in
    [docs/qa/live-test-guide.md](../docs/qa/live-test-guide.md) (H: Run, Practice and its reminder; I: the website's new
    places and front page), plus the website settings (change Branding on the website, see it in the program within a
