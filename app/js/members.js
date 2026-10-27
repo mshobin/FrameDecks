@@ -165,11 +165,13 @@ function setTab(t){
   if (sec && window.KCShowSection) setTimeout(function(){ window.KCShowSection(sec); }, 0);
   ui.tab = t; document.body.dataset.tab = t;
   TABS.forEach(function(k){
-    var b = $('tabbtn-' + k); if (b) b.setAttribute('aria-selected', String(k === t));
+    var b = $('tabbtn-' + k); if (b) b.setAttribute('aria-selected', String(k === t || (k === 'members' && t === 'directory')));   // People covers both views
     var p = $('tab-' + k); if (p && k !== 'studio') p.hidden = k !== t;   // #tab-studio is the canvas's camera picture: workspace.js shows it
   });
   // One email composer, on the Email tab only (design audit DD-14); Manage's Prepare buttons bring you there
   if (t === 'email'){ $('slot-email').appendChild(composerEl); if (!ui.keepSource) ui.compSource = 'ticked'; ui.keepSource = false; renderPicker(); }
+  var pv = $('people-view');
+  if (pv){ pv.hidden = t !== 'members' && t !== 'directory'; Array.prototype.forEach.call(pv.querySelectorAll('[data-tab]'), function(x){ x.setAttribute('aria-checked', String(x.dataset.tab === t)); }); }
   if (t === 'birthdays') renderBirthdays();
   if (t === 'settings') renderSettings();
   renderComposer();
@@ -249,7 +251,7 @@ function renderCountries(){
 function renderList(){
   var list = filtered(), ul = $('m-items');
   $('m-count').textContent = data.members.length;
-  ul.setAttribute('data-empty', data.members.length ? 'No members match your search.' : 'No members yet. Select Import Excel or Add member to get started.');
+  ul.setAttribute('data-empty', data.members.length ? 'No members match your search.' : 'No members yet. Use Add member, or Import / Export → Import from Excel or CSV.');
   ul.innerHTML = '';
   list.forEach(function(m){
     var ph = M.parsePhone(m.phone);

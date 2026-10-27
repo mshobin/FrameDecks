@@ -64,6 +64,14 @@ Full notes: [docs/releases/v6.11.1.md](docs/releases/v6.11.1.md)
   Overview, light theme, Source Sans 3; program sentence-case labels in Source Sans 3, Lucide icons, one email composer,
   Import / Export menu, Frame actions More…, compact About, help text under checkboxes; one type scale, weights, radii
   and elevations (`tools/css_tokens.py`), visual layout checks in CI (`tests/visual/layout.mjs`), `docs/design-system.md`.
+- Running a service (owner-approved simplification, 27 October; `app/js/service.js`): Prepare / Run (Run hides every
+  editor and blocks rename, drag, menus, Delete, cut, paste and undo in the Studio), Up next, Before you start,
+  Practice mode (Black screen for the audience, `practice=1` previews), How people see it (Settings), Advanced
+  (Transitions, Keyboard shortcuts, Security, Diagnostics), FRAMECAST presets with Fine-tune, Members → People (List /
+  Table), labelled main tabs, worded Previous / Next, Hide all red only while something is on screen, one status pill,
+  Live tools grouped (one Teleprompter entry) and closed by Esc, Blackout renamed Black screen, Q + S → Both, no
+  "350 ms" or double PREVIEW badges, a four-step first-service guide, `docs/glossary.md`. Website: Services is now
+  **Running order**, cross-links with the Meeting Form, and a factual trust strip on the front page.
 - Steps to 90+ after the re-audit: every program colour in `app/css/palette.css` (`tools/css_palette.py`; the token
   check fails on a colour anywhere else), radii and shadows on tokens (`--el-2-up`), `!important` 42 → 16; the keyboard
   editor and About story built on first open (page 2,220 → 1,796 elements); an axe WCAG 2.1 AA scan in CI

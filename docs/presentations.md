@@ -12,7 +12,7 @@ or meeting.
 - [Move through the meeting](#move-through-the-meeting)
 - [Questions and scriptures](#questions-and-scriptures)
 - [Transitions](#transitions)
-- [When something goes wrong: Hide all, Blackout, Emergency, Freeze](#when-something-goes-wrong-hide-all-blackout-emergency-freeze)
+- [When something goes wrong: Hide all, Black screen, Emergency, Freeze](#when-something-goes-wrong-hide-all-black-screen-emergency-freeze)
 - [Annotate: draw on the picture](#annotate-draw-on-the-picture)
 - [Teleprompter](#teleprompter)
 - [Teleprompter overlay (Meeting Leader mode)](#teleprompter-overlay-meeting-leader-mode)
@@ -102,19 +102,19 @@ A Frame with a Question or Scripture list shows one item at a time.
 | One-off override | The command bar's transition list (**Frame default**) | Uses another transition for your next takes, until you set it back to **Frame default** |
 | A card's own animation | Question / Scripture Content → **Animation** | How the card itself appears, for example Fade, Gentle rise, Word by word, Typewriter |
 
-## When something goes wrong: Hide all, Blackout, Emergency, Freeze
+## When something goes wrong: Hide all, Black screen, Emergency, Freeze
 
 | Control | Key | What people see | Use it when |
 | --- | --- | --- | --- |
 | **Hide all** | **Esc** | The picture without any cards or text | You want a clean camera picture |
-| **Blackout** | **K** | A black picture | You need the screen dark straight away |
+| **Black screen** | **K** | A black picture | You need the screen dark straight away |
 | **Emergency** | — | A plain emergency screen with your message | Something urgent is happening in the room |
 | **Freeze** | **F** | The picture held still | You are changing things and do not want people to see it |
 | **Hide Content** | — | The selected Content is hidden | One item should go away, the rest stays |
 
-Blackout, Emergency, Annotate, Freeze, the Teleprompter, the Teleprompter window and the Teleprompter overlay are in
+Black screen, Emergency, Annotate, Freeze, the Teleprompter, the Teleprompter window and the Teleprompter overlay are in
 the **Live tools** menu. The menu button changes to
-**Blackout on ▾**, **Emergency on ▾**, **Frozen ▾** or **Annotating ▾** so you never forget one is on. Press the same
+**Black screen on ▾**, **Emergency on ▾**, **Frozen ▾** or **Drawing ▾** so you never forget one is on. Press the same
 control again to turn it off.
 
 > **Important:** Remember to unfreeze. While the picture is frozen, people do not see anything you change. The phone
@@ -125,7 +125,7 @@ control again to turn it off.
 Annotate works like ZoomIt: draw over whatever is on screen, slides and cards included. Everyone in Zoom, Teams and
 on the projector sees it.
 
-1. Press **D**, or choose **Program → Annotate**.
+1. Press **D**, or choose **Live tools → Draw on the picture**.
 2. Pick a tool and draw on the Studio Canvas.
 3. Press **Esc** (or **Done**) to stop. The drawings are hidden.
 
@@ -166,7 +166,7 @@ camera, the Presentation window, the OBS pages or the phone's drawing pad.
 | `---` | A divider line |
 
 **Open it in the Studio**
-1. Choose **Program → Teleprompter**, or press **R**.
+1. Choose **Live tools → Teleprompter → In this window**, or press **R**.
 2. Dock it **Left**, **Right** or **Bottom** of the Studio, or **Float** it. Drag its edge to resize it.
 3. **Follows: Live** shows the script of the Frame on screen. **Follows: Selected** shows the Frame you selected,
    so you can read ahead or rehearse.
@@ -174,7 +174,7 @@ camera, the Presentation window, the OBS pages or the phone's drawing pad.
 ![The Teleprompter docked on the right of the Studio](images/teleprompter.png)
 
 **Open it in its own window**
-**Program → Teleprompter window** (called *Speaker View* in 6.6) opens the Teleprompter in a separate window, ideal
+**Live tools → Teleprompter → Own window** (called *Speaker View* in 6.6) opens the Teleprompter in a separate window, ideal
 on a second monitor or beside Zoom on a laptop.
 
 - The script takes the whole width of the window.
@@ -215,7 +215,7 @@ The **Teleprompter overlay** shows your script in a see-through window that you 
 Meet. You read your script and still see the participants, shared screens and chat behind it. Only you see it.
 
 **Open it**
-- **Program → Teleprompter overlay**, or press **Shift+R**.
+- **Live tools → Teleprompter → Over Zoom**, or press **Shift+R**.
 - In the docked Teleprompter, select **Overlay** in its header.
 - From the tray icon near the clock: **Teleprompter**.
 - From [Spotlight](#spotlight) or the [command palette](#command-palette): type *overlay*.
@@ -312,7 +312,7 @@ FRAMEDECKS is hidden in the tray.
 
 With an empty search, Spotlight shows **Recent**, **Frequently used** and **Suggested** items.
 
-**Go Live**, **Next / Previous Frame**, **Hide all**, **Blackout**, **Freeze**, the **Teleprompter window** and the
+**Go Live**, **Next / Previous Frame**, **Hide all**, **Black screen**, **Freeze**, the **Teleprompter window** and the
 **Teleprompter overlay** run without bringing the main window back. Everything else opens the main window.
 
 If another program already uses Alt+Space (for example PowerToys Run), FRAMEDECKS uses **Ctrl+Alt+Space**
@@ -336,7 +336,7 @@ The **Presentation window** shows the same finished picture as the FRAMECAST cam
 To share it in Zoom instead, choose **Share Screen**, then the window named **FRAMEDECKS Share Window**.
 
 > **Note:** Media Content (camera, images, video, PowerPoint, screen and window sharing) is part of the FRAMEDECKS
-> picture, so turn on the FRAMECAST camera in **Settings → FRAMECAST Camera** if you use it.
+> picture, so turn on the FRAMECAST camera in **Settings → How people see it → FRAMECAST Camera** if you use it.
 
 ## Keyboard shortcuts
 
@@ -353,7 +353,7 @@ meeting shortcuts in **Settings**.
 | **Q** · **V** · **B** | Show or hide the question · scripture · birthday card |
 | **Page Down** / **Page Up** | Next / previous slide |
 | **Esc** | Hide all |
-| **K** | Blackout on / off |
+| **K** | Black screen on / off |
 | **F** | Freeze on / off |
 | **D** | Annotate on / off |
 | **R** | Teleprompter on / off |

@@ -17,7 +17,7 @@ function icons(root){ Array.prototype.forEach.call((root || document).querySelec
 icons();
 
 /* ---------- groups ---------- */
-var GROUPS = {studio: ['studio'], members: ['directory', 'members', 'birthdays', 'email'], settings: ['settings']};
+var GROUPS = {studio: ['studio'], members: ['members', 'directory', 'birthdays', 'email'], settings: ['settings']};       // People (List) first
 var KEY = 'kc-subtab';
 var last = {};
 try { last = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch(e){}
@@ -148,11 +148,11 @@ function renderDirectory(){
   sortSel.value = dir.sort; sortSel.addEventListener('change', function(){ dir.sort = sortSel.value; renderDirectory(); });
   var soon = rows.filter(function(m){ return m.b && m.b.days <= n; }).length;
   root.appendChild(h('div', {cls: 'dir-head'}, [
-    h('div', {}, [h('h2', {text: 'Members directory'}), h('p', {cls: 'hint', text: rows.length + ' member' + (rows.length === 1 ? '' : 's') + (soon ? ' · ' + soon + ' birthday' + (soon === 1 ? '' : 's') + ' in the next ' + n + ' days (highlighted)' : '')})]),
+    h('div', {}, [h('h2', {text: 'People'}), h('p', {cls: 'hint', text: rows.length + ' member' + (rows.length === 1 ? '' : 's') + (soon ? ' · ' + soon + ' birthday' + (soon === 1 ? '' : 's') + ' in the next ' + n + ' days (highlighted)' : '')})]),
     h('div', {cls: 'dir-tools'}, [search, sortSel,
       h('button', {cls: 'btn primary', type: 'button', html: window.KCIcon('plus', 16) + ' Add member', onclick: function(){ api.add(); setTimeout(renderDirectory, 400); }})])]));
   if (!rows.length){
-    root.appendChild(h('p', {cls: 'empty-card', text: dir.q ? 'No members match your search.' : 'No members yet. Use Add member, or Manage → Import Excel.'}));
+    root.appendChild(h('p', {cls: 'empty-card', text: dir.q ? 'No members match your search.' : 'No members yet. Use Add member, or Import / Export → Import from Excel or CSV.'}));
     return;
   }
   var table = h('table', {cls: 'dir-table'}, [h('thead', {}, [h('tr', {}, ['Name', 'Role', 'Email', 'Birthday'].map(function(t){ return h('th', {text: t}); }))])]);

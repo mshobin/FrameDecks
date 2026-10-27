@@ -19,11 +19,11 @@ class FirstRun(unittest.TestCase):
         self.assertIn("row.querySelector('.btn.primary') || row.querySelector('.btn')", js)   # focus lands on it
         self.assertNotIn("Welcome! Bring in", js)
 
-    def test_getting_started_has_three_steps_and_never_blocks(self):
+    def test_getting_started_guides_a_first_service_and_never_blocks(self):
         js = read("js/app-bridge.js")
         start = js.index("var gettingStarted")
         block = js[start:js.index("})();", start)]
-        self.assertEqual(len(re.findall(r"^\s+\['(brand|frame|camera)'", block, re.M)), 3)
+        self.assertEqual(len(re.findall(r"^\s+\['(brand|frame|output|practice)'", block, re.M)), 4)
         self.assertNotIn("app-modal", block)
 
 
@@ -66,7 +66,7 @@ class DesignSystem(unittest.TestCase):
         html = read("dashboard.html")
         for glyph in "★✝⇄🎂◉◧▭☁⚙⌨⛨⛁✚ⓘ":
             self.assertNotIn(f'<span class="sn-i">{glyph}</span>', html)
-        self.assertEqual(html.count('<span class="sn-i"><i data-icon="'), 15)
+        self.assertEqual(html.count('<span class="sn-i"><i data-icon="'), 16)
 
     def test_headings_use_the_interface_typeface(self):
         css = read("css/theme.css")
@@ -111,3 +111,55 @@ class LighterPageAndAria(unittest.TestCase):
         self.assertNotIn('id="insp-tabs" role="tablist"', read("dashboard.html"))
         self.assertNotIn("'data-itab': t[0], 'aria-selected'", read("js/workspace.js"))
         self.assertNotIn("b.setAttribute('aria-pressed', String(on)); b.setAttribute('aria-checked'", read("js/nav.js"))
+
+
+class RunningAService(unittest.TestCase):
+    """Owner-approved simplification (27 October): Prepare / Run, How people see it, Advanced, People, Practice."""
+
+    def test_prepare_and_run_with_worded_previous_and_next(self):
+        html = read("dashboard.html")
+        self.assertIn('id="mode-switch" role="radiogroup"', html)
+        self.assertIn('data-mode="run"', html)
+        self.assertIn('<span class="lb-t">Previous</span>', html)
+        self.assertIn('<span class="lb-t">Next</span>', html)
+        self.assertIn('<script src="js/service.js"></script>', html)
+        js = read("js/service.js")
+        for need in ("upNext()", "guard(e)", "setPractice", "Before you start", "renderOutput"):
+            self.assertIn(need, js)
+
+    def test_run_hides_every_editor(self):
+        css = read("css/theme.css")
+        for sel in ("body.run-mode .ws-right", "body.run-mode .layers-pane", "body.run-mode #scene-add", "body.run-mode .si-more"):
+            self.assertIn(sel, css)
+
+    def test_hide_all_is_red_only_while_something_is_on_screen(self):
+        self.assertIn("document.body.classList.toggle('kc-on-air'", read("js/dashboard.js"))
+        self.assertIn('body:not(.kc-on-air) #ctlbar .cb-btn.hide{', read("css/theme.css"))
+
+    def test_live_tools_are_grouped_and_close_on_escape(self):
+        html = read("dashboard.html")
+        for words in ('<p class="lpm-h" aria-hidden="true">On screen</p>', ">Black screen</button>", ">In this window</button>",
+                      ">Over Zoom</button>", ">Own window</button>", ">Emergency screen</button>"):
+            self.assertIn(words, html)
+        self.assertNotIn(">Blackout</button>", html)
+        self.assertIn("e.key === 'Escape' && prog.classList.contains('open')", read("js/panels.js"))
+
+    def test_one_guided_way_to_reach_people_and_an_advanced_group(self):
+        html = read("dashboard.html")
+        self.assertIn('data-sec="output"', html)
+        self.assertIn('class="sn-sub" data-sec="vcam"', html)
+        self.assertIn('class="sn-sub" data-sec="display"', html)
+        adv = html[html.index('id="sn-adv"'):html.index('aria-label="Help"')]
+        for sec in ("transitions", "keys", "security", "diag"):
+            self.assertIn('data-sec="' + sec + '"', adv)
+
+    def test_people_has_a_list_and_a_table(self):
+        html = read("dashboard.html")
+        self.assertIn('id="tabbtn-members" data-tab="members" aria-selected="false"><i data-icon="users"></i>People</button>', html)
+        self.assertIn('id="people-view" role="radiogroup"', html)
+
+    def test_no_internal_shorthand_on_the_studio(self):
+        js = read("js/workspace.js")
+        self.assertNotIn("'Q + S'", js)
+        self.assertNotIn("'PREVIEW · not on air'", js)
+        self.assertNotIn("tx.ms + ' ms' : '') + (sc.auto.on", js)

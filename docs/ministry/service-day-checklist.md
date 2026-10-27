@@ -43,7 +43,7 @@ A printable timeline for running a service with FRAMEDECKS, plus an emergency ca
 ## 10 minutes before
 
 - [ ] Opening Frame live (for example, a countdown Timer or Welcome).
-- [ ] Blackout, Freeze and Annotate all **off** (the button reads **Live tools ▾**).
+- [ ] Black screen, Freeze and Annotate all **off** (the button reads **Live tools ▾**).
 - [ ] Phones on Do Not Disturb; screens set to stay awake.
 
 ## During the service
@@ -68,9 +68,9 @@ A printable timeline for running a service with FRAMEDECKS, plus an emergency ca
 | If… | Press | On the phone |
 | --- | --- | --- |
 | Anything wrong is on screen | **Esc** (Hide all) | **HIDE ALL** |
-| The screen must go dark | **K** (Blackout) | **BLACK SCREEN** |
+| The screen must go dark | **K** (Black screen) | **BLACK SCREEN** |
 | You need time to fix something | **F** (Freeze) | **FREEZE** |
-| You need a message on screen | **Program → Emergency** | Advanced remote → **Emergency** |
+| You need a message on screen | **Live tools → Emergency screen** | Advanced remote → **Emergency** |
 | Ready again | Select the Frame → **T** (Go Live) | **NEXT FRAME** / **PREVIOUS FRAME** |
 
 **Nothing above deletes anything.** When the problem is solved, put the right Frame back with Go Live.

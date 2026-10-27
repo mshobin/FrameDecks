@@ -168,13 +168,19 @@ if (prog && progBtn){
   progBtn.addEventListener('click', function(e){ e.stopPropagation(); var o = !prog.classList.contains('open'); prog.classList.toggle('open', o); progBtn.setAttribute('aria-expanded', String(o)); });
   document.addEventListener('click', function(e){ if (!prog.contains(e.target)){ prog.classList.remove('open'); progBtn.setAttribute('aria-expanded', 'false'); } });
   prog.addEventListener('click', function(e){ if (e.target.closest('.lb-prog-menu .cb-btn') && prog.classList.contains('open')) setTimeout(function(){ prog.classList.remove('open'); progBtn.setAttribute('aria-expanded', 'false'); }, 120); });
+  // Esc closes the menu first (and only the menu: it does not also hide everything); so does leaving the Studio
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'Escape' && prog.classList.contains('open')){ e.preventDefault(); e.stopImmediatePropagation(); prog.classList.remove('open'); progBtn.setAttribute('aria-expanded', 'false'); progBtn.focus(); }
+  }, true);
+  var prevTab = window.KCOnTab;
+  window.KCOnTab = function(t){ if (prevTab) prevTab(t); prog.classList.remove('open'); progBtn.setAttribute('aria-expanded', 'false'); };
   var bl = document.getElementById('lb-blackout'), em = document.getElementById('lb-emergency'), fz = document.getElementById('lb-freeze'), an = document.getElementById('lb-annotate');
   var pressed = function(b){ return !!b && b.getAttribute('aria-pressed') === 'true'; };
   var mo = new MutationObserver(function(){
     var on = pressed(bl) || pressed(em);
     progBtn.classList.toggle('alert', on);
     progBtn.classList.toggle('held', !on && (pressed(fz) || pressed(an)));
-    progBtn.textContent = on ? (pressed(bl) ? 'Blackout on ▾' : 'Emergency on ▾') : pressed(fz) ? 'Frozen ▾' : pressed(an) ? 'Annotating ▾' : 'Live tools ▾';
+    progBtn.textContent = on ? (pressed(bl) ? 'Black screen on ▾' : 'Emergency on ▾') : pressed(fz) ? 'Frozen ▾' : pressed(an) ? 'Drawing ▾' : 'Live tools ▾';
   });
   [bl, em, fz, an].forEach(function(b){ if (b) mo.observe(b, {attributes: true, attributeFilter: ['aria-pressed']}); });
 }

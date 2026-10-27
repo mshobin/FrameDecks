@@ -54,6 +54,12 @@ Phase detail lives in
 - **Design roadmap complete (26 October, owner-approved, ranks 8 and 12–21):** see `docs/design-system.md`. Hosted
   120/120, lint, typecheck, build, budget (JS 329 KB); Python OK incl. `test_css_tokens`; `tools/css_tokens.py` 0
   problems; `tests/visual/layout.mjs` 9/9. Website font is a 47 KB Latin subset in `hosted/public/fonts/`.
+- **UX simplification (27 October, owner-approved):** Prepare / Run with Up next, Before you start and Practice mode
+  (`app/js/service.js`); How people see it; Advanced; FRAMECAST Fine-tune; Members → People; labelled tabs, worded
+  Previous / Next, calm-until-live Hide all, one status pill, grouped Live tools (Esc closes); Black screen; website
+  Running order with cross-links and a factual trust strip; `docs/glossary.md`. Checks: Python OK, `node tests/run.js`
+  4/4, layout 13/13, axe 0 problems (both themes, Run included), hosted 120/120, budget JS 330 KB. Owner: Test H in
+  the live test guide on Windows; a real quote or usage figure for the landing page.
 - **Steps to 90+ after the re-audit (27 October):** all program colours in `app/css/palette.css` (`tools/css_palette.py`,
   colour literals now fail `css_tokens.py`), radii/shadows on tokens, `!important` 42 → 16, keyboard editor and About
   story built on first open (2,220 → 1,796 elements), axe WCAG 2.1 AA scan in CI (`tests/visual/a11y.mjs`, 0

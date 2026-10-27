@@ -37,6 +37,10 @@ for (const theme of ["dark", "light"]) {
     await p.waitForTimeout(300);
     await scan(p, `${theme} ${tab}`);
   }
+  await p.evaluate(() => { window.KCSetTab("studio"); window.KCServiceMode.set("run"); });       // the service view
+  await p.waitForTimeout(400);
+  await scan(p, `${theme} Studio in Run`);
+  await p.evaluate(() => window.KCServiceMode.set("prepare"));
   const sections = await p.evaluate(() => [...document.querySelectorAll("#s-nav [data-sec]")].map((b) => b.dataset.sec));
   for (const s of sections) {
     await p.evaluate((id) => { window.KCSetTab("settings"); window.KCShowSection(id); }, s);

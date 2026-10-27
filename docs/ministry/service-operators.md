@@ -28,7 +28,7 @@ How to run the FRAMEDECKS PC during a service: setup, presenting, and calm recov
 1. **Selecting a Frame does not put it on air.** The Studio Canvas shows a **PREVIEW**. **Go Live** (**T**) puts it on screen; the badge then reads **LIVE**.
 2. **◀ Frame / Frame ▶** in the command bar move to the previous or next Frame and put it on screen.
 3. **◀ Question ▶** (or the arrow keys) step through the live Frame's questions; **Shift + arrows** step through its scriptures; **Page Up / Page Down** step through slides.
-4. **The Live tools menu is your safety kit:** Hide Content, **Blackout** (K), Emergency, **Annotate** (D), **Freeze** (F), **Teleprompter** (R), **Teleprompter window**, **Teleprompter overlay** (Shift+R).
+4. **The Live tools menu is your safety kit:** Hide Content, **Black screen** (K), Emergency, **Annotate** (D), **Freeze** (F), **Teleprompter** (R), **Teleprompter window**, **Teleprompter overlay** (Shift+R).
 5. **Hide all** (**Esc**) clears everything and deletes nothing.
 
 ![The Studio during a service](../images/studio.png)
@@ -41,7 +41,7 @@ How to run the FRAMEDECKS PC during a service: setup, presenting, and calm recov
 | **→ / ←** | Next / previous question |
 | **Shift + → / ←** | Next / previous scripture |
 | **Page Down / Page Up** | Next / previous slide |
-| **K** | Blackout |
+| **K** | Black screen |
 | **F** | Freeze |
 | **D** | Annotate |
 | **Esc** | Hide all (or stop annotating) |
@@ -67,10 +67,10 @@ in **Settings → General → Window and tray**; if another program uses Alt+Spa
 
 - Keep your eyes on the leader as well as the screen.
 - Use **Freeze** before switching files or windows on the PC, so viewers don't see the change.
-- Watch the status chips: **BLACKOUT ▾**, **FROZEN ▾** or **ANNOTATING ▾** on the Program button mean that mode is on.
+- Watch the status chips: **Black screen on ▾**, **Frozen ▾** or **Drawing ▾** on the Live tools button mean that mode is on.
 - If a remote operator is running Next, don't fight them: agree who has control before the service.
 - Working mostly in Zoom or OBS? Hide FRAMEDECKS to the tray (**Minimize → Hide To Tray**) and press
-  **Alt+Space** for **Spotlight**. **Go Live**, **Next / Previous Frame**, **Hide all**, **Blackout** and **Freeze**
+  **Alt+Space** for **Spotlight**. **Go Live**, **Next / Previous Frame**, **Hide all**, **Black screen** and **Freeze**
   run from Spotlight without bringing the main window back. The tray icon's menu has **Open App**, **Teleprompter**,
   **Search** and, under **More**, **Hide all overlays** and **Stop screen share**. See
   [Spotlight](../presentations.md#spotlight).
@@ -87,16 +87,16 @@ in **Settings → General → Window and tray**; if another program uses Alt+Spa
 | Situation | First action | Then |
 | --- | --- | --- |
 | Wrong thing on screen | **Esc** (Hide all) | Select the right Frame, **Go Live** |
-| Must go dark now | **K** (Blackout) | Press **K** again when ready |
+| Must go dark now | **K** (Black screen) | Press **K** again when ready |
 | Need time to fix something | **F** (Freeze) | Fix it, then **F** again |
-| A message for everyone (technical problem) | **Program → Emergency** | Turn it off when solved |
+| A message for everyone (technical problem) | **Live tools → Emergency screen** | Turn it off when solved |
 | Meeting app shows no camera | Choose **FRAMEDECKS** again in the app | Restart the app if it isn't listed |
 | Phone remote stopped | Carry on from the PC | See [Troubleshooting](../troubleshooting.md#phone-remote) |
 
 ## Getting started in this role
 
 1. Read [Presentations](../presentations.md), [Media](../media.md) and [Troubleshooting](../troubleshooting.md).
-2. Practise Go Live, Next, Blackout, Freeze and Hide all on a meeting that is not on a real call.
+2. Practise Go Live, Next, Black screen, Freeze and Hide all on a meeting that is not on a real call.
 3. Follow the [three-week onboarding plan](README.md#onboarding-new-volunteers).
 
 ## Related

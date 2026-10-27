@@ -25,7 +25,12 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
   menu, Frame actions Duplicate + More…, a compact Settings → About, help text under checkboxes, and every CSS value
   on the scale in `docs/design-system.md` (`tools/css_tokens.py`, `tests/visual/layout.mjs`, `tests/visual/a11y.mjs`).
   Colours live only in `app/css/palette.css` (`tools/css_palette.py`). Follow that document for any new screen.
-  Nothing else visible may change.
+  And the UX simplification (owner's request, 27 October; `docs/design-system.md` "Running a service", `app/js/service.js`):
+  Prepare / Run, Up next, Before you start, Practice mode, How people see it (Settings; the camera and display pages
+  under it), Advanced (Transitions, Keyboard shortcuts, Security, Diagnostics), FRAMECAST presets with Fine-tune,
+  Members → People (List / Table), labelled main tabs, worded Previous / Next, Hide all red only while something is on
+  screen, one status pill, grouped Live tools (one Teleprompter entry, Esc closes), "Black screen" for Blackout, the
+  four-step first-service card, and the words in `docs/glossary.md`. Nothing else visible may change.
 - The codebase is the source of truth; verify docs against it.
 - Do not touch the legacy LAN remote or let the hosted app call the local HTTP server.
 - Never commit secrets. `.env*` is ignored except `hosted/.env.example`. Never the Supabase `service_role` key; the

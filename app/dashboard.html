@@ -31,15 +31,20 @@
   <!-- Studio (the workspace), Members, Settings: same buttons, ids and Alt keys as before -->
   <nav class="tabs" role="tablist" aria-label="Sections">
     <button class="tab grp" role="tab" type="button" id="grp-studio" data-group="studio" data-tab="studio" aria-selected="true" title="Studio: plan and present (Alt+1)"><i data-icon="clapperboard"></i>Studio <kbd>Alt+1</kbd></button>
-    <button class="tab grp" role="tab" type="button" id="grp-members" data-group="members" data-tab="directory" aria-selected="false" title="Members and birthdays (Alt+3)"><i data-icon="users"></i>Members <span class="tab-badge" id="grp-bday-badge" hidden></span> <kbd>Alt+3</kbd></button>
+    <button class="tab grp" role="tab" type="button" id="grp-members" data-group="members" data-tab="members" aria-selected="false" title="Members and birthdays (Alt+3)"><i data-icon="users"></i>Members <span class="tab-badge" id="grp-bday-badge" hidden></span> <kbd>Alt+3</kbd></button>
     <button class="tab grp" role="tab" type="button" id="tabbtn-settings" data-group="settings" data-tab="settings" aria-selected="false" title="Settings (Alt+4)"><i data-icon="settings"></i>Settings <kbd>Alt+4</kbd></button>
   </nav>
+  <!-- Prepare (plan and edit) or Run (the service: the order, what is on screen, what is next; nothing to edit by accident) -->
+  <div class="mode-switch" id="mode-switch" role="radiogroup" aria-label="Studio mode">
+    <button type="button" role="radio" data-mode="prepare" aria-checked="true" title="Prepare: plan and edit your Frames">Prepare</button>
+    <button type="button" role="radio" data-mode="run" aria-checked="false" title="Run: the service view, with nothing to edit by accident">Run</button>
+  </div>
   <!-- v6.3 one command bar: the live controls that used to be the bottom bar now sit here, in the same header -->
 <div class="ctlbar livebar" id="ctlbar" role="toolbar" aria-label="Live controls">
   <div class="lb-grp lb-scenes" role="group" aria-label="Frames">
-    <button class="cb-btn" type="button" id="lb-prev" aria-label="Previous Frame (goes live)">◀<span class="lb-t">Frame</span><kbd class="key" data-sc="prevScene"></kbd></button>
+    <button class="cb-btn lb-step-big" type="button" id="lb-prev" aria-label="Previous Frame (goes live)"><span class="lb-ar" aria-hidden="true">◀</span><span class="lb-t">Previous</span><kbd class="key" data-sc="prevScene"></kbd></button>
     <button class="cb-btn take" type="button" id="cb-take" aria-label="Go Live: put the selected Frame on screen"><span class="tk-ic" aria-hidden="true">▶</span><span class="tk-t"><span class="tl">Go Live</span><span class="tk-what" id="cb-take-what"></span></span><kbd class="key" data-sc="takeLive"></kbd></button>
-    <button class="cb-btn" type="button" id="lb-next" aria-label="Next Frame (goes live)"><span class="lb-t">Frame</span>▶<kbd class="key" data-sc="nextScene"></kbd></button>
+    <button class="cb-btn lb-step-big" type="button" id="lb-next" aria-label="Next Frame (goes live)"><span class="lb-t">Next</span><span class="lb-ar" aria-hidden="true">▶</span><kbd class="key" data-sc="nextScene"></kbd></button>
   </div>
   <label class="lb-grp lb-tx" title="Transition for the next take (Frame default = the Frame's own, or the profile in Settings → Transitions)"><span class="lb-l">Transition</span><select id="lb-tx" aria-label="Transition for the next take"></select></label>
   <button class="cb-btn lb-auto" type="button" id="lb-auto" aria-pressed="true" title="Auto-advance: Frames set to move on by themselves do so (Frame settings → Timing). Click to turn it off or on"><span>Auto<span class="aa-x">-advance</span></span></button>
@@ -54,16 +59,21 @@
     <button class="cb-btn" type="button" data-cb="slide" data-step="1" aria-label="Next slide">▶</button>
   </div>
     <div class="lb-prog" id="lb-prog">
-    <button class="cb-btn lb-prog-btn" type="button" id="lb-prog-btn" aria-haspopup="true" aria-expanded="false" aria-controls="lb-prog-menu" title="Live tools: Hide Content, Blackout, Emergency, Annotate, Freeze and the Teleprompter">Live tools ▾</button>
+    <button class="cb-btn lb-prog-btn" type="button" id="lb-prog-btn" aria-haspopup="true" aria-expanded="false" aria-controls="lb-prog-menu" title="Live tools: black screen, freeze, draw, the Teleprompter and the emergency screen">Live tools ▾</button>
     <div class="lb-prog-menu" id="lb-prog-menu" role="group" aria-label="Live tools">
-  <button class="cb-btn" type="button" id="lb-hide-layer" aria-label="Hide the selected Content">Hide Content</button>
-  <button class="cb-btn lb-black" type="button" id="lb-blackout" aria-pressed="false" title="Black picture on FRAMECAST and the overlay page">Blackout</button>
-  <button class="cb-btn lb-emerg" type="button" id="lb-emergency" aria-pressed="false" title="Emergency screen with your message">Emergency</button>
-  <button class="cb-btn lb-ann" type="button" id="lb-annotate" aria-pressed="false" title="Annotate: draw on the picture (D)">Annotate</button>
-  <button class="cb-btn lb-frz" type="button" id="lb-freeze" aria-pressed="false" title="Freeze: hold the picture (F)">Freeze</button>
-  <button class="cb-btn lb-tp" type="button" id="lb-prompter" aria-pressed="false" title="Teleprompter: the Frame's script, docked in this window. Only you see it (R)">Teleprompter</button>
-  <button class="cb-btn lb-ov" type="button" id="lb-overlay" title="Teleprompter overlay: your script over Zoom or Teams, see-through, always on top, never shared (Shift+R)">Teleprompter overlay</button>
-  <button class="cb-btn lb-spk" type="button" id="lb-speaker" title="Teleprompter window: the script, what comes next and a clock, in its own window for a second screen. Never shown to the audience">Teleprompter window</button>
+  <p class="lpm-h" aria-hidden="true">On screen</p>
+  <button class="cb-btn" type="button" id="lb-hide-layer" aria-label="Hide the selected Content">Hide the selected Content</button>
+  <button class="cb-btn lb-black" type="button" id="lb-blackout" aria-pressed="false" title="Black picture on FRAMECAST and the overlay page">Black screen</button>
+  <button class="cb-btn lb-frz" type="button" id="lb-freeze" aria-pressed="false" title="Freeze: hold the picture (F)">Freeze the picture</button>
+  <button class="cb-btn lb-ann" type="button" id="lb-annotate" aria-pressed="false" title="Annotate: draw on the picture (D)">Draw on the picture</button>
+  <p class="lpm-h" aria-hidden="true">Teleprompter <span>only you see it</span></p>
+  <div class="lpm-row" role="group" aria-label="Teleprompter: where to show it">
+  <button class="cb-btn lb-tp" type="button" id="lb-prompter" aria-pressed="false" title="Teleprompter: the Frame's script, docked in this window. Only you see it (R)">In this window</button>
+  <button class="cb-btn lb-ov" type="button" id="lb-overlay" title="Teleprompter overlay: your script over Zoom or Teams, see-through, always on top, never shared (Shift+R)">Over Zoom</button>
+  <button class="cb-btn lb-spk" type="button" id="lb-speaker" title="Teleprompter window: the script, what comes next and a clock, in its own window for a second screen. Never shown to the audience">Own window</button>
+  </div>
+  <p class="lpm-h lpm-warn" aria-hidden="true">Emergency</p>
+  <button class="cb-btn lb-emerg" type="button" id="lb-emergency" aria-pressed="false" title="Emergency screen with your message">Emergency screen</button>
     </div>
   </div>
   <button class="cb-btn hide" type="button" data-cb="hideAll" aria-label="Hide all Content">Hide all<kbd class="key" data-sc="hideAll">Esc</kbd></button>
@@ -88,11 +98,17 @@
 <div class="reminder" id="bday-reminder" role="status" hidden></div>
 
 
-<div class="subtabs" id="sub-members" role="tablist" aria-label="Members" hidden>
-  <button class="subtab" role="tab" type="button" id="tabbtn-directory" data-tab="directory" aria-selected="false"><i data-icon="users"></i>Directory</button>
-  <button class="subtab" role="tab" type="button" id="tabbtn-members" data-tab="members" aria-selected="false"><i data-icon="user"></i>Manage</button>
+<div class="subtabs" id="sub-members" hidden>
+ <div class="subtabs-tabs" role="tablist" aria-label="Members">
+  <button class="subtab" role="tab" type="button" id="tabbtn-members" data-tab="members" aria-selected="false"><i data-icon="users"></i>People</button>
+  <button class="subtab" role="tab" type="button" id="tabbtn-directory" data-tab="directory" aria-selected="false" hidden><i data-icon="users"></i>Directory</button>
   <button class="subtab" role="tab" type="button" id="tabbtn-birthdays" data-tab="birthdays" aria-selected="false"><i data-icon="cake"></i>Birthdays <span class="tab-badge" id="tab-bday-badge" hidden></span></button>
   <button class="subtab" role="tab" type="button" id="tabbtn-email" data-tab="email" aria-selected="false"><i data-icon="mail"></i>Email</button>
+ </div>
+  <!-- People has two views of the same list: edit one person at a time, or a table of everyone (the old Directory) -->
+  <div class="people-view" id="people-view" role="radiogroup" aria-label="Show people as">
+    <button type="button" role="radio" data-tab="members" aria-checked="true">List</button><button type="button" role="radio" data-tab="directory" aria-checked="false">Table</button>
+  </div>
 </div>
 
 <main>
@@ -318,12 +334,12 @@
     <div class="sn-group" role="group" aria-label="Your meeting"><p class="sn-head" aria-hidden="true">Your meeting</p>
       <button type="button" data-sec="meeting" data-k="meeting name logo colour color brand leader organization"><span class="sn-i"><i data-icon="palette" data-size="16"></i></span><span class="sn-t"><b>Meeting &amp; Branding</b><small>Name, logo and colours</small></span></button>
       <button type="button" data-sec="scripture" data-k="bible esv version verse scripture key"><span class="sn-i"><i data-icon="book-open" data-size="16"></i></span><span class="sn-t"><b>Scripture</b><small>Bible version and verses</small></span><i class="sn-dot" id="sn-scripture"></i></button>
-      <button type="button" data-sec="transitions" data-k="transition fade cut style profile"><span class="sn-i"><i data-icon="arrow-right-left" data-size="16"></i></span><span class="sn-t"><b>Transitions</b><small>How Frames change on screen</small></span></button>
       <button type="button" data-sec="overlays" data-k="birthday dates reminder"><span class="sn-i"><i data-icon="cake" data-size="16"></i></span><span class="sn-t"><b>Birthdays</b><small>Birthday reminders</small></span></button>
     </div>
     <div class="sn-group" role="group" aria-label="Presenting"><p class="sn-head" aria-hidden="true">Presenting</p>
-      <button type="button" data-sec="vcam" data-k="framecast camera webcam zoom teams blur background virtual"><span class="sn-i"><i data-icon="video" data-size="16"></i></span><span class="sn-t"><b>FRAMECAST Camera</b><small>Your camera in Zoom and Teams</small></span><i class="sn-dot" id="sn-vcam"></i></button>
-      <button type="button" data-sec="display" data-k="zoom display screen obs overlay presentation window monitor"><span class="sn-i"><i data-icon="monitor" data-size="16"></i></span><span class="sn-t"><b>Zoom / Display</b><small>Screens, OBS and overlay links</small></span><i class="sn-dot" id="sn-display"></i></button>
+      <button type="button" data-sec="output" data-k="how people see it zoom teams camera framecast share window projector tv obs display screen output"><span class="sn-i"><i data-icon="cast" data-size="16"></i></span><span class="sn-t"><b>How people see it</b><small>Zoom, Teams, a projector or OBS</small></span></button>
+      <button type="button" class="sn-sub" data-sec="vcam" data-k="framecast camera webcam zoom teams blur background virtual"><span class="sn-i"><i data-icon="video" data-size="16"></i></span><span class="sn-t"><b>FRAMECAST Camera</b><small>Your camera in Zoom and Teams</small></span><i class="sn-dot" id="sn-vcam"></i></button>
+      <button type="button" class="sn-sub" data-sec="display" data-k="zoom display screen obs overlay presentation window monitor"><span class="sn-i"><i data-icon="monitor" data-size="16"></i></span><span class="sn-t"><b>Projector, TV and OBS</b><small>Screens, OBS and overlay links</small></span><i class="sn-dot" id="sn-display"></i></button>
       <button type="button" data-sec="recording" data-k="record recording video mp4"><span class="sn-i"><i data-icon="circle-dot" data-size="16"></i></span><span class="sn-t"><b>Recording</b><small>Save the meeting as a video</small></span></button>
       <button type="button" data-sec="ipad" data-k="phone ipad remote wifi qr"><span class="sn-i"><i data-icon="smartphone" data-size="16"></i></span><span class="sn-t"><b>Phone &amp; iPad Remote</b><small>Control it from your phone</small></span><i class="sn-dot" id="sn-ipad"></i></button>
     </div>
@@ -332,12 +348,15 @@
     </div>
     <div class="sn-group" role="group" aria-label="This PC"><p class="sn-head" aria-hidden="true">This PC</p>
       <button type="button" data-sec="general" data-k="general theme dark light appearance name email wording greeting signature"><span class="sn-i"><i data-icon="settings" data-size="16"></i></span><span class="sn-t"><b>General</b><small>Theme, your name, email wording</small></span></button>
-      <button type="button" data-sec="keys" data-k="keyboard shortcuts keys hotkey"><span class="sn-i"><i data-icon="keyboard" data-size="16"></i></span><span class="sn-t"><b>Keyboard shortcuts</b><small>Keys for every action</small></span></button>
-      <button type="button" data-sec="security" data-k="security privacy"><span class="sn-i"><i data-icon="shield-check" data-size="16"></i></span><span class="sn-t"><b>Security</b><small>What stays on this PC</small></span></button>
       <button type="button" data-sec="data" data-k="data backup restore reset excel import export folder"><span class="sn-i"><i data-icon="database" data-size="16"></i></span><span class="sn-t"><b>Data / Backup</b><small>Backups, Excel and resets</small></span></button>
     </div>
-    <div class="sn-group" role="group" aria-label="Help"><p class="sn-head" aria-hidden="true">Help</p>
+    <div class="sn-group sn-adv" role="group" aria-label="Advanced" id="sn-adv"><button type="button" class="sn-head sn-adv-btn" id="sn-adv-btn" aria-expanded="false" aria-controls="sn-adv">Advanced <span aria-hidden="true">▸</span></button>
+      <button type="button" data-sec="transitions" data-k="transition fade cut style profile"><span class="sn-i"><i data-icon="arrow-right-left" data-size="16"></i></span><span class="sn-t"><b>Transitions</b><small>How Frames change on screen</small></span></button>
+      <button type="button" data-sec="keys" data-k="keyboard shortcuts keys hotkey"><span class="sn-i"><i data-icon="keyboard" data-size="16"></i></span><span class="sn-t"><b>Keyboard shortcuts</b><small>Keys for every action</small></span></button>
+      <button type="button" data-sec="security" data-k="security privacy"><span class="sn-i"><i data-icon="shield-check" data-size="16"></i></span><span class="sn-t"><b>Security</b><small>What stays on this PC</small></span></button>
       <button type="button" data-sec="diag" data-k="diagnostics problems help troubleshooting log"><span class="sn-i"><i data-icon="activity" data-size="16"></i></span><span class="sn-t"><b>Diagnostics</b><small>Check that everything works</small></span><i class="sn-dot" id="sn-diag"></i></button>
+    </div>
+    <div class="sn-group" role="group" aria-label="Help"><p class="sn-head" aria-hidden="true">Help</p>
       <button type="button" data-sec="about" data-k="about version"><span class="sn-i"><i data-icon="info" data-size="16"></i></span><span class="sn-t"><b>About</b><small>Version and mission</small></span></button>
     </div>
     <p class="sn-none" id="sn-none" hidden>No setting matches.</p>
@@ -397,8 +416,13 @@
       <section class="box"><div class="rec-ctl" id="rec-host"></div></section>
       <div class="tabpanel" id="tab-recordings"></div>
     </section>
+    <section class="s-sec" id="sec-output" aria-labelledby="sech-output" hidden>
+      <header class="s-head"><h2 id="sech-output">How people see it</h2><p>Choose how your meeting reaches people. Most churches use one way; you can use more than one.</p></header>
+      <div class="out-choices" id="out-choices"></div>
+    </section>
+
     <section class="s-sec" id="sec-display" aria-labelledby="sech-display" hidden>
-      <header class="s-head"><h2 id="sech-display">Zoom / Display</h2><p>Add the overlays to OBS, Camo or Zoom.</p></header>
+      <header class="s-head"><button class="linkish out-back" type="button" data-goto="settings" data-sec="output">← How people see it</button><h2 id="sech-display">Projector, TV and OBS</h2><p>Add the overlays to OBS, Camo or Zoom.</p></header>
     <section class="box">
       <div class="box-head"><h2>Set up OBS, Camo or Zoom</h2></div>
       <ol class="steps">
@@ -415,7 +439,7 @@
     </section>
     </section>
     <section class="s-sec" id="sec-vcam" aria-labelledby="sech-vcam" hidden>
-      <header class="s-head"><h2 id="sech-vcam">FRAMECAST Camera</h2><p>FRAMEDECKS’s own camera for Zoom and Teams, with optional background blur. No OBS or Camo needed.</p></header>
+      <header class="s-head"><button class="linkish out-back" type="button" data-goto="settings" data-sec="output">← How people see it</button><h2 id="sech-vcam">FRAMECAST Camera</h2><p>FRAMEDECKS’s own camera for Zoom and Teams, with optional background blur. No OBS or Camo needed.</p></header>
       <div id="vcam-body"></div>
     </section>
     <section class="s-sec" id="sec-ipad" aria-labelledby="sech-ipad" hidden>
@@ -487,7 +511,7 @@
       <button class="btn quiet" type="button" id="s-samples">Load sample members for testing</button>
       <button class="btn danger" type="button" id="s-clear">Clear all member data</button>
     </div>
-    <p class="hint">To restore a backup, use Import Excel in the Members tab.</p>
+    <p class="hint">To restore a backup, use Members → People → Import / Export → Import from Excel or CSV.</p>
   </section>
     </section>
     <section class="s-sec" id="sec-diag" aria-labelledby="sech-diag" hidden>
@@ -552,6 +576,7 @@
 <script src="js/meeting-import.js"></script>
 <script src="js/meeting-brand.js"></script>
 <script src="js/settings.js"></script>
+<script src="js/service.js"></script>
 <script src="js/account.js"></script>
 <script src="js/cloud-remote.js"></script>
 <script src="js/app-bridge.js"></script>

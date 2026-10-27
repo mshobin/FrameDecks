@@ -17,6 +17,7 @@ FRAMEDECKS is for church leaders and volunteers, not engineers. Write for the pe
 | Ask before anything that removes, naming it: "Disconnect “Sanctuary PC”?" | Ask "Are you sure?" |
 | Say what to do next when something is missing: "Link the service PC". | Show error codes or file names to everyone. Keep those for Diagnostics or an admin note. |
 | Say the camera is **FRAMECAST** and the program is **FRAMEDECKS**. | Call the camera FRAMEDECKS (`tests/test_camera_name.py` fails). |
+| Use the words in the [glossary](glossary.md): **Black screen**, **Running order**, **People**, **Up next**. | Use two words for one thing (Blackout and Black screen, Services and Running order). |
 
 ## Type
 
@@ -75,6 +76,27 @@ as icons. Where a page has no icon set (the Teleprompter window), a plain-text f
 | Dates | — | `When` / `relativeTime()` from `src/lib/when.ts` ("2 h ago", exact time on hover) |
 | Content preview | — | `KindIcon` (`content-kind.tsx`) + first line, reference or count |
 
+## Running a service
+
+The program has two modes, switched at the top of the window (`js/service.js`; owner-approved, 27 October):
+
+- **Prepare** is the Studio for planning: Frames, Content, the editor, Quick Start, + Frame.
+- **Run** is the Studio during a service. It shows the running order, what is on screen, **Up next**, Previous, Next,
+  Go Live, Hide all, the Live tools and the list steppers. Every editor is hidden, and renaming, dragging, menus,
+  Delete, cut, paste and undo do nothing in the Studio. Double-clicking a Frame still puts it on screen.
+- **Hide all** is calm (neutral) while nothing is on screen and red the moment something is (`body.kc-on-air`).
+- **Live tools** are grouped: On screen (Hide the selected Content, Black screen, Freeze, Draw), Teleprompter (one
+  entry: in this window, over Zoom, own window) and Emergency, set apart. Esc and clicking away close the menu; Esc
+  then does not also hide everything.
+- **Before you start** (in Run, while nothing is on screen) reads the status the program already has: Frames, how
+  people will see it, the program, the phone remote.
+- **Practice mode** turns on the black screen for the audience; the program's own previews add `practice=1` and show
+  everything. Turning the black screen off any other way ends Practice.
+- **How people see it** (Settings) is one guided choice: FRAMECAST, the Share Window, or a projector, TV or OBS. The
+  camera and display pages sit under it in the menu.
+- Settings that few people need (Transitions, Keyboard shortcuts, Security, Diagnostics) are folded under
+  **Advanced**; Find a setting searches them. FRAMECAST shows presets first and its exact numbers under **Fine-tune**.
+
 ## States
 
 Every list or page that loads has the same four states (`hosted/src/components/states.tsx` on the website):
@@ -85,7 +107,8 @@ Every list or page that loads has the same four states (`hosted/src/components/s
 4. **Done:** the content.
 
 In the program the same rule holds: the Teleprompter without a script shows one message and **Write a script**; the
-first run says **Welcome to FRAMEDECKS** with **Start fresh** as the main choice and a small Getting started card.
+first run says **Welcome to FRAMEDECKS** with **Start fresh** as the main choice and a small card, **Your first service
+in four steps** (branding, a Frame, how people see it, practising in Run).
 
 ## Themes
 
@@ -110,10 +133,10 @@ first run says **Welcome to FRAMEDECKS** with **Start fresh** as the main choice
 | Check | Where | What fails it |
 | --- | --- | --- |
 | `python tools/css_tokens.py` | Desktop checks (CI), `tests/test_css_tokens.py` | a font size, weight or radius off the scale; a hand-written drop shadow; a colour outside the palette; more `!important` than the baseline (program 16, website 7) |
-| `node tests/visual/layout.mjs` | Desktop checks → visual (CI) | the command bar cut short or scrolling at 1100–1920 px; anything over the Studio canvas; first run not focusing Start fresh; Teleprompter empty state without its action; the Settings menu out of line; serif headings |
+| `node tests/visual/layout.mjs` | Desktop checks → visual (CI) | Run showing an editor or no Up next; Hide all red with nothing on screen; Esc leaving Live tools open; the command bar cut short or scrolling at 1100–1920 px; anything over the Studio canvas; first run not focusing Start fresh; Teleprompter empty state without its action; the Settings menu out of line; serif headings |
 | `hosted/tests/design-audit.test.mjs` | Hosted companion checks (CI) | missing skip link or `<main>`; "Loading…" text instead of the state kit; text under 12 px or under 4.5:1; links in gold; the light theme not applied before paint |
 | `node tests/visual/a11y.mjs` | Desktop checks → visual (CI) | any axe WCAG 2.1 AA violation on any tab, Settings section, the first-run question, or the Speaker, Teleprompter and Spotlight windows, in dark and light |
-| `tests/test_ui_labels.py`, `tests/test_camera_name.py` | Python tests | the program's labels, first run and camera name |
+| `tests/test_ui_labels.py`, `tests/test_camera_name.py` | Python tests | the program's labels, first run, camera name, Prepare / Run, Live tools groups, How people see it, Advanced and People |
 
 **Reference screens** are in `docs/design/baselines/` (from `node tests/visual/layout.mjs --shots`, saved as WebP). When a
 change is meant to alter a screen, take new shots and replace the matching file in the same change.

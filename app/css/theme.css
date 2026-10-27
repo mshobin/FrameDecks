@@ -546,6 +546,7 @@ body.studio-focus .ws{grid-template-columns:minmax(0,1fr);height:100vh} body.stu
 .insp-t small{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .insp-live{font-size:12px;font-weight:800;letter-spacing:.08em}
 .insp-live.on{background:var(--live);color:var(--green-50);border-radius:4px;padding:2px 7px}
+html[data-theme="light"] .insp-live.on{color:var(--gray-1000)}     /* white on the light theme's deeper green: 5:1 */
 .inspector .insp-tabs{display:flex;gap:2px;padding:0 10px;border-bottom:1px solid var(--line-soft);flex:none;overflow-x:auto}
 .inspector .insp-tabs button{border:0;background:none;color:var(--muted);font:inherit;font-size:13px;font-weight:700;padding:8px 8px 9px;margin-bottom:-1px;border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap}
 .inspector .insp-tabs button:hover{color:var(--ink)}
@@ -1247,3 +1248,133 @@ body.spotlight .pal.spot-in{animation:pal-in .12s ease-out}
 /* spacing helpers (in place of inline styles in the scripts; design audit DD-25) */
 .u-mt-4{margin-top:4px}.u-mt-8{margin-top:8px}.u-mt-12{margin-top:12px}.u-mb-8{margin-bottom:8px}.u-ml-8{margin-left:8px}
 .u-m0{margin:0}.u-pad-20{padding:20px}.u-grow{flex:1;min-width:0}.u-inline-m0{display:inline-flex;margin:0}
+
+/* ---------- 6.12 running a service (owner-approved simplification, 27 October; js/service.js) ----------
+ * Prepare / Run, labelled main tabs, worded Previous / Next, Hide all red only while something is on screen, grouped
+ * Live tools, one status pill, the Up next panel, the pre-service checklist, Practice, and How people see it. */
+/* main tabs keep their words at every width the bar stays on one row */
+@media (max-width:1700px){
+  .cmdbar .tabs .tab{font-size:13px;gap:6px;padding:6px 8px}
+  .cmdbar .lb-l,.cmdbar .lb-auto .aa-x{display:none}        /* the Transition list and Auto keep their names for screen readers and tooltips */
+  .cmdbar .lb-tx select{max-width:132px}
+  .cmdbar .tabs .tab .ic{display:none}                      /* the words stay; the icons give way first */
+  .cmdbar .cb-btn.take{min-width:150px} .cmdbar .cb-btn.take .tk-what{max-width:118px}
+}
+@media (max-width:1800px){ .cmdbar .sys-sum .sys-text{display:none} .cmdbar .cb-btn.take .tk-what{max-width:120px} }
+@media (max-width:2100px){ .cmdbar .live-ind .live-what{display:none} }      /* what is on screen shows in the picture itself */
+.cmdbar .tabs .tab .ic{flex:none}
+/* Prepare / Run */
+.mode-switch{order:3;display:inline-flex;align-items:center;gap:2px;padding:2px;border:1px solid var(--line-soft);border-radius:12px;flex:none}
+.mode-switch button{all:unset;box-sizing:border-box;height:30px;padding:0 12px;border-radius:8px;font-size:13px;font-weight:700;color:var(--muted);cursor:pointer;display:inline-flex;align-items:center}
+.mode-switch button:hover{color:var(--ink);background:var(--hover)}
+.mode-switch button:focus-visible{outline:2px solid var(--gold);outline-offset:1px}
+.mode-switch button[aria-checked="true"]{background:var(--accent-soft);color:var(--ink);box-shadow:inset 0 -2px 0 var(--accent)}
+/* Previous / Next in words, as tall as Go Live */
+.cmdbar .cb-btn.lb-step-big{height:42px;min-height:42px;padding:0 12px;gap:6px;font-size:14px;font-weight:700}
+.cmdbar .lb-step-big .lb-t{display:inline}
+.cmdbar .lb-step-big .lb-ar{font-size:12px}
+/* Hide all: calm while nothing is on screen, red the moment something is */
+body:not(.kc-on-air) #ctlbar .cb-btn.hide{background:var(--neutral-btn);border-color:var(--line);color:var(--ink)}
+body:not(.kc-on-air) #ctlbar .cb-btn.hide:hover{border-color:var(--red);filter:none}
+/* Live tools: three labelled groups; the Teleprompter is one entry with three places to show it */
+.lb-prog-menu{min-width:280px}
+.lpm-h{margin:6px 4px 0;font-size:12px;font-weight:700;color:var(--muted)}
+.lpm-h:first-child{margin-top:0}
+.lpm-h span{font-weight:500;margin-left:4px}
+.lpm-warn{color:var(--red);border-top:1px solid var(--line-soft);padding-top:8px}
+.lpm-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.lpm-row .cb-btn{justify-content:center;padding:0 8px;font-size:13px}
+.lb-prog-menu .lb-emerg{border-color:var(--red-soft)}
+/* one status pill: what is on screen, then whether everything is ready */
+.cmdbar .live-ind{border-top-right-radius:0;border-bottom-right-radius:0}
+.cmdbar .sysstat{margin-left:-8px}
+.cmdbar .sys-sum{border-top-left-radius:0;border-bottom-left-radius:0;border-left-color:transparent}
+
+/* ---------- Run: the order, what is on screen, what is next; nothing to edit by accident ---------- */
+.run-next{display:none}
+body.run-mode .ws-right,body.run-mode .layers-pane,body.run-mode .kc-hsplit,body.run-mode .kc-lsplit,
+body.run-mode .scenes-pane .pane-tools,body.run-mode #quick-start,body.run-mode #scene-add,body.run-mode .si-fav,body.run-mode .si-more,
+body.run-mode .canvas-tools,body.run-mode .canvas-note,body.run-mode .cmdbar .lb-tx,body.run-mode .cmdbar .lb-auto,body.run-mode .gs-card{display:none}
+body.run-mode .scenes-pane{flex:1 1 auto}
+body.run-mode .scene-list .scene-item{cursor:pointer}
+body.run-mode .run-next{display:flex;flex-direction:column;gap:10px;padding:16px;min-height:0;overflow:auto;background:var(--mica),var(--panel)}
+.run-next h2{margin:0;font-size:13px;font-weight:700;color:var(--muted)}
+.run-next-frame{border:1px solid var(--line-soft)}
+.rn-name{font-size:18px;font-weight:700;color:var(--ink)}
+.rn-how{margin:0;font-size:14px;color:var(--muted)}
+.rn-check{border:1px solid var(--line-soft);border-radius:12px;padding:10px 12px;background:var(--surface)}
+.rn-check h3{margin:0 0 6px;font-size:14px;font-weight:700}
+.rn-check ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.rn-check li{display:flex;align-items:flex-start;gap:8px;font-size:14px;flex-wrap:wrap}
+.rn-check li.ok .rn-ic{color:var(--live)} .rn-check li.warn .rn-ic{color:var(--warn)}
+.rn-check .rn-ic{flex:none;display:inline-flex;margin-top:2px}
+.rn-check li > span:nth-child(2){flex:1;min-width:0}
+.rn-check .linkish{margin-left:24px}
+.rn-practice{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border:1px dashed var(--line);border-radius:12px;cursor:pointer}
+.rn-practice span{display:flex;flex-direction:column;gap:2px}
+.rn-practice small{font-size:13px;color:var(--muted)}
+@media (min-width:1081px){
+  body.run-mode .ws,body.run-mode .ws.c-insp{grid-template-columns:var(--kc-left,300px) 6px minmax(0,1fr) minmax(280px,26%);grid-template-rows:minmax(0,1fr)}
+  body.run-mode .ws.c-left{grid-template-columns:0 14px minmax(0,1fr) minmax(280px,26%)}
+  body.run-mode .ws-left,body.run-mode .kc-vsplit{grid-row:1}
+  body.run-mode .ws-center{grid-column:3;grid-row:1}
+  body.run-mode .run-next{grid-column:4;grid-row:1;border-left:1px solid var(--line-soft)}
+}
+@media (max-width:1080px){ body.run-mode .run-next{grid-column:1 / -1;border-top:1px solid var(--line-soft)} }
+body.run-mode.studio-focus .run-next{display:none}
+/* Practice: a strip nobody can miss while the audience sees a black screen */
+.practice-banner{position:fixed;left:50%;top:calc(var(--top-h,56px) + 8px);transform:translateX(-50%);z-index:75;display:flex;align-items:center;gap:10px;
+  max-width:min(760px,calc(100vw - 32px));padding:8px 10px 8px 14px;border:1px solid var(--warn);border-radius:12px;background:var(--surface);color:var(--ink);font-size:14px;box-shadow:var(--el-3)}
+.practice-banner span:first-child{color:var(--warn);display:inline-flex}
+
+/* ---------- Settings: How people see it, its two pages, and Advanced ---------- */
+.out-choices{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;max-width:1100px}
+.out-choices > .out-card{display:flex;flex-direction:column;gap:10px;align-items:flex-start;margin:0}
+.out-card .out-ic{display:inline-flex;width:40px;height:40px;align-items:center;justify-content:center;border-radius:12px;background:var(--accent-soft);color:var(--accent)}
+.out-card h3{margin:0;font-size:16px;font-weight:700}
+.out-card .plain{margin:4px 0 0}
+.out-card .out-t{flex:1}
+.out-back{display:inline-block;margin:0 0 6px;font-size:13px}
+.s-nav .sn-sub{padding-left:28px}
+.s-nav:not(.out-open):not(.finding) .sn-sub{display:none}
+.s-nav .sn-adv-btn{display:flex;align-items:center;justify-content:space-between;padding:4px 10px;margin:2px 0 4px;cursor:pointer}
+.s-nav .sn-adv:not(.open) > button[data-sec]{display:none}
+.s-nav.finding .sn-adv > button[data-sec]:not([hidden]){display:flex}
+@media (max-width:1320px){
+  .cmdbar .tabs .tab{padding:6px 6px;gap:4px}
+  .cmdbar .lb-tx select{max-width:112px}
+  .cmdbar .cb-btn.take{min-width:120px;padding:0 12px} .cmdbar .cb-btn.take .tk-what{max-width:96px}
+  .cmdbar .cb-btn.lb-step-big{padding:0 10px}
+  .mode-switch button{padding:0 10px}
+}
+/* People: one tab, two views of the same list */
+.people-view{margin-left:auto;align-self:center;display:inline-flex;gap:2px;padding:2px;border:1px solid var(--line-soft);border-radius:8px}
+.people-view[hidden]{display:none}
+.people-view button{all:unset;box-sizing:border-box;padding:4px 10px;border-radius:4px;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer}
+.people-view button:focus-visible{outline:2px solid var(--gold)}
+.people-view button[aria-checked="true"]{background:var(--accent-soft);color:var(--ink)}
+/* FRAMECAST: presets first, exact numbers under Fine-tune, the technical Quality box folded */
+.vcam-tune{border-top:1px solid var(--line-soft);padding-top:6px}
+.vcam-adv > summary{display:flex;align-items:baseline;gap:8px;cursor:pointer;list-style:none}
+.vcam-adv > summary::-webkit-details-marker{display:none}
+.vcam-adv > summary h2{margin:0;font-size:16px}
+.vcam-adv > summary::before{content:"▸";color:var(--muted)}
+.vcam-adv[open] > summary::before{content:"▾"}
+/* Prepare below 1500 px: the selected Frame is highlighted in the list, so Go Live drops its subtitle (Run keeps it) */
+@media (max-width:1560px){ body:not(.run-mode) .cmdbar .cb-btn.take .tk-what{display:none} body:not(.run-mode) .cmdbar .cb-btn.take{min-width:116px} }
+/* the live controls take a second row where one row would not fit: Prepare below 1400 px, Run below 1180 px */
+@media (max-width:1460px){
+  body:not(.run-mode) .cmdbar{flex-wrap:wrap;row-gap:6px}
+  body:not(.run-mode) .cmdbar .lb-scenes{order:20;margin-left:0}
+  body:not(.run-mode) .cmdbar .lb-tx{order:21} body:not(.run-mode) .cmdbar .lb-auto{order:22} body:not(.run-mode) .cmdbar .lb-step{order:23}
+  body:not(.run-mode) .cmdbar .lb-slides{order:24} body:not(.run-mode) .cmdbar .lb-prog{order:25}
+  body:not(.run-mode) .cmdbar #ctlbar [data-cb="hideAll"]{order:26;margin-left:auto}
+}
+@media (max-width:1240px){
+  body.run-mode .cmdbar{flex-wrap:wrap;row-gap:6px}
+  body.run-mode .cmdbar .lb-scenes{order:20;margin-left:0}
+  body.run-mode .cmdbar .lb-step{order:23} body.run-mode .cmdbar .lb-slides{order:24} body.run-mode .cmdbar .lb-prog{order:25}
+  body.run-mode .cmdbar #ctlbar [data-cb="hideAll"]{order:26;margin-left:auto}
+}
+.subtabs-tabs{display:flex;gap:4px}
+html[data-theme="light"] .s2-badge:not(.pv){color:var(--green-500)}     /* the badge sits on the always-dark picture: the bright green reads there */

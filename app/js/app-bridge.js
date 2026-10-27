@@ -80,8 +80,11 @@ var gettingStarted = (function(){
   var KEY = 'kc-getting-started', card = null;
   var STEPS = [
     ['brand', 'Add your meeting name and logo', 'Settings → Meeting & Branding', function(){ go('settings', 'meeting'); }],
-    ['frame', 'Plan your first Frame', 'The Studio: add a Frame, then its Content', function(){ go('studio'); }],
-    ['camera', 'Choose FRAMECAST in Zoom or Teams', 'Settings → FRAMECAST Camera', function(){ go('settings', 'vcam'); }]
+    ['frame', 'Plan your first Frame', 'Studio → Prepare: add a Frame, then its Content', function(){ go('studio'); if (window.KCServiceMode) window.KCServiceMode.set('prepare'); }],
+    ['output', 'Choose how people see it', 'Zoom or Teams, a shared window, or a projector', function(){ go('settings', 'output'); }],
+    ['practice', 'Practise your first service', 'Run → Practice mode, then Go Live, Next and Hide all (Esc)', function(){
+      go('studio'); if (window.KCServiceMode) window.KCServiceMode.set('run');
+      setTimeout(function(){ var p = document.getElementById('practice-mode'); if (p) p.focus(); }, 100); }]
   ];
   function read(){ try { return JSON.parse(localStorage.getItem(KEY) || 'null'); } catch(e){ return null; } }
   function write(v){ try { localStorage.setItem(KEY, JSON.stringify(v)); } catch(e){} }
@@ -92,7 +95,7 @@ var gettingStarted = (function(){
     var done = st.done || {}; if (STEPS.every(function(s){ return done[s[0]]; })){ write({closed: true}); return hide(); }
     if (!card){ card = h('section', {cls: 'gs-card', role: 'region', 'aria-label': 'Getting started'}); document.body.appendChild(card); }
     card.innerHTML = '';
-    card.appendChild(h('div', {cls: 'gs-head'}, [h('b', {text: 'Getting started'}),
+    card.appendChild(h('div', {cls: 'gs-head'}, [h('b', {text: 'Your first service in four steps'}),
       h('button', {cls: 'gs-x', type: 'button', 'aria-label': 'Close Getting started', title: 'Close', text: '×', onclick: function(){ write({closed: true}); hide(); }})]));
     var ol = h('ol', {cls: 'gs-list'});
     STEPS.forEach(function(s){
@@ -125,7 +128,7 @@ function renderDataCard(){
     var t = h('table', {cls: 'plain'}, [h('tr', {}, [h('th', {text: 'Backup'}), h('th', {text: 'Contains'})])]);
     info.backups.forEach(function(b){ t.appendChild(h('tr', {}, [h('td', {cls: 'mono', text: b.name}), h('td', {text: b.files.join(', ')})])); });
     card.appendChild(t);
-    card.appendChild(h('p', {cls: 'hint', text: 'To restore one: open the backups folder, then use “Load a backup file” below or Members → Import Excel, or copy the files into the data folder while FRAMEDECKS is closed.'}));
+    card.appendChild(h('p', {cls: 'hint', text: 'To restore one: open the backups folder, then use “Load a backup file” below or Members → People → Import / Export, or copy the files into the data folder while FRAMEDECKS is closed.'}));
   }
 }
 /* About line in General */

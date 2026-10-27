@@ -124,7 +124,7 @@ function Planner({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
   async function remove(frame: Obj) {
     const record = byKey.get(key("frame", String(frame.id)));
     if (!supabase || !record || busy) return;
-    if (!window.confirm(`Delete “${String(frame.name)}”? It stays under Services → Deleted in the last 30 days.`)) return;
+    if (!window.confirm(`Delete “${String(frame.name)}”? It stays under Running order → Deleted in the last 30 days.`)) return;
     setBusy(true);
     setNotice(null);
     const changes: Parameters<typeof pushChanges>[2] = [{ kind: "frame", id: record.id, rev: record.rev, deleted: true }];
@@ -135,7 +135,7 @@ function Planner({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
     if (answer.status === "ok") {
       drop("frame", record.id);
       if (order && orderBody && orderAnswer?.status === "ok") upsert({ ...order, body: orderBody as PulledRecord["body"], rev: orderAnswer.rev });
-      setNotice({ ok: true, text: `“${String(frame.name)}” deleted. Restore it from Services within 30 days.` });
+      setNotice({ ok: true, text: `“${String(frame.name)}” deleted. Restore it from the Running order within 30 days.` });
     } else if (answer.status === "conflict") {
       setNotice({ ok: false, text: "This Frame changed on the PC meanwhile. Here is the latest; delete it again if needed." });
       await load();

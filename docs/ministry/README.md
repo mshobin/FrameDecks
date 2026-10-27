@@ -76,7 +76,7 @@ A one-hour team training session that covers everyone:
 | --- | --- | --- |
 | 0:00 | What FRAMEDECKS is: Meeting → Frame → Content → Present | All |
 | 0:10 | Building a Frame: + Frame, + Content, Content Settings | Media team |
-| 0:25 | Presenting: Go Live, Next, Hide all, Blackout, Freeze | Operators |
+| 0:25 | Presenting: Go Live, Next, Hide all, Black screen, Freeze | Operators |
 | 0:35 | The phone remote: connect, Simple remote, drawing | Remote operators, volunteers |
 | 0:45 | The Teleprompter: the script, what's next, timer | Leaders |
 | 0:50 | Something goes wrong: practise recovery | All |

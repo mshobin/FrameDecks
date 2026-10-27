@@ -293,10 +293,11 @@ function refreshStatus(){
   if (live.birthday.visible && live.birthday.greeting.trim()) on.push('Birthday');
   var SC = window.KCScenes, ls = SC && SC.liveScene(live), tl = SC ? SC.liveText(live).length : 0;
   if (tl) on.push(tl === 1 ? '1 text Content' : tl + ' text Content');
-  if (live.live && live.live.blackout) on = ['Blackout'];
+  if (live.live && live.live.blackout) on = ['Black screen'];
   else if (live.live && live.live.emergency) on = ['Emergency screen'];
   var cls = 'live-ind' + (on.length ? ' on' : ''), what = (ls ? ls.name + (on.length ? ' · ' : '') : '') + on.join(' + ');
   if (el.className !== cls) el.className = cls;
+  document.body.classList.toggle('kc-on-air', on.length > 0);         // Hide all turns red only while something is on screen
   var b = el.querySelector('b'), w = el.querySelector('.live-what');
   if (b.textContent !== (on.length ? 'LIVE' : 'Off air')) b.textContent = on.length ? 'LIVE' : 'Off air';
   if (w.textContent !== what) w.textContent = what;

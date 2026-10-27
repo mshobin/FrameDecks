@@ -151,7 +151,7 @@ Five things: **Go Live**, **NEXT FRAME**, **NEXT CONTENT**, **HIDE ALL**, and **
 Press **HIDE ALL** (or **Esc** on the PC), then put the right Frame back with **Go Live**. Nothing is ever deleted by these buttons.
 
 **Can the leader see notes that the congregation can't?**
-Yes. Write them in each Frame's **Teleprompter script** (Frame settings). Open it with **Program → Teleprompter** (**R**), in the **Teleprompter window** on a second screen, or with **TELEPROMPTER** on the phone remote. See [Presentations](presentations.md#teleprompter).
+Yes. Write them in each Frame's **Teleprompter script** (Frame settings). Open it with **Live tools → Teleprompter → In this window** (**R**), in the **Teleprompter window** on a second screen, or with **TELEPROMPTER** on the phone remote. See [Presentations](presentations.md#teleprompter).
 
 **Can the audience see the teleprompter?**
 No. The Teleprompter is only for the presenter. It is never on the FRAMECAST camera, the Presentation window, the OBS pages or the phone's drawing pad.

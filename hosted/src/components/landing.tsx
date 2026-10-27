@@ -8,6 +8,8 @@ import {
   History,
   Lock,
   Radio,
+  ShieldCheck,
+  WifiOff,
   Users,
   Video,
 } from "lucide-react";
@@ -26,6 +28,15 @@ const FEATURES = [
   { icon: BookOpenText, title: "Scripture and discussion", text: "Readings with their references, discussion questions with timers, and a Teleprompter only the presenter sees." },
   { icon: Users, title: "Your people", text: "Members, groups and birthdays in one list, kept in step between the website and the service PC." },
   { icon: History, title: "Nothing is lost", text: "Every change is kept for 30 days: see who changed what, and restore an earlier version or a deleted Frame." },
+] as const;
+
+// Trust in facts the product keeps (owner-approved, 27 October). No invented quotes or numbers: a real church's
+// words or a usage figure go here only when the owner supplies them.
+const TRUST = [
+  { icon: WifiOff, title: "Services run on your PC", text: "Online or not: the internet is only for planning together." },
+  { icon: ShieldCheck, title: "Private by design", text: "Pictures, video and the camera never leave the service PC." },
+  { icon: History, title: "Nothing is lost", text: "30 days of history online and a backup on the PC every day." },
+  { icon: Lock, title: "Free and open source", text: "Apache 2.0 licence. No adverts, no tracking." },
 ] as const;
 
 /** What a visitor who is not signed in sees at the companion's address. */
@@ -97,6 +108,17 @@ export function Landing() {
           />
           <figcaption>The Studio on the service PC, and the Live page on a phone during the meeting.</figcaption>
         </figure>
+        <ul className="fd-trust" aria-label="Why churches can rely on it">
+          {TRUST.map(({ icon: Icon, title, text }) => (
+            <li key={title}>
+              <Icon aria-hidden="true" size={20} strokeWidth={1.8} />
+              <span>
+                <strong>{title}</strong>
+                {text}
+              </span>
+            </li>
+          ))}
+        </ul>
       </section>
 
       <section className="fd-section" id="how" aria-labelledby="fd-how-title">

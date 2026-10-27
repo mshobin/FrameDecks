@@ -95,6 +95,34 @@ for (const w of [1920, 1440, 1280, 1100]) {
   await p.close();
 }
 
+// 6. Running a service (owner-approved, 27 October): Run hides every editor and shows Up next; Hide all is calm
+//    while nothing is on screen; Esc closes Live tools without hiding everything; the bar still fits in Run
+{
+  const p = await page(1440);
+  await p.evaluate(() => { document.querySelectorAll(".app-modal-back").forEach((m) => m.remove()); window.KCSetTab("studio"); });
+  await p.click('#mode-switch [data-mode="run"]');
+  await p.waitForTimeout(600);
+  const r = await p.evaluate(() => {
+    const shown = (el) => !!el && getComputedStyle(el).display !== "none";
+    return {
+      editor: shown(document.getElementById("inspector")), content: shown(document.querySelector(".layers-pane")),
+      next: shown(document.getElementById("run-next")), addFrame: shown(document.getElementById("scene-add")),
+      scroll: document.documentElement.scrollWidth > innerWidth, onAir: document.body.classList.contains("kc-on-air"),
+      hide: getComputedStyle(document.querySelector('[data-cb="hideAll"]')).backgroundColor,
+    };
+  });
+  check(!r.editor && !r.content && !r.addFrame && r.next, "Run hides the editor, the Content list and + Frame, and shows Up next");
+  check(!r.scroll, "the command bar fits in Run at 1440 px");
+  check(r.onAir || !/220, 38, 38/.test(r.hide), `Hide all is calm while nothing is on screen (${r.hide})`);
+  await p.click("#lb-prog-btn");
+  await p.keyboard.press("Escape");
+  await p.waitForTimeout(200);
+  check(!(await p.evaluate(() => document.getElementById("lb-prog").classList.contains("open"))), "Esc closes Live tools");
+  await shot(p, "run");
+  await p.click('#mode-switch [data-mode="prepare"]');
+  await p.close();
+}
+
 await browser.close();
 console.log(failed ? `${failed} visual check(s) failed` : "all visual checks passed");
 process.exit(failed ? 1 : 0);

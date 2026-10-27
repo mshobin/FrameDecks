@@ -188,8 +188,8 @@ var manualExpRows = [slider('shutterSpeed', 'Shutter', -13, 0, 1, function(n){ r
   slider('gain', 'Gain', 0, 255, 1, String)];
 var manualWbRows = [slider('whiteBalanceKelvin', 'Kelvin', 2500, 7500, 50, function(n){ return n + ' K'; })];
 var diag = h('dl', {cls: 'vcam-diag', id: 'vcam-diag'});
-var qualityBox = h('section', {cls: 'box'}, [
-  h('div', {cls: 'box-head'}, [h('h2', {text: 'Quality'})]),
+var qualityBox = h('section', {cls: 'box'}, [h('details', {cls: 'vcam-adv'}, [
+  h('summary', {}, [h('h2', {text: 'Picture quality and diagnostics'}), h('span', {cls: 'hint', text: ' For experienced users: exposure, colour, webcam modes'})]),
   h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'Profile'}), profSeg]),
   h('div', {cls: 'row'}, [h('span', {cls: 'lbl'}), profNote]),
   slider('filterIntensity', 'Look strength', 0, 100, 1, pct),
@@ -206,7 +206,7 @@ var qualityBox = h('section', {cls: 'box'}, [
   h('details', {cls: 'vcam-fine'}, [h('summary', {text: 'Fine-tune (exposure, colour, sharpness)'})].concat(fineRows, [h('div', {cls: 'row'}, [h('span', {cls: 'lbl'}), fineReset])])),
   h('div', {cls: 'box-head u-mt-12'}, [h('h2', {text: 'Diagnostics'})]),
   diag
-]);
+])]);
 function renderQuality(d){
   var s = d.settings, st = d.status || {};
   var psig = JSON.stringify(d.profiles || []);
@@ -256,17 +256,19 @@ var settingsBox = h('section', {cls: 'box'}, [
   h('div', {cls: 'box-head'}, [h('h2', {text: 'Picture'})]),
   h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'Webcam'}), camSel]),
   h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'Picture size'}), resSeg]),
-  h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'Camera Look'}), lookSel,
-    h('span', {cls: 'hint u-ml-8', text: 'Ctrl+Alt+1 Warm · 2 Dark · 3 Neutral · 0 Off'})]),
-  h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'Presentation window'}), presSeg]),
-  h('div', {cls: 'row'}, [h('span', {cls: 'lbl'}), h('span', {cls: 'hint', text: 'Standard is plenty for sharing in Zoom and keeps Windows smooth. Use Smooth only for fast motion.'})]),
+  // the everyday choices are presets; the exact numbers are under Fine-tune (owner-approved simplification, 27 October)
   h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'Background blur'}), blurSeg]),
-  h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'Blur strength'}), h('div', {cls: 'blur-ctl'}, [blurDown, h('div', {cls: 'range'}, [blurRange, blurVal]), blurUp, blurNum, h('span', {cls: 'hint', text: '%'})])]),
-  h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'Blur style'}), styleSeg]),
-  h('div', {cls: 'row'}, [h('span', {cls: 'lbl'}), h('span', {cls: 'hint', text: 'Natural softens the background like a camera lens focused on you - no halo around you, and settings below 10 % stay subtle. Classic is the look of earlier versions.'})]),
   h('div', {cls: 'row'}, [h('span', {cls: 'lbl'}), blurSave, blurNote]),
   h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'Mirror'}), h('label', {cls: 'check'}, [mirror, ' Flip left-right (only your camera picture; text stays readable)'])]),
   h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'Cards'}), h('label', {cls: 'check'}, [cardsCb, ' Show my verse, question and birthday cards on FRAMECAST'])]),
+  h('details', {cls: 'vcam-fine vcam-tune'}, [h('summary', {text: 'Fine-tune: exact blur, blur style, camera look and smoothness'}),
+    h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'Blur strength'}), h('div', {cls: 'blur-ctl'}, [blurDown, h('div', {cls: 'range'}, [blurRange, blurVal]), blurUp, blurNum, h('span', {cls: 'hint', text: '%'})])]),
+    h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'Blur style'}), styleSeg]),
+    h('div', {cls: 'row'}, [h('span', {cls: 'lbl'}), h('span', {cls: 'hint', text: 'Natural softens the background like a camera lens focused on you - no halo around you, and settings below 10 % stay subtle. Classic is the look of earlier versions.'})]),
+    h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'Camera Look'}), lookSel]),
+    h('div', {cls: 'row'}, [h('span', {cls: 'lbl'}), h('span', {cls: 'hint', text: 'Keys: Ctrl+Alt+1 Warm, Ctrl+Alt+2 Dark, Ctrl+Alt+3 Neutral, Ctrl+Alt+0 Off.'})]),
+    h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'Presentation window'}), presSeg]),
+    h('div', {cls: 'row'}, [h('span', {cls: 'lbl'}), h('span', {cls: 'hint', text: 'Standard is plenty for sharing in Zoom and keeps Windows smooth. Use Smooth only for fast motion.'})])]),
   h('div', {cls: 'box-head u-mt-12'}, [h('h2', {text: 'Preview'}), previewBtn]),
   previewBox,
   h('p', {cls: 'hint', text: 'The preview turns your webcam on while it is showing.'})

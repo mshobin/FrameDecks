@@ -21,6 +21,9 @@ function showSection(id){
   current = id;
   Array.prototype.forEach.call(document.querySelectorAll('.s-sec'), function(s){ s.hidden = s.id !== 'sec-' + id; });
   document.body.classList.toggle('s-about-open', id === 'about');
+  // the camera and display pages belong to How people see it; an Advanced page opens its folded group
+  $('s-nav').classList.toggle('out-open', ['output', 'vcam', 'display'].indexOf(id) >= 0);
+  var adv = $('sn-adv'); if (adv && adv.querySelector('[data-sec="' + id + '"]')) setAdvanced(true);
   Array.prototype.forEach.call(document.querySelectorAll('#s-nav button'), function(b){ b.setAttribute('aria-current', String(b.dataset.sec === id)); });
   try { localStorage.setItem(SEC_KEY, id); } catch(e){}
   if (buildOnce[id]){ buildOnce[id](); delete buildOnce[id]; }
@@ -35,9 +38,23 @@ $('s-nav').addEventListener('click', function(e){ var b = e.target.closest('[dat
 document.addEventListener('click', function(e){
   var b = e.target.closest('[data-goto="settings"][data-sec]'); if (b) setTimeout(function(){ showSection(b.dataset.sec); }, 0);
 });
+/* Advanced: the settings few people need (transitions, keys, security, diagnostics), folded until asked for */
+var ADV_KEY = 'kc-settings-advanced';
+function setAdvanced(open){
+  var g = $('sn-adv'), b = $('sn-adv-btn'); if (!g || !b) return;
+  g.classList.toggle('open', open); b.setAttribute('aria-expanded', String(open));
+  b.lastElementChild.textContent = open ? '▾' : '▸';
+  try { localStorage.setItem(ADV_KEY, open ? '1' : ''); } catch(e){}
+}
+if ($('sn-adv-btn')){
+  $('sn-adv-btn').addEventListener('click', function(){ setAdvanced(!$('sn-adv').classList.contains('open')); });
+  var advOpen = ''; try { advOpen = localStorage.getItem(ADV_KEY) || ''; } catch(e){}
+  setAdvanced(!!advOpen);
+}
 /* Find a setting: filters the menu by name, description and keywords; Enter opens the first match */
 function findSetting(q){
   q = String(q || '').trim().toLowerCase();
+  $('s-nav').classList.toggle('finding', !!q);          // while searching, folded and sub-pages are searched too
   var any = false;
   Array.prototype.forEach.call(document.querySelectorAll('#s-nav .sn-group'), function(g){
     var shown = 0;

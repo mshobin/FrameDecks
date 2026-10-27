@@ -127,15 +127,24 @@ See [Service planning](service-planning.md), [Frames](frames.md) and [Content](c
 
 ## Go Live and step through
 
-1. Select the first Frame.
-2. Select **Go Live** (or press **T**). The badge turns to **LIVE**.
+The top bar has two modes. **Prepare** is for planning and editing. **Run** is for the service itself: it shows the
+running order, what is on screen, what is **Up next** and a short **Before you start** checklist, and nothing can be
+edited by accident. Switch back to **Prepare** at any time.
+
+1. Select **Run**, then the first Frame.
+2. Select **Go Live** (or press **T**). The badge turns to **Live** and **Hide all** turns red: something is on screen.
 3. Move through the meeting:
-   - **Frame ▶** (or **]**) goes to the next Frame; **◀ Frame** (or **[**) goes back;
+   - **Next ▶** (or **]**) goes to the next Frame; **◀ Previous** (or **[**) goes back;
    - **→ / ←** step through the Frame's questions;
    - **Shift + → / ←** step through its scriptures.
 4. When you need a clean screen, press **Esc** (**Hide all**).
 
-See [Presentations](presentations.md) for transitions, Blackout, Freeze, Annotate, the Teleprompter, the Teleprompter
+**Practise first.** In **Run**, tick **Practice mode**: your audience sees a black screen while you try Go Live, Next
+and Hide all, and your own preview still shows everything. Untick it (or select **Stop practising**) when you are ready.
+Not sure how people will see your meeting? **Settings → How people see it** offers three ways: FRAMECAST in Zoom or
+Teams, the Share Window, or a projector, TV or OBS. The words FRAMEDECKS uses are in the [glossary](glossary.md).
+
+See [Presentations](presentations.md) for transitions, Black screen, Freeze, Annotate, the Teleprompter, the Teleprompter
 overlay, the command palette and Spotlight.
 
 ## Add your phone (optional)
@@ -157,10 +166,10 @@ Do this once, a day or two before your first real meeting.
       installing).
 - [ ] You can **Go Live** on your first Frame and step to the last one.
 - [ ] Your questions and scriptures read correctly on the canvas. Fix typos by double-clicking a card.
-- [ ] **Hide all (Esc)** and **Blackout (K)** work.
+- [ ] **Hide all (Esc)** and **Black screen (K)** work.
 - [ ] If you use a projector: **Share Window** opens the Presentation window and it fills the projector screen.
 - [ ] If you use your phone: it connects, and **NEXT FRAME** works.
-- [ ] You know where the **Teleprompter** is (Program → Teleprompter, or **R**) if you want your script in front of
+- [ ] You know where the **Teleprompter** is (Live tools → Teleprompter → In this window, or **R**) if you want your script in front of
       you. Only you see it. On Zoom or Teams, try the **Teleprompter overlay** (**Shift+R**) over the meeting.
 - [ ] Do a 10-minute rehearsal with one other person on a test Zoom call.
 

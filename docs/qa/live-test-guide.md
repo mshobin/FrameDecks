@@ -41,9 +41,9 @@ before: go on to the next one. Any other error: stop and send it.
 2. On any device, open `https://framedecks.pages.dev`, sign in, go to **Computers**, type the code, **Link**.
 3. **Expect:** within a few seconds the PC shows "Linked to BSF Study"; this is also the first time Windows
    Credential Manager stores the PC's key.
-4. In the companion open **Services**. **Expect:** your Frames in order, with their questions, scripture and scripts;
+4. In the companion open **Running order** (it was called Services). **Expect:** your Frames in order, with their questions, scripture and scripts;
    pictures and videos only by name.
-5. On the PC change a Frame's name. **Expect:** after reloading Services (within about a minute) the new name.
+5. On the PC change a Frame's name. **Expect:** after reloading the Running order (within about a minute) the new name.
 6. Open **Members** in the companion. **Expect:** the member list from the PC (owners and admins only).
 
 ## 4. Test B: phone control
@@ -62,7 +62,7 @@ before: go on to the next one. Any other error: stop and send it.
 
 ## 5. Test C: editing in the companion
 
-1. In the companion → **Services** → **Edit** on a Frame that is **not** on screen. Change its Teleprompter script
+1. In the companion → **Running order** → **Edit** on a Frame that is **not** on screen. Change its Teleprompter script
    and add a question. **Save**. **Expect:** "Saved. The service PC picks it up within about a minute", and on the
    PC the new script and question within about a minute.
 2. **Edit** the Frame that **is** on screen and change its script. **Expect:** the companion says it is on screen
@@ -73,10 +73,10 @@ before: go on to the next one. Any other error: stop and send it.
 
 ## 6. Test D: history
 
-1. In **Services**, press the history (clock) button on the Frame you edited. **Expect:** "Now" and earlier versions,
+1. In the **Running order**, press the history (clock) button on the Frame you edited. **Expect:** "Now" and earlier versions,
    who made each (your name "(companion)" or the PC's name) and what changed.
 2. **Restore** an earlier version. **Expect:** the PC returns to it within about a minute.
-3. Delete a spare Frame on the PC, reload Services. **Expect:** it under **Deleted in the last 30 days**; **Restore**
+3. Delete a spare Frame on the PC, reload the Running order. **Expect:** it under **Deleted in the last 30 days**; **Restore**
    brings it back at the end of the list on the PC.
 
 ## 7. Test E: members from the cloud (M-D2, M-D6)
@@ -112,12 +112,26 @@ Needs FRAMEDECKS 6.11 on the linked PC.
    at the end, with the same Content, laid out as an Excel import would. Fetch the verse text on the PC as usual.
 4. **Edit** that Frame: change a question, add an Image Content with a file name that is in the PC's media folder.
    **Expect:** the change on the PC; the picture appears (or Diagnostics lists the name if it is not there).
-5. Move it up, then **Delete** it. **Expect:** the PC follows; Services lists it under Deleted in the last 30 days.
+5. Move it up, then **Delete** it. **Expect:** the PC follows; the Running order lists it under Deleted in the last 30 days.
 6. On the PC: **Settings → Data / Backup → Meeting from Excel → Import a meeting from Excel…** still works (W2),
    and the ✨ Meeting menu no longer lists Excel.
+
+## 10. Test H: run a service in Run, with Practice (27 October)
+
+On the service PC, no real call needed.
+1. Select **Run** at the top. **Expect:** the running order on the left, the picture in the middle, **Up next** on the
+   right with **Before you start**; no editor, no + Frame. Double-click a Frame name: it goes on screen (no renaming).
+2. Tick **Practice mode**. **Expect:** a strip "Practice: your audience sees a black screen"; in Zoom (FRAMECAST) the
+   picture is black, while the program's own preview still shows your Frame.
+3. Press **Go Live**, **Next ▶** and **Esc**. **Expect:** **Hide all** is red while something is on screen and calm
+   after Esc; Up next follows.
+4. Open **Live tools**, press **Esc**. **Expect:** only the menu closes. Select **Stop practising**. **Expect:** Zoom
+   shows the picture again.
+5. **Settings → How people see it** → **Set up FRAMECAST**. **Expect:** the FRAMECAST page with **← How people see it**.
+6. Check the window at your PC's real width: the top bar on one row (two rows below about 1400 px in Prepare).
 
 ## What to send back
 
 For anything that does not match **Expect**: which test and step, a screenshot of the companion page, the message
 shown under Settings → FRAMEDECKS account on the PC (it shows sync and phone-control errors), and the time.
-If all seven pass, say so: the live tests in the continuity files are then marked done.
+If all eight pass, say so: the live tests in the continuity files are then marked done.

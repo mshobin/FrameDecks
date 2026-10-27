@@ -16,7 +16,7 @@ const groups = [
     items: [
       { id: "overview", label: "Overview", href: "/", icon: HomeIcon },
       { id: "meeting", label: "Meeting Form", href: "/meeting", icon: ClipboardList },
-      { id: "services", label: "Services", href: "/services", icon: Presentation },
+      { id: "services", label: "Running order", href: "/services", icon: Presentation },
       { id: "branding", label: "Branding", href: "/branding", icon: Palette },
     ],
   },
@@ -38,7 +38,7 @@ const tabs = [
   { id: "members", label: "Members", href: "/members", icon: Users },
 ] as const;
 const more = [
-  { id: "services", label: "Services", href: "/services", icon: Presentation },
+  { id: "services", label: "Running order", href: "/services", icon: Presentation },
   { id: "branding", label: "Branding", href: "/branding", icon: Palette },
   { id: "computers", label: "Computers", href: "/computers", icon: Monitor },
 ] as const;
@@ -47,7 +47,7 @@ const titles: Record<Section, string> = {
   overview: "Overview",
   meeting: "Meeting Form",
   branding: "Branding",
-  services: "Services",
+  services: "Running order",
   live: "Live",
   members: "Members",
   computers: "Computers",

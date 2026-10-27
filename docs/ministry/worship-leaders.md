@@ -26,8 +26,8 @@ How to lead a service or Bible study with FRAMEDECKS, so the technology supports
 
 1. **A meeting is a list of Frames.** Each Frame is one step of the service (Welcome, Scripture Reading, Discussion…). See [Frames](../frames.md).
 2. **Your script is private.** Write what you plan to say in each Frame's **Teleprompter script**. It never appears on screen; only you see it.
-3. **The Teleprompter is your confidence monitor.** **Program → Teleprompter** (**R**) docks it beside the Studio. **Program → Teleprompter window** opens it on a second screen; select **On screen & next** to see what is on screen, what comes next, the time and a timer. The phone remote has it too.
-   Leading on Zoom or Teams from one laptop? **Program → Teleprompter overlay** (**Shift+R**) puts your script in a see-through window over the meeting, so you still see the participants. Zoom and Teams never share it. See [Teleprompter overlay](../presentations.md#teleprompter-overlay-meeting-leader-mode).
+3. **The Teleprompter is your confidence monitor.** **Live tools → Teleprompter → In this window** (**R**) docks it beside the Studio. **Live tools → Teleprompter → Own window** opens it on a second screen; select **On screen & next** to see what is on screen, what comes next, the time and a timer. The phone remote has it too.
+   Leading on Zoom or Teams from one laptop? **Live tools → Teleprompter → Over Zoom** (**Shift+R**) puts your script in a see-through window over the meeting, so you still see the participants. Zoom and Teams never share it. See [Teleprompter overlay](../presentations.md#teleprompter-overlay-meeting-leader-mode).
 4. **You can draw.** **Annotate** (**D**) lets you circle a word in a verse or underline a phrase, on the PC or from a phone.
 5. **Hide all is always safe.** **Esc** (or **HIDE ALL** on the phone) clears the screen without deleting anything.
 

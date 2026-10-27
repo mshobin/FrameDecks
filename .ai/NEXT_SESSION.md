@@ -155,6 +155,13 @@ the program's About page in the website's design, with the same words (brand.jso
 The design roadmap is complete (ranks 1–21; ranks 8 and 12–21 on 26 October). For any screen change, follow
 `docs/design-system.md`, run `python tools/css_tokens.py` and `node tests/visual/layout.mjs` (needs the program running
 and Playwright), and refresh `docs/design/baselines/` and `hosted/public/product/` when a screen changes on purpose.
+27 October, UX simplification (owner-approved): `app/js/service.js` holds Prepare / Run (body `run-mode`; Run hides the
+editor and blocks rename, drag, menus, Delete, cut, paste and undo in the Studio), Up next (`KCWorkspace.upNext()`),
+Before you start (reads the status chips), Practice (Black screen + `practice=1` on the program's own previews,
+`overlay.js`; any other Black screen off ends it) and How people see it (`#sec-output`). Hide all is neutral unless
+`body.kc-on-air` (set in `dashboard.js` refreshStatus). The command bar wraps to two rows below 1460 px in Prepare and
+1240 px in Run; measure with something on screen when changing it. The LAN remote's Advanced view still says
+"Blackout" (it is off-limits). Words: `docs/glossary.md`. Owner: Test H in `docs/qa/live-test-guide.md`.
 27 October, steps to 90+ after the re-audit: colours only in `app/css/palette.css` (run `python tools/css_palette.py`
 after adding a colour; `css_tokens.py` fails otherwise; `teleprompter.css` is exempt because the LAN remote loads it
 without the palette), `!important` baseline 16, keyboard editor and About story built on first open (`buildOnce` in
