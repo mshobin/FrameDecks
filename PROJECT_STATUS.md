@@ -83,7 +83,7 @@ Phase detail lives in
   OK; JS 4/4; layout and axe pass. Owner: Test I; projector legibility and templates by type wait for a go-ahead.
 - **Trust fixes (`fix/trust-layer-errors-confirmations`):** service errors use safe, actionable copy; destructive
   confirmations use a branded dialog; README and hosted companion docs describe the current release and live features.
-  Local checks passed as listed above. Not live or in a PR; review the worktree before publishing.
+  Local checks passed as listed above. PR #39 is open; changes are not live. Review and merge after CI/review.
 - **6.11.1 (26 October):** audit steps 1–2 built (pinned build, cross-site guard, error logging, plan recovery and
   sync guard, `0009`); owner publishes the release and runs `0009`.
 - **Website performance (26 October):** the website no longer animates when idle (older 8 GB PCs next to the program).
