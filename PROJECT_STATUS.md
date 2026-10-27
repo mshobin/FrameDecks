@@ -4,8 +4,8 @@ Last verified: 27 October 2026. **FrameDecks 6.11.1 is published** at `v6.11.1`;
 The FrameDecks README/release header image refresh merged in PR #38; trust fixes merged in PR #39 (`27cfb4b`).
 Since then: the budget script works on Windows (`57cd9c3`), five GitHub Action upgrades merged (#33–#37; the two
 used only for releases first run at the next tag), handoff PR #40 merged; every check on `main` is green, including the
-Cloudflare Pages production deploy. Owner live tests remain. The live database has `0001`–`0008`; `0009` waits
-for the owner.
+Cloudflare Pages production deploy. Owner live tests remain. The live database has every script, `0001`–`0009`
+(`0009` run by the owner on 27 October).
 - **GitHub:** Desktop checks, Hosted companion checks and Build Windows installer (with the installer smoke test) green.
 - **Trust-fix PR #39 checks:** hosted tests 127/127, lint, typecheck, build; manual budget 330 KB JS / 70 KB largest /
   18 KB CSS; desktop JS 4/4; README fact tests 2/2; CSS tokens 14 files / 0 problems; doc links 97 files / 0 problems;
@@ -90,7 +90,7 @@ Phase detail lives in
   Local checks, CI and preview deployments passed. Production deployment verification and the owner's live tests
   remain pending.
 - **6.11.1 (26 October):** audit steps 1–2 built (pinned build, cross-site guard, error logging, plan recovery and
-  sync guard, `0009`); published at `v6.11.1` on 27 October. The owner still needs to run `0009`.
+  sync guard, `0009`); published at `v6.11.1` on 27 October. The owner ran `0009` on 27 October.
 - **Website performance (26 October):** the website no longer animates when idle (older 8 GB PCs next to the program).
 - **First-install fixes (26 October):** website "Forbidden" (request identity), Teleprompter unpin freeze, grouped Settings menu; on `main`, not yet in a release.
 - **FRAMECAST (26 October):** the virtual camera's new name; v6.11 release published with the installer (the
@@ -100,7 +100,7 @@ Phase detail lives in
   encrypted nightly backup, [restore guide](docs/project/database-backup.md)). Step 3 done (idle
   phone-control polling 5 → 15 s). Step 4 code done (Google/Microsoft
   above the email link). Companion live at `https://framedecks.pages.dev` (the PC now links through it; owner signed in there, 26 October). Part B live (keep-alive and nightly backup green, 26 October). Part D live: Google and Microsoft sign-in work (26 October; Google brand verification pending; Brevo skipped). Owner setup: finish Part A (test, then retire Vercel); Part E.
-- Database live: `0001`–`0008` run in Supabase (26 October). Waiting for the owner's live tests A–F
+- Database live: `0001`–`0008` run in Supabase (26 October), `0009` on 27 October. Waiting for the owner's live tests A–I
   ([live-test-guide.md](docs/qa/live-test-guide.md)).
 
 ## Pending

@@ -57,8 +57,8 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
   (Root Directory `hosted`, output `out`; 26 October); `framedecks.vercel.app` stays until the owner retires it. No server code: `/api/sync-config` is a file written by
   `hosted/scripts/write-sync-config.mjs` at build time; the manifest is `hosted/public/manifest.webmanifest`.
 - `hosted/supabase/migrations/` — SQL run in order in the Supabase SQL editor: `0001` workspaces, `0002` invitations,
-  `0003` sync, `0004` remote control, `0005` the Live page's PC list, `0006` the audit log, `0007` explicit API grants, `0008` member groups, `0009` last-seen throttle (6.11.1; **not yet run live**). `0001`–`0008` have been run in the live project (26 October 2026): never edit
-  one, add the next number.
+  `0003` sync, `0004` remote control, `0005` the Live page's PC list, `0006` the audit log, `0007` explicit API grants, `0008` member groups, `0009` last-seen throttle (6.11.1). `0001`–`0008` were run in the live project on 26 October 2026 and `0009` on
+  27 October: never edit one (not even a comment), add the next number.
   Each new one gets an undo script in `hosted/supabase/rollback/` (`NNNN_<name>_down.sql`).
 - `tools/` — generators and checks (`make_emblem_assets.py`, `check_doc_links.py`, `generate_brand_assets.py`).
 - `docs/FRAMEDECKS_MODERNIZATION_STATUS.md` — the detailed phase tracker; `docs/architecture/metadata-sync.md` — the
