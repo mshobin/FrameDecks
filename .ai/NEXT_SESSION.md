@@ -5,6 +5,12 @@ PR #38. Trust fixes merged in PR #39 (`27cfb4b`); CI and preview deployments pas
 verification remains pending. Read [CLAUDE.md](../CLAUDE.md) ("Working locally" has the set-up and run commands).
 
 ## Where things stand (27 October)
+- **Repository cleanup (branch `chore/repo-cleanup`, not yet merged):** the orphaned `streamdeck/` bundle is gone;
+  release notes v4.9–v6.7 moved to `docs/releases/archive/` (v6.8–v6.11.1 stay in `docs/releases/`);
+  `DEPLOYMENT.md`, `ENVIRONMENT.md`, `free-hosting.md`, `code-signing.md` are in `docs/deployment/` and
+  `database-backup.md` in `docs/operations/`. All references updated; doc links 97 files / 0 problems. Root Python
+  modules, `app/`, `hosted/` and the root `.bat` launchers stay where they are on purpose (installer, tests and CI use
+  those paths). The owner reviews and merges.
 - **Release:** **FrameDecks 6.11.1 is published** at `v6.11.1`; its build and publish workflow succeeded. The README
   and release body both show the refreshed FrameDecks wordmark (PR #38).
 - **`main` since 6.11:** audit steps 1–2 (plan recovery, safe sync, support bundle, update notice, pinned build); the

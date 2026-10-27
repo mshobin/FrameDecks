@@ -2,7 +2,7 @@
 
 Phases follow [docs/FRAMEDECKS_MODERNIZATION_STATUS.md](docs/FRAMEDECKS_MODERNIZATION_STATUS.md), which is authoritative for detail.
 Updated 27 October 2026. FrameDecks 6.11.1 is published from tag `v6.11.1`; the README/release header wordmark was refreshed in PR #38. The live Supabase database has `0001`–`0008`; `0009` waits for the owner.
-
+Repository cleanup is on branch `chore/repo-cleanup`, awaiting the owner's merge (no behaviour change).
 | Step | State |
 |---|---|
 | Audit, branding, architecture decisions | Done |

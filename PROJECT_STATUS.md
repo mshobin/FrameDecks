@@ -4,6 +4,8 @@ Last verified: 27 October 2026. **FrameDecks 6.11.1 is published** at `v6.11.1`;
 The FrameDecks README/release header image refresh merged in PR #38; trust fixes merged in PR #39 (`27cfb4b`).
 Production deployment verification and owner live tests remain. The live database has `0001`–`0008`; `0009` waits
 for the owner.
+- **Cleanup branch `chore/repo-cleanup` (awaiting merge):** old release notes archived, Stream Deck leftover removed,
+  deployment and operations docs regrouped under `docs/deployment/` and `docs/operations/`; checks unchanged.
 - **GitHub:** Desktop checks, Hosted companion checks and Build Windows installer (with the installer smoke test) green.
 - **Trust-fix PR #39 checks:** hosted tests 127/127, lint, typecheck, build; manual budget 330 KB JS / 70 KB largest /
   18 KB CSS; desktop JS 4/4; README fact tests 2/2; CSS tokens 14 files / 0 problems; doc links 97 files / 0 problems;
