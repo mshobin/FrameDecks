@@ -1,4 +1,4 @@
--- FrameDecks: explicit Data API grants (Supabase change of 30 October 2026).
+-- FRAMEDECKS: explicit Data API grants (Supabase change of 30 October 2026).
 -- From that date Supabase no longer lets the API roles reach a new table in `public` by default: each table needs an
 -- explicit GRANT, or the companion gets "permission denied" (42501). Tables made before the change keep their grants,
 -- but 0002-0006 may be run after it, so this grants every table the companion reads or writes, exactly the

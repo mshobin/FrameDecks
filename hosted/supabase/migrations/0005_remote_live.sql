@@ -1,4 +1,4 @@
--- FrameDecks Phase 5 step 3: what the companion's Live page reads (design: docs/architecture/remote-control.md).
+-- FRAMEDECKS Phase 5 step 3: what the companion's Live page reads (design: docs/architecture/remote-control.md).
 -- The computers table is visible to owners and admins only; people given "Can run services" also need the PCs they
 -- may control, with each PC's latest status. Run once in the Supabase SQL editor, after 0004_remote.sql.
 

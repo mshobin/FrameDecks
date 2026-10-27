@@ -1,4 +1,4 @@
--- FrameDecks: workspace invitations and member list.
+-- FRAMEDECKS: workspace invitations and member list.
 -- An invitation always waits until the invitee signs in and accepts it, so an admin never learns whether an
 -- email address already has an account.
 
