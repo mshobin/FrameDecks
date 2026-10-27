@@ -1,7 +1,7 @@
 # PROJECT ROADMAP
 
 Phases follow [docs/FRAMEDECKS_MODERNIZATION_STATUS.md](docs/FRAMEDECKS_MODERNIZATION_STATUS.md), which is authoritative for detail.
-Updated 27 October 2026. FrameDecks 6.11.1 is released (tag `v6.11.1`). The live Supabase database has `0001`–`0008`; `0009` waits for the owner.
+Updated 27 October 2026. FrameDecks 6.11.1 is ready on `main`; the owner publishes it by pushing tag `v6.11.1`. The live Supabase database has `0001`–`0008`; `0009` waits for the owner.
 
 | Step | State |
 |---|---|
@@ -31,7 +31,7 @@ Updated 27 October 2026. FrameDecks 6.11.1 is released (tag `v6.11.1`). The live
 | Re-audit steps to 90+ (palette, radii/shadows, `!important`, lazy sections, axe scan in CI) | Built (27 October). Left for the owner: Windows check, a screen-reader pass (NVDA/Narrator), a real quote or usage fact for the landing page |
 | Landing brief: FrameDecks spelling, every audience, motion back, About in Light | Built (27 October). Owner: About story wording, program presets |
 | 10/10 plan: phases 1–2, owner-free parts of 3–4 (website four places, Plan, Home, first-time path, Help, identity, landing, Run polish) | Built (27 October). Owner: Test I; go-ahead for projector legibility, templates by type, the Wi-Fi remote; real quotes and photos |
-| 6.11.1: production audit steps 1–2 (`docs/project/2026-10-26-production-audit.md`) | Built (26 October); **released as 6.11.1 on 27 October**. Owner runs `0009`. Next: step 3 (live tests, M9, M7) |
+| 6.11.1: production audit steps 1–2 (`docs/project/2026-10-26-production-audit.md`) | Built (26 October); ready as 6.11.1 (owner pushes tag `v6.11.1`) and runs `0009`. Next: step 3 (live tests, M9, M7) |
 | Website idle performance (no endless animations, less blur) | Built and live on push (26 October) |
 | First-install fixes: website "Forbidden", Teleprompter unpin, Settings menu | Built on `main` (26 October); owner tests from the next build |
 | Website settings from the PC | Built: Branding, Transition style, Birthdays this week. Later, if wanted: email wording, card looks |

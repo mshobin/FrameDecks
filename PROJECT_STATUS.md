@@ -1,7 +1,7 @@
 # PROJECT STATUS
 
-Last verified: 27 October 2026, on `main`. **FrameDecks 6.11.1 is released** (tag `v6.11.1`; installer
-`FrameDecks v6.11.1.exe`). The live database has `0001`–`0008`; `0009` waits for the owner.
+Last verified: 27 October 2026, on `main`. **FrameDecks 6.11.1 is ready to publish**: push tag `v6.11.1` from a local
+clone (the cloud session cannot push tags); the workflow then publishes `FrameDecks v6.11.1.exe`. Latest release: 6.11. The live database has `0001`–`0008`; `0009` waits for the owner.
 - **GitHub:** Desktop checks, Hosted companion checks and Build Windows installer (with the installer smoke test) green.
 - **Locally (cloud session):** Python OK, desktop JS 4/4, `packaging/check.py` 6.11.1, css tokens 0, doc links 0,
   ruff clean, layout and axe pass; hosted 124/124, lint, typecheck, build, budget.

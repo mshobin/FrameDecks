@@ -5,8 +5,10 @@ Updated 27 October 2026: everything is on `main`; nothing waits on a branch (the
 read [CLAUDE.md](../CLAUDE.md) ("Working locally" has the set-up and run commands).
 
 ## Where things stand (27 October)
-- **Release:** **FrameDecks 6.11.1** is published from tag `v6.11.1` on `main` (the "Build Windows installer" workflow
-  builds, smoke-tests and publishes it; the installer is now `FrameDecks v6.11.1.exe`). The previous release is 6.11.
+- **Release:** **FrameDecks 6.11.1 is ready on `main` but not yet published** (the cloud session may push branches,
+  not tags). Publish it from VS Code: `git pull`, then `git tag -a v6.11.1 -m "FrameDecks 6.11.1"` and
+  `git push origin v6.11.1`. The "Build Windows installer" workflow then builds, smoke-tests and publishes
+  `FrameDecks v6.11.1.exe` with `docs/releases/v6.11.1.md` as the notes. The latest published release is 6.11.
 - **`main` since 6.11:** audit steps 1–2 (plan recovery, safe sync, support bundle, update notice, pinned build); the
   design roadmap and UX simplification (Prepare / Run, Up next with keys, Practice mode and its start-time reminder,
   How people see it, Advanced, People); the website's four places (Home · Plan · Live · People), first-time steps,
@@ -212,7 +214,7 @@ the PC's real width.
 
 ## Recommended Next Task
 Nothing is left for an assistant to build without the owner. In order:
-1. **Owner's live tests** with the installed **6.11.1** release: A–I in
+1. **Publish 6.11.1** (push the tag, above), then the **owner's live tests** with the installed **6.11.1** release: A–I in
    [docs/qa/live-test-guide.md](../docs/qa/live-test-guide.md) (H: Run, Practice and its reminder; I: the website's new
    places and front page), plus the website settings (change Branding on the website, see it in the program within a
    minute). Run `0009` in Supabase first. Fix what they find; mark each test done in the four files.
