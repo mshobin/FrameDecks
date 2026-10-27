@@ -41,6 +41,6 @@ A change must never put a live service at risk.
 ## Documentation
 
 - [ ] User documentation in `docs/` is updated
-- [ ] `CHANGELOG.md` has an entry under **Unreleased**
+- [ ] `docs/CHANGELOG.md` has an entry under **Unreleased**
 - [ ] Release notes for the next version (`docs/releases/vX.Y.md`) are updated, if the change is user-facing
 - [ ] `docs/architecture/design-history.md` is updated, if the change affects the design

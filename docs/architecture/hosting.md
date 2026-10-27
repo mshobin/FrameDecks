@@ -72,7 +72,7 @@ When to move:
 3. **Address.**
    - Either keep `framedecks.vercel.app` until the new address works, or use a church domain.
    - Add the new address to Supabase → Authentication → URL configuration (the sign-in links and OAuth redirects).
-4. **PCs.** Point the PCs at the new address (`COMPANION_URL` in `cloud_sync.py`) in the next release. Older PCs keep
+4. **PCs.** Point the PCs at the new address (`COMPANION_URL` in `src/cloud_sync.py`) in the next release. Older PCs keep
    working as long as the old address answers.
 
 Nothing in the desktop program or the database changes.

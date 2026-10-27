@@ -2,7 +2,7 @@
 
 **Status:** agreed with the owner on 25 October 2026 (R1–R5 as recommended, [§9](#9-decisions-for-the-owner)). Step 1
 of [§8](#8-tests-and-delivery) is built: `hosted/supabase/migrations/0004_remote.sql`, tested by
-`hosted/tests/supabase-remote.test.mjs`. Step 2 is built: `cloud_remote.py`, the window bridge in `server.py` and
+`hosted/tests/supabase-remote.test.mjs`. Step 2 is built: `src/cloud_remote.py`, the window bridge in `src/server.py` and
 `app/js/cloud-remote.js`, tested by `tests/test_cloud_remote.py` and in the real program in a browser. Step 3 is
 built: the Settings switch with the last ten actions, `0005_remote_live.sql`, the companion's Live page and the "Can
 run services" checkbox. Step 4 (the owner's live test) remains.
@@ -33,7 +33,7 @@ the PC, replay protection, revoking in under a second.
 sequenceDiagram
   participant Ph as Phone (companion)
   participant DB as Supabase
-  participant PC as Service PC (cloud_remote.py)
+  participant PC as Service PC (src/cloud_remote.py)
   Ph->>DB: remote_send(workspace, PC, {op: "next"})
   PC->>DB: remote_take() about once a second while allowed
   DB-->>PC: [{n: 41, op: "next", by: "Shobin"}]
@@ -54,7 +54,7 @@ sequenceDiagram
 
 ## 3. The PC side
 
-- A small background part, `cloud_remote.py`, used only when the PC is linked **and** "Allow control from the
+- A small background part, `src/cloud_remote.py`, used only when the PC is linked **and** "Allow control from the
   companion" is on in Settings → FrameDecks account (the section the owner already approved; off by default).
 - While allowed, it asks for new commands about once a second (one tiny request; no new package, no open socket),
   and every 15 seconds when no phone has sent anything for 10 minutes (so the first press after a quiet spell takes up
@@ -63,7 +63,7 @@ sequenceDiagram
   4 seconds while a phone is active, every 30 seconds otherwise. The Live page counts the PC as online while its
   status is younger than 45 seconds by the database's clock (`server_now`), so a phone with a wrong clock still
   shows it right.
-- **The window bridge (R1):** `cloud_remote.py` offers the commands to the program's own window, which asks with a
+- **The window bridge (R1):** `src/cloud_remote.py` offers the commands to the program's own window, which asks with a
   20-second long poll on this PC only (`GET /api/remote-cloud/next`; other devices get 403) and answers with
   `POST /api/remote-cloud/done`. `app/js/cloud-remote.js` runs each with the keys' functions (`KCWorkspace.step`,
   `KCWorkspace.takeFrame`, `KCActions.hideAll`, `KCActions.toggle`, `KCPresenterTools.blackout`), half a second
@@ -82,7 +82,7 @@ JavaScript (`app/js/store.js`, `KCScenes.take`, `step`, `hideAll`), which then s
 
 | Option | How | For | Against |
 |---|---|---|---|
-| **A. The PC's own window does it** (recommended) | `cloud_remote.py` hands each allowed command to the program's own window through the existing local channel; the window runs exactly the same code as a key press | One implementation; behaviour identical to the keyboard | Needs the program's window running (it always is while FrameDecks runs, also in the tray) |
+| **A. The PC's own window does it** (recommended) | `src/cloud_remote.py` hands each allowed command to the program's own window through the existing local channel; the window runs exactly the same code as a key press | One implementation; behaviour identical to the keyboard | Needs the program's window running (it always is while FrameDecks runs, also in the tray) |
 | B. Port the actions to Python | Same actions rewritten in Python, checked against shared test cases | Works with no window | Two copies of the Frame logic that must stay identical |
 
 ## 5. Actions in the first release (decision R2)
@@ -123,7 +123,7 @@ database's time, only for people who may run services. It polls every 2 seconds 
 | Step | What | Proven by |
 |---|---|---|
 | 1 | `0004_remote.sql`: commands, status, permission, functions | PGlite tests: who may send, only the PC takes, numbering, 10-second expiry, other workspaces |
-| 2 | `cloud_remote.py` and the window bridge (R1) | Python tests against a stand-in cloud; the real program in a browser: a command moves the Frame exactly as the arrow key does; switch off stops it |
+| 2 | `src/cloud_remote.py` and the window bridge (R1) | Python tests against a stand-in cloud; the real program in a browser: a command moves the Frame exactly as the arrow key does; switch off stops it |
 | 3 | Settings switch and recent actions on the PC; the companion's Live page | browser tests on desktop and phone sizes |
 | 4 | Live test by the owner | a phone on mobile data moves Frames on the service PC within a second |
 

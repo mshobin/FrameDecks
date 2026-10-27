@@ -1,6 +1,6 @@
 ; Inno Setup script for the FrameDecks Windows installer.
 ; The AppId stays the same across the rebrand. Earlier install folders and shortcuts are removed, while data is
-; migrated from Kingdom Connect or BSF Command Center on first start (legacy.py).
+; migrated from Kingdom Connect or BSF Command Center on first start (src/legacy.py).
 ; Build (after PyInstaller):  ISCC.exe /DAppVersion=3.0 packaging\installer.iss
 ; Installs for the current user only: no administrator permission needed, updates never need it either.
 

@@ -8,8 +8,8 @@ No internet, cloud account, or extra installs are needed beyond Python 3
 
 Windows: double-click "Start FrameDecks.bat"
          or "Start FrameDecks with Phone Remote.bat" (adds the phone remote)
-Mac:     double-click "Start FrameDecks (Mac).command"
-         (for the phone remote: python3 server.py --remote)
+Mac:     double-click "tools/launchers/Start FrameDecks (Mac).command"
+         (for the phone remote: python3 src/server.py --remote)
 """
 from errlog import swallowed as _swallowed  # noqa: E402
 import atexit
@@ -40,14 +40,16 @@ import meeting_form   # 6.9: fills the Meeting Workbook's form for Export
 APP_VERSION = "6.11.1"
 STARTED_AT = time.time()
 FROZEN = getattr(sys, "frozen", False)          # True inside the installed Windows app
-HERE = Path(sys.executable).resolve().parent if FROZEN else Path(__file__).resolve().parent
+HERE = Path(sys.executable).resolve().parent if FROZEN else Path(__file__).resolve().parent.parent   # the repository root (this file is in src/)
 RES = Path(getattr(sys, "_MEIPASS", HERE))       # where the app's pages are bundled
 APP = RES / "app"
+if not FROZEN and str(HERE) not in sys.path:
+    sys.path.insert(0, str(HERE))                # vcam/ stays at the repository root, next to src/
 
 
 def _data_dir():
-    """Installed app: %APPDATA%\\FRAMEDECKS. Script/zip version: next to server.py (as before).
-    6.9: data saved under the program's earlier name is moved here first (legacy.py), so nothing is lost."""
+    """Installed app: %APPDATA%\\FRAMEDECKS. Script/zip version: in the repository folder (as before).
+    6.9: data saved under the program's earlier name is moved here first (src/legacy.py), so nothing is lost."""
     if os.environ.get("KC_DATA_DIR"):
         folder = Path(os.environ["KC_DATA_DIR"])
     elif FROZEN:
@@ -554,7 +556,7 @@ def save_private(data):
         SYNC.poke()
 
 
-# ---------- Phase 4: syncing service plans (cloud_sync.py; docs/architecture/metadata-sync.md) ----------
+# ---------- Phase 4: syncing service plans (src/cloud_sync.py; docs/architecture/metadata-sync.md) ----------
 # Off until this PC is linked in Settings > FrameDecks account. Only text records leave the PC (no media, nothing
 # live); it runs on its own thread and never stands between a page, the phone remote or the camera and the plan.
 
@@ -601,7 +603,7 @@ if PLAN_RECOVERY:                       # the plan here was replaced at start-up
     SYNC.adopt_workspace()
 
 
-# ---------- Phase 5: running a service from the companion (cloud_remote.py; docs/architecture/remote-control.md) ----------
+# ---------- Phase 5: running a service from the companion (src/cloud_remote.py; docs/architecture/remote-control.md) ----------
 # Only while this PC is linked and Settings > FrameDecks account > "Allow control from the companion" is on. Commands
 # are fetched from the workspace and run by the program's own window (app/js/cloud-remote.js) with the keys' code.
 # Separate from the Wi-Fi phone remote (REMOTE above), which it does not touch.
@@ -686,7 +688,7 @@ def _remote_watcher():
 
 
 # ---------- Installed-app settings, backups and importing old data ----------
-DESKTOP = {"active": False}  # filled in by desktop_app.py (show/hide/quit/choose_folder hooks)
+DESKTOP = {"active": False}  # filled in by src/desktop_app.py (show/hide/quit/choose_folder hooks)
 APP_SETTINGS_DEFAULTS = {"remoteAutostart": False, "importDecided": False,
                          "lowGpu": True,     # draw the app window without the graphics card (keeps Windows smooth)
                          "nativePresent": True,   # Presentation window without a browser engine (off = WebView2 window)

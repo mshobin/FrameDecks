@@ -40,5 +40,5 @@ offline. Pressing **Suggest** again asks for a new draft only after you change t
   - `FRAMEDECKS_AI_KEY`: its key, if it needs one.
 - **Paid AI services are never required**, and FrameDecks never sends your text to one.
 
-For maintainers: `ai.py` (provider interface, Ollama, self-hosted endpoint, cache), `server.py` (`/api/ai/status` and
+For maintainers: `src/ai.py` (provider interface, Ollama, self-hosted endpoint, cache), `src/server.py` (`/api/ai/status` and
 `/api/ai/questions`, this PC only), `app/js/frame-lists.js` (the button). Design: [architecture-review.md](architecture-review.md) §6.

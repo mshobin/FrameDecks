@@ -1,6 +1,6 @@
 """FrameDecks - running a service from the companion (design: docs/architecture/remote-control.md).
 
-Only while this PC is linked to a workspace (cloud_sync.py) and "Allow control from the companion" is on. The PC asks
+Only while this PC is linked to a workspace (src/cloud_sync.py) and "Allow control from the companion" is on. The PC asks
 the workspace for commands (remote_take, about once a second while a phone is active, every 15 seconds otherwise) and
 hands each one to the program's own window, which runs it with exactly the code of the matching key (R1: app/js/
 cloud-remote.js). The companion never connects to this PC, and the Wi-Fi phone remote is not involved.

@@ -1,7 +1,7 @@
 """
 FrameDecks - Windows desktop app.
 
-Runs the same local program as server.py, shows the dashboard in its own window, and keeps an icon
+Runs the same local program as src/server.py, shows the dashboard in its own window, and keeps an icon
 near the clock (the "tray") so the overlays keep working in OBS/Camo when the window is closed.
 
 Only one copy runs at a time: opening the app again brings the existing window to the front.

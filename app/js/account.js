@@ -1,5 +1,5 @@
 /* FrameDecks - Settings > FrameDecks account: link this PC to a workspace and show how syncing is going.
- * The work is done by cloud_sync.py in the program (api/sync); this page only asks it and shows the answer. */
+ * The work is done by src/cloud_sync.py in the program (api/sync); this page only asks it and shows the answer. */
 (function(){
 'use strict';
 var Store = window.KCStore, h = window.KCh;
@@ -27,7 +27,7 @@ function act(action, done){
   };
 }
 
-/* R5: "Allow control from the companion" and the last ten actions (cloud_remote.py; remote-control.md) */
+/* R5: "Allow control from the companion" and the last ten actions (src/cloud_remote.py; remote-control.md) */
 function setRemote(on, cb){
   cb.disabled = true;
   fetch('api/app/settings', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({cloudRemote: on})})

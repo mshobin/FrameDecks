@@ -70,9 +70,9 @@ Detailed guides written alongside earlier versions. They remain accurate for the
 
 ## Releases
 
-- [Changelog](../CHANGELOG.md) — every version at a glance
+- [Changelog](CHANGELOG.md) — every version at a glance
 - [Release notes](releases/) — full notes for each version
-- [Roadmap](../ROADMAP.md) — where FrameDecks is going
+- [Roadmap](ROADMAP.md) — where FrameDecks is going
 
 ## Conventions in these docs
 

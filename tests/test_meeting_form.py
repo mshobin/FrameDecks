@@ -1,4 +1,4 @@
-"""meeting_form.py: the Meeting Form's layout agrees with app/js/meeting-book.js, and fill() writes a meeting into the
+"""src/meeting_form.py: the Meeting Form's layout agrees with app/js/meeting-book.js, and fill() writes a meeting into the
 template correctly (python -m unittest discover -s tests -p "test_*.py")."""
 import io
 import json
@@ -9,6 +9,7 @@ import zipfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT / "src"))
 sys.path.insert(0, str(ROOT))
 import meeting_form as MF  # noqa: E402
 

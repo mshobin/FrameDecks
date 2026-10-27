@@ -3,12 +3,12 @@
  *
  * Two ways to connect, chosen automatically:
  *  - Local program mode (page opened from http://localhost...): state lives in the
- *    small local program (server.py). Works across OBS, Camo, Chrome, Edge, etc.
+ *    small local program (src/server.py). Works across OBS, Camo, Chrome, Edge, etc.
  *  - No-install mode (page opened as a file): state lives in this browser's local
  *    storage and syncs instantly between tabs of the SAME browser only.
  */
 /* LEGACY (6.9): settings this browser saved under the program's earlier name move to the FrameDecks names, once.
- * This and legacy.py are the only places that know the earlier name; they exist so nobody loses their theme,
+ * This and src/legacy.py are the only places that know the earlier name; they exist so nobody loses their theme,
  * shortcuts, layout, members (file mode) or saved state. */
 (function(){
   try {

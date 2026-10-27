@@ -2,8 +2,8 @@
 
 **Status:** agreed with the owner on 25 October 2026 (decisions in [§10](#10-decisions-for-the-owner)). Step 1 of
 [§9](#9-tests-and-delivery) is built (`hosted/supabase/migrations/0003_sync.sql`, tested by
-`hosted/tests/supabase-sync.test.mjs`), step 2 (`sync_entities.py`, `hosted/src/lib/sync-entities.ts`, shared
-fixtures in `tests/fixtures/sync/`), and step 3 (`cloud_sync.py`, wired into `server.py`, Settings → FrameDecks account,
+`hosted/tests/supabase-sync.test.mjs`), step 2 (`src/sync_entities.py`, `hosted/src/lib/sync-entities.ts`, shared
+fixtures in `tests/fixtures/sync/`), and step 3 (`src/cloud_sync.py`, wired into `src/server.py`, Settings → FrameDecks account,
 tested in `tests/test_cloud_sync.py`; QA picture `docs/qa/2026-10-25-sync-settings.png`), and step 4 (companion
 `/services`, `/members`, `/computers`; QA pictures `docs/qa/2026-10-25-companion-*.png`). Step 5 is the owner's live test.
 **Scope:** `main`'s plan: Supabase (project `slrsykiknlqlivlnpvrb`) and the hosted companion on Vercel. The desktop app
@@ -40,7 +40,7 @@ Out of scope here: device pairing and remote control through the cloud (Phase 5)
 
 ## 2. What the desktop app saves today
 
-All of a service plan is one JSON file, `kc-saved-content.json` in the data folder, written atomically by `server.py`
+All of a service plan is one JSON file, `kc-saved-content.json` in the data folder, written atomically by `src/server.py`
 (`save_state`), with a revision number `rev` that every save increases. Pages normalize it with `KCStore.normalize`
 (`app/js/store.js`). Other files in the data folder are not plans:
 
@@ -127,14 +127,14 @@ commit out of order). Different workspaces never wait for each other.
 
 ## 5. The PC: background sync
 
-A new module `cloud_sync.py`, started by `server.py` only when this PC is linked. It never runs on the request path
+A new module `src/cloud_sync.py`, started by `src/server.py` only when this PC is linked. It never runs on the request path
 of a page or the phone remote.
 
 ```mermaid
 sequenceDiagram
   participant P as Pages / phone
-  participant S as server.py (save_state)
-  participant C as cloud_sync.py
+  participant S as src/server.py (save_state)
+  participant C as src/cloud_sync.py
   participant DB as Supabase
   P->>S: save (as today)
   S->>S: write kc-saved-content.json, rev+1
@@ -215,7 +215,7 @@ lets owners and admins link a PC (type its code) and revoke it. Editing in the c
 |---|---|---|
 | 1. Database | `0003_sync.sql` with the tables, RLS and functions | PGlite tests: push/pull, `seq` order, conflicts, deletes, history, size limits, computer link/poll/revoke, a revoked key refused, another workspace never visible, `anon` refused |
 | 2. Records | `entities.py` (desktop) and `entities.ts` (companion) | Shared fixtures: `join(split(doc)) == doc` for real 6.10 files, live fields never in a record, media files never in a record |
-| 3. PC sync | `cloud_sync.py`, outbox, credential storage, link screen (D1) | Python tests against a fake API: offline queue, retry after a lost answer, the live Frame held back, conflict copies, unlink; desktop UI unchanged apart from D1 |
+| 3. PC sync | `src/cloud_sync.py`, outbox, credential storage, link screen (D1) | Python tests against a fake API: offline queue, retry after a lost answer, the live Frame held back, conflict copies, unlink; desktop UI unchanged apart from D1 |
 | 4. Companion | Link a computer; Services view | Browser tests against stand-in responses, as for sign-in |
 | 5. Together | — | Two PCs (or two data folders) and the companion against the live project: change on one, see it on the other within a minute; both changed offline, both versions kept |
 

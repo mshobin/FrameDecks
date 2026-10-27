@@ -139,8 +139,8 @@ skipped, a Timer value that isn't minutes or a time.
   tested in Node by `tests/meeting-workbook.test.js`).
 - `app/js/meeting-import.js`: the dialog.
 - `app/js/import-worker.js`: reads every sheet in the background.
-- `meeting_form.py`: the layout of the Meeting Form, and filling the template for an export
-  (`POST api/meeting/workbook` in `server.py`).
+- `src/meeting_form.py`: the layout of the Meeting Form, and filling the template for an export
+  (`POST api/meeting/workbook` in `src/server.py`).
 - `tools/make_meeting_workbook.py`: draws the template (`app/templates/FRAMEDECKS-Meeting-Workbook.xlsx`) from
   that layout with openpyxl.
 - The Excel library (SheetJS) loads only the first time you import, export or download a workbook, so FrameDecks
@@ -257,7 +257,7 @@ The same entry points are on the empty Scenes list and in Settings → Meeting &
 New helpers in `KCScenes`: `liveBrand`, `brandText`, `hasBrand`, `brandPalette` (accent → card colours, the same
 maths as `vcam/cards.py accent_palette`), `addBrand`, `autoBrand`. `KCStore.brand()` gives the header a cheap read.
 
-**Server** (`server.py`):
+**Server** (`src/server.py`):
 - `POST api/brand/logo` (this PC only): stores a PNG of up to 8 MB. The PNG header is checked; the response is
   `{logo, w, h}`.
 - `POST api/brand/logo?remove=1`: deletes the logo.
@@ -371,5 +371,5 @@ The file is made by `KCMeetingSheet.templateBook`, which is the same code for th
 | `app/js/workspace.js` | + Scene menu entries, empty-state button, Branding layer Inspector, Show logo, scene notes, Go Live bar |
 | `app/js/overlay.js`, `app/css/overlay.css` | Overlay rendering of branding |
 | `vcam/program.py`, `vcam/cards.py`, `vcam/overlay.py` | FrameDecks rendering of branding and the accent colour |
-| `server.py` | Logo endpoints; version 6.2 |
+| `src/server.py` | Logo endpoints; version 6.2 |
 | `tools/make_meeting_workbook.py` | Regenerates `app/templates/FRAMEDECKS-Meeting-Workbook.xlsx` and its copy in `docs/templates/` |

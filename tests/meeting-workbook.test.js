@@ -3,7 +3,7 @@
  * from 6.5-6.8 (one sheet per list) still import.
  *   node tests/meeting-workbook.test.js
  * Uses the app's own code (app/js/store.js, app/js/meeting-book.js), SheetJS (app/vendor) and, for the styled export,
- * meeting_form.py through Python (skipped when Python is not found). */
+ * src/meeting_form.py through Python (skipped when Python is not found). */
 'use strict';
 const fs = require('fs'), vm = require('vm'), path = require('path'), assert = require('assert'), os = require('os');
 const { spawnSync } = require('child_process');
@@ -74,11 +74,11 @@ same(plan2.errors, [], 'a plain export imports again');
 same([plan2.counts.frames, plan2.counts.content, plan2.counts.questions, plan2.counts.scriptures], [6, 8, 3, 2]);
 assert.strictEqual(plan2.meeting.contact, 'name@example.com · 555 0100');
 
-/* 3. export: the program's styled form (meeting_form.py fills the template) imports again */
+/* 3. export: the program's styled form (src/meeting_form.py fills the template) imports again */
 const sheetsJson = path.join(os.tmpdir(), 'kc-mb-' + process.pid + '.json'), filled = sheetsJson.replace('.json', '.xlsx');
 fs.writeFileSync(sheetsJson, JSON.stringify(B.exportSheets(st)));
 const py = ['python3', 'python'].map(p => spawnSync(p, ['-c', [
-  'import json, sys; sys.path.insert(0, sys.argv[1]); import meeting_form as M',
+  'import json, sys; sys.path.insert(0, sys.argv[1] + "/src"); import meeting_form as M',
   'm, t = M.from_sheets(json.load(open(sys.argv[2], encoding="utf-8")))',
   'open(sys.argv[3], "wb").write(M.fill(open(sys.argv[4], "rb").read(), m, t))'].join('\n'), root, sheetsJson, filled, TEMPLATE], {encoding: 'utf8'}))
   .find(r => !r.error && r.status === 0);
@@ -91,7 +91,7 @@ if (py && py.status === 0){
   same(plan3.meeting, plan.meeting, 'the meeting details survive the round trip');
   [sheetsJson, filled].forEach(f => fs.unlinkSync(f));
 } else {
-  assert.ok(!py || py.status === 0, 'meeting_form.py failed: ' + (py && py.stderr));
+  assert.ok(!py || py.status === 0, 'src/meeting_form.py failed: ' + (py && py.stderr));
   console.log('(Python not found: the styled export was not checked)');
 }
 

@@ -158,7 +158,7 @@ Edit files inside your repository folder (the one GitHub Desktop is tracking). F
 | To change… | Edit this file |
 |---|---|
 | The About text (tagline, mission, contact email…) | `app/js/brand.js` |
-| The version number | `server.py`, the line `APP_VERSION = "3.1"` |
+| The version number | `src/server.py`, the line `APP_VERSION = "3.1"` |
 | Overlay card styles | `app/css/overlay.css` |
 
 Use a plain text editor such as Notepad or VS Code (free). Keep the quote marks, commas and brackets as they are.
@@ -167,7 +167,7 @@ Use a plain text editor such as Notepad or VS Code (free). Keep the quote marks,
 
 ### 2. Raise the version number
 
-Open `server.py` and change `APP_VERSION = "3.1"` to the next number, for example `"3.2"`.
+Open `src/server.py` and change `APP_VERSION = "3.1"` to the next number, for example `"3.2"`.
 Use 3.2, 3.3… for small changes and 4.0 for big ones. The About screen, the installer's name and
 Windows all use this number, so the installer knows it is an upgrade.
 

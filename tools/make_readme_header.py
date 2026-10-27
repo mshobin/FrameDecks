@@ -3,9 +3,9 @@
 Renders the About screen's hero (logo, FrameDecks, tagline, motto, introduction and version) from the running
 app and saves it as assets/brand/kc-about-header.webp, so the GitHub page looks exactly like the About screen.
 
-Run it after changing app/js/brand.js, the About screen or the version (server.py APP_VERSION):
+Run it after changing app/js/brand.js, the About screen or the version (src/server.py APP_VERSION):
 
-    python server.py --no-browser          # in one window
+    python src/server.py --no-browser          # in one window
     python tools/make_readme_header.py     # in another (needs: pip install playwright pillow; playwright install chromium)
 
 Options: --url (default http://localhost:8750/dashboard.html), --chromium <path to a Chromium executable>.
@@ -22,7 +22,7 @@ PNG = ROOT / "assets/brand/.kc-about-header.png"      # the full-quality capture
 
 def app_version():
     import re
-    return re.search(r'APP_VERSION = "([^"]+)"', (ROOT / "server.py").read_text(encoding="utf-8")).group(1)
+    return re.search(r'APP_VERSION = "([^"]+)"', (ROOT / "src" / "server.py").read_text(encoding="utf-8")).group(1)
 
 
 async def capture(url, chromium):

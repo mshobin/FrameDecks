@@ -4,7 +4,7 @@ FrameDecks keeps two records of every release:
 
 | Record | Audience | Where |
 | --- | --- | --- |
-| **Changelog** | Everyone: a short, scannable list of changes across all versions. | [`CHANGELOG.md`](../../CHANGELOG.md) |
+| **Changelog** | Everyone: a short, scannable list of changes across all versions. | [`CHANGELOG.md`](../CHANGELOG.md) |
 | **Release notes** | Volunteers installing one version: what is new, how to use it, what to watch out for. Published as the GitHub Release text. | `docs/releases/vX.Y.md` |
 
 ## CHANGELOG.md

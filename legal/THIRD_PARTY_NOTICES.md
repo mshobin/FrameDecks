@@ -3,7 +3,7 @@
 FrameDecks is released under the [Apache License 2.0](LICENSE). It uses the software and assets below, each under its
 own licence. Licences that ask for their text to travel with copies are honoured as follows:
 - the files under `app/vendor/` and `app/fonts/` keep their own licence files;
-- the Windows installer carries this file, `LICENSE` and `NOTICE` in the program folder;
+- the Windows installer carries this file, `legal/LICENSE` and `legal/NOTICE` in the program folder;
 - each project's full licence is at the link given.
 
 **Who this is for:** anyone redistributing FrameDecks, and maintainers adding a dependency. Add a row here, in the same

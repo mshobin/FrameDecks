@@ -1,8 +1,9 @@
-"""FrameDecks - the watchdog that restarts the program after a crash (supervisor.py; architecture audit C2)."""
+"""FrameDecks - the watchdog that restarts the program after a crash (src/supervisor.py; architecture audit C2)."""
 import sys
 import unittest
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 import supervisor as S  # noqa: E402
 

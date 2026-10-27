@@ -180,7 +180,7 @@ send. The file is made on this PC and never uploaded.
 
 ## Planning worship lyrics today
 
-FrameDecks does not have a song library yet. A dedicated song library is on the [roadmap](../ROADMAP.md).
+FrameDecks does not have a song library yet. A dedicated song library is on the [roadmap](ROADMAP.md).
 Today, churches show lyrics in one of two ways:
 
 1. **Text Content:** one Frame per verse or chorus. Add **+ Content → Text**, give it a title (the song name) and

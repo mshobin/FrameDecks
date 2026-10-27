@@ -8,12 +8,12 @@ echo  PRIVATE networks only, then select Allow.
 echo.
 py -3 --version >nul 2>&1
 if %errorlevel%==0 (
-  py -3 server.py --remote
+  py -3 src\server.py --remote
   goto done
 )
 python --version >nul 2>&1
 if %errorlevel%==0 (
-  python server.py --remote
+  python src\server.py --remote
   goto done
 )
 echo  Python 3 was not found. The iPad remote needs the local program.

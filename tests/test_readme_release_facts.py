@@ -8,7 +8,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 class ReadmeReleaseFacts(unittest.TestCase):
     def test_readme_does_not_claim_an_outdated_product_version(self):
-        readme = (ROOT / "README.md").read_text(encoding="utf-8")
+        readme = (ROOT / ".github" / "README.md").read_text(encoding="utf-8")
         self.assertNotRegex(readme, re.compile(r"FrameDecks 6\.(?:9|10)\b", re.IGNORECASE))
         self.assertNotIn("v6.10.exe", readme)
         self.assertIn("releases/latest", readme)
@@ -18,7 +18,7 @@ class ReadmeReleaseFacts(unittest.TestCase):
         self.assertNotRegex(install, re.compile(r"`FrameDecks v\d+\.\d+\.\d+\.exe`"))
 
     def test_companion_docs_describe_the_shipped_product(self):
-        readme = (ROOT / "README.md").read_text(encoding="utf-8").lower()
+        readme = (ROOT / ".github" / "README.md").read_text(encoding="utf-8").lower()
         hosted = (ROOT / "hosted" / "README.md").read_text(encoding="utf-8").lower()
         for content in (readme, hosted):
             self.assertNotIn("foundation preview", content)

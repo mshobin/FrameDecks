@@ -22,13 +22,13 @@ built too.
 The companion already reads every record with `sync_pull` and joins them with `hosted/src/lib/sync-entities.ts`.
 Editing changes one record's body in the browser and sends it back with `sync_push`, carrying the revision it was
 read at (`baseRev`). The database stores it only if nobody changed that record in the meantime. The PC's next pull
-applies it through the normal save path (`cloud_sync.py`), which holds back a change to the live Frame.
+applies it through the normal save path (`src/cloud_sync.py`), which holds back a change to the live Frame.
 
 ```mermaid
 sequenceDiagram
   participant Ph as Companion (Services)
   participant DB as Supabase
-  participant PC as Service PC (cloud_sync.py)
+  participant PC as Service PC (src/cloud_sync.py)
   Ph->>DB: sync_pull (Frames, order, rev of each)
   Ph->>DB: sync_push [{kind: frame, id, baseRev: 7, body: …new script…}]
   DB-->>Ph: ok, rev 8   (or "conflict": someone changed it first)

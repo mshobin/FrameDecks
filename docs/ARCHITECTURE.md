@@ -42,7 +42,7 @@ flowchart LR
     SPK["Teleprompter window<br/>app/speaker.html"]
     PRM["Teleprompter overlay<br/>app/prompter.html"]
     SPOT["Spotlight<br/>app/spotlight.html"]
-    SRV["Control server<br/>server.py :8750"]
+    SRV["Control server<br/>src/server.py :8750"]
     ENG["Camera engine<br/>vcam/"]
     PRES["Presentation window"]
     FILE[("Data folder<br/>%APPDATA%\\FRAMEDECKS")]
@@ -100,7 +100,7 @@ The engine turns the live state into one picture, about 30 times a second, and h
 
 ```mermaid
 flowchart LR
-  ST["Live state<br/>(server.py, in memory)"] --> OV["Cards<br/>vcam/overlay.py · cards.py"]
+  ST["Live state<br/>(src/server.py, in memory)"] --> OV["Cards<br/>vcam/overlay.py · cards.py"]
   ST --> PF["Program effects<br/>vcam/program.py<br/>text · branding · transitions"]
   CAM["Webcam<br/>vcam/devices.py"] --> LK["Camera Look<br/>vcam/looks.py"] --> BL["Background blur<br/>vcam/blur.py"]
   BL --> CMP["Compositor<br/>vcam/compositor.py"]
@@ -132,7 +132,7 @@ state as every other screen.
 ```mermaid
 sequenceDiagram
   participant P as Phone (remote.html)
-  participant S as server.py :8750
+  participant S as src/server.py :8750
   participant E as Camera engine
   P->>S: POST /api/remote-login (PIN)
   S-->>P: session cookie (HttpOnly, SameSite=Strict)
@@ -163,7 +163,7 @@ How a file or a live source becomes part of the picture.
 
 ```mermaid
 flowchart TD
-  U["You add a file<br/>(+ Content → Image · Video · PowerPoint)"] --> UP["POST upload<br/>server.py"]
+  U["You add a file<br/>(+ Content → Image · Video · PowerPoint)"] --> UP["POST upload<br/>src/server.py"]
   UP --> CP["Copied into<br/>data folder\\layers"]
   UP -- ".pptx / .ppt" --> PPT["Installed PowerPoint<br/>saves it as PDF<br/>vcam/powerpoint.py (3 min limit)"]
   PPT --> CP
@@ -229,7 +229,7 @@ All screens stay in step through a single revision number. The rules are simple 
 ```mermaid
 sequenceDiagram
   participant A as Main window
-  participant S as server.py
+  participant S as src/server.py
   participant B as Phone
   participant O as Overlay page (OBS)
   A->>S: POST /api/state {…, baseRev: 41}
@@ -260,8 +260,8 @@ sequenceDiagram
 
 ## Desktop windows, tray and shortcut
 
-The installed app is one Python process (`desktop_app.py`) with several pywebview (WebView2) windows. Since 6.8 the
-window features use Windows' own functions through `desktop_win.py` (ctypes, no new package).
+The installed app is one Python process (`src/desktop_app.py`) with several pywebview (WebView2) windows. Since 6.8 the
+window features use Windows' own functions through `src/desktop_win.py` (ctypes, no new package).
 
 | Window | Page | Notes |
 | --- | --- | --- |
@@ -286,15 +286,15 @@ window features use Windows' own functions through `desktop_win.py` (ctypes, no 
   monitor under the mouse. Spotlight reads its list from the main window (`KCPalette.exportIndex()`) and runs the
   choice there (`KCPalette.runKey()`); background-safe commands leave the main window in the tray.
 - **Settings.** `customChrome`, `minimizeTo`, `spotlightKey`, `overlayMode`, `overlayFrost`, `overlayOnTop` and
-  `overlayFade`, validated by `server.py`.
+  `overlayFade`, validated by `src/server.py`.
 
 ## Components and files
 
 | Part | Files | Role |
 | --- | --- | --- |
-| Control server | `server.py` | HTTP on `127.0.0.1:8750` (plus the LAN when the remote is on), state, uploads, settings, scripture lookup, remote sign-in, backups, the Meeting Workbook export (`POST api/meeting/workbook`, this PC only) |
-| Desktop shell | `desktop_app.py` | WebView2 windows via pywebview (main, Teleprompter window, Teleprompter overlay, Spotlight, Presentation window), tray icon and menu, global shortcut, single instance |
-| Windows helpers | `desktop_win.py` | Win32 calls via ctypes: the ribbon (`Chrome`, `drag`), see-through glass and fade, capture exclusion, rounded corners, centring on the cursor, the global shortcut thread (`Hotkeys`). Safe no-ops off Windows |
+| Control server | `src/server.py` | HTTP on `127.0.0.1:8750` (plus the LAN when the remote is on), state, uploads, settings, scripture lookup, remote sign-in, backups, the Meeting Workbook export (`POST api/meeting/workbook`, this PC only) |
+| Desktop shell | `src/desktop_app.py` | WebView2 windows via pywebview (main, Teleprompter window, Teleprompter overlay, Spotlight, Presentation window), tray icon and menu, global shortcut, single instance |
+| Windows helpers | `src/desktop_win.py` | Win32 calls via ctypes: the ribbon (`Chrome`, `drag`), see-through glass and fade, capture exclusion, rounded corners, centring on the cursor, the global shortcut thread (`Hotkeys`). Safe no-ops off Windows |
 | Window ribbon | `app/js/window-chrome.js`, `app/css/window.css` | The one ribbon component: window buttons, drag, double-click, the minimize question |
 | Camera engine | `vcam/engine.py`, `compositor.py`, `layers.py`, `cards.py`, `overlay.py`, `program.py`, `annotate.py`, `blur.py`, `looks.py`, `picture.py`, `screen.py`, `devices.py`, `sink.py`, `powerpoint.py` | Capture, compose, draw cards and drawings, send to the FRAMECAST camera |
 | Shared state (UI) | `app/js/store.js` | Normalizes state, Frames and Content model (`KCScenes`), sync loops |
@@ -302,8 +302,8 @@ window features use Windows' own functions through `desktop_win.py` (ctypes, no 
 | Phone remote | `app/remote.html`, `app/js/remote.js`, `app/css/remote.css` | Simple and Advanced profiles, drawing pad |
 | Teleprompter | `app/js/teleprompter.js` (shared, with the floating toolbar), `app/speaker.html`, `app/js/speaker.js` (the Teleprompter window), `app/prompter.html`, `app/js/prompter.js`, `app/css/prompter.css` (the overlay) | The Frame's Teleprompter script, what's on screen, what's next, clocks. No output reads a Frame's script, and the overlay is left out of screen sharing |
 | Overlay pages | `app/stage.html` and others, `app/js/overlay.js` | Cards and text for OBS / browser sources |
-| Excel | `app/js/meeting-book.js`, `meeting-import.js`, `import-worker.js`, `app/vendor/xlsx.full.min.js`, `meeting_form.py`, `app/templates/FRAMEDECKS-Meeting-Workbook.xlsx` (made by `tools/make_meeting_workbook.py`) | Meeting Workbook import and export. The workbook has two tabs, Dashboard (formulas only) and Meeting Form. `meeting_form.py` holds the form's layout and fills the template for an export (`POST api/meeting/workbook`); `meeting-book.js` reads the form back by its labels and header rows, and still reads the 6.5–6.8 one-sheet-per-list workbooks. The Excel library loads on first use, not at start-up |
-| Earlier-name migration | `legacy.py` (data folder, files, backups, recordings), a marked block at the top of `app/js/store.js` (browser settings), `packaging/installer.iss` (old program folder and shortcuts) | Moves data saved by versions published under the program's earlier name to the FrameDecks names, once, never overwriting newer data |
+| Excel | `app/js/meeting-book.js`, `meeting-import.js`, `import-worker.js`, `app/vendor/xlsx.full.min.js`, `src/meeting_form.py`, `app/templates/FRAMEDECKS-Meeting-Workbook.xlsx` (made by `tools/make_meeting_workbook.py`) | Meeting Workbook import and export. The workbook has two tabs, Dashboard (formulas only) and Meeting Form. `src/meeting_form.py` holds the form's layout and fills the template for an export (`POST api/meeting/workbook`); `meeting-book.js` reads the form back by its labels and header rows, and still reads the 6.5–6.8 one-sheet-per-list workbooks. The Excel library loads on first use, not at start-up |
+| Earlier-name migration | `src/legacy.py` (data folder, files, backups, recordings), a marked block at the top of `app/js/store.js` (browser settings), `packaging/installer.iss` (old program folder and shortcuts) | Moves data saved by versions published under the program's earlier name to the FrameDecks names, once, never overwriting newer data |
 | Packaging | `packaging/` | PyInstaller spec, Inno Setup installer, camera build, self-check |
 | Tests | `tests/`, `packaging/check.py` | Store and workbook tests; start-up self-check |
 
@@ -314,7 +314,7 @@ The full, version-by-version engineering record is in
 
 Everything lives in the data folder, `%APPDATA%\FRAMEDECKS`. Earlier versions, published under the program's
 earlier name, kept their data in a folder and files carrying that name; on first start, 6.9 moves them here once
-(`legacy.py`), including backups and recordings, and never overwrites newer data. Details: [reference/configuration-guide.md](reference/configuration-guide.md).
+(`src/legacy.py`), including backups and recordings, and never overwrites newer data. Details: [reference/configuration-guide.md](reference/configuration-guide.md).
 
 | File / folder | Contents |
 | --- | --- |
@@ -344,7 +344,7 @@ flowchart LR
 - Member data stays on the PC; it is never part of the state the phone or overlay pages receive.
 - No telemetry. The only outgoing request is the optional ESV scripture fetch.
 
-See [../SECURITY.md](../SECURITY.md) for how to report a problem.
+See [../SECURITY.md](../.github/SECURITY.md) for how to report a problem.
 
 ## Reliability decisions
 

@@ -4,6 +4,7 @@ from pathlib import Path
 root = Path(__file__).resolve().parent.parent
 os.environ["KC_DATA_DIR"] = tempfile.mkdtemp(prefix="kc-check-")
 sys.path.insert(0, str(root))
+sys.path.insert(0, str(root / "src"))
 import server  # noqa: E402
 
 # Use an ephemeral port so the self-check is not coupled to local port policy.
@@ -26,7 +27,7 @@ with urllib.request.urlopen(req, timeout=10) as r:
     assert r.status == 200 and r.read(2) == b"PK", "meeting workbook export"
 ping = json.loads(urllib.request.urlopen(base + "api/app/ping").read())
 assert ping["app"] == "FRAMEDECKS"
-for name in ["app/js/overlay.js", "app/js/store.js", "app/fonts/EBGaramond.ttf", "app/vendor/xlsx.full.min.js", "desktop_app.py", "desktop_win.py", "supervisor.py", "ai.py", "pptx_export.py", "LICENSE", "NOTICE", "THIRD_PARTY_NOTICES.md"]:
+for name in ["app/js/overlay.js", "app/js/store.js", "app/fonts/EBGaramond.ttf", "app/vendor/xlsx.full.min.js", "src/desktop_app.py", "src/desktop_win.py", "src/supervisor.py", "src/ai.py", "src/pptx_export.py", "legal/LICENSE", "legal/NOTICE", "legal/THIRD_PARTY_NOTICES.md"]:
     assert (root / name).exists(), name
 # Audit M7: exactly one OpenCV distribution (two share the cv2 module and which one loads is undefined)
 from importlib import metadata as _md

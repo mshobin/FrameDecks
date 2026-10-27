@@ -10,7 +10,7 @@ FrameDecks is a deliberately self-contained desktop application. A Python proces
 
 This architecture is well matched to an offline service PC: it has few operational dependencies, predictable local data ownership, and a shared state model across the dashboard, phone, overlays, and camera. Build and release automation is stronger than the runtime architecture's test coverage: CI builds the Windows installer and runs JavaScript/Python tests and packaging checks, but does not exercise the complete user interface, remote security flows, or camera pipeline automatically.
 
-The largest concerns are the security properties of the optional plaintext-HTTP LAN remote, the concentration of responsibilities in `server.py` and several large UI modules, limited automated integration coverage, and the product's lack of hosted-service fundamentals. The existing manifest and icons make the remote PWA-adjacent, but it is not an offline-capable PWA. SaaS readiness is intentionally low; converting it to SaaS would be a product and architecture redesign, not a deployment change.
+The largest concerns are the security properties of the optional plaintext-HTTP LAN remote, the concentration of responsibilities in `src/server.py` and several large UI modules, limited automated integration coverage, and the product's lack of hosted-service fundamentals. The existing manifest and icons make the remote PWA-adjacent, but it is not an offline-capable PWA. SaaS readiness is intentionally low; converting it to SaaS would be a product and architecture redesign, not a deployment change.
 
 ### At-a-glance assessment
 
@@ -31,9 +31,9 @@ The largest concerns are the security properties of the optional plaintext-HTTP 
 | Layer | Current implementation |
 |---|---|
 | Primary language | Python 3.12 for server, desktop shell, Windows integration, and camera pipeline; JavaScript for UI and state logic |
-| Server/runtime | Python standard library `http.server` using `ThreadingHTTPServer`; custom routing and response handling in [server.py](../../server.py) |
+| Server/runtime | Python standard library `http.server` using `ThreadingHTTPServer`; custom routing and response handling in [src/server.py](../../src/server.py) |
 | UI | Static HTML, CSS, and vanilla JavaScript under [app/](../../app); no framework build step and no npm dependency manifest |
-| Desktop shell | `pywebview` hosting WebView2, `pystray` for tray behavior, plus custom Windows integration through `ctypes` in [desktop_app.py](../../desktop_app.py) and [desktop_win.py](../../desktop_win.py) |
+| Desktop shell | `pywebview` hosting WebView2, `pystray` for tray behavior, plus custom Windows integration through `ctypes` in [src/desktop_app.py](../../src/desktop_app.py) and [src/desktop_win.py](../../src/desktop_win.py) |
 | Video/capture | OpenCV, NumPy, MediaPipe selfie-segmentation model, Windows Graphics Capture/DXGI capture, and a bundled softcam-derived DirectShow virtual-camera driver in [vcam/](../../vcam) |
 | Document/media support | `pypdfium2` for PDF rendering; installed Microsoft PowerPoint and `comtypes` for PowerPoint conversion/control; SheetJS is vendored for workbook import/export |
 | Persistence | JSON files in the application data directory, copied media assets, backup directories, and browser `localStorage` in file/no-install mode |
@@ -60,8 +60,8 @@ The application favors direct modules and lightweight runtime behavior over fram
 
 ### Runtime shape
 
-1. `server.py` starts a threaded HTTP server on loopback, normally port 8750 (with a small fallback port range).
-2. The desktop shell in `desktop_app.py` opens the dashboard and supporting windows in WebView2. In source/browser mode, the same UI can be opened in an external browser.
+1. `src/server.py` starts a threaded HTTP server on loopback, normally port 8750 (with a small fallback port range).
+2. The desktop shell in `src/desktop_app.py` opens the dashboard and supporting windows in WebView2. In source/browser mode, the same UI can be opened in an external browser.
 3. The browser UI reads and mutates a shared state document. In desktop/server mode, the authoritative state is held in memory and persisted to JSON. File/no-install mode instead uses browser `localStorage`, `BroadcastChannel`, and a periodic cross-tab safety check.
 4. When enabled, the phone remote adds listeners on the host's network interfaces. The remote shares the same state and presentation model, constrained by a server-side route allow-list.
 5. The `vcam` package reads the in-memory live state and composes webcam, screen/window capture, media layers, cards, annotations, branding, and program effects into the final frame.
@@ -75,10 +75,10 @@ This keeps all local screens coordinated without a database or message broker. I
 
 ### Main boundaries
 
-- [server.py](../../server.py): HTTP routing, local and remote access checks, state, settings, backups, uploads, scripture integration, and application control.
+- [src/server.py](../../src/server.py): HTTP routing, local and remote access checks, state, settings, backups, uploads, scripture integration, and application control.
 - [app/js/store.js](../../app/js/store.js): state normalization, browser/local mode, API synchronization, and shared client-side behavior.
 - [app/js/workspace.js](../../app/js/workspace.js): workspace/dashboard interactions.
-- [desktop_app.py](../../desktop_app.py) and [desktop_win.py](../../desktop_win.py): desktop lifecycle, windows, tray, shortcuts, and native Windows integration.
+- [src/desktop_app.py](../../src/desktop_app.py) and [src/desktop_win.py](../../src/desktop_win.py): desktop lifecycle, windows, tray, shortcuts, and native Windows integration.
 - [vcam/](../../vcam): camera and media capture/composition pipeline.
 
 ## 4. Authentication mechanism
@@ -120,13 +120,13 @@ This section records material security properties and residual risks visible fro
 - `HttpOnly` and `SameSite=Strict` session cookie attributes; cryptographically random session tokens and constant-time PIN comparison.
 - Login lockout, request-body size cap, resolved-path containment for static files, and filename basenames for selected file operations.
 - `X-Content-Type-Options: nosniff`, atomic state replacement, and private-member data separation.
-- Optional ESV access sends the requested reference and API key to the ESV service; this is described in [SECURITY.md](../../SECURITY.md).
+- Optional ESV access sends the requested reference and API key to the ESV service; this is described in [SECURITY.md](../../.github/SECURITY.md).
 
 ### Residual risks and concerns
 
-1. **Plaintext LAN remote transport (high operational concern).** The phone remote uses `http://<host-LAN-IP>`; the session cookie does not have the `Secure` attribute because the service has no HTTPS certificate. PINs and session tokens can therefore be exposed to an attacker able to observe or interfere with the same network. Keep the remote on a trusted private Wi-Fi network; do not treat guest/public Wi-Fi as safe. This limitation is acknowledged in [SECURITY.md](../../SECURITY.md).
+1. **Plaintext LAN remote transport (high operational concern).** The phone remote uses `http://<host-LAN-IP>`; the session cookie does not have the `Secure` attribute because the service has no HTTPS certificate. PINs and session tokens can therefore be exposed to an attacker able to observe or interfere with the same network. Keep the remote on a trusted private Wi-Fi network; do not treat guest/public Wi-Fi as safe. This limitation is acknowledged in [SECURITY.md](../../.github/SECURITY.md).
 2. **PIN is a shared secret, not user authentication.** Six digits and per-IP throttling are reasonable for a controlled local remote, but provide no user attribution or role boundaries. Lockout state is in memory, so restarting the server resets it. A compromised or shared PIN authorizes the entire remote capability set until reset/expiry.
-3. **Local data is not encrypted at rest.** Member names/contact details, meeting content, and settings are files protected by Windows account/filesystem permissions. A copied profile or access to the logged-in account can expose them. This is also documented in [SECURITY.md](../../SECURITY.md).
+3. **Local data is not encrypted at rest.** Member names/contact details, meeting content, and settings are files protected by Windows account/filesystem permissions. A copied profile or access to the logged-in account can expose them. This is also documented in [SECURITY.md](../../.github/SECURITY.md).
 4. **No application security headers policy beyond `nosniff`.** Responses do not appear to set a Content Security Policy or a general frame-embedding policy. The UI intentionally embeds local pages in iframes, so any CSP needs to preserve that design; a documented policy would still reduce the impact of an injection defect.
 5. **HTTP server has limited request auditing.** `BaseHTTPRequestHandler.log_message` is disabled. This avoids noisy logs but leaves little built-in visibility into anomalous request patterns or remote access history.
 6. **Unsigned Windows installer.** SHA-256 checksums help verify file integrity against the published checksum but do not identify the publisher. SmartScreen warnings and distribution trust remain concerns until code signing is available.
@@ -186,7 +186,7 @@ These are not defects relative to the current product promise. A SaaS initiative
 
 ### Structural debt
 
-- **Responsibility concentration:** [server.py](../../server.py) contains HTTP routing, authorization, persistence, backups, uploads, remote sessions, scripture integration, desktop actions, and device/camera orchestration. Several frontend files are also large: `workspace.js` (~1,345 lines), `store.js` (~1,121), and `members.js` (~1,044). These increase review cost, coupling, merge conflicts, and the difficulty of testing units independently.
+- **Responsibility concentration:** [src/server.py](../../src/server.py) contains HTTP routing, authorization, persistence, backups, uploads, remote sessions, scripture integration, desktop actions, and device/camera orchestration. Several frontend files are also large: `workspace.js` (~1,345 lines), `store.js` (~1,121), and `members.js` (~1,044). These increase review cost, coupling, merge conflicts, and the difficulty of testing units independently.
 - **Custom server framework:** the standard-library server keeps dependencies low, but request routing and middleware/security behavior are custom. Changes need careful regression coverage because framework guarantees are not available.
 - **State schema evolution:** normalization and migration logic are shared across the Python server, browser state, and legacy data migration. This is important compatibility code and needs explicit schema-version and migration tests as formats evolve.
 - **File-backed whole-document persistence:** convenient for a single PC, but increasingly costly for large state and unsuitable for multi-host concurrent updates without a redesign.

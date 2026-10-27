@@ -1,6 +1,6 @@
-"""FrameDecks - syncing service plans (cloud_sync.py) between PCs, against a stand-in cloud that follows the same
+"""FrameDecks - syncing service plans (src/cloud_sync.py) between PCs, against a stand-in cloud that follows the same
 rules as 0003_sync.sql: per-record revisions, a conflict stores nothing, pulls page through records in seq order.
-Each "PC" holds a saved plan and member list the way server.py does. Design: docs/architecture/metadata-sync.md."""
+Each "PC" holds a saved plan and member list the way src/server.py does. Design: docs/architecture/metadata-sync.md."""
 import copy
 import hashlib
 import json
@@ -12,6 +12,7 @@ import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT / "src"))
 sys.path.insert(0, str(ROOT))
 os.environ.setdefault("KC_DATA_DIR", tempfile.mkdtemp(prefix="kc-test-"))
 os.environ["FRAMEDECKS_SECRET_STORE"] = "file"          # never touch the real Windows Credential Manager in tests
@@ -432,7 +433,7 @@ class LinkAndUnlink(unittest.TestCase):
 
 
 class ServerWiring(unittest.TestCase):
-    """server.py: sync is off until linked; changes from the workspace go through the normal save path."""
+    """src/server.py: sync is off until linked; changes from the workspace go through the normal save path."""
 
     @classmethod
     def setUpClass(cls):

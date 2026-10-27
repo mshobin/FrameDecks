@@ -9,7 +9,7 @@ every installer build from `main` and every version tag is signed by itself.
 
 ## What is already done in the repository
 
-- **Licence files.** `LICENSE` (Apache 2.0), `NOTICE` and `THIRD_PARTY_NOTICES.md` are in place. The installer
+- **Licence files.** `legal/LICENSE` (Apache 2.0), `legal/NOTICE` and `legal/THIRD_PARTY_NOTICES.md` are in place. The installer
   carries all three in the program folder (`packaging/framedecks.spec`).
 - **The Windows build is ready to sign** (`.github/workflows/build-windows.yml`). Once the secret below exists, it:
   1. sends the program folder to SignPath and gets back `FRAMEDECKS.exe` and both camera DLLs signed;

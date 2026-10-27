@@ -112,7 +112,7 @@ If the phone still cannot connect, see [Troubleshooting](troubleshooting.md).
 > version, removes the old program folder and shortcuts, and on first start moves your data (including backups and
 > recordings) to the FrameDecks folders below. Nothing newer is overwritten.
 
-Read the release notes in [CHANGELOG.md](../CHANGELOG.md) before a big update, and avoid updating on the morning of a
+Read the release notes in [CHANGELOG.md](CHANGELOG.md) before a big update, and avoid updating on the morning of a
 service.
 
 ## Where your data lives

@@ -18,8 +18,8 @@ class OpenLinkTest(unittest.TestCase):
         self.assertIn('{app}\\FRAMEDECKS.exe', command)
 
     def test_the_program_never_reads_the_link(self):
-        src = (ROOT / "desktop_app.py").read_text(encoding="utf-8")
-        self.assertIsNone(re.search(r"sys\.argv\[", src), "desktop_app.py must not act on its arguments")
+        src = (ROOT / "src" / "desktop_app.py").read_text(encoding="utf-8")
+        self.assertIsNone(re.search(r"sys\.argv\[", src), "src/desktop_app.py must not act on its arguments")
 
 
 if __name__ == "__main__":

@@ -9,7 +9,7 @@ enhancement* and needs the owner's approval, as the repository rules require (`C
 **Who this is for:** the owner and maintainers deciding what to do next.
 
 **Based on the code at `main` `8482c44`**, not on intentions: `vcam/` (engine, compositor, layers, screen capture,
-Presentation window), `server.py`, `desktop_app.py`, `app/js/`, `cloud_sync.py`, `cloud_remote.py`, `hosted/` and
+Presentation window), `src/server.py`, `src/desktop_app.py`, `app/js/`, `src/cloud_sync.py`, `src/cloud_remote.py`, `hosted/` and
 `hosted/supabase/migrations/0001`–`0005`. Figures marked *measured* come from
 [performance.md](performance.md) or the engine's own counters; all other figures are **targets**, to be checked with
 the counters the program already has (see §7).
@@ -56,7 +56,7 @@ disk, and distribution (no code signing, no auto-update). The cloud paths are al
 far.
 
 **Top 5 strengths**
-1. **Local-first by construction.** Sync carries text records only: media becomes a file name (`sync_entities.py`),
+1. **Local-first by construction.** Sync carries text records only: media becomes a file name (`src/sync_entities.py`),
    and live state never leaves the PC. A service runs fully offline, and the Frame on screen is never changed by
    sync (`cloud_sync.Engine`: held until it leaves the screen).
 2. **The camera engine is frugal.**
@@ -120,7 +120,7 @@ Ordered by risk to a live meeting.
 | # | Issue | Where | Effect | Severity |
 |---|---|---|---|---|
 | C1 | **Unsigned installer, no update channel** | `.github/workflows/build-windows.yml`, `packaging/installer.iss` | SmartScreen blocks first runs; antivirus may quarantine the virtual-camera DLL; churches run stale versions | Critical (distribution) |
-| C2 | **Process crash = frozen camera, no restart** | `desktop_app.py` (single instance, no supervisor) | Meeting shows a frozen or black FrameDecks picture until someone restarts the app by hand | Critical (live) |
+| C2 | **Process crash = frozen camera, no restart** | `src/desktop_app.py` (single instance, no supervisor) | Meeting shows a frozen or black FrameDecks picture until someone restarts the app by hand | Critical (live) |
 | C3 | **Whole-plan write on every live action** | `server.save_state` (`json.dumps(indent=2)`, `os.replace` per save) | Disk writes and CPU on each Next. On slow or encrypted disks or OneDrive-redirected folders, a hitch per press; SSD wear on long services | High |
 | C4 | **Sync round after every live action** | `save_state` → `SYNC.poke()` → `Engine.run` (pull + split + hash the whole plan) | When linked, a network round trip and a full-plan hash 3 s after each press, though live state never syncs | High |
 | C5 | **Full-resolution images kept in RAM** | `vcam/layers.ImageSource` (`IMREAD_UNCHANGED` → BGRA, kept) | 50–100 MB per high-resolution photo layer; with several, the process can exceed 1 GB on 8 GB PCs | High |
@@ -166,7 +166,7 @@ The current architecture, hardened. No new layers.
 ```mermaid
 flowchart LR
   subgraph PC [Service PC - everything that draws]
-    UI[Studio window - WebView2, unchanged] --> S[server.py - plan, commands, 127.0.0.1]
+    UI[Studio window - WebView2, unchanged] --> S[src/server.py - plan, commands, 127.0.0.1]
     S --> E[vcam engine - compositor, layers, cards]
     E --> V[FRAMECAST camera - softcam]
     E --> P[Presentation window - native GDI]
@@ -207,7 +207,7 @@ flowchart LR
 
 ## 6. Data and sync model
 
-The model in use (`sync_entities.py`, `hosted/src/lib/sync-entities.ts`, `0003_sync.sql`) is already small,
+The model in use (`src/sync_entities.py`, `hosted/src/lib/sync-entities.ts`, `0003_sync.sql`) is already small,
 portable and delta-based: one record per Frame, template, library item, member, plus single records for order,
 theme, brand, layout and meeting. Only changed records are pushed (`changes()`); each carries the revision it was
 based on.

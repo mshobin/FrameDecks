@@ -12,7 +12,7 @@ and operates a camera/media pipeline that integrates with Windows, PowerPoint, a
 An optional phone remote is served over the local network. This is a deliberate, coherent architecture for offline
 service operation.
 
-Moving to SaaS changes the product promise as well as the technology. The prior [roadmap](../../ROADMAP.md)
+Moving to SaaS changes the product promise as well as the technology. The prior [roadmap](../ROADMAP.md)
 explicitly ruled out accounts and cloud sync; this modernization direction now supersedes that position while
 preserving a free product and local-first presentation. The requested product remains free: no payments, subscriptions, paywalls, licensing
 restrictions, trials, or feature gating are in scope. Stripe is therefore excluded.
@@ -33,8 +33,8 @@ path.
 
 | Area | Current implementation |
 |---|---|
-| Product/runtime | A single-user, Windows-first desktop application. `desktop_app.py` hosts the interface in WebView2; the source/browser mode can run without the desktop shell. |
-| HTTP service | `server.py` uses Python's threaded standard-library HTTP server. It binds to loopback by default; opt-in remote mode exposes a limited route allow-list on the LAN. |
+| Product/runtime | A single-user, Windows-first desktop application. `src/desktop_app.py` hosts the interface in WebView2; the source/browser mode can run without the desktop shell. |
+| HTTP service | `src/server.py` uses Python's threaded standard-library HTTP server. It binds to loopback by default; opt-in remote mode exposes a limited route allow-list on the LAN. |
 | User interface | Static HTML, CSS, and vanilla JavaScript in [app/](../../app/); no frontend package manifest, bundler, or framework. |
 | State and synchronization | In-memory server state persisted to JSON, revision-based conflict detection, atomic state replacement, long polling for the phone, and browser `localStorage`/`BroadcastChannel` in file mode. |
 | Media and live output | [vcam/](../../vcam) captures and composes camera, media, cards, and overlays for the virtual camera, presentation window, and previews. Several capabilities depend on Windows APIs, installed PowerPoint, or native libraries. |
@@ -124,7 +124,7 @@ independent security review of authentication, RLS policies, local-agent pairing
 
 ### Technical debt visible in the current repository
 
-- Responsibility is concentrated in large modules. The engineering assessment identifies `server.py` (about 2,100
+- Responsibility is concentrated in large modules. The engineering assessment identifies `src/server.py` (about 2,100
   lines) and large client modules such as `store.js`, `workspace.js`, and `members.js`. Keep those measurements
   approximate and remeasure before using them as a refactoring target.
 - The same state model and compatibility rules span Python, browser JavaScript, and legacy-data migration. Schema
