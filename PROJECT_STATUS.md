@@ -1,10 +1,11 @@
 # PROJECT STATUS
 
 Last verified: 27 October 2026. **FrameDecks 6.11.1 is published** at `v6.11.1`; its build and publish workflow passed.
-The FrameDecks README/release header image refresh merged in PR #38. The live database has `0001`–`0008`; `0009`
-waits for the owner.
+The FrameDecks README/release header image refresh merged in PR #38; trust fixes merged in PR #39 (`27cfb4b`).
+Production deployment verification and owner live tests remain. The live database has `0001`–`0008`; `0009` waits
+for the owner.
 - **GitHub:** Desktop checks, Hosted companion checks and Build Windows installer (with the installer smoke test) green.
-- **Trust-fix branch checks:** hosted tests 127/127, lint, typecheck, build; manual budget 330 KB JS / 70 KB largest /
+- **Trust-fix PR #39 checks:** hosted tests 127/127, lint, typecheck, build; manual budget 330 KB JS / 70 KB largest /
   18 KB CSS; desktop JS 4/4; README fact tests 2/2; CSS tokens 14 files / 0 problems; doc links 97 files / 0 problems;
   packaging self-check passed. The full Python suite had 4 errors from missing `cv2` (165 run, 3 skipped). The
   budget script's Windows path handling fails, but the equivalent measurement passed.
@@ -81,10 +82,10 @@ Phase detail lives in
   demo, week, FAQ, footer); compact transition dropdown and "+ Add a question"; program Run: larger Up next, key
   hints, Practice reminder at service time. Checks: hosted 122/122, lint, typecheck, build, budget JS 325 KB; Python
   OK; JS 4/4; layout and axe pass. Owner: Test I; projector legibility and templates by type wait for a go-ahead.
-- **Trust fixes (`fix/trust-layer-errors-confirmations`):** service errors use safe, actionable copy; destructive
+- **Trust fixes (PR #39, merged as `27cfb4b`):** service errors use safe, actionable copy; destructive
   confirmations use a branded dialog; README and hosted companion docs describe the current release and live features.
-  Local checks passed as listed above; PR #39's CI and preview deployments passed. After merge, verify production
-  deployment; the owner's live tests remain pending.
+  Local checks, CI and preview deployments passed. Production deployment verification and the owner's live tests
+  remain pending.
 - **6.11.1 (26 October):** audit steps 1–2 built (pinned build, cross-site guard, error logging, plan recovery and
   sync guard, `0009`); published at `v6.11.1` on 27 October. The owner still needs to run `0009`.
 - **Website performance (26 October):** the website no longer animates when idle (older 8 GB PCs next to the program).
