@@ -2,13 +2,16 @@
 
 Last verified: 27 October 2026. **FrameDecks 6.11.1 is published** at `v6.11.1`; its build and publish workflow passed.
 The FrameDecks README/release header image refresh merged in PR #38; trust fixes merged in PR #39 (`27cfb4b`).
-Production deployment verification and owner live tests remain. The live database has `0001`–`0008`; `0009` waits
+Since then: the budget script works on Windows (`57cd9c3`), five GitHub Action upgrades merged (#33–#37; the two
+used only for releases first run at the next tag), handoff PR #40 merged; every check on `main` is green, including the
+Cloudflare Pages production deploy. Owner live tests remain. The live database has `0001`–`0008`; `0009` waits
 for the owner.
 - **GitHub:** Desktop checks, Hosted companion checks and Build Windows installer (with the installer smoke test) green.
 - **Trust-fix PR #39 checks:** hosted tests 127/127, lint, typecheck, build; manual budget 330 KB JS / 70 KB largest /
   18 KB CSS; desktop JS 4/4; README fact tests 2/2; CSS tokens 14 files / 0 problems; doc links 97 files / 0 problems;
-  packaging self-check passed. The full Python suite had 4 errors from missing `cv2` (165 run, 3 skipped). The
-  budget script's Windows path handling fails, but the equivalent measurement passed.
+  packaging self-check passed. The full Python suite had 4 errors from missing `cv2` (165 run, 3 skipped): a local
+  set-up gap, fixed by `pip install -r packaging/requirements-desktop.txt -c packaging/constraints.txt` in `.venv`.
+  The budget script now works on Windows too (`57cd9c3`, `fileURLToPath`).
 - **Next:** the owner's live tests A–I on 6.11.1 (`docs/qa/live-test-guide.md`); see `.ai/NEXT_SESSION.md`.
 
 Phase detail lives in

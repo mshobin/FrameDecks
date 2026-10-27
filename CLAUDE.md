@@ -162,6 +162,8 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
 - Docs: `python tools/check_doc_links.py`, `git diff --check`.
 - Lint: `ruff check .` (`ruff.toml`; CI pins ruff 0.16.8) and `node --check` on `app/js/*.js` (the Desktop checks
   workflow). Website budget: `node hosted/scripts/check-budget.mjs` after `npm run build`.
+- Actions (27 October): checkout v7, setup-python v7, setup-msbuild v3, download-artifact v8, action-gh-release v3; the
+  last two run only in the release job, so watch the next tag's release job.
 - Releases: [docs/development/release-checklist.md](docs/development/release-checklist.md) (pilot first; rollback). Publish by
   pushing a tag `vX.Y.Z` on `main`: "Build Windows installer" builds, smoke-tests and publishes `FrameDecks vX.Y.Z.exe` with
   `docs/releases/vX.Y.Z.md` as the notes (`tools/make_release_notes.py`). Cloud sessions cannot push tags: tag locally.

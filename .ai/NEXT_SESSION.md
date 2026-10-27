@@ -1,8 +1,9 @@
 # NEXT SESSION HANDOFF
 
 Updated 27 October 2026: release `v6.11.1` is published; the FrameDecks README and release header refresh merged in
-PR #38. Trust fixes merged in PR #39 (`27cfb4b`); CI and preview deployments passed. Production deployment
-verification remains pending. Read [CLAUDE.md](../CLAUDE.md) ("Working locally" has the set-up and run commands).
+PR #38. Trust fixes merged in PR #39 (`27cfb4b`). Later the same day: the budget script fixed for Windows
+(`57cd9c3`), the five Dependabot action upgrades merged (#33–#37), and the handoff PR #40. All checks on `main` are
+green, including the Cloudflare Pages deploy (production); a look at the live site is still the owner's. Read [CLAUDE.md](../CLAUDE.md) ("Working locally" has the set-up and run commands).
 
 ## Where things stand (27 October)
 - **Release:** **FrameDecks 6.11.1 is published** at `v6.11.1`; its build and publish workflow succeeded. The README
@@ -17,8 +18,16 @@ verification remains pending. Read [CLAUDE.md](../CLAUDE.md) ("Working locally" 
   not yet** (owner, Supabase SQL editor).
 - **Checks (trust-fix PR #39):** hosted tests 127/127, lint, typecheck, build; manual budget 330 KB JS / 70 KB largest /
   18 KB CSS; desktop JS 4/4; README fact tests 2/2; CSS tokens 14 files / 0 problems; doc links 97 files / 0 problems;
-  packaging self-check passed. The full Python suite had 4 errors from missing `cv2` (165 run, 3 skipped). The
-  budget script's Windows path handling fails, but the equivalent measurement passed.
+  packaging self-check passed. The full Python suite had 4 errors from missing `cv2` (165 run, 3 skipped): a local
+  set-up gap, fixed by `pip install -r packaging/requirements-desktop.txt -c packaging/constraints.txt` in `.venv`.
+  The budget script now works on Windows too (`57cd9c3`, `fileURLToPath`).
+- **GitHub Actions (27 October):** checkout v7.0.1, setup-python v7.1.0, setup-msbuild v3.0.0 (all exercised: the
+  installer build passed on `be52af2`), download-artifact v8.0.2 and action-gh-release v3.0.3 (used only by the
+  release job, so the **next tag** is their first run; download-artifact now fails on a digest mismatch). If that
+  release job fails, fix the cause and re-run the job; the installer build is unaffected.
+- **Cloudflare Pages gotcha:** the three failed deploys on 27 October (c48006d–91c3bc4) were exactly the commits that
+  had edited comments in `hosted/supabase/migrations/0001`–`0008`; restoring those files fixed it. Never edit a
+  migration that has been run (CLAUDE.md), not even a comment; the dashboard log has the exact reason.
 - **Gotcha for the visual suites:** start `server.py` with nothing else on port 8750 (a leftover server makes them test
   the wrong data and fail on things that are fine).
 
