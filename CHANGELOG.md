@@ -229,7 +229,7 @@ Full notes: [docs/releases/v6.8.md](docs/releases/v6.8.md) · Plan: [docs/projec
 
 ## [6.7] - 2026-10-19
 
-Full notes: [docs/releases/v6.7.md](docs/releases/v6.7.md)
+Full notes: [docs/releases/archive/v6.7.md](docs/releases/archive/v6.7.md)
 
 ### Added
 - **Teleprompter** (Program → Teleprompter, **R**): the Frame's script docked left, right or bottom of the Studio, or
@@ -282,7 +282,7 @@ Full notes: [docs/releases/v6.7.md](docs/releases/v6.7.md)
 
 ## [6.6] - 2026-10-18
 
-Full notes: [docs/releases/v6.6.md](docs/releases/v6.6.md)
+Full notes: [docs/releases/archive/v6.6.md](docs/releases/archive/v6.6.md)
 
 ### Added
 - **Speaker View** (Program → Speaker View): a window only the leader sees, with the question or scripture on
@@ -306,7 +306,7 @@ Full notes: [docs/releases/v6.6.md](docs/releases/v6.6.md)
 
 ## [6.5] - 2026-10-18
 
-Full notes: [docs/releases/v6.5.md](docs/releases/v6.5.md)
+Full notes: [docs/releases/archive/v6.5.md](docs/releases/archive/v6.5.md)
 
 ### Added
 - **Annotate (D):** pen, highlighter, arrow, line, rectangle, ellipse and text over everything on screen, with undo,
@@ -332,7 +332,7 @@ Full notes: [docs/releases/v6.5.md](docs/releases/v6.5.md)
 
 ## [6.4] - 2026-10-15
 
-Full notes: [docs/releases/v6.4.md](docs/releases/v6.4.md)
+Full notes: [docs/releases/archive/v6.4.md](docs/releases/archive/v6.4.md)
 
 ### Added
 - Team Space: co-leaders connected directly between PCs over WireGuard (removed again in 6.5).
@@ -346,7 +346,7 @@ Full notes: [docs/releases/v6.4.md](docs/releases/v6.4.md)
 
 ## [6.3] - 2026-10-15
 
-Full notes: [docs/releases/v6.3.md](docs/releases/v6.3.md)
+Full notes: [docs/releases/archive/v6.3.md](docs/releases/archive/v6.3.md)
 
 ### Changed
 - One command bar at the top replaces the top bar and the bottom live bar.
@@ -355,7 +355,7 @@ Full notes: [docs/releases/v6.3.md](docs/releases/v6.3.md)
 
 ## [6.2] - 2026-10-13
 
-Full notes: [docs/releases/v6.2.md](docs/releases/v6.2.md)
+Full notes: [docs/releases/archive/v6.2.md](docs/releases/archive/v6.2.md)
 
 ### Added
 - **Meeting & Branding** settings: Meeting Name, organization name, logo and accent colour, shown only where you
@@ -367,7 +367,7 @@ Full notes: [docs/releases/v6.2.md](docs/releases/v6.2.md)
 
 ## [6.1] - 2026-10-13
 
-Full notes: [docs/releases/v6.1.md](docs/releases/v6.1.md)
+Full notes: [docs/releases/archive/v6.1.md](docs/releases/archive/v6.1.md)
 
 ### Added
 - **Quick Start** builds a complete set of scenes for a meeting; **Presentation Mode** (P); a built-in Content
@@ -379,7 +379,7 @@ Full notes: [docs/releases/v6.1.md](docs/releases/v6.1.md)
 
 ## [6.0] - 2026-10-12
 
-Full notes: [docs/releases/v6.0.md](docs/releases/v6.0.md)
+Full notes: [docs/releases/archive/v6.0.md](docs/releases/archive/v6.0.md)
 
 ### Added
 - **Scenes · Layers · Canvas:** scenes with layers, smart duplicate, templates, version history and transitions.
@@ -388,7 +388,7 @@ Full notes: [docs/releases/v6.0.md](docs/releases/v6.0.md)
 
 ## [5.1] - 2026-10-12
 
-Full notes: [docs/releases/v5.1.md](docs/releases/v5.1.md)
+Full notes: [docs/releases/archive/v5.1.md](docs/releases/archive/v5.1.md)
 
 ### Added
 - Command Center layout: production panel, live outputs under the picture, an Inspector, and Take live (T).
@@ -399,7 +399,7 @@ Full notes: [docs/releases/v5.1.md](docs/releases/v5.1.md)
 
 ## [5.0] - 2026-10-11
 
-Full notes: [docs/releases/v5.0.md](docs/releases/v5.0.md)
+Full notes: [docs/releases/archive/v5.0.md](docs/releases/archive/v5.0.md)
 
 ### Added
 - Presentation modes **Question · Both · Verse**, including a `PresentationMode` column in Excel.
@@ -409,7 +409,7 @@ Full notes: [docs/releases/v5.0.md](docs/releases/v5.0.md)
 
 ## [4.9] - 2026-10-11
 
-Full notes: [docs/releases/v4.9.md](docs/releases/v4.9.md)
+Full notes: [docs/releases/archive/v4.9.md](docs/releases/archive/v4.9.md)
 
 ### Added
 - Studio workspace with Scenes and Layers, a control bar, and Dark / Light / Match Windows appearance.
@@ -420,13 +420,13 @@ Full notes: [docs/releases/v4.9.md](docs/releases/v4.9.md)
 - Much faster stepping through long question and verse lists.
 
 [Unreleased]: docs/releases/
-[6.6]: docs/releases/v6.6.md
-[6.5]: docs/releases/v6.5.md
-[6.4]: docs/releases/v6.4.md
-[6.3]: docs/releases/v6.3.md
-[6.2]: docs/releases/v6.2.md
-[6.1]: docs/releases/v6.1.md
-[6.0]: docs/releases/v6.0.md
-[5.1]: docs/releases/v5.1.md
-[5.0]: docs/releases/v5.0.md
-[4.9]: docs/releases/v4.9.md
+[6.6]: docs/releases/archive/v6.6.md
+[6.5]: docs/releases/archive/v6.5.md
+[6.4]: docs/releases/archive/v6.4.md
+[6.3]: docs/releases/archive/v6.3.md
+[6.2]: docs/releases/archive/v6.2.md
+[6.1]: docs/releases/archive/v6.1.md
+[6.0]: docs/releases/archive/v6.0.md
+[5.1]: docs/releases/archive/v5.1.md
+[5.0]: docs/releases/archive/v5.0.md
+[4.9]: docs/releases/archive/v4.9.md

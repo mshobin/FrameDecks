@@ -112,7 +112,7 @@ Office installs — these are covered by the manual [testing script](docs/develo
 | Church teams | [OPERATIONS_HUB](docs/ministry/README.md) · [WORSHIP_LEADERS](docs/ministry/worship-leaders.md) · [MEDIA_TEAM](docs/ministry/media-team.md) · [SERVICE_OPERATORS](docs/ministry/service-operators.md) · [REMOTE_OPERATORS](docs/ministry/remote-operators.md) · [VOLUNTEERS](docs/ministry/volunteers.md) · [SERVICE_DAY_CHECKLIST](docs/ministry/service-day-checklist.md) |
 | Architecture | [ARCHITECTURE](docs/ARCHITECTURE.md) (service flow, engine, remote, media, rendering, sync) · [DESIGN_HISTORY](docs/architecture/design-history.md) · [CONFIGURATION](docs/reference/configuration-guide.md) |
 | Security | [SECURITY](SECURITY.md) · [Security boundaries](docs/ARCHITECTURE.md#security-boundaries) |
-| Development | [CONTRIBUTING](CONTRIBUTING.md) · [DEVELOPER_GUIDE](docs/CONTRIBUTING.md) · [ENVIRONMENT](docs/ENVIRONMENT.md) · [DEPLOYMENT](docs/DEPLOYMENT.md) · [BRANCHING](docs/development/branching.md) · [RELEASE_PROCESS](docs/development/release-process.md) · [TESTING](docs/development/testing.md) · [CODING_STANDARDS](docs/CODING-STANDARDS.md) |
+| Development | [CONTRIBUTING](CONTRIBUTING.md) · [DEVELOPER_GUIDE](docs/CONTRIBUTING.md) · [ENVIRONMENT](docs/deployment/ENVIRONMENT.md) · [DEPLOYMENT](docs/deployment/DEPLOYMENT.md) · [BRANCHING](docs/development/branching.md) · [RELEASE_PROCESS](docs/development/release-process.md) · [TESTING](docs/development/testing.md) · [CODING_STANDARDS](docs/CODING-STANDARDS.md) |
 | Quality | [REPOSITORY_AUDIT](docs/project/repository-audit.md) |
 | Reference | [USER_GUIDE](docs/reference/user-guide.md) · [FEATURES](docs/reference/features.md) · [MEETING_WORKBOOK](docs/reference/meeting-workbook-and-branding.md) · [POWERPOINT](docs/reference/powerpoint.md) |
 | Project | [ROADMAP](ROADMAP.md) · [CHANGELOG](CHANGELOG.md) · [RELEASE_NOTES](docs/releases/) · [DOCS_INDEX](docs/README.md) |
@@ -129,7 +129,7 @@ keep their own licences, listed in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.
 
 ## Code signing policy
 Windows releases are to be signed for free by [SignPath.io](https://signpath.io), with a certificate from the
-[SignPath Foundation](https://signpath.org) (set-up: [code-signing.md](docs/project/code-signing.md)).
+[SignPath Foundation](https://signpath.org) (set-up: [code-signing.md](docs/deployment/code-signing.md)).
 - Only installers built by this repository's GitHub Actions from `main` or a version tag are signed.
 - The maintainer (Shobin Mathews) reviews every change and approves every signing request.
 - FrameDecks sends nothing to anyone unless a church links a PC to its own workspace (see

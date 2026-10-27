@@ -92,9 +92,9 @@ Phase detail lives in
 - **First-install fixes (26 October):** website "Forbidden" (request identity), Teleprompter unpin freeze, grouped Settings menu; on `main`, not yet in a release.
 - **FRAMECAST (26 October):** the virtual camera's new name; v6.11 release published with the installer (the
   first tag build failed on the release-notes step, now fixed).
-- **Free plan** ([free-hosting.md](docs/project/free-hosting.md)): steps 1–4 are on `main` (26 October):
+- **Free plan** ([free-hosting.md](docs/deployment/free-hosting.md)): steps 1–4 are on `main` (26 October):
   (companion builds as static files; `/api/sync-config` written at build time) and step 2 (keep-alive every 3 days,
-  encrypted nightly backup, [restore guide](docs/project/database-backup.md)). Step 3 done (idle
+  encrypted nightly backup, [restore guide](docs/operations/database-backup.md)). Step 3 done (idle
   phone-control polling 5 → 15 s). Step 4 code done (Google/Microsoft
   above the email link). Companion live at `https://framedecks.pages.dev` (the PC now links through it; owner signed in there, 26 October). Part B live (keep-alive and nightly backup green, 26 October). Part D live: Google and Microsoft sign-in work (26 October; Google brand verification pending; Brevo skipped). Owner setup: finish Part A (test, then retire Vercel); Part E.
 - Database live: `0001`–`0008` run in Supabase (26 October). Waiting for the owner's live tests A–F
@@ -103,7 +103,7 @@ Phase detail lives in
 ## Pending
 - **Owner:** install from the latest "Build Windows installer" run on `main` and run the live tests A–F.
 - **Owner, before using Audio Content:** update every linked PC (older versions drop Audio Content).
-- **Owner, M-D1:** follow [code-signing.md](docs/project/code-signing.md):
+- **Owner, M-D1:** follow [code-signing.md](docs/deployment/code-signing.md):
   - make the repository public after the checks;
   - apply to SignPath Foundation;
   - add `SIGNPATH_API_TOKEN` and the three `SIGNPATH_*` variables.

@@ -94,7 +94,7 @@ A free Supabase project is paused after 7 days without requests, and it has no d
 3. **Run each workflow once to test it.** Go to GitHub → **Actions**:
    - **Database keep-alive → Run workflow**. It should go green.
    - **Database backup → Run workflow**. It should go green and show a `framedecks-backup-…` file under Artifacts.
-4. **Restoring.** You will hopefully never need it; the steps are in [database-backup.md](database-backup.md).
+4. **Restoring.** You will hopefully never need it; the steps are in [database-backup.md](../operations/database-backup.md).
 
 ## Part C: fewer database requests
 

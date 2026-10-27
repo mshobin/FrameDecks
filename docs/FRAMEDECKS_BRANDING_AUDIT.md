@@ -42,7 +42,7 @@ retained for accurate release history and to help existing users understand upgr
 | `README.md` | User-facing migration note; explains that earlier installations and data are migrated. |
 | `docs/installation.md` | User-facing upgrade note; identifies prior releases and what the installer migrates. |
 | `CHANGELOG.md` | User-facing historical release entries; records the name and camera label used by older releases. |
-| `docs/releases/v6.1.md`–`docs/releases/v6.9.md` | User-facing historical release notes. Each occurrence describes the product, installer, camera, or files as they existed in that version. |
+| `docs/releases/archive/v6.1.md`–`docs/releases/v6.9.md` | User-facing historical release notes. Each occurrence describes the product, installer, camera, or files as they existed in that version. |
 
 ### Maintainer-facing history and technical documentation
 

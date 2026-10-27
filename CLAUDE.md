@@ -53,7 +53,7 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
   program's own window with the keys' functions (`app/js/cloud-remote.js`). `REMOTE` in `server.py` is the Wi-Fi
   phone remote, a different thing.
 - `hosted/` — Next.js 16 online-first companion, built as **plain static files** (`output: "export"` → `hosted/out/`;
-  free plan, `docs/project/free-hosting.md`). Deployed on Cloudflare Pages at `https://framedecks.pages.dev`
+  free plan, `docs/deployment/free-hosting.md`). Deployed on Cloudflare Pages at `https://framedecks.pages.dev`
   (Root Directory `hosted`, output `out`; 26 October); `framedecks.vercel.app` stays until the owner retires it. No server code: `/api/sync-config` is a file written by
   `hosted/scripts/write-sync-config.mjs` at build time; the manifest is `hosted/public/manifest.webmanifest`.
 - `hosted/supabase/migrations/` — SQL run in order in the Supabase SQL editor: `0001` workspaces, `0002` invitations,
@@ -78,11 +78,11 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
 - `pptx_export.py` (Meeting → Export this meeting to PowerPoint, python-pptx) and Audio Content (`audio` kind in
   `store.js` SOUND_KINDS, `app/js/audio-player.js`, plays only in the program window while its Frame is live and on).
   Both are owner-approved entries (M-D4). Older versions drop Audio Content: update every linked PC first.
-- Free plan (`docs/project/free-hosting.md`): `.github/workflows/db-keepalive.yml` (pings Supabase every 3 days) and
+- Free plan (`docs/deployment/free-hosting.md`): `.github/workflows/db-keepalive.yml` (pings Supabase every 3 days) and
   `db-backup.yml` + `tools/db_backup.sh` (nightly, AES-256 encrypted with `BACKUP_PASSPHRASE`, 30 days; restore:
-  `docs/project/database-backup.md`). Both do nothing until their repository secrets exist.
+  `docs/operations/database-backup.md`). Both do nothing until their repository secrets exist.
 - Licence: Apache 2.0 (`LICENSE`, `NOTICE`); every shipped dependency or vendored file needs a row in
-  `THIRD_PARTY_NOTICES.md`. Signing: SignPath, off until its secret exists (`docs/project/code-signing.md`).
+  `THIRD_PARTY_NOTICES.md`. Signing: SignPath, off until its secret exists (`docs/deployment/code-signing.md`).
 - Continuity: `CLAUDE.md`, `PROJECT_STATUS.md`, `PROJECT_ROADMAP.md`, `.ai/NEXT_SESSION.md`. The owner's live tests:
   `docs/qa/live-test-guide.md` (keep it in step when a tested behaviour changes).
 - Current handoff (27 October 2026): v6.11.1 and the README/release wordmark refresh (PR #38) are published. Trust

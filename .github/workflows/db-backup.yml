@@ -1,7 +1,7 @@
-# An encrypted copy of the workspace database every night (free plan, docs/project/free-hosting.md, Part B).
+# An encrypted copy of the workspace database every night (free plan, docs/deployment/free-hosting.md, Part B).
 # Supabase Free has no daily backups. The copy is encrypted with BACKUP_PASSPHRASE (only the owner knows it) before
 # it leaves the runner, and kept 30 days with the run. Needs the repository secrets SUPABASE_DB_URL (Session pooler
-# URI) and BACKUP_PASSPHRASE; does nothing until they exist. Restore: docs/project/database-backup.md.
+# URI) and BACKUP_PASSPHRASE; does nothing until they exist. Restore: docs/operations/database-backup.md.
 name: Database backup
 
 on:
@@ -25,7 +25,7 @@ jobs:
         id: ready
         run: |
           if [ -z "$SUPABASE_DB_URL" ] || [ -z "$BACKUP_PASSPHRASE" ]; then
-            echo "::notice::SUPABASE_DB_URL / BACKUP_PASSPHRASE are not set yet (docs/project/free-hosting.md, Part B). Nothing to do."
+            echo "::notice::SUPABASE_DB_URL / BACKUP_PASSPHRASE are not set yet (docs/deployment/free-hosting.md, Part B). Nothing to do."
             echo "go=false" >> "$GITHUB_OUTPUT"
           else
             echo "go=true" >> "$GITHUB_OUTPUT"
