@@ -3,14 +3,14 @@
 A service presentation platform for churches and ministries. Plan each service as **Frames** — Welcome, Worship,
 Scripture, Discussion, Prayer, Closing — fill them with questions, scriptures, text, timers, pictures, video and
 PowerPoint, and present to the room, to Zoom / Teams / Google Meet and to your stream at the same time. Run it from
-the PC, a phone or an iPad. **FrameDecks 6.9 runs locally**: no account or cloud connection is required for a
-service, and the only current online feature is the optional ESV scripture fetch. The modernization plan adds
-optional cloud accounts and metadata sync while keeping presentation media and live output local. FrameDecks
-remains free, with no payments or feature restrictions.
+the PC, a phone or an iPad. FrameDecks runs on the presenting PC, and a service can continue without an internet
+connection. Optional workspace features let a team plan together and sync meeting metadata; presentation media,
+rendering and camera output stay on the PC. FrameDecks remains free, with no payments or feature restrictions.
 
-> **Status: FrameDecks 6.10 is ready for teaching, Bible study, small-group and hybrid services, with documented
-> gaps.** The biggest: no song / lyrics library yet (lyrics are shown as Text Content or a PowerPoint), an unsigned
-> installer (signing is being set up), and no automated UI tests. See the
+> **Status: FrameDecks is ready for teaching, Bible study, small-group and hybrid services, with documented gaps.**
+> There is no dedicated song / lyrics library yet (lyrics are shown as Text Content or a PowerPoint), and the Windows
+> installer is not digitally signed. Automated checks cover key flows, but they do not replace testing the camera,
+> PowerPoint, audio and live cloud features on real equipment. Get the [latest release](https://github.com/mshobin/FRAMEDECKS/releases/latest). See the
 > [repository audit](docs/project/repository-audit.md), [modernization status](docs/FRAMEDECKS_MODERNIZATION_STATUS.md),
 > and the [roadmap](ROADMAP.md).
 
@@ -57,17 +57,19 @@ remains free, with no payments or feature restrictions.
 
 ## Hosted companion
 
-The optional Next.js web companion is in `hosted/` and deploys to Vercel with
-Root Directory `hosted`. See the [hosted companion guide](hosted/README.md)
-for local development and Vercel setup. It is currently a static foundation
-preview with sign-in (Supabase Auth); cloud data and device pairing are not implemented.
+The optional Next.js web companion is in `hosted/` and is published as static
+files on Cloudflare Pages. With Supabase configured, teams can manage people,
+edit synced service plans and link a service PC for remote control when it is
+allowed. Sync carries service metadata, not media or live presentation state;
+the companion never connects to the PC's local HTTP server. See the
+[hosted companion guide](hosted/README.md) for setup and deployment.
 
 ## Install
-See [INSTALLATION](docs/installation.md) and [GETTING_STARTED](docs/getting-started.md). In short: run
-`FrameDecks v6.10.exe` (unsigned, so check it against its `.sha256` file first and choose **More info → Run
-anyway** at the SmartScreen prompt), keep **Install the FRAMECAST camera** ticked, and allow the one
-administrator prompt. Windows 10 or 11 (64-bit) is required. The installer comes from the **Build Windows
-installer** workflow ([BUILDING_THE_INSTALLER](docs/development/building-the-installer.md)).
+See [INSTALLATION](docs/installation.md) and [GETTING_STARTED](docs/getting-started.md). In short: download the
+[latest installer](https://github.com/mshobin/FRAMEDECKS/releases/latest) (unsigned, so check it against its
+`.sha256` file first and choose **More info → Run anyway** at the SmartScreen prompt), keep **Install the FRAMECAST
+camera** ticked, and allow the one administrator prompt. Windows 10 or 11 (64-bit) is required. The installer comes
+from the **Build Windows installer** workflow ([BUILDING_THE_INSTALLER](docs/development/building-the-installer.md)).
 
 ## Run, build, package (developers)
 Prerequisites: Python 3.12 and Node.js (for the tests). There is no UI build step and there are no npm packages.

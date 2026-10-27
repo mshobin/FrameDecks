@@ -85,6 +85,8 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
   `THIRD_PARTY_NOTICES.md`. Signing: SignPath, off until its secret exists (`docs/project/code-signing.md`).
 - Continuity: `CLAUDE.md`, `PROJECT_STATUS.md`, `PROJECT_ROADMAP.md`, `.ai/NEXT_SESSION.md`. The owner's live tests:
   `docs/qa/live-test-guide.md` (keep it in step when a tested behaviour changes).
+- Current handoff (27 October 2026): v6.11.1 and the README/release wordmark refresh (PR #38) are published. Trust
+  fixes on `fix/trust-layer-errors-confirmations` are verified locally but are not live or in a PR; see `.ai/NEXT_SESSION.md`.
 - Companion design (26 October redesign): tokens in `hosted/src/app/globals.css` `:root`, the look in
   `hosted/src/app/design.css` (glass surfaces, navy and gold, one large title per page). Signed out, `/` is the landing
   page (`components/landing.tsx`); signed in, the dashboard (`components/overview.tsx`: hero, `glance.tsx` tiles,
@@ -188,9 +190,9 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
 - `hosted/AGENTS.md`: this Next.js version has breaking changes; read `hosted/node_modules/next/dist/docs/` before writing hosted code.
 - The emblem `app/img/kc-emblem.webp` and `hosted/public/framedecks-emblem.webp` must stay identical. Regenerate all emblem/icon files with `tools/make_emblem_assets.py` (master: `assets/brand/framedecks-emblem.svg`).
 - The repo auto-commits as "Update project files and documentation"; check `git status` before committing.
-- The README header and the GitHub release body both embed `assets/brand/kc-about-header.webp`; after regenerating it,
-  commit and publish the new image, then refresh the existing release body's image link to that commit (the release tag
-  is immutable and still points at its original image).
+- The README header and GitHub release body both embed `assets/brand/kc-about-header.webp`. The FrameDecks wordmark
+  refresh was published in PR #38; for a future image change, publish the image commit and update the existing release
+  body's image URL to that commit because the release tag is immutable.
 - Browser code must name each `NEXT_PUBLIC_` variable in full (`publicSupabaseEnv()`), or Next.js does not inline it.
 - Supabase (from 30 October 2026) gives new tables no API access: every migration that creates a table must `grant`
   the operations its RLS policies allow to `authenticated` (never `anon`). `tests/pglite-supabase.mjs` grants nothing

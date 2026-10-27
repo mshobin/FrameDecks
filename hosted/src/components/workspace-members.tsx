@@ -3,9 +3,11 @@
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 
 import { Button } from "@/components/ui/button";
+import { useConfirmation } from "@/components/confirm-dialog";
 import { browserSupabase } from "@/lib/supabase-browser";
 import type { Role } from "@/lib/supabase-config";
 import { ListSkeleton } from "@/components/states";
+import { userSafeError } from "@/lib/user-error";
 
 type Member = { user_id: string; role: Role; display_name: string | null; email: string };
 type Invitation = { id: string; email: string; role: Exclude<Role, "owner"> };
@@ -21,6 +23,7 @@ export function WorkspaceMembers({
   onLeft,
 }: Readonly<{ organizationId: string; myRole: Role; myUserId: string; onLeft: () => void }>) {
   const supabase = browserSupabase();
+  const { ask, dialog } = useConfirmation();
   const canManage = myRole === "owner" || myRole === "admin";
   const [members, setMembers] = useState<Member[] | null>(null);
   const [invitations, setInvitations] = useState<Invitation[]>([]);
@@ -35,7 +38,7 @@ export function WorkspaceMembers({
     if (!supabase) return;
     const people = await supabase.rpc("workspace_members", { org: organizationId });
     if (people.error) {
-      setMessage({ ok: false, text: people.error.message });
+      setMessage({ ok: false, text: userSafeError(people.error, "Couldn’t load your team’s members. Check your connection and try again.") });
       setMembers([]);
       return;
     }
@@ -81,7 +84,7 @@ export function WorkspaceMembers({
     if (error) {
       setMessage({
         ok: false,
-        text: error.code === "23505" ? `${address} is already invited.` : error.code === "23514" ? "That email address does not look right." : error.message,
+        text: error.code === "23505" ? `${address} is already invited.` : error.code === "23514" ? "That email address does not look right." : userSafeError(error, "Couldn’t send the invitation. Try again."),
       });
       return;
     }
@@ -92,9 +95,13 @@ export function WorkspaceMembers({
 
   async function cancelInvite(id: string, email: string) {
     if (!supabase) return;
-    if (!window.confirm(`Cancel the invitation to ${email}? The link in their email stops working.`)) return;
+    if (!(await ask({
+      title: `Cancel the invitation to ${email}?`,
+      description: "The link in their email will stop working.",
+      confirmLabel: "Cancel invitation",
+    }))) return;
     const { error } = await supabase.from("invitations").delete().eq("id", id);
-    if (error) setMessage({ ok: false, text: error.message });
+    if (error) setMessage({ ok: false, text: userSafeError(error, "Couldn’t cancel this invitation. Try again.") });
     await load();
   }
 
@@ -111,7 +118,7 @@ export function WorkspaceMembers({
       .update({ can_run_services: allowed })
       .eq("organization_id", organizationId)
       .eq("user_id", member.user_id);
-    if (error) setMessage({ ok: false, text: error.message });
+    if (error) setMessage({ ok: false, text: userSafeError(error, "Couldn’t change this member’s service access. Try again.") });
     else
       setMessage({
         ok: true,
@@ -125,17 +132,21 @@ export function WorkspaceMembers({
   async function remove(member: Member) {
     if (!supabase) return;
     const leaving = member.user_id === myUserId;
-    const question = leaving
-      ? "Leave this workspace? You will need a new invitation to come back."
-      : `Remove ${member.display_name ?? member.email} from this workspace?`;
-    if (!window.confirm(question)) return;
+    const name = member.display_name ?? member.email;
+    if (!(await ask({
+      title: leaving ? "Leave this team?" : `Remove ${name}?`,
+      description: leaving
+        ? "You’ll need a new invitation to come back."
+        : "They’ll lose access to this team and its shared plan.",
+      confirmLabel: leaving ? "Leave team" : "Remove person",
+    }))) return;
     const { error } = await supabase
       .from("memberships")
       .delete()
       .eq("organization_id", organizationId)
       .eq("user_id", member.user_id);
     if (error) {
-      setMessage({ ok: false, text: error.message });
+      setMessage({ ok: false, text: userSafeError(error, "Couldn’t update team membership. Try again.") });
       return;
     }
     if (leaving) onLeft();
@@ -226,6 +237,7 @@ export function WorkspaceMembers({
           {message.text}
         </p>
       )}
+      {dialog}
     </div>
   );
 }

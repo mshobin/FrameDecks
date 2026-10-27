@@ -1,10 +1,15 @@
 # FrameDecks hosted companion
 
-This is the separate, online-first FrameDecks web companion. It does not connect
-to the desktop app's local HTTP server. Sign-in (Supabase Auth: an emailed link,
-plus Google or Microsoft when they are switched on in Supabase) is implemented;
-cloud data and device pairing are not, so the overview is still a foundation
-preview and must not be treated as a live service dashboard.
+This is the separate, online-first FrameDecks web companion, published as static
+files. With Supabase configured, teams can manage people, edit service plans
+that sync with linked PCs, review Frame history, and control an eligible
+service PC from Live. The desktop app remains responsible for media,
+presentation and camera output; sync carries metadata only, and the companion
+does not connect to the desktop app's local HTTP server.
+
+Sign-in uses Supabase Auth (an emailed link, plus Google or Microsoft when they
+are switched on in Supabase). Remote control is available only for linked PCs
+where **Allow control from the companion** is enabled.
 
 ## Sign-in
 

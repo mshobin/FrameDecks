@@ -108,6 +108,12 @@ Full notes: [docs/releases/v6.11.1.md](docs/releases/v6.11.1.md)
   sentence-case Go Live and Hide all, tooltips on the icon-only tabs. Teleprompter empty state with Write a script.
 - Sync no longer deletes every Frame in the workspace when they all vanish from one PC; they are restored instead.
 - The program's local API refuses calls from other websites (`Sec-Fetch-Site: cross-site`).
+
+### Fixed
+- Companion errors now use clear, actionable messages instead of exposing database or authentication details.
+- Destructive companion actions use named, keyboard-accessible confirmation dialogs; deleting a workspace requires
+  typing its name.
+- README installation and companion descriptions now reflect the published release and shipped online features.
 - Errors the program recovers from are logged (at most once a minute each).
 - Window buttons (minimise, maximise, restore, close) never wait on the window's thread.
 - One OpenCV (opencv-python 5.0); the unused opencv-python-headless 4.14 is gone from the installer.

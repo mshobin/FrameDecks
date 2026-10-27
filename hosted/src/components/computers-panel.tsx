@@ -6,9 +6,11 @@ import { Button } from "@/components/ui/button";
 import { NotSetUp, WorkspaceGate } from "@/components/workspace-gate";
 import { When } from "@/components/when";
 import { browserSupabase } from "@/lib/supabase-browser";
+import { useConfirmation } from "@/components/confirm-dialog";
 import type { WorkspaceChoice } from "@/lib/use-workspaces";
 import { syncNotSetUp } from "@/lib/workspace-sync";
 import { ListSkeleton } from "@/components/states";
+import { userSafeError } from "@/lib/user-error";
 
 type Computer = { id: string; name: string; created_at: string; last_seen_at: string | null; revoked_at: string | null };
 
@@ -19,6 +21,7 @@ function Computers({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
+  const { ask, dialog } = useConfirmation();
 
   const load = useCallback(async () => {
     if (!supabase) return;
@@ -29,7 +32,7 @@ function Computers({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
       .order("created_at");
     if (error) {
       if (syncNotSetUp(error)) setComputers("not-set-up");
-      else setMessage({ ok: false, text: error.message });
+      else setMessage({ ok: false, text: userSafeError(error, "Couldn’t load linked PCs. Check your connection and try again.") });
       return;
     }
     setComputers((data as Computer[]) ?? []);
@@ -56,7 +59,7 @@ function Computers({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
     const { error } = await supabase.rpc("computer_link_approve", { code: typed, org: workspace.id });
     setBusy(false);
     if (error) {
-      setMessage({ ok: false, text: syncNotSetUp(error) ? "Syncing is not switched on in the database yet." : error.message });
+      setMessage({ ok: false, text: syncNotSetUp(error) ? "Workspace syncing isn’t ready yet. Ask your workspace owner to finish setting it up." : userSafeError(error, "Couldn’t link this PC. Check the code and try again.") });
       return;
     }
     setCode("");
@@ -66,9 +69,13 @@ function Computers({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
 
   async function disconnect(computer: Computer) {
     if (!supabase) return;
-    if (!window.confirm(`Disconnect “${computer.name}”? It stops syncing at once; its plans stay on that PC.`)) return;
+    if (!(await ask({
+      title: `Disconnect “${computer.name}”?`,
+      description: "It stops syncing at once. The service plan stays on that PC.",
+      confirmLabel: "Disconnect",
+    }))) return;
     const { error } = await supabase.rpc("computer_revoke", { computer: computer.id });
-    if (error) setMessage({ ok: false, text: error.message });
+    if (error) setMessage({ ok: false, text: userSafeError(error, "Couldn’t disconnect this PC. Try again.") });
     await load();
   }
 
@@ -137,6 +144,7 @@ function Computers({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
           </p>
         )}
       </article>
+      {dialog}
     </div>
   );
 }

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { History, RotateCcw } from "lucide-react";
 
 import { When } from "@/components/when";
+import { useConfirmation } from "@/components/confirm-dialog";
 import { lastKept, versionsOf, whoMade, type HistoryRow, type Version } from "@/lib/history-view";
 import { browserSupabase } from "@/lib/supabase-browser";
 import { pushRecord, type PulledRecord } from "@/lib/workspace-sync";
@@ -73,6 +74,7 @@ export function FrameHistory({
   names: Names | null;
   onRestored: (saved: PulledRecord, text: string) => void;
 }>) {
+  const { ask, dialog } = useConfirmation();
   const [rows, setRows] = useState<Row[] | null>(null);
   const [busy, setBusy] = useState(false);
   const [problem, setProblem] = useState<string | null>(null);
@@ -106,7 +108,12 @@ export function FrameHistory({
                 type="button"
                 disabled={busy}
                 onClick={async () => {
-                  if (!window.confirm(`Bring back version ${v.rev} of “${String(v.body?.name ?? "this Frame")}”?`)) return;
+                  if (!(await ask({
+                    title: `Restore version ${v.rev}?`,
+                    description: `This replaces the current contents of “${String(v.body?.name ?? "this Frame")}”. The current version stays in History.`,
+                    confirmLabel: "Restore version",
+                    tone: "primary",
+                  }))) return;
                   setBusy(true);
                   const r = await restore(organizationId, record, v);
                   setBusy(false);
@@ -126,6 +133,7 @@ export function FrameHistory({
           {problem}
         </p>
       )}
+      {dialog}
     </div>
   );
 }

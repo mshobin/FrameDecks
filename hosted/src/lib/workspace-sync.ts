@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import type { SyncRecord } from "@/lib/sync-entities";
+import { userSafeError } from "@/lib/user-error";
 
 export type PulledRecord = SyncRecord & { rev: number; seq: number; updatedBy?: string; updatedAt?: string };
 
@@ -69,11 +70,7 @@ export async function pushChanges(
 }
 
 function messageOf(error: { code?: string; message: string }): string {
-  return error.code === "42501"
-    ? "Only owners and admins of this workspace can make this change."
-    : error.code === "53400"
-      ? "Too many changes this minute; try again shortly."
-      : error.message;
+  return userSafeError(error, "Couldn’t save this change to your workspace. Check your connection and try again.");
 }
 
 function answerOf(result: { status: string; rev?: number; current?: unknown } | undefined): PushAnswer {

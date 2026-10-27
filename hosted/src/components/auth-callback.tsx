@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { browserSupabase } from "@/lib/supabase-browser";
+import { userSafeError } from "@/lib/user-error";
 
 // The browser client finishes the sign-in from the link's code by itself (detectSessionInUrl).
 export function AuthCallback() {
@@ -19,10 +20,10 @@ export function AuthCallback() {
     const hash = new URLSearchParams(window.location.hash.slice(1));
     // An empty error_description must still count as a failure, or the page waits forever.
     const errorCode = query.get("error") || hash.get("error");
-    const reported =
+    const hasReported =
       query.get("error_description") ||
       hash.get("error_description") ||
-      (errorCode ? `The sign-in service reported a problem (${errorCode}). Try again, or use another way to sign in.` : null);
+      errorCode;
     const slow = window.setTimeout(
       () => setFailure("Signing in is taking too long. Check your connection and try again."),
       20000,
@@ -30,7 +31,8 @@ export function AuthCallback() {
     supabase.auth.getSession().then(({ data, error }) => {
       window.clearTimeout(slow);
       if (data.session) router.replace("/");
-      else setFailure(reported || error?.message || "This sign-in link has expired or was already used.");
+      else if (hasReported) setFailure("Sign-in couldn’t be completed. Request a new link or choose another way to sign in.");
+      else setFailure(userSafeError(error, "This sign-in link has expired or was already used. Request a new one."));
     });
     return () => window.clearTimeout(slow);
   }, [router, supabase]);

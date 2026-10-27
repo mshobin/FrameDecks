@@ -12,6 +12,7 @@ import { When } from "@/components/when";
 import { applyDraft, draftOf, moveFrame, rebase, type ListDraft } from "@/lib/frame-edit";
 import { describeFrames, type FrameView } from "@/lib/services-view";
 import { browserSupabase } from "@/lib/supabase-browser";
+import { userSafeError } from "@/lib/user-error";
 import { join, type JsonObject } from "@/lib/sync-entities";
 import { pullWorkspace, pushRecord, syncNotSetUp, type PulledRecord } from "@/lib/workspace-sync";
 import type { WorkspaceChoice } from "@/lib/use-workspaces";
@@ -47,7 +48,7 @@ function Services({ workspace, historyOnly = false }: Readonly<{ workspace: Work
   const load = useCallback(async () => {
     if (!supabase) return;
     const { records, error } = await pullWorkspace(supabase, workspace.id, true);
-    if (error) return setLoaded(syncNotSetUp(error) ? "not-set-up" : { error: error.message });
+    if (error) return setLoaded(syncNotSetUp(error) ? "not-set-up" : { error: userSafeError(error, "Couldn’t load the service plan. Check your connection and try again.") });
     // The Frame on screen, when the PC shares it (Phase 5); without 0004/0005 or the switch, simply unknown
     const pcs = await supabase.rpc("remote_computers", { org: workspace.id });
     const statuses = ((pcs.data as { status: { frame?: { id: string } | null } | null }[] | null) ?? []).map((p) => p.status);

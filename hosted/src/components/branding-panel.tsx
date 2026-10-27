@@ -5,6 +5,7 @@ import { Check, ImageIcon } from "lucide-react";
 
 import { NotSetUp, WorkspaceGate } from "@/components/workspace-gate";
 import { browserSupabase } from "@/lib/supabase-browser";
+import { userSafeError } from "@/lib/user-error";
 import { pullWorkspace, pushRecord, syncNotSetUp, type PulledRecord } from "@/lib/workspace-sync";
 import type { WorkspaceChoice } from "@/lib/use-workspaces";
 import { DEFAULT_GOLD, SWATCHES, brandFormOf, brandFromForm, hasLogo, validColor, type BrandForm } from "@/lib/workspace-settings";
@@ -25,7 +26,7 @@ function Branding({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
   const load = useCallback(async () => {
     if (!supabase) return;
     const { records, error } = await pullWorkspace(supabase, workspace.id);
-    if (error) return setLoaded(syncNotSetUp(error) ? "not-set-up" : { error: error.message });
+    if (error) return setLoaded(syncNotSetUp(error) ? "not-set-up" : { error: userSafeError(error, "Couldn’t load your branding. Check your connection and try again.") });
     const record = records.find((r) => r.kind === "brand" && r.id === "brand") ?? null;
     setLoaded({ record });
     setForm(brandFormOf(record?.body));

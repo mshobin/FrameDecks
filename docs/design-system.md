@@ -15,6 +15,7 @@ FrameDecks is for church leaders and volunteers, not engineers. Write for the pe
 | Put help in one plain line **under** the control. | Put internals in brackets after the label: "Template (kept for…; not in Previous / Next)". |
 | Use sentence case: "Go Live", "Hide all", "Read our story". | Use ALL CAPS or Title Case For Every Word. |
 | Ask before anything that removes, naming it: "Disconnect “Sanctuary PC”?" | Ask "Are you sure?" |
+| Map service errors to a clear next step; keep technical details out of the interface. | Show database, provider or browser error messages directly. |
 | Say what to do next when something is missing: "Link the service PC". | Show error codes or file names to everyone. Keep those for Diagnostics or an admin note. |
 | Say the camera is **FRAMECAST** and the program is **FrameDecks**. | Call the camera FrameDecks (`tests/test_camera_name.py` fails). |
 | Use the words in the [glossary](glossary.md): **Black screen**, **Running order**, **People**, **Up next**. | Use two words for one thing (Blackout and Black screen, Services and Running order). |
@@ -71,7 +72,7 @@ as icons. Where a page has no icon set (the Teleprompter window), a plain-text f
 | Button: main / normal / quiet / destructive | `.btn.primary`, `.btn`, `.btn.quiet`, `.btn.danger` | `.fd-btn-primary`, `.fd-btn-glass`, `.fd-btn-ghost`, `.member-action.member-danger` |
 | Menu of rarer actions | `<details class="ip-more">` (Frame actions), `.io-menu` (Members Import / Export), Live tools | the phone **More** sheet |
 | Checkbox with help | `checkCtl(label, value, onChange, help)` in `workspace.js` | label + `.workspace-hint` |
-| Dialog | `modal()` in `app-bridge.js` (focus lands on the main button) | `about-dialog.tsx` |
+| Dialog | `modal()` in `app-bridge.js` (focus lands on the main button) | Native `<dialog>`; `useConfirmation()` for named destructive actions |
 | Navigation | the command bar, Settings menu (grouped, Find a setting) | sidebar; bottom tab bar under 860 px |
 | Dates | — | `When` / `relativeTime()` from `src/lib/when.ts` ("2 h ago", exact time on hover) |
 | Content preview | — | `KindIcon` (`content-kind.tsx`) + first line, reference or count |
