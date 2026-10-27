@@ -145,7 +145,7 @@ jobs:
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: unsigned-installer
-          path: dist/FRAMEDECKS v*.exe
+          path: dist/FrameDecks v*.exe
           if-no-files-found: error
 
       - name: Sign the installer (signing on)
@@ -165,7 +165,7 @@ jobs:
         if: env.SIGNPATH_ON == 'true'
         shell: pwsh
         run: |
-          $files = @(Get-ChildItem "dist/FRAMEDECKS v*.exe") + @(Get-Item "dist/FRAMEDECKS/FRAMEDECKS.exe") +
+          $files = @(Get-ChildItem "dist/FrameDecks v*.exe") + @(Get-Item "dist/FRAMEDECKS/FRAMEDECKS.exe") +
                    @(Get-ChildItem -Recurse "dist/FRAMEDECKS" -Filter "framedecks_vcam*.dll")
           foreach ($f in $files) {
             $s = Get-AuthenticodeSignature $f.FullName
@@ -176,7 +176,7 @@ jobs:
       - name: Write the SHA-256 checksum
         shell: pwsh
         run: |
-          Get-ChildItem "dist/FRAMEDECKS v*.exe" | ForEach-Object {
+          Get-ChildItem "dist/FrameDecks v*.exe" | ForEach-Object {
             $hash = (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLower()
             "$hash  $($_.Name)" | Set-Content -Encoding ascii "$($_.FullName).sha256"
             Write-Host "$hash  $($_.Name)"
@@ -187,8 +187,8 @@ jobs:
         with:
           name: FrameDecks v${{ steps.ver.outputs.version }}
           path: |
-            dist/FRAMEDECKS v*.exe
-            dist/FRAMEDECKS v*.exe.sha256
+            dist/FrameDecks v*.exe
+            dist/FrameDecks v*.exe.sha256
           if-no-files-found: error
 
       - name: Smoke test the installer (install, start, answer, quit, uninstall)
@@ -196,7 +196,7 @@ jobs:
         run: |
           # Audit roadmap step 2: the real installer on a clean Windows machine, without the camera task (it needs
           # administrator permission). The program must answer on its local port, then uninstall cleanly.
-          $setup = (Get-ChildItem "dist/FRAMEDECKS v*.exe" | Select-Object -First 1).FullName
+          $setup = (Get-ChildItem "dist/FrameDecks v*.exe" | Select-Object -First 1).FullName
           $p = Start-Process $setup -ArgumentList '/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART','/MERGETASKS=!vcam,!desktopicon' -PassThru -Wait
           if ($p.ExitCode -ne 0) { throw "installer exit code $($p.ExitCode)" }
           $dir = Join-Path $env:LOCALAPPDATA 'Programs\FRAMEDECKS'
@@ -263,6 +263,6 @@ jobs:
           name: FrameDecks ${{ needs.build.outputs.version }}
           body_path: dist/release-notes.md
           files: |
-            dist/FRAMEDECKS v*.exe
-            dist/FRAMEDECKS v*.exe.sha256
+            dist/FrameDecks v*.exe
+            dist/FrameDecks v*.exe.sha256
           generate_release_notes: false

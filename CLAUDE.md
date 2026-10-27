@@ -113,7 +113,7 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
   groups, M-D6: `hosted/src/lib/member-edit.ts`, `hosted/src/components/members-panel.tsx`) and linking PCs; `hosted/src/components/app-shell.tsx` is the shared sidebar and top bar.
 
 ## Working locally (VS Code on Windows)
-- **Branch.** Work from `main` (PR #32 is merged) on a new branch per change. Never
+- **Branch.** Work from `main` (6.11.1 is released from it, 27 October) on a new branch per change. Never
   force-push or rewrite pushed history. The repository is `mshobin/FRAMEDECKS`.
 - **Set up once (PowerShell, at the repo root):**
   - `python -m venv .venv`
@@ -159,7 +159,9 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
 - Docs: `python tools/check_doc_links.py`, `git diff --check`.
 - Lint: `ruff check .` (`ruff.toml`; CI pins ruff 0.16.8) and `node --check` on `app/js/*.js` (the Desktop checks
   workflow). Website budget: `node hosted/scripts/check-budget.mjs` after `npm run build`.
-- Releases: [docs/development/release-checklist.md](docs/development/release-checklist.md) (pilot first; rollback).
+- Releases: [docs/development/release-checklist.md](docs/development/release-checklist.md) (pilot first; rollback). Publish by
+  pushing a tag `vX.Y.Z` on `main`: "Build Windows installer" builds, smoke-tests and publishes `FrameDecks vX.Y.Z.exe` with
+  `docs/releases/vX.Y.Z.md` as the notes (`tools/make_release_notes.py`). 6.11.1 is the latest (27 October).
 
 ## Gotchas
 - Audit roadmap step 2 (6.11.1, 26 October): the Stream Deck plugin is removed (no `/api/command`); window buttons use

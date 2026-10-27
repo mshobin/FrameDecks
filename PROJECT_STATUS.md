@@ -1,11 +1,11 @@
 # PROJECT STATUS
 
-Last verified: 26 October 2026. PR #32 is merged (`main` at `8fe4cf7`). The owner ran database scripts `0002`–`0008`
-in Supabase, all passed, so the live database is complete (`0001`–`0008`). The checks below are for `f424761`.
-- **GitHub:** hosted checks are green, and the Windows installer build passed (run
-  40231518591, with python-pptx bundled).
-- **Locally:** Python 126 tests OK, desktop JS 4/4, `packaging/check.py` (6.10), hosted 85/85 (lint, typecheck,
-  build), doc links 0 problems.
+Last verified: 27 October 2026, on `main`. **FrameDecks 6.11.1 is released** (tag `v6.11.1`; installer
+`FrameDecks v6.11.1.exe`). The live database has `0001`–`0008`; `0009` waits for the owner.
+- **GitHub:** Desktop checks, Hosted companion checks and Build Windows installer (with the installer smoke test) green.
+- **Locally (cloud session):** Python OK, desktop JS 4/4, `packaging/check.py` 6.11.1, css tokens 0, doc links 0,
+  ruff clean, layout and axe pass; hosted 124/124, lint, typecheck, build, budget.
+- **Next:** the owner's live tests A–I on 6.11.1 (`docs/qa/live-test-guide.md`); see `.ai/NEXT_SESSION.md`.
 
 Phase detail lives in
 [docs/FRAMEDECKS_MODERNIZATION_STATUS.md](docs/FRAMEDECKS_MODERNIZATION_STATUS.md); migration results in

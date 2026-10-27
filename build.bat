@@ -61,7 +61,7 @@ if not exist "%ISCC%" goto :noinno
 "%ISCC%" /DAppVersion=%VER% packaging\installer.iss || goto :fail
 
 echo.
-echo  Done!  Your installer is:  dist\FRAMEDECKS v%VER%.exe
+echo  Done!  Your installer is:  dist\FrameDecks v%VER%.exe
 echo.
 pause
 exit /b 0

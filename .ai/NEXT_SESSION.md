@@ -1,15 +1,25 @@
 # NEXT SESSION HANDOFF
 
-Updated 26 October 2026 (evening): everything below is on `main` (`0afcc3b` or later). The next session may run in
-VS Code (any assistant). Read [CLAUDE.md](../CLAUDE.md) first.
+Updated 27 October 2026: everything is on `main`; nothing waits on a branch (the cloud session's branch
+`claude/peaceful-albattani-6m445e` equals `main`). Continue locally in VS Code: `git checkout main && git pull`, then
+read [CLAUDE.md](../CLAUDE.md) ("Working locally" has the set-up and run commands).
 
-## Where things stand
-- **`main`:** has 6.11, the website redesign, motion and About, workspace delete, and the three website settings
-  (Branding, Transition style, Birthdays this week). All pushed; nothing waits on a branch.
-- **Live:** website at `https://framedecks.pages.dev` (Cloudflare Pages, deploys from `main`); Google, Microsoft and
-  email sign-in work; keep-alive and nightly backup run green. Database: `0001`–`0008` run.
-- **Checks (cloud session, 26 October):** Python 128 OK; desktop JS 4/4; `packaging/check.py` 6.11; hosted 107/107,
-  lint, typecheck and build pass. GitHub: "Hosted companion checks" and "Build Windows installer" green on `main`.
+## Where things stand (27 October)
+- **Release:** **FrameDecks 6.11.1** is published from tag `v6.11.1` on `main` (the "Build Windows installer" workflow
+  builds, smoke-tests and publishes it; the installer is now `FrameDecks v6.11.1.exe`). The previous release is 6.11.
+- **`main` since 6.11:** audit steps 1–2 (plan recovery, safe sync, support bundle, update notice, pinned build); the
+  design roadmap and UX simplification (Prepare / Run, Up next with keys, Practice mode and its start-time reminder,
+  How people see it, Advanced, People); the website's four places (Home · Plan · Live · People), first-time steps,
+  Help and Your account; the owner's landing brief (approved hero words, Day 1–4, Ready to Serve?, every audience,
+  motion back with no animated blur); the name written **FrameDecks** everywhere people read it; About readable in Light.
+- **Live:** website at `https://framedecks.pages.dev` (Cloudflare Pages, deploys from `main` by itself); Google,
+  Microsoft and email sign-in work; keep-alive and nightly backup run green. Database: `0001`–`0008` run; **`0009`
+  not yet** (owner, Supabase SQL editor).
+- **Checks (cloud session, 27 October):** Python OK; desktop JS 4/4; `packaging/check.py` 6.11.1; `css_tokens` 0;
+  doc links 0; ruff clean; layout and axe (both themes) pass; hosted 124/124, lint, typecheck, build, budget (JS 327 KB,
+  CSS 18 KB of 20). GitHub: Desktop checks, Hosted companion checks and Build Windows installer green on `main`.
+- **Gotcha for the visual suites:** start `server.py` with nothing else on port 8750 (a leftover server makes them test
+  the wrong data and fail on things that are fine).
 
 ## Completed (merged to `main`, PRs #7–#31)
 - Desktop 6.10, the approved emblem, and the drift cleanup.
@@ -202,12 +212,17 @@ the PC's real width.
 
 ## Recommended Next Task
 Nothing is left for an assistant to build without the owner. In order:
-1. **Owner's live tests** with an installed 6.11 build: A–F and G in
-   [docs/qa/live-test-guide.md](../docs/qa/live-test-guide.md), plus the website settings (change Branding on the
-   website, see it in the program within a minute). Fix what they find; mark each test done in the four files.
-2. **6.12 (W3): remove the Excel Meeting Workbook** (import, template, export) — only **after** the owner reports test G
+1. **Owner's live tests** with the installed **6.11.1** release: A–I in
+   [docs/qa/live-test-guide.md](../docs/qa/live-test-guide.md) (H: Run, Practice and its reminder; I: the website's new
+   places and front page), plus the website settings (change Branding on the website, see it in the program within a
+   minute). Run `0009` in Supabase first. Fix what they find; mark each test done in the four files.
+2. **Owner decisions still open:** the About story's wording (`app/js/brand.js`: mission, vision, story are the
+   owner's ministry words; the website shows them too); the program's church-flavoured presets and templates
+   (`app/js/store.js` PROFILES and templates: Sunday Service, Bible Study, Funeral…; program content, protected);
+   projector legibility and templates by type; the Wi-Fi remote redesign (protected); real quotes and photos.
+3. **6.12 (W3): remove the Excel Meeting Workbook** (import, template, export) — only **after** the owner reports test G
    passed. Do not start it before.
-3. Owner tasks with no code: Google brand re-verification; E1–E3 (public repo, SignPath).
+4. Owner tasks with no code: Google brand re-verification; E1–E3 (public repo, SignPath); an NVDA/Narrator pass.
 Do not start new features unless the owner asks. If there is nothing to fix, say so and stop.
 
 ## Files Likely To Change Next
