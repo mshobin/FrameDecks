@@ -85,8 +85,8 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
   `THIRD_PARTY_NOTICES.md`. Signing: SignPath, off until its secret exists (`docs/project/code-signing.md`).
 - Continuity: `CLAUDE.md`, `PROJECT_STATUS.md`, `PROJECT_ROADMAP.md`, `.ai/NEXT_SESSION.md`. The owner's live tests:
   `docs/qa/live-test-guide.md` (keep it in step when a tested behaviour changes).
-- Current handoff (27 October 2026): v6.11.1 and the README/release wordmark refresh (PR #38) are published. PR #39
-  carries the locally verified trust fixes; after merge, verify deployment and continue the owner's live tests. See
+- Current handoff (27 October 2026): v6.11.1 and the README/release wordmark refresh (PR #38) are published. Trust
+  fixes merged in PR #39 (`27cfb4b`); production deployment verification and the owner's live tests remain. See
   `.ai/NEXT_SESSION.md`.
 - Companion design (26 October redesign): tokens in `hosted/src/app/globals.css` `:root`, the look in
   `hosted/src/app/design.css` (glass surfaces, navy and gold, one large title per page). Signed out, `/` is the landing
