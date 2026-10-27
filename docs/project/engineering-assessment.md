@@ -1,4 +1,4 @@
-# Engineering assessment — FRAMEDECKS 6.9
+# Engineering assessment — FrameDecks 6.9
 
 **Assessment date:** 22 October 2026  
 **Repository state:** `main`, clean worktree at assessment time  
@@ -6,7 +6,7 @@
 
 ## Executive summary
 
-FRAMEDECKS is a deliberately self-contained desktop application. A Python process serves a vanilla HTML/CSS/JavaScript interface, stores application data in local JSON files, and runs an OpenCV-based compositor for the virtual camera and presentation output. The optional phone remote is a PIN-protected web interface served over the local network. The core design avoids accounts, cloud services, a database server, and runtime npm dependencies.
+FrameDecks is a deliberately self-contained desktop application. A Python process serves a vanilla HTML/CSS/JavaScript interface, stores application data in local JSON files, and runs an OpenCV-based compositor for the virtual camera and presentation output. The optional phone remote is a PIN-protected web interface served over the local network. The core design avoids accounts, cloud services, a database server, and runtime npm dependencies.
 
 This architecture is well matched to an offline service PC: it has few operational dependencies, predictable local data ownership, and a shared state model across the dashboard, phone, overlays, and camera. Build and release automation is stronger than the runtime architecture's test coverage: CI builds the Windows installer and runs JavaScript/Python tests and packaging checks, but does not exercise the complete user interface, remote security flows, or camera pipeline automatically.
 

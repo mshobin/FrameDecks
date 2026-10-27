@@ -1,7 +1,7 @@
-# FRAMEDECKS: architecture, implementation plan and test plan
+# FrameDecks: architecture, implementation plan and test plan
 
 Covers Camera Looks, screen sharing, layers (image / video / presentation), scenes, diagnostics and test
-recording in the program's built-in virtual camera, **FRAMEDECKS**.
+recording in the program's built-in virtual camera, **FrameDecks**.
 
 > **Design decision: "path A".** This build extends the existing working pipeline, which processes frames
 > in system memory with OpenCV/NumPy (CPU), instead of adding a native GPU (D3D11) compositor. The working
@@ -14,14 +14,14 @@ recording in the program's built-in virtual camera, **FRAMEDECKS**.
 ## 1. Architecture overview
 
 ```
-              ┌──────────────────────────────── FRAMEDECKS (one process) ──────────────────────────────┐
+              ┌──────────────────────────────── FrameDecks (one process) ──────────────────────────────┐
  Webcam ──MF──▶ Grabber thread ─▶ mirror ─▶ Camera Look ─▶ background blur ──┐                              │
  (OpenCV MSMF; │                 (flip)    (LUT + 3x3 matrix  (MediaPipe     │                              │
   off when not │                            + vignette)       selfie model)  ▼                              │
   needed)      │                                                    ┌─────────────────┐                     │
  Screen ─DXGI─▶ ScreenCapture thread (only new frames on change) ──▶│   COMPOSITOR    │                     │
  Window ─WGC──▶                                                     │ 1 base layout   │                     │
- PDF deck ────▶ PdfSource (rendered once per page) ────────────────▶│ 2 layers (z)    │─▶ FINAL FRAME ──┬──▶ softcam ─▶ "FRAMEDECKS" ─▶ Zoom / Teams
+ PDF deck ────▶ PdfSource (rendered once per page) ────────────────▶│ 2 layers (z)    │─▶ FINAL FRAME ──┬──▶ softcam ─▶ "FrameDecks" ─▶ Zoom / Teams
  Image/video/ ─▶ LayerManager (cached transforms; video decode     ▶│ 3 cards         │   (BGR, 720p/   ├──▶ preview (Studio, Meeting, Settings)
  presentation    on its own thread)                                 │ 4 latency clock │    1080p)       └──▶ test recorder (MP4, own thread)
  Live state ──▶ OverlayLayer: verse / question / birthday cards ───▶└─────────────────┘                     │
@@ -42,9 +42,9 @@ composed frame; nothing bypasses the compositor.
 | Layers | `vcam/layers.py` | Image, video, PDF and window sources; transforms; z-order |
 | Compositor | `vcam/compositor.py` | Layouts, layers, cards, latency clock, test recorder |
 | Cards | `vcam/cards.py`, `vcam/overlay.py` | Verse / question / birthday cards and their transitions |
-| Virtual camera | `vcam/sink.py` + softcam DLL | "FRAMEDECKS" DirectShow camera (system-memory frames) |
+| Virtual camera | `vcam/sink.py` + softcam DLL | "FrameDecks" DirectShow camera (system-memory frames) |
 | Control plane | `server.py` | Settings, studio, scenes, uploads (this PC only) |
-| UI | `app/js/studio.js`, `nav.js`, `vcam-panel.js`, `meeting.js` | Camo-style Studio, four-tab navigation + Directory + Recordings, FRAMEDECKS settings, Meeting preview |
+| UI | `app/js/studio.js`, `nav.js`, `vcam-panel.js`, `meeting.js` | Camo-style Studio, four-tab navigation + Directory + Recordings, FrameDecks settings, Meeting preview |
 
 **Threads:** UI (WebView2) · HTTP control · engine loop · webcam grabber · blur model · card drawing ·
 screen capture · one per playing video · recorder. Only the engine loop touches the final frame; other
@@ -55,7 +55,7 @@ threads hand over their newest picture under a short lock (no waiting).
 | Need | API / library (licence) | Notes |
 |---|---|---|
 | Webcam | Media Foundation through OpenCV `CAP_MSMF`; DirectShow `CAP_DSHOW` fallback | Listed by name with `cv2-enumerate-cameras` (MIT) |
-| Virtual camera | softcam (MIT), renamed "FRAMEDECKS", own CLSID | `scSendFrame` takes BGR frames in system memory |
+| Virtual camera | softcam (MIT), renamed "FrameDecks", own CLSID | `scSendFrame` takes BGR frames in system memory |
 | Camera Looks | OpenCV `cv2.LUT`, `cv2.transform`, `cv2.multiply` | 2–3 whole-frame operations |
 | Display capture | DXGI Desktop Duplication via `windows-capture` (MIT) | `acquire_frame()` returns nothing when the screen didn't change; cursor drawn by us |
 | Window capture | Windows Graphics Capture via `windows-capture` | `window_hwnd`, `cursor_capture`, `dirty_region` |
@@ -149,8 +149,8 @@ is used for the **test recording** only.
 │ SLIDES [◀ Prev][Next ▶]││                                        ││ (video: ▶ ⏸ ⏹ ☐ Loop)         │
 └───────────────────────┘└────────────────────────────────────────┘└────────────────────────────────┘
 ```
-**Meeting tab:** "On screen now" shows the real FRAMEDECKS frame while it is live; **Look** menu in its header.
-**Settings → FRAMEDECKS Camera:** on/off, webcam, picture size, Look, blur, mirror, cards, preview, install.
+**Meeting tab:** "On screen now" shows the real FrameDecks frame while it is live; **Look** menu in its header.
+**Settings → FrameDecks Camera:** on/off, webcam, picture size, Look, blur, mirror, cards, preview, install.
 **Tray menu (icon near the clock):** Open · **Look ▸** (Off / Warm / Dark / Neutral / custom) · **Scene ▸**
 (saved scenes) · **Stop screen share** · **Hide all overlays** · Phone remote ✓ · Quit.
 
@@ -194,7 +194,7 @@ scenes save/switch/restore; uploads (wrong types refused); test recording; tray 
 and hotkeys.
 
 **On the Windows PC (docs/development/building-the-installer.md checklist):**
-1. **Latency (glass-to-glass):** Studio → tick *Latency test*. In a Zoom test meeting showing FRAMEDECKS,
+1. **Latency (glass-to-glass):** Studio → tick *Latency test*. In a Zoom test meeting showing FrameDecks,
    screenshot the Studio clock and your Zoom self-view together; difference = full delay (target < 200 ms).
    Settings → Diagnostics shows *capture-to-send* (this app's part, target < 15 ms).
 2. **CPU:** Diagnostics shows the app's CPU %; compare with Task Manager. Test each layout, each look,
@@ -251,7 +251,7 @@ and its error is reported in the Screen layer's inspector, Diagnostics and `kc-a
 
 **Data-model changes (all optional; older versions ignore them):**
 `layout.panel` minimum 50 (was 55). Library questions gain `num`, `note`, `pair`; verses gain `pair`
-(question ↔ verse link from an Excel row). FRAMEDECKS settings gain `blurStrength` 0–100 (old `blur`
+(question ↔ verse link from an Excel row). FrameDecks settings gain `blurStrength` 0–100 (old `blur`
 off/light/strong is still written: ≤45 → light, else strong; old files map off→0, light→30, strong→80).
 Studio: the private Preview copy (`staged`) is no longer exposed; a leftover one is applied once.
 
@@ -266,14 +266,14 @@ closes), `POST /api/app/present` (opens/closes the pywebview window), `app/js/co
 |---|---|---|
 | Update checks: dashboard + every embedded preview polled every 0.3 s, even minimised | 651 requests/min on Run meeting | 261/min (previews share the dashboard's updates); ~20/min when minimised |
 | Minimised dashboard with Studio open kept requesting live pictures (camera engine + webcam kept running, preview encoding) | 1,407 requests/min, 19.4 % of a core | 57 requests/min, 1.6 % |
-| Meeting tab live picture while FRAMEDECKS live, Settings preview: continued while minimised | 4 pictures/s | stopped while hidden |
+| Meeting tab live picture while FrameDecks live, Settings preview: continued while minimised | 4 pictures/s | stopped while hidden |
 | Presentation window with a still scene: engine rebuilt the frame 30×/s | 22.1 % of a core, 0 frames sent | 4.1 % (idle rhythm 5×/s, woken instantly by any change) |
 | Fixed-interval timers (status lights, program tiles, badge copy, file check) | ran always | skipped while hidden / event-driven / 5 s safety net |
 | Deleted Studio layers left cached pictures in memory | grew with each edit | freed on deletion |
 | Excel import | (new) | parsed in a background worker: 5,000 rows read + previewed in 0.8 s, longest UI pause 63 ms |
 | Presentation stream when the window closed with a still scene | kept the engine awake forever | detected within 1 s, stream ends |
 
-**Unchanged by design:** while Zoom uses FRAMEDECKS the engine runs at a steady 30 fps (a camera feed must not
+**Unchanged by design:** while Zoom uses FrameDecks the engine runs at a steady 30 fps (a camera feed must not
 stutter); OpenCV is limited to 2 threads so Zoom keeps the rest of the CPU; the Studio canvas, when visible,
 is a live editor (~5 pictures/s).
 
@@ -360,7 +360,7 @@ Performance) to fall back to the WebView2 Presentation window.
 
 **Pipeline order** (`vcam/engine.py`): webcam → crop + zoom + resize in **one** resample (`fit_cover(…, zoom)`; area
 when shrinking, bicubic when enlarging) → mirror → colour-range fix (optional 16–235 → 0–255) → background blur
-(the person mask sees the true colours) → filter (Camera Look × `filterIntensity`) → adjustments → layers/cards → FRAMEDECKS.
+(the person mask sees the true colours) → filter (Camera Look × `filterIntensity`) → adjustments → layers/cards → FrameDecks.
 The per-pixel steps run at output size after the single resample; sharpening is last, so nothing resamples a sharpened picture.
 
 **Adjustments** (`vcam/picture.py`, order: exposure, white balance, brightness, contrast, gamma, saturation, vibrance,
@@ -380,7 +380,7 @@ automatic exposure/white balance stay in charge; manual values report "applied" 
 Power-line frequency (anti-flicker) is not exposed by OpenCV; the setting is stored and reported, and the driver's value is
 kept. A future native step: `IKsControl` / `KSPROPERTY_VIDEOPROCAMP_POWERLINE_FREQUENCY` on the webcam's DirectShow filter.
 
-**Output**: softcam offers RGB24 only, so FRAMEDECKS does no YUV conversion of its own (the meeting app converts once).
+**Output**: softcam offers RGB24 only, so FrameDecks does no YUV conversion of its own (the meeting app converts once).
 `outputPacing` "fixed" creates the camera with a frame rate (`scCreateCamera(w, h, 30)`) instead of 0 (follow the webcam);
 test on the PC before making it the default. Diagnostics add input/output size, pacing, late frames, black/white level
 (1st/99th luma percentile) and camera-control results.
@@ -489,7 +489,7 @@ and reflows above the question. The vCam card cache key includes the layout, so 
 **Measured (1600×900, first screen, excluding list rows):** header controls 6 → 2; Meeting workspace 13 → 7;
 Content workspace 41 → 21; Canvas workspace 8 → 5 (while adding the mode selector and search).
 
-## 21. Version 5.1: Command Center layout and FRAMEDECKS Mobile Director
+## 21. Version 5.1: Command Center layout and FrameDecks Mobile Director
 
 Presentation and navigation only: the state model, every API, the remote allowlist, PowerPoint/vCam code, blur and
 storage are unchanged. New code reads existing state; every button calls an existing action.
@@ -506,7 +506,7 @@ storage are unchanged. New code reads existing state; every button calls an exis
   `KCStudio.state()`; each row navigates). `studio.js` exposes `KCStudio.state()` (read-only), marks scene cards
   with `data-scene`, and keeps polling while the Meeting view or a recording is on screen.
 - Meeting view: run sheet | program + Live outputs (`#outputs`, `meeting.js renderOutputs()` once a second, DOM
-  written only on change: FRAMEDECKS status/size/fps/latency/dropped from `KCVcamStatus`, overlay pages from
+  written only on change: FrameDecks status/size/fps/latency/dropped from `KCVcamStatus`, overlay pages from
   presence, Presentation window and Recording from `KCStudio.state()`, slides from `GET api/remote/studio` every 5 s
   while the view is visible, remote from `remote-info`) | Inspector (`[data-ctx]` target, `[data-itab]` Content / Style).
   Style hosts extra `data-range` / `data-seg` controls bound by the existing `bindRanges` / `buildSegs`;
@@ -561,7 +561,7 @@ only merges known keys)
   transition), output rules (`out.obs`), `?scene=ID` preview. `stage.html` mounts both.
 
 **Desktop** (`dashboard.html`, `js/workspace.js` new, `js/scripture.js` new, `meeting.js` slimmed)
-- `.ws` grid: Scenes + Layers | Studio Canvas (the Studio host when live with FRAMEDECKS, else the overlay iframe with
+- `.ws` grid: Scenes + Layers | Studio Canvas (the Studio host when live with FrameDecks, else the overlay iframe with
   media outlines) | Inspector (`#insp-tabs` per selection; `.ip[data-kind][data-itab]` panels hold the moved editors)
   | Live bar (`#ctlbar.livebar`).
 - `studio.js` mounts only its centre into `#tab-studio`; canvas edits flow back to the scene via
@@ -573,14 +573,14 @@ only merges known keys)
 **Remote** (`remote.html/css/js`, same files so the allowlist is unchanged): Scenes | Live canvas + controls | Layers;
 phones use tabs, ≥900 px shows three panes. Every action writes through the same `Store.update` path as the desktop.
 
-## 23. Version 6.1: FRAMEDECKS
+## 23. Version 6.1: FrameDecks
 
-**Name.** Visible name "FRAMEDECKS" (window title `DISPLAY_NAME` in `desktop_app.py`, tray, messages, dashboard,
-remote, installer `AppName`, shortcuts, output file `FRAMEDECKS v<ver>.exe`, workflow artifact). Identity is
+**Name.** Visible name "FrameDecks" (window title `DISPLAY_NAME` in `desktop_app.py`, tray, messages, dashboard,
+remote, installer `AppName`, shortcuts, output file `FrameDecks v<ver>.exe`, workflow artifact). Identity is
 unchanged on purpose: `APP_NAME` (data folder under the program's earlier name, single-instance ping `app` field), install
 folder and exe name (the phone-remote firewall rule is tied to the exe path), backup file `app` tag, Videos folder,
-camera name "FRAMEDECKS" and its CLSID. `[InstallDelete]` removes the old-named shortcuts. (6.9 moved the
-remaining identity to the FRAMEDECKS name; see section 31.)
+camera name "FrameDecks" and its CLSID. `[InstallDelete]` removes the old-named shortcuts. (6.9 moved the
+remaining identity to the FrameDecks name; see section 31.)
 
 **Brand assets** (`app/img`): `kc-emblem.webp` (header, About, remote; in `REMOTE_PUBLIC`),
 `kc-world.svg` (dotted map generated by `tools/make_world_map.py` from rough continent outlines; one `<path>`, shown as an
@@ -613,7 +613,7 @@ navy, navy on paper), wordmark header; no new effects.
 Full description (flows, data model, template columns, validation rules, file map): `docs/reference/meeting-workbook-and-branding.md`.
 - `state.brand` {meeting, org, color, logo, lw, lh, auto}; layer kind `brand` (a text-type layer, opt-in per scene);
   `{meeting}` / `{org}` and `c.logo` on text layers; accent colour → `--gold-*` on overlay pages and
-  `cards.accent_palette` on FRAMEDECKS (part of the card cache key). Logo = `DATA/bcc-brand-logo.png` via `api/brand/logo`.
+  `cards.accent_palette` on FrameDecks (part of the card cache key). Logo = `DATA/bcc-brand-logo.png` via `api/brand/logo`.
 - `js/meeting-sheet.js` (parse / validate / apply / template / export, no DOM, Node-tested) + `js/meeting-import.js`
   (dialog, Append / Replace / Cancel, ESV fill, one-commit apply, Undo) + `js/meeting-brand.js` (Settings section).
 - Go Live: one primary action in the live bar (label constant, "● On air" sub-label, canvas flash); no take button
@@ -639,7 +639,7 @@ Full description (flows, data model, template columns, validation rules, file ma
   the thumb-zone layout.
 - Design review: `docs/design/framedecks-redesign.html`.
 
-## 26. Version 6.4: Team Space (peer-to-peer over WireGuard), FRAMEDECKS camera, logo only, native window
+## 26. Version 6.4: Team Space (peer-to-peer over WireGuard), FrameDecks camera, logo only, native window
 
 > **Removed in 6.5.** Team Space (`teamspace.py`, `app/js/teamspace.js`, its routes and settings) was removed in
 > version 6.5; see section 27. The notes below are kept as history.
@@ -681,7 +681,7 @@ Full description: `docs/reference/features.md`. Set-up: `docs/reference/configur
   - Files: `kc-teamspace.json` (settings and key), `kc-teamspace-doc.json` (notes and actions).
   - Test: `tools/test_teamspace.py`, which runs two instances on 127.0.0.12 and 127.0.0.13.
 - **Camera rename:**
-  - `packaging/build_vcam.py` `NAME = "FRAMEDECKS"` (the DirectShow friendly name, pin name and shared-memory
+  - `packaging/build_vcam.py` `NAME = "FrameDecks"` (the DirectShow friendly name, pin name and shared-memory
     names); the CLSID is unchanged;
   - the DLLs are now `framedecks_vcam64/32.dll`, registered by `register-framedecks-camera.cmd`;
   - the installer re-registers when the task is ticked **or** the CLSID is already registered (`ShouldRegisterCamera`),
@@ -731,7 +731,7 @@ state keep the old names (`scenes`, `layers`, `KCScenes`), so existing data load
     each), changed only through `KCScenes.ink(n, op, item)`;
   - PC: `app/js/annotate.js` (toolbar, `#ann-pad` over the 16:9 picture, keys P/H/A/L/R/E/T, Ctrl+Z / Ctrl+Y, Esc);
   - overlay pages: `.pg-ink` canvas drawn by `KCScenes.drawInk` (above Content, below Blackout);
-  - FRAMEDECKS: `vcam/annotate.py` `Ink.draw()` / `Ink.freeze()`, called by `ProgramFX` before the black fade.
+  - FrameDecks: `vcam/annotate.py` `Ink.draw()` / `Ink.freeze()`, called by `ProgramFX` before the black fade.
     The rasterised ink is cached by a crc32 of the items; solid pixels use `cv2.copyTo` and soft pixels a precomputed
     index (about 3 ms at 1080p).
 - **PowerPoint**: `server.py` upload accepts .pptx / .ppt and converts with `vcam/powerpoint.py` `pptx_to_pdf()`
@@ -756,7 +756,7 @@ state keep the old names (`scenes`, `layers`, `KCScenes`), so existing data load
 - **Edit on the canvas** (`app/js/preview-edit.js`):
   - Frame preview: the overlay page in `#program-frame` takes no pointer events, so `dblclick` is caught on `#program`;
     the point is mapped into the page (÷ the iframe's scale) and hit-tested against `.card-question` / `.card-verse`.
-  - Live FRAMEDECKS canvas (`#s2-stage`): cards are drawn into the video, so the card zones are estimated from
+  - Live FrameDecks canvas (`#s2-stage`): cards are drawn into the video, so the card zones are estimated from
     `layout` (`qWidth`, `qBottom`, `qScale`, `verseY`, `verseWidth`, `verseAlign`); a double-click outside a zone is
     left to the canvas.
   - The shown item comes from `live` (live Frame) or `SC.previewState(live, sid)`; saving goes through
@@ -869,13 +869,13 @@ The full plan, with the Electron-to-pywebview mapping, is [docs/project/v6.8-pla
 
 ## 31. Version 6.9: one name everywhere, a two-tab Meeting Workbook, a quieter top bar
 
-Everything that still carried the program's earlier name now uses FRAMEDECKS: `APP_NAME` and the data folder
+Everything that still carried the program's earlier name now uses FrameDecks: `APP_NAME` and the data folder
 (`%APPDATA%\FRAMEDECKS`), the program folder and `FRAMEDECKS.exe`, the data files (`kc-*.json`, `kc-*.txt`),
 the recordings folder (`Videos\FRAMEDECKS`), the start files, the environment variables (`KC_DATA_DIR`,
 `KC_VCAM_DEMO`, `KC_ESV_URL`, `KC_TEST_COUNT_OWN_ADDRESS`), the PyInstaller spec and icon
-(`packaging/framedecks.spec`, `.ico`), the firewall rule ("FRAMEDECKS Phone Remote"), the JavaScript globals
+(`packaging/framedecks.spec`, `.ico`), the firewall rule ("FrameDecks Phone Remote"), the JavaScript globals
 (`KC*`), browser storage keys (`kc-*`), window events (`kc-edit-done`, `kc-app-info`, `kc-select`), the fonts
-(`KC Sans`, `KC Serif`) and the Share Window title ("FRAMEDECKS Share Window"). Default labels and the default
+(`KC Sans`, `KC Serif`) and the Share Window title ("FrameDecks Share Window"). Default labels and the default
 Group Name no longer carry a group's name.
 
 **Migration.** The earlier name is kept only where it is needed to find existing data, each place marked `LEGACY`:

@@ -1,4 +1,4 @@
-/* FRAMEDECKS - overlay engine used by every overlay page and the dashboard preview */
+/* FrameDecks - overlay engine used by every overlay page and the dashboard preview */
 (function(){
 'use strict';
 

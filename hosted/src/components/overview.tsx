@@ -53,7 +53,7 @@ function Dashboard({ name }: Readonly<{ name: string }>) {
   );
 }
 
-/** A small line when someone has invited you to their church (you accept on Your account). */
+/** A small line when someone has invited you to their team (you accept on Your account). */
 function Invitations() {
   const supabase = browserSupabase();
   const [count, setCount] = useState(0);
@@ -70,7 +70,7 @@ function Invitations() {
   if (!count) return null;
   return (
     <p className="workspace-notice" role="status">
-      You have {count === 1 ? "an invitation" : `${count} invitations`} to join a church.{" "}
+      You have {count === 1 ? "an invitation" : `${count} invitations`} to join a team.{" "}
       <Link href="/account">Accept it on Your account</Link>
     </p>
   );
@@ -80,13 +80,13 @@ function Invitations() {
 function FirstSteps({ name }: Readonly<{ name: string }>) {
   const supabase = browserSupabase();
   const session = useSession();
-  const [church, setChurch] = useState("");
+  const [team, setTeam] = useState("");
   const [busy, setBusy] = useState(false);
   const [problem, setProblem] = useState<string | null>(null);
 
   async function create(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const title = church.trim();
+    const title = team.trim();
     if (!supabase || !session || !title) return;
     setBusy(true);
     setProblem(null);
@@ -101,7 +101,7 @@ function FirstSteps({ name }: Readonly<{ name: string }>) {
     <section className="fd-first" aria-labelledby="fd-first-title">
       <p className="fd-kicker">Welcome{name ? `, ${name}` : ""}</p>
       <h1 id="fd-first-title" className="fd-next-title">
-        Let&apos;s get your church ready for Sunday.
+        Let&apos;s get your team ready for the first meeting.
       </h1>
       <p className="fd-next-when">Three steps, about ten minutes. You can stop after any of them.</p>
       <Invitations />
@@ -111,14 +111,14 @@ function FirstSteps({ name }: Readonly<{ name: string }>) {
             1
           </span>
           <div>
-            <h2>Name your church or group</h2>
+            <h2>Name your team</h2>
             <p>Your plans and your people are kept under this name. You can invite others later.</p>
             <form className="workspace-row" onSubmit={create}>
-              <label className="sr-only" htmlFor="first-church">
-                Church or group name
+              <label className="sr-only" htmlFor="first-team">
+                Team name
               </label>
-              <input id="first-church" maxLength={120} required value={church} onChange={(e) => setChurch(e.target.value)} placeholder="e.g. Grace Church" />
-              <button className="fd-btn fd-btn-primary" type="submit" disabled={busy || !church.trim()}>
+              <input id="first-team" maxLength={120} required value={team} onChange={(e) => setTeam(e.target.value)} placeholder="e.g. Riverside Community Group" />
+              <button className="fd-btn fd-btn-primary" type="submit" disabled={busy || !team.trim()}>
                 {busy ? "Adding…" : "Add"}
               </button>
             </form>
@@ -134,7 +134,7 @@ function FirstSteps({ name }: Readonly<{ name: string }>) {
             2
           </span>
           <div>
-            <h2>Install FRAMEDECKS on the service PC</h2>
+            <h2>Install FrameDecks on the service PC</h2>
             <p>The Windows PC that drives your screen or your Zoom. It is free; the meeting always runs from there.</p>
             <a className="fd-btn fd-btn-ghost" href={DOWNLOADS} target="_blank" rel="noreferrer">
               <Download aria-hidden="true" size={17} /> Download for Windows
@@ -148,7 +148,7 @@ function FirstSteps({ name }: Readonly<{ name: string }>) {
           <div>
             <h2>Link that PC</h2>
             <p>
-              In FRAMEDECKS: Settings → FRAMEDECKS account shows a short code. Type it under Service PCs here; your plan then
+              In FrameDecks: Settings → FrameDecks account shows a short code. Type it under Service PCs here; your plan then
               reaches the PC within a minute.
             </p>
             <Link className="fd-link" href="/computers">

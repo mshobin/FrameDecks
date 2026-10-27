@@ -29,7 +29,7 @@ export function WorkspaceGate({
   if (!selected) {
     return (
       <p className="page-note">
-        You haven&apos;t added your church or group yet. Add it on <Link href="/">Home</Link>.
+        You haven&apos;t added your team yet. Add it on <Link href="/">Home</Link>.
       </p>
     );
   }
@@ -38,7 +38,7 @@ export function WorkspaceGate({
     <>
       {workspaces && workspaces.length > 1 && (
         <label className="workspace-picker">
-          <span>Church</span>
+          <span>Team</span>
           <select value={selected.id} onChange={(e) => select(e.target.value)}>
             {workspaces.map((w) => (
               <option key={w.id} value={w.id}>
@@ -60,7 +60,7 @@ export function WorkspaceGate({
 export function NotSetUp() {
   return (
     <EmptyState title="Syncing isn’t switched on yet">
-      Whoever set up FRAMEDECKS for your church finishes it once, in the database (step <code>0003_sync.sql</code>).
+      Whoever set up FrameDecks for your team finishes it once, in the database (step <code>0003_sync.sql</code>).
     </EmptyState>
   );
 }

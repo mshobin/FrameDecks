@@ -24,14 +24,14 @@ export function AboutButton({ label = false }: Readonly<{ label?: boolean }>) {
 
   return (
     <>
-      <button className={label ? "fd-about-btn fd-about-btn-label" : "fd-about-btn"} type="button" aria-label="About FRAMEDECKS" title="About FRAMEDECKS" onClick={show}>
+      <button className={label ? "fd-about-btn fd-about-btn-label" : "fd-about-btn"} type="button" aria-label="About FrameDecks" title="About FrameDecks" onClick={show}>
         <Info aria-hidden="true" size={16} />
         {label && <span>About</span>}
       </button>
       <dialog
         ref={dialog}
         className="fd-about"
-        aria-label="About FRAMEDECKS"
+        aria-label="About FrameDecks"
         onClose={() => setOpen(false)}
         onClick={(e) => e.target === dialog.current && close()}
       >
@@ -84,7 +84,7 @@ function AboutPage({ onClose }: Readonly<{ onClose: () => void }>) {
         <h2 className="fd-wordmark">{brand.name}</h2>
         <p className="fd-tagline">{brand.tagline.replace(/•/g, "·")}</p>
         <p className="fd-ab-intro">{brand.intro}</p>
-        <span className="fd-ab-version">FRAMEDECKS for Windows {brand.version}</span>
+        <span className="fd-ab-version">FrameDecks for Windows {brand.version}</span>
       </header>
 
       <section className="fd-ab-two" data-reveal>
@@ -100,7 +100,7 @@ function AboutPage({ onClose }: Readonly<{ onClose: () => void }>) {
 
       <section className="fd-ab-why" data-reveal>
         <div>
-          <p className="fd-kicker">Why FRAMEDECKS exists</p>
+          <p className="fd-kicker">Why FrameDecks exists</p>
           <h3>{brand.why.lead}</h3>
           <p>{brand.why.text}</p>
           <ul className="fd-ab-pills">
@@ -191,7 +191,7 @@ function AboutPage({ onClose }: Readonly<{ onClose: () => void }>) {
 
       <section className="fd-ab-sec" data-reveal>
         <p className="fd-kicker">Our commitment</p>
-        <h3>FRAMEDECKS is committed to</h3>
+        <h3>FrameDecks is committed to</h3>
         <ul className="fd-ab-pills fd-ab-pills-wide">
           {brand.commitment.points.map((p) => (
             <li key={p}>
@@ -212,9 +212,9 @@ function AboutPage({ onClose }: Readonly<{ onClose: () => void }>) {
         <p>{brand.join.text}</p>
         <div className="fd-hero-actions">
           <a className="fd-btn fd-btn-primary" href={DOWNLOADS} target="_blank" rel="noreferrer">
-            <Download aria-hidden="true" size={16} /> FRAMEDECKS for Windows
+            <Download aria-hidden="true" size={16} /> FrameDecks for Windows
           </a>
-          <a className="fd-btn fd-btn-glass" href={`mailto:${c.email}?subject=${encodeURIComponent(`FRAMEDECKS ${brand.version} – question or feedback`)}`}>
+          <a className="fd-btn fd-btn-glass" href={`mailto:${c.email}?subject=${encodeURIComponent(`FrameDecks ${brand.version} – question or feedback`)}`}>
             <Mail aria-hidden="true" size={16} /> Contact us
           </a>
         </div>

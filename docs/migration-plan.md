@@ -1,6 +1,6 @@
-# Migration plan: FRAMEDECKS to the target architecture
+# Migration plan: FrameDecks to the target architecture
 
-The plan that follows from the [architecture review](architecture-review.md) (25 October 2026). It moves FRAMEDECKS
+The plan that follows from the [architecture review](architecture-review.md) (25 October 2026). It moves FrameDecks
 the rest of the way to the target split (cloud for people, templates, settings, AI and audit; desktop for media,
 rendering, the camera and meeting delivery) **without breaking anything that works today and without visible UI
 changes** unless the owner approves them first.
@@ -31,12 +31,12 @@ Summarised from [architecture review §1](architecture-review.md#1-current-archi
   - Works offline.
 - **Already done on this branch (PR #32).**
   - Audit P1–P4 (less disk, CPU, memory and copying during a service).
-  - C2: a watchdog restarts FRAMEDECKS after a crash.
+  - C2: a watchdog restarts FrameDecks after a crash.
   - The Stream Deck plugin.
 
 ## 2. Target state
 
-| Area | Target | How FRAMEDECKS gets there |
+| Area | Target | How FrameDecks gets there |
 |---|---|---|
 | Members | The cloud is the store; PCs keep a cache that can be rebuilt | M-D2 option A (step 5) |
 | Groups | Member groups in the cloud | M-D6 (step 8) |

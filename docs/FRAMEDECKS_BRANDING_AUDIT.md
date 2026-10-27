@@ -1,4 +1,4 @@
-# FRAMEDECKS legacy-branding audit
+# FrameDecks legacy-branding audit
 
 **Date:** 2026-10-22
 **Branch:** `modernization-v1`
@@ -24,8 +24,8 @@ These were current instructions or links, not historical mentions:
 
 | Location | Change |
 |---|---|
-| `.github/ISSUE_TEMPLATE/config.yml` | Updated FAQ, troubleshooting, and security links to the FRAMEDECKS GitHub repository. |
-| `.github/ISSUE_TEMPLATE/feature_request.yml` | Updated the roadmap link to the FRAMEDECKS GitHub repository. |
+| `.github/ISSUE_TEMPLATE/config.yml` | Updated FAQ, troubleshooting, and security links to the FrameDecks GitHub repository. |
+| `.github/ISSUE_TEMPLATE/feature_request.yml` | Updated the roadmap link to the FrameDecks GitHub repository. |
 | `CONTRIBUTING.md` | Updated clone URL and checkout directory. |
 | `docs/contributing.md` | Updated clone URL and checkout directory. |
 | `docs/development/building-the-installer.md` | Updated the extracted repository-folder name in contributor instructions. |
@@ -89,10 +89,10 @@ checks. They are not current user-facing product titles.
 
 | Location | Classification |
 |---|---|
-| `app/vendor/xlsx.full.min.js` | One incidental whole-word match in minified vendored SheetJS code; not FRAMEDECKS branding. Do not edit upstream vendor code for this audit. |
+| `app/vendor/xlsx.full.min.js` | One incidental whole-word match in minified vendored SheetJS code; not FrameDecks branding. Do not edit upstream vendor code for this audit. |
 
 ## Preservation decision
 
 No API, state format, database schema, persisted key, protocol/channel name, driver identifier, or installed-file
 contract was renamed. The remaining former-name matches are historical or internal compatibility references; current
-branding and current contributor-facing setup links use FRAMEDECKS.
+branding and current contributor-facing setup links use FrameDecks.

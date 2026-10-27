@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """
-FRAMEDECKS - local program.
+FrameDecks - local program.
 
 Serves the dashboard and overlays at http://localhost:8750 on THIS computer only.
 No internet, cloud account, or extra installs are needed beyond Python 3
 (standard library only). Your content is saved in "kc-saved-content.json".
 
-Windows: double-click "Start FRAMEDECKS.bat"
-         or "Start FRAMEDECKS with Phone Remote.bat" (adds the phone remote)
-Mac:     double-click "Start FRAMEDECKS (Mac).command"
+Windows: double-click "Start FrameDecks.bat"
+         or "Start FrameDecks with Phone Remote.bat" (adds the phone remote)
+Mac:     double-click "Start FrameDecks (Mac).command"
          (for the phone remote: python3 server.py --remote)
 """
 from errlog import swallowed as _swallowed  # noqa: E402
@@ -211,7 +211,7 @@ def load_state():
               f"{PLAN_RECOVERY['keptAs']} and the plan was restored from the backup {folder.name}.", flush=True)
         return data
     print(f"  The saved plan could not be read ({PLAN_RECOVERY['problem']}) and no backup could be read. It was kept "
-          f"as {PLAN_RECOVERY['keptAs']}; FRAMEDECKS starts with a new plan.", flush=True)
+          f"as {PLAN_RECOVERY['keptAs']}; FrameDecks starts with a new plan.", flush=True)
     return {"rev": 0}
 
 
@@ -316,7 +316,7 @@ atexit.register(flush_state)
 DISK["plan"] = plan_fingerprint(state)                    # the plan as loaded: a first live press is not a plan change
 
 
-# ---------- v6 Scenes: the live scene's media layers are the FRAMEDECKS picture ----------
+# ---------- v6 Scenes: the live scene's media layers are the FrameDecks picture ----------
 MEDIA_KINDS = ("camera", "screen", "window", "image", "video", "pdf", "background", "text", "rect", "ellipse")
 
 
@@ -371,7 +371,7 @@ def apply_live_media(st):
         comp.layers.set_layers(media)
         studio_save()
     except Exception as e:                              # never let a scene stop the camera
-        print("FRAMEDECKS: could not apply the scene:", e)
+        print("FrameDecks: could not apply the scene:", e)
 
 
 def update_state(change):
@@ -487,7 +487,7 @@ def support_bundle(address):
     import zipfile
     buf = io.BytesIO()
     with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as z:
-        z.writestr("README.txt", "FRAMEDECKS support bundle\n\nIncluded: the program's log (the last 2 MB), the Diagnostics "
+        z.writestr("README.txt", "FrameDecks support bundle\n\nIncluded: the program's log (the last 2 MB), the Diagnostics "
                    "page and the settings files listed here.\nNot included: your plan, members, the phone-remote PIN and "
                    "sessions, and any keys.\n")
         z.writestr("diagnostics.json", json.dumps(diagnostics(address), indent=1, ensure_ascii=False, default=str))
@@ -555,7 +555,7 @@ def save_private(data):
 
 
 # ---------- Phase 4: syncing service plans (cloud_sync.py; docs/architecture/metadata-sync.md) ----------
-# Off until this PC is linked in Settings > FRAMEDECKS account. Only text records leave the PC (no media, nothing
+# Off until this PC is linked in Settings > FrameDecks account. Only text records leave the PC (no media, nothing
 # live); it runs on its own thread and never stands between a page, the phone remote or the camera and the plan.
 
 def _sync_read():
@@ -596,13 +596,13 @@ def _report_missing_media():
 
 
 SYNC = cloud_sync.Service(DATA / "kc-sync.json", cloud_sync.SecretStore(DATA / ".kc-sync-key"), _sync_read, _sync_write,
-                          socket.gethostname() or "FRAMEDECKS PC", member_authority=lambda: app_settings()["memberAuthority"])
+                          socket.gethostname() or "FrameDecks PC", member_authority=lambda: app_settings()["memberAuthority"])
 if PLAN_RECOVERY:                       # the plan here was replaced at start-up: the workspace's plan is the true one
     SYNC.adopt_workspace()
 
 
 # ---------- Phase 5: running a service from the companion (cloud_remote.py; docs/architecture/remote-control.md) ----------
-# Only while this PC is linked and Settings > FRAMEDECKS account > "Allow control from the companion" is on. Commands
+# Only while this PC is linked and Settings > FrameDecks account > "Allow control from the companion" is on. Commands
 # are fetched from the workspace and run by the program's own window (app/js/cloud-remote.js) with the keys' code.
 # Separate from the Wi-Fi phone remote (REMOTE above), which it does not touch.
 
@@ -698,7 +698,7 @@ APP_SETTINGS_DEFAULTS = {"remoteAutostart": False, "importDecided": False,
                          "overlayFrost": True,    # Windows blur behind the overlay
                          "overlayOnTop": True,    # the overlay stays above Zoom, Teams, PowerPoint and browsers
                          "overlayFade": False,    # compatibility transparency (the whole window fades, text included)
-                         "cloudRemote": False,    # Phase 5: run a service from the companion (Settings > FRAMEDECKS account)
+                         "cloudRemote": False,    # Phase 5: run a service from the companion (Settings > FrameDecks account)
                          "memberAuthority": "cloud",   # M-D2: the workspace is the member list's source (no switch on screen)
                          "ai": "auto"}            # M-D3: "auto" = use Ollama on this PC when it answers; "off" = never
 APP_SETTING_CHOICES = {"minimizeTo": ("ask", "tray", "taskbar"), "memberAuthority": ("cloud", "pc"), "ai": ("auto", "off"),
@@ -825,7 +825,7 @@ def _describe(folder):
 
 
 def migration_candidates():
-    """Look (two folders deep) in Desktop, Downloads, Documents and OneDrive for an earlier FRAMEDECKS folder."""
+    """Look (two folders deep) in Desktop, Downloads, Documents and OneDrive for an earlier FrameDecks folder."""
     home = Path.home()
     roots = [home / "Desktop", home / "Downloads", home / "Documents", home / "OneDrive" / "Desktop", home / "OneDrive" / "Documents"]
     found, seen, budget = [], set(), [2500]
@@ -869,9 +869,9 @@ def import_from(folder):
     global sessions
     src = Path(folder)
     if not src.is_dir() or not looks_like_data(src):
-        raise ValueError("That folder doesn’t contain FRAMEDECKS data (its saved content or member list).")
+        raise ValueError("That folder doesn’t contain FrameDecks data (its saved content or member list).")
     if src.resolve() == DATA.resolve():
-        raise ValueError("That is already the folder FRAMEDECKS uses.")
+        raise ValueError("That is already the folder FrameDecks uses.")
     backup_now("before-import")                           # also writes any pending change, so none lands later
     copied = []
     for name in DATA_FILE_NAMES:
@@ -935,7 +935,7 @@ def firewall(action):
     return r.returncode == 0, ("Done." if r.returncode == 0 else "Windows reported a problem.")
 
 
-# ---------- FRAMEDECKS (built-in virtual camera, Windows) ----------
+# ---------- FrameDecks (built-in virtual camera, Windows) ----------
 VCAM_SETTINGS_FILE = DATA / "kc-vcam-settings.json"
 VCAM_DEFAULTS = {"enabled": True, "cameraName": "", "resolution": "720p", "mirror": False, "blur": "off", "blurStrength": 0, "cards": True, "look": "off", "presentFps": 15,
                  "blurStyle": "natural"}
@@ -953,7 +953,7 @@ def _picture():
 
 
 def vcam_settings():
-    """Saved FRAMEDECKS settings, migrated to the current schema and validated; defaults fill the gaps
+    """Saved FrameDecks settings, migrated to the current schema and validated; defaults fill the gaps
     (a damaged or older file never stops the camera)."""
     out = dict(VCAM_DEFAULTS)
     pic = _picture()
@@ -1056,7 +1056,7 @@ def vcam_apply_changes(data):
 
 
 def vcam_list_cameras():
-    """Webcams by name (FRAMEDECKS itself excluded). Refreshed at most every 10 s; never turns a webcam on."""
+    """Webcams by name (FrameDecks itself excluded). Refreshed at most every 10 s; never turns a webcam on."""
     if VCAM["cameras"] is not None and time.time() - VCAM["camerasAt"] < 10:
         return VCAM["cameras"]
     cams = []
@@ -1651,12 +1651,12 @@ def vcam_effective(settings):
 
 
 def vcam_start():
-    """Create the engine (idle until Zoom/Teams uses FRAMEDECKS). Safe to call when unavailable."""
+    """Create the engine (idle until Zoom/Teams uses FrameDecks). Safe to call when unavailable."""
     if VCAM["engine"] is not None:
         return
     demo = os.environ.get("KC_VCAM_DEMO") == "1"
-    start_files_msg = ("The FRAMECAST camera works only in the installed FRAMEDECKS. Close the window you started it from, then open "
-                       "FRAMEDECKS from its desktop or Start-menu icon.")
+    start_files_msg = ("The FRAMECAST camera works only in the installed FrameDecks. Close the window you started it from, then open "
+                       "FrameDecks from its desktop or Start-menu icon.")
     os.environ.setdefault("OPENCV_VIDEOIO_MSMF_ENABLE_HW_TRANSFORMS", "0")   # before OpenCV loads
     try:
         import cv2  # noqa: F401
@@ -1668,7 +1668,7 @@ def vcam_start():
         VCAM["detail"] = f"{type(e).__name__}: {e}"
         if FROZEN:
             import traceback
-            print("FRAMEDECKS could not load:\n" + traceback.format_exc())
+            print("FrameDecks could not load:\n" + traceback.format_exc())
             VCAM["reason"] = ("FRAMECAST couldn’t start because part of it is missing. Please send Settings → Diagnostics "
                               "→ Copy diagnostics to the developer.")
         else:
@@ -1698,7 +1698,7 @@ def vcam_start():
                 VCAM["reason"] = ("This installer was built without the camera, because the GitHub build recipe is out of date. "
                                   "Copy the .github folder from the latest FRAMEDECKS.zip into your repository, commit "
                                   "and push, then install the new installer.")
-            print("FRAMEDECKS not available: " + VCAM["detail"])
+            print("FrameDecks not available: " + VCAM["detail"])
             return
         make_sink, make_cam = (lambda w, h: vsink.SoftcamSink(dll, w, h)), (lambda name, w, h: Camera(name, w, h, vcam_list_cameras()))
     # The verse, question and birthday cards, drawn onto every frame from the same live state as the overlay pages
@@ -1736,7 +1736,7 @@ def _looks_list():
 
 
 def vcam_status(lite=False):
-    """FRAMEDECKS status for the PC screens. lite: only what the top-bar light needs (no webcam or looks listing)."""
+    """FrameDecks status for the PC screens. lite: only what the top-bar light needs (no webcam or looks listing)."""
     eng = VCAM["engine"]
     try:
         from vcam import sink as vsink
@@ -1750,20 +1750,20 @@ def vcam_status(lite=False):
             "settings": vcam_settings(), "status": dict(eng.status) if eng else None,
             "cameras": [{"name": n, "ir": any(c["ir"] for c in vcam_list_cameras() if c["name"] == n)}
                         for n in dict.fromkeys(c["name"] for c in vcam_list_cameras())] if eng else [],
-            "activeCamera": vcam_effective(vcam_settings())["cameraName"] if eng else "", "name": "FRAMEDECKS",
+            "activeCamera": vcam_effective(vcam_settings())["cameraName"] if eng else "", "name": "FrameDecks",
             "blurNow": VCAM["blurSession"] if VCAM.get("blurSession") is not None else vcam_settings()["blurStrength"],
             "looks": _looks_list(), "looksNote": VCAM.get("looksNote", ""),
             "profiles": [{"id": k, "name": v["name"]} for k, v in (_picture().PROFILES.items() if _picture() else [])]}
 
 
 def vcam_install(action):
-    """Register (or remove) FRAMEDECKS with Windows. Asks for administrator permission (UAC)."""
+    """Register (or remove) FrameDecks with Windows. Asks for administrator permission (UAC)."""
     if os.name != "nt":
         return False, "Only available on Windows."
     name = "unregister-framedecks-camera.cmd" if action == "uninstall" else "register-framedecks-camera.cmd"
     helper = next((p for p in (RES / "vcam" / "bin" / name, HERE / "vcam" / "bin" / name) if p.exists()), None)
     if helper is None or not (helper.parent / "framedecks_vcam64.dll").exists():
-        return False, "The FRAMEDECKS files are missing. Reinstall the app."
+        return False, "The FrameDecks files are missing. Reinstall the app."
     path = str(helper).replace("'", "''")
     outer = ("try { Start-Process -FilePath '" + path + "' -Verb RunAs -Wait -WindowStyle Hidden; exit 0 } catch { exit 5 }")
     try:
@@ -1898,7 +1898,7 @@ class Handler(BaseHTTPRequestHandler):
             return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
         if path == "/api/remote/studio":                # scenes + presentation for the remote (PIN-protected)
             return self.reply(200, json.dumps(remote_studio_info()), TYPES[".json"])
-        if path == "/api/remote/live.jpg":              # v6.6 the FRAMEDECKS picture for the phone's drawing pad (PIN-protected)
+        if path == "/api/remote/live.jpg":              # v6.6 the FrameDecks picture for the phone's drawing pad (PIN-protected)
             eng = VCAM.get("engine")
             if not eng:
                 return self.reply(204, b"", "text/plain")
@@ -2043,7 +2043,7 @@ class Handler(BaseHTTPRequestHandler):
             if not self.is_local():
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
             return self.reply(200, json.dumps({"missing": media_check(state)}), TYPES[".json"])
-        if path == "/api/sync":                                   # Settings > FRAMEDECKS account (this PC only)
+        if path == "/api/sync":                                   # Settings > FrameDecks account (this PC only)
             if not self.is_local():
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
             return self.reply(200, json.dumps(dict(SYNC.info(), remote=CLOUD_REMOTE.info())), TYPES[".json"])
@@ -2103,7 +2103,7 @@ class Handler(BaseHTTPRequestHandler):
         return origin in (f"http://{host}",)
 
     def present_stream(self):
-        """The Presentation window's picture: a motion-JPEG stream of the final FRAMEDECKS frame.
+        """The Presentation window's picture: a motion-JPEG stream of the final FrameDecks frame.
         A frame is sent only when the picture changed (at most 30 per second), so a still slide costs
         almost nothing. Each frame is encoded here, not in the camera thread."""
         comp, eng = VCAM.get("compositor"), VCAM.get("engine")
@@ -2179,7 +2179,7 @@ class Handler(BaseHTTPRequestHandler):
         data = self.rfile.read(length)
         info = png_size(data)
         if not info:
-            return self.reply(400, json.dumps({"error": "That is not a picture FRAMEDECKS can use. Choose a PNG, JPG or SVG file."}), TYPES[".json"])
+            return self.reply(400, json.dumps({"error": "That is not a picture FrameDecks can use. Choose a PNG, JPG or SVG file."}), TYPES[".json"])
         tmp = BRAND_LOGO.with_suffix(".part")
         tmp.write_bytes(data)
         os.replace(tmp, BRAND_LOGO)
@@ -2232,7 +2232,7 @@ class Handler(BaseHTTPRequestHandler):
         ok = lambda obj: self.reply(200, json.dumps(obj), TYPES[".json"])
         bad = lambda msg, code=400: self.reply(code, json.dumps({"error": msg}), TYPES[".json"])
         if action == "present":
-            # A separate, frameless "FRAMEDECKS Share Window" window (selectable in Zoom > Share > specific window).
+            # A separate, frameless "FrameDecks Share Window" window (selectable in Zoom > Share > specific window).
             hook, fs = DESKTOP.get("present"), DESKTOP.get("present_fullscreen")
             if not hook:
                 return ok({"desktop": False})    # browser: the page opens its own popup window
@@ -2604,7 +2604,7 @@ def start_main_server():
         return None
     server.daemon_threads = True
     MAIN["server"], MAIN["port"] = server, server.server_address[1]
-    threading.Thread(target=vcam_start, daemon=True).start()   # idle until Zoom/Teams uses FRAMEDECKS
+    threading.Thread(target=vcam_start, daemon=True).start()   # idle until Zoom/Teams uses FrameDecks
     threading.Thread(target=_backup_loop, daemon=True).start()
     threading.Thread(target=_remote_watcher, daemon=True).start()
     threading.Thread(target=_update_loop, daemon=True).start()   # once a day: is a newer version published?
@@ -2623,7 +2623,7 @@ def main():
         set_remote(True)
     base = f"http://localhost:{port}"
     print()
-    print("  FRAMEDECKS is running.")
+    print("  FrameDecks is running.")
     print()
     print(f"  Dashboard (opens automatically):  {base}/")
     print(f"  Focus Verse overlay:          {base}/focus-verse.html")

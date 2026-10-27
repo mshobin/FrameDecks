@@ -3,7 +3,7 @@
 **Status:** agreed with the owner on 25 October 2026 (decisions in [§10](#10-decisions-for-the-owner)). Step 1 of
 [§9](#9-tests-and-delivery) is built (`hosted/supabase/migrations/0003_sync.sql`, tested by
 `hosted/tests/supabase-sync.test.mjs`), step 2 (`sync_entities.py`, `hosted/src/lib/sync-entities.ts`, shared
-fixtures in `tests/fixtures/sync/`), and step 3 (`cloud_sync.py`, wired into `server.py`, Settings → FRAMEDECKS account,
+fixtures in `tests/fixtures/sync/`), and step 3 (`cloud_sync.py`, wired into `server.py`, Settings → FrameDecks account,
 tested in `tests/test_cloud_sync.py`; QA picture `docs/qa/2026-10-25-sync-settings.png`), and step 4 (companion
 `/services`, `/members`, `/computers`; QA pictures `docs/qa/2026-10-25-companion-*.png`). Step 5 is the owner's live test.
 **Scope:** `main`'s plan: Supabase (project `slrsykiknlqlivlnpvrb`) and the hosted companion on Vercel. The desktop app
@@ -164,7 +164,7 @@ sequenceDiagram
 - **Where the cloud is.** When linking, the PC asks the companion (`https://framedecks.pages.dev/api/sync-config`) for
   the Supabase address and public key, and keeps them in `kc-sync.json`; nothing about the cloud is written into the
   program. `FRAMEDECKS_COMPANION_URL` points it elsewhere for testing.
-- **Settings → FRAMEDECKS account** (D1) shows Not linked / the code to type / Linked to ‹workspace› with the last
+- **Settings → FrameDecks account** (D1) shows Not linked / the code to type / Linked to ‹workspace› with the last
   sync, Sync now and Unlink. Once linked, Settings → Security and Data / Backup say that plans and members sync.
 - **The computer key** is made by the PC (32 random bytes) and kept in Windows Credential Manager (through `ctypes`,
   no new package), never in the data folder or backups; only its hash ever reaches the cloud. On other systems
@@ -227,7 +227,7 @@ Answered by the owner on 25 October 2026.
 
 | # | Question | Decision |
 |---|---|---|
-| D1 | The rules say the desktop UI must not change. Linking a PC needs one small place to show a code and the sync status. Allow a **"FRAMEDECKS account" section in Settings** (link / unlink, last synced)? | **Yes:** one section in Settings, nothing else changes |
+| D1 | The rules say the desktop UI must not change. Linking a PC needs one small place to show a code and the sync status. Allow a **"FrameDecks account" section in Settings** (link / unlink, last synced)? | **Yes:** one section in Settings, nothing else changes |
 | D2 | Keep the **member list with birthdays** on the PC only? And sync each Frame's **Teleprompter script**? | **Members sync to the web** (one record per person, owners and admins only). **Scripts sync.** |
 | D3 | First companion release: **view** services only, or **edit** too? | **View first;** editing as the next step |
 | D4 | Accept the conflict rules in §6 ("keep both" for Frames, last writer wins for settings)? | Not answered yet; built as recommended (yes) unless the owner says otherwise. Only the PC side (step 3) depends on it |

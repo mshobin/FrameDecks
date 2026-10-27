@@ -1,6 +1,7 @@
+import type { CSSProperties } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, Download } from "lucide-react";
+import { ArrowRight, Download, MonitorPlay, Quote, ScrollText, ShieldCheck, Smartphone, Users } from "lucide-react";
 
 import { AboutButton } from "@/components/about-dialog";
 import { NextDemo } from "@/components/next-demo";
@@ -8,50 +9,110 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import brand from "@/lib/brand.json";
 import { DOWNLOADS } from "@/lib/pc-setup";
 
-// The front page, rebuilt around one story (owner-approved, 27 October; docs/design-system.md "Identity"):
-// what it is in one sentence, the real screens, the moment a tap changes the room, a week with FRAMEDECKS,
-// plain answers, and a footer a church administrator can trust. No invented quotes or numbers: when the owner
-// supplies a real church's words, they go in the "In their words" slot below the week.
+// The front page (owner's brief, 27 October; docs/design-system.md "Landing"): one story for every kind of gathering,
+// told with the real screens and quiet, cinematic motion. Motion is CSS only (landing.css, motion.css): it plays once,
+// moves only transform and opacity, and stops for people who ask their device for less motion. No invented quotes,
+// logos or usage numbers.
 
-const WEEK = [
-  { when: "Tuesday evening", title: "Plan at home", text: "Open Plan on the website: the readings, the discussion questions and the presenter's script. Anyone you invite can help." },
-  { when: "Saturday", title: "Practise without fear", text: "On the service PC, open Run and tick Practice mode. The audience would see a black screen while you try every button." },
-  { when: "Sunday, 9:40", title: "Before you start", text: "Run shows a short checklist: your Frames, the camera for Zoom, the phone remote. Green means ready." },
-  { when: "Sunday, 10:00", title: "Next, from your phone", text: "Stand at the back, or sit with the group. Each tap moves the room screen and Zoom on together." },
+const delay = (ms: number) => ({ "--d": `${ms}ms` }) as CSSProperties;
+
+const FOR = ["Meetings", "Classes", "Conferences", "Services", "Events", "Productions"] as const;
+
+const DAYS = [
+  {
+    title: "Plan together",
+    text: "Build the meeting on the website from any computer: slides, readings, discussion questions and the presenter's script. Invite your team to help.",
+  },
+  {
+    title: "Rehearse without risk",
+    text: "Open Run on the presenting PC and turn on Practice mode. Your audience sees a black screen while you try every button.",
+  },
+  {
+    title: "Check before you begin",
+    text: "A short checklist confirms your Frames, the virtual camera and the phone remote. Green means ready.",
+  },
+  {
+    title: "Present from anywhere",
+    text: "Stand at the back or sit with the group. Each tap moves the room screen and the stream together.",
+  },
 ] as const;
 
-const DOES = [
-  { title: "Scripture and discussion", text: "Verses with their references, questions with gentle timers, and a Teleprompter only the presenter sees." },
-  { title: "In the room and in Zoom", text: "One program for the room screen, OBS, and Zoom or Teams through its own camera, FRAMECAST, with blur and your logo." },
-  { title: "Guided from a phone", text: "Previous, Next, Hide all and a black screen from any phone, on the church Wi-Fi or across town." },
-  { title: "Your people", text: "Members, groups and birthday reminders in one list, kept the same on the website and the service PC." },
+const FEATURES = [
+  {
+    icon: MonitorPlay,
+    title: "On every screen and stream",
+    text: "One program for the room screen, live production tools and video meetings, through its own virtual camera, FRAMECAST, with background blur and your logo.",
+  },
+  {
+    icon: Quote,
+    title: "Content that speaks",
+    text: "Verses and quotes with their references, questions with gentle timers, slides, pictures and video.",
+  },
+  {
+    icon: ScrollText,
+    title: "A Teleprompter only you see",
+    text: "Your script beside the controls, over the meeting window, or in a window of its own.",
+  },
+  {
+    icon: Users,
+    title: "Your whole team",
+    text: "People, groups and reminders in one list, kept the same on the website and the presenting PC.",
+  },
+  {
+    icon: ShieldCheck,
+    title: "Private by design",
+    text: "Works without internet. Pictures, video and the camera never leave your PC. No adverts, no tracking.",
+  },
 ] as const;
 
 const FAQ = [
-  { q: "What does it cost?", a: "Nothing. FRAMEDECKS is free and open source under the Apache 2.0 licence. There are no adverts and no tracking." },
-  { q: "Do we need OBS or a capture card?", a: "No. FRAMECAST appears in Zoom, Teams and Google Meet as a camera. OBS and Camo still work if you already use them." },
-  { q: "What if the internet goes down?", a: "The service carries on. It always runs from the service PC; the internet is only for planning together and for the phone away from the church Wi-Fi." },
-  { q: "Which computer do we need?", a: "A Windows 10 or 11 PC: the one that drives your room screen or your Zoom. Planning works from any computer or phone." },
-  { q: "Who can see our information?", a: "Only the people in your church's space, by their role. Pictures, video, the camera and what is on screen never leave the service PC." },
-  { q: "Can several people plan the same meeting?", a: "Yes. Invite leaders by email. Every change is kept for 30 days, so anything can be restored." },
+  { q: "What does it cost?", a: "Nothing. FrameDecks is free and open source under the Apache 2.0 licence. There are no adverts and no tracking." },
+  {
+    q: "Do we need a capture card or extra software?",
+    a: "No. FRAMECAST appears as a camera in video meeting and streaming platforms. The live production tools and virtual camera solutions you already use keep working too.",
+  },
+  {
+    q: "What if the internet goes down?",
+    a: "The presentation carries on. It always runs from your PC; the internet is only for planning together and for using the phone away from the local Wi-Fi.",
+  },
+  { q: "Which computer do we need?", a: "A Windows 10 or 11 PC: the one that drives your screen or your stream. Planning works from any computer or phone." },
+  {
+    q: "Who can see our information?",
+    a: "Only the people on your team, by their role. Pictures, video, the camera and what is on screen never leave the presenting PC.",
+  },
+  { q: "Can several people plan the same meeting?", a: "Yes. Invite people by email. Every change is kept for 30 days, so anything can be restored." },
 ] as const;
 
-/** What a visitor who is not signed in sees at the companion's address. */
+function Actions() {
+  return (
+    <div className="fd-hero-actions">
+      <a className="fd-btn fd-btn-primary fd-btn-lg" href={DOWNLOADS} target="_blank" rel="noreferrer">
+        <Download aria-hidden="true" size={18} /> Download for Windows · free
+      </a>
+      <Link className="fd-btn fd-btn-ghost fd-btn-lg" href="/sign-in#new">
+        Plan online first <ArrowRight aria-hidden="true" size={16} />
+      </Link>
+    </div>
+  );
+}
+
+/** What a visitor who is not signed in sees at the website's address. */
 export function Landing() {
   return (
-    <div className="fd-landing">
+    <div className="fd-landing fd-lp">
       <header className="fd-landing-bar">
-        <Link className="fd-brand" href="/" aria-label="FRAMEDECKS">
+        <Link className="fd-brand" href="/" aria-label="FrameDecks home">
           <span className="fd-brand-mark">
             <Image src="/framedecks-emblem.webp" alt="" width={30} height={30} priority unoptimized />
           </span>
           <span className="fd-brand-copy">
-            <strong>FRAMEDECKS</strong>
+            <strong>FrameDecks</strong>
           </span>
         </Link>
         <nav className="fd-landing-links" aria-label="On this page">
-          <a href="#try">Try it</a>
-          <a href="#week">How it works</a>
+          <a href="#try">See it work</a>
+          <a href="#features">Features</a>
+          <a href="#days">How it works</a>
           <a href="#questions">Questions</a>
         </nav>
         <div className="fd-topbar-right">
@@ -64,114 +125,151 @@ export function Landing() {
       </header>
 
       <main id="main" tabIndex={-1}>
-        <section className="fd-hero2" aria-labelledby="fd-hero-title">
-          <div className="fd-hero2-copy">
-            <p className="fd-kicker">For churches, Bible studies and small groups</p>
-            <h1 id="fd-hero-title" className="fd-hero2-title">
-              Your church&apos;s screen and Zoom, run from your phone.
-            </h1>
-            <p className="fd-hero2-text">
-              FRAMEDECKS puts verses, discussion questions and slides on the room screen and in Zoom or Teams. Plan during
-              the week from any computer; on Sunday a volunteer runs it from the service PC or a phone.
+        <section className="lp-hero" aria-labelledby="lp-hero-title">
+          <div className="lp-hero-copy">
+            <p className="lp-pill fd-enter" style={delay(0)}>
+              <span className="lp-pill-dot" aria-hidden="true" /> For meetings, classes, conferences, events and services
             </p>
-            <div className="fd-hero-actions">
-              <a className="fd-btn fd-btn-primary" href={DOWNLOADS} target="_blank" rel="noreferrer">
-                <Download aria-hidden="true" size={17} /> Download for Windows · free
-              </a>
-              <Link className="fd-link" href="/sign-in#new">
-                Or plan online first <ArrowRight aria-hidden="true" size={15} />
-              </Link>
+            <h1 id="lp-hero-title" className="lp-title">
+              <span className="lp-line fd-enter" style={delay(90)}>
+                Prepare with Purpose.
+              </span>{" "}
+              <span className="lp-line lp-gold fd-enter" style={delay(200)}>
+                Present with Excellence.
+              </span>
+            </h1>
+            <p className="lp-lede fd-enter" style={delay(320)}>
+              From prayerful preparation to meaningful moments, FrameDecks keeps your entire service seamlessly connected
+              across every screen, every stream, and every member of your team.
+            </p>
+            <div className="fd-enter" style={delay(430)}>
+              <Actions />
             </div>
-            <p className="fd-trustline">
-              Free and open source · Works without internet · Your pictures and video never leave your PC ·{" "}
-              <Link href="/privacy">Privacy</Link>
+            <p className="lp-trust fd-enter" style={delay(540)}>
+              Free and open source · Works without internet · Your pictures and video never leave your PC
             </p>
           </div>
-          <figure className="fd-hero2-shot">
-            <div className="fd-framed">
-              <Image
-                src="/product/studio.webp"
-                alt="The FRAMEDECKS Studio on the service PC: the running order on the left and the verse and discussion question on the screen"
-                width={1200}
-                height={479}
-                priority
-                unoptimized
-              />
+
+          <figure className="lp-stage fd-enter-card">
+            <div className="lp-stage-glow" aria-hidden="true" />
+            <div className="lp-stage-tilt">
+              <div className="lp-window fd-framed">
+                <div className="lp-window-bar" aria-hidden="true">
+                  <i />
+                  <i />
+                  <i />
+                  <span>FrameDecks Studio</span>
+                </div>
+                <Image
+                  src="/product/studio.webp"
+                  alt="The FrameDecks Studio on the presenting PC: the running order on the left and what is on screen in the middle"
+                  width={1200}
+                  height={480}
+                  priority
+                  unoptimized
+                />
+              </div>
             </div>
-            <figcaption>The Studio on the service PC. What you see is what the room and Zoom see.</figcaption>
+            <figcaption>The Studio on your PC. What you see is what the room and the stream see.</figcaption>
           </figure>
         </section>
 
-        <section className="fd-try" id="try" aria-labelledby="fd-try-title">
-          <div className="fd-section-head">
-            <h2 id="fd-try-title" className="fd-section-title">
-              A tap on the phone. The room follows.
-            </h2>
-            <p>This is the whole idea. Press Next and watch the screen change, as it does on Sunday.</p>
-          </div>
-          <NextDemo />
+        <section className="lp-for" aria-label="Made for every gathering">
+          <ul>
+            {FOR.map((f, i) => (
+              <li key={f} data-reveal="" style={delay(i * 60)}>
+                {f}
+              </li>
+            ))}
+          </ul>
         </section>
 
-        <section className="fd-week" id="week" aria-labelledby="fd-week-title">
-          <div className="fd-section-head">
-            <h2 id="fd-week-title" className="fd-section-title">
-              A week with FRAMEDECKS.
+        <section className="lp-section" id="try" aria-labelledby="lp-try-title">
+          <div className="lp-head" data-reveal="">
+            <p className="lp-eyebrow">See it work</p>
+            <h2 id="lp-try-title" className="lp-h2">
+              A tap on the phone. The room follows.
             </h2>
-            <p>Plan, practise, run: the same three steps every week, with nothing to learn twice.</p>
+            <p>That is the whole idea. Press Next and watch the screen change, exactly as it does on the day.</p>
           </div>
-          <ol className="fd-timeline">
-            {WEEK.map((w) => (
-              <li key={w.when}>
-                <span className="fd-when fd-serif">{w.when}</span>
+          <div data-reveal="" style={delay(120)}>
+            <NextDemo />
+          </div>
+        </section>
+
+        <section className="lp-section" id="features" aria-labelledby="lp-features-title">
+          <div className="lp-head" data-reveal="">
+            <p className="lp-eyebrow">Features</p>
+            <h2 id="lp-features-title" className="lp-h2">
+              Everything the moment needs. Nothing it doesn&apos;t.
+            </h2>
+          </div>
+          <div className="lp-bento">
+            <article className="lp-card lp-card-hero" data-reveal="" data-spotlight="">
+              <div className="lp-card-copy">
+                <span className="lp-icon">
+                  <Smartphone aria-hidden="true" size={20} />
+                </span>
+                <h3>Guided from your phone</h3>
+                <p>Previous, Next, Hide all and a black screen from any phone, on the local Wi-Fi or across town.</p>
+              </div>
+              <Image
+                className="lp-phone"
+                src="/product/live-phone.webp"
+                alt="The website's Live page on a phone: Previous, Next, Hide all and Black screen"
+                width={390}
+                height={844}
+                unoptimized
+              />
+            </article>
+            {FEATURES.map((f, i) => (
+              <article key={f.title} className="lp-card" data-reveal="" data-spotlight="" style={delay(80 + i * 70)}>
+                <span className="lp-icon">
+                  <f.icon aria-hidden="true" size={20} />
+                </span>
+                <h3>{f.title}</h3>
+                <p>{f.text}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="lp-section" id="days" aria-labelledby="lp-days-title">
+          <div className="lp-head" data-reveal="">
+            <p className="lp-eyebrow">How it works</p>
+            <h2 id="lp-days-title" className="lp-h2">
+              From first idea to final word.
+            </h2>
+            <p>Plan, rehearse, present: the same steps every time, with nothing to learn twice.</p>
+          </div>
+          <ol className="lp-days">
+            {DAYS.map((d, i) => (
+              <li key={d.title} data-reveal="" style={delay(i * 110)}>
+                <span className="lp-day">Day {i + 1}</span>
+                <span className="lp-node" aria-hidden="true" />
                 <div>
-                  <h3>{w.title}</h3>
-                  <p>{w.text}</p>
+                  <h3>{d.title}</h3>
+                  <p>{d.text}</p>
                 </div>
               </li>
             ))}
           </ol>
         </section>
 
-        <section className="fd-verse" aria-label="Why it matters">
-          <blockquote className="fd-serif">
-            “Let all things be done decently and in order.”
-            <cite>1 Corinthians 14:40</cite>
-          </blockquote>
+        <section className="lp-statement" aria-label="Our promise">
+          <p className="fd-serif" data-reveal="">
+            Every screen. Every stream. <span className="lp-gold">Every member of your team.</span>
+          </p>
         </section>
 
-        <section className="fd-does" aria-labelledby="fd-does-title">
-          <div className="fd-section-head">
-            <h2 id="fd-does-title" className="fd-section-title">
-              What it does.
+        <section className="lp-section" id="questions" aria-labelledby="lp-faq-title">
+          <div className="lp-head" data-reveal="">
+            <p className="lp-eyebrow">Questions</p>
+            <h2 id="lp-faq-title" className="lp-h2">
+              Questions teams ask.
             </h2>
           </div>
-          <div className="fd-does-grid">
-            <Image
-              className="fd-does-phone"
-              src="/product/live-phone.webp"
-              alt="The website's Live page on a phone: Previous, Next, Hide all and Black screen for the service PC"
-              width={390}
-              height={844}
-              unoptimized
-            />
-            <dl>
-              {DOES.map((d) => (
-                <div key={d.title}>
-                  <dt>{d.title}</dt>
-                  <dd>{d.text}</dd>
-                </div>
-              ))}
-            </dl>
-          </div>
-        </section>
-
-        <section className="fd-faq" id="questions" aria-labelledby="fd-faq-title">
-          <div className="fd-section-head">
-            <h2 id="fd-faq-title" className="fd-section-title">
-              Questions churches ask.
-            </h2>
-          </div>
-          <div className="fd-faq-list">
+          <div className="lp-faq" data-reveal="" style={delay(80)}>
             {FAQ.map((f) => (
               <details key={f.q}>
                 <summary>{f.q}</summary>
@@ -181,24 +279,21 @@ export function Landing() {
           </div>
         </section>
 
-        <section className="fd-ready-cta" aria-labelledby="fd-ready-title">
-          <h2 id="fd-ready-title" className="fd-section-title">
-            Ready for Sunday?
-          </h2>
-          <div className="fd-hero-actions">
-            <a className="fd-btn fd-btn-primary" href={DOWNLOADS} target="_blank" rel="noreferrer">
-              <Download aria-hidden="true" size={17} /> Download for Windows · free
-            </a>
-            <Link className="fd-link" href="/sign-in#new">
-              Or plan online first <ArrowRight aria-hidden="true" size={15} />
-            </Link>
+        <section className="lp-cta" aria-labelledby="lp-cta-title">
+          <div className="lp-cta-panel" data-reveal="">
+            <Image className="lp-cta-mark" src="/framedecks-emblem.webp" alt="" width={56} height={56} unoptimized />
+            <h2 id="lp-cta-title" className="lp-h2">
+              Ready to Serve?
+            </h2>
+            <p>Free, open source, and ready when your team is.</p>
+            <Actions />
           </div>
         </section>
       </main>
 
       <footer className="fd-landing-foot">
         <div className="fd-foot-brand">
-          <strong>FRAMEDECKS</strong>
+          <strong>FrameDecks</strong>
           <span>Version {brand.version} · Apache 2.0 licence</span>
         </div>
         <nav className="fd-foot-links" aria-label="More">

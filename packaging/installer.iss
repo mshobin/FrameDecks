@@ -1,4 +1,4 @@
-; Inno Setup script for the FRAMEDECKS Windows installer.
+; Inno Setup script for the FrameDecks Windows installer.
 ; The AppId stays the same across the rebrand. Earlier install folders and shortcuts are removed, while data is
 ; migrated from Kingdom Connect or BSF Command Center on first start (legacy.py).
 ; Build (after PyInstaller):  ISCC.exe /DAppVersion=3.0 packaging\installer.iss
@@ -11,16 +11,16 @@
 [Setup]
 ; Keep this AppId the same forever, so new versions install over old ones
 AppId={{D0EFEBEA-94E5-50C7-A69D-45F04529103B}
-AppName=FRAMEDECKS
+AppName=FrameDecks
 AppVersion={#AppVersion}
-AppVerName=FRAMEDECKS {#AppVersion}
+AppVerName=FrameDecks {#AppVersion}
 AppPublisher=Shobin Mathews
 AppContact=mshobin@gmail.com
 AppSupportURL=mailto:mshobin@gmail.com
 AppComments=Independent ministry tool by Shobin Mathews.
 VersionInfoVersion={#AppVersion}
 VersionInfoCompany=Shobin Mathews
-VersionInfoDescription=FRAMEDECKS Setup
+VersionInfoDescription=FrameDecks Setup
 VersionInfoCopyright=Copyright (C) Shobin Mathews
 DefaultDirName={localappdata}\Programs\FRAMEDECKS
 UsePreviousAppDir=no
@@ -32,7 +32,7 @@ OutputDir=..\dist
 OutputBaseFilename=FRAMEDECKS v{#AppVersion}
 SetupIconFile=framedecks.ico
 UninstallDisplayIcon={app}\FRAMEDECKS.exe
-UninstallDisplayName=FRAMEDECKS
+UninstallDisplayName=FrameDecks
 Compression=lzma2
 SolidCompression=yes
 WizardStyle=modern
@@ -44,7 +44,7 @@ RestartApplications=no
 [Tasks]
 Name: "desktopicon"; Description: "Create a desktop icon"; GroupDescription: "Icons:"
 Name: "vcam"; Description: "Install the FRAMECAST camera for Zoom and Teams (Windows asks for administrator permission)"; GroupDescription: "Options:"
-Name: "startup"; Description: "Start FRAMEDECKS automatically when I sign in to Windows"; GroupDescription: "Options:"; Flags: unchecked
+Name: "startup"; Description: "Start FrameDecks automatically when I sign in to Windows"; GroupDescription: "Options:"; Flags: unchecked
 
 [Files]
 Source: "..\dist\FRAMEDECKS\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
@@ -67,7 +67,7 @@ Type: files; Name: "{app}\_internal\vcam\bin\kingdomconnect_vcam*.dll"
 Type: files; Name: "{app}\_internal\vcam\bin\*register-kingdomconnect-camera.cmd"
 
 [Registry]
-; 6.11 the website's "Open FRAMEDECKS on this PC" (framedecks://open, docs/architecture/meeting-form.md section 4):
+; 6.11 the website's "Open FrameDecks on this PC" (framedecks://open, docs/architecture/meeting-form.md section 4):
 ; this user only, removed on uninstall. The program only starts or comes forward; it reads nothing from the link.
 Root: HKCU; Subkey: "Software\Classes\framedecks"; ValueType: string; ValueName: ""; ValueData: "URL:FRAMEDECKS"; Flags: uninsdeletekey
 Root: HKCU; Subkey: "Software\Classes\framedecks"; ValueType: string; ValueName: "URL Protocol"; ValueData: ""
@@ -81,7 +81,7 @@ Name: "{userstartup}\FRAMEDECKS"; Filename: "{app}\FRAMEDECKS.exe"; Tasks: start
 
 [Run]
 Filename: "{app}\_internal\vcam\bin\register-framedecks-camera.cmd"; Verb: "runas"; Flags: shellexec waituntilterminated runhidden; Check: ShouldRegisterCamera; StatusMsg: "Installing the FRAMECAST camera..."
-Filename: "{app}\FRAMEDECKS.exe"; Description: "Open FRAMEDECKS now"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\FRAMEDECKS.exe"; Description: "Open FrameDecks now"; Flags: nowait postinstall skipifsilent
 
 [UninstallRun]
 Filename: "{app}\_internal\vcam\bin\unregister-framedecks-camera.cmd"; Verb: "runas"; Flags: shellexec waituntilterminated runhidden; RunOnceId: "RemoveCamera"
@@ -131,7 +131,7 @@ begin
   Result := True;
   if not HasWebView2 then
     MsgBox('Microsoft Edge WebView2 (a free Windows component) was not found.' + #13#10 + #13#10 +
-           'FRAMEDECKS will still work, but it will open in your web browser instead of its own window.' + #13#10 +
+           'FrameDecks will still work, but it will open in your web browser instead of its own window.' + #13#10 +
            'To get the app window, install "WebView2 Runtime" from microsoft.com (search "WebView2 Runtime download").',
            mbInformation, MB_OK);
 end;
@@ -143,7 +143,7 @@ begin
   begin
     dataDir := ExpandConstant('{userappdata}\FRAMEDECKS');
     if DirExists(dataDir) then
-      if MsgBox('Also delete your FRAMEDECKS data?' + #13#10 + #13#10 +
+      if MsgBox('Also delete your FrameDecks data?' + #13#10 + #13#10 +
                 'This includes your saved verses and questions, members, settings and backups in:' + #13#10 + dataDir + #13#10 + #13#10 +
                 'Choose No to keep it (recommended if you will install again).',
                 mbConfirmation, MB_YESNO or MB_DEFBUTTON2) = IDYES then

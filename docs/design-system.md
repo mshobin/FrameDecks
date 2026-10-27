@@ -1,4 +1,4 @@
-# FRAMEDECKS design system
+# FrameDecks design system
 
 One look and one voice for the program (`app/`) and the website (`hosted/`). It came out of the October 2026 design
 audit (items DD-01 to DD-26). Two checks keep it true: `python tools/css_tokens.py` (tokens) and
@@ -6,7 +6,7 @@ audit (items DD-01 to DD-26). Two checks keep it true: `python tools/css_tokens.
 
 ## Voice
 
-FRAMEDECKS is for church leaders and volunteers, not engineers. Write for the person running the meeting.
+FrameDecks is for church leaders and volunteers, not engineers. Write for the person running the meeting.
 
 | Do | Don't |
 | --- | --- |
@@ -16,7 +16,7 @@ FRAMEDECKS is for church leaders and volunteers, not engineers. Write for the pe
 | Use sentence case: "Go Live", "Hide all", "Read our story". | Use ALL CAPS or Title Case For Every Word. |
 | Ask before anything that removes, naming it: "Disconnect “Sanctuary PC”?" | Ask "Are you sure?" |
 | Say what to do next when something is missing: "Link the service PC". | Show error codes or file names to everyone. Keep those for Diagnostics or an admin note. |
-| Say the camera is **FRAMECAST** and the program is **FRAMEDECKS**. | Call the camera FRAMEDECKS (`tests/test_camera_name.py` fails). |
+| Say the camera is **FRAMECAST** and the program is **FrameDecks**. | Call the camera FrameDecks (`tests/test_camera_name.py` fails). |
 | Use the words in the [glossary](glossary.md): **Black screen**, **Running order**, **People**, **Up next**. | Use two words for one thing (Blackout and Black screen, Services and Running order). |
 
 ## Type
@@ -101,14 +101,36 @@ The program has two modes, switched at the top of the window (`js/service.js`; o
 
 One direction, built in `hosted/src/app/identity.css` (loaded after the older look, before the light theme):
 
-- **Restraint.** No glows, glass, ambient light, word-by-word headline or pointer spotlight. Section titles do not
-  fade in. The one main action on a page is flat gold (`--gold`, hover `--gold-2`); everything else is bordered.
+- **Premium, not busy** (owner's brief, 27 October, which replaced the earlier "restraint" pass). The one main action
+  is warm gold with a soft lift on hover and one sweep of light; everything else is bordered. The ambient light behind
+  every page is back (painted once).
 - **Frame corners.** `.fd-framed` puts gold corner marks on a product picture or the demo screen: the Frame, the
   product's own idea. Use it on at most one or two things per page.
 - **Serif for scripture.** EB Garamond (`--serif`, `.fd-serif`; a 36 KB latin subset in `public/fonts/`) for verses,
   the next service's title and the landing timeline; Source Sans 3 for everything else.
 - **Places.** Home · Plan · Live · People, then Settings: Branding, Service PCs, Help. Your account is the avatar.
-- **Words.** Church, Service PCs, People, Go Live (`docs/glossary.md`).
+- **Words.** Team, Service PCs, People, Go Live (`docs/glossary.md`). The name is always **FrameDecks**.
+
+## Landing (website, 27 October)
+
+`hosted/src/components/landing.tsx` with `hosted/src/app/landing.css` (loaded after `identity.css`). For every kind of
+gathering: meetings, classes, conferences, events, services and productions. No church-only words, no named
+streaming or virtual-camera products (FRAMECAST, our own camera, is named), no invented quotes, logos or numbers.
+
+- **Approved words, unchanged:** "Prepare with Purpose. Present with Excellence." and "From prayerful preparation to
+  meaningful moments, FrameDecks keeps your entire service seamlessly connected across every screen, every stream,
+  and every member of your team." The closing call is **Ready to Serve?** The steps are **Day 1 … Day 4**.
+- **Order:** hero and the Studio on a stage, made-for pills, the press-Next demo, a bento of glass feature cards,
+  Day 1–4 on a gold line, a serif statement, questions, Ready to Serve?, footer.
+- **Motion** (CSS only; `motion.css` and `landing.css`): the hero rises in line by line; sections and cards rise in
+  as they scroll into view (`data-reveal`, staggered with `--d`); the Studio leans back and settles as you scroll
+  (scroll-linked where the browser supports it); feature cards lift and carry a soft pointer light
+  (`data-spotlight`, mouse only, once per frame); Day nodes pop onto the line; FAQ answers fade in; buttons lift and
+  catch one sweep of light.
+- **Performance rules:** only `transform` and `opacity` animate; no animated blur (removed from the shared
+  entrances too); nothing runs forever (`tests/idle-performance.test.mjs`); glows are static gradients; frosted glass
+  stays on the sticky bar; everything stops under "reduce motion". Measured: after scrolling the whole page no
+  animation is still running, and the CSS is 18 KB gzipped (budget 20).
 
 ## States
 
@@ -120,7 +142,7 @@ Every list or page that loads has the same four states (`hosted/src/components/s
 4. **Done:** the content.
 
 In the program the same rule holds: the Teleprompter without a script shows one message and **Write a script**; the
-first run says **Welcome to FRAMEDECKS** with **Start fresh** as the main choice and a small card, **Your first service
+first run says **Welcome to FrameDecks** with **Start fresh** as the main choice and a small card, **Your first service
 in four steps** (branding, a Frame, how people see it, practising in Run).
 
 ## Themes

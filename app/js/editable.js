@@ -1,4 +1,4 @@
-/* FRAMEDECKS v6.7 - EditableField: one way to edit text in place, everywhere.
+/* FrameDecks v6.7 - EditableField: one way to edit text in place, everywhere.
  *
  *   KCEditable.inline(el, opts)   the element's text becomes an editor in the same spot (lists, names, labels)
  *   KCEditable.float(host, rect, opts)   an editor floating over something drawn elsewhere (canvas cards)

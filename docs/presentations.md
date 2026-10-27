@@ -25,11 +25,11 @@ or meeting.
 
 ## Where your presentation appears
 
-FRAMEDECKS sends one finished picture to every place you use, all at the same time.
+FrameDecks sends one finished picture to every place you use, all at the same time.
 
 ```mermaid
 flowchart LR
-  K["FRAMEDECKS<br/>(live Frame)"] --> CAM["FRAMECAST camera<br/>Zoom · Teams · Meet · OBS"]
+  K["FrameDecks<br/>(live Frame)"] --> CAM["FRAMECAST camera<br/>Zoom · Teams · Meet · OBS"]
   K --> PW["Presentation window<br/>projector, TV, Zoom screen share"]
   K --> OV["Overlay pages<br/>OBS browser source"]
   K --> PH["Phone remote<br/>status and controls"]
@@ -37,7 +37,7 @@ flowchart LR
 
 | Output | Use it for | How |
 | --- | --- | --- |
-| **FRAMECAST camera** | Online and hybrid meetings | Choose **FRAMEDECKS** as the camera in Zoom, Teams, Meet or OBS |
+| **FRAMECAST camera** | Online and hybrid meetings | Choose **FrameDecks** as the camera in Zoom, Teams, Meet or OBS |
 | **Presentation window** | A projector or TV in the room, or **Share Screen → window** in Zoom | Studio → **Share Window**, then **Full screen** |
 | **Overlay pages** | OBS setups that add cards over their own video | `http://localhost:8750/...` as an OBS browser source |
 
@@ -148,7 +148,7 @@ You can also draw with your finger on the phone. See [Remote control](remote-con
 
 ## Teleprompter
 
-The **Teleprompter** shows what you plan to say on each Frame. Only you see it. It is never on the FRAMEDECKS
+The **Teleprompter** shows what you plan to say on each Frame. Only you see it. It is never on the FrameDecks
 camera, the Presentation window, the OBS pages or the phone's drawing pad.
 
 **Write the script**
@@ -277,7 +277,7 @@ Drag an edge to resize it.
 
 > **Important:** With **Light on graphics card** on (the default), the overlay fades as a whole, text included. For
 > solid text over a see-through background, turn off **Settings → General → Performance → Light on graphics card**
-> and restart FRAMEDECKS. If your meeting does not show through on your PC, turn on **Compatibility
+> and restart FrameDecks. If your meeting does not show through on your PC, turn on **Compatibility
 > transparency** in **Settings → General → Window and tray**: the whole window then fades.
 
 You can set the overlay's starting transparency, frosted glass, stay on top and compatibility transparency in
@@ -304,7 +304,7 @@ You can change the keys in **Settings → Keyboard shortcuts → Command palette
 ### Spotlight
 
 **Spotlight** is the command palette for the whole of Windows. It works when another program is in front, and when
-FRAMEDECKS is hidden in the tray.
+FrameDecks is hidden in the tray.
 
 1. Press **Alt+Space** anywhere. Spotlight opens in the middle of the screen where your mouse is, above everything.
 2. Type, then choose with **↑ / ↓** and **Enter**. It finds the same things as the command palette.
@@ -315,7 +315,7 @@ With an empty search, Spotlight shows **Recent**, **Frequently used** and **Sugg
 **Go Live**, **Next / Previous Frame**, **Hide all**, **Black screen**, **Freeze**, the **Teleprompter window** and the
 **Teleprompter overlay** run without bringing the main window back. Everything else opens the main window.
 
-If another program already uses Alt+Space (for example PowerToys Run), FRAMEDECKS uses **Ctrl+Alt+Space**
+If another program already uses Alt+Space (for example PowerToys Run), FrameDecks uses **Ctrl+Alt+Space**
 instead. **Settings → General → Window and tray → Spotlight** shows which shortcut works. You can choose Alt+Space,
 Ctrl+Space, Ctrl+Alt+Space, Ctrl+Shift+Space, Win+Shift+K, or Off.
 
@@ -330,17 +330,17 @@ The **Presentation window** shows the same finished picture as the FRAMECAST cam
 2. Drag it to the projector or TV, then select **⛶ Full screen** (or press **F** in that window, or double-click it).
 3. To leave full screen, select **⛶ Full screen** again (move the mouse to show the buttons).
 
-> **Important:** **Esc** inside the Presentation window closes it (**✕ Exit**). Press Esc in the main FRAMEDECKS
+> **Important:** **Esc** inside the Presentation window closes it (**✕ Exit**). Press Esc in the main FrameDecks
 > window instead when you mean **Hide all**.
 
-To share it in Zoom instead, choose **Share Screen**, then the window named **FRAMEDECKS Share Window**.
+To share it in Zoom instead, choose **Share Screen**, then the window named **FrameDecks Share Window**.
 
-> **Note:** Media Content (camera, images, video, PowerPoint, screen and window sharing) is part of the FRAMEDECKS
+> **Note:** Media Content (camera, images, video, PowerPoint, screen and window sharing) is part of the FrameDecks
 > picture, so turn on the FRAMECAST camera in **Settings → How people see it → FRAMECAST Camera** if you use it.
 
 ## Keyboard shortcuts
 
-Shortcuts work while the FRAMEDECKS window has focus, and never while you type in a box. Spotlight's shortcut
+Shortcuts work while the FrameDecks window has focus, and never while you type in a box. Spotlight's shortcut
 is the exception: it works everywhere. You can change the
 meeting shortcuts in **Settings**.
 

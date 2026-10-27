@@ -1,4 +1,4 @@
-"""FRAMEDECKS - running a service from the companion (design: docs/architecture/remote-control.md).
+"""FrameDecks - running a service from the companion (design: docs/architecture/remote-control.md).
 
 Only while this PC is linked to a workspace (cloud_sync.py) and "Allow control from the companion" is on. The PC asks
 the workspace for commands (remote_take, about once a second while a phone is active, every 15 seconds otherwise) and
@@ -46,7 +46,7 @@ class Bridge:
             fresh = [c for c in self.waiting if time.monotonic() - c["offeredAt"] <= WINDOW_WAIT]
             for c in self.waiting:
                 if c not in fresh:
-                    self.results[c["id"]] = "not run: the FRAMEDECKS window did not answer"
+                    self.results[c["id"]] = "not run: the FrameDecks window did not answer"
             self.waiting = []
             return [{k: v for k, v in c.items() if k != "offeredAt"} for c in fresh]
 
@@ -65,7 +65,7 @@ class Bridge:
             self.cond.wait_for(lambda: all(i in self.results for i in ids), timeout=max(0.0, deadline - time.monotonic()))
             out = []
             for i in ids:
-                out.append({"id": i, "result": self.results.pop(i, "not run: the FRAMEDECKS window did not answer")})
+                out.append({"id": i, "result": self.results.pop(i, "not run: the FrameDecks window did not answer")})
             self.waiting = [c for c in self.waiting if c["id"] not in ids]
             return out
 
@@ -126,7 +126,7 @@ class RemoteService:
         if self.thread and self.thread.is_alive():
             return
         self.stopping = False
-        self.thread = threading.Thread(target=self._loop, name="FRAMEDECKS remote", daemon=True)
+        self.thread = threading.Thread(target=self._loop, name="FrameDecks remote", daemon=True)
         self.thread.start()
 
     def stop(self):

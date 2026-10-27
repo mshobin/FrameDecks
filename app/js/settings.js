@@ -1,4 +1,4 @@
-/* FRAMEDECKS - Settings sections, Security, Diagnostics, Keyboard editor */
+/* FrameDecks - Settings sections, Security, Diagnostics, Keyboard editor */
 (function(){
 'use strict';
 var Store = window.KCStore, Status = window.KCStatus;
@@ -96,12 +96,12 @@ function renderSecurity(){
   function pill(cls, text){ return h('p', {}, [h('span', {cls: 'status-pill ' + cls}, [h('i'), text])]); }
   var sync = window.KCSyncInfo ? window.KCSyncInfo() : null, linked = sync && sync.state === 'linked';
   if (linked) g.appendChild(card('Workspace sync', pill('info', 'On'),
-    'This PC syncs its service plans and member list with the workspace “' + (sync.workspace || '') + '” (Settings → FRAMEDECKS account). Pictures, videos, what is live, the phone remote PIN and private settings stay on this PC, and services run from this PC, online or not.'));
+    'This PC syncs its service plans and member list with the workspace “' + (sync.workspace || '') + '” (Settings → FrameDecks account). Pictures, videos, what is live, the phone remote PIN and private settings stay on this PC, and services run from this PC, online or not.'));
   else g.appendChild(card('Local only', pill('ok', 'On'),
     'Everything runs on this PC. Nothing is uploaded, and no cloud account is used. Unless the phone remote is switched on, only this PC can connect.'));
   g.appendChild(card('Phone & iPad Remote', r.enabled ? pill('info', 'On (PIN protected)') : pill('ok', 'Off'),
     r.enabled ? 'Other devices on your Wi-Fi need the 6-digit PIN. After 5 wrong tries a device waits 60 seconds. The remote controls overlays only and cannot open member details.'
-              : 'Only this PC can reach FRAMEDECKS. Turn it on in Settings → Phone & iPad Remote when you want to use your phone.',
+              : 'Only this PC can reach FrameDecks. Turn it on in Settings → Phone & iPad Remote when you want to use your phone.',
     r.enabled ? [h('button', {cls: 'btn small', type: 'button', text: 'New PIN (disconnects all phones)', onclick: function(){
       if (!confirm('Create a new PIN? Every connected phone or iPad will need the new PIN.')) return;
       fetch('api/remote-reset', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: '{}'}).then(function(){ window.KCActions.toast('New PIN created. All phones and phones and iPads were disconnected.'); });
@@ -112,7 +112,7 @@ function renderSecurity(){
     linked ? 'Stored in kc-members-private.json on this PC and synced to your workspace, where only its owners and admins can see them. Never sent to overlays or the phone remote.'
            : 'Stored only in kc-members-private.json on this PC. Never sent to overlays or the phone remote. The birthday overlay receives only the greeting you choose to show.'));
   g.appendChild(card('Windows Firewall', pill('ok', 'Never changed automatically'),
-    'FRAMEDECKS does not change firewall settings by itself. The optional “Allow iPad Remote” helper asks first, only affects private networks, and can be undone with “Undo iPad Remote permission”.'));
+    'FrameDecks does not change firewall settings by itself. The optional “Allow iPad Remote” helper asks first, only affects private networks, and can be undone with “Undo iPad Remote permission”.'));
   g.appendChild(card('Emails', pill('ok', 'Never sent automatically'),
     'Email preparation only opens a draft in Outlook or your mail app. You review and send it yourself.'));
 }
@@ -124,7 +124,7 @@ function saveSupportBundle(){
   fetch('api/support-bundle', {cache: 'no-store'}).then(function(r){ if (!r.ok) throw new Error(); return r.blob(); })
     .then(function(blob){
       var url = URL.createObjectURL(blob), a = document.createElement('a');
-      a.href = url; a.download = 'FRAMEDECKS support ' + new Date().toISOString().slice(0, 10) + '.zip';
+      a.href = url; a.download = 'FrameDecks support ' + new Date().toISOString().slice(0, 10) + '.zip';
       document.body.appendChild(a); a.click(); a.remove();
       setTimeout(function(){ URL.revokeObjectURL(url); }, 4000);
       if (window.KCActions) window.KCActions.toast('Support bundle saved to your Downloads folder');
@@ -147,7 +147,7 @@ function renderDiag(){
   row('Local program', Store.served ? (Store.online ? '● Connected' : '● Not responding') : 'Not used (no-install mode)');
   row('Browser window', info.window + ' at ' + info.zoom + ' display scale');
   box.appendChild(kv); root.appendChild(box);
-  if (!Store.served){ root.appendChild(h('p', {cls: 'hint', text: 'Start the FRAMEDECKS program for full diagnostics.'})); return; }
+  if (!Store.served){ root.appendChild(h('p', {cls: 'hint', text: 'Start the FrameDecks program for full diagnostics.'})); return; }
   fetch('api/diagnostics', {cache: 'no-store'}).then(function(r){ return r.json(); }).then(function(d){
     lastDiag = d;
     row('Version', d.version);
@@ -199,13 +199,13 @@ function renderDiag(){
     if (!errors.length) eb.appendChild(h('p', {cls: 'hint u-m0', text: 'None. Everything is running normally.'}));
     errors.slice(-10).reverse().forEach(function(e){ eb.appendChild(h('p', {cls: 'mono', text: e.time + '  ' + e.message})); });
     root.appendChild(eb);
-  }).catch(function(){ root.appendChild(h('div', {cls: 'alert bad', text: 'The local program is not responding. Check the black FRAMEDECKS window is open.'})); });
+  }).catch(function(){ root.appendChild(h('div', {cls: 'alert bad', text: 'The local program is not responding. Check the black FrameDecks window is open.'})); });
 }
 var lastDiag = null;
 function copyReport(){
   // No PIN, secret key or member data is ever included.
   var d = lastDiag || {};
-  var lines = ['FRAMEDECKS diagnostics', 'Version: ' + (d.version || '?'), 'Mode: ' + (Store.served ? 'local program' : 'no-install'),
+  var lines = ['FrameDecks diagnostics', 'Version: ' + (d.version || '?'), 'Mode: ' + (Store.served ? 'local program' : 'no-install'),
     'Program: ' + (Store.online ? 'connected' : 'not responding'), 'Port: ' + (d.port || '?'), 'Listening on: ' + (d.listeningOn || '?'),
     'Addresses: ' + (d.addresses || []).join(', '), 'Python: ' + (d.python || '?'), 'OS: ' + (d.os || '?'),
     'Signed-in phones/iPads: ' + (d.remoteSessions != null ? d.remoteSessions : '?'),

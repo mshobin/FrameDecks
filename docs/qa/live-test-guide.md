@@ -30,14 +30,14 @@ before: go on to the next one. Any other error: stop and send it.
 ## 2. The program on the service PC
 
 1. Open the latest **Build Windows installer** run on `main` (GitHub → Actions → Build Windows installer), scroll to
-   **Artifacts**, download **FRAMEDECKS v6.10** and unzip it.
-2. Run `FRAMEDECKS v6.10.exe` from the zip (the `.sha256` file next to it is its checksum) and install as you do
+   **Artifacts**, download **FrameDecks v6.10** and unzip it.
+2. Run `FrameDecks v6.10.exe` from the zip (the `.sha256` file next to it is its checksum) and install as you do
    for each new version. Windows may say it protects your PC: **More info** → **Run anyway**. Make a backup first
    (Settings → Data / Backup → Save a backup file) if you want to be safe.
 
 ## 3. Test A: sync
 
-1. In FRAMEDECKS: **Settings → FRAMEDECKS account → Link to a workspace**. A code like `K7PM 2XQ9` appears.
+1. In FrameDecks: **Settings → FrameDecks account → Link to a workspace**. A code like `K7PM 2XQ9` appears.
 2. On any device, open `https://framedecks.pages.dev`, sign in, go to **Settings → Service PCs**, type the code, **Link**.
 3. **Expect:** within a few seconds the PC shows "Linked to BSF Study"; this is also the first time Windows
    Credential Manager stores the PC's key.
@@ -48,14 +48,14 @@ before: go on to the next one. Any other error: stop and send it.
 
 ## 4. Test B: phone control
 
-1. On the PC: **Settings → FRAMEDECKS account → Control from the companion → tick "Allow control from the
+1. On the PC: **Settings → FrameDecks account → Control from the companion → tick "Allow control from the
    companion"**.
 2. On your phone, **on mobile data (Wi-Fi off)**: open the companion → **Live**.
 3. **Expect:** the PC's name with **Online**, and the Frame that is on screen.
 4. Press **Next**. **Expect:** the PC moves to the next Frame within about a second (the first press after a quiet
    spell can take up to 15 seconds) and shows "Next Frame · from ‹your name›"; the phone says "Next Frame: Done".
 5. Try **Go Live** on a Frame in the list, **Black screen** (and again to turn it off), **Hide all**.
-6. On the PC, Settings → FRAMEDECKS account now lists these as the last actions.
+6. On the PC, Settings → FrameDecks account now lists these as the last actions.
 7. Untick the switch on the PC. **Expect:** within 45 seconds the phone shows **Not connected**; presses do nothing.
 8. Optional: on the companion's **People**, tick **Can run services** for a member and
    ask them to open Live (without it they see "No PC to run here").
@@ -86,8 +86,8 @@ before: go on to the next one. Any other error: stop and send it.
 2. **Edit** someone the PC added, change the phone, **Save**. **Expect:** the PC shows the new phone after its next sync.
 3. **Manage groups** → add "Choir"; **Edit** a person → tick **Choir** → **Save**. **Expect:** the Groups column and
    the "Choir (1)" filter. The PC's Members screen does not change (groups are kept online only).
-4. Rebuild test (optional, with a backup): quit FRAMEDECKS on the linked PC, rename
-   `%APPDATA%\FRAMEDECKS\kc-members-private.json` to `.bak`, start FRAMEDECKS. **Expect:** within a minute the member
+4. Rebuild test (optional, with a backup): quit FrameDecks on the linked PC, rename
+   `%APPDATA%\FRAMEDECKS\kc-members-private.json` to `.bak`, start FrameDecks. **Expect:** within a minute the member
    list is back (from the workspace), and the companion still lists everyone. Then delete the `.bak` file or put it back.
 
 ## 8. Test F: new on the PC (PowerPoint export, Audio, Suggest)
@@ -101,10 +101,10 @@ before: go on to the next one. Any other error: stop and send it.
 
 ## 9. Test G: plan the meeting on the website (6.11)
 
-Needs FRAMEDECKS 6.11 on the linked PC.
+Needs FrameDecks 6.11 on the linked PC.
 1. On the PC's browser, open the companion's **Home**. **Expect:** a "This computer" card; press **Check this
-   PC** and allow camera access. **Expect:** "FRAMEDECKS is installed on this PC" (the camera is named FRAMEDECKS).
-   Press **Open FRAMEDECKS on this PC**. **Expect:** the browser asks to open FRAMEDECKS; the program comes forward.
+   PC** and allow camera access. **Expect:** "FrameDecks is installed on this PC" (the camera is named FrameDecks).
+   Press **Open FrameDecks on this PC**. **Expect:** the browser asks to open FrameDecks; the program comes forward.
 2. Companion → **Plan** → **Meeting details**: change the speaker, **Save details**. **Expect:** the PC's
    Meeting tab shows the new speaker within about a minute.
 3. **Add a Frame**: a name, a Question Content with two questions, a Scripture Content with a reference (no text),
@@ -135,12 +135,13 @@ On the service PC, no real call needed.
 
 ## 11. Test I: the website's new places (27 October)
 
-1. Sign out and open `https://framedecks.pages.dev`. **Expect:** "Your church's screen and Zoom, run from your phone.",
-   **Download for Windows · free** first, a demo where **Next** changes the room screen, and Help, Privacy, Licence,
-   Contact in the footer.
-2. **Sign in** → **New here?** with an address that has no church. **Expect:** Home shows three steps: name your
-   church (type a name, **Create**), install FRAMEDECKS, link the service PC.
-3. With your real church: **Home** shows the next service with the plan and the PC's state. The menu reads Home, Plan,
+1. Sign out and open `https://framedecks.pages.dev`. **Expect:** "Prepare with Purpose. Present with Excellence.",
+   **Download for Windows · free** first, a demo where **Next** changes the room screen, Day 1–4, **Ready to Serve?**,
+   and Help, Privacy, Licence, Contact in the footer. Sections rise in gently as you scroll; with "reduce motion" on,
+   nothing moves. Switch to Light and open (i) About: everything readable.
+2. **Sign in** → **New here?** with an address that has no team. **Expect:** Home shows three steps: name your
+   team (type a name, **Add**), install FrameDecks, link the service PC.
+3. With your real team: **Home** shows the next service with the plan and the PC's state. The menu reads Home, Plan,
    Live, People; Settings: Branding, Service PCs, Help. The avatar opens **Your account**.
 4. Open `/meeting` and `/services`. **Expect:** both open **Plan**.
 5. On a phone and on a tablet, open **Live**. **Expect:** large Previous and Next; on the tablet two even columns.
@@ -148,5 +149,5 @@ On the service PC, no real call needed.
 ## What to send back
 
 For anything that does not match **Expect**: which test and step, a screenshot of the companion page, the message
-shown under Settings → FRAMEDECKS account on the PC (it shows sync and phone-control errors), and the time.
+shown under Settings → FrameDecks account on the PC (it shows sync and phone-control errors), and the time.
 If all of them pass, say so: the live tests in the continuity files are then marked done.

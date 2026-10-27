@@ -1,4 +1,4 @@
-# FRAMEDECKS: configuration guide (v6.5)
+# FrameDecks: configuration guide (v6.5)
 
 This guide covers what to set up after installing:
 - the FRAMECAST camera;
@@ -14,11 +14,11 @@ For installing, see `docs/development/building-the-installer.md`. For what each 
 1. Install with **Install the FRAMECAST camera for Zoom and Teams** ticked, and allow the administrator prompt.
    - Already installed without it? Use **Settings → FRAMECAST Camera → Install FRAMECAST**.
 2. Restart Zoom, Teams, OBS or the browser you use for Google Meet. They read the camera list when they start.
-3. Choose **FRAMEDECKS** as the camera in each app:
-   - **Zoom:** Settings → Video → Camera → FRAMEDECKS. Tick **HD**, and turn off Zoom's own background blur.
-   - **Microsoft Teams:** Settings → Devices (or Video and effects) → Camera → FRAMEDECKS.
-   - **Google Meet:** ⋮ → Settings → Video → Camera → FRAMEDECKS.
-   - **OBS:** Sources → + → Video Capture Device → Device: FRAMEDECKS.
+3. Choose **FrameDecks** as the camera in each app:
+   - **Zoom:** Settings → Video → Camera → FrameDecks. Tick **HD**, and turn off Zoom's own background blur.
+   - **Microsoft Teams:** Settings → Devices (or Video and effects) → Camera → FrameDecks.
+   - **Google Meet:** ⋮ → Settings → Video → Camera → FrameDecks.
+   - **OBS:** Sources → + → Video Capture Device → Device: FrameDecks.
 4. **Settings → FRAMECAST Camera** sets:
    - which webcam is behind it;
    - the resolution (720p or 1080p);
@@ -27,7 +27,7 @@ For installing, see `docs/development/building-the-installer.md`. For what each 
    - whether your cards appear on the camera.
 
 **Upgrading from a version before 6.4:** the camera had its earlier name. The installer renames it and keeps the
-same device ID. In OBS, point any old source that used the camera's earlier name at FRAMEDECKS once.
+same device ID. In OBS, point any old source that used the camera's earlier name at FrameDecks once.
 
 ---
 

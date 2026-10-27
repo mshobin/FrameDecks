@@ -65,7 +65,7 @@ def list_windows():
         user32.GetWindowTextW(hwnd, buf, n + 1)
         title = buf.value.strip()
         ex = user32.GetWindowLongW(hwnd, -20)                                # GWL_EXSTYLE
-        if title and not ex & 0x80 and title not in ("Program Manager", "FRAMEDECKS"):   # 0x80 = tool window
+        if title and not ex & 0x80 and title.casefold() not in ("program manager", "framedecks"):   # 0x80 = tool window
             out.append({"id": f"window:{int(hwnd)}", "kind": "window", "hwnd": int(hwnd), "name": title[:80]})
         return True
     user32.EnumWindows(PROC(cb), 0)

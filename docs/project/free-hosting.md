@@ -1,6 +1,6 @@
 # Free for everyone: what the owner does, step by step
 
-How FRAMEDECKS runs at **no cost**: the companion on Cloudflare Pages, Supabase Free kept awake and backed up,
+How FrameDecks runs at **no cost**: the companion on Cloudflare Pages, Supabase Free kept awake and backed up,
 sign-in without paid email, and free signing and downloads. It covers steps 1–5 of the free plan (owner's request,
 26 October 2026). The background is in [hosting.md](../architecture/hosting.md).
 
@@ -119,9 +119,9 @@ but not for many churches.
 - A **free email service** keeps the emailed link working for anyone without either account.
 
 **D1. Google (free).**
-1. Open https://console.cloud.google.com and create a project named "FRAMEDECKS".
+1. Open https://console.cloud.google.com and create a project named "FrameDecks".
 2. Go to **APIs & Services → OAuth consent screen** (it opens **Google Auth Platform**; click **Get started** the
-   first time): app name FRAMEDECKS, your email as support and developer contact, audience **External**.
+   first time): app name FrameDecks, your email as support and developer contact, audience **External**.
 3. **Branding** (left menu):
    - Application home page: `https://framedecks.pages.dev`
    - Application privacy policy link: `https://framedecks.pages.dev/privacy`
@@ -138,7 +138,7 @@ but not for many churches.
 
 **D2. Microsoft (free).**
 1. In https://portal.azure.com, go to **Microsoft Entra ID → App registrations → New registration**:
-   - name FRAMEDECKS;
+   - name FrameDecks;
    - supported accounts: **Accounts in any organizational directory and personal Microsoft accounts**;
    - redirect URI (Web): `https://slrsykiknlqlivlnpvrb.supabase.co/auth/v1/callback`.
 2. Copy the **Application (client) ID**. Then **Certificates & secrets → New client secret**, and copy its
@@ -161,7 +161,7 @@ signs in with Google or Microsoft. Brevo's free plan sends 300 emails a day.
 4. In Supabase → **Authentication → Emails → SMTP Settings**:
    - turn on custom SMTP;
    - enter the server, port, login and SMTP key;
-   - sender name: FRAMEDECKS.
+   - sender name: FrameDecks.
 5. Test: sign out, then ask for an emailed link.
 
 ## Part E: public repository, free signing, permanent downloads
@@ -188,7 +188,7 @@ All of this is prepared. The full steps are in [code-signing.md](code-signing.md
 
 ## What stays free, and the limits
 
-| Service | Free limit | FRAMEDECKS today |
+| Service | Free limit | FrameDecks today |
 |---|---|---|
 | Cloudflare Pages | Unlimited static requests and bandwidth; 500 builds a month | A few builds a week |
 | Supabase Free | 500 MB database, 50,000 monthly sign-ins, 2 projects | Text only; many churches fit |

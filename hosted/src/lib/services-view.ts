@@ -1,4 +1,4 @@
-// FRAMEDECKS - what the companion shows of a synced plan: each Frame's Content as readable lines, media as a note
+// FrameDecks - what the companion shows of a synced plan: each Frame's Content as readable lines, media as a note
 // that it stays on the service PC. Pure functions, no imports, so the tests can load this file directly.
 
 type Obj = { [key: string]: unknown };

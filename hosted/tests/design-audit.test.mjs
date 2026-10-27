@@ -5,7 +5,7 @@ import { test } from "node:test";
 
 const src = (p) => readFileSync(new URL(`../src/${p}`, import.meta.url), "utf8");
 const components = readdirSync(new URL("../src/components/", import.meta.url)).filter((f) => f.endsWith(".tsx"));
-const css = ["globals.css", "design.css", "about.css", "motion.css", "identity.css", "light.css"].map((f) => [f, src(`app/${f}`)]);
+const css = ["globals.css", "design.css", "about.css", "motion.css", "identity.css", "landing.css", "light.css"].map((f) => [f, src(`app/${f}`)]);
 
 function luminance(hex) {
   const c = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255).map((v) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4));
@@ -70,10 +70,33 @@ test("four main places, Settings below, and church words (owner-approved, 27 Oct
   assert.match(src("app/help/page.tsx"), /brand\.version/);
 });
 
-test("the landing page leads with the download and keeps glows away (identity)", () => {
+test("the landing page carries the owner's brief (27 October): approved words, every audience, motion back", () => {
   const landing = src("components/landing.tsx");
-  assert.ok(landing.indexOf("Download for Windows") < landing.indexOf("Or plan online first"));
-  assert.doesNotMatch(landing, /data-spotlight|<Words/);
-  assert.match(src("app/layout.tsx"), /import "\.\/identity\.css";\s*import "\.\/light\.css";/);
-  assert.match(src("app/identity.css"), /\.fd-ambient \{\s*display: none;/);
+  assert.match(landing, /Prepare with Purpose\./);
+  assert.match(landing, /Present with Excellence\./);
+  assert.match(
+    landing.replace(/\s+/g, " "),
+    /From prayerful preparation to meaningful moments, FrameDecks keeps your entire service seamlessly connected across every screen, every stream, and every member of your team\./,
+  );
+  assert.match(landing, /Ready to Serve\?/);
+  assert.match(landing, /Day \{i \+ 1\}/);
+  const words = landing + src("components/next-demo.tsx");
+  assert.doesNotMatch(words, /church|sunday|\bobs\b|\bcamo\b/i);
+  assert.doesNotMatch(words, />[^<]*FRAMEDECKS/);
+  assert.ok(landing.indexOf("Download for Windows") < landing.indexOf("Plan online first"));
+  assert.match(landing, /data-reveal/);
+  assert.match(landing, /data-spotlight/);
+  assert.match(src("app/layout.tsx"), /import "\.\/identity\.css";\s*import "\.\/landing\.css";\s*import "\.\/light\.css";/);
+  assert.doesNotMatch(src("app/identity.css"), /\.fd-ambient \{\s*display: none;/);
+  assert.doesNotMatch(src("app/motion.css"), /filter: blur/);
+});
+
+test("the name is written FrameDecks wherever people read it", () => {
+  for (const f of ["components/landing.tsx", "components/app-shell.tsx", "components/about-dialog.tsx", "app/layout.tsx", "app/help/page.tsx"]) {
+    assert.doesNotMatch(src(f).replace(/github\.com\/mshobin\/FRAMEDECKS/g, ""), /FRAMEDECKS/, f);
+  }
+});
+
+test("the About screen has its own light panel (readable after switching to Light)", () => {
+  assert.match(src("app/light.css"), /html\.fd-light \.fd-about \{[\s\S]*?#ffffff/);
 });

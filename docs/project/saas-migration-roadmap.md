@@ -1,12 +1,12 @@
-# FRAMEDECKS SaaS migration roadmap
+# FrameDecks SaaS migration roadmap
 
 **Assessment date:** 22 October 2026  
-**Repository baseline:** FRAMEDECKS 6.9  
+**Repository baseline:** FrameDecks 6.9\
 **Target direction:** Next.js, TypeScript, Tailwind CSS, shadcn/ui, Supabase, Vercel, Cloudflare (when a custom domain is available), and PWA
 
 ## Executive summary
 
-FRAMEDECKS is currently a Windows-first, local-first desktop product, not an early version of a hosted web service.
+FrameDecks is currently a Windows-first, local-first desktop product, not an early version of a hosted web service.
 Its Python process serves a static HTML/CSS/vanilla-JavaScript interface, stores authoritative state in local JSON,
 and operates a camera/media pipeline that integrates with Windows, PowerPoint, and a DirectShow virtual camera.
 An optional phone remote is served over the local network. This is a deliberate, coherent architecture for offline
@@ -70,7 +70,7 @@ The proposed stack is a new hosted application layer:
 | Vercel | Next.js hosting, preview deployments, and application delivery; not the camera/media-processing host |
 | Cloudflare | Future edge protection/routing only after a custom domain is available; initial deployments use Vercel-provided URLs |
 | PWA | Secure-context installable browser client with an explicit cache and offline-draft policy; live collaboration still requires a reachable service |
-| Local FRAMEDECKS agent | Optional companion for local media, device capture, projector/camera outputs, and offline production workflows |
+| Local FrameDecks agent | Optional companion for local media, device capture, projector/camera outputs, and offline production workflows |
 
 ## 3. Security concerns and security architecture
 
@@ -158,7 +158,7 @@ flowchart LR
   RT["Supabase Realtime<br/>presence · live events"]
   Vercel["Vercel<br/>web delivery"]
   Edge["Cloudflare edge<br/>future custom domain"]
-  Agent["Optional local FRAMEDECKS agent<br/>Windows capture · camera · projector"]
+  Agent["Optional local FrameDecks agent<br/>Windows capture · camera · projector"]
   Browser --> Vercel --> Next
   Vercel -. "when domain is available" .-> Edge
   Next --> Auth
@@ -199,7 +199,7 @@ production data is introduced.
 - Keep the local presentation runtime as the source for live output and local media; hosted collaboration is
   additive and must not replace existing desktop workflows.
 - Exclude member/contact records and media bytes from cloud storage.
-- Preserve the requirement that FRAMEDECKS remains entirely free, with no billing or feature gating.
+- Preserve the requirement that FrameDecks remains entirely free, with no billing or feature gating.
 - Identify organization ownership, user roles, support expectations, and
   supported operating modes when internet access fails.
 - Define retention, export, deletion, residency, and incident-response expectations for permitted cloud metadata.

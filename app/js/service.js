@@ -1,4 +1,4 @@
-/* FRAMEDECKS - running a service (owner-approved simplification, 27 October; docs/design-system.md "Running a service")
+/* FrameDecks - running a service (owner-approved simplification, 27 October; docs/design-system.md "Running a service")
  *  - Prepare / Run: Run shows the running order, what is on screen, what is up next, and Previous, Next, Go Live and
  *    Hide all (the Live tools and list steppers stay: they are live controls). Every way to edit is out of reach, so
  *    nothing changes by accident during a service. Nothing is removed: Prepare is the Studio as before.
@@ -83,7 +83,7 @@ function checks(){
   else if (/\bok\b/.test(src.cls)) out.push(['ok', 'An overlay page is open (OBS, Camo or a browser)']);
   else out.push(['warn', 'Choose how people will see it', 'How people see it', function(){ go('settings', 'output'); }]);
   var prog = chipState('h-program');
-  if (/\bbad\b/.test(prog.cls)) out.push(['warn', 'The program is not responding. Check the FRAMEDECKS window is open']);
+  if (/\bbad\b/.test(prog.cls)) out.push(['warn', 'The program is not responding. Check the FrameDecks window is open']);
   var rem = chipState('h-ipad');
   if (/\bok\b/.test(rem.cls)) out.push(['ok', 'Phone remote connected']);
   else if (/\b(warn|bad)\b/.test(rem.cls)) out.push(['warn', 'Phone remote: ' + rem.text.toLowerCase(), 'Phone remote', function(){ go('settings', 'ipad'); }]);
@@ -179,7 +179,7 @@ function renderOutput(){
   var cards = [
     ['video', 'In Zoom or Teams, as a camera', 'FRAMECAST appears as a camera. In Zoom or Teams, choose “FRAMECAST” as your camera. Best for most online meetings.',
       'FRAMECAST: ' + (cam.text || '—'), 'Set up FRAMECAST', function(){ window.KCShowSection('vcam'); }, true],
-    ['presentation', 'Share a window in Zoom', 'A clean window with only your Frames. In Zoom choose Share Screen, then “FRAMEDECKS Share Window”.',
+    ['presentation', 'Share a window in Zoom', 'A clean window with only your Frames. In Zoom choose Share Screen, then “FrameDecks Share Window”.',
       shareOpen() ? 'The Share Window is open' : 'The Share Window is closed', shareOpen() ? 'Close the Share Window' : 'Open the Share Window', function(){ var b = $('s2-present'); if (b) b.click(); setTimeout(renderOutput, 900); }],
     ['monitor', 'On a projector, TV or in OBS', 'Show your Frames on a second screen in the room, or add the overlay pages to OBS or Camo.',
       'Overlay pages: ' + (src.text || '—'), 'Set up a screen or OBS', function(){ window.KCShowSection('display'); }]

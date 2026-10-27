@@ -1,4 +1,4 @@
-"""FRAMEDECKS - sync records (sync_entities.py): a saved plan and member list split into records and join back
+"""FrameDecks - sync records (sync_entities.py): a saved plan and member list split into records and join back
 exactly; nothing live, no media and no card text of the moment is ever in a record; a push carries only what
 changed. The companion checks the same fixtures (hosted/tests/sync-entities.test.mjs)."""
 import copy

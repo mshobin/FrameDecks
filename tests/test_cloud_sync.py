@@ -1,4 +1,4 @@
-"""FRAMEDECKS - syncing service plans (cloud_sync.py) between PCs, against a stand-in cloud that follows the same
+"""FrameDecks - syncing service plans (cloud_sync.py) between PCs, against a stand-in cloud that follows the same
 rules as 0003_sync.sql: per-record revisions, a conflict stores nothing, pulls page through records in seq order.
 Each "PC" holds a saved plan and member list the way server.py does. Design: docs/architecture/metadata-sync.md."""
 import copy
@@ -572,7 +572,7 @@ class DamagedPlanFile(unittest.TestCase):
 
 
 class WebsiteIdentity(unittest.TestCase):
-    """Cloudflare refuses Python's default identity with 403 (owner's report, 26 October): say we are FRAMEDECKS."""
+    """Cloudflare refuses Python's default identity with 403 (owner's report, 26 October): say we are FrameDecks."""
 
     def capture(self, answer):
         import urllib.request
@@ -596,12 +596,12 @@ class WebsiteIdentity(unittest.TestCase):
     def test_the_config_request_names_framedecks(self):
         seen = self.capture({"url": "https://x.supabase.co", "anonKey": "k"})
         self.assertEqual(C.companion_config()["url"], "https://x.supabase.co")
-        self.assertIn("FRAMEDECKS", seen[0].get_header("User-agent"))
+        self.assertIn("FrameDecks", seen[0].get_header("User-agent"))
 
     def test_cloud_calls_name_framedecks(self):
         seen = self.capture([])
         C.CloudApi("https://x.supabase.co", "k", "org").pull(0)
-        self.assertIn("FRAMEDECKS", seen[0].get_header("User-agent"))
+        self.assertIn("FrameDecks", seen[0].get_header("User-agent"))
 
 
 if __name__ == "__main__":

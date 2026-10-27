@@ -1,4 +1,4 @@
-/* FRAMEDECKS v6.7 - edit any Content straight on the Studio Canvas.
+/* FrameDecks v6.7 - edit any Content straight on the Studio Canvas.
  *
  * Double-click a card on the canvas (the Frame preview, or the live FRAMECAST picture) to edit it in place:
  *   - the label (top line of the card): Question / Scripture label, or the title of a text Content;

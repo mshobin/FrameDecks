@@ -1,6 +1,6 @@
 # Service operators
 
-How to run the FRAMEDECKS PC during a service: setup, presenting, and calm recovery when something goes wrong.
+How to run the FrameDecks PC during a service: setup, presenting, and calm recovery when something goes wrong.
 
 **Who this is for:** the person at the PC (or "booth") during the service.
 
@@ -18,7 +18,7 @@ How to run the FRAMEDECKS PC during a service: setup, presenting, and calm recov
 
 ## Your responsibilities
 
-- Start and check the PC, FRAMEDECKS, the meeting app, the camera and the projector.
+- Start and check the PC, FrameDecks, the meeting app, the camera and the projector.
 - Put each Frame on screen at the right moment and step through its Content.
 - Keep the screen clean and recover quickly from mistakes.
 - Back up after the service.
@@ -48,7 +48,7 @@ How to run the FRAMEDECKS PC during a service: setup, presenting, and calm recov
 | **R** | Teleprompter on / off (only you see it) |
 | **Shift+R** | Teleprompter overlay on / off (see-through, over Zoom or Teams; only you see it) |
 | **Ctrl+K** or **Ctrl+Space** | Command palette: find Frames, Content, questions, references, settings; run commands such as Go Live |
-| **Alt+Space** | Spotlight: the same search from anywhere in Windows, even with FRAMEDECKS in the tray |
+| **Alt+Space** | Spotlight: the same search from anywhere in Windows, even with FrameDecks in the tray |
 
 Shortcuts are ignored while you type in a box. Shortcut keys can be changed in Settings. Spotlight's shortcut is set
 in **Settings → General → Window and tray**; if another program uses Alt+Space, it is **Ctrl+Alt+Space**.
@@ -56,8 +56,8 @@ in **Settings → General → Window and tray**; if another program uses Alt+Spa
 ## Before the service
 
 - [ ] PC on mains power; Windows updates paused; notifications off (Focus / Do Not Disturb).
-- [ ] FRAMEDECKS open; the command bar status shows **FRAMEDECKS** ready.
-- [ ] Meeting app open with **FRAMEDECKS** chosen as its camera (restart the app if it isn't listed).
+- [ ] FrameDecks open; the command bar status shows **FrameDecks** ready.
+- [ ] Meeting app open with **FrameDecks** chosen as its camera (restart the app if it isn't listed).
 - [ ] Projector: **Share Window** on the Studio Canvas → move the Presentation window to the projector → full screen.
 - [ ] Phone remote on (**Settings → Phone & iPad Remote**) and the remote operator connected.
 - [ ] Walk through the first three Frames with **Go Live** and check the projector and the meeting app's self-view.
@@ -69,7 +69,7 @@ in **Settings → General → Window and tray**; if another program uses Alt+Spa
 - Use **Freeze** before switching files or windows on the PC, so viewers don't see the change.
 - Watch the status chips: **Black screen on ▾**, **Frozen ▾** or **Drawing ▾** on the Live tools button mean that mode is on.
 - If a remote operator is running Next, don't fight them: agree who has control before the service.
-- Working mostly in Zoom or OBS? Hide FRAMEDECKS to the tray (**Minimize → Hide To Tray**) and press
+- Working mostly in Zoom or OBS? Hide FrameDecks to the tray (**Minimize → Hide To Tray**) and press
   **Alt+Space** for **Spotlight**. **Go Live**, **Next / Previous Frame**, **Hide all**, **Black screen** and **Freeze**
   run from Spotlight without bringing the main window back. The tray icon's menu has **Open App**, **Teleprompter**,
   **Search** and, under **More**, **Hide all overlays** and **Stop screen share**. See
@@ -79,7 +79,7 @@ in **Settings → General → Window and tray**; if another program uses Alt+Spa
 
 - [ ] **Hide all**, then close the meeting app.
 - [ ] **Settings → Data / Backup → Back up now**.
-- [ ] Close FRAMEDECKS with **Keep running in the background** or **Quit**, as your church prefers.
+- [ ] Close FrameDecks with **Keep running in the background** or **Quit**, as your church prefers.
 - [ ] Write down problems and fixes for the team.
 
 ## When something goes wrong
@@ -90,7 +90,7 @@ in **Settings → General → Window and tray**; if another program uses Alt+Spa
 | Must go dark now | **K** (Black screen) | Press **K** again when ready |
 | Need time to fix something | **F** (Freeze) | Fix it, then **F** again |
 | A message for everyone (technical problem) | **Live tools → Emergency screen** | Turn it off when solved |
-| Meeting app shows no camera | Choose **FRAMEDECKS** again in the app | Restart the app if it isn't listed |
+| Meeting app shows no camera | Choose **FrameDecks** again in the app | Restart the app if it isn't listed |
 | Phone remote stopped | Carry on from the PC | See [Troubleshooting](../troubleshooting.md#phone-remote) |
 
 ## Getting started in this role

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { AboutButton } from "@/components/about-dialog";
 import { BrandMark } from "@/components/brand-hero";
 
-/** Sign-in and its return page: the brand and how FRAMEDECKS works beside a glass card. `document` is the single
+/** Sign-in and its return page: the brand and how FrameDecks works beside a glass card. `document` is the single
  * column the privacy policy uses. */
 export function AuthShell({
   eyebrow,
@@ -15,12 +15,12 @@ export function AuthShell({
   const card = (
     <section className={document ? "fd-auth-card fd-auth-doc" : "fd-auth-card"}>
       {document && (
-        <Link className="fd-brand fd-auth-brandline" href="/" aria-label="FRAMEDECKS">
+        <Link className="fd-brand fd-auth-brandline" href="/" aria-label="FrameDecks">
           <span className="fd-brand-mark">
             <Image src="/framedecks-emblem.webp" alt="" width={30} height={30} priority unoptimized />
           </span>
           <span className="fd-brand-copy">
-            <strong>FRAMEDECKS</strong>
+            <strong>FrameDecks</strong>
           </span>
         </Link>
       )}
@@ -32,7 +32,7 @@ export function AuthShell({
   const foot = (
     <div className="fd-auth-foot">
       <p>
-        Your presentation stays on your service PC. This account is only for the FRAMEDECKS website.{" "}
+        Your presentation stays on your service PC. This account is only for the FrameDecks website.{" "}
         <Link href="/privacy">Privacy</Link>
       </p>
       <div className="fd-auth-about">
@@ -51,7 +51,7 @@ export function AuthShell({
   return (
     <div className="fd-auth">
       <aside className="fd-auth-side">
-        <Link href="/" aria-label="FRAMEDECKS home">
+        <Link href="/" aria-label="FrameDecks home">
           <BrandMark size="medium" />
         </Link>
         {/* One real screen and one sentence (owner-approved, 27 October), not a second copy of How it works */}

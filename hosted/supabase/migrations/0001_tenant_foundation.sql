@@ -1,4 +1,4 @@
--- FRAMEDECKS Phase 3: tenant foundation. Every table is tenant-scoped and protected by RLS.
+-- FrameDecks Phase 3: tenant foundation. Every table is tenant-scoped and protected by RLS.
 
 create table public.organizations (
   id uuid primary key default gen_random_uuid(),

@@ -1,4 +1,4 @@
--- FRAMEDECKS Phase 5: controlling a service from the companion (design: docs/architecture/remote-control.md).
+-- FrameDecks Phase 5: controlling a service from the companion (design: docs/architecture/remote-control.md).
 -- A person's phone leaves a command for a linked PC; the PC takes its commands with its computer key (as in sync) and
 -- publishes a small text status back. The companion never connects to the PC.
 

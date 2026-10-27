@@ -1,4 +1,4 @@
-/* FRAMEDECKS - store tests (app/js/store.js, run in Node with small browser stand-ins).
+/* FrameDecks - store tests (app/js/store.js, run in Node with small browser stand-ins).
  * Frames own their lists, duplicates are independent, older data converts the same way every time,
  * and an older Frame-wide output switch moves onto its Content (v6.6). Run: node tests/run.js */
 const env = require('./helpers/load-store.js')(), SC = env.Scenes, assert = require('assert');

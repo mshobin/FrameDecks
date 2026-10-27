@@ -1,7 +1,6 @@
-/* FRAMEDECKS identity (owner-approved, 27 October; docs/design-system.md "Identity").
-   Restraint over decoration: flat gold for the one main action, no glows or pointer light, cards only for things
-   you act on. One owned shape, the gold frame corners from the logo, marks what matters (what is on screen, the
-   product shots, the next service). The scripture serif carries verses, times and quotes. */
+/* FrameDecks identity (owner-approved, 27 October; docs/design-system.md "Identity").
+   Calm, premium surfaces: warm gold for the one main action, cards only for things you act on. One owned shape,
+   the gold frame corners from the logo, marks what matters (what is on screen, the product shots, the next service). The scripture serif carries verses, times and quotes. */
 
 @font-face {
   font-family: "EB Garamond";
@@ -21,32 +20,37 @@
   letter-spacing: 0;
 }
 
-/* ---------- restraint ---------- */
-.fd-ambient {
-  display: none;
+/* ---------- the name: FrameDecks, in its own case (the wide tracking suited capitals only) ---------- */
+.fd-brand-copy strong {
+  font-size: 16px;
+  letter-spacing: -0.01em;
 }
 
+.fd-wordmark {
+  margin-right: 0;
+  letter-spacing: -0.01em;
+}
+
+/* ---------- buttons ---------- */
 .fd-btn {
   border-radius: 12px;
 }
 
-.fd-btn:hover,
+/* the one main action: warm gold with a soft lift on hover (and motion.css's single sweep of light) */
+.fd-btn-primary {
+  background: linear-gradient(180deg, #f1d083, #d9a945);
+  color: #1a1306;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.45) inset, 0 8px 24px -10px rgba(227, 183, 90, 0.55);
+}
+
+.fd-btn-primary:hover {
+  background: linear-gradient(180deg, #f5d892, #e0b14f);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5) inset, 0 14px 32px -12px rgba(227, 183, 90, 0.7);
+  transform: translateY(-1px);
+}
+
 .fd-btn:active {
-  transform: none;
-}
-
-.fd-btn-primary,
-.fd-btn-primary:hover {
-  background: var(--gold);
-  box-shadow: none;
-}
-
-.fd-btn-primary:hover {
-  background: var(--gold-2);
-}
-
-.fd-btn-primary::after {
-  display: none;
+  transform: translateY(0) scale(0.98);
 }
 
 .fd-btn-ghost {
@@ -92,390 +96,6 @@
   width: 100%;
   height: auto;
   border-radius: 8px;
-}
-
-/* ---------- landing ---------- */
-.fd-hero2 {
-  display: grid;
-  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
-  gap: clamp(28px, 4vw, 56px);
-  align-items: center;
-  width: min(100%, 1240px);
-  margin: 0 auto;
-  padding: clamp(40px, 7vw, 96px) clamp(20px, 4vw, 48px) clamp(32px, 5vw, 64px);
-}
-
-.fd-hero2-title {
-  margin: 10px 0 0;
-  color: var(--text);
-  font-size: clamp(34px, 4.4vw, 54px);
-  font-weight: 700;
-  line-height: 1.06;
-  letter-spacing: -0.02em;
-}
-
-.fd-hero2-text {
-  margin: 20px 0 0;
-  max-width: 34em;
-  color: var(--text-2);
-  font-size: 18px;
-  line-height: 1.6;
-}
-
-.fd-hero2 .fd-hero-actions {
-  justify-content: flex-start;
-  align-items: center;
-  gap: 20px;
-}
-
-.fd-trustline {
-  margin: 22px 0 0;
-  color: var(--text-3);
-  font-size: 13px;
-  line-height: 1.6;
-}
-
-.fd-trustline a,
-.fd-foot-links a {
-  color: var(--text-2);
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-
-.fd-hero2-shot {
-  margin: 0;
-}
-
-.fd-hero2-shot figcaption {
-  margin-top: 10px;
-  color: var(--text-3);
-  font-size: 13px;
-}
-
-.fd-section-head {
-  max-width: 640px;
-  margin-bottom: 28px;
-}
-
-.fd-section-head p {
-  margin: 10px 0 0;
-  color: var(--text-2);
-  font-size: 16px;
-  line-height: 1.6;
-}
-
-.fd-try,
-.fd-week,
-.fd-does,
-.fd-faq,
-.fd-ready-cta {
-  width: min(100%, 1180px);
-  margin: 0 auto;
-  padding: clamp(40px, 6vw, 72px) clamp(20px, 4vw, 48px);
-  border-top: 1px solid var(--hairline);
-}
-
-/* the demo: a tap on the phone changes the room */
-.fd-demo {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 240px;
-  gap: 28px;
-  align-items: stretch;
-}
-
-.fd-demo-room {
-  margin: 0 0 10px;
-  color: var(--text-3);
-  font-size: 13px;
-  font-weight: 600;
-}
-
-.fd-demo-screen {
-  display: flex;
-  flex-direction: column;
-  min-height: 300px;
-  padding: 22px;
-  border-radius: 8px;
-  background: #0b1222;
-}
-
-.fd-demo-card {
-  margin: auto;
-  max-width: 560px;
-  padding: 22px 26px;
-  border: 1px solid rgba(227, 183, 90, 0.45);
-  border-radius: 8px;
-  background: #142140;
-  color: #f5f7fb;
-  text-align: center;
-  animation: fd-demo-in 260ms ease-out;
-}
-
-@keyframes fd-demo-in {
-  from {
-    opacity: 0;
-    transform: translateY(6px);
-  }
-}
-
-.fd-demo-kind {
-  color: #e3b75a;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
-
-.fd-demo-text {
-  margin: 10px 0 8px;
-  font-size: 22px;
-  line-height: 1.4;
-}
-
-.fd-demo-text.fd-serif {
-  font-size: 26px;
-}
-
-.fd-demo-sub {
-  color: #aeb8cc;
-  font-size: 13px;
-}
-
-.fd-demo-phone {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding: 18px;
-  border: 1px solid var(--hairline-strong);
-  border-radius: 20px;
-  background: var(--surface-solid);
-}
-
-.fd-demo-now {
-  margin: 0;
-  color: var(--text);
-  font-weight: 700;
-}
-
-.fd-demo-prev,
-.fd-demo-next {
-  display: inline-flex;
-  min-height: 52px;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  border: 1px solid var(--hairline-strong);
-  border-radius: 12px;
-  background: transparent;
-  color: var(--text);
-  font: inherit;
-  font-size: 16px;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.fd-demo-next {
-  min-height: 72px;
-  border-color: transparent;
-  background: var(--gold);
-  color: #1a1306;
-}
-
-.fd-demo-prev:disabled,
-.fd-demo-next:disabled {
-  opacity: 0.45;
-  cursor: default;
-}
-
-.fd-demo-hint {
-  margin: 0;
-  color: var(--text-3);
-  font-size: 13px;
-  text-align: center;
-}
-
-/* a week with FRAMEDECKS: a timeline, not cards */
-.fd-timeline {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.fd-timeline li {
-  display: grid;
-  grid-template-columns: 200px minmax(0, 1fr);
-  gap: 24px;
-  padding: 22px 0;
-  border-top: 1px solid var(--hairline);
-}
-
-.fd-timeline li:first-child {
-  border-top: 0;
-}
-
-.fd-when {
-  color: var(--gold);
-  font-size: 22px;
-}
-
-.fd-timeline h3 {
-  margin: 0;
-  color: var(--text);
-  font-size: 18px;
-}
-
-.fd-timeline p {
-  margin: 6px 0 0;
-  max-width: 40em;
-  color: var(--text-2);
-  font-size: 16px;
-  line-height: 1.6;
-}
-
-.fd-verse {
-  padding: clamp(40px, 6vw, 72px) clamp(20px, 4vw, 48px);
-  text-align: center;
-}
-
-.fd-verse blockquote {
-  margin: 0 auto;
-  max-width: 760px;
-  color: var(--text);
-  font-size: clamp(24px, 3vw, 34px);
-  line-height: 1.35;
-}
-
-.fd-verse cite {
-  display: block;
-  margin-top: 12px;
-  color: var(--gold);
-  font-size: 16px;
-  font-style: normal;
-}
-
-.fd-does-grid {
-  display: grid;
-  grid-template-columns: 240px minmax(0, 1fr);
-  gap: clamp(24px, 5vw, 64px);
-  align-items: start;
-}
-
-.fd-does-phone {
-  width: 100%;
-  height: auto;
-  border: 1px solid var(--hairline-strong);
-  border-radius: 20px;
-}
-
-.fd-does dl {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 28px 40px;
-  margin: 0;
-}
-
-.fd-does dt {
-  color: var(--text);
-  font-size: 18px;
-  font-weight: 700;
-}
-
-.fd-does dd {
-  margin: 6px 0 0;
-  color: var(--text-2);
-  font-size: 16px;
-  line-height: 1.6;
-}
-
-.fd-faq-list {
-  max-width: 820px;
-}
-
-.fd-faq details {
-  border-top: 1px solid var(--hairline);
-}
-
-.fd-faq details:last-child {
-  border-bottom: 1px solid var(--hairline);
-}
-
-.fd-faq summary {
-  padding: 16px 0;
-  color: var(--text);
-  font-size: 17px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.fd-faq details p {
-  margin: 0 0 18px;
-  max-width: 44em;
-  color: var(--text-2);
-  font-size: 16px;
-  line-height: 1.6;
-}
-
-.fd-ready-cta {
-  text-align: center;
-}
-
-.fd-ready-cta .fd-hero-actions {
-  justify-content: center;
-  align-items: center;
-  gap: 20px;
-}
-
-.fd-landing-foot {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: 16px;
-  width: min(100%, 1180px);
-  margin: 0 auto;
-  padding: 28px clamp(20px, 4vw, 48px) 40px;
-  border-top: 1px solid var(--hairline);
-}
-
-.fd-foot-brand {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  color: var(--text-3);
-  font-size: 13px;
-}
-
-.fd-foot-brand strong {
-  color: var(--text);
-  font-size: 14px;
-  letter-spacing: 0.08em;
-}
-
-.fd-foot-links {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 18px;
-  font-size: 14px;
-}
-
-@media (max-width: 900px) {
-  .fd-hero2,
-  .fd-demo,
-  .fd-does-grid {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .fd-does dl {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .fd-timeline li {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 4px;
-  }
-
-  .fd-does-phone {
-    max-width: 240px;
-  }
 }
 
 /* ---------- Home: the next service ---------- */
@@ -748,12 +368,6 @@
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .fd-demo-card {
-    animation: none;
-  }
-}
-
 .content-add {
   align-self: flex-start;
   padding: 2px 0;
@@ -768,26 +382,6 @@
 
 .content-add:hover {
   text-decoration: underline;
-}
-
-/* one calm background; section titles left-aligned and steady (no scroll-driven fading) */
-body {
-  background: var(--background);
-}
-
-.fd-section-head .fd-section-title,
-.fd-ready-cta .fd-section-title {
-  max-width: none;
-  margin: 0;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  text-align: left;
-  animation: none;
-}
-
-.fd-ready-cta .fd-section-title {
-  margin-bottom: 22px;
-  text-align: center;
 }
 
 /* restraint, everywhere: the main action is flat gold, icons and the brand mark sit on plain tiles */

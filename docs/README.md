@@ -1,13 +1,13 @@
-# FRAMEDECKS documentation
+# FrameDecks documentation
 
-Everything you need to plan, present and support a service with FRAMEDECKS — organized by what you want to
+Everything you need to plan, present and support a service with FrameDecks — organized by what you want to
 do.
 
 **New here?** Start with [Getting started](getting-started.md). It takes about 15 minutes.
 
 ---
 
-## Use FRAMEDECKS
+## Use FrameDecks
 
 | Guide | What it covers |
 | --- | --- |
@@ -48,11 +48,11 @@ do.
 | [Building the installer](development/building-the-installer.md) | Producing the Windows installer with GitHub Actions |
 | [Engineering assessment](project/engineering-assessment.md) | Current stack, architecture, security, performance, PWA/SaaS readiness, and technical debt |
 | [SaaS migration roadmap](project/saas-migration-roadmap.md) | Proposed hosted architecture and phased migration from the local-first desktop product |
-| [FRAMEDECKS repository audit](FRAMEDECKS_AUDIT.md) | Repository baseline, security, performance, SaaS/PWA/offline readiness, and migration risks |
-| [FRAMEDECKS modernization plan](FRAMEDECKS_MODERNIZATION.md) | Target architecture, authentication, pairing, synchronization, deployment, and rollback |
-| [FRAMEDECKS modernization status](FRAMEDECKS_MODERNIZATION_STATUS.md) | Resumable milestone status, blockers, and validation record |
-| [FRAMEDECKS branding assets](FRAMEDECKS_BRANDING_ASSETS.md) | Logo source, current asset mapping, generated variants, and intentionally retained graphics |
-| [FRAMEDECKS branding audit](FRAMEDECKS_BRANDING_AUDIT.md) | Remaining legacy-name references, their locations, and compatibility rationale |
+| [FrameDecks repository audit](FRAMEDECKS_AUDIT.md) | Repository baseline, security, performance, SaaS/PWA/offline readiness, and migration risks |
+| [FrameDecks modernization plan](FRAMEDECKS_MODERNIZATION.md) | Target architecture, authentication, pairing, synchronization, deployment, and rollback |
+| [FrameDecks modernization status](FRAMEDECKS_MODERNIZATION_STATUS.md) | Resumable milestone status, blockers, and validation record |
+| [FrameDecks branding assets](FRAMEDECKS_BRANDING_ASSETS.md) | Logo source, current asset mapping, generated variants, and intentionally retained graphics |
+| [FrameDecks branding audit](FRAMEDECKS_BRANDING_AUDIT.md) | Remaining legacy-name references, their locations, and compatibility rationale |
 | [Repository audit](project/repository-audit.md) | Scored review of the product and the repository |
 | [Design history](architecture/design-history.md) | The engineering log, one section per version |
 
@@ -72,7 +72,7 @@ Detailed guides written alongside earlier versions. They remain accurate for the
 
 - [Changelog](../CHANGELOG.md) — every version at a glance
 - [Release notes](releases/) — full notes for each version
-- [Roadmap](../ROADMAP.md) — where FRAMEDECKS is going
+- [Roadmap](../ROADMAP.md) — where FrameDecks is going
 
 ## Conventions in these docs
 

@@ -1,4 +1,4 @@
--- FRAMEDECKS migration step 1: one audit log of who changed a workspace's people and computers
+-- FrameDecks migration step 1: one audit log of who changed a workspace's people and computers
 -- (docs/migration-plan.md §7). Written only by triggers; owners and admins can read their workspace's log; kept one
 -- year. Nothing in the companion or on the PC reads it yet, so nothing visible changes.
 -- Run once in the Supabase SQL editor, after 0005_remote_live.sql. Undo: supabase/rollback/0006_audit_log_down.sql.

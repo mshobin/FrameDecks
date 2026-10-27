@@ -1,4 +1,4 @@
-/* FRAMEDECKS - three main tabs (Studio · Members · Settings) with sub-views, the Members directory
+/* FrameDecks - three main tabs (Studio · Members · Settings) with sub-views, the Members directory
  * table and the Recordings list.
  * v4.9: "Meetings & Content" moved into the Studio. The view ids are unchanged (meeting, overlays, studio,
  * recordings), so KCSetTab('meeting'), data-goto links and every screen that checks body.dataset.tab work as
@@ -186,11 +186,11 @@ function loadRecordings(){
   fetch('api/vcam/recordings', {cache: 'no-store'}).then(function(r){ return r.json(); }).then(function(d){
     root.innerHTML = '';
     root.appendChild(h('div', {cls: 'dir-head'}, [
-      h('div', {}, [h('h2', {text: 'Recordings'}), h('p', {cls: 'hint', text: 'Recordings of exactly what FRAMEDECKS sent. Saved in ' + d.folder})]),
+      h('div', {}, [h('h2', {text: 'Recordings'}), h('p', {cls: 'hint', text: 'Recordings of exactly what FrameDecks sent. Saved in ' + d.folder})]),
       h('div', {cls: 'dir-tools'}, [
         h('button', {cls: 'btn', type: 'button', html: window.KCIcon('folder-open', 16) + ' Open folder', onclick: function(){ rec('folder'); }}),
       ])]));
-    if (!d.items.length){ root.appendChild(h('p', {cls: 'empty-card', text: 'No recordings yet. Press Record above to record what FRAMEDECKS sends.'})); return; }
+    if (!d.items.length){ root.appendChild(h('p', {cls: 'empty-card', text: 'No recordings yet. Press Record above to record what FrameDecks sends.'})); return; }
     var t = h('table', {cls: 'dir-table'}, [h('thead', {}, [h('tr', {}, ['Recording', 'Date', 'Size', ''].map(function(x){ return h('th', {text: x}); }))])]);
     var tb = h('tbody');
     d.items.forEach(function(it){

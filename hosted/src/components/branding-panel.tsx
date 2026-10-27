@@ -145,8 +145,8 @@ function Branding({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
         </div>
         <p className="workspace-hint">
           {hasLogo(record?.body)
-            ? "Your logo is set on the service PC. To change it: FRAMEDECKS → Settings → Meeting & Branding."
-            : "Add a logo on the service PC: FRAMEDECKS → Settings → Meeting & Branding (pictures stay on the PC)."}
+            ? "Your logo is set on the service PC. To change it: FrameDecks → Settings → Meeting & Branding."
+            : "Add a logo on the service PC: FrameDecks → Settings → Meeting & Branding (pictures stay on the PC)."}
         </p>
       </aside>
     </div>

@@ -1,4 +1,4 @@
-/* FRAMEDECKS - Settings > Phone & iPad Remote */
+/* FrameDecks - Settings > Phone & iPad Remote */
 (function(){
 'use strict';
 var Store = window.KCStore, Status = window.KCStatus;
@@ -19,7 +19,7 @@ function ago(t, now){ var s = Math.max(0, Math.round(now - t)); return s < 5 ? '
 box.hidden = false; box.innerHTML = '';
 if (!Store.served){
   box.appendChild(h('div', {cls: 'box-head'}, [h('h2', {text: 'Phone & iPad Remote'})]));
-  box.appendChild(h('p', {cls: 'plain', text: 'The phone remote needs the FRAMEDECKS program. Start it with “Start FRAMEDECKS with Phone Remote.bat”.'}));
+  box.appendChild(h('p', {cls: 'plain', text: 'The phone remote needs the FrameDecks program. Start it with “Start FRAMEDECKS with Phone Remote.bat”.'}));
   return;
 }
 
@@ -45,11 +45,11 @@ sw.addEventListener('change', function(){
     .then(function(){ busy = false; sw.disabled = false; });
 });
 var auto = h('input', {type: 'checkbox', id: 'remote-autostart'});
-auto.addEventListener('change', function(){ post('settings', {remoteAutostart: auto.checked}).then(function(){ toast(auto.checked ? 'The phone remote will turn on whenever FRAMEDECKS starts' : 'The phone remote will start switched off'); }); });
+auto.addEventListener('change', function(){ post('settings', {remoteAutostart: auto.checked}).then(function(){ toast(auto.checked ? 'The phone remote will turn on whenever FrameDecks starts' : 'The phone remote will start switched off'); }); });
 document.addEventListener('kc-app-info', function(e){ auto.checked = !!e.detail.settings.remoteAutostart; });
 box.appendChild(h('div', {cls: 'big-switch'}, [sw, h('div', {}, [swText,
   h('div', {cls: 'hint', text: 'When on, phones and iPads on your Wi-Fi can connect using the PIN. When off, nothing on the network can reach this PC.'})])]));
-box.appendChild(h('label', {cls: 'check', style: 'margin-bottom:10px'}, [auto, ' Turn on automatically when FRAMEDECKS starts']));
+box.appendChild(h('label', {cls: 'check', style: 'margin-bottom:10px'}, [auto, ' Turn on automatically when FrameDecks starts']));
 box.appendChild(h('div', {cls: 'box-head'}, [h('h2', {text: 'Remote status'}),
   h('button', {cls: 'btn small', type: 'button', text: 'Connection test', onclick: runTest})]));
 box.appendChild(pillEl); box.appendChild(msgEl); box.appendChild(testOut);
@@ -65,7 +65,7 @@ var helpBox = h('section', {cls: 'box'}, [h('div', {cls: 'box-head'}, [h('h2', {
     h('li', {}, ['Put the PC and the phone or iPad on the ', h('b', {text: 'same Wi-Fi'}), ' (not a guest network).']),
     h('li', {}, ['Turn on the ', h('b', {text: 'Phone remote'}), ' switch at the top of this page.']),
     h('li', {}, ['On the phone or iPad, point the ', h('b', {text: 'Camera'}), ' at the QR code and tap the link, or type the address into Safari.']),
-    h('li', {}, ['Enter the ', h('b', {text: 'PIN'}), '. Tip: Share → Add to Home Screen gives a one-tap FRAMEDECKS Remote icon.'])
+    h('li', {}, ['Enter the ', h('b', {text: 'PIN'}), '. Tip: Share → Add to Home Screen gives a one-tap FrameDecks Remote icon.'])
   ])]);
 [helpBox, fixBox, devBox, connectBox].forEach(function(b){ box.parentNode.insertBefore(b, box.nextSibling); });
 
@@ -86,7 +86,7 @@ function update(r){
   var net = r.network, publicNets = net ? (net.profiles || []).filter(function(p){ return p.category === 'Public'; }) : [];
   if (!urls.length) setPill('bad', 'Network problem', 'This PC is not connected to Wi-Fi or a network. Connect it to the same Wi-Fi as your phone or iPad, then restart the program.');
   else if (recent.length) setPill('ok', 'Connected', recent.length === 1 ? 'Your phone or iPad is connected and ready.' : recent.length + ' devices are connected.');
-  else if (signed.length) setPill('warn', 'Remote disconnected', 'The phone or iPad was connected but has stopped responding. Check its Wi-Fi, or reopen FRAMEDECKS Remote on the phone or iPad.');
+  else if (signed.length) setPill('warn', 'Remote disconnected', 'The phone or iPad was connected but has stopped responding. Check its Wi-Fi, or reopen FrameDecks Remote on the phone or iPad.');
   else if (publicNets.length) setPill('warn', 'Firewall problem', 'Windows treats your network as Public, which blocks the phone or iPad. See “Fix the connection” below.');
   else setPill('info', 'Ready, waiting for phone', devs.length ? 'A device reached this PC but has not entered the PIN yet.' : 'Remote is on. Open the address on your phone or iPad and enter the PIN.');
 
@@ -156,7 +156,7 @@ function runTest(){
     var ok = t.results.filter(function(x){ return x.ok; });
     if (ok.length) testOut.appendChild(h('div', {cls: 'alert ok'}, [h('b', {text: 'This PC is ready. '}),
       'It answers on ' + ok.map(function(x){ return x.ip; }).join(', ') + '. If the phone or iPad still cannot open the page, Windows Firewall, security software or the router is blocking it. (This test cannot see the phone or iPad’s side.)']));
-    else testOut.appendChild(h('div', {cls: 'alert bad', text: 'The program is not answering on its network address. Turn the switch off and on again, or restart FRAMEDECKS.'}));
+    else testOut.appendChild(h('div', {cls: 'alert bad', text: 'The program is not answering on its network address. Turn the switch off and on again, or restart FrameDecks.'}));
   }).catch(function(){ testOut.innerHTML = ''; testOut.appendChild(h('div', {cls: 'alert bad', text: 'The local program is not responding.'})); });
 }
 Status.on('remote', update);

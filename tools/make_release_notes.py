@@ -1,7 +1,7 @@
-"""FRAMEDECKS - the GitHub release page, branded like the About screen (6.7).
+"""FrameDecks - the GitHub release page, branded like the About screen (6.7).
 
 Builds the release notes for one version: the About screen's header (assets/brand/kc-about-header.webp, captured from
-the app by tools/make_readme_header.py: the logo, FRAMEDECKS, the tagline, the motto and "Version X.Y"; its
+the app by tools/make_readme_header.py: the logo, FrameDecks, the tagline, the motto and "Version X.Y"; its
 alternative text uses the words in app/js/brand.js), then the notes from docs/releases/vX.Y.md in a fixed order:
 
     What's New · Enhancements · Fixes · Performance Improvements · Known Issues
@@ -65,7 +65,7 @@ def header(version, repo, ref):
         src = "https://github.com/%s/blob/%s/%s?raw=true" % (repo, ref or ("v" + version), HEADER)
     else:
         src = HEADER
-    alt = " ".join(w for w in ["FRAMEDECKS.", tagline + ".", motto, "Version %s" % version] if w)
+    alt = " ".join(w for w in ["FrameDecks.", tagline + ".", motto, "Version %s" % version] if w)
     return "\n".join(['<p align="center"><img src="%s" alt="%s" width="900"></p>' % (src, alt), "", "---", ""])
 
 
@@ -88,7 +88,7 @@ def build(version, repo=None, ref=None):
     if not src.exists():
         raise SystemExit("No release notes for %s: write %s" % (version, src.relative_to(ROOT)))
     text = src.read_text(encoding="utf-8")
-    text = re.sub(r"\A#{1,2}\s+FRAMEDECKS v[\d.]+\s*\n", "", text)  # prior release headings remain readable
+    text = re.sub(r"\A#{1,2}\s+FrameDecks v[\d.]+\s*\n", "", text)  # prior release headings remain readable
     if repo:
         text = absolute_links(text, repo, ref or ("v" + version))
     lead, found = split_sections(text)

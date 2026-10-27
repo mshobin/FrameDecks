@@ -1,4 +1,4 @@
-// FRAMEDECKS - a saved plan as sync records ("entities"), and back: the companion's copy of the desktop's
+// FrameDecks - a saved plan as sync records ("entities"), and back: the companion's copy of the desktop's
 // sync_entities.py (design: docs/architecture/metadata-sync.md, section 3). Both are checked against the shared
 // fixtures in tests/fixtures/sync/ (hosted/tests/sync-entities.test.mjs). Self-contained, with no imports, so the
 // tests can load it directly with Node's type stripping.

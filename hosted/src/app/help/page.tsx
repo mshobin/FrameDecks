@@ -14,17 +14,17 @@ const GUIDES = "https://github.com/mshobin/FRAMEDECKS/blob/main/docs";
 export default function HelpPage() {
   const contact = brand.creator.email;
   return (
-    <AuthShell eyebrow={`FRAMEDECKS ${brand.version}`} title="Help" document>
+    <AuthShell eyebrow={`FrameDecks ${brand.version}`} title="Help" document>
       <div className="auth-legal fd-help">
         <nav aria-label="On this page" className="fd-help-toc">
-          <a href="#start">Getting started</a> · <a href="#sunday">Sunday morning</a> · <a href="#problems">If something goes wrong</a> ·{" "}
+          <a href="#start">Getting started</a> · <a href="#day">On the day</a> · <a href="#problems">If something goes wrong</a> ·{" "}
           <a href="#words">Words</a> · <a href="#contact">Contact</a>
         </nav>
 
         <h2 id="start">Getting started</h2>
         <ol>
           <li>
-            <strong>Install FRAMEDECKS</strong> on the Windows PC that drives your screen or your Zoom:{" "}
+            <strong>Install FrameDecks</strong> on the Windows PC that drives your screen or your stream:{" "}
             <a href={DOWNLOADS} target="_blank" rel="noreferrer">
               download it here
             </a>
@@ -35,8 +35,8 @@ export default function HelpPage() {
             computer or phone.
           </li>
           <li>
-            <strong>Choose how people see it</strong>: in the program, Settings → How people see it (FRAMECAST in Zoom or
-            Teams, the Share Window, or a projector, TV or OBS).
+            <strong>Choose how people see it</strong>: in the program, Settings → How people see it (FRAMECAST in your video meeting or
+            streaming platform, the Share Window, or a projector, TV or live production tool).
           </li>
           <li>
             <strong>Practise</strong>: Studio → Run → tick Practice mode. Your audience would see a black screen while you
@@ -44,17 +44,17 @@ export default function HelpPage() {
           </li>
         </ol>
 
-        <h2 id="sunday">Sunday morning</h2>
+        <h2 id="day">On the day</h2>
         <ul>
-          <li>Open FRAMEDECKS on the service PC and select <strong>Run</strong>.</li>
+          <li>Open FrameDecks on the service PC and select <strong>Run</strong>.</li>
           <li>
             Read <strong>Before you start</strong>: every line green? Untick Practice mode if it is on.
           </li>
           <li>
-            In Zoom or Teams, choose <strong>FRAMECAST</strong> as the camera (if that is how people see it).
+            In your video meeting or streaming platform, choose <strong>FRAMECAST</strong> as the camera (if that is how people see it).
           </li>
           <li>
-            Running from a phone? Open <Link href="/live">Live</Link> here, or the phone remote on the church Wi-Fi.
+            Running from a phone? Open <Link href="/live">Live</Link> here, or the phone remote on the local Wi-Fi.
           </li>
           <li>
             The keys: <kbd>T</kbd> Go Live, <kbd>]</kbd> Next, <kbd>[</kbd> Previous, <kbd>Esc</kbd> Hide all,{" "}
@@ -71,11 +71,11 @@ export default function HelpPage() {
             <strong>The screen must go dark now:</strong> press <kbd>K</kbd> (Black screen); press it again to come back.
           </li>
           <li>
-            <strong>Zoom shows no FRAMECAST camera:</strong> in FRAMEDECKS, Settings → How people see it → FRAMECAST
-            Camera → Install, then restart Zoom.
+            <strong>Your meeting app shows no FRAMECAST camera:</strong> in FrameDecks, Settings → How people see it → FRAMECAST
+            Camera → Install, then restart the meeting app.
           </li>
           <li>
-            <strong>The website says the PC is offline:</strong> open FRAMEDECKS on that PC and check its internet.
+            <strong>The website says the PC is offline:</strong> open FrameDecks on that PC and check its internet.
           </li>
           <li>
             More answers:{" "}
@@ -97,7 +97,7 @@ export default function HelpPage() {
           <dt>Prepare / Run</dt>
           <dd>Plan and edit / run the service, with nothing to edit by accident.</dd>
           <dt>FRAMECAST</dt>
-          <dd>FRAMEDECKS&apos;s own camera, which you choose in Zoom or Teams.</dd>
+          <dd>FrameDecks&apos;s own camera, which you choose in your video meeting or streaming platform.</dd>
           <dt>Service PC</dt>
           <dd>The Windows PC that runs the meeting.</dd>
         </dl>
@@ -112,11 +112,11 @@ export default function HelpPage() {
         <h2 id="contact">Contact</h2>
         <p>
           A question, a problem or an idea? Write to{" "}
-          <a href={`mailto:${contact}?subject=${encodeURIComponent(`FRAMEDECKS ${brand.version}: help`)}`}>{contact}</a>. In
+          <a href={`mailto:${contact}?subject=${encodeURIComponent(`FrameDecks ${brand.version}: help`)}`}>{contact}</a>. In
           the program, Settings → Diagnostics → Copy diagnostics adds useful details (never your PIN or members).
         </p>
         <p className="fd-help-version">
-          FRAMEDECKS {brand.version} · free and open source (Apache 2.0) · <Link href="/privacy">Privacy</Link>
+          FrameDecks {brand.version} · free and open source (Apache 2.0) · <Link href="/privacy">Privacy</Link>
         </p>
       </div>
     </AuthShell>

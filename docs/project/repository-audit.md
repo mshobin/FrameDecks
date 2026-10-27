@@ -1,4 +1,4 @@
-# Repository audit — FRAMEDECKS v6.6
+# Repository audit — FrameDecks v6.6
 
 An independent review of the product and the repository: what it is, how it is built, how ready it is for
 churches, and what to improve next. Scores are out of 10.
@@ -53,7 +53,7 @@ Code behaviour did not change in this pass, so the product scores are the same i
 
 ## 1. Product purpose
 
-FRAMEDECKS is a Windows presentation app for churches and ministries. One leader's PC builds the meeting
+FrameDecks is a Windows presentation app for churches and ministries. One leader's PC builds the meeting
 as **Frames** (Welcome, Worship, Scripture, Discussion, Prayer, Closing), each holding **Content** (questions,
 scriptures, text, timers, pictures, video, PowerPoint). It presents in three ways at once:
 
@@ -127,7 +127,7 @@ so two builds months apart may differ; pinning exact versions for releases would
 | 6 | Windows-only camera | Mac churches cannot use the camera features | Document clearly; consider only with demand |
 | 7 | Dependency ranges, no lock file | Builds can drift | **Done:** `packaging/constraints.txt` pins every package to the last good build |
 | 7a | Two OpenCV packages installed together (`opencv-python` 5.0 via a dependency, `opencv-python-headless` 4.14) sharing one module | A future version change could break the camera | Pinned as a tested pair; remove one when the dependency allows it |
-| 8 | Internal names (data folder, install folder, exe) still carried the program's earlier name | Confusing in support conversations | **Done (6.9):** everything uses FRAMEDECKS; `legacy.py` moves earlier data once |
+| 8 | Internal names (data folder, install folder, exe) still carried the program's earlier name | Confusing in support conversations | **Done (6.9):** everything uses FrameDecks; `legacy.py` moves earlier data once |
 | 9 | GitHub Actions on Node 20 actions | Deprecation warnings today, failures later | Update action versions once verified |
 
 ## 7. UX review

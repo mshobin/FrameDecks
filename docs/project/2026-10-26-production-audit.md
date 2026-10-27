@@ -1,4 +1,4 @@
-# FRAMEDECKS production audit, 26 October 2026
+# FrameDecks production audit, 26 October 2026
 
 > **Status (26 October, evening):** roadmap steps 1 and 2 are built on `main` for **6.11.1**:
 > - H3: build inputs pinned, Dependabot, a separate release job;
@@ -35,7 +35,7 @@ on Windows (WebView2, the camera driver, Credential Manager). No dynamic penetra
 
 ## 1. Executive summary
 
-FRAMEDECKS is in good security shape for a small product:
+FrameDecks is in good security shape for a small product:
 - **Local server:** it listens on this PC only, checks the Host and Origin headers, guards file paths, and limits each
   upload to 8 MB. The phone remote needs a 6-digit PIN and locks out repeated wrong guesses.
 - **Database:** row-level security is on every table. Every privileged function pins its search path and validates
@@ -124,7 +124,7 @@ The main risks are about **reliability and release trust**, not about breaking i
   - The softcam source is compiled into a DLL that the installer registers system-wide with administrator rights.
   - If a tag is moved upstream, the next build silently ships different code.
   - Third-party actions on mutable tags run with write access to the repository and its releases.
-- **User impact:** a compromised upstream could ship malicious code inside a signed FRAMEDECKS installer.
+- **User impact:** a compromised upstream could ship malicious code inside a signed FrameDecks installer.
 - **Recommendation:**
   1. Pin softcam to a commit SHA and check it (`git rev-parse HEAD`).
   2. Pin every action to a full commit SHA, with the version in a comment.
@@ -160,7 +160,7 @@ The main risks are about **reliability and release trust**, not about breaking i
 | L2 | State writes skip fsync (atomic `os.replace` without flush) | `server.py` `_write_state_file` | Add `flush` and `os.fsync` before the replace, or rely on H1's recovery. | None | SAFE |
 | L3 | Python dependencies are not hash-pinned | `packaging/constraints.txt` | `pip install --require-hashes` with a hashed lock file. | Low | SAFE |
 | L4 | Upgrade-only legacy code (old names, folders and firewall rules) | `legacy.py`, `installer.iss`, `server.py` `OLD_FIREWALL_RULES` | Keep it for two more releases, then remove it with a release note. | Low | REVIEW |
-| L5 | Zip-era helper scripts in the repository root | `Allow iPad Remote - run once.bat`, `Start FRAMEDECKS*.bat/.command`, `Undo iPad Remote permission.bat` | Confirm they are still needed; otherwise move them to `tools/legacy/`. | Low | REVIEW |
+| L5 | Zip-era helper scripts in the repository root | `Allow iPad Remote - run once.bat`, `Start FrameDecks*.bat/.command`, `Undo iPad Remote permission.bat` | Confirm they are still needed; otherwise move them to `tools/legacy/`. | Low | REVIEW |
 | L6 | Very large single files | `server.py` (2,552 lines), `app/js/workspace.js`, `app/js` (33k lines) | Split by area (HTTP routes, camera, remote, sync glue) in a separate refactor release with no behaviour change. | Medium | HIGH RISK (refactor) |
 | L7 | The phone and overlay pages announce their presence every 4 s | `app/js/store.js` `presence` | Fine at small scale; could become 10 s. | Low | REVIEW |
 | L8 | GitHub warns that Node 20 actions are deprecated | build logs | Update the action versions (with H3 pinning). | Low | SAFE |

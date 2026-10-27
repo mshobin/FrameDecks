@@ -1,5 +1,5 @@
-# Builds the installer "FRAMEDECKS v<version>.exe" on a clean Windows machine at GitHub.
-#   - Every push to "main" (or "Run workflow" on the Actions tab): the installer ("FRAMEDECKS v<version>.exe") is attached to that run
+# Builds the installer "FrameDecks v<version>.exe" on a clean Windows machine at GitHub.
+#   - Every push to "main" (or "Run workflow" on the Actions tab): the installer ("FrameDecks v<version>.exe") is attached to that run
 #     under "Artifacts" (kept for 90 days).
 #   - A version tag such as v3.1: the installer is also published on the Releases page (kept forever).
 name: Build Windows installer
@@ -102,7 +102,7 @@ jobs:
         run: |
           if (-not (Test-Path "dist/FRAMEDECKS/FRAMEDECKS.exe")) { throw "The app was not built" }
           if (-not (Get-ChildItem -Recurse "dist/FRAMEDECKS" -Filter dashboard.html)) { throw "App pages are missing" }
-          if (-not (Get-ChildItem -Recurse "dist/FRAMEDECKS" -Filter framedecks_vcam64.dll)) { throw "FRAMEDECKS is missing" }
+          if (-not (Get-ChildItem -Recurse "dist/FRAMEDECKS" -Filter framedecks_vcam64.dll)) { throw "FrameDecks is missing" }
 
       - name: Hand the program folder to SignPath (signing on)
         id: unsigned_app
@@ -185,7 +185,7 @@ jobs:
       - name: Attach the installer to this run
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: FRAMEDECKS v${{ steps.ver.outputs.version }}
+          name: FrameDecks v${{ steps.ver.outputs.version }}
           path: |
             dist/FRAMEDECKS v*.exe
             dist/FRAMEDECKS v*.exe.sha256
@@ -248,7 +248,7 @@ jobs:
       - name: Get the installer
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
-          name: FRAMEDECKS v${{ needs.build.outputs.version }}
+          name: FrameDecks v${{ needs.build.outputs.version }}
           path: dist
 
       - name: Get the release notes
@@ -260,7 +260,7 @@ jobs:
       - name: Publish on the Releases page
         uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2
         with:
-          name: FRAMEDECKS ${{ needs.build.outputs.version }}
+          name: FrameDecks ${{ needs.build.outputs.version }}
           body_path: dist/release-notes.md
           files: |
             dist/FRAMEDECKS v*.exe

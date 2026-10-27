@@ -1,10 +1,10 @@
-/* FRAMEDECKS v6 - the Studio: Scenes + Layers | Studio Canvas | Inspector, and the live bar.
+/* FrameDecks v6 - the Studio: Scenes + Layers | Studio Canvas | Inspector, and the live bar.
  *
  * Three ideas: a Scene owns its Layers, its Transition and its Output rules; a Layer owns its Content; everything
  * renders on the Canvas. Scenes live in the shared state (js/store.js KCScenes), so the phone remote, the
  * keyboard and the overlay pages see the same scenes. Question, Scripture and Birthday layers drive the existing
  * cards, and their Inspector holds the existing editors and lists (same elements, same code), so every earlier way
- * of working still works. Media layers are FRAMEDECKS Studio layers; the program applies the live scene's media
+ * of working still works. Media layers are FrameDecks Studio layers; the program applies the live scene's media
  * layers to the camera picture, and arranging them on the canvas writes them back into the scene. */
 (function(){
 'use strict';
@@ -633,7 +633,7 @@ function importScene(){
       var made = null;
       commit(function(n){ sc.id = 'sc_' + Math.random().toString(36).slice(2, 9); sc.name = SC.uniqueName(n, sc.name); sc.created = sc.modified = Date.now(); sc.from = file.name; SC.insert(n, sc, selScene); made = sc; })
         .then(function(){ if (made) select(made.id, null, true); toast('Frame imported: ' + made.name); });
-    }).catch(function(){ toast('That file is not a FRAMEDECKS Frame.', true); });
+    }).catch(function(){ toast('That file is not a FrameDecks Frame.', true); });
   });
   document.body.appendChild(f); f.click();
 }
@@ -847,7 +847,7 @@ function defaults(kind){
   return JSON.parse(JSON.stringify(d));
 }
 function pickFile(kind){
-  if (!window.KCStudio || !window.KCStudio.addFile){ toast('Needs FRAMEDECKS (the installed app).', true); return Promise.resolve(null); }
+  if (!window.KCStudio || !window.KCStudio.addFile){ toast('Needs FrameDecks (the installed app).', true); return Promise.resolve(null); }
   return window.KCStudio.addFile(kind).catch(function(e){ toast(e.message, true); return null; });
 }
 
@@ -1332,7 +1332,7 @@ function renderAll(force){
   renderScenes(); renderLayers(); renderInspector(); renderCanvas(); renderLiveBar();
 }
 Store.subscribe(function(st){ live = st; migrate(); renderAll(false); });
-setInterval(function(){ if (live && !document.hidden && document.body.dataset.tab === 'studio') renderLayers(); }, 3000);   // media layer status from FRAMEDECKS
+setInterval(function(){ if (live && !document.hidden && document.body.dataset.tab === 'studio') renderLayers(); }, 3000);   // media layer status from FrameDecks
 
 /* Keyboard in the Studio: Ctrl+D duplicates the selected scene (or layer), Delete removes, F2 renames */
 document.addEventListener('keydown', function(e){

@@ -11,7 +11,7 @@
 }
 
 :root {
-  /* FRAMEDECKS design tokens (2026-10 redesign: Apple-style clarity, deference and depth on the brand's navy and gold) */
+  /* FrameDecks design tokens (2026-10 redesign: Apple-style clarity, deference and depth on the brand's navy and gold) */
   color-scheme: dark;
   --background: #070c18;
   --foreground: #f5f7fb;
@@ -1122,7 +1122,7 @@ h1 {
   color: var(--gold);
 }
 
-/* 6.11 is FRAMEDECKS on this PC (pc-setup-card.tsx) */
+/* 6.11 is FrameDecks on this PC (pc-setup-card.tsx) */
 .pc-setup {
   position: relative;
   display: flex;

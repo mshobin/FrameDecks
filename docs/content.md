@@ -41,11 +41,11 @@ Every kind of Content you can put in a Frame, and every setting that controls ho
 | **PowerPoint…** | |
 
 > **Note:** A Frame has at most one Question, one Scripture, one Birthday and one Branding Content. Put all of a
-> Frame's questions into its one Question list. If you choose Question again, FRAMEDECKS takes you to the
+> Frame's questions into its one Question list. If you choose Question again, FrameDecks takes you to the
 > existing list.
 
 > **Note:** Picture-based Content (image, video, PowerPoint, camera, screen, window, logo, watermark, free text,
-> shape and background) is part of the **FRAMEDECKS** picture. These items are greyed out until the
+> shape and background) is part of the **FrameDecks** picture. These items are greyed out until the
 > FRAMECAST camera is on (**Settings → FRAMECAST Camera**).
 
 ## The Content list
@@ -74,7 +74,7 @@ visible at once, in groups, with the most used first. The group names at the top
 | --- | --- |
 | **Label** | The small heading on the card, and whether it shows |
 | **Content** | What it says or shows: the list, the text, the countdown |
-| **Display Settings** | Where it sits on the picture and how wide it is. Inside it: **Animation** (how it appears) and **Show on** (FRAMEDECKS, OBS pages, or both) |
+| **Display Settings** | Where it sits on the picture and how wide it is. Inside it: **Animation** (how it appears) and **Show on** (FrameDecks, OBS pages, or both) |
 | **Visual Settings** | Text size and opacity |
 | **Media** | File, slide and placement settings for pictures, video and PowerPoint |
 
@@ -228,7 +228,7 @@ Display Settings, Visual Settings and Animation work as for Text.
 
 ## Image, Video and PowerPoint
 
-These are part of the FRAMEDECKS picture. Their **Media** group has:
+These are part of the FrameDecks picture. Their **Media** group has:
 
 | Setting | What it does |
 | --- | --- |
@@ -280,13 +280,13 @@ in Teams, **Include sound**.
 ## Show on: where Content appears
 
 Cards and text have a **Show on** group (inside Display Settings):
-- **FRAMEDECKS** (the Zoom / Teams camera, recordings and the Presentation window);
+- **FrameDecks** (the Zoom / Teams camera, recordings and the Presentation window);
 - **OBS / browser overlay pages**.
 
 Untick one to keep that Content off that output. For cards it applies when the Frame is taken live; for text it
 applies at once.
 
-Camera and media Content is the FRAMEDECKS picture itself, so it has no Show on group.
+Camera and media Content is the FrameDecks picture itself, so it has no Show on group.
 
 ## Placeholders: {meeting} and {org}
 

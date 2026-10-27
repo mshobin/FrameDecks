@@ -1,4 +1,4 @@
-/* FRAMEDECKS - Members, Birthdays, Email Preparation, Settings */
+/* FrameDecks - Members, Birthdays, Email Preparation, Settings */
 (function(){
 'use strict';
 
@@ -115,14 +115,14 @@ function normalizeData(d){
 function loadPrivate(){
   if (Store.served){
     return fetch('api/private', {cache: 'no-store'}).then(function(r){ if (!r.ok) throw new Error(); return r.json(); })
-      .then(function(d){ storedAt = d.storedAt || 'the FRAMEDECKS folder'; return d; });
+      .then(function(d){ storedAt = d.storedAt || 'the FrameDecks folder'; return d; });
   }
   storedAt = 'This browser’s own storage on this computer (no-install mode). Other browsers and OBS can’t see it.';
   try { return Promise.resolve(JSON.parse(localStorage.getItem(PKEY) || '{}')); } catch(e){ return Promise.resolve({}); }
 }
 var saveT, saveChain = Promise.resolve(), loadFailed = false;
 function persist(){
-  if (loadFailed){ toast('Changes can’t be saved because member data didn’t load. Restart FRAMEDECKS and reload this page.', true); return; }
+  if (loadFailed){ toast('Changes can’t be saved because member data didn’t load. Restart FrameDecks and reload this page.', true); return; }
   clearTimeout(saveT);
   saveT = setTimeout(function(){
     var payload = JSON.stringify({members: data.members, settings: data.settings});
@@ -132,7 +132,7 @@ function persist(){
           .then(function(r){ if (!r.ok) throw new Error(); });
       }
       localStorage.setItem(PKEY, payload);
-    }).catch(function(){ toast('Member data couldn’t be saved. Check that the FRAMEDECKS window is open.', true); });
+    }).catch(function(){ toast('Member data couldn’t be saved. Check that the FrameDecks window is open.', true); });
   }, 250);
 }
 
@@ -463,7 +463,7 @@ function dateCode(v){
   return d && d.y ? {y: d.y, m: d.m, d: d.d} : null;
 }
 function needXlsx(run){
-  window.KCNeedXLSX().then(function(x){ XLSX = x; run(); }).catch(function(){ toast('The Excel reader could not load. Restart FRAMEDECKS and try again.', true); });
+  window.KCNeedXLSX().then(function(x){ XLSX = x; run(); }).catch(function(){ toast('The Excel reader could not load. Restart FrameDecks and try again.', true); });
 }
 function readFile(file){ needXlsx(function(){ readFileNow(file); }); }
 function readFileNow(file){
@@ -1071,6 +1071,6 @@ function setup(){
 
 loadPrivate().then(function(d){ data = normalizeData(d); }, function(){
   loadFailed = true;
-  toast('Member data couldn’t be loaded. Check that the FRAMEDECKS window is open, then reload.', true);
+  toast('Member data couldn’t be loaded. Check that the FrameDecks window is open, then reload.', true);
 }).then(function(){ setup(); renderAll(); });
 })();

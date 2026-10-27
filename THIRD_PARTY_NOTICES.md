@@ -1,12 +1,12 @@
 # Third-party notices
 
-FRAMEDECKS is released under the [Apache License 2.0](LICENSE). It uses the software and assets below, each under its
+FrameDecks is released under the [Apache License 2.0](LICENSE). It uses the software and assets below, each under its
 own licence. Licences that ask for their text to travel with copies are honoured as follows:
 - the files under `app/vendor/` and `app/fonts/` keep their own licence files;
 - the Windows installer carries this file, `LICENSE` and `NOTICE` in the program folder;
 - each project's full licence is at the link given.
 
-**Who this is for:** anyone redistributing FRAMEDECKS, and maintainers adding a dependency. Add a row here, in the same
+**Who this is for:** anyone redistributing FrameDecks, and maintainers adding a dependency. Add a row here, in the same
 change, for anything new that ships.
 
 ## Shipped in the Windows program
@@ -15,7 +15,7 @@ change, for anything new that ships.
 |---|---|---|---|
 | Python (runtime bundled by PyInstaller) | PSF License | Runs the program | https://docs.python.org/3/license.html |
 | PyInstaller bootloader | GPL-2.0 with the bootloader exception (programs it bundles may use any licence) | Starts the program | https://github.com/pyinstaller/pyinstaller/blob/develop/COPYING.txt |
-| softcam (built into the FRAMEDECKS camera DLLs) | MIT, Copyright (c) tshino | Virtual camera | https://github.com/tshino/softcam |
+| softcam (built into the FrameDecks camera DLLs) | MIT, Copyright (c) tshino | Virtual camera | https://github.com/tshino/softcam |
 | pywebview | BSD-3-Clause | Program window | https://github.com/r0x0r/pywebview |
 | pystray | LGPL-3.0 (used unmodified as a separate, replaceable package in the program folder) | Tray icon | https://github.com/moses-palmer/pystray |
 | Pillow | MIT-CMU (HPND) | Pictures and card text | https://github.com/python-pillow/Pillow |
@@ -48,5 +48,5 @@ They are bundled into the built site under those licences.
 ## Services, not shipped
 
 Supabase, Vercel, the ESV API (api.esv.org; each church uses its own key under Crossway's terms) and, when M-D3 is
-built, Ollama and the models it runs: these are reached over the network and not redistributed by FRAMEDECKS. A model's
+built, Ollama and the models it runs: these are reached over the network and not redistributed by FrameDecks. A model's
 own licence applies to whoever downloads it.

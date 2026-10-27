@@ -1,12 +1,12 @@
-# FRAMEDECKS glossary
+# FrameDecks glossary
 
 One word for each thing, the same in the program, on the website and in these guides. If a screen uses a different
 word, the screen is wrong: fix the screen, not this list. (Owner-approved simplification, 27 October 2026.)
 
 | Say | Means | Don't say |
 | --- | --- | --- |
-| **FRAMEDECKS** | The program on the service PC, and the website that goes with it. | KingdomConnect, the app, the software |
-| **FRAMECAST** | FRAMEDECKS's own camera: what you choose as the camera in Zoom or Teams. | the virtual camera, vcam, FRAMEDECKS camera |
+| **FrameDecks** | The program on the service PC, and the website that goes with it. Always written FrameDecks (capital F and D only). | FRAMEDECKS, Framedecks, KingdomConnect, the app, the software |
+| **FRAMECAST** | FrameDecks's own camera: what you choose as the camera in Zoom or Teams. | the virtual camera, vcam, FrameDecks camera |
 | **Frame** | One step of the meeting: what is on screen at one moment. | scene, slide, page |
 | **Content** | What is on a Frame: a verse, a question, a picture, a video, text, a countdown. | layer, element, overlay |
 | **Running order** | The Frames in the order they go on screen. | services list, scene list, playlist |
@@ -29,8 +29,8 @@ word, the screen is wrong: fix the screen, not this list. (Owner-approved simpli
 | **Share Window** | A clean window with only your Frames, to share in Zoom. | presentation window, present mode |
 | **Live tools** | The menu with Black screen, Freeze, Draw, the Teleprompter and the Emergency screen. | Program menu |
 | **People** | Everyone in your member list (Members → People): the list, or the table. | directory, manage, contacts |
-| **Church** | Your church or group on the website: its people, its plans and its service PCs (*workspace* in the code). | workspace, organisation, tenant |
-| **Service PC** | The Windows PC that runs the service, linked to your church (*Linked PC* in the program). | computer, device, runtime, client |
+| **Team** | Your organisation, church, class or group on the website: its people, its plans and its service PCs (*workspace* in the code). | church (on the website), workspace, organisation, tenant |
+| **Service PC** | The Windows PC that runs the service, linked to your team (*Linked PC* in the program). | computer, device, runtime, client |
 | **Your account** | Your name, your churches and invitations (the avatar at the top). | profile, workspace admin |
 | **Phone remote** | The page on a phone, on the same Wi-Fi, that runs the service (Settings → Phone & iPad Remote). | LAN remote, iPad app |
 | **Live page** | The website page that runs a service from anywhere. | cloud remote, companion remote |

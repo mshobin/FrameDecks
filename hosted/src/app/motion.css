@@ -1,6 +1,6 @@
-/* FRAMEDECKS website motion (2026-10): cinematic but quiet. Things rise into place as they enter, light drifts
-   behind the page, the gold catches the light. Only transform, opacity and filter move (the compositor does the
-   work), the palette is unchanged, and everything here stops for people who ask their device for less motion.
+/* FrameDecks website motion (2026-10): cinematic but quiet. Things rise into place as they enter, light drifts
+   behind the page, the gold catches the light. Only transform and opacity move (the compositor does the
+   work; no animated blur, which costs older graphics chips), the palette is unchanged, and everything here stops for people who ask their device for less motion.
    Scroll reveals: [data-reveal], marked [data-in] by components/motion.tsx. Page-load entrances: .fd-enter, .fd-words, .fd-page. */
 
 :root {
@@ -35,7 +35,6 @@
   @keyframes fd-reveal {
     from {
       opacity: 0;
-      filter: blur(8px);
       transform: translate3d(0, 34px, 0) scale(0.985);
     }
   }
@@ -53,7 +52,6 @@
   @keyframes fd-word {
     from {
       opacity: 0;
-      filter: blur(10px);
       transform: translate3d(0, 0.45em, 0) rotateX(35deg);
     }
   }
@@ -120,7 +118,6 @@
   @keyframes fd-rise-in {
     from {
       opacity: 0;
-      filter: blur(12px);
       transform: translate3d(0, 24px, 0) scale(0.9);
     }
   }

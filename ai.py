@@ -1,4 +1,4 @@
-"""FRAMEDECKS - optional AI, free by default (M-D3 in docs/migration-plan.md; design in docs/architecture-review.md §6).
+"""FrameDecks - optional AI, free by default (M-D3 in docs/migration-plan.md; design in docs/architecture-review.md §6).
 
 One small interface, so a feature never calls a vendor directly:
     provider().available() -> {"ok", "provider", "model", "reason"}
@@ -11,7 +11,7 @@ Providers, in the order they are tried:
      FRAMEDECKS_AI_ENDPOINT (+ FRAMEDECKS_AI_MODEL; its key, if any, in FRAMEDECKS_AI_KEY).
   Paid providers are never called from the PC: they would go through a server-side function with the key kept there.
 
-Nothing here runs unless a feature asks, and every feature is hidden when no provider answers, so FRAMEDECKS works
+Nothing here runs unless a feature asks, and every feature is hidden when no provider answers, so FrameDecks works
 exactly as before without AI. Results are cached by (feature, model, input) in kc-ai-cache.json: asking again costs
 nothing and works offline.
 """

@@ -1,4 +1,4 @@
-// FRAMEDECKS - writes public/api/sync-config before every build (and `npm run dev`).
+// FrameDecks - writes public/api/sync-config before every build (and `npm run dev`).
 // The desktop program asks <companion>/api/sync-config for the cloud's address and public key when a PC is linked
 // (cloud_sync.companion_config), so neither is written into the program. Both are public by design (row-level
 // security protects the data); no secret is here. A file instead of a server route, so the companion is plain static

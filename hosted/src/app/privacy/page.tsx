@@ -10,9 +10,9 @@ export default function PrivacyPage() {
     <AuthShell eyebrow="Policy" title="Privacy" document>
       <div className="auth-legal">
         <p>Last updated 26 October 2026.</p>
-        <h2>What FRAMEDECKS is</h2>
+        <h2>What FrameDecks is</h2>
         <p>
-          FRAMEDECKS is a free presentation program for churches and study groups. It runs on your own service PC.
+          FrameDecks is a free presentation program for meetings, classes, events and services. It runs on your own PC.
           This website, the companion, lets the people in your workspace see and edit the plan and run the service
           from a phone.
         </p>
@@ -37,13 +37,13 @@ export default function PrivacyPage() {
         </p>
         <h2>Who can see it</h2>
         <p>
-          Only the people in your workspace, according to their role. FRAMEDECKS has no advertising and no tracking,
+          Only the people in your workspace, according to their role. FrameDecks has no advertising and no tracking,
           and does not sell or share your data. It is kept by Supabase (the database and sign-in) and served by
           Cloudflare (this website).
         </p>
         <h2>Google and Microsoft sign-in</h2>
         <p>
-          If you choose them, FRAMEDECKS receives only your email address, your name and a sign-in confirmation. It
+          If you choose them, FrameDecks receives only your email address, your name and a sign-in confirmation. It
           never sees your password and reads nothing else from your account.
         </p>
         <h2>Removing your data</h2>

@@ -1,6 +1,6 @@
-# FRAMEDECKS hosted companion
+# FrameDecks hosted companion
 
-This is the separate, online-first FRAMEDECKS web companion. It does not connect
+This is the separate, online-first FrameDecks web companion. It does not connect
 to the desktop app's local HTTP server. Sign-in (Supabase Auth: an emailed link,
 plus Google or Microsoft when they are switched on in Supabase) is implemented;
 cloud data and device pairing are not, so the overview is still a foundation
@@ -67,7 +67,7 @@ npm run dev
 ```
 
 The development server is available at `http://localhost:3000`. This local
-development URL is not a runtime integration with FRAMEDECKS desktop.
+development URL is not a runtime integration with FrameDecks desktop.
 
 ## Checks
 

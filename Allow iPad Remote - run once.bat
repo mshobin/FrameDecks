@@ -1,5 +1,5 @@
 @echo off
-title Allow iPad Remote - FRAMEDECKS
+title Allow iPad Remote - FrameDecks
 set "KC_SELF=%~f0"
 set "KC_DIR=%~dp0"
 net session >nul 2>&1
@@ -16,6 +16,6 @@ cd /d "%KC_DIR%"
 powershell -NoProfile -ExecutionPolicy Bypass -File "%KC_DIR%tools\allow-ipad-remote.ps1"
 echo.
 echo  A copy of this report was saved as ipad-remote-check.txt in the
-echo  FRAMEDECKS folder.
+echo  FrameDecks folder.
 echo.
 pause

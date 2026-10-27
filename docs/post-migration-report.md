@@ -65,7 +65,7 @@ feature, API or integration was removed or renamed:
 | What | `LICENSE` (Apache 2.0, the canonical text), `NOTICE`, `THIRD_PARTY_NOTICES.md` (every shipped component and its licence), `"license": "Apache-2.0"` in both `package.json` files. README and CONTRIBUTING are updated, and the README has a code signing policy |
 | Installer | The three files are copied into the program folder (`packaging/framedecks.spec`); `packaging/check.py` requires them |
 | Signing | `build-windows.yml` signs `FRAMEDECKS.exe`, both camera DLLs and the installer through SignPath. It checks each signature and fails the build if one is missing. It is **off** until the `SIGNPATH_API_TOKEN` secret exists; until then the build is unchanged |
-| Visible | Nothing in the program. Once signing is on, Windows shows "FRAMEDECKS" as a verified publisher |
+| Visible | Nothing in the program. Once signing is on, Windows shows "FrameDecks" as a verified publisher |
 | Owner | Follow [code-signing.md](project/code-signing.md): check, then make the repository public; apply to SignPath Foundation; add the secret and three variables |
 | Checked | Packaging check, Python and JS suites, hosted 77/77, Stream Deck tests and `validate`, `npm ci` with both lockfiles. The SignPath steps cannot be run until SignPath approves the project |
 
@@ -100,7 +100,7 @@ feature, API or integration was removed or renamed:
 | PowerPoint export | **Meeting → Export this meeting to PowerPoint** (one menu entry, existing style). `pptx_export.py` (python-pptx, MIT, loaded only when exporting) makes a title slide plus one slide per Frame: scripture, questions and words as editable text, pictures from the media folder, other media by name, the Teleprompter script as speaker notes. `POST /api/export/pptx`, this PC only. Nothing is uploaded |
 | Audio Content | **+ Content → Audio…** (one entry). It plays MP3, M4A, WAV or OGG through the PC's speakers while its Frame is live and the Content is on. It starts with Go Live and stops with the eye, Hide all / Esc, or a new Frame. There are Repeat and Volume settings. Only the program's own window plays it (`app/js/audio-player.js`); overlay pages, the camera picture and phones are untouched. `GET /api/media/audio`, this PC only, audio types only |
 | Build | `packaging/requirements-desktop.txt` and `constraints.txt`: python-pptx 1.0.2, lxml 6.1.3, XlsxWriter 3.2.9 (Windows wheels checked). The spec bundles python-pptx's templates. Third-party notices are updated |
-| Compatibility | An older FRAMEDECKS (6.10 and before) does not know Audio Content and drops it when loading a plan. **Update every linked PC before using Audio**, or a PC on the old version will sync the Frame without it |
+| Compatibility | An older FrameDecks (6.10 and before) does not know Audio Content and drops it when loading a plan. **Update every linked PC before using Audio**, or a PC on the old version will sync the Frame without it |
 | Visible | Exactly the two approved entries, plus the Audio settings in the existing inspector style |
 | Checked | Store tests (an audio layer is kept and cleaned; Go Live turns it on; the eye and Hide all turn it off; normalize is stable). Python: 4 export tests (the slides, notes, a picture, a missing picture, audio by name) and the media check for audio. The deck renders in LibreOffice (title, words, a centred picture). In the real program: Audio… in + Content, its settings, playing while live, silent after Hide all, the audio route refusing other files |
 

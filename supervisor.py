@@ -1,8 +1,8 @@
-"""FRAMEDECKS - restarts the program if it crashes (architecture audit C2: docs/project/2026-10-25-architecture-audit.md).
+"""FrameDecks - restarts the program if it crashes (architecture audit C2: docs/project/2026-10-25-architecture-audit.md).
 
 The installed FRAMEDECKS.exe starts as a small watchdog that runs the real program as a second FRAMEDECKS.exe and
 waits. If the program ends by crashing (a Windows crash code, such as an access violation in a camera or graphics
-driver), the watchdog starts it again within a second or two, so the FRAMEDECKS camera in Zoom or Teams comes back by
+driver), the watchdog starts it again within a second or two, so the FrameDecks camera in Zoom or Teams comes back by
 itself. At most 3 restarts in 5 minutes; then it stops trying.
 
 Never restarted: a normal quit (the tray, the window), the program's own "unexpected problem" message (it closes with
@@ -66,9 +66,9 @@ def run(argv=None, spawn=subprocess.call, clock=time.monotonic, sleep=time.sleep
         code = spawn(argv, env=env)
         if not should_restart(code, restarts, clock()):
             if is_crash(code):
-                _log(f"FRAMEDECKS crashed again (code 0x{code & 0xFFFFFFFF:08X}); not restarting after {MAX_RESTARTS} "
+                _log(f"FrameDecks crashed again (code 0x{code & 0xFFFFFFFF:08X}); not restarting after {MAX_RESTARTS} "
                      f"restarts in {int(WINDOW / 60)} minutes")
             return 0 if is_crash(code) else (code or 0)
         restarts.append(clock())
-        _log(f"FRAMEDECKS crashed (code 0x{code & 0xFFFFFFFF:08X}); starting it again")
+        _log(f"FrameDecks crashed (code 0x{code & 0xFFFFFFFF:08X}); starting it again")
         sleep(WAIT_BEFORE_RESTART)

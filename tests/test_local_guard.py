@@ -1,4 +1,4 @@
-"""FRAMEDECKS - the program's local server refuses its API to other websites (production audit M3), while the
+"""FrameDecks - the program's local server refuses its API to other websites (production audit M3), while the
 program's own pages, the phone remote, OBS and scripts on this PC keep working."""
 import http.client
 import os

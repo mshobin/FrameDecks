@@ -1,7 +1,7 @@
-"""FRAMEDECKS - the service as a PowerPoint file (M-D4 in docs/migration-plan.md).
+"""FrameDecks - the service as a PowerPoint file (M-D4 in docs/migration-plan.md).
 
 build(plan, media_folder) -> bytes of a .pptx: a title slide, then one slide per Frame in plan order (templates
-left out), in the FRAMEDECKS navy and gold:
+left out), in the FrameDecks navy and gold:
   - the Frame's name as the slide title;
   - its words: scripture (reference and text), questions, announcement / prayer / text Content;
   - its pictures from this PC's media folder; videos and PDFs by name;

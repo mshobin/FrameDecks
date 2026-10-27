@@ -1,4 +1,4 @@
-"""6.11: the website's "Open FRAMEDECKS on this PC" link (docs/architecture/meeting-form.md, section 4)."""
+"""6.11: the website's "Open FrameDecks on this PC" link (docs/architecture/meeting-form.md, section 4)."""
 import pathlib
 import re
 import unittest

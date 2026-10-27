@@ -1,4 +1,4 @@
-/* FRAMEDECKS - live status (v6): the header chips for every output, the birthday panel's text and the
+/* FrameDecks - live status (v6): the header chips for every output, the birthday panel's text and the
  * keyboard hints. The Studio itself (scenes, layers, canvas, inspector, live bar) is js/workspace.js. */
 (function(){
 'use strict';
@@ -61,11 +61,11 @@ function chip(id, cls, text, title){                    // touches the page only
 }
 function renderProgram(){
   if (!Store.served) chip('h-program', 'info', 'No-install mode', 'Overlays update only in this browser. Start the program for OBS, Camo and the phone remote.');
-  else chip('h-program', Store.online ? 'ok' : 'bad', Store.online ? 'Connected' : 'Not responding', Store.online ? 'The local program is running' : 'Check the black FRAMEDECKS window is open');
+  else chip('h-program', Store.online ? 'ok' : 'bad', Store.online ? 'Connected' : 'Not responding', Store.online ? 'The local program is running' : 'Check the black FrameDecks window is open');
   var set = window.KCMembersAPI ? window.KCMembersAPI.settings() : {};
   var br = window.KCStore && window.KCStore.brand ? window.KCStore.brand() : {};
   var t = br.meeting || set.meetingTitle || 'Meeting', g = String(br.org || set.groupName || '').trim();   // v6.2 Settings → Meeting & Branding first
-  var org = 'FRAMEDECKS';
+  var org = 'FrameDecks';
   t = (g && t.indexOf(g) < 0 ? g + ' · ' : '') + t;      // e.g. "NLFM · Tuesday Evening Group"
   if ($('meeting-title').textContent !== t) $('meeting-title').textContent = t;
   var dt = t + ' · ' + org; if (document.title !== dt) document.title = dt;
@@ -106,7 +106,7 @@ var slideInfo = null;
 window.KCSlideInfo = function(){ return slideInfo; };
 function renderRunning(){
   var ss = window.KCStudio && window.KCStudio.state ? window.KCStudio.state() : null, rec = ss && ss.recording;
-  var hr = $('h-rec'); if (hr){ var on = !!(rec && rec.on); if (hr.hidden === on) hr.hidden = !on; if (on) chip('h-rec', 'rec', fmtTime(rec.seconds), 'Recording the FRAMEDECKS output (Settings → Recording)'); }
+  var hr = $('h-rec'); if (hr){ var on = !!(rec && rec.on); if (hr.hidden === on) hr.hidden = !on; if (on) chip('h-rec', 'rec', fmtTime(rec.seconds), 'Recording the FrameDecks output (Settings → Recording)'); }
   var pr = slideInfo && slideInfo.presentation, hs = $('h-slides');
   if (hs){ if (hs.hidden === !!pr) hs.hidden = !pr; if (pr) chip('h-slides', 'ok', pr.page ? pr.page + (pr.pages ? '/' + pr.pages : '') : 'Ready', 'Slides: ' + (pr.name || 'presentation')); }
 }

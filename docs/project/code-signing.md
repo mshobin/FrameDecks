@@ -1,6 +1,6 @@
 # Code signing: free, through SignPath Foundation (M-D1)
 
-How FRAMEDECKS gets a signed installer at no cost. Windows warns about unsigned programs ("Windows protected your
+How FrameDecks gets a signed installer at no cost. Windows warns about unsigned programs ("Windows protected your
 PC"), and some church IT policies block them. SignPath Foundation signs open-source projects for free, with its own
 certificate, from builds made on GitHub.
 
@@ -56,7 +56,7 @@ every installer build from `main` and every version tag is signed by itself.
        <artifact-configuration xmlns="http://signpath.io/artifact-configuration/v1">
          <zip-file>
            <pe-file-set>
-             <include path="FRAMEDECKS v*.exe" min-matches="1" max-matches="1"/>
+             <include path="FrameDecks v*.exe" min-matches="1" max-matches="1"/>
              <for-each><authenticode-sign/></for-each>
            </pe-file-set>
          </zip-file>

@@ -1,8 +1,8 @@
 @echo off
-title FRAMEDECKS (phone remote ON)
+title FrameDecks (phone remote ON)
 cd /d "%~dp0"
 echo.
-echo  Starting FRAMEDECKS with the iPad remote...
+echo  Starting FrameDecks with the iPad remote...
 echo  If Windows asks whether Python may use the network, choose
 echo  PRIVATE networks only, then select Allow.
 echo.

@@ -1,4 +1,4 @@
-# FRAMEDECKS coding standards
+# FrameDecks coding standards
 
 Write code that reads like the code around it. These are the conventions the repository already follows.
 
@@ -19,7 +19,7 @@ Write code that reads like the code around it. These are the conventions the rep
 
 - **One feature per file**, wrapped in an immediately invoked function in strict mode:
   ```js
-  /* FRAMEDECKS - <feature>: what it does and why, in a sentence or two. */
+  /* FrameDecks - <feature>: what it does and why, in a sentence or two. */
   (function(){
   'use strict';
   var Store = window.KCStore, SC = window.KCScenes;
@@ -69,7 +69,7 @@ Write code that reads like the code around it. These are the conventions the rep
 ## Wording in the interface
 
 - Use the app's terms consistently: **Frame**, **Content**, **Content Settings**, **Go Live**, **Hide all**,
-  **Blackout**, **Freeze**, **Annotate**, **Teleprompter**, **Teleprompter window**, **command palette**, **FRAMEDECKS** (the camera), **Meeting Workbook**.
+  **Blackout**, **Freeze**, **Annotate**, **Teleprompter**, **Teleprompter window**, **command palette**, **FrameDecks** (the camera), **Meeting Workbook**.
 - Plain English, short sentences, no technical jargon. Say what will happen: "Create a new PIN? Every connected
   phone or iPad will need the new PIN."
 - Messages that report a problem say what to do next.

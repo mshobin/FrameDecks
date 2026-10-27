@@ -1,10 +1,10 @@
-# FRAMEDECKS: Installation Guide (build and install the Windows app)
+# FrameDecks: Installation Guide (build and install the Windows app)
 
-This guide turns the FRAMEDECKS folder into a normal Windows program:
+This guide turns the FrameDecks folder into a normal Windows program:
 - a **Setup** file that installs it;
 - a **desktop icon**;
 - its **own app window**, with no address bar or browser controls;
-- the **FRAMEDECKS** camera for Zoom, Teams, Google Meet and OBS.
+- the **FrameDecks** camera for Zoom, Teams, Google Meet and OBS.
 
 After installing, see `docs/reference/configuration-guide.md` to set up the camera and the phone remote, and
 `docs/reference/user-guide.md` for everyday use.
@@ -23,7 +23,7 @@ any programming tools. You only need a free GitHub account.
 1. **Create a GitHub account** at <https://github.com> (free). Use a strong password and turn on
    two-factor sign-in when it offers.
 2. **Install GitHub Desktop** from <https://desktop.github.com> and sign in with your account.
-3. Unzip the **FRAMEDECKS** zip file somewhere permanent, for example `Documents\FRAMEDECKS`.
+3. Unzip the **FrameDecks** zip file somewhere permanent, for example `Documents\FRAMEDECKS`.
    (Keep using your current folder for meetings until the app is installed; nothing here changes it.)
 4. In GitHub Desktop: **File → Add local repository…** → choose the unzipped folder.
    It will say the folder is not a repository yet: click **create a repository**, then **Create repository**.
@@ -37,25 +37,25 @@ GitHub now starts building your installer automatically.
 2. Click the **Actions** tab. You'll see **Build Windows installer** running (yellow dot).
    It takes about 5–10 minutes. A green tick means it worked.
 3. Click the finished run. At the bottom, under **Artifacts**, click
-   **FRAMEDECKS v6.8** (the version number) to download it. It is a .zip containing the Setup .exe.
-4. Unzip it. You now have **FRAMEDECKS v6.8.exe**.
+   **FrameDecks v6.8** (the version number) to download it. It is a .zip containing the Setup .exe.
+4. Unzip it. You now have **FrameDecks v6.8.exe**.
 
 If you see a red cross instead, click the run to read the error, and send it to me.
 
 ## Part 3 · Install
 
-1. Close Zoom, Teams and OBS (they keep the camera in use), then double-click **FRAMEDECKS v6.8.exe**.
+1. Close Zoom, Teams and OBS (they keep the camera in use), then double-click **FrameDecks v6.8.exe**.
 2. Windows may show **"Windows protected your PC"**. This appears because the installer isn't
    code-signed (signing costs money every year). Click **More info → Run anyway**.
 3. Follow the wizard. Leave **Create a desktop icon** ticked.
    - Leave **Install the FRAMECAST camera for Zoom and Teams** ticked. Windows asks for administrator permission
      once, only for the camera.
-   - If you had the camera before under its earlier name, it is renamed to **FRAMEDECKS** automatically.
+   - If you had the camera before under its earlier name, it is renamed to **FrameDecks** automatically.
    - Tick **Start automatically when I sign in** if you'd like it ready every time.
 4. When it opens for the first time, it offers to **import your existing data**.
-   Choose your current FRAMEDECKS folder (it's usually found automatically) and click **Import**.
+   Choose your current FrameDecks folder (it's usually found automatically) and click **Import**.
    Your members, saved verses and questions, settings and phone PIN are copied across.
-   Your old folder isn't changed. (If an earlier installed version is on the PC, its data is moved to the FRAMEDECKS
+   Your old folder isn't changed. (If an earlier installed version is on the PC, its data is moved to the FrameDecks
     data folder automatically instead.)
 
 ## Part 4 · First-run checklist (before a real meeting)
@@ -64,7 +64,7 @@ If you see a red cross instead, click the run to read the error, and send it to 
       the top left and the tabs Studio · Members · Settings (Alt+1, Alt+3, Alt+4). There is no Windows title bar:
       drag the top bar to move the window and double-click it to maximize. Minimize, Maximize and Close sit at the
       top right; Minimize asks whether to hide the app to the tray.
-- [ ] Zoom, Teams, Google Meet and OBS list the camera as **FRAMEDECKS** (restart them after installing).
+- [ ] Zoom, Teams, Google Meet and OBS list the camera as **FrameDecks** (restart them after installing).
 - [ ] Your members and saved lists are there (after importing).
 - [ ] **OBS / Camo:** your existing overlay links still work (same address: `http://localhost:8750/...`).
       Check the top bar shows **OBS · 1 open**.
@@ -72,50 +72,50 @@ If you see a red cross instead, click the run to read the error, and send it to 
       The first time, Windows Firewall asks about network access: tick **Private networks** only → **Allow**.
       Your phone may need to scan the QR code again, and use the PIN shown.
 - [ ] **Close button (X):** choose **Keep running in the background**. The overlays keep working, and a
-      FRAMEDECKS icon appears near the clock (it may be under the **^** arrow). Click it to open the window again.
+      FrameDecks icon appears near the clock (it may be under the **^** arrow). Click it to open the window again.
 - [ ] **Quit** from that icon's menu (right-click → Exit), then open the app again
       from the desktop icon: everything is still there.
 - [ ] **Email draft and WhatsApp buttons** open your normal email app and browser.
 - [ ] **Excel export and backups** save to your Downloads folder.
 - [ ] Settings → Data / Backup shows your data folder and at least one backup.
 
-### First test of FRAMEDECKS (the built-in camera)
+### First test of FrameDecks (the built-in camera)
 
 - [ ] During installation, **Install the FRAMECAST camera** was ticked and you allowed the administrator prompt.
       (If not: Settings → FRAMECAST Camera → **Install FRAMECAST**.)
 - [ ] Settings → FRAMECAST Camera → **Show preview**: you see yourself. Try **Background blur: Light** and **Strong**.
-- [ ] Close and reopen Zoom. Settings → Video → Camera → **FRAMEDECKS**: Zoom shows you, and the status menu says **FRAMEDECKS · In use**.
-- [ ] Turn off Zoom's own background blur/virtual background while using FRAMEDECKS's blur.
+- [ ] Close and reopen Zoom. Settings → Video → Camera → **FrameDecks**: Zoom shows you, and the status menu says **FrameDecks · In use**.
+- [ ] Turn off Zoom's own background blur/virtual background while using FrameDecks's blur.
 - [ ] Stop your Zoom video: within a second the laptop webcam light goes off.
 - [ ] Settings → FRAMECAST Camera shows the frames per second (aim: about 30) and the work per frame. If the picture is jerky,
       choose **720p**, or blur **Light**, and send me the numbers from Settings → Diagnostics.
-- [ ] Repeat in Microsoft Teams (Settings → Devices → Camera → FRAMEDECKS).
-- [ ] **Cards on FRAMEDECKS:** in a Zoom test meeting (zoom.us/test), select **Show** for a question, then a verse:
+- [ ] Repeat in Microsoft Teams (Settings → Devices → Camera → FrameDecks).
+- [ ] **Cards on FrameDecks:** in a Zoom test meeting (zoom.us/test), select **Show** for a question, then a verse:
       both appear on your video within about a second. **Hide** removes each one. Try a Burst transition too.
       Check the same in Settings → FRAMECAST Camera → Show preview.
 - [ ] **Camera Look:** press **Ctrl+Alt+1** (Warm), **Ctrl+Alt+2** (Dark), **Ctrl+Alt+3** (Neutral), **Ctrl+Alt+0** (Off)
-      while Zoom shows FRAMEDECKS: your picture's colour changes, the cards don't. Settings → FRAMECAST Camera shows the
+      while Zoom shows FrameDecks: your picture's colour changes, the cards don't. Settings → FRAMECAST Camera shows the
       "look" time per frame; send me that number with the frames per second.
 - [ ] **Screen sharing (fixed in 4.1):** Studio (Alt+2) → Add layer → Layout templates → *Screen + camera corner*,
       pick your display. Within a few seconds your screen appears; move the mouse — the cursor shows. If it can't
       start, the Screen layer's inspector shows exactly which capture methods were tried and why: send me that text.
       Also try a PowerPoint slide show window and Page Down / Page Up.
-- [ ] **Presentation window (4.2):** Studio Canvas → *Share Window*. A separate window "FRAMEDECKS Share Window" opens. In a
-      Zoom test meeting: Share Screen → pick **FRAMEDECKS Share Window**. Show a question from the main window or your phone: it
+- [ ] **Presentation window (4.2):** Studio Canvas → *Share Window*. A separate window "FrameDecks Share Window" opens. In a
+      Zoom test meeting: Share Screen → pick **FrameDecks Share Window**. Show a question from the main window or your phone: it
       appears in the shared window at once. Esc closes it.
 - [ ] **4.5 Graphics card:** open the Presentation window and share it in Zoom. In Task Manager the separate "WebView2" line for the
-      shared window should be gone (the window is now part of FRAMEDECKS itself), and WebView2's GPU use
+      shared window should be gone (the window is now part of FrameDecks itself), and WebView2's GPU use
       should be far lower. Send me a new screenshot. If the Presentation window doesn't appear, send Settings →
       Diagnostics → Copy diagnostics (the log says which window type was used).
 - [ ] **4.4 Smoothness:** repeat your meeting setup (Zoom sharing the Presentation window, a question live) and open
       Task Manager → Processes. Compare GPU and "Desktop Window Manager" with your earlier screenshot, and switch
-      between apps. Send me a new screenshot including the **FRAMEDECKS** process line.
+      between apps. Send me a new screenshot including the **FrameDecks** process line.
 - [ ] **4.3 Presentation window:** opens with no title bar or window buttons; drag to move; Full Screen fills the
-      screen with no frame; Esc leaves full screen, Esc again (or ✕) closes. Zoom still lists it as "FRAMEDECKS Share Window".
+      screen with no frame; Esc leaves full screen, Esc again (or ✕) closes. Zoom still lists it as "FrameDecks Share Window".
 - [ ] **4.3 Camera quality:** Settings → FRAMECAST Camera: the line under the preview shows "Webcam: 1280×720 MJPG at 30 fps"
       (or similar). If it shows a smaller size, send me that line. In Zoom tick Settings → Video → HD.
 - [ ] **4.3 Blur:** − / + change the blur by 0.5 %; the lowest blur is 0.5 %.
-- [ ] **Acceptance (4.2):** with Zoom in a meeting, FRAMEDECKS on, and the Presentation window shared, switch between apps,
+- [ ] **Acceptance (4.2):** with Zoom in a meeting, FrameDecks on, and the Presentation window shared, switch between apps,
       move windows, type in a browser for a few minutes. Nothing should lag or freeze. Then send me Settings →
       Diagnostics → *Copy diagnostics* (it includes the new Resources line).
 - [ ] **Excel import:** Settings → Data / Backup → *Download the Excel template*; on the **Meeting Form** tab add a
@@ -130,7 +130,7 @@ If you see a red cross instead, click the run to read the error, and send it to 
 - [ ] **Latency:** tick "Latency test", screenshot the Studio clock next to your Zoom self-view; send me the
       difference, plus the line under "Final picture" (fps, ms, dropped, CPU).
 
-If Zoom or Teams doesn't list FRAMEDECKS, restart the meeting app (they look for cameras when they start).
+If Zoom or Teams doesn't list FrameDecks, restart the meeting app (they look for cameras when they start).
 Close Zoom and Teams before installing a new version, because they keep the camera in use.
 
 Once all of these work, stop using the old folder and its .bat files, so you don't have two copies of
@@ -163,7 +163,7 @@ Edit files inside your repository folder (the one GitHub Desktop is tracking). F
 
 Use a plain text editor such as Notepad or VS Code (free). Keep the quote marks, commas and brackets as they are.
 
-**Quick test before building:** double-click `Start FRAMEDECKS.bat` in the same folder. It runs your changed version in the browser straight away. It uses its own separate data, so it never touches the installed app's data.
+**Quick test before building:** double-click `Start FrameDecks.bat` in the same folder. It runs your changed version in the browser straight away. It uses its own separate data, so it never touches the installed app's data.
 
 ### 2. Raise the version number
 
@@ -195,7 +195,7 @@ GitHub builds the installer again and attaches it to that release permanently. T
 ### When I send you an updated zip
 
 1. Unzip it somewhere else (for example your Downloads folder).
-2. Open the new `FRAMEDECKS` folder, select everything inside it (Ctrl+A), copy it, and paste it
+2. Open the new `FrameDecks` folder, select everything inside it (Ctrl+A), copy it, and paste it
    into your repository folder. Choose **Replace the files in the destination**.
    The hidden `.git` folder in your repository folder is not in my zip, so your history is kept.
    **Make sure the `.github` folder is copied too.** It holds the build recipe; if it isn't updated, GitHub
@@ -213,7 +213,7 @@ GitHub builds the installer again and attaches it to that release permanently. T
 
 ## Uninstalling
 
-Windows **Settings → Apps → Installed apps → FRAMEDECKS → Uninstall**.
+Windows **Settings → Apps → Installed apps → FrameDecks → Uninstall**.
 It asks whether to delete your data as well. The default is **No**, which keeps your data for a later reinstall.
 
 ## Building on your own PC instead (optional)
@@ -227,12 +227,12 @@ The installer appears in the `dist` folder.
 - **The app opens in an Edge window (or your browser) instead of its own window:** Windows is missing the free
   "Microsoft Edge WebView2 Runtime". Install it from microsoft.com, then open the app again.
   Everything works in the meantime. The Edge app window has no address bar or tabs.
-- **Zoom / Teams / OBS still shows the camera's earlier name or no FRAMEDECKS:** restart that app. If it is still missing, run
+- **Zoom / Teams / OBS still shows the camera's earlier name or no FrameDecks:** restart that app. If it is still missing, run
   the installer again with **Install the FRAMECAST camera** ticked.
 - **Antivirus blocks or quarantines the app:** this is a known false alarm with unsigned apps made
   with Python. Restore it and add an exception for `%LOCALAPPDATA%\Programs\FRAMEDECKS`.
 - **"Port 8750 is in use" message:** another program is using the address the overlays need.
-  Close that program and restart FRAMEDECKS.
+  Close that program and restart FrameDecks.
 - **"This installer was built without the camera"** (Settings → FRAMECAST Camera): the build recipe in your repository
   is out of date. Copy the `.github` folder from my latest zip into your repository, commit, push, and install
   the new installer.

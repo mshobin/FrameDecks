@@ -1,7 +1,7 @@
 @echo off
 setlocal
 REM ------------------------------------------------------------------
-REM  Builds FRAMEDECKS v<version>.exe on THIS PC.
+REM  Builds FrameDecks v<version>.exe on THIS PC.
 REM  (The usual way is GitHub Actions - see docs/development/building-the-installer.md.)
 REM  Needs: Python 3.10 or newer, and Inno Setup 6 (free, jrsoftware.org).
 REM ------------------------------------------------------------------
@@ -19,7 +19,7 @@ echo  [2/5] Installing build tools (first time takes a few minutes)...
 python -m pip install --upgrade pip >nul || goto :fail
 python -m pip install -r packaging\requirements-desktop.txt -c packaging\constraints.txt || goto :fail
 
-echo  [2b] FRAMEDECKS camera...
+echo  [2b] FrameDecks camera...
 if exist "vcam\bin\framedecks_vcam64.dll" goto :vcamdone
 set "VSWHERE=%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe"
 if not exist "%VSWHERE%" goto :novcam
@@ -41,7 +41,7 @@ copy /y "vcam_build\softcam\Win32\Release\softcam.dll" "vcam\bin\framedecks_vcam
 goto :vcamdone
 :novcam
 echo.
-echo  NOTE: FRAMEDECKS was skipped. Building it needs "Build Tools for Visual Studio" (free, with
+echo  NOTE: FrameDecks was skipped. Building it needs "Build Tools for Visual Studio" (free, with
 echo  "Desktop development with C++") and Git. Everything else still builds. (GitHub builds it for you.)
 echo.
 :vcamdone

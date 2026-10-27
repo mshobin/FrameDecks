@@ -8,16 +8,17 @@ import "./design.css";
 import "./motion.css";
 import "./about.css";
 import "./identity.css";
+import "./landing.css";
 import "./light.css";
 
 export const metadata: Metadata = {
   title: {
-    default: "FRAMEDECKS Hosted Companion",
-    template: "%s | FRAMEDECKS",
+    default: "FrameDecks · Prepare with Purpose. Present with Excellence.",
+    template: "%s | FrameDecks",
   },
   description:
-    "The online-first FRAMEDECKS companion for secure service planning and device management.",
-  applicationName: "FRAMEDECKS",
+    "Plan, rehearse and present meetings, classes, conferences, events and services on every screen and stream, guided from your phone.",
+  applicationName: "FrameDecks",
   manifest: "/manifest.webmanifest",
   icons: {
     icon: "/framedecks-emblem.webp",

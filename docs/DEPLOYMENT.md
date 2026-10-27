@@ -1,6 +1,6 @@
-# FRAMEDECKS deployment
+# FrameDecks deployment
 
-FRAMEDECKS has two separate deployment surfaces. The desktop application is
+FrameDecks has two separate deployment surfaces. The desktop application is
 packaged for Windows; the optional hosted companion is deployed independently.
 
 ## Desktop application

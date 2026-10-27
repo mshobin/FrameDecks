@@ -1,4 +1,4 @@
-"""FRAMEDECKS - running a service from the companion (cloud_remote.py), against a stand-in cloud that follows the
+"""FrameDecks - running a service from the companion (cloud_remote.py), against a stand-in cloud that follows the
 rules of 0004_remote.sql: each command is taken once, oldest first; results and the status are kept per command and
 per PC. The program's window is played by a thread on the Bridge. Design: docs/architecture/remote-control.md."""
 import os
@@ -135,13 +135,13 @@ class BridgeTest(unittest.TestCase):
         b.offer([{"id": 1, "op": "next"}])
         b.waiting[0]["offeredAt"] -= R.WINDOW_WAIT + 1
         self.assertEqual(b.for_window(0), [])
-        self.assertEqual(b.collect([1], wait=0), [{"id": 1, "result": "not run: the FRAMEDECKS window did not answer"}])
+        self.assertEqual(b.collect([1], wait=0), [{"id": 1, "result": "not run: the FrameDecks window did not answer"}])
 
     def test_no_window(self):
         b = R.Bridge()
         b.offer([{"id": 7, "op": "next"}])
         t = time.monotonic()
-        self.assertEqual(b.collect([7], wait=0.2)[0]["result"], "not run: the FRAMEDECKS window did not answer")
+        self.assertEqual(b.collect([7], wait=0.2)[0]["result"], "not run: the FrameDecks window did not answer")
         self.assertLess(time.monotonic() - t, 1)
         self.assertEqual(b.for_window(0), [])                              # dropped, never run afterwards
 

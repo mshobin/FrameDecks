@@ -1,6 +1,6 @@
 # Service planning
 
-How to plan a service, Bible study or meeting in FRAMEDECKS, from a blank page or from Excel.
+How to plan a service, Bible study or meeting in FrameDecks, from a blank page or from Excel.
 
 **Who this is for:** worship leaders, small-group leaders and whoever prepares the order of service each week.
 
@@ -143,7 +143,7 @@ row to that log after each meeting, and the meeting tiles count them.
 
 Full details are in [reference/meeting-workbook-and-branding.md](reference/meeting-workbook-and-branding.md).
 
-Since 6.11 the same form is on the FRAMEDECKS website: **Meeting Form** in the companion
+Since 6.11 the same form is on the FrameDecks website: **Meeting Form** in the companion
 (framedecks.pages.dev). It reaches a linked PC by itself, with no file to import
 ([design](architecture/meeting-form.md)). The Excel workbook below still works; it is under
 **Settings → Data / Backup → Meeting from Excel** and leaves the program in 6.12.
@@ -172,7 +172,7 @@ Downloads folder. You can edit that file and import it again, or give it to a co
 
 **Meeting → Export this meeting to PowerPoint** saves the whole service as a `.pptx` that anyone can open, print or
 send. The file is made on this PC and never uploaded.
-- **Slides.** A title slide, then one slide per Frame in order (templates are left out), in FRAMEDECKS navy and gold.
+- **Slides.** A title slide, then one slide per Frame in order (templates are left out), in FrameDecks navy and gold.
 - **Words.** Each Frame's scripture (reference and text), questions, and announcement, prayer or text Content, as
   editable text.
 - **Media.** Its pictures from this PC; videos, audio and PDFs by name.
@@ -180,7 +180,7 @@ send. The file is made on this PC and never uploaded.
 
 ## Planning worship lyrics today
 
-FRAMEDECKS does not have a song library yet. A dedicated song library is on the [roadmap](../ROADMAP.md).
+FrameDecks does not have a song library yet. A dedicated song library is on the [roadmap](../ROADMAP.md).
 Today, churches show lyrics in one of two ways:
 
 1. **Text Content:** one Frame per verse or chorus. Add **+ Content → Text**, give it a title (the song name) and
@@ -188,7 +188,7 @@ Today, churches show lyrics in one of two ways:
 2. **PowerPoint or PDF:** add your existing lyric slides with **+ Content → PowerPoint…** and step through the slides
    with Page Up / Page Down or the phone.
 
-> **Important:** Make sure your church has the right licence to project the songs you use. FRAMEDECKS does not
+> **Important:** Make sure your church has the right licence to project the songs you use. FrameDecks does not
 > track or report song usage.
 
 ## Weekly planning checklist

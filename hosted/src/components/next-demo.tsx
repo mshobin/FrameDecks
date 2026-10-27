@@ -6,10 +6,10 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 // The product's one piece of real magic, shown instead of described (owner-approved, 27 October): a tap on the phone
 // changes the screen in the room. It moves only when pressed, so an idle page draws nothing.
 const FRAMES = [
-  { kind: "Welcome", text: "Welcome to Bible Study", sub: "Tuesday · 7:30 pm", serif: false },
-  { kind: "Focus verse", text: "Thy word is a lamp unto my feet, and a light unto my path.", sub: "Psalm 119:105", serif: true },
-  { kind: "Discussion question", text: "What does this passage reveal about the character of God?", sub: "Question 1 of 3", serif: false },
-  { kind: "Prayer", text: "Let us pray for one another.", sub: "Closing", serif: false },
+  { kind: "Welcome", text: "Welcome, everyone", sub: "Evening session · 7:30 pm", serif: false },
+  { kind: "Quote", text: "Alone we can do so little; together we can do so much.", sub: "Helen Keller", serif: true },
+  { kind: "Discussion question", text: "What is one idea you will put into practice this week?", sub: "Question 1 of 3", serif: false },
+  { kind: "Closing", text: "Thank you for being here.", sub: "See you next time", serif: false },
 ] as const;
 
 export function NextDemo() {

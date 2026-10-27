@@ -1,6 +1,6 @@
 # Testing
 
-FRAMEDECKS is tested in three layers: automated tests that run in seconds, a self-check that proves the program
+FrameDecks is tested in three layers: automated tests that run in seconds, a self-check that proves the program
 starts and serves everything it needs, and a manual service-safety test on a real Windows PC before each release.
 
 ## Automated tests
@@ -86,7 +86,7 @@ flow. Use a test Zoom or Teams meeting, a real webcam and a phone on the same Wi
 
 **Preparation**
 - [ ] Install over the previous version. Meetings, members and settings are still there.
-- [ ] Zoom or Teams lists **FRAMEDECKS**; choose it. Your webcam picture appears.
+- [ ] Zoom or Teams lists **FrameDecks**; choose it. Your webcam picture appears.
 
 **Running a meeting**
 - [ ] Select a Frame and press **Go Live** (or T). It appears in Zoom.
@@ -112,7 +112,7 @@ flow. Use a test Zoom or Teams meeting, a real webcam and a phone on the same Wi
 - [ ] **Teleprompter** (R) docks Left, Right, Bottom and Float; **Space** scrolls it. Its text never appears in Zoom, the Presentation window or the OBS pages.
 - [ ] **Teleprompter window** shows the Frame's script, the item on screen and the next item (no answers or notes).
 - [ ] The phone's **TELEPROMPTER** button opens the script full screen.
-- [ ] The **Presentation window** opens and can be shared in Zoom as "FRAMEDECKS Share Window".
+- [ ] The **Presentation window** opens and can be shared in Zoom as "FrameDecks Share Window".
 
 **Window, tray and Spotlight (6.8)**
 

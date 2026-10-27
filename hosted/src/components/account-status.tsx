@@ -26,7 +26,7 @@ export function AccountStatus() {
   const email = session.user.email ?? "";
   return (
     <span className="fd-account">
-      <Link className="fd-account-link" href="/account" title="Your account: profile and churches">
+      <Link className="fd-account-link" href="/account" title="Your account: profile and teams">
         <span className="fd-avatar" aria-hidden="true">
           {initialsOf(String(session.user.user_metadata?.full_name ?? email))}
         </span>

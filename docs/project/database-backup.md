@@ -1,6 +1,6 @@
 # Database backups: how they work and how to restore one
 
-The free Supabase plan has no daily backups, so FRAMEDECKS makes its own. The **Database backup** GitHub Action runs
+The free Supabase plan has no daily backups, so FrameDecks makes its own. The **Database backup** GitHub Action runs
 every night at 04:23 Kuwait time. It saves an **encrypted** copy of the workspace database and keeps each copy for
 30 days. Setup is in [free-hosting.md](free-hosting.md), Part B.
 
@@ -10,7 +10,7 @@ every night at 04:23 Kuwait time. It saves an **encrypted** copy of the workspac
 
 The file is `framedecks-backup-<date>.tar.enc`, under the run's **Artifacts** in GitHub → Actions → Database backup.
 It holds:
-- `public.dump`: everything FRAMEDECKS keeps. That is workspaces, people and roles, invitations, synced plans and
+- `public.dump`: everything FrameDecks keeps. That is workspaces, people and roles, invitations, synced plans and
   members, history, linked PCs, groups, the audit log, and who may read what.
 - `auth.dump`: the sign-in accounts (`auth.users`, `auth.identities`).
 - `README.txt`: when it was made.
@@ -52,7 +52,7 @@ You need:
      redeploy.
    - Update the GitHub secrets `SUPABASE_URL`, `SUPABASE_ANON_KEY` and `SUPABASE_DB_URL`.
    - Set the Authentication settings again: URL configuration, Google/Microsoft providers, SMTP.
-   - **Link each PC again:** Settings → FRAMEDECKS account → Unlink, then Link. The plan and members on each PC
+   - **Link each PC again:** Settings → FrameDecks account → Unlink, then Link. The plan and members on each PC
      are kept and sync to the restored workspace.
 
 ## Tested

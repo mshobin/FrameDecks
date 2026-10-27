@@ -1,6 +1,6 @@
-# Architecture review: FRAMEDECKS against the target architecture
+# Architecture review: FrameDecks against the target architecture
 
-A repository-wide review of FRAMEDECKS against the owner's target architecture (25 October 2026): a cloud for people,
+A repository-wide review of FrameDecks against the owner's target architecture (25 October 2026): a cloud for people,
 templates, settings, AI and audit; a desktop runtime for media, rendering, the virtual camera and meeting delivery.
 It covers architecture, gaps, security, performance, cloud vs local, AI, media, UI impact and technical debt.
 
@@ -19,17 +19,17 @@ does not repeat them. The plan that follows from it is [migration-plan.md](migra
 
 ```mermaid
 flowchart LR
-  subgraph Cloud [FRAMEDECKS Cloud - Supabase + Vercel]
+  subgraph Cloud [FrameDecks Cloud - Supabase + Vercel]
     A[Auth: emailed link, Google and Microsoft ready] --> DB[(Postgres + RLS)]
     DB --- W[Workspaces, memberships, roles, invitations]
     DB --- E[Synced records: Frames, templates, library, theme, brand, layout, meeting, members]
     DB --- H[30-day history, 7-day command log]
     C[Companion - Next.js 16: Services, Live, Members, Computers]
   end
-  subgraph PC [FRAMEDECKS Desktop - Windows]
+  subgraph PC [FrameDecks Desktop - Windows]
     UI[Studio window - WebView2] --> S[server.py, 127.0.0.1]
     S --> V[Camera engine - compositor, layers, cards, blur]
-    V --> VC[FRAMEDECKS virtual camera - softcam]
+    V --> VC[FrameDecks virtual camera - softcam]
     V --> PW[Share Window - Zoom/Teams Share Screen]
     S --> OV[Overlay pages - OBS browser sources]
     S --> PP[PowerPoint control - COM]
@@ -136,7 +136,7 @@ account), the PC is the only store. See M-D2 for the options.
 
 ## 6. AI architecture review
 
-**There is no AI in FRAMEDECKS today**, so nothing can break. A target that trends to $0 should be built like this
+**There is no AI in FrameDecks today**, so nothing can break. A target that trends to $0 should be built like this
 when a first AI feature is chosen (M-D3):
 
 - **One provider interface**, so features never call a vendor directly:
@@ -225,4 +225,4 @@ From [PROJECT_STATUS.md](../PROJECT_STATUS.md), the audit, and this review:
 | LGPL-3.0 | pystray |
 | GPL with the bootloader exception | PyInstaller (bundling apps under any licence is allowed) |
 
-All are compatible with releasing FRAMEDECKS under Apache 2.0, given a third-party notices file.
+All are compatible with releasing FrameDecks under Apache 2.0, given a third-party notices file.

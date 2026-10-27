@@ -1,4 +1,4 @@
-# FRAMEDECKS: feature documentation (v6.9)
+# FrameDecks: feature documentation (v6.9)
 
 ## v6.9 at a glance
 | Feature | What it does | Where it lives |
@@ -53,7 +53,7 @@ above describes them as they are now.
 | **Independent Frames** | Each Question / Scripture Content owns its list (`layer.c.items`) and its appearance (`layer.c.look`). Duplicate gives new ids to the Frame, every Content and every item. Older data is converted on load with ids derived from the old ones | `app/js/store.js` (`ownLists`, `freshIds`, `applyLook`) |
 | **Content Settings** | One panel per selection, every setting visible in groups (Content, Appearance, Position, Timing, Animation, Media, Behavior); no Basic / Advanced | `app/js/workspace.js` (`renderInspector`) |
 | **Question / Scripture lists** | Full-height list; click = current, double-click = edit in the same panel (label, text, answer, notes, transition) | `app/js/frame-lists.js` |
-| **Annotate** | Pen, highlighter, arrow, line, rectangle, ellipse, text; colours, thickness, undo / redo / clear; above all Content, PowerPoint and cards on FRAMEDECKS, the overlay pages and the phone | `app/js/annotate.js`, `vcam/annotate.py`, state `live.ink` |
+| **Annotate** | Pen, highlighter, arrow, line, rectangle, ellipse, text; colours, thickness, undo / redo / clear; above all Content, PowerPoint and cards on FrameDecks, the overlay pages and the phone | `app/js/annotate.js`, `vcam/annotate.py`, state `live.ink` |
 | **Freeze / Black screen** | Hold the picture (drawings stay on top) / black picture; keys F and K | `vcam/program.py`, state `live.freeze`, `live.blackout` |
 | **PowerPoint** | A .pptx becomes slides via the installed PowerPoint (COM SaveAs PDF); a live window keeps animations; **Show objects only** keys out a plain slide background | `vcam/powerpoint.py` (`pptx_to_pdf`), `vcam/layers.py` (`key_background`), `docs/reference/powerpoint.md` |
 | **Simple / Advanced remote** | Simple (default): Frame and Content steppers, Annotate, Freeze, Black Screen. Advanced: search, notes, run-through, PowerPoint, annotation | `app/remote.html`, `app/js/remote.js` |
@@ -77,40 +77,40 @@ For the earlier features, see `docs/reference/meeting-workbook-and-branding.md` 
 
 ## 1. The FRAMECAST camera
 
-FRAMEDECKS has its own camera for Zoom, Microsoft Teams, Google Meet, OBS and other apps that read Windows
-cameras. Windows lists it as **FRAMEDECKS**. It sends the finished picture: your webcam with optional background
+FrameDecks has its own camera for Zoom, Microsoft Teams, Google Meet, OBS and other apps that read Windows
+cameras. Windows lists it as **FrameDecks**. It sends the finished picture: your webcam with optional background
 blur and a Camera Look, plus the live scene (cards, text, pictures, slides, branding).
 
 | | |
 | --- | --- |
-| Name in other apps | **FRAMEDECKS** |
+| Name in other apps | **FrameDecks** |
 | Registered by | The installer, with the option **Install the FRAMECAST camera for Zoom and Teams** (asks for administrator permission once) |
 | Driver files | `framedecks_vcam64.dll` and `framedecks_vcam32.dll` in `_internal\vcam\bin`. They are built from softcam (MIT licence) by `packaging/build_vcam.py` |
 | Camera ID (CLSID) | `{6F2B8C3E-4D7A-4B9E-9C11-B5CC0A1E7D21}`. This is the same ID as before, so apps that remembered the camera keep it |
 | Settings | **Settings → FRAMECAST Camera** |
-| Status | The status menu in the command bar: **FRAMEDECKS** · Off / Ready / In use |
+| Status | The status menu in the command bar: **FrameDecks** · Off / Ready / In use |
 
 ### Upgrading from the camera's earlier name
 Before 6.4 the same camera had an earlier name. Installing 6.4 does the following:
 - It registers the camera again under its new name. This happens even if the option is not ticked, as long as the
   camera was already installed, because the driver file was renamed.
-- Zoom, Teams, Meet and OBS show **FRAMEDECKS** after they are restarted. They read the camera list when they
+- Zoom, Teams, Meet and OBS show **FrameDecks** after they are restarted. They read the camera list when they
   start.
-- An OBS scene that used the camera under its earlier name as a *Video Capture Device* may need that source pointed at FRAMEDECKS once.
+- An OBS scene that used the camera under its earlier name as a *Video Capture Device* may need that source pointed at FrameDecks once.
 
 The app also still recognises its old name, so it never captures its own picture during the upgrade.
 
 ### Limits
 - Windows only (DirectShow). Apps that read only Media Foundation cameras without the Windows 11 DirectShow bridge
   may not list it. Zoom, Teams, Google Meet in Chrome or Edge, and OBS do list it.
-- One app at a time can use the webcam behind it. Choose FRAMEDECKS in every meeting app, not the webcam itself.
+- One app at a time can use the webcam behind it. Choose FrameDecks in every meeting app, not the webcam itself.
 
 ---
 
 ## 2. Team Space (removed in v6.5)
 
 Team Space (co-leaders' presence, shared notes and actions, Ask to Go Live over WireGuard) was removed in v6.5 to keep
-FRAMEDECKS a simple, single-PC app. No settings, listener or peer protocol remain. Old `kc-teamspace*.json`
+FrameDecks a simple, single-PC app. No settings, listener or peer protocol remain. Old `kc-teamspace*.json`
 files in the data folder are ignored and can be deleted. Meetings are shared by **exporting** them (Excel Meeting
 Workbook or a Frame file) instead.
 
@@ -119,7 +119,7 @@ Workbook or a Frame file) instead.
 ## 3. Logo-only branding
 
 The app's own branding is the **Book + Candle** mark (`app/img/kc-emblem.webp`) and nothing else:
-- **Command bar (dashboard header):** the mark alone, 30 px wide. There is no "FRAMEDECKS" wordmark or text
+- **Command bar (dashboard header):** the mark alone, 30 px wide. There is no "FrameDecks" wordmark or text
   beside it. The name and the Meeting Name are kept for screen readers, in the mark's tooltip and in the window
   title.
 - **Phone remote:** the sign-in screen shows the mark alone, and the remote's top bar shows the mark and the mode

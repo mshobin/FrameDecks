@@ -1,6 +1,6 @@
 # Architecture, performance and product audit (25 October 2026)
 
-An audit of FRAMEDECKS as a SaaS virtual-camera presentation product: desktop presenter and virtual camera, hosted
+An audit of FrameDecks as a SaaS virtual-camera presentation product: desktop presenter and virtual camera, hosted
 companion (web), phone control, and the cloud between them. It covers architecture, performance, resource use,
 reliability, security, scalability and polish. **It proposes no change to the UI, visual design, layout, navigation,
 branding or workflow.** Where a recommendation would need any visible change it is marked *optional future
@@ -14,11 +14,11 @@ Presentation window), `server.py`, `desktop_app.py`, `app/js/`, `cloud_sync.py`,
 [performance.md](performance.md) or the engine's own counters; all other figures are **targets**, to be checked with
 the counters the program already has (see §7).
 
-## How the brief maps to FRAMEDECKS
+## How the brief maps to FrameDecks
 
 The brief uses generic names. In this product they are:
 
-| Brief | FRAMEDECKS |
+| Brief | FrameDecks |
 |---|---|
 | Project | A workspace's service plan (one per workspace today) |
 | Scene | **Frame** (`scenes[]` in the plan; `frame` record) |
@@ -39,7 +39,7 @@ The brief uses generic names. In this product they are:
    recommends against building native apps (§10).
 3. Audio: the virtual camera is video only, and video Content is decoded **muted** (`VideoSource`: "no audio is
    read"). The audit treats video sound as reaching the meeting through the meeting app's own "share computer
-   sound", not through FRAMEDECKS.
+   sound", not through FrameDecks.
 
 ---
 
@@ -94,7 +94,7 @@ far.
 4. **Unproven against live services.** Sync, phone control, editing and history have only run against stand-ins
    and PGlite. Only sign-in and workspaces are confirmed live. Until the live test guide is run, a production
    failure mode is unknown.
-5. **No crash supervisor for the presenting process.** If the Python process dies mid-meeting, the FRAMEDECKS
+5. **No crash supervisor for the presenting process.** If the Python process dies mid-meeting, the FrameDecks
    camera freezes or goes black in Zoom and nothing restarts it. Engine errors recover, by retrying after 5 s, but
    process crashes do not.
 
@@ -120,7 +120,7 @@ Ordered by risk to a live meeting.
 | # | Issue | Where | Effect | Severity |
 |---|---|---|---|---|
 | C1 | **Unsigned installer, no update channel** | `.github/workflows/build-windows.yml`, `packaging/installer.iss` | SmartScreen blocks first runs; antivirus may quarantine the virtual-camera DLL; churches run stale versions | Critical (distribution) |
-| C2 | **Process crash = frozen camera, no restart** | `desktop_app.py` (single instance, no supervisor) | Meeting shows a frozen or black FRAMEDECKS picture until someone restarts the app by hand | Critical (live) |
+| C2 | **Process crash = frozen camera, no restart** | `desktop_app.py` (single instance, no supervisor) | Meeting shows a frozen or black FrameDecks picture until someone restarts the app by hand | Critical (live) |
 | C3 | **Whole-plan write on every live action** | `server.save_state` (`json.dumps(indent=2)`, `os.replace` per save) | Disk writes and CPU on each Next. On slow or encrypted disks or OneDrive-redirected folders, a hitch per press; SSD wear on long services | High |
 | C4 | **Sync round after every live action** | `save_state` → `SYNC.poke()` → `Engine.run` (pull + split + hash the whole plan) | When linked, a network round trip and a full-plan hash 3 s after each press, though live state never syncs | High |
 | C5 | **Full-resolution images kept in RAM** | `vcam/layers.ImageSource` (`IMREAD_UNCHANGED` → BGRA, kept) | 50–100 MB per high-resolution photo layer; with several, the process can exceed 1 GB on 8 GB PCs | High |
@@ -131,7 +131,7 @@ Ordered by risk to a live meeting.
 | C10 | **No support bundle** | `kc-app-log.txt` (1 MB rotate), `/api/diagnostics` | Hard to diagnose a church's problem remotely; logs may hold file names (fine) but nothing collects them in one step | Medium |
 
 Not issues (checked):
-- The meeting app's audio and video are not delayed by FRAMEDECKS, which adds no audio path. Measured camera
+- The meeting app's audio and video are not delayed by FrameDecks, which adds no audio path. Measured camera
   latency is reported as `latencyMs`.
 - The browser UI does not render frames; the Presentation window is native GDI at 15 frames a second.
 - The cloud cannot reach the PC.
@@ -259,9 +259,9 @@ based on.
 
 Targets for an ordinary 8 GB, 4-core Windows 10/11 PC with integrated graphics. Measure each against the engine's
 own counters: `cpuPercent`, `msPerFrame`, `lateFrames`, `dropped` and `latencyMs`. Settings → Diagnostics shows most
-of them in its "FRAMEDECKS performance" row.
+of them in its "FrameDecks performance" row.
 
-**Desktop (FRAMEDECKS process)**
+**Desktop (FrameDecks process)**
 
 | State | CPU (whole machine) | RAM | Notes |
 |---|---:|---:|---|
@@ -327,9 +327,9 @@ of them in its "FRAMEDECKS performance" row.
   - "Allow control from the companion" off (already);
   - sync linking says what is shared (already).
 - **Keyboard and Stream Deck.** Shortcuts come from one registry (`KCShortcuts`), but they work only while the
-  FRAMEDECKS window has focus (`dashboard.js` keydown, Studio tab). The only system-wide hotkey is Spotlight
+  FrameDecks window has focus (`dashboard.js` keydown, Studio tab). The only system-wide hotkey is Spotlight
   (`desktop_win.Hotkeys`). During a meeting Zoom has the focus, so a Stream Deck that sends keys would not reach
-  FRAMEDECKS. Two options:
+  FrameDecks. Two options:
   - System-wide hotkeys for Next, Previous and Hide all through `RegisterHotKey`. This adds settings to the
     existing Shortcuts list, so it needs owner approval.
   - A small Stream Deck plugin that calls the PC's own server on 127.0.0.1 and reaches the same functions through
@@ -358,7 +358,7 @@ of them in its "FRAMEDECKS performance" row.
 **Phase 1: performance and stability**
 1. **Code-sign the installer and the DLLs** (C1). An OV or EV certificate goes into the GitHub workflow secrets and
    signtool runs on the `.exe` and `framedecks_vcam*.dll`.
-2. **Supervisor (C2).** Add a tiny watchdog: the installed shortcut starts it, and it starts FRAMEDECKS and restarts
+2. **Supervisor (C2).** Add a tiny watchdog: the installed shortcut starts it, and it starts FrameDecks and restarts
    it within 2 s if it exits abnormally, at most 3 times in 5 minutes. The single-instance check already prevents
    doubles. Write a crash marker so the next start offers the log in the existing error text.
 3. **P1, P2, P3, P4**, each with a test that checks the change in resource use. For P1, count bytes written per
@@ -367,7 +367,7 @@ of them in its "FRAMEDECKS performance" row.
 
 **Phase 2: sync and reliability**
 1. Asset references and the pre-flight check (C8). Sync carries `asset` text only.
-2. Sync-event counters and device info rows, reported in Settings → FRAMEDECKS account's existing status line.
+2. Sync-event counters and device info rows, reported in Settings → FrameDecks account's existing status line.
 3. Support bundle (stripped of content).
 4. **Auto-update:**
    - Check the signed release feed at start and once a day.

@@ -1,12 +1,12 @@
-# FRAMEDECKS repository audit
+# FrameDecks repository audit
 
 **Assessment date:** 22 October 2026  
-**Repository baseline:** FRAMEDECKS 6.9 on branch `modernization-v1`  
+**Repository baseline:** FrameDecks 6.9 on branch `modernization-v1`\
 **Scope:** Repository architecture, dependencies, security, performance, technical debt, SaaS/PWA readiness, offline capability, and migration risks.
 
 ## Executive assessment
 
-FRAMEDECKS is a mature local-first Windows presentation application, not a partially built SaaS product. A Python
+FrameDecks is a mature local-first Windows presentation application, not a partially built SaaS product. A Python
 process serves its HTML/CSS/vanilla-JavaScript interface, persists application state to local JSON, and coordinates
 presentation, remote-control, overlay, and camera paths. A native desktop shell and the `vcam` package provide
 Windows integration, capture, media composition, and virtual-camera output.
@@ -19,7 +19,7 @@ with a Vercel-hosted browser app would not preserve those responsibilities.
 The highest-risk work is not choosing a frontend framework. It is proving tenant isolation, secure account/device
 pairing, metadata compatibility, offline recovery, and preservation of live-control behavior. The prior product
 roadmap conflicted with the modernization direction; the root roadmap has now been updated to record this change.
-FRAMEDECKS is to remain free: no Stripe, subscriptions, payments, trials, paywalls, feature gating, or licensing
+FrameDecks is to remain free: no Stripe, subscriptions, payments, trials, paywalls, feature gating, or licensing
 restrictions.
 
 ## 1. Current architecture
@@ -66,7 +66,7 @@ service-worker, pairing, deployment, Flutter, Stripe, or Cloudflare integration.
 |---|---|
 | `node tests/run.js` | Passed — 3 of 3 test files |
 | `python -m unittest discover -s tests -p "test_*.py" -v` | Passed — 24 tests; 1 skipped |
-| `python packaging/check.py` | Passed — FRAMEDECKS 6.9 self-check; OpenCV absent in this environment and reported as needed only to build the app |
+| `python packaging/check.py` | Passed — FrameDecks 6.9 self-check; OpenCV absent in this environment and reported as needed only to build the app |
 
 These checks establish a repository baseline. They do not constitute browser end-to-end, security, camera hardware,
 Zoom/Teams, Mac, or production-cloud validation.

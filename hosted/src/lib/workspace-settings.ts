@@ -1,4 +1,4 @@
-// FRAMEDECKS - settings that were only in the program and are now on the website too (owner's request, 26 October):
+// FrameDecks - settings that were only in the program and are now on the website too (owner's request, 26 October):
 // Meeting & Branding (the synced "brand" record), the meeting's transition style (the "layout/profile" record) and the
 // week's birthdays (from the synced member list). Each body is written in the form the program's store.js normalize
 // keeps, so the PC applies it unchanged (tests/workspace-settings.test.mjs). Self-contained, with no imports.

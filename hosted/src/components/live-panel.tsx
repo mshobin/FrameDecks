@@ -56,7 +56,7 @@ function Live({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
   if (computers === "not-set-up") {
     return (
       <EmptyState title="Live control isn’t switched on yet">
-        Whoever set up FRAMEDECKS for your church finishes it once, in the database (steps <code>0004_remote.sql</code>{" "}
+        Whoever set up FrameDecks for your team finishes it once, in the database (steps <code>0004_remote.sql</code>{" "}
         and <code>0005_remote_live.sql</code>).
       </EmptyState>
     );
@@ -128,7 +128,7 @@ function Live({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
         )}
         {!online && (
           <p className="workspace-hint">
-            Is FRAMEDECKS running on {pc.name}, with Settings → FRAMEDECKS account → “Allow control from the
+            Is FrameDecks running on {pc.name}, with Settings → FrameDecks account → “Allow control from the
             companion” on? Presses made now are dropped after 10 seconds.
           </p>
         )}

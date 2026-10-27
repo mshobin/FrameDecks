@@ -1,6 +1,6 @@
 # Release checklist
 
-Use this for every FRAMEDECKS release (`major.minor`, or `major.minor.patch` for a fix release such as 6.11.1).
+Use this for every FrameDecks release (`major.minor`, or `major.minor.patch` for a fix release such as 6.11.1).
 It follows the production audit's roadmap ([2026-10-26 audit](../project/2026-10-26-production-audit.md)).
 
 ## 1. Before tagging
@@ -18,12 +18,12 @@ It follows the production audit's roadmap ([2026-10-26 audit](../project/2026-10
 ## 2. Pilot first
 - [ ] Install the "Build Windows installer" artifact from `main` on one real PC and run the
       [live test guide](../qa/live-test-guide.md) tests touched by this release.
-- [ ] Check the camera in Zoom or Teams, the Teleprompter, FRAMEDECKS account (sync) and Settings → Diagnostics.
+- [ ] Check the camera in Zoom or Teams, the Teleprompter, FrameDecks account (sync) and Settings → Diagnostics.
 - [ ] Use it for one real meeting before announcing it to other churches.
 
 ## 3. Publish
-- [ ] Releases → Draft a new release → tag `v<version>` on `main`, title `FRAMEDECKS <version>`, description left
-      empty → Publish. The build fills in the notes and attaches `FRAMEDECKS v<version>.exe` and its `.sha256`.
+- [ ] Releases → Draft a new release → tag `v<version>` on `main`, title `FrameDecks <version>`, description left
+      empty → Publish. The build fills in the notes and attaches `FrameDecks v<version>.exe` and its `.sha256`.
 - [ ] Open the release and check the installer, the checksum and the About header are there.
 - [ ] Run any new database migration in the Supabase SQL editor.
 - [ ] Linked PCs show "Version <version> is available" in Settings → About within a day (once the repository is

@@ -1,4 +1,4 @@
-/* FRAMEDECKS v6.7 - the Teleprompter window (speaker.html, this PC only; it was the 6.6 Speaker View).
+/* FrameDecks v6.7 - the Teleprompter window (speaker.html, this PC only; it was the 6.6 Speaker View).
  *
  * Follows the shared state like every other page: the Frame on screen (or the first Frame, to rehearse before the
  * meeting) and its Teleprompter script, what is on screen now (the question or scripture, never answers or notes),

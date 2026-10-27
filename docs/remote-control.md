@@ -22,11 +22,11 @@ Run the service from a phone or iPad: step through Frames and Content, draw on t
 
 ## How it works
 
-The remote is a web page served by FRAMEDECKS on your PC. Your phone opens it over your church's (or home's) Wi-Fi. Nothing goes through the internet or any outside service.
+The remote is a web page served by FrameDecks on your PC. Your phone opens it over your church's (or home's) Wi-Fi. Nothing goes through the internet or any outside service.
 
 ```mermaid
 flowchart LR
-  Phone["Phone or iPad<br/>(browser)"] -- "Wi-Fi, PIN-protected" --> PC["FRAMEDECKS<br/>on the PC (port 8750)"]
+  Phone["Phone or iPad<br/>(browser)"] -- "Wi-Fi, PIN-protected" --> PC["FrameDecks<br/>on the PC (port 8750)"]
   PC --> Out["FRAMECAST camera<br/>Presentation window<br/>overlay pages"]
 ```
 
@@ -42,7 +42,7 @@ Every button on the phone changes the same live state as the PC, so the PC, the 
 
 The phone stays signed in for 30 days. After that, or after a new PIN, enter the PIN again.
 
-> **Tip:** In the same Settings section, tick the option to turn the remote on whenever FRAMEDECKS starts, so it is ready every Sunday.
+> **Tip:** In the same Settings section, tick the option to turn the remote on whenever FrameDecks starts, so it is ready every Sunday.
 
 ## Security
 
@@ -124,7 +124,7 @@ On an iPad or a large tablet, the Advanced remote shows the Frames, the Content 
 
 ## Add it to your home screen
 
-- **iPhone / iPad (Safari):** Share → **Add to Home Screen**. It opens full screen, like an app, named **FRAMEDECKS**.
+- **iPhone / iPad (Safari):** Share → **Add to Home Screen**. It opens full screen, like an app, named **FrameDecks**.
 - **Android (Chrome):** ⋮ → **Add to Home screen** (or **Install app**).
 
 The icon opens the remote directly. You still need to be on the same Wi-Fi as the PC.
@@ -143,7 +143,7 @@ The icon opens the remote directly. You still need to be on the same Wi-Fi as th
 | --- | --- |
 | The remote is off | **Settings → Phone & iPad Remote** → turn it on |
 | The phone is on a different network (mobile data, guest Wi-Fi) | Join the same Wi-Fi as the PC. Guest networks often block devices from seeing each other |
-| Windows Firewall blocks it | On the PC, run **Allow iPad Remote - run once.bat** (in the FRAMEDECKS folder) once, or allow the app for **Private networks** |
+| Windows Firewall blocks it | On the PC, run **Allow iPad Remote - run once.bat** (in the FrameDecks folder) once, or allow the app for **Private networks** |
 | The network is set to **Public** in Windows | Settings → Network & internet → your Wi-Fi → **Private network** |
 | Wrong PIN too many times | Wait 60 seconds, then try again |
 | The PC's address changed | Scan the QR code in Settings again |

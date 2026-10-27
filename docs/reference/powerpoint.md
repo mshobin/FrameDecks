@@ -1,9 +1,9 @@
-# PowerPoint in FRAMEDECKS: what is possible, and what v6.5 does
+# PowerPoint in FrameDecks: what is possible, and what v6.5 does
 
 Leaders want to bring their PowerPoint into a Frame. Often they also want only the slide's objects (animated text,
 shapes, pictures) on top of the camera, without the slide's background. This page sets out:
 - what is technically possible;
-- what FRAMEDECKS v6.5 does;
+- what FrameDecks v6.5 does;
 - the risks and limits.
 
 It does not assume that transparent PowerPoint rendering exists, because it does not.
@@ -33,9 +33,9 @@ It was rejected.
 
 ## 2. Export-based rendering (a file made ahead of time)
 
-Each format was weighed as a way to get *objects only, animated, with transparency* into FRAMEDECKS's picture.
+Each format was weighed as a way to get *objects only, animated, with transparency* into FrameDecks's picture.
 
-| Format | Alpha (transparency) | Can PowerPoint make it? | Plays in FRAMEDECKS (OpenCV/FFmpeg, CPU) | Size / CPU | Verdict |
+| Format | Alpha (transparency) | Can PowerPoint make it? | Plays in FrameDecks (OpenCV/FFmpeg, CPU) | Size / CPU | Verdict |
 | --- | --- | --- | --- | --- | --- |
 | **Transparent WebM** (VP8/VP9 with alpha) | Yes | No. It must be converted with an editor (e.g. remove a chroma background in DaVinci Resolve, Premiere or ffmpeg) | Yes, but VP9 alpha decoding needs the libvpx path. OpenCV's default FFmpeg decode drops the alpha plane | Small; moderate CPU | Best *video* option, but an extra tool and a conversion step for every deck |
 | **ProRes 4444** (.mov with alpha) | Yes | No | Decodes (FFmpeg); alpha needs the same care | Very large files (≈ 1 GB per 5 min at 1080p); heavy disk and CPU | Too heavy for volunteers' laptops |
@@ -48,7 +48,7 @@ of them is "simple for non-technical volunteers". Transparent WebM is the most p
 
 ---
 
-## 3. What FRAMEDECKS v6.5 does (production-ready choice)
+## 3. What FrameDecks v6.5 does (production-ready choice)
 
 The recommendation is to cover the two real needs with tools that are dependable on a Sunday morning.
 
@@ -95,7 +95,7 @@ Settings the brief asked for, and where they are:
   - Protected View (a file from the internet);
   - a licence prompt.
 
-  FRAMEDECKS then says so in plain language and suggests saving as PDF. The conversion has a 3-minute limit, so
+  FrameDecks then says so in plain language and suggests saving as PDF. The conversion has a 3-minute limit, so
   a hung PowerPoint never blocks the app.
 - **Show objects only is a colour key, not true transparency.** It will remove parts of objects that use the
   background's exact colour. Gradients and picture backgrounds stay visible.

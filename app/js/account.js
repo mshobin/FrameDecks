@@ -1,4 +1,4 @@
-/* FRAMEDECKS - Settings > FRAMEDECKS account: link this PC to a workspace and show how syncing is going.
+/* FrameDecks - Settings > FrameDecks account: link this PC to a workspace and show how syncing is going.
  * The work is done by cloud_sync.py in the program (api/sync); this page only asks it and shows the answer. */
 (function(){
 'use strict';
@@ -65,7 +65,7 @@ function render(){
   if (where) where.textContent = d.state === 'linked'
     ? 'Member information is kept on this computer and synced to your workspace “' + (d.workspace || '') + '”, where only its owners and admins can see it. It is never sent to the overlay pages.'
     : 'Member information stays on this computer. It is never uploaded, and it is never sent to the overlay pages.';
-  if (!Store.served){ root.appendChild(h('p', {cls: 'plain', text: 'Start the FRAMEDECKS program to link this PC.'})); return; }
+  if (!Store.served){ root.appendChild(h('p', {cls: 'plain', text: 'Start the FrameDecks program to link this PC.'})); return; }
   if (d.state === 'linked'){
     root.appendChild(h('p', {cls: 'plain'}, [pill(d.error ? 'bad' : 'ok', d.error ? 'Linked · not synced' : 'Linked'), ' to ', h('b', {text: d.workspace || 'your workspace'})]));
     root.appendChild(h('p', {cls: 'plain', text: 'Last synced: ' + when(d.lastSync) + (d.held ? ' · ' + d.held + ' change(s) wait until the live Frame leaves the screen' : '')}));
@@ -90,7 +90,7 @@ function render(){
   root.appendChild(h('p', {cls: 'plain'}, [pill('', 'Not linked'), ' This PC keeps everything to itself.']));
   if (d.error) root.appendChild(h('p', {cls: 'hint', text: d.error}));
   root.appendChild(h('div', {cls: 'actions'}, [h('button', {cls: 'btn small', type: 'button', text: 'Link to a workspace', onclick: act('link')})]));
-  root.appendChild(h('p', {cls: 'hint', text: 'You need a FRAMEDECKS companion account and a workspace. This PC gets a code to type there.'}));
+  root.appendChild(h('p', {cls: 'hint', text: 'You need a FrameDecks companion account and a workspace. This PC gets a code to type there.'}));
 }
 
 function refresh(){

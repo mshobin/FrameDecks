@@ -12,7 +12,7 @@
 
 ## 0. The Meeting Workbook (v6.9)
 
-Excel is **optional**. FRAMEDECKS is fully usable without it. The workbook is a **planning, review, handover and
+Excel is **optional**. FrameDecks is fully usable without it. The workbook is a **planning, review, handover and
 bulk-editing** tool. After an import, the app is the source of truth: the file is not linked, and **Export** gives you
 a fresh copy.
 
@@ -112,7 +112,7 @@ hand in the same style imports too. A numbered heading such as *7 · Discussion 
 ### Export
 **Export this meeting (Excel)** gives the same **Dashboard** and **Meeting Form**, filled in with this
 meeting. The program fills in the template, so the file looks exactly like the one you download. It imports again.
-- If the FRAMEDECKS program isn't running, or a table has more rows
+- If the FrameDecks program isn't running, or a table has more rows
   than the form has room for, a plain one-sheet **Meeting Form** is saved instead. It imports again too.
 - The meeting details are kept with your meeting in `kc-saved-content.json` (`meeting`: title, date, time,
   location, presenter, contact, attendees, attendeeNotes, owner, contentNotes, notes, extra), so an export gives them
@@ -143,7 +143,7 @@ skipped, a Timer value that isn't minutes or a time.
   (`POST api/meeting/workbook` in `server.py`).
 - `tools/make_meeting_workbook.py`: draws the template (`app/templates/FRAMEDECKS-Meeting-Workbook.xlsx`) from
   that layout with openpyxl.
-- The Excel library (SheetJS) loads only the first time you import, export or download a workbook, so FRAMEDECKS
+- The Excel library (SheetJS) loads only the first time you import, export or download a workbook, so FrameDecks
    starts faster.
 
 ## Branding options (v6.7)
@@ -189,7 +189,7 @@ unchanged.
 2. Upload a **logo** (PNG, JPG or SVG) by selecting **Upload logo…** or dropping a file on the logo box. The dashboard
    converts every format to PNG (at most 1024 px) before saving it.
 3. Optionally tick **Use my accent colour**: pick one of eight swatches or any colour. The accent replaces the gold of
-   the cards and badges on FRAMEDECKS and on the overlay pages. The app's own interface keeps its colours.
+   the cards and badges on FrameDecks and on the overlay pages. The app's own interface keeps its colours.
 4. Under **Where branding appears**, tick the scenes that show the **Branding badge** (logo + Meeting Name). Other
    controls in this section:
    - **Brand every scene** and **Remove from every scene**;
@@ -303,7 +303,7 @@ The file is made by `KCMeetingSheet.templateBook`, which is the same code for th
 | Notes | No | Becomes the scene's leader notes |
 | Branding | No | Yes → branding for this row (see below) |
 | Show Logo / Show Meeting Name | No | Used when Branding is Yes; empty = Yes |
-| Background Style or Template | For Custom | Custom rows: the template name. Other rows: the scene background on FRAMEDECKS (None, Navy, Black, White, Brand, `#rrggbb`) |
+| Background Style or Template | For Custom | Custom rows: the template name. Other rows: the scene background on FrameDecks (None, Navy, Black, White, Brand, `#rrggbb`) |
 | Layer Order | No | 1 = in front. Media (pictures, video, slides, camera, screen) always sit behind cards and text |
 | Status | No | Active (default) or Hidden (in the scene, switched off) |
 
@@ -370,6 +370,6 @@ The file is made by `KCMeetingSheet.templateBook`, which is the same code for th
 | `app/js/import-worker.js` | Reads the workbook off the main thread; `want: 'Scene Name'` picks the right sheet |
 | `app/js/workspace.js` | + Scene menu entries, empty-state button, Branding layer Inspector, Show logo, scene notes, Go Live bar |
 | `app/js/overlay.js`, `app/css/overlay.css` | Overlay rendering of branding |
-| `vcam/program.py`, `vcam/cards.py`, `vcam/overlay.py` | FRAMEDECKS rendering of branding and the accent colour |
+| `vcam/program.py`, `vcam/cards.py`, `vcam/overlay.py` | FrameDecks rendering of branding and the accent colour |
 | `server.py` | Logo endpoints; version 6.2 |
 | `tools/make_meeting_workbook.py` | Regenerates `app/templates/FRAMEDECKS-Meeting-Workbook.xlsx` and its copy in `docs/templates/` |

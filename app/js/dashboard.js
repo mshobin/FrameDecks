@@ -1,4 +1,4 @@
-/* FRAMEDECKS - dashboard */
+/* FrameDecks - dashboard */
 (function(){
 'use strict';
 
@@ -59,7 +59,7 @@ function commit(fn){
   chain = chain.then(function(){
     return Store.update(fn);
   }).catch(function(){
-    toast('Can’t reach the FRAMEDECKS program. Check that its window is still open.', true);
+    toast('Can’t reach the FrameDecks program. Check that its window is still open.', true);
   });
   return chain;
 }
@@ -345,7 +345,7 @@ function buildLinks(){
   } else {
     note.className = 'note warn';
     note.innerHTML = '<b>No-install mode.</b> Overlays update only when opened in this same browser. ' +
-      'For OBS, Camo or Zoom, start the local program instead: double-click <b>Start FRAMEDECKS.bat</b>.';
+      'For OBS, Camo or Zoom, start the local program instead: double-click <b>Start FrameDecks.bat</b>.';
   }
 }
 function showPresence(c){
@@ -401,7 +401,7 @@ function setupBackup(){
         }).then(function(){
           toast('Backup loaded. Both overlays are hidden until you show them.');
         });
-      } catch(e){ toast('That file isn’t a FRAMEDECKS backup.', true); }
+      } catch(e){ toast('That file isn’t a FrameDecks backup.', true); }
     };
     reader.readAsText(f);
   });

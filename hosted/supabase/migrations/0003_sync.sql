@@ -1,4 +1,4 @@
--- FRAMEDECKS Phase 4: syncing service plans (design: docs/architecture/metadata-sync.md).
+-- FrameDecks Phase 4: syncing service plans (design: docs/architecture/metadata-sync.md).
 -- Records ("entities") are text only; media never reaches the cloud. Writes go through sync_push only.
 -- Linked PCs ("computers") authenticate with their own key in the x-framedecks-computer header; the cloud keeps
 -- only its SHA-256 hash.

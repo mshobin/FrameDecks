@@ -13,7 +13,7 @@ async function cameraNames(): Promise<string[]> {
   return devices.filter((d) => d.kind === "videoinput").map((d) => d.label);
 }
 
-// Is FRAMEDECKS on this computer? (docs/architecture/meeting-form.md, section 4.) Reads only the camera names the
+// Is FrameDecks on this computer? (docs/architecture/meeting-form.md, section 4.) Reads only the camera names the
 // browser shows; the website never talks to the program, it only offers the installer or the framedecks:// link.
 export function PcSetupCard() {
   const [setup, setSetup] = useState<Setup | null>(null);
@@ -51,7 +51,7 @@ export function PcSetupCard() {
       stream.getTracks().forEach((t) => t.stop());
       setSetup(setupOf("windows", await cameraNames()));
     } catch {
-      setProblem("Camera access was not allowed, so this PC could not be checked. You can still download or open FRAMEDECKS below.");
+      setProblem("Camera access was not allowed, so this PC could not be checked. You can still download or open FrameDecks below.");
     }
   }, []);
 
@@ -76,13 +76,13 @@ export function PcSetupCard() {
         <p className="eyebrow">This computer</p>
         {setup === "other" && (
           <>
-            <h2 id="pc-setup-title">FRAMEDECKS presents from a Windows PC.</h2>
-            <p>Use this computer to plan, edit and run the service here; install FRAMEDECKS on the service PC.</p>
+            <h2 id="pc-setup-title">FrameDecks presents from a Windows PC.</h2>
+            <p>Use this computer to plan, edit and run the service here; install FrameDecks on the service PC.</p>
           </>
         )}
         {setup === "ask" && (
           <>
-            <h2 id="pc-setup-title">Is FRAMEDECKS installed on this PC?</h2>
+            <h2 id="pc-setup-title">Is FrameDecks installed on this PC?</h2>
             <p>
               Check for the FRAMECAST camera: your browser asks for camera access once, and the camera may turn on for a
               moment. Nothing is recorded or sent.
@@ -91,19 +91,19 @@ export function PcSetupCard() {
         )}
         {setup === "missing" && (
           <>
-            <h2 id="pc-setup-title">FRAMEDECKS is not on this PC yet.</h2>
+            <h2 id="pc-setup-title">FrameDecks is not on this PC yet.</h2>
             <p>
-              Install FRAMEDECKS for Windows and tick “Install the FRAMECAST camera”. Already installed? Add the camera in
-              FRAMEDECKS → Settings → FRAMECAST Camera.
+              Install FrameDecks for Windows and tick “Install the FRAMECAST camera”. Already installed? Add the camera in
+              FrameDecks → Settings → FRAMECAST Camera.
             </p>
           </>
         )}
         {found && (
           <>
-            <h2 id="pc-setup-title">FRAMEDECKS is installed on this PC.</h2>
+            <h2 id="pc-setup-title">FrameDecks is installed on this PC.</h2>
             <p>
-              Present from the program; plan the meeting and run it from your phone here. Not linked yet? In FRAMEDECKS →
-              Settings → FRAMEDECKS account → Link, then type the code under <Link href="/computers">Computers</Link>.
+              Present from the program; plan the meeting and run it from your phone here. Not linked yet? In FrameDecks →
+              Settings → FrameDecks account → Link, then type the code under <Link href="/computers">Computers</Link>.
             </p>
           </>
         )}
@@ -120,12 +120,12 @@ export function PcSetupCard() {
           )}
           {(found || setup === "ask") && (
             <a className={found ? "pc-setup-primary" : "pc-setup-quiet"} href={OPEN_LINK}>
-              Open FRAMEDECKS on this PC
+              Open FrameDecks on this PC
             </a>
           )}
           {!found && (
             <a className={setup === "missing" ? "pc-setup-primary" : "pc-setup-quiet"} href={DOWNLOADS} target="_blank" rel="noreferrer">
-              <Download aria-hidden="true" size={15} /> Download FRAMEDECKS for Windows
+              <Download aria-hidden="true" size={15} /> Download FrameDecks for Windows
             </a>
           )}
         </div>

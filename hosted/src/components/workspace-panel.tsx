@@ -73,7 +73,7 @@ export function WorkspacePanel() {
       <section className="workspace-card workspace-signed-out" aria-label="Your workspace">
         <Building2 aria-hidden="true" size={20} />
         <p>
-          <Link href="/sign-in">Sign in</Link> to create your church&apos;s workspace.
+          <Link href="/sign-in">Sign in</Link> to create your team&apos;s space.
         </p>
       </section>
     );
@@ -132,7 +132,7 @@ export function WorkspacePanel() {
     if (!supabase) return;
     const typed = window.prompt(
       `Delete “${workspace.name}” for everyone?\n\nIts service plan, history, member list, invitations and linked PCs are removed and cannot be restored. ` +
-        `Linked PCs keep their own copy of the plan; unlink them in FRAMEDECKS → Settings → FRAMEDECKS account.\n\nType the workspace name to confirm:`,
+        `Linked PCs keep their own copy of the plan; unlink them in FrameDecks → Settings → FrameDecks account.\n\nType the workspace name to confirm:`,
     );
     if (typed === null) return;
     if (typed.trim() !== workspace.name) {
@@ -193,14 +193,14 @@ export function WorkspacePanel() {
               maxLength={NAME_LIMIT}
               value={displayName}
               onChange={(event) => setDisplayName(event.target.value)}
-              placeholder="e.g. Pastor John"
+              placeholder="e.g. Sam Taylor"
             />
             <Button disabled={busy !== null} type="submit" variant="outline">
               {busy === "profile" ? "Saving…" : "Save"}
             </Button>
           </div>
           <p className="workspace-hint">
-            Signed in as {session.user.email}. People in your church see this name.
+            Signed in as {session.user.email}. People on your team see this name.
           </p>
         </form>
       </article>
@@ -208,12 +208,12 @@ export function WorkspacePanel() {
       <article className="workspace-card">
         <header>
           <Building2 aria-hidden="true" size={18} />
-          <h2>Your churches and groups</h2>
+          <h2>Your teams</h2>
         </header>
         {workspaces === null ? (
           <ListSkeleton />
         ) : workspaces.length === 0 ? (
-          <p className="workspace-hint">Nothing yet. Add your church, ministry or small group below.</p>
+          <p className="workspace-hint">Nothing yet. Add your team below.</p>
         ) : (
           <ul className="workspace-list">
             {workspaces.map((workspace) => (
@@ -258,7 +258,7 @@ export function WorkspacePanel() {
           </ul>
         )}
         <form className="workspace-form" onSubmit={createWorkspace}>
-          <label htmlFor="workspace-name">Add a church or group</label>
+          <label htmlFor="workspace-name">Add a team</label>
           <div className="workspace-row">
             <input
               id="workspace-name"
@@ -266,7 +266,7 @@ export function WorkspacePanel() {
               required
               value={workspaceName}
               onChange={(event) => setWorkspaceName(event.target.value)}
-              placeholder="e.g. Grace Church"
+              placeholder="e.g. Riverside Community Group"
             />
             <Button disabled={busy !== null || !workspaceName.trim()} type="submit" variant="outline">
               {busy === "workspace" ? "Adding…" : "Add"}

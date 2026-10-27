@@ -39,12 +39,12 @@ export function AppShell({ active, children }: Readonly<{ active: Section; child
   return (
     <div className="fd-app">
       <aside className="fd-sidebar" aria-label="Main navigation">
-        <Link className="fd-brand" href="/" aria-label="FRAMEDECKS home">
+        <Link className="fd-brand" href="/" aria-label="FrameDecks home">
           <span className="fd-brand-mark">
             <Image src="/framedecks-emblem.webp" alt="" width={34} height={34} priority unoptimized />
           </span>
           <span className="fd-brand-copy">
-            <strong>FRAMEDECKS</strong>
+            <strong>FrameDecks</strong>
           </span>
         </Link>
 
@@ -80,7 +80,7 @@ export function AppShell({ active, children }: Readonly<{ active: Section; child
 
         <div className="fd-sidebar-foot">
           <a className="fd-foot-link" href={DOWNLOADS} target="_blank" rel="noreferrer">
-            FRAMEDECKS for Windows
+            FrameDecks for Windows
           </a>
           <Link className="fd-foot-link" href="/privacy">
             Privacy policy
@@ -125,7 +125,7 @@ export function AppShell({ active, children }: Readonly<{ active: Section; child
               </Link>
             ))}
             <a className="fd-nav-item" href={DOWNLOADS} target="_blank" rel="noreferrer">
-              FRAMEDECKS for Windows
+              FrameDecks for Windows
             </a>
             <Link className="fd-nav-item" href="/privacy">
               Privacy policy

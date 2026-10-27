@@ -1,4 +1,4 @@
--- FRAMEDECKS migration step 8 (M-D6, docs/migration-plan.md): member groups, kept in the cloud and edited in the
+-- FrameDecks migration step 8 (M-D6, docs/migration-plan.md): member groups, kept in the cloud and edited in the
 -- companion only. The desktop is unchanged and never sees groups: a group lists member record ids (sync kind
 -- 'member'), so the member records themselves, and what PCs sync, stay exactly as they are.
 -- Owners and admins only, like the member records. Run once in the Supabase SQL editor, after

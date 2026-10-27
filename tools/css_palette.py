@@ -63,7 +63,7 @@ class Palette:
         return f"var({self.channels[key]})"
 
     def write(self):
-        lines = ["/* FRAMEDECKS palette: the only place the program's colours are written out (design audit DD-05).",
+        lines = ["/* FrameDecks palette: the only place the program's colours are written out (design audit DD-05).",
                  " * Generated and kept by tools/css_palette.py; give a colour a role through the theme tokens in",
                  " * theme.css (--ink, --muted, --accent, --live ...). Solid colours are named by hue and lightness (0 = black,",
                  " * 1000 = white); --rgb-* hold the channels of the translucent colours: rgba(var(--rgb-gold-650),.14). */", ":root{"]

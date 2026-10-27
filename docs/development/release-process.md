@@ -49,7 +49,7 @@ Versions are **major.minor** (6.5, 6.6, 7.0). The number lives in one place: `AP
    python tools/make_release_notes.py --check
    ```
 7. **Build.** Push to `main`, or run **Build Windows installer** on the release branch. Download the
-   **FRAMEDECKS vX.Y** artifact.
+   **FrameDecks vX.Y** artifact.
 8. **Test the installer on a real Windows PC** (not only a development machine):
    - install over the previous version, and check that meetings, members and settings are still there;
    - run the [manual service-safety test](testing.md#manual-service-safety-test) with a real webcam, Zoom or Teams,

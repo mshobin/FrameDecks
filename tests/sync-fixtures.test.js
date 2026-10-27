@@ -1,4 +1,4 @@
-/* FRAMEDECKS - the saved plans in tests/fixtures/sync/ are still what store.js saves today. If this fails after a
+/* FrameDecks - the saved plans in tests/fixtures/sync/ are still what store.js saves today. If this fails after a
  * change to normalize, run: python tools/make_sync_fixtures.py (and check the record tests still pass). */
 const fs = require('fs'), path = require('path'), assert = require('assert');
 const env = require('./helpers/load-store.js')();

@@ -1,4 +1,4 @@
-// FRAMEDECKS - is the program on this computer? (design: docs/architecture/meeting-form.md, section 4)
+// FrameDecks - is the program on this computer? (design: docs/architecture/meeting-form.md, section 4)
 // The installer adds the FRAMECAST camera, so a video input with that name means the program is installed. The
 // website never talks to the program; it only reads the camera names the browser shows and offers the
 // framedecks:// link the installer registers. Self-contained, with no imports, so the tests load it directly.
@@ -12,7 +12,7 @@ const CAMERA_NAMES = [/framecast/i, /framedecks/i, /bcc vcam/i];
 export type Place = "windows" | "phone" | "other";
 export type Setup =
   | "phone" // a phone or tablet: the companion is for Live and editing there, nothing to install
-  | "other" // a Mac or Linux computer: FRAMEDECKS for Windows only (the Mac camera is separate)
+  | "other" // a Mac or Linux computer: FrameDecks for Windows only (the Mac camera is separate)
   | "ask" // Windows, camera names not shown yet: ask to check
   | "found" // the FRAMECAST camera is on this PC
   | "missing"; // cameras are named, none is FRAMECAST

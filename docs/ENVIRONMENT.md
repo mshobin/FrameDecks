@@ -1,6 +1,6 @@
-# FRAMEDECKS environment
+# FrameDecks environment
 
-FRAMEDECKS desktop runs locally and does not require a `.env` file. The hosted
+FrameDecks desktop runs locally and does not require a `.env` file. The hosted
 companion currently has no required environment variables.
 
 ## Desktop development

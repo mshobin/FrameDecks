@@ -1,5 +1,5 @@
 /* ==================================================================
- * FRAMEDECKS - brand and About page text
+ * FrameDecks - brand and About page text
  *
  * This is the ONE place to change the words on the About page.
  * Edit the words between the quote marks, save, and rebuild.
@@ -9,7 +9,7 @@
  * the installer and the About page always show the same number.
  * ================================================================== */
 window.KCBrand = {
-  name: 'FRAMEDECKS',
+  name: 'FrameDecks',
   tagline: 'Present • Equip • Inspire',
   motto: [],
   intro: 'A ministry-focused platform designed to help churches, Bible studies, prayer groups, discipleship communities, and Christian fellowship groups create meaningful Christ-centered gatherings.',
@@ -19,7 +19,7 @@ window.KCBrand = {
 
   why: {
     lead: 'Technology should never distract from ministry.',
-    text: 'Too often leaders spend valuable time managing slides, searching for content, troubleshooting screens, and navigating complicated software. FRAMEDECKS was created to remove those distractions so leaders can focus on what matters most:',
+    text: 'Too often leaders spend valuable time managing slides, searching for content, troubleshooting screens, and navigating complicated software. FrameDecks was created to remove those distractions so leaders can focus on what matters most:',
     points: ['God’s Word', 'Prayer', 'Fellowship', 'Discipleship', 'Encouraging one another in Christ'],
     principle: ['Less time managing technology.', 'More time ministering to people.']
   },
@@ -49,7 +49,7 @@ window.KCBrand = {
 
   heart: {
     lines: ['Every discussion matters.', 'Every prayer matters.', 'Every soul matters.'],
-    prayer: 'We pray FRAMEDECKS helps leaders create spaces where people encounter God’s truth and experience authentic Christian fellowship.'
+    prayer: 'We pray FrameDecks helps leaders create spaces where people encounter God’s truth and experience authentic Christian fellowship.'
   },
 
   creator: {
@@ -59,7 +59,7 @@ window.KCBrand = {
     badge: 'Inspired by Service',
     // DRAFT - written for you to replace with your own words before release.
     story: [
-      'FRAMEDECKS began in the middle of ministry, not in a boardroom. Week after week, leading online Bible studies meant juggling slides, verses, questions and screens while trying to stay present with the people in the group.',
+      'FrameDecks began in the middle of ministry, not in a boardroom. Week after week, leading online Bible studies meant juggling slides, verses, questions and screens while trying to stay present with the people in the group.',
       'Years of work in enterprise IT made one thing clear: good technology should quietly serve the people using it. So this platform was built to do exactly that, so a leader can keep their eyes on God’s Word and on the people God has entrusted to them.'
     ],
     // DRAFT - your ministry journey, oldest first. Change, add or remove steps.
@@ -68,7 +68,7 @@ window.KCBrand = {
       {title: 'Enterprise IT Consultant', text: 'Building dependable systems for organizations.'},
       {title: 'Leader', text: 'Serving and leading in online Bible study groups.'},
       {title: 'Ministry Servant', text: 'Seeing leaders wrestle with technology during gatherings.'},
-      {title: 'FRAMEDECKS', text: 'A platform that lets leaders focus on people and the Word.'}
+      {title: 'FrameDecks', text: 'A platform that lets leaders focus on people and the Word.'}
     ]
   },
 
@@ -79,11 +79,11 @@ window.KCBrand = {
 
   join: {
     thanks: 'Thank you for serving God’s people.',
-    text: 'Whether you lead a Bible study, facilitate discussion groups, mentor disciples, teach Scripture, coordinate ministries, or shepherd believers, we pray FRAMEDECKS becomes a blessing to your ministry.'
+    text: 'Whether you lead a Bible study, facilitate discussion groups, mentor disciples, teach Scripture, coordinate ministries, or shepherd believers, we pray FrameDecks becomes a blessing to your ministry.'
   },
 
   footer: 'Built for ministry, discipleship, prayer, fellowship, and the glory of God.',
 
   // Always keep this accurate:
-  disclaimer: 'FRAMEDECKS is an independent ministry tool created by Shobin Mathews.'
+  disclaimer: 'FrameDecks is an independent ministry tool created by Shobin Mathews.'
 };

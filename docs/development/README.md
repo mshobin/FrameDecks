@@ -1,6 +1,6 @@
 # Development documentation
 
-Guides for people who build, test and release FRAMEDECKS. If you are new, read the
+Guides for people who build, test and release FrameDecks. If you are new, read the
 [developer guide](../CONTRIBUTING.md) first, then [CONTRIBUTING.md](../../CONTRIBUTING.md).
 
 | Guide | What it covers |

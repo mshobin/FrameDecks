@@ -1,14 +1,14 @@
-<p align="center"><img src="assets/brand/kc-about-header.webp" alt="FRAMEDECKS. Present • Equip • Inspire." width="600"></p>
+<p align="center"><img src="assets/brand/kc-about-header.webp" alt="FrameDecks. Present • Equip • Inspire." width="600"></p>
 
 A service presentation platform for churches and ministries. Plan each service as **Frames** — Welcome, Worship,
 Scripture, Discussion, Prayer, Closing — fill them with questions, scriptures, text, timers, pictures, video and
 PowerPoint, and present to the room, to Zoom / Teams / Google Meet and to your stream at the same time. Run it from
-the PC, a phone or an iPad. **FRAMEDECKS 6.9 runs locally**: no account or cloud connection is required for a
+the PC, a phone or an iPad. **FrameDecks 6.9 runs locally**: no account or cloud connection is required for a
 service, and the only current online feature is the optional ESV scripture fetch. The modernization plan adds
-optional cloud accounts and metadata sync while keeping presentation media and live output local. FRAMEDECKS
+optional cloud accounts and metadata sync while keeping presentation media and live output local. FrameDecks
 remains free, with no payments or feature restrictions.
 
-> **Status: FRAMEDECKS 6.10 is ready for teaching, Bible study, small-group and hybrid services, with documented
+> **Status: FrameDecks 6.10 is ready for teaching, Bible study, small-group and hybrid services, with documented
 > gaps.** The biggest: no song / lyrics library yet (lyrics are shown as Text Content or a PowerPoint), an unsigned
 > installer (signing is being set up), and no automated UI tests. See the
 > [repository audit](docs/project/repository-audit.md), [modernization status](docs/FRAMEDECKS_MODERNIZATION_STATUS.md),
@@ -28,7 +28,7 @@ remains free, with no payments or feature restrictions.
 - **Questions and scriptures**: per-Frame lists with labels; Show question, scripture or both; drag to reorder;
   double-click an item in the list, or any card on the canvas, to edit it in place. ESV fetch online, or any translation
   typed for offline use.
-- **Outputs**: the **FRAMEDECKS** virtual camera (your webcam with the Frame on top, background blur, Camera
+- **Outputs**: the **FrameDecks** virtual camera (your webcam with the Frame on top, background blur, Camera
   Looks) for Zoom, Teams, Google Meet and OBS; a full-screen **Presentation window** for a projector; transparent
   **overlay pages** for OBS ([MEDIA](docs/media.md)).
 - **Media**: images, video (muted), PowerPoint (.pptx converted by the PowerPoint on the PC, or PDF), live window
@@ -64,7 +64,7 @@ preview with sign-in (Supabase Auth); cloud data and device pairing are not impl
 
 ## Install
 See [INSTALLATION](docs/installation.md) and [GETTING_STARTED](docs/getting-started.md). In short: run
-`FRAMEDECKS v6.10.exe` (unsigned, so check it against its `.sha256` file first and choose **More info → Run
+`FrameDecks v6.10.exe` (unsigned, so check it against its `.sha256` file first and choose **More info → Run
 anyway** at the SmartScreen prompt), keep **Install the FRAMECAST camera** ticked, and allow the one
 administrator prompt. Windows 10 or 11 (64-bit) is required. The installer comes from the **Build Windows
 installer** workflow ([BUILDING_THE_INSTALLER](docs/development/building-the-installer.md)).
@@ -96,7 +96,7 @@ build.bat                                           # local Windows build (CI is
 | doc-links | `tools/check_doc_links.py`: every relative link and heading anchor in the Markdown docs resolves |
 | pinned packages | Builds install `packaging/constraints.txt`: the exact versions of the last good build |
 | app folder | The built app contains its window, pages and camera driver |
-| installer | Inno Setup builds `FRAMEDECKS v<version>.exe` with a `.sha256` file |
+| installer | Inno Setup builds `FrameDecks v<version>.exe` with a `.sha256` file |
 | release | On a `v*` tag, publishes the installer and checksum with `docs/releases/v<version>.md` as the notes |
 
 Not automated yet: UI end-to-end tests, the camera in a real Zoom / Teams call, and PowerPoint conversion on real
@@ -122,7 +122,7 @@ No feature, test result or screenshot in this repository is faked; where somethi
 the docs say so.
 
 ## License
-FRAMEDECKS is open source under the [Apache License 2.0](LICENSE); see also [NOTICE](NOTICE). Third-party components
+FrameDecks is open source under the [Apache License 2.0](LICENSE); see also [NOTICE](NOTICE). Third-party components
 keep their own licences, listed in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
 ## Code signing policy
@@ -130,8 +130,8 @@ Windows releases are to be signed for free by [SignPath.io](https://signpath.io)
 [SignPath Foundation](https://signpath.org) (set-up: [code-signing.md](docs/project/code-signing.md)).
 - Only installers built by this repository's GitHub Actions from `main` or a version tag are signed.
 - The maintainer (Shobin Mathews) reviews every change and approves every signing request.
-- FRAMEDECKS sends nothing to anyone unless a church links a PC to its own workspace (see
+- FrameDecks sends nothing to anyone unless a church links a PC to its own workspace (see
   [docs/architecture/metadata-sync.md](docs/architecture/metadata-sync.md)); it collects no telemetry.
 
-<sub>Earlier versions were named FRAMEDECKS and BSF Command Center. Version 6.9 installs over those versions and
-moves their data into the FRAMEDECKS folder on first start, so each church keeps its data.</sub>
+<sub>Earlier versions were named FrameDecks and BSF Command Center. Version 6.9 installs over those versions and
+moves their data into the FrameDecks folder on first start, so each church keeps its data.</sub>

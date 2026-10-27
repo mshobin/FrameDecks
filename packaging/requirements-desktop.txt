@@ -1,10 +1,10 @@
 # Tools used only to BUILD the Windows app (not needed to run the zip version)
 pywebview>=6.1,<7
 pystray>=0.19.5
-pillow>=10.1   # fractional font sizes for FRAMEDECKS cards
+pillow>=10.1   # fractional font sizes for FrameDecks cards
 opencv-python>=5.0,<6   # FRAMECAST: webcam, blur model, image work (one OpenCV only: windows-capture needs this one)
 numpy>=1.26
-cv2-enumerate-cameras>=1.4,<2   # FRAMEDECKS: lists webcams by name
+cv2-enumerate-cameras>=1.4,<2   # FrameDecks: lists webcams by name
 windows-capture>=2.0,<3   # screen sharing: DXGI Desktop Duplication (displays) + Windows Graphics Capture (windows)
 pypdfium2>=4.30           # presentation layers from PDF slides
 comtypes>=1.4             # Next/Previous in a running PowerPoint slide show

@@ -96,7 +96,7 @@ if (py && py.status === 0){
 }
 
 /* 4. a hand-made form: labels anywhere on the row, its own section names, "None" animations */
-const hand = [['FRAMEDECKS | MEETING FORM'], ['Fill the highlighted fields.'], [], ['1 · MEETING DETAILS'],
+const hand = [['FrameDecks | MEETING FORM'], ['Fill the highlighted fields.'], [], ['1 · MEETING DETAILS'],
   ['Meeting title', 'Hand made', '', '', 'Date', '2026-12-01'], ['Presenter', 'Sam'], [],
   ['2 · MEETING FRAMES'], ['Frame #', 'Frame name', 'Purpose / description', 'Background', 'Transition', 'Presenter script'],
   [1, 'Welcome', '', 'Navy', 'Fade', 'Say hello'], [2, 'Talk', '', '', '', ''], [],

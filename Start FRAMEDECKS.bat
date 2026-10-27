@@ -1,8 +1,8 @@
 @echo off
-title FRAMEDECKS
+title FrameDecks
 cd /d "%~dp0"
 echo.
-echo  Starting FRAMEDECKS...
+echo  Starting FrameDecks...
 echo.
 py -3 --version >nul 2>&1
 if %errorlevel%==0 (

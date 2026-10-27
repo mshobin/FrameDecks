@@ -204,7 +204,7 @@ export function WorkspaceMembers({
               required
               value={email}
               onChange={(event) => setEmail(event.target.value)}
-              placeholder="name@church.org"
+              placeholder="name@example.org"
             />
             <select
               aria-label="Role"

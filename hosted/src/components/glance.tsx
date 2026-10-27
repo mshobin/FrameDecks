@@ -92,7 +92,7 @@ export function NextService({ workspace, name }: Readonly<{ workspace: Workspace
     {
       ok: online,
       text: glance ? (glance.pc ? `${glance.pc.name} is ${online ? "online" : "offline"}` : "No service PC linked yet") : "Checking the service PC…",
-      detail: glance?.pc && online ? nowShowing(glance.pc.status) : glance?.pc ? "Open FRAMEDECKS on it to run the service" : "",
+      detail: glance?.pc && online ? nowShowing(glance.pc.status) : glance?.pc ? "Open FrameDecks on it to run the service" : "",
       href: "/computers",
       action: glance && !glance.pc && editor ? "Link one" : "",
     },

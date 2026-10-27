@@ -1,4 +1,4 @@
-// FRAMEDECKS - a Frame's history in the companion: its current version and the versions the database keeps for
+// FrameDecks - a Frame's history in the companion: its current version and the versions the database keeps for
 // 30 days (entity_history, filled by sync_push), with who made each and what changed. Pure functions, no imports, so
 // the tests load this file directly with Node's type stripping.
 

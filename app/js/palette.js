@@ -1,4 +1,4 @@
-/* FRAMEDECKS v6.7 - Command palette (Spotlight style). Ctrl+K or Ctrl+Space (Settings > Keyboard shortcuts).
+/* FrameDecks v6.7 - Command palette (Spotlight style). Ctrl+K or Ctrl+Space (Settings > Keyboard shortcuts).
  * 6.8: also its own Spotlight window (spotlight.html), opened by a system-wide shortcut even from the tray.
  *
  * One box finds and does everything: Frames, Content, the Frames' own questions and scriptures, announcements and
@@ -270,7 +270,7 @@ function mountKeys(root){
   function render(msg){
     root.innerHTML = '';
     var k = keys();
-    root.appendChild(h('p', {cls: 'hint', text: 'Opens the command palette from anywhere in FRAMEDECKS, even while typing. Use Ctrl, Alt or both with a key.'}));
+    root.appendChild(h('p', {cls: 'hint', text: 'Opens the command palette from anywhere in FrameDecks, even while typing. Use Ctrl, Alt or both with a key.'}));
     var table = h('div', {cls: 'kb-table'});
     [0, 1].forEach(function(n){
       var btn = h('button', {cls: 'btn small', type: 'button', text: 'Change'});

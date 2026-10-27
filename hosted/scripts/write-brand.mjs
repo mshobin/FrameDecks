@@ -1,4 +1,4 @@
-// FRAMEDECKS - writes src/lib/brand.json from the program's own About text (app/js/brand.js) and version
+// FrameDecks - writes src/lib/brand.json from the program's own About text (app/js/brand.js) and version
 // (server.py APP_VERSION), so the website's About screen says exactly what the program's does. Run before every
 // build and `npm run dev`; the file is committed, and tests/brand.test.mjs fails if it is out of date. If the
 // program's files are not next to the website (a host that copies only hosted/), the committed file is kept.

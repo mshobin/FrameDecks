@@ -1,4 +1,4 @@
-"""FRAMEDECKS - errors the program deliberately carries on after (production audit M8).
+"""FrameDecks - errors the program deliberately carries on after (production audit M8).
 
 Many places keep going when something optional fails (a window that has already closed, a camera that went away).
 They used to say nothing, so a problem left no trace. swallowed() writes one line to the log (stderr, which the

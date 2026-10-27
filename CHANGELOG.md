@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to FRAMEDECKS and its predecessor names are recorded here. The format follows
+All notable changes to FrameDecks and its predecessor names are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are numbered **major.minor** (see
 [docs/development/changelog-standards.md](docs/development/changelog-standards.md)). Each version links to its full
 release notes in [`docs/releases/`](docs/releases/). Dates are the dates of the release commits.
@@ -11,14 +11,14 @@ Versions before 4.9 (when the program had its earlier name) are described in the
 ## [Unreleased]
 
 ### Added
-- The program can take commands from the FRAMEDECKS companion (Next/Previous Frame, Go Live, Hide all, black screen,
+- The program can take commands from the FrameDecks companion (Next/Previous Frame, Go Live, Hide all, black screen,
   question, scripture) and run them exactly as the keys do, showing "‹action› · from ‹person›" on the PC. Off by
-  default and only for a linked PC: Settings → FRAMEDECKS account → "Allow control from the companion", with the
+  default and only for a linked PC: Settings → FrameDecks account → "Allow control from the companion", with the
   last ten actions. The Wi-Fi phone remote is unchanged.
 - Companion: **Live** page to run a service from a phone (Previous / Next, Go Live on any Frame, Hide all, Black
   screen, question and scripture, the Teleprompter script, whether the PC is online), and a "Can run services"
   checkbox for members. Needs `0004_remote.sql` and `0005_remote_live.sql` run in Supabase.
-- Settings → **FRAMEDECKS account**: link this PC to a workspace in the FRAMEDECKS companion with a short code, and
+- Settings → **FrameDecks account**: link this PC to a workspace in the FrameDecks companion with a short code, and
   its service plans, Teleprompter scripts and member list sync in the background (pictures, videos, what is live and
   the phone remote PIN stay on the PC). Optional and off until linked; services always run from the PC, online or
   not.
@@ -40,7 +40,7 @@ Versions before 4.9 (when the program had its earlier name) are described in the
   `hosted/supabase/migrations/0002_invitations.sql` run in Supabase.
 
 ### Changed
-- Updated the FRAMEDECKS logo and tagline across the desktop app, phone remote, PWA icons, favicons, workbook,
+- Updated the FrameDecks logo and tagline across the desktop app, phone remote, PWA icons, favicons, workbook,
   Windows installer, and marketing header. Presentation workflows are unchanged.
 - The favicons, the tray icon and the small program-icon sizes (16–32 px) use a heavier version of the emblem, so it
   stays visible on light browser tabs and a light taskbar. Larger sizes are unchanged.
@@ -72,6 +72,15 @@ Full notes: [docs/releases/v6.11.1.md](docs/releases/v6.11.1.md)
   Live tools grouped (one Teleprompter entry) and closed by Esc, Blackout renamed Black screen, Q + S → Both, no
   "350 ms" or double PREVIEW badges, a four-step first-service guide, `docs/glossary.md`. Website: Services is now
   **Running order**, cross-links with the Meeting Form, and a factual trust strip on the front page.
+- The name is written **FrameDecks** everywhere people read it: the program, the installer's names and messages, the
+  website, its metadata and the guides (identifiers stay: data folder, settings names, the exe, the local API's
+  `app` value, the firewall rule, the old camera names that upgrades look for). The legacy Wi-Fi phone remote is
+  unchanged (protected).
+- Website front page for every gathering (owner's brief, 27 October): "Prepare with Purpose. Present with
+  Excellence.", the approved line about every screen, every stream and every member of your team, made-for pills,
+  a bento of features, Day 1–4, **Ready to Serve?**; no church-only words or named streaming products; new neutral
+  product pictures. Motion is back and lighter (transform and opacity only, plays once, nothing animated when idle,
+  no animated blur). The website says **team** where it said church. The About screen is readable in the light theme.
 - Website, one place per job (owner-approved, 27 October): four main places, **Home · Plan · Live · People**, with
   Branding, **Service PCs** and **Help** under Settings; the Meeting Form and the running order are one **Plan** page
   (Edit the meeting / History and restore; old addresses still open it); Home shows the next service and whether it is
@@ -82,7 +91,7 @@ Full notes: [docs/releases/v6.11.1.md](docs/releases/v6.11.1.md)
   for Live.
 - Website look (identity): no glows, glass, word-by-word headline or pointer spotlight; one flat gold main action;
   gold frame corners around product pictures; scripture in EB Garamond. The front page is rebuilt: what it is in one
-  sentence, Download first, a press-Next demo, a week with FRAMEDECKS, a verse, what it does, questions churches ask,
+  sentence, Download first, a press-Next demo, a week with FrameDecks, a verse, what it does, questions churches ask,
   and a full footer.
 - Run: **Up next** as large as the picture on screen, keyboard hints under it (from your own shortcuts), and at the
   meeting's start time a reminder if Practice mode is still on.
@@ -109,9 +118,9 @@ Full notes: [docs/releases/v6.11.1.md](docs/releases/v6.11.1.md)
 - The Stream Deck plugin (`streamdeck/`) and the local `/api/command` endpoints it used (owner's decision).
 
 ### Fixed
-- "Could not reach https://framedecks.pages.dev: Forbidden" in FRAMEDECKS account (requests now identify FRAMEDECKS).
+- "Could not reach https://framedecks.pages.dev: Forbidden" in FrameDecks account (requests now identify FrameDecks).
 - Unpinning the Teleprompter overlay froze the program.
-- Camera labels that still said FRAMEDECKS (switch, status, Teams step, Cards, Camera Look, Diagnostics) now say
+- Camera labels that still said FrameDecks (switch, status, Teams step, Cards, Camera Look, Diagnostics) now say
   FRAMECAST; `tests/test_camera_name.py` guards it (design audit DD-01).
 - The camera's start-file message no longer sits over the Studio canvas (Members' tab switch showed the camera
   picture panel on every visit). `tests/test_ui_labels.py` guards ranks 2–4.
@@ -123,8 +132,8 @@ Full notes: [docs/releases/v6.11.md](docs/releases/v6.11.md)
 ### Added
 - Companion: **Meeting Form** page. Plan the whole meeting online as in the Excel Meeting Form (meeting details,
   Frames, every Content type, questions, scripture); a linked PC shows it within about a minute.
-- Companion: on a Windows PC, the Overview checks for the FRAMEDECKS camera and offers the download or **Open
-  FRAMEDECKS on this PC**; the installer registers the `framedecks:` link for the current user.
+- Companion: on a Windows PC, the Overview checks for the FrameDecks camera and offers the download or **Open
+  FrameDecks on this PC**; the installer registers the `framedecks:` link for the current user.
 
 ### Changed
 - The Excel Meeting Workbook (import, template, export, undo) moved to **Settings → Data / Backup**; the Meeting
@@ -166,9 +175,9 @@ Full notes: [docs/releases/v6.9.md](docs/releases/v6.9.md)
 - `tests/test_meeting_form.py`.
 
 ### Changed
-- The program now uses the FRAMEDECKS name everywhere: the program (`FRAMEDECKS.exe`), the program folder,
+- The program now uses the FrameDecks name everywhere: the program (`FRAMEDECKS.exe`), the program folder,
   the data folder (`%APPDATA%\FRAMEDECKS`), the data files (`kc-*.json`), the start files, the recordings folder,
-  the firewall rule and the Share Window title (*FRAMEDECKS Share Window*). Default labels and the About text no
+  the firewall rule and the Share Window title (*FrameDecks Share Window*). Default labels and the About text no
   longer mention the program's earlier name, and the default Group Name is empty.
 - On first start, 6.9 moves data saved by earlier versions (folder, files, backups, recordings and browser settings)
   to the new names once, never overwriting newer data. The installer installs over every earlier version and removes
@@ -324,7 +333,7 @@ Full notes: [docs/releases/v6.4.md](docs/releases/v6.4.md)
 - New guides: user, installation, configuration and feature documentation.
 
 ### Changed
-- The camera is called **FRAMEDECKS** in Zoom, Teams, Google Meet and OBS (same device ID as before).
+- The camera is called **FrameDecks** in Zoom, Teams, Google Meet and OBS (same device ID as before).
 - The app shows only the Book + Candle logo as its branding.
 - The installed app is a real desktop window: no address bar or browser controls, and the title bar follows the
   theme.
@@ -359,7 +368,7 @@ Full notes: [docs/releases/v6.1.md](docs/releases/v6.1.md)
   Library of ready-made scenes; Duplicate & edit question.
 
 ### Changed
-- The program got its current name, **FRAMEDECKS**, with a navy and gold design in dark and light
+- The program got its current name, **FrameDecks**, with a navy and gold design in dark and light
   themes, and a new About page.
 
 ## [6.0] - 2026-10-12

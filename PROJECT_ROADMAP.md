@@ -20,7 +20,7 @@ Updated 26 October 2026. PR #32 is merged; the live Supabase database has every 
 | Stream Deck plugin | Removed 26 October (owner's request) |
 | Target architecture migration ([review](docs/architecture-review.md), [plan](docs/migration-plan.md), [report](docs/post-migration-report.md)) | All 8 steps built on PR #32 (owner decisions M-D1–M-D6, 25 Oct): audit log, ESV key, missing-media check, API grants, licence and signing, members from the cloud, free AI (Ollama), PowerPoint export and Audio, member groups. Merged; database scripts run live (26 Oct). Next: live tests |
 | Free for everyone ([free-hosting.md](docs/project/free-hosting.md)) | In progress: 1 static companion (live at framedecks.pages.dev); 2 keep-alive and encrypted backup (live, first runs green); 3 fewer database requests (done); 4 sign-in providers first (live: Google and Microsoft; Brevo skipped); 5 public repo, signing, Releases (owner) |
-| 6.11: plan on the website ([meeting-form.md](docs/architecture/meeting-form.md)) | In progress: 1 camera check and Open FRAMEDECKS link (built); 2 website Meeting Form (built); 3 Excel into Settings, version 6.11 (built); owner test G. 6.12 removes Excel after the owner's test (W3) |
+| 6.11: plan on the website ([meeting-form.md](docs/architecture/meeting-form.md)) | In progress: 1 camera check and Open FrameDecks link (built); 2 website Meeting Form (built); 3 Excel into Settings, version 6.11 (built); owner test G. 6.12 removes Excel after the owner's test (W3) |
 | Camera renamed FRAMECAST; v6.11 release notes | Built; v6.11 release published with the installer (26 October) |
 | Audit roadmap step 2 (support bundle, update notice, CI checks, one OpenCV, non-blocking windows) | Built (26 October), ships in 6.11.1 |
 | Design audit rank 1 (DD-01: every camera label says FRAMECAST, with a test) | Built (26 October), ships in 6.11.1 |
@@ -29,6 +29,7 @@ Updated 26 October 2026. PR #32 is merged; the live Supabase database has every 
 | Design audit ranks 8, 12–21 (voice, states, type, icons, a11y, gold, composer, tokens + lint, design system + visual checks, Overview, light theme) | Built (26 October); the whole design roadmap is done |
 | UX simplification (Prepare / Run, Practice, How people see it, Advanced, People, Live tools groups, glossary, website Running order and trust strip) | Built (27 October). Owner: Test H (live test guide) on Windows |
 | Re-audit steps to 90+ (palette, radii/shadows, `!important`, lazy sections, axe scan in CI) | Built (27 October). Left for the owner: Windows check, a screen-reader pass (NVDA/Narrator), a real quote or usage fact for the landing page |
+| Landing brief: FrameDecks spelling, every audience, motion back, About in Light | Built (27 October). Owner: About story wording, program presets |
 | 10/10 plan: phases 1–2, owner-free parts of 3–4 (website four places, Plan, Home, first-time path, Help, identity, landing, Run polish) | Built (27 October). Owner: Test I; go-ahead for projector legibility, templates by type, the Wi-Fi remote; real quotes and photos |
 | 6.11.1: production audit steps 1–2 (`docs/project/2026-10-26-production-audit.md`) | Built (26 October); owner publishes v6.11.1 and runs `0009`. Next: step 3 (live tests, M9, M7) |
 | Website idle performance (no endless animations, less blur) | Built and live on push (26 October) |

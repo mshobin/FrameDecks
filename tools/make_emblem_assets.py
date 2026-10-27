@@ -1,4 +1,4 @@
-"""Build every FRAMEDECKS emblem derivative from the vector master.
+"""Build every FrameDecks emblem derivative from the vector master.
 
 Master: assets/brand/framedecks-emblem.svg, rendered to assets/brand/framedecks-emblem-1024.png.
 Small sizes (16-32 px: favicons, tray, the small .ico images) use framedecks-emblem-small.svg, rendered to

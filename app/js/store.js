@@ -1,5 +1,5 @@
 /*
- * FRAMEDECKS - shared state.
+ * FrameDecks - shared state.
  *
  * Two ways to connect, chosen automatically:
  *  - Local program mode (page opened from http://localhost...): state lives in the
@@ -7,7 +7,7 @@
  *  - No-install mode (page opened as a file): state lives in this browser's local
  *    storage and syncs instantly between tabs of the SAME browser only.
  */
-/* LEGACY (6.9): settings this browser saved under the program's earlier name move to the FRAMEDECKS names, once.
+/* LEGACY (6.9): settings this browser saved under the program's earlier name move to the FrameDecks names, once.
  * This and legacy.py are the only places that know the earlier name; they exist so nobody loses their theme,
  * shortcuts, layout, members (file mode) or saved state. */
 (function(){
@@ -208,7 +208,7 @@ var Present = {
     }
     return n;
   },
-  /* Both on screen in Both mode: the question leads, the verse supports it (used by the overlays and FRAMEDECKS) */
+  /* Both on screen in Both mode: the question leads, the verse supports it (used by the overlays and FrameDecks) */
   combined: function(st){
     return Present.mode(st) === 'both' && st.question.visible && String(st.question.text || '').trim() !== '' &&
       st.verse.visible && String(st.verse.text || '').trim() !== '';
@@ -222,7 +222,7 @@ var Present = {
  *   Layer  {id, kind, name, visible, locked, opacity, c: {...content / media fields}}
  * Card kinds (scripture, question, birthday) drive the existing verse / question / birthday cards, so the
  * keyboard, the remote and every overlay keep working. Text kinds (announcement, prayer, lowerthird,
- * countdown) are drawn by the overlay pages and FRAMEDECKS. Media kinds are FRAMEDECKS Studio layers (the program
+ * countdown) are drawn by the overlay pages and FrameDecks. Media kinds are FrameDecks Studio layers (the program
  * applies the live scene's media layers to the camera picture).
  * All helpers edit a copy inside Store.update(); they never send anything themselves.
  * ===================================================================================================== */
@@ -241,7 +241,7 @@ var KIND_INFO = {
   pdf: {name: 'PowerPoint', icon: 'presentation'}, background: {name: 'Background', icon: 'paint-bucket'}, text: {name: 'Text', icon: 'type'},
   rect: {name: 'Shape', icon: 'square'}, ellipse: {name: 'Ellipse', icon: 'circle'}, audio: {name: 'Audio', icon: 'volume-2'}
 };
-/* Scene transitions. In FRAMEDECKS every type plays on the whole picture; on the overlay pages the dips cover the
+/* Scene transitions. In FrameDecks every type plays on the whole picture; on the overlay pages the dips cover the
  * screen and the cards follow (cut = instant). */
 var TX = [['cut', 'Cut'], ['fade', 'Fade'], ['dissolve', 'Cross Dissolve'], ['dip-black', 'Dip to Black'], ['dip-white', 'Dip to White'],
   ['blur-fade', 'Blur Fade'], ['zoom-fade', 'Zoom Fade'], ['slide-left', 'Slide Left'], ['slide-right', 'Slide Right'], ['push', 'Push'],
@@ -824,7 +824,7 @@ var Scenes = {
     n.live.blackout = false; n.live.emergency = false; n.live.freeze = false;            // drawings stay: they sit above any Frame
     return n;
   },
-  /* Text layers on the program (for the overlay pages and FRAMEDECKS) */
+  /* Text layers on the program (for the overlay pages and FrameDecks) */
   liveText: function(st, output){
     var sc = Scenes.liveScene(st); if (!sc) return [];
     if (output && sc.out[output] === false) return [];
@@ -870,7 +870,7 @@ var Scenes = {
     var h = Math.floor(left / 3600), mm = Math.floor(left % 3600 / 60), ss = left % 60;
     return (h ? h + ':' + String(mm).padStart(2, '0') : mm) + ':' + String(ss).padStart(2, '0');
   },
-  /* First run of v6: the content you already have becomes scenes (nothing is lost). media = the FRAMEDECKS layers
+  /* First run of v6: the content you already have becomes scenes (nothing is lost). media = the FrameDecks layers
    * now on the picture (they go into every scene, so the picture looks the same), studioScenes = saved Studio scenes. */
   migrate: function(n, media, studioScenes, who){
     if (n.v6) return false;

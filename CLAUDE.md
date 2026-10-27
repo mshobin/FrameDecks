@@ -1,10 +1,10 @@
-# FRAMEDECKS — AI/maintainer guide
+# FrameDecks — AI/maintainer guide
 
 Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
 
 ## Non-negotiable rules
 - The desktop UI, branding and functions must NOT change. The work is a stack migration to SaaS + PWA only.
-  Owner-approved exceptions: the heavier 16–32 px emblem and one Settings section, "FRAMEDECKS account" (sync, D1 in
+  Owner-approved exceptions: the heavier 16–32 px emblem and one Settings section, "FrameDecks account" (sync, D1 in
   `docs/architecture/metadata-sync.md`), which also gets "Allow control from the companion" and its last ten actions
   (R5 in `docs/architecture/remote-control.md`); a toast on the PC for each companion action; and from the migration
   (`docs/migration-plan.md` §8): **Suggest** in a Frame's question list (only when Ollama answers), **Meeting → Export
@@ -13,7 +13,7 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
   Meeting from Excel** (it leaves in 6.12, W3); and the website's colour palette in the dark theme (6.11, owner's
   request: the last block of `app/css/theme.css`, colours only; keep it equal to `hosted/src/app/globals.css` :root);
   and the virtual camera's name, **FRAMECAST** (owner's request, 26 October: `packaging/build_vcam.py` NAME,
-  `vcam/sink.py` VCAM_NAME, and the labels that name the camera; the program itself stays FRAMEDECKS); and the Settings menu grouped (Your meeting, Presenting, Account,
+  `vcam/sink.py` VCAM_NAME, and the labels that name the camera; the program itself stays FrameDecks); and the Settings menu grouped (Your meeting, Presenting, Account,
   This PC, Help), each item with a one-line description, plus "Find a setting" (owner's request, 26 October); and design
   audit ranks 2–4 (owner's request, 26 October): the first-run dialog (Start fresh first, then a Getting started card),
   the Teleprompter's empty state, and the command bar's words (Transition label, Auto-advance, Live tools, Ready / Off air
@@ -31,7 +31,10 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
   Members → People (List / Table), labelled main tabs, worded Previous / Next, Hide all red only while something is on
   screen, one status pill, grouped Live tools (one Teleprompter entry, Esc closes), "Black screen" for Blackout, the
   four-step first-service card, and the words in `docs/glossary.md`. And the 10/10 plan (owner's request, 27 October): Run's larger Up next with key
-  hints and the Practice reminder at service time (`app/js/service.js`, end of `app/css/theme.css`). Nothing else visible may change.
+  hints and the Practice reminder at service time (`app/js/service.js`, end of `app/css/theme.css`). And the name written
+  **FrameDecks** (owner's brief, 27 October) in every label, title and message, with the About wordmark and header
+  no longer forced to capitals; identifiers keep FRAMEDECKS (`APP_NAME`, data folder, `FRAMEDECKS_*` variables, the
+  exe, the ping's `"app"`, `FIREWALL_RULE`, Credential Manager names, old camera names). Nothing else visible may change.
 - The codebase is the source of truth; verify docs against it.
 - Do not touch the legacy LAN remote or let the hosted app call the local HTTP server.
 - Never commit secrets. `.env*` is ignored except `hosted/.env.example`. Never the Supabase `service_role` key; the
@@ -95,8 +98,10 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
   `server.py` version by `scripts/write-brand.mjs` on every build (`tests/brand.test.mjs` fails if it is stale).
 - Website places (27 October): Home `/` (`overview.tsx`), Plan `/plan` (also `/meeting`, `/services`; `plan-page.tsx`),
   Live, People `/members`; Settings: Branding, Service PCs `/computers`, Help `/help`; Your account `/account`. The
-  look on top of `design.css` is `hosted/src/app/identity.css` (no glows, `.fd-framed` corners, EB Garamond for
-  scripture); it wins over the glass and motion notes above.
+  look on top of `design.css` is `hosted/src/app/identity.css` (`.fd-framed` corners, EB Garamond for scripture, warm
+  gold main action) and, for the front page, `hosted/src/app/landing.css` (owner's brief, 27 October: every audience,
+  approved hero words, Day 1–4, Ready to Serve?, motion back; `docs/design-system.md` "Landing"). Website words:
+  team, not church; no named streaming products on the front page. Motion never animates `filter`.
 - `hosted/src/app/meeting` — 6.11 the Meeting Form: the Excel form's sections on the live plan (`hosted/src/lib/meeting-form.ts`),
   plus the meeting's Transition style (the synced `layout/profile` record).
 - `hosted/src/app/branding` — the program's Meeting & Branding settings (the synced `brand` record; the logo stays on the PC).
@@ -146,7 +151,7 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
 - Before and after every change, all of these must pass (the cloud session's last results are in brackets):
 - Desktop JS tests: `node tests/run.js` [4/4]; Python: `python -m unittest discover -s tests -p "test_*.py"` [139 OK];
   packaging: `python packaging/check.py` [6.11.1].
-- Hosted (run inside `hosted/`, there is no root package.json): `npm test` [122/122], `npm run lint`, `npm run typecheck`, `npm run build`.
+- Hosted (run inside `hosted/`, there is no root package.json): `npm test` [124/124], `npm run lint`, `npm run typecheck`, `npm run build`.
   `npm test` applies every migration to in-memory Postgres (PGlite) and loads `src/lib/sync-entities.ts` with Node's
   type stripping.
 - Sync fixtures: `python tools/make_sync_fixtures.py` rebuilds `tests/fixtures/sync/` (needs Node) after changing
@@ -174,7 +179,7 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
     no deletions are sent and the Frames are restored from the workspace.
 - The old name appears only where upgrades need it: `legacy.py` (moves old data folders), `packaging/installer.iss`
   (removes old shortcuts, program folder and camera files), `server.py` `OLD_FIREWALL_RULES`, `tools/undo-ipad-remote.ps1`
-  and `tests/test_legacy.py`. Use FRAMEDECKS everywhere else; the camera is called FRAMECAST (files `framedecks_vcam64/32.dll`). Any label that
+  and `tests/test_legacy.py`. Use FrameDecks everywhere else; the camera is called FRAMECAST (files `framedecks_vcam64/32.dll`). Any label that
   means the camera (switch, status, picture, preview) says FRAMECAST; `tests/test_camera_name.py` fails otherwise.
 - The companion must stay a static export: no server routes, cookies, server actions, `dynamic`/`revalidate`, metadata
   routes that need a server, or cacheComponents/PPR (they break `output: "export"`).

@@ -1,6 +1,6 @@
 # Hosting: the long-term recommendation (M-D5)
 
-Where the FRAMEDECKS companion and its database should live for the long term, at the lowest cost, under terms that
+Where the FrameDecks companion and its database should live for the long term, at the lowest cost, under terms that
 allow a ministry to use them. This is the answer to decision M-D5 in the [migration plan](../migration-plan.md).
 Checked 25 October 2026.
 
@@ -15,7 +15,7 @@ Checked 25 October 2026.
 | Desktop downloads | GitHub Actions artifacts | **GitHub Releases** on the public repository (M-D1), signed by SignPath | $0 |
 
 When to move:
-- Stay on Vercel while FRAMEDECKS is the owner's own pilot.
+- Stay on Vercel while FrameDecks is the owner's own pilot.
 - Move the companion **before** the repository goes public with a donation link, or before a second church uses it.
 - Upgrade Supabase when a missed Sunday would matter to someone other than the owner.
 
@@ -43,20 +43,20 @@ When to move:
 
 ### The database: stay on Supabase
 
-- **Supabase Free is enough while FRAMEDECKS is a pilot:** 500 MB of database, 50,000 monthly sign-ins.
+- **Supabase Free is enough while FrameDecks is a pilot:** 500 MB of database, 50,000 monthly sign-ins.
 - **One catch: a free project is paused after 7 days without database requests.**
   - It keeps its data, but sign-in and sync stop until it is restored in the dashboard.
-  - A linked PC syncs every minute while FRAMEDECKS runs, so normal use keeps the project awake.
+  - A linked PC syncs every minute while FrameDecks runs, so normal use keeps the project awake.
   - A quiet fortnight would not keep it awake.
   - Presenting never stops (the PC works offline), but the companion would be dark.
 - **Supabase Pro ($25 a month) removes the pause and adds daily backups.**
   - Upgrade when other churches rely on it.
   - The money can come from donations once the project is open source (M-D1).
-- **Self-hosting Supabase** is possible: it is open source, and FRAMEDECKS uses only Postgres, Auth and the REST API.
+- **Self-hosting Supabase** is possible: it is open source, and FrameDecks uses only Postgres, Auth and the REST API.
   It moves backups, updates and security onto the ministry, so keep it as the exit route, not the plan.
 - **Act on Supabase's 30 October 2026 change.** Tables created from that date get no API access without an explicit
   grant ([Supabase discussion](https://github.com/orgs/supabase/discussions/45329)).
-  - `0007_data_api_grants.sql` covers every FRAMEDECKS table.
+  - `0007_data_api_grants.sql` covers every FrameDecks table.
   - Every new migration grants its own tables, and the tests check that.
 
 ## What moving the companion involves (later, one PR)

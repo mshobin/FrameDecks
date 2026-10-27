@@ -95,12 +95,12 @@ function fail(code: ConstructorParameters<typeof SyncContractError>[1], message:
 
 function readJson(json: string): unknown {
   if (new TextEncoder().encode(json).byteLength > LEGACY_IMPORT_MAX_BYTES) {
-    fail("payload-too-large", `A FRAMEDECKS 6.9 import must not exceed ${LEGACY_IMPORT_MAX_BYTES} bytes.`);
+    fail("payload-too-large", `A FrameDecks 6.9 import must not exceed ${LEGACY_IMPORT_MAX_BYTES} bytes.`);
   }
   try {
     return JSON.parse(json) as unknown;
   } catch {
-    fail("invalid-json", "The FRAMEDECKS 6.9 export is not valid JSON.");
+    fail("invalid-json", "The FrameDecks 6.9 export is not valid JSON.");
   }
 }
 
@@ -292,7 +292,7 @@ function importLayer(
 }
 
 function readLegacyRoot(value: unknown): RecordValue {
-  if (!isRecord(value)) fail("invalid-shape", "The FRAMEDECKS 6.9 export must be a JSON object.");
+  if (!isRecord(value)) fail("invalid-shape", "The FrameDecks 6.9 export must be a JSON object.");
   if (value.format === LEGACY_EXPORT_FORMAT && value.schemaVersion === 1 && isRecord(value.state)) {
     return value.state;
   }
@@ -451,10 +451,10 @@ function toLegacyLayer(content: ContentV1): RecordValue {
     };
   }
   if (content.kind !== "asset") {
-    fail("invalid-value", "The content kind cannot be represented in the FRAMEDECKS metadata export.");
+    fail("invalid-value", "The content kind cannot be represented in the FrameDecks metadata export.");
   }
   if (content.mediaType === "audio") {
-    fail("invalid-value", "Audio asset references have no matching FRAMEDECKS 6.9 layer type.");
+    fail("invalid-value", "Audio asset references have no matching FrameDecks 6.9 layer type.");
   }
   return {
     id: content.id,

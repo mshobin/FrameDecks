@@ -1,4 +1,4 @@
-"""FRAMEDECKS - syncing service plans with the workspace in the cloud (design: docs/architecture/metadata-sync.md).
+"""FrameDecks - syncing service plans with the workspace in the cloud (design: docs/architecture/metadata-sync.md).
 
 Runs in the background only when this PC is linked to a workspace. It never sits on the path of a page, the phone
 remote or the camera: presenting works exactly as without it, online or not.
@@ -6,7 +6,7 @@ remote or the camera: presenting works exactly as without it, online or not.
     Engine        one sync round: pull what changed elsewhere, apply it (never to the live Frame), push what changed
                   here. Plain Python on dictionaries, tested against a stand-in cloud (tests/test_cloud_sync.py).
     CloudApi      the Supabase calls over HTTPS (urllib, no extra package): sync_pull / sync_push and linking.
-    Service       the background thread, linking, unlinking and the status shown in Settings > FRAMEDECKS account.
+    Service       the background thread, linking, unlinking and the status shown in Settings > FrameDecks account.
 
 Files in the data folder: kc-sync.json (the link, the pull cursor, what the cloud last agreed for each record, and
 changes held back while their Frame is live). The computer key is not in the data folder: it is kept in Windows
@@ -28,7 +28,7 @@ import sync_entities as E
 
 COMPANION_URL = os.environ.get("FRAMEDECKS_COMPANION_URL", "https://framedecks.pages.dev").rstrip("/")
 # Cloudflare (the website's host) answers 403 to Python's default "Python-urllib" identity, so every request says who it is
-USER_AGENT = "FRAMEDECKS (Windows; +https://framedecks.pages.dev)"
+USER_AGENT = "FrameDecks (Windows; +https://framedecks.pages.dev)"
 PUSH_BATCH = 200                      # sync_push: at most 200 changes and 2 MB a call
 PUSH_BYTES = 1_800_000
 QUIET_SECONDS = 3                     # after a save, wait for this much quiet before syncing
@@ -575,7 +575,7 @@ class Service:
         if not self.state.get("link"):
             return
         self.stopping = False
-        self.thread = threading.Thread(target=self._loop, name="FRAMEDECKS sync", daemon=True)
+        self.thread = threading.Thread(target=self._loop, name="FrameDecks sync", daemon=True)
         self.thread.start()
 
     def stop(self):

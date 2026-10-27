@@ -1,6 +1,6 @@
 # Architecture
 
-How FRAMEDECKS is built: the parts, how a change travels from a click to the screen, and why it stays
+How FrameDecks is built: the parts, how a change travels from a click to the screen, and why it stays
 reliable on a Sunday morning.
 
 **Who this is for:** contributors, technical media leads, and anyone who wants to understand what runs on the
@@ -49,7 +49,7 @@ flowchart LR
   end
   PHONE["Phone remote<br/>app/remote.html"]
   OBS["OBS / browser<br/>overlay pages"]
-  MEET["Zoom · Teams · Meet · OBS<br/>camera: FRAMEDECKS"]
+  MEET["Zoom · Teams · Meet · OBS<br/>camera: FrameDecks"]
   PROJ["Projector / second screen"]
 
   UI <--> SRV
@@ -303,7 +303,7 @@ window features use Windows' own functions through `desktop_win.py` (ctypes, no 
 | Teleprompter | `app/js/teleprompter.js` (shared, with the floating toolbar), `app/speaker.html`, `app/js/speaker.js` (the Teleprompter window), `app/prompter.html`, `app/js/prompter.js`, `app/css/prompter.css` (the overlay) | The Frame's Teleprompter script, what's on screen, what's next, clocks. No output reads a Frame's script, and the overlay is left out of screen sharing |
 | Overlay pages | `app/stage.html` and others, `app/js/overlay.js` | Cards and text for OBS / browser sources |
 | Excel | `app/js/meeting-book.js`, `meeting-import.js`, `import-worker.js`, `app/vendor/xlsx.full.min.js`, `meeting_form.py`, `app/templates/FRAMEDECKS-Meeting-Workbook.xlsx` (made by `tools/make_meeting_workbook.py`) | Meeting Workbook import and export. The workbook has two tabs, Dashboard (formulas only) and Meeting Form. `meeting_form.py` holds the form's layout and fills the template for an export (`POST api/meeting/workbook`); `meeting-book.js` reads the form back by its labels and header rows, and still reads the 6.5–6.8 one-sheet-per-list workbooks. The Excel library loads on first use, not at start-up |
-| Earlier-name migration | `legacy.py` (data folder, files, backups, recordings), a marked block at the top of `app/js/store.js` (browser settings), `packaging/installer.iss` (old program folder and shortcuts) | Moves data saved by versions published under the program's earlier name to the FRAMEDECKS names, once, never overwriting newer data |
+| Earlier-name migration | `legacy.py` (data folder, files, backups, recordings), a marked block at the top of `app/js/store.js` (browser settings), `packaging/installer.iss` (old program folder and shortcuts) | Moves data saved by versions published under the program's earlier name to the FrameDecks names, once, never overwriting newer data |
 | Packaging | `packaging/` | PyInstaller spec, Inno Setup installer, camera build, self-check |
 | Tests | `tests/`, `packaging/check.py` | Store and workbook tests; start-up self-check |
 

@@ -1,7 +1,7 @@
 {
-  "name": "FRAMEDECKS",
-  "short_name": "FRAMEDECKS",
-  "description": "The online-first FRAMEDECKS companion for secure service planning and device management.",
+  "name": "FrameDecks",
+  "short_name": "FrameDecks",
+  "description": "Plan, rehearse and present meetings, classes, conferences, events and services on every screen and stream, guided from your phone.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

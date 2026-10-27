@@ -1,6 +1,6 @@
-# FRAMEDECKS branding asset inventory
+# FrameDecks branding asset inventory
 
-**Source of truth:** the user-provided FRAMEDECKS logo in
+**Source of truth:** the user-provided FrameDecks logo in
 [framedecks-logo-source.png](../assets/brand/framedecks-logo-source.png). The source is copied unchanged. Derived
 assets are generated with `python tools/generate_brand_assets.py` using Pillow, already included in the desktop build
 dependencies.

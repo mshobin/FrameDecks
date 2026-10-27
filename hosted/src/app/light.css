@@ -115,3 +115,38 @@ html.fd-light .fd-wordmark {
   -webkit-background-clip: text;
   background-clip: text;
 }
+
+/* About in the light theme: its panel was painted dark navy, so the (now dark) text could not be read */
+html.fd-light .fd-about {
+  background:
+    radial-gradient(700px 360px at 50% 0%, rgba(184, 134, 47, 0.12), transparent 70%),
+    linear-gradient(175deg, #ffffff, #f3f5fa 60%);
+  box-shadow: 0 40px 120px rgba(15, 25, 50, 0.28);
+}
+
+html.fd-light .fd-about::backdrop {
+  background: rgba(15, 25, 50, 0.4);
+}
+
+html.fd-light .fd-ab-close {
+  background: rgba(255, 255, 255, 0.92);
+}
+
+html.fd-light .fd-ab-two article,
+html.fd-light .fd-ab-principle,
+html.fd-light .fd-ab-value,
+html.fd-light .fd-ab-card,
+html.fd-light .fd-ab-verse,
+html.fd-light .fd-ab-pills li,
+html.fd-light .fd-about-btn {
+  border-color: var(--hairline-strong);
+  background: #ffffff;
+}
+
+html.fd-light .fd-ab-dots button {
+  background: rgba(15, 25, 50, 0.2);
+}
+
+html.fd-light .fd-ab-dots button[aria-selected="true"] {
+  background: var(--gold);
+}

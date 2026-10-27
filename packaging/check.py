@@ -32,11 +32,11 @@ for name in ["app/js/overlay.js", "app/js/store.js", "app/fonts/EBGaramond.ttf",
 from importlib import metadata as _md
 _cv = sorted({d.metadata["Name"].lower() for d in _md.distributions() if (d.metadata["Name"] or "").lower().startswith("opencv")})
 assert len(_cv) <= 1, "more than one OpenCV is installed: " + ", ".join(_cv)
-# FRAMEDECKS: the camera ID in the app must match the one compiled into the camera
+# FrameDecks: the camera ID in the app must match the one compiled into the camera
 import re as _re
 build_id = _re.search(r'CLSID = "([0-9A-F-]+)"', (root / "packaging" / "build_vcam.py").read_text()).group(1)
 from vcam.sink import VCAM_CLSID
-assert VCAM_CLSID == "{" + build_id + "}", "FRAMEDECKS ID mismatch between vcam/sink.py and packaging/build_vcam.py"
+assert VCAM_CLSID == "{" + build_id + "}", "FrameDecks ID mismatch between vcam/sink.py and packaging/build_vcam.py"
 from vcam.sink import VCAM_NAME
 build_name = _re.search(r'NAME = "([^"]+)"', (root / "packaging" / "build_vcam.py").read_text()).group(1)
 assert VCAM_NAME == build_name == "FRAMECAST", "the camera must be called FRAMECAST"
@@ -51,7 +51,7 @@ try:
     import cv2
     from vcam.blur import BackgroundBlur
     BackgroundBlur(root / "vcam" / "models" / "selfie_segmentation_landscape.tflite").close()
-    from vcam.cards import CardDrawer, place_verse      # the cards drawn onto FRAMEDECKS
+    from vcam.cards import CardDrawer, place_verse      # the cards drawn onto FrameDecks
     _st = {"layout": {}, "question": {"visible": True, "text": "Self-check question?", "label": "Discussion Question"}, "birthday": {}}
     _c = CardDrawer(root / "app" / "fonts").draw("verse", {"text": "Self-check verse", "ref": "John 1:1", "label": "Focus Verse"}, {}, 1280, 720, place_verse(_st, 1280, 720))
     assert _c.w > 100 and _c.h > 50, "card drawing failed"
@@ -68,8 +68,8 @@ try:
     import pypdfium2  # noqa: F401                       # PDF slides: the import itself is the check
     for _k in BUILT_IN:
         assert Grade(BUILT_IN[_k]).apply(_np.full((72, 128, 3), 128, _np.uint8)).shape == (72, 128, 3), "look failed: " + _k
-    print("FRAMEDECKS: blur model loads with OpenCV", cv2.__version__)
+    print("FrameDecks: blur model loads with OpenCV", cv2.__version__)
 except ImportError:
-    print("FRAMEDECKS: OpenCV not installed here (only needed to build the app)")
+    print("FrameDecks: OpenCV not installed here (only needed to build the app)")
 srv.shutdown()
 print("Self-check passed: version", ping["version"])

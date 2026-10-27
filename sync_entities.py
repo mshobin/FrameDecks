@@ -1,4 +1,4 @@
-"""FRAMEDECKS - a saved plan as sync records ("entities"), and back.
+"""FrameDecks - a saved plan as sync records ("entities"), and back.
 
 Design: docs/architecture/metadata-sync.md (section 3). Ported from the tested Phase 2 mapping (app/js/entities.js on
 branch claude/saas-phase2), with the member list added as one record per person (owner decision D2).

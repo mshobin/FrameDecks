@@ -1,4 +1,4 @@
-// FRAMEDECKS - the website's Meeting Form: a Frame record <-> the rows of the Excel Meeting Form, and back
+// FrameDecks - the website's Meeting Form: a Frame record <-> the rows of the Excel Meeting Form, and back
 // (design: docs/architecture/meeting-form.md, section 2). New Content is built in the same shape as the program's
 // Excel import (app/js/meeting-book.js build()); the program's normalize (store.js cleanScene / cleanLayer) fills in
 // every default. Editing changes only the fields the form shows; position, size, look and the item on screen stay
@@ -250,7 +250,7 @@ export function problemsOf(form: FrameForm): string[] {
 }
 
 export function frameCountProblem(frames: number): string | null {
-  return frames >= LIMITS.frames ? `FRAMEDECKS holds up to ${LIMITS.frames} Frames.` : null;
+  return frames >= LIMITS.frames ? `FrameDecks holds up to ${LIMITS.frames} Frames.` : null;
 }
 
 // ---- Form -> record ----

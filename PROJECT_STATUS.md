@@ -41,7 +41,7 @@ Phase detail lives in
   Excel moved into Settings → Data / Backup; version 6.11. Owner: live test G; then 6.12 removes Excel (W3).
 - **Website polish (26 October):** redesign, motion and About; owners delete workspaces; Branding page, Transition style on
   the Meeting Form, Birthdays this week on the dashboard (synced `brand`, `layout/profile` and member records).
-- **Old name removed (26 October):** every Kingdom Connect reference is FRAMEDECKS, except upgrade-only code (CLAUDE.md
+- **Old name removed (26 October):** every Kingdom Connect reference is FrameDecks, except upgrade-only code (CLAUDE.md
   Gotchas). Camera files renamed `framedecks_vcam*.dll`; owner checks the camera after the next install.
 - **Audit step 2 (26 October):** built on `main` for 6.11.1 (see NEXT_SESSION); Stream Deck plugin removed.
 - **Design audit rank 1 (26 October):** every camera label says FRAMECAST (DD-01), guarded by `tests/test_camera_name.py`; Python 141 OK.
@@ -65,6 +65,11 @@ Phase detail lives in
   story built on first open (2,220 → 1,796 elements), axe WCAG 2.1 AA scan in CI (`tests/visual/a11y.mjs`, 0
   violations in both themes) and its ARIA and light-theme contrast fixes. Not done: a real screen-reader pass and
   a Windows check (owner); a landing quote or usage fact (owner supplies a real one).
+- **Landing brief (27 October):** FrameDecks spelling everywhere people read it (identifiers kept); front page for
+  every gathering with the approved hero words, Day 1–4, Ready to Serve?, no named streaming products, motion back
+  (transform/opacity only, idle page draws nothing); website says team; About readable in Light; neutral product
+  pictures. Checks: hosted 124/124, lint, typecheck, budget (CSS 18 KB of 20); Python OK; JS 4/4; layout and axe pass.
+  Owner: decide on the About story's wording and the program's church presets; Test I.
 - **10/10 plan, phases 1–2 and the owner-free parts of 3–4 (27 October):** website Home · Plan · Live · People with
   Settings (Branding, Service PCs, Help); one Plan page (Meeting Form + running order); next-service Home with
   volunteer actions; first-time steps; Your account; New here? / Welcome back; Help page with version; tablet Live;

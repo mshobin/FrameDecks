@@ -38,7 +38,7 @@ export function SignInChooser() {
         </>
       ) : (
         <>
-          <h1 className="fd-auth-title">Start your church&apos;s space.</h1>
+          <h1 className="fd-auth-title">Start your team&apos;s space.</h1>
           <p className="auth-lede">Free. No password: use Google or Microsoft, or we email you a link. Next, three short steps.</p>
         </>
       )}
@@ -129,7 +129,7 @@ export function SignInForm({ starting = false }: Readonly<{ starting?: boolean }
           required
           value={email}
           onChange={(event) => setEmail(event.target.value)}
-          placeholder="you@church.org"
+          placeholder="you@example.org"
         />
         <Button className="auth-primary" disabled={status.kind === "sending"} type="submit">
           {status.kind === "sending" ? "Sending…" : starting ? "Email me a link to start" : "Email me a sign-in link"}

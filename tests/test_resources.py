@@ -1,4 +1,4 @@
-"""FRAMEDECKS - memory and copying in the camera engine (architecture audit P3, P4:
+"""FrameDecks - memory and copying in the camera engine (architecture audit P3, P4:
 docs/project/2026-10-25-architecture-audit.md). Big pictures are shrunk once to what can ever be drawn; screen
 capture through DXGI copies a picture only when the screen or the cursor changed."""
 import sys

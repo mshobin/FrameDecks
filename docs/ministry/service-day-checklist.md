@@ -1,6 +1,6 @@
 # Service-day checklist
 
-A printable timeline for running a service with FRAMEDECKS, plus an emergency card to keep beside the PC.
+A printable timeline for running a service with FrameDecks, plus an emergency card to keep beside the PC.
 
 **Who this is for:** service operators, remote operators and leaders. Print it, or keep it open on a second screen.
 
@@ -26,9 +26,9 @@ A printable timeline for running a service with FRAMEDECKS, plus an emergency ca
 ## 60 minutes before
 
 - [ ] PC on mains power; Windows updates paused; notifications off.
-- [ ] FRAMEDECKS open; **FRAMEDECKS** camera ready in the command bar status.
+- [ ] FrameDecks open; **FrameDecks** camera ready in the command bar status.
 - [ ] Webcam, microphone and projector connected.
-- [ ] Meeting app (Zoom / Teams / Meet) or OBS open, with **FRAMEDECKS** as the camera.
+- [ ] Meeting app (Zoom / Teams / Meet) or OBS open, with **FrameDecks** as the camera.
 - [ ] Projector: **Share Window** → Presentation window on the projector → full screen.
 
 ## 30 minutes before
@@ -75,7 +75,7 @@ A printable timeline for running a service with FRAMEDECKS, plus an emergency ca
 
 **Nothing above deletes anything.** When the problem is solved, put the right Frame back with Go Live.
 
-Camera missing in Zoom? Choose **FRAMEDECKS** again, or restart Zoom.
+Camera missing in Zoom? Choose **FrameDecks** again, or restart Zoom.
 Phone disconnected? Carry on from the PC.
 
 ## Related

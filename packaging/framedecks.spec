@@ -1,4 +1,4 @@
-# PyInstaller recipe for the FRAMEDECKS Windows app.
+# PyInstaller recipe for the FrameDecks Windows app.
 # Build:  pyinstaller --noconfirm --clean packaging/framedecks.spec --distpath dist --workpath build
 # "Folder" mode (not one-file): starts faster and triggers fewer antivirus false alarms.
 from pathlib import Path
@@ -17,12 +17,12 @@ try:  # needs "pefile", which PyInstaller installs automatically on Windows
         ffi=FixedFileInfo(filevers=tuple(nums), prodvers=tuple(nums)),
         kids=[StringFileInfo([StringTable("040904B0", [
             StringStruct("CompanyName", "Shobin Mathews"),
-            StringStruct("FileDescription", "FRAMEDECKS"),
+            StringStruct("FileDescription", "FrameDecks"),
             StringStruct("FileVersion", VERSION),
             StringStruct("InternalName", "FRAMEDECKS"),
             StringStruct("LegalCopyright", "Copyright (C) Shobin Mathews"),
             StringStruct("OriginalFilename", "FRAMEDECKS.exe"),
-            StringStruct("ProductName", "FRAMEDECKS"),
+            StringStruct("ProductName", "FrameDecks"),
             StringStruct("ProductVersion", VERSION),
             StringStruct("Comments", "Independent tool by Shobin Mathews. Not affiliated with or endorsed by Bible Study Fellowship International."),
         ])]), VarFileInfo([VarStruct("Translation", [1033, 1200])])])

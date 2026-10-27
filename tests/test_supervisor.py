@@ -1,4 +1,4 @@
-"""FRAMEDECKS - the watchdog that restarts the program after a crash (supervisor.py; architecture audit C2)."""
+"""FrameDecks - the watchdog that restarts the program after a crash (supervisor.py; architecture audit C2)."""
 import sys
 import unittest
 from pathlib import Path

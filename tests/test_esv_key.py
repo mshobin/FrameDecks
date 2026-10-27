@@ -1,4 +1,4 @@
-"""FRAMEDECKS - the ESV API key is kept in Windows Credential Manager, not in the JSON file (migration step 2:
+"""FrameDecks - the ESV API key is kept in Windows Credential Manager, not in the JSON file (migration step 2:
 docs/migration-plan.md). A key an older version saved in the file is moved the first time it is read; if the store
 fails, the file keeps it and Scripture works as before. (Off Windows, and here, the store is a file only its owner reads.)"""
 import json

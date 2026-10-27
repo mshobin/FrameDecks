@@ -1,4 +1,4 @@
-"""Generate the legacy horizontal and stacked FRAMEDECKS logos from assets/brand/framedecks-logo-source.png.
+"""Generate the legacy horizontal and stacked FrameDecks logos from assets/brand/framedecks-logo-source.png.
 
 The emblem, icons, favicons and .ico are NOT written here any more; run tools/make_emblem_assets.py for those.
 Run with: python tools/generate_brand_assets.py

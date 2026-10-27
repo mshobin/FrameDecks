@@ -1,4 +1,4 @@
-/* FRAMEDECKS v6.8 - the window ribbon: ONE implementation of the window buttons and dragging, used by every window
+/* FrameDecks v6.8 - the window ribbon: ONE implementation of the window buttons and dragging, used by every window
  * (main window, Teleprompter window, Teleprompter overlay, Spotlight).
  *
  * In the installed app the windows have no Windows title bar (desktop_win.Chrome). The page's own top bar is the
@@ -73,7 +73,7 @@ function askMinimize(){
   var back = document.createElement('div'); back.className = 'wc-ask'; back.setAttribute('role', 'dialog');
   back.setAttribute('aria-modal', 'true'); back.setAttribute('aria-labelledby', 'wc-ask-t');
   back.innerHTML = '<div class="wc-ask-card"><h2 id="wc-ask-t">Hide application to system tray?</h2>' +
-    '<p>In the tray (the icons near the clock) FRAMEDECKS keeps running: your camera, overlays, phone remote and ' +
+    '<p>In the tray (the icons near the clock) FrameDecks keeps running: your camera, overlays, phone remote and ' +
     'shortcuts keep working, and it leaves the taskbar.</p>' +
     '<label class="check"><input type="checkbox" class="wc-remember"> Remember my choice</label>' +
     '<div class="wc-ask-acts"><button type="button" class="btn primary wc-tray">Hide To Tray</button>' +

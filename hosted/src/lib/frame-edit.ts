@@ -1,4 +1,4 @@
-// FRAMEDECKS - editing a Frame's words in the companion (design: docs/architecture/companion-editing.md, E1 "A").
+// FrameDecks - editing a Frame's words in the companion (design: docs/architecture/companion-editing.md, E1 "A").
 // Each function takes a synced record body and returns a new one with only that change, already in the form the
 // desktop's store.js normalize keeps (same limits), so the PC applies it unchanged. Looks, media, layouts and live
 // fields are never touched. Self-contained, with no imports, so the tests load it with Node's type stripping.

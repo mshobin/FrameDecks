@@ -17,7 +17,7 @@ VS Code (any assistant). Read [CLAUDE.md](../CLAUDE.md) first.
 - Phase 4 sync of service plans, built and not yet live-tested:
   - database `0003`;
   - record mapping;
-  - PC sync with Settings → FRAMEDECKS account;
+  - PC sync with Settings → FrameDecks account;
   - companion Services / Members / Computers.
 - Phase 5, control from the companion, built and not yet live-tested:
   - database `0004`/`0005`;
@@ -78,7 +78,7 @@ builds. Next: the owner's Parts A, B, D and E.
 ## In progress: 6.11 (owner's request, 26 October; design [meeting-form.md](../docs/architecture/meeting-form.md))
 Owner decisions: W1 the website form edits the live plan; W2 keep Excel import in 6.11 but only under the program's
 Settings; W3 6.12 removes Excel import, template and export (PowerPoint export stays).
-1. **Camera check and "Open FRAMEDECKS on this PC"**: **built** (`hosted/src/lib/pc-setup.ts`,
+1. **Camera check and "Open FrameDecks on this PC"**: **built** (`hosted/src/lib/pc-setup.ts`,
    `hosted/src/components/pc-setup-card.tsx` on Overview; installer registers `framedecks:` for this user;
    `desktop_app.py` never reads the link; `tests/test_open_link.py`).
 2. **Website Meeting Form**: **built** (`hosted/src/lib/meeting-form.ts` row ⇄ layer mapping, checked against the
@@ -180,6 +180,16 @@ is larger, shows keys (`.rn-keys`, from `KCShortcuts`) and the Practice strip tu
 templates by type (Quick Start already offers types; both change the program's screens, so they need the owner's
 go-ahead), the Wi-Fi remote redesign (protected), SignPath, public repo, real quotes/photos, screen-reader pass.
 Owner: Test I in `docs/qa/live-test-guide.md` (and Test H step 6).
+27 October, the owner's landing brief: the name is **FrameDecks** in everything people read (a guarded replace;
+identifiers kept: `APP_NAME`, `FRAMEDECKS_*`, data folder, exe, the ping's `"app"`, `FIREWALL_RULE`, Credential
+Manager names, old camera names, `vcam/` comments; the legacy remote's files untouched). Front page rebuilt
+(`landing.tsx`, `next-demo.tsx`, new `hosted/src/app/landing.css`): approved hero words verbatim, Day 1–4, Ready to
+Serve?, every audience, no OBS/Camo; motion back (`fd-enter`, `data-reveal`, `data-spotlight`, scroll-linked Studio
+settle) with no animated `filter` anywhere. Website says team, not church. About readable in Light (`light.css`).
+Product pictures retaken from neutral content (`hosted/public/product/`). Left for the owner: the About story and
+`brand.js` mission (the owner's own ministry words), the program's own church-flavoured presets and templates
+(Sunday Service, Bible Study; program content, protected), docs/ministry, the `Start FRAMEDECKS*.bat` file names.
+Visual suites: run `server.py` with no other program server on 8750 (a stray one makes them test the wrong data).
 The FRAMECAST panel is still built at start (it updates its controls in place every poll).
 Gotcha: `next build` reuses its cache; after CSS changes that do not appear, delete `hosted/.next` and `hosted/out`.
 Earlier: ranks 1–7 and 9–11 are done (5–7, 9–11 on 26 October: `hosted/src/lib/when.ts`,
@@ -187,7 +197,7 @@ Earlier: ranks 1–7 and 9–11 are done (5–7, 9–11 on 26 October: `hosted/s
 if the Studio or Live page changes look). Earlier: ranks 1–4 are done (DD-01 camera labels, `tests/test_camera_name.py`; DD-03
 first run, DD-02 overlaps and Teleprompter empty state, DD-13 command bar words, `tests/test_ui_labels.py`). Next in
 the list: 8 microcopy voice pass (DD-16), 12 state kit (DD-15), 13 typography (DD-04), 14 Lucide icons (DD-06). Desktop items need the owner's go-ahead; website items do not.
-Owner checks on Windows: a new data folder shows Welcome to FRAMEDECKS with Start fresh first; the command bar at
+Owner checks on Windows: a new data folder shows Welcome to FrameDecks with Start fresh first; the command bar at
 the PC's real width.
 
 ## Recommended Next Task
@@ -226,14 +236,14 @@ continuity files in the same commit (owner's rule). Never force-push.
 - **Transition style** on the Meeting Form: the program's eight profiles; writes `layout/profile` `{value}`.
 - **Birthdays this week** on the dashboard, from the synced member list (ISO or `--MM-DD` birth dates; 29 Feb on 28 Feb).
 - Fixed in passing: things revealed on scroll inside a block that arrived later (the birthday pills) now appear.
-- Owner test: change branding on the website and see it in FRAMEDECKS → Settings → Meeting & Branding within a minute.
+- Owner test: change branding on the website and see it in FrameDecks → Settings → Meeting & Branding within a minute.
 
 ## Old name removed (26 October, owner's request)
-- Every "Kingdom Connect" reference is now FRAMEDECKS: docs, release notes, file names (`packaging/framedecks.ico`,
+- Every "Kingdom Connect" reference is now FrameDecks: docs, release notes, file names (`packaging/framedecks.ico`,
   `samples/FRAMEDECKS-Members-*.xlsx`, `docs/design/framedecks-redesign.html`), the camera files
   (`framedecks_vcam64/32.dll`, `register-/unregister-framedecks-camera.cmd`) and internal names.
 - The Excel Meeting Workbook's header said "KINGDOM CONNECT"; regenerated with `tools/make_meeting_workbook.py`.
-- The camera picker now recognises its own "FRAMEDECKS" camera again (it looked for the old name).
+- The camera picker now recognises its own "FrameDecks" camera again (it looked for the old name).
 - Kept on purpose (upgrades only): see CLAUDE.md Gotchas. The installer removes the old-named camera files and
   registers the camera again from the new ones. Owner check: after installing, the camera still shows in Zoom.
 - GitHub's old "Kingdom Connect 6.9" release can only be changed by the owner (publish 6.11; delete or rename 6.9).
@@ -243,15 +253,15 @@ continuity files in the same commit (owner's rule). Never force-push.
   device ID). The website's camera check also accepts the earlier name. Owner-approved; recorded in CLAUDE.md.
 - The tag build for v6.11 failed at "Write the branded release notes": `tools/make_release_notes.py` crashed on the
   empty `motto` in `app/js/brand.js`. Fixed, with `tests/test_release_notes.py`. Release notes rewritten.
-- **Published** 26 October: Releases → FRAMEDECKS 6.11 with the About header, notes, `FRAMEDECKS.v6.11.exe` and `.sha256`.
+- **Published** 26 October: Releases → FrameDecks 6.11 with the About header, notes, `FrameDecks.v6.11.exe` and `.sha256`.
 
 ## Fixes from the owner's first 6.11 install (26 October)
-- **"Could not reach framedecks.pages.dev: Forbidden"** in FRAMEDECKS account: Cloudflare refuses Python's default
-  identity. Every request to the website and the database now says `FRAMEDECKS (Windows; ...)` (`cloud_sync.USER_AGENT`,
+- **"Could not reach framedecks.pages.dev: Forbidden"** in FrameDecks account: Cloudflare refuses Python's default
+  identity. Every request to the website and the database now says `FrameDecks (Windows; ...)` (`cloud_sync.USER_AGENT`,
   tests in `test_cloud_sync.WebsiteIdentity`). Not verifiable from the cloud session (the host is blocked here).
 - **Teleprompter froze the program on unpin:** the window op `on-top` used pywebview's `on_top` setter, which waits on
   the window's thread. Now `desktop_win.set_topmost` (SetWindowPos with SWP_ASYNCWINDOWPOS, never waits). Owner to test.
-  If the program is frozen: Task Manager → end every FRAMEDECKS task, then open it again.
+  If the program is frozen: Task Manager → end every FrameDecks task, then open it again.
 - **Settings menu** grouped and described, with "Find a setting" (owner-approved; CLAUDE.md).
 - These are on `main` but not in the published v6.11 installer: take it from the latest "Build Windows installer" run
   (Actions → Artifacts), or publish a new release.
@@ -281,7 +291,7 @@ continuity files in the same commit (owner's rule). Never force-push.
   guard). Version 6.11.1, release notes `docs/releases/v6.11.1.md`, About header recaptured.
 - Owner: (1) run `hosted/supabase/migrations/0009_seen_throttle.sql` in the Supabase SQL editor; (2) publish the
   release: tag `v6.11.1` on `main` (Releases → Draft a new release); (3) test on Windows: Teleprompter pin/unpin,
-  FRAMEDECKS account linking, the Settings menu, the camera in Zoom.
+  FrameDecks account linking, the Settings menu, the camera in Zoom.
 - Next from the audit (step 3): live tests A–G, M9 (other window operations non-blocking), M7 (one OpenCV).
 
 ## Stream Deck plugin removed (26 October, owner's request)

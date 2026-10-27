@@ -55,7 +55,7 @@ sequenceDiagram
 ## 3. The PC side
 
 - A small background part, `cloud_remote.py`, used only when the PC is linked **and** "Allow control from the
-  companion" is on in Settings → FRAMEDECKS account (the section the owner already approved; off by default).
+  companion" is on in Settings → FrameDecks account (the section the owner already approved; off by default).
 - While allowed, it asks for new commands about once a second (one tiny request; no new package, no open socket),
   and every 15 seconds when no phone has sent anything for 10 minutes (so the first press after a quiet spell takes up
   to 15 seconds, then about one). It was 5 seconds until the free plan (26 October 2026) lightened the shared database.
@@ -82,7 +82,7 @@ JavaScript (`app/js/store.js`, `KCScenes.take`, `step`, `hideAll`), which then s
 
 | Option | How | For | Against |
 |---|---|---|---|
-| **A. The PC's own window does it** (recommended) | `cloud_remote.py` hands each allowed command to the program's own window through the existing local channel; the window runs exactly the same code as a key press | One implementation; behaviour identical to the keyboard | Needs the program's window running (it always is while FRAMEDECKS runs, also in the tray) |
+| **A. The PC's own window does it** (recommended) | `cloud_remote.py` hands each allowed command to the program's own window through the existing local channel; the window runs exactly the same code as a key press | One implementation; behaviour identical to the keyboard | Needs the program's window running (it always is while FrameDecks runs, also in the tray) |
 | B. Port the actions to Python | Same actions rewritten in Python, checked against shared test cases | Works with no window | Two copies of the Frame logic that must stay identical |
 
 ## 5. Actions in the first release (decision R2)
@@ -137,4 +137,4 @@ Answered by the owner on 25 October 2026: **R1–R5 as recommended.**
 | R2 | The first actions (§5) | As listed; read-only Teleprompter |
 | R3 | Who may control a PC | Owners and admins always; members only when given "Can run services" |
 | R4 | End-to-end encryption of commands | Not in this phase (no personal data in them); revisit with the picture of the screen |
-| R5 | One more item in Settings → FRAMEDECKS account: "Allow control from the companion" (off by default) and the last ten actions | Yes |
+| R5 | One more item in Settings → FrameDecks account: "Allow control from the companion" (off by default) and the last ten actions | Yes |

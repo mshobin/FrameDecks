@@ -1,4 +1,4 @@
-/* FRAMEDECKS v6.8 - Teleprompter overlay (prompter.html): Meeting Leader mode.
+/* FrameDecks v6.8 - Teleprompter overlay (prompter.html): Meeting Leader mode.
  * The window itself is see-through (desktop_win.glass); this page paints a translucent background whose strength is
  * the transparency mode, so Zoom / Teams participants, shared screens and chat show through while the text stays solid.
  * The more see-through the mode, the stronger the halo around the letters (contrast that adjusts by itself). */

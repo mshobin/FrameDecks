@@ -5,7 +5,7 @@ contact_links:
     about: Step-by-step fixes for the most common problems, including recovery during a live service.
   - name: Frequently asked questions
     url: https://github.com/mshobin/FRAMEDECKS/blob/main/docs/faq.md
-    about: Quick answers about installing, running a service, the phone remote and the FRAMEDECKS camera.
+    about: Quick answers about installing, running a service, the phone remote and the FRAMECAST camera.
   - name: Report a security problem privately
     url: https://github.com/mshobin/FRAMEDECKS/blob/main/SECURITY.md
     about: Please don't open a public issue for security problems.

@@ -22,7 +22,7 @@ lists the steps.
   live test shows the website form covers it (W3).
 - **The website checks for the FRAMECAST camera.**
   - If the camera is missing, it offers the installer.
-  - If it is found, it offers **Open FRAMEDECKS on this PC**, through a `framedecks://` link the installer registers.
+  - If it is found, it offers **Open FrameDecks on this PC**, through a `framedecks://` link the installer registers.
   - The website never talks to the program directly.
 
 ## 1. Decisions
@@ -77,16 +77,16 @@ Sync never carries media. For a picture, video, PowerPoint or audio item, the fo
 service PC's media folder**. The program's missing-media check (`/api/media/check`, Diagnostics) lists names it
 cannot find, and the operator chooses the file in the Studio, as after an Excel import.
 
-## 4. The camera check and "Open FRAMEDECKS"
+## 4. The camera check and "Open FrameDecks"
 
 - **Detection (Chrome or Edge on Windows):**
   - After the person allows camera access once, `navigator.mediaDevices.enumerateDevices()` names the cameras.
-  - A video input whose name contains `FRAMEDECKS` means the program is installed. Older names (`BCC vCam`,
-    `FRAMEDECKS`) count too.
+  - A video input whose name contains `FrameDecks` means the program is installed. Older names (`BCC vCam`,
+    `FrameDecks`) count too.
   - No camera is ever opened.
-- **Camera missing:** an "Install FRAMEDECKS for Windows" card with the latest release.
+- **Camera missing:** an "Install FrameDecks for Windows" card with the latest release.
 - **Camera found:**
-  - the card offers **Open FRAMEDECKS on this PC** (`framedecks://open`);
+  - the card offers **Open FrameDecks on this PC** (`framedecks://open`);
   - if no PC of the workspace is linked yet, it gives the linking steps.
 - **The link:**
   - The installer registers `framedecks:` for the current user (HKCU `Software\Classes\framedecks`), pointing at
@@ -109,7 +109,7 @@ cannot find, and the operator chooses the file in the Studio, as after an Excel 
 
 ## 6. Delivery
 
-1. **Website:** the camera check and install card, and the **Open FRAMEDECKS on this PC** button. **Installer:**
+1. **Website:** the camera check and install card, and the **Open FrameDecks on this PC** button. **Installer:**
    registers `framedecks:`. **Program:** accepts the link. *(built)*
 2. **Website:** the Meeting Form page (`hosted/src/app/meeting/`, `hosted/src/components/meeting-form-panel.tsx`,
    `hosted/src/lib/meeting-form.ts`), with tests for the row ⇄ layer mapping against `meeting-book.js`

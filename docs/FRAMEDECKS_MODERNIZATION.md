@@ -1,8 +1,8 @@
-# FRAMEDECKS modernization architecture and migration plan
+# FrameDecks modernization architecture and migration plan
 
 **Status:** Hosted PWA architecture accepted; implementation is staged and gated
 **Branch:** `modernization-v1`  
-**Product constraint:** FRAMEDECKS remains free; no payments, subscriptions, paywalls, trials, feature gates, or licensing restrictions.
+**Product constraint:** FrameDecks remains free; no payments, subscriptions, paywalls, trials, feature gates, or licensing restrictions.
 
 ## 1. Modernization principles
 
@@ -64,7 +64,7 @@ flowchart LR
     Vercel -. "only after a custom domain is configured" .-> CF
   end
   subgraph Runtime["Local presentation runtime"]
-    Agent["Paired FRAMEDECKS desktop runtime"]
+    Agent["Paired FrameDecks desktop runtime"]
     LocalState[("Local state and<br/>sync outbox")]
     LocalMedia["Local-only media"]
     Engine["Existing presentation<br/>and camera engine"]
@@ -133,7 +133,7 @@ to the cloud. Missing local assets must be reported visibly and must not block u
 - Validate, bound, and normalize every imported/synced definition before it reaches the renderer.
 - Keep API routes and internal field/table/service names stable unless a separately reviewed compatibility change
   is approved. User-facing terminology does not rename persisted schema.
-- Add forward/backward compatibility tests using representative data from FRAMEDECKS 6.9 and older supported
+- Add forward/backward compatibility tests using representative data from FrameDecks 6.9 and older supported
   formats.
 
 ## 4. Authentication, authorization, and pairing
@@ -178,7 +178,7 @@ not silently remove existing remote actions; users without a required role recei
 sequenceDiagram
   participant Admin as Authenticated admin
   participant Cloud as Next.js + Supabase
-  participant Runtime as Local FRAMEDECKS runtime
+  participant Runtime as Local FrameDecks runtime
   participant Phone as Remote PWA
   Admin->>Cloud: Request pairing (runtime, role scope)
   Cloud-->>Admin: QR + six-digit, one-time code (5 min)
@@ -234,7 +234,7 @@ flowchart LR
     Browser <-->|WSS / HTTPS| Relay
   end
   subgraph Local["Desktop trust boundary"]
-    Runtime["FRAMEDECKS desktop runtime"]
+    Runtime["FrameDecks desktop runtime"]
     LocalData[("Local state + media")]
     Engine["Presentation / media / camera"]
     Outputs["Projector · virtual camera<br/>Zoom · Teams · OBS"]
@@ -481,7 +481,7 @@ switching clear protected cached state.
 | Gate | Work | Exit evidence |
 |---|---|---|
 | PWA-0 — Scope and separation | Online-first hosted companion; existing LAN remote and desktop remain untouched | Architecture and route ownership documented; no HTTPS-to-local-HTTP request path |
-| PWA-1 — Web foundation | Separate Next.js/TypeScript app, responsive FRAMEDECKS shell, HTTPS deployment target, independent CI | Type/lint/test/build pass; desktop workflow remains independently green |
+| PWA-1 — Web foundation | Separate Next.js/TypeScript app, responsive FrameDecks shell, HTTPS deployment target, independent CI | Type/lint/test/build pass; desktop workflow remains independently green |
 | PWA-2 — Identity and tenancy | Supabase email auth first; OAuth when provider credentials exist; organizations, roles, migrations, RLS | Auth lifecycle and cross-tenant deny tests pass in non-production project |
 | PWA-3 — Hosted management | Notes, monitoring, session controls, administrative features backed by scoped server APIs | Role tests, audit events, no sensitive or media data in logs/cloud |
 | PWA-4 — Pairing and runtime channel | Authenticated expiring challenge, runtime-side approval, scoped rotating credential, outbound TLS/WSS | Expiry/replay/revoke/reconnect tests; no public inbound desktop listener |
@@ -560,7 +560,7 @@ flowchart LR
 | 4. Metadata synchronization | Versioned contracts, local outbox, idempotent sync, conflict recovery, 6.9 data importer | Offline operation unaffected; no media bytes uploaded; representative data round-trips without loss |
 | 5. PWA and pairing | Online-first HTTPS PWA, QR/6-digit codes, five-minute expiry, runtime approval, device trust/revocation | iOS/Android/browser tests pass; replay, expiry, role, revocation, online reconnect tested; no local HTTP bridge |
 | 6. Deployment and operations | Vercel production, secrets, monitoring, audit retention, backup/restore; future Cloudflare | Vercel URL production ready; restore drill and incident process complete; no custom domain assumed |
-| 7. Branding and terminology | User-facing FRAMEDECKS brand/tagline and approved wording only | Layout/navigation unchanged; internal API, model, table, and environment names unchanged |
+| 7. Branding and terminology | User-facing FrameDecks brand/tagline and approved wording only | Layout/navigation unchanged; internal API, model, table, and environment names unchanged |
 | 8. Compatibility rollout | Pilot, side-by-side workflows, migration/rollback, platform coverage | Preservation matrix passes; no unresolved critical/high security or data-loss issues |
 
 Phases are gated; a later phase does not begin merely because its row follows the prior one. Hosted PWA operation is
@@ -570,7 +570,7 @@ initially online-only and is not offline phone-remote parity. The existing LAN r
 
 When Phase 7 begins:
 
-- Use the user-facing brand **FRAMEDECKS** and tagline **Present • Equip • Inspire**.
+- Use the user-facing brand **FrameDecks** and tagline **Present • Equip • Inspire**.
 - Apply the requested visible hierarchy **Frame → Deck → Content** and replace the user-facing phrase
   **“Decks & Elements”** with **“Decks & Content”** where it exists.
 - Generate/replace the horizontal, stacked, and icon logos, favicon, app icons, splash/login branding, and

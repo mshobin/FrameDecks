@@ -1,4 +1,4 @@
-/* FRAMEDECKS - builds the saved plans behind tests/fixtures/sync/ with the app's own store.js (the Frames are made
+/* FrameDecks - builds the saved plans behind tests/fixtures/sync/ with the app's own store.js (the Frames are made
  * with KCScenes, then saved and normalized as the program does). Prints JSON; tools/make_sync_fixtures.py writes the
  * fixture files. Not run by the tests. */
 'use strict';

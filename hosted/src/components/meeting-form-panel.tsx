@@ -183,7 +183,7 @@ function Planner({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
       <h2 className="section-title">Frames</h2>
       {frames.length === 0 && editing !== "new" && (
         <EmptyState title="No Frames yet">
-          {canEdit ? "Add the first one below. " : null}They appear in FRAMEDECKS once the service PC is linked under{" "}
+          {canEdit ? "Add the first one below. " : null}They appear in FrameDecks once the service PC is linked under{" "}
           <Link href="/computers">Service PCs</Link>.
         </EmptyState>
       )}
@@ -715,7 +715,7 @@ function ContentEditor({
         <div className="planner-grid">
           <label>
             File name in the service PC&apos;s media folder (optional)
-            <input value={row.main} maxLength={LIMITS.short} placeholder={t === "powerpoint" ? "sermon.pptx" : t === "audio" ? "intro.mp3" : t === "video" ? "intro.mp4" : "welcome.jpg"} onChange={(e) => set({ main: e.target.value })} />
+            <input value={row.main} maxLength={LIMITS.short} placeholder={t === "powerpoint" ? "talk.pptx" : t === "audio" ? "intro.mp3" : t === "video" ? "intro.mp4" : "welcome.jpg"} onChange={(e) => set({ main: e.target.value })} />
           </label>
           {t === "powerpoint" && (
             <label>
