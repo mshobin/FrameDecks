@@ -6,12 +6,12 @@ echo  Starting FrameDecks...
 echo.
 py -3 --version >nul 2>&1
 if %errorlevel%==0 (
-  py -3 server.py
+  py -3 src\server.py
   goto done
 )
 python --version >nul 2>&1
 if %errorlevel%==0 (
-  python server.py
+  python src\server.py
   goto done
 )
 echo  Python 3 was not found on this computer.

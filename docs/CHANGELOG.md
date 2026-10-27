@@ -2,11 +2,11 @@
 
 All notable changes to FrameDecks and its predecessor names are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are numbered **major.minor** (see
-[docs/development/changelog-standards.md](docs/development/changelog-standards.md)). Each version links to its full
-release notes in [`docs/releases/`](docs/releases/). Dates are the dates of the release commits.
+[docs/development/changelog-standards.md](development/changelog-standards.md)). Each version links to its full
+release notes in [`docs/releases/`](releases/). Dates are the dates of the release commits.
 
 Versions before 4.9 (when the program had its earlier name) are described in the engineering log,
-[docs/architecture/design-history.md](docs/architecture/design-history.md).
+[docs/architecture/design-history.md](architecture/design-history.md).
 
 ## [Unreleased]
 
@@ -47,7 +47,7 @@ Versions before 4.9 (when the program had its earlier name) are described in the
 
 ## [6.11.1] - 2026-10-26
 
-Full notes: [docs/releases/v6.11.1.md](docs/releases/v6.11.1.md)
+Full notes: [docs/releases/v6.11.1.md](releases/v6.11.1.md)
 
 ### Added
 - A damaged saved plan is kept aside and the newest readable daily backup opens instead; a linked PC then restores
@@ -133,7 +133,7 @@ Full notes: [docs/releases/v6.11.1.md](docs/releases/v6.11.1.md)
 
 ## [6.11] - 2026-10-26
 
-Full notes: [docs/releases/v6.11.md](docs/releases/v6.11.md)
+Full notes: [docs/releases/v6.11.md](releases/v6.11.md)
 
 ### Added
 - Companion: **Meeting Form** page. Plan the whole meeting online as in the Excel Meeting Form (meeting details,
@@ -148,7 +148,7 @@ Full notes: [docs/releases/v6.11.md](docs/releases/v6.11.md)
 
 ## [6.10] - 2026-10-20
 
-Full notes: [docs/releases/v6.10.md](docs/releases/v6.10.md)
+Full notes: [docs/releases/v6.10.md](releases/v6.10.md)
 
 ### Fixed
 - After **Quit**, the program kept running out of sight: the hidden Spotlight window kept `webview.start()` from
@@ -164,7 +164,7 @@ Full notes: [docs/releases/v6.10.md](docs/releases/v6.10.md)
 
 ## [6.9] - 2026-10-20
 
-Full notes: [docs/releases/v6.9.md](docs/releases/v6.9.md)
+Full notes: [docs/releases/v6.9.md](releases/v6.9.md)
 
 ### Added
 - **Meeting Workbook with two tabs.**
@@ -206,7 +206,7 @@ Full notes: [docs/releases/v6.9.md](docs/releases/v6.9.md)
 
 ## [6.8] - 2026-10-20
 
-Full notes: [docs/releases/v6.8.md](docs/releases/v6.8.md) · Plan: [docs/project/v6.8-plan.md](docs/project/v6.8-plan.md)
+Full notes: [docs/releases/v6.8.md](releases/v6.8.md) · Plan: [docs/project/v6.8-plan.md](project/v6.8-plan.md)
 
 ### Added
 - **Teleprompter overlay** (Meeting Leader mode, Shift+R): a see-through window over Zoom, Teams or Meet with five
@@ -229,7 +229,7 @@ Full notes: [docs/releases/v6.8.md](docs/releases/v6.8.md) · Plan: [docs/projec
 
 ## [6.7] - 2026-10-19
 
-Full notes: [docs/releases/archive/v6.7.md](docs/releases/archive/v6.7.md)
+Full notes: [docs/releases/archive/v6.7.md](releases/archive/v6.7.md)
 
 ### Added
 - **Teleprompter** (Program → Teleprompter, **R**): the Frame's script docked left, right or bottom of the Studio, or
@@ -282,7 +282,7 @@ Full notes: [docs/releases/archive/v6.7.md](docs/releases/archive/v6.7.md)
 
 ## [6.6] - 2026-10-18
 
-Full notes: [docs/releases/archive/v6.6.md](docs/releases/archive/v6.6.md)
+Full notes: [docs/releases/archive/v6.6.md](releases/archive/v6.6.md)
 
 ### Added
 - **Speaker View** (Program → Speaker View): a window only the leader sees, with the question or scripture on
@@ -306,7 +306,7 @@ Full notes: [docs/releases/archive/v6.6.md](docs/releases/archive/v6.6.md)
 
 ## [6.5] - 2026-10-18
 
-Full notes: [docs/releases/archive/v6.5.md](docs/releases/archive/v6.5.md)
+Full notes: [docs/releases/archive/v6.5.md](releases/archive/v6.5.md)
 
 ### Added
 - **Annotate (D):** pen, highlighter, arrow, line, rectangle, ellipse and text over everything on screen, with undo,
@@ -332,7 +332,7 @@ Full notes: [docs/releases/archive/v6.5.md](docs/releases/archive/v6.5.md)
 
 ## [6.4] - 2026-10-15
 
-Full notes: [docs/releases/archive/v6.4.md](docs/releases/archive/v6.4.md)
+Full notes: [docs/releases/archive/v6.4.md](releases/archive/v6.4.md)
 
 ### Added
 - Team Space: co-leaders connected directly between PCs over WireGuard (removed again in 6.5).
@@ -346,7 +346,7 @@ Full notes: [docs/releases/archive/v6.4.md](docs/releases/archive/v6.4.md)
 
 ## [6.3] - 2026-10-15
 
-Full notes: [docs/releases/archive/v6.3.md](docs/releases/archive/v6.3.md)
+Full notes: [docs/releases/archive/v6.3.md](releases/archive/v6.3.md)
 
 ### Changed
 - One command bar at the top replaces the top bar and the bottom live bar.
@@ -355,7 +355,7 @@ Full notes: [docs/releases/archive/v6.3.md](docs/releases/archive/v6.3.md)
 
 ## [6.2] - 2026-10-13
 
-Full notes: [docs/releases/archive/v6.2.md](docs/releases/archive/v6.2.md)
+Full notes: [docs/releases/archive/v6.2.md](releases/archive/v6.2.md)
 
 ### Added
 - **Meeting & Branding** settings: Meeting Name, organization name, logo and accent colour, shown only where you
@@ -367,7 +367,7 @@ Full notes: [docs/releases/archive/v6.2.md](docs/releases/archive/v6.2.md)
 
 ## [6.1] - 2026-10-13
 
-Full notes: [docs/releases/archive/v6.1.md](docs/releases/archive/v6.1.md)
+Full notes: [docs/releases/archive/v6.1.md](releases/archive/v6.1.md)
 
 ### Added
 - **Quick Start** builds a complete set of scenes for a meeting; **Presentation Mode** (P); a built-in Content
@@ -379,7 +379,7 @@ Full notes: [docs/releases/archive/v6.1.md](docs/releases/archive/v6.1.md)
 
 ## [6.0] - 2026-10-12
 
-Full notes: [docs/releases/archive/v6.0.md](docs/releases/archive/v6.0.md)
+Full notes: [docs/releases/archive/v6.0.md](releases/archive/v6.0.md)
 
 ### Added
 - **Scenes · Layers · Canvas:** scenes with layers, smart duplicate, templates, version history and transitions.
@@ -388,7 +388,7 @@ Full notes: [docs/releases/archive/v6.0.md](docs/releases/archive/v6.0.md)
 
 ## [5.1] - 2026-10-12
 
-Full notes: [docs/releases/archive/v5.1.md](docs/releases/archive/v5.1.md)
+Full notes: [docs/releases/archive/v5.1.md](releases/archive/v5.1.md)
 
 ### Added
 - Command Center layout: production panel, live outputs under the picture, an Inspector, and Take live (T).
@@ -399,7 +399,7 @@ Full notes: [docs/releases/archive/v5.1.md](docs/releases/archive/v5.1.md)
 
 ## [5.0] - 2026-10-11
 
-Full notes: [docs/releases/archive/v5.0.md](docs/releases/archive/v5.0.md)
+Full notes: [docs/releases/archive/v5.0.md](releases/archive/v5.0.md)
 
 ### Added
 - Presentation modes **Question · Both · Verse**, including a `PresentationMode` column in Excel.
@@ -409,7 +409,7 @@ Full notes: [docs/releases/archive/v5.0.md](docs/releases/archive/v5.0.md)
 
 ## [4.9] - 2026-10-11
 
-Full notes: [docs/releases/archive/v4.9.md](docs/releases/archive/v4.9.md)
+Full notes: [docs/releases/archive/v4.9.md](releases/archive/v4.9.md)
 
 ### Added
 - Studio workspace with Scenes and Layers, a control bar, and Dark / Light / Match Windows appearance.
@@ -419,14 +419,14 @@ Full notes: [docs/releases/archive/v4.9.md](docs/releases/archive/v4.9.md)
 - Three tabs: Studio · Members · Settings.
 - Much faster stepping through long question and verse lists.
 
-[Unreleased]: docs/releases/
-[6.6]: docs/releases/archive/v6.6.md
-[6.5]: docs/releases/archive/v6.5.md
-[6.4]: docs/releases/archive/v6.4.md
-[6.3]: docs/releases/archive/v6.3.md
-[6.2]: docs/releases/archive/v6.2.md
-[6.1]: docs/releases/archive/v6.1.md
-[6.0]: docs/releases/archive/v6.0.md
-[5.1]: docs/releases/archive/v5.1.md
-[5.0]: docs/releases/archive/v5.0.md
-[4.9]: docs/releases/archive/v4.9.md
+[Unreleased]: releases/
+[6.6]: releases/archive/v6.6.md
+[6.5]: releases/archive/v6.5.md
+[6.4]: releases/archive/v6.4.md
+[6.3]: releases/archive/v6.3.md
+[6.2]: releases/archive/v6.2.md
+[6.1]: releases/archive/v6.1.md
+[6.0]: releases/archive/v6.0.md
+[5.1]: releases/archive/v5.1.md
+[5.0]: releases/archive/v5.0.md
+[4.9]: releases/archive/v4.9.md

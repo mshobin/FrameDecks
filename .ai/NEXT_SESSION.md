@@ -8,9 +8,14 @@ verification remains pending. Read [CLAUDE.md](../CLAUDE.md) ("Working locally" 
 - **Repository cleanup (branch `chore/repo-cleanup`, not yet merged):** the orphaned `streamdeck/` bundle is gone;
   release notes v4.9–v6.7 moved to `docs/releases/archive/` (v6.8–v6.11.1 stay in `docs/releases/`);
   `DEPLOYMENT.md`, `ENVIRONMENT.md`, `free-hosting.md`, `code-signing.md` are in `docs/deployment/` and
-  `database-backup.md` in `docs/operations/`. All references updated; doc links 97 files / 0 problems. Root Python
-  modules, `app/`, `hosted/` and the root `.bat` launchers stay where they are on purpose (installer, tests and CI use
-  those paths). The owner reviews and merges.
+  `database-backup.md` in `docs/operations/`. All references updated; doc links 97 files / 0 problems. Root clean-up
+  (later the same day): the root now holds only the `.bat` launchers, the four continuity files and git dotfiles. The 12
+  Python modules are in `src/` (`python src/server.py`; `server.HERE` is still the repository root, so dev data stays
+  where it was; `vcam/` stays at the root and `server.py` puts the root on `sys.path`); `README`, `CONTRIBUTING`,
+  `SECURITY`, `SUPPORT`, `CODE_OF_CONDUCT` are in `.github/`; `LICENSE`, `NOTICE`, `THIRD_PARTY_NOTICES.md` in `legal/`
+  (the installer still bundles them at the app's top level); `CHANGELOG.md`, `ROADMAP.md` in `docs/`; `ruff.toml` in
+  `config/` (`ruff check --config config/ruff.toml .`); the Mac launcher in `tools/launchers/`. **Not verified here:** a
+  real PyInstaller build and the installed exe (run the Build Windows installer workflow or `build.bat` before tagging).
 - **Release:** **FrameDecks 6.11.1 is published** at `v6.11.1`; its build and publish workflow succeeded. The README
   and release body both show the refreshed FrameDecks wordmark (PR #38).
 - **`main` since 6.11:** audit steps 1–2 (plan recovery, safe sync, support bundle, update notice, pinned build); the
@@ -25,7 +30,7 @@ verification remains pending. Read [CLAUDE.md](../CLAUDE.md) ("Working locally" 
   18 KB CSS; desktop JS 4/4; README fact tests 2/2; CSS tokens 14 files / 0 problems; doc links 97 files / 0 problems;
   packaging self-check passed. The full Python suite had 4 errors from missing `cv2` (165 run, 3 skipped). The
   budget script's Windows path handling fails, but the equivalent measurement passed.
-- **Gotcha for the visual suites:** start `server.py` with nothing else on port 8750 (a leftover server makes them test
+- **Gotcha for the visual suites:** start `src/server.py` with nothing else on port 8750 (a leftover server makes them test
   the wrong data and fail on things that are fine).
 
 ## Completed (merged to `main`, PRs #7–#32 and #38–#39)
@@ -38,7 +43,7 @@ verification remains pending. Read [CLAUDE.md](../CLAUDE.md) ("Working locally" 
   - companion Services / Members / Computers.
 - Phase 5, control from the companion, built and not yet live-tested:
   - database `0004`/`0005`;
-  - `cloud_remote.py`;
+  - `src/cloud_remote.py`;
   - the Settings switch;
   - the Live page.
 - Companion editing and 30-day Frame history with restore.
@@ -48,7 +53,7 @@ verification remains pending. Read [CLAUDE.md](../CLAUDE.md) ("Working locally" 
 - **Audit:**
   - [architecture audit](../docs/project/2026-10-25-architecture-audit.md);
   - its Phase 1, P1–P4: writing, sync, image memory and screen-capture copying per press;
-  - C2: `supervisor.py`, a crash watchdog in the installed exe.
+  - C2: `src/supervisor.py`, a crash watchdog in the installed exe.
 - **Stream Deck plugin:** removed on 26 October at the owner's request (with `/api/command`).
 - **Target-architecture migration** (owner's brief):
   - [review](../docs/architecture-review.md), [plan](../docs/migration-plan.md) (owner decisions M-D1–M-D6 in §8),
@@ -57,15 +62,15 @@ verification remains pending. Read [CLAUDE.md](../CLAUDE.md) ("Working locally" 
   2. ESV key moved to Windows Credential Manager.
   3. Missing-media check: `/api/media/check` and Diagnostics.
   - `0007_data_api_grants.sql`: explicit grants for **Supabase's 30 October 2026 change**.
-  4. M-D1: Apache 2.0 `LICENSE`, `NOTICE`, `THIRD_PARTY_NOTICES.md`; SignPath signing in the Windows build, off until
+  4. M-D1: Apache 2.0 `legal/LICENSE`, `legal/NOTICE`, `legal/THIRD_PARTY_NOTICES.md`; SignPath signing in the Windows build, off until
      the secret exists.
   5. M-D2: the workspace is the member list's source.
      - The companion's Members page adds, edits and removes people.
      - A linked PC rebuilds a lost member file from the workspace.
   6. M-D3: free AI with Ollama on the PC.
      - **Suggest** drafts discussion questions from a Frame's passage, and is hidden without Ollama.
-     - Code in `ai.py`; user guide [docs/ai.md](../docs/ai.md).
-  7. M-D4: **Export this meeting to PowerPoint** (`pptx_export.py`) and **Audio** Content (`app/js/audio-player.js`).
+     - Code in `src/ai.py`; user guide [docs/ai.md](../docs/ai.md).
+  7. M-D4: **Export this meeting to PowerPoint** (`src/pptx_export.py`) and **Audio** Content (`app/js/audio-player.js`).
   8. M-D6: `0008_member_groups.sql`; member groups on the companion's Members page only.
   - M-D5: long-term hosting recommendation, [docs/architecture/hosting.md](../docs/architecture/hosting.md).
 
@@ -78,7 +83,7 @@ Steps, in order, from [docs/deployment/free-hosting.md](../docs/deployment/free-
 2. **Keep-alive and encrypted nightly backup**: **code done** (`.github/workflows/db-keepalive.yml`,
    `db-backup.yml`, `tools/db_backup.sh`, restore guide `docs/operations/database-backup.md`). **Live:** the owner added the 4 secrets; first runs on 26 October were green (keep-alive: the
    database answered; backup: `framedecks-backup-1`, 113 KB, kept to 25 November).
-3. **Fewer database requests**: **done** (`cloud_remote.py` `IDLE_EVERY` 5 → 15 s). Shorter history/audit retention
+3. **Fewer database requests**: **done** (`src/cloud_remote.py` `IDLE_EVERY` 5 → 15 s). Shorter history/audit retention
    was left out on purpose (it would replace `sync_push` in the live database for almost no saving).
 4. **Google/Microsoft sign-in first**: **code done** (`sign-in-form.tsx`: provider buttons above the email link when
    switched on). Owner: Part D. Google sign-in works (brand verification pending, retry
@@ -97,14 +102,14 @@ Owner decisions: W1 the website form edits the live plan; W2 keep Excel import i
 Settings; W3 6.12 removes Excel import, template and export (PowerPoint export stays).
 1. **Camera check and "Open FrameDecks on this PC"**: **built** (`hosted/src/lib/pc-setup.ts`,
    `hosted/src/components/pc-setup-card.tsx` on Overview; installer registers `framedecks:` for this user;
-   `desktop_app.py` never reads the link; `tests/test_open_link.py`).
+   `src/desktop_app.py` never reads the link; `tests/test_open_link.py`).
 2. **Website Meeting Form**: **built** (`hosted/src/lib/meeting-form.ts` row ⇄ layer mapping, checked against the
    Excel import in `hosted/tests/meeting-form.test.mjs`; `hosted/src/components/meeting-form-panel.tsx` on
    `/meeting`: meeting details, add / edit / move / delete Frames and every Content type; conflicts keep the
    person's changes on top). Browser-tested with stand-in Supabase; live test G in the guide.
 3. **Excel into Settings → Data / Backup** (`app/dashboard.html` box "Meeting from Excel", wired in
    `app/js/meeting-import.js`; removed from the Meeting menu, Meeting tab, empty Studio; one palette entry opens
-   it), **version 6.11** (`server.py`, `docs/releases/v6.11.md`, header picture, CHANGELOG): **built**.
+   it), **version 6.11** (`src/server.py`, `docs/releases/v6.11.md`, header picture, CHANGELOG): **built**.
    Owner next: install 6.11 (release `v6.11` or the latest Build Windows installer run), then live test G.
 4. **6.12 (after test G):** remove the Excel import, template and export (W3); keep Export to PowerPoint.
 
@@ -157,7 +162,7 @@ the program's About page in the website's design, with the same words (brand.jso
   reach it; the cloud environment could not.
 
 ## Risks
-- **Logo/branding:** the 16px favicon remains faint on light tab backgrounds; do not change the approved emblem without owner approval. The packaged tray icon has not been run; `desktop_app.py` uses `app/icons/remote-192.png`.
+- **Logo/branding:** the 16px favicon remains faint on light tab backgrounds; do not change the approved emblem without owner approval. The packaged tray icon has not been run; `src/desktop_app.py` uses `app/icons/remote-192.png`.
 - **Never tested against live Supabase:** sync, phone control, member editing, groups and grants. They are tested on
   PGlite and against stand-ins only.
 - **Audio Content and older versions:** see Pending 4.
@@ -206,7 +211,7 @@ settle) with no animated `filter` anywhere. Website says team, not church. About
 Product pictures retaken from neutral content (`hosted/public/product/`). Left for the owner: the About story and
 `brand.js` mission (the owner's own ministry words), the program's own church-flavoured presets and templates
 (Sunday Service, Bible Study; program content, protected), docs/ministry, the `Start FRAMEDECKS*.bat` file names.
-Visual suites: run `server.py` with no other program server on 8750 (a stray one makes them test the wrong data).
+Visual suites: run `src/server.py` with no other program server on 8750 (a stray one makes them test the wrong data).
 The FRAMECAST panel is still built at start (it updates its controls in place every poll).
 Gotcha: `next build` reuses its cache; after CSS changes that do not appear, delete `hosted/.next` and `hosted/out`.
 Earlier: ranks 1–7 and 9–11 are done (5–7, 9–11 on 26 October: `hosted/src/lib/when.ts`,
@@ -234,8 +239,8 @@ Do not start new features unless the owner asks. If there is nothing to fix, say
 
 ## Files Likely To Change Next
 Whatever the live tests find:
-- `cloud_sync.py`, `cloud_remote.py`, `server.py`, `app/js/frame-lists.js`, `app/js/audio-player.js`,
-  `pptx_export.py`, `ai.py`;
+- `src/cloud_sync.py`, `src/cloud_remote.py`, `src/server.py`, `app/js/frame-lists.js`, `app/js/audio-player.js`,
+  `src/pptx_export.py`, `src/ai.py`;
 - `hosted/src/components/*-panel.tsx`, `hosted/src/lib/*.ts`;
 - `hosted/supabase/migrations/`: a **new numbered** migration with its own grants and an undo script in
   `hosted/supabase/rollback/`; never an edited one;

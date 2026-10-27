@@ -111,7 +111,7 @@ def provider():
 
 
 class Service:
-    """What server.py uses: the provider's status (remembered briefly) and features with a cache."""
+    """What src/server.py uses: the provider's status (remembered briefly) and features with a cache."""
 
     def __init__(self, cache_file, enabled=lambda: True, make_provider=provider):
         self.cache_file = Path(cache_file)

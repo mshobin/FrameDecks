@@ -4,12 +4,12 @@ Use this for every FrameDecks release (`major.minor`, or `major.minor.patch` for
 It follows the production audit's roadmap ([2026-10-26 audit](../project/2026-10-26-production-audit.md)).
 
 ## 1. Before tagging
-- [ ] `server.py` `APP_VERSION` is the new version, and `python packaging/check.py` prints it.
+- [ ] `src/server.py` `APP_VERSION` is the new version, and `python packaging/check.py` prints it.
 - [ ] `docs/releases/v<version>.md` has What's New, Enhancements, Fixes, Performance Improvements and Known Issues
       (`python tools/make_release_notes.py --check`).
-- [ ] The About header shows the version: run `python server.py --no-browser`, then
+- [ ] The About header shows the version: run `python src/server.py --no-browser`, then
       `python tools/make_readme_header.py` (it writes `assets/brand/kc-about-header.webp` and `.version`).
-- [ ] `CHANGELOG.md` has the version's entry, and the four continuity files are up to date.
+- [ ] `docs/CHANGELOG.md` has the version's entry, and the four continuity files are up to date.
 - [ ] Every check in [CLAUDE.md](../../CLAUDE.md) "Commands" passes, and on `main` these GitHub checks are green:
       "Build Windows installer" (including the installer smoke test), "Hosted companion checks" (including the
       performance budget) and "Desktop checks".

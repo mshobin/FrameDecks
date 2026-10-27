@@ -5,7 +5,7 @@
  * Edit the words between the quote marks, save, and rebuild.
  * (Keep each line's quotes, commas and brackets as they are.)
  *
- * The version number lives in server.py (APP_VERSION) so the app,
+ * The version number lives in src/server.py (APP_VERSION) so the app,
  * the installer and the About page always show the same number.
  * ================================================================== */
 window.KCBrand = {

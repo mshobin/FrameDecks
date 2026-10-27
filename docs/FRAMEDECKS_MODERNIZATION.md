@@ -199,7 +199,7 @@ Those workarounds would weaken browser/server boundaries and still would not mak
 authenticated cloud transport.
 
 Verified current behavior: `app/remote.html` and `app/js/remote.js` use same-origin relative HTTP requests.
-`server.py` binds the optional LAN remote over HTTP, checks `http://<Host>` for state-changing requests, does not
+`src/server.py` binds the optional LAN remote over HTTP, checks `http://<Host>` for state-changing requests, does not
 provide CORS, and issues an HttpOnly `SameSite=Strict` cookie. A hosted HTTPS origin cannot reuse that flow by
 changing a base URL: the page would make cross-origin requests to a private HTTP address, where mixed-content,
 private-network access, Origin, and cookie policies apply. A service worker is scoped to its own origin and cannot

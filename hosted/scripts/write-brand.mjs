@@ -1,5 +1,5 @@
 // FrameDecks - writes src/lib/brand.json from the program's own About text (app/js/brand.js) and version
-// (server.py APP_VERSION), so the website's About screen says exactly what the program's does. Run before every
+// (src/server.py APP_VERSION), so the website's About screen says exactly what the program's does. Run before every
 // build and `npm run dev`; the file is committed, and tests/brand.test.mjs fails if it is out of date. If the
 // program's files are not next to the website (a host that copies only hosted/), the committed file is kept.
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
@@ -11,7 +11,7 @@ const root = new URL("../../", import.meta.url);
 export function brandData() {
   const ctx = { window: {} };
   vm.runInNewContext(readFileSync(new URL("app/js/brand.js", root), "utf8"), ctx);
-  const version = /^APP_VERSION = "([^"]+)"/m.exec(readFileSync(new URL("server.py", root), "utf8"))?.[1] ?? "";
+  const version = /^APP_VERSION = "([^"]+)"/m.exec(readFileSync(new URL("src/server.py", root), "utf8"))?.[1] ?? "";
   return { ...JSON.parse(JSON.stringify(ctx.window.KCBrand)), version };
 }
 

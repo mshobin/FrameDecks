@@ -3,7 +3,7 @@ import { test } from "node:test";
 
 import { ONLINE_FOR_SECONDS, isOnline, label, nowShowing, outcome } from "../src/lib/live-view.ts";
 
-// The Live page's words, from the status the PC publishes (cloud_remote.py status_from) and the database's clock.
+// The Live page's words, from the status the PC publishes (src/cloud_remote.py status_from) and the database's clock.
 const at = (s) => new Date(Date.UTC(2026, 9, 25, 12, 0, s)).toISOString();
 
 test("online while the PC's status is fresh by the database's clock, not the phone's", () => {

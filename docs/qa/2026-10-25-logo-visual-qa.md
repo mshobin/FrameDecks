@@ -4,7 +4,7 @@ The credential-free task from [.ai/NEXT_SESSION.md](../../.ai/NEXT_SESSION.md): 
 (`assets/brand/framedecks-emblem.svg`) in the light theme, the teleprompter, remote and Speaker pages, and the 16 px
 favicon.
 
-**Method.** The desktop program (`server.py`, version 6.10 on the `claude/peaceful-albattani-6m445e` branch with
+**Method.** The desktop program (`src/server.py`, version 6.10 on the `claude/peaceful-albattani-6m445e` branch with
 `main` merged in) was started with an empty data folder and opened in Chromium (Playwright, 2× scale). The favicons
 were drawn at real size on four browser-tab colours and enlarged 8× without smoothing. Images:
 [header-dark.png](2026-10-25-logo/header-dark.png), [header-light.png](2026-10-25-logo/header-light.png),
@@ -30,7 +30,7 @@ were drawn at real size on four browser-tab colours and enlarged 8× without smo
 `assets/brand/framedecks-emblem-small.svg` is the same mark drawn for 16–32 px: heavier strokes, no glow, the rear
 frames at full strength and a filled play mark. `tools/make_emblem_assets.py` uses it only for the favicons
 (`app/icons/favicon-16.png`, `favicon-32.png`, `hosted/src/app/icon.png`), the tray icon (`app/icons/tray-64.png`,
-used by `desktop_app.py`) and the 16–32 px images in the program icon. Everything at 48 px and above, and every
+used by `src/desktop_app.py`) and the 16–32 px images in the program icon. Everything at 48 px and above, and every
 in-app emblem, still uses the approved master unchanged (pixel-identical). In
 [small-emblem-before-after-6x.png](2026-10-25-logo/small-emblem-before-after-6x.png) each background has three rows
 at 16, 20, 24 and 32 px: the old mark, the new small mark, the new tray file as Windows scales it. On white and light

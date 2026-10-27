@@ -27,7 +27,7 @@ flowchart LR
     C[Companion - Next.js 16: Services, Live, Members, Computers]
   end
   subgraph PC [FrameDecks Desktop - Windows]
-    UI[Studio window - WebView2] --> S[server.py, 127.0.0.1]
+    UI[Studio window - WebView2] --> S[src/server.py, 127.0.0.1]
     S --> V[Camera engine - compositor, layers, cards, blur]
     V --> VC[FrameDecks virtual camera - softcam]
     V --> PW[Share Window - Zoom/Teams Share Screen]
@@ -45,15 +45,15 @@ flowchart LR
 |---|---|---|
 | Authentication | Supabase Auth (emailed link); Google and Microsoft buttons appear when the providers are switched on; sessions as JWT | `hosted/src/lib/supabase-browser.ts`, `use-session.ts`, `sign-in-form.tsx` |
 | Workspaces and roles | Organizations, memberships (owner / admin / member), invitations, "Can run services" | `0001`, `0002`, `0004` |
-| Member data | **Kept on the PC** (`kc-members-private.json`), edited in the desktop Members screen, **synced to the workspace** when linked (owners and admins only) | `app/js/members.js`, `server.py` `PRIVATE_FILE`, `sync_entities.py` |
-| Service plans and templates | Kept on the PC (`kc-saved-content.json`); synced as per-record text when linked; editable in part in the companion | `cloud_sync.py`, `0003`, `frame-edit.ts` |
-| Settings | Workspace-wide looks (theme, brand, layout, meeting) sync; PC settings (camera, windows) stay local | `sync_entities.py`, `server.py` `APP_SETTINGS_DEFAULTS` |
+| Member data | **Kept on the PC** (`kc-members-private.json`), edited in the desktop Members screen, **synced to the workspace** when linked (owners and admins only) | `app/js/members.js`, `src/server.py` `PRIVATE_FILE`, `src/sync_entities.py` |
+| Service plans and templates | Kept on the PC (`kc-saved-content.json`); synced as per-record text when linked; editable in part in the companion | `src/cloud_sync.py`, `0003`, `frame-edit.ts` |
+| Settings | Workspace-wide looks (theme, brand, layout, meeting) sync; PC settings (camera, windows) stay local | `src/sync_entities.py`, `src/server.py` `APP_SETTINGS_DEFAULTS` |
 | History / audit | 30-day record history with who and when (`entity_history`); 7-day command log (`remote_commands`) | `0003`, `0004` |
-| Media | Local only: images, video, PDF, PowerPoint in the PC's data folder; sync carries file names only | `vcam/layers.py`, `sync_entities.py` |
+| Media | Local only: images, video, PDF, PowerPoint in the PC's data folder; sync carries file names only | `vcam/layers.py`, `src/sync_entities.py` |
 | Rendering and camera | Local CPU pipeline (OpenCV/numpy), softcam virtual camera, native Share Window | `vcam/` |
 | OBS | Browser-source overlay pages served by the PC (`focus-verse.html`, `discussion-question.html`, `birthday.html`, `stage.html`), and the virtual camera as an OBS video source | `app/*.html` |
 | Zoom / Teams / Meet | The FRAMECAST camera, and the Share Window for Share Screen; no meeting-app API | `vcam/sink.py`, `vcam/present_window.py` |
-| Remote control | Wi-Fi phone remote (LAN, PIN); companion Live page (cloud commands); Stream Deck (local) | `remote.html`, `cloud_remote.py`, `streamdeck/` |
+| Remote control | Wi-Fi phone remote (LAN, PIN); companion Live page (cloud commands); Stream Deck (local) | `remote.html`, `src/cloud_remote.py`, `streamdeck/` |
 | AI | **None** | — |
 | PPTX | Import (PowerPoint on the PC saves a PDF); Next/Previous in a running slide show. **No export** | `vcam/powerpoint.py` |
 
@@ -82,7 +82,7 @@ security hardening items.
 | Desktop: Teams / Zoom integration | **Met** (camera + Share Window) | — | — |
 | Desktop: PPTX export | **Missing** | Plans cannot be exported as `.pptx` | Medium, UI; **[Decision] M-D4** |
 | Offline after sign-in | **Met**: presenting never depends on the cloud; sync queues changes | Templates "downloaded" = synced records already on the PC | — |
-| Open source, Apache 2.0 | **Missing**: private repository, no `LICENSE` | Licence choice, third-party notices | **[Decision] M-D1** |
+| Open source, Apache 2.0 | **Missing**: private repository, no `legal/LICENSE` | Licence choice, third-party notices | **[Decision] M-D1** |
 
 ## 3. Security review
 
@@ -164,7 +164,7 @@ when a first AI feature is chosen (M-D3):
 ## 7. Media storage review
 
 - **Local-first: met.** Media lives in the PC's data folder.
-  - Sync sends only file names (`sync_entities.py` keeps `file` and nothing else).
+  - Sync sends only file names (`src/sync_entities.py` keeps `file` and nothing else).
   - No cloud storage bucket exists. The companion shows media as "on the service PC".
 - **Cost: $0** for media; no bandwidth is spent on it.
 - **Gaps:**

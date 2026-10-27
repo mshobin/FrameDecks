@@ -2,7 +2,7 @@
 
 Phases follow [docs/FRAMEDECKS_MODERNIZATION_STATUS.md](docs/FRAMEDECKS_MODERNIZATION_STATUS.md), which is authoritative for detail.
 Updated 27 October 2026. FrameDecks 6.11.1 is published from tag `v6.11.1`; the README/release header wordmark was refreshed in PR #38. The live Supabase database has `0001`–`0008`; `0009` waits for the owner.
-Repository cleanup is on branch `chore/repo-cleanup`, awaiting the owner's merge (no behaviour change).
+Repository cleanup is merged; the root clean-up (modules in `src/`, docs in `.github/` and `legal/`) is on `chore/root-cleanup`. No behaviour change; run a real installer build before the next tag.
 | Step | State |
 |---|---|
 | Audit, branding, architecture decisions | Done |
@@ -13,7 +13,7 @@ Repository cleanup is on branch `chore/repo-cleanup`, awaiting the owner's merge
 | Workspaces, members, invitations | Built; workspaces confirmed live; invitations to be tested live with Google/Microsoft later |
 | Live RLS tests against Supabase | Needs `*.supabase.co` allowed in the cloud environment |
 | Sync service plans (metadata only) | Design agreed ([metadata-sync.md](docs/architecture/metadata-sync.md)); steps 1–4 built (database, record mapping, PC sync + Settings section, companion Services / Members / Computers); step 5 (live test by the owner) next |
-| Control a service from the companion (Phase 5) | Design agreed ([remote-control.md](docs/architecture/remote-control.md), R1–R5 as recommended); steps 1–3 built (database `0004`/`0005`, PC side `cloud_remote.py` and window bridge, Settings switch, companion Live page, "Can run services"); step 4 (live test by the owner) next |
+| Control a service from the companion (Phase 5) | Design agreed ([remote-control.md](docs/architecture/remote-control.md), R1–R5 as recommended); steps 1–3 built (database `0004`/`0005`, PC side `src/cloud_remote.py` and window bridge, Settings switch, companion Live page, "Can run services"); step 4 (live test by the owner) next |
 | Edit services in the companion (D3 "next step") | Design agreed ([companion-editing.md](docs/architecture/companion-editing.md), E1–E4 as recommended); steps 1–2 built (editing helpers, Services page editing) plus Frame history and restore (30 days); step 3 (live test by the owner) next |
 | Owner's live tests (sync, phone control, editing, history, members, new PC features) | One pass, tests A–F: [live-test-guide.md](docs/qa/live-test-guide.md); database ready (26 Oct); waiting for the owner's tests |
 | Architecture audit follow-up ([audit](docs/project/2026-10-25-architecture-audit.md) §9) | Phase 1 built on PR #32: P1–P4, C2 crash watchdog. C1: signing ready (SignPath, M-D1), auto-update not designed yet |

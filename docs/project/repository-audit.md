@@ -34,7 +34,7 @@ churches, and what to improve next. Scores are out of 10.
 | Product clarity | 6 | 8 | Clear "Meeting → Frame → Content → Present" model; positioning now written down |
 | Feature completeness (for Bible study / hybrid services) | 8 | 8 | Strong for teaching, discussion and online services |
 | Feature completeness (for full worship services) | 5 | 5 | No song / lyrics library, no stage display for musicians (see Roadmap) |
-| Architecture | 7 | 7 | Simple, single-process, one source of truth; `server.py` is a large single file |
+| Architecture | 7 | 7 | Simple, single-process, one source of truth; `src/server.py` is a large single file |
 | Code quality | 7 | 7 | Consistent idioms and comments; few automated tests for the camera engine |
 | UX (operator) | 8 | 8 | Command bar, one Content Settings panel, canvas editing, Speaker View |
 | Volunteer experience | 8 | 9 | Simple phone remote, plain language; team guides and checklists now exist |
@@ -85,7 +85,7 @@ virtual camera. State is one JSON document with a revision counter; every screen
 conflict check, and the camera reads it directly from memory. See [ARCHITECTURE.md](../ARCHITECTURE.md).
 
 **Assessment.** The design is well matched to a church PC: few moving parts, no services, no database, no build
-step, and one authoritative picture. The main structural debt is size concentration: `server.py` (about 2,100 lines)
+step, and one authoritative picture. The main structural debt is size concentration: `src/server.py` (about 2,100 lines)
 mixes HTTP routing, state, uploads, scripture, remote sign-in and backups; `store.js` and `workspace.js` are also
 large (about 1,100 lines each). Splitting them into modules would make review and testing easier without changing behaviour.
 
@@ -122,12 +122,12 @@ so two builds months apart may differ; pinning exact versions for releases would
 | 1 | No song / lyrics library | Worship teams must build lyrics as text or slides | Song library with sections and arrangement (Roadmap) |
 | 2 | Unsigned installer | SmartScreen warning erodes trust for new churches | Code-signing certificate |
 | 3 | Few automated tests for the engine and UI | Regressions found late | Playwright smoke tests and engine unit tests in CI |
-| 4 | Large single files (`server.py`, `store.js`, `workspace.js`) | Harder review, merge conflicts | Split by responsibility |
+| 4 | Large single files (`src/server.py`, `store.js`, `workspace.js`) | Harder review, merge conflicts | Split by responsibility |
 | 5 | No licence file | Unclear terms for churches and contributors | Maintainer to choose and publish a licence |
 | 6 | Windows-only camera | Mac churches cannot use the camera features | Document clearly; consider only with demand |
 | 7 | Dependency ranges, no lock file | Builds can drift | **Done:** `packaging/constraints.txt` pins every package to the last good build |
 | 7a | Two OpenCV packages installed together (`opencv-python` 5.0 via a dependency, `opencv-python-headless` 4.14) sharing one module | A future version change could break the camera | Pinned as a tested pair; remove one when the dependency allows it |
-| 8 | Internal names (data folder, install folder, exe) still carried the program's earlier name | Confusing in support conversations | **Done (6.9):** everything uses FrameDecks; `legacy.py` moves earlier data once |
+| 8 | Internal names (data folder, install folder, exe) still carried the program's earlier name | Confusing in support conversations | **Done (6.9):** everything uses FrameDecks; `src/legacy.py` moves earlier data once |
 | 9 | GitHub Actions on Node 20 actions | Deprecation warnings today, failures later | Update action versions once verified |
 
 ## 7. UX review
@@ -201,7 +201,7 @@ the Roadmap delivers it.
 **Next quarter**
 1. Song and lyrics library (sections, arrangement, CCLI number field).
 2. Code-sign the installer.
-3. Split `server.py` into modules (routes, state, remote, media, scripture).
+3. Split `src/server.py` into modules (routes, state, remote, media, scripture).
 4. First-run tour and shortcut overlay.
 
 **Later**
@@ -209,4 +209,4 @@ the Roadmap delivers it.
 2. Shared media library across meetings.
 3. Localization.
 
-See [../../ROADMAP.md](../../ROADMAP.md).
+See [../../ROADMAP.md](../ROADMAP.md).

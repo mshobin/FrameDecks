@@ -21,7 +21,7 @@
  *   parse(book, ctx)              -> plan {frames, meeting, errors, warnings, counts, fetch}  (ctx.form: the form's sheet name)
  *   apply(n, plan, opts)          -> creates the Frames in state n (each with its own Content and lists)
  *   exportSheets(st)              -> the meeting details and the four tables (the program fills the styled form with them:
- *                                    POST api/meeting/workbook, meeting_form.py)
+ *                                    POST api/meeting/workbook, src/meeting_form.py)
  *   exportBook(X, st)             -> the same as a plain one-sheet Meeting Form (when the program is not running)
  */
 (function(){

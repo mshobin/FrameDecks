@@ -2,7 +2,7 @@
 
     python3 tools/make_meeting_workbook.py
 
-Meeting Form: one guided page, top to bottom (the layout is in meeting_form.py, which also fills the form for "Export
+Meeting Form: one guided page, top to bottom (the layout is in src/meeting_form.py, which also fills the form for "Export
 this meeting to Excel"). Dashboard: a summary of the form made only by formulas: this meeting, KPI tiles, readiness,
 quick links into the form, the content mix and a log of recent meetings. Nothing on the Dashboard is imported.
 
@@ -24,7 +24,7 @@ from openpyxl.worksheet.hyperlink import Hyperlink
 from PIL import Image as PILImage
 
 ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(ROOT))
+sys.path.insert(0, str(ROOT / "src"))
 import meeting_form as MF  # noqa: E402
 
 CONTENT_TYPES = ["Question", "Scripture", "Text", "Image", "Video", "Timer", "PowerPoint", "Free Content",

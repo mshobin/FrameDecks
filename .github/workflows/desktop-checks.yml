@@ -29,10 +29,10 @@ jobs:
         with:
           node-version: 22
 
-      - name: Python lint (ruff.toml)
+      - name: Python lint (config/ruff.toml)
         run: |
           python -m pip install ruff==0.16.8
-          ruff check .
+          ruff check --config config/ruff.toml .
 
       - name: JavaScript syntax (app/js)
         run: for f in app/js/*.js; do node --check "$f"; done
@@ -70,7 +70,7 @@ jobs:
 
       - name: Start the program
         run: |
-          FRAMEDECKS_NO_UPDATE_CHECK=1 nohup python server.py > server.log 2>&1 &
+          FRAMEDECKS_NO_UPDATE_CHECK=1 nohup python src/server.py > server.log 2>&1 &
           for i in $(seq 1 30); do curl -sf http://127.0.0.1:8750/dashboard.html > /dev/null && break; sleep 1; done
 
       - name: Visual checks

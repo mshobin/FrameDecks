@@ -13,7 +13,7 @@ The Meeting Workbook has two tabs: Dashboard (formulas only) and Meeting Form (o
     9 · Additional notes
 
 tools/make_meeting_workbook.py draws the template from this layout; fill() writes a meeting into that template for
-"Export this meeting to Excel" (server.py, POST api/meeting/workbook), so the export looks exactly like the template.
+"Export this meeting to Excel" (src/server.py, POST api/meeting/workbook), so the export looks exactly like the template.
 app/js/meeting-book.js reads the form back (by its labels and header rows, so a hand-made form imports too).
 Standard library only: the installed program has no Excel library.
 """

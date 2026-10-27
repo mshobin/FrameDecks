@@ -10,7 +10,7 @@ A section the notes leave out is shown as "None in this version." Older notes wi
 as they are, under the header.
 
 Usage:
-    python tools/make_release_notes.py                       # this version (server.py APP_VERSION), to stdout
+    python tools/make_release_notes.py                       # this version (src/server.py APP_VERSION), to stdout
     python tools/make_release_notes.py --out dist/release-notes.md --repo owner/name --ref v6.7
     python tools/make_release_notes.py --check               # fails if a section is missing or the header shows another version
 
@@ -28,7 +28,7 @@ HEADER_VERSION = "assets/brand/kc-about-header.version"
 
 
 def app_version():
-    return re.search(r'APP_VERSION = "([^"]+)"', (ROOT / "server.py").read_text(encoding="utf-8")).group(1)
+    return re.search(r'APP_VERSION = "([^"]+)"', (ROOT / "src" / "server.py").read_text(encoding="utf-8")).group(1)
 
 
 def brand_words():

@@ -1,4 +1,4 @@
-"""FrameDecks - running a service from the companion (cloud_remote.py), against a stand-in cloud that follows the
+"""FrameDecks - running a service from the companion (src/cloud_remote.py), against a stand-in cloud that follows the
 rules of 0004_remote.sql: each command is taken once, oldest first; results and the status are kept per command and
 per PC. The program's window is played by a thread on the Bridge. Design: docs/architecture/remote-control.md."""
 import os
@@ -10,6 +10,7 @@ import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT / "src"))
 sys.path.insert(0, str(ROOT))
 os.environ.setdefault("KC_DATA_DIR", tempfile.mkdtemp(prefix="kc-test-"))
 os.environ["FRAMEDECKS_SECRET_STORE"] = "file"

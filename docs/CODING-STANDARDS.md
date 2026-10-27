@@ -10,7 +10,7 @@ Write code that reads like the code around it. These are the conventions the rep
   Match the comment density of the file you are editing.
 - **Keep compatibility.** Saved data from earlier versions must keep opening. In code and in the saved file, Frames
   are still `scenes` and Content is still `layers`. Don't rename these. Data saved under the program's earlier
-  name is moved once by `legacy.py` (and a marked block at the top of `app/js/store.js`); keep that name out of
+  name is moved once by `src/legacy.py` (and a marked block at the top of `app/js/store.js`); keep that name out of
   every other file.
 - **No new dependencies without discussion.** The program runs on the Python standard library; the interface uses no
   npm packages and has no build step.
@@ -43,9 +43,9 @@ Write code that reads like the code around it. These are the conventions the rep
 - **Keyboard:** shortcuts must be ignored while typing in an input, a text area or a select, and while a dialog is
   open.
 
-## Python (`server.py`, `desktop_app.py`, `vcam/`, `packaging/`, `tools/`)
+## Python (`src/server.py`, `src/desktop_app.py`, `vcam/`, `packaging/`, `tools/`)
 
-- **Standard library first.** `server.py` must run with nothing installed beyond Python 3. Packages in
+- **Standard library first.** `src/server.py` must run with nothing installed beyond Python 3. Packages in
   `packaging/requirements-desktop.txt` are used only by the desktop shell and the camera pipeline, imported where
   needed.
 - Module docstrings describe what the module does for the user and how it fits the pipeline; constants are
@@ -55,7 +55,7 @@ Write code that reads like the code around it. These are the conventions the rep
   own thread and hands over its newest result under a short lock. Measure before and after changes to the frame loop
   (Settings → Diagnostics shows the time per frame).
 - **Never trust input from the network.** Anything from a request is checked and limited. A path the phone may reach
-  must be added deliberately to the allow-list in `server.py`.
+  must be added deliberately to the allow-list in `src/server.py`.
 - **Write files atomically:** write a temporary file, then `os.replace` it into place.
 
 ## CSS (`app/css/`)

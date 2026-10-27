@@ -27,7 +27,7 @@ restrictions.
 | Boundary | Current implementation |
 |---|---|
 | Desktop shell | Python desktop application using pywebview/WebView2 and pystray. Windows-specific window, shortcut, capture, and camera behavior is integrated through native APIs. |
-| Local HTTP server | `server.py` uses Python's standard-library threaded HTTP server. It serves the application and APIs on loopback; optional phone-remote mode opens LAN listeners and applies a route allow-list. |
+| Local HTTP server | `src/server.py` uses Python's standard-library threaded HTTP server. It serves the application and APIs on loopback; optional phone-remote mode opens LAN listeners and applies a route allow-list. |
 | UI | Static HTML, CSS, and vanilla JavaScript under [app/](../../app/). There is no React, Next.js, TypeScript, npm package manifest, or frontend build pipeline. |
 | State | The server keeps shared state in memory and persists it to JSON with a revision counter and atomic replacement. Browser/file mode uses `localStorage`, `BroadcastChannel`, and a periodic check. |
 | Media and output | [vcam/](../../vcam) captures and composes camera, media, cards, overlays, and effects. The final frame can feed a virtual camera, presentation output, and previews. |
@@ -35,7 +35,7 @@ restrictions.
 | Delivery | PyInstaller/Inno Setup Windows installer built with GitHub Actions. CI runs JS/Python tests, packaging checks, release-note checks, and documentation-link checks. |
 
 The control server currently combines routing, state/persistence, access controls, remote sessions, uploads, scripture
-integration, settings, and device orchestration. The existing engineering assessment describes `server.py` as
+integration, settings, and device orchestration. The existing engineering assessment describes `src/server.py` as
 approximately 2,100 lines and identifies `store.js`, `workspace.js`, and `members.js` as other large, coupled modules.
 These are refactoring risks, not a reason to replace tested behavior in a single rewrite.
 

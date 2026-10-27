@@ -1,4 +1,4 @@
-// What the Live page shows about a PC, from the status the PC publishes (cloud_remote.py status_from) and the
+// What the Live page shows about a PC, from the status the PC publishes (src/cloud_remote.py status_from) and the
 // database's clock. Pure functions, so they are tested without a browser (tests/live-view.test.mjs).
 
 export type LiveStatus = {

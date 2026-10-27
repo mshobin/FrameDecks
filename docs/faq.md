@@ -62,7 +62,7 @@ A simple one. **+ Content → Poll (show of hands)** shows a question with choic
 ## Worship and lyrics
 
 **Does FrameDecks have a song library?**
-Not yet. There is no song database, verse/chorus arrangement or CCLI reporting today. A song library is on the [Roadmap](../ROADMAP.md).
+Not yet. There is no song database, verse/chorus arrangement or CCLI reporting today. A song library is on the [Roadmap](ROADMAP.md).
 
 **So how do we show song words?**
 Two good ways:
@@ -202,7 +202,7 @@ The installer isn't code-signed yet, so Windows SmartScreen shows "Windows prote
 A local web server on port 8750 (falling back to 8751–8760 if needed) for the app window, overlay pages and phone remote. The firewall rule is for **Private networks** only.
 
 **Where do I report a problem or request a feature?**
-See [Support](../SUPPORT.md). Include **Settings → Diagnostics → Copy diagnostics** with problem reports.
+See [Support](../.github/SUPPORT.md). Include **Settings → Diagnostics → Copy diagnostics** with problem reports.
 
 ## Related
 - [Getting started](getting-started.md)
@@ -210,4 +210,4 @@ See [Support](../SUPPORT.md). Include **Settings → Diagnostics → Copy diagno
 - [Remote control](remote-control.md)
 - [Media](media.md)
 - [Church operations](ministry/README.md)
-- [Roadmap](../ROADMAP.md)
+- [Roadmap](ROADMAP.md)

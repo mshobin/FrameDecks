@@ -31,7 +31,7 @@ feature, API or integration was removed or renamed:
 
 | | |
 |---|---|
-| What | `server.py` keeps the user's ESV API key in Credential Manager (`FRAMEDECKS/esv-key`). This is the same store as the PC's sync key (`cloud_sync.SecretStore`, which now takes a target name; the sync key's own name is unchanged) |
+| What | `src/server.py` keeps the user's ESV API key in Credential Manager (`FRAMEDECKS/esv-key`). This is the same store as the PC's sync key (`cloud_sync.SecretStore`, which now takes a target name; the sync key's own name is unchanged) |
 | Moving an existing key | A key saved by an older version in `bcc-scripture.json` is moved the first time it is read. It leaves the file only after the store reads it back. If Credential Manager fails, the key stays in the file and Scripture works as before |
 | Visible | Nothing: Settings → Scripture shows and saves the key the same way, with the same replies |
 | Elsewhere | Off Windows (development, tests) the store is `.kc-esv-key`, readable only by its owner (git-ignored) |
@@ -42,7 +42,7 @@ feature, API or integration was removed or renamed:
 
 | | |
 |---|---|
-| What | `server.py` `media_check`: the Frames whose pictures, videos or PDFs are not in this PC's media folder, found from file names only (audit C8) |
+| What | `src/server.py` `media_check`: the Frames whose pictures, videos or PDFs are not in this PC's media folder, found from file names only (audit C8) |
 | Where it shows | `GET /api/media/check` (this PC only), and `missingMedia` in Diagnostics. When a sync brings a Frame that names files this PC lacks, one line goes to `kc-app-log.txt`, once per new set |
 | Visible | Nothing on screen |
 | Not built yet | Size and hash in sync records (asset references). Two PCs holding different files under one name would keep rewriting each other's reference; this needs a small design first. Showing the check on screen also waits: one line in an existing status text needs the owner's approval |
@@ -62,7 +62,7 @@ feature, API or integration was removed or renamed:
 
 | | |
 |---|---|
-| What | `LICENSE` (Apache 2.0, the canonical text), `NOTICE`, `THIRD_PARTY_NOTICES.md` (every shipped component and its licence), `"license": "Apache-2.0"` in both `package.json` files. README and CONTRIBUTING are updated, and the README has a code signing policy |
+| What | `legal/LICENSE` (Apache 2.0, the canonical text), `legal/NOTICE`, `legal/THIRD_PARTY_NOTICES.md` (every shipped component and its licence), `"license": "Apache-2.0"` in both `package.json` files. README and CONTRIBUTING are updated, and the README has a code signing policy |
 | Installer | The three files are copied into the program folder (`packaging/framedecks.spec`); `packaging/check.py` requires them |
 | Signing | `build-windows.yml` signs `FRAMEDECKS.exe`, both camera DLLs and the installer through SignPath. It checks each signature and fails the build if one is missing. It is **off** until the `SIGNPATH_API_TOKEN` secret exists; until then the build is unchanged |
 | Visible | Nothing in the program. Once signing is on, Windows shows "FrameDecks" as a verified publisher |
@@ -85,7 +85,7 @@ feature, API or integration was removed or renamed:
 
 | | |
 |---|---|
-| What | `ai.py`: one provider interface. Tier 1 is Ollama on the PC (free, private, offline); the model is picked from those installed. Tier 2 is a self-hosted OpenAI-compatible endpoint (`FRAMEDECKS_AI_ENDPOINT`). Results are cached by (feature, model, input) in `kc-ai-cache.json`, keeping the latest 300 |
+| What | `src/ai.py`: one provider interface. Tier 1 is Ollama on the PC (free, private, offline); the model is picked from those installed. Tier 2 is a self-hosted OpenAI-compatible endpoint (`FRAMEDECKS_AI_ENDPOINT`). Results are cached by (feature, model, input) in `kc-ai-cache.json`, keeping the latest 300 |
 | Feature | **Suggest** in a Frame's Question Content list. It drafts questions from the Frame's Scripture (a reference without text is looked up in the ESV cache or with the church's key) and opens them in the existing **Add several** box for review. Nothing is added until the person chooses |
 | Endpoints | `GET /api/ai/status` and `POST /api/ai/questions`, this PC only |
 | Visible | One button, in the existing style, **only when Ollama answers**. Without it the program is exactly as before (checked). The owner approved one entry for the AI feature (M-D3) |
@@ -97,7 +97,7 @@ feature, API or integration was removed or renamed:
 
 | | |
 |---|---|
-| PowerPoint export | **Meeting → Export this meeting to PowerPoint** (one menu entry, existing style). `pptx_export.py` (python-pptx, MIT, loaded only when exporting) makes a title slide plus one slide per Frame: scripture, questions and words as editable text, pictures from the media folder, other media by name, the Teleprompter script as speaker notes. `POST /api/export/pptx`, this PC only. Nothing is uploaded |
+| PowerPoint export | **Meeting → Export this meeting to PowerPoint** (one menu entry, existing style). `src/pptx_export.py` (python-pptx, MIT, loaded only when exporting) makes a title slide plus one slide per Frame: scripture, questions and words as editable text, pictures from the media folder, other media by name, the Teleprompter script as speaker notes. `POST /api/export/pptx`, this PC only. Nothing is uploaded |
 | Audio Content | **+ Content → Audio…** (one entry). It plays MP3, M4A, WAV or OGG through the PC's speakers while its Frame is live and the Content is on. It starts with Go Live and stops with the eye, Hide all / Esc, or a new Frame. There are Repeat and Volume settings. Only the program's own window plays it (`app/js/audio-player.js`); overlay pages, the camera picture and phones are untouched. `GET /api/media/audio`, this PC only, audio types only |
 | Build | `packaging/requirements-desktop.txt` and `constraints.txt`: python-pptx 1.0.2, lxml 6.1.3, XlsxWriter 3.2.9 (Windows wheels checked). The spec bundles python-pptx's templates. Third-party notices are updated |
 | Compatibility | An older FrameDecks (6.10 and before) does not know Audio Content and drops it when loading a plan. **Update every linked PC before using Audio**, or a PC on the old version will sync the Frame without it |

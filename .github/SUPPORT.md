@@ -6,16 +6,16 @@ FrameDecks is maintained by a small team. These steps get you an answer fastest.
 
 | If you want to… | Read |
 | --- | --- |
-| Find any guide | [Documentation index](docs/README.md) |
-| Fix something that isn't working | [Troubleshooting](docs/troubleshooting.md) |
-| Find a quick answer | [FAQ](docs/faq.md) |
-| Install or update | [Installation](docs/installation.md) |
-| Set up the phone remote | [Remote control](docs/remote-control.md) |
-| Prepare a volunteer | [Ministry team guides](docs/ministry/README.md) |
+| Find any guide | [Documentation index](../docs/README.md) |
+| Fix something that isn't working | [Troubleshooting](../docs/troubleshooting.md) |
+| Find a quick answer | [FAQ](../docs/faq.md) |
+| Install or update | [Installation](../docs/installation.md) |
+| Set up the phone remote | [Remote control](../docs/remote-control.md) |
+| Prepare a volunteer | [Ministry team guides](../docs/ministry/README.md) |
 
 ## 2. During a live service
 
-Don't troubleshoot on air. Use the recovery steps in [Troubleshooting](docs/troubleshooting.md):
+Don't troubleshoot on air. Use the recovery steps in [Troubleshooting](../docs/troubleshooting.md):
 
 - **Hide all** (Esc) clears everything on screen.
 - **Blackout** (K) gives a black picture while you sort things out.

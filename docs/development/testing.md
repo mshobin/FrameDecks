@@ -22,7 +22,7 @@ python -m unittest discover -s tests -p "test_*.py"
 | --- | --- |
 | `tests/store.test.js` | The shared state in `app/js/store.js`: older saved data is converted so every Frame owns its question and scripture lists, the conversion gives the same ids every time, taking a Frame live shows its own items, Duplicate makes a fully independent copy, "one Frame per question" works, and an older Frame-wide output switch moves onto its Content. |
 | `tests/meeting-workbook.test.js` | The Excel Meeting Workbook: the bundled template parses into the expected Frames and Content, and an exported meeting reads back the same. |
-| `tests/test_desktop.py` | The 6.8 desktop logic: Spotlight shortcut parsing and formatting, validation of the window and overlay settings, and safe no-ops of `desktop_win.py` off Windows. The window features themselves need a real Windows desktop (see the manual checks below). |
+| `tests/test_desktop.py` | The 6.8 desktop logic: Spotlight shortcut parsing and formatting, validation of the window and overlay settings, and safe no-ops of `src/desktop_win.py` off Windows. The window features themselves need a real Windows desktop (see the manual checks below). |
 
 `tests/helpers/load-store.js` loads `app/js/store.js` into Node with small browser stand-ins and returns
 `{Store, Scenes, Present}`, so store behaviour can be tested without a browser.
@@ -66,12 +66,12 @@ Changes to the interface have been checked during development by driving the rea
 [Playwright](https://playwright.dev/): start the program with a test data folder and the test camera, open the
 dashboard and the phone remote (at phone size), click through the flow, and compare screenshots. You don't need this to
 contribute, but screenshots of before and after are expected in pull requests that change the interface. Automating
-these flows in CI is on the [roadmap](../../ROADMAP.md).
+these flows in CI is on the [roadmap](../ROADMAP.md).
 
 Useful set-up for any manual or automated test:
 
 ```bash
-KC_DATA_DIR=/tmp/kc-test KC_VCAM_DEMO=1 python server.py --no-browser --remote
+KC_DATA_DIR=/tmp/kc-test KC_VCAM_DEMO=1 python src/server.py --no-browser --remote
 ```
 
 - `KC_DATA_DIR` keeps test data away from real meetings and members.

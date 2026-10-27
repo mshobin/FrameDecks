@@ -4,7 +4,7 @@ import { test } from "node:test";
 
 import { KINDS, canon, changes, join, split } from "../src/lib/sync-entities.ts";
 
-// The same fixtures the desktop's sync_entities.py is checked against (tests/test_sync_entities.py).
+// The same fixtures the desktop's src/sync_entities.py is checked against (tests/test_sync_entities.py).
 const dir = new URL("../../tests/fixtures/sync/", import.meta.url);
 const fixtures = readdirSync(dir)
   .filter((name) => name.endsWith(".json"))

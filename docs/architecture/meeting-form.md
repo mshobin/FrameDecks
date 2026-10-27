@@ -67,7 +67,7 @@ Frame made on the website matches one imported from Excel. The mapping lives in
   and the item shown now.
 - Content the form does not know (shapes, free text, windows) is listed as "edited on the service PC" and left alone.
 
-**What the PC has to do: nothing new.** Records arrive through `cloud_sync.py` like edits from another PC. The
+**What the PC has to do: nothing new.** Records arrive through `src/cloud_sync.py` like edits from another PC. The
 window's normalize (`cleanScene` / `cleanLayer`) completes them. The completed Frame goes back up once, as edits do
 today.
 
@@ -91,7 +91,7 @@ cannot find, and the operator chooses the file in the Studio, as after an Excel 
 - **The link:**
   - The installer registers `framedecks:` for the current user (HKCU `Software\Classes\framedecks`), pointing at
     `FRAMEDECKS.exe "%1"`.
-  - `desktop_app.py` accepts the argument: it starts normally, or brings the open window forward.
+  - `src/desktop_app.py` accepts the argument: it starts normally, or brings the open window forward.
   - It never acts on anything else in the link.
 - The check is optional. A person who does not allow camera access still sees the download and open buttons.
 

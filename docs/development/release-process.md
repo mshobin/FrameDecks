@@ -7,7 +7,7 @@ release surprises them.
 
 ## Version numbers
 
-Versions are **major.minor** (6.5, 6.6, 7.0). The number lives in one place: `APP_VERSION` in `server.py`.
+Versions are **major.minor** (6.5, 6.6, 7.0). The number lives in one place: `APP_VERSION` in `src/server.py`.
 `packaging/get_version.py` reads it for the installer name, and the app shows it in Settings → About.
 
 - Increase **minor** (6.6 → 6.7) for every release, including fixes.
@@ -21,9 +21,9 @@ Versions are **major.minor** (6.5, 6.6, 7.0). The number lives in one place: `AP
 
 ## Steps
 
-1. **Bump the version.** Set `APP_VERSION = "X.Y"` in `server.py`. Update places that name the installer file, such
+1. **Bump the version.** Set `APP_VERSION = "X.Y"` in `src/server.py`. Update places that name the installer file, such
    as the version in [building-the-installer.md](building-the-installer.md).
-   Then refresh the header picture, which shows the version: start the app (`python server.py --no-browser`) and run
+   Then refresh the header picture, which shows the version: start the app (`python src/server.py --no-browser`) and run
    `python tools/make_readme_header.py`. It captures the About screen's header into
    `assets/brand/kc-about-header.webp`, used at the top of the README and of the GitHub Release. The build fails if
    the picture shows another version.
@@ -32,7 +32,7 @@ Versions are **major.minor** (6.5, 6.6, 7.0). The number lives in one place: `AP
    On a version tag, the workflow runs `tools/make_release_notes.py`, which puts the About screen's header first and
    the sections in that order, and publishes the result as the GitHub Release. Write for volunteers (see
    [changelog standards](changelog-standards.md)), starting with the download instruction.
-3. **Update `CHANGELOG.md`.** Move the **Unreleased** entries into a new `## [X.Y] - YYYY-MM-DD` section and add the
+3. **Update `docs/CHANGELOG.md`.** Move the **Unreleased** entries into a new `## [X.Y] - YYYY-MM-DD` section and add the
    link at the bottom.
 4. **Update the design history.** Add a section `## N. Version X.Y: …` to
    [docs/architecture/design-history.md](../architecture/design-history.md) describing design decisions and anything a

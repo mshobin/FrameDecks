@@ -11,7 +11,7 @@ try:  # needs "pefile", which PyInstaller installs automatically on Windows
     import re
     from PyInstaller.utils.win32.versioninfo import (VSVersionInfo, FixedFileInfo, StringFileInfo, StringTable,
                                                      StringStruct, VarFileInfo, VarStruct)
-    VERSION = re.search(r'APP_VERSION = "([^"]+)"', (root / "server.py").read_text(encoding="utf-8")).group(1)
+    VERSION = re.search(r'APP_VERSION = "([^"]+)"', (root / "src" / "server.py").read_text(encoding="utf-8")).group(1)
     nums = ([int(x) for x in re.findall(r"\d+", VERSION)] + [0, 0, 0, 0])[:4]
     version_info = VSVersionInfo(
         ffi=FixedFileInfo(filevers=tuple(nums), prodvers=tuple(nums)),
@@ -42,10 +42,10 @@ except Exception as e:
     pptx_data = []
 
 a = Analysis(
-    [str(root / "desktop_app.py")],
-    pathex=[str(root)],
+    [str(root / "src" / "desktop_app.py")],
+    pathex=[str(root / "src"), str(root)],
     datas=[(str(root / "app"), "app"), (str(root / "vcam" / "models"), "vcam/models"), (str(root / "vcam" / "bin"), "vcam/bin"),
-           (str(root / "LICENSE"), "."), (str(root / "NOTICE"), "."), (str(root / "THIRD_PARTY_NOTICES.md"), ".")] + pptx_data,
+           (str(root / "legal" / "LICENSE"), "."), (str(root / "legal" / "NOTICE"), "."), (str(root / "legal" / "THIRD_PARTY_NOTICES.md"), ".")] + pptx_data,
     hiddenimports=["server", "errlog", "supervisor", "ai", "pptx_export", "pptx", "lxml._elementpath", "pystray._win32", "PIL.Image", "vcam.engine", "vcam.blur", "vcam.sink", "vcam.devices", "vcam.overlay", "vcam.cards", "vcam.looks", "vcam.screen", "vcam.layers", "vcam.compositor", "vcam.program", "vcam.priority", "vcam.present_window", "desktop_win", "legacy", "meeting_form",
                    "windows_capture", "pypdfium2", "comtypes", "comtypes.client", "cv2", "numpy",
                    "cv2_enumerate_cameras", "cv2_enumerate_cameras.windows_backend", "cv2_enumerate_cameras._windows_backend"],

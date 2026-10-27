@@ -45,12 +45,12 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
   its member file goes missing (`cloud_sync.Engine._rebuild_members`; app setting `memberAuthority`, `pc` = before).
 
 ## Layout
-- `app/`, `server.py`, `packaging/` — the unchanged desktop app (Python server, static UI, port 8750).
-- `sync_entities.py` (plan ⇄ sync records) and `cloud_sync.py` (background sync, linking; off until a PC is linked) —
-  Phase 4, wired into `server.py` (`SYNC`, `/api/sync`) and Settings (`app/js/account.js`).
-- `cloud_remote.py` (Phase 5: commands from the companion, only while linked and the app setting `cloudRemote` is on)
-  — wired into `server.py` (`CLOUD_REMOTE`, `CLOUD_BRIDGE`, `/api/remote-cloud/*`, this PC only) and run by the
-  program's own window with the keys' functions (`app/js/cloud-remote.js`). `REMOTE` in `server.py` is the Wi-Fi
+- `app/`, `src/server.py`, `packaging/` — the unchanged desktop app (Python server, static UI, port 8750).
+- `src/sync_entities.py` (plan ⇄ sync records) and `src/cloud_sync.py` (background sync, linking; off until a PC is linked) —
+  Phase 4, wired into `src/server.py` (`SYNC`, `/api/sync`) and Settings (`app/js/account.js`).
+- `src/cloud_remote.py` (Phase 5: commands from the companion, only while linked and the app setting `cloudRemote` is on)
+  — wired into `src/server.py` (`CLOUD_REMOTE`, `CLOUD_BRIDGE`, `/api/remote-cloud/*`, this PC only) and run by the
+  program's own window with the keys' functions (`app/js/cloud-remote.js`). `REMOTE` in `src/server.py` is the Wi-Fi
   phone remote, a different thing.
 - `hosted/` — Next.js 16 online-first companion, built as **plain static files** (`output: "export"` → `hosted/out/`;
   free plan, `docs/deployment/free-hosting.md`). Deployed on Cloudflare Pages at `https://framedecks.pages.dev`
@@ -67,27 +67,29 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
   `docs/architecture/companion-editing.md` — editing services in the companion (E1–E4 as recommended);
   `docs/architecture/meeting-form.md` — 6.11: the website Meeting Form, the camera check and `framedecks://` (W1–W3).
 - `docs/project/2026-10-25-architecture-audit.md` — architecture, performance and product audit (critical issues
-  C1–C10, optimizations P1–P10, budgets, roadmap); no UI changes. P1–P4 and C2 (`supervisor.py`, the crash
+  C1–C10, optimizations P1–P10, budgets, roadmap); no UI changes. P1–P4 and C2 (`src/supervisor.py`, the crash
   watchdog in the installed exe) are built.
 - `docs/architecture-review.md` and `docs/migration-plan.md` — review against the owner's target architecture (cloud
   for people, templates, AI, audit; desktop for media, rendering, camera) and the step order; decisions M-D1–M-D6.
   The owner answered M-D1–M-D6 (plan §8); all eight steps are built and merged (PR #32; `docs/post-migration-report.md`);
   hosting long term: `docs/architecture/hosting.md`.
-- `ai.py` — optional free AI (M-D3): Ollama on this PC, or a self-hosted endpoint; cached; `Suggest` in a Frame's
+- `src/ai.py` — optional free AI (M-D3): Ollama on this PC, or a self-hosted endpoint; cached; `Suggest` in a Frame's
   question list appears only when one answers (`docs/ai.md`). Never call a paid provider from the PC.
-- `pptx_export.py` (Meeting → Export this meeting to PowerPoint, python-pptx) and Audio Content (`audio` kind in
+- `src/pptx_export.py` (Meeting → Export this meeting to PowerPoint, python-pptx) and Audio Content (`audio` kind in
   `store.js` SOUND_KINDS, `app/js/audio-player.js`, plays only in the program window while its Frame is live and on).
   Both are owner-approved entries (M-D4). Older versions drop Audio Content: update every linked PC first.
 - Free plan (`docs/deployment/free-hosting.md`): `.github/workflows/db-keepalive.yml` (pings Supabase every 3 days) and
   `db-backup.yml` + `tools/db_backup.sh` (nightly, AES-256 encrypted with `BACKUP_PASSPHRASE`, 30 days; restore:
   `docs/operations/database-backup.md`). Both do nothing until their repository secrets exist.
-- Licence: Apache 2.0 (`LICENSE`, `NOTICE`); every shipped dependency or vendored file needs a row in
-  `THIRD_PARTY_NOTICES.md`. Signing: SignPath, off until its secret exists (`docs/deployment/code-signing.md`).
+- Licence: Apache 2.0 (`legal/LICENSE`, `legal/NOTICE`); every shipped dependency or vendored file needs a row in
+  `legal/THIRD_PARTY_NOTICES.md`. Signing: SignPath, off until its secret exists (`docs/deployment/code-signing.md`).
 - Continuity: `CLAUDE.md`, `PROJECT_STATUS.md`, `PROJECT_ROADMAP.md`, `.ai/NEXT_SESSION.md`. The owner's live tests:
   `docs/qa/live-test-guide.md` (keep it in step when a tested behaviour changes).
 - Current handoff (27 October 2026): v6.11.1 and the README/release wordmark refresh (PR #38) are published. Trust
   fixes merged in PR #39 (`27cfb4b`); production deployment verification and the owner's live tests remain. See
-  `.ai/NEXT_SESSION.md`. Repository cleanup (branch `chore/repo-cleanup`): release notes before v6.8 live in
+  `.ai/NEXT_SESSION.md`. Repository cleanup (branch `chore/repo-cleanup`): root clean-up: Python modules are in `src/`
+  (`python src/server.py`), `README`/`CONTRIBUTING`/`SECURITY`/`SUPPORT` in `.github/`, licences in `legal/`, `CHANGELOG`/`ROADMAP` in `docs/`,
+  `ruff.toml` in `config/`; release notes before v6.8 live in
   `docs/releases/archive/`; deployment docs in `docs/deployment/`; the backup runbook in `docs/operations/`.
 - Companion design (26 October redesign): tokens in `hosted/src/app/globals.css` `:root`, the look in
   `hosted/src/app/design.css` (glass surfaces, navy and gold, one large title per page). Signed out, `/` is the landing
@@ -99,7 +101,7 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
   PCs next to the program): an idle page draws nothing — no `infinite` animations, no animated `filter`/layout
   properties, `backdrop-filter` only on the sticky top bars. The About screen (`about-dialog.tsx`,
   `about.css`, the (i) button) shows `src/lib/brand.json`, written from the program's `app/js/brand.js` and
-  `server.py` version by `scripts/write-brand.mjs` on every build (`tests/brand.test.mjs` fails if it is stale).
+  `src/server.py` version by `scripts/write-brand.mjs` on every build (`tests/brand.test.mjs` fails if it is stale).
 - Website places (27 October): Home `/` (`overview.tsx`), Plan `/plan` (also `/meeting`, `/services`; `plan-page.tsx`),
   Live, People `/members`; Settings: Branding, Service PCs `/computers`, Help `/help`; Your account `/account`. The
   look on top of `design.css` is `hosted/src/app/identity.css` (`.fd-framed` corners, EB Garamond for scripture, warm
@@ -126,8 +128,8 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
     for the PowerPoint export)
   - `cd hosted; npm ci; cd ..`
 - **Run the program:**
-  - `python desktop_app.py` (the real window).
-  - `python server.py`, then open http://127.0.0.1:8750/dashboard.html in a browser; add `?audio=1` to let a browser
+  - `python src/desktop_app.py` (the real window).
+  - `python src/server.py`, then open http://127.0.0.1:8750/dashboard.html in a browser; add `?audio=1` to let a browser
     tab play Audio Content.
   - Data lives in `%APPDATA%\FRAMEDECKS`. Set `KC_DATA_DIR` to a scratch folder for experiments.
 - **Companion:**
@@ -161,7 +163,7 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
 - Sync fixtures: `python tools/make_sync_fixtures.py` rebuilds `tests/fixtures/sync/` (needs Node) after changing
   `store.js` normalize or the record mapping; `tests/sync-fixtures.test.js` says when.
 - Docs: `python tools/check_doc_links.py`, `git diff --check`.
-- Lint: `ruff check .` (`ruff.toml`; CI pins ruff 0.16.8) and `node --check` on `app/js/*.js` (the Desktop checks
+- Lint: `ruff check --config config/ruff.toml .` (`config/ruff.toml`; CI pins ruff 0.16.8) and `node --check` on `app/js/*.js` (the Desktop checks
   workflow). Website budget: `node hosted/scripts/check-budget.mjs` after `npm run build`.
 - Releases: [docs/development/release-checklist.md](docs/development/release-checklist.md) (pilot first; rollback). Publish by
   pushing a tag `vX.Y.Z` on `main`: "Build Windows installer" builds, smoke-tests and publishes `FrameDecks vX.Y.Z.exe` with
@@ -183,8 +185,8 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
     backup, and records `PLAN_RECOVERY` (Diagnostics); a linked PC then calls `SYNC.adopt_workspace()` (one full
     pull where the workspace's version wins). `cloud_sync.MASS_DELETE_FRAMES`: when every Frame vanishes at once,
     no deletions are sent and the Frames are restored from the workspace.
-- The old name appears only where upgrades need it: `legacy.py` (moves old data folders), `packaging/installer.iss`
-  (removes old shortcuts, program folder and camera files), `server.py` `OLD_FIREWALL_RULES`, `tools/undo-ipad-remote.ps1`
+- The old name appears only where upgrades need it: `src/legacy.py` (moves old data folders), `packaging/installer.iss`
+  (removes old shortcuts, program folder and camera files), `src/server.py` `OLD_FIREWALL_RULES`, `tools/undo-ipad-remote.ps1`
   and `tests/test_legacy.py`. Use FrameDecks everywhere else; the camera is called FRAMECAST (files `framedecks_vcam64/32.dll`). Any label that
   means the camera (switch, status, picture, preview) says FRAMECAST; `tests/test_camera_name.py` fails otherwise.
 - The companion must stay a static export: no server routes, cookies, server actions, `dynamic`/`revalidate`, metadata

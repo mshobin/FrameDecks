@@ -1,5 +1,5 @@
 // Accessibility scan of the desktop program with axe-core (WCAG 2.1 A and AA), run against a started program:
-//   FRAMEDECKS_NO_UPDATE_CHECK=1 python server.py &   then   node tests/visual/a11y.mjs
+//   FRAMEDECKS_NO_UPDATE_CHECK=1 python src/server.py &   then   node tests/visual/a11y.mjs
 // Every tab, every Settings section and the Speaker, Teleprompter and Spotlight windows, in the dark and light themes.
 // Any violation fails. axe finds about half of what a person with a screen reader finds; it does not replace that pass.
 import { createRequire } from "node:module";

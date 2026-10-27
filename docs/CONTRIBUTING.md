@@ -1,7 +1,7 @@
 # Developer guide
 
 This guide is for people who want to change FrameDecks's code. For how to report bugs, suggest features and
-what "done" means for a pull request, start with [CONTRIBUTING.md](../CONTRIBUTING.md).
+what "done" means for a pull request, start with [CONTRIBUTING.md](../.github/CONTRIBUTING.md).
 
 - [Prerequisites](#prerequisites)
 - [Run from source](#run-from-source)
@@ -18,7 +18,7 @@ what "done" means for a pull request, start with [CONTRIBUTING.md](../CONTRIBUTI
 
 | Tool | Version | Needed for |
 | --- | --- | --- |
-| Python | 3.12 (the version the installer is built with) | Running the program. `server.py` uses only the standard library. |
+| Python | 3.12 (the version the installer is built with) | Running the program. `src/server.py` uses only the standard library. |
 | Node.js | 18 or newer | Running `tests/` (no npm packages; nothing to install). |
 | Git | any recent version | Cloning and branches. |
 | Windows 10 or 11 | — | The FRAMECAST camera, screen capture, PowerPoint conversion and the desktop window. The web interface, overlays and phone remote also run on macOS and Linux for development. |
@@ -35,10 +35,10 @@ python -m pip install -r packaging/requirements-desktop.txt -c packaging/constra
 ```bash
 git clone https://github.com/mshobin/FRAMEDECKS.git
 cd FrameDecks
-python server.py
+python src/server.py
 ```
 
-`server.py` starts the program on <http://localhost:8750> (or the next free port up to 8760) and opens the dashboard
+`src/server.py` starts the program on <http://localhost:8750> (or the next free port up to 8760) and opens the dashboard
 in your browser.
 
 | Option | Effect |
@@ -56,13 +56,13 @@ A typical development start:
 
 ```bash
 # macOS / Linux
-KC_DATA_DIR=/tmp/kc-dev KC_VCAM_DEMO=1 python server.py --no-browser --remote
+KC_DATA_DIR=/tmp/kc-dev KC_VCAM_DEMO=1 python src/server.py --no-browser --remote
 ```
 
 ```powershell
 # Windows PowerShell
 $env:KC_DATA_DIR = "$env:TEMP\kc-dev"; $env:KC_VCAM_DEMO = "1"
-python server.py --no-browser --remote
+python src/server.py --no-browser --remote
 ```
 
 Then open <http://localhost:8750/dashboard.html>. On a fresh data folder the app offers to import data from an
@@ -71,11 +71,11 @@ earlier installation; choose **Start fresh**.
 To run the desktop shell (the installed app's window, tray icon and Presentation window) instead of a browser tab:
 
 ```bash
-python desktop_app.py
+python src/desktop_app.py
 ```
 
 The Windows start files in the repository root (`Start FrameDecks.bat`, `Start FrameDecks with Phone
-Remote.bat`, `Start FrameDecks (Mac).command`) run `server.py` the same way for people using the zip version.
+Remote.bat`, `Start FrameDecks (Mac).command`) run `src/server.py` the same way for people using the zip version.
 
 ---
 
@@ -83,14 +83,14 @@ Remote.bat`, `Start FrameDecks (Mac).command`) run `server.py` the same way for 
 
 | Path | What lives there |
 | --- | --- |
-| `server.py` | The local program: HTTP server on 127.0.0.1, the shared state, uploads, scripture lookup, backups, the phone remote (PIN, sessions, allow-list) and `APP_VERSION`. |
-| `desktop_app.py` | The Windows app shell: pywebview window, tray icon, close-to-background, the Presentation and Teleprompter windows. |
+| `src/server.py` | The local program: HTTP server on 127.0.0.1, the shared state, uploads, scripture lookup, backups, the phone remote (PIN, sessions, allow-list) and `APP_VERSION`. |
+| `src/desktop_app.py` | The Windows app shell: pywebview window, tray icon, close-to-background, the Presentation and Teleprompter windows. |
 | `app/` | The web interface, served as static files. No build step and no npm packages. |
 | `app/dashboard.html` | The main window (Studio · Members · Settings). |
 | `app/remote.html` | The phone and tablet remote. |
 | `app/stage.html`, `focus-verse.html`, `discussion-question.html`, `birthday.html` | Overlay pages for OBS and browser sources; the Studio Canvas preview uses `stage.html`. |
 | `app/present.html`, `app/speaker.html` | The Presentation window fallback and the Teleprompter window (called Speaker View before 6.7). |
-| `app/js/store.js` | The shared state: defaults, `normalize`, the Frame helpers (`KCScenes`), syncing with `server.py`. |
+| `app/js/store.js` | The shared state: defaults, `normalize`, the Frame helpers (`KCScenes`), syncing with `src/server.py`. |
 | `app/js/workspace.js` | Frames, Content, the Content Settings panel and the Studio Canvas. |
 | `app/js/frame-lists.js` | A Frame's own question and scripture lists, and the in-panel editor. |
 | `app/js/*.js` | One feature per file (`annotate.js`, `preview-edit.js`, `speaker.js`, `remote.js`, `meeting-book.js` …). |
@@ -112,7 +112,7 @@ Remote.bat`, `Start FrameDecks (Mac).command`) run `server.py` the same way for 
 flowchart LR
   UI["Dashboard (app/js)"] -- "KCCommit(fn)" --> Store["store.js normalize"]
   Remote["Phone remote"] -- "Store.update" --> Store
-  Store -- "POST /api/state" --> Server["server.py save_state"]
+  Store -- "POST /api/state" --> Server["src/server.py save_state"]
   Server -- "atomic write" --> File[("kc-saved-content.json")]
   Server -- "rev changes (long poll)" --> Pages["Overlay pages, remote, Teleprompter window"]
   Server -- "kick()" --> Engine["vcam engine + compositor"]
@@ -121,7 +121,7 @@ flowchart LR
 
 1. A page changes state through `window.KCCommit(fn)` (or `Store.update(fn)` on the remote). `fn` edits a copy of
    the state; `store.js` runs `normalize` so every field is valid, then posts it to `POST /api/state`.
-2. `server.py` `save_state` bumps `rev`, writes `kc-saved-content.json` atomically (temporary file, then replace),
+2. `src/server.py` `save_state` bumps `rev`, writes `kc-saved-content.json` atomically (temporary file, then replace),
    wakes every waiting page and kicks the camera engine so a shown card appears at once.
 3. Every other page (overlays, the remote, the Teleprompter window, other windows) learns about the new `rev` and reloads the
    state. The camera pipeline reads the same state on its next frame.
@@ -154,7 +154,7 @@ it; open an issue first so the design can be agreed.
 ### Add a page or script the app serves
 
 Put it in `app/`, then add it to the page list in `packaging/check.py` so the self-check proves it is bundled. A page
-the phone may load must also be added to `REMOTE_SIGNED_IN` in `server.py` (think carefully: everything on that list
+the phone may load must also be added to `REMOTE_SIGNED_IN` in `src/server.py` (think carefully: everything on that list
 is reachable from the network).
 
 ---
