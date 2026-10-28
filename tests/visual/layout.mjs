@@ -1,7 +1,7 @@
 // Visual regression checks for the desktop program (design audit DD-26), run against a started program:
 //   FRAMEDECKS_NO_UPDATE_CHECK=1 python src/server.py &   then   node tests/visual/layout.mjs [--shots]
 // Layout facts, not pixel comparisons, so a different font build on another machine cannot make them fail. With --shots
-// the screens are also saved to tests/visual/out/ to compare by eye with docs/design/baselines/.
+// the screens are also saved to tests/visual/out/ to compare by eye with tests/visual/baselines/.
 import { mkdirSync } from "node:fs";
 import { createRequire } from "node:module";
 

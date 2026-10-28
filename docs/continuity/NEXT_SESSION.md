@@ -214,7 +214,7 @@ the program's About page in the website's design, with the same words (brand.jso
 ## Design audit (26 October, chat only)
 The design roadmap is complete (ranks 1–21; ranks 8 and 12–21 on 26 October). For any screen change, follow
 `docs/development/design-system.md`, run `python tools/css_tokens.py` and `node tests/visual/layout.mjs` (needs the program running
-and Playwright), and refresh `docs/design/baselines/` and `hosted/public/product/` when a screen changes on purpose.
+and Playwright), and refresh `tests/visual/baselines/` and `hosted/public/product/` when a screen changes on purpose.
 27 October, UX simplification (owner-approved): `app/js/service.js` holds Prepare / Run (body `run-mode`; Run hides the
 editor and blocks rename, drag, menus, Delete, cut, paste and undo in the Studio), Up next (`KCWorkspace.upNext()`),
 Before you start (reads the status chips), Practice (Black screen + `practice=1` on the program's own previews,

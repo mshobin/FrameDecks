@@ -174,5 +174,5 @@ in four steps** (branding, a Frame, how people see it, practising in Run).
 | `node tests/visual/a11y.mjs` | Desktop checks → visual (CI) | any axe WCAG 2.1 AA violation on any tab, Settings section, the first-run question, or the Speaker, Teleprompter and Spotlight windows, in dark and light |
 | `tests/test_ui_labels.py`, `tests/test_camera_name.py` | Python tests | the program's labels, first run, camera name, Prepare / Run, Live tools groups, How people see it, Advanced and People |
 
-**Reference screens** are in `docs/design/baselines/` (from `node tests/visual/layout.mjs --shots`, saved as WebP). When a
+**Reference screens** are in `tests/visual/baselines/` (from `node tests/visual/layout.mjs --shots`, saved as WebP). When a
 change is meant to alter a screen, take new shots and replace the matching file in the same change.
