@@ -1,4 +1,4 @@
-# FrameDecks — AI/maintainer guide
+# FrameDecks — project and maintainer guide
 
 Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
 
@@ -84,7 +84,7 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
 - Licence: Apache 2.0 (`legal/LICENSE`, `legal/NOTICE`; a copy of `LICENSE` stays at the top level for GitHub's licence
   detection and the website footer link, and `tests/test_licence_copy.py` keeps the two identical); every shipped dependency or vendored file needs a row in
   `legal/THIRD_PARTY_NOTICES.md`. Signing: SignPath, off until its secret exists (`docs/deployment/code-signing.md`).
-- Continuity: `CLAUDE.md`, `PROJECT_STATUS.md`, `PROJECT_ROADMAP.md`, `.ai/NEXT_SESSION.md`. The owner's live tests:
+- Continuity: `PROJECT_GUIDE.md`, `PROJECT_STATUS.md`, `PROJECT_ROADMAP.md`, `.ai/NEXT_SESSION.md`. The owner's live tests:
   `docs/qa/live-test-guide.md` (keep it in step when a tested behaviour changes).
 - Current handoff (27 October 2026): v6.11.2 (repository layout + companion trust fixes, no desktop change; tag `v6.11.2`) follows v6.11.1 and the README/release wordmark refresh (PR #38). Trust
   fixes merged in PR #39 (`27cfb4b`); production deployment verification and the owner's live tests remain. See
@@ -149,7 +149,7 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
   - Supabase itself.
 
 ## Keeping the handoff current (owner's rule)
-- Update all four continuity files (`CLAUDE.md`, `PROJECT_STATUS.md`, `PROJECT_ROADMAP.md`, `.ai/NEXT_SESSION.md`)
+- Update all four continuity files (`PROJECT_GUIDE.md`, `PROJECT_STATUS.md`, `PROJECT_ROADMAP.md`, `.ai/NEXT_SESSION.md`)
   at the end of **every** step, in the same PR as the work: what is done, what is live, what the owner must do next.
 - In long steps, push work in progress with the four files describing the partial state, so a session cut off by a
   usage limit still leaves a correct handoff.

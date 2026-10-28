@@ -7,7 +7,7 @@ Since then: the budget script works on Windows (`57cd9c3`), five GitHub Action u
 used only for releases first run at the next tag), handoff PR #40 merged; every check on `main` is green, including the
 Cloudflare Pages production deploy. Owner live tests remain. The live database has every script, `0001`–`0009`
 (`0009` run by the owner on 27 October).
-- **Repository clean-up (merged):** Python modules in `src/` (`python src/server.py`), community docs in `.github/`, licences in `legal/`, `CHANGELOG`/`ROADMAP` in `docs/`, `ruff.toml` in `config/`; old release notes in `docs/releases/archive/`; deployment and operations docs under `docs/deployment/` and `docs/operations/`. Checks unchanged (Python baseline, hosted 127/127, build, ruff 0.16.8); a PyInstaller build from the new layout built and answered `/api/app/ping`.
+- **Repository clean-up (merged):** Python modules in `src/` (`python src/server.py`), community docs in `.github/`, licences in `legal/`, `CHANGELOG`/`ROADMAP` in `docs/`, `ruff.toml` in `config/`; old release notes in `docs/releases/archive/`; deployment and operations docs under `docs/deployment/` and `docs/operations/`. The root maintainer guide is now `PROJECT_GUIDE.md`; active references updated. Checks unchanged (Python baseline, hosted 127/127, build, ruff 0.16.8); a PyInstaller build from the new layout built and answered `/api/app/ping`.
 - **GitHub:** Desktop checks, Hosted companion checks and Build Windows installer (with the installer smoke test) green.
 - **Trust-fix PR #39 checks:** hosted tests 127/127, lint, typecheck, build; manual budget 330 KB JS / 70 KB largest /
   18 KB CSS; desktop JS 4/4; README fact tests 2/2; CSS tokens 14 files / 0 problems; doc links 97 files / 0 problems;
@@ -51,7 +51,7 @@ Phase detail lives in
   Excel moved into Settings → Data / Backup; version 6.11. Owner: live test G; then 6.12 removes Excel (W3).
 - **Website polish (26 October):** redesign, motion and About; owners delete workspaces; Branding page, Transition style on
   the Meeting Form, Birthdays this week on the dashboard (synced `brand`, `layout/profile` and member records).
-- **Old name removed (26 October):** every Kingdom Connect reference is FrameDecks, except upgrade-only code (CLAUDE.md
+- **Old name removed (26 October):** every Kingdom Connect reference is FrameDecks, except upgrade-only code (PROJECT_GUIDE.md
   Gotchas). Camera files renamed `framedecks_vcam*.dll`; owner checks the camera after the next install.
 - **Audit step 2 (26 October):** built on `main` for 6.11.1 (see NEXT_SESSION); Stream Deck plugin removed.
 - **Design audit rank 1 (26 October):** every camera label says FRAMECAST (DD-01), guarded by `tests/test_camera_name.py`; Python 141 OK.

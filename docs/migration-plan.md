@@ -7,7 +7,7 @@ changes** unless the owner approves them first.
 
 **Who this is for:** the owner, who makes the decisions in §8, and maintainers, who carry out the steps in §7.
 
-**Ground rules for every step** (from `CLAUDE.md` and the owner's brief):
+**Ground rules for every step** (from `PROJECT_GUIDE.md` and the owner's brief):
 - Additive and backward compatible: new tables, new optional fields, adapters behind a switch. Nothing is removed or
   rewritten.
 - One step per pull request, with tests, and the four continuity files updated in the same PR.

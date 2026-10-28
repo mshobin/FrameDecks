@@ -33,7 +33,7 @@ lists the steps.
 | W2 | When Excel leaves the program | 6.11 adds the form. Import Excel stays, moved into the program's Settings. |
 | W3 | What leaves in 6.12 | Import Meeting Workbook, the template download and the Excel export. Export to PowerPoint stays. |
 
-The Settings entry is a new owner-approved desktop change. It is recorded in `CLAUDE.md` with the other exceptions.
+The Settings entry is a new owner-approved desktop change. It is recorded in `PROJECT_GUIDE.md` with the other exceptions.
 
 ## 2. How a form row becomes a Frame
 

@@ -41,4 +41,4 @@ looks at the real tray on an installed PC.
 
 - Speaker View and the Teleprompter window, at 1280×800 and 1000×700: the floating "Frame 1 of 2 · Next Frame…" pill
   overlaps the "No script for …" line. In the light theme the pill's grey text on its dark background is low in
-  contrast. Desktop UI is frozen by [CLAUDE.md](../../CLAUDE.md), so this is recorded for the owner, not fixed.
+  contrast. Desktop UI is frozen by [PROJECT_GUIDE.md](../../PROJECT_GUIDE.md), so this is recorded for the owner, not fixed.

@@ -10,7 +10,7 @@ It follows the production audit's roadmap ([2026-10-26 audit](../project/2026-10
 - [ ] The About header shows the version: run `python src/server.py --no-browser`, then
       `python tools/make_readme_header.py` (it writes `assets/brand/kc-about-header.webp` and `.version`).
 - [ ] `docs/CHANGELOG.md` has the version's entry, and the four continuity files are up to date.
-- [ ] Every check in [CLAUDE.md](../../CLAUDE.md) "Commands" passes, and on `main` these GitHub checks are green:
+- [ ] Every check in [PROJECT_GUIDE.md](../../PROJECT_GUIDE.md) "Commands" passes, and on `main` these GitHub checks are green:
       "Build Windows installer" (including the installer smoke test), "Hosted companion checks" (including the
       performance budget) and "Desktop checks".
 - [ ] New database migrations are listed in the release notes with what the owner runs, and each has its undo script.

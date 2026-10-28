@@ -193,7 +193,7 @@ The items below **need visible UI** and so need explicit owner approval, documen
 | AI features | Wherever the chosen feature lives | One button, hidden without a provider |
 | Members cloud-only (M-D2 option B) | Desktop Members screen would need a sign-in state | Larger; not recommended |
 
-Desktop UI remains frozen by rule (`CLAUDE.md`). None of the above is built without the owner's yes.
+Desktop UI remains frozen by rule (`PROJECT_GUIDE.md`). None of the above is built without the owner's yes.
 
 ## 9. Technical debt review
 

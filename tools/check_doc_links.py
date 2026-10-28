@@ -5,7 +5,7 @@ Web links (http, https, mailto) are not fetched. Anchors follow GitHub's heading
 """
 import re, pathlib, subprocess, sys, unicodedata
 root = pathlib.Path(__file__).resolve().parent.parent
-files = [root / f for f in subprocess.check_output(['git', 'ls-files', '-co', '--exclude-standard', '*.md'], cwd=root).decode().split()]
+files = [root / f for f in subprocess.check_output(['git', 'ls-files', '-co', '--exclude-standard', '*.md'], cwd=root).decode().split() if (root / f).is_file()]
 def slug(t):
     t = re.sub(r'<[^>]+>', '', t).strip().lower()
     t = re.sub(r'[`*_~\[\]()]', '', t)

@@ -1,9 +1,9 @@
 # NEXT SESSION HANDOFF
 
-Updated 27 October 2026: release `v6.11.2` (repository layout and trust fixes, no desktop change; pilot install on a real PC and SHA-256 check still the owner's) was tagged after `v6.11.1`, which is published; the FrameDecks README and release header refresh merged in
+Updated 28 October 2026: the root maintainer guide is now `PROJECT_GUIDE.md`; current references were updated. Release `v6.11.2` (repository layout and trust fixes, no desktop change; pilot install on a real PC and SHA-256 check still the owner's) was tagged after `v6.11.1`, which is published; the FrameDecks README and release header refresh merged in
 PR #38. Trust fixes merged in PR #39 (`27cfb4b`). Later the same day: the budget script fixed for Windows
 (`57cd9c3`), the five Dependabot action upgrades merged (#33–#37), and the handoff PR #40. All checks on `main` are
-green, including the Cloudflare Pages deploy (production); a look at the live site is still the owner's. Read [CLAUDE.md](../CLAUDE.md) ("Working locally" has the set-up and run commands).
+green, including the Cloudflare Pages deploy (production); a look at the live site is still the owner's. Read [PROJECT_GUIDE.md](../PROJECT_GUIDE.md) ("Working locally" has the set-up and run commands).
 
 28 October, post-reorganization check of `main` (`c87d059`, v6.11.2): build, tests, installer, release job, Cloudflare
 deploy and every page passed; the program behaves identically to before the move and the website differs only in the
@@ -45,7 +45,7 @@ top-level `ruff.toml` that extends `config/ruff.toml` (plain `ruff check .` had 
 - **Cloudflare Pages gotcha:** the three failed deploys on 27 October (c48006d–91c3bc4) were exactly the commits that
   had edited comments in `hosted/supabase/migrations/0001`–`0008`; restoring those files fixed it. `0001`–`0009` are
   all run live now. Never edit a
-  migration that has been run (CLAUDE.md), not even a comment; the dashboard log has the exact reason.
+  migration that has been run (PROJECT_GUIDE.md), not even a comment; the dashboard log has the exact reason.
 - **Gotcha for the visual suites:** start `src/server.py` with nothing else on port 8750 (a leftover server makes them test
   the wrong data and fail on things that are fine).
 
@@ -263,14 +263,14 @@ Whatever the live tests find:
 - the four continuity files.
 
 ## Session Handoff (VS Code on Windows)
-Setup and the full check list are in [CLAUDE.md](../CLAUDE.md) under "Working locally" and "Commands".
+Setup and the full check list are in [PROJECT_GUIDE.md](../PROJECT_GUIDE.md) under "Working locally" and "Commands".
 
 Start by fetching and checking out the branch:
 - `git fetch origin`
 - `git checkout main`
 - `git pull`
 
-Before and after every change, run all the checks in CLAUDE.md. At the end of every step, update all four
+Before and after every change, run all the checks in PROJECT_GUIDE.md. At the end of every step, update all four
 continuity files in the same commit (owner's rule). Never force-push.
 
 ## Three settings on the website (26 October, owner's request)
@@ -287,13 +287,13 @@ continuity files in the same commit (owner's rule). Never force-push.
   (`framedecks_vcam64/32.dll`, `register-/unregister-framedecks-camera.cmd`) and internal names.
 - The Excel Meeting Workbook's header said "KINGDOM CONNECT"; regenerated with `tools/make_meeting_workbook.py`.
 - The camera picker now recognises its own "FrameDecks" camera again (it looked for the old name).
-- Kept on purpose (upgrades only): see CLAUDE.md Gotchas. The installer removes the old-named camera files and
+- Kept on purpose (upgrades only): see PROJECT_GUIDE.md Gotchas. The installer removes the old-named camera files and
   registers the camera again from the new ones. Owner check: after installing, the camera still shows in Zoom.
 - GitHub's old "Kingdom Connect 6.9" release can only be changed by the owner (publish 6.11; delete or rename 6.9).
 
 ## FRAMECAST and the 6.11 release (26 October, owner's request)
 - The virtual camera is now called **FRAMECAST** (Zoom/Teams/OBS name and every label that names the camera; same
-  device ID). The website's camera check also accepts the earlier name. Owner-approved; recorded in CLAUDE.md.
+  device ID). The website's camera check also accepts the earlier name. Owner-approved; recorded in PROJECT_GUIDE.md.
 - The tag build for v6.11 failed at "Write the branded release notes": `tools/make_release_notes.py` crashed on the
   empty `motto` in `app/js/brand.js`. Fixed, with `tests/test_release_notes.py`. Release notes rewritten.
 - **Published** 26 October: Releases → FrameDecks 6.11 with the About header, notes, `FrameDecks.v6.11.exe` and `.sha256`.
@@ -305,7 +305,7 @@ continuity files in the same commit (owner's rule). Never force-push.
 - **Teleprompter froze the program on unpin:** the window op `on-top` used pywebview's `on_top` setter, which waits on
   the window's thread. Now `desktop_win.set_topmost` (SetWindowPos with SWP_ASYNCWINDOWPOS, never waits). Owner to test.
   If the program is frozen: Task Manager → end every FrameDecks task, then open it again.
-- **Settings menu** grouped and described, with "Find a setting" (owner-approved; CLAUDE.md).
+- **Settings menu** grouped and described, with "Find a setting" (owner-approved; PROJECT_GUIDE.md).
 - These are on `main` but not in the published v6.11 installer: take it from the latest "Build Windows installer" run
   (Actions → Artifacts), or publish a new release.
 
