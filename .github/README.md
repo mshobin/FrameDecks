@@ -124,8 +124,8 @@ No feature, test result or screenshot in this repository is faked; where somethi
 the docs say so.
 
 ## License
-FrameDecks is open source under the [Apache License 2.0](../legal/LICENSE); see also [NOTICE](../legal/NOTICE). Third-party components
-keep their own licences, listed in [THIRD_PARTY_NOTICES.md](../legal/THIRD_PARTY_NOTICES.md).
+FrameDecks is open source under the [Apache License 2.0](../docs/legal/LICENSE); see also [NOTICE](../docs/legal/NOTICE). Third-party components
+keep their own licences, listed in [THIRD_PARTY_NOTICES.md](../docs/legal/THIRD_PARTY_NOTICES.md).
 
 ## Code signing policy
 Windows releases are to be signed for free by [SignPath.io](https://signpath.io), with a certificate from the

@@ -62,14 +62,14 @@ jobs:
             msbuild vcam_build/softcam/softcam.sln /m /t:softcam /p:Configuration=Release /p:Platform=$p
             if ($LASTEXITCODE -ne 0) { throw "FRAMECAST build failed ($p)" }
           }
-          Copy-Item vcam_build/softcam/x64/Release/softcam.dll vcam/bin/framedecks_vcam64.dll
-          Copy-Item vcam_build/softcam/Win32/Release/softcam.dll vcam/bin/framedecks_vcam32.dll
+          Copy-Item vcam_build/softcam/x64/Release/softcam.dll src/vcam/bin/framedecks_vcam64.dll
+          Copy-Item vcam_build/softcam/Win32/Release/softcam.dll src/vcam/bin/framedecks_vcam32.dll
           # A record of what was built, so the app can tell "never built" from "removed after installing"
           $files = @{}
-          foreach ($f in 'framedecks_vcam64.dll', 'framedecks_vcam32.dll') { $files[$f] = (Get-FileHash "vcam/bin/$f" -Algorithm SHA256).Hash }
+          foreach ($f in 'framedecks_vcam64.dll', 'framedecks_vcam32.dll') { $files[$f] = (Get-FileHash "src/vcam/bin/$f" -Algorithm SHA256).Hash }
           @{ builtBy = 'GitHub Actions'; run = '${{ github.run_number }}'; commit = '${{ github.sha }}'; files = $files } |
-            ConvertTo-Json | Set-Content -Encoding utf8 vcam/bin/build-info.json
-          Get-ChildItem vcam/bin
+            ConvertTo-Json | Set-Content -Encoding utf8 src/vcam/bin/build-info.json
+          Get-ChildItem src/vcam/bin
 
       - name: Self-check (program starts and serves its pages)
         run: python packaging/check.py

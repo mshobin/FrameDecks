@@ -18,7 +18,7 @@ webview/
 *.xlsx
 *.xls
 *.csv
-!samples/*.xlsx
+!assets/samples/*.xlsx
 !docs/templates/*.xlsx
 !app/templates/*.xlsx
 # ---- Build output ----
@@ -30,7 +30,7 @@ __pycache__/
 *.pyc
 # BCC vCam build files (GitHub builds the camera itself)
 vcam_build/
-vcam/bin/*.dll
+src/vcam/bin/*.dll
 kc-vcam-settings.json
 kc-looks.json
 kc-studio.json

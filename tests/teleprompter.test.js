@@ -15,7 +15,7 @@ OUTPUT_PAGES.forEach(p => {
   while ((m = re.exec(html))) if (!/^(https?:)?\/\//.test(m[1])) files.add(path.join('app', m[1]));
 });
 files.delete(path.join('app', 'js', 'store.js'));   // the store keeps the field (cleanScene); it never draws it
-fs.readdirSync(path.join(root, 'vcam')).filter(f => f.endsWith('.py')).forEach(f => files.add(path.join('vcam', f)));
+fs.readdirSync(path.join(root, 'src', 'vcam')).filter(f => f.endsWith('.py')).forEach(f => files.add(path.join('src', 'vcam', f)));
 const NOTES = /\.notes\b|\[\s*["']notes["']\s*\]|\bget\(\s*["']notes["']/;
 files.forEach(f => {
   if (!fs.existsSync(path.join(root, f))) return;

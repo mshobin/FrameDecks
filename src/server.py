@@ -43,8 +43,9 @@ FROZEN = getattr(sys, "frozen", False)          # True inside the installed Wind
 HERE = Path(sys.executable).resolve().parent if FROZEN else Path(__file__).resolve().parent.parent   # the repository root (this file is in src/)
 RES = Path(getattr(sys, "_MEIPASS", HERE))       # where the app's pages are bundled
 APP = RES / "app"
-if not FROZEN and str(HERE) not in sys.path:
-    sys.path.insert(0, str(HERE))                # vcam/ stays at the repository root, next to src/
+SRC = HERE / "src"                               # the Python modules and the vcam/ package (development only)
+if not FROZEN and str(SRC) not in sys.path:
+    sys.path.insert(0, str(SRC))
 
 
 def _data_dir():
@@ -1678,14 +1679,14 @@ def vcam_start():
         return
     model = RES / "vcam" / "models" / "selfie_segmentation_landscape.tflite"
     if not model.exists():
-        model = HERE / "vcam" / "models" / "selfie_segmentation_landscape.tflite"
+        model = SRC / "vcam" / "models" / "selfie_segmentation_landscape.tflite"
     if demo:
         make_sink, make_cam = (lambda w, h: vsink.FakeSink(w, h, connected=False)), DemoCamera
     else:
         if os.name != "nt":
             VCAM["reason"] = start_files_msg if not FROZEN else "FRAMECAST works on Windows."
             return
-        dll = vsink.dll_path(RES) if vsink.dll_path(RES).exists() else vsink.dll_path(HERE)
+        dll = vsink.dll_path(RES) if vsink.dll_path(RES).exists() else vsink.dll_path(SRC)
         if not dll.exists():
             folder = dll.parent
             present = sorted(p.name for p in folder.iterdir()) if folder.is_dir() else []
@@ -1763,7 +1764,7 @@ def vcam_install(action):
     if os.name != "nt":
         return False, "Only available on Windows."
     name = "unregister-framedecks-camera.cmd" if action == "uninstall" else "register-framedecks-camera.cmd"
-    helper = next((p for p in (RES / "vcam" / "bin" / name, HERE / "vcam" / "bin" / name) if p.exists()), None)
+    helper = next((p for p in (RES / "vcam" / "bin" / name, SRC / "vcam" / "bin" / name) if p.exists()), None)
     if helper is None or not (helper.parent / "framedecks_vcam64.dll").exists():
         return False, "The FrameDecks files are missing. Reinstall the app."
     path = str(helper).replace("'", "''")

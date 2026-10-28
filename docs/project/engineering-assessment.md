@@ -34,7 +34,7 @@ The largest concerns are the security properties of the optional plaintext-HTTP 
 | Server/runtime | Python standard library `http.server` using `ThreadingHTTPServer`; custom routing and response handling in [src/server.py](../../src/server.py) |
 | UI | Static HTML, CSS, and vanilla JavaScript under [app/](../../app); no framework build step and no npm dependency manifest |
 | Desktop shell | `pywebview` hosting WebView2, `pystray` for tray behavior, plus custom Windows integration through `ctypes` in [src/desktop_app.py](../../src/desktop_app.py) and [src/desktop_win.py](../../src/desktop_win.py) |
-| Video/capture | OpenCV, NumPy, MediaPipe selfie-segmentation model, Windows Graphics Capture/DXGI capture, and a bundled softcam-derived DirectShow virtual-camera driver in [vcam/](../../vcam) |
+| Video/capture | OpenCV, NumPy, MediaPipe selfie-segmentation model, Windows Graphics Capture/DXGI capture, and a bundled softcam-derived DirectShow virtual-camera driver in [src/vcam/](../../src/vcam) |
 | Document/media support | `pypdfium2` for PDF rendering; installed Microsoft PowerPoint and `comtypes` for PowerPoint conversion/control; SheetJS is vendored for workbook import/export |
 | Persistence | JSON files in the application data directory, copied media assets, backup directories, and browser `localStorage` in file/no-install mode |
 | Packaging/release | PyInstaller, Inno Setup, and GitHub Actions workflow in [.github/workflows/build-windows.yml](../../.github/workflows/build-windows.yml) |
@@ -79,7 +79,7 @@ This keeps all local screens coordinated without a database or message broker. I
 - [app/js/store.js](../../app/js/store.js): state normalization, browser/local mode, API synchronization, and shared client-side behavior.
 - [app/js/workspace.js](../../app/js/workspace.js): workspace/dashboard interactions.
 - [src/desktop_app.py](../../src/desktop_app.py) and [src/desktop_win.py](../../src/desktop_win.py): desktop lifecycle, windows, tray, shortcuts, and native Windows integration.
-- [vcam/](../../vcam): camera and media capture/composition pipeline.
+- [src/vcam/](../../src/vcam): camera and media capture/composition pipeline.
 
 ## 4. Authentication mechanism
 

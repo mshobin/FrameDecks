@@ -255,7 +255,7 @@ The same entry points are on the empty Scenes list and in Settings → Meeting &
 | library | `lib-meeting-title`, `lib-meeting-lower` | Branded templates |
 
 New helpers in `KCScenes`: `liveBrand`, `brandText`, `hasBrand`, `brandPalette` (accent → card colours, the same
-maths as `vcam/cards.py accent_palette`), `addBrand`, `autoBrand`. `KCStore.brand()` gives the header a cheap read.
+maths as `src/vcam/cards.py accent_palette`), `addBrand`, `autoBrand`. `KCStore.brand()` gives the header a cheap read.
 
 **Server** (`src/server.py`):
 - `POST api/brand/logo` (this PC only): stores a PNG of up to 8 MB. The PNG header is checked; the response is
@@ -268,12 +268,12 @@ maths as `vcam/cards.py accent_palette`), `addBrand`, `autoBrand`. `KCStore.bran
 **Renderers**:
 - `overlay.js` / `overlay.css`: Branding badge, logo on text cards, `{meeting}` / `{org}`, and the accent applied
   through the `--gold-*` variables.
-- `vcam/program.py`:
+- `src/vcam/program.py`:
   - `live_brand`, `brand_text`, `ProgramFX._badge`;
   - the logo on text cards, through `CardDrawer` `data["logo"]`;
   - about 1.2 ms per 720p frame with a badge and a branded lower third.
-- `vcam/cards.py`: `accent_palette` and per-draw colours (thread-safe).
-- `vcam/overlay.py`: passes the accent to the question, verse and birthday cards. It is part of their cache key.
+- `src/vcam/cards.py`: `accent_palette` and per-draw colours (thread-safe).
+- `src/vcam/overlay.py`: passes the accent to the question, verse and birthday cards. It is part of their cache key.
 
 ## 3. Excel template structure
 
@@ -370,6 +370,6 @@ The file is made by `KCMeetingSheet.templateBook`, which is the same code for th
 | `app/js/import-worker.js` | Reads the workbook off the main thread; `want: 'Scene Name'` picks the right sheet |
 | `app/js/workspace.js` | + Scene menu entries, empty-state button, Branding layer Inspector, Show logo, scene notes, Go Live bar |
 | `app/js/overlay.js`, `app/css/overlay.css` | Overlay rendering of branding |
-| `vcam/program.py`, `vcam/cards.py`, `vcam/overlay.py` | FrameDecks rendering of branding and the accent colour |
+| `src/vcam/program.py`, `src/vcam/cards.py`, `src/vcam/overlay.py` | FrameDecks rendering of branding and the accent colour |
 | `src/server.py` | Logo endpoints; version 6.2 |
 | `tools/make_meeting_workbook.py` | Regenerates `app/templates/FRAMEDECKS-Meeting-Workbook.xlsx` and its copy in `docs/templates/` |

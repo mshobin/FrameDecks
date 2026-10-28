@@ -43,7 +43,7 @@ Write code that reads like the code around it. These are the conventions the rep
 - **Keyboard:** shortcuts must be ignored while typing in an input, a text area or a select, and while a dialog is
   open.
 
-## Python (`src/server.py`, `src/desktop_app.py`, `vcam/`, `packaging/`, `tools/`)
+## Python (`src/server.py`, `src/desktop_app.py`, `src/vcam/`, `packaging/`, `tools/`)
 
 - **Standard library first.** `src/server.py` must run with nothing installed beyond Python 3. Packages in
   `packaging/requirements-desktop.txt` are used only by the desktop shell and the camera pipeline, imported where

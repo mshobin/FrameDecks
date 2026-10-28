@@ -287,7 +287,7 @@ from .powerpoint import powerpoint_slide, powerpoint_status  # noqa: E402,F401  
 class LayerManager:
     def __init__(self, folder, fonts_dir=None):
         self.folder = Path(folder)
-        self.fonts = Path(fonts_dir) if fonts_dir else Path(__file__).resolve().parent.parent / "app" / "fonts"
+        self.fonts = Path(fonts_dir) if fonts_dir else Path(__file__).resolve().parent.parent.parent / "app" / "fonts"
         self.layers = []                 # list of layer dicts, bottom first
         self.sources = {}                # id -> source object
         self.cache = {}                  # id -> (key, (colour, alpha, inv3), x0, y0)

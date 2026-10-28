@@ -30,7 +30,7 @@ restrictions.
 | Local HTTP server | `src/server.py` uses Python's standard-library threaded HTTP server. It serves the application and APIs on loopback; optional phone-remote mode opens LAN listeners and applies a route allow-list. |
 | UI | Static HTML, CSS, and vanilla JavaScript under [app/](../../app/). There is no React, Next.js, TypeScript, npm package manifest, or frontend build pipeline. |
 | State | The server keeps shared state in memory and persists it to JSON with a revision counter and atomic replacement. Browser/file mode uses `localStorage`, `BroadcastChannel`, and a periodic check. |
-| Media and output | [vcam/](../../vcam) captures and composes camera, media, cards, overlays, and effects. The final frame can feed a virtual camera, presentation output, and previews. |
+| Media and output | [src/vcam/](../../src/vcam) captures and composes camera, media, cards, overlays, and effects. The final frame can feed a virtual camera, presentation output, and previews. |
 | Local storage | Meeting state, private members/settings, local media, backups, and configuration live on the computer. There is no database, cloud sync, identity, or tenant model. |
 | Delivery | PyInstaller/Inno Setup Windows installer built with GitHub Actions. CI runs JS/Python tests, packaging checks, release-note checks, and documentation-link checks. |
 

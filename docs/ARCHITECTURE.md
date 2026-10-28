@@ -100,15 +100,15 @@ The engine turns the live state into one picture, about 30 times a second, and h
 
 ```mermaid
 flowchart LR
-  ST["Live state<br/>(src/server.py, in memory)"] --> OV["Cards<br/>vcam/overlay.py · cards.py"]
-  ST --> PF["Program effects<br/>vcam/program.py<br/>text · branding · transitions"]
-  CAM["Webcam<br/>vcam/devices.py"] --> LK["Camera Look<br/>vcam/looks.py"] --> BL["Background blur<br/>vcam/blur.py"]
-  BL --> CMP["Compositor<br/>vcam/compositor.py"]
-  MED["Media Content<br/>vcam/layers.py"] --> CMP
+  ST["Live state<br/>(src/server.py, in memory)"] --> OV["Cards<br/>src/vcam/overlay.py · cards.py"]
+  ST --> PF["Program effects<br/>src/vcam/program.py<br/>text · branding · transitions"]
+  CAM["Webcam<br/>src/vcam/devices.py"] --> LK["Camera Look<br/>src/vcam/looks.py"] --> BL["Background blur<br/>src/vcam/blur.py"]
+  BL --> CMP["Compositor<br/>src/vcam/compositor.py"]
+  MED["Media Content<br/>src/vcam/layers.py"] --> CMP
   OV --> CMP
-  CMP --> PF --> INK["Annotation · Freeze<br/>vcam/annotate.py"] --> BLK["Blackout fade"]
+  CMP --> PF --> INK["Annotation · Freeze<br/>src/vcam/annotate.py"] --> BLK["Blackout fade"]
   BLK --> FINAL(["Final frame"])
-  FINAL --> SINK["FRAMECAST camera<br/>vcam/sink.py + softcam"]
+  FINAL --> SINK["FRAMECAST camera<br/>src/vcam/sink.py + softcam"]
   FINAL --> PW["Presentation window"]
   FINAL --> PV["Previews<br/>Studio · phone pad"]
   FINAL --> REC["Test recording"]
@@ -165,7 +165,7 @@ How a file or a live source becomes part of the picture.
 flowchart TD
   U["You add a file<br/>(+ Content → Image · Video · PowerPoint)"] --> UP["POST upload<br/>src/server.py"]
   UP --> CP["Copied into<br/>data folder\\layers"]
-  UP -- ".pptx / .ppt" --> PPT["Installed PowerPoint<br/>saves it as PDF<br/>vcam/powerpoint.py (3 min limit)"]
+  UP -- ".pptx / .ppt" --> PPT["Installed PowerPoint<br/>saves it as PDF<br/>src/vcam/powerpoint.py (3 min limit)"]
   PPT --> CP
   CP --> KIND{"Kind"}
   KIND -- "Image" --> IMG["Decoded once,<br/>scaled per change"]
@@ -174,7 +174,7 @@ flowchart TD
   LIVE["Live sources"] --> WIN["Window capture<br/>(WGC, keeps animations)"]
   LIVE --> SCR["Screen capture<br/>(DXGI, only on change)"]
   LIVE --> WEB["Webcam<br/>(Media Foundation)"]
-  IMG --> LM["LayerManager<br/>vcam/layers.py<br/>cached transforms, z-order,<br/>Show objects only (colour key)"]
+  IMG --> LM["LayerManager<br/>src/vcam/layers.py<br/>cached transforms, z-order,<br/>Show objects only (colour key)"]
   VID --> LM
   PDF --> LM
   WIN --> LM
@@ -203,10 +203,10 @@ flowchart LR
     T["Text · Timer · Lower third<br/>Prayer · Branding"]
     M["Image · Video · PowerPoint<br/>Window · Screen · Camera"]
   end
-  Q --> C1["Cards<br/>camera: vcam/cards.py<br/>pages: app/js/overlay.js"]
+  Q --> C1["Cards<br/>camera: src/vcam/cards.py<br/>pages: app/js/overlay.js"]
   S --> C1
-  T --> C2["Text layers<br/>camera: vcam/program.py<br/>pages: app/js/overlay.js"]
-  M --> C3["Media layers<br/>vcam/layers.py<br/>(camera picture only)"]
+  T --> C2["Text layers<br/>camera: src/vcam/program.py<br/>pages: app/js/overlay.js"]
+  M --> C3["Media layers<br/>src/vcam/layers.py<br/>(camera picture only)"]
   C1 --> OUT1["FRAMECAST camera ·<br/>Presentation window"]
   C2 --> OUT1
   C3 --> OUT1
@@ -296,7 +296,7 @@ window features use Windows' own functions through `src/desktop_win.py` (ctypes,
 | Desktop shell | `src/desktop_app.py` | WebView2 windows via pywebview (main, Teleprompter window, Teleprompter overlay, Spotlight, Presentation window), tray icon and menu, global shortcut, single instance |
 | Windows helpers | `src/desktop_win.py` | Win32 calls via ctypes: the ribbon (`Chrome`, `drag`), see-through glass and fade, capture exclusion, rounded corners, centring on the cursor, the global shortcut thread (`Hotkeys`). Safe no-ops off Windows |
 | Window ribbon | `app/js/window-chrome.js`, `app/css/window.css` | The one ribbon component: window buttons, drag, double-click, the minimize question |
-| Camera engine | `vcam/engine.py`, `compositor.py`, `layers.py`, `cards.py`, `overlay.py`, `program.py`, `annotate.py`, `blur.py`, `looks.py`, `picture.py`, `screen.py`, `devices.py`, `sink.py`, `powerpoint.py` | Capture, compose, draw cards and drawings, send to the FRAMECAST camera |
+| Camera engine | `src/vcam/engine.py`, `compositor.py`, `layers.py`, `cards.py`, `overlay.py`, `program.py`, `annotate.py`, `blur.py`, `looks.py`, `picture.py`, `screen.py`, `devices.py`, `sink.py`, `powerpoint.py` | Capture, compose, draw cards and drawings, send to the FRAMECAST camera |
 | Shared state (UI) | `app/js/store.js` | Normalizes state, Frames and Content model (`KCScenes`), sync loops |
 | Main window | `app/dashboard.html`, `app/js/workspace.js`, `frame-lists.js`, `dashboard.js`, `annotate.js`, `preview-edit.js`, `editable.js`, `palette.js`, `prompter-dock.js`, `studio.js`, … | Studio, Content Settings, lists, multi-select, annotation, inline and canvas editing, command palette (also used by Spotlight, `app/spotlight.html`), docked Teleprompter |
 | Phone remote | `app/remote.html`, `app/js/remote.js`, `app/css/remote.css` | Simple and Advanced profiles, drawing pad |

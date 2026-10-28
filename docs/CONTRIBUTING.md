@@ -97,11 +97,11 @@ Remote.bat`) run `src/server.py` the same way for people using the zip version. 
 | `app/js/*.js` | One feature per file (`annotate.js`, `preview-edit.js`, `speaker.js`, `remote.js`, `meeting-book.js` …). |
 | `app/css/theme.css` | Design tokens (colours, radii, type) and most component styles. |
 | `app/vendor/` | Third-party browser libraries (SheetJS for Excel). Don't edit; replace with a newer release. |
-| `vcam/` | The FRAMECAST camera pipeline: engine loop, webcam, blur, Camera Looks, layers, compositor, cards, annotation, PowerPoint, the DirectShow sink. |
+| `src/vcam/` | The FRAMECAST camera pipeline: engine loop, webcam, blur, Camera Looks, layers, compositor, cards, annotation, PowerPoint, the DirectShow sink. |
 | `packaging/` | PyInstaller spec (`framedecks.spec`), Inno Setup script (`installer.iss`), the self-check (`check.py`), version reader (`get_version.py`), camera build helper (`build_vcam.py`), desktop requirements. |
 | `tests/` | Automated tests (`*.test.js`) and the runner (`run.js`). |
 | `tools/` | Maintainer scripts: the Meeting Workbook generator, world map generator, iPad remote firewall helpers. |
-| `samples/` | Example member spreadsheets. |
+| `assets/samples/` | Example member spreadsheets. |
 | `docs/` | User, operations, architecture and development documentation. `docs/releases/` holds release notes. |
 | `.github/workflows/build-windows.yml` | Builds and publishes the Windows installer. |
 
@@ -141,15 +141,15 @@ The state is the single source of truth: never keep a second copy of meeting con
 2. Add the control in `app/js/workspace.js` (`textForm`, `mediaForm`, or the card panels in `dashboard.html`), in the
    right group: Label, Content, Display Settings (with Animation and Show on), Visual Settings or Media (`GROUPS`). Don't add a second control for
    something that already has one.
-3. Use the value where it is drawn: `app/js/overlay.js` for the overlay pages and preview, and `vcam/` for the
+3. Use the value where it is drawn: `app/js/overlay.js` for the overlay pages and preview, and `src/vcam/` for the
    FRAMECAST camera, so both outputs agree.
 4. Add a test in `tests/store.test.js` for the cleaning and the default.
 
 ### Add a Content type
 
 Content types are listed in `KIND_INFO` and the `CARD_KINDS` / `TEXT_KINDS` lists in `store.js`, added from the
-**+ Content** menu in `workspace.js` (`CONTENT_ADD` / `FREE_ADD`), and drawn by `overlay.js` and `vcam/`. Media types
-are composed by `vcam/layers.py`. Look at how an existing, similar type is handled in each of those places and follow
+**+ Content** menu in `workspace.js` (`CONTENT_ADD` / `FREE_ADD`), and drawn by `overlay.js` and `src/vcam/`. Media types
+are composed by `src/vcam/layers.py`. Look at how an existing, similar type is handled in each of those places and follow
 it; open an issue first so the design can be agreed.
 
 ### Add a page or script the app serves

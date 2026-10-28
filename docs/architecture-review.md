@@ -49,13 +49,13 @@ flowchart LR
 | Service plans and templates | Kept on the PC (`kc-saved-content.json`); synced as per-record text when linked; editable in part in the companion | `src/cloud_sync.py`, `0003`, `frame-edit.ts` |
 | Settings | Workspace-wide looks (theme, brand, layout, meeting) sync; PC settings (camera, windows) stay local | `src/sync_entities.py`, `src/server.py` `APP_SETTINGS_DEFAULTS` |
 | History / audit | 30-day record history with who and when (`entity_history`); 7-day command log (`remote_commands`) | `0003`, `0004` |
-| Media | Local only: images, video, PDF, PowerPoint in the PC's data folder; sync carries file names only | `vcam/layers.py`, `src/sync_entities.py` |
-| Rendering and camera | Local CPU pipeline (OpenCV/numpy), softcam virtual camera, native Share Window | `vcam/` |
+| Media | Local only: images, video, PDF, PowerPoint in the PC's data folder; sync carries file names only | `src/vcam/layers.py`, `src/sync_entities.py` |
+| Rendering and camera | Local CPU pipeline (OpenCV/numpy), softcam virtual camera, native Share Window | `src/vcam/` |
 | OBS | Browser-source overlay pages served by the PC (`focus-verse.html`, `discussion-question.html`, `birthday.html`, `stage.html`), and the virtual camera as an OBS video source | `app/*.html` |
-| Zoom / Teams / Meet | The FRAMECAST camera, and the Share Window for Share Screen; no meeting-app API | `vcam/sink.py`, `vcam/present_window.py` |
+| Zoom / Teams / Meet | The FRAMECAST camera, and the Share Window for Share Screen; no meeting-app API | `src/vcam/sink.py`, `src/vcam/present_window.py` |
 | Remote control | Wi-Fi phone remote (LAN, PIN); companion Live page (cloud commands); Stream Deck (local) | `remote.html`, `src/cloud_remote.py`, `streamdeck/` |
 | AI | **None** | — |
-| PPTX | Import (PowerPoint on the PC saves a PDF); Next/Previous in a running slide show. **No export** | `vcam/powerpoint.py` |
+| PPTX | Import (PowerPoint on the PC saves a PDF); Next/Previous in a running slide show. **No export** | `src/vcam/powerpoint.py` |
 
 **Verdict.** The repository already follows the target's main split: the cloud holds people, plans as text, roles and
 history; the PC holds media, rendering, the camera and meeting delivery, and keeps working offline. The gaps are member
@@ -82,7 +82,7 @@ security hardening items.
 | Desktop: Teams / Zoom integration | **Met** (camera + Share Window) | — | — |
 | Desktop: PPTX export | **Missing** | Plans cannot be exported as `.pptx` | Medium, UI; **[Decision] M-D4** |
 | Offline after sign-in | **Met**: presenting never depends on the cloud; sync queues changes | Templates "downloaded" = synced records already on the PC | — |
-| Open source, Apache 2.0 | **Missing**: private repository, no `legal/LICENSE` | Licence choice, third-party notices | **[Decision] M-D1** |
+| Open source, Apache 2.0 | **Missing**: private repository, no `docs/legal/LICENSE` | Licence choice, third-party notices | **[Decision] M-D1** |
 
 ## 3. Security review
 

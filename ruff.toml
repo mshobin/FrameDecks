@@ -1,2 +1,2 @@
-# Lets a plain `ruff check .` use the project rules; the rules themselves live in config/ruff.toml (CI passes it).
-extend = "config/ruff.toml"
+# Lets a plain `ruff check .` use the project rules; the rules themselves live in packaging/ruff.toml (CI passes it).
+extend = "packaging/ruff.toml"

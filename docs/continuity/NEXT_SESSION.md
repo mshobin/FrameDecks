@@ -8,8 +8,8 @@ green, including the Cloudflare Pages deploy (production); a look at the live si
 28 October, post-reorganization check of `main` (`c87d059`, v6.11.2): build, tests, installer, release job, Cloudflare
 deploy and every page passed; the program behaves identically to before the move and the website differs only in the
 version number. Two fixes followed: `LICENSE` copied back to the top level (the website footer's Licence link and
-GitHub's licence detection had broken when it moved to `legal/`; `tests/test_licence_copy.py` keeps both equal) and a
-top-level `ruff.toml` that extends `config/ruff.toml` (plain `ruff check .` had fallen back to default rules).
+GitHub's licence detection had broken when it moved to `docs/legal/`; `tests/test_licence_copy.py` keeps both equal) and a
+top-level `ruff.toml` that extends `packaging/ruff.toml` (plain `ruff check .` had fallen back to default rules).
 
 ## Where things stand (27 October)
 - **Repository cleanup (merged to `main`):** the orphaned `streamdeck/` bundle is gone;
@@ -19,11 +19,11 @@ top-level `ruff.toml` that extends `config/ruff.toml` (plain `ruff check .` had 
   (later the same day): Windows batch launchers were moved out of the root to `tools/launchers/` and resolve the repository
   root as their working directory. The continuity files now live in `docs/continuity/`; the root retains required top-level files and git dotfiles;
   ignored development data stays there as before. The 12 Python modules are in `src/` (`python src/server.py`;
-  `server.HERE` is still the repository root, so dev data stays where it was; `vcam/` stays at the root and `server.py`
-  puts the root on `sys.path`); `README`, `CONTRIBUTING`,
-  `SECURITY`, `SUPPORT`, `CODE_OF_CONDUCT` are in `.github/`; `LICENSE`, `NOTICE`, `THIRD_PARTY_NOTICES.md` in `legal/`
+  `server.HERE` is still the repository root, so dev data stays where it was;   the camera package is `src/vcam/` and `server.SRC` is its development path;
+    `config/`, `legal/`, `samples/` and `vcam/` left the root on 28 October, now `packaging/ruff.toml`, `docs/legal/`, `assets/samples/`, `src/vcam/`); `README`, `CONTRIBUTING`,
+  `SECURITY`, `SUPPORT`, `CODE_OF_CONDUCT` are in `.github/`; `LICENSE`, `NOTICE`, `THIRD_PARTY_NOTICES.md` in `docs/legal/`
   (the installer still bundles them at the app's top level); `CHANGELOG.md`, `ROADMAP.md` in `docs/`; `ruff.toml` in
-  `  config/` (`ruff check --config config/ruff.toml .`); the Mac launcher is also in `tools/launchers/`. **Not verified here:** a
+    `packaging/` (`ruff check --config packaging/ruff.toml .`); the Mac launcher is also in `tools/launchers/`. **Not verified here:** a
   real PyInstaller build and the installed exe (run the Build Windows installer workflow or `tools/launchers/build.bat` before tagging).
 - **Release:** **FrameDecks 6.11.1 is published** at `v6.11.1`; its build and publish workflow succeeded. The README
   and release body both show the refreshed FrameDecks wordmark (PR #38).
@@ -80,7 +80,7 @@ top-level `ruff.toml` that extends `config/ruff.toml` (plain `ruff check .` had 
   2. ESV key moved to Windows Credential Manager.
   3. Missing-media check: `/api/media/check` and Diagnostics.
   - `0007_data_api_grants.sql`: explicit grants for **Supabase's 30 October 2026 change**.
-  4. M-D1: Apache 2.0 `legal/LICENSE`, `legal/NOTICE`, `legal/THIRD_PARTY_NOTICES.md`; SignPath signing in the Windows build, off until
+  4. M-D1: Apache 2.0 `docs/legal/LICENSE`, `docs/legal/NOTICE`, `docs/legal/THIRD_PARTY_NOTICES.md`; SignPath signing in the Windows build, off until
      the secret exists.
   5. M-D2: the workspace is the member list's source.
      - The companion's Members page adds, edits and removes people.
@@ -222,7 +222,7 @@ go-ahead), the Wi-Fi remote redesign (protected), SignPath, public repo, real qu
 Owner: Test I in `docs/qa/live-test-guide.md` (and Test H step 6).
 27 October, the owner's landing brief: the name is **FrameDecks** in everything people read (a guarded replace;
 identifiers kept: `APP_NAME`, `FRAMEDECKS_*`, data folder, exe, the ping's `"app"`, `FIREWALL_RULE`, Credential
-Manager names, old camera names, `vcam/` comments; the legacy remote's files untouched). Front page rebuilt
+Manager names, old camera names, `src/vcam/` comments; the legacy remote's files untouched). Front page rebuilt
 (`landing.tsx`, `next-demo.tsx`, new `hosted/src/app/landing.css`): approved hero words verbatim, Day 1–4, Ready to
 Serve?, every audience, no OBS/Camo; motion back (`fd-enter`, `data-reveal`, `data-spotlight`, scroll-linked Studio
 settle) with no animated `filter` anywhere. Website says team, not church. About readable in Light (`light.css`).
@@ -285,7 +285,7 @@ continuity files in `docs/continuity/` in the same commit (owner's rule). Never 
 
 ## Old name removed (26 October, owner's request)
 - Every "Kingdom Connect" reference is now FrameDecks: docs, release notes, file names (`packaging/framedecks.ico`,
-  `samples/FRAMEDECKS-Members-*.xlsx`, `docs/design/framedecks-redesign.html`), the camera files
+  `assets/samples/FRAMEDECKS-Members-*.xlsx`, `docs/design/framedecks-redesign.html`), the camera files
   (`framedecks_vcam64/32.dll`, `register-/unregister-framedecks-camera.cmd`) and internal names.
 - The Excel Meeting Workbook's header said "KINGDOM CONNECT"; regenerated with `tools/make_meeting_workbook.py`.
 - The camera picker now recognises its own "FrameDecks" camera again (it looked for the old name).

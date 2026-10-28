@@ -5,7 +5,7 @@ Takes softcam (MIT licence, https://github.com/tshino/softcam, a fixed version) 
   - its unique Windows ID (CLSID):               our own, so it never clashes with other softcam apps
   - the names of the channel that carries frames: our own, for the same reason
 Usage:  python packaging/build_vcam.py <path to softcam source>
-The ID must match VCAM_CLSID in vcam/sink.py.
+The ID must match VCAM_CLSID in src/vcam/sink.py.
 """
 import re
 import sys

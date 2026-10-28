@@ -39,7 +39,7 @@ or a screenshot.
    any server. Do not add telemetry.
 5. **No surprise redesigns.** The visual design (colours, type, components, Book + Candle branding) is deliberate.
    Discuss visual changes in an issue before writing them.
-6. **Keep the installer working.** `app/`, `vcam/`, `src/server.py`, `src/desktop_app.py` and `packaging/` are bundled by
+6. **Keep the installer working.** `app/`, `src/vcam/`, `src/server.py`, `src/desktop_app.py` and `packaging/` are bundled by
    PyInstaller and Inno Setup. Moving or renaming files there needs matching changes in `packaging/`.
 
 ---
@@ -89,9 +89,9 @@ A change is ready to merge when:
 
 ## Licence
 
-FrameDecks is licensed under the [Apache License 2.0](../legal/LICENSE). By contributing, you agree that your contribution
+FrameDecks is licensed under the [Apache License 2.0](../docs/legal/LICENSE). By contributing, you agree that your contribution
 is licensed under the same terms (Apache 2.0, section 5). A new dependency or vendored file needs a compatible licence
-and a row in [THIRD_PARTY_NOTICES.md](../legal/THIRD_PARTY_NOTICES.md) in the same change.
+and a row in [THIRD_PARTY_NOTICES.md](../docs/legal/THIRD_PARTY_NOTICES.md) in the same change.
 
 ---
 

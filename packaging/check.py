@@ -27,7 +27,7 @@ with urllib.request.urlopen(req, timeout=10) as r:
     assert r.status == 200 and r.read(2) == b"PK", "meeting workbook export"
 ping = json.loads(urllib.request.urlopen(base + "api/app/ping").read())
 assert ping["app"] == "FRAMEDECKS"
-for name in ["app/js/overlay.js", "app/js/store.js", "app/fonts/EBGaramond.ttf", "app/vendor/xlsx.full.min.js", "src/desktop_app.py", "src/desktop_win.py", "src/supervisor.py", "src/ai.py", "src/pptx_export.py", "legal/LICENSE", "legal/NOTICE", "legal/THIRD_PARTY_NOTICES.md"]:
+for name in ["app/js/overlay.js", "app/js/store.js", "app/fonts/EBGaramond.ttf", "app/vendor/xlsx.full.min.js", "src/desktop_app.py", "src/desktop_win.py", "src/supervisor.py", "src/ai.py", "src/pptx_export.py", "docs/legal/LICENSE", "docs/legal/NOTICE", "docs/legal/THIRD_PARTY_NOTICES.md"]:
     assert (root / name).exists(), name
 # Audit M7: exactly one OpenCV distribution (two share the cv2 module and which one loads is undefined)
 from importlib import metadata as _md
@@ -37,13 +37,13 @@ assert len(_cv) <= 1, "more than one OpenCV is installed: " + ", ".join(_cv)
 import re as _re
 build_id = _re.search(r'CLSID = "([0-9A-F-]+)"', (root / "packaging" / "build_vcam.py").read_text()).group(1)
 from vcam.sink import VCAM_CLSID
-assert VCAM_CLSID == "{" + build_id + "}", "FrameDecks ID mismatch between vcam/sink.py and packaging/build_vcam.py"
+assert VCAM_CLSID == "{" + build_id + "}", "FrameDecks ID mismatch between src/vcam/sink.py and packaging/build_vcam.py"
 from vcam.sink import VCAM_NAME
 build_name = _re.search(r'NAME = "([^"]+)"', (root / "packaging" / "build_vcam.py").read_text()).group(1)
 assert VCAM_NAME == build_name == "FRAMECAST", "the camera must be called FRAMECAST"
-assert (root / "vcam" / "models" / "selfie_segmentation_landscape.tflite").exists(), "blur model missing"
+assert (root / "src" / "vcam" / "models" / "selfie_segmentation_landscape.tflite").exists(), "blur model missing"
 if os.name == "nt" and os.environ.get("GITHUB_ACTIONS") == "true":
-    missing = [f for f in ("framedecks_vcam64.dll", "framedecks_vcam32.dll", "build-info.json") if not (root / "vcam" / "bin" / f).exists()]
+    missing = [f for f in ("framedecks_vcam64.dll", "framedecks_vcam32.dll", "build-info.json") if not (root / "src" / "vcam" / "bin" / f).exists()]
     if missing:
         sys.exit("STOP: the FRAMECAST camera was not built (" + ", ".join(missing) + " missing).\n"
                  "The build recipe .github/workflows/build-windows.yml in your repository is out of date.\n"
@@ -51,7 +51,7 @@ if os.name == "nt" and os.environ.get("GITHUB_ACTIONS") == "true":
 try:
     import cv2
     from vcam.blur import BackgroundBlur
-    BackgroundBlur(root / "vcam" / "models" / "selfie_segmentation_landscape.tflite").close()
+    BackgroundBlur(root / "src" / "vcam" / "models" / "selfie_segmentation_landscape.tflite").close()
     from vcam.cards import CardDrawer, place_verse      # the cards drawn onto FrameDecks
     _st = {"layout": {}, "question": {"visible": True, "text": "Self-check question?", "label": "Discussion Question"}, "birthday": {}}
     _c = CardDrawer(root / "app" / "fonts").draw("verse", {"text": "Self-check verse", "ref": "John 1:1", "label": "Focus Verse"}, {}, 1280, 720, place_verse(_st, 1280, 720))

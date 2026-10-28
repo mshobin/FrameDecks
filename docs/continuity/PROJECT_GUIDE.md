@@ -13,7 +13,7 @@ Read this first, then [NEXT_SESSION.md](NEXT_SESSION.md).
   Meeting from Excel** (it leaves in 6.12, W3); and the website's colour palette in the dark theme (6.11, owner's
   request: the last block of `app/css/theme.css`, colours only; keep it equal to `hosted/src/app/globals.css` :root);
   and the virtual camera's name, **FRAMECAST** (owner's request, 26 October: `packaging/build_vcam.py` NAME,
-  `vcam/sink.py` VCAM_NAME, and the labels that name the camera; the program itself stays FrameDecks); and the Settings menu grouped (Your meeting, Presenting, Account,
+  `src/vcam/sink.py` VCAM_NAME, and the labels that name the camera; the program itself stays FrameDecks); and the Settings menu grouped (Your meeting, Presenting, Account,
   This PC, Help), each item with a one-line description, plus "Find a setting" (owner's request, 26 October); and design
   audit ranks 2–4 (owner's request, 26 October): the first-run dialog (Start fresh first, then a Getting started card),
   the Teleprompter's empty state, and the command bar's words (Transition label, Auto-advance, Live tools, Ready / Off air
@@ -81,17 +81,17 @@ Read this first, then [NEXT_SESSION.md](NEXT_SESSION.md).
 - Free plan (`docs/deployment/free-hosting.md`): `.github/workflows/db-keepalive.yml` (pings Supabase every 3 days) and
   `db-backup.yml` + `tools/db_backup.sh` (nightly, AES-256 encrypted with `BACKUP_PASSPHRASE`, 30 days; restore:
   `docs/operations/database-backup.md`). Both do nothing until their repository secrets exist.
-- Licence: Apache 2.0 (`legal/LICENSE`, `legal/NOTICE`; a copy of `LICENSE` stays at the top level for GitHub's licence
+- Licence: Apache 2.0 (`docs/legal/LICENSE`, `docs/legal/NOTICE`; a copy of `LICENSE` stays at the top level for GitHub's licence
   detection and the website footer link, and `tests/test_licence_copy.py` keeps the two identical); every shipped dependency or vendored file needs a row in
-  `legal/THIRD_PARTY_NOTICES.md`. Signing: SignPath, off until its secret exists (`docs/deployment/code-signing.md`).
+  `docs/legal/THIRD_PARTY_NOTICES.md`. Signing: SignPath, off until its secret exists (`docs/deployment/code-signing.md`).
 - Continuity: `docs/continuity/PROJECT_GUIDE.md`, `docs/continuity/PROJECT_STATUS.md`,
   `docs/continuity/PROJECT_ROADMAP.md`, `docs/continuity/NEXT_SESSION.md`. The owner's live tests:
   `docs/qa/live-test-guide.md` (keep it in step when a tested behaviour changes).
 - Current handoff (27 October 2026): v6.11.2 (repository layout + companion trust fixes, no desktop change; tag `v6.11.2`) follows v6.11.1 and the README/release wordmark refresh (PR #38). Trust
   fixes merged in PR #39 (`27cfb4b`); production deployment verification and the owner's live tests remain. See
   `docs/continuity/NEXT_SESSION.md`. Repository clean-up (merged): Python modules are in `src/`
-  (`python src/server.py`), `README`/`CONTRIBUTING`/`SECURITY`/`SUPPORT` in `.github/`, licences in `legal/`, `CHANGELOG`/`ROADMAP` in `docs/`,
-  `ruff.toml` in `config/` (a one-line top-level `ruff.toml` extends it, so plain `ruff check .` works); release notes before v6.8 live in
+  (`python src/server.py`), `README`/`CONTRIBUTING`/`SECURITY`/`SUPPORT` in `.github/`, licences in `docs/legal/`, the camera package in `src/vcam/`, the sample spreadsheets in `assets/samples/`, `CHANGELOG`/`ROADMAP` in `docs/`,
+  `ruff.toml` in `packaging/` (a one-line top-level `ruff.toml` extends it, so plain `ruff check .` works); release notes before v6.8 live in
   `docs/releases/archive/`; deployment docs in `docs/deployment/`; the backup runbook in `docs/operations/`.
 - Companion design (26 October redesign): tokens in `hosted/src/app/globals.css` `:root`, the look in
   `hosted/src/app/design.css` (glass surfaces, navy and gold, one large title per page). Signed out, `/` is the landing
@@ -169,7 +169,7 @@ Read this first, then [NEXT_SESSION.md](NEXT_SESSION.md).
 - Sync fixtures: `python tools/make_sync_fixtures.py` rebuilds `tests/fixtures/sync/` (needs Node) after changing
   `store.js` normalize or the record mapping; `tests/sync-fixtures.test.js` says when.
 - Docs: `python tools/check_doc_links.py`, `git diff --check`.
-- Lint: `ruff check .` or `ruff check --config config/ruff.toml .` (same rules; `config/ruff.toml`; CI pins ruff 0.16.8) and `node --check` on `app/js/*.js` (the Desktop checks
+- Lint: `ruff check .` or `ruff check --config packaging/ruff.toml .` (same rules; `packaging/ruff.toml`; CI pins ruff 0.16.8) and `node --check` on `app/js/*.js` (the Desktop checks
   workflow). Website budget: `node hosted/scripts/check-budget.mjs` after `npm run build`.
 - Actions (27 October): checkout v7, setup-python v7, setup-msbuild v3, download-artifact v8, action-gh-release v3; the
   last two run only in the release job, so watch the next tag's release job.

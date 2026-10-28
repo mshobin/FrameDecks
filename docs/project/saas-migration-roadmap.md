@@ -37,7 +37,7 @@ path.
 | HTTP service | `src/server.py` uses Python's threaded standard-library HTTP server. It binds to loopback by default; opt-in remote mode exposes a limited route allow-list on the LAN. |
 | User interface | Static HTML, CSS, and vanilla JavaScript in [app/](../../app/); no frontend package manifest, bundler, or framework. |
 | State and synchronization | In-memory server state persisted to JSON, revision-based conflict detection, atomic state replacement, long polling for the phone, and browser `localStorage`/`BroadcastChannel` in file mode. |
-| Media and live output | [vcam/](../../vcam) captures and composes camera, media, cards, and overlays for the virtual camera, presentation window, and previews. Several capabilities depend on Windows APIs, installed PowerPoint, or native libraries. |
+| Media and live output | [src/vcam/](../../src/vcam) captures and composes camera, media, cards, and overlays for the virtual camera, presentation window, and previews. Several capabilities depend on Windows APIs, installed PowerPoint, or native libraries. |
 | Other persistence | Private member/settings files, local backups, copied media, browser preferences, and optional scripture settings/cache. There is no database or account system. |
 | Release and tests | GitHub Actions builds the Windows installer and runs JavaScript and Python tests, packaging checks, and documentation checks. The repository does not currently have a Next.js build or browser end-to-end test suite. |
 

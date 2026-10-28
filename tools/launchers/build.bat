@@ -20,7 +20,7 @@ python -m pip install --upgrade pip >nul || goto :fail
 python -m pip install -r packaging\requirements-desktop.txt -c packaging\constraints.txt || goto :fail
 
 echo  [2b] FrameDecks camera...
-if exist "vcam\bin\framedecks_vcam64.dll" goto :vcamdone
+if exist "src\vcam\bin\framedecks_vcam64.dll" goto :vcamdone
 set "VSWHERE=%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe"
 if not exist "%VSWHERE%" goto :novcam
 for /f "usebackq delims=" %%m in (`"%VSWHERE%" -latest -requires Microsoft.Component.MSBuild -find MSBuild\**\Bin\MSBuild.exe`) do set "MSBUILD=%%m"
@@ -36,8 +36,8 @@ for /f %%h in ('git -C vcam_build\softcam rev-parse HEAD') do set "SOFTCAM=%%h"
 if not "%SOFTCAM%"=="afb424c2415b04da627fa1a7b4706575c2ba3010" (echo  softcam is not the reviewed v1.8.1 commit & goto :fail)
 "%MSBUILD%" vcam_build\softcam\softcam.sln /m /t:softcam /p:Configuration=Release /p:Platform=x64 || goto :fail
 "%MSBUILD%" vcam_build\softcam\softcam.sln /m /t:softcam /p:Configuration=Release /p:Platform=Win32 || goto :fail
-copy /y "vcam_build\softcam\x64\Release\softcam.dll" "vcam\bin\framedecks_vcam64.dll" >nul || goto :fail
-copy /y "vcam_build\softcam\Win32\Release\softcam.dll" "vcam\bin\framedecks_vcam32.dll" >nul || goto :fail
+copy /y "vcam_build\softcam\x64\Release\softcam.dll" "src\vcam\bin\framedecks_vcam64.dll" >nul || goto :fail
+copy /y "vcam_build\softcam\Win32\Release\softcam.dll" "src\vcam\bin\framedecks_vcam32.dll" >nul || goto :fail
 goto :vcamdone
 :novcam
 echo.

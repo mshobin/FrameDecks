@@ -29,10 +29,10 @@ jobs:
         with:
           node-version: 22
 
-      - name: Python lint (config/ruff.toml)
+      - name: Python lint (packaging/ruff.toml)
         run: |
           python -m pip install ruff==0.16.8
-          ruff check --config config/ruff.toml .
+          ruff check --config packaging/ruff.toml .
 
       - name: JavaScript syntax (app/js)
         run: for f in app/js/*.js; do node --check "$f"; done
