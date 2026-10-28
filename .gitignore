@@ -19,7 +19,6 @@ webview/
 *.xls
 *.csv
 !assets/samples/*.xlsx
-!docs/templates/*.xlsx
 !app/templates/*.xlsx
 # ---- Build output ----
 dist/
@@ -53,3 +52,6 @@ hosted/public/api/
 
 # visual checks: screenshots from tests/visual/layout.mjs --shots
 tests/visual/out/
+
+# Personal editor settings
+.vscode/

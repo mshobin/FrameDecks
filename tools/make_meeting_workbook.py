@@ -7,7 +7,7 @@ this meeting to Excel"). Dashboard: a summary of the form made only by formulas:
 quick links into the form, the content mix and a log of recent meetings. Nothing on the Dashboard is imported.
 
 Output: app/templates/FRAMEDECKS-Meeting-Workbook.xlsx (downloaded from the app: Meeting → Download the Excel
-template) and a copy in docs/templates/. The column names and allowed values must match app/js/meeting-book.js;
+template). The column names and allowed values must match app/js/meeting-book.js;
 tests/meeting-workbook.test.js checks that the template imports without errors.
 """
 import datetime
@@ -270,7 +270,7 @@ def dashboard(wb):
         ws.row_dimensions[r].height = h
 
     # header: logo, name, status
-    logo = ROOT / "assets" / "brand" / "kc-mark.png"
+    logo = ROOT / "assets" / "brand" / "framedecks-logo-icon.png"
     if logo.is_file():
         mark = PILImage.open(logo).convert("RGBA")
         mark.thumbnail((112, 112), PILImage.LANCZOS)        # 2x the 56 px it is shown at: sharp, and a few kilobytes
@@ -474,10 +474,7 @@ def main():
     out = ROOT / "app" / "templates" / "FRAMEDECKS-Meeting-Workbook.xlsx"
     out.parent.mkdir(parents=True, exist_ok=True)
     wb.save(out)
-    docs = ROOT / "docs" / "templates" / out.name
-    docs.parent.mkdir(parents=True, exist_ok=True)
-    docs.write_bytes(out.read_bytes())
-    print("Wrote", out, "and", docs)
+    print("Wrote", out)
 
 
 if __name__ == "__main__":

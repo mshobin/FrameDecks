@@ -19,7 +19,7 @@ a fresh copy.
 ### Where
 **Settings → Data / Backup → Meeting from Excel** (6.11; before that the ✨ Meeting menu) has these buttons. The website's Meeting Form
 ([meeting-form.md](../architecture/meeting-form.md)) plans the same meeting online.
-- **Download the Excel template**: `templates/FRAMEDECKS-Meeting-Workbook.xlsx`. It opens on the **Dashboard**,
+- **Download the Excel template**: `app/templates/FRAMEDECKS-Meeting-Workbook.xlsx`. It opens on the **Dashboard**,
   with an example meeting already filled in on the **Meeting Form**. Type over the examples.
 - **Import a meeting from Excel…**:
   1. A preview shows the meeting, the Frames, Content, questions and scriptures that will be made, and every problem
@@ -278,7 +278,7 @@ maths as `src/vcam/cards.py accent_palette`), `addBrand`, `autoBrand`. `KCStore.
 ## 3. Excel template structure
 
 The file is made by `KCMeetingSheet.templateBook`, which is the same code for the in-app download and
-`docs/templates/FRAMEDECKS-Meeting-Workbook.xlsx` (the same file as `app/templates/`, both written by `python3 tools/make_meeting_workbook.py`).
+`app/templates/FRAMEDECKS-Meeting-Workbook.xlsx` (written by `python3 tools/make_meeting_workbook.py`).
 
 **Sheets:**
 - **Read Me**: how to use the file, every column (needed or not, what to type, an example), the layer types, and

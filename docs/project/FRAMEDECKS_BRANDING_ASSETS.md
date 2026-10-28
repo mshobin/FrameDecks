@@ -9,7 +9,7 @@ dependencies.
 
 | Asset | Use | Action |
 |---|---|---|
-| `assets/brand/kc-mark.png` | Meeting Workbook header mark | Replaced with the new logo's icon crop; workbook layout and text remain unchanged. |
+| `assets/brand/framedecks-logo-icon.png` | Meeting Workbook header mark (was `kc-mark.png`, an identical copy, removed 28 October) | The new logo's icon crop; workbook layout and text remain unchanged. |
 | `assets/brand/kc-about-header.webp` | README and release-page marketing header | Regenerate from the updated About page with `python tools/make_readme_header.py`; that preserves the release version marker. |
 | `app/img/kc-emblem.webp` | Dashboard, phone remote, teleprompter, About page, and tray source family | Gold-only transparent 1024×1024 version of the new logo's icon crop, so it sits on the page background instead of showing a baked-in matte. Same placements and proportions. See "Transparent emblem" below. |
 | `hosted/public/framedecks-emblem.webp` | Hosted companion sidebar and welcome mark, favicon metadata | Identical copy of `app/img/kc-emblem.webp`. |
@@ -67,7 +67,7 @@ python tools/make_emblem_assets.py
 ```
 
 It writes `app/img/kc-emblem.webp` and `hosted/public/framedecks-emblem.webp` (identical, lossless 1024 RGBA), the
-`app/icons/` favicons and remote icons, the navy maskable icon, `packaging/framedecks.ico`, `kc-mark.png`,
+`app/icons/` favicons and remote icons, the navy maskable icon, `packaging/framedecks.ico`,
 `framedecks-logo-icon.png` (brand and hosted) and `hosted/src/app/icon.png`. Pillow only. If the SVG changes,
 re-render the PNG first (resvg at 1024 px width, transparent background).
 

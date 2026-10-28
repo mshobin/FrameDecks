@@ -40,7 +40,6 @@ def main():
 
     icon512 = resized(master, 512)
     icon512.save(brand / "framedecks-logo-icon.png", optimize=True)
-    icon512.save(brand / "kc-mark.png", optimize=True)
     icon512.save(hosted / "public/framedecks-logo-icon.png", optimize=True)
 
     for size in (180, 192, 512):
