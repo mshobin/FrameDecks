@@ -13,7 +13,7 @@ Rules (docs/design-system.md):
   own fallbacks because the legacy phone remote loads it without the palette;
 - no more !important than the recorded baseline.
 Not checked: the room-screen overlay (app/css/overlay.css), which is designed for the projector, and the legacy phone
-remote (app/css/remote.css), which PROJECT_GUIDE.md says not to touch.
+remote (app/css/remote.css), which docs/continuity/PROJECT_GUIDE.md says not to touch.
 """
 import re
 import sys

@@ -1,6 +1,6 @@
 @echo off
 title FrameDecks
-cd /d "%~dp0"
+cd /d "%~dp0..\.."
 echo.
 echo  Starting FrameDecks...
 echo.

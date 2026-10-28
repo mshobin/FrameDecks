@@ -71,7 +71,7 @@ checks. They are not current user-facing product titles.
 | `src/legacy.py` | Detects and migrates earlier data folders and filenames. |
 | `src/server.py` | Removes the old firewall rule; resolves the packaged camera DLL and legacy register/unregister helpers; includes the DLL name in troubleshooting details. |
 | `src/desktop_app.py` | Internal tray-icon identifier. |
-| `build.bat`, `.github/workflows/build-windows.yml` | Build and hash the existing camera DLL outputs. |
+| `tools/launchers/build.bat`, `.github/workflows/build-windows.yml` | Build and hash the existing camera DLL outputs. |
 | `vcam/bin/register-framedecks-camera.cmd`, `vcam/bin/unregister-framedecks-camera.cmd` | Camera DLL registration helper filenames and paths. |
 | `vcam/devices.py`, `vcam/sink.py` | Recognizes existing camera device names and loads the DLL using its established filename. |
 | `packaging/check.py`, `packaging/framedecks.spec` | Build checks and executable icon path. |

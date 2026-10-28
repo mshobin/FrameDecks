@@ -1,9 +1,9 @@
 # NEXT SESSION HANDOFF
 
-Updated 28 October 2026: the root maintainer guide is now `PROJECT_GUIDE.md`; current references were updated. Release `v6.11.2` (repository layout and trust fixes, no desktop change; pilot install on a real PC and SHA-256 check still the owner's) was tagged after `v6.11.1`, which is published; the FrameDecks README and release header refresh merged in
+Updated 28 October 2026: the maintainer guide is now [PROJECT_GUIDE.md](PROJECT_GUIDE.md); current references were updated. The continuity files now live in `docs/continuity/`. Windows batch launchers are under `tools/launchers/` and resolve the repository root before running. Release `v6.11.2` (repository layout and trust fixes, no desktop change; pilot install on a real PC and SHA-256 check still the owner's) was tagged after `v6.11.1`, which is published; the FrameDecks README and release header refresh merged in
 PR #38. Trust fixes merged in PR #39 (`27cfb4b`). Later the same day: the budget script fixed for Windows
 (`57cd9c3`), the five Dependabot action upgrades merged (#33–#37), and the handoff PR #40. All checks on `main` are
-green, including the Cloudflare Pages deploy (production); a look at the live site is still the owner's. Read [PROJECT_GUIDE.md](../PROJECT_GUIDE.md) ("Working locally" has the set-up and run commands).
+green, including the Cloudflare Pages deploy (production); a look at the live site is still the owner's. Read [PROJECT_GUIDE.md](PROJECT_GUIDE.md) ("Working locally" has the set-up and run commands).
 
 28 October, post-reorganization check of `main` (`c87d059`, v6.11.2): build, tests, installer, release job, Cloudflare
 deploy and every page passed; the program behaves identically to before the move and the website differs only in the
@@ -16,13 +16,15 @@ top-level `ruff.toml` that extends `config/ruff.toml` (plain `ruff check .` had 
   release notes v4.9–v6.7 moved to `docs/releases/archive/` (v6.8–v6.11.1 stay in `docs/releases/`);
   `DEPLOYMENT.md`, `ENVIRONMENT.md`, `free-hosting.md`, `code-signing.md` are in `docs/deployment/` and
   `database-backup.md` in `docs/operations/`. All references updated; doc links 97 files / 0 problems. Root clean-up
-  (later the same day): the root now holds only the `.bat` launchers, the four continuity files and git dotfiles. The 12
-  Python modules are in `src/` (`python src/server.py`; `server.HERE` is still the repository root, so dev data stays
-  where it was; `vcam/` stays at the root and `server.py` puts the root on `sys.path`); `README`, `CONTRIBUTING`,
+  (later the same day): Windows batch launchers were moved out of the root to `tools/launchers/` and resolve the repository
+  root as their working directory. The continuity files now live in `docs/continuity/`; the root retains required top-level files and git dotfiles;
+  ignored development data stays there as before. The 12 Python modules are in `src/` (`python src/server.py`;
+  `server.HERE` is still the repository root, so dev data stays where it was; `vcam/` stays at the root and `server.py`
+  puts the root on `sys.path`); `README`, `CONTRIBUTING`,
   `SECURITY`, `SUPPORT`, `CODE_OF_CONDUCT` are in `.github/`; `LICENSE`, `NOTICE`, `THIRD_PARTY_NOTICES.md` in `legal/`
   (the installer still bundles them at the app's top level); `CHANGELOG.md`, `ROADMAP.md` in `docs/`; `ruff.toml` in
-  `config/` (`ruff check --config config/ruff.toml .`); the Mac launcher in `tools/launchers/`. **Not verified here:** a
-  real PyInstaller build and the installed exe (run the Build Windows installer workflow or `build.bat` before tagging).
+  `  config/` (`ruff check --config config/ruff.toml .`); the Mac launcher is also in `tools/launchers/`. **Not verified here:** a
+  real PyInstaller build and the installed exe (run the Build Windows installer workflow or `tools/launchers/build.bat` before tagging).
 - **Release:** **FrameDecks 6.11.1 is published** at `v6.11.1`; its build and publish workflow succeeded. The README
   and release body both show the refreshed FrameDecks wordmark (PR #38).
 - **`main` since 6.11:** audit steps 1–2 (plan recovery, safe sync, support bundle, update notice, pinned build); the
@@ -67,13 +69,13 @@ top-level `ruff.toml` that extends `config/ruff.toml` (plain `ruff check .` had 
 
 ## Completed on PR #32 (merged 26 October)
 - **Audit:**
-  - [architecture audit](../docs/project/2026-10-25-architecture-audit.md);
+  - [architecture audit](../project/2026-10-25-architecture-audit.md);
   - its Phase 1, P1–P4: writing, sync, image memory and screen-capture copying per press;
   - C2: `src/supervisor.py`, a crash watchdog in the installed exe.
 - **Stream Deck plugin:** removed on 26 October at the owner's request (with `/api/command`).
 - **Target-architecture migration** (owner's brief):
-  - [review](../docs/architecture-review.md), [plan](../docs/migration-plan.md) (owner decisions M-D1–M-D6 in §8),
-    and [results](../docs/post-migration-report.md).
+  - [review](../architecture-review.md), [plan](../migration-plan.md) (owner decisions M-D1–M-D6 in §8),
+    and [results](../post-migration-report.md).
   1. `0006_audit_log.sql`: an audit log of people, roles, invitations and PCs.
   2. ESV key moved to Windows Credential Manager.
   3. Missing-media check: `/api/media/check` and Diagnostics.
@@ -85,13 +87,13 @@ top-level `ruff.toml` that extends `config/ruff.toml` (plain `ruff check .` had 
      - A linked PC rebuilds a lost member file from the workspace.
   6. M-D3: free AI with Ollama on the PC.
      - **Suggest** drafts discussion questions from a Frame's passage, and is hidden without Ollama.
-     - Code in `src/ai.py`; user guide [docs/ai.md](../docs/ai.md).
+     - Code in `src/ai.py`; user guide [docs/ai.md](../ai.md).
   7. M-D4: **Export this meeting to PowerPoint** (`src/pptx_export.py`) and **Audio** Content (`app/js/audio-player.js`).
   8. M-D6: `0008_member_groups.sql`; member groups on the companion's Members page only.
-  - M-D5: long-term hosting recommendation, [docs/architecture/hosting.md](../docs/architecture/hosting.md).
+  - M-D5: long-term hosting recommendation, [docs/architecture/hosting.md](../architecture/hosting.md).
 
 ## In progress: the free plan (owner's request, 26 October)
-Steps, in order, from [docs/deployment/free-hosting.md](../docs/deployment/free-hosting.md):
+Steps, in order, from [docs/deployment/free-hosting.md](../deployment/free-hosting.md):
 1. **Companion as static files**: **live on Cloudflare Pages** at `https://framedecks.pages.dev` (26 October; Supabase
    Redirect URL `https://framedecks.pages.dev/auth/callback` added). The PC's built-in companion address
    (`cloud_sync.COMPANION_URL`) now points there; the next installer uses it. The owner signed in there with an emailed link
@@ -113,7 +115,7 @@ Steps, in order, from [docs/deployment/free-hosting.md](../docs/deployment/free-
 work). `hosted/tsconfig.json` gained `allowImportingTsExtensions` so `src/lib/sync/legacy-6.9.mts` typechecks and
 builds. Next: the owner's Parts A, B, D and E.
 
-## In progress: 6.11 (owner's request, 26 October; design [meeting-form.md](../docs/architecture/meeting-form.md))
+## In progress: 6.11 (owner's request, 26 October; design [meeting-form.md](../architecture/meeting-form.md))
 Owner decisions: W1 the website form edits the live plan; W2 keep Excel import in 6.11 but only under the program's
 Settings; W3 6.12 removes Excel import, template and export (PowerPoint export stays).
 1. **Camera check and "Open FrameDecks on this PC"**: **built** (`hosted/src/lib/pc-setup.ts`,
@@ -154,19 +156,19 @@ the program's About page in the website's design, with the same words (brand.jso
 1. ~~Run the database scripts~~: **done** on 26 October (`0002`–`0008`, all passed).
 2. ~~Merge PR #32~~: **done**. Take the installer from the latest "Build Windows installer" run on `main` (Actions →
    Artifacts); if no run started after the merge, start one with **Run workflow**.
-3. **Live tests:** [docs/qa/live-test-guide.md](../docs/qa/live-test-guide.md), tests A–F:
+3. **Live tests:** [docs/qa/live-test-guide.md](../qa/live-test-guide.md), tests A–F:
    - A sync, B phone control, C editing, D history;
    - E members from the cloud and groups;
    - F PowerPoint export, Audio, Suggest.
 4. **Before using Audio Content:** update every linked PC. Older versions drop Audio Content and would sync the Frame
    without it.
-5. **M-D1 signing:** follow [docs/deployment/code-signing.md](../docs/deployment/code-signing.md):
+5. **M-D1 signing:** follow [docs/deployment/code-signing.md](../deployment/code-signing.md):
    - check the history, then make the repository public;
    - apply to SignPath Foundation;
    - add the `SIGNPATH_API_TOKEN` secret and the three `SIGNPATH_*` variables.
 6. **Later (owner's choice):**
    - Google/Microsoft sign-in with the invitation test;
-   - the move of the companion to Cloudflare before a public launch ([hosting.md](../docs/architecture/hosting.md));
+   - the move of the companion to Cloudflare before a public launch ([hosting.md](../architecture/hosting.md));
    - Supabase Pro once churches depend on it.
 
 ## Open work (needs a decision or a design first)
@@ -241,7 +243,7 @@ the PC's real width.
 ## Recommended Next Task
 Verify the production deployment for PR #39. Then, in order:
 1. **Owner's live tests** with the installed **6.11.1** release: A–I in
-   [docs/qa/live-test-guide.md](../docs/qa/live-test-guide.md) (H: Run, Practice and its reminder; I: the website's new
+   [docs/qa/live-test-guide.md](../qa/live-test-guide.md) (H: Run, Practice and its reminder; I: the website's new
    places and front page), plus the website settings (change Branding on the website, see it in the program within a
    minute). (`0009` is run.) Fix what they find; mark each test done in the four files.
 2. **Owner decisions still open:** the About story's wording (`app/js/brand.js`: mission, vision, story are the
@@ -260,10 +262,10 @@ Whatever the live tests find:
 - `hosted/src/components/*-panel.tsx`, `hosted/src/lib/*.ts`;
 - `hosted/supabase/migrations/`: a **new numbered** migration with its own grants and an undo script in
   `hosted/supabase/rollback/`; never an edited one;
-- the four continuity files.
+- the four continuity files in `docs/continuity/`.
 
 ## Session Handoff (VS Code on Windows)
-Setup and the full check list are in [PROJECT_GUIDE.md](../PROJECT_GUIDE.md) under "Working locally" and "Commands".
+Setup and the full check list are in [PROJECT_GUIDE.md](PROJECT_GUIDE.md) under "Working locally" and "Commands".
 
 Start by fetching and checking out the branch:
 - `git fetch origin`
@@ -271,7 +273,7 @@ Start by fetching and checking out the branch:
 - `git pull`
 
 Before and after every change, run all the checks in PROJECT_GUIDE.md. At the end of every step, update all four
-continuity files in the same commit (owner's rule). Never force-push.
+continuity files in `docs/continuity/` in the same commit (owner's rule). Never force-push.
 
 ## Three settings on the website (26 October, owner's request)
 - **Branding** page (Plan → Branding): Meeting Name, Leader or organization, accent colour, "New Frames include branding".
@@ -321,7 +323,7 @@ continuity files in the same commit (owner's rule). Never force-push.
   polled only while the Studio canvas is visible, and unchanged pictures answer 304.
 
 ## Production audit (26 October, read-only)
-- Report: [docs/project/2026-10-26-production-audit.md](../docs/project/2026-10-26-production-audit.md). No code changed.
+- Report: [docs/project/2026-10-26-production-audit.md](../project/2026-10-26-production-audit.md). No code changed.
 - Verdict: conditional GO for the supervised pilot; NO-GO for a public release until H1 (plan-file recovery and sync
   mass-delete guard), H2 (signing) and H3 (pin build inputs by SHA) are done and live tests A–G pass.
 - Nothing from it is implemented yet: each fix waits for the owner's approval (SAFE items first, then H1 as 6.11.1).

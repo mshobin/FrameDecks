@@ -163,7 +163,7 @@ Edit files inside your repository folder (the one GitHub Desktop is tracking). F
 
 Use a plain text editor such as Notepad or VS Code (free). Keep the quote marks, commas and brackets as they are.
 
-**Quick test before building:** double-click `Start FrameDecks.bat` in the same folder. It runs your changed version in the browser straight away. It uses its own separate data, so it never touches the installed app's data.
+**Quick test before building:** double-click `tools/launchers/Start FrameDecks.bat` from the repository. It runs your changed version in the browser straight away. It uses its own separate data, so it never touches the installed app's data.
 
 ### 2. Raise the version number
 
@@ -219,7 +219,7 @@ It asks whether to delete your data as well. The default is **No**, which keeps 
 ## Building on your own PC instead (optional)
 
 If you'd rather not use GitHub: install **Python 3.12** (python.org, tick "Add Python to PATH") and
-**Inno Setup 6** (jrsoftware.org/isdl.php), then double-click **build.bat** in the folder.
+**Inno Setup 6** (jrsoftware.org/isdl.php), then double-click **tools/launchers/build.bat** in the repository.
 The installer appears in the `dist` folder.
 
 ## If something goes wrong

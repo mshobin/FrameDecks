@@ -141,7 +141,7 @@ Zoom mirrors **your own** preview only. Participants see the text the right way 
 | --- | --- |
 | The remote is off | **Settings → Phone & iPad Remote** → turn it on |
 | Phone and PC on different networks | Put both on the same Wi-Fi. Guest networks and mobile data won't work |
-| Windows Firewall blocks it | Run **Allow iPad Remote - run once.bat** (in the FrameDecks folder) once, or allow the app for **Private networks** |
+| Windows Firewall blocks it | Run `tools/launchers/Allow iPad Remote - run once.bat` once, or allow the app for **Private networks** |
 | Windows treats the Wi-Fi as **Public** | Windows Settings → Network & internet → your network → **Private** |
 | The PC's address changed (new Wi-Fi, restarted router) | Scan the QR code in Settings again |
 

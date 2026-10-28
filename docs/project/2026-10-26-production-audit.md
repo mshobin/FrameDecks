@@ -160,7 +160,7 @@ The main risks are about **reliability and release trust**, not about breaking i
 | L2 | State writes skip fsync (atomic `os.replace` without flush) | `src/server.py` `_write_state_file` | Add `flush` and `os.fsync` before the replace, or rely on H1's recovery. | None | SAFE |
 | L3 | Python dependencies are not hash-pinned | `packaging/constraints.txt` | `pip install --require-hashes` with a hashed lock file. | Low | SAFE |
 | L4 | Upgrade-only legacy code (old names, folders and firewall rules) | `src/legacy.py`, `installer.iss`, `src/server.py` `OLD_FIREWALL_RULES` | Keep it for two more releases, then remove it with a release note. | Low | REVIEW |
-| L5 | Zip-era helper scripts in the repository root | `Allow iPad Remote - run once.bat`, `Start FrameDecks*.bat/.command`, `Undo iPad Remote permission.bat` | Confirm they are still needed; otherwise move them to `tools/legacy/`. | Low | REVIEW |
+| L5 | Zip-era helper scripts in the repository root | `Allow iPad Remote - run once.bat`, `Start FrameDecks*.bat`, `Undo iPad Remote permission.bat` | Resolved: Windows batch launchers moved to `tools/launchers/`; the Mac launcher is also kept there. | Low | DONE |
 | L6 | Very large single files | `src/server.py` (2,552 lines), `app/js/workspace.js`, `app/js` (33k lines) | Split by area (HTTP routes, camera, remote, sync glue) in a separate refactor release with no behaviour change. | Medium | HIGH RISK (refactor) |
 | L7 | The phone and overlay pages announce their presence every 4 s | `app/js/store.js` `presence` | Fine at small scale; could become 10 s. | Low | REVIEW |
 | L8 | GitHub warns that Node 20 actions are deprecated | build logs | Update the action versions (with H3 pinning). | Low | SAFE |
@@ -197,7 +197,7 @@ These involve no expected change to the UI or to behaviour:
 
 | Finding | Where | Shipped to users? | Recommendation |
 |---|---|---|---|
-| AI-assistant guide and handoff files | `CLAUDE.md`, `.ai/NEXT_SESSION.md`, `PROJECT_STATUS.md`/`PROJECT_ROADMAP.md` (continuity) | No (not in the installer or the website build) | Keep them for development. Before making the repository public (E1), decide whether to keep them or move them to a private repository. |
+| Project guide and continuity files | `docs/continuity/PROJECT_GUIDE.md`, `docs/continuity/NEXT_SESSION.md`, `docs/continuity/PROJECT_STATUS.md`, `docs/continuity/PROJECT_ROADMAP.md` | No (not in the installer or the website build) | Keep them for development. Before making the repository public (E1), decide whether to keep them or move them to a private repository. |
 | Commit trailers naming an AI model and linking to private sessions | 128 commits carry `Co-Authored-By: Claude …` and `Claude-Session: https://claude.ai/code/…` | Only in git history | History cannot be rewritten (owner's rule). Accept it, or publish a squashed public mirror. |
 | Automation branch names | `claude/…` branches; `docs/development/branching.md` | No | Delete merged branches. |
 | AI reference in a code docstring | `src/sync_entities.py` line 4 ("branch claude/saas-phase2") | Inside the Python bundle (a comment) | Reword the docstring to "Phase 2 branch" (SAFE, comment only). |
@@ -264,7 +264,7 @@ None of these needs a UI or workflow change except the optional update notice.
 | Finding | Evidence |
 |---|---|
 | H1 plan loss through sync | `server.load_state` recovery and `PLAN_RECOVERY`; `Service.adopt_workspace`; `MASS_DELETE_FRAMES` guard; 7 new tests |
-| H3 build supply chain | 0 unpinned `uses:`; softcam commit checked in CI and `build.bat`; `contents: read` by default, `write` only in the `release` job; Dependabot active |
+| H3 build supply chain | 0 unpinned `uses:`; softcam commit checked in CI and `tools/launchers/build.bat`; `contents: read` by default, `write` only in the `release` job; Dependabot active |
 | M1 framing | `X-Frame-Options: DENY`, `frame-ancestors 'none'`, Permissions-Policy in `_headers` |
 | M3 cross-site calls | `cross_site_api` on GET and POST; `tests/test_local_guard.py` |
 | M8 swallowed errors | 0 silent `except Exception: pass` left (the one in `src/errlog.py` is the logger's own safety net) |

@@ -5,7 +5,7 @@ REM  Builds FrameDecks v<version>.exe on THIS PC.
 REM  (The usual way is GitHub Actions - see docs/development/building-the-installer.md.)
 REM  Needs: Python 3.10 or newer, and Inno Setup 6 (free, jrsoftware.org).
 REM ------------------------------------------------------------------
-cd /d "%~dp0"
+cd /d "%~dp0..\.."
 
 set "PY=python"
 where py >nul 2>nul && set "PY=py -3"
@@ -69,7 +69,7 @@ exit /b 0
 :noinno
 echo.
 echo  Inno Setup 6 was not found. Install it (free) from https://jrsoftware.org/isdl.php
-echo  or run:  winget install JRSoftware.InnoSetup   then run build.bat again.
+echo  or run:  winget install JRSoftware.InnoSetup   then run tools\launchers\build.bat again.
 echo  (The app itself was built in: dist\FRAMEDECKS)
 echo.
 pause

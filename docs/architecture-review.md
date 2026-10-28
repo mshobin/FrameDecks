@@ -193,11 +193,11 @@ The items below **need visible UI** and so need explicit owner approval, documen
 | AI features | Wherever the chosen feature lives | One button, hidden without a provider |
 | Members cloud-only (M-D2 option B) | Desktop Members screen would need a sign-in state | Larger; not recommended |
 
-Desktop UI remains frozen by rule (`PROJECT_GUIDE.md`). None of the above is built without the owner's yes.
+Desktop UI remains frozen by rule (`continuity/PROJECT_GUIDE.md`). None of the above is built without the owner's yes.
 
 ## 9. Technical debt review
 
-From [PROJECT_STATUS.md](../PROJECT_STATUS.md), the audit, and this review:
+From [PROJECT_STATUS.md](continuity/PROJECT_STATUS.md), the audit, and this review:
 
 | Debt | Risk | Plan |
 |---|---|---|
@@ -209,7 +209,7 @@ From [PROJECT_STATUS.md](../PROJECT_STATUS.md), the audit, and this review:
 | `pystray` is LGPL-3.0 | Low | Compatible with Apache 2.0 distribution if listed in third-party notices and kept replaceable (it is a separate package in the bundle) |
 | Vercel Hobby plan terms (personal, non-commercial) | Medium for a ministry product | M-D5: confirm the plan, or move the companion to a free tier that allows organizations, or self-host (Next.js and Supabase are both self-hostable) |
 | ESV key in plain text | Low | Credential Manager |
-| `npm audit` dev-only findings; raster wordmark | Low | Unchanged (see PROJECT_STATUS.md) |
+| `npm audit` dev-only findings; raster wordmark | Low | Unchanged (see continuity/PROJECT_STATUS.md) |
 
 **Licences of what ships**:
 

@@ -4,7 +4,7 @@ An audit of FrameDecks as a SaaS virtual-camera presentation product: desktop pr
 companion (web), phone control, and the cloud between them. It covers architecture, performance, resource use,
 reliability, security, scalability and polish. **It proposes no change to the UI, visual design, layout, navigation,
 branding or workflow.** Where a recommendation would need any visible change it is marked *optional future
-enhancement* and needs the owner's approval, as the repository rules require (`PROJECT_GUIDE.md`).
+enhancement* and needs the owner's approval, as the repository rules require (`continuity/PROJECT_GUIDE.md`).
 
 **Who this is for:** the owner and maintainers deciding what to do next.
 

@@ -143,7 +143,7 @@ The icon opens the remote directly. You still need to be on the same Wi-Fi as th
 | --- | --- |
 | The remote is off | **Settings → Phone & iPad Remote** → turn it on |
 | The phone is on a different network (mobile data, guest Wi-Fi) | Join the same Wi-Fi as the PC. Guest networks often block devices from seeing each other |
-| Windows Firewall blocks it | On the PC, run **Allow iPad Remote - run once.bat** (in the FrameDecks folder) once, or allow the app for **Private networks** |
+| Windows Firewall blocks it | On the PC, run `tools/launchers/Allow iPad Remote - run once.bat` once, or allow the app for **Private networks** |
 | The network is set to **Public** in Windows | Settings → Network & internet → your Wi-Fi → **Private network** |
 | Wrong PIN too many times | Wait 60 seconds, then try again |
 | The PC's address changed | Scan the QR code in Settings again |

@@ -6,8 +6,8 @@ Serves the dashboard and overlays at http://localhost:8750 on THIS computer only
 No internet, cloud account, or extra installs are needed beyond Python 3
 (standard library only). Your content is saved in "kc-saved-content.json".
 
-Windows: double-click "Start FrameDecks.bat"
-         or "Start FrameDecks with Phone Remote.bat" (adds the phone remote)
+Windows: double-click "tools/launchers/Start FrameDecks.bat"
+         or "tools/launchers/Start FrameDecks with Phone Remote.bat" (adds the phone remote)
 Mac:     double-click "tools/launchers/Start FrameDecks (Mac).command"
          (for the phone remote: python3 src/server.py --remote)
 """
@@ -2645,7 +2645,7 @@ def main():
         print("  If Windows asks about network access, allow it on PRIVATE networks only.")
         print("  When the phone or iPad connects, a line saying \"Connection from ...\" appears below.")
         print("  If nothing appears when the phone or iPad tries, the connection is being blocked")
-        print("  before it reaches this PC: run \"Allow iPad Remote - run once.bat\".")
+        print("  before it reaches this PC: run \"tools\\launchers\\Allow iPad Remote - run once.bat\".")
     else:
         print()
         print("  Phone remote: off. Turn it on any time in Settings > Phone & iPad Remote.")

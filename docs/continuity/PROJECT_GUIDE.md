@@ -1,6 +1,6 @@
 # FrameDecks — project and maintainer guide
 
-Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
+Read this first, then [NEXT_SESSION.md](NEXT_SESSION.md).
 
 ## Non-negotiable rules
 - The desktop UI, branding and functions must NOT change. The work is a stack migration to SaaS + PWA only.
@@ -60,7 +60,7 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
   `0003` sync, `0004` remote control, `0005` the Live page's PC list, `0006` the audit log, `0007` explicit API grants, `0008` member groups, `0009` last-seen throttle (6.11.1). `0001`–`0008` were run in the live project on 26 October 2026 and `0009` on
   27 October: never edit one (not even a comment), add the next number.
   Each new one gets an undo script in `hosted/supabase/rollback/` (`NNNN_<name>_down.sql`).
-- `tools/` — generators and checks (`make_emblem_assets.py`, `check_doc_links.py`, `generate_brand_assets.py`).
+- `tools/` — generators and checks (`make_emblem_assets.py`, `check_doc_links.py`, `generate_brand_assets.py`); `tools/launchers/` holds the Windows batch launchers and the Mac `.command` launcher. The Windows scripts resolve the repository root themselves, so they can be double-clicked from that folder.
 - `docs/FRAMEDECKS_MODERNIZATION_STATUS.md` — the detailed phase tracker; `docs/architecture/metadata-sync.md` — the
   agreed sync design and its delivery steps; `docs/architecture/remote-control.md` — the agreed Phase 5 design
   (controlling a service from the companion; R1–R5 as recommended) and its four delivery steps;
@@ -84,11 +84,12 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
 - Licence: Apache 2.0 (`legal/LICENSE`, `legal/NOTICE`; a copy of `LICENSE` stays at the top level for GitHub's licence
   detection and the website footer link, and `tests/test_licence_copy.py` keeps the two identical); every shipped dependency or vendored file needs a row in
   `legal/THIRD_PARTY_NOTICES.md`. Signing: SignPath, off until its secret exists (`docs/deployment/code-signing.md`).
-- Continuity: `PROJECT_GUIDE.md`, `PROJECT_STATUS.md`, `PROJECT_ROADMAP.md`, `.ai/NEXT_SESSION.md`. The owner's live tests:
+- Continuity: `docs/continuity/PROJECT_GUIDE.md`, `docs/continuity/PROJECT_STATUS.md`,
+  `docs/continuity/PROJECT_ROADMAP.md`, `docs/continuity/NEXT_SESSION.md`. The owner's live tests:
   `docs/qa/live-test-guide.md` (keep it in step when a tested behaviour changes).
 - Current handoff (27 October 2026): v6.11.2 (repository layout + companion trust fixes, no desktop change; tag `v6.11.2`) follows v6.11.1 and the README/release wordmark refresh (PR #38). Trust
   fixes merged in PR #39 (`27cfb4b`); production deployment verification and the owner's live tests remain. See
-  `.ai/NEXT_SESSION.md`. Repository clean-up (merged): Python modules are in `src/`
+  `docs/continuity/NEXT_SESSION.md`. Repository clean-up (merged): Python modules are in `src/`
   (`python src/server.py`), `README`/`CONTRIBUTING`/`SECURITY`/`SUPPORT` in `.github/`, licences in `legal/`, `CHANGELOG`/`ROADMAP` in `docs/`,
   `ruff.toml` in `config/` (a one-line top-level `ruff.toml` extends it, so plain `ruff check .` works); release notes before v6.8 live in
   `docs/releases/archive/`; deployment docs in `docs/deployment/`; the backup runbook in `docs/operations/`.
@@ -132,6 +133,7 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
   - `python src/desktop_app.py` (the real window).
   - `python src/server.py`, then open http://127.0.0.1:8750/dashboard.html in a browser; add `?audio=1` to let a browser
     tab play Audio Content.
+  - Or double-click `tools\launchers\Start FRAMEDECKS.bat`; use `tools\launchers\Start FRAMEDECKS with Phone Remote.bat` to enable the legacy phone remote.
   - Data lives in `%APPDATA%\FRAMEDECKS`. Set `KC_DATA_DIR` to a scratch folder for experiments.
 - **Companion:**
   - `cd hosted; npm run dev`.
@@ -149,7 +151,9 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
   - Supabase itself.
 
 ## Keeping the handoff current (owner's rule)
-- Update all four continuity files (`PROJECT_GUIDE.md`, `PROJECT_STATUS.md`, `PROJECT_ROADMAP.md`, `.ai/NEXT_SESSION.md`)
+- Update all four continuity files (`docs/continuity/PROJECT_GUIDE.md`,
+  `docs/continuity/PROJECT_STATUS.md`, `docs/continuity/PROJECT_ROADMAP.md`,
+  `docs/continuity/NEXT_SESSION.md`)
   at the end of **every** step, in the same PR as the work: what is done, what is live, what the owner must do next.
 - In long steps, push work in progress with the four files describing the partial state, so a session cut off by a
   usage limit still leaves a correct handoff.
@@ -161,6 +165,7 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
 - Hosted (run inside `hosted/`, there is no root package.json): `npm test` [124/124], `npm run lint`, `npm run typecheck`, `npm run build`.
   `npm test` applies every migration to in-memory Postgres (PGlite) and loads `src/lib/sync-entities.ts` with Node's
   type stripping.
+- Optional local Windows installer build: `tools\launchers\build.bat`.
 - Sync fixtures: `python tools/make_sync_fixtures.py` rebuilds `tests/fixtures/sync/` (needs Node) after changing
   `store.js` normalize or the record mapping; `tests/sync-fixtures.test.js` says when.
 - Docs: `python tools/check_doc_links.py`, `git diff --check`.
@@ -168,7 +173,7 @@ Read this first, then [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md).
   workflow). Website budget: `node hosted/scripts/check-budget.mjs` after `npm run build`.
 - Actions (27 October): checkout v7, setup-python v7, setup-msbuild v3, download-artifact v8, action-gh-release v3; the
   last two run only in the release job, so watch the next tag's release job.
-- Releases: [docs/development/release-checklist.md](docs/development/release-checklist.md) (pilot first; rollback). Publish by
+- Releases: [release-checklist.md](../development/release-checklist.md) (pilot first; rollback). Publish by
   pushing a tag `vX.Y.Z` on `main`: "Build Windows installer" builds, smoke-tests and publishes `FrameDecks vX.Y.Z.exe` with
   `docs/releases/vX.Y.Z.md` as the notes (`tools/make_release_notes.py`). Cloud sessions cannot push tags: tag locally.
 

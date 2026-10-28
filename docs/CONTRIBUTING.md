@@ -74,8 +74,9 @@ To run the desktop shell (the installed app's window, tray icon and Presentation
 python src/desktop_app.py
 ```
 
-The Windows start files in the repository root (`Start FrameDecks.bat`, `Start FrameDecks with Phone
-Remote.bat`, `Start FrameDecks (Mac).command`) run `src/server.py` the same way for people using the zip version.
+The Windows start files in `tools/launchers/` (`Start FrameDecks.bat` and `Start FrameDecks with Phone
+Remote.bat`) run `src/server.py` the same way for people using the zip version. The Mac launcher is also in
+`tools/launchers/`.
 
 ---
 
@@ -195,4 +196,4 @@ failure. `tests/helpers/load-store.js` loads `app/js/store.js` with small browse
 You don't need to build locally. Push to `main`, push a version tag, or run **Build Windows installer** from the
 Actions tab on your branch; the workflow builds the camera, runs the self-check and tests, packages the app and
 attaches **FrameDecks v&lt;version&gt;.exe** (with a `.sha256` file) to the run. Full details, including a
-local build with `build.bat`, are in [docs/development/building-the-installer.md](development/building-the-installer.md).
+local build with `tools/launchers/build.bat`, are in [docs/development/building-the-installer.md](development/building-the-installer.md).

@@ -7,18 +7,18 @@ Since then: the budget script works on Windows (`57cd9c3`), five GitHub Action u
 used only for releases first run at the next tag), handoff PR #40 merged; every check on `main` is green, including the
 Cloudflare Pages production deploy. Owner live tests remain. The live database has every script, `0001`–`0009`
 (`0009` run by the owner on 27 October).
-- **Repository clean-up (merged):** Python modules in `src/` (`python src/server.py`), community docs in `.github/`, licences in `legal/`, `CHANGELOG`/`ROADMAP` in `docs/`, `ruff.toml` in `config/`; old release notes in `docs/releases/archive/`; deployment and operations docs under `docs/deployment/` and `docs/operations/`. The root maintainer guide is now `PROJECT_GUIDE.md`; active references updated. Checks unchanged (Python baseline, hosted 127/127, build, ruff 0.16.8); a PyInstaller build from the new layout built and answered `/api/app/ping`.
+- **Repository clean-up (merged):** Python modules in `src/` (`python src/server.py`), community docs in `.github/`, licences in `legal/`, `CHANGELOG`/`ROADMAP` in `docs/`, `ruff.toml` in `config/`; old release notes in `docs/releases/archive/`; deployment and operations docs under `docs/deployment/` and `docs/operations/`. The root maintainer guide is now `PROJECT_GUIDE.md`; active references updated. Windows batch launchers are in `tools/launchers/` and resolve the repository root at startup. Checks unchanged (Python baseline, hosted 127/127, build, ruff 0.16.8); a PyInstaller build from the new layout built and answered `/api/app/ping`.
 - **GitHub:** Desktop checks, Hosted companion checks and Build Windows installer (with the installer smoke test) green.
 - **Trust-fix PR #39 checks:** hosted tests 127/127, lint, typecheck, build; manual budget 330 KB JS / 70 KB largest /
   18 KB CSS; desktop JS 4/4; README fact tests 2/2; CSS tokens 14 files / 0 problems; doc links 97 files / 0 problems;
   packaging self-check passed. The full Python suite had 4 errors from missing `cv2` (165 run, 3 skipped): a local
   set-up gap, fixed by `pip install -r packaging/requirements-desktop.txt -c packaging/constraints.txt` in `.venv`.
   The budget script now works on Windows too (`57cd9c3`, `fileURLToPath`).
-- **Next:** the owner's live tests A–I on 6.11.1 (`docs/qa/live-test-guide.md`); see `.ai/NEXT_SESSION.md`.
+- **Next:** the owner's live tests A–I on 6.11.1 (`docs/qa/live-test-guide.md`); see `docs/continuity/NEXT_SESSION.md`.
 
 Phase detail lives in
-[docs/FRAMEDECKS_MODERNIZATION_STATUS.md](docs/FRAMEDECKS_MODERNIZATION_STATUS.md); migration results in
-[docs/post-migration-report.md](docs/post-migration-report.md).
+[FRAMEDECKS_MODERNIZATION_STATUS.md](../FRAMEDECKS_MODERNIZATION_STATUS.md); migration results in
+[post-migration-report.md](../post-migration-report.md).
 
 ## Completed
 - **Desktop and brand.** Desktop 6.10 and the approved emblem (PRs #7, #18); drift resolved (see "Drift").
@@ -29,11 +29,11 @@ Phase detail lives in
   history** (PRs #28–#30), and the live test guide (PR #31). All built and tested against stand-ins; the owner's live
   tests are pending.
 - **PR #32 (merged 26 October):**
-  - **Audit:** [architecture audit](docs/project/2026-10-25-architecture-audit.md). Its Phase 1 (P1–P4) and the C2
+  - **Audit:** [architecture audit](../project/2026-10-25-architecture-audit.md). Its Phase 1 (P1–P4) and the C2
     crash watchdog (`src/supervisor.py`) are built.
   - Stream Deck plugin (later removed, 26 October, owner's request).
-  - **Target-architecture migration:** the [review](docs/architecture-review.md),
-    [plan](docs/migration-plan.md) and [report](docs/post-migration-report.md).
+  - **Target-architecture migration:** the [review](../architecture-review.md),
+    [plan](../migration-plan.md) and [report](../post-migration-report.md).
     1. Audit log `0006`.
     2. ESV key in Credential Manager.
     3. Missing-media check.
@@ -43,11 +43,11 @@ Phase detail lives in
     6. Free AI with Ollama ("Suggest" questions).
     7. PowerPoint export and Audio Content.
     8. Member groups `0008`.
-    - M-D5 hosting recommendation ([hosting.md](docs/architecture/hosting.md)).
+    - M-D5 hosting recommendation ([hosting.md](../architecture/hosting.md)).
 - **PR #38 (merged 27 October):** refreshed the README and release header to use the FrameDecks wordmark.
 
 ## In Progress
-- **6.11** ([meeting-form.md](docs/architecture/meeting-form.md)): built: camera check card and `framedecks://` link; website Meeting Form (`/meeting`);
+- **6.11** ([meeting-form.md](../architecture/meeting-form.md)): built: camera check card and `framedecks://` link; website Meeting Form (`/meeting`);
   Excel moved into Settings → Data / Backup; version 6.11. Owner: live test G; then 6.12 removes Excel (W3).
 - **Website polish (26 October):** redesign, motion and About; owners delete workspaces; Branding page, Transition style on
   the Meeting Form, Birthdays this week on the dashboard (synced `brand`, `layout/profile` and member records).
@@ -97,18 +97,18 @@ Phase detail lives in
 - **First-install fixes (26 October):** website "Forbidden" (request identity), Teleprompter unpin freeze, grouped Settings menu; on `main`, not yet in a release.
 - **FRAMECAST (26 October):** the virtual camera's new name; v6.11 release published with the installer (the
   first tag build failed on the release-notes step, now fixed).
-- **Free plan** ([free-hosting.md](docs/deployment/free-hosting.md)): steps 1–4 are on `main` (26 October):
+- **Free plan** ([free-hosting.md](../deployment/free-hosting.md)): steps 1–4 are on `main` (26 October):
   (companion builds as static files; `/api/sync-config` written at build time) and step 2 (keep-alive every 3 days,
-  encrypted nightly backup, [restore guide](docs/operations/database-backup.md)). Step 3 done (idle
+  encrypted nightly backup, [restore guide](../operations/database-backup.md)). Step 3 done (idle
   phone-control polling 5 → 15 s). Step 4 code done (Google/Microsoft
   above the email link). Companion live at `https://framedecks.pages.dev` (the PC now links through it; owner signed in there, 26 October). Part B live (keep-alive and nightly backup green, 26 October). Part D live: Google and Microsoft sign-in work (26 October; Google brand verification pending; Brevo skipped). Owner setup: finish Part A (test, then retire Vercel); Part E.
 - Database live: `0001`–`0008` run in Supabase (26 October), `0009` on 27 October. Waiting for the owner's live tests A–I
-  ([live-test-guide.md](docs/qa/live-test-guide.md)).
+  ([live-test-guide.md](../qa/live-test-guide.md)).
 
 ## Pending
 - **Owner:** install from the latest "Build Windows installer" run on `main` and run the live tests A–F.
 - **Owner, before using Audio Content:** update every linked PC (older versions drop Audio Content).
-- **Owner, M-D1:** follow [code-signing.md](docs/deployment/code-signing.md):
+- **Owner, M-D1:** follow [code-signing.md](../deployment/code-signing.md):
   - make the repository public after the checks;
   - apply to SignPath Foundation;
   - add `SIGNPATH_API_TOKEN` and the three `SIGNPATH_*` variables.
@@ -132,7 +132,7 @@ Phase detail lives in
 
 ## Risks
 - Vercel Root Directory `hosted` is assumed from the working deployment, not read from the dashboard.
-- Logo checked on 25 October 2026 ([logo visual QA](docs/qa/2026-10-25-logo-visual-qa.md)): clear in both themes, the
+- Logo checked on 25 October 2026 ([logo visual QA](../qa/2026-10-25-logo-visual-qa.md)): clear in both themes, the
   Speaker/Teleprompter header and the remote. The faint 16 px favicon and 16–20 px tray icon on light backgrounds are fixed by a
   heavier small-size emblem (owner-approved; used only at 16–32 px). The program icon (.ico) carries the new emblem. Unchecked: the real tray
   on an installed PC.
@@ -172,5 +172,5 @@ Their branches are kept, so any of them can be reopened or mined:
   owner's OAuth apps (their secrets go only into the Supabase dashboard).
 
 ## Recommended Next Task
-See [.ai/NEXT_SESSION.md](.ai/NEXT_SESSION.md) "Recommended Next Task": the owner's live tests (A–G and the website
+See [NEXT_SESSION.md](NEXT_SESSION.md) "Recommended Next Task": the owner's live tests (A–G and the website
 settings) first; 6.12 removes Excel only after test G passes. No new features unless the owner asks.

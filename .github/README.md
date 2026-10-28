@@ -85,7 +85,7 @@ python -m unittest discover -s tests -p "test_*.py" # the automated tests (Pytho
 python tools/make_meeting_workbook.py               # rebuild the Excel template after changing src/meeting_form.py
 python packaging/check.py                           # start-up self-check
 python tools/check_doc_links.py                     # every documentation link and anchor
-build.bat                                           # local Windows build (CI is the usual way)
+tools\launchers\build.bat                           # local Windows build (CI is the usual way)
 ```
 
 ## Quality gates (`.github/workflows/build-windows.yml`)

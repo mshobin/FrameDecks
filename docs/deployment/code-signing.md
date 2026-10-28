@@ -27,7 +27,7 @@ every installer build from `main` and every version tag is signed by itself.
    - No secrets have ever been committed: the companion's test enforces this; `.env*`, `kc-sync.json` and the key
      files are ignored.
    - Before switching, run GitHub's secret scanning: Settings → Code security → Secret scanning.
-   - Also review the closed branches listed in `PROJECT_STATUS.md` ("Drift"). Delete any you do not want public.
+   - Also review the closed branches listed in `../continuity/PROJECT_STATUS.md` ("Drift"). Delete any you do not want public.
 2. **Make the repository public.** GitHub → Settings → General → Danger Zone → Change visibility.
 3. **Apply to SignPath Foundation** at https://signpath.org (the open-source programme). Give:
    - the repository URL;
