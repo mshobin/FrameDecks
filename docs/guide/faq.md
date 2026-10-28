@@ -142,10 +142,10 @@ Yes. Any phone signed in with the PIN can control the meeting, and every screen 
 ## Volunteers and training
 
 **How do we train a new volunteer?**
-Use the three-week onboarding plan in [Church operations](../ministry/README.md): shadow, then assisted, then solo.
+Use the three-week onboarding plan in [Church operations](roles/README.md): shadow, then assisted, then solo.
 
 **What is the minimum a volunteer needs to know?**
-Five things: **Go Live**, **NEXT FRAME**, **NEXT CONTENT**, **HIDE ALL**, and **BLACK SCREEN**. See the [volunteer guide](../ministry/volunteers.md).
+Five things: **Go Live**, **NEXT FRAME**, **NEXT CONTENT**, **HIDE ALL**, and **BLACK SCREEN**. See the [volunteer guide](roles/volunteers.md).
 
 **What if a volunteer presses the wrong thing on air?**
 Press **HIDE ALL** (or **Esc** on the PC), then put the right Frame back with **Go Live**. Nothing is ever deleted by these buttons.
@@ -209,5 +209,5 @@ See [Support](../../.github/SUPPORT.md). Include **Settings → Diagnostics → 
 - [Troubleshooting](troubleshooting.md)
 - [Remote control](remote-control.md)
 - [Media](media.md)
-- [Church operations](../ministry/README.md)
+- [Church operations](roles/README.md)
 - [Roadmap](../ROADMAP.md)

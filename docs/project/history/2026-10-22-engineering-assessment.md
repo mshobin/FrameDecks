@@ -31,16 +31,16 @@ The largest concerns are the security properties of the optional plaintext-HTTP 
 | Layer | Current implementation |
 |---|---|
 | Primary language | Python 3.12 for server, desktop shell, Windows integration, and camera pipeline; JavaScript for UI and state logic |
-| Server/runtime | Python standard library `http.server` using `ThreadingHTTPServer`; custom routing and response handling in [src/server.py](../../src/server.py) |
-| UI | Static HTML, CSS, and vanilla JavaScript under [app/](../../app); no framework build step and no npm dependency manifest |
-| Desktop shell | `pywebview` hosting WebView2, `pystray` for tray behavior, plus custom Windows integration through `ctypes` in [src/desktop_app.py](../../src/desktop_app.py) and [src/desktop_win.py](../../src/desktop_win.py) |
-| Video/capture | OpenCV, NumPy, MediaPipe selfie-segmentation model, Windows Graphics Capture/DXGI capture, and a bundled softcam-derived DirectShow virtual-camera driver in [src/vcam/](../../src/vcam) |
+| Server/runtime | Python standard library `http.server` using `ThreadingHTTPServer`; custom routing and response handling in [src/server.py](../../../src/server.py) |
+| UI | Static HTML, CSS, and vanilla JavaScript under [app/](../../../app); no framework build step and no npm dependency manifest |
+| Desktop shell | `pywebview` hosting WebView2, `pystray` for tray behavior, plus custom Windows integration through `ctypes` in [src/desktop_app.py](../../../src/desktop_app.py) and [src/desktop_win.py](../../../src/desktop_win.py) |
+| Video/capture | OpenCV, NumPy, MediaPipe selfie-segmentation model, Windows Graphics Capture/DXGI capture, and a bundled softcam-derived DirectShow virtual-camera driver in [src/vcam/](../../../src/vcam) |
 | Document/media support | `pypdfium2` for PDF rendering; installed Microsoft PowerPoint and `comtypes` for PowerPoint conversion/control; SheetJS is vendored for workbook import/export |
 | Persistence | JSON files in the application data directory, copied media assets, backup directories, and browser `localStorage` in file/no-install mode |
-| Packaging/release | PyInstaller, Inno Setup, and GitHub Actions workflow in [.github/workflows/build-windows.yml](../../.github/workflows/build-windows.yml) |
+| Packaging/release | PyInstaller, Inno Setup, and GitHub Actions workflow in [.github/workflows/build-windows.yml](../../../.github/workflows/build-windows.yml) |
 | Tests | Node.js test runner without npm packages, Python `unittest`, and packaging/documentation self-check scripts |
 
-Python runtime dependencies are declared with compatible version ranges in [requirements-desktop.txt](../../packaging/requirements-desktop.txt). The release build uses exact tested transitive versions from [constraints.txt](../../packaging/constraints.txt), which improves build repeatability. The codebase itself has no frontend package manager, bundler, transpiler, or framework dependency.
+Python runtime dependencies are declared with compatible version ranges in [requirements-desktop.txt](../../../packaging/requirements-desktop.txt). The release build uses exact tested transitive versions from [constraints.txt](../../../packaging/constraints.txt), which improves build repeatability. The codebase itself has no frontend package manager, bundler, transpiler, or framework dependency.
 
 ## 2. Frameworks and major libraries
 
@@ -75,11 +75,11 @@ This keeps all local screens coordinated without a database or message broker. I
 
 ### Main boundaries
 
-- [src/server.py](../../src/server.py): HTTP routing, local and remote access checks, state, settings, backups, uploads, scripture integration, and application control.
-- [app/js/store.js](../../app/js/store.js): state normalization, browser/local mode, API synchronization, and shared client-side behavior.
-- [app/js/workspace.js](../../app/js/workspace.js): workspace/dashboard interactions.
-- [src/desktop_app.py](../../src/desktop_app.py) and [src/desktop_win.py](../../src/desktop_win.py): desktop lifecycle, windows, tray, shortcuts, and native Windows integration.
-- [src/vcam/](../../src/vcam): camera and media capture/composition pipeline.
+- [src/server.py](../../../src/server.py): HTTP routing, local and remote access checks, state, settings, backups, uploads, scripture integration, and application control.
+- [app/js/store.js](../../../app/js/store.js): state normalization, browser/local mode, API synchronization, and shared client-side behavior.
+- [app/js/workspace.js](../../../app/js/workspace.js): workspace/dashboard interactions.
+- [src/desktop_app.py](../../../src/desktop_app.py) and [src/desktop_win.py](../../../src/desktop_win.py): desktop lifecycle, windows, tray, shortcuts, and native Windows integration.
+- [src/vcam/](../../../src/vcam): camera and media capture/composition pipeline.
 
 ## 4. Authentication mechanism
 
@@ -120,17 +120,17 @@ This section records material security properties and residual risks visible fro
 - `HttpOnly` and `SameSite=Strict` session cookie attributes; cryptographically random session tokens and constant-time PIN comparison.
 - Login lockout, request-body size cap, resolved-path containment for static files, and filename basenames for selected file operations.
 - `X-Content-Type-Options: nosniff`, atomic state replacement, and private-member data separation.
-- Optional ESV access sends the requested reference and API key to the ESV service; this is described in [SECURITY.md](../../.github/SECURITY.md).
+- Optional ESV access sends the requested reference and API key to the ESV service; this is described in [SECURITY.md](../../../.github/SECURITY.md).
 
 ### Residual risks and concerns
 
-1. **Plaintext LAN remote transport (high operational concern).** The phone remote uses `http://<host-LAN-IP>`; the session cookie does not have the `Secure` attribute because the service has no HTTPS certificate. PINs and session tokens can therefore be exposed to an attacker able to observe or interfere with the same network. Keep the remote on a trusted private Wi-Fi network; do not treat guest/public Wi-Fi as safe. This limitation is acknowledged in [SECURITY.md](../../.github/SECURITY.md).
+1. **Plaintext LAN remote transport (high operational concern).** The phone remote uses `http://<host-LAN-IP>`; the session cookie does not have the `Secure` attribute because the service has no HTTPS certificate. PINs and session tokens can therefore be exposed to an attacker able to observe or interfere with the same network. Keep the remote on a trusted private Wi-Fi network; do not treat guest/public Wi-Fi as safe. This limitation is acknowledged in [SECURITY.md](../../../.github/SECURITY.md).
 2. **PIN is a shared secret, not user authentication.** Six digits and per-IP throttling are reasonable for a controlled local remote, but provide no user attribution or role boundaries. Lockout state is in memory, so restarting the server resets it. A compromised or shared PIN authorizes the entire remote capability set until reset/expiry.
-3. **Local data is not encrypted at rest.** Member names/contact details, meeting content, and settings are files protected by Windows account/filesystem permissions. A copied profile or access to the logged-in account can expose them. This is also documented in [SECURITY.md](../../.github/SECURITY.md).
+3. **Local data is not encrypted at rest.** Member names/contact details, meeting content, and settings are files protected by Windows account/filesystem permissions. A copied profile or access to the logged-in account can expose them. This is also documented in [SECURITY.md](../../../.github/SECURITY.md).
 4. **No application security headers policy beyond `nosniff`.** Responses do not appear to set a Content Security Policy or a general frame-embedding policy. The UI intentionally embeds local pages in iframes, so any CSP needs to preserve that design; a documented policy would still reduce the impact of an injection defect.
 5. **HTTP server has limited request auditing.** `BaseHTTPRequestHandler.log_message` is disabled. This avoids noisy logs but leaves little built-in visibility into anomalous request patterns or remote access history.
 6. **Unsigned Windows installer.** SHA-256 checksums help verify file integrity against the published checksum but do not identify the publisher. SmartScreen warnings and distribution trust remain concerns until code signing is available.
-7. **Test coverage does not provide security assurance.** CI does not appear to run automated tests for Host/Origin checks, non-local route authorization, login throttling, cookie behavior, file/path handling, or the full remote workflow. The existing [testing guide](../development/testing.md) describes broad manual checks but no automated security suite.
+7. **Test coverage does not provide security assurance.** CI does not appear to run automated tests for Host/Origin checks, non-local route authorization, login throttling, cookie behavior, file/path handling, or the full remote workflow. The existing [testing guide](../../development/testing.md) describes broad manual checks but no automated security suite.
 
 No database server or public cloud API is part of the normal architecture, which materially reduces remote attack surface. The main security boundary changes when LAN remote access is enabled.
 
@@ -146,7 +146,7 @@ The application is not a conventional high-concurrency web service. It is a loca
 - **Large client modules and UI state:** `workspace.js`, `store.js`, and `members.js` are large single files. Complex screens can incur parse/initialization costs and make performance regressions harder to isolate.
 - **Polling:** overlay and local UI revision checks are frequent (the architecture documentation describes roughly 300 ms for overlay polling); the phone uses long polling. This is an intentional simplicity/latency trade-off and not currently evidenced as a material bottleneck.
 
-The repository's [performance note](performance.md) reports historical 6.7 measurements: dashboard load around 370 ms with 742 KB of scripts and 4.0 MB JS heap; phone remote around 52 ms; and teleprompter around 76 ms. These are not identified as a v6.9 benchmark, so they should be treated as a prior baseline rather than current verified performance. The same document records on-demand loading for SheetJS and inactive-feature construction as optimizations.
+The repository's [performance note](../../development/performance.md) reports historical 6.7 measurements: dashboard load around 370 ms with 742 KB of scripts and 4.0 MB JS heap; phone remote around 52 ms; and teleprompter around 76 ms. These are not identified as a v6.9 benchmark, so they should be treated as a prior baseline rather than current verified performance. The same document records on-demand loading for SheetJS and inactive-feature construction as optimizations.
 
 ### Scale boundary
 
@@ -156,7 +156,7 @@ The current single-process architecture is appropriate for one operator PC and a
 
 **Assessment: partial shell metadata; not a complete/offline PWA.**
 
-Positive indicators in the remote include a web app manifest, standalone display metadata, touch icons, responsive/mobile layout, and a dedicated remote entry page. The manifest is linked from [remote.html](../../app/remote.html) and describes the Director app in [remote-manifest.json](../../app/remote-manifest.json).
+Positive indicators in the remote include a web app manifest, standalone display metadata, touch icons, responsive/mobile layout, and a dedicated remote entry page. The manifest is linked from [remote.html](../../../app/remote.html) and describes the Director app in [remote-manifest.json](../../../app/remote-manifest.json).
 
 Material gaps:
 
@@ -186,7 +186,7 @@ These are not defects relative to the current product promise. A SaaS initiative
 
 ### Structural debt
 
-- **Responsibility concentration:** [src/server.py](../../src/server.py) contains HTTP routing, authorization, persistence, backups, uploads, remote sessions, scripture integration, desktop actions, and device/camera orchestration. Several frontend files are also large: `workspace.js` (~1,345 lines), `store.js` (~1,121), and `members.js` (~1,044). These increase review cost, coupling, merge conflicts, and the difficulty of testing units independently.
+- **Responsibility concentration:** [src/server.py](../../../src/server.py) contains HTTP routing, authorization, persistence, backups, uploads, remote sessions, scripture integration, desktop actions, and device/camera orchestration. Several frontend files are also large: `workspace.js` (~1,345 lines), `store.js` (~1,121), and `members.js` (~1,044). These increase review cost, coupling, merge conflicts, and the difficulty of testing units independently.
 - **Custom server framework:** the standard-library server keeps dependencies low, but request routing and middleware/security behavior are custom. Changes need careful regression coverage because framework guarantees are not available.
 - **State schema evolution:** normalization and migration logic are shared across the Python server, browser state, and legacy data migration. This is important compatibility code and needs explicit schema-version and migration tests as formats evolve.
 - **File-backed whole-document persistence:** convenient for a single PC, but increasingly costly for large state and unsuitable for multi-host concurrent updates without a redesign.

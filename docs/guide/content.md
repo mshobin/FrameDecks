@@ -158,7 +158,7 @@ Double-click any card on the canvas, in the preview or on the live picture: ques
 prayer, discussion topic, icebreaker, poll, lower third or timer. You edit its main text. Double-click the card's
 **label** (its top line) to edit the label instead.
 
-![Editing a question directly on the Studio Canvas](../images/canvas-edit.png)
+![Editing a question directly on the Studio Canvas](images/canvas-edit.png)
 
 ## Discussion topic, Icebreaker and Poll
 

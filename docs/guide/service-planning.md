@@ -207,4 +207,4 @@ Today, churches show lyrics in one of two ways:
 - [Presentations](presentations.md)
 - [Media](media.md)
 - [Meeting Workbook reference](../reference/meeting-workbook-and-branding.md)
-- [Ministry team guides](../ministry/README.md)
+- [Ministry team guides](roles/README.md)

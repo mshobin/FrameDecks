@@ -11,7 +11,7 @@ enhancement* and needs the owner's approval, as the repository rules require (`c
 **Based on the code at `main` `8482c44`**, not on intentions: `vcam/` (engine, compositor, layers, screen capture,
 Presentation window), `src/server.py`, `src/desktop_app.py`, `app/js/`, `src/cloud_sync.py`, `src/cloud_remote.py`, `hosted/` and
 `hosted/supabase/migrations/0001`–`0005`. Figures marked *measured* come from
-[performance.md](performance.md) or the engine's own counters; all other figures are **targets**, to be checked with
+[performance.md](../../development/performance.md) or the engine's own counters; all other figures are **targets**, to be checked with
 the counters the program already has (see §7).
 
 ## How the brief maps to FrameDecks

@@ -51,7 +51,7 @@ How to prepare a meeting in FrameDecks so the service runs smoothly: Frames, Con
 6. To change several Frames at once, **Ctrl+Click** or **Shift+Click** them, then copy (**Ctrl+C**), paste (**Ctrl+V**), duplicate (**Ctrl+D**) or delete them. **Ctrl+K** finds any Frame, question or setting.
 7. For the Branding badge, choose Logo only / Name only / Logo + Name, a corner, size and plate in its Content Settings. If the logo has a white box around it, use **Remove background** (Settings → Meeting & Branding).
 
-See [Content](../guide/content.md) and [Media](../guide/media.md) for every option.
+See [Content](../content.md) and [Media](../media.md) for every option.
 
 ## Before the service
 
@@ -81,20 +81,20 @@ Usually the service operator runs the controls. Stay available to:
 
 | Situation | Fix |
 | --- | --- |
-| A PowerPoint won't convert | Save it as PDF and add the PDF. See [Troubleshooting](../guide/troubleshooting.md#powerpoint-and-media) |
+| A PowerPoint won't convert | Save it as PDF and add the PDF. See [Troubleshooting](../troubleshooting.md#powerpoint-and-media) |
 | A scripture won't fetch | Use **Type it myself** and paste the text |
 | Wrong content went on screen | Operator: **Hide all** (**Esc**); then fix the Frame |
 | An Excel import went wrong | Meeting menu → **Undo the last Excel import** |
 
 ## Getting started in this role
 
-1. Read [Getting started](../guide/getting-started.md), [Frames](../guide/frames.md) and [Content](../guide/content.md).
+1. Read [Getting started](../getting-started.md), [Frames](../frames.md) and [Content](../content.md).
 2. Rebuild last week's service from scratch as practice.
 3. Shadow one service build, then build one with help, then alone ([onboarding plan](README.md#onboarding-new-volunteers)).
 
 ## Related
-- [Service planning](../guide/service-planning.md)
-- [Content](../guide/content.md)
-- [Media](../guide/media.md)
-- [Meeting Workbook and branding](../reference/meeting-workbook-and-branding.md)
+- [Service planning](../service-planning.md)
+- [Content](../content.md)
+- [Media](../media.md)
+- [Meeting Workbook and branding](../../reference/meeting-workbook-and-branding.md)
 - [Church operations](README.md)

@@ -1,4 +1,4 @@
-"""FrameDecks - saving the plan (architecture audit P1, P2: docs/project/2026-10-25-architecture-audit.md).
+"""FrameDecks - saving the plan (architecture audit P1, P2: docs/project/history/2026-10-25-architecture-audit.md).
 A plan change is written at once and starts a sync round; a live-only change (Next, Show/Hide, blackout) is written at
 most once a second and never starts a sync round. Nothing is lost: quitting, a backup or an import writes it first."""
 import copy

@@ -89,7 +89,7 @@ top-level `ruff.toml` that extends `ruff.toml` (plain `ruff check .` had fallen 
 
 ## Completed on PR #32 (merged 26 October)
 - **Audit:**
-  - [architecture audit](../project/2026-10-25-architecture-audit.md);
+  - [architecture audit](../project/history/2026-10-25-architecture-audit.md);
   - its Phase 1, P1–P4: writing, sync, image memory and screen-capture copying per press;
   - C2: `src/supervisor.py`, a crash watchdog in the installed exe.
 - **Stream Deck plugin:** removed on 26 October at the owner's request (with `/api/command`).
@@ -248,7 +248,7 @@ Serve?, every audience, no OBS/Camo; motion back (`fd-enter`, `data-reveal`, `da
 settle) with no animated `filter` anywhere. Website says team, not church. About readable in Light (`light.css`).
 Product pictures retaken from neutral content (`hosted/public/product/`). Left for the owner: the About story and
 `brand.js` mission (the owner's own ministry words), the program's own church-flavoured presets and templates
-(Sunday Service, Bible Study; program content, protected), docs/ministry, the `Start FRAMEDECKS*.bat` file names.
+(Sunday Service, Bible Study; program content, protected), docs/guide/roles, the `Start FRAMEDECKS*.bat` file names.
 Visual suites: run `src/server.py` with no other program server on 8750 (a stray one makes them test the wrong data).
 The FRAMECAST panel is still built at start (it updates its controls in place every poll).
 Gotcha: `next build` reuses its cache; after CSS changes that do not appear, delete `hosted/.next` and `hosted/out`.
@@ -305,7 +305,7 @@ continuity files in `docs/continuity/` in the same commit (owner's rule). Never 
 
 ## Old name removed (26 October, owner's request)
 - Every "Kingdom Connect" reference is now FrameDecks: docs, release notes, file names (`packaging/framedecks.ico`,
-  `assets/samples/FRAMEDECKS-Members-*.xlsx`, `docs/design/framedecks-redesign.html`), the camera files
+  `assets/samples/FRAMEDECKS-Members-*.xlsx`, `docs/project/history/framedecks-redesign.html`), the camera files
   (`framedecks_vcam64/32.dll`, `register-/unregister-framedecks-camera.cmd`) and internal names.
 - The Excel Meeting Workbook's header said "KINGDOM CONNECT"; regenerated with `tools/make_meeting_workbook.py`.
 - The camera picker now recognises its own "FrameDecks" camera again (it looked for the old name).

@@ -11,7 +11,7 @@ rendering and camera output stay on the PC. FrameDecks remains free, with no pay
 > There is no dedicated song / lyrics library yet (lyrics are shown as Text Content or a PowerPoint), and the Windows
 > installer is not digitally signed. Automated checks cover key flows, but they do not replace testing the camera,
 > PowerPoint, audio and live cloud features on real equipment. Get the [latest release](https://github.com/mshobin/FRAMEDECKS/releases/latest). See the
-> [repository audit](docs/project/repository-audit.md), [modernization status](docs/project/history/modernization-status.md),
+> [repository audit](docs/project/history/2026-10-18-v6.6-repository-audit.md), [modernization status](docs/project/history/modernization-status.md),
 > and the [roadmap](docs/ROADMAP.md).
 
 ## What it does
@@ -109,12 +109,12 @@ Office installs — these are covered by the manual [testing script](docs/develo
 |---|---|
 | Using it | [GETTING_STARTED](docs/guide/getting-started.md) · [INSTALLATION](docs/guide/installation.md) · [SERVICE_PLANNING](docs/guide/service-planning.md) · [PRESENTATIONS](docs/guide/presentations.md) · [FRAMES](docs/guide/frames.md) · [CONTENT](docs/guide/content.md) · [MEDIA](docs/guide/media.md) · [REMOTE_CONTROL](docs/guide/remote-control.md) |
 | Help | [TROUBLESHOOTING](docs/guide/troubleshooting.md) · [FAQ](docs/guide/faq.md) · [SUPPORT](.github/SUPPORT.md) |
-| Church teams | [OPERATIONS_HUB](docs/ministry/README.md) · [WORSHIP_LEADERS](docs/ministry/worship-leaders.md) · [MEDIA_TEAM](docs/ministry/media-team.md) · [SERVICE_OPERATORS](docs/ministry/service-operators.md) · [REMOTE_OPERATORS](docs/ministry/remote-operators.md) · [VOLUNTEERS](docs/ministry/volunteers.md) · [SERVICE_DAY_CHECKLIST](docs/ministry/service-day-checklist.md) |
+| Church teams | [OPERATIONS_HUB](docs/guide/roles/README.md) · [WORSHIP_LEADERS](docs/guide/roles/worship-leaders.md) · [MEDIA_TEAM](docs/guide/roles/media-team.md) · [SERVICE_OPERATORS](docs/guide/roles/service-operators.md) · [REMOTE_OPERATORS](docs/guide/roles/remote-operators.md) · [VOLUNTEERS](docs/guide/roles/volunteers.md) · [SERVICE_DAY_CHECKLIST](docs/guide/roles/service-day-checklist.md) |
 | Architecture | [ARCHITECTURE](docs/development/architecture.md) (service flow, engine, remote, media, rendering, sync) · [DESIGN_HISTORY](docs/architecture/design-history.md) · [CONFIGURATION](docs/reference/configuration-guide.md) |
 | Security | [SECURITY](.github/SECURITY.md) · [Security boundaries](docs/development/architecture.md#security-boundaries) |
 | Development | [CONTRIBUTING](.github/CONTRIBUTING.md) · [DEVELOPER_GUIDE](docs/development/developer-guide.md) · [ENVIRONMENT](docs/deployment/environment-variables.md) · [DEPLOYMENT](docs/deployment/deployment-guide.md) · [BRANCHING](docs/development/branching.md) · [RELEASE_PROCESS](docs/development/release-process.md) · [TESTING](docs/development/testing.md) · [CODING_STANDARDS](docs/development/coding-standards.md) |
-| Quality | [REPOSITORY_AUDIT](docs/project/repository-audit.md) |
-| Reference | [USER_GUIDE](docs/reference/user-guide.md) · [FEATURES](docs/reference/features.md) · [MEETING_WORKBOOK](docs/reference/meeting-workbook-and-branding.md) · [POWERPOINT](docs/reference/powerpoint.md) |
+| Quality | [REPOSITORY_AUDIT](docs/project/history/2026-10-18-v6.6-repository-audit.md) |
+| Reference | [USER_GUIDE](docs/guide/user-guide.md) · [FEATURES](docs/reference/features.md) · [MEETING_WORKBOOK](docs/reference/meeting-workbook-and-branding.md) · [POWERPOINT](docs/reference/powerpoint.md) |
 | Project | [ROADMAP](docs/ROADMAP.md) · [CHANGELOG](docs/CHANGELOG.md) · [RELEASE_NOTES](docs/releases/) · [DOCS_INDEX](docs/README.md) |
 
 ## Principles

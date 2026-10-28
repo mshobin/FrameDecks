@@ -1,4 +1,4 @@
-"""FrameDecks - restarts the program if it crashes (architecture audit C2: docs/project/2026-10-25-architecture-audit.md).
+"""FrameDecks - restarts the program if it crashes (architecture audit C2: docs/project/history/2026-10-25-architecture-audit.md).
 
 The installed FRAMEDECKS.exe starts as a small watchdog that runs the real program as a second FRAMEDECKS.exe and
 waits. If the program ends by crashing (a Windows crash code, such as an access violation in a camera or graphics

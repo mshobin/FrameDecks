@@ -27,13 +27,13 @@ do.
 
 | Guide | For |
 | --- | --- |
-| [Church operations hub](ministry/README.md) | How the roles work together, onboarding and training plans |
-| [Worship leaders](ministry/worship-leaders.md) | Leaders who plan and lead the service |
-| [Media team](ministry/media-team.md) | Cameras, projection, streaming, media preparation |
-| [Volunteers](ministry/volunteers.md) | Anyone new to the team |
-| [Service operators](ministry/service-operators.md) | The person at the PC during the service |
-| [Remote operators](ministry/remote-operators.md) | The person with the phone remote |
-| [Service-day checklist](ministry/service-day-checklist.md) | A printable checklist and emergency card |
+| [Church operations hub](guide/roles/README.md) | How the roles work together, onboarding and training plans |
+| [Worship leaders](guide/roles/worship-leaders.md) | Leaders who plan and lead the service |
+| [Media team](guide/roles/media-team.md) | Cameras, projection, streaming, media preparation |
+| [Volunteers](guide/roles/volunteers.md) | Anyone new to the team |
+| [Service operators](guide/roles/service-operators.md) | The person at the PC during the service |
+| [Remote operators](guide/roles/remote-operators.md) | The person with the phone remote |
+| [Service-day checklist](guide/roles/service-day-checklist.md) | A printable checklist and emergency card |
 
 ## Understand and build it
 
@@ -46,14 +46,14 @@ do.
 | [Coding standards](development/coding-standards.md) | JavaScript, Python, CSS, and interface-writing conventions |
 | [Development process](development/README.md) | Branching, releases, changelog standards, testing, code style |
 | [Building the installer](development/building-the-installer.md) | Producing the Windows installer with GitHub Actions |
-| [Engineering assessment](project/engineering-assessment.md) | Current stack, architecture, security, performance, PWA/SaaS readiness, and technical debt |
-| [SaaS migration roadmap](project/saas-migration-roadmap.md) | Proposed hosted architecture and phased migration from the local-first desktop product |
-| [FrameDecks repository audit](project/framedecks-audit.md) | Repository baseline, security, performance, SaaS/PWA/offline readiness, and migration risks |
+| [Engineering assessment](project/history/2026-10-22-engineering-assessment.md) | Current stack, architecture, security, performance, PWA/SaaS readiness, and technical debt |
+| [SaaS migration roadmap](project/history/2026-10-22-saas-migration-roadmap.md) | Proposed hosted architecture and phased migration from the local-first desktop product |
+| [FrameDecks repository audit](project/history/2026-10-22-repository-audit.md) | Repository baseline, security, performance, SaaS/PWA/offline readiness, and migration risks |
 | [FrameDecks modernization plan](project/history/modernization.md) | Target architecture, authentication, pairing, synchronization, deployment, and rollback |
 | [FrameDecks modernization status](project/history/modernization-status.md) | Resumable milestone status, blockers, and validation record |
-| [FrameDecks branding assets](project/branding-assets.md) | Logo source, current asset mapping, generated variants, and intentionally retained graphics |
-| [FrameDecks branding audit](project/branding-audit.md) | Remaining legacy-name references, their locations, and compatibility rationale |
-| [Repository audit](project/repository-audit.md) | Scored review of the product and the repository |
+| [FrameDecks branding assets](reference/branding-assets.md) | Logo source, current asset mapping, generated variants, and intentionally retained graphics |
+| [FrameDecks branding audit](project/history/2026-10-22-branding-audit.md) | Remaining legacy-name references, their locations, and compatibility rationale |
+| [Repository audit](project/history/2026-10-18-v6.6-repository-audit.md) | Scored review of the product and the repository |
 | [Design history](architecture/design-history.md) | The engineering log, one section per version |
 
 ## Reference
@@ -62,7 +62,7 @@ Detailed guides written alongside earlier versions. They remain accurate for the
 
 | Document | Contents |
 | --- | --- |
-| [User guide (v6.8)](reference/user-guide.md) | The original all-in-one user guide |
+| [User guide (v6.8)](guide/user-guide.md) | The original all-in-one user guide |
 | [Feature documentation](reference/features.md) | How each feature is built and its limits |
 | [Configuration guide](reference/configuration-guide.md) | Camera, app window, settings files, environment variables |
 | [Meeting Workbook and branding](reference/meeting-workbook-and-branding.md) | The Excel workbook in detail; Meeting Name, logo and colours |

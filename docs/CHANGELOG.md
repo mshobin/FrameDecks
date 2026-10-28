@@ -219,7 +219,7 @@ Full notes: [docs/releases/v6.9.md](releases/v6.9.md)
 
 ## [6.8] - 2026-10-20
 
-Full notes: [docs/releases/v6.8.md](releases/v6.8.md) · Plan: [docs/project/v6.8-plan.md](project/v6.8-plan.md)
+Full notes: [docs/releases/v6.8.md](releases/v6.8.md) · Plan: [docs/project/history/2026-10-20-v6.8-plan.md](project/history/2026-10-20-v6.8-plan.md)
 
 ### Added
 - **Teleprompter overlay** (Meeting Leader mode, Shift+R): a see-through window over Zoom, Teams or Meet with five

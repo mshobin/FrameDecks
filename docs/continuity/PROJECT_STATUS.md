@@ -36,7 +36,7 @@ Phase detail lives in
   history** (PRs #28–#30), and the live test guide (PR #31). All built and tested against stand-ins; the owner's live
   tests are pending.
 - **PR #32 (merged 26 October):**
-  - **Audit:** [architecture audit](../project/2026-10-25-architecture-audit.md). Its Phase 1 (P1–P4) and the C2
+  - **Audit:** [architecture audit](../project/history/2026-10-25-architecture-audit.md). Its Phase 1 (P1–P4) and the C2
     crash watchdog (`src/supervisor.py`) are built.
   - Stream Deck plugin (later removed, 26 October, owner's request).
   - **Target-architecture migration:** the [review](../project/history/architecture-review.md),

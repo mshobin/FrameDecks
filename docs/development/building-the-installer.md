@@ -7,7 +7,7 @@ This guide turns the FrameDecks folder into a normal Windows program:
 - the **FrameDecks** camera for Zoom, Teams, Google Meet and OBS.
 
 After installing, see `docs/reference/configuration-guide.md` to set up the camera and the phone remote, and
-`docs/reference/user-guide.md` for everyday use.
+`docs/guide/user-guide.md` for everyday use.
 
 GitHub builds the installer for you on a clean Windows computer, so you don't need to install
 any programming tools. You only need a free GitHub account.

@@ -66,7 +66,7 @@ Read this first, then [NEXT_SESSION.md](NEXT_SESSION.md).
   (controlling a service from the companion; R1–R5 as recommended) and its four delivery steps;
   `docs/architecture/companion-editing.md` — editing services in the companion (E1–E4 as recommended);
   `docs/architecture/meeting-form.md` — 6.11: the website Meeting Form, the camera check and `framedecks://` (W1–W3).
-- `docs/project/2026-10-25-architecture-audit.md` — architecture, performance and product audit (critical issues
+- `docs/project/history/2026-10-25-architecture-audit.md` — architecture, performance and product audit (critical issues
   C1–C10, optimizations P1–P10, budgets, roadmap); no UI changes. P1–P4 and C2 (`src/supervisor.py`, the crash
   watchdog in the installed exe) are built.
 - `docs/project/history/architecture-review.md` and `docs/project/history/migration-plan.md` — review against the owner's target architecture (cloud

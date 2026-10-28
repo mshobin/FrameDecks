@@ -69,6 +69,6 @@ If the phone shows it is not connected, tell the operator; the PC can carry on w
 
 ## Related
 - [Remote operators](remote-operators.md) (when you're ready for more)
-- [Remote control](../guide/remote-control.md)
+- [Remote control](../remote-control.md)
 - [Service-day checklist](service-day-checklist.md)
 - [Church operations](README.md)

@@ -52,13 +52,13 @@ branding.
 | Location | Classification |
 |---|---|
 | `docs/architecture/design-history.md` | Historical architecture/design decisions and identifiers. |
-| `docs/design/framedecks-redesign.html` | Archived design/redesign material. |
-| `docs/project/repository-audit.md` | Historical repository audit. |
-| `docs/project/v6.7-plan.md`, `docs/project/v6.8-plan.md` | Historical implementation plans. |
+| `docs/project/history/framedecks-redesign.html` | Archived design/redesign material. |
+| `docs/project/history/2026-10-18-v6.6-repository-audit.md` | Historical repository audit. |
+| `docs/project/history/2026-10-19-v6.7-plan.md`, `docs/project/history/2026-10-20-v6.8-plan.md` | Historical implementation plans. |
 | `docs/reference/features.md`, `docs/reference/meeting-workbook-and-branding.md` | Maintainer reference material, including old asset/template paths. |
 | `docs/development/code-style.md` | Documents internal JavaScript global naming conventions (later merged into `coding-standards.md`). |
 | `docs/development/building-the-installer.md` | Retains the legacy camera DLL name in troubleshooting instructions; the current folder instruction was updated above. |
-| `docs/project/branding-assets.md` | Names the existing icon path intentionally retained by packaging. |
+| `docs/reference/branding-assets.md` | Names the existing icon path intentionally retained by packaging. |
 
 ### Runtime, build, and compatibility identifiers
 

@@ -11,7 +11,7 @@ FrameDecks is maintained by a small team. These steps get you an answer fastest.
 | Find a quick answer | [FAQ](../docs/guide/faq.md) |
 | Install or update | [Installation](../docs/guide/installation.md) |
 | Set up the phone remote | [Remote control](../docs/guide/remote-control.md) |
-| Prepare a volunteer | [Ministry team guides](../docs/ministry/README.md) |
+| Prepare a volunteer | [Ministry team guides](../docs/guide/roles/README.md) |
 
 ## 2. During a live service
 

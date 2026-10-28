@@ -28,9 +28,9 @@ restrictions.
 |---|---|
 | Desktop shell | Python desktop application using pywebview/WebView2 and pystray. Windows-specific window, shortcut, capture, and camera behavior is integrated through native APIs. |
 | Local HTTP server | `src/server.py` uses Python's standard-library threaded HTTP server. It serves the application and APIs on loopback; optional phone-remote mode opens LAN listeners and applies a route allow-list. |
-| UI | Static HTML, CSS, and vanilla JavaScript under [app/](../../app/). There is no React, Next.js, TypeScript, npm package manifest, or frontend build pipeline. |
+| UI | Static HTML, CSS, and vanilla JavaScript under [app/](../../../app/). There is no React, Next.js, TypeScript, npm package manifest, or frontend build pipeline. |
 | State | The server keeps shared state in memory and persists it to JSON with a revision counter and atomic replacement. Browser/file mode uses `localStorage`, `BroadcastChannel`, and a periodic check. |
-| Media and output | [src/vcam/](../../src/vcam) captures and composes camera, media, cards, overlays, and effects. The final frame can feed a virtual camera, presentation output, and previews. |
+| Media and output | [src/vcam/](../../../src/vcam) captures and composes camera, media, cards, overlays, and effects. The final frame can feed a virtual camera, presentation output, and previews. |
 | Local storage | Meeting state, private members/settings, local media, backups, and configuration live on the computer. There is no database, cloud sync, identity, or tenant model. |
 | Delivery | PyInstaller/Inno Setup Windows installer built with GitHub Actions. CI runs JS/Python tests, packaging checks, release-note checks, and documentation-link checks. |
 
@@ -53,10 +53,10 @@ These are refactoring risks, not a reason to replace tested behavior in a single
 | CI | GitHub Actions Windows workflow; release dependencies are pinned in `packaging/constraints.txt` |
 | Tests | Node test runner with no frontend package installation; Python `unittest`; packaging self-check |
 
-Build dependencies are declared in [requirements-desktop.txt](../../packaging/requirements-desktop.txt) with tested
-versions recorded in [constraints.txt](../../packaging/constraints.txt). Exactly one OpenCV is installed
+Build dependencies are declared in [requirements-desktop.txt](../../../packaging/requirements-desktop.txt) with tested
+versions recorded in [constraints.txt](../../../packaging/constraints.txt). Exactly one OpenCV is installed
 (`opencv-python`; 6.11.1 removed the duplicate `opencv-python-headless`, and `packaging/check.py` guards it). The desktop application remains separate from the Next.js/TypeScript hosted
-foundation in [hosted/](../../hosted/). That foundation currently has no Supabase, authentication, tenant data,
+foundation in [hosted/](../../../hosted/). That foundation currently has no Supabase, authentication, tenant data,
 service-worker, pairing, deployment, Flutter, Stripe, or Cloudflare integration. The presence of
 `app/remote-manifest.json` is manifest metadata only, not a complete PWA implementation.
 
@@ -119,7 +119,7 @@ This is a repository architecture assessment, not a penetration test or security
 - Large JavaScript modules raise parse, startup, change-isolation, and regression costs.
 - Existing preview-on-demand and phone long-poll behavior are deliberate optimizations.
 
-The published [performance note](performance.md) reports measurements for 6.6/6.7, not a complete 6.9
+The published [performance note](../../development/performance.md) reports measurements for 6.6/6.7, not a complete 6.9
 baseline. Refresh measurements before selecting performance targets.
 
 ### Hosted-target risks
@@ -217,6 +217,6 @@ security. Do not remove or silently weaken the current remote.
 8. **Phase 8 — Compatibility validation:** compare all critical workflows on existing Windows runtime, supported
    phones, and Mac only after a native implementation exists. Keep rollback and previous stable release available.
 
-See [FRAMEDECKS_MODERNIZATION.md](history/modernization.md) for target architecture, pairing/sync designs,
+See [FRAMEDECKS_MODERNIZATION.md](modernization.md) for target architecture, pairing/sync designs,
 deployment, rollback, and phase gates. Progress is recorded in
-[FRAMEDECKS_MODERNIZATION_STATUS.md](history/modernization-status.md).
+[FRAMEDECKS_MODERNIZATION_STATUS.md](modernization-status.md).

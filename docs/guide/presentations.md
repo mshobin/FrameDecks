@@ -91,7 +91,7 @@ A Frame with a Question or Scripture list shows one item at a time.
 > discussion topic, icebreaker, poll, lower third and timer. Double-click the card's label (its top line) to change
 > the label.
 
-![Editing a question directly on the Studio Canvas](../images/canvas-edit.png)
+![Editing a question directly on the Studio Canvas](images/canvas-edit.png)
 
 ## Transitions
 
@@ -142,7 +142,7 @@ on the projector sees it.
 There are six colours and three thicknesses. **Undo** is Ctrl+Z, **Redo** is Ctrl+Y, and **Clear** removes every
 drawing. You can draw on a frozen picture.
 
-![Annotating the live picture with a pen line and a rectangle](../images/annotate.png)
+![Annotating the live picture with a pen line and a rectangle](images/annotate.png)
 
 You can also draw with your finger on the phone. See [Remote control](remote-control.md#drawing-from-the-phone).
 
@@ -171,7 +171,7 @@ camera, the Presentation window, the OBS pages or the phone's drawing pad.
 3. **Follows: Live** shows the script of the Frame on screen. **Follows: Selected** shows the Frame you selected,
    so you can read ahead or rehearse.
 
-![The Teleprompter docked on the right of the Studio](../images/teleprompter.png)
+![The Teleprompter docked on the right of the Studio](images/teleprompter.png)
 
 **Open it in its own window**
 **Live tools → Teleprompter → Own window** (called *Speaker View* in 6.6) opens the Teleprompter in a separate window, ideal
@@ -186,7 +186,7 @@ on a second monitor or beside Zoom on a laptop.
 
 To read your script on top of Zoom or Teams instead, use the [Teleprompter overlay](#teleprompter-overlay-meeting-leader-mode).
 
-![The Teleprompter window: the script, what is on screen, what comes next and a clock](../images/speaker-view.png)
+![The Teleprompter window: the script, what is on screen, what comes next and a clock](images/speaker-view.png)
 
 **Controls**
 
@@ -297,7 +297,7 @@ The **command palette** finds anything and does most things, from the keyboard.
    switching the theme or **Add Content…**.
 4. Use **↑ / ↓** to choose and **Enter** to open or run it. **Esc** closes the palette.
 
-![The command palette, with "bible" typed](../images/command-palette.png)
+![The command palette, with "bible" typed](images/command-palette.png)
 
 You can change the keys in **Settings → Keyboard shortcuts → Command palette**.
 
@@ -385,4 +385,4 @@ meeting shortcuts in **Settings**.
 - [Media](media.md)
 - [Remote control](remote-control.md)
 - [Troubleshooting](troubleshooting.md)
-- [Service operators guide](../ministry/README.md)
+- [Service operators guide](roles/README.md)

@@ -637,7 +637,7 @@ Full description (flows, data model, template columns, validation rules, file ma
   The Inspector sits in grid row 3 with a container query that switches its content into columns.
 - Remote: role ids are unchanged; the names are now Simple / Standard / Advanced. `body[data-role="presenter"]` is
   the thumb-zone layout.
-- Design review: `docs/design/framedecks-redesign.html`.
+- Design review: `docs/project/history/framedecks-redesign.html`.
 
 ## 26. Version 6.4: Team Space (peer-to-peer over WireGuard), FrameDecks camera, logo only, native window
 
@@ -789,8 +789,8 @@ state keep the old names (`scenes`, `layers`, `KCScenes`), so existing data load
 
 ## 29. Version 6.7: inline editing, Teleprompter, multi-select, command palette, branding options
 
-The audit, reuse plan and decisions are in [docs/project/v6.7-plan.md](../project/v6.7-plan.md); measurements in
-[docs/project/performance.md](../project/performance.md). Still no framework, no build step and no new dependency.
+The audit, reuse plan and decisions are in [docs/project/history/2026-10-19-v6.7-plan.md](../project/history/2026-10-19-v6.7-plan.md); measurements in
+[docs/development/performance.md](../development/performance.md). Still no framework, no build step and no new dependency.
 
 - **EditableField** (`app/js/editable.js`, `window.KCEditable`): one in-place editor for every name, label and text.
   `inline(el, opts)` edits an element where it is; `float(host, rect, opts)` opens over a canvas card (with extra
@@ -836,7 +836,7 @@ The audit, reuse plan and decisions are in [docs/project/v6.7-plan.md](../projec
 
 ## 30. Version 6.8: frameless windows, Teleprompter overlay, tray and Spotlight
 
-The full plan, with the Electron-to-pywebview mapping, is [docs/project/v6.8-plan.md](../project/v6.8-plan.md).
+The full plan, with the Electron-to-pywebview mapping, is [docs/project/history/2026-10-20-v6.8-plan.md](../project/history/2026-10-20-v6.8-plan.md).
 
 - **No Electron, no new package.** Everything is Win32 through ctypes in `src/desktop_win.py`; every function is a no-op off
   Windows and never raises, so a refusal leaves the previous look.

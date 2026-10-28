@@ -179,4 +179,4 @@ If you already produce your stream in OBS, you can use FrameDecks's overlay page
 - [PowerPoint in detail](../reference/powerpoint.md)
 - [Configuration guide](../reference/configuration-guide.md)
 - [Troubleshooting](troubleshooting.md)
-- [Media team guide](../ministry/media-team.md)
+- [Media team guide](roles/media-team.md)

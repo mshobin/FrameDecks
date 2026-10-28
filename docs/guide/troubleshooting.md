@@ -243,4 +243,4 @@ Open the **Meeting** menu (✨ next to **+ Frame**) and choose **Undo the last E
 - [Media](media.md)
 - [Installation](installation.md)
 - [Configuration guide](../reference/configuration-guide.md)
-- [Service-day checklist](../ministry/service-day-checklist.md)
+- [Service-day checklist](roles/service-day-checklist.md)

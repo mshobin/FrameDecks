@@ -73,7 +73,7 @@ in **Settings → General → Window and tray**; if another program uses Alt+Spa
   **Alt+Space** for **Spotlight**. **Go Live**, **Next / Previous Frame**, **Hide all**, **Black screen** and **Freeze**
   run from Spotlight without bringing the main window back. The tray icon's menu has **Open App**, **Teleprompter**,
   **Search** and, under **More**, **Hide all overlays** and **Stop screen share**. See
-  [Spotlight](../guide/presentations.md#spotlight).
+  [Spotlight](../presentations.md#spotlight).
 
 ## After the service
 
@@ -91,17 +91,17 @@ in **Settings → General → Window and tray**; if another program uses Alt+Spa
 | Need time to fix something | **F** (Freeze) | Fix it, then **F** again |
 | A message for everyone (technical problem) | **Live tools → Emergency screen** | Turn it off when solved |
 | Meeting app shows no camera | Choose **FrameDecks** again in the app | Restart the app if it isn't listed |
-| Phone remote stopped | Carry on from the PC | See [Troubleshooting](../guide/troubleshooting.md#phone-remote) |
+| Phone remote stopped | Carry on from the PC | See [Troubleshooting](../troubleshooting.md#phone-remote) |
 
 ## Getting started in this role
 
-1. Read [Presentations](../guide/presentations.md), [Media](../guide/media.md) and [Troubleshooting](../guide/troubleshooting.md).
+1. Read [Presentations](../presentations.md), [Media](../media.md) and [Troubleshooting](../troubleshooting.md).
 2. Practise Go Live, Next, Black screen, Freeze and Hide all on a meeting that is not on a real call.
 3. Follow the [three-week onboarding plan](README.md#onboarding-new-volunteers).
 
 ## Related
 - [Service-day checklist](service-day-checklist.md)
-- [Presentations](../guide/presentations.md)
-- [Troubleshooting](../guide/troubleshooting.md)
+- [Presentations](../presentations.md)
+- [Troubleshooting](../troubleshooting.md)
 - [Remote operators](remote-operators.md)
 - [Church operations](README.md)
