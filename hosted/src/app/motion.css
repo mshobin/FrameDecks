@@ -8,23 +8,63 @@
   --ease-soft: cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
-/* ---------- The light behind every page ----------
-   One fixed layer painted once with soft gradients: no blur filter and no animation, so an idle page draws nothing
-   (earlier: three blurred glows drifting forever, which kept older PCs' graphics busy next to the program). */
+/* ---------- The stage light behind every page ----------
+   Two soft glows, navy and gold, made of plain gradients (no blur filter). They drift slowly for about a minute after
+   the page opens and then rest where they are, so an idle page draws nothing; under "reduce motion" or "Reduce
+   effects" (html.fd-calm) they never move. Only transform animates, on its own layer. */
 .fd-ambient {
   position: fixed;
   inset: 0;
   z-index: -1;
+  overflow: hidden;
   pointer-events: none;
-  background:
-    radial-gradient(48vmax 42vmax at 92% -6%, rgba(227, 183, 90, 0.16), transparent 70%),
-    radial-gradient(52vmax 46vmax at -8% 28%, rgba(70, 108, 205, 0.2), transparent 70%),
-    radial-gradient(56vmax 44vmax at 50% 112%, rgba(52, 80, 160, 0.18), transparent 70%);
+}
+
+.fd-glow {
+  position: absolute;
+  width: 70vmax;
+  height: 70vmax;
+  border-radius: 50%;
+}
+
+.fd-glow-navy {
+  top: -22vmax;
+  left: -24vmax;
+  background: radial-gradient(closest-side, rgba(70, 108, 205, 0.26), rgba(52, 80, 160, 0.1) 55%, transparent);
+}
+
+.fd-glow-gold {
+  right: -26vmax;
+  bottom: -30vmax;
+  background: radial-gradient(closest-side, rgba(227, 183, 90, 0.16), rgba(227, 183, 90, 0.05) 55%, transparent);
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  /* ---------- Reveal on scroll ---------- */
-  html.fd-motion [data-reveal]:not([data-in]) {
+  /* ---------- The stage light drifts (three slow passes, then rest) ---------- */
+  html.fd-motion:not(.fd-calm) .fd-glow-navy {
+    animation: fd-drift-a 24s var(--ease-soft) 3 alternate;
+  }
+
+  html.fd-motion:not(.fd-calm) .fd-glow-gold {
+    animation: fd-drift-b 28s var(--ease-soft) 3 alternate;
+  }
+
+  @keyframes fd-drift-a {
+    to {
+      transform: translate3d(12vmax, 8vmax, 0) scale(1.08);
+    }
+  }
+
+  @keyframes fd-drift-b {
+    to {
+      transform: translate3d(-10vmax, -9vmax, 0) scale(1.1);
+    }
+  }
+
+  /* ---------- Reveal on scroll ----------
+     Nothing is hidden until components/motion.tsx has run and marked what is already on screen (fd-reveal-ready), so
+     the page reads fine without JavaScript and an anchor jump can never leave a section invisible. */
+  html.fd-motion.fd-reveal-ready [data-reveal]:not([data-in]) {
     opacity: 0;
   }
 
@@ -165,14 +205,6 @@
     transition: transform 0.9s var(--ease-out) calc(var(--d, 0ms) + 450ms);
   }
 
-  html.fd-motion .fd-flow-step:not([data-in]) .fd-flow-link {
-    transform: scaleX(0);
-  }
-
-  .fd-flow-step[data-in] .fd-flow-icon {
-    animation: fd-pop 0.9s var(--ease-out) calc(var(--d, 0ms) + 150ms) backwards;
-  }
-
   @keyframes fd-pop {
     from {
       opacity: 0;
@@ -238,7 +270,7 @@
       }
     }
 
-    .fd-landing-bar,
+    .fd-landing-bar:not(.lp-nav),
     .fd-topbar {
       animation: fd-bar-solid linear both;
       animation-timeline: scroll(root);
@@ -282,7 +314,7 @@
   content: "";
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.35s ease;
+  transition: opacity 0.35s var(--ease-out);
 }
 
 [data-spotlight]:hover::before {

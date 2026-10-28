@@ -112,26 +112,59 @@ One direction, built in `hosted/src/app/identity.css` (loaded after the older lo
 - **Places.** Home · Plan · Live · People, then Settings: Branding, Service PCs, Help. Your account is the avatar.
 - **Words.** Team, Service PCs, People, Go Live (`docs/guide/glossary.md`). The name is always **FrameDecks**.
 
-## Landing (website, 27 October)
+## Landing (website, redesigned 28 October)
 
-`hosted/src/components/landing.tsx` with `hosted/src/app/landing.css` (loaded after `identity.css`). For every kind of
-gathering: meetings, classes, conferences, events, services and productions. No church-only words, no named
-streaming or virtual-camera products (FRAMECAST, our own camera, is named), no invented quotes, logos or numbers.
+`hosted/src/components/landing.tsx` (the words and the order) with one file per part in
+`hosted/src/components/landing/`, styled by `hosted/src/app/landing.css` (loaded after `identity.css`). For every kind
+of gathering; no church-only words, no named third-party streaming or camera products (FRAMECAST, our own camera, is
+named), no invented quotes, logos or numbers. Built from the owner's written spec of 28 October (the reference mock-up
+file was not in the repository).
 
-- **Approved words, unchanged:** "Prepare with Purpose. Present with Excellence." and "From prayerful preparation to
-  meaningful moments, FrameDecks keeps your entire service seamlessly connected across every screen, every stream,
-  and every member of your team." The closing call is **Ready to Serve?** The steps are **Day 1 … Day 4**.
-- **Order:** hero and the Studio on a stage, made-for pills, the press-Next demo, a bento of glass feature cards,
-  Day 1–4 on a gold line, a serif statement, questions, Ready to Serve?, footer.
-- **Motion** (CSS only; `motion.css` and `landing.css`): the hero rises in line by line; sections and cards rise in
-  as they scroll into view (`data-reveal`, staggered with `--d`); the Studio leans back and settles as you scroll
-  (scroll-linked where the browser supports it); feature cards lift and carry a soft pointer light
-  (`data-spotlight`, mouse only, once per frame); Day nodes pop onto the line; FAQ answers fade in; buttons lift and
-  catch one sweep of light.
-- **Performance rules:** only `transform` and `opacity` animate; no animated blur (removed from the shared
-  entrances too); nothing runs forever (`tests/idle-performance.test.mjs`); glows are static gradients; frosted glass
-  stays on the sticky bar; everything stops under "reduce motion". Measured: after scrolling the whole page no
-  animation is still running, and the CSS is 18 KB gzipped (budget 20).
+- **Approved words, unchanged:** "Prepare with Purpose. Present with Excellence.", the hero paragraph, **Ready to
+  Serve?**, the steps **Day 1 … Day 4**, every feature, demo frame and question. New: a KJV verse above the closing
+  call (Colossians 3:23) and four more gatherings in the marquee.
+- **Order and parts:** `landing/nav.tsx` (clear, then blurred navy with a hairline after 20 px; How it works, See it
+  work, Features, Questions; Reduce effects, theme, About, Sign in, gold Download · free) → `landing/hero.tsx` (words
+  rise blur-to-sharp, the second line in gold that sweeps once; the Studio window arrives tilted, rotateX 28°, lower and
+  at 0.92, settles flat, then leans toward the mouse up to 6° on desktop; the phone floats over its corner; gold corner
+  brackets; a gold light beam sways behind) → audience marquee (gold-outlined chips, pauses on hover, faded edges) →
+  `landing/how-it-works.tsx` + `landing/step-screens.tsx` → `next-demo.tsx` (16:9 room screen, wire, phone; Next,
+  Previous, Hide all, Black screen; ripple; a gold dot runs along the wire on every tap; a question drains its gold
+  timer) → 12-column bento with `landing/feature-previews.tsx` (Teleprompter with a gliding script and a gold reading
+  line; FRAMECAST picture with soft background, LIVE, logo and lower third) and four small tiles → `landing/statement.tsx`
+  (the serif promise; words light up one by one as you scroll) → FAQ (a gold plus turns to ×) → Ready to Serve? (verse,
+  gold sweep on "Serve?", light beam, both download buttons) → footer.
+- **How it works (the 4-step guide):** on screens wider than 960 px with motion allowed, GSAP ScrollTrigger pins the
+  section with `end: "+=" + innerHeight * 1.6` (about 40% of a viewport of scrolling per step) and
+  `snap: { snapTo: [0, 1/3, 2/3, 1], duration: { min: 0.2, max: 0.45 }, ease: "power2.out", delay: 0.05 }`; the step is
+  `Math.round(progress * 3)` and the gold rail fills with the progress. One normal wheel flick moves exactly one step
+  (measured: snaps land 410 px apart at 1366 × 768). Clicking a step scrolls to its snap point. GSAP is imported only
+  there (`gsap.matchMedia`, reverted on unmount): phones and "reduce motion" never download it. Elsewhere the steps are
+  pill tabs with the description below, moving on every 4 s while on screen until someone taps one (never under reduce
+  motion or Reduce effects). Each screen's small story replays when it becomes active and ends within about 1.2 s, and
+  a gold callout sits at the window's corner. **TODO (real screenshots):** capture each step at 1200 × 750 as WebP into
+  `hosted/public/product/step-*.webp` and pass `image` per step in `landing.tsx`; the drawn screens are the fallback.
+- **Motion rules** (`motion.css`, `landing.css`, `components/motion.tsx`): one easing family (`--ease-out` for
+  entrances of 600–1100 ms, `--ease-soft` for loops), nothing bouncy. Only `transform` and `opacity` move, except two
+  one-off entrances that sharpen from a small blur (hero words, step screens). The stage light (two glows, navy and
+  gold) drifts for about a minute after a page opens and then rests. Every endless loop (marquee, beam, phone float,
+  teleprompter, LIVE dot) is declared paused and runs only while its `data-loop` element is on screen (`data-live`);
+  none runs under "reduce motion" or **Reduce effects** (`components/effects-toggle.tsx`, `html.fd-calm`, saved in
+  this browser). `tests/idle-performance.test.mjs` enforces this.
+- **Reveal fix:** `data-reveal` content is visible without JavaScript; it is hidden only after `motion.tsx` has run
+  (`html.fd-reveal-ready`) and has already shown whatever is on or above the screen. An IntersectionObserver
+  (`rootMargin "0px 0px -8% 0px"`) reveals the rest, and a scroll/hash safety net shows anything passed over by an
+  anchor jump or a fast flick, so no section can stay invisible.
+- **Measured (28 October):** no horizontal scroll at 375, 768, 1366 and 1920 px; Lighthouse desktop 100 performance,
+  100 accessibility; mobile (throttled) 89–90, the old landing 88–90 on the same test; JS 380 KB and CSS 21 KB
+  gzipped (CSS budget raised to 24 KB on purpose in `scripts/check-budget.mjs`).
+
+## Signed-in pages (28 October visual pass)
+
+The same principles without changing any layout or flow: the stage light behind every page, cards with a faint gold
+top edge and a deep soft shadow (the `--shadow` token in `globals.css` and `light.css`), gold eyebrows, a short gold
+rail on the active place in the sidebar, every transition on `--ease-out`, and **Reduce effects** next to the theme
+switch in the top bar.
 
 ## States
 

@@ -15,6 +15,12 @@ Cloudflare Pages production deploy. Owner live tests remain. The live database h
   `framedecks-world-map.svg`, `assets/brand/framedecks-about-header.*`). The `kc-*.json` data files keep their names.
   Checks: Python 170, desktop JS 4/4, packaging, CSS tokens, ruff, doc links 97/0, visual and axe suites, website
   127 tests + build + budget; on GitHub, Desktop checks, Hosted companion checks and Build Windows installer green.
+- **Landing redesign (28 October):** new front page from the owner's written spec (nav, hero with tilting Studio
+  window, audience marquee, pinned 4-step guide with GSAP ScrollTrigger and snap, larger press-Next demo, 12-column
+  bento, scrolled serif statement, FAQ, Ready to Serve? with a KJV verse) and a visual pass on the signed-in pages.
+  Light by default: loops only while on screen, a Reduce effects switch, GSAP only on wide screens. Website 129/129
+  tests, build, Lighthouse desktop 100, mobile 89–90 (was 88–90). Open: real screenshots for the four steps; the
+  reference mock-up file was never in the repository.
 - **Repository standard (28 October, no behaviour change):** the layout shared by all the owner's repositories is
   recorded in `docs/development/repository-structure.md` with this repository's exceptions. Applied: `.editorconfig`
   added, the `code-style.md` redirect page removed; role guides in `docs/guide/roles/`, guide screenshots in

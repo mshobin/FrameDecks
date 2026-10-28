@@ -42,7 +42,8 @@
   --radius-lg: 20px;
   --radius: 14px;
   --radius-sm: 10px;
-  --shadow: 0 1px 0 rgba(255, 255, 255, 0.04) inset, 0 12px 40px rgba(0, 0, 0, 0.35);
+  --shadow: inset 0 1px 0 rgba(244, 213, 142, 0.12), 0 1px 0 rgba(255, 255, 255, 0.04) inset, 0 30px 60px -40px rgba(0, 0, 0, 0.8),
+    0 12px 30px -18px rgba(0, 0, 0, 0.45); /* a faint gold top edge and a deep soft shadow (the landing's product windows) */
   --font: "Source Sans 3", "Segoe UI", system-ui, -apple-system, sans-serif;
   --font-display: "Source Sans 3", "Segoe UI", system-ui, -apple-system, sans-serif;
 }
@@ -78,11 +79,19 @@ a {
   text-decoration: none;
 }
 
-.workspace-label,
-.eyebrow {
+.workspace-label {
   color: var(--text-2);
   font-size: 13px;
   font-weight: 600;
+}
+
+/* eyebrows are one of the few places for gold (the landing's design principles) */
+.eyebrow {
+  color: var(--gold);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
 
 h1,

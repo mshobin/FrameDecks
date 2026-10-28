@@ -91,7 +91,7 @@ h3 {
   font-weight: 600;
   white-space: nowrap;
   cursor: pointer;
-  transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+  transition: transform 0.18s var(--ease-out), box-shadow 0.18s var(--ease-out), background 0.18s var(--ease-out);
 }
 
 .fd-btn:hover {
@@ -207,11 +207,6 @@ h3 {
   pointer-events: none;
 }
 
-.fd-mark-medium .fd-mark-glow {
-  width: 240px;
-  height: 240px;
-}
-
 .fd-mark-emblem {
   position: relative;
   height: auto;
@@ -233,11 +228,6 @@ h3 {
   margin-right: -0.26em;
 }
 
-.fd-mark-medium .fd-wordmark {
-  margin-top: 12px;
-  font-size: 30px;
-}
-
 .fd-tagline {
   position: relative;
   margin: 0;
@@ -247,10 +237,6 @@ h3 {
   letter-spacing: 0.38em;
   text-transform: uppercase;
   margin-right: -0.38em;
-}
-
-.fd-mark-medium .fd-tagline {
-  font-size: 12px;
 }
 
 /* ---------- App shell ---------- */
@@ -351,12 +337,29 @@ h3 {
   padding: 0 12px;
   font-size: 14px;
   font-weight: 500;
-  transition: background 0.15s ease, color 0.15s ease;
+  transition: background 0.15s var(--ease-out), color 0.15s var(--ease-out);
 }
 
 .fd-nav-item:hover {
   background: rgba(255, 255, 255, 0.05);
   color: var(--text);
+}
+
+.fd-nav-active {
+  position: relative;
+}
+
+/* the active place carries a short gold rail, like the landing's step rail */
+.fd-nav-active::before {
+  position: absolute;
+  top: 9px;
+  bottom: 9px;
+  left: -14px;
+  width: 3px;
+  border-radius: 0 4px 4px 0;
+  background: linear-gradient(180deg, var(--gold-2), var(--gold));
+  box-shadow: 0 0 10px rgba(227, 183, 90, 0.5);
+  content: "";
 }
 
 .fd-nav-active,
@@ -578,7 +581,7 @@ h3 {
   border-radius: var(--radius-sm);
   background: var(--field);
   color: var(--text);
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  transition: border-color 0.15s var(--ease-out), box-shadow 0.15s var(--ease-out);
 }
 
 .fd-page input:focus,
@@ -597,7 +600,7 @@ h3 {
 .planner-item button,
 .workspace-row button {
   border-radius: 999px;
-  transition: background 0.15s ease, transform 0.15s ease;
+  transition: background 0.15s var(--ease-out), transform 0.15s var(--ease-out);
 }
 
 .live-btn {
@@ -716,7 +719,7 @@ h3 {
   background: var(--surface);
   box-shadow: var(--shadow);
   padding: 18px 18px 16px;
-  transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+  transition: transform 0.2s var(--ease-out), border-color 0.2s var(--ease-out), background 0.2s var(--ease-out);
 }
 
 .fd-tile:hover {
@@ -863,28 +866,6 @@ h3 {
   place-items: center;
 }
 
-/* ---------- Workflow ---------- */
-.fd-flow {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 16px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  counter-reset: none;
-}
-
-.fd-flow-step {
-  position: relative;
-  display: grid;
-  align-content: start;
-  gap: 12px;
-  border: 1px solid var(--hairline);
-  border-radius: var(--radius-lg);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.015));
-  padding: 22px 20px;
-}
-
 .fd-flow-icon {
   display: grid;
   width: 46px;
@@ -968,14 +949,6 @@ h3 {
   max-width: 340px;
 }
 
-.fd-flow-compact .fd-flow-step {
-  grid-template-columns: auto minmax(0, 1fr);
-  align-items: center;
-  gap: 14px;
-  border-radius: 16px;
-  padding: 12px 14px;
-}
-
 .fd-flow-compact .fd-flow-icon {
   width: 36px;
   height: 36px;
@@ -1045,212 +1018,8 @@ h3 {
   text-align: center;
 }
 
-/* The real program and the real phone page (design audit DD-07) */
-.fd-shots {
-  position: relative;
-  width: min(100%, 1080px);
-  margin: clamp(36px, 6vw, 64px) 0 0;
-  padding-right: clamp(40px, 9vw, 120px);
-}
-
-.fd-shot-desktop {
-  display: block;
-  width: 100%;
-  height: auto;
-  border: 1px solid var(--hairline-strong);
-  border-radius: 16px;
-  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
-}
-
-.fd-shot-phone {
-  position: absolute;
-  right: 0;
-  bottom: -28px;
-  width: clamp(110px, 20vw, 220px);
-  height: auto;
-  border: 1px solid var(--hairline-strong);
-  border-radius: 20px;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
-}
-
-.fd-shots figcaption {
-  margin-top: 44px;
-  color: var(--text-2);
-  font-size: 13px;
-}
-
-.fd-mission {
-  max-width: 760px;
-  margin: 0 auto;
-  padding: 8px 20px 48px;
-  color: var(--text-2);
-  font-size: 15px;
-  line-height: 1.7;
-  text-align: center;
-}
-
-.fd-hero-title {
-  max-width: 860px;
-  margin: 0 0 18px;
-  background: linear-gradient(180deg, #ffffff 30%, #c9d3e6);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  font-size: clamp(38px, 6vw, 68px);
-  font-weight: 800;
-  letter-spacing: -0.045em;
-  line-height: 1.03;
-}
-
-.fd-hero-text {
-  max-width: 680px;
-  margin: 0 0 32px;
-  color: var(--text-2);
-  font-size: clamp(16px, 1.6vw, 19px);
-  line-height: 1.6;
-}
-
 .fd-hero .fd-hero-actions {
   justify-content: center;
-}
-
-.fd-hero-note {
-  margin: 22px 0 0;
-  color: var(--text-3);
-  font-size: 13px;
-}
-
-/* Trust in facts (owner-approved, 27 October): four short promises the product keeps */
-.fd-trust {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 14px;
-  width: min(100%, 1100px);
-  margin: 34px auto 0;
-  padding: 0;
-  list-style: none;
-  text-align: left;
-}
-
-.fd-trust li {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  padding: 14px 16px;
-  border: 1px solid var(--hairline);
-  border-radius: 16px;
-  background: var(--surface);
-  color: var(--text-2);
-  font-size: 14px;
-  line-height: 1.5;
-}
-
-.fd-trust li svg {
-  flex: none;
-  margin-top: 2px;
-  color: var(--text);
-}
-
-.fd-trust strong {
-  display: block;
-  color: var(--text);
-  font-size: 15px;
-}
-
-.fd-section {
-  width: min(100%, 1180px);
-  margin: 0 auto;
-  padding: clamp(40px, 6vw, 72px) clamp(20px, 4vw, 48px);
-}
-
-.fd-section > .fd-kicker,
-.fd-section-title {
-  text-align: center;
-}
-
-.fd-section-title {
-  max-width: 760px;
-  margin: 0 auto 38px;
-  color: var(--text);
-  font-size: clamp(28px, 3.6vw, 44px);
-  font-weight: 800;
-  letter-spacing: -0.035em;
-  line-height: 1.1;
-}
-
-.fd-features {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px;
-}
-
-.fd-feature {
-  border: 1px solid var(--hairline);
-  border-radius: 20px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.015));
-  padding: 26px 24px;
-  transition: transform 0.2s ease, border-color 0.2s ease;
-}
-
-.fd-feature:hover {
-  border-color: rgba(227, 183, 90, 0.3);
-  transform: translateY(-3px);
-}
-
-.fd-feature-icon {
-  display: grid;
-  width: 46px;
-  height: 46px;
-  place-items: center;
-  margin-bottom: 18px;
-  border-radius: 16px;
-  background: radial-gradient(circle at 50% 30%, rgba(227, 183, 90, 0.3), rgba(227, 183, 90, 0.06));
-  color: var(--gold-2);
-}
-
-.fd-feature h3 {
-  margin: 0 0 8px;
-  color: var(--text);
-  font-size: 20px;
-  font-weight: 700;
-}
-
-.fd-feature p {
-  margin: 0;
-  color: var(--text-2);
-  font-size: 15px;
-  line-height: 1.6;
-}
-
-.fd-cta {
-  display: grid;
-  justify-items: center;
-  gap: 12px;
-  width: min(calc(100% - 40px), 960px);
-  margin: clamp(30px, 5vw, 60px) auto;
-  border: 1px solid rgba(227, 183, 90, 0.25);
-  border-radius: 20px;
-  background:
-    radial-gradient(500px 220px at 50% 0%, rgba(227, 183, 90, 0.16), transparent 70%),
-    linear-gradient(160deg, rgba(36, 52, 92, 0.65), rgba(14, 22, 42, 0.65));
-  color: var(--gold);
-  padding: clamp(36px, 5vw, 56px) 24px;
-  text-align: center;
-}
-
-.fd-cta h2 {
-  margin: 0;
-  color: var(--text);
-  font-size: clamp(26px, 3vw, 36px);
-  font-weight: 800;
-}
-
-.fd-cta p {
-  max-width: 620px;
-  margin: 0 0 12px;
-  color: var(--text-2);
-  font-size: 16px;
-  line-height: 1.6;
 }
 
 .fd-landing-foot {
@@ -1364,7 +1133,7 @@ h3 {
   color: var(--text);
   font-size: 15px;
   font-weight: 600;
-  transition: background 0.15s ease;
+  transition: background 0.15s var(--ease-out);
 }
 
 .fd-auth .auth-providers button:hover {
@@ -1480,20 +1249,6 @@ h3 {
 }
 
 @media (max-width: 620px) {
-  .fd-shots {
-    padding-right: 0;
-  }
-
-  .fd-shot-phone {
-    position: static;
-    display: block;
-    width: min(60%, 220px);
-    margin: 18px auto 0;
-  }
-
-  .fd-shots figcaption {
-    margin-top: 14px;
-  }
 
   .fd-glance,
   .fd-flow,
@@ -1611,7 +1366,7 @@ h3 {
   color: #fff;
   cursor: pointer;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3);
-  transition: transform 0.2s var(--ease-out, ease), border-color 0.2s ease;
+  transition: transform 0.2s var(--ease-out, ease), border-color 0.2s var(--ease-out);
 }
 
 .fd-swatch:hover {
@@ -1694,7 +1449,7 @@ h3 {
   border-radius: 12px;
   background: linear-gradient(180deg, rgba(31, 52, 96, 0.95), rgba(16, 28, 54, 0.95));
   padding: 14px 16px;
-  transition: border-color 0.4s ease;
+  transition: border-color 0.4s var(--ease-out);
 }
 
 .fd-brand-label {
@@ -1703,7 +1458,7 @@ h3 {
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  transition: color 0.4s ease;
+  transition: color 0.4s var(--ease-out);
 }
 
 .fd-brand-card p {
@@ -1742,7 +1497,7 @@ h3 {
   padding: 12px 14px;
   text-align: left;
   cursor: pointer;
-  transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
+  transition: border-color 0.2s var(--ease-out), background 0.2s var(--ease-out), transform 0.2s var(--ease-out);
 }
 
 .fd-style:hover:not(:disabled) {

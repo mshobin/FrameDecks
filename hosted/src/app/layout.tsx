@@ -41,12 +41,14 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        {/* Before the first paint: hide what will rise into view (motion.css), unless the device asks for less motion, and
-            apply the light or dark theme (light.css, components/theme-toggle.tsx) */}
+        {/* Before the first paint: allow motion unless the device asks for less (motion.css; nothing is hidden until
+            components/motion.tsx has run), apply "Reduce effects" (components/effects-toggle.tsx) and the light or dark
+            theme (light.css, components/theme-toggle.tsx) */}
         <script
           dangerouslySetInnerHTML={{
             __html:
               "if(window.IntersectionObserver&&!matchMedia('(prefers-reduced-motion: reduce)').matches)document.documentElement.classList.add('fd-motion');" +
+              "try{if(localStorage.getItem('fd-effects')==='calm')document.documentElement.classList.add('fd-calm')}catch(e){}" +
               "try{var t=localStorage.getItem('fd-theme');if(t==='light'||(t!=='dark'&&matchMedia('(prefers-color-scheme: light)').matches))document.documentElement.classList.add('fd-light')}catch(e){}",
           }}
         />

@@ -102,18 +102,25 @@ Read this first, then [NEXT_SESSION.md](NEXT_SESSION.md).
   page (`components/landing.tsx`); signed in, the dashboard (`components/overview.tsx`: hero, `glance.tsx` tiles,
   `workflow.tsx` "How it works"). Sign-in is a split layout (`auth-shell.tsx`). Use the tokens, not new hex colours.
   Motion (`motion.css`, `components/motion.tsx`): `data-reveal` rises into view on scroll (marked `data-in`, never a
-  class: React rewrites classes), `data-spotlight` follows the pointer (once per frame, mouse only), `.fd-enter`/`Words` play on load, and a
-  static ambient light sits behind every page; all of it stops under "reduce motion". Performance rule (owner, 8 GB
-  PCs next to the program): an idle page draws nothing — no `infinite` animations, no animated `filter`/layout
-  properties, `backdrop-filter` only on the sticky top bars. The About screen (`about-dialog.tsx`,
+  class: React rewrites classes; content is visible without JavaScript and hidden only once `html.fd-reveal-ready` is
+  set, with a scroll/hash safety net so an anchor jump never leaves a section invisible), `data-spotlight` follows the
+  pointer (once per frame, mouse only), `.fd-enter` plays on load, and the stage light (two glows) drifts for about a
+  minute and then rests; all of it stops under "reduce motion". Performance rule (owner, 8 GB PCs next to the
+  program): an idle page draws next to nothing — an endless animation must be declared `paused` and run only while its
+  `data-loop` element is on screen (`data-live`), and never under "reduce motion" or **Reduce effects**
+  (`effects-toggle.tsx`, `html.fd-calm`; `tests/idle-performance.test.mjs`); no animated layout properties;
+  `backdrop-filter` only on the sticky top bars. The About screen (`about-dialog.tsx`,
   `about.css`, the (i) button) shows `src/lib/brand.json`, written from the program's `app/js/brand.js` and
   `src/server.py` version by `scripts/write-brand.mjs` on every build (`tests/brand.test.mjs` fails if it is stale).
 - Website places (27 October): Home `/` (`overview.tsx`), Plan `/plan` (also `/meeting`, `/services`; `plan-page.tsx`),
   Live, People `/members`; Settings: Branding, Service PCs `/computers`, Help `/help`; Your account `/account`. The
   look on top of `design.css` is `hosted/src/app/identity.css` (`.fd-framed` corners, EB Garamond for scripture, warm
-  gold main action) and, for the front page, `hosted/src/app/landing.css` (owner's brief, 27 October: every audience,
-  approved hero words, Day 1–4, Ready to Serve?, motion back; `docs/development/design-system.md` "Landing"). Website words:
-  team, not church; no named streaming products on the front page. Motion never animates `filter`.
+  gold main action) and, for the front page, `hosted/src/app/landing.css` with `components/landing.tsx` and its parts in
+  `components/landing/` (redesign of 28 October: nav, hero, marquee, the pinned 4-step guide, the press-Next demo, a
+  12-column bento, the scrolled statement, FAQ, Ready to Serve?; `docs/development/design-system.md` "Landing" has
+  the GSAP pin/snap settings and the reduced-motion behaviour). GSAP (`gsap` 3.13, ScrollTrigger) is imported only by
+  `landing/how-it-works.tsx`, and only on wide screens with motion allowed. Website words: team, not church; no named
+  streaming products on the front page. `filter` animates only in two one-off entrances (hero words, step screens).
 - `hosted/src/app/meeting` — 6.11 the Meeting Form: the Excel form's sections on the live plan (`hosted/src/lib/meeting-form.ts`),
   plus the meeting's Transition style (the synced `layout/profile` record).
 - `hosted/src/app/branding` — the program's Meeting & Branding settings (the synced `brand` record; the logo stays on the PC).

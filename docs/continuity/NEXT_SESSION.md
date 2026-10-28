@@ -5,6 +5,31 @@ PR #38. Trust fixes merged in PR #39 (`27cfb4b`). Later the same day: the budget
 (`57cd9c3`), the five Dependabot action upgrades merged (#33–#37), and the handoff PR #40. All checks on `main` are
 green, including the Cloudflare Pages deploy (production); a look at the live site is still the owner's. Read [PROJECT_GUIDE.md](PROJECT_GUIDE.md) ("Working locally" has the set-up and run commands).
 
+28 October, landing page redesign and signed-in visual pass (owner's spec; built from the written spec because
+`design/framedecks-landing-mockup.html` was not in the repository: add it to compare). Owner's choices: light by
+default (loops only while on screen, a Reduce effects switch), signed-in pages a visual pass only.
+- Structure: `hosted/src/components/landing.tsx` (words, order) with `landing/nav.tsx`, `landing/hero.tsx`,
+  `landing/how-it-works.tsx`, `landing/step-screens.tsx` (Plan, Rehearse, Check, Present; each takes `image?`),
+  `landing/feature-previews.tsx` (Teleprompter, FRAMECAST), `landing/statement.tsx`; `next-demo.tsx` enlarged
+  (16:9 screen, wire, Next/Previous/Hide all/Black screen, ripple, question timer); `effects-toggle.tsx`;
+  `motion.tsx` rewritten (reveal fix, `data-loop` → `data-live`, the two-glow stage light).
+- How it works: pinned with GSAP ScrollTrigger above 960 px when motion is allowed, `end: "+=" + innerHeight * 1.6`,
+  `snap: { snapTo: [0, 1/3, 2/3, 1], duration: { min: 0.2, max: 0.45 }, ease: "power2.out", delay: 0.05 }`, step =
+  `Math.round(progress * 3)`, rail fill follows progress, a click scrolls to the snap point. Measured: each wheel
+  flick moves one step (snaps 410 px apart at 1366 × 768). GSAP is loaded only there (phones never download it).
+  Phones and reduce motion: no pin, pill tabs, description below, autoplay every 4 s while on screen until a tap
+  (no autoplay under reduce motion or Reduce effects).
+- TODO for the owner: real screenshots of the four steps (1200 × 750 WebP in `hosted/public/product/step-*.webp`,
+  then `image` per step in `landing.tsx`).
+- Checks: website tests 129/129, lint, types, build; no horizontal scroll at 375/768/1366/1920; no section left
+  hidden after an anchor jump; Lighthouse desktop 100/100 (performance/accessibility), mobile 89–90 (old landing
+  88–90 on the same test); JS 380 KB, CSS 21 KB (budget raised to 24 KB on purpose). Tests changed:
+  `idle-performance` (endless loops must be paused until on screen; glows rest; reveal never stays hidden) and
+  `design-audit` (landing parts, pin settings). Dead CSS of the old landing removed. GSAP added to
+  `docs/legal/THIRD_PARTY_NOTICES.md`. Signed-in pass: gold top edge and deep shadow on cards (`--shadow`), gold
+  eyebrows, gold rail on the active place, one easing, Reduce effects in the top bar. Not done: a look at the
+  signed-in pages with real workspace data (needs an account).
+
 28 October, repository standard (no behaviour change; owner-approved steps 1–4): the layout every repository of the
 owner follows is in `docs/development/repository-structure.md`, with this repository's exceptions (`app/`, `hosted/`,
 the paired copies in both, `kc-*.json`, the upper-case PR template). Applied: `.editorconfig`; `code-style.md` redirect

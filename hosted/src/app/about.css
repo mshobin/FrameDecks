@@ -16,7 +16,7 @@
   background: rgba(255, 255, 255, 0.04);
   color: var(--text-2);
   cursor: pointer;
-  transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+  transition: color 0.2s var(--ease-out), border-color 0.2s var(--ease-out), background 0.2s var(--ease-out);
 }
 
 .fd-about-btn:hover {
@@ -303,7 +303,7 @@
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.2);
   cursor: pointer;
-  transition: width 0.3s ease, background 0.3s ease;
+  transition: width 0.3s var(--ease-out), background 0.3s var(--ease-out);
 }
 
 .fd-ab-dots button[aria-selected="true"] {
@@ -456,7 +456,7 @@
   }
 
   .fd-about[open]::backdrop {
-    animation: fd-fade 0.4s ease backwards;
+    animation: fd-fade 0.4s var(--ease-out) backwards;
   }
 
   @keyframes fd-dialog-in {

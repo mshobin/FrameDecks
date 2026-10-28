@@ -30,24 +30,20 @@ html.fd-light {
   --green-soft: rgba(29, 122, 69, 0.1);
   --red: #b3261e;
   --focus: #7d5a10;
-  --shadow: 0 1px 2px rgba(15, 25, 50, 0.06), 0 10px 30px rgba(15, 25, 50, 0.08);
+  --shadow: inset 0 1px 0 rgba(184, 134, 47, 0.22), 0 1px 2px rgba(15, 25, 50, 0.06), 0 18px 40px -24px rgba(15, 25, 50, 0.22);
 }
 
-html.fd-light .fd-ambient {
-  background:
-    radial-gradient(48vmax 42vmax at 92% -6%, rgba(227, 183, 90, 0.18), transparent 70%),
-    radial-gradient(52vmax 46vmax at -8% 28%, rgba(70, 108, 205, 0.08), transparent 70%);
+html.fd-light .fd-glow-navy {
+  background: radial-gradient(closest-side, rgba(70, 108, 205, 0.1), transparent);
+}
+
+html.fd-light .fd-glow-gold {
+  background: radial-gradient(closest-side, rgba(227, 183, 90, 0.2), transparent);
 }
 
 html.fd-light .fd-topbar,
 html.fd-light .fd-landing-bar {
   background: rgba(244, 245, 249, 0.85);
-}
-
-html.fd-light .fd-hero-title {
-  background: linear-gradient(180deg, #121a2b 30%, #3b4762);
-  -webkit-background-clip: text;
-  background-clip: text;
 }
 
 html.fd-light .fd-tagline {

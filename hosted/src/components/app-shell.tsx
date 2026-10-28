@@ -4,6 +4,7 @@ import { CircleHelp, ClipboardList, Ellipsis, Home as HomeIcon, Monitor, Palette
 
 import { AboutButton } from "@/components/about-dialog";
 import { AccountStatus } from "@/components/account-status";
+import { EffectsToggle } from "@/components/effects-toggle";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { DOWNLOADS } from "@/lib/pc-setup";
 
@@ -95,6 +96,7 @@ export function AppShell({ active, children }: Readonly<{ active: Section; child
             <strong>{titles[active]}</strong>
           </p>
           <div className="fd-topbar-right">
+            <EffectsToggle />
             <ThemeToggle />
             <AboutButton />
             <AccountStatus />

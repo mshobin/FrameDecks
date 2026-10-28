@@ -79,13 +79,17 @@ test("the landing page carries the owner's brief (27 October): approved words, e
     /From prayerful preparation to meaningful moments, FrameDecks keeps your entire service seamlessly connected across every screen, every stream, and every member of your team\./,
   );
   assert.match(landing, /Ready to Serve\?/);
-  assert.match(landing, /Day \{i \+ 1\}/);
-  const words = landing + src("components/next-demo.tsx");
+  assert.match(landing, /Day \$\{i \+ 1\}/);
+  const parts = readdirSync(new URL("../src/components/landing/", import.meta.url)).map((f) => src(`components/landing/${f}`));
+  const words = [landing, src("components/next-demo.tsx"), ...parts].join("\n");
   assert.doesNotMatch(words, /church|sunday|\bobs\b|\bcamo\b/i);
   assert.doesNotMatch(words, />[^<]*FRAMEDECKS/);
   assert.ok(landing.indexOf("Download for Windows") < landing.indexOf("Plan online first"));
   assert.match(landing, /data-reveal/);
   assert.match(landing, /data-spotlight/);
+  assert.match(landing, /data-loop/);
+  assert.match(src("components/landing/how-it-works.tsx"), /end: \(\) => "\+=" \+ window\.innerHeight \* 1\.6/);
+  assert.match(src("components/landing/how-it-works.tsx"), /snapTo: SNAPS/);
   assert.match(src("app/layout.tsx"), /import "\.\/identity\.css";\s*import "\.\/landing\.css";\s*import "\.\/light\.css";/);
   assert.doesNotMatch(src("app/identity.css"), /\.fd-ambient \{\s*display: none;/);
   assert.doesNotMatch(src("app/motion.css"), /filter: blur/);
