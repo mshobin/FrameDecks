@@ -1,9 +1,18 @@
 # NEXT SESSION HANDOFF
 
-Updated 28 October 2026 (latest `main`: `55e98e2`, structure clean-up finished, every check green): the maintainer guide is now [PROJECT_GUIDE.md](PROJECT_GUIDE.md); current references were updated. The continuity files now live in `docs/continuity/`. Windows batch launchers are under `tools/launchers/` and resolve the repository root before running. Release `v6.11.2` (repository layout and trust fixes, no desktop change; pilot install on a real PC and SHA-256 check still the owner's) was tagged after `v6.11.1`, which is published; the FrameDecks README and release header refresh merged in
+Updated 28 October 2026 (structure clean-up and the repository standard applied, every check green): the maintainer guide is now [PROJECT_GUIDE.md](PROJECT_GUIDE.md); current references were updated. The continuity files now live in `docs/continuity/`. Windows batch launchers are under `tools/launchers/` and resolve the repository root before running. Release `v6.11.2` (repository layout and trust fixes, no desktop change; pilot install on a real PC and SHA-256 check still the owner's) was tagged after `v6.11.1`, which is published; the FrameDecks README and release header refresh merged in
 PR #38. Trust fixes merged in PR #39 (`27cfb4b`). Later the same day: the budget script fixed for Windows
 (`57cd9c3`), the five Dependabot action upgrades merged (#33–#37), and the handoff PR #40. All checks on `main` are
 green, including the Cloudflare Pages deploy (production); a look at the live site is still the owner's. Read [PROJECT_GUIDE.md](PROJECT_GUIDE.md) ("Working locally" has the set-up and run commands).
+
+28 October, repository standard (no behaviour change; owner-approved steps 1–4): the layout every repository of the
+owner follows is in `docs/development/repository-structure.md`, with this repository's exceptions (`app/`, `hosted/`,
+the paired copies in both, `kc-*.json`, the upper-case PR template). Applied: `.editorconfig`; `code-style.md` redirect
+removed; `docs/ministry/` → `docs/guide/roles/`, `docs/images/` → `docs/guide/images/`, `reference/user-guide.md` →
+`guide/`; `performance.md` → `docs/development/`, `branding-assets.md` → `docs/reference/`; finished plans and audits
+→ `docs/project/history/` as `YYYY-MM-DD-topic.md`; `docs/design/baselines/` → `tests/visual/baselines/`; sample
+spreadsheets → `framedecks-members-sample.xlsx` / `-template.xlsx`. Before and after every step: Python 170, desktop JS
+4/4, packaging, CSS tokens, ruff, doc links 0 problems.
 
 28 October, structure clean-up (no behaviour change): (1) unused files removed (`kc-mark.png`, the duplicate meeting
 workbook in `docs/templates/`, 12 unreferenced pre-redesign `docs/qa` screenshots; `.vscode/` no longer tracked);
@@ -305,7 +314,7 @@ continuity files in `docs/continuity/` in the same commit (owner's rule). Never 
 
 ## Old name removed (26 October, owner's request)
 - Every "Kingdom Connect" reference is now FrameDecks: docs, release notes, file names (`packaging/framedecks.ico`,
-  `assets/samples/FRAMEDECKS-Members-*.xlsx`, `docs/project/history/framedecks-redesign.html`), the camera files
+  `assets/samples/framedecks-members-*.xlsx` (renamed from `FRAMEDECKS-Members-*` on 28 October), `docs/project/history/framedecks-redesign.html`), the camera files
   (`framedecks_vcam64/32.dll`, `register-/unregister-framedecks-camera.cmd`) and internal names.
 - The Excel Meeting Workbook's header said "KINGDOM CONNECT"; regenerated with `tools/make_meeting_workbook.py`.
 - The camera picker now recognises its own "FrameDecks" camera again (it looked for the old name).

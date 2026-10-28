@@ -45,16 +45,25 @@ do.
 | [Deployment](deployment/deployment-guide.md) | Desktop release builds and hosted Vercel deployment |
 | [Coding standards](development/coding-standards.md) | JavaScript, Python, CSS, and interface-writing conventions |
 | [Development process](development/README.md) | Branching, releases, changelog standards, testing, code style |
+| [Repository structure](development/repository-structure.md) | The folder layout and naming every repository follows |
+| [Performance](development/performance.md) | How the program stays fast, with measurements |
 | [Building the installer](development/building-the-installer.md) | Producing the Windows installer with GitHub Actions |
+| [FrameDecks branding assets](reference/branding-assets.md) | Logo source, current asset mapping, generated variants, and intentionally retained graphics |
+| [Design history](architecture/design-history.md) | The engineering log, one section per version |
+
+## Project history
+
+Finished plans, audits and assessments, kept for the record.
+
+| Document | What it covers |
+| --- | --- |
 | [Engineering assessment](project/history/2026-10-22-engineering-assessment.md) | Current stack, architecture, security, performance, PWA/SaaS readiness, and technical debt |
 | [SaaS migration roadmap](project/history/2026-10-22-saas-migration-roadmap.md) | Proposed hosted architecture and phased migration from the local-first desktop product |
 | [FrameDecks repository audit](project/history/2026-10-22-repository-audit.md) | Repository baseline, security, performance, SaaS/PWA/offline readiness, and migration risks |
 | [FrameDecks modernization plan](project/history/modernization.md) | Target architecture, authentication, pairing, synchronization, deployment, and rollback |
 | [FrameDecks modernization status](project/history/modernization-status.md) | Resumable milestone status, blockers, and validation record |
-| [FrameDecks branding assets](reference/branding-assets.md) | Logo source, current asset mapping, generated variants, and intentionally retained graphics |
 | [FrameDecks branding audit](project/history/2026-10-22-branding-audit.md) | Remaining legacy-name references, their locations, and compatibility rationale |
 | [Repository audit](project/history/2026-10-18-v6.6-repository-audit.md) | Scored review of the product and the repository |
-| [Design history](architecture/design-history.md) | The engineering log, one section per version |
 
 ## Reference
 

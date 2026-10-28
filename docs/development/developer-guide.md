@@ -99,9 +99,9 @@ Remote.bat`) run `src/server.py` the same way for people using the zip version. 
 | `app/vendor/` | Third-party browser libraries (SheetJS for Excel). Don't edit; replace with a newer release. |
 | `src/vcam/` | The FRAMECAST camera pipeline: engine loop, webcam, blur, Camera Looks, layers, compositor, cards, annotation, PowerPoint, the DirectShow sink. |
 | `packaging/` | PyInstaller spec (`framedecks.spec`), Inno Setup script (`installer.iss`), the self-check (`check.py`), version reader (`get_version.py`), camera build helper (`build_vcam.py`), desktop requirements. |
-| `tests/` | Automated tests (`*.test.js`) and the runner (`run.js`). |
+| `tests/` | Automated tests (`*.test.js`, `test_*.py`), the runner (`run.js`) and the visual suites with their reference screens (`tests/visual/`). |
 | `tools/` | Maintainer scripts: the Meeting Workbook generator, world map generator, iPad remote firewall helpers. |
-| `assets/samples/` | Example member spreadsheets. |
+| `assets/samples/` | Example member spreadsheets (`framedecks-members-sample.xlsx`, `framedecks-members-template.xlsx`). |
 | `docs/` | User, operations, architecture and development documentation. `docs/releases/` holds release notes. |
 | `.github/workflows/build-windows.yml` | Builds and publishes the Windows installer. |
 

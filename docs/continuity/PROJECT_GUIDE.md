@@ -87,13 +87,15 @@ Read this first, then [NEXT_SESSION.md](NEXT_SESSION.md).
 - Continuity: `docs/continuity/PROJECT_GUIDE.md`, `docs/continuity/PROJECT_STATUS.md`,
   `docs/continuity/PROJECT_ROADMAP.md`, `docs/continuity/NEXT_SESSION.md`. The owner's live tests:
   `docs/qa/live-test-guide.md` (keep it in step when a tested behaviour changes).
-- Current handoff (28 October 2026; structure clean-up finished, `55e98e2`): v6.11.2 (repository layout + companion trust fixes, no desktop change; tag `v6.11.2`) follows v6.11.1 and the README/release wordmark refresh (PR #38). Trust
+- Current handoff (28 October 2026; repository standard applied, see below): v6.11.2 (repository layout + companion trust fixes, no desktop change; tag `v6.11.2`) follows v6.11.1 and the README/release wordmark refresh (PR #38). Trust
   fixes merged in PR #39 (`27cfb4b`); production deployment verification and the owner's live tests remain. See
   `docs/continuity/NEXT_SESSION.md`. Repository clean-up (merged): Python modules are in `src/`
   (`python src/server.py`), `README.md`, `LICENSE`, `NOTICE` and `ruff.toml` at the top level, `CONTRIBUTING`/`SECURITY`/`SUPPORT` in `.github/`,
   `THIRD_PARTY_NOTICES.md` in `docs/legal/`, the camera package in `src/vcam/`, the sample spreadsheets in `assets/samples/`,
   `CHANGELOG`/`ROADMAP`/`README` at the top of `docs/`, user guides in `docs/guide/`, developer docs (architecture, coding
-  standards, developer guide, design system) in `docs/development/`, finished plans and audits in `docs/project/history/`; release notes before v6.8 live in
+  standards, developer guide, design system) in `docs/development/`, role guides in `docs/guide/roles/`, finished plans and audits in `docs/project/history/` (dated names), the visual reference screens in
+  `tests/visual/baselines/`. The layout every repository follows, and this one's exceptions (`app/`, `hosted/`, `kc-*.json`),
+  is in `docs/development/repository-structure.md`: keep new files in line with it. Release notes before v6.8 live in
   `docs/releases/archive/`; deployment docs in `docs/deployment/`; the backup runbook in `docs/operations/`.
 - Companion design (26 October redesign): tokens in `hosted/src/app/globals.css` `:root`, the look in
   `hosted/src/app/design.css` (glass surfaces, navy and gold, one large title per page). Signed out, `/` is the landing

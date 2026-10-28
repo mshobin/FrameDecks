@@ -13,4 +13,6 @@ Guides for people who build, test and release FrameDecks. If you are new, read t
 | [Coding standards](coding-standards.md) | JavaScript, Python, CSS and wording conventions used in this repository. |
 | [Building the installer](building-the-installer.md) | How GitHub Actions builds the Windows installer, and installing it on a church PC. |
 | [Design history](../architecture/design-history.md) | The engineering log: one section per version, explaining decisions and measurements. |
+| [Repository structure](repository-structure.md) | The folder layout shared by every repository, and this repository's exceptions. |
+| [Performance](performance.md) | How the program stays fast on an ordinary PC, and the numbers behind it. |
 | [Architecture](architecture.md) | Diagrams of the presentation engine, remote control, media pipeline and synchronization. |
