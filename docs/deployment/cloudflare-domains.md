@@ -54,8 +54,10 @@ program call it directly, and Supabase's own row-level security protects the dat
      `https://framedecks.com/privacy`, authorised domain `framedecks.com`. The provider's redirect URI stays the
      Supabase one (`https://<project>.supabase.co/auth/v1/callback`), so nothing else changes.
    - Microsoft: the same; its redirect URI is also the Supabase one.
-   - Email (Brevo, `free-hosting.md`): add `framedecks.com` as a sender domain, publish the SPF, DKIM and DMARC records
-     Brevo shows, and send from `no-reply@framedecks.com`.
+   - Email: nothing to do. Sign-in emails come from Supabase's built-in mail (Brevo was skipped on 26 October), not
+     from framedecks.com, so framedecks.com is published as a domain that sends no mail (DNS table below). If a mail
+     provider is added later (`free-hosting.md` D3, or any SMTP service), replace those three records with the SPF,
+     DKIM and DMARC records it gives.
 7. **Retire the Pages address in search and links**, after framedecks.com has worked for a few days: Account → Bulk
    Redirects → a list with source `framedecks.pages.dev`, target `https://framedecks.com`, **301**, *preserve query
    string*, *subpath matching*, *preserve path suffix* → a Bulk Redirect rule using the list. The program follows the
@@ -74,11 +76,11 @@ program call it directly, and Supabase's own row-level security protects the dat
 | AAAA | `app` | `100::` | Proxied | Reserved, redirect rule |
 | AAAA | `api` | `100::` | Proxied | Reserved, redirect rule |
 | AAAA | `docs` | `100::` | Proxied | Reserved, redirect rule |
-| TXT | `@` | `v=spf1 include:spf.brevo.com -all` | DNS only | Only once Brevo sends from framedecks.com |
-| TXT | `_dmarc` | `v=DMARC1; p=quarantine; rua=mailto:dmarc@framedecks.com` | DNS only | Move to `p=reject` after a clean month |
-| TXT/CNAME | Brevo's DKIM records | as Brevo shows them | DNS only | Step 6 |
+| MX | `@` | `.` priority 0 (null MX) | DNS only | No mail is sent or received at framedecks.com |
+| TXT | `@` | `v=spf1 -all` | DNS only | Nobody may send mail as framedecks.com |
+| TXT | `_dmarc` | `v=DMARC1; p=reject;` | DNS only | Receivers reject forged framedecks.com mail |
 
-`framedecks.app` zone (it never sends mail):
+`framedecks.app` zone (it never sends mail either):
 
 | Type | Name | Content | Proxy |
 | --- | --- | --- | --- |
