@@ -56,7 +56,7 @@ branding.
 | `docs/project/repository-audit.md` | Historical repository audit. |
 | `docs/project/v6.7-plan.md`, `docs/project/v6.8-plan.md` | Historical implementation plans. |
 | `docs/reference/features.md`, `docs/reference/meeting-workbook-and-branding.md` | Maintainer reference material, including old asset/template paths. |
-| `docs/development/code-style.md` | Documents internal JavaScript global naming conventions. |
+| `docs/development/code-style.md` | Documents internal JavaScript global naming conventions (later merged into `coding-standards.md`). |
 | `docs/development/building-the-installer.md` | Retains the legacy camera DLL name in troubleshooting instructions; the current folder instruction was updated above. |
 | `docs/project/branding-assets.md` | Names the existing icon path intentionally retained by packaging. |
 
