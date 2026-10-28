@@ -1,0 +1,2 @@
+# Lets a plain `ruff check .` use the project rules; the rules themselves live in config/ruff.toml (CI passes it).
+extend = "config/ruff.toml"

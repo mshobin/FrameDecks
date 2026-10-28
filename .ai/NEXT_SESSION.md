@@ -5,6 +5,12 @@ PR #38. Trust fixes merged in PR #39 (`27cfb4b`). Later the same day: the budget
 (`57cd9c3`), the five Dependabot action upgrades merged (#33–#37), and the handoff PR #40. All checks on `main` are
 green, including the Cloudflare Pages deploy (production); a look at the live site is still the owner's. Read [CLAUDE.md](../CLAUDE.md) ("Working locally" has the set-up and run commands).
 
+28 October, post-reorganization check of `main` (`c87d059`, v6.11.2): build, tests, installer, release job, Cloudflare
+deploy and every page passed; the program behaves identically to before the move and the website differs only in the
+version number. Two fixes followed: `LICENSE` copied back to the top level (the website footer's Licence link and
+GitHub's licence detection had broken when it moved to `legal/`; `tests/test_licence_copy.py` keeps both equal) and a
+top-level `ruff.toml` that extends `config/ruff.toml` (plain `ruff check .` had fallen back to default rules).
+
 ## Where things stand (27 October)
 - **Repository cleanup (merged to `main`):** the orphaned `streamdeck/` bundle is gone;
   release notes v4.9–v6.7 moved to `docs/releases/archive/` (v6.8–v6.11.1 stay in `docs/releases/`);

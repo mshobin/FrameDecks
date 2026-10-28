@@ -1,7 +1,7 @@
 # PROJECT ROADMAP
 
 Phases follow [docs/FRAMEDECKS_MODERNIZATION_STATUS.md](docs/FRAMEDECKS_MODERNIZATION_STATUS.md), which is authoritative for detail.
-Updated 27 October 2026. FrameDecks 6.11.2 (maintenance: repository layout, trust fixes) is tagged `v6.11.2`, after 6.11.1 (`v6.11.1`); the README/release header wordmark was refreshed in PR #38; trust fixes (#39), the Windows budget-script fix and five Action upgrades (#33–#37) are on `main`, all green. The live Supabase database has every script, `0001`–`0009` (`0009` run 27 October).
+Updated 28 October 2026. FrameDecks 6.11.2 (maintenance: repository layout, trust fixes) is published at `v6.11.2` (verified after the reorganization; licence and lint-config follow-ups on `main`), after 6.11.1 (`v6.11.1`); the README/release header wordmark was refreshed in PR #38; trust fixes (#39), the Windows budget-script fix and five Action upgrades (#33–#37) are on `main`, all green. The live Supabase database has every script, `0001`–`0009` (`0009` run 27 October).
 Repository clean-up is merged (modules in `src/`, docs in `.github/` and `legal/`); no behaviour change. The frozen build was tested here; the next tag still runs the real installer workflow.
 | Step | State |
 |---|---|

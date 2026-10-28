@@ -1,6 +1,7 @@
 # PROJECT STATUS
 
-Last verified: 27 October 2026. **FrameDecks 6.11.2 is tagged** at `v6.11.2` (maintenance: repository layout, companion trust fixes; no desktop change); 6.11.1 was published before it. Check the release workflow.
+Last verified: 28 October 2026 (post-reorganization check passed; `LICENSE` restored at the top level and a top-level
+`ruff.toml` added). **FrameDecks 6.11.2 is published** at `v6.11.2` (maintenance: repository layout, companion trust fixes; no desktop change); 6.11.1 was published before it. Its release job passed (installer and `.sha256` attached).
 The FrameDecks README/release header image refresh merged in PR #38; trust fixes merged in PR #39 (`27cfb4b`).
 Since then: the budget script works on Windows (`57cd9c3`), five GitHub Action upgrades merged (#33–#37; the two
 used only for releases first run at the next tag), handoff PR #40 merged; every check on `main` is green, including the
