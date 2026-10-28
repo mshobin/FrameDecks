@@ -178,6 +178,11 @@ Read this first, then [NEXT_SESSION.md](NEXT_SESSION.md).
   `docs/releases/vX.Y.Z.md` as the notes (`tools/make_release_notes.py`). Cloud sessions cannot push tags: tag locally.
 
 ## Gotchas
+- Moving code changes two layouts, not one: from source `src/vcam/` sits under `src/`, but the installer bundles it as
+  `_internal/vcam/` next to `_internal/app/`. Never find a data folder by counting parents of `__file__` alone; use
+  `sys._MEIPASS` when installed (as `server.py` RES and `vcam/layers.py` `fonts_folder()` do). `tests/test_vcam_fonts.py`
+  covers the fonts. The top-level `CLAUDE.md` is a one-line `@docs/continuity/PROJECT_GUIDE.md` import so AI assistants
+  still load this guide; keep it.
 - Audit roadmap step 2 (6.11.1, 26 October): the Stream Deck plugin is removed (no `/api/command`); window buttons use
   `desktop_win.show_async` / `set_topmost` and threads, never pywebview setters from the web-server thread; one
   OpenCV (`opencv-python`; `packaging/check.py` fails on two); `server.support_bundle` (Diagnostics; never plan,

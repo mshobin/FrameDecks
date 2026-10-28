@@ -8,6 +8,7 @@ Each layer's transformed picture is cached (premultiplied, 8-bit) and rebuilt on
 transform changes, so a still logo costs one quick blend per frame. Videos decode on their own thread.
 """
 import math
+import sys
 import threading
 import time
 from pathlib import Path
@@ -284,10 +285,17 @@ from .powerpoint import powerpoint_slide, powerpoint_status  # noqa: E402,F401  
 
 
 # ---------- the stack ----------
+def fonts_folder():
+    """app/fonts: inside the installed app's bundle (_internal/app/fonts), or at the repository root when run from
+    source (this file is src/vcam/layers.py). Not relative to this file alone: the installer keeps vcam/ one level
+    shallower than the repository does."""
+    return Path(getattr(sys, "_MEIPASS", Path(__file__).resolve().parents[2])) / "app" / "fonts"
+
+
 class LayerManager:
     def __init__(self, folder, fonts_dir=None):
         self.folder = Path(folder)
-        self.fonts = Path(fonts_dir) if fonts_dir else Path(__file__).resolve().parent.parent.parent / "app" / "fonts"
+        self.fonts = Path(fonts_dir) if fonts_dir else fonts_folder()
         self.layers = []                 # list of layer dicts, bottom first
         self.sources = {}                # id -> source object
         self.cache = {}                  # id -> (key, (colour, alpha, inv3), x0, y0)
