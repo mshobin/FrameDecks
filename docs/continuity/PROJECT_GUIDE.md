@@ -81,7 +81,7 @@ Read this first, then [NEXT_SESSION.md](NEXT_SESSION.md).
 - Free plan (`docs/deployment/free-hosting.md`): `.github/workflows/db-keepalive.yml` (pings Supabase every 3 days) and
   `db-backup.yml` + `tools/db_backup.sh` (nightly, AES-256 encrypted with `BACKUP_PASSPHRASE`, 30 days; restore:
   `docs/operations/database-backup.md`). Both do nothing until their repository secrets exist.
-- Licence: Apache 2.0 (`docs/legal/LICENSE`, `docs/legal/NOTICE`; a copy of `LICENSE` stays at the top level for GitHub's licence
+- Licence: Apache 2.0 (`LICENSE`, `NOTICE`; a copy of `LICENSE` stays at the top level for GitHub's licence
   detection and the website footer link, and `tests/test_licence_copy.py` keeps the two identical); every shipped dependency or vendored file needs a row in
   `docs/legal/THIRD_PARTY_NOTICES.md`. Signing: SignPath, off until its secret exists (`docs/deployment/code-signing.md`).
 - Continuity: `docs/continuity/PROJECT_GUIDE.md`, `docs/continuity/PROJECT_STATUS.md`,
@@ -170,7 +170,7 @@ Read this first, then [NEXT_SESSION.md](NEXT_SESSION.md).
 - Sync fixtures: `python tools/make_sync_fixtures.py` rebuilds `tests/fixtures/sync/` (needs Node) after changing
   `store.js` normalize or the record mapping; `tests/sync-fixtures.test.js` says when.
 - Docs: `python tools/check_doc_links.py`, `git diff --check`.
-- Lint: `ruff check .` or `ruff check --config packaging/ruff.toml .` (same rules; `packaging/ruff.toml`; CI pins ruff 0.16.8) and `node --check` on `app/js/*.js` (the Desktop checks
+- Lint: `ruff check .` or `ruff check --config ruff.toml .` (same rules; `ruff.toml`; CI pins ruff 0.16.8) and `node --check` on `app/js/*.js` (the Desktop checks
   workflow). Website budget: `node hosted/scripts/check-budget.mjs` after `npm run build`.
 - Actions (27 October): checkout v7, setup-python v7, setup-msbuild v3, download-artifact v8, action-gh-release v3; the
   last two run only in the release job, so watch the next tag's release job.

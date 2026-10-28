@@ -82,7 +82,7 @@ security hardening items.
 | Desktop: Teams / Zoom integration | **Met** (camera + Share Window) | — | — |
 | Desktop: PPTX export | **Missing** | Plans cannot be exported as `.pptx` | Medium, UI; **[Decision] M-D4** |
 | Offline after sign-in | **Met**: presenting never depends on the cloud; sync queues changes | Templates "downloaded" = synced records already on the PC | — |
-| Open source, Apache 2.0 | **Missing**: private repository, no `docs/legal/LICENSE` | Licence choice, third-party notices | **[Decision] M-D1** |
+| Open source, Apache 2.0 | **Missing**: private repository, no `LICENSE` | Licence choice, third-party notices | **[Decision] M-D1** |
 
 ## 3. Security review
 

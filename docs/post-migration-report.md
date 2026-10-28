@@ -62,7 +62,7 @@ feature, API or integration was removed or renamed:
 
 | | |
 |---|---|
-| What | `docs/legal/LICENSE` (Apache 2.0, the canonical text), `docs/legal/NOTICE`, `docs/legal/THIRD_PARTY_NOTICES.md` (every shipped component and its licence), `"license": "Apache-2.0"` in both `package.json` files. README and CONTRIBUTING are updated, and the README has a code signing policy |
+| What | `LICENSE` (Apache 2.0, the canonical text), `NOTICE`, `docs/legal/THIRD_PARTY_NOTICES.md` (every shipped component and its licence), `"license": "Apache-2.0"` in both `package.json` files. README and CONTRIBUTING are updated, and the README has a code signing policy |
 | Installer | The three files are copied into the program folder (`packaging/framedecks.spec`); `packaging/check.py` requires them |
 | Signing | `build-windows.yml` signs `FRAMEDECKS.exe`, both camera DLLs and the installer through SignPath. It checks each signature and fails the build if one is missing. It is **off** until the `SIGNPATH_API_TOKEN` secret exists; until then the build is unchanged |
 | Visible | Nothing in the program. Once signing is on, Windows shows "FrameDecks" as a verified publisher |
