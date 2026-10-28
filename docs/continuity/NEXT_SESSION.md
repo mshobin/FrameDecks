@@ -5,6 +5,14 @@ PR #38. Trust fixes merged in PR #39 (`27cfb4b`). Later the same day: the budget
 (`57cd9c3`), the five Dependabot action upgrades merged (#33–#37), and the handoff PR #40. All checks on `main` are
 green, including the Cloudflare Pages deploy (production); a look at the live site is still the owner's. Read [PROJECT_GUIDE.md](PROJECT_GUIDE.md) ("Working locally" has the set-up and run commands).
 
+28 October, framedecks.com as the one address (repository side done; Cloudflare and Supabase steps are the owner's):
+`hosted/src/lib/site.ts` (`SITE_URL`), canonical links on `/`, `/help`, `/privacy`, `/sign-in`, `noindex` on every
+signed-in page, `robots.txt` + `sitemap.xml`, `X-Robots-Tag: noindex` on `*.pages.dev`, a year's cache on
+`/_next/static/`; `src/cloud_sync.py` asks framedecks.com then framedecks.pages.dev (ships in the next program
+release); `hosted/tests/site-domain.test.mjs`. Owner's checklist with every DNS record, redirect rule (framedecks.app
+and www 301; app/api/docs reserved 302), TLS, cache, security and WAF setting: `docs/deployment/cloudflare-domains.md`
+"Order of work". There were no framedecks.app references to replace. Checks: Python 172, website 133/133, build.
+
 28 October, version 6.12 prepared on `main` (not yet tagged): the camera FRAMECAST is renamed **FrameRelay** everywhere
 (registered name in `packaging/build_vcam.py` / `src/vcam/sink.py`, same CLSID; `src/vcam/devices.py` and
 `hosted/src/lib/pc-setup.ts` still recognise "framecast" as an earlier name); the website hero no longer tilts, follows

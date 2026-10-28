@@ -10,6 +10,13 @@ Versions before 4.9 (when the program had its earlier name) are described in the
 
 ## [Unreleased]
 
+### Changed
+- framedecks.com is the website's one address: canonical links, Open Graph, `robots.txt` and `sitemap.xml` use it;
+  signed-in pages are not indexed; the Pages address answers `noindex`. The program links through
+  `https://framedecks.com` and falls back to `https://framedecks.pages.dev` (from the next release). Cloudflare DNS,
+  redirects (framedecks.app and www → 301), TLS, cache, security and WAF settings:
+  [docs/deployment/cloudflare-domains.md](deployment/cloudflare-domains.md).
+
 ### Added
 - The program can take commands from the FrameDecks companion (Next/Previous Frame, Go Live, Hide all, black screen,
   question, scripture) and run them exactly as the keys do, showing "‹action› · from ‹person›" on the PC. Off by

@@ -144,7 +144,7 @@ row to that log after each meeting, and the meeting tiles count them.
 Full details are in [reference/meeting-workbook-and-branding.md](../reference/meeting-workbook-and-branding.md).
 
 Since 6.11 the same form is on the FrameDecks website: **Meeting Form** in the companion
-(framedecks.pages.dev). It reaches a linked PC by itself, with no file to import
+(framedecks.com). It reaches a linked PC by itself, with no file to import
 ([design](../architecture/meeting-form.md)). The Excel workbook below still works; it is under
 **Settings → Data / Backup → Meeting from Excel** and leaves the program in 6.12.
 

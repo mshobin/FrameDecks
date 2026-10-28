@@ -32,6 +32,7 @@ Repository clean-up is on `main` (modules in `src/`; `README.md`, `LICENSE`, `NO
 | Landing brief: FrameDecks spelling, every audience, motion back, About in Light | Built (27 October). Owner: About story wording, program presets |
 | 10/10 plan: phases 1–2, owner-free parts of 3–4 (website four places, Plan, Home, first-time path, Help, identity, landing, Run polish) | Built (27 October). Owner: Test I; go-ahead for projector legibility, templates by type, the Wi-Fi remote; real quotes and photos |
 | Repository structure clean-up (unused files, one `ruff.toml`/`LICENSE`, top-level `README`/`NOTICE`, docs by reader, `framedecks-*` images) | Done (28 October, `f260b47`–`55e98e2`); every check and the Windows installer build green; no behaviour change |
+| framedecks.com as the one address (redirects, TLS, cache, WAF) | Repository ready (28 October). Owner: Cloudflare + Supabase steps in `docs/deployment/cloudflare-domains.md` |
 | 6.12: FrameRelay rename, still hero arrival, Proverbs 16:3, About wording | Prepared on `main` (28 October). Owner: tag `v6.12`, pilot install, check the camera name in Zoom/Teams |
 | Landing redesign: pinned 4-step guide, demo, bento, statement, Reduce effects; signed-in visual pass | Built (28 October). Owner: real step screenshots (`hosted/public/product/step-*.webp`), compare with the mock-up file |
 | Repository standard (`docs/development/repository-structure.md`: one layout for every repository) | Applied (28 October, `832a07b`–`4e88eda`, CI green); exceptions recorded; no behaviour change |

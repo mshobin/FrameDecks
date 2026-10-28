@@ -43,6 +43,7 @@ do.
 | [Developer guide](development/developer-guide.md) | Running from source, project layout, adding features and tests |
 | [Environment](deployment/environment-variables.md) | Runtime and development configuration, data locations, and secrets |
 | [Deployment](deployment/deployment-guide.md) | Desktop release builds and hosted Vercel deployment |
+| [Domains on Cloudflare](deployment/cloudflare-domains.md) | framedecks.com as the one address: DNS, redirects, TLS, cache, security and WAF |
 | [Coding standards](development/coding-standards.md) | JavaScript, Python, CSS, and interface-writing conventions |
 | [Development process](development/README.md) | Branching, releases, changelog standards, testing, code style |
 | [Repository structure](development/repository-structure.md) | The folder layout and naming every repository follows |

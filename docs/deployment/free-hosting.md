@@ -53,6 +53,9 @@ Vercel keeps working with the same build in the meantime.
    | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | your publishable key: the same value as in Vercel, under Settings → Environment Variables |
    | `NODE_VERSION` | `22` |
 
+> **Custom domain:** the production address is `https://framedecks.com`. After this part works on `pages.dev`, follow
+> [cloudflare-domains.md](cloudflare-domains.md) (custom domain, redirects, Supabase Site URL, TLS, cache and WAF).
+
 5. **Save and Deploy.** When it finishes, open `https://<name>.pages.dev`. You should see the sign-in page.
    Also open `https://<name>.pages.dev/api/sync-config`; it should show `{"url":"https://slrsykiknlqlivlnpvrb…","anonKey":"…"}`.
 6. **Let sign-in return to the new address.** In Supabase → **Authentication → URL Configuration**:

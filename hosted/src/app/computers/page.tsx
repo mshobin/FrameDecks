@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 
 import { AppShell } from "@/components/app-shell";
 import { ComputersPanel } from "@/components/computers-panel";
+import { PRIVATE_PAGE } from "@/lib/site";
 
-export const metadata: Metadata = { title: "Service PCs" };
+export const metadata: Metadata = { title: "Service PCs", ...PRIVATE_PAGE };
 
 export default function ComputersPage() {
   return (

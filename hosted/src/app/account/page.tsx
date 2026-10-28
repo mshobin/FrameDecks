@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 
 import { AppShell } from "@/components/app-shell";
 import { WorkspacePanel } from "@/components/workspace-panel";
+import { PRIVATE_PAGE } from "@/lib/site";
 
-export const metadata: Metadata = { title: "Your account" };
+export const metadata: Metadata = { title: "Your account", ...PRIVATE_PAGE };
 
 // Profile, teams and invitations, moved off Home so it stays about the next service (owner-approved, 27 October)
 export default function AccountPage() {

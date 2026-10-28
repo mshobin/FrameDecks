@@ -1,4 +1,13 @@
-# Cloudflare Pages headers for the static companion (ignored by other hosts).
+# Cloudflare Pages headers for the static companion (ignored by other hosts). framedecks.com is the one public
+# address (docs/deployment/cloudflare-domains.md); HSTS and TLS are set on the framedecks.com zone in Cloudflare.
+# The Pages address keeps working (older PCs link through it) but never appears in search results:
+https://:project.pages.dev/*
+  X-Robots-Tag: noindex
+https://:version.:project.pages.dev/*
+  X-Robots-Tag: noindex
+# Build files carry a content hash in their name, so they never change
+/_next/static/*
+  Cache-Control: public, max-age=31536000, immutable
 /api/sync-config
   Content-Type: application/json; charset=utf-8
   Cache-Control: public, max-age=300

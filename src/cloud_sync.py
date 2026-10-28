@@ -26,9 +26,13 @@ from pathlib import Path
 
 import sync_entities as E
 
-COMPANION_URL = os.environ.get("FRAMEDECKS_COMPANION_URL", "https://framedecks.pages.dev").rstrip("/")
+# The website (docs/deployment/cloudflare-domains.md): framedecks.com is the one address. The Cloudflare Pages address
+# answers too and is tried second, so a PC still links while framedecks.com is being set up or cannot be reached.
+_COMPANION_ENV = os.environ.get("FRAMEDECKS_COMPANION_URL", "").rstrip("/")
+COMPANION_URL = _COMPANION_ENV or "https://framedecks.com"
+COMPANION_FALLBACKS = () if _COMPANION_ENV else ("https://framedecks.pages.dev",)
 # Cloudflare (the website's host) answers 403 to Python's default "Python-urllib" identity, so every request says who it is
-USER_AGENT = "FrameDecks (Windows; +https://framedecks.pages.dev)"
+USER_AGENT = "FrameDecks (Windows; +https://framedecks.com)"
 PUSH_BATCH = 200                      # sync_push: at most 200 changes and 2 MB a call
 PUSH_BYTES = 1_800_000
 QUIET_SECONDS = 3                     # after a save, wait for this much quiet before syncing
@@ -355,20 +359,31 @@ class CloudApi:
         return self._rpc("computer_revoke", {"computer": computer_id})
 
 
-def companion_config(timeout=10):
-    """The cloud's address and public key, from the companion (it holds them; nothing secret is in this program)."""
-    req = urllib.request.Request(f"{COMPANION_URL}/api/sync-config",
+def _fetch_config(base, timeout):
+    req = urllib.request.Request(f"{base}/api/sync-config",
                                  headers={"User-Agent": USER_AGENT, "Accept": "application/json"})
     try:
         with urllib.request.urlopen(req, timeout=timeout) as res:
             data = json.loads(res.read().decode("utf-8"))
     except urllib.error.HTTPError as e:
-        raise Offline(f"Could not reach {COMPANION_URL}: the website answered {e.code} {e.reason}")
+        raise Offline(f"Could not reach {base}: the website answered {e.code} {e.reason}")
     except (urllib.error.URLError, OSError, ValueError) as e:
-        raise Offline(f"Could not reach {COMPANION_URL}: {getattr(e, 'reason', e)}")
+        raise Offline(f"Could not reach {base}: {getattr(e, 'reason', e)}")
     if not isinstance(data, dict) or not str(data.get("url", "")).startswith("https://") or not data.get("anonKey"):
         raise Offline("The companion has no cloud set up yet")
     return {"url": data["url"], "anonKey": data["anonKey"]}
+
+
+def companion_config(timeout=10):
+    """The cloud's address and public key, from the companion (it holds them; nothing secret is in this program).
+    Asks framedecks.com first, then the fallback address; the first website's problem is the one reported."""
+    first = None
+    for base in (COMPANION_URL, *COMPANION_FALLBACKS):
+        try:
+            return _fetch_config(base, timeout)
+        except Offline as e:
+            first = first or e
+    raise first
 
 
 # ---------- Where the computer key is kept ----------

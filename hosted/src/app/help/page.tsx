@@ -5,7 +5,7 @@ import { AuthShell } from "@/components/auth-shell";
 import brand from "@/lib/brand.json";
 import { DOWNLOADS } from "@/lib/pc-setup";
 
-export const metadata: Metadata = { title: "Help" };
+export const metadata: Metadata = { title: "Help", alternates: { canonical: "/help" } };
 
 const GUIDES = "https://github.com/mshobin/FRAMEDECKS/blob/main/docs";
 

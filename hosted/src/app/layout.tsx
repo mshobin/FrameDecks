@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 
 import { Ambient, Motion } from "@/components/motion";
 import { ServiceWorkerRegister } from "@/components/service-worker-register";
+import { SITE_URL } from "@/lib/site";
 
 import "./globals.css";
 import "./design.css";
@@ -12,6 +13,7 @@ import "./landing.css";
 import "./light.css";
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: {
     default: "FrameDecks · Prepare with Purpose. Present with Excellence.",
     template: "%s | FrameDecks",
@@ -19,6 +21,14 @@ export const metadata: Metadata = {
   description:
     "Plan, rehearse and present meetings, classes, conferences, events and services on every screen and stream, guided from your phone.",
   applicationName: "FrameDecks",
+  openGraph: {
+    type: "website",
+    siteName: "FrameDecks",
+    url: "/",
+    title: "FrameDecks · Prepare with Purpose. Present with Excellence.",
+    description:
+      "Plan, rehearse and present meetings, classes, conferences, events and services on every screen and stream, guided from your phone.",
+  },
   manifest: "/manifest.webmanifest",
   icons: {
     icon: "/framedecks-emblem.webp",

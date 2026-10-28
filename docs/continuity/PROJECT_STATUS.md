@@ -15,6 +15,9 @@ Cloudflare Pages production deploy. Owner live tests remain. The live database h
   `framedecks-world-map.svg`, `assets/brand/framedecks-about-header.*`). The `kc-*.json` data files keep their names.
   Checks: Python 170, desktop JS 4/4, packaging, CSS tokens, ruff, doc links 97/0, visual and axe suites, website
   127 tests + build + budget; on GitHub, Desktop checks, Hosted companion checks and Build Windows installer green.
+- **framedecks.com (28 October):** the repository treats framedecks.com as the one address (canonical, sitemap,
+  robots, noindex elsewhere; the program falls back to pages.dev). Owner: Cloudflare and Supabase steps in
+  `docs/deployment/cloudflare-domains.md`.
 - **Version 6.12 (prepared 28 October, not yet tagged):** FRAMECAST renamed **FrameRelay** everywhere (same camera
   ID; the old name is still recognised), a still, one-time hero arrival on the website, Proverbs 16:3 in place of the
   Helen Keller quote, "Ministry Servant" removed from About. All checks green; the owner tags `v6.12` to publish.

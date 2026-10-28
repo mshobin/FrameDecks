@@ -88,10 +88,13 @@ hosted source. It does not replace security review or browser/device testing.
 
 ## Cloudflare Pages deployment (the main address)
 
-The companion is served from `https://framedecks.pages.dev` (Cloudflare Pages, free): Production branch `main`,
+The companion is served at **`https://framedecks.com`**, the one canonical address (Cloudflare Pages custom domain;
+domains, redirects, TLS, cache and WAF in `docs/deployment/cloudflare-domains.md`). The Pages project
+(`framedecks.pages.dev`, kept as a fallback, never indexed) uses: Production branch `main`,
 Framework preset None, Root directory `hosted`, Build command `npm run build`, Build output directory `out`, and the
 variables `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` and `NODE_VERSION=22`. In Supabase, the Site URL
-is `https://framedecks.pages.dev` and `https://framedecks.pages.dev/auth/callback` is an allowed Redirect URL. Full
+is `https://framedecks.com` and `https://framedecks.com/auth/callback` is an allowed Redirect URL (plus the pages.dev
+one until it redirects). Canonical links, `robots.txt` and `sitemap.xml` come from `SITE_URL` in `src/lib/site.ts`. Full
 steps: `docs/deployment/free-hosting.md`, Part A.
 
 ## Vercel deployment (until it is retired)

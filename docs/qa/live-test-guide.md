@@ -38,7 +38,7 @@ before: go on to the next one. Any other error: stop and send it.
 ## 3. Test A: sync
 
 1. In FrameDecks: **Settings → FrameDecks account → Link to a workspace**. A code like `K7PM 2XQ9` appears.
-2. On any device, open `https://framedecks.pages.dev`, sign in, go to **Settings → Service PCs**, type the code, **Link**.
+2. On any device, open `https://framedecks.com`, sign in, go to **Settings → Service PCs**, type the code, **Link**.
 3. **Expect:** within a few seconds the PC shows "Linked to BSF Study"; this is also the first time Windows
    Credential Manager stores the PC's key.
 4. In the companion open **Plan** → **History and restore** (it was the Running order). **Expect:** your Frames in order, with their questions, scripture and scripts;
@@ -135,7 +135,7 @@ On the service PC, no real call needed.
 
 ## 11. Test I: the website's new places (27 October)
 
-1. Sign out and open `https://framedecks.pages.dev`. **Expect:** "Prepare with Purpose. Present with Excellence.",
+1. Sign out and open `https://framedecks.com`. **Expect:** "Prepare with Purpose. Present with Excellence.",
    **Download for Windows · free** first, a demo where **Next** changes the room screen, Day 1–4, **Ready to Serve?**,
    and Help, Privacy, Licence, Contact in the footer. Sections rise in gently as you scroll; with "reduce motion" on,
    nothing moves. Switch to Light and open (i) About: everything readable.

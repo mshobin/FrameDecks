@@ -53,7 +53,8 @@ Read this first, then [NEXT_SESSION.md](NEXT_SESSION.md).
   program's own window with the keys' functions (`app/js/cloud-remote.js`). `REMOTE` in `src/server.py` is the Wi-Fi
   phone remote, a different thing.
 - `hosted/` — Next.js 16 online-first companion, built as **plain static files** (`output: "export"` → `hosted/out/`;
-  free plan, `docs/deployment/free-hosting.md`). Deployed on Cloudflare Pages at `https://framedecks.pages.dev`
+  free plan, `docs/deployment/free-hosting.md`). Canonical address **`https://framedecks.com`** (`hosted/src/lib/site.ts`;
+  domains, redirects and Cloudflare settings in `docs/deployment/cloudflare-domains.md`), served by Cloudflare Pages, whose own `https://framedecks.pages.dev` stays as a noindexed fallback
   (Root Directory `hosted`, output `out`; 26 October); `framedecks.vercel.app` stays until the owner retires it. No server code: `/api/sync-config` is a file written by
   `hosted/scripts/write-sync-config.mjs` at build time; the manifest is `hosted/public/manifest.webmanifest`.
 - `hosted/supabase/migrations/` — SQL run in order in the Supabase SQL editor: `0001` workspaces, `0002` invitations,

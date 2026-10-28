@@ -599,6 +599,29 @@ class WebsiteIdentity(unittest.TestCase):
         self.assertEqual(C.companion_config()["url"], "https://x.supabase.co")
         self.assertIn("FrameDecks", seen[0].get_header("User-agent"))
 
+    def test_the_website_is_framedecks_com(self):
+        seen = self.capture({"url": "https://x.supabase.co", "anonKey": "k"})
+        C.companion_config()
+        self.assertEqual(seen[0].full_url, "https://framedecks.com/api/sync-config")
+
+    def test_the_pages_address_is_tried_when_framedecks_com_does_not_answer(self):
+        import urllib.error
+        import urllib.request
+        seen = []
+        good = self.capture({"url": "https://x.supabase.co", "anonKey": "k"})
+        answer_second = urllib.request.urlopen
+
+        def first_fails(req, timeout=None):
+            seen.append(req.full_url)
+            if req.full_url.startswith(C.COMPANION_URL):
+                raise urllib.error.URLError("no DNS yet")
+            return answer_second(req, timeout)
+
+        urllib.request.urlopen = first_fails
+        self.assertEqual(C.companion_config()["url"], "https://x.supabase.co")
+        self.assertEqual(seen, ["https://framedecks.com/api/sync-config", "https://framedecks.pages.dev/api/sync-config"])
+        self.assertEqual(len(good), 1)
+
     def test_cloud_calls_name_framedecks(self):
         seen = self.capture([])
         C.CloudApi("https://x.supabase.co", "k", "org").pull(0)

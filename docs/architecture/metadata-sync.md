@@ -161,7 +161,8 @@ sequenceDiagram
 - **Never in the way.** Sync failures are logged and shown in the sync status only; they never block saving,
   presenting, the camera or the phone remote.
 - **No new packages.** HTTPS through the Python standard library (`urllib`), JSON as today.
-- **Where the cloud is.** When linking, the PC asks the companion (`https://framedecks.pages.dev/api/sync-config`) for
+- **Where the cloud is.** When linking, the PC asks the companion (`https://framedecks.com/api/sync-config`, then `https://framedecks.pages.dev` if that does
+  not answer) for
   the Supabase address and public key, and keeps them in `kc-sync.json`; nothing about the cloud is written into the
   program. `FRAMEDECKS_COMPANION_URL` points it elsewhere for testing.
 - **Settings → FrameDecks account** (D1) shows Not linked / the code to type / Linked to ‹workspace› with the last
