@@ -1,6 +1,6 @@
 # NEXT SESSION HANDOFF
 
-Updated 28 October 2026 (structure clean-up and the repository standard applied, every check green): the maintainer guide is now [PROJECT_GUIDE.md](PROJECT_GUIDE.md); current references were updated. The continuity files now live in `docs/continuity/`. Windows batch launchers are under `tools/launchers/` and resolve the repository root before running. Release `v6.11.2` (repository layout and trust fixes, no desktop change; pilot install on a real PC and SHA-256 check still the owner's) was tagged after `v6.11.1`, which is published; the FrameDecks README and release header refresh merged in
+Updated 28 October 2026 (latest `main`: `4e88eda`; structure clean-up and the repository standard applied, every check and GitHub CI green): the maintainer guide is now [PROJECT_GUIDE.md](PROJECT_GUIDE.md); current references were updated. The continuity files now live in `docs/continuity/`. Windows batch launchers are under `tools/launchers/` and resolve the repository root before running. Release `v6.11.2` (repository layout and trust fixes, no desktop change; pilot install on a real PC and SHA-256 check still the owner's) was tagged after `v6.11.1`, which is published; the FrameDecks README and release header refresh merged in
 PR #38. Trust fixes merged in PR #39 (`27cfb4b`). Later the same day: the budget script fixed for Windows
 (`57cd9c3`), the five Dependabot action upgrades merged (#33–#37), and the handoff PR #40. All checks on `main` are
 green, including the Cloudflare Pages deploy (production); a look at the live site is still the owner's. Read [PROJECT_GUIDE.md](PROJECT_GUIDE.md) ("Working locally" has the set-up and run commands).
@@ -12,7 +12,10 @@ removed; `docs/ministry/` → `docs/guide/roles/`, `docs/images/` → `docs/guid
 `guide/`; `performance.md` → `docs/development/`, `branding-assets.md` → `docs/reference/`; finished plans and audits
 → `docs/project/history/` as `YYYY-MM-DD-topic.md`; `docs/design/baselines/` → `tests/visual/baselines/`; sample
 spreadsheets → `framedecks-members-sample.xlsx` / `-template.xlsx`. Before and after every step: Python 170, desktop JS
-4/4, packaging, CSS tokens, ruff, doc links 0 problems.
+4/4, packaging, CSS tokens, ruff, doc links 0 problems; at the end also the website (127 tests, lint, types, build,
+budget), app start, visual and axe suites and a broken-image check. Commits `832a07b`, `68b1ffc`, `20a8583`, `4e88eda`;
+Desktop checks and Build Windows installer green on GitHub. Nothing is open from this work. New files go where
+`docs/development/repository-structure.md` says.
 
 28 October, structure clean-up (no behaviour change): (1) unused files removed (`kc-mark.png`, the duplicate meeting
 workbook in `docs/templates/`, 12 unreferenced pre-redesign `docs/qa` screenshots; `.vscode/` no longer tracked);

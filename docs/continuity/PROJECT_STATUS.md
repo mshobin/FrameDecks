@@ -2,7 +2,7 @@
 
 Last verified: 28 October 2026 (two post-reorganization checks passed; the camera-fonts path for the installed app
 fixed after the `src/vcam/` move; then the four-step structure clean-up, `f260b47`–`55e98e2`, and the repository standard,
-`832a07b` onward; all checks green on `main`). **FrameDecks 6.11.2 is published** at `v6.11.2` (maintenance: repository layout, companion trust fixes; no desktop change); 6.11.1 was published before it. Its release job passed (installer and `.sha256` attached).
+`832a07b`–`4e88eda`; all checks green, and on GitHub Desktop checks and Build Windows installer passed for `4e88eda`). **FrameDecks 6.11.2 is published** at `v6.11.2` (maintenance: repository layout, companion trust fixes; no desktop change); 6.11.1 was published before it. Its release job passed (installer and `.sha256` attached).
 The FrameDecks README/release header image refresh merged in PR #38; trust fixes merged in PR #39 (`27cfb4b`).
 Since then: the budget script works on Windows (`57cd9c3`), five GitHub Action upgrades merged (#33–#37; the two
 used only for releases first run at the next tag), handoff PR #40 merged; every check on `main` is green, including the
@@ -20,7 +20,10 @@ Cloudflare Pages production deploy. Owner live tests remain. The live database h
   added, the `code-style.md` redirect page removed; role guides in `docs/guide/roles/`, guide screenshots in
   `docs/guide/images/`, finished plans and audits dated in `docs/project/history/` (`docs/project/` keeps only the open
   production audit); visual reference screens in `tests/visual/baselines/`; sample spreadsheets renamed
-  `framedecks-members-*.xlsx`. Checks matched the baseline after every step.
+  `framedecks-members-*.xlsx`. Commits `832a07b`, `68b1ffc`, `20a8583`, `4e88eda`. Checks matched the baseline after every
+  step (Python 170, desktop JS 4/4, packaging, CSS tokens, ruff, doc links 97/0, website 127 + lint + types + build +
+  budget 330 KB, app start, visual and axe suites, no broken images); GitHub CI green. Structure score about 88 → 97.
+  To apply the same standard to another repository, use `docs/development/repository-structure.md` as the reference.
 - **GitHub:** Desktop checks, Hosted companion checks and Build Windows installer (with the installer smoke test) green.
 - **Trust-fix PR #39 checks:** hosted tests 127/127, lint, typecheck, build; manual budget 330 KB JS / 70 KB largest /
   18 KB CSS; desktop JS 4/4; README fact tests 2/2; CSS tokens 14 files / 0 problems; doc links 97 files / 0 problems;
