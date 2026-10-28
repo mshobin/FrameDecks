@@ -1,4 +1,4 @@
-"""FrameDecks - optional AI, free by default (M-D3 in docs/migration-plan.md; design in docs/architecture-review.md §6).
+"""FrameDecks - optional AI, free by default (M-D3 in docs/project/history/migration-plan.md; design in docs/project/history/architecture-review.md §6).
 
 One small interface, so a feature never calls a vendor directly:
     provider().available() -> {"ok", "provider", "model", "reason"}

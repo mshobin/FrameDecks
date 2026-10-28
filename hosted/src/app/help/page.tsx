@@ -10,7 +10,7 @@ export const metadata: Metadata = { title: "Help" };
 const GUIDES = "https://github.com/mshobin/FRAMEDECKS/blob/main/docs";
 
 // One page a volunteer can open on a phone five minutes before the service (owner-approved, 27 October).
-// Keep it short, in the words of docs/glossary.md, and true to the product; longer guides live in docs/.
+// Keep it short, in the words of docs/guide/glossary.md, and true to the product; longer guides live in docs/.
 export default function HelpPage() {
   const contact = brand.creator.email;
   return (

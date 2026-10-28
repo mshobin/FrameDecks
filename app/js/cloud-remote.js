@@ -1,4 +1,4 @@
-/* FrameDecks - running a service from the companion (Phase 5, docs/architecture/remote-control.md).
+/* FrameDecks - running a service from the companion (Phase 5, docs/architecture/remote-control-design.md).
  * src/cloud_remote.py fetches the commands a signed-in person sent from the companion and hands them to this window,
  * which runs each one with exactly the code of the matching key (R1). Commands only come while this PC is linked and
  * Settings > FrameDecks account > "Allow control from the companion" is on; the rest of the time the program simply

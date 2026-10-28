@@ -1,4 +1,4 @@
-// Guards for the design audit's website items (docs/design-system.md): what each fix promised stays true.
+// Guards for the design audit's website items (docs/development/design-system.md): what each fix promised stays true.
 import assert from "node:assert/strict";
 import { readFileSync, readdirSync } from "node:fs";
 import { test } from "node:test";

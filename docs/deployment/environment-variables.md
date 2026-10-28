@@ -14,7 +14,7 @@ companion currently has no required environment variables.
 Desktop settings and private user data are stored in the app's data folder,
 normally `%APPDATA%\FRAMEDECKS` on Windows. See the
 [configuration guide](../reference/configuration-guide.md) for file contents and
-the [developer guide](../CONTRIBUTING.md) for local setup.
+the [developer guide](../development/developer-guide.md) for local setup.
 
 ## Hosted companion
 

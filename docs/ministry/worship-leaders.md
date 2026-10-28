@@ -24,10 +24,10 @@ How to lead a service or Bible study with FrameDecks, so the technology supports
 
 ## Five things to know
 
-1. **A meeting is a list of Frames.** Each Frame is one step of the service (Welcome, Scripture Reading, Discussion…). See [Frames](../frames.md).
+1. **A meeting is a list of Frames.** Each Frame is one step of the service (Welcome, Scripture Reading, Discussion…). See [Frames](../guide/frames.md).
 2. **Your script is private.** Write what you plan to say in each Frame's **Teleprompter script**. It never appears on screen; only you see it.
 3. **The Teleprompter is your confidence monitor.** **Live tools → Teleprompter → In this window** (**R**) docks it beside the Studio. **Live tools → Teleprompter → Own window** opens it on a second screen; select **On screen & next** to see what is on screen, what comes next, the time and a timer. The phone remote has it too.
-   Leading on Zoom or Teams from one laptop? **Live tools → Teleprompter → Over Zoom** (**Shift+R**) puts your script in a see-through window over the meeting, so you still see the participants. Zoom and Teams never share it. See [Teleprompter overlay](../presentations.md#teleprompter-overlay-meeting-leader-mode).
+   Leading on Zoom or Teams from one laptop? **Live tools → Teleprompter → Over Zoom** (**Shift+R**) puts your script in a see-through window over the meeting, so you still see the participants. Zoom and Teams never share it. See [Teleprompter overlay](../guide/presentations.md#teleprompter-overlay-meeting-leader-mode).
 4. **You can draw.** **Annotate** (**D**) lets you circle a word in a verse or underline a phrase, on the PC or from a phone.
 5. **Hide all is always safe.** **Esc** (or **HIDE ALL** on the phone) clears the screen without deleting anything.
 
@@ -69,14 +69,14 @@ Stay calm and keep leading. The congregation follows your tone more than the scr
 
 ## Getting started in this role
 
-1. Read [Getting started](../getting-started.md) and [Service planning](../service-planning.md).
+1. Read [Getting started](../guide/getting-started.md) and [Service planning](../guide/service-planning.md).
 2. Build a practice meeting with three Frames, one question and one scripture.
 3. Open the Teleprompter window and step through it from your phone.
 4. Lead one service with an operator beside you before leading alone.
 
 ## Related
 - [Church operations](README.md)
-- [Service planning](../service-planning.md)
-- [Presentations](../presentations.md)
-- [Remote control](../remote-control.md)
+- [Service planning](../guide/service-planning.md)
+- [Presentations](../guide/presentations.md)
+- [Remote control](../guide/remote-control.md)
 - [Service-day checklist](service-day-checklist.md)

@@ -1,4 +1,4 @@
-"""FrameDecks - running a service from the companion (design: docs/architecture/remote-control.md).
+"""FrameDecks - running a service from the companion (design: docs/architecture/remote-control-design.md).
 
 Only while this PC is linked to a workspace (src/cloud_sync.py) and "Allow control from the companion" is on. The PC asks
 the workspace for commands (remote_take, about once a second while a phone is active, every 15 seconds otherwise) and

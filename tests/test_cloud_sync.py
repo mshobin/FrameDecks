@@ -230,7 +230,7 @@ class TwoPCs(unittest.TestCase):
 
 
 class MembersFromTheCloud(unittest.TestCase):
-    """M-D2 (docs/migration-plan.md): the workspace is the member list's source; a PC keeps a copy it can rebuild."""
+    """M-D2 (docs/project/history/migration-plan.md): the workspace is the member list's source; a PC keeps a copy it can rebuild."""
 
     def setUp(self):
         self.cloud = Cloud()

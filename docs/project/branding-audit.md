@@ -40,7 +40,7 @@ retained for accurate release history and to help existing users understand upgr
 | Location | Classification |
 |---|---|
 | `README.md` | User-facing migration note; explains that earlier installations and data are migrated. |
-| `docs/installation.md` | User-facing upgrade note; identifies prior releases and what the installer migrates. |
+| `docs/guide/installation.md` | User-facing upgrade note; identifies prior releases and what the installer migrates. |
 | `CHANGELOG.md` | User-facing historical release entries; records the name and camera label used by older releases. |
 | `docs/releases/archive/v6.1.md`–`docs/releases/v6.9.md` | User-facing historical release notes. Each occurrence describes the product, installer, camera, or files as they existed in that version. |
 
@@ -58,7 +58,7 @@ branding.
 | `docs/reference/features.md`, `docs/reference/meeting-workbook-and-branding.md` | Maintainer reference material, including old asset/template paths. |
 | `docs/development/code-style.md` | Documents internal JavaScript global naming conventions. |
 | `docs/development/building-the-installer.md` | Retains the legacy camera DLL name in troubleshooting instructions; the current folder instruction was updated above. |
-| `docs/project/FRAMEDECKS_BRANDING_ASSETS.md` | Names the existing icon path intentionally retained by packaging. |
+| `docs/project/branding-assets.md` | Names the existing icon path intentionally retained by packaging. |
 
 ### Runtime, build, and compatibility identifiers
 

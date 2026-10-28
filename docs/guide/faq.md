@@ -45,7 +45,7 @@ Create a Frame for each part of the service in order, add Content to each, and c
 Yes. **Duplicate** a Frame (⋯ on the Frame) to make a fully independent copy, or **Save as template** to start new Frames from it. You can also export a whole meeting to Excel and import it later.
 
 **Can I plan in Excel?**
-Yes, optionally. The **Meeting Workbook** (Settings → Data / Backup → Download the Excel template; since 6.11 the website's Meeting Form does the same online) has two tabs: the **Meeting Form**, one guided page where you type the meeting details, Frames, Content, questions and scriptures, and the **Dashboard**, which sums it up for you. Import shows every problem with where it is (for example *Meeting Form · Content · row 26*) before anything changes, and can be undone. Workbooks from earlier versions still import. See [Meeting Workbook and branding](reference/meeting-workbook-and-branding.md).
+Yes, optionally. The **Meeting Workbook** (Settings → Data / Backup → Download the Excel template; since 6.11 the website's Meeting Form does the same online) has two tabs: the **Meeting Form**, one guided page where you type the meeting details, Frames, Content, questions and scriptures, and the **Dashboard**, which sums it up for you. Import shows every problem with where it is (for example *Meeting Form · Content · row 26*) before anything changes, and can be undone. Workbooks from earlier versions still import. See [Meeting Workbook and branding](../reference/meeting-workbook-and-branding.md).
 
 **Can two people edit the same service at once?**
 No. FrameDecks runs on one PC with no accounts or shared workspaces. To share a plan, export it (Excel Meeting Workbook or a Frame file) and import it on the other PC.
@@ -62,7 +62,7 @@ A simple one. **+ Content → Poll (show of hands)** shows a question with choic
 ## Worship and lyrics
 
 **Does FrameDecks have a song library?**
-Not yet. There is no song database, verse/chorus arrangement or CCLI reporting today. A song library is on the [Roadmap](ROADMAP.md).
+Not yet. There is no song database, verse/chorus arrangement or CCLI reporting today. A song library is on the [Roadmap](../ROADMAP.md).
 
 **So how do we show song words?**
 Two good ways:
@@ -89,7 +89,7 @@ Yes. In a Question Content, choose **Show: Both** to show the question with its 
 Yes, two ways. Add the .pptx as **PowerPoint Content** (it becomes still slides using the PowerPoint installed on your PC), or show the running slide show as **Window Content** to keep animations. See [Media](media.md#powerpoint-and-pdf).
 
 **Can slide text sit on top of the camera without the slide background?**
-Yes, with **Show objects only**, if the slides have one plain background colour. It is a colour key, not true transparency, so gradients and picture backgrounds stay. Details: [PowerPoint in detail](reference/powerpoint.md).
+Yes, with **Show objects only**, if the slides have one plain background colour. It is a colour key, not true transparency, so gradients and picture backgrounds stay. Details: [PowerPoint in detail](../reference/powerpoint.md).
 
 **Which video formats work?**
 MP4 (H.264) is the safest. Keep videos on the PC rather than a USB stick.
@@ -142,10 +142,10 @@ Yes. Any phone signed in with the PIN can control the meeting, and every screen 
 ## Volunteers and training
 
 **How do we train a new volunteer?**
-Use the three-week onboarding plan in [Church operations](ministry/README.md): shadow, then assisted, then solo.
+Use the three-week onboarding plan in [Church operations](../ministry/README.md): shadow, then assisted, then solo.
 
 **What is the minimum a volunteer needs to know?**
-Five things: **Go Live**, **NEXT FRAME**, **NEXT CONTENT**, **HIDE ALL**, and **BLACK SCREEN**. See the [volunteer guide](ministry/volunteers.md).
+Five things: **Go Live**, **NEXT FRAME**, **NEXT CONTENT**, **HIDE ALL**, and **BLACK SCREEN**. See the [volunteer guide](../ministry/volunteers.md).
 
 **What if a volunteer presses the wrong thing on air?**
 Press **HIDE ALL** (or **Esc** on the PC), then put the right Frame back with **Go Live**. Nothing is ever deleted by these buttons.
@@ -202,12 +202,12 @@ The installer isn't code-signed yet, so Windows SmartScreen shows "Windows prote
 A local web server on port 8750 (falling back to 8751–8760 if needed) for the app window, overlay pages and phone remote. The firewall rule is for **Private networks** only.
 
 **Where do I report a problem or request a feature?**
-See [Support](../.github/SUPPORT.md). Include **Settings → Diagnostics → Copy diagnostics** with problem reports.
+See [Support](../../.github/SUPPORT.md). Include **Settings → Diagnostics → Copy diagnostics** with problem reports.
 
 ## Related
 - [Getting started](getting-started.md)
 - [Troubleshooting](troubleshooting.md)
 - [Remote control](remote-control.md)
 - [Media](media.md)
-- [Church operations](ministry/README.md)
-- [Roadmap](ROADMAP.md)
+- [Church operations](../ministry/README.md)
+- [Roadmap](../ROADMAP.md)

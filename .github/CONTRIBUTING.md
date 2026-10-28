@@ -16,10 +16,10 @@ services calmer.
 | **Report a bug** | Open an issue with the **Bug report** form. Include the version (Settings → About) and, if you can, Settings → Diagnostics → **Copy diagnostics**. |
 | **Report a problem during a service** | Use the **Service-day problem** form. Tell us what went wrong and how you recovered. These are triaged first. |
 | **Test on a real setup** | Install a build from the Actions tab on the PC your church actually uses and run the [service-safety test script](../docs/development/testing.md#manual-service-safety-test). Real webcams, projectors, PowerPoint versions and Wi-Fi networks find problems a development machine cannot. |
-| **Improve the documentation** | Fix unclear steps, add screenshots, answer a question in the [FAQ](../docs/faq.md). Plain English for volunteers is a feature. |
+| **Improve the documentation** | Fix unclear steps, add screenshots, answer a question in the [FAQ](../docs/guide/faq.md). Plain English for volunteers is a feature. |
 | **Suggest a feature** | Use the **Feature request** form and describe the ministry situation first: who is in the room, what they are trying to do, and what gets in the way. |
 | **Translations** | Not yet possible: the interface text is not yet separated from the code. Localization is on the [roadmap](../docs/ROADMAP.md). |
-| **Write code** | Read the [developer guide](../docs/CONTRIBUTING.md), pick an issue, and open a pull request. |
+| **Write code** | Read the [developer guide](../docs/development/developer-guide.md), pick an issue, and open a pull request. |
 
 Never post a phone-remote PIN, member names, phone numbers, birthdays or an ESV API key in an issue, a pull request
 or a screenshot.
@@ -46,7 +46,7 @@ or a screenshot.
 
 ## Getting set up
 
-The short version (the full guide is [docs/CONTRIBUTING.md](../docs/CONTRIBUTING.md)):
+The short version (the full guide is [docs/development/developer-guide.md](../docs/development/developer-guide.md)):
 
 ```bash
 git clone https://github.com/mshobin/FRAMEDECKS.git

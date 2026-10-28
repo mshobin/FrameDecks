@@ -1,4 +1,4 @@
-/* FrameDecks landing page (owner's brief, 27 October; components/landing.tsx, docs/design-system.md "Landing").
+/* FrameDecks landing page (owner's brief, 27 October; components/landing.tsx, docs/development/design-system.md "Landing").
    Premium and calm: strong type, generous space, glass cards over a light painted once, and motion that plays once.
    Performance rules (the website sits next to the program on older 8 GB PCs): only transform and opacity animate,
    nothing runs forever, glows are static gradients (no blur filter), frosted glass stays on the sticky bar, and every

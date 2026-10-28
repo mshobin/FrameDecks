@@ -116,7 +116,7 @@ From [architecture review §2](architecture-review.md#2-architecture-gap-analysi
   - Go Live, Next, blackout, Hide all;
   - the camera keeps producing frames;
   - no new toast or control appears.
-- **Live checks by the owner**, using [live-test-guide.md](qa/live-test-guide.md):
+- **Live checks by the owner**, using [live-test-guide.md](../../qa/live-test-guide.md):
   - migrations in Supabase;
   - Google/Microsoft sign-in;
   - the virtual camera in Zoom, Teams and OBS;
@@ -125,7 +125,7 @@ From [architecture review §2](architecture-review.md#2-architecture-gap-analysi
 
   This cloud environment cannot reach `*.supabase.co` or a Windows camera.
 
-**Results go into** `docs/post-migration-report.md` once the steps are done.
+**Results go into** `docs/project/history/post-migration-report.md` once the steps are done.
 
 ## 7. Implementation order
 
@@ -162,7 +162,7 @@ None of steps 4–8 starts without its decision.
 - **M-D2:** option A. The cloud is the source; each PC keeps a copy it can rebuild, so it works offline.
 - **M-D3:** discussion questions from a Bible passage, with Ollama on the PC (free).
 - **M-D4:** build both PPTX export and audio Content. Each adds one entry on screen, in existing styles.
-- **M-D5:** the long-term recommendation is in [architecture/hosting.md](architecture/hosting.md):
+- **M-D5:** the long-term recommendation is in [architecture/hosting.md](../../architecture/hosting.md):
   - the companion moves to Cloudflare as static files before a public launch or a second church;
   - Supabase stays Free while it is a pilot, then Pro.
 - **M-D6:** member groups in the companion only; the desktop is unchanged.

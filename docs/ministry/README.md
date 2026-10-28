@@ -92,8 +92,8 @@ A one-hour team training session that covers everyone:
 - [Service-day checklist and emergency card](service-day-checklist.md)
 
 ## Related
-- [Getting started](../getting-started.md)
-- [Service planning](../service-planning.md)
-- [Remote control](../remote-control.md)
-- [Troubleshooting](../troubleshooting.md)
-- [FAQ](../faq.md)
+- [Getting started](../guide/getting-started.md)
+- [Service planning](../guide/service-planning.md)
+- [Remote control](../guide/remote-control.md)
+- [Troubleshooting](../guide/troubleshooting.md)
+- [FAQ](../guide/faq.md)

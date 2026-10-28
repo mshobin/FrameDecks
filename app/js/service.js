@@ -1,4 +1,4 @@
-/* FrameDecks - running a service (owner-approved simplification, 27 October; docs/design-system.md "Running a service")
+/* FrameDecks - running a service (owner-approved simplification, 27 October; docs/development/design-system.md "Running a service")
  *  - Prepare / Run: Run shows the running order, what is on screen, what is up next, and Previous, Next, Go Live and
  *    Hide all (the Live tools and list steppers stay: they are live controls). Every way to edit is out of reach, so
  *    nothing changes by accident during a service. Nothing is removed: Prepare is the Studio as before.

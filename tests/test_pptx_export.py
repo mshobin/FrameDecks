@@ -1,4 +1,4 @@
-"""FrameDecks - the service as a PowerPoint file (M-D4: docs/migration-plan.md). One slide per Frame in plan order,
+"""FrameDecks - the service as a PowerPoint file (M-D4: docs/project/history/migration-plan.md). One slide per Frame in plan order,
 scripture, questions and words as editable text, pictures from the media folder, the script as speaker notes."""
 import copy
 import io

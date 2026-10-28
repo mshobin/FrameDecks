@@ -1,4 +1,4 @@
-"""The program's and the website's CSS stay on the design system's scale (docs/design-system.md, tools/css_tokens.py)."""
+"""The program's and the website's CSS stay on the design system's scale (docs/development/design-system.md, tools/css_tokens.py)."""
 import subprocess
 import sys
 import unittest

@@ -9,7 +9,7 @@ import { DOWNLOADS } from "@/lib/pc-setup";
 
 export type Section = "home" | "plan" | "live" | "people" | "branding" | "pcs" | "help" | "account";
 
-// Four places, in the order a week goes (owner-approved, 27 October; docs/glossary.md): Home, Plan, Live, People.
+// Four places, in the order a week goes (owner-approved, 27 October; docs/guide/glossary.md): Home, Plan, Live, People.
 // What is set once lives under Settings. Phones show the same four as tabs, so both read the same.
 const main = [
   { id: "home", label: "Home", href: "/", icon: HomeIcon },

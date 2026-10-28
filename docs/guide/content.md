@@ -158,7 +158,7 @@ Double-click any card on the canvas, in the preview or on the live picture: ques
 prayer, discussion topic, icebreaker, poll, lower third or timer. You edit its main text. Double-click the card's
 **label** (its top line) to edit the label instead.
 
-![Editing a question directly on the Studio Canvas](images/canvas-edit.png)
+![Editing a question directly on the Studio Canvas](../images/canvas-edit.png)
 
 ## Discussion topic, Icebreaker and Poll
 
@@ -202,7 +202,7 @@ Branding**. A quick way to add or remove it is the **Branding** tick in a Frame'
 | --- | --- | --- |
 | Content | **Display** | **Logo only**, **Name only** or **Logo + Name** |
 | Content | **Also show the Leader / Organization Name** | Adds your organization under the name |
-| Content | **Remove the logo's background** | Makes a plain background around your logo transparent. See [Branding](reference/meeting-workbook-and-branding.md#branding-options-v67) |
+| Content | **Remove the logo's background** | Makes a plain background around your logo transparent. See [Branding](../reference/meeting-workbook-and-branding.md#branding-options-v67) |
 | Display Settings | **Position** | One of the four corners, or **Or centred**: Top, Centre or Bottom |
 | Display Settings | **Safe margin** | How far the badge stays from the edges of the picture |
 | Visual Settings | **Size** and **Fine size** | **Small**, **Medium** or **Large**, then adjust it exactly |
@@ -242,7 +242,7 @@ When the Frame is live, drag Content directly on the canvas to move it, and use 
 
 **PowerPoint:** a .pptx is turned into slides by the PowerPoint installed on the PC. For animations, add the running
 slide show as **Free Content → Window** instead. See [Media](media.md) and
-[reference/powerpoint.md](reference/powerpoint.md).
+[reference/powerpoint.md](../reference/powerpoint.md).
 
 ## Audio
 
@@ -301,4 +301,4 @@ Set both in **Settings → Meeting & Branding**. Change them once and every card
 - [Media](media.md)
 - [Presentations](presentations.md)
 - [Service planning](service-planning.md)
-- [PowerPoint reference](reference/powerpoint.md)
+- [PowerPoint reference](../reference/powerpoint.md)

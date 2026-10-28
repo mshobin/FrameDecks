@@ -1,4 +1,4 @@
-// Editing the member list in the companion (M-D2, docs/migration-plan.md: the workspace is the member list's source).
+// Editing the member list in the companion (M-D2, docs/project/history/migration-plan.md: the workspace is the member list's source).
 // A person is one sync record of kind "member", the same shape the desktop keeps (app/js/members.js normalizeData):
 // what is saved here arrives on the service PC unchanged. Checked against the desktop's own members-core.js in
 // tests/member-edit.test.mjs.

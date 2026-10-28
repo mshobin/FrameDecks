@@ -1,7 +1,7 @@
 # Developer guide
 
 This guide is for people who want to change FrameDecks's code. For how to report bugs, suggest features and
-what "done" means for a pull request, start with [CONTRIBUTING.md](../.github/CONTRIBUTING.md).
+what "done" means for a pull request, start with [CONTRIBUTING.md](../../.github/CONTRIBUTING.md).
 
 - [Prerequisites](#prerequisites)
 - [Run from source](#run-from-source)
@@ -170,7 +170,7 @@ python packaging/check.py    # start the program, fetch every page, check the ca
 
 To add a test, create `tests/<name>.test.js`. A test is a plain Node script that throws (or exits non-zero) on
 failure. `tests/helpers/load-store.js` loads `app/js/store.js` with small browser stand-ins and returns
-`{Store, Scenes, Present}`. More in [docs/development/testing.md](development/testing.md).
+`{Store, Scenes, Present}`. More in [docs/development/testing.md](testing.md).
 
 ---
 
@@ -186,7 +186,7 @@ failure. `tests/helpers/load-store.js` loads `app/js/store.js` with small browse
   the browser's device mode.
 - **Keyboard shortcuts** are ignored while typing in a box or while a dialog is open; check that before reporting a
   shortcut as broken.
-- **The engineering log** ([design-history.md](architecture/design-history.md)) explains why most things are the way
+- **The engineering log** ([design-history.md](../architecture/design-history.md)) explains why most things are the way
   they are, version by version.
 
 ---
@@ -196,4 +196,4 @@ failure. `tests/helpers/load-store.js` loads `app/js/store.js` with small browse
 You don't need to build locally. Push to `main`, push a version tag, or run **Build Windows installer** from the
 Actions tab on your branch; the workflow builds the camera, runs the self-check and tests, packages the app and
 attaches **FrameDecks v&lt;version&gt;.exe** (with a `.sha256` file) to the run. Full details, including a
-local build with `tools/launchers/build.bat`, are in [docs/development/building-the-installer.md](development/building-the-installer.md).
+local build with `tools/launchers/build.bat`, are in [docs/development/building-the-installer.md](building-the-installer.md).

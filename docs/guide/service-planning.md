@@ -141,11 +141,11 @@ meeting at a glance: how many days to go, the counts of Frames, Content, questio
 checklist, **Quick actions** that jump into the form, a **Content mix** chart, and a **Recent meetings** log. Add a
 row to that log after each meeting, and the meeting tiles count them.
 
-Full details are in [reference/meeting-workbook-and-branding.md](reference/meeting-workbook-and-branding.md).
+Full details are in [reference/meeting-workbook-and-branding.md](../reference/meeting-workbook-and-branding.md).
 
 Since 6.11 the same form is on the FrameDecks website: **Meeting Form** in the companion
 (framedecks.pages.dev). It reaches a linked PC by itself, with no file to import
-([design](architecture/meeting-form.md)). The Excel workbook below still works; it is under
+([design](../architecture/meeting-form.md)). The Excel workbook below still works; it is under
 **Settings → Data / Backup → Meeting from Excel** and leaves the program in 6.12.
 
 ### Import a meeting
@@ -180,7 +180,7 @@ send. The file is made on this PC and never uploaded.
 
 ## Planning worship lyrics today
 
-FrameDecks does not have a song library yet. A dedicated song library is on the [roadmap](ROADMAP.md).
+FrameDecks does not have a song library yet. A dedicated song library is on the [roadmap](../ROADMAP.md).
 Today, churches show lyrics in one of two ways:
 
 1. **Text Content:** one Frame per verse or chorus. Add **+ Content → Text**, give it a title (the song name) and
@@ -206,5 +206,5 @@ Today, churches show lyrics in one of two ways:
 - [Content](content.md)
 - [Presentations](presentations.md)
 - [Media](media.md)
-- [Meeting Workbook reference](reference/meeting-workbook-and-branding.md)
-- [Ministry team guides](ministry/README.md)
+- [Meeting Workbook reference](../reference/meeting-workbook-and-branding.md)
+- [Ministry team guides](../ministry/README.md)

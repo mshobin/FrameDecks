@@ -77,7 +77,7 @@ class Engine:
     def __init__(self, api, state, read, write, computer_name="this PC", member_authority="cloud"):
         self.api, self.state, self.read, self.write = api, state, read, write
         self.computer_name = computer_name
-        # M-D2 (docs/migration-plan.md): "cloud" = the workspace is the source of the member list and this PC keeps a
+        # M-D2 (docs/project/history/migration-plan.md): "cloud" = the workspace is the source of the member list and this PC keeps a
         # copy it can rebuild; "pc" = the behaviour before (a lost member file is sent as deletions)
         self.member_authority = member_authority
         state.setdefault("cursor", 0)

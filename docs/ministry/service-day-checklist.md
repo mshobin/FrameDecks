@@ -82,4 +82,4 @@ Phone disconnected? Carry on from the PC.
 - [Church operations](README.md)
 - [Service operators](service-operators.md)
 - [Remote operators](remote-operators.md)
-- [Troubleshooting](../troubleshooting.md)
+- [Troubleshooting](../guide/troubleshooting.md)

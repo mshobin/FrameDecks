@@ -61,7 +61,7 @@ A webcam is optional. You need one only if people should see you on the FRAMECAS
 
 ## A tour of the window
 
-![The Studio: Frames on the left, the Studio Canvas in the middle, Content Settings below](images/studio.png)
+![The Studio: Frames on the left, the Studio Canvas in the middle, Content Settings below](../images/studio.png)
 
 *The Studio, shown with the built-in test camera ("Demo webcam") instead of a real webcam.*
 
@@ -183,4 +183,4 @@ Do this once, a day or two before your first real meeting.
 - [Frames](frames.md) and [Content](content.md)
 - [Remote control](remote-control.md)
 - [Troubleshooting](troubleshooting.md) and [FAQ](faq.md)
-- [Ministry team guides](ministry/README.md)
+- [Ministry team guides](../ministry/README.md)

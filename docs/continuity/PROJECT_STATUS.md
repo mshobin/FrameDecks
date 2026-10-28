@@ -18,8 +18,8 @@ Cloudflare Pages production deploy. Owner live tests remain. The live database h
 - **Next:** the owner's live tests A–I on 6.11.1 (`docs/qa/live-test-guide.md`); see `docs/continuity/NEXT_SESSION.md`.
 
 Phase detail lives in
-[FRAMEDECKS_MODERNIZATION_STATUS.md](../FRAMEDECKS_MODERNIZATION_STATUS.md); migration results in
-[post-migration-report.md](../post-migration-report.md).
+[modernization-status.md](../project/history/modernization-status.md); migration results in
+[post-migration-report.md](../project/history/post-migration-report.md).
 
 ## Completed
 - **Desktop and brand.** Desktop 6.10 and the approved emblem (PRs #7, #18); drift resolved (see "Drift").
@@ -33,8 +33,8 @@ Phase detail lives in
   - **Audit:** [architecture audit](../project/2026-10-25-architecture-audit.md). Its Phase 1 (P1–P4) and the C2
     crash watchdog (`src/supervisor.py`) are built.
   - Stream Deck plugin (later removed, 26 October, owner's request).
-  - **Target-architecture migration:** the [review](../architecture-review.md),
-    [plan](../migration-plan.md) and [report](../post-migration-report.md).
+  - **Target-architecture migration:** the [review](../project/history/architecture-review.md),
+    [plan](../project/history/migration-plan.md) and [report](../project/history/post-migration-report.md).
     1. Audit log `0006`.
     2. ESV key in Credential Manager.
     3. Missing-media check.
@@ -62,13 +62,13 @@ Phase detail lives in
 - **Design audit ranks 5–7, 9–11 (26 October, owner-approved):** website dates, phone tab bar, landing with real
   screenshots (`hosted/public/product/`), destructive styling, 12 px / 4.5:1 labels (website and program), card previews.
   Hosted 114/114, lint, typecheck, build, budget (JS 323 KB); Python 147 OK. Screenshots at 1440 px and 390 px.
-- **Design roadmap complete (26 October, owner-approved, ranks 8 and 12–21):** see `docs/design-system.md`. Hosted
+- **Design roadmap complete (26 October, owner-approved, ranks 8 and 12–21):** see `docs/development/design-system.md`. Hosted
   120/120, lint, typecheck, build, budget (JS 329 KB); Python OK incl. `test_css_tokens`; `tools/css_tokens.py` 0
   problems; `tests/visual/layout.mjs` 9/9. Website font is a 47 KB Latin subset in `hosted/public/fonts/`.
 - **UX simplification (27 October, owner-approved):** Prepare / Run with Up next, Before you start and Practice mode
   (`app/js/service.js`); How people see it; Advanced; FRAMECAST Fine-tune; Members → People; labelled tabs, worded
   Previous / Next, calm-until-live Hide all, one status pill, grouped Live tools (Esc closes); Black screen; website
-  Running order with cross-links and a factual trust strip; `docs/glossary.md`. Checks: Python OK, `node tests/run.js`
+  Running order with cross-links and a factual trust strip; `docs/guide/glossary.md`. Checks: Python OK, `node tests/run.js`
   4/4, layout 13/13, axe 0 problems (both themes, Run included), hosted 120/120, budget JS 330 KB. Owner: Test H in
   the live test guide on Windows; a real quote or usage figure for the landing page.
 - **Steps to 90+ after the re-audit (27 October):** all program colours in `app/css/palette.css` (`tools/css_palette.py`,

@@ -1,4 +1,4 @@
-"""FrameDecks - the service as a PowerPoint file (M-D4 in docs/migration-plan.md).
+"""FrameDecks - the service as a PowerPoint file (M-D4 in docs/project/history/migration-plan.md).
 
 build(plan, media_folder) -> bytes of a .pptx: a title slide, then one slide per Frame in plan order (templates
 left out), in the FrameDecks navy and gold:

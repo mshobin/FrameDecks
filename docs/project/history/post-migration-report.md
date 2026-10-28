@@ -25,7 +25,7 @@ feature, API or integration was removed or renamed:
 | Visible | Nothing yet: no page reads it |
 | Undo | `hosted/supabase/rollback/0006_audit_log_down.sql` (drops the triggers, functions and table; nothing else changes) |
 | Checked | 8 tests in `hosted/tests/supabase-audit.test.mjs` on PGlite: each action, who did it, a no-change update not logged, an unlink logged once, read and write rights, the one-year limit, workspace deletion, the undo script. Hosted suite 76/76, lint clean |
-| Owner | Run `0006_audit_log.sql` in the Supabase SQL editor after `0005` ([live test guide](qa/live-test-guide.md) §1) |
+| Owner | Run `0006_audit_log.sql` in the Supabase SQL editor after `0005` ([live test guide](../../qa/live-test-guide.md) §1) |
 
 ## Step 2: the ESV key in Windows Credential Manager
 
@@ -66,7 +66,7 @@ feature, API or integration was removed or renamed:
 | Installer | The three files are copied into the program folder (`packaging/framedecks.spec`); `packaging/check.py` requires them |
 | Signing | `build-windows.yml` signs `FRAMEDECKS.exe`, both camera DLLs and the installer through SignPath. It checks each signature and fails the build if one is missing. It is **off** until the `SIGNPATH_API_TOKEN` secret exists; until then the build is unchanged |
 | Visible | Nothing in the program. Once signing is on, Windows shows "FrameDecks" as a verified publisher |
-| Owner | Follow [code-signing.md](deployment/code-signing.md): check, then make the repository public; apply to SignPath Foundation; add the secret and three variables |
+| Owner | Follow [code-signing.md](../../deployment/code-signing.md): check, then make the repository public; apply to SignPath Foundation; add the secret and three variables |
 | Checked | Packaging check, Python and JS suites, hosted 77/77, Stream Deck tests and `validate`, `npm ci` with both lockfiles. The SignPath steps cannot be run until SignPath approves the project |
 
 ## Step 5: the member list from the cloud (M-D2, option A)
@@ -91,7 +91,7 @@ feature, API or integration was removed or renamed:
 | Visible | One button, in the existing style, **only when Ollama answers**. Without it the program is exactly as before (checked). The owner approved one entry for the AI feature (M-D3) |
 | Off switch | App setting `ai` = `off` |
 | Paid providers | Never called from the PC. If added later, a Supabase Edge Function holds the key server-side (review §6) |
-| Checked | 6 tests with a stand-in Ollama server (model choice, cleaning, cache hit offline, plain messages when absent or off, other answer shapes, self-hosted endpoint), and the real program in a browser: the button appears, drafts four questions, adds them; it is hidden when Ollama is not running. Screenshot `docs/qa/2026-10-25-ai-suggest-questions.png`. User guide: [ai.md](ai.md) |
+| Checked | 6 tests with a stand-in Ollama server (model choice, cleaning, cache hit offline, plain messages when absent or off, other answer shapes, self-hosted endpoint), and the real program in a browser: the button appears, drafts four questions, adds them; it is hidden when Ollama is not running. Screenshot `docs/qa/2026-10-25-ai-suggest-questions.png`. User guide: [ai.md](../../guide/ai.md) |
 
 ## Step 7: PowerPoint export and Audio Content (M-D4)
 
@@ -125,7 +125,7 @@ feature, API or integration was removed or renamed:
 | Docs (`python tools/check_doc_links.py`, `git diff --check`) | 0 problems |
 | CI on the PR | See PR #32 |
 
-**Not checked here** (the owner's [live test guide](qa/live-test-guide.md)):
+**Not checked here** (the owner's [live test guide](../../qa/live-test-guide.md)):
 - `0006` against live Supabase;
 - Credential Manager on a real Windows PC (the sync key's first live use is in the same test);
 - the installed program.

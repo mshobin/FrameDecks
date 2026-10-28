@@ -3,7 +3,7 @@
 Everything you need to plan, present and support a service with FrameDecks — organized by what you want to
 do.
 
-**New here?** Start with [Getting started](getting-started.md). It takes about 15 minutes.
+**New here?** Start with [Getting started](guide/getting-started.md). It takes about 15 minutes.
 
 ---
 
@@ -11,17 +11,17 @@ do.
 
 | Guide | What it covers |
 | --- | --- |
-| [Getting started](getting-started.md) | Your first 15 minutes: the window, a first service, Go Live |
-| [Installation](installation.md) | Requirements, installing, updating, uninstalling, where your data lives |
-| [Service planning](service-planning.md) | Turning an order of service into Frames, templates, the Excel Meeting Workbook |
-| [Presentations](presentations.md) | Running the service live: Go Live, stepping, transitions, Annotate, Freeze, the Teleprompter, the command palette |
-| [Frames](frames.md) | Creating, organizing, duplicating and timing Frames |
-| [Content](content.md) | Every kind of Content and every setting in Content Settings |
-| [Suggested questions](ai.md) | Free AI on your PC (Ollama) drafts discussion questions from a Frame's passage |
-| [Media](media.md) | Images, video, PowerPoint, PDF, screen capture, the FRAMECAST camera, OBS, projectors |
-| [Remote control](remote-control.md) | Setting up the phone remote, Simple and Advanced profiles, drawing from the phone |
-| [Troubleshooting](troubleshooting.md) | Problems by symptom, with causes and fixes |
-| [FAQ](faq.md) | Church-focused questions and honest answers |
+| [Getting started](guide/getting-started.md) | Your first 15 minutes: the window, a first service, Go Live |
+| [Installation](guide/installation.md) | Requirements, installing, updating, uninstalling, where your data lives |
+| [Service planning](guide/service-planning.md) | Turning an order of service into Frames, templates, the Excel Meeting Workbook |
+| [Presentations](guide/presentations.md) | Running the service live: Go Live, stepping, transitions, Annotate, Freeze, the Teleprompter, the command palette |
+| [Frames](guide/frames.md) | Creating, organizing, duplicating and timing Frames |
+| [Content](guide/content.md) | Every kind of Content and every setting in Content Settings |
+| [Suggested questions](guide/ai.md) | Free AI on your PC (Ollama) drafts discussion questions from a Frame's passage |
+| [Media](guide/media.md) | Images, video, PowerPoint, PDF, screen capture, the FRAMECAST camera, OBS, projectors |
+| [Remote control](guide/remote-control.md) | Setting up the phone remote, Simple and Advanced profiles, drawing from the phone |
+| [Troubleshooting](guide/troubleshooting.md) | Problems by symptom, with causes and fixes |
+| [FAQ](guide/faq.md) | Church-focused questions and honest answers |
 
 ## Serve on a team
 
@@ -39,20 +39,20 @@ do.
 
 | Guide | What it covers |
 | --- | --- |
-| [Architecture](ARCHITECTURE.md) | How the parts fit, with six diagrams |
-| [Developer guide](CONTRIBUTING.md) | Running from source, project layout, adding features and tests |
-| [Environment](deployment/ENVIRONMENT.md) | Runtime and development configuration, data locations, and secrets |
-| [Deployment](deployment/DEPLOYMENT.md) | Desktop release builds and hosted Vercel deployment |
-| [Coding standards](CODING-STANDARDS.md) | JavaScript, Python, CSS, and interface-writing conventions |
+| [Architecture](development/architecture.md) | How the parts fit, with six diagrams |
+| [Developer guide](development/developer-guide.md) | Running from source, project layout, adding features and tests |
+| [Environment](deployment/environment-variables.md) | Runtime and development configuration, data locations, and secrets |
+| [Deployment](deployment/deployment-guide.md) | Desktop release builds and hosted Vercel deployment |
+| [Coding standards](development/coding-standards.md) | JavaScript, Python, CSS, and interface-writing conventions |
 | [Development process](development/README.md) | Branching, releases, changelog standards, testing, code style |
 | [Building the installer](development/building-the-installer.md) | Producing the Windows installer with GitHub Actions |
 | [Engineering assessment](project/engineering-assessment.md) | Current stack, architecture, security, performance, PWA/SaaS readiness, and technical debt |
 | [SaaS migration roadmap](project/saas-migration-roadmap.md) | Proposed hosted architecture and phased migration from the local-first desktop product |
-| [FrameDecks repository audit](project/FRAMEDECKS_AUDIT.md) | Repository baseline, security, performance, SaaS/PWA/offline readiness, and migration risks |
-| [FrameDecks modernization plan](FRAMEDECKS_MODERNIZATION.md) | Target architecture, authentication, pairing, synchronization, deployment, and rollback |
-| [FrameDecks modernization status](FRAMEDECKS_MODERNIZATION_STATUS.md) | Resumable milestone status, blockers, and validation record |
-| [FrameDecks branding assets](project/FRAMEDECKS_BRANDING_ASSETS.md) | Logo source, current asset mapping, generated variants, and intentionally retained graphics |
-| [FrameDecks branding audit](project/FRAMEDECKS_BRANDING_AUDIT.md) | Remaining legacy-name references, their locations, and compatibility rationale |
+| [FrameDecks repository audit](project/framedecks-audit.md) | Repository baseline, security, performance, SaaS/PWA/offline readiness, and migration risks |
+| [FrameDecks modernization plan](project/history/modernization.md) | Target architecture, authentication, pairing, synchronization, deployment, and rollback |
+| [FrameDecks modernization status](project/history/modernization-status.md) | Resumable milestone status, blockers, and validation record |
+| [FrameDecks branding assets](project/branding-assets.md) | Logo source, current asset mapping, generated variants, and intentionally retained graphics |
+| [FrameDecks branding audit](project/branding-audit.md) | Remaining legacy-name references, their locations, and compatibility rationale |
 | [Repository audit](project/repository-audit.md) | Scored review of the product and the repository |
 | [Design history](architecture/design-history.md) | The engineering log, one section per version |
 

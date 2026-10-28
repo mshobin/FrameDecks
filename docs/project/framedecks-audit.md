@@ -217,6 +217,6 @@ security. Do not remove or silently weaken the current remote.
 8. **Phase 8 — Compatibility validation:** compare all critical workflows on existing Windows runtime, supported
    phones, and Mac only after a native implementation exists. Keep rollback and previous stable release available.
 
-See [FRAMEDECKS_MODERNIZATION.md](../FRAMEDECKS_MODERNIZATION.md) for target architecture, pairing/sync designs,
+See [FRAMEDECKS_MODERNIZATION.md](history/modernization.md) for target architecture, pairing/sync designs,
 deployment, rollback, and phase gates. Progress is recorded in
-[FRAMEDECKS_MODERNIZATION_STATUS.md](../FRAMEDECKS_MODERNIZATION_STATUS.md).
+[FRAMEDECKS_MODERNIZATION_STATUS.md](history/modernization-status.md).

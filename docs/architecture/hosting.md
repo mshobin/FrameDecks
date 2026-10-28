@@ -1,7 +1,7 @@
 # Hosting: the long-term recommendation (M-D5)
 
 Where the FrameDecks companion and its database should live for the long term, at the lowest cost, under terms that
-allow a ministry to use them. This is the answer to decision M-D5 in the [migration plan](../migration-plan.md).
+allow a ministry to use them. This is the answer to decision M-D5 in the [migration plan](../project/history/migration-plan.md).
 Checked 25 October 2026.
 
 **Who this is for:** the owner, who holds the Vercel and Supabase accounts and makes any move.

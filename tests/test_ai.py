@@ -1,4 +1,4 @@
-"""FrameDecks - optional AI, free by default (M-D3: docs/migration-plan.md). Discussion questions drafted from a
+"""FrameDecks - optional AI, free by default (M-D3: docs/project/history/migration-plan.md). Discussion questions drafted from a
 Frame's scripture by Ollama on this PC, cached, and hidden when no AI answers. A stand-in Ollama server answers here."""
 import json
 import os

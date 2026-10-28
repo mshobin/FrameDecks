@@ -1,6 +1,6 @@
 """FrameDecks - running a service from the companion (src/cloud_remote.py), against a stand-in cloud that follows the
 rules of 0004_remote.sql: each command is taken once, oldest first; results and the status are kept per command and
-per PC. The program's window is played by a thread on the Bridge. Design: docs/architecture/remote-control.md."""
+per PC. The program's window is played by a thread on the Bridge. Design: docs/architecture/remote-control-design.md."""
 import os
 import sys
 import tempfile

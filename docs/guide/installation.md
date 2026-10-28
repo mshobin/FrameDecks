@@ -42,7 +42,7 @@ The installer is a single file named **FrameDecks v6.8.exe** (the number is the 
 - **From a build:** in the repository's **Actions** tab, open the latest green **Build Windows installer** run and
   download the **FrameDecks v6.8** artifact. It is a `.zip`; unzip it to get the `.exe` and the `.sha256` file.
 
-If you build the installer yourself, see [Building the installer](development/building-the-installer.md).
+If you build the installer yourself, see [Building the installer](../development/building-the-installer.md).
 
 ## Check the download (optional)
 
@@ -112,7 +112,7 @@ If the phone still cannot connect, see [Troubleshooting](troubleshooting.md).
 > version, removes the old program folder and shortcuts, and on first start moves your data (including backups and
 > recordings) to the FrameDecks folders below. Nothing newer is overwritten.
 
-Read the release notes in [CHANGELOG.md](CHANGELOG.md) before a big update, and avoid updating on the morning of a
+Read the release notes in [CHANGELOG.md](../CHANGELOG.md) before a big update, and avoid updating on the morning of a
 service.
 
 ## Where your data lives
@@ -124,7 +124,7 @@ service.
 | Backups | `%APPDATA%\FRAMEDECKS\backups` (daily, plus any you make) |
 
 **Settings → Data / Backup** shows the data folder, lets you make a backup now and restore one. See
-[reference/configuration-guide.md](reference/configuration-guide.md) for the files inside.
+[reference/configuration-guide.md](../reference/configuration-guide.md) for the files inside.
 
 ## Uninstall
 
@@ -144,5 +144,5 @@ microsoft.com for the full app window.
 - [Getting started](getting-started.md)
 - [Remote control](remote-control.md)
 - [Troubleshooting](troubleshooting.md)
-- [Building the installer](development/building-the-installer.md)
-- [Configuration reference](reference/configuration-guide.md)
+- [Building the installer](../development/building-the-installer.md)
+- [Configuration reference](../reference/configuration-guide.md)

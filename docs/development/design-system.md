@@ -18,7 +18,7 @@ FrameDecks is for church leaders and volunteers, not engineers. Write for the pe
 | Map service errors to a clear next step; keep technical details out of the interface. | Show database, provider or browser error messages directly. |
 | Say what to do next when something is missing: "Link the service PC". | Show error codes or file names to everyone. Keep those for Diagnostics or an admin note. |
 | Say the camera is **FRAMECAST** and the program is **FrameDecks**. | Call the camera FrameDecks (`tests/test_camera_name.py` fails). |
-| Use the words in the [glossary](glossary.md): **Black screen**, **Running order**, **People**, **Up next**. | Use two words for one thing (Blackout and Black screen, Services and Running order). |
+| Use the words in the [glossary](../guide/glossary.md): **Black screen**, **Running order**, **People**, **Up next**. | Use two words for one thing (Blackout and Black screen, Services and Running order). |
 
 ## Type
 
@@ -110,7 +110,7 @@ One direction, built in `hosted/src/app/identity.css` (loaded after the older lo
 - **Serif for scripture.** EB Garamond (`--serif`, `.fd-serif`; a 36 KB latin subset in `public/fonts/`) for verses,
   the next service's title and the landing timeline; Source Sans 3 for everything else.
 - **Places.** Home · Plan · Live · People, then Settings: Branding, Service PCs, Help. Your account is the avatar.
-- **Words.** Team, Service PCs, People, Go Live (`docs/glossary.md`). The name is always **FrameDecks**.
+- **Words.** Team, Service PCs, People, Go Live (`docs/guide/glossary.md`). The name is always **FrameDecks**.
 
 ## Landing (website, 27 October)
 

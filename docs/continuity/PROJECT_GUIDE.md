@@ -6,8 +6,8 @@ Read this first, then [NEXT_SESSION.md](NEXT_SESSION.md).
 - The desktop UI, branding and functions must NOT change. The work is a stack migration to SaaS + PWA only.
   Owner-approved exceptions: the heavier 16–32 px emblem and one Settings section, "FrameDecks account" (sync, D1 in
   `docs/architecture/metadata-sync.md`), which also gets "Allow control from the companion" and its last ten actions
-  (R5 in `docs/architecture/remote-control.md`); a toast on the PC for each companion action; and from the migration
-  (`docs/migration-plan.md` §8): **Suggest** in a Frame's question list (only when Ollama answers), **Meeting → Export
+  (R5 in `docs/architecture/remote-control-design.md`); a toast on the PC for each companion action; and from the migration
+  (`docs/project/history/migration-plan.md` §8): **Suggest** in a Frame's question list (only when Ollama answers), **Meeting → Export
   this meeting to PowerPoint**, and **+ Content → Audio…** with its settings; and 6.11 (`docs/architecture/meeting-form.md`, W2): the Excel Meeting
   Workbook moved from the Meeting menu, Meeting tab, empty Studio and palette into **Settings → Data / Backup →
   Meeting from Excel** (it leaves in 6.12, W3); and the website's colour palette in the dark theme (6.11, owner's
@@ -23,14 +23,14 @@ Read this first, then [NEXT_SESSION.md](NEXT_SESSION.md).
   26 October, "Complete all pending"): sentence-case headings and labels in Source Sans 3 (serif only for scripture),
   Lucide icons in the Settings menu and Teleprompter, one email composer on Members → Email with an Import / Export
   menu, Frame actions Duplicate + More…, a compact Settings → About, help text under checkboxes, and every CSS value
-  on the scale in `docs/design-system.md` (`tools/css_tokens.py`, `tests/visual/layout.mjs`, `tests/visual/a11y.mjs`).
+  on the scale in `docs/development/design-system.md` (`tools/css_tokens.py`, `tests/visual/layout.mjs`, `tests/visual/a11y.mjs`).
   Colours live only in `app/css/palette.css` (`tools/css_palette.py`). Follow that document for any new screen.
-  And the UX simplification (owner's request, 27 October; `docs/design-system.md` "Running a service", `app/js/service.js`):
+  And the UX simplification (owner's request, 27 October; `docs/development/design-system.md` "Running a service", `app/js/service.js`):
   Prepare / Run, Up next, Before you start, Practice mode, How people see it (Settings; the camera and display pages
   under it), Advanced (Transitions, Keyboard shortcuts, Security, Diagnostics), FRAMECAST presets with Fine-tune,
   Members → People (List / Table), labelled main tabs, worded Previous / Next, Hide all red only while something is on
   screen, one status pill, grouped Live tools (one Teleprompter entry, Esc closes), "Black screen" for Blackout, the
-  four-step first-service card, and the words in `docs/glossary.md`. And the 10/10 plan (owner's request, 27 October): Run's larger Up next with key
+  four-step first-service card, and the words in `docs/guide/glossary.md`. And the 10/10 plan (owner's request, 27 October): Run's larger Up next with key
   hints and the Practice reminder at service time (`app/js/service.js`, end of `app/css/theme.css`). And the name written
   **FrameDecks** (owner's brief, 27 October) in every label, title and message, with the About wordmark and header
   no longer forced to capitals; identifiers keep FRAMEDECKS (`APP_NAME`, data folder, `FRAMEDECKS_*` variables, the
@@ -61,28 +61,28 @@ Read this first, then [NEXT_SESSION.md](NEXT_SESSION.md).
   27 October: never edit one (not even a comment), add the next number.
   Each new one gets an undo script in `hosted/supabase/rollback/` (`NNNN_<name>_down.sql`).
 - `tools/` — generators and checks (`make_emblem_assets.py`, `check_doc_links.py`, `generate_brand_assets.py`); `tools/launchers/` holds the Windows batch launchers and the Mac `.command` launcher. The Windows scripts resolve the repository root themselves, so they can be double-clicked from that folder.
-- `docs/FRAMEDECKS_MODERNIZATION_STATUS.md` — the detailed phase tracker; `docs/architecture/metadata-sync.md` — the
-  agreed sync design and its delivery steps; `docs/architecture/remote-control.md` — the agreed Phase 5 design
+- `docs/project/history/modernization-status.md` — the detailed phase tracker; `docs/architecture/metadata-sync.md` — the
+  agreed sync design and its delivery steps; `docs/architecture/remote-control-design.md` — the agreed Phase 5 design
   (controlling a service from the companion; R1–R5 as recommended) and its four delivery steps;
   `docs/architecture/companion-editing.md` — editing services in the companion (E1–E4 as recommended);
   `docs/architecture/meeting-form.md` — 6.11: the website Meeting Form, the camera check and `framedecks://` (W1–W3).
 - `docs/project/2026-10-25-architecture-audit.md` — architecture, performance and product audit (critical issues
   C1–C10, optimizations P1–P10, budgets, roadmap); no UI changes. P1–P4 and C2 (`src/supervisor.py`, the crash
   watchdog in the installed exe) are built.
-- `docs/architecture-review.md` and `docs/migration-plan.md` — review against the owner's target architecture (cloud
+- `docs/project/history/architecture-review.md` and `docs/project/history/migration-plan.md` — review against the owner's target architecture (cloud
   for people, templates, AI, audit; desktop for media, rendering, camera) and the step order; decisions M-D1–M-D6.
-  The owner answered M-D1–M-D6 (plan §8); all eight steps are built and merged (PR #32; `docs/post-migration-report.md`);
+  The owner answered M-D1–M-D6 (plan §8); all eight steps are built and merged (PR #32; `docs/project/history/post-migration-report.md`);
   hosting long term: `docs/architecture/hosting.md`.
 - `src/ai.py` — optional free AI (M-D3): Ollama on this PC, or a self-hosted endpoint; cached; `Suggest` in a Frame's
-  question list appears only when one answers (`docs/ai.md`). Never call a paid provider from the PC.
+  question list appears only when one answers (`docs/guide/ai.md`). Never call a paid provider from the PC.
 - `src/pptx_export.py` (Meeting → Export this meeting to PowerPoint, python-pptx) and Audio Content (`audio` kind in
   `store.js` SOUND_KINDS, `app/js/audio-player.js`, plays only in the program window while its Frame is live and on).
   Both are owner-approved entries (M-D4). Older versions drop Audio Content: update every linked PC first.
 - Free plan (`docs/deployment/free-hosting.md`): `.github/workflows/db-keepalive.yml` (pings Supabase every 3 days) and
   `db-backup.yml` + `tools/db_backup.sh` (nightly, AES-256 encrypted with `BACKUP_PASSPHRASE`, 30 days; restore:
   `docs/operations/database-backup.md`). Both do nothing until their repository secrets exist.
-- Licence: Apache 2.0 (`LICENSE`, `NOTICE`; a copy of `LICENSE` stays at the top level for GitHub's licence
-  detection and the website footer link, and `tests/test_licence_copy.py` keeps the two identical); every shipped dependency or vendored file needs a row in
+- Licence: Apache 2.0 (`LICENSE` and `NOTICE` at the top level, where GitHub's licence detection, the website footer
+  link and the installer build read them); every shipped dependency or vendored file needs a row in
   `docs/legal/THIRD_PARTY_NOTICES.md`. Signing: SignPath, off until its secret exists (`docs/deployment/code-signing.md`).
 - Continuity: `docs/continuity/PROJECT_GUIDE.md`, `docs/continuity/PROJECT_STATUS.md`,
   `docs/continuity/PROJECT_ROADMAP.md`, `docs/continuity/NEXT_SESSION.md`. The owner's live tests:
@@ -90,8 +90,10 @@ Read this first, then [NEXT_SESSION.md](NEXT_SESSION.md).
 - Current handoff (27 October 2026): v6.11.2 (repository layout + companion trust fixes, no desktop change; tag `v6.11.2`) follows v6.11.1 and the README/release wordmark refresh (PR #38). Trust
   fixes merged in PR #39 (`27cfb4b`); production deployment verification and the owner's live tests remain. See
   `docs/continuity/NEXT_SESSION.md`. Repository clean-up (merged): Python modules are in `src/`
-  (`python src/server.py`), `README`/`CONTRIBUTING`/`SECURITY`/`SUPPORT` in `.github/`, licences in `docs/legal/`, the camera package in `src/vcam/`, the sample spreadsheets in `assets/samples/`, `CHANGELOG`/`ROADMAP` in `docs/`,
-  `ruff.toml` in `packaging/` (a one-line top-level `ruff.toml` extends it, so plain `ruff check .` works); release notes before v6.8 live in
+  (`python src/server.py`), `README.md`, `LICENSE`, `NOTICE` and `ruff.toml` at the top level, `CONTRIBUTING`/`SECURITY`/`SUPPORT` in `.github/`,
+  `THIRD_PARTY_NOTICES.md` in `docs/legal/`, the camera package in `src/vcam/`, the sample spreadsheets in `assets/samples/`,
+  `CHANGELOG`/`ROADMAP`/`README` at the top of `docs/`, user guides in `docs/guide/`, developer docs (architecture, coding
+  standards, developer guide, design system) in `docs/development/`, finished plans and audits in `docs/project/history/`; release notes before v6.8 live in
   `docs/releases/archive/`; deployment docs in `docs/deployment/`; the backup runbook in `docs/operations/`.
 - Companion design (26 October redesign): tokens in `hosted/src/app/globals.css` `:root`, the look in
   `hosted/src/app/design.css` (glass surfaces, navy and gold, one large title per page). Signed out, `/` is the landing
@@ -108,7 +110,7 @@ Read this first, then [NEXT_SESSION.md](NEXT_SESSION.md).
   Live, People `/members`; Settings: Branding, Service PCs `/computers`, Help `/help`; Your account `/account`. The
   look on top of `design.css` is `hosted/src/app/identity.css` (`.fd-framed` corners, EB Garamond for scripture, warm
   gold main action) and, for the front page, `hosted/src/app/landing.css` (owner's brief, 27 October: every audience,
-  approved hero words, Day 1–4, Ready to Serve?, motion back; `docs/design-system.md` "Landing"). Website words:
+  approved hero words, Day 1–4, Ready to Serve?, motion back; `docs/development/design-system.md` "Landing"). Website words:
   team, not church; no named streaming products on the front page. Motion never animates `filter`.
 - `hosted/src/app/meeting` — 6.11 the Meeting Form: the Excel form's sections on the live plan (`hosted/src/lib/meeting-form.ts`),
   plus the meeting's Transition style (the synced `layout/profile` record).

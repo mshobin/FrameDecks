@@ -54,7 +54,7 @@ Media Content is part of the **FrameDecks picture**: the finished 16:9 image tha
 - **Logo / Watermark**: a small image in a corner, shown on every Frame you add it to.
 - **Background**: fills the whole picture behind everything else.
 
-Your organisation's own logo and Meeting Name are set once in **Settings → Meeting & Branding**. They appear only where you put them: Branding Content, text that uses `{meeting}` / `{org}`, and cards with **Show my logo on this card** ticked. See [Meeting Workbook and branding](reference/meeting-workbook-and-branding.md).
+Your organisation's own logo and Meeting Name are set once in **Settings → Meeting & Branding**. They appear only where you put them: Branding Content, text that uses `{meeting}` / `{org}`, and cards with **Show my logo on this card** ticked. See [Meeting Workbook and branding](../reference/meeting-workbook-and-branding.md).
 
 ## Videos
 
@@ -94,7 +94,7 @@ FrameDecks offers two ways to show a PowerPoint. Choose the one that fits the de
 - Design the slides with **one solid background colour** that the text and pictures don't use. Pure green (#00FF00) is safest.
 - Gradients and picture backgrounds stay visible. Parts of objects that use the exact background colour also disappear.
 
-For the technical background, limits and the formats that were evaluated (transparent WebM, ProRes 4444, animated WebP, GIF, Lottie), see [PowerPoint in detail](reference/powerpoint.md).
+For the technical background, limits and the formats that were evaluated (transparent WebM, ProRes 4444, animated WebP, GIF, Lottie), see [PowerPoint in detail](../reference/powerpoint.md).
 
 ## Windows, screens and cameras
 
@@ -176,7 +176,7 @@ If you already produce your stream in OBS, you can use FrameDecks's overlay page
 ## Related
 - [Content](content.md)
 - [Presentations](presentations.md)
-- [PowerPoint in detail](reference/powerpoint.md)
-- [Configuration guide](reference/configuration-guide.md)
+- [PowerPoint in detail](../reference/powerpoint.md)
+- [Configuration guide](../reference/configuration-guide.md)
 - [Troubleshooting](troubleshooting.md)
-- [Media team guide](ministry/media-team.md)
+- [Media team guide](../ministry/media-team.md)

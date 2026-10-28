@@ -4,7 +4,7 @@ import { after, before, test } from "node:test";
 
 import { supabaseStandIn } from "./pglite-supabase.mjs";
 
-// Phase 5 (docs/architecture/remote-control.md): phones leave commands, the linked PC takes them with its key.
+// Phase 5 (docs/architecture/remote-control-design.md): phones leave commands, the linked PC takes them with its key.
 const OWNER = "00000000-0000-0000-0000-0000000000c1";
 const RUNNER = "00000000-0000-0000-0000-0000000000c2";
 const VIEWER = "00000000-0000-0000-0000-0000000000c3";

@@ -61,7 +61,7 @@ The phone stays signed in for 30 days. After that, or after a new PIN, enter the
 
 The **Simple** remote is the default. It has one screen with very large buttons, so a volunteer can use it without training.
 
-![The Simple remote on a phone](images/remote-simple.png)
+![The Simple remote on a phone](../images/remote-simple.png)
 
 | Part | What it does |
 | --- | --- |
@@ -110,7 +110,7 @@ Scroll with your finger, or use the play button to scroll by itself. See
 
 > **Tip:** Turn the phone **sideways**. The picture then fills the screen and the tools move to a narrow column at the side, so you can draw more accurately. On Android the browser bars hide too; iPhone Safari keeps them.
 
-![Drawing from a phone held sideways](images/remote-annotate.png)
+![Drawing from a phone held sideways](../images/remote-annotate.png)
 
 While the pad is open, the phone gets a sharper picture (960 pixels wide). If the FRAMECAST camera is off, the pad shows the Frame's cards instead, so you are never drawing on a black box.
 
@@ -152,7 +152,7 @@ More answers: [Troubleshooting](troubleshooting.md#phone-remote).
 
 ## Related
 - [Presentations](presentations.md)
-- [Remote operator guide](ministry/remote-operators.md)
+- [Remote operator guide](../ministry/remote-operators.md)
 - [Troubleshooting](troubleshooting.md)
 - [FAQ](faq.md#phone-remote)
 - [Getting started](getting-started.md)

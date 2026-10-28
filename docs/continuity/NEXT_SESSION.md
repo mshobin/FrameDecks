@@ -5,6 +5,13 @@ PR #38. Trust fixes merged in PR #39 (`27cfb4b`). Later the same day: the budget
 (`57cd9c3`), the five Dependabot action upgrades merged (#33–#37), and the handoff PR #40. All checks on `main` are
 green, including the Cloudflare Pages deploy (production); a look at the live site is still the owner's. Read [PROJECT_GUIDE.md](PROJECT_GUIDE.md) ("Working locally" has the set-up and run commands).
 
+28 October, structure clean-up (no behaviour change): (1) unused files removed (`kc-mark.png`, the duplicate meeting
+workbook in `docs/templates/`, 12 unreferenced pre-redesign `docs/qa` screenshots; `.vscode/` no longer tracked);
+(2) one `ruff.toml`, `README.md`, `LICENSE` and `NOTICE` at the top level (`docs/legal/` keeps only
+`THIRD_PARTY_NOTICES.md`; `tests/test_licence_copy.py` retired); (3) docs grouped: user guides in `docs/guide/`,
+developer docs in `docs/development/` (`docs/CONTRIBUTING.md` is now `developer-guide.md`), finished plans and audits in
+`docs/project/history/`; the top of `docs/` holds only `README`, `CHANGELOG` and `ROADMAP`. Every link and path updated.
+
 28 October, branch clean-up: closed, unmerged work is kept as annotated tags `archive/*` (flutter-platform,
 windows11-camera, mac-camera, saas-pwa-architecture, alternative-branding, saas-phase1–5) and those branches, plus the
 three merged ones, were deleted on GitHub (see `docs/development/branching.md`). Owner's rule: push directly to
@@ -25,7 +32,7 @@ top-level `ruff.toml` that extends `ruff.toml` (plain `ruff check .` had fallen 
 ## Where things stand (27 October)
 - **Repository cleanup (merged to `main`):** the orphaned `streamdeck/` bundle is gone;
   release notes v4.9–v6.7 moved to `docs/releases/archive/` (v6.8–v6.11.1 stay in `docs/releases/`);
-  `DEPLOYMENT.md`, `ENVIRONMENT.md`, `free-hosting.md`, `code-signing.md` are in `docs/deployment/` and
+  `deployment-guide.md`, `environment-variables.md`, `free-hosting.md`, `code-signing.md` are in `docs/deployment/` and
   `database-backup.md` in `docs/operations/`. All references updated; doc links 97 files / 0 problems. Root clean-up
   (later the same day): Windows batch launchers were moved out of the root to `tools/launchers/` and resolve the repository
   root as their working directory. The continuity files now live in `docs/continuity/`; the root retains required top-level files and git dotfiles;
@@ -85,8 +92,8 @@ top-level `ruff.toml` that extends `ruff.toml` (plain `ruff check .` had fallen 
   - C2: `src/supervisor.py`, a crash watchdog in the installed exe.
 - **Stream Deck plugin:** removed on 26 October at the owner's request (with `/api/command`).
 - **Target-architecture migration** (owner's brief):
-  - [review](../architecture-review.md), [plan](../migration-plan.md) (owner decisions M-D1–M-D6 in §8),
-    and [results](../post-migration-report.md).
+  - [review](../project/history/architecture-review.md), [plan](../project/history/migration-plan.md) (owner decisions M-D1–M-D6 in §8),
+    and [results](../project/history/post-migration-report.md).
   1. `0006_audit_log.sql`: an audit log of people, roles, invitations and PCs.
   2. ESV key moved to Windows Credential Manager.
   3. Missing-media check: `/api/media/check` and Diagnostics.
@@ -98,7 +105,7 @@ top-level `ruff.toml` that extends `ruff.toml` (plain `ruff check .` had fallen 
      - A linked PC rebuilds a lost member file from the workspace.
   6. M-D3: free AI with Ollama on the PC.
      - **Suggest** drafts discussion questions from a Frame's passage, and is hidden without Ollama.
-     - Code in `src/ai.py`; user guide [docs/ai.md](../ai.md).
+     - Code in `src/ai.py`; user guide [docs/guide/ai.md](../guide/ai.md).
   7. M-D4: **Export this meeting to PowerPoint** (`src/pptx_export.py`) and **Audio** Content (`app/js/audio-player.js`).
   8. M-D6: `0008_member_groups.sql`; member groups on the companion's Members page only.
   - M-D5: long-term hosting recommendation, [docs/architecture/hosting.md](../architecture/hosting.md).
@@ -204,7 +211,7 @@ the program's About page in the website's design, with the same words (brand.jso
 
 ## Design audit (26 October, chat only)
 The design roadmap is complete (ranks 1–21; ranks 8 and 12–21 on 26 October). For any screen change, follow
-`docs/design-system.md`, run `python tools/css_tokens.py` and `node tests/visual/layout.mjs` (needs the program running
+`docs/development/design-system.md`, run `python tools/css_tokens.py` and `node tests/visual/layout.mjs` (needs the program running
 and Playwright), and refresh `docs/design/baselines/` and `hosted/public/product/` when a screen changes on purpose.
 27 October, UX simplification (owner-approved): `app/js/service.js` holds Prepare / Run (body `run-mode`; Run hides the
 editor and blocks rename, drag, menus, Delete, cut, paste and undo in the Studio), Up next (`KCWorkspace.upNext()`),
@@ -212,7 +219,7 @@ Before you start (reads the status chips), Practice (Black screen + `practice=1`
 `overlay.js`; any other Black screen off ends it) and How people see it (`#sec-output`). Hide all is neutral unless
 `body.kc-on-air` (set in `dashboard.js` refreshStatus). The command bar wraps to two rows below 1460 px in Prepare and
 1240 px in Run; measure with something on screen when changing it. The LAN remote's Advanced view still says
-"Blackout" (it is off-limits). Words: `docs/glossary.md`. Owner: Test H in `docs/qa/live-test-guide.md`.
+"Blackout" (it is off-limits). Words: `docs/guide/glossary.md`. Owner: Test H in `docs/qa/live-test-guide.md`.
 27 October, steps to 90+ after the re-audit: colours only in `app/css/palette.css` (run `python tools/css_palette.py`
 after adding a colour; `css_tokens.py` fails otherwise; `teleprompter.css` is exempt because the LAN remote loads it
 without the palette), `!important` baseline 16, keyboard editor and About story built on first open (`buildOnce` in

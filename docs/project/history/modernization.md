@@ -617,9 +617,9 @@ Phase 1 is complete for the repository assessment and architecture deliverables.
 PWA, Supabase, pairing, or cloud synchronization has been implemented. Phase 7 branding work has started in the
 desktop/local product and remains incomplete for future hosted login/splash surfaces.
 
-- Audit: [FRAMEDECKS_AUDIT.md](project/FRAMEDECKS_AUDIT.md)
-- Status: [FRAMEDECKS_MODERNIZATION_STATUS.md](FRAMEDECKS_MODERNIZATION_STATUS.md)
-- Existing detailed report: [SaaS migration roadmap](project/saas-migration-roadmap.md)
+- Audit: [framedecks-audit.md](../framedecks-audit.md)
+- Status: [modernization-status.md](modernization-status.md)
+- Existing detailed report: [SaaS migration roadmap](../saas-migration-roadmap.md)
 - Existing Windows/Python application remains the tested production runtime.
 - Supplied logo source and generated application assets are documented in the asset generator at
   `tools/generate_brand_assets.py`.

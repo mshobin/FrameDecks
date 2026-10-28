@@ -5,7 +5,7 @@ It takes about 30 minutes. You need the service PC, a phone, and the Supabase da
 it says, stop there and send what you see (see [What to send back](#what-to-send-back)).
 
 The designs behind each part: [metadata-sync.md](../architecture/metadata-sync.md) (sync),
-[remote-control.md](../architecture/remote-control.md) (phone control),
+[remote-control.md](../architecture/remote-control-design.md) (phone control),
 [companion-editing.md](../architecture/companion-editing.md) (editing and history).
 
 ## 1. The database (once)
@@ -96,7 +96,7 @@ before: go on to the next one. Any other error: stop and send it.
    one slide per Frame, and each Frame's script is in the speaker notes.
 2. On a Frame: **+ Content → Audio…**, choose an MP3. **Go Live**. **Expect:** it plays through the speakers;
    **Hide all** (Esc) stops it. In a Zoom test call with **Share sound** on, the other side hears it.
-3. Optional, with Ollama (see [ai.md](../ai.md)): on a Frame with a Bible passage, **Question → Content → Suggest**.
+3. Optional, with Ollama (see [ai.md](../guide/ai.md)): on a Frame with a Bible passage, **Question → Content → Suggest**.
    **Expect:** draft questions in the Add several box.
 
 ## 9. Test G: plan the meeting on the website (6.11)

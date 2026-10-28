@@ -235,12 +235,12 @@ Open the **Meeting** menu (✨ next to **+ Frame**) and choose **Undo the last E
 
 1. Check this page and the [FAQ](faq.md).
 2. Copy diagnostics (above).
-3. Contact the person who installed FrameDecks for your church, or see [Support](../.github/SUPPORT.md).
+3. Contact the person who installed FrameDecks for your church, or see [Support](../../.github/SUPPORT.md).
 
 ## Related
 - [FAQ](faq.md)
 - [Remote control](remote-control.md)
 - [Media](media.md)
 - [Installation](installation.md)
-- [Configuration guide](reference/configuration-guide.md)
-- [Service-day checklist](ministry/service-day-checklist.md)
+- [Configuration guide](../reference/configuration-guide.md)
+- [Service-day checklist](../ministry/service-day-checklist.md)

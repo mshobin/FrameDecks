@@ -1,10 +1,10 @@
 blank_issues_enabled: false
 contact_links:
   - name: Troubleshooting guide
-    url: https://github.com/mshobin/FRAMEDECKS/blob/main/docs/troubleshooting.md
+    url: https://github.com/mshobin/FRAMEDECKS/blob/main/docs/guide/troubleshooting.md
     about: Step-by-step fixes for the most common problems, including recovery during a live service.
   - name: Frequently asked questions
-    url: https://github.com/mshobin/FRAMEDECKS/blob/main/docs/faq.md
+    url: https://github.com/mshobin/FRAMEDECKS/blob/main/docs/guide/faq.md
     about: Quick answers about installing, running a service, the phone remote and the FRAMECAST camera.
   - name: Report a security problem privately
     url: https://github.com/mshobin/FRAMEDECKS/blob/main/.github/SECURITY.md

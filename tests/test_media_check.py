@@ -1,4 +1,4 @@
-"""FrameDecks - Frames whose media files are not on this PC (migration step 3, audit C8: docs/migration-plan.md).
+"""FrameDecks - Frames whose media files are not on this PC (migration step 3, audit C8: docs/project/history/migration-plan.md).
 Found from the file names alone, before the service, instead of as an empty layer at Go Live."""
 import copy
 import io

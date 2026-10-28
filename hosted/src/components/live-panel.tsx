@@ -13,7 +13,7 @@ import { EmptyState, ErrorState, PageSkeleton } from "@/components/states";
 
 const POLL_MS = 2000;
 
-// Running a service from a phone (Phase 5, docs/architecture/remote-control.md): commands go to the workspace with
+// Running a service from a phone (Phase 5, docs/architecture/remote-control-design.md): commands go to the workspace with
 // remote_send; the linked PC takes them and publishes what is on its screen, which this page reads every 2 seconds.
 function Live({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
   const supabase = browserSupabase();

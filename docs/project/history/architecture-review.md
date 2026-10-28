@@ -8,7 +8,7 @@ It covers architecture, gaps, security, performance, cloud vs local, AI, media, 
 
 **Based on the code at** the development branch (on top of `main` at `8482c44`), not on intentions.
 Performance figures and the detailed desktop findings are in the earlier
-[architecture, performance and product audit](project/2026-10-25-architecture-audit.md) (C1–C10, P1–P10); this review
+[architecture, performance and product audit](../2026-10-25-architecture-audit.md) (C1–C10, P1–P10); this review
 does not repeat them. The plan that follows from it is [migration-plan.md](migration-plan.md).
 
 **Decisions it needs from the owner** are marked **[Decision]** and gathered in the migration plan (M-D1 to M-D6).
@@ -101,7 +101,7 @@ security hardening items.
 
 ## 4. Performance review
 
-The detail is in the [earlier audit](project/2026-10-25-architecture-audit.md) §2–§4 and §7. On this branch:
+The detail is in the [earlier audit](../2026-10-25-architecture-audit.md) §2–§4 and §7. On this branch:
 - **P1, P2:** a live press no longer writes the plan or starts a sync round. Measured: from 8.5 ms to 0.33 ms per press
   with a 3,000-question library.
 - **P3:** pictures are capped at the largest size they can be drawn.
@@ -197,7 +197,7 @@ Desktop UI remains frozen by rule (`continuity/PROJECT_GUIDE.md`). None of the a
 
 ## 9. Technical debt review
 
-From [PROJECT_STATUS.md](continuity/PROJECT_STATUS.md), the audit, and this review:
+From [PROJECT_STATUS.md](../../continuity/PROJECT_STATUS.md), the audit, and this review:
 
 | Debt | Risk | Plan |
 |---|---|---|

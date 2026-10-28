@@ -5,7 +5,7 @@ import { after, before, test } from "node:test";
 
 import { supabaseStandIn } from "./pglite-supabase.mjs";
 
-// Migration step 1 (docs/migration-plan.md): the audit log of people and computers, written only by triggers.
+// Migration step 1 (docs/project/history/migration-plan.md): the audit log of people and computers, written only by triggers.
 const OWNER = "00000000-0000-0000-0000-0000000000d1";
 const ADMIN = "00000000-0000-0000-0000-0000000000d2";
 const MEMBER = "00000000-0000-0000-0000-0000000000d3";

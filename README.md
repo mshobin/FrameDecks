@@ -11,7 +11,7 @@ rendering and camera output stay on the PC. FrameDecks remains free, with no pay
 > There is no dedicated song / lyrics library yet (lyrics are shown as Text Content or a PowerPoint), and the Windows
 > installer is not digitally signed. Automated checks cover key flows, but they do not replace testing the camera,
 > PowerPoint, audio and live cloud features on real equipment. Get the [latest release](https://github.com/mshobin/FRAMEDECKS/releases/latest). See the
-> [repository audit](docs/project/repository-audit.md), [modernization status](docs/FRAMEDECKS_MODERNIZATION_STATUS.md),
+> [repository audit](docs/project/repository-audit.md), [modernization status](docs/project/history/modernization-status.md),
 > and the [roadmap](docs/ROADMAP.md).
 
 ## What it does
@@ -19,40 +19,40 @@ rendering and camera output stay on the PC. FrameDecks remains free, with no pay
   Discussion topic, Icebreaker, Poll (show of hands), Image, Video, Timer, PowerPoint or Free Content (announcement,
   prayer, lower third, branding, camera, screen, window, shapes). Every Frame owns its Content, so duplicating last
   week's service never changes it. Rename and edit in place (double-click; no pop-ups); select several Frames or
-  Contents to copy, paste, duplicate, move or delete them with Undo ([FRAMES](docs/frames.md) ·
-  [CONTENT](docs/content.md)).
+  Contents to copy, paste, duplicate, move or delete them with Undo ([FRAMES](docs/guide/frames.md) ·
+  [CONTENT](docs/guide/content.md)).
 - **Presenting**: **Go Live** (T), Frame and item steppers, transitions and auto-advance, Hide all (Esc), Blackout
   (K), Emergency screen, Freeze (F) and Annotate (D) — pen, highlighter, arrow, shapes and text above everything.
   A **command palette** (Ctrl+K or Ctrl+Space) finds any Frame, question, scripture or setting and runs commands
-  ([PRESENTATIONS](docs/presentations.md)).
+  ([PRESENTATIONS](docs/guide/presentations.md)).
 - **Questions and scriptures**: per-Frame lists with labels; Show question, scripture or both; drag to reorder;
   double-click an item in the list, or any card on the canvas, to edit it in place. ESV fetch online, or any translation
   typed for offline use.
 - **Outputs**: the **FrameDecks** virtual camera (your webcam with the Frame on top, background blur, Camera
   Looks) for Zoom, Teams, Google Meet and OBS; a full-screen **Presentation window** for a projector; transparent
-  **overlay pages** for OBS ([MEDIA](docs/media.md)).
+  **overlay pages** for OBS ([MEDIA](docs/guide/media.md)).
 - **Media**: images, video (muted), PowerPoint (.pptx converted by the PowerPoint on the PC, or PDF), live window
   capture that keeps PowerPoint animations, screen capture, and *Show objects only* for plain slide backgrounds
   ([POWERPOINT](docs/reference/powerpoint.md)).
 - **Phone remote**: a **Simple** remote with large PREVIOUS / NEXT FRAME and CONTENT, ANNOTATE, FREEZE and BLACK
   SCREEN buttons, a TELEPROMPTER button, and an **Advanced** remote with search, a Teleprompter panel and run-through. PIN-protected, local network only;
-  draw on the real live picture, full screen in landscape ([REMOTE_CONTROL](docs/remote-control.md)).
+  draw on the real live picture, full screen in landscape ([REMOTE_CONTROL](docs/guide/remote-control.md)).
 - **Teleprompter**: each Frame's script, seen only by the presenter — docked in the Studio (R), in its own
   **Teleprompter window** on a second screen (clocks and what comes next on request), or on the phone. Scrolls by itself,
   with speed, text size, high contrast and focus mode. Never on any output.
 - **Teleprompter overlay (Meeting Leader mode)**: your script in a see-through window over Zoom, Teams or Meet
   (Shift+R), with five transparency modes (Solid to Ghost), frosted glass and stay on top. Left out of screen sharing
-  and recordings (Windows 10 2004 or later) ([PRESENTATIONS](docs/presentations.md#teleprompter-overlay-meeting-leader-mode)).
+  and recordings (Windows 10 2004 or later) ([PRESENTATIONS](docs/guide/presentations.md#teleprompter-overlay-meeting-leader-mode)).
 - **Window and tray**: the app's own ribbon instead of the Windows title bar (Snap and resizing kept); Minimize can hide
   it to the tray, where the camera, overlays, phone remote and shortcuts keep working. **Spotlight** (Alt+Space) opens
-  the command palette from anywhere in Windows, even from the tray ([GETTING_STARTED](docs/getting-started.md#the-window-buttons-and-the-tray)).
+  the command palette from anywhere in Windows, even from the tray ([GETTING_STARTED](docs/guide/getting-started.md#the-window-buttons-and-the-tray)).
 - **Branding**: your logo and Meeting Name in a corner, with size, margin, opacity, padding and an optional plate;
   **Remove background** makes a plain logo background transparent, on the PC.
 - **Planning**: Quick Start, templates, groups, favourites, and the **Excel Meeting Workbook**: two tabs, a guided
   **Meeting Form** (meeting details, speaker, attendees, presentation, then the Frames, Content, questions and
   scriptures) and a **Dashboard** that sums it up with KPI tiles, readiness checks and a meeting log. Import shows a
   preview with every problem and its row, and can be undone; export gives back the same two tabs, filled in
-  ([SERVICE_PLANNING](docs/service-planning.md) · [MEETING_WORKBOOK](docs/reference/meeting-workbook-and-branding.md)).
+  ([SERVICE_PLANNING](docs/guide/service-planning.md) · [MEETING_WORKBOOK](docs/reference/meeting-workbook-and-branding.md)).
 - **Data**: everything in one folder on the PC, saved atomically, with daily backups and Frame history.
 
 ## Hosted companion
@@ -65,7 +65,7 @@ the companion never connects to the PC's local HTTP server. See the
 [hosted companion guide](hosted/README.md) for setup and deployment.
 
 ## Install
-See [INSTALLATION](docs/installation.md) and [GETTING_STARTED](docs/getting-started.md). In short: download the
+See [INSTALLATION](docs/guide/installation.md) and [GETTING_STARTED](docs/guide/getting-started.md). In short: download the
 [latest installer](https://github.com/mshobin/FRAMEDECKS/releases/latest) (unsigned, so check it against its
 `.sha256` file first and choose **More info → Run anyway** at the SmartScreen prompt), keep **Install the FRAMECAST
 camera** ticked, and allow the one administrator prompt. Windows 10 or 11 (64-bit) is required. The installer comes
@@ -73,7 +73,7 @@ from the **Build Windows installer** workflow ([BUILDING_THE_INSTALLER](docs/dev
 
 ## Run, build, package (developers)
 Prerequisites: Python 3.12 and Node.js (for the tests). There is no UI build step and there are no npm packages.
-See [CONTRIBUTING](.github/CONTRIBUTING.md) and the [developer guide](docs/CONTRIBUTING.md).
+See [CONTRIBUTING](.github/CONTRIBUTING.md) and the [developer guide](docs/development/developer-guide.md).
 
 ```powershell
 python src/server.py                                    # run from source in your browser at http://localhost:8750
@@ -107,12 +107,12 @@ Office installs — these are covered by the manual [testing script](docs/develo
 ## Documentation
 | Topic | Documents |
 |---|---|
-| Using it | [GETTING_STARTED](docs/getting-started.md) · [INSTALLATION](docs/installation.md) · [SERVICE_PLANNING](docs/service-planning.md) · [PRESENTATIONS](docs/presentations.md) · [FRAMES](docs/frames.md) · [CONTENT](docs/content.md) · [MEDIA](docs/media.md) · [REMOTE_CONTROL](docs/remote-control.md) |
-| Help | [TROUBLESHOOTING](docs/troubleshooting.md) · [FAQ](docs/faq.md) · [SUPPORT](.github/SUPPORT.md) |
+| Using it | [GETTING_STARTED](docs/guide/getting-started.md) · [INSTALLATION](docs/guide/installation.md) · [SERVICE_PLANNING](docs/guide/service-planning.md) · [PRESENTATIONS](docs/guide/presentations.md) · [FRAMES](docs/guide/frames.md) · [CONTENT](docs/guide/content.md) · [MEDIA](docs/guide/media.md) · [REMOTE_CONTROL](docs/guide/remote-control.md) |
+| Help | [TROUBLESHOOTING](docs/guide/troubleshooting.md) · [FAQ](docs/guide/faq.md) · [SUPPORT](.github/SUPPORT.md) |
 | Church teams | [OPERATIONS_HUB](docs/ministry/README.md) · [WORSHIP_LEADERS](docs/ministry/worship-leaders.md) · [MEDIA_TEAM](docs/ministry/media-team.md) · [SERVICE_OPERATORS](docs/ministry/service-operators.md) · [REMOTE_OPERATORS](docs/ministry/remote-operators.md) · [VOLUNTEERS](docs/ministry/volunteers.md) · [SERVICE_DAY_CHECKLIST](docs/ministry/service-day-checklist.md) |
-| Architecture | [ARCHITECTURE](docs/ARCHITECTURE.md) (service flow, engine, remote, media, rendering, sync) · [DESIGN_HISTORY](docs/architecture/design-history.md) · [CONFIGURATION](docs/reference/configuration-guide.md) |
-| Security | [SECURITY](.github/SECURITY.md) · [Security boundaries](docs/ARCHITECTURE.md#security-boundaries) |
-| Development | [CONTRIBUTING](.github/CONTRIBUTING.md) · [DEVELOPER_GUIDE](docs/CONTRIBUTING.md) · [ENVIRONMENT](docs/deployment/ENVIRONMENT.md) · [DEPLOYMENT](docs/deployment/DEPLOYMENT.md) · [BRANCHING](docs/development/branching.md) · [RELEASE_PROCESS](docs/development/release-process.md) · [TESTING](docs/development/testing.md) · [CODING_STANDARDS](docs/CODING-STANDARDS.md) |
+| Architecture | [ARCHITECTURE](docs/development/architecture.md) (service flow, engine, remote, media, rendering, sync) · [DESIGN_HISTORY](docs/architecture/design-history.md) · [CONFIGURATION](docs/reference/configuration-guide.md) |
+| Security | [SECURITY](.github/SECURITY.md) · [Security boundaries](docs/development/architecture.md#security-boundaries) |
+| Development | [CONTRIBUTING](.github/CONTRIBUTING.md) · [DEVELOPER_GUIDE](docs/development/developer-guide.md) · [ENVIRONMENT](docs/deployment/environment-variables.md) · [DEPLOYMENT](docs/deployment/deployment-guide.md) · [BRANCHING](docs/development/branching.md) · [RELEASE_PROCESS](docs/development/release-process.md) · [TESTING](docs/development/testing.md) · [CODING_STANDARDS](docs/development/coding-standards.md) |
 | Quality | [REPOSITORY_AUDIT](docs/project/repository-audit.md) |
 | Reference | [USER_GUIDE](docs/reference/user-guide.md) · [FEATURES](docs/reference/features.md) · [MEETING_WORKBOOK](docs/reference/meeting-workbook-and-branding.md) · [POWERPOINT](docs/reference/powerpoint.md) |
 | Project | [ROADMAP](docs/ROADMAP.md) · [CHANGELOG](docs/CHANGELOG.md) · [RELEASE_NOTES](docs/releases/) · [DOCS_INDEX](docs/README.md) |

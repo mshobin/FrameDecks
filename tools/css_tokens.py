@@ -3,7 +3,7 @@
     python tools/css_tokens.py           # check: exit 1 and list every value off the scale
     python tools/css_tokens.py --fix     # snap font sizes, weights and corner radii to the nearest step
 
-Rules (docs/design-system.md):
+Rules (docs/development/design-system.md):
 - font-size in px only from TYPE_SCALE (keyboard hints, lines containing "kbd", may use 11 px);
 - font-weight only 400, 500, 600, 700, 800;
 - border-radius in px only from RADII (999px is the pill);

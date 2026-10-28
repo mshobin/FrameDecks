@@ -47,8 +47,8 @@ The product remains completely free: no payments, subscriptions, paywalls, trial
 feature gating. Initial deployments use Vercel-provided URLs; Cloudflare edge integration is deferred until a custom
 domain is available.
 
-Implementation is tracked in [the modernization status](FRAMEDECKS_MODERNIZATION_STATUS.md), with the
-[architecture and migration plan](FRAMEDECKS_MODERNIZATION.md). This direction does not authorize removing
+Implementation is tracked in [the modernization status](project/history/modernization-status.md), with the
+[architecture and migration plan](project/history/modernization.md). This direction does not authorize removing
 existing features or making live presenting dependent on cloud connectivity.
 
 ---

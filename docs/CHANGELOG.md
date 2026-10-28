@@ -76,14 +76,14 @@ Full notes: [docs/releases/v6.11.1.md](releases/v6.11.1.md)
 - Design roadmap completed (ranks 8, 12–21): website state kit, skip link and landmarks, gold discipline, task-first
   Overview, light theme, Source Sans 3; program sentence-case labels in Source Sans 3, Lucide icons, one email composer,
   Import / Export menu, Frame actions More…, compact About, help text under checkboxes; one type scale, weights, radii
-  and elevations (`tools/css_tokens.py`), visual layout checks in CI (`tests/visual/layout.mjs`), `docs/design-system.md`.
+  and elevations (`tools/css_tokens.py`), visual layout checks in CI (`tests/visual/layout.mjs`), `docs/development/design-system.md`.
 - Running a service (owner-approved simplification, 27 October; `app/js/service.js`): Prepare / Run (Run hides every
   editor and blocks rename, drag, menus, Delete, cut, paste and undo in the Studio), Up next, Before you start,
   Practice mode (Black screen for the audience, `practice=1` previews), How people see it (Settings), Advanced
   (Transitions, Keyboard shortcuts, Security, Diagnostics), FRAMECAST presets with Fine-tune, Members → People (List /
   Table), labelled main tabs, worded Previous / Next, Hide all red only while something is on screen, one status pill,
   Live tools grouped (one Teleprompter entry) and closed by Esc, Blackout renamed Black screen, Q + S → Both, no
-  "350 ms" or double PREVIEW badges, a four-step first-service guide, `docs/glossary.md`. Website: Services is now
+  "350 ms" or double PREVIEW badges, a four-step first-service guide, `docs/guide/glossary.md`. Website: Services is now
   **Running order**, cross-links with the Meeting Form, and a factual trust strip on the front page.
 - The name is written **FrameDecks** everywhere people read it: the program, the installer's names and messages, the
   website, its metadata and the guides (identifiers stay: data folder, settings names, the exe, the local API's

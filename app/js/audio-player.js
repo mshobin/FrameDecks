@@ -1,4 +1,4 @@
-/* FrameDecks - Audio Content (M-D4 in docs/migration-plan.md).
+/* FrameDecks - Audio Content (M-D4 in docs/project/history/migration-plan.md).
  *
  * An Audio Content plays through this PC's speakers while its Frame is live and the Content is on (Go Live turns it
  * on, its eye or Hide all turns it off, Esc / Hide all silences everything). It plays from the start each time the

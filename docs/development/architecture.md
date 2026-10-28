@@ -4,7 +4,7 @@ How FrameDecks is built: the parts, how a change travels from a click to the scr
 reliable on a Sunday morning.
 
 **Who this is for:** contributors, technical media leads, and anyone who wants to understand what runs on the
-service PC. Volunteers do not need this page; start with [Getting started](getting-started.md).
+service PC. Volunteers do not need this page; start with [Getting started](../guide/getting-started.md).
 
 **On this page**
 - [Design principles](#design-principles)
@@ -185,7 +185,7 @@ flowchart TD
 
 - **Files are copied** into the data folder, so a Frame keeps working if the original is moved or deleted.
 - **PowerPoint** is converted by the PowerPoint installed on the PC (the only faithful renderer). For animations,
-  capture the running slide show window instead. See [reference/powerpoint.md](reference/powerpoint.md).
+  capture the running slide show window instead. See [reference/powerpoint.md](../reference/powerpoint.md).
 - **Show objects only** keys out a plain slide background by its corner colour; it is a colour key, not true
   transparency.
 
@@ -308,13 +308,13 @@ window features use Windows' own functions through `src/desktop_win.py` (ctypes,
 | Tests | `tests/`, `packaging/check.py` | Store and workbook tests; start-up self-check |
 
 The full, version-by-version engineering record is in
-[architecture/design-history.md](architecture/design-history.md).
+[architecture/design-history.md](../architecture/design-history.md).
 
 ## Data and storage
 
 Everything lives in the data folder, `%APPDATA%\FRAMEDECKS`. Earlier versions, published under the program's
 earlier name, kept their data in a folder and files carrying that name; on first start, 6.9 moves them here once
-(`src/legacy.py`), including backups and recordings, and never overwrites newer data. Details: [reference/configuration-guide.md](reference/configuration-guide.md).
+(`src/legacy.py`), including backups and recordings, and never overwrites newer data. Details: [reference/configuration-guide.md](../reference/configuration-guide.md).
 
 | File / folder | Contents |
 | --- | --- |
@@ -344,7 +344,7 @@ flowchart LR
 - Member data stays on the PC; it is never part of the state the phone or overlay pages receive.
 - No telemetry. The only outgoing request is the optional ESV scripture fetch.
 
-See [../SECURITY.md](../.github/SECURITY.md) for how to report a problem.
+See [../SECURITY.md](../../.github/SECURITY.md) for how to report a problem.
 
 ## Reliability decisions
 
@@ -365,11 +365,11 @@ The optional Next.js companion in `hosted/` is a separately built and deployed
 application. It does not connect to the desktop app's local HTTP server; the
 current hosted page is a static preview. Keep its routes, dependencies, and
 deployment configuration inside `hosted/`. See the
-[hosted companion guide](../hosted/README.md).
+[hosted companion guide](../../hosted/README.md).
 
 ## Related
-- [Getting started](getting-started.md)
-- [Media](media.md) · [Remote control](remote-control.md)
-- [Design history (engineering log)](architecture/design-history.md)
-- [Developer guide](CONTRIBUTING.md) · [Building the installer](development/building-the-installer.md)
-- [Environment](deployment/ENVIRONMENT.md) · [Deployment](deployment/DEPLOYMENT.md) · [Coding standards](CODING-STANDARDS.md)
+- [Getting started](../guide/getting-started.md)
+- [Media](../guide/media.md) · [Remote control](../guide/remote-control.md)
+- [Design history (engineering log)](../architecture/design-history.md)
+- [Developer guide](developer-guide.md) · [Building the installer](building-the-installer.md)
+- [Environment](../deployment/environment-variables.md) · [Deployment](../deployment/deployment-guide.md) · [Coding standards](coding-standards.md)

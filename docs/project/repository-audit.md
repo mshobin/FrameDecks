@@ -82,7 +82,7 @@ Its sweet spot today is **teaching, Bible study, small groups, prayer meetings a
 
 A single Python process serves a vanilla-JavaScript UI and runs an OpenCV compositor that feeds a DirectShow
 virtual camera. State is one JSON document with a revision counter; every screen reads it, writes go through a
-conflict check, and the camera reads it directly from memory. See [ARCHITECTURE.md](../ARCHITECTURE.md).
+conflict check, and the camera reads it directly from memory. See [ARCHITECTURE.md](../development/architecture.md).
 
 **Assessment.** The design is well matched to a church PC: few moving parts, no services, no database, no build
 step, and one authoritative picture. The main structural debt is size concentration: `src/server.py` (about 2,100 lines)

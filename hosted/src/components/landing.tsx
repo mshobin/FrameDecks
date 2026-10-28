@@ -9,7 +9,7 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import brand from "@/lib/brand.json";
 import { DOWNLOADS } from "@/lib/pc-setup";
 
-// The front page (owner's brief, 27 October; docs/design-system.md "Landing"): one story for every kind of gathering,
+// The front page (owner's brief, 27 October; docs/development/design-system.md "Landing"): one story for every kind of gathering,
 // told with the real screens and quiet, cinematic motion. Motion is CSS only (landing.css, motion.css): it plays once,
 // moves only transform and opacity, and stops for people who ask their device for less motion. No invented quotes,
 // logos or usage numbers.

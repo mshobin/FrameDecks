@@ -604,7 +604,7 @@ if PLAN_RECOVERY:                       # the plan here was replaced at start-up
     SYNC.adopt_workspace()
 
 
-# ---------- Phase 5: running a service from the companion (src/cloud_remote.py; docs/architecture/remote-control.md) ----------
+# ---------- Phase 5: running a service from the companion (src/cloud_remote.py; docs/architecture/remote-control-design.md) ----------
 # Only while this PC is linked and Settings > FrameDecks account > "Allow control from the companion" is on. Commands
 # are fetched from the workspace and run by the program's own window (app/js/cloud-remote.js) with the keys' code.
 # Separate from the Wi-Fi phone remote (REMOTE above), which it does not touch.
@@ -1180,7 +1180,7 @@ _scr_lock = threading.Lock()
 SCRIPTURE_HEALTH = {"ok": None, "message": "", "at": 0}
 
 
-# The key itself is kept in Windows Credential Manager (migration step 2, docs/migration-plan.md), not in the JSON file;
+# The key itself is kept in Windows Credential Manager (migration step 2, docs/project/history/migration-plan.md), not in the JSON file;
 # a key an older version saved in the file is moved there the first time it is read.
 ESV_KEY = cloud_sync.SecretStore(DATA / ".kc-esv-key", target="FRAMEDECKS/esv-key")
 

@@ -57,18 +57,18 @@ How to run a service, or draw on the screen, from a phone or iPad with the Frame
 | Wrong item on screen | **HIDE ALL**, then step to the right item |
 | Pressed Next too early | **PREVIOUS CONTENT** or **PREVIOUS FRAME** |
 | Screen must go dark | **BLACK SCREEN** (press **SHOW PICTURE** to return) |
-| "Not connected" | Check Wi-Fi; tell the operator, who carries on from the PC. See [Remote control](../remote-control.md#if-the-phone-cant-connect) |
+| "Not connected" | Check Wi-Fi; tell the operator, who carries on from the PC. See [Remote control](../guide/remote-control.md#if-the-phone-cant-connect) |
 | Drawing pad shows only cards | The camera is off or starting; you can still draw |
 | Locked after wrong PINs | Wait 60 seconds, then enter the PIN from Settings |
 
 ## Getting started in this role
 
-1. Read [Remote control](../remote-control.md).
+1. Read [Remote control](../guide/remote-control.md).
 2. Connect your phone and practise with **Run-through** during the week.
 3. Follow the [three-week onboarding plan](README.md#onboarding-new-volunteers).
 
 ## Related
-- [Remote control](../remote-control.md)
+- [Remote control](../guide/remote-control.md)
 - [Volunteers](volunteers.md)
 - [Service operators](service-operators.md)
 - [Service-day checklist](service-day-checklist.md)
