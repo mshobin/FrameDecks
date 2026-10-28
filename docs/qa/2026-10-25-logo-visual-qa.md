@@ -4,7 +4,7 @@ The credential-free task from [NEXT_SESSION.md](../continuity/NEXT_SESSION.md): 
 (`assets/brand/framedecks-emblem.svg`) in the light theme, the teleprompter, remote and Speaker pages, and the 16 px
 favicon.
 
-**Method.** The desktop program (`src/server.py`, version 6.10 on the `claude/peaceful-albattani-6m445e` branch with
+**Method.** The desktop program (`src/server.py`, version 6.10 on the development branch with
 `main` merged in) was started with an empty data folder and opened in Chromium (Playwright, 2× scale). The favicons
 were drawn at real size on four browser-tab colours and enlarged 8× without smoothing. Images:
 [header-dark.png](2026-10-25-logo/header-dark.png), [header-light.png](2026-10-25-logo/header-light.png),

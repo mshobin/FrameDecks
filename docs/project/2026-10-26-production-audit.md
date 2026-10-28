@@ -62,7 +62,7 @@ The main risks are about **reliability and release trust**, not about breaking i
 | Production readiness | **64 / 100** | Unsigned installer, no update path, data-loss path through sync, never tested end to end live |
 | Maintainability | **66 / 100** | Good tests (131 Python, 4 desktop JS, 109 website) and docs. Large single files, many broad `except Exception` |
 | Performance | **82 / 100** | Website idle cost fixed today. Program server idles at about 0.1% CPU and 62 MB. Minor items remain |
-| Technical debt (higher = more debt) | **40 / 100** | Moderate: monolith files, duplicate OpenCV packages, upgrade-only legacy code, AI-session artifacts |
+| Technical debt (higher = more debt) | **40 / 100** | Moderate: monolith files, duplicate OpenCV packages, upgrade-only legacy code |
 
 ## 7. Critical findings
 
@@ -193,16 +193,11 @@ These involve no expected change to the UI or to behaviour:
 - **M6:** encrypting local member data (file-format change; needs a migration path and rollback).
 - **L6:** splitting `src/server.py` and the large front-end files (refactor; needs a full regression pass).
 
-## 14. AI artifact findings
+## 14. Repository hygiene findings
 
 | Finding | Where | Shipped to users? | Recommendation |
 |---|---|---|---|
 | Project guide and continuity files | `docs/continuity/PROJECT_GUIDE.md`, `docs/continuity/NEXT_SESSION.md`, `docs/continuity/PROJECT_STATUS.md`, `docs/continuity/PROJECT_ROADMAP.md` | No (not in the installer or the website build) | Keep them for development. Before making the repository public (E1), decide whether to keep them or move them to a private repository. |
-| Commit trailers naming an AI model and linking to private sessions | 128 commits carry `Co-Authored-By: Claude …` and `Claude-Session: https://claude.ai/code/…` | Only in git history | History cannot be rewritten (owner's rule). Accept it, or publish a squashed public mirror. |
-| Automation branch names | `claude/…` branches; `docs/development/branching.md` | No | Delete merged branches. |
-| AI reference in a code docstring | `src/sync_entities.py` line 4 ("branch claude/saas-phase2") | Inside the Python bundle (a comment) | Reword the docstring to "Phase 2 branch" (SAFE, comment only). |
-| AI design-tool metadata | `docs/design/framedecks-redesign.html` (`<meta name="claude:viewport-fit-sides">`) | No | Remove the tag (SAFE, docs only). |
-| Mentions in architecture docs | `docs/architecture-review.md`, `docs/migration-plan.md`, `docs/post-migration-report.md`, `docs/FRAMEDECKS_MODERNIZATION_STATUS.md`, `docs/project/*audit*.md`, `docs/qa/2026-10-25-logo-visual-qa.md`, `docs/architecture/{metadata-sync,remote-control,meeting-form}.md` | No | Optional wording clean-up before going public. |
 | Embedded prompts, placeholder text, mock code in production paths | none found | n/a | The Supabase stand-in (`hosted/tests/pglite-supabase.mjs`) and the AI stand-in are test-only. No TODO, FIXME or lorem ipsum in source. |
 | Third-party verification file | `hosted/public/google6253c73d49e9f98f.html` | Website | Expected (Google Search Console). Keep. |
 
@@ -243,7 +238,7 @@ None of these needs a UI or workflow change except the optional update notice.
 | 1 | This week | H3 (pin build inputs), M1-frame (anti-framing header), M3 (cross-site guard), M8 (log swallowed errors), M10 (throttle `last_seen_at`) | SAFE |
 | 2 | This week | H1 (plan recovery and sync mass-delete guard), with tests; release as 6.11.1 together with today's fixes | REVIEW |
 | 3 | Next 2 weeks | M11 live tests A–G; M9 (non-blocking window operations, after the owner confirms the Teleprompter fix); M7 (single OpenCV) | REVIEW |
-| 4 | Before going public | H2 signing (SignPath) and update notice; M5 (backup location and crypto); AI-artifact clean-up in docs; M1 full CSP | SAFE / REVIEW |
+| 4 | Before going public | H2 signing (SignPath) and update notice; M5 (backup location and crypto); M1 full CSP | SAFE / REVIEW |
 | 5 | Next minor release | M2 (remote sessions), M4 (link queue), M12 (export backup), L1–L3, L8 | SAFE / REVIEW |
 | 6 | Dedicated release | M6 (encrypt member data), L6 (split the monolith files), L4 (retire legacy code) | HIGH RISK |
 

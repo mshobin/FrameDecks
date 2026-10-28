@@ -143,7 +143,7 @@ Read this first, then [NEXT_SESSION.md](NEXT_SESSION.md).
   - Install Ollama (https://ollama.com), then run `ollama pull llama3.2`. **Suggest** then appears in a Frame's
     question list.
   - `tests/test_ai.py` uses a stand-in, not a real Ollama.
-- **Local-only checks**, which the cloud sessions could not run:
+- **Local-only checks**, which the remote build environment cannot run:
   - the virtual camera in Zoom, Teams and OBS;
   - PowerPoint COM;
   - Credential Manager (the sync and ESV keys);
@@ -159,7 +159,7 @@ Read this first, then [NEXT_SESSION.md](NEXT_SESSION.md).
   usage limit still leaves a correct handoff.
 
 ## Commands
-- Before and after every change, all of these must pass (the cloud session's last results are in brackets):
+- Before and after every change, all of these must pass (the last recorded results are in brackets):
 - Desktop JS tests: `node tests/run.js` [4/4]; Python: `python -m unittest discover -s tests -p "test_*.py"` [139 OK];
   packaging: `python packaging/check.py` [6.11.2].
 - Hosted (run inside `hosted/`, there is no root package.json): `npm test` [124/124], `npm run lint`, `npm run typecheck`, `npm run build`.
@@ -175,14 +175,13 @@ Read this first, then [NEXT_SESSION.md](NEXT_SESSION.md).
   last two run only in the release job, so watch the next tag's release job.
 - Releases: [release-checklist.md](../development/release-checklist.md) (pilot first; rollback). Publish by
   pushing a tag `vX.Y.Z` on `main`: "Build Windows installer" builds, smoke-tests and publishes `FrameDecks vX.Y.Z.exe` with
-  `docs/releases/vX.Y.Z.md` as the notes (`tools/make_release_notes.py`). Cloud sessions cannot push tags: tag locally.
+  `docs/releases/vX.Y.Z.md` as the notes (`tools/make_release_notes.py`). Push the tag from a local clone.
 
 ## Gotchas
 - Moving code changes two layouts, not one: from source `src/vcam/` sits under `src/`, but the installer bundles it as
   `_internal/vcam/` next to `_internal/app/`. Never find a data folder by counting parents of `__file__` alone; use
   `sys._MEIPASS` when installed (as `server.py` RES and `vcam/layers.py` `fonts_folder()` do). `tests/test_vcam_fonts.py`
-  covers the fonts. The top-level `CLAUDE.md` is a one-line `@docs/continuity/PROJECT_GUIDE.md` import so AI assistants
-  still load this guide; keep it.
+  covers the fonts.
 - Audit roadmap step 2 (6.11.1, 26 October): the Stream Deck plugin is removed (no `/api/command`); window buttons use
   `desktop_win.show_async` / `set_topmost` and threads, never pywebview setters from the web-server thread; one
   OpenCV (`opencv-python`; `packaging/check.py` fails on two); `server.support_bundle` (Diagnostics; never plan,
@@ -204,7 +203,8 @@ Read this first, then [NEXT_SESSION.md](NEXT_SESSION.md).
   means the camera (switch, status, picture, preview) says FRAMECAST; `tests/test_camera_name.py` fails otherwise.
 - The companion must stay a static export: no server routes, cookies, server actions, `dynamic`/`revalidate`, metadata
   routes that need a server, or cacheComponents/PPR (they break `output: "export"`).
-- `hosted/AGENTS.md`: this Next.js version has breaking changes; read `hosted/node_modules/next/dist/docs/` before writing hosted code.
+- Next.js 16 has breaking changes: read `hosted/node_modules/next/dist/docs/` before writing hosted code. `agentRules: false`
+  in `hosted/next.config.ts` keeps `next dev` from writing a notes file into `hosted/`.
 - The emblem `app/img/kc-emblem.webp` and `hosted/public/framedecks-emblem.webp` must stay identical. Regenerate all emblem/icon files with `tools/make_emblem_assets.py` (master: `assets/brand/framedecks-emblem.svg`).
 - The repo auto-commits as "Update project files and documentation"; check `git status` before committing.
 - The README header and GitHub release body both embed `assets/brand/kc-about-header.webp`. The FrameDecks wordmark

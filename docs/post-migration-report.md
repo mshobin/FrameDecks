@@ -2,7 +2,7 @@
 
 The record of what the [migration plan](migration-plan.md) changed so far, how each change was checked, and what is
 left. It covers steps 1–3, the ones that needed no owner decision. They were built on 25 October 2026 on PR #32
-(branch `claude/peaceful-albattani-6m445e`). Steps 4–8 wait for decisions M-D1–M-D6 (plan §8). This report gains a
+(the development branch). Steps 4–8 wait for decisions M-D1–M-D6 (plan §8). This report gains a
 section as each one is done.
 
 **Who this is for:** the owner, who runs the database script and the live checks, and maintainers.

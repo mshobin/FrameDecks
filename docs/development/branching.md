@@ -14,7 +14,7 @@ change. The goal is that `main` is always something a church could install on Sa
 | `release/<version>` | Optional: final preparation of a version (notes, version bump) when `main` must keep moving. | Until the tag |
 | `hotfix/<version>` | An urgent fix for the released version during a service week (see below). | Hours |
 
-Branches created by automation (for example `claude/...`) follow the same rules: they are short-lived and merge into
+Branches created by automation follow the same rules: they are short-lived and merge into
 `main` through a pull request.
 
 Use lowercase and hyphens. Keep one change per branch.

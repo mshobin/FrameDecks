@@ -6,7 +6,7 @@ It covers architecture, gaps, security, performance, cloud vs local, AI, media, 
 
 **Who this is for:** the owner and maintainers deciding what to change, in what order, and what never to change.
 
-**Based on the code at** `claude/peaceful-albattani-6m445e` (on top of `main` at `8482c44`), not on intentions.
+**Based on the code at** the development branch (on top of `main` at `8482c44`), not on intentions.
 Performance figures and the detailed desktop findings are in the earlier
 [architecture, performance and product audit](project/2026-10-25-architecture-audit.md) (C1–C10, P1–P10); this review
 does not repeat them. The plan that follows from it is [migration-plan.md](migration-plan.md).
@@ -148,7 +148,7 @@ when a first AI feature is chosen (M-D3):
   the PC.
 - **Tier 2: a self-hosted endpoint** that speaks the Ollama or OpenAI-compatible API (a church server, a community
   host). Its URL is set per workspace.
-- **Tier 3: optional plug-ins** (OpenAI, Anthropic, Gemini, Azure OpenAI). These are off by default; the key belongs
+- **Tier 3: optional plug-ins** (commercial hosted AI providers). These are off by default; the key belongs
   to the workspace.
   - The key is stored as a Supabase secret and is never sent to clients.
   - Calls go through a Supabase Edge Function, so the key never reaches a browser or PC.

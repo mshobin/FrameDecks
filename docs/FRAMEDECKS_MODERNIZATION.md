@@ -100,7 +100,6 @@ the hosted application.
 | Vercel | Hosted Next.js deployment and preview environments; start with Vercel-provided URLs |
 | Cloudflare | Future edge routing/protection after a custom domain is available; not a prerequisite to the initial Vercel deployment |
 | GitHub Actions | Keep the existing Windows build/tests and add hosted-app checks independently |
-| GitHub Copilot/OpenRouter | Development tools only; not runtime services or a destination for user/presentation data |
 | Flutter | Not in the target implementation: iOS/Android are browser/PWA remote-control clients. Reassess only if a specific native-only requirement emerges. |
 
 Stripe is excluded because the product must remain free and must not add payments, subscriptions, paywalls, trials,

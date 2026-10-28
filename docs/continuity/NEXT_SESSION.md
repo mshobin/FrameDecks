@@ -9,7 +9,7 @@ green, including the Cloudflare Pages deploy (production); a look at the live si
 continuity files → `docs/continuity/`): everything passed except one defect, fixed: in the installed app the FRAMECAST
 camera's Text Content could not find its fonts (`src/vcam/layers.py` counted folders from its own file; now
 `fonts_folder()`, with `tests/test_vcam_fonts.py`). Releases 6.11.1 and 6.11.2 were built before the move and are not
-affected. A top-level `CLAUDE.md` now imports `docs/continuity/PROJECT_GUIDE.md` so Claude Code loads the rules again.
+affected. This guide (`PROJECT_GUIDE.md`) is the only maintainer guide; there is no top-level guide file.
 
 28 October, post-reorganization check of `main` (`c87d059`, v6.11.2): build, tests, installer, release job, Cloudflare
 deploy and every page passed; the program behaves identically to before the move and the website differs only in the
@@ -309,7 +309,7 @@ continuity files in `docs/continuity/` in the same commit (owner's rule). Never 
 ## Fixes from the owner's first 6.11 install (26 October)
 - **"Could not reach framedecks.pages.dev: Forbidden"** in FrameDecks account: Cloudflare refuses Python's default
   identity. Every request to the website and the database now says `FrameDecks (Windows; ...)` (`cloud_sync.USER_AGENT`,
-  tests in `test_cloud_sync.WebsiteIdentity`). Not verifiable from the cloud session (the host is blocked here).
+  tests in `test_cloud_sync.WebsiteIdentity`). Not verifiable from the remote build environment (the host is blocked there).
 - **Teleprompter froze the program on unpin:** the window op `on-top` used pywebview's `on_top` setter, which waits on
   the window's thread. Now `desktop_win.set_topmost` (SetWindowPos with SWP_ASYNCWINDOWPOS, never waits). Owner to test.
   If the program is frozen: Task Manager → end every FrameDecks task, then open it again.

@@ -55,7 +55,7 @@ All of a service plan is one JSON file, `kc-saved-content.json` in the data fold
 ## 3. Records ("entities")
 
 The plan is split into small records so that changing one Frame sends one Frame, and two people changing different
-Frames never collide. This reuses the mapping designed and tested on the closed branch `claude/saas-phase2`
+Frames never collide. This reuses the mapping designed and tested on the closed Phase 2 branch
 (`app/js/entities.js`, `docs/architecture/cloud-api.md`), with one change: members are one record per person
 (Phase 2 sealed the whole list as one encrypted record, which the web could not show).
 

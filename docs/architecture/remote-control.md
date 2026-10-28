@@ -21,7 +21,7 @@ computer keys.
 
 ## 1. Why not the earlier design
 
-The closed Cloudflare branch (`claude/saas-phase4`, `docs/architecture/pairing-protocol.md` and
+The closed Cloudflare Phase 4 branch (`docs/architecture/pairing-protocol.md` and
 `relay-protocol.md`) carried the phone remote's web requests through a relay into the PC's local server, with per-phone
 pairing and end-to-end encryption. `main`'s rules forbid both parts of that: the legacy LAN remote must not be touched,
 and the hosted app must not reach the local HTTP server. Its good ideas are kept: approval at the PC, roles enforced by

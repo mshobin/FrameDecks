@@ -5,6 +5,8 @@ const nextConfig: NextConfig = {
   // Every page runs in the browser and talks to Supabase; the one route, /api/sync-config, is written at build time.
   output: "export",
   images: { unoptimized: true },
+  // `next dev` writes no generated notes file into hosted/.
+  agentRules: false,
   // cacheComponents / partialPrefetching were on before; they need a server (partial prerendering), and nothing here
   // used them: every page is a client component.
   turbopack: {
