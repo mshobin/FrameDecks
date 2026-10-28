@@ -1,14 +1,20 @@
 # PROJECT STATUS
 
 Last verified: 28 October 2026 (two post-reorganization checks passed; the camera-fonts path for the installed app
-fixed after the `src/vcam/` move; `LICENSE` restored at the top level and a top-level
-`ruff.toml` added). **FrameDecks 6.11.2 is published** at `v6.11.2` (maintenance: repository layout, companion trust fixes; no desktop change); 6.11.1 was published before it. Its release job passed (installer and `.sha256` attached).
+fixed after the `src/vcam/` move; then the four-step structure clean-up, `f260b47`–`55e98e2`, all checks and the
+Windows installer build green on `main`). **FrameDecks 6.11.2 is published** at `v6.11.2` (maintenance: repository layout, companion trust fixes; no desktop change); 6.11.1 was published before it. Its release job passed (installer and `.sha256` attached).
 The FrameDecks README/release header image refresh merged in PR #38; trust fixes merged in PR #39 (`27cfb4b`).
 Since then: the budget script works on Windows (`57cd9c3`), five GitHub Action upgrades merged (#33–#37; the two
 used only for releases first run at the next tag), handoff PR #40 merged; every check on `main` is green, including the
 Cloudflare Pages production deploy. Owner live tests remain. The live database has every script, `0001`–`0009`
 (`0009` run by the owner on 27 October).
-- **Repository clean-up (merged):** Python modules in `src/` (`python src/server.py`), community docs in `.github/`, licences in `docs/legal/`, `CHANGELOG`/`ROADMAP` in `docs/`, `ruff.toml` in `packaging/`, the camera package in `src/vcam/`, sample spreadsheets in `assets/samples/` (`config/`, `legal/`, `samples/`, `vcam/` and `.ai/` left the root); old release notes in `docs/releases/archive/`; deployment and operations docs under `docs/deployment/` and `docs/operations/`. The root maintainer guide is now `PROJECT_GUIDE.md`; active references updated. Windows batch launchers are in `tools/launchers/` and resolve the repository root at startup. Checks unchanged (Python baseline, hosted 127/127, build, ruff 0.16.8); a PyInstaller build from the new layout built and answered `/api/app/ping`.
+- **Repository clean-up (merged):** Python modules in `src/` (`python src/server.py`), `README.md`, `LICENSE`, `NOTICE` and `ruff.toml` at the top level; `CONTRIBUTING`/`SECURITY`/`SUPPORT`/`CODE_OF_CONDUCT` in `.github/`; `THIRD_PARTY_NOTICES.md` in `docs/legal/`; user guides in `docs/guide/`, developer docs in `docs/development/`, finished plans and audits in `docs/project/history/`, `CHANGELOG`/`ROADMAP`/`README` at the top of `docs/`, the camera package in `src/vcam/`, sample spreadsheets in `assets/samples/` (`config/`, `legal/`, `samples/`, `vcam/` and `.ai/` left the root); old release notes in `docs/releases/archive/`; deployment and operations docs under `docs/deployment/` and `docs/operations/`. The root maintainer guide is now `PROJECT_GUIDE.md`; active references updated. Windows batch launchers are in `tools/launchers/` and resolve the repository root at startup. Checks unchanged (Python baseline, hosted 127/127, build, ruff 0.16.8); a PyInstaller build from the new layout built and answered `/api/app/ping`.
+- **Structure clean-up (28 October, pushed to `main`, no behaviour change):** duplicate and outdated files removed
+  (`kc-mark.png`, the second meeting workbook, 12 old screenshots; `.vscode/` untracked); one `ruff.toml`, one `LICENSE`;
+  docs grouped by reader; the last `kc-` images renamed `framedecks-*` (`app/img/framedecks-emblem.webp`,
+  `framedecks-world-map.svg`, `assets/brand/framedecks-about-header.*`). The `kc-*.json` data files keep their names.
+  Checks: Python 170, desktop JS 4/4, packaging, CSS tokens, ruff, doc links 97/0, visual and axe suites, website
+  127 tests + build + budget; on GitHub, Desktop checks, Hosted companion checks and Build Windows installer green.
 - **GitHub:** Desktop checks, Hosted companion checks and Build Windows installer (with the installer smoke test) green.
 - **Trust-fix PR #39 checks:** hosted tests 127/127, lint, typecheck, build; manual budget 330 KB JS / 70 KB largest /
   18 KB CSS; desktop JS 4/4; README fact tests 2/2; CSS tokens 14 files / 0 problems; doc links 97 files / 0 problems;

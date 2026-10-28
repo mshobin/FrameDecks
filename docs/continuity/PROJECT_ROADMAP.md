@@ -1,8 +1,8 @@
 # PROJECT ROADMAP
 
 Phases follow [modernization-status.md](../project/history/modernization-status.md), which is authoritative for detail.
-Updated 28 October 2026 (after the second reorganization check: camera fonts fixed for the installed app). FrameDecks 6.11.2 (maintenance: repository layout, trust fixes) is published at `v6.11.2` (verified after the reorganization; licence and lint-config follow-ups on `main`), after 6.11.1 (`v6.11.1`); the README/release header wordmark was refreshed in PR #38; trust fixes (#39), the Windows budget-script fix and five Action upgrades (#33–#37) are on `main`, all green. The live Supabase database has every script, `0001`–`0009` (`0009` run 27 October).
-Repository clean-up is merged (modules in `src/`, docs in `.github/` and `docs/legal/`); the maintainer guide is [PROJECT_GUIDE.md](PROJECT_GUIDE.md) (active references updated), and the Windows batch launchers are in `tools/launchers/`. They resolve the repository root before running. No application behaviour change. The frozen build was tested here; the next tag still runs the real installer workflow.
+Updated 28 October 2026 (after the second reorganization check and the four-step structure clean-up, all green). FrameDecks 6.11.2 (maintenance: repository layout, trust fixes) is published at `v6.11.2` (verified after the reorganization; licence and lint-config follow-ups on `main`), after 6.11.1 (`v6.11.1`); the README/release header wordmark was refreshed in PR #38; trust fixes (#39), the Windows budget-script fix and five Action upgrades (#33–#37) are on `main`, all green. The live Supabase database has every script, `0001`–`0009` (`0009` run 27 October).
+Repository clean-up is on `main` (modules in `src/`; `README.md`, `LICENSE`, `NOTICE` and `ruff.toml` at the top level; `CONTRIBUTING`/`SECURITY`/`SUPPORT`/`CODE_OF_CONDUCT` in `.github/`; `THIRD_PARTY_NOTICES.md` in `docs/legal/`; user guides in `docs/guide/`, developer docs in `docs/development/`, finished plans and audits in `docs/project/history/`; images named `framedecks-*`); the maintainer guide is [PROJECT_GUIDE.md](PROJECT_GUIDE.md) (active references updated), and the Windows batch launchers are in `tools/launchers/`. They resolve the repository root before running. No application behaviour change. The frozen build was tested here; the next tag still runs the real installer workflow.
 | Step | State |
 |---|---|
 | Audit, branding, architecture decisions | Done |
@@ -31,6 +31,7 @@ Repository clean-up is merged (modules in `src/`, docs in `.github/` and `docs/l
 | Re-audit steps to 90+ (palette, radii/shadows, `!important`, lazy sections, axe scan in CI) | Built (27 October). Left for the owner: Windows check, a screen-reader pass (NVDA/Narrator), a real quote or usage fact for the landing page |
 | Landing brief: FrameDecks spelling, every audience, motion back, About in Light | Built (27 October). Owner: About story wording, program presets |
 | 10/10 plan: phases 1–2, owner-free parts of 3–4 (website four places, Plan, Home, first-time path, Help, identity, landing, Run polish) | Built (27 October). Owner: Test I; go-ahead for projector legibility, templates by type, the Wi-Fi remote; real quotes and photos |
+| Repository structure clean-up (unused files, one `ruff.toml`/`LICENSE`, top-level `README`/`NOTICE`, docs by reader, `framedecks-*` images) | Done (28 October, `f260b47`–`55e98e2`); every check and the Windows installer build green; no behaviour change |
 | Trust fixes (safe service errors, branded confirmations, current public copy) | Merged in PR #39 (`27cfb4b`); local checks and preview deployments passed; production verification and owner live tests remain |
 | 6.11.1: production audit steps 1–2 (`docs/project/2026-10-26-production-audit.md`) | Built and published (27 October); `0009` run by the owner (27 October). Next: step 3 (live tests, M9, M7) |
 | Website idle performance (no endless animations, less blur) | Built and live on push (26 October) |
@@ -41,4 +42,4 @@ Repository clean-up is merged (modules in `src/`, docs in `.github/` and `docs/l
 | Real-device PWA acceptance, operations | Later |
 | Packaged Windows run, tray icon check | Installer builds pass on GitHub; a person still checks the tray icon and sync's key storage on an installed PC |
 | Logo visual QA (light theme, teleprompter, remote, speaker, 16px favicon) | Done 25 Oct ([report](../qa/2026-10-25-logo-visual-qa.md)); heavier small-size emblem added for 16–32 px |
-| Resolve drift: open PRs #8–#16 vs this plan (see PROJECT_STATUS.md) | Done 25 Oct: `main`'s plan stands; #8–#16 closed, branches kept |
+| Resolve drift: open PRs #8–#16 vs this plan (see PROJECT_STATUS.md) | Done 25 Oct: `main`'s plan stands; #8–#16 closed; their branches are kept as `archive/*` tags (28 Oct) |

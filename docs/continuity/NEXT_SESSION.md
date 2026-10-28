@@ -1,6 +1,6 @@
 # NEXT SESSION HANDOFF
 
-Updated 28 October 2026: the maintainer guide is now [PROJECT_GUIDE.md](PROJECT_GUIDE.md); current references were updated. The continuity files now live in `docs/continuity/`. Windows batch launchers are under `tools/launchers/` and resolve the repository root before running. Release `v6.11.2` (repository layout and trust fixes, no desktop change; pilot install on a real PC and SHA-256 check still the owner's) was tagged after `v6.11.1`, which is published; the FrameDecks README and release header refresh merged in
+Updated 28 October 2026 (latest `main`: `55e98e2`, structure clean-up finished, every check green): the maintainer guide is now [PROJECT_GUIDE.md](PROJECT_GUIDE.md); current references were updated. The continuity files now live in `docs/continuity/`. Windows batch launchers are under `tools/launchers/` and resolve the repository root before running. Release `v6.11.2` (repository layout and trust fixes, no desktop change; pilot install on a real PC and SHA-256 check still the owner's) was tagged after `v6.11.1`, which is published; the FrameDecks README and release header refresh merged in
 PR #38. Trust fixes merged in PR #39 (`27cfb4b`). Later the same day: the budget script fixed for Windows
 (`57cd9c3`), the five Dependabot action upgrades merged (#33–#37), and the handoff PR #40. All checks on `main` are
 green, including the Cloudflare Pages deploy (production); a look at the live site is still the owner's. Read [PROJECT_GUIDE.md](PROJECT_GUIDE.md) ("Working locally" has the set-up and run commands).
@@ -29,7 +29,7 @@ affected. This guide (`PROJECT_GUIDE.md`) is the only maintainer guide; there is
 28 October, post-reorganization check of `main` (`c87d059`, v6.11.2): build, tests, installer, release job, Cloudflare
 deploy and every page passed; the program behaves identically to before the move and the website differs only in the
 version number. Two fixes followed: `LICENSE` copied back to the top level (the website footer's Licence link and
-GitHub's licence detection had broken when it moved to `docs/legal/`; `tests/test_licence_copy.py` keeps both equal) and a
+GitHub's licence detection had broken when it moved to `docs/legal/`; a later clean-up keeps one top-level copy only) and a
 top-level `ruff.toml` that extends `ruff.toml` (plain `ruff check .` had fallen back to default rules).
 
 ## Where things stand (27 October)
@@ -41,10 +41,9 @@ top-level `ruff.toml` that extends `ruff.toml` (plain `ruff check .` had fallen 
   root as their working directory. The continuity files now live in `docs/continuity/`; the root retains required top-level files and git dotfiles;
   ignored development data stays there as before. The 12 Python modules are in `src/` (`python src/server.py`;
   `server.HERE` is still the repository root, so dev data stays where it was;   the camera package is `src/vcam/` and `server.SRC` is its development path;
-    `config/`, `legal/`, `samples/` and `vcam/` left the root on 28 October, now `ruff.toml`, `docs/legal/`, `assets/samples/`, `src/vcam/`); `README`, `CONTRIBUTING`,
-  `SECURITY`, `SUPPORT`, `CODE_OF_CONDUCT` are in `.github/`; `LICENSE`, `NOTICE`, `THIRD_PARTY_NOTICES.md` in `docs/legal/`
-  (the installer still bundles them at the app's top level); `CHANGELOG.md`, `ROADMAP.md` in `docs/`; `ruff.toml` in
-    `packaging/` (`ruff check --config ruff.toml .`); the Mac launcher is also in `tools/launchers/`. **Not verified here:** a
+    `config/`, `legal/`, `samples/` and `vcam/` left the root on 28 October, now `ruff.toml`, `docs/legal/`, `assets/samples/`, `src/vcam/`); after the
+  28 October structure clean-up: `README.md`, `LICENSE`, `NOTICE` and `ruff.toml` at the top level; `CONTRIBUTING`/`SECURITY`/`SUPPORT`/`CODE_OF_CONDUCT` in `.github/`; `THIRD_PARTY_NOTICES.md` in `docs/legal/`; user guides in `docs/guide/`, developer docs in `docs/development/`, finished plans and audits in `docs/project/history/` (the installer bundles `LICENSE` and `NOTICE` at the app's top level);
+  `CHANGELOG.md`, `ROADMAP.md` in `docs/`; plain `ruff check .` uses the top-level `ruff.toml`; the Mac launcher is also in `tools/launchers/`. **Not verified here:** a
   real PyInstaller build and the installed exe (run the Build Windows installer workflow or `tools/launchers/build.bat` before tagging).
 - **Release:** **FrameDecks 6.11.1 is published** at `v6.11.1`; its build and publish workflow succeeded. The README
   and release body both show the refreshed FrameDecks wordmark (PR #38).
