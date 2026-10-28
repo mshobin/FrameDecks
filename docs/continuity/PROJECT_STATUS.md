@@ -148,20 +148,20 @@ Their branches are kept, so any of them can be reopened or mined:
 | PR | What | Outcome |
 |---|---|---|
 | #7 | 6.10: Quit really quits (desktop fix) | Merged after `main` was merged in and every check passed. |
-| #8 | Flutter port of the Studio and phone remote | Closed: outside `main`'s plan. Branch kept on GitHub. |
-| #9, #10 | Windows 11 and Mac virtual cameras | Closed: desktop function change. Branches kept on GitHub. |
-| #11 | SaaS + PWA architecture (Cloudflare) | Closed: `main` uses Vercel + Supabase. Branch kept on GitHub. |
-| #12 | Alternative rename, logo and Decks model | Closed: `main` has its own approved emblem; desktop UI frozen. Branch kept on GitHub. |
-| #13–#16 | SaaS Phases 1–4 on Cloudflare | Closed: different backend. Phase 1–4 branches kept on GitHub; Phase 5 unfinished. |
+| #8 | Flutter port of the Studio and phone remote | Closed: outside `main`'s plan. Kept as tag `archive/flutter-platform`. |
+| #9, #10 | Windows 11 and Mac virtual cameras | Closed: desktop function change. Kept as tags `archive/windows11-camera`, `archive/mac-camera`. |
+| #11 | SaaS + PWA architecture (Cloudflare) | Closed: `main` uses Vercel + Supabase. Kept as tag `archive/saas-pwa-architecture`. |
+| #12 | Alternative rename, logo and Decks model | Closed: `main` has its own approved emblem; desktop UI frozen. Kept as tag `archive/alternative-branding`. |
+| #13–#16 | SaaS Phases 1–4 on Cloudflare | Closed: different backend. Kept as tags `archive/saas-phase1` … `archive/saas-phase4`; unfinished Phase 5 as `archive/saas-phase5`. |
 
 **Worth reusing when `main` reaches these steps** (designs and tests, not the Cloudflare code):
-- Secure device pairing (`main` Phase 5): `docs/architecture/pairing-protocol.md` on the closed Phase 4 branch: 5-minute
+- Secure device pairing (`main` Phase 5): `docs/architecture/pairing-protocol.md` in tag `archive/saas-phase4`: 5-minute
   QR / 6-digit code, approval at the PC, X25519 key agreement bound to the QR or six check digits, AES-GCM sealed
   messages with replay counters, roles enforced by the runtime, revoke in under a second; phone and PC crypto checked
   against one shared test vector (`tests/pair-crypto.test.js`, `tools/make_pairing_vector.py`).
 - Runtime channel: `docs/architecture/relay-protocol.md` (same branch): the PC connects outward; relayed requests are
   replayed on a listener that treats them as a phone, never as the PC, so the remote's allow-list and roles hold.
-- Metadata sync (`main` Phase 4): `docs/architecture/cloud-api.md` and `app/js/entities.js` on the closed Phase 2 branch:
+- Metadata sync (`main` Phase 4): `docs/architecture/cloud-api.md` and `app/js/entities.js` in tag `archive/saas-phase2`:
   per-record revisions, a workspace sequence, conflict rules ("never lose a Frame"), members end-to-end encrypted with
   a recovery key, and a two-computer test harness.
 

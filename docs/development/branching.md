@@ -17,6 +17,13 @@ change. The goal is that `main` is always something a church could install on Sa
 Branches created by automation follow the same rules: they are short-lived and merge into
 `main` through a pull request.
 
+**Closed, unmerged work** is kept as an annotated tag `archive/<name>` on its last commit, and the branch is then
+deleted (`git tag -a archive/<name> origin/<branch> -m "Archived: …"`, `git push origin refs/tags/archive/<name>`).
+Tags under `archive/` never start a release: the release workflow runs only for tags `v*`. To look at one:
+`git switch -c look archive/<name>`. Kept today: `archive/flutter-platform`, `archive/windows11-camera`,
+`archive/mac-camera`, `archive/saas-pwa-architecture`, `archive/alternative-branding` and
+`archive/saas-phase1` … `archive/saas-phase5`.
+
 Use lowercase and hyphens. Keep one change per branch.
 
 ## Protecting `main`

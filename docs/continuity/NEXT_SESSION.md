@@ -5,6 +5,11 @@ PR #38. Trust fixes merged in PR #39 (`27cfb4b`). Later the same day: the budget
 (`57cd9c3`), the five Dependabot action upgrades merged (#33–#37), and the handoff PR #40. All checks on `main` are
 green, including the Cloudflare Pages deploy (production); a look at the live site is still the owner's. Read [PROJECT_GUIDE.md](PROJECT_GUIDE.md) ("Working locally" has the set-up and run commands).
 
+28 October, branch clean-up: closed, unmerged work is kept as annotated tags `archive/*` (flutter-platform,
+windows11-camera, mac-camera, saas-pwa-architecture, alternative-branding, saas-phase1–5) and those branches, plus the
+three merged ones, were deleted on GitHub (see `docs/development/branching.md`). Push work to `main` or a new
+`feature/` or `fix/` branch.
+
 28 October, second post-reorganization check (`54d8c0e`: `vcam/` → `src/vcam/`, launchers → `tools/launchers/`,
 continuity files → `docs/continuity/`): everything passed except one defect, fixed: in the installed app the FRAMECAST
 camera's Text Content could not find its fonts (`src/vcam/layers.py` counted folders from its own file; now
