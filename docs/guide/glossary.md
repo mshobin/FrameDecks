@@ -6,7 +6,7 @@ word, the screen is wrong: fix the screen, not this list. (Owner-approved simpli
 | Say | Means | Don't say |
 | --- | --- | --- |
 | **FrameDecks** | The program on the service PC, and the website that goes with it. Always written FrameDecks (capital F and D only). | FRAMEDECKS, Framedecks, KingdomConnect, the app, the software |
-| **FRAMECAST** | FrameDecks's own camera: what you choose as the camera in Zoom or Teams. | the virtual camera, vcam, FrameDecks camera |
+| **FrameRelay** | FrameDecks's own camera: what you choose as the camera in Zoom or Teams. | the virtual camera, vcam, FrameDecks camera |
 | **Frame** | One step of the meeting: what is on screen at one moment. | scene, slide, page |
 | **Content** | What is on a Frame: a verse, a question, a picture, a video, text, a countdown. | layer, element, overlay |
 | **Running order** | The Frames in the order they go on screen. | services list, scene list, playlist |
@@ -25,7 +25,7 @@ word, the screen is wrong: fix the screen, not this list. (Owner-approved simpli
 | **Emergency screen** | A message for everyone when something goes wrong. | slate, panic screen |
 | **Teleprompter** | Your script, which only you see: **in this window**, **over Zoom** or in its **own window**. | speaker view, confidence monitor, prompter overlay |
 | **Practice mode** | Rehearse with the audience seeing a black screen; your own preview shows everything. | test mode, rehearsal mode |
-| **How people see it** | The way your meeting reaches people: FRAMECAST in Zoom or Teams, the **Share Window**, or a projector, TV or OBS. | output, display settings, sources |
+| **How people see it** | The way your meeting reaches people: FrameRelay in Zoom or Teams, the **Share Window**, or a projector, TV or OBS. | output, display settings, sources |
 | **Share Window** | A clean window with only your Frames, to share in Zoom. | presentation window, present mode |
 | **Live tools** | The menu with Black screen, Freeze, Draw, the Teleprompter and the Emergency screen. | Program menu |
 | **People** | Everyone in your member list (Members → People): the list, or the table. | directory, manage, contacts |

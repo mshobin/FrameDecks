@@ -95,7 +95,6 @@
     "name": "Shobin Mathews",
     "roles": [
       "Enterprise IT Consultant",
-      "Ministry Servant",
       "Leader",
       "Follower of Jesus Christ"
     ],
@@ -116,11 +115,7 @@
       },
       {
         "title": "Leader",
-        "text": "Serving and leading in online Bible study groups."
-      },
-      {
-        "title": "Ministry Servant",
-        "text": "Seeing leaders wrestle with technology during gatherings."
+        "text": "Serving in online Bible study groups, and seeing leaders wrestle with technology during gatherings."
       },
       {
         "title": "FrameDecks",
@@ -148,5 +143,5 @@
   },
   "footer": "Built for ministry, discipleship, prayer, fellowship, and the glory of God.",
   "disclaimer": "FrameDecks is an independent ministry tool created by Shobin Mathews.",
-  "version": "6.11.2"
+  "version": "6.12"
 }

@@ -12,7 +12,7 @@ Read this first, then [NEXT_SESSION.md](NEXT_SESSION.md).
   Workbook moved from the Meeting menu, Meeting tab, empty Studio and palette into **Settings → Data / Backup →
   Meeting from Excel** (it leaves in 6.12, W3); and the website's colour palette in the dark theme (6.11, owner's
   request: the last block of `app/css/theme.css`, colours only; keep it equal to `hosted/src/app/globals.css` :root);
-  and the virtual camera's name, **FRAMECAST** (owner's request, 26 October: `packaging/build_vcam.py` NAME,
+  and the virtual camera's name, **FrameRelay** (owner's request, 26 October: `packaging/build_vcam.py` NAME,
   `src/vcam/sink.py` VCAM_NAME, and the labels that name the camera; the program itself stays FrameDecks); and the Settings menu grouped (Your meeting, Presenting, Account,
   This PC, Help), each item with a one-line description, plus "Find a setting" (owner's request, 26 October); and design
   audit ranks 2–4 (owner's request, 26 October): the first-run dialog (Start fresh first, then a Getting started card),
@@ -27,7 +27,7 @@ Read this first, then [NEXT_SESSION.md](NEXT_SESSION.md).
   Colours live only in `app/css/palette.css` (`tools/css_palette.py`). Follow that document for any new screen.
   And the UX simplification (owner's request, 27 October; `docs/development/design-system.md` "Running a service", `app/js/service.js`):
   Prepare / Run, Up next, Before you start, Practice mode, How people see it (Settings; the camera and display pages
-  under it), Advanced (Transitions, Keyboard shortcuts, Security, Diagnostics), FRAMECAST presets with Fine-tune,
+  under it), Advanced (Transitions, Keyboard shortcuts, Security, Diagnostics), FrameRelay presets with Fine-tune,
   Members → People (List / Table), labelled main tabs, worded Previous / Next, Hide all red only while something is on
   screen, one status pill, grouped Live tools (one Teleprompter entry, Esc closes), "Black screen" for Blackout, the
   four-step first-service card, and the words in `docs/guide/glossary.md`. And the 10/10 plan (owner's request, 27 October): Run's larger Up next with key
@@ -87,7 +87,7 @@ Read this first, then [NEXT_SESSION.md](NEXT_SESSION.md).
 - Continuity: `docs/continuity/PROJECT_GUIDE.md`, `docs/continuity/PROJECT_STATUS.md`,
   `docs/continuity/PROJECT_ROADMAP.md`, `docs/continuity/NEXT_SESSION.md`. The owner's live tests:
   `docs/qa/live-test-guide.md` (keep it in step when a tested behaviour changes).
-- Current handoff (28 October 2026; repository standard applied, `832a07b`–`4e88eda`, CI green; see below): v6.11.2 (repository layout + companion trust fixes, no desktop change; tag `v6.11.2`) follows v6.11.1 and the README/release wordmark refresh (PR #38). Trust
+- Current handoff (28 October 2026; version 6.12 prepared on `main`, waiting for the owner's `v6.12` tag; FRAMECAST is now FrameRelay): v6.11.2 (repository layout + companion trust fixes, no desktop change; tag `v6.11.2`) follows v6.11.1 and the README/release wordmark refresh (PR #38). Trust
   fixes merged in PR #39 (`27cfb4b`); production deployment verification and the owner's live tests remain. See
   `docs/continuity/NEXT_SESSION.md`. Repository clean-up (merged): Python modules are in `src/`
   (`python src/server.py`), `README.md`, `LICENSE`, `NOTICE` and `ruff.toml` at the top level, `CONTRIBUTING`/`SECURITY`/`SUPPORT` in `.github/`,
@@ -211,8 +211,8 @@ Read this first, then [NEXT_SESSION.md](NEXT_SESSION.md).
     no deletions are sent and the Frames are restored from the workspace.
 - The old name appears only where upgrades need it: `src/legacy.py` (moves old data folders), `packaging/installer.iss`
   (removes old shortcuts, program folder and camera files), `src/server.py` `OLD_FIREWALL_RULES`, `tools/undo-ipad-remote.ps1`
-  and `tests/test_legacy.py`. Use FrameDecks everywhere else; the camera is called FRAMECAST (files `framedecks_vcam64/32.dll`). Any label that
-  means the camera (switch, status, picture, preview) says FRAMECAST; `tests/test_camera_name.py` fails otherwise.
+  and `tests/test_legacy.py`. Use FrameDecks everywhere else; the camera is called FrameRelay (files `framedecks_vcam64/32.dll`). Any label that
+  means the camera (switch, status, picture, preview) says FrameRelay; `tests/test_camera_name.py` fails otherwise.
 - The companion must stay a static export: no server routes, cookies, server actions, `dynamic`/`revalidate`, metadata
   routes that need a server, or cacheComponents/PPR (they break `output: "export"`).
 - Next.js 16 has breaking changes: read `hosted/node_modules/next/dist/docs/` before writing hosted code. `agentRules: false`

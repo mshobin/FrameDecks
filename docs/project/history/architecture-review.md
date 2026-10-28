@@ -52,7 +52,7 @@ flowchart LR
 | Media | Local only: images, video, PDF, PowerPoint in the PC's data folder; sync carries file names only | `src/vcam/layers.py`, `src/sync_entities.py` |
 | Rendering and camera | Local CPU pipeline (OpenCV/numpy), softcam virtual camera, native Share Window | `src/vcam/` |
 | OBS | Browser-source overlay pages served by the PC (`focus-verse.html`, `discussion-question.html`, `birthday.html`, `stage.html`), and the virtual camera as an OBS video source | `app/*.html` |
-| Zoom / Teams / Meet | The FRAMECAST camera, and the Share Window for Share Screen; no meeting-app API | `src/vcam/sink.py`, `src/vcam/present_window.py` |
+| Zoom / Teams / Meet | The FrameRelay camera, and the Share Window for Share Screen; no meeting-app API | `src/vcam/sink.py`, `src/vcam/present_window.py` |
 | Remote control | Wi-Fi phone remote (LAN, PIN); companion Live page (cloud commands); Stream Deck (local) | `remote.html`, `src/cloud_remote.py`, `streamdeck/` |
 | AI | **None** | — |
 | PPTX | Import (PowerPoint on the PC saves a PDF); Next/Previous in a running slide show. **No export** | `src/vcam/powerpoint.py` |

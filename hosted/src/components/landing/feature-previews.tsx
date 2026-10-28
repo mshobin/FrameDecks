@@ -1,7 +1,7 @@
 import Image from "next/image";
 
 // The two large feature tiles show the thing itself, drawn in HTML: the Teleprompter's script gliding past a gold
-// reading line, and a FRAMECAST camera picture (soft background, LIVE, logo, lower third). The script glides only
+// reading line, and a FrameRelay camera picture (soft background, LIVE, logo, lower third). The script glides only
 // while the tile is on screen (data-loop, motion.tsx) and stays still under "reduce motion" or "Reduce effects".
 
 const SCRIPT = [
@@ -34,7 +34,7 @@ export function TeleprompterPreview() {
   );
 }
 
-export function FramecastPreview() {
+export function FrameRelayPreview() {
   return (
     <div className="lp-cam" aria-hidden="true">
       <div className="lp-cam-picture">
@@ -51,7 +51,7 @@ export function FramecastPreview() {
           <span>Evening session</span>
         </div>
       </div>
-      <p className="lp-cam-name">FRAMECAST · background blur on</p>
+      <p className="lp-cam-name">FrameRelay · background blur on</p>
     </div>
   );
 }

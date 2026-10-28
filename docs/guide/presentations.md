@@ -29,7 +29,7 @@ FrameDecks sends one finished picture to every place you use, all at the same ti
 
 ```mermaid
 flowchart LR
-  K["FrameDecks<br/>(live Frame)"] --> CAM["FRAMECAST camera<br/>Zoom · Teams · Meet · OBS"]
+  K["FrameDecks<br/>(live Frame)"] --> CAM["FrameRelay camera<br/>Zoom · Teams · Meet · OBS"]
   K --> PW["Presentation window<br/>projector, TV, Zoom screen share"]
   K --> OV["Overlay pages<br/>OBS browser source"]
   K --> PH["Phone remote<br/>status and controls"]
@@ -37,7 +37,7 @@ flowchart LR
 
 | Output | Use it for | How |
 | --- | --- | --- |
-| **FRAMECAST camera** | Online and hybrid meetings | Choose **FrameDecks** as the camera in Zoom, Teams, Meet or OBS |
+| **FrameRelay camera** | Online and hybrid meetings | Choose **FrameDecks** as the camera in Zoom, Teams, Meet or OBS |
 | **Presentation window** | A projector or TV in the room, or **Share Screen → window** in Zoom | Studio → **Share Window**, then **Full screen** |
 | **Overlay pages** | OBS setups that add cards over their own video | `http://localhost:8750/...` as an OBS browser source |
 
@@ -241,7 +241,7 @@ The more see-through it is, the stronger the outline around the letters, so the 
   remembers this and your other choices.
 
 > **Note:** The overlay is never shown in screen sharing or recordings, even when you share your whole screen
-> (Windows 10 version 2004 or later). It is never on the FRAMECAST camera either. The Teleprompter window and
+> (Windows 10 version 2004 or later). It is never on the FrameRelay camera either. The Teleprompter window and
 > Spotlight are left out of screen sharing too.
 
 **The toolbar and the ribbon**
@@ -324,7 +324,7 @@ Ctrl+Space, Ctrl+Alt+Space, Ctrl+Shift+Space, Win+Shift+K, or Off.
 
 ## Projector, TV and screen sharing
 
-The **Presentation window** shows the same finished picture as the FRAMECAST camera.
+The **Presentation window** shows the same finished picture as the FrameRelay camera.
 
 1. In the Studio, select **Share Window**. The Presentation window opens.
 2. Drag it to the projector or TV, then select **⛶ Full screen** (or press **F** in that window, or double-click it).
@@ -336,7 +336,7 @@ The **Presentation window** shows the same finished picture as the FRAMECAST cam
 To share it in Zoom instead, choose **Share Screen**, then the window named **FrameDecks Share Window**.
 
 > **Note:** Media Content (camera, images, video, PowerPoint, screen and window sharing) is part of the FrameDecks
-> picture, so turn on the FRAMECAST camera in **Settings → How people see it → FRAMECAST Camera** if you use it.
+> picture, so turn on the FrameRelay camera in **Settings → How people see it → FrameRelay Camera** if you use it.
 
 ## Keyboard shortcuts
 

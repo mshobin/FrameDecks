@@ -652,7 +652,7 @@ function smartDuplicate(id){
     h('label', {cls: 'check'}, [h('input', {type: 'radio', name: 'dup-c', value: 'keep', checked: 'checked'}), ' Keep the content']),
     h('label', {cls: 'check'}, [h('input', {type: 'radio', name: 'dup-c', value: 'only'}), ' Content only (looks back to the defaults)']),
     h('label', {cls: 'check'}, [h('input', {type: 'radio', name: 'dup-c', value: 'empty'}), ' Empty Content content (ready for next week)'])]));
-  card.appendChild(h('p', {cls: 'hint', text: 'FRAMECAST, Zoom / Teams camera, recording and remote settings belong to this PC, so every Frame - including the copy - uses them.'}));
+  card.appendChild(h('p', {cls: 'hint', text: 'FrameRelay, Zoom / Teams camera, recording and remote settings belong to this PC, so every Frame - including the copy - uses them.'}));
   var ok = h('button', {cls: 'btn primary', type: 'button', text: 'Duplicate', id: 'dup-ok'});
   card.appendChild(h('div', {cls: 'app-modal-actions'}, [h('button', {cls: 'btn quiet', type: 'button', text: 'Cancel', onclick: function(){ back.remove(); }}), ok]));
   ok.addEventListener('click', function(){
@@ -793,7 +793,7 @@ $('layer-add').addEventListener('click', function(e){
   var S = studio();
   function item(k){
     var has = SC.isCard(k[0]) && SC.first(sc, k[0]);
-    return {icon: k[2], text: k[1], hint: has ? 'in this Frame' : '', disabled: NEEDS_CAM[k[0]] && !S, title: NEEDS_CAM[k[0]] && !S ? 'Needs the FRAMECAST camera (Settings → FRAMECAST Camera)' : '', run: function(){ addLayer(k[0]); }};
+    return {icon: k[2], text: k[1], hint: has ? 'in this Frame' : '', disabled: NEEDS_CAM[k[0]] && !S, title: NEEDS_CAM[k[0]] && !S ? 'Needs the FrameRelay camera (Settings → FrameRelay Camera)' : '', run: function(){ addLayer(k[0]); }};
   }
   menu($('layer-add'), [{label: 'Add to “' + sc.name + '”'}].concat(CONTENT_ADD.map(item), ['-', {label: 'Free Content'}], FREE_ADD.map(item)));
 });
@@ -985,7 +985,7 @@ function sceneForm(gen, sc, tab){
     sec.addEventListener('keydown', stop);
     sec.addEventListener('change', function(){ edit(sid, function(x){ x.auto.sec = Math.max(2, Math.min(3600, +sec.value || 30)); }); });
     gen.appendChild(h('div', {cls: 'ip-sec'}, [field('Transition into this Frame', sel), field('Duration (ms)', ms),
-      h('p', {cls: 'hint', text: 'Plays on the whole FRAMECAST picture. On the OBS / browser overlay page the dips cover the screen and the cards follow. The top bar can override it for a take.'})]));
+      h('p', {cls: 'hint', text: 'Plays on the whole FrameRelay picture. On the OBS / browser overlay page the dips cover the screen and the cards follow. The top bar can override it for a take.'})]));
     gen.appendChild(h('div', {cls: 'ip-sec'}, [checkCtl('Auto advance to the next Frame', sc.auto.on, function(v){ edit(sid, function(x){ x.auto.on = v; }); }), field('After (seconds)', sec),
       h('p', {cls: 'hint', text: 'Only while Auto is on in the top bar.'})]));
   } else {
@@ -1097,7 +1097,7 @@ function textForm(gen, sc, l, tab){
 function outputForm(gen, sc, l){
   var sid = sc.id, lid = l.id;
   gen.appendChild(h('div', {cls: 'ip-sec'}, [h('b', {text: 'Show this Content on'}),
-    checkCtl('FRAMECAST', l.c.vcam, function(v){ editLayer(sid, lid, function(x){ x.c.vcam = v; }); }, 'The Zoom or Teams camera, the recording and the Presentation window.'),
+    checkCtl('FrameRelay', l.c.vcam, function(v){ editLayer(sid, lid, function(x){ x.c.vcam = v; }); }, 'The Zoom or Teams camera, the recording and the Presentation window.'),
     checkCtl('OBS / browser overlay pages', l.c.obs, function(v){ editLayer(sid, lid, function(x){ x.c.obs = v; }); }),
     h('p', {cls: 'hint', text: SC.isCard(l.kind) ? 'Applies when the Frame is taken live.' : 'Applies at once.'})]));
 }
@@ -1114,7 +1114,7 @@ function audioForm(gen, sc, l){
 function mediaForm(gen, sc, l){
   var sid = sc.id, lid = l.id, c = l.c;
   var S = studio();
-  gen.appendChild(h('p', {cls: 'hint', text: S ? 'Take this Frame live to place this Content directly on the canvas. Until then you can set it up here.' : 'Media Content is part of the FRAMECAST picture. Turn FRAMECAST on in Settings → FRAMECAST Camera to see and arrange them.'}));
+  gen.appendChild(h('p', {cls: 'hint', text: S ? 'Take this Frame live to place this Content directly on the canvas. Until then you can set it up here.' : 'Media Content is part of the FrameRelay picture. Turn FrameRelay on in Settings → FrameRelay Camera to see and arrange them.'}));
   if (['image', 'video', 'pdf'].indexOf(l.kind) >= 0){
     gen.appendChild(row('File', h('span', {cls: 'plain', text: c.file || 'Not chosen yet'})));
     gen.appendChild(h('div', {cls: 'ip-acts'}, [h('button', {cls: 'btn small', type: 'button', text: c.file ? 'Choose another file…' : 'Choose a file…', onclick: function(){ pickFile(l.kind === 'pdf' ? 'powerpoint' : l.kind).then(function(f){ if (f) editLayer(sid, lid, function(x){ x.c.file = f; }); }); }})]));
@@ -1173,7 +1173,7 @@ function renderCanvas(){
   var tx = sc ? SC.transitionOf(live, sc) : null;
   $('mt-section').textContent = !sc || run ? '' : (sc.tx.type !== 'profile' ? SC.txName(tx.type) : '') + (sc.auto.on ? (sc.tx.type !== 'profile' ? ' · ' : '') + 'moves on after ' + sc.auto.sec + ' s' : '');
   $('canvas-note').textContent = run ? '' : !sc ? '' : useStudio ? 'Exactly what Zoom / Teams receive. Drag media Content to move it, the handles to resize.' :
-    isLive ? 'Live. The overlay page shown here is what OBS receives' + (S ? '' : ' (turn FRAMECAST on to see the camera picture and arrange media Content)') + '.' :
+    isLive ? 'Live. The overlay page shown here is what OBS receives' + (S ? '' : ' (turn FrameRelay on to see the camera picture and arrange media Content)') + '.' :
     'Not on screen yet. Go Live (T) puts it on screen.' + (sc.layers.some(function(l){ return SC.isMedia(l.kind); }) ? ' Outlines show where its media Content goes.' : '');
   // media outlines for a scene that is not live
   var boxes = $('canvas-boxes'), bsig = !run && !useStudio && sc && !isLive ? JSON.stringify(sc.layers.filter(function(l){ return SC.isMedia(l.kind) && l.visible; }).map(function(l){ return [l.id, l.name, l.c.x, l.c.y, l.c.w, l.c.h, l.kind]; })) : '';
@@ -1358,7 +1358,7 @@ function renderTransitions(){
   var t = h('table', {cls: 'dir-table'}, [h('thead', {}, [h('tr', {}, ['Profile', 'Transition', 'Duration'].map(function(x){ return h('th', {text: x}); }))])]), tb = h('tbody');
   SC.profiles.forEach(function(p){ tb.appendChild(h('tr', {cls: p.id === live.profile ? 'today' : ''}, [h('td', {text: p.name}), h('td', {text: SC.txName(p.type)}), h('td', {text: p.ms ? p.ms + ' ms' : '-'})])); });
   t.appendChild(tb); root.appendChild(h('div', {cls: 'dir-wrap'}, [t]));
-  root.appendChild(h('p', {cls: 'hint', text: 'FRAMECAST plays every transition on the whole picture (a few light operations per frame, under a second). The OBS / browser overlay page covers the screen for the dips and moves the cards for the slides and pushes.'}));
+  root.appendChild(h('p', {cls: 'hint', text: 'FrameRelay plays every transition on the whole picture (a few light operations per frame, under a second). The OBS / browser overlay page covers the screen for the dips and moves the cards for the slides and pushes.'}));
 }
 (window.KCSectionHooks = window.KCSectionHooks || []).push(function(id){ if (id === 'transitions') renderTransitions(); });
 

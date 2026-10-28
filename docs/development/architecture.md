@@ -29,7 +29,7 @@ service PC. Volunteers do not need this page; start with [Getting started](../gu
 | --- | --- |
 | **One PC, no cloud** | Everything runs in one process on the service PC. The web UI talks to `127.0.0.1:8750`. Nothing needs an account or the internet (only the optional ESV scripture fetch does). |
 | **One source of truth** | The meeting lives in one state object (`kc-saved-content.json`). Every screen — the main window, the phone, the overlay pages, the camera — reads the same state. |
-| **One final picture** | The FRAMECAST camera, the Presentation window and every preview use the same composed frame. Nothing bypasses the compositor, so what you preview is what Zoom receives. |
+| **One final picture** | The FrameRelay camera, the Presentation window and every preview use the same composed frame. Nothing bypasses the compositor, so what you preview is what Zoom receives. |
 | **Volunteer-proof** | Plain words in the UI, Frames that own their Content (no hidden sharing), safe defaults, Hide all / Blackout always one key away. |
 | **Light on the PC** | Work happens only when something changes. Screens poll cheaply, the phone waits on a long poll, previews are made only while someone is watching. |
 
@@ -108,7 +108,7 @@ flowchart LR
   OV --> CMP
   CMP --> PF --> INK["Annotation · Freeze<br/>src/vcam/annotate.py"] --> BLK["Blackout fade"]
   BLK --> FINAL(["Final frame"])
-  FINAL --> SINK["FRAMECAST camera<br/>src/vcam/sink.py + softcam"]
+  FINAL --> SINK["FrameRelay camera<br/>src/vcam/sink.py + softcam"]
   FINAL --> PW["Presentation window"]
   FINAL --> PV["Previews<br/>Studio · phone pad"]
   FINAL --> REC["Test recording"]
@@ -207,7 +207,7 @@ flowchart LR
   S --> C1
   T --> C2["Text layers<br/>camera: src/vcam/program.py<br/>pages: app/js/overlay.js"]
   M --> C3["Media layers<br/>src/vcam/layers.py<br/>(camera picture only)"]
-  C1 --> OUT1["FRAMECAST camera ·<br/>Presentation window"]
+  C1 --> OUT1["FrameRelay camera ·<br/>Presentation window"]
   C2 --> OUT1
   C3 --> OUT1
   C1 --> OUT2["OBS / browser overlay pages<br/>(transparent background)"]
@@ -296,7 +296,7 @@ window features use Windows' own functions through `src/desktop_win.py` (ctypes,
 | Desktop shell | `src/desktop_app.py` | WebView2 windows via pywebview (main, Teleprompter window, Teleprompter overlay, Spotlight, Presentation window), tray icon and menu, global shortcut, single instance |
 | Windows helpers | `src/desktop_win.py` | Win32 calls via ctypes: the ribbon (`Chrome`, `drag`), see-through glass and fade, capture exclusion, rounded corners, centring on the cursor, the global shortcut thread (`Hotkeys`). Safe no-ops off Windows |
 | Window ribbon | `app/js/window-chrome.js`, `app/css/window.css` | The one ribbon component: window buttons, drag, double-click, the minimize question |
-| Camera engine | `src/vcam/engine.py`, `compositor.py`, `layers.py`, `cards.py`, `overlay.py`, `program.py`, `annotate.py`, `blur.py`, `looks.py`, `picture.py`, `screen.py`, `devices.py`, `sink.py`, `powerpoint.py` | Capture, compose, draw cards and drawings, send to the FRAMECAST camera |
+| Camera engine | `src/vcam/engine.py`, `compositor.py`, `layers.py`, `cards.py`, `overlay.py`, `program.py`, `annotate.py`, `blur.py`, `looks.py`, `picture.py`, `screen.py`, `devices.py`, `sink.py`, `powerpoint.py` | Capture, compose, draw cards and drawings, send to the FrameRelay camera |
 | Shared state (UI) | `app/js/store.js` | Normalizes state, Frames and Content model (`KCScenes`), sync loops |
 | Main window | `app/dashboard.html`, `app/js/workspace.js`, `frame-lists.js`, `dashboard.js`, `annotate.js`, `preview-edit.js`, `editable.js`, `palette.js`, `prompter-dock.js`, `studio.js`, … | Studio, Content Settings, lists, multi-select, annotation, inline and canvas editing, command palette (also used by Spotlight, `app/spotlight.html`), docked Teleprompter |
 | Phone remote | `app/remote.html`, `app/js/remote.js`, `app/css/remote.css` | Simple and Advanced profiles, drawing pad |

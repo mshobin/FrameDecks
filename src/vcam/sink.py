@@ -1,6 +1,6 @@
 """Where finished frames go.
 
-SoftcamSink sends frames to the "FRAMECAST" virtual camera (our build of the MIT-licensed softcam
+SoftcamSink sends frames to the "FrameRelay" virtual camera (our build of the MIT-licensed softcam
 library, renamed and with its own ID). FakeSink is used for tests on computers without it.
 """
 import ctypes
@@ -11,7 +11,7 @@ from pathlib import Path
 
 # Must match the ID compiled into framedecks_vcam64.dll / framedecks_vcam32.dll (see packaging/build_vcam.py)
 VCAM_CLSID = "{6F2B8C3E-4D7A-4B9E-9C11-B5CC0A1E7D21}"
-VCAM_NAME = "FRAMECAST"
+VCAM_NAME = "FrameRelay"
 
 
 def dll_path(base):
@@ -19,7 +19,7 @@ def dll_path(base):
 
 
 def is_registered():
-    """True if Windows knows about the FRAMECAST camera (read-only registry check)."""
+    """True if Windows knows about the FrameRelay camera (read-only registry check)."""
     if os.name != "nt":
         return False
     import winreg
@@ -43,7 +43,7 @@ class SoftcamSink:
         # framerate 0 = send each frame immediately (the webcam sets the pace)
         self.cam = self.lib.scCreateCamera(width, height, ctypes.c_float(0.0))
         if not self.cam:
-            raise RuntimeError("FRAMECAST is already in use by another program.")
+            raise RuntimeError("FrameRelay is already in use by another program.")
 
     def connected(self):
         return bool(self.cam) and bool(self.lib.scIsConnected(self.cam))

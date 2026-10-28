@@ -40,12 +40,12 @@ from vcam.sink import VCAM_CLSID
 assert VCAM_CLSID == "{" + build_id + "}", "FrameDecks ID mismatch between src/vcam/sink.py and packaging/build_vcam.py"
 from vcam.sink import VCAM_NAME
 build_name = _re.search(r'NAME = "([^"]+)"', (root / "packaging" / "build_vcam.py").read_text()).group(1)
-assert VCAM_NAME == build_name == "FRAMECAST", "the camera must be called FRAMECAST"
+assert VCAM_NAME == build_name == "FrameRelay", "the camera must be called FrameRelay"
 assert (root / "src" / "vcam" / "models" / "selfie_segmentation_landscape.tflite").exists(), "blur model missing"
 if os.name == "nt" and os.environ.get("GITHUB_ACTIONS") == "true":
     missing = [f for f in ("framedecks_vcam64.dll", "framedecks_vcam32.dll", "build-info.json") if not (root / "src" / "vcam" / "bin" / f).exists()]
     if missing:
-        sys.exit("STOP: the FRAMECAST camera was not built (" + ", ".join(missing) + " missing).\n"
+        sys.exit("STOP: the FrameRelay camera was not built (" + ", ".join(missing) + " missing).\n"
                  "The build recipe .github/workflows/build-windows.yml in your repository is out of date.\n"
                  "Copy the .github folder from the latest FRAMEDECKS.zip into your repository, then commit and push.")
 try:

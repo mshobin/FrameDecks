@@ -11,13 +11,13 @@ FrameDecks is for church leaders and volunteers, not engineers. Write for the pe
 | Do | Don't |
 | --- | --- |
 | Say what happens: "Hide all clears the screen." | Say how it works: "Clears the overlay layer stack." |
-| Name things the way the screen does: **Frame**, **Content**, **FRAMECAST**, **Live tools**. | Use internal words: "scene", "layer", "vcam", "L1/L2". |
+| Name things the way the screen does: **Frame**, **Content**, **FrameRelay**, **Live tools**. | Use internal words: "scene", "layer", "vcam", "L1/L2". |
 | Put help in one plain line **under** the control. | Put internals in brackets after the label: "Template (kept for…; not in Previous / Next)". |
 | Use sentence case: "Go Live", "Hide all", "Read our story". | Use ALL CAPS or Title Case For Every Word. |
 | Ask before anything that removes, naming it: "Disconnect “Sanctuary PC”?" | Ask "Are you sure?" |
 | Map service errors to a clear next step; keep technical details out of the interface. | Show database, provider or browser error messages directly. |
 | Say what to do next when something is missing: "Link the service PC". | Show error codes or file names to everyone. Keep those for Diagnostics or an admin note. |
-| Say the camera is **FRAMECAST** and the program is **FrameDecks**. | Call the camera FrameDecks (`tests/test_camera_name.py` fails). |
+| Say the camera is **FrameRelay** and the program is **FrameDecks**. | Call the camera FrameDecks (`tests/test_camera_name.py` fails). |
 | Use the words in the [glossary](../guide/glossary.md): **Black screen**, **Running order**, **People**, **Up next**. | Use two words for one thing (Blackout and Black screen, Services and Running order). |
 
 ## Type
@@ -93,10 +93,10 @@ The program has two modes, switched at the top of the window (`js/service.js`; o
   people will see it, the program, the phone remote.
 - **Practice mode** turns on the black screen for the audience; the program's own previews add `practice=1` and show
   everything. Turning the black screen off any other way ends Practice.
-- **How people see it** (Settings) is one guided choice: FRAMECAST, the Share Window, or a projector, TV or OBS. The
+- **How people see it** (Settings) is one guided choice: FrameRelay, the Share Window, or a projector, TV or OBS. The
   camera and display pages sit under it in the menu.
 - Settings that few people need (Transitions, Keyboard shortcuts, Security, Diagnostics) are folded under
-  **Advanced**; Find a setting searches them. FRAMECAST shows presets first and its exact numbers under **Fine-tune**.
+  **Advanced**; Find a setting searches them. FrameRelay shows presets first and its exact numbers under **Fine-tune**.
 
 ## Identity (website, 27 October)
 
@@ -116,7 +116,7 @@ One direction, built in `hosted/src/app/identity.css` (loaded after the older lo
 
 `hosted/src/components/landing.tsx` (the words and the order) with one file per part in
 `hosted/src/components/landing/`, styled by `hosted/src/app/landing.css` (loaded after `identity.css`). For every kind
-of gathering; no church-only words, no named third-party streaming or camera products (FRAMECAST, our own camera, is
+of gathering; no church-only words, no named third-party streaming or camera products (FrameRelay, our own camera, is
 named), no invented quotes, logos or numbers. Built from the owner's written spec of 28 October (the reference mock-up
 file was not in the repository).
 
@@ -125,13 +125,14 @@ file was not in the repository).
   call (Colossians 3:23) and four more gatherings in the marquee.
 - **Order and parts:** `landing/nav.tsx` (clear, then blurred navy with a hairline after 20 px; How it works, See it
   work, Features, Questions; Reduce effects, theme, About, Sign in, gold Download · free) → `landing/hero.tsx` (words
-  rise blur-to-sharp, the second line in gold that sweeps once; the Studio window arrives tilted, rotateX 28°, lower and
-  at 0.92, settles flat, then leans toward the mouse up to 6° on desktop; the phone floats over its corner; gold corner
-  brackets; a gold light beam sways behind) → audience marquee (gold-outlined chips, pauses on hover, faded edges) →
+  rise blur-to-sharp, the second line in gold that sweeps once; then the product arrives once, in order, and stays
+  still (6.12): the Studio window rises 28 px into place, its screen wakes from the top, the gold corner brackets
+  settle onto the frame, the phone slides in over its corner, and one soft light crosses the glass; the gold light
+  behind it is still) → audience marquee (gold-outlined chips, pauses on hover, faded edges) →
   `landing/how-it-works.tsx` + `landing/step-screens.tsx` → `next-demo.tsx` (16:9 room screen, wire, phone; Next,
   Previous, Hide all, Black screen; ripple; a gold dot runs along the wire on every tap; a question drains its gold
   timer) → 12-column bento with `landing/feature-previews.tsx` (Teleprompter with a gliding script and a gold reading
-  line; FRAMECAST picture with soft background, LIVE, logo and lower third) and four small tiles → `landing/statement.tsx`
+  line; FrameRelay picture with soft background, LIVE, logo and lower third) and four small tiles → `landing/statement.tsx`
   (the serif promise; words light up one by one as you scroll) → FAQ (a gold plus turns to ×) → Ready to Serve? (verse,
   gold sweep on "Serve?", light beam, both download buttons) → footer.
 - **How it works (the 4-step guide):** on screens wider than 960 px with motion allowed, GSAP ScrollTrigger pins the
@@ -147,8 +148,8 @@ file was not in the repository).
 - **Motion rules** (`motion.css`, `landing.css`, `components/motion.tsx`): one easing family (`--ease-out` for
   entrances of 600–1100 ms, `--ease-soft` for loops), nothing bouncy. Only `transform` and `opacity` move, except two
   one-off entrances that sharpen from a small blur (hero words, step screens). The stage light (two glows, navy and
-  gold) drifts for about a minute after a page opens and then rests. Every endless loop (marquee, beam, phone float,
-  teleprompter, LIVE dot) is declared paused and runs only while its `data-loop` element is on screen (`data-live`);
+  gold) drifts for about a minute after a page opens and then rests. Every endless loop (marquee, teleprompter, LIVE
+  dot) is declared paused and runs only while its `data-loop` element is on screen (`data-live`);
   none runs under "reduce motion" or **Reduce effects** (`components/effects-toggle.tsx`, `html.fd-calm`, saved in
   this browser). `tests/idle-performance.test.mjs` enforces this.
 - **Reveal fix:** `data-reveal` content is visible without JavaScript; it is hidden only after `motion.tsx` has run

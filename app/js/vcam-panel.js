@@ -1,4 +1,4 @@
-/* FrameDecks - Settings > FRAMECAST Camera (built-in virtual camera) and the top-bar light */
+/* FrameDecks - Settings > FrameRelay Camera (built-in virtual camera) and the top-bar light */
 (function(){
 'use strict';
 var Store = window.KCStore;
@@ -22,7 +22,7 @@ function chip(cls, text, title){                        // touches the page only
 function dot(cls){ var d = $('sn-vcam'), k = 'sn-dot ' + (cls || ''); if (d && d.className !== k) d.className = k; }
 
 if (!Store.served){
-  root.appendChild(h('p', {cls: 'plain', text: 'The FRAMECAST camera needs the FrameDecks program (the installed Windows app).'}));
+  root.appendChild(h('p', {cls: 'plain', text: 'The FrameRelay camera needs the FrameDecks program (the installed Windows app).'}));
   chip('', '—', 'Needs the installed app');
   return;
 }
@@ -36,8 +36,8 @@ function post(path, body){
 var pill = h('span', {cls: 'status-pill'}, [h('i'), h('span', {text: 'Checking…'})]);
 var msg = h('p', {cls: 'plain u-mt-8'});
 var perf = h('p', {cls: 'hint u-mt-4'});
-var sw = h('input', {type: 'checkbox', role: 'switch', id: 'vcam-switch', 'aria-label': 'FRAMECAST on or off'});
-var swText = h('b', {text: 'FRAMECAST'});
+var sw = h('input', {type: 'checkbox', role: 'switch', id: 'vcam-switch', 'aria-label': 'FrameRelay on or off'});
+var swText = h('b', {text: 'FrameRelay'});
 var camSel = h('select', {id: 'vcam-camera', 'aria-label': 'Webcam'});
 var resSeg = h('div', {cls: 'seg', id: 'vcam-res'});
 var blurSeg = h('div', {cls: 'seg', id: 'vcam-blur'});
@@ -48,7 +48,7 @@ var lookSel = h('select', {id: 'vcam-look', 'aria-label': 'Camera Look'});
 var mtLook = $('mt-look');
 var installBox = h('div', {cls: 'alert warn', hidden: 'hidden'});
 var unavailable = h('div', {cls: 'alert', hidden: 'hidden'});
-var img = h('img', {alt: 'FRAMECAST preview', id: 'vcam-preview-img'});
+var img = h('img', {alt: 'FrameRelay preview', id: 'vcam-preview-img'});
 var previewBox = h('div', {cls: 'vcam-preview'}, [img, h('span', {cls: 'vcam-preview-off', text: 'Preview is off'})]);
 var previewBtn = h('button', {cls: 'btn small', type: 'button', id: 'vcam-preview-btn', text: 'Show preview'});
 var previewing = false, current = null, pvTag = {};
@@ -140,7 +140,7 @@ document.addEventListener('keydown', function(e){
   setLook(n === 0 ? 'off' : order[n - 1]);
 });
 window.KCLook = {set: setLook};
-cardsCb.addEventListener('change', function(){ save('cards', cardsCb.checked); toast(cardsCb.checked ? 'Your cards will appear on FRAMECAST' : 'Cards are off on FRAMECAST (use the OBS/Camo overlay links instead)'); });
+cardsCb.addEventListener('change', function(){ save('cards', cardsCb.checked); toast(cardsCb.checked ? 'Your cards will appear on FrameRelay' : 'Cards are off on FrameRelay (use the OBS/Camo overlay links instead)'); });
 camSel.addEventListener('change', function(){ save('cameraName', camSel.value); });
 previewBtn.addEventListener('click', function(){
   previewing = !previewing;
@@ -248,7 +248,7 @@ function renderQuality(d){
 
 var main = h('section', {cls: 'box'}, [
   h('div', {cls: 'big-switch'}, [sw, h('div', {}, [swText,
-    h('div', {cls: 'hint', text: 'A camera called “FRAMECAST” for Zoom and Teams. Your webcam only turns on while a meeting app is using it.'})])]),
+    h('div', {cls: 'hint', text: 'A camera called “FrameRelay” for Zoom and Teams. Your webcam only turns on while a meeting app is using it.'})])]),
   h('div', {cls: 'box-head'}, [h('h2', {text: 'Status'})]),
   pill, msg, perf, unavailable, installBox
 ]);
@@ -260,7 +260,7 @@ var settingsBox = h('section', {cls: 'box'}, [
   h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'Background blur'}), blurSeg]),
   h('div', {cls: 'row'}, [h('span', {cls: 'lbl'}), blurSave, blurNote]),
   h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'Mirror'}), h('label', {cls: 'check'}, [mirror, ' Flip left-right (only your camera picture; text stays readable)'])]),
-  h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'Cards'}), h('label', {cls: 'check'}, [cardsCb, ' Show my verse, question and birthday cards on FRAMECAST'])]),
+  h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'Cards'}), h('label', {cls: 'check'}, [cardsCb, ' Show my verse, question and birthday cards on FrameRelay'])]),
   h('details', {cls: 'vcam-fine vcam-tune'}, [h('summary', {text: 'Fine-tune: exact blur, blur style, camera look and smoothness'}),
     h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'Blur strength'}), h('div', {cls: 'blur-ctl'}, [blurDown, h('div', {cls: 'range'}, [blurRange, blurVal]), blurUp, blurNum, h('span', {cls: 'hint', text: '%'})])]),
     h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'Blur style'}), styleSeg]),
@@ -276,29 +276,29 @@ var settingsBox = h('section', {cls: 'box'}, [
 var helpBox = h('section', {cls: 'box'}, [
   h('div', {cls: 'box-head'}, [h('h2', {text: 'Use it in your meeting'})]),
   h('ol', {cls: 'steps'}, [
-    h('li', {}, [h('b', {text: 'Zoom: '}), 'Settings → Video → Camera → choose ', h('b', {text: 'FRAMECAST'}), '. Turn off Zoom’s own background blur if it is on, and tick ', h('b', {text: 'HD'}), ' so Zoom sends a sharp picture (without it Zoom sends a low-resolution, softer version).']),
-    h('li', {}, [h('b', {text: 'Microsoft Teams: '}), 'Settings → Devices (or Video and effects) → Camera → choose ', h('b', {text: 'FRAMECAST'}), '.']),
+    h('li', {}, [h('b', {text: 'Zoom: '}), 'Settings → Video → Camera → choose ', h('b', {text: 'FrameRelay'}), '. Turn off Zoom’s own background blur if it is on, and tick ', h('b', {text: 'HD'}), ' so Zoom sends a sharp picture (without it Zoom sends a low-resolution, softer version).']),
+    h('li', {}, [h('b', {text: 'Microsoft Teams: '}), 'Settings → Devices (or Video and effects) → Camera → choose ', h('b', {text: 'FrameRelay'}), '.']),
     h('li', {text: 'Keep FrameDecks running (closing its window keeps it running in the background).'})
   ]),
-  h('p', {cls: 'hint', text: 'Your verse, question and birthday cards appear on FRAMECAST whenever you select Show, with the same transitions. OBS or Camo are not needed. If you still add the overlay links in OBS on top of FRAMECAST, turn off “Cards” above so they don’t appear twice.'})
+  h('p', {cls: 'hint', text: 'Your verse, question and birthday cards appear on FrameRelay whenever you select Show, with the same transitions. OBS or Camo are not needed. If you still add the overlay links in OBS on top of FrameRelay, turn off “Cards” above so they don’t appear twice.'})
 ]);
 root.appendChild(main); root.appendChild(settingsBox); root.appendChild(qualityBox); root.appendChild(helpBox);
 
 /* ---------- Show the current state ---------- */
 var STATES = {
-  live: ['ok', 'In use', 'Zoom or Teams is showing FRAMECAST.'],
+  live: ['ok', 'In use', 'Zoom or Teams is showing FrameRelay.'],
   preview: ['info', 'Preview', 'Showing the preview.'],
-  ready: ['info', 'Ready', 'Choose “FRAMECAST” as the camera in Zoom or Teams.'],
+  ready: ['info', 'Ready', 'Choose “FrameRelay” as the camera in Zoom or Teams.'],
   starting: ['info', 'Starting…', 'Starting the webcam…'],
   error: ['warn', 'Webcam problem', ''],
-  off: ['', 'Off', 'FRAMECAST is switched off.']
+  off: ['', 'Off', 'FrameRelay is switched off.']
 };
 function render(d){
   current = d;
   var s = d.settings, st = d.status;
   unavailable.hidden = d.available;
   if (!d.available){
-    unavailable.textContent = d.reason || 'FRAMECAST is not available here.';
+    unavailable.textContent = d.reason || 'FrameRelay is not available here.';
     settingsBox.hidden = helpBox.hidden = qualityBox.hidden = true;
     pill.className = 'status-pill'; pill.lastChild.textContent = 'Not available'; msg.textContent = ''; perf.textContent = '';
     chip('', '—', d.reason); dot('');
@@ -306,7 +306,7 @@ function render(d){
   }
   settingsBox.hidden = helpBox.hidden = qualityBox.hidden = false;
   if (s.schemaVersion >= 2) renderQuality(d); else qualityBox.hidden = true;
-  sw.checked = s.enabled; swText.textContent = s.enabled ? 'FRAMECAST is on' : 'FRAMECAST is off';
+  sw.checked = s.enabled; swText.textContent = s.enabled ? 'FrameRelay is on' : 'FrameRelay is off';
   mirror.checked = s.mirror;
   cardsCb.checked = s.cards !== false;
   var lsig = JSON.stringify(d.looks || []);
@@ -349,17 +349,17 @@ function render(d){
   if (d.looksNote) perf.textContent += ' · ' + d.looksNote;
   installBox.hidden = d.registered;
   if (!d.registered && !installBox.childNodes.length){
-    installBox.appendChild(h('b', {text: 'FRAMECAST is not installed in Windows yet. '}));
+    installBox.appendChild(h('b', {text: 'FrameRelay is not installed in Windows yet. '}));
     installBox.appendChild(document.createTextNode('Windows asks for administrator permission once, then Zoom and Teams can see it.'));
-    installBox.appendChild(h('div', {cls: 'actions u-mt-8'}, [h('button', {cls: 'btn primary small', type: 'button', text: 'Install FRAMECAST', onclick: function(){
+    installBox.appendChild(h('div', {cls: 'actions u-mt-8'}, [h('button', {cls: 'btn primary small', type: 'button', text: 'Install FrameRelay', onclick: function(){
       toast('Windows will ask for permission…');
-      post('install', {action: 'install'}).then(function(r){ toast(r.ok ? 'FRAMECAST is installed. Restart Zoom or Teams to see it.' : r.message, !r.ok); render(r); });
+      post('install', {action: 'install'}).then(function(r){ toast(r.ok ? 'FrameRelay is installed. Restart Zoom or Teams to see it.' : r.message, !r.ok); render(r); });
     }})]));
   }
   // top bar + settings nav
   var chipLook = {live: ['ok', 'In a meeting'], preview: ['info', 'Preview'], ready: ['info', 'Ready'], starting: ['info', 'Starting'], error: ['warn', 'Problem'], off: ['', 'Off']}[key] || ['info', 'Ready'];
   chip(chipLook[0], d.registered ? chipLook[1] : 'Not installed', look[2] || msg.textContent);
-  if (!d.registered) chip('warn', 'Not installed', 'Settings → FRAMECAST Camera → Install');
+  if (!d.registered) chip('warn', 'Not installed', 'Settings → FrameRelay Camera → Install');
   dot(key === 'live' ? 'ok' : key === 'error' || !d.registered ? 'warn' : s.enabled ? 'info' : '');
   return d;
 }

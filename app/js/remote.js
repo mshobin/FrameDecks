@@ -424,7 +424,7 @@ function padFull(on){
     else if (!on && d.fullscreenElement && d.exitFullscreen) d.exitFullscreen().catch(function(){});
   } catch(e){}
 }
-/* The real picture (what Zoom / Teams see, from FRAMECAST), refreshed about 5 times a second while the pad is
+/* The real picture (what Zoom / Teams see, from FrameRelay), refreshed about 5 times a second while the pad is
  * open. When the camera is off the phone shows the Frame's cards (stage.html) instead, never a black box. */
 function padLive(){
   clearTimeout(pad.timer);

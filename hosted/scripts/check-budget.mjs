@@ -2,7 +2,7 @@
 // JavaScript or CSS grows past the budget, so a heavy dependency cannot slip in unnoticed. Measured gzipped, as served.
 // Budgets were set on 26 October 2026 with about 25% headroom (then: 317 KB JS in 21 files, largest 70 KB, CSS 12 KB).
 // 28 October: CSS 20 → 24 KB on purpose. The redesigned landing draws its four step screens, the Teleprompter and the
-// FRAMECAST preview in CSS instead of shipping pictures (21 KB after removing the old landing's unused rules).
+// FrameRelay preview in CSS instead of shipping pictures (21 KB after removing the old landing's unused rules).
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";

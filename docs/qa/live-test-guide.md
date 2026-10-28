@@ -121,13 +121,13 @@ Needs FrameDecks 6.11 on the linked PC.
 On the service PC, no real call needed.
 1. Select **Run** at the top. **Expect:** the running order on the left, the picture in the middle, **Up next** on the
    right with **Before you start**; no editor, no + Frame. Double-click a Frame name: it goes on screen (no renaming).
-2. Tick **Practice mode**. **Expect:** a strip "Practice: your audience sees a black screen"; in Zoom (FRAMECAST) the
+2. Tick **Practice mode**. **Expect:** a strip "Practice: your audience sees a black screen"; in Zoom (FrameRelay) the
    picture is black, while the program's own preview still shows your Frame.
 3. Press **Go Live**, **Next ▶** and **Esc**. **Expect:** **Hide all** is red while something is on screen and calm
    after Esc; Up next follows.
 4. Open **Live tools**, press **Esc**. **Expect:** only the menu closes. Select **Stop practising**. **Expect:** Zoom
    shows the picture again.
-5. **Settings → How people see it** → **Set up FRAMECAST**. **Expect:** the FRAMECAST page with **← How people see it**.
+5. **Settings → How people see it** → **Set up FrameRelay**. **Expect:** the FrameRelay page with **← How people see it**.
 6. Under Up next: the keys (] Next, [ Previous, T Go Live, Esc Hide all, or your own). Set the meeting's time to
    now with Practice mode on. **Expect:** within a few seconds the Practice strip says "It is service time … Still practising?"
    and a reminder appears once.

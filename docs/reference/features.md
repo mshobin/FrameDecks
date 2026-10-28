@@ -60,13 +60,13 @@ above describes them as they are now.
 | **Meeting Workbook** | Five-sheet Excel template (two tabs since 6.9) with drop-downs, import with preview, export | `app/js/meeting-book.js`, `tools/make_meeting_workbook.py` |
 | **No collaboration** | Team Space removed; local save, autosave, export, backups and Frame history remain | — |
 
-The rest of this document describes the v6.4 features that are still current: the FRAMECAST camera, logo-only
+The rest of this document describes the v6.4 features that are still current: the FrameRelay camera, logo-only
 branding and native desktop behaviour.
 
 
 This document describes what each v6.4 feature does, how it is built and where its limits are:
 
-- the FRAMECAST camera;
+- the FrameRelay camera;
 - logo-only branding;
 - native desktop behaviour.
 
@@ -75,7 +75,7 @@ For the earlier features, see `docs/reference/meeting-workbook-and-branding.md` 
 
 ---
 
-## 1. The FRAMECAST camera
+## 1. The FrameRelay camera
 
 FrameDecks has its own camera for Zoom, Microsoft Teams, Google Meet, OBS and other apps that read Windows
 cameras. Windows lists it as **FrameDecks**. It sends the finished picture: your webcam with optional background
@@ -84,10 +84,10 @@ blur and a Camera Look, plus the live scene (cards, text, pictures, slides, bran
 | | |
 | --- | --- |
 | Name in other apps | **FrameDecks** |
-| Registered by | The installer, with the option **Install the FRAMECAST camera for Zoom and Teams** (asks for administrator permission once) |
+| Registered by | The installer, with the option **Install the FrameRelay camera for Zoom and Teams** (asks for administrator permission once) |
 | Driver files | `framedecks_vcam64.dll` and `framedecks_vcam32.dll` in `_internal\vcam\bin`. They are built from softcam (MIT licence) by `packaging/build_vcam.py` |
 | Camera ID (CLSID) | `{6F2B8C3E-4D7A-4B9E-9C11-B5CC0A1E7D21}`. This is the same ID as before, so apps that remembered the camera keep it |
-| Settings | **Settings → FRAMECAST Camera** |
+| Settings | **Settings → FrameRelay Camera** |
 | Status | The status menu in the command bar: **FrameDecks** · Off / Ready / In use |
 
 ### Upgrading from the camera's earlier name

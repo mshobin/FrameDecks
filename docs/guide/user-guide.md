@@ -164,9 +164,9 @@ A Question (or Scripture) Content holds **its own list**, shown full height in C
     turn that setting off and restart. **Compatibility transparency** forces the whole-window fade if the meeting
     does not show through.
 
-## 5. The FRAMECAST camera
+## 5. The FrameRelay camera
 Choose **FrameDecks** as the camera in Zoom, Teams, Google Meet or OBS. Participants see your webcam with the live
-Frame on top. Background blur and Camera Looks are in **Settings → FRAMECAST Camera**. If an app doesn't list
+Frame on top. Background blur and Camera Looks are in **Settings → FrameRelay Camera**. If an app doesn't list
 FrameDecks, restart that app.
 
 ## 6. Phone and tablet remote

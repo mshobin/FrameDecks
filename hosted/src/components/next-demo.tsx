@@ -10,7 +10,13 @@ import { ChevronLeft, ChevronRight, EyeOff, Square } from "lucide-react";
 // per tap, so an idle page draws nothing.
 const FRAMES = [
   { kind: "Welcome", text: "Welcome, everyone", sub: "Evening session · 7:30 pm", serif: false, timer: 0 },
-  { kind: "Quote", text: "Alone we can do so little; together we can do so much.", sub: "Helen Keller", serif: true, timer: 0 },
+  {
+    kind: "Scripture",
+    text: "Commit thy works unto the LORD, and thy thoughts shall be established.",
+    sub: "Proverbs 16:3 (KJV)",
+    serif: true,
+    timer: 0,
+  },
   { kind: "Discussion question", text: "What is one idea you will put into practice this week?", sub: "Question 1 of 3", serif: false, timer: 30 },
   { kind: "Closing", text: "Thank you for being here.", sub: "See you next time", serif: false, timer: 0 },
 ] as const;

@@ -11,7 +11,7 @@ How to show pictures, videos, PowerPoint, PDFs, windows, your screen and your ca
 - [Videos](#videos)
 - [PowerPoint and PDF](#powerpoint-and-pdf)
 - [Windows, screens and cameras](#windows-screens-and-cameras)
-- [The FRAMECAST camera](#the-framecast-camera)
+- [The FrameRelay camera](#the-framerelay-camera)
 - [Camera Looks and background blur](#camera-looks-and-background-blur)
 - [Projectors and the Presentation window](#projectors-and-the-presentation-window)
 - [OBS and browser overlay pages](#obs-and-browser-overlay-pages)
@@ -44,7 +44,7 @@ Media Content is part of the **FrameDecks picture**: the finished 16:9 image tha
 2. Select **+ Content** and choose the type.
 3. Choose the file. FrameDecks keeps its own copy in the data folder (`%APPDATA%\FRAMEDECKS\layers\`), so the Frame keeps working if the original file is moved or deleted.
 4. Set it up in **Content Settings → Media**: the file, position (Centre X / Y), size (Width / Height) and **Opacity**.
-5. When the Frame is live and the FRAMECAST camera is on, you can also **drag** the Content on the Studio Canvas and resize it with its handles. Turn on **Snap to guides** for neat alignment.
+5. When the Frame is live and the FrameRelay camera is on, you can also **drag** the Content on the Studio Canvas and resize it with its handles. Turn on **Snap to guides** for neat alignment.
 
 > **Tip:** The order in the **Content** list is the stacking order: the top item is in front. Drag items to change it.
 
@@ -104,11 +104,11 @@ For the technical background, limits and the formats that were evaluated (transp
 
 > **Important:** Keep a captured window open and not minimised. On some graphics drivers a covered or minimised window stops updating. A second display, or a separate window for the slide show, is the most reliable.
 
-## The FRAMECAST camera
+## The FrameRelay camera
 
 FrameDecks has its own camera, listed as **FrameDecks** in Windows. It sends the finished picture: your webcam (with optional blur and Camera Look) plus the live Frame. Zoom and Teams then see your cards, slides and drawings exactly as you see them in the Studio Canvas.
 
-1. Install FrameDecks with **Install the FRAMECAST camera for Zoom and Teams** ticked (Windows asks for administrator permission once). Missed it? Use **Settings → FRAMECAST Camera → Install FRAMECAST**.
+1. Install FrameDecks with **Install the FrameRelay camera for Zoom and Teams** ticked (Windows asks for administrator permission once). Missed it? Use **Settings → FrameRelay Camera → Install FrameRelay**.
 2. **Restart** your meeting app. Apps read the camera list when they start.
 3. Choose **FrameDecks** as the camera:
 
@@ -119,7 +119,7 @@ FrameDecks has its own camera, listed as **FrameDecks** in Windows. It sends the
 | **Google Meet** | ⋮ → Settings → Video → Camera → **FrameDecks** (in Chrome or Edge) |
 | **OBS Studio** | Sources → **+** → Video Capture Device → Device: **FrameDecks** |
 
-4. In **Settings → FRAMECAST Camera**, choose:
+4. In **Settings → FrameRelay Camera**, choose:
    - the **webcam** behind it;
    - the **resolution** (720p or 1080p);
    - **background blur**;
@@ -132,7 +132,7 @@ FrameDecks has its own camera, listed as **FrameDecks** in Windows. It sends the
 
 - **Camera Looks** adjust colour and warmth (Warm, Dark / Polished, Neutral / Clean, or Off). Use them to make a dim room or a lamp-lit home look natural.
 - **Background blur** softens what is behind the speaker, using a person-detection model on your PC. No video leaves the PC for this.
-- Both are in **Settings → FRAMECAST Camera** and apply to the webcam only, never to your cards or slides.
+- Both are in **Settings → FrameRelay Camera** and apply to the webcam only, never to your cards or slides.
 
 ## Projectors and the Presentation window
 
@@ -142,7 +142,7 @@ For an in-room projector or TV, use the **Presentation window**:
 2. Drag it to the projector display and switch it to **full screen**.
 3. To share it in Zoom instead, choose **Share Screen → FrameDecks Share Window**.
 
-The Presentation window, the FRAMECAST camera and the Studio Canvas all show the same picture.
+The Presentation window, the FrameRelay camera and the Studio Canvas all show the same picture.
 
 ## OBS and browser overlay pages
 
@@ -150,7 +150,7 @@ If you already produce your stream in OBS, you can use FrameDecks's overlay page
 
 - The pages are served from your PC at `http://localhost:8750/` (for example `http://localhost:8750/stage.html`).
 - The command bar's status shows how many overlay pages are open (for example **OBS · 1 open**).
-- Each piece of Content can be limited to the FRAMECAST camera or the overlay pages in **Content Settings → Show on**.
+- Each piece of Content can be limited to the FrameRelay camera or the overlay pages in **Content Settings → Show on**.
 
 > **Note:** Overlay pages show cards and text. Camera and media Content are part of the FrameDecks picture, so in OBS use the **FrameDecks** camera source for those.
 

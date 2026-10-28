@@ -5,7 +5,7 @@
  *  - Up next: a picture of the Frame that Next (or Go Live, for a Frame chosen in the list) puts on screen.
  *  - Before you start: a short checklist read from the status the program already shows.
  *  - Practice: the audience sees a black screen while you rehearse; this window's preview still shows everything.
- *  - How people see it: one guided choice between FRAMECAST (Zoom/Teams camera), the Share Window, and a projector,
+ *  - How people see it: one guided choice between FrameRelay (Zoom/Teams camera), the Share Window, and a projector,
  *    TV or OBS. The camera and display pages are unchanged, under it. */
 (function(){
 'use strict';
@@ -78,7 +78,7 @@ function checks(){
   out.push(n ? ['ok', 'Your running order has ' + n + ' Frame' + (n === 1 ? '' : 's')] : ['warn', 'No Frames yet', 'Add Frames', function(){ setMode('prepare'); }]);
   var cam = chipState('h-vcam'), src = chipState('h-sources');
   var camOk = /\b(ok|info)\b/.test(cam.cls) && !/Off|Not/.test(cam.text);
-  if (camOk) out.push(['ok', 'FRAMECAST is ready: choose it as the camera in Zoom or Teams']);
+  if (camOk) out.push(['ok', 'FrameRelay is ready: choose it as the camera in Zoom or Teams']);
   else if (shareOpen()) out.push(['ok', 'The Share Window is open: share it in Zoom']);
   else if (/\bok\b/.test(src.cls)) out.push(['ok', 'An overlay page is open (OBS, Camo or a browser)']);
   else out.push(['warn', 'Choose how people will see it', 'How people see it', function(){ go('settings', 'output'); }]);
@@ -177,8 +177,8 @@ function renderOutput(){
   var root = $('out-choices'); if (!root) return;
   var cam = chipState('h-vcam'), src = chipState('h-sources');
   var cards = [
-    ['video', 'In Zoom or Teams, as a camera', 'FRAMECAST appears as a camera. In Zoom or Teams, choose “FRAMECAST” as your camera. Best for most online meetings.',
-      'FRAMECAST: ' + (cam.text || '—'), 'Set up FRAMECAST', function(){ window.KCShowSection('vcam'); }, true],
+    ['video', 'In Zoom or Teams, as a camera', 'FrameRelay appears as a camera. In Zoom or Teams, choose “FrameRelay” as your camera. Best for most online meetings.',
+      'FrameRelay: ' + (cam.text || '—'), 'Set up FrameRelay', function(){ window.KCShowSection('vcam'); }, true],
     ['presentation', 'Share a window in Zoom', 'A clean window with only your Frames. In Zoom choose Share Screen, then “FrameDecks Share Window”.',
       shareOpen() ? 'The Share Window is open' : 'The Share Window is closed', shareOpen() ? 'Close the Share Window' : 'Open the Share Window', function(){ var b = $('s2-present'); if (b) b.click(); setTimeout(renderOutput, 900); }],
     ['monitor', 'On a projector, TV or in OBS', 'Show your Frames on a second screen in the room, or add the overlay pages to OBS or Camo.',

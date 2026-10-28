@@ -47,7 +47,7 @@ You need:
 - a Windows 10 or Windows 11 PC (64-bit);
 - the FrameDecks installer. See [Installation](installation.md).
 
-A webcam is optional. You need one only if people should see you on the FRAMECAST camera.
+A webcam is optional. You need one only if people should see you on the FrameRelay camera.
 
 ## First launch
 
@@ -141,7 +141,7 @@ edited by accident. Switch back to **Prepare** at any time.
 
 **Practise first.** In **Run**, tick **Practice mode**: your audience sees a black screen while you try Go Live, Next
 and Hide all, and your own preview still shows everything. Untick it (or select **Stop practising**) when you are ready.
-Not sure how people will see your meeting? **Settings → How people see it** offers three ways: FRAMECAST in Zoom or
+Not sure how people will see your meeting? **Settings → How people see it** offers three ways: FrameRelay in Zoom or
 Teams, the Share Window, or a projector, TV or OBS. The words FrameDecks uses are in the [glossary](glossary.md).
 
 See [Presentations](presentations.md) for transitions, Black screen, Freeze, Annotate, the Teleprompter, the Teleprompter

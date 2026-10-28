@@ -7,7 +7,7 @@ import { HowItWorks } from "@/components/landing/how-it-works";
 import { LandingHero } from "@/components/landing/hero";
 import { LandingNav } from "@/components/landing/nav";
 import { Statement } from "@/components/landing/statement";
-import { FramecastPreview, TeleprompterPreview } from "@/components/landing/feature-previews";
+import { FrameRelayPreview, TeleprompterPreview } from "@/components/landing/feature-previews";
 import { NextDemo } from "@/components/next-demo";
 import brand from "@/lib/brand.json";
 import { DOWNLOADS } from "@/lib/pc-setup";
@@ -86,7 +86,7 @@ const FAQ = [
   { q: "What does it cost?", a: "Nothing. FrameDecks is free and open source under the Apache 2.0 licence. There are no adverts and no tracking." },
   {
     q: "Do we need a capture card or extra software?",
-    a: "No. FRAMECAST appears as a camera in video meeting and streaming platforms. The live production tools and virtual camera solutions you already use keep working too.",
+    a: "No. FrameRelay appears as a camera in video meeting and streaming platforms. The live production tools and virtual camera solutions you already use keep working too.",
   },
   {
     q: "What if the internet goes down?",
@@ -195,10 +195,10 @@ export function Landing() {
                 <h3>On every screen and stream</h3>
                 <p>
                   One program for the room screen, live production tools and video meetings, through its own virtual camera,
-                  FRAMECAST, with background blur and your logo.
+                  FrameRelay, with background blur and your logo.
                 </p>
               </div>
-              <FramecastPreview />
+              <FrameRelayPreview />
             </article>
             {FEATURES.map((f, i) => (
               <article key={f.title} className="lp-card" data-reveal="" data-spotlight="" style={delay(120 + i * 70)}>
@@ -236,7 +236,7 @@ export function Landing() {
 
         <section className="lp-cta" aria-labelledby="lp-cta-title">
           <div className="lp-cta-panel" data-reveal="">
-            <div className="lp-beam lp-beam-cta" data-loop="" aria-hidden="true" />
+            <div className="lp-beam lp-beam-cta" aria-hidden="true" />
             <Image className="lp-cta-mark" src="/framedecks-emblem.webp" alt="" width={56} height={56} loading="lazy" unoptimized />
             <blockquote className="lp-verse">
               <p className="fd-serif">“{VERSE.text}”</p>

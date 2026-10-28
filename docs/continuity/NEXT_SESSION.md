@@ -5,12 +5,23 @@ PR #38. Trust fixes merged in PR #39 (`27cfb4b`). Later the same day: the budget
 (`57cd9c3`), the five Dependabot action upgrades merged (#33–#37), and the handoff PR #40. All checks on `main` are
 green, including the Cloudflare Pages deploy (production); a look at the live site is still the owner's. Read [PROJECT_GUIDE.md](PROJECT_GUIDE.md) ("Working locally" has the set-up and run commands).
 
+28 October, version 6.12 prepared on `main` (not yet tagged): the camera FRAMECAST is renamed **FrameRelay** everywhere
+(registered name in `packaging/build_vcam.py` / `src/vcam/sink.py`, same CLSID; `src/vcam/devices.py` and
+`hosted/src/lib/pc-setup.ts` still recognise "framecast" as an earlier name); the website hero no longer tilts, follows
+the mouse, floats or sways (one ordered arrival, then still; the closing light is still too); the Helen Keller quote in
+the website demo became Proverbs 16:3 (KJV) and `hosted/public/product/studio.webp` was captured again from the
+program with that verse live; "Ministry Servant" left the About screen (`app/js/brand.js`). `APP_VERSION` 6.12,
+`docs/releases/v6.12.md`, CHANGELOG, design history section 35 and the README/release header (Version 6.12).
+Checks: Python 170, desktop JS 4/4, packaging, CSS tokens, ruff, doc links, release notes check, website 129/129,
+lint, types, build, budget, program visual and axe suites. Owner: tag `v6.12` on `main` to publish (the session
+cannot push tags), then install over 6.11 with "Install the FrameRelay camera" ticked and check the name in Zoom/Teams.
+
 28 October, landing page redesign and signed-in visual pass (owner's spec; built from the written spec because
 `design/framedecks-landing-mockup.html` was not in the repository: add it to compare). Owner's choices: light by
 default (loops only while on screen, a Reduce effects switch), signed-in pages a visual pass only.
 - Structure: `hosted/src/components/landing.tsx` (words, order) with `landing/nav.tsx`, `landing/hero.tsx`,
   `landing/how-it-works.tsx`, `landing/step-screens.tsx` (Plan, Rehearse, Check, Present; each takes `image?`),
-  `landing/feature-previews.tsx` (Teleprompter, FRAMECAST), `landing/statement.tsx`; `next-demo.tsx` enlarged
+  `landing/feature-previews.tsx` (Teleprompter, FrameRelay), `landing/statement.tsx`; `next-demo.tsx` enlarged
   (16:9 screen, wire, Next/Previous/Hide all/Black screen, ripple, question timer); `effects-toggle.tsx`;
   `motion.tsx` rewritten (reveal fix, `data-loop` → `data-live`, the two-glow stage light).
 - How it works: pinned with GSAP ScrollTrigger above 960 px when motion is allowed, `end: "+=" + innerHeight * 1.6`,
@@ -58,7 +69,7 @@ three merged ones, were deleted on GitHub (see `docs/development/branching.md`).
 `main` (after the checks pass); no working branches unless asked.
 
 28 October, second post-reorganization check (`54d8c0e`: `vcam/` → `src/vcam/`, launchers → `tools/launchers/`,
-continuity files → `docs/continuity/`): everything passed except one defect, fixed: in the installed app the FRAMECAST
+continuity files → `docs/continuity/`): everything passed except one defect, fixed: in the installed app the FrameRelay
 camera's Text Content could not find its fonts (`src/vcam/layers.py` counted folders from its own file; now
 `fonts_folder()`, with `tests/test_vcam_fonts.py`). Releases 6.11.1 and 6.11.2 were built before the move and are not
 affected. This guide (`PROJECT_GUIDE.md`) is the only maintainer guide; there is no top-level guide file.
@@ -287,7 +298,7 @@ Product pictures retaken from neutral content (`hosted/public/product/`). Left f
 `brand.js` mission (the owner's own ministry words), the program's own church-flavoured presets and templates
 (Sunday Service, Bible Study; program content, protected), docs/guide/roles, the `Start FRAMEDECKS*.bat` file names.
 Visual suites: run `src/server.py` with no other program server on 8750 (a stray one makes them test the wrong data).
-The FRAMECAST panel is still built at start (it updates its controls in place every poll).
+The FrameRelay panel is still built at start (it updates its controls in place every poll).
 Gotcha: `next build` reuses its cache; after CSS changes that do not appear, delete `hosted/.next` and `hosted/out`.
 Earlier: ranks 1–7 and 9–11 are done (5–7, 9–11 on 26 October: `hosted/src/lib/when.ts`,
 `content-kind.tsx`, the phone tab bar in `app-shell.tsx`, landing screenshots in `hosted/public/product/`; retake those
@@ -350,8 +361,8 @@ continuity files in `docs/continuity/` in the same commit (owner's rule). Never 
   registers the camera again from the new ones. Owner check: after installing, the camera still shows in Zoom.
 - GitHub's old "Kingdom Connect 6.9" release can only be changed by the owner (publish 6.11; delete or rename 6.9).
 
-## FRAMECAST and the 6.11 release (26 October, owner's request)
-- The virtual camera is now called **FRAMECAST** (Zoom/Teams/OBS name and every label that names the camera; same
+## FrameRelay and the 6.11 release (26 October, owner's request)
+- The virtual camera is now called **FrameRelay** (Zoom/Teams/OBS name and every label that names the camera; same
   device ID). The website's camera check also accepts the earlier name. Owner-approved; recorded in PROJECT_GUIDE.md.
 - The tag build for v6.11 failed at "Write the branded release notes": `tools/make_release_notes.py` crashed on the
   empty `motto` in `app/js/brand.js`. Fixed, with `tests/test_release_notes.py`. Release notes rewritten.

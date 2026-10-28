@@ -45,6 +45,20 @@ Versions before 4.9 (when the program had its earlier name) are described in the
 - The favicons, the tray icon and the small program-icon sizes (16–32 px) use a heavier version of the emblem, so it
   stays visible on light browser tabs and a light taskbar. Larger sizes are unchanged.
 
+## [6.12] - 2026-10-28
+
+Full notes: [docs/releases/v6.12.md](releases/v6.12.md)
+
+### Changed
+- The virtual camera FRAMECAST is renamed **FrameRelay** everywhere: the registered camera name, the program, the
+  website, the documentation, the installer and the GitHub templates. Same Windows camera ID; FrameDecks still
+  recognises a camera registered under the old name.
+- Website front page: the Studio picture arrives once (rise, screen on, corners, phone, one light across the glass)
+  instead of tilting, following the mouse, floating and swaying; the closing light is still too.
+- The quotation in the website's demo is replaced by Proverbs 16:3 (KJV), and the front page's Studio picture was
+  captured again with that verse.
+- About screen: "Ministry Servant" removed from the founder's roles and journey.
+
 ## [6.11.2] - 2026-10-27
 
 Full notes: [docs/releases/v6.11.2.md](releases/v6.11.2.md)
@@ -80,7 +94,7 @@ Full notes: [docs/releases/v6.11.1.md](releases/v6.11.1.md)
 - Running a service (owner-approved simplification, 27 October; `app/js/service.js`): Prepare / Run (Run hides every
   editor and blocks rename, drag, menus, Delete, cut, paste and undo in the Studio), Up next, Before you start,
   Practice mode (Black screen for the audience, `practice=1` previews), How people see it (Settings), Advanced
-  (Transitions, Keyboard shortcuts, Security, Diagnostics), FRAMECAST presets with Fine-tune, Members → People (List /
+  (Transitions, Keyboard shortcuts, Security, Diagnostics), FrameRelay presets with Fine-tune, Members → People (List /
   Table), labelled main tabs, worded Previous / Next, Hide all red only while something is on screen, one status pill,
   Live tools grouped (one Teleprompter entry) and closed by Esc, Blackout renamed Black screen, Q + S → Both, no
   "350 ms" or double PREVIEW badges, a four-step first-service guide, `docs/guide/glossary.md`. Website: Services is now
@@ -140,7 +154,7 @@ Full notes: [docs/releases/v6.11.1.md](releases/v6.11.1.md)
 - "Could not reach https://framedecks.pages.dev: Forbidden" in FrameDecks account (requests now identify FrameDecks).
 - Unpinning the Teleprompter overlay froze the program.
 - Camera labels that still said FrameDecks (switch, status, Teams step, Cards, Camera Look, Diagnostics) now say
-  FRAMECAST; `tests/test_camera_name.py` guards it (design audit DD-01).
+  FrameRelay; `tests/test_camera_name.py` guards it (design audit DD-01).
 - The camera's start-file message no longer sits over the Studio canvas (Members' tab switch showed the camera
   picture panel on every visit). `tests/test_ui_labels.py` guards ranks 2–4.
 

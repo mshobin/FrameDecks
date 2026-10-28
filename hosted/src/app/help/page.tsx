@@ -35,7 +35,7 @@ export default function HelpPage() {
             computer or phone.
           </li>
           <li>
-            <strong>Choose how people see it</strong>: in the program, Settings → How people see it (FRAMECAST in your video meeting or
+            <strong>Choose how people see it</strong>: in the program, Settings → How people see it (FrameRelay in your video meeting or
             streaming platform, the Share Window, or a projector, TV or live production tool).
           </li>
           <li>
@@ -51,7 +51,7 @@ export default function HelpPage() {
             Read <strong>Before you start</strong>: every line green? Untick Practice mode if it is on.
           </li>
           <li>
-            In your video meeting or streaming platform, choose <strong>FRAMECAST</strong> as the camera (if that is how people see it).
+            In your video meeting or streaming platform, choose <strong>FrameRelay</strong> as the camera (if that is how people see it).
           </li>
           <li>
             Running from a phone? Open <Link href="/live">Live</Link> here, or the phone remote on the local Wi-Fi.
@@ -71,7 +71,7 @@ export default function HelpPage() {
             <strong>The screen must go dark now:</strong> press <kbd>K</kbd> (Black screen); press it again to come back.
           </li>
           <li>
-            <strong>Your meeting app shows no FRAMECAST camera:</strong> in FrameDecks, Settings → How people see it → FRAMECAST
+            <strong>Your meeting app shows no FrameRelay camera:</strong> in FrameDecks, Settings → How people see it → FrameRelay
             Camera → Install, then restart the meeting app.
           </li>
           <li>
@@ -96,7 +96,7 @@ export default function HelpPage() {
           <dd>One step of the meeting: what is on screen at one moment.</dd>
           <dt>Prepare / Run</dt>
           <dd>Plan and edit / run the service, with nothing to edit by accident.</dd>
-          <dt>FRAMECAST</dt>
+          <dt>FrameRelay</dt>
           <dd>FrameDecks&apos;s own camera, which you choose in your video meeting or streaming platform.</dd>
           <dt>Service PC</dt>
           <dd>The Windows PC that runs the meeting.</dd>

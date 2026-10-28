@@ -345,7 +345,7 @@ function cleanInk(o){
   });
   return {on: !!o.on, items: items, undone: (Array.isArray(o.undone) ? o.undone : []).filter(isObj).slice(-50).map(function(x){ return cleanInk({items: [x]}).items[0]; }).filter(Boolean)};
 }
-/* v6.5 Annotate: draw live.ink on a canvas, the same way vcam/annotate.py draws it on FRAMECAST */
+/* v6.5 Annotate: draw live.ink on a canvas, the same way vcam/annotate.py draws it on FrameRelay */
 function drawInk(cv, items){
   var c = cv.getContext('2d'), W = cv.width, H = cv.height;
   c.clearRect(0, 0, W, H);
@@ -1110,7 +1110,7 @@ var Store = {
     else fileStart();
   },
   pace: pace,
-  /* Fetch the FRAMECAST preview only when it's new: the program answers "not modified" for a picture this
+  /* Fetch the FrameRelay preview only when it's new: the program answers "not modified" for a picture this
    * screen already has, so nothing is downloaded, decoded or redrawn. tag = {etag} remembered per screen. */
   freshPreview: function(tag){
     var h = tag.etag ? {'If-None-Match': tag.etag} : {};

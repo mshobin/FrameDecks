@@ -54,7 +54,7 @@ window.KCBrand = {
 
   creator: {
     name: 'Shobin Mathews',
-    roles: ['Enterprise IT Consultant', 'Ministry Servant', 'Leader', 'Follower of Jesus Christ'],
+    roles: ['Enterprise IT Consultant', 'Leader', 'Follower of Jesus Christ'],
     email: 'mshobin@gmail.com',
     badge: 'Inspired by Service',
     // DRAFT - written for you to replace with your own words before release.
@@ -66,8 +66,7 @@ window.KCBrand = {
     journey: [
       {title: 'Follower of Jesus Christ', text: 'Where every part of this story begins.'},
       {title: 'Enterprise IT Consultant', text: 'Building dependable systems for organizations.'},
-      {title: 'Leader', text: 'Serving and leading in online Bible study groups.'},
-      {title: 'Ministry Servant', text: 'Seeing leaders wrestle with technology during gatherings.'},
+      {title: 'Leader', text: 'Serving in online Bible study groups, and seeing leaders wrestle with technology during gatherings.'},
       {title: 'FrameDecks', text: 'A platform that lets leaders focus on people and the Word.'}
     ]
   },

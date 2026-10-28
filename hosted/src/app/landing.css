@@ -169,24 +169,37 @@
   font-size: 13px;
 }
 
-/* the product on a stage: a window that arrives tilted back and settles flat, then leans toward the mouse */
+/* the product on a stage: it arrives once, in order, and then stays still (motion below, "the hero arrives") */
 .lp-stage {
   position: relative;
   max-width: 1120px;
   margin: clamp(48px, 7vw, 88px) auto 0;
-  perspective: 1800px;
-}
-
-.lp-stage-tilt {
-  position: relative;
-  transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
-  transform-style: preserve-3d;
-  transition: transform 0.9s var(--ease-out);
 }
 
 .lp-stage-in {
   position: relative;
-  transform-origin: 50% 0;
+}
+
+/* the window's screen: holds the picture and the one pass of light across the glass */
+.lp-screen-on {
+  position: relative;
+  overflow: hidden;
+  border-radius: 10px;
+}
+
+.lp-glint {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 38%,
+    rgba(255, 255, 255, 0.07) 46%,
+    rgba(244, 213, 142, 0.12) 50%,
+    rgba(255, 255, 255, 0.07) 54%,
+    transparent 62%
+  );
+  opacity: 0;
+  pointer-events: none;
 }
 
 .lp-stage figcaption {
@@ -1355,7 +1368,7 @@ html.fd-calm .lp-marquee-again {
   box-shadow: inset 0 1px 0 rgba(244, 213, 142, 0.18);
 }
 
-/* the room behind the speaker, softened as FRAMECAST's background blur would */
+/* the room behind the speaker, softened as FrameRelay's background blur would */
 .lp-cam-room {
   position: absolute;
   inset: 0;
@@ -1792,25 +1805,78 @@ html.fd-calm .lp-marquee-again {
     }
   }
 
+  /* the hero arrives: the window rises a short way into place (no tilt, no depth), its screen comes on from the top
+     like a display waking, the gold corners settle onto the frame, the phone slides in beside it, and one soft light
+     passes across the glass. Every step starts as the one before it is nearly done, all on --ease-out, then stillness. */
   .lp-stage-in {
-    animation: lp-settle-in 1.1s var(--ease-out) 0.45s backwards;
+    animation: lp-arrive 0.9s var(--ease-out) 0.5s backwards;
   }
 
-  @keyframes lp-settle-in {
+  @keyframes lp-arrive {
     from {
       opacity: 0;
-      transform: translate3d(0, 70px, 0) rotateX(28deg) scale(0.92);
+      transform: translate3d(0, 28px, 0);
+    }
+  }
+
+  .lp-screen-on img {
+    animation: lp-screen-wake 1s var(--ease-out) 0.85s backwards;
+  }
+
+  @keyframes lp-screen-wake {
+    from {
+      clip-path: inset(0 0 100% 0);
+      opacity: 0.35;
+    }
+  }
+
+  .lp-window.fd-framed::before,
+  .lp-window.fd-framed::after {
+    animation: lp-corner-in 0.7s var(--ease-out) 1.35s backwards;
+  }
+
+  .lp-window.fd-framed::before {
+    --from: translate3d(-10px, -10px, 0);
+  }
+
+  .lp-window.fd-framed::after {
+    --from: translate3d(10px, 10px, 0);
+  }
+
+  @keyframes lp-corner-in {
+    from {
+      opacity: 0;
+      transform: var(--from);
     }
   }
 
   .lp-float-phone {
-    animation: lp-phone-in 1s var(--ease-out) 1.1s backwards;
+    animation: lp-phone-in 0.9s var(--ease-out) 1.45s backwards;
   }
 
   @keyframes lp-phone-in {
     from {
       opacity: 0;
-      transform: translate3d(24px, 40px, 0);
+      transform: translate3d(36px, 0, 0);
+    }
+  }
+
+  .lp-glint {
+    animation: lp-glint 1.6s var(--ease-soft) 2.1s 1 both;
+  }
+
+  @keyframes lp-glint {
+    0% {
+      opacity: 0;
+      transform: translate3d(-60%, 0, 0);
+    }
+    20%,
+    80% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+      transform: translate3d(60%, 0, 0);
     }
   }
 
@@ -2055,16 +2121,6 @@ html.fd-calm .lp-marquee-again {
 
 /* ---------- motion: gentle loops, only while on screen ([data-live]) and never with effects reduced ---------- */
 @media (prefers-reduced-motion: no-preference) {
-  html.fd-motion:not(.fd-calm) .lp-beam {
-    animation: lp-sway 14s var(--ease-soft) infinite alternate paused;
-  }
-
-  html.fd-motion:not(.fd-calm) .lp-float-phone {
-    animation:
-      lp-phone-in 1s var(--ease-out) 1.1s backwards,
-      lp-bob 7s var(--ease-soft) 2.1s infinite alternate paused;
-  }
-
   html.fd-motion:not(.fd-calm) .lp-marquee-track {
     animation: lp-marquee 48s linear infinite paused;
   }
@@ -2077,8 +2133,6 @@ html.fd-calm .lp-marquee-again {
     animation: lp-blink 1.6s var(--ease-soft) infinite alternate paused;
   }
 
-  html.fd-motion:not(.fd-calm) [data-live].lp-beam,
-  html.fd-motion:not(.fd-calm) [data-live].lp-float-phone,
   html.fd-motion:not(.fd-calm) [data-live] .lp-marquee-track,
   html.fd-motion:not(.fd-calm) [data-live] .lp-prompter-roll,
   html.fd-motion:not(.fd-calm) [data-live].lp-cam-live i {
@@ -2087,21 +2141,6 @@ html.fd-calm .lp-marquee-again {
 
   html.fd-motion:not(.fd-calm) [data-live].lp-marquee:hover .lp-marquee-track {
     animation-play-state: paused;
-  }
-
-  @keyframes lp-sway {
-    from {
-      transform: rotate(-6deg);
-    }
-    to {
-      transform: rotate(6deg);
-    }
-  }
-
-  @keyframes lp-bob {
-    to {
-      transform: translate3d(0, -12px, 0);
-    }
   }
 
   @keyframes lp-marquee {

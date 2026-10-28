@@ -6,7 +6,7 @@ import { isFramedecksCamera, placeOf, setupOf } from "../src/lib/pc-setup.ts";
 const WIN = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0 Safari/537.36";
 
 test("the FRAMEDECKS camera is recognised under its current and earlier names", () => {
-  for (const name of ["FRAMECAST", "FRAMEDECKS", "FRAMEDECKS Camera", "BCC vCam"]) assert.ok(isFramedecksCamera(name), name);
+  for (const name of ["FrameRelay", "FRAMECAST", "FRAMEDECKS", "FRAMEDECKS Camera", "BCC vCam"]) assert.ok(isFramedecksCamera(name), name);
   for (const name of ["Integrated Webcam (0c45:6a10)", "OBS Virtual Camera", ""]) assert.ok(!isFramedecksCamera(name), name);
 });
 

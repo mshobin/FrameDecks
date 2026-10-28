@@ -37,7 +37,7 @@ import ai           # M-D3: optional AI, free by default (Ollama on this PC); hi
 import legacy   # 6.9: moves data saved under the program's earlier name
 import meeting_form   # 6.9: fills the Meeting Workbook's form for Export
 
-APP_VERSION = "6.11.2"
+APP_VERSION = "6.12"
 STARTED_AT = time.time()
 FROZEN = getattr(sys, "frozen", False)          # True inside the installed Windows app
 HERE = Path(sys.executable).resolve().parent if FROZEN else Path(__file__).resolve().parent.parent   # the repository root (this file is in src/)
@@ -1331,7 +1331,7 @@ def powerpoint_show():
 def slide_move(step):
     """Next (+1) / Previous (-1) for whatever is being presented: the Studio's shared screen or presentation layer
     (PDF deck or captured window) first, else the PowerPoint slide show running on this PC - e.g. full screen and
-    shared directly in Zoom/Teams, which FRAMECAST is not capturing. Works without the camera engine."""
+    shared directly in Zoom/Teams, which FrameRelay is not capturing. Works without the camera engine."""
     try:
         step = 1 if int(step) > 0 else -1
     except (TypeError, ValueError):
@@ -1462,7 +1462,7 @@ def _studio_action(d):
     if op == "slide":                                          # slides work even without the camera engine
         return {"slide": slide_move(d.get("step", 1))}
     if not comp:
-        raise ValueError(VCAM.get("reason") or "FRAMECAST is not available.")
+        raise ValueError(VCAM.get("reason") or "FrameRelay is not available.")
     if op == "layout":
         comp.set_layout(d.get("layout") or {})
     elif op == "screen":
@@ -1658,7 +1658,7 @@ def vcam_start():
     if VCAM["engine"] is not None:
         return
     demo = os.environ.get("KC_VCAM_DEMO") == "1"
-    start_files_msg = ("The FRAMECAST camera works only in the installed FrameDecks. Close the window you started it from, then open "
+    start_files_msg = ("The FrameRelay camera works only in the installed FrameDecks. Close the window you started it from, then open "
                        "FrameDecks from its desktop or Start-menu icon.")
     os.environ.setdefault("OPENCV_VIDEOIO_MSMF_ENABLE_HW_TRANSFORMS", "0")   # before OpenCV loads
     try:
@@ -1672,7 +1672,7 @@ def vcam_start():
         if FROZEN:
             import traceback
             print("FrameDecks could not load:\n" + traceback.format_exc())
-            VCAM["reason"] = ("FRAMECAST couldn’t start because part of it is missing. Please send Settings → Diagnostics "
+            VCAM["reason"] = ("FrameRelay couldn’t start because part of it is missing. Please send Settings → Diagnostics "
                               "→ Copy diagnostics to the developer.")
         else:
             VCAM["reason"] = start_files_msg
@@ -1684,7 +1684,7 @@ def vcam_start():
         make_sink, make_cam = (lambda w, h: vsink.FakeSink(w, h, connected=False)), DemoCamera
     else:
         if os.name != "nt":
-            VCAM["reason"] = start_files_msg if not FROZEN else "FRAMECAST works on Windows."
+            VCAM["reason"] = start_files_msg if not FROZEN else "FrameRelay works on Windows."
             return
         dll = vsink.dll_path(RES) if vsink.dll_path(RES).exists() else vsink.dll_path(SRC)
         if not dll.exists():
@@ -2111,7 +2111,7 @@ class Handler(BaseHTTPRequestHandler):
         almost nothing. Each frame is encoded here, not in the camera thread."""
         comp, eng = VCAM.get("compositor"), VCAM.get("engine")
         if not comp or not eng:
-            return self.reply(404, "FRAMECAST is not available", "text/plain; charset=utf-8")
+            return self.reply(404, "FrameRelay is not available", "text/plain; charset=utf-8")
         import cv2 as _cv2
         from vcam.priority import lower_this_thread
         lower_this_thread()                          # picture encoding for the window: background priority

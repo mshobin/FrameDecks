@@ -63,7 +63,7 @@
     <div class="lb-prog-menu" id="lb-prog-menu" role="group" aria-label="Live tools">
   <p class="lpm-h" aria-hidden="true">On screen</p>
   <button class="cb-btn" type="button" id="lb-hide-layer" aria-label="Hide the selected Content">Hide the selected Content</button>
-  <button class="cb-btn lb-black" type="button" id="lb-blackout" aria-pressed="false" title="Black picture on FRAMECAST and the overlay page">Black screen</button>
+  <button class="cb-btn lb-black" type="button" id="lb-blackout" aria-pressed="false" title="Black picture on FrameRelay and the overlay page">Black screen</button>
   <button class="cb-btn lb-frz" type="button" id="lb-freeze" aria-pressed="false" title="Freeze: hold the picture (F)">Freeze the picture</button>
   <button class="cb-btn lb-ann" type="button" id="lb-annotate" aria-pressed="false" title="Annotate: draw on the picture (D)">Draw on the picture</button>
   <p class="lpm-h" aria-hidden="true">Teleprompter <span>only you see it</span></p>
@@ -82,9 +82,9 @@
        Narrow windows fold the chips into one status button. -->
   <span class="live-ind" id="live-ind" role="status" aria-live="polite"><i></i><b>Off air</b><span class="live-what"></span></span>
   <div class="sysstat" id="sysstat">
-    <button class="sys-sum" type="button" id="sys-sum" aria-expanded="false" aria-controls="health" aria-label="System status: FRAMECAST, overlays and remote"><i class="sys-dot" aria-hidden="true"></i><span class="sys-text">Checking…</span></button>
+    <button class="sys-sum" type="button" id="sys-sum" aria-expanded="false" aria-controls="health" aria-label="System status: FrameRelay, overlays and remote"><i class="sys-dot" aria-hidden="true"></i><span class="sys-text">Checking…</span></button>
     <div class="sys-menu health" id="health" aria-label="Connection status">
-      <button class="hchip" type="button" id="h-vcam" data-goto="settings" data-sec="vcam" title="FRAMECAST camera (the camera you choose in Zoom or Teams)"><i></i><span class="hl">FRAMECAST</span><span class="hs">Zoom · Teams</span><b>—</b></button>
+      <button class="hchip" type="button" id="h-vcam" data-goto="settings" data-sec="vcam" title="FrameRelay camera (the camera you choose in Zoom or Teams)"><i></i><span class="hl">FrameRelay</span><span class="hs">Zoom · Teams</span><b>—</b></button>
       <button class="hchip" type="button" id="h-sources" data-goto="settings" data-sec="display" title="Overlay pages open in OBS, Camo or a browser"><i></i><span class="hl">Overlays</span><span class="hs">OBS</span><b>—</b></button>
       <button class="hchip" type="button" id="h-ipad" data-goto="settings" data-sec="ipad" title="Phone &amp; iPad remote"><i></i><span class="hl">Remote</span><span class="hs">Remote</span><b>—</b></button>
       <button class="hchip" type="button" id="h-rec" data-goto="recordings" title="Recording of the FrameDecks output" hidden><i></i><span class="hl">Recording</span><span class="hs">REC</span><b>—</b></button>
@@ -147,7 +147,7 @@
     <div class="canvas-wrap" id="canvas-wrap">
       <div class="program-frame canvas-frame" id="program">
         <iframe id="program-frame" title="What Zoom participants see" tabindex="-1"></iframe>
-        <img id="program-live" alt="The FRAMECAST picture Zoom participants see" hidden>
+        <img id="program-live" alt="The FrameRelay picture Zoom participants see" hidden>
         <div class="canvas-boxes" id="canvas-boxes" aria-hidden="true"></div>
         <div class="program-badge" id="program-badge">NOTHING ON SCREEN</div>
       </div>
@@ -337,8 +337,8 @@
       <button type="button" data-sec="overlays" data-k="birthday dates reminder"><span class="sn-i"><i data-icon="cake" data-size="16"></i></span><span class="sn-t"><b>Birthdays</b><small>Birthday reminders</small></span></button>
     </div>
     <div class="sn-group" role="group" aria-label="Presenting"><p class="sn-head" aria-hidden="true">Presenting</p>
-      <button type="button" data-sec="output" data-k="how people see it zoom teams camera framecast share window projector tv obs display screen output"><span class="sn-i"><i data-icon="cast" data-size="16"></i></span><span class="sn-t"><b>How people see it</b><small>Zoom, Teams, a projector or OBS</small></span></button>
-      <button type="button" class="sn-sub" data-sec="vcam" data-k="framecast camera webcam zoom teams blur background virtual"><span class="sn-i"><i data-icon="video" data-size="16"></i></span><span class="sn-t"><b>FRAMECAST Camera</b><small>Your camera in Zoom and Teams</small></span><i class="sn-dot" id="sn-vcam"></i></button>
+      <button type="button" data-sec="output" data-k="how people see it zoom teams camera framerelay share window projector tv obs display screen output"><span class="sn-i"><i data-icon="cast" data-size="16"></i></span><span class="sn-t"><b>How people see it</b><small>Zoom, Teams, a projector or OBS</small></span></button>
+      <button type="button" class="sn-sub" data-sec="vcam" data-k="framerelay camera webcam zoom teams blur background virtual"><span class="sn-i"><i data-icon="video" data-size="16"></i></span><span class="sn-t"><b>FrameRelay Camera</b><small>Your camera in Zoom and Teams</small></span><i class="sn-dot" id="sn-vcam"></i></button>
       <button type="button" class="sn-sub" data-sec="display" data-k="zoom display screen obs overlay presentation window monitor"><span class="sn-i"><i data-icon="monitor" data-size="16"></i></span><span class="sn-t"><b>Projector, TV and OBS</b><small>Screens, OBS and overlay links</small></span><i class="sn-dot" id="sn-display"></i></button>
       <button type="button" data-sec="recording" data-k="record recording video mp4"><span class="sn-i"><i data-icon="circle-dot" data-size="16"></i></span><span class="sn-t"><b>Recording</b><small>Save the meeting as a video</small></span></button>
       <button type="button" data-sec="ipad" data-k="phone ipad remote wifi qr"><span class="sn-i"><i data-icon="smartphone" data-size="16"></i></span><span class="sn-t"><b>Phone &amp; iPad Remote</b><small>Control it from your phone</small></span><i class="sn-dot" id="sn-ipad"></i></button>
@@ -412,7 +412,7 @@
       <section class="box"><div id="transitions-body"></div></section>
     </section>
     <section class="s-sec" id="sec-recording" aria-labelledby="sech-recording" hidden>
-      <header class="s-head"><h2 id="sech-recording">Recording</h2><p>Record exactly what FRAMECAST sends to Zoom or Teams. Recordings are saved on this PC.</p></header>
+      <header class="s-head"><h2 id="sech-recording">Recording</h2><p>Record exactly what FrameRelay sends to Zoom or Teams. Recordings are saved on this PC.</p></header>
       <section class="box"><div class="rec-ctl" id="rec-host"></div></section>
       <div class="tabpanel" id="tab-recordings"></div>
     </section>
@@ -439,7 +439,7 @@
     </section>
     </section>
     <section class="s-sec" id="sec-vcam" aria-labelledby="sech-vcam" hidden>
-      <header class="s-head"><button class="linkish out-back" type="button" data-goto="settings" data-sec="output">← How people see it</button><h2 id="sech-vcam">FRAMECAST Camera</h2><p>FrameDecks’s own camera for Zoom and Teams, with optional background blur. No OBS or Camo needed.</p></header>
+      <header class="s-head"><button class="linkish out-back" type="button" data-goto="settings" data-sec="output">← How people see it</button><h2 id="sech-vcam">FrameRelay Camera</h2><p>FrameDecks’s own camera for Zoom and Teams, with optional background blur. No OBS or Camo needed.</p></header>
       <div id="vcam-body"></div>
     </section>
     <section class="s-sec" id="sec-ipad" aria-labelledby="sech-ipad" hidden>
@@ -453,7 +453,7 @@
       <header class="s-head"><h2 id="sech-keys">Keyboard shortcuts</h2><p>Keys that work in the Studio (not while typing in a box).</p></header>
     <section class="box"><div id="keys-body"></div></section>
     <section class="box"><div class="box-head"><h2>Command palette</h2></div><div id="pal-keys"></div></section>
-    <section class="box"><div class="box-head"><h2>Camera Look (FRAMECAST)</h2></div>
+    <section class="box"><div class="box-head"><h2>Camera Look (FrameRelay)</h2></div>
       <div class="kb-table">
         <div class="kb-row"><span class="cat-dot live"></span><span class="kb-name">Warm</span><span class="kb-keys"><kbd class="key">Ctrl</kbd><kbd class="key">Alt</kbd><kbd class="key">1</kbd></span><span></span><span></span></div>
         <div class="kb-row"><span class="cat-dot live"></span><span class="kb-name">Dark / Polished</span><span class="kb-keys"><kbd class="key">Ctrl</kbd><kbd class="key">Alt</kbd><kbd class="key">2</kbd></span><span></span><span></span></div>

@@ -8,7 +8,7 @@ Find the symptom, read the likely cause, apply the fix. Most problems take under
 - [First: stay calm on air](#first-stay-calm-on-air)
 - [The app](#the-app)
 - [Window, tray and Spotlight](#window-tray-and-spotlight)
-- [The FRAMECAST camera](#the-framecast-camera)
+- [The FrameRelay camera](#the-framerelay-camera)
 - [Phone remote](#phone-remote)
 - [PowerPoint and media](#powerpoint-and-media)
 - [Scripture](#scripture)
@@ -108,14 +108,14 @@ Inside FrameDecks, **Ctrl+K** always opens the command palette, which finds the 
 > **Note:** Frosted glass is Acrylic on Windows 11 (22H2 and later) and a plain blur on Windows 10. Leaving the
 > overlay out of screen sharing needs Windows 10 version 2004 or later.
 
-## The FRAMECAST camera
+## The FrameRelay camera
 
 ### Zoom, Teams or OBS doesn't list FrameDecks
 
 | Cause | Fix |
 | --- | --- |
 | The app was open before installing | Restart Zoom, Teams, OBS or the browser. They read the camera list when they start |
-| The camera wasn't installed | **Settings → How people see it → FRAMECAST Camera → Install FRAMECAST** (asks for administrator permission once) |
+| The camera wasn't installed | **Settings → How people see it → FrameRelay Camera → Install FrameRelay** (asks for administrator permission once) |
 | Still shows the camera's earlier name (older versions) | Restart the app. If it is still missing, run the installer again with the camera option ticked |
 | The app reads only Media Foundation cameras | Zoom, Teams, Google Meet in Chrome or Edge, and OBS do list it. Some other apps may not |
 
@@ -124,9 +124,9 @@ Inside FrameDecks, **Ctrl+K** always opens the command palette, which finds the 
 | Cause | Fix |
 | --- | --- |
 | **Black screen** or **Freeze** is on | Check the **Live tools** button: it reads **Black screen on ▾** or **Frozen ▾**. Turn it off |
-| FrameDecks is off | **Settings → How people see it → FRAMECAST Camera** → turn it on |
+| FrameDecks is off | **Settings → How people see it → FrameRelay Camera** → turn it on |
 | Another app has the webcam | Choose **FrameDecks** (not the webcam) in every meeting app. Only one app can open a webcam |
-| The wrong webcam is selected | **Settings → How people see it → FRAMECAST Camera** → choose the webcam |
+| The wrong webcam is selected | **Settings → How people see it → FrameRelay Camera** → choose the webcam |
 | The webcam is unplugged or asleep | Reconnect it; FrameDecks picks it up again |
 
 ### My text looks reversed
@@ -153,7 +153,7 @@ After 5 wrong PINs, that device must wait **60 seconds**. Check the PIN in **Set
 
 | Cause | Fix |
 | --- | --- |
-| The FRAMECAST camera is off or starting | The pad shows the Frame's cards until the camera picture is ready. Turn FrameDecks on in Settings, or wait a few seconds |
+| The FrameRelay camera is off or starting | The pad shows the Frame's cards until the camera picture is ready. Turn FrameDecks on in Settings, or wait a few seconds |
 
 ### All phones were signed out
 
@@ -200,7 +200,7 @@ Other translations aren't fetched. Choose **Type it myself** and type or paste t
 | --- | --- |
 | The graphics card is busy | Keep **Settings → General → Light on graphics card** on |
 | Too much running at once | Close extra browser tabs, video apps and unused overlay pages |
-| 1080p on an older PC | Use **720p** in **Settings → How people see it → FRAMECAST Camera** |
+| 1080p on an older PC | Use **720p** in **Settings → How people see it → FrameRelay Camera** |
 | Background blur on a slow PC | Lower the blur, or turn it off |
 
 **Settings → Diagnostics** shows the frame rate, dropped frames, processor use and which screens are busy.

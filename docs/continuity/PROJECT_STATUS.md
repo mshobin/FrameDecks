@@ -15,6 +15,9 @@ Cloudflare Pages production deploy. Owner live tests remain. The live database h
   `framedecks-world-map.svg`, `assets/brand/framedecks-about-header.*`). The `kc-*.json` data files keep their names.
   Checks: Python 170, desktop JS 4/4, packaging, CSS tokens, ruff, doc links 97/0, visual and axe suites, website
   127 tests + build + budget; on GitHub, Desktop checks, Hosted companion checks and Build Windows installer green.
+- **Version 6.12 (prepared 28 October, not yet tagged):** FRAMECAST renamed **FrameRelay** everywhere (same camera
+  ID; the old name is still recognised), a still, one-time hero arrival on the website, Proverbs 16:3 in place of the
+  Helen Keller quote, "Ministry Servant" removed from About. All checks green; the owner tags `v6.12` to publish.
 - **Landing redesign (28 October):** new front page from the owner's written spec (nav, hero with tilting Studio
   window, audience marquee, pinned 4-step guide with GSAP ScrollTrigger and snap, larger press-Next demo, 12-column
   bento, scrolled serif statement, FAQ, Ready to Serve? with a KJV verse) and a visual pass on the signed-in pages.
@@ -76,7 +79,7 @@ Phase detail lives in
 - **Old name removed (26 October):** every Kingdom Connect reference is FrameDecks, except upgrade-only code (PROJECT_GUIDE.md
   Gotchas). Camera files renamed `framedecks_vcam*.dll`; owner checks the camera after the next install.
 - **Audit step 2 (26 October):** built on `main` for 6.11.1 (see NEXT_SESSION); Stream Deck plugin removed.
-- **Design audit rank 1 (26 October):** every camera label says FRAMECAST (DD-01), guarded by `tests/test_camera_name.py`; Python 141 OK.
+- **Design audit rank 1 (26 October):** every camera label says FrameRelay (DD-01), guarded by `tests/test_camera_name.py`; Python 141 OK.
 - **Design audit ranks 2–4 (26 October, owner-approved):** first-run Start fresh + Getting started card (DD-03), nothing
   over the Studio canvas and a Teleprompter empty state (DD-02), command bar in words (DD-13); `tests/test_ui_labels.py`;
   Python 147 OK. Checked in a browser at 1920, 1440, 1280 and 1100 px, idle and live.
@@ -87,7 +90,7 @@ Phase detail lives in
   120/120, lint, typecheck, build, budget (JS 329 KB); Python OK incl. `test_css_tokens`; `tools/css_tokens.py` 0
   problems; `tests/visual/layout.mjs` 9/9. Website font is a 47 KB Latin subset in `hosted/public/fonts/`.
 - **UX simplification (27 October, owner-approved):** Prepare / Run with Up next, Before you start and Practice mode
-  (`app/js/service.js`); How people see it; Advanced; FRAMECAST Fine-tune; Members → People; labelled tabs, worded
+  (`app/js/service.js`); How people see it; Advanced; FrameRelay Fine-tune; Members → People; labelled tabs, worded
   Previous / Next, calm-until-live Hide all, one status pill, grouped Live tools (Esc closes); Black screen; website
   Running order with cross-links and a factual trust strip; `docs/guide/glossary.md`. Checks: Python OK, `node tests/run.js`
   4/4, layout 13/13, axe 0 problems (both themes, Run included), hosted 120/120, budget JS 330 KB. Owner: Test H in
@@ -117,7 +120,7 @@ Phase detail lives in
   sync guard, `0009`); published at `v6.11.1` on 27 October. The owner ran `0009` on 27 October.
 - **Website performance (26 October):** the website no longer animates when idle (older 8 GB PCs next to the program).
 - **First-install fixes (26 October):** website "Forbidden" (request identity), Teleprompter unpin freeze, grouped Settings menu; on `main`, not yet in a release.
-- **FRAMECAST (26 October):** the virtual camera's new name; v6.11 release published with the installer (the
+- **FrameRelay (26 October):** the virtual camera's new name; v6.11 release published with the installer (the
   first tag build failed on the release-notes step, now fixed).
 - **Free plan** ([free-hosting.md](../deployment/free-hosting.md)): steps 1–4 are on `main` (26 October):
   (companion builds as static files; `/api/sync-config` written at build time) and step 2 (keep-alive every 3 days,

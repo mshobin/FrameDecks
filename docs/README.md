@@ -18,7 +18,7 @@ do.
 | [Frames](guide/frames.md) | Creating, organizing, duplicating and timing Frames |
 | [Content](guide/content.md) | Every kind of Content and every setting in Content Settings |
 | [Suggested questions](guide/ai.md) | Free AI on your PC (Ollama) drafts discussion questions from a Frame's passage |
-| [Media](guide/media.md) | Images, video, PowerPoint, PDF, screen capture, the FRAMECAST camera, OBS, projectors |
+| [Media](guide/media.md) | Images, video, PowerPoint, PDF, screen capture, the FrameRelay camera, OBS, projectors |
 | [Remote control](guide/remote-control.md) | Setting up the phone remote, Simple and Advanced profiles, drawing from the phone |
 | [Troubleshooting](guide/troubleshooting.md) | Problems by symptom, with causes and fixes |
 | [FAQ](guide/faq.md) | Church-focused questions and honest answers |

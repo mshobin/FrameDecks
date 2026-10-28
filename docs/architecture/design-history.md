@@ -955,3 +955,17 @@ A maintenance release with no change to the desktop interface. The program's Pyt
 `docs/`, and ruff's configuration to `config/`. Release notes before 6.8 are in `docs/releases/archive/`; the
 orphaned Stream Deck bundle was removed. `server.py` anchors its data paths to the repository root, and the
 installer spec, tests, workflows and tools read the new paths. A real PyInstaller build was run from the new layout.
+
+## 35. Version 6.12: FrameRelay (28 October 2026)
+
+The virtual camera FRAMECAST is renamed **FrameRelay**. `packaging/build_vcam.py` writes the new name into the
+softcam build and `src/vcam/sink.py` `VCAM_NAME` matches it; the camera ID (CLSID) is unchanged, so meeting apps keep
+the device and only its name changes once the installer registers it again. `src/vcam/devices.py` and the website's
+`pc-setup.ts` still recognise the old name, so a PC whose camera was not re-registered is not reported as missing.
+Every label, message, help page, document and GitHub template uses the new name.
+
+The website's front page drops the hero's tilt, mouse-following lean, floating phone and swaying light for one
+ordered arrival (the window rises, its screen wakes top to bottom, the gold corners settle, the phone slides in, one
+light crosses the glass) that then stays still. The demo's quotation became Proverbs 16:3 (KJV), and the Studio
+picture on the front page was captured again from the program with that verse live. The About screen's founder
+roles and journey no longer include "Ministry Servant".

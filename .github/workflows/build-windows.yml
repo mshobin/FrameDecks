@@ -41,7 +41,7 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -r packaging/requirements-desktop.txt -c packaging/constraints.txt
 
-      - name: Get softcam (MIT licence) for the FRAMECAST camera
+      - name: Get softcam (MIT licence) for the FrameRelay camera
         shell: pwsh
         run: |
           # Pinned to the commit behind v1.8.1: the build stops if the tag ever points somewhere else
@@ -49,18 +49,18 @@ jobs:
           $got = (git -C vcam_build/softcam rev-parse HEAD).Trim()
           if ($got -ne 'afb424c2415b04da627fa1a7b4706575c2ba3010') { throw "softcam v1.8.1 is now $got, not the reviewed commit" }
 
-      - name: Prepare the FRAMECAST camera (name and ID)
+      - name: Prepare the FrameRelay camera (name and ID)
         run: python packaging/build_vcam.py vcam_build/softcam
 
       - name: Set up the Microsoft C++ compiler
         uses: microsoft/setup-msbuild@30375c66a4eea26614e0d39710365f22f8b0af57 # v3.0.0
 
-      - name: Build the FRAMECAST camera (64-bit and 32-bit)
+      - name: Build the FrameRelay camera (64-bit and 32-bit)
         shell: pwsh
         run: |
           foreach ($p in 'x64', 'Win32') {
             msbuild vcam_build/softcam/softcam.sln /m /t:softcam /p:Configuration=Release /p:Platform=$p
-            if ($LASTEXITCODE -ne 0) { throw "FRAMECAST build failed ($p)" }
+            if ($LASTEXITCODE -ne 0) { throw "FrameRelay build failed ($p)" }
           }
           Copy-Item vcam_build/softcam/x64/Release/softcam.dll src/vcam/bin/framedecks_vcam64.dll
           Copy-Item vcam_build/softcam/Win32/Release/softcam.dll src/vcam/bin/framedecks_vcam32.dll

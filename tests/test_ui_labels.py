@@ -29,7 +29,7 @@ class FirstRun(unittest.TestCase):
 
 class NoOverlaps(unittest.TestCase):
     def test_switching_tabs_leaves_the_camera_picture_to_the_canvas(self):
-        # #tab-studio is the FRAMECAST picture over the canvas; setTab once showed it (and its message) on every visit
+        # #tab-studio is the FrameRelay picture over the canvas; setTab once showed it (and its message) on every visit
         self.assertIn("if (p && k !== 'studio') p.hidden = k !== t;", read("js/members.js"))
 
     def test_teleprompter_empty_state_offers_one_action(self):

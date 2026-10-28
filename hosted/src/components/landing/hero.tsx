@@ -1,11 +1,11 @@
-"use client";
-
-import { useEffect, useRef, type CSSProperties, type ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import Image from "next/image";
 
 // The hero: the headline rises in word by word (blur to sharp), the second line in gold that catches the light once.
-// The Studio window arrives tilted back and settles flat, then leans a little toward the mouse (desktop, at most 6°).
-// The phone floats over its corner and a soft gold beam sways behind it while the hero is on screen (motion.tsx).
+// Then the product arrives the way a room comes to life before a gathering, once and in order (landing.css "hero"):
+// the Studio window rises a short way into place, its screen comes on from top to bottom, the gold corners settle
+// onto the frame, the phone slides in beside it, and one soft light passes across the glass. Nothing floats or
+// loops afterwards; the light behind it is still.
 
 const delay = (ms: number) => ({ "--d": `${ms}ms` }) as CSSProperties;
 
@@ -30,45 +30,14 @@ export function LandingHero({
   lede,
   actions,
   trust,
-}: Readonly<{ pill: string; first: string; second: string; lede: string; actions: ReactNode; trust: string }>) {
-  const stage = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const el = stage.current;
-    const ok = matchMedia("(min-width: 961px) and (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)");
-    if (!el || !ok.matches) return;
-    const hero = el.closest("section");
-    if (!hero) return;
-    let frame = 0;
-    let x = 0;
-    let y = 0;
-    const paint = () => {
-      frame = 0;
-      if (document.documentElement.classList.contains("fd-calm")) return;
-      const box = el.getBoundingClientRect();
-      const dx = Math.max(-1, Math.min(1, (x - (box.left + box.width / 2)) / (box.width / 2)));
-      const dy = Math.max(-1, Math.min(1, (y - (box.top + box.height / 2)) / (box.height / 2)));
-      el.style.setProperty("--ry", `${(dx * 6).toFixed(2)}deg`);
-      el.style.setProperty("--rx", `${(-dy * 4).toFixed(2)}deg`);
-    };
-    const move = (e: PointerEvent) => {
-      x = e.clientX;
-      y = e.clientY;
-      if (!frame) frame = requestAnimationFrame(paint);
-    };
-    const leave = () => {
-      el.style.setProperty("--ry", "0deg");
-      el.style.setProperty("--rx", "0deg");
-    };
-    hero.addEventListener("pointermove", move, { passive: true });
-    hero.addEventListener("pointerleave", leave);
-    return () => {
-      hero.removeEventListener("pointermove", move);
-      hero.removeEventListener("pointerleave", leave);
-      if (frame) cancelAnimationFrame(frame);
-    };
-  }, []);
-
+}: Readonly<{
+  pill: string;
+  first: string;
+  second: string;
+  lede: string;
+  actions: ReactNode;
+  trust: string;
+}>) {
   const secondStart = 120 + first.split(" ").length * 80;
   return (
     <section className="lp-hero" aria-labelledby="lp-hero-title">
@@ -91,16 +60,16 @@ export function LandingHero({
       </div>
 
       <figure className="lp-stage">
-        <div className="lp-beam" data-loop="" aria-hidden="true" />
-        <div className="lp-stage-tilt" ref={stage}>
-          <div className="lp-stage-in">
-            <div className="lp-window fd-framed">
-              <div className="lp-window-bar" aria-hidden="true">
-                <i />
-                <i />
-                <i />
-                <span>FrameDecks Studio</span>
-              </div>
+        <div className="lp-beam" aria-hidden="true" />
+        <div className="lp-stage-in">
+          <div className="lp-window fd-framed">
+            <div className="lp-window-bar" aria-hidden="true">
+              <i />
+              <i />
+              <i />
+              <span>FrameDecks Studio</span>
+            </div>
+            <div className="lp-screen-on">
               <Image
                 src="/product/studio.webp"
                 alt="The FrameDecks Studio on the presenting PC: the running order on the left and what is on screen in the middle"
@@ -109,17 +78,18 @@ export function LandingHero({
                 priority
                 unoptimized
               />
+              <i className="lp-glint" aria-hidden="true" />
             </div>
-            <div className="lp-float-phone" data-loop="">
-              <Image
-                src="/product/live-phone.webp"
-                alt="The website's Live page on a phone: Previous, Next, Hide all and Black screen"
-                width={390}
-                height={844}
-                priority
-                unoptimized
-              />
-            </div>
+          </div>
+          <div className="lp-float-phone">
+            <Image
+              src="/product/live-phone.webp"
+              alt="The website's Live page on a phone: Previous, Next, Hide all and Black screen"
+              width={390}
+              height={844}
+              priority
+              unoptimized
+            />
           </div>
         </div>
         <figcaption>The Studio on your PC. What you see is what the room and the stream see.</figcaption>

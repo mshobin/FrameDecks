@@ -21,9 +21,9 @@ Repository clean-up is on `main` (modules in `src/`; `README.md`, `LICENSE`, `NO
 | Target architecture migration ([review](../project/history/architecture-review.md), [plan](../project/history/migration-plan.md), [report](../project/history/post-migration-report.md)) | All 8 steps built on PR #32 (owner decisions M-D1–M-D6, 25 Oct): audit log, ESV key, missing-media check, API grants, licence and signing, members from the cloud, free AI (Ollama), PowerPoint export and Audio, member groups. Merged; database scripts run live (26 Oct). Next: live tests |
 | Free for everyone ([free-hosting.md](../deployment/free-hosting.md)) | In progress: 1 static companion (live at framedecks.pages.dev); 2 keep-alive and encrypted backup (live, first runs green); 3 fewer database requests (done); 4 sign-in providers first (live: Google and Microsoft; Brevo skipped); 5 public repo, signing, Releases (owner) |
 | 6.11: plan on the website ([meeting-form.md](../architecture/meeting-form.md)) | In progress: 1 camera check and Open FrameDecks link (built); 2 website Meeting Form (built); 3 Excel into Settings, version 6.11 (built); owner test G. 6.12 removes Excel after the owner's test (W3) |
-| Camera renamed FRAMECAST; v6.11 release notes | Built; v6.11 release published with the installer (26 October) |
+| Camera renamed FrameRelay; v6.11 release notes | Built; v6.11 release published with the installer (26 October) |
 | Audit roadmap step 2 (support bundle, update notice, CI checks, one OpenCV, non-blocking windows) | Built (26 October), ships in 6.11.1 |
-| Design audit rank 1 (DD-01: every camera label says FRAMECAST, with a test) | Built (26 October), ships in 6.11.1 |
+| Design audit rank 1 (DD-01: every camera label says FrameRelay, with a test) | Built (26 October), ships in 6.11.1 |
 | Design audit ranks 2–4 (DD-03 first run, DD-02 overlaps and empty states, DD-13 command bar words) | Built (26 October), ships in 6.11.1 |
 | Design audit ranks 5–7, 9–11 (website dates, phone tab bar, landing, destructive actions, contrast, card previews) | Built (26 October); website live on deploy, program part in 6.11.1 |
 | Design audit ranks 8, 12–21 (voice, states, type, icons, a11y, gold, composer, tokens + lint, design system + visual checks, Overview, light theme) | Built (26 October); the whole design roadmap is done |
@@ -32,6 +32,7 @@ Repository clean-up is on `main` (modules in `src/`; `README.md`, `LICENSE`, `NO
 | Landing brief: FrameDecks spelling, every audience, motion back, About in Light | Built (27 October). Owner: About story wording, program presets |
 | 10/10 plan: phases 1–2, owner-free parts of 3–4 (website four places, Plan, Home, first-time path, Help, identity, landing, Run polish) | Built (27 October). Owner: Test I; go-ahead for projector legibility, templates by type, the Wi-Fi remote; real quotes and photos |
 | Repository structure clean-up (unused files, one `ruff.toml`/`LICENSE`, top-level `README`/`NOTICE`, docs by reader, `framedecks-*` images) | Done (28 October, `f260b47`–`55e98e2`); every check and the Windows installer build green; no behaviour change |
+| 6.12: FrameRelay rename, still hero arrival, Proverbs 16:3, About wording | Prepared on `main` (28 October). Owner: tag `v6.12`, pilot install, check the camera name in Zoom/Teams |
 | Landing redesign: pinned 4-step guide, demo, bento, statement, Reduce effects; signed-in visual pass | Built (28 October). Owner: real step screenshots (`hosted/public/product/step-*.webp`), compare with the mock-up file |
 | Repository standard (`docs/development/repository-structure.md`: one layout for every repository) | Applied (28 October, `832a07b`–`4e88eda`, CI green); exceptions recorded; no behaviour change |
 | Trust fixes (safe service errors, branded confirmations, current public copy) | Merged in PR #39 (`27cfb4b`); local checks and preview deployments passed; production verification and owner live tests remain |

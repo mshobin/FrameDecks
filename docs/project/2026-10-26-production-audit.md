@@ -282,7 +282,7 @@ None of these needs a UI or workflow change except the optional update notice.
 
 - **H2:** unsigned installer and no update notice. 6.11.1 is built but **not yet published**.
 - **M2, M4, M5, M6, M7, M9, M11, M12** and the Low items, as listed above.
-- Not yet verified on Windows: the H1 recovery, the Teleprompter fix, the website "Forbidden" fix, and the FRAMECAST
+- Not yet verified on Windows: the H1 recovery, the Teleprompter fix, the website "Forbidden" fix, and the FrameRelay
   camera.
 
 ### Scores

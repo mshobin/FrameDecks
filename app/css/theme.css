@@ -498,7 +498,7 @@ body.studio-focus .ws{grid-template-columns:minmax(0,1fr);height:100vh} body.stu
 .layer-item.on{box-shadow:inset 3px 0 0 var(--live)}
 .layer-item.media{border-top-color:transparent}
 .layer-item:not(.media) + .layer-item.media{margin-top:20px;position:relative}
-.layer-item:not(.media) + .layer-item.media::before{content:"Media · FRAMECAST picture";position:absolute;top:-17px;left:6px;font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
+.layer-item:not(.media) + .layer-item.media::before{content:"Media · FrameRelay picture";position:absolute;top:-17px;left:6px;font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
 
 /* Menus */
 .ws-menu{position:fixed;z-index:120;min-width:240px;max-width:320px;max-height:min(70vh,560px);overflow:auto;padding:6px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-2);box-shadow:var(--shadow-pop)}
@@ -1353,7 +1353,7 @@ body.run-mode.studio-focus .run-next{display:none}
 .people-view button{all:unset;box-sizing:border-box;padding:4px 10px;border-radius:4px;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer}
 .people-view button:focus-visible{outline:2px solid var(--gold)}
 .people-view button[aria-checked="true"]{background:var(--accent-soft);color:var(--ink)}
-/* FRAMECAST: presets first, exact numbers under Fine-tune, the technical Quality box folded */
+/* FrameRelay: presets first, exact numbers under Fine-tune, the technical Quality box folded */
 .vcam-tune{border-top:1px solid var(--line-soft);padding-top:6px}
 .vcam-adv > summary{display:flex;align-items:baseline;gap:8px;cursor:pointer;list-style:none}
 .vcam-adv > summary::-webkit-details-marker{display:none}
