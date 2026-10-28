@@ -7,8 +7,8 @@ green, including the Cloudflare Pages deploy (production); a look at the live si
 
 28 October, branch clean-up: closed, unmerged work is kept as annotated tags `archive/*` (flutter-platform,
 windows11-camera, mac-camera, saas-pwa-architecture, alternative-branding, saas-phase1–5) and those branches, plus the
-three merged ones, were deleted on GitHub (see `docs/development/branching.md`). Push work to `main` or a new
-`feature/` or `fix/` branch.
+three merged ones, were deleted on GitHub (see `docs/development/branching.md`). Owner's rule: push directly to
+`main` (after the checks pass); no working branches unless asked.
 
 28 October, second post-reorganization check (`54d8c0e`: `vcam/` → `src/vcam/`, launchers → `tools/launchers/`,
 continuity files → `docs/continuity/`): everything passed except one defect, fixed: in the installed app the FRAMECAST

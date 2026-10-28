@@ -1,7 +1,9 @@
 # Branching strategy
 
-FrameDecks uses **trunk-based development**: one long-lived branch, `main`, and short-lived branches for each
-change. The goal is that `main` is always something a church could install on Saturday night.
+FrameDecks uses **trunk-based development**: one long-lived branch, `main`. Since 28 October the owner's rule is to
+commit and push **directly to `main`**, once every check in the project guide passes; the short-lived branches below
+are used only when the owner asks for one. The goal is that `main` is always something a church could install on
+Saturday night.
 
 ## Branches
 

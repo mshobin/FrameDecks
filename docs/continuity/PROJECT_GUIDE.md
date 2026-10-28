@@ -121,8 +121,9 @@ Read this first, then [NEXT_SESSION.md](NEXT_SESSION.md).
   groups, M-D6: `hosted/src/lib/member-edit.ts`, `hosted/src/components/members-panel.tsx`) and linking PCs; `hosted/src/components/app-shell.tsx` is the shared sidebar and top bar.
 
 ## Working locally (VS Code on Windows)
-- **Branch.** Work from `main` (6.11.1 was published on 27 October) on a new branch per change. Never
-  force-push or rewrite pushed history. The repository is `mshobin/FRAMEDECKS`.
+- **Branch (owner's rule, 28 October).** Commit and push directly to `main`, only after every check below passes;
+  no working branches unless the owner asks for one. Never force-push or rewrite pushed history. The repository is
+  `mshobin/FrameDecks`.
 - **Set up once (PowerShell, at the repo root):**
   - `python -m venv .venv`
   - `.venv\Scripts\Activate.ps1`
