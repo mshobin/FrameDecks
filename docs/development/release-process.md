@@ -25,7 +25,7 @@ Versions are **major.minor** (6.5, 6.6, 7.0). The number lives in one place: `AP
    as the version in [building-the-installer.md](building-the-installer.md).
    Then refresh the header picture, which shows the version: start the app (`python src/server.py --no-browser`) and run
    `python tools/make_readme_header.py`. It captures the About screen's header into
-   `assets/brand/kc-about-header.webp`, used at the top of the README and of the GitHub Release. The build fails if
+   `assets/brand/framedecks-about-header.webp`, used at the top of the README and of the GitHub Release. The build fails if
    the picture shows another version.
 2. **Write the release notes** in `docs/releases/vX.Y.md`, with the sections `## What's New`, `## Enhancements`,
    `## Fixes`, `## Performance Improvements` and `## Known Issues`. The file name must match the version exactly.

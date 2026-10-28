@@ -10,7 +10,10 @@ workbook in `docs/templates/`, 12 unreferenced pre-redesign `docs/qa` screenshot
 (2) one `ruff.toml`, `README.md`, `LICENSE` and `NOTICE` at the top level (`docs/legal/` keeps only
 `THIRD_PARTY_NOTICES.md`; `tests/test_licence_copy.py` retired); (3) docs grouped: user guides in `docs/guide/`,
 developer docs in `docs/development/` (`docs/CONTRIBUTING.md` is now `developer-guide.md`), finished plans and audits in
-`docs/project/history/`; the top of `docs/` holds only `README`, `CHANGELOG` and `ROADMAP`. Every link and path updated.
+`docs/project/history/`; the top of `docs/` holds only `README`, `CHANGELOG` and `ROADMAP`. Every link and path updated. (4) the last
+`kc-` images renamed: `app/img/framedecks-emblem.webp` (same name as the website's copy), `app/img/framedecks-world-map.svg`,
+`assets/brand/framedecks-about-header.webp` and `.version`. The `kc-` data files (`kc-*.json`, keys) and CSS class
+names keep their names on purpose: renaming them would lose people's saved data.
 
 28 October, branch clean-up: closed, unmerged work is kept as annotated tags `archive/*` (flutter-platform,
 windows11-camera, mac-camera, saas-pwa-architecture, alternative-branding, saas-phase1–5) and those branches, plus the

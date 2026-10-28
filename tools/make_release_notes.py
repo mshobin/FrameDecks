@@ -1,6 +1,6 @@
 """FrameDecks - the GitHub release page, branded like the About screen (6.7).
 
-Builds the release notes for one version: the About screen's header (assets/brand/kc-about-header.webp, captured from
+Builds the release notes for one version: the About screen's header (assets/brand/framedecks-about-header.webp, captured from
 the app by tools/make_readme_header.py: the logo, FrameDecks, the tagline, the motto and "Version X.Y"; its
 alternative text uses the words in app/js/brand.js), then the notes from docs/releases/vX.Y.md in a fixed order:
 
@@ -23,8 +23,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 SECTIONS = ["What's New", "Enhancements", "Fixes", "Performance Improvements", "Known Issues"]
-HEADER = "assets/brand/kc-about-header.webp"          # the About screen, captured by tools/make_readme_header.py
-HEADER_VERSION = "assets/brand/kc-about-header.version"
+HEADER = "assets/brand/framedecks-about-header.webp"          # the About screen, captured by tools/make_readme_header.py
+HEADER_VERSION = "assets/brand/framedecks-about-header.version"
 
 
 def app_version():

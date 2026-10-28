@@ -35,7 +35,7 @@ def main():
     app_icons = ROOT / "app/icons"
     hosted = ROOT / "hosted"
 
-    for target in (ROOT / "app/img/kc-emblem.webp", hosted / "public/framedecks-emblem.webp"):
+    for target in (ROOT / "app/img/framedecks-emblem.webp", hosted / "public/framedecks-emblem.webp"):
         master.save(target, "WEBP", lossless=True, quality=100, method=6)
 
     icon512 = resized(master, 512)

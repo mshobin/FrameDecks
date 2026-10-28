@@ -10,9 +10,9 @@ dependencies.
 | Asset | Use | Action |
 |---|---|---|
 | `assets/brand/framedecks-logo-icon.png` | Meeting Workbook header mark (was `kc-mark.png`, an identical copy, removed 28 October) | The new logo's icon crop; workbook layout and text remain unchanged. |
-| `assets/brand/kc-about-header.webp` | README and release-page marketing header | Regenerate from the updated About page with `python tools/make_readme_header.py`; that preserves the release version marker. |
-| `app/img/kc-emblem.webp` | Dashboard, phone remote, teleprompter, About page, and tray source family | Gold-only transparent 1024×1024 version of the new logo's icon crop, so it sits on the page background instead of showing a baked-in matte. Same placements and proportions. See "Transparent emblem" below. |
-| `hosted/public/framedecks-emblem.webp` | Hosted companion sidebar and welcome mark, favicon metadata | Identical copy of `app/img/kc-emblem.webp`. |
+| `assets/brand/framedecks-about-header.webp` | README and release-page marketing header | Regenerate from the updated About page with `python tools/make_readme_header.py`; that preserves the release version marker. |
+| `app/img/framedecks-emblem.webp` | Dashboard, phone remote, teleprompter, About page, and tray source family | Gold-only transparent 1024×1024 version of the new logo's icon crop, so it sits on the page background instead of showing a baked-in matte. Same placements and proportions. See "Transparent emblem" below. |
+| `hosted/public/framedecks-emblem.webp` | Hosted companion sidebar and welcome mark, favicon metadata | Identical copy of `app/img/framedecks-emblem.webp`. |
 | `app/icons/remote-180.png` | iOS home-screen icon | Regenerated from the new logo icon. |
 | `app/icons/remote-192.png` | PWA icon and Windows tray image | Regenerated from the new logo icon. |
 | `app/icons/remote-512.png` | PWA launcher icon | Regenerated from the new logo icon. |
@@ -28,7 +28,7 @@ and workflows are unchanged.
 
 ## Assets intentionally retained
 
-- `app/img/kc-world.svg` is decorative About-page background artwork, not a product logo or launcher icon.
+- `app/img/framedecks-world-map.svg` is decorative About-page background artwork, not a product logo or launcher icon.
 - `docs/images/*.png` are screenshots of actual product workflows. They remain unchanged so documentation does not
   misrepresent the application UI.
 - Existing fonts, workbook templates, vendor assets, and camera assets are not branding replacements.
@@ -66,14 +66,14 @@ to `assets/brand/framedecks-emblem-1024.png`. Every emblem derivative comes from
 python tools/make_emblem_assets.py
 ```
 
-It writes `app/img/kc-emblem.webp` and `hosted/public/framedecks-emblem.webp` (identical, lossless 1024 RGBA), the
+It writes `app/img/framedecks-emblem.webp` and `hosted/public/framedecks-emblem.webp` (identical, lossless 1024 RGBA), the
 `app/icons/` favicons and remote icons, the navy maskable icon, `packaging/framedecks.ico`,
 `framedecks-logo-icon.png` (brand and hosted) and `hosted/src/app/icon.png`. Pillow only. If the SVG changes,
 re-render the PNG first (resvg at 1024 px width, transparent background).
 
 `tools/generate_brand_assets.py` rebuilds the horizontal and stacked logos from the master emblem PNG, keeping the
 gold wordmark and tagline cropped from the legacy `framedecks-logo-source.png` (that file is now only the wordmark
-source). `kc-about-header.webp` comes from `tools/make_readme_header.py` as before. The previous opaque and gold-only
+source). `framedecks-about-header.webp` comes from `tools/make_readme_header.py` as before. The previous opaque and gold-only
 emblems remain in git history.
 
 In the desktop light theme, `theme.css` darkens the header logos (`.cmdbar`, `.console-top`, speaker `.sp-mark`) so the

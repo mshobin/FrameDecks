@@ -1,4 +1,4 @@
-<p align="center"><img src="assets/brand/kc-about-header.webp" alt="FrameDecks. Present • Equip • Inspire." width="600"></p>
+<p align="center"><img src="assets/brand/framedecks-about-header.webp" alt="FrameDecks. Present • Equip • Inspire." width="600"></p>
 
 A service presentation platform for churches and ministries. Plan each service as **Frames** — Welcome, Worship,
 Scripture, Discussion, Prayer, Closing — fill them with questions, scriptures, text, timers, pictures, video and

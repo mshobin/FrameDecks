@@ -8,7 +8,7 @@ It follows the production audit's roadmap ([2026-10-26 audit](../project/2026-10
 - [ ] `docs/releases/v<version>.md` has What's New, Enhancements, Fixes, Performance Improvements and Known Issues
       (`python tools/make_release_notes.py --check`).
 - [ ] The About header shows the version: run `python src/server.py --no-browser`, then
-      `python tools/make_readme_header.py` (it writes `assets/brand/kc-about-header.webp` and `.version`).
+      `python tools/make_readme_header.py` (it writes `assets/brand/framedecks-about-header.webp` and `.version`).
 - [ ] `docs/CHANGELOG.md` has the version's entry, and the four files in `docs/continuity/` are up to date.
 - [ ] Every check in [PROJECT_GUIDE.md](../continuity/PROJECT_GUIDE.md) "Commands" passes, and on `main` these GitHub checks are green:
       "Build Windows installer" (including the installer smoke test), "Hosted companion checks" (including the

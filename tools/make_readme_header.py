@@ -1,7 +1,7 @@
 """FrameDecks - the README header, captured from the About screen (6.7).
 
 Renders the About screen's hero (logo, FrameDecks, tagline, motto, introduction and version) from the running
-app and saves it as assets/brand/kc-about-header.webp, so the GitHub page looks exactly like the About screen.
+app and saves it as assets/brand/framedecks-about-header.webp, so the GitHub page looks exactly like the About screen.
 
 Run it after changing app/js/brand.js, the About screen or the version (src/server.py APP_VERSION):
 
@@ -15,9 +15,9 @@ import asyncio
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-OUT = ROOT / "assets/brand/kc-about-header.webp"
-VERSION_FILE = ROOT / "assets/brand/kc-about-header.version"   # the version the picture shows
-PNG = ROOT / "assets/brand/.kc-about-header.png"      # the full-quality capture (not committed)
+OUT = ROOT / "assets/brand/framedecks-about-header.webp"
+VERSION_FILE = ROOT / "assets/brand/framedecks-about-header.version"   # the version the picture shows
+PNG = ROOT / "assets/brand/.framedecks-about-header.png"      # the full-quality capture (not committed)
 
 
 def app_version():

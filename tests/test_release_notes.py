@@ -16,7 +16,7 @@ class ReleaseNotes(unittest.TestCase):
             subprocess.run([sys.executable, str(ROOT / "tools/make_release_notes.py"), "--repo", "owner/repo", "--ref", "abc123",
                             "--out", str(notes)], capture_output=True, check=True)
             out = notes.read_text(encoding="utf-8")
-        self.assertIn("kc-about-header.webp?raw=true", out)
+        self.assertIn("framedecks-about-header.webp?raw=true", out)
         self.assertIn("Present • Equip • Inspire", out)
         for section in ("## What's New", "## Enhancements", "## Fixes", "## Performance Improvements", "## Known Issues"):
             self.assertIn(section, out)

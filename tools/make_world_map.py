@@ -1,4 +1,4 @@
-"""Makes app/img/kc-world.svg: the dotted world map behind the About page hero.
+"""Makes app/img/framedecks-world-map.svg: the dotted world map behind the About page hero.
 
 Stylized on purpose: rough continent outlines (longitude, latitude), filled with a dot grid.
 The result is one static SVG <path> (round-capped zero-length segments = dots), shown as an <img>,
@@ -75,7 +75,7 @@ def main():
         lat -= STEP
     svg = (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" preserveAspectRatio="xMidYMid slice">'
            f'<path d="{"".join(dots)}" stroke="#d9b45a" stroke-width="1.05" stroke-linecap="round" fill="none"/></svg>')
-    out = Path(__file__).resolve().parent.parent / "app" / "img" / "kc-world.svg"
+    out = Path(__file__).resolve().parent.parent / "app" / "img" / "framedecks-world-map.svg"
     out.write_text(svg, encoding="utf-8")
     print(f"{len(dots)} dots, {len(svg) // 1024} KB -> {out}")
 

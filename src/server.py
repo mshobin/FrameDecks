@@ -84,7 +84,7 @@ REMOTE_PUBLIC = {"/remote.html", "/css/remote.css", "/js/remote.js", "/js/store.
                  "/js/teleprompter.js", "/css/teleprompter.css",
                  "/remote-manifest.json", "/icons/remote-180.png", "/icons/remote-192.png", "/icons/remote-512.png",
                  "/icons/favicon-16.png", "/icons/favicon-32.png",
-                 "/icons/remote-maskable-512.png", "/img/kc-emblem.webp"}
+                 "/icons/remote-maskable-512.png", "/img/framedecks-emblem.webp"}
 REMOTE_SIGNED_IN = {"/api/rev", "/api/state", "/api/remote-logout", "/js/overlay.js", "/api/remote/studio", "/api/brand/logo", "/api/remote/live.jpg",
                     "/css/overlay.css", "/stage.html", "/focus-verse.html", "/discussion-question.html", "/birthday.html"}
 sessions_lock = threading.Lock()

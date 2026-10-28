@@ -40,12 +40,12 @@ function network(cls, links, nodes, halo){
 function hero(){
   var all = Object.keys(CITY);
   var bg = h('div', {cls: 'kc-hero-bg', 'aria-hidden': 'true'});
-  bg.innerHTML = '<img class="kc-map" src="img/kc-world.svg" alt="" decoding="async">' +
+  bg.innerHTML = '<img class="kc-map" src="img/framedecks-world-map.svg" alt="" decoding="async">' +
     network('base', LINKS, all, false) +
     network('pulse a', LINKS.filter(function(_, i){ return i % 2 === 0; }), ['ny', 'lg', 'kw', 'sg', 'sy', 'la'], true) +
     network('pulse b', LINKS.filter(function(_, i){ return i % 2 === 1; }), ['ld', 'nb', 'ki', 'se', 'sp'], true) +
     '<div class="kc-glow"></div>';
-  var emblem = h('img', {cls: 'kc-emblem', src: 'img/kc-emblem.webp', alt: B.name + ' logo', width: 150, height: 150, decoding: 'async'});
+  var emblem = h('img', {cls: 'kc-emblem', src: 'img/framedecks-emblem.webp', alt: B.name + ' logo', width: 150, height: 150, decoding: 'async'});
   return h('header', {cls: 'kc-hero'}, [bg, h('div', {cls: 'kc-hero-in'}, [
     emblem,
     h('h1', {cls: 'kc-wordmark', text: B.name}),
@@ -149,7 +149,7 @@ function join(){
 }
 function footer(){
   return h('footer', {cls: 'kc-foot'}, [
-    h('img', {src: 'img/kc-emblem.webp', alt: '', width: 40, height: 40, decoding: 'async'}),
+    h('img', {src: 'img/framedecks-emblem.webp', alt: '', width: 40, height: 40, decoding: 'async'}),
     h('p', {cls: 'kc-foot-line', text: B.footer}),
     h('p', {cls: 'kc-foot-small'}, [h('span', {'data-about-version': '', text: version ? 'Version ' + version : ''}), ' · ', B.disclaimer]),
     h('p', {cls: 'kc-foot-small', text: 'When asking for help, Settings → Diagnostics → “Copy diagnostics” adds useful technical details (it never includes your PIN or member information).'})

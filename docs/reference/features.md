@@ -118,7 +118,7 @@ Workbook or a Frame file) instead.
 
 ## 3. Logo-only branding
 
-The app's own branding is the **Book + Candle** mark (`app/img/kc-emblem.webp`) and nothing else:
+The app's own branding is the **Book + Candle** mark (`app/img/framedecks-emblem.webp`) and nothing else:
 - **Command bar (dashboard header):** the mark alone, 30 px wide. There is no "FrameDecks" wordmark or text
   beside it. The name and the Meeting Name are kept for screen readers, in the mark's tooltip and in the window
   title.

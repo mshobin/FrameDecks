@@ -208,9 +208,9 @@ Read this first, then [NEXT_SESSION.md](NEXT_SESSION.md).
   routes that need a server, or cacheComponents/PPR (they break `output: "export"`).
 - Next.js 16 has breaking changes: read `hosted/node_modules/next/dist/docs/` before writing hosted code. `agentRules: false`
   in `hosted/next.config.ts` keeps `next dev` from writing a notes file into `hosted/`.
-- The emblem `app/img/kc-emblem.webp` and `hosted/public/framedecks-emblem.webp` must stay identical. Regenerate all emblem/icon files with `tools/make_emblem_assets.py` (master: `assets/brand/framedecks-emblem.svg`).
+- The emblem `app/img/framedecks-emblem.webp` and `hosted/public/framedecks-emblem.webp` must stay identical. Regenerate all emblem/icon files with `tools/make_emblem_assets.py` (master: `assets/brand/framedecks-emblem.svg`).
 - The repo auto-commits as "Update project files and documentation"; check `git status` before committing.
-- The README header and GitHub release body both embed `assets/brand/kc-about-header.webp`. The FrameDecks wordmark
+- The README header and GitHub release body both embed `assets/brand/framedecks-about-header.webp`. The FrameDecks wordmark
   refresh was published in PR #38; for a future image change, publish the image commit and update the existing release
   body's image URL to that commit because the release tag is immutable.
 - Browser code must name each `NEXT_PUBLIC_` variable in full (`publicSupabaseEnv()`), or Next.js does not inline it.
