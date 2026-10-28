@@ -5,6 +5,18 @@ PR #38. Trust fixes merged in PR #39 (`27cfb4b`). Later the same day: the budget
 (`57cd9c3`), the five Dependabot action upgrades merged (#33–#37), and the handoff PR #40. All checks on `main` are
 green, including the Cloudflare Pages deploy (production); a look at the live site is still the owner's. Read [PROJECT_GUIDE.md](PROJECT_GUIDE.md) ("Working locally" has the set-up and run commands).
 
+28 October, framedecks.com live-check (owner's curl results, 11:38 UTC): **framedecks.com serves the site** through
+Cloudflare (200, the repository's security headers), `robots.txt` names `https://framedecks.com/sitemap.xml`,
+`/api/sync-config` answers the program's User-Agent with the Supabase URL and publishable key, and
+`framedecks.pages.dev` answers `x-robots-tag: noindex`. **Still open (owner):** `www.framedecks.com`,
+`framedecks.app`, `www.framedecks.app` and `app.framedecks.com` give no answer at all (most likely their proxied
+`AAAA 100::` records are missing, or the framedecks.app zone is not Active yet; ask for `nslookup` and `curl.exe -I`
+output); HSTS is not on (no `Strict-Transport-Security`); Supabase Site URL / redirect URL and the Google consent
+screen URLs not yet changed; the pages.dev Bulk Redirect waits until all that works for a few days. Brevo is not used
+(skipped 26 October): sign-in mail stays on Supabase's built-in mail, so framedecks.com gets no-mail DNS records
+(null MX, `v=spf1 -all`, DMARC reject; guide updated in `d463e84`). This session cannot reach framedecks.com or the
+Cloudflare API (network policy), so checks are run by the owner with `curl.exe` on Windows.
+
 28 October, framedecks.com as the one address (repository side done; Cloudflare and Supabase steps are the owner's):
 `hosted/src/lib/site.ts` (`SITE_URL`), canonical links on `/`, `/help`, `/privacy`, `/sign-in`, `noindex` on every
 signed-in page, `robots.txt` + `sitemap.xml`, `X-Robots-Tag: noindex` on `*.pages.dev`, a year's cache on
