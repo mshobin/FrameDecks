@@ -126,7 +126,9 @@ class Updating(unittest.TestCase):
         self.assertIn("$state = 'rolled-back'", s)
         self.assertIn("Start-Process -FilePath 'C:/Program/FRAMEDECKS.exe'", s)
         odd = self.u.script(Path("C:/it's/x.exe"), "7.1", None, "C:/a.exe", 1)
-        self.assertIn("'C:/it''s/x.exe'", odd, "quotes in paths are escaped")
+        quoted = "'" + str(Path("C:/it's/x.exe")).replace("'", "''") + "'"   # backslashes on Windows
+        self.assertIn(quoted, odd, "quotes in paths are escaped")
+        self.assertIn("it''s", odd)
 
     def test_the_next_start_says_what_happened(self):
         up = self.dir / "updates"
