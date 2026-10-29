@@ -52,6 +52,12 @@ do.
 | [FrameDecks branding assets](reference/branding-assets.md) | Logo source, current asset mapping, generated variants, and intentionally retained graphics |
 | [Design history](architecture/design-history.md) | The engineering log, one section per version |
 
+## Plans
+
+| Document | What it covers |
+| --- | --- |
+| [Onboarding, linking, front page and themes (29 October)](project/2026-10-29-onboarding-linking-themes-plan.md) | Setup guide, one-click linking, a 4-screen front page, synced workspace looks, differentiators, priorities |
+
 ## Project history
 
 Finished plans, audits and assessments, kept for the record.

@@ -5,6 +5,11 @@ PR #38. Trust fixes merged in PR #39 (`27cfb4b`). Later the same day: the budget
 (`57cd9c3`), the five Dependabot action upgrades merged (#33–#37), and the handoff PR #40. All checks on `main` are
 green, including the Cloudflare Pages deploy (production); a look at the live site is still the owner's. Read [PROJECT_GUIDE.md](PROJECT_GUIDE.md) ("Working locally" has the set-up and run commands).
 
+29 October, plan written (not built): `docs/project/2026-10-29-onboarding-linking-themes-plan.md`: setup guide, one-click
+linking (keep the device-code protocol, carry the code in the URL fragment, authorisation page with a check number,
+fast poll; migration `0010`), front page to about 4 screens with an autoplay How it works (drop GSAP), workspace looks
+synced as a new `look` record, differentiators, impact/effort order. Waiting for the owner's answers in its section 7.
+
 28 October, framedecks.com live-check (owner's curl results, 11:38 UTC): **framedecks.com serves the site** through
 Cloudflare (200, the repository's security headers), `robots.txt` names `https://framedecks.com/sitemap.xml`,
 `/api/sync-config` answers the program's User-Agent with the Supabase URL and publishable key, and
