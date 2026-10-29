@@ -88,7 +88,7 @@ Read this first, then [NEXT_SESSION.md](NEXT_SESSION.md).
 - Continuity: `docs/continuity/PROJECT_GUIDE.md`, `docs/continuity/PROJECT_STATUS.md`,
   `docs/continuity/PROJECT_ROADMAP.md`, `docs/continuity/NEXT_SESSION.md`. The owner's live tests:
   `docs/qa/live-test-guide.md` (keep it in step when a tested behaviour changes).
-- Current handoff (29 October 2026; version 6.13 on `main`: one-click linking and a four-screen front page, the owner runs `0010_link_by_url.sql` and tags `v6.12` then `v6.13`; framedecks.com live, its redirects, HSTS and the Supabase/Google URLs still the owner's; FRAMECAST is now FrameRelay): v6.11.2 (repository layout + companion trust fixes, no desktop change; tag `v6.11.2`) follows v6.11.1 and the README/release wordmark refresh (PR #38). Trust
+- Current handoff (29 October 2026; version 6.14 on `main`: the Setup guide (`app/js/guide.js`, `guide-steps.js`, website `setup-guide.tsx`); 6.13 one-click linking and a four-screen front page; the owner runs `0010_link_by_url.sql` and tags `v6.12`, `v6.13`, `v6.14`; framedecks.com live, its redirects, HSTS and the Supabase/Google URLs still the owner's; FRAMECAST is now FrameRelay): v6.11.2 (repository layout + companion trust fixes, no desktop change; tag `v6.11.2`) follows v6.11.1 and the README/release wordmark refresh (PR #38). Trust
   fixes merged in PR #39 (`27cfb4b`); production deployment verification and the owner's live tests remain. See
   `docs/continuity/NEXT_SESSION.md`. Repository clean-up (merged): Python modules are in `src/`
   (`python src/server.py`), `README.md`, `LICENSE`, `NOTICE` and `ruff.toml` at the top level, `CONTRIBUTING`/`SECURITY`/`SUPPORT` in `.github/`,

@@ -20,6 +20,9 @@ Cloudflare Pages production deploy. Owner live tests remain. The live database h
   treats it as the one address; the program falls back to pages.dev. **Open (owner):** the redirect names
   (`www`, `app`, framedecks.app) do not answer yet, HSTS off, Supabase Site URL/redirect URL and Google consent
   screen URLs not changed, pages.dev Bulk Redirect later. No Brevo: Supabase's built-in mail, no-mail DNS records.
+- **Version 6.14 (29 October, on `main`, not yet tagged):** the Setup guide: seven steps that tick themselves in the
+  program (panel at the right, "Show me how" spotlight, finish screen, Settings → About → Guided tour), and the same
+  steps on the website's Home (ticked only where the website can see them). Replaces the Getting started card.
 - **Version 6.13 (29 October, on `main`, not yet tagged):** one-click linking (Settings → FrameDecks account →
   Connect to FrameDecks opens framedecks.com/connect; the owner or admin presses Allow; check number on both sides;
   typing the code stays as a fallback; needs `0010_link_by_url.sql` run in Supabase) and a front page of about four

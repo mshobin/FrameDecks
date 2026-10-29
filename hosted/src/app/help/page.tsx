@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { AuthShell } from "@/components/auth-shell";
+import { ShowGuide } from "@/components/show-guide";
 import brand from "@/lib/brand.json";
 import { DOWNLOADS } from "@/lib/pc-setup";
 import { pageMetadata } from "@/lib/site";
@@ -44,6 +45,11 @@ export default function HelpPage() {
             try Go Live, Next and Hide all.
           </li>
         </ol>
+
+        <p>
+          <strong>Setup guide:</strong> the same seven steps, each ticked when it is really done. In FrameDecks on the PC:
+          Settings → About → Guided tour. Here: <ShowGuide />
+        </p>
 
         <h2 id="day">On the day</h2>
         <ul>

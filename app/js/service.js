@@ -128,6 +128,16 @@ if (sw) sw.addEventListener('click', function(e){
   if (b.dataset.mode === 'run') toast('Run: the service view. Switch to Prepare to edit.');
 });
 window.KCServiceMode = {get: function(){ return isRun() ? 'run' : 'prepare'; }, set: setMode};
+/* 6.14 Setup guide (guide.js): the same checks as Before you start, and whether a way to show it is chosen */
+window.KCServiceChecks = {
+  list: checks,
+  output: function(){
+    var cam = chipState('h-vcam'), src = chipState('h-sources');
+    return (/\b(ok|info)\b/.test(cam.cls) && !/Off|Not/.test(cam.text)) || shareOpen() || /\bok\b/.test(src.cls);
+  },
+  phone: function(){ return /\bok\b/.test(chipState('h-ipad').cls); },
+  practising: function(){ return document.body.classList.contains('practice-on'); }
+};
 
 /* In Run, nothing in the Studio can be edited by accident: no renaming, dragging, menus, deleting or pasting.
  * Double-clicking a Frame still puts it on screen, as it always has. */

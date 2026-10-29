@@ -45,6 +45,20 @@ Versions before 4.9 (when the program had its earlier name) are described in the
 - The favicons, the tray icon and the small program-icon sizes (16–32 px) use a heavier version of the emblem, so it
   stays visible on light browser tabs and a light taskbar. Larger sizes are unchanged.
 
+## [6.14] - 2026-10-29
+
+Full notes: [docs/releases/v6.14.md](releases/v6.14.md)
+
+### Added
+- **Setup guide** in the program: a panel at the right with seven steps (kind of gathering, how people see it, the
+  phone remote, Connect to FrameDecks (optional), your first Frame, rehearse in Practice mode, Ready). Each step
+  ticks itself when the program sees it is true; "Show me how" dims the window around the real control. It opens on
+  a new PC, can be made smaller or skipped, keeps its progress in `kc-app-settings.json`, and returns from
+  Settings → About → Guided tour or the command palette. It replaces the Getting started card.
+- **Setup guide on the website's Home**: the same seven steps (one list, kept equal by a test), ticked only where the
+  website can see them (the kind chosen, a linked PC, a Frame added or changed on the website); the PC's steps say
+  "On the PC". Help → "Show the Setup guide on Home" brings it back.
+
 ## [6.13] - 2026-10-29
 
 Full notes: [docs/releases/v6.13.md](releases/v6.13.md)

@@ -991,3 +991,20 @@ never starts under reduced motion or Reduce effects. The demo and the features s
 and the rest sit behind "More questions"; the statement moved into the closing panel. GSAP was uninstalled (JavaScript
 380 → 339 KB gzipped); mobile Lighthouse stays at 86–89, with the Studio picture's arrival no longer fading from
 nothing so it does not hold back the largest paint.
+
+## 37. Version 6.14: the Setup guide (29 October 2026)
+
+The four-step Getting started card became a Setup guide with the plan's seven steps (`app/js/guide-steps.js`, with
+the same list in `hosted/src/lib/guide-steps.ts` and in `server.GUIDE_STEPS`, kept equal by tests). `app/js/guide.js`
+draws a 360 px panel at the right and ticks steps only from state the program already has: the kind chosen (it runs
+that Quick Start), `KCServiceChecks.output()` (FrameRelay, the Share Window or an overlay page), a phone connected,
+a linked PC (`api/sync`), a change to the plan after the guide opened (`KCWorkspace.planSig()`, so the starter
+Frames and the Quick Start's own Frames do not count), the screen moving on while Practice is on, and every Before
+you start line green once the rest are done. Progress is a validated `guide` object in `kc-app-settings.json`
+(`server._valid_guide`). "Show me how" is one fixed element with a 9999 px box-shadow around the real control and
+one sentence; any click or Esc ends it, and the panel steps aside meanwhile. It opens after "Start fresh", or on
+a PC with no Frames; upgrades never see it uninvited. Entrances only, none under reduced motion.
+
+On the website, Home shows the same steps for a workspace (`components/setup-guide.tsx`). It ticks the kind chosen
+there (local storage `fd-guide`), a linked PC (`computers`) and a Frame record last saved by a person
+(`updatedBy` "user:…"); the program's steps say "On the PC" rather than guess. Help brings a hidden guide back.

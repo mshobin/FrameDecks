@@ -30,8 +30,8 @@ before: go on to the next one. Any other error: stop and send it.
 ## 2. The program on the service PC
 
 1. Open the latest **Build Windows installer** run on `main` (GitHub → Actions → Build Windows installer), scroll to
-   **Artifacts**, download **FrameDecks v6.13** and unzip it.
-2. Run `FrameDecks v6.13.exe` from the zip (the `.sha256` file next to it is its checksum) and install as you do
+   **Artifacts**, download **FrameDecks v6.14** and unzip it.
+2. Run `FrameDecks v6.14.exe` from the zip (the `.sha256` file next to it is its checksum) and install as you do
    for each new version. Windows may say it protects your PC: **More info** → **Run anyway**. Make a backup first
    (Settings → Data / Backup → Save a backup file) if you want to be safe.
 
@@ -52,6 +52,17 @@ SQL editor.
    pictures and videos only by name.
 6. On the PC change a Frame's name. **Expect:** after reloading Plan (within about a minute) the new name.
 7. Open **Members** in the companion. **Expect:** the member list from the PC (owners and admins only).
+
+## 3a. Test J: the Setup guide (6.14)
+
+1. On a PC that never had FrameDecks (or after renaming the data folder), install and open it; choose **Start fresh**.
+   **Expect:** the Setup guide at the right, 0 of 7.
+2. Choose a kind of gathering. **Expect:** its Frames appear and "Welcome" ticks; "Make your first Frame" does not.
+3. Change a Frame's name. **Expect:** "Make your first Frame" ticks.
+4. Follow "Show me how" on each remaining step. **Expect:** the window dims around the right control; each step ticks
+   by itself (FrameRelay chosen, a phone connected, Practice mode plus Next), then "Ready", then "You're ready for your
+   first gathering".
+5. On framedecks.com Home **Expect:** the same seven steps; the PC's steps say "On the PC".
 
 ## 4. Test B: phone control
 

@@ -524,7 +524,7 @@ function openQuickStart(){
 }
 function runQuickStart(q){
   var made = [];
-  commit(function(n){ made = SC.quickStart(n, q.id, {creator: creator()}); }).then(function(){
+  return commit(function(n){ made = SC.quickStart(n, q.id, {creator: creator()}); }).then(function(){
     var dlg = $('qs-dlg'); if (dlg && dlg.open) dlg.close();
     if (!made.length) return;
     delete collapsed[made[0].group]; setFilter('all');
@@ -1389,7 +1389,10 @@ window.KCWorkspace = {
   /* 6.7 command palette */
   newFrame: function(){ newScene('blank'); }, addContent: function(what){ addLayer(what); },
   duplicate: function(){ var ids = framesSel(); if (ids.length) duplicateFrames(ids); else toast('Select a Frame first.', true); },
-  quickStart: function(){ openQuickStart(); }, library: function(){ setFilter('tpl'); }, addFromLibrary: addFromLibrary, fromTemplate: function(id){ fromTemplate(id); },
+  quickStart: function(){ openQuickStart(); },
+  quickStartKind: function(id){ var q = SC.quickStarts.filter(function(x){ return x.id === id; })[0]; return q ? runQuickStart(q) : Promise.resolve(); },   /* 6.14 Setup guide */
+  /* 6.14 Setup guide: the plan's Frames and their Content, to notice when someone adds or changes one */
+  planSig: function(){ return live ? JSON.stringify(live.scenes.filter(function(s){ return !s.tpl; }).map(function(s){ return [s.id, s.name, s.layers]; })) : ''; }, library: function(){ setFilter('tpl'); }, addFromLibrary: addFromLibrary, fromTemplate: function(id){ fromTemplate(id); },
   contentKinds: function(){ return CONTENT_ADD.concat(FREE_ADD).map(function(x){ return {id: x[0], name: x[1].replace(/…$/, ''), icon: x[2]}; }); },
   /* select a Frame's question or scripture by its id (the Frame's own list) and point it out */
   showItem: function(sid, lid, itemId){

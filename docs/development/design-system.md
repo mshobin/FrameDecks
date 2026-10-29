@@ -159,6 +159,17 @@ named), no invented quotes, logos or numbers.
   86–89 performance (the paragraph is the largest paint), 100 accessibility; JS 339 KB (was 380 with GSAP) and CSS
   21 KB gzipped (CSS budget 24 KB in `scripts/check-budget.mjs`).
 
+## Setup guide (6.14)
+
+One list of seven steps in both places (`app/js/guide-steps.js`, `hosted/src/lib/guide-steps.ts`). In the program a
+360 px panel at the right (`app/js/guide.js`, `.gd-*` in `console.css`): a gold progress ring and "N of 7 done", done
+steps with a green tick and dimmed text, the current step with a gold ring, its sentence and its buttons (the main
+action in gold, "Show me how"), optional steps marked and skippable, "Skip for now" at the foot, a minus to shrink
+it to a pill. "Show me how" dims the window with one box-shadow around the real control and one sentence beside it.
+The finish: the emblem settles once, "You're ready for your first gathering", **Open Run**, **Close**. Motion: one
+entrance on `cubic-bezier(.16,1,.3,1)`, nothing loops, nothing under reduced motion. On the website a card on Home
+(`.fd-guide` in `identity.css`), two columns of steps, the PC's steps with a dashed ring and "On the PC".
+
 ## Signed-in pages (28 October visual pass)
 
 The same principles without changing any layout or flow: the stage light behind every page, cards with a faint gold

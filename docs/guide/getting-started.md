@@ -56,6 +56,10 @@ A webcam is optional. You need one only if people should see you on the FrameRel
    your old folder (it is usually found automatically) and select **Import**. Your old folder is not changed. (An
    installed earlier version needs nothing: the installer updates it and your data is kept.)
 3. The app opens on the **Studio**, where you build and run meetings.
+4. On a new PC the **Setup guide** opens at the right: seven steps from choosing your kind of gathering to "Ready".
+   Each step ticks itself when FrameDecks sees it is done (a phone connected, Practice used, every line of Before you
+   start green). **Show me how** dims the window and points at the button to press. Skip it any time; it comes back
+   from **Settings → About → Guided tour** or the command palette (Ctrl+K, "Setup guide").
 
 > **Note:** Everything you do is saved automatically on this PC. There is no Save button to remember.
 

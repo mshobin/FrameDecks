@@ -9,6 +9,7 @@ import { BrandMark } from "@/components/brand-hero";
 import { NextService } from "@/components/glance";
 import { Landing } from "@/components/landing";
 import { PcSetupCard } from "@/components/pc-setup-card";
+import { SetupGuide } from "@/components/setup-guide";
 import { PageSkeleton } from "@/components/states";
 import { DOWNLOADS } from "@/lib/pc-setup";
 import { browserSupabase } from "@/lib/supabase-browser";
@@ -49,6 +50,7 @@ function Dashboard({ name }: Readonly<{ name: string }>) {
         <>
           <Invitations />
           <NextService workspace={selected} name={name} />
+          <SetupGuide workspace={selected} />
           <PcSetupCard />
         </>
       ) : (

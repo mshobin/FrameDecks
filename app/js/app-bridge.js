@@ -70,42 +70,10 @@ function importDialog(candidates, firstRun){
       'This copies your saved verses and questions, members, settings and phone-remote PIN from a previous app data folder. The original folder is not changed.'}),
     list
   ], [
-    {text: fresh ? 'Import from a folder…' : 'Choose a folder…', cls: fresh ? 'quiet' : '', onclick: function(){ pickFolder().then(function(f){ if (f){ if (firstRun) gettingStarted.arm(); doImport(f, closeFn); } }); return false; }},
-    {text: firstRun ? 'Start fresh' : 'Cancel', cls: fresh ? 'primary' : 'quiet', onclick: function(){ if (firstRun){ post('skip-import'); gettingStarted.arm(); gettingStarted.show(); } }}
+    {text: fresh ? 'Import from a folder…' : 'Choose a folder…', cls: fresh ? 'quiet' : '', onclick: function(){ pickFolder().then(function(f){ if (f) doImport(f, closeFn); }); return false; }},
+    {text: firstRun ? 'Start fresh' : 'Cancel', cls: fresh ? 'primary' : 'quiet', onclick: function(){ if (firstRun){ post('skip-import'); if (window.KCGuide) window.KCGuide.start(info, true); } }}
   ]);
 }
-
-/* ---------- Getting started: three steps after the first-run choice. Never blocks the window; ✕ hides it for good ---------- */
-var gettingStarted = (function(){
-  var KEY = 'kc-getting-started', card = null;
-  var STEPS = [
-    ['brand', 'Add your meeting name and logo', 'Settings → Meeting & Branding', function(){ go('settings', 'meeting'); }],
-    ['frame', 'Plan your first Frame', 'Studio → Prepare: add a Frame, then its Content', function(){ go('studio'); if (window.KCServiceMode) window.KCServiceMode.set('prepare'); }],
-    ['output', 'Choose how people see it', 'Zoom or Teams, a shared window, or a projector', function(){ go('settings', 'output'); }],
-    ['practice', 'Practise your first service', 'Run → Practice mode, then Go Live, Next and Hide all (Esc)', function(){
-      go('studio'); if (window.KCServiceMode) window.KCServiceMode.set('run');
-      setTimeout(function(){ var p = document.getElementById('practice-mode'); if (p) p.focus(); }, 100); }]
-  ];
-  function read(){ try { return JSON.parse(localStorage.getItem(KEY) || 'null'); } catch(e){ return null; } }
-  function write(v){ try { localStorage.setItem(KEY, JSON.stringify(v)); } catch(e){} }
-  function go(tab, sec){ if (window.KCSetTab) window.KCSetTab(tab); if (sec && window.KCShowSection) setTimeout(function(){ window.KCShowSection(sec); }, 0); }
-  function hide(){ if (card){ card.remove(); card = null; } }
-  function show(){
-    var st = read(); if (!st || st.closed) return hide();
-    var done = st.done || {}; if (STEPS.every(function(s){ return done[s[0]]; })){ write({closed: true}); return hide(); }
-    if (!card){ card = h('section', {cls: 'gs-card', role: 'region', 'aria-label': 'Getting started'}); document.body.appendChild(card); }
-    card.innerHTML = '';
-    card.appendChild(h('div', {cls: 'gs-head'}, [h('b', {text: 'Your first service in four steps'}),
-      h('button', {cls: 'gs-x', type: 'button', 'aria-label': 'Close Getting started', title: 'Close', text: '×', onclick: function(){ write({closed: true}); hide(); }})]));
-    var ol = h('ol', {cls: 'gs-list'});
-    STEPS.forEach(function(s){
-      ol.appendChild(h('li', {cls: done[s[0]] ? 'done' : ''}, [h('button', {type: 'button', cls: 'gs-step', onclick: function(){
-        var v = read() || {}; v.done = v.done || {}; v.done[s[0]] = true; write(v); s[3](); show(); }}, [h('span', {cls: 'gs-t', text: s[1]}), h('span', {cls: 'gs-s', text: s[2]})])]));
-    });
-    card.appendChild(ol);
-  }
-  return {arm: function(){ if (!read()) write({done: {}}); }, show: show};
-})();
 
 /* ---------- Data / Backup: where data lives, backups, import ---------- */
 function renderDataCard(){
@@ -272,7 +240,7 @@ document.addEventListener('kc-app-info', function(){ document.documentElement.cl
 
 refresh().then(function(d){
   if (d.migration.needed) importDialog(d.migration.candidates, true);
-  else gettingStarted.show();
+  else if (window.KCGuide) window.KCGuide.start(d, false);      // 6.14 Setup guide (guide.js)
 });
 setInterval(function(){ var s = $('sec-data'); if (s && !s.hidden) refresh(); }, 15000);
 window.KCAppRefresh = refresh;

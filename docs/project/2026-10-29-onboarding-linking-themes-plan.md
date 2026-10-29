@@ -8,7 +8,8 @@ never edited; new database work goes in `0010_*` and later.
 
 **Status (29 October):** the owner approved all four decisions in section 7. Version 6.13 built one-click linking
 (section 2, with "Type a code instead" kept) and the four-screen front page (section 3, GSAP removed). Next: the Setup
-guide (6.14), then the six workspace looks (6.15).
+guide (6.14, built: the program panel and the website card; progress stays per PC and per browser), then the six
+workspace looks (6.15).
 
 ## 1. Onboarding and guided tour
 

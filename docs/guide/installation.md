@@ -52,7 +52,7 @@ unchanged:
 1. Open **PowerShell** in the folder with the files.
 2. Run:
    ```powershell
-   Get-FileHash ".\FrameDecks v6.13.exe" -Algorithm SHA256
+   Get-FileHash ".\FrameDecks v6.14.exe" -Algorithm SHA256
    ```
 3. Compare the **Hash** with the text in `FrameDecks v6.8.exe.sha256`. Upper or lower case does not matter. They
    must match exactly.

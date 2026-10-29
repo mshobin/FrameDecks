@@ -1294,7 +1294,7 @@ body:not(.kc-on-air) #ctlbar .cb-btn.hide:hover{border-color:var(--red);filter:n
 .run-next{display:none}
 body.run-mode .ws-right,body.run-mode .layers-pane,body.run-mode .kc-hsplit,body.run-mode .kc-lsplit,
 body.run-mode .scenes-pane .pane-tools,body.run-mode #quick-start,body.run-mode #scene-add,body.run-mode .si-fav,body.run-mode .si-more,
-body.run-mode .canvas-tools,body.run-mode .canvas-note,body.run-mode .cmdbar .lb-tx,body.run-mode .cmdbar .lb-auto,body.run-mode .gs-card{display:none}
+body.run-mode .canvas-tools,body.run-mode .canvas-note,body.run-mode .cmdbar .lb-tx,body.run-mode .cmdbar .lb-auto{display:none}
 body.run-mode .scenes-pane{flex:1 1 auto}
 body.run-mode .scene-list .scene-item{cursor:pointer}
 body.run-mode .run-next{display:flex;flex-direction:column;gap:10px;padding:16px;min-height:0;overflow:auto;background:var(--mica),var(--panel)}

@@ -70,7 +70,8 @@ function commands(){
     ['branding', 'Open Branding', 'logo meeting name colour', function(){ settings('meeting'); }],
     ['knock', 'Remove the logo background', 'transparent png', function(){ if (window.KCBrandSettings) window.KCBrandSettings.removeBackground(); }],
     ['camera', 'Camera background (blur, image)', 'framedecks blur background', function(){ settings('vcam'); }],
-    ['shortcuts', 'Keyboard shortcuts', 'keys palette', function(){ settings('keys'); }]];
+    ['shortcuts', 'Keyboard shortcuts', 'keys palette', function(){ settings('keys'); }],
+    ['guide', 'Setup guide (guided tour)', 'help start tour onboarding first steps', function(){ if (window.KCGuide) window.KCGuide.open(); }]];
   if (window.KCTheme){
     var t = window.KCTheme.get();
     c.push(['theme', t === 'light' ? 'Switch to the dark theme' : 'Switch to the light theme', 'appearance theme dark light mode', function(){ window.KCTheme.set(t === 'light' ? 'dark' : 'light'); }]);

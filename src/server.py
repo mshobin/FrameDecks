@@ -37,7 +37,7 @@ import ai           # M-D3: optional AI, free by default (Ollama on this PC); hi
 import legacy   # 6.9: moves data saved under the program's earlier name
 import meeting_form   # 6.9: fills the Meeting Workbook's form for Export
 
-APP_VERSION = "6.13"
+APP_VERSION = "6.14"
 STARTED_AT = time.time()
 FROZEN = getattr(sys, "frozen", False)          # True inside the installed Windows app
 HERE = Path(sys.executable).resolve().parent if FROZEN else Path(__file__).resolve().parent.parent   # the repository root (this file is in src/)
@@ -703,13 +703,32 @@ APP_SETTINGS_DEFAULTS = {"remoteAutostart": False, "importDecided": False,
                          "overlayFade": False,    # compatibility transparency (the whole window fades, text included)
                          "cloudRemote": False,    # Phase 5: run a service from the companion (Settings > FrameDecks account)
                          "memberAuthority": "cloud",   # M-D2: the workspace is the member list's source (no switch on screen)
-                         "ai": "auto"}            # M-D3: "auto" = use Ollama on this PC when it answers; "off" = never
+                         "ai": "auto",            # M-D3: "auto" = use Ollama on this PC when it answers; "off" = never
+                         "guide": {}}             # 6.14 Setup guide progress on this PC (app/js/guide.js, _valid_guide)
 APP_SETTING_CHOICES = {"minimizeTo": ("ask", "tray", "taskbar"), "memberAuthority": ("cloud", "pc"), "ai": ("auto", "off"),
                        "overlayMode": ("solid", "presenter", "meeting", "conference", "ghost")}
 
 
+GUIDE_STEPS = ("welcome", "output", "phone", "connect", "frame", "rehearse", "ready")    # app/js/guide-steps.js
+GUIDE_KINDS = ("bible-study", "prayer", "youth", "fellowship", "other")
+
+
+def _valid_guide(v):
+    """The Setup guide's progress: {seen, closed, finished: bool, kind: one of GUIDE_KINDS, done: [step ids]}."""
+    if not isinstance(v, dict) or not set(v) <= {"seen", "closed", "finished", "kind", "done"}:
+        return False
+    if any(k in v and not isinstance(v[k], bool) for k in ("seen", "closed", "finished")):
+        return False
+    if "kind" in v and v["kind"] not in GUIDE_KINDS:
+        return False
+    done = v.get("done", [])
+    return isinstance(done, list) and len(done) <= len(GUIDE_STEPS) and all(d in GUIDE_STEPS for d in done)
+
+
 def _valid_setting(k, v):
     d = APP_SETTINGS_DEFAULTS[k]
+    if k == "guide":
+        return _valid_guide(v)
     if isinstance(d, bool):
         return isinstance(v, bool)
     if k in APP_SETTING_CHOICES:

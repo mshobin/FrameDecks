@@ -1,9 +1,21 @@
 # NEXT SESSION HANDOFF
 
-Updated 29 October 2026 (6.13 on `main`: one-click linking and a four-screen front page; the owner runs `0010_link_by_url.sql` in Supabase and tags `v6.12` and `v6.13`; framedecks.com live, its redirects, HSTS and the Supabase/Google URLs are still the owner's; every check green): the maintainer guide is now [PROJECT_GUIDE.md](PROJECT_GUIDE.md); current references were updated. The continuity files now live in `docs/continuity/`. Windows batch launchers are under `tools/launchers/` and resolve the repository root before running. Release `v6.11.2` (repository layout and trust fixes, no desktop change; pilot install on a real PC and SHA-256 check still the owner's) was tagged after `v6.11.1`, which is published; the FrameDecks README and release header refresh merged in
+Updated 29 October 2026 (6.14 on `main`: the Setup guide in the program and on the website; 6.13 before it: one-click linking and a four-screen front page; the owner runs `0010_link_by_url.sql` in Supabase and tags `v6.12`, `v6.13` and `v6.14`; framedecks.com live, its redirects, HSTS and the Supabase/Google URLs are still the owner's; every check green): the maintainer guide is now [PROJECT_GUIDE.md](PROJECT_GUIDE.md); current references were updated. The continuity files now live in `docs/continuity/`. Windows batch launchers are under `tools/launchers/` and resolve the repository root before running. Release `v6.11.2` (repository layout and trust fixes, no desktop change; pilot install on a real PC and SHA-256 check still the owner's) was tagged after `v6.11.1`, which is published; the FrameDecks README and release header refresh merged in
 PR #38. Trust fixes merged in PR #39 (`27cfb4b`). Later the same day: the budget script fixed for Windows
 (`57cd9c3`), the five Dependabot action upgrades merged (#33–#37), and the handoff PR #40. All checks on `main` are
 green, including the Cloudflare Pages deploy (production); a look at the live site is still the owner's. Read [PROJECT_GUIDE.md](PROJECT_GUIDE.md) ("Working locally" has the set-up and run commands).
+
+29 October, version 6.14 on `main` (not yet tagged): the **Setup guide**. `app/js/guide-steps.js` (seven steps, five
+kinds; same list in `hosted/src/lib/guide-steps.ts` and `server.GUIDE_STEPS`, tests keep them equal), `app/js/guide.js`
+(panel at the right, steps ticked only by detection: kind chosen runs its Quick Start, `KCServiceChecks.output()`,
+phone connected, `api/sync` linked, `KCWorkspace.planSig()` changed since the guide opened, Next while Practice is on,
+every Before you start line green after the rest; "Show me how" spotlight; finish view; Settings → About box and a
+palette command), progress in `kc-app-settings.json` `guide` (`server._valid_guide`). The Getting started card in
+`app-bridge.js` is gone (an open one hands over to the guide once). Website: `components/setup-guide.tsx` on Home
+(kind chosen in `fd-guide`, linked PC, a Frame record saved by `user:…`; PC steps "On the PC"), `show-guide.tsx` on
+Help. Live test J added. Verified in the program from an empty data folder (`KC_DATA_DIR`) and on the website with a
+stand-in Supabase. Checks: Python, desktop JS, website 142/142, lint, types, build, budget, visual and axe suites.
+Next: 6.15 the workspace looks.
 
 29 October, version 6.13 on `main` (not yet tagged). Owner's answers to the plan's section 7: (1) keep "Type a code
 instead" as a fallback, (2) the six looks are approved (6.15), (3) the four-screen front page without the pinned guide
