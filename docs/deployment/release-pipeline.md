@@ -118,6 +118,14 @@ curl -s https://api.framedecks.com/health                 # {"ok":true,"latest":
 curl -sI https://downloads.framedecks.com/releases/index.json | head -n 1
 ```
 
+## Test it locally (before the first real tag)
+
+`bash infra/update-api/local-test.sh` runs the whole pipeline on one computer, with nothing sent anywhere: the update
+service under `wrangler dev` with a local bucket, two made-up releases (7.0, then 7.1) published by the workflow's own
+upload step and the manifest tool, every route of the service, the program's updater (offered 7.1, a matching
+download, a tampered copy refused, 7.0 fetched as the previous version) and the rollback below. It needs Node.js,
+Python 3 and PyYAML, takes about a minute and ends with `release pipeline: ok`. Last run: 29 October 2026, passed.
+
 ## Releasing a version
 
 1. On `main`, with CI green: the version is `APP_VERSION` in `src/server.py`, and `docs/releases/v<version>.md` exists

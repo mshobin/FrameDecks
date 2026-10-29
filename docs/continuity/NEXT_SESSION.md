@@ -5,6 +5,12 @@ PR #38. Trust fixes merged in PR #39 (`27cfb4b`). Later the same day: the budget
 (`57cd9c3`), the five Dependabot action upgrades merged (#33–#37), and the handoff PR #40. All checks on `main` are
 green, including the Cloudflare Pages deploy (production); a look at the live site is still the owner's. Read [PROJECT_GUIDE.md](PROJECT_GUIDE.md) ("Working locally" has the set-up and run commands).
 
+29 October, after 7.0: the download page no longer guesses a download address (until the service answers it says
+"Download opens soon" and offers planning on the website; `downloadState` in `hosted/src/lib/releases.ts`), and the
+release pipeline was tested end to end on this machine: `bash infra/update-api/local-test.sh` (wrangler dev + local R2,
+two releases, routes, updater, tampering, previous version, rollback) passes. The download page was also checked
+in a browser against that local service: version, notes, checksum, and the downloaded file's SHA-256.
+
 29 October, version 7.0 on `main` (not yet tagged): the **commercial model** (plan:
 `docs/project/2026-10-29-commercial-model-plan.md`, sections 1–9 answer the brief's eight items). Owner's answers:
 legal owner Shobin Mathews (personal); governing law left as a marked gap; hello@/security@ (and privacy@) at
