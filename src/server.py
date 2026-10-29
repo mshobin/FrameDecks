@@ -36,8 +36,9 @@ import cloud_sync   # Phase 4: syncing service plans with a workspace (only when
 import ai           # M-D3: optional AI, free by default (Ollama on this PC); hidden when none answers
 import legacy   # 6.9: moves data saved under the program's earlier name
 import meeting_form   # 6.9: fills the Meeting Workbook's form for Export
+import updater   # 7.0: updates from FrameDecks servers (checked, silent, with rollback)
 
-APP_VERSION = "6.14"
+APP_VERSION = "7.0"
 STARTED_AT = time.time()
 FROZEN = getattr(sys, "frozen", False)          # True inside the installed Windows app
 HERE = Path(sys.executable).resolve().parent if FROZEN else Path(__file__).resolve().parent.parent   # the repository root (this file is in src/)
@@ -2282,6 +2283,11 @@ class Handler(BaseHTTPRequestHandler):
             return ok(res)
         if action == "settings":
             return ok(save_app_settings(data))
+        if action == "update":
+            try:
+                return ok(update_action(data))
+            except ValueError as e:
+                return bad(str(e))
         if action == "backup-now":
             name = backup_now(time.strftime("%H%M%S"))
             return ok({"backup": name, "backups": list_backups()}) if name else bad("There is nothing to back up yet.")
@@ -2570,39 +2576,64 @@ class MainServer(ThreadingHTTPServer):
 
 
 # ---------- Is there a newer version? (audit roadmap step 2: tells, never downloads) ----------
-# Once a day the program asks GitHub for the latest published release. The About page then says that a newer version
-# is available, with a link to the Releases page; nothing is downloaded or installed by itself. Works once the
-# repository is public; set FRAMEDECKS_NO_UPDATE_CHECK=1 to never ask.
-RELEASES_API = os.environ.get("FRAMEDECKS_RELEASES_API",
-                              "https://api.github.com/repos/mshobin/FRAMEDECKS/releases/latest")
-UPDATE = {"latest": None, "url": None, "checkedAt": 0.0}
+# 7.0: updates come from FrameDecks servers (src/updater.py; docs/deployment/release-pipeline.md). Once a day the
+# program asks https://api.framedecks.com/releases/latest; Settings > About shows a newer version with its notes and
+# installs it on request (checked, silent, with the previous version put back if the install fails). Set
+# FRAMEDECKS_NO_UPDATE_CHECK=1 to never ask; FRAMEDECKS_UPDATE_API points the check elsewhere (tests).
+UPDATER = updater.Updater(DATA, APP_VERSION, frozen=FROZEN)
 
 
 def version_tuple(v):
-    return tuple(int(x) for x in re.findall(r"\d+", str(v or ""))[:4])
+    return updater.version_tuple(v)
 
 
 def check_for_update(timeout=10):
-    """Ask GitHub once; keeps the answer in UPDATE. Never raises."""
-    from urllib.request import Request, urlopen
-    try:
-        req = Request(RELEASES_API, headers={"Accept": "application/vnd.github+json",
-                                             "User-Agent": "FRAMEDECKS/" + APP_VERSION})
-        with urlopen(req, timeout=timeout) as r:
-            data = json.loads(r.read().decode("utf-8"))
-        tag = str(data.get("tag_name") or "").lstrip("vV")
-        url = str(data.get("html_url") or "")
-        if tag and url.startswith("https://github.com/"):
-            UPDATE.update(latest=tag, url=url)
-    except Exception as _e:                       # offline, private repository, no release yet: say nothing
-        _swallowed("server.check_for_update", _e)
-    UPDATE["checkedAt"] = time.time()
-    return update_info()
+    """Ask the update service once; never raises."""
+    return UPDATER.check(timeout)
 
 
 def update_info():
-    newer = bool(UPDATE["latest"]) and version_tuple(UPDATE["latest"]) > version_tuple(APP_VERSION)
-    return {"current": APP_VERSION, "latest": UPDATE["latest"], "newer": newer, "url": UPDATE["url"] if newer else None}
+    return UPDATER.info()
+
+
+def on_screen(st=None):
+    """Something the audience can see: a card, or Content of the live Frame. Updates wait until it is clear."""
+    st = state if st is None else st
+    if any((st.get(k) or {}).get("visible") for k in ("verse", "question", "birthday")):
+        return True
+    live = st.get("live") or {}
+    return any(bool(v) for v in (live.get("on") or {}).values())
+
+
+def update_action(data):
+    """POST api/app/update: check · install (now, or when FrameDecks closes) · previous (put the earlier version back)."""
+    what = str(data.get("action") or "")
+    if what == "check":
+        return check_for_update()
+    if what in ("install", "previous"):
+        if on_screen() and not data.get("force"):
+            raise ValueError("Something is on screen. Hide all first, then update.")
+        if data.get("whenClosed"):
+            UPDATER.state["installOnExit"] = what
+            return update_info()
+        UPDATER.install("latest" if what == "install" else "previous", quit_app=DESKTOP.get("quit"))
+        return update_info()
+    if what == "cancel":
+        UPDATER.state["installOnExit"] = False
+        return update_info()
+    raise ValueError("Unknown update action")
+
+
+def install_on_exit():
+    """Called as FrameDecks quits: "Update when I close FrameDecks" starts the install now (never raises)."""
+    which = UPDATER.state.get("installOnExit")
+    if not which:
+        return
+    UPDATER.state["installOnExit"] = False
+    try:
+        UPDATER.install("latest" if which == "install" else "previous")
+    except Exception as _e:
+        _swallowed("server.install_on_exit", _e)
 
 
 def _update_loop():

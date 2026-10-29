@@ -4,7 +4,7 @@
 // framedecks:// link the installer registers. Self-contained, with no imports, so the tests load it directly.
 
 export const OPEN_LINK = "framedecks://open";
-export const DOWNLOADS = "https://github.com/mshobin/FRAMEDECKS/releases";
+export const DOWNLOADS = "/download"; // 7.0: every download goes through framedecks.com/download, never GitHub
 
 // The camera's names: today's, and those of versions published under the program's earlier names
 const CAMERA_NAMES = [/framerelay/i, /framecast/i, /framedecks/i, /bcc vcam/i]; // the camera's name, and its earlier names

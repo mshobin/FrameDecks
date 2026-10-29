@@ -1,0 +1,557 @@
+/* framedecks.com's public pages (7.0): download, legal, security, documentation, about, status, and the site footer.
+   The front page's calm look: one reading column, gold only where the eye should go, the theme tokens for light and
+   dark (light.css redefines them). */
+
+/* ---------- page frame ---------- */
+.fd-public-main {
+  width: min(100%, 820px);
+  margin: 0 auto;
+  padding: clamp(40px, 6vw, 72px) clamp(16px, 4vw, 32px) clamp(48px, 6vw, 80px);
+}
+
+.fd-public-main.is-wide {
+  width: min(100%, 1080px);
+}
+
+.fd-public-head {
+  margin-bottom: 28px;
+}
+
+.fd-public-title {
+  margin: 0;
+  color: var(--text);
+  font-size: clamp(30px, 4vw, 44px);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.025em;
+}
+
+.fd-public-lead {
+  max-width: 40em;
+  margin: 14px 0 0;
+  color: var(--text-2);
+  font-size: 17px;
+  line-height: 1.6;
+}
+
+.fd-public-note,
+.fd-crumbline {
+  color: var(--text-3);
+  font-size: 14px;
+}
+
+.fd-public-main a:not(.fd-btn) {
+  color: var(--gold-2);
+  text-underline-offset: 3px;
+}
+
+/* ---------- long text rendered from the repository's Markdown ---------- */
+.fd-doc {
+  color: var(--text-2);
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+.fd-doc h2 {
+  margin: 36px 0 10px;
+  color: var(--text);
+  font-size: 22px;
+  letter-spacing: -0.01em;
+  scroll-margin-top: 80px;
+}
+
+.fd-doc h3 {
+  margin: 24px 0 8px;
+  color: var(--text);
+  font-size: 18px;
+}
+
+.fd-doc p,
+.fd-doc ul,
+.fd-doc ol {
+  margin: 0 0 14px;
+}
+
+.fd-doc ul,
+.fd-doc ol {
+  padding-left: 22px;
+}
+
+.fd-doc ul {
+  list-style: disc;
+}
+
+.fd-doc ol {
+  list-style: decimal;
+}
+
+.fd-doc li + li {
+  margin-top: 4px;
+}
+
+.fd-doc strong {
+  color: var(--text);
+}
+
+.fd-doc code {
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: var(--fill);
+  font-size: 0.9em;
+}
+
+.fd-doc pre {
+  overflow-x: auto;
+  margin: 0 0 16px;
+  padding: 14px 16px;
+  border: 1px solid var(--hairline);
+  border-radius: 12px;
+  background: var(--fill);
+}
+
+.fd-doc pre code {
+  padding: 0;
+  background: none;
+}
+
+.fd-doc table {
+  display: block;
+  overflow-x: auto;
+  margin: 0 0 18px;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.fd-doc th,
+.fd-doc td {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--hairline);
+  text-align: left;
+  vertical-align: top;
+}
+
+.fd-doc th {
+  color: var(--text);
+}
+
+.fd-doc blockquote {
+  margin: 0 0 16px;
+  padding: 10px 16px;
+  border-left: 3px solid var(--gold);
+  background: var(--gold-soft);
+}
+
+.fd-doc img {
+  max-width: 100%;
+  height: auto;
+  border: 1px solid var(--hairline);
+  border-radius: 12px;
+}
+
+/* ---------- lists of links: legal index, documentation, contact, roadmap ---------- */
+.fd-legal-list,
+.fd-contact,
+.fd-doc-cards,
+.fd-roadmap ul,
+.fd-status {
+  display: grid;
+  gap: 12px;
+  margin: 0 0 32px;
+  padding: 0;
+  list-style: none;
+}
+
+.fd-doc-cards {
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
+}
+
+.fd-legal-list li,
+.fd-contact li,
+.fd-doc-cards a,
+.fd-roadmap li,
+.fd-status li,
+.fd-dl-card,
+.fd-dl-notes,
+.fd-gate {
+  display: grid;
+  gap: 4px;
+  padding: 18px 20px;
+  border: 1px solid var(--hairline);
+  border-radius: 16px;
+  background: var(--surface-solid);
+}
+
+.fd-doc-cards a {
+  height: 100%;
+  text-decoration: none;
+  transition: border-color 0.3s var(--ease-out);
+}
+
+.fd-doc-cards a:hover,
+.fd-legal-list li:hover {
+  border-color: var(--gold);
+}
+
+.fd-legal-list span,
+.fd-doc-cards span,
+.fd-contact p,
+.fd-roadmap span,
+.fd-status small {
+  margin: 0;
+  color: var(--text-2);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.fd-doc-cards strong,
+.fd-roadmap strong,
+.fd-contact h2 {
+  margin: 0;
+  color: var(--text);
+  font-size: 16px;
+}
+
+.fd-public .fd-legal-list a,
+.fd-public .fd-doc-cards a {
+  color: var(--text);
+  font-weight: 700;
+}
+
+.fd-doc-group,
+.fd-roadmap h2 {
+  margin: 8px 0 14px;
+  color: var(--gold);
+  font-size: 13px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+/* ---------- status ---------- */
+.fd-status li {
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 14px;
+}
+
+.fd-status li span:nth-child(2) {
+  display: grid;
+}
+
+.fd-status-word {
+  color: var(--text-3);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.fd-status .is-up .fd-status-ic,
+.fd-status .is-up .fd-status-word,
+.fd-status-sum.is-up {
+  color: var(--green);
+}
+
+.fd-status .is-down .fd-status-ic,
+.fd-status .is-down .fd-status-word,
+.fd-status-sum.is-down {
+  color: var(--red);
+}
+
+.fd-status-sum {
+  margin: 0 0 16px;
+  color: var(--text-2);
+  font-weight: 600;
+}
+
+.fd-status-sum span {
+  color: var(--text-3);
+  font-weight: 400;
+}
+
+/* ---------- download ---------- */
+.fd-dl {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.fd-dl-card {
+  gap: 10px;
+  padding: clamp(22px, 3vw, 32px);
+}
+
+.fd-dl-card h2,
+.fd-dl-notes h2 {
+  margin: 0;
+  color: var(--text);
+  font-size: 22px;
+}
+
+.fd-dl-card p {
+  margin: 0;
+  color: var(--text-2);
+}
+
+.fd-dl-icon {
+  display: inline-grid;
+  width: 48px;
+  height: 48px;
+  place-items: center;
+  border: 1px solid var(--gold);
+  border-radius: 12px;
+  background: var(--gold-soft);
+  color: var(--gold-2);
+}
+
+.fd-dl-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 8px 0;
+}
+
+.fd-dl-fine {
+  font-size: 13px;
+}
+
+.fd-dl-card p.fd-dl-fine {
+  color: var(--text-3);
+}
+
+.fd-dl-next {
+  padding: 14px 16px;
+  border: 1px solid var(--gold);
+  border-radius: 12px;
+  background: var(--gold-soft);
+  color: var(--text);
+}
+
+.fd-dl-next ol {
+  margin: 6px 0 0;
+  padding-left: 20px;
+  list-style: decimal;
+  color: var(--text-2);
+  font-size: 14px;
+}
+
+.fd-dl-hash summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-2);
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.fd-dl-hash code {
+  display: block;
+  margin: 8px 0;
+  overflow-wrap: anywhere;
+  font-size: 13px;
+}
+
+.fd-dl-hash p {
+  font-size: 13px;
+}
+
+.fd-dl-notes h3 {
+  margin: 14px 0 4px;
+  color: var(--gold);
+  font-size: 13px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.fd-dl-notes ul {
+  margin: 0;
+  padding-left: 18px;
+  list-style: disc;
+  color: var(--text-2);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+/* ---------- accounts: the terms tick, the acceptance screen, your data ---------- */
+.auth-agree {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 4px 0 14px;
+  color: var(--text-2);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.auth-agree input {
+  width: 18px;
+  height: 18px;
+  margin-top: 1px;
+  flex: none;
+  accent-color: var(--gold);
+}
+
+.auth-agree a {
+  color: var(--gold-2);
+}
+
+.fd-gate {
+  max-width: 620px;
+  gap: 12px;
+  margin: 24px auto;
+  padding: clamp(22px, 3vw, 32px);
+}
+
+.fd-gate h1 {
+  margin: 0;
+  color: var(--text);
+  font-size: 26px;
+}
+
+.fd-gate p {
+  margin: 0;
+  color: var(--text-2);
+}
+
+.fd-gate-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+}
+
+.fd-account-data {
+  margin-top: 20px;
+}
+
+.fd-danger {
+  color: var(--red);
+}
+
+.fd-danger-solid {
+  background: var(--red);
+  color: #ffffff;
+}
+
+.fd-delete-confirm {
+  margin-top: 12px;
+  padding: 14px 16px;
+  border: 1px solid var(--red);
+  border-radius: 12px;
+}
+
+/* ---------- cookie notice ---------- */
+.fd-cookie {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  left: 16px;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 14px 16px;
+  border: 1px solid var(--hairline-strong);
+  border-radius: 16px;
+  background: var(--surface-solid);
+  box-shadow: var(--shadow);
+}
+
+.fd-cookie p {
+  margin: 0;
+  color: var(--text-2);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.fd-cookie a {
+  color: var(--gold-2);
+}
+
+/* ---------- the site footer ---------- */
+.fd-site-foot {
+  width: min(100%, 1180px);
+  margin: 0 auto;
+  padding: 40px clamp(16px, 4vw, 48px) 32px;
+  border-top: 1px solid var(--hairline);
+}
+
+.fd-site-foot-in {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 2.2fr);
+  gap: 32px;
+}
+
+.fd-site-foot-brand p {
+  margin: 10px 0 0;
+  color: var(--text-3);
+  font-family: var(--serif);
+  font-size: 15px;
+}
+
+.fd-site-foot-cols {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.fd-site-foot-cols h2 {
+  margin: 0 0 10px;
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.fd-site-foot-cols ul {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.fd-site-foot-cols a {
+  color: var(--text-3);
+  font-size: 14px;
+  text-decoration: none;
+  transition: color 0.3s var(--ease-out);
+}
+
+.fd-site-foot-cols a:hover,
+.fd-site-foot-cols a:focus-visible {
+  color: var(--gold-2);
+}
+
+.fd-site-foot-legal {
+  margin: 32px 0 0;
+  color: var(--text-3);
+  font-size: 13px;
+}
+
+.fd-site-foot-legal a {
+  color: var(--text-2);
+}
+
+@media (max-width: 960px) {
+  .fd-site-foot-in,
+  .fd-dl {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .fd-site-foot-cols {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  .fd-site-foot-cols {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .fd-cookie {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

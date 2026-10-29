@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import { AuthShell } from "@/components/auth-shell";
+import { PublicPage } from "@/components/public-page";
 import { ShowGuide } from "@/components/show-guide";
 import brand from "@/lib/brand.json";
 import { DOWNLOADS } from "@/lib/pc-setup";
@@ -9,14 +9,13 @@ import { pageMetadata } from "@/lib/site";
 
 export const metadata: Metadata = pageMetadata("Help", "/help");
 
-const GUIDES = "https://github.com/mshobin/FRAMEDECKS/blob/main/docs";
 
 // One page a volunteer can open on a phone five minutes before the service (owner-approved, 27 October).
 // Keep it short, in the words of docs/guide/glossary.md, and true to the product; longer guides live in docs/.
 export default function HelpPage() {
-  const contact = brand.creator.email;
+  const contact = "hello@framedecks.com";
   return (
-    <AuthShell eyebrow={`FrameDecks ${brand.version}`} title="Help" document>
+    <PublicPage eyebrow="Help Center" title="Help" lead="What a volunteer needs five minutes before the service. Longer guides are in the Documentation.">
       <div className="auth-legal fd-help">
         <nav aria-label="On this page" className="fd-help-toc">
           <a href="#start">Getting started</a> · <a href="#day">On the day</a> · <a href="#problems">If something goes wrong</a> ·{" "}
@@ -27,9 +26,7 @@ export default function HelpPage() {
         <ol>
           <li>
             <strong>Install FrameDecks</strong> on the Windows PC that drives your screen or your stream:{" "}
-            <a href={DOWNLOADS} target="_blank" rel="noreferrer">
-              download it here
-            </a>
+            <Link href={DOWNLOADS}>download it here</Link>
             . It is free.
           </li>
           <li>
@@ -86,13 +83,13 @@ export default function HelpPage() {
           </li>
           <li>
             More answers:{" "}
-            <a href={`${GUIDES}/troubleshooting.md`} target="_blank" rel="noreferrer">
+            <Link href="/docs/troubleshooting">
               troubleshooting guide
-            </a>
+            </Link>
             ,{" "}
-            <a href={`${GUIDES}/getting-started.md`} target="_blank" rel="noreferrer">
+            <Link href="/docs/getting-started">
               full getting-started guide
-            </a>
+            </Link>
             .
           </li>
         </ul>
@@ -110,9 +107,9 @@ export default function HelpPage() {
         </dl>
         <p>
           All the words:{" "}
-          <a href={`${GUIDES}/glossary.md`} target="_blank" rel="noreferrer">
+          <Link href="/docs/glossary">
             glossary
-          </a>
+          </Link>
           .
         </p>
 
@@ -123,9 +120,9 @@ export default function HelpPage() {
           the program, Settings → Diagnostics → Copy diagnostics adds useful details (never your PIN or members).
         </p>
         <p className="fd-help-version">
-          FrameDecks {brand.version} · free and open source (Apache 2.0) · <Link href="/privacy">Privacy</Link>
+          FrameDecks {brand.version} · <Link href="/docs">Documentation</Link> · <Link href="/privacy">Privacy</Link>
         </p>
       </div>
-    </AuthShell>
+    </PublicPage>
   );
 }

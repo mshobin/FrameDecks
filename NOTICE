@@ -1,7 +1,14 @@
 FrameDecks
-Copyright 2026 Shobin Mathews and the FrameDecks contributors
+Copyright (c) 2026 Shobin Mathews. All rights reserved.
 
-This product is licensed under the Apache License, Version 2.0 (see LICENSE).
+FrameDecks is proprietary software, licensed under the End User License Agreement in LICENSE
+(https://framedecks.com/eula). FrameDecks, FrameRelay and the FrameDecks emblem are trademarks of Shobin Mathews.
 
-It includes third-party software and assets under their own licences; they are listed, with where to find each
-licence, in THIRD_PARTY_NOTICES.md.
+Versions of FrameDecks up to and including 6.14 were published under the Apache License, Version 2.0; copies of
+those versions remain under that licence. Version 7.0 and later are proprietary.
+
+FrameDecks includes third-party software and assets under their own licences, which continue to apply to them. They
+are listed, with where to find each licence, in THIRD_PARTY_NOTICES.md. Components licensed under the Apache License
+2.0 (OpenCV, the MediaPipe selfie segmentation model, SheetJS Community Edition, pypdfium2) are used under that licence;
+their notices are reproduced there. pystray (LGPL-3.0) and the FFmpeg libraries inside OpenCV (LGPL-2.1) are shipped as
+separate, replaceable files in the program folder.

@@ -11,10 +11,11 @@ class ReadmeReleaseFacts(unittest.TestCase):
         readme = (ROOT / "README.md").read_text(encoding="utf-8")
         self.assertNotRegex(readme, re.compile(r"FrameDecks 6\.(?:9|10)\b", re.IGNORECASE))
         self.assertNotIn("v6.10.exe", readme)
-        self.assertIn("releases/latest", readme)
+        # 7.0: people download from framedecks.com, never from the (private) repository's Releases page
+        self.assertNotRegex(readme, re.compile(r"github\.com/[^)\s]+/releases", re.IGNORECASE))
         self.assertIn("Cloudflare Pages", readme)
         install = readme.split("## Install\n", 1)[1].split("\n## ", 1)[0]
-        self.assertIn("latest installer", install)
+        self.assertIn("framedecks.com/download", install)
         self.assertNotRegex(install, re.compile(r"`FrameDecks v\d+\.\d+\.\d+\.exe`"))
 
     def test_companion_docs_describe_the_shipped_product(self):

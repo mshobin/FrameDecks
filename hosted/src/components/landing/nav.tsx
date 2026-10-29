@@ -11,7 +11,7 @@ import { ThemeToggle } from "@/components/theme-toggle";
 
 // The front page's bar: clear over the hero, then blurred navy with a hairline once the page has moved 20 px.
 // One passive scroll listener that writes only when the state changes.
-export function LandingNav({ downloads }: Readonly<{ downloads: string }>) {
+export function LandingNav() {
   const [solid, setSolid] = useState(false);
 
   useEffect(() => {
@@ -42,9 +42,9 @@ export function LandingNav({ downloads }: Readonly<{ downloads: string }>) {
         </span>
       </Link>
       <nav className="fd-landing-links" aria-label="On this page">
-        <a href="#how">How it works</a>
-        <a href="#features">See it work</a>
-        <a href="#questions">Questions</a>
+        <Link href="/#how">How it works</Link>
+        <Link href="/#features">See it work</Link>
+        <Link href="/download">Download</Link>
       </nav>
       <div className="fd-topbar-right">
         <EffectsToggle />
@@ -53,9 +53,9 @@ export function LandingNav({ downloads }: Readonly<{ downloads: string }>) {
         <Link className="fd-btn fd-btn-ghost fd-btn-sm" href="/sign-in">
           Sign in
         </Link>
-        <a className="fd-btn fd-btn-primary fd-btn-sm lp-nav-cta" href={downloads} target="_blank" rel="noreferrer">
+        <Link className="fd-btn fd-btn-primary fd-btn-sm lp-nav-cta" href="/download">
           <Download aria-hidden="true" size={15} /> Download · free
-        </a>
+        </Link>
       </div>
     </header>
   );

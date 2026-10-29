@@ -428,6 +428,7 @@ def main():
         process if a window will not close."""
         state["quitting"] = True
         stop_everything()
+        server.install_on_exit()         # 7.0: "Update when I close FrameDecks" starts its install now
         threading.Timer(5.0, lambda: os._exit(0)).start()
         for close in (lambda: present(False), lambda: overlay(False), lambda: state.get("speaker") and state["speaker"].destroy(),
                       lambda: spot.destroy(), lambda: window.destroy()):

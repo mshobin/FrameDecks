@@ -20,6 +20,10 @@ Cloudflare Pages production deploy. Owner live tests remain. The live database h
   treats it as the one address; the program falls back to pages.dev. **Open (owner):** the redirect names
   (`www`, `app`, framedecks.app) do not answer yet, HSTS off, Supabase Site URL/redirect URL and Google consent
   screen URLs not changed, pages.dev Bulk Redirect later. No Brevo: Supabase's built-in mail, no-mail DNS records.
+- **Version 7.0 (29 October, on `main`, not yet tagged):** proprietary licence (EULA), downloads from
+  framedecks.com/download through Cloudflare R2 and the `api.framedecks.com` Worker, automatic updates with checksum
+  verification and rollback, legal/security/docs pages and footer, cookie notice, Terms acceptance, account export and
+  deletion (`0011`). Owner steps: NEXT_SESSION ("Owner, in this order").
 - **Version 6.14 (29 October, on `main`, not yet tagged):** the Setup guide: seven steps that tick themselves in the
   program (panel at the right, "Show me how" spotlight, finish screen, Settings → About → Guided tour), and the same
   steps on the website's Home (ticked only where the website can see them). Replaces the Getting started card.

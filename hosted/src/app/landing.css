@@ -1592,48 +1592,6 @@
   font-size: 17px;
 }
 
-/* ---------- footer ---------- */
-.fd-landing-foot {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: 16px;
-  width: min(100%, 1180px);
-  margin: 0 auto;
-  padding: 28px clamp(16px, 4vw, 48px) 40px;
-  border-top: 1px solid var(--hairline);
-}
-
-.fd-foot-brand {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  color: var(--text-3);
-  font-size: 13px;
-}
-
-.fd-foot-brand strong {
-  color: var(--text);
-  font-size: 15px;
-}
-
-.fd-foot-links {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 18px;
-  font-size: 14px;
-}
-
-.fd-foot-links a {
-  color: var(--text-2);
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-
-.fd-foot-links a:hover {
-  color: var(--text);
-}
-
 /* ---------- smaller screens ---------- */
 @media (max-width: 1000px) {
   .lp-hero {

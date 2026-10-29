@@ -152,7 +152,12 @@ function footer(){
     h('img', {src: 'img/framedecks-emblem.webp', alt: '', width: 40, height: 40, decoding: 'async'}),
     h('p', {cls: 'kc-foot-line', text: B.footer}),
     h('p', {cls: 'kc-foot-small'}, [h('span', {'data-about-version': '', text: version ? 'Version ' + version : ''}), ' · ', B.disclaimer]),
-    h('p', {cls: 'kc-foot-small', text: 'When asking for help, Settings → Diagnostics → “Copy diagnostics” adds useful technical details (it never includes your PIN or member information).'})
+    h('p', {cls: 'kc-foot-small', text: 'When asking for help, Settings → Diagnostics → “Copy diagnostics” adds useful technical details (it never includes your PIN or member information).'}),
+    /* 7.0: proprietary software, free to use under the EULA (LICENSE); the links open in the normal browser (app-bridge.js) */
+    h('p', {cls: 'kc-foot-small kc-legal'}, ['© 2026 Shobin Mathews. All rights reserved. FrameDecks is proprietary software, free to use under the ',
+      h('a', {href: 'https://framedecks.com/eula', target: '_blank', rel: 'noopener', text: 'End User License Agreement'}), '. ',
+      h('a', {href: 'https://framedecks.com/legal', target: '_blank', rel: 'noopener', text: 'Legal and third-party notices'}), ' · ',
+      h('a', {href: 'https://framedecks.com/privacy', target: '_blank', rel: 'noopener', text: 'Privacy'})])
   ]);
 }
 function startSession(){
@@ -201,13 +206,78 @@ if ($('about-btn')) $('about-btn').addEventListener('click', function(){
 });
 if (dlg) dlg.addEventListener('click', function(e){ if (e.target === dlg) dlg.close(); });
 
-/* A newer published version (the program asks GitHub once a day): a link beside the version, and one message per
- * new version. Nothing is downloaded by itself. */
+/* 7.0 updates from FrameDecks servers (src/updater.py): one message per new version, and in Settings → About a box
+ * with the version, its notes and Update now / Update when I close FrameDecks, the download's progress, a plain message
+ * for any failure, and putting the previous version back. Never while something is on screen. */
+var upd = null, updTimer = 0;
+function updCall(body){
+  return fetch('api/app/update', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body)})
+    .then(function(r){ return r.json().then(function(d){ if (!r.ok) throw new Error(d.error || 'Not available'); return d; }); });
+}
+function onAirNow(){ return document.body.classList.contains('kc-on-air'); }
+function updRun(body){
+  if (onAirNow() && body.action !== 'check' && body.action !== 'cancel'){
+    if (window.KCActions) window.KCActions.toast('Something is on screen. Hide all first, then update.', true);
+    return;
+  }
+  updCall(body).then(function(d){ showUpdate(d); }).catch(function(e){ if (window.KCActions) window.KCActions.toast(e.message, true); showUpdate(upd); });
+  if (body.action === 'install' || body.action === 'previous'){ clearInterval(updTimer); updTimer = setInterval(updPoll, 800); }
+}
+function updPoll(){
+  fetch('api/app/update', {cache: 'no-store'}).then(function(r){ return r.json(); }).then(function(d){
+    showUpdate(d); if (d.phase !== 'downloading') clearInterval(updTimer);
+  }).catch(function(){ clearInterval(updTimer); });
+}
+function noteList(text){
+  var box = h('div', {cls: 'kc-upd-notes'}), cur = null;
+  String(text || '').split('\n').forEach(function(line){
+    var hd = /^##\s+(.+)$/.exec(line);
+    if (hd){ cur = h('ul'); box.appendChild(h('h4', {text: hd[1]})); box.appendChild(cur); return; }
+    if (cur && /^-\s+/.test(line)){ var t = line.replace(/^-\s+/, '').replace(/\*\*|`/g, ''); if (!/^none in this release/i.test(t)) cur.appendChild(h('li', {text: t})); return; }
+    if (cur && /^\s{2,}\S/.test(line) && cur.lastChild) cur.lastChild.textContent += ' ' + line.trim();
+  });
+  Array.prototype.forEach.call(box.querySelectorAll('ul'), function(u){ if (!u.children.length){ u.previousSibling.remove(); u.remove(); } });
+  return box;
+}
+function renderUpdateBox(u){
+  var sec = $('sec-about'); if (!sec || !u) return;
+  var box = $('kc-upd');
+  if (!box){ box = h('section', {cls: 'box kc-upd', id: 'kc-upd', 'aria-labelledby': 'kc-upd-title'}); sec.insertBefore(box, sec.firstChild); }
+  box.innerHTML = '';
+  box.appendChild(h('div', {cls: 'box-head'}, [h('h2', {id: 'kc-upd-title', text: 'Updates'})]));
+  var row = h('div', {cls: 'actions'});
+  if (u.result) box.appendChild(h('p', {cls: 'alert ' + (u.result.ok ? 'ok' : 'warn'), text: u.result.message}));
+  if (u.newer){
+    box.appendChild(h('p', {cls: 'plain'}, [h('b', {text: 'FrameDecks ' + u.latest + ' is available.'}), ' You have ' + u.current + '.' + (u.released ? ' Released ' + u.released + '.' : '')]));
+    box.appendChild(noteList(u.notes));
+    if (u.phase === 'downloading') box.appendChild(h('p', {cls: 'plain', role: 'status', text: 'Downloading and checking… ' + (u.progress || 0) + '%'}));
+    else if (u.phase === 'installing') box.appendChild(h('p', {cls: 'plain', role: 'status', text: 'Installing. FrameDecks closes and opens again by itself.'}));
+    else if (u.canInstall){
+      row.appendChild(h('button', {cls: 'btn primary small', type: 'button', text: 'Update now', onclick: function(){ updRun({action: 'install'}); }}));
+      row.appendChild(u.installOnExit ? h('button', {cls: 'btn small', type: 'button', text: 'Don’t update when I close', onclick: function(){ updRun({action: 'cancel'}); }}) :
+        h('button', {cls: 'btn small', type: 'button', text: 'Update when I close FrameDecks', onclick: function(){ updRun({action: 'install', whenClosed: true}); }}));
+    } else row.appendChild(h('a', {cls: 'btn primary small', href: 'https://framedecks.com/download', target: '_blank', rel: 'noopener', text: 'Download ' + u.latest}));
+    if (u.error) box.appendChild(h('p', {cls: 'alert warn', role: 'alert', text: u.error}));
+  } else {
+    box.appendChild(h('p', {cls: 'plain', text: u.latest ? 'FrameDecks ' + u.current + ' is up to date.' : 'FrameDecks ' + u.current + '. It looks for updates once a day.'}));
+    row.appendChild(h('button', {cls: 'btn small', type: 'button', text: 'Check now', onclick: function(){ updRun({action: 'check'}); }}));
+  }
+  if (u.canInstall && u.previous && u.phase !== 'downloading' && u.phase !== 'installing')
+    row.appendChild(h('button', {cls: 'btn quiet small', type: 'button', text: 'Reinstall the previous version (' + u.previous + ')', onclick: function(){
+      if (confirm('Put FrameDecks ' + u.previous + ' back? Your meetings and settings are kept.')) updRun({action: 'previous'}); }}));
+  box.appendChild(row);
+  box.appendChild(h('p', {cls: 'hint', text: 'Updates come from framedecks.com and are checked before they install. Your meetings, settings and members are kept. FrameDecks never updates while something is on screen.'}));
+}
 function showUpdate(u){
-  if (!u || !u.newer || !u.url) return;
+  if (!u) return;
+  upd = u;
+  renderUpdateBox(u);
+  if (u.result && !showUpdate.toldResult){ showUpdate.toldResult = true; if (window.KCActions) window.KCActions.toast(u.result.message, !u.result.ok); }
+  if (!u.newer) return;
   Array.prototype.forEach.call(document.querySelectorAll('[data-about-version]'), function(e){
     if (e.parentNode && e.parentNode.querySelector('.kc-update')) return;
-    var a = h('a', {cls: 'kc-update', href: u.url, target: '_blank', rel: 'noopener', text: 'Version ' + u.latest + ' is available'});
+    var a = h('a', {cls: 'kc-update', href: '#', text: 'Version ' + u.latest + ' is available'});
+    a.addEventListener('click', function(ev){ ev.preventDefault(); if (window.KCSetTab) window.KCSetTab('settings'); if (window.KCShowSection) window.KCShowSection('about'); });
     e.parentNode.insertBefore(document.createTextNode(' · '), e.nextSibling);
     e.parentNode.insertBefore(a, e.nextSibling.nextSibling);
   });
@@ -217,9 +287,10 @@ function showUpdate(u){
     try { localStorage.setItem('kc-update-told', u.latest); } catch(e){}
   }
 }
+(window.KCSectionHooks = window.KCSectionHooks || []).push(function(id){ if (id === 'about') renderUpdateBox(upd); });
 if (Store && Store.served){
   fetch('api/app/ping', {cache: 'no-store'}).then(function(r){ return r.json(); }).then(function(d){ setVersion(d.version); }).catch(function(){});
   var askUpdate = function(){ fetch('api/app/update', {cache: 'no-store'}).then(function(r){ return r.ok ? r.json() : null; }).then(showUpdate).catch(function(){}); };
-  setTimeout(askUpdate, 90000); setInterval(askUpdate, 6 * 3600 * 1000);
+  setTimeout(askUpdate, 3000); setTimeout(askUpdate, 90000); setInterval(askUpdate, 6 * 3600 * 1000);   // 3 s: the last update's result; 90 s: after the daily check
 }
 })();

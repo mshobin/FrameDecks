@@ -1,9 +1,44 @@
 # NEXT SESSION HANDOFF
 
-Updated 29 October 2026 (6.14 on `main`: the Setup guide in the program and on the website; 6.13 before it: one-click linking and a four-screen front page; the owner runs `0010_link_by_url.sql` in Supabase and tags `v6.12`, `v6.13` and `v6.14`; framedecks.com live, its redirects, HSTS and the Supabase/Google URLs are still the owner's; every check green): the maintainer guide is now [PROJECT_GUIDE.md](PROJECT_GUIDE.md); current references were updated. The continuity files now live in `docs/continuity/`. Windows batch launchers are under `tools/launchers/` and resolve the repository root before running. Release `v6.11.2` (repository layout and trust fixes, no desktop change; pilot install on a real PC and SHA-256 check still the owner's) was tagged after `v6.11.1`, which is published; the FrameDecks README and release header refresh merged in
+Updated 29 October 2026 (7.0 on `main`: FrameDecks is proprietary, downloaded from framedecks.com/download and updated from FrameDecks servers; legal and security pages; owner steps below): the maintainer guide is now [PROJECT_GUIDE.md](PROJECT_GUIDE.md); current references were updated. The continuity files now live in `docs/continuity/`. Windows batch launchers are under `tools/launchers/` and resolve the repository root before running. Release `v6.11.2` (repository layout and trust fixes, no desktop change; pilot install on a real PC and SHA-256 check still the owner's) was tagged after `v6.11.1`, which is published; the FrameDecks README and release header refresh merged in
 PR #38. Trust fixes merged in PR #39 (`27cfb4b`). Later the same day: the budget script fixed for Windows
 (`57cd9c3`), the five Dependabot action upgrades merged (#33–#37), and the handoff PR #40. All checks on `main` are
 green, including the Cloudflare Pages deploy (production); a look at the live site is still the owner's. Read [PROJECT_GUIDE.md](PROJECT_GUIDE.md) ("Working locally" has the set-up and run commands).
+
+29 October, version 7.0 on `main` (not yet tagged): the **commercial model** (plan:
+`docs/project/2026-10-29-commercial-model-plan.md`, sections 1–9 answer the brief's eight items). Owner's answers:
+legal owner Shobin Mathews (personal); governing law left as a marked gap; hello@/security@ (and privacy@) at
+framedecks.com via Email Routing; Windows now, Mac and Linux later. Built:
+- **Proprietary:** `LICENSE` = EULA (`docs/legal/eula.md`) with a header, new `NOTICE` and third-party intro, no
+  open-source wording left in the README, guides, website or installer (`LicenseFile`, publisher, contacts).
+- **Website:** `/download` (OS detection, newest version from `api.framedecks.com/releases/latest`, size, notes,
+  SHA-256), `/terms`, `/privacy`, `/cookies`, `/eula`, `/security`, `/security/disclosure`, `/legal`, `/about`,
+  `/contact`, `/roadmap`, `/docs` (+ every guide), `/status`, five-column `SiteFooter`, cookie notice (`fd-consent`),
+  `.well-known/security.txt`. Markdown from `docs/legal/` and `docs/guide/` is copied by `scripts/write-content.mjs`
+  (committed copies, a test keeps them current) and rendered with `marked` (`lib/markdown.ts`).
+- **Accounts:** `0011_accounts_legal.sql` (`accept_terms`, `export_my_data`, `delete_my_account`; rollback file),
+  the agreement tick on sign-up, `LegalGate` for existing accounts, Account → Your data. PGlite tests.
+- **Release pipeline:** `tools/make_release_manifest.py`, the workflow's `publish` job (R2 via the AWS CLI; does
+  nothing and says so without the secrets), the Worker `infra/update-api`, guide `docs/deployment/release-pipeline.md`;
+  `cloudflare-domains.md` (api/downloads, Email Routing) and `code-signing.md` (SignPath Foundation no longer
+  applies) updated.
+- **Program:** `src/updater.py` (manifest checks, size + SHA-256 + optional Authenticode, detached PowerShell install
+  that waits, installs silently, rolls back, restarts; outcome told once), `server.update_action`, Settings → About
+  Updates box; the GitHub releases check is gone.
+- Checks: listed in PROJECT_STATUS.
+
+**Owner, in this order** (details in [release-pipeline.md](../deployment/release-pipeline.md) and the plan's
+section 7): (1) Cloudflare Email Routing for hello@, security@ and privacy@framedecks.com (`cloudflare-domains.md`
+step 6a); (2) the R2 bucket `framedecks-downloads` with the `downloads.framedecks.com` custom domain, an R2 token,
+and the GitHub secrets `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY` and variables `R2_ACCOUNT_ID`, `R2_BUCKET`;
+(3) remove the `api` redirect rule and record, then `npx wrangler deploy` in `infra/update-api`; (4) run
+`0010_link_by_url.sql` (if not yet) and `0011_accounts_legal.sql` in Supabase; (5) tag `v6.12`, `v6.13`, `v6.14`
+and then `v7.0` on `main` (the session cannot push tags) **while the repository is still public**, so 6.x copies,
+which ask GitHub, still see 7.0; check `api.framedecks.com/releases/latest` and framedecks.com/download; (6) make the
+repository private; (7) a lawyer reviews `docs/legal/` and fills "[governing law to be confirmed]" in the EULA and
+Terms; (8) code signing (Azure Trusted Signing recommended, `code-signing.md`), then `RELEASE_SIGNED=true`.
+
+Next: 6.15 the workspace looks (now 7.1), then Ed25519-signed manifests.
 
 29 October, version 6.14 on `main` (not yet tagged): the **Setup guide**. `app/js/guide-steps.js` (seven steps, five
 kinds; same list in `hosted/src/lib/guide-steps.ts` and `server.GUIDE_STEPS`, tests keep them equal), `app/js/guide.js`

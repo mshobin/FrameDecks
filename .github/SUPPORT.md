@@ -23,15 +23,16 @@ Don't troubleshoot on air. Use the recovery steps in [Troubleshooting](../docs/g
 
 Afterwards, report what happened with the **Service-day problem** issue form so it can be fixed for next week.
 
-## 3. Ask or report on GitHub
+## 3. Write to us
 
-Open an issue and choose the form that fits: **Bug report**, **Feature request** or **Service-day problem**.
+Write to **hello@framedecks.com** (users), or open an issue in this private repository (the team), choosing
+**Bug report**, **Feature request** or **Service-day problem**.
 
 Please include:
 
 - the version (**Settings → About**);
 - your Windows version;
-- **Settings → Diagnostics → Copy diagnostics**, pasted into the form. It contains no PIN and no member details, but
+- **Settings → Diagnostics → Copy diagnostics**, pasted into your message. It contains no PIN and no member details, but
   read it before posting.
 
 Please never post:

@@ -6,7 +6,24 @@ import type { Metadata } from "next";
 export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || "https://framedecks.com").replace(/\/+$/, "");
 
 /** Public pages that search engines may list; everything else needs an account and is marked noindex. */
-export const PUBLIC_PATHS = ["/", "/help", "/privacy", "/sign-in"] as const;
+export const PUBLIC_PATHS = [
+  "/",
+  "/download",
+  "/docs",
+  "/help",
+  "/roadmap",
+  "/about",
+  "/contact",
+  "/legal",
+  "/terms",
+  "/privacy",
+  "/cookies",
+  "/eula",
+  "/security",
+  "/security/disclosure",
+  "/status",
+  "/sign-in",
+] as const;
 
 /** Each page's own metadata: its tab title, and the title and address a shared link shows (Open Graph). The layout
  *  must not set og:title or og:url, or every page would inherit the home page's (28 October bug). Pages only

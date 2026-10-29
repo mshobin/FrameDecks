@@ -9,12 +9,13 @@ tags and the Windows program use it. Everything else either redirects to it or i
 | `www.framedecks.com` | 301 to `https://framedecks.com` + same path and query | Redirect |
 | `framedecks.app`, `www.framedecks.app` | 301 to `https://framedecks.com` + same path and query | Redirect |
 | `app.framedecks.com` | 302 to `https://framedecks.com` + same path (reserved for the app if it ever gets its own address) | Reserved |
-| `api.framedecks.com` | 302 to `https://framedecks.com/api` + same path (the only API today is `/api/sync-config`) | Reserved |
+| `api.framedecks.com` | The update service: release manifests for the program and the download page (Worker `framedecks-update-api`, `release-pipeline.md`) | Serves (7.0) |
+| `downloads.framedecks.com` | The installers (R2 bucket `framedecks-downloads`, custom domain; `release-pipeline.md`) | Serves (7.0) |
 | `docs.framedecks.com` | 302 to `https://framedecks.com/help` | Reserved |
 | `framedecks.pages.dev` | Pages' own address: answers with `X-Robots-Tag: noindex`; 301 to framedecks.com once step 7 is done | Fallback |
 
 Why the reserved addresses use **302**, not 301: browsers remember a 301 for a long time. A 302 lets
-`app.`, `api.` and `docs.` serve real content later without anyone being stuck on an old redirect.
+`app.` and `docs.` serve real content later without anyone being stuck on an old redirect.
 
 Why the app stays on `framedecks.com` for now: the sign-in session is kept per address. If the front page were on
 `framedecks.com` and the app on `app.framedecks.com`, signing in on one would not sign you in on the other, and the
@@ -54,10 +55,18 @@ program call it directly, and Supabase's own row-level security protects the dat
      `https://framedecks.com/privacy`, authorised domain `framedecks.com`. The provider's redirect URI stays the
      Supabase one (`https://<project>.supabase.co/auth/v1/callback`), so nothing else changes.
    - Microsoft: the same; its redirect URI is also the Supabase one.
-   - Email: nothing to do. Sign-in emails come from Supabase's built-in mail (Brevo was skipped on 26 October), not
-     from framedecks.com, so framedecks.com is published as a domain that sends no mail (DNS table below). If a mail
-     provider is added later (`free-hosting.md` D3, or any SMTP service), replace those three records with the SPF,
-     DKIM and DMARC records it gives.
+   - Email: sign-in emails still come from Supabase's built-in mail, not from framedecks.com. Receiving mail at
+     framedecks.com is step 6a.
+6a. **Email Routing (7.0: hello@, security@, privacy@).** The website, the legal pages, `security.txt` and the
+   installer name these addresses, so they must reach you. Free, receive-only:
+   - framedecks.com zone → **Email** → Email Routing → Get started. Delete the null MX and the `v=spf1 -all` record
+     first (DNS table below); Cloudflare then adds its own MX records and SPF (`v=spf1 include:_spf.mx.cloudflare.net ~all`).
+   - Destination addresses → add your personal inbox and confirm the email Cloudflare sends.
+   - Routing rules → custom addresses `hello`, `security` and `privacy` → *Send to an email* → your inbox. Leave the
+     catch-all **off** (it only attracts spam).
+   - Keep the `_dmarc` record but relax it to `v=DMARC1; p=quarantine;` so forwarded mail is not rejected.
+   - Replies go from your personal address. If replies should come from hello@framedecks.com later, add a sending
+     service (any SMTP provider) and the SPF and DKIM records it gives.
 7. **Retire the Pages address in search and links**, after framedecks.com has worked for a few days: Account → Bulk
    Redirects → a list with source `framedecks.pages.dev`, target `https://framedecks.com`, **301**, *preserve query
    string*, *subpath matching*, *preserve path suffix* → a Bulk Redirect rule using the list. The program follows the
@@ -74,11 +83,11 @@ program call it directly, and Supabase's own row-level security protects the dat
 | CNAME | `framedecks.com` (`@`) | `framedecks.pages.dev` | Proxied | Created by step 2 (CNAME flattening at the apex) |
 | AAAA | `www` | `100::` | Proxied | No server: the redirect rule answers |
 | AAAA | `app` | `100::` | Proxied | Reserved, redirect rule |
-| AAAA | `api` | `100::` | Proxied | Reserved, redirect rule |
+| (Worker) | `api` | created by `npx wrangler deploy` (custom domain) | Proxied | Update service, 7.0 |
+| (R2) | `downloads` | created by R2 → Custom Domains | Proxied | Installers, 7.0 |
 | AAAA | `docs` | `100::` | Proxied | Reserved, redirect rule |
-| MX | `@` | `.` priority 0 (null MX) | DNS only | No mail is sent or received at framedecks.com |
-| TXT | `@` | `v=spf1 -all` | DNS only | Nobody may send mail as framedecks.com |
-| TXT | `_dmarc` | `v=DMARC1; p=reject;` | DNS only | Receivers reject forged framedecks.com mail |
+| MX, TXT | `@` | added by Email Routing (step 6a) | DNS only | Replaces the null MX and `v=spf1 -all` used before 7.0 |
+| TXT | `_dmarc` | `v=DMARC1; p=quarantine;` | DNS only | Receivers distrust forged framedecks.com mail |
 
 `framedecks.app` zone (it never sends mail either):
 
@@ -103,7 +112,6 @@ Rules → **Redirect Rules** (Single Redirects), status and query string as list
 | --- | --- | --- | --- | --- |
 | www to apex | `http.host eq "www.framedecks.com"` | `concat("https://framedecks.com", http.request.uri.path)` | 301 | Yes |
 | app (reserved) | `http.host eq "app.framedecks.com"` | `concat("https://framedecks.com", http.request.uri.path)` | 302 | Yes |
-| api (reserved) | `http.host eq "api.framedecks.com"` | `concat("https://framedecks.com/api", http.request.uri.path)` | 302 | Yes |
 | docs (reserved) | `http.host eq "docs.framedecks.com"` | `"https://framedecks.com/help"` (static) | 302 | No |
 
 `framedecks.app` zone:
@@ -119,7 +127,7 @@ name, so these live in Cloudflare, not in the repository.
 
 - **Encryption mode: Full (strict).** Pages and the redirect-only names are served by Cloudflare itself, so this is safe.
 - **Edge Certificates:** Always Use HTTPS **on**; Automatic HTTPS Rewrites **on**; Minimum TLS **1.2**; TLS 1.3 **on**.
-  Universal SSL covers the apex and one level of subdomains (`www`, `app`, `api`, `docs`).
+  Universal SSL covers the apex and one level of subdomains (`www`, `app`, `api`, `downloads`, `docs`).
 - **HSTS** (Edge Certificates → HSTS): enable with `max-age` 6 months, *include subdomains* **on** (every name above
   is HTTPS through Cloudflare), *preload* **off**, *no-sniff* **on**. After a month without problems, raise `max-age`
   to 12 months; turn preload on and submit to hstspreload.org only when you are sure no subdomain will ever need plain
@@ -179,6 +187,8 @@ curl -sI https://www.framedecks.com/help?x=1 | grep -i location     # https://fr
 curl -sI https://framedecks.app/sign-in | grep -iE "^HTTP|location"  # 301 → https://framedecks.com/sign-in
 curl -sI https://www.framedecks.app | grep -iE "^HTTP|location"      # 301 → https://framedecks.com/
 curl -sI https://app.framedecks.com/plan | grep -iE "^HTTP|location" # 302 → https://framedecks.com/plan
+curl -s  https://api.framedecks.com/health                           # {"ok":true,…} (release-pipeline.md)
+dig +short MX framedecks.com                                        # Cloudflare's route*.mx.cloudflare.net
 curl -s  https://framedecks.com/robots.txt                          # Sitemap: https://framedecks.com/sitemap.xml
 curl -s  -A "FrameDecks (Windows; +https://framedecks.com)" https://framedecks.com/api/sync-config   # {"url":…}
 curl -sI https://framedecks.pages.dev | grep -i x-robots-tag        # noindex (or a 301 after step 7)
@@ -199,7 +209,7 @@ as long as the Bulk Redirect of step 7 is not in place.
 - **app.framedecks.com as the app's own address:** move the signed-in pages there, keep the front page on
   framedecks.com, add `https://app.framedecks.com/auth/callback` to Supabase, point "Sign in" links at it, and change
   the reserved 302 into a Pages custom domain. Sessions do not carry across, so people sign in once more.
-- **api.framedecks.com:** Supabase's custom-domain add-on (paid) could serve the backend there; until then the 302
-  above is enough.
+- **api.framedecks.com** serves the update service since 7.0. More routes (team or licence checks) belong in the same
+  Worker; Supabase's custom-domain add-on (paid) would need a different name, such as `db.framedecks.com`.
 - **docs.framedecks.com:** a docs site built from `docs/guide/` (for example a second Pages project); until then it
   points to the Help page.

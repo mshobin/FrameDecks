@@ -5,12 +5,13 @@ Scripture, Discussion, Prayer, Closing — fill them with questions, scriptures,
 PowerPoint, and present to the room, to Zoom / Teams / Google Meet and to your stream at the same time. Run it from
 the PC, a phone or an iPad. FrameDecks runs on the presenting PC, and a service can continue without an internet
 connection. Optional workspace features let a team plan together and sync meeting metadata; presentation media,
-rendering and camera output stay on the PC. FrameDecks remains free, with no payments or feature restrictions.
+rendering and camera output stay on the PC. FrameDecks is proprietary software, free to download and use from
+[framedecks.com](https://framedecks.com/download). This repository is private.
 
 > **Status: FrameDecks is ready for teaching, Bible study, small-group and hybrid services, with documented gaps.**
 > There is no dedicated song / lyrics library yet (lyrics are shown as Text Content or a PowerPoint), and the Windows
 > installer is not digitally signed. Automated checks cover key flows, but they do not replace testing the camera,
-> PowerPoint, audio and live cloud features on real equipment. Get the [latest release](https://github.com/mshobin/FRAMEDECKS/releases/latest). See the
+> PowerPoint, audio and live cloud features on real equipment. Users download it from framedecks.com/download. See the
 > [repository audit](docs/project/history/2026-10-18-v6.6-repository-audit.md), [modernization status](docs/project/history/modernization-status.md),
 > and the [roadmap](docs/ROADMAP.md).
 
@@ -66,10 +67,12 @@ the companion never connects to the PC's local HTTP server. See the
 
 ## Install
 See [INSTALLATION](docs/guide/installation.md) and [GETTING_STARTED](docs/guide/getting-started.md). In short: download the
-[latest installer](https://github.com/mshobin/FRAMEDECKS/releases/latest) (unsigned, so check it against its
-`.sha256` file first and choose **More info → Run anyway** at the SmartScreen prompt), keep **Install the FrameRelay
-camera** ticked, and allow the one administrator prompt. Windows 10 or 11 (64-bit) is required. The installer comes
-from the **Build Windows installer** workflow ([BUILDING_THE_INSTALLER](docs/development/building-the-installer.md)).
+installer from [framedecks.com/download](https://framedecks.com/download) (until it is code-signed, check its SHA-256
+shown there and choose **More info → Run anyway** at the SmartScreen prompt), keep **Install the FrameRelay camera**
+ticked, and allow the one administrator prompt. Windows 10 or 11 (64-bit) is required. Installed copies update
+themselves from FrameDecks servers. The installer comes from the **Build Windows installer** workflow, which publishes
+version tags to Cloudflare R2 ([release pipeline](docs/deployment/release-pipeline.md),
+[BUILDING_THE_INSTALLER](docs/development/building-the-installer.md)).
 
 ## Run, build, package (developers)
 Prerequisites: Python 3.12 and Node.js (for the tests). There is no UI build step and there are no npm packages.
@@ -99,7 +102,7 @@ tools\launchers\build.bat                           # local Windows build (CI is
 | pinned packages | Builds install `packaging/constraints.txt`: the exact versions of the last good build |
 | app folder | The built app contains its window, pages and camera driver |
 | installer | Inno Setup builds `FrameDecks v<version>.exe` with a `.sha256` file |
-| release | On a `v*` tag, publishes the installer and checksum with `docs/releases/v<version>.md` as the notes |
+| release | On a `v*` tag, uploads the installer, checksum and release manifest to Cloudflare R2 (downloads.framedecks.com, api.framedecks.com) and keeps a private GitHub Release as a record |
 
 Not automated yet: UI end-to-end tests, the camera in a real Zoom / Teams call, and PowerPoint conversion on real
 Office installs — these are covered by the manual [testing script](docs/development/testing.md) before each release.
@@ -124,16 +127,22 @@ No feature, test result or screenshot in this repository is faked; where somethi
 the docs say so.
 
 ## License
-FrameDecks is open source under the [Apache License 2.0](LICENSE); see also [NOTICE](NOTICE). Third-party components
-keep their own licences, listed in [THIRD_PARTY_NOTICES.md](docs/legal/THIRD_PARTY_NOTICES.md).
+FrameDecks © 2026 Shobin Mathews. All rights reserved. FrameDecks is proprietary software, licensed under the
+[End User License Agreement](LICENSE) ([docs/legal/eula.md](docs/legal/eula.md)); see also [NOTICE](NOTICE). Do not
+copy, publish or share this repository's contents. Versions up to 6.14 were published under the Apache License 2.0
+and copies of them remain under it. Third-party components keep their own licences, listed in
+[THIRD_PARTY_NOTICES.md](docs/legal/THIRD_PARTY_NOTICES.md). Legal pages for users: [terms](docs/legal/terms.md),
+[privacy](docs/legal/privacy.md), [cookies](docs/legal/cookies.md), [security](docs/legal/security.md),
+[vulnerability disclosure](docs/legal/vulnerability-disclosure.md), all published on framedecks.com.
 
 ## Code signing policy
-Windows releases are to be signed for free by [SignPath.io](https://signpath.io), with a certificate from the
-[SignPath Foundation](https://signpath.org) (set-up: [code-signing.md](docs/deployment/code-signing.md)).
+Windows releases are to be code-signed (options and costs: [code-signing.md](docs/deployment/code-signing.md); the free
+SignPath Foundation programme is for open-source projects only, so a paid certificate or Azure Trusted Signing is
+needed now). The workflow's signing steps stay off until the owner adds the signing secrets.
 - Only installers built by this repository's GitHub Actions from `main` or a version tag are signed.
-- The maintainer (Shobin Mathews) reviews every change and approves every signing request.
-- FrameDecks sends nothing to anyone unless a church links a PC to its own workspace (see
-  [docs/architecture/metadata-sync.md](docs/architecture/metadata-sync.md)); it collects no telemetry.
+- FrameDecks sends nothing to anyone except the daily update check (its version and Windows version) unless a team
+  links a PC to its own workspace (see [docs/architecture/metadata-sync.md](docs/architecture/metadata-sync.md)); it
+  collects no telemetry.
 
 <sub>Earlier versions were named FrameDecks and BSF Command Center. Version 6.9 installs over those versions and
 moves their data into the FrameDecks folder on first start, so each church keeps its data.</sub>

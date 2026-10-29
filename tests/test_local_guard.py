@@ -64,21 +64,24 @@ class LocalGuardTest(unittest.TestCase):
         self.assertNotIn(b'"secret": "member"', everything)
         self.assertEqual(self.get("/api/support-bundle", "cross-site"), 403)
 
-    def test_the_update_notice_only_reports_a_newer_published_version(self):
+    def test_the_update_notice_only_reports_a_newer_version_from_framedecks(self):
+        import hashlib
         import json as _json
-        saved = dict(server.UPDATE), server.RELEASES_API
-        self.addCleanup(lambda: (server.UPDATE.update(saved[0]), setattr(server, "RELEASES_API", saved[1])))
+        import updater
+        saved = updater.API
+        self.addCleanup(lambda: setattr(updater, "API", saved))
+        sha = hashlib.sha256(b"x").hexdigest()
+        url = "https://downloads.framedecks.com/releases/99.0/FrameDecks-99.0-Setup.exe"
         f = Path(tempfile.mkdtemp()) / "latest.json"
-        f.write_text(_json.dumps({"tag_name": "v99.0", "html_url": "https://github.com/mshobin/FRAMEDECKS/releases/tag/v99.0"}))
-        server.RELEASES_API = f.as_uri()
+        f.write_text(_json.dumps({"version": "99.0", "downloadUrl": url, "sha256": sha, "size": 1}))
+        updater.API = f.as_uri()
         info = server.check_for_update()
         self.assertTrue(info["newer"])
         self.assertEqual(info["latest"], "99.0")
-        f.write_text(_json.dumps({"tag_name": "v1.0", "html_url": "https://github.com/x"}))
+        f.write_text(_json.dumps({"version": "1.0", "downloadUrl": url, "sha256": sha, "size": 1}))
         self.assertFalse(server.check_for_update()["newer"], "older: nothing to tell")
-        server.RELEASES_API = (Path(tempfile.mkdtemp()) / "missing.json").as_uri()
-        server.UPDATE.update(latest=None, url=None)
-        self.assertFalse(server.check_for_update()["newer"], "offline or no release: nothing to tell, no error")
+        f.write_text(_json.dumps({"tag_name": "v99.0", "html_url": "https://github.com/x"}))
+        self.assertFalse(server.check_for_update()["newer"], "a GitHub answer is not a FrameDecks manifest")
 
     def test_pages_stay_reachable_from_a_link(self):
         self.assertEqual(self.get("/dashboard.html", "cross-site"), 200)

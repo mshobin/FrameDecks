@@ -592,3 +592,8 @@ body.studio-focus .studio.s2{height:100vh !important}
 .s-nav [hidden]{display:none!important}
 /* Settings menu lines up with the page title (design audit DD-21) */
 .s-nav{top:calc(var(--top-h,56px) + 18px);max-height:calc(100vh - var(--top-h,56px) - 36px)}
+/* 7.0 Settings > About > Updates (js/about.js): the new version's notes, then the buttons */
+.kc-upd-notes{margin:6px 0 10px;max-height:260px;overflow:auto;padding:8px 12px;border:1px solid var(--line-soft);border-radius:8px}
+.kc-upd-notes h4{margin:8px 0 4px;font-size:13px;color:var(--gold);text-transform:uppercase;letter-spacing:.08em}
+.kc-upd-notes ul{margin:0;padding-left:18px;color:var(--muted);font-size:13px}
+.kc-legal a{color:inherit;text-decoration:underline}

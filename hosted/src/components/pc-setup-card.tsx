@@ -124,7 +124,7 @@ export function PcSetupCard() {
             </a>
           )}
           {!found && (
-            <a className={setup === "missing" ? "pc-setup-primary" : "pc-setup-quiet"} href={DOWNLOADS} target="_blank" rel="noreferrer">
+            <a className={setup === "missing" ? "pc-setup-primary" : "pc-setup-quiet"} href={DOWNLOADS}>
               <Download aria-hidden="true" size={15} /> Download FrameDecks for Windows
             </a>
           )}

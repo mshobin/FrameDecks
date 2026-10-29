@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import { AccountData } from "@/components/account-data";
 import { AppShell } from "@/components/app-shell";
 import { WorkspacePanel } from "@/components/workspace-panel";
 import { pageMetadata } from "@/lib/site";
@@ -12,9 +13,10 @@ export default function AccountPage() {
     <AppShell active="account">
       <section className="page-head">
         <h1>Your account</h1>
-        <p className="page-note">Your name, the teams you belong to, and invitations to join one.</p>
+        <p className="page-note">Your name, the teams you belong to, invitations to join one, and your data.</p>
       </section>
       <WorkspacePanel />
+      <AccountData />
     </AppShell>
   );
 }

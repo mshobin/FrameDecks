@@ -33,7 +33,7 @@ export function AuthShell({
     <div className="fd-auth-foot">
       <p>
         Your presentation stays on your service PC. This account is only for the FrameDecks website.{" "}
-        <Link href="/privacy">Privacy</Link>
+        <Link href="/terms">Terms</Link> · <Link href="/privacy">Privacy</Link>
       </p>
       <div className="fd-auth-about">
         <AboutButton label />

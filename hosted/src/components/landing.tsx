@@ -7,7 +7,7 @@ import { FeatureTabs, type FeatureTab } from "@/components/landing/feature-tabs"
 import { HowItWorks } from "@/components/landing/how-it-works";
 import { LandingHero } from "@/components/landing/hero";
 import { LandingNav } from "@/components/landing/nav";
-import brand from "@/lib/brand.json";
+import { SiteFooter } from "@/components/site-footer";
 import { DOWNLOADS } from "@/lib/pc-setup";
 
 // The front page (owner's brief, 27 October; redesign 28 October; about four screens since 6.13, 29 October:
@@ -21,7 +21,7 @@ const delay = (ms: number) => ({ "--d": `${ms}ms` }) as CSSProperties;
 
 const HERO = { first: "Prepare with Purpose.", second: "Present with Excellence." };
 
-const PROOF = ["Free and open source", "Works without internet", "Your phone is the remote", "Every screen and stream"] as const;
+const PROOF = ["Free to download and use", "Works without internet", "Your phone is the remote", "Every screen and stream"] as const;
 
 // How it works: the four steps that play by themselves (components/landing/how-it-works.tsx), Day 1 to Day 4
 const DAYS = [
@@ -102,7 +102,7 @@ const FEATURES = [
 ] as const;
 
 const FAQ = [
-  { q: "What does it cost?", a: "Nothing. FrameDecks is free and open source under the Apache 2.0 licence. There are no adverts and no tracking." },
+  { q: "What does it cost?", a: "Nothing. FrameDecks is free to download and use, with no adverts and no tracking. Paid team features may come later; what is free stays free." },
   {
     q: "Do we need a capture card or extra software?",
     a: "No. FrameRelay appears as a camera in video meeting and streaming platforms. The live production tools and virtual camera solutions you already use keep working too.",
@@ -127,9 +127,9 @@ const VERSE = { text: "And whatsoever ye do, do it heartily, as to the Lord.", r
 function Actions() {
   return (
     <div className="fd-hero-actions">
-      <a className="fd-btn fd-btn-primary fd-btn-lg" href={DOWNLOADS} target="_blank" rel="noreferrer">
+      <Link className="fd-btn fd-btn-primary fd-btn-lg" href={DOWNLOADS}>
         <Download aria-hidden="true" size={18} /> Download for Windows · free
-      </a>
+      </Link>
       <Link className="fd-btn fd-btn-ghost fd-btn-lg" href="/sign-in#new">
         Plan online first <ArrowRight aria-hidden="true" size={16} />
       </Link>
@@ -158,7 +158,7 @@ export function Landing() {
   const ctaWords = CTA_TITLE.split(" ");
   return (
     <div className="fd-landing fd-lp">
-      <LandingNav downloads={DOWNLOADS} />
+      <LandingNav />
 
       <main id="main" tabIndex={-1}>
         <LandingHero
@@ -235,29 +235,13 @@ export function Landing() {
             <h2 id="lp-cta-title" className="lp-h2 lp-cta-title" aria-label={CTA_TITLE}>
               {ctaWords.slice(0, -1).join(" ")} <span className="lp-sheen">{ctaWords.at(-1)}</span>
             </h2>
-            <p>Free, open source, and ready when your team is.</p>
+            <p>Free to download, and ready when your team is.</p>
             <Actions />
           </div>
         </section>
       </main>
 
-      <footer className="fd-landing-foot">
-        <div className="fd-foot-brand">
-          <strong>FrameDecks</strong>
-          <span>Version {brand.version} · Apache 2.0 licence</span>
-        </div>
-        <nav className="fd-foot-links" aria-label="More">
-          <a href={DOWNLOADS} target="_blank" rel="noreferrer">
-            Download
-          </a>
-          <Link href="/help">Help</Link>
-          <Link href="/privacy">Privacy</Link>
-          <a href="https://github.com/mshobin/FRAMEDECKS/blob/main/LICENSE" target="_blank" rel="noreferrer">
-            Licence
-          </a>
-          <Link href="/help#contact">Contact</Link>
-        </nav>
-      </footer>
+      <SiteFooter />
     </div>
   );
 }

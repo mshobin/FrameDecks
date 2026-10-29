@@ -1,16 +1,31 @@
-# Code signing: free, through SignPath Foundation (M-D1)
+# Code signing (7.0: closed source)
 
-How FrameDecks gets a signed installer at no cost. Windows warns about unsigned programs ("Windows protected your
-PC"), and some church IT policies block them. SignPath Foundation signs open-source projects for free, with its own
-certificate, from builds made on GitHub.
+Windows warns about unsigned programs ("Windows protected your PC"), and some church IT policies block them. Until
+6.14 the plan was SignPath Foundation's free programme. **That programme is for open-source projects only, so it does
+not apply from 7.0 on** (FrameDecks is now proprietary, from a private repository).
 
-**Who this is for:** the owner, who makes the repository public, applies and sets up SignPath once. After that,
-every installer build from `main` and every version tag is signed by itself.
+## Options now
+
+| Option | Cost (October 2026) | Notes |
+| --- | --- | --- |
+| **Azure Trusted Signing** (recommended) | about USD 10 a month | Microsoft-managed certificate, no hardware token, builds reputation with SmartScreen quickly. Needs identity validation of the publisher (an individual in some countries, otherwise a registered business). Signs from GitHub Actions with Microsoft's `azure/trusted-signing-action`. |
+| SignPath (commercial plan) | paid, quoted per project | The workflow's SignPath steps below keep working unchanged with a paid plan. |
+| OV or EV certificate from a certificate authority | about USD 200–500 a year | Must be kept on a hardware token or cloud HSM; signing from CI needs the authority's cloud signing service. |
+
+Whichever is chosen:
+1. Sign `FRAMEDECKS.exe`, both camera DLLs and the installer, as the steps below describe.
+2. Set the repository variable `RELEASE_SIGNED` to `true` (`release-pipeline.md`). The release manifest then says
+   `"signed": true`, and the program's updater refuses any installer whose Authenticode signature is not valid and
+   issued to the publisher.
+3. Update the README's "Code signing policy".
+
+The rest of this page describes the SignPath set-up already wired into the workflow; with Azure Trusted Signing, the
+same three signing points get the Trusted Signing action instead (a small workflow change, in 7.1).
 
 ## What is already done in the repository
 
-- **Licence files.** `LICENSE` (Apache 2.0), `NOTICE` and `docs/legal/THIRD_PARTY_NOTICES.md` are in place. The installer
-  carries all three in the program folder (`packaging/framedecks.spec`).
+- **Licence files.** `LICENSE` (the FrameDecks proprietary licence), `NOTICE` and `docs/legal/THIRD_PARTY_NOTICES.md`
+  are in place. The installer carries all three in the program folder (`packaging/framedecks.spec`).
 - **The Windows build is ready to sign** (`.github/workflows/build-windows.yml`). Once the secret below exists, it:
   1. sends the program folder to SignPath and gets back `FRAMEDECKS.exe` and both camera DLLs signed;
   2. builds the installer from the signed files;
@@ -19,22 +34,14 @@ every installer build from `main` and every version tag is signed by itself.
   5. writes the SHA-256 checksum of the signed installer.
 
   Without the secret, these steps are skipped and the build is exactly as before.
-- **The code signing policy** that SignPath asks projects to publish is in the README ("Code signing policy").
 
 ## What the owner does (once)
 
-1. **Check the repository is safe to publish.** Making it public publishes its whole history.
-   - No secrets have ever been committed: the companion's test enforces this; `.env*`, `kc-sync.json` and the key
-     files are ignored.
-   - Before switching, run GitHub's secret scanning: Settings → Code security → Secret scanning.
-   - Also review the closed branches listed in `../continuity/PROJECT_STATUS.md` ("Drift"). Delete any you do not want public.
-2. **Make the repository public.** GitHub → Settings → General → Danger Zone → Change visibility.
-3. **Apply to SignPath Foundation** at https://signpath.org (the open-source programme). Give:
-   - the repository URL;
-   - the licence (Apache 2.0);
-   - the project's purpose: free presentation software for churches and Bible studies.
-
-   They check the project and set up an organization and a project for it.
+1. **Choose a plan** with SignPath (commercial) and give them the private repository, the publisher (Shobin Mathews)
+   and the product: free presentation software for churches and Bible studies.
+2. Install the SignPath GitHub app on the repository (it stays private).
+3. Keep the publisher name identical everywhere: the certificate subject, the installer's `AppPublisher` and the
+   updater's signature check (`src/updater.py`).
 4. **In SignPath** (once approved):
    - Connect the GitHub repository as a trusted build system (GitHub.com, with the SignPath GitHub app).
    - Create a project with the slug `framedecks` (or note the slug you choose).
@@ -79,12 +86,12 @@ every installer build from `main` and every version tag is signed by itself.
    - The run's log lists each file as `Valid`.
    - On a PC: right-click the installer → Properties → Digital Signatures.
 
-## Until signing is approved (free)
+## Until installers are signed
 
-- Publish the SHA-256 checksum next to each installer; the build already writes it.
+- Publish the SHA-256 checksum next to each installer; the build writes it and the download page shows it.
 - Submit each new installer to Microsoft as a false positive at
   https://www.microsoft.com/en-us/wdsi/filesubmission. SmartScreen learns from these submissions and from downloads.
-- Keep one stable download place: the Releases page, from version tags.
+- Keep one stable download place: framedecks.com/download (`release-pipeline.md`).
 
 ## If the steps change
 

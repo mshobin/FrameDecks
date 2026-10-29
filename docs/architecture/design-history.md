@@ -1008,3 +1008,31 @@ a PC with no Frames; upgrades never see it uninvited. Entrances only, none under
 On the website, Home shows the same steps for a workspace (`components/setup-guide.tsx`). It ticks the kind chosen
 there (local storage `fd-guide`), a linked PC (`computers`) and a Frame record last saved by a person
 (`updatedBy` "user:…"); the program's steps say "On the PC" rather than guess. Help brings a hidden guide back.
+
+## 38. Version 7.0: proprietary, downloaded and updated from framedecks.com (29 October 2026)
+
+FrameDecks became closed-source, free software from a private repository
+([plan](../project/2026-10-29-commercial-model-plan.md)). The licence is the EULA in `docs/legal/eula.md`, copied into
+`LICENSE` with a header; LGPL components (pystray, FFmpeg inside OpenCV) stay separate, replaceable files and the EULA
+keeps their rights. Versions up to 6.14 stay Apache 2.0.
+
+Distribution moved off GitHub Releases. `tools/make_release_manifest.py` lays a release out for R2: immutable
+`releases/<v>/` files, then `index.json` and, last, `latest.json`, so a half-finished upload changes nothing for users.
+The manifest names the previous release for rollback and refuses notes that mention repository paths. A Worker on
+`api.framedecks.com` serves the manifests read-only with CORS for the website; the installers come straight from the
+bucket's custom domain. Both the download page (`hosted/src/lib/releases.ts`) and the updater read the same manifest.
+
+The updater (`src/updater.py`) trusts only `https://downloads.framedecks.com/` URLs, a dotted version, a 64-hex
+SHA-256 and a size under 600 MB, and deletes any download that does not match. The installed program writes a
+PowerShell script to the data folder and starts it detached: it waits for the program's process to exit, runs the
+installer with `/VERYSILENT /MERGETASKS=!vcam`, runs the kept previous installer if that fails, writes `result.json`,
+and starts the program again; `pending.json` and `result.json` are read once at the next start. `server.update_action`
+refuses while `on_screen(state)` unless forced, and "when I close" is honoured by `desktop_app.quit_app`. Integrity
+today rests on HTTPS, the bucket's write-only-from-CI token and the checksum; Ed25519-signed manifests are 7.1.
+
+The website renders `docs/legal/` and `docs/guide/` with `marked` at build time from committed copies
+(`scripts/write-content.mjs`, checked current by a test), rewriting links that would lead to the repository. Account
+deletion (`delete_my_account`) refuses a sole owner of a workspace with other people, removes solo workspaces,
+reassigns `created_by`, deletes the auth user and anonymises the audit log; `export_my_data` returns the account's
+rows as one JSON document. Terms acceptance is a versioned `profiles` column set by `accept_terms`.
+

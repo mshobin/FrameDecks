@@ -1,0 +1,11 @@
+# FrameDecks update service: api.framedecks.com (docs/deployment/release-pipeline.md, "Update service").
+# Deploy once, and again only when src/index.js changes:  npx wrangler deploy
+name = "framedecks-update-api"
+main = "src/index.js"
+compatibility_date = "2026-10-01"
+workers_dev = false
+routes = [{ pattern = "api.framedecks.com", custom_domain = true }]
+
+[[r2_buckets]]
+binding = "RELEASES"
+bucket_name = "framedecks-downloads"

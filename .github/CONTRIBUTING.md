@@ -89,9 +89,11 @@ A change is ready to merge when:
 
 ## Licence
 
-FrameDecks is licensed under the [Apache License 2.0](../LICENSE). By contributing, you agree that your contribution
-is licensed under the same terms (Apache 2.0, section 5). A new dependency or vendored file needs a compatible licence
-and a row in [THIRD_PARTY_NOTICES.md](../docs/legal/THIRD_PARTY_NOTICES.md) in the same change.
+FrameDecks is proprietary software ([LICENSE](../LICENSE)). This repository is private; contributions are by invitation
+only, and a contributor assigns the copyright in their contribution to Shobin Mathews (a written agreement is signed
+first). A new dependency or vendored file needs a licence that allows use in proprietary software (no GPL or AGPL;
+LGPL only as a separate, replaceable library) and a row in
+[THIRD_PARTY_NOTICES.md](../docs/legal/THIRD_PARTY_NOTICES.md) in the same change.
 
 ---
 

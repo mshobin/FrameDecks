@@ -211,7 +211,7 @@ function AboutPage({ onClose }: Readonly<{ onClose: () => void }>) {
         <h3>{brand.join.thanks}</h3>
         <p>{brand.join.text}</p>
         <div className="fd-hero-actions">
-          <a className="fd-btn fd-btn-primary" href={DOWNLOADS} target="_blank" rel="noreferrer">
+          <a className="fd-btn fd-btn-primary" href={DOWNLOADS}>
             <Download aria-hidden="true" size={16} /> FrameDecks for Windows
           </a>
           <a className="fd-btn fd-btn-glass" href={`mailto:${c.email}?subject=${encodeURIComponent(`FrameDecks ${brand.version} – question or feedback`)}`}>

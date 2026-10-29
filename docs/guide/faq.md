@@ -182,10 +182,14 @@ Install FrameDecks on the new PC. On first run it offers to import data from an 
 ## Cost and licensing
 
 **Is there a subscription?**
-No. FrameDecks has no subscription, billing, accounts or per-seat fees.
+No. FrameDecks is free: no subscription, billing or per-seat fees. An account is needed only to plan together on
+framedecks.com. Paid team and cloud features may come later; what is free stays free.
 
 **What licence is it under?**
-The licence terms aren't published in the repository yet. Please ask the maintainer before redistributing or modifying it. The FrameRelay camera driver is built from softcam (MIT licence); the background-blur model is from MediaPipe (Apache 2.0).
+FrameDecks is proprietary software, free to use under the [End User License Agreement](https://framedecks.com/eula).
+Download it only from [framedecks.com/download](https://framedecks.com/download), and please do not share the installer
+elsewhere. Components made by others keep their own licences (for example, the FrameRelay camera is built from softcam,
+MIT licence, and the background-blur model is from MediaPipe, Apache 2.0); they are listed at framedecks.com/legal.
 
 ## Technical
 
@@ -196,13 +200,13 @@ Yes. Select **Minimize** and choose **Hide To Tray**. FrameDecks keeps running f
 A Windows 10 or 11 (64-bit) PC, plus a webcam if you want the camera picture. On older or busy PCs use 720p and light background blur; **Settings → Diagnostics** shows whether the PC keeps up (dropped frames should stay at 0).
 
 **Why does Windows warn me when installing?**
-The installer isn't code-signed yet, so Windows SmartScreen shows "Windows protected your PC". Select **More info → Run anyway**. You can check the download against its `.sha256` file.
+The installer isn't code-signed yet, so Windows SmartScreen shows "Windows protected your PC". Select **More info → Run anyway**. You can check the download against the SHA-256 shown on framedecks.com/download.
 
 **Which ports and network access does it use?**
 A local web server on port 8750 (falling back to 8751–8760 if needed) for the app window, overlay pages and phone remote. The firewall rule is for **Private networks** only.
 
 **Where do I report a problem or request a feature?**
-See [Support](../../.github/SUPPORT.md). Include **Settings → Diagnostics → Copy diagnostics** with problem reports.
+Write to hello@framedecks.com (see [framedecks.com/contact](https://framedecks.com/contact)). Include **Settings → Diagnostics → Copy diagnostics** with problem reports.
 
 ## Related
 - [Getting started](getting-started.md)

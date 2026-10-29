@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 
+import { CookieNotice } from "@/components/cookie-notice";
 import { Ambient, Motion } from "@/components/motion";
 import { ServiceWorkerRegister } from "@/components/service-worker-register";
 import { SITE_URL } from "@/lib/site";
@@ -11,6 +12,7 @@ import "./about.css";
 import "./identity.css";
 import "./landing.css";
 import "./light.css";
+import "./public.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -69,6 +71,7 @@ export default function RootLayout({
         <Ambient />
         {children}
         <Motion />
+        <CookieNotice />
         <ServiceWorkerRegister />
       </body>
     </html>

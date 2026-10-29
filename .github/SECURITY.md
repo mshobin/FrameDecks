@@ -7,18 +7,19 @@ birthdays, meeting content, and the phone-remote PIN. We take reports about its 
 
 | Version | Supported |
 | --- | --- |
-| 6.6 | Yes |
-| Earlier versions | No. Please update to the latest installer before reporting. |
+| 7.0 and later | Yes |
+| Earlier versions | No. Please update to the latest version (it updates itself, or framedecks.com/download) before reporting. |
 
 ## Reporting a vulnerability
 
 **Please do not open a public issue for a security problem.**
 
-- Use **Security → Report a vulnerability** on the repository, if private vulnerability reporting is enabled, or
-- contact the repository maintainer privately through their GitHub profile.
+Write to **security@framedecks.com**. The public policy is at framedecks.com/security/disclosure
+([docs/legal/vulnerability-disclosure.md](../docs/legal/vulnerability-disclosure.md)), with a machine-readable
+`/.well-known/security.txt`.
 
 Include the version, what an attacker could do, the steps to reproduce and, if you can, a suggested fix. Do not include
-real member data, PINs or API keys; use made-up examples. You can expect an acknowledgement within a week. We will tell
+real member data, PINs or API keys; use made-up examples. You can expect an acknowledgement within 3 working days. We will tell
 you when a fix is released and, if you wish, credit you in the release notes.
 
 ## How FrameDecks protects a church's data
@@ -31,13 +32,13 @@ you when a fix is released and, if you wish, credit you in the release notes.
 | **What the remote can reach** | Devices other than this PC can reach only an allow-list of pages and APIs (the remote, the shared meeting state, overlay pages, the brand logo and the live picture for the drawing pad). Settings, uploads, backups, members, scripture lookup and the camera controls are this PC only. |
 | **Member data** | Members are kept in a separate file (`kc-members-private.json`) that is never sent to the phone remote or the overlay pages. The birthday card receives only what the greeting needs (no phone, email or birth date). |
 | **Saving** | State is written to a temporary file and then swapped in, so a crash or power cut cannot leave a half-written file. Backups are made daily. |
-| **Outbound connections** | None, except the optional ESV scripture lookup, which sends only the reference you asked for and your ESV API key to `api.esv.org`. The key stays on the PC and is never sent to the remote. |
+| **Outbound connections** | The daily update check to `api.framedecks.com` (its version and Windows version only) and update downloads from `downloads.framedecks.com`; sync with framedecks.com only for a linked PC; and the optional ESV scripture lookup, which sends only the reference you asked for and your ESV API key to `api.esv.org`. The key stays on the PC and is never sent to the remote. |
 | **Telemetry** | None. The program does not report usage, crashes or anything else. |
 
 ## Known limitations
 
 - The installer is not code-signed yet, so Windows SmartScreen shows a warning on first install. Download installers
-  only from this repository's Actions or Releases pages and check the published SHA-256 file.
+  only from framedecks.com/download and check the SHA-256 shown there; updates are checked against it automatically.
 - The phone remote uses plain HTTP on the local network (there is no certificate a phone would trust for a local
   address). Use it on a network you trust; a guest Wi-Fi shared with the public is not recommended.
 - Anyone with access to the PC's Windows account can read the data folder (`%APPDATA%\FRAMEDECKS`). Protect

@@ -45,6 +45,36 @@ Versions before 4.9 (when the program had its earlier name) are described in the
 - The favicons, the tray icon and the small program-icon sizes (16–32 px) use a heavier version of the emblem, so it
   stays visible on light browser tabs and a light taskbar. Larger sizes are unchanged.
 
+## [7.0] - 2026-10-29
+
+Full notes: [docs/releases/v7.0.md](releases/v7.0.md) · plan:
+[docs/project/2026-10-29-commercial-model-plan.md](project/2026-10-29-commercial-model-plan.md)
+
+### Added
+- **Downloads from framedecks.com.** `/download` detects the visitor's system and shows the newest version, size,
+  release notes and SHA-256 from `api.framedecks.com/releases/latest`. Version tags are published to Cloudflare R2
+  (`downloads.framedecks.com`) by the workflow's new `publish` job (`tools/make_release_manifest.py`), and the
+  manifests are served by a read-only Worker (`infra/update-api`). See
+  [release-pipeline.md](deployment/release-pipeline.md).
+- **Automatic updates** (`src/updater.py`): a daily check of the FrameDecks manifest; downloads only from
+  `downloads.framedecks.com`, kept only when size and SHA-256 match (and Authenticode once signed); a silent install
+  after the program closes, never while something is on screen unless confirmed; the previous version put back if
+  the install fails; the outcome told once at the next start. Settings → About shows the notes, Update now, Update
+  when I close FrameDecks, and Reinstall the previous version.
+- **Legal and security pages** on framedecks.com from the Markdown in `docs/legal/`: Terms, Privacy, Cookies, EULA,
+  Security, Vulnerability Disclosure, legal notices; plus About, Contact, Roadmap, Documentation (the user guides),
+  Status, a five-column footer, a cookie notice and `/.well-known/security.txt`.
+- **Accounts:** a required Terms and Privacy tick when an account is created, a one-time acceptance screen for
+  existing accounts, Account → Your data (download everything as JSON, delete the account). Needs
+  `hosted/supabase/migrations/0011_accounts_legal.sql` run in Supabase.
+
+### Changed
+- **FrameDecks is proprietary software**, free to download and use: `LICENSE` is the FrameDecks End User License
+  Agreement, `NOTICE` and the third-party notices were rewritten, and the installer shows the EULA. Versions up to
+  6.14 remain under the Apache License 2.0.
+- The program no longer asks GitHub for new versions; every website download link goes to `/download`.
+- Contacts are hello@, security@ and privacy@framedecks.com (Cloudflare Email Routing).
+
 ## [6.14] - 2026-10-29
 
 Full notes: [docs/releases/v6.14.md](releases/v6.14.md)

@@ -5,6 +5,7 @@ import { CircleHelp, ClipboardList, Ellipsis, Home as HomeIcon, Monitor, Palette
 import { AboutButton } from "@/components/about-dialog";
 import { AccountStatus } from "@/components/account-status";
 import { EffectsToggle } from "@/components/effects-toggle";
+import { LegalGate } from "@/components/legal-gate";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { DOWNLOADS } from "@/lib/pc-setup";
 
@@ -80,11 +81,14 @@ export function AppShell({ active, children }: Readonly<{ active: Section; child
         </nav>
 
         <div className="fd-sidebar-foot">
-          <a className="fd-foot-link" href={DOWNLOADS} target="_blank" rel="noreferrer">
+          <a className="fd-foot-link" href={DOWNLOADS}>
             FrameDecks for Windows
           </a>
           <Link className="fd-foot-link" href="/privacy">
             Privacy policy
+          </Link>
+          <Link className="fd-foot-link" href="/terms">
+            Terms of Service
           </Link>
           <p>Your presentation runs on your service PC. This companion plans and guides it.</p>
         </div>
@@ -103,7 +107,7 @@ export function AppShell({ active, children }: Readonly<{ active: Section; child
           </div>
         </header>
         <main className="fd-page" id="main" tabIndex={-1}>
-          {children}
+          <LegalGate>{children}</LegalGate>
         </main>
       </div>
 
@@ -126,11 +130,14 @@ export function AppShell({ active, children }: Readonly<{ active: Section; child
                 <span>{label}</span>
               </Link>
             ))}
-            <a className="fd-nav-item" href={DOWNLOADS} target="_blank" rel="noreferrer">
+            <a className="fd-nav-item" href={DOWNLOADS}>
               FrameDecks for Windows
             </a>
             <Link className="fd-nav-item" href="/privacy">
               Privacy policy
+            </Link>
+            <Link className="fd-nav-item" href="/terms">
+              Terms of Service
             </Link>
           </div>
         </details>

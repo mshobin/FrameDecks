@@ -1,8 +1,10 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState, type FormEvent } from "react";
 
 import { Button } from "@/components/ui/button";
+import { rememberAcceptance } from "@/lib/legal";
 import { browserSupabase, callbackUrl, enabledProviders, type SignInProvider } from "@/lib/supabase-browser";
 import { userSafeError } from "@/lib/user-error";
 
@@ -52,7 +54,11 @@ export function SignInForm({ starting = false }: Readonly<{ starting?: boolean }
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<Status>({ kind: "idle" });
   const [providers, setProviders] = useState<SignInProvider[]>([]);
+  const [agreed, setAgreed] = useState(false);
   const supabase = browserSupabase();
+  // Creating an account needs an explicit tick for the Terms and the Privacy Policy (7.0); it is recorded with the
+  // account once signed in (components/legal-gate.tsx). Signing in to an existing account does not ask here.
+  const blocked = starting && !agreed;
 
   useEffect(() => {
     let live = true;
@@ -74,7 +80,8 @@ export function SignInForm({ starting = false }: Readonly<{ starting?: boolean }
 
   async function sendLink(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!supabase) return;
+    if (!supabase || blocked) return;
+    if (starting) rememberAcceptance(localStorage);
     setStatus({ kind: "sending" });
     const { error } = await supabase.auth.signInWithOtp({
       email: email.trim(),
@@ -84,7 +91,8 @@ export function SignInForm({ starting = false }: Readonly<{ starting?: boolean }
   }
 
   async function signInWith(provider: SignInProvider) {
-    if (!supabase) return;
+    if (!supabase || blocked) return;
+    if (starting) rememberAcceptance(localStorage);
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
       options: { redirectTo: callbackUrl(), scopes: provider === "azure" ? "email" : undefined },
@@ -108,12 +116,22 @@ export function SignInForm({ starting = false }: Readonly<{ starting?: boolean }
 
   // Free plan (docs/deployment/free-hosting.md, Part D): Google and Microsoft come first when they are switched on; they
   // need no email, and the emailed link uses a small daily email allowance.
+  const agreement = starting ? (
+    <label className="auth-agree">
+      <input type="checkbox" required checked={agreed} onChange={(e) => setAgreed(e.target.checked)} />
+      <span>
+        I agree to the <Link href="/terms">Terms of Service</Link> and the <Link href="/privacy">Privacy Policy</Link>.
+      </span>
+    </label>
+  ) : null;
+
   return (
     <>
+      {agreement}
       {providers.length > 0 && (
         <div className="auth-providers auth-providers-first">
           {providers.map((provider) => (
-            <Button key={provider} variant="outline" type="button" onClick={() => signInWith(provider)}>
+            <Button key={provider} variant="outline" type="button" disabled={blocked} onClick={() => signInWith(provider)}>
               {providerLabels[provider]}
             </Button>
           ))}
@@ -132,7 +150,7 @@ export function SignInForm({ starting = false }: Readonly<{ starting?: boolean }
           onChange={(event) => setEmail(event.target.value)}
           placeholder="you@example.org"
         />
-        <Button className="auth-primary" disabled={status.kind === "sending"} type="submit">
+        <Button className="auth-primary" disabled={status.kind === "sending" || blocked} type="submit">
           {status.kind === "sending" ? "Sending…" : starting ? "Email me a link to start" : "Email me a sign-in link"}
         </Button>
       </form>

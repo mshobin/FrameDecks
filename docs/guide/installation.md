@@ -31,39 +31,33 @@ administrator.
 | **Internet** | Not needed to run a meeting. Needed only to fetch ESV scripture text, to install WebView2, and for your video-call app itself |
 | **Network** | Only for the phone remote: the PC and phone on the same Wi-Fi |
 
-> **Note:** FrameDecks runs entirely on one PC. It has no accounts, no subscription and no cloud service.
+> **Note:** FrameDecks runs entirely on one PC. An account is needed only to plan together on framedecks.com.
 
 ## Get the installer
 
-The installer is a single file named **FrameDecks v6.8.exe** (the number is the version).
-
-- **From a release:** on the repository's **Releases** page, download the `.exe` (and, if you like, the matching
-  `.sha256` file).
-- **From a build:** in the repository's **Actions** tab, open the latest green **Build Windows installer** run and
-  download the **FrameDecks v6.8** artifact. It is a `.zip`; unzip it to get the `.exe` and the `.sha256` file.
-
-If you build the installer yourself, see [Building the installer](../development/building-the-installer.md).
+Download FrameDecks from **[framedecks.com/download](https://framedecks.com/download)**. The page picks the right
+download for your computer and always offers the latest version. The installer is a single file named
+**FrameDecks-7.0-Setup.exe** (the number is the version).
 
 ## Check the download (optional)
 
-Each installer comes with a `.sha256` file containing its fingerprint. To check that your copy is complete and
-unchanged:
+The download page shows the installer's **SHA-256** fingerprint. To check that your copy is complete and unchanged:
 
-1. Open **PowerShell** in the folder with the files.
+1. Open **PowerShell** in your Downloads folder.
 2. Run:
    ```powershell
-   Get-FileHash ".\FrameDecks v6.14.exe" -Algorithm SHA256
+   Get-FileHash ".\FrameDecks-7.0-Setup.exe" -Algorithm SHA256
    ```
-3. Compare the **Hash** with the text in `FrameDecks v6.8.exe.sha256`. Upper or lower case does not matter. They
-   must match exactly.
+3. Compare the **Hash** with the SHA-256 on the download page. Upper or lower case does not matter. They must match
+   exactly.
 
 ## Install
 
 1. Close **Zoom, Teams and OBS**. They keep the camera in use and can block the camera installation.
-2. Double-click **FrameDecks v6.8.exe**.
+2. Double-click **FrameDecks-7.0-Setup.exe**.
 3. Windows may show **"Windows protected your PC"**. The installer is not code-signed, so Windows does not recognise
    it yet. Select **More info → Run anyway**.
-4. Follow the wizard. The options are:
+4. Read and accept the End User License Agreement, then follow the wizard. The options are:
 
    | Option | Recommended | What it does |
    | --- | --- | --- |
@@ -104,9 +98,18 @@ If the phone still cannot connect, see [Troubleshooting](troubleshooting.md).
 
 ## Update to a new version
 
-1. Close Zoom, Teams and OBS.
-2. Run the new installer. It installs over the old version.
-3. Your meetings, settings, members, backups and phone PIN are kept.
+FrameDecks looks for a new version once a day. When one is ready, it says so once, and **Settings → About** shows what
+is new with an **Update now** button:
+
+1. Choose **Update now** (or **Update when I close FrameDecks**). FrameDecks downloads the new version from
+   framedecks.com and checks its fingerprint; if anything does not match, nothing is installed.
+2. It closes, installs the update quietly, and opens again. Your meetings, settings, members, backups and phone PIN are
+   kept.
+3. If an update cannot be installed, FrameDecks puts the previous version back and tells you. **Settings → About →
+   Reinstall the previous version** does the same by hand.
+
+FrameDecks never updates while something is on screen. You can also download the latest installer from
+framedecks.com/download and run it over the old version.
 
 > **Note:** Earlier releases were named FrameDecks and BSF Command Center. Version 6.9 installs over every earlier
 > version, removes the old program folder and shortcuts, and on first start moves your data (including backups and

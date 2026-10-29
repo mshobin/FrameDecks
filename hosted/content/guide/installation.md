@@ -1,0 +1,151 @@
+# Installation
+
+How to install, update and remove FrameDecks on a church or ministry PC.
+
+**Who this is for:** whoever sets up the presentation PC, such as a media team lead, a volunteer or a church
+administrator.
+
+**On this page**
+- [System requirements](#system-requirements)
+- [Get the installer](#get-the-installer)
+- [Check the download (optional)](#check-the-download-optional)
+- [Install](#install)
+- [First run](#first-run)
+- [Allow the phone remote through the firewall](#allow-the-phone-remote-through-the-firewall)
+- [Update to a new version](#update-to-a-new-version)
+- [Where your data lives](#where-your-data-lives)
+- [Uninstall](#uninstall)
+- [If the app window looks like a browser](#if-the-app-window-looks-like-a-browser)
+
+---
+
+## System requirements
+
+| | Requirement |
+| --- | --- |
+| **Operating system** | Windows 10 or Windows 11, 64-bit. There is no Mac or Linux version |
+| **Processor and memory** | A typical laptop or desktop from the last few years. Background blur and 1080p use more processor time; Settings → Diagnostics shows the app's own load |
+| **Webcam** | Optional. Needed only if people should see you on the FrameRelay camera |
+| **Microsoft PowerPoint** | Optional. Needed only to turn a **.pptx** file into slides. Without it, save your deck as PDF and add the PDF |
+| **Microsoft Edge WebView2 Runtime** | Included with Windows 11 and most up-to-date Windows 10 PCs. Without it, the app still runs in an Edge app window |
+| **Internet** | Not needed to run a meeting. Needed only to fetch ESV scripture text, to install WebView2, and for your video-call app itself |
+| **Network** | Only for the phone remote: the PC and phone on the same Wi-Fi |
+
+> **Note:** FrameDecks runs entirely on one PC. An account is needed only to plan together on framedecks.com.
+
+## Get the installer
+
+Download FrameDecks from **[framedecks.com/download](https://framedecks.com/download)**. The page picks the right
+download for your computer and always offers the latest version. The installer is a single file named
+**FrameDecks-7.0-Setup.exe** (the number is the version).
+
+## Check the download (optional)
+
+The download page shows the installer's **SHA-256** fingerprint. To check that your copy is complete and unchanged:
+
+1. Open **PowerShell** in your Downloads folder.
+2. Run:
+   ```powershell
+   Get-FileHash ".\FrameDecks-7.0-Setup.exe" -Algorithm SHA256
+   ```
+3. Compare the **Hash** with the SHA-256 on the download page. Upper or lower case does not matter. They must match
+   exactly.
+
+## Install
+
+1. Close **Zoom, Teams and OBS**. They keep the camera in use and can block the camera installation.
+2. Double-click **FrameDecks-7.0-Setup.exe**.
+3. Windows may show **"Windows protected your PC"**. The installer is not code-signed, so Windows does not recognise
+   it yet. Select **More info → Run anyway**.
+4. Read and accept the End User License Agreement, then follow the wizard. The options are:
+
+   | Option | Recommended | What it does |
+   | --- | --- | --- |
+   | **Create a desktop icon** | On | A FrameDecks icon on the desktop |
+   | **Install the FrameRelay camera for Zoom and Teams** | On | Adds the **FrameDecks** camera to Windows. Windows asks for administrator permission once, only for this |
+   | **Start automatically when I sign in** | Your choice | Opens FrameDecks when you sign in to Windows |
+
+5. Finish the wizard. FrameDecks opens.
+
+> **Tip:** If you skipped the camera, you can add it later in **Settings → FrameRelay Camera → Install
+> FrameDecks**.
+
+## First run
+
+1. If you used the zip version of FrameDecks on this PC, the app offers to **import your existing data**. Choose
+   the old folder and select **Import**. Members, saved questions and scriptures, settings and the phone PIN are
+   copied. The old folder is not changed.
+2. Restart Zoom, Teams, OBS or your browser for Google Meet. They read the list of cameras only when they start.
+3. In each app, choose **FrameRelay** as the camera:
+   - **Zoom:** Settings → Video → Camera → FrameDecks. Tick **HD** and turn off Zoom's own background blur.
+   - **Microsoft Teams:** Settings → Devices (or Video and effects) → Camera → FrameDecks.
+   - **Google Meet:** ⋮ → Settings → Video → Camera → FrameDecks.
+   - **OBS:** Sources → + → Video Capture Device → Device: FrameDecks.
+4. In FrameDecks, open **Settings → FrameRelay Camera** and choose the webcam behind it, the resolution
+   (720p or 1080p), background blur and Camera Look.
+
+## Allow the phone remote through the firewall
+
+The first time you turn on **Settings → Phone & iPad Remote**, Windows Firewall asks whether FrameDecks may use
+the network.
+
+1. Tick **Private networks** only.
+2. Select **Allow**.
+
+> **Important:** Do not allow **Public networks**. The remote is meant for your church's own Wi-Fi.
+
+If the phone still cannot connect, see [Troubleshooting](troubleshooting.md).
+
+## Update to a new version
+
+FrameDecks looks for a new version once a day. When one is ready, it says so once, and **Settings → About** shows what
+is new with an **Update now** button:
+
+1. Choose **Update now** (or **Update when I close FrameDecks**). FrameDecks downloads the new version from
+   framedecks.com and checks its fingerprint; if anything does not match, nothing is installed.
+2. It closes, installs the update quietly, and opens again. Your meetings, settings, members, backups and phone PIN are
+   kept.
+3. If an update cannot be installed, FrameDecks puts the previous version back and tells you. **Settings → About →
+   Reinstall the previous version** does the same by hand.
+
+FrameDecks never updates while something is on screen. You can also download the latest installer from
+framedecks.com/download and run it over the old version.
+
+> **Note:** Earlier releases were named FrameDecks and BSF Command Center. Version 6.9 installs over every earlier
+> version, removes the old program folder and shortcuts, and on first start moves your data (including backups and
+> recordings) to the FrameDecks folders below. Nothing newer is overwritten.
+
+Read the release notes in [CHANGELOG.md](../CHANGELOG.md) before a big update, and avoid updating on the morning of a
+service.
+
+## Where your data lives
+
+| What | Where |
+| --- | --- |
+| The program | `%LOCALAPPDATA%\Programs\FRAMEDECKS` |
+| Your data (meetings, settings, members, PIN) | `%APPDATA%\FRAMEDECKS` |
+| Backups | `%APPDATA%\FRAMEDECKS\backups` (daily, plus any you make) |
+
+**Settings → Data / Backup** shows the data folder, lets you make a backup now and restore one. See
+[reference/configuration-guide.md](../reference/configuration-guide.md) for the files inside.
+
+## Uninstall
+
+1. Open Windows **Settings → Apps → Installed apps**.
+2. Find **FrameDecks** and choose **Uninstall**.
+
+Your data folder is left in place, so reinstalling brings everything back. Delete
+`%APPDATA%\FRAMEDECKS` yourself only if you want to remove your data for good, and make a backup first.
+
+## If the app window looks like a browser
+
+FrameDecks normally opens in its own window, without an address bar or tabs. If **Microsoft Edge WebView2
+Runtime** is missing, it opens as an Edge app window instead. That works the same way. Install WebView2 from
+microsoft.com for the full app window.
+
+## Related
+- [Getting started](getting-started.md)
+- [Remote control](remote-control.md)
+- [Troubleshooting](troubleshooting.md)
+- [Building the installer](../development/building-the-installer.md)
+- [Configuration reference](../reference/configuration-guide.md)

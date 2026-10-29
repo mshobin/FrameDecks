@@ -1,10 +1,13 @@
 # Third-party notices
 
-FrameDecks is released under the [Apache License 2.0](../../LICENSE). It uses the software and assets below, each under its
-own licence. Licences that ask for their text to travel with copies are honoured as follows:
+FrameDecks is proprietary software ([LICENSE](../../LICENSE), [EULA](eula.md)). It uses the software and assets below,
+each under its own licence, which continues to apply to that component. Licences that ask for their text to travel with
+copies are honoured as follows:
 - the files under `app/vendor/` and `app/fonts/` keep their own licence files;
 - the Windows installer carries this file, `LICENSE` and `NOTICE` in the program folder;
-- each project's full licence is at the link given.
+- each project's full licence is at the link given;
+- the LGPL-licensed libraries (pystray; the FFmpeg libraries inside OpenCV) are separate files in the program folder
+  that can be replaced, and the EULA does not restrict the rights their licences give.
 
 **Who this is for:** anyone redistributing FrameDecks, and maintainers adding a dependency. Add a row here, in the same
 change, for anything new that ships.

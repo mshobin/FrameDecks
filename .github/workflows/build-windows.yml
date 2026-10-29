@@ -236,7 +236,8 @@ jobs:
           path: dist/release-notes.md
           if-no-files-found: error
 
-  # Publishing is a separate, short job: the only one with write access, and only for version tags
+  # A private record of each version on the GitHub Releases page (the repository is private: users download from
+  # framedecks.com, published by the "publish" job below). The only job with write access, and only for version tags.
   release:
     needs: build
     if: startsWith(github.ref, 'refs/tags/v')
@@ -266,3 +267,68 @@ jobs:
             dist/FrameDecks v*.exe
             dist/FrameDecks v*.exe.sha256
           generate_release_notes: false
+
+  # 7.0: publish to FrameDecks' own download service (docs/deployment/release-pipeline.md). Uploads the installer, its
+  # checksum and the release manifest to the Cloudflare R2 bucket behind downloads.framedecks.com; api.framedecks.com
+  # (infra/update-api) serves the manifest to the program's updater and the website's download page. Needs the
+  # repository secrets R2_ACCESS_KEY_ID and R2_SECRET_ACCESS_KEY and the variables R2_ACCOUNT_ID and R2_BUCKET; until
+  # they exist it says so and publishes nothing. Files under releases/<version>/ never change once uploaded; the
+  # manifest that points at them is uploaded last.
+  publish:
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    env:
+      R2_ON: ${{ secrets.R2_ACCESS_KEY_ID != '' && vars.R2_ACCOUNT_ID != '' }}
+      VERSION: ${{ needs.build.outputs.version }}
+    steps:
+      - name: Get the code (the manifest tool and the release notes)
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Get the installer
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: FrameDecks v${{ needs.build.outputs.version }}
+          path: dist
+
+      - name: Read the releases already published (if any)
+        run: curl -fsSL --retry 3 https://downloads.framedecks.com/releases/index.json -o index.json || echo '{"releases":[]}' > index.json
+
+      - name: Lay out the release and write its manifest
+        run: |
+          python3 tools/make_release_manifest.py --installer "dist/FrameDecks v${VERSION}.exe" --out publish --index index.json \
+            ${{ vars.RELEASE_SIGNED == 'true' && '--signed' || '' }}
+          find publish -type f | sort
+
+      - name: Upload to Cloudflare R2
+        if: env.R2_ON == 'true'
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
+          R2: https://${{ vars.R2_ACCOUNT_ID }}.r2.cloudflarestorage.com
+          BUCKET: ${{ vars.R2_BUCKET || 'framedecks-downloads' }}
+        run: |
+          set -euo pipefail
+          exe="FrameDecks-${VERSION}-Setup.exe"
+          up() { aws s3 cp "$1" "s3://${BUCKET}/$2" --endpoint-url "$R2" --only-show-errors "${@:3}"; }
+          up "publish/releases/${VERSION}/${exe}" "releases/${VERSION}/${exe}" \
+            --content-type application/vnd.microsoft.portable-executable --content-disposition "attachment; filename=\"${exe}\"" \
+            --cache-control "public, max-age=31536000, immutable"
+          up "publish/releases/${VERSION}/${exe}.sha256" "releases/${VERSION}/${exe}.sha256" --content-type "text/plain; charset=utf-8" \
+            --cache-control "public, max-age=31536000, immutable"
+          up "publish/releases/${VERSION}/manifest.json" "releases/${VERSION}/manifest.json" --content-type application/json \
+            --cache-control "public, max-age=31536000, immutable"
+          up publish/latest/FrameDecks-Setup.exe latest/FrameDecks-Setup.exe \
+            --content-type application/vnd.microsoft.portable-executable --content-disposition 'attachment; filename="FrameDecks-Setup.exe"' \
+            --cache-control "public, max-age=300"
+          up publish/releases/index.json releases/index.json --content-type application/json --cache-control "public, max-age=300"
+          up publish/releases/latest.json releases/latest.json --content-type application/json --cache-control "public, max-age=300"
+          echo "Published ${VERSION}: https://downloads.framedecks.com/releases/${VERSION}/${exe}"
+
+      - name: Say what is missing (R2 not set up yet)
+        if: env.R2_ON != 'true'
+        run: echo "::notice::R2 is not set up (secrets R2_ACCESS_KEY_ID/R2_SECRET_ACCESS_KEY, variables R2_ACCOUNT_ID/R2_BUCKET), so ${VERSION} was not published to downloads.framedecks.com. See docs/deployment/release-pipeline.md."

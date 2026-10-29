@@ -1,0 +1,96 @@
+# FrameDecks End User License Agreement
+
+*Effective 29 October 2026 · Version 2026-10-29*
+
+This End User License Agreement (the "Agreement") is between you and **Shobin Mathews** ("we", "us"), the owner of
+FrameDecks. It covers the FrameDecks desktop program, its installer, its updates, the FrameRelay virtual camera and the
+documentation that comes with them (together, the "Software"). By installing or using the Software you accept this
+Agreement. If you do not accept it, do not install or use the Software.
+
+## 1. Proprietary software
+
+The Software is proprietary. It is licensed to you, not sold. We and our licensors keep all rights, title and interest
+in the Software, including copyright, trade secrets, trademarks (including the name **FrameDecks**, the FrameDecks
+emblem and **FrameRelay**) and all other intellectual property. Nothing in this Agreement gives you any right that is
+not expressly stated here.
+
+## 2. Your licence
+
+Subject to this Agreement, we give you a free, non-exclusive, non-transferable, revocable licence to:
+
+- install and use the Software on computers you own or control, for any lawful purpose, personal or for an
+  organisation, including churches, schools, charities and businesses;
+- make copies of the installer only as needed for backup or to install it on those computers.
+
+The Software is free of charge. We may offer paid features or services in the future under separate terms; nothing
+already free becomes paid without notice.
+
+## 3. What you may not do
+
+Except as this Agreement or applicable law expressly allows, you may not:
+
+- copy, modify, adapt, translate or create derivative works of the Software;
+- decompile, disassemble, reverse engineer or otherwise try to obtain its source code;
+- sell, rent, lease, lend, sublicense, publish or distribute the Software, or offer it for download from anywhere other
+  than framedecks.com;
+- remove or change any copyright, trademark or proprietary notice;
+- bypass or interfere with its update, security or licence features;
+- use the Software to break the law or to infringe anyone's rights, including copyright in songs, texts or images you
+  present.
+
+## 4. Third-party components
+
+The Software includes components made by others under their own licences, listed in `THIRD_PARTY_NOTICES.md` in the
+program folder and at framedecks.com/legal. Those licences govern those components. Where a component's licence gives
+you rights this Agreement would otherwise restrict (for example, the right to replace or modify the LGPL-licensed
+libraries `pystray` and the FFmpeg libraries inside OpenCV, and to reverse engineer the Software as far as needed to
+debug such changes), those rights are not limited by this Agreement.
+
+## 5. Updates
+
+The Software checks framedecks.com's update service about once a day and may download and install updates when you
+choose **Update now**, or automatically if you turn that on. Updates are covered by this Agreement unless they come
+with their own terms. The check sends your current version and Windows version, and nothing about your meetings or
+people.
+
+## 6. Your content and your data
+
+Everything you create with the Software stays yours. The Software keeps it on your computer. If you choose to link a
+computer to a FrameDecks workspace, the parts described in the Privacy Policy are stored online under the Terms of
+Service and the Privacy Policy.
+
+## 7. No warranty
+
+THE SOFTWARE IS PROVIDED "AS IS" AND "AS AVAILABLE", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT, TO THE FULLEST EXTENT THE LAW
+ALLOWS. We do not promise that the Software will be free of errors or work without interruption during a live event.
+Rehearse before you rely on it.
+
+## 8. Limitation of liability
+
+TO THE FULLEST EXTENT THE LAW ALLOWS, WE ARE NOT LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL OR
+PUNITIVE DAMAGES, OR FOR LOSS OF DATA, PROFITS OR GOODWILL, ARISING FROM THE SOFTWARE OR THIS AGREEMENT. Because the
+Software is free, our total liability is limited to USD 50. Some places do not allow these limits; there, they apply
+only as far as the law allows.
+
+## 9. Ending this Agreement
+
+You may end this Agreement at any time by uninstalling the Software. It ends automatically if you break it. When it
+ends you must stop using the Software and delete your copies. Sections 1, 3, 4, 7, 8 and 10 continue after it ends.
+
+## 10. General
+
+- **Governing law:** [governing law to be confirmed]. Until it is confirmed, this Agreement is a draft and the
+  mandatory consumer protections of the place where you live apply.
+- **Export:** you will not use or export the Software where that is against the law.
+- **Changes:** we may update this Agreement; the new version applies to updates installed after it is published at
+  framedecks.com/eula.
+- **Whole agreement:** this Agreement, with the Terms of Service and the Privacy Policy where they apply, is the whole
+  agreement about the Software. If any part is unenforceable, the rest stays in force.
+- **Contact:** hello@framedecks.com.
+
+## Copyright notice
+
+FrameDecks © 2026 Shobin Mathews. All rights reserved. FrameDecks, FrameRelay and the FrameDecks emblem are
+trademarks of Shobin Mathews. Versions of FrameDecks up to 6.14 were published under the Apache License 2.0, and copies
+of those versions remain under that licence; this Agreement covers version 7.0 and later.

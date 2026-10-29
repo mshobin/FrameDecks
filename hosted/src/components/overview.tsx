@@ -147,7 +147,7 @@ function FirstSteps({ name }: Readonly<{ name: string }>) {
           <div>
             <h2>Install FrameDecks on the service PC</h2>
             <p>The Windows PC that drives your screen or your Zoom. It is free; the meeting always runs from there.</p>
-            <a className="fd-btn fd-btn-ghost" href={DOWNLOADS} target="_blank" rel="noreferrer">
+            <a className="fd-btn fd-btn-ghost" href={DOWNLOADS}>
               <Download aria-hidden="true" size={17} /> Download for Windows
             </a>
           </div>
