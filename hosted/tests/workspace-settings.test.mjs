@@ -2,7 +2,21 @@ import assert from "node:assert/strict";
 import { createRequire } from "node:module";
 import { test } from "node:test";
 
-import { PROFILES, SWATCHES, brandFormOf, brandFromForm, profileOf, upcomingBirthdays, validColor } from "../src/lib/workspace-settings.ts";
+import {
+  LOOKS,
+  PROFILES,
+  SWATCHES,
+  brandFormOf,
+  brandFromForm,
+  contrast,
+  labelColour,
+  lookBody,
+  lookOf,
+  profileOf,
+  upcomingBirthdays,
+  validColor,
+} from "../src/lib/workspace-settings.ts";
+import { join, split } from "../src/lib/sync-entities.ts";
 
 // The program's own store.js: what the PC keeps when these records arrive
 const require = createRequire(import.meta.url);
@@ -43,4 +57,34 @@ test("birthdays this week: today first, without a year, across the new year, and
   assert.deepEqual(got.map((b) => [b.name, b.inDays, b.turning]), [["Ruth", 0, 36], ["Lydia", 2, 34], ["Paul", 4, null]]);
   const leap = upcomingBirthdays([{ id: "f", name: "Leap", birthDate: "2000-02-29" }], new Date(2027, 1, 25));
   assert.deepEqual(leap.map((b) => [b.inDays, b.date.getDate()]), [[3, 28]]);
+});
+
+test("7.1: every workspace look keeps the cards readable on its own surface", () => {
+  assert.equal(LOOKS.length, 6);
+  assert.equal(new Set(LOOKS.map((l) => l.id)).size, 6);
+  for (const l of LOOKS) {
+    for (const surface of [l.a, l.b]) {
+      assert.ok(contrast("#ffffff", surface) >= 4.5, `${l.name}: question text on ${surface}`);
+      assert.ok(contrast("#fbf6ea", surface) >= 4.5, `${l.name}: scripture text on ${surface}`);
+      assert.ok(contrast(labelColour(l.accent), surface) >= 4.5, `${l.name}: label on ${surface}`);
+    }
+    assert.ok(validColor(l.accent), l.name);
+  }
+  assert.equal(labelColour(""), "#f2c35b", "the default gold label");
+  assert.equal(labelColour("#3fb6b0"), plain(Scenes.brandPalette("#3fb6b0")).text, "the program's own label colour");
+});
+
+test("7.1: a look saved on the website is what the program keeps, and it survives a sync round trip", () => {
+  for (const l of LOOKS) {
+    const body = lookBody(l);
+    assert.deepEqual(plain(Store.normalize({ look: body }).look), body, l.name);
+    assert.equal(lookOf(body), l.id);
+  }
+  assert.equal(lookOf({ id: "made-up" }), "");
+  assert.equal(lookOf(null), "");
+  const doc = plain(Store.normalize({ look: lookBody(LOOKS[3]) }));
+  const { entities, local } = split(doc, []);
+  assert.deepEqual(entities.filter((e) => e.kind === "layout" && e.id === "look").map((e) => e.body), [lookBody(LOOKS[3])]);
+  assert.equal("look" in local, false);
+  assert.deepEqual(join(entities, local).doc.look, lookBody(LOOKS[3]));
 });

@@ -45,6 +45,28 @@ Versions before 4.9 (when the program had its earlier name) are described in the
 - The favicons, the tray icon and the small program-icon sizes (16–32 px) use a heavier version of the emblem, so it
   stays visible on light browser tabs and a light taskbar. Larger sizes are unchanged.
 
+## [7.1] - 2026-10-29
+
+Full notes: [docs/releases/v7.1.md](releases/v7.1.md)
+
+### Added
+- **Workspace looks:** Branding → Look on the website offers six looks (Gold & Navy, Morning Light, Chapel Stone,
+  Deep Ocean, Forest, Quiet Mono). A look is the synced record `layout/look` (`{id, name, a, b, font, base}`): the card
+  surface and scripture font, applied by the output pages (`--surf-a`, `--surf-b`, `--scripture` in `overlay.css`)
+  and the FrameRelay camera (`vcam/cards.py` `surface_of`); choosing one also sets the brand accent. No database
+  change: `layout` already accepts any id.
+- **Follow my workspace** in Settings → General → Appearance and the command palette: the window follows the look's
+  light or dark base.
+
+### Changed
+- Settings that change what the audience sees (`layout/look`, `brand`, `layout/layout`, `theme/cards`) are applied
+  by a PC only while nothing is on its screen; until then they are held, like the live Frame (`cloud_sync.on_screen`,
+  also used by the updater).
+
+### Also since 7.0
+- The download page offers a download link only from a checked manifest ("Download opens soon" until the download
+  service answers), and `infra/update-api/local-test.sh` tests the release pipeline end to end on one computer.
+
 ## [7.0] - 2026-10-29
 
 Full notes: [docs/releases/v7.0.md](releases/v7.0.md) · plan:

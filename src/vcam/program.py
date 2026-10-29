@@ -21,7 +21,7 @@ import numpy as np
 from PIL import Image, ImageDraw, ImageFilter
 
 from .annotate import Ink
-from .cards import CardDrawer, Card, accent_palette, logo_rgba, _premult, GOLD_TEXT as _GOLD_TEXT
+from .cards import CardDrawer, Card, accent_palette, logo_rgba, surface_of, _premult, GOLD_TEXT as _GOLD_TEXT
 
 TEXT_KINDS = ("announcement", "prayer", "lowerthird", "countdown")
 
@@ -282,7 +282,8 @@ class ProgramFX:
         if plate:
             bw = max(2, int(round(u * 0.13)))
             dr.rounded_rectangle([0, 0, w - 1, h - 1], radius=int(1.1 * s), fill=edge + (255,))
-            dr.rounded_rectangle([bw, bw, w - 1 - bw, h - 1 - bw], radius=max(0, int(1.1 * s) - bw), fill=(14, 30, 62, 225))
+            plate_rgb = surface_of(L.get("look"))[1] if L.get("look") else (14, 30, 62)   # 7.1 the look's surface
+            dr.rounded_rectangle([bw, bw, w - 1 - bw, h - 1 - bw], radius=max(0, int(1.1 * s) - bw), fill=plate_rgb + (225,))
         x = pad
         if logo is not None:
             lg = logo.resize((lw, lh), Image.LANCZOS)
@@ -308,6 +309,7 @@ class ProgramFX:
     def _texts(self, frame, st, live, W, H, now, dt, hold):
         want = {} if hold or not self.cards_on() else {l["id"]: l for l in live_text(st, "vcam") + live_brand(st, "vcam")}
         b = st.get("brand") or {}
+        look = st.get("look") if isinstance(st.get("look"), dict) else {}   # 7.1 the workspace look
         for lid, l in want.items():
             t = self.texts.setdefault(lid, _Text())
             c = l.get("c") or {}
@@ -316,17 +318,18 @@ class ProgramFX:
                 data = {"brand": True, "meeting": b.get("meeting") or "", "org": b.get("org") or "", "logo": c.get("logo") and b.get("logo"),
                         "name": bool(c.get("name")), "show_org": bool(c.get("org"))}
                 L = {"scale": float(c.get("scale") or 1), "accent": accent, "pad": _num(c.get("pad"), 1.0), "plate": c.get("plate", True) is not False,
-                     "margin": _num(c.get("margin"), 4.0)}
+                     "margin": _num(c.get("margin"), 4.0), "look": look}
                 key = ("brand", data["meeting"], data["org"], data["logo"], data["name"], data["show_org"], L["scale"], accent, c.get("pos"),
-                       L["pad"], L["plate"], L["margin"], W, H)
+                       L["pad"], L["plate"], L["margin"], str(sorted(look.items())), W, H)
             else:
                 text = countdown_text(st, l) if l["kind"] == "countdown" else brand_text(st, c.get("text"))
                 title = brand_text(st, c.get("title"))
                 data = {"label": title, "showLabel": c.get("label", True) is not False and bool(title.strip()), "text": text or " ",
                         "logo": (b.get("logo") or None) if c.get("logo") else None}
                 L = {"qScale": float(c.get("scale") or 1), "qWidth": float(c.get("w") or 70), "qBottom": 8,
-                     "panel": float((st.get("layout") or {}).get("panel", 92)), "accent": accent}
-                key = (data["label"], data["showLabel"], data["text"], data["logo"], accent, L["qScale"], L["qWidth"], L["panel"], c.get("pos"), W, H)
+                     "panel": float((st.get("layout") or {}).get("panel", 92)), "accent": accent, "look": look}
+                key = (data["label"], data["showLabel"], data["text"], data["logo"], accent, L["qScale"], L["qWidth"], L["panel"], c.get("pos"),
+                       str(sorted(look.items())), W, H)
             if t.target < 1:
                 t.anim, t.t0 = str(c.get("anim") or "fade"), now
             t.target = 1.0

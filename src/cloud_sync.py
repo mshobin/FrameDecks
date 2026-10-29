@@ -43,6 +43,18 @@ FRAME_KINDS = ("frame", "template")
 MASS_DELETE_FRAMES = 3      # all Frames gone at once (at least this many): restore from the workspace, never delete
 LIST_KINDS = ("library_question", "library_verse", "member")
 SETTINGS_KINDS = ("theme", "brand", "layout", "meeting")
+# 7.1 what the audience sees of the settings: changed only while nothing is on screen, so a look never jumps mid-sentence
+LOOK_KEYS = ("layout/look", "brand/brand", "layout/layout", "theme/cards")
+
+
+def on_screen(plan):
+    """Something the audience can see: a card, or Content of the live Frame (also used by the updater)."""
+    plan = plan if isinstance(plan, dict) else {}
+    if any(isinstance(plan.get(k), dict) and plan[k].get("visible") for k in ("verse", "question", "birthday")):
+        return True
+    live = plan.get("live") if isinstance(plan.get("live"), dict) else {}
+    on = live.get("on") if isinstance(live.get("on"), dict) else {}
+    return any(bool(v) for v in on.values())
 
 
 def fingerprint(body):
@@ -122,6 +134,7 @@ class Engine:
         plan, members = self.read()
         local = self._local_records(plan, members)
         live = self._live_frame(plan)
+        showing = on_screen(plan)
         latest = {}
         for r in remote:                               # the newest version of each record wins within one pull
             latest[key_of(r["kind"], r["id"])] = r
@@ -138,6 +151,9 @@ class Engine:
                 continue
             if r["kind"] in FRAME_KINDS and r["id"] == live and live and mine is not None:
                 held.append(r)                          # never change the Frame on screen; try again next round
+                continue
+            if k in LOOK_KEYS and showing:
+                held.append(r)                          # the look waits until the screen is clear
                 continue
             if adopt:                                   # restoring from the workspace: its version wins, no copies
                 apply[k] = r

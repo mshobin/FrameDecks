@@ -850,6 +850,12 @@ var Scenes = {
     function mix(t, k){ return '#' + c.map(function(v){ return Math.round(v + (t - v) * k).toString(16).padStart(2, '0'); }).join(''); }
     return {g1: mix(255, .55), g2: mix(0, 0), g3: mix(0, .35), g4: mix(255, .3), text: mix(255, .2)};
   },
+  /* 7.1 the workspace look → the card surface as "r,g,b" pairs (same as vcam/cards.py surface_of); null = navy */
+  lookSurface: function(st){
+    var lk = st && st.look; if (!lk) return null;
+    function rgb(h){ var n = parseInt(h.slice(1), 16); return [n >> 16 & 255, n >> 8 & 255, n & 255].join(','); }
+    return {a: rgb(lk.a), b: rgb(lk.b), font: lk.font === 'sans' ? 'sans' : 'serif'};
+  },
   /* A Branding layer for a scene (the leader chooses which scenes have one) */
   /* Settings → Meeting → "New scenes include branding" */
   autoBrand: function(st, sc){ if (st.brand && st.brand.auto && !sc.tpl && Scenes.hasBrand(st)) Scenes.addBrand(sc); },
@@ -955,6 +961,13 @@ function normalize(s){
   var b = isObj(s) && isObj(s.brand) ? s.brand : {};
   st.brand = {meeting: str(b.meeting, 80), org: str(b.org, 80), color: /^#[0-9a-fA-F]{6}$/.test(b.color || '') ? b.color.toLowerCase() : '',
     logo: str(b.logo, 40), lw: Number(b.lw) || 0, lh: Number(b.lh) || 0, auto: !!b.auto};
+  /* 7.1 the workspace look, chosen on the website (Branding → Look): the card surface, the scripture font and the
+     light or dark base for "Follow my workspace". Only a well-formed look is kept; none means the standard navy. */
+  var lk = isObj(s) && isObj(s.look) ? s.look : null, hex = /^#[0-9a-fA-F]{6}$/;
+  if (lk && /^[a-z0-9-]{1,24}$/.test(lk.id || '') && hex.test(lk.a || '') && hex.test(lk.b || ''))
+    st.look = {id: lk.id, name: str(lk.name, 40), a: lk.a.toLowerCase(), b: lk.b.toLowerCase(),
+      font: lk.font === 'sans' ? 'sans' : 'serif', base: lk.base === 'light' ? 'light' : 'dark'};
+  else delete st.look;
   return st;
 }
 

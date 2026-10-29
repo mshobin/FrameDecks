@@ -1036,3 +1036,25 @@ deletion (`delete_my_account`) refuses a sole owner of a workspace with other pe
 reassigns `created_by`, deletes the auth user and anonymises the audit log; `export_my_data` returns the account's
 rows as one JSON document. Terms acceptance is a versioned `profiles` column set by `accept_terms`.
 
+## 39. Version 7.1: workspace looks (29 October 2026)
+
+The 29 October plan's section 4, built without a new table or migration: `entities.kind` is checked against a fixed
+list, but `layout` records may have any id, so the look travels as `layout/look`, beside `layout/profile`. Both
+mappings (`sync_entities.py`, `hosted/src/lib/sync-entities.ts`) carry it as the document key `look`; without that,
+`join` would drop a pulled look and the next push would delete it from the workspace.
+
+A look is `{id, name, a, b, font, base}`: the card surface (two colours), the scripture font and a light or dark base.
+The accent stays the existing `brand.color`, so the four places that already apply it did not change; choosing a look
+on the website saves the look and then the brand record with the look's accent. All six surfaces are dark so the
+cards' white text stays as it is; a test keeps body text and labels at 4.5:1 or more on each surface. The output pages
+read `KCScenes.lookSurface` into CSS variables (`--surf-a`/`--surf-b` feed the existing `--navy-a`/`--navy-b`, and
+`--scripture` the verse and birthday greeting); the camera swaps `SURFACE` and `SCRIPTURE` per draw under the same
+lock as the accent, and the branding plate takes the surface too.
+
+The plan asked that a look never change mid-sentence. Settings were applied at once before; now `cloud_sync` holds
+`layout/look`, `brand/brand`, `layout/layout` and `theme/cards` while `on_screen(plan)` (a visible card or live
+Content; the updater's rule, moved here) and retries them each round. "Follow my workspace" is a fourth appearance
+choice resolved from `look.base`, remembered as `kc-theme-base` for the first paint of every window. Not done from the
+plan: per-look lower-third and transition styles (those stay per Content and per meeting), and a light card surface,
+which would need dark-text variants in both renderers.
+

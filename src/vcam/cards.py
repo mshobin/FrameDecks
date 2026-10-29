@@ -20,6 +20,8 @@ from PIL import Image, ImageDraw, ImageFont
 GOLD_TEXT = (242, 195, 91)
 GOLD_STOPS = [(0.0, (246, 225, 160)), (0.28, (217, 171, 74)), (0.52, (168, 120, 31)), (0.76, (236, 203, 114)), (1.0, (217, 171, 74))]
 NAVY_A, NAVY_B = (24, 44, 84), (12, 26, 56)
+SURFACE = (NAVY_A, NAVY_B)            # 7.1 the workspace look's card surface (swapped per draw, like the accent)
+SCRIPTURE = "serif"                   # 7.1 the workspace look's scripture font
 VERSE_TEXT, BDAY_TEXT, BDAY_MSG = (251, 246, 234), (251, 246, 234), (239, 232, 214)
 _GOLD = (GOLD_TEXT, GOLD_STOPS)
 _PALETTE = threading.RLock()          # v6.2: cards are drawn on more than one worker thread; the accent is per draw
@@ -36,6 +38,22 @@ def accent_palette(hex_color):
     def mix(t, k):
         return tuple(int(round(v + (t - v) * k)) for v in c)
     return mix(255, .2), [(0.0, mix(255, .55)), (0.28, c), (0.52, mix(0, .35)), (0.76, mix(255, .3)), (1.0, c)]
+
+
+def surface_of(look):
+    """7.1 a workspace look -> ((r, g, b) top, (r, g, b) bottom, scripture font). Same as KCScenes.lookSurface."""
+    look = look if isinstance(look, dict) else {}
+
+    def rgb(h):
+        m = re.fullmatch(r"#([0-9a-fA-F]{6})", h or "")
+        if not m:
+            return None
+        n = int(m.group(1), 16)
+        return ((n >> 16) & 255, (n >> 8) & 255, n & 255)
+    a, b = rgb(look.get("a")), rgb(look.get("b"))
+    if not (a and b):
+        return NAVY_A, NAVY_B, "serif"
+    return a, b, ("sans" if look.get("font") == "sans" else "serif")
 
 
 def logo_rgba(path):
@@ -285,7 +303,8 @@ class CardDrawer:
         inner = _rounded_mask(cw - 2 * bw, ch - 2 * bw, max(0.0, r - bw))
         ih, iw = inner.shape
         yy = np.linspace(0, 1, ih, dtype=np.float32)[:, None]
-        navy = np.stack([NAVY_A[c] + (NAVY_B[c] - NAVY_A[c]) * yy for c in range(3)], -1) * np.ones((1, iw, 1), np.float32)
+        top, bottom = SURFACE
+        navy = np.stack([top[c] + (bottom[c] - top[c]) * yy for c in range(3)], -1) * np.ones((1, iw, 1), np.float32)
         if extra_glow:   # birthday: warm glow at the top
             gy, gx = np.mgrid[0:ih, 0:iw].astype(np.float32)
             e = np.sqrt(((gx - iw / 2) / (iw * 0.7)) ** 2 + (gy / (ih * 0.6)) ** 2)
@@ -308,10 +327,12 @@ class CardDrawer:
 
     # ----- cards -----
     def draw(self, kind, d, layout, W, H, max_h=None):
-        global GOLD_TEXT, GOLD_STOPS
+        global GOLD_TEXT, GOLD_STOPS, SURFACE, SCRIPTURE
         pal = accent_palette((layout or {}).get("accent", ""))
+        top, bottom, scripture = surface_of((layout or {}).get("look"))
         with _PALETTE:
             GOLD_TEXT, GOLD_STOPS = pal if pal else _GOLD
+            SURFACE, SCRIPTURE = (top, bottom), scripture
             try:
                 if kind == "question":
                     return self._question(d, layout, W, H)
@@ -320,6 +341,7 @@ class CardDrawer:
                 return self._birthday(d, layout, W, H)
             finally:
                 GOLD_TEXT, GOLD_STOPS = _GOLD
+                SURFACE, SCRIPTURE = (NAVY_A, NAVY_B), "serif"
 
     def _label_size(self, kind, font_px, label):
         font = self.fonts.get("sans", 700, font_px)
@@ -496,7 +518,7 @@ class CardDrawer:
             pad_t, pad_s, pad_b = ((1.1, 2.4, 1.2) if tight else (1.9, 3.0, 2.1))
             pad_t, pad_s, pad_b = pad_t * s, pad_s * s, pad_b * s
             fs = 2.85 * s * fit
-            font = self.fonts.get("serif", 500, fs)
+            font = self.fonts.get(SCRIPTURE, 500, fs)
             inner_max = max_w - 2 * pad_s - 2 * bw
             one_line = max([font.getlength(p) for p in text.split("\n")] or [0])
             show_label = label.strip() and not tight
@@ -588,7 +610,7 @@ class CardDrawer:
 
         def measure(fit):
             gfs, mfs = 3.3 * s * fit, 1.55 * s * fit
-            gfont, mfont = self.fonts.get("serif", 600, gfs), self.fonts.get("sans", 500, mfs)
+            gfont, mfont = self.fonts.get(SCRIPTURE, 600, gfs), self.fonts.get("sans", 500, mfs)
             inner_max = max_w - 2 * pad_s - 2 * bw
             natural = max(gfont.getlength(greeting), min(mfont.getlength(message), 52 * s) if message else 0, c_w, lab_w)
             inner_w = max(min(inner_max, natural), min_w - 2 * pad_s - 2 * bw)

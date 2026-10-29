@@ -150,5 +150,23 @@ class Join(unittest.TestCase):
         self.assertEqual(members, [])
 
 
+
+class WorkspaceLook(unittest.TestCase):
+    """7.1: the workspace look travels as layout/look and comes back exactly; a plan without one sends none."""
+
+    def test_the_look_is_a_layout_record_and_joins_back(self):
+        fx = load("service")
+        doc, members = copy.deepcopy(fx["normalized"]), fx["members"]
+        doc["look"] = {"id": "forest", "name": "Forest", "a": "#1d3a28", "b": "#10251a", "font": "serif", "base": "dark"}
+        out = E.split(doc, members)
+        looks = [e for e in out["entities"] if (e["kind"], e["id"]) == ("layout", "look")]
+        self.assertEqual(len(looks), 1)
+        self.assertNotIn("look", out["local"])
+        back, _ = E.join(out["entities"], out["local"])
+        self.assertEqual(back["look"], doc["look"])
+        del doc["look"]
+        self.assertFalse(any(e["id"] == "look" for e in E.split(doc, members)["entities"]))
+
+
 if __name__ == "__main__":
     unittest.main()

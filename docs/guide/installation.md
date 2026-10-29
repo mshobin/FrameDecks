@@ -37,7 +37,7 @@ administrator.
 
 Download FrameDecks from **[framedecks.com/download](https://framedecks.com/download)**. The page picks the right
 download for your computer and always offers the latest version. The installer is a single file named
-**FrameDecks-7.0-Setup.exe** (the number is the version).
+**FrameDecks-7.1-Setup.exe** (the number is the version).
 
 ## Check the download (optional)
 

@@ -1,9 +1,20 @@
 # NEXT SESSION HANDOFF
 
-Updated 29 October 2026 (7.0 on `main`: FrameDecks is proprietary, downloaded from framedecks.com/download and updated from FrameDecks servers; legal and security pages; owner steps below): the maintainer guide is now [PROJECT_GUIDE.md](PROJECT_GUIDE.md); current references were updated. The continuity files now live in `docs/continuity/`. Windows batch launchers are under `tools/launchers/` and resolve the repository root before running. Release `v6.11.2` (repository layout and trust fixes, no desktop change; pilot install on a real PC and SHA-256 check still the owner's) was tagged after `v6.11.1`, which is published; the FrameDecks README and release header refresh merged in
+Updated 29 October 2026 (7.1 on `main`: workspace looks; 7.0 before it: proprietary, framedecks.com downloads and auto-update; owner steps under 7.0): the maintainer guide is now [PROJECT_GUIDE.md](PROJECT_GUIDE.md); current references were updated. The continuity files now live in `docs/continuity/`. Windows batch launchers are under `tools/launchers/` and resolve the repository root before running. Release `v6.11.2` (repository layout and trust fixes, no desktop change; pilot install on a real PC and SHA-256 check still the owner's) was tagged after `v6.11.1`, which is published; the FrameDecks README and release header refresh merged in
 PR #38. Trust fixes merged in PR #39 (`27cfb4b`). Later the same day: the budget script fixed for Windows
 (`57cd9c3`), the five Dependabot action upgrades merged (#33–#37), and the handoff PR #40. All checks on `main` are
 green, including the Cloudflare Pages deploy (production); a look at the live site is still the owner's. Read [PROJECT_GUIDE.md](PROJECT_GUIDE.md) ("Working locally" has the set-up and run commands).
+
+29 October, version 7.1 on `main` (not yet tagged): **workspace looks**. Website Branding → Look
+(`hosted/src/lib/workspace-settings.ts` `LOOKS`, `components/branding-panel.tsx`) saves `layout/look`
+`{id, name, a, b, font, base}` and the brand accent. Sync carries it as the document key `look` (both mappings);
+`store.js` normalize keeps only a well-formed one; output pages via `KCScenes.lookSurface` → `--surf-a/--surf-b/
+--scripture`; camera via `vcam/cards.py` `surface_of` (per draw, under the accent lock) and the branding plate.
+`cloud_sync` holds `LOOK_KEYS` while `on_screen(plan)`. Appearance → Follow my workspace (`nav.js`, first paint from
+`kc-theme-base`). No migration. Verified: Deep Ocean and Morning Light on the stage page and Follow my workspace in
+the program (fresh `KC_DATA_DIR`); Branding page against a stand-in Supabase (pushes look then brand, phone and
+desktop, no overflow). Checks: Python 197, desktop JS 6/6, website 159, lint, types, build, budget (CSS 23 KB of 24),
+visual and axe suites. **Owner:** live Test K; tag `v7.1` after `v7.0`. Next: 7.2 signed manifests (off until a key).
 
 29 October, after 7.0: the download page no longer guesses a download address (until the service answers it says
 "Download opens soon" and offers planning on the website; `downloadState` in `hosted/src/lib/releases.ts`), and the

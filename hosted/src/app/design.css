@@ -1286,6 +1286,11 @@ h3 {
   gap: 22px;
 }
 
+.fd-settings-col {
+  display: grid;
+  gap: 22px;
+}
+
 .fd-settings-card {
   display: grid;
   gap: 16px;
@@ -1427,9 +1432,65 @@ h3 {
   align-self: end;
   border: 1px solid color-mix(in srgb, var(--accent) 70%, transparent);
   border-radius: 12px;
-  background: linear-gradient(180deg, rgba(31, 52, 96, 0.95), rgba(16, 28, 54, 0.95));
+  background: linear-gradient(180deg, var(--surf-a, rgba(31, 52, 96, 0.95)), var(--surf-b, rgba(16, 28, 54, 0.95)));
   padding: 14px 16px;
   transition: border-color 0.4s var(--ease-out);
+}
+
+.fd-brand-card.has-look p {
+  color: #fbf6ea;
+}
+
+/* 7.1 Branding → Look: the six workspace looks as live miniatures (surface, accent edge, text and label lines) */
+.fd-looks {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 128px), 1fr));
+  gap: 10px;
+  margin: 12px 0;
+}
+
+.fd-look {
+  display: grid;
+  gap: 6px;
+  border: 1px solid var(--hairline);
+  border-radius: 12px;
+  background: none;
+  padding: 8px;
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.fd-look[aria-checked="true"] {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 1px var(--gold);
+}
+
+.fd-look-mini {
+  display: grid;
+  align-content: end;
+  gap: 4px;
+  height: 56px;
+  border: 2px solid var(--accent);
+  border-radius: 8px;
+  background: linear-gradient(180deg, var(--a), var(--b));
+  padding: 8px;
+}
+
+.fd-look-mini i {
+  height: 5px;
+  border-radius: 4px;
+  background: var(--label);
+}
+
+.fd-look-mini i + i {
+  background: #fbf6ea;
+}
+
+.fd-look small {
+  color: var(--text-2);
+  font-size: 12px;
 }
 
 .fd-brand-label {

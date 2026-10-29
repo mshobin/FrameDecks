@@ -67,11 +67,15 @@ show(document.body.dataset.tab || 'studio');
   else window.addEventListener('resize', measure);
 })();
 
-/* Appearance: Dark (default) · Light · Match Windows - remembered on this PC */
+/* Appearance: Dark (default) · Light · Match Windows · Follow my workspace (7.1: the workspace look's light or dark
+   base) - remembered on this PC */
 (function(){
-  var seg = $('theme-seg'), d = document.documentElement, KEYT = 'kc-theme';
+  var seg = $('theme-seg'), d = document.documentElement, KEYT = 'kc-theme', base = 'dark';
   var mq = window.matchMedia ? window.matchMedia('(prefers-color-scheme: light)') : null;
-  function resolve(p){ return p === 'system' ? (mq && mq.matches ? 'light' : 'dark') : (p === 'light' ? 'light' : 'dark'); }
+  function resolve(p){
+    if (p === 'workspace') return base;
+    return p === 'system' ? (mq && mq.matches ? 'light' : 'dark') : (p === 'light' ? 'light' : 'dark');
+  }
   function set(p){
     d.dataset.themePref = p; d.dataset.theme = resolve(p);
     try { localStorage.setItem(KEYT, p); } catch(e){}
@@ -87,6 +91,12 @@ show(document.body.dataset.tab || 'studio');
   if (mq){ var follow = function(){ if (d.dataset.themePref === 'system') d.dataset.theme = resolve('system'); };
     if (mq.addEventListener) mq.addEventListener('change', follow); else if (mq.addListener) mq.addListener(follow); }
   if (seg) seg.addEventListener('click', function(e){ var b = e.target.closest('[data-theme-pick]'); if (b) set(b.dataset.themePick); });
+  if (window.KCStore) KCStore.subscribe(function(st){
+    var b = st && st.look && st.look.base === 'light' ? 'light' : 'dark';
+    try { localStorage.setItem('kc-theme-base', b); } catch(e){}   // for the first paint of the next start
+    if (b === base) return; base = b;
+    if (d.dataset.themePref === 'workspace') d.dataset.theme = base;
+  });
   mark();
   window.KCTheme = {set: set, get: function(){ return d.dataset.themePref || 'dark'; }};     // 6.7 the command palette
 })();

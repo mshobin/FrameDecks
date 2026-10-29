@@ -181,6 +181,17 @@ Go Live action. For each one it describes the user flow, the data model, the tem
 and where the code is. The tab structure is unchanged (**Studio · Members · Settings**). The About section is
 unchanged.
 
+### Workspace look (7.1)
+
+Chosen on framedecks.com under **Branding → Look**: Gold & Navy (the standard), Morning Light, Chapel Stone, Deep
+Ocean, Forest or Quiet Mono. A look sets the cards' surface (on the room screen, the overlay pages and the FrameRelay
+camera), the scripture font (serif or sans) and the accent colour; the accent can still be changed below it. It
+syncs as the record `layout/look` (`{id, name, a, b, font, base}`; `store.js` keeps only a well-formed one) and a PC
+applies it, and any brand, layout or card-setting change, only while nothing is on its screen
+(`cloud_sync.LOOK_KEYS`, `on_screen`). Every look keeps text at a contrast of at least 4.5:1 on its surface
+(`hosted/tests/workspace-settings.test.mjs`). In the program, Settings → General → Appearance → **Follow my
+workspace** uses the look's light or dark base for the window.
+
 ## 1. User flows
 
 ### Leader branding: Settings → Meeting & Branding

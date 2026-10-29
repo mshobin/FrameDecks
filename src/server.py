@@ -38,7 +38,7 @@ import legacy   # 6.9: moves data saved under the program's earlier name
 import meeting_form   # 6.9: fills the Meeting Workbook's form for Export
 import updater   # 7.0: updates from FrameDecks servers (checked, silent, with rollback)
 
-APP_VERSION = "7.0"
+APP_VERSION = "7.1"
 STARTED_AT = time.time()
 FROZEN = getattr(sys, "frozen", False)          # True inside the installed Windows app
 HERE = Path(sys.executable).resolve().parent if FROZEN else Path(__file__).resolve().parent.parent   # the repository root (this file is in src/)
@@ -2598,11 +2598,7 @@ def update_info():
 
 def on_screen(st=None):
     """Something the audience can see: a card, or Content of the live Frame. Updates wait until it is clear."""
-    st = state if st is None else st
-    if any((st.get(k) or {}).get("visible") for k in ("verse", "question", "birthday")):
-        return True
-    live = st.get("live") or {}
-    return any(bool(v) for v in (live.get("on") or {}).values())
+    return cloud_sync.on_screen(state if st is None else st)
 
 
 def update_action(data):

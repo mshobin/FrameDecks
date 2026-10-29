@@ -76,6 +76,7 @@ function commands(){
     var t = window.KCTheme.get();
     c.push(['theme', t === 'light' ? 'Switch to the dark theme' : 'Switch to the light theme', 'appearance theme dark light mode', function(){ window.KCTheme.set(t === 'light' ? 'dark' : 'light'); }]);
     c.push(['themesys', 'Theme: match Windows', 'appearance system', function(){ window.KCTheme.set('system'); }]);
+    c.push(['themews', 'Theme: follow my workspace', 'appearance workspace look', function(){ window.KCTheme.set('workspace'); }]);
   }
   if (W() && W().contentKinds && sel && sel.scene){
     W().contentKinds().forEach(function(k){ c.push(['add-' + k.id, 'Add Content: ' + k.name, 'new insert ' + k.id, function(){ studio(); W().addContent(k.id); }]); });

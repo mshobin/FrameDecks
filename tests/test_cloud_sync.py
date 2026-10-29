@@ -177,6 +177,30 @@ class TwoPCs(unittest.TestCase):
         self.assertEqual(self.b.frames()[frame]["notes"], "Changed during the service")
         self.assertEqual(self.b.state["held"], [])
 
+    def test_a_new_workspace_look_waits_until_the_screen_is_clear(self):
+        # 7.1: the look (and the brand colour it sets) never changes what the audience sees mid-sentence
+        look = {"id": "deep-ocean", "name": "Deep Ocean", "a": "#0d3349", "b": "#06202f", "font": "sans", "base": "dark"}
+        self.a.plan["look"] = look
+        self.a.plan["brand"]["color"] = "#3fb6b0"
+        self.b.plan["question"]["visible"] = True
+        self.round()
+        self.assertNotIn("look", self.b.plan)
+        self.assertNotEqual(self.b.plan["brand"]["color"], "#3fb6b0")
+        self.assertEqual(len(self.b.state["held"]), 2)
+        self.b.plan["question"]["visible"] = False
+        self.round(self.b)
+        self.assertEqual(self.b.plan["look"], look)
+        self.assertEqual(self.b.plan["brand"]["color"], "#3fb6b0")
+        self.assertEqual(self.b.state["held"], [])
+        self.round(self.a)
+        self.assertEqual(self.a.plan["look"], look, "the look stays on the PC that chose it (never deleted)")
+
+    def test_on_screen_means_a_card_or_live_content(self):
+        self.assertFalse(C.on_screen({"live": {"on": {}}, "question": {"visible": False}}))
+        self.assertTrue(C.on_screen({"verse": {"visible": True}}))
+        self.assertTrue(C.on_screen({"live": {"on": {"l1": True}}}))
+        self.assertFalse(C.on_screen(None))
+
     def test_the_same_frame_changed_on_both_pcs_keeps_both(self):
         frame = self.a.plan["scenes"][1]["id"]
         self.a.frames()[frame]["notes"] = "A's script"
@@ -189,6 +213,8 @@ class TwoPCs(unittest.TestCase):
         self.assertEqual(plan_records(self.a), plan_records(self.b))
 
     def test_a_setting_changed_on_both_pcs_ends_with_the_last_writer(self):
+        for card in ("question", "verse", "birthday"):      # nothing on screen (7.1: settings wait while there is)
+            self.a.plan[card]["visible"] = False
         self.a.plan["brand"]["meeting"] = "From A"
         self.b.plan["brand"]["meeting"] = "From B"
         self.round(self.a, self.b, self.a)

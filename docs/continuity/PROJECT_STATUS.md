@@ -20,6 +20,9 @@ Cloudflare Pages production deploy. Owner live tests remain. The live database h
   treats it as the one address; the program falls back to pages.dev. **Open (owner):** the redirect names
   (`www`, `app`, framedecks.app) do not answer yet, HSTS off, Supabase Site URL/redirect URL and Google consent
   screen URLs not changed, pages.dev Bulk Redirect later. No Brevo: Supabase's built-in mail, no-mail DNS records.
+- **Version 7.1 (29 October, on `main`, not yet tagged):** workspace looks: six looks on the website (Branding →
+  Look) synced as `layout/look` (no migration), applied by the output pages and the FrameRelay camera, held while
+  anything is on screen; "Follow my workspace" in Appearance. Live Test K in `docs/qa/live-test-guide.md`.
 - **Version 7.0 (29 October, on `main`, not yet tagged):** proprietary licence (EULA), downloads from
   framedecks.com/download through Cloudflare R2 and the `api.framedecks.com` Worker, automatic updates with checksum
   verification and rollback, legal/security/docs pages and footer, cookie notice, Terms acceptance, account export and

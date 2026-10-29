@@ -36,7 +36,8 @@ Repository clean-up is on `main` (modules in `src/`; `README.md`, `LICENSE`, `NO
 | 6.14: Setup guide in the program and on the website (one step list, detected steps, Show me how) | On `main` (29 October). Owner: tag `v6.14`, live Test J on a fresh PC |
 | 6.13: one-click linking (`/connect`, `0010_link_by_url.sql`), front page about four screens, GSAP removed | On `main` (29 October). Owner: run `0010` in Supabase, tag `v6.13` (after `v6.12`), live Test A |
 | 7.0: commercial model: proprietary, framedecks.com downloads, R2 + update service, auto-update, legal and security pages ([plan](../project/2026-10-29-commercial-model-plan.md)) | On `main` (29 October). Owner: Email Routing, R2 + secrets, `wrangler deploy`, run 0011, tag `v7.0` before making the repo private, lawyer review, code signing |
-| 7.1: workspace looks (was 6.15), Ed25519-signed release manifests, Azure Trusted Signing in the workflow | Next |
+| 7.1: workspace looks (was 6.15) | On `main` (29 October). Owner: live Test K, tag `v7.1` |
+| 7.2: Ed25519-signed release manifests, Azure Trusted Signing in the workflow | Next (both stay off until the owner adds the key / signing account) |
 | Ideas from the 29 October plan, section 5 (run-through timer, "Take it home" phone page, safe Next preview, backup operator, volunteer rota) | On the roadmap, one at a time after 6.15, each with a live test |
 | framedecks.com as the one address (redirects, TLS, cache, WAF) | Live (28 October): framedecks.com serves, pages.dev noindex. Owner: redirect DNS records (www, app, framedecks.app), HSTS, Supabase + Google URLs, then the pages.dev Bulk Redirect |
 | 6.12: FrameRelay rename, still hero arrival, Proverbs 16:3, About wording | Prepared on `main` (28 October). Owner: tag `v6.12`, pilot install, check the camera name in Zoom/Teams |

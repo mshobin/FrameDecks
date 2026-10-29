@@ -82,11 +82,13 @@ def split(doc, members=None):
             add(key, key, doc[key])
     if "profile" in doc:
         add("layout", "profile", {"value": doc["profile"]})
+    if isinstance(doc.get("look"), dict):            # 7.1 the workspace look, chosen on the website
+        add("layout", "look", doc["look"])
 
     # What stays here: everything not sent above.
     local = {}
     for key, value in doc.items():
-        if key in ("scenes", "profile") or key in SINGLE:
+        if key in ("scenes", "profile", "look") or key in SINGLE:
             continue
         if key == "library":
             local["library"] = {k: v for k, v in library.items() if k not in ("questions", "verses")}
@@ -145,6 +147,9 @@ def join(entities, local):
     profile = body("layout", "profile")
     if profile is not None:
         parts["profile"] = profile.get("value")
+    look = body("layout", "look")
+    if isinstance(look, dict):
+        parts["look"] = look
     for key, value in local.items():
         if key not in parts and key != "library" and key not in CARDS:
             parts[key] = value

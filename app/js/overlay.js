@@ -528,6 +528,7 @@ function mount(opts){
       if (cards.question) cards.question.update(held(st, forObs(st.question)));
       if (cards.birthday) cards.birthday.update(held(st, forObs(st.birthday)));
       brandPalette(st);
+      lookSurface(st);
       if (texts && SC){ lastText = st.live && (st.live.blackout || st.live.emergency) ? [] : SC.liveText(st, isPreview ? null : 'obs').concat(SC.liveBrand(st, isPreview ? null : 'obs')); texts.update(st, lastText); }
       if (program) program(st);
     });
@@ -540,6 +541,15 @@ function mount(opts){
     var c = (st.brand && st.brand.color) || ''; if (c === palette || !SC) return; palette = c;
     var p = SC.brandPalette(c), r = document.documentElement.style;
     [['--gold-1', 'g1'], ['--gold-2', 'g2'], ['--gold-3', 'g3'], ['--gold-4', 'g4'], ['--gold-text', 'text']].forEach(function(k){ if (p) r.setProperty(k[0], p[k[1]]); else r.removeProperty(k[0]); });
+  }
+  /* 7.1 the workspace look: the card surface and the scripture font (cleared when the look is removed) */
+  var surface = '';
+  function lookSurface(st){
+    var v = SC && SC.lookSurface ? SC.lookSurface(st) : null, sig = v ? v.a + '|' + v.b + '|' + v.font : '';
+    if (sig === surface) return; surface = sig;
+    var r = document.documentElement.style;
+    if (v){ r.setProperty('--surf-a', v.a); r.setProperty('--surf-b', v.b); r.setProperty('--scripture', v.font === 'sans' ? 'var(--sans)' : 'var(--serif)'); }
+    else ['--surf-a', '--surf-b', '--scripture'].forEach(function(k){ r.removeProperty(k); });
   }
   if (texts) setInterval(function(){ if (last && lastText.length) texts.tick(last, lastText); }, 250);   // countdowns
   window.addEventListener('resize', function(){

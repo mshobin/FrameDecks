@@ -53,7 +53,7 @@ html.fd-light .fd-tagline {
 html.fd-light .fd-welcome,
 html.fd-light .fd-cta,
 html.fd-light .fd-auth-card,
-html.fd-light .fd-brand-card {
+html.fd-light .fd-brand-card:not(.has-look) {
   background:
     radial-gradient(600px 300px at 80% 40%, rgba(227, 183, 90, 0.12), transparent 70%),
     var(--surface-solid);

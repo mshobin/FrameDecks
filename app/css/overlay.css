@@ -7,10 +7,12 @@
   --u: min(1vw, 1.7778vh);
   --gold-1:#f6e1a0; --gold-2:#d9ab4a; --gold-3:#a8781f; --gold-4:#eccb72;
   --gold-text:#f2c35b;
-  --navy-a:rgba(24,44,84,var(--panel-a,.92));
-  --navy-b:rgba(12,26,56,var(--panel-a,.92));
+  /* 7.1 the workspace look sets the card surface (--surf-a/--surf-b as r,g,b) and the scripture font */
+  --navy-a:rgba(var(--surf-a,24,44,84),var(--panel-a,.92));
+  --navy-b:rgba(var(--surf-b,12,26,56),var(--panel-a,.92));
   --serif:'KC Serif','EB Garamond',Georgia,'Palatino Linotype',Cambria,serif;
   --sans:'KC Sans','Source Sans 3','Segoe UI',system-ui,-apple-system,Arial,sans-serif;
+  --scripture:var(--serif);
   /* layout (set live from the dashboard) */
   --verse-y:40%; --verse-w:70; --verse-scale:1;
   --q-bottom:10; --q-w:84; --q-scale:1;
@@ -86,7 +88,7 @@ body.bg-preview{background:
 .card-verse .card-label{justify-content:center;font-size:calc(var(--s)*1.0)}
 .card-verse .card-rule{margin:calc(var(--s)*1.1) auto calc(var(--s)*1.6);width:min(100%, calc(var(--s)*26));
   background:linear-gradient(90deg,transparent,rgba(255,255,255,.85) 18%,rgba(255,255,255,.85) 82%,transparent)}
-.card-verse .card-text{font-family:var(--serif);font-weight:500;color:#fbf6ea;
+.card-verse .card-text{font-family:var(--scripture);font-weight:500;color:#fbf6ea;
   font-size:calc(var(--s) * 2.85 * var(--fit,1));line-height:1.34;letter-spacing:.003em;text-wrap:balance}
 .card-verse .card-ref{margin-top:calc(var(--s)*1.4);display:flex;justify-content:center;align-items:baseline;flex-wrap:wrap;
   gap:0 calc(var(--s)*.8);font-family:var(--sans);font-weight:700;color:var(--gold-text);
@@ -139,7 +141,7 @@ body.bg-preview{background:
 .card-birthday .card-label{justify-content:center;font-size:calc(var(--s)*1.0)}
 .card-birthday .card-rule{margin:calc(var(--s)*1.0) auto calc(var(--s)*1.3);width:min(100%, calc(var(--s)*24));
   background:linear-gradient(90deg,transparent,rgba(255,255,255,.85) 18%,rgba(255,255,255,.85) 82%,transparent)}
-.bday-greeting{margin:0;font-family:var(--serif);font-weight:600;color:#fbf6ea;line-height:1.18;
+.bday-greeting{margin:0;font-family:var(--scripture);font-weight:600;color:#fbf6ea;line-height:1.18;
   font-size:calc(var(--s) * 3.3 * var(--fit,1));overflow-wrap:anywhere;text-wrap:balance}
 .bday-name{color:var(--gold-text);
   background:linear-gradient(180deg,#fbe7a8 0%,#e9bf5c 55%,#c9973a 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
