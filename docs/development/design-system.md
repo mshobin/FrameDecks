@@ -112,53 +112,52 @@ One direction, built in `hosted/src/app/identity.css` (loaded after the older lo
 - **Places.** Home · Plan · Live · People, then Settings: Branding, Service PCs, Help. Your account is the avatar.
 - **Words.** Team, Service PCs, People, Go Live (`docs/guide/glossary.md`). The name is always **FrameDecks**.
 
-## Landing (website, redesigned 28 October)
+## Landing (website, redesigned 28 October; about four screens since 6.13)
 
 `hosted/src/components/landing.tsx` (the words and the order) with one file per part in
 `hosted/src/components/landing/`, styled by `hosted/src/app/landing.css` (loaded after `identity.css`). For every kind
 of gathering; no church-only words, no named third-party streaming or camera products (FrameRelay, our own camera, is
-named), no invented quotes, logos or numbers. Built from the owner's written spec of 28 October (the reference mock-up
-file was not in the repository).
+named), no invented quotes, logos or numbers.
 
 - **Approved words, unchanged:** "Prepare with Purpose. Present with Excellence.", the hero paragraph, **Ready to
-  Serve?**, the steps **Day 1 … Day 4**, every feature, demo frame and question. New: a KJV verse above the closing
-  call (Colossians 3:23) and four more gatherings in the marquee.
-- **Order and parts:** `landing/nav.tsx` (clear, then blurred navy with a hairline after 20 px; How it works, See it
-  work, Features, Questions; Reduce effects, theme, About, Sign in, gold Download · free) → `landing/hero.tsx` (words
-  rise blur-to-sharp, the second line in gold that sweeps once; then the product arrives once, in order, and stays
-  still (6.12): the Studio window rises 28 px into place, its screen wakes from the top, the gold corner brackets
-  settle onto the frame, the phone slides in over its corner, and one soft light crosses the glass; the gold light
-  behind it is still) → audience marquee (gold-outlined chips, pauses on hover, faded edges) →
-  `landing/how-it-works.tsx` + `landing/step-screens.tsx` → `next-demo.tsx` (16:9 room screen, wire, phone; Next,
-  Previous, Hide all, Black screen; ripple; a gold dot runs along the wire on every tap; a question drains its gold
-  timer) → 12-column bento with `landing/feature-previews.tsx` (Teleprompter with a gliding script and a gold reading
-  line; FrameRelay picture with soft background, LIVE, logo and lower third) and four small tiles → `landing/statement.tsx`
-  (the serif promise; words light up one by one as you scroll) → FAQ (a gold plus turns to ×) → Ready to Serve? (verse,
-  gold sweep on "Serve?", light beam, both download buttons) → footer.
-- **How it works (the 4-step guide):** on screens wider than 960 px with motion allowed, GSAP ScrollTrigger pins the
-  section with `end: "+=" + innerHeight * 1.6` (about 40% of a viewport of scrolling per step) and
-  `snap: { snapTo: [0, 1/3, 2/3, 1], duration: { min: 0.2, max: 0.45 }, ease: "power2.out", delay: 0.05 }`; the step is
-  `Math.round(progress * 3)` and the gold rail fills with the progress. One normal wheel flick moves exactly one step
-  (measured: snaps land 410 px apart at 1366 × 768). Clicking a step scrolls to its snap point. GSAP is imported only
-  there (`gsap.matchMedia`, reverted on unmount): phones and "reduce motion" never download it. Elsewhere the steps are
-  pill tabs with the description below, moving on every 4 s while on screen until someone taps one (never under reduce
-  motion or Reduce effects). Each screen's small story replays when it becomes active and ends within about 1.2 s, and
-  a gold callout sits at the window's corner. **TODO (real screenshots):** capture each step at 1200 × 750 as WebP into
-  `hosted/public/product/step-*.webp` and pass `image` per step in `landing.tsx`; the drawn screens are the fallback.
+  Serve?**, the steps **Day 1 … Day 4**, every feature, demo frame and question, the KJV verse above the closing call
+  (Colossians 3:23).
+- **Order and parts (6.13, about 4.5 screens at 1366 × 768, 3.2 at 1920 × 1080):**
+  1. `landing/nav.tsx`: clear, then blurred navy with a hairline after 20 px; How it works, See it work, Questions;
+     Reduce effects, theme, About, Sign in, gold Download · free.
+  2. `landing/hero.tsx`, two columns above the fold (one column under 1000 px): the pill line with the audiences, the
+     words rising blur-to-sharp with the gold second line sweeping once, the paragraph, both buttons and four proof
+     ticks; beside them the Studio window arrives once and stays still (it rises 28 px without fading, its screen
+     wakes from the top, the gold corners settle, the phone slides in, one light crosses the glass).
+  3. `landing/how-it-works.tsx` + `landing/step-screens.tsx`: four tabs across the top over one app window, with the
+     step's day, title, text and Previous / Pause / Next beside it. The active tab's gold bar fills over 6 s (a finite
+     CSS animation, `lp-tab-fill`, declared paused and running only under `[data-run]`); its `animationend` moves to
+     the next step. It plays only while the section is on screen, holds on hover and keyboard focus, stops after one
+     round or when someone picks a step, and never starts under reduce motion or **Reduce effects** (step 1 waits).
+     Arrow keys move between tabs. No pinning and no GSAP.
+  4. `landing/feature-tabs.tsx` ("See it work"): one tab set for the demo and the features: **Present** (the
+     press-Next demo, `next-demo.tsx`), **Teleprompter** and **Every screen** (`landing/feature-previews.tsx`), and
+     **Team and privacy** (four small promises). Each panel: three short lines and the thing itself. Hidden panels stay
+     in the page.
+  5. Questions: the first four in two columns; the rest behind **More questions**.
+  6. Ready to Serve?: the serif promise "Every screen. Every stream. Every member of your team.", the verse, the gold
+     sweep on "Serve?", both buttons → footer.
+- **Real screenshots (TODO):** capture each step at 1200 × 750 as WebP into `hosted/public/product/step-*.webp` and
+  pass `image` per step in `landing.tsx`; the drawn screens are the fallback.
 - **Motion rules** (`motion.css`, `landing.css`, `components/motion.tsx`): one easing family (`--ease-out` for
   entrances of 600–1100 ms, `--ease-soft` for loops), nothing bouncy. Only `transform` and `opacity` move, except two
   one-off entrances that sharpen from a small blur (hero words, step screens). The stage light (two glows, navy and
-  gold) drifts for about a minute after a page opens and then rests. Every endless loop (marquee, teleprompter, LIVE
-  dot) is declared paused and runs only while its `data-loop` element is on screen (`data-live`);
-  none runs under "reduce motion" or **Reduce effects** (`components/effects-toggle.tsx`, `html.fd-calm`, saved in
-  this browser). `tests/idle-performance.test.mjs` enforces this.
+  gold) drifts for about a minute after a page opens and then rests. Every endless loop (teleprompter, LIVE dot) is
+  declared paused and runs only while its `data-loop` element is on screen (`data-live`); none runs under "reduce
+  motion" or **Reduce effects** (`components/effects-toggle.tsx`, `html.fd-calm`, saved in this browser).
+  `tests/idle-performance.test.mjs` enforces this.
 - **Reveal fix:** `data-reveal` content is visible without JavaScript; it is hidden only after `motion.tsx` has run
   (`html.fd-reveal-ready`) and has already shown whatever is on or above the screen. An IntersectionObserver
   (`rootMargin "0px 0px -8% 0px"`) reveals the rest, and a scroll/hash safety net shows anything passed over by an
   anchor jump or a fast flick, so no section can stay invisible.
-- **Measured (28 October):** no horizontal scroll at 375, 768, 1366 and 1920 px; Lighthouse desktop 100 performance,
-  100 accessibility; mobile (throttled) 89–90, the old landing 88–90 on the same test; JS 380 KB and CSS 21 KB
-  gzipped (CSS budget raised to 24 KB on purpose in `scripts/check-budget.mjs`).
+- **Measured (29 October, 6.13):** no horizontal scroll at 375, 768, 1366 and 1920 px; Lighthouse mobile (throttled)
+  86–89 performance (the paragraph is the largest paint), 100 accessibility; JS 339 KB (was 380 with GSAP) and CSS
+  21 KB gzipped (CSS budget 24 KB in `scripts/check-budget.mjs`).
 
 ## Signed-in pages (28 October visual pass)
 

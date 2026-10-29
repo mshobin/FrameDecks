@@ -203,7 +203,11 @@ kbd.key:empty{display:none}
 .acct-recent{list-style:none;margin:4px 0 0;padding:0;font-size:13px}
 .acct-recent li{padding:3px 0;border-bottom:1px solid var(--line)}
 .acct-recent li.bad{color:var(--red)}
-.acct-code{font:800 34px/1.2 ui-monospace,Consolas,monospace;letter-spacing:.18em;margin:6px 0 4px}
+.acct-wait{display:flex;align-items:center;gap:14px;margin:6px 0 12px;padding:12px 14px;border:1px solid var(--line);border-radius:12px}
+.acct-wait > div{flex:1} .acct-wait p{margin:0 0 2px}
+.acct-spin{width:12px;height:12px;border-radius:50%;background:var(--accent);flex:none;animation:livepulse 1.4s ease-in-out infinite}
+.acct-check{min-width:56px;padding:6px 10px;border:1px solid var(--accent);border-radius:8px;font:800 22px/1 ui-monospace,Consolas,monospace;letter-spacing:.08em;text-align:center}
+@media (prefers-reduced-motion: reduce){.acct-spin{animation:none}}
 .kv{display:grid;grid-template-columns:150px 1fr;gap:6px 14px;font-size:14px;margin:10px 0}
 .kv dt{color:var(--muted)} .kv dd{margin:0;overflow-wrap:anywhere}
 .mono{font-family:ui-monospace,Consolas,Menlo,monospace;font-size:13px}

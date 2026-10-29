@@ -157,8 +157,8 @@ function FirstSteps({ name }: Readonly<{ name: string }>) {
           <div>
             <h2>Link that PC</h2>
             <p>
-              In FrameDecks: Settings → FrameDecks account shows a short code. Type it under Service PCs here; your plan then
-              reaches the PC within a minute.
+              In FrameDecks: Settings → FrameDecks account → Connect to FrameDecks. Your browser asks you to allow that PC;
+              your plan then reaches it within a minute. Linked PCs show under Service PCs.
             </p>
             <Link className="fd-link" href="/computers">
               Service PCs <ArrowRight aria-hidden="true" size={15} />

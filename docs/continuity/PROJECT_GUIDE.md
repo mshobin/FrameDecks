@@ -88,7 +88,7 @@ Read this first, then [NEXT_SESSION.md](NEXT_SESSION.md).
 - Continuity: `docs/continuity/PROJECT_GUIDE.md`, `docs/continuity/PROJECT_STATUS.md`,
   `docs/continuity/PROJECT_ROADMAP.md`, `docs/continuity/NEXT_SESSION.md`. The owner's live tests:
   `docs/qa/live-test-guide.md` (keep it in step when a tested behaviour changes).
-- Current handoff (28 October 2026; framedecks.com live, its redirects, HSTS and the Supabase/Google URLs still the owner's; version 6.12 prepared on `main`, waiting for the owner's `v6.12` tag; FRAMECAST is now FrameRelay): v6.11.2 (repository layout + companion trust fixes, no desktop change; tag `v6.11.2`) follows v6.11.1 and the README/release wordmark refresh (PR #38). Trust
+- Current handoff (29 October 2026; version 6.13 on `main`: one-click linking and a four-screen front page, the owner runs `0010_link_by_url.sql` and tags `v6.12` then `v6.13`; framedecks.com live, its redirects, HSTS and the Supabase/Google URLs still the owner's; FRAMECAST is now FrameRelay): v6.11.2 (repository layout + companion trust fixes, no desktop change; tag `v6.11.2`) follows v6.11.1 and the README/release wordmark refresh (PR #38). Trust
   fixes merged in PR #39 (`27cfb4b`); production deployment verification and the owner's live tests remain. See
   `docs/continuity/NEXT_SESSION.md`. Repository clean-up (merged): Python modules are in `src/`
   (`python src/server.py`), `README.md`, `LICENSE`, `NOTICE` and `ruff.toml` at the top level, `CONTRIBUTING`/`SECURITY`/`SUPPORT` in `.github/`,
@@ -117,10 +117,11 @@ Read this first, then [NEXT_SESSION.md](NEXT_SESSION.md).
   Live, People `/members`; Settings: Branding, Service PCs `/computers`, Help `/help`; Your account `/account`. The
   look on top of `design.css` is `hosted/src/app/identity.css` (`.fd-framed` corners, EB Garamond for scripture, warm
   gold main action) and, for the front page, `hosted/src/app/landing.css` with `components/landing.tsx` and its parts in
-  `components/landing/` (redesign of 28 October: nav, hero, marquee, the pinned 4-step guide, the press-Next demo, a
-  12-column bento, the scrolled statement, FAQ, Ready to Serve?; `docs/development/design-system.md` "Landing" has
-  the GSAP pin/snap settings and the reduced-motion behaviour). GSAP (`gsap` 3.13, ScrollTrigger) is imported only by
-  `landing/how-it-works.tsx`, and only on wide screens with motion allowed. Website words: team, not church; no named
+  `components/landing/` (6.13, about four screens: nav, two-column hero with proof ticks, How it works as four tabs
+  that play once by themselves, one tab set for the press-Next demo and the features, four questions plus "More
+  questions", Ready to Serve? with the promise; `docs/development/design-system.md` "Landing" has the autoplay and
+  reduced-motion rules). No GSAP. `/connect` (`components/connect-panel.tsx`, `lib/connect-link.ts`) is where an
+  owner or admin allows a PC that chose Connect to FrameDecks. Website words: team, not church; no named
   streaming products on the front page. `filter` animates only in two one-off entrances (hero words, step screens).
 - `hosted/src/app/meeting` — 6.11 the Meeting Form: the Excel form's sections on the live plan (`hosted/src/lib/meeting-form.ts`),
   plus the meeting's Transition style (the synced `layout/profile` record).

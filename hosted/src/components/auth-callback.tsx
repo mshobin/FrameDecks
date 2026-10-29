@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
+import { takeReturn } from "@/lib/connect-link";
 import { browserSupabase } from "@/lib/supabase-browser";
 import { userSafeError } from "@/lib/user-error";
 
@@ -30,7 +31,12 @@ export function AuthCallback() {
     );
     supabase.auth.getSession().then(({ data, error }) => {
       window.clearTimeout(slow);
-      if (data.session) router.replace("/");
+      if (data.session) {
+        // Back to a PC's connect request if signing in started there (6.13); otherwise Home
+        const back = takeReturn(localStorage);
+        if (back) window.location.replace(back);
+        else router.replace("/");
+      }
       else if (hasReported) setFailure("Sign-in couldn’t be completed. Request a new link or choose another way to sign in.");
       else setFailure(userSafeError(error, "This sign-in link has expired or was already used. Request a new one."));
     });

@@ -1,14 +1,38 @@
 # NEXT SESSION HANDOFF
 
-Updated 28 October 2026 (framedecks.com live; its redirects, HSTS and the Supabase/Google URLs are still the owner's; 6.12 is on `main` waiting for its tag; every check green): the maintainer guide is now [PROJECT_GUIDE.md](PROJECT_GUIDE.md); current references were updated. The continuity files now live in `docs/continuity/`. Windows batch launchers are under `tools/launchers/` and resolve the repository root before running. Release `v6.11.2` (repository layout and trust fixes, no desktop change; pilot install on a real PC and SHA-256 check still the owner's) was tagged after `v6.11.1`, which is published; the FrameDecks README and release header refresh merged in
+Updated 29 October 2026 (6.13 on `main`: one-click linking and a four-screen front page; the owner runs `0010_link_by_url.sql` in Supabase and tags `v6.12` and `v6.13`; framedecks.com live, its redirects, HSTS and the Supabase/Google URLs are still the owner's; every check green): the maintainer guide is now [PROJECT_GUIDE.md](PROJECT_GUIDE.md); current references were updated. The continuity files now live in `docs/continuity/`. Windows batch launchers are under `tools/launchers/` and resolve the repository root before running. Release `v6.11.2` (repository layout and trust fixes, no desktop change; pilot install on a real PC and SHA-256 check still the owner's) was tagged after `v6.11.1`, which is published; the FrameDecks README and release header refresh merged in
 PR #38. Trust fixes merged in PR #39 (`27cfb4b`). Later the same day: the budget script fixed for Windows
 (`57cd9c3`), the five Dependabot action upgrades merged (#33–#37), and the handoff PR #40. All checks on `main` are
 green, including the Cloudflare Pages deploy (production); a look at the live site is still the owner's. Read [PROJECT_GUIDE.md](PROJECT_GUIDE.md) ("Working locally" has the set-up and run commands).
 
-29 October, plan written (not built): `docs/project/2026-10-29-onboarding-linking-themes-plan.md`: setup guide, one-click
-linking (keep the device-code protocol, carry the code in the URL fragment, authorisation page with a check number,
-fast poll; migration `0010`), front page to about 4 screens with an autoplay How it works (drop GSAP), workspace looks
-synced as a new `look` record, differentiators, impact/effort order. Waiting for the owner's answers in its section 7.
+29 October, version 6.13 on `main` (not yet tagged). Owner's answers to the plan's section 7: (1) keep "Type a code
+instead" as a fallback, (2) the six looks are approved (6.15), (3) the four-screen front page without the pinned guide
+and GSAP is approved, (4) the new ideas go on the roadmap. Built:
+- **One-click linking.** `hosted/supabase/migrations/0010_link_by_url.sql` adds `computer_link_peek(code)` (signed-in
+  only, same 20-an-hour failure limit; rollback in `supabase/rollback/`; PGlite test in `supabase-sync.test.mjs`).
+  Website `/connect` (`components/connect-panel.tsx`, `lib/connect-link.ts`, `app/connect/page.tsx`): reads
+  `#code=…&name=…`, shows the PC with its check number (SHA-256 of the code, two bytes, mod 90 + 10; same in
+  `cloud_sync.check_number`), the workspace picker for owners/admins, Allow / Cancel, then "connected" and a
+  `framedecks://linked` link. Signed out: "Sign in to continue", the request is remembered for 15 minutes
+  (`fd-after-sign-in`) and `auth-callback.tsx` returns to it. Program: Settings → FrameDecks account → **Connect to
+  FrameDecks** opens `connectUrl` (`cloud_sync.connect_url`, site from the sync config) in the browser; the waiting
+  view shows the check number, Open the page again, Cancel and the fallback code; polling every 1.5 s. Home, Service
+  PCs and the live test guide (Test A) describe the new way. The "email the owners" idea became the existing Service
+  PCs list (no mail provider). Verified in a browser against a mocked Supabase: ask, signed out, member-only, no code,
+  Allow → connected.
+- **Front page about four screens** (4.5 at 1366 × 768, was about 9 plus 1.6 pinned): two-column hero with four proof
+  ticks (the marquee is gone), How it works as four tabs with a 6 s filling bar that plays once while on screen
+  (holds on hover/focus, never under reduce motion / Reduce effects; `landing/how-it-works.tsx`), one tab set for the
+  demo and the features (`landing/feature-tabs.tsx`), four questions + "More questions", the promise inside Ready to
+  Serve?. `statement.tsx` removed; `gsap` uninstalled (JS 380 → 339 KB). The hero picture no longer fades in, so the
+  paragraph stays the largest paint: Lighthouse mobile 86–89, accessibility 100.
+- `APP_VERSION` 6.13, `docs/releases/v6.13.md` (Known Issues: run 0010), CHANGELOG (the framedecks.com entry moved
+  into 6.13), design history 36, header image at 6.13, design-system "Landing", metadata-sync.
+- Checks: Python 174, desktop JS 4/4, packaging, CSS tokens, ruff, doc links, release notes check, website 138/138,
+  lint, types, build, budget, program visual and axe suites.
+- **Owner:** run `0010_link_by_url.sql` in the Supabase SQL editor; tag `v6.12` and then `v6.13` on `main` (the session
+  cannot push tags); live Test A with the new flow. **Next (6.14):** the Setup guide in the program, then on the
+  website; 6.15 the workspace looks. Plan: `docs/project/2026-10-29-onboarding-linking-themes-plan.md`.
 
 28 October, framedecks.com live-check (owner's curl results, 11:38 UTC): **framedecks.com serves the site** through
 Cloudflare (200, the repository's security headers), `robots.txt` names `https://framedecks.com/sitemap.xml`,

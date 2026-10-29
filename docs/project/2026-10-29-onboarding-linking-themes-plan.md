@@ -1,10 +1,14 @@
 # Onboarding, one-click linking, a shorter front page and synced themes (plan, 29 October 2026)
 
 The owner's brief of 29 October, turned into a plan that fits what FrameDecks already is: a Windows program that
-presents offline, a static website on Cloudflare Pages, and Supabase for accounts and sync. Nothing here is built
+presents offline, a static website on Cloudflare Pages, and Supabase for accounts and sync. When written, nothing here was built
 yet; section 6 orders the work by impact and effort. Rules that still hold: the program must stay light next to a
 meeting app on an 8 GB PC, presenting never depends on the internet, no tracking, and run migrations (0001–0009) are
 never edited; new database work goes in `0010_*` and later.
+
+**Status (29 October):** the owner approved all four decisions in section 7. Version 6.13 built one-click linking
+(section 2, with "Type a code instead" kept) and the four-screen front page (section 3, GSAP removed). Next: the Setup
+guide (6.14), then the six workspace looks (6.15).
 
 ## 1. Onboarding and guided tour
 

@@ -85,6 +85,27 @@ test("linking: the PC sends only its key's hash, an admin approves the code, the
   assert.equal((await as(MEMBER, "select * from computers")).rows.length, 0);
 });
 
+test("0010: an owner or admin sees which PC asked and how long ago, by the code from the link", async () => {
+  const key = randomBytes(32).toString("base64url");
+  await db.exec("set role anon");
+  let code;
+  try {
+    code = (await db.query("select computer_link_start('Hall PC', $1) as code", [hash(key)])).rows[0].code;
+    await assert.rejects(db.query("select computer_link_peek($1)", [code]), "the anonymous role cannot look codes up");
+  } finally {
+    await db.exec("reset role");
+  }
+  const seen = (await as(OWNER, "select computer_link_peek($1) as r", [code.toLowerCase()])).rows[0].r;
+  assert.equal(seen.status, "pending");
+  assert.equal(seen.name, "Hall PC");
+  assert.ok(seen.ageSeconds >= 0 && seen.ageSeconds < 60, String(seen.ageSeconds));
+  assert.equal((await as(OWNER, "select computer_link_peek('NOTACODE') as r")).rows[0].r.status, "unknown");
+  await db.query("update computer_links set expires_at = now() - interval '1 second' where code_hash = sha256_hex($1)", [code]);
+  assert.equal((await as(OWNER, "select computer_link_peek($1) as r", [code])).rows[0].r.status, "expired");
+  // looking up does not approve anything: the PC is still waiting (expired now), nothing was linked
+  assert.equal((await as(OWNER, "select count(*)::int as n from computers where name = 'Hall PC'")).rows[0].n, 0);
+});
+
 test("the linked PC pushes new records and pulls them back in seq order", async () => {
   const r = await push(pcRun, [
     { kind: "frame", id: "sc_1", baseRev: 0, body: { name: "Welcome", notes: "Script" } },

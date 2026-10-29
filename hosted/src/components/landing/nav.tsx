@@ -43,8 +43,7 @@ export function LandingNav({ downloads }: Readonly<{ downloads: string }>) {
       </Link>
       <nav className="fd-landing-links" aria-label="On this page">
         <a href="#how">How it works</a>
-        <a href="#try">See it work</a>
-        <a href="#features">Features</a>
+        <a href="#features">See it work</a>
         <a href="#questions">Questions</a>
       </nav>
       <div className="fd-topbar-right">

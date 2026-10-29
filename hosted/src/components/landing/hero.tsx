@@ -1,7 +1,8 @@
 import type { CSSProperties, ReactNode } from "react";
 import Image from "next/image";
+import { CircleCheck } from "lucide-react";
 
-// The hero: the headline rises in word by word (blur to sharp), the second line in gold that catches the light once.
+// The hero (two columns since 6.13: the words left, the product right): the headline rises in word by word (blur to sharp), the second line in gold that catches the light once.
 // Then the product arrives the way a room comes to life before a gathering, once and in order (landing.css "hero"):
 // the Studio window rises a short way into place, its screen comes on from top to bottom, the gold corners settle
 // onto the frame, the phone slides in beside it, and one soft light passes across the glass. Nothing floats or
@@ -29,14 +30,14 @@ export function LandingHero({
   second,
   lede,
   actions,
-  trust,
+  proof,
 }: Readonly<{
   pill: string;
   first: string;
   second: string;
   lede: string;
   actions: ReactNode;
-  trust: string;
+  proof: readonly string[];
 }>) {
   const secondStart = 120 + first.split(" ").length * 80;
   return (
@@ -54,9 +55,13 @@ export function LandingHero({
         <div className="fd-enter" style={delay(secondStart + 360)}>
           {actions}
         </div>
-        <p className="lp-trust fd-enter" style={delay(secondStart + 460)}>
-          {trust}
-        </p>
+        <ul className="lp-proof fd-enter" style={delay(secondStart + 460)}>
+          {proof.map((p) => (
+            <li key={p}>
+              <CircleCheck aria-hidden="true" size={17} /> {p}
+            </li>
+          ))}
+        </ul>
       </div>
 
       <figure className="lp-stage">

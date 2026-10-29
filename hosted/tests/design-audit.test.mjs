@@ -87,9 +87,18 @@ test("the landing page carries the owner's brief (27 October): approved words, e
   assert.ok(landing.indexOf("Download for Windows") < landing.indexOf("Plan online first"));
   assert.match(landing, /data-reveal/);
   assert.match(landing, /data-spotlight/);
-  assert.match(landing, /data-loop/);
-  assert.match(src("components/landing/how-it-works.tsx"), /end: \(\) => "\+=" \+ window\.innerHeight \* 1\.6/);
-  assert.match(src("components/landing/how-it-works.tsx"), /snapTo: SNAPS/);
+  assert.match(src("components/landing/feature-previews.tsx"), /data-loop/);
+  // 6.13: about four screens. How it works plays its steps once, by itself, without pinning (no GSAP)
+  const how = src("components/landing/how-it-works.tsx");
+  assert.doesNotMatch(how, /gsap|ScrollTrigger/);
+  assert.match(how, /onAnimationEnd/);
+  assert.match(how, /setAuto\(false\); \/\/ one round/);
+  assert.match(src("app/landing.css"), /\.lp-how\[data-auto\] \.lp-tab\.is-on \.lp-tab-bar i \{\s*animation: lp-tab-fill 6s linear both paused;/);
+  assert.match(src("app/landing.css"), /\.lp-how\[data-run\] \.lp-tab\.is-on \.lp-tab-bar i \{\s*animation-play-state: running;/);
+  assert.equal(JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8")).dependencies.gsap, undefined);
+  assert.match(landing, /FAQ\.slice\(0, 4\)/);
+  assert.match(landing, /More questions/);
+  assert.match(landing, /Every member of your team\./);
   assert.match(src("app/layout.tsx"), /import "\.\/identity\.css";\s*import "\.\/landing\.css";\s*import "\.\/light\.css";/);
   assert.doesNotMatch(src("app/identity.css"), /\.fd-ambient \{\s*display: none;/);
   assert.doesNotMatch(src("app/motion.css"), /filter: blur/);

@@ -969,3 +969,25 @@ ordered arrival (the window rises, its screen wakes top to bottom, the gold corn
 light crosses the glass) that then stays still. The demo's quotation became Proverbs 16:3 (KJV), and the Studio
 picture on the front page was captured again from the program with that verse live. The About screen's founder
 roles and journey no longer include "Ministry Servant".
+
+## 36. Version 6.13: one-click linking and a shorter front page (29 October 2026)
+
+Linking a PC no longer needs a code typed on another device. The program still starts a `computer_link_start`
+request, but **Connect to FrameDecks** opens `framedecks.com/connect#code=…&name=…`; the code travels in the URL
+fragment, so it never reaches a server log. The page asks the new `computer_link_peek` (migration 0010: security
+definer, signed-in callers only, the same 20-failures-an-hour limit as approving) whether the request is pending and
+how old it is, shows the PC's name and a two-digit check number (the first two bytes of SHA-256 of the code, mod 90,
+plus 10, computed the same way in `cloud_sync.check_number` and `connect-link.ts`), and approves it with the existing
+`computer_link_approve`. The PC learns the answer from its own poll (every 1.5 s while waiting) and the page's
+`framedecks://linked` link only brings the program forward. A visitor who must sign in first is returned to the
+request once, within 15 minutes (`fd-after-sign-in` in local storage, read by the auth callback). Typing the code
+under Service PCs remains as the fallback.
+
+The front page went from about nine screens (plus 1.6 pinned) to about four and a half at 1366 × 768. The hero is two
+columns with four proof ticks, and the audience marquee became the pill line. How it works replaced the GSAP
+scroll-pinned guide with tabs whose gold bar fills over 6 s by a finite CSS animation; its `animationend` moves to the
+next step, the section plays only while on screen, holds on hover and focus, stops after one round or a pick, and
+never starts under reduced motion or Reduce effects. The demo and the features share one tab set; four questions show
+and the rest sit behind "More questions"; the statement moved into the closing panel. GSAP was uninstalled (JavaScript
+380 → 339 KB gzipped); mobile Lighthouse stays at 86–89, with the Studio picture's arrival no longer fading from
+nothing so it does not hold back the largest paint.

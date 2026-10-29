@@ -20,7 +20,9 @@ stays the place where services run, offline.
 - **Nothing changes during a service.** The PC presents from its own copy exactly as today. Sync runs in the
   background, waits while you are offline, and never changes the Frame that is on screen.
 - **Nothing is lost.** If the same Frame was changed in two places, both versions are kept.
-- **To link a PC:** the PC shows a short code; you type it in the companion while signed in, and choose the workspace.
+- **To link a PC:** the PC opens `framedecks.com/connect` in the browser with its request (6.13); you sign in, check
+  the two-digit number matches the PC, choose the workspace and press Allow. Typing the PC's short code under Service
+  PCs still works.
   The PC makes its own key and the cloud only ever stores a fingerprint (hash) of it.
 - **Decisions:** recorded in [§10](#10-decisions-for-the-owner).
 
@@ -114,6 +116,7 @@ before it has a key):
 | `sync_push(changes)` | PC, or admin later | For each `{kind, id, baseRev, deleted, body}`: if the stored `rev` equals `baseRev`, store with `rev + 1` and the next `seq`; otherwise answer `conflict` with the current record. Each change stands alone. At most 200 changes / 2 MB a call |
 | `computer_link_start(name, key_hash)` | PC, before it is linked (`anon`) | The PC makes its own key (32 random bytes), keeps it, and sends only its SHA-256 hash. Returns an 8-character code to show; it expires in 10 minutes. At most 1,000 links wait at once |
 | `computer_link_approve(code, organization_id)` | Signed-in owner/admin in the companion | Approves the waiting PC for that workspace and creates its `computers` row with the key hash. 20 wrong codes an hour per person, then a pause |
+| `computer_link_peek(code)` (6.13, `0010_link_by_url.sql`) | Signed-in user on `/connect` | `unknown`, `expired`, or `pending` with the PC's name and the request's age in seconds, so the page can ask "Allow ‹PC›?". A code not found counts towards the same 20-an-hour limit |
 | `computer_link_poll(key)` | PC (`anon`) | `pending`, `expired`, or once: `approved` with the computer id and workspace. The key itself never crosses the network except as the request header later, and the cloud stores only its hash |
 | `computer_revoke(id)` | Owner/admin | Sets `revoked_at`; that PC's key stops working at once. The PC keeps working offline |
 
@@ -165,7 +168,8 @@ sequenceDiagram
   not answer) for
   the Supabase address and public key, and keeps them in `kc-sync.json`; nothing about the cloud is written into the
   program. `FRAMEDECKS_COMPANION_URL` points it elsewhere for testing.
-- **Settings → FrameDecks account** (D1) shows Not linked / the code to type / Linked to ‹workspace› with the last
+- **Settings → FrameDecks account** (D1) shows Not linked with **Connect to FrameDecks** / waiting for the browser
+  (check number, Open the page again, Cancel, and the code as a fallback) / Linked to ‹workspace› with the last
   sync, Sync now and Unlink. Once linked, Settings → Security and Data / Backup say that plans and members sync.
 - **The computer key** is made by the PC (32 random bytes) and kept in Windows Credential Manager (through `ctypes`,
   no new package), never in the data folder or backups; only its hash ever reaches the cloud. On other systems

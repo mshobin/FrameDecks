@@ -10,13 +10,6 @@ Versions before 4.9 (when the program had its earlier name) are described in the
 
 ## [Unreleased]
 
-### Changed
-- framedecks.com is the website's one address: canonical links, Open Graph, `robots.txt` and `sitemap.xml` use it;
-  signed-in pages are not indexed; the Pages address answers `noindex`. The program links through
-  `https://framedecks.com` and falls back to `https://framedecks.pages.dev` (from the next release). Cloudflare DNS,
-  redirects (framedecks.app and www → 301), TLS, cache, security and WAF settings:
-  [docs/deployment/cloudflare-domains.md](deployment/cloudflare-domains.md).
-
 ### Added
 - The program can take commands from the FrameDecks companion (Next/Previous Frame, Go Live, Hide all, black screen,
   question, scripture) and run them exactly as the keys do, showing "‹action› · from ‹person›" on the PC. Off by
@@ -51,6 +44,28 @@ Versions before 4.9 (when the program had its earlier name) are described in the
   Windows installer, and marketing header. Presentation workflows are unchanged.
 - The favicons, the tray icon and the small program-icon sizes (16–32 px) use a heavier version of the emblem, so it
   stays visible on light browser tabs and a light taskbar. Larger sizes are unchanged.
+
+## [6.13] - 2026-10-29
+
+Full notes: [docs/releases/v6.13.md](releases/v6.13.md)
+
+### Added
+- **One-click linking.** Settings → FrameDecks account → **Connect to FrameDecks** opens `framedecks.com/connect` in
+  the browser; a signed-in owner or admin sees "Allow ‹PC› to use your workspace?" with the PC's two-digit check
+  number, picks the workspace and presses Allow. The PC turns to "Linked" by itself (it checks every 1.5 s while
+  waiting). Signing in on the way comes straight back to the request. Typing the code under Service PCs still works.
+  Needs `hosted/supabase/migrations/0010_link_by_url.sql` (`computer_link_peek`) run in Supabase.
+
+### Changed
+- framedecks.com is the website's one address: canonical links, Open Graph, `robots.txt` and `sitemap.xml` use it;
+  signed-in pages are not indexed; the Pages address answers `noindex`. Each page has its own title in the browser
+  tab and when shared. The program links through `https://framedecks.com` and falls back to
+  `https://framedecks.pages.dev`. Cloudflare DNS, redirects (framedecks.app and www → 301), TLS, cache, security and
+  WAF settings: [docs/deployment/cloudflare-domains.md](deployment/cloudflare-domains.md).
+- Website front page: about four screens instead of nine. The hero has the words and the product side by side with
+  four proof ticks; **How it works** plays its four steps by itself once (tabs with a filling bar, pause on hover or
+  focus, Previous / Pause / Next), with no scroll pinning; the demo and the features share one set of tabs; four
+  questions show and the rest open from "More questions"; the promise moved into the closing panel. GSAP is removed.
 
 ## [6.12] - 2026-10-28
 

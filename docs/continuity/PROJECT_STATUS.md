@@ -20,6 +20,11 @@ Cloudflare Pages production deploy. Owner live tests remain. The live database h
   treats it as the one address; the program falls back to pages.dev. **Open (owner):** the redirect names
   (`www`, `app`, framedecks.app) do not answer yet, HSTS off, Supabase Site URL/redirect URL and Google consent
   screen URLs not changed, pages.dev Bulk Redirect later. No Brevo: Supabase's built-in mail, no-mail DNS records.
+- **Version 6.13 (29 October, on `main`, not yet tagged):** one-click linking (Settings → FrameDecks account →
+  Connect to FrameDecks opens framedecks.com/connect; the owner or admin presses Allow; check number on both sides;
+  typing the code stays as a fallback; needs `0010_link_by_url.sql` run in Supabase) and a front page of about four
+  screens (two-column hero, How it works playing once by itself, demo and features in one tab set, four questions +
+  More questions; GSAP removed). All checks green.
 - **Version 6.12 (prepared 28 October, not yet tagged):** FRAMECAST renamed **FrameRelay** everywhere (same camera
   ID; the old name is still recognised), a still, one-time hero arrival on the website, Proverbs 16:3 in place of the
   Helen Keller quote, "Ministry Servant" removed from About. All checks green; the owner tags `v6.12` to publish.

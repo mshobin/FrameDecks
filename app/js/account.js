@@ -80,17 +80,25 @@ function render(){
     return;
   }
   if (d.state === 'waiting' && d.code){
-    root.appendChild(h('p', {cls: 'plain', text: 'On any device, open the companion, sign in, go to Computers and type this code:'}));
-    root.appendChild(h('p', {cls: 'acct-code', text: d.code.slice(0, 4) + ' ' + d.code.slice(4)}));
-    root.appendChild(h('p', {cls: 'plain'}, [h('a', {href: d.companion, target: '_blank', rel: 'noopener', text: (d.companion || '').replace(/^https:\/\//, '')})]));
-    root.appendChild(h('p', {cls: 'hint', text: 'Waiting for the code… It works for 10 minutes. Only owners and admins of a workspace can link a PC.'}));
-    root.appendChild(h('div', {cls: 'actions'}, [h('button', {cls: 'btn small', type: 'button', text: 'Cancel', onclick: act('cancel')})]));
+    /* 6.13 one-click linking: the website's /connect page asks a signed-in owner or admin to allow this PC */
+    root.appendChild(h('div', {cls: 'acct-wait'}, [
+      h('span', {cls: 'acct-spin', 'aria-hidden': 'true'}),
+      h('div', {}, [
+        h('p', {cls: 'plain'}, [h('b', {text: 'Allow this PC in your browser'})]),
+        h('p', {cls: 'hint', text: 'Sign in if asked, choose the workspace and press Allow. This page turns to “Linked” by itself.'})]),
+      h('span', {cls: 'acct-check', title: 'The browser shows the same number', text: String(d.check || '')})]));
+    root.appendChild(h('div', {cls: 'actions'}, [
+      d.connectUrl ? h('a', {cls: 'btn small primary', href: d.connectUrl, target: '_blank', rel: 'noopener', text: 'Open the page again'}) : null,
+      h('button', {cls: 'btn small', type: 'button', text: 'Cancel', onclick: act('cancel')})].filter(Boolean)));
+    root.appendChild(h('p', {cls: 'hint', text: 'Check: the browser shows ' + (d.check || '') + '. Only a workspace’s owners and admins can allow a PC; the request lasts 10 minutes. No browser on this PC? On any device, open ' + (d.companion || '').replace(/^https:\/\//, '') + '/computers (Service PCs) and type ' + d.code.slice(0, 4) + ' ' + d.code.slice(4) + '.'}));
     return;
   }
   root.appendChild(h('p', {cls: 'plain'}, [pill('', 'Not linked'), ' This PC keeps everything to itself.']));
   if (d.error) root.appendChild(h('p', {cls: 'hint', text: d.error}));
-  root.appendChild(h('div', {cls: 'actions'}, [h('button', {cls: 'btn small', type: 'button', text: 'Link to a workspace', onclick: act('link')})]));
-  root.appendChild(h('p', {cls: 'hint', text: 'You need a FrameDecks companion account and a workspace. This PC gets a code to type there.'}));
+  root.appendChild(h('div', {cls: 'actions'}, [h('button', {cls: 'btn small primary', type: 'button', text: 'Connect to FrameDecks', onclick: act('link', function(r){
+    if (r && r.connectUrl) window.open(r.connectUrl, '_blank', 'noopener');   // the app window sends it to your normal browser
+  })})]));
+  root.appendChild(h('p', {cls: 'hint', text: 'Opens the FrameDecks website in your browser. Sign in, choose your workspace and allow this PC. Your plans and members then sync; presenting never needs the internet.'}));
 }
 
 function refresh(){

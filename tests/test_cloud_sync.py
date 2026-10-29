@@ -405,6 +405,19 @@ class LinkAndUnlink(unittest.TestCase):
         self.assertEqual(self.svc.info()["state"], "unlinked")
         self.assertEqual(len(self.pc.plan["scenes"]), 5, "the plan on this PC stays as it is")
 
+    def test_connect_opens_the_website_with_the_code_in_the_fragment_and_a_check_number(self):
+        info = self.svc.link_start()
+        self.assertEqual(info["connectUrl"], "https://framedecks.com/connect#code=ABCD2345&name=Church%20PC")
+        self.assertEqual(info["check"], C.check_number("ABCD2345"))
+        # the website that answered the cloud settings is the one the page opens on
+        self.svc.link_cancel()
+        self.svc.config_source = lambda: {"url": "https://x.supabase.co", "anonKey": "k", "site": "https://framedecks.pages.dev"}
+        self.assertTrue(self.svc.link_start()["connectUrl"].startswith("https://framedecks.pages.dev/connect#code="))
+
+    def test_the_check_number_matches_the_website(self):
+        # the same three values are asserted in hosted/tests/connect-link.test.mjs
+        self.assertEqual([C.check_number(c) for c in ("K7PM2XQ9", "abcd efgh", "23456789")], [36, 28, 45])
+
     def test_a_pc_revoked_in_the_companion_stops_and_forgets_its_key(self):
         self.svc.link_start()
         self.approved.update(computerId="c1", organizationId="o1", organizationName="BSF Study")

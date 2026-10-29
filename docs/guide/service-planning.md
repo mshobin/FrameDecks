@@ -146,7 +146,7 @@ Full details are in [reference/meeting-workbook-and-branding.md](../reference/me
 Since 6.11 the same form is on the FrameDecks website: **Meeting Form** in the companion
 (framedecks.com). It reaches a linked PC by itself, with no file to import
 ([design](../architecture/meeting-form.md)). The Excel workbook below still works; it is under
-**Settings → Data / Backup → Meeting from Excel** and leaves the program in 6.12.
+**Settings → Data / Backup → Meeting from Excel** and leaves the program in a later version, once the website form has been tested in a real meeting.
 
 ### Import a meeting
 1. **Settings → Data / Backup → Meeting from Excel** → **Download the Excel template**, then fill in the **Meeting Form** tab.

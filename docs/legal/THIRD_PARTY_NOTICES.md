@@ -41,8 +41,6 @@ Its npm dependencies are listed with their licences in `hosted/package-lock.json
 - Next.js and React: MIT;
 - supabase-js: MIT;
 - lucide-react: ISC;
-- GSAP with ScrollTrigger (the landing page's pinned "How it works" guide, loaded only on wide screens with motion
-  allowed): GreenSock Standard "no charge" license, https://gsap.com/standard-license;
 - Tailwind CSS: MIT.
 
 They are bundled into the built site under those licences.

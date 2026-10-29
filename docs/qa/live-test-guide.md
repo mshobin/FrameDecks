@@ -30,21 +30,28 @@ before: go on to the next one. Any other error: stop and send it.
 ## 2. The program on the service PC
 
 1. Open the latest **Build Windows installer** run on `main` (GitHub → Actions → Build Windows installer), scroll to
-   **Artifacts**, download **FrameDecks v6.10** and unzip it.
-2. Run `FrameDecks v6.10.exe` from the zip (the `.sha256` file next to it is its checksum) and install as you do
+   **Artifacts**, download **FrameDecks v6.13** and unzip it.
+2. Run `FrameDecks v6.13.exe` from the zip (the `.sha256` file next to it is its checksum) and install as you do
    for each new version. Windows may say it protects your PC: **More info** → **Run anyway**. Make a backup first
    (Settings → Data / Backup → Save a backup file) if you want to be safe.
 
 ## 3. Test A: sync
 
-1. In FrameDecks: **Settings → FrameDecks account → Link to a workspace**. A code like `K7PM 2XQ9` appears.
-2. On any device, open `https://framedecks.com`, sign in, go to **Settings → Service PCs**, type the code, **Link**.
-3. **Expect:** within a few seconds the PC shows "Linked to BSF Study"; this is also the first time Windows
-   Credential Manager stores the PC's key.
-4. In the companion open **Plan** → **History and restore** (it was the Running order). **Expect:** your Frames in order, with their questions, scripture and scripts;
+Before the first 6.13 test, the owner runs `hosted/supabase/migrations/0010_link_by_url.sql` once in the Supabase
+SQL editor.
+
+1. In FrameDecks: **Settings → FrameDecks account → Connect to FrameDecks**. Your browser opens
+   `framedecks.com/connect`, and the PC shows a two-digit check number.
+2. Sign in if asked. **Expect:** "Allow ‹PC name› to use your workspace?" with the same check number as the PC.
+   Choose the workspace, press **Allow**.
+3. **Expect:** the page says the PC is connected, and within a few seconds the PC shows "Linked to BSF Study"
+   without typing anything; this is also the first time Windows Credential Manager stores the PC's key.
+4. Fallback: Unlink, choose **Connect to FrameDecks** again, close the browser tab, and on another device open
+   **Service PCs**, type the code shown on the PC and press **Link**. **Expect:** the same result.
+5. In the companion open **Plan** → **History and restore** (it was the Running order). **Expect:** your Frames in order, with their questions, scripture and scripts;
    pictures and videos only by name.
-5. On the PC change a Frame's name. **Expect:** after reloading Plan (within about a minute) the new name.
-6. Open **Members** in the companion. **Expect:** the member list from the PC (owners and admins only).
+6. On the PC change a Frame's name. **Expect:** after reloading Plan (within about a minute) the new name.
+7. Open **Members** in the companion. **Expect:** the member list from the PC (owners and admins only).
 
 ## 4. Test B: phone control
 

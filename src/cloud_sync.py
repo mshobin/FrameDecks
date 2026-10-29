@@ -21,6 +21,7 @@ import secrets
 import threading
 import time
 import urllib.error
+import urllib.parse
 import urllib.request
 from pathlib import Path
 
@@ -371,7 +372,7 @@ def _fetch_config(base, timeout):
         raise Offline(f"Could not reach {base}: {getattr(e, 'reason', e)}")
     if not isinstance(data, dict) or not str(data.get("url", "")).startswith("https://") or not data.get("anonKey"):
         raise Offline("The companion has no cloud set up yet")
-    return {"url": data["url"], "anonKey": data["anonKey"]}
+    return {"url": data["url"], "anonKey": data["anonKey"], "site": base}
 
 
 def companion_config(timeout=10):
@@ -384,6 +385,19 @@ def companion_config(timeout=10):
         except Offline as e:
             first = first or e
     raise first
+
+
+def check_number(code):
+    """10-99 from the link code: the website's /connect page shows the same number (hosted/src/lib/connect-link.ts), so a
+    person can see the request in the browser came from this PC."""
+    digest = hashlib.sha256(code.replace(" ", "").upper().encode("utf-8")).hexdigest()
+    return int(digest[:4], 16) % 90 + 10
+
+
+def connect_url(site, code, name):
+    """The page that asks a signed-in owner or admin to allow this PC (6.13). The code rides in the fragment, after the
+    #, so it never reaches a server log or a Referer header."""
+    return f"{site.rstrip('/')}/connect#code={code}&name={urllib.parse.quote(name or 'A computer', safe='')}"
 
 
 # ---------- Where the computer key is kept ----------
@@ -477,10 +491,10 @@ class Service:
         self.thread = None
         self.state = self._load()
         self.status = {"state": "linked" if self.state.get("link") else "unlinked", "lastSync": None, "error": None}
-        self.pending = None                          # a link waiting for its code to be typed in the companion
+        self.pending = None                          # a link waiting to be allowed on the website
         self._due = 0.0                               # when the next round is due
         self._retry_at = 0.0                          # while offline: not before this
-        self.poll_every = 3.0                         # seconds between "was the code approved?" questions
+        self.poll_every = 1.5                         # while waiting: "was this PC allowed?" (connected ~2 s after Allow)
 
     # -- the state file --
     def _load(self):
@@ -513,12 +527,16 @@ class Service:
                "lastSync": self.status["lastSync"], "error": self.status["error"], "companion": COMPANION_URL,
                "held": len(self.state.get("held") or [])}
         if self.pending:
-            out.update(code=self.pending["code"], expiresAt=self.pending["expiresAt"])
+            code = self.pending["code"]
+            site = self.pending["config"].get("site") or COMPANION_URL
+            out.update(code=code, expiresAt=self.pending["expiresAt"], check=check_number(code),
+                       connectUrl=connect_url(site, code, self.computer_name))
         return out
 
     # -- linking --
     def link_start(self):
-        """Makes this PC's key, keeps it, and asks the cloud for a code to type into the companion."""
+        """Makes this PC's key, keeps it in memory, and asks the cloud for a code. Settings opens the website's /connect page
+        with it (one click); typing the code under Service PCs still works."""
         with self.lock:
             if self.state.get("link"):
                 return self.info()
@@ -538,7 +556,7 @@ class Service:
                 return
             if time.time() > pending["expiresAt"]:
                 self.pending = None
-                self.status.update(state="unlinked", error="The code expired. Choose Link again for a new one.")
+                self.status.update(state="unlinked", error="The request expired after 10 minutes. Choose Connect to FrameDecks again.")
                 return
             try:
                 answer = self.make_api(pending["config"], None, None).link_poll(pending["key"])
