@@ -2,12 +2,19 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Apple, Download, Monitor, ShieldCheck, Terminal } from "lucide-react";
+import {
+  Apple,
+  Download,
+  LoaderCircle,
+  Monitor,
+  ShieldCheck,
+  Terminal,
+} from "lucide-react";
 
 import {
-  LATEST_WINDOWS,
   UPDATE_API,
   detectOs,
+  downloadState,
   formatSize,
   noteBlocks,
   parseRelease,
@@ -17,7 +24,8 @@ import {
 
 // framedecks.com/download (7.0): the newest version for this computer, straight from the update service
 // (api.framedecks.com/releases/latest, the same manifest the program's updater reads). If the service cannot be
-// reached, the build's own version, notes and the stable "latest" link are shown instead, so the page always works.
+// reached (or is not set up yet), the page says downloads open soon and offers planning on the website instead: it
+// never shows a link it has not been given, so there is no dead download button.
 
 type Fallback = { version: string; notes: string };
 
@@ -60,7 +68,8 @@ export function DownloadPanel({ fallback }: Readonly<{ fallback: Fallback }>) {
           file: "",
         }
       : null);
-  const href = win?.url ?? LATEST_WINDOWS;
+  const state = downloadState(checked, release);
+  const href = win?.url ?? "";
   const notes = noteBlocks(release?.releaseNotes || fallback.notes);
   const date = release?.released
     ? new Date(`${release.released}T12:00:00`).toLocaleDateString(undefined, {
@@ -70,6 +79,25 @@ export function DownloadPanel({ fallback }: Readonly<{ fallback: Fallback }>) {
       })
     : "";
   const elsewhere = os === "macos" || os === "linux";
+  const waitButton = (
+    <button
+      type="button"
+      className="fd-btn fd-btn-primary fd-btn-lg"
+      disabled
+      aria-describedby={state === "unavailable" ? "fd-dl-soon" : undefined}
+    >
+      {state === "checking" ? (
+        <>
+          <LoaderCircle aria-hidden="true" size={18} /> Finding the newest
+          version…
+        </>
+      ) : (
+        <>
+          <Download aria-hidden="true" size={18} /> Download opens soon
+        </>
+      )}
+    </button>
+  );
 
   return (
     <div className="fd-dl">
@@ -94,14 +122,18 @@ export function DownloadPanel({ fallback }: Readonly<{ fallback: Fallback }>) {
               the PC that runs your screen.
             </p>
             <div className="fd-dl-actions">
-              <a
-                className="fd-btn fd-btn-primary fd-btn-lg"
-                href={href}
-                onClick={() => setStarted(true)}
-              >
-                <Download aria-hidden="true" size={18} /> Download for Windows ·{" "}
-                {version}
-              </a>
+              {state === "ready" ? (
+                <a
+                  className="fd-btn fd-btn-primary fd-btn-lg"
+                  href={href}
+                  onClick={() => setStarted(true)}
+                >
+                  <Download aria-hidden="true" size={18} /> Download for Windows
+                  · {version}
+                </a>
+              ) : (
+                waitButton
+              )}
               <Link
                 className="fd-btn fd-btn-ghost fd-btn-lg"
                 href="/sign-in#new"
@@ -118,14 +150,26 @@ export function DownloadPanel({ fallback }: Readonly<{ fallback: Fallback }>) {
               {date ? ` Released ${date}.` : ""}
             </p>
             <div className="fd-dl-actions">
-              <a
-                className="fd-btn fd-btn-primary fd-btn-lg"
-                href={href}
-                onClick={() => setStarted(true)}
-              >
-                <Download aria-hidden="true" size={18} /> Download for Windows
-                {win?.size ? ` · ${formatSize(win.size)}` : ""}
-              </a>
+              {state === "ready" ? (
+                <a
+                  className="fd-btn fd-btn-primary fd-btn-lg"
+                  href={href}
+                  onClick={() => setStarted(true)}
+                >
+                  <Download aria-hidden="true" size={18} /> Download for Windows
+                  {win?.size ? ` · ${formatSize(win.size)}` : ""}
+                </a>
+              ) : (
+                waitButton
+              )}
+              {state === "unavailable" && (
+                <Link
+                  className="fd-btn fd-btn-ghost fd-btn-lg"
+                  href="/sign-in#new"
+                >
+                  Plan on the website
+                </Link>
+              )}
             </div>
           </>
         )}
@@ -169,10 +213,12 @@ export function DownloadPanel({ fallback }: Readonly<{ fallback: Fallback }>) {
             </p>
           </details>
         )}
-        {checked && !release && (
-          <p className="fd-dl-fine">
-            The update service could not be reached, so this shows the version
-            this website was built with.
+        {state === "unavailable" && (
+          <p id="fd-dl-soon" className="fd-dl-soon" role="status">
+            <strong>Downloads open here very soon.</strong> The download service
+            is not answering yet, so there is nothing to download at this
+            moment. Come back to this page in a little while; meanwhile you can
+            create your workspace and plan your first service on the website.
           </p>
         )}
       </section>

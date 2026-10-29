@@ -8,7 +8,7 @@ import { test } from "node:test";
 import { contentFiles } from "../scripts/write-content.mjs";
 import { CONSENT_VERSION, readConsent, saveConsent } from "../src/lib/consent.ts";
 import { TERMS_VERSION, rememberAcceptance, takeAcceptance } from "../src/lib/legal.ts";
-import { detectOs, noteBlocks, parseRelease } from "../src/lib/releases.ts";
+import { detectOs, downloadState, noteBlocks, parseRelease } from "../src/lib/releases.ts";
 
 const root = new URL("../../", import.meta.url);
 const here = new URL("../", import.meta.url);
@@ -133,4 +133,19 @@ test("the download page trusts only manifests that point at downloads.framedecks
   assert.equal(detectOs("Mozilla/5.0 (Macintosh; Intel Mac OS X 14_0)"), "macos");
   assert.equal(detectOs("Mozilla/5.0 (X11; Linux x86_64)"), "linux");
   assert.equal(detectOs("Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X)"), "other");
+});
+
+test("the download page offers a link only from a checked manifest, never a guessed address", () => {
+  const good = parseRelease({
+    version: "7.0",
+    downloadUrl: "https://downloads.framedecks.com/releases/7.0/FrameDecks-7.0-Setup.exe",
+    sha256: "a".repeat(64),
+    size: 1,
+  });
+  assert.equal(downloadState(false, null), "checking");
+  assert.equal(downloadState(true, null), "unavailable");
+  assert.equal(downloadState(true, good), "ready");
+  const panel = src("components/download-panel.tsx");
+  assert.doesNotMatch(panel, /latest\/FrameDecks-Setup\.exe|LATEST_WINDOWS/);
+  assert.match(panel, /Downloads open here very soon/);
 });

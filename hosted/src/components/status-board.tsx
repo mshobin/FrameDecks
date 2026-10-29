@@ -68,6 +68,12 @@ export function StatusBoard() {
   ] as const;
   const allUp = Object.values(states).every((s) => s === "up");
   const anyChecking = Object.values(states).includes("checking");
+  // Only the download side missing (also the case before it is first set up): say so plainly, planning still works.
+  const onlyReleases =
+    states.site === "up" &&
+    states.account === "up" &&
+    states.updates === "down" &&
+    states.downloads === "down";
 
   return (
     <>
@@ -79,7 +85,9 @@ export function StatusBoard() {
           ? "Checking…"
           : allUp
             ? "All services are working."
-            : "Some services could not be reached from here."}
+            : onlyReleases
+              ? "Planning and sync are working. Downloads and updates are not answering yet."
+              : "Some services could not be reached from here."}
         {at && <span> Checked at {at} from your browser.</span>}
       </p>
       <ul className="fd-status">

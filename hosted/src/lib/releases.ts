@@ -6,8 +6,6 @@ export const UPDATE_API = (
   process.env.NEXT_PUBLIC_UPDATE_API || "https://api.framedecks.com"
 ).replace(/\/+$/, "");
 export const DOWNLOADS_HOST = "https://downloads.framedecks.com";
-/** Always the newest Windows installer (the workflow copies it here), for when the update service cannot be reached. */
-export const LATEST_WINDOWS = `${DOWNLOADS_HOST}/latest/FrameDecks-Setup.exe`;
 
 export type PlatformBuild = {
   url: string;
@@ -119,4 +117,16 @@ export function noteBlocks(markdown: string): NoteBlock[] {
         .filter((i) => !/^none in this release\.?$/i.test(i)),
     }))
     .filter((b) => b.items.length);
+}
+
+export type DownloadState = "checking" | "ready" | "unavailable";
+
+/** What the download page may offer: a download link only for a checked manifest (never a guessed address, which
+ *  would be a dead link while the download service is not answering or not set up yet). */
+export function downloadState(
+  checked: boolean,
+  release: Release | null,
+): DownloadState {
+  if (release) return "ready";
+  return checked ? "unavailable" : "checking";
 }

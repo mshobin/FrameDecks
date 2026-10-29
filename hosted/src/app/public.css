@@ -317,6 +317,23 @@
   color: var(--text-3);
 }
 
+.fd-dl-actions .fd-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+  box-shadow: none;
+}
+
+.fd-dl-soon {
+  margin: 0;
+  padding: 14px 16px;
+  border: 1px solid var(--hairline-strong);
+  border-radius: 12px;
+  background: var(--fill);
+  color: var(--text-2);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
 .fd-dl-next {
   padding: 14px 16px;
   border: 1px solid var(--gold);
