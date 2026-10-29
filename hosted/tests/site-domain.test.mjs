@@ -25,12 +25,18 @@ test("no other domain is written into the website", () => {
   }
 });
 
-test("public pages carry a canonical link; signed-in pages are noindex", () => {
+test("every page has its own title, link-preview title and address; signed-in pages are noindex", () => {
   assert.match(read("app/page.tsx"), /canonical: "\/"/);
-  for (const p of ["help", "privacy", "sign-in"]) assert.match(read(`app/${p}/page.tsx`), new RegExp(`canonical: "/${p}"`), p);
-  for (const p of ["account", "branding", "computers", "live", "meeting", "members", "plan", "services", "auth/callback"]) {
-    assert.match(read(`app/${p}/page.tsx`), /\.\.\.PRIVATE_PAGE/, p);
+  assert.match(read("app/page.tsx"), /openGraph: \{ title: "FrameDecks · Prepare with Purpose\. Present with Excellence\.", url: "\/" \}/);
+  // the layout must not give every page the home page's preview title and address
+  assert.doesNotMatch(read("app/layout.tsx"), /openGraph: \{[^}]*\b(title|url):/);
+  for (const p of ["help", "privacy", "sign-in"]) {
+    assert.match(read(`app/${p}/page.tsx`), new RegExp(`pageMetadata\\("[^"]+", "/${p}"\\)`), p);
   }
+  for (const p of ["account", "branding", "computers", "live", "meeting", "members", "plan", "services", "auth/callback"]) {
+    assert.match(read(`app/${p}/page.tsx`), new RegExp(`pageMetadata\\("[^"]+", "/${p}", \\{ private: true \\}\\)`), p);
+  }
+  assert.match(read("lib/site.ts"), /openGraph: \{ title: `\$\{title\} \| FrameDecks`, url: path \}/);
 });
 
 test("the Pages address is never indexed", () => {

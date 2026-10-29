@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 
 import { AuthShell } from "@/components/auth-shell";
+import { pageMetadata } from "@/lib/site";
 
-export const metadata: Metadata = { title: "Privacy", alternates: { canonical: "/privacy" } };
+export const metadata: Metadata = pageMetadata("Privacy", "/privacy");
 
 // Linked from Google's and Microsoft's sign-in consent screens; keep it true to what the companion and sync store.
 export default function PrivacyPage() {

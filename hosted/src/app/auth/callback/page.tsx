@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 
 import { AuthCallback } from "@/components/auth-callback";
 import { AuthShell } from "@/components/auth-shell";
-import { PRIVATE_PAGE } from "@/lib/site";
+import { pageMetadata } from "@/lib/site";
 
-export const metadata: Metadata = { title: "Signing in", ...PRIVATE_PAGE };
+export const metadata: Metadata = pageMetadata("Signing in", "/auth/callback", { private: true });
 
 export default function AuthCallbackPage() {
   return (

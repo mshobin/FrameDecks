@@ -33,6 +33,14 @@ export function Overview() {
 
 function Dashboard({ name }: Readonly<{ name: string }>) {
   const { workspaces, selected } = useWorkspaces();
+  // "/" is the front page for visitors (its static title) and Home once signed in: name the tab like the other places
+  useEffect(() => {
+    const before = document.title;
+    document.title = "Home | FrameDecks";
+    return () => {
+      document.title = before;
+    };
+  }, []);
   return (
     <AppShell active="home">
       {workspaces === null ? (

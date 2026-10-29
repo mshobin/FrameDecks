@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 
 import { AppShell } from "@/components/app-shell";
 import { BrandingPanel } from "@/components/branding-panel";
-import { PRIVATE_PAGE } from "@/lib/site";
+import { pageMetadata } from "@/lib/site";
 
-export const metadata: Metadata = { title: "Branding", ...PRIVATE_PAGE };
+export const metadata: Metadata = pageMetadata("Branding", "/branding", { private: true });
 
 export default function BrandingPage() {
   return (

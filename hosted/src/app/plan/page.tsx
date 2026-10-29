@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 
 import { PlanPage } from "@/components/plan-page";
-import { PRIVATE_PAGE } from "@/lib/site";
+import { pageMetadata } from "@/lib/site";
 
-export const metadata: Metadata = { title: "Plan", ...PRIVATE_PAGE };
+export const metadata: Metadata = pageMetadata("Plan", "/plan", { private: true });
 
 export default function Plan() {
   return <PlanPage />;

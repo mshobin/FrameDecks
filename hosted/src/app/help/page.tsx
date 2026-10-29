@@ -4,8 +4,9 @@ import Link from "next/link";
 import { AuthShell } from "@/components/auth-shell";
 import brand from "@/lib/brand.json";
 import { DOWNLOADS } from "@/lib/pc-setup";
+import { pageMetadata } from "@/lib/site";
 
-export const metadata: Metadata = { title: "Help", alternates: { canonical: "/help" } };
+export const metadata: Metadata = pageMetadata("Help", "/help");
 
 const GUIDES = "https://github.com/mshobin/FRAMEDECKS/blob/main/docs";
 

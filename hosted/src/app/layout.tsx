@@ -21,11 +21,10 @@ export const metadata: Metadata = {
   description:
     "Plan, rehearse and present meetings, classes, conferences, events and services on every screen and stream, guided from your phone.",
   applicationName: "FrameDecks",
+  // og:title and og:url come from each page (lib/site.ts pageMetadata); set here, every page would inherit the home page's
   openGraph: {
     type: "website",
     siteName: "FrameDecks",
-    url: "/",
-    title: "FrameDecks · Prepare with Purpose. Present with Excellence.",
     description:
       "Plan, rehearse and present meetings, classes, conferences, events and services on every screen and stream, guided from your phone.",
   },
