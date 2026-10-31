@@ -1,9 +1,20 @@
 # NEXT SESSION HANDOFF
 
-Updated 29 October 2026 (7.1 on `main`: workspace looks; 7.0 before it: proprietary, framedecks.com downloads and auto-update; owner steps under 7.0): the maintainer guide is now [PROJECT_GUIDE.md](PROJECT_GUIDE.md); current references were updated. The continuity files now live in `docs/continuity/`. Windows batch launchers are under `tools/launchers/` and resolve the repository root before running. Release `v6.11.2` (repository layout and trust fixes, no desktop change; pilot install on a real PC and SHA-256 check still the owner's) was tagged after `v6.11.1`, which is published; the FrameDecks README and release header refresh merged in
+Updated 31 October 2026 (7.1.1 on `main`: no hidden PowerShell/netsh/taskkill after Defender quarantined 7.1; 7.1 workspace looks; 7.0 proprietary, framedecks.com downloads and auto-update; owner steps under 7.0): the maintainer guide is now [PROJECT_GUIDE.md](PROJECT_GUIDE.md); current references were updated. The continuity files now live in `docs/continuity/`. Windows batch launchers are under `tools/launchers/` and resolve the repository root before running. Release `v6.11.2` (repository layout and trust fixes, no desktop change; pilot install on a real PC and SHA-256 check still the owner's) was tagged after `v6.11.1`, which is published; the FrameDecks README and release header refresh merged in
 PR #38. Trust fixes merged in PR #39 (`27cfb4b`). Later the same day: the budget script fixed for Windows
 (`57cd9c3`), the five Dependabot action upgrades merged (#33–#37), and the handoff PR #40. All checks on `main` are
 green, including the Cloudflare Pages deploy (production); a look at the live site is still the owner's. Read [PROJECT_GUIDE.md](PROJECT_GUIDE.md) ("Working locally" has the set-up and run commands).
+
+31 October, version 7.1.1 on `main` (not yet tagged): Microsoft Defender quarantined the owner's FRAMEDECKS.exe 7.1
+(behavioural "Trojan … executes commands from an attacker"). `src/winapi.py` replaces every PowerShell/netsh/taskkill
+launch (network check, firewall rule via `FRAMEDECKS.exe --firewall`, camera install, updater signature check and
+install script, stuck-copy ending); the updater starts the installer with `/UPDATE=1` (`installer.iss` IsUpdate:
+waits, restarts the app). Network check only while Phone & iPad Remote settings are open. Build compiles PyInstaller's
+bootloader from source. `tests/test_winapi.py` forbids shell launches (AST) and exercises the Windows calls on CI.
+**Owner:** restore the quarantined copy or install 7.1.1; add the folder exclusion; report the false positive to
+Microsoft; code signing is now urgent. State of the owner's local clone (31 October): diverged, 1 local commit
+"Updates" + 156 staged files; plan given: commit them on `backup-before-sync-2026-10-31`, reset `main` to `origin/main`,
+then compare.
 
 29 October, version 7.1 on `main` (not yet tagged): **workspace looks**. Website Branding → Look
 (`hosted/src/lib/workspace-settings.ts` `LOOKS`, `components/branding-panel.tsx`) saves `layout/look`

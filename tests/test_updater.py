@@ -116,19 +116,21 @@ class Updating(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.u.install()
 
-    def test_the_install_script_waits_installs_silently_and_falls_back(self):
-        s = self.u.script(Path("C:/u/FrameDecks-7.1-Setup.exe"), "7.1", Path("C:/u/installed/FrameDecks-7.0-Setup.exe"),
-                          "C:/Program/FRAMEDECKS.exe", 4242)
-        self.assertIn("Get-Process -Id 4242", s)
-        self.assertIn("'/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART','/NOCANCEL','/MERGETASKS=!vcam'", s)
-        self.assertIn("if ($code -ne 0)", s)
-        self.assertIn("FrameDecks-7.0-Setup.exe", s)
-        self.assertIn("$state = 'rolled-back'", s)
-        self.assertIn("Start-Process -FilePath 'C:/Program/FRAMEDECKS.exe'", s)
-        odd = self.u.script(Path("C:/it's/x.exe"), "7.1", None, "C:/a.exe", 1)
-        quoted = "'" + str(Path("C:/it's/x.exe")).replace("'", "''") + "'"   # backslashes on Windows
-        self.assertIn(quoted, odd, "quotes in paths are escaped")
-        self.assertIn("it''s", odd)
+    def test_installing_starts_the_installer_itself_and_closes_framedecks(self):
+        # 7.1.1: no PowerShell script; the installer is started directly with its silent update switches
+        started, quit = [], []
+        u = updater.Updater(self.dir, "7.0", frozen=True, opener=opener(self.routes), platform="win32",
+                            popen=lambda cmd, **kw: started.append(cmd))
+        u.check()
+        u.install(quit_app=lambda: quit.append(True))
+        self.assertEqual(len(started), 1)
+        cmd = started[0]
+        self.assertTrue(cmd[0].endswith("FrameDecks-7.1-Setup.exe"))
+        self.assertEqual(cmd[1:], ["/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART", "/NOCANCEL", "/MERGETASKS=!vcam", "/UPDATE=1"])
+        self.assertFalse(any("powershell" in str(c).lower() for c in cmd))
+        self.assertEqual(json.loads((self.dir / "updates" / "pending.json").read_text())["to"], "7.1")
+        self.assertEqual(u.info()["phase"], "installing")
+        self.assertFalse((self.dir / "updates" / "install-update.ps1").exists())
 
     def test_the_next_start_says_what_happened(self):
         up = self.dir / "updates"
@@ -141,10 +143,11 @@ class Updating(unittest.TestCase):
         self.assertTrue((up / "installed" / "FrameDecks-7.1-Setup.exe").exists(), "kept for putting it back later")
         self.assertFalse((up / "pending.json").exists())
         (up / "pending.json").write_text(json.dumps({"from": "7.1", "to": "7.2", "installer": "x"}))
-        (up / "result.json").write_text(json.dumps({"state": "rolled-back"}))
-        back = updater.Updater(self.dir, "7.1", opener=opener({}))
-        self.assertFalse(back.state["result"]["ok"])
-        self.assertIn("was put back", back.state["result"]["message"])
+        (up / "result.json").write_text(json.dumps({"state": "rolled-back"}))      # left by 7.0's script
+        stayed = updater.Updater(self.dir, "7.1", opener=opener({}))
+        self.assertFalse(stayed.state["result"]["ok"])
+        self.assertIn("FrameDecks 7.1 stayed", stayed.state["result"]["message"])
+        self.assertFalse((up / "result.json").exists())
         self.assertIsNone(updater.Updater(self.dir, "7.1", opener=opener({})).state["result"], "told once")
 
 

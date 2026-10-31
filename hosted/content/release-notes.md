@@ -1,33 +1,35 @@
-## FrameDecks v7.1
+## FrameDecks v7.1.1
 
-Choose one look for your whole team on framedecks.com, and every linked PC follows it. Download from
-**framedecks.com/download**, or let FrameDecks update itself. It installs over 7.0 and earlier and keeps all your
-meetings, members, settings and recordings.
+A safety update after Microsoft Defender quarantined FrameDecks 7.1 as a false alarm. Download from
+**framedecks.com/download**. It installs over 7.1 and earlier and keeps all your meetings, members, settings and
+recordings.
 
 ## What's New
-- **Workspace looks.** On framedecks.com, **Branding → Look** offers six looks for the cards your room and stream
-  see: Gold & Navy (the standard), Morning Light, Chapel Stone, Deep Ocean, Forest and Quiet Mono. Each sets the card
-  colour, the edge and label colour, and the scripture font (serif or sans). Every linked PC changes to it within
-  about a minute, on the room screen, the overlay pages and the FrameRelay camera alike.
-- **Never mid-sentence.** A PC changes its look, and any branding or card setting changed elsewhere, only once nothing
-  is on its screen. While a question, scripture or Content is showing, the change waits.
-- **Follow my workspace.** Settings → General → Appearance has a fourth choice: the FrameDecks window turns light or
-  dark with your workspace look. It is also in the command palette (Ctrl+K, "follow my workspace").
+- **Fewer antivirus false alarms.** FrameDecks no longer starts hidden helper programs (PowerShell, netsh or taskkill)
+  in the background. Microsoft Defender treated that pattern, from a program that is not yet code-signed, as remote
+  control by an attacker and removed FrameDecks 7.1 from some PCs. Everything those helpers did now goes through
+  Windows' own built-in functions.
 
 ## Enhancements
-- Choosing a look also sets its accent colour; you can still pick another accent colour under Meeting & Branding.
-- Every look keeps the card text easy to read: a contrast of at least 4.5:1 on its own colour.
+- **Allow through Windows Firewall** and **Install the FrameRelay camera** ask for administrator permission with
+  Windows' standard prompt.
+- Updates start the installer directly. It waits for FrameDecks to close, installs, and opens the new version. If it
+  cannot finish, it undoes its changes and the version you had stays.
+- The installer's code-signing check, used once releases are signed, uses Windows' own signature check.
+- The network type and firewall check for the phone remote run only while Settings → Phone & iPad Remote is open.
 
 ## Fixes
-- None in this release.
+- FrameDecks no longer disappears after a while on PCs where Microsoft Defender quarantined it (see Known Issues to
+  bring back a copy that was removed).
 
 ## Performance Improvements
-- Changing the look redraws only the cards; nothing reloads, and the camera draws the new cards in the background
-  while it keeps showing the old ones.
+- Nothing is started in the background every few minutes any more; the phone remote's network check costs nothing
+  while its settings are closed.
 
 ## Known Issues
-- Looks are chosen on framedecks.com, so the PC needs to be linked to a workspace. A PC that is not linked keeps
-  the standard Gold & Navy look and its own accent colour.
-- If something stays on screen for a whole service (for example a logo that is never hidden), a new look waits until
-  you press **Hide all** (Esc).
+- If Microsoft Defender removed FrameDecks 7.1: Windows Security → Virus & threat protection → Protection history →
+  the entry → Actions → Restore, then install 7.1.1. Until the installer is code-signed, adding an exclusion for the
+  FrameDecks folder (Manage settings → Exclusions → Folder: your AppData\Local\Programs\FRAMEDECKS) avoids
+  repeat alarms.
 - The installer is not yet code-signed, so Windows SmartScreen may ask you to confirm: **More info → Run anyway**.
+- The public-network warning in the header appears after Settings → Phone & iPad Remote has been opened once.

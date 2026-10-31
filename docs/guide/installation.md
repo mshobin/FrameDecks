@@ -37,7 +37,7 @@ administrator.
 
 Download FrameDecks from **[framedecks.com/download](https://framedecks.com/download)**. The page picks the right
 download for your computer and always offers the latest version. The installer is a single file named
-**FrameDecks-7.1-Setup.exe** (the number is the version).
+**FrameDecks-7.1.1-Setup.exe** (the number is the version).
 
 ## Check the download (optional)
 
@@ -105,8 +105,8 @@ is new with an **Update now** button:
    framedecks.com and checks its fingerprint; if anything does not match, nothing is installed.
 2. It closes, installs the update quietly, and opens again. Your meetings, settings, members, backups and phone PIN are
    kept.
-3. If an update cannot be installed, FrameDecks puts the previous version back and tells you. **Settings → About →
-   Reinstall the previous version** does the same by hand.
+3. If an update cannot finish, the installer undoes its changes, so the version you had stays, and FrameDecks tells
+   you at its next start. **Settings → About → Reinstall the previous version** goes back one version by hand.
 
 FrameDecks never updates while something is on screen. You can also download the latest installer from
 framedecks.com/download and run it over the old version.

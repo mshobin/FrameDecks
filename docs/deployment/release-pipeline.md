@@ -152,13 +152,15 @@ curl -sL https://downloads.framedecks.com/releases/7.0/FrameDecks-7.0-Setup.exe.
   `https://downloads.framedecks.com/`. A manifest pointing anywhere else, over plain HTTP, with an odd version number,
   a size over 600 MB or a malformed checksum is ignored.
 - **What is kept:** the download must match the manifest's size and SHA-256 exactly, or it is deleted. When the
-  manifest says `"signed": true`, the installer's Authenticode signature must also be valid and issued to the publisher (Shobin Mathews).
+  manifest says `"signed": true`, the installer's Authenticode signature must also be valid and issued to the publisher (Shobin Mathews), checked with Windows' own WinVerifyTrust.
 - **When:** never while something is on screen (a question, verse or live item), unless the person confirms. They can
   also choose "install when I close FrameDecks".
-- **How:** the program hands over to a small PowerShell script and closes. The script waits for it to exit, runs the
-  installer silently (`/VERYSILENT /MERGETASKS=!vcam`, keeping the person's choices), and starts FrameDecks again.
-- **If it fails:** the script runs the previous version's installer (kept under the data folder's
-  `updates/installed/`), writes the outcome, and the next start says what happened, once.
+- **How (7.1.1):** the program starts the installer itself (`/VERYSILENT /MERGETASKS=!vcam /UPDATE=1`, keeping the
+  person's choices) and closes. The installer waits a few seconds for it to close, ends a copy still running,
+  installs, and with `/UPDATE=1` opens the new version. No PowerShell or script is involved: Microsoft Defender
+  quarantined 7.1, an unsigned program that started hidden PowerShell scripts, as a Trojan.
+- **If it fails:** Inno Setup undoes its own changes, so the version that was running stays. The next start compares
+  its version with the one it was updating to and says what happened, once.
 - **Putting a version back by hand:** Settings → About → Reinstall the previous version, which uses the manifest's
   `previous` entry with the same checks.
 

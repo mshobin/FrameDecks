@@ -1058,3 +1058,22 @@ choice resolved from `look.base`, remembered as `kc-theme-base` for the first pa
 plan: per-look lower-third and transition styles (those stay per Content and per meeting), and a light card surface,
 which would need dark-text variants in both renderers.
 
+## 40. Version 7.1.1: no shells, after a Defender quarantine (31 October 2026)
+
+On the owner's PC Microsoft Defender quarantined FRAMEDECKS.exe 7.1 as a severe Trojan, "executes commands from an
+attacker", a while after it started, and removed its shortcut and uninstall entry. Nothing malicious was found; the
+behaviour matched a backdoor: an unsigned executable, a local server accepting commands (the phone remote, Stream
+Deck, the website's control), and hidden PowerShell started on a timer (`Get-NetConnectionProfile` every 15 minutes
+while the phone remote was on), PowerShell with `-EncodedCommand` and `-Verb RunAs` for the firewall rule, an update
+script started with a bypassed execution policy, plus `netsh` and `taskkill`.
+
+7.1.1 starts no shell at all. `src/winapi.py` does each job through the documented API (ShellExecuteExW runas,
+CreateToolhelp32Snapshot/TerminateProcess, Network List Manager and HNetCfg.FwPolicy2 through comtypes,
+WinVerifyTrust + CertGetNameStringW). The firewall rule is written by the program itself, relaunched elevated with
+`--firewall`, handled before the watchdog in `desktop_app.py`. The updater starts the Inno installer with `/UPDATE=1`;
+the installer waits five seconds for FrameDecks to close, ends what is still running, and opens the new version; a
+failed install is undone by Inno's rollback, and the next start reports it from the version number alone. The build
+compiles PyInstaller's bootloader from source, since the shared prebuilt one is common to many flagged programs. A test
+walks the syntax tree of every module and fails on any launch of PowerShell, taskkill, netsh, cmd, wmic or schtasks
+(it catches all six launches 7.1 had). The lasting fix remains code signing.
+

@@ -45,6 +45,27 @@ Versions before 4.9 (when the program had its earlier name) are described in the
 - The favicons, the tray icon and the small program-icon sizes (16–32 px) use a heavier version of the emblem, so it
   stays visible on light browser tabs and a light taskbar. Larger sizes are unchanged.
 
+## [7.1.1] - 2026-10-31
+
+Full notes: [docs/releases/v7.1.1.md](releases/v7.1.1.md)
+
+### Fixed
+- Microsoft Defender quarantined `FRAMEDECKS.exe` 7.1 as `Trojan` ("executes commands from an attacker"): an unsigned
+  program that kept starting hidden PowerShell (the phone remote's network check every 15 minutes, an encoded command
+  for the firewall rule, a camera install through `Start-Process -Verb RunAs`, an update script with a bypassed script
+  policy) plus `netsh` and `taskkill`. All of it now goes through `src/winapi.py`: ShellExecuteEx "runas" for
+  administrator prompts, Toolhelp + TerminateProcess for a stuck copy, the Network List Manager and
+  `HNetCfg.FwPolicy2` (comtypes) for the network type and firewall rule, WinVerifyTrust for signatures. The firewall
+  rule is added by `FRAMEDECKS.exe --firewall allow|undo` run with administrator rights.
+
+### Changed
+- Updates start the installer directly with `/UPDATE=1`; `installer.iss` waits for FrameDecks to close and opens
+  the new version (`IsUpdate`). Inno Setup's own rollback replaces the 7.0 script's fallback installer.
+- The network check runs only while Settings → Phone & iPad Remote asks for it.
+- The Windows build compiles PyInstaller's launcher from source instead of using the shared prebuilt one.
+- `tests/test_winapi.py`: no file in `src/` may start PowerShell, `taskkill`, `netsh`, `cmd`, `wmic` or `schtasks`;
+  on the Windows runner the real signature, process, network and firewall calls are exercised.
+
 ## [7.1] - 2026-10-29
 
 Full notes: [docs/releases/v7.1.md](releases/v7.1.md)

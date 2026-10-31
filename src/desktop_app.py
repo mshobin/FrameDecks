@@ -18,6 +18,10 @@ import traceback
 import urllib.request
 import webbrowser
 
+if __name__ == "__main__" and "--firewall" in sys.argv:
+    import winapi                  # 7.1.1: "Allow through Windows Firewall", started with administrator rights
+    sys.exit(winapi.firewall_main(sys.argv))
+
 if __name__ == "__main__":
     import supervisor              # the installed app first starts as a small watchdog (restarts it after a crash)
     if supervisor.wanted():
@@ -177,12 +181,9 @@ def end_stuck_copies():
     holding the port). Only processes with this program's own name, never this one."""
     if os.name != "nt" or not getattr(sys, "frozen", False):
         return False
-    import subprocess
-    exe = os.path.basename(sys.executable)
+    import winapi                                       # 7.1.1: through Windows itself, not taskkill
     try:
-        r = subprocess.run(["taskkill", "/F", "/IM", exe, "/FI", f"PID ne {os.getpid()}"], capture_output=True, text=True,
-                           timeout=10, creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
-        print("Ended a copy that had stopped answering:", (r.stdout or r.stderr).strip())
+        print("Ended copies that had stopped answering:", winapi.end_other_copies(os.path.basename(sys.executable)))
     except Exception as e:
         print("Could not end the earlier copy:", e)
         return False

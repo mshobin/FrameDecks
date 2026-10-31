@@ -63,9 +63,10 @@ Overlay pages and the phone remote expect port 8750. Another program is using it
 | Symptom | Cause | Fix |
 | --- | --- | --- |
 | **"Windows protected your PC"** when installing | The installer isn't code-signed | Select **More info → Run anyway** |
-| Antivirus blocks or quarantines the app | A known false alarm with unsigned apps made with Python | Restore it and add an exception for `%LOCALAPPDATA%\Programs\FRAMEDECKS` |
+| Antivirus blocks or quarantines the app (for example Microsoft Defender: "Trojan … executes commands from an attacker", and FrameDecks disappears) | A false alarm with unsigned apps made with Python. 7.1 made it more likely (it started hidden PowerShell in the background); 7.1.1 no longer does | Windows Security → Virus & threat protection → **Protection history** → the entry → **Actions → Restore**. Then **Manage settings → Exclusions → Add an exclusion → Folder** `%LOCALAPPDATA%\Programs\FRAMEDECKS`, and update to 7.1.1 or later |
 
-> **Note:** Check the download first: the installer comes with a `.sha256` file you can compare with `certutil -hashfile "FrameDecks v6.8.exe" SHA256`.
+> **Note:** Check the download first: compare its SHA-256 with the one on framedecks.com/download, in PowerShell:
+> `Get-FileHash .\FrameDecks-7.1.1-Setup.exe -Algorithm SHA256`.
 
 ## Window, tray and Spotlight
 

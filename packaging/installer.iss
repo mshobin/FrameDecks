@@ -87,6 +87,8 @@ Name: "{userstartup}\FRAMEDECKS"; Filename: "{app}\FRAMEDECKS.exe"; Tasks: start
 [Run]
 Filename: "{app}\_internal\vcam\bin\register-framedecks-camera.cmd"; Verb: "runas"; Flags: shellexec waituntilterminated runhidden; Check: ShouldRegisterCamera; StatusMsg: "Installing the FrameRelay camera..."
 Filename: "{app}\FRAMEDECKS.exe"; Description: "Open FrameDecks now"; Flags: nowait postinstall skipifsilent
+; 7.1.1: an update started by FrameDecks itself (/UPDATE=1, src/updater.py) opens the new version when it is done
+Filename: "{app}\FRAMEDECKS.exe"; Flags: nowait; Check: IsUpdate
 
 [UninstallRun]
 Filename: "{app}\_internal\vcam\bin\unregister-framedecks-camera.cmd"; Verb: "runas"; Flags: shellexec waituntilterminated runhidden; RunOnceId: "RemoveCamera"
@@ -120,10 +122,18 @@ begin
   Result := WizardIsTaskSelected('vcam') or CameraRegistered;
 end;
 
+// 7.1.1: started by FrameDecks' own updater (/UPDATE=1): FrameDecks closes itself a second after starting this
+function IsUpdate: Boolean;
+begin
+  Result := ExpandConstant('{param:update|0}') = '1';
+end;
+
 // LEGACY (6.9): an earlier version still running under the earlier exe name is closed first, so its folder can go
 function PrepareToInstall(var NeedsRestart: Boolean): String;
 var code: Integer;
 begin
+  { 7.1.1: give FrameDecks time to close by itself before anything still running is ended }
+  if IsUpdate then Sleep(5000);
   Exec(ExpandConstant('{sys}\taskkill.exe'), '/IM "Kingdom Connect.exe" /F', '', SW_HIDE, ewWaitUntilTerminated, code);
   Exec(ExpandConstant('{sys}\taskkill.exe'), '/IM "BSF Command Center.exe" /F', '', SW_HIDE, ewWaitUntilTerminated, code);
   { 6.10: 6.8 and 6.9 could stay running, unseen, after Quit; close such a copy so its files can be replaced }

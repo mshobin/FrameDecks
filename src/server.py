@@ -35,10 +35,11 @@ import cloud_remote   # Phase 5: running a service from the companion (only when
 import cloud_sync   # Phase 4: syncing service plans with a workspace (only when this PC is linked)
 import ai           # M-D3: optional AI, free by default (Ollama on this PC); hidden when none answers
 import legacy   # 6.9: moves data saved under the program's earlier name
+import winapi   # 7.1.1: Windows jobs through Windows' own interfaces (no PowerShell, netsh or taskkill)
 import meeting_form   # 6.9: fills the Meeting Workbook's form for Export
 import updater   # 7.0: updates from FrameDecks servers (checked, silent, with rollback)
 
-APP_VERSION = "7.1"
+APP_VERSION = "7.1.1"
 STARTED_AT = time.time()
 FROZEN = getattr(sys, "frozen", False)          # True inside the installed Windows app
 HERE = Path(sys.executable).resolve().parent if FROZEN else Path(__file__).resolve().parent.parent   # the repository root (this file is in src/)
@@ -392,14 +393,14 @@ _net_cache = {"at": 0, "value": None}
 _net_lock = threading.Lock()
 
 
-def windows_network_check(max_age=900):
-    """On Windows, report the network type (Private/Public) and whether the optional firewall
-    rule exists. Read-only: nothing is changed. Runs in the background (PowerShell) and is cached: 15 minutes
-    normally (the header light asks every 3 s during a meeting - starting PowerShell every minute was wasted
-    work), 60 s while Settings > Phone & iPad Remote is open. Returns None on other systems or while first checking."""
+def windows_network_check(max_age=None):
+    """On Windows, report the network type (Private/Public) and whether the optional firewall rule exists. Read-only:
+    nothing is changed. 7.1.1: read through Windows' own interfaces (winapi.py), never PowerShell or netsh, and only
+    refreshed while Settings > Phone & iPad Remote asks for it (max_age); everything else gets the last answer, so
+    nothing runs in the background. Returns None on other systems or before the first check."""
     if os.name != "nt":
         return None
-    if time.time() - _net_cache["at"] > max_age and _net_lock.acquire(blocking=False):
+    if max_age is not None and time.time() - _net_cache["at"] > max_age and _net_lock.acquire(blocking=False):
         def work():
             try:
                 _refresh_network_check()
@@ -411,25 +412,12 @@ def windows_network_check(max_age=900):
 
 def _refresh_network_check():
     out = {"profiles": [], "ruleExists": None}
-    flags = 0x08000000  # CREATE_NO_WINDOW
     try:
-        r = subprocess.run(["powershell", "-NoProfile", "-Command",
-                            "Get-NetConnectionProfile | Select-Object Name,InterfaceAlias,NetworkCategory | ConvertTo-Json -Compress"],
-                           capture_output=True, text=True, timeout=8, creationflags=flags)
-        data = json.loads(r.stdout or "null")
-        if isinstance(data, dict):
-            data = [data]
-        cats = {0: "Public", 1: "Private", 2: "DomainAuthenticated"}
-        for p in data or []:
-            cat = p.get("NetworkCategory")
-            out["profiles"].append({"name": p.get("Name"), "adapter": p.get("InterfaceAlias"),
-                                    "category": cats.get(cat, cat) if isinstance(cat, int) else cat})
+        out["profiles"] = winapi.network_profiles()
     except Exception as _e:
         _swallowed("server._refresh_network_check", _e)
     try:
-        r = subprocess.run(["netsh", "advfirewall", "firewall", "show", "rule", f"name={FIREWALL_RULE}"],
-                           capture_output=True, text=True, timeout=8, creationflags=flags)
-        out["ruleExists"] = r.returncode == 0
+        out["ruleExists"] = winapi.firewall_rule_exists(FIREWALL_RULE)
     except Exception as _e:
         _swallowed("server._refresh_network_check", _e)
     _net_cache.update({"at": time.time(), "value": out})
@@ -928,34 +916,28 @@ def open_external(url):
 
 
 FIREWALL_RULE = "FRAMEDECKS Phone Remote"
-OLD_FIREWALL_RULES = ("Kingdom Connect Phone Remote", legacy.OLD_FIREWALL_RULE)
 
 
 def firewall(action):
-    """Windows only. Asks for administrator permission (UAC). Allow = inbound, this program only, Private networks only."""
+    """Windows only. Asks for administrator permission (UAC). Allow = inbound, this program only, Private networks only.
+    7.1.1: FRAMEDECKS.exe itself does it (`--firewall allow|undo`, winapi.firewall_main), started with the standard
+    "run as administrator" prompt; no PowerShell."""
     if os.name != "nt":
         return False, "Only available on Windows."
-    import base64
-    prog = sys.executable.replace("'", "''")
-    old = "".join(f"Remove-NetFirewallRule -DisplayName '{n}' -ErrorAction SilentlyContinue; " for n in OLD_FIREWALL_RULES)
-    if action == "allow":
-        inner = (old + f"Remove-NetFirewallRule -DisplayName '{FIREWALL_RULE}' -ErrorAction SilentlyContinue; "
-                 f"New-NetFirewallRule -DisplayName '{FIREWALL_RULE}' -Direction Inbound -Action Allow "
-                 f"-Program '{prog}' -Protocol TCP -Profile Private | Out-Null")
-    else:
-        inner = old + f"Remove-NetFirewallRule -DisplayName '{FIREWALL_RULE}' -ErrorAction SilentlyContinue"
-    enc = base64.b64encode(inner.encode("utf-16-le")).decode()
-    outer = ("try { Start-Process powershell -Verb RunAs -Wait -WindowStyle Hidden "
-             f"-ArgumentList '-NoProfile','-EncodedCommand','{enc}'; exit 0 }} catch {{ exit 5 }}")
-    try:
-        r = subprocess.run(["powershell", "-NoProfile", "-Command", outer], capture_output=True, text=True,
-                           timeout=180, creationflags=0x08000000)
-    except (OSError, subprocess.TimeoutExpired):
-        return False, "Windows didn’t respond. Try again."
+    program = sys.executable
+    if FROZEN:
+        file, params = program, ""
+    else:                                       # from source: python runs winapi.py directly
+        file, params = program, subprocess.list2cmdline([str(SRC / "winapi.py")])
+    params = (params + " " if params else "") + subprocess.list2cmdline(["--firewall", "allow" if action == "allow" else "undo",
+                                                                          "--program", program])
+    outcome, code = winapi.run_elevated(file, params)
     _net_cache["at"] = 0
-    if r.returncode == 5:
+    if outcome == "cancelled":
         return False, "Cancelled: administrator permission was not given."
-    return r.returncode == 0, ("Done." if r.returncode == 0 else "Windows reported a problem.")
+    if outcome != "done":
+        return False, "Windows didn’t respond. Try again."
+    return code == 0, ("Done." if code == 0 else "Windows reported a problem.")
 
 
 # ---------- FrameDecks (built-in virtual camera, Windows) ----------
@@ -1787,15 +1769,11 @@ def vcam_install(action):
     helper = next((p for p in (RES / "vcam" / "bin" / name, SRC / "vcam" / "bin" / name) if p.exists()), None)
     if helper is None or not (helper.parent / "framedecks_vcam64.dll").exists():
         return False, "The FrameDecks files are missing. Reinstall the app."
-    path = str(helper).replace("'", "''")
-    outer = ("try { Start-Process -FilePath '" + path + "' -Verb RunAs -Wait -WindowStyle Hidden; exit 0 } catch { exit 5 }")
-    try:
-        r = subprocess.run(["powershell", "-NoProfile", "-Command", outer], capture_output=True, text=True,
-                           timeout=180, creationflags=0x08000000)
-    except (OSError, subprocess.TimeoutExpired):
-        return False, "Windows didn’t respond. Try again."
-    if r.returncode == 5:
+    outcome, _code = winapi.run_elevated(helper)          # 7.1.1: Windows' own prompt, no PowerShell
+    if outcome == "cancelled":
         return False, "Cancelled: administrator permission was not given."
+    if outcome != "done":
+        return False, "Windows didn’t respond. Try again."
     return True, "Done."
 
 
@@ -2030,7 +2008,7 @@ class Handler(BaseHTTPRequestHandler):
                 own = set() if os.environ.get("KC_TEST_COUNT_OWN_ADDRESS") == "1" else set(ips)
                 info["devices"] = [{"ip": ip, "lastSeen": d["last"], "firstSeen": d["first"], "signedIn": d["signedIn"]}
                                    for ip, d in sorted(devices.items(), key=lambda kv: -kv[1]["last"]) if ip not in own]
-                info["network"] = windows_network_check(60 if "fresh=1" in url.query else 900)
+                info["network"] = windows_network_check(60 if "fresh=1" in url.query else None)
             return self.reply(200, json.dumps(info), TYPES[".json"])
         if path == "/api/remote-selftest":
             # Checks the PC is listening on its network address. It cannot see the phone or iPad's side,

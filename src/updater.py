@@ -7,11 +7,14 @@ version and its notes. **Update now**:
 1. download the installer, from https://downloads.framedecks.com/ only, into <data>/updates/;
 2. check its size and SHA-256 against the manifest (and its Authenticode signature when the manifest says the release
    is signed); anything that does not match is deleted and nothing is installed;
-3. write a small PowerShell script that waits for FrameDecks to close, runs the installer silently
-   (/VERYSILENT, without the camera task, which needs no change on an update), and starts FrameDecks again. If the
-   installer fails, the script runs the installer of the version that was running before (kept from the last update,
-   or downloaded and checked like any other), so the PC is never left without a working FrameDecks;
-4. at the next start the program reads the script's result and says what happened.
+3. start the installer itself, silently (/VERYSILENT, without the camera task, which needs no change on an update,
+   and /UPDATE=1), and close FrameDecks. The installer (packaging/installer.iss) gives FrameDecks a few seconds to
+   close, ends a copy that is still running, installs, and starts the new version (only for /UPDATE=1). If it cannot
+   finish it undoes its own changes, so the version that was running stays;
+4. at the next start the program compares its own version with the one it was updating to and says what happened.
+
+7.1.1: no PowerShell anywhere (Microsoft Defender quarantined 7.1 for an unsigned program starting hidden PowerShell
+scripts): the installer is started directly and signatures are checked with WinVerifyTrust (winapi.py).
 
 "Reinstall the previous version" goes through the same steps with the manifest's `previous` build. Updates never
 start while something is on screen (the page asks first; the server checks again). Standard library only.
@@ -34,6 +37,7 @@ VERSION_RE = re.compile(r"^\d+(\.\d+){1,3}$")
 HEX64 = re.compile(r"^[0-9a-f]{64}$")
 MAX_INSTALLER = 600 * 1024 * 1024          # a FrameDecks installer is about 150 MB; anything this big is wrong
 KEEP_INSTALLED = 2                          # installers kept for putting a version back
+PUBLISHER = "Shobin Mathews"                # the code-signing certificate's name (packaging/installer.iss AppPublisher)
 
 
 def version_tuple(v):
@@ -81,11 +85,12 @@ def parse_manifest(data):
 class Updater:
     """The update state for Settings > About, and the steps above. One per program."""
 
-    def __init__(self, data_dir, current_version, frozen=False, opener=urlopen, platform=None):
+    def __init__(self, data_dir, current_version, frozen=False, opener=urlopen, platform=None, popen=subprocess.Popen):
         self.dir = Path(data_dir) / "updates"
         self.current = current_version
         self.frozen = frozen
         self.open = opener
+        self.popen = popen
         self.windows = (platform or sys.platform) == "win32"
         self.lock = threading.Lock()
         self.state = {"current": current_version, "latest": None, "newer": False, "notes": "", "released": "",
@@ -153,15 +158,12 @@ class Updater:
         """Windows Authenticode: valid, and signed by FrameDecks' publisher. Only asked when the manifest says signed."""
         if not self.windows:
             return False
-        cmd = ["powershell", "-NoProfile", "-NonInteractive", "-Command",
-               f"$s = Get-AuthenticodeSignature -LiteralPath '{path}'; \"$($s.Status)|$($s.SignerCertificate.Subject)\""]
         try:
-            out = subprocess.run(cmd, capture_output=True, text=True, timeout=60,
-                                 creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0)).stdout.strip()
+            import winapi
+            valid, signer = winapi.authenticode(path)
         except Exception:
             return False
-        status, _, subject = out.partition("|")
-        return status == "Valid" and "Shobin Mathews" in subject
+        return valid and PUBLISHER in signer
 
     def download(self, which="latest"):
         """Fetch and check the newest version (or the previous one). Returns the path of the checked installer."""
@@ -193,58 +195,21 @@ class Updater:
         return dest, version
 
     # ---------- installing ----------
-    def rollback_installer(self):
-        """The installer of the version running now, kept from the update that installed it (if any)."""
-        p = self.dir / "installed" / f"FrameDecks-{self.current}-Setup.exe"
-        return p if p.exists() else None
-
-    def script(self, installer, version, fallback, app_exe, pid):
-        """The PowerShell script that does the install once FrameDecks has closed (see the module docstring)."""
-        q = lambda p: "'" + str(p).replace("'", "''") + "'"   # noqa: E731
-        result = self.dir / "result.json"
-        args = "'/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART','/NOCANCEL','/MERGETASKS=!vcam'"   # other choices stay as they were
-        return f"""$ErrorActionPreference = 'Continue'
-$deadline = (Get-Date).AddSeconds(90)
-while ((Get-Process -Id {int(pid)} -ErrorAction SilentlyContinue) -and (Get-Date) -lt $deadline) {{ Start-Sleep -Milliseconds 500 }}
-Get-Process -Name FRAMEDECKS -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
-Start-Sleep -Seconds 1
-$p = Start-Process -FilePath {q(installer)} -ArgumentList {args} -PassThru -Wait
-$code = $p.ExitCode
-$state = 'installed'
-if ($code -ne 0) {{
-  $state = 'failed'
-  $back = {q(fallback) if fallback else "''"}
-  if ($back -and (Test-Path -LiteralPath $back)) {{
-    $b = Start-Process -FilePath $back -ArgumentList {args} -PassThru -Wait
-    if ($b.ExitCode -eq 0) {{ $state = 'rolled-back' }}
-  }}
-}}
-@{{ state = $state; to = {q(version)}; from = {q(self.current)}; code = $code; installer = {q(installer)}; at = (Get-Date).ToString('o') }} |
-  ConvertTo-Json | Set-Content -Encoding utf8 -LiteralPath {q(result)}
-Start-Process -FilePath {q(app_exe)}
-"""
+    def install_command(self, installer):
+        """The installer and its switches: silent, the other choices as they were, and /UPDATE=1 (start FrameDecks
+        again when done; packaging/installer.iss)."""
+        return [str(installer), "/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART", "/NOCANCEL", "/MERGETASKS=!vcam", "/UPDATE=1"]
 
     def install(self, which="latest", quit_app=None):
-        """Download if needed, then hand over to the install script and close FrameDecks. Windows, installed app only."""
+        """Download if needed, start the installer and close FrameDecks. Windows, installed app only."""
         if not (self.frozen and self.windows):
             raise ValueError("Updates install by themselves only in the installed Windows app. Download the new version from framedecks.com/download.")
         installer, version = self.download(which)
-        fallback = self.rollback_installer()
-        if fallback is None and which == "latest" and self.manifest and self.manifest["previous"] and \
-                self.manifest["previous"]["version"] == self.current:
-            try:                                 # the running version's own installer, checked like any other
-                fallback, _ = self.download("previous")
-            except Exception:
-                fallback = None
         self.dir.mkdir(parents=True, exist_ok=True)
-        script = self.dir / "install-update.ps1"
-        script.write_text(self.script(installer, version, fallback, sys.executable, os.getpid()), encoding="utf-8-sig")
         (self.dir / "pending.json").write_text(json.dumps({"from": self.current, "to": version, "installer": str(installer),
                                                             "at": time.time()}), encoding="utf-8")
-        flags = getattr(subprocess, "DETACHED_PROCESS", 0) | getattr(subprocess, "CREATE_NEW_PROCESS_GROUP", 0) | \
-            getattr(subprocess, "CREATE_NO_WINDOW", 0)
-        subprocess.Popen(["powershell", "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-WindowStyle", "Hidden",
-                          "-File", str(script)], creationflags=flags, close_fds=True)
+        flags = getattr(subprocess, "DETACHED_PROCESS", 0) | getattr(subprocess, "CREATE_NEW_PROCESS_GROUP", 0)
+        self.popen(self.install_command(installer), creationflags=flags, close_fds=True)
         self.state.update(phase="installing")
         if quit_app:
             threading.Timer(1.0, quit_app).start()
@@ -252,27 +217,23 @@ Start-Process -FilePath {q(app_exe)}
 
     # ---------- after a restart ----------
     def read_result(self):
-        """What the last update did, read once at start: installed, rolled back, or failed. Keeps the installer of a
-        version that installed, for putting it back later."""
-        pending, result = self.dir / "pending.json", self.dir / "result.json"
+        """What the last update did, read once at start: this version is the one it was updating to, or not. Keeps the
+        installer of a version that installed, for putting it back later."""
+        pending = self.dir / "pending.json"
         if not pending.exists():
             return None
         try:
             p = json.loads(pending.read_text(encoding="utf-8"))
-            r = json.loads(result.read_text(encoding="utf-8-sig")) if result.exists() else {}
         except (OSError, ValueError):
-            p, r = {}, {}
+            p = {}
         to = str(p.get("to") or "")
         if to and version_tuple(to) == version_tuple(self.current):
             out = {"ok": True, "version": to, "message": f"FrameDecks was updated to {to}."}
             self._keep(Path(p.get("installer") or ""), to)
-        elif r.get("state") == "rolled-back":
-            out = {"ok": False, "version": self.current,
-                   "message": f"The update to {to} could not be installed, so FrameDecks {self.current} was put back."}
         else:
             out = {"ok": False, "version": self.current,
-                   "message": f"The update to {to} did not finish. You are still on {self.current}; try again from Settings > About."}
-        for f in (pending, result):
+                   "message": f"The update to {to} did not finish, so FrameDecks {self.current} stayed. Try again from Settings > About."}
+        for f in (pending, self.dir / "result.json", self.dir / "install-update.ps1"):    # 7.0's script and its result
             try:
                 f.unlink()
             except OSError:
