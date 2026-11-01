@@ -156,22 +156,21 @@ FrameDecks, restart that app.
 
 ## 6. Phone and tablet remote
 **Settings → Phone & iPad Remote** → turn it on, scan the QR code, enter the PIN.
-- **Simple remote** (the default): one screen, very large buttons, nothing to set up.
-  - **Current Frame** (*Frame 4 of 18*) with **PREVIOUS FRAME** / **NEXT FRAME**.
-  - **Current Content** (*Question 2 of 5*, *Scripture*, or *PowerPoint · Slide 3 of 12*) with **PREVIOUS CONTENT** /
-    **NEXT CONTENT**. **Change** appears when a Frame has more than one.
-  - **ANNOTATE**: draw with your finger on the live picture (exactly what Zoom / Teams see). Turn the phone sideways
-    and the picture fills the screen, with the tools in a narrow column at the side.
-  - **FREEZE** and **BLACK SCREEN**.
-  - **TELEPROMPTER** opens the Frame's script full screen on the phone.
-  - The connection status is spelled out at the top, next to **HIDE ALL**.
-- **Advanced remote** (⋯ → Advanced remote):
-  - every Frame, with search across Frames and Content;
-  - the Frame's Content (tap to show or hide);
-  - a **Teleprompter** panel on the **Live** tab;
-  - PowerPoint slides;
-  - **Run-through**: step through Frames on your phone without changing the screen;
-  - Annotate, Freeze, Blackout and Emergency.
+One screen with large buttons, nothing to set up. Scroll down for the rest.
+- The top bar: the meeting name, the connection status and **Hide all** (solid red while something is on screen).
+- **On screen now**: the live picture with a badge (*Off air*, *On screen*, *Black screen*, *Frozen* or *Emergency*),
+  *Frame 4 of 18*, the Frame's name and what it is showing, plus **FrameRelay** and **Recording** chips.
+- **Previous** / **Next** (gold; it says **Start** before anything is live).
+- The Frame's questions, scriptures or PowerPoint slides (*Question 2 of 5*, *Slide 3 of 12*) with round **◀ ▶**
+  arrows. Chips choose which when a Frame has more than one; a **Question / Both / Scripture** switch appears when it
+  has both.
+- **Teleprompter** opens the Frame's script full screen on the phone (**Done** closes it).
+- **Draw**: draw with your finger on the live picture (exactly what Zoom / Teams see). Turn the phone sideways and the
+  picture fills the screen, with the tools in a narrow column at the side.
+- **Freeze** and **Black screen** (it reads **Show picture** while on).
+- **All Frames**: every Frame as a card; tap one to put it on screen (**Live** and **Next** tags). On a tablet the list
+  sits beside the controls.
+- **Disconnect this device** at the bottom. The **Emergency** screen is on the PC only.
 
 ## 7. Excel (optional)
 FrameDecks works fully without Excel. The **Meeting Workbook** is for planning, review, handover and bulk editing.

@@ -58,7 +58,7 @@ The recommendation is to cover the two real needs with tools that are dependable
    - Previous / Next slide works from:
      - the command bar;
      - Page Up / Page Down;
-     - the phone (Simple remote: *Next Content* on a PowerPoint Frame).
+     - the phone (the round ◀ ▶ arrows on a PowerPoint Frame).
    - Set the slide to **Start at** under Content Settings → Media.
    - No PowerPoint on the PC? Save the deck as PDF in PowerPoint (or Keynote or Google Slides) and add the PDF.
 2. **Live PowerPoint window** (*+ Content → Free Content → Window*)

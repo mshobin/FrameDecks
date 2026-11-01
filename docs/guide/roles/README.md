@@ -23,7 +23,7 @@ Small groups often have one person doing everything. Larger services split the w
 | **Media team** | Prepares Frames, slides, videos and scripture before the service | The Studio on the PC | [Media team](media-team.md) |
 | **Service operator** | Runs the PC during the service: Go Live, Next, recovery | The PC (command bar, Live tools menu) | [Service operators](service-operators.md) |
 | **Remote operator** | Runs the service, or draws, from a phone or iPad | The phone remote | [Remote operators](remote-operators.md) |
-| **Volunteer** | Helps with one simple task, usually Next on the phone | The Simple remote | [Volunteers](volunteers.md) |
+| **Volunteer** | Helps with one simple task, usually Next on the phone | The phone remote | [Volunteers](volunteers.md) |
 
 ## How the roles work together
 
@@ -63,10 +63,10 @@ Every role follows the same three-week pattern. Nobody runs a live service alone
 
 Before week 1, give the new volunteer:
 - their role guide;
-- 20 minutes with a practice meeting (any meeting not on air: use **Run-through** on the phone, or Frames that are not live on the PC);
+- 20 minutes with a practice meeting (any meeting not on air: step through it on the phone, or select Frames that are not live on the PC);
 - the [emergency card](service-day-checklist.md#emergency-card).
 
-> **Tip:** Practise recovery, not just the happy path. Ask every new volunteer to use **HIDE ALL**, **BLACK SCREEN** and **FREEZE** at least once during training, so they are not surprised by them on a Sunday.
+> **Tip:** Practise recovery, not just the happy path. Ask every new volunteer to use **Hide all**, **Black screen** and **Freeze** at least once during training, so they are not surprised by them on a Sunday.
 
 ## Training plan
 
@@ -77,7 +77,7 @@ A one-hour team training session that covers everyone:
 | 0:00 | What FrameDecks is: Meeting → Frame → Content → Present | All |
 | 0:10 | Building a Frame: + Frame, + Content, Content Settings | Media team |
 | 0:25 | Presenting: Go Live, Next, Hide all, Black screen, Freeze | Operators |
-| 0:35 | The phone remote: connect, Simple remote, drawing | Remote operators, volunteers |
+| 0:35 | The phone remote: connect, Previous / Next, All Frames, drawing | Remote operators, volunteers |
 | 0:45 | The Teleprompter: the script, what's next, timer | Leaders |
 | 0:50 | Something goes wrong: practise recovery | All |
 | 0:55 | Questions; schedule shadow weeks | All |

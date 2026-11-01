@@ -1,6 +1,6 @@
 # Phone and tablet remote
 
-Run the service from a phone or iPad: step through Frames and Content, draw on the picture, freeze or black out the screen.
+Run the service from a phone or iPad: step through Frames, questions, scriptures and slides, draw on the picture, freeze or black out the screen.
 
 **Who this is for:** service operators, remote operators and leaders who want to move freely while presenting.
 
@@ -8,11 +8,9 @@ Run the service from a phone or iPad: step through Frames and Content, draw on t
 - [How it works](#how-it-works)
 - [Set up the remote](#set-up-the-remote)
 - [Security](#security)
-- [Simple remote](#simple-remote)
-- [Advanced remote](#advanced-remote)
+- [The remote](#the-remote)
 - [Teleprompter on the phone](#teleprompter-on-the-phone)
 - [Drawing from the phone](#drawing-from-the-phone)
-- [Run-through mode](#run-through-mode)
 - [iPad and tablet layout](#ipad-and-tablet-layout)
 - [Add it to your home screen](#add-it-to-your-home-screen)
 - [Tips for remote operators](#tips-for-remote-operators)
@@ -57,52 +55,41 @@ The phone stays signed in for 30 days. After that, or after a new PIN, enter the
 
 > **Important:** Treat the PIN like a key to the sound desk. Share it only with the people running the service, and choose **New PIN** if it has been shared too widely.
 
-## Simple remote
+## The remote
 
-The **Simple** remote is the default. It has one screen with very large buttons, so a volunteer can use it without training.
+The remote is **one screen** with large buttons, so a volunteer can use it without training. Scroll down for the rest.
 
-![The Simple remote on a phone](images/remote-simple.png)
+![The remote on a phone](images/remote-simple.png)
 
 | Part | What it does |
 | --- | --- |
-| **Connected** | The connection status, always visible at the top |
-| **HIDE ALL** | Hides everything on screen at once |
-| **Current Frame** (*Frame 4 of 18*) | Where you are in the meeting |
-| **PREVIOUS FRAME / NEXT FRAME** | Move through the Frames, in order |
-| **Current Content** (*Question 2 of 5*, *Scripture*, *PowerPoint · Slide 3 of 12*) | What is showing in this Frame |
-| **CHANGE** | Appears when a Frame has more than one kind of Content (for example questions **and** scriptures). Switches which one the buttons below control |
-| **PREVIOUS CONTENT / NEXT CONTENT** | Step through questions, scriptures or slides |
-| **ANNOTATE** | Opens the drawing pad |
-| **FREEZE** | Holds the picture while you get the next thing ready |
-| **BLACK SCREEN** | Makes the picture black. Select it again (**SHOW PICTURE**) to bring it back |
-| **TELEPROMPTER** | Opens the Frame's Teleprompter script full screen, on this phone only |
+| **Top bar** | The meeting name and the **Connected** status, always visible |
+| **Hide all** | Hides everything on screen at once. It turns solid red while something is on screen |
+| **On screen now** | The live picture, with a badge: **Off air**, **On screen**, **Black screen**, **Frozen** or **Emergency**. Below it: *Frame 4 of 18*, the Frame's name and what it is showing, plus **FrameRelay** and **Recording** chips when they are on |
+| **Previous / Next** | Move through the Frames, in order. **Next** is gold, and says **Start** before anything is live |
+| **Questions, scriptures or slides** | A card for the Frame's questions, scriptures or PowerPoint slides (*Question 2 of 5*, *Slide 3 of 12*). The round **◀ ▶** arrows step through them. When a Frame has more than one kind, chips choose which one the arrows move through. A Frame with a question **and** a scripture also gets a **Question / Both / Scripture** switch |
+| **Teleprompter** | Opens the Frame's Teleprompter script full screen, on this phone only |
+| **Draw** | Opens the drawing pad |
+| **Freeze** | Holds the picture while you get the next thing ready |
+| **Black screen** | Makes the picture black. Select it again (**Show picture**) to bring it back |
+| **All Frames** | Every Frame as a card. Tap one to put it on screen. **Live** and **Next** tags show where you are |
+| **Disconnect this device** | At the bottom: signs this phone out. Enter the PIN to connect again |
 
-## Advanced remote
-
-Open the **⋯** menu and choose **Advanced remote** for more control:
-- every Frame in a list, with **search** across Frames and Content;
-- the Frame's Content (tap to show or hide each one);
-- a **Teleprompter** panel on the **Live** tab, visible only on the phone;
-- **PowerPoint** slide control;
-- **Run-through** mode (below);
-- **Annotate**, **Freeze**, **Blackout** and **Emergency**.
-
-The choice is remembered on that phone. Switch back to **Simple** from the same menu.
+The **Emergency** screen is on the PC only. If it is on, the badge says **Emergency**; turn it off on the PC.
 
 ## Teleprompter on the phone
 
 The phone can show the Frame's **Teleprompter script**, the same one you see on the PC. Only the phone shows it;
 nobody watching sees it.
 
-- **Simple remote:** select **TELEPROMPTER**. The script opens full screen.
-- **Advanced remote:** open the **Teleprompter** panel on the **Live** tab.
+Select **Teleprompter**. The script opens full screen; select **Done** to close it.
 
 Scroll with your finger, or use the play button to scroll by itself. See
 [Presentations](presentations.md#teleprompter) for how to write the script.
 
 ## Drawing from the phone
 
-1. Select **ANNOTATE**. The drawing pad opens with the **live picture**, exactly what Zoom, Teams or the projector shows.
+1. Select **Draw**. The drawing pad opens with the **live picture**, exactly what Zoom, Teams or the projector shows.
 2. Choose a tool (**Pen**, **Highlight**, **Arrow**, **Box**, **Circle**) and a colour.
 3. Draw with your finger. The drawing appears on screen when you lift your finger.
 4. **Undo** removes the last drawing; **Clear** removes them all.
@@ -114,13 +101,9 @@ Scroll with your finger, or use the play button to scroll by itself. See
 
 While the pad is open, the phone gets a sharper picture (960 pixels wide). If the FrameRelay camera is off, the pad shows the Frame's cards instead, so you are never drawing on a black box.
 
-## Run-through mode
-
-In the Advanced remote, **Run-through** lets you step through Frames on the phone **without changing what everyone sees**. The phone's preview follows your steps; the screen does not. Use it to rehearse, or to check what is coming next during a long talk. Turn it off to control the screen again.
-
 ## iPad and tablet layout
 
-On an iPad or a large tablet, the Advanced remote shows the Frames, the Content and the controls side by side, so you can see the whole meeting at once. The Simple remote stays a single, centred column of large buttons.
+On an iPad or a large tablet, the **All Frames** list sits beside the controls, so you can see the whole meeting at once. On a phone it is below them.
 
 ## Add it to your home screen
 
@@ -134,8 +117,8 @@ The icon opens the remote directly. You still need to be on the same Wi-Fi as th
 - Charge the phone fully, and turn on **Do Not Disturb** so notifications don't cover the buttons.
 - Set the phone to stay awake (screen timeout off, or as long as possible) during the service.
 - Check the **Connected** status before the service starts and after any Wi-Fi change.
-- Use **FREEZE** before switching windows or files on the PC, then unfreeze when ready.
-- If something unexpected appears, select **HIDE ALL** first, then work out what happened.
+- Use **Freeze** before switching windows or files on the PC, then unfreeze when ready.
+- If something unexpected appears, select **Hide all** first, then work out what happened.
 
 ## If the phone can't connect
 

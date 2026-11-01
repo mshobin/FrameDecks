@@ -35,7 +35,7 @@ A printable timeline for running a service with FrameDecks, plus an emergency ca
 
 - [ ] Phone remote on; remote operator connected (**Connected** shown).
 - [ ] Walk through the first Frames with **Go Live**; check the projector and the meeting app's self-view.
-- [ ] **Teleprompter** open where the leader can see it (**Live tools → Teleprompter** or **R** on the PC, or **TELEPROMPTER** on the leader's phone).
+- [ ] **Teleprompter** open where the leader can see it (**Live tools → Teleprompter** or **R** on the PC, or **Teleprompter** on the leader's phone).
 - [ ] Leader on Zoom or Teams from the same PC: check that the Teleprompter sits over the participants (not over the leader's own video or the chat they need), and click into Zoom: the Teleprompter should stay in front.
 - [ ] Spotlight works: press **Alt+Space** (or the shortcut shown in **Settings → General → Window and tray**) with Zoom in front.
 - [ ] Agree who controls Next (PC or phone) and the hand signals.
@@ -67,11 +67,11 @@ A printable timeline for running a service with FrameDecks, plus an emergency ca
 
 | If… | Press | On the phone |
 | --- | --- | --- |
-| Anything wrong is on screen | **Esc** (Hide all) | **HIDE ALL** |
-| The screen must go dark | **K** (Black screen) | **BLACK SCREEN** |
-| You need time to fix something | **F** (Freeze) | **FREEZE** |
-| You need a message on screen | **Live tools → Emergency screen** | Advanced remote → **Emergency** |
-| Ready again | Select the Frame → **T** (Go Live) | **NEXT FRAME** / **PREVIOUS FRAME** |
+| Anything wrong is on screen | **Esc** (Hide all) | **Hide all** |
+| The screen must go dark | **K** (Black screen) | **Black screen** |
+| You need time to fix something | **F** (Freeze) | **Freeze** |
+| You need a message on screen | **Live tools → Emergency screen** | PC only |
+| Ready again | Select the Frame → **T** (Go Live) | Tap the Frame in **All Frames**, or **Next** / **Previous** |
 
 **Nothing above deletes anything.** When the problem is solved, put the right Frame back with Go Live.
 

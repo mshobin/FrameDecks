@@ -11,10 +11,11 @@
 | **Practice mode removed** | Practice mode and the Setup guide's Rehearse step are gone. To try things out, use Live tools → Black screen | `app/js/service.js` |
 | **FrameRelay Camera: picture quality** | **Picture quality** (folded) has three groups: **Quick setting** (Setting, Strength of the look, Zoom in); **Light and colour** (Brightness Automatic / Set it myself with Shutter speed and Light boost; Colour Automatic / Set it myself with Warm ↔ cool; Bright window behind you; Flickering lights; **Fine-tune light and colour** with **Put these back to normal**); **More webcam options** (Webcam picture, Smoothness, Dark areas / Fix grey blacks). **Diagnostics** is its own folded box: a one-line answer (*Everything looks normal.* or what to try), with **Technical details (for support)** folded | `app/js/vcam-panel.js` |
 | **Setup guide wizard** | One step at a time, with a progress bar and *Step n of 6*; **Back** / **Next** (Next only when the step is detected as done), **Do this later**, **Skip this step** on optional steps, a status line and **Something not working?** tips. Steps: Welcome, How people will see it, Your phone as a remote (optional), Connect to FrameDecks (optional), Make your first Frame, Ready (the ready checks, each problem with a fix button). The finish screen offers **Open the Studio** | `app/js/guide.js`, `app/js/guide-steps.js`, `app/js/service.js` (`KCServiceChecks`) |
+| **One phone remote** | One scrolling view for everyone after the PIN sign-in. Top bar: the meeting name, **Connected** and **Hide all** (solid red while something is on screen). **On screen now**: the live picture with a badge (Off air / On screen / Black screen / Frozen / Emergency), *Frame n of m*, the Frame's name and what it shows, FrameRelay and Recording chips. **Previous** / **Next** (gold; *Start* before anything is live). A card for the Frame's questions, scriptures or PowerPoint slides: chips to choose which, round ◀ ▶ arrows, *Question 2 of 5*, and a Question / Both / Scripture switch when the Frame has both. Four tools: **Teleprompter** (the script full screen, **Done** closes it), **Draw**, **Freeze**, **Black screen** (*Show picture* while on). **All Frames**: every Frame as a card, tap to put it on screen (Live and Next tags). **Disconnect this device** at the bottom. On tablets the Frames list sits beside the controls. Removed: the Simple / Advanced layouts and the *This device* (⋯) sheet, the Live / Frames / Content tabs, Frame search, the Content list (show / hide eyes, Hide Content), the transition picker, Run-through, the Auto toggle, the Emergency button (still on the PC), the Frame actions sheet and the tablet's Next-Frame preview | `app/remote.html`, `app/js/remote.js`, `app/css/remote.css` |
 
 Rows in the tables below that mention the docked Teleprompter, the Teleprompter overlay or the Teleprompter
 window's side panel, Practice mode, Run, the Discussion topic / Icebreaker / Poll presets, the Duplicate options or
-the Frame / Timing / History groups describe earlier versions; the table above describes the app as it is now.
+the Frame / Timing / History groups, or the Simple / Advanced remote, describe earlier versions; the table above describes the app as it is now.
 
 ## v6.9 at a glance
 | Feature | What it does | Where it lives |
@@ -138,8 +139,8 @@ The app's own branding is the **Book + Candle** mark (`app/img/framedecks-emblem
 - **Command bar (dashboard header):** the mark alone, 30 px wide. There is no "FrameDecks" wordmark or text
   beside it. The name and the Meeting Name are kept for screen readers, in the mark's tooltip and in the window
   title.
-- **Phone remote:** the sign-in screen shows the mark alone, and the remote's top bar shows the mark and the mode
-  (Simple / Standard / Advanced).
+- **Phone remote:** the sign-in screen shows the mark alone, and the remote's top bar shows the mark, the meeting
+  name and the connection status.
 - **Home-screen icons** (`app/icons/remote-*.png`): the mark on a navy tile, with no text. The Windows app icon
   (`packaging/framedecks.ico`) was already the mark alone.
 - **Dialogs and overlays** show no product branding. The leader's own logo and Meeting Name (Settings → Meeting &

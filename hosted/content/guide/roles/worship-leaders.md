@@ -28,22 +28,22 @@ How to lead a service or Bible study with FrameDecks, so the technology supports
 2. **Your script is private.** Write what you plan to say in each Frame's **Teleprompter script**. It never appears on screen; only you see it.
 3. **The Teleprompter is your confidence monitor.** **Live tools → Teleprompter** (**R**) opens your script in a window that stays on top of Zoom or Teams, so you can lead from one laptop. Zoom and Teams never share it, and recordings never show it. Its top bar (the time, the current Frame and a timer) appears when you move the pointer to the top edge. The phone remote has a Teleprompter too. See [Teleprompter](../presentations.md#teleprompter).
 4. **You can draw.** **Annotate** (**D**) lets you circle a word in a verse or underline a phrase, on the PC or from a phone.
-5. **Hide all is always safe.** **Esc** (or **HIDE ALL** on the phone) clears the screen without deleting anything.
+5. **Hide all is always safe.** **Esc** (or **Hide all** on the phone) clears the screen without deleting anything.
 
 ## Before the service
 
 - [ ] Send the passage, questions, songs and announcements to the media team.
 - [ ] Check each question's wording (double-click a question in its list, or its card on the Studio Canvas, to edit it).
 - [ ] Write each Frame's **Teleprompter script** (Content Settings → Teleprompter script, or double-click the text in the Teleprompter). Use `# Heading`, `- bullet` and `[PAUSE]` to make it easy to follow.
-- [ ] Walk through the whole meeting: select each Frame and look at the Studio Canvas, or use **Run-through** on the phone.
+- [ ] Walk through the whole meeting: select each Frame and look at the Studio Canvas, or scroll through **All Frames** on the phone.
 - [ ] Agree hand signals with the operator (for example, a nod = next).
 - [ ] Leading on Zoom or Teams? Open the **Teleprompter** (**R**) in a test call, place it over the participants near your camera, and check that it stays in front when you click into the meeting.
 
 ## During the service
 
-- Keep the **Teleprompter** where you can see it: its window over Zoom or Teams (or on a second screen), or **TELEPROMPTER** on your phone. Press **Space** to scroll it, and **A− / A+** to change the text size.
+- Keep the **Teleprompter** where you can see it: its window over Zoom or Teams (or on a second screen), or **Teleprompter** on your phone. Press **Space** to scroll it, and **A− / A+** to change the text size.
 - Show the Teleprompter's top bar to watch the **Time** and the **Timer** (Start / Pause, Reset) and pace discussion.
-- If you run the service yourself, keep the phone in your hand on the **Simple** remote: **NEXT CONTENT** for the next question, **NEXT FRAME** for the next part.
+- If you run the service yourself, keep the phone remote in your hand: the round **▶** arrow for the next question, **Next** for the next part.
 - To fix a typo you notice on screen, double-click the card on the Studio Canvas, correct it and press **Enter**. The screen updates straight away.
 - To find a Frame or question quickly, press **Ctrl+K** and type a few words. If Zoom is in front, press **Alt+Space** for **Spotlight**, which finds the same things.
 - The Teleprompter's toolbar fades by itself; move the mouse to bring it back. Make the window as small as you can still read comfortably, so you can see the participants.
@@ -59,9 +59,9 @@ Stay calm and keep leading. The congregation follows your tone more than the scr
 
 | Situation | Say or do |
 | --- | --- |
-| The wrong slide appears | Ask the operator for **HIDE ALL**, then carry on speaking |
-| The screen must go dark (a sensitive moment, a mistake) | **BLACK SCREEN** (K on the PC) |
-| You need a moment to find the next item | **FREEZE** (F) keeps the picture still while things change behind it |
+| The wrong slide appears | Ask the operator for **Hide all**, then carry on speaking |
+| The screen must go dark (a sensitive moment, a mistake) | **Black screen** (K on the PC) |
+| You need a moment to find the next item | **Freeze** (F) keeps the picture still while things change behind it |
 | The phone stops working | Carry on from the PC, or ask the operator to take over |
 
 ## Getting started in this role

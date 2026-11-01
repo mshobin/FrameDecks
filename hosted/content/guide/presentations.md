@@ -59,13 +59,13 @@ The **Studio Canvas** always tells you whether you are looking at the screen peo
 
 ## Move through the meeting
 
-| Action | PC | Phone (Simple remote) |
+| Action | PC | Phone remote |
 | --- | --- | --- |
-| Next Frame | **Frame ▶** or **]** | **NEXT FRAME** |
-| Previous Frame | **◀ Frame** or **[** | **PREVIOUS FRAME** |
-| Go Live on the selected Frame | **Go Live** or **T** | — |
-| Next question | **→** | **NEXT CONTENT** |
-| Next slide (PowerPoint) | **Page Down** or the slide ▶ button | **NEXT CONTENT** |
+| Next Frame | **Frame ▶** or **]** | **Next** |
+| Previous Frame | **◀ Frame** or **[** | **Previous** |
+| Go Live on the selected Frame | **Go Live** or **T** | Tap the Frame in **All Frames** |
+| Next question | **→** | The round **▶** arrow |
+| Next slide (PowerPoint) | **Page Down** or the slide ▶ button | The round **▶** arrow |
 
 **Auto advance:** a Frame can move to the next one by itself after a number of seconds (Content Settings → **Move
 to the next Frame after N seconds**). It only happens while **Auto-advance** in the command bar is on.

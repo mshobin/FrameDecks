@@ -21,17 +21,17 @@ Move the service forward when the leader moves on, and keep the screen tidy. You
 
 ## Five things to know
 
-![The Simple remote](../images/remote-simple.png)
+![The phone remote](../images/remote-simple.png)
 
 | Button | When to press it |
 | --- | --- |
-| **NEXT CONTENT** | The leader moves to the next question, scripture or slide |
-| **NEXT FRAME** | The leader moves to the next part of the service |
-| **HIDE ALL** | Anything looks wrong. It clears the screen and deletes nothing |
-| **BLACK SCREEN** | The screen should be dark. Press **SHOW PICTURE** to bring it back |
-| **FREEZE** | You were asked to hold the picture still |
+| The round **▶** arrow | The leader moves to the next question, scripture or slide |
+| **Next** (gold) | The leader moves to the next part of the service |
+| **Hide all** (top right) | Anything looks wrong. It clears the screen and deletes nothing |
+| **Black screen** | The screen should be dark. Press **Show picture** to bring it back |
+| **Freeze** | You were asked to hold the picture still |
 
-The **PREVIOUS** buttons go back one step if you press Next too early.
+**Previous** and the round **◀** arrow go back one step if you press Next too early.
 
 ## Before the service
 
@@ -43,7 +43,7 @@ The **PREVIOUS** buttons go back one step if you press Next too early.
 ## During the service
 
 - Follow the leader, not the slide: press Next when they move on.
-- Glance at **Current Content** (*Question 2 of 5*) to know where you are.
+- Glance at *Frame 4 of 18* and *Question 2 of 5* to know where you are.
 - If you are not sure, wait. A slide shown a second late is better than the wrong slide.
 
 ## After the service
@@ -53,7 +53,7 @@ The **PREVIOUS** buttons go back one step if you press Next too early.
 
 ## When something goes wrong
 
-1. Press **HIDE ALL**.
+1. Press **Hide all**.
 2. Tell the service operator or leader quietly.
 3. Wait for them to put the right thing back on screen.
 

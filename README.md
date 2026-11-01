@@ -36,8 +36,9 @@ rendering and camera output stay on the PC. FrameDecks is proprietary software, 
 - **Media**: images, video (muted), PowerPoint (.pptx converted by the PowerPoint on the PC, or PDF), live window
   capture that keeps PowerPoint animations, screen capture, and *Show objects only* for plain slide backgrounds
   ([POWERPOINT](docs/reference/powerpoint.md)).
-- **Phone remote**: a **Simple** remote with large PREVIOUS / NEXT FRAME and CONTENT, ANNOTATE, FREEZE and BLACK
-  SCREEN buttons, a TELEPROMPTER button, and an **Advanced** remote with search, a Teleprompter panel and run-through. PIN-protected, local network only;
+- **Phone remote**: one view with what is on screen now, large **Previous** / **Next** buttons, arrows for the Frame's
+  questions, scriptures or slides, **Teleprompter**, **Draw**, **Freeze** and **Black screen**, and every Frame one tap
+  away. PIN-protected, local network only;
   draw on the real live picture, full screen in landscape ([REMOTE_CONTROL](docs/guide/remote-control.md)).
 - **Teleprompter**: each Frame's script, seen only by the presenter, in one window that stays on top of Zoom, Teams
   or Meet (Live tools → Teleprompter, or R), or on the phone. Its top bar (time, the current Frame and a timer) stays

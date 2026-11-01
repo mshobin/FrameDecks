@@ -31,7 +31,7 @@ Bible studies, small groups, prayer meetings, trainings and services, especially
 Not completely. FrameDecks focuses on Bible study, discussion and teaching, online or hybrid, with a built-in camera for meeting apps and a very simple phone remote. It has no song library, multi-screen stage display layouts or lighting control. Many churches use it for midweek groups and online gatherings alongside their Sunday software.
 
 **Is it difficult to learn?**
-No. A volunteer can run a meeting from the **Simple** phone remote with six buttons. Building a meeting takes most leaders one session to learn. See [Getting started](getting-started.md).
+No. A volunteer can run a meeting from the phone remote, with two large **Previous** / **Next** buttons. Building a meeting takes most leaders one session to learn. See [Getting started](getting-started.md).
 
 **What does a Frame mean?**
 One screen, or one step, of your meeting. A Frame holds its own Content and never shares it with another Frame. See [Frames](frames.md).
@@ -66,8 +66,8 @@ Not yet. There is no song database, verse/chorus arrangement or CCLI reporting t
 
 **So how do we show song words?**
 Two good ways:
-1. **Text Content**: one Frame per verse or chorus, with the words in the Text field. Step through with **NEXT FRAME**.
-2. **PowerPoint or PDF**: use your existing lyric slides, added as PowerPoint Content. Step through with **NEXT CONTENT** or **Page Down**.
+1. **Text Content**: one Frame per verse or chorus, with the words in the Text field. Step through with **Next**.
+2. **PowerPoint or PDF**: use your existing lyric slides, added as PowerPoint Content. Step through with the remote's round **▶** arrow or **Page Down**.
 
 **Do we still need a CCLI licence?**
 FrameDecks doesn't change your copyright responsibilities. If you show or stream song lyrics, you need the licences your church normally holds (for example, CCLI Copyright and Streaming licences). FrameDecks doesn't report usage for you.
@@ -131,7 +131,7 @@ No. The remote opens in the phone's browser. You can add it to the home screen s
 No, only the same Wi-Fi network as the PC.
 
 **Can I see my script on the phone?**
-Yes. In the Simple remote, select **TELEPROMPTER** to see the Frame's script full screen. The Advanced remote has a Teleprompter panel on its **Live** tab.
+Yes. Select **Teleprompter** to see the Frame's script full screen. Select **Done** to close it.
 
 **Can someone outside the church take control?**
 The remote works only on your local network, and only with the 6-digit PIN. After 5 wrong tries a device must wait 60 seconds. **New PIN** signs everyone out.
@@ -145,13 +145,13 @@ Yes. Any phone signed in with the PIN can control the meeting, and every screen 
 Use the three-week onboarding plan in [Church operations](roles/README.md): shadow, then assisted, then solo.
 
 **What is the minimum a volunteer needs to know?**
-Five things: **Go Live**, **NEXT FRAME**, **NEXT CONTENT**, **HIDE ALL**, and **BLACK SCREEN**. See the [volunteer guide](roles/volunteers.md).
+Five things: **Go Live**, **Next**, the round **▶** arrow for the next question or slide, **Hide all**, and **Black screen**. See the [volunteer guide](roles/volunteers.md).
 
 **What if a volunteer presses the wrong thing on air?**
-Press **HIDE ALL** (or **Esc** on the PC), then put the right Frame back with **Go Live**. Nothing is ever deleted by these buttons.
+Press **Hide all** (or **Esc** on the PC), then put the right Frame back with **Go Live**. Nothing is ever deleted by these buttons.
 
 **Can the leader see notes that the congregation can't?**
-Yes. Write them in each Frame's **Teleprompter script** (Frame settings). Open it with **Live tools → Teleprompter** (**R**): a window that stays on top of Zoom or Teams. Or use **TELEPROMPTER** on the phone remote. See [Presentations](presentations.md#teleprompter).
+Yes. Write them in each Frame's **Teleprompter script** (Frame settings). Open it with **Live tools → Teleprompter** (**R**): a window that stays on top of Zoom or Teams. Or use **Teleprompter** on the phone remote. See [Presentations](presentations.md#teleprompter).
 
 **Can the audience see the teleprompter?**
 No. The Teleprompter is only for the presenter. It is never on the FrameRelay camera, the Presentation window, the OBS pages or the phone's drawing pad.
