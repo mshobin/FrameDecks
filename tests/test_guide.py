@@ -30,6 +30,12 @@ class GuideSettings(unittest.TestCase):
                     {"done": ["welcome"] * 8}):
             self.assertEqual(server.save_app_settings({"guide": bad})["guide"], good, bad)
 
+    def test_progress_from_7_x_keeps_its_ticks_without_the_retired_practice_step(self):
+        import json
+        server.APP_SETTINGS_FILE.write_text(json.dumps({"guide": {"seen": True, "done": ["welcome", "rehearse", "frame"]}}), encoding="utf-8")
+        self.assertEqual(server.app_settings()["guide"], {"seen": True, "done": ["welcome", "frame"]})
+        self.assertNotIn("rehearse", server.GUIDE_STEPS)
+
     def test_a_new_pc_starts_with_no_progress(self):
         self.assertEqual(server.APP_SETTINGS_DEFAULTS["guide"], {})
 

@@ -1,6 +1,7 @@
-/* FrameDecks - the Setup guide (6.14; docs/project/2026-10-29-onboarding-linking-themes-plan.md section 1).
- * A calm panel at the right with the seven steps of guide-steps.js. Each step ticks itself when the program sees it
- * is true (a Frame with Content, a phone connected, Practice used...), never because it was clicked. It opens on a
+/* FrameDecks - the Setup guide (6.14; 8.0 a step-by-step wizard; docs/development/design-system.md "Setup guide").
+ * A calm panel at the right that shows one step of guide-steps.js at a time, with a progress bar, Back and Next.
+ * Each step ticks itself when the program sees it is true (a way to show it chosen, a phone connected, a Frame
+ * made...), never because it was clicked; a step that is not done yet says so and offers help to fix it. It opens on a
  * new PC, can be skipped, remembers where you were (kc-app-settings.json "guide"), and comes back from
  * Settings → About → Guided tour or the command palette. "Show me how" dims the window around the real control.
  * Nothing loops: the panel and the spotlight move once, and not at all under reduced motion. */
@@ -19,9 +20,8 @@ function I(n, s){ return window.KCIcon ? window.KCIcon(n, s || 16) : ''; }
 function W(){ return window.KCWorkspace; }
 function C(){ return window.KCServiceChecks; }
 function go(tab, sec){ if (window.KCSetTab) window.KCSetTab(tab); if (sec && window.KCShowSection) setTimeout(function(){ window.KCShowSection(sec); }, 0); }
-function mode(m){ go('studio'); if (window.KCServiceMode) window.KCServiceMode.set(m); }
 
-var state = {done: []}, panel = null, small = false, touring = false, linked = false, lastScene = null, baseline = '';
+var state = {done: []}, panel = null, small = false, touring = false, linked = false, baseline = '', view = null;
 // the plan as it was when the guide opened (or after its ready-made Frames): a change to it is "your first Frame"
 function rebase(){ baseline = W() ? W().planSig() : ''; }
 try { small = localStorage.getItem('kc-guide-small') === '1'; } catch(e){}
@@ -43,18 +43,12 @@ function detect(){
   if (c && c.phone() && mark('phone')) changed = true;
   if (linked && mark('connect')) changed = true;
   if (W() && baseline && W().planSig() !== baseline && mark('frame')) changed = true;
-  // Ready: only once every other step is done and every Before you start line is green
+  // Ready: only once every other step is done and every ready check is green
   var before = required().filter(function(s){ return s.id !== 'ready'; }).every(function(s){ return isDone(s.id); });
   if (c && before && c.list().every(function(x){ return x[0] === 'ok'; }) && mark('ready')) changed = true;
   if (changed) save();
   return changed;
 }
-// Rehearse: Practice mode on, and the screen moved on while practising
-Store.subscribe(function(st){
-  var sc = st && st.live && st.live.scene;
-  if (C() && C().practising() && lastScene !== null && sc !== lastScene && mark('rehearse')){ save(); render(); }
-  lastScene = sc || '';
-});
 function checkLink(){
   if (isDone('connect') || !panel) return;
   fetch('api/sync', {cache: 'no-store'}).then(function(r){ return r.json(); }).then(function(d){ linked = d.state === 'linked'; }).catch(function(){});
@@ -85,7 +79,7 @@ function showMe(find, words){
   }, 320);
 }
 
-/* What each step offers: an action that takes you there, and the control "Show me how" points at */
+/* What each step offers: an action that takes you there, the control "Show me how" points at, and help to recover */
 var HOW = {
   output: {label: 'Choose how', act: function(){ go('settings', 'output'); }, find: function(){ return $('out-choices'); },
     words: 'Pick one: FrameRelay for Zoom or Teams, the Share Window, or a projector, TV or OBS.'},
@@ -93,99 +87,122 @@ var HOW = {
     words: 'Turn the remote on, then scan the code with your phone’s camera. The step ticks itself when the phone connects.'},
   connect: {label: 'Connect to FrameDecks', act: function(){ go('settings', 'account'); }, find: function(){ return $('acct-body'); },
     words: 'Choose Connect to FrameDecks. Your browser asks you to allow this PC.'},
-  frame: {label: 'Go to Prepare', act: function(){ mode('prepare'); }, find: function(){ return $('scene-add'); },
-    words: 'Add a Frame here, then give it Content: a verse, a question or a picture.'},
-  rehearse: {label: 'Go to Run', act: function(){ mode('run'); }, find: function(){ var p = $('practice-mode'); return p && p.closest('label'); },
-    words: 'Tick Practice mode, then press Next. The audience sees a black screen while you try every button.'},
-  ready: {label: 'Go to Run', act: function(){ mode('run'); }, find: function(){ return $('run-check'); },
-    words: 'Every line here should be green. Anything amber has a button that takes you to the fix.'}
+  frame: {label: 'Go to the Studio', act: function(){ go('studio'); }, find: function(){ return $('scene-add'); },
+    words: 'Add a Frame here, then give it Content: a verse, a question or a picture.'}
+};
+var WAIT = {welcome: 'Choose one to go on.', output: 'Waiting for a camera, the Share Window or a screen…', phone: 'Waiting for a phone…',
+  connect: 'Waiting for the website to allow this PC…', frame: 'Waiting for a new or changed Frame…', ready: 'Checking…'};
+var TIPS = {
+  output: ['FrameRelay is not in Zoom’s camera list? Close Zoom completely and open it again.', 'Rather not install a camera? Choose the Share Window: nothing to install.'],
+  phone: ['Your phone must be on the same Wi-Fi as this PC (not a guest Wi-Fi).', 'The page does not open on the phone? In Settings → Phone & iPad Remote choose Allow through Windows Firewall.', 'No phone? Skip this step: the keyboard does everything.'],
+  connect: ['Nothing happened in the browser? Settings → FrameDecks account shows a code you can type on the website instead.', 'You can skip this: FrameDecks works on this PC without an account.'],
+  frame: ['Choose + Frame at the top of the Frames list, or change the words of one of the ready Frames.'],
+  ready: ['Each line that needs attention has a button that takes you to the fix.']
 };
 
-/* ---------- the panel ---------- */
-function ring(n, of){
-  var r = 15, len = 2 * Math.PI * r, f = of ? n / of : 0;
-  return '<svg width="38" height="38" viewBox="0 0 38 38" aria-hidden="true"><circle cx="19" cy="19" r="' + r + '" class="gd-ring-bg"/>' +
-    '<circle cx="19" cy="19" r="' + r + '" class="gd-ring-fg" stroke-dasharray="' + (len * f).toFixed(1) + ' ' + len.toFixed(1) + '" transform="rotate(-90 19 19)"/></svg>';
-}
+/* ---------- the panel: one step at a time ---------- */
 function close(){ endSpot(); if (panel){ panel.remove(); panel = null; } }
 function skip(){ state.closed = true; save(); close(); toast('The Setup guide is in Settings → About whenever you want it.'); }
 function toast(m){ if (window.KCActions) window.KCActions.toast(m); }
 function setSmall(v){ small = v; try { localStorage.setItem('kc-guide-small', v ? '1' : ''); } catch(e){} render(); }
+function shown(){ var i = view == null ? G.steps.indexOf(current()) : view; return i < 0 ? 0 : Math.min(i, G.steps.length - 1); }
+function goTo(i){ endSpot(); view = Math.max(0, Math.min(G.steps.length - 1, i)); render(); var t = panel && panel.querySelector('.gd-step-t'); if (t) t.focus(); }
+function nextStep(){ var i = shown(); if (i + 1 >= G.steps.length){ if (complete()) render(); return; } goTo(i + 1); }
 
+function checklist(){
+  var c = C(), list = c ? c.list() : [];
+  return h('ul', {cls: 'gd-checks'}, list.map(function(x){
+    var li = h('li', {cls: x[0]}, [h('span', {cls: 'gd-ci', 'aria-hidden': 'true', html: I(x[0] === 'ok' ? 'circle-check' : 'circle-alert', 16)}),
+      h('span', {text: x[1]}), h('span', {cls: 'sr-only', text: x[0] === 'ok' ? ' (working)' : ' (needs attention)'})]);
+    if (x[2]) li.appendChild(h('button', {cls: 'linkish', type: 'button', text: x[2], onclick: x[3]}));
+    return li;
+  }));
+}
 function stepBody(s){
+  var done = isDone(s.id), out = [];
   if (s.id === 'welcome'){
-    return h('div', {cls: 'gd-kinds'}, G.kinds.map(function(k){
-      return h('button', {cls: 'btn small' + (k.id === 'other' ? ' quiet' : ''), type: 'button', text: k.name, onclick: function(){
+    out.push(h('div', {cls: 'gd-kinds', role: 'group', 'aria-label': 'Kind of gathering'}, G.kinds.map(function(k){
+      return h('button', {cls: 'btn small' + (state.kind === k.id ? ' primary' : k.id === 'other' ? ' quiet' : ''), type: 'button', 'aria-pressed': String(state.kind === k.id), text: k.name, onclick: function(){
         state.kind = k.id; mark('welcome'); save();
-        if (k.id !== 'other' && W() && W().quickStartKind){ mode('prepare'); baseline = ''; W().quickStartKind(k.id).then(rebase); }
+        if (k.id !== 'other' && W() && W().quickStartKind){ go('studio'); baseline = ''; W().quickStartKind(k.id).then(rebase); }
         render();
       }});
-    }));
+    })));
   }
+  if (s.id === 'ready') out.push(checklist());
   var how = HOW[s.id], row = h('div', {cls: 'gd-acts'});
   if (how){
-    row.appendChild(h('button', {cls: 'btn small primary', type: 'button', text: how.label, onclick: how.act}));
-    row.appendChild(h('button', {cls: 'btn small', type: 'button', text: 'Show me how', onclick: function(){ how.act(); showMe(how.find, how.words); }}));
+    row.appendChild(h('button', {cls: 'btn small' + (done ? '' : ' primary'), type: 'button', text: how.label, onclick: how.act}));
+    row.appendChild(h('button', {cls: 'btn small quiet', type: 'button', text: 'Show me how', onclick: function(){ how.act(); showMe(how.find, how.words); }}));
   }
-  if (s.optional) row.appendChild(h('button', {cls: 'btn small quiet', type: 'button', text: 'Skip this step', onclick: function(){ mark(s.id); save(); render(); }}));
-  var wait = s.id === 'phone' ? 'Waiting for a phone…' : s.id === 'rehearse' ? 'Waiting for Next while practising…' : '';
-  return h('div', {}, [row, wait ? h('p', {cls: 'gd-wait', text: wait}) : null]);
+  if (s.optional && !done) row.appendChild(h('button', {cls: 'btn small quiet', type: 'button', text: 'Skip this step', onclick: function(){ mark(s.id); save(); nextStep(); }}));
+  if (row.children.length) out.push(row);
+  // validation: what the program sees, in words, with the way out when it does not
+  out.push(h('p', {cls: 'gd-status ' + (done ? 'ok' : 'wait'), role: 'status'}, [h('span', {'aria-hidden': 'true', html: done ? I('circle-check', 16) : I('info', 16)}),
+    done ? (s.optional && s.id !== 'welcome' && !detectedNow(s.id) ? ' Skipped. You can come back to it any time.' : ' Done. FrameDecks can see this is working.') : ' ' + WAIT[s.id]]));
+  if (TIPS[s.id] && !done) out.push(h('details', {cls: 'gd-help'}, [h('summary', {text: 'Something not working?'}),
+    h('ul', {}, TIPS[s.id].map(function(t){ return h('li', {text: t}); }))]));
+  return out;
 }
+function detectedNow(id){ var c = C(); return id === 'phone' ? !!(c && c.phone()) : id === 'connect' ? linked : true; }
 
 function finishView(){
   return [
     h('div', {cls: 'gd-finish'}, [
       h('img', {src: 'img/framedecks-emblem.webp', alt: '', width: '56', height: '56', cls: 'gd-emblem'}),
       h('h2', {text: 'You’re ready for your first gathering'}),
-      h('p', {text: 'Everything on this list is working on this PC. Run is where the service happens.'}),
+      h('p', {text: 'Everything is working on this PC. Your Frames are in the Studio; Go Live puts one on screen.'}),
       h('div', {cls: 'gd-acts'}, [
-        h('button', {cls: 'btn primary', type: 'button', text: 'Open Run', onclick: function(){ finish(); mode('run'); }}),
+        h('button', {cls: 'btn primary', type: 'button', text: 'Open the Studio', onclick: function(){ finish(); go('studio'); }}),
         h('button', {cls: 'btn', type: 'button', text: 'Close', onclick: finish})])])];
 }
 function finish(){ state.finished = true; save(); close(); if (window.KCAboutGuide) window.KCAboutGuide(); }
 
 function render(){
   if (!panel) return;
-  var n = G.steps.filter(function(s){ return isDone(s.id); }).length, of = G.steps.length, cur = current();
+  var n = G.steps.filter(function(s){ return isDone(s.id); }).length, of = G.steps.length;
   panel.innerHTML = '';
   panel.classList.toggle('small', small);
   if (small){
     panel.appendChild(h('button', {cls: 'gd-pill', type: 'button', 'aria-label': 'Open the Setup guide, ' + n + ' of ' + of + ' done', onclick: function(){ setSmall(false); }},
-      [h('span', {html: ring(n, of)}), h('b', {text: 'Setup guide'}), h('span', {text: n + ' of ' + of})]));
+      [h('b', {text: 'Setup guide'}), h('span', {text: n + ' of ' + of})]));
     return;
   }
+  var i = shown(), s = G.steps[i], fin = complete() && !touring && view == null;
   panel.appendChild(h('div', {cls: 'gd-head'}, [
-    h('span', {cls: 'gd-ring', html: ring(n, of)}),
-    h('div', {cls: 'gd-title'}, [h('h2', {id: 'gd-title', text: 'Setup guide'}), h('span', {text: n + ' of ' + of + ' done'})]),
+    h('div', {cls: 'gd-title'}, [h('h2', {id: 'gd-title', text: 'Setup guide'}), h('span', {text: fin ? 'All done' : 'Step ' + (i + 1) + ' of ' + of})]),
     h('button', {cls: 'gd-icon', type: 'button', title: 'Make smaller', 'aria-label': 'Make the Setup guide smaller', html: I('minus', 16), onclick: function(){ setSmall(true); }}),
     h('button', {cls: 'gd-icon', type: 'button', title: 'Close', 'aria-label': 'Close the Setup guide', html: I('x', 16), onclick: skip})]));
-  if (complete() && !touring){ finishView().forEach(function(x){ panel.appendChild(x); }); return; }
-  var ol = h('ol', {cls: 'gd-list'});
-  G.steps.forEach(function(s){
-    var done = isDone(s.id), on = cur && cur.id === s.id;
-    var li = h('li', {cls: done ? 'done' : on ? 'on' : ''}, [
-      h('span', {cls: 'gd-mark', 'aria-hidden': 'true', html: done ? I('check', 14) : ''}),
-      h('div', {cls: 'gd-step'}, [
-        h('b', {text: s.title}), s.optional ? h('span', {cls: 'gd-opt', text: ' (optional)'}) : null,
-        h('span', {cls: 'sr-only', text: done ? ' (done)' : on ? ' (now)' : ''}),
-        on ? h('p', {text: s.text}) : null, on ? stepBody(s) : null,
-        // the tour again, after setup: every step can still point at its control
-        touring && done && HOW[s.id] ? h('button', {cls: 'linkish gd-again', type: 'button', text: 'Show me how', onclick: function(){ HOW[s.id].act(); showMe(HOW[s.id].find, HOW[s.id].words); }}) : null])]);
-    ol.appendChild(li);
-  });
-  panel.appendChild(ol);
-  panel.appendChild(h('div', {cls: 'gd-foot'}, [h('button', {cls: 'linkish', type: 'button', text: 'Skip for now', onclick: skip})]));
+  // progress: one segment per step; any step can be opened again
+  panel.appendChild(h('ol', {cls: 'gd-prog', 'aria-label': 'Steps'}, G.steps.map(function(x, k){
+    var d = isDone(x.id), on = !fin && k === i;
+    return h('li', {cls: (d ? 'done' : '') + (on ? ' on' : '')}, [h('button', {type: 'button', 'aria-current': on ? 'step' : null, title: x.title,
+      'aria-label': 'Step ' + (k + 1) + ': ' + x.title + (d ? ' (done)' : ''), onclick: function(){ goTo(k); }})]);
+  })));
+  if (fin){ finishView().forEach(function(x){ panel.appendChild(x); }); return; }
+  panel.appendChild(h('div', {cls: 'gd-body'}, [
+    h('h3', {cls: 'gd-step-t', tabindex: '-1'}, [s.title, s.optional ? h('span', {cls: 'gd-opt', text: ' (optional)'}) : null]),
+    h('p', {cls: 'gd-text', text: s.text})].concat(stepBody(s))));
+  var done = isDone(s.id), last = i + 1 >= of;
+  panel.appendChild(h('div', {cls: 'gd-nav'}, [
+    h('button', {cls: 'btn small quiet', type: 'button', text: '← Back', disabled: i === 0 ? 'disabled' : null, onclick: function(){ goTo(i - 1); }}),
+    h('span', {cls: 'gd-gap'}),
+    !done && !last ? h('button', {cls: 'linkish', type: 'button', text: 'Do this later', onclick: function(){ goTo(i + 1); }}) : null,
+    !last ? h('button', {cls: 'btn small' + (done ? ' primary' : ''), type: 'button', text: 'Next →', disabled: done ? null : 'disabled', title: done ? '' : 'This step is not done yet', onclick: function(){ goTo(i + 1); }}) :
+      h('button', {cls: 'btn small' + (complete() ? ' primary' : ''), type: 'button', text: 'Finish', disabled: complete() ? null : 'disabled', onclick: function(){ view = null; touring = false; render(); }})]));
 }
 
 function open(fromUser){
-  state.seen = true; state.closed = false; touring = !!fromUser && complete();
+  state.seen = true; state.closed = false; touring = !!fromUser && complete(); view = touring ? 0 : null;
   if (fromUser){ small = false; if (!touring) state.finished = false; }
   save();
   if (!panel){ panel = h('aside', {cls: 'gd-panel', role: 'complementary', 'aria-labelledby': 'gd-title'}); document.body.appendChild(panel); }
   if (!baseline) rebase();
   detect(); checkLink(); render();
 }
-setInterval(function(){ if (!panel || document.hidden) return; checkLink(); if (detect()) render(); }, 2000);
+var readySig = '';
+function readyChanged(){ var c = C(), sig = c && G.steps[shown()].id === 'ready' ? JSON.stringify(c.list().map(function(x){ return [x[0], x[1]]; })) : ''; if (sig === readySig) return false; readySig = sig; return !!sig; }
+setInterval(function(){ if (!panel || document.hidden) return; checkLink(); if (detect() | readyChanged()) render(); }, 2000);
 
 /* Settings → About: where the guide comes back (and "Setup complete" once it is) */
 function renderAbout(){

@@ -26,7 +26,8 @@ export const GUIDE_STEPS: readonly GuideStep[] = [
     id: "phone",
     title: "Your phone as a remote",
     where: "program",
-    text: "Scan the code with your phone’s camera. It works on this Wi-Fi.",
+    optional: true,
+    text: "Scan the code with your phone’s camera. Your phone and this PC need the same Wi-Fi.",
   },
   {
     id: "connect",
@@ -42,16 +43,10 @@ export const GUIDE_STEPS: readonly GuideStep[] = [
     text: "Add a Frame, or change one of the ready ones. A Frame is one moment on screen: a verse, a question, a picture or a welcome.",
   },
   {
-    id: "rehearse",
-    title: "Rehearse safely",
-    where: "program",
-    text: "Turn on Practice mode in Run and press Next. Your audience sees a black screen.",
-  },
-  {
     id: "ready",
     title: "Ready",
     where: "program",
-    text: "Every line of Before you start is green.",
+    text: "FrameDecks checks that everything is working. Anything that is not has a button to fix it.",
   },
 ];
 

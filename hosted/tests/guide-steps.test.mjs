@@ -18,7 +18,7 @@ const program = require("../../app/js/guide-steps.js");
 const src = (p) =>
   readFileSync(new URL(`../src/${p}`, import.meta.url), "utf8");
 
-test("the program and the website have the same seven steps and kinds of gathering", () => {
+test("the program and the website have the same six steps and kinds of gathering", () => {
   const pick = (s) => ({
     id: s.id,
     title: s.title,
@@ -33,7 +33,7 @@ test("the program and the website have the same seven steps and kinds of gatheri
   );
   assert.deepEqual(
     GUIDE_STEPS.map((s) => s.id),
-    ["welcome", "output", "phone", "connect", "frame", "rehearse", "ready"],
+    ["welcome", "output", "phone", "connect", "frame", "ready"],
   );
 });
 

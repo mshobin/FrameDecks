@@ -38,8 +38,16 @@ class FirstRun(unittest.TestCase):
         marks = re.findall(r"mark\('(\w+)'\)|mark\(s\.id\)", guide)
         self.assertTrue(marks)
         self.assertIn("W().planSig() !== baseline", guide)                 # starter Frames don't count
-        self.assertIn("C().practising() && lastScene !== null && sc !== lastScene", guide)
-        self.assertIn("if (s.optional) row.appendChild", guide)            # only optional steps can be skipped
+        self.assertIn("if (s.optional && !done) row.appendChild", guide)   # only optional steps can be skipped
+
+    def test_the_setup_guide_is_a_wizard_with_progress_and_recovery(self):
+        guide = read("js/guide.js")
+        self.assertIn("h('ol', {cls: 'gd-prog'", guide)                    # progress: one segment per step
+        self.assertIn("'Step ' + (i + 1) + ' of ' + of", guide)
+        self.assertIn("text: '← Back'", guide)
+        self.assertIn("disabled: done ? null : 'disabled'", guide)          # Next waits until the step is really done
+        self.assertIn("text: 'Something not working?'", guide)              # help to recover, per step
+        self.assertIn("text: 'Do this later'", guide)
 
 
 class NoOverlaps(unittest.TestCase):
@@ -133,23 +141,26 @@ class LighterPageAndAria(unittest.TestCase):
 
 
 class RunningAService(unittest.TestCase):
-    """Owner-approved simplification (27 October): Prepare / Run, How people see it, Advanced, People, Practice."""
+    """Owner-approved simplification (27 October): How people see it, Advanced, People. 8.0: one Studio (no Run, no Practice)."""
 
-    def test_prepare_and_run_with_worded_previous_and_next(self):
+    def test_one_studio_with_worded_previous_and_next(self):
         html = read("dashboard.html")
-        self.assertIn('id="mode-switch" role="radiogroup"', html)
-        self.assertIn('data-mode="run"', html)
+        self.assertNotIn('id="mode-switch"', html)                          # 8.0: Prepare is the Studio; Run is gone
+        self.assertNotIn('data-mode="run"', html)
         self.assertIn('<span class="lb-t">Previous</span>', html)
         self.assertIn('<span class="lb-t">Next</span>', html)
         self.assertIn('<script src="js/service.js"></script>', html)
         js = read("js/service.js")
-        for need in ("upNext()", "guard(e)", "setPractice", "Before you start", "renderOutput"):
-            self.assertIn(need, js)
+        self.assertIn("renderOutput", js)
+        self.assertIn("window.KCServiceChecks", js)
+        for gone in ("upNext()", "guard(e)", "setPractice", "practice-on", "run-mode"):
+            self.assertNotIn(gone, js)
 
-    def test_run_hides_every_editor(self):
-        css = read("css/theme.css")
-        for sel in ("body.run-mode .ws-right", "body.run-mode .layers-pane", "body.run-mode #scene-add", "body.run-mode .si-more"):
-            self.assertIn(sel, css)
+    def test_practice_mode_is_gone_everywhere(self):
+        for f in ("js/workspace.js", "js/overlay.js", "js/guide.js", "js/guide-steps.js", "css/theme.css", "dashboard.html"):
+            text = read(f)
+            for gone in ("practice=1", "practice-on", "practising", "Practice mode", "run-mode"):
+                self.assertNotIn(gone, text, f)
 
     def test_hide_all_is_red_only_while_something_is_on_screen(self):
         self.assertIn("document.body.classList.toggle('kc-on-air'", read("js/dashboard.js"))

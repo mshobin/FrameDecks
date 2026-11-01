@@ -1220,12 +1220,6 @@ body.spotlight .pal.spot-in{animation:pal-in .12s ease-out}
 @media (max-width:1800px){ .cmdbar .sys-sum .sys-text{display:none} .cmdbar .cb-btn.take .tk-what{max-width:120px} }
 @media (max-width:2100px){ .cmdbar .live-ind .live-what{display:none} }      /* what is on screen shows in the picture itself */
 .cmdbar .tabs .tab .ic{flex:none}
-/* Prepare / Run */
-.mode-switch{order:3;display:inline-flex;align-items:center;gap:2px;padding:2px;border:1px solid var(--line-soft);border-radius:12px;flex:none}
-.mode-switch button{all:unset;box-sizing:border-box;height:30px;padding:0 12px;border-radius:8px;font-size:13px;font-weight:700;color:var(--muted);cursor:pointer;display:inline-flex;align-items:center}
-.mode-switch button:hover{color:var(--ink);background:var(--hover)}
-.mode-switch button:focus-visible{outline:2px solid var(--gold);outline-offset:1px}
-.mode-switch button[aria-checked="true"]{background:var(--accent-soft);color:var(--ink);box-shadow:inset 0 -2px 0 var(--accent)}
 /* Previous / Next in words, as tall as Go Live */
 .cmdbar .cb-btn.lb-step-big{height:42px;min-height:42px;padding:0 12px;gap:6px;font-size:14px;font-weight:700}
 .cmdbar .lb-step-big .lb-t{display:inline}
@@ -1245,43 +1239,6 @@ body:not(.kc-on-air) #ctlbar .cb-btn.hide:hover{border-color:var(--red);filter:n
 .cmdbar .sysstat{margin-left:-8px}
 .cmdbar .sys-sum{border-top-left-radius:0;border-bottom-left-radius:0;border-left-color:transparent}
 
-/* ---------- Run: the order, what is on screen, what is next; nothing to edit by accident ---------- */
-.run-next{display:none}
-body.run-mode .ws-right,body.run-mode .layers-pane,body.run-mode .kc-hsplit,body.run-mode .kc-lsplit,
-body.run-mode .scenes-pane .pane-tools,body.run-mode #quick-start,body.run-mode #scene-add,body.run-mode .si-fav,body.run-mode .si-more,
-body.run-mode .canvas-tools,body.run-mode .canvas-note,body.run-mode .cmdbar .lb-tx,body.run-mode .cmdbar .lb-auto{display:none}
-body.run-mode .scenes-pane{flex:1 1 auto}
-body.run-mode .scene-list .scene-item{cursor:pointer}
-body.run-mode .run-next{display:flex;flex-direction:column;gap:10px;padding:16px;min-height:0;overflow:auto;background:var(--mica),var(--panel)}
-.run-next h2{margin:0;font-size:13px;font-weight:700;color:var(--muted)}
-.run-next-frame{border:1px solid var(--line-soft)}
-.rn-name{font-size:18px;font-weight:700;color:var(--ink)}
-.rn-how{margin:0;font-size:14px;color:var(--muted)}
-.rn-check{border:1px solid var(--line-soft);border-radius:12px;padding:10px 12px;background:var(--surface)}
-.rn-check h3{margin:0 0 6px;font-size:14px;font-weight:700}
-.rn-check ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
-.rn-check li{display:flex;align-items:flex-start;gap:8px;font-size:14px;flex-wrap:wrap}
-.rn-check li.ok .rn-ic{color:var(--live)} .rn-check li.warn .rn-ic{color:var(--warn)}
-.rn-check .rn-ic{flex:none;display:inline-flex;margin-top:2px}
-.rn-check li > span:nth-child(2){flex:1;min-width:0}
-.rn-check .linkish{margin-left:24px}
-.rn-practice{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border:1px dashed var(--line);border-radius:12px;cursor:pointer}
-.rn-practice span{display:flex;flex-direction:column;gap:2px}
-.rn-practice small{font-size:13px;color:var(--muted)}
-@media (min-width:1081px){
-  body.run-mode .ws,body.run-mode .ws.c-insp{grid-template-columns:var(--kc-left,300px) 6px minmax(0,1fr) minmax(280px,26%);grid-template-rows:minmax(0,1fr)}
-  body.run-mode .ws.c-left{grid-template-columns:0 14px minmax(0,1fr) minmax(280px,26%)}
-  body.run-mode .ws-left,body.run-mode .kc-vsplit{grid-row:1}
-  body.run-mode .ws-center{grid-column:3;grid-row:1}
-  body.run-mode .run-next{grid-column:4;grid-row:1;border-left:1px solid var(--line-soft)}
-}
-@media (max-width:1080px){ body.run-mode .run-next{grid-column:1 / -1;border-top:1px solid var(--line-soft)} }
-body.run-mode.studio-focus .run-next{display:none}
-/* Practice: a strip nobody can miss while the audience sees a black screen */
-.practice-banner{position:fixed;left:50%;top:calc(var(--top-h,56px) + 8px);transform:translateX(-50%);z-index:75;display:flex;align-items:center;gap:10px;
-  max-width:min(760px,calc(100vw - 32px));padding:8px 10px 8px 14px;border:1px solid var(--warn);border-radius:12px;background:var(--surface);color:var(--ink);font-size:14px;box-shadow:var(--el-3)}
-.practice-banner span:first-child{color:var(--warn);display:inline-flex}
-
 /* ---------- Settings: How people see it, its two pages, and Advanced ---------- */
 .out-choices{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;max-width:1100px}
 .out-choices > .out-card{display:flex;flex-direction:column;gap:10px;align-items:flex-start;margin:0}
@@ -1300,7 +1257,6 @@ body.run-mode.studio-focus .run-next{display:none}
   .cmdbar .lb-tx select{max-width:112px}
   .cmdbar .cb-btn.take{min-width:120px;padding:0 12px} .cmdbar .cb-btn.take .tk-what{max-width:96px}
   .cmdbar .cb-btn.lb-step-big{padding:0 10px}
-  .mode-switch button{padding:0 10px}
 }
 /* People: one tab, two views of the same list */
 .people-view{margin-left:auto;align-self:center;display:inline-flex;gap:2px;padding:2px;border:1px solid var(--line-soft);border-radius:8px}
@@ -1315,33 +1271,18 @@ body.run-mode.studio-focus .run-next{display:none}
 .vcam-adv > summary h2{margin:0;font-size:16px}
 .vcam-adv > summary::before{content:"▸";color:var(--muted)}
 .vcam-adv[open] > summary::before{content:"▾"}
-/* Prepare below 1500 px: the selected Frame is highlighted in the list, so Go Live drops its subtitle (Run keeps it) */
-@media (max-width:1560px){ body:not(.run-mode) .cmdbar .cb-btn.take .tk-what{display:none} body:not(.run-mode) .cmdbar .cb-btn.take{min-width:116px} }
-/* the live controls take a second row where one row would not fit: Prepare below 1400 px, Run below 1180 px */
+/* below 1560 px: the selected Frame is highlighted in the list, so Go Live drops its subtitle */
+@media (max-width:1560px){ .cmdbar .cb-btn.take .tk-what{display:none} .cmdbar .cb-btn.take{min-width:116px} }
+/* the live controls take a second row where one row would not fit */
 @media (max-width:1460px){
-  body:not(.run-mode) .cmdbar{flex-wrap:wrap;row-gap:6px}
-  body:not(.run-mode) .cmdbar .lb-scenes{order:20;margin-left:0}
-  body:not(.run-mode) .cmdbar .lb-tx{order:21} body:not(.run-mode) .cmdbar .lb-auto{order:22} body:not(.run-mode) .cmdbar .lb-step{order:23}
-  body:not(.run-mode) .cmdbar .lb-slides{order:24} body:not(.run-mode) .cmdbar .lb-prog{order:25}
-  body:not(.run-mode) .cmdbar #ctlbar [data-cb="hideAll"]{order:26;margin-left:auto}
-}
-@media (max-width:1240px){
-  body.run-mode .cmdbar{flex-wrap:wrap;row-gap:6px}
-  body.run-mode .cmdbar .lb-scenes{order:20;margin-left:0}
-  body.run-mode .cmdbar .lb-step{order:23} body.run-mode .cmdbar .lb-slides{order:24} body.run-mode .cmdbar .lb-prog{order:25}
-  body.run-mode .cmdbar #ctlbar [data-cb="hideAll"]{order:26;margin-left:auto}
+  .cmdbar{flex-wrap:wrap;row-gap:6px}
+  .cmdbar .lb-scenes{order:20;margin-left:0}
+  .cmdbar .lb-tx{order:21} .cmdbar .lb-auto{order:22} .cmdbar .lb-step{order:23}
+  .cmdbar .lb-slides{order:24} .cmdbar .lb-prog{order:25}
+  .cmdbar #ctlbar [data-cb="hideAll"]{order:26;margin-left:auto}
 }
 .subtabs-tabs{display:flex;gap:4px}
 html[data-theme="light"] .s2-badge:not(.pv){color:var(--green-500)}     /* the badge sits on the always-dark picture: the bright green reads there */
-/* Run: Up next nearly as large as Live (operators watch what comes next); the keys a volunteer needs */
-@media (min-width:1081px){
-  body.run-mode .ws,body.run-mode .ws.c-insp{grid-template-columns:var(--kc-left,300px) 6px minmax(0,1.25fr) minmax(320px,1fr)}
-  body.run-mode .ws.c-left{grid-template-columns:0 14px minmax(0,1.25fr) minmax(320px,1fr)}
-}
-.run-next .rn-name{font-size:24px}
-.rn-keys{margin:0;display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13px;color:var(--muted)}
-.rn-keys kbd{font-size:12px;padding:1px 6px;border:1px solid var(--line);border-radius:4px;color:var(--ink)}
-.practice-banner.due{border-color:var(--red);background:var(--red-soft)}
 
 /* ---------- 8.0 Frame cards: compact, one look for every state ---------- */
 .scene-list .scene-item{gap:10px;padding:8px 6px 8px 8px;margin-bottom:6px;background:var(--surface);border:1px solid var(--line-soft,var(--line));box-shadow:var(--el-1,none);transition:border-color .12s ease,background-color .12s ease}

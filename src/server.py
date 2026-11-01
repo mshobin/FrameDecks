@@ -693,7 +693,8 @@ APP_SETTINGS_DEFAULTS = {"remoteAutostart": False, "importDecided": False,
 APP_SETTING_CHOICES = {"minimizeTo": ("ask", "tray", "taskbar"), "memberAuthority": ("cloud", "pc"), "ai": ("auto", "off")}
 
 
-GUIDE_STEPS = ("welcome", "output", "phone", "connect", "frame", "rehearse", "ready")    # app/js/guide-steps.js
+GUIDE_STEPS = ("welcome", "output", "phone", "connect", "frame", "ready")    # app/js/guide-steps.js (8.0: no "rehearse")
+GUIDE_RETIRED = ("rehearse",)     # steps of older versions: dropped from saved progress, never refused
 GUIDE_KINDS = ("bible-study", "prayer", "youth", "fellowship", "other")
 
 
@@ -728,6 +729,9 @@ def app_settings():
     try:
         data = json.loads(APP_SETTINGS_FILE.read_text(encoding="utf-8"))
         if isinstance(data, dict):
+            g = data.get("guide")
+            if isinstance(g, dict) and isinstance(g.get("done"), list):     # 8.0: progress saved by 7.x keeps its ticks
+                data["guide"] = dict(g, done=[d for d in g["done"] if d not in GUIDE_RETIRED])
             for k in out:
                 if k in data and _valid_setting(k, data[k]):
                     out[k] = data[k]

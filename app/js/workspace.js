@@ -1061,31 +1061,28 @@ Array.prototype.forEach.call(document.querySelectorAll('[data-layout-reset]'), f
 /* Studio Canvas                                                                                         */
 /* ===================================================================================================== */
 var frame = $('program-frame'), frameSrc = '', host = $('tab-studio');
-function runMode(){ return document.body.classList.contains('run-mode'); }
-function practising(){ return document.body.classList.contains('practice-on'); }
 function renderCanvas(){
-  var run = runMode(), sc = run ? SC.liveScene(live) : scene(), isLive = sc && isLiveScene(sc.id), S = studio(), L = live.live;
-  var useStudio = !!(isLive && S && !practising());        // Practice: the camera picture is black, so show the overlay page
+  var sc = scene(), isLive = sc && isLiveScene(sc.id), S = studio(), L = live.live;
+  var useStudio = !!(isLive && S);
   if (host.hidden === useStudio){ host.hidden = !useStudio; if (useStudio && window.KCStudio) setTimeout(window.KCStudio.fit, 0); }
   $('program').hidden = useStudio;
-  var src = 'stage.html?bg=preview&preview=1' + (sc && !isLive ? '&scene=' + encodeURIComponent(sc.id) : '') + (practising() ? '&practice=1' : '');
+  var src = 'stage.html?bg=preview&preview=1' + (sc && !isLive ? '&scene=' + encodeURIComponent(sc.id) : '');
   if (!useStudio && src !== frameSrc){ frameSrc = src; frame.src = src; }
   $('canvas-scene').textContent = sc ? sc.name : '';
   var badge = $('canvas-badge'), bt, bc;
-  if (L.blackout && practising()){ bt = 'Practice'; bc = ''; }
-  else if (L.blackout){ bt = 'Black screen'; bc = 'bad'; } else if (L.emergency){ bt = 'Emergency screen'; bc = 'bad'; }
-  else if (isLive){ bt = 'Live'; bc = 'live'; } else if (run){ bt = 'Nothing on screen'; bc = ''; } else { bt = 'Preview'; bc = ''; }
+  if (L.blackout){ bt = 'Black screen'; bc = 'bad'; } else if (L.emergency){ bt = 'Emergency screen'; bc = 'bad'; }
+  else if (isLive){ bt = 'Live'; bc = 'live'; } else { bt = 'Preview'; bc = ''; }
   if (badge.textContent !== bt) badge.textContent = bt; badge.className = 'canvas-badge ' + bc;
   var pb = $('program-badge'), anyOn = live.question.visible || live.verse.visible || live.birthday.visible || SC.liveText(live).length;
   pb.textContent = isLive ? (anyOn ? '● Live' : 'Live · nothing shown') : ''; pb.className = 'program-badge' + (isLive && anyOn ? ' on' : '');
   pb.hidden = !pb.textContent;
   var tx = sc ? SC.transitionOf(live, sc) : null;
-  $('mt-section').textContent = !sc || run ? '' : (sc.tx.type !== 'profile' ? SC.txName(tx.type) : '') + (sc.auto.on ? (sc.tx.type !== 'profile' ? ' · ' : '') + 'moves on after ' + sc.auto.sec + ' s' : '');
-  $('canvas-note').textContent = run ? '' : !sc ? '' : useStudio ? 'Exactly what Zoom / Teams receive. Drag media Content to move it, the handles to resize.' :
+  $('mt-section').textContent = !sc ? '' : (sc.tx.type !== 'profile' ? SC.txName(tx.type) : '') + (sc.auto.on ? (sc.tx.type !== 'profile' ? ' · ' : '') + 'moves on after ' + sc.auto.sec + ' s' : '');
+  $('canvas-note').textContent = !sc ? '' : useStudio ? 'Exactly what Zoom / Teams receive. Drag media Content to move it, the handles to resize.' :
     isLive ? 'Live. The overlay page shown here is what OBS receives' + (S ? '' : ' (turn FrameRelay on to see the camera picture and arrange media Content)') + '.' :
     'Not on screen yet. Go Live (T) puts it on screen.' + (sc.layers.some(function(l){ return SC.isMedia(l.kind); }) ? ' Outlines show where its media Content goes.' : '');
   // media outlines for a scene that is not live
-  var boxes = $('canvas-boxes'), bsig = !run && !useStudio && sc && !isLive ? JSON.stringify(sc.layers.filter(function(l){ return SC.isMedia(l.kind) && l.visible; }).map(function(l){ return [l.id, l.name, l.c.x, l.c.y, l.c.w, l.c.h, l.kind]; })) : '';
+  var boxes = $('canvas-boxes'), bsig = !useStudio && sc && !isLive ? JSON.stringify(sc.layers.filter(function(l){ return SC.isMedia(l.kind) && l.visible; }).map(function(l){ return [l.id, l.name, l.c.x, l.c.y, l.c.w, l.c.h, l.kind]; })) : '';
   if (boxes.dataset.sig !== bsig){
     boxes.dataset.sig = bsig; boxes.innerHTML = '';
     if (bsig) sc.layers.forEach(function(l){
@@ -1273,15 +1270,6 @@ function renderTransitions(){
 
 window.KCWorkspace = {
   take: function(){ takeScene(selScene); }, step: stepScene, select: select,
-  /* Run mode (run-mode.js): what goes on screen next. A Frame chosen in the list goes on with Go Live; otherwise
-   * Next puts on the Frame after the one on screen. */
-  upNext: function(){
-    if (!live) return null;
-    var ls = SC.liveScene(live), sel = SC.find(live, selScene);
-    if (sel && !sel.tpl && (!ls || sel.id !== ls.id)) return {id: sel.id, name: sel.name, by: 'take'};
-    var nx = ls ? SC.neighbour(live, ls.id, 1) : null;
-    return nx ? {id: nx.id, name: nx.name, by: 'next'} : null;
-  },
   frameCount: function(){ return live ? live.scenes.filter(function(s){ return !s.tpl; }).length : 0; },
   redraw: function(){ if (live){ renderAll(true); scaleFrame(); } },
   takeFrame: function(id){ takeScene(id); },          /* Go Live on a chosen Frame (the companion, cloud-remote.js) */

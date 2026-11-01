@@ -505,9 +505,6 @@ function mount(opts){
   var Store = window.KCStore, SC = window.KCScenes;
   var texts = opts.extras ? TextLayers(document.body) : null, program = opts.program ? Program(document.body) : null;
   var isPreview = /[?&]preview=1/.test(location.search), sceneQ = params.get('scene');
-  /* practice=1 (the program's own preview in Practice mode): the audience sees a black screen while the leader
-   * practises, so the preview leaves the black screen out. Only ever on a preview, never on what is sent. */
-  var practice = isPreview && /[?&]practice=1/.test(location.search);
   /* Output rules: the OBS / browser pages leave out what is set to "not on overlay pages" (previews show everything) */
   function forObs(d){ return !isPreview && d.out && d.out.obs === false ? Object.assign({}, d, {visible: false}) : d; }
   function held(st, d){ return st.live && (st.live.blackout || st.live.emergency) ? Object.assign({}, d, {visible: false}) : d; }
@@ -518,7 +515,6 @@ function mount(opts){
       // pending=1: a preview of what SHOW will put on screen (Question · Both · Verse), not what is on screen now
       // scene=ID: a preview of another scene, as if it were taken live (the Studio Canvas)
       var src = sceneQ && SC ? SC.previewState(raw, sceneQ) : pending ? window.KCPresent.preview(raw) : raw;
-      if (practice && src && src.live && src.live.blackout) src = Object.assign({}, src, {live: Object.assign({}, src.live, {blackout: false})});
       var st = effective(src);
       last = st;
       document.body.classList.toggle('mode-both', !!(window.KCPresent && window.KCPresent.combined(st)));
