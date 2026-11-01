@@ -44,6 +44,10 @@ def user_notes(markdown):
     return body.strip() + "\n"
 
 
+def version_tuple(v):
+    return tuple(int(x) for x in re.findall(r"\d+", str(v or "")))[:4]
+
+
 def internal_lines(notes):
     return [line for line in notes.splitlines() if INTERNAL.search(line)]
 
@@ -72,7 +76,16 @@ def build(installer, out, version, date, index, signed, base=BASE):
     (folder / f"{name}.sha256").write_text(f"{digest}  {name}\n", encoding="ascii")
     url = f"{base}/releases/{version}/{name}"
     entries = [e for e in (index or {}).get("releases", []) if e.get("version") != version]
-    prev = entries[0] if entries else None
+    # 7.1.2: "latest" only ever moves forward. A version older than one already published is refused, so pushing an old
+    # tag can never make the download page or new installs go back (rolling back is a deliberate owner step:
+    # docs/deployment/release-pipeline.md, "Rollback").
+    newest = max((e.get("version", "") for e in entries), key=version_tuple, default="")
+    if newest and version_tuple(newest) > version_tuple(version):
+        raise SystemExit(f"{version} is older than the published {newest}: refusing to make it the latest. "
+                         "Bump APP_VERSION and tag the new version instead.")
+    older = sorted((e for e in entries if version_tuple(e.get("version")) < version_tuple(version)),
+                   key=lambda e: version_tuple(e.get("version")), reverse=True)
+    prev = older[0] if older else None                   # the next lower version, whatever order they were published in
     manifest = {
         "version": version,
         "released": date,
@@ -89,7 +102,8 @@ def build(installer, out, version, date, index, signed, base=BASE):
     (folder / "manifest.json").write_text(text, encoding="utf-8")
     (out / "releases" / "latest.json").write_text(text, encoding="utf-8")
     entry = {"version": version, "released": date, "url": url, "sha256": digest, "size": size}
-    (out / "releases" / "index.json").write_text(json.dumps({"latest": version, "releases": [entry] + entries}, indent=2) + "\n", encoding="utf-8")
+    releases = sorted([entry] + entries, key=lambda e: version_tuple(e.get("version")), reverse=True)   # newest first
+    (out / "releases" / "index.json").write_text(json.dumps({"latest": version, "releases": releases}, indent=2) + "\n", encoding="utf-8")
     (out / "latest").mkdir(parents=True, exist_ok=True)
     shutil.copyfile(installer, out / "latest" / "FrameDecks-Setup.exe")
     return manifest
@@ -106,10 +120,12 @@ def main(argv=None):
     a = ap.parse_args(argv)
     index = None
     if a.index and Path(a.index).exists():
-        try:
+        try:                                             # 7.1.2: an unreadable index is an error, never an empty list
             index = json.loads(Path(a.index).read_text(encoding="utf-8"))
-        except ValueError:
-            index = None
+        except ValueError as e:
+            raise SystemExit(f"{a.index} is not valid JSON ({e}); nothing was published") from e
+        if not isinstance(index, dict) or not isinstance(index.get("releases"), list):
+            raise SystemExit(f"{a.index} has no release list; nothing was published")
     m = build(a.installer, a.out, a.version or app_version(), a.date, index, a.signed)
     print(f"release {m['version']}: {m['downloadUrl']} sha256 {m['sha256']} ({m['size']} bytes)"
           + (f", previous {m['previous']['version']}" if m["previous"] else ""))

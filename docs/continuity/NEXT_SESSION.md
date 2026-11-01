@@ -1,9 +1,18 @@
 # NEXT SESSION HANDOFF
 
-Updated 31 October 2026 (7.1.1 on `main`: no hidden PowerShell/netsh/taskkill after Defender quarantined 7.1; 7.1 workspace looks; 7.0 proprietary, framedecks.com downloads and auto-update; owner steps under 7.0): the maintainer guide is now [PROJECT_GUIDE.md](PROJECT_GUIDE.md); current references were updated. The continuity files now live in `docs/continuity/`. Windows batch launchers are under `tools/launchers/` and resolve the repository root before running. Release `v6.11.2` (repository layout and trust fixes, no desktop change; pilot install on a real PC and SHA-256 check still the owner's) was tagged after `v6.11.1`, which is published; the FrameDecks README and release header refresh merged in
+Updated 1 November 2026 (7.1.2 on `main`: release guards after the production audit; 7.1.1 no hidden PowerShell/netsh/taskkill; 7.1 workspace looks; 7.0 proprietary + framedecks.com downloads; owner steps under 7.0 and the audit): the maintainer guide is now [PROJECT_GUIDE.md](PROJECT_GUIDE.md); current references were updated. The continuity files now live in `docs/continuity/`. Windows batch launchers are under `tools/launchers/` and resolve the repository root before running. Release `v6.11.2` (repository layout and trust fixes, no desktop change; pilot install on a real PC and SHA-256 check still the owner's) was tagged after `v6.11.1`, which is published; the FrameDecks README and release header refresh merged in
 PR #38. Trust fixes merged in PR #39 (`27cfb4b`). Later the same day: the budget script fixed for Windows
 (`57cd9c3`), the five Dependabot action upgrades merged (#33–#37), and the handoff PR #40. All checks on `main` are
 green, including the Cloudflare Pages deploy (production); a look at the live site is still the owner's. Read [PROJECT_GUIDE.md](PROJECT_GUIDE.md) ("Working locally" has the set-up and run commands).
+
+1 November, version 7.1.2 on `main` (not yet tagged): a read-only production audit (tags v6.12, v6.13, v7.1 exist;
+GitHub Releases up to 7.1; nothing ever published to R2 because run #174's upload was skipped, R2 not configured
+then, so api.framedecks.com/health says latest:false). 7.1.2 guards the release pipeline: tag must equal
+v+APP_VERSION and come from a push; `concurrency: publish-releases`; the publish job reads index.json from R2
+(head-object/cp), fails on non-404 errors, refuses an already-published version; `make_release_manifest.py` refuses
+older versions, previous = next lower, index sorted. `local-test.sh` runs the real read/upload steps and the
+refusals. **Owner:** do NOT re-run the v7.1 tag run (it would publish the Defender-flagged 7.1); with the R2 secrets
+set, push only `v7.1.2`; never push v6.14 or v7.0.
 
 31 October, version 7.1.1 on `main` (not yet tagged): Microsoft Defender quarantined the owner's FRAMEDECKS.exe 7.1
 (behavioural "Trojan … executes commands from an attacker"). `src/winapi.py` replaces every PowerShell/netsh/taskkill

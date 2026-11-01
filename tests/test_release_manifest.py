@@ -55,6 +55,38 @@ class ReleaseManifest(unittest.TestCase):
         self.assertIsNone(again["previous"])
         self.assertTrue(again["signed"])
 
+    def entry(self, v):
+        return {"version": v, "url": f"https://downloads.framedecks.com/releases/{v}/FrameDecks-{v}-Setup.exe",
+                "sha256": "c" * 64, "size": 10, "released": "2026-10-01"}
+
+    def test_an_older_version_never_replaces_the_latest(self):
+        # 7.1.2: pushing an old tag after a newer release must not move latest.json (or the download page) back
+        index = {"latest": "9.10", "releases": [self.entry("9.10"), self.entry("9.8")]}
+        out = self.tmp / "old"
+        with self.assertRaises(SystemExit) as e:
+            mrm.build(self.installer, out, "9.9", "2026-11-01", index, signed=False)
+        self.assertIn("older than the published 9.10", str(e.exception))
+        self.assertFalse((out / "releases" / "latest.json").exists(), "nothing written")
+
+    def test_previous_is_the_next_lower_version_and_the_index_is_sorted(self):
+        # published in a muddled order: 9.7, then 9.8.1, then 9.2 (index lists the most recent upload first)
+        index = {"latest": "9.8.1", "releases": [self.entry("9.2"), self.entry("9.8.1"), self.entry("9.7")]}
+        out = self.tmp / "sorted"
+        m = mrm.build(self.installer, out, "9.9", "2026-11-01", index, signed=False)
+        self.assertEqual(m["previous"]["version"], "9.8.1")
+        idx = json.loads((out / "releases" / "index.json").read_text())
+        self.assertEqual([e["version"] for e in idx["releases"]], ["9.9", "9.8.1", "9.7", "9.2"])
+        self.assertEqual(idx["latest"], "9.9")
+        self.assertGreater(mrm.version_tuple("9.10"), mrm.version_tuple("9.9"), "numbers, not text")
+
+    def test_an_unreadable_index_stops_the_publish(self):
+        bad = self.tmp / "index.json"
+        for text in ("<html>502 Bad Gateway</html>", '{"latest": "9.8"}'):
+            bad.write_text(text, encoding="utf-8")
+            with self.assertRaises(SystemExit):
+                mrm.main(["--installer", str(self.installer), "--out", str(self.tmp / "u"), "--version", "9.9", "--index", str(bad)])
+        self.assertFalse((self.tmp / "u" / "releases" / "latest.json").exists())
+
     def test_release_notes_naming_repository_files_are_refused(self):
         (self.tmp / "docs" / "releases" / "v9.9.md").write_text(
             NOTES + "## Known Issues\n- Owners: run hosted/supabase/migrations/0011_accounts_legal.sql first.\n", encoding="utf-8")
@@ -66,6 +98,38 @@ class ReleaseManifest(unittest.TestCase):
         version = mrm.app_version()
         notes = mrm.user_notes((self.real_root / "docs" / "releases" / f"v{version}.md").read_text(encoding="utf-8"))
         self.assertEqual(mrm.internal_lines(notes), [], f"docs/releases/v{version}.md")
+
+
+class ReleaseWorkflow(unittest.TestCase):
+    """7.1.2 guards in .github/workflows/build-windows.yml (the 1 November audit): a tag must match APP_VERSION and
+    be pushed, version tags run one at a time, the index comes from R2 itself, and a published version is never
+    replaced. infra/update-api/local-test.sh runs the read and upload steps for real against a local bucket."""
+
+    @classmethod
+    def setUpClass(cls):
+        import yaml
+        cls.wf = yaml.safe_load((ROOT / ".github" / "workflows" / "build-windows.yml").read_text(encoding="utf-8"))
+        cls.steps = {s.get("name"): s for job in cls.wf["jobs"].values() for s in job.get("steps", [])}
+
+    def test_a_tag_must_match_the_version_and_be_pushed(self):
+        run = self.steps["The tag must match the version (tags only)"]["run"]
+        self.assertIn("github.ref_name", run)
+        self.assertIn("steps.ver.outputs.version", run)
+        self.assertIn('-ne "push"', run)
+
+    def test_version_tags_run_one_at_a_time(self):
+        c = self.wf["concurrency"]
+        self.assertIn("publish-releases", c["group"])
+        self.assertFalse(c["cancel-in-progress"])
+
+    def test_the_index_comes_from_r2_and_published_versions_never_change(self):
+        run = self.steps["Read the releases already published (from R2)"]["run"]
+        self.assertIn("s3api head-object", run)
+        self.assertIn("releases/${VERSION}/manifest.json", run)
+        self.assertIn("already published", run)
+        whole = (ROOT / ".github" / "workflows" / "build-windows.yml").read_text(encoding="utf-8")
+        self.assertNotIn("downloads.framedecks.com/releases/index.json", whole, "never the cached public copy")
+        self.assertNotIn("|| echo '{\"releases\":[]}'", whole, "errors are never turned into an empty list")
 
 
 if __name__ == "__main__":

@@ -15,6 +15,13 @@ on:
 permissions:
   contents: read
 
+# 7.1.2: version tags run one at a time, in the order pushed, so two publishes can never race on releases/index.json
+# and latest.json. (GitHub keeps one waiting run per group: push one tag, let it finish, then the next.) Pushes to
+# main keep their own group per branch.
+concurrency:
+  group: ${{ startsWith(github.ref, 'refs/tags/v') && 'publish-releases' || github.ref }}
+  cancel-in-progress: false
+
 jobs:
   build:
     runs-on: windows-latest
@@ -109,6 +116,17 @@ jobs:
           $v = (python packaging/get_version.py).Trim()
           "version=$v" >> $env:GITHUB_OUTPUT
           Write-Host "Version $v"
+
+      # 7.1.2: a version tag must name the version in src/server.py, and only a pushed tag releases (a manual run from a
+      # tag, or a tag on a commit with another version, would republish or roll back a published release).
+      - name: The tag must match the version (tags only)
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: pwsh
+        run: |
+          $want = "v${{ steps.ver.outputs.version }}"
+          if ("${{ github.ref_name }}" -ne $want) { throw "Tag ${{ github.ref_name }} does not match APP_VERSION in src/server.py ($want)" }
+          if ("${{ github.event_name }}" -ne "push") { throw "Releases are published only by pushing a version tag, not by a manual run" }
+          Write-Host "Tag ${{ github.ref_name }} matches APP_VERSION"
 
       - name: Build the app (PyInstaller)
         run: pyinstaller --noconfirm --clean packaging/framedecks.spec --distpath dist --workpath build
@@ -300,6 +318,11 @@ jobs:
     env:
       R2_ON: ${{ secrets.R2_ACCESS_KEY_ID != '' && vars.R2_ACCOUNT_ID != '' }}
       VERSION: ${{ needs.build.outputs.version }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: auto
+      R2: https://${{ vars.R2_ACCOUNT_ID }}.r2.cloudflarestorage.com
+      BUCKET: ${{ vars.R2_BUCKET || 'framedecks-downloads' }}
     steps:
       - name: Get the code (the manifest tool and the release notes)
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -310,8 +333,32 @@ jobs:
           name: FrameDecks v${{ needs.build.outputs.version }}
           path: dist
 
-      - name: Read the releases already published (if any)
-        run: curl -fsSL --retry 3 https://downloads.framedecks.com/releases/index.json -o index.json || echo '{"releases":[]}' > index.json
+      # 7.1.2: read straight from the bucket (not the cached public address), and stop on any error except "there is no
+      # index yet" (the first release). A version already published is never replaced: its installer is cached for a year,
+      # so a rebuilt one (never byte-identical) would no longer match its published SHA-256.
+      - name: Read the releases already published (from R2)
+        if: env.R2_ON == 'true'
+        run: |
+          set -euo pipefail
+          s3head() { aws s3api head-object --bucket "$BUCKET" --key "$1" --endpoint-url "$R2" > /dev/null 2> head-err.txt; }
+          if s3head "releases/${VERSION}/manifest.json"; then
+            echo "::error::FrameDecks ${VERSION} is already published; published versions never change. Bump APP_VERSION and tag the new version."
+            exit 1
+          elif ! grep -qE "\(404\)|Not Found" head-err.txt; then
+            cat head-err.txt; echo "::error::Could not check R2 for ${VERSION}"; exit 1
+          fi
+          if s3head releases/index.json; then
+            aws s3 cp "s3://${BUCKET}/releases/index.json" index.json --endpoint-url "$R2" --only-show-errors
+          elif grep -qE "\(404\)|Not Found" head-err.txt; then
+            echo '{"releases":[]}' > index.json
+            echo "No index yet: this is the first release."
+          else
+            cat head-err.txt; echo "::error::Could not read releases/index.json from R2"; exit 1
+          fi
+
+      - name: No R2 yet (the layout is still written and checked)
+        if: env.R2_ON != 'true'
+        run: echo '{"releases":[]}' > index.json
 
       - name: Lay out the release and write its manifest
         run: |
@@ -321,12 +368,6 @@ jobs:
 
       - name: Upload to Cloudflare R2
         if: env.R2_ON == 'true'
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: auto
-          R2: https://${{ vars.R2_ACCOUNT_ID }}.r2.cloudflarestorage.com
-          BUCKET: ${{ vars.R2_BUCKET || 'framedecks-downloads' }}
         run: |
           set -euo pipefail
           exe="FrameDecks-${VERSION}-Setup.exe"

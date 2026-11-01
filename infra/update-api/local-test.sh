@@ -3,8 +3,9 @@
 # "Test it locally"). Nothing leaves the computer: the update service runs under `wrangler dev` with a local R2 bucket,
 # and downloads.framedecks.com is stood in for by a local file server.
 #
-#   1. publishes two made-up versions (7.0, then 7.1) with the workflow's own upload step, an `aws` stand-in writing
-#      to the local bucket, and tools/make_release_manifest.py;
+#   1. publishes two made-up versions (7.0, then 7.1) with the workflow's own read and upload steps, an `aws` stand-in
+#      for the local bucket, and tools/make_release_manifest.py; then checks that publishing 7.1 again, or an older
+#      7.0.5, is refused and changes nothing (7.1.2);
 #   2. checks every route of the update service;
 #   3. runs the program's updater (src/updater.py) as an installed 7.0: it must be offered 7.1, download it with a
 #      matching SHA-256, refuse a tampered copy, and fetch 7.0 again as the "previous" version;
@@ -19,7 +20,7 @@ cleanup() {   # the servers started below, and their children (wrangler starts s
   kill "${PIDS[@]}" 2>/dev/null || true
   pkill -f -- "--persist-to $W/state" 2>/dev/null || true
   pkill -f -- "http.server $DL --bind 127.0.0.1" 2>/dev/null || true
-  rm -rf "$W"
+  rm -rf "${W:?}"
 }
 PIDS=(); trap cleanup EXIT
 
@@ -27,27 +28,39 @@ echo "== workspace $W"
 mkdir -p "$W/tree/tools" "$W/tree/src" "$W/tree/docs/releases" "$W/downloads" "$W/shim"
 cp "$REPO/tools/make_release_manifest.py" "$W/tree/tools/"
 cp "$REPO/src/server.py" "$W/tree/src/"
-for v in 7.0 7.1; do
+for v in 7.0 7.1 7.0.5; do
   printf '## FrameDecks v%s\n\nA made-up release for the local pipeline test.\n\n## What'"'"'s New\n- Test release %s.\n\n## Enhancements\n- None.\n\n## Fixes\n- None.\n\n## Performance Improvements\n- None.\n\n## Known Issues\n- None.\n' "$v" "$v" > "$W/tree/docs/releases/v$v.md"
 done
 cp -r "$REPO/infra/update-api" "$W/worker"
 python3 - "$REPO" "$W" <<'EOF'
 import sys, yaml
 wf = yaml.safe_load(open(sys.argv[1] + "/.github/workflows/build-windows.yml"))
-step = next(s for s in wf["jobs"]["publish"]["steps"] if s.get("name") == "Upload to Cloudflare R2")
-open(sys.argv[2] + "/upload.sh", "w").write(step["run"])
+steps = {s.get("name"): s["run"] for s in wf["jobs"]["publish"]["steps"] if "run" in s}
+open(sys.argv[2] + "/upload.sh", "w").write(steps["Upload to Cloudflare R2"])
+open(sys.argv[2] + "/read.sh", "w").write(steps["Read the releases already published (from R2)"])
 EOF
 cat > "$W/shim/aws" <<'EOF'
 #!/usr/bin/env bash
-# stand-in for: aws s3 cp SRC s3://BUCKET/KEY --endpoint-url E [--content-type T] [--content-disposition D] [--cache-control C]
+# stand-in for the three aws calls the workflow makes, against the local bucket:
+#   aws s3api head-object --bucket B --key K --endpoint-url E          (a 404 like S3's when missing)
+#   aws s3 cp s3://B/K FILE --endpoint-url E --only-show-errors          (download)
+#   aws s3 cp FILE s3://B/K --endpoint-url E [--content-type ...] ...     (upload)
 set -e
-src="$3"; key="${4#s3://}"; shift 4; args=()
+r2() { (cd "$W/worker" && npx --yes wrangler@4.155.0 r2 object "$@" --local --persist-to "$W/state" >/dev/null 2>&1); }
+if [ "$1 $2" = "s3api head-object" ]; then
+  r2 get "$4/$6" --file "$W/head.tmp" && exit 0
+  echo "An error occurred (404) when calling the HeadObject operation: Not Found" >&2; exit 254
+fi
+[ "$1 $2" = "s3 cp" ] || { echo "aws stand-in: unexpected $*" >&2; exit 2; }
+src="$3"; dst="$4"; shift 4; args=()
 while [ $# -gt 0 ]; do case "$1" in
   --content-type|--content-disposition|--cache-control) args+=("$1" "$2"); shift 2;;
   --endpoint-url) shift 2;; --only-show-errors) shift;; *) echo "aws stand-in: unexpected $1" >&2; exit 2;; esac; done
-echo "  put $key"
-src="$(cd "$(dirname "$src")" && pwd)/$(basename "$src")"
-(cd "$W/worker" && npx --yes wrangler@4.155.0 r2 object put "$key" --file "$src" --local --persist-to "$W/state" "${args[@]}" >/dev/null 2>&1)
+if [ "${src#s3://}" != "$src" ]; then
+  echo "  get ${src#s3://}"; r2 get "${src#s3://}" --file "$(pwd)/$dst"
+else
+  echo "  put ${dst#s3://}"; r2 put "${dst#s3://}" --file "$(cd "$(dirname "$src")" && pwd)/$(basename "$src")" "${args[@]}"
+fi
 EOF
 chmod +x "$W/shim/aws"
 export W
@@ -58,15 +71,28 @@ echo "== update service (wrangler dev, local bucket)"
 for _ in $(seq 1 60); do curl -fs "http://127.0.0.1:$API/health" > /dev/null && break; sleep 1; done
 curl -fs "http://127.0.0.1:$API/health" | grep -q '"latest":false' || { echo "service did not start"; tail "$W/worker.log"; exit 1; }
 
+publish() {   # the workflow's publish job for one version: read (R2), lay out, upload. Non-zero when refused.
+  local v="$1"
+  rm -rf "${W:?}/run" && mkdir -p "$W/run/dist" && cd "$W/run"
+  head -c $((2 * 1024 * 1024)) /dev/urandom > "dist/FrameDecks v$v.exe"
+  export PATH="$W/shim:$PATH" VERSION="$v" R2=https://local.r2 BUCKET=framedecks-downloads
+  bash "$W/read.sh" || return 1
+  python3 "$W/tree/tools/make_release_manifest.py" --installer "dist/FrameDecks v$v.exe" --out publish --index index.json --version "$v" || return 1
+  cp -r publish/. "$W/downloads/"
+  bash "$W/upload.sh"
+}
 for v in 7.0 7.1; do
   echo "== publish $v"
-  rm -rf "$W/run" && mkdir -p "$W/run/dist" && cd "$W/run"
-  head -c $((2 * 1024 * 1024)) /dev/urandom > "dist/FrameDecks v$v.exe"
-  curl -fsS "http://127.0.0.1:$API/releases" -o index.json 2>/dev/null || echo '{"releases":[]}' > index.json
-  python3 "$W/tree/tools/make_release_manifest.py" --installer "dist/FrameDecks v$v.exe" --out publish --index index.json --version "$v"
-  cp -r publish/. "$W/downloads/"
-  PATH="$W/shim:$PATH" VERSION="$v" R2=https://local.r2 BUCKET=framedecks-downloads bash "$W/upload.sh"
+  publish "$v"
 done
+latest_before="$(curl -fs "http://127.0.0.1:$API/releases/latest")"
+for v in 7.1 7.0.5; do
+  echo "== publish $v again / older (must be refused)"
+  if (publish "$v"); then echo "publishing $v was not refused"; exit 1; fi
+done
+[ "$(curl -fs "http://127.0.0.1:$API/releases/latest")" = "$latest_before" ] || { echo "latest.json changed after a refused publish"; exit 1; }
+curl -fs "http://127.0.0.1:$API/releases" | python3 -c "import json,sys; v=[r['version'] for r in json.load(sys.stdin)['releases']]; assert v == ['7.1', '7.0'], v"
+echo "  refused, and nothing changed"
 
 echo "== routes"
 B="http://127.0.0.1:$API"

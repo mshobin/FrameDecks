@@ -45,6 +45,29 @@ Versions before 4.9 (when the program had its earlier name) are described in the
 - The favicons, the tray icon and the small program-icon sizes (16–32 px) use a heavier version of the emblem, so it
   stays visible on light browser tabs and a light taskbar. Larger sizes are unchanged.
 
+## [7.1.2] - 2026-11-01
+
+Full notes: [docs/releases/v7.1.2.md](releases/v7.1.2.md). The program is unchanged from 7.1.1; this hardens
+publishing (the 1 November release audit).
+
+### Fixed
+- **A tag could publish another version, or an old one.** The `build` job now stops when the tag is not `v` +
+  `APP_VERSION`, or when a release is started by a manual run instead of a pushed tag.
+- **Version tags could publish at the same time** and race on `releases/index.json` and `latest.json`:
+  `concurrency: publish-releases` runs them one at a time.
+- **The release list was read from the cached public address, and any error turned into an empty list**; a
+  published version could also be uploaded again over its year-long cached installer. The `publish` job now reads
+  `releases/index.json` from R2 with `aws s3api head-object`/`s3 cp`, fails on anything but "not there yet", and
+  refuses a version whose `releases/<v>/manifest.json` already exists.
+- **"latest" could move backwards, and `previous` followed upload order.** `tools/make_release_manifest.py` refuses a
+  version older than one already published, takes `previous` as the next lower version, sorts the index newest first,
+  and stops on an unreadable index.
+
+### Changed
+- `infra/update-api/local-test.sh` runs the workflow's own read and upload steps against the local bucket, checks
+  that republishing and an older version are refused with nothing changed, and guards its removals (`${W:?}`).
+- `tests/test_release_manifest.py`: the refusals, the ordering, and the workflow guards.
+
 ## [7.1.1] - 2026-10-31
 
 Full notes: [docs/releases/v7.1.1.md](releases/v7.1.1.md)

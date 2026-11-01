@@ -1077,3 +1077,20 @@ compiles PyInstaller's bootloader from source, since the shared prebuilt one is 
 walks the syntax tree of every module and fails on any launch of PowerShell, taskkill, netsh, cmd, wmic or schtasks
 (it catches all six launches 7.1 had). The lasting fix remains code signing.
 
+## 41. Version 7.1.2: release guards (1 November 2026)
+
+A read-only production audit of the release pipeline (1 November) found that nothing tied a tag to the version it
+published: `build-windows.yml` reads `APP_VERSION`, not the tag; the manifest tool always wrote `latest.json`,
+`index.latest` and `latest/FrameDecks-Setup.exe`, so an old tag would roll new installs back; `previous` was simply the
+most recently uploaded other version; the index was read from the five-minute-cached public address with every error
+turned into an empty list; there was no concurrency guard (three tags had just been pushed together); and a re-run
+re-uploaded `releases/<v>/` over an installer cached for a year as `immutable`, so a non-reproducible rebuild would
+no longer match its own manifest's SHA-256 at the edge.
+
+7.1.2 adds four guards: the tag must equal `v` + `APP_VERSION` and come from a push; tag runs share one concurrency
+group; the publish job reads the index from R2 itself, fails on anything but a 404, and refuses a version whose
+manifest already exists; the manifest tool refuses a version older than the newest published, picks `previous` as the
+next lower version, and sorts the index. A rollback stays the documented manual copy of an older manifest over
+`latest.json`. The local pipeline test now extracts and runs the workflow's own read and upload steps against
+wrangler's local R2, so the guards are exercised end to end, not only parsed.
+

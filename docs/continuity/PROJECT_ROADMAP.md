@@ -38,6 +38,7 @@ Repository clean-up is on `main` (modules in `src/`; `README.md`, `LICENSE`, `NO
 | 7.0: commercial model: proprietary, framedecks.com downloads, R2 + update service, auto-update, legal and security pages ([plan](../project/2026-10-29-commercial-model-plan.md)) | On `main` (29 October). Owner: Email Routing, R2 + secrets, `wrangler deploy`, run 0011, tag `v7.0` before making the repo private, lawyer review, code signing |
 | 7.1: workspace looks (was 6.15) | On `main` (29 October). Owner: live Test K, tag `v7.1` |
 | 7.1.1: no shells (Defender false positive), launcher built from source | On `main` (31 October). Owner: tag `v7.1.1`, report the false positive to Microsoft |
+| 7.1.2: release guards after the 1 November audit | On `main` (1 November). Owner: R2 settings, then tag `v7.1.2` (only) |
 | 7.2: Azure Trusted Signing in the workflow (urgent after the Defender quarantine), Ed25519-signed release manifests | Next (both stay off until the owner adds the signing account / key) |
 | Ideas from the 29 October plan, section 5 (run-through timer, "Take it home" phone page, safe Next preview, backup operator, volunteer rota) | On the roadmap, one at a time after 6.15, each with a live test |
 | framedecks.com as the one address (redirects, TLS, cache, WAF) | Live (28 October): framedecks.com serves, pages.dev noindex. Owner: redirect DNS records (www, app, framedecks.app), HSTS, Supabase + Google URLs, then the pages.dev Bulk Redirect |
