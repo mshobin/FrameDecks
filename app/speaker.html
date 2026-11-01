@@ -28,10 +28,11 @@
       <div class="sp-clock sp-frame"><span>Frame</span><b id="sp-frame-pos">–</b></div>
       <div class="sp-clock sp-watch"><span>Timer</span><b id="sp-watch">0:00</b>
         <div class="sp-watch-btns"><button class="btn small" type="button" id="sp-watch-go">Start</button><button class="btn quiet small" type="button" id="sp-watch-reset">Reset</button></div></div>
+      <button class="btn quiet small sp-bar-pin" type="button" id="sp-bar-pin" aria-controls="sp-top" title="Keep the top bar open">Keep open</button>
       <div data-win-controls></div>
     </header>
   </div>
-  <main class="sp-main"><section class="sp-prompt" id="sp-prompt" aria-label="Teleprompter"></section></main>
+  <main class="sp-main"><section class="sp-prompt" id="sp-prompt" aria-label="Teleprompter" tabindex="-1"></section></main>
 <script src="js/store.js"></script>
 <script src="js/editable.js"></script>
 <script src="js/teleprompter.js"></script>

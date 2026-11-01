@@ -3,9 +3,10 @@
    bar button is pressed. Uses the app's own colours and type (dashboard.css, theme.css, teleprompter.css). */
 body.speaker{padding:0;height:100vh;display:flex;flex-direction:column;background:var(--app-bg,var(--bg));overflow:hidden}
 .sp-head{position:fixed;top:0;left:0;right:0;height:28px;z-index:20}
-.sp-bar-btn{position:absolute;top:4px;left:50%;transform:translateX(-50%);display:grid;place-items:center;width:44px;height:20px;padding:0;
+.sp-bar-btn{position:absolute;z-index:2;top:4px;left:50%;transform:translateX(-50%);display:grid;place-items:center;width:44px;height:20px;padding:0;
   border:1px solid var(--line);border-radius:0 0 var(--r-2) var(--r-2);background:var(--surface);color:var(--muted);font-size:12px;cursor:pointer;opacity:.7}
 .sp-bar-btn:hover,.sp-bar-btn:focus-visible{opacity:1;color:var(--text)}
+body.sp-bar-open .sp-bar-btn{visibility:hidden}
 .sp-top{position:absolute;top:0;left:0;right:0;display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:8px 8px 8px 16px;
   background:var(--chrome-bg,var(--surface));border-bottom:1px solid var(--line);box-shadow:var(--el-3);
   transform:translateY(-100%);opacity:0;pointer-events:none;transition:transform .18s ease,opacity .18s ease}
@@ -21,3 +22,4 @@ body.speaker{padding:0;height:100vh;display:flex;flex-direction:column;backgroun
 .sp-prompt{display:flex;flex:1;min-height:0;border:1px solid var(--line);border-radius:var(--r-3);overflow:hidden}
 .sp-prompt .tp{flex:1}
 @media (prefers-reduced-motion:reduce){ .sp-top{transition:none} }
+.sp-prompt:focus{outline:none}

@@ -73,6 +73,7 @@ for (const w of [1920, 1440, 1280, 1100]) {
 {
   const p = await browser.newPage({ viewport: { width: 1000, height: 640 } });
   await p.goto(`${BASE}/speaker.html`);
+  await p.mouse.move(500, 500);                 // the pointer away from the top edge
   await p.waitForTimeout(800);
   const n = await p.locator(".tp-empty-act").count();
   check(n >= 1, "the Teleprompter's empty state offers Write a script");
@@ -82,7 +83,11 @@ for (const w of [1920, 1440, 1280, 1100]) {
   await p.waitForTimeout(300);
   const shown = await p.locator("#sp-top").evaluate((el) => getComputedStyle(el).opacity === "1");
   check(shown, "the bar button shows the top bar (time, Frame, timer)");
-  await p.click("#sp-bar-btn");
+  await p.click("#sp-bar-pin");
+  await p.mouse.move(500, 500);
+  await p.waitForTimeout(300);
+  const again = await p.locator("#sp-top").evaluate((el) => getComputedStyle(el).opacity === "0");
+  check(again, "Hide bar hides the top bar again");
   await shot(p, "teleprompter");
   await p.close();
 }

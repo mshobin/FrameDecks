@@ -18,17 +18,20 @@ var prompter = P.create($('sp-prompt'), {key: 'window', editable: true, toolbar:
 
 /* the top bar: hidden by default; the pointer at the top edge shows it for a moment, the button keeps it open */
 (function(){
-  var b = $('sp-bar-btn'), KEY = 'kc-sp-bar';
+  var b = $('sp-bar-btn'), pin = $('sp-bar-pin'), KEY = 'kc-sp-bar';
   function set(on){
     document.body.classList.toggle('sp-bar-open', on); b.setAttribute('aria-expanded', String(on));
     b.setAttribute('aria-label', on ? 'Hide the top bar' : 'Show the top bar');
     b.title = on ? 'Hide the top bar' : 'Show the top bar: time, Frame and timer';
     b.firstChild.textContent = on ? '▴' : '▾';
+    pin.textContent = on ? 'Hide bar' : 'Keep open'; pin.title = on ? 'Hide the top bar' : 'Keep the top bar open';
     try { localStorage.setItem(KEY, on ? '1' : '0'); } catch(e){}
   }
   var saved = '0'; try { saved = localStorage.getItem(KEY) || '0'; } catch(e){}
   set(saved === '1');
-  b.addEventListener('click', function(){ set(!document.body.classList.contains('sp-bar-open')); });
+  function flip(){ set(!document.body.classList.contains('sp-bar-open')); }
+  b.addEventListener('click', flip);
+  pin.addEventListener('click', function(){ flip(); if (!document.body.classList.contains('sp-bar-open')) $('sp-prompt').focus(); });   // focus leaves the bar, so it can hide
 })();
 
 /* the Frame the script comes from: the one on screen, else the first (rehearse before going live) */
