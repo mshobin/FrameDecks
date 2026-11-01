@@ -23,3 +23,25 @@ body.sp-bar-open .sp-bar-btn{visibility:hidden}
 .sp-prompt .tp{flex:1}
 @media (prefers-reduced-motion:reduce){ .sp-top{transition:none} }
 .sp-prompt:focus{outline:none}
+
+/* 8.1 pin and transparency (desktop app only) */
+.sp-look{display:inline-flex;gap:2px;padding:3px;border-radius:12px;background:var(--surface);border:1px solid var(--line)}
+.sp-look button{min-height:30px;padding:0 10px;border:0;border-radius:8px;background:none;color:var(--muted);font:inherit;font-size:13px;font-weight:700;cursor:pointer}
+.sp-look button[aria-checked="true"]{background:var(--accent-soft);color:var(--ink);box-shadow:inset 0 0 0 1px var(--accent)}
+.sp-pin{display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:0 12px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--muted);font:inherit;font-size:13px;font-weight:700;cursor:pointer}
+.sp-pin svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.sp-pin.on{color:var(--ink);border-color:var(--accent);background:var(--accent-soft)}
+.sp-look button:focus-visible,.sp-pin:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+/* glass: the window is see-through; the page paints a background as strong as the chosen level, the text stays solid
+   and gets a halo that grows as the background fades */
+body.speaker{--sp-alpha:1;--sp-halo:0}
+body.speaker[data-look="presenter"]{--sp-alpha:.8;--sp-halo:.35}
+body.speaker[data-look="meeting"]{--sp-alpha:.6;--sp-halo:.6}
+body.speaker[data-look="conference"]{--sp-alpha:.35;--sp-halo:.85}
+body.speaker[data-look="ghost"]{--sp-alpha:.14;--sp-halo:1}
+html:has(body.sp-glass),body.sp-glass{background:transparent}
+body.sp-glass .sp-main{background:rgba(var(--rgb-gray-50-6),var(--sp-alpha));border-radius:12px}
+body.sp-glass .sp-prompt{border-color:transparent}
+body.sp-glass .sp-prompt .tp{--tp-bg:transparent;background:transparent}
+body.sp-glass .tp-text{text-shadow:0 0 calc(var(--sp-halo) * .12em) rgba(var(--rgb-gray-0),calc(var(--sp-halo) * .95)),0 .03em calc(var(--sp-halo) * .25em) rgba(var(--rgb-gray-0),calc(var(--sp-halo) * .9))}
+@media (max-width:760px){ .sp-look button{padding:0 6px} .sp-pin span{display:none} }

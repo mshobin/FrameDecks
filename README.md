@@ -41,15 +41,17 @@ rendering and camera output stay on the PC. FrameDecks is proprietary software, 
   away. PIN-protected, local network only;
   draw on the real live picture, full screen in landscape ([REMOTE_CONTROL](docs/guide/remote-control.md)).
 - **Teleprompter**: each Frame's script, seen only by the presenter, in one window that stays on top of Zoom, Teams
-  or Meet (Live tools → Teleprompter, or R), or on the phone. Its top bar (time, the current Frame and a timer) stays
-  hidden until you need it. Scrolls by itself, with speed, text size, high contrast and mirroring. Never on any output,
+  or Meet (Live tools → Teleprompter, or R), or on the phone. Its top bar (time, the current Frame, a timer,
+  transparency from Solid to 85% and **Pin**) stays hidden until you need it. Scrolls by itself, with speed, text size, high contrast and mirroring. Never on any output,
   and left out of screen sharing and recordings (Windows 10 2004 or later)
   ([PRESENTATIONS](docs/guide/presentations.md#teleprompter)).
 - **Window and tray**: the app's own ribbon instead of the Windows title bar (Snap and resizing kept); Minimize can hide
   it to the tray, where the camera, overlays, phone remote and shortcuts keep working. **Spotlight** (Alt+Space) opens
   the command palette from anywhere in Windows, even from the tray ([GETTING_STARTED](docs/guide/getting-started.md#the-window-buttons-and-the-tray)).
 - **Branding**: your logo and Meeting Name in a corner, with size, margin, opacity, padding and an optional plate;
-  **Remove background** makes a plain logo background transparent, on the PC.
+  **Remove background** makes a plain logo background transparent, on the PC. The app window's look (Gold & Navy,
+  Morning Light and the other framedecks.com looks, or the same as your workspace; dark, light or match Windows) is
+  in **Settings → Meeting & Branding → Look**.
 - **Planning**: Quick Start, templates, groups, favourites, and the **Excel Meeting Workbook**: two tabs, a guided
   **Meeting Form** (meeting details, speaker, attendees, presentation, then the Frames, Content, questions and
   scriptures) and a **Dashboard** that sums it up with KPI tiles, readiness checks and a meeting log. Import shows a

@@ -39,7 +39,8 @@ Repository clean-up is on `main` (modules in `src/`; `README.md`, `LICENSE`, `NO
 | 7.1: workspace looks (was 6.15) | On `main` (29 October). Owner: live Test K, tag `v7.1` |
 | 7.1.1: no shells (Defender false positive), launcher built from source | On `main` (31 October). Owner: tag `v7.1.1`, report the false positive to Microsoft |
 | 7.1.2: release guards after the 1 November audit | Published (1 November) |
-| 8.0.0: one Teleprompter, Frame cards, no Run/Practice, Setup wizard, plain camera settings | On `main`; tag `v8.0.0` publishes it |
+| 8.0.0: one Teleprompter, Frame cards, no Run/Practice, Setup wizard, plain camera settings, one-view phone remote | Published (1 November) |
+| 8.1.0: Teleprompter transparency and pin, six looks, one Content view, website-matching restyle | On `main`; tag `v8.1.0` publishes it |
 | 7.2: Azure Trusted Signing in the workflow (urgent after the Defender quarantine), Ed25519-signed release manifests | Next (both stay off until the owner adds the signing account / key) |
 | Ideas from the 29 October plan, section 5 (run-through timer, "Take it home" phone page, safe Next preview, backup operator, volunteer rota) | On the roadmap, one at a time after 6.15, each with a live test |
 | framedecks.com as the one address (redirects, TLS, cache, WAF) | Live (28 October): framedecks.com serves, pages.dev noindex. Owner: redirect DNS records (www, app, framedecks.app), HSTS, Supabase + Google URLs, then the pages.dev Bulk Redirect |

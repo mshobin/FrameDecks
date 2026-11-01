@@ -58,6 +58,8 @@ FrameDecks is for church leaders and volunteers, not engineers. Write for the pe
   elevations. Mixed corners use the same scale (`8px 8px 0 0`).
 - **Spacing helpers in scripts:** `.u-mt-4`, `.u-mt-8`, `.u-mt-12`, `.u-mb-8`, `.u-ml-8`, `.u-m0`, `.u-pad-20`, `.u-grow`,
   `.u-inline-m0`. Inline styles in the scripts are only for values worked out at runtime (positions, chosen colours).
+- **Program matches the website (8.1):** a soft background light behind the window, rounder cards with a faint gold
+  edge, gold-gradient main buttons and larger page titles. Looks only; nothing behaves differently.
 
 ## Icons
 
@@ -196,7 +198,9 @@ first run says **Welcome to FrameDecks** with **Start fresh** as the main choice
 
 ## Themes
 
-- **Program:** Dark, Light or Match Windows (Settings → General).
+- **Program:** Settings → Meeting & Branding → Look: one of the six looks (Gold & Navy, Morning Light, Chapel Stone,
+  Deep Ocean, Forest, Quiet Mono) or **Same as my workspace**, then **Light or dark**: Dark, Light or Match Windows.
+  Only the program window changes; the camera picture, overlays and phone remote keep their own look.
 - **Website:** follows the device; the top-bar button switches Auto → Light → Dark. The choice is applied before the first
   paint, so pages never flash.
 

@@ -67,38 +67,72 @@ show(document.body.dataset.tab || 'studio');
   else window.addEventListener('resize', measure);
 })();
 
-/* Appearance: Dark (default) · Light · Match Windows · Follow my workspace (7.1: the workspace look's light or dark
-   base) - remembered on this PC */
+/* 8.1 Look: the same six looks as framedecks.com (hosted/src/lib/workspace-settings.ts LOOKS; tests keep them equal),
+   or the look chosen for the workspace on the website, and Dark / Light / Match Windows. Remembered on this PC; the
+   first paint reads the same keys (dashboard.html, speaker.html, spotlight.html). */
+var LOOKS = [
+  {id: 'gold-navy', name: 'Gold & Navy', a: '#182c54', b: '#0c1a38', accent: '#e3b75a', base: 'dark'},
+  {id: 'morning-light', name: 'Morning Light', a: '#2e4770', b: '#1f3354', accent: '#e8a55c', base: 'light'},
+  {id: 'chapel-stone', name: 'Chapel Stone', a: '#3b3631', b: '#26221f', accent: '#cfae78', base: 'dark'},
+  {id: 'deep-ocean', name: 'Deep Ocean', a: '#0d3349', b: '#06202f', accent: '#3fb6b0', base: 'dark'},
+  {id: 'forest', name: 'Forest', a: '#1d3a28', b: '#10251a', accent: '#9cc46a', base: 'dark'},
+  {id: 'quiet-mono', name: 'Quiet Mono', a: '#26272b', b: '#151619', accent: '#b8bec8', base: 'dark'}];
+window.KCLooks = LOOKS;
 (function(){
-  var seg = $('theme-seg'), d = document.documentElement, KEYT = 'kc-theme', base = 'dark';
+  var seg = $('theme-seg'), grid = $('look-grid'), d = document.documentElement, ws = {id: '', base: 'dark'};
   var mq = window.matchMedia ? window.matchMedia('(prefers-color-scheme: light)') : null;
-  function resolve(p){
-    if (p === 'workspace') return base;
-    return p === 'system' ? (mq && mq.matches ? 'light' : 'dark') : (p === 'light' ? 'light' : 'dark');
-  }
-  function set(p){
-    d.dataset.themePref = p; d.dataset.theme = resolve(p);
-    try { localStorage.setItem(KEYT, p); } catch(e){}
+  function ls(k, v){ try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch(e){ return null; } }
+  function byId(id){ return LOOKS.filter(function(l){ return l.id === id; })[0] || null; }
+  function mode(){ return d.dataset.themePref || 'dark'; }
+  function lookPref(){ return d.dataset.lookPref || 'gold-navy'; }
+  function apply(){
+    var lp = lookPref(), m = mode(), follow = lp === 'workspace';
+    d.dataset.look = follow ? (byId(ws.id) ? ws.id : 'gold-navy') : (byId(lp) ? lp : 'gold-navy');
+    d.dataset.theme = follow ? ws.base : m === 'system' ? (mq && mq.matches ? 'light' : 'dark') : (m === 'light' ? 'light' : 'dark');
     mark();
   }
-  function mark(){
-    if (!seg) return;
-    Array.prototype.forEach.call(seg.querySelectorAll('[data-theme-pick]'), function(b){
-      var on = b.dataset.themePick === (d.dataset.themePref || 'dark');
-      b.setAttribute('aria-checked', String(on));
-    });
+  function set(m){ if (m === 'workspace') return look('workspace'); d.dataset.themePref = m; ls('kc-theme', m); if (lookPref() === 'workspace'){ d.dataset.lookPref = d.dataset.look; ls('kc-look', d.dataset.look); } apply(); }
+  function look(id){
+    d.dataset.lookPref = id; ls('kc-look', id);
+    var l = byId(id); if (l && mode() !== 'system'){ d.dataset.themePref = l.base; ls('kc-theme', l.base); }   // a look opens in its own light or dark
+    apply();
   }
-  if (mq){ var follow = function(){ if (d.dataset.themePref === 'system') d.dataset.theme = resolve('system'); };
+  function card(id, name, a, b, accent, sub){
+    var on = lookPref() === id;
+    var btn = document.createElement('button'); btn.type = 'button'; btn.className = 'look-card'; btn.setAttribute('role', 'radio');
+    btn.setAttribute('aria-checked', String(on)); btn.dataset.lookPick = id;
+    var sw = document.createElement('span'); sw.className = 'look-sw'; sw.setAttribute('aria-hidden', 'true');
+    sw.style.background = 'linear-gradient(135deg,' + a + ',' + b + ')';
+    var dot = document.createElement('i'); dot.style.background = accent; sw.appendChild(dot);
+    var t = document.createElement('span'); t.className = 'look-t';
+    var bn = document.createElement('b'); bn.textContent = name; t.appendChild(bn);
+    if (sub){ var sm = document.createElement('small'); sm.textContent = sub; t.appendChild(sm); }
+    btn.appendChild(sw); btn.appendChild(t);
+    return btn;
+  }
+  function mark(){
+    if (seg) Array.prototype.forEach.call(seg.querySelectorAll('[data-theme-pick]'), function(b){
+      b.setAttribute('aria-checked', String(lookPref() !== 'workspace' && b.dataset.themePick === mode()));
+    });
+    if (!grid) return;
+    grid.innerHTML = '';
+    LOOKS.forEach(function(l){ grid.appendChild(card(l.id, l.name, l.a, l.b, l.accent)); });
+    var wl = byId(ws.id);
+    grid.appendChild(card('workspace', 'Same as my workspace', wl ? wl.a : '#33415c', wl ? wl.b : '#1b2436', wl ? wl.accent : '#9aa6bd',
+      wl ? wl.name + ' · from framedecks.com' : 'The look chosen on framedecks.com'));
+  }
+  if (mq){ var follow = function(){ if (mode() === 'system') apply(); };
     if (mq.addEventListener) mq.addEventListener('change', follow); else if (mq.addListener) mq.addListener(follow); }
   if (seg) seg.addEventListener('click', function(e){ var b = e.target.closest('[data-theme-pick]'); if (b) set(b.dataset.themePick); });
+  if (grid) grid.addEventListener('click', function(e){ var b = e.target.closest('[data-look-pick]'); if (b) look(b.dataset.lookPick); });
   if (window.KCStore) KCStore.subscribe(function(st){
-    var b = st && st.look && st.look.base === 'light' ? 'light' : 'dark';
-    try { localStorage.setItem('kc-theme-base', b); } catch(e){}   // for the first paint of the next start
-    if (b === base) return; base = b;
-    if (d.dataset.themePref === 'workspace') d.dataset.theme = base;
+    var nb = st && st.look && st.look.base === 'light' ? 'light' : 'dark', nid = (st && st.look && st.look.id) || '';
+    ls('kc-theme-base', nb); ls('kc-ws-look', byId(nid) ? nid : 'gold-navy');   // for the first paint of the next start
+    if (nb === ws.base && nid === ws.id) return;
+    ws = {id: nid, base: nb}; apply();
   });
-  mark();
-  window.KCTheme = {set: set, get: function(){ return d.dataset.themePref || 'dark'; }};     // 6.7 the command palette
+  apply();
+  window.KCTheme = {set: set, look: look, get: function(){ return mode(); }, looks: LOOKS};     // the command palette
 })();
 
 /* ---------- Header: every output's status chip, visible at a glance (v5.1). Each chip keeps its own code

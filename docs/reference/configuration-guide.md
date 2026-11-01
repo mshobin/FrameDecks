@@ -42,13 +42,16 @@ same device ID. In OBS, point any old source that used the camera's earlier name
 - The installed app opens in its own window. Since 6.8 it has no Windows title bar: the top bar is the ribbon (drag
   to move, double-click to maximize), with **Minimize**, **Maximize/Restore** and **Close** at the top right.
   **Settings → General → Window and tray**:
-  - **Modern window**: off brings back the Windows title bar (restart), which follows **Settings → General →
-    Appearance** (dark, light or match Windows);
+  - **Modern window**: off brings back the Windows title bar (restart), which follows **Settings → Meeting &
+    Branding → Look → Light or dark** (Dark, Light or Match Windows);
   - **Minimize button**: Ask each time, Hide to tray, or Stay in taskbar;
   - **Spotlight**: the system-wide search shortcut (Alt+Space by default; Ctrl+Space, Ctrl+Alt+Space,
     Ctrl+Shift+Space, Win+Shift+K or Off), with a line saying whether it works.
-  (The Teleprompter overlay settings were removed in 8.0: the one Teleprompter window always stays on top and is
-  left out of screen sharing, with nothing to set.)
+  (The Teleprompter overlay settings were removed in 8.0. Since 8.1 the Teleprompter's own top bar has
+  **Transparency** and **Pin**; it is always left out of screen sharing, with nothing to set.)
+- **Settings → General** is *Window, tray and performance*. The look of the window (Gold & Navy, Morning Light and
+  the other looks, or **Same as my workspace**, plus **Light or dark**) is in **Settings → Meeting & Branding →
+  Look** (8.1).
 - **Close (X)** asks whether to keep running in the background (camera, overlays and phone remote keep
   working) or quit. The icon near the clock opens it again.
 - If **Microsoft Edge WebView2 Runtime** is missing, the app opens as an Edge app window instead (no address bar or

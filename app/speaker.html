@@ -10,11 +10,14 @@
 <link rel="stylesheet" href="css/speaker.css">
 <link rel="stylesheet" href="css/teleprompter.css">
 <link rel="stylesheet" href="css/window.css">
-<script>/* the same appearance as the main window (Settings > General > Appearance) */
-(function(){ var d = document.documentElement, p = 'dark';
-  try { p = localStorage.getItem('kc-theme') || 'dark'; } catch(e){}
-  var wb = 'dark'; try { wb = localStorage.getItem('kc-theme-base') === 'light' ? 'light' : 'dark'; } catch(e){}
-  d.dataset.theme = p === 'workspace' ? wb : p === 'system' ? (window.matchMedia && matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark') : (p === 'light' ? 'light' : 'dark');
+<script>/* Look and light or dark before the first paint (Settings > Meeting & Branding > Look). 8.1: a look (the same six as
+   framedecks.com, or "same as my workspace") and Dark / Light / Match Windows; 7.x "Follow my workspace" becomes a look. */
+(function(){ var d = document.documentElement, p = 'dark', lk = 'gold-navy', wb = 'dark', wl = 'gold-navy';
+  try { p = localStorage.getItem('kc-theme') || 'dark'; lk = localStorage.getItem('kc-look') || 'gold-navy';
+    wb = localStorage.getItem('kc-theme-base') === 'light' ? 'light' : 'dark'; wl = localStorage.getItem('kc-ws-look') || 'gold-navy'; } catch(e){}
+  if (p === 'workspace'){ lk = 'workspace'; p = 'dark'; }
+  d.dataset.themePref = p; d.dataset.lookPref = lk; d.dataset.look = lk === 'workspace' ? wl : lk;
+  d.dataset.theme = lk === 'workspace' ? wb : p === 'system' ? (window.matchMedia && matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark') : (p === 'light' ? 'light' : 'dark');
 })();</script>
 </head>
 <body class="speaker" data-win="teleprompter">
@@ -28,6 +31,9 @@
       <div class="sp-clock sp-frame"><span>Frame</span><b id="sp-frame-pos">–</b></div>
       <div class="sp-clock sp-watch"><span>Timer</span><b id="sp-watch">0:00</b>
         <div class="sp-watch-btns"><button class="btn small" type="button" id="sp-watch-go">Start</button><button class="btn quiet small" type="button" id="sp-watch-reset">Reset</button></div></div>
+      <div class="sp-look" id="sp-look" role="radiogroup" aria-label="Transparency" hidden>
+        <button type="button" role="radio" data-look="solid" title="Solid">Solid</button><button type="button" role="radio" data-look="presenter" title="20 % see-through">20%</button><button type="button" role="radio" data-look="meeting" title="40 % see-through">40%</button><button type="button" role="radio" data-look="conference" title="65 % see-through">65%</button><button type="button" role="radio" data-look="ghost" title="85 % see-through">85%</button></div>
+      <button class="sp-pin" type="button" id="sp-pin" aria-pressed="true" hidden title="Pinned: stays above Zoom, Teams and PowerPoint"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 17v5"/><path d="M9 10.8V5h6v5.8l2.5 3.2H6.5z"/><path d="M8 5h8"/></svg><span>Pinned</span></button>
       <button class="btn quiet small sp-bar-pin" type="button" id="sp-bar-pin" aria-controls="sp-top" title="Keep the top bar open">Keep open</button>
       <div data-win-controls></div>
     </header>

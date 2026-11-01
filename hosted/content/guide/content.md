@@ -67,15 +67,17 @@ Questions, scriptures, birthdays and text always appear in front of camera and m
 
 ## Content Settings
 
-Select a piece of Content and its settings appear in **Content Settings**, below the Studio Canvas. Everything is
-visible at once, in groups, with the most used first. The group names at the top jump to their group.
+Select a piece of Content and its settings appear in **Content Settings**, below the Studio Canvas, in one view.
+**Content** comes first. The other sections open when you click them. FrameDecks remembers on this PC which sections
+you left open.
 
-| Group | What it holds |
+| Section | What it holds |
 | --- | --- |
-| **Label** | The small heading on the card, and whether it shows |
-| **Content** | What it says or shows: the list, the text, the countdown |
-| **Display Settings** | Where it sits on the picture and how wide it is. Inside it: **Animation** (how it appears) and **Show on** (FrameDecks, OBS pages, or both) |
-| **Visual Settings** | Text size and opacity |
+| **Content** | Its label (the small heading on the card, and whether it shows) and what it says or shows: the list, the text, the countdown |
+| **Position and size** | Where it sits on the picture and how wide it is |
+| **Look** | Text size and opacity |
+| **Animation** | How it appears |
+| **Show on** | FrameDecks, OBS pages, or both |
 | **Media** | File, slide and placement settings for pictures, video and PowerPoint |
 
 A Frame's own settings are its name, Teleprompter script and auto-advance, with the rest under **Advanced**. See
@@ -85,7 +87,7 @@ A Frame's own settings are its name, Teleprompter script and auto-advance, with 
 
 A **Question** Content holds this Frame's list of discussion questions. It shows one at a time.
 
-**Content group: the list**
+**Content: the list**
 - **+ Question** adds a question after the current one.
 - **Add several** lets you paste many questions at once, one per line.
 - **Click** a question to make it the Frame's current one.
@@ -95,16 +97,16 @@ A **Question** Content holds this Frame's list of discussion questions. It shows
 - **Show: Question · Both · Scripture** chooses what **Show** puts on screen: the question, the question with its
   scripture, or the scripture only.
 
-**Label:** the small heading above every question, such as *Discussion Question*. Untick **Show** to hide it. Each
-question can have its own label.
+**Label** (in **Content**): the small heading above every question, such as *Discussion Question*. Untick **Show** to
+hide it. Each question can have its own label.
 
-**Visual Settings**
+**Look**
 | Setting | What it does |
 | --- | --- |
 | **Text size** | The size of the question text |
 | **Card opacity** | How much of the video shows through the card (70%, 80%, 90%, 100% presets) |
 
-**Display Settings:** **Width** and **Above bottom**. **Recommended layout** puts them back.
+**Position and size:** **Width** and **Above bottom**. **Recommended layout** puts them back.
 
 **Animation:** how each question appears: **Fade**, **Gentle rise**, **Word by word**, **Typewriter**, **Burst**,
 **Cut**, or **Random** (pick a different transition each time).
@@ -124,8 +126,8 @@ Fetching ESV text needs internet and an ESV API key in **Settings → Scripture*
 1. Set **Fetch from** to **Type it myself**.
 2. Add a scripture and type or paste the reference, the translation (for example NIV or KJV) and the text.
 
-**Label:** the heading and **Show**. **Display Settings:** Left, Center or Right, Height and Width.
-**Visual Settings:** Text size and Card opacity. **Animation:** the same choices as Question.
+**Content:** the label and **Show**. **Position and size:** Left, Center or Right, Height and Width.
+**Look:** Text size and Card opacity. **Animation:** the same choices as Question.
 
 ## Editing questions and scriptures
 
@@ -173,25 +175,25 @@ including the OBS pages.
 | Body | **Text** | **Role or second line** |
 | Logo | **Show my logo on this card** | **Show my logo on this card** |
 
-**Label:** the title, with **Show**. **Display Settings:** Position (Top, Centre, Bottom, Upper left / right, Lower
-left / right) and Width. **Animation:** Appears with **Fade**, **Gentle rise** or **Cut**. **Visual Settings:** Text
-size and Opacity.
+**Content:** the title, with **Show**. **Position and size:** Position (Top, Centre, Bottom, Upper left / right,
+Lower left / right) and Width. **Animation:** Appears with **Fade**, **Gentle rise** or **Cut**. **Look:** Text size
+and Opacity.
 
 If the Frame is live, changes appear on screen as you type.
 
 **Branding** is a small badge with your logo and Meeting Name. Set the logo and names once in **Settings → Meeting &
 Branding**. A quick way to add or remove it is the **Branding** tick in a Frame's settings.
 
-| Group | Setting | What it does |
+| Section | Setting | What it does |
 | --- | --- | --- |
 | Content | **Display** | **Logo only**, **Name only** or **Logo + Name** |
 | Content | **Also show the Leader / Organization Name** | Adds your organization under the name |
 | Content | **Remove the logo's background** | Makes a plain background around your logo transparent. See [Branding](../reference/meeting-workbook-and-branding.md#branding-options-v67) |
-| Display Settings | **Position** | One of the four corners, or **Or centred**: Top, Centre or Bottom |
-| Display Settings | **Safe margin** | How far the badge stays from the edges of the picture |
-| Visual Settings | **Size** and **Fine size** | **Small**, **Medium** or **Large**, then adjust it exactly |
-| Visual Settings | **Opacity** and **Padding** | How see-through the badge is, and the space around the logo and name |
-| Visual Settings | **Background plate** | On: a navy plate with your accent edge. Off: a soft shadow keeps it readable on any picture |
+| Position and size | **Position** | One of the four corners, or **Or centred**: Top, Centre or Bottom |
+| Position and size | **Safe margin** | How far the badge stays from the edges of the picture |
+| Look | **Size** and **Fine size** | **Small**, **Medium** or **Large**, then adjust it exactly |
+| Look | **Opacity** and **Padding** | How see-through the badge is, and the space around the logo and name |
+| Look | **Background plate** | On: a navy plate with your accent edge. Off: a soft shadow keeps it readable on any picture |
 
 The badge looks the same on the FrameRelay camera and the OBS pages, and it keeps its size at 720p, 1080p or
 4K.
@@ -208,7 +210,7 @@ A **Timer** counts down on screen, for example before the service starts or duri
 | **At zero, show** | The text shown when it reaches zero, such as *Starting now* |
 | **Restart the countdown** | Starts it again from the beginning (when the Frame is live) |
 
-Display Settings, Visual Settings and Animation work as for Text.
+Position and size, Look and Animation work as for Text.
 
 ## Image, Video and PowerPoint
 
@@ -263,14 +265,14 @@ in Teams, **Include sound**.
 
 ## Show on: where Content appears
 
-Cards and text have a **Show on** group (inside Display Settings):
+Cards and text have a **Show on** section:
 - **FrameDecks** (the Zoom / Teams camera, recordings and the Presentation window);
 - **OBS / browser overlay pages**.
 
 Untick one to keep that Content off that output. For cards it applies when the Frame is taken live; for text it
 applies at once.
 
-Camera and media Content is the FrameDecks picture itself, so it has no Show on group.
+Camera and media Content is the FrameDecks picture itself, so it has no Show on section.
 
 ## Placeholders: {meeting} and {org}
 

@@ -7,11 +7,14 @@
 <link rel="stylesheet" href="css/palette.css">
 <link rel="stylesheet" href="css/theme.css">
 <link rel="stylesheet" href="css/window.css">
-<script>/* the same appearance as the main window */
-(function(){ var d = document.documentElement, p = 'dark';
-  try { p = localStorage.getItem('kc-theme') || 'dark'; } catch(e){}
-  var wb = 'dark'; try { wb = localStorage.getItem('kc-theme-base') === 'light' ? 'light' : 'dark'; } catch(e){}
-  d.dataset.theme = p === 'workspace' ? wb : p === 'system' ? (window.matchMedia && matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark') : (p === 'light' ? 'light' : 'dark');
+<script>/* Look and light or dark before the first paint (Settings > Meeting & Branding > Look). 8.1: a look (the same six as
+   framedecks.com, or "same as my workspace") and Dark / Light / Match Windows; 7.x "Follow my workspace" becomes a look. */
+(function(){ var d = document.documentElement, p = 'dark', lk = 'gold-navy', wb = 'dark', wl = 'gold-navy';
+  try { p = localStorage.getItem('kc-theme') || 'dark'; lk = localStorage.getItem('kc-look') || 'gold-navy';
+    wb = localStorage.getItem('kc-theme-base') === 'light' ? 'light' : 'dark'; wl = localStorage.getItem('kc-ws-look') || 'gold-navy'; } catch(e){}
+  if (p === 'workspace'){ lk = 'workspace'; p = 'dark'; }
+  d.dataset.themePref = p; d.dataset.lookPref = lk; d.dataset.look = lk === 'workspace' ? wl : lk;
+  d.dataset.theme = lk === 'workspace' ? wb : p === 'system' ? (window.matchMedia && matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark') : (p === 'light' ? 'light' : 'dark');
 })();</script>
 </head>
 <body data-win="spotlight" class="spotlight">

@@ -56,6 +56,7 @@ class Settings(unittest.TestCase):
         self.assertEqual(s["minimizeTo"], "ask")
         self.assertEqual(s["spotlightKey"], "Alt+Space")
         self.assertNotIn("overlayMode", s)            # 8.0: one Teleprompter, no overlay looks
+        self.assertEqual((s["prompterLook"], s["prompterOnTop"]), ("solid", True))   # 8.1: pin and transparency
 
     def test_valid_values_are_kept_and_normalised(self):
         s = server.save_app_settings({"minimizeTo": "tray", "spotlightKey": "ctrl+alt+space", "overlayMode": "ghost"})

@@ -12,12 +12,14 @@
 <link rel="stylesheet" href="css/teleprompter.css">
 <link rel="stylesheet" href="css/window.css">
 <link rel="stylesheet" href="css/about.css">
-<script>/* Appearance before the first paint (Settings > General > Appearance): dark (default), light or match Windows */
-(function(){ var d = document.documentElement, p = 'dark';
-  try { p = localStorage.getItem('kc-theme') || 'dark'; } catch(e){}
-  d.dataset.themePref = p;
-  var wb = 'dark'; try { wb = localStorage.getItem('kc-theme-base') === 'light' ? 'light' : 'dark'; } catch(e){}
-  d.dataset.theme = p === 'workspace' ? wb : p === 'system' ? (window.matchMedia && matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark') : (p === 'light' ? 'light' : 'dark');
+<script>/* Look and light or dark before the first paint (Settings > Meeting & Branding > Look). 8.1: a look (the same six as
+   framedecks.com, or "same as my workspace") and Dark / Light / Match Windows; 7.x "Follow my workspace" becomes a look. */
+(function(){ var d = document.documentElement, p = 'dark', lk = 'gold-navy', wb = 'dark', wl = 'gold-navy';
+  try { p = localStorage.getItem('kc-theme') || 'dark'; lk = localStorage.getItem('kc-look') || 'gold-navy';
+    wb = localStorage.getItem('kc-theme-base') === 'light' ? 'light' : 'dark'; wl = localStorage.getItem('kc-ws-look') || 'gold-navy'; } catch(e){}
+  if (p === 'workspace'){ lk = 'workspace'; p = 'dark'; }
+  d.dataset.themePref = p; d.dataset.lookPref = lk; d.dataset.look = lk === 'workspace' ? wl : lk;
+  d.dataset.theme = lk === 'workspace' ? wb : p === 'system' ? (window.matchMedia && matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark') : (p === 'light' ? 'light' : 'dark');
 })();</script>
 </head>
 <body>
@@ -324,7 +326,7 @@
   <nav class="s-nav" id="s-nav" aria-label="Settings sections">
     <label class="sn-find"><span class="sr-only">Find a setting</span><input type="search" id="sn-find" placeholder="Find a setting…" autocomplete="off" spellcheck="false"></label>
     <div class="sn-group" role="group" aria-label="Your meeting"><p class="sn-head" aria-hidden="true">Your meeting</p>
-      <button type="button" data-sec="meeting" data-k="meeting name logo colour color brand leader organization"><span class="sn-i"><i data-icon="palette" data-size="16"></i></span><span class="sn-t"><b>Meeting &amp; Branding</b><small>Name, logo and colours</small></span></button>
+      <button type="button" data-sec="meeting" data-k="meeting name logo colour color brand leader organization look theme dark light appearance"><span class="sn-i"><i data-icon="palette" data-size="16"></i></span><span class="sn-t"><b>Meeting &amp; Branding</b><small>Name, logo, colours and look</small></span></button>
       <button type="button" data-sec="scripture" data-k="bible esv version verse scripture key"><span class="sn-i"><i data-icon="book-open" data-size="16"></i></span><span class="sn-t"><b>Scripture</b><small>Bible version and verses</small></span><i class="sn-dot" id="sn-scripture"></i></button>
       <button type="button" data-sec="overlays" data-k="birthday dates reminder"><span class="sn-i"><i data-icon="cake" data-size="16"></i></span><span class="sn-t"><b>Birthdays</b><small>Birthday reminders</small></span></button>
     </div>
@@ -339,7 +341,7 @@
       <button type="button" data-sec="account" data-k="account website sync cloud link workspace companion"><span class="sn-i"><i data-icon="cloud" data-size="16"></i></span><span class="sn-t"><b>FrameDecks account</b><small>Sync with the website</small></span><i class="sn-dot" id="sn-account"></i></button>
     </div>
     <div class="sn-group" role="group" aria-label="This PC"><p class="sn-head" aria-hidden="true">This PC</p>
-      <button type="button" data-sec="general" data-k="general theme dark light appearance name email wording greeting signature"><span class="sn-i"><i data-icon="settings" data-size="16"></i></span><span class="sn-t"><b>General</b><small>Theme, your name, email wording</small></span></button>
+      <button type="button" data-sec="general" data-k="general window tray minimize spotlight performance graphics"><span class="sn-i"><i data-icon="settings" data-size="16"></i></span><span class="sn-t"><b>General</b><small>Window, tray and performance</small></span></button>
       <button type="button" data-sec="data" data-k="data backup restore reset excel import export folder"><span class="sn-i"><i data-icon="database" data-size="16"></i></span><span class="sn-t"><b>Data / Backup</b><small>Backups, Excel and resets</small></span></button>
     </div>
     <div class="sn-group sn-adv" role="group" aria-label="Advanced" id="sn-adv"><button type="button" class="sn-head sn-adv-btn" id="sn-adv-btn" aria-expanded="false" aria-controls="sn-adv">Advanced <span aria-hidden="true">▸</span></button>
@@ -356,31 +358,18 @@
   <div class="s-body">
     <section class="s-sec" id="sec-meeting" aria-labelledby="sech-meeting" hidden>
       <header class="s-head"><h2 id="sech-meeting">Meeting &amp; Branding</h2><p>Your meeting’s name, logo and colour. They appear only where you choose: Branding Content, and text Content that ask for them.</p></header>
+      <section class="box look-box" aria-labelledby="s-look">
+        <div class="box-head"><h2 id="s-look">Look</h2></div>
+        <p class="hint">The colours of FrameDecks on this PC: the same looks as on framedecks.com.</p>
+        <div class="look-grid" id="look-grid" role="radiogroup" aria-labelledby="s-look"></div>
+        <div class="row"><span class="lbl">Light or dark</span><div class="seg" id="theme-seg" role="radiogroup" aria-label="Light or dark">
+          <button type="button" role="radio" data-theme-pick="dark">Dark</button><button type="button" role="radio" data-theme-pick="light">Light</button><button type="button" role="radio" data-theme-pick="system">Match Windows</button></div></div>
+        <p class="hint">Only this window changes. Your camera picture, overlays and the phone remote keep their own look.</p>
+      </section>
       <div id="meeting-body"></div>
     </section>
     <section class="s-sec" id="sec-general" aria-labelledby="sech-general" hidden>
-      <header class="s-head"><h2 id="sech-general">General</h2><p>Appearance, your name, meeting title and the wording used in emails.</p></header>
-  <section class="box" aria-labelledby="s-look">
-    <div class="box-head"><h2 id="s-look">Appearance</h2></div>
-    <div class="row"><span class="lbl">Theme</span><div class="seg" id="theme-seg" role="radiogroup" aria-label="Theme">
-      <button type="button" role="radio" data-theme-pick="dark">Dark</button><button type="button" role="radio" data-theme-pick="light">Light</button><button type="button" role="radio" data-theme-pick="system">Match Windows</button><button type="button" role="radio" data-theme-pick="workspace">Follow my workspace</button></div></div>
-    <p class="hint">Only this window changes. Your camera picture, overlays and the phone/iPad remote are not affected. Follow my workspace uses the light or dark of the look chosen on framedecks.com (Branding → Look).</p>
-  </section>
-  <section class="box" aria-labelledby="s-you">
-    <div class="box-head"><h2 id="s-you">Your details &amp; email wording</h2></div>
-    <p class="hint">Meeting Name, your logo and colours: <button class="linkish" type="button" data-goto="settings" data-sec="meeting">Settings → Meeting &amp; Branding</button>.</p>
-    <label class="field"><span>Your name (used as [Your Name])</span><input type="text" data-set="yourName" placeholder="e.g. Mary Thomas"></label>
-    <label class="field"><span>Your email (optional; used as “To” for group emails)</span><input type="text" data-set="yourEmail" placeholder="you@example.com"></label>
-    <label class="field"><span>Group name (used as [Group Name])</span><input type="text" data-set="groupName"></label>
-    <h3>Email wording</h3>
-    <label class="field"><span>Greeting for one member</span><input type="text" data-set="greeting"></label>
-    <label class="field"><span>Greeting for a group</span><input type="text" data-set="groupGreeting"></label>
-    <label class="field"><span>Signature</span><textarea data-set="signature" rows="3"></textarea></label>
-    <label class="field"><span>Default subject (Prepare Email)</span><input type="text" data-set="defaultSubject"></label>
-    <label class="field"><span>Default body (Prepare Email)</span><textarea data-set="defaultBody" rows="6"></textarea></label>
-    <div class="row"><span class="lbl">Address separator</span><div class="seg" data-setseg="separator"></div></div>
-    <p class="hint">Placeholders: [Member Name] [First Name] [Country] [Birth Date] [Today’s Date] [Group Name] [Your Name] [Greeting] [Signature]</p>
-  </section>
+      <header class="s-head"><h2 id="sech-general">General</h2><p>The window, the tray and how FrameDecks uses this PC.</p></header>
     </section>
     <section class="s-sec" id="sec-overlays" aria-labelledby="sech-overlays" hidden>
       <header class="s-head"><h2 id="sech-overlays">Birthdays</h2><p>Birthday reminders and how dates are read. Placement and style are in the Birthday Content’s settings.</p></header>

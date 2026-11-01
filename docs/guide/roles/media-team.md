@@ -28,7 +28,7 @@ How to prepare a meeting in FrameDecks so the service runs smoothly: Frames, Con
 
 1. **+ Frame, then + Content.** + Frame adds a blank Frame after the selected one; select it, then **+ Content** to add a Question, Scripture, Text, Image, Video, Timer or PowerPoint. The Frame's Content is listed under **Decks**, below the Frames.
 2. **Every Frame owns its Content.** Changing a question in one Frame never changes another. **Duplicate Frame** (right-click, or **Ctrl+D**) makes a fully separate copy right after it.
-3. **Content Settings has everything.** One panel, most used first: Label, Content, Display Settings (with Animation and Show on), Visual Settings; Media for pictures, video and slides.
+3. **Content Settings has everything.** One view: Content (its label and words) first, then sections that open with a click: Position and size, Look, Animation, Show on; Media for pictures, video and slides.
 4. **FrameDecks keeps copies of your files.** Added pictures, videos and slides keep working if the originals move.
 5. **Excel is optional.** The Meeting Workbook builds a whole meeting from a spreadsheet; the app is the source of truth after import.
 
@@ -45,7 +45,7 @@ How to prepare a meeting in FrameDecks so the service runs smoothly: Frames, Con
    - **Video / Image**: choose the file, then place it.
    - **Timer**: a countdown before the service starts.
 3. Arrange the order of questions or scriptures by **dragging** them, or with ↑ / ↓.
-4. Check the look in **Display Settings** and **Visual Settings** (position, width, text size, opacity).
+4. Check the look in **Position and size** and **Look** (position, width, text size, opacity).
 5. Paste the leader's talking points into each Frame's **Teleprompter script** (Content Settings) if they send them. Only the leader sees it, in the Teleprompter window over Zoom or Teams or on the phone remote. Read it once in the Teleprompter (**R**) to check that the lines are not too long for a small window.
 6. To change several Frames at once, **Ctrl+Click** or **Shift+Click** them, then copy (**Ctrl+C**), paste (**Ctrl+V**), duplicate (**Ctrl+D**) or delete them. **Ctrl+K** finds any Frame, question or setting.
 7. For the Branding badge, choose Logo only / Name only / Logo + Name, a corner, size and plate in its Content Settings. If the logo has a white box around it, use **Remove background** (Settings → Meeting & Branding).

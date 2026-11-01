@@ -45,6 +45,28 @@ Versions before 4.9 (when the program had its earlier name) are described in the
 - The favicons, the tray icon and the small program-icon sizes (16–32 px) use a heavier version of the emblem, so it
   stays visible on light browser tabs and a light taskbar. Larger sizes are unchanged.
 
+## [8.1.0] - 2026-11-01
+
+Full notes: [docs/releases/v8.1.0.md](releases/v8.1.0.md).
+
+### Added
+- Teleprompter: **transparency** (Solid, 20%, 40%, 65%, 85%) and **Pin** (stay on top) in its top bar, remembered.
+- **Looks**: Settings → Meeting & Branding → Look, the six looks of framedecks.com or "Same as my workspace", with
+  Dark / Light / Match Windows; "Look: …" commands in the command palette.
+
+### Changed
+- Content settings are one view: the Content first, then Position and size, Look, Animation and Show on, each
+  opening on a click (remembered). The Label / Content / Display Settings / Visual Settings tabs are gone.
+- The desktop window is restyled to match framedecks.com (static, no extra resource use).
+- Settings → General is "Window, tray and performance"; the Look moved to Meeting & Branding.
+
+### Removed
+- "Your details & email wording" in Settings → General.
+
+### Fixed
+- The About header image (README and release notes) was captured with the Setup guide in front of it;
+  `tools/make_readme_header.py` now clears overlays first.
+
 ## [8.0.0] - 2026-11-01
 
 Full notes: [docs/releases/v8.0.0.md](releases/v8.0.0.md). A major version: several features were removed to make

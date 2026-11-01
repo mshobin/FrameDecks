@@ -36,7 +36,7 @@ The **command bar** across the top holds everything you need live:
 **Search and commands.** The command bar has no search box (6.9). Press **Ctrl+K** or **Ctrl+Space** for the **command
 palette** (from anywhere in Windows: **Spotlight**, Alt+Space). It finds Frames, Content, questions, scriptures, text,
 templates, the Library, branding, settings, members, Bible references and recent items, and runs commands such as Go
-Live, New Frame, Duplicate, Teleprompter, Export meeting, switch theme and Add Content. **↑ / ↓** and **Enter**
+Live, New Frame, Duplicate, Teleprompter, Export meeting, *Look: <name>* and Add Content. **↑ / ↓** and **Enter**
 choose; **Esc** closes. Change the keys in Settings → Keyboard shortcuts → Command palette.
 
 The command bar fits any window: narrow, maximized, ultra-wide or on a high-resolution screen. Under 1140 px wide it
@@ -55,7 +55,14 @@ move the window, and double-click it to maximize. Snap and resizing from the edg
   Frequently used and Suggested.
 - **Settings → General → Window and tray**: Modern window (off brings the Windows title bar back, after a restart),
   Minimize button (Ask each time / Hide to tray / Stay in taskbar), the Spotlight shortcut (Alt+Space, Ctrl+Space,
-  Ctrl+Alt+Space, Ctrl+Shift+Space, Win+Shift+K or Off, with a line saying whether it works).
+  Ctrl+Alt+Space, Ctrl+Shift+Space, Win+Shift+K or Off, with a line saying whether it works). **Settings →
+  General** is now just *Window, tray and performance*.
+- **The look of the window (8.1):** **Settings → Meeting & Branding → Look**. Pick a colour card: **Gold & Navy**
+  (the standard), **Morning Light**, **Chapel Stone**, **Deep Ocean**, **Forest** or **Quiet Mono** (the same looks
+  as on framedecks.com, Branding → Look), or **Same as my workspace** to follow the look chosen on the website,
+  light or dark included. Under it, **Light or dark**: **Dark**, **Light** or **Match Windows**. A look picks its own
+  light or dark (Morning Light is light), and you can change it. Only this window changes: the camera picture, the
+  overlays and the phone remote keep their own look.
 
 ## 2. Frames and Content
 - **Meeting** (the ✨ button next to + Frame) has:
@@ -80,19 +87,16 @@ move the window, and double-click it to maximize. Snap and resizing from the edg
   - drag them to move them, or right-click for a menu.
 
 ## 3. Content Settings
-Select any Content and every setting is in one panel, most used first:
-- **Label**
-- **Content**
-- **Display Settings** (with **Animation** and **Show on** inside it)
-- **Visual Settings**
+Select any Content and its settings are in one view:
+- **Content** first: its label and its words (or list);
+- then sections that open with a click: **Position and size**, **Look**, **Animation** and **Show on**.
 
-Pictures, video and PowerPoint have a **Media** group. A Frame on its own shows its **Name**, its **Teleprompter
+FrameDecks remembers on this PC which sections you left open. Pictures, video and PowerPoint have a **Media** group. A Frame on its own shows its **Name**, its **Teleprompter
 script** (with **Open the Teleprompter**), **Move to the next Frame after N seconds** and a **Duplicate Frame** button.
 Its **Advanced** section holds the Group, the Transition into this Frame and its Length (ms), Branding, Favourite,
 Template, **Save as template**, **One Frame per question / per verse**, and its history (Created, Changed, Copied
 from, Original Frame).
 
-The group names along the top jump to their group.
 Where each piece of Content appears (FrameDecks, OBS pages) is set once, in that Content's **Show on** group.
 
 **Branding Content** has: **Display** (Logo only, Name only, Logo + Name, and optionally the Organization Name);
@@ -144,10 +148,13 @@ A Question (or Scripture) Content holds **its own list**, shown full height in C
   - The script takes nearly the whole width. A small toolbar floats over it and fades: Play / Pause (Space), speed
     from Very slow to Very fast, A− / A+, line spacing, contrast, Mirror (M) and edit ✎.
   - The **top bar** is hidden at first. Move the pointer to the top edge, or press the small **▾** button there, to
-    see it: **Time**, the current **Frame** (*name · 3 of 9*) and a **Timer** (Start / Pause, Reset), with **Keep
-    open** / **Hide bar** and the window buttons. Drag the bar to move the window; resize from the edges.
-  - The docked Teleprompter, the separate Teleprompter overlay (with its transparency modes) and **Shift+R** were
-    removed in 8.0: this one window replaces them.
+    see it: **Time**, the current **Frame** (*name · 3 of 9*), a **Timer** (Start / Pause, Reset), **Transparency**
+    (Solid, 20%, 40%, 65%, 85%) and **Pin** (*Pinned* keeps it above Zoom, Teams and PowerPoint; click to unpin),
+    with **Keep open** / **Hide bar** and the window buttons. Drag the bar to move the window; resize from the edges.
+  - Transparency and pin are remembered, and work only in the installed app. With **Light on graphics card** on (the
+    default) the whole window fades, text included; with it off, only the background is see-through.
+  - The docked Teleprompter, the separate Teleprompter overlay and **Shift+R** were removed in 8.0: this one window
+    replaces them, with transparency and pin in its top bar.
 
 ## 5. The FrameRelay camera
 Choose **FrameDecks** as the camera in Zoom, Teams, Google Meet or OBS. Participants see your webcam with the live

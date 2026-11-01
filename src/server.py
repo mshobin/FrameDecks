@@ -39,7 +39,7 @@ import winapi   # 7.1.1: Windows jobs through Windows' own interfaces (no PowerS
 import meeting_form   # 6.9: fills the Meeting Workbook's form for Export
 import updater   # 7.0: updates from FrameDecks servers (checked, silent, with rollback)
 
-APP_VERSION = "8.0.0"
+APP_VERSION = "8.1.0"
 STARTED_AT = time.time()
 FROZEN = getattr(sys, "frozen", False)          # True inside the installed Windows app
 HERE = Path(sys.executable).resolve().parent if FROZEN else Path(__file__).resolve().parent.parent   # the repository root (this file is in src/)
@@ -686,11 +686,14 @@ APP_SETTINGS_DEFAULTS = {"remoteAutostart": False, "importDecided": False,
                          "customChrome": True,    # the app's ribbon instead of the Windows title bar (restart to change)
                          "minimizeTo": "ask",     # minimize button: ask / tray / taskbar
                          "spotlightKey": "Alt+Space",   # system-wide shortcut for Spotlight ('' = off)
+                         "prompterLook": "solid",       # 8.1 Teleprompter transparency: solid/presenter/meeting/conference/ghost
+                         "prompterOnTop": True,         # 8.1 the Teleprompter stays above Zoom, Teams and PowerPoint (pin)
                          "cloudRemote": False,    # Phase 5: run a service from the companion (Settings > FrameDecks account)
                          "memberAuthority": "cloud",   # M-D2: the workspace is the member list's source (no switch on screen)
                          "ai": "auto",            # M-D3: "auto" = use Ollama on this PC when it answers; "off" = never
                          "guide": {}}             # 6.14 Setup guide progress on this PC (app/js/guide.js, _valid_guide)
-APP_SETTING_CHOICES = {"minimizeTo": ("ask", "tray", "taskbar"), "memberAuthority": ("cloud", "pc"), "ai": ("auto", "off")}
+APP_SETTING_CHOICES = {"minimizeTo": ("ask", "tray", "taskbar"), "memberAuthority": ("cloud", "pc"), "ai": ("auto", "off"),
+                       "prompterLook": ("solid", "presenter", "meeting", "conference", "ghost")}
 
 
 GUIDE_STEPS = ("welcome", "output", "phone", "connect", "frame", "ready")    # app/js/guide-steps.js (8.0: no "rehearse")

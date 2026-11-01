@@ -96,18 +96,16 @@ snap as it should).
 
 Inside FrameDecks, **Ctrl+K** always opens the command palette, which finds the same things.
 
-### I can't see my meeting through the overlay
+### I can't see my meeting through the Teleprompter
 
 | Cause | Fix |
 | --- | --- |
-| **Light on graphics card** is on (the default) | The overlay then fades as a whole, text included. Choose a more see-through mode (**3** to **5**). For solid text over a see-through background, turn off **Settings → General → Performance → Light on graphics card** and restart |
-| The see-through background does not work on this PC | Turn on **Compatibility transparency** in **Settings → General → Window and tray**, then close and reopen the overlay. The whole window fades instead |
-| The mode is **Solid** | Press **3** (**Meeting**) or higher |
-| The overlay hides behind Zoom or Teams | Turn on **Stay on top** (📌, or press **P**) |
-| You are using FrameDecks in a web browser | The overlay can be see-through and stay on top only in the installed app |
+| **Transparency** is **Solid** | Show the Teleprompter's top bar and choose **40%** or more |
+| **Light on graphics card** is on (the default) | The whole window then fades, text included. Choose a more see-through setting (**65%** or **85%**). For solid text over a see-through background, turn off **Settings → General → Performance → Light on graphics card** and restart |
+| The Teleprompter hides behind Zoom or Teams | Click **Pin** in its top bar, so it reads **Pinned** |
+| You are using FrameDecks in a web browser | The Teleprompter can be see-through and pinned only in the installed app |
 
-> **Note:** Frosted glass is Acrylic on Windows 11 (22H2 and later) and a plain blur on Windows 10. Leaving the
-> overlay out of screen sharing needs Windows 10 version 2004 or later.
+> **Note:** Leaving the Teleprompter out of screen sharing needs Windows 10 version 2004 or later.
 
 ## The FrameRelay camera
 

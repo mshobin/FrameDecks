@@ -179,7 +179,7 @@ You need a linked PC and the website signed in as an owner or admin.
    changed.
 3. Press **Hide all** (Esc) on the PC and wait about a minute, then show a scripture. **Expect:** sea-blue cards
    with teal edges, and the scripture in the sans font, in all three outputs.
-4. On the PC: Settings → General → Appearance → **Follow my workspace**. **Expect:** the window stays dark. On the
+4. On the PC: Settings → Meeting & Branding → Look → **Same as my workspace**. **Expect:** the window stays dark. On the
    website choose **Morning Light**, clear the screen, wait a minute. **Expect:** the window turns light and the
    cards turn dawn blue with amber edges.
 5. Choose **Gold & Navy** to go back to the standard look.

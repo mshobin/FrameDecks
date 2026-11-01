@@ -769,24 +769,43 @@ function pickFile(kind){
 /* v6.7 Content Settings in priority order: Label · Content · Display Settings · Visual Settings.
  * [key, name, sub]: a sub-section sits inside the group above it (smaller heading, no jump link). */
 var GROUPS = {scene: [['scene', 'Frame']],          // 8.0: one simple Frame form; the rarer settings sit under Advanced
-  card: [['label', 'Label'], ['content', 'Content'], ['layout', 'Display Settings'], ['animation', 'Animation', true], ['output', 'Show on', true], ['style', 'Visual Settings']],
-  text: [['label', 'Label'], ['content', 'Content'], ['layout', 'Display Settings'], ['animation', 'Animation', true], ['output', 'Show on', true], ['style', 'Visual Settings']],
-  brand: [['content', 'Content'], ['layout', 'Display Settings'], ['output', 'Show on', true], ['style', 'Visual Settings']],
+  /* 8.1 one view: the Content first (its label and words, always open), then the settings as sections that open on a
+   * click: [key, name, sub, foldable]. A null name: no heading (the Content heading covers it). */
+  card: [['label', 'Content'], ['content', null], ['layout', 'Position and size', 0, 1], ['style', 'Look', 0, 1], ['animation', 'Animation', 0, 1], ['output', 'Show on', 0, 1]],
+  text: [['label', 'Content'], ['content', null], ['layout', 'Position and size', 0, 1], ['style', 'Look', 0, 1], ['animation', 'Animation', 0, 1], ['output', 'Show on', 0, 1]],
+  brand: [['content', 'Content'], ['layout', 'Position and size', 0, 1], ['style', 'Look', 0, 1], ['output', 'Show on', 0, 1]],
   media: [['content', 'Media']]};
-var inspSig = '', curTabs = '';
+var inspSig = '';
+var openGrp = {}; try { openGrp = JSON.parse(lsGet('kc-insp-open', '{}')) || {}; } catch(e){}
 var adv = true;                                    // older code paths: everything is shown
 function group(kind){ return !kind ? 'scene' : kind === 'brand' ? 'brand' : SC.isCard(kind) ? 'card' : SC.isText(kind) ? 'text' : 'media'; }
 function curKind(){ var l = layer(); return l ? l.kind : ''; }
 function refreshBasicSegs(){}
-function groupHead(key, name, sub){ return h('div', {cls: 'cs-group cs-anchor' + (sub ? ' cs-sub' : ''), 'data-grp': key, text: name}); }
-function headFor(groups, key){ var g = groups.filter(function(t){ return t[0] === key; })[0]; return g ? groupHead(g[0], g[1], g[2]) : null; }
-function jumpTo(key){
-  var el = document.querySelector('#insp-body [data-grp="' + key + '"]'); if (!el) return;
-  el.scrollIntoView({block: 'start', behavior: 'smooth'});
-  Array.prototype.forEach.call(document.querySelectorAll('#insp-tabs button'), function(b){ b.setAttribute('aria-current', String(b.dataset.itab === key)); });
+function groupHead(key, name, sub, fold){
+  if (name == null) return null;
+  if (!fold) return h('div', {cls: 'cs-group cs-anchor' + (sub ? ' cs-sub' : ''), 'data-grp': key, text: name});
+  return h('div', {cls: 'cs-group cs-anchor cs-fold', 'data-grp': key, role: 'button', tabindex: '0', 'aria-expanded': 'false'}, [h('span', {text: name}), h('span', {cls: 'cs-chev', 'aria-hidden': 'true', text: '▸'})]);
 }
+function headFor(groups, key){ var g = groups.filter(function(t){ return t[0] === key; })[0]; return g ? groupHead(g[0], g[1], g[2], g[3]) : null; }
+/* 8.1 the settings sections open and close on a click; remembered on this PC */
+function applyGroups(){
+  Array.prototype.forEach.call(document.querySelectorAll('#insp-body .cs-fold'), function(hd){
+    var open = !!openGrp[hd.dataset.grp], p = hd.parentNode;
+    hd.setAttribute('aria-expanded', String(open));
+    if (p.classList.contains('ip')) p.classList.toggle('cs-closed', !open);
+    else { var nx = hd.nextElementSibling; if (nx && nx.classList.contains('cs-sec') && nx.hidden === open) nx.hidden = !open; }
+  });
+}
+function foldClick(e){
+  var hd = e.target.closest && e.target.closest('.cs-fold'); if (!hd) return;
+  if (e.type === 'keydown'){ if (e.key !== 'Enter' && e.key !== ' ') return; e.preventDefault(); }
+  openGrp[hd.dataset.grp] = !openGrp[hd.dataset.grp];
+  lsSet('kc-insp-open', JSON.stringify(openGrp)); applyGroups();
+}
+$('insp-body').addEventListener('click', foldClick); $('insp-body').addEventListener('keydown', foldClick);
 var genAtEnd = false;
-function renderInspector(){
+function renderInspector(){ renderInspectorBody(); applyGroups(); }
+function renderInspectorBody(){
   var sc = scene(), l = layer(), kind = l ? l.kind : '', g = group(kind);
   if (!genAtEnd){ genAtEnd = true; $('insp-body').appendChild($('ip-gen')); }          // generated groups follow the editors
   var im = $('insp-mode'); if (im) im.hidden = true;
@@ -798,15 +817,7 @@ function renderInspector(){
   $('insp-sub').textContent = l ? SC.info[l.kind].name + ' · ' + sc.name : sc ? (sc.tpl ? 'Frame template' : 'Frame') + (sc.group ? ' · ' + sc.group : '') : 'Select a Frame';
   var on = sc && isLiveScene(sc.id) && (!l || SC.layerOn(live, sc, l));
   $('insp-live').textContent = on ? 'LIVE' : ''; $('insp-live').className = 'insp-live' + (on ? ' on' : '');
-  // the group names: jump links
-  var tsig = kind || 'scene';
-  if (tsig !== curTabs){
-    curTabs = tsig;
-    var nav = $('insp-tabs'); nav.innerHTML = ''; nav.setAttribute('aria-label', 'Jump to a group');
-    var top = groups.filter(function(t){ return !t[2] && !(t[0] === 'label' && kind === 'birthday'); });
-    top.forEach(function(t, i){ nav.appendChild(h('button', {type: 'button', 'data-itab': t[0], 'aria-current': String(i === 0), text: t[1], onclick: function(){ jumpTo(t[0]); }})); });
-    nav.hidden = top.length < 2;
-  }
+  $('insp-tabs').hidden = true;                  // 8.1 one view: no jump links
   // the editors for Question / Scripture / Birthday (all their groups at once); generated groups for the rest
   var panelKind = SC.isCard(kind) ? kind : mediaLive ? 'media' : null;
   Array.prototype.forEach.call(document.querySelectorAll('#insp-body > .ip[data-kind]'), function(p){
@@ -824,9 +835,9 @@ function renderInspector(){
   inspSig = (sc && sc.id) + ':' + (l && l.id) + '|' + sig;
   gen.innerHTML = '';
   if (!sc){ gen.appendChild(h('p', {cls: 'hint', text: 'Select a Frame on the left, or add one with + Frame.'})); return; }
-  function each(fn){ groups.forEach(function(t){ var box = h('div', {cls: 'cs-sec' + (t[2] ? ' cs-sec-sub' : '')}); gen.appendChild(groupHead(t[0], t[1], t[2])); gen.appendChild(box); fn(box, t[0]); }); }
+  function each(fn){ groups.forEach(function(t){ var box = h('div', {cls: 'cs-sec' + (t[2] ? ' cs-sec-sub' : '')}), hd = groupHead(t[0], t[1], t[2], t[3]); if (hd) gen.appendChild(hd); gen.appendChild(box); fn(box, t[0]); }); }
   if (!l) sceneForm(gen, sc);
-  else if (SC.isCard(kind)){ gen.appendChild(headFor(groups, 'output')); outputForm(gen, sc, l); }
+  else if (SC.isCard(kind)){ var ob = h('div', {cls: 'cs-sec'}); gen.appendChild(headFor(groups, 'output')); gen.appendChild(ob); outputForm(ob, sc, l); }
   else if (SC.isText(kind)) each(function(box, t){ if (t === 'output') outputForm(box, sc, l); else textForm(box, sc, l, t); });
   else if (SC.isSound(kind)){ gen.appendChild(groupHead('content', 'Audio')); audioForm(gen, sc, l); }
   else if (!mediaLive){ gen.appendChild(groupHead('content', 'Media')); mediaForm(gen, sc, l); }

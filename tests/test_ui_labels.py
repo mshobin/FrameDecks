@@ -210,3 +210,34 @@ class PhoneRemote(unittest.TestCase):
         for gone in ("setRole", "setTab", "Create variant", "structure only"):
             self.assertNotIn(gone, js)
 
+
+class Release81(unittest.TestCase):
+    """8.1: Teleprompter pin and transparency, Content settings in one view, Looks in Meeting & Branding."""
+
+    def test_teleprompter_has_pin_and_five_transparency_levels(self):
+        html = read("speaker.html")
+        self.assertIn('id="sp-pin"', html)
+        for look in ("solid", "presenter", "meeting", "conference", "ghost"):
+            self.assertIn('data-look="' + look + '"', html)
+        self.assertIn("W.call('look', {look: l})", read("js/speaker.js"))
+
+    def test_content_settings_are_one_view(self):
+        js = read("js/workspace.js")
+        self.assertIn("$('insp-tabs').hidden = true;", js)
+        self.assertIn("['layout', 'Position and size', 0, 1]", js)
+        for gone in ("'Display Settings'", "'Visual Settings'", "function jumpTo"):
+            self.assertNotIn(gone, js)
+
+    def test_looks_live_in_meeting_and_branding_and_match_the_website(self):
+        html = read("dashboard.html")
+        meeting = html[html.index('id="sec-meeting"'):html.index('id="sec-general"')]
+        self.assertIn('id="look-grid"', meeting)
+        self.assertIn('data-theme-pick="system"', meeting)
+        self.assertNotIn("Your details", html)
+        self.assertNotIn('data-theme-pick="workspace"', html)
+        import re
+        app = re.findall(r"\{id: '([a-z-]+)', name: '([^']+)'", read("js/nav.js"))
+        site = (ROOT / "hosted/src/lib/workspace-settings.ts").read_text(encoding="utf-8")
+        web = re.findall(r'id: "([a-z-]+)",\s*name: "([^"]+)"', site[site.index("export const LOOKS"):site.index("export const DEFAULT_LOOK")])
+        self.assertEqual(app, web)
+

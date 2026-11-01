@@ -74,7 +74,8 @@ function commands(){
     var t = window.KCTheme.get();
     c.push(['theme', t === 'light' ? 'Switch to the dark theme' : 'Switch to the light theme', 'appearance theme dark light mode', function(){ window.KCTheme.set(t === 'light' ? 'dark' : 'light'); }]);
     c.push(['themesys', 'Theme: match Windows', 'appearance system', function(){ window.KCTheme.set('system'); }]);
-    c.push(['themews', 'Theme: follow my workspace', 'appearance workspace look', function(){ window.KCTheme.set('workspace'); }]);
+    c.push(['themews', 'Look: same as my workspace', 'appearance workspace look', function(){ window.KCTheme.look('workspace'); }]);
+    (window.KCTheme.looks || []).forEach(function(l){ c.push(['look-' + l.id, 'Look: ' + l.name, 'appearance theme colour color look', function(){ window.KCTheme.look(l.id); }]); });
   }
   if (W() && W().contentKinds && sel && sel.scene){
     W().contentKinds().forEach(function(k){ c.push(['add-' + k.id, 'Add Content: ' + k.name, 'new insert ' + k.id, function(){ studio(); W().addContent(k.id); }]); });

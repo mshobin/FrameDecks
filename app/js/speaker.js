@@ -34,6 +34,33 @@ var prompter = P.create($('sp-prompt'), {key: 'window', editable: true, toolbar:
   pin.addEventListener('click', function(){ flip(); if (!document.body.classList.contains('sp-bar-open')) $('sp-prompt').focus(); });   // focus leaves the bar, so it can hide
 })();
 
+/* 8.1 in the desktop app: pin (stay above Zoom and Teams) and five transparency levels, both remembered.
+ * With the graphics card the background goes see-through and the text stays solid (glass); with "Light on graphics
+ * card" the whole window fades. In a browser neither applies, so the controls stay hidden. */
+(function(){
+  var lookBox = $('sp-look'), pin = $('sp-pin'), W = window.KCWindow, cur = {look: 'solid', onTop: true};
+  function paint(){
+    document.body.setAttribute('data-look', cur.look);
+    Array.prototype.forEach.call(lookBox.querySelectorAll('[data-look]'), function(b){ b.setAttribute('aria-checked', String(b.dataset.look === cur.look)); });
+    pin.setAttribute('aria-pressed', String(cur.onTop)); pin.classList.toggle('on', cur.onTop);
+    pin.lastChild.textContent = cur.onTop ? 'Pinned' : 'Pin';
+    pin.title = cur.onTop ? 'Pinned: stays above Zoom, Teams and PowerPoint. Click to unpin' : 'Pin: keep it above Zoom, Teams and PowerPoint';
+  }
+  function look(l){
+    cur.look = l; paint();
+    if (W) W.call('look', {look: l}).then(function(d){ if (d && 'glass' in d) document.body.classList.toggle('sp-glass', !!d.glass); });
+  }
+  fetch('api/app/info', {cache: 'no-store'}).then(function(r){ return r.ok ? r.json() : {}; }).then(function(info){
+    if (!info || !info.desktop) return;
+    var st = info.settings || {};
+    cur.look = st.prompterLook || 'solid'; cur.onTop = st.prompterOnTop !== false;
+    lookBox.hidden = pin.hidden = false; document.body.classList.add('sp-desk');
+    look(cur.look);
+  }).catch(function(){});
+  lookBox.addEventListener('click', function(e){ var b = e.target.closest('[data-look]'); if (b) look(b.dataset.look); });
+  pin.addEventListener('click', function(){ cur.onTop = !cur.onTop; paint(); if (W) W.call('on-top', {value: cur.onTop}); });
+})();
+
 /* the Frame the script comes from: the one on screen, else the first (rehearse before going live) */
 function shown(st){ return SC.liveScene(st) || SC.order(st)[0] || null; }
 

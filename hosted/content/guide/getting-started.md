@@ -79,7 +79,7 @@ A webcam is optional. You need one only if people should see you on the FrameRel
 | **Frames** | Left, top | Every Frame in your meetings, in order, as compact cards. The live Frame is marked **LIVE**, the next one **NEXT** |
 | **Decks** | Left, bottom | The Content inside the selected Frame (**+ Content** adds to it). The top of the list is in front |
 | **Studio Canvas** | Middle | A preview of the selected Frame, or the live picture. The badge says **PREVIEW · not on air** or **LIVE** |
-| **Content Settings** | Below the canvas | Every setting for what you selected, most used first: Label, Content, Display Settings, Visual Settings (a Frame shows its name, Teleprompter script and auto-advance, with the rest under **Advanced**) |
+| **Content Settings** | Below the canvas | Every setting for what you selected: **Content** (label and words) first, then Position and size, Look, Animation and Show on, which open with a click (a Frame shows its name, Teleprompter script and auto-advance, with the rest under **Advanced**) |
 
 > **Tip:** The canvas badge is your safety check. **PREVIEW · not on air** means nobody sees what you are editing.
 

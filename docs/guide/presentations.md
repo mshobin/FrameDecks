@@ -183,7 +183,14 @@ The top bar is hidden at first, so the script has the whole window. Move the poi
 small **▾** button at the top, to see it. It shows:
 - **Time**: the time of day;
 - **Frame**: the Frame on screen, for example *Discussion · 3 of 9* (*Not live yet* before you go live);
-- **Timer**: **Start** / **Pause** and **Reset**, to time yourself.
+- **Timer**: **Start** / **Pause** and **Reset**, to time yourself;
+- **Transparency**: **Solid**, **20%**, **40%**, **65%** or **85%**, how much of Zoom or Teams shows through the
+  window;
+- **Pin**: **Pinned** means the window stays above Zoom, Teams and PowerPoint. Click it to unpin.
+
+FrameDecks remembers the transparency and the pin. They are only in the installed app, not in a web browser. With
+**Settings → General → Performance → Light on graphics card** on (the default), the whole window fades, text
+included. With it off, only the background goes see-through and the text stays solid.
 
 **Keep open** keeps the bar showing; **Hide bar** hides it again. The window buttons are at its right. Drag the bar
 to move the window, and drag an edge to resize it.
@@ -208,8 +215,8 @@ Move the mouse to bring it back.
 > be kept out of screen sharing.
 
 > **Note:** Version 8.0 has one Teleprompter. The Teleprompter docked in the Studio (left, right, bottom or
-> floating), the see-through *Teleprompter overlay* with its transparency modes and frosted glass, **Shift+R**, and
-> the old Teleprompter window's **On screen & next** panel were removed.
+> floating), the separate *Teleprompter overlay* with its frosted glass, **Shift+R**, and the old Teleprompter
+> window's **On screen & next** panel were removed. Since 8.1, transparency and pin are in the Teleprompter's top bar.
 
 > **Note:** Answers and presenter notes on questions and scriptures were removed in 6.7. Nothing was deleted from
 > your data. Put what you want to remember in the Frame's Teleprompter script.
@@ -225,7 +232,7 @@ The **command palette** finds anything and does most things, from the keyboard.
 2. Type a few letters. It finds Frames, Content, the Frames' questions and scriptures, text, templates, the Library,
    branding, settings, members, Bible references and recent items.
 3. It also runs commands, such as **Go Live**, **New Frame**, **Duplicate**, **Teleprompter**, **Export meeting**,
-   switching the theme or **Add Content…**.
+   switching the look (*Look: Forest*, for example) or **Add Content…**.
 4. Use **↑ / ↓** to choose and **Enter** to open or run it. **Esc** closes the palette.
 
 ![The command palette, with "bible" typed](images/command-palette.png)

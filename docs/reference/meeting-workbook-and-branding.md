@@ -151,15 +151,15 @@ skipped, a Timer value that isn't minutes or a time.
 ### The Branding Content
 Select the Branding Content in a Frame. Its settings are in Content Settings:
 
-| Group | Setting | Choices |
+| Section | Setting | Choices |
 | --- | --- | --- |
 | Content | **Display** | **Logo only**, **Name only** or **Logo + Name** |
 | Content | **Also show the Leader / Organization Name** | On or off |
-| Display Settings | **Position** | **Top left**, **Top right**, **Bottom left**, **Bottom right**, or **Or centred**: Top, Centre, Bottom |
-| Display Settings | **Safe margin** | The distance from the edges of the picture, from the edge to 12% |
-| Visual Settings | **Size** | **Small**, **Medium** or **Large**, then **Fine size** to adjust it exactly |
-| Visual Settings | **Opacity** · **Padding** | How see-through it is · the space around the logo and name |
-| Visual Settings | **Background plate** | On: a navy plate with your accent edge. Off: no plate, and a soft shadow keeps it readable |
+| Position and size | **Position** | **Top left**, **Top right**, **Bottom left**, **Bottom right**, or **Or centred**: Top, Centre, Bottom |
+| Position and size | **Safe margin** | The distance from the edges of the picture, from the edge to 12% |
+| Look | **Size** | **Small**, **Medium** or **Large**, then **Fine size** to adjust it exactly |
+| Look | **Opacity** · **Padding** | How see-through it is · the space around the logo and name |
+| Look | **Background plate** | On: a navy plate with your accent edge. Off: no plate, and a soft shadow keeps it readable |
 
 The badge is drawn the same way on the FrameRelay camera and on the OBS overlay pages. Its size follows the
 picture, so it looks the same at 720p, 1080p or 4K.
@@ -189,8 +189,11 @@ camera), the scripture font (serif or sans) and the accent colour; the accent ca
 syncs as the record `layout/look` (`{id, name, a, b, font, base}`; `store.js` keeps only a well-formed one) and a PC
 applies it, and any brand, layout or card-setting change, only while nothing is on its screen
 (`cloud_sync.LOOK_KEYS`, `on_screen`). Every look keeps text at a contrast of at least 4.5:1 on its surface
-(`hosted/tests/workspace-settings.test.mjs`). In the program, Settings → General → Appearance → **Follow my
-workspace** uses the look's light or dark base for the window.
+(`hosted/tests/workspace-settings.test.mjs`). In the program (8.1), Settings → Meeting & Branding → Look offers
+the same six looks as colour cards for the program window, or **Same as my workspace**, which follows the look chosen
+on the website, its light or dark base included. Below it, **Light or dark** (Dark / Light / Match Windows); a look
+sets its own light or dark (Morning Light is light), which can be changed. Only the program window changes: the
+camera picture, the overlays and the phone remote keep their own look.
 
 ## 1. User flows
 

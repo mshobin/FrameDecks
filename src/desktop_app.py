@@ -512,8 +512,23 @@ def main():
         state["present"] = w
         refresh_tray()
 
+    # 8.1 the Teleprompter's transparency: with the graphics card the page paints its own see-through background and
+    # the text stays solid (glass); with "Light on graphics card" (low_gpu) the whole window fades instead.
+    PROMPTER_FADE = {"solid": 1.0, "presenter": 0.85, "meeting": 0.65, "conference": 0.4, "ghost": 0.2}
+
+    def prompter_glass():
+        return not server.DESKTOP.get("low_gpu")
+
+    def prompter_look(w, look):
+        hwnd = window_handle(w)
+        if prompter_glass():
+            dw.glass(hwnd, False)
+        else:
+            dw.fade(hwnd, PROMPTER_FADE.get(look, 1.0))
+
     def teleprompter(on="toggle"):
-        """8.0 the Teleprompter: one window (speaker.html), above Zoom and Teams, kept out of screen sharing."""
+        """8.0 the Teleprompter: one window (speaker.html), above Zoom and Teams, kept out of screen sharing.
+        8.1: pin (stay on top) and five transparency levels, both remembered."""
         w = state.get("teleprompter")
         if on == "toggle":
             on = not w
@@ -534,13 +549,16 @@ def main():
                 return True
             except Exception:
                 state["teleprompter"] = None
+        cfg = server.app_settings()
         w = webview.create_window(DISPLAY_NAME + " · Teleprompter", url + "speaker.html", width=1000, height=640,
-                                  min_size=(420, 260), background_color="#070c18", text_select=True, on_top=True)
+                                  min_size=(420, 260), background_color="#000000" if prompter_glass() else "#070c18",
+                                  text_select=True, transparent=prompter_glass(), on_top=bool(cfg.get("prompterOnTop", True)))
         def shown():
             if not add_chrome("teleprompter", w):
                 c = dw.Chrome(window_handle(w))
                 if c.ok:
                     chromes["teleprompter"] = c                     # keep it: its window procedure lives in it
+            prompter_look(w, server.app_settings().get("prompterLook", "solid"))
             dw.hide_from_capture(window_handle(w))     # only the leader sees it, even when sharing the whole screen
         def closed():
             if state.get("teleprompter") is w:
@@ -647,6 +665,13 @@ def main():
             state.setdefault("on_top", {})[name] = bool(data.get("value"))
             if not dw.set_topmost(hwnd, bool(data.get("value"))):
                 threading.Thread(target=lambda: setattr(w, "on_top", bool(data.get("value"))), daemon=True).start()
+            if name == "teleprompter":
+                server.save_app_settings({"prompterOnTop": bool(data.get("value"))})
+        elif op == "look" and name == "teleprompter":
+            cfg = server.save_app_settings({"prompterLook": str(data.get("look") or "")})
+            prompter_look(w, cfg.get("prompterLook", "solid"))
+            return {"ok": True, "glass": prompter_glass(), "look": cfg.get("prompterLook", "solid"),
+                    "onTop": bool(state.get("on_top", {}).get(name, cfg.get("prompterOnTop", True)))}
         return {"ok": True, "maximized": maximized(), "chrome": name in chromes, "onTop": bool(state.get("on_top", {}).get(name, getattr(w, "on_top", False)))}
 
     # ---------- 6.8 system-wide shortcut (works while the app is in the tray) ----------

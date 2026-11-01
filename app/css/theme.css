@@ -1292,3 +1292,111 @@ html[data-theme="light"] .s2-badge:not(.pv){color:var(--green-500)}     /* the b
 .scene-list .scene-item.live .si-num{background:var(--live);color:var(--green-50)}
 .scene-list .scene-item.live{box-shadow:inset 3px 0 0 var(--live)}
 @media (prefers-reduced-motion:reduce){ .scene-list .scene-item{transition:none} }
+
+/* ---------- 8.1 Content settings in one view: the Content first, the settings as sections that open on a click ---------- */
+.insp-body .cs-fold{display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer;padding:12px 4px 10px;margin-top:6px;
+  border-radius:var(--r-1);color:var(--muted);transition:color .12s ease}
+.insp-body .cs-fold:hover{color:var(--ink)}
+.insp-body .cs-fold:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.insp-body .cs-fold .cs-chev{font-size:12px;transition:transform .15s ease}
+.insp-body .cs-fold[aria-expanded="true"]{color:var(--ink)}
+.insp-body .cs-fold[aria-expanded="true"] .cs-chev{transform:rotate(90deg)}
+.insp-body > .ip.cs-closed > :not(.cs-anchor){display:none}
+@media (prefers-reduced-motion:reduce){ .insp-body .cs-fold,.insp-body .cs-fold .cs-chev{transition:none} }
+
+/* =====================================================================================================
+ * 8.1 Looks: the same six looks as framedecks.com (Settings → Meeting & Branding → Look). Gold & Navy is the
+ * palette above; the others change only colour tokens (no effects, no images), in dark and in light.
+ * ===================================================================================================== */
+html[data-look="chapel-stone"]:not([data-theme="light"]){
+  --app-bg:#171412; --bg:#171412; --chrome-bg:#1c1916; --surface:#26211d; --raised:#2f2924; --field:#14110f; --panel:#211d19; --panel-2:#2b2621;
+  --line:#4a4038; --line-soft:#383029; --edge:#3b332c; --line-hover:#5c5046; --line-strong:#6e6155;
+  --gold:#cfae78; --gold-strong:#e6cc9c; --gold-soft:rgba(207,174,120,.15); --gold-ink:#22190b;
+  --accent:#cfae78; --accent-strong:#c29f66; --accent-soft:rgba(207,174,120,.14); --accent-ink:#22190b;
+  --mica:linear-gradient(180deg,rgba(207,174,120,.035),rgba(255,255,255,0) 60%); --kc-navy:#171412; --kc-gold-line:rgba(207,174,120,.34)}
+html[data-look="deep-ocean"]:not([data-theme="light"]){
+  --app-bg:#05171f; --bg:#05171f; --chrome-bg:#071c26; --surface:#0b2735; --raised:#103143; --field:#04131b; --panel:#08212e; --panel-2:#0e2c3c;
+  --line:#1d4558; --line-soft:#153646; --edge:#173a4b; --line-hover:#27586e; --line-strong:#356c84;
+  --gold:#3fb6b0; --gold-strong:#7ad6d1; --gold-soft:rgba(63,182,176,.15); --gold-ink:#03201f;
+  --accent:#3fb6b0; --accent-strong:#34a19b; --accent-soft:rgba(63,182,176,.14); --accent-ink:#03201f;
+  --mica:linear-gradient(180deg,rgba(63,182,176,.035),rgba(255,255,255,0) 60%); --kc-navy:#05171f; --kc-gold-line:rgba(63,182,176,.34)}
+html[data-look="forest"]:not([data-theme="light"]){
+  --app-bg:#0a1a11; --bg:#0a1a11; --chrome-bg:#0d1f15; --surface:#13301f; --raised:#193a27; --field:#08160e; --panel:#102a1b; --panel-2:#173523;
+  --line:#2a4a35; --line-soft:#1f3b29; --edge:#21402c; --line-hover:#355d43; --line-strong:#447254;
+  --gold:#9cc46a; --gold-strong:#bfdc95; --gold-soft:rgba(156,196,106,.15); --gold-ink:#13200a;
+  --accent:#9cc46a; --accent-strong:#8ab35a; --accent-soft:rgba(156,196,106,.14); --accent-ink:#13200a;
+  --mica:linear-gradient(180deg,rgba(156,196,106,.035),rgba(255,255,255,0) 60%); --kc-navy:#0a1a11; --kc-gold-line:rgba(156,196,106,.34)}
+html[data-look="quiet-mono"]:not([data-theme="light"]){
+  --app-bg:#111214; --bg:#111214; --chrome-bg:#16171a; --surface:#1d1e22; --raised:#25272b; --field:#0e0f11; --panel:#191a1e; --panel-2:#222327;
+  --line:#393c43; --line-soft:#2c2e33; --edge:#2f3237; --line-hover:#4a4e57; --line-strong:#5b606a;
+  --gold:#c4cad4; --gold-strong:#e2e6ec; --gold-soft:rgba(196,202,212,.13); --gold-ink:#111214;
+  --accent:#c4cad4; --accent-strong:#b2b8c3; --accent-soft:rgba(196,202,212,.12); --accent-ink:#111214;
+  --mica:linear-gradient(180deg,rgba(255,255,255,.025),rgba(255,255,255,0) 60%); --kc-navy:#111214; --kc-gold-line:rgba(196,202,212,.3)}
+html[data-look="morning-light"]:not([data-theme="light"]){
+  --app-bg:#0d1729; --bg:#0d1729; --chrome-bg:#111c31; --surface:#17243d; --raised:#1e2d49; --field:#0b1424; --panel:#142038; --panel-2:#1b2943;
+  --line:#2f4366; --line-soft:#233453; --edge:#263856; --line-hover:#3c5480; --line-strong:#4c6693;
+  --gold:#e8a55c; --gold-strong:#f4c58e; --gold-soft:rgba(232,165,92,.15); --gold-ink:#2a1606;
+  --accent:#e8a55c; --accent-strong:#d9944b; --accent-soft:rgba(232,165,92,.14); --accent-ink:#2a1606;
+  --mica:linear-gradient(180deg,rgba(232,165,92,.035),rgba(255,255,255,0) 60%); --kc-navy:#0d1729; --kc-gold-line:rgba(232,165,92,.34)}
+/* light: the paper stays; the look's colour becomes the accent, deep enough to read on white */
+html[data-look="morning-light"][data-theme="light"]{--app-bg:#f6f4f0; --bg:#f6f4f0; --accent:#2e4770; --accent-strong:#1f3354; --accent-soft:rgba(46,71,112,.09);
+  --gold:#c97f32; --gold-strong:#8f5216; --gold-soft:rgba(201,127,50,.15); --kc-gold-line:rgba(201,127,50,.38)}
+html[data-look="chapel-stone"][data-theme="light"]{--app-bg:#f4f1ec; --bg:#f4f1ec; --raised:#efe9e0; --line:#ddd3c5; --line-soft:#e9e2d7;
+  --accent:#5a4630; --accent-strong:#463624; --accent-soft:rgba(90,70,48,.09); --gold:#b08a4e; --gold-strong:#7a5a26; --gold-soft:rgba(176,138,78,.16); --kc-gold-line:rgba(176,138,78,.38)}
+html[data-look="deep-ocean"][data-theme="light"]{--app-bg:#f1f6f7; --bg:#f1f6f7; --raised:#e7f0f2; --line:#cfdee2; --line-soft:#e0eaed;
+  --accent:#0d5468; --accent-strong:#093f4f; --accent-soft:rgba(13,84,104,.09); --gold:#2a9a95; --gold-strong:#136a66; --gold-soft:rgba(42,154,149,.15); --kc-gold-line:rgba(42,154,149,.38)}
+html[data-look="forest"][data-theme="light"]{--app-bg:#f2f5ef; --bg:#f2f5ef; --raised:#e8eee2; --line:#d3ddcb; --line-soft:#e2e9dc;
+  --accent:#2a5a37; --accent-strong:#1f4529; --accent-soft:rgba(42,90,55,.09); --gold:#6f9a3c; --gold-strong:#466820; --gold-soft:rgba(111,154,60,.16); --kc-gold-line:rgba(111,154,60,.38)}
+html[data-look="quiet-mono"][data-theme="light"]{--app-bg:#f4f4f5; --bg:#f4f4f5; --raised:#ececee; --line:#d9d9dd; --line-soft:#e6e6e9;
+  --accent:#33363c; --accent-strong:#23252a; --accent-soft:rgba(51,54,60,.08); --gold:#6b7180; --gold-strong:#41454f; --gold-soft:rgba(107,113,128,.14); --kc-gold-line:rgba(107,113,128,.34)}
+
+/* the Look picker: a colour card per look */
+.look-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:10px;margin:12px 0 14px}
+.look-card{display:flex;flex-direction:column;gap:8px;padding:8px 8px 10px;border-radius:var(--r-2);border:1px solid var(--line);background:var(--surface);
+  color:var(--ink);font:inherit;text-align:left;cursor:pointer;transition:border-color .12s ease,transform .12s ease}
+.look-card:hover{border-color:var(--line-hover);transform:translateY(-1px)}
+.look-card:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.look-card[aria-checked="true"]{border-color:var(--gold);box-shadow:0 0 0 2px var(--gold-soft)}
+.look-sw{position:relative;display:block;height:64px;border-radius:var(--r-1);overflow:hidden;box-shadow:inset 0 0 0 1px var(--line-soft)}
+.look-sw i{position:absolute;left:12px;bottom:12px;width:36px;height:6px;border-radius:999px}
+.look-card[aria-checked="true"] .look-sw::after{content:"✓";position:absolute;right:8px;top:6px;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;
+  font-size:13px;font-weight:800;background:var(--gold);color:var(--gold-ink)}
+.look-t{display:flex;flex-direction:column;gap:2px;padding:0 4px}
+.look-t b{font-size:14px;font-weight:700}
+.look-t small{font-size:12px;color:var(--muted);line-height:1.3}
+@media (prefers-reduced-motion:reduce){ .look-card{transition:none} .look-card:hover{transform:none} }
+
+/* =====================================================================================================
+ * 8.1 One family with framedecks.com: the website's stage light behind everything, cards with its faint top edge
+ * and deep soft shadow, rounder buttons with the gold gradient, large calm page titles and gold eyebrows.
+ * All static: no blur, no animation, no images; the colours follow the chosen look (color-mix on the tokens).
+ * ===================================================================================================== */
+:root{--fd-glow-a:color-mix(in srgb,var(--gold) 11%,transparent);--fd-glow-b:color-mix(in srgb,var(--accent) 6%,var(--kc-navy) 10%);
+  --fd-edge:inset 0 1px 0 color-mix(in srgb,var(--gold) 12%,transparent);
+  --fd-shadow:var(--fd-edge),0 30px 60px -40px rgba(var(--rgb-gray-0),.8),0 12px 30px -18px rgba(var(--rgb-gray-0),.45)}
+html[data-theme="light"]{--fd-glow-a:color-mix(in srgb,var(--gold) 9%,transparent);--fd-glow-b:transparent;
+  --fd-shadow:0 1px 2px rgba(var(--rgb-gray-0),.05),0 10px 30px -20px rgba(var(--rgb-gray-0),.22)}
+body{background:radial-gradient(1100px 620px at 88% -12%,var(--fd-glow-a),transparent 62%),
+  radial-gradient(900px 640px at -8% 8%,var(--fd-glow-b),transparent 60%),var(--app-bg)}
+/* Settings: one large title, cards like the website's */
+.s-head h2{font-size:30px;font-weight:700;letter-spacing:-.03em;line-height:1.2}
+.s-head p{font-size:15px;color:var(--muted)}
+.s-body .box,.scard{border-radius:16px;border-color:var(--line-soft);box-shadow:var(--fd-shadow)}
+.s-body .box .box-head h2{font-size:18px;font-weight:700;letter-spacing:-.01em}
+.s-nav{border-radius:20px;box-shadow:var(--fd-shadow)}
+.s-nav .sn-head{color:var(--gold-strong);font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase}
+/* Studio: the panes, the inspector and the canvas framed the same way */
+.pane,.inspector,.canvas-frame{border-radius:16px}
+.ws-left .pane,.ws-right .inspector{box-shadow:var(--fd-shadow)}
+/* buttons: pill-round like the website; the primary one with its gold gradient */
+.btn{border-radius:12px}
+.btn.primary{background:linear-gradient(180deg,color-mix(in srgb,var(--gold) 80%,var(--gray-1000)),var(--gold));border-color:transparent;
+  box-shadow:0 8px 24px -10px color-mix(in srgb,var(--gold) 55%,transparent),inset 0 1px 0 rgba(var(--rgb-gray-1000),.35)}
+.btn.primary:hover{background:linear-gradient(180deg,color-mix(in srgb,var(--gold) 70%,var(--gray-1000)),var(--gold))}
+.btn:active{transform:scale(.98)}
+.app-modal{border-radius:20px;box-shadow:var(--fd-shadow),var(--el-4)}
+@media (prefers-reduced-motion:reduce){ .btn:active{transform:none} }
+.insp-body > .ip.cs-closed{padding-top:0;padding-bottom:0;margin-top:0;margin-bottom:0;min-height:0}
+.insp-body .cs-sec[hidden]{display:none}
+.insp-body .cs-fold{font-size:13px}
+.insp-body .cs-fold .cs-chev{font-size:14px}

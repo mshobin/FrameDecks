@@ -1117,3 +1117,18 @@ removed (Frames that have them keep them: they are ordinary announcements). Fram
 for people who do not know what gain or Kelvin are, and Diagnostics answers in one line before the numbers. Major
 version, because features were removed.
 
+## 43. Version 8.1.0: transparency back, looks, one Content view (1 November 2026)
+
+8.0 dropped the see-through overlay with the dock; the owner wanted its transparency and pin in the one Teleprompter.
+`desktop_app.teleprompter()` now creates the window transparent when the graphics card is in use (the page paints
+`rgba` at the chosen level and the text keeps a halo that grows as the background fades) and uses `dw.fade` under
+"Light on graphics card"; `prompterLook` and `prompterOnTop` are app settings, set through the window op `look` and
+the existing `on-top`.
+
+The Content inspector's jump links (Label, Content, Display Settings, Visual Settings) became one page: the Content
+first, then foldable sections whose open state is kept in `kc-insp-open`. The theme gained the website's six looks
+(`nav.js` LOOKS, kept equal to `hosted/src/lib/workspace-settings.ts` by a test), as token overrides per
+`html[data-look]` in dark and light; 7.x's "Follow my workspace" maps to the look "Same as my workspace". A final
+layer in `theme.css` gives the window the website's stage light, card edge and shadow, and gold gradient buttons using
+`color-mix` on the look's tokens: static paint only, nothing animated or blurred.
+
