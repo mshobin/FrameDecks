@@ -106,24 +106,27 @@ class ReleaseWorkflow(unittest.TestCase):
     replaced. infra/update-api/local-test.sh runs the read and upload steps for real against a local bucket."""
 
     @classmethod
-    def setUpClass(cls):
-        import yaml
-        cls.wf = yaml.safe_load((ROOT / ".github" / "workflows" / "build-windows.yml").read_text(encoding="utf-8"))
-        cls.steps = {s.get("name"): s for job in cls.wf["jobs"].values() for s in job.get("steps", [])}
+    def setUpClass(cls):        # plain text: the Windows build has no YAML library
+        cls.text = (ROOT / ".github" / "workflows" / "build-windows.yml").read_text(encoding="utf-8")
+
+    def step(self, name):
+        """The text of one step, from its name to the next step."""
+        i = self.text.index(f"- name: {name}")
+        j = self.text.find("- name: ", i + 1)
+        return self.text[i:j if j > 0 else len(self.text)]
 
     def test_a_tag_must_match_the_version_and_be_pushed(self):
-        run = self.steps["The tag must match the version (tags only)"]["run"]
+        run = self.step("The tag must match the version (tags only)")
         self.assertIn("github.ref_name", run)
         self.assertIn("steps.ver.outputs.version", run)
         self.assertIn('-ne "push"', run)
 
     def test_version_tags_run_one_at_a_time(self):
-        c = self.wf["concurrency"]
-        self.assertIn("publish-releases", c["group"])
-        self.assertFalse(c["cancel-in-progress"])
+        self.assertIn("\nconcurrency:\n  group: ${{ startsWith(github.ref, 'refs/tags/v') && 'publish-releases'", self.text)
+        self.assertIn("  cancel-in-progress: false\n", self.text)
 
     def test_the_index_comes_from_r2_and_published_versions_never_change(self):
-        run = self.steps["Read the releases already published (from R2)"]["run"]
+        run = self.step("Read the releases already published (from R2)")
         self.assertIn("s3api head-object", run)
         self.assertIn("releases/${VERSION}/manifest.json", run)
         self.assertIn("already published", run)
