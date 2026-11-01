@@ -1094,3 +1094,26 @@ next lower version, and sorts the index. A rollback stays the documented manual 
 `latest.json`. The local pipeline test now extracts and runs the workflow's own read and upload steps against
 wrangler's local R2, so the guards are exercised end to end, not only parsed.
 
+## 42. Version 8.0.0: simpler by removal (1 November 2026)
+
+The owner asked for a simpler program before more features. Three ways to show the Teleprompter (a dock in the main
+window with four positions, a see-through overlay with five transparency modes, and a separate window) became one:
+`speaker.html`, opened by `desktop_app.teleprompter()` as an always-on-top window hidden from capture, with the
+transparency gone (an opaque window over Zoom reads better than glass, and needs no GPU path). Its header is reduced
+to time, Frame and timer and hidden until the pointer reaches the top edge, so the script has the whole window. The
+`overlay*` settings are dropped on load (unknown keys are ignored), and `prompter-dock.js`, `prompter.*` went.
+
+Run was a second Studio with every editor hidden and Practice inside it; with the live controls already in the top
+bar, it mainly added a mode to be in. Run, Up next and Practice (which borrowed the Black screen and needed a
+`practice=1` preview exception in `overlay.js`) are removed; the ready checks stay as `KCServiceChecks`, now shown by
+the Setup guide's last step. The guide became a wizard: one step, a progress bar, Next enabled only when detection
+says the step is done, "Do this later" so nobody is trapped by a detection that cannot see their setup, and recovery
+tips per step. Saved progress from 7.x keeps its ticks: `app_settings()` drops the retired `rehearse` id before
+validation.
+
+The Frame editor lost its three groups (Frame, Timing, History) for one short form and an Advanced section; the
+seven duplicate commands became one; three text presets that were only an announcement with words filled in were
+removed (Frames that have them keep them: they are ordinary announcements). FrameRelay's quality panel was reworded
+for people who do not know what gain or Kelvin are, and Diagnostics answers in one line before the numbers. Major
+version, because features were removed.
+

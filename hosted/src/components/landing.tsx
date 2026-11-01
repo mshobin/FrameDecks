@@ -31,9 +31,9 @@ const DAYS = [
     callout: "Team invited",
   },
   {
-    title: "Rehearse without risk",
-    text: "Open Run on the presenting PC and turn on Practice mode. Your audience sees a black screen while you try every button.",
-    callout: "Audience sees black",
+    title: "Speak with confidence",
+    text: "Your script waits in the Teleprompter, above your video meeting, where only you can see it. It is never shared or recorded.",
+    callout: "Only you see it",
   },
   {
     title: "Check before you begin",
@@ -175,7 +175,7 @@ export function Landing() {
           steps={DAYS.map((d, i) => ({ ...d, label: `Day ${i + 1}` }))}
           eyebrow="How it works"
           title="From first idea to final word."
-          lead="Plan, rehearse, present: the same steps every time, with nothing to learn twice."
+          lead="Plan, prompt, present: the same steps every time, with nothing to learn twice."
         />
 
         <section className="lp-section" id="features" aria-labelledby="lp-features-title">

@@ -1,11 +1,20 @@
 # NEXT SESSION HANDOFF
 
-Updated 1 November 2026 (7.1.2 on `main`: release guards after the production audit; 7.1.1 no hidden PowerShell/netsh/taskkill; 7.1 workspace looks; 7.0 proprietary + framedecks.com downloads; owner steps under 7.0 and the audit): the maintainer guide is now [PROJECT_GUIDE.md](PROJECT_GUIDE.md); current references were updated. The continuity files now live in `docs/continuity/`. Windows batch launchers are under `tools/launchers/` and resolve the repository root before running. Release `v6.11.2` (repository layout and trust fixes, no desktop change; pilot install on a real PC and SHA-256 check still the owner's) was tagged after `v6.11.1`, which is published; the FrameDecks README and release header refresh merged in
+Updated 1 November 2026 (8.0.0 on `main`: simpler UI, see below; 7.1.2 published: release guards after the production audit; 7.1.1 no hidden PowerShell/netsh/taskkill; 7.1 workspace looks; 7.0 proprietary + framedecks.com downloads; owner steps under 7.0 and the audit): the maintainer guide is now [PROJECT_GUIDE.md](PROJECT_GUIDE.md); current references were updated. The continuity files now live in `docs/continuity/`. Windows batch launchers are under `tools/launchers/` and resolve the repository root before running. Release `v6.11.2` (repository layout and trust fixes, no desktop change; pilot install on a real PC and SHA-256 check still the owner's) was tagged after `v6.11.1`, which is published; the FrameDecks README and release header refresh merged in
 PR #38. Trust fixes merged in PR #39 (`27cfb4b`). Later the same day: the budget script fixed for Windows
 (`57cd9c3`), the five Dependabot action upgrades merged (#33–#37), and the handoff PR #40. All checks on `main` are
 green, including the Cloudflare Pages deploy (production); a look at the live site is still the owner's. Read [PROJECT_GUIDE.md](PROJECT_GUIDE.md) ("Working locally" has the set-up and run commands).
 
-1 November, version 7.1.2 on `main` (not yet tagged): a read-only production audit (tags v6.12, v6.13, v7.1 exist;
+1 November, version 8.0.0 on `main` (tag `v8.0.0`): owner-approved UI simplification. Teleprompter = one window
+(`speaker.html` via `desktop_app.teleprompter()`, server action `teleprompter`, `window.KCTeleprompter` in
+`annotate.js`); `prompter-dock.js`, `prompter.html/js/css` and the `overlay*` settings removed (old keys ignored on
+load). Frames: compact cards (theme.css "8.0 Frame cards"), one "Duplicate Frame", `sceneForm` = Name, script,
+auto-advance, Duplicate + `details#sc-adv` Advanced. "Decks" label; three text presets removed. `service.js` now only
+ready checks (`KCServiceChecks`) and How people see it: Run, Up next, Practice removed (`practice=1` gone from
+`overlay.js`). Setup guide (`guide.js`) is a wizard, six steps (`rehearse` retired; `app_settings()` strips it from
+saved progress). FrameRelay quality grouped in plain words, Diagnostics its own box with `diagnose()`.
+
+1 November, version 7.1.2 (published from `v7.1.2`): a read-only production audit (tags v6.12, v6.13, v7.1 exist;
 GitHub Releases up to 7.1; nothing ever published to R2 because run #174's upload was skipped, R2 not configured
 then, so api.framedecks.com/health says latest:false). 7.1.2 guards the release pipeline: tag must equal
 v+APP_VERSION and come from a push; `concurrency: publish-releases`; the publish job reads index.json from R2

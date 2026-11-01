@@ -656,31 +656,6 @@
   font-weight: 700;
 }
 
-.lp-toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.lp-switch {
-  position: relative;
-  width: 40px;
-  height: 22px;
-  border-radius: 999px;
-  background: #7fd1a0;
-}
-
-.lp-switch::after {
-  position: absolute;
-  top: 3px;
-  left: 21px;
-  width: 16px;
-  height: 16px;
-  border-radius: 999px;
-  background: #fff;
-  content: "";
-}
-
 .lp-rehearse-body {
   display: grid;
   flex: 1;
@@ -719,12 +694,6 @@
 
 .lp-room-screen p {
   margin: 0;
-}
-
-.lp-room-black {
-  position: absolute;
-  inset: 0;
-  background: #000;
 }
 
 .lp-checks {
@@ -1901,35 +1870,6 @@
     }
   }
 
-  .lp-screen.is-on .lp-switch {
-    animation: lp-switch-bg 0.35s var(--ease-out) 300ms backwards;
-  }
-
-  .lp-screen.is-on .lp-switch::after {
-    animation: lp-switch-knob 0.35s var(--ease-out) 300ms backwards;
-  }
-
-  @keyframes lp-switch-bg {
-    from {
-      background: rgba(255, 255, 255, 0.2);
-    }
-  }
-
-  @keyframes lp-switch-knob {
-    from {
-      transform: translate3d(-18px, 0, 0);
-    }
-  }
-
-  .lp-screen.is-on .lp-room-black {
-    animation: lp-to-black 0.55s var(--ease-out) 600ms backwards;
-  }
-
-  @keyframes lp-to-black {
-    from {
-      opacity: 0;
-    }
-  }
 
   .lp-screen.is-on .lp-spin {
     animation: lp-spin 0.5s linear calc(var(--i) * 160ms) backwards;

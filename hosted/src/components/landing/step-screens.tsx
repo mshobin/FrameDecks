@@ -6,7 +6,7 @@ import { Check, ChevronRight } from "lucide-react";
 // landing.css "steps") replays every time its step becomes active, and finishes within about 1.2 s.
 // Every screen takes an optional real screenshot instead of the drawing.
 // TODO(real screenshots): capture each step from the program and the website at 1200 × 750 as WebP into
-// public/product/ (step-plan.webp, step-rehearse.webp, step-check.webp, step-present.webp) and pass `image`.
+// public/product/ (step-plan.webp, step-script.webp, step-check.webp, step-present.webp) and pass `image`.
 
 type ScreenProps = Readonly<{ image?: string; alt: string }>;
 
@@ -45,26 +45,23 @@ export function PlanScreen({ image, alt }: ScreenProps) {
   );
 }
 
-export function RehearseScreen({ image, alt }: ScreenProps) {
+export function ScriptScreen({ image, alt }: ScreenProps) {
   if (image) return <Shot image={image} alt={alt} />;
   return (
     <div className="lp-scr lp-scr-rehearse" role="img" aria-label={alt}>
       <div className="lp-scr-head">
-        <strong>Run</strong>
-        <span className="lp-toggle">
-          Practice mode <i className="lp-switch" />
-        </span>
+        <strong>Teleprompter</strong>
+        <span>Only you see it</span>
       </div>
       <div className="lp-rehearse-body">
         <div className="lp-mini-slide">
-          <span>On your screen</span>
-          <p className="fd-serif">Welcome, everyone</p>
+          <span>Your script</span>
+          <p>Welcome everyone. Let’s begin with a moment of quiet.</p>
         </div>
         <div className="lp-room">
-          <span>What the room sees</span>
+          <span>What the meeting sees</span>
           <div className="lp-room-screen">
             <p className="fd-serif">Welcome, everyone</p>
-            <i className="lp-room-black" />
           </div>
         </div>
       </div>
@@ -78,7 +75,7 @@ export function CheckScreen({ image, alt }: ScreenProps) {
   return (
     <div className="lp-scr lp-scr-check" role="img" aria-label={alt}>
       <div className="lp-scr-head">
-        <strong>Before you start</strong>
+        <strong>Setup guide: Ready</strong>
         <span>3 checks</span>
       </div>
       <ul className="lp-checks">
@@ -129,4 +126,4 @@ export function PresentScreen({ image, alt }: ScreenProps) {
   );
 }
 
-export const STEP_SCREENS = [PlanScreen, RehearseScreen, CheckScreen, PresentScreen] as const;
+export const STEP_SCREENS = [PlanScreen, ScriptScreen, CheckScreen, PresentScreen] as const;

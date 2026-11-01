@@ -16,7 +16,7 @@ import { browserSupabase } from "@/lib/supabase-browser";
 import type { WorkspaceChoice } from "@/lib/use-workspaces";
 import { pullWorkspace } from "@/lib/workspace-sync";
 
-// The Setup guide on Home (6.14): the program's seven steps, ticked only where this website can see them (the kind
+// The Setup guide on Home (6.14): the program’s six steps, ticked only where this website can see them (the kind
 // of gathering chosen here, a linked PC, a Frame added or changed here). Steps that happen on the PC say so instead of
 // pretending; the program's own guide ticks them there. Hidden with ✕; Help → Setup guide brings it back.
 

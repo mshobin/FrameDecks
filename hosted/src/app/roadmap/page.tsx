@@ -43,7 +43,7 @@ const LANES = [
         "Team plans",
         "More workspaces, more people and more cloud features for larger teams, alongside everything that is free today.",
       ],
-      ["Run-through timer", "Practice once and see how long each part takes."],
+      ["Run-through timer", "Go through the meeting once and see how long each part takes."],
       [
         "Take it home",
         "A page for the room with the night's verses and questions.",

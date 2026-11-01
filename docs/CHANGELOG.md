@@ -45,6 +45,35 @@ Versions before 4.9 (when the program had its earlier name) are described in the
 - The favicons, the tray icon and the small program-icon sizes (16–32 px) use a heavier version of the emblem, so it
   stays visible on light browser tabs and a light taskbar. Larger sizes are unchanged.
 
+## [8.0.0] - 2026-11-01
+
+Full notes: [docs/releases/v8.0.0.md](releases/v8.0.0.md). A major version: several features were removed to make
+FrameDecks simpler. Saved meetings, settings and Setup guide progress carry over.
+
+### Added
+- **The Setup guide is a step-by-step wizard**: one step at a time with a progress bar, Back and Next (Next waits until
+  the step is really done), "Do this later", and "Something not working?" tips for each step. The Ready step lists
+  every check with a button to fix what needs attention.
+- FrameRelay **Diagnostics** starts with a one-line answer ("Everything looks normal", or what to try).
+
+### Changed
+- **One Teleprompter**: a window above Zoom and Teams, kept out of screen sharing and recordings, with a top bar
+  (time, current Frame, timer) that appears at the top edge or from its button. Live tools → Teleprompter, or R.
+- **Frames are compact cards**; the right-click menu has one **Duplicate Frame** (Ctrl+D). The selected Frame shows
+  name, Teleprompter script, auto-advance and Duplicate; everything else is under **Advanced**.
+- The section under the Frames is called **Decks**.
+- FrameRelay **Picture quality** uses plain words in three groups (quick setting, light and colour, more webcam
+  options); the technical numbers are under Diagnostics → Technical details.
+- The Setup guide has six steps; Your phone as a remote is optional.
+
+### Removed
+- The docked Teleprompter (left, right, bottom, floating), the see-through Teleprompter overlay with its transparency
+  modes and settings (Settings → General), the Teleprompter window's side panel, and Shift+R.
+- The **Run** view (Prepare / Run switch, Up next, Before you start): the Studio is the one view.
+- **Practice mode** and the Setup guide's Rehearse step.
+- The Discussion topic, Icebreaker and Poll ready-made Content and Library entries.
+- The other Duplicate choices (with options, as template, structure only, variant, to group, & edit question).
+
 ## [7.1.2] - 2026-11-01
 
 Full notes: [docs/releases/v7.1.2.md](releases/v7.1.2.md). The program is unchanged from 7.1.1; this hardens

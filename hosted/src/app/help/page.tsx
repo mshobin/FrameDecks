@@ -30,7 +30,7 @@ export default function HelpPage() {
             . It is free.
           </li>
           <li>
-            <strong>Plan</strong> the meeting: in the program (Studio → Prepare) or on this website (Plan), from any
+            <strong>Plan</strong> the meeting: in the program (Studio) or on this website (Plan), from any
             computer or phone.
           </li>
           <li>
@@ -38,21 +38,22 @@ export default function HelpPage() {
             streaming platform, the Share Window, or a projector, TV or live production tool).
           </li>
           <li>
-            <strong>Practise</strong>: Studio → Run → tick Practice mode. Your audience would see a black screen while you
-            try Go Live, Next and Hide all.
+            <strong>Write your script</strong>: each Frame has a Teleprompter script. Live tools → Teleprompter (or{" "}
+            <kbd>R</kbd>) shows it above your video meeting, where only you can see it.
           </li>
         </ol>
 
         <p>
-          <strong>Setup guide:</strong> the same seven steps, each ticked when it is really done. In FrameDecks on the PC:
+          <strong>Setup guide:</strong> the same six steps, one at a time, each ticked when it is really done. In FrameDecks on the PC:
           Settings → About → Guided tour. Here: <ShowGuide />
         </p>
 
         <h2 id="day">On the day</h2>
         <ul>
-          <li>Open FrameDecks on the service PC and select <strong>Run</strong>.</li>
+          <li>Open FrameDecks on the service PC. Previous, Next, Go Live and Hide all are in the top bar.</li>
           <li>
-            Read <strong>Before you start</strong>: every line green? Untick Practice mode if it is on.
+            Not sure everything works? Settings → About → Guided tour: its last step checks it all, with a fix for
+            anything that isn’t.
           </li>
           <li>
             In your video meeting or streaming platform, choose <strong>FrameRelay</strong> as the camera (if that is how people see it).
