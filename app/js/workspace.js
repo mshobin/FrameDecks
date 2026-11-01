@@ -184,7 +184,7 @@ function listKeys(e, kind){
   if (mod && k === 'c'){ e.preventDefault(); e.stopPropagation(); if (kind === 'frames') copyFrames(framesSel()); else copyLayers(selScene, layersSel()); return; }
   if (mod && k === 'x'){ e.preventDefault(); e.stopPropagation(); if (kind === 'frames'){ copyFrames(framesSel()); deleteFrames(framesSel()); } else { copyLayers(selScene, layersSel()); deleteLayers(selScene, layersSel()); } return; }
   if (mod && k === 'v'){ e.preventDefault(); e.stopPropagation(); pasteClip(kind); return; }
-  if (mod && k === 'd' && !e.shiftKey){ e.preventDefault(); e.stopPropagation(); if (kind === 'frames'){ var f = framesSel(); if (f.length > 1) duplicateFrames(f); else if (f[0]) dupAndEdit(f[0]); } else layersSel().forEach(function(id){ duplicateLayer(selScene, id); }); return; }
+  if (mod && k === 'd' && !e.shiftKey){ e.preventDefault(); e.stopPropagation(); if (kind === 'frames'){ var f = framesSel(); if (f.length > 1) duplicateFrames(f); else if (f[0]) duplicate(f[0], {}); } else layersSel().forEach(function(id){ duplicateLayer(selScene, id); }); return; }
 }
 function pasteClip(kind){
   if (!clip){ toast('Nothing copied yet. Select Frames or Content and press Ctrl+C.', true); return; }
@@ -535,67 +535,12 @@ function runQuickStart(q){
 window.KCQuickStart = {open: openQuickStart};
 $('quick-start').addEventListener('click', function(e){ e.stopPropagation(); meetingMenu($('quick-start')); });
 
-/* ---------- Duplicate → Edit question → Done ---------- */
-var editQ = null;                                  // {sid, lid, src, from}
-function dupAndEdit(id){
-  var sc = SC.find(live, id), q = sc && SC.first(sc, 'question');
-  if (!q || sc.tpl) return duplicate(id, {});
-  return duplicate(id, {}).then(function(made){
-    if (!made) return;
-    var nl = SC.first(made, 'question'); if (!nl) return;
-    editQ = {sid: made.id, lid: nl.id, from: sc.name};
-    inspSig = ''; select(made.id, nl.id);
-    setTimeout(function(){ var t = $('eq-text'); if (t){ t.focus(); t.select(); } }, 60);
-  });
-}
-function editQuestionForm(gen){
-  var sc = scene(), l = layer(), items = (l && l.c.items) || [];
-  var i = items.findIndex(function(x){ return x.id === l.c.itemId; }); if (i < 0 && items.length) i = 0;
-  var cur = i >= 0 ? items[i].text : '';
-  var name = h('input', {type: 'text', value: sc.name, id: 'eq-name', 'aria-label': 'Scene name'}); name.addEventListener('keydown', stop);
-  var ta = h('textarea', {rows: 5, id: 'eq-text', 'aria-label': 'Question for this Frame'}); ta.value = cur;
-  ta.addEventListener('keydown', function(e){ stop(e); if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)){ e.preventDefault(); done(); } });
-  var picks = h('div', {cls: 'eq-picks'});
-  [[i + 1, 'Next in the list'], [i - 1, 'Previous']].forEach(function(p){
-    var it = items[p[0]]; if (i < 0 || !it) return;
-    picks.appendChild(h('button', {type: 'button', cls: 'chip eq-pick', title: it.text, onclick: function(){ ta.value = it.text; ta.focus(); }}, [h('b', {text: p[1] + ' (' + (p[0] + 1) + '): '}), it.text.slice(0, 70) + (it.text.length > 70 ? '…' : '')]));
-  });
-  function done(){
-    var text = ta.value.trim(), nm = name.value.trim(), sid = editQ.sid, lid = editQ.lid;
-    if (!text){ toast('Type the question for this Frame first.', true); ta.focus(); return; }
-    commit(function(n){
-      var x = SC.find(n, sid); if (!x) return; if (nm) x.name = nm.slice(0, 80);
-      var y = SC.layer(x, lid); if (!y) return; y.c.items = y.c.items || [];
-      var it = y.c.items.filter(function(q){ return q.id === y.c.itemId; })[0] || y.c.items[0];
-      if (it) it.text = text; else { it = {id: SC.newItemId('question'), text: text}; y.c.items.push(it); }
-      y.c.itemId = it.id; SC.stamp(x);
-    }).then(function(){ editQ = null; inspSig = ''; select(sid, null); toast('Frame ready: ' + (nm || sc.name)); });
-  }
-  gen.appendChild(h('div', {cls: 'eq'}, [
-    h('p', {cls: 'eq-steps'}, [h('span', {cls: 'ok', text: '✓ Duplicated'}), h('span', {cls: 'on', text: '2 Edit question'}), h('span', {text: '3 Done'})]),
-    h('p', {cls: 'hint', text: 'Copied from “' + editQ.from + '”. Everything else (layout, verse, transition, outputs) is kept.'}),
-    field('Scene name', name), field('Question', ta), picks,
-    h('div', {cls: 'ip-acts eq-acts'}, [
-      h('button', {cls: 'btn primary', type: 'button', id: 'eq-done', html: I('check', 16) + ' Done', onclick: done}),
-      h('button', {cls: 'btn quiet', type: 'button', text: 'Keep the copied question', onclick: function(){ editQ = null; inspSig = ''; select(sc.id, null); }})]),
-    h('p', {cls: 'hint', text: 'Ctrl+Enter = Done. Only this copy changes; the original Frame keeps its own question.'})]));
-}
-
 function sceneMenu(id, anchor, ev){
   var sc = SC.find(live, id); if (!sc) return;
-  var hasQ = !!SC.first(sc, 'question'), hasV = !!SC.first(sc, 'scripture');
   menu(anchor, [
     {icon: 'play', text: 'Go Live', hint: 'T', run: function(){ select(id, null); takeScene(id); }},
     '-',
-    {icon: 'copy', text: hasQ ? 'Duplicate & edit question' : 'Duplicate', hint: 'Ctrl+D', run: function(){ dupAndEdit(id); }},
-    hasQ ? {icon: 'copy', text: 'Duplicate (keep the question)', run: function(){ duplicate(id, {}); }} : null,
-    {icon: 'copy', text: 'Duplicate with options…', run: function(){ smartDuplicate(id); }},
-    {icon: 'layout-template', text: 'Duplicate as template', run: function(){ duplicate(id, {template: true, name: SC.uniqueName(live, sc.name + ' template')}); }},
-    {icon: 'layers', text: 'Duplicate Content structure only', run: function(){ duplicate(id, {content: 'empty'}); }},
-    {icon: 'git-branch', text: 'Create variant', run: function(){ duplicate(id, {variant: true, name: SC.uniqueName(live, sc.name + ' variant')}); }},
-    {icon: 'folder-open', text: 'Duplicate to group…', run: function(){ var g = prompt('Duplicate into which group (e.g. “Romans Study” or “Sunday Service”)?', sc.group || ''); if (g !== null) duplicate(id, {group: g.trim()}); }},
-    hasQ ? {icon: 'list', text: 'Make one Frame per question', title: 'Each question in the list gets its own Frame (pinned to it), right after this one', run: function(){ explode(id, 'question'); }} : null,
-    hasV ? {icon: 'list', text: 'Make one Frame per verse', run: function(){ explode(id, 'verse'); }} : null,
+    {icon: 'copy', text: 'Duplicate Frame', hint: 'Ctrl+D', title: 'A copy of this Frame, right after it', run: function(){ duplicate(id, {}); }},
     '-',
     {icon: 'type', text: 'Rename', hint: 'F2', run: function(){ renameScene(id); }},
     {icon: 'folder-open', text: 'Move to group…', run: function(){ var g = prompt('Group name (leave empty for none):', sc.group || ''); if (g !== null) edit(id, function(x){ x.group = g.trim(); }); }},
@@ -637,33 +582,6 @@ function importScene(){
   });
   document.body.appendChild(f); f.click();
 }
-/* Smart duplication */
-function smartDuplicate(id){
-  var sc = SC.find(live, id); if (!sc) return;
-  var back = h('div', {cls: 'app-modal-back', id: 'dup-dlg'}), card = h('div', {cls: 'app-modal', role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'dup-title'});
-  var name = h('input', {type: 'text', value: SC.uniqueName(live, sc.name), id: 'dup-name'}), group = h('input', {type: 'text', value: sc.group, list: 'dup-groups', id: 'dup-group'});
-  var groups = h('datalist', {id: 'dup-groups'}); live.scenes.map(function(s){ return s.group; }).filter(function(g, i, a){ return g && a.indexOf(g) === i; }).forEach(function(g){ groups.appendChild(h('option', {value: g})); });
-  function check(k, label, on){ return h('label', {cls: 'check'}, [h('input', {type: 'checkbox', 'data-dk': k, checked: on ? 'checked' : null}), ' ' + label]); }
-  card.appendChild(h('h2', {id: 'dup-title', text: 'Duplicate “' + sc.name + '”'}));
-  card.appendChild(h('div', {cls: 'two'}, [h('label', {cls: 'field'}, [h('span', {text: 'New name'}), name]), h('label', {cls: 'field'}, [h('span', {text: 'Group'}), group, groups])]));
-  card.appendChild(h('div', {cls: 'dup-grid'}, [check('layers', 'Content', true), check('layout', 'Layout (positions and sizes)', true), check('branding', 'Branding (logo Content)', true),
-    check('animations', 'Animations', true), check('transitions', 'Transitions and auto advance', true), check('outputs', 'Output routing', true)]));
-  card.appendChild(h('div', {cls: 'dup-content', role: 'radiogroup', 'aria-label': 'Content'}, [h('b', {text: 'Content'}),
-    h('label', {cls: 'check'}, [h('input', {type: 'radio', name: 'dup-c', value: 'keep', checked: 'checked'}), ' Keep the content']),
-    h('label', {cls: 'check'}, [h('input', {type: 'radio', name: 'dup-c', value: 'only'}), ' Content only (looks back to the defaults)']),
-    h('label', {cls: 'check'}, [h('input', {type: 'radio', name: 'dup-c', value: 'empty'}), ' Empty Content content (ready for next week)'])]));
-  card.appendChild(h('p', {cls: 'hint', text: 'FrameRelay, Zoom / Teams camera, recording and remote settings belong to this PC, so every Frame - including the copy - uses them.'}));
-  var ok = h('button', {cls: 'btn primary', type: 'button', text: 'Duplicate', id: 'dup-ok'});
-  card.appendChild(h('div', {cls: 'app-modal-actions'}, [h('button', {cls: 'btn quiet', type: 'button', text: 'Cancel', onclick: function(){ back.remove(); }}), ok]));
-  ok.addEventListener('click', function(){
-    var o = {name: name.value.trim() || undefined, group: group.value.trim(), content: (card.querySelector('[name="dup-c"]:checked') || {}).value || 'keep'};
-    Array.prototype.forEach.call(card.querySelectorAll('[data-dk]'), function(c){ o[c.dataset.dk] = c.checked; });
-    back.remove(); duplicate(id, o);
-  });
-  back.addEventListener('keydown', function(e){ e.stopPropagation(); if (e.key === 'Escape') back.remove(); if (e.key === 'Enter' && e.target.tagName === 'INPUT') ok.click(); });
-  back.appendChild(card); document.body.appendChild(back); name.focus(); name.select();
-}
-
 /* ===================================================================================================== */
 /* Layers panel                                                                                          */
 /* ===================================================================================================== */
@@ -781,7 +699,6 @@ function toggleLayer(sid, lid){
 }
 /* + Content: the content types, then Free Content */
 var CONTENT_ADD = [['question', 'Question', 'message-circle'], ['scripture', 'Scripture', 'book-open'], ['text', 'Text', 'type'],
-  ['discussion', 'Discussion topic', 'users'], ['icebreaker', 'Icebreaker', 'sparkles'], ['poll', 'Poll (show of hands)', 'list'],
   ['image', 'Image…', 'image'], ['video', 'Video…', 'film'], ['audio', 'Audio…', 'volume-2'], ['countdown', 'Timer', 'timer'], ['pptx', 'PowerPoint…', 'presentation']];
 var FREE_ADD = [['announcement', 'Announcement', 'megaphone'], ['prayer', 'Prayer Point', 'heart'], ['lowerthird', 'Lower Third', 'panel-bottom'], ['birthday', 'Birthday', 'cake'],
   ['brand', 'Branding (logo + Meeting Name)', 'star'], ['camera', 'Camera', 'video'], ['screen', 'Screen…', 'monitor'], ['window', 'Window (live PowerPoint or any app)…', 'app-window'],
@@ -797,14 +714,8 @@ $('layer-add').addEventListener('click', function(e){
   }
   menu($('layer-add'), [{label: 'Add to “' + sc.name + '”'}].concat(CONTENT_ADD.map(item), ['-', {label: 'Free Content'}], FREE_ADD.map(item)));
 });
-/* v6.7 text Content with a ready label: edit both on the canvas or in the list (double-click) */
-var TEXT_PRESETS = {
-  discussion: {name: 'Discussion', c: {title: 'Group Discussion', text: 'Talk together about what stood out to you.', label: true}},
-  icebreaker: {name: 'Icebreaker', c: {title: 'Opening Thought', text: 'Share one good thing from your week.', label: true}},
-  poll: {name: 'Poll', c: {title: 'Quick Poll', text: 'A.  Yes\nB.  No\nC.  Not sure yet\n\nRaise your hand, or type A, B or C in the chat.', label: true}}};
 function addLayer(what){
   var sc = scene(); if (!sc) return;
-  var preset = TEXT_PRESETS[what]; if (preset) what = 'announcement';
   var plainText = what === 'text';
   if (plainText) what = 'announcement';                         // Text = a text card (works on every output)
   var kind = what === 'logo' || what === 'watermark' ? 'image' : what === 'freetext' ? 'text' : what === 'pptx' ? 'pdf' : what;
@@ -837,7 +748,6 @@ function addLayer(what){
     return;
   }
   if (plainText) return put({name: 'Text', c: {title: '', text: '', label: false}});
-  if (preset) return put(JSON.parse(JSON.stringify(preset)));
   return put({});
 }
 function defaults(kind){
@@ -858,7 +768,7 @@ function pickFile(kind){
  * The group names along the top jump to their group. */
 /* v6.7 Content Settings in priority order: Label · Content · Display Settings · Visual Settings.
  * [key, name, sub]: a sub-section sits inside the group above it (smaller heading, no jump link). */
-var GROUPS = {scene: [['scene', 'Frame'], ['transition', 'Timing'], ['history', 'History']],
+var GROUPS = {scene: [['scene', 'Frame']],          // 8.0: one simple Frame form; the rarer settings sit under Advanced
   card: [['label', 'Label'], ['content', 'Content'], ['layout', 'Display Settings'], ['animation', 'Animation', true], ['output', 'Show on', true], ['style', 'Visual Settings']],
   text: [['label', 'Label'], ['content', 'Content'], ['layout', 'Display Settings'], ['animation', 'Animation', true], ['output', 'Show on', true], ['style', 'Visual Settings']],
   brand: [['content', 'Content'], ['layout', 'Display Settings'], ['output', 'Show on', true], ['style', 'Visual Settings']],
@@ -878,7 +788,6 @@ function jumpTo(key){
 var genAtEnd = false;
 function renderInspector(){
   var sc = scene(), l = layer(), kind = l ? l.kind : '', g = group(kind);
-  if (editQ && (selScene !== editQ.sid || selLayer !== editQ.lid)) editQ = null;
   if (!genAtEnd){ genAtEnd = true; $('insp-body').appendChild($('ip-gen')); }          // generated groups follow the editors
   var im = $('insp-mode'); if (im) im.hidden = true;
   var groups = GROUPS[g];
@@ -890,34 +799,33 @@ function renderInspector(){
   var on = sc && isLiveScene(sc.id) && (!l || SC.layerOn(live, sc, l));
   $('insp-live').textContent = on ? 'LIVE' : ''; $('insp-live').className = 'insp-live' + (on ? ' on' : '');
   // the group names: jump links
-  var tsig = (kind || 'scene') + '|' + !!editQ;
+  var tsig = kind || 'scene';
   if (tsig !== curTabs){
     curTabs = tsig;
     var nav = $('insp-tabs'); nav.innerHTML = ''; nav.setAttribute('aria-label', 'Jump to a group');
     var top = groups.filter(function(t){ return !t[2] && !(t[0] === 'label' && kind === 'birthday'); });
     top.forEach(function(t, i){ nav.appendChild(h('button', {type: 'button', 'data-itab': t[0], 'aria-current': String(i === 0), text: t[1], onclick: function(){ jumpTo(t[0]); }})); });
-    nav.hidden = !!editQ || top.length < 2;
+    nav.hidden = top.length < 2;
   }
   // the editors for Question / Scripture / Birthday (all their groups at once); generated groups for the rest
   var panelKind = SC.isCard(kind) ? kind : mediaLive ? 'media' : null;
   Array.prototype.forEach.call(document.querySelectorAll('#insp-body > .ip[data-kind]'), function(p){
-    var show = !editQ && !!sc && !!l && p.dataset.kind === panelKind;
+    var show = !!sc && !!l && p.dataset.kind === panelKind;
     if (show && !p.querySelector(':scope > .cs-anchor')){ var hd = headFor(groups, p.dataset.itab); if (hd) p.insertBefore(hd, p.firstChild); }
     if (p.hidden === show) p.hidden = !show;
   });
   var gen = $('ip-gen'); gen.hidden = false;
   orderPanels(panelKind, groups, gen);
-  if (SC.isCard(kind) && !editQ){ if (window.KCRenderLists) window.KCRenderLists(); if (window.KCRefreshControls) window.KCRefreshControls(); if (kind === 'birthday' && window.KCRenderBirthday) window.KCRenderBirthday(); }
-  var sig = JSON.stringify([editQ, sc && sc.id, l, sc && !l ? [sc.name, sc.group, sc.fav, sc.tpl, sc.tx, sc.auto, sc.out, sc.modified, sc.notes, live.profile, !!SC.first(sc, 'brand')] : 0, l && l.kind === 'brand' ? live.brand : 0, isLiveScene(sc && sc.id), live.live.on, !!mediaLive]);
+  if (SC.isCard(kind)){ if (window.KCRenderLists) window.KCRenderLists(); if (window.KCRefreshControls) window.KCRefreshControls(); if (kind === 'birthday' && window.KCRenderBirthday) window.KCRenderBirthday(); }
+  var sig = JSON.stringify([sc && sc.id, l, sc && !l ? [sc.name, sc.group, sc.fav, sc.tpl, sc.tx, sc.auto, sc.out, sc.modified, sc.notes, live.profile, !!SC.first(sc, 'brand')] : 0, l && l.kind === 'brand' ? live.brand : 0, isLiveScene(sc && sc.id), live.live.on, !!mediaLive]);
   var ae = document.activeElement;
   if (ae && gen.contains(ae) && /INPUT|TEXTAREA|SELECT/.test(ae.tagName) && inspSig.split('|')[0] === (sc && sc.id) + ':' + (l && l.id)) return;   // typing: don't redraw under the cursor
   if (sig === inspSig.slice(inspSig.indexOf('|') + 1)) return;
   inspSig = (sc && sc.id) + ':' + (l && l.id) + '|' + sig;
   gen.innerHTML = '';
   if (!sc){ gen.appendChild(h('p', {cls: 'hint', text: 'Select a Frame on the left, or add one with + Frame.'})); return; }
-  if (editQ){ editQuestionForm(gen); return; }
   function each(fn){ groups.forEach(function(t){ var box = h('div', {cls: 'cs-sec' + (t[2] ? ' cs-sec-sub' : '')}); gen.appendChild(groupHead(t[0], t[1], t[2])); gen.appendChild(box); fn(box, t[0]); }); }
-  if (!l) each(function(box, t){ sceneForm(box, sc, t); });
+  if (!l) sceneForm(gen, sc);
   else if (SC.isCard(kind)){ gen.appendChild(headFor(groups, 'output')); outputForm(gen, sc, l); }
   else if (SC.isText(kind)) each(function(box, t){ if (t === 'output') outputForm(box, sc, l); else textForm(box, sc, l, t); });
   else if (SC.isSound(kind)){ gen.appendChild(groupHead('content', 'Audio')); audioForm(gen, sc, l); }
@@ -952,50 +860,51 @@ function orderPanels(kind, groups, gen){
   });
   if (!groups.some(function(g){ return g[0] === 'output'; })) body.appendChild(gen);
 }
-function sceneForm(gen, sc, tab){
+/* 8.0 the selected Frame: the everyday settings (name, script, auto-advance, duplicate), then one Advanced section */
+var advOpen = false;
+function sceneForm(gen, sc){
   var sid = sc.id;
-  if (tab === 'scene'){
-    var nm = h('input', {type: 'text', value: sc.name, id: 'sc-name', 'aria-label': 'Scene name'}); nm.addEventListener('keydown', stop);
-    nm.addEventListener('input', function(){ later('nm', function(){ if (nm.value.trim()) edit(sid, function(x){ x.name = nm.value.trim().slice(0, 80); }); }); });
-    var gr = h('input', {type: 'text', value: sc.group, list: 'sc-groups', 'aria-label': 'Group'}); gr.addEventListener('keydown', stop);
-    var dl = h('datalist', {id: 'sc-groups'}); live.scenes.map(function(s){ return s.group; }).filter(function(g, i, a){ return g && a.indexOf(g) === i; }).forEach(function(g){ dl.appendChild(h('option', {value: g})); });
-    gr.addEventListener('input', function(){ later('gr', function(){ edit(sid, function(x){ x.group = gr.value.trim().slice(0, 60); }); }); });
-    gen.appendChild(h('div', {cls: 'ip-sec'}, [field('Name', nm), field('Group', gr), dl,
-      checkCtl('Favourite', sc.fav, function(v){ edit(sid, function(x){ x.fav = v; }); }),
-      checkCtl('Template', sc.tpl, function(v){ edit(sid, function(x){ x.tpl = v; }); }, 'Kept for making new Frames; Previous and Next skip it.'),
-      notesCtl(sc),
-      checkCtl('Branding: show my logo and Meeting Name in this Frame', !!SC.first(sc, 'brand'), function(v){ if (window.KCBrandSettings) window.KCBrandSettings.setBranding([sid], v).then(function(){ toast(v ? 'Branding added to ' + sc.name : 'Branding removed from ' + sc.name); }); })]));
-    gen.appendChild(h('div', {cls: 'ip-sec ip-acts'}, [
-      h('button', {cls: 'btn small', type: 'button', text: 'Duplicate…', onclick: function(){ smartDuplicate(sid); }}),
-      // the rarer actions wait in one small menu, so Duplicate is the clear action here (design audit DD-20)
-      h('details', {cls: 'ip-more'}, [h('summary', {cls: 'btn quiet small', text: 'More…'}), h('div', {cls: 'ip-more-list'}, [
-        h('button', {cls: 'btn quiet small', type: 'button', text: 'Save as template', onclick: function(){ duplicate(sid, {template: true, name: SC.uniqueName(live, sc.name + ' template')}); }}),
-        SC.first(sc, 'question') ? h('button', {cls: 'btn quiet small', type: 'button', text: 'One Frame per question', onclick: function(){ explode(sid, 'question'); }}) : null])])]));
-    gen.appendChild(h('p', {cls: 'hint', text: 'A Frame owns its Content, its transition and its output rules. Select Content on the left to change it. Go Live (top bar, T, or double-click a Frame) puts it on screen.'}));
-  } else if (tab === 'transition'){
-    var p = SC.profile(live);
-    var sel = h('select', {'aria-label': 'Transition', id: 'sc-tx'}, [h('option', {value: 'profile', text: 'Profile: ' + p.name + ' (' + SC.txName(p.type) + (p.ms ? ', ' + p.ms + ' ms' : '') + ')'})]
-      .concat(SC.transitions.map(function(t){ return h('option', {value: t[0], text: t[1]}); })));
-    sel.value = sc.tx.type;
-    var ms = h('input', {type: 'number', min: 0, max: 5000, step: 50, value: String(sc.tx.ms), 'aria-label': 'Duration in milliseconds', id: 'sc-txms'});
-    ms.disabled = sc.tx.type === 'profile' || sc.tx.type === 'cut'; ms.addEventListener('keydown', stop);
-    sel.addEventListener('change', function(){ var v = sel.value; edit(sid, function(x){ x.tx.type = v; if (v !== 'profile' && v !== 'cut') x.tx.ms = SC.txMs[v]; }); });
-    ms.addEventListener('change', function(){ edit(sid, function(x){ x.tx.ms = Math.max(0, Math.min(5000, +ms.value || 0)); }); });
-    var sec = h('input', {type: 'number', min: 2, max: 3600, step: 1, value: String(sc.auto.sec), 'aria-label': 'Seconds', id: 'sc-auto-sec'});
-    sec.addEventListener('keydown', stop);
-    sec.addEventListener('change', function(){ edit(sid, function(x){ x.auto.sec = Math.max(2, Math.min(3600, +sec.value || 30)); }); });
-    gen.appendChild(h('div', {cls: 'ip-sec'}, [field('Transition into this Frame', sel), field('Duration (ms)', ms),
-      h('p', {cls: 'hint', text: 'Plays on the whole FrameRelay picture. On the OBS / browser overlay page the dips cover the screen and the cards follow. The top bar can override it for a take.'})]));
-    gen.appendChild(h('div', {cls: 'ip-sec'}, [checkCtl('Auto advance to the next Frame', sc.auto.on, function(v){ edit(sid, function(x){ x.auto.on = v; }); }), field('After (seconds)', sec),
-      h('p', {cls: 'hint', text: 'Only while Auto is on in the top bar.'})]));
-  } else {
-    var par = sc.parent ? SC.find(live, sc.parent) : null;
-    gen.appendChild(h('dl', {cls: 'hist'}, [
-      h('dt', {text: 'Created'}), h('dd', {text: fmtDate(sc.created)}), h('dt', {text: 'Modified'}), h('dd', {text: fmtDate(sc.modified)}),
-      h('dt', {text: 'Version'}), h('dd', {text: String(sc.version)}), h('dt', {text: 'Creator'}), h('dd', {text: sc.creator || '—'}),
-      h('dt', {text: 'Duplicated from'}), h('dd', {text: sc.from || '—'}), h('dt', {text: 'Template'}), h('dd', {text: sc.template || '—'}),
-      h('dt', {text: 'Parent Frame'}), h('dd', {}, [par ? h('button', {cls: 'linkish', type: 'button', text: par.name, onclick: function(){ select(par.id, null, true); }}) : document.createTextNode('—')])]));
-  }
+  var nm = h('input', {type: 'text', value: sc.name, id: 'sc-name', 'aria-label': 'Frame name'}); nm.addEventListener('keydown', stop);
+  nm.addEventListener('input', function(){ later('nm', function(){ if (nm.value.trim()) edit(sid, function(x){ x.name = nm.value.trim().slice(0, 80); }); }); });
+  var sec = h('input', {type: 'number', min: 2, max: 3600, step: 1, value: String(sc.auto.sec), 'aria-label': 'Seconds before the next Frame', id: 'sc-auto-sec'});
+  sec.disabled = !sc.auto.on; sec.addEventListener('keydown', stop);
+  sec.addEventListener('change', function(){ edit(sid, function(x){ x.auto.sec = Math.max(2, Math.min(3600, +sec.value || 30)); }); });
+  var auto = h('input', {type: 'checkbox', id: 'sc-auto'}); auto.checked = !!sc.auto.on;
+  auto.addEventListener('change', function(){ var v = auto.checked; sec.disabled = !v; edit(sid, function(x){ x.auto.on = v; }); });
+  gen.appendChild(h('div', {cls: 'ip-sec sc-main'}, [field('Name', nm), notesCtl(sc),
+    h('div', {cls: 'sc-auto'}, [h('label', {cls: 'check'}, [auto, ' Move to the next Frame after']), sec, h('span', {cls: 'hint', text: 'seconds'})]),
+    h('p', {cls: 'hint', text: 'Moves on only while Auto-advance is on in the top bar.'}),
+    h('div', {cls: 'ip-acts'}, [h('button', {cls: 'btn small', type: 'button', id: 'sc-dup', html: I('copy', 15) + ' Duplicate Frame', title: 'A copy of this Frame, right after it (Ctrl+D)', onclick: function(){ duplicate(sid, {}); }})])]));
+  // Advanced: grouping, looks and history - rarely needed, one click away
+  var gr = h('input', {type: 'text', value: sc.group, list: 'sc-groups', 'aria-label': 'Group'}); gr.addEventListener('keydown', stop);
+  var dl = h('datalist', {id: 'sc-groups'}); live.scenes.map(function(s){ return s.group; }).filter(function(g, i, a){ return g && a.indexOf(g) === i; }).forEach(function(g){ dl.appendChild(h('option', {value: g})); });
+  gr.addEventListener('input', function(){ later('gr', function(){ edit(sid, function(x){ x.group = gr.value.trim().slice(0, 60); }); }); });
+  var p = SC.profile(live);
+  var tx = h('select', {'aria-label': 'Transition', id: 'sc-tx'}, [h('option', {value: 'profile', text: 'Standard: ' + SC.txName(p.type) + (p.ms ? ', ' + p.ms + ' ms' : '')})]
+    .concat(SC.transitions.map(function(t){ return h('option', {value: t[0], text: t[1]}); })));
+  tx.value = sc.tx.type;
+  var ms = h('input', {type: 'number', min: 0, max: 5000, step: 50, value: String(sc.tx.ms), 'aria-label': 'Transition length in milliseconds', id: 'sc-txms'});
+  ms.disabled = sc.tx.type === 'profile' || sc.tx.type === 'cut'; ms.addEventListener('keydown', stop);
+  tx.addEventListener('change', function(){ var v = tx.value; edit(sid, function(x){ x.tx.type = v; if (v !== 'profile' && v !== 'cut') x.tx.ms = SC.txMs[v]; }); });
+  ms.addEventListener('change', function(){ edit(sid, function(x){ x.tx.ms = Math.max(0, Math.min(5000, +ms.value || 0)); }); });
+  var par = sc.parent ? SC.find(live, sc.parent) : null, hasQ = !!SC.first(sc, 'question'), hasV = !!SC.first(sc, 'scripture');
+  var advd = h('details', {cls: 'ip-adv', id: 'sc-adv'}, [h('summary', {text: 'Advanced'}), h('div', {cls: 'ip-adv-body'}, [
+    field('Group', gr), dl,
+    h('div', {cls: 'two'}, [field('Transition into this Frame', tx), field('Length (ms)', ms)]),
+    checkCtl('Branding: show my logo and Meeting Name in this Frame', !!SC.first(sc, 'brand'), function(v){ if (window.KCBrandSettings) window.KCBrandSettings.setBranding([sid], v).then(function(){ toast(v ? 'Branding added to ' + sc.name : 'Branding removed from ' + sc.name); }); }),
+    checkCtl('Favourite', sc.fav, function(v){ edit(sid, function(x){ x.fav = v; }); }),
+    checkCtl('Template', sc.tpl, function(v){ edit(sid, function(x){ x.tpl = v; }); }, 'Kept for making new Frames; Previous and Next skip it.'),
+    h('div', {cls: 'ip-acts'}, [
+      h('button', {cls: 'btn quiet small', type: 'button', text: 'Save as template', onclick: function(){ duplicate(sid, {template: true, name: SC.uniqueName(live, sc.name + ' template')}); }}),
+      hasQ ? h('button', {cls: 'btn quiet small', type: 'button', text: 'One Frame per question', onclick: function(){ explode(sid, 'question'); }}) : null,
+      hasV ? h('button', {cls: 'btn quiet small', type: 'button', text: 'One Frame per verse', onclick: function(){ explode(sid, 'verse'); }}) : null]),
+    h('dl', {cls: 'hist'}, [
+      h('dt', {text: 'Created'}), h('dd', {text: fmtDate(sc.created)}), h('dt', {text: 'Changed'}), h('dd', {text: fmtDate(sc.modified)}),
+      h('dt', {text: 'Copied from'}), h('dd', {text: sc.from || '—'}),
+      h('dt', {text: 'Original Frame'}), h('dd', {}, [par ? h('button', {cls: 'linkish', type: 'button', text: par.name, onclick: function(){ select(par.id, null, true); }}) : document.createTextNode('—')])])])]);
+  advd.open = advOpen;
+  advd.addEventListener('toggle', function(){ advOpen = advd.open; });
+  gen.appendChild(advd);
 }
 /* ---------- Text layers ---------- */
 var POS_NAMES = {top: 'Top', center: 'Centre', bottom: 'Bottom', 'lower-left': 'Lower left', 'lower-right': 'Lower right', 'upper-left': 'Upper left', 'upper-right': 'Upper right'};
@@ -1341,7 +1250,7 @@ document.addEventListener('keydown', function(e){
   if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || (t && t.isContentEditable)) return;
   if ((e.ctrlKey || e.metaKey) && (e.key === 'd' || e.key === 'D') && !e.shiftKey){
     if (t && t.closest && t.closest('#s2-stage')) return;                 // the canvas duplicates its own selection
-    e.preventDefault(); if (selLayer) duplicateLayer(selScene, selLayer); else if (selScene) dupAndEdit(selScene);
+    e.preventDefault(); if (selLayer) duplicateLayer(selScene, selLayer); else if (selScene) duplicate(selScene, {});
   }
 });
 

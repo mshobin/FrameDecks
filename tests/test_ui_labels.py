@@ -97,7 +97,11 @@ class DesignSystem(unittest.TestCase):
         self.assertNotIn("$('slot-members')", js)
 
     def test_rare_frame_actions_and_a_compact_about(self):
-        self.assertIn("h('details', {cls: 'ip-more'}", read("js/workspace.js"))
+        js = read("js/workspace.js")
+        self.assertIn("h('details', {cls: 'ip-adv', id: 'sc-adv'}", js)      # 8.0: the rarer Frame settings under Advanced
+        self.assertIn("text: 'Duplicate Frame'", js)                          # 8.0: one Duplicate action
+        for gone in ("Duplicate & edit question", "Duplicate with options", "Duplicate Content structure only", "Duplicate to group", "smartDuplicate"):
+            self.assertNotIn(gone, js)
         self.assertIn("Read our story", read("js/about.js"))
 
     def test_help_text_sits_under_controls_not_in_brackets(self):

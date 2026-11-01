@@ -3,7 +3,7 @@
  * Double-click a card on the canvas (the Frame preview, or the live FrameRelay picture) to edit it in place:
  *   - the label (top line of the card): Question / Scripture label, or the title of a text Content;
  *   - the body: the question, the scripture (with reference and translation), or the text of an announcement,
- *     prayer, discussion topic, icebreaker, poll, lower third or timer message.
+ *     prayer, lower third or timer message.
  * Enter saves, Shift+Enter starts a new line, Esc cancels, a click outside saves (js/editable.js).
  *
  * The cards are found where they really are: the overlay page (the same page OBS uses) is hit-tested. On the live
@@ -58,7 +58,7 @@ function edit(card, x, y, map, sid){
       fields: [{key: 'ref', value: t.it.ref || '', placeholder: 'e.g. John 15:5', label: 'Reference'}, {key: 'version', value: t.it.version || '', placeholder: 'ESV', label: 'Translation', width: '110px'}],
       save: function(v, extra){ return save({text: v, ref: (extra.ref || '').trim(), version: (extra.version || '').trim()}); }});
   }
-  /* a text Content: announcement, prayer, discussion, icebreaker, poll, lower third, timer */
+  /* a text Content: announcement, prayer, lower third, timer */
   var sc = SC.find(live, sid), l = sc && SC.layer(sc, card.getAttribute('data-layer'));
   if (!l){ toast('That Content is not in this Frame.', true); return; }
   var setC = function(key){ return function(v){ return window.KCCommit(function(n){ var s2 = SC.find(n, sid), x = s2 && SC.layer(s2, l.id); if (!x) return; x.c[key] = v; SC.stamp(s2); }).then(function(){ toast(l.name + ' saved'); }); }; };
