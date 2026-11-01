@@ -135,5 +135,19 @@ class ReleaseWorkflow(unittest.TestCase):
         self.assertNotIn("|| echo '{\"releases\":[]}'", whole, "errors are never turned into an empty list")
 
 
+class ReleaseWorkflowR2(ReleaseWorkflow):
+    """7.1.2 F1/F2: a tag run without R2 settings fails (never a green run that published nothing), and the AWS CLI
+    sends integrity checksums only when required (R2 has rejected the newer default ones)."""
+
+    def test_a_tag_without_r2_settings_fails(self):
+        step = self.step("Say what is missing (R2 not set up yet)")
+        self.assertIn("::error::", step)
+        self.assertIn("exit 1", step)
+
+    def test_checksums_only_when_required(self):
+        self.assertIn("AWS_REQUEST_CHECKSUM_CALCULATION: when_required", self.text)
+        self.assertIn("AWS_RESPONSE_CHECKSUM_VALIDATION: when_required", self.text)
+
+
 if __name__ == "__main__":
     unittest.main()

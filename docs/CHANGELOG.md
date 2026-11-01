@@ -63,6 +63,11 @@ publishing (the 1 November release audit).
   version older than one already published, takes `previous` as the next lower version, sorts the index newest first,
   and stops on an unreadable index.
 
+- **A tag run without the R2 settings showed green** while publishing nothing: it now fails with an error.
+- The AWS CLI sends integrity checksums only when an operation requires one
+  (`AWS_REQUEST_CHECKSUM_CALCULATION`/`AWS_RESPONSE_CHECKSUM_VALIDATION: when_required`); R2 has rejected the newer
+  default ones.
+
 ### Changed
 - `infra/update-api/local-test.sh` runs the workflow's own read and upload steps against the local bucket, checks
   that republishing and an older version are refused with nothing changed, and guards its removals (`${W:?}`).

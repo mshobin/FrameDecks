@@ -323,6 +323,10 @@ jobs:
       AWS_DEFAULT_REGION: auto
       R2: https://${{ vars.R2_ACCOUNT_ID }}.r2.cloudflarestorage.com
       BUCKET: ${{ vars.R2_BUCKET || 'framedecks-downloads' }}
+      # 7.1.2 (F2): AWS CLI 2.23+ adds new integrity checksums to every request; R2 has rejected some of them. Send them
+      # only when an operation requires one.
+      AWS_REQUEST_CHECKSUM_CALCULATION: when_required
+      AWS_RESPONSE_CHECKSUM_VALIDATION: when_required
     steps:
       - name: Get the code (the manifest tool and the release notes)
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -386,6 +390,9 @@ jobs:
           up publish/releases/latest.json releases/latest.json --content-type application/json --cache-control "public, max-age=300"
           echo "Published ${VERSION}: https://downloads.framedecks.com/releases/${VERSION}/${exe}"
 
+      # 7.1.2 (F1): a version tag that cannot publish fails, so a missing or misnamed setting is never a green run.
       - name: Say what is missing (R2 not set up yet)
         if: env.R2_ON != 'true'
-        run: echo "::notice::R2 is not set up (secrets R2_ACCESS_KEY_ID/R2_SECRET_ACCESS_KEY, variables R2_ACCOUNT_ID/R2_BUCKET), so ${VERSION} was not published to downloads.framedecks.com. See docs/deployment/release-pipeline.md."
+        run: |
+          echo "::error::R2 is not set up (secrets R2_ACCESS_KEY_ID/R2_SECRET_ACCESS_KEY, variables R2_ACCOUNT_ID/R2_BUCKET), so ${VERSION} was not published to downloads.framedecks.com. See docs/deployment/release-pipeline.md."
+          exit 1

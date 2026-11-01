@@ -150,6 +150,7 @@ The pipeline refuses, before anything is uploaded:
 | A version already in R2 (`releases/<v>/manifest.json` exists) | `publish` job, "Read the releases already published (from R2)" | Its installer is cached for a year as immutable; a rebuilt one never matches the published SHA-256 |
 | A version older than one already published | `tools/make_release_manifest.py` | "latest" only moves forward; rolling back is the deliberate step below |
 | An index R2 cannot give (anything but "not there yet") | the R2 read step, and the manifest tool for unreadable JSON | Never rebuilds the release list from nothing |
+| A version tag when the R2 secrets or variables are missing or misnamed | `publish` job, "Say what is missing" (fails) | A run that published nothing never shows green |
 
 Version tags run one at a time (`concurrency: publish-releases`), so two publishes never race on `index.json` and
 `latest.json`. GitHub keeps only one waiting run per group, so push one tag and let it finish before the next. The index
