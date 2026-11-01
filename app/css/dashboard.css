@@ -125,4 +125,10 @@ input[type=range]{flex:1;accent-color:var(--gold)}
 .vcam-diag{display:grid;grid-template-columns:150px 1fr;gap:4px 12px;margin:6px 0 0;font-size:13px}
 .vcam-diag dt{color:var(--muted)} .vcam-diag dd{margin:0;overflow-wrap:anywhere}
 .vcam-fine{margin-top:8px} .vcam-fine summary{cursor:pointer;font-weight:700;padding:6px 0}
+.vcam-grp{margin-top:14px;padding-top:10px;border-top:1px solid var(--line-soft,var(--line))}
+.vcam-grp-h{margin:0 0 6px;font-size:14px;font-weight:700}
+.vcam-opt{display:flex;flex-direction:column;gap:4px;min-width:0}
+.vcam-more{margin-top:14px;border-top:1px solid var(--line-soft,var(--line));padding-top:6px}
+.vcam-diag-sum{margin:10px 0 4px;padding:8px 12px;border-radius:8px;font-size:14px;background:var(--raised,var(--surface))}
+.vcam-diag-sum.ok{background:var(--live-soft)} .vcam-diag-sum.warn{background:var(--warn-soft)}
 .range .val{min-width:56px;font-variant-numeric:tabular-nums}
