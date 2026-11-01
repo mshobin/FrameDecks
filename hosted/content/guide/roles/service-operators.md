@@ -28,7 +28,7 @@ How to run the FrameDecks PC during a service: setup, presenting, and calm recov
 1. **Selecting a Frame does not put it on air.** The Studio Canvas shows a **PREVIEW**. **Go Live** (**T**) puts it on screen; the badge then reads **LIVE**.
 2. **◀ Frame / Frame ▶** in the command bar move to the previous or next Frame and put it on screen.
 3. **◀ Question ▶** (or the arrow keys) step through the live Frame's questions; **Shift + arrows** step through its scriptures; **Page Up / Page Down** step through slides.
-4. **The Live tools menu is your safety kit:** Hide Content, **Black screen** (K), Emergency, **Annotate** (D), **Freeze** (F), **Teleprompter** (R), **Teleprompter window**, **Teleprompter overlay** (Shift+R).
+4. **The Live tools menu is your safety kit:** Hide Content, **Black screen** (K), Emergency, **Annotate** (D), **Freeze** (F), **Teleprompter** (R).
 5. **Hide all** (**Esc**) clears everything and deletes nothing.
 
 ![The Studio during a service](../images/studio.png)
@@ -45,8 +45,7 @@ How to run the FrameDecks PC during a service: setup, presenting, and calm recov
 | **F** | Freeze |
 | **D** | Annotate |
 | **Esc** | Hide all (or stop annotating) |
-| **R** | Teleprompter on / off (only you see it) |
-| **Shift+R** | Teleprompter overlay on / off (see-through, over Zoom or Teams; only you see it) |
+| **R** | Teleprompter on / off (a window over Zoom or Teams; only you see it) |
 | **Ctrl+K** or **Ctrl+Space** | Command palette: find Frames, Content, questions, references, settings; run commands such as Go Live |
 | **Alt+Space** | Spotlight: the same search from anywhere in Windows, even with FrameDecks in the tray |
 
@@ -96,7 +95,8 @@ in **Settings → General → Window and tray**; if another program uses Alt+Spa
 ## Getting started in this role
 
 1. Read [Presentations](../presentations.md), [Media](../media.md) and [Troubleshooting](../troubleshooting.md).
-2. Practise Go Live, Next, Black screen, Freeze and Hide all on a meeting that is not on a real call.
+2. Practise Go Live, Next, Black screen, Freeze and Hide all on a meeting that is not on a real call. On a real call,
+   turn on **Live tools → Black screen** first: people see black while your own preview shows everything.
 3. Follow the [three-week onboarding plan](README.md#onboarding-new-volunteers).
 
 ## Related

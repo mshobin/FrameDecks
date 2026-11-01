@@ -35,8 +35,8 @@ A printable timeline for running a service with FrameDecks, plus an emergency ca
 
 - [ ] Phone remote on; remote operator connected (**Connected** shown).
 - [ ] Walk through the first Frames with **Go Live**; check the projector and the meeting app's self-view.
-- [ ] **Teleprompter** open where the leader can see it (docked in the Studio, the **Teleprompter window** on a second screen, or on the leader's phone).
-- [ ] Leader on Zoom or Teams from the same PC: **Teleprompter overlay** open (**Shift+R**). Check that it sits over the participants (not over the leader's own video or the chat they need), that it is in the right mode (usually **Meeting**, key **3**), and that **Stay on top** (📌) is on: click into Zoom and the overlay should stay in front.
+- [ ] **Teleprompter** open where the leader can see it (**Live tools → Teleprompter** or **R** on the PC, or **TELEPROMPTER** on the leader's phone).
+- [ ] Leader on Zoom or Teams from the same PC: check that the Teleprompter sits over the participants (not over the leader's own video or the chat they need), and click into Zoom: the Teleprompter should stay in front.
 - [ ] Spotlight works: press **Alt+Space** (or the shortcut shown in **Settings → General → Window and tray**) with Zoom in front.
 - [ ] Agree who controls Next (PC or phone) and the hand signals.
 

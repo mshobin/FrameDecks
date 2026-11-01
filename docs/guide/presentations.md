@@ -15,7 +15,6 @@ or meeting.
 - [When something goes wrong: Hide all, Black screen, Emergency, Freeze](#when-something-goes-wrong-hide-all-black-screen-emergency-freeze)
 - [Annotate: draw on the picture](#annotate-draw-on-the-picture)
 - [Teleprompter](#teleprompter)
-- [Teleprompter overlay (Meeting Leader mode)](#teleprompter-overlay-meeting-leader-mode)
 - [Command palette](#command-palette) and [Spotlight](#spotlight)
 - [Projector, TV and screen sharing](#projector-tv-and-screen-sharing)
 - [Keyboard shortcuts](#keyboard-shortcuts)
@@ -68,8 +67,8 @@ The **Studio Canvas** always tells you whether you are looking at the screen peo
 | Next question | **→** | **NEXT CONTENT** |
 | Next slide (PowerPoint) | **Page Down** or the slide ▶ button | **NEXT CONTENT** |
 
-**Auto advance:** a Frame can move to the next one by itself after a number of seconds (Content Settings → Frame →
-**Timing**). It only happens while **Auto-advance** in the command bar is on.
+**Auto advance:** a Frame can move to the next one by itself after a number of seconds (Content Settings → **Move
+to the next Frame after N seconds**). It only happens while **Auto-advance** in the command bar is on.
 
 ## Questions and scriptures
 
@@ -88,7 +87,7 @@ A Frame with a Question or Scripture list shows one item at a time.
 
 > **Tip:** Found a typo while it is on screen? Double-click the card on the Studio Canvas, correct it and press
 > **Enter**. The screen updates immediately. This works for every card: question, scripture, announcement, prayer,
-> discussion topic, icebreaker, poll, lower third and timer. Double-click the card's label (its top line) to change
+> lower third and timer. Double-click the card's label (its top line) to change
 > the label.
 
 ![Editing a question directly on the Studio Canvas](images/canvas-edit.png)
@@ -97,8 +96,8 @@ A Frame with a Question or Scripture list shows one item at a time.
 
 | Setting | Where | Effect |
 | --- | --- | --- |
-| The Frame's transition | Content Settings → Frame → **Timing → Transition into this Frame** | How this Frame appears, for example Fade, Cross Dissolve, Dip to Black, Slide, Push, Cinema Fade or Church Service Fade |
-| Duration | Same place | The length in milliseconds |
+| The Frame's transition | Content Settings → **Advanced → Transition into this Frame** | How this Frame appears, for example Fade, Cross Dissolve, Dip to Black, Slide, Push, Cinema Fade or Church Service Fade |
+| Length (ms) | Same place | The length in milliseconds |
 | One-off override | The command bar's transition list (**Frame default**) | Uses another transition for your next takes, until you set it back to **Frame default** |
 | A card's own animation | Question / Scripture Content → **Animation** | How the card itself appears, for example Fade, Gentle rise, Word by word, Typewriter |
 
@@ -112,8 +111,8 @@ A Frame with a Question or Scripture list shows one item at a time.
 | **Freeze** | **F** | The picture held still | You are changing things and do not want people to see it |
 | **Hide Content** | — | The selected Content is hidden | One item should go away, the rest stays |
 
-Black screen, Emergency, Annotate, Freeze, the Teleprompter, the Teleprompter window and the Teleprompter overlay are in
-the **Live tools** menu. The menu button changes to
+Black screen, Emergency, Annotate, Freeze and the Teleprompter are in the **Live tools** menu. **Live tools**, **Go
+Live**, **◀ Previous**, **Next ▶** and **Hide all** are always in the top bar. The menu button changes to
 **Black screen on ▾**, **Emergency on ▾**, **Frozen ▾** or **Drawing ▾** so you never forget one is on. Press the same
 control again to turn it off.
 
@@ -152,7 +151,7 @@ The **Teleprompter** shows what you plan to say on each Frame. Only you see it. 
 camera, the Presentation window, the OBS pages or the phone's drawing pad.
 
 **Write the script**
-- Each Frame has its own **Teleprompter script**: Content Settings → **Frame → Teleprompter script** (up to 20,000
+- Each Frame has its own **Teleprompter script**: Content Settings → **Teleprompter script** (up to 20,000
   characters). In 6.6 this field was called *Leader notes*.
 - Or double-click the text in the Teleprompter (or select **✎**) and type there.
 - Simple markup, all optional:
@@ -165,30 +164,34 @@ camera, the Presentation window, the OBS pages or the phone's drawing pad.
 | `[PAUSE]` | A cue chip, such as a reminder to pause or pray |
 | `---` | A divider line |
 
-**Open it in the Studio**
-1. Choose **Live tools → Teleprompter → In this window**, or press **R**.
-2. Dock it **Left**, **Right** or **Bottom** of the Studio, or **Float** it. Drag its edge to resize it.
-3. **Follows: Live** shows the script of the Frame on screen. **Follows: Selected** shows the Frame you selected,
-   so you can read ahead or rehearse.
+**Open it**
+- **Live tools → Teleprompter**, or press **R** (press it again to close it).
+- From the [command palette](#command-palette) or [Spotlight](#spotlight): type *Teleprompter on / off*.
+- From the tray icon near the clock: **Teleprompter**.
 
-![The Teleprompter docked on the right of the Studio](images/teleprompter.png)
+The Teleprompter is one window that stays on top of Zoom, Teams, Google Meet, PowerPoint and browsers. Place it
+close to your camera, so your eyes stay near the lens. It shows the script of the Frame on screen. Before you go
+live, it shows the first Frame, so you can rehearse.
 
-**Open it in its own window**
-**Live tools → Teleprompter → Own window** (called *Speaker View* in 6.6) opens the Teleprompter in a separate window, ideal
-on a second monitor or beside Zoom on a laptop.
+> **Note:** The Teleprompter is never shown in screen sharing or recordings, even when you share your whole screen
+> (Windows 10 version 2004 or later). It is never on the FrameRelay camera either. Spotlight is left out of screen
+> sharing too.
 
-- The script takes the whole width of the window.
-- Select **On screen & next** to slide in the side panel with the clocks, a **Timer**, what is on screen now and what
-  comes next. It is hidden at first, and the window remembers your choice.
-- The controls float at the bottom and fade after a few seconds, as in the overlay. Move the mouse to bring them back.
-- The ribbon at the top has the window buttons. Drag it to move the window.
-- The Teleprompter window is left out of screen sharing, so Zoom participants do not see it.
+**The top bar**
 
-To read your script on top of Zoom or Teams instead, use the [Teleprompter overlay](#teleprompter-overlay-meeting-leader-mode).
+The top bar is hidden at first, so the script has the whole window. Move the pointer to the top edge, or press the
+small **▾** button at the top, to see it. It shows:
+- **Time**: the time of day;
+- **Frame**: the Frame on screen, for example *Discussion · 3 of 9* (*Not live yet* before you go live);
+- **Timer**: **Start** / **Pause** and **Reset**, to time yourself.
 
-![The Teleprompter window: the script, what is on screen, what comes next and a clock](images/speaker-view.png)
+**Keep open** keeps the bar showing; **Hide bar** hides it again. The window buttons are at its right. Drag the bar
+to move the window, and drag an edge to resize it.
 
 **Controls**
+
+The script takes nearly the whole width of the window. A small toolbar floats over it and fades after a few seconds.
+Move the mouse to bring it back.
 
 | Control | Key (while the Teleprompter has focus) |
 | --- | --- |
@@ -196,94 +199,22 @@ To read your script on top of Zoom or Teams instead, use the [Teleprompter overl
 | Speed: Very slow, Slow, Normal, Fast, Very fast | — |
 | Text smaller / larger (**A−** / **A+**) | **−** / **+** |
 | Line spacing, high contrast | — |
-| Focus mode | **F** |
 | Mirror the text (for a teleprompter glass) | **M** |
+| Edit the script (**✎**) | — |
 | Back to the top | **Home** |
 | Scroll by hand | **↑ ↓**, **Page Up / Page Down**, the mouse wheel or touch |
 
-The cue line at the top shows **Frame 3 of 9**, **LIVE** when that Frame is on screen, the next Frame, and the next
-question or scripture.
+> **Note:** In a web browser (not the installed app), the Teleprompter opens as a pop-up and cannot stay on top or
+> be kept out of screen sharing.
+
+> **Note:** Version 8.0 has one Teleprompter. The Teleprompter docked in the Studio (left, right, bottom or
+> floating), the see-through *Teleprompter overlay* with its transparency modes and frosted glass, **Shift+R**, and
+> the old Teleprompter window's **On screen & next** panel were removed.
 
 > **Note:** Answers and presenter notes on questions and scriptures were removed in 6.7. Nothing was deleted from
 > your data. Put what you want to remember in the Frame's Teleprompter script.
 
 On the phone, the Teleprompter is on the remote too. See [Remote control](remote-control.md#teleprompter-on-the-phone).
-
-## Teleprompter overlay (Meeting Leader mode)
-
-The **Teleprompter overlay** shows your script in a see-through window that you place over Zoom, Teams or Google
-Meet. You read your script and still see the participants, shared screens and chat behind it. Only you see it.
-
-**Open it**
-- **Live tools → Teleprompter → Over Zoom**, or press **Shift+R**.
-- In the docked Teleprompter, select **Overlay** in its header.
-- From the tray icon near the clock: **Teleprompter**.
-- From [Spotlight](#spotlight) or the [command palette](#command-palette): type *overlay*.
-
-The overlay shows the script of the Frame on screen. Before you go live, it shows the first Frame, so you can
-rehearse.
-
-**Choose how see-through it is**
-
-| Mode | Transparent | Key | Good for |
-| --- | --- | --- | --- |
-| **Solid** | 0 % | **1** | Reading only, nothing behind it |
-| **Presenter** | 20 % | **2** | Mostly script, a hint of the meeting |
-| **Meeting** | 40 % (the default) | **3** | Reading while you watch the participants |
-| **Conference** | 65 % | **4** | Keeping a close eye on faces and shared screens |
-| **Ghost** | 85 % | **5** | Short reminders over a busy screen |
-
-The more see-through it is, the stronger the outline around the letters, so the text stays easy to read.
-
-- **Frosted glass** blurs what is behind the overlay, so the text stands out. On Windows 11 (22H2 and later) it is
-  Acrylic glass; on Windows 10 it is a plain blur.
-- **Stay on top** (📌, or press **P**) keeps the overlay above Zoom, Teams, PowerPoint and browsers. The overlay
-  remembers this and your other choices.
-
-> **Note:** The overlay is never shown in screen sharing or recordings, even when you share your whole screen
-> (Windows 10 version 2004 or later). It is never on the FrameRelay camera either. The Teleprompter window and
-> Spotlight are left out of screen sharing too.
-
-**The toolbar and the ribbon**
-
-The script takes nearly the whole width of the window. A small glass toolbar floats at the bottom and fades after
-about three seconds. Move the mouse to bring it back.
-
-| Control | Key |
-| --- | --- |
-| Play / pause | **Space** |
-| Speed | — |
-| Text smaller / larger (**A−** / **A+**) | **−** / **+** |
-| Line spacing, high contrast | — |
-| Mirror the text (for a teleprompter glass) | **M** |
-| Back to the top | **Home** |
-| Edit the script (**✎**) | — |
-| Transparency mode | **1** to **5** |
-| Frosted glass | — |
-| Stay on top (📌) | **P** |
-| Exit | **Esc** |
-
-A thin ribbon at the top, with the window buttons, appears with the toolbar. Drag the ribbon to move the overlay.
-Drag an edge to resize it.
-
-**Place it in Zoom or Teams**
-1. Start the meeting and open the overlay (**Shift+R**).
-2. Drag it over the part of the meeting you need to see least, for example the lower part of the gallery or beside
-   the shared screen. Keep it close to your camera so your eyes stay near the lens.
-3. Make it as small as you can still read comfortably. Use **A−** / **A+** for the text.
-4. Start with **Meeting** (3). Go to **Conference** (4) if you need to see faces, or **Presenter** (2) if the text is
-   hard to read.
-5. Check that **Stay on top** (📌) is on, then click into Zoom or Teams: the overlay should stay in front.
-
-> **Important:** With **Light on graphics card** on (the default), the overlay fades as a whole, text included. For
-> solid text over a see-through background, turn off **Settings → General → Performance → Light on graphics card**
-> and restart FrameDecks. If your meeting does not show through on your PC, turn on **Compatibility
-> transparency** in **Settings → General → Window and tray**: the whole window then fades.
-
-You can set the overlay's starting transparency, frosted glass, stay on top and compatibility transparency in
-**Settings → General → Window and tray**.
-
-> **Note:** In a web browser (not the installed app), the overlay cannot be see-through or stay on top.
 
 ## Command palette
 
@@ -312,8 +243,8 @@ FrameDecks is hidden in the tray.
 
 With an empty search, Spotlight shows **Recent**, **Frequently used** and **Suggested** items.
 
-**Go Live**, **Next / Previous Frame**, **Hide all**, **Black screen**, **Freeze**, the **Teleprompter window** and the
-**Teleprompter overlay** run without bringing the main window back. Everything else opens the main window.
+**Go Live**, **Next / Previous Frame**, **Hide all**, **Black screen**, **Freeze** and the **Teleprompter** run without
+bringing the main window back. Everything else opens the main window.
 
 If another program already uses Alt+Space (for example PowerToys Run), FrameDecks uses **Ctrl+Alt+Space**
 instead. **Settings → General → Window and tray → Spotlight** shows which shortcut works. You can choose Alt+Space,
@@ -357,10 +288,7 @@ meeting shortcuts in **Settings**.
 | **F** | Freeze on / off |
 | **D** | Annotate on / off |
 | **R** | Teleprompter on / off |
-| **Shift + R** | Teleprompter overlay on / off |
-| **1** to **5** | Overlay transparency: Solid, Presenter, Meeting, Conference, Ghost (in the overlay) |
-| **M** | Mirror the text (in the Teleprompter or the overlay) |
-| **P** | Stay on top on / off (in the overlay) |
+| **M** | Mirror the text (in the Teleprompter) |
 | **Ctrl + K** or **Ctrl + Space** | Command palette |
 | **Alt + Space** | Spotlight, from anywhere in Windows (you can change it in Settings) |
 | **F2** | Rename the selected Frame or Content |
@@ -372,7 +300,8 @@ meeting shortcuts in **Settings**.
 
 ## Live-safety tips
 
-- **Rehearse** once on the same PC, room and network.
+- **Rehearse** once on the same PC, room and network. To try things out before people join, turn on **Live tools →
+  Black screen**: your own preview still shows everything.
 - **Check the badge** before you edit: PREVIEW is safe, LIVE is public.
 - **Keep Esc in mind.** It hides everything instantly.
 - **Silence notifications** on the presentation PC (Windows Focus / Do not disturb).

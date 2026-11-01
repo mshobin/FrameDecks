@@ -77,22 +77,23 @@ as icons. Where a page has no icon set (the Teleprompter window), a plain-text f
 | Dates | — | `When` / `relativeTime()` from `src/lib/when.ts` ("2 h ago", exact time on hover) |
 | Content preview | — | `KindIcon` (`content-kind.tsx`) + first line, reference or count |
 
-## Running a service
+## Running a meeting
 
-The program has two modes, switched at the top of the window (`js/service.js`; owner-approved, 27 October):
+The program has one Studio for planning and running a meeting (`js/service.js`; owner-approved, 27 October; one
+Studio since 8.0). There is no Prepare / Run switch, no Run view and no Practice mode.
 
-- **Prepare** is the Studio for planning: Frames, Content, the editor, Quick Start, + Frame.
-- **Run** is the Studio during a service. It shows the running order, what is on screen, **Up next**, Previous, Next,
-  Go Live, Hide all, the Live tools and the list steppers. Every editor is hidden, and renaming, dragging, menus,
-  Delete, cut, paste and undo do nothing in the Studio. Double-clicking a Frame still puts it on screen.
+- The **Studio** holds Frames, the **Decks** section with the selected Frame's Content, the editor, Quick Start and
+  + Frame. Previous, Next, Go Live, Hide all and Live tools are always in the top bar, with the list steppers. The
+  Share Window is separate and unchanged.
 - **Hide all** is calm (neutral) while nothing is on screen and red the moment something is (`body.kc-on-air`).
 - **Live tools** are grouped: On screen (Hide the selected Content, Black screen, Freeze, Draw), Teleprompter (one
-  entry: in this window, over Zoom, own window) and Emergency, set apart. Esc and clicking away close the menu; Esc
-  then does not also hide everything.
-- **Before you start** (in Run, while nothing is on screen) reads the status the program already has: Frames, how
-  people will see it, the program, the phone remote.
-- **Practice mode** turns on the black screen for the audience; the program's own previews add `practice=1` and show
-  everything. Turning the black screen off any other way ends Practice.
+  entry, *only you see it*: the Teleprompter window above Zoom and Teams) and Emergency, set apart. Esc and clicking
+  away close the menu; Esc then does not also hide everything. To try things out before a meeting, Black screen is
+  the answer: the program's own previews still show everything.
+- **Ready checks** (`KCServiceChecks.list`) are a short list read from the status the program already has: Frames in
+  the running order, how people will see it (FrameRelay ready, the Share Window open, or an overlay page open), the
+  program responding, the phone remote. Each problem has a button that goes to its fix. The Setup guide's **Ready**
+  step shows them.
 - **How people see it** (Settings) is one guided choice: FrameRelay, the Share Window, or a projector, TV or OBS. The
   camera and display pages sit under it in the menu.
 - Settings that few people need (Transitions, Keyboard shortcuts, Security, Diagnostics) are folded under
@@ -159,16 +160,20 @@ named), no invented quotes, logos or numbers.
   86–89 performance (the paragraph is the largest paint), 100 accessibility; JS 339 KB (was 380 with GSAP) and CSS
   21 KB gzipped (CSS budget 24 KB in `scripts/check-budget.mjs`).
 
-## Setup guide (6.14)
+## Setup guide (6.14; a step-by-step wizard since 8.0)
 
-One list of seven steps in both places (`app/js/guide-steps.js`, `hosted/src/lib/guide-steps.ts`). In the program a
-360 px panel at the right (`app/js/guide.js`, `.gd-*` in `console.css`): a gold progress ring and "N of 7 done", done
-steps with a green tick and dimmed text, the current step with a gold ring, its sentence and its buttons (the main
-action in gold, "Show me how"), optional steps marked and skippable, "Skip for now" at the foot, a minus to shrink
-it to a pill. "Show me how" dims the window with one box-shadow around the real control and one sentence beside it.
-The finish: the emblem settles once, "You're ready for your first gathering", **Open Run**, **Close**. Motion: one
-entrance on `cubic-bezier(.16,1,.3,1)`, nothing loops, nothing under reduced motion. On the website a card on Home
-(`.fd-guide` in `identity.css`), two columns of steps, the PC's steps with a dashed ring and "On the PC".
+One list of six steps in both places (`app/js/guide-steps.js`, `hosted/src/lib/guide-steps.ts`): Welcome, How people
+will see it, Your phone as a remote (optional), Connect to FrameDecks (optional), Make your first Frame, Ready. In the
+program a 360 px panel at the right (`app/js/guide.js`, `.gd-*` in `console.css`) shows one step at a time: "Step n of
+6" and a progress bar with one segment per step (any step can be opened again), the step's title (optional steps
+marked), its sentence and its buttons (the main action in gold, "Show me how", **Skip this step** on optional steps), a
+status line saying what the program sees, and **Something not working?** with what to try. At the foot **← Back**,
+**Do this later** and **Next →**, which is enabled only when the step is detected as done. A minus shrinks it to a
+pill ("n of 6"). "Show me how" dims the window with one box-shadow around the real control and one sentence beside
+it. **Ready** shows the ready checks, each problem with a fix button. The finish: the emblem settles once, "You're
+ready for your first gathering", **Open the Studio**, **Close**. Motion: one entrance on `cubic-bezier(.16,1,.3,1)`,
+nothing loops, nothing under reduced motion. On the website a card on Home (`.fd-guide` in `identity.css`), two
+columns of steps, the PC's steps with a dashed ring and "On the PC".
 
 ## Signed-in pages (28 October visual pass)
 
@@ -187,8 +192,7 @@ Every list or page that loads has the same four states (`hosted/src/components/s
 4. **Done:** the content.
 
 In the program the same rule holds: the Teleprompter without a script shows one message and **Write a script**; the
-first run says **Welcome to FrameDecks** with **Start fresh** as the main choice and a small card, **Your first service
-in four steps** (branding, a Frame, how people see it, practising in Run).
+first run says **Welcome to FrameDecks** with **Start fresh** as the main choice, which opens the Setup guide.
 
 ## Themes
 
@@ -213,10 +217,10 @@ in four steps** (branding, a Frame, how people see it, practising in Run).
 | Check | Where | What fails it |
 | --- | --- | --- |
 | `python tools/css_tokens.py` | Desktop checks (CI), `tests/test_css_tokens.py` | a font size, weight or radius off the scale; a hand-written drop shadow; a colour outside the palette; more `!important` than the baseline (program 16, website 7) |
-| `node tests/visual/layout.mjs` | Desktop checks → visual (CI) | Run showing an editor or no Up next; Hide all red with nothing on screen; Esc leaving Live tools open; the command bar cut short or scrolling at 1100–1920 px; anything over the Studio canvas; first run not focusing Start fresh; Teleprompter empty state without its action; the Settings menu out of line; serif headings |
+| `node tests/visual/layout.mjs` | Desktop checks → visual (CI) | a Prepare / Run switch; the section under the Frames not called Decks; Hide all red with nothing on screen; Esc leaving Live tools open; the command bar cut short or scrolling at 1100–1920 px; anything over the Studio canvas; first run not focusing Start fresh; Teleprompter empty state without its action; the Settings menu out of line; serif headings |
 | `hosted/tests/design-audit.test.mjs` | Hosted companion checks (CI) | missing skip link or `<main>`; "Loading…" text instead of the state kit; text under 12 px or under 4.5:1; links in gold; the light theme not applied before paint |
-| `node tests/visual/a11y.mjs` | Desktop checks → visual (CI) | any axe WCAG 2.1 AA violation on any tab, Settings section, the first-run question, or the Speaker, Teleprompter and Spotlight windows, in dark and light |
-| `tests/test_ui_labels.py`, `tests/test_camera_name.py` | Python tests | the program's labels, first run, camera name, Prepare / Run, Live tools groups, How people see it, Advanced and People |
+| `node tests/visual/a11y.mjs` | Desktop checks → visual (CI) | any axe WCAG 2.1 AA violation on any tab, Settings section, the first-run question, or the Teleprompter (`speaker.html`) and Spotlight windows, in dark and light |
+| `tests/test_ui_labels.py`, `tests/test_camera_name.py` | Python tests | the program's labels, first run, camera name, the one Studio, Practice mode gone, the Setup guide wizard, Live tools groups, How people see it, Advanced and People |
 
 **Reference screens** are in `tests/visual/baselines/` (from `node tests/visual/layout.mjs --shots`, saved as WebP). When a
 change is meant to alter a screen, take new shots and replace the matching file in the same change.

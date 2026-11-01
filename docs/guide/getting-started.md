@@ -56,10 +56,14 @@ A webcam is optional. You need one only if people should see you on the FrameRel
    your old folder (it is usually found automatically) and select **Import**. Your old folder is not changed. (An
    installed earlier version needs nothing: the installer updates it and your data is kept.)
 3. The app opens on the **Studio**, where you build and run meetings.
-4. On a new PC the **Setup guide** opens at the right: seven steps from choosing your kind of gathering to "Ready".
-   Each step ticks itself when FrameDecks sees it is done (a phone connected, Practice used, every line of Before you
-   start green). **Show me how** dims the window and points at the button to press. Skip it any time; it comes back
-   from **Settings → About → Guided tour** or the command palette (Ctrl+K, "Setup guide").
+4. On a new PC the **Setup guide** opens at the right. It shows one step at a time ("Step 1 of 6", with a progress
+   bar): **Welcome**, **How people will see it**, **Your phone as a remote** (optional), **Connect to FrameDecks**
+   (optional), **Make your first Frame** and **Ready**. **Next** becomes available when FrameDecks sees the step is
+   done; **Back** goes back, **Do this later** moves on, and optional steps have **Skip this step**. **Show me how**
+   dims the window and points at the button to press, and **Something not working?** lists what to try. **Ready**
+   checks that everything is working, and each problem has a button to fix it; the last screen offers **Open the
+   Studio**. Close the guide any time; it comes back from **Settings → About → Guided tour** or the command palette
+   (Ctrl+K, "Setup guide").
 
 > **Note:** Everything you do is saved automatically on this PC. There is no Save button to remember.
 
@@ -71,11 +75,11 @@ A webcam is optional. You need one only if people should see you on the FrameRel
 
 | Area | Where | What it does |
 | --- | --- | --- |
-| **Command bar** | Across the top | Studio · Members · Settings (Alt+1, Alt+3, Alt+4), **◀ Frame · Go Live · Frame ▶**, transitions, the question and scripture steppers, the **Program** menu, **Hide all** (with its **Esc** key) and the LIVE status |
-| **Frames** | Left, top | Every Frame in your meetings, in order. The live Frame is marked **LIVE**, the next one **NEXT** |
-| **Content** | Left, bottom | The Content inside the selected Frame. The top of the list is in front |
+| **Command bar** | Across the top | Studio · Members · Settings (Alt+1, Alt+3, Alt+4), **◀ Frame · Go Live · Frame ▶**, transitions, the question and scripture steppers, the **Live tools** menu, **Hide all** (with its **Esc** key) and the LIVE status |
+| **Frames** | Left, top | Every Frame in your meetings, in order, as compact cards. The live Frame is marked **LIVE**, the next one **NEXT** |
+| **Decks** | Left, bottom | The Content inside the selected Frame (**+ Content** adds to it). The top of the list is in front |
 | **Studio Canvas** | Middle | A preview of the selected Frame, or the live picture. The badge says **PREVIEW · not on air** or **LIVE** |
-| **Content Settings** | Below the canvas | Every setting for what you selected, most used first: Label, Content, Display Settings, Visual Settings (a Frame has Frame, Timing and History) |
+| **Content Settings** | Below the canvas | Every setting for what you selected, most used first: Label, Content, Display Settings, Visual Settings (a Frame shows its name, Teleprompter script and auto-advance, with the rest under **Advanced**) |
 
 > **Tip:** The canvas badge is your safety check. **PREVIEW · not on air** means nobody sees what you are editing.
 
@@ -131,11 +135,10 @@ See [Service planning](service-planning.md), [Frames](frames.md) and [Content](c
 
 ## Go Live and step through
 
-The top bar has two modes. **Prepare** is for planning and editing. **Run** is for the service itself: it shows the
-running order, what is on screen, what is **Up next** and a short **Before you start** checklist, and nothing can be
-edited by accident. Switch back to **Prepare** at any time.
+You build and run the meeting in the same place, the Studio. **◀ Previous**, **Next ▶**, **Go Live**, **Hide all** and
+**Live tools** are always in the top bar.
 
-1. Select **Run**, then the first Frame.
+1. Select the first Frame.
 2. Select **Go Live** (or press **T**). The badge turns to **Live** and **Hide all** turns red: something is on screen.
 3. Move through the meeting:
    - **Next ▶** (or **]**) goes to the next Frame; **◀ Previous** (or **[**) goes back;
@@ -143,13 +146,13 @@ edited by accident. Switch back to **Prepare** at any time.
    - **Shift + → / ←** step through its scriptures.
 4. When you need a clean screen, press **Esc** (**Hide all**).
 
-**Practise first.** In **Run**, tick **Practice mode**: your audience sees a black screen while you try Go Live, Next
-and Hide all, and your own preview still shows everything. Untick it (or select **Stop practising**) when you are ready.
+**Try it out first.** Turn on **Live tools → Black screen**: your audience sees a black screen while you try Go Live,
+Next and Hide all, and your own preview still shows everything. Turn it off when you are ready.
 Not sure how people will see your meeting? **Settings → How people see it** offers three ways: FrameRelay in Zoom or
 Teams, the Share Window, or a projector, TV or OBS. The words FrameDecks uses are in the [glossary](glossary.md).
 
-See [Presentations](presentations.md) for transitions, Black screen, Freeze, Annotate, the Teleprompter, the Teleprompter
-overlay, the command palette and Spotlight.
+See [Presentations](presentations.md) for transitions, Black screen, Freeze, Annotate, the Teleprompter, the command
+palette and Spotlight.
 
 ## Add your phone (optional)
 
@@ -173,8 +176,9 @@ Do this once, a day or two before your first real meeting.
 - [ ] **Hide all (Esc)** and **Black screen (K)** work.
 - [ ] If you use a projector: **Share Window** opens the Presentation window and it fills the projector screen.
 - [ ] If you use your phone: it connects, and **NEXT FRAME** works.
-- [ ] You know where the **Teleprompter** is (Live tools → Teleprompter → In this window, or **R**) if you want your script in front of
-      you. Only you see it. On Zoom or Teams, try the **Teleprompter overlay** (**Shift+R**) over the meeting.
+- [ ] You know where the **Teleprompter** is (**Live tools → Teleprompter**, or **R**) if you want your script in
+      front of you. It stays on top of Zoom or Teams, and only you see it: it is hidden from screen sharing and
+      recordings.
 - [ ] Do a 10-minute rehearsal with one other person on a test Zoom call.
 
 > **Important:** Rehearse on the same PC, network and room you will use on the day. Most problems are found in the

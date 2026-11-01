@@ -22,7 +22,7 @@ How to create, organize and reuse Frames, the building blocks of every meeting.
 ## What a Frame is
 
 A **Frame** is one screen or one step of your meeting, such as *Welcome*, *Worship*, *Scripture Reading*,
-*Discussion* or *Closing*. It holds the **Content** shown at that moment, and its own transition, timing and Teleprompter script.
+*Discussion* or *Closing*. It holds the **Content** shown at that moment, and its own transition, auto-advance and Teleprompter script.
 
 ```mermaid
 flowchart TD
@@ -52,10 +52,10 @@ After creating a Frame, add Content with **+ Content**. See [Content](content.md
 
 ## Name, group and order
 
-- **Rename:** double-click the Frame's **name**, press **F2**, or type in Content Settings → **Frame → Name**. The
+- **Rename:** double-click the Frame's **name**, press **F2**, or type in Content Settings → **Name**. The
   name becomes a text box right in the list: **Enter** saves, **Esc** cancels, and clicking away saves. Double-clicking
   anywhere else on the Frame's row puts it on screen (**Go Live**).
-- **Group:** Content Settings → **Frame → Group**, or **⋯ → Move to group…**. Groups fold away in the list; use one
+- **Group:** Content Settings → **Advanced → Group**, or **⋯ → Move to group…**. Groups fold away in the list; use one
   group per service, such as *Sunday 12 May* or *Romans · Week 5*.
 - **Order:** drag a Frame up or down, or use **⋯ → Move up / Move down**. The order is the order of
   **Frame ▶**.
@@ -83,63 +83,60 @@ Right-click the selection for the same actions in a menu.
 
 ## Frame settings
 
-Select a Frame (and no Content) to see its settings in **Content Settings**.
+Select a Frame (and no Content) to see its settings in **Content Settings**. Each Frame is a compact card in the
+list; its settings show only what you change often.
 
-### Frame
 | Setting | What it does |
 | --- | --- |
 | **Name** | Shown in the Frames list, on the phone remote and in the Teleprompter |
-| **Group** | Which group the Frame belongs to |
-| **Favourite** | Shows the Frame under **Favorites** |
-| **Template** | Keeps the Frame as a template for making new Frames. Templates are skipped by **Frame ▶** |
-| **Teleprompter script** | What you plan to say on this Frame, up to 20,000 characters. Only you see it, in the Teleprompter (on the PC and the phone), never on screen. Called *Leader notes* before 6.7. See [Presentations](presentations.md#teleprompter) |
-| **Branding** | Adds or removes your logo and Meeting Name badge in this Frame |
+| **Teleprompter script** | What you plan to say on this Frame, up to 20,000 characters. Only you see it, in the Teleprompter (on the PC and the phone), never on screen. **Open the Teleprompter** opens it. Called *Leader notes* before 6.7. See [Presentations](presentations.md#teleprompter) |
+| **Move to the next Frame after N seconds** | Moves on by itself after that many seconds, but only while **Auto** is on in the command bar |
 
-Buttons below: **Duplicate…**, **Save as template** and, when the Frame has questions, **One Frame per question**.
+Below them, **Duplicate Frame** puts a copy right after this Frame.
 
-### Timing
+### Advanced
+Fold out **Advanced** for the settings you change less often.
+
 | Setting | What it does |
 | --- | --- |
+| **Group** | Which group the Frame belongs to |
 | **Transition into this Frame** | How the Frame appears: your profile's transition, or a specific one such as Cut, Fade, Cross Dissolve, Dip to Black, Slide Left / Right, Push, Zoom Fade, Soft Scale, Cinema Fade or Church Service Fade |
-| **Duration (ms)** | How long the transition takes |
-| **Auto advance to the next Frame** | Moves on by itself after **After (seconds)**, but only while **Auto** is on in the command bar |
+| **Length (ms)** | How long the transition takes |
+| **Branding** | Adds or removes your logo and Meeting Name badge in this Frame |
+| **Favourite** | Shows the Frame under **Favorites** |
+| **Template** | Keeps the Frame as a template for making new Frames. Templates are skipped by **Frame ▶** |
+| **Save as template** | Saves a copy of the Frame as a template |
+| **One Frame per question / One Frame per verse** | See [One Frame per question](#one-frame-per-question) |
 
-### History
-**Created**, **Modified**, **Version**, **Creator**, **Duplicated from**, **Template** and **Parent Frame**. Every
-change raises the Frame's version, so you can see what changed and when.
+The Frame's history is at the end of **Advanced**: **Created**, **Changed**, **Copied from** and **Original Frame**.
 
 ## Duplicate a Frame
 
-Open the Frame's **⋯** menu, or select it and press **Ctrl+D**.
-
-| Option | What you get |
-| --- | --- |
-| **Duplicate** (or **Duplicate & edit question** when the Frame has questions) | An exact copy; with questions, the copy's question opens for editing |
-| **Duplicate (keep the question)** | An exact copy, without opening the editor |
-| **Duplicate with options…** | Choose what to copy: Content; layout (positions and sizes); branding; animations; transitions and auto advance; output routing |
-| **Duplicate as template** | A copy saved as a template |
-| **Duplicate Content structure only** | The same Content, but with empty question and scripture lists |
-| **Create variant** | A copy linked to the original as its **Parent Frame**, for example a shorter version |
-| **Duplicate to group…** | A copy placed straight into another group, such as next week's service |
+Right-click the Frame (or open its **⋯** menu) and choose **Duplicate Frame**, or select it and press **Ctrl+D**. The
+copy goes right after the original. To put it in another group, such as next week's service, use **Move to group…**
+on the copy.
 
 > **Note:** A duplicate is completely independent. Every Content and every question and scripture gets new IDs,
 > and nothing is linked back to the original.
+
+> **Note:** Since 8.0 there is one Duplicate. The other choices (with options, as template, structure only, Create
+> variant, to group) were removed; **Save as template** is under **Advanced**.
 
 ## One Frame per question
 
 Some leaders prefer each question on its own Frame, so **Frame ▶** moves to the next question.
 
 1. Select a Frame with a Question list.
-2. Choose **⋯ → Make one Frame per question** (or **One Frame per question** in Frame settings).
+2. In Frame settings, open **Advanced** and choose **One Frame per question**.
 3. New Frames, each with one question, appear right after it.
 
-**Make one Frame per verse** does the same for a Scripture list.
+**One Frame per verse** does the same for a Scripture list.
 
 ## Templates
 
 A **template** is a Frame you keep for making new Frames, such as your standard *Welcome* or *Closing*.
 
-- **Make one:** **Save as template** in Frame settings, or **⋯ → Duplicate as template**.
+- **Make one:** **Advanced → Save as template** in Frame settings.
 - **Use one:** **✨ Meeting → From your templates →** the template's name.
 - Templates stay in the Frames list but are not part of the running order: **Frame ▶** skips them and you cannot
   **Go Live** on a template.
@@ -156,9 +153,7 @@ To share a whole meeting, export it to Excel instead: **Settings → Data / Back
 | Item | Shortcut |
 | --- | --- |
 | Go Live | T |
-| Duplicate / Duplicate & edit question | Ctrl+D |
-| Duplicate (keep the question), with options, as template, structure only, Create variant, to group | — |
-| Make one Frame per question / per verse | — |
+| Duplicate Frame | Ctrl+D |
 | Rename | F2 |
 | Move to group, Move up, Move down | — |
 | Export Frame file | — |

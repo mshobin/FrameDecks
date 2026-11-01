@@ -24,7 +24,13 @@ For installing, see `docs/development/building-the-installer.md`. For what each 
    - the resolution (720p or 1080p);
    - background blur;
    - the Camera Look;
-   - whether your cards appear on the camera.
+   - whether your cards appear on the camera;
+   - **Picture quality** (folded): a **Quick setting** (Setting, Strength of the look, Zoom in); **Light and colour**
+     (Brightness and Colour, each Automatic or Set it myself, with Shutter speed, Light boost and Warm ↔ cool; Bright
+     window behind you; Flickering lights; **Fine-tune light and colour** with **Put these back to normal**); and
+     **More webcam options** (Webcam picture, Smoothness, Dark areas / Fix grey blacks).
+5. **Diagnostics** (folded, in the same page) gives a one-line answer: *Everything looks normal.*, or what to try.
+   **Technical details (for support)** holds the numbers to send to support.
 
 **Upgrading from a version before 6.4:** the camera had its earlier name. The installer renames it and keeps the
 same device ID. In OBS, point any old source that used the camera's earlier name at FrameDecks once.
@@ -40,8 +46,9 @@ same device ID. In OBS, point any old source that used the camera's earlier name
     Appearance** (dark, light or match Windows);
   - **Minimize button**: Ask each time, Hide to tray, or Stay in taskbar;
   - **Spotlight**: the system-wide search shortcut (Alt+Space by default; Ctrl+Space, Ctrl+Alt+Space,
-    Ctrl+Shift+Space, Win+Shift+K or Off), with a line saying whether it works;
-  - **Teleprompter overlay**: its starting Transparency, Frosted glass, Stay on top and Compatibility transparency.
+    Ctrl+Shift+Space, Win+Shift+K or Off), with a line saying whether it works.
+  (The Teleprompter overlay settings were removed in 8.0: the one Teleprompter window always stays on top and is
+  left out of screen sharing, with nothing to set.)
 - **Close (X)** asks whether to keep running in the background (camera, overlays and phone remote keep
   working) or quit. The icon near the clock opens it again.
 - If **Microsoft Edge WebView2 Runtime** is missing, the app opens as an Edge app window instead (no address bar or

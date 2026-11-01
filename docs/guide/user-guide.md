@@ -28,7 +28,7 @@ The **command bar** across the top holds everything you need live:
 | Studio · Members · Settings | The three sections (Alt+1, Alt+3, Alt+4) |
 | ◀ Frame · **Go Live** · Frame ▶ | Put the selected Frame on screen (T), or step to the previous or next Frame |
 | Transition · Auto · ◀ Question ▶ | How the next Frame appears; auto-advance; step through the Frame's questions or scriptures |
-| Program ▾ | A drop-down menu: Hide Content · **Blackout** (K) · Emergency · **Annotate** (D) · **Freeze** (F) · **Teleprompter** (R) · **Teleprompter window** · **Teleprompter overlay** (Shift+R) |
+| Live tools ▾ | A drop-down menu: Hide the selected Content · **Black screen** (K) · **Freeze the picture** (F) · **Draw on the picture** (D) · **Teleprompter** (R) · Emergency screen |
 | Hide all **Esc** | Hide everything. The **Esc** key is shown inside the button |
 | ● Off air / LIVE | What is on screen now |
 | Window buttons | Minimize, Maximize / Restore and Close, at the top right |
@@ -47,8 +47,7 @@ move the window, and double-click it to maximize. Snap and resizing from the edg
  window has the same three buttons at the top right.
 - **Minimize** asks *Hide application to system tray?*: **Hide To Tray** or **Stay In Taskbar**, with **Remember my
   choice**. In the tray, the camera, overlays, phone remote and shortcuts keep working.
-- The **tray icon** near the clock: click it to open the app. Its menu has **Open App**, **Teleprompter** (the
-  overlay), **Search** (Spotlight), **Settings**, **More** (Look, Frame, Stop screen share, Hide all overlays,
+- The **tray icon** near the clock: click it to open the app. Its menu has **Open App**, **Teleprompter**, **Search** (Spotlight), **Settings**, **More** (Look, Frame, Stop screen share, Hide all overlays,
   Presentation window, Phone remote) and **Exit**.
 - **Spotlight** (Alt+Space, or Ctrl+Alt+Space if another program has Alt+Space) opens the command palette's search in
   the middle of the screen, from anywhere, even with the app in the tray. Go Live, Next / Previous Frame, Hide all,
@@ -56,8 +55,7 @@ move the window, and double-click it to maximize. Snap and resizing from the edg
   Frequently used and Suggested.
 - **Settings → General → Window and tray**: Modern window (off brings the Windows title bar back, after a restart),
   Minimize button (Ask each time / Hide to tray / Stay in taskbar), the Spotlight shortcut (Alt+Space, Ctrl+Space,
-  Ctrl+Alt+Space, Ctrl+Shift+Space, Win+Shift+K or Off, with a line saying whether it works), and the overlay's
-  starting Transparency, Frosted glass, Stay on top and Compatibility transparency.
+  Ctrl+Alt+Space, Ctrl+Shift+Space, Win+Shift+K or Off, with a line saying whether it works).
 
 ## 2. Frames and Content
 - **Meeting** (the ✨ button next to + Frame) has:
@@ -66,16 +64,14 @@ move the window, and double-click it to maximize. Snap and resizing from the edg
   - the Content Library;
   - your Frame templates.
 - **+ Frame** adds one **blank** Frame after the selected one. Name it by double-clicking its **name** (or F2), or
-  under *Content Settings → Frame*. The name is edited right in the list: **Enter** saves, **Esc** cancels.
-- Select the Frame, then **+ Content**:
-  - **Question**, **Scripture**, **Text**, **Discussion topic**, **Icebreaker**, **Poll (show of hands)**, **Image**,
-    **Video**, **Timer**, **PowerPoint**. The Poll only shows the choices; people answer by a show of hands or in the
-    chat, and nothing is counted;
+  in its **Name** box in Content Settings. The name is edited right in the list: **Enter** saves, **Esc** cancels.
+- Select the Frame, then **+ Content** (the **Decks** section under the Frames list shows its Content):
+  - **Question**, **Scripture**, **Text**, **Image**, **Video**, **Timer**, **PowerPoint**;
   - **Free Content**: announcement, prayer point, lower third, birthday, branding, camera, screen share, a live
     window, logo, watermark, free text, shape, background.
 - **Content belongs to its Frame.** Changing it never changes another Frame.
-- **Duplicate** (⋯ on a Frame) makes a completely separate copy. Every question, scripture, label and setting is
-  copied, not shared.
+- **Duplicate Frame** (right-click a Frame, or **Ctrl+D**) puts a completely separate copy right after it. Every
+  question, scripture, label and setting is copied, not shared.
 - Select a Frame and press **Go Live**. Double-click the Frame's row (not its name), or press **T**, to do the same.
 - **Select several** Frames or Contents with **Ctrl+Click**, **Shift+Click** or by dragging a box in empty list
   space (**Ctrl+A** selects all). Then:
@@ -90,9 +86,13 @@ Select any Content and every setting is in one panel, most used first:
 - **Display Settings** (with **Animation** and **Show on** inside it)
 - **Visual Settings**
 
-Pictures, video and PowerPoint have a **Media** group. A Frame on its own has **Frame**, **Timing** and **History**.
+Pictures, video and PowerPoint have a **Media** group. A Frame on its own shows its **Name**, its **Teleprompter
+script** (with **Open the Teleprompter**), **Move to the next Frame after N seconds** and a **Duplicate Frame** button.
+Its **Advanced** section holds the Group, the Transition into this Frame and its Length (ms), Branding, Favourite,
+Template, **Save as template**, **One Frame per question / per verse**, and its history (Created, Changed, Copied
+from, Original Frame).
 
-The group names along the top jump to their group. There is no Basic / Advanced switch: everything is visible.
+The group names along the top jump to their group.
 Where each piece of Content appears (FrameDecks, OBS pages) is set once, in that Content's **Show on** group.
 
 **Branding Content** has: **Display** (Logo only, Name only, Logo + Name, and optionally the Organization Name);
@@ -109,7 +109,7 @@ A Question (or Scripture) Content holds **its own list**, shown full height in C
 - **Enter** on a selected item opens all its settings **in the same panel**: its own **Label** (for example
   *Question 1* or *John 15:5*), the text and its own transition. Press **Done** (or Esc) to go back to the list.
 - **Or edit it on the canvas:** double-click any card on the Studio Canvas (question, scripture, announcement,
-  prayer, discussion topic, icebreaker, poll, lower third, timer) to edit its text; double-click the card's label
+  prayer, lower third, timer) to edit its text; double-click the card's label
   (its top line) to edit the label. The same keys apply. If the card is on screen, the screen changes too.
 - Questions have no Answer or Notes fields any more (6.7). Old ones are kept in your data but not shown; put
   reminders in the Frame's **Teleprompter script**.
@@ -134,35 +134,20 @@ A Question (or Scripture) Content holds **its own list**, shown full height in C
     hides them.
 - **Freeze (F)** holds the picture while you get the next thing ready. You can still draw on it.
 - **Blackout (K)** makes the picture black.
-- **Teleprompter** (Program → Teleprompter, or **R**) shows the Frame's **Teleprompter script**. Only you see it;
-  it is never on any output.
+- **Teleprompter** (Live tools → Teleprompter, **R**, the command palette's *Teleprompter on / off*, or the tray's
+  **Teleprompter**) shows the Frame's **Teleprompter script** in one window that stays on top of Zoom, Teams or Meet.
+  Only you see it: it is never on any output, and it is hidden from screen sharing and recordings.
   - Write the script in Frame settings → **Teleprompter script** (up to 20,000 characters), or double-click the
     teleprompter text (or **✎**). Markup: `# Heading`, `- bullet`, `**bold**`, `*italic*`, `[PAUSE]` cue chips,
     `---` divider.
-  - Dock it **Left**, **Right** or **Bottom** of the Studio, or **Float** it; drag to resize. **Follows: Live / Selected**
-    chooses which Frame's script it shows.
-  - Scroll play / pause (Space), speeds from Very slow to Very fast, **A− / A+** (− / + keys), line spacing, high
-    contrast, Focus mode (F), back to top (Home), arrow and Page keys, the mouse wheel and touch.
-  - The cue line shows *Frame 3 of 9*, **LIVE**, the next Frame and the next question or scripture.
-- **Teleprompter window** (Program → Teleprompter window; it was Speaker View) opens the Teleprompter in its own
-  window for a second screen. The script takes the whole width; **On screen & next** slides in the clocks, a timer,
-  what is on screen and what comes next (hidden at first, remembered). The controls float and fade. **M** mirrors
-  the text.
-- **Teleprompter overlay** (Program → Teleprompter overlay, **Shift+R**, the tray, Spotlight, the palette, or
-  **Overlay** in the docked Teleprompter) shows the script in a see-through window over Zoom, Teams or Meet.
-  - Five modes, keys **1**–**5**: Solid (0 %), Presenter (20 %), Meeting (40 %, the default), Conference (65 %),
-    Ghost (85 %). The outline around the letters gets stronger as it gets more see-through.
-  - **Frosted glass** (Acrylic on Windows 11 22H2+, blur on Windows 10); **Stay on top** (📌, **P**), remembered.
-  - Never in screen sharing or recordings (Windows 10 2004+). The Teleprompter window and Spotlight are left out
-    too.
-  - The script takes about 95 % of the width. A glass toolbar floats at the bottom and fades after about 3 seconds:
-    Play / Pause (Space), speed, A− / A+, line spacing, contrast, Mirror (M), top, edit ✎, transparency, frost,
-    pin and Exit (Esc). A thin ribbon appears with it at the top: drag it to move the overlay; resize from the
-    edges.
   - It follows the Frame on screen (the first Frame before you go live).
-  - With **Light on graphics card** on (the default) the overlay fades as a whole, text included. For solid text,
-    turn that setting off and restart. **Compatibility transparency** forces the whole-window fade if the meeting
-    does not show through.
+  - The script takes nearly the whole width. A small toolbar floats over it and fades: Play / Pause (Space), speed
+    from Very slow to Very fast, A− / A+, line spacing, contrast, Mirror (M) and edit ✎.
+  - The **top bar** is hidden at first. Move the pointer to the top edge, or press the small **▾** button there, to
+    see it: **Time**, the current **Frame** (*name · 3 of 9*) and a **Timer** (Start / Pause, Reset), with **Keep
+    open** / **Hide bar** and the window buttons. Drag the bar to move the window; resize from the edges.
+  - The docked Teleprompter, the separate Teleprompter overlay (with its transparency modes) and **Shift+R** were
+    removed in 8.0: this one window replaces them.
 
 ## 5. The FrameRelay camera
 Choose **FrameDecks** as the camera in Zoom, Teams, Google Meet or OBS. Participants see your webcam with the live
@@ -216,7 +201,7 @@ put them: Branding Content, text that uses `{meeting}` / `{org}`, and **Show my 
 
 ## 9. Saving and backups
 Everything saves automatically on this PC. **Settings → Data / Backup** keeps daily backups and lets you make one now or
-restore one. Each Frame keeps its version and history (Content Settings → History). FrameDecks has no accounts,
+restore one. Each Frame keeps its version and history (Content Settings → Advanced). FrameDecks has no accounts,
 shared workspaces or cloud: your meeting stays on your PC unless you export it.
 
 ## 10. Help

@@ -11,7 +11,6 @@ Every kind of Content you can put in a Frame, and every setting that controls ho
 - [Question](#question)
 - [Scripture](#scripture)
 - [Editing questions and scriptures](#editing-questions-and-scriptures)
-- [Discussion topic, Icebreaker and Poll](#discussion-topic-icebreaker-and-poll)
 - [Text, Prayer Point, Lower Third and Branding](#text-prayer-point-lower-third-and-branding)
 - [Timer](#timer)
 - [Image, Video and PowerPoint](#image-video-and-powerpoint)
@@ -32,13 +31,14 @@ Every kind of Content you can put in a Frame, and every setting that controls ho
 | **Question** | Announcement |
 | **Scripture** | Prayer Point |
 | **Text** | Lower Third |
-| **Discussion topic** | Birthday |
-| **Icebreaker** | Branding (logo + Meeting Name) |
-| **Poll (show of hands)** | Camera |
-| **Image…** | Screen…, Window (live PowerPoint or any app)… |
-| **Video…** | Logo…, Watermark…, Free text on the picture, Shape, Background |
-| **Timer** | |
-| **PowerPoint…** | |
+| **Image…** | Birthday |
+| **Video…** | Branding (logo + Meeting Name) |
+| **Timer** | Camera |
+| **PowerPoint…** | Screen…, Window (live PowerPoint or any app)… |
+| | Logo…, Watermark…, Free text on the picture, Shape, Background |
+
+> **Note:** The ready-made **Discussion topic**, **Icebreaker** and **Poll (show of hands)** cards were removed from
+> **+ Content** and the Library in 8.0. Frames that already have them keep them.
 
 > **Note:** A Frame has at most one Question, one Scripture, one Birthday and one Branding Content. Put all of a
 > Frame's questions into its one Question list. If you choose Question again, FrameDecks takes you to the
@@ -50,7 +50,7 @@ Every kind of Content you can put in a Frame, and every setting that controls ho
 
 ## The Content list
 
-The **Content** list (left, below the Frames) shows what is in the selected Frame.
+The **Decks** section (left, below the Frames) lists the Content in the selected Frame. **+ Content** adds to it.
 
 - **Order:** the top of the list is in front. Drag to change the order.
 - **Eye:** show or hide one piece of Content.
@@ -78,7 +78,8 @@ visible at once, in groups, with the most used first. The group names at the top
 | **Visual Settings** | Text size and opacity |
 | **Media** | File, slide and placement settings for pictures, video and PowerPoint |
 
-A Frame's own settings are in **Frame**, **Timing** and **History**. See [Frames](frames.md#frame-settings).
+A Frame's own settings are its name, Teleprompter script and auto-advance, with the rest under **Advanced**. See
+[Frames](frames.md#frame-settings).
 
 ## Question
 
@@ -155,27 +156,10 @@ and **Done** (or **Esc**) to return to the list.
 
 ### On the Studio Canvas
 Double-click any card on the canvas, in the preview or on the live picture: question, scripture, announcement,
-prayer, discussion topic, icebreaker, poll, lower third or timer. You edit its main text. Double-click the card's
+prayer, lower third or timer. You edit its main text. Double-click the card's
 **label** (its top line) to edit the label instead.
 
 ![Editing a question directly on the Studio Canvas](images/canvas-edit.png)
-
-## Discussion topic, Icebreaker and Poll
-
-Three ready-made text cards in **+ Content**, for small groups and Bible studies. Each one starts with a label and
-sample text; double-click the card on the canvas to change them.
-
-| Type | Starts with |
-| --- | --- |
-| **Discussion topic** | *Group Discussion*: a topic for everyone to talk about |
-| **Icebreaker** | *Opening Thought*: a light question to start the meeting |
-| **Poll (show of hands)** | *Quick Poll*: answers A, B and C, and a line asking people to raise a hand or type in the chat |
-
-> **Note:** The Poll only shows the question and the choices. There is no voting and no counting: people answer by
-> raising a hand or typing in the meeting chat.
-
-The same three are in the **Content Library** (the **Library** filter in the Frames list), under *Discussion
-Questions*. They work like **Text**, so every setting below applies.
 
 ## Text, Prayer Point, Lower Third and Branding
 

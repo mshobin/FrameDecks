@@ -7,12 +7,15 @@ release surprises them.
 
 ## Version numbers
 
-Versions are **major.minor** (6.5, 6.6, 7.0). The number lives in one place: `APP_VERSION` in `src/server.py`.
+Versions are **major.minor**, with a third number for fix releases since 7.1.1 (6.5, 7.0, 7.1.2, 8.0.0). The number
+lives in one place: `APP_VERSION` in `src/server.py`.
 `packaging/get_version.py` reads it for the installer name, and the app shows it in Settings → About.
 
-- Increase **minor** (6.6 → 6.7) for every release, including fixes.
-- Increase **major** (6.x → 7.0) when the way volunteers work changes significantly, or saved data from the new
-  version cannot be opened by the previous one.
+- Increase **minor** (6.6 → 6.7) for a release with new features.
+- Increase the third number (7.1.1 → 7.1.2) for a release with fixes only.
+- Increase **major** (7.x → 8.0.0) when the way volunteers work changes significantly, or saved data from the new
+  version cannot be opened by the previous one. 8.0.0 was a major release because the Studio, the Teleprompter and
+  the Setup guide changed for every volunteer.
 
 ## Before you start
 
@@ -28,9 +31,10 @@ Versions are **major.minor** (6.5, 6.6, 7.0). The number lives in one place: `AP
    `assets/brand/framedecks-about-header.webp`, used at the top of the README and of the GitHub Release. The build fails if
    the picture shows another version.
 2. **Write the release notes** in `docs/releases/vX.Y.md`, with the sections `## What's New`, `## Enhancements`,
-   `## Fixes`, `## Performance Improvements` and `## Known Issues`. The file name must match the version exactly.
-   On a version tag, the workflow runs `tools/make_release_notes.py`, which puts the About screen's header first and
-   the sections in that order, and publishes the result as the GitHub Release. Write for volunteers (see
+   `## Fixes`, `## Performance Improvements` and `## Known Issues`. Other sections, such as `## Removed` (used in
+   8.0.0 for features that were taken out), are kept and placed after them. The file name must match the version
+   exactly. On a version tag, the workflow runs `tools/make_release_notes.py`, which puts the About screen's header
+   first and the sections in that order, and publishes the result as the GitHub Release. Write for volunteers (see
    [changelog standards](changelog-standards.md)), starting with the download instruction.
 3. **Update `docs/CHANGELOG.md`.** Move the **Unreleased** entries into a new `## [X.Y] - YYYY-MM-DD` section and add the
    link at the bottom.

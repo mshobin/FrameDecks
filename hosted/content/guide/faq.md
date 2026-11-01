@@ -42,7 +42,7 @@ One screen, or one step, of your meeting. A Frame holds its own Content and neve
 Create a Frame for each part of the service in order, add Content to each, and check them on the Studio Canvas. See [Service planning](service-planning.md).
 
 **Can I reuse last week's service?**
-Yes. **Duplicate** a Frame (⋯ on the Frame) to make a fully independent copy, or **Save as template** to start new Frames from it. You can also export a whole meeting to Excel and import it later.
+Yes. **Duplicate Frame** (right-click the Frame, or **Ctrl+D**) makes a fully independent copy right after it, or **Save as template** to start new Frames from it. You can also export a whole meeting to Excel and import it later.
 
 **Can I plan in Excel?**
 Yes, optionally. The **Meeting Workbook** (Settings → Data / Backup → Download the Excel template; since 6.11 the website's Meeting Form does the same online) has two tabs: the **Meeting Form**, one guided page where you type the meeting details, Frames, Content, questions and scriptures, and the **Dashboard**, which sums it up for you. Import shows every problem with where it is (for example *Meeting Form · Content · row 26*) before anything changes, and can be undone. Workbooks from earlier versions still import. See [Meeting Workbook and branding](../reference/meeting-workbook-and-branding.md).
@@ -51,13 +51,13 @@ Yes, optionally. The **Meeting Workbook** (Settings → Data / Backup → Downlo
 No. FrameDecks runs on one PC with no accounts or shared workspaces. To share a plan, export it (Excel Meeting Workbook or a Frame file) and import it on the other PC.
 
 **Can it advance automatically?**
-Yes. Each Frame can **Auto advance** after a number of seconds (Content Settings → Timing), while **Auto** is on in the command bar.
+Yes. Each Frame can **Auto advance** after a number of seconds (Content Settings → **Move to the next Frame after N seconds**), while **Auto** is on in the command bar.
 
 **Is there a countdown timer?**
 Yes. **+ Content → Timer** counts down a number of minutes, or until a time of day, and shows your message at zero.
 
 **Can we run a poll?**
-A simple one. **+ Content → Poll (show of hands)** shows a question with choices A, B and C. People answer by raising a hand or typing in the chat. FrameDecks does not collect or count votes. There are also **Discussion topic** and **Icebreaker** cards for small groups.
+Not as a ready-made card since 8.0 (the Poll, Discussion topic and Icebreaker cards were removed; Frames that already have them keep them). Put the question and the choices in a **Question** or **Text** Content and ask people to raise a hand or type in the chat. FrameDecks does not collect or count votes.
 
 ## Worship and lyrics
 
@@ -112,9 +112,9 @@ Yes. Open the **Presentation window** (**Share Window** on the Studio Canvas) on
 Yes. Add **FrameDecks** as a Video Capture Device, or use the overlay pages (`http://localhost:8750/...`) as Browser Sources on top of your own OBS scenes. See [Media](media.md#obs-and-browser-overlay-pages).
 
 **Will Zoom participants see my teleprompter?**
-No. The **Teleprompter overlay** is left out of screen sharing and recordings, even when you share your whole screen
-(Windows 10 version 2004 or later). The Teleprompter window is left out too. Neither is ever on the FrameDecks
-camera. See [Teleprompter overlay](presentations.md#teleprompter-overlay-meeting-leader-mode).
+No. The **Teleprompter** window is left out of screen sharing and recordings, even when you share your whole screen
+(Windows 10 version 2004 or later). It is never on the FrameDecks camera either. See
+[Teleprompter](presentations.md#teleprompter).
 
 **Does it work on a Mac?**
 No. FrameDecks is a Windows 10/11 app. The phone remote works on iPhone, iPad and Android.
@@ -151,7 +151,7 @@ Five things: **Go Live**, **NEXT FRAME**, **NEXT CONTENT**, **HIDE ALL**, and **
 Press **HIDE ALL** (or **Esc** on the PC), then put the right Frame back with **Go Live**. Nothing is ever deleted by these buttons.
 
 **Can the leader see notes that the congregation can't?**
-Yes. Write them in each Frame's **Teleprompter script** (Frame settings). Open it with **Live tools → Teleprompter → In this window** (**R**), in the **Teleprompter window** on a second screen, or with **TELEPROMPTER** on the phone remote. See [Presentations](presentations.md#teleprompter).
+Yes. Write them in each Frame's **Teleprompter script** (Frame settings). Open it with **Live tools → Teleprompter** (**R**): a window that stays on top of Zoom or Teams. Or use **TELEPROMPTER** on the phone remote. See [Presentations](presentations.md#teleprompter).
 
 **Can the audience see the teleprompter?**
 No. The Teleprompter is only for the presenter. It is never on the FrameRelay camera, the Presentation window, the OBS pages or the phone's drawing pad.

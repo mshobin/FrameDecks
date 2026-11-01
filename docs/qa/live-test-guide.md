@@ -30,8 +30,8 @@ before: go on to the next one. Any other error: stop and send it.
 ## 2. The program on the service PC
 
 1. Open the latest **Build Windows installer** run on `main` (GitHub → Actions → Build Windows installer), scroll to
-   **Artifacts**, download **FrameDecks v6.14** and unzip it.
-2. Run `FrameDecks v6.14.exe` from the zip (the `.sha256` file next to it is its checksum) and install as you do
+   **Artifacts**, download **FrameDecks v8.0.0** and unzip it.
+2. Run `FrameDecks v8.0.0.exe` from the zip (the `.sha256` file next to it is its checksum) and install as you do
    for each new version. Windows may say it protects your PC: **More info** → **Run anyway**. Make a backup first
    (Settings → Data / Backup → Save a backup file) if you want to be safe.
 
@@ -53,16 +53,22 @@ SQL editor.
 6. On the PC change a Frame's name. **Expect:** after reloading Plan (within about a minute) the new name.
 7. Open **Members** in the companion. **Expect:** the member list from the PC (owners and admins only).
 
-## 3a. Test J: the Setup guide (6.14)
+## 3a. Test J: the Setup guide (6.14; a step-by-step wizard since 8.0)
 
 1. On a PC that never had FrameDecks (or after renaming the data folder), install and open it; choose **Start fresh**.
-   **Expect:** the Setup guide at the right, 0 of 7.
-2. Choose a kind of gathering. **Expect:** its Frames appear and "Welcome" ticks; "Make your first Frame" does not.
-3. Change a Frame's name. **Expect:** "Make your first Frame" ticks.
-4. Follow "Show me how" on each remaining step. **Expect:** the window dims around the right control; each step ticks
-   by itself (FrameRelay chosen, a phone connected, Practice mode plus Next), then "Ready", then "You're ready for your
-   first gathering".
-5. On framedecks.com Home **Expect:** the same seven steps; the PC's steps say "On the PC".
+   **Expect:** the Setup guide at the right, showing one step: "Step 1 of 6", a progress bar, **Back** and **Next**.
+2. Choose a kind of gathering. **Expect:** its Frames appear, the status line says the step is done and **Next**
+   becomes available. Before that, **Next** is not available; **Do this later** moves on anyway.
+3. **How people will see it**: follow "Show me how". **Expect:** the window dims around the right control; once
+   FrameRelay (or the Share Window) is chosen, **Next** becomes available. Open **Something not working?**:
+   **Expect:** a short list of things to try.
+4. **Your phone as a remote** and **Connect to FrameDecks**. **Expect:** both are marked optional and have **Skip
+   this step**; connecting a phone completes the first by itself.
+5. **Make your first Frame**: change a Frame's name. **Expect:** the step is done.
+6. **Ready**. **Expect:** the ready checks (the running order, how people see it, the phone remote); anything not
+   working has a button to fix it. Then the finish screen with **Open the Studio**, which closes the guide and opens
+   the Studio. There is no Rehearse or Practice step.
+7. On framedecks.com Home **Expect:** the same six steps; the PC's steps say "On the PC".
 
 ## 4. Test B: phone control
 
@@ -134,22 +140,22 @@ Needs FrameDecks 6.11 on the linked PC.
 6. On the PC: **Settings → Data / Backup → Meeting from Excel → Import a meeting from Excel…** still works (W2),
    and the ✨ Meeting menu no longer lists Excel.
 
-## 10. Test H: run a service in Run, with Practice (27 October)
+## 10. Test H: run a meeting in the Studio (27 October; one Studio since 8.0)
 
 On the service PC, no real call needed.
-1. Select **Run** at the top. **Expect:** the running order on the left, the picture in the middle, **Up next** on the
-   right with **Before you start**; no editor, no + Frame. Double-click a Frame name: it goes on screen (no renaming).
-2. Tick **Practice mode**. **Expect:** a strip "Practice: your audience sees a black screen"; in Zoom (FrameRelay) the
-   picture is black, while the program's own preview still shows your Frame.
+1. Open the Studio. **Expect:** no Prepare / Run switch; **◀ Previous**, **Next ▶**, **Go Live**, **Hide all** and
+   **Live tools** are in the top bar.
+2. Turn on **Live tools → Black screen**. **Expect:** in Zoom (FrameRelay) the picture is black, while the program's
+   own preview still shows your Frame.
 3. Press **Go Live**, **Next ▶** and **Esc**. **Expect:** **Hide all** is red while something is on screen and calm
-   after Esc; Up next follows.
-4. Open **Live tools**, press **Esc**. **Expect:** only the menu closes. Select **Stop practising**. **Expect:** Zoom
+   after Esc; the Frames list marks **LIVE** and **NEXT**.
+4. Open **Live tools**, press **Esc**. **Expect:** only the menu closes. Turn **Black screen** off. **Expect:** Zoom
    shows the picture again.
 5. **Settings → How people see it** → **Set up FrameRelay**. **Expect:** the FrameRelay page with **← How people see it**.
-6. Under Up next: the keys (] Next, [ Previous, T Go Live, Esc Hide all, or your own). Set the meeting's time to
-   now with Practice mode on. **Expect:** within a few seconds the Practice strip says "It is service time … Still practising?"
-   and a reminder appears once.
-7. Check the window at your PC's real width: the top bar on one row (two rows below about 1400 px in Prepare).
+6. Press **R**. **Expect:** the Teleprompter window opens on top of Zoom with only the script; move the pointer to its
+   top edge (or press the small ▾ button) and the top bar shows Time, the Frame (name · n of m) and a Timer. Share
+   your whole screen in a test call: **Expect:** the Teleprompter is not in the share. Press **R** again to close it.
+7. Check the window at your PC's real width: the top bar on one row (two rows when narrow).
 
 ## 11. Test I: the website's new places (27 October)
 

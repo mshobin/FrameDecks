@@ -17,9 +17,10 @@ rendering and camera output stay on the PC. FrameDecks is proprietary software, 
 
 ## What it does
 - **Frames and Content**: one Frame per moment of the service; **+ Content** adds a Question, Scripture, Text,
-  Discussion topic, Icebreaker, Poll (show of hands), Image, Video, Timer, PowerPoint or Free Content (announcement,
-  prayer, lower third, branding, camera, screen, window, shapes). Every Frame owns its Content, so duplicating last
-  week's service never changes it. Rename and edit in place (double-click; no pop-ups); select several Frames or
+  Image, Video, Timer, PowerPoint or Free Content (announcement, prayer, lower third, branding, camera, screen,
+  window, shapes) to the Frame's **Decks**. Frames are compact cards; **Duplicate Frame** (Ctrl+D) puts an independent
+  copy right after a Frame, so reusing last week's service never changes it. One Studio plans and runs the meeting,
+  and a step-by-step **Setup guide** gets a new PC ready. Rename and edit in place (double-click; no pop-ups); select several Frames or
   Contents to copy, paste, duplicate, move or delete them with Undo ([FRAMES](docs/guide/frames.md) ·
   [CONTENT](docs/guide/content.md)).
 - **Presenting**: **Go Live** (T), Frame and item steppers, transitions and auto-advance, Hide all (Esc), Blackout
@@ -38,12 +39,11 @@ rendering and camera output stay on the PC. FrameDecks is proprietary software, 
 - **Phone remote**: a **Simple** remote with large PREVIOUS / NEXT FRAME and CONTENT, ANNOTATE, FREEZE and BLACK
   SCREEN buttons, a TELEPROMPTER button, and an **Advanced** remote with search, a Teleprompter panel and run-through. PIN-protected, local network only;
   draw on the real live picture, full screen in landscape ([REMOTE_CONTROL](docs/guide/remote-control.md)).
-- **Teleprompter**: each Frame's script, seen only by the presenter — docked in the Studio (R), in its own
-  **Teleprompter window** on a second screen (clocks and what comes next on request), or on the phone. Scrolls by itself,
-  with speed, text size, high contrast and focus mode. Never on any output.
-- **Teleprompter overlay (Meeting Leader mode)**: your script in a see-through window over Zoom, Teams or Meet
-  (Shift+R), with five transparency modes (Solid to Ghost), frosted glass and stay on top. Left out of screen sharing
-  and recordings (Windows 10 2004 or later) ([PRESENTATIONS](docs/guide/presentations.md#teleprompter-overlay-meeting-leader-mode)).
+- **Teleprompter**: each Frame's script, seen only by the presenter, in one window that stays on top of Zoom, Teams
+  or Meet (Live tools → Teleprompter, or R), or on the phone. Its top bar (time, the current Frame and a timer) stays
+  hidden until you need it. Scrolls by itself, with speed, text size, high contrast and mirroring. Never on any output,
+  and left out of screen sharing and recordings (Windows 10 2004 or later)
+  ([PRESENTATIONS](docs/guide/presentations.md#teleprompter)).
 - **Window and tray**: the app's own ribbon instead of the Windows title bar (Snap and resizing kept); Minimize can hide
   it to the tray, where the camera, overlays, phone remote and shortcuts keep working. **Spotlight** (Alt+Space) opens
   the command palette from anywhere in Windows, even from the tray ([GETTING_STARTED](docs/guide/getting-started.md#the-window-buttons-and-the-tray)).

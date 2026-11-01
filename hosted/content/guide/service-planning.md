@@ -41,10 +41,10 @@ During the meeting you move from one Frame to the next with **Frame ▶**, on th
 
 | Frame | Suggested Content | Notes |
 | --- | --- | --- |
-| **Welcome** | Text ("Welcome to {meeting}"), Timer counting down to the start, Icebreaker | `{meeting}` shows your Meeting Name |
+| **Welcome** | Text ("Welcome to {meeting}"), Timer counting down to the start | `{meeting}` shows your Meeting Name |
 | **Worship** | Text with the lyrics, or a PowerPoint of the lyrics | See [Planning worship lyrics today](#planning-worship-lyrics-today) |
 | **Scripture Reading** | Scripture with the passage | Fetch ESV text, or type any translation |
-| **Message / Discussion** | Question list, Scripture list, Discussion topic, Poll, or PowerPoint slides | Your talking points go in the Teleprompter script |
+| **Message / Discussion** | Question list, Scripture list, or PowerPoint slides | Your talking points go in the Teleprompter script |
 | **Prayer** | Prayer Point | |
 | **Announcements** | Text, Image | |
 | **Closing** | Text, Branding (your logo and Meeting Name) | |
@@ -69,7 +69,7 @@ If you saved a Frame as a template (see [Frames](frames.md#templates)), it appea
 ## Organize your Frames
 
 - **Groups:** put a whole service in one group, for example *Romans · Week 5*. Set it in Content Settings →
-  **Frame → Group**, or from the Frame's **⋯** menu → **Move to group…**.
+  **Advanced → Group**, or from the Frame's **⋯** menu → **Move to group…**.
 - **Order:** drag Frames in the list, or use **⋯ → Move up / Move down**.
 - **Favourites:** star the Frames you reuse often, then use the **Favorites** filter.
 - **Search:** type in **Search Frames**, or press **Ctrl+K** (or **Ctrl+Space**) to open the command palette and
@@ -80,13 +80,10 @@ If you saved a Frame as a template (see [Frames](frames.md#templates)), it appea
 
 ## Reuse last week's service
 
-1. Open the **⋯** menu on a Frame (or select it and press **Ctrl+D**).
-2. Choose a duplicate option:
-   - **Duplicate**: an exact, fully independent copy;
-   - **Duplicate & edit question**: copies the Frame and opens its question for editing;
-   - **Duplicate with options…**: choose what to copy (Content, layout, branding, animations, transitions, output routing);
-   - **Duplicate Content structure only**: the same Content, with empty lists;
-   - **Duplicate to group…**: copies it straight into another group, such as next week's.
+1. Right-click a Frame (or open its **⋯** menu) and choose **Duplicate Frame**, or select it and press **Ctrl+D**.
+   The copy goes right after the original.
+2. To put the copy in another group, such as next week's, choose **Move to group…** on the copy (or set **Advanced →
+   Group** in Content Settings).
 3. Change the copy. The original is never affected.
 
 > **Note:** A duplicate shares nothing with the original. Editing a question in the copy never changes last week's
@@ -99,7 +96,7 @@ It is never shown on any output.
 
 | Where you write it | Where you read it during the meeting |
 | --- | --- |
-| Content Settings → **Frame → Teleprompter script**, or double-click the text in the Teleprompter | **Program → Teleprompter** (R), the **Teleprompter window** on a second screen, or the phone remote's Teleprompter |
+| Content Settings → **Teleprompter script**, or double-click the text in the Teleprompter | **Live tools → Teleprompter** (R), a window over Zoom or Teams that is hidden from screen sharing, or the phone remote's Teleprompter |
 
 Use `# Heading`, `- bullet`, `**bold**`, `*italic*`, `[PAUSE]` and `---` to make it easy to read at a glance. See
 [Presentations](presentations.md#teleprompter).
@@ -193,7 +190,7 @@ Today, churches show lyrics in one of two ways:
 
 ## Weekly planning checklist
 
-- [ ] Duplicate last week's service into a new group, or start from Quick Start.
+- [ ] Duplicate last week's Frames and move the copies into a new group, or start from Quick Start.
 - [ ] Update every Frame name so the volunteer running it knows what comes next.
 - [ ] Add this week's questions and scriptures, and write each Frame's Teleprompter script.
 - [ ] Preview each Frame on the Studio Canvas (select it; the badge says PREVIEW).

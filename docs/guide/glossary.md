@@ -12,19 +12,18 @@ word, the screen is wrong: fix the screen, not this list. (Owner-approved simpli
 | **Running order** | The Frames in the order they go on screen. | services list, scene list, playlist |
 | **Plan** | The website page where you plan a meeting (Frames, questions, scripture, the presenter's script) and see its history. It replaced the Meeting Form and Running order pages. | Meeting Form (the Excel file is the *Meeting Workbook*), services |
 | **Home** | The website's first page: your next service and whether it is ready. | Overview, dashboard |
-| **Prepare** | The Studio when you plan and edit Frames. | edit mode, design view |
-| **Run** | The Studio during a service: the running order, what is on screen, what is up next, and nothing to edit by accident. | show mode, live mode, presenter mode |
+| **Studio** | The one place where you plan, edit and run a meeting. Previous, Next, Go Live, Hide all and Live tools are always in its top bar. (The separate Prepare / Run views were removed in 8.0.) | edit mode, design view, show mode, live mode, presenter mode |
+| **Decks** | The section under the Frames list that holds the selected Frame's Content (**+ Content** adds to it). | layers |
 | **Go Live** | Put the chosen Frame on screen. | take, cut, send |
 | **Previous / Next** | Put the Frame before or after the one on screen. | back / forward, prev |
-| **Up next** | The Frame that Next (or Go Live) puts on screen. | cue, preview (alone) |
+| **Up next** | The Frame that Next (or Go Live) puts on screen, marked **NEXT** in the Frames list. | cue, preview (alone) |
 | **On screen** / **Live** | What the audience sees now. | on air (except the **Off air** status), program |
 | **Hide all** | Clear the screen (Esc). | clear all, HIDE ALL |
 | **Black screen** | Make the picture black (K). | blackout (the LAN phone remote's Advanced view still says *Blackout*) |
 | **Freeze the picture** | Hold the picture while you fix something (F). | pause |
 | **Draw on the picture** | Draw on the live picture (D). | annotate (the shortcut list still says *Annotate*) |
 | **Emergency screen** | A message for everyone when something goes wrong. | slate, panic screen |
-| **Teleprompter** | Your script, which only you see: **in this window**, **over Zoom** or in its **own window**. | speaker view, confidence monitor, prompter overlay |
-| **Practice mode** | Rehearse with the audience seeing a black screen; your own preview shows everything. | test mode, rehearsal mode |
+| **Teleprompter** | Your script, which only you see: one window that stays on top of Zoom or Teams and is hidden from screen sharing and recordings (R). | speaker view, confidence monitor, prompter overlay |
 | **How people see it** | The way your meeting reaches people: FrameRelay in Zoom or Teams, the **Share Window**, or a projector, TV or OBS. | output, display settings, sources |
 | **Share Window** | A clean window with only your Frames, to share in Zoom. | presentation window, present mode |
 | **Live tools** | The menu with Black screen, Freeze, Draw, the Teleprompter and the Emergency screen. | Program menu |

@@ -39,8 +39,7 @@ service PC. Volunteers do not need this page; start with [Getting started](../gu
 flowchart LR
   subgraph PC["Service PC (Windows)"]
     UI["Main window<br/>app/dashboard.html"]
-    SPK["Teleprompter window<br/>app/speaker.html"]
-    PRM["Teleprompter overlay<br/>app/prompter.html"]
+    SPK["Teleprompter<br/>app/speaker.html"]
     SPOT["Spotlight<br/>app/spotlight.html"]
     SRV["Control server<br/>src/server.py :8750"]
     ENG["Camera engine<br/>vcam/"]
@@ -54,7 +53,6 @@ flowchart LR
 
   UI <--> SRV
   SPK <--> SRV
-  PRM <--> SRV
   SPOT <--> SRV
   PHONE <-- "Wi-Fi, PIN" --> SRV
   OBS <--> SRV
@@ -73,7 +71,7 @@ What a team does with the software, from planning to the end of the service. Eac
 ```mermaid
 flowchart LR
   A["Plan<br/>Meeting · Frames · Content<br/>(or Excel Meeting Workbook)"] --> B["Prepare<br/>media, PowerPoint,<br/>scripture text"]
-  B --> C["Rehearse<br/>preview each Frame,<br/>phone run-through"]
+  B --> C["Rehearse<br/>preview each Frame,<br/>Black screen, phone run-through"]
   C --> D["Go Live<br/>first Frame on screen"]
   D --> E["Lead the service<br/>step Frames and Content,<br/>annotate, freeze"]
   E --> F{"Problem?"}
@@ -86,11 +84,11 @@ flowchart LR
 | --- | --- |
 | Plan | + Frame, + Content, Meeting menu (Quick Start, templates, Excel Meeting Workbook) |
 | Prepare | Content Settings → Media; PowerPoint conversion; Scripture fetch or typed text |
-| Rehearse | Studio Canvas preview (any Frame, not on air); phone **Run-through** |
+| Rehearse | Studio Canvas preview (any Frame, not on air); Live tools → Black screen while you try Go Live and Next; phone **Run-through** |
 | Go Live | **Go Live** (T), ◀ Frame / Frame ▶, the phone's NEXT FRAME |
-| Lead | → / ← questions, Shift + → / ← scriptures, Annotate (D), Freeze (F), Teleprompter (R), Teleprompter window and Teleprompter overlay (Shift+R), command palette (Ctrl+K), Spotlight (Alt+Space) |
+| Lead | → / ← questions, Shift + → / ← scriptures, Annotate (D), Freeze (F), Teleprompter (R), command palette (Ctrl+K), Spotlight (Alt+Space) |
 | Recover | Hide all (Esc), Blackout (K), Emergency |
-| After | Export to Excel, Settings → Data / Backup, Duplicate Frames |
+| After | Export to Excel, Settings → Data / Backup, Duplicate Frame |
 
 ---
 
@@ -266,8 +264,7 @@ window features use Windows' own functions through `src/desktop_win.py` (ctypes,
 | Window | Page | Notes |
 | --- | --- | --- |
 | Main window | `app/dashboard.html` | The command bar is the ribbon (`data-win-drag`) with the window buttons (`data-win-controls`) |
-| Teleprompter window | `app/speaker.html` | The ribbon is its top bar; the script takes the full width and **On screen & next** slides in |
-| Teleprompter overlay | `app/prompter.html` | See-through (`desktop_win.glass`, or the whole-window `desktop_win.fade`), on top, left out of screen sharing (`hide_from_capture`); floating glass toolbar. Exists only while open |
+| Teleprompter | `app/speaker.html` | The one Teleprompter (8.0): on top (`on_top`), left out of screen sharing and recordings (`hide_from_capture`); the script takes the full width with a floating toolbar. Its top bar (Time, Frame, Timer, Keep open / Hide bar, window buttons) is the ribbon and stays hidden until the pointer reaches the top edge or the ▾ button is pressed. Exists only while open |
 | Spotlight | `app/spotlight.html` | Created hidden at start-up, then only shown and hidden. Runs the command palette's search in its own window |
 | Presentation window | `app/present.html` / native | Unchanged: shared in Zoom, no window controls |
 
@@ -277,7 +274,7 @@ window features use Windows' own functions through `src/desktop_win.py` (ctypes,
   (`SC_DRAGMOVE`) once the mouse has moved 4 px, maximizes on double-click and asks the minimize question. The page
   talks to Python through `POST api/app/win`. Settings → General → Window and tray → *Modern window* off keeps the
   Windows title bar; if Windows refuses the change, the title bar simply stays.
-- **The tray** (pystray): Open App (the default; a click opens it), Teleprompter (overlay on / off), Search
+- **The tray** (pystray): Open App (the default; a click opens it), Teleprompter (on / off), Search
   (Spotlight), Settings, More (Look, Frame, Stop screen share, Hide all overlays, Presentation window, Phone remote)
   and Exit. Hidden to the tray, the window leaves the taskbar; the server, camera, overlays, phone remote and
   shortcut keep running.
@@ -285,22 +282,22 @@ window features use Windows' own functions through `src/desktop_win.py` (ctypes,
   own message-loop thread (default Alt+Space, Ctrl+Alt+Space if that is taken). The shortcut centres Spotlight on the
   monitor under the mouse. Spotlight reads its list from the main window (`KCPalette.exportIndex()`) and runs the
   choice there (`KCPalette.runKey()`); background-safe commands leave the main window in the tray.
-- **Settings.** `customChrome`, `minimizeTo`, `spotlightKey`, `overlayMode`, `overlayFrost`, `overlayOnTop` and
-  `overlayFade`, validated by `src/server.py`.
+- **Settings.** `customChrome`, `minimizeTo` and `spotlightKey`, validated by `src/server.py`. (The overlay's
+  `overlayMode`, `overlayFrost`, `overlayOnTop` and `overlayFade` went with the Teleprompter overlay in 8.0.)
 
 ## Components and files
 
 | Part | Files | Role |
 | --- | --- | --- |
 | Control server | `src/server.py` | HTTP on `127.0.0.1:8750` (plus the LAN when the remote is on), state, uploads, settings, scripture lookup, remote sign-in, backups, the Meeting Workbook export (`POST api/meeting/workbook`, this PC only) |
-| Desktop shell | `src/desktop_app.py` | WebView2 windows via pywebview (main, Teleprompter window, Teleprompter overlay, Spotlight, Presentation window), tray icon and menu, global shortcut, single instance |
-| Windows helpers | `src/desktop_win.py` | Win32 calls via ctypes: the ribbon (`Chrome`, `drag`), see-through glass and fade, capture exclusion, rounded corners, centring on the cursor, the global shortcut thread (`Hotkeys`). Safe no-ops off Windows |
+| Desktop shell | `src/desktop_app.py` | WebView2 windows via pywebview (main, Teleprompter, Spotlight, Presentation window), tray icon and menu, global shortcut, single instance |
+| Windows helpers | `src/desktop_win.py` | Win32 calls via ctypes: the ribbon (`Chrome`, `drag`), see-through glass and fade, capture exclusion, keeping a window on top, rounded corners, centring on the cursor, the global shortcut thread (`Hotkeys`). Safe no-ops off Windows |
 | Window ribbon | `app/js/window-chrome.js`, `app/css/window.css` | The one ribbon component: window buttons, drag, double-click, the minimize question |
 | Camera engine | `src/vcam/engine.py`, `compositor.py`, `layers.py`, `cards.py`, `overlay.py`, `program.py`, `annotate.py`, `blur.py`, `looks.py`, `picture.py`, `screen.py`, `devices.py`, `sink.py`, `powerpoint.py` | Capture, compose, draw cards and drawings, send to the FrameRelay camera |
 | Shared state (UI) | `app/js/store.js` | Normalizes state, Frames and Content model (`KCScenes`), sync loops |
-| Main window | `app/dashboard.html`, `app/js/workspace.js`, `frame-lists.js`, `dashboard.js`, `annotate.js`, `preview-edit.js`, `editable.js`, `palette.js`, `prompter-dock.js`, `studio.js`, … | Studio, Content Settings, lists, multi-select, annotation, inline and canvas editing, command palette (also used by Spotlight, `app/spotlight.html`), docked Teleprompter |
+| Main window | `app/dashboard.html`, `app/js/workspace.js`, `frame-lists.js`, `dashboard.js`, `annotate.js`, `preview-edit.js`, `editable.js`, `palette.js`, `studio.js`, `service.js`, `guide.js`, `guide-steps.js`, `vcam-panel.js`, … | The one Studio, Content Settings, lists, multi-select, annotation, inline and canvas editing, command palette (also used by Spotlight, `app/spotlight.html`), the ready checks and How people see it (`service.js`), the Setup guide wizard (`guide.js`), the FrameRelay Camera settings (`vcam-panel.js`) |
 | Phone remote | `app/remote.html`, `app/js/remote.js`, `app/css/remote.css` | Simple and Advanced profiles, drawing pad |
-| Teleprompter | `app/js/teleprompter.js` (shared, with the floating toolbar), `app/speaker.html`, `app/js/speaker.js` (the Teleprompter window), `app/prompter.html`, `app/js/prompter.js`, `app/css/prompter.css` (the overlay) | The Frame's Teleprompter script, what's on screen, what's next, clocks. No output reads a Frame's script, and the overlay is left out of screen sharing |
+| Teleprompter | `app/js/teleprompter.js` (shared with the phone remote, with the floating toolbar), `app/speaker.html`, `app/js/speaker.js`, `app/css/speaker.css`, `app/css/teleprompter.css` | The Frame's Teleprompter script, the current Frame, the time and a timer. No output reads a Frame's script, and the window is left out of screen sharing |
 | Overlay pages | `app/stage.html` and others, `app/js/overlay.js` | Cards and text for OBS / browser sources |
 | Excel | `app/js/meeting-book.js`, `meeting-import.js`, `import-worker.js`, `app/vendor/xlsx.full.min.js`, `src/meeting_form.py`, `app/templates/FRAMEDECKS-Meeting-Workbook.xlsx` (made by `tools/make_meeting_workbook.py`) | Meeting Workbook import and export. The workbook has two tabs, Dashboard (formulas only) and Meeting Form. `src/meeting_form.py` holds the form's layout and fills the template for an export (`POST api/meeting/workbook`); `meeting-book.js` reads the form back by its labels and header rows, and still reads the 6.5–6.8 one-sheet-per-list workbooks. The Excel library loads on first use, not at start-up |
 | Earlier-name migration | `src/legacy.py` (data folder, files, backups, recordings), a marked block at the top of `app/js/store.js` (browser settings), `packaging/installer.iss` (old program folder and shortcuts) | Moves data saved by versions published under the program's earlier name to the FrameDecks names, once, never overwriting newer data |
