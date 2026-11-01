@@ -130,10 +130,9 @@ function renderPerf(){
   $('app-native-present').checked = info.settings.nativePresent !== false;
   $('app-lowgpu-state').textContent = 'Now: ' + (info.lowGpuActive ? 'on' : 'off') + (want !== !!info.lowGpuActive ? ' (restart the app to apply your change)' : '');
 }
-/* 6.8 Settings > General > Window and tray: ribbon, minimize, Spotlight shortcut, Teleprompter overlay */
+/* 6.8 Settings > General > Window and tray: ribbon, minimize, Spotlight shortcut */
 var SPOT_KEYS = [['Alt+Space', 'Alt + Space (like PowerToys Run)'], ['Ctrl+Space', 'Ctrl + Space'], ['Ctrl+Alt+Space', 'Ctrl + Alt + Space'],
   ['Ctrl+Shift+Space', 'Ctrl + Shift + Space'], ['Win+Shift+K', 'Win + Shift + K'], ['', 'Off']];
-var OV_MODES = [['solid', 'Solid (0 % transparent)'], ['presenter', 'Presenter (20 %)'], ['meeting', 'Meeting (40 %)'], ['conference', 'Conference (65 %)'], ['ghost', 'Ghost (85 %)']];
 function renderWindow(){
   var sec = $('sec-general'); if (!sec || !info || !info.desktop) return;
   var st = info.settings || {}, box = $('app-win');
@@ -157,13 +156,7 @@ function renderWindow(){
     h('p', {cls: 'hint', text: 'In the tray (near the clock) FrameDecks keeps running: camera, overlays, phone remote and shortcuts keep working.'}),
     h('label', {cls: 'field'}, [h('span', {text: 'Spotlight (works everywhere, even from the tray)'}), select('app-spot', SPOT_KEYS, st.spotlightKey == null ? 'Alt+Space' : st.spotlightKey, 'spotlightKey', 'Saved')]),
     h('p', {cls: 'hint', id: 'app-spot-state', text: hkText}),
-    h('h3', {cls: 'app-sub', text: 'Teleprompter overlay'}),
-    h('label', {cls: 'field'}, [h('span', {text: 'Transparency'}), select('app-ovmode', OV_MODES, st.overlayMode || 'meeting', 'overlayMode', 'Saved')]),
-    h('label', {cls: 'check'}, [check('app-ovfrost', st.overlayFrost !== false, 'overlayFrost', 'Saved'), ' Frosted glass (blur what is behind it)']),
-    h('label', {cls: 'check'}, [check('app-ovtop', st.overlayOnTop !== false, 'overlayOnTop', 'Saved'), ' Stay on top of Zoom, Teams, PowerPoint and browsers']),
-    h('label', {cls: 'check'}, [check('app-ovfade', !!st.overlayFade, 'overlayFade', 'Saved. Reopen the overlay to apply it.'), ' Compatibility transparency: the whole window fades, text included (if your meeting does not show through)']),
-    h('p', {cls: 'hint', text: info.lowGpuActive ? 'Light on graphics card is on, so the overlay fades as a whole. For solid text over a see-through background, turn off Light on graphics card under Performance and restart.' :
-      'The overlay is never shown in screen sharing or recordings (Windows 10 version 2004 or later).'})];
+    h('p', {cls: 'hint', text: 'The Teleprompter stays above Zoom and Teams and is never shown in screen sharing or recordings (Windows 10 version 2004 or later).'})];
   if (!box){ box = h('section', {cls: 'box', id: 'app-win', 'aria-labelledby': 'app-win-title'}); sec.appendChild(box); }
   box.innerHTML = ''; body.forEach(function(n){ box.appendChild(n); });
 }

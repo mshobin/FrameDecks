@@ -153,9 +153,11 @@ class RunningAService(unittest.TestCase):
 
     def test_live_tools_are_grouped_and_close_on_escape(self):
         html = read("dashboard.html")
-        for words in ('<p class="lpm-h" aria-hidden="true">On screen</p>', ">Black screen</button>", ">In this window</button>",
-                      ">Over Zoom</button>", ">Own window</button>", ">Emergency screen</button>"):
+        for words in ('<p class="lpm-h" aria-hidden="true">On screen</p>', ">Black screen</button>", ">Teleprompter</button>",
+                      ">Emergency screen</button>"):
             self.assertIn(words, html)
+        for gone in (">In this window</button>", ">Over Zoom</button>", ">Own window</button>"):   # 8.0: one Teleprompter
+            self.assertNotIn(gone, html)
         self.assertNotIn(">Blackout</button>", html)
         self.assertIn("e.key === 'Escape' && prog.classList.contains('open')", read("js/panels.js"))
 

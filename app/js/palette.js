@@ -62,9 +62,7 @@ function commands(){
     ['blackout', 'Black screen on / off', 'blackout', function(){ if (PT) PT.blackout(); }, 'K'],
     ['freeze', 'Freeze the picture on / off', 'hold', function(){ if (PT) PT.freeze(); }, 'F'],
     ['annotate', 'Annotate on / off', 'draw pen ink', function(){ if (PT) PT.annotate(); }, 'D'],
-    ['prompter', 'Teleprompter on / off', 'script notes prompter dock', function(){ studio(); if (TP) TP.toggle(); }, 'R'],
-    ['prompterwin', 'Teleprompter window', 'second screen speaker view', function(){ if (PT && PT.speaker) PT.speaker(); }],
-    ['overlay', 'Teleprompter overlay (over Zoom / Teams)', 'meeting leader transparent see-through glass on top prompter', function(){ if (PT && PT.overlay) PT.overlay(); }, 'Shift+R'],
+    ['prompter', 'Teleprompter on / off', 'script notes prompter speaker overlay zoom teams on top', function(){ if (TP) TP.toggle(); }, 'R'],
     ['share', 'Share Window (Presentation window)', 'present window zoom share screen', function(){ studio(); click($('s2-present')); }],
     ['excel', 'Meeting from Excel (Settings → Data / Backup)', 'import export template workbook xlsx', function(){ settings('data'); }],   /* 6.11: Excel lives in Settings */
     ['branding', 'Open Branding', 'logo meeting name colour', function(){ settings('meeting'); }],
@@ -82,7 +80,7 @@ function commands(){
     W().contentKinds().forEach(function(k){ c.push(['add-' + k.id, 'Add Content: ' + k.name, 'new insert ' + k.id, function(){ studio(); W().addContent(k.id); }]); });
   }
   /* commands Spotlight can run while the main window stays in the tray */
-  var BG = {golive: 1, next: 1, prev: 1, hideall: 1, blackout: 1, freeze: 1, prompterwin: 1, overlay: 1, share: 0};
+  var BG = {golive: 1, next: 1, prev: 1, hideall: 1, blackout: 1, freeze: 1, prompter: 1, share: 0};
   return c.map(function(x){ return {key: 'cmd:' + x[0], kind: 'cmd', title: x[1], sub: x[4] ? 'Shortcut ' + x[4] : 'Command', words: x[2], run: x[3], bg: !!BG[x[0]]}; });
 }
 function trimmed(s, n){ s = String(s || '').replace(/\s+/g, ' ').trim(); return s.length > n ? s.slice(0, n - 1) + '…' : s; }
@@ -222,7 +220,7 @@ function update(){
     var rec = recents().map(function(k){ return byKey[k]; }).filter(Boolean).slice(0, 6);
     var f = freq(), often = Object.keys(f).filter(function(k){ return f[k] > 1; }).sort(function(a, b){ return f[b] - f[a]; })
       .map(function(k){ return byKey[k]; }).filter(function(x){ return x && rec.indexOf(x) < 0; }).slice(0, 5);
-    var sug = (STANDALONE ? ['cmd:overlay', 'cmd:golive', 'cmd:next', 'cmd:prompterwin', 'cmd:blackout', 'cmd:hideall'] : ['cmd:golive', 'cmd:newframe', 'cmd:prompter', 'cmd:overlay', 'cmd:export', 'cmd:branding'])
+    var sug = (STANDALONE ? ['cmd:prompter', 'cmd:golive', 'cmd:next', 'cmd:blackout', 'cmd:hideall'] : ['cmd:golive', 'cmd:newframe', 'cmd:prompter', 'cmd:export', 'cmd:branding'])
       .map(function(k){ return byKey[k]; }).filter(function(x){ return x && rec.indexOf(x) < 0 && often.indexOf(x) < 0; });
     items = rec.concat(often, sug); active = 0;
     draw([{label: rec.length ? 'Recent' : '', items: rec}, {label: 'Frequently used', items: often}, {label: 'Suggested', items: sug}]);

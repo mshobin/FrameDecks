@@ -50,7 +50,7 @@ for (const theme of ["dark", "light"]) {
   await p.evaluate(() => document.querySelector('[data-theme-pick="dark"]').click());
   await p.close();
 }
-for (const page of ["speaker.html", "prompter.html", "spotlight.html"]) {
+for (const page of ["speaker.html", "spotlight.html"]) {
   const p = await browser.newPage({ viewport: { width: 1280, height: 800 } });
   await p.goto(`${BASE}/${page}`);
   await p.waitForTimeout(1500);

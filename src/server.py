@@ -682,20 +682,15 @@ DESKTOP = {"active": False}  # filled in by src/desktop_app.py (show/hide/quit/c
 APP_SETTINGS_DEFAULTS = {"remoteAutostart": False, "importDecided": False,
                          "lowGpu": True,     # draw the app window without the graphics card (keeps Windows smooth)
                          "nativePresent": True,   # Presentation window without a browser engine (off = WebView2 window)
-                         # 6.8 window chrome, tray and the Teleprompter overlay
+                         # 6.8 window chrome and tray
                          "customChrome": True,    # the app's ribbon instead of the Windows title bar (restart to change)
                          "minimizeTo": "ask",     # minimize button: ask / tray / taskbar
                          "spotlightKey": "Alt+Space",   # system-wide shortcut for Spotlight ('' = off)
-                         "overlayMode": "meeting",      # Teleprompter overlay: solid/presenter/meeting/conference/ghost
-                         "overlayFrost": True,    # Windows blur behind the overlay
-                         "overlayOnTop": True,    # the overlay stays above Zoom, Teams, PowerPoint and browsers
-                         "overlayFade": False,    # compatibility transparency (the whole window fades, text included)
                          "cloudRemote": False,    # Phase 5: run a service from the companion (Settings > FrameDecks account)
                          "memberAuthority": "cloud",   # M-D2: the workspace is the member list's source (no switch on screen)
                          "ai": "auto",            # M-D3: "auto" = use Ollama on this PC when it answers; "off" = never
                          "guide": {}}             # 6.14 Setup guide progress on this PC (app/js/guide.js, _valid_guide)
-APP_SETTING_CHOICES = {"minimizeTo": ("ask", "tray", "taskbar"), "memberAuthority": ("cloud", "pc"), "ai": ("auto", "off"),
-                       "overlayMode": ("solid", "presenter", "meeting", "conference", "ghost")}
+APP_SETTING_CHOICES = {"minimizeTo": ("ask", "tray", "taskbar"), "memberAuthority": ("cloud", "pc"), "ai": ("auto", "off")}
 
 
 GUIDE_STEPS = ("welcome", "output", "phone", "connect", "frame", "rehearse", "ready")    # app/js/guide-steps.js
@@ -2245,13 +2240,12 @@ class Handler(BaseHTTPRequestHandler):
                 return ok({"desktop": True, "fullscreen": bool(fs(want)) if fs else False})
             hook(bool(data.get("on", True)))
             return ok({"desktop": True, "open": bool(data.get("on", True))})
-        if action == "speaker":
-            # v6.6 Speaker View: its own window in the desktop app (the browser opens a pop-up itself)
-            hook = DESKTOP.get("speaker")
+        if action == "teleprompter":
+            # 8.0 the Teleprompter: one window above Zoom and Teams, out of screen sharing (a browser opens a pop-up)
+            hook = DESKTOP.get("teleprompter")
             if not hook:
                 return ok({"desktop": False})
-            hook()
-            return ok({"desktop": True})
+            return ok({"desktop": True, "open": bool(hook(data.get("on", "toggle")))})
         if action == "window":
             # v6.4 native window: the page says whether it is dark or light; the title bar follows
             hook = DESKTOP.get("window_theme")
@@ -2293,18 +2287,12 @@ class Handler(BaseHTTPRequestHandler):
             done, msg = firewall("undo" if data.get("action") == "undo" else "allow")
             return ok({"ok": done, "message": msg})
         if action == "win":
-            # 6.8 the page's own window buttons and ribbon: {win: main/teleprompter/overlay/spotlight, op: minimize,
-            # toggle-max, close, drag, hide, on-top (value), look (mode, frost, fade)}
+            # 6.8 the page's own window buttons and ribbon: {win: main/teleprompter/spotlight, op: minimize,
+            # toggle-max, close, drag, hide, on-top (value)}
             hook = DESKTOP.get("win")
             if not hook:
                 return ok({"desktop": False})
             return ok(dict(hook(str(data.get("win") or "main"), str(data.get("op") or ""), data) or {}, desktop=True))
-        if action == "overlay":
-            # 6.8 the Teleprompter overlay (Meeting Leader mode): a see-through window above Zoom and Teams
-            hook = DESKTOP.get("overlay")
-            if not hook:
-                return ok({"desktop": False})
-            return ok({"desktop": True, "open": bool(hook(data.get("on", "toggle")))})
         if action == "spotlight":
             hook = DESKTOP.get("spotlight")
             if not hook:

@@ -1101,45 +1101,11 @@ html.kc-native img{-webkit-user-drag:none}
 .insp-body .cs-anchor:not(:first-child){margin-top:14px}
 .insp-body .cs-anchor.cs-sub:not(:first-child){margin-top:6px}
 
-/* ---------- v6.7 Teleprompter dock (js/prompter-dock.js): only you see it, never an output ---------- */
-.tpd{position:fixed;z-index:60;display:flex;flex-direction:column;min-width:0;background:var(--panel,var(--gray-100));border:1px solid var(--line,var(--blue-200-2));
-  box-shadow:var(--el-3);top:calc(var(--top-h,56px) + var(--cb-h,0px));bottom:0}
-.tpd[hidden],body:not([data-tab="studio"]) .tpd{display:none}
-body.tp-dock-right .tpd{right:0;width:var(--tp-w,380px);border-width:0 0 0 1px}
-body.tp-dock-left .tpd{left:0;width:var(--tp-w,380px);border-width:0 1px 0 0}
-body.tp-dock-bottom .tpd{left:0;right:0;top:auto;height:var(--tp-h,300px);border-width:1px 0 0}
-body.tp-dock-float .tpd{bottom:auto;border-radius:12px;overflow:hidden;z-index:80}
-.tpd-head{flex:none;display:flex;flex-direction:column;gap:6px;padding:6px 8px 8px 12px;border-bottom:1px solid var(--line,var(--blue-200-2))}
-.tpd-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px}
-body.tp-dock-float .tpd-head{cursor:move}
-.tpd-title{font-size:14px}
-.tpd-private{font-size:12px;color:var(--muted,var(--blue-650));margin-right:auto}
-.tpd-seg{display:inline-flex;border:1px solid var(--line,var(--blue-200-2));border-radius:8px;overflow:hidden}
-.tpd-seg button{font:inherit;font-size:12px;font-weight:700;min-height:26px;padding:0 8px;border:0;background:transparent;color:var(--muted,var(--blue-650));cursor:pointer}
-.tpd-seg button+button{border-left:1px solid var(--line,var(--blue-200-2))}
-.tpd-seg button[aria-pressed="true"]{background:var(--gold-soft,rgba(var(--rgb-orange-550),.16));color:var(--ink,var(--gray-950-2))}
-.tpd-btn{font:inherit;font-size:12px;font-weight:700;min-height:26px;padding:0 8px;border-radius:8px;border:1px solid var(--line,var(--blue-200-2));background:transparent;color:var(--ink,var(--gray-950-2));cursor:pointer}
-.tpd-btn:hover,.tpd-seg button:hover{color:var(--ink,var(--gray-950-2));border-color:var(--line-hover,var(--blue-300))}
-.tpd-x{font:inherit;font-size:18px;line-height:1;width:28px;height:28px;border:0;border-radius:8px;background:transparent;color:var(--muted,var(--blue-650));cursor:pointer}
-.tpd-x:hover{background:var(--raised,var(--gray-150));color:var(--ink,var(--gray-950-2))}
-.tpd-body{flex:1 1 auto;min-height:0;display:flex;flex-direction:column}
-.tpd-grip{position:absolute;touch-action:none;z-index:2}
-body.tp-dock-right .tpd-grip{left:-3px;top:0;bottom:0;width:7px;cursor:ew-resize}
-body.tp-dock-left .tpd-grip{right:-3px;top:0;bottom:0;width:7px;cursor:ew-resize}
-body.tp-dock-bottom .tpd-grip{top:-3px;left:0;right:0;height:7px;cursor:ns-resize}
-body.tp-dock-float .tpd-grip{right:0;bottom:0;width:16px;height:16px;cursor:nwse-resize;background:linear-gradient(135deg,transparent 50%,var(--line-hover,var(--blue-300)) 50%)}
-.tpd-grip:hover{background:var(--accent,var(--blue-650-2));opacity:.5}
-/* the Studio makes room for a docked Teleprompter */
-body[data-tab="studio"].tp-dock-right .ws{margin-right:var(--tp-w,380px)}
-body[data-tab="studio"].tp-dock-left .ws{margin-left:var(--tp-w,380px)}
-body[data-tab="studio"].tp-dock-bottom .ws{height:calc(100vh - var(--top-h,56px) - var(--cb-h,0px) - var(--tp-h,300px));min-height:300px}
+/* ---------- the Teleprompter script field (Frame editor) ---------- */
 .lb-prog-menu .lb-tp[aria-pressed="true"]{border-color:var(--gold,var(--gold-550-2))}
-@media (max-width:760px){ body[data-tab="studio"].tp-dock-right .ws,body[data-tab="studio"].tp-dock-left .ws{margin:0} body.tp-dock-right .tpd,body.tp-dock-left .tpd{width:min(92vw,var(--tp-w,380px))} }
 .tp-script-field{display:flex;flex-direction:column;gap:6px;column-span:all}
 .tp-script-in{min-height:150px;resize:vertical;line-height:1.5}
 .tp-script-field .btn{align-self:flex-start}
-body.tp-dock-bottom .tpd-head{flex-direction:row;align-items:center;justify-content:space-between}
-body.tp-dock-bottom .tpd-head .tpd-row:first-child{order:2;flex:none}
 
 /* ---------- v6.7 Command palette (js/palette.js) ---------- */
 .pal-back{position:fixed;inset:0;z-index:300;display:flex;justify-content:center;align-items:flex-start;padding:12vh 16px 16px;background:rgba(var(--rgb-gray-50-2),.55)}
@@ -1282,8 +1248,6 @@ body:not(.kc-on-air) #ctlbar .cb-btn.hide:hover{border-color:var(--red);filter:n
 .lpm-h:first-child{margin-top:0}
 .lpm-h span{font-weight:500;margin-left:4px}
 .lpm-warn{color:var(--red);border-top:1px solid var(--line-soft);padding-top:8px}
-.lpm-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
-.lpm-row .cb-btn{justify-content:center;padding:0 8px;font-size:13px}
 .lb-prog-menu .lb-emerg{border-color:var(--red-soft)}
 /* one status pill: what is on screen, then whether everything is ready */
 .cmdbar .live-ind{border-top-right-radius:0;border-bottom-right-radius:0}

@@ -69,13 +69,20 @@ for (const w of [1920, 1440, 1280, 1100]) {
   await p.close();
 }
 
-// 4. The Teleprompter without a script: one message and one action (DD-02)
+// 4. The Teleprompter (8.0: one overlay window): the script fills it, the top bar is hidden until asked for
 {
-  const p = await page(1440);
-  await p.evaluate(() => document.getElementById("lb-prompter")?.click());
+  const p = await browser.newPage({ viewport: { width: 1000, height: 640 } });
+  await p.goto(`${BASE}/speaker.html`);
   await p.waitForTimeout(800);
   const n = await p.locator(".tp-empty-act").count();
   check(n >= 1, "the Teleprompter's empty state offers Write a script");
+  const hidden = await p.locator("#sp-top").evaluate((el) => getComputedStyle(el).opacity === "0");
+  check(hidden, "the Teleprompter's top bar is hidden at first");
+  await p.click("#sp-bar-btn");
+  await p.waitForTimeout(300);
+  const shown = await p.locator("#sp-top").evaluate((el) => getComputedStyle(el).opacity === "1");
+  check(shown, "the bar button shows the top bar (time, Frame, timer)");
+  await p.click("#sp-bar-btn");
   await shot(p, "teleprompter");
   await p.close();
 }

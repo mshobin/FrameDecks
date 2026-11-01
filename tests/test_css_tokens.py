@@ -31,7 +31,7 @@ class CssTokens(unittest.TestCase):
         self.assertEqual((len(pal.solid), len(pal.channels)), known)
 
     def test_every_page_loads_the_palette_first(self):
-        for page in ("dashboard.html", "speaker.html", "prompter.html", "spotlight.html"):
+        for page in ("dashboard.html", "speaker.html", "spotlight.html"):
             html = (ROOT / "app" / page).read_text(encoding="utf-8")
             first = html.index('rel="stylesheet"')
             self.assertIn('href="css/palette.css"', html[first:first + 60], page)

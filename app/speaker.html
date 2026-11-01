@@ -18,29 +18,20 @@
 })();</script>
 </head>
 <body class="speaker" data-win="teleprompter">
-  <!-- Teleprompter window (this PC only; 6.7, was the Speaker View): the Frame's script, what is on screen, what comes
-       next, and a clock. Nothing here is ever shown to the meeting. Built by js/speaker.js with js/teleprompter.js. -->
-  <header class="sp-top" data-win-drag>
-    <img class="sp-mark" src="img/framedecks-emblem.webp" alt="">
-    <div class="sp-title"><b id="sp-meeting">Teleprompter</b><small id="sp-frame-pos"></small></div>
-    <div class="sp-chips" id="sp-chips" aria-live="polite"></div>
-    <div class="sp-clocks">
+  <!-- The Teleprompter (8.0: the one Teleprompter, an overlay above Zoom and Teams). Only you see it: the installed app
+       keeps it out of screen sharing and recordings. The top bar (time, Frame, timer) stays hidden until the pointer
+       is near the top or the bar button is pressed. Built by js/speaker.js with js/teleprompter.js. -->
+  <div class="sp-head" id="sp-head">
+    <button class="sp-bar-btn" type="button" id="sp-bar-btn" aria-expanded="false" aria-controls="sp-top" aria-label="Show the top bar" title="Show the top bar: time, Frame and timer"><span aria-hidden="true">▾</span></button>
+    <header class="sp-top" id="sp-top" data-win-drag>
       <div class="sp-clock"><span>Time</span><b id="sp-clock">--:--</b></div>
-      <div class="sp-clock"><span>This Frame</span><b id="sp-frame-time">0:00</b></div>
+      <div class="sp-clock sp-frame"><span>Frame</span><b id="sp-frame-pos">–</b></div>
       <div class="sp-clock sp-watch"><span>Timer</span><b id="sp-watch">0:00</b>
         <div class="sp-watch-btns"><button class="btn small" type="button" id="sp-watch-go">Start</button><button class="btn quiet small" type="button" id="sp-watch-reset">Reset</button></div></div>
-    </div>
-    <button class="btn small sp-side-btn" type="button" id="sp-side-btn" aria-expanded="false" aria-controls="sp-side" title="Show what is on screen and what comes next">On screen &amp; next ▸</button>
-    <div data-win-controls></div>
-  </header>
-  <main class="sp-main">
-    <section class="sp-prompt" id="sp-prompt" aria-label="Teleprompter"></section>
-    <aside class="sp-side" id="sp-side">
-      <section aria-labelledby="sp-now-h"><h2 class="sp-h" id="sp-now-h">On screen</h2><div id="sp-now"></div></section>
-      <section aria-labelledby="sp-next-h"><h2 class="sp-h" id="sp-next-h">Next</h2><div id="sp-next"></div></section>
-    </aside>
-  </main>
-  <p class="sp-foot">Only you see this window. Move it to a second screen, or keep it beside Zoom. Double-click the script to edit it.</p>
+      <div data-win-controls></div>
+    </header>
+  </div>
+  <main class="sp-main"><section class="sp-prompt" id="sp-prompt" aria-label="Teleprompter"></section></main>
 <script src="js/store.js"></script>
 <script src="js/editable.js"></script>
 <script src="js/teleprompter.js"></script>

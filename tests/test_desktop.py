@@ -55,19 +55,18 @@ class Settings(unittest.TestCase):
         self.assertTrue(s["customChrome"])
         self.assertEqual(s["minimizeTo"], "ask")
         self.assertEqual(s["spotlightKey"], "Alt+Space")
-        self.assertEqual(s["overlayMode"], "meeting")
-        self.assertTrue(s["overlayOnTop"])
-        self.assertFalse(s["overlayFade"])
+        self.assertNotIn("overlayMode", s)            # 8.0: one Teleprompter, no overlay looks
 
     def test_valid_values_are_kept_and_normalised(self):
-        s = server.save_app_settings({"minimizeTo": "tray", "overlayMode": "ghost", "spotlightKey": "ctrl+alt+space", "overlayFrost": False})
-        self.assertEqual((s["minimizeTo"], s["overlayMode"], s["spotlightKey"], s["overlayFrost"]), ("tray", "ghost", "Ctrl+Alt+Space", False))
+        s = server.save_app_settings({"minimizeTo": "tray", "spotlightKey": "ctrl+alt+space", "overlayMode": "ghost"})
+        self.assertEqual((s["minimizeTo"], s["spotlightKey"]), ("tray", "Ctrl+Alt+Space"))
+        self.assertNotIn("overlayMode", s)
         self.assertEqual(server.app_settings()["spotlightKey"], "Ctrl+Alt+Space")
         self.assertEqual(server.save_app_settings({"spotlightKey": ""})["spotlightKey"], "")      # off
 
     def test_invalid_values_are_ignored(self):
-        s = server.save_app_settings({"minimizeTo": "desktop", "overlayMode": 3, "spotlightKey": "Space", "customChrome": "yes", "unknown": 1})
-        self.assertEqual((s["minimizeTo"], s["overlayMode"], s["spotlightKey"], s["customChrome"]), ("ask", "meeting", "Alt+Space", True))
+        s = server.save_app_settings({"minimizeTo": "desktop", "spotlightKey": "Space", "customChrome": "yes", "unknown": 1})
+        self.assertEqual((s["minimizeTo"], s["spotlightKey"], s["customChrome"]), ("ask", "Alt+Space", True))
         self.assertNotIn("unknown", s)
 
     def test_older_settings_files_still_load(self):

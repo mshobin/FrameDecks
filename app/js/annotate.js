@@ -118,37 +118,31 @@ document.addEventListener('keydown', function(e){
 
 $('lb-annotate').addEventListener('click', function(){ setAnnotate(!annotating()); });
 $('lb-freeze').addEventListener('click', function(){ setFreeze(!(live && live.live.freeze)); });
-/* Teleprompter window (the old Speaker View): its own window in the desktop app; a pop-up window in a browser (opened inside the click) */
-var speakerWin = null;
-function openSpeaker(){
-  var app = window.KCAppInfo;
+/* 8.0 the Teleprompter: one window above Zoom and Teams, never shared (the desktop app); a pop-up in a browser.
+   R (or Live tools > Teleprompter) opens it and closes it again. */
+var tpWin = null, tpOpen = false;
+function teleprompter(want){
+  var app = window.KCAppInfo, on = want == null ? !tpOpen : !!want;
   if (!(app && app.desktop)){
-    if (speakerWin && !speakerWin.closed){ speakerWin.focus(); return; }
-    speakerWin = window.open('speaker.html', 'kc-speaker', 'popup,width=1200,height=780');
-    if (!speakerWin) toast('Allow pop-ups for this page to open the Teleprompter window', true);
-    return;
+    var isOpen = !!(tpWin && !tpWin.closed);
+    if (isOpen && !on){ tpWin.close(); tpWin = null; return setTp(false); }
+    if (isOpen){ tpWin.focus(); return setTp(true); }
+    if (!on) return setTp(false);
+    tpWin = window.open('speaker.html', 'kc-speaker', 'popup,width=1000,height=640');
+    if (!tpWin) toast('Allow pop-ups for this page to open the Teleprompter', true);
+    return setTp(!!tpWin);
   }
-  fetch('api/app/speaker', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: '{}'}).then(function(r){ return r.json(); })
-    .then(function(d){ toast(d.desktop ? 'The Teleprompter window is open. Move it to a second screen if you have one.' : 'The Teleprompter window could not open', !d.desktop); })
-    .catch(function(){ toast('The Teleprompter window could not open', true); });
-}
-var spk = $('lb-speaker'); if (spk) spk.addEventListener('click', openSpeaker);
-/* 6.8 Teleprompter overlay (Meeting Leader mode): see-through, above Zoom / Teams, kept out of screen sharing */
-var overlayWin = null;
-function openOverlay(){
-  var app = window.KCAppInfo;
-  if (!(app && app.desktop)){
-    if (overlayWin && !overlayWin.closed){ overlayWin.focus(); return; }
-    overlayWin = window.open('prompter.html', 'kc-overlay', 'popup,width=1100,height=640');
-    if (!overlayWin) toast('Allow pop-ups for this page to open the Teleprompter overlay', true);
-    return;
-  }
-  fetch('api/app/overlay', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({on: 'toggle'})})
+  fetch('api/app/teleprompter', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({on: on})})
     .then(function(r){ return r.json(); })
-    .then(function(d){ if (d.desktop && d.open) toast('Teleprompter overlay is open. Move it over your meeting; only you see it.'); })
-    .catch(function(){ toast('The Teleprompter overlay could not open', true); });
+    .then(function(d){ setTp(!!(d.desktop && d.open)); if (d.desktop && d.open && on) toast('The Teleprompter is open above your meeting. Only you see it.'); else if (!d.desktop) toast('The Teleprompter could not open', true); })
+    .catch(function(){ toast('The Teleprompter could not open', true); });
 }
-var ovb = $('lb-overlay'); if (ovb) ovb.addEventListener('click', openOverlay);
+function setTp(on){
+  tpOpen = on; var b = $('lb-prompter');
+  if (b){ b.setAttribute('aria-pressed', String(on)); b.classList.toggle('on', on); }
+}
+var tpb = $('lb-prompter'); if (tpb) tpb.addEventListener('click', function(){ teleprompter(); });
+window.KCTeleprompter = {open: function(){ teleprompter(true); }, toggle: function(){ teleprompter(); }, isOpen: function(){ return tpOpen; }};
 
 function render(){
   var on = annotating(), fz = !!(live && live.live.freeze);
@@ -164,7 +158,6 @@ window.KCPresenterTools = {
   annotate: function(){ setAnnotate(!annotating()); },
   freeze: function(){ setFreeze(!(live && live.live.freeze)); },
   blackout: function(){ var b = $('lb-blackout'); if (b) b.click(); },
-  speaker: openSpeaker,
-  overlay: openOverlay
+  teleprompter: function(){ teleprompter(); }
 };
 })();

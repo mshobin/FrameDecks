@@ -302,8 +302,8 @@ def main():
         hook = lambda name, *a: (lambda icon, item: server.DESKTOP[name](*a) if server.DESKTOP.get(name) else on_open())
         menu = pystray.Menu(                       # 6.8: the five things people reach for, then everything else
             pystray.MenuItem("Open App", lambda icon, item: on_open(), default=True),
-            pystray.MenuItem("Teleprompter", hook("overlay", "toggle"),
-                             checked=lambda item: bool(server.DESKTOP.get("overlay_open") and server.DESKTOP["overlay_open"]())),
+            pystray.MenuItem("Teleprompter", hook("teleprompter", "toggle"),
+                             checked=lambda item: bool(server.DESKTOP.get("teleprompter_open") and server.DESKTOP["teleprompter_open"]())),
             pystray.MenuItem("Search", hook("spotlight", True)),
             pystray.MenuItem("Settings", hook("open_settings")),
             pystray.Menu.SEPARATOR,
@@ -431,7 +431,7 @@ def main():
         stop_everything()
         server.install_on_exit()         # 7.0: "Update when I close FrameDecks" starts its install now
         threading.Timer(5.0, lambda: os._exit(0)).start()
-        for close in (lambda: present(False), lambda: overlay(False), lambda: state.get("speaker") and state["speaker"].destroy(),
+        for close in (lambda: present(False), lambda: teleprompter(False),
                       lambda: spot.destroy(), lambda: window.destroy()):
             try:
                 close()
@@ -512,51 +512,18 @@ def main():
         state["present"] = w
         refresh_tray()
 
-    def speaker():
-        """v6.7 Teleprompter window: the Frame script, what comes next and a clock, in a window of its own (never shared)."""
-        w = state.get("speaker")
-        if w:
-            try:
-                w.restore()
-                w.show()
-                return
-            except Exception:
-                state["speaker"] = None
-        w = webview.create_window(DISPLAY_NAME + " · Teleprompter", url + "speaker.html", width=1200, height=780,
-                                  min_size=(640, 420), background_color="#070c18", text_select=True)
-        def closed():
-            if state.get("speaker") is w:
-                state["speaker"] = None
-            chromes.pop("teleprompter", None)
-        def shown():
-            add_chrome("teleprompter", w)
-            dw.hide_from_capture(window_handle(w))     # only the leader sees it, even when sharing the whole screen
-        w.events.closed += closed
-        w.events.shown += shown
-        state["speaker"] = w
-
-    # ---------- 6.8 Teleprompter overlay (Meeting Leader mode): see-through, above Zoom / Teams, not in screen shares
-    OVERLAY_FADE = {"solid": 1.0, "presenter": 0.85, "meeting": 0.65, "conference": 0.4, "ghost": 0.2}
-
-    def overlay_look(w, look):
-        """Glass: the page's own translucent background, the text stays solid. Fade (compatibility): the window."""
-        hwnd = window_handle(w)
-        if look.get("overlayFade") or server.DESKTOP.get("low_gpu"):
-            dw.fade(hwnd, OVERLAY_FADE.get(look.get("overlayMode"), 0.65))
-        else:
-            dw.glass(hwnd, bool(look.get("overlayFrost")))
-
-    def overlay(on="toggle"):
-        w = state.get("overlay")
+    def teleprompter(on="toggle"):
+        """8.0 the Teleprompter: one window (speaker.html), above Zoom and Teams, kept out of screen sharing."""
+        w = state.get("teleprompter")
         if on == "toggle":
             on = not w
         if not on:
-            state["overlay"] = None
+            state["teleprompter"] = None
             if w:
                 try:
                     w.destroy()
                 except Exception as _e:
-                    _swallowed("desktop_app.overlay", _e)
+                    _swallowed("desktop_app.teleprompter", _e)
             refresh_tray()
             return False
         if w:
@@ -566,29 +533,24 @@ def main():
                 dw.bring_to_front(window_handle(w))
                 return True
             except Exception:
-                state["overlay"] = None
-        cfg = server.app_settings()
-        # see-through text needs the graphics card: with "Light on graphics card" on, the whole window fades instead
-        fade = bool(cfg.get("overlayFade") or server.DESKTOP.get("low_gpu"))
-        w = webview.create_window(DISPLAY_NAME + " · Teleprompter overlay", url + "prompter.html", width=1100, height=640,
-                                  min_size=(420, 240), background_color="#000000", text_select=True,
-                                  transparent=not fade, on_top=bool(cfg.get("overlayOnTop", True)))
+                state["teleprompter"] = None
+        w = webview.create_window(DISPLAY_NAME + " · Teleprompter", url + "speaker.html", width=1000, height=640,
+                                  min_size=(420, 260), background_color="#070c18", text_select=True, on_top=True)
         def shown():
-            if not add_chrome("overlay", w):                      # the overlay never has a title bar
+            if not add_chrome("teleprompter", w):
                 c = dw.Chrome(window_handle(w))
                 if c.ok:
-                    chromes["overlay"] = c                           # keep it: its window procedure lives in it
-            overlay_look(w, server.app_settings())
-            dw.hide_from_capture(window_handle(w))
+                    chromes["teleprompter"] = c                     # keep it: its window procedure lives in it
+            dw.hide_from_capture(window_handle(w))     # only the leader sees it, even when sharing the whole screen
         def closed():
-            if state.get("overlay") is w:
-                state["overlay"] = None
-            chromes.pop("overlay", None)
+            if state.get("teleprompter") is w:
+                state["teleprompter"] = None
+            chromes.pop("teleprompter", None)
             refresh_tray()
         w.events.shown += shown
         w.events.closed += closed
-        state["overlay"] = w
-        state.get("on_top", {}).pop("overlay", None)              # a new window starts as its settings say
+        state["teleprompter"] = w
+        state.get("on_top", {}).pop("teleprompter", None)
         refresh_tray()
         return True
 
@@ -651,7 +613,7 @@ def main():
 
     # ---------- 6.8 the page's window buttons and ribbon ----------
     def win(name, op, data):
-        w = {"main": window, "teleprompter": state.get("speaker"), "overlay": state.get("overlay"), "spotlight": spot}.get(name)
+        w = {"main": window, "teleprompter": state.get("teleprompter"), "spotlight": spot}.get(name)
         if w is None:
             return {"ok": False}
         hwnd = window_handle(w)
@@ -675,8 +637,8 @@ def main():
         elif op == "close":
             if name == "main":
                 later(ask_page_about_closing)
-            elif name == "overlay":
-                later(lambda: overlay(False))
+            elif name == "teleprompter":
+                later(lambda: teleprompter(False))
             elif name == "spotlight":
                 later(lambda: spotlight(False))
             else:
@@ -685,17 +647,6 @@ def main():
             state.setdefault("on_top", {})[name] = bool(data.get("value"))
             if not dw.set_topmost(hwnd, bool(data.get("value"))):
                 threading.Thread(target=lambda: setattr(w, "on_top", bool(data.get("value"))), daemon=True).start()
-            if name == "overlay":
-                server.save_app_settings({"overlayOnTop": bool(data.get("value"))})
-        elif op == "look" and name == "overlay":
-            changes = {k: data[k] for k in ("overlayMode", "overlayFrost", "overlayFade") if k in data}
-            low = bool(server.DESKTOP.get("low_gpu"))
-            before = server.app_settings().get("overlayFade") or low
-            cfg = server.save_app_settings(changes)
-            if bool(cfg.get("overlayFade") or low) != bool(before):  # glass <-> fade needs a new window
-                threading.Thread(target=lambda: (overlay(False), time.sleep(0.3), overlay(True)), daemon=True).start()
-            else:
-                overlay_look(w, cfg)
         return {"ok": True, "maximized": maximized(), "chrome": name in chromes, "onTop": bool(state.get("on_top", {}).get(name, getattr(w, "on_top", False)))}
 
     # ---------- 6.8 system-wide shortcut (works while the app is in the tray) ----------
@@ -743,8 +694,8 @@ def main():
         return bool(w and state.get("present_fs"))
     server.DESKTOP.update(active=True, show=show, hide=hide, quit=quit_app, choose_folder=choose_folder, window_theme=set_theme,
                           on_remote_change=refresh_tray, present=present, present_fullscreen=present_fullscreen,
-                          present_fs_state=present_fs_state, present_open=present_open, speaker=speaker,
-                          overlay=overlay, overlay_open=lambda: bool(state.get("overlay")), spotlight=spotlight,
+                          present_fs_state=present_fs_state, present_open=present_open, teleprompter=teleprompter,
+                          teleprompter_open=lambda: bool(state.get("teleprompter")), spotlight=spotlight,
                           palette_index=palette_index, palette_run=palette_run, open_settings=open_settings, win=win,
                           settings_changed=settings_changed)
     state["tray"] = build_tray(show, quit_app)

@@ -1,11 +1,11 @@
 /* FrameDecks v6.8 - the window ribbon: ONE implementation of the window buttons and dragging, used by every window
- * (main window, Teleprompter window, Teleprompter overlay, Spotlight).
+ * (main window, the Teleprompter, Spotlight).
  *
  * In the installed app the windows have no Windows title bar (desktop_win.Chrome). The page's own top bar is the
  * ribbon: drag its empty space to move the window (Windows runs the move, so Snap works), double-click it to maximize,
  * and the buttons at its right minimize, maximize / restore and close. In a browser nothing here shows.
  *
- *   <header data-win-drag> ... <div data-win-controls></div></header>     (body data-win="main|teleprompter|overlay")
+ *   <header data-win-drag> ... <div data-win-controls></div></header>     (body data-win="main|teleprompter|spotlight")
  *   data-win-drag="move": press and move there to move the window, but a double-click does not maximize
  * Every window also gets thin resize handles on its edges and corners.
  *

@@ -1,60 +1,23 @@
-/* FrameDecks v6.7 - Teleprompter window (speaker.html; the 6.6 Speaker View). Uses the app's own colours and type (dashboard.css, theme.css, teleprompter.css). */
-body.speaker{padding:0;min-height:100vh;display:flex;flex-direction:column;background:var(--app-bg,var(--bg))}
-.sp-top{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:12px 20px;background:var(--chrome-bg,var(--surface));border-bottom:1px solid var(--line)}
-.sp-mark{width:34px;height:34px;object-fit:contain}
-.sp-title{display:flex;flex-direction:column;min-width:0;margin-right:auto}
-.sp-title b{font-size:18px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.sp-title small{color:var(--muted);font-size:14px}
-.sp-chips{display:flex;gap:6px;flex-wrap:wrap}
-.sp-chip{display:inline-flex;align-items:center;font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:3px 9px;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
-.sp-chip.live,.sp-chip.on{color:var(--live);border-color:var(--live);background:var(--live-soft)}
-.sp-chip.bad{color:var(--red);border-color:var(--red);background:var(--red-soft)}
-.sp-chip.warn{color:var(--warn);border-color:var(--warn);background:var(--warn-soft)}
-.sp-clocks{display:flex;gap:10px;flex-wrap:wrap}
-.sp-clock{display:flex;flex-direction:column;align-items:flex-start;padding:6px 14px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-2)}
+/* FrameDecks 8.0 - the Teleprompter (speaker.html): one overlay window above Zoom and Teams, never shared.
+   The script fills the window; the top bar (time, Frame, timer) is hidden until the pointer reaches the top edge or the
+   bar button is pressed. Uses the app's own colours and type (dashboard.css, theme.css, teleprompter.css). */
+body.speaker{padding:0;height:100vh;display:flex;flex-direction:column;background:var(--app-bg,var(--bg));overflow:hidden}
+.sp-head{position:fixed;top:0;left:0;right:0;height:28px;z-index:20}
+.sp-bar-btn{position:absolute;top:4px;left:50%;transform:translateX(-50%);display:grid;place-items:center;width:44px;height:20px;padding:0;
+  border:1px solid var(--line);border-radius:0 0 var(--r-2) var(--r-2);background:var(--surface);color:var(--muted);font-size:12px;cursor:pointer;opacity:.7}
+.sp-bar-btn:hover,.sp-bar-btn:focus-visible{opacity:1;color:var(--text)}
+.sp-top{position:absolute;top:0;left:0;right:0;display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:8px 8px 8px 16px;
+  background:var(--chrome-bg,var(--surface));border-bottom:1px solid var(--line);box-shadow:var(--el-3);
+  transform:translateY(-100%);opacity:0;pointer-events:none;transition:transform .18s ease,opacity .18s ease}
+.sp-head:hover .sp-top,.sp-head:focus-within .sp-top,body.sp-bar-open .sp-top{transform:none;opacity:1;pointer-events:auto}
+.sp-clock{display:flex;flex-direction:column;align-items:flex-start;padding:4px 12px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-2)}
 .sp-clock span{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
-.sp-clock b{font-size:30px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.15}
+.sp-clock b{font-size:24px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.2}
+.sp-frame{flex:1;min-width:0}
+.sp-frame b{max-width:100%;font-size:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .sp-watch{flex-direction:row;align-items:center;gap:10px}
-.sp-watch span{writing-mode:horizontal-tb}
 .sp-watch-btns{display:flex;gap:4px}
-.sp-main{flex:1;display:grid;grid-template-columns:minmax(0,1.7fr) minmax(280px,1fr);gap:20px;padding:20px;align-items:start}
-.sp-side{display:flex;flex-direction:column;gap:20px}
-.sp-h{margin:0 0 10px;font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}
-#sp-now,#sp-next,#sp-fnotes{display:flex;flex-direction:column;gap:12px}
-.sp-item{display:flex;flex-direction:column;gap:12px;padding:16px 18px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-3)}
-.sp-item.on{border-color:var(--gold);box-shadow:0 0 0 3px var(--gold-soft)}
-.sp-item-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.sp-kind{font-size:13px;font-weight:800;color:var(--muted)}
-.sp-label{font-size:13px;font-weight:700;color:var(--gold)}
-.sp-q{margin:0;font-size:24px;line-height:1.35;font-weight:600;white-space:pre-wrap}
-.sp-ref{margin:0;font-size:20px;font-weight:800;color:var(--gold)}
-.sp-verse{margin:0;font-family:var(--serif);font-size:24px;line-height:1.45;white-space:pre-wrap}
-.sp-box{padding:10px 14px;background:var(--panel-2,var(--raised));border:1px solid var(--line-soft);border-radius:var(--r-2)}
-.sp-box.empty .sp-note{color:var(--faint);font-style:italic}
-.sp-lbl{display:block;font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);margin-bottom:4px}
-.sp-note{margin:0;font-size:18px;line-height:1.45;white-space:pre-wrap}
-.sp-next-q,.sp-next-ref{margin:0;font-size:18px;line-height:1.4}
-.sp-next-name{margin:0 0 4px;font-size:18px;font-weight:800}
-.sp-empty{margin:0;color:var(--muted);font-size:16px}
-.sp-foot{margin:0;padding:8px 20px 14px;color:var(--faint);font-size:13px}
-@media (max-width:900px){ .sp-main{grid-template-columns:1fr} .sp-q{font-size:24px} .sp-verse{font-size:20px} }
-/* 6.7: the Teleprompter fills the main column; the side shows what is on screen and what comes next */
-body.speaker{height:100vh}
-.sp-main{min-height:0;align-items:stretch;grid-template-columns:minmax(0,2.2fr) minmax(260px,1fr)}
-.sp-prompt{display:flex;min-height:0;border:1px solid var(--line);border-radius:var(--r-3);overflow:hidden}
+.sp-main{flex:1;display:flex;min-height:0;padding:12px}
+.sp-prompt{display:flex;flex:1;min-height:0;border:1px solid var(--line);border-radius:var(--r-3);overflow:hidden}
 .sp-prompt .tp{flex:1}
-.sp-side{min-height:0;overflow:auto}
-.sp-side .sp-q{font-size:20px}
-.sp-side .sp-verse{font-size:18px}
-@media (max-width:900px){ body.speaker{height:auto} .sp-prompt{height:70vh} }
-
-/* 6.8: the script takes the whole width; "On screen & next" slides in from the right when asked for */
-.sp-main{grid-template-columns:minmax(0,1fr);position:relative}
-.sp-side{position:absolute;top:20px;right:20px;bottom:20px;width:min(360px,40vw);padding:14px;border-radius:var(--r-3);
-  background:var(--surface);border:1px solid var(--line);box-shadow:var(--el-3);
-  transform:translateX(calc(100% + 24px));opacity:0;pointer-events:none;transition:transform .22s ease,opacity .22s ease}
-body.sp-side-open .sp-side{transform:none;opacity:1;pointer-events:auto}
-.sp-side-btn{flex:none}
-.sp-top{padding-right:8px}
-@media (max-width:900px){ .sp-side{width:min(360px,80vw)} }
-@media (prefers-reduced-motion:reduce){ .sp-side{transition:none} }
+@media (prefers-reduced-motion:reduce){ .sp-top{transition:none} }

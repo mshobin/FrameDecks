@@ -460,7 +460,6 @@ function setup(){
     else if (a === 'prevScene' && window.KCWorkspace) window.KCWorkspace.step(-1);
     else if ((a === 'annotate' || a === 'freeze' || a === 'blackout') && window.KCPresenterTools) window.KCPresenterTools[a]();
     else if (a === 'prompter' && window.KCTeleprompter) window.KCTeleprompter.toggle();
-    else if (a === 'overlay' && window.KCPresenterTools) window.KCPresenterTools.overlay();
   });
 
   buildTransitionExtras();
