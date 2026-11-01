@@ -54,6 +54,8 @@ FrameDecks simpler. Saved meetings, settings and Setup guide progress carry over
 - **The Setup guide is a step-by-step wizard**: one step at a time with a progress bar, Back and Next (Next waits until
   the step is really done), "Do this later", and "Something not working?" tips for each step. The Ready step lists
   every check with a button to fix what needs attention.
+- **The phone remote is one view**: the live picture, Previous / Next, the Frame's questions, scriptures or slides,
+  Teleprompter, Draw, Freeze, Black screen and every Frame as a tappable card, with Hide all at the top.
 - FrameRelay **Diagnostics** starts with a one-line answer ("Everything looks normal", or what to try).
 
 ### Changed
@@ -73,6 +75,8 @@ FrameDecks simpler. Saved meetings, settings and Setup guide progress carry over
 - **Practice mode** and the Setup guide's Rehearse step.
 - The Discussion topic, Icebreaker and Poll ready-made Content and Library entries.
 - The other Duplicate choices (with options, as template, structure only, variant, to group, & edit question).
+- Phone remote: the Simple / Advanced layouts, tabs, Frame search, Content list, transition picker, Run-through,
+  Emergency button and the Frame actions sheet.
 
 ## [7.1.2] - 2026-11-01
 

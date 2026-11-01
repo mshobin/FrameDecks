@@ -1,30 +1,27 @@
-/* FRAMEDECKS v6 - FRAMEDECKS Mobile Director: the phone / tablet remote. Same architecture as the PC:
- * Scene → Layer → Canvas. The scenes, layers and live state are the shared state (js/store.js KCScenes), so a
- * take, a layer's eye or a duplicate here is exactly the same action as on the PC. Member data never comes here.
- *   phones  : Live (canvas, Prev · Go Live · Next, transition, Q + Scripture, list stepper, program) · Scenes · Layers
- *   tablets : three panes - Scenes | Canvas + live controls | Layers - a control surface
- *   layouts : v6.5 Simple (default: Previous / Next Frame, Previous / Next Content, Annotate, Freeze, Black Screen on one
- *             screen) · Advanced (everything: Frames with search, Content, notes, PowerPoint, run-through, annotation).
- *             Ids presenter · admin; a saved "leader" (Standard) opens Advanced. A layout is a display choice, not a permission. */
+/* FrameDecks 8.0 - the phone and tablet remote (remote.html): one view for anyone.
+ *   On screen now (the live picture, the Frame and what it shows) · Previous / Next Frame · the Frame's questions,
+ *   scriptures or PowerPoint slides with their own arrows · Teleprompter, Draw, Freeze, Black screen · every Frame,
+ *   one tap to put it on screen · Hide all, always at the top.
+ * Everything acts on the shared state (js/store.js KCScenes), so a press here is exactly the same action as on the PC.
+ * Member data never comes here. */
 (function(){
 'use strict';
 var Store = window.KCStore, SC = window.KCScenes, P = window.KCPresent, T = window.KCTransitions;
 var $ = function(id){ return document.getElementById(id); };
 var all = function(sel){ return Array.prototype.slice.call(document.querySelectorAll(sel)); };
-var live = null, selScene = '', selLayer = '';
+var live = null;
 function h(tag, cls, text){ var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
 function setText(el, text){ if (el && el.textContent !== text) el.textContent = text; }
 var toastT;
-function toast(msg, bad){ var t = $('toast'); t.textContent = msg; t.className = 'toast show' + (bad ? ' bad' : ''); clearTimeout(toastT); toastT = setTimeout(function(){ t.className = 'toast'; }, bad ? 3500 : 1500); }
+function toast(msg, bad){ var t = $('toast'); t.textContent = msg; t.className = 'toast show' + (bad ? ' bad' : ''); clearTimeout(toastT); toastT = setTimeout(function(){ t.className = 'toast'; }, bad ? 3500 : 1600); }
 /* A short vibration confirms a press on Android phones (iPhone Safari does not allow it) */
 function buzz(ms){ try { if (navigator.vibrate) navigator.vibrate(ms); } catch(e){} }
 if (window.KCBrand) all('[data-credit]').forEach(function(p){ p.textContent = KCBrand.name + ' · ' + KCBrand.tagline + '. By ' + KCBrand.creator.name + ' · ' + KCBrand.creator.email + '. ' + KCBrand.disclaimer; });
-function lsGet(k, d){ try { var v = localStorage.getItem(k); return v === null ? d : v; } catch(e){ return d; } }
-function lsSet(k, v){ try { localStorage.setItem(k, v); } catch(e){} }
+try { localStorage.removeItem('bcc-remote-role'); localStorage.removeItem('bcc-remote-tab'); } catch(e){}   // 8.0: one view, no layouts or tabs
 
 /* ---------- Sign in ---------- */
 function showLogin(msg){ $('app').hidden = true; $('login').hidden = false; $('login-msg').textContent = msg || ''; setTimeout(function(){ $('pin').focus(); }, 50); }
-function showApp(){ var was = $('app').hidden; $('login').hidden = true; $('app').hidden = false; if (was){ setTab(curTab(), true); pollStudio(); } }
+function showApp(){ var was = $('app').hidden; $('login').hidden = true; $('app').hidden = false; if (was){ pollStudio(); if (live) render(); } }
 $('login-form').addEventListener('submit', function(e){
   e.preventDefault();
   var pin = $('pin').value.replace(/\D/g, '');
@@ -35,11 +32,10 @@ $('login-form').addEventListener('submit', function(e){
       if (res.status === 200){ $('pin').value = ''; showApp(); toast('Connected'); return; }
       $('pin').value = '';
       $('login-msg').textContent = res.status === 429 ? 'Too many tries. Wait ' + res.d.wait + ' seconds and try again.'
-        : res.status === 401 ? 'That PIN isn’t right. Check the PIN on your PC.' : 'Remote mode isn’t on. Start the PC with “Start FRAMEDECKS with Phone Remote”.';
+        : res.status === 401 ? 'That PIN isn’t right. Check the PIN on your PC.' : 'The phone remote isn’t on. Turn it on in FrameDecks: Settings → Phone & iPad Remote.';
     })
-    .catch(function(){ $('login-msg').textContent = 'Can’t reach your PC. Check it’s on the same Wi-Fi and the program is running.'; });
+    .catch(function(){ $('login-msg').textContent = 'Can’t reach your PC. Check it’s on the same Wi-Fi and FrameDecks is open.'; });
 });
-$('dash-logout').addEventListener('click', function(){ $('logout').click(); });
 $('logout').addEventListener('click', function(){
   fetch('api/remote-logout', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: '{}'}).finally(function(){ showLogin('Disconnected. Enter the PIN to connect again.'); });
 });
@@ -54,282 +50,30 @@ function update(fn, done){
 }
 var tapAt = {};
 function guard(key, fn){ return function(e){ var now = Date.now(); if (now - (tapAt[key] || 0) < 600) return; tapAt[key] = now; buzz(12); fn(e); }; }   // a double tap never acts twice
-function txOverride(){ return $('tx').value || null; }
-function take(id){
-  var sc = SC.find(live, id); if (!sc) return;
-  update(function(n){ SC.take(n, id, txOverride()); }, sc.name + ' is live');
-  selScene = id;
-}
-var rehearse = false, query = '';                  // Run-through: Previous / Next only move the preview here
+function take(id){ var sc = SC.find(live, id); if (sc) update(function(n){ SC.take(n, id, null); }, sc.name + ' is on screen'); }
 function stepScene(d){
-  var from = rehearse ? (selScene || live.live.scene) : (live.live.scene || selScene);
-  var nx = SC.neighbour(live, from, d);
-  if (!nx){ toast(d > 0 ? 'That’s the last Frame.' : 'That’s the first Frame.'); return; }
-  if (rehearse){ selScene = nx.id; sceneSig = ''; render(); toast('Run-through: ' + nx.name + ' (not on screen)'); return; }
+  var nx = live.live.scene ? SC.neighbour(live, live.live.scene, d) : (d > 0 ? SC.order(live)[0] : null);
+  if (!nx){ toast(d > 0 ? (SC.order(live).length ? 'That’s the last Frame.' : 'No Frames yet. Add them on the PC.') : 'That’s the first Frame.'); return; }
   take(nx.id);
 }
-/* Step the list (question / verse): show the next item, as on the PC */
-function library(k){ return SC.items(live, k); }                  // v6.5: the list of the Frame on screen
-function currentIndex(k){ var l = library(k), id = live[k].itemId; for (var i = 0; i < l.length; i++) if (l[i].id === id) return i; return -1; }
+$('prev').addEventListener('click', guard('prev', function(){ stepScene(-1); }));
+$('next').addEventListener('click', guard('next', function(){ stepScene(1); }));
+$('hide-all').addEventListener('click', function(){ buzz(25); update(function(n){ SC.hideAll(n); }, 'Everything hidden'); });
+
+/* ---------- Inside the Frame: its slides, questions or scriptures ---------- */
+var KIND_NAMES = {slides: 'Slides', question: 'Questions', verse: 'Scriptures'}, ONE = {slides: 'Slide', question: 'Question', verse: 'Scripture'}, chosenKind = null;
+function currentIndex(k){ var l = SC.items(live, k), id = live[k].itemId; for (var i = 0; i < l.length; i++) if (l[i].id === id) return i; return -1; }
 function showItem(k, idx){
-  var it = library(k)[idx]; if (!it) return;
+  var it = SC.items(live, k)[idx]; if (!it) return;
   update(function(n){
     var f = SC.itemById(n, k, it.id, true); if (!f) return;
     if (k === 'question') SC._loadQuestion(n, it.id); else { f.layer.c.itemId = it.id; SC._loadVerse(n, f.layer); }
     var o = n[k]; o.visible = true; o.seq = (o.seq || 0) + 1;
     T.resolve(n, k, it.id);
     if (k === 'question') P.afterShow(n);
-  }, (k === 'verse' ? 'Scripture ' : 'Question ') + (idx + 1));
+  }, ONE[k] + ' ' + (idx + 1));
 }
-function stepList(d){
-  var k = stepKind(); if (!k) return;
-  var l = library(k); if (!l.length){ toast('The list is empty. Add items on the PC.', true); return; }
-  var i = currentIndex(k), j = i < 0 ? (d > 0 ? 0 : l.length - 1) : i + d;
-  if (j < 0){ toast('That’s the first one.'); return; } if (j >= l.length){ toast('That’s the last one.'); return; }
-  showItem(k, j);
-}
-function stepKind(){
-  var ls = SC.liveScene(live), sl = ls && SC.layer(ls, selLayer);
-  if (sl && (sl.kind === 'question' || sl.kind === 'scripture')) return sl.kind === 'question' ? 'question' : 'verse';
-  if (ls && SC.first(ls, 'question')) return 'question';
-  if (ls && SC.first(ls, 'scripture')) return 'verse';
-  return null;
-}
-
-/* ---------- controls ---------- */
-$('take').addEventListener('click', guard('take', function(){
-  var id = selScene && SC.find(live, selScene) ? selScene : (SC.neighbour(live, live.live.scene, 1) || {}).id;
-  if (!id){ toast('Choose a Frame in Frames first.', true); return; }
-  take(id);
-}));
-$('prev').addEventListener('click', guard('prev', function(){ stepScene(-1); }));
-$('next').addEventListener('click', guard('next', function(){ stepScene(1); }));
-$('st-prev').addEventListener('click', guard('sp', function(){ stepList(-1); }));
-$('st-next').addEventListener('click', guard('sn', function(){ stepList(1); }));
-$('hide-all').addEventListener('click', function(){ buzz(25); update(function(n){ SC.hideAll(n); }, 'Everything hidden'); });
-$('auto').addEventListener('click', guard('auto', function(){ update(function(n){ n.live.auto = !n.live.auto; }); }));
-$('blackout').addEventListener('click', guard('bk', function(){ update(function(n){ n.live.blackout = !n.live.blackout; }, live.live.blackout ? 'Blackout off' : 'Blackout'); }));
-$('emergency').addEventListener('click', guard('em', function(){ update(function(n){ n.live.emergency = !n.live.emergency; }, live.live.emergency ? 'Emergency screen off' : 'Emergency screen on'); }));
-$('hide-layer').addEventListener('click', guard('hl', function(){
-  var ls = SC.liveScene(live), l = ls && SC.layer(ls, selLayer);
-  if (!l || !SC.layerOn(live, ls, l)){ toast('Select Content that is on screen (Content tab).', true); return; }
-  update(function(n){ SC.setOn(n, ls.id, l.id, false); }, l.name + ' hidden');
-}));
-/* Question + Scripture: one toggle for the live scene's two cards */
-all('[data-qs]').forEach(function(b){
-  b.addEventListener('click', guard('qs', function(){
-    var ls = SC.liveScene(live), q = ls && SC.first(ls, 'question'), v = ls && SC.first(ls, 'scripture'); if (!ls) return;
-    var m = b.dataset.qs;
-    if (!q || !v) return;
-    update(function(n){ SC.setQS(n, ls.id, m); }, {question: 'Question only', both: 'Question + scripture', verse: 'Scripture only'}[m]);
-  }));
-});
-var txSel = $('tx');
-txSel.appendChild(h('option', null, 'Frame default')); txSel.firstChild.value = '';
-SC.transitions.forEach(function(t){ var o = h('option', null, t[1]); o.value = t[0]; txSel.appendChild(o); });
-
-/* ---------- Scenes ---------- */
-var sceneSig = '';
-function renderScenes(){
-  var ol = $('slist'), next = live.live.scene ? SC.neighbour(live, live.live.scene, 1) : null, all_ = SC.order(live), q = query.trim().toLowerCase();
-  var list = !q ? all_ : all_.filter(function(sc){            // search the Frames and their Content (names, questions, scriptures)
-    var words = [sc.name, sc.group, sc.notes].concat(sc.layers.map(function(l){ return [l.name, l.c.title, l.c.text].concat((l.c.items || []).map(function(it){ return [it.label, it.text, it.ref].join(' '); })).join(' '); }));
-    return words.join(' ').toLowerCase().indexOf(q) >= 0;
-  });
-  var sig = JSON.stringify([list.map(function(s){ return [s.id, s.name, s.group, s.layers.length, s.tx.type]; }), live.live.scene, selScene, next && next.id, q]);
-  if (sig === sceneSig) return; sceneSig = sig;
-  ol.innerHTML = '';
-  if (!list.length){ ol.appendChild(h('li', 'empty', q ? 'No Frame matches “' + query.trim() + '”.' : 'No Frames yet. Create them on the PC (Studio → + Frame).')); return; }
-  var lastGroup = null;
-  list.forEach(function(sc, i){
-    if (sc.group !== lastGroup && sc.group){ ol.appendChild(h('li', 'sg', sc.group)); }
-    lastGroup = sc.group;
-    var isLive = live.live.scene === sc.id, isNext = next && next.id === sc.id;
-    var li = h('li', 'srow' + (isLive ? ' live' : '') + (sc.id === selScene ? ' sel' : '') + (isNext ? ' nx' : ''));
-    var b = h('button', 'sbtn'); b.type = 'button';
-    b.appendChild(h('span', 'n', String(all_.indexOf(sc) + 1)));
-    var t = h('span', 't'); t.appendChild(h('b', null, sc.name)); t.appendChild(h('small', null, sc.layers.map(function(l){ return SC.info[l.kind].name; }).join(' · ') || 'Empty Frame'));
-    b.appendChild(t);
-    b.appendChild(h('span', 'tag', isLive ? 'LIVE' : isNext ? 'NEXT' : ''));
-    b.addEventListener('click', function(){ buzz(8); selScene = sc.id; sceneSig = ''; render(); });
-    var go = h('button', 'sgo', isLive ? '↻' : '▶'); go.type = 'button'; go.setAttribute('aria-label', 'Take ' + sc.name + ' live');
-    go.addEventListener('click', guard('go' + sc.id, function(){ take(sc.id); }));
-    var more = h('button', 'smore', '⋯'); more.type = 'button'; more.setAttribute('aria-label', 'More for ' + sc.name);
-    more.addEventListener('click', function(){ buzz(8); actions(sc); });
-    li.appendChild(b); li.appendChild(go); li.appendChild(more);
-    ol.appendChild(li);
-  });
-}
-/* Scene actions sheet: duplicate, variant */
-function actions(sc){
-  var back = h('div', 'sheet'), card = h('div', 'sheet-card'); card.setAttribute('role', 'dialog');
-  var head = h('div', 'sheet-head'); head.appendChild(h('h2', null, sc.name)); var close = h('button', 'tool', 'Close'); close.type = 'button'; head.appendChild(close); card.appendChild(head);
-  [['Go Live', function(){ take(sc.id); }], ['Duplicate', function(){ var made; update(function(n){ made = SC.duplicate(n, sc.id, {}); }, 'Frame duplicated').then(function(){ if (made){ selScene = made.id; render(); } }); }],
-   ['Duplicate Content structure only', function(){ update(function(n){ SC.duplicate(n, sc.id, {content: 'empty'}); }, 'Frame duplicated (empty)'); }],
-   ['Create variant', function(){ update(function(n){ SC.duplicate(n, sc.id, {variant: true, name: SC.uniqueName(n, sc.name + ' variant')}); }, 'Variant created'); }]].forEach(function(a){
-    var b = h('button', 'roles-btn', a[0]); b.type = 'button'; b.addEventListener('click', function(){ back.remove(); buzz(10); a[1](); }); card.appendChild(b);
-  });
-  close.addEventListener('click', function(){ back.remove(); }); back.addEventListener('click', function(e){ if (e.target === back) back.remove(); });
-  back.appendChild(card); $('app').appendChild(back);
-}
-
-/* ---------- Layers of the live scene (or the chosen scene when nothing is live) ---------- */
-var layerSig = '';
-function renderLayers(){
-  var sc = SC.liveScene(live) || SC.find(live, selScene), ol = $('llist');
-  setText($('ly-of'), sc ? sc.name + (SC.isLive(live, sc.id) ? ' · live' : '') : '');
-  var sig = JSON.stringify([sc, selLayer, live.live.on, live.question.visible, live.verse.visible, live.birthday.visible, live.live.scene]);
-  if (sig === layerSig) return; layerSig = sig;
-  ol.innerHTML = '';
-  if (!sc){ ol.appendChild(h('li', 'empty', 'No Frame yet.')); return; }
-  sc.layers.forEach(function(l){
-    var on = SC.isLive(live, sc.id) ? SC.layerOn(live, sc, l) : l.visible;
-    var li = h('li', 'lrow' + (on ? ' on' : '') + (l.id === selLayer ? ' sel' : '') + (SC.isMedia(l.kind) ? ' media' : ''));
-    var b = h('button', 'lbtn'); b.type = 'button';
-    var t = h('span', 't'); t.appendChild(h('b', null, l.name)); t.appendChild(h('small', null, SC.info[l.kind].name + (on && SC.isLive(live, sc.id) ? ' · on screen' : '')));
-    b.appendChild(t);
-    b.addEventListener('click', function(){ buzz(8); selLayer = l.id; layerSig = ''; render(); });
-    var eye = h('button', 'eye' + (on ? ' on' : ''), on ? 'ON' : 'OFF'); eye.type = 'button'; eye.setAttribute('aria-label', (on ? 'Hide ' : 'Show ') + l.name);
-    eye.addEventListener('click', guard('eye' + l.id, function(){ update(function(n){ SC.toggleVisible(n, sc.id, l.id); }); }));
-    li.appendChild(b); li.appendChild(eye); ol.appendChild(li);
-  });
-}
-
-/* ---------- Canvas: the live picture, and (tablets) the next scene ---------- */
-var tablet = window.matchMedia ? window.matchMedia('(min-width: 900px)') : {matches: false};
-function canvasOn(){ return !$('app').hidden && !document.hidden && (tablet.matches || curTab() === 'live'); }
-function setFrame(f, src){ if (f.dataset.src !== src){ f.dataset.src = src; f.src = src; } }
-function renderCanvas(){
-  var rs = rehearse && selScene && selScene !== live.live.scene ? selScene : '';
-  setFrame($('frame'), canvasOn() ? 'stage.html?bg=preview&preview=1' + (rs ? '&scene=' + encodeURIComponent(rs) : '') : 'about:blank');
-  document.body.classList.toggle('rehearsing', !!rs);
-  var nx = live.live.scene ? SC.neighbour(live, live.live.scene, 1) : null;
-  var showNext = tablet.matches && nx && canvasOn();
-  $('next-pv').hidden = !showNext;
-  setText($('np-name'), nx ? nx.name : '');
-  setFrame($('frame-next'), showNext ? 'stage.html?bg=preview&preview=1&scene=' + encodeURIComponent(nx.id) : 'about:blank');
-  scale();
-}
-function scale(){ [['canvas', 'frame'], ['canvas-next', 'frame-next']].forEach(function(p){ var box = $(p[0]); if (box && box.clientWidth) $(p[1]).style.transform = 'scale(' + (box.clientWidth / 1920) + ')'; }); }
-window.addEventListener('resize', scale);
-if (window.ResizeObserver) new ResizeObserver(scale).observe($('canvas'));
-
-/* ---------- Render ---------- */
-/* 6.7 Teleprompter: the Frame's script (only you see it). Built the first time it is opened; full screen on request
- * (the simple remote opens it straight to full screen). */
-var tp = null, tpFrame = null, tpFullBtn = null, tpHome = null;
-function prompterShow(sc){
-  var box = $('now-tp'); if (!box || !window.KCPrompter) return;
-  tpFrame = sc || null; box.hidden = !sc && !box.classList.contains('full');
-  if (tp && box.open) tp.update(live, tpFrame);
-}
-function prompterFull(on){
-  var box = $('now-tp'); if (!box) return;
-  if (on){ tpHome = tpHome || box.parentNode; document.body.appendChild(box); box.hidden = false; box.open = true; }
-  else if (tpHome){ tpHome.appendChild(box); box.hidden = !tpFrame; }
-  box.classList.toggle('full', on);
-  if (tpFullBtn){ tpFullBtn.textContent = on ? '✕' : '⤢'; tpFullBtn.title = on ? 'Close full screen' : 'Full screen'; tpFullBtn.setAttribute('aria-label', tpFullBtn.title); }
-  if (tp && live) tp.update(live, tpFrame);
-}
-(function(){
-  var box = $('now-tp'); if (!box || !window.KCPrompter) return;
-  try { box.open = localStorage.getItem('kc-tp-remote-open') === '1'; } catch(e){}
-  box.addEventListener('toggle', function(){
-    if (!box.classList.contains('full')) try { localStorage.setItem('kc-tp-remote-open', box.open ? '1' : '0'); } catch(e){}
-    if (box.open && !tp){
-      tpFullBtn = document.createElement('button'); tpFullBtn.type = 'button'; tpFullBtn.className = 'tp-btn tp-full'; tpFullBtn.textContent = '⤢'; tpFullBtn.title = 'Full screen'; tpFullBtn.setAttribute('aria-label', 'Full screen');
-      tpFullBtn.addEventListener('click', function(){ prompterFull(!box.classList.contains('full')); });
-      tp = window.KCPrompter.create($('now-tp-body'), {key: 'remote', compact: true, extra: [tpFullBtn]});
-    }
-    if (tp){ if (box.open && live) tp.update(live, tpFrame); else tp.play(false); }
-  });
-  var sb = $('sr-prompter'); if (sb) sb.addEventListener('click', function(){ prompterFull(true); });
-})();
-
-function render(){
-  if (!live) return;
-  var ls = SC.liveScene(live), L = live.live;
-  if (selScene && !SC.find(live, selScene)) selScene = '';
-  if (ls && selLayer && !SC.layer(ls, selLayer)) selLayer = '';
-  var anyOn = live.question.visible || live.verse.visible || live.birthday.visible || SC.liveText(live).length > 0;
-  var oa = $('onair'), oc = 'onair' + (L.blackout || L.emergency ? ' bad' : anyOn ? ' on' : '');
-  if (oa.className !== oc) oa.className = oc;
-  setText(oa.querySelector('b'), L.blackout ? 'BLACKOUT' : L.emergency ? 'EMERGENCY' : anyOn ? 'ON AIR' : 'OFF AIR');
-  setText($('now-name'), ls ? ls.name : 'Nothing live yet');
-  var tx = ls ? SC.transitionOf(live, ls) : null;
-  setText($('now-meta'), ls ? SC.txName(L.tx) + (L.txMs ? ' ' + L.txMs + ' ms' : '') : '');
-  var bits = [];
-  if (live.question.visible && live.question.text.trim()) bits.push('Question: ' + live.question.text.trim().slice(0, 60));
-  if (live.verse.visible && live.verse.text.trim()) bits.push((live.verse.ref || 'Scripture') + (live.verse.version ? ' (' + live.verse.version + ')' : ''));
-  if (live.birthday.visible) bits.push('Birthday: ' + (live.birthday.name || ''));
-  SC.liveText(live).forEach(function(l){ bits.push(l.name); });
-  setText($('now-sub'), bits.join(' · ') || (ls ? 'Nothing on screen in this Frame' : 'Choose a Frame, then Go Live'));
-  $('now').classList.toggle('on', anyOn);
-  // take button: the chosen scene (else the next one)
-  var target = selScene && SC.find(live, selScene) ? SC.find(live, selScene) : (L.scene ? SC.neighbour(live, L.scene, 1) : SC.order(live)[0]);
-  setText($('take-what'), target ? (SC.isLive(live, target.id) ? '● On air: ' : '') + target.name : '');
-  setText($('take').querySelector('.tl'), 'GO LIVE');
-  $('take').disabled = !target;
-  $('auto').setAttribute('aria-pressed', String(L.auto));
-  $('blackout').setAttribute('aria-pressed', String(L.blackout)); $('blackout').classList.toggle('on', L.blackout);
-  $('emergency').setAttribute('aria-pressed', String(L.emergency)); $('emergency').classList.toggle('on', L.emergency);
-  var inkOn = !!(L.ink && L.ink.on);
-  $('annotate').setAttribute('aria-pressed', String(inkOn)); $('annotate').classList.toggle('on', inkOn);
-  $('freeze').setAttribute('aria-pressed', String(!!L.freeze)); $('freeze').classList.toggle('on', !!L.freeze);
-  $('rehearse').setAttribute('aria-pressed', String(rehearse));
-  var ns = rehearse && selScene ? SC.find(live, selScene) : ls;               // the Frame's teleprompter script (6.7)
-  prompterShow(ns);
-  // Q + Scripture
-  var q = ls && SC.first(ls, 'question'), v = ls && SC.first(ls, 'scripture');
-  $('qs').hidden = !(q && v);
-  if (q && v){
-    var qo = SC.layerOn(live, ls, q), vo = SC.layerOn(live, ls, v), m = qo && vo ? 'both' : qo ? 'question' : vo ? 'verse' : '';
-    all('[data-qs]').forEach(function(b){ b.setAttribute('aria-checked', String(b.dataset.qs === m)); });
-  }
-  // list stepper
-  var k = stepKind(); $('stepper').hidden = !k;
-  if (k){ var items = library(k), cur = currentIndex(k); setText($('st-t'), (k === 'question' ? 'Question ' : 'Verse ') + (cur >= 0 ? (cur + 1) + ' / ' + items.length : '– / ' + items.length)); }
-  var sl = ls && SC.layer(ls, selLayer); $('hide-layer').disabled = !(sl && SC.layerOn(live, ls, sl));
-  setText($('hide-layer'), sl ? 'Hide ' + sl.name : 'Hide Content');
-  renderScenes(); renderLayers(); renderCanvas(); renderChips(); renderSimple();
-}
-Store.subscribe(function(st){ live = st; if (!$('login').hidden) showApp(); render(); });
-
-/* ---------- Status chips and slides (from the PC: FRAMEDECKS, recording, the slide show) ---------- */
-var studioInfo = null, slideBusy = false;
-function renderChips(){
-  var d = studioInfo || {}, vc = d.vcam || {}, rec = d.recording || {}, pres = d.presentation, L = live ? live.live : {};
-  var c1 = $('ch-vcam'); c1.hidden = !vc.state;
-  if (vc.state){ setText(c1, 'FRAMEDECKS · ' + (vc.state === 'live' ? (vc.inUse ? 'in a meeting' : 'live') : vc.state === 'error' ? 'problem' : vc.state)); c1.className = 'chip' + (vc.state === 'live' ? ' ok' : vc.state === 'error' ? ' bad' : ''); }
-  var c2 = $('ch-rec'); c2.hidden = !rec.on; if (rec.on){ var s = Math.round(rec.seconds || 0); setText(c2, '● REC ' + Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0')); c2.className = 'chip bad'; }
-  var c3 = $('ch-slide'); c3.hidden = !pres; if (pres) setText(c3, 'Slide ' + (pres.page ? pres.page + (pres.pages ? ' / ' + pres.pages : '') : '–'));
-  var c4 = $('ch-black'); c4.hidden = !(L.blackout || L.emergency); setText(c4, L.blackout ? 'Blackout' : 'Emergency screen'); c4.className = 'chip bad';
-  $('slides').hidden = !pres; if (pres) setText($('sl-t'), 'Slide ' + (pres.page ? pres.page + (pres.pages ? ' / ' + pres.pages : '') : ''));
-}
-function studioPost(body){
-  return fetch('api/remote/studio', {method: 'POST', headers: {'Content-Type': 'application/json'}, credentials: 'same-origin', body: JSON.stringify(body)})
-    .then(function(r){ return r.json().then(function(d){ if (!r.ok) throw new Error(d.error || 'Not available'); return d; }); });
-}
-all('[data-slide]').forEach(function(b){
-  b.addEventListener('click', function(){
-    if (slideBusy) return; slideBusy = true; buzz(15);
-    studioPost({op: 'slide', step: +b.dataset.slide}).then(function(r){ studioInfo = r.studio || studioInfo; var s = r.slide || {}; if (s.error && !s.busy) toast(s.error, true); renderChips(); })
-      .catch(function(e){ toast(e.message, true); }).then(function(){ setTimeout(function(){ slideBusy = false; }, 150); });
-  });
-});
-var studioT = null;
-function pollStudio(){
-  clearTimeout(studioT);
-  if (!$('app').hidden && !document.hidden)
-    fetch('api/remote/studio', {cache: 'no-store', credentials: 'same-origin'}).then(function(r){ return r.ok ? r.json() : null; }).then(function(d){ if (d){ studioInfo = d; renderChips(); } }).catch(function(){});
-  studioT = setTimeout(pollStudio, document.hidden ? 15000 : 4000);
-}
-document.addEventListener('visibilitychange', function(){ if (!document.hidden && !$('app').hidden){ pollStudio(); } if (live) renderCanvas(); });
-
-/* ---------- v6.5 Simple remote ---------- */
-var KIND_NAMES = {slides: 'PowerPoint', question: 'Question', verse: 'Scripture'}, contentKind = null;
-/* what Previous / Next Content move through in the Frame on screen: its slides, its questions or its scriptures */
-function contentKinds(){
+function kinds(){
   var ls = SC.liveScene(live), k = [];
   if (studioInfo && studioInfo.presentation && ls && ls.layers.some(function(l){ return l.kind === 'pdf' || l.kind === 'window'; })) k.push('slides');
   if (ls && SC.items(live, 'question').length) k.push('question');
@@ -337,35 +81,18 @@ function contentKinds(){
   return k;
 }
 function curKind(){
-  var k = contentKinds();
-  if (contentKind && k.indexOf(contentKind) >= 0) return contentKind;
+  var k = kinds();
+  if (chosenKind && k.indexOf(chosenKind) >= 0) return chosenKind;
   if (k.indexOf('slides') >= 0) return 'slides';
   if (live.verse.visible && !live.question.visible && k.indexOf('verse') >= 0) return 'verse';
   return k[0] || null;
 }
-function renderSimple(){
-  if (document.body.dataset.role !== 'presenter') return;
-  var ls = SC.liveScene(live), order = SC.order(live), i = ls ? order.indexOf(ls) : -1, L = live.live;
-  setText($('sr-frame'), order.length ? (i >= 0 ? 'Frame ' + (i + 1) + ' of ' + order.length : 'Not started · ' + order.length + ' Frames') : 'No Frames yet');
-  setText($('sr-frame-name'), ls ? ls.name : order.length ? 'NEXT FRAME starts with ' + order[0].name : 'Add Frames on the PC');
-  var k = curKind(), detail = '';
-  if (k === 'slides'){ var p = studioInfo.presentation; detail = p.page ? 'Slide ' + p.page + (p.pages ? ' of ' + p.pages : '') : 'Ready'; }
-  else if (k){ var items = SC.items(live, k), ci = currentIndex(k); detail = (ci >= 0 ? (ci + 1) + ' of ' + items.length : items.length + ' ready') + ((k === 'question' ? live.question.visible : live.verse.visible) ? ' · ON SCREEN' : ''); }
-  setText($('sr-content'), k ? KIND_NAMES[k] : 'Nothing to step through');
-  setText($('sr-content-detail'), k ? detail : ls ? 'This Frame has no questions, scriptures or slides' : '');
-  $('sr-kind').hidden = contentKinds().length < 2;
-  $('sr-prev-content').disabled = $('sr-next-content').disabled = !k || !Store.online;
-  var ink = !!(L.ink && L.ink.on);
-  [['sr-annotate', ink, 'ANNOTATE', 'DRAWING ON'], ['sr-freeze', !!L.freeze, 'FREEZE', 'UNFREEZE'], ['sr-black', !!L.blackout, 'BLACK SCREEN', 'SHOW PICTURE']].forEach(function(b){
-    var el = $(b[0]); el.classList.toggle('on', b[1]); el.setAttribute('aria-pressed', String(b[1])); setText(el, b[1] ? b[3] : b[2]);
-  });
-  setText($('sr-note'), L.blackout ? 'The screen is black. Tap SHOW PICTURE to bring it back.' : L.freeze ? 'The picture is frozen. Tap UNFREEZE to go live again.' : L.emergency ? 'The Emergency screen is on (Advanced remote or the PC).' : '');
-}
+var slideBusy = false;
 function contentStep(d){
   var k = curKind(); if (!k) return;
   if (k === 'slides'){
     if (slideBusy) return; slideBusy = true;
-    studioPost({op: 'slide', step: d}).then(function(r){ studioInfo = r.studio || studioInfo; var s = r.slide || {}; if (s.error && !s.busy) toast(s.error, true); else if (s.page) toast('Slide ' + s.page + (s.pages ? ' of ' + s.pages : '')); renderChips(); renderSimple(); })
+    studioPost({op: 'slide', step: d}).then(function(r){ studioInfo = r.studio || studioInfo; var s = r.slide || {}; if (s.error && !s.busy) toast(s.error, true); else if (s.page) toast('Slide ' + s.page + (s.pages ? ' of ' + s.pages : '')); render(); })
       .catch(function(e){ toast(e.message, true); }).then(function(){ setTimeout(function(){ slideBusy = false; }, 150); });
     return;
   }
@@ -373,23 +100,155 @@ function contentStep(d){
   if (j < 0){ toast('That’s the first one.'); return; } if (j >= l.length){ toast('That’s the last one.'); return; }
   showItem(k, j);
 }
-$('sr-prev-frame').addEventListener('click', guard('spf', function(){ stepScene(-1); }));
-$('sr-next-frame').addEventListener('click', guard('snf', function(){ stepScene(1); }));
-$('sr-prev-content').addEventListener('click', guard('spc', function(){ contentStep(-1); }));
-$('sr-next-content').addEventListener('click', guard('snc', function(){ contentStep(1); }));
-$('sr-kind').addEventListener('click', guard('kind', function(){ var k = contentKinds(), i = k.indexOf(curKind()); contentKind = k[(i + 1) % k.length]; renderSimple(); toast('Content buttons now move: ' + KIND_NAMES[contentKind]); }));
+$('c-prev').addEventListener('click', guard('cp', function(){ contentStep(-1); }));
+$('c-next').addEventListener('click', guard('cn', function(){ contentStep(1); }));
+/* Question, both, or scripture: one switch for a Frame with both cards */
+all('[data-qs]').forEach(function(b){
+  b.addEventListener('click', guard('qs', function(){
+    var ls = SC.liveScene(live); if (!ls || !SC.first(ls, 'question') || !SC.first(ls, 'scripture')) return;
+    var m = b.dataset.qs;
+    update(function(n){ SC.setQS(n, ls.id, m); }, {question: 'Question only', both: 'Question and scripture', verse: 'Scripture only'}[m]);
+  }));
+});
+
+/* ---------- Tools ---------- */
 function blackout(){ update(function(n){ n.live.blackout = !n.live.blackout; }, live.live.blackout ? 'Picture back' : 'Black screen'); }
 function freeze(){ update(function(n){ n.live.freeze = !n.live.freeze; }, live.live.freeze ? 'Picture live again' : 'Picture frozen'); }
 function annotate(){ if (live.live.ink && live.live.ink.on) openPad(); else update(function(n){ SC.ink(n, 'on'); }).then(openPad); }
-$('sr-black').addEventListener('click', guard('sb', blackout));
-$('sr-freeze').addEventListener('click', guard('sfz', freeze));
-$('sr-annotate').addEventListener('click', guard('san', annotate));
-$('freeze').addEventListener('click', guard('fz', freeze));
-$('annotate').addEventListener('click', guard('an', annotate));
-$('rehearse').addEventListener('click', guard('rh', function(){ rehearse = !rehearse; if (!rehearse) selScene = live.live.scene || selScene; sceneSig = ''; render(); toast(rehearse ? 'Run-through: Previous / Next only move the preview on this device' : 'Run-through off'); }));
-$('ssearch').addEventListener('input', function(e){ query = e.target.value; sceneSig = ''; renderScenes(); });
+$('t-black').addEventListener('click', guard('tb', blackout));
+$('t-freeze').addEventListener('click', guard('tf', freeze));
+$('t-draw').addEventListener('click', guard('td', annotate));
 
-/* ---------- Drawing pad (Annotate): the live picture with the drawings; draw with a finger ---------- */
+/* Teleprompter: the script of the Frame on screen (else the first), full screen; only you see it */
+var tp = null;
+function tpFrame(){ return SC.liveScene(live) || SC.order(live)[0] || null; }
+function openPrompter(){
+  if (!window.KCPrompter) return;
+  $('tp').hidden = false; document.body.classList.add('prompting');
+  if (!tp) tp = window.KCPrompter.create($('tp-body'), {key: 'remote', compact: true});
+  if (live) tp.update(live, tpFrame());
+  $('tp-close').focus();
+}
+function closePrompter(){ $('tp').hidden = true; document.body.classList.remove('prompting'); if (tp) tp.play(false); }
+$('t-prompter').addEventListener('click', guard('tp', openPrompter));
+$('tp-close').addEventListener('click', closePrompter);
+document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && !$('tp').hidden){ e.preventDefault(); closePrompter(); } });
+
+/* ---------- All Frames: tap one to put it on screen ---------- */
+var listSig = '';
+function renderFrames(){
+  var ol = $('flist'), order = SC.order(live), next = live.live.scene ? SC.neighbour(live, live.live.scene, 1) : order[0];
+  var sig = JSON.stringify([order.map(function(s){ return [s.id, s.name, s.group, s.layers.length]; }), live.live.scene, next && next.id]);
+  if (sig === listSig) return; listSig = sig;
+  setText($('fr-count'), order.length ? order.length + (order.length === 1 ? ' Frame' : ' Frames') : '');
+  ol.innerHTML = '';
+  if (!order.length){ ol.appendChild(h('li', 'empty', 'No Frames yet. Make them on the PC, in the Studio.')); return; }
+  var lastGroup = null;
+  order.forEach(function(sc, i){
+    if (sc.group && sc.group !== lastGroup) ol.appendChild(h('li', 'fgroup', sc.group));
+    lastGroup = sc.group;
+    var isLive = live.live.scene === sc.id, isNext = !isLive && next && next.id === sc.id;
+    var li = h('li'), b = h('button', 'frow' + (isLive ? ' live' : '') + (isNext ? ' nx' : '')); b.type = 'button';
+    b.setAttribute('aria-label', (isLive ? 'Live now: ' : 'Put on screen: ') + sc.name);
+    if (isLive) b.setAttribute('aria-current', 'true');
+    b.appendChild(h('span', 'n', String(i + 1)));
+    var t = h('span', 't'); t.appendChild(h('b', null, sc.name));
+    t.appendChild(h('small', null, sc.layers.map(function(l){ return SC.info[l.kind].name; }).join(' · ') || 'Empty Frame')); b.appendChild(t);
+    if (isLive || isNext) b.appendChild(h('span', 'tag', isLive ? 'Live' : 'Next'));
+    b.addEventListener('click', guard('f' + sc.id, function(){ if (live.live.scene === sc.id) toast(sc.name + ' is already on screen'); else take(sc.id); }));
+    li.appendChild(b); ol.appendChild(li);
+  });
+}
+
+/* ---------- The live picture ---------- */
+function setFrame(f, src){ if (f.dataset.src !== src){ f.dataset.src = src; f.src = src; } }
+function renderCanvas(){ setFrame($('frame'), !$('app').hidden && !document.hidden ? 'stage.html?bg=preview&preview=1' : 'about:blank'); scale(); }
+function scale(){ var box = $('canvas'); if (box && box.clientWidth) $('frame').style.transform = 'scale(' + (box.clientWidth / 1920) + ')'; }
+window.addEventListener('resize', scale);
+if (window.ResizeObserver) new ResizeObserver(scale).observe($('canvas'));
+
+/* ---------- Render ---------- */
+function render(){
+  if (!live) return;
+  var ls = SC.liveScene(live), L = live.live, order = SC.order(live), pos = ls ? order.indexOf(ls) : -1;
+  var anyOn = live.question.visible || live.verse.visible || live.birthday.visible || SC.liveText(live).length > 0;
+  document.body.classList.toggle('on-air', anyOn);
+  setText($('meeting'), (live.meeting && live.meeting.title) || (live.brand && live.brand.meeting) || 'FrameDecks');
+  var oa = $('onair'), oc = 'air' + (L.blackout || L.emergency ? ' bad' : anyOn ? ' on' : '');
+  if (oa.className !== oc) oa.className = oc;
+  setText(oa.querySelector('b'), L.blackout ? 'Black screen' : L.emergency ? 'Emergency' : L.freeze ? 'Frozen' : anyOn ? 'On screen' : 'Off air');
+  setText($('now-pos'), ls ? 'Frame ' + (pos + 1) + ' of ' + order.length : order.length ? 'Not started · ' + order.length + (order.length === 1 ? ' Frame' : ' Frames') : 'No Frames yet');
+  setText($('now-name'), ls ? ls.name : order.length ? 'Ready when you are' : 'Nothing to show yet');
+  var bits = [];
+  if (live.question.visible && live.question.text.trim()) bits.push(live.question.text.trim().slice(0, 80));
+  if (live.verse.visible && live.verse.text.trim()) bits.push((live.verse.ref || 'Scripture') + (live.verse.version ? ' (' + live.verse.version + ')' : ''));
+  if (live.birthday.visible) bits.push('Birthday: ' + (live.birthday.name || ''));
+  SC.liveText(live).forEach(function(l){ bits.push(l.name); });
+  setText($('now-sub'), bits.join(' · ') || (ls ? 'Nothing from this Frame is showing' : order.length ? 'Next puts “' + order[0].name + '” on screen' : 'Make your Frames on the PC'));
+  var nx = ls ? SC.neighbour(live, ls.id, 1) : order[0];
+  setText($('next-t'), ls ? 'Next' : 'Start');
+  $('next').setAttribute('aria-label', nx ? 'Next Frame: ' + nx.name : 'Next Frame');
+  // inside the Frame
+  var ks = kinds(), k = curKind();
+  $('step').hidden = !k;
+  var kb = $('kinds'), ksig = ks.join(',') + '|' + k;
+  if (kb.dataset.sig !== ksig){
+    kb.dataset.sig = ksig; kb.innerHTML = '';
+    if (ks.length > 1) ks.forEach(function(x){
+      var b = h('button', null, KIND_NAMES[x]); b.type = 'button'; b.setAttribute('role', 'radio'); b.setAttribute('aria-checked', String(x === k));
+      b.addEventListener('click', function(){ buzz(8); chosenKind = x; render(); }); kb.appendChild(b);
+    });
+  }
+  if (k){
+    var title, detail = '', on = false;
+    if (k === 'slides'){ var p = studioInfo.presentation; title = p.page ? 'Slide ' + p.page + (p.pages ? ' of ' + p.pages : '') : 'Slides ready'; detail = 'PowerPoint'; }
+    else {
+      var items = SC.items(live, k), ci = currentIndex(k); on = k === 'question' ? live.question.visible : live.verse.visible;
+      title = ONE[k] + ' ' + (ci >= 0 ? (ci + 1) + ' of ' + items.length : '– of ' + items.length);
+      var it = items[ci >= 0 ? ci : 0];
+      detail = on ? 'On screen' : it ? (k === 'verse' ? (it.ref || '') : (it.text || '')).slice(0, 90) : '';
+    }
+    setText($('c-title'), title); setText($('c-detail'), detail); $('c-detail').classList.toggle('on', on);
+  }
+  var q = ls && SC.first(ls, 'question'), v = ls && SC.first(ls, 'scripture');
+  $('qs').hidden = !(q && v);
+  if (q && v){
+    var qo = SC.layerOn(live, ls, q), vo = SC.layerOn(live, ls, v), m = qo && vo ? 'both' : qo ? 'question' : vo ? 'verse' : '';
+    all('[data-qs]').forEach(function(b){ b.setAttribute('aria-checked', String(b.dataset.qs === m)); });
+  }
+  // tools
+  var ink = !!(L.ink && L.ink.on);
+  [['t-draw', ink, 'Draw', 'Drawing'], ['t-freeze', !!L.freeze, 'Freeze', 'Unfreeze'], ['t-black', !!L.blackout, 'Black screen', 'Show picture']].forEach(function(b){
+    var el = $(b[0]); el.classList.toggle('on', b[1]); el.setAttribute('aria-pressed', String(b[1])); setText(el.querySelector('.tl'), b[1] ? b[3] : b[2]);
+  });
+  setText($('note'), L.blackout ? 'The screen is black. Tap Show picture to bring it back.' : L.freeze ? 'The picture is frozen. Tap Unfreeze to go live again.' : L.emergency ? 'The Emergency screen is on. Turn it off on the PC.' : '');
+  if (tp && !$('tp').hidden) tp.update(live, tpFrame());
+  renderFrames(); renderCanvas(); renderChips();
+}
+Store.subscribe(function(st){ live = st; if (!$('login').hidden) showApp(); render(); });
+
+/* ---------- From the PC: FrameRelay, recording, the slide show ---------- */
+var studioInfo = null;
+function renderChips(){
+  var d = studioInfo || {}, vc = d.vcam || {}, rec = d.recording || {};
+  var c1 = $('ch-vcam'); c1.hidden = !vc.state;
+  if (vc.state){ setText(c1, 'FrameRelay · ' + (vc.state === 'live' ? (vc.inUse ? 'in a meeting' : 'on') : vc.state === 'error' ? 'problem' : vc.state)); c1.className = 'chip' + (vc.state === 'live' ? ' ok' : vc.state === 'error' ? ' bad' : ''); }
+  var c2 = $('ch-rec'); c2.hidden = !rec.on; if (rec.on){ var s = Math.round(rec.seconds || 0); setText(c2, '● Recording ' + Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0')); c2.className = 'chip bad'; }
+}
+function studioPost(body){
+  return fetch('api/remote/studio', {method: 'POST', headers: {'Content-Type': 'application/json'}, credentials: 'same-origin', body: JSON.stringify(body)})
+    .then(function(r){ return r.json().then(function(d){ if (!r.ok) throw new Error(d.error || 'Not available'); return d; }); });
+}
+var studioT = null;
+function pollStudio(){
+  clearTimeout(studioT);
+  if (!$('app').hidden && !document.hidden)
+    fetch('api/remote/studio', {cache: 'no-store', credentials: 'same-origin'}).then(function(r){ return r.ok ? r.json() : null; }).then(function(d){ if (d){ studioInfo = d; if (live) render(); } }).catch(function(){});
+  studioT = setTimeout(pollStudio, document.hidden ? 15000 : 4000);
+}
+document.addEventListener('visibilitychange', function(){ if (!document.hidden && !$('app').hidden) pollStudio(); if (live) renderCanvas(); });
+
+/* ---------- Draw: the live picture with the drawings; draw with a finger ---------- */
 var pad = {tool: 'pen', color: '#e8b931', stroke: null, timer: 0, tag: '', url: ''}, cv = $('dp-canvas');
 function openPad(){
   $('drawpad').hidden = false;
@@ -429,8 +288,8 @@ function padFull(on){
 function padLive(){
   clearTimeout(pad.timer);
   if ($('drawpad').hidden) return;
-  var h = {}; if (pad.tag) h['If-None-Match'] = pad.tag;
-  fetch('api/remote/live.jpg?t=' + Date.now(), {cache: 'no-store', credentials: 'same-origin', headers: h}).then(function(r){
+  var hd = {}; if (pad.tag) hd['If-None-Match'] = pad.tag;
+  fetch('api/remote/live.jpg?t=' + Date.now(), {cache: 'no-store', credentials: 'same-origin', headers: hd}).then(function(r){
     if (r.status === 304) return null;
     if (r.status !== 200){ pad.tag = ''; $('dp-live').hidden = true; return null; }
     pad.tag = r.headers.get('ETag') || '';
@@ -462,44 +321,9 @@ all('.dp-tool').forEach(function(b){ b.addEventListener('click', function(){ pad
 all('.dp-col').forEach(function(b){ b.addEventListener('click', function(){ pad.color = b.dataset.c; all('.dp-col').forEach(function(x){ x.classList.toggle('on', x === b); }); }); });
 $('dp-undo').addEventListener('click', guard('du', function(){ update(function(n){ SC.ink(n, 'undo'); }); }));
 $('dp-clear').addEventListener('click', guard('dc', function(){ update(function(n){ SC.ink(n, 'clear'); }); }));
-$('dp-done').addEventListener('click', function(){
-  closePad();
-  update(function(n){ SC.ink(n, 'off'); }, 'Drawings hidden');
-});
+$('dp-done').addEventListener('click', function(){ closePad(); update(function(n){ SC.ink(n, 'off'); }, 'Drawings hidden'); });
 
-/* ---------- Tabs (phones) and layouts ---------- */
-var ROLES = {presenter: {name: 'Simple', tabs: ['live']}, admin: {name: 'Advanced', tabs: ['live', 'scenes', 'layers']}};   // ids kept so saved choices carry over
-function role(){ return ROLES[document.body.dataset.role] || ROLES.admin; }
-function curTab(){ return document.body.dataset.tab || 'live'; }
-function setTab(t, quiet){
-  if (role().tabs.indexOf(t) < 0) t = 'live';
-  document.body.dataset.tab = t; lsSet('bcc-remote-tab', t);
-  all('#tabbar [data-tab]').forEach(function(b){ if (b.dataset.tab === t) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
-  if (!quiet) window.scrollTo(0, 0);
-  if (live) renderCanvas();
-}
-function setRole(r){
-  if (r === 'leader') r = 'admin';                 // v6.3 "Standard" became part of Advanced
-  if (!ROLES[r]) r = 'presenter';
-  document.body.dataset.role = r; lsSet('bcc-remote-role', r);
-  setText($('role-name'), ROLES[r].name);
-  all('[data-role-pick]').forEach(function(b){ b.setAttribute('aria-checked', String(b.dataset.rolePick === r)); });
-  all('#tabbar [data-tab]').forEach(function(b){ b.hidden = ROLES[r].tabs.indexOf(b.dataset.tab) < 0; });
-  $('tabbar').hidden = ROLES[r].tabs.length < 2;
-  if (ROLES[r].tabs.indexOf(curTab()) < 0) setTab('live', true);
-  if (live) render();
-}
-all('#tabbar [data-tab]').forEach(function(b){ b.addEventListener('click', function(){ buzz(8); setTab(b.dataset.tab); }); });
-function openMore(){ $('more').hidden = false; $('more-close').focus(); }
-function closeMore(){ $('more').hidden = true; }
-$('more-btn').addEventListener('click', function(){ buzz(8); openMore(); });
-$('more-close').addEventListener('click', closeMore);
-$('more').addEventListener('click', function(e){ if (e.target === $('more')) closeMore(); });
-all('[data-role-pick]').forEach(function(b){ b.addEventListener('click', function(){ buzz(10); setRole(b.dataset.rolePick); toast('Layout: ' + ROLES[b.dataset.rolePick].name); }); });
-document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && !$('more').hidden){ e.preventDefault(); closeMore(); } });
-if (tablet.addEventListener) tablet.addEventListener('change', function(){ if (live) renderCanvas(); });
-
-/* Connection indicator: buttons pause while the PC can't be reached (the page is only touched when it changes) */
+/* ---------- Connection: buttons pause while the PC can't be reached (the page is only touched when it changes) ---------- */
 var offlineSince = null, lastOk = null, lastOnline = null;
 setInterval(function(){
   if (Store.online) offlineSince = null; else if (offlineSince === null) offlineSince = Date.now();
@@ -509,16 +333,13 @@ setInterval(function(){
   lastOk = ok; lastOnline = Store.online;
   var c = $('conn');
   c.className = 'conn ' + (Store.online ? 'ok' : ok ? '' : 'bad'); c.querySelector('b').textContent = Store.online ? 'Connected' : ok ? 'Connecting…' : 'Reconnecting…';
-  all('.pb, #hide-all, .tool, .sgo, .eye, .sr-btn').forEach(function(b){ if (b.id !== 'more-btn' && b.id !== 'more-close') b.disabled = !ok; });
+  all('.nav-btn, #hide-all, .round, .tool, .frow, .seg button').forEach(function(b){ b.disabled = !ok; });
   if (ok && live) render();
 }, 700);
 
-/* This device's layout and tab (remembered) */
-setRole(lsGet('bcc-remote-role', 'presenter'));
-document.body.dataset.tab = role().tabs.indexOf(lsGet('bcc-remote-tab', 'live')) >= 0 ? lsGet('bcc-remote-tab', 'live') : 'live';
 /* Start: find out whether this device is already signed in. Updates arrive the moment they happen (long-poll). */
 fetch('api/rev', {cache: 'no-store'}).then(function(r){
   if (r.status === 403 || r.status === 401) showLogin(); else showApp();
   Store.start({longPoll: true});
-}).catch(function(){ showLogin('Can’t reach your PC. Check it’s on the same Wi-Fi and the program is running.'); Store.start({longPoll: true}); });
+}).catch(function(){ showLogin('Can’t reach your PC. Check it’s on the same Wi-Fi and FrameDecks is open.'); Store.start({longPoll: true}); });
 })();

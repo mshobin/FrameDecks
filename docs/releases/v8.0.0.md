@@ -1,7 +1,7 @@
 ## FrameDecks v8.0.0
 
-A simpler FrameDecks. One Teleprompter, one Studio, tidier Frames, plainer camera settings and a friendlier Setup
-guide. Download from **framedecks.com/download**, or let FrameDecks update itself. It installs over 7.1.2 and earlier
+A simpler FrameDecks. One Teleprompter, one Studio, tidier Frames, a new phone remote, plainer camera settings and a
+friendlier Setup guide. Download from **framedecks.com/download**, or let FrameDecks update itself. It installs over 7.1.2 and earlier
 and keeps all your meetings, members, settings and recordings.
 
 ## What's New
@@ -12,6 +12,9 @@ and keeps all your meetings, members, settings and recordings.
   the copy right after it. The selected Frame shows only what you change often: name, Teleprompter script,
   moving on by itself, and Duplicate. Group, transition, branding, favourite, template and history are under
   **Advanced**.
+- **A new phone remote, all on one screen.** What is on screen now, big Previous and Next buttons, the Frame's
+  questions, scriptures or slides with their own arrows, Teleprompter, Draw, Freeze and Black screen, and every Frame
+  one tap away. Hide all is always at the top. No layouts or tabs to choose.
 - **A step-by-step Setup guide.** One step at a time, with a progress bar, Back and Next. Each step says whether it is
   done, and "Something not working?" lists what to try. Steps you can't do yet can wait ("Do this later").
 
@@ -34,6 +37,8 @@ and keeps all your meetings, members, settings and recordings.
 - The ready-made **Discussion topic**, **Icebreaker** and **Poll** cards. Frames that already have them keep them.
 - The other Duplicate choices (with options, as template, structure only, variant, to group). Save as template is
   under Advanced.
+- On the phone remote: the Simple and Advanced layouts, the tabs, Frame search, the Content list, the transition
+  picker, Run-through and the Emergency button (Emergency stays on the PC).
 
 ## Performance Improvements
 - Fewer windows and less code at start-up: the Teleprompter dock and the separate overlay window are gone.

@@ -6,76 +6,98 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="FRAMEDECKS">
-<meta name="theme-color" content="#0a1426">
+<meta name="apple-mobile-web-app-title" content="FrameDecks">
+<meta name="theme-color" content="#070d1c">
 <link rel="manifest" href="remote-manifest.json">
 <link rel="apple-touch-icon" href="icons/remote-180.png">
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16.png">
-<title>FRAMEDECKS Director</title>
+<title>FrameDecks Remote</title>
 <link rel="stylesheet" href="css/remote.css">
 <link rel="stylesheet" href="css/teleprompter.css">
 </head>
-<body data-tab="live" data-role="presenter">
+<body>
+<!-- FrameDecks 8.0 phone remote: one view. What is on screen, Previous / Next, the Frame's questions, scriptures or
+     slides, four tools, and every Frame one tap away. Built by js/remote.js. -->
 
 <!-- PIN screen -->
 <section class="login" id="login" hidden>
   <div class="login-card">
-    <img class="logo" src="img/framedecks-emblem.webp" alt="FRAMEDECKS" width="84" height="84">
-    <h1 class="sr-only">FRAMEDECKS Mobile Director</h1>
+    <img class="login-logo" src="img/framedecks-emblem.webp" alt="" width="72" height="72">
+    <h1>FrameDecks Remote</h1>
     <p>Enter the 6-digit PIN shown on your PC<br>(Settings → Phone &amp; iPad Remote).</p>
     <form id="login-form" autocomplete="off">
       <input id="pin" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="••••••" aria-label="PIN" autocomplete="one-time-code">
-      <button class="big-btn gold" type="submit">Connect</button>
+      <button class="btn-gold" type="submit">Connect</button>
     </form>
     <p class="login-msg" id="login-msg" role="alert"></p>
     <p class="credit" data-credit></p>
   </div>
 </section>
 
-<!-- Director: Scene → Layer → Canvas -->
 <div class="app" id="app" hidden>
-  <header class="bar">
-    <div class="brand" title="FRAMEDECKS"><img class="brand-mark" src="img/framedecks-emblem.webp" alt="FRAMEDECKS" width="26" height="26">
-      <div class="brand-t"><b class="title sr-only">FRAMEDECKS</b><small id="role-name">Admin</small></div></div>
-    <span class="conn" id="conn"><i></i><b>Connecting…</b></span>
-    <span class="onair" id="onair" role="status" aria-live="polite"><i></i><b>OFF AIR</b></span>
-    <button class="tool more-btn" type="button" id="more-btn" aria-label="More: layout, disconnect" aria-haspopup="dialog"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg></button>
-    <button class="hideall" type="button" id="hide-all" aria-label="Hide every Content now">HIDE ALL</button>
+  <header class="top">
+    <img class="top-mark" src="img/framedecks-emblem.webp" alt="" width="34" height="34">
+    <div class="top-t"><b id="meeting">FrameDecks</b><span class="conn" id="conn"><i></i><b>Connecting…</b></span></div>
+    <button class="hideall" type="button" id="hide-all" aria-label="Hide everything on screen now">Hide all</button>
   </header>
-  <div class="offline" id="offline" hidden>Not connected to the PC — reconnecting… Buttons are paused.</div>
-  <div class="chips" id="chips" aria-label="Outputs"><span class="chip" id="ch-vcam" hidden></span><span class="chip" id="ch-rec" hidden></span><span class="chip" id="ch-slide" hidden></span><span class="chip" id="ch-black" hidden></span></div>
+  <div class="offline" id="offline" hidden role="alert">Not connected to the PC. Reconnecting… Buttons are paused.</div>
 
-  <!-- v6.5 SIMPLE REMOTE (the default): one screen, very large buttons, nothing to set up -->
-  <main class="p-simple" id="simple" aria-label="Simple remote">
-    <section class="sr-block">
-      <p class="sr-kicker">Current Frame</p>
-      <p class="sr-big" id="sr-frame">—</p>
-      <p class="sr-sub" id="sr-frame-name"></p>
-      <div class="sr-row">
-        <button class="sr-btn" type="button" id="sr-prev-frame"><span class="ar" aria-hidden="true">◀</span>PREVIOUS FRAME</button>
-        <button class="sr-btn go" type="button" id="sr-next-frame">NEXT FRAME<span class="ar" aria-hidden="true">▶</span></button>
+  <main class="main">
+    <div class="col">
+      <!-- what is on screen -->
+      <section class="hero" aria-labelledby="now-name">
+        <div class="preview" id="canvas"><iframe id="frame" title="What is on screen now" tabindex="-1"></iframe>
+          <span class="air" id="onair" role="status" aria-live="polite"><i></i><b>Off air</b></span></div>
+        <div class="hero-t">
+          <p class="kicker" id="now-pos">Not started</p>
+          <h1 class="now-name" id="now-name">Nothing on screen yet</h1>
+          <p class="now-sub" id="now-sub"></p>
+          <div class="chips" id="chips"><span class="chip" id="ch-vcam" hidden></span><span class="chip" id="ch-rec" hidden></span></div>
+        </div>
+      </section>
+
+      <!-- the two buttons used most -->
+      <div class="nav" role="group" aria-label="Frames">
+        <button class="nav-btn prev" type="button" id="prev" aria-label="Previous Frame">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg><span>Previous</span></button>
+        <button class="nav-btn next" type="button" id="next" aria-label="Next Frame">
+          <span id="next-t">Next</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
       </div>
+
+      <!-- inside the Frame: its questions, scriptures or PowerPoint slides -->
+      <section class="card step" id="step" hidden aria-labelledby="c-title">
+        <div class="kinds" id="kinds" role="radiogroup" aria-label="What the arrows move through"></div>
+        <div class="step-row">
+          <button class="round" type="button" id="c-prev" aria-label="Previous item"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button>
+          <div class="step-t"><b id="c-title">—</b><small id="c-detail"></small></div>
+          <button class="round" type="button" id="c-next" aria-label="Next item"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
+        </div>
+        <div class="seg" id="qs" role="radiogroup" aria-label="Question and scripture" hidden>
+          <button type="button" role="radio" data-qs="question" aria-checked="false">Question</button><button type="button" role="radio" data-qs="both" aria-checked="false">Both</button><button type="button" role="radio" data-qs="verse" aria-checked="false">Scripture</button></div>
+      </section>
+
+      <!-- tools -->
+      <section class="tools" aria-label="Tools">
+        <button class="tool" type="button" id="t-prompter"><span class="ti"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 10h16M4 14h10M4 18h7"/></svg></span><span class="tl">Teleprompter</span></button>
+        <button class="tool" type="button" id="t-draw" aria-pressed="false"><span class="ti"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></span><span class="tl">Draw</span></button>
+        <button class="tool" type="button" id="t-freeze" aria-pressed="false"><span class="ti"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg></span><span class="tl">Freeze</span></button>
+        <button class="tool warn" type="button" id="t-black" aria-pressed="false"><span class="ti"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m5.6 5.6 12.8 12.8"/></svg></span><span class="tl">Black screen</span></button>
+      </section>
+      <p class="note" id="note" role="status"></p>
+    </div>
+
+    <!-- every Frame: tap one to put it on screen -->
+    <section class="card frames" aria-labelledby="fr-title">
+      <div class="frames-head"><h2 id="fr-title">All Frames</h2><span class="count" id="fr-count"></span></div>
+      <ol class="flist" id="flist" aria-label="Frames"></ol>
+      <p class="hint">Tap a Frame to put it on screen.</p>
     </section>
-    <section class="sr-block">
-      <p class="sr-kicker">Current Content <button class="sr-switch" type="button" id="sr-kind" hidden>Change</button></p>
-      <p class="sr-big" id="sr-content">—</p>
-      <p class="sr-sub" id="sr-content-detail"></p>
-      <div class="sr-row">
-        <button class="sr-btn" type="button" id="sr-prev-content"><span class="ar" aria-hidden="true">◀</span>PREVIOUS CONTENT</button>
-        <button class="sr-btn go" type="button" id="sr-next-content">NEXT CONTENT<span class="ar" aria-hidden="true">▶</span></button>
-      </div>
-    </section>
-    <section class="sr-row three" aria-label="Presenter tools">
-      <button class="sr-btn tool-btn" type="button" id="sr-annotate" aria-pressed="false">ANNOTATE</button>
-      <button class="sr-btn tool-btn" type="button" id="sr-freeze" aria-pressed="false">FREEZE</button>
-      <button class="sr-btn tool-btn black" type="button" id="sr-black" aria-pressed="false">BLACK SCREEN</button>
-    </section>
-    <button class="sr-btn tool-btn sr-tp" type="button" id="sr-prompter">TELEPROMPTER <small>only you see it</small></button>
-    <p class="sr-note" id="sr-note" role="status"></p>
+
+    <footer class="foot"><button class="linkish" type="button" id="logout">Disconnect this device</button><p class="credit" data-credit></p></footer>
   </main>
 
-  <!-- Annotate from the phone or tablet: draw with a finger; it appears on screen when you lift it -->
+  <!-- Draw: with a finger on the live picture; it appears on screen when you lift it -->
   <div class="drawpad" id="drawpad" hidden>
     <div class="dp-bar">
       <button type="button" class="dp-tool on" data-tool="pen">Pen</button><button type="button" class="dp-tool" data-tool="highlighter">Highlight</button>
@@ -87,86 +109,14 @@
     <div class="dp-area" id="dp-area">
       <div class="dp-stage" id="dp-stage"><iframe id="dp-frame" title="What is on screen now" tabindex="-1"></iframe><img id="dp-live" alt="" hidden><canvas id="dp-canvas" width="1920" height="1080" aria-label="Draw here"></canvas></div>
     </div>
-    <p class="dp-hint" id="dp-hint">Draw with your finger. It appears on the screen when you lift it. Turn your phone sideways for a bigger picture.</p>
+    <p class="dp-hint">Draw with your finger. It appears on the screen when you lift it. Turn your phone sideways for a bigger picture.</p>
   </div>
 
-  <div class="layout">
-    <!-- SCENES (a tab on phones; the left pane on tablets) -->
-    <section class="pane p-scenes" aria-labelledby="sc-title">
-      <header class="pane-head"><h2 id="sc-title">Frames</h2><button class="tool sm" type="button" id="rehearse" aria-pressed="false" title="Run-through: step through the Frames here without changing the screen">Run-through</button><button class="tool sm" type="button" id="auto" aria-pressed="true" title="Auto advance">Auto</button></header>
-      <input type="search" class="ssearch" id="ssearch" placeholder="Search Frames and Content" aria-label="Search Frames and Content">
-      <ol class="slist" id="slist" aria-label="Frames"></ol>
-    </section>
-
-    <!-- CANVAS + live controls (the Live tab; the middle pane on tablets) -->
-    <section class="pane p-live" aria-labelledby="now-title">
-      <div class="now" id="now">
-        <div class="now-top"><span class="now-label" id="now-title">Live Frame</span><span class="now-meta" id="now-meta"></span></div>
-        <p class="now-name" id="now-name">Nothing live yet</p>
-        <p class="now-sub" id="now-sub"></p>
-        <details class="now-tp" id="now-tp" hidden><summary>Teleprompter <small>only you see it</small></summary><div class="now-tp-body" id="now-tp-body"></div></details>
-      </div>
-      <div class="canvas" id="canvas"><iframe id="frame" title="What Zoom participants see" tabindex="-1"></iframe><span class="cv-badge">LIVE</span></div>
-      <div class="next-pv" id="next-pv" hidden><span class="np-l">Next</span><b id="np-name"></b><div class="canvas small" id="canvas-next"><iframe id="frame-next" title="The next Frame" tabindex="-1"></iframe></div></div>
-      <div class="deck" role="group" aria-label="Frames">
-        <button class="pb nav" type="button" id="prev" aria-label="Previous Frame"><span class="ar" aria-hidden="true">◀</span><small>Frame</small></button>
-        <button class="pb take" type="button" id="take"><span class="tl">GO LIVE</span><small id="take-what"></small></button>
-        <button class="pb nav" type="button" id="next" aria-label="Next Frame"><span class="ar" aria-hidden="true">▶</span><small>Frame</small></button>
-      </div>
-      <label class="txrow"><span>Transition</span><select id="tx" aria-label="Transition for the next take"></select></label>
-      <div class="qs" id="qs" hidden>
-        <div class="seg" role="radiogroup" aria-label="Question and scripture">
-          <button type="button" role="radio" data-qs="question" aria-checked="false">Question</button><button type="button" role="radio" data-qs="both" aria-checked="false">Q + Scripture</button><button type="button" role="radio" data-qs="verse" aria-checked="false">Scripture</button></div>
-      </div>
-      <div class="stepper" id="stepper" hidden>
-        <button class="pb nav sm" type="button" id="st-prev" aria-label="Previous item"><span class="ar" aria-hidden="true">◀</span></button>
-        <span class="st-t" id="st-t"></span>
-        <button class="pb nav sm" type="button" id="st-next" aria-label="Next item"><span class="ar" aria-hidden="true">▶</span></button>
-      </div>
-      <div class="stepper slides" id="slides" hidden>
-        <button class="pb nav sm" type="button" data-slide="-1" aria-label="Previous slide"><span class="ar" aria-hidden="true">◀</span></button>
-        <span class="st-t" id="sl-t">Slides</span>
-        <button class="pb nav sm" type="button" data-slide="1" aria-label="Next slide"><span class="ar" aria-hidden="true">▶</span></button>
-      </div>
-      <div class="prog" role="group" aria-label="Program">
-        <button class="tool" type="button" id="hide-layer">Hide Content</button>
-        <button class="tool" type="button" id="blackout" aria-pressed="false">Blackout</button>
-        <button class="tool" type="button" id="emergency" aria-pressed="false">Emergency</button>
-        <button class="tool" type="button" id="annotate" aria-pressed="false">Annotate</button>
-        <button class="tool" type="button" id="freeze" aria-pressed="false">Freeze</button>
-      </div>
-    </section>
-
-    <!-- LAYERS of the live scene (a tab on phones; the right pane on tablets) -->
-    <section class="pane p-layers" aria-labelledby="ly-title">
-      <header class="pane-head"><h2 id="ly-title">Content</h2><span class="pane-sub" id="ly-of"></span></header>
-      <ol class="llist" id="llist" aria-label="Content of the live Frame"></ol>
-      <p class="hint" id="ly-hint">Tap Content to select it; the eye shows or hides it on screen.</p>
-    </section>
-  </div>
-
-  <!-- Phones: one job per tab, at your thumb -->
-  <nav class="tabbar" id="tabbar" aria-label="Sections">
-    <button type="button" data-tab="live" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="2.5"/><path d="M16.2 7.8a6 6 0 0 1 0 8.4M7.8 16.2a6 6 0 0 1 0-8.4M19 5a10 10 0 0 1 0 14M5 19A10 10 0 0 1 5 5"/></svg><span>Live</span></button>
-    <button type="button" data-tab="scenes"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span>Frames</span></button>
-    <button type="button" data-tab="layers"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 2 10 5-10 5L2 7z"/><path d="m2 17 10 5 10-5M2 12l10 5 10-5"/></svg><span>Content</span></button>
-  </nav>
-
-  <!-- More: layout for this device, disconnect -->
-  <div class="sheet" id="more" hidden>
-    <div class="sheet-card" role="dialog" aria-modal="true" aria-labelledby="more-title">
-      <div class="sheet-head"><h2 id="more-title">This device</h2><button class="tool" type="button" id="more-close">Done</button></div>
-      <h3>Layout</h3>
-      <div class="roles" role="radiogroup" aria-label="Layout for this device">
-        <button type="button" role="radio" data-role-pick="presenter" aria-checked="true"><b>Simple remote</b><span>One screen: Previous / Next Frame, Previous / Next Content, Annotate, Freeze, Black Screen and the Teleprompter. Run a whole meeting from here.</span></button>
-        <button type="button" role="radio" data-role-pick="admin" aria-checked="false"><b>Advanced remote</b><span>Everything: the Frames with search, the Content, the Teleprompter, PowerPoint, run-through, annotation, Blackout and Emergency</span></button>
-      </div>
-      <p class="hint">The layout only changes what this device shows. Anyone with the PIN can control the meeting; HIDE ALL is always at the top.</p>
-      <p class="dash-foot"><button class="linkish" type="button" id="dash-logout">Disconnect this device</button></p>
-      <p class="credit" data-credit></p>
-    </div>
-  </div>
-  <button class="linkish" type="button" id="logout" hidden>Disconnect this device</button>
+  <!-- Teleprompter: the Frame's script, full screen; only you see it -->
+  <section class="tp-sheet" id="tp" hidden aria-labelledby="tp-title">
+    <div class="tp-head"><b id="tp-title">Teleprompter</b><span>Only you see it</span><button class="tp-done" type="button" id="tp-close">Done</button></div>
+    <div class="tp-body" id="tp-body"></div>
+  </section>
 </div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 

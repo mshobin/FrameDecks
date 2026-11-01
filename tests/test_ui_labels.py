@@ -195,3 +195,18 @@ class RunningAService(unittest.TestCase):
         self.assertNotIn("'Q + S'", js)
         self.assertNotIn("'PREVIEW · not on air'", js)
         self.assertNotIn("tx.ms + ' ms' : '') + (sc.auto.on", js)
+
+
+class PhoneRemote(unittest.TestCase):
+    """8.0: the phone remote is one view: no layouts, no tabs, big Previous / Next, tools, every Frame one tap away."""
+
+    def test_one_view(self):
+        html = read("remote.html")
+        for need in ('id="hide-all"', 'id="prev"', 'id="next"', 'id="flist"', 'id="t-prompter"', 'id="t-draw"', 'id="t-freeze"', 'id="t-black"'):
+            self.assertIn(need, html)
+        for gone in ('id="tabbar"', "data-role-pick", 'id="more"', 'id="rehearse"', 'id="tx"', 'id="emergency"', 'id="ssearch"'):
+            self.assertNotIn(gone, html)
+        js = read("js/remote.js")
+        for gone in ("setRole", "setTab", "Create variant", "structure only"):
+            self.assertNotIn(gone, js)
+
