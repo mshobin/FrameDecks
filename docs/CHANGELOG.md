@@ -57,7 +57,9 @@ Full notes: [docs/releases/v8.8.0.md](releases/v8.8.0.md). Design: [docs/archite
   copies and FrameDecks' own) and `src/audience.py` (sender parsing, source app, duplicates, the in-memory queue).
 - `GET/POST /api/audience` (this PC only; long-poll) and `POST /api/app/dock`; settings `audienceDur`,
   `audienceShare`.
-- `live.audience` {id, name, text, src, at, dur, share}: drawn on FrameRelay by `vcam/program.py` with a countdown
+- `live.audience` {id, name, text, src, at, dur, share, pos}: a chat window (its own design, `vcam/chatcard.py` and
+  `.chatwin` in `overlay.css`: unfold, typing dots, message) on a chat rail at the right or left edge (`audiencePos`);
+  shown at once when copied from a chat app (`audienceAuto`, not private); drawn on FrameRelay by `vcam/program.py` with a countdown
   line; on the overlay pages by `KCScenes.liveAudience` (Studio preview always, others with `share`); the Share
   Window gets the frame without it unless shared; cleared by its timer, Hide, Hide all and the tray.
 

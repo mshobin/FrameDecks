@@ -45,6 +45,9 @@
   <section class="dk-settings" id="dk-settings" aria-label="Audience settings" hidden>
     <h2 class="dk-h">Settings</h2>
     <label class="dk-row">Seconds on screen <input type="number" id="dk-dur" min="3" max="120" step="1" value="12"></label>
+    <label class="dk-row"><input type="checkbox" id="dk-auto"> Show as soon as it's copied</label>
+    <p class="dk-note">Only a message copied from a chat app (Zoom, Teams, YouTube, Twitch, Facebook, Discord). Private messages and copies from other programs wait for Show.</p>
+    <label class="dk-row">Place on screen <select id="dk-pos"><option value="right">Right edge</option><option value="left">Left edge</option></select></label>
     <label class="dk-row"><input type="checkbox" id="dk-share"> Also show on Share Window</label>
     <p class="dk-note">Off: the card is on the FrameRelay camera only. On: also on the Share Window and the overlay pages.</p>
     <div class="dk-acts">

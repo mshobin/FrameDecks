@@ -102,6 +102,8 @@ function renderSettings(){
   var dur = $('dk-dur'), share = $('dk-share');
   if (document.activeElement !== dur) dur.value = data.dur;
   share.checked = !!data.share;
+  $('dk-auto').checked = !!data.auto;
+  if (document.activeElement !== $('dk-pos')) $('dk-pos').value = data.pos || 'right';
 }
 var settingsOpen = false;
 
@@ -173,6 +175,8 @@ function initDock(){
   });
   $('dk-dur').addEventListener('change', function(){ act({action: 'settings', dur: Number(this.value) || 12}); });
   $('dk-share').addEventListener('change', function(){ act({action: 'settings', share: this.checked}); });
+  $('dk-auto').addEventListener('change', function(){ act({action: 'settings', auto: this.checked}); });
+  $('dk-pos').addEventListener('change', function(){ act({action: 'settings', pos: this.value}); });
   $('dk-clear').addEventListener('click', function(){
     var b = this;
     if (!b.classList.contains('confirm')){ b.classList.add('confirm'); b.textContent = 'Clear every card?';

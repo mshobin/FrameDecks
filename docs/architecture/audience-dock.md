@@ -29,8 +29,10 @@ This page is the analysis made before building it, the plan, and the checklists 
 - **Clipboard:** Windows' own clipboard listener (`AddClipboardFormatListener`, `WM_CLIPBOARDUPDATE`) on a message-only
   window, only while Capture is on. It honours the markers password managers put on secrets
   (`ExcludeClipboardContentFromMonitorProcessing`, `CanIncludeInClipboardHistory` = 0, `Clipboard Viewer Ignore`).
-- **The card on screen:** the shown card becomes one more text layer, so the camera and the overlay pages draw it with the
-  code that already draws text layers; the timer is a server-side timer that clears it.
+- **The card on screen:** as built (after review), a chat window of its own design on a chat rail at the right or left
+  edge (`vcam/chatcard.py` on FrameRelay, `.chatwin` on the overlay pages), opening with an unfold, typing dots and the
+  message; a message copied from a chat app is shown at once unless that is switched off. The timer is a server-side
+  timer that clears it.
 - **"Also show on Share Window":** the Share Window shows the camera's frame, so when the option is off the program keeps
   a copy of the frame from just before the card is drawn and gives that to the Share Window (only while the card is
   shown and the Share Window is open).
@@ -133,8 +135,9 @@ On a real Windows PC:
    Repeat in Teams, Chrome (YouTube, Twitch, Facebook), Discord. Note what the name parser finds for each.
 8. Copy the same text twice: one card (*Already in the queue*). Copy a password from a password manager: nothing.
 9. Capture off: Ctrl+C anywhere adds nothing.
-10. **Show**: the card fades in on the FrameRelay camera (in Zoom's own preview) with a countdown line and fades out
-    after 12 s. **Pin**: it stays. **Hide**: it fades out. Showing another replaces it. **Esc** in the Studio hides it.
+10. Copy a Zoom message with Capture on: the chat window opens at the right edge on FrameRelay (in Zoom's own preview):
+    unfold, typing dots, message, countdown line; it slides away after 12 s. Copy from Notepad: a card, nothing on
+    screen. **Show**: on screen again. **Pin**: it stays. **Hide**: it fades out. Showing another replaces it. **Esc** in the Studio hides it.
 11. Share Window open: the card is not there unless *Also show on Share Window* is on.
 12. Zoom keeps keyboard focus throughout (type in the Zoom chat while the dock is open).
 13. CPU with the dock open and idle: no noticeable change (the poll is light).

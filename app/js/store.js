@@ -520,7 +520,7 @@ var AUDIENCE_SOURCES = ['zoom', 'teams', 'youtube', 'twitch', 'facebook', 'disco
 function cleanAudience(a){
   if (!isObj(a) || !a.id || !String(a.text || '').trim()) return null;
   return {id: str(a.id, 40), name: str(a.name, 40), text: str(a.text, 500), src: AUDIENCE_SOURCES.indexOf(a.src) >= 0 ? a.src : 'clipboard',
-    at: Number(a.at) || 0, dur: num(a.dur, 0, 120, 0), share: !!a.share};
+    at: Number(a.at) || 0, dur: num(a.dur, 0, 120, 0), share: !!a.share, pos: a.pos === 'left' ? 'left' : 'right'};
 }
 function profileOf(st){ for (var i = 0; i < PROFILES.length; i++) if (PROFILES[i].id === st.profile) return PROFILES[i]; return PROFILES[1]; }
 var Scenes = {
@@ -942,7 +942,7 @@ var Scenes = {
     if (output && !a.share) return [];
     if (a.dur && (now || Date.now()) >= a.at + a.dur * 1000) return [];
     return [{id: 'aud-' + a.id, kind: 'audience', visible: true,
-      c: {pos: 'bottom', scale: 1, w: 70, title: a.name || 'Audience', label: true, text: a.text, anim: 'fade', src: a.src, at: a.at, dur: a.dur}}];
+      c: {pos: a.pos, scale: 1, title: a.name || 'Audience', label: true, text: a.text, anim: 'chat', src: a.src, at: a.at, dur: a.dur}}];
   },
   cleanAudience: function(a){ return cleanAudience(a); },
   /* v6.2 Branding: badges on the program, {meeting} / {org} in text, the accent colour */

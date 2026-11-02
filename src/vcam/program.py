@@ -23,6 +23,7 @@ from PIL import Image, ImageDraw, ImageFilter
 from .annotate import Ink
 from .burst import Burst
 from .spotlight import Spotlight
+from . import chatcard
 from .cards import CardDrawer, Card, accent_palette, logo_rgba, surface_of, _premult, GOLD_TEXT as _GOLD_TEXT
 
 TEXT_KINDS = ("announcement", "prayer", "lowerthird", "countdown")
@@ -196,57 +197,70 @@ class ProgramFX:
 
     # ---------- 8.8 the Audience Card (Audience Dock) ----------
     def _audience(self, out, st, live, W, H, now, dt, hold):
-        """Draw live.audience over the picture. Returns (picture, picture without the card for the Share Window or None)."""
+        """Draw live.audience as a chat window (vcam/chatcard.py) over the picture. Returns (picture, picture without it
+        for the Share Window or None)."""
         a = live.get("audience") if isinstance(live.get("audience"), dict) else None
         on = bool(a and a.get("id") and str(a.get("text") or "").strip() and not hold and self.cards_on())
         if on and a.get("dur"):
             on = time.time() * 1000 < float(a.get("at") or 0) + float(a.get("dur") or 0) * 1000
         t = self.aud
         if on:
-            if a["id"] != self.aud_id:                       # a new card replaces the old at once, then fades in
-                self.aud_id, t.alpha, t.card, t.key = a["id"], 0.0, None, None
-            look = st.get("look") if isinstance(st.get("look"), dict) else {}
-            accent = (st.get("brand") or {}).get("color") or ""
+            if a["id"] != self.aud_id:                       # a new message replaces the old at once, then opens
+                self.aud_id, t.card, t.key, t.opened, t.closing = a["id"], None, None, None, None
+            side = "left" if a.get("pos") == "left" else "right"
             name = str(a.get("name") or "").strip() or "Audience"
-            data = {"label": name, "showLabel": True, "text": str(a.get("text") or " ")[:500], "logo": None}
-            L = {"qScale": 1.0, "qWidth": 70.0, "qBottom": 8, "panel": float((st.get("layout") or {}).get("panel", 92)),
-                 "accent": accent, "look": look}
-            key = ("@audience", a["id"], data["label"], data["text"], accent, L["panel"], str(sorted(look.items())), W, H)
-            t.target, t.info = 1.0, a
+            data = {"chat": True, "name": name, "text": str(a.get("text") or " ")[:500], "src": a.get("src"), "side": side}
+            key = ("@audience", a["id"], name, data["text"], data["src"], side, W, H)
+            t.info, t.closing = a, None
             if t.key != key:
                 with self.cond:
-                    self.jobs["@audience"] = (key, data, L, W, H, "bottom")
+                    self.jobs["@audience"] = (key, data, {}, W, H, side)
                     self.cond.notify()
-        else:
-            t.target = 0.0
-        t.alpha = self._toward(t.alpha, t.target, dt / 0.35)
-        if t.alpha <= 0.001 or t.card is None:
-            if t.target == 0 and t.alpha <= 0.001:
-                self.aud_id, t.card, t.key = None, None, None
+        elif t.card is not None and getattr(t, "closing", None) is None:
+            t.closing = now
+        if t.card is None:
             return out, None
+        if getattr(t, "opened", None) is None:
+            t.opened = now
+        if getattr(t, "closing", None) is not None:
+            k = 1 - (now - t.closing) / chatcard.CLOSE_S
+            if k <= 0:
+                self.aud_id, t.card, t.key, t.opened, t.closing = None, None, None, None, None
+                return out, None
+            f = chatcard.frame(0, k)
+        else:
+            f = chatcard.frame(now - t.opened)
         info = getattr(t, "info", None) or {}
         clean = out.copy() if self.need_clean and not info.get("share") else None
-        if out is not None and not out.flags.writeable:
+        if not out.flags.writeable:
             out = out.copy()
         from .overlay import OverlayLayer
-        card = t.card
-        x0, y0 = int(round(card.x - card.margin)), int(round(card.y - card.margin))
-        OverlayLayer._blend(out, OverlayLayer._scale(card.full8, t.alpha) if t.alpha < 0.999 else card.full8, x0, y0,
-                            card.full_inv3 if t.alpha >= 0.999 else None)
+        card, typing = t.card, getattr(t, "typing", None)
+        sign = -1 if info.get("pos") == "left" else 1
+        dx = int(round(f["slide"] * card.w * 0.22 * sign))
+        x0, y0 = int(round(card.x - card.margin)) + dx, int(round(card.y - card.margin))
+        def put(c, alpha, h):
+            rows = c.full8[1].shape[0] if h >= c.h else c.margin + max(1, int(h))
+            layer = (c.full8[0][:rows], c.full8[1][:rows])
+            OverlayLayer._blend(out, OverlayLayer._scale(layer, alpha) if alpha < 0.999 else layer, x0, y0)
+        if typing is not None and f["msg"] <= 0.001:          # unfold, then the typing dots
+            put(typing, f["alpha"], typing.h * f["unfold"])
+        else:                                                 # the message unrolls from the compact height
+            start = typing.h if typing is not None else card.h * f["unfold"]
+            put(card, f["alpha"], start + (card.h - start) * f["msg"])
         dur = float(info.get("dur") or 0)
-        if dur:                                              # the thin gold countdown line along the card's foot
+        if dur and f["msg"] >= 0.999 and getattr(t, "closing", None) is None:   # the countdown line along the foot
             left = max(0.0, min(1.0, 1 - (time.time() * 1000 - float(info.get("at") or 0)) / (dur * 1000)))
             u = min(W / 100, H * 1.7778 / 100)
-            bw, th = max(2, int(round(u * 0.13))), max(2, int(round(u * 0.22)))
-            x1, y2 = int(round(card.x + bw)), int(round(card.y + card.h - bw))
-            x2 = x1 + int(round((card.w - 2 * bw) * left))
-            if x2 > x1 and 0 <= y2 - th and y2 <= H:
-                x1c, x2c = max(0, x1), min(W, x2)
-                if x2c > x1c:
-                    roi = out[y2 - th:y2, x1c:x2c]
-                    gold = np.empty_like(roi)
-                    gold[:] = (74, 171, 217)                 # the cards' gold (217, 171, 74), as BGR
-                    cv2.addWeighted(gold, t.alpha, roi, 1 - t.alpha, 0, dst=roi)
+            th, r = max(2, int(round(u * 0.25))), int(1.2 * u)
+            x1, y2 = int(round(card.x)) + dx + r, int(round(card.y + card.h)) - 1
+            x2 = x1 + int(round((card.w - 2 * r) * left))
+            x1c, x2c = max(0, x1), min(W, x2)
+            if x2c > x1c and 0 <= y2 - th and y2 <= H:
+                roi = out[y2 - th:y2, x1c:x2c]
+                gold = np.empty_like(roi)
+                gold[:] = (74, 171, 217)                 # gold (217, 171, 74), as BGR
+                cv2.addWeighted(gold, f["alpha"], roi, 1 - f["alpha"], 0, dst=roi)
         return out, clean
 
     @staticmethod
@@ -447,6 +461,16 @@ class ProgramFX:
                     self.cond.wait()
                 lid, (key, data, L, W, H, pos) = self.jobs.popitem()
             try:
+                if data.get("chat"):                        # 8.8 the Audience chat window
+                    typing, card = chatcard.draw(self.drawer.fonts, data, W, H)
+                    OverlayLayer._prepare(typing)
+                    OverlayLayer._prepare(card)
+                    card.x, card.y = chatcard.place(card, W, H, pos)
+                    typing.x, typing.y = card.x, card.y            # the same top: the window grows downwards
+                    t = self.aud
+                    if key[1] == self.aud_id:
+                        t.card, t.typing, t.key = card, typing, key
+                    continue
                 if data.get("brand"):
                     card = self._badge(data, L, W, H)
                 else:

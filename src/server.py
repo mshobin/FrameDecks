@@ -396,7 +396,12 @@ _AUD = {"watcher": None, "timer": None, "lock": threading.Lock()}
 
 
 def _on_copy(text, exe, url):
-    AUDIENCE.add(text, exe=exe, url=url)
+    status, item = AUDIENCE.add(text, exe=exe, url=url)
+    if audience.auto_show(status, item, app_settings()["audienceAuto"]):
+        try:
+            audience_show(item["id"])                     # "Show as soon as it's copied" (a chat app's message only)
+        except ValueError as _e:
+            _swallowed("server._on_copy", _e)
 
 
 def audience_capture(on):
@@ -434,7 +439,7 @@ def audience_show(item_id, pin=False):
     if not item:
         raise ValueError("That card is no longer in the queue.")
     cfg = app_settings()
-    card = audience.live_card(item, pin=pin, seconds=cfg["audienceDur"], share=cfg["audienceShare"])
+    card = audience.live_card(item, pin=pin, seconds=cfg["audienceDur"], share=cfg["audienceShare"], pos=cfg["audiencePos"])
 
     def change(st):
         st.setdefault("live", {})["audience"] = card
@@ -469,6 +474,7 @@ def audience_body():
     cfg = app_settings()
     hook = DESKTOP.get("dock_state")
     snap.update(live=(state.get("live") or {}).get("audience"), dur=cfg["audienceDur"], share=cfg["audienceShare"],
+                pos=cfg["audiencePos"], auto=cfg["audienceAuto"],
                 stateRev=state.get("rev", 0), canCapture=os.name == "nt", dock=hook() if hook else {"desktop": False})
     return snap
 
@@ -514,11 +520,18 @@ def audience_action(data):
                 raise ValueError("Seconds must be a number.")
         if "share" in data:
             ch["audienceShare"] = bool(data["share"])
+        if "auto" in data:
+            ch["audienceAuto"] = bool(data["auto"])
+        if "pos" in data:
+            if data["pos"] not in audience.POSITIONS:
+                raise ValueError("Choose right or left.")
+            ch["audiencePos"] = data["pos"]
         save_app_settings(ch)
         cur = (state.get("live") or {}).get("audience")
-        if "audienceShare" in ch and isinstance(cur, dict) and cur.get("share") != ch["audienceShare"]:
+        follow = {k: ch[s] for k, s in (("share", "audienceShare"), ("pos", "audiencePos")) if s in ch}
+        if follow and isinstance(cur, dict) and any(cur.get(k) != v for k, v in follow.items()):
             def change(st):
-                st["live"]["audience"] = dict(cur, share=ch["audienceShare"])
+                st["live"]["audience"] = dict(cur, **follow)      # the window on screen follows the setting
                 return st
             update_state(change)
         AUDIENCE.touch()
@@ -837,9 +850,11 @@ APP_SETTINGS_DEFAULTS = {"remoteAutostart": False, "importDecided": False,
                          "ai": "auto",            # M-D3: "auto" = use Ollama on this PC when it answers; "off" = never
                          "audienceDur": 12,       # 8.8 Audience Dock: seconds a shown card stays (3..120)
                          "audienceShare": False,  # 8.8 also show audience cards on the Share Window and overlay pages
+                         "audiencePos": "right",  # 8.8 the chat window's place: the right (or left) edge, mid-height
+                         "audienceAuto": True,    # 8.8 a message copied from a chat app goes on screen at once
                          "dockRect": [],          # 8.8 the dock's place and size [x, y, w, h] (empty = beside the Studio)
                          "guide": {}}             # 6.14 Setup guide progress on this PC (app/js/guide.js, _valid_guide)
-APP_SETTING_CHOICES = {"minimizeTo": ("ask", "tray", "taskbar"), "memberAuthority": ("cloud", "pc"), "ai": ("auto", "off"),
+APP_SETTING_CHOICES = {"audiencePos": ("right", "left"), "minimizeTo": ("ask", "tray", "taskbar"), "memberAuthority": ("cloud", "pc"), "ai": ("auto", "off"),
                        "prompterLook": ("solid", "presenter", "meeting", "conference", "ghost")}
 
 

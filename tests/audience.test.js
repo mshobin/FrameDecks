@@ -3,7 +3,7 @@
 const env = require('./helpers/load-store.js')(), SC = env.Scenes, assert = require('assert');
 
 const now = 1700000000000;
-const card = {id: 'a1', name: 'Sarah', text: 'How much does it cost?', src: 'zoom', at: now, dur: 12, share: false};
+const card = {id: 'a1', name: 'Sarah', text: 'How much does it cost?', src: 'zoom', at: now, dur: 12, share: false, pos: 'right'};
 
 // 1. a save keeps the card (normalizeInto rebuilds live), and cleans what it holds
 let st = env.Store.defaults();
@@ -24,6 +24,7 @@ assert.strictEqual(list.length, 1);
 assert.strictEqual(list[0].kind, 'audience');
 assert.strictEqual(list[0].c.title, 'Sarah');
 assert.strictEqual(list[0].c.text, 'How much does it cost?');
+assert.strictEqual(list[0].c.pos, 'right', 'the chat rail at the right edge');
 assert.strictEqual(SC.liveAudience(st, 'obs', now + 1000).length, 0, 'not shared: not on the overlay pages');
 st.live.audience.share = true;
 assert.strictEqual(SC.liveAudience(st, 'obs', now + 1000).length, 1);

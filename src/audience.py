@@ -203,12 +203,21 @@ class Audience:
             self._changed()
 
 
-def live_card(item, pin=False, seconds=12, share=False, now=None):
+POSITIONS = ("right", "left")     # the chat rail at the screen's right (default) or left edge
+
+
+def live_card(item, pin=False, seconds=12, share=False, now=None, pos="right"):
     """What live.audience holds while a card is on screen (store.js cleanAudience keeps the same fields)."""
     now = time.time() if now is None else now
     return {"id": str(item["id"]), "name": str(item.get("name") or "")[:MAX_NAME], "text": str(item.get("text") or "")[:MAX_TEXT],
             "src": item.get("src") if item.get("src") in SOURCES else "clipboard", "at": int(now * 1000),
-            "dur": 0 if pin else max(3, min(120, int(seconds or 12))), "share": bool(share)}
+            "dur": 0 if pin else max(3, min(120, int(seconds or 12))), "share": bool(share),
+            "pos": pos if pos in POSITIONS else "right"}
+
+
+def auto_show(status, item, enabled=True):
+    """Show a copy at once? Only a new message copied from a chat app (not another program), never a private one."""
+    return bool(enabled and status == "added" and item and item.get("src") not in ("clipboard", None) and not item.get("private"))
 
 
 def visible(card, now=None):

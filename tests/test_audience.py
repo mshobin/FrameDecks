@@ -8,6 +8,8 @@ import tempfile
 import threading
 import time
 import unittest
+
+import numpy as np
 from http.server import ThreadingHTTPServer
 from pathlib import Path
 
@@ -131,7 +133,9 @@ class Queue(unittest.TestCase):
     def test_live_card_and_visible(self):
         item = {"id": "a1", "name": "Sarah", "text": "Hi", "src": "zoom"}
         card = audience.live_card(item, seconds=12, now=100)
-        self.assertEqual((card["dur"], card["at"], card["share"]), (12, 100000, False))
+        self.assertEqual((card["dur"], card["at"], card["share"], card["pos"]), (12, 100000, False, "right"))
+        self.assertEqual(audience.live_card(item, pos="left", now=0)["pos"], "left")
+        self.assertEqual(audience.live_card(item, pos="middle", now=0)["pos"], "right")
         self.assertTrue(audience.visible(card, now=111))
         self.assertFalse(audience.visible(card, now=112.5))
         pinned = audience.live_card(item, pin=True, now=100)
@@ -142,6 +146,30 @@ class Queue(unittest.TestCase):
         self.assertFalse(audience.visible(None))
 
 
+class AutoShow(unittest.TestCase):
+    def test_only_new_chat_messages(self):
+        zoom = {"src": "zoom", "private": False}
+        self.assertTrue(audience.auto_show("added", zoom))
+        self.assertFalse(audience.auto_show("added", zoom, enabled=False))
+        self.assertFalse(audience.auto_show("duplicate", zoom))
+        self.assertFalse(audience.auto_show("added", {"src": "clipboard", "private": False}), "another program: waits")
+        self.assertFalse(audience.auto_show("added", {"src": "zoom", "private": True}), "private: waits")
+
+    def test_a_copy_from_zoom_goes_on_screen(self):
+        server.AUDIENCE.clear()
+        server.audience_hide()
+        server.save_app_settings({"audienceAuto": True})
+        server._on_copy("From Ann to Everyone: Is it recorded?", "Zoom.exe", "")
+        self.assertEqual((server.state["live"].get("audience") or {}).get("name"), "Ann")
+        server.audience_hide()
+        server._on_copy("Copied from a document", "WINWORD.EXE", "")
+        self.assertFalse(server.state["live"].get("audience"), "not from a chat app: waits for Show")
+        server.save_app_settings({"audienceAuto": False})
+        server._on_copy("From Bo to Everyone: A question", "Zoom.exe", "")
+        self.assertFalse(server.state["live"].get("audience"))
+        server.AUDIENCE.clear()
+
+
 class Settings(unittest.TestCase):
     def test_validation(self):
         v = server._valid_setting
@@ -150,6 +178,8 @@ class Settings(unittest.TestCase):
         self.assertFalse(v("audienceDur", 2))
         self.assertFalse(v("audienceDur", "12"))
         self.assertTrue(v("audienceShare", True))
+        self.assertTrue(v("audiencePos", "left"))
+        self.assertFalse(v("audiencePos", "top"))
         self.assertTrue(v("dockRect", []))
         self.assertTrue(v("dockRect", [100, 80, 340, 520]))
         self.assertFalse(v("dockRect", [100, 80, 20, 20]))
@@ -173,7 +203,7 @@ class Api(unittest.TestCase):
     def setUp(self):
         server.AUDIENCE.clear()
         server.audience_hide()
-        server.save_app_settings({"audienceDur": 12, "audienceShare": False})
+        server.save_app_settings({"audienceDur": 12, "audienceShare": False, "audiencePos": "right"})
 
     def call(self, method, path, body=None):
         c = http.client.HTTPConnection("127.0.0.1", self.port, timeout=10)
@@ -234,6 +264,10 @@ class Api(unittest.TestCase):
         self.assertEqual((st, res["dur"], res["share"]), (200, 120, True))
         self.assertTrue(self.live()["share"])
         self.assertEqual(self.call("POST", "/api/audience", {"action": "settings", "dur": "x"})[0], 400)
+        st, res = self.call("POST", "/api/audience", {"action": "settings", "pos": "left"})
+        self.assertEqual((res["pos"], self.live()["pos"]), ("left", "left"), "the window on screen moves")
+        self.assertEqual(self.call("POST", "/api/audience", {"action": "settings", "pos": "up"})[0], 400)
+        self.call("POST", "/api/audience", {"action": "settings", "pos": "right"})
 
     def test_unknown_and_missing(self):
         self.assertEqual(self.call("POST", "/api/audience", {"action": "nope"})[0], 400)
@@ -263,7 +297,6 @@ class OnTheCamera(unittest.TestCase):
     """The card is drawn on the FrameRelay picture, fades out when its time is up, and the Share Window gets the
     picture without it unless "Also show on Share Window" is on."""
     def setUp(self):
-        import numpy as np
         from vcam.program import ProgramFX
         self.np = np
         self.st = {"live": {"scene": "", "seq": 0}}
@@ -285,10 +318,30 @@ class OnTheCamera(unittest.TestCase):
     def test_drawn_and_left_out_of_the_share_window(self):
         self.fx.need_clean = True
         self.card()
-        out = self.run_frames()
-        self.assertGreater(int(out[200:340].max()), 100, "the card is on the picture")
+        out = self.run_frames(80)
+        self.assertGreater(int(out.max()), 100, "the chat window is on the picture")
+        cols = np.nonzero(out.max(axis=(0, 2)) > 60)[0]
+        rows = np.nonzero(out.max(axis=(1, 2)) > 60)[0]
+        self.assertGreater(cols.min(), 640 * 0.55, "at the right edge")
+        self.assertGreaterEqual(rows.min(), 360 * 0.10)
+        self.assertLessEqual(rows.max(), 360 * 0.64, "clear of the bottom cards and a camera inset")
         self.assertIsNotNone(self.fx.present_frame)
         self.assertEqual(int(self.fx.present_frame.max()), 0, "the Share Window's picture has no card")
+
+    def test_left_edge(self):
+        self.card(pos="left")
+        out = self.run_frames(60)
+        cols = np.nonzero(out.max(axis=(0, 2)) > 60)[0]
+        self.assertLess(cols.max(), 640 * 0.45)
+
+    def test_opens_with_typing_dots_then_the_message(self):
+        from vcam import chatcard
+        self.assertEqual(chatcard.frame(0.5)["msg"], 0.0, "typing dots first")
+        self.assertLess(chatcard.frame(0.1)["unfold"], 0.8, "it unfolds")
+        self.assertEqual(chatcard.frame(2.0), {"unfold": 1.0, "alpha": 1.0, "msg": 1.0, "slide": 0.0})
+        self.assertEqual(chatcard.initials("Sarah Lee"), "SL")
+        self.assertEqual(chatcard.initials(""), "?")
+        self.assertEqual(chatcard.avatar_colour("Sarah"), chatcard.avatar_colour(" sarah "))
 
     def test_shared_card_uses_the_camera_frame(self):
         self.fx.need_clean = True

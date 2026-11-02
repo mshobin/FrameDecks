@@ -13,9 +13,18 @@ recordings.
   *✓ Audience Question Captured*: no pasting. FrameDecks fills in the sender when the copied text says who wrote it
   (Zoom's *From Sarah to Everyone*, a name line above the message, or *Sarah: message*) and marks the app it came from.
   Empty copies and repeats are ignored.
-- **Show, Pin, Hide.** **Show** fades the card onto the FrameRelay camera for 12 seconds with a thin countdown line;
-  **Pin** keeps it until you hide it; **Hide** (or **Esc**) fades it out. A new card replaces the one on screen.
-  *Currently live* in the dock shows what is on screen. Sender and message can be edited before or while shown.
+- **A live chat window on screen.** The message appears as its own chat window, not like the question cards: a
+  title bar with a pulsing live dot, *Live chat* and the app it came from, and a chat bubble with the sender's initials
+  in a coloured circle, their name and the message. It opens like a real chat: the window unfolds from the edge, typing
+  dots appear, then the message unrolls. It sits on a **chat rail at the right edge** (or the left), a little above
+  the middle of the picture, so it stays clear of the question, scripture and lower-third cards at the bottom, the
+  birthday card at the top, Branding badges in the corners and a camera inset in a bottom corner.
+- **Opens when you copy.** A message copied from a chat app goes on screen at once (**Show as soon as it's copied**, on
+  by default). Private messages and copies from other programs wait for **Show**.
+- **Show, Pin, Hide.** **Show** puts a card on the FrameRelay camera for 12 seconds with a thin countdown line along
+  the window's foot; **Pin** keeps it until you hide it; **Hide** (or **Esc**) slides it away. A new message replaces
+  the one on screen. *Currently live* in the dock shows what is on screen. Sender and message can be edited before or
+  while shown.
 - **Ctrl+Shift to use the dock.** Hold **Ctrl+Shift** and the dock becomes fully visible and clickable; let go and clicks
   pass through again. The small handle on the dock's top edge is always clickable: move, resize, **📌** keep the dock
   usable (to type in a card), **⚙** settings and **✕** close.
@@ -23,8 +32,9 @@ recordings.
 ## Enhancements
 - The dock is 85% visible, and fades to 20% while the pointer is over it so the chat beneath stays readable. It
   remembers where it was and its size.
-- Settings in the dock: seconds on screen (3–120, default 12) and **Also show on Share Window** (off: the card is on
-  FrameRelay only; on: also on the Share Window and the overlay pages). The Studio's preview always shows it.
+- Settings in the dock: seconds on screen (3–120, default 12), **Show as soon as it's copied**, **Place on screen**
+  (right or left edge; the window on screen moves at once) and **Also show on Share Window** (off: the chat window is
+  on FrameRelay only; on: also on the Share Window and the overlay pages). The Studio's preview always shows it.
 - Hide all (**Esc** in the Studio, the tray's Hide all overlays) hides the audience card too.
 - You can also type a question into the dock.
 

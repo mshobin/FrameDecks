@@ -1320,7 +1320,14 @@ the Linux CI. The queue is in memory only: nothing about viewers is written to d
 
 The card on screen is `live.audience`, so it rides the existing state: every page sees it, Hide all clears it, and
 `live` never syncs. The server owns the timer (it clears the card when its seconds are up), so all outputs agree.
-FrameRelay draws it with the question card's drawer, after the Spotlight and before Blackout. Because the Share Window
+It is drawn as its own chat window rather than the gold question card, so viewers read it as a viewer's message and
+not as the presenter's content: unfold, typing dots, then the message, the same in HTML (`overlay.css`) and on
+FrameRelay (`vcam/chatcard.py`, two pre-drawn pictures, the message one unrolling from the compact height). It sits on a
+chat rail at the right edge, centred at 42 % of the height and kept between 12 % and 62 %, the one band the other
+overlays leave free: question, scripture and lower-third cards at the bottom centre, the birthday card at the top,
+Branding badges in the corners, a camera inset in a bottom corner. A message copied from a chat app goes on screen at
+once (the owner asked for it to open when copied); private messages and copies from other programs still wait for
+Show. FrameRelay draws it after the Spotlight and before Blackout. Because the Share Window
 shows the camera's final frame, "Also show on Share Window" off is done by keeping a copy of the frame from just before
 the card, only while the card is on screen and a Share Window is open. `store.js` writes `audience` into `live` only
 when a card is on screen, so the shared sync fixtures (and the website) see no change.

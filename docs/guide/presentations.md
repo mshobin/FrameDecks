@@ -278,9 +278,17 @@ can select text in: Zoom, Teams, YouTube, Twitch, Facebook Live, Discord or a we
 2. Turn on **Capture** in the dock.
 3. In the chat, select a message and press **Ctrl+C**. The dock says **✓ Audience Question Captured** and the card
    slides into the queue, with the app it came from and, when the copy says who wrote it, the sender.
-4. Hold **Ctrl+Shift** and select **Show** on the card. It fades onto the FrameRelay camera for 12 seconds, with a
-   thin line counting down. **Pin** keeps it until you hide it. **Hide** (or **Esc** in the dock or the Studio) takes
-   it off. Showing another card replaces the one on screen.
+4. The message opens on the FrameRelay camera as a **live chat window**: the window unfolds from the edge of the
+   picture, typing dots appear, then the message, with the sender's initials and name. It stays 12 seconds, with a thin
+   line counting down. (Turn off **Show as soon as it's copied** in the dock's settings to choose each one with **Show**
+   instead. Private messages and copies from other programs always wait for **Show**.)
+5. Hold **Ctrl+Shift** to use the card buttons: **Show** puts a card on screen again, **Pin** keeps it until you hide
+   it, **Hide** (or **Esc** in the dock or the Studio) slides it away. A new message replaces the one on screen.
+
+**Where it appears.** On a chat rail at the right edge of the picture, a little above the middle (or the left edge:
+**Place on screen** in the dock's settings). That keeps it clear of the question, scripture and lower-third cards at
+the bottom, the birthday card at the top, Branding badges in the corners and a camera inset in a bottom corner. With a
+**large** camera inset in a right-hand corner, choose the left edge.
 
 **Using the dock without leaving your meeting**
 
@@ -292,8 +300,9 @@ can select text in: Zoom, Teams, YouTube, Twitch, Facebook Live, Discord or a we
   **📌** keep the dock usable (needed to type in a card's name or message), **⚙** settings, **✕** close. The dock
   remembers where it was and its size.
 
-**Settings** (⚙): **Seconds on screen** (3–120, default 12), **Also show on Share Window** (off: the card is on the
-FrameRelay camera only; on: also on the Share Window and the overlay pages) and **Clear the queue**.
+**Settings** (⚙): **Seconds on screen** (3–120, default 12), **Show as soon as it's copied**, **Place on screen**
+(right or left edge), **Also show on Share Window** (off: the chat window is on the FrameRelay camera only; on: also on
+the Share Window and the overlay pages) and **Clear the queue**.
 
 > **Note:** The queue is kept only while FrameDecks runs. Nothing about your viewers is saved or sent anywhere.
 > Copies that a password manager marks as private are never read, and Zoom's private messages are marked

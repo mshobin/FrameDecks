@@ -370,9 +370,41 @@ var TEXT_ICON = {
   /* 8.8 the Audience Card (Audience Dock) */
   audience: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.7 7.1L3 21l1.9-6.3A8 8 0 1 1 21 12z"/></svg>'
 };
+/* 8.8 the Audience chat window (same design as src/vcam/chatcard.py on FrameRelay): a title bar with a live dot, the
+ * app it came from, and a bubble with the sender's initials, name and message. Opens: unfold, typing dots, message. */
+var CHAT_SRC = {zoom: 'Zoom', teams: 'Teams', youtube: 'YouTube', twitch: 'Twitch', facebook: 'Facebook', discord: 'Discord', clipboard: 'Chat'};
+var CHAT_COLOURS = ['#5b8def', '#2eb57d', '#e9804a', '#b06ade', '#e25572', '#28aabe', '#d9ab4a'];
+function chatInitials(n){
+  var p = String(n || '').replace(/\./g, ' ').split(/\s+/).filter(function(w){ return /^[\p{L}\p{N}]/u.test(w); });
+  return p.length ? (p[0][0] + (p.length > 1 ? p[p.length - 1][0] : '')).toUpperCase() : '?';
+}
+function chatColour(n){                            // the same pick as chatcard.avatar_colour
+  var s = String(n || '').trim().toLowerCase(), h = 0;
+  for (var i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
+  return CHAT_COLOURS[h % CHAT_COLOURS.length];
+}
+function makeChat(root){
+  var zone = el('div', 'zone-chat'), win = el('section', 'chatwin out');
+  win.innerHTML = '<header class="chat-bar"><i class="chat-live" aria-hidden="true"></i><b>Live chat</b><span class="chat-src"></span></header>' +
+    '<div class="chat-body"><span class="chat-av" aria-hidden="true"></span>' +
+    '<div class="chat-col"><div class="chat-typing" aria-hidden="true"><i></i><i></i><i></i></div>' +
+    '<div class="chat-bubble"><b class="chat-name"></b><p class="chat-text"></p></div></div></div><div class="aud-timer"></div>';
+  zone.appendChild(win); root.appendChild(zone);
+  return {zone: zone, card: win, chat: true, src: win.querySelector('.chat-src'), av: win.querySelector('.chat-av'),
+    name: win.querySelector('.chat-name'), text: win.querySelector('.chat-text'), timer: win.querySelector('.aud-timer')};
+}
+function fillChat(x, l){
+  var c = l.c;
+  x.zone.className = 'zone-chat chat-' + (c.pos === 'left' ? 'left' : 'right');
+  x.src.textContent = CHAT_SRC[c.src] || 'Chat';
+  x.av.textContent = chatInitials(c.title); x.av.style.background = chatColour(c.title);
+  if (x.name.textContent !== c.title) x.name.textContent = c.title;
+  if (x.text.textContent !== c.text) x.text.textContent = c.text;
+}
 function TextLayers(root){
   var shown = {};                                  // id -> {el, sig}
   function make(l){
+    if (l.kind === 'audience') return makeChat(root);
     var card = el('section', 'card card-x card-' + l.kind + ' out');
     card.setAttribute('data-layer', l.id);                    // v6.7 the canvas finds which Content to edit
     if (l.kind === 'brand'){                                  // v6.2 Branding: logo + Meeting Name (+ organization)
@@ -385,15 +417,14 @@ function TextLayers(root){
     var label = el('header', 'card-label', TEXT_ICON[l.kind] || ''), lt = el('span'); label.appendChild(lt);
     var logo = document.createElement('img'); logo.className = 'card-logo'; logo.alt = ''; label.appendChild(logo);
     card.appendChild(label); card.appendChild(el('div', 'card-rule')); card.appendChild(el('p', 'card-text'));
-    var timer = null;
-    if (l.kind === 'audience'){ timer = el('div', 'aud-timer'); card.appendChild(timer); }    // 8.8 the thin countdown line
     var zone = el('div', 'zone-x'); zone.appendChild(card); root.appendChild(zone);
-    return {zone: zone, card: card, lt: lt, logo: logo, text: card.querySelector('.card-text'), timer: timer};
+    return {zone: zone, card: card, lt: lt, logo: logo, text: card.querySelector('.card-text')};
   }
   function logoSrc(st){ return st.brand && st.brand.logo ? 'api/brand/logo?v=' + encodeURIComponent(st.brand.logo) : ''; }
   function setLogo(img, src){ if (img.getAttribute('src') !== src){ if (src) img.setAttribute('src', src); else img.removeAttribute('src'); } img.hidden = !src; }
   function fill(x, l, st){
     var c = l.c, S = window.KCScenes;
+    if (x.chat){ fillChat(x, l); timerOf(x, c); return; }
     if (l.kind === 'brand'){
       var b = st.brand || {};
       x.zone.className = 'zone-x zone-brand pos-' + c.pos;
@@ -416,14 +447,13 @@ function TextLayers(root){
     var t = l.kind === 'countdown' ? S.countdown(st, l) : S.brandText(st, c.text);
     if (x.text.textContent !== t) x.text.textContent = t;
     x.zone.style.opacity = String(l.opacity == null ? 1 : l.opacity);
-    if (x.timer){                                   // 8.8 the line shrinks over the card's seconds (none when pinned)
-      var sig = c.at + '|' + c.dur;
-      if (x.timer.dataset.sig !== sig){
-        x.timer.dataset.sig = sig; x.timer.hidden = !c.dur;
-        x.timer.style.animation = 'none'; void x.timer.offsetWidth;
-        if (c.dur) x.timer.style.animation = 'aud-count ' + c.dur + 's linear ' + (-Math.max(0, Date.now() - c.at) / 1000) + 's forwards';
-      }
-    }
+  }
+  function timerOf(x, c){                          // 8.8 the line shrinks over the card's seconds (none when pinned)
+    var sig = c.at + '|' + c.dur;
+    if (x.timer.dataset.sig === sig) return;
+    x.timer.dataset.sig = sig; x.timer.hidden = !c.dur;
+    x.timer.style.animation = 'none'; void x.timer.offsetWidth;
+    if (c.dur) x.timer.style.animation = 'aud-count ' + c.dur + 's linear ' + (-Math.max(0, Date.now() - c.at) / 1000) + 's forwards';
   }
   return {
     update: function(st, list){
