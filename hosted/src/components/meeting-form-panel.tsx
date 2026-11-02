@@ -88,6 +88,7 @@ function Planner({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
     }
   });
   const [sideOpen, setSideOpen] = useState(true);
+  const [renames, setRenames] = useState(0); // a rename from the meeting bar refills Meeting details; their own Save keeps "Saved" on screen
 
   useEffect(() => {
     const online = () => setPhase(navigator.onLine ? "synced" : "offline");
@@ -330,7 +331,7 @@ function Planner({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
         busy={busy}
         onSelect={choose}
         onCreate={createMeeting}
-        onRename={(name) => saveMeeting({ title: name, date: sel.date || String(meetingBody.date ?? ""), notes: multi ? sel.notes : String(meetingBody.notes ?? "") }).then((err) => setNotice(err ? { ok: false, text: err } : { ok: true, text: `Renamed to “${name}”.` }))}
+        onRename={(name) => saveMeeting({ title: name, date: sel.date || String(meetingBody.date ?? ""), notes: multi ? sel.notes : String(meetingBody.notes ?? "") }).then((err) => (setRenames((n) => n + 1), setNotice(err ? { ok: false, text: err } : { ok: true, text: `Renamed to “${name}”.` })))}
       />
       <div className={`plan-grid${sideOpen ? "" : " is-closed"}`}>
       <div className="plan-main" key={sel.id}>
@@ -342,7 +343,7 @@ function Planner({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
       )}
 
       <MeetingDetails
-        key={`${sel.id}:${sel.name}`}
+        key={`${sel.id}:${renames}`}
         openSignal={meetingOpen}
         initial={multi ? { title: sel.name, date: sel.date, notes: sel.notes } : meetingFormOf(meetingRecord?.body)}
         fresh={!meetingRecord}

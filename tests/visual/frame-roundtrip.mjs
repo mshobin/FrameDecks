@@ -1,4 +1,4 @@
-// 8.4 The .frame round trip, end to end: a plan made on the website (stand-in workspace, as plan-flow.mjs), exported
+// 8.4 The .frame round trip, end to end (8.5: the PC starts with another meeting, which the import keeps): a plan made on the website (stand-in workspace, as plan-flow.mjs), exported
 // with a picture chosen in the browser, imported on a running program with Use this plan, then compared field by field.
 // Needs the website built and the program running (python src/server.py). Restore your kc-*.json afterwards.
 // Original header of the shared stand-in: the 8.3 guided Plan workflow on the website, against a stand-in workspace (no Supabase needed). Build the website
@@ -38,7 +38,7 @@ const ctx = await b.newContext({ viewport: { width: Number(process.argv[3] || 13
 if (process.env.DARK) await ctx.addInitScript(() => { window.__dark = 1; localStorage.setItem("fd-theme", "dark"); });
 await ctx.addInitScript(() => {
   localStorage.setItem("sb-x-auth-token", JSON.stringify({ access_token: "t", refresh_token: "r", token_type: "bearer", expires_in: 3600, expires_at: 4102444800, user: { id: "u1", email: "a@b.c", aud: "authenticated", role: "authenticated", app_metadata: {}, user_metadata: {} } }));
-  localStorage.setItem("fd-cookie-ok", "1"); if (location.search.includes("dark") || window.__dark) localStorage.setItem("fd-theme", "dark");
+  localStorage.setItem("fd-consent", JSON.stringify({ version: "2026-10-29", at: Date.now(), essential: true, analytics: false })); if (location.search.includes("dark") || window.__dark) localStorage.setItem("fd-theme", "dark");
 });
 await ctx.route("https://x.supabase.co/**", async (route) => {
   const u = route.request().url();
@@ -94,6 +94,13 @@ const q = await b.newPage({ viewport: { width: 1500, height: 950 } });
 q.on("pageerror", (e) => console.log("PC PAGEERR", e.message));
 await q.goto(PC + "/dashboard.html");
 await q.waitForTimeout(2500);
+// 8.5: the PC shows another meeting with a Frame of its own; the file's meeting is added beside it, that one is kept
+await q.evaluate(() => KCStore.update((n) => {
+  n.scenes = n.scenes.filter((s) => s.tpl);
+  n.scenes.push(KCScenes.cleanScene({ id: "sun1", name: "Sunday welcome" }));
+  n.meeting.title = "Sunday Service"; n.meeting.date = "2026-11-08"; n.meeting.notes = ""; delete n.meeting.meetings; n.live.meeting = "";
+}));
+await q.reload(); await q.waitForTimeout(2000);
 await q.evaluate(() => { document.querySelector('[data-goto="settings"]')?.click(); document.querySelector('button[data-sec="data"]')?.click(); });
 await q.evaluate((t) => KCFrameFile.importFile(new File([t], "roundtrip.frame")), text);
 await q.waitForSelector("#frame-use");
@@ -105,7 +112,11 @@ const status = await q.textContent("#frame-file-status");
 console.log("     " + status);
 check(/Everything matches/.test(status) && !/⚠/.test(status), "the import check: everything matches");
 const st = await q.evaluate(() => JSON.parse(JSON.stringify(KCStore.get())));
-const pcFrames = st.scenes.filter((s) => !s.tpl);
+const pcFrames = await q.evaluate(() => KCScenes.order(KCStore.get()));
+const mts = await q.evaluate(() => KCScenes.meetings(KCStore.get()).map((m) => m.name));
+check(mts.join() === "Sunday Service,Tuesday Bible Study", "the file's meeting is added beside the PC's: " + mts.join(", "));
+check(await q.evaluate(() => KCScenes.currentMeeting(KCStore.get()).name) === "Tuesday Bible Study", "the PC now shows the file's meeting");
+check(st.scenes.some((s) => s.id === "sun1" && s.group === "Sunday Service"), "the other meeting keeps its Frame");
 check(pcFrames.map((s) => s.id).join() === websiteFrames.map((s) => s.id).join(), "same Frames, same ids, same order");
 check(pcFrames.every((s, i) => s.name === websiteFrames[i].name && s.notes === websiteFrames[i].notes), "same names and scripts");
 check(pcFrames.every((s, i) => JSON.stringify(s.layers.map((l) => [l.id, l.kind, l.c.text ?? "", l.c.file ?? "", (l.c.items || []).map((it) => it.text || it.ref)])) ===

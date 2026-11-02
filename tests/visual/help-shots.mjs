@@ -23,7 +23,7 @@ const srv = createServer((q, r) => {
 }).listen(8931);
 const frame = (id, name, notes, layers, tx = "profile") => ({ kind: "frame", id, rev: 1, seq: 1, body: { id, name, notes, tx: { type: tx, ms: 500 }, layers } });
 let records = [
-  { kind: "meeting", id: "meeting", rev: 1, seq: 1, body: { title: "Tuesday Bible Study", date: "2026-11-03" } },
+  { kind: "meeting", id: "meeting", rev: 1, seq: 1, body: { title: "Tuesday Bible Study", date: "2026-11-03", meetings: [{ id: "mt_a", name: "Tuesday Bible Study", date: "2026-11-03", notes: "" }, { id: "mt_b", name: "Sunday Service", date: "2026-11-08", notes: "" }] } },
   { kind: "order", id: "order", rev: 1, seq: 1, body: { scenes: ["f1", "f2", "f3"] } },
   frame("f1", "Welcome", "Good evening everyone.", [{ id: "L1", kind: "announcement", name: "Welcome", c: { title: "Welcome", text: "Glad you are here", label: true } }]),
   frame("f2", "Reading", "", [{ id: "L2", kind: "scripture", name: "Scripture", c: { label: "Reading", itemId: "v1", items: [{ id: "v1", ref: "John 15:5", version: "ESV", text: "I am the vine; you are the branches." }] } }, { id: "L4", kind: "background", c: { color: "#2b1d0e" } }], "burst"),
@@ -35,7 +35,7 @@ const ctx = await b.newContext({ viewport: { width: 1280, height: 800 }, acceptD
 await ctx.addInitScript(() => { window.__dark = 1; localStorage.setItem("fd-theme", "dark"); });
 await ctx.addInitScript(() => {
   localStorage.setItem("sb-x-auth-token", JSON.stringify({ access_token: "t", refresh_token: "r", token_type: "bearer", expires_in: 3600, expires_at: 4102444800, user: { id: "u1", email: "a@b.c", aud: "authenticated", role: "authenticated", app_metadata: {}, user_metadata: {} } }));
-  localStorage.setItem("fd-cookie-ok", "1"); if (location.search.includes("dark") || window.__dark) localStorage.setItem("fd-theme", "dark");
+  localStorage.setItem("fd-consent", JSON.stringify({ version: "2026-10-29", at: Date.now(), essential: true, analytics: false })); if (location.search.includes("dark") || window.__dark) localStorage.setItem("fd-theme", "dark");
 });
 await ctx.route("https://x.supabase.co/**", async (route) => {
   const u = route.request().url();
@@ -49,6 +49,7 @@ await ctx.route("https://x.supabase.co/**", async (route) => {
     return route.fulfill({ json: { results: body.changes.map(() => ({ status: "ok", rev: 5 })) } });
   }
   if (u.includes("rpc/remote_computers")) return route.fulfill({ json: [] });
+  if (u.includes("rpc/meetings_supported")) return route.fulfill({ json: true });
   return route.fulfill({ json: [] });
 });
 import { mkdirSync, writeFileSync } from "node:fs";
@@ -81,7 +82,7 @@ await p.goto("http://127.0.0.1:8931/plan");
 await p.waitForSelector(".flow-steps", { timeout: 15000 });
 await p.evaluate(() => document.querySelector(".fd-cookie button")?.click());
 await p.waitForTimeout(400);
-await shot(p, "web-steps", { frames: ".flow-steps li:nth-child(2)", send: ".flow-steps li:nth-child(5)", nav: "a:has-text('Service PCs')" });
+await shot(p, "web-steps", { frames: ".flow-steps li:nth-child(2)", timeline: ".plan-side .fc", meetings: ".mb", send: ".flow-steps li:nth-child(5)", nav: "a:has-text('Service PCs')" });
 await p.click(".flow-steps li:nth-child(1) button"); await p.waitForTimeout(700);
 await p.evaluate(() => window.scrollBy(0, -90));
 await shot(p, "web-meeting", { form: ".meet-form" });
