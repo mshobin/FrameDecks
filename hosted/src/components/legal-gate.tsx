@@ -1,11 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { TERMS_VERSION, legalNotSetUp, takeAcceptance } from "@/lib/legal";
+import { signOutAndLeave } from "@/lib/sign-out";
 import { browserSupabase } from "@/lib/supabase-browser";
 import { useSession } from "@/lib/use-session";
 import { userSafeError } from "@/lib/user-error";
@@ -20,7 +20,6 @@ export function LegalGate({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   const supabase = browserSupabase();
-  const router = useRouter();
   const session = useSession();
   const [state, setState] = useState<State>("checking");
   const [agreed, setAgreed] = useState(false);
@@ -116,7 +115,7 @@ export function LegalGate({
           type="button"
           className="fd-link"
           onClick={() =>
-            supabase?.auth.signOut().then(() => router.replace("/"))
+            void signOutAndLeave(supabase)
           }
         >
           Sign out instead

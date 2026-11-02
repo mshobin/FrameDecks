@@ -1,8 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { LogOut } from "lucide-react";
+import { useState } from "react";
+import { LoaderCircle, LogOut } from "lucide-react";
 
+import { signOutAndLeave } from "@/lib/sign-out";
 import { browserSupabase } from "@/lib/supabase-browser";
 import { useSession } from "@/lib/use-session";
 
@@ -14,6 +16,8 @@ export function initialsOf(text: string): string {
 export function AccountStatus() {
   const supabase = browserSupabase();
   const session = useSession();
+  const [leaving, setLeaving] = useState(false);
+  const [problem, setProblem] = useState<string | null>(null);
 
   if (!supabase || session === undefined) return null;
   if (!session) {
@@ -32,9 +36,28 @@ export function AccountStatus() {
         </span>
         <span className="fd-account-email">{email}</span>
       </Link>
-      <button type="button" aria-label="Sign out" title="Sign out" onClick={() => supabase.auth.signOut()}>
-        <LogOut aria-hidden="true" size={15} />
+      <button
+        type="button"
+        aria-label={leaving ? "Signing out…" : "Sign out"}
+        title={problem ?? "Sign out"}
+        disabled={leaving}
+        onClick={async () => {
+          setLeaving(true);
+          setProblem(null);
+          const err = await signOutAndLeave(supabase);
+          if (err) {
+            setProblem(err);
+            setLeaving(false);
+          }
+        }}
+      >
+        {leaving ? <LoaderCircle aria-hidden="true" size={15} className="fd-spin" /> : <LogOut aria-hidden="true" size={15} />}
       </button>
+      {problem && (
+        <span className="fd-account-problem" role="alert">
+          {problem}
+        </span>
+      )}
     </span>
   );
 }

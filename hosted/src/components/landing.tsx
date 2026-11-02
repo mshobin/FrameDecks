@@ -183,8 +183,9 @@ export function Landing() {
           <div className="lp-head" data-reveal="">
             <p className="lp-eyebrow">See it work</p>
             <h2 id="lp-features-title" className="lp-h2">
-              Everything the moment needs. Nothing it doesn&apos;t.
+              Powerful tools. Effortless creation.
             </h2>
+            <p>Plan, prompt and present from one place, with every tool ready the moment you reach for it.</p>
           </div>
           <div data-reveal="" data-spotlight="" style={delay(80)}>
             <FeatureTabs

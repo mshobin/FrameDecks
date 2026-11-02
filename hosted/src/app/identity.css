@@ -459,34 +459,6 @@
   text-decoration: none;
 }
 
-.fd-help h2 {
-  scroll-margin-top: 20px;
-}
-
-.fd-help-toc {
-  color: var(--text-3);
-  font-size: 14px;
-  line-height: 1.8;
-}
-
-.fd-help kbd {
-  padding: 1px 6px;
-  border: 1px solid var(--hairline-strong);
-  border-radius: 4px;
-  font-size: 13px;
-}
-
-.fd-help-words dt {
-  margin-top: 10px;
-  color: var(--text);
-  font-weight: 700;
-}
-
-.fd-help-words dd {
-  margin: 2px 0 0;
-  color: var(--text-2);
-}
-
 .fd-help-version {
   margin-top: 28px;
   color: var(--text-3);

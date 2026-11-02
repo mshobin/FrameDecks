@@ -13,6 +13,10 @@
   width: min(100%, 1080px);
 }
 
+.fd-public-main.is-full {
+  width: min(100%, 1320px);
+}
+
 .fd-public-head {
   margin-bottom: 28px;
 }

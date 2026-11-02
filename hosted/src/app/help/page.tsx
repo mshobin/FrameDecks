@@ -1,132 +1,24 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 
 import { PublicPage } from "@/components/public-page";
-import { HelpGuide } from "@/components/help-guide";
-import { ShowGuide } from "@/components/show-guide";
+import { HelpCenter } from "@/components/help-center";
 import brand from "@/lib/brand.json";
-import { DOWNLOADS } from "@/lib/pc-setup";
 import { pageMetadata } from "@/lib/site";
 
 export const metadata: Metadata = pageMetadata("Help", "/help");
 
-
-// One page a volunteer can open on a phone five minutes before the service (owner-approved, 27 October).
-// Keep it short, in the words of docs/guide/glossary.md, and true to the product; longer guides live in docs/.
+// The Help Center (8.6): topics on the left, the chosen one on the right (components/help-center.tsx). One page a
+// volunteer can open on a phone five minutes before the service: short, in the words of docs/guide/glossary.md and
+// true to the product; longer guides live in /docs.
 export default function HelpPage() {
-  const contact = "hello@framedecks.com";
   return (
-    <PublicPage eyebrow="Help Center" title="Help" lead="New here? Follow the guide below, step by step, on the website or the service PC. Quick answers for the day of the meeting are further down.">
-      <HelpGuide />
-      <div className="auth-legal fd-help">
-        <nav aria-label="On this page" className="fd-help-toc">
-          <a href="#guide">Step-by-step guide</a> · <a href="#start">Getting started</a> · <a href="#day">On the day</a> · <a href="#problems">If something goes wrong</a> ·{" "}
-          <a href="#words">Words</a> · <a href="#contact">Contact</a>
-        </nav>
-
-        <h2 id="start">Getting started</h2>
-        <ol>
-          <li>
-            <strong>Install FrameDecks</strong> on the Windows PC that drives your screen or your stream:{" "}
-            <Link href={DOWNLOADS}>download it here</Link>
-            . It is free.
-          </li>
-          <li>
-            <strong>Plan</strong> the meeting: in the program (Studio) or on this website (Plan), from any
-            computer or phone. Plan guides you in five steps: your meeting, Add Frame, Write Script, Preview, then
-            Export for Service PC.
-          </li>
-          <li>
-            <strong>Choose how people see it</strong>: in the program, Settings → How people see it (FrameRelay in your video meeting or
-            streaming platform, the Share Window, or a projector, TV or live production tool).
-          </li>
-          <li>
-            <strong>Write your script</strong>: each Frame has a Teleprompter script. Live tools → Teleprompter (or{" "}
-            <kbd>R</kbd>) shows it above your video meeting, where only you can see it.
-          </li>
-        </ol>
-
-        <p>
-          <strong>Setup guide:</strong> the same six steps, one at a time, each ticked when it is really done. In FrameDecks on the PC:
-          Settings → About → Guided tour. Here: <ShowGuide />
-        </p>
-
-        <h2 id="day">On the day</h2>
-        <ul>
-          <li>Open FrameDecks on the service PC. Previous, Next, Go Live and Hide all are in the top bar.</li>
-          <li>
-            Not sure everything works? Settings → About → Guided tour: its last step checks it all, with a fix for
-            anything that isn’t.
-          </li>
-          <li>
-            In your video meeting or streaming platform, choose <strong>FrameRelay</strong> as the camera (if that is how people see it).
-          </li>
-          <li>
-            Running from a phone? Open <Link href="/live">Live</Link> here, or the phone remote on the local Wi-Fi.
-          </li>
-          <li>
-            The keys: <kbd>T</kbd> Go Live, <kbd>]</kbd> Next, <kbd>[</kbd> Previous, <kbd>Esc</kbd> Hide all,{" "}
-            <kbd>K</kbd> Black screen.
-          </li>
-        </ul>
-
-        <h2 id="problems">If something goes wrong</h2>
-        <ul>
-          <li>
-            <strong>Something wrong is on screen:</strong> press <kbd>Esc</kbd> (Hide all). It always works.
-          </li>
-          <li>
-            <strong>The screen must go dark now:</strong> press <kbd>K</kbd> (Black screen); press it again to come back.
-          </li>
-          <li>
-            <strong>Your meeting app shows no FrameRelay camera:</strong> in FrameDecks, Settings → How people see it → FrameRelay
-            Camera → Install, then restart the meeting app.
-          </li>
-          <li>
-            <strong>The website says the PC is offline:</strong> open FrameDecks on that PC and check its internet.
-          </li>
-          <li>
-            More answers:{" "}
-            <Link href="/docs/troubleshooting">
-              troubleshooting guide
-            </Link>
-            ,{" "}
-            <Link href="/docs/getting-started">
-              full getting-started guide
-            </Link>
-            .
-          </li>
-        </ul>
-
-        <h2 id="words">Words</h2>
-        <dl className="fd-help-words">
-          <dt>Frame</dt>
-          <dd>One step of the meeting: what is on screen at one moment.</dd>
-          <dt>Prepare / Run</dt>
-          <dd>Plan and edit / run the service, with nothing to edit by accident.</dd>
-          <dt>FrameRelay</dt>
-          <dd>FrameDecks&apos;s own camera, which you choose in your video meeting or streaming platform.</dd>
-          <dt>Service PC</dt>
-          <dd>The Windows PC that runs the meeting.</dd>
-        </dl>
-        <p>
-          All the words:{" "}
-          <Link href="/docs/glossary">
-            glossary
-          </Link>
-          .
-        </p>
-
-        <h2 id="contact">Contact</h2>
-        <p>
-          A question, a problem or an idea? Write to{" "}
-          <a href={`mailto:${contact}?subject=${encodeURIComponent(`FrameDecks ${brand.version}: help`)}`}>{contact}</a>. In
-          the program, Settings → Diagnostics → Copy diagnostics adds useful details (never your PIN or members).
-        </p>
-        <p className="fd-help-version">
-          FrameDecks {brand.version} · <Link href="/docs">Documentation</Link> · <Link href="/privacy">Privacy</Link>
-        </p>
-      </div>
+    <PublicPage
+      eyebrow={`Help Center · FrameDecks ${brand.version}`}
+      title="How can we help?"
+      lead="Choose a topic. New here? Getting Started walks you through it step by step, on the website and on the service PC."
+      size="full"
+    >
+      <HelpCenter />
     </PublicPage>
   );
 }

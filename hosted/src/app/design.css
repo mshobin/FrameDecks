@@ -484,6 +484,41 @@ h3 {
   color: var(--text);
 }
 
+.fd-account {
+  position: relative;
+}
+
+.fd-account-problem {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 30;
+  width: max-content;
+  max-width: 260px;
+  border: 1px solid var(--red);
+  border-radius: 12px;
+  background: var(--surface-solid);
+  padding: 8px 12px;
+  color: var(--text);
+  font-size: 13px;
+}
+
+.fd-spin {
+  animation: fd-spin 0.9s linear infinite;
+}
+
+@keyframes fd-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fd-spin {
+    animation: none;
+  }
+}
+
 .fd-page {
   width: min(100%, 1180px);
   margin: 0 auto;

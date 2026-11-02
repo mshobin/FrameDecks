@@ -8,12 +8,15 @@ export function PublicPage({
   title,
   lead,
   wide = false,
+  size,
   children,
 }: Readonly<{
   eyebrow?: string;
   title: string;
   lead?: React.ReactNode;
   wide?: boolean;
+  /** "full": the page's width for a two-column page (Help) */
+  size?: "full";
   children: React.ReactNode;
 }>) {
   return (
@@ -22,7 +25,7 @@ export function PublicPage({
       <main
         id="main"
         tabIndex={-1}
-        className={wide ? "fd-public-main is-wide" : "fd-public-main"}
+        className={size === "full" ? "fd-public-main is-full" : wide ? "fd-public-main is-wide" : "fd-public-main"}
       >
         <header className="fd-public-head">
           {eyebrow && <p className="lp-eyebrow">{eyebrow}</p>}

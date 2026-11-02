@@ -1,12 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Download, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { legalNotSetUp } from "@/lib/legal";
+import { signOutAndLeave } from "@/lib/sign-out";
 import { browserSupabase } from "@/lib/supabase-browser";
 import { useWorkspaces } from "@/lib/use-workspaces";
 import { userSafeError } from "@/lib/user-error";
@@ -30,7 +30,6 @@ function save(name: string, data: unknown) {
 
 export function AccountData() {
   const supabase = browserSupabase();
-  const router = useRouter();
   const { workspaces } = useWorkspaces();
   const [busy, setBusy] = useState<"export" | "delete" | null>(null);
   const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(
@@ -89,8 +88,7 @@ export function AccountData() {
       setMessage({ ok: false, text });
       return;
     }
-    await supabase.auth.signOut();
-    router.replace("/");
+    await signOutAndLeave(supabase);
   }
 
   return (
