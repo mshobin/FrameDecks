@@ -1132,3 +1132,33 @@ first, then foldable sections whose open state is kept in `kc-insp-open`. The th
 layer in `theme.css` gives the window the website's stage light, card edge and shadow, and gold gradient buttons using
 `color-mix` on the look's tokens: static paint only, nothing animated or blurred.
 
+
+## 44. Version 8.2.0: a bare Teleprompter, Spotlight, Burst and .frame files (2 November 2026)
+
+The owner asked for a Teleprompter whose screen holds nothing but the script. `teleprompter.js` `create()` gained
+`controlsHost` (the engine's Scroll, speed and text controls are built into the Speaker page's top bar), `bare` (no
+empty-state actions or cues in the script area) and `source()`, which lets the page choose the script: the live
+Frame's notes, or with `meeting.scriptMode = 'all'` one `meeting.script` for the whole meeting. Uploads are read in the
+page (`script-file.js`): .docx is unzipped from its central directory with `DecompressionStream('deflate-raw')` and
+`word/document.xml` turned into the Teleprompter's light Markdown, so no library was added.
+
+Spotlight is a state, not a drawing: `live.spot` (`cleanSpot`) holds the word's box on the picture, colour, size,
+length and strength, with a fresh id each time. Each renderer plays it once from the moment it first sees the id
+(FrameRelay `spotlight.py`, the overlay pages' `Program.spotlight`), so a clock difference between PCs and phones never
+cuts it short, and one already present when a renderer starts is not replayed. Annotate finds the word by walking the
+text nodes of the picture's iframe and measuring each word's range, because the cards ignore the pointer and
+`caretRangeFromPoint` only saw the page body.
+
+The transition list had grown look-alikes. One per effect remains; the old ids are aliases (`TX_ALIAS` in `store.js`,
+`program.py` and the website's `meeting-form.ts`) applied when a plan loads, so nothing saved breaks. Burst cuts the old
+picture into a grid of grains that a sweep releases; the solid part is copied with `cv2.copyTo` and only moving grains
+are blended, which brought it from 40–100 ms to 12–20 ms a frame at 1080p. The overlay pages do the same on a canvas
+from the outgoing cards' boxes.
+
+The .frame file replaces the Excel workbook as the way to carry a plan by hand. It is the PC's own plan shapes in JSON
+(`docs/reference/frame-file.md`), written by the website from the synced plan (`frame-file.ts`, import-free so Node's
+type stripping can test it) and read and written by the PC (`frame-file.js`, UMD so the same `check` and `apply` run
+in Node tests). Media stays off the cloud, as the owner chose: the website's file has none, a PC's file embeds it
+(base64 with SHA-256, up to 300 MB) and import writes it through the existing upload endpoint, renaming on clash. Sync
+gained a `phase` (synced, syncing, offline, failed) shown as a header chip; offline is not shown as a problem, because a
+service PC without internet is normal.

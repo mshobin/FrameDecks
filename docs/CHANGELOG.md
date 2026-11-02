@@ -45,6 +45,27 @@ Versions before 4.9 (when the program had its earlier name) are described in the
 - The favicons, the tray icon and the small program-icon sizes (16–32 px) use a heavier version of the emblem, so it
   stays visible on light browser tabs and a light taskbar. Larger sizes are unchanged.
 
+## [8.2.0] - 2026-11-02
+
+Full notes: [docs/releases/v8.2.0.md](releases/v8.2.0.md).
+
+### Added
+- Teleprompter: **⇪ Upload** (.txt, .md, .docx) and a script mode, **Each Frame** or **Whole meeting**
+  (`meeting.script`, `meeting.scriptMode`).
+- Annotate → **Spotlight** (S, or Ctrl twice): a glowing circle around the word under the pointer (`live.spot`), drawn
+  by FrameRelay (`src/vcam/spotlight.py`) and the overlay pages.
+- **Burst** transition (`src/vcam/burst.py`, overlay canvas), with dust, direction, colour and strength (`fx.burst`).
+- **.frame files** ([docs/reference/frame-file.md](reference/frame-file.md)): Export for Service PC on the website;
+  Import / Export Frame File on the PC (Settings → Data / Backup, command palette). Local-only `GET /api/media/file`.
+- Header **Sync** chip and Settings wording: Synced, Syncing, Offline, Sync failed (`api/sync` `phase`).
+
+### Changed
+- Every Teleprompter control is in its folding top bar, with **Next Frame**; the script area holds only the text, at
+  full width.
+- Transitions are one per effect: Cut, Fade, Dip to Black, Dip to White, Blur Fade, Zoom, Slide, Push, Wipe, Burst.
+  Dissolve, Cinema and Church become Fade, Slide Right becomes Slide, Soft Scale becomes Zoom (on load, on the
+  website and in the Meeting Workbook).
+
 ## [8.1.0] - 2026-11-01
 
 Full notes: [docs/releases/v8.1.0.md](releases/v8.1.0.md).

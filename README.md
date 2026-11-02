@@ -24,7 +24,9 @@ rendering and camera output stay on the PC. FrameDecks is proprietary software, 
   Contents to copy, paste, duplicate, move or delete them with Undo ([FRAMES](docs/guide/frames.md) ·
   [CONTENT](docs/guide/content.md)).
 - **Presenting**: **Go Live** (T), Frame and item steppers, transitions and auto-advance, Hide all (Esc), Blackout
-  (K), Emergency screen, Freeze (F) and Annotate (D) — pen, highlighter, arrow, shapes and text above everything.
+  (K), Emergency screen, Freeze (F) and Annotate (D) — pen, highlighter, arrow, shapes, text and a **Spotlight** that
+  circles the word under the pointer, above everything. Transitions: Cut, Fade, Dip to Black or White, Blur Fade,
+  Zoom, Slide, Push, Wipe and **Burst** (the old Frame breaks into drifting dust).
   A **command palette** (Ctrl+K or Ctrl+Space) finds any Frame, question, scripture or setting and runs commands
   ([PRESENTATIONS](docs/guide/presentations.md)).
 - **Questions and scriptures**: per-Frame lists with labels; Show question, scripture or both; drag to reorder;
@@ -40,9 +42,10 @@ rendering and camera output stay on the PC. FrameDecks is proprietary software, 
   questions, scriptures or slides, **Teleprompter**, **Draw**, **Freeze** and **Black screen**, and every Frame one tap
   away. PIN-protected, local network only;
   draw on the real live picture, full screen in landscape ([REMOTE_CONTROL](docs/guide/remote-control.md)).
-- **Teleprompter**: each Frame's script, seen only by the presenter, in one window that stays on top of Zoom, Teams
-  or Meet (Live tools → Teleprompter, or R), or on the phone. Its top bar (time, the current Frame, a timer,
-  transparency from Solid to 85% and **Pin**) stays hidden until you need it. Scrolls by itself, with speed, text size, high contrast and mirroring. Never on any output,
+- **Teleprompter**: each Frame's script, or one script for the whole meeting, seen only by the presenter, in one
+  window that stays on top of Zoom, Teams or Meet (Live tools → Teleprompter, or R), or on the phone. The screen shows
+  only the words; every control (Scroll, speed, text size, **Write Script**, **Upload** a .txt, .md or .docx file,
+  **Next Frame**, transparency and **Pin**) is in a top bar that stays hidden until you need it. Never on any output,
   and left out of screen sharing and recordings (Windows 10 2004 or later)
   ([PRESENTATIONS](docs/guide/presentations.md#teleprompter)).
 - **Window and tray**: the app's own ribbon instead of the Windows title bar (Snap and resizing kept); Minimize can hide
@@ -57,7 +60,10 @@ rendering and camera output stay on the PC. FrameDecks is proprietary software, 
   scriptures) and a **Dashboard** that sums it up with KPI tiles, readiness checks and a meeting log. Import shows a
   preview with every problem and its row, and can be undone; export gives back the same two tabs, filled in
   ([SERVICE_PLANNING](docs/guide/service-planning.md) · [MEETING_WORKBOOK](docs/reference/meeting-workbook-and-branding.md)).
-- **Data**: everything in one folder on the PC, saved atomically, with daily backups and Frame history.
+- **Data**: everything in one folder on the PC, saved atomically, with daily backups and Frame history. A **.frame
+  file** carries a whole plan to a service PC without internet: Export for Service PC on framedecks.com, Import Frame
+  File on the PC ([FRAME_FILE](docs/reference/frame-file.md)). A linked PC shows Synced, Syncing, Offline or Sync
+  failed in its header.
 
 ## Hosted companion
 
