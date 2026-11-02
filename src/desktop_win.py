@@ -444,6 +444,22 @@ def place(hwnd, x, y, w=None, h=None):
         return False
 
 
+def display_scale(hwnd=None):
+    """The display scale (1.0 = 100 %, 1.5 = 150 %) of a window, or of the main screen."""
+    if not IS_WIN:
+        return 1.0
+    try:
+        dpi = user32.GetDpiForWindow(hwnd) if hwnd else user32.GetDpiForSystem()
+        return dpi / 96.0 if dpi else 1.0
+    except Exception:
+        return 1.0
+
+
+def show_no_activate(hwnd):
+    """Show a window (also one that was hidden or off-screen) without taking the keyboard from the program in front."""
+    return show_async(hwnd, 4)                                 # SW_SHOWNOACTIVATE
+
+
 def work_area():
     """[x, y, w, h] of the main screen without the taskbar."""
     if not IS_WIN:

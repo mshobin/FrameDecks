@@ -435,6 +435,21 @@ class DockWindow(unittest.TestCase):
         self.w.pt = (150, 300)
         self.assertLess(self.c.tick(), 0.05)
 
+    def test_scaled_display_stays_on_screen(self):
+        """8.8.1: on a 150 % display the dock opened off the right edge (pywebview scales the position it is given)."""
+        work = [0, 0, 1920, 1032]                                   # screen pixels of a 150 % laptop screen
+        r = self.dock.start_rect(None, work, scale=1.5)
+        self.assertEqual(r[2:], [510, 780])
+        self.assertLessEqual(r[0] + r[2], 1920)
+        self.assertLessEqual(r[1] + r[3], 1032)
+        lx, ly, lw, lh = self.dock.to_logical(r, 1.5)
+        self.assertEqual([round(lx * 1.5), round(lw * 1.5)], [r[0], r[2]], "pywebview's scaling lands it back on the same spot")
+        hr = self.dock.handle_rect(r, 1.5)
+        self.assertEqual(hr[2:], [276, 45])
+        self.assertLessEqual(hr[0] + hr[2], 1920)
+        small = self.dock.start_rect(None, [0, 0, 1280, 680], scale=1.5)
+        self.assertLessEqual(small[1] + small[3], 680, "a small screen: the dock is made shorter")
+
     def test_start_place(self):
         self.assertEqual(self.dock.start_rect([10, 20, 300, 400], [0, 0, 1920, 1040]), [10, 20, 300, 400])
         r = self.dock.start_rect([10, 20, 300, 400], [0, 0, 1920, 1040], fits=lambda r: False)

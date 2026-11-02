@@ -45,6 +45,18 @@ Versions before 4.9 (when the program had its earlier name) are described in the
 - The favicons, the tray icon and the small program-icon sizes (16–32 px) use a heavier version of the emblem, so it
   stays visible on light browser tabs and a light taskbar. Larger sizes are unchanged.
 
+## [8.8.1] - 2026-11-02
+
+Full notes: [docs/releases/v8.8.1.md](releases/v8.8.1.md).
+
+### Fixed
+- The Audience Dock opened off the right edge of a display scaled above 100 %: pywebview multiplies a window's
+  position and size by the display scale, and 8.8.0 gave it screen pixels. The dock is now placed in screen pixels by
+  Windows once shown (`desktop_app.place_dock`, `dock.start_rect(..., scale)`, `dock.to_logical`), a saved place off
+  every screen is ignored, and opening an open dock brings it back on screen (`dock_on_screen`).
+- The dock is made with `focus=True`: pywebview's `focus=False` puts `WS_EX_NOACTIVATE` back on every activation, so
+  the pin could not let the dock take the keyboard; `desktop_win.no_activate` sets it after the window is shown.
+
 ## [8.8.0] - 2026-11-02
 
 Full notes: [docs/releases/v8.8.0.md](releases/v8.8.0.md). Design: [docs/architecture/audience-dock.md](architecture/audience-dock.md).

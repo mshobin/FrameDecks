@@ -650,14 +650,20 @@ def main():
             refresh_tray()
             return False
         if w:
+            dock_on_screen()                           # already open: make sure it can be seen (8.8.1)
             return True
-        r = dockmod.start_rect(server.app_settings().get("dockRect"), dw.work_area(), dw.on_screen)
-        hr = dockmod.handle_rect(r)
-        w = webview.create_window(DISPLAY_NAME + " · Audience", url + "audience.html", x=r[0], y=r[1], width=r[2], height=r[3],
+        scale = dw.display_scale()
+        r = dockmod.start_rect(server.app_settings().get("dockRect"), dw.work_area(), dw.on_screen, scale)
+        hr = dockmod.handle_rect(r, scale)
+        lr, lh = dockmod.to_logical(r, scale), dockmod.to_logical(hr, scale)   # pywebview scales what it is given
+        print("Audience Dock: opening at", r, "(display scale %.2f)" % scale)
+        # focus=True: pywebview's focus=False puts WS_EX_NOACTIVATE back on every activation, so the pin could never
+        # let the dock take the keyboard; desktop_win.no_activate() sets it once the window is shown instead.
+        w = webview.create_window(DISPLAY_NAME + " · Audience", url + "audience.html", x=lr[0], y=lr[1], width=lr[2], height=lr[3],
                                   min_size=dockmod.MIN_SIZE, background_color="#0b1222", frameless=True, easy_drag=False,
-                                  on_top=True, focus=False, text_select=True)
-        h = webview.create_window(DISPLAY_NAME + " · Audience handle", url + "audience-handle.html", x=hr[0], y=hr[1],
-                                  width=hr[2], height=hr[3], background_color="#0b1222", frameless=True, easy_drag=False,
+                                  on_top=True, focus=True, text_select=True)
+        h = webview.create_window(DISPLAY_NAME + " · Audience handle", url + "audience-handle.html", x=lh[0], y=lh[1],
+                                  width=lh[2], height=lh[3], background_color="#0b1222", frameless=True, easy_drag=False,
                                   on_top=True, focus=False, text_select=False)
         DOCK.update(win=w, handle=h, settings=False)
         ready = {"n": 0}
@@ -671,9 +677,11 @@ def main():
                 dw.no_activate(hwnd)                   # clicks never take the keyboard from Zoom or Teams
                 dw.hide_from_capture(hwnd)             # only the presenter sees the dock, even sharing the whole screen
                 dw.round_corners(hwnd)
+            s = dw.display_scale(dock_hwnd(w)) or scale
+            place_dock(r if s == scale else dockmod.start_rect(server.app_settings().get("dockRect"), dw.work_area(), dw.on_screen, s), s)
             stop = threading.Event()
             ctl = dockmod.DockController(DockWin(w, h), on_mode=lambda m: dock_changed(),
-                                         on_moved=lambda rect: server.save_app_settings({"dockRect": rect}))
+                                         on_moved=lambda rect: server.save_app_settings({"dockRect": rect}), scale=s)
             DOCK.update(ctl=ctl, stop=stop)
             threading.Thread(target=dock_loop, args=(ctl, stop), name="kc-audience-dock", daemon=True).start()
 
@@ -685,6 +693,25 @@ def main():
             x.events.closed += closed
         refresh_tray()
         return True
+
+    def place_dock(rect, scale):
+        """Put the dock and its handle exactly at rect (screen pixels), whatever pywebview made of the first guess."""
+        dw.place(dock_hwnd(DOCK["win"]), *rect)
+        dw.place(dock_hwnd(DOCK["handle"]), *dockmod.handle_rect(rect, scale))
+        for k in ("win", "handle"):
+            dw.show_no_activate(dock_hwnd(DOCK[k]))
+        print("Audience Dock: placed at", rect)
+
+    def dock_on_screen():
+        """An open dock that cannot be seen (off a screen, e.g. a monitor unplugged) comes back to the main screen."""
+        hwnd = dock_hwnd(DOCK["win"])
+        rect = dw.window_rect(hwnd)
+        s = dw.display_scale(hwnd)
+        if not rect or not dw.on_screen(rect):
+            rect = dockmod.start_rect(None, dw.work_area(), scale=s)
+        place_dock(rect, s)
+        dw.set_topmost(hwnd, True)
+        dw.set_topmost(dock_hwnd(DOCK["handle"]), True)
 
     def dock_op(op, data):
         """The handle's buttons (POST api/app/dock): drag, resize, pin, settings, close; open / toggle from the Studio."""

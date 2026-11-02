@@ -37,29 +37,41 @@ def inside(rect, pt, pad=0):
     return x - pad <= pt[0] < x + w + pad and y - pad <= pt[1] < y + h + pad
 
 
-def handle_rect(dock_rect):
+# Every rectangle here is in real screen pixels ([x, y, w, h], as Windows reports them). pywebview takes a window's
+# position and size in its own unscaled units and multiplies them by the display scale (125 %, 150 %...), so the dock
+# is placed by Windows after it appears (desktop_app.audience_dock); to_logical() is only its first guess. 8.8.0 gave
+# pywebview screen pixels, which put the dock off the right edge of a scaled display.
+
+def handle_rect(dock_rect, scale=1.0):
     """The handle sits on the dock's top edge, at its right (where the window buttons of other apps are not)."""
     x, y, w, _ = dock_rect
-    hw, hh = HANDLE_SIZE
-    return [x + max(0, w - hw - 8), y - hh + 4, hw, hh]
+    hw, hh = int(round(HANDLE_SIZE[0] * scale)), int(round(HANDLE_SIZE[1] * scale))
+    return [x + max(0, w - hw - int(8 * scale)), y - hh + int(4 * scale), hw, hh]
 
 
-def start_rect(saved, work_area, fits=lambda r: True):
+def start_rect(saved, work_area, fits=lambda r: True, scale=1.0):
     """Where the dock opens: its saved place when it is still on a screen, else the right of the work area."""
     if isinstance(saved, list) and len(saved) == 4 and fits(saved):
         return [int(v) for v in saved]
     wx, wy, ww, wh = work_area or (0, 0, 1920, 1080)
-    w, h = DEFAULT_SIZE
-    return [wx + ww - w - 24, wy + max(48, (wh - h) // 3), w, h]
+    w, h = int(round(DEFAULT_SIZE[0] * scale)), int(round(DEFAULT_SIZE[1] * scale))
+    w, h = min(w, max(1, ww - 48)), min(h, max(1, wh - 96))
+    return [wx + ww - w - int(24 * scale), wy + max(int(48 * scale), (wh - h) // 3), w, h]
+
+
+def to_logical(rect, scale):
+    """Screen pixels -> pywebview's units (it multiplies them by the display scale)."""
+    s = scale if scale and scale > 0 else 1.0
+    return [int(round(v / s)) for v in rect]
 
 
 class DockController:
     """One tick reads the keys, the pointer and the dock's rectangle and applies what changed."""
 
-    def __init__(self, win, on_mode=None, on_moved=None, clock=time.monotonic):
+    def __init__(self, win, on_mode=None, on_moved=None, clock=time.monotonic, scale=1.0):
         # win: rect() -> [x, y, w, h] | None, keys() -> bool (Ctrl+Shift held), cursor() -> (x, y) | None,
         #      set_look(click_through, alpha), place_handle(rect)
-        self.win, self.on_mode, self.on_moved, self.clock = win, on_mode, on_moved, clock
+        self.win, self.on_mode, self.on_moved, self.clock, self.scale = win, on_mode, on_moved, clock, scale
         self.pinned = False
         self.applied = None          # (click_through, alpha)
         self.mode = None             # 'click' | 'live' | 'pinned'
@@ -90,7 +102,7 @@ class DockController:
         now = self.clock()
         if rect != self.rect:
             self.rect, self.moved_at = rect, now
-            self.win.place_handle(handle_rect(rect))
+            self.win.place_handle(handle_rect(rect, self.scale))
         elif self.moved_at is not None and now - self.moved_at >= SAVE_AFTER and rect != self.saved:
             self.saved, self.moved_at = list(rect), None
             if self.on_moved:

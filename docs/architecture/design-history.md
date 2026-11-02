@@ -1338,3 +1338,9 @@ its edge and is never click-through; Ctrl+Shift is read by a light poll (`GetAsy
 The decisions per tick are in `dock.py` with the Windows calls passed in, so they are tested without Windows. The
 click-through WebView2, focus and the clipboard need the real-PC checklist in the design document.
 
+Version 8.8.1 (the same day) fixed a dock that never appeared on the owner's PC. pywebview takes a window's position
+and size in unscaled units and multiplies them by the display scale; 8.8.0 passed screen pixels, so on a 125 % or
+150 % display the dock and its handle opened past the right edge, and the saved place kept them there. Every
+rectangle in `dock.py` is now in screen pixels, pywebview gets them divided by the scale as a first guess, and Windows
+places the dock exactly once it is shown. The test suite now opens the dock on a pretend 150 % screen.
+
