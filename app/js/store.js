@@ -262,6 +262,30 @@ function cleanBurst(b){
     dir: ['right', 'left', 'up', 'down', 'out'].indexOf(b.dir) >= 0 ? b.dir : 'right',
     tint: /^#[0-9a-fA-F]{6}$/.test(b.tint || '') ? b.tint.toLowerCase() : '', intensity: num(b.intensity, 10, 100, 60)};
 }
+/* 8.5 Several meetings (hosted/src/lib/meetings.ts has the same rules; hosted/tests/meetings.test.mjs keeps them equal).
+ * A meeting is an entry of meeting.meetings ({id, name, date, notes}); a Frame belongs to the meeting named by its group,
+ * else to the first. No list: one meeting made from the meeting's title, date and notes, holding every Frame. */
+function cleanMeetings(raw){
+  var out = [], ids = {}, names = {};
+  (Array.isArray(raw) ? raw : []).forEach(function(e){
+    if (!isObj(e) || out.length >= 100) return;
+    var name = str(e.name, 60).trim(), id = str(e.id, 40).trim();
+    if (!name || !id || ids[id] || names[name.toLowerCase()]) return;
+    ids[id] = names[name.toLowerCase()] = true;
+    out.push({id: id, name: name, date: str(e.date, 40), notes: str(e.notes, 2000)});
+  });
+  return out;
+}
+function meetingsOf(st){
+  var m = st.meeting || {}, list = cleanMeetings(m.meetings);
+  if (!list.length) list.push({id: 'main', name: str(m.title, 60).trim() || 'Meeting', date: str(m.date, 40), notes: str(m.notes, 2000)});
+  return list;
+}
+function meetingOfScene(sc, list){
+  var g = String(sc.group || '').trim().toLowerCase();
+  for (var i = 0; i < list.length; i++) if (list[i].name.toLowerCase() === g) return list[i];
+  return list[0];
+}
 var PROFILES = [
   {id: 'sunday', name: 'Sunday Service', type: 'fade', ms: 500}, {id: 'bible-study', name: 'Bible Study', type: 'fade', ms: 350},
   {id: 'youth', name: 'Youth Service', type: 'push', ms: 300}, {id: 'conference', name: 'Conference', type: 'fade', ms: 400},
@@ -502,7 +526,8 @@ var Scenes = {
     var l = isObj(raw.live) ? raw.live : {};
     st.live = {scene: str(l.scene, 40), seq: Number(l.seq) || 0, at: Number(l.at) || 0, tx: txId(l.tx) || 'cut',
       txMs: num(l.txMs, 0, 5000, 0), auto: l.auto !== false, blackout: !!l.blackout, emergency: !!l.emergency, freeze: !!l.freeze, ink: cleanInk(l.ink), spot: cleanSpot(l.spot),
-      message: str(l.message === undefined ? DEFAULT_STATE.live.message : l.message, 300), on: {}, cd: {}};
+      message: str(l.message === undefined ? DEFAULT_STATE.live.message : l.message, 300), on: {}, cd: {},
+      meeting: str(l.meeting, 40)};                            // 8.5 the meeting this PC shows (its own choice; not synced)
     if (isObj(l.on)) for (var k in l.on) if (l.on[k]) st.live.on[str(k, 40)] = true;
     if (isObj(l.cd)) for (var j in l.cd) st.live.cd[str(j, 40)] = Number(l.cd[j]) || 0;
     st.profile = PROFILES.some(function(p){ return p.id === raw.profile; }) ? raw.profile : 'bible-study';
@@ -513,8 +538,57 @@ var Scenes = {
   layer: function(sc, id){ if (!sc) return null; for (var i = 0; i < sc.layers.length; i++) if (sc.layers[i].id === id) return sc.layers[i]; return null; },
   first: function(sc, kind){ if (!sc) return null; for (var i = 0; i < sc.layers.length; i++) if (sc.layers[i].kind === kind) return sc.layers[i]; return null; },
   liveScene: function(st){ return Scenes.find(st, st.live.scene); },
-  /* scenes you step through with Prev / Next (templates are not part of the running order) */
-  order: function(st){ return st.scenes.filter(function(sc){ return !sc.tpl; }); },
+  /* scenes you step through with Prev / Next (templates are not part of the running order); 8.5: only the meeting
+   * this PC shows */
+  order: function(st){
+    var list = meetingsOf(st), cur = Scenes.currentMeeting(st);
+    return st.scenes.filter(function(sc){ return !sc.tpl && (list.length < 2 || meetingOfScene(sc, list).id === cur.id); });
+  },
+  meetings: meetingsOf,
+  cleanMeetings: cleanMeetings,
+  meetingOf: function(st, sc){ return meetingOfScene(sc, meetingsOf(st)); },
+  /* the meeting this PC shows: its own choice (live.meeting), else the one the meeting details describe, else the first */
+  currentMeeting: function(st){
+    var list = meetingsOf(st), id = st.live && st.live.meeting, t = String((st.meeting && st.meeting.title) || '').trim().toLowerCase();
+    for (var i = 0; i < list.length; i++) if (list[i].id === id) return list[i];
+    for (var j = 0; j < list.length; j++) if (list[j].name.toLowerCase() === t) return list[j];
+    return list[0];
+  },
+  /* the group a new Frame gets: the meeting shown, once there are several (one meeting: no group, as before) */
+  newGroup: function(st){ return meetingsOf(st).length > 1 ? Scenes.currentMeeting(st).name : ''; },
+  /* show another meeting: its name, date and notes become the meeting details (what every screen and older PCs read) */
+  switchMeeting: function(n, id){
+    var list = meetingsOf(n), cur = Scenes.currentMeeting(n), to = null;
+    list.forEach(function(m){ if (m.id === cur.id){ m.date = n.meeting.date; m.notes = n.meeting.notes; } if (m.id === id) to = m; });
+    if (!to) return null;
+    n.meeting.meetings = list;
+    n.meeting.title = to.name; n.meeting.date = to.date; n.meeting.notes = to.notes;
+    n.live.meeting = to.id;
+    return to;
+  },
+  addMeeting: function(n, name){
+    var list = meetingsOf(n), used = {}; list.forEach(function(m){ used[m.name.toLowerCase()] = 1; });
+    var base = str(name, 60).trim() || 'New meeting', nm = base, k = 2;
+    while (used[nm.toLowerCase()]) nm = base.slice(0, 56) + ' ' + (k++);
+    var cur = Scenes.currentMeeting(n);
+    // the Frames of the first meeting that have no group of their own keep it when there are two
+    n.scenes.forEach(function(sc){ if (!sc.tpl && meetingOfScene(sc, list).id === list[0].id && sc.group.toLowerCase() !== list[0].name.toLowerCase()) sc.group = list[0].name; });
+    var m = {id: rid('mt_'), name: nm, date: '', notes: ''};
+    list.forEach(function(x){ if (x.id === cur.id){ x.date = n.meeting.date; x.notes = n.meeting.notes; } });
+    list.push(m); n.meeting.meetings = list;
+    Scenes.switchMeeting(n, m.id);
+    return m;
+  },
+  renameMeeting: function(n, id, name){
+    var list = meetingsOf(n), m = list.filter(function(x){ return x.id === id; })[0]; if (!m) return null;
+    var used = {}; list.forEach(function(x){ if (x.id !== id) used[x.name.toLowerCase()] = 1; });
+    var nm = str(name, 60).trim(); if (!nm || used[nm.toLowerCase()]) return null;
+    var old = m.name.toLowerCase();
+    n.scenes.forEach(function(sc){ if (!sc.tpl && (sc.group.toLowerCase() === old || (m.id === list[0].id && meetingOfScene(sc, list).id === m.id))) sc.group = nm; });
+    if (String(n.meeting.title || '').trim().toLowerCase() === old) n.meeting.title = nm;
+    m.name = nm; n.meeting.meetings = list;
+    return m;
+  },
   neighbour: function(st, id, d){
     var o = Scenes.order(st), i = -1;
     for (var k = 0; k < o.length; k++) if (o[k].id === id) i = k;
@@ -535,7 +609,7 @@ var Scenes = {
     opts = opts || {};
     var t = TEMPLATES.filter(function(x){ return x.id === tplId; })[0] || TEMPLATES[TEMPLATES.length - 1];
     var now = Date.now();
-    var sc = cleanScene({id: rid('sc_'), name: opts.name || Scenes.uniqueName(st, t.name), group: opts.group || '', created: now, modified: now,
+    var sc = cleanScene({id: rid('sc_'), name: opts.name || Scenes.uniqueName(st, t.name), group: opts.group != null ? opts.group : Scenes.newGroup(st), created: now, modified: now,
       creator: opts.creator || '', template: t.id === 'blank' ? '' : t.name, tx: {type: 'profile', ms: 500}});
     sc.layers = t.layers.map(function(k){ return newLayer(k); });
     if (t.id === 'zoom' || t.id === 'teams') sc.layers[0].name = t.id === 'zoom' ? 'Zoom camera' : 'Teams camera';
@@ -549,7 +623,7 @@ var Scenes = {
     if (libId.charAt(0) === '@') return Scenes.create(st, libId.slice(1), opts);
     var e = LIBRARY.filter(function(x){ return x.id === libId; })[0]; if (!e) return null;
     var now = Date.now();
-    var sc = cleanScene({id: rid('sc_'), name: opts.name || Scenes.uniqueName(st, e.name), group: opts.group || '', created: now, modified: now,
+    var sc = cleanScene({id: rid('sc_'), name: opts.name || Scenes.uniqueName(st, e.name), group: opts.group != null ? opts.group : Scenes.newGroup(st), created: now, modified: now,
       creator: opts.creator || '', template: e.name, from: 'Content Library', tx: {type: 'profile', ms: 500}});
     sc.layers = e.layers.map(function(d){ var x = d[1] || {}, extra = {c: x.c || {}}; if (x.name) extra.name = x.name; return newLayer(d[0], extra); });
     Scenes.autoBrand(st, sc);
@@ -978,6 +1052,8 @@ function normalize(s){
     contact: str(mt.contact, 120), attendees: str(mt.attendees, 20), attendeeNotes: str(mt.attendeeNotes, 2000), owner: str(mt.owner, 80),
     contentNotes: str(mt.contentNotes, 2000), notes: str(mt.notes, 2000), extra: str(mt.extra, 4000),
     script: str(mt.script, 20000), scriptMode: mt.scriptMode === 'all' ? 'all' : 'frame'};
+  var mlist = cleanMeetings(mt.meetings);                     // 8.5 several meetings (written only once there is a list)
+  if (mlist.length) st.meeting.meetings = mlist;
   var b = isObj(s) && isObj(s.brand) ? s.brand : {};
   st.brand = {meeting: str(b.meeting, 80), org: str(b.org, 80), color: /^#[0-9a-fA-F]{6}$/.test(b.color || '') ? b.color.toLowerCase() : '',
     logo: str(b.logo, 40), lw: Number(b.lw) || 0, lh: Number(b.lh) || 0, auto: !!b.auto};

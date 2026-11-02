@@ -236,3 +236,42 @@ test("the anonymous role without a key gets nothing and cannot approve links", a
     await db.exec("reset role");
   }
 });
+
+const oldPcKey = randomBytes(32).toString("base64url");     // a PC on 8.4 (0012's tests)
+const oldPc = (sql, params) => asComputer(oldPcKey, sql, params);
+test("0012: a PC that does not know the meeting list cannot remove it; a change with a list is stored as sent", async () => {
+  await db.query("insert into computers(organization_id, name, key_hash) values ($1, 'Hall PC', $2)", [org, hash(oldPcKey)]);
+  const rev = async (kind) => (await db.query("select rev from entities where organization_id = $1 and kind = $2", [org, kind])).rows[0]?.rev ?? 0;
+  const list = [{ id: "m1", name: "Tuesday", date: "2026-11-03", notes: "" }, { id: "m2", name: "Sunday", date: "", notes: "" }];
+  const first = await push(ownerRun, [{ kind: "meeting", id: "meeting", baseRev: await rev("meeting"), body: { title: "Tuesday", meetings: list } }]);
+  assert.equal(first.results[0].status, "ok");
+  // an 8.4 PC sends the record back without the list (and with a change of its own)
+  const older = await push(oldPc, [{ kind: "meeting", id: "meeting", baseRev: await rev("meeting"), body: { title: "Tuesday", notes: "from the PC" } }]);
+  assert.equal(older.results[0].status, "ok");
+  let row = (await db.query("select body from entities where organization_id = $1 and kind = 'meeting'", [org])).rows[0].body;
+  assert.deepEqual(row.meetings, list, "the list stays");
+  assert.equal(row.notes, "from the PC", "the PC's own change is kept");
+  // an empty list is treated the same; a new list replaces the old one
+  await push(oldPc, [{ kind: "meeting", id: "meeting", baseRev: await rev("meeting"), body: { title: "Tuesday", meetings: [] } }]);
+  row = (await db.query("select body from entities where organization_id = $1 and kind = 'meeting'", [org])).rows[0].body;
+  assert.equal(row.meetings.length, 2);
+  await push(ownerRun, [{ kind: "meeting", id: "meeting", baseRev: await rev("meeting"), body: { title: "Sunday", meetings: [list[1]] } }]);
+  row = (await db.query("select body from entities where organization_id = $1 and kind = 'meeting'", [org])).rows[0].body;
+  assert.deepEqual(row.meetings, [list[1]]);
+  // other records are untouched by it
+  await push(ownerRun, [{ kind: "brand", id: "brand", baseRev: await rev("brand"), body: { meeting: "x", meetings: [1] } }]);
+  await push(ownerRun, [{ kind: "brand", id: "brand", baseRev: await rev("brand"), body: { meeting: "y" } }]);
+  row = (await db.query("select body from entities where organization_id = $1 and kind = 'brand'", [org])).rows[0].body;
+  assert.deepEqual(row, { meeting: "y" });
+  assert.equal((await ownerRun("select meetings_supported() as ok")).rows[0].ok, true);
+});
+
+test("0012 undo: the trigger and the check are gone, syncing works as before", async () => {
+  await db.exec(readFileSync(new URL("../supabase/rollback/0012_meetings_down.sql", import.meta.url), "utf8"));
+  const cur = (await db.query("select rev from entities where organization_id = $1 and kind = 'meeting'", [org])).rows[0].rev;
+  await push(oldPc, [{ kind: "meeting", id: "meeting", baseRev: cur, body: { title: "Sunday" } }]);
+  const row = (await db.query("select body from entities where organization_id = $1 and kind = 'meeting'", [org])).rows[0].body;
+  assert.equal(row.meetings, undefined);
+  assert.ok(await denied(OWNER, "select meetings_supported()"));
+  await db.exec(readFileSync(new URL("../supabase/migrations/0012_meetings.sql", import.meta.url), "utf8"));
+});

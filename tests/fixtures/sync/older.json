@@ -224,7 +224,8 @@
    "spot": null,
    "message": "Please stand by — we’ll be right back.",
    "on": {},
-   "cd": {}
+   "cd": {},
+   "meeting": ""
   },
   "profile": "bible-study",
   "v6": false,
@@ -573,7 +574,8 @@
     "spot": null,
     "message": "Please stand by — we’ll be right back.",
     "on": {},
-    "cd": {}
+    "cd": {},
+    "meeting": ""
    },
    "v6": false,
    "library": {},
