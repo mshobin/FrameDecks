@@ -23,8 +23,71 @@ function check(text){
     if (!isObj(m) || typeof m.file !== 'string' || typeof m.data !== 'string' || /[\\/:*?"<>|]/.test(m.file) || m.file.charAt(0) === '.')
       return {ok: false, error: 'A picture or file inside this Frame file is damaged.'};
   }
+  if (isObj(v.integrity)){                                       // 8.4 what the file says it holds, checked before anything changes
+    var got = integrity(v.plan, media);
+    if (got.frames !== v.integrity.frames || got.layers !== v.integrity.layers || got.items !== v.integrity.items)
+      return {ok: false, error: 'This Frame file is incomplete or was changed after it was made (it should hold ' + v.integrity.frames + ' Frames, ' +
+        v.integrity.layers + ' Content and ' + v.integrity.items + ' questions and readings; it holds ' + got.frames + ', ' + got.layers + ' and ' + got.items + '). Export it again.'};
+  }
   return {ok: true, file: v};
 }
+
+/* 8.4 The counts a .frame file declares (and the website's frame-file.ts writes the same way): Frames, their Content,
+ * the questions and readings in them, the files they use and the files inside */
+function integrity(plan, media){
+  var frames = (isObj(plan) && Array.isArray(plan.scenes) ? plan.scenes : []).filter(function(s){ return isObj(s) && !s.tpl; });
+  var layers = 0, items = 0, files = [];
+  frames.forEach(function(s){ (Array.isArray(s.layers) ? s.layers : []).forEach(function(l){
+    if (!isObj(l)) return; layers++;
+    var c = isObj(l.c) ? l.c : {};
+    if (Array.isArray(c.items)) items += c.items.length;
+    if (FILE_KINDS.indexOf(l.kind) >= 0 && c.file && files.indexOf(String(c.file)) < 0) files.push(String(c.file));
+  }); });
+  return {frames: frames.length, layers: layers, items: items, files: files, included: (media || []).map(function(m){ return m.file; })};
+}
+
+/* 8.4 After an import: everything the file holds, compared with what this PC now has. Returns the differences in plain
+ * words (an empty list: the same Frames, order, words, scripts, transitions and meeting details). */
+function verify(file, st, mode, made, rename){
+  rename = rename || {};
+  var issues = [], want = (file.plan.scenes || []).filter(function(s){ return isObj(s) && !s.tpl; });
+  var now = (st.scenes || []).filter(function(s){ return !s.tpl; }), byId = {};
+  now.forEach(function(s){ byId[s.id] = s; });
+  var same = function(a, b){ return String(a == null ? '' : a) === String(b == null ? '' : b); };
+  if (made.length !== want.length) issues.push('The file has ' + want.length + ' Frames; ' + made.length + ' were imported.');
+  if (mode === 'replace' && now.map(function(s){ return s.id; }).join() !== want.map(function(s){ return String(s.id); }).join())
+    issues.push('The order of the Frames is not the same as in the file.');
+  want.forEach(function(w, i){
+    var m = made[i] && byId[made[i].id], name = '“' + String(w.name || 'Frame') + '”';
+    if (!m) return issues.push(name + ' is missing.');
+    if (mode === 'replace' && !same(w.name, m.name)) issues.push(name + ' is named “' + m.name + '” here.');
+    if (!same(w.notes, m.notes)) issues.push(name + ': its Teleprompter script is different here.');
+    var wt = isObj(w.tx) ? String(w.tx.type || 'profile') : 'profile';
+    if (txOf(wt) !== m.tx.type) issues.push(name + ': its transition is ' + m.tx.type + ' here, not ' + wt + '.');
+    var ml = {}; (m.layers || []).forEach(function(l){ ml[l.id] = l; });
+    (Array.isArray(w.layers) ? w.layers : []).forEach(function(wl){
+      if (!isObj(wl)) return;
+      var l = ml[wl.id], what = name + ', ' + String(wl.name || wl.kind || 'Content');
+      if (!l) return issues.push(what + ' is missing.');
+      var wc = isObj(wl.c) ? wl.c : {}, c = l.c || {};
+      ['text', 'title'].forEach(function(k){ if (typeof wc[k] === 'string' && !same(wc[k], c[k])) issues.push(what + ': its ' + (k === 'text' ? 'text' : 'title') + ' is different here.'); });
+      if (wc.file && !same(rename[wc.file] || wc.file, c.file)) issues.push(what + ': it uses “' + c.file + '” here, not “' + wc.file + '”.');
+      var wi = Array.isArray(wc.items) ? wc.items : [], gi = Array.isArray(c.items) ? c.items : [];
+      if (wi.length !== gi.length) issues.push(what + ': ' + gi.length + ' of its ' + wi.length + ' questions or readings are here.');
+      else wi.forEach(function(it, j){
+        if (!isObj(it)) return;
+        if (!same(it.text, gi[j].text) || !same(it.ref, gi[j].ref)) issues.push(what + ': item ' + (j + 1) + ' is different here.');
+      });
+    });
+  });
+  if (mode === 'replace' && isObj(file.plan.meeting)) ['title', 'date', 'notes', 'script', 'scriptMode'].forEach(function(k){
+    if (file.plan.meeting[k] !== undefined && !same(file.plan.meeting[k], st.meeting[k]))
+      issues.push('The meeting ' + ({title: 'name', date: 'date', notes: 'notes', script: 'Teleprompter script', scriptMode: 'script mode'})[k] + ' is different here.');
+  });
+  return issues;
+}
+var TX_OLD = {dissolve: 'fade', cinema: 'fade', church: 'fade', 'slide-right': 'slide-left', 'soft-scale': 'zoom-fade'};
+function txOf(t){ return TX_OLD[t] || t; }
 
 /* What the file holds, for the question before importing */
 function summary(file){
@@ -78,7 +141,8 @@ function build(st, media, meta){
   ['question', 'verse', 'birthday'].forEach(function(k){ if (isObj(plan[k])){ delete plan[k].visible; delete plan[k].text; delete plan[k].seq; } });
   var scenes = (plan.scenes || []).filter(function(s){ return !s.tpl; });
   return {format: FORMAT, version: VERSION, exported: new Date().toISOString(), source: 'program', app: (meta && meta.app) || '',
-    title: (st.meeting && st.meeting.title) || '', plan: plan, media: media || [], counts: {frames: scenes.length, media: (media || []).length}};
+    title: (st.meeting && st.meeting.title) || '', plan: plan, media: media || [], counts: {frames: scenes.length, media: (media || []).length},
+    integrity: integrity(plan, media), settings: (meta && meta.settings) || {}};
 }
 
 /* The file names the plan's Frames use (pictures, video, audio, slides) */
@@ -90,7 +154,8 @@ function mediaNames(st){
   return out;
 }
 
-var api = {FORMAT: FORMAT, VERSION: VERSION, MAX_MEDIA: MAX_MEDIA, check: check, summary: summary, apply: apply, build: build, mediaNames: mediaNames};
+var api = {FORMAT: FORMAT, VERSION: VERSION, MAX_MEDIA: MAX_MEDIA, check: check, summary: summary, apply: apply, build: build, mediaNames: mediaNames,
+  integrity: integrity, verify: verify};
 if (typeof module !== 'undefined' && module.exports){ module.exports = api; return; }
 root.KCFrameFile = api;
 
@@ -135,13 +200,15 @@ function ask(sum, name){
     function done(v){ back.remove(); resolve(v); }
     card.appendChild(h('h2', {id: 'frame-ask-title', text: 'Import “' + (sum.title || String(name || 'Frame file').replace(/\.frame$/i, '')) + '”'}));
     card.appendChild(h('p', {cls: 'plain', text: sum.frames + ' Frame' + (sum.frames === 1 ? '' : 's') + (sum.media ? ' and ' + sum.media + ' file' + (sum.media === 1 ? '' : 's') : '') + ', from ' + sum.source + (sum.exported ? ' (' + sum.exported.slice(0, 10) + ')' : '') + '. This PC has ' + cur + ' Frame' + (cur === 1 ? '' : 's') + '.'}));
+    /* 8.4 "Use this plan" is the main action: the PC then shows exactly what the file holds (its Frames, order and
+     * meeting details). Adding keeps this PC's Frames too, which is why it did not look the same as the website. */
+    card.appendChild(h('p', {cls: 'hint', text: cur ? 'Use this plan: this PC shows exactly what is in the file, in the same order, with its meeting name, date and notes. Your ' + cur + ' Frame' + (cur === 1 ? ' is' : 's are') + ' kept in a backup first. Add after my Frames: keeps yours and adds these at the end.' : 'This PC shows exactly what is in the file.'}));
     card.appendChild(h('div', {cls: 'app-modal-actions'}, [
       h('button', {cls: 'btn quiet', type: 'button', text: 'Cancel', onclick: function(){ done(null); }}),
-      h('button', {cls: 'btn danger', type: 'button', text: 'Replace my Frames', onclick: function(){
-        if (!cur || confirm('Replace the ' + cur + ' Frame' + (cur === 1 ? '' : 's') + ' on this PC with the ' + sum.frames + ' in this file? A backup is made first.')) done('replace'); }}),
-      h('button', {cls: 'btn primary', type: 'button', text: 'Add after my Frames', id: 'frame-add', onclick: function(){ done('add'); }})]));
+      cur ? h('button', {cls: 'btn', type: 'button', text: 'Add after my Frames', id: 'frame-add', onclick: function(){ done('add'); }}) : null,
+      h('button', {cls: 'btn primary', type: 'button', text: 'Use this plan', id: 'frame-use', onclick: function(){ done('replace'); }})].filter(Boolean)));
     back.addEventListener('keydown', function(e){ e.stopPropagation(); if (e.key === 'Escape') done(null); });
-    back.appendChild(card); doc.body.appendChild(back); $('frame-add').focus();
+    back.appendChild(card); doc.body.appendChild(back); $('frame-use').focus();
   });
 }
 function importFile(file){
@@ -156,13 +223,42 @@ function importFile(file){
       return backup.then(function(){ return writeMedia(r.file.media || []); }).then(function(rename){
         var made = [];
         return Store.update(function(n){ made = apply(n, r.file, mode, rename, SC); }).then(function(){
-          var msg = (mode === 'replace' ? 'Replaced with ' : 'Added ') + made.length + ' Frame' + (made.length === 1 ? '' : 's') + ' from “' + (sum.title || file.name) + '”.';
-          say(msg); toast('✓ ' + msg);
+          useSettings(r.file.settings);
+          return report(r.file, mode, made, rename, sum.title || file.name);
         });
       });
     });
   }).catch(function(e){ var m = 'The Frame file could not be imported' + (e && e.message ? ': ' + e.message : '.'); say(m, true); toast(m, true); });
 }
+/* 8.4 The import check: the file compared with this PC, then the files the imported Frames use that this PC does not
+ * have. Shown in the Frame files box; nothing is lost silently. */
+function report(f, mode, made, rename, title){
+  var issues = verify(f, Store.get(), mode, made, rename), ids = {};
+  made.forEach(function(s){ ids[s.id] = 1; });
+  var n = integrity(f.plan, f.media);
+  return fetch('api/diagnostics', {cache: 'no-store'}).then(function(r){ return r.ok ? r.json() : {}; }).catch(function(){ return {}; }).then(function(d){
+    var missing = [];
+    (d.missingMedia || []).forEach(function(m){ if (ids[m.frame]) m.files.forEach(function(x){ if (missing.indexOf(x) < 0) missing.push(x); }); });
+    var head = (mode === 'replace' ? 'Now using ' : 'Added ') + made.length + ' Frame' + (made.length === 1 ? '' : 's') + ' from “' + title + '”.';
+    status.textContent = ''; status.className = 'hint frame-check' + (issues.length || missing.length ? ' bad' : ' ok');
+    status.appendChild(h('b', {text: head}));
+    var ok = [made.length + ' Frames' + (mode === 'replace' ? ' in the same order' : ''), n.layers + ' Content', n.items + ' questions and readings',
+      (f.media || []).length + ' file' + ((f.media || []).length === 1 ? '' : 's') + ' copied'];
+    if (mode === 'replace') ok.push('meeting name, date, notes and Teleprompter script');
+    var list = h('ul', {});
+    if (!issues.length) list.appendChild(h('li', {text: '✓ Checked against the file: ' + ok.join(', ') + '. Everything matches.'}));
+    issues.slice(0, 20).forEach(function(t){ list.appendChild(h('li', {text: '⚠ ' + t})); });
+    if (issues.length > 20) list.appendChild(h('li', {text: '… and ' + (issues.length - 20) + ' more.'}));
+    if (missing.length) list.appendChild(h('li', {text: '⚠ Not on this PC yet: ' + missing.join(', ') + '. Add these files (Decks → the Content → Choose file), or export the .frame file from a computer that has them.'}));
+    status.appendChild(list);
+    toast(issues.length || missing.length ? 'Imported, with ' + (issues.length + missing.length) + ' thing(s) to check: see Settings → Data / Backup' : '✓ ' + head + ' Everything matches.', !!(issues.length || missing.length));
+  });
+}
+/* the Teleprompter's and the Spotlight's settings that travel in a PC's .frame file (this computer's own) */
+var LOCAL = ['kc-spot', 'kc-tp-window'];
+function localSettings(){ var o = {}; LOCAL.forEach(function(k){ try { var v = localStorage.getItem(k); if (v) o[k] = v; } catch(e){} }); return o; }
+function useSettings(o){ if (!isObj(o)) return; LOCAL.forEach(function(k){ if (typeof o[k] === 'string' && o[k].length < 4000) try { localStorage.setItem(k, o[k]); } catch(e){} }); }
+
 /* each embedded file into the layers folder; a name already used there gets "(2)", and the Frames follow */
 function writeMedia(list){
   var rename = {}, i = 0;
@@ -191,7 +287,7 @@ function exportFile(){
   }
   next().then(function(){
     var app = (root.KCBrand && root.KCBrand.version) || (root.KCAppInfo && root.KCAppInfo.version) || '';
-    var f = build(st, media, {app: app});
+    var f = build(st, media, {app: app, settings: localSettings()});
     var blob = new Blob([JSON.stringify(f)], {type: 'application/json'}), a = h('a', {href: URL.createObjectURL(blob),
       download: ((f.title || 'FrameDecks plan').replace(/[^\w\- ]+/g, '').trim() || 'FrameDecks plan') + ' ' + new Date().toISOString().slice(0, 10) + '.frame'});
     doc.body.appendChild(a); a.click(); a.remove(); setTimeout(function(){ URL.revokeObjectURL(a.href); }, 3000);

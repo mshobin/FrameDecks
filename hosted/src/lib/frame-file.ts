@@ -15,6 +15,7 @@ export const FRAME_MAX_BYTES = 300 * 1024 * 1024;
 const PLAN_KEYS = ["scenes", "meeting", "brand", "layout", "profile", "question", "verse", "birthday", "library", "fx"] as const;
 
 export type FrameMedia = { file: string; type: string; size: number; sha256: string; data: string };
+export type FrameIntegrity = { frames: number; layers: number; items: number; files: string[]; included: string[] };
 export type FrameFile = {
   format: typeof FRAME_FORMAT;
   version: number;
@@ -25,9 +26,30 @@ export type FrameFile = {
   plan: JsonObject;
   media: FrameMedia[];
   counts: { frames: number; media: number };
+  integrity?: FrameIntegrity;
 };
 
 const isObj = (v: unknown): v is JsonObject => typeof v === "object" && v !== null && !Array.isArray(v);
+
+const FILE_KINDS = ["image", "video", "pdf", "audio"];
+
+/** 8.4 What a .frame file declares it holds, counted exactly as app/js/frame-file.js integrity() does; the PC refuses a
+ * file whose plan does not match (cut short, or changed by hand). */
+export function integrityOf(plan: JsonObject, media: FrameMedia[] = []): FrameIntegrity {
+  const frames = (Array.isArray(plan.scenes) ? plan.scenes : []).filter((s): s is JsonObject => isObj(s) && !s.tpl);
+  let layers = 0;
+  let items = 0;
+  const files: string[] = [];
+  for (const s of frames)
+    for (const l of Array.isArray(s.layers) ? s.layers : []) {
+      if (!isObj(l)) continue;
+      layers++;
+      const c = isObj(l.c) ? l.c : {};
+      if (Array.isArray(c.items)) items += c.items.length;
+      if (FILE_KINDS.includes(String(l.kind)) && c.file && !files.includes(String(c.file))) files.push(String(c.file));
+    }
+  return { frames: frames.length, layers, items, files, included: media.map((m) => m.file) };
+}
 
 /** The plan for a .frame file, from the workspace's plan as sync gives it to the PC (sync-entities join(records).doc). */
 export function frameFileFromDoc(doc: JsonObject, meta: { app: string; now?: Date; media?: FrameMedia[] }): FrameFile {
@@ -46,6 +68,7 @@ export function frameFileFromDoc(doc: JsonObject, meta: { app: string; now?: Dat
     plan,
     media: meta.media ?? [], // 8.3: files added on the website, kept in this browser (local-media.ts)
     counts: { frames: scenes.filter((s) => isObj(s) && !s.tpl).length, media: (meta.media ?? []).length },
+    integrity: integrityOf(plan, meta.media ?? []),
   };
 }
 
@@ -71,6 +94,12 @@ export function readFrameFile(text: string): { ok: true; file: FrameFile } | { o
   for (const m of media) {
     if (!isObj(m) || typeof m.file !== "string" || typeof m.data !== "string" || /[\\/:*?"<>|]/.test(m.file) || m.file.startsWith("."))
       return { ok: false, error: "A picture or file inside this Frame file is damaged." };
+  }
+  const declared = v.integrity;
+  if (isObj(declared)) {
+    const got = integrityOf(v.plan, media as unknown as FrameMedia[]);
+    if (got.frames !== declared.frames || got.layers !== declared.layers || got.items !== declared.items)
+      return { ok: false, error: "This Frame file is incomplete or was changed after it was made. Export it again." };
   }
   return { ok: true, file: v as unknown as FrameFile };
 }

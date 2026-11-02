@@ -180,18 +180,19 @@ test("the same checks as the Excel import", () => {
   assert.deepEqual(problemsOf({ ...emptyFrame(), content: ROWS.map(formRow) }), []);
 });
 
-test("meeting details keep the program's keys and limits", () => {
-  const form = meetingFormOf({ title: "Sunday", date: "2026-11-01", other: "kept" });
-  assert.equal(form.title, "Sunday");
-  assert.equal(form.extra, "");
-  form.presenter = "  Jane  ";
+test("meeting details: name, date and notes; every older field is kept (8.4)", () => {
+  const before = { title: "Sunday", date: "2026-11-01", presenter: "Jane", location: "Hall", extra: "x", other: "kept" };
+  const form = meetingFormOf(before);
+  assert.deepEqual(Object.keys(form), ["title", "date", "notes"]);
   form.title = "x".repeat(200);
-  const body = meetingFromForm(form, { title: "Sunday", other: "kept" });
-  assert.equal(body.presenter, "Jane");
+  form.notes = "  Bring Bibles  ";
+  const body = meetingFromForm(form, before);
   assert.equal(body.title.length, 80);
-  assert.equal(body.other, "kept");
+  assert.equal(body.notes, "Bring Bibles");
+  for (const k of ["presenter", "location", "extra", "other"]) assert.equal(body[k], before[k], k);
   const meeting = Store.normalize({ meeting: body }).meeting;
   assert.equal(meeting.presenter, "Jane");
+  assert.equal(meeting.notes, "Bring Bibles");
 });
 
 test("new Frame names, and the order record", () => {

@@ -14,7 +14,7 @@ import {
   CARD_ANIMATIONS,
   CONTENT_TYPES,
   LIMITS,
-  MEETING_FIELDS,
+  OLDER_MEETING_FIELDS,
   TEXT_ANIMATIONS,
   TYPE_NAME,
   emptyFrame,
@@ -129,9 +129,17 @@ function Planner({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
     a.remove();
     setTimeout(() => URL.revokeObjectURL(a.href), 2000);
     setSent(true);
-    const files = media.length ? ` and ${media.length} file${media.length === 1 ? "" : "s"}` : "";
-    const missing = left.length ? ` Not included: ${left.join(", ")}.` : "";
-    setNotice({ ok: true, text: `Exported ${file.counts.frames} Frame${file.counts.frames === 1 ? "" : "s"}${files}. On the service PC: Settings → Data / Backup → Import Frame File.${missing}` });
+    // 8.4 say exactly what is in the file, and which files the Frames use that it does not carry
+    const n = file.integrity;
+    const files = media.length ? `, ${media.length} file${media.length === 1 ? "" : "s"}` : "";
+    const absent = (n?.files ?? []).filter((f) => !n?.included.includes(f));
+    const missing = absent.length
+      ? ` Not in the file (not in this browser${left.length ? " or too large" : ""}): ${absent.join(", ")}. The service PC must already have ${absent.length === 1 ? "it" : "them"}.`
+      : "";
+    setNotice({
+      ok: !absent.length,
+      text: `Exported ${file.counts.frames} Frame${file.counts.frames === 1 ? "" : "s"} (${n?.layers ?? 0} Content, ${n?.items ?? 0} questions and readings${files}) with the meeting name, date and notes. On the service PC: Settings → Data / Backup → Import Frame File → Use this plan.${missing}`,
+    });
   }
 
   const styleTx = PROFILE_TX[profileOf(byKey.get(key("layout", "profile"))?.body)] ?? "fade";
@@ -505,6 +513,11 @@ function MeetingDetails({
     requestAnimationFrame(() => box.current?.querySelector<HTMLInputElement>("input")?.focus({ preventScroll: true }));
   }, [openSignal]);
   const base = record ?? { kind: "meeting" as const, id: "meeting", rev: 0, seq: 0, body: {} };
+  const [dirty, setDirty] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const edit = (patch: Record<string, string>) => (setForm({ ...form, ...patch }), setDirty(true), setSaved(false));
+  const rb = (record?.body ?? {}) as Obj;
+  const older = OLDER_MEETING_FIELDS.some((k) => String(rb[k] ?? "").trim());
 
   async function save() {
     if (!supabase) return;
@@ -513,7 +526,12 @@ function MeetingDetails({
     const body = meetingFromForm(form, record?.body);
     const answer = await pushRecord(supabase, workspaceId, base, body);
     setBusy(false);
-    if (answer.status === "ok") onSaved({ ...base, kind: "meeting", body: body as PulledRecord["body"], rev: answer.rev });
+    if (answer.status === "ok") {
+      setDirty(false);
+      setSaved(true);
+      setTimeout(() => setSaved(false), 4000);
+      onSaved({ ...base, kind: "meeting", body: body as PulledRecord["body"], rev: answer.rev });
+    }
     else if (answer.status === "conflict") {
       setProblem("The meeting details changed on the PC meanwhile. The latest are shown now; make your change again.");
       setForm(meetingFormOf(answer.current.body));
@@ -527,18 +545,41 @@ function MeetingDetails({
         <strong>Meeting details</strong>
         <span className="workspace-hint">{form.title || "No meeting name yet"}{form.date ? ` · ${shortDate(`${form.date}T12:00:00`)}` : ""}</span>
       </summary>
-      <div className="planner-grid">
-        {MEETING_FIELDS.map(([k, label, max]) => (
-          <label key={k} className={max > 200 ? "planner-wide" : undefined}>
-            {label}
-            {max > 200 ? (
-              <textarea rows={2} maxLength={max} value={form[k]} disabled={!canEdit} onChange={(e) => setForm({ ...form, [k]: e.target.value })} />
-            ) : (
-              <input maxLength={max} value={form[k]} disabled={!canEdit} onChange={(e) => setForm({ ...form, [k]: e.target.value })} />
-            )}
-          </label>
-        ))}
+      <div className="meet-form">
+        <label>
+          Meeting name
+          <input
+            maxLength={80}
+            value={form.title}
+            disabled={!canEdit}
+            placeholder="Tuesday Bible Study"
+            onChange={(e) => edit({ title: e.target.value })}
+          />
+        </label>
+        <label>
+          Date
+          {/* a date typed in an older version ("3 Nov, evening") stays as it was until it is changed */}
+          <input
+            type={!form.date || /^\d{4}-\d{2}-\d{2}$/.test(form.date) ? "date" : "text"}
+            maxLength={40}
+            value={form.date}
+            disabled={!canEdit}
+            onChange={(e) => edit({ date: e.target.value })}
+          />
+        </label>
+        <label className="meet-notes">
+          Meeting notes
+          <textarea
+            rows={3}
+            maxLength={2000}
+            value={form.notes}
+            disabled={!canEdit}
+            placeholder="Anything the team should know: the theme, who brings snacks, what to prepare."
+            onChange={(e) => edit({ notes: e.target.value })}
+          />
+        </label>
       </div>
+      {older && <p className="workspace-hint">This meeting also has details from an earlier version (speaker, location and so on). They are kept.</p>}
       {problem && (
         <p className="workspace-problem" role="alert">
           {problem}
@@ -546,9 +587,12 @@ function MeetingDetails({
       )}
       {canEdit && (
         <div className="edit-actions">
-          <button className="live-btn live-primary" type="button" disabled={busy} onClick={save}>
-            {busy ? "Saving…" : "Save details"}
+          <button className={`live-btn live-primary${saved ? " is-saved" : ""}`} type="button" disabled={busy || (!dirty && !!record)} onClick={save}>
+            {busy ? "Saving…" : saved ? "✓ Saved" : "Save details"}
           </button>
+          <span className="workspace-hint" role="status">
+            {saved ? "Saved. Linked service PCs get it within about a minute." : dirty ? "Not saved yet." : ""}
+          </span>
         </div>
       )}
     </details>

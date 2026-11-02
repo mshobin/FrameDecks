@@ -70,20 +70,15 @@ export const TEXT_ANIMATIONS: [string, string][] = [
 ];
 
 /** Meeting details: [key, label] (meeting-book.js FIELDS; the meeting record keeps the same keys). */
+// 8.4: only what a meeting needs (owner's request). The older fields (time, location, speaker…) are not shown, but a
+// meeting that has them keeps them: meetingFromForm writes these three on top of the record as it was.
 export const MEETING_FIELDS: [string, string, number][] = [
   ["title", "Meeting name", 80],
   ["date", "Date", 40],
-  ["time", "Time", 40],
-  ["location", "Location / link", 200],
-  ["presenter", "Speaker name", 80],
-  ["contact", "Speaker contact", 120],
-  ["attendees", "Expected attendees", 20],
-  ["attendeeNotes", "Attendee notes", 2000],
-  ["owner", "Presentation owner", 80],
-  ["contentNotes", "Content notes", 2000],
   ["notes", "Meeting notes", 2000],
-  ["extra", "Additional notes", 4000],
 ];
+/** The fields earlier versions showed; kept in the record, listed so the form can say they are there. */
+export const OLDER_MEETING_FIELDS = ["time", "location", "presenter", "contact", "attendees", "attendeeNotes", "owner", "contentNotes", "extra"];
 
 // The program's limits (store.js cleanScene / cleanLayer / cleanItem)
 export const LIMITS = { frames: 400, layers: 60, items: 1000, name: 80, group: 60, layerName: 60, script: 20000, text: 2000, itemText: 8000, short: 200, label: 80 };
