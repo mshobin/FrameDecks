@@ -89,6 +89,16 @@ def service(cloud, on=True, linked=True, plan=PLAN, bridge=None):
 
 
 class StatusTest(unittest.TestCase):
+    def test_with_several_meetings_the_phone_sees_the_meeting_this_pc_shows(self):
+        plan = {"meeting": {"title": "Sunday", "meetings": [{"id": "m1", "name": "Tuesday"}, {"id": "m2", "name": "Sunday"}]},
+                "scenes": [{"id": "a", "name": "A", "group": "Tuesday"}, {"id": "b", "name": "B", "group": "Sunday"},
+                           {"id": "c", "name": "C", "group": ""}], "live": {}}
+        self.assertEqual([f["id"] for f in R.status_from(plan)["frames"]], ["b"])
+        plan["live"]["meeting"] = "m1"
+        self.assertEqual([f["id"] for f in R.status_from(plan)["frames"]], ["a", "c"])
+        del plan["meeting"]["meetings"]
+        self.assertEqual(len(R.status_from(plan)["frames"]), 3, "one meeting: every Frame, as before")
+
     def test_what_the_phone_sees(self):
         s = R.status_from(PLAN)
         self.assertEqual(s["frame"], {"id": "s2", "name": "Prayer", "number": 2})

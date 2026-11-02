@@ -619,3 +619,11 @@ body.studio-focus .studio.s2{height:100vh !important}
 .sync-pop b{display:block;margin-bottom:4px}
 .sync-pop .actions{margin-top:10px}
 .acct-resync{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;margin:12px 0}
+/* 8.5 the meeting picker above the Frames: one meeting at a time */
+.mt-bar{display:flex;align-items:center;gap:6px;margin:0 0 8px}
+.mt-pick{display:flex;flex:1;align-items:center;min-width:0}
+.mt-pick span{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+.mt-pick select{flex:1;min-width:0;padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--field,var(--surface));color:var(--ink);font-size:14px;font-weight:600;letter-spacing:0;text-transform:none}
+.mt-bar.one .mt-pick select{border-style:dashed}
+.mt-ask{display:grid;gap:6px;margin:12px 0}
+.mt-ask input{padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--field,var(--surface));color:var(--ink);font-size:16px}

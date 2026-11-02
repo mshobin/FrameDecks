@@ -101,7 +101,11 @@ test("Use this plan: the PC has exactly the website's Frames, order, words, scri
   assert.deepEqual(pc.verify(pc.check(text).file, after, "replace", made, {}), [], "the import check finds nothing");
   // what the website shows for each Frame is what the PC now has (the PC writes out its default animations)
   const web = doc.scenes.map((s) => frameFormOf(s));
-  const got = after.scenes.filter((s) => !s.tpl).map((s) => frameFormOf(s));
+  // 8.5: the PC shows the file's meeting; the Frame it had stays, in its own meeting
+  const got = program.Scenes.order(after).map((s) => frameFormOf(s));
+  assert.equal(program.Scenes.currentMeeting(after).name, "Tuesday Bible Study");
+  assert.deepEqual(plainOf(program.Scenes.meetings(after).map((m) => m.name)), ["Meeting", "Tuesday Bible Study"]);
+  assert.ok(after.scenes.some((s) => s.id === "sc_old"), "the PC's own Frame is kept");
   const strip = (f) => ({ ...f, content: f.content.map((r) => ({ ...r, anim: "" })) });
   assert.deepEqual(got.map(strip), web.map(strip));
   assert.deepEqual([after.meeting.title, after.meeting.date, after.meeting.notes, after.meeting.location], ["Tuesday Bible Study", "2026-11-03", "Bring Bibles", "Hall"]);

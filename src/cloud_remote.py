@@ -70,11 +70,27 @@ class Bridge:
             return out
 
 
+def meeting_frames(plan):
+    """8.5 The Frames of the meeting this PC shows (app/js/store.js Scenes.order): with several meetings, a Frame
+    belongs to the meeting its group names, else to the first; the PC's choice is live.meeting, else the meeting the
+    details describe, else the first."""
+    live = plan.get("live") if isinstance(plan.get("live"), dict) else {}
+    meeting = plan.get("meeting") if isinstance(plan.get("meeting"), dict) else {}
+    frames = [s for s in plan.get("scenes") or [] if isinstance(s, dict) and not s.get("tpl")]
+    entries = [m for m in meeting.get("meetings") or [] if isinstance(m, dict) and str(m.get("name") or "").strip() and m.get("id")]
+    if len(entries) < 2:
+        return frames
+    names = {str(m["name"]).strip().lower(): m["id"] for m in entries}
+    title = str(meeting.get("title") or "").strip().lower()
+    current = live.get("meeting") if live.get("meeting") in names.values() else names.get(title, entries[0]["id"])
+    return [s for s in frames if names.get(str(s.get("group") or "").strip().lower(), entries[0]["id"]) == current]
+
+
 def status_from(plan):
     """What the phone sees, from the saved plan: text only, like sync (no picture, no media)."""
     plan = plan if isinstance(plan, dict) else {}
     live = plan.get("live") if isinstance(plan.get("live"), dict) else {}
-    frames = [s for s in plan.get("scenes") or [] if isinstance(s, dict) and not s.get("tpl")]
+    frames = meeting_frames(plan)
     current = next((s for s in frames if s.get("id") == live.get("scene")), None)
 
     def card(kind, extra=()):

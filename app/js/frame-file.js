@@ -55,8 +55,13 @@ function verify(file, st, mode, made, rename){
   now.forEach(function(s){ byId[s.id] = s; });
   var same = function(a, b){ return String(a == null ? '' : a) === String(b == null ? '' : b); };
   if (made.length !== want.length) issues.push('The file has ' + want.length + ' Frames; ' + made.length + ' were imported.');
-  if (mode === 'replace' && now.map(function(s){ return s.id; }).join() !== want.map(function(s){ return String(s.id); }).join())
+  var ids = {}; made.forEach(function(s){ ids[s.id] = 1; });
+  if (mode === 'replace' && now.filter(function(s){ return ids[s.id]; }).map(function(s){ return s.id; }).join() !== made.map(function(s){ return String(s.id); }).join())
     issues.push('The order of the Frames is not the same as in the file.');
+  var mname = String((isObj(file.plan.meeting) && file.plan.meeting.title) || '').trim().toLowerCase();
+  var extra = mode === 'replace' && Array.isArray(st.meeting && st.meeting.meetings) && st.meeting.meetings.length > 1 && mname
+    ? now.filter(function(s){ return !ids[s.id] && String(s.group || '').toLowerCase() === mname; }).length : 0;
+  if (extra) issues.push('The meeting also has ' + extra + ' other Frame' + (extra === 1 ? '' : 's') + ' on this PC.');
   want.forEach(function(w, i){
     var m = made[i] && byId[made[i].id], name = '“' + String(w.name || 'Frame') + '”';
     if (!m) return issues.push(name + ' is missing.');
@@ -107,18 +112,34 @@ function apply(n, file, mode, rename, SC){
     (c.layers || []).forEach(function(l){ if (FILE_KINDS.indexOf(l.kind) >= 0 && l.c && l.c.file && rename[l.c.file]) l.c.file = rename[l.c.file]; });
     return c;
   }).filter(Boolean);
-  if (mode === 'replace'){
+  var name = String((isObj(p.meeting) && p.meeting.title) || file.title || '').trim().slice(0, 60);
+  var list = SC.meetings ? SC.meetings(n) : null, mine = n.scenes.some(function(s){ return !s.tpl; });
+  if (mode === 'replace' && list && name && (list.length > 1 || (mine && list[0].name.toLowerCase() !== name.toLowerCase()))){
+    /* 8.5 several meetings: the file's meeting replaces the meeting of that name here (or is added), and this PC
+     * shows it; every other meeting is kept as it is */
+    var target = list.filter(function(m){ return m.name.toLowerCase() === name.toLowerCase(); })[0];
+    if (!target) target = SC.addMeeting(n, name);               // (it shows the new meeting)
+    else SC.switchMeeting(n, target.id);                         // this PC shows that meeting from now on
+    var tid = target.id, at = -1;
+    n.scenes = n.scenes.filter(function(s, i){
+      var gone = !s.tpl && SC.meetingOf(n, s).id === tid; if (gone && at < 0) at = i; return !gone;
+    });
+    var meetings = SC.meetings(n);
+    meetings.forEach(function(m){ if (m.id === tid){ m.name = name; if (isObj(p.meeting)){ m.date = String(p.meeting.date || '').slice(0, 40); m.notes = String(p.meeting.notes || '').slice(0, 2000); } } });
+    n.meeting.meetings = meetings;
+    meetings.forEach(function(m){ if (m.id === tid){ n.meeting.title = m.name; n.meeting.date = m.date; n.meeting.notes = m.notes; } });
+    var taken = {}; n.scenes.forEach(function(s){ taken[s.id] = 1; });
+    scenes.forEach(function(sc){ sc.group = name; if (taken[sc.id]) sc.id = 'sc_' + Math.random().toString(36).slice(2, 9); taken[sc.id] = 1; });
+    Array.prototype.splice.apply(n.scenes, [at < 0 ? n.scenes.length : at, 0].concat(scenes));
+    made = scenes;
+    if (isObj(p.meeting)) Object.keys(n.meeting).forEach(function(k){ if (k !== 'meetings' && p.meeting[k] !== undefined) n.meeting[k] = p.meeting[k]; });
+    n.meeting.title = name;
+    replaceSettings(n, p, SC);
+    if (n.live && n.live.scene && !SC.find(n, n.live.scene)) n.live.scene = '';
+  } else if (mode === 'replace'){
     n.scenes = scenes; made = scenes;
     if (isObj(p.meeting)) Object.keys(n.meeting).forEach(function(k){ if (p.meeting[k] !== undefined) n.meeting[k] = p.meeting[k]; });
-    if (isObj(p.brand)) ['meeting', 'org', 'color'].forEach(function(k){ if (p.brand[k] !== undefined) n.brand[k] = p.brand[k]; });
-    if (isObj(p.layout)) Object.keys(p.layout).forEach(function(k){ n.layout[k] = p.layout[k]; });
-    if (typeof p.profile === 'string') n.profile = p.profile;
-    ['question', 'verse', 'birthday'].forEach(function(kind){
-      if (!isObj(p[kind])) return;
-      ['label', 'showLabel', 'transition', 'speed', 'random', 'pool', 'burst', 'out', 'mode'].forEach(function(k){ if (p[kind][k] !== undefined) n[kind][k] = p[kind][k]; });
-    });
-    if (isObj(p.fx) && isObj(p.fx.burst) && SC.cleanBurst) n.fx = {burst: SC.cleanBurst(p.fx.burst)};   // the Burst transition's look
-    if (isObj(p.library)) ['verses', 'questions'].forEach(function(k){ if (Array.isArray(p.library[k])) n.library[k] = p.library[k]; });
+    replaceSettings(n, p, SC);
     if (n.live && n.live.scene && !SC.find(n, n.live.scene)) n.live.scene = '';
   } else {
     var ids = {}; n.scenes.forEach(function(s){ ids[s.id] = true; });
@@ -131,6 +152,19 @@ function apply(n, file, mode, rename, SC){
     if (isObj(p.meeting) && !n.meeting.title && p.meeting.title) n.meeting.title = p.meeting.title;
   }
   return made;
+}
+
+/* Use this plan: the file's branding words, layout, card looks, library and Burst look */
+function replaceSettings(n, p, SC){
+  if (isObj(p.brand)) ['meeting', 'org', 'color'].forEach(function(k){ if (p.brand[k] !== undefined) n.brand[k] = p.brand[k]; });
+  if (isObj(p.layout)) Object.keys(p.layout).forEach(function(k){ n.layout[k] = p.layout[k]; });
+  if (typeof p.profile === 'string') n.profile = p.profile;
+  ['question', 'verse', 'birthday'].forEach(function(kind){
+    if (!isObj(p[kind])) return;
+    ['label', 'showLabel', 'transition', 'speed', 'random', 'pool', 'burst', 'out', 'mode'].forEach(function(k){ if (p[kind][k] !== undefined) n[kind][k] = p[kind][k]; });
+  });
+  if (isObj(p.fx) && isObj(p.fx.burst) && SC.cleanBurst) n.fx = {burst: SC.cleanBurst(p.fx.burst)};   // the Burst transition's look
+  if (isObj(p.library)) ['verses', 'questions'].forEach(function(k){ if (Array.isArray(p.library[k])) n.library[k] = p.library[k]; });
 }
 
 /* The whole plan as a .frame file. media: [{file, type, size, sha256, data}] (read by the caller) */
@@ -202,7 +236,12 @@ function ask(sum, name){
     card.appendChild(h('p', {cls: 'plain', text: sum.frames + ' Frame' + (sum.frames === 1 ? '' : 's') + (sum.media ? ' and ' + sum.media + ' file' + (sum.media === 1 ? '' : 's') : '') + ', from ' + sum.source + (sum.exported ? ' (' + sum.exported.slice(0, 10) + ')' : '') + '. This PC has ' + cur + ' Frame' + (cur === 1 ? '' : 's') + '.'}));
     /* 8.4 "Use this plan" is the main action: the PC then shows exactly what the file holds (its Frames, order and
      * meeting details). Adding keeps this PC's Frames too, which is why it did not look the same as the website. */
-    card.appendChild(h('p', {cls: 'hint', text: cur ? 'Use this plan: this PC shows exactly what is in the file, in the same order, with its meeting name, date and notes. Your ' + cur + ' Frame' + (cur === 1 ? ' is' : 's are') + ' kept in a backup first. Add after my Frames: keeps yours and adds these at the end.' : 'This PC shows exactly what is in the file.'}));
+    var meetingsHere = SC.meetings ? SC.meetings(Store.get()) : [], fileName = sum.title || 'the file’s meeting';
+    card.appendChild(h('p', {cls: 'hint', text: cur ? 'Use this plan: this PC shows “' + fileName + '” exactly as in the file, in the same order, with its date and notes. ' +
+      (meetingsHere.length > 1 || (meetingsHere[0] && meetingsHere[0].name.toLowerCase() !== String(sum.title).toLowerCase())
+        ? 'If this PC already has a meeting of that name, its Frames are replaced; your other meetings stay as they are. '
+        : 'Your ' + cur + ' Frame' + (cur === 1 ? ' is' : 's are') + ' replaced. ') +
+      'A backup is made first. Add after my Frames: keeps yours and adds these at the end.' : 'This PC shows exactly what is in the file.'}));
     card.appendChild(h('div', {cls: 'app-modal-actions'}, [
       h('button', {cls: 'btn quiet', type: 'button', text: 'Cancel', onclick: function(){ done(null); }}),
       cur ? h('button', {cls: 'btn', type: 'button', text: 'Add after my Frames', id: 'frame-add', onclick: function(){ done('add'); }}) : null,

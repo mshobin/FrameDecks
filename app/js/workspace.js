@@ -258,8 +258,60 @@ function sceneSub(sc){
   var kinds = sc.layers.map(function(l){ return SC.info[l.kind].name; }).filter(function(k, i, a){ return a.indexOf(k) === i; });   // what is in this Frame
   return (kinds.join(' · ') || 'Empty Frame') + ' · ' + t + (sc.auto.on ? ' · auto ' + sc.auto.sec + ' s' : '');
 }
+/* 8.5 Several meetings: the picker above the Frames, and only the meeting shown in the list (and in Previous / Next) */
+function multi(){ return SC.meetings(live).length > 1; }
+function inMeeting(sc){ return sc.tpl || !multi() || SC.meetingOf(live, sc).id === SC.currentMeeting(live).id; }
+var meetSig = '';
+function renderMeetingBar(){
+  var sel = $('mt-pick'); if (!sel) return;
+  var list = SC.meetings(live), cur = SC.currentMeeting(live);
+  var sig = JSON.stringify([list.map(function(m){ return [m.id, m.name, m.date]; }), cur.id, live.scenes.map(function(sc){ return sc.group; })]);
+  if (sig === meetSig) return; meetSig = sig;
+  sel.innerHTML = '';
+  list.forEach(function(m){
+    var n = live.scenes.filter(function(sc){ return !sc.tpl && SC.meetingOf(live, sc).id === m.id; }).length;
+    var o = document.createElement('option'); o.value = m.id;
+    o.textContent = m.name + (m.date ? ' · ' + m.date : '') + ' (' + n + ')'; o.selected = m.id === cur.id; sel.appendChild(o);
+  });
+  $('mt-bar').classList.toggle('one', list.length < 2);
+}
+function askName(title, value, ok){
+  return new Promise(function(resolve){
+    var input = h('input', {type: 'text', maxlength: '60', value: value || '', 'aria-label': title});
+    var back = h('div', {cls: 'app-modal-back'}), card = h('div', {cls: 'app-modal', role: 'dialog', 'aria-modal': 'true', 'aria-label': title});
+    function done(v){ back.remove(); resolve(v); }
+    card.appendChild(h('h2', {text: title}));
+    card.appendChild(h('label', {cls: 'mt-ask'}, [h('span', {text: 'Meeting name'}), input]));
+    card.appendChild(h('div', {cls: 'app-modal-actions'}, [
+      h('button', {cls: 'btn quiet', type: 'button', text: 'Cancel', onclick: function(){ done(null); }}),
+      h('button', {cls: 'btn primary', type: 'button', text: ok, onclick: function(){ done(input.value.trim() || null); }})]));
+    back.addEventListener('keydown', function(e){ e.stopPropagation(); if (e.key === 'Escape') done(null); if (e.key === 'Enter') done(input.value.trim() || null); });
+    back.appendChild(card); document.body.appendChild(back); input.focus(); input.select();
+  });
+}
+(function(){
+  var sel = $('mt-pick'); if (!sel) return;
+  sel.addEventListener('change', function(){
+    var id = sel.value, name = '';
+    commit(function(n){ var m = SC.switchMeeting(n, id); name = m ? m.name : ''; }).then(function(){ selScene = null; toast('Now showing “' + name + '”'); });
+  });
+  $('mt-new').addEventListener('click', function(){
+    askName('A new meeting', '', 'Make the meeting').then(function(nm){
+      if (!nm) return; var made = null;
+      commit(function(n){ made = SC.addMeeting(n, nm); }).then(function(){ selScene = null; if (made) toast('“' + made.name + '” made. Its Frames start here: + Frame or Quick Start.'); });
+    });
+  });
+  $('mt-rename').addEventListener('click', function(){
+    var cur = SC.currentMeeting(live);
+    askName('Rename the meeting', cur.name, 'Rename').then(function(nm){
+      if (!nm || nm === cur.name) return; var ok = null;
+      commit(function(n){ ok = SC.renameMeeting(n, cur.id, nm); }).then(function(){ toast(ok ? 'Renamed to “' + ok.name + '”' : 'Another meeting already has that name.', !ok); });
+    });
+  });
+})();
 function visibleScenes(){
   var q = search.trim().toLowerCase(), list = live.scenes.filter(function(sc){
+    if (!inMeeting(sc)) return false;
     if (q && (sc.name + ' ' + sc.group).toLowerCase().indexOf(q) < 0) return false;
     if (filter === 'fav') return sc.fav;
     if (filter === 'tpl') return sc.tpl;
@@ -324,6 +376,7 @@ function renderLibrary(ol){
   ol.appendChild(h('li', {cls: 'pane-note lib-note', text: 'Save any Frame as your own template: ⋯ → Duplicate as template.'}));
 }
 function renderScenes(){
+  renderMeetingBar();
   var ol = $('scene-list'), next = live.live.scene ? SC.neighbour(live, live.live.scene, 1) : null;
   if (filter === 'tpl') return renderLibrary(ol);
   if (KCEditable.within(ol)){ sceneSig = ''; return; }            // renaming here: redraw when the editor closes
@@ -341,6 +394,7 @@ function renderScenes(){
   var groups = [], byGroup = {};
   list.forEach(function(sc){
     var g = filter === 'recent' ? 'Recent' : sc.tpl && filter !== 'tpl' ? 'Templates' : sc.group || '';
+    if (!sc.tpl && multi() && g.toLowerCase() === SC.currentMeeting(live).name.toLowerCase()) g = '';   // the meeting's own name: no heading
     if (!byGroup[g]){ byGroup[g] = []; groups.push(g); }
     byGroup[g].push(sc);
   });

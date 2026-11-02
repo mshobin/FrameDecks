@@ -30,8 +30,9 @@ const text = JSON.stringify(exported);
 assert.ok(FF.check(text).ok);
 assert.deepStrictEqual(FF.summary(FF.check(text).file).frames, 2);
 
-// replace: exactly the exported plan, media renamed on this PC
+// replace, same meeting on this PC: exactly the exported plan, media renamed on this PC
 const r = pcWith(['Old one', 'Old two']);
+r.meeting.title = 'Tuesday Study';
 const made = FF.apply(r, FF.check(text).file, 'replace', {'photo.png': 'photo (2).png'}, SC);
 assert.deepStrictEqual(r.scenes.map((s) => [s.id, s.name, s.notes]), [['sc_a', 'Welcome', 'Hello'], ['sc_pc0', 'Reading', 'Psalm 23']]);
 assert.strictEqual(r.scenes[0].tx.type, 'burst');
@@ -40,6 +41,24 @@ assert.strictEqual(r.meeting.script, 'Whole meeting'); assert.strictEqual(r.meet
 assert.strictEqual(r.brand.meeting, 'Tuesday'); assert.strictEqual(made.length, 2);
 assert.deepStrictEqual(plain(r.fx.burst), {density: 'high', dir: 'up', tint: '#ff0000', intensity: 90}, 'the Burst look comes along');
 assert.deepStrictEqual(plain(Store.normalize(r)).scenes.map((s) => s.id), ['sc_a', 'sc_pc0'], 'it survives the normalize');
+assert.deepStrictEqual(plain(FF.verify(FF.check(text).file, plain(Store.normalize(r)), 'replace', made, {'photo.png': 'photo (2).png'})), []);
+
+// 8.5 replace, another meeting on this PC: it stays; the file's meeting is added, shown, and holds exactly the file
+const m = pcWith(['Old one', 'Old two']);
+m.meeting.title = 'Sunday';
+const made2 = FF.apply(m, FF.check(text).file, 'replace', {}, SC);
+const after = plain(Store.normalize(m));
+assert.deepStrictEqual(plain(SC.meetings(after).map((x) => x.name)), ['Sunday', 'Tuesday Study']);
+assert.strictEqual(SC.currentMeeting(after).name, 'Tuesday Study');
+assert.deepStrictEqual(plain(SC.order(after).map((s) => s.name)), ['Welcome', 'Reading'], 'this PC shows the file\'s meeting');
+assert.notStrictEqual(SC.order(after)[1].id, 'sc_pc0', 'an id used by the other meeting gets a new one');
+SC.switchMeeting(after, SC.meetings(after)[0].id);
+assert.deepStrictEqual(plain(SC.order(after).map((s) => s.name)), ['Old one', 'Old two'], 'the other meeting is untouched');
+assert.deepStrictEqual(plain(FF.verify(FF.check(text).file, plain(Store.normalize(m)), 'replace', made2, {})), []);
+// and importing it again replaces only that meeting
+const made3 = FF.apply(m, FF.check(text).file, 'replace', {}, SC);
+assert.strictEqual(plain(Store.normalize(m)).scenes.filter((s) => !s.tpl).length, 4);
+assert.deepStrictEqual(plain(FF.verify(FF.check(text).file, plain(Store.normalize(m)), 'replace', made3, {})), []);
 
 // add: after the PC's own Frames, a clashing id gets a new one, names stay unique, nothing of the PC's is lost
 const a = pcWith(['Reading', 'Prayer']);

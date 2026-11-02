@@ -637,6 +637,7 @@ var Scenes = {
     var d = new Date(opts.now || Date.now()), group = opts.group || (q.name + ' · ' + d.toLocaleDateString([], {month: 'short', day: 'numeric'}));
     var g = group, k = 2, used = {}; st.scenes.forEach(function(s){ used[s.group] = 1; });
     while (used[g]) g = group + ' (' + (k++) + ')';
+    if (!opts.group && Scenes.newGroup(st)) g = Scenes.newGroup(st);   // 8.5 several meetings: into the meeting shown
     return q.scenes.map(function(e){
       var lib = LIBRARY.filter(function(x){ return x.id === e[0]; })[0], tpl = TEMPLATES.filter(function(x){ return '@' + x.id === e[0]; })[0];
       var sc = Scenes.fromLibrary(st, e[0], {group: g, creator: opts.creator, name: e[1] || (lib ? lib.name : tpl ? tpl.name : 'Frame')});   // names are unique within the new group
