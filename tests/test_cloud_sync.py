@@ -472,6 +472,23 @@ class LinkAndUnlink(unittest.TestCase):
         self.assertEqual(self.cloud.rows[("meeting", "meeting")]["body"]["title"], "While offline")
         self.assertEqual(self.svc.info()["phase"], "synced")
 
+    def test_resync_says_what_happened(self):
+        self.assertEqual(self.svc.resync()["result"]["outcome"], "failed", "not linked")
+        self.svc.link_start()
+        self.approved.update(computerId="c1", organizationId="o1", organizationName="BSF Study")
+        self.wait(lambda: self.svc.info()["lastSync"])
+        self.assertEqual(self.svc.resync()["result"]["outcome"], "nochange")
+        self.pc.plan["meeting"]["title"] = "Changed here"
+        r = self.svc.resync()
+        self.assertEqual(r["result"]["outcome"], "complete")
+        self.assertIn("sent", r["result"]["message"])
+        self.assertTrue(r["lastSync"])
+        self.api.offline = True
+        r = self.svc.resync()
+        self.assertEqual((r["result"]["outcome"], r["phase"]), ("failed", "offline"))
+        self.api.offline = False
+        self.assertEqual(self.svc.resync()["result"]["outcome"], "nochange", "back online, nothing lost or repeated")
+
     def test_the_header_word_for_each_sync_state(self):
         self.assertEqual(self.svc.info()["phase"], "", "not linked: no chip")
         self.svc.link_start()

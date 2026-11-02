@@ -2522,6 +2522,8 @@ class Handler(BaseHTTPRequestHandler):
                 if action == "now":
                     SYNC.poke(0)
                     return self.reply(200, json.dumps(SYNC.info()), TYPES[".json"])
+                if action == "resync":                             # 8.4 Resync Linked PCs: a round now, with its outcome
+                    return self.reply(200, json.dumps(SYNC.resync()), TYPES[".json"])
             except (cloud_sync.Offline, cloud_sync.Refused, OSError) as e:
                 return self.reply(503, json.dumps({"error": str(e)}), TYPES[".json"])
             return self.reply(400, json.dumps({"error": "Unknown action"}), TYPES[".json"])

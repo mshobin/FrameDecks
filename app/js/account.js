@@ -70,10 +70,13 @@ function render(){
     var ph = {synced: ['ok', 'Synced'], syncing: ['info', 'Syncing…'], offline: ['warn', 'Offline'], failed: ['bad', 'Sync failed']}[d.phase] || ['ok', 'Linked'];
     root.appendChild(h('p', {cls: 'plain'}, [pill(ph[0], ph[1]), ' with ', h('b', {text: d.workspace || 'your workspace'})]));
     if (d.phase === 'offline') root.appendChild(h('p', {cls: 'hint', text: 'No internet right now. Presenting is not affected. To bring a plan from the website without internet, export a .frame file there and import it in Settings → Data / Backup.'}));
-    root.appendChild(h('p', {cls: 'plain', text: 'Last synced: ' + when(d.lastSync) + (d.held ? ' · ' + d.held + ' change(s) wait until the live Frame leaves the screen' : '')}));
+    root.appendChild(h('p', {cls: 'plain', text: 'Last successful sync: ' + when(d.lastSync) + (d.held ? ' · ' + d.held + ' change(s) wait until the live Frame leaves the screen' : '')}));
+    /* 8.4 Resync Linked PCs: a round now, with what it did. Automatic sync carries on every minute as before. */
+    root.appendChild(h('div', {cls: 'acct-resync'}, [
+      h('button', {cls: 'btn primary', type: 'button', id: 'acct-resync', text: resyncing ? 'Syncing…' : 'Resync Linked PCs', disabled: resyncing ? 'disabled' : null, onclick: function(){ resync(); }}),
+      h('span', {cls: 'hint', id: 'acct-resync-result', role: 'status', text: lastResult ? lastResult.message : 'Gets the latest changes from your workspace now and sends this PC’s. It also happens by itself every minute.'})]));
     if (d.error) root.appendChild(h('p', {cls: 'hint', text: d.error}));
     root.appendChild(h('div', {cls: 'actions'}, [
-      h('button', {cls: 'btn small', type: 'button', text: 'Sync now', onclick: act('now')}),
       h('button', {cls: 'btn small danger', type: 'button', text: 'Unlink this PC', onclick: function(e){
         if (!confirm('Stop syncing this PC? Its plans stay here exactly as they are; the workspace keeps its copy.')) return;
         act('unlink').call(e.currentTarget);
@@ -115,5 +118,24 @@ function refresh(){
   if (id === 'account' || id === 'data' || id === 'security'){ refresh(); if (id === 'account') timer = setInterval(refresh, 3000); }
 });
 window.KCSyncInfo = function(){ return info; };
+
+var resyncing = false, lastResult = null;
+/* Resync Linked PCs (Settings, the header's Sync chip and the command palette all use this) */
+function resync(){
+  if (resyncing) return Promise.resolve(lastResult);
+  resyncing = true; render();
+  if (window.KCRenderSync) window.KCRenderSync({state: 'linked', phase: 'syncing'});
+  return fetch('api/sync', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({action: 'resync'})})
+    .then(function(r){ return r.json(); })
+    .then(function(d){ info = d; lastResult = d.result || {outcome: 'failed', message: 'Sync failed.'}; return lastResult; })
+    .catch(function(){ lastResult = {outcome: 'failed', message: 'Sync failed: the program did not answer.'}; return lastResult; })
+    .then(function(res){
+      resyncing = false; render();
+      if (window.KCRenderSync) window.KCRenderSync(info);
+      window.KCActions.toast((res.outcome === 'failed' ? '' : '✓ ') + res.message, res.outcome === 'failed');
+      return res;
+    });
+}
+window.KCResync = resync;
 refresh();
 })();

@@ -112,6 +112,40 @@ function renderSync(d){
   if (p) chip('h-sync', p[0], p[1], p[2] + (d.phase === 'failed' && d.error ? ': ' + d.error : ''));
 }
 window.KCRenderSync = renderSync;
+
+/* 8.4 The Sync chip opens a small panel: the status, the last successful sync and Resync Linked PCs */
+(function(){
+  var chipEl = $('h-sync'); if (!chipEl) return;
+  var pop = null;
+  function close(){ if (pop){ pop.remove(); pop = null; chipEl.setAttribute('aria-expanded', 'false'); } }
+  function when(t){ if (!t) return 'not yet'; var s = Math.round(Date.now() / 1000 - t); return s < 60 ? 'just now' : s < 3600 ? Math.round(s / 60) + ' min ago' : new Date(t * 1000).toLocaleString(); }
+  function fill(){
+    if (!pop) return;
+    var d = (window.KCSyncInfo && window.KCSyncInfo()) || {}, p = SYNC[d.phase] || ['', '—', ''];
+    pop.innerHTML = '';
+    var b = document.createElement('b'); b.textContent = p[1] + (d.workspace ? ' · ' + d.workspace : ''); pop.appendChild(b);
+    var t = document.createElement('p'); t.className = 'hint'; t.textContent = 'Last successful sync: ' + when(d.lastSync); pop.appendChild(t);
+    var go = document.createElement('button'); go.type = 'button'; go.className = 'btn primary small'; go.textContent = 'Resync Linked PCs';
+    go.onclick = function(){ go.disabled = true; go.textContent = 'Syncing…'; window.KCResync().then(function(r){ out.textContent = r.message; go.disabled = false; go.textContent = 'Resync Linked PCs'; t.textContent = 'Last successful sync: ' + when((window.KCSyncInfo() || {}).lastSync); }); };
+    var out = document.createElement('p'); out.className = 'hint'; out.setAttribute('role', 'status');
+    var more = document.createElement('button'); more.type = 'button'; more.className = 'btn quiet small'; more.textContent = 'Sync settings';
+    more.setAttribute('data-goto', 'settings'); more.setAttribute('data-sec', 'account'); more.addEventListener('click', close);
+    var row = document.createElement('div'); row.className = 'actions'; row.appendChild(go); row.appendChild(more);
+    pop.appendChild(row); pop.appendChild(out);
+  }
+  chipEl.addEventListener('click', function(e){
+    e.stopPropagation();
+    if (pop) return close();
+    pop = document.createElement('div'); pop.className = 'sync-pop'; pop.setAttribute('role', 'dialog'); pop.setAttribute('aria-label', 'Sync');
+    var sum = $('sys-sum'), r = chipEl.getBoundingClientRect();
+    if (sum && sum.offsetParent) r = sum.getBoundingClientRect();  // chips folded into the status button: open under that
+    pop.style.top = (r.bottom + 8) + 'px'; pop.style.right = Math.max(8, innerWidth - r.right) + 'px';
+    document.body.appendChild(pop); chipEl.setAttribute('aria-expanded', 'true'); fill();
+    pop.querySelector('button').focus();
+  });
+  document.addEventListener('click', function(e){ if (pop && !pop.contains(e.target)) close(); });
+  document.addEventListener('keydown', function(e){ if (pop && e.key === 'Escape'){ close(); chipEl.focus(); } }, true);
+})();
 function pollSync(){
   if (document.hidden || !Store.served) return;
   fetch('api/sync', {cache: 'no-store'}).then(function(r){ return r.ok ? r.json() : null; }).then(renderSync).catch(function(){});

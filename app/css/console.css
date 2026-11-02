@@ -614,3 +614,8 @@ body.studio-focus .studio.s2{height:100vh !important}
 .frame-check ul{margin:8px 0 0;padding-left:18px}
 .frame-check li{margin:3px 0}
 .frame-check.bad b{color:var(--warn)}
+/* 8.4 the Sync chip's panel: status, last successful sync, Resync Linked PCs */
+.sync-pop{position:fixed;z-index:210;width:min(320px,calc(100vw - 16px));padding:14px 16px;border:1px solid var(--line);border-radius:12px;background:var(--surface);box-shadow:var(--el-4)}
+.sync-pop b{display:block;margin-bottom:4px}
+.sync-pop .actions{margin-top:10px}
+.acct-resync{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;margin:12px 0}

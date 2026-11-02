@@ -666,6 +666,42 @@ class Service:
             self.status.update(state="linked", lastSync=time.time(), error=None)
             return summary
 
+    def resync(self):
+        """8.4 Resync Linked PCs: one round now, whatever the timer says, and what it did in plain words
+        ({"outcome": "complete" | "nochange" | "failed", "message"}). Automatic syncing carries on as before."""
+        if not self.state.get("link"):
+            return {**self.info(), "result": {"outcome": "failed", "message": "This PC is not linked to a workspace yet."}}
+        try:
+            summary = self.sync_once() or {}
+        except Offline as e:
+            self.offline = True
+            self.status.update(error=f"Offline: {e}. Changes wait on this PC and go up later.")
+            return {**self.info(), "result": {"outcome": "failed", "message": "Sync failed: no internet. Presenting is not affected; try again when the PC is online."}}
+        except Refused as e:
+            self.offline = False
+            self.status.update(error=str(e))
+            return {**self.info(), "result": {"outcome": "failed", "message": f"Sync failed: {e}"}}
+        except Exception as e:                       # never let a button stop the program
+            self.offline = False
+            self.status.update(error=f"Sync problem: {e}")
+            return {**self.info(), "result": {"outcome": "failed", "message": f"Sync failed: {e}"}}
+        self._retry_at = 0.0
+        self._due = time.time() + PULL_EVERY
+        came, went = summary.get("applied", 0), summary.get("pushed", 0)
+        held, conflicts = summary.get("held", 0), summary.get("conflicts", 0)
+        if not (came or went or held or conflicts):
+            return {**self.info(), "result": {"outcome": "nochange", "message": "No changes found. This PC already has the latest plan."}}
+        parts = []
+        if came:
+            parts.append(f"{came} change{'s' if came != 1 else ''} received")
+        if went:
+            parts.append(f"{went} sent")
+        if held:
+            parts.append(f"{held} waiting until the live Frame leaves the screen")
+        if conflicts:
+            parts.append(f"{conflicts} edited in two places (the latest kept)")
+        return {**self.info(), "result": {"outcome": "complete", "message": "Sync complete: " + ", ".join(parts) + "."}}
+
     def _loop(self):
         backoff = 0
         self._due = time.time()
