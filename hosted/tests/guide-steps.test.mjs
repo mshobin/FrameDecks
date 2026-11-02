@@ -80,7 +80,7 @@ test("Home shows the guide for a workspace, and Help brings it back", () => {
     src("components/overview.tsx"),
     /<SetupGuide workspace=\{selected\} \/>/,
   );
-  assert.match(src("app/help/page.tsx"), /<ShowGuide \/>/);
+  assert.match(src("components/help-center.tsx"), /<ShowGuide \/>/); // Help → Getting Started (8.6 Help Center)
   const guide = src("components/setup-guide.tsx");
   assert.match(guide, /const onPc = !tick && s\.where === "program";/); // program steps never tick on the website
   assert.doesNotMatch(guide, /onClick=\{\(\) => save\(\{ \.\.\.progress, done/); // nothing is ticked by clicking it

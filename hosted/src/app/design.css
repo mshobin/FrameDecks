@@ -504,7 +504,7 @@ h3 {
 }
 
 .fd-spin {
-  animation: fd-spin 0.9s linear infinite;
+  animation: fd-spin 0.9s linear 30; /* a sign-out takes seconds, never endless */
 }
 
 @keyframes fd-spin {
