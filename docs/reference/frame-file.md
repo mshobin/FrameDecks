@@ -2,7 +2,8 @@
 
 A `.frame` file carries a whole plan to a service PC without internet. Make one on framedecks.com (Plan → **Export
 for Service PC**) or on a PC (Settings → Data / Backup → **Export Frame File**). Open it on the service PC with
-Settings → Data / Backup → **Import Frame File…** (or the command palette: "Import Frame File").
+Settings → Data / Backup → **Import Frame File…**, Studio → **Quick Start** → **Import a Frame file…** (8.6, the same
+import), or the command palette: "Import Frame File".
 
 A PC linked to a workspace keeps syncing by itself (the header shows **Synced**, **Syncing**, **Offline** or
 **Sync failed**); the .frame file is for a PC that is offline or not linked. It replaces the Excel workbook as the way

@@ -1,37 +1,38 @@
-## FrameDecks v8.5.0
+## FrameDecks v8.6.0
 
-Plan more than one meeting in the same workspace, each with its own Frames, and see the meeting Frame by Frame on a
-timeline beside the plan. Download from **framedecks.com/download**, or let FrameDecks update itself. It installs over
-8.4.0 and earlier and keeps all your meetings, members, settings and recordings.
-
-**Workspace owners, once:** run `0012_meetings.sql` in Supabase (SQL Editor) before making a second meeting. It keeps
-the meeting list safe from service PCs that are still on an older version. Until it has run, the website plans one
-meeting as before and says so.
+Frame files open from Quick Start, the Teleprompter shows where its top bar is, and the website looks and reads
+better: clearer Frame cards on the Plan, a Help Center with topics, and pages that use the whole screen. Download from
+**framedecks.com/download**, or let FrameDecks update itself. It installs over 8.5.0 and earlier and keeps all your
+meetings, members, settings and recordings.
 
 ## What's New
-- **Several meetings.** On the website's Plan page, **New meeting** makes another meeting, with its own name, date,
-  notes and Frames. Choose a meeting at the top to plan it; **Rename** renames it, and its Frames stay with it.
-- **One meeting at a time on the PC.** Above the Frames, the **Meeting** list chooses the meeting this PC shows and
-  runs. **New** makes another. Next, Previous, the phone remote and the Teleprompter follow only that meeting's Frames.
-- **The timeline.** Beside the plan, the timeline shows the meeting from its name down to the last Frame, with a
-  picture of each Frame. Drag a Frame to move it, select it and press Alt + ↑ or ↓, or delete it there. Frames glide
-  to their new place. **Hide timeline** folds it away; on a phone it sits under the plan.
-- **A .frame file per meeting.** **Export for Service PC** exports the meeting you are planning. On the PC, **Use this
-  plan** replaces only that meeting; the PC's other meetings and their Frames are kept.
+- **Import from Quick Start.** Quick Start has **Import a Frame file…**, and the ✨ Meeting menu's import now opens
+  .frame files too. Both use exactly the same import as Settings → Data / Backup: **Use this plan** or **Add after my
+  Frames**, then the check that everything matches. A file that is not a Frame file, was made by a newer FrameDecks or
+  is damaged gets a plain message, and nothing changes.
+- **The Teleprompter's arrow.** A small arrow at the top of the Teleprompter always shows that a top bar is there.
+  Point at it and the bar slides down; choose it to keep the bar open.
+- **Help Center.** framedecks.com/help has topics on the left (Getting Started, Studio, Frames, Teleprompter,
+  Account, Billing, Troubleshooting, Contact Support) and the chosen one on the right. On a phone, the topics are one
+  button above the page.
 
 ## Enhancements
-- The Help guide's steps and screenshots show the meetings and the timeline.
-- Each meeting at the top shows its date and how many Frames it has.
-- The timeline respects the system's "reduce motion" setting: Frames then move without gliding.
+- **Plan cards.** Each Frame's name stands out, with tags for its Content, its animation and whether it has a script;
+  its Content shows as tiles, and Write Script, Choose Animation and Preview sit in the card's footer.
+- The five Plan steps sit in one row when there is room, and the signed-in pages use more of a wide screen.
+- The landing page uses the full width: wider sections, less empty space, the features on a full-width band and the
+  questions beside their heading. The features now open with "Powerful tools. Effortless creation."
+- Signing out ends the session, clears it from this browser and takes you to framedecks.com.
 
 ## Fixes
-- No separate fixes in this version.
+- A .frame file exported from the website or Settings could not be chosen in the ✨ Meeting menu's **Import a Frame
+  file…**, which only accepted single exported Frames. It now opens both.
+- Signing out without internet left the browser signed in. The session is now cleared here even when the server
+  cannot be reached; if this browser cannot be signed out at all, it says so.
 
 ## Performance Improvements
-- The timeline's movement uses the browser's own animation, with no extra download; the Plan page's styles stay
-  within the same size budget.
+- The Help page's old styles are gone; the Help Center's load only on the Help page.
 
 ## Known Issues
 - The installer is not yet code-signed, so Windows SmartScreen may ask you to confirm: **More info → Run anyway**.
-- Service PCs on 8.4 or earlier show every Frame of every meeting together. Update them to 8.5 to see one meeting at
-  a time.
+- Service PCs on 8.4 or earlier show every meeting's Frames together. Update them to see one meeting at a time.

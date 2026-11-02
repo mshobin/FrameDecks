@@ -46,8 +46,8 @@ never changes another.
 | **Library** | The **Library** filter in the Frames list | Ready-made Frames you can add |
 | **From a template** | **✨ Meeting → From your templates** | A new Frame made from one of your templates |
 | **From Excel** | **Settings → Data / Backup → Meeting from Excel** **→ Import a meeting from Excel…** (or Plan on the website: see [Plan on the website](service-planning.md#plan-on-the-website)) | Every Frame in the workbook. See [Service planning](service-planning.md#plan-in-excel-with-the-meeting-workbook) |
-| **From a file** | **✨ Meeting → Import a Frame file…** | A Frame exported from another PC |
-| **From a .frame file** | **Settings → Data / Backup → Import Frame File…** | A whole plan from framedecks.com or another PC. See [Move a plan to a service PC](service-planning.md#move-a-plan-to-a-service-pc) |
+| **From a file** | **✨ Meeting → Import a Frame file…**, or **Import a Frame file…** in the Quick Start dialog | A Frame exported from another PC (.json), or a whole plan (.frame) |
+| **From a .frame file** | **Settings → Data / Backup → Import Frame File…**, or Quick Start → **Import a Frame file…** (the same import, 8.6) | A whole plan from framedecks.com or another PC. See [Move a plan to a service PC](service-planning.md#move-a-plan-to-a-service-pc) |
 
 After creating a Frame, add Content with **+ Content**. See [Content](content.md).
 
@@ -151,7 +151,10 @@ A **template** is a Frame you keep for making new Frames, such as your standard 
 ## Frame files: share a Frame with another PC
 
 - **Export:** **⋯ → Export Frame file** saves the Frame to your Downloads folder.
-- **Import:** **✨ Meeting → Import a Frame file…** on the other PC.
+- **Import:** **✨ Meeting → Import a Frame file…** (or **Import a Frame file…** in Quick Start) on the other PC.
+  Since 8.6 this also opens .frame files: they go through the same import as Settings → Data / Backup (**Use this
+  plan** or **Add after my Frames**, then the check). A file that is not a Frame file, comes from a newer FrameDecks
+  or is damaged is refused with a plain message in the Quick Start dialog, and nothing changes.
 
 To move a whole plan to another PC, use a **.frame file** instead: **Settings → Data / Backup → Export Frame File**.
 See [Move a plan to a service PC](service-planning.md#move-a-plan-to-a-service-pc).

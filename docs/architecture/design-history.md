@@ -1260,3 +1260,32 @@ for reduced motion. A move is shown at once and saved after; a failed save puts 
 
 `plan-flow.mjs` makes, switches, renames and exports meetings and deletes in the timeline at 390, 820 and 1366 px in
 both themes; `frame-roundtrip.mjs` imports into a PC that already has another meeting and checks both survive.
+
+## 48. Version 8.6.0: one import everywhere, a marked Teleprompter bar, and a website that uses its width (2 November 2026)
+
+The owner found that a .frame file opened in Settings but not from Quick Start. The ✨ Meeting menu's import was the
+older single-Frame import (`accept=".json"`), so a .frame file could not even be chosen, and the Quick Start dialog had
+no import at all. Rather than a second copy of the .frame import, `importFrameFile` decides by content: a file whose
+`format` is `framedecks-frame` (or named `.frame`) is checked with `KCFrameFile.check` while the Quick Start dialog is
+still open, so a refusal is shown where the person is, and only then handed to `KCFrameFile.importFile`, the function
+Settings uses; anything else is tried as a single exported Frame. `importFile` now answers what happened
+(`{ok, mode, error}`) instead of only writing the Settings box, which is also why the round-trip test no longer awaits
+it.
+
+The Teleprompter's bar tab was already in the page but invisible until hovered (a later rule in `speaker.css` hid it), so nobody knew the bar
+existed. It is now always shown at low contrast and follows the bar's lower edge; the bar's height is measured with a
+ResizeObserver because the bar wraps on a narrow window.
+
+Sign-out had three copies, each calling `signOut()` and moving on whether it worked or not. One helper now signs out,
+falls back to the local scope when the server cannot be reached, clears the browser's `sb-…` entries, and goes to
+framedecks.com; only a browser that could not be signed out at all stays, with a message.
+
+The Help page became a Help Center. The topics are data in one component with the content written as React, so the
+words stay checkable in review; the topic lives in the address so links and Back work, and the anchors the program
+opens (`#guide`) map to Getting Started. The old Help styles in `identity.css` were removed.
+
+On the Plan the cards were one level of type. The name is now the largest text on the card, with tags underneath and
+the Content as tiles on a darker field, so the eye reads name, then contents, then actions. The steps use a container
+query, not a viewport one, because the timeline column decides how wide the plan is. Landing sections and the signed-in
+pages were widened (1320 and 1560 px), vertical spacing reduced, and the landing CSS stays within its 24 KB budget.
+

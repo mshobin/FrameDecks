@@ -220,8 +220,9 @@ screen. Before you go live, it shows the first Frame, so you can rehearse.
 All the controls are in the top bar. The script area shows only your script: no buttons, labels or overlays. The
 text fills the whole window, in width and height, at every text size.
 
-The top bar is hidden at first. Move the pointer to the top edge, or press the small **▾** button at the top, to see
-it. Its first row shows:
+The top bar is hidden at first. A small arrow (**▾**) at the top always shows that it is there (8.6). Point at the
+arrow or the top edge and the bar slides down, with the arrow riding under it; choose the arrow to keep the bar open,
+and again to hide it. Its first row shows:
 - **Time**: the time of day;
 - **Frame**: the Frame on screen, for example *Discussion · 3 of 9* (*Not live yet* before you go live);
 - **Next Frame ▸**: puts the next Frame on screen;

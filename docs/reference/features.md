@@ -1,6 +1,15 @@
-# FrameDecks: feature documentation (v8.5)
+# FrameDecks: feature documentation (v8.6)
 
-## v8.5 at a glance
+## v8.6 at a glance
+| Feature | What it does | Where it lives |
+| --- | --- | --- |
+| **Import from Quick Start** | The Quick Start dialog has **Import a Frame file…**, and the ✨ Meeting menu's import accepts .frame files as well as single exported Frames (.json). A .frame file goes through the same import as Settings → Data / Backup (the same check, **Use this plan** / **Add after my Frames**, media, the import check). A wrong, newer or damaged file is refused with a plain message in the dialog | `app/js/workspace.js` (`importFrameFile`), `app/js/frame-file.js` |
+| **Teleprompter arrow** | A small arrow at the top of the Teleprompter is always visible; pointing at it (or the top edge) slides the bar down, and the arrow sits under the bar's edge, turned up; choosing it keeps the bar open | `app/speaker.html`, `app/css/speaker.css`, `app/js/speaker.js` |
+| **Help Center** | framedecks.com/help: topics on the left (Getting Started, Studio, Frames, Teleprompter, Account, Billing, Troubleshooting, Contact Support), the chosen one on the right, highlighted; on a phone, a topic button above the content. The step-by-step guide is under Getting Started | `hosted/src/components/help-center.tsx` |
+| **Sign out** | Ends the session, clears it from the browser (even without internet) and goes to framedecks.com; says so if the browser cannot be signed out | `hosted/src/lib/sign-out.ts` |
+| **Plan cards** | The Frame's name first, then tags (Content count, animation, Script / No script yet, On screen), Content as tiles, actions in a footer; steps in one row when there is room | `hosted/src/components/meeting-form-panel.tsx`, `hosted/src/app/plan.css` |
+
+## v8.5
 | Feature | What it does | Where it lives |
 | --- | --- | --- |
 | **Several meetings** | A workspace holds several meetings, each with its own name, date, notes and Frames (the meeting record's `meetings`; a Frame's `group` names its meeting, and a Frame with no matching group belongs to the first). Website Plan: the meetings at the top (date and Frame count), **New meeting**, **Rename**. Needs `0012_meetings.sql` in Supabase; before it, the website plans one meeting and says so | `hosted/src/lib/meetings.ts`, `hosted/src/components/frame-flow.tsx` (`MeetingBar`) |

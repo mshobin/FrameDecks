@@ -193,7 +193,8 @@ While it runs, the button says **Syncing…**. Then the result shows next to it:
    It also lists the files the Frames use that are not in the file: "Not in the file (not in this browser): … The
    service PC must already have them."
 2. Copy the file to the service PC, for example on a USB stick.
-3. On the service PC: **Settings → Data / Backup → Import Frame File…**, and choose the file. A file that is cut
+3. On the service PC: **Settings → Data / Backup → Import Frame File…** (or in Studio: **Quick Start → Import a
+   Frame file…**, the same import), and choose the file. A file that is cut
    short or was changed by hand is refused, and nothing changes. Export it again.
 4. Choose:
    - **Use this plan** (the main button): the PC shows exactly what is in the file: the same Frames, in the same

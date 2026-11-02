@@ -102,7 +102,7 @@ await q.evaluate(() => KCStore.update((n) => {
 }));
 await q.reload(); await q.waitForTimeout(2000);
 await q.evaluate(() => { document.querySelector('[data-goto="settings"]')?.click(); document.querySelector('button[data-sec="data"]')?.click(); });
-await q.evaluate((t) => KCFrameFile.importFile(new File([t], "roundtrip.frame")), text);
+await q.evaluate((t) => { KCFrameFile.importFile(new File([t], "roundtrip.frame")); }, text); // 8.6 it answers when done; the test answers its question first
 await q.waitForSelector("#frame-use");
 check((await q.textContent("#frame-ask")).includes("Use this plan"), "the import asks with Use this plan first");
 await q.click("#frame-use");

@@ -45,6 +45,29 @@ Versions before 4.9 (when the program had its earlier name) are described in the
 - The favicons, the tray icon and the small program-icon sizes (16–32 px) use a heavier version of the emblem, so it
   stays visible on light browser tabs and a light taskbar. Larger sizes are unchanged.
 
+## [8.6.0] - 2026-11-02
+
+Full notes: [docs/releases/v8.6.0.md](releases/v8.6.0.md).
+
+### Added
+- Quick Start → **Import a Frame file…**; `importFrameFile` (`app/js/workspace.js`) sends .frame plans through
+  `KCFrameFile.check` and `KCFrameFile.importFile` (now answering `{ok, mode, error}`), and single exported Frames
+  through the old path; a result line in the Quick Start dialog.
+- Website Help Center (`hosted/src/components/help-center.tsx`): topics on the left, the chosen one on the right,
+  `#topic` in the address, older anchors (`#guide`, `#problems`…) mapped.
+- `hosted/src/lib/sign-out.ts` (`signOutAndLeave`, `clearLocalSession`) used by every sign-out, with
+  `hosted/tests/sign-out.test.mjs`.
+
+### Changed
+- Teleprompter: the top bar's arrow is always shown and rides under the bar (`--sp-bar-h`).
+- Plan frame cards (`plan-frame`, `pf-*` in `plan.css`); the steps in one row via a container query; `.fd-page` up to
+  1560 px; landing sections up to 1320 px with less vertical space, a full-width features band, FAQ beside its
+  heading; features headline "Powerful tools. Effortless creation."
+
+### Fixed
+- The ✨ Meeting menu's import accepted only `.json`, so .frame files exported from Settings or the website could not
+  be imported there.
+
 ## [8.5.0] - 2026-11-02
 
 Full notes: [docs/releases/v8.5.0.md](releases/v8.5.0.md).

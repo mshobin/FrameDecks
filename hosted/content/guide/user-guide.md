@@ -154,8 +154,8 @@ A Question (or Scripture) Content holds **its own list**, shown full height in C
   - **Each Frame** (one script per Frame) follows the Frame on screen (the first Frame before you go live).
     **Whole meeting** shows one script for the whole meeting, kept in the meeting details.
   - The script area shows only the script text, which fills the whole window at every text size. All the controls
-    are in the **top bar**, which is hidden at first. Move the pointer to the top edge, or press the small **▾**
-    button there, to see it.
+    are in the **top bar**, which is hidden at first. The small arrow (**▾**) at the top always marks it: point at
+    it (or the top edge) to slide the bar down, or choose it to keep the bar open.
   - First row: **Time**, the current **Frame** (*name · 3 of 9*), **Next Frame ▸** (puts the next Frame on screen),
     a **Timer** (Start / Pause, Reset), **Transparency** (Solid, 20%, 40%, 65%, 85%) and **Pin** (*Pinned* keeps it
     above Zoom, Teams and PowerPoint; click to unpin), with **Keep open** / **Hide bar** and the window buttons. Drag
