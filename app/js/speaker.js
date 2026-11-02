@@ -11,10 +11,52 @@ var Store = window.KCStore, SC = window.KCScenes, P = window.KCPrompter;
 var $ = function(id){ return document.getElementById(id); };
 var sig = '';
 
-/* the script itself (the same engine as the phone remote) */
-var prompter = P.create($('sp-prompt'), {key: 'window', editable: true, toolbar: 'float', edit: function(sid, text){
-  return Store.update(function(n){ var sc = SC.find(n, sid); if (!sc) return; sc.notes = String(text || '').slice(0, 20000); SC.stamp(sc); });
-}});
+/* the script itself (the same engine as the phone remote). 8.2: every control lives in the top bar; the window shows
+   only the words. The script is the Frame's own, or one script for the whole meeting (Script: Whole meeting). */
+var live = null;
+function mode(st){ return st && st.meeting && st.meeting.scriptMode === 'all' ? 'all' : 'frame'; }
+function source(st, sc){
+  if (mode(st) === 'all') return {id: '@meeting', text: String((st.meeting && st.meeting.script) || ''), name: 'the meeting'};
+  return sc ? {id: sc.id, text: String(sc.notes || ''), name: sc.name} : null;
+}
+function saveScript(id, text){
+  return Store.update(function(n){
+    if (id === '@meeting'){ n.meeting.script = String(text || '').slice(0, 20000); return; }
+    var sc = SC.find(n, id); if (!sc) return; sc.notes = String(text || '').slice(0, 20000); SC.stamp(sc);
+  });
+}
+var prompter = P.create($('sp-prompt'), {key: 'window', editable: true, edit: saveScript, source: source,
+  controlsHost: $('sp-ctl'), cues: false, bare: true});
+
+$('sp-write').addEventListener('click', function(){ prompter.edit(); });
+$('sp-next').addEventListener('click', function(){
+  if (!live) return;
+  var cur = live.live.scene, nx = cur ? SC.neighbour(live, cur, 1) : SC.order(live)[0];
+  if (!nx || nx.id === cur) return;
+  Store.update(function(n){ SC.take(n, nx.id); });
+});
+Array.prototype.forEach.call(document.querySelectorAll('[data-mode]'), function(b){
+  b.addEventListener('click', function(){ var m = b.dataset.mode; Store.update(function(n){ n.meeting.scriptMode = m; }); });
+});
+/* Upload: a .txt, .md or Word file becomes the script (asks first before replacing one) */
+(function(){
+  var f = $('sp-file'); f.accept = window.KCScriptFile ? window.KCScriptFile.ACCEPT : '.txt,.md';
+  $('sp-upload').addEventListener('click', function(){ f.value = ''; f.click(); });
+  f.addEventListener('change', function(){
+    var file = f.files && f.files[0]; if (!file || !live) return;
+    var src = source(live, SC.liveScene(live) || SC.order(live)[0]);
+    if (!src){ flash('Add a Frame first.'); return; }
+    window.KCScriptFile.read(file).then(function(text){
+      if (!text.trim()){ flash('That file has no text.'); return; }
+      if (src.text.trim() && !confirm('Replace the script for ' + src.name + ' with “' + file.name + '”?')) return;
+      return saveScript(src.id, text).then(function(){ flash('Script loaded from ' + file.name); });
+    }).catch(function(e){ flash(e && e.message ? e.message : 'That file could not be read.'); });
+  });
+})();
+function flash(msg){
+  var t = $('sp-flash'); if (!t){ t = document.createElement('div'); t.id = 'sp-flash'; t.className = 'sp-flash'; t.setAttribute('role', 'status'); $('sp-top').appendChild(t); }
+  t.textContent = msg; t.classList.add('on'); clearTimeout(flash.t); flash.t = setTimeout(function(){ t.classList.remove('on'); }, 3200);
+}
 
 /* the top bar: hidden by default; the pointer at the top edge shows it for a moment, the button keeps it open */
 (function(){
@@ -87,7 +129,11 @@ $('sp-watch-reset').addEventListener('click', function(){ watch = {run: false, f
 setInterval(tick, 1000);
 
 Store.subscribe(function(st){
-  var sc = SC.liveScene(st);
+  live = st;
+  var sc = SC.liveScene(st), m = mode(st);
+  Array.prototype.forEach.call(document.querySelectorAll('[data-mode]'), function(b){ b.setAttribute('aria-checked', String(b.dataset.mode === m)); });
+  var cur = st.live.scene, nx = cur ? SC.neighbour(st, cur, 1) : SC.order(st)[0];
+  $('sp-next').disabled = !nx || nx.id === cur;
   var s = JSON.stringify([st.live.scene, sc && sc.name, SC.order(st).map(function(x){ return x.id; })]);
   if (s !== sig){ sig = s; render(st); }
   prompter.update(st, shown(st));                                       // cheap: it redraws only when the script changes

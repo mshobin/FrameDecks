@@ -84,13 +84,13 @@
   },
   "scenes": [
    {
-    "id": "sc_7yze23k",
+    "id": "sc_7ke2dip",
     "name": "Welcome",
     "group": "",
     "fav": false,
     "tpl": false,
-    "created": 1792925920007,
-    "modified": 1792925920007,
+    "created": 1793597337837,
+    "modified": 1793597337837,
     "version": 1,
     "creator": "",
     "from": "",
@@ -111,7 +111,7 @@
     },
     "layers": [
      {
-      "id": "Lqfgersc",
+      "id": "Llungxb9",
       "kind": "announcement",
       "name": "Announcement",
       "visible": true,
@@ -133,13 +133,13 @@
     ]
    },
    {
-    "id": "sc_et2d6hh",
+    "id": "sc_xnbtvuv",
     "name": "Study: John 3",
     "group": "Teaching",
     "fav": false,
     "tpl": false,
-    "created": 1792925920008,
-    "modified": 1792925920008,
+    "created": 1793597337837,
+    "modified": 1793597337837,
     "version": 1,
     "creator": "",
     "from": "",
@@ -160,7 +160,7 @@
     },
     "layers": [
      {
-      "id": "Lhfzwapv",
+      "id": "L5xn5d0m",
       "kind": "scripture",
       "name": "Scripture",
       "visible": true,
@@ -178,7 +178,7 @@
       }
      },
      {
-      "id": "L6eisekm",
+      "id": "L781l3ti",
       "kind": "question",
       "name": "Question",
       "visible": true,
@@ -195,13 +195,13 @@
     ]
    },
    {
-    "id": "sc_w4lxl9l",
+    "id": "sc_frj1geb",
     "name": "Video",
     "group": "",
     "fav": false,
     "tpl": false,
-    "created": 1792925920008,
-    "modified": 1792925920008,
+    "created": 1793597337837,
+    "modified": 1793597337837,
     "version": 1,
     "creator": "",
     "from": "",
@@ -222,7 +222,7 @@
     },
     "layers": [
      {
-      "id": "L3ock0uf",
+      "id": "Lw0orfx7",
       "kind": "video",
       "name": "Video",
       "visible": true,
@@ -241,13 +241,13 @@
     ]
    },
    {
-    "id": "sc_k1u1tbi",
+    "id": "sc_0veltnb",
     "name": "Slide",
     "group": "",
     "fav": false,
     "tpl": false,
-    "created": 1792925920008,
-    "modified": 1792925920008,
+    "created": 1793597337837,
+    "modified": 1793597337837,
     "version": 1,
     "creator": "",
     "from": "",
@@ -284,13 +284,13 @@
     ]
    },
    {
-    "id": "sc_qikkyf1",
+    "id": "sc_7c59o9j",
     "name": "Prayer template",
     "group": "",
     "fav": false,
     "tpl": true,
-    "created": 1792925920008,
-    "modified": 1792925920008,
+    "created": 1793597337838,
+    "modified": 1793597337838,
     "version": 1,
     "creator": "",
     "from": "",
@@ -311,7 +311,7 @@
     },
     "layers": [
      {
-      "id": "Lmz7cglv",
+      "id": "Lurk0xf6",
       "kind": "prayer",
       "name": "Prayer Point",
       "visible": true,
@@ -331,7 +331,7 @@
       }
      },
      {
-      "id": "Lsl4mvf7",
+      "id": "Lcalfar9",
       "kind": "scripture",
       "name": "Scripture",
       "visible": true,
@@ -352,9 +352,9 @@
    }
   ],
   "live": {
-   "scene": "sc_et2d6hh",
+   "scene": "sc_xnbtvuv",
    "seq": 1,
-   "at": 1792925920009,
+   "at": 1793597337838,
    "tx": "cut",
    "txMs": 0,
    "auto": true,
@@ -366,6 +366,7 @@
     "items": [],
     "undone": []
    },
+   "spot": null,
    "message": "Please stand by — we’ll be right back.",
    "on": {},
    "cd": {}
@@ -393,7 +394,9 @@
    "owner": "",
    "contentNotes": "",
    "notes": "",
-   "extra": ""
+   "extra": "",
+   "script": "",
+   "scriptMode": "frame"
   },
   "library": {
    "verses": [
@@ -423,6 +426,14 @@
      "mode": ""
     }
    ]
+  },
+  "fx": {
+   "burst": {
+    "density": "medium",
+    "dir": "right",
+    "tint": "",
+    "intensity": 60
+   }
   }
  },
  "members": [
@@ -530,13 +541,13 @@
   },
   "scenes": [
    {
-    "id": "sc_7yze23k",
+    "id": "sc_7ke2dip",
     "name": "Welcome",
     "group": "",
     "fav": false,
     "tpl": false,
-    "created": 1792925920007,
-    "modified": 1792925920007,
+    "created": 1793597337837,
+    "modified": 1793597337837,
     "version": 1,
     "creator": "",
     "from": "",
@@ -557,7 +568,7 @@
     },
     "layers": [
      {
-      "id": "Lqfgersc",
+      "id": "Llungxb9",
       "kind": "announcement",
       "name": "Announcement",
       "visible": true,
@@ -579,13 +590,13 @@
     ]
    },
    {
-    "id": "sc_et2d6hh",
+    "id": "sc_xnbtvuv",
     "name": "Study: John 3",
     "group": "Teaching",
     "fav": false,
     "tpl": false,
-    "created": 1792925920008,
-    "modified": 1792925920008,
+    "created": 1793597337837,
+    "modified": 1793597337837,
     "version": 1,
     "creator": "",
     "from": "",
@@ -606,7 +617,7 @@
     },
     "layers": [
      {
-      "id": "Lhfzwapv",
+      "id": "L5xn5d0m",
       "kind": "scripture",
       "name": "Scripture",
       "visible": true,
@@ -624,7 +635,7 @@
       }
      },
      {
-      "id": "L6eisekm",
+      "id": "L781l3ti",
       "kind": "question",
       "name": "Question",
       "visible": true,
@@ -641,13 +652,13 @@
     ]
    },
    {
-    "id": "sc_w4lxl9l",
+    "id": "sc_frj1geb",
     "name": "Video",
     "group": "",
     "fav": false,
     "tpl": false,
-    "created": 1792925920008,
-    "modified": 1792925920008,
+    "created": 1793597337837,
+    "modified": 1793597337837,
     "version": 1,
     "creator": "",
     "from": "",
@@ -668,7 +679,7 @@
     },
     "layers": [
      {
-      "id": "L3ock0uf",
+      "id": "Lw0orfx7",
       "kind": "video",
       "name": "Video",
       "visible": true,
@@ -687,13 +698,13 @@
     ]
    },
    {
-    "id": "sc_k1u1tbi",
+    "id": "sc_0veltnb",
     "name": "Slide",
     "group": "",
     "fav": false,
     "tpl": false,
-    "created": 1792925920008,
-    "modified": 1792925920008,
+    "created": 1793597337837,
+    "modified": 1793597337837,
     "version": 1,
     "creator": "",
     "from": "",
@@ -732,13 +743,13 @@
     ]
    },
    {
-    "id": "sc_qikkyf1",
+    "id": "sc_7c59o9j",
     "name": "Prayer template",
     "group": "",
     "fav": false,
     "tpl": true,
-    "created": 1792925920008,
-    "modified": 1792925920008,
+    "created": 1793597337838,
+    "modified": 1793597337838,
     "version": 1,
     "creator": "",
     "from": "",
@@ -759,7 +770,7 @@
     },
     "layers": [
      {
-      "id": "Lmz7cglv",
+      "id": "Lurk0xf6",
       "kind": "prayer",
       "name": "Prayer Point",
       "visible": true,
@@ -779,7 +790,7 @@
       }
      },
      {
-      "id": "Lsl4mvf7",
+      "id": "Lcalfar9",
       "kind": "scripture",
       "name": "Scripture",
       "visible": true,
@@ -800,9 +811,9 @@
    }
   ],
   "live": {
-   "scene": "sc_et2d6hh",
+   "scene": "sc_xnbtvuv",
    "seq": 1,
-   "at": 1792925920009,
+   "at": 1793597337838,
    "tx": "cut",
    "txMs": 0,
    "auto": true,
@@ -814,6 +825,7 @@
     "items": [],
     "undone": []
    },
+   "spot": null,
    "message": "Please stand by — we’ll be right back.",
    "on": {},
    "cd": {}
@@ -841,7 +853,9 @@
    "owner": "",
    "contentNotes": "",
    "notes": "",
-   "extra": ""
+   "extra": "",
+   "script": "",
+   "scriptMode": "frame"
   },
   "library": {
    "verses": [
@@ -871,21 +885,29 @@
      "mode": ""
     }
    ]
+  },
+  "fx": {
+   "burst": {
+    "density": "medium",
+    "dir": "right",
+    "tint": "",
+    "intensity": 60
+   }
   }
  },
  "split": {
   "entities": [
    {
     "kind": "frame",
-    "id": "sc_7yze23k",
+    "id": "sc_7ke2dip",
     "body": {
-     "id": "sc_7yze23k",
+     "id": "sc_7ke2dip",
      "name": "Welcome",
      "group": "",
      "fav": false,
      "tpl": false,
-     "created": 1792925920007,
-     "modified": 1792925920007,
+     "created": 1793597337837,
+     "modified": 1793597337837,
      "version": 1,
      "creator": "",
      "from": "",
@@ -906,7 +928,7 @@
      },
      "layers": [
       {
-       "id": "Lqfgersc",
+       "id": "Llungxb9",
        "kind": "announcement",
        "name": "Announcement",
        "visible": true,
@@ -930,15 +952,15 @@
    },
    {
     "kind": "frame",
-    "id": "sc_et2d6hh",
+    "id": "sc_xnbtvuv",
     "body": {
-     "id": "sc_et2d6hh",
+     "id": "sc_xnbtvuv",
      "name": "Study: John 3",
      "group": "Teaching",
      "fav": false,
      "tpl": false,
-     "created": 1792925920008,
-     "modified": 1792925920008,
+     "created": 1793597337837,
+     "modified": 1793597337837,
      "version": 1,
      "creator": "",
      "from": "",
@@ -959,7 +981,7 @@
      },
      "layers": [
       {
-       "id": "Lhfzwapv",
+       "id": "L5xn5d0m",
        "kind": "scripture",
        "name": "Scripture",
        "visible": true,
@@ -977,7 +999,7 @@
        }
       },
       {
-       "id": "L6eisekm",
+       "id": "L781l3ti",
        "kind": "question",
        "name": "Question",
        "visible": true,
@@ -996,15 +1018,15 @@
    },
    {
     "kind": "frame",
-    "id": "sc_w4lxl9l",
+    "id": "sc_frj1geb",
     "body": {
-     "id": "sc_w4lxl9l",
+     "id": "sc_frj1geb",
      "name": "Video",
      "group": "",
      "fav": false,
      "tpl": false,
-     "created": 1792925920008,
-     "modified": 1792925920008,
+     "created": 1793597337837,
+     "modified": 1793597337837,
      "version": 1,
      "creator": "",
      "from": "",
@@ -1025,7 +1047,7 @@
      },
      "layers": [
       {
-       "id": "L3ock0uf",
+       "id": "Lw0orfx7",
        "kind": "video",
        "name": "Video",
        "visible": true,
@@ -1046,15 +1068,15 @@
    },
    {
     "kind": "frame",
-    "id": "sc_k1u1tbi",
+    "id": "sc_0veltnb",
     "body": {
-     "id": "sc_k1u1tbi",
+     "id": "sc_0veltnb",
      "name": "Slide",
      "group": "",
      "fav": false,
      "tpl": false,
-     "created": 1792925920008,
-     "modified": 1792925920008,
+     "created": 1793597337837,
+     "modified": 1793597337837,
      "version": 1,
      "creator": "",
      "from": "",
@@ -1095,15 +1117,15 @@
    },
    {
     "kind": "template",
-    "id": "sc_qikkyf1",
+    "id": "sc_7c59o9j",
     "body": {
-     "id": "sc_qikkyf1",
+     "id": "sc_7c59o9j",
      "name": "Prayer template",
      "group": "",
      "fav": false,
      "tpl": true,
-     "created": 1792925920008,
-     "modified": 1792925920008,
+     "created": 1793597337838,
+     "modified": 1793597337838,
      "version": 1,
      "creator": "",
      "from": "",
@@ -1124,7 +1146,7 @@
      },
      "layers": [
       {
-       "id": "Lmz7cglv",
+       "id": "Lurk0xf6",
        "kind": "prayer",
        "name": "Prayer Point",
        "visible": true,
@@ -1144,7 +1166,7 @@
        }
       },
       {
-       "id": "Lsl4mvf7",
+       "id": "Lcalfar9",
        "kind": "scripture",
        "name": "Scripture",
        "visible": true,
@@ -1230,11 +1252,11 @@
     "id": "order",
     "body": {
      "scenes": [
-      "sc_7yze23k",
-      "sc_et2d6hh",
-      "sc_w4lxl9l",
-      "sc_k1u1tbi",
-      "sc_qikkyf1"
+      "sc_7ke2dip",
+      "sc_xnbtvuv",
+      "sc_frj1geb",
+      "sc_0veltnb",
+      "sc_7c59o9j"
      ],
      "questions": [
       "q1",
@@ -1332,7 +1354,9 @@
      "owner": "",
      "contentNotes": "",
      "notes": "",
-     "extra": ""
+     "extra": "",
+     "script": "",
+     "scriptMode": "frame"
     }
    },
    {
@@ -1388,9 +1412,9 @@
     }
    },
    "live": {
-    "scene": "sc_et2d6hh",
+    "scene": "sc_xnbtvuv",
     "seq": 1,
-    "at": 1792925920009,
+    "at": 1793597337838,
     "tx": "cut",
     "txMs": 0,
     "auto": true,
@@ -1402,12 +1426,21 @@
      "items": [],
      "undone": []
     },
+    "spot": null,
     "message": "Please stand by — we’ll be right back.",
     "on": {},
     "cd": {}
    },
    "v6": false,
    "library": {},
+   "fx": {
+    "burst": {
+     "density": "medium",
+     "dir": "right",
+     "tint": "",
+     "intensity": 60
+    }
+   },
    "keys": [
     "rev",
     "verse",
@@ -1420,7 +1453,8 @@
     "v6",
     "brand",
     "meeting",
-    "library"
+    "library",
+    "fx"
    ]
   }
  }

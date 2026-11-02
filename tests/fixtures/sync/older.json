@@ -221,6 +221,7 @@
     "items": [],
     "undone": []
    },
+   "spot": null,
    "message": "Please stand by — we’ll be right back.",
    "on": {},
    "cd": {}
@@ -248,7 +249,9 @@
    "owner": "",
    "contentNotes": "",
    "notes": "",
-   "extra": ""
+   "extra": "",
+   "script": "",
+   "scriptMode": "frame"
   },
   "library": {
    "verses": [
@@ -270,6 +273,14 @@
      "mode": ""
     }
    ]
+  },
+  "fx": {
+   "burst": {
+    "density": "medium",
+    "dir": "right",
+    "tint": "",
+    "intensity": 60
+   }
   }
  },
  "split": {
@@ -487,7 +498,9 @@
      "owner": "",
      "contentNotes": "",
      "notes": "",
-     "extra": ""
+     "extra": "",
+     "script": "",
+     "scriptMode": "frame"
     }
    },
    {
@@ -557,12 +570,21 @@
      "items": [],
      "undone": []
     },
+    "spot": null,
     "message": "Please stand by — we’ll be right back.",
     "on": {},
     "cd": {}
    },
    "v6": false,
    "library": {},
+   "fx": {
+    "burst": {
+     "density": "medium",
+     "dir": "right",
+     "tint": "",
+     "intensity": 60
+    }
+   },
    "keys": [
     "rev",
     "verse",
@@ -575,7 +597,8 @@
     "v6",
     "brand",
     "meeting",
-    "library"
+    "library",
+    "fx"
    ]
   }
  }

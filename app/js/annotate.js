@@ -3,7 +3,10 @@
  * Annotate: press D (or Annotate in the command bar) and draw on the Studio Canvas with the pen, highlighter, arrow,
  * line, rectangle, ellipse or text. The drawings go into the shared state (live.ink), so FrameRelay (Zoom / Teams),
  * the overlay pages and the phone remote all show them, above every Content and card. Esc (or Done) stops annotating;
- * Ctrl+Z / Ctrl+Y undo and redo. Freeze (F) holds the picture; drawings still go on top of it. */
+ * Ctrl+Z / Ctrl+Y undo and redo. Freeze (F) holds the picture; drawings still go on top of it.
+ * 8.2 Spotlight: a glowing circle around the word under the pointer, on every picture, for a few seconds. The
+ * Spotlight tool (S) while annotating, or press Ctrl twice quickly with the pointer over the canvas (like "find my
+ * mouse"). Its colour, size, length and strength are set under the tool (remembered on this PC). */
 (function(){
 'use strict';
 var Store = window.KCStore, SC = window.KCScenes, I = window.KCIcon;
@@ -21,7 +24,8 @@ function commit(fn){ return window.KCCommit(fn); }
 var live = null;
 var TOOL = {t: 'pen', c: '#e8b931', w: 0.005};
 var TOOLS = [['pen', 'pencil', 'Pen (P)'], ['highlighter', 'highlighter', 'Highlighter (H)'], ['arrow', 'move-up-right', 'Arrow (A)'], ['line', 'minus', 'Line (L)'],
-  ['rect', 'square', 'Rectangle (R)'], ['ellipse', 'circle', 'Ellipse (E)'], ['text', 'type', 'Text (T)']];
+  ['rect', 'square', 'Rectangle (R)'], ['ellipse', 'circle', 'Ellipse (E)'], ['text', 'type', 'Text (T)'],
+  ['spot', 'sparkles', 'Spotlight: click a word (S), or press Ctrl twice']];
 var COLORS = [['#e8b931', 'Gold'], ['#ff4b4b', 'Red'], ['#34d17c', 'Green'], ['#4c8dff', 'Blue'], ['#ffffff', 'White'], ['#111111', 'Black']];
 
 /* the toolbar, above the canvas, while annotating */
@@ -40,10 +44,36 @@ bar.appendChild(h('button', {cls: 'ib', type: 'button', title: 'Undo (Ctrl+Z)', 
 bar.appendChild(h('button', {cls: 'ib', type: 'button', title: 'Redo (Ctrl+Y)', 'aria-label': 'Redo', html: I('redo-2', 16), onclick: function(){ ink('redo'); }}));
 bar.appendChild(h('button', {cls: 'btn small', type: 'button', text: 'Clear', id: 'ann-clear', onclick: function(){ ink('clear'); }}));
 bar.appendChild(h('button', {cls: 'btn small primary', type: 'button', text: 'Done', id: 'ann-done', title: 'Stop annotating (Esc)', onclick: function(){ setAnnotate(false); }}));
+/* Spotlight settings (this PC) */
+var SPOT = {c: '#e8b931', size: 1, dur: 3, k: 60};
+try { Object.assign(SPOT, JSON.parse(localStorage.getItem('kc-spot') || '{}')); } catch(e){}
+function saveSpot(){ try { localStorage.setItem('kc-spot', JSON.stringify(SPOT)); } catch(e){} }
+var spotSet = h('div', {cls: 'ann-spot', id: 'ann-spot', hidden: 'hidden', role: 'group', 'aria-label': 'Spotlight settings'});
+(function(){
+  var cols = h('span', {cls: 'ann-spot-cols'});
+  COLORS.slice(0, 5).forEach(function(c){ cols.appendChild(h('button', {cls: 'ann-col', type: 'button', title: c[1], 'aria-label': 'Spotlight colour: ' + c[1], 'data-scol': c[0], style: 'background:' + c[0],
+    onclick: function(){ SPOT.c = c[0]; saveSpot(); renderSpot(); }})); });
+  function rng(label, key, min, max, step, fmt){
+    var r = h('input', {type: 'range', min: min, max: max, step: step, value: String(SPOT[key]), 'aria-label': label}), v = h('span', {cls: 'val', text: fmt(SPOT[key])});
+    r.addEventListener('input', function(){ SPOT[key] = +r.value; v.textContent = fmt(SPOT[key]); saveSpot(); });
+    r.addEventListener('keydown', function(e){ e.stopPropagation(); });
+    return h('label', {cls: 'ann-spot-r'}, [h('span', {text: label}), r, v]);
+  }
+  spotSet.appendChild(h('b', {text: 'Spotlight'}));
+  spotSet.appendChild(cols);
+  spotSet.appendChild(rng('Size', 'size', 0.5, 3, 0.1, function(n){ return Math.round(n * 100) + '%'; }));
+  spotSet.appendChild(rng('Length', 'dur', 1, 15, 0.5, function(n){ return n + ' s'; }));
+  spotSet.appendChild(rng('Strength', 'k', 10, 100, 5, function(n){ return n + '%'; }));
+  spotSet.appendChild(h('button', {cls: 'btn small', type: 'button', text: 'Try it', onclick: function(){ spotAt(null); }}));
+})();
+function renderSpot(){ Array.prototype.forEach.call(spotSet.querySelectorAll('[data-scol]'), function(b){ b.classList.toggle('on', b.dataset.scol === SPOT.c); }); }
+renderSpot();
 wrap.parentNode.insertBefore(bar, wrap);
+wrap.parentNode.insertBefore(spotSet, wrap);
 function renderBar(){
   Array.prototype.forEach.call(bar.querySelectorAll('.ann-tool'), function(b){ b.classList.toggle('on', b.dataset.tool === TOOL.t); b.setAttribute('aria-pressed', String(b.dataset.tool === TOOL.t)); });
   Array.prototype.forEach.call(bar.querySelectorAll('.ann-col'), function(b){ b.classList.toggle('on', b.dataset.col === TOOL.c); });
+  spotSet.hidden = TOOL.t !== 'spot' || bar.hidden;
 }
 renderBar();
 
@@ -78,6 +108,7 @@ pad.addEventListener('pointerdown', function(e){
   if (!annotating()) return;
   e.preventDefault(); e.stopPropagation();
   var p = pt(e);
+  if (TOOL.t === 'spot'){ spotAt(e); return; }
   if (TOOL.t === 'text'){
     var s = prompt('Text to write on the picture:');
     if (s && s.trim()) ink('add', {t: 'text', c: TOOL.c, w: TOOL.w, s: s.trim().slice(0, 200), p: [p]});
@@ -103,6 +134,69 @@ function endStroke(){
 pad.addEventListener('pointerup', endStroke);
 pad.addEventListener('pointercancel', endStroke);
 
+/* ---------- 8.2 Spotlight ---------- */
+/* the 16:9 picture inside whatever the canvas shows, in screen pixels */
+function pictureRect(){
+  var t = target(); if (!t) return null;
+  var r = t.getBoundingClientRect(), hh = Math.min(r.height, r.width * 9 / 16), ww = hh * 16 / 9;
+  return {left: r.left + (r.width - ww) / 2, top: r.top + (r.height - hh) / 2, width: ww, height: hh};
+}
+/* the word under a point of the overlay preview (stage.html in an iframe, 1920 x 1080 scaled down). With the camera
+   picture there is no text to read, so the circle goes where the pointer is. */
+function wordAt(cx, cy){
+  var fr = $('program-frame'), prog = $('program');
+  if (!fr || !prog || prog.hidden) return null;
+  try {
+    var r = fr.getBoundingClientRect(), sc = r.width / 1920, doc = fr.contentDocument;
+    if (!doc || !sc) return null;
+    var x = (cx - r.left) / sc, y = (cy - r.top) / sc;
+    // the cards ignore the pointer (pointer-events: none), so look through the text of whatever box is under it
+    var best = null, walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_TEXT, {acceptNode: function(n){
+      var el = n.parentElement; if (!el || !n.textContent.trim()) return NodeFilter.FILTER_REJECT;
+      var b = el.getBoundingClientRect();
+      return b.width && x >= b.left - 12 && x <= b.right + 12 && y >= b.top - 12 && y <= b.bottom + 12 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }});
+    var rg = doc.createRange(), re = /[\p{L}\p{N}'’\-]+/gu, node, m;
+    while ((node = walker.nextNode())){
+      var txt = node.textContent; re.lastIndex = 0;
+      while ((m = re.exec(txt))){
+        rg.setStart(node, m.index); rg.setEnd(node, m.index + m[0].length);
+        var rs = rg.getClientRects();
+        for (var q = 0; q < rs.length; q++){
+          var w = rs[q];
+          if (x >= w.left - 6 && x <= w.right + 6 && y >= w.top - 6 && y <= w.bottom + 6){ best = {r: w, word: m[0]}; break; }
+        }
+        if (best) break;
+      }
+      if (best) break;
+    }
+    if (!best) return null;
+    var w2 = best.r;
+    return {x: (w2.left + w2.width / 2) / 1920, y: (w2.top + w2.height / 2) / 1080, w: w2.width / 1920, h: w2.height / 1080, word: best.word};
+  } catch(e){ return null; }
+}
+var lastPtr = null;
+wrap.addEventListener('pointermove', function(e){ lastPtr = {x: e.clientX, y: e.clientY}; }, {passive: true});
+wrap.addEventListener('pointerleave', function(){ lastPtr = null; });
+function spotAt(e){
+  var pr = pictureRect(); if (!pr) return;
+  var cx = e ? e.clientX : pr.left + pr.width / 2, cy = e ? e.clientY : pr.top + pr.height / 2;
+  var wd = e ? wordAt(cx, cy) : null;
+  var spot = {id: 's' + Date.now().toString(36), x: wd ? wd.x : (cx - pr.left) / pr.width, y: wd ? wd.y : (cy - pr.top) / pr.height,
+    w: wd ? wd.w : 0, h: wd ? wd.h : 0, c: SPOT.c, size: SPOT.size, dur: SPOT.dur, k: SPOT.k};
+  if (spot.x < 0 || spot.x > 1 || spot.y < 0 || spot.y > 1) return;
+  commit(function(n){ n.live.spot = SC.cleanSpot(spot); });
+}
+/* Ctrl twice quickly, with the pointer over the canvas: Spotlight there */
+var ctrlAt = 0, ctrlClean = true;
+document.addEventListener('keydown', function(e){ if (e.key !== 'Control') ctrlClean = false; else if (!e.repeat) ctrlClean = true; }, true);
+document.addEventListener('keyup', function(e){
+  if (e.key !== 'Control' || !ctrlClean || document.body.dataset.tab !== 'studio') return;
+  var now = Date.now();
+  if (now - ctrlAt < 450 && lastPtr){ ctrlAt = 0; spotAt({clientX: lastPtr.x, clientY: lastPtr.y}); }
+  else ctrlAt = now;
+}, true);
+
 /* keys while annotating: tools, undo / redo, Esc. They run before the meeting shortcuts. */
 document.addEventListener('keydown', function(e){
   if (!annotating() || document.body.dataset.tab !== 'studio') return;
@@ -112,7 +206,7 @@ document.addEventListener('keydown', function(e){
   if ((e.ctrlKey || e.metaKey) && !e.altKey && (e.key === 'y' || e.key === 'Y')){ e.preventDefault(); e.stopImmediatePropagation(); ink('redo'); return; }
   if (e.ctrlKey || e.metaKey || e.altKey) return;
   if (e.key === 'Escape'){ e.preventDefault(); e.stopImmediatePropagation(); setAnnotate(false); return; }
-  var k = {p: 'pen', h: 'highlighter', a: 'arrow', l: 'line', r: 'rect', e: 'ellipse', t: 'text'}[(e.key || '').toLowerCase()];
+  var k = {p: 'pen', h: 'highlighter', a: 'arrow', l: 'line', r: 'rect', e: 'ellipse', t: 'text', s: 'spot'}[(e.key || '').toLowerCase()];
   if (k){ e.preventDefault(); e.stopImmediatePropagation(); TOOL.t = k; renderBar(); }
 }, true);
 
@@ -146,7 +240,7 @@ window.KCTeleprompter = {open: function(){ teleprompter(true); }, toggle: functi
 
 function render(){
   var on = annotating(), fz = !!(live && live.live.freeze);
-  bar.hidden = !on; pad.hidden = !on;
+  bar.hidden = !on; pad.hidden = !on; spotSet.hidden = !on || TOOL.t !== 'spot';
   document.body.classList.toggle('annotating', on);
   if (on) placePad(); else if (stroke){ stroke = null; drawLocal(); }
   var a = $('lb-annotate'), f = $('lb-freeze');

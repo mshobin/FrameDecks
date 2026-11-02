@@ -1276,6 +1276,29 @@ function renderTransitions(){
   SC.profiles.forEach(function(p){ tb.appendChild(h('tr', {cls: p.id === live.profile ? 'today' : ''}, [h('td', {text: p.name}), h('td', {text: SC.txName(p.type)}), h('td', {text: p.ms ? p.ms + ' ms' : '-'})])); });
   t.appendChild(tb); root.appendChild(h('div', {cls: 'dir-wrap'}, [t]));
   root.appendChild(h('p', {cls: 'hint', text: 'FrameRelay plays every transition on the whole picture (a few light operations per frame, under a second). The OBS / browser overlay page covers the screen for the dips and moves the cards for the slides and pushes.'}));
+  root.appendChild(burstBox());
+}
+/* 8.2 Burst: the old picture breaks into dust that drifts away (used by every Frame whose transition is Burst) */
+function burstBox(){
+  var b = (live.fx && live.fx.burst) || SC.burstDefault;
+  function set(k, v){ commit(function(n){ n.fx = n.fx || {}; n.fx.burst = SC.cleanBurst(Object.assign({}, n.fx.burst, (function(o){ o[k] = v; return o; })({}))); }); }
+  function seg(k, opts, label){
+    return h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: label}), h('div', {cls: 'seg', role: 'radiogroup', 'aria-label': label}, opts.map(function(o){
+      return h('button', {type: 'button', role: 'radio', 'aria-checked': String(b[k] === o[0]), text: o[1], onclick: function(){ set(k, o[0]); setTimeout(renderTransitions, 50); }});
+    }))]);
+  }
+  var tint = h('input', {type: 'color', value: b.tint || '#e8b931', 'aria-label': 'Dust colour'});
+  tint.addEventListener('change', function(){ set('tint', tint.value); });
+  var r = h('input', {type: 'range', min: 10, max: 100, step: 5, value: String(b.intensity), 'aria-label': 'Strength'}), rv = h('span', {cls: 'val', text: b.intensity + '%'});
+  r.addEventListener('input', function(){ rv.textContent = r.value + '%'; later('burst', function(){ set('intensity', +r.value); }); });
+  return h('section', {cls: 'box burst-box', 'aria-labelledby': 'burst-title'}, [
+    h('div', {cls: 'box-head'}, [h('h2', {id: 'burst-title', text: 'Burst'})]),
+    h('p', {cls: 'hint', text: 'The old picture breaks into dust that drifts away and uncovers the next Frame. Choose Burst as a Frame’s transition (Frame → Advanced); its length is the transition length there.'}),
+    seg('density', [['low', 'Light'], ['medium', 'Medium'], ['high', 'Fine']], 'Dust'),
+    seg('dir', [['right', 'Right'], ['left', 'Left'], ['up', 'Up'], ['down', 'Down'], ['out', 'Outwards']], 'Drifts'),
+    h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'Strength'}), h('div', {cls: 'range'}, [r, rv])]),
+    h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'Dust colour'}), tint,
+      h('label', {cls: 'check'}, [(function(){ var c = h('input', {type: 'checkbox'}); c.checked = !b.tint; c.addEventListener('change', function(){ set('tint', c.checked ? '' : tint.value); }); return c; })(), ' The picture’s own colours'])])]);
 }
 (window.KCSectionHooks = window.KCSectionHooks || []).push(function(id){ if (id === 'transitions') renderTransitions(); });
 

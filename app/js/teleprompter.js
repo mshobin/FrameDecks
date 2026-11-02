@@ -9,8 +9,12 @@
  *
  * Script markup (all optional):  # Heading   - bullet   **bold**   *italic*   [CUE]   --- (a divider)
  *
- * KCPrompter.create(host, {key, compact, editable, edit(sid, text), toolbar: 'bar' | 'float', extra: [buttons]})
- *   → {update(st, sc), play(on), playing(), showControls(), focus(), el}
+ * KCPrompter.create(host, {key, compact, editable, edit(sid, text), toolbar: 'bar' | 'float', extra: [buttons],
+ *   controlsHost, cues, bare, source(st, sc)})
+ *   → {update(st, sc), play(on), playing(), showControls(), focus(), edit(), el}
+ * 8.2 controlsHost: the controls go into that element (the Teleprompter window's top bar) instead of over the script;
+ * cues: false hides the "Frame 1 of 5" lines; bare: an empty script shows nothing at all (no buttons, no labels);
+ * source(st, sc) → {id, text, name}: where the script comes from (one script for the whole meeting, or the Frame's).
  * toolbar 'float' (6.8): the controls float over the script as a small glass bar that hides itself; the script takes
  * nearly the whole width (95 %, narrower only for small text on a wide screen, so lines stay readable).
  * KCPrompter.render(text) → safe HTML;  KCPrompter.cues(st, sc) → {pos, name, next, upcoming} */
@@ -73,6 +77,7 @@ function save(key, o){ try { localStorage.setItem('kc-tp-' + key, JSON.stringify
 function create(host, opts){
   opts = opts || {};
   var float = opts.toolbar === 'float';                          // 6.8: a floating toolbar that hides itself
+  var source = opts.source || function(st, sc){ return sc ? {id: sc.id, text: String(sc.notes || ''), name: sc.name} : null; };
   var key = opts.key || 'main', S = Object.assign({size: opts.compact ? 22 : float ? 44 : 34, line: float ? 1.55 : 1.5, speed: 'normal',
     contrast: false, focus: false, mirror: false}, load(key));
   var playing = false, raf = 0, last = 0, acc = 0, sig = '', curSid = '', curText = '', curSc = null;
@@ -98,9 +103,10 @@ function create(host, opts){
     ibtn('arrow-up-to-line', '⤒', 'Back to the top (Home)', function(){ scroll.scrollTop = 0; acc = 0; }, 'tp-top'),
     opts.editable ? ibtn('pencil', '✎', 'Edit this Frame’s script', function(){ editScript(); }, 'tp-edit') : null].concat(opts.extra || []));
   if (float){ controls.classList.add('tp-float'); controls.setAttribute('data-no-drag', ''); }
-  var root = h('div', {cls: 'tp' + (opts.compact ? ' tp-compact' : '') + (float ? ' tp-float-mode tp-ui-on' : '')}, [
-    h('div', {cls: 'tp-cues'}, [h('div', {cls: 'tp-cue-row'}, [cuePos, cueNow]), h('div', {cls: 'tp-cue-row tp-cue-sub'}, [cueNext, cueUp])]),
-    scroll, controls]);
+  var root = h('div', {cls: 'tp' + (opts.compact ? ' tp-compact' : '') + (float ? ' tp-float-mode tp-ui-on' : '') + (opts.bare ? ' tp-bare' : '')}, [
+    opts.cues === false ? null : h('div', {cls: 'tp-cues'}, [h('div', {cls: 'tp-cue-row'}, [cuePos, cueNow]), h('div', {cls: 'tp-cue-row tp-cue-sub'}, [cueNext, cueUp])]),
+    scroll, opts.controlsHost ? null : controls]);
+  if (opts.controlsHost){ controls.classList.add('tp-hosted'); opts.controlsHost.appendChild(controls); }
   host.appendChild(root);
 
   /* 6.8 floating toolbar: shows on mouse movement, touch or keyboard, fades after a few seconds of no activity
@@ -126,6 +132,7 @@ function create(host, opts){
   }
   function setPlay(on){
     playing = !!on; playBtn.textContent = playing ? '❚❚ Pause' : '▶ Scroll'; playBtn.setAttribute('aria-pressed', String(playing));
+    if (opts.onPlay) opts.onPlay(playing);
     root.classList.toggle('tp-playing', playing);
     cancelAnimationFrame(raf); last = 0;
     if (playing) raf = requestAnimationFrame(step);
@@ -171,6 +178,8 @@ function create(host, opts){
     playing: function(){ return playing; },
     showControls: ui,
     focus: function(){ scroll.focus({preventScroll: true}); },
+    edit: function(){ editScript(); },
+    empty: function(){ return !String(curText || '').trim(); },
     /* st: the shared state; sc: the Frame whose script to show (the live one, or the selected one) */
     update: function(st, sc){
       var c = cues(st, sc), live = !!(sc && st && st.live.scene === sc.id);
@@ -179,12 +188,12 @@ function create(host, opts){
       cueNext.textContent = c.next ? 'Next Frame: ' + c.next : 'Last Frame';
       cueUp.textContent = c.upcoming || '';
       root.classList.toggle('tp-live', live);
-      curSc = sc;
-      var t = sc ? String(sc.notes || '') : '', s = (sc ? sc.id : '') + '\u0000' + t;
+      var src = source(st, sc); curSc = src;
+      var t = src ? src.text : '', s = (src ? src.id : '') + '\u0000' + t;
       if (s === sig) return; sig = s;
       if (window.KCEditable && window.KCEditable.within(root)) { sig = ''; return; }     // editing: keep the editor
-      var newFrame = (sc ? sc.id : '') !== curSid; curSid = sc ? sc.id : ''; curText = t;
-      text.innerHTML = t.trim() ? render(t) : '<div class="tp-empty-box"><p class="tp-empty">' + (sc ? 'No script for “' + esc(sc.name) + '” yet.' : 'Select a Frame.') + '</p>' +
+      var newFrame = (src ? src.id : '') !== curSid; curSid = src ? src.id : ''; curText = t;
+      text.innerHTML = t.trim() ? render(t) : opts.bare ? '' : '<div class="tp-empty-box"><p class="tp-empty">' + (sc ? 'No script for “' + esc(sc.name) + '” yet.' : 'Select a Frame.') + '</p>' +
         (!sc ? '' : opts.editable && opts.edit ? '<button class="tp-btn tp-empty-act" type="button">Write a script</button><p class="tp-empty-hint">Or double-click here.</p>' :
           '<p class="tp-empty-hint">Add one in the main window: Frame settings → Teleprompter script.</p>') + '</div>';
       if (newFrame){ scroll.scrollTop = 0; acc = 0; }

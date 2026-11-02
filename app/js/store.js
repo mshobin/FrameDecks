@@ -75,7 +75,8 @@ var DEFAULT_STATE = {
   /* v6.5 Meeting details (Excel Meeting Form, js/meeting-book.js FIELDS); 6.9 adds time, location, speaker contact,
      attendees, presentation owner and notes */
   meeting: {title: '', date: '', time: '', location: '', presenter: '', contact: '', attendees: '', attendeeNotes: '', owner: '',
-    contentNotes: '', notes: '', extra: ''},
+    contentNotes: '', notes: '', extra: '',
+    script: '', scriptMode: 'frame'},     // 8.2 the Teleprompter: one script for the whole meeting ('all') or each Frame's own
   /* Saved lists shown in the dashboard (sample placeholder content) */
   library: {
     verses: [
@@ -243,16 +244,28 @@ var KIND_INFO = {
 };
 /* Scene transitions. In FrameDecks every type plays on the whole picture; on the overlay pages the dips cover the
  * screen and the cards follow (cut = instant). */
-var TX = [['cut', 'Cut'], ['fade', 'Fade'], ['dissolve', 'Cross Dissolve'], ['dip-black', 'Dip to Black'], ['dip-white', 'Dip to White'],
-  ['blur-fade', 'Blur Fade'], ['zoom-fade', 'Zoom Fade'], ['slide-left', 'Slide Left'], ['slide-right', 'Slide Right'], ['push', 'Push'],
-  ['reveal', 'Reveal'], ['soft-scale', 'Soft Scale'], ['cinema', 'Cinema Fade'], ['church', 'Church Service Fade']];
+/* 8.2 one of each visual effect: Cross Dissolve, Cinema Fade and Church Service Fade were the same cross-fade as Fade
+ * (only their length differed, and the length stays); Slide Right mirrored Slide Left; Soft Scale was Zoom Fade's
+ * zoom. They map to the one that stays (TX_ALIAS), so saved Frames, profiles and Excel files keep working.
+ * Burst (new): the old picture breaks into dust that drifts away, uncovering the new one (st.fx.burst). */
+var TX = [['cut', 'Cut'], ['fade', 'Fade'], ['dip-black', 'Dip to Black'], ['dip-white', 'Dip to White'], ['blur-fade', 'Blur Fade'],
+  ['zoom-fade', 'Zoom'], ['slide-left', 'Slide'], ['push', 'Push'], ['reveal', 'Wipe'], ['burst', 'Burst']];
 var TX_IDS = TX.map(function(t){ return t[0]; });
-var TX_MS = {cut: 0, fade: 500, dissolve: 450, 'dip-black': 700, 'dip-white': 700, 'blur-fade': 500, 'zoom-fade': 500, 'slide-left': 450,
-  'slide-right': 450, push: 450, reveal: 550, 'soft-scale': 450, cinema: 1100, church: 800};
+var TX_ALIAS = {dissolve: 'fade', cinema: 'fade', church: 'fade', 'slide-right': 'slide-left', 'soft-scale': 'zoom-fade'};
+function txId(t){ t = TX_ALIAS[t] || t; return TX_IDS.indexOf(t) >= 0 ? t : ''; }
+var TX_MS = {cut: 0, fade: 500, 'dip-black': 700, 'dip-white': 700, 'blur-fade': 500, 'zoom-fade': 500, 'slide-left': 450,
+  push: 450, reveal: 550, burst: 1400};
+var BURST_DEFAULT = {density: 'medium', dir: 'right', tint: '', intensity: 60};
+function cleanBurst(b){
+  b = isObj(b) ? b : {};
+  return {density: ['low', 'medium', 'high'].indexOf(b.density) >= 0 ? b.density : 'medium',
+    dir: ['right', 'left', 'up', 'down', 'out'].indexOf(b.dir) >= 0 ? b.dir : 'right',
+    tint: /^#[0-9a-fA-F]{6}$/.test(b.tint || '') ? b.tint.toLowerCase() : '', intensity: num(b.intensity, 10, 100, 60)};
+}
 var PROFILES = [
   {id: 'sunday', name: 'Sunday Service', type: 'fade', ms: 500}, {id: 'bible-study', name: 'Bible Study', type: 'fade', ms: 350},
-  {id: 'youth', name: 'Youth Service', type: 'push', ms: 300}, {id: 'conference', name: 'Conference', type: 'dissolve', ms: 400},
-  {id: 'wedding', name: 'Wedding', type: 'cinema', ms: 1100}, {id: 'funeral', name: 'Funeral', type: 'church', ms: 900},
+  {id: 'youth', name: 'Youth Service', type: 'push', ms: 300}, {id: 'conference', name: 'Conference', type: 'fade', ms: 400},
+  {id: 'wedding', name: 'Wedding', type: 'fade', ms: 1100}, {id: 'funeral', name: 'Funeral', type: 'fade', ms: 900},
   {id: 'christmas', name: 'Christmas Service', type: 'dip-white', ms: 700}, {id: 'livestream', name: 'Livestream', type: 'cut', ms: 0}];
 var POS = ['top', 'center', 'bottom', 'lower-left', 'lower-right', 'upper-left', 'upper-right'];
 function rid(p){ return (p || 'L') + Math.random().toString(36).slice(2, 9); }
@@ -346,6 +359,13 @@ function cleanInk(o){
   return {on: !!o.on, items: items, undone: (Array.isArray(o.undone) ? o.undone : []).filter(isObj).slice(-50).map(function(x){ return cleanInk({items: [x]}).items[0]; }).filter(Boolean)};
 }
 /* v6.5 Annotate: draw live.ink on a canvas, the same way vcam/annotate.py draws it on FrameRelay */
+/* 8.2 Spotlight: one glowing circle around a word (or the pointer) on every picture for a few seconds. Each screen
+ * plays its own animation the first time it sees a new id (overlay.js, vcam/spotlight.py). */
+function cleanSpot(o){
+  if (!isObj(o) || !o.id) return null;
+  return {id: str(o.id, 24), x: num(o.x, 0, 1, 0.5), y: num(o.y, 0, 1, 0.5), w: num(o.w, 0, 1, 0), h: num(o.h, 0, 1, 0),
+    c: /^#[0-9a-fA-F]{6}$/.test(o.c || '') ? o.c.toLowerCase() : '#e8b931', size: num(o.size, 0.5, 3, 1), dur: num(o.dur, 1, 15, 3), k: num(o.k, 10, 100, 60)};
+}
 function drawInk(cv, items){
   var c = cv.getContext('2d'), W = cv.width, H = cv.height;
   c.clearRect(0, 0, W, H);
@@ -375,7 +395,7 @@ function cleanScene(sc){
     created: Number(sc.created) || 0, modified: Number(sc.modified) || 0, version: Math.max(1, Number(sc.version) || 1),
     creator: str(sc.creator, 80), from: str(sc.from, 80), template: str(sc.template, 80), parent: str(sc.parent, 40),
     notes: str(sc.notes, 20000),                                  /* the Teleprompter script (6.7; v6.2 leader notes), never on screen */
-    tx: {type: tx.type === 'profile' || TX_IDS.indexOf(tx.type) >= 0 ? tx.type : 'profile', ms: num(tx.ms, 0, 5000, 500)},
+    tx: {type: tx.type === 'profile' ? 'profile' : txId(tx.type) || 'profile', ms: num(tx.ms, 0, 5000, 500)},
     auto: {on: !!auto.on, sec: num(auto.sec, 2, 3600, 30)},
     out: {vcam: true, obs: true},
     layers: foldOut((Array.isArray(sc.layers) ? sc.layers : []).map(cleanLayer).filter(Boolean).slice(0, 60), out)};
@@ -472,7 +492,7 @@ function compToMedia(o){
 }
 function profileOf(st){ for (var i = 0; i < PROFILES.length; i++) if (PROFILES[i].id === st.profile) return PROFILES[i]; return PROFILES[1]; }
 var Scenes = {
-  CARD: CARD_KINDS, TEXT: TEXT_KINDS, MEDIA: MEDIA_KINDS, info: KIND_INFO, transitions: TX, txMs: TX_MS, profiles: PROFILES, templates: TEMPLATES, library: LIBRARY, libraryCats: LIBRARY_CATS, quickStarts: QUICK_START,
+  CARD: CARD_KINDS, TEXT: TEXT_KINDS, MEDIA: MEDIA_KINDS, info: KIND_INFO, transitions: TX, txMs: TX_MS, txId: txId, burstDefault: BURST_DEFAULT, cleanBurst: cleanBurst, profiles: PROFILES, templates: TEMPLATES, library: LIBRARY, libraryCats: LIBRARY_CATS, quickStarts: QUICK_START,
   positions: POS, textDefaults: TEXT_DEFAULTS, cleanLayer: cleanLayer, cleanScene: cleanScene, mediaToComp: mediaToComp, compToMedia: compToMedia,
   isCard: function(k){ return CARD_KINDS.indexOf(k) >= 0; }, isText: function(k){ return TEXT_KINDS.indexOf(k) >= 0; },
   isMedia: function(k){ return MEDIA_KINDS.indexOf(k) >= 0; }, isSound: function(k){ return SOUND_KINDS.indexOf(k) >= 0; },
@@ -480,12 +500,13 @@ var Scenes = {
     st.scenes = (Array.isArray(raw.scenes) ? raw.scenes : []).map(cleanScene).filter(Boolean).slice(0, 400);
     var seen = {}; st.scenes = st.scenes.filter(function(sc){ if (seen[sc.id]) return false; return (seen[sc.id] = true); });
     var l = isObj(raw.live) ? raw.live : {};
-    st.live = {scene: str(l.scene, 40), seq: Number(l.seq) || 0, at: Number(l.at) || 0, tx: TX_IDS.indexOf(l.tx) >= 0 ? l.tx : 'cut',
-      txMs: num(l.txMs, 0, 5000, 0), auto: l.auto !== false, blackout: !!l.blackout, emergency: !!l.emergency, freeze: !!l.freeze, ink: cleanInk(l.ink),
+    st.live = {scene: str(l.scene, 40), seq: Number(l.seq) || 0, at: Number(l.at) || 0, tx: txId(l.tx) || 'cut',
+      txMs: num(l.txMs, 0, 5000, 0), auto: l.auto !== false, blackout: !!l.blackout, emergency: !!l.emergency, freeze: !!l.freeze, ink: cleanInk(l.ink), spot: cleanSpot(l.spot),
       message: str(l.message === undefined ? DEFAULT_STATE.live.message : l.message, 300), on: {}, cd: {}};
     if (isObj(l.on)) for (var k in l.on) if (l.on[k]) st.live.on[str(k, 40)] = true;
     if (isObj(l.cd)) for (var j in l.cd) st.live.cd[str(j, 40)] = Number(l.cd[j]) || 0;
     st.profile = PROFILES.some(function(p){ return p.id === raw.profile; }) ? raw.profile : 'bible-study';
+    st.fx = {burst: cleanBurst(isObj(raw.fx) ? raw.fx.burst : null)};          // 8.2 Burst settings (this PC)
     st.v6 = !!raw.v6;
   },
   find: function(st, id){ for (var i = 0; i < st.scenes.length; i++) if (st.scenes[i].id === id) return st.scenes[i]; return null; },
@@ -502,7 +523,8 @@ var Scenes = {
   },
   profile: profileOf,
   transitionOf: function(st, sc, override){
-    if (override && TX_IDS.indexOf(override) >= 0) return {type: override, ms: override === 'cut' ? 0 : TX_MS[override]};
+    override = override && txId(override);
+    if (override) return {type: override, ms: override === 'cut' ? 0 : TX_MS[override]};
     if (sc && sc.tx.type !== 'profile') return {type: sc.tx.type, ms: sc.tx.type === 'cut' ? 0 : sc.tx.ms};
     var p = profileOf(st); return {type: p.type, ms: p.ms};
   },
@@ -599,7 +621,7 @@ var Scenes = {
     return changed;
   },
   look: LOOK,
-  inkTools: INK_TOOLS, drawInk: drawInk,
+  inkTools: INK_TOOLS, drawInk: drawInk, cleanSpot: cleanSpot,
   /* Annotate: add / undo / redo / clear, and switch the drawings on or off */
   ink: function(n, op, item){
     var k = n.live.ink = n.live.ink || {on: false, items: [], undone: []};
@@ -954,7 +976,8 @@ function normalize(s){
   var mt = isObj(s) && isObj(s.meeting) ? s.meeting : {};
   st.meeting = {title: str(mt.title, 80), date: str(mt.date, 40), time: str(mt.time, 40), location: str(mt.location, 200), presenter: str(mt.presenter, 80),
     contact: str(mt.contact, 120), attendees: str(mt.attendees, 20), attendeeNotes: str(mt.attendeeNotes, 2000), owner: str(mt.owner, 80),
-    contentNotes: str(mt.contentNotes, 2000), notes: str(mt.notes, 2000), extra: str(mt.extra, 4000)};
+    contentNotes: str(mt.contentNotes, 2000), notes: str(mt.notes, 2000), extra: str(mt.extra, 4000),
+    script: str(mt.script, 20000), scriptMode: mt.scriptMode === 'all' ? 'all' : 'frame'};
   var b = isObj(s) && isObj(s.brand) ? s.brand : {};
   st.brand = {meeting: str(b.meeting, 80), org: str(b.org, 80), color: /^#[0-9a-fA-F]{6}$/.test(b.color || '') ? b.color.toLowerCase() : '',
     logo: str(b.logo, 40), lw: Number(b.lw) || 0, lh: Number(b.lh) || 0, auto: !!b.auto};

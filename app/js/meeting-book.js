@@ -80,9 +80,9 @@ var TYPE_NAME = {question: 'Question', scripture: 'Scripture', text: 'Text', ima
 var BACKGROUNDS = ['None', 'Navy', 'Black', 'White', 'Brand'];
 var BG = {none: '', navy: '#0b1222', black: '#000000', white: '#ffffff', brand: 'brand'};
 var TRANSITIONS = ['Frame default', 'Cut', 'Fade', 'Cross Dissolve', 'Dip to Black', 'Dip to White', 'Slide Left', 'Slide Right', 'Push', 'Zoom Fade', 'Soft Scale', 'Cinema Fade'];
-var TX = {framedefault: 'profile', default: 'profile', '': 'profile', cut: 'cut', fade: 'fade', crossdissolve: 'dissolve', dissolve: 'dissolve', diptoblack: 'dip-black',
+var TX = {framedefault: 'profile', default: 'profile', '': 'profile', cut: 'cut', fade: 'fade', crossdissolve: 'fade', dissolve: 'dissolve', diptoblack: 'dip-black',
   diptowhite: 'dip-white', slideleft: 'slide-left', slideright: 'slide-right', push: 'push', zoomfade: 'zoom-fade', softscale: 'soft-scale', cinemafade: 'cinema', cinema: 'cinema',
-  blurfade: 'blur-fade', reveal: 'reveal', churchservicefade: 'church'};
+  blurfade: 'blur-fade', reveal: 'reveal', churchservicefade: 'church', slide: 'slide-left', zoom: 'zoom-fade', wipe: 'reveal', burst: 'burst'};
 var ANIMATIONS = ['Content default', 'Fade', 'Gentle Rise', 'Word by Word', 'Typewriter', 'Burst', 'Cut'];
 var ANIM = {contentdefault: '', default: '', '': '', fade: 'fade', gentlerise: 'rise', rise: 'rise', wordbyword: 'words', words: 'words', typewriter: 'typewriter', burst: 'burst', cut: 'none', none: 'none'};
 var PPT_BG = ['Show', 'Hide'];

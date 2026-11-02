@@ -442,8 +442,76 @@ function Program(root){
   var black = el('div', 'pg-black'), slate = el('div', 'pg-slate'), msg = el('p', 'pg-msg'), dip = el('div', 'pg-dip');
   var ink = document.createElement('canvas'); ink.className = 'pg-ink'; ink.width = 1920; ink.height = 1080;     // v6.5 Annotate
   slate.appendChild(msg); root.appendChild(dip); root.appendChild(slate); root.appendChild(ink); root.appendChild(black);
-  var seq = null, dipT = null, stxT = null, inkSig = '';
+  var seq = null, dipT = null, stxT = null, inkSig = '', prevRects = [];
+  /* 8.2 Burst on the overlay pages: the cards that were on screen break into dust that drifts away (the camera does
+     the same to the whole picture, vcam/burst.py). A canvas only while it plays. */
+  function burst(ms, o){
+    if (!prevRects.length || (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches)) return;
+    o = o || {};
+    var cv = document.createElement('canvas'); cv.className = 'pg-burst'; cv.width = innerWidth; cv.height = innerHeight;
+    root.appendChild(cv);
+    var ctx = cv.getContext('2d'), per = {low: 0.0012, medium: 0.0022, high: 0.0035}[o.density] || 0.0022;
+    var k = Math.max(0.1, Math.min(1, (Number(o.intensity) || 60) / 100)), dir = o.dir || 'right', P = [];
+    var dx = dir === 'left' ? -1 : dir === 'right' ? 1 : 0, dy = dir === 'up' ? -1 : dir === 'down' ? 1 : 0;
+    prevRects.forEach(function(r){
+      var n = Math.min(2600, Math.round(r.w * r.h * per));
+      for (var i = 0; i < n; i++){
+        var x = r.x + Math.random() * r.w, y = r.y + Math.random() * r.h;
+        var nx = (x - r.x) / r.w, ny = (y - r.y) / r.h, pos = dir === 'left' ? 1 - nx : dir === 'up' ? 1 - ny : dir === 'down' ? ny : dir === 'out' ? Math.hypot(nx - .5, ny - .5) * 1.4 : nx;
+        var vx = dx, vy = dy;
+        if (dir === 'out'){ var a = Math.atan2(ny - .5, nx - .5); vx = Math.cos(a); vy = Math.sin(a); }
+        var sp = (0.12 + 0.25 * Math.random()) * k * innerWidth, sc = (Math.random() - .5) * 0.5 * k * innerWidth;
+        P.push({x: x, y: y, d: pos * 0.6 + Math.random() * 0.12, vx: vx * sp - vy * sc, vy: vy * sp + vx * sc - 0.1 * k * innerHeight * Math.random(),
+          s: 1.2 + Math.random() * 2.2, c: o.tint || r.c});
+      }
+    });
+    var t0 = performance.now(), dur = Math.max(400, ms);
+    (function frame(now){
+      var e = (now - t0) / dur; ctx.clearRect(0, 0, cv.width, cv.height);
+      if (e >= 1){ cv.remove(); return; }
+      for (var i = 0; i < P.length; i++){
+        var p = P[i], t = Math.max(0, Math.min(1, (e - p.d) / 0.32));
+        if (t >= 1) continue;
+        var ee = 1 - (1 - t) * (1 - t);
+        ctx.globalAlpha = t <= 0 ? 0.9 : Math.pow(1 - t, 1.3);
+        ctx.fillStyle = p.c;
+        ctx.fillRect(p.x + p.vx * ee, p.y + p.vy * ee, p.s * (1 - t * 0.6), p.s * (1 - t * 0.6));
+      }
+      requestAnimationFrame(frame);
+    })(t0);
+  }
+  /* 8.2 Spotlight: a glowing circle that grows in, pulses, then opens out into sparks and fades. Played once per id,
+     from the moment this page sees it (so every screen plays it whole, whatever its clock). */
+  var spotSeen = '';
+  function spotlight(sp){
+    if (!sp || !sp.id || sp.id === spotSeen) return;
+    var first = spotSeen === null; spotSeen = sp.id;
+    if (first) return;                                // a page opened mid-way does not replay an old one
+    var W = innerWidth, H = innerHeight, k = sp.k / 100;
+    var r = Math.max(sp.w * W * 0.62, sp.h * H * 1.15, 0.035 * W) * sp.size;
+    var d = el('div', 'pg-spot'), ring = el('i', 'pg-spot-ring');
+    d.style.cssText = '--x:' + (sp.x * W) + 'px;--y:' + (sp.y * H) + 'px;--r:' + r + 'px;--c:' + sp.c + ';--k:' + k.toFixed(2) + ';--dur:' + sp.dur + 's';
+    d.appendChild(ring);
+    var n = Math.round(8 + 14 * k);
+    for (var i = 0; i < n; i++){
+      var sk = el('b', 'pg-spark'), a = (i / n) * Math.PI * 2 + Math.random() * 0.4, dist = r * (0.9 + Math.random() * 0.9);
+      sk.style.cssText = '--sx:' + (Math.cos(a) * dist).toFixed(1) + 'px;--sy:' + (Math.sin(a) * dist).toFixed(1) + 'px;--sd:' + (Math.random() * 0.15).toFixed(2) + 's';
+      d.appendChild(sk);
+    }
+    root.appendChild(d);
+    setTimeout(function(){ d.classList.add('out'); }, sp.dur * 1000);
+    setTimeout(function(){ d.remove(); }, sp.dur * 1000 + 1100);
+  }
+  function grab(){
+    prevRects = Array.prototype.slice.call(document.querySelectorAll('.card:not(.out)')).map(function(c){
+      var b = c.getBoundingClientRect(), bg = getComputedStyle(c).backgroundColor;
+      return {x: b.left, y: b.top, w: b.width, h: b.height, c: bg && bg !== 'rgba(0, 0, 0, 0)' ? bg : 'rgb(232,185,49)'};
+    }).filter(function(r){ return r.w > 4 && r.h > 4; });
+  }
   return function(st){
+    setTimeout(grab, 0);
+    if (spotSeen === '') spotSeen = st.live && st.live.spot ? null : '-';     // remember what was already there
+    spotlight(st.live && st.live.spot);                             // where the cards are now, for the next Burst
     var L = st.live || {};
     var isig = JSON.stringify(L.ink && L.ink.on ? L.ink.items : []);
     if (isig !== inkSig){ inkSig = isig; window.KCScenes.drawInk(ink, L.ink && L.ink.on ? L.ink.items : []); }
@@ -458,6 +526,7 @@ function Program(root){
     document.documentElement.style.setProperty('--stx-ms', ms + 'ms');
     clearTimeout(dipT); clearTimeout(stxT);
     stxT = setTimeout(function(){ delete document.body.dataset.stx; }, ms + 1500);
+    if (tx === 'burst' && ms > 0) burst(ms, st.fx && st.fx.burst);
     if ((tx === 'dip-black' || tx === 'dip-white') && ms > 0){
       dip.className = 'pg-dip ' + tx; dip.style.transitionDuration = (ms / 2) + 'ms';
       void dip.offsetWidth; dip.classList.add('on');

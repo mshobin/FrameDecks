@@ -45,3 +45,36 @@ body.sp-glass .sp-prompt{border-color:transparent}
 body.sp-glass .sp-prompt .tp{--tp-bg:transparent;background:transparent}
 body.sp-glass .tp-text{text-shadow:0 0 calc(var(--sp-halo) * .12em) rgba(var(--rgb-gray-0),calc(var(--sp-halo) * .95)),0 .03em calc(var(--sp-halo) * .25em) rgba(var(--rgb-gray-0),calc(var(--sp-halo) * .9))}
 @media (max-width:760px){ .sp-look button{padding:0 6px} .sp-pin span{display:none} }
+
+/* 8.2 the top bar holds every control in two rows; below it only the words, edge to edge */
+.sp-top{flex-direction:column;align-items:stretch;gap:8px;flex-wrap:nowrap}
+.sp-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;min-width:0}
+.sp-tools{gap:8px;padding-top:6px;border-top:1px solid var(--line-soft,var(--line))}
+.sp-ctl{display:contents}
+.sp-ctl .tp-controls{position:static;display:flex;flex-wrap:wrap;align-items:center;gap:4px;padding:0;margin:0;border:0;background:none;box-shadow:none;transform:none;opacity:1}
+.sp-ctl .tp-btn,.sp-act,.sp-next{min-height:34px;padding:0 12px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;font-size:13px;font-weight:700;cursor:pointer}
+.sp-ctl .tp-btn:hover,.sp-act:hover,.sp-next:hover:not(:disabled){border-color:var(--line-hover,var(--line));background:var(--raised)}
+.sp-ctl .tp-play{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.sp-ctl .tp-edit{display:none}
+.sp-ctl .tp-speed{min-height:34px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;font-size:13px;padding:0 8px}
+.sp-next{display:inline-flex;align-items:center;gap:6px;background:var(--accent-soft);border-color:var(--accent)}
+.sp-next:disabled{opacity:.45;cursor:default}
+.sp-mode{display:inline-flex;gap:2px;padding:3px;margin-left:auto;border-radius:12px;background:var(--surface);border:1px solid var(--line)}
+.sp-mode button{min-height:28px;padding:0 10px;border:0;border-radius:8px;background:none;color:var(--muted);font:inherit;font-size:13px;font-weight:700;cursor:pointer}
+.sp-mode button[aria-checked="true"]{background:var(--accent-soft);color:var(--ink);box-shadow:inset 0 0 0 1px var(--accent)}
+.sp-ctl .tp-btn:focus-visible,.sp-act:focus-visible,.sp-next:focus-visible,.sp-mode button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.sp-flash{position:absolute;left:50%;bottom:-40px;transform:translateX(-50%);padding:6px 14px;border-radius:999px;background:var(--surface);border:1px solid var(--line);
+  font-size:13px;font-weight:700;opacity:0;pointer-events:none;transition:opacity .2s ease;white-space:nowrap}
+.sp-flash.on{opacity:1}
+/* the words use the whole window, at every size */
+.sp-main{padding:0}
+.sp-prompt{border:0;border-radius:0}
+.sp-prompt .tp{border-radius:0}
+.sp-prompt .tp-scroll{padding:clamp(10px,2.5vh,28px) clamp(10px,2.5vw,36px) 0}
+.sp-prompt .tp-text{max-width:none;margin:0}
+body.sp-glass .sp-main{border-radius:0}
+@media (prefers-reduced-motion:reduce){ .sp-flash{transition:none} }
+/* the bar's tab is invisible until the pointer reaches the top edge (or it has keyboard focus) */
+.sp-bar-btn{opacity:0;transition:opacity .15s ease}
+.sp-head:hover .sp-bar-btn,.sp-bar-btn:focus-visible{opacity:.85}
+@media (prefers-reduced-motion:reduce){ .sp-bar-btn{transition:none} }

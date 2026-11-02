@@ -35,24 +35,22 @@ export const BACKGROUNDS: [string, string][] = [
   ["White", "#ffffff"],
   ["Brand", "brand"],
 ];
-/** Frame transitions: [form name, stored type] (store.js TX; "Frame default" follows the meeting's profile). */
+/** Frame transitions: [form name, stored type] (store.js TX; "Frame default" follows the meeting's profile). 8.2: one of
+ * each visual effect; the retired types read as the one that replaced them (TX_ALIAS, the same as store.js). */
 export const TRANSITIONS: [string, string][] = [
   ["Frame default", "profile"],
   ["Cut", "cut"],
   ["Fade", "fade"],
-  ["Cross Dissolve", "dissolve"],
   ["Dip to Black", "dip-black"],
   ["Dip to White", "dip-white"],
   ["Blur Fade", "blur-fade"],
-  ["Zoom Fade", "zoom-fade"],
-  ["Slide Left", "slide-left"],
-  ["Slide Right", "slide-right"],
+  ["Zoom", "zoom-fade"],
+  ["Slide", "slide-left"],
   ["Push", "push"],
-  ["Reveal", "reveal"],
-  ["Soft Scale", "soft-scale"],
-  ["Cinema Fade", "cinema"],
-  ["Church Service Fade", "church"],
+  ["Wipe", "reveal"],
+  ["Burst", "burst"],
 ];
+export const TX_ALIAS: Record<string, string> = { dissolve: "fade", cinema: "fade", church: "fade", "slide-right": "slide-left", "soft-scale": "zoom-fade" };
 /** Card animations (questions and scripture): [form name, stored value] (store.js TRANSITIONS). */
 export const CARD_ANIMATIONS: [string, string][] = [
   ["Content default", ""],
@@ -196,7 +194,7 @@ export function frameFormOf(frame: Obj): FrameForm {
     desc,
     script: notes,
     background: bg ? backgroundName(bgColor) || "None" : "None",
-    transition: isObj(frame.tx) ? str(frame.tx.type) || "profile" : "profile",
+    transition: isObj(frame.tx) ? TX_ALIAS[str(frame.tx.type)] ?? (str(frame.tx.type) || "profile") : "profile",
     content: layers.filter((l) => l.kind !== "background").map(rowOf),
   };
 }
@@ -379,7 +377,8 @@ export function frameFromForm(form: FrameForm, base: Obj | null, opts: FrameOpti
   const desc = form.desc.trim();
   frame.notes = cut([form.script.replace(/\r\n/g, "\n").trim(), desc ? ABOUT + desc.replace(/\n/g, " ") : ""].filter(Boolean).join("\n"), LIMITS.script);
   const tx = isObj(frame.tx) ? frame.tx : {};
-  frame.tx = { ...tx, type: TRANSITIONS.some(([, v]) => v === form.transition) ? form.transition : "profile", ms: typeof tx.ms === "number" ? tx.ms : 500 };
+  const wanted = TX_ALIAS[form.transition] ?? form.transition;
+  frame.tx = { ...tx, type: TRANSITIONS.some(([, v]) => v === wanted) ? wanted : "profile", ms: typeof tx.ms === "number" ? tx.ms : 500 };
 
   const old = new Map(layersOf(frame).map((l) => [str(l.id), l]));
   const made: Obj[] = [];

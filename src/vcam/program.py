@@ -2,9 +2,9 @@
 
 - the live scene's text layers (Announcement, Prayer Point, Lower Third, Countdown), drawn like the question card
   (same CardDrawer, same look as the overlay pages) at their chosen position, fading in and out;
-- the scene transition when a scene is taken live (cut, fade, dissolve, dip to black / white, blur fade, zoom fade,
-  slide, push, reveal, soft scale, cinema, church service fade) - a blend between the last picture of the old scene and
-  the new one, a few cheap whole-image operations per frame for under a second;
+- the scene transition when a scene is taken live (8.2: cut, fade, dip to black / white, blur fade, zoom, slide,
+  push, wipe, burst) - a blend between the last picture of the old scene and the new one, a few cheap whole-image
+  operations per frame for under a second (Burst: vcam/burst.py);
 - Blackout (a black picture) and the Emergency screen (a calm slate with your message);
 - v6.5 Freeze (hold the picture) and Annotate (drawings above everything), see vcam/annotate.py.
 
@@ -21,9 +21,13 @@ import numpy as np
 from PIL import Image, ImageDraw, ImageFilter
 
 from .annotate import Ink
+from .burst import Burst
+from .spotlight import Spotlight
 from .cards import CardDrawer, Card, accent_palette, logo_rgba, surface_of, _premult, GOLD_TEXT as _GOLD_TEXT
 
 TEXT_KINDS = ("announcement", "prayer", "lowerthird", "countdown")
+# 8.2 retired transitions play as the one that replaced them (store.js TX_ALIAS)
+TX_ALIAS = {"dissolve": "fade", "cinema": "fade", "church": "fade", "slide-right": "slide-left", "soft-scale": "zoom-fade"}
 
 
 def brand_text(st, s):
@@ -123,7 +127,8 @@ class ProgramFX:
         self.jobs, self.cond = {}, threading.Condition()
         self.last = None                 # the previous output picture (for transitions)
         self.seq = None
-        self.tx = None                   # (type, ms, t0, from_frame)
+        self.tx = None                   # (type, ms, t0, from_frame, burst)
+        self.spot = Spotlight()          # 8.2 the glowing circle around a word
         self.black = 0.0
         self.slate_a = 0.0
         self.slate = None                # (key, image)
@@ -149,14 +154,23 @@ class ProgramFX:
         elif seq != self.seq:
             self.seq = seq
             kind, ms = str(live.get("tx") or "cut"), float(live.get("txMs") or 0)
+            kind = TX_ALIAS.get(kind, kind)
             if kind != "cut" and ms > 0 and self.last is not None and self.last.shape == frame.shape:
-                self.tx = (kind, ms / 1000.0, now, self.last)
+                fx = None
+                if kind == "burst":
+                    try:
+                        fx = Burst(self.last, ((st.get("fx") or {}).get("burst") or {}))
+                    except Exception:
+                        kind = "fade"
+                self.tx = (kind, ms / 1000.0, now, self.last, fx)
         out = frame
         if self.tx is not None:
-            kind, dur, t0, a = self.tx
+            kind, dur, t0, a, fx = self.tx
             p = (now - t0) / dur
             if p >= 1 or a.shape != frame.shape:
                 self.tx = None
+            elif fx is not None:
+                out = fx.render(p, frame)                    # Burst keeps its own pace: the sweep is linear
             else:
                 out = self._transition(kind, _ease(p), a, frame)
         # Blackout and the Emergency screen fade in and out over 0.3 s
@@ -166,6 +180,7 @@ class ProgramFX:
             out = cv2.addWeighted(out, 1 - self.slate_a, self._slate(st, W, H), self.slate_a, 0)
         out = self.ink.freeze(out, bool(live.get("freeze")))       # Freeze: hold the picture (drawings still go on top)
         out = self.ink.draw(out if out is not frame else frame, live.get("ink"))
+        out = self.spot.draw(out, live.get("spot"), now)
         if self.black > 0.001:
             out = cv2.convertScaleAbs(out, alpha=1 - self.black)
         self.last = out if out is not frame else frame.copy()

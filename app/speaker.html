@@ -27,21 +27,33 @@
   <div class="sp-head" id="sp-head">
     <button class="sp-bar-btn" type="button" id="sp-bar-btn" aria-expanded="false" aria-controls="sp-top" aria-label="Show the top bar" title="Show the top bar: time, Frame and timer"><span aria-hidden="true">▾</span></button>
     <header class="sp-top" id="sp-top" data-win-drag>
-      <div class="sp-clock"><span>Time</span><b id="sp-clock">--:--</b></div>
-      <div class="sp-clock sp-frame"><span>Frame</span><b id="sp-frame-pos">–</b></div>
-      <div class="sp-clock sp-watch"><span>Timer</span><b id="sp-watch">0:00</b>
-        <div class="sp-watch-btns"><button class="btn small" type="button" id="sp-watch-go">Start</button><button class="btn quiet small" type="button" id="sp-watch-reset">Reset</button></div></div>
-      <div class="sp-look" id="sp-look" role="radiogroup" aria-label="Transparency" hidden>
-        <button type="button" role="radio" data-look="solid" title="Solid">Solid</button><button type="button" role="radio" data-look="presenter" title="20 % see-through">20%</button><button type="button" role="radio" data-look="meeting" title="40 % see-through">40%</button><button type="button" role="radio" data-look="conference" title="65 % see-through">65%</button><button type="button" role="radio" data-look="ghost" title="85 % see-through">85%</button></div>
-      <button class="sp-pin" type="button" id="sp-pin" aria-pressed="true" hidden title="Pinned: stays above Zoom, Teams and PowerPoint"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 17v5"/><path d="M9 10.8V5h6v5.8l2.5 3.2H6.5z"/><path d="M8 5h8"/></svg><span>Pinned</span></button>
-      <button class="btn quiet small sp-bar-pin" type="button" id="sp-bar-pin" aria-controls="sp-top" title="Keep the top bar open">Keep open</button>
-      <div data-win-controls></div>
+      <div class="sp-row">
+        <div class="sp-clock"><span>Time</span><b id="sp-clock">--:--</b></div>
+        <div class="sp-clock sp-frame"><span>Frame</span><b id="sp-frame-pos">–</b></div>
+        <button class="sp-next" type="button" id="sp-next" title="Put the next Frame on screen">Next Frame <span aria-hidden="true">▸</span></button>
+        <div class="sp-clock sp-watch"><span>Timer</span><b id="sp-watch">0:00</b>
+          <div class="sp-watch-btns"><button class="btn small" type="button" id="sp-watch-go">Start</button><button class="btn quiet small" type="button" id="sp-watch-reset">Reset</button></div></div>
+        <div class="sp-look" id="sp-look" role="radiogroup" aria-label="Transparency" hidden>
+          <button type="button" role="radio" data-look="solid" title="Solid">Solid</button><button type="button" role="radio" data-look="presenter" title="20 % see-through">20%</button><button type="button" role="radio" data-look="meeting" title="40 % see-through">40%</button><button type="button" role="radio" data-look="conference" title="65 % see-through">65%</button><button type="button" role="radio" data-look="ghost" title="85 % see-through">85%</button></div>
+        <button class="sp-pin" type="button" id="sp-pin" aria-pressed="true" hidden title="Pinned: stays above Zoom, Teams and PowerPoint"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 17v5"/><path d="M9 10.8V5h6v5.8l2.5 3.2H6.5z"/><path d="M8 5h8"/></svg><span>Pinned</span></button>
+        <button class="btn quiet small sp-bar-pin" type="button" id="sp-bar-pin" aria-controls="sp-top" title="Keep the top bar open">Keep open</button>
+        <div data-win-controls></div>
+      </div>
+      <div class="sp-row sp-tools" id="sp-tools" data-no-drag>
+        <div class="sp-ctl" id="sp-ctl"></div>
+        <button class="sp-act" type="button" id="sp-write">✎ Write Script</button>
+        <button class="sp-act" type="button" id="sp-upload" title="Load a script from a .txt, .md or Word (.docx) file">⇪ Upload</button>
+        <input type="file" id="sp-file" hidden>
+        <div class="sp-mode" role="radiogroup" aria-label="Script">
+          <button type="button" role="radio" data-mode="frame" aria-checked="true" title="Each Frame has its own script">Each Frame</button><button type="button" role="radio" data-mode="all" aria-checked="false" title="One script for the whole meeting">Whole meeting</button></div>
+      </div>
     </header>
   </div>
   <main class="sp-main"><section class="sp-prompt" id="sp-prompt" aria-label="Teleprompter" tabindex="-1"></section></main>
 <script src="js/store.js"></script>
 <script src="js/editable.js"></script>
 <script src="js/teleprompter.js"></script>
+<script src="js/script-file.js"></script>
 <script src="js/window-chrome.js"></script>
 <script src="js/speaker.js"></script>
 </body>
