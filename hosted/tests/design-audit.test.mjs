@@ -5,7 +5,7 @@ import { test } from "node:test";
 
 const src = (p) => readFileSync(new URL(`../src/${p}`, import.meta.url), "utf8");
 const components = readdirSync(new URL("../src/components/", import.meta.url)).filter((f) => f.endsWith(".tsx"));
-const css = ["globals.css", "design.css", "about.css", "motion.css", "identity.css", "landing.css", "landing-page.css", "plan.css", "light.css"].map((f) => [f, src(`app/${f}`)]);
+const css = ["globals.css", "design.css", "about.css", "motion.css", "identity.css", "landing.css", "landing-page.css", "plan.css", "help/guide.css", "light.css"].map((f) => [f, src(`app/${f}`)]);
 
 function luminance(hex) {
   const c = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255).map((v) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4));

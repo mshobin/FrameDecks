@@ -35,6 +35,8 @@ function showSection(id){
 window.KCShowSection = showSection;
 window.KCRenderSecurity = function(){ if (current === 'security') renderSecurity(); };
 $('s-nav').addEventListener('click', function(e){ var b = e.target.closest('[data-sec]'); if (b) showSection(b.dataset.sec); });
+/* 8.4 the step-by-step guide lives on the website (Help); the app window opens it in the normal browser */
+var guideBtn = $('sn-guide'); if (guideBtn) guideBtn.addEventListener('click', function(){ window.open('https://framedecks.com/help#guide', '_blank', 'noopener'); });
 document.addEventListener('click', function(e){
   var b = e.target.closest('[data-goto="settings"][data-sec]'); if (b) setTimeout(function(){ showSection(b.dataset.sec); }, 0);
 });

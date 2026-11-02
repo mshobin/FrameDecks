@@ -89,7 +89,7 @@ class DesignSystem(unittest.TestCase):
         html = read("dashboard.html")
         for glyph in "★✝⇄🎂◉◧▭☁⚙⌨⛨⛁✚ⓘ":
             self.assertNotIn(f'<span class="sn-i">{glyph}</span>', html)
-        self.assertEqual(html.count('<span class="sn-i"><i data-icon="'), 16)
+        self.assertEqual(html.count('<span class="sn-i"><i data-icon="'), 17)   # 8.4 + Step-by-step guide
 
     def test_headings_use_the_interface_typeface(self):
         css = read("css/theme.css")

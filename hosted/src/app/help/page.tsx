@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { PublicPage } from "@/components/public-page";
+import { HelpGuide } from "@/components/help-guide";
 import { ShowGuide } from "@/components/show-guide";
 import brand from "@/lib/brand.json";
 import { DOWNLOADS } from "@/lib/pc-setup";
@@ -15,10 +16,11 @@ export const metadata: Metadata = pageMetadata("Help", "/help");
 export default function HelpPage() {
   const contact = "hello@framedecks.com";
   return (
-    <PublicPage eyebrow="Help Center" title="Help" lead="What a volunteer needs five minutes before the service. Longer guides are in the Documentation.">
+    <PublicPage eyebrow="Help Center" title="Help" lead="New here? Follow the guide below, step by step, on the website or the service PC. Quick answers for the day of the meeting are further down.">
+      <HelpGuide />
       <div className="auth-legal fd-help">
         <nav aria-label="On this page" className="fd-help-toc">
-          <a href="#start">Getting started</a> · <a href="#day">On the day</a> · <a href="#problems">If something goes wrong</a> ·{" "}
+          <a href="#guide">Step-by-step guide</a> · <a href="#start">Getting started</a> · <a href="#day">On the day</a> · <a href="#problems">If something goes wrong</a> ·{" "}
           <a href="#words">Words</a> · <a href="#contact">Contact</a>
         </nav>
 

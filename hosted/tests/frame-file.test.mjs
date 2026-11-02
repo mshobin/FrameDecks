@@ -49,7 +49,7 @@ test("the website and the PC accept and refuse the same files", () => {
 
 // ---- 8.4 the whole round trip: Frames made on the website, exported, imported on the PC, checked field by field ----
 import { emptyFrame, emptyRow, frameFormOf, frameFromForm, meetingFromForm } from "../src/lib/meeting-form.ts";
-import { integrityOf } from "../src/lib/frame-file.ts";
+
 
 const program = require("../../tests/helpers/load-store.js")();
 const plainOf = (o) => JSON.parse(JSON.stringify(o));
