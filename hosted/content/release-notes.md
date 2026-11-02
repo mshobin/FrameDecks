@@ -1,44 +1,36 @@
-## FrameDecks v8.2.0
+## FrameDecks v8.3.0
 
-A cleaner Teleprompter, a Spotlight for the word you are talking about, a Burst transition and .frame files that take a
-whole plan to a service PC without internet. Download from **framedecks.com/download**, or let FrameDecks update
-itself. It installs over 8.1.0 and earlier and keeps all your meetings, members, settings and recordings.
+Planning on framedecks.com is now guided, step by step, with a timeline you arrange by dragging and a Preview of
+every Frame. Download from **framedecks.com/download**, or let FrameDecks update itself. It installs over 8.2.0 and
+earlier and keeps all your meetings, members, settings and recordings. The website changes are live for everyone.
 
 ## What's New
-- **Teleprompter: only your words on screen.** Every control now sits in the Teleprompter's top bar, which folds
-  away: Scroll, speed, font size and the other text settings, **✎ Write Script**, **Next Frame ▸**, transparency and
-  Pin. The script area shows the script and nothing else, and the text uses the whole window at every font size.
-- **Upload a script.** **⇪ Upload** in the Teleprompter bar reads a .txt, .md or Word (.docx) file. Word headings,
-  bullets and bold are kept.
-- **One script or one per Frame.** Choose **Each Frame** (as before: the script follows the live Frame) or **Whole
-  meeting** (one script for the whole meeting).
-- **Spotlight.** Annotate → Spotlight (key S, or press Ctrl twice): click a word on the picture and a glowing circle
-  grows around it, pulses, then opens out with a few sparks and fades. Choose its colour, size, length and strength.
-  It shows in Zoom and Teams (FrameRelay), recordings and the overlay pages.
-- **Burst transition.** The old Frame breaks into dust that drifts away and uncovers the next one. Choose how fine the
-  dust is, which way it drifts, its colour and its strength.
-- **.frame files.** On framedecks.com, Plan → **Export for Service PC** saves the whole plan in one file. On the
-  service PC, Settings → Data / Backup → **Import Frame File…** adds it after your Frames or replaces them (after a
-  backup). A PC can export one too, with its pictures, videos, audio and slides.
-- **Sync status.** A PC linked to a workspace shows **Synced**, **Syncing**, **Offline** or **Sync failed** in the
-  header.
+- **Plan in five steps** on framedecks.com: **Your meeting**, **Add Frames**, **Words and media**, **Preview**, then
+  **Sync or export**. Each step is ticked when it is done, and the next one has a large gold button: **Edit details**,
+  **Add Frame**, **Write Script**, **Preview** or **Export for Service PC**.
+- **A timeline of your Frames.** Drag a Frame to a new place, or select it and press Alt + ← or →. Click one to open it.
+- **Preview.** See each Frame as people will, with its transition and the presenter's script underneath. ← and → move
+  through the meeting.
+- **Choose Animation.** A Frame's transition is now a set of buttons that show their movement, Burst included.
+- **Pictures, video, audio and slides from the website.** **Choose file** keeps the file in your browser (never in the
+  cloud), and **Export for Service PC** puts it in the .frame file, so the service PC gets it with the plan.
+- **Sync status on the website**: Synced, Syncing…, Offline or Sync failed, next to Export for Service PC.
 
 ## Enhancements
-- Transitions: one of each kind. The list is Cut, Fade, Dip to Black, Dip to White, Blur Fade, Zoom, Slide, Push,
-  Wipe and Burst. Frames that used Dissolve, Cinema or Church now use Fade; Slide Right uses Slide; Soft Scale uses
-  Zoom. They look the same as before.
-- Settings → FrameDecks account says Synced, Syncing, Offline or Sync failed, and when offline, how to use a .frame
-  file instead.
+- Each Frame on the Plan page has **Write Script**, **Choose Animation** and **Preview** buttons.
+- The transition styles read Fade, Slow fade and Gentle fade (the names left over from before 8.2 are gone).
+- The website's styles are smaller: unused rules from older designs were removed, so pages load a little faster.
 
 ## Fixes
 - None in this release.
 
 ## Performance Improvements
-- Burst and Spotlight are drawn only while they play: about 12–20 ms and 6 ms a frame at 1080p, nothing otherwise.
+- The website's stylesheet stays within its 24 KB budget with the new Plan page, after removing about 6 KB of unused
+  rules.
 
 ## Known Issues
 - The installer is not yet code-signed, so Windows SmartScreen may ask you to confirm: **More info → Run anyway**.
-- A .frame file made on framedecks.com holds no pictures or videos (they are kept off the cloud). Add them on the PC,
-  or export the .frame file from a PC that has them.
-- With "Light on graphics card" on (the default), the Teleprompter fades as a whole, text included. For solid text over
-  a see-through background, turn it off in Settings → General → Performance and restart FrameDecks.
+- A file chosen on the website stays in that browser. Export the .frame file from the same browser, or add the file on
+  the service PC.
+- The Preview is an approximation of the picture. The service PC shows it exactly (Studio, or the Share Window).
+- Dragging Frames on the timeline needs a mouse or a touchpad. On a phone or tablet, use the arrows on each Frame.

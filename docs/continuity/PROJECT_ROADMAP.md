@@ -41,8 +41,8 @@ Repository clean-up is on `main` (modules in `src/`; `README.md`, `LICENSE`, `NO
 | 7.1.2: release guards after the 1 November audit | Published (1 November) |
 | 8.0.0: one Teleprompter, Frame cards, no Run/Practice, Setup wizard, plain camera settings, one-view phone remote | Published (1 November) |
 | 8.1.0: Teleprompter transparency and pin, six looks, one Content view, website-matching restyle | On `main`; tag `v8.1.0` publishes it |
-| 8.2.0: bare Teleprompter (controls in its bar, upload, script mode), Spotlight, transitions one per effect + Burst, .frame files, sync status chip | On `main`; tag `v8.2.0` publishes it |
-| 8.3: website Frame workflow (guided steps, drag-and-drop timeline, media added on the website carried in .frame files) | Next |
+| 8.2.0: bare Teleprompter (controls in its bar, upload, script mode), Spotlight, transitions one per effect + Burst, .frame files, sync status chip | Published (tag `v8.2.0`) |
+| 8.3.0: website Plan in five guided steps, drag-and-drop timeline, Preview, Choose Animation, media kept in the browser and carried in .frame files | On `main`; tag `v8.3.0` publishes the installer (the website is live from `main`) |
 | 7.2: Azure Trusted Signing in the workflow (urgent after the Defender quarantine), Ed25519-signed release manifests | Next (both stay off until the owner adds the signing account / key) |
 | Ideas from the 29 October plan, section 5 (run-through timer, "Take it home" phone page, safe Next preview, backup operator, volunteer rota) | On the roadmap, one at a time after 6.15, each with a live test |
 | framedecks.com as the one address (redirects, TLS, cache, WAF) | Live (28 October): framedecks.com serves, pages.dev noindex. Owner: redirect DNS records (www, app, framedecks.app), HSTS, Supabase + Google URLs, then the pages.dev Bulk Redirect |

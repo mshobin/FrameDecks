@@ -45,7 +45,7 @@ never changes another.
 | **Quick Start** | **✨ Meeting → Quick Start…** | A complete set of Frames for a Sunday Service, Bible Study, Youth Service, Conference and more |
 | **Library** | The **Library** filter in the Frames list | Ready-made Frames you can add |
 | **From a template** | **✨ Meeting → From your templates** | A new Frame made from one of your templates |
-| **From Excel** | **Settings → Data / Backup → Meeting from Excel** **→ Import a meeting from Excel…** (or the website's Meeting Form, 6.11) | Every Frame in the workbook. See [Service planning](service-planning.md#plan-in-excel-with-the-meeting-workbook) |
+| **From Excel** | **Settings → Data / Backup → Meeting from Excel** **→ Import a meeting from Excel…** (or Plan on the website: see [Plan on the website](service-planning.md#plan-on-the-website)) | Every Frame in the workbook. See [Service planning](service-planning.md#plan-in-excel-with-the-meeting-workbook) |
 | **From a file** | **✨ Meeting → Import a Frame file…** | A Frame exported from another PC |
 | **From a .frame file** | **Settings → Data / Backup → Import Frame File…** | A whole plan from framedecks.com or another PC. See [Move a plan to a service PC](service-planning.md#move-a-plan-to-a-service-pc) |
 

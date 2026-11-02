@@ -1162,3 +1162,27 @@ in Node tests). Media stays off the cloud, as the owner chose: the website's fil
 (base64 with SHA-256, up to 300 MB) and import writes it through the existing upload endpoint, renaming on clash. Sync
 gained a `phase` (synced, syncing, offline, failed) shown as a header chip; offline is not shown as a problem, because a
 service PC without internet is normal.
+
+## 45. Version 8.3.0: the website Plan as a guided workflow (2 November 2026)
+
+The owner asked for a frame-creation workflow on the website that guides a volunteer from the meeting to the service
+PC: large buttons with plain labels, a timeline arranged by dragging, a preview, and sync or export at the end. The
+Plan page keeps its one editor (`meeting-form-panel.tsx`, every save still a `sync_push` on top of the revision read)
+and gains a layer above it. `lib/frame-flow.ts` (import-free, tested with Node's type stripping) holds the five steps
+and their state, `moveFrameTo` (a drag drops a Frame at any place; templates in the order keep theirs) and
+`previewOf`, the picture the Preview draws from a Frame record: its background, the first item of each card, the files
+it uses and the transition it will play (its own, or the meeting's transition style through `PROFILE_TX`).
+
+The steps are ticked from facts, not from clicks: a meeting name, at least one Frame, every Frame with a script or
+something in it, a Preview opened, and an export or a linked PC with the last save synced. The Sync status comes
+from `workspace-sync.ts`, which now tells a watcher when a push starts and ends; the browser's online state turns it
+into Offline. The timeline uses the browser's own drag and drop, with Alt + arrow keys for the keyboard and the
+cards' arrows on touch screens. The Preview is a `<dialog>` whose scene is re-mounted per Frame, so each transition
+plays as a CSS animation named by the transition's id; reduced motion turns them off.
+
+Media stays off the cloud, as decided for 8.2. A file chosen on the website is kept in the browser's IndexedDB under
+the workspace and the safe file name the Frame records (`local-media.ts`); Export for Service PC embeds the kept files
+the plan uses, and the PC's existing import writes them. The website's CSS was at its 24 KB budget, so the new styles
+were paid for by removing about 6 KB of rules no page used any more (earlier Overview and onboarding designs), found
+by comparing the class names in the stylesheets with those in the components. `tests/visual/plan-flow.mjs` runs the
+whole workflow in Chromium against a stand-in workspace, with axe, on desktop and phone widths in both themes.

@@ -45,6 +45,24 @@ Versions before 4.9 (when the program had its earlier name) are described in the
 - The favicons, the tray icon and the small program-icon sizes (16–32 px) use a heavier version of the emblem, so it
   stays visible on light browser tabs and a light taskbar. Larger sizes are unchanged.
 
+## [8.3.0] - 2026-11-02
+
+Full notes: [docs/releases/v8.3.0.md](releases/v8.3.0.md).
+
+### Added
+- Website Plan: five guided steps (`hosted/src/lib/frame-flow.ts`, `components/frame-flow.tsx`) with Edit details,
+  Add Frame, Write Script, Preview and Export for Service PC, and the Sync status (`watchSync` in `workspace-sync.ts`).
+- A drag-and-drop timeline of the Frames (Alt + arrow keys too); the order is saved with `moveFrameTo`.
+- Preview of each Frame with its transition and script; Choose Animation as buttons.
+- Media chosen on the website is kept in the browser (IndexedDB, `local-media.ts`) and embedded in the .frame file.
+- `tests/visual/plan-flow.mjs`: the workflow in a browser against a stand-in workspace, with axe.
+
+### Changed
+- Transition style descriptions: Fade, Slow fade, Gentle fade.
+
+### Removed
+- About 6 KB of unused website CSS from earlier designs.
+
 ## [8.2.0] - 2026-11-02
 
 Full notes: [docs/releases/v8.2.0.md](releases/v8.2.0.md).

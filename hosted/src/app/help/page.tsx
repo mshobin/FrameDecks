@@ -31,7 +31,8 @@ export default function HelpPage() {
           </li>
           <li>
             <strong>Plan</strong> the meeting: in the program (Studio) or on this website (Plan), from any
-            computer or phone.
+            computer or phone. Plan guides you in five steps: your meeting, Add Frame, Write Script, Preview, then
+            Export for Service PC.
           </li>
           <li>
             <strong>Choose how people see it</strong>: in the program, Settings → How people see it (FrameRelay in your video meeting or

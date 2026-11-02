@@ -11,6 +11,7 @@ How to plan a service, Bible study or meeting in FrameDecks, from a blank page o
 - [Organize your Frames](#organize-your-frames)
 - [Reuse last week's service](#reuse-last-weeks-service)
 - [Notes for the leader](#notes-for-the-leader)
+- [Plan on the website](#plan-on-the-website)
 - [Move a plan to a service PC](#move-a-plan-to-a-service-pc)
 - [Plan in Excel with the Meeting Workbook](#plan-in-excel-with-the-meeting-workbook)
 - [Export to PowerPoint](#export-to-powerpoint)
@@ -107,6 +108,28 @@ Use `# Heading`, `- bullet`, `**bold**`, `*italic*`, `[PAUSE]` and `---` to make
 > Those are no longer shown anywhere, but they are kept in your data. Older workbooks still import: their answers
 > and notes go into the Frame's Teleprompter script.
 
+## Plan on the website
+
+On framedecks.com, **Plan** guides you in five steps. Each step shows a tick when it is done, and the step to do next
+has a gold button:
+
+| Step | Button | What it does |
+| --- | --- | --- |
+| **Your meeting** | **Edit details** | Opens the meeting's name, date and other details |
+| **Add Frames** | **Add Frame** | A new Frame at the end of the meeting |
+| **Words and media** | **Write Script** | Opens the first Frame with nothing in it, at its Teleprompter script |
+| **Preview** | **Preview** | Each Frame as people will see it, with its transition; ← and → move through them |
+| **Sync or export** | **Export for Service PC** | Saves the .frame file. Its status says **Synced**, **Syncing…**, **Offline** or **Sync failed** |
+
+Under the steps, the **timeline** shows every Frame in order. Drag a Frame to a new place, or select it and press
+**Alt + ←** or **Alt + →**. Click a Frame to open it. Each Frame below has **Write Script**, **Choose Animation** (the
+transitions as buttons that show their movement) and **Preview**.
+
+**Pictures, video, audio and slides.** In a Frame's Content, **Choose file** keeps the file in this browser only (it is
+never put in the cloud). It travels to the service PC inside the .frame file. On another computer or browser, or for
+a file already on the service PC, type the file name instead. The Preview is an approximation: the service PC shows
+the exact picture.
+
 ## Move a plan to a service PC
 
 **Linked PC.** A PC linked to your team on framedecks.com (**Settings → FrameDecks account**) gets the plan by
@@ -169,8 +192,8 @@ row to that log after each meeting, and the meeting tiles count them.
 
 Full details are in [reference/meeting-workbook-and-branding.md](../reference/meeting-workbook-and-branding.md).
 
-Since 6.11 the same form is on the FrameDecks website: **Meeting Form** in the companion
-(framedecks.com). It reaches a linked PC by itself, with no file to import
+The same form is on the FrameDecks website, guided step by step ([Plan on the website](#plan-on-the-website)).
+It reaches a linked PC by itself, with no file to import
 ([design](../architecture/meeting-form.md)). The Excel workbook below still works; it is under
 **Settings → Data / Backup → Meeting from Excel** and leaves the program in a later version, once the website form has been tested in a real meeting.
 
