@@ -45,16 +45,6 @@ export function PlanScreen({ image, alt }: ScreenProps) {
   );
 }
 
-const SCRIPT = [
-  "Welcome, everyone.",
-  "Let’s begin with a moment of quiet.",
-  "Tonight: one simple idea,",
-  "small faithful steps, together.",
-  "Turn to the reading on the screen.",
-  "Take a moment with the question.",
-];
-
-/** Day 2 (8.6): the Teleprompter itself, the script gliding past the reading line, beside what the meeting sees */
 export function ScriptScreen({ image, alt }: ScreenProps) {
   if (image) return <Shot image={image} alt={alt} />;
   return (
@@ -64,15 +54,9 @@ export function ScriptScreen({ image, alt }: ScreenProps) {
         <span>Only you see it</span>
       </div>
       <div className="lp-rehearse-body">
-        <div className="lp-prompter lp-prompter-mini">
-          <div className="lp-prompter-view" data-loop="">
-            <div className="lp-prompter-roll">
-              {[...SCRIPT, ...SCRIPT].map((line, i) => (
-                <p key={i}>{line}</p>
-              ))}
-            </div>
-            <i className="lp-prompter-line" />
-          </div>
+        <div className="lp-mini-slide">
+          <span>Your script</span>
+          <p>Welcome everyone. Let’s begin with a moment of quiet.</p>
         </div>
         <div className="lp-room">
           <span>What the meeting sees</span>
@@ -142,4 +126,39 @@ export function PresentScreen({ image, alt }: ScreenProps) {
   );
 }
 
-export const STEP_SCREENS = [PlanScreen, ScriptScreen, CheckScreen, PresentScreen] as const;
+/** Day 5 (8.6): Ctrl twice puts a soft circle on the word, then a pen underlines it, on what the room sees */
+export function AnnotateScreen({ image, alt }: ScreenProps) {
+  if (image) return <Shot image={image} alt={alt} />;
+  return (
+    <div className="lp-scr lp-scr-ann" role="img" aria-label={alt}>
+      <div className="lp-scr-head">
+        <strong>Room screen</strong>
+        <span>Ctrl twice</span>
+      </div>
+      <div className="lp-ann-frame">
+        <p className="fd-serif">
+          I am the{" "}
+          <span className="lp-ann-word">
+            vine
+            <i className="lp-ann-disc" />
+            <i className="lp-ann-wave" />
+            <svg className="lp-ann-ptr" viewBox="0 0 16 22" aria-hidden="true">
+              <path d="M1 1v17l4.5-4.2 3 6.7 3-1.4-3-6.6H15z" />
+            </svg>
+          </span>
+          ; you are the{" "}
+          <span className="lp-ann-under">
+            branches
+            <svg viewBox="0 0 100 12" preserveAspectRatio="none" aria-hidden="true">
+              <path d="M2 8 C 28 11, 62 3, 98 6" />
+            </svg>
+          </span>
+          .
+        </p>
+        <span className="lp-ann-ref">John 15:5</span>
+      </div>
+    </div>
+  );
+}
+
+export const STEP_SCREENS = [PlanScreen, ScriptScreen, CheckScreen, PresentScreen, AnnotateScreen] as const;

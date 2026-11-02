@@ -388,7 +388,8 @@ function cleanInk(o){
 function cleanSpot(o){
   if (!isObj(o) || !o.id) return null;
   return {id: str(o.id, 24), x: num(o.x, 0, 1, 0.5), y: num(o.y, 0, 1, 0.5), w: num(o.w, 0, 1, 0), h: num(o.h, 0, 1, 0),
-    c: /^#[0-9a-fA-F]{6}$/.test(o.c || '') ? o.c.toLowerCase() : '#e8b931', size: num(o.size, 0.5, 3, 1), dur: num(o.dur, 1, 15, 3), k: num(o.k, 10, 100, 60)};
+    c: /^#[0-9a-fA-F]{6}$/.test(o.c || '') ? o.c.toLowerCase() : '#e8b931', size: num(o.size, 0.5, 3, 1), dur: num(o.dur, 1, 15, 3), k: num(o.k, 10, 100, 60),
+    style: o.style === 'ring' ? 'ring' : 'disc'};   /* 8.6: 'disc' a soft see-through circle (the default), 'ring' the glowing gold ring of 8.2 */
 }
 function drawInk(cv, items){
   var c = cv.getContext('2d'), W = cv.width, H = cv.height;

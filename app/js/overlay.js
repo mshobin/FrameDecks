@@ -487,11 +487,18 @@ function Program(root){
     if (!sp || !sp.id || sp.id === spotSeen) return;
     var first = spotSeen === null; spotSeen = sp.id;
     if (first) return;                                // a page opened mid-way does not replay an old one
-    var W = innerWidth, H = innerHeight, k = sp.k / 100;
-    var r = Math.max(sp.w * W * 0.62, sp.h * H * 1.15, 0.035 * W) * sp.size;
-    var d = el('div', 'pg-spot'), ring = el('i', 'pg-spot-ring');
+    var W = innerWidth, H = innerHeight, k = sp.k / 100, disc = sp.style !== 'ring';
+    var r = Math.max(sp.w * W * 0.62, sp.h * H * 1.15, (disc ? 0.045 : 0.035) * W) * sp.size;
+    var d = el('div', disc ? 'pg-spot disc' : 'pg-spot'), ring = el('i', 'pg-spot-ring');
     d.style.cssText = '--x:' + (sp.x * W) + 'px;--y:' + (sp.y * H) + 'px;--r:' + r + 'px;--c:' + sp.c + ';--k:' + k.toFixed(2) + ';--dur:' + sp.dur + 's';
     d.appendChild(ring);
+    if (disc){                                        // 8.6 a soft see-through disc that pops in with a ripple, then gently closes
+      d.appendChild(el('i', 'pg-spot-wave'));
+      root.appendChild(d);
+      setTimeout(function(){ d.classList.add('out'); }, sp.dur * 1000);
+      setTimeout(function(){ d.remove(); }, sp.dur * 1000 + 700);
+      return;
+    }
     var n = Math.round(8 + 14 * k);
     for (var i = 0; i < n; i++){
       var sk = el('b', 'pg-spark'), a = (i / n) * Math.PI * 2 + Math.random() * 0.4, dist = r * (0.9 + Math.random() * 0.9);

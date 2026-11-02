@@ -160,16 +160,19 @@ You can also draw with your finger on the phone. See [Remote control](remote-con
 
 ### Spotlight a word
 
-**Spotlight** points people to one word. Choose the Spotlight tool (**S**) and click a word on the picture. A
-glowing circle grows around it, pulses gently, then opens out with a few sparks and fades. Click empty space to
-spotlight that point instead.
+**Spotlight** points people to one word. Choose the Spotlight tool (**S**) and click a word on the picture. Since 8.7
+a soft see-through disc lands on it with a ripple, breathes gently while it stays, then closes softly. Click empty
+space to spotlight that point instead. Prefer the 8.2 look? Choose **Gold ring**: a glowing gold circle that pulses,
+then opens out with a few sparks.
 
 Quicker still: press **Ctrl** twice quickly with the pointer over the picture on the Studio Canvas. This works even
 when you are not annotating.
 
 Everyone sees it: on the FrameRelay camera in Zoom or Teams, in recordings and on the overlay pages. While the
-Spotlight tool is chosen, its panel sets the **colour**, **Size**, **Length** (1 to 15 seconds) and **Strength**.
-**Try it** shows one in the middle of the picture.
+Spotlight tool is chosen, its panel sets the style (**Soft disc** or **Gold ring**), the **colour** (white by default
+for the disc), **Size** (bigger by default since 8.7), **Length** (1 to 15 seconds) and **Strength** (how see-through
+the disc is). The same settings are in **Settings → Transitions → Spotlight (Ctrl twice)**. **Try it** shows one in
+the middle of the picture.
 
 > **Note:** This is not the same as the [Spotlight search](#spotlight), which finds things from anywhere in Windows.
 

@@ -44,29 +44,57 @@ bar.appendChild(h('button', {cls: 'ib', type: 'button', title: 'Undo (Ctrl+Z)', 
 bar.appendChild(h('button', {cls: 'ib', type: 'button', title: 'Redo (Ctrl+Y)', 'aria-label': 'Redo', html: I('redo-2', 16), onclick: function(){ ink('redo'); }}));
 bar.appendChild(h('button', {cls: 'btn small', type: 'button', text: 'Clear', id: 'ann-clear', onclick: function(){ ink('clear'); }}));
 bar.appendChild(h('button', {cls: 'btn small primary', type: 'button', text: 'Done', id: 'ann-done', title: 'Stop annotating (Esc)', onclick: function(){ setAnnotate(false); }}));
-/* Spotlight settings (this PC) */
-var SPOT = {c: '#e8b931', size: 1, dur: 3, k: 60};
-try { Object.assign(SPOT, JSON.parse(localStorage.getItem('kc-spot') || '{}')); } catch(e){}
+/* Spotlight settings (this PC). 8.6: a style (a soft see-through disc, the default, or the gold ring of 8.2) and a
+ * bigger default size; the same settings beside the Annotate toolbar and in Settings → Transitions. */
+var SPOT = {c: '#ffffff', size: 1.4, dur: 3, k: 60, style: 'disc'};
+try {
+  var keptSpot = JSON.parse(localStorage.getItem('kc-spot') || '{}');
+  if (!keptSpot.style){ keptSpot.style = 'disc'; if (!keptSpot.c || keptSpot.c === '#e8b931') keptSpot.c = '#ffffff'; if (!keptSpot.size || keptSpot.size === 1) keptSpot.size = 1.4; }
+  Object.assign(SPOT, keptSpot);
+} catch(e){}
 function saveSpot(){ try { localStorage.setItem('kc-spot', JSON.stringify(SPOT)); } catch(e){} }
-var spotSet = h('div', {cls: 'ann-spot', id: 'ann-spot', hidden: 'hidden', role: 'group', 'aria-label': 'Spotlight settings'});
-(function(){
+var SPOT_STYLES = [['disc', 'Soft disc'], ['ring', 'Gold ring']];
+var SPOT_RANGES = [['Size', 'size', 0.5, 3, 0.1, function(n){ return Math.round(n * 100) + '%'; }], ['Length', 'dur', 1, 15, 0.5, function(n){ return n + ' s'; }],
+  ['Strength', 'k', 10, 100, 5, function(n){ return n + '%'; }]];
+function spotPanel(id, title){
+  var p = h('div', {cls: 'ann-spot', id: id, role: 'group', 'aria-label': 'Spotlight settings'});
+  var styles = h('span', {cls: 'ann-spot-styles', role: 'radiogroup', 'aria-label': 'Spotlight style'});
+  SPOT_STYLES.forEach(function(st){ styles.appendChild(h('button', {cls: 'btn small quiet', type: 'button', role: 'radio', 'data-sstyle': st[0], text: st[1],
+    onclick: function(){ SPOT.style = st[0]; if (st[0] === 'ring' && SPOT.c === '#ffffff') SPOT.c = '#e8b931'; if (st[0] === 'disc' && SPOT.c === '#e8b931') SPOT.c = '#ffffff'; saveSpot(); renderSpot(); }})); });
   var cols = h('span', {cls: 'ann-spot-cols'});
   COLORS.slice(0, 5).forEach(function(c){ cols.appendChild(h('button', {cls: 'ann-col', type: 'button', title: c[1], 'aria-label': 'Spotlight colour: ' + c[1], 'data-scol': c[0], style: 'background:' + c[0],
     onclick: function(){ SPOT.c = c[0]; saveSpot(); renderSpot(); }})); });
-  function rng(label, key, min, max, step, fmt){
-    var r = h('input', {type: 'range', min: min, max: max, step: step, value: String(SPOT[key]), 'aria-label': label}), v = h('span', {cls: 'val', text: fmt(SPOT[key])});
-    r.addEventListener('input', function(){ SPOT[key] = +r.value; v.textContent = fmt(SPOT[key]); saveSpot(); });
+  p.appendChild(h('b', {text: title}));
+  p.appendChild(styles);
+  p.appendChild(cols);
+  SPOT_RANGES.forEach(function(d){
+    var r = h('input', {type: 'range', min: d[2], max: d[3], step: d[4], value: String(SPOT[d[1]]), 'aria-label': 'Spotlight ' + d[0].toLowerCase(), 'data-skey': d[1]}),
+      v = h('span', {cls: 'val', text: d[5](SPOT[d[1]])});
+    r.addEventListener('input', function(){ SPOT[d[1]] = +r.value; saveSpot(); renderSpot(); });
     r.addEventListener('keydown', function(e){ e.stopPropagation(); });
-    return h('label', {cls: 'ann-spot-r'}, [h('span', {text: label}), r, v]);
-  }
-  spotSet.appendChild(h('b', {text: 'Spotlight'}));
-  spotSet.appendChild(cols);
-  spotSet.appendChild(rng('Size', 'size', 0.5, 3, 0.1, function(n){ return Math.round(n * 100) + '%'; }));
-  spotSet.appendChild(rng('Length', 'dur', 1, 15, 0.5, function(n){ return n + ' s'; }));
-  spotSet.appendChild(rng('Strength', 'k', 10, 100, 5, function(n){ return n + '%'; }));
-  spotSet.appendChild(h('button', {cls: 'btn small', type: 'button', text: 'Try it', onclick: function(){ spotAt(null); }}));
+    p.appendChild(h('label', {cls: 'ann-spot-r'}, [h('span', {text: d[0]}), r, v]));
+  });
+  p.appendChild(h('button', {cls: 'btn small', type: 'button', text: 'Try it', onclick: function(){ spotAt(null); }}));
+  return p;
+}
+var spotSet = spotPanel('ann-spot', 'Spotlight');
+spotSet.hidden = true;
+function renderSpot(){
+  Array.prototype.forEach.call(document.querySelectorAll('.ann-spot'), function(p){
+    Array.prototype.forEach.call(p.querySelectorAll('[data-scol]'), function(b){ b.classList.toggle('on', b.dataset.scol === SPOT.c); });
+    Array.prototype.forEach.call(p.querySelectorAll('[data-sstyle]'), function(b){ var on = b.dataset.sstyle === SPOT.style; b.classList.toggle('on', on); b.setAttribute('aria-checked', String(on)); });
+    SPOT_RANGES.forEach(function(d){ var r = p.querySelector('[data-skey="' + d[1] + '"]'); if (!r) return; if (document.activeElement !== r) r.value = String(SPOT[d[1]]); r.nextSibling.textContent = d[5](SPOT[d[1]]); });
+  });
+}
+/* the same settings in Settings → Transitions */
+(function(){
+  var sec = document.getElementById('sec-transitions'); if (!sec) return;
+  var box = h('section', {cls: 'box', id: 'spot-settings-box', 'aria-labelledby': 'spot-settings-title'}, [
+    h('div', {cls: 'box-head'}, [h('h2', {id: 'spot-settings-title', text: 'Spotlight (Ctrl twice)'})]),
+    h('p', {cls: 'plain', text: 'While presenting, press Ctrl twice with the pointer over the Studio Canvas (or use the Spotlight tool in Annotate) to circle what you are talking about. Everyone sees it, on every screen.'}),
+    spotPanel('spot-settings', 'Look')]);
+  sec.appendChild(box);
 })();
-function renderSpot(){ Array.prototype.forEach.call(spotSet.querySelectorAll('[data-scol]'), function(b){ b.classList.toggle('on', b.dataset.scol === SPOT.c); }); }
 renderSpot();
 wrap.parentNode.insertBefore(bar, wrap);
 wrap.parentNode.insertBefore(spotSet, wrap);
@@ -179,11 +207,12 @@ var lastPtr = null;
 wrap.addEventListener('pointermove', function(e){ lastPtr = {x: e.clientX, y: e.clientY}; }, {passive: true});
 wrap.addEventListener('pointerleave', function(){ lastPtr = null; });
 function spotAt(e){
-  var pr = pictureRect(); if (!pr) return;
+  var pr = pictureRect(); if (!pr && e) return;
+  pr = pr || {left: 0, top: 0, width: 2, height: 2};                // "Try it" from Settings: the middle of the picture
   var cx = e ? e.clientX : pr.left + pr.width / 2, cy = e ? e.clientY : pr.top + pr.height / 2;
   var wd = e ? wordAt(cx, cy) : null;
   var spot = {id: 's' + Date.now().toString(36), x: wd ? wd.x : (cx - pr.left) / pr.width, y: wd ? wd.y : (cy - pr.top) / pr.height,
-    w: wd ? wd.w : 0, h: wd ? wd.h : 0, c: SPOT.c, size: SPOT.size, dur: SPOT.dur, k: SPOT.k};
+    w: wd ? wd.w : 0, h: wd ? wd.h : 0, c: SPOT.c, size: SPOT.size, dur: SPOT.dur, k: SPOT.k, style: SPOT.style};
   if (spot.x < 0 || spot.x > 1 || spot.y < 0 || spot.y > 1) return;
   commit(function(n){ n.live.spot = SC.cleanSpot(spot); });
 }

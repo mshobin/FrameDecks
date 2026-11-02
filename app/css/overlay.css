@@ -269,4 +269,17 @@ body[data-stx="burst"] .card.out{transition:none !important;opacity:0 !important
 @keyframes spot-pulse{50%{transform:scale(calc(1 + var(--k) * .07))}}
 @keyframes spot-out{from{transform:scale(1);opacity:1}to{transform:scale(1.7);opacity:0}}
 @keyframes spark{0%{transform:translate(0,0) scale(1);opacity:1}100%{transform:translate(var(--sx),var(--sy)) scale(.2);opacity:0}}
-@media (prefers-reduced-motion: reduce){ .pg-spot-ring,.pg-spot.out .pg-spark{animation:none} .pg-spot.out{opacity:0;transition:opacity .3s} }
+/* 8.6 the soft disc (the default): a see-through lens with a bright rim, a ripple as it lands, a gentle breath, and a
+   soft close on the way out */
+.pg-spot.disc .pg-spot-ring{border:0;
+  background:radial-gradient(circle,color-mix(in srgb,var(--c) calc(var(--k) * 38%),transparent) 0%,color-mix(in srgb,var(--c) calc(var(--k) * 55%),transparent) 72%,color-mix(in srgb,var(--c) calc(var(--k) * 85%),transparent) 100%);
+  box-shadow:0 0 0 calc(1.5px + var(--k) * 1.5px) color-mix(in srgb,var(--c) 80%,transparent),0 10px 40px rgba(0,0,0,.28);
+  animation:disc-in .5s cubic-bezier(.2,1.5,.35,1) both,disc-breathe 2.4s ease-in-out .5s infinite}
+.pg-spot-wave{position:absolute;left:calc(var(--r) * -1);top:calc(var(--r) * -1);width:calc(var(--r) * 2);height:calc(var(--r) * 2);border-radius:50%;
+  border:2px solid var(--c);opacity:0;animation:disc-wave .9s ease-out .12s both}
+.pg-spot.disc.out .pg-spot-ring{animation:disc-out .55s cubic-bezier(.5,0,.75,0) both}
+@keyframes disc-in{from{transform:scale(.2);opacity:0}to{transform:scale(1);opacity:1}}
+@keyframes disc-breathe{50%{transform:scale(1.04)}}
+@keyframes disc-wave{from{transform:scale(.9);opacity:.8}to{transform:scale(1.6);opacity:0}}
+@keyframes disc-out{from{transform:scale(1);opacity:1}to{transform:scale(.55);opacity:0}}
+@media (prefers-reduced-motion: reduce){ .pg-spot-ring,.pg-spot.out .pg-spark,.pg-spot.disc .pg-spot-ring,.pg-spot-wave{animation:none} .pg-spot-wave{display:none} .pg-spot.out{opacity:0;transition:opacity .3s} }

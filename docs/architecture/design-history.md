@@ -1289,3 +1289,19 @@ the Content as tiles on a darker field, so the eye reads name, then contents, th
 query, not a viewport one, because the timeline column decides how wide the plan is. Landing sections and the signed-in
 pages were widened (1320 and 1560 px), vertical spacing reduced, and the landing CSS stays within its 24 KB budget.
 
+## 49. Version 8.7.0: a soft Spotlight, and a landing that shows its tools (2 November 2026)
+
+The owner found the 8.2 Spotlight (a gold ring with sparks) too small and asked for a bigger, see-through circle like
+a presenter's pointer highlight, with better entry and exit. `live.spot` gained a `style`: `disc`, the new default,
+and `ring`, the 8.2 look kept as a choice. The disc is drawn the same way in the two places people see it: a radial
+gradient with a brighter rim in `overlay.css` (landing with an overshoot and one ripple, breathing while it stays,
+closing on the way out) and the same shape in `vcam/spotlight.py` for FrameRelay, computed only in the square around it
+while it plays. A PC whose saved setting was the old gold default moves to the white disc once; any other saved choice
+is kept. The settings panel is built once (`spotPanel`) and shown both beside the Annotate toolbar and in Settings →
+Transitions, so they cannot disagree.
+
+On the landing page the Teleprompter returned to See it work only, and How it works got a fifth day, Point it out,
+drawn in HTML like the others (a pointer, the disc, a pen line). See it work now tours its tabs while it is on screen,
+because visitors did not discover the other tabs; the tour stops for good when someone chooses a tab and never runs
+under reduced motion. The landing's CSS is at 23.7 of its 24 KB budget.
+

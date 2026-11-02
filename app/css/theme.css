@@ -1409,7 +1409,8 @@ body{background:radial-gradient(1100px 620px at 88% -12%,var(--fd-glow-a),transp
 .ann-spot{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:8px 12px;margin:0 0 6px;border:1px solid var(--line-soft);border-radius:var(--r-2);background:var(--surface)}
 .ann-spot[hidden]{display:none}
 .ann-spot b{font-size:13px}
-.ann-spot-cols{display:inline-flex;gap:4px}
+.ann-spot-cols,.ann-spot-styles{display:inline-flex;gap:4px}
+.ann-spot-styles .btn.on{background:var(--gold-soft);border-color:var(--gold);color:var(--gold-strong)}
 .ann-spot-r{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted)}
 .ann-spot-r input{width:110px}
 .ann-spot-r .val{min-width:40px;color:var(--ink)}

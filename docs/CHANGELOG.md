@@ -45,6 +45,21 @@ Versions before 4.9 (when the program had its earlier name) are described in the
 - The favicons, the tray icon and the small program-icon sizes (16–32 px) use a heavier version of the emblem, so it
   stays visible on light browser tabs and a light taskbar. Larger sizes are unchanged.
 
+## [8.7.0] - 2026-11-02
+
+Full notes: [docs/releases/v8.7.0.md](releases/v8.7.0.md).
+
+### Added
+- Spotlight style `live.spot.style`: `disc` (default; a see-through disc with a rim, a ripple in, a soft close;
+  `overlay.css` `.pg-spot.disc`, `vcam/spotlight.py` `_disc`) or `ring` (8.2). Settings beside the Annotate toolbar
+  and in Settings → Transitions (`annotate.js` `spotPanel`); a PC's saved gold ring becomes the white disc once.
+
+### Changed (website)
+- How it works: Day 2 shows the script and what the meeting sees again (the Teleprompter is in See it work); a fifth
+  day, **Point it out**, shows a pointer, the soft disc landing on a word and a pen underlining another.
+- See it work plays its tabs through by itself while on screen (a gold line under the chosen tab, 5 s each), until a
+  tab is chosen; the tabs rise in as the section arrives.
+
 ## Website update - 2026-11-02 (after 8.6.0, no program change)
 
 ### Changed

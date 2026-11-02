@@ -24,7 +24,7 @@ const HERO = { first: "Prepare with Purpose.", second: "Present with Excellence.
 
 const PROOF = ["Free to download and use", "Works without internet", "Your phone is the remote", "Every screen and stream"] as const;
 
-// How it works: the four steps that play by themselves (components/landing/how-it-works.tsx), Day 1 to Day 4
+// How it works: the steps that play by themselves (components/landing/how-it-works.tsx), Day 1 to Day 5
 const DAYS = [
   {
     title: "Plan together",
@@ -45,6 +45,11 @@ const DAYS = [
     title: "Present from anywhere",
     text: "Stand at the back or sit with the group. Each tap moves the room screen and the stream together.",
     callout: "One tap, every screen",
+  },
+  {
+    title: "Point it out",
+    text: "Press Ctrl twice and a soft circle lands on the word you mean; draw on the picture to underline it. Everyone sees it, in the room and on the stream.",
+    callout: "Everyone sees it",
   },
 ];
 

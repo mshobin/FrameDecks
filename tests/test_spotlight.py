@@ -39,13 +39,34 @@ class SpotlightOnThePicture(unittest.TestCase):
         sp.draw(self.frame(), again, 9.1)
         self.assertGreater(int(sp.draw(self.frame(), again, 10.0).max()), 0)
 
+    def test_the_gold_ring_still_plays(self):
+        sp = Spotlight()
+        sp.draw(self.frame(), None, 0.0)
+        ring = dict(SPOT, id="r1", style="ring")
+        sp.draw(self.frame(), ring, 1.0)
+        self.assertGreater(int(sp.draw(self.frame(), ring, 2.0)[..., 2].max()), 200)
+        self.assertEqual(int(sp.draw(self.frame(), ring, 1.0 + 2 + 1.0).max()), 0)
+
+    def test_the_soft_disc_is_see_through_with_a_brighter_rim(self):
+        """8.6 the default style: the middle lets the picture through, the rim is brighter, and it closes within 0.6 s"""
+        sp = Spotlight()
+        sp.draw(self.frame(), None, 0.0)
+        sp.draw(self.frame(), SPOT, 1.0)
+        f = sp.draw(self.frame(), SPOT, 2.0)
+        mid = int(f[135, 240, 2])
+        self.assertTrue(30 < mid < 160, mid)                        # see-through in the middle
+        self.assertGreater(int(f[..., 2].max()), mid + 40)          # a brighter rim
+        self.assertEqual(int(f[..., 0].max()), 0)
+        self.assertEqual(int(sp.draw(self.frame(), SPOT, 1.0 + 2 + 0.6).max()), 0)
+
     def test_near_the_edge_never_fails(self):
         sp = Spotlight()
         sp.draw(self.frame(), None, 0.0)
         for x, y in ((0, 0), (1, 1), (0.99, 0.01)):
-            s = dict(SPOT, id="e%s%s" % (x, y), x=x, y=y, size=3)
-            sp.draw(self.frame(), s, 1.0)
-            self.assertEqual(sp.draw(self.frame(), s, 2.0).shape, (270, 480, 3))
+            for style in ("disc", "ring"):
+                s = dict(SPOT, id="e%s%s%s" % (x, y, style), x=x, y=y, size=3, style=style)
+                sp.draw(self.frame(), s, 1.0)
+                self.assertEqual(sp.draw(self.frame(), s, 2.0).shape, (270, 480, 3))
 
 
 if __name__ == "__main__":

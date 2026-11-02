@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 
 import { STEP_SCREENS } from "@/components/landing/step-screens";
 
-// "How it works": the four days in a list beside one app window. The active day's gold line fills over 4 s (a CSS
+// "How it works": the days in a list beside one app window. The active day's gold line fills over 4 s (a CSS
 // animation, landing-page.css) and its end slides the window to the next day; after the last it starts again (8.6:
 // no Play, Previous or Next). It plays only while the section is on screen, holds while the pointer or keyboard focus
 // is on it, and never starts under "reduce motion" or "Reduce effects": then a day is chosen by clicking it.
@@ -83,7 +83,7 @@ export function HowItWorks({
       <div className="lp-how-body">
         {/* 8.6: the days and their words in one list beside the window; the steps play in a loop by themselves
             (pointing at the section holds them), and a day can still be chosen */}
-        <div className="lp-tabs" role="tablist" aria-orientation="vertical" aria-label="The four steps" onKeyDown={keys}>
+        <div className="lp-tabs" role="tablist" aria-orientation="vertical" aria-label="The steps" onKeyDown={keys}>
           {steps.map((s, i) => (
             <button
               key={s.title}

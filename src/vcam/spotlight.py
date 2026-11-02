@@ -12,6 +12,7 @@ import cv2
 import numpy as np
 
 IN, OUT = 0.42, 0.9
+DISC_IN, DISC_OUT, WAVE = 0.5, 0.55, (0.12, 0.9)     # 8.6 the soft disc: lands, ripples once, breathes, closes
 
 
 def _bgr(c):
@@ -47,6 +48,8 @@ class Spotlight:
         self.first = False
         el = now - self.t0
         dur = float(spot.get("dur") or 3)
+        if spot.get("style", "disc") != "ring":
+            return self._disc(frame, spot, el, dur)
         if el > dur + OUT:
             return frame
         H, W = frame.shape[:2]
@@ -94,3 +97,50 @@ class Spotlight:
             a = a8[ys, xs].astype(np.uint16)[:, None]
             roi[ys, xs] = ((roi[ys, xs].astype(np.uint16) * (255 - a) + np.array(col, np.uint16) * a) // 255).astype(np.uint8)
         return frame
+
+    def _disc(self, frame, spot, el, dur):
+        """8.6 the soft disc (the default style): a see-through lens of the chosen colour with a brighter rim, as the
+        overlay pages draw it (overlay.css .pg-spot.disc)."""
+        if el > dur + DISC_OUT:
+            return frame
+        H, W = frame.shape[:2]
+        k = max(0.1, min(1.0, float(spot.get("k") or 60) / 100))
+        r = max(float(spot.get("w") or 0) * W * 0.62, float(spot.get("h") or 0) * H * 1.15, 0.045 * W) * float(spot.get("size") or 1)
+        cx, cy = int(float(spot.get("x", 0.5)) * W), int(float(spot.get("y", 0.5)) * H)
+        if el < DISC_IN:
+            t = el / DISC_IN
+            scale, alpha = 0.2 + 0.8 * _back_out(t), min(1.0, t * 1.8)
+        elif el < dur:
+            scale, alpha = 1 + 0.04 * (0.5 - 0.5 * math.cos((el - DISC_IN) / 2.4 * 2 * math.pi)), 1.0
+        else:
+            e = (el - dur) / DISC_OUT
+            scale, alpha = 1 - 0.45 * e * e, max(0.0, 1 - e)
+        rr = max(3, int(r * scale))
+        wave = 0.0
+        if WAVE[0] <= el <= WAVE[1]:
+            wave = (el - WAVE[0]) / (WAVE[1] - WAVE[0])
+        pad = int(max(rr, r * 1.6) + 6)
+        x0, y0, x1, y1 = max(0, cx - pad), max(0, cy - pad), min(W, cx + pad), min(H, cy + pad)
+        if x1 <= x0 or y1 <= y0:
+            return frame
+        if not frame.flags.writeable:
+            frame = frame.copy()
+        roi = frame[y0:y1, x0:x1]
+        yy, xx = np.ogrid[y0 - cy:y1 - cy, x0 - cx:x1 - cx]
+        d = np.sqrt(xx * xx + yy * yy).astype(np.float32)
+        u = d / rr
+        a = k * (0.38 + 0.17 * np.clip(u / 0.72, 0, 1) + 0.30 * np.clip((u - 0.72) / 0.28, 0, 1))
+        a *= np.clip(rr - d + 0.5, 0, 1)                                           # a smooth edge
+        rim = max(1.5, 1.5 + 1.5 * k)
+        a = np.maximum(a, 0.8 * np.clip(1 - np.abs(d - rr) / rim, 0, 1))          # the bright rim
+        if wave:
+            wr = r * (0.9 + 0.7 * wave)
+            a = np.maximum(a, 0.8 * (1 - wave) * np.clip(1 - np.abs(d - wr) / 2.0, 0, 1))
+        a *= alpha
+        if not a.any():
+            return frame
+        col = np.array(_bgr(spot.get("c") or "#ffffff"), np.float32)
+        a3 = a[..., None]
+        roi[:] = (roi.astype(np.float32) * (1 - a3) + col * a3).astype(np.uint8)
+        return frame
+
