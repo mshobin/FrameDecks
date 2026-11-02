@@ -100,6 +100,24 @@ Status.on('remote', function(r){
 });
 if (!Store.served){ chip('h-sources', '', '—', 'Needs the local program'); chip('h-ipad', '', '—', 'Needs the local program'); }
 
+/* 8.2 Sync chip: shown only on a PC linked to a workspace (cloud_sync.py info().phase). Offline is not a problem on a
+ * service PC (changes wait and go up later; a .frame file carries the plan without internet), so it is not red. */
+var SYNC = {synced: ['ok', 'Synced', 'Plans are up to date with your workspace'],
+  syncing: ['info', 'Syncing', 'Sending and fetching changes'],
+  offline: ['info', 'Offline', 'No internet. Changes wait on this PC and go up later. Without internet, use a .frame file (Settings → Data / Backup).'],
+  failed: ['bad', 'Sync failed', 'Open Settings → FrameDecks account to see why']};
+function renderSync(d){
+  var c = $('h-sync'), p = d && SYNC[d.phase]; if (!c) return;
+  if (c.hidden === !!p) c.hidden = !p;
+  if (p) chip('h-sync', p[0], p[1], p[2] + (d.phase === 'failed' && d.error ? ': ' + d.error : ''));
+}
+window.KCRenderSync = renderSync;
+function pollSync(){
+  if (document.hidden || !Store.served) return;
+  fetch('api/sync', {cache: 'no-store'}).then(function(r){ return r.ok ? r.json() : null; }).then(renderSync).catch(function(){});
+}
+if (Store.served){ pollSync(); setInterval(pollSync, 4000); }
+
 /* Recording and Slides chips: shown only while they are running */
 function fmtTime(sec){ sec = Math.round(sec || 0); return Math.floor(sec / 60) + ':' + String(sec % 60).padStart(2, '0'); }
 var slideInfo = null;

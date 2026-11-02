@@ -507,6 +507,8 @@ class Service:
         self.thread = None
         self.state = self._load()
         self.status = {"state": "linked" if self.state.get("link") else "unlinked", "lastSync": None, "error": None}
+        self.busy = False                            # a round is running (8.2: "Syncing" in the header)
+        self.offline = False                         # the last round could not reach the cloud
         self.pending = None                          # a link waiting to be allowed on the website
         self._due = 0.0                               # when the next round is due
         self._retry_at = 0.0                          # while offline: not before this
@@ -541,13 +543,23 @@ class Service:
         link = self.state.get("link") or {}
         out = {"state": self.status["state"], "workspace": link.get("organizationName"), "linkedAt": link.get("linkedAt"),
                "lastSync": self.status["lastSync"], "error": self.status["error"], "companion": COMPANION_URL,
-               "held": len(self.state.get("held") or [])}
+               "held": len(self.state.get("held") or []), "phase": self.phase()}
         if self.pending:
             code = self.pending["code"]
             site = self.pending["config"].get("site") or COMPANION_URL
             out.update(code=code, expiresAt=self.pending["expiresAt"], check=check_number(code),
                        connectUrl=connect_url(site, code, self.computer_name))
         return out
+
+    def phase(self):
+        """8.2: one word for the header: "synced", "syncing", "offline", "failed" or "" (not linked)."""
+        if self.status["state"] != "linked":
+            return ""
+        if self.busy:
+            return "syncing"
+        if self.offline:
+            return "offline"
+        return "failed" if self.status["error"] else "synced"
 
     # -- linking --
     def link_start(self):
@@ -644,10 +656,13 @@ class Service:
                 return None
             engine = Engine(self.make_api(cloud, link["organizationId"], key), self.state, self.read, self.write,
                             self.computer_name, self.member_authority())
+            self.busy = True
             try:
                 summary = engine.run()
             finally:
+                self.busy = False
                 self._save()                          # keep what was agreed, even when a later batch failed
+            self.offline = False
             self.status.update(state="linked", lastSync=time.time(), error=None)
             return summary
 
@@ -669,6 +684,7 @@ class Service:
                 continue
             except Offline as e:
                 backoff = min(MAX_BACKOFF, max(30, backoff * 2))
+                self.offline = True
                 self.status.update(error=f"Offline: {e}. Changes wait on this PC and go up later.")
             except Refused as e:
                 if e.code == "42501":                 # the cloud no longer knows this PC's key: it was unlinked
@@ -678,8 +694,10 @@ class Service:
                     self.status.update(state="unlinked", error="This PC was disconnected from the workspace.")
                     return
                 backoff = min(MAX_BACKOFF, max(60, backoff * 2))
+                self.offline = False
                 self.status.update(error=str(e))
             except Exception as e:                   # never let sync stop the program
                 backoff = min(MAX_BACKOFF, max(60, backoff * 2))
+                self.offline = False
                 self.status.update(error=f"Sync problem: {e}")
             self._retry_at = self._due = time.time() + backoff

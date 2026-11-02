@@ -1819,3 +1819,5 @@ h3 {
   letter-spacing: 0;
   text-transform: none;
 }
+
+.frame-export{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;margin:0 0 18px;color:var(--text-2);font-size:14px}

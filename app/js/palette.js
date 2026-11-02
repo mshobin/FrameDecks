@@ -64,6 +64,8 @@ function commands(){
     ['annotate', 'Annotate on / off', 'draw pen ink', function(){ if (PT) PT.annotate(); }, 'D'],
     ['prompter', 'Teleprompter on / off', 'script notes prompter speaker overlay zoom teams on top', function(){ if (TP) TP.toggle(); }, 'R'],
     ['share', 'Share Window (Presentation window)', 'present window zoom share screen', function(){ studio(); click($('s2-present')); }],
+    ['frameimport', 'Import Frame File (.frame)', 'import frame file offline service pc website plan', function(){ settings('data'); if (window.KCFrameFile && window.KCFrameFile.pick) window.KCFrameFile.pick(); }],
+    ['frameexport', 'Export Frame File (.frame)', 'export frame file offline save plan', function(){ settings('data'); if (window.KCFrameFile && window.KCFrameFile.exportFile) window.KCFrameFile.exportFile(); }],
     ['excel', 'Meeting from Excel (Settings → Data / Backup)', 'import export template workbook xlsx', function(){ settings('data'); }],   /* 6.11: Excel lives in Settings */
     ['branding', 'Open Branding', 'logo meeting name colour', function(){ settings('meeting'); }],
     ['knock', 'Remove the logo background', 'transparent png', function(){ if (window.KCBrandSettings) window.KCBrandSettings.removeBackground(); }],

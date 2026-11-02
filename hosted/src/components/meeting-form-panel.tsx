@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
-import { ArrowDown, ArrowUp, Pencil, Plus, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowUp, Download, Pencil, Plus, Trash2 } from "lucide-react";
 
 import { KindIcon } from "@/components/content-kind";
 import { NotSetUp, WorkspaceGate } from "@/components/workspace-gate";
@@ -35,6 +35,8 @@ import {
   type ScriptureRow,
 } from "@/lib/meeting-form";
 import { browserSupabase } from "@/lib/supabase-browser";
+import brandInfo from "@/lib/brand.json";
+import { frameFileFromDoc, frameFileName } from "@/lib/frame-file";
 import { useConfirmation } from "@/components/confirm-dialog";
 import { shortDate } from "@/lib/when";
 import { PROFILES, profileOf } from "@/lib/workspace-settings";
@@ -92,6 +94,20 @@ function Planner({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
   const order = byKey.get(key("order", "order")) ?? null;
   const brand = isObj(doc.brand) ? (doc.brand as JsonObject) : {};
   const title = String((isObj(doc.meeting) ? doc.meeting.title : "") ?? "");
+
+  /** 8.2 Export for Service PC: the whole plan in one .frame file, for a service PC without internet. */
+  function exportFrameFile() {
+    const file = frameFileFromDoc(doc as JsonObject, { app: String(brandInfo.version ?? "") });
+    const blob = new Blob([JSON.stringify(file)], { type: "application/json" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = frameFileName(title);
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+    setNotice({ ok: true, text: `Exported ${file.counts.frames} Frame${file.counts.frames === 1 ? "" : "s"}. On the service PC: Settings → Data / Backup → Import Frame File.` });
+  }
 
   function upsert(record: PulledRecord) {
     setLoaded((current) => {
@@ -159,6 +175,12 @@ function Planner({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
           ? "Pictures, video and PowerPoint stay on the service PC: type their file names."
           : "View only: owners and admins can edit."}
       </p>
+      <div className="frame-export">
+        <button type="button" className="fd-btn fd-btn-glass" onClick={exportFrameFile} disabled={frames.length === 0}>
+          <Download aria-hidden="true" size={16} /> Export for Service PC
+        </button>
+        <span>A .frame file with every Frame, for a PC without internet. Linked PCs get your changes by themselves.</span>
+      </div>
       {notice && (
         <p className={notice.ok ? "workspace-notice" : "workspace-problem"} role={notice.ok ? "status" : "alert"}>
           {notice.text}

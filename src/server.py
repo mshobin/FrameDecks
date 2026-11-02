@@ -2030,6 +2030,13 @@ class Handler(BaseHTTPRequestHandler):
             if not self.is_local():
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
             return self.reply(200, json.dumps(AI.status(fresh=parse_qs(url.query).get("fresh", ["0"])[0] == "1")), TYPES[".json"])
+        if path == "/api/media/file":                    # 8.2 a Content's file, for Export Frame File (this PC only)
+            if not self.is_local():
+                return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
+            f = LAYERS_DIR / Path(parse_qs(url.query).get("name", [""])[0]).name
+            if not f.name or not f.is_file():
+                return self.reply(404, "Not found", "text/plain; charset=utf-8")
+            return self.reply(200, f.read_bytes(), "application/octet-stream", [("Cache-Control", "no-store")])
         if path == "/api/media/audio":                   # M-D4: an Audio Content's file, for the program window (this PC only)
             if not self.is_local():
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")

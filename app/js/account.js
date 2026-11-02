@@ -67,7 +67,9 @@ function render(){
     : 'Member information stays on this computer. It is never uploaded, and it is never sent to the overlay pages.';
   if (!Store.served){ root.appendChild(h('p', {cls: 'plain', text: 'Start the FrameDecks program to link this PC.'})); return; }
   if (d.state === 'linked'){
-    root.appendChild(h('p', {cls: 'plain'}, [pill(d.error ? 'bad' : 'ok', d.error ? 'Linked · not synced' : 'Linked'), ' to ', h('b', {text: d.workspace || 'your workspace'})]));
+    var ph = {synced: ['ok', 'Synced'], syncing: ['info', 'Syncing…'], offline: ['warn', 'Offline'], failed: ['bad', 'Sync failed']}[d.phase] || ['ok', 'Linked'];
+    root.appendChild(h('p', {cls: 'plain'}, [pill(ph[0], ph[1]), ' with ', h('b', {text: d.workspace || 'your workspace'})]));
+    if (d.phase === 'offline') root.appendChild(h('p', {cls: 'hint', text: 'No internet right now. Presenting is not affected. To bring a plan from the website without internet, export a .frame file there and import it in Settings → Data / Backup.'}));
     root.appendChild(h('p', {cls: 'plain', text: 'Last synced: ' + when(d.lastSync) + (d.held ? ' · ' + d.held + ' change(s) wait until the live Frame leaves the screen' : '')}));
     if (d.error) root.appendChild(h('p', {cls: 'hint', text: d.error}));
     root.appendChild(h('div', {cls: 'actions'}, [
@@ -104,7 +106,7 @@ function render(){
 function refresh(){
   if (!Store.served) return render();
   fetch('api/sync', {cache: 'no-store'}).then(function(r){ return r.json(); }).then(function(d){
-    var was = info && info.state; info = d; render();
+    var was = info && info.state; info = d; render(); if (window.KCRenderSync) window.KCRenderSync(d);
     if (was !== d.state && window.KCRenderSecurity) window.KCRenderSecurity();
   }).catch(function(){});
 }

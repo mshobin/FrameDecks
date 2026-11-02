@@ -466,9 +466,23 @@ class LinkAndUnlink(unittest.TestCase):
         self.svc.poke(0)
         self.wait(lambda: (self.svc.info()["error"] or "").startswith("Offline"))
         self.assertEqual(self.svc.info()["state"], "linked")
+        self.assertEqual(self.svc.info()["phase"], "offline")
         self.api.offline = False
         self.svc.sync_once()
         self.assertEqual(self.cloud.rows[("meeting", "meeting")]["body"]["title"], "While offline")
+        self.assertEqual(self.svc.info()["phase"], "synced")
+
+    def test_the_header_word_for_each_sync_state(self):
+        self.assertEqual(self.svc.info()["phase"], "", "not linked: no chip")
+        self.svc.link_start()
+        self.approved.update(computerId="c1", organizationId="o1", organizationName="BSF Study")
+        self.wait(lambda: self.svc.info()["lastSync"])
+        self.assertEqual(self.svc.info()["phase"], "synced")
+        self.svc.busy = True
+        self.assertEqual(self.svc.info()["phase"], "syncing")
+        self.svc.busy = False
+        self.svc.status["error"] = "Sync problem: boom"
+        self.assertEqual(self.svc.info()["phase"], "failed")
 
 
 class ServerWiring(unittest.TestCase):
