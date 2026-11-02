@@ -82,7 +82,7 @@ function create(host, opts){
     contrast: false, focus: false, mirror: false}, load(key));
   var playing = false, raf = 0, last = 0, acc = 0, sig = '', curSid = '', curText = '', curSc = null;
   var cueNow = h('b', {cls: 'tp-now'}), cuePos = h('span', {cls: 'tp-pos'}), cueNext = h('span', {cls: 'tp-next'}), cueUp = h('span', {cls: 'tp-up'});
-  var text = h('div', {cls: 'tp-text', 'aria-live': 'off'}), scroll = h('div', {cls: 'tp-scroll', tabindex: '0', 'aria-label': 'Teleprompter script'}, [text, h('div', {cls: 'tp-end'})]);
+  var text = h('div', {cls: 'tp-text', 'aria-live': 'off'}), scroll = h('div', {cls: 'tp-scroll', tabindex: '0', role: 'region', 'aria-label': 'Teleprompter script'}, [text, h('div', {cls: 'tp-end'})]);
   var playBtn = h('button', {cls: 'tp-btn tp-play', type: 'button', title: 'Start / pause scrolling (Space)', onclick: function(){ setPlay(!playing); }});
   var speedSel = h('select', {cls: 'tp-speed', 'aria-label': 'Scrolling speed', title: 'Scrolling speed'}, SPEEDS.map(function(s){ return h('option', {value: s[0], text: s[1]}); }));
   speedSel.value = S.speed; speedSel.addEventListener('change', function(){ S.speed = speedSel.value; save(key, S); });

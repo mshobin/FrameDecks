@@ -75,8 +75,10 @@ for (const w of [1920, 1440, 1280, 1100]) {
   await p.goto(`${BASE}/speaker.html`);
   await p.mouse.move(500, 500);                 // the pointer away from the top edge
   await p.waitForTimeout(800);
-  const n = await p.locator(".tp-empty-act").count();
-  check(n >= 1, "the Teleprompter's empty state offers Write a script");
+  // 8.2: the window shows only the words; every control, Write Script included, is in the top bar
+  const inPreview = await p.locator("#sp-prompt button, #sp-prompt select, #sp-prompt .tp-cues").count();
+  check(inPreview === 0, `nothing but the script in the Teleprompter's window (${inPreview} controls found)`);
+  check(await p.locator("#sp-top #sp-write").count() === 1 && await p.locator("#sp-top .tp-play").count() === 1, "Write Script and Scroll are in the top bar");
   const hidden = await p.locator("#sp-top").evaluate((el) => getComputedStyle(el).opacity === "0");
   check(hidden, "the Teleprompter's top bar is hidden at first");
   await p.click("#sp-bar-btn");
