@@ -65,7 +65,6 @@ function flash(msg){
     document.body.classList.toggle('sp-bar-open', on); b.setAttribute('aria-expanded', String(on));
     b.setAttribute('aria-label', on ? 'Hide the top bar' : 'Show the top bar');
     b.title = on ? 'Hide the top bar' : 'Show the top bar: time, Frame and timer';
-    b.firstChild.textContent = on ? '▴' : '▾';
     pin.textContent = on ? 'Hide bar' : 'Keep open'; pin.title = on ? 'Hide the top bar' : 'Keep the top bar open';
     try { localStorage.setItem(KEY, on ? '1' : '0'); } catch(e){}
   }
@@ -73,6 +72,10 @@ function flash(msg){
   set(saved === '1');
   function flip(){ set(!document.body.classList.contains('sp-bar-open')); }
   b.addEventListener('click', flip);
+  /* 8.6 the tab sits under the bar's lower edge while the bar shows, whatever its height (it wraps on a narrow window) */
+  var top = $('sp-top'), head = $('sp-head');
+  function measure(){ head.style.setProperty('--sp-bar-h', top.offsetHeight + 'px'); }
+  measure(); if (window.ResizeObserver) new ResizeObserver(measure).observe(top); else window.addEventListener('resize', measure);
   pin.addEventListener('click', function(){ flip(); if (!document.body.classList.contains('sp-bar-open')) $('sp-prompt').focus(); });   // focus leaves the bar, so it can hide
 })();
 

@@ -570,7 +570,10 @@ function openQuickStart(){
     h('p', {cls: 'kc-dlg-kicker', text: 'Quick Start'}), h('h2', {id: 'qs-title', text: 'What are you leading today?'}),
     h('p', {cls: 'kc-dlg-sub', text: 'Pick one and a complete set of Frames is ready in its own group. Change any of them afterwards; nothing goes on screen until you press Go Live.'}),
     grid,
-    h('div', {cls: 'kc-dlg-foot'}, [h('button', {cls: 'btn quiet', type: 'button', text: 'Browse the Library instead', onclick: function(){ dlg.close(); setFilter('tpl'); }}),
+    h('p', {cls: 'qs-result', role: 'status', 'aria-live': 'polite', hidden: 'hidden'}),
+    h('div', {cls: 'kc-dlg-foot'}, [
+      h('button', {cls: 'btn', type: 'button', id: 'qs-import', html: I('folder-open', 15) + ' Import a Frame file…', title: 'A .frame file from framedecks.com or another PC, or one exported Frame', onclick: importScene}),
+      h('button', {cls: 'btn quiet', type: 'button', text: 'Browse the Library instead', onclick: function(){ dlg.close(); setFilter('tpl'); }}),
       h('button', {cls: 'btn', type: 'button', text: 'Cancel', onclick: function(){ dlg.close(); }})])]));
   if (window.KCSetTab && document.body.dataset.tab !== 'studio') window.KCSetTab('studio');
   dlg.showModal();
@@ -586,7 +589,7 @@ function runQuickStart(q){
     toast(q.name + ' is ready: ' + made.length + ' Frames in “' + made[0].group + '”. Select a Frame and press Go Live.');
   });
 }
-window.KCQuickStart = {open: openQuickStart};
+window.KCQuickStart = {open: openQuickStart, importFile: importFrameFile};
 $('quick-start').addEventListener('click', function(e){ e.stopPropagation(); meetingMenu($('quick-start')); });
 
 function sceneMenu(id, anchor, ev){
@@ -622,19 +625,50 @@ function exportScene(id){
   var blob = new Blob([JSON.stringify({bccScene: 1, scene: sc}, null, 2)], {type: 'application/json'});
   var a = h('a', {href: URL.createObjectURL(blob), download: sc.name.replace(/[^\w\- ]+/g, '') + '.bcc-scene.json'}); document.body.appendChild(a); a.click(); a.remove();
 }
+/* 8.6 Import a Frame file, from Quick Start or the meeting menu: a .frame file (a plan, from framedecks.com or Settings →
+ * Export Frame File) goes through the same import as Settings → Data / Backup (Use this plan / Add after my Frames,
+ * the check, the media); a single Frame (⋯ → Export Frame file, .json) is added after the selected Frame. */
+var IMPORT_ACCEPT = '.frame,.json,application/json';
 function importScene(){
-  var f = h('input', {type: 'file', accept: '.json,application/json', style: 'display:none'});
+  var f = h('input', {type: 'file', accept: IMPORT_ACCEPT, style: 'display:none'});
   f.addEventListener('change', function(){
-    var file = f.files[0]; f.remove(); if (!file) return;
-    file.text().then(function(t){
-      var d = JSON.parse(t), src = d && (d.scene || d);
-      var sc = SC.cleanScene(src); if (!sc) throw new Error('bad');
-      var made = null;
-      commit(function(n){ sc.id = 'sc_' + Math.random().toString(36).slice(2, 9); sc.name = SC.uniqueName(n, sc.name); sc.created = sc.modified = Date.now(); sc.from = file.name; SC.insert(n, sc, selScene); made = sc; })
-        .then(function(){ if (made) select(made.id, null, true); toast('Frame imported: ' + made.name); });
-    }).catch(function(){ toast('That file is not a FrameDecks Frame.', true); });
+    var file = f.files[0]; f.remove(); if (file) importFrameFile(file);
   });
   document.body.appendChild(f); f.click();
+}
+function importResult(text, bad){
+  var dlg = $('qs-dlg'), box = dlg && dlg.open && dlg.querySelector('.qs-result');
+  if (box){ box.textContent = text; box.className = 'qs-result ' + (bad ? 'bad' : 'ok'); box.hidden = false; }
+  toast(text, bad);
+}
+function importFrameFile(file){
+  var ext = (file.name.split('.').pop() || '').toLowerCase();
+  if (/^(xlsx|xls|csv)$/.test(ext)) return Promise.resolve(importResult('“' + file.name + '” is an Excel file. Import it in Settings → Data / Backup → Import from Excel.', true));
+  if (ext === 'pptx' || ext === 'ppt') return Promise.resolve(importResult('“' + file.name + '” is a PowerPoint file. Add it to a Frame with + Content → PowerPoint.', true));
+  if (file.size > 400 * 1024 * 1024) return Promise.resolve(importResult('“' + file.name + '” is too large to be a Frame file.', true));
+  return file.text().then(function(t){
+    var d; try { d = JSON.parse(t); } catch(e){ d = null; }
+    if (window.KCFrameFile && ((d && d.format === KCFrameFile.FORMAT) || ext === 'frame')){
+      var r0 = KCFrameFile.check(t);                               // the same check as Settings, before anything changes
+      if (!r0.ok){ importResult(r0.error, true); return {ok: false, error: r0.error}; }
+      var dlg = $('qs-dlg'); if (dlg && dlg.open) dlg.close();     // the import asks its own question
+      return KCFrameFile.importFile(file).then(function(r){
+        if (r && r.ok){ setFilter('all'); if (r.first) select(r.first, null, true); }
+        return r;
+      });
+    }
+    var src = d && (d.scene || d), sc = src && typeof src === 'object' && (src.layers || d.bccScene) ? SC.cleanScene(src) : null;
+    if (!sc){
+      var why = d && d.format ? 'This file is not a FrameDecks Frame file (it says “' + String(d.format).slice(0, 40) + '”).' : 'This is not a FrameDecks Frame file. Choose a .frame file, or a Frame exported with ⋯ → Export Frame file.';
+      importResult(why, true); return {ok: false, error: why};
+    }
+    var made = null;
+    return commit(function(n){ sc.id = 'sc_' + Math.random().toString(36).slice(2, 9); sc.name = SC.uniqueName(n, sc.name); sc.group = SC.newGroup(n); sc.created = sc.modified = Date.now(); sc.from = file.name; SC.insert(n, sc, selScene); made = sc; })
+      .then(function(){
+        var dlg = $('qs-dlg'); if (dlg && dlg.open) dlg.close();
+        setFilter('all'); if (made) select(made.id, null, true); toast('✓ Frame imported: ' + made.name); return {ok: true, frames: 1};
+      });
+  }).catch(function(e){ var m = 'The Frame file could not be imported' + (e && e.message ? ': ' + e.message : '.'); importResult(m, true); return {ok: false, error: m}; });
 }
 /* ===================================================================================================== */
 /* Layers panel                                                                                          */

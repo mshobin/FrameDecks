@@ -6,7 +6,6 @@ body.speaker{padding:0;height:100vh;display:flex;flex-direction:column;backgroun
 .sp-bar-btn{position:absolute;z-index:2;top:4px;left:50%;transform:translateX(-50%);display:grid;place-items:center;width:44px;height:20px;padding:0;
   border:1px solid var(--line);border-radius:0 0 var(--r-2) var(--r-2);background:var(--surface);color:var(--muted);font-size:12px;cursor:pointer;opacity:.7}
 .sp-bar-btn:hover,.sp-bar-btn:focus-visible{opacity:1;color:var(--text)}
-body.sp-bar-open .sp-bar-btn{visibility:hidden}
 .sp-top{position:absolute;top:0;left:0;right:0;display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:8px 8px 8px 16px;
   background:var(--chrome-bg,var(--surface));border-bottom:1px solid var(--line);box-shadow:var(--el-3);
   transform:translateY(-100%);opacity:0;pointer-events:none;transition:transform .18s ease,opacity .18s ease}
@@ -74,7 +73,12 @@ body.sp-glass .tp-text{text-shadow:0 0 calc(var(--sp-halo) * .12em) rgba(var(--r
 .sp-prompt .tp-text{max-width:none;margin:0}
 body.sp-glass .sp-main{border-radius:0}
 @media (prefers-reduced-motion:reduce){ .sp-flash{transition:none} }
-/* the bar's tab is invisible until the pointer reaches the top edge (or it has keyboard focus) */
-.sp-bar-btn{opacity:0;transition:opacity .15s ease}
-.sp-head:hover .sp-bar-btn,.sp-bar-btn:focus-visible{opacity:.85}
-@media (prefers-reduced-motion:reduce){ .sp-bar-btn{transition:none} }
+/* 8.6 the bar's tab is always there, small and quiet, so it is clear a bar is hidden above; pointing at it (or the top
+   edge) slides the bar down, and the tab rides along under the bar's edge, its arrow turned up */
+.sp-bar-btn{top:0;width:40px;height:16px;border-top:0;opacity:.55;box-shadow:var(--el-1);
+  transition:opacity .15s ease,transform .18s ease,color .15s ease}
+.sp-bar-btn svg{width:14px;height:14px;transition:transform .18s ease}
+.sp-head:hover .sp-bar-btn,.sp-bar-btn:focus-visible{opacity:1;color:var(--text)}
+.sp-head:hover .sp-bar-btn,.sp-head:focus-within .sp-bar-btn,body.sp-bar-open .sp-bar-btn{transform:translate(-50%,var(--sp-bar-h,0px))}
+.sp-head:hover .sp-bar-btn svg,.sp-head:focus-within .sp-bar-btn svg,body.sp-bar-open .sp-bar-btn svg{transform:rotate(180deg)}
+@media (prefers-reduced-motion:reduce){ .sp-bar-btn,.sp-bar-btn svg{transition:none} }

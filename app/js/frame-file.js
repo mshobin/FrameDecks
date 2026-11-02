@@ -250,24 +250,26 @@ function ask(sum, name){
     back.appendChild(card); doc.body.appendChild(back); $('frame-use').focus();
   });
 }
+/* 8.6 one import for every place that offers it (Settings → Data / Backup, Quick Start, the meeting menu); answers
+ * {ok, mode, error} so the caller can say what happened where the person is */
 function importFile(file){
   say('Reading ' + file.name + '…');
-  file.text().then(function(text){
+  return file.text().then(function(text){
     var r = check(text);
-    if (!r.ok){ say(r.error, true); toast(r.error, true); return; }
+    if (!r.ok){ say(r.error, true); toast(r.error, true); return {ok: false, error: r.error}; }
     var sum = summary(r.file);
     return ask(sum, file.name).then(function(mode){
-      if (!mode){ say('Nothing imported.'); return; }
+      if (!mode){ say('Nothing imported.'); return {ok: false, cancelled: true}; }
       var backup = mode === 'replace' ? fetch('api/app/backup-now', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: '{}'}).catch(function(){}) : Promise.resolve();
       return backup.then(function(){ return writeMedia(r.file.media || []); }).then(function(rename){
         var made = [];
         return Store.update(function(n){ made = apply(n, r.file, mode, rename, SC); }).then(function(){
           useSettings(r.file.settings);
-          return report(r.file, mode, made, rename, sum.title || file.name);
+          return report(r.file, mode, made, rename, sum.title || file.name).then(function(){ return {ok: true, mode: mode, frames: made.length, first: made[0] && made[0].id}; });
         });
       });
     });
-  }).catch(function(e){ var m = 'The Frame file could not be imported' + (e && e.message ? ': ' + e.message : '.'); say(m, true); toast(m, true); });
+  }).catch(function(e){ var m = 'The Frame file could not be imported' + (e && e.message ? ': ' + e.message : '.'); say(m, true); toast(m, true); return {ok: false, error: m}; });
 }
 /* 8.4 The import check: the file compared with this PC, then the files the imported Frames use that this PC does not
  * have. Shown in the Frame files box; nothing is lost silently. */
