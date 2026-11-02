@@ -1,31 +1,44 @@
-## FrameDecks v8.1.0
+## FrameDecks v8.2.0
 
-A more beautiful FrameDecks, with the Teleprompter's transparency back. Download from **framedecks.com/download**, or
-let FrameDecks update itself. It installs over 8.0.0 and earlier and keeps all your meetings, members, settings and
-recordings.
+A cleaner Teleprompter, a Spotlight for the word you are talking about, a Burst transition and .frame files that take a
+whole plan to a service PC without internet. Download from **framedecks.com/download**, or let FrameDecks update
+itself. It installs over 8.1.0 and earlier and keeps all your meetings, members, settings and recordings.
 
 ## What's New
-- **Teleprompter transparency and pin.** The Teleprompter's top bar has Solid, 20%, 40%, 65% and 85%, so your meeting
-  shows through, and a **Pin** button that keeps it above Zoom, Teams and PowerPoint. Both are remembered.
-- **Colour looks.** Settings → Meeting & Branding → **Look**: Gold & Navy, Morning Light, Chapel Stone, Deep Ocean,
-  Forest or Quiet Mono (the same looks as on framedecks.com), or "Same as my workspace". Then Dark, Light or Match
-  Windows.
-- **Content settings on one page.** Select Content in Decks: its words come first, then Position and size, Look,
-  Animation and Show on, each opening with a click. No more tabs.
+- **Teleprompter: only your words on screen.** Every control now sits in the Teleprompter's top bar, which folds
+  away: Scroll, speed, font size and the other text settings, **✎ Write Script**, **Next Frame ▸**, transparency and
+  Pin. The script area shows the script and nothing else, and the text uses the whole window at every font size.
+- **Upload a script.** **⇪ Upload** in the Teleprompter bar reads a .txt, .md or Word (.docx) file. Word headings,
+  bullets and bold are kept.
+- **One script or one per Frame.** Choose **Each Frame** (as before: the script follows the live Frame) or **Whole
+  meeting** (one script for the whole meeting).
+- **Spotlight.** Annotate → Spotlight (key S, or press Ctrl twice): click a word on the picture and a glowing circle
+  grows around it, pulses, then opens out with a few sparks and fades. Choose its colour, size, length and strength.
+  It shows in Zoom and Teams (FrameRelay), recordings and the overlay pages.
+- **Burst transition.** The old Frame breaks into dust that drifts away and uncovers the next one. Choose how fine the
+  dust is, which way it drifts, its colour and its strength.
+- **.frame files.** On framedecks.com, Plan → **Export for Service PC** saves the whole plan in one file. On the
+  service PC, Settings → Data / Backup → **Import Frame File…** adds it after your Frames or replaces them (after a
+  backup). A PC can export one too, with its pictures, videos, audio and slides.
+- **Sync status.** A PC linked to a workspace shows **Synced**, **Syncing**, **Offline** or **Sync failed** in the
+  header.
 
 ## Enhancements
-- The whole window now matches framedecks.com: a soft light behind everything, rounder cards with a faint gold edge,
-  gold main buttons and larger page titles. It uses no extra processor or graphics power.
-- Settings → General is simpler: the window, the tray and performance. "Your details & email wording" is gone.
+- Transitions: one of each kind. The list is Cut, Fade, Dip to Black, Dip to White, Blur Fade, Zoom, Slide, Push,
+  Wipe and Burst. Frames that used Dissolve, Cinema or Church now use Fade; Slide Right uses Slide; Soft Scale uses
+  Zoom. They look the same as before.
+- Settings → FrameDecks account says Synced, Syncing, Offline or Sync failed, and when offline, how to use a .frame
+  file instead.
 
 ## Fixes
-- The picture at the top of the release notes and the README shows the About screen again (8.0.0's caught the Setup
-  guide in front of it).
+- None in this release.
 
 ## Performance Improvements
-- None in this release.
+- Burst and Spotlight are drawn only while they play: about 12–20 ms and 6 ms a frame at 1080p, nothing otherwise.
 
 ## Known Issues
 - The installer is not yet code-signed, so Windows SmartScreen may ask you to confirm: **More info → Run anyway**.
+- A .frame file made on framedecks.com holds no pictures or videos (they are kept off the cloud). Add them on the PC,
+  or export the .frame file from a PC that has them.
 - With "Light on graphics card" on (the default), the Teleprompter fades as a whole, text included. For solid text over
   a see-through background, turn it off in Settings → General → Performance and restart FrameDecks.

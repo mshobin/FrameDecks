@@ -27,14 +27,14 @@ How to lead a service or Bible study with FrameDecks, so the technology supports
 1. **A meeting is a list of Frames.** Each Frame is one step of the service (Welcome, Scripture Reading, Discussion…). See [Frames](../frames.md).
 2. **Your script is private.** Write what you plan to say in each Frame's **Teleprompter script**. It never appears on screen; only you see it.
 3. **The Teleprompter is your confidence monitor.** **Live tools → Teleprompter** (**R**) opens your script in a window that stays on top of Zoom or Teams, so you can lead from one laptop. Zoom and Teams never share it, and recordings never show it. Its top bar (the time, the current Frame and a timer) appears when you move the pointer to the top edge. The phone remote has a Teleprompter too. See [Teleprompter](../presentations.md#teleprompter).
-4. **You can draw.** **Annotate** (**D**) lets you circle a word in a verse or underline a phrase, on the PC or from a phone.
+4. **You can draw.** **Annotate** (**D**) lets you circle a word in a verse or underline a phrase, on the PC or from a phone. **Spotlight** (press **Ctrl** twice over the picture) puts a glowing circle around one word.
 5. **Hide all is always safe.** **Esc** (or **Hide all** on the phone) clears the screen without deleting anything.
 
 ## Before the service
 
 - [ ] Send the passage, questions, songs and announcements to the media team.
 - [ ] Check each question's wording (double-click a question in its list, or its card on the Studio Canvas, to edit it).
-- [ ] Write each Frame's **Teleprompter script** (Content Settings → Teleprompter script, or double-click the text in the Teleprompter). Use `# Heading`, `- bullet` and `[PAUSE]` to make it easy to follow.
+- [ ] Write each Frame's **Teleprompter script** (Content Settings → Teleprompter script, or **✎ Write Script** in the Teleprompter). Already have it in Word? **⇪ Upload** loads a .docx, .txt or .md file. Prefer one script for the whole meeting? Choose **Whole meeting** in the Teleprompter's top bar. Use `# Heading`, `- bullet` and `[PAUSE]` to make it easy to follow.
 - [ ] Walk through the whole meeting: select each Frame and look at the Studio Canvas, or scroll through **All Frames** on the phone.
 - [ ] Agree hand signals with the operator (for example, a nod = next).
 - [ ] Leading on Zoom or Teams? Open the **Teleprompter** (**R**) in a test call, place it over the participants near your camera, and check that it stays in front when you click into the meeting.
@@ -46,7 +46,7 @@ How to lead a service or Bible study with FrameDecks, so the technology supports
 - If you run the service yourself, keep the phone remote in your hand: the round **▶** arrow for the next question, **Next** for the next part.
 - To fix a typo you notice on screen, double-click the card on the Studio Canvas, correct it and press **Enter**. The screen updates straight away.
 - To find a Frame or question quickly, press **Ctrl+K** and type a few words. If Zoom is in front, press **Alt+Space** for **Spotlight**, which finds the same things.
-- The Teleprompter's toolbar fades by itself; move the mouse to bring it back. Make the window as small as you can still read comfortably, so you can see the participants.
+- All the Teleprompter's controls are in its top bar; the script area shows only your words. **Next Frame ▸** in the top bar puts the next Frame on screen. Make the window as small as you can still read comfortably, so you can see the participants.
 
 ## After the service
 

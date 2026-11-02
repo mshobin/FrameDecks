@@ -74,7 +74,7 @@ Usually the service operator runs the controls. Stay available to:
 
 - [ ] **Back up now**.
 - [ ] Save reusable Frames as templates (**Save as template** in Content Settings → Frame).
-- [ ] Export the meeting to Excel if it should be kept or shared (Meeting menu → **Export this meeting to Excel**).
+- [ ] Export the meeting to Excel if it should be kept (Meeting menu → **Export this meeting to Excel**). To move it to a service PC without internet, use **Settings → Data / Backup → Export Frame File** instead.
 
 ## When something goes wrong
 

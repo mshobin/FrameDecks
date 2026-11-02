@@ -47,6 +47,7 @@ never changes another.
 | **From a template** | **✨ Meeting → From your templates** | A new Frame made from one of your templates |
 | **From Excel** | **Settings → Data / Backup → Meeting from Excel** **→ Import a meeting from Excel…** (or the website's Meeting Form, 6.11) | Every Frame in the workbook. See [Service planning](service-planning.md#plan-in-excel-with-the-meeting-workbook) |
 | **From a file** | **✨ Meeting → Import a Frame file…** | A Frame exported from another PC |
+| **From a .frame file** | **Settings → Data / Backup → Import Frame File…** | A whole plan from framedecks.com or another PC. See [Move a plan to a service PC](service-planning.md#move-a-plan-to-a-service-pc) |
 
 After creating a Frame, add Content with **+ Content**. See [Content](content.md).
 
@@ -89,7 +90,7 @@ list; its settings show only what you change often.
 | Setting | What it does |
 | --- | --- |
 | **Name** | Shown in the Frames list, on the phone remote and in the Teleprompter |
-| **Teleprompter script** | What you plan to say on this Frame, up to 20,000 characters. Only you see it, in the Teleprompter (on the PC and the phone), never on screen. **Open the Teleprompter** opens it. Called *Leader notes* before 6.7. See [Presentations](presentations.md#teleprompter) |
+| **Teleprompter script** | What you plan to say on this Frame, up to 20,000 characters. Only you see it, in the Teleprompter (on the PC and the phone), never on screen. If the Teleprompter is set to **Whole meeting**, it shows the meeting's one script instead. **Open the Teleprompter** opens it. Called *Leader notes* before 6.7. See [Presentations](presentations.md#teleprompter) |
 | **Move to the next Frame after N seconds** | Moves on by itself after that many seconds, but only while **Auto** is on in the command bar |
 
 Below them, **Duplicate Frame** puts a copy right after this Frame.
@@ -100,7 +101,7 @@ Fold out **Advanced** for the settings you change less often.
 | Setting | What it does |
 | --- | --- |
 | **Group** | Which group the Frame belongs to |
-| **Transition into this Frame** | How the Frame appears: your profile's transition, or a specific one such as Cut, Fade, Cross Dissolve, Dip to Black, Slide Left / Right, Push, Zoom Fade, Soft Scale, Cinema Fade or Church Service Fade |
+| **Transition into this Frame** | How the Frame appears: your profile's transition, or one of Cut, Fade, Dip to Black, Dip to White, Blur Fade, Zoom, Slide, Push, Wipe or Burst. See [Transitions](presentations.md#transitions) |
 | **Length (ms)** | How long the transition takes |
 | **Branding** | Adds or removes your logo and Meeting Name badge in this Frame |
 | **Favourite** | Shows the Frame under **Favorites** |
@@ -146,7 +147,8 @@ A **template** is a Frame you keep for making new Frames, such as your standard 
 - **Export:** **⋯ → Export Frame file** saves the Frame to your Downloads folder.
 - **Import:** **✨ Meeting → Import a Frame file…** on the other PC.
 
-To share a whole meeting, export it to Excel instead: **Settings → Data / Backup → Export this meeting (Excel)**.
+To move a whole plan to another PC, use a **.frame file** instead: **Settings → Data / Backup → Export Frame File**.
+See [Move a plan to a service PC](service-planning.md#move-a-plan-to-a-service-pc).
 
 ## The Frame menu at a glance
 

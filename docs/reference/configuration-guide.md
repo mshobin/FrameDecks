@@ -69,12 +69,12 @@ backups and recordings) and never overwrites newer data.
 
 | File | Contents |
 | --- | --- |
-| `kc-saved-content.json` | Frames, their Content (with their own question and scripture lists), branding, the meeting details (`meeting`, see below), live state (including drawings) |
+| `kc-saved-content.json` | Frames, their Content (with their own question and scripture lists), branding, the meeting details (`meeting`, see below), live state (including drawings and the Annotate Spotlight), the Burst transition's look (`fx.burst`, 8.2) |
 | `kc-members-private.json` | Members and member settings (never sent to the remote or the overlays) |
 | `kc-app-settings.json` | App options: remote autostart, Light on graphics card, native Presentation window |
 | `kc-remote-pin.txt`, `kc-remote-sessions.json` | Phone remote PIN and signed-in phones |
 | `bcc-brand-logo.png` | Your uploaded logo (internal file name kept for compatibility) |
-| `webview\`, `appwindow\` | The app window's browser storage |
+| `webview\`, `appwindow\` | The app window's browser storage (including the Annotate Spotlight's colour, size, length and strength, 8.2) |
 | `backups\` | Daily and manual backups |
 
 (Files called `kc-teamspace*.json` from v6.4 are no longer used and can be deleted.)
@@ -92,6 +92,12 @@ Meeting Workbook's **Meeting Form** when you import it, and go back into it when
 | `owner` · `contentNotes` | Presentation owner · Content notes | 80 · 2000 |
 | `notes` | Meeting notes | 2000 |
 | `extra` | Additional notes | 4000 |
+| `script` · `scriptMode` | Not on the Meeting Form (8.2): the Teleprompter's whole-meeting script, and whether the Teleprompter shows each Frame's script (`frame`) or the whole-meeting one (`all`) | 20000 · — |
+
+**Moving the data to another PC (8.2).** To move a plan, use **Settings → Data / Backup → Export Frame File** and
+**Import Frame File…** (see `docs/reference/frame-file.md`). A PC linked under **Settings → FrameDecks account**
+syncs its plans with framedecks.com instead; media files stay on the PC. The header's **Sync** chip shows
+**Synced**, **Syncing**, **Offline** or **Sync failed**.
 
 ### Environment variables (developers and tests)
 | Variable | Effect |

@@ -226,6 +226,20 @@ FrameDecks makes a backup automatically once a day and keeps the newest 10. They
 
 Open the **Meeting** menu (✨ next to **+ Frame**) and choose **Undo the last Excel import**.
 
+### The Sync chip says Offline or Sync failed
+
+| Chip | What to do |
+| --- | --- |
+| **Offline** | The PC has no internet. Nothing to do: changes wait on the PC and go up later, and presenting is not affected. To move a plan without internet, use a [.frame file](service-planning.md#move-a-plan-to-a-service-pc) |
+| **Sync failed** (red) | Open **Settings → FrameDecks account**. It says why |
+
+### A .frame file won't import
+
+FrameDecks checks the file before it changes anything. A file that is not a Frame file, comes from a newer FrameDecks,
+has no Frames or has a damaged picture is refused with a message, and nothing changes. Update FrameDecks, or export
+the file again. After **Replace my Frames**, the backup made just before is in **Settings → Data / Backup**. See
+[The .frame file](../reference/frame-file.md).
+
 ## Collecting diagnostics
 
 **Settings → Diagnostics → Copy diagnostics** copies the information needed for support to the clipboard. It contains no PIN and no member details. Paste it into your message.

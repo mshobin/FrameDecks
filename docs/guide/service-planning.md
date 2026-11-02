@@ -11,6 +11,7 @@ How to plan a service, Bible study or meeting in FrameDecks, from a blank page o
 - [Organize your Frames](#organize-your-frames)
 - [Reuse last week's service](#reuse-last-weeks-service)
 - [Notes for the leader](#notes-for-the-leader)
+- [Move a plan to a service PC](#move-a-plan-to-a-service-pc)
 - [Plan in Excel with the Meeting Workbook](#plan-in-excel-with-the-meeting-workbook)
 - [Export to PowerPoint](#export-to-powerpoint)
 - [Planning worship lyrics today](#planning-worship-lyrics-today)
@@ -92,11 +93,12 @@ If you saved a Frame as a template (see [Frames](frames.md#templates)), it appea
 ## Notes for the leader
 
 Each Frame has one **Teleprompter script**: what you plan to say while that Frame is on screen. Only you see it.
-It is never shown on any output.
+It is never shown on any output. If you prefer one script for the whole meeting, choose **Whole meeting** in the
+Teleprompter's top bar. That script is kept with the meeting details.
 
 | Where you write it | Where you read it during the meeting |
 | --- | --- |
-| Content Settings → **Teleprompter script**, or double-click the text in the Teleprompter | **Live tools → Teleprompter** (R), a window over Zoom or Teams that is hidden from screen sharing, or the phone remote's Teleprompter |
+| Content Settings → **Teleprompter script**, or **✎ Write Script** in the Teleprompter, or **⇪ Upload** a .txt, .md or Word (.docx) file there | **Live tools → Teleprompter** (R), a window over Zoom or Teams that is hidden from screen sharing, or the phone remote's Teleprompter |
 
 Use `# Heading`, `- bullet`, `**bold**`, `*italic*`, `[PAUSE]` and `---` to make it easy to read at a glance. See
 [Presentations](presentations.md#teleprompter).
@@ -105,10 +107,37 @@ Use `# Heading`, `- bullet`, `**bold**`, `*italic*`, `[PAUSE]` and `---` to make
 > Those are no longer shown anywhere, but they are kept in your data. Older workbooks still import: their answers
 > and notes go into the Frame's Teleprompter script.
 
+## Move a plan to a service PC
+
+**Linked PC.** A PC linked to your team on framedecks.com (**Settings → FrameDecks account**) gets the plan by
+itself. The header shows a **Sync** chip:
+
+| Chip | Meaning |
+| --- | --- |
+| **Synced** (green) | The PC has the latest plan |
+| **Syncing** | Changes are going up or coming down |
+| **Offline** | No internet. Your changes wait on the PC and go up later. Presenting is not affected |
+| **Sync failed** (red) | Open **Settings → FrameDecks account** to see why |
+
+**Settings → FrameDecks account** shows the same word. Sync carries everything except media: pictures, video,
+audio and slides are never put in the cloud.
+
+**No internet, or a PC that is not linked.** Use a **.frame file**. It holds the whole plan in one file.
+1. Make it:
+   - on framedecks.com: **Plan → Export for Service PC**;
+   - on a PC: **Settings → Data / Backup → Export Frame File**. This also includes the pictures, video, audio and
+     slides the Frames use (up to 300 MB).
+2. Copy the file to the service PC, for example on a USB stick.
+3. On the service PC: **Settings → Data / Backup → Import Frame File…**, and choose the file.
+4. Choose **Add after my Frames**, **Replace my Frames** (a backup is made first) or **Cancel**.
+
+Both commands are also in the [command palette](presentations.md#command-palette): type *Frame File*. Full details
+are in [The .frame file](../reference/frame-file.md).
+
 ## Plan in Excel with the Meeting Workbook
 
-Excel is optional. The **Meeting Workbook** is useful when one person plans the service and another runs it, or
-when you want to type a whole series of questions at once.
+Excel is optional. The **Meeting Workbook** is useful when you want to type a whole series of questions or verses at
+once. To move a plan to another PC, use a [.frame file](#move-a-plan-to-a-service-pc) instead.
 
 ### Two tabs: Dashboard and Meeting Form
 
@@ -196,7 +225,8 @@ Today, churches show lyrics in one of two ways:
 - [ ] Preview each Frame on the Studio Canvas (select it; the badge says PREVIEW).
 - [ ] Check spelling by double-clicking cards on the canvas.
 - [ ] Add any videos, images and PowerPoint files, and check they open.
-- [ ] Hand over: tell the service operator the group name, or export the Meeting Workbook for them.
+- [ ] Hand over: tell the service operator the group name. If the service PC is not linked or has no internet, give
+  them a [.frame file](#move-a-plan-to-a-service-pc).
 
 ## Related
 - [Frames](frames.md)

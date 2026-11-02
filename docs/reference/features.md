@@ -1,4 +1,19 @@
-# FrameDecks: feature documentation (v8.1)
+# FrameDecks: feature documentation (v8.2)
+
+## v8.2 at a glance
+| Feature | What it does | Where it lives |
+| --- | --- | --- |
+| **Teleprompter: controls in the top bar** | Every control is in the collapsible top bar; the script area shows only the script text (no buttons, labels or overlays), filling the whole window width and height at every text size. Row 1: Time, Frame, **Next Frame ▸** (puts the next Frame on screen), Timer, Transparency, Pin, Keep open / Hide bar, window buttons. Row 2: **▶ Scroll** (play / pause), speed, A− / A+ and the other text settings, **✎ Write Script**, **⇪ Upload** and the script mode | `app/speaker.html`, `app/js/speaker.js`, `app/js/teleprompter.js` |
+| **Teleprompter: Upload and script mode** | **⇪ Upload** loads a .txt, .md or Word (.docx) file; Word headings, bullets and bold are kept; up to 20,000 characters; asks before replacing an existing script. **Each Frame** (one script per Frame, following the live Frame, as before) or **Whole meeting** (one script, kept in the meeting details as `meeting.script`, with `meeting.scriptMode`) | `app/js/speaker.js`, `app/js/script-file.js`, `app/js/store.js` (`meeting`) |
+| **Annotate → Spotlight** | Tool key **S**, or press **Ctrl** twice quickly with the pointer over the Studio Canvas (also when not annotating). Click a word: a glowing circle grows around it, pulses gently, then opens out with a few sparks and fades; click empty space to spotlight a point. Shows on FrameRelay (Zoom, Teams), recordings and the overlay pages. The Spotlight panel sets the colour, **Size**, **Length** (1–15 s) and **Strength**, with **Try it**; remembered on the PC. Not the same as the Spotlight search (Alt+Space) | `app/js/annotate.js`, state `live.spot` |
+| **Transitions: one per effect** | Cut, Fade, Dip to Black, Dip to White, Blur Fade, Zoom, Slide, Push, Wipe, Burst. Older choices are moved automatically: Cross Dissolve, Cinema Fade and Church Service Fade → Fade; Slide Right → Slide; Soft Scale → Zoom. Saved Frames, profiles and Excel files keep working | `app/js/store.js` (`TX`, `TX_ALIAS`) |
+| **Burst transition** | The Frame on screen breaks into dust that drifts away and uncovers the next Frame (about 1.4 s). **Settings → Transitions → Burst**: Dust (Light / Medium / Fine), Drifts (Right / Left / Up / Down / Outwards), Strength, Dust colour or **The picture's own colours** | `app/js/workspace.js` (`renderTransitions`), `app/js/store.js` (`fx.burst`) |
+| **.frame files** | One file with the whole plan, to move it to a service PC without internet. framedecks.com: Plan → **Export for Service PC**. PC: **Settings → Data / Backup → Import Frame File…** (Add after my Frames / Replace my Frames, with a backup first / Cancel) and **Export Frame File** (with the pictures, video, audio and slides, up to 300 MB); also in the command palette. Replaces the Excel workbook for moving a plan; Excel import of question and verse lists stays. See [The .frame file](frame-file.md) | `app/js/frame-file.js`, `app/js/palette.js` |
+| **Sync status** | A PC linked to a workspace shows a **Sync** chip in the header: **Synced** (green), **Syncing**, **Offline** (no internet; changes wait and go up later; presenting is not affected), **Sync failed** (red; Settings → FrameDecks account says why). The same word shows in Settings → FrameDecks account. Sync carries everything except media, which never goes to the cloud | `app/dashboard.html` (`h-sync`), `app/js/meeting.js`, `app/js/account.js` |
+
+Rows below that mention the Teleprompter's floating toolbar, Cross Dissolve, Cinema Fade, Church Service Fade, Slide
+Right or Soft Scale, or sharing a meeting through the Excel workbook, describe earlier versions; the table above
+describes the app as it is now.
 
 ## v8.1 at a glance
 | Feature | What it does | Where it lives |

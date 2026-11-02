@@ -96,10 +96,22 @@ A Frame with a Question or Scripture list shows one item at a time.
 
 | Setting | Where | Effect |
 | --- | --- | --- |
-| The Frame's transition | Content Settings → **Advanced → Transition into this Frame** | How this Frame appears, for example Fade, Cross Dissolve, Dip to Black, Slide, Push, Cinema Fade or Church Service Fade |
+| The usual transition | **Settings → Transitions** → **Profile** | The transition every Frame uses unless it has its own |
+| The Frame's transition | Content Settings → **Advanced → Transition into this Frame** | How this Frame appears: Cut, Fade, Dip to Black, Dip to White, Blur Fade, Zoom, Slide, Push, Wipe or Burst |
 | Length (ms) | Same place | The length in milliseconds |
 | One-off override | The command bar's transition list (**Frame default**) | Uses another transition for your next takes, until you set it back to **Frame default** |
 | A card's own animation | Question / Scripture Content → **Animation** | How the card itself appears, for example Fade, Gentle rise, Word by word, Typewriter |
+
+Since 8.2 there is one transition for each effect. Frames that used an older choice are moved for you: Cross
+Dissolve, Cinema Fade and Church Service Fade become **Fade**, Slide Right becomes **Slide**, and Soft Scale becomes
+**Zoom**.
+
+**Burst:** the Frame on screen breaks into dust that drifts away and uncovers the next Frame (about 1.4 seconds). Set
+its look in **Settings → Transitions → Burst**:
+- **Dust**: **Light**, **Medium** or **Fine**;
+- **Drifts**: **Right**, **Left**, **Up**, **Down** or **Outwards**;
+- **Strength**;
+- **Dust colour**, or tick **The picture's own colours**.
 
 ## When something goes wrong: Hide all, Black screen, Emergency, Freeze
 
@@ -137,6 +149,7 @@ on the projector sees it.
 | Rectangle | R |
 | Ellipse | E |
 | Text | T |
+| Spotlight | S |
 
 There are six colours and three thicknesses. **Undo** is Ctrl+Z, **Redo** is Ctrl+Y, and **Clear** removes every
 drawing. You can draw on a frozen picture.
@@ -145,16 +158,41 @@ drawing. You can draw on a frozen picture.
 
 You can also draw with your finger on the phone. See [Remote control](remote-control.md#drawing-from-the-phone).
 
+### Spotlight a word
+
+**Spotlight** points people to one word. Choose the Spotlight tool (**S**) and click a word on the picture. A
+glowing circle grows around it, pulses gently, then opens out with a few sparks and fades. Click empty space to
+spotlight that point instead.
+
+Quicker still: press **Ctrl** twice quickly with the pointer over the picture on the Studio Canvas. This works even
+when you are not annotating.
+
+Everyone sees it: on the FrameRelay camera in Zoom or Teams, in recordings and on the overlay pages. While the
+Spotlight tool is chosen, its panel sets the **colour**, **Size**, **Length** (1 to 15 seconds) and **Strength**.
+**Try it** shows one in the middle of the picture.
+
+> **Note:** This is not the same as the [Spotlight search](#spotlight), which finds things from anywhere in Windows.
+
 ## Teleprompter
 
 The **Teleprompter** shows what you plan to say on each Frame. Only you see it. It is never on the FrameDecks
 camera, the Presentation window, the OBS pages or the phone's drawing pad.
 
 **Write the script**
-- Each Frame has its own **Teleprompter script**: Content Settings → **Teleprompter script** (up to 20,000
-  characters). In 6.6 this field was called *Leader notes*.
-- Or double-click the text in the Teleprompter (or select **✎**) and type there.
-- Simple markup, all optional:
+
+A switch in the Teleprompter's top bar chooses how the script is kept:
+- **Each Frame** (the default): each Frame has its own **Teleprompter script**, and the Teleprompter shows the
+  script of the Frame on screen. Write it in Content Settings → **Teleprompter script**.
+- **Whole meeting**: one script for the whole meeting, kept with the meeting details. It stays the same when the
+  Frame changes.
+
+In the Teleprompter itself:
+- **✎ Write Script** (or double-click the text) lets you type the script there.
+- **⇪ Upload** loads a script from a .txt, .md or Word (.docx) file. Word headings, bullets and bold are kept. If
+  there is already a script, FrameDecks asks before it replaces it.
+
+A script can be up to 20,000 characters. In 6.6 the Frame's script was called *Leader notes*. Simple markup, all
+optional:
 
 | Type | You get |
 | --- | --- |
@@ -170,8 +208,8 @@ camera, the Presentation window, the OBS pages or the phone's drawing pad.
 - From the tray icon near the clock: **Teleprompter**.
 
 The Teleprompter is one window that stays on top of Zoom, Teams, Google Meet, PowerPoint and browsers. Place it
-close to your camera, so your eyes stay near the lens. It shows the script of the Frame on screen. Before you go
-live, it shows the first Frame, so you can rehearse.
+close to your camera, so your eyes stay near the lens. With **Each Frame**, it shows the script of the Frame on
+screen. Before you go live, it shows the first Frame, so you can rehearse.
 
 > **Note:** The Teleprompter is never shown in screen sharing or recordings, even when you share your whole screen
 > (Windows 10 version 2004 or later). It is never on the FrameRelay camera either. Spotlight is left out of screen
@@ -179,35 +217,37 @@ live, it shows the first Frame, so you can rehearse.
 
 **The top bar**
 
-The top bar is hidden at first, so the script has the whole window. Move the pointer to the top edge, or press the
-small **▾** button at the top, to see it. It shows:
+All the controls are in the top bar. The script area shows only your script: no buttons, labels or overlays. The
+text fills the whole window, in width and height, at every text size.
+
+The top bar is hidden at first. Move the pointer to the top edge, or press the small **▾** button at the top, to see
+it. Its first row shows:
 - **Time**: the time of day;
 - **Frame**: the Frame on screen, for example *Discussion · 3 of 9* (*Not live yet* before you go live);
+- **Next Frame ▸**: puts the next Frame on screen;
 - **Timer**: **Start** / **Pause** and **Reset**, to time yourself;
 - **Transparency**: **Solid**, **20%**, **40%**, **65%** or **85%**, how much of Zoom or Teams shows through the
   window;
-- **Pin**: **Pinned** means the window stays above Zoom, Teams and PowerPoint. Click it to unpin.
+- **Pin**: **Pinned** means the window stays above Zoom, Teams and PowerPoint. Click it to unpin;
+- **Keep open** / **Hide bar**, and the window buttons.
 
 FrameDecks remembers the transparency and the pin. They are only in the installed app, not in a web browser. With
 **Settings → General → Performance → Light on graphics card** on (the default), the whole window fades, text
 included. With it off, only the background goes see-through and the text stays solid.
 
-**Keep open** keeps the bar showing; **Hide bar** hides it again. The window buttons are at its right. Drag the bar
-to move the window, and drag an edge to resize it.
+Drag the bar to move the window, and drag an edge to resize it.
 
-**Controls**
-
-The script takes nearly the whole width of the window. A small toolbar floats over it and fades after a few seconds.
-Move the mouse to bring it back.
+The second row holds the script controls:
 
 | Control | Key (while the Teleprompter has focus) |
 | --- | --- |
-| Scroll: play / pause | **Space** |
+| **▶ Scroll**: play / pause | **Space** |
 | Speed: Very slow, Slow, Normal, Fast, Very fast | — |
 | Text smaller / larger (**A−** / **A+**) | **−** / **+** |
 | Line spacing, high contrast | — |
 | Mirror the text (for a teleprompter glass) | **M** |
-| Edit the script (**✎**) | — |
+| **✎ Write Script** · **⇪ Upload** | — |
+| **Each Frame** · **Whole meeting** | — |
 | Back to the top | **Home** |
 | Scroll by hand | **↑ ↓**, **Page Up / Page Down**, the mouse wheel or touch |
 
@@ -217,6 +257,7 @@ Move the mouse to bring it back.
 > **Note:** Version 8.0 has one Teleprompter. The Teleprompter docked in the Studio (left, right, bottom or
 > floating), the separate *Teleprompter overlay* with its frosted glass, **Shift+R**, and the old Teleprompter
 > window's **On screen & next** panel were removed. Since 8.1, transparency and pin are in the Teleprompter's top bar.
+> Since 8.2, every control is in the top bar; the small toolbar that floated over the script is gone.
 
 > **Note:** Answers and presenter notes on questions and scriptures were removed in 6.7. Nothing was deleted from
 > your data. Put what you want to remember in the Frame's Teleprompter script.

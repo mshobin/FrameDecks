@@ -48,7 +48,7 @@ Yes. **Duplicate Frame** (right-click the Frame, or **Ctrl+D**) makes a fully in
 Yes, optionally. The **Meeting Workbook** (Settings → Data / Backup → Download the Excel template; since 6.11 the website's Meeting Form does the same online) has two tabs: the **Meeting Form**, one guided page where you type the meeting details, Frames, Content, questions and scriptures, and the **Dashboard**, which sums it up for you. Import shows every problem with where it is (for example *Meeting Form · Content · row 26*) before anything changes, and can be undone. Workbooks from earlier versions still import. See [Meeting Workbook and branding](../reference/meeting-workbook-and-branding.md).
 
 **Can two people edit the same service at once?**
-No. FrameDecks runs on one PC with no accounts or shared workspaces. To share a plan, export it (Excel Meeting Workbook or a Frame file) and import it on the other PC.
+Not in the program. Plan together on framedecks.com; a PC linked to your team gets the plan by itself (the **Sync** chip in the header shows **Synced**). For a service PC without internet, export a **.frame file** and import it there (Settings → Data / Backup → **Import Frame File…**). See [Move a plan to a service PC](service-planning.md#move-a-plan-to-a-service-pc).
 
 **Can it advance automatically?**
 Yes. Each Frame can **Auto advance** after a number of seconds (Content Settings → **Move to the next Frame after N seconds**), while **Auto** is on in the command bar.
@@ -165,10 +165,10 @@ Yes. Press **Ctrl+K** or **Ctrl+Space** to open the command palette. (There is n
 ## Data, privacy and offline use
 
 **Where is our data stored?**
-Only on your PC, in `%APPDATA%\FRAMEDECKS`. Nothing is uploaded. There are no accounts and no cloud.
+On your PC, in `%APPDATA%\FRAMEDECKS`. Nothing is uploaded unless you link the PC to your team (Settings → FrameDecks account). Then your plans sync with framedecks.com, but media (pictures, video, audio and slides) never goes to the cloud.
 
 **Does FrameDecks work without the internet?**
-Yes. Everything works offline except fetching new ESV verses, and whatever your meeting app needs (Zoom itself needs the internet).
+Yes. Everything works offline except fetching new ESV verses, and whatever your meeting app needs (Zoom itself needs the internet). On a linked PC the **Sync** chip shows **Offline**: your changes wait and go up later, and presenting is not affected.
 
 **Are backups made?**
 Yes, automatically once a day (the newest 10 are kept), plus **Back up now** in Settings → Data / Backup.

@@ -131,26 +131,35 @@ A Question (or Scripture) Content holds **its own list**, shown full height in C
 - **Go Live** puts the selected Frame on screen; **◀ Frame / Frame ▶** step through the meeting.
 - **Annotate (D)** turns the canvas into a drawing surface:
   - Tools: **Pen** (P), **Highlighter** (H), **Arrow** (A), **Line** (L), **Rectangle** (R), **Ellipse** (E),
-    **Text** (T).
+    **Text** (T), **Spotlight** (S).
   - Six colours and three thicknesses.
   - **Eraser** or **Undo** (Ctrl+Z), **Redo** (Ctrl+Y), **Clear**.
   - The drawings appear above everything: slides, PowerPoint, cards. Everyone sees them in Zoom or Teams. **Esc**
     hides them.
+  - **Spotlight** (S, or press **Ctrl** twice quickly over the picture): click a word and a glowing circle grows
+    around it, pulses, then opens out with a few sparks and fades. Click empty space to spotlight a point. Its panel
+    sets the colour, **Size**, **Length** (1–15 s) and **Strength**, with **Try it**. It shows on FrameRelay (Zoom,
+    Teams), recordings and the overlay pages.
 - **Freeze (F)** holds the picture while you get the next thing ready. You can still draw on it.
 - **Blackout (K)** makes the picture black.
 - **Teleprompter** (Live tools → Teleprompter, **R**, the command palette's *Teleprompter on / off*, or the tray's
   **Teleprompter**) shows the Frame's **Teleprompter script** in one window that stays on top of Zoom, Teams or Meet.
   Only you see it: it is never on any output, and it is hidden from screen sharing and recordings.
-  - Write the script in Frame settings → **Teleprompter script** (up to 20,000 characters), or double-click the
-    teleprompter text (or **✎**). Markup: `# Heading`, `- bullet`, `**bold**`, `*italic*`, `[PAUSE]` cue chips,
-    `---` divider.
-  - It follows the Frame on screen (the first Frame before you go live).
-  - The script takes nearly the whole width. A small toolbar floats over it and fades: Play / Pause (Space), speed
-    from Very slow to Very fast, A− / A+, line spacing, contrast, Mirror (M) and edit ✎.
-  - The **top bar** is hidden at first. Move the pointer to the top edge, or press the small **▾** button there, to
-    see it: **Time**, the current **Frame** (*name · 3 of 9*), a **Timer** (Start / Pause, Reset), **Transparency**
-    (Solid, 20%, 40%, 65%, 85%) and **Pin** (*Pinned* keeps it above Zoom, Teams and PowerPoint; click to unpin),
-    with **Keep open** / **Hide bar** and the window buttons. Drag the bar to move the window; resize from the edges.
+  - Write the script in Frame settings → **Teleprompter script** (up to 20,000 characters), with **✎ Write Script**
+    in the Teleprompter, or by double-clicking its text. **⇪ Upload** loads a .txt, .md or Word (.docx) file (Word
+    headings, bullets and bold are kept) and asks before it replaces a script. Markup: `# Heading`, `- bullet`,
+    `**bold**`, `*italic*`, `[PAUSE]` cue chips, `---` divider.
+  - **Each Frame** (one script per Frame) follows the Frame on screen (the first Frame before you go live).
+    **Whole meeting** shows one script for the whole meeting, kept in the meeting details.
+  - The script area shows only the script text, which fills the whole window at every text size. All the controls
+    are in the **top bar**, which is hidden at first. Move the pointer to the top edge, or press the small **▾**
+    button there, to see it.
+  - First row: **Time**, the current **Frame** (*name · 3 of 9*), **Next Frame ▸** (puts the next Frame on screen),
+    a **Timer** (Start / Pause, Reset), **Transparency** (Solid, 20%, 40%, 65%, 85%) and **Pin** (*Pinned* keeps it
+    above Zoom, Teams and PowerPoint; click to unpin), with **Keep open** / **Hide bar** and the window buttons. Drag
+    the bar to move the window; resize from the edges.
+  - Second row: **▶ Scroll** (Space), speed from Very slow to Very fast, A− / A+, line spacing, contrast, Mirror (M),
+    **✎ Write Script**, **⇪ Upload** and **Each Frame** / **Whole meeting**.
   - Transparency and pin are remembered, and work only in the installed app. With **Light on graphics card** on (the
     default) the whole window fades, text included; with it off, only the background is see-through.
   - The docked Teleprompter, the separate Teleprompter overlay and **Shift+R** were removed in 8.0: this one window
@@ -180,7 +189,8 @@ One screen with large buttons, nothing to set up. Scroll down for the rest.
 - **Disconnect this device** at the bottom. The **Emergency** screen is on the PC only.
 
 ## 7. Excel (optional)
-FrameDecks works fully without Excel. The **Meeting Workbook** is for planning, review, handover and bulk editing.
+FrameDecks works fully without Excel. The **Meeting Workbook** is for planning, review and bulk editing. To move a
+plan to another PC, use a .frame file instead (see [Service planning](service-planning.md#move-a-plan-to-a-service-pc)).
 
 It has two tabs (6.9):
 - **Meeting Form**: one guided page, top to bottom, in numbered sections: 1 · Meeting details, 2 · Speaker,
@@ -207,8 +217,13 @@ put them: Branding Content, text that uses `{meeting}` / `{org}`, and **Show my 
 
 ## 9. Saving and backups
 Everything saves automatically on this PC. **Settings → Data / Backup** keeps daily backups and lets you make one now or
-restore one. Each Frame keeps its version and history (Content Settings → Advanced). FrameDecks has no accounts,
-shared workspaces or cloud: your meeting stays on your PC unless you export it.
+restore one. Each Frame keeps its version and history (Content Settings → Advanced). **Import Frame File…** and
+**Export Frame File** (same place) move a whole plan to or from another PC as one .frame file.
+
+A PC linked to your team (**Settings → FrameDecks account**) also syncs its plans with framedecks.com. The **Sync**
+chip in the header shows **Synced**, **Syncing**, **Offline** (changes wait and go up later; presenting is not
+affected) or **Sync failed** (see Settings → FrameDecks account for why). Media is never put in the cloud. Without a
+link, your meeting stays on your PC unless you export it.
 
 ## 10. Help
 - **Settings → Diagnostics → Copy diagnostics** collects the information needed for support. It contains no PIN or
