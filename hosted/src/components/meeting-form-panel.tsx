@@ -39,6 +39,7 @@ import { browserSupabase } from "@/lib/supabase-browser";
 import brandInfo from "@/lib/brand.json";
 import { frameFileFromDoc, frameFileName } from "@/lib/frame-file";
 import { useConfirmation } from "@/components/confirm-dialog";
+import "@/app/plan.css"; // 8.4 the Plan page's own styles load only here
 import { shortDate } from "@/lib/when";
 import { PROFILES, profileOf } from "@/lib/workspace-settings";
 import { join, type JsonObject } from "@/lib/sync-entities";

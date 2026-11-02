@@ -5,7 +5,7 @@ import { test } from "node:test";
 
 const src = (p) => readFileSync(new URL(`../src/${p}`, import.meta.url), "utf8");
 const components = readdirSync(new URL("../src/components/", import.meta.url)).filter((f) => f.endsWith(".tsx"));
-const css = ["globals.css", "design.css", "about.css", "motion.css", "identity.css", "landing.css", "light.css"].map((f) => [f, src(`app/${f}`)]);
+const css = ["globals.css", "design.css", "about.css", "motion.css", "identity.css", "landing.css", "landing-page.css", "plan.css", "light.css"].map((f) => [f, src(`app/${f}`)]);
 
 function luminance(hex) {
   const c = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255).map((v) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4));
@@ -93,8 +93,8 @@ test("the landing page carries the owner's brief (27 October): approved words, e
   assert.doesNotMatch(how, /gsap|ScrollTrigger/);
   assert.match(how, /onAnimationEnd/);
   assert.match(how, /setAuto\(false\); \/\/ one round/);
-  assert.match(src("app/landing.css"), /\.lp-how\[data-auto\] \.lp-tab\.is-on \.lp-tab-bar i \{\s*animation: lp-tab-fill 6s linear both paused;/);
-  assert.match(src("app/landing.css"), /\.lp-how\[data-run\] \.lp-tab\.is-on \.lp-tab-bar i \{\s*animation-play-state: running;/);
+  assert.match(src("app/landing-page.css"), /\.lp-how\[data-auto\] \.lp-tab\.is-on \.lp-tab-bar i \{\s*animation: lp-tab-fill 6s linear both paused;/);
+  assert.match(src("app/landing-page.css"), /\.lp-how\[data-run\] \.lp-tab\.is-on \.lp-tab-bar i \{\s*animation-play-state: running;/);
   assert.equal(JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8")).dependencies.gsap, undefined);
   assert.match(landing, /FAQ\.slice\(0, 4\)/);
   assert.match(landing, /More questions/);

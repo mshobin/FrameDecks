@@ -9,6 +9,7 @@ import { LandingHero } from "@/components/landing/hero";
 import { LandingNav } from "@/components/landing/nav";
 import { SiteFooter } from "@/components/site-footer";
 import { DOWNLOADS } from "@/lib/pc-setup";
+import "@/app/landing-page.css"; // 8.4 only the landing page loads its own styles
 
 // The front page (owner's brief, 27 October; redesign 28 October; about four screens since 6.13, 29 October:
 // docs/development/design-system.md "Landing").
