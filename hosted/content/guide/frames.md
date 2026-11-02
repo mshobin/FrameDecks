@@ -57,7 +57,13 @@ After creating a Frame, add Content with **+ Content**. See [Content](content.md
   name becomes a text box right in the list: **Enter** saves, **Esc** cancels, and clicking away saves. Double-clicking
   anywhere else on the Frame's row puts it on screen (**Go Live**).
 - **Group:** Content Settings → **Advanced → Group**, or **⋯ → Move to group…**. Groups fold away in the list; use one
-  group per service, such as *Sunday 12 May* or *Romans · Week 5*.
+  group per service, such as *Sunday 12 May* or *Romans · Week 5*. With several meetings (8.5), a Frame's group is
+  its meeting: moving it to the group of another meeting's name moves it to that meeting.
+- **Meeting (8.5):** above the Frames, the **Meeting** list chooses the meeting this PC shows. Only its Frames are in
+  the list, and **Next**, **Previous**, the phone remote and the Teleprompter follow them. **New** makes another
+  meeting (it asks for a name) and the pencil renames the one shown. New Frames and Quick Start go into the meeting
+  shown. Each PC chooses for itself; meetings made on framedecks.com appear here too. With one meeting the list shows
+  just that one, and everything works as before.
 - **Order:** drag a Frame up or down, or use **⋯ → Move up / Move down**. The order is the order of
   **Frame ▶**.
 - **Favourite:** select the star on a Frame. The **Favorites** filter shows only starred Frames.

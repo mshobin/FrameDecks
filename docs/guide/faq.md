@@ -47,6 +47,9 @@ Yes. **Duplicate Frame** (right-click the Frame, or **Ctrl+D**) makes a fully in
 **Can I plan in Excel?**
 Yes, optionally. The **Meeting Workbook** (Settings → Data / Backup → Download the Excel template) has two tabs: the **Meeting Form**, one guided page where you type the meeting details, Frames, Content, questions and scriptures, and the **Dashboard**, which sums it up for you. Import shows every problem with where it is (for example *Meeting Form · Content · row 26*) before anything changes, and can be undone. Workbooks from earlier versions still import. See [Meeting Workbook and branding](../reference/meeting-workbook-and-branding.md).
 
+**Can I plan more than one meeting?**
+Yes, since 8.5. On framedecks.com, Plan → **New meeting** makes another meeting with its own name, date, notes and Frames; choose a meeting at the top to plan it. The service PC shows one meeting at a time: choose it in the **Meeting** list above the Frames. Next, Previous, the phone remote and the Teleprompter follow that meeting only. A workspace owner first runs `0012_meetings.sql` in Supabase once (see the 8.5 release notes). Service PCs still on 8.4 or earlier show every meeting's Frames together until they are updated.
+
 **Where did the speaker, time and location go on the website?**
 Since 8.4 the website's meeting details have only **Meeting name**, **Date** and **Meeting notes**. A meeting that already has a speaker, time, location and so on keeps them; the form says so. The Excel Meeting Workbook still has its own fields.
 

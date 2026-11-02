@@ -130,9 +130,22 @@ no longer shown. A meeting that has them keeps them, and the form says "This mee
 version (speaker, location and so on). They are kept." The Excel Meeting Workbook on the PC is unchanged and still has
 its own fields.
 
-Under the steps, the **timeline** shows every Frame in order. Drag a Frame to a new place, or select it and press
-**Alt + ←** or **Alt + →**. Click a Frame to open it. Each Frame below has **Write Script**, **Choose Animation** (the
-transitions as buttons that show their movement) and **Preview**.
+**Several meetings (8.5).** A workspace can hold more than one meeting, each with its own name, date, notes and
+Frames. The meetings are listed at the top of Plan, each with its date and number of Frames:
+
+- choose a meeting to plan it; the steps, the Frames and the timeline are that meeting's;
+- **New meeting** asks for a name; **Make the meeting** creates it, empty, and chooses it;
+- **Rename** renames the chosen meeting. Its Frames stay with it.
+
+A second meeting needs a one-time database update: the workspace owner runs `0012_meetings.sql` in Supabase (see the
+8.5 release notes). Until then Plan shows one meeting, as before, and says so.
+
+**The timeline.** Beside the plan (under it on a phone), the timeline shows the chosen meeting from its name down to
+the last Frame, each Frame with its number, a small picture, its name and what it shows. Drag a Frame to a new place,
+or select it and press **Alt + ↑** or **Alt + ↓**. The bin deletes a Frame (after asking). Click a Frame to open it,
+or the meeting at the top to edit its details. **Add Frame** at the end adds one. **Hide timeline** folds it away.
+Each Frame in the list has **Write Script**, **Choose Animation** (the transitions as buttons that show their
+movement) and **Preview**.
 
 **Pictures, video, audio and slides.** In a Frame's Content, **Choose file** keeps the file in this browser only (it is
 never put in the cloud). It travels to the service PC inside the .frame file. On another computer or browser, or for
@@ -172,7 +185,7 @@ While it runs, the button says **Syncing…**. Then the result shows next to it:
 
 **No internet, or a PC that is not linked.** Use a **.frame file**. It holds the whole plan in one file.
 1. Make it:
-   - on framedecks.com: **Plan → Export for Service PC**;
+   - on framedecks.com: **Plan → Export for Service PC** (the meeting you are planning);
    - on a PC: **Settings → Data / Backup → Export Frame File**. This also includes the pictures, video, audio and
      slides the Frames use (up to 300 MB), and this PC's Teleprompter text and Spotlight settings.
 
@@ -185,7 +198,9 @@ While it runs, the button says **Syncing…**. Then the result shows next to it:
 4. Choose:
    - **Use this plan** (the main button): the PC shows exactly what is in the file: the same Frames, in the same
      order, with their words, scripts and transitions, and the meeting name, date, notes and Teleprompter script.
-     The PC's Frames are kept in a backup first.
+     The PC's Frames are kept in a backup first. When the PC has other meetings, or its meeting has another name,
+     only the file's meeting is replaced (or added); the PC's other meetings and their Frames are kept, and the PC
+     then shows the file's meeting.
    - **Add after my Frames**: keeps the PC's Frames and adds the file's at the end. Shown only when the PC already
      has Frames.
    - **Cancel**.

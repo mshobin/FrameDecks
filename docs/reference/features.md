@@ -1,6 +1,14 @@
-# FrameDecks: feature documentation (v8.4)
+# FrameDecks: feature documentation (v8.5)
 
-## v8.4 at a glance
+## v8.5 at a glance
+| Feature | What it does | Where it lives |
+| --- | --- | --- |
+| **Several meetings** | A workspace holds several meetings, each with its own name, date, notes and Frames (the meeting record's `meetings`; a Frame's `group` names its meeting, and a Frame with no matching group belongs to the first). Website Plan: the meetings at the top (date and Frame count), **New meeting**, **Rename**. Needs `0012_meetings.sql` in Supabase; before it, the website plans one meeting and says so | `hosted/src/lib/meetings.ts`, `hosted/src/components/frame-flow.tsx` (`MeetingBar`) |
+| **One meeting at a time on the PC** | The **Meeting** list above the Frames chooses the meeting this PC shows (this PC's own choice, not synced); **New** and the pencil (rename). Next, Previous, the phone remote and the Teleprompter follow only that meeting's Frames; new Frames and Quick Start go into it. The companion's Live page lists the meeting shown | `app/js/store.js` (`Scenes.order`, `switchMeeting`), `app/js/workspace.js` |
+| **Timeline** | On the website Plan, a timeline beside the plan (under it on a phone): the meeting, then each Frame with number, picture, name and what it shows; drag and drop, Alt + ↑/↓, delete, **Add Frame**, **Hide timeline**; Frames glide to their new place unless the system asks for reduced motion | `hosted/src/components/frame-flow.tsx` (`FlowChart`) |
+| **.frame per meeting** | **Export for Service PC** exports the chosen meeting. **Use this plan** replaces only the file's meeting when the PC has others, keeping them | `hosted/src/components/meeting-form-panel.tsx`, `app/js/frame-file.js` |
+
+## v8.4
 | Feature | What it does | Where it lives |
 | --- | --- | --- |
 | **Website meeting details** | Plan → **Edit details** (step 1 *Your meeting*) has only **Meeting name**, **Date** (a date picker; a date typed in an older version stays as text until changed) and **Meeting notes**. The older fields (time, location, speaker name and contact, attendees, owner, content notes, additional notes) are no longer shown but are kept; the form says "This meeting also has details from an earlier version (speaker, location and so on). They are kept." **Save details** shows **✓ Saved** and "Saved. Linked service PCs get it within about a minute." The Excel Meeting Workbook on the PC is unchanged | `hosted/` (Plan) |

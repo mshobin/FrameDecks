@@ -42,8 +42,8 @@ Repository clean-up is on `main` (modules in `src/`; `README.md`, `LICENSE`, `NO
 | 8.0.0: one Teleprompter, Frame cards, no Run/Practice, Setup wizard, plain camera settings, one-view phone remote | Published (1 November) |
 | 8.1.0: Teleprompter transparency and pin, six looks, one Content view, website-matching restyle | On `main`; tag `v8.1.0` publishes it |
 | 8.2.0: bare Teleprompter (controls in its bar, upload, script mode), Spotlight, transitions one per effect + Burst, .frame files, sync status chip | Published (tag `v8.2.0`) |
-| 8.4.0: .frame Use this plan + import check, Resync Linked PCs, Meeting Details of three fields, Help step-by-step guide with screenshots | On `main`; tag `v8.4.0` publishes the installer |
-| 8.5: multiple meetings (the PC shows one at a time; Frame `group` = meeting) and a right-side flowchart timeline on the website Plan | Next (after PCs have 8.4) |
+| 8.5.0: several meetings (the PC shows one at a time; Frame `group` = meeting; migration 0012) and a right-side flowchart timeline on the website Plan | On `main`; run 0012 in Supabase, then tag `v8.5.0` |
+| 8.4.0: .frame Use this plan + import check, Resync Linked PCs, Meeting Details of three fields, Help step-by-step guide with screenshots | Published (tag `v8.4.0`) |
 | 8.3.0: website Plan in five guided steps, drag-and-drop timeline, Preview, Choose Animation, media kept in the browser and carried in .frame files | Published (tag `v8.3.0`) |
 | 7.2: Azure Trusted Signing in the workflow (urgent after the Defender quarantine), Ed25519-signed release manifests | Next (both stay off until the owner adds the signing account / key) |
 | Ideas from the 29 October plan, section 5 (run-through timer, "Take it home" phone page, safe Next preview, backup operator, volunteer rota) | On the roadmap, one at a time after 6.15, each with a live test |

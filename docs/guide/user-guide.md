@@ -65,6 +65,8 @@ move the window, and double-click it to maximize. Snap and resizing from the edg
   overlays and the phone remote keep their own look.
 
 ## 2. Frames and Content
+- **Meeting (8.5):** with several meetings, the **Meeting** list above the Frames chooses the one this PC shows and
+  runs; **New** makes another. See [Frames](frames.md#name-group-and-order).
 - **Meeting** (the ✨ button next to + Frame) has:
   - Import / Export / Download the Excel Meeting Workbook;
   - Quick Start;

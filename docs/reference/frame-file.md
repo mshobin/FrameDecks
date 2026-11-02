@@ -37,6 +37,10 @@ Then it asks:
   ids, in the same order, with their words, scripts and transitions, and the meeting name, date, notes and
   Teleprompter script. Branding words, layout, card settings, library and Burst look are set as in the file too. The
   PC's Frames are kept in a backup first (Data / Backup → backups list).
+
+  Since 8.5 a file holds one meeting. When the PC has several meetings, or its one meeting has another name, **Use
+  this plan** replaces only the meeting named in the file (or adds it), keeps the PC's other meetings and their
+  Frames, and shows the file's meeting. The check then also says "The meeting also has N other Frames" when it does.
 - **Add after my Frames**: keeps the PC's Frames and adds the file's at the end. A Frame whose id is already used gets
   a new one, and names stay unique. Nothing of yours changes. Shown only when the PC already has Frames.
 - **Cancel**.
@@ -61,7 +65,7 @@ Data / Backup):
 
 ### Exporting from the website
 
-Plan → **Export for Service PC** says exactly what is in the file: the Frames, Content, questions and readings, and
+Plan → **Export for Service PC** exports the meeting you are planning (8.5). It says exactly what is in the file: the Frames, Content, questions and readings, and
 files. It also lists the files the Frames use that are not in the file: "Not in the file (not in this browser): … The
 service PC must already have them."
 
@@ -85,6 +89,9 @@ UTF-8 JSON:
   "settings": { "kc-spot": "…", "kc-tp-window": "…" }
 }
 ```
+
+With several meetings (8.5), every Frame's `group` is the meeting's name and `plan.meeting` is that meeting's name,
+date and notes, without the workspace's list of meetings (`meetings`).
 
 `plan` uses the PC's own shapes (`app/js/store.js`); the PC cleans every Frame with the same rules as its own plan
 file. `source` is `website` or `program`. A reader refuses a `version` above the one it knows. Media file names may

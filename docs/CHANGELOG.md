@@ -45,6 +45,26 @@ Versions before 4.9 (when the program had its earlier name) are described in the
 - The favicons, the tray icon and the small program-icon sizes (16–32 px) use a heavier version of the emblem, so it
   stays visible on light browser tabs and a light taskbar. Larger sizes are unchanged.
 
+## [8.5.0] - 2026-11-02
+
+Full notes: [docs/releases/v8.5.0.md](releases/v8.5.0.md).
+
+### Added
+- Several meetings per workspace: the meeting record holds `meetings` ([{id, name, date, notes}]) and a Frame's
+  `group` names its meeting (`hosted/src/lib/meetings.ts`, `Scenes.meetings` in `app/js/store.js`, kept equal by
+  `hosted/tests/meetings.test.mjs`). The PC shows one at a time (`live.meeting`, `Scenes.order`).
+- `hosted/supabase/migrations/0012_meetings.sql` (rollback file): a trigger keeps the meeting list when an older PC
+  saves the meeting record without it; `meetings_supported()` lets the website offer several meetings only once it
+  has run. Run it in Supabase.
+- Website Plan: meeting bar (choose, **New meeting**, **Rename**) and a right-side timeline (drag and drop,
+  Alt + ↑/↓, delete, FLIP animations, hideable); export per meeting.
+- PC: **Meeting** picker above the Frames with **New** and rename; new Frames and Quick Start go into the meeting
+  shown; **Use this plan** replaces only the file's meeting.
+
+### Changed
+- `tests/visual/plan-flow.mjs` and `frame-roundtrip.mjs` cover meetings; the Help guide's steps and screenshots show
+  them.
+
 ## [8.4.0] - 2026-11-02
 
 Full notes: [docs/releases/v8.4.0.md](releases/v8.4.0.md).

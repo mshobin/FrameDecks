@@ -1222,3 +1222,41 @@ The website's CSS was at its budget. Rather than raise it, the budget now measur
 heaviest page), and the landing page's own styles (`landing-page.css`) and the Plan page's (`plan.css`) are imported
 by their components, so the signed-in app loads about 7 KB less; screenshots of four public pages at two widths in both
 themes were compared pixel for pixel before and after.
+
+## 47. Version 8.5.0: several meetings and a timeline beside the plan (2 November 2026)
+
+The owner asked for several meetings in one workspace, each with its own Frames, and chose that a service PC shows one
+at a time. The constraint was compatibility. Sync accepts a fixed list of record kinds (older PCs delete kinds they
+do not know), and every PC normalizes its plan and pushes back what differs, so an older PC strips fields it does
+not know. A new record kind or a new field on the Frame would be erased by the first PC still on 8.4.
+
+So a meeting is a name: a Frame's `group`, which every PC version has always kept, names its meeting, and a Frame
+whose group names no meeting belongs to the first. The list of meetings (id, name, date, notes) lives in the meeting
+record as `meetings`; with no list there is one meeting made from the record's title, date and notes, so every plan
+before 8.5 is unchanged. The website's rules (`hosted/src/lib/meetings.ts`) and the PC's (`Scenes.meetings` in
+`app/js/store.js`) are written twice and kept equal by `hosted/tests/meetings.test.mjs`.
+
+The one field older PCs could still strip is `meetings` itself. Migration 0012 puts a trigger on `entities` that
+keeps the list when a meeting record arrives without it, or with an empty one; an older PC then re-saves its version
+about once a minute and the trigger puts the list back each time, which is harmless and stops when the PC updates.
+The website offers a second meeting only when `meetings_supported()` exists, so a workspace whose owner has not run
+the migration never makes a list that an older PC could erase.
+
+The PC's choice of meeting is its own (`live.meeting`, not synced): two PCs can show different meetings. The record's
+title, date and notes mirror the meeting a PC shows, because every screen and every older PC reads them there.
+`Scenes.order` returns only that meeting's Frames when there are several, and Next, Previous, the phone remote and
+the Teleprompter all go through it, so one filter covers them all.
+
+The .frame file stays version 1 and carries one meeting: the Frames' groups and the meeting's own name, date and
+notes. **Use this plan** replaces only that meeting when the PC has others (or a meeting of another name), so a file
+from the website never wipes the PC's other meetings; the import check counts the meeting's Frames and says how many
+others it has.
+
+The 8.3 horizontal timeline became a vertical flowchart on the right (under the plan below 1100 px): the meeting at
+the top, then each Frame as a card joined by a line. Reordering uses FLIP with the Web Animations API (measure, apply
+the new order, animate from the old place), so there is no animation library and nothing moves when the system asks
+for reduced motion. A move is shown at once and saved after; a failed save puts it back. The grid column on phones is
+`minmax(0, 1fr)`, so a long meeting name cannot widen the page.
+
+`plan-flow.mjs` makes, switches, renames and exports meetings and deletes in the timeline at 390, 820 and 1366 px in
+both themes; `frame-roundtrip.mjs` imports into a PC that already has another meeting and checks both survive.

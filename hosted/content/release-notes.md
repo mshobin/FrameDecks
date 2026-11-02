@@ -1,40 +1,37 @@
-## FrameDecks v8.4.0
+## FrameDecks v8.5.0
 
-What you plan on the website now arrives on the service PC exactly as planned, with a check that says so. Meeting
-Details are three fields, a linked PC can be resynced with one button, and Help has a step-by-step guide with real
-screenshots. Download from **framedecks.com/download**, or let FrameDecks update itself. It installs over 8.3.0 and
-earlier and keeps all your meetings, members, settings and recordings.
+Plan more than one meeting in the same workspace, each with its own Frames, and see the meeting Frame by Frame on a
+timeline beside the plan. Download from **framedecks.com/download**, or let FrameDecks update itself. It installs over
+8.4.0 and earlier and keeps all your meetings, members, settings and recordings.
+
+**Workspace owners, once:** run `0012_meetings.sql` in Supabase (SQL Editor) before making a second meeting. It keeps
+the meeting list safe from service PCs that are still on an older version. Until it has run, the website plans one
+meeting as before and says so.
 
 ## What's New
-- **Use this plan.** Importing a .frame file now offers **Use this plan** first: the PC then shows exactly the
-  website's Frames, in the same order, with the same words, scripts, transitions, meeting name, date and notes. Your
-  Frames are kept in a backup first. **Add after my Frames** is still there.
-- **An import check.** After an import, FrameDecks compares every Frame with the file and says "Everything matches",
-  or lists exactly what differs and which pictures or videos are not on this PC yet. A .frame file that was cut short
-  or changed by hand is refused before anything changes.
-- **Resync Linked PCs.** On a linked PC, the Sync panel (the status button at the top right, then Sync) and Settings →
-  FrameDecks account have **Resync Linked PCs**: it syncs now and says Sync complete, No changes found or Sync failed,
-  with the last successful sync. Automatic sync carries on every minute as before.
-- **Step-by-step guide.** framedecks.com/help starts with a guide for the website and for the service PC: eight steps
-  each, from signing in to running the meeting, with screenshots zoomed on the place to click, and a search. On the
-  PC: Settings → Help → Step-by-step guide.
-- **Simpler Meeting Details.** On the website: Meeting name, Date and Meeting notes. Details from earlier versions
-  (speaker, location and so on) are kept, just not shown.
+- **Several meetings.** On the website's Plan page, **New meeting** makes another meeting, with its own name, date,
+  notes and Frames. Choose a meeting at the top to plan it; **Rename** renames it, and its Frames stay with it.
+- **One meeting at a time on the PC.** Above the Frames, the **Meeting** list chooses the meeting this PC shows and
+  runs. **New** makes another. Next, Previous, the phone remote and the Teleprompter follow only that meeting's Frames.
+- **The timeline.** Beside the plan, the timeline shows the meeting from its name down to the last Frame, with a
+  picture of each Frame. Drag a Frame to move it, select it and press Alt + ↑ or ↓, or delete it there. Frames glide
+  to their new place. **Hide timeline** folds it away; on a phone it sits under the plan.
+- **A .frame file per meeting.** **Export for Service PC** exports the meeting you are planning. On the PC, **Use this
+  plan** replaces only that meeting; the PC's other meetings and their Frames are kept.
 
 ## Enhancements
-- Export for Service PC says exactly what is in the file, and which files the Frames use that it does not carry.
-- A .frame file from a PC also carries its Teleprompter text settings and Spotlight settings.
-- The website loads less: the landing page's and the Plan page's own styles load only on those pages.
+- The Help guide's steps and screenshots show the meetings and the timeline.
+- Each meeting at the top shows its date and how many Frames it has.
+- The timeline respects the system's "reduce motion" setting: Frames then move without gliding.
 
 ## Fixes
-- A plan exported from the website and imported on the service PC could look different from the website: the import
-  added the Frames after the PC's own and left out the meeting's date and notes. **Use this plan** now gives the same
-  plan, checked field by field.
+- No separate fixes in this version.
 
 ## Performance Improvements
-- Pages of the signed-in website load about 7 KB less style.
+- The timeline's movement uses the browser's own animation, with no extra download; the Plan page's styles stay
+  within the same size budget.
 
 ## Known Issues
 - The installer is not yet code-signed, so Windows SmartScreen may ask you to confirm: **More info → Run anyway**.
-- On most screen sizes the Sync status sits inside the status button at the top right; choose it, then Sync.
-- Multiple meetings, each with its own Frames, and the right-side meeting timeline come in 8.5.
+- Service PCs on 8.4 or earlier show every Frame of every meeting together. Update them to 8.5 to see one meeting at
+  a time.

@@ -39,7 +39,7 @@ import winapi   # 7.1.1: Windows jobs through Windows' own interfaces (no PowerS
 import meeting_form   # 6.9: fills the Meeting Workbook's form for Export
 import updater   # 7.0: updates from FrameDecks servers (checked, silent, with rollback)
 
-APP_VERSION = "8.4.0"
+APP_VERSION = "8.5.0"
 STARTED_AT = time.time()
 FROZEN = getattr(sys, "frozen", False)          # True inside the installed Windows app
 HERE = Path(sys.executable).resolve().parent if FROZEN else Path(__file__).resolve().parent.parent   # the repository root (this file is in src/)
