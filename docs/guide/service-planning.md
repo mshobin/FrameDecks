@@ -115,11 +115,20 @@ has a gold button:
 
 | Step | Button | What it does |
 | --- | --- | --- |
-| **Your meeting** | **Edit details** | Opens the meeting's name, date and other details |
+| **Your meeting** | **Edit details** | Opens the meeting's name, date and notes |
 | **Add Frames** | **Add Frame** | A new Frame at the end of the meeting |
 | **Words and media** | **Write Script** | Opens the first Frame with nothing in it, at its Teleprompter script |
 | **Preview** | **Preview** | Each Frame as people will see it, with its transition; ← and → move through them |
 | **Sync or export** | **Export for Service PC** | Saves the .frame file. Its status says **Synced**, **Syncing…**, **Offline** or **Sync failed** |
+
+**Meeting details.** **Edit details** has three fields: **Meeting name**, **Date** (a date picker) and **Meeting
+notes**. A date typed in an older version stays as it was typed until you change it. **Save details** shows
+**✓ Saved** and "Saved. Linked service PCs get it within about a minute."
+
+The older fields (time, location, speaker name and contact, attendees, owner, content notes and additional notes) are
+no longer shown. A meeting that has them keeps them, and the form says "This meeting also has details from an earlier
+version (speaker, location and so on). They are kept." The Excel Meeting Workbook on the PC is unchanged and still has
+its own fields.
 
 Under the steps, the **timeline** shows every Frame in order. Drag a Frame to a new place, or select it and press
 **Alt + ←** or **Alt + →**. Click a Frame to open it. Each Frame below has **Write Script**, **Choose Animation** (the
@@ -145,14 +154,47 @@ itself. The header shows a **Sync** chip:
 **Settings → FrameDecks account** shows the same word. Sync carries everything except media: pictures, video,
 audio and slides are never put in the cloud.
 
+The PC syncs by itself every minute. To sync now, choose **Resync Linked PCs**:
+
+- in **Settings → FrameDecks account**. The line above it says **Last successful sync: …**;
+- in the header: choose the **Sync** chip (often folded into the status button at the top right; choose it, then
+  **Sync**). A small panel shows the status, the workspace, the last successful sync, **Resync Linked PCs** and
+  **Sync settings**;
+- in the [command palette](presentations.md#command-palette): type *Resync Linked PCs*.
+
+While it runs, the button says **Syncing…**. Then the result shows next to it:
+
+| Result | Meaning |
+| --- | --- |
+| **Sync complete: N changes received, N sent.** | The PC and the website now have the same plan |
+| **No changes found. This PC already has the latest plan.** | Nothing to do |
+| **Sync failed: …** | The reason follows, for example no internet. Try again when it is fixed |
+
 **No internet, or a PC that is not linked.** Use a **.frame file**. It holds the whole plan in one file.
 1. Make it:
    - on framedecks.com: **Plan → Export for Service PC**;
    - on a PC: **Settings → Data / Backup → Export Frame File**. This also includes the pictures, video, audio and
-     slides the Frames use (up to 300 MB).
+     slides the Frames use (up to 300 MB), and this PC's Teleprompter text and Spotlight settings.
+
+   On framedecks.com the export says exactly what is in the file (Frames, Content, questions and readings, files).
+   It also lists the files the Frames use that are not in the file: "Not in the file (not in this browser): … The
+   service PC must already have them."
 2. Copy the file to the service PC, for example on a USB stick.
-3. On the service PC: **Settings → Data / Backup → Import Frame File…**, and choose the file.
-4. Choose **Add after my Frames**, **Replace my Frames** (a backup is made first) or **Cancel**.
+3. On the service PC: **Settings → Data / Backup → Import Frame File…**, and choose the file. A file that is cut
+   short or was changed by hand is refused, and nothing changes. Export it again.
+4. Choose:
+   - **Use this plan** (the main button): the PC shows exactly what is in the file: the same Frames, in the same
+     order, with their words, scripts and transitions, and the meeting name, date, notes and Teleprompter script.
+     The PC's Frames are kept in a backup first.
+   - **Add after my Frames**: keeps the PC's Frames and adds the file's at the end. Shown only when the PC already
+     has Frames.
+   - **Cancel**.
+5. Read the check in the **Frame files** box. "✓ Checked against the file: … Everything matches." means the PC has
+   exactly what is in the file. Otherwise each difference is marked ⚠. "⚠ Not on this PC yet: …" lists pictures and
+   videos the Frames use that are not on this PC.
+
+> **Note:** Before 8.4, **Add after my Frames** was the default. That is why a plan could look different from the
+> website. Choose **Use this plan** to see the plan exactly as it is on the website.
 
 Both commands are also in the [command palette](presentations.md#command-palette): type *Frame File*. Full details
 are in [The .frame file](../reference/frame-file.md).

@@ -17,8 +17,9 @@ bulk-editing** tool. After an import, the app is the source of truth: the file i
 a fresh copy.
 
 ### Where
-**Settings → Data / Backup → Meeting from Excel** (6.11; before that the ✨ Meeting menu) has these buttons. The website's Meeting Form
-([meeting-form.md](../architecture/meeting-form.md)) plans the same meeting online.
+**Settings → Data / Backup → Meeting from Excel** (6.11; before that the ✨ Meeting menu) has these buttons. The website's Plan page
+([meeting-form.md](../architecture/meeting-form.md)) plans the meeting online. Since 8.4 its meeting details have only
+Meeting name, Date and Meeting notes; the workbook keeps all its own fields.
 - **Download the Excel template**: `app/templates/FRAMEDECKS-Meeting-Workbook.xlsx`. It opens on the **Dashboard**,
   with an example meeting already filled in on the **Meeting Form**. Type over the examples.
 - **Import a meeting from Excel…**:

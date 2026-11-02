@@ -45,10 +45,13 @@ Create a Frame for each part of the service in order, add Content to each, and c
 Yes. **Duplicate Frame** (right-click the Frame, or **Ctrl+D**) makes a fully independent copy right after it, or **Save as template** to start new Frames from it. You can also export a whole meeting to Excel and import it later.
 
 **Can I plan in Excel?**
-Yes, optionally. The **Meeting Workbook** (Settings → Data / Backup → Download the Excel template; since 6.11 the website's Meeting Form does the same online) has two tabs: the **Meeting Form**, one guided page where you type the meeting details, Frames, Content, questions and scriptures, and the **Dashboard**, which sums it up for you. Import shows every problem with where it is (for example *Meeting Form · Content · row 26*) before anything changes, and can be undone. Workbooks from earlier versions still import. See [Meeting Workbook and branding](../reference/meeting-workbook-and-branding.md).
+Yes, optionally. The **Meeting Workbook** (Settings → Data / Backup → Download the Excel template) has two tabs: the **Meeting Form**, one guided page where you type the meeting details, Frames, Content, questions and scriptures, and the **Dashboard**, which sums it up for you. Import shows every problem with where it is (for example *Meeting Form · Content · row 26*) before anything changes, and can be undone. Workbooks from earlier versions still import. See [Meeting Workbook and branding](../reference/meeting-workbook-and-branding.md).
+
+**Where did the speaker, time and location go on the website?**
+Since 8.4 the website's meeting details have only **Meeting name**, **Date** and **Meeting notes**. A meeting that already has a speaker, time, location and so on keeps them; the form says so. The Excel Meeting Workbook still has its own fields.
 
 **Can two people edit the same service at once?**
-Not in the program. Plan together on framedecks.com; a PC linked to your team gets the plan by itself (the **Sync** chip in the header shows **Synced**). For a service PC without internet, export a **.frame file** and import it there (Settings → Data / Backup → **Import Frame File…**). See [Move a plan to a service PC](service-planning.md#move-a-plan-to-a-service-pc).
+Not in the program. Plan together on framedecks.com; a PC linked to your team gets the plan by itself within about a minute (the **Sync** chip in the header shows **Synced**; **Resync Linked PCs** syncs at once). For a service PC without internet, export a **.frame file** and import it there (Settings → Data / Backup → **Import Frame File…**, then **Use this plan**). See [Move a plan to a service PC](service-planning.md#move-a-plan-to-a-service-pc).
 
 **Can it advance automatically?**
 Yes. Each Frame can **Auto advance** after a number of seconds (Content Settings → **Move to the next Frame after N seconds**), while **Auto** is on in the command bar.
@@ -143,6 +146,9 @@ Yes. Any phone signed in with the PIN can control the meeting, and every screen 
 
 **How do we train a new volunteer?**
 Use the three-week onboarding plan in [Church operations](roles/README.md): shadow, then assisted, then solo.
+
+**Is there a step-by-step guide?**
+Yes. framedecks.com/help starts with a **Step-by-step guide** with two tabs, **Website** and **Service PC**: eight steps each, from signing in to running the meeting, with a screenshot of the place to click (tap it for the whole screen) and a search box. On the PC: **Settings → Help → Step-by-step guide**, or the command palette.
 
 **What is the minimum a volunteer needs to know?**
 Five things: **Go Live**, **Next**, the round **▶** arrow for the next question or slide, **Hide all**, and **Black screen**. See the [volunteer guide](roles/volunteers.md).

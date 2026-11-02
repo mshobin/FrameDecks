@@ -200,7 +200,7 @@ It has two tabs (6.9):
 - **Dashboard**: fills itself in from the form (days to go, counts, a Readiness checklist, Quick actions, a Content
   mix chart and a Recent meetings log). It is never imported.
 
-Use it through **Settings → Data / Backup → Meeting from Excel** (6.11; the website's Meeting Form does the same online):
+Use it through **Settings → Data / Backup → Meeting from Excel** (6.11):
 - **Download the Excel template** (drop-down lists, an example meeting);
 - **Import a meeting from Excel…** (preview with every problem and where it is, such as *Meeting Form · Content ·
   row 26*; Append or Replace; Undo);
@@ -218,14 +218,23 @@ put them: Branding Content, text that uses `{meeting}` / `{org}`, and **Show my 
 ## 9. Saving and backups
 Everything saves automatically on this PC. **Settings → Data / Backup** keeps daily backups and lets you make one now or
 restore one. Each Frame keeps its version and history (Content Settings → Advanced). **Import Frame File…** and
-**Export Frame File** (same place) move a whole plan to or from another PC as one .frame file.
+**Export Frame File** (same place) move a whole plan to or from another PC as one .frame file. When you import, choose
+**Use this plan** to see exactly what is in the file (your Frames are kept in a backup first), or **Add after my
+Frames** to keep yours and add the file's at the end. The **Frame files** box then shows the check against the file.
 
 A PC linked to your team (**Settings → FrameDecks account**) also syncs its plans with framedecks.com. The **Sync**
 chip in the header shows **Synced**, **Syncing**, **Offline** (changes wait and go up later; presenting is not
-affected) or **Sync failed** (see Settings → FrameDecks account for why). Media is never put in the cloud. Without a
+affected) or **Sync failed** (see Settings → FrameDecks account for why). It syncs by itself every minute. To sync
+now, choose **Resync Linked PCs** in Settings → FrameDecks account or in the **Sync** chip's panel. Media is never put
+in the cloud. Without a
 link, your meeting stays on your PC unless you export it.
 
 ## 10. Help
+- **framedecks.com/help** starts with a **Step-by-step guide**. It has two tabs, **Website** and **Service PC**, with
+  eight steps each: sign in, create a meeting, add Frames, write or upload scripts, transitions and drawing, preview,
+  sync, export or import, and run the meeting. Each step has a screenshot zoomed on the place to click (tap it for the
+  whole screen). Use the search box to find a step. On the PC, **Settings → Help → Step-by-step guide** opens it in
+  your browser. It is also in the command palette.
 - **Settings → Diagnostics → Copy diagnostics** collects the information needed for support. It contains no PIN or
   member details.
 - **Settings → About** has the story, contact and version.

@@ -94,10 +94,15 @@ Meeting Workbook's **Meeting Form** when you import it, and go back into it when
 | `extra` | Additional notes | 4000 |
 | `script` · `scriptMode` | Not on the Meeting Form (8.2): the Teleprompter's whole-meeting script, and whether the Teleprompter shows each Frame's script (`frame`) or the whole-meeting one (`all`) | 20000 · — |
 
+Since 8.4 the website's meeting details (Plan → **Edit details**) show only `title`, `date` and `notes`. The other
+fields stay in the meeting and still go in and out of the Meeting Workbook.
+
 **Moving the data to another PC (8.2).** To move a plan, use **Settings → Data / Backup → Export Frame File** and
 **Import Frame File…** (see `docs/reference/frame-file.md`). A PC linked under **Settings → FrameDecks account**
 syncs its plans with framedecks.com instead; media files stay on the PC. The header's **Sync** chip shows
-**Synced**, **Syncing**, **Offline** or **Sync failed**.
+**Synced**, **Syncing**, **Offline** or **Sync failed**. It syncs every minute; **Resync Linked PCs** (8.4) syncs at
+once. When you import a .frame file, **Use this plan** makes this PC's plan exactly the file's (a backup is made
+first). A PC's .frame file also carries its `kc-spot` and `kc-tp-window` settings (Spotlight and Teleprompter text).
 
 ### Environment variables (developers and tests)
 | Variable | Effect |

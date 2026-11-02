@@ -1,36 +1,40 @@
-## FrameDecks v8.3.0
+## FrameDecks v8.4.0
 
-Planning on framedecks.com is now guided, step by step, with a timeline you arrange by dragging and a Preview of
-every Frame. Download from **framedecks.com/download**, or let FrameDecks update itself. It installs over 8.2.0 and
-earlier and keeps all your meetings, members, settings and recordings. The website changes are live for everyone.
+What you plan on the website now arrives on the service PC exactly as planned, with a check that says so. Meeting
+Details are three fields, a linked PC can be resynced with one button, and Help has a step-by-step guide with real
+screenshots. Download from **framedecks.com/download**, or let FrameDecks update itself. It installs over 8.3.0 and
+earlier and keeps all your meetings, members, settings and recordings.
 
 ## What's New
-- **Plan in five steps** on framedecks.com: **Your meeting**, **Add Frames**, **Words and media**, **Preview**, then
-  **Sync or export**. Each step is ticked when it is done, and the next one has a large gold button: **Edit details**,
-  **Add Frame**, **Write Script**, **Preview** or **Export for Service PC**.
-- **A timeline of your Frames.** Drag a Frame to a new place, or select it and press Alt + ← or →. Click one to open it.
-- **Preview.** See each Frame as people will, with its transition and the presenter's script underneath. ← and → move
-  through the meeting.
-- **Choose Animation.** A Frame's transition is now a set of buttons that show their movement, Burst included.
-- **Pictures, video, audio and slides from the website.** **Choose file** keeps the file in your browser (never in the
-  cloud), and **Export for Service PC** puts it in the .frame file, so the service PC gets it with the plan.
-- **Sync status on the website**: Synced, Syncing…, Offline or Sync failed, next to Export for Service PC.
+- **Use this plan.** Importing a .frame file now offers **Use this plan** first: the PC then shows exactly the
+  website's Frames, in the same order, with the same words, scripts, transitions, meeting name, date and notes. Your
+  Frames are kept in a backup first. **Add after my Frames** is still there.
+- **An import check.** After an import, FrameDecks compares every Frame with the file and says "Everything matches",
+  or lists exactly what differs and which pictures or videos are not on this PC yet. A .frame file that was cut short
+  or changed by hand is refused before anything changes.
+- **Resync Linked PCs.** On a linked PC, the Sync panel (the status button at the top right, then Sync) and Settings →
+  FrameDecks account have **Resync Linked PCs**: it syncs now and says Sync complete, No changes found or Sync failed,
+  with the last successful sync. Automatic sync carries on every minute as before.
+- **Step-by-step guide.** framedecks.com/help starts with a guide for the website and for the service PC: eight steps
+  each, from signing in to running the meeting, with screenshots zoomed on the place to click, and a search. On the
+  PC: Settings → Help → Step-by-step guide.
+- **Simpler Meeting Details.** On the website: Meeting name, Date and Meeting notes. Details from earlier versions
+  (speaker, location and so on) are kept, just not shown.
 
 ## Enhancements
-- Each Frame on the Plan page has **Write Script**, **Choose Animation** and **Preview** buttons.
-- The transition styles read Fade, Slow fade and Gentle fade (the names left over from before 8.2 are gone).
-- The website's styles are smaller: unused rules from older designs were removed, so pages load a little faster.
+- Export for Service PC says exactly what is in the file, and which files the Frames use that it does not carry.
+- A .frame file from a PC also carries its Teleprompter text settings and Spotlight settings.
+- The website loads less: the landing page's and the Plan page's own styles load only on those pages.
 
 ## Fixes
-- None in this release.
+- A plan exported from the website and imported on the service PC could look different from the website: the import
+  added the Frames after the PC's own and left out the meeting's date and notes. **Use this plan** now gives the same
+  plan, checked field by field.
 
 ## Performance Improvements
-- The website's stylesheet stays within its 24 KB budget with the new Plan page, after removing about 6 KB of unused
-  rules.
+- Pages of the signed-in website load about 7 KB less style.
 
 ## Known Issues
 - The installer is not yet code-signed, so Windows SmartScreen may ask you to confirm: **More info → Run anyway**.
-- A file chosen on the website stays in that browser. Export the .frame file from the same browser, or add the file on
-  the service PC.
-- The Preview is an approximation of the picture. The service PC shows it exactly (Studio, or the Share Window).
-- Dragging Frames on the timeline needs a mouse or a touchpad. On a phone or tablet, use the arrows on each Frame.
+- On most screen sizes the Sync status sits inside the status button at the top right; choose it, then Sync.
+- Multiple meetings, each with its own Frames, and the right-side meeting timeline come in 8.5.

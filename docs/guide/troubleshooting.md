@@ -233,12 +233,26 @@ Open the **Meeting** menu (✨ next to **+ Frame**) and choose **Undo the last E
 | **Offline** | The PC has no internet. Nothing to do: changes wait on the PC and go up later, and presenting is not affected. To move a plan without internet, use a [.frame file](service-planning.md#move-a-plan-to-a-service-pc) |
 | **Sync failed** (red) | Open **Settings → FrameDecks account**. It says why |
 
+To try again straight away, choose **Resync Linked PCs** (Settings → FrameDecks account, or the **Sync** chip's
+panel). The result shows next to it: **Sync complete: N changes received, N sent.**, **No changes found. This PC
+already has the latest plan.** or **Sync failed: …** with the reason, for example no internet. **Last successful
+sync: …** shows when the PC last had the plan.
+
 ### A .frame file won't import
 
 FrameDecks checks the file before it changes anything. A file that is not a Frame file, comes from a newer FrameDecks,
-has no Frames or has a damaged picture is refused with a message, and nothing changes. Update FrameDecks, or export
-the file again. After **Replace my Frames**, the backup made just before is in **Settings → Data / Backup**. See
-[The .frame file](../reference/frame-file.md).
+has no Frames or has a damaged picture is refused with a message, and nothing changes. A file that is cut short or
+was changed by hand is refused too: "This Frame file is incomplete or was changed after it was made… Export it
+again." Update FrameDecks, or export the file again and copy it again. After **Use this plan**, the backup made just
+before is in **Settings → Data / Backup**. See [The .frame file](../reference/frame-file.md).
+
+### The plan on the service PC looks different from the website
+
+Import the .frame file again and choose **Use this plan**. **Add after my Frames** keeps the PC's own Frames too,
+which is why the plan looked different. After the import, the **Frame files** box (Settings → Data / Backup) shows
+the check: "✓ Checked against the file: … Everything matches.", or each difference marked ⚠. "⚠ Not on this PC yet:
+…" lists pictures and videos the Frames use that are not on this PC: add them, or export the .frame file from a
+computer that has them.
 
 ## Collecting diagnostics
 
@@ -246,7 +260,8 @@ the file again. After **Replace my Frames**, the backup made just before is in *
 
 ## Getting help
 
-1. Check this page and the [FAQ](faq.md).
+1. Check this page, the [FAQ](faq.md) and the **Step-by-step guide** at framedecks.com/help (on the PC: **Settings →
+   Help → Step-by-step guide**).
 2. Copy diagnostics (above).
 3. Contact the person who installed FrameDecks for your church, or write to hello@framedecks.com.
 
