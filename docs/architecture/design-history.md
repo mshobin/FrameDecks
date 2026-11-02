@@ -1186,3 +1186,39 @@ the plan uses, and the PC's existing import writes them. The website's CSS was a
 were paid for by removing about 6 KB of rules no page used any more (earlier Overview and onboarding designs), found
 by comparing the class names in the stylesheets with those in the components. `tests/visual/plan-flow.mjs` runs the
 whole workflow in Chromium against a stand-in workspace, with axe, on desktop and phone widths in both themes.
+
+## 46. Version 8.4.0: the same plan on both sides, Resync, and a guide with real screenshots (2 November 2026)
+
+The owner reported that a plan exported from the website did not look the same on the service PC. Following one plan
+through the code (website records → `join` → .frame → the PC's `check`, `apply` and `normalize`) showed the data
+survived; the import did not. Its default, "Add after my Frames", kept the PC's own Frames and only took the meeting's
+title. 8.4 makes **Use this plan** the main action (a backup first) and adds two checks, so nothing is lost silently.
+Before: a file declares `integrity` (Frames, Content, items, files), counted the same way by `frame-file.ts` and
+`frame-file.js` (a test keeps them equal), and a file whose plan does not match is refused. After: `verify()` compares
+every Frame (id, order, name, script, transition, each Content's words, items and file) and the meeting with the file,
+in plain words, and the server's missing-media check names files the Frames use that the PC lacks.
+`tests/visual/frame-roundtrip.mjs` drives the whole path in two browsers: a plan made on the website with a picture
+chosen there, exported, imported on a running program, compared field by field and byte for byte.
+
+Meeting Details on the website are three fields. The record keeps every older field, because `meetingFromForm` writes
+on top of the record as it was; nothing is migrated or dropped.
+
+Resync is one sync round on request (`cloud_sync.resync`), under the same lock as the timer's rounds, answering
+complete, nochange or failed from the round's own summary; the timer is moved a minute on so the two do not run back
+to back. The Sync chip opens a small panel, anchored to the status button when the header has folded the chips into it.
+
+The Help guide is data (`help-guide.ts`): eight steps for each side in the core order, each naming the labels on
+screen, a screenshot and the place to circle. `help-shots.mjs` takes the screenshots from the real screens (the
+website against a stand-in workspace, the program running) and records each circled place as percentages; the page
+zooms the picture onto that place so it is readable on a phone. A test fails when a named label no longer exists in
+the website's or the program's code, or a picture or place is missing, which is how the guide stays current.
+
+Multiple meetings were moved to 8.5 by the owner's choice. Sync accepts a fixed list of record kinds and every PC
+normalizes its plan to known fields, then sends back what differs, so a PC still on 8.3 would strip per-meeting
+details from the workspace. 8.5 stores the meeting as each Frame's `group` (which every PC keeps) and ships once
+PCs have 8.4.
+
+The website's CSS was at its budget. Rather than raise it, the budget now measures the CSS one page loads (the
+heaviest page), and the landing page's own styles (`landing-page.css`) and the Plan page's (`plan.css`) are imported
+by their components, so the signed-in app loads about 7 KB less; screenshots of four public pages at two widths in both
+themes were compared pixel for pixel before and after.

@@ -45,6 +45,30 @@ Versions before 4.9 (when the program had its earlier name) are described in the
 - The favicons, the tray icon and the small program-icon sizes (16–32 px) use a heavier version of the emblem, so it
   stays visible on light browser tabs and a light taskbar. Larger sizes are unchanged.
 
+## [8.4.0] - 2026-11-02
+
+Full notes: [docs/releases/v8.4.0.md](releases/v8.4.0.md).
+
+### Added
+- .frame import check: files declare `integrity` (Frames, Content, items, files used, files included) and are refused
+  when it does not match; after an import, `verify()` compares every Frame and the meeting with the file and the PC
+  names missing media (`app/js/frame-file.js`, `hosted/src/lib/frame-file.ts`).
+- **Use this plan** as the main import action; a PC's export carries its Teleprompter and Spotlight settings.
+- **Resync Linked PCs**: `api/sync` action `resync` runs a round now and answers complete / nochange / failed
+  (`cloud_sync.resync`); in the Sync chip's panel, Settings → FrameDecks account and the command palette.
+- Help: a step-by-step guide (`hosted/src/lib/help-guide.ts`, `components/help-guide.tsx`) with screenshots made by
+  `tests/visual/help-shots.mjs`, kept true by `hosted/tests/help-guide.test.mjs`; Settings → Help → Step-by-step guide.
+- `tests/visual/frame-roundtrip.mjs`: website → .frame → program, compared field by field.
+
+### Changed
+- Website Meeting Details: Meeting name, Date and Meeting notes; older fields are kept in the record.
+- Website CSS per page: `landing-page.css` and `plan.css` load only on their pages; the budget measures the heaviest
+  page (24 KB).
+
+### Fixed
+- Website plans imported on the PC looked different: the default added the Frames after the PC's own and dropped
+  the meeting's date and notes.
+
 ## [8.3.0] - 2026-11-02
 
 Full notes: [docs/releases/v8.3.0.md](releases/v8.3.0.md).
