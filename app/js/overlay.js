@@ -366,7 +366,9 @@ var TEXT_ICON = {
   announcement: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg>',
   prayer: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 14c1.5-1.5 3-3.2 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.8 0-3 .5-4.5 2-1.5-1.5-2.7-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4 3 5.5l7 7Z"/></svg>',
   countdown: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M9 2h6"/></svg>',
-  lowerthird: ''
+  lowerthird: '',
+  /* 8.8 the Audience Card (Audience Dock) */
+  audience: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.7 7.1L3 21l1.9-6.3A8 8 0 1 1 21 12z"/></svg>'
 };
 function TextLayers(root){
   var shown = {};                                  // id -> {el, sig}
@@ -383,8 +385,10 @@ function TextLayers(root){
     var label = el('header', 'card-label', TEXT_ICON[l.kind] || ''), lt = el('span'); label.appendChild(lt);
     var logo = document.createElement('img'); logo.className = 'card-logo'; logo.alt = ''; label.appendChild(logo);
     card.appendChild(label); card.appendChild(el('div', 'card-rule')); card.appendChild(el('p', 'card-text'));
+    var timer = null;
+    if (l.kind === 'audience'){ timer = el('div', 'aud-timer'); card.appendChild(timer); }    // 8.8 the thin countdown line
     var zone = el('div', 'zone-x'); zone.appendChild(card); root.appendChild(zone);
-    return {zone: zone, card: card, lt: lt, logo: logo, text: card.querySelector('.card-text')};
+    return {zone: zone, card: card, lt: lt, logo: logo, text: card.querySelector('.card-text'), timer: timer};
   }
   function logoSrc(st){ return st.brand && st.brand.logo ? 'api/brand/logo?v=' + encodeURIComponent(st.brand.logo) : ''; }
   function setLogo(img, src){ if (img.getAttribute('src') !== src){ if (src) img.setAttribute('src', src); else img.removeAttribute('src'); } img.hidden = !src; }
@@ -412,6 +416,14 @@ function TextLayers(root){
     var t = l.kind === 'countdown' ? S.countdown(st, l) : S.brandText(st, c.text);
     if (x.text.textContent !== t) x.text.textContent = t;
     x.zone.style.opacity = String(l.opacity == null ? 1 : l.opacity);
+    if (x.timer){                                   // 8.8 the line shrinks over the card's seconds (none when pinned)
+      var sig = c.at + '|' + c.dur;
+      if (x.timer.dataset.sig !== sig){
+        x.timer.dataset.sig = sig; x.timer.hidden = !c.dur;
+        x.timer.style.animation = 'none'; void x.timer.offsetWidth;
+        if (c.dur) x.timer.style.animation = 'aud-count ' + c.dur + 's linear ' + (-Math.max(0, Date.now() - c.at) / 1000) + 's forwards';
+      }
+    }
   }
   return {
     update: function(st, list){
@@ -601,13 +613,18 @@ function mount(opts){
       if (cards.birthday) cards.birthday.update(held(st, forObs(st.birthday)));
       brandPalette(st);
       lookSurface(st);
-      if (texts && SC){ lastText = st.live && (st.live.blackout || st.live.emergency) ? [] : SC.liveText(st, isPreview ? null : 'obs').concat(SC.liveBrand(st, isPreview ? null : 'obs')); texts.update(st, lastText); }
+      if (texts && SC){ lastText = textList(st); texts.update(st, lastText); }
       if (program) program(st);
     });
     Store.start();
     Store.presence(opts.page);
   });
   var rt, last = null, lastText = [], palette = '';
+  function textList(st){
+    if (st.live && (st.live.blackout || st.live.emergency)) return [];
+    var out = isPreview ? null : 'obs';
+    return SC.liveText(st, out).concat(SC.liveBrand(st, out), SC.liveAudience ? SC.liveAudience(st, out) : []);   // 8.8 the Audience Card on top
+  }
   /* v6.2 the leader's accent colour replaces the gold of every card on this page (cleared when removed) */
   function brandPalette(st){
     var c = (st.brand && st.brand.color) || ''; if (c === palette || !SC) return; palette = c;
@@ -623,7 +640,13 @@ function mount(opts){
     if (v){ r.setProperty('--surf-a', v.a); r.setProperty('--surf-b', v.b); r.setProperty('--scripture', v.font === 'sans' ? 'var(--sans)' : 'var(--serif)'); }
     else ['--surf-a', '--surf-b', '--scripture'].forEach(function(k){ r.removeProperty(k); });
   }
-  if (texts) setInterval(function(){ if (last && lastText.length) texts.tick(last, lastText); }, 250);   // countdowns
+  if (texts) setInterval(function(){
+    if (!last || !lastText.length) return;
+    if (lastText.some(function(l){ return l.kind === 'audience' && l.c.dur && Date.now() >= l.c.at + l.c.dur * 1000; })){
+      lastText = textList(last); texts.update(last, lastText);          // 8.8 a timed Audience Card fades out on time
+    }
+    texts.tick(last, lastText);
+  }, 250);   // countdowns
   window.addEventListener('resize', function(){
     clearTimeout(rt);
     rt = setTimeout(function(){ if (last) placeVerse(last); for (var k in cards) cards[k].refit(); }, 150);

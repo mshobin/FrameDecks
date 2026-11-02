@@ -124,6 +124,10 @@ class ProgramFX:
         self.logo_path, self.logo_cache = logo_path, (None, None)      # (version, PIL RGBA)
         self.get_state, self.cards_on = get_state, cards_on
         self.texts = {}                  # layer id -> _Text
+        self.aud = _Text()               # 8.8 the Audience Card (live.audience), drawn above everything but Blackout
+        self.aud_id = None
+        self.need_clean = False          # 8.8 the Share Window is open: keep a picture without the Audience Card
+        self.present_frame = None        # ... that picture (None = the Share Window shows the camera's own frame)
         self.jobs, self.cond = {}, threading.Condition()
         self.last = None                 # the previous output picture (for transitions)
         self.seq = None
@@ -181,10 +185,69 @@ class ProgramFX:
         out = self.ink.freeze(out, bool(live.get("freeze")))       # Freeze: hold the picture (drawings still go on top)
         out = self.ink.draw(out if out is not frame else frame, live.get("ink"))
         out = self.spot.draw(out, live.get("spot"), now)
+        out, clean = self._audience(out, st, live, W, H, now, dt, hold)
         if self.black > 0.001:
             out = cv2.convertScaleAbs(out, alpha=1 - self.black)
+            if clean is not None:
+                clean = cv2.convertScaleAbs(clean, alpha=1 - self.black)
+        self.present_frame = clean
         self.last = out if out is not frame else frame.copy()
         return out
+
+    # ---------- 8.8 the Audience Card (Audience Dock) ----------
+    def _audience(self, out, st, live, W, H, now, dt, hold):
+        """Draw live.audience over the picture. Returns (picture, picture without the card for the Share Window or None)."""
+        a = live.get("audience") if isinstance(live.get("audience"), dict) else None
+        on = bool(a and a.get("id") and str(a.get("text") or "").strip() and not hold and self.cards_on())
+        if on and a.get("dur"):
+            on = time.time() * 1000 < float(a.get("at") or 0) + float(a.get("dur") or 0) * 1000
+        t = self.aud
+        if on:
+            if a["id"] != self.aud_id:                       # a new card replaces the old at once, then fades in
+                self.aud_id, t.alpha, t.card, t.key = a["id"], 0.0, None, None
+            look = st.get("look") if isinstance(st.get("look"), dict) else {}
+            accent = (st.get("brand") or {}).get("color") or ""
+            name = str(a.get("name") or "").strip() or "Audience"
+            data = {"label": name, "showLabel": True, "text": str(a.get("text") or " ")[:500], "logo": None}
+            L = {"qScale": 1.0, "qWidth": 70.0, "qBottom": 8, "panel": float((st.get("layout") or {}).get("panel", 92)),
+                 "accent": accent, "look": look}
+            key = ("@audience", a["id"], data["label"], data["text"], accent, L["panel"], str(sorted(look.items())), W, H)
+            t.target, t.info = 1.0, a
+            if t.key != key:
+                with self.cond:
+                    self.jobs["@audience"] = (key, data, L, W, H, "bottom")
+                    self.cond.notify()
+        else:
+            t.target = 0.0
+        t.alpha = self._toward(t.alpha, t.target, dt / 0.35)
+        if t.alpha <= 0.001 or t.card is None:
+            if t.target == 0 and t.alpha <= 0.001:
+                self.aud_id, t.card, t.key = None, None, None
+            return out, None
+        info = getattr(t, "info", None) or {}
+        clean = out.copy() if self.need_clean and not info.get("share") else None
+        if out is not None and not out.flags.writeable:
+            out = out.copy()
+        from .overlay import OverlayLayer
+        card = t.card
+        x0, y0 = int(round(card.x - card.margin)), int(round(card.y - card.margin))
+        OverlayLayer._blend(out, OverlayLayer._scale(card.full8, t.alpha) if t.alpha < 0.999 else card.full8, x0, y0,
+                            card.full_inv3 if t.alpha >= 0.999 else None)
+        dur = float(info.get("dur") or 0)
+        if dur:                                              # the thin gold countdown line along the card's foot
+            left = max(0.0, min(1.0, 1 - (time.time() * 1000 - float(info.get("at") or 0)) / (dur * 1000)))
+            u = min(W / 100, H * 1.7778 / 100)
+            bw, th = max(2, int(round(u * 0.13))), max(2, int(round(u * 0.22)))
+            x1, y2 = int(round(card.x + bw)), int(round(card.y + card.h - bw))
+            x2 = x1 + int(round((card.w - 2 * bw) * left))
+            if x2 > x1 and 0 <= y2 - th and y2 <= H:
+                x1c, x2c = max(0, x1), min(W, x2)
+                if x2c > x1c:
+                    roi = out[y2 - th:y2, x1c:x2c]
+                    gold = np.empty_like(roi)
+                    gold[:] = (74, 171, 217)                 # the cards' gold (217, 171, 74), as BGR
+                    cv2.addWeighted(gold, t.alpha, roi, 1 - t.alpha, 0, dst=roi)
+        return out, clean
 
     @staticmethod
     def _toward(v, target, step):
@@ -400,8 +463,8 @@ class ProgramFX:
                 left, right = m, W - m - card.w
                 card.x = left if pos.endswith("left") else right if pos.endswith("right") else (W - card.w) / 2
                 card.y = (top if pos in ("top", "upper-left", "upper-right") else (H - card.h) / 2 if pos == "center" else bottom)
-                t = self.texts.get(lid)
-                if t is not None:
+                t = self.aud if lid == "@audience" else self.texts.get(lid)
+                if t is not None and (lid != "@audience" or key[1] == self.aud_id):
                     t.card, t.key = card, key
             except Exception as e:                      # never let a drawing problem stop the camera
                 print("FRAMEDECKS: could not draw a text layer:", e)

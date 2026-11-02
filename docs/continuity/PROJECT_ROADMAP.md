@@ -42,7 +42,8 @@ Repository clean-up is on `main` (modules in `src/`; `README.md`, `LICENSE`, `NO
 | 8.0.0: one Teleprompter, Frame cards, no Run/Practice, Setup wizard, plain camera settings, one-view phone remote | Published (1 November) |
 | 8.1.0: Teleprompter transparency and pin, six looks, one Content view, website-matching restyle | On `main`; tag `v8.1.0` publishes it |
 | 8.2.0: bare Teleprompter (controls in its bar, upload, script mode), Spotlight, transitions one per effect + Burst, .frame files, sync status chip | Published (tag `v8.2.0`) |
-| 8.7.0: Spotlight as a soft see-through disc with settings, landing How it works Day 5 and a self-playing See it work | On `main`; tag `v8.7.0` |
+| 8.8.0: Audience Dock (Ctrl+C a chat message → a card on FrameRelay; click-through dock with Ctrl+Shift, handle, timer/pin/hide, Share Window option) | On `main`; tag `v8.8.0`; real-PC checklist in docs/architecture/audience-dock.md |
+| 8.7.0: Spotlight as a soft see-through disc with settings, landing How it works Day 5 and a self-playing See it work | Tagged `v8.7.0` |
 | 8.6.0: Quick Start imports .frame files, Teleprompter bar arrow, Help Center, sign-out to framedecks.com, Plan cards, wider pages | Published (tag `v8.6.0`) |
 | 8.5.0: several meetings (the PC shows one at a time; Frame `group` = meeting; migration 0012) and a right-side flowchart timeline on the website Plan | Published (tag `v8.5.0`); 0012 in Supabase is the owner's |
 | 8.4.0: .frame Use this plan + import check, Resync Linked PCs, Meeting Details of three fields, Help step-by-step guide with screenshots | Published (tag `v8.4.0`) |

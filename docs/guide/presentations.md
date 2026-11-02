@@ -268,6 +268,40 @@ The second row holds the script controls:
 
 On the phone, the Teleprompter is on the remote too. See [Remote control](remote-control.md#teleprompter-on-the-phone).
 
+## Audience Dock: show a chat message
+
+The **Audience Dock** puts a viewer's chat message on screen as a card, without pasting. It works with any chat you
+can select text in: Zoom, Teams, YouTube, Twitch, Facebook Live, Discord or a web page. Only you see the dock.
+
+1. Open it: **Live tools → Audience Dock** (or the tray's **Audience Dock**, or the command palette). It opens at the
+   right of the screen; move it over or beside the chat.
+2. Turn on **Capture** in the dock.
+3. In the chat, select a message and press **Ctrl+C**. The dock says **✓ Audience Question Captured** and the card
+   slides into the queue, with the app it came from and, when the copy says who wrote it, the sender.
+4. Hold **Ctrl+Shift** and select **Show** on the card. It fades onto the FrameRelay camera for 12 seconds, with a
+   thin line counting down. **Pin** keeps it until you hide it. **Hide** (or **Esc** in the dock or the Studio) takes
+   it off. Showing another card replaces the one on screen.
+
+**Using the dock without leaving your meeting**
+
+- Clicks go *through* the dock to the chat underneath, and the dock never takes the keyboard, so Zoom or Teams keeps
+  it. While the pointer is over the dock it fades to 20% so you can read the chat beneath it.
+- Hold **Ctrl+Shift** to use the dock: it becomes fully visible and its buttons work. Let go and clicks pass through
+  again.
+- The small bar on the dock's top edge, the **handle**, always takes clicks: **⠿** move (drag), **⤡** resize (drag),
+  **📌** keep the dock usable (needed to type in a card's name or message), **⚙** settings, **✕** close. The dock
+  remembers where it was and its size.
+
+**Settings** (⚙): **Seconds on screen** (3–120, default 12), **Also show on Share Window** (off: the card is on the
+FrameRelay camera only; on: also on the Share Window and the overlay pages) and **Clear the queue**.
+
+> **Note:** The queue is kept only while FrameDecks runs. Nothing about your viewers is saved or sent anywhere.
+> Copies that a password manager marks as private are never read, and Zoom's private messages are marked
+> **Private** and need a second click to show. Capture stops when you close the dock.
+
+> **Note:** Capture, click-through and Ctrl+Shift need the installed app on Windows. In a browser the dock opens as a
+> pop-up where you can type a question and show it.
+
 ## Command palette
 
 The **command palette** finds anything and does most things, from the keyboard.
@@ -307,7 +341,8 @@ Ctrl+Space, Ctrl+Alt+Space, Ctrl+Shift+Space, Win+Shift+K, or Off.
 
 ## Projector, TV and screen sharing
 
-The **Presentation window** shows the same finished picture as the FrameRelay camera.
+The **Presentation window** shows the same finished picture as the FrameRelay camera (an Audience Dock card only when
+**Also show on Share Window** is on).
 
 1. In the Studio, select **Share Window**. The Presentation window opens.
 2. Drag it to the projector or TV, then select **⛶ Full screen** (or press **F** in that window, or double-click it).

@@ -1305,3 +1305,29 @@ drawn in HTML like the others (a pointer, the disc, a pen line). See it work now
 because visitors did not discover the other tabs; the tour stops for good when someone chooses a tab and never runs
 under reduced motion. The landing's CSS is at 23.7 of its 24 KB budget.
 
+
+## 50. Version 8.8.0: the Audience Dock (2 November 2026)
+
+The owner wanted viewers' chat questions on screen during a live meeting without pasting. Three feasibility reports
+came first (a Zoom API route, a zero-click route, Ctrl+C); the Ctrl+C route won because it works with every chat app,
+needs no account or API, and keeps the presenter choosing each message. The analysis, plan, risks, testing checklist
+and rollback plan are in [audience-dock.md](audience-dock.md).
+
+Capture uses Windows' own clipboard listener on a message-only window and only while the switch is on: no keyboard
+hook, which antivirus treats as a keylogger. It honours the markers password managers set on secrets and ignores the
+program's own copies. Parsing lives in `audience.py`, pure Python with no Windows calls, so every rule is tested on
+the Linux CI. The queue is in memory only: nothing about viewers is written to disk or synced.
+
+The card on screen is `live.audience`, so it rides the existing state: every page sees it, Hide all clears it, and
+`live` never syncs. The server owns the timer (it clears the card when its seconds are up), so all outputs agree.
+FrameRelay draws it with the question card's drawer, after the Spotlight and before Blackout. Because the Share Window
+shows the camera's final frame, "Also show on Share Window" off is done by keeping a copy of the frame from just before
+the card, only while the card is on screen and a Share Window is open. `store.js` writes `audience` into `live` only
+when a card is on screen, so the shared sync fixtures (and the website) see no change.
+
+The dock window is click-through (`WS_EX_TRANSPARENT` on a layered window) and never activates (`WS_EX_NOACTIVATE`), so
+Zoom keeps the keyboard. Because a click-through window cannot be clicked, a second small window, the handle, sits on
+its edge and is never click-through; Ctrl+Shift is read by a light poll (`GetAsyncKeyState`), again without a hook.
+The decisions per tick are in `dock.py` with the Windows calls passed in, so they are tested without Windows. The
+click-through WebView2, focus and the clipboard need the real-PC checklist in the design document.
+

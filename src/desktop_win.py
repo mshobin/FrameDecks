@@ -90,6 +90,11 @@ if IS_WIN:
     user32.SendMessageW.restype = LRESULT
     user32.IsZoomed.argtypes = [wintypes.HWND]
     user32.ShowWindowAsync.argtypes = [wintypes.HWND, ctypes.c_int]
+    user32.GetAsyncKeyState.restype = ctypes.c_short
+    user32.GetAsyncKeyState.argtypes = [ctypes.c_int]
+    user32.GetWindowRect.argtypes = [wintypes.HWND, ctypes.POINTER(wintypes.RECT)]
+    user32.MonitorFromPoint.restype = wintypes.HMONITOR
+    user32.MonitorFromPoint.argtypes = [wintypes.POINT, wintypes.DWORD]
     dwmapi.DwmSetWindowAttribute.argtypes = [wintypes.HWND, wintypes.DWORD, ctypes.c_void_p, wintypes.DWORD]
 
     class NCCALCSIZE_PARAMS(ctypes.Structure):
@@ -355,6 +360,112 @@ def bring_to_front(hwnd):
         user32.SetActiveWindow(hwnd)
     except Exception as _e:
         _swallowed("desktop_win.bring_to_front", _e)
+
+
+# ---------- 8.8 the Audience Dock: click-through, no focus, keys and pointer without hooks ----------
+WS_EX_TRANSPARENT, WS_EX_NOACTIVATE, WS_EX_TOOLWINDOW = 0x00000020, 0x08000000, 0x00000080
+VK_SHIFT, VK_CONTROL = 0x10, 0x11
+
+
+def click_through(hwnd, on, alpha=0.85):
+    """on: clicks pass through the window to the program beneath (it must be layered, so it is faded to alpha first);
+    off: the window takes clicks again."""
+    if not (IS_WIN and hwnd):
+        return False
+    try:
+        if on:
+            fade(hwnd, min(0.99, alpha))
+        ex = _get_long(hwnd, GWL_EXSTYLE)
+        new = (ex | WS_EX_TRANSPARENT) if on else (ex & ~WS_EX_TRANSPARENT)
+        if new != ex:
+            _set_long(hwnd, GWL_EXSTYLE, new)
+        return True
+    except Exception:
+        return False
+
+
+def no_activate(hwnd, on=True):
+    """A window that never takes the keyboard from the program in front (Zoom, Teams) when it is clicked; also kept
+    off the taskbar and Alt+Tab (a tool window)."""
+    if not (IS_WIN and hwnd):
+        return False
+    try:
+        ex = _get_long(hwnd, GWL_EXSTYLE)
+        new = (ex | WS_EX_NOACTIVATE | WS_EX_TOOLWINDOW) if on else (ex & ~WS_EX_NOACTIVATE)
+        if new != ex:
+            _set_long(hwnd, GWL_EXSTYLE, new)
+        return True
+    except Exception:
+        return False
+
+
+def keys_down(*vks):
+    """Are all these keys held now? (GetAsyncKeyState: a read, no keyboard hook.)"""
+    if not IS_WIN:
+        return False
+    try:
+        return all(user32.GetAsyncKeyState(vk) & 0x8000 for vk in vks)
+    except Exception:
+        return False
+
+
+def cursor_pos():
+    if not IS_WIN:
+        return None
+    try:
+        pt = wintypes.POINT()
+        user32.GetCursorPos(ctypes.byref(pt))
+        return pt.x, pt.y
+    except Exception:
+        return None
+
+
+def window_rect(hwnd):
+    """[x, y, w, h] of a window on screen, or None."""
+    if not (IS_WIN and hwnd):
+        return None
+    try:
+        r = wintypes.RECT()
+        if not user32.GetWindowRect(hwnd, ctypes.byref(r)):
+            return None
+        return [r.left, r.top, r.right - r.left, r.bottom - r.top]
+    except Exception:
+        return None
+
+
+def place(hwnd, x, y, w=None, h=None):
+    """Move (and size) a window without activating it and without waiting for its thread."""
+    if not (IS_WIN and hwnd):
+        return False
+    try:
+        flags = SWP_NOZORDER | SWP_NOACTIVATE | SWP_ASYNCWINDOWPOS | (SWP_NOSIZE if w is None else 0)
+        return bool(user32.SetWindowPos(hwnd, None, int(x), int(y), int(w or 0), int(h or 0), flags))
+    except Exception:
+        return False
+
+
+def work_area():
+    """[x, y, w, h] of the main screen without the taskbar."""
+    if not IS_WIN:
+        return None
+    try:
+        r = wintypes.RECT()
+        user32.SystemParametersInfoW(0x0030, 0, ctypes.byref(r), 0)      # SPI_GETWORKAREA
+        return [r.left, r.top, r.right - r.left, r.bottom - r.top]
+    except Exception:
+        return None
+
+
+def on_screen(rect):
+    """Is enough of [x, y, w, h] on a monitor to grab it? (A saved place from a monitor that is gone is not.)"""
+    if not IS_WIN or not rect:
+        return bool(rect)
+    try:
+        x, y, w, h = rect
+        pt = wintypes.POINT(int(x + min(w, 120) / 2), int(y + 10))
+        return bool(user32.MonitorFromPoint(pt, 0))          # MONITOR_DEFAULTTONULL
+    except Exception:
+        return False
 
 
 class Hotkeys:

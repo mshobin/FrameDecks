@@ -315,6 +315,13 @@ class Compositor:
         if self._sig is None or int(np.abs(small - self._sig).max()) > 1:
             self.last_change = time.time()
         self._sig = small
+        fx = self.program_fx
+        if fx is not None:
+            fx.need_clean = self.present["clients"] > 0          # 8.8 the Share Window leaves out the Audience Card
+            clean = getattr(fx, "present_frame", None)
+            if clean is not None and clean.shape == frame.shape:
+                frame = clean
+                small = cv2.resize(frame, (64, 36), interpolation=cv2.INTER_AREA).astype(np.int16)
         if self.present["clients"] > 0:
             sig = self.present["sig"]
             if sig is None or int(np.abs(small - sig).max()) > 1:        # changed (a still slide stays silent)

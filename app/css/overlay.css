@@ -208,6 +208,13 @@ body.bg-preview{background:
 .card-lowerthird .card-label{text-transform:none;letter-spacing:.01em;font-size:calc(var(--s)*1.9);color:#fff}
 .card-lowerthird .card-rule{margin:calc(var(--s)*.7) 0 calc(var(--s)*.8)}
 .card-lowerthird .card-text{font-weight:500;font-size:calc(var(--s)*1.6);color:var(--gold-text)}
+/* 8.8 the Audience Card (Audience Dock): a chat message with the sender as its label, a thin countdown line */
+.card-audience{z-index:3}
+.card-audience .card-label{text-transform:none;letter-spacing:.01em}
+.card-audience .aud-timer{position:absolute;left:var(--bw);right:var(--bw);bottom:var(--bw);height:max(2px,calc(var(--s)*.22));
+  background:var(--gold-2);transform-origin:left center;border-radius:0 0 calc(var(--s)*.5) calc(var(--s)*.5);z-index:3}
+.card-audience .aud-timer[hidden]{display:none}
+@keyframes aud-count{from{transform:scaleX(1)}to{transform:scaleX(0)}}
 
 /* ---------- v6 program: Blackout, Emergency screen, scene dips ---------- */
 .pg-black,.pg-slate,.pg-dip{position:fixed;inset:0;opacity:0;pointer-events:none;transition:opacity .3s ease}

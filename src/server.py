@@ -38,8 +38,9 @@ import legacy   # 6.9: moves data saved under the program's earlier name
 import winapi   # 7.1.1: Windows jobs through Windows' own interfaces (no PowerShell, netsh or taskkill)
 import meeting_form   # 6.9: fills the Meeting Workbook's form for Export
 import updater   # 7.0: updates from FrameDecks servers (checked, silent, with rollback)
+import audience   # 8.8: the Live Audience Capture Dock's queue (docs/architecture/audience-dock.md)
 
-APP_VERSION = "8.7.0"
+APP_VERSION = "8.8.0"
 STARTED_AT = time.time()
 FROZEN = getattr(sys, "frozen", False)          # True inside the installed Windows app
 HERE = Path(sys.executable).resolve().parent if FROZEN else Path(__file__).resolve().parent.parent   # the repository root (this file is in src/)
@@ -289,6 +290,7 @@ def save_state(new):
         new.pop("libraryRev", None)
         new.pop("libraryOmitted", None)
         new["rev"] = int(state.get("rev", 0)) + 1
+        aud_changed = (new.get("live") or {}).get("audience") != (state.get("live") or {}).get("audience")
         library_changed = new.get("library") != state.get("library")
         if library_changed:
             LIBRARY["rev"] = new["rev"]
@@ -305,6 +307,8 @@ def save_state(new):
                 DISK["timer"].daemon = True
                 DISK["timer"].start()
         cond.notify_all()
+        if aud_changed and "AUDIENCE" in globals():
+            AUDIENCE.touch()               # the dock's Currently live follows (a timer, Esc in the Studio, Hide all)
         eng = VCAM.get("engine") if "VCAM" in globals() else None
         if eng:
             eng.kick()                     # a card was shown/hidden: draw it now, even in the idle rhythm
@@ -384,6 +388,146 @@ def update_state(change):
     with cond:
         new = change(json.loads(json.dumps(state)))
     return save_state(new)
+
+
+# ---------- 8.8 Live Audience Capture Dock (docs/architecture/audience-dock.md) ----------
+AUDIENCE = audience.Audience()
+_AUD = {"watcher": None, "timer": None, "lock": threading.Lock()}
+
+
+def _on_copy(text, exe, url):
+    AUDIENCE.add(text, exe=exe, url=url)
+
+
+def audience_capture(on):
+    """Capture on/off: the clipboard listener runs only while it is on. Returns whether copies are being watched."""
+    with _AUD["lock"]:
+        w = _AUD["watcher"]
+        if on:
+            if w is None:
+                import capture
+                w = _AUD["watcher"] = capture.ClipboardWatcher(_on_copy)
+            watching = w.start()
+        else:
+            if w is not None:
+                w.stop()
+            watching = False
+    AUDIENCE.set_capture(on)
+    return watching
+
+
+def _audience_expire(card_id):
+    def change(st):
+        live = st.setdefault("live", {})
+        cur = live.get("audience")
+        if isinstance(cur, dict) and cur.get("id") == card_id and not audience.visible(cur):
+            live["audience"] = None
+        return st
+    cur = (state.get("live") or {}).get("audience")
+    if isinstance(cur, dict) and cur.get("id") == card_id:
+        update_state(change)
+
+
+def audience_show(item_id, pin=False):
+    """Put a queued card on screen (live.audience). A timed card is cleared by a timer; a new card replaces the old."""
+    item = AUDIENCE.get(item_id)
+    if not item:
+        raise ValueError("That card is no longer in the queue.")
+    cfg = app_settings()
+    card = audience.live_card(item, pin=pin, seconds=cfg["audienceDur"], share=cfg["audienceShare"])
+
+    def change(st):
+        st.setdefault("live", {})["audience"] = card
+        return st
+    update_state(change)
+    AUDIENCE.mark_shown(item_id)
+    with _AUD["lock"]:
+        if _AUD["timer"]:
+            _AUD["timer"].cancel()
+        _AUD["timer"] = None
+        if card["dur"]:
+            t = _AUD["timer"] = threading.Timer(card["dur"] + 0.1, _audience_expire, args=(card["id"],))
+            t.daemon = True
+            t.start()
+    return card
+
+
+def audience_hide():
+    with _AUD["lock"]:
+        if _AUD["timer"]:
+            _AUD["timer"].cancel()
+        _AUD["timer"] = None
+    if (state.get("live") or {}).get("audience"):
+        def change(st):
+            st.setdefault("live", {})["audience"] = None
+            return st
+        update_state(change)
+
+
+def audience_body():
+    snap = AUDIENCE.snapshot()
+    cfg = app_settings()
+    hook = DESKTOP.get("dock_state")
+    snap.update(live=(state.get("live") or {}).get("audience"), dur=cfg["audienceDur"], share=cfg["audienceShare"],
+                stateRev=state.get("rev", 0), canCapture=os.name == "nt", dock=hook() if hook else {"desktop": False})
+    return snap
+
+
+def audience_action(data):
+    """POST /api/audience {action: capture|add|edit|show|pin|hide|delete|clear|settings, ...} (this PC only)."""
+    act, item_id = str(data.get("action") or ""), str(data.get("id") or "")
+    if act == "capture":
+        return {"watching": audience_capture(bool(data.get("on")))}
+    if act == "add":                                   # a question typed into the dock
+        status, item = AUDIENCE.add(str(data.get("text") or ""), source="clipboard")
+        return {"status": status, "item": item}
+    if act == "edit":
+        item = AUDIENCE.edit(item_id, data.get("name"), data.get("text"))
+        if not item:
+            raise ValueError("That card is no longer in the queue.")
+        cur = (state.get("live") or {}).get("audience")
+        if isinstance(cur, dict) and cur.get("id") == item_id:      # the card on screen follows the edit
+            def change(st):
+                st["live"]["audience"] = dict(cur, name=item["name"], text=item["text"])
+                return st
+            update_state(change)
+        return {"item": item}
+    if act in ("show", "pin"):
+        return {"live": audience_show(item_id, pin=act == "pin" or bool(data.get("pin")))}
+    if act == "hide":
+        audience_hide()
+        return {"live": None}
+    if act == "delete":
+        cur = (state.get("live") or {}).get("audience")
+        if isinstance(cur, dict) and cur.get("id") == item_id:
+            audience_hide()
+        return {"deleted": AUDIENCE.delete(item_id)}
+    if act == "clear":
+        AUDIENCE.clear()
+        return {"ok": True}
+    if act == "settings":
+        ch = {}
+        if "dur" in data:
+            try:
+                ch["audienceDur"] = max(3, min(120, int(data["dur"])))
+            except (TypeError, ValueError):
+                raise ValueError("Seconds must be a number.")
+        if "share" in data:
+            ch["audienceShare"] = bool(data["share"])
+        save_app_settings(ch)
+        cur = (state.get("live") or {}).get("audience")
+        if "audienceShare" in ch and isinstance(cur, dict) and cur.get("share") != ch["audienceShare"]:
+            def change(st):
+                st["live"]["audience"] = dict(cur, share=ch["audienceShare"])
+                return st
+            update_state(change)
+        AUDIENCE.touch()
+        return {"ok": True}
+    raise ValueError("Unknown action")
+
+
+if isinstance(state.get("live"), dict) and state["live"].get("audience"):
+    state["live"]["audience"] = None                  # a card left on screen when FrameDecks closed is not shown again
 
 
 # ---------- Read-only checks used by Settings > Phone & iPad Remote and Diagnostics ----------
@@ -691,6 +835,9 @@ APP_SETTINGS_DEFAULTS = {"remoteAutostart": False, "importDecided": False,
                          "cloudRemote": False,    # Phase 5: run a service from the companion (Settings > FrameDecks account)
                          "memberAuthority": "cloud",   # M-D2: the workspace is the member list's source (no switch on screen)
                          "ai": "auto",            # M-D3: "auto" = use Ollama on this PC when it answers; "off" = never
+                         "audienceDur": 12,       # 8.8 Audience Dock: seconds a shown card stays (3..120)
+                         "audienceShare": False,  # 8.8 also show audience cards on the Share Window and overlay pages
+                         "dockRect": [],          # 8.8 the dock's place and size [x, y, w, h] (empty = beside the Studio)
                          "guide": {}}             # 6.14 Setup guide progress on this PC (app/js/guide.js, _valid_guide)
 APP_SETTING_CHOICES = {"minimizeTo": ("ask", "tray", "taskbar"), "memberAuthority": ("cloud", "pc"), "ai": ("auto", "off"),
                        "prompterLook": ("solid", "presenter", "meeting", "conference", "ghost")}
@@ -724,6 +871,11 @@ def _valid_setting(k, v):
     if k == "spotlightKey":
         from desktop_win import parse_hotkey
         return isinstance(v, str) and (v == "" or parse_hotkey(v) is not None)
+    if k == "audienceDur":
+        return isinstance(v, int) and not isinstance(v, bool) and 3 <= v <= 120
+    if k == "dockRect":
+        return isinstance(v, list) and (v == [] or (len(v) == 4 and all(isinstance(n, int) and not isinstance(n, bool)
+                                                                         and -20000 < n < 20000 for n in v) and v[2] >= 200 and v[3] >= 160))
     return False
 
 
@@ -2085,6 +2237,18 @@ class Handler(BaseHTTPRequestHandler):
                     cond.wait_for(lambda: str(state.get("rev")) != since, timeout=wait)
                 body = state_body(q.get("librev", [None])[0])
             return self.reply(200, body, TYPES[".json"])
+        if path == "/api/audience":                     # 8.8 the Audience Dock's queue (this PC only; long-poll)
+            if not self.is_local():
+                return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
+            q = parse_qs(url.query)
+            since = q.get("since", [None])[0]
+            if since is not None:
+                try:
+                    wait = min(25.0, max(1.0, float(q.get("wait", ["25"])[0])))
+                except ValueError:
+                    wait = 25.0
+                AUDIENCE.wait(since, wait)
+            return self.reply(200, json.dumps(audience_body()), TYPES[".json"])
         if path == "/api/rev":
             return self.reply(200, json.dumps({"rev": state.get("rev", 0)}), TYPES[".json"])
         if path == "/api/presence":
@@ -2260,6 +2424,12 @@ class Handler(BaseHTTPRequestHandler):
             if not hook:
                 return ok({"desktop": False})
             return ok({"desktop": True, "open": bool(hook(data.get("on", "toggle")))})
+        if action == "dock":
+            # 8.8 the Audience Dock window and its handle (the installed app on Windows; a browser opens a pop-up)
+            hook = DESKTOP.get("dock")
+            if not hook:
+                return ok({"desktop": False})
+            return ok(dict(hook(str(data.get("op") or "toggle"), data) or {}, desktop=True))
         if action == "window":
             # v6.4 native window: the page says whether it is dark or light; the title bar follows
             hook = DESKTOP.get("window_theme")
@@ -2470,6 +2640,14 @@ class Handler(BaseHTTPRequestHandler):
                 return self.reply(200, json.dumps({"ok": True, **res, "studio": remote_studio_info()}), TYPES[".json"])
             except (ValueError, RuntimeError) as e:
                 return self.reply(400, json.dumps({"error": str(e)}), TYPES[".json"])
+        if path == "/api/audience":
+            if not self.is_local():
+                return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
+            try:
+                res = audience_action(data if isinstance(data, dict) else {})
+            except ValueError as e:
+                return self.reply(400, json.dumps({"error": str(e)}), TYPES[".json"])
+            return self.reply(200, json.dumps(dict(res, **audience_body())), TYPES[".json"])
         if path.startswith("/api/app/"):
             if not self.is_local():
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")

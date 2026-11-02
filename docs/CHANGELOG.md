@@ -45,6 +45,22 @@ Versions before 4.9 (when the program had its earlier name) are described in the
 - The favicons, the tray icon and the small program-icon sizes (16–32 px) use a heavier version of the emblem, so it
   stays visible on light browser tabs and a light taskbar. Larger sizes are unchanged.
 
+## [8.8.0] - 2026-11-02
+
+Full notes: [docs/releases/v8.8.0.md](releases/v8.8.0.md). Design: [docs/architecture/audience-dock.md](architecture/audience-dock.md).
+
+### Added
+- Audience Dock (`app/audience.html`, `app/js/audience.js`, `app/css/audience.css`, handle `app/audience-handle.html`):
+  a click-through, always-on-top window kept out of capture; Ctrl+Shift or the handle's pin makes it usable; 85 % /
+  20 % under the pointer / 100 % (`src/dock.py`); place and size saved (`dockRect`).
+- Capture: `src/capture.py` (Windows clipboard listener, only while Capture is on; skips password managers' private
+  copies and FrameDecks' own) and `src/audience.py` (sender parsing, source app, duplicates, the in-memory queue).
+- `GET/POST /api/audience` (this PC only; long-poll) and `POST /api/app/dock`; settings `audienceDur`,
+  `audienceShare`.
+- `live.audience` {id, name, text, src, at, dur, share}: drawn on FrameRelay by `vcam/program.py` with a countdown
+  line; on the overlay pages by `KCScenes.liveAudience` (Studio preview always, others with `share`); the Share
+  Window gets the frame without it unless shared; cleared by its timer, Hide, Hide all and the tray.
+
 ## [8.7.0] - 2026-11-02
 
 Full notes: [docs/releases/v8.7.0.md](releases/v8.7.0.md).

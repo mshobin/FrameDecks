@@ -63,6 +63,7 @@ function commands(){
     ['freeze', 'Freeze the picture on / off', 'hold', function(){ if (PT) PT.freeze(); }, 'F'],
     ['annotate', 'Annotate on / off', 'draw pen ink', function(){ if (PT) PT.annotate(); }, 'D'],
     ['prompter', 'Teleprompter on / off', 'script notes prompter speaker overlay zoom teams on top', function(){ if (TP) TP.toggle(); }, 'R'],
+    ['audience', 'Audience Dock on / off', 'chat question zoom teams youtube twitch comment capture clipboard copy audience card', function(){ if (window.KCAudienceDock) window.KCAudienceDock.toggle(); }],
     ['share', 'Share Window (Presentation window)', 'present window zoom share screen', function(){ studio(); click($('s2-present')); }],
     ['frameimport', 'Import Frame File (.frame)', 'import frame file offline service pc website plan', function(){ settings('data'); if (window.KCFrameFile && window.KCFrameFile.pick) window.KCFrameFile.pick(); }],
     ['guide', 'Step-by-step guide (framedecks.com/help)', 'help guide how to start learn tutorial', function(){ window.open('https://framedecks.com/help#guide', '_blank', 'noopener'); }],

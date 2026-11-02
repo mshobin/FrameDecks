@@ -1,4 +1,12 @@
-# FrameDecks: feature documentation (v8.6)
+# FrameDecks: feature documentation (v8.8)
+
+## v8.8 at a glance
+| Feature | What it does | Where it lives |
+| --- | --- | --- |
+| **Audience Dock** | Live tools → **Audience Dock**, the tray or the command palette. A narrow window above Zoom, Teams or a browser chat: clicks pass through it (click-through), it never takes the keyboard, it is left out of screen sharing and recordings. 85 % visible, 20 % while the pointer is over it, fully visible and clickable while **Ctrl+Shift** is held or the handle's **📌** is on. The handle on its top edge is always clickable: ⠿ move, ⤡ resize, 📌 keep usable, ⚙ settings, ✕ close. Place and size remembered (`dockRect`). In a browser: a pop-up that takes typed questions | `app/audience.html`, `app/audience-handle.html`, `app/js/audience.js`, `src/dock.py`, `src/desktop_app.py`, `src/desktop_win.py` |
+| **Capture (Ctrl+C)** | With **Capture** on, a copied chat message becomes a card (*✓ Audience Question Captured*). Sender found from Zoom's *From X to Y:*, a name line or *Name: message*; source app from the program in front (Zoom, Teams, Discord) or the page a browser copied from (YouTube, Twitch, Facebook, Teams, Zoom); empty, too long (over 2,000 characters) and repeated copies ignored; password managers' private copies never read. Zoom private messages are marked **Private** and need a second click. The queue is in memory only (up to 100 cards) | `src/capture.py`, `src/audience.py`, `src/server.py` (`/api/audience`) |
+| **Audience card on screen** | **Show** (12 s by default, 3–120, with a thin gold countdown line), **Pin** (until hidden), **Hide** / **Esc**; a new card replaces the one on screen; edits follow on screen. On FrameRelay always; on the Share Window and overlay pages only with **Also show on Share Window**; always in the Studio preview. Hide all and the tray's Hide all overlays clear it | `src/vcam/program.py`, `src/vcam/compositor.py`, `app/js/store.js` (`liveAudience`), `app/js/overlay.js`, `app/css/overlay.css` |
+
 
 ## v8.6 at a glance
 | Feature | What it does | Where it lives |

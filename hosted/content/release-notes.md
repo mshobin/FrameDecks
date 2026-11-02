@@ -1,26 +1,47 @@
-## FrameDecks v8.7.0
+## FrameDecks v8.8.0
 
-A new look for the Spotlight: press Ctrl twice and a soft, see-through circle lands where you point. Download from
-**framedecks.com/download**, or let FrameDecks update itself. It installs over 8.6.0 and earlier and keeps all your
-meetings, members, settings and recordings.
+The Audience Dock: put a viewer's chat message on screen with Ctrl+C. Download from **framedecks.com/download**, or let
+FrameDecks update itself. It installs over 8.7.0 and earlier and keeps all your meetings, members, settings and
+recordings.
 
 ## What's New
-- **Soft disc Spotlight.** Press **Ctrl** twice over the Studio Canvas (or use the Spotlight tool in Annotate) and a
-  bigger, see-through white disc lands on the word with a ripple, breathes gently while it stays, then closes softly.
-  Everyone sees it: on FrameRelay in Zoom or Teams, in recordings and on the overlay pages.
-- **Spotlight settings.** Choose **Soft disc** or **Gold ring** (the glowing gold circle with sparks of 8.2), the
-  colour, the size, how long it stays and how see-through it is, beside the Annotate toolbar or in **Settings →
-  Transitions → Spotlight (Ctrl twice)**, with **Try it**.
+- **Audience Dock.** Live tools → **Audience Dock** (also in the tray and the command palette) opens a narrow window that
+  floats above Zoom, Teams or a browser chat. Clicks pass through it to the chat underneath, it never takes the
+  keyboard from your meeting, and it is left out of screen sharing and recordings.
+- **Capture with Ctrl+C.** Turn on **Capture**, select a message in any chat (Zoom, Teams, YouTube, Twitch, Facebook
+  Live, Discord or anything else) and press **Ctrl+C**. The message becomes a card in the dock with
+  *✓ Audience Question Captured*: no pasting. FrameDecks fills in the sender when the copied text says who wrote it
+  (Zoom's *From Sarah to Everyone*, a name line above the message, or *Sarah: message*) and marks the app it came from.
+  Empty copies and repeats are ignored.
+- **Show, Pin, Hide.** **Show** fades the card onto the FrameRelay camera for 12 seconds with a thin countdown line;
+  **Pin** keeps it until you hide it; **Hide** (or **Esc**) fades it out. A new card replaces the one on screen.
+  *Currently live* in the dock shows what is on screen. Sender and message can be edited before or while shown.
+- **Ctrl+Shift to use the dock.** Hold **Ctrl+Shift** and the dock becomes fully visible and clickable; let go and clicks
+  pass through again. The small handle on the dock's top edge is always clickable: move, resize, **📌** keep the dock
+  usable (to type in a card), **⚙** settings and **✕** close.
 
 ## Enhancements
-- The Spotlight is bigger by default, so it is easy to see on a projector and in a video meeting.
+- The dock is 85% visible, and fades to 20% while the pointer is over it so the chat beneath stays readable. It
+  remembers where it was and its size.
+- Settings in the dock: seconds on screen (3–120, default 12) and **Also show on Share Window** (off: the card is on
+  FrameRelay only; on: also on the Share Window and the overlay pages). The Studio's preview always shows it.
+- Hide all (**Esc** in the Studio, the tray's Hide all overlays) hides the audience card too.
+- You can also type a question into the dock.
 
 ## Fixes
 - No separate fixes in this version.
 
 ## Performance Improvements
-- The soft disc on the FrameRelay picture is drawn only while it plays, in the small square around it.
+- The clipboard is watched only while Capture is on, with Windows' own clipboard notice: no polling, no keyboard hook.
+- The dock checks the keys and the pointer about 30 times a second while the pointer is near it and 10 times a second
+  otherwise, only while the dock is open.
 
 ## Known Issues
 - The installer is not yet code-signed, so Windows SmartScreen may ask you to confirm: **More info → Run anyway**.
-- A Spotlight set to gold on this PC before 8.7 becomes the white soft disc; choose **Gold ring** to go back.
+- Clipboard capture, click-through and Ctrl+Shift are Windows only. In a browser the dock opens as a pop-up and takes
+  typed questions.
+- The sender's name is found only when the copied text includes it; otherwise the card says *Audience* and the name can
+  be typed in.
+- Copies that password managers mark as private are never captured. Zoom's private messages are marked **Private** and
+  need a second click to show.
+- Exclusive full-screen apps may cover the dock.
