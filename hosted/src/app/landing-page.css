@@ -419,10 +419,10 @@
   transform: translate3d(8%, 0, 0);
   visibility: hidden;
   transition:
-    opacity 0.55s var(--ease-out),
-    transform 0.7s var(--ease-out),
-    filter 0.55s var(--ease-out),
-    visibility 0s linear 0.55s;
+    opacity 0.4s var(--ease-out),
+    transform 0.5s var(--ease-out),
+    filter 0.4s var(--ease-out),
+    visibility 0s linear 0.4s;
 }
 
 .lp-screen.is-prev {
@@ -1712,7 +1712,7 @@
 
 @media (prefers-reduced-motion: no-preference) {
 html.fd-motion:not(.fd-calm) .lp-how[data-auto] .lp-tab.is-on .lp-tab-bar i {
-    animation: lp-tab-fill 6s linear both paused;
+    animation: lp-tab-fill 4s linear both paused;
   }
 
 html.fd-motion:not(.fd-calm) .lp-how[data-run] .lp-tab.is-on .lp-tab-bar i {
@@ -1813,18 +1813,27 @@ html.fd-light .lp-cta-panel {
   }
 }
 
-/* 8.6 light: grey bands between white sections, as on Apple's pages; the features sit on a clearly grey band */
-html.fd-light #features::before {
+/* 8.6 bands between sections, as on Apple's pages: a deeper navy in dark, grey in light; solid cards on them */
+#features::before {
   border: 0;
+  background: #0b111e;
+}
+
+html.fd-light #features::before {
   background: #f5f5f7;
+}
+
+.lp-features,
+.lp-faq details,
+.lp-tab.is-on {
+  background: var(--surface);
+  box-shadow: var(--shadow);
 }
 
 html.fd-light .lp-features,
 html.fd-light .lp-faq details,
 html.fd-light .lp-tab.is-on {
   border-color: transparent;
-  background: #fff;
-  box-shadow: var(--shadow);
 }
 
 html.fd-light .lp-h2,

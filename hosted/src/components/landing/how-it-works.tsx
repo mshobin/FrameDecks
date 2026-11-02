@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 
 import { STEP_SCREENS } from "@/components/landing/step-screens";
 
-// "How it works": the four days in a list beside one app window. The active day's gold line fills over 6 s (a CSS
+// "How it works": the four days in a list beside one app window. The active day's gold line fills over 4 s (a CSS
 // animation, landing-page.css) and its end slides the window to the next day; after the last it starts again (8.6:
 // no Play, Previous or Next). It plays only while the section is on screen, holds while the pointer or keyboard focus
 // is on it, and never starts under "reduce motion" or "Reduce effects": then a day is chosen by clicking it.

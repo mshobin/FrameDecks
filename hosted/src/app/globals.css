@@ -13,22 +13,22 @@
 :root {
   /* FrameDecks design tokens (2026-10 redesign: Apple-style clarity, deference and depth on the brand's navy and gold) */
   color-scheme: dark;
-  --background: #070c18;
+  --background: #05080f;
   --foreground: #f5f7fb;
   --text: #f5f7fb;
   --text-2: #aeb8cc;
   --text-3: #8793ad; /* at least 4.5:1 on every surface (design audit DD-19) */
   --muted: #aeb8cc;
-  --surface: rgba(20, 30, 54, 0.62);
-  --surface-solid: #111a2f;
-  --surface-2: rgba(30, 42, 70, 0.55);
-  --fill: rgba(120, 140, 180, 0.12);
-  --fill-hover: rgba(120, 140, 180, 0.2);
-  --field: rgba(5, 10, 22, 0.55);
+  --surface: #0f1626; /* 8.6 solid, quiet surfaces in dark, as polished as the light theme */
+  --surface-solid: #0f1626;
+  --surface-2: #151d30;
+  --fill: rgba(150, 170, 210, 0.08);
+  --fill-hover: rgba(150, 170, 210, 0.14);
+  --field: #0a0f1c;
   --hairline: rgba(255, 255, 255, 0.08);
   --hairline-strong: rgba(255, 255, 255, 0.14);
   --border: rgba(255, 255, 255, 0.08);
-  --sidebar: rgba(8, 13, 26, 0.72);
+  --sidebar: rgba(6, 9, 17, 0.82);
   --gold: #e3b75a;
   --gold-2: #f4d58e;
   --focus: #f4d58e; /* the keyboard focus ring, everywhere */
@@ -42,8 +42,7 @@
   --radius-lg: 20px;
   --radius: 14px;
   --radius-sm: 10px;
-  --shadow: inset 0 1px 0 rgba(244, 213, 142, 0.12), 0 1px 0 rgba(255, 255, 255, 0.04) inset, 0 30px 60px -40px rgba(0, 0, 0, 0.8),
-    0 12px 30px -18px rgba(0, 0, 0, 0.45); /* a faint gold top edge and a deep soft shadow (the landing's product windows) */
+  --shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 1px 2px rgba(0, 0, 0, 0.4), 0 24px 48px -28px rgba(0, 0, 0, 0.8); /* a faint top edge and a soft shadow */
   --font: "Source Sans 3", "Segoe UI", system-ui, -apple-system, sans-serif;
   --font-display: "Source Sans 3", "Segoe UI", system-ui, -apple-system, sans-serif;
 }

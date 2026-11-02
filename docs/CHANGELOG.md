@@ -56,6 +56,9 @@ Versions before 4.9 (when the program had its earlier name) are described in the
 - Frame editor: each Content is its own bordered block with a header strip; the one being edited is outlined.
 - Help Center: **Back** (where you came from on this site, else Home) and links to Home, Plan, Live, Download and
   Documentation.
+- Dark theme as polished as the light one: solid navy surfaces instead of see-through glass, quieter lines and soft
+  shadows (`globals.css` tokens), a deeper navy band behind the features.
+- How it works moves on every 4 s (was 6 s), with quicker slides between days.
 
 ## [8.6.0] - 2026-11-02
 

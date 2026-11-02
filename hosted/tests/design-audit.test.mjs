@@ -94,7 +94,7 @@ test("the landing page carries the owner's brief (27 October): approved words, e
   assert.match(how, /onAnimationEnd/);
   assert.match(how, /go\(step \+ 1\)/); // the last day's end starts the first again
   assert.doesNotMatch(how, /Previous step|Play the steps/);
-  assert.match(src("app/landing-page.css"), /\.lp-how\[data-auto\] \.lp-tab\.is-on \.lp-tab-bar i \{\s*animation: lp-tab-fill 6s linear both paused;/);
+  assert.match(src("app/landing-page.css"), /\.lp-how\[data-auto\] \.lp-tab\.is-on \.lp-tab-bar i \{\s*animation: lp-tab-fill 4s linear both paused;/);
   assert.match(src("app/landing-page.css"), /\.lp-how\[data-run\] \.lp-tab\.is-on \.lp-tab-bar i \{\s*animation-play-state: running;/);
   assert.equal(JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8")).dependencies.gsap, undefined);
   assert.match(landing, /FAQ\.slice\(0, 4\)/);

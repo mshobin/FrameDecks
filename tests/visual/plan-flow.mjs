@@ -63,7 +63,7 @@ await p.screenshot({ path: SP + "/plan-top.png", fullPage: false });
 await p.addScriptTag({ path: require.resolve("axe-core/axe.min.js") });
 const ax = await p.evaluate(() => window.axe.run(document, { runOnly: ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"] }));
 const own = ax.violations.filter((v) => !v.nodes.every((n) => n.target.join(" ").includes("cookies")));
-check(!own.length, `axe on the Plan page: ${own.map((v) => v.id).join(", ") || "none"}`);
+check(!own.length, `axe on the Plan page: ${own.map((v) => v.id + " " + v.nodes.map((n) => n.target.join(" ") + " " + (n.any[0]?.message || "").slice(0, 120)).join(" ; ")).join(", ") || "none"}`);
 check((await p.evaluate(() => document.documentElement.scrollWidth - innerWidth)) <= 0, "no sideways scrolling");
 const st = await p.$$eval(".flow-steps li", (l) => l.map((x) => x.className));
 check(st.join() === "is-done,is-done,is-done,is-now,is-todo", `steps: ${st}`);

@@ -85,6 +85,7 @@
 .fc-head span{display:grid;gap:2px;min-width:0}
 .fc-head strong{overflow:hidden;font-size:16px;white-space:nowrap;text-overflow:ellipsis}
 .fc-head small,.fc-text small,.fc-hint{color:var(--text-3);font-size:12px}
+.fc-head small{color:var(--text-2)}
 .fc-node{display:grid;grid-template-columns:44px minmax(0,1fr) auto;align-items:center;gap:6px;transition:opacity .2s}
 .fc-node[draggable=true]{cursor:grab}
 .fc-node.is-dragging{opacity:.4}
