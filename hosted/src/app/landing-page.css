@@ -295,34 +295,46 @@
 
 .lp-tabs {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 10px;
-  margin-bottom: clamp(20px, 2.5vw, 28px);
+  gap: 6px;
+  align-content: center;
 }
 
 .lp-tab {
   display: grid;
-  gap: 2px;
-  padding: 10px 2px 0;
-  border: 0;
+  grid-template-columns: 3px minmax(0, 1fr);
+  column-gap: 16px;
+  padding: 14px 18px 14px 14px;
+  border: 1px solid transparent;
+  border-radius: 16px;
   background: none;
   color: var(--text-3);
   font: inherit;
   text-align: left;
   cursor: pointer;
+  transition: background 0.4s var(--ease-out), border-color 0.4s var(--ease-out), box-shadow 0.4s var(--ease-out);
+}
+
+.lp-tab:hover {
+  background: var(--fill);
+}
+
+.lp-tab.is-on {
+  border-color: var(--hairline);
+  background: var(--surface);
+  box-shadow: 0 20px 40px -30px rgba(0, 0, 0, 0.45);
 }
 
 .lp-tab-label {
-  color: var(--gold);
+  color: var(--gold-2);
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  opacity: 0.75;
 }
 
 .lp-tab-title {
-  font-size: 16px;
+  margin-top: 2px;
+  font-size: 18px;
   font-weight: 700;
   transition: color 0.4s var(--ease-out);
 }
@@ -332,15 +344,26 @@
   color: var(--text);
 }
 
-.lp-tab.is-on .lp-tab-label {
+.lp-tab-text {
+  overflow: hidden;
+  max-height: 0;
+  color: var(--text-2);
+  font-size: 15px;
+  line-height: 1.55;
+  opacity: 0;
+  transition: max-height 0.5s var(--ease-out), opacity 0.4s var(--ease-out), margin 0.5s var(--ease-out);
+}
+
+.lp-tab.is-on .lp-tab-text {
+  max-height: 9em;
+  margin-top: 6px;
   opacity: 1;
 }
 
 .lp-tab-bar {
   position: relative;
+  grid-row: 1 / span 3;
   overflow: hidden;
-  height: 3px;
-  margin-top: 10px;
   border-radius: 3px;
   background: var(--hairline-strong);
 }
@@ -349,72 +372,29 @@
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  background: linear-gradient(90deg, var(--gold), var(--gold-2));
-  transform: scaleX(0);
-  transform-origin: 0 50%;
+  background: linear-gradient(180deg, var(--gold), var(--gold-2));
+  transform: scaleY(0);
+  transform-origin: 50% 0;
 }
 
-.lp-tab.is-done .lp-tab-bar i,
 .lp-tab.is-on .lp-tab-bar i {
   transform: none;
 }
 
+.lp-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
 .lp-how-body {
   display: grid;
-  grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.6fr);
   gap: clamp(28px, 4vw, 56px);
   align-items: center;
-}
-
-.lp-how-copy h3 {
-  margin: 6px 0 0;
-  color: var(--text);
-  font-size: clamp(22px, 2.2vw, 28px);
-  font-weight: 800;
-  letter-spacing: -0.02em;
-}
-
-.lp-how-day {
-  margin: 0;
-  color: var(--gold);
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-}
-
-.lp-how-now {
-  min-height: 4.8em;
-  margin: 12px 0 0;
-  color: var(--text-2);
-  font-size: 16px;
-  line-height: 1.6;
-}
-
-.lp-how-controls {
-  display: flex;
-  gap: 8px;
-  margin-top: 18px;
-}
-
-.lp-round {
-  display: inline-grid;
-  width: 40px;
-  height: 40px;
-  place-items: center;
-  border: 1px solid var(--hairline-strong);
-  border-radius: 999px;
-  background: none;
-  color: var(--text-2);
-  cursor: pointer;
-  transition:
-    border-color 0.3s var(--ease-out),
-    color 0.3s var(--ease-out);
-}
-
-.lp-round:hover {
-  border-color: rgba(227, 183, 90, 0.6);
-  color: var(--text);
 }
 
 .lp-how-stage {
@@ -436,13 +416,17 @@
   inset: 0;
   opacity: 0;
   pointer-events: none;
-  transform: scale(0.97);
+  transform: translate3d(8%, 0, 0);
   visibility: hidden;
   transition:
     opacity 0.55s var(--ease-out),
     transform 0.7s var(--ease-out),
     filter 0.55s var(--ease-out),
     visibility 0s linear 0.55s;
+}
+
+.lp-screen.is-prev {
+  transform: translate3d(-8%, 0, 0);
 }
 
 .lp-screen.is-on {
@@ -570,21 +554,18 @@
   gap: 14px;
 }
 
-.lp-mini-slide,
 .lp-room {
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
-.lp-mini-slide span,
 .lp-room span,
 .lp-present-out span {
   color: #aeb8cc;
   font-size: 0.85em;
 }
 
-.lp-mini-slide p,
 .lp-room-screen {
   position: relative;
   display: grid;
@@ -1176,6 +1157,20 @@
   line-height: 1.35;
 }
 
+.lp-prompter-mini {
+  display: flex;
+}
+
+.lp-prompter-mini .lp-prompter-view {
+  flex: 1;
+  height: auto;
+}
+
+.lp-prompter-mini p {
+  padding: 5px 14px;
+  font-size: 1.15em;
+}
+
 .lp-prompter-line {
   position: absolute;
   top: 44%;
@@ -1486,6 +1481,10 @@
   .lp-feature {
     grid-template-columns: minmax(0, 1fr);
   }
+
+.lp-how-stage {
+    order: -1;
+  }
 }
 
 @media (max-width: 960px) {
@@ -1529,7 +1528,7 @@
     grid-template-columns: 1fr;
   }
 
-.lp-mini-slide {
+.lp-room {
     display: none;
   }
 }
@@ -1551,7 +1550,15 @@
   }
 
 .lp-tabs {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2px;
+  }
+
+.lp-tab {
+    padding: 10px 14px 10px 10px;
+  }
+
+.lp-tab-title {
+    font-size: 16px;
   }
 
 .lp-proof,
@@ -1777,6 +1784,7 @@ html.fd-light .lp-cta-panel {
 /* 8.6 the width of the screen: the features on a full-width band, the questions beside their heading */
 #features {
   position: relative;
+  isolation: isolate;
   padding-bottom: clamp(48px, 6vw, 88px);
 }
 
@@ -1803,4 +1811,23 @@ html.fd-light .lp-cta-panel {
     margin: 0;
     text-align: left;
   }
+}
+
+/* 8.6 light: grey bands between white sections, as on Apple's pages; the features sit on a clearly grey band */
+html.fd-light #features::before {
+  border: 0;
+  background: #f5f5f7;
+}
+
+html.fd-light .lp-features,
+html.fd-light .lp-faq details,
+html.fd-light .lp-tab.is-on {
+  border-color: transparent;
+  background: #fff;
+  box-shadow: var(--shadow);
+}
+
+html.fd-light .lp-h2,
+html.fd-light .lp-title {
+  letter-spacing: -0.035em;
 }

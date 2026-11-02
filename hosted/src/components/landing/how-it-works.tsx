@@ -1,15 +1,13 @@
 "use client";
 
 import { useEffect, useRef, useState, type KeyboardEvent } from "react";
-import { ChevronLeft, ChevronRight, Pause, Play } from "lucide-react";
 
 import { STEP_SCREENS } from "@/components/landing/step-screens";
 
-// "How it works" (6.13, replacing the scroll-pinned guide and GSAP): four tabs over one app window, played like
-// stories. The active tab's gold bar fills over 6 s (a CSS animation, landing.css "how it works") and its end moves
-// to the next step. It plays only while the section is on screen, holds while the pointer or keyboard focus is on it,
-// stops for good after one round or when someone picks a step, and never starts under "reduce motion" or
-// "Reduce effects": step 1 simply waits there.
+// "How it works": the four days in a list beside one app window. The active day's gold line fills over 6 s (a CSS
+// animation, landing-page.css) and its end slides the window to the next day; after the last it starts again (8.6:
+// no Play, Previous or Next). It plays only while the section is on screen, holds while the pointer or keyboard focus
+// is on it, and never starts under "reduce motion" or "Reduce effects": then a day is chosen by clicking it.
 
 export type Step = Readonly<{ label: string; title: string; text: string; callout: string; image?: string }>;
 
@@ -26,8 +24,8 @@ export function HowItWorks({
 }: Readonly<{ steps: readonly Step[]; eyebrow: string; title: string; lead: string }>) {
   const section = useRef<HTMLElement>(null);
   const [step, setStep] = useState(0);
+  const [prev, setPrev] = useState(steps.length - 1);
   const [auto, setAuto] = useState(false);
-  const [paused, setPaused] = useState(false);
   const [hold, setHold] = useState(false);
   const [inView, setInView] = useState(false);
 
@@ -36,39 +34,25 @@ export function HowItWorks({
     setAuto(motionAllowed());
     const el = section.current;
     if (!el) return;
-    const seen = new IntersectionObserver(([e]) => setInView(e.isIntersecting), { threshold: 0.4 });
+    const seen = new IntersectionObserver(([e]) => setInView(e.isIntersecting), { threshold: 0.35 });
     seen.observe(el);
     return () => seen.disconnect();
   }, []);
 
-  const running = auto && !paused && !hold && inView;
+  const running = auto && !hold && inView;
 
-  function next() {
-    if (step < steps.length - 1) setStep(step + 1);
-    else setAuto(false); // one round, then it rests on the last step
-  }
-
-  function pick(i: number) {
-    setStep((i + steps.length) % steps.length);
-    setAuto(false);
-  }
-
-  function toggle() {
-    if (auto) {
-      setPaused(!paused);
-      return;
-    }
-    if (!motionAllowed()) return;
-    if (step === steps.length - 1) setStep(0);
-    setPaused(false);
-    setAuto(true);
+  function go(i: number) {
+    const to = (i + steps.length) % steps.length;
+    if (to === step) return;
+    setPrev(step);
+    setStep(to);
   }
 
   function keys(e: KeyboardEvent<HTMLDivElement>) {
-    if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
+    if (e.key !== "ArrowDown" && e.key !== "ArrowUp" && e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
     e.preventDefault();
-    const to = (step + (e.key === "ArrowRight" ? 1 : -1) + steps.length) % steps.length;
-    pick(to);
+    const to = (step + (e.key === "ArrowDown" || e.key === "ArrowRight" ? 1 : -1) + steps.length) % steps.length;
+    go(to);
     document.getElementById(`lp-step-tab-${to}`)?.focus();
   }
 
@@ -96,30 +80,33 @@ export function HowItWorks({
         <p>{lead}</p>
       </div>
 
-      <div className="lp-tabs" role="tablist" aria-label="The four steps" onKeyDown={keys}>
-        {steps.map((s, i) => (
-          <button
-            key={s.title}
-            type="button"
-            role="tab"
-            id={`lp-step-tab-${i}`}
-            aria-selected={i === step}
-            aria-controls="lp-step-panel"
-            tabIndex={i === step ? 0 : -1}
-            className={i === step ? "lp-tab is-on" : i < step ? "lp-tab is-done" : "lp-tab"}
-            onClick={() => pick(i)}
-          >
-            <span className="lp-tab-label">{s.label}</span>
-            <span className="lp-tab-title">{s.title}</span>
-            <span className="lp-tab-bar" aria-hidden="true">
-              <i key={i === step ? `on-${step}` : "off"} onAnimationEnd={i === step ? next : undefined} />
-            </span>
-          </button>
-        ))}
-      </div>
+      <div className="lp-how-body">
+        {/* 8.6: the days and their words in one list beside the window; the steps play in a loop by themselves
+            (pointing at the section holds them), and a day can still be chosen */}
+        <div className="lp-tabs" role="tablist" aria-orientation="vertical" aria-label="The four steps" onKeyDown={keys}>
+          {steps.map((s, i) => (
+            <button
+              key={s.title}
+              type="button"
+              role="tab"
+              id={`lp-step-tab-${i}`}
+              aria-selected={i === step}
+              aria-controls="lp-step-panel"
+              tabIndex={i === step ? 0 : -1}
+              className={i === step ? "lp-tab is-on" : "lp-tab"}
+              onClick={() => go(i)}
+            >
+              <span className="lp-tab-bar" aria-hidden="true">
+                <i key={i === step ? `on-${step}` : "off"} onAnimationEnd={i === step ? () => go(step + 1) : undefined} />
+              </span>
+              <span className="lp-tab-label">{s.label}</span>
+              <span className="lp-tab-title">{s.title}</span>
+              <span className="lp-tab-text">{s.text}</span>
+            </button>
+          ))}
+        </div>
 
-      <div className="lp-how-body" id="lp-step-panel" role="tabpanel" aria-labelledby={`lp-step-tab-${step}`}>
-        <div className="lp-how-stage">
+        <div className="lp-how-stage" id="lp-step-panel" role="tabpanel" aria-labelledby={`lp-step-tab-${step}`}>
           <div className="lp-window lp-how-window fd-framed">
             <div className="lp-window-bar" aria-hidden="true">
               <i />
@@ -131,7 +118,7 @@ export function HowItWorks({
               {steps.map((s, i) => {
                 const Screen = STEP_SCREENS[i];
                 return (
-                  <div key={s.title} className={i === step ? "lp-screen is-on" : "lp-screen"} aria-hidden={i !== step}>
+                  <div key={s.title} className={i === step ? "lp-screen is-on" : i === prev ? "lp-screen is-prev" : "lp-screen"} aria-hidden={i !== step}>
                     <Screen image={s.image} alt={`${s.label}: ${s.title}`} />
                   </div>
                 );
@@ -141,25 +128,9 @@ export function HowItWorks({
           <span className="lp-callout" key={step}>
             {active.callout}
           </span>
-        </div>
-
-        <div className="lp-how-copy">
-          <p className="lp-how-day">{active.label}</p>
-          <h3>{active.title}</h3>
-          <p className="lp-how-now" aria-live="polite">
-            {active.text}
+          <p className="lp-sr" aria-live="polite">
+            {active.label}: {active.title}. {active.text}
           </p>
-          <div className="lp-how-controls">
-            <button type="button" className="lp-round" aria-label="Previous step" onClick={() => pick(step - 1)}>
-              <ChevronLeft aria-hidden="true" size={18} />
-            </button>
-            <button type="button" className="lp-round" aria-label={auto && !paused ? "Pause" : "Play the steps"} onClick={toggle}>
-              {auto && !paused ? <Pause aria-hidden="true" size={16} /> : <Play aria-hidden="true" size={16} />}
-            </button>
-            <button type="button" className="lp-round" aria-label="Next step" onClick={() => pick(step + 1)}>
-              <ChevronRight aria-hidden="true" size={18} />
-            </button>
-          </div>
         </div>
       </div>
     </section>

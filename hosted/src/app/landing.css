@@ -308,7 +308,7 @@
 
   @keyframes lp-tab-fill {
     from {
-      transform: scaleX(0);
+      transform: scaleY(0);
     }
     to {
       transform: none;

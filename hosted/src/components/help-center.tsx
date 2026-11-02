@@ -5,9 +5,15 @@
 // the older anchors (#guide, #start, #day, #problems, #words, #contact) still land on the right topic.
 // Keep the words in docs/guide/glossary.md's language and true to the product; longer guides live in /docs.
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import {
+  ArrowLeft,
   BookOpen,
+  ClipboardList,
+  Download,
+  Home,
+  Radio,
   ChevronDown,
   CreditCard,
   Layers,
@@ -24,6 +30,7 @@ import { HelpGuide } from "@/components/help-guide";
 import { ShowGuide } from "@/components/show-guide";
 import brand from "@/lib/brand.json";
 import { DOWNLOADS } from "@/lib/pc-setup";
+import { useSession } from "@/lib/use-session";
 import "@/app/help/guide.css";
 
 type Topic = { id: string; label: string; icon: LucideIcon; blurb: string; body: () => ReactNode };
@@ -357,7 +364,21 @@ export function topicFromHash(hash: string): { topic: string; anchor?: string } 
   return { topic: TOPICS[0].id };
 }
 
+/** Back where the person came from on this site, else Home (8.6: Help had no way back but the browser's). */
+function back(home: () => void) {
+  let same = false;
+  try {
+    same = !!document.referrer && new URL(document.referrer).origin === location.origin && !/\/help\/?$/.test(new URL(document.referrer).pathname);
+  } catch {
+    same = false;
+  }
+  if (same && history.length > 1) history.back();
+  else home();
+}
+
 export function HelpCenter() {
+  const session = useSession();
+  const router = useRouter();
   const [active, setActive] = useState(TOPICS[0].id);
   const [open, setOpen] = useState(false);
   const panel = useRef<HTMLDivElement>(null);
@@ -383,8 +404,26 @@ export function HelpCenter() {
     panel.current?.focus({ preventScroll: true });
   }
 
+  const places: [string, string, LucideIcon][] = [
+    ["/", "Home", Home],
+    ...(session ? ([["/plan", "Plan", ClipboardList], ["/live", "Live", Radio]] as [string, string, LucideIcon][]) : []),
+    [DOWNLOADS, "Download", Download],
+    ["/docs", "Documentation", BookOpen],
+  ];
   return (
     <div className="hc">
+      <div className="hc-top">
+        <button type="button" className="hc-back" onClick={() => back(() => router.push("/"))}>
+          <ArrowLeft aria-hidden="true" size={16} /> Back
+        </button>
+        <nav className="hc-places" aria-label="Go to">
+          {places.map(([href, label, Icon]) => (
+            <Link key={href} href={href}>
+              <Icon aria-hidden="true" size={15} /> {label}
+            </Link>
+          ))}
+        </nav>
+      </div>
       <nav className={`hc-nav${open ? " is-open" : ""}`} aria-label="Help topics">
         <button type="button" className="hc-toggle" aria-expanded={open} aria-controls="hc-topics" onClick={() => setOpen((o) => !o)}>
           <topic.icon aria-hidden="true" size={18} />

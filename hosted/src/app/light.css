@@ -3,38 +3,39 @@
  * chose Light, or chose Auto (the default) and the device is in light mode; components/theme-toggle.tsx changes it.
  * Only the few surfaces painted with fixed dark colours need their own rule below. */
 html.fd-light {
+  /* 8.6 an Apple-like light: a near-white page, white cards, quiet grey panels, soft shadows instead of lines */
   color-scheme: light;
-  --background: #f4f5f9;
-  --foreground: #121a2b;
-  --text: #121a2b;
-  --text-2: #46516a;
-  --text-3: #5c6780;
-  --muted: #46516a;
-  --surface: rgba(255, 255, 255, 0.86);
+  --background: #fbfbfd;
+  --foreground: #1d1d1f;
+  --text: #1d1d1f;
+  --text-2: #424245;
+  --text-3: #5f5f66;
+  --muted: #424245;
+  --surface: #ffffff;
   --surface-solid: #ffffff;
-  --surface-2: rgba(255, 255, 255, 0.7);
-  --fill: rgba(20, 40, 80, 0.06);
-  --fill-hover: rgba(20, 40, 80, 0.1);
+  --surface-2: #f5f5f7;
+  --fill: rgba(0, 0, 0, 0.045);
+  --fill-hover: rgba(0, 0, 0, 0.08);
   --field: #ffffff;
-  --hairline: rgba(15, 25, 50, 0.1);
-  --hairline-strong: rgba(15, 25, 50, 0.2);
-  --border: rgba(15, 25, 50, 0.1);
-  --sidebar: rgba(255, 255, 255, 0.8);
+  --hairline: rgba(0, 0, 0, 0.08);
+  --hairline-strong: rgba(0, 0, 0, 0.16);
+  --border: rgba(0, 0, 0, 0.08);
+  --sidebar: rgba(251, 251, 253, 0.86);
   --gold: #b8862f;
   --gold-2: #7d5a10;
-  --gold-soft: rgba(184, 134, 47, 0.14);
+  --gold-soft: rgba(184, 134, 47, 0.12);
   --blue: #7d5a10;
   --blue-dark: #6a4c0d;
-  --blue-soft: rgba(184, 134, 47, 0.14);
+  --blue-soft: rgba(184, 134, 47, 0.12);
   --green: #1d7a45;
   --green-soft: rgba(29, 122, 69, 0.1);
   --red: #b3261e;
   --focus: #7d5a10;
-  --shadow: inset 0 1px 0 rgba(184, 134, 47, 0.22), 0 1px 2px rgba(15, 25, 50, 0.06), 0 18px 40px -24px rgba(15, 25, 50, 0.22);
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 12px 32px -12px rgba(0, 0, 0, 0.14);
 }
 
 html.fd-light .fd-glow-navy {
-  background: radial-gradient(closest-side, rgba(70, 108, 205, 0.1), transparent);
+  background: none;
 }
 
 html.fd-light .fd-glow-gold {
@@ -43,7 +44,7 @@ html.fd-light .fd-glow-gold {
 
 html.fd-light .fd-topbar,
 html.fd-light .fd-landing-bar {
-  background: rgba(244, 245, 249, 0.85);
+  background: rgba(251, 251, 253, 0.8);
 }
 
 html.fd-light .fd-tagline {
@@ -75,7 +76,7 @@ html.fd-light .fd-btn-glass {
   @supports (animation-timeline: scroll()) {
     @keyframes fd-bar-solid-light {
       to {
-        background-color: rgba(244, 245, 249, 0.95);
+        background-color: rgba(251, 251, 253, 0.92);
         box-shadow: 0 10px 30px rgba(15, 25, 50, 0.08);
       }
     }

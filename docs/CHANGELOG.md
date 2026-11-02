@@ -45,6 +45,18 @@ Versions before 4.9 (when the program had its earlier name) are described in the
 - The favicons, the tray icon and the small program-icon sizes (16–32 px) use a heavier version of the emblem, so it
   stays visible on light browser tabs and a light taskbar. Larger sizes are unchanged.
 
+## Website update - 2026-11-02 (after 8.6.0, no program change)
+
+### Changed
+- Light theme closer to Apple's pages: a near-white page, white cards, grey `#f5f5f7` bands and soft shadows
+  (`light.css`); the features band is clearly grey in light.
+- How it works: the four days as a list beside the window, played in a loop with no Play, Previous or Next (holds
+  while pointed at; still for "reduce motion"), slides gliding between days; Day 2 shows the Teleprompter's script
+  scrolling past its reading line.
+- Frame editor: each Content is its own bordered block with a header strip; the one being edited is outlined.
+- Help Center: **Back** (where you came from on this site, else Home) and links to Home, Plan, Live, Download and
+  Documentation.
+
 ## [8.6.0] - 2026-11-02
 
 Full notes: [docs/releases/v8.6.0.md](releases/v8.6.0.md).

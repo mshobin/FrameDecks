@@ -45,6 +45,16 @@ export function PlanScreen({ image, alt }: ScreenProps) {
   );
 }
 
+const SCRIPT = [
+  "Welcome, everyone.",
+  "Let’s begin with a moment of quiet.",
+  "Tonight: one simple idea,",
+  "small faithful steps, together.",
+  "Turn to the reading on the screen.",
+  "Take a moment with the question.",
+];
+
+/** Day 2 (8.6): the Teleprompter itself, the script gliding past the reading line, beside what the meeting sees */
 export function ScriptScreen({ image, alt }: ScreenProps) {
   if (image) return <Shot image={image} alt={alt} />;
   return (
@@ -54,9 +64,15 @@ export function ScriptScreen({ image, alt }: ScreenProps) {
         <span>Only you see it</span>
       </div>
       <div className="lp-rehearse-body">
-        <div className="lp-mini-slide">
-          <span>Your script</span>
-          <p>Welcome everyone. Let’s begin with a moment of quiet.</p>
+        <div className="lp-prompter lp-prompter-mini">
+          <div className="lp-prompter-view" data-loop="">
+            <div className="lp-prompter-roll">
+              {[...SCRIPT, ...SCRIPT].map((line, i) => (
+                <p key={i}>{line}</p>
+              ))}
+            </div>
+            <i className="lp-prompter-line" />
+          </div>
         </div>
         <div className="lp-room">
           <span>What the meeting sees</span>

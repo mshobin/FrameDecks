@@ -102,3 +102,12 @@ html.fd-light .hg-spot{box-shadow:0 0 0 9999px rgba(15,25,50,.22),0 0 24px rgba(
   .hc-panel{padding:18px}
 }
 @media (prefers-reduced-motion:reduce){.hc-head,.hc-body{animation:none}.hc-cards section,.hc-nav a,.hc-chev{transition:none}}
+/* 8.6 a way back: Back (where you came from on this site, else Home) and the main places, above the Help Center */
+.hc-top{display:flex;flex-wrap:wrap;grid-column:1/-1;gap:8px 16px;align-items:center;justify-content:space-between}
+.hc-back{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 16px 0 12px;border:1px solid var(--hairline-strong);border-radius:999px;background:var(--surface);color:var(--text);font:inherit;font-weight:600;cursor:pointer;transition:border-color .2s,transform .2s}
+.hc-back:hover{border-color:rgba(227,183,90,.6);transform:translateX(-2px)}
+.hc-places{display:flex;flex-wrap:wrap;gap:4px}
+.fd-public-main .hc-places a{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 14px;border-radius:999px;color:var(--text-2);font-size:14px;font-weight:600;text-decoration:none;transition:background .2s,color .2s}
+.fd-public-main .hc-places a:hover{background:var(--fill);color:var(--text)}
+@media (max-width:560px){.hc-places{width:100%;overflow-x:auto;flex-wrap:nowrap}}
+.fd-public-main .hc-body a,.fd-public-main .hc-more a{text-decoration:underline;text-decoration-thickness:1px}

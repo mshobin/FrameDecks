@@ -88,11 +88,12 @@ test("the landing page carries the owner's brief (27 October): approved words, e
   assert.match(landing, /data-reveal/);
   assert.match(landing, /data-spotlight/);
   assert.match(src("components/landing/feature-previews.tsx"), /data-loop/);
-  // 6.13: about four screens. How it works plays its steps once, by itself, without pinning (no GSAP)
+  // 6.13: about four screens. How it works plays its steps by itself, without pinning (no GSAP); 8.6: in a loop, no buttons
   const how = src("components/landing/how-it-works.tsx");
   assert.doesNotMatch(how, /gsap|ScrollTrigger/);
   assert.match(how, /onAnimationEnd/);
-  assert.match(how, /setAuto\(false\); \/\/ one round/);
+  assert.match(how, /go\(step \+ 1\)/); // the last day's end starts the first again
+  assert.doesNotMatch(how, /Previous step|Play the steps/);
   assert.match(src("app/landing-page.css"), /\.lp-how\[data-auto\] \.lp-tab\.is-on \.lp-tab-bar i \{\s*animation: lp-tab-fill 6s linear both paused;/);
   assert.match(src("app/landing-page.css"), /\.lp-how\[data-run\] \.lp-tab\.is-on \.lp-tab-bar i \{\s*animation-play-state: running;/);
   assert.equal(JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8")).dependencies.gsap, undefined);
