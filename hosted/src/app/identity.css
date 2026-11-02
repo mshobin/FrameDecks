@@ -529,7 +529,7 @@
   border-radius: 12px;
 }
 
-.fd-flow-icon,
+
 .fd-brand-mark {
   background: var(--gold-soft);
   box-shadow: none;
@@ -539,10 +539,7 @@
   box-shadow: var(--shadow);
 }
 
-.fd-style-on {
-  background: var(--gold-soft);
-  box-shadow: none;
-}
+
 
 .fd-confirm {
   width: min(440px, calc(100vw - 32px));

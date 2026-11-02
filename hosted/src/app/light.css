@@ -50,8 +50,7 @@ html.fd-light .fd-tagline {
   color: var(--text-2);
 }
 
-html.fd-light .fd-welcome,
-html.fd-light .fd-cta,
+
 html.fd-light .fd-auth-card,
 html.fd-light .fd-brand-card:not(.has-look) {
   background:
@@ -64,9 +63,7 @@ html.fd-light .fd-brand-badge {
   background: rgba(255, 255, 255, 0.92);
 }
 
-html.fd-light .fd-flow-num {
-  color: rgba(15, 25, 50, 0.12);
-}
+
 
 /* primary buttons keep gold with dark text; the soft white sheen reads as grey on white, so it goes */
 html.fd-light .fd-btn-glass {

@@ -55,15 +55,34 @@ export async function deleteRecord(
 
 /** Several records in one push (a new Frame and the order that lists it). Each is stored only if nobody changed it
  * since it was read; the answers come back in the same order. */
+// 8.3: what the Plan page's Sync status shows (Syncing while a save is on its way, then Synced or Sync failed)
+export type SyncPhase = "syncing" | "synced" | "failed";
+const watchers = new Set<(phase: SyncPhase) => void>();
+let pending = 0;
+export function watchSync(fn: (phase: SyncPhase) => void): () => void {
+  watchers.add(fn);
+  return () => void watchers.delete(fn);
+}
+function began() {
+  pending++;
+  watchers.forEach((fn) => fn("syncing"));
+}
+function ended(ok: boolean) {
+  pending = Math.max(0, pending - 1);
+  if (!pending || !ok) watchers.forEach((fn) => fn(ok ? "synced" : "failed"));
+}
+
 export async function pushChanges(
   supabase: SupabaseClient,
   organizationId: string,
   changes: ({ kind: string; id: string; rev: number } & ({ body: unknown } | { deleted: true }))[],
 ): Promise<PushAnswer[]> {
+  began();
   const { data, error } = await supabase.rpc("sync_push", {
     org: organizationId,
     changes: changes.map(({ rev, ...c }) => ({ ...c, baseRev: rev })),
   });
+  ended(!error);
   if (error) return changes.map(() => ({ status: "error" as const, message: messageOf(error) }));
   const results = (data as { results?: { status: string; rev?: number; current?: unknown }[] })?.results ?? [];
   return changes.map((_, i) => answerOf(results[i]));
@@ -82,7 +101,9 @@ function answerOf(result: { status: string; rev?: number; current?: unknown } | 
 }
 
 async function send(supabase: SupabaseClient, organizationId: string, change: Record<string, unknown>): Promise<PushAnswer> {
+  began();
   const { data, error } = await supabase.rpc("sync_push", { org: organizationId, changes: [change] });
+  ended(!error);
   if (error) return { status: "error", message: messageOf(error) };
   return answerOf((data as { results?: { status: string; rev?: number; current?: unknown }[] })?.results?.[0]);
 }

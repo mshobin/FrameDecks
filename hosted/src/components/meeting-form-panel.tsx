@@ -1,12 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
-import { ArrowDown, ArrowUp, Download, Pencil, Plus, Trash2 } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { ArrowDown, ArrowUp, Eye, Pencil, Plus, Sparkles, Trash2, Upload } from "lucide-react";
 
 import { KindIcon } from "@/components/content-kind";
 import { NotSetUp, WorkspaceGate } from "@/components/workspace-gate";
-import { moveFrame } from "@/lib/frame-edit";
+import { FlowSteps, PreviewDialog, Timeline, TransitionPicker, type SyncShown } from "@/components/frame-flow";
+import { PROFILE_TX, flowState, frameFilled, mediaNamesOf, moveFrameTo, type StepId } from "@/lib/frame-flow";
+import { keepMedia, keptNames, mediaForExport } from "@/lib/local-media";
 import {
   BACKGROUNDS,
   CARD_ANIMATIONS,
@@ -14,7 +16,6 @@ import {
   LIMITS,
   MEETING_FIELDS,
   TEXT_ANIMATIONS,
-  TRANSITIONS,
   TYPE_NAME,
   emptyFrame,
   emptyRow,
@@ -42,12 +43,13 @@ import { shortDate } from "@/lib/when";
 import { PROFILES, profileOf } from "@/lib/workspace-settings";
 import { join, type JsonObject } from "@/lib/sync-entities";
 import { userSafeError } from "@/lib/user-error";
-import { pullWorkspace, pushChanges, pushRecord, syncNotSetUp, type PulledRecord } from "@/lib/workspace-sync";
+import { pullWorkspace, pushChanges, pushRecord, syncNotSetUp, watchSync, type PulledRecord } from "@/lib/workspace-sync";
 import type { WorkspaceChoice } from "@/lib/use-workspaces";
 import { EmptyState, ErrorState, PageSkeleton } from "@/components/states";
 
 type Obj = { [key: string]: unknown };
-type Loaded = { records: PulledRecord[]; onAir: string | null } | "not-set-up" | { error: string };
+type Loaded = { records: PulledRecord[]; onAir: string | null; pcs: number } | "not-set-up" | { error: string };
+type Focus = "script" | "tx" | null;
 type Notice = { ok: boolean; text: string } | null;
 
 const key = (kind: string, id: string) => `${kind}/${id}`;
@@ -66,6 +68,24 @@ function Planner({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
   const [editing, setEditing] = useState<string | null>(null); // a Frame id, or "new"
   const [notice, setNotice] = useState<Notice>(null);
   const [busy, setBusy] = useState(false);
+  // 8.3 the guided workflow: the Preview, the Sync status, files kept in this browser and the step being opened
+  const [previewAt, setPreviewAt] = useState<number | null>(null);
+  const [previewed, setPreviewed] = useState(false);
+  const [sent, setSent] = useState(false);
+  const [phase, setPhase] = useState<SyncShown>("synced");
+  const [kept, setKept] = useState<Set<string>>(new Set());
+  const [meetingOpen, setMeetingOpen] = useState(0);
+  const [focus, setFocus] = useState<Focus>(null);
+
+  useEffect(() => {
+    const online = () => setPhase(navigator.onLine ? "synced" : "offline");
+    online();
+    window.addEventListener("online", online);
+    window.addEventListener("offline", online);
+    const stop = watchSync((p) => setPhase(navigator.onLine ? p : "offline"));
+    keptNames(workspace.id).then(setKept);
+    return () => (stop(), window.removeEventListener("online", online), window.removeEventListener("offline", online));
+  }, [workspace.id]);
 
   const load = useCallback(async () => {
     if (!supabase) return;
@@ -73,7 +93,7 @@ function Planner({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
     if (error) return setLoaded(syncNotSetUp(error) ? "not-set-up" : { error: userSafeError(error, "Couldn’t load the meeting plan. Check your connection and try again.") });
     const pcs = await supabase.rpc("remote_computers", { org: workspace.id });
     const statuses = ((pcs.data as { status: { frame?: { id: string } | null } | null }[] | null) ?? []).map((p) => p.status);
-    setLoaded({ records, onAir: statuses.find((s) => s?.frame)?.frame?.id ?? null });
+    setLoaded({ records, onAir: statuses.find((s) => s?.frame)?.frame?.id ?? null, pcs: statuses.length });
   }, [supabase, workspace.id]);
 
   useEffect(() => {
@@ -95,9 +115,11 @@ function Planner({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
   const brand = isObj(doc.brand) ? (doc.brand as JsonObject) : {};
   const title = String((isObj(doc.meeting) ? doc.meeting.title : "") ?? "");
 
-  /** 8.2 Export for Service PC: the whole plan in one .frame file, for a service PC without internet. */
-  function exportFrameFile() {
-    const file = frameFileFromDoc(doc as JsonObject, { app: String(brandInfo.version ?? "") });
+  /** 8.2 Export for Service PC: the whole plan in one .frame file, for a service PC without internet. 8.3: with the
+   * pictures, video, audio and slides added in this browser. */
+  async function exportFrameFile() {
+    const { media, left } = await mediaForExport(workspace.id, mediaNamesOf(scenes).filter((n) => kept.has(n)));
+    const file = frameFileFromDoc(doc as JsonObject, { app: String(brandInfo.version ?? ""), media });
     const blob = new Blob([JSON.stringify(file)], { type: "application/json" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
@@ -106,7 +128,39 @@ function Planner({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
     a.click();
     a.remove();
     setTimeout(() => URL.revokeObjectURL(a.href), 2000);
-    setNotice({ ok: true, text: `Exported ${file.counts.frames} Frame${file.counts.frames === 1 ? "" : "s"}. On the service PC: Settings → Data / Backup → Import Frame File.` });
+    setSent(true);
+    const files = media.length ? ` and ${media.length} file${media.length === 1 ? "" : "s"}` : "";
+    const missing = left.length ? ` Not included: ${left.join(", ")}.` : "";
+    setNotice({ ok: true, text: `Exported ${file.counts.frames} Frame${file.counts.frames === 1 ? "" : "s"}${files}. On the service PC: Settings → Data / Backup → Import Frame File.${missing}` });
+  }
+
+  const styleTx = PROFILE_TX[profileOf(byKey.get(key("layout", "profile"))?.body)] ?? "fade";
+  const steps = flowState({ title, frames, previewed, sent: sent || (loaded.pcs > 0 && phase === "synced" && frames.length > 0) });
+  function preview(at: number) {
+    if (!frames.length) return setNotice({ ok: false, text: "Add a Frame first, then preview it." });
+    setPreviewed(true);
+    setPreviewAt(at);
+  }
+  function open(id: string, f: Focus = null) {
+    setNotice(null);
+    setFocus(f);
+    setEditing(id);
+    requestAnimationFrame(() => document.getElementById(`frame-${id}`)?.scrollIntoView({ behavior: "smooth", block: "start" }));
+  }
+  function step(id: StepId) {
+    if (id === "meeting") {
+      setMeetingOpen((n) => n + 1);
+      return;
+    }
+    if (!canEdit && (id === "frames" || id === "content")) return setNotice({ ok: false, text: "View only: owners and admins can edit." });
+    if (id === "frames") return open("new");
+    if (id === "content") {
+      const next = frames.find((f) => !frameFilled(f)) ?? frames[0];
+      return next ? open(String(next.id), "script") : open("new");
+    }
+    if (id === "preview") return preview(0);
+    if (!frames.length) return setNotice({ ok: false, text: "Add a Frame first, then export the plan." });
+    exportFrameFile();
   }
 
   function upsert(record: PulledRecord) {
@@ -124,11 +178,11 @@ function Planner({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
     );
   }
 
-  async function move(id: string, delta: -1 | 1) {
+  async function move(id: string, to: number) {
     if (!supabase || !order || busy) return;
     setBusy(true);
     setNotice(null);
-    const body = moveFrame(order.body as Obj, frames.map((f) => String(f.id)), id, delta);
+    const body = moveFrameTo(order.body as Obj, frames.map((f) => String(f.id)), id, to);
     const answer = await pushRecord(supabase, workspace.id, order, body);
     setBusy(false);
     if (answer.status === "ok") {
@@ -172,15 +226,20 @@ function Planner({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
         {title ? " · " : null}
         {frames.length} Frame{frames.length === 1 ? "" : "s"}.{" "}
         {canEdit
-          ? "Pictures, video and PowerPoint stay on the service PC: type their file names."
+          ? "Changes reach linked service PCs by themselves. Pictures and video you add here stay in this browser and travel in the .frame file."
           : "View only: owners and admins can edit."}
       </p>
-      <div className="frame-export">
-        <button type="button" className="fd-btn fd-btn-glass" onClick={exportFrameFile} disabled={frames.length === 0}>
-          <Download aria-hidden="true" size={16} /> Export for Service PC
-        </button>
-        <span>A .frame file with every Frame, for a PC without internet. Linked PCs get your changes by themselves.</span>
-      </div>
+      <FlowSteps state={steps} onStep={step} sync={phase} />
+      <Timeline
+        frames={frames}
+        onAir={loaded.onAir}
+        canEdit={canEdit}
+        busy={busy || editing !== null}
+        onMove={move}
+        onOpen={(id) => (canEdit ? open(id) : preview(frames.findIndex((f) => String(f.id) === id)))}
+        onAdd={() => open("new")}
+        addDisabled={editing !== null || !!frameCountProblem(frames.length)}
+      />
       {notice && (
         <p className={notice.ok ? "workspace-notice" : "workspace-problem"} role={notice.ok ? "status" : "alert"}>
           {notice.text}
@@ -188,6 +247,7 @@ function Planner({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
       )}
 
       <MeetingDetails
+        openSignal={meetingOpen}
         record={meetingRecord}
         canEdit={canEdit}
         workspaceId={workspace.id}
@@ -224,6 +284,7 @@ function Planner({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
           if (editing === id && record) {
             return (
               <FrameFormEditor
+                ws={workspace.id}
                 key={id}
                 number={i + 1}
                 record={record}
@@ -231,6 +292,9 @@ function Planner({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
                 workspaceId={workspace.id}
                 brandColor={String(brand.color ?? "")}
                 otherNames={frames.filter((f) => f.id !== frame.id).map((f) => String(f.name))}
+                focus={focus}
+                kept={kept}
+                onKept={(name) => setKept((k) => new Set(k).add(name))}
                 onDone={(saved, text) => {
                   if (saved) saved.forEach(upsert);
                   setEditing(null);
@@ -242,17 +306,17 @@ function Planner({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
           }
           const form = frameFormOf(frame);
           return (
-            <li className="frame-card" key={id}>
+            <li className="frame-card" key={id} id={`frame-${id}`}>
               <header>
                 <span className="frame-number">{i + 1}</span>
                 <h3>{form.name}</h3>
                 {onAir && <span className="live-flag">On screen</span>}
                 {canEdit && record && (
                   <span className="frame-actions">
-                    <button type="button" aria-label={`Move ${form.name} up`} disabled={busy || i === 0} onClick={() => move(id, -1)}>
+                    <button type="button" aria-label={`Move ${form.name} up`} disabled={busy || i === 0} onClick={() => move(id, i - 1)}>
                       <ArrowUp aria-hidden="true" size={15} />
                     </button>
-                    <button type="button" aria-label={`Move ${form.name} down`} disabled={busy || i === frames.length - 1} onClick={() => move(id, 1)}>
+                    <button type="button" aria-label={`Move ${form.name} down`} disabled={busy || i === frames.length - 1} onClick={() => move(id, i + 1)}>
                       <ArrowDown aria-hidden="true" size={15} />
                     </button>
                     <button type="button" aria-label={`Edit ${form.name}`} disabled={editing !== null} onClick={() => (setNotice(null), setEditing(id))}>
@@ -287,11 +351,27 @@ function Planner({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
                   ))}
                 </ul>
               )}
+              <div className="frame-quick">
+                {canEdit && record && (
+                  <>
+                    <button type="button" className="fd-btn fd-btn-glass" disabled={editing !== null} onClick={() => open(id, "script")}>
+                      <Pencil aria-hidden="true" size={15} /> Write Script
+                    </button>
+                    <button type="button" className="fd-btn fd-btn-glass" disabled={editing !== null} onClick={() => open(id, "tx")}>
+                      <Sparkles aria-hidden="true" size={15} /> Choose Animation
+                    </button>
+                  </>
+                )}
+                <button type="button" className="fd-btn fd-btn-glass" onClick={() => preview(i)}>
+                  <Eye aria-hidden="true" size={15} /> Preview
+                </button>
+              </div>
             </li>
           );
         })}
         {editing === "new" && (
           <FrameFormEditor
+            ws={workspace.id}
             key="new"
             number={frames.length + 1}
             record={null}
@@ -301,6 +381,9 @@ function Planner({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
             brandColor={String(brand.color ?? "")}
             group={title}
             otherNames={frames.map((f) => String(f.name))}
+            focus={focus}
+            kept={kept}
+            onKept={(name) => setKept((k) => new Set(k).add(name))}
             onDone={(saved, text) => {
               if (saved) saved.forEach(upsert);
               setEditing(null);
@@ -316,11 +399,12 @@ function Planner({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
           type="button"
           disabled={!!frameCountProblem(frames.length)}
           title={frameCountProblem(frames.length) ?? undefined}
-          onClick={() => (setNotice(null), setEditing("new"))}
+          onClick={() => open("new")}
         >
-          <Plus aria-hidden="true" size={16} /> Add a Frame
+          <Plus aria-hidden="true" size={16} /> Add Frame
         </button>
       )}
+      {previewAt !== null && <PreviewDialog frames={frames} start={previewAt} styleTx={styleTx} onClose={() => setPreviewAt(null)} />}
       {dialog}
     </>
   );
@@ -400,17 +484,26 @@ function TransitionStyle({
 }
 
 function MeetingDetails({
+  openSignal,
   record,
   canEdit,
   workspaceId,
   onSaved,
   onConflict,
-}: Readonly<{ record: PulledRecord | undefined; canEdit: boolean; workspaceId: string; onSaved: (r: PulledRecord) => void; onConflict: () => void }>) {
+}: Readonly<{ openSignal: number; record: PulledRecord | undefined; canEdit: boolean; workspaceId: string; onSaved: (r: PulledRecord) => void; onConflict: () => void }>) {
   const supabase = browserSupabase();
   const [form, setForm] = useState<MeetingForm>(() => meetingFormOf(record?.body));
   const [busy, setBusy] = useState(false);
   const [problem, setProblem] = useState<string | null>(null);
   const [open, setOpen] = useState(!record);
+  const box = useRef<HTMLDetailsElement>(null);
+  useEffect(() => {
+    if (!openSignal) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setOpen(true);
+    box.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    requestAnimationFrame(() => box.current?.querySelector<HTMLInputElement>("input")?.focus({ preventScroll: true }));
+  }, [openSignal]);
   const base = record ?? { kind: "meeting" as const, id: "meeting", rev: 0, seq: 0, body: {} };
 
   async function save() {
@@ -429,7 +522,7 @@ function MeetingDetails({
   }
 
   return (
-    <details className="frame-card frame-editing planner-meeting" open={open} onToggle={(e) => setOpen((e.target as HTMLDetailsElement).open)}>
+    <details ref={box} id="plan-meeting" className="frame-card frame-editing planner-meeting" open={open} onToggle={(e) => setOpen((e.target as HTMLDetailsElement).open)}>
       <summary>
         <strong>Meeting details</strong>
         <span className="workspace-hint">{form.title || "No meeting name yet"}{form.date ? ` · ${shortDate(`${form.date}T12:00:00`)}` : ""}</span>
@@ -465,6 +558,10 @@ function MeetingDetails({
 // ---- One Frame, as the Excel form's Frames, Content, Questions and Scriptures tables ----
 
 function FrameFormEditor({
+  ws,
+  focus = null,
+  kept,
+  onKept,
   number,
   record,
   order = null,
@@ -476,6 +573,10 @@ function FrameFormEditor({
   onDone,
   onReplace,
 }: Readonly<{
+  ws: string;
+  focus?: Focus;
+  kept: Set<string>;
+  onKept: (name: string) => void;
   number: number;
   record: PulledRecord | null;
   order?: PulledRecord | null;
@@ -494,6 +595,12 @@ function FrameFormEditor({
   const [busy, setBusy] = useState(false);
   const [problems, setProblems] = useState<string[]>([]);
   const [addType, setAddType] = useState<ContentType>("question");
+  const card = useRef<HTMLLIElement>(null);
+  useEffect(() => {
+    const el = card.current?.querySelector<HTMLElement>(focus === "script" ? ".edit-script textarea" : focus === "tx" ? ".flow-tx [aria-checked=true]" : "input");
+    el?.focus({ preventScroll: true });
+    if (focus === "tx") card.current?.querySelector(".flow-tx")?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }, [focus]);
 
   const setRow = (i: number, row: ContentRow) => setDraft((d) => ({ ...d, content: d.content.map((r, j) => (j === i ? row : r)) }));
   const moveRow = (i: number, delta: -1 | 1) =>
@@ -550,7 +657,7 @@ function FrameFormEditor({
 
   const customBg = !BACKGROUNDS.some(([n]) => n === draft.background);
   return (
-    <li className="frame-card frame-editing">
+    <li className="frame-card frame-editing" ref={card} id={`frame-${base ? base.id : "new"}`}>
       <header>
         <span className="frame-number">{number}</span>
         <h3>{base ? `Edit ${draft.name || "Frame"}` : "New Frame"}</h3>
@@ -580,19 +687,10 @@ function FrameFormEditor({
             <input aria-label="Background colour" value={draft.background} maxLength={7} placeholder="#1F3A6D" onChange={(e) => setDraft({ ...draft, background: e.target.value })} />
           )}
         </label>
-        <label>
-          Transition
-          <select value={draft.transition} onChange={(e) => setDraft({ ...draft, transition: e.target.value })}>
-            {TRANSITIONS.map(([n, v]) => (
-              <option key={v} value={v}>
-                {n}
-              </option>
-            ))}
-          </select>
-        </label>
       </div>
+      <TransitionPicker value={draft.transition} onChange={(transition) => setDraft({ ...draft, transition })} />
       <label className="edit-script">
-        Presenter script (Teleprompter, never on screen)
+        Write Script: what you will say (Teleprompter, never on screen)
         <textarea rows={4} maxLength={LIMITS.script} value={draft.script} onChange={(e) => setDraft({ ...draft, script: e.target.value })} />
       </label>
 
@@ -606,6 +704,9 @@ function FrameFormEditor({
           onChange={(r) => setRow(i, r)}
           onMove={(d) => moveRow(i, d)}
           onRemove={() => setDraft((d) => ({ ...d, content: d.content.filter((_, j) => j !== i) }))}
+          ws={ws}
+          kept={kept}
+          onKept={onKept}
         />
       ))}
       <div className="planner-add-row">
@@ -658,7 +759,21 @@ function ContentEditor({
   onChange,
   onMove,
   onRemove,
-}: Readonly<{ row: ContentRow; index: number; count: number; onChange: (r: ContentRow) => void; onMove: (d: -1 | 1) => void; onRemove: () => void }>) {
+  ws,
+  kept,
+  onKept,
+}: Readonly<{
+  row: ContentRow;
+  index: number;
+  count: number;
+  onChange: (r: ContentRow) => void;
+  onMove: (d: -1 | 1) => void;
+  onRemove: () => void;
+  ws: string;
+  kept: Set<string>;
+  onKept: (name: string) => void;
+}>) {
+  const [fileProblem, setFileProblem] = useState<string | null>(null);
   const set = (patch: Partial<ContentRow>) => onChange({ ...row, ...patch });
   const t = row.type;
   const head = (
@@ -744,9 +859,39 @@ function ContentEditor({
       {(t === "image" || t === "video" || t === "powerpoint" || t === "audio") && (
         <div className="planner-grid">
           <label>
-            File name in the service PC&apos;s media folder (optional)
+            File name (optional)
             <input value={row.main} maxLength={LIMITS.short} placeholder={t === "powerpoint" ? "talk.pptx" : t === "audio" ? "intro.mp3" : t === "video" ? "intro.mp4" : "welcome.jpg"} onChange={(e) => set({ main: e.target.value })} />
           </label>
+          <div className="flow-file">
+            <label className="fd-btn fd-btn-glass">
+              <Upload aria-hidden="true" size={15} /> Choose file
+              <input
+                type="file"
+                accept={ACCEPT[t]}
+                onChange={async (e) => {
+                  const file = e.target.files?.[0];
+                  e.target.value = "";
+                  if (!file) return;
+                  setFileProblem(null);
+                  try {
+                    const name = await keepMedia(ws, file);
+                    onKept(name);
+                    set({ main: name });
+                  } catch (err) {
+                    setFileProblem(err instanceof Error ? err.message : "The file could not be kept in this browser.");
+                  }
+                }}
+              />
+            </label>
+            <small className={kept.has(row.main.trim()) ? "is-kept" : undefined}>
+              {fileProblem ??
+                (!row.main.trim()
+                  ? "Or type the name of a file on the service PC."
+                  : kept.has(row.main.trim())
+                    ? "Kept in this browser: it travels in the .frame file (Export for Service PC)."
+                    : "Looked for on the service PC.")}
+            </small>
+          </div>
           {t === "powerpoint" && (
             <label>
               PowerPoint background
@@ -762,6 +907,13 @@ function ContentEditor({
     </fieldset>
   );
 }
+
+const ACCEPT: Partial<Record<ContentType | "other", string>> = {
+  image: "image/*",
+  video: "video/*",
+  audio: "audio/*",
+  powerpoint: ".pdf,.pptx,.ppt,application/pdf",
+};
 
 function AnimationSelect({ value, options, onChange }: Readonly<{ value: string; options: [string, string][]; onChange: (v: string) => void }>) {
   return (

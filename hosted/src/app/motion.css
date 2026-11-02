@@ -96,9 +96,7 @@
     }
   }
 
-  .fd-enter-card {
-    animation: fd-card-in 1.2s var(--ease-out) backwards;
-  }
+  
 
   @keyframes fd-card-in {
     from {
@@ -200,10 +198,7 @@
   }
 
   /* ---------- How it works: steps arrive in order, then the light runs between them ---------- */
-  .fd-flow-link {
-    transform-origin: left center;
-    transition: transform 0.9s var(--ease-out) calc(var(--d, 0ms) + 450ms);
-  }
+  
 
   @keyframes fd-pop {
     from {
@@ -284,11 +279,7 @@
       }
     }
 
-    .fd-section-title {
-      animation: fd-title-in linear both;
-      animation-timeline: view();
-      animation-range: entry 0% cover 35%;
-    }
+    
 
     @keyframes fd-title-in {
       from {

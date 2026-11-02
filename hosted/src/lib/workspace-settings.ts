@@ -202,9 +202,9 @@ export const PROFILES: { id: string; name: string; feel: string }[] = [
   { id: "sunday", name: "Sunday Service", feel: "Fade, half a second" },
   { id: "bible-study", name: "Bible Study", feel: "Quick fade" },
   { id: "youth", name: "Youth Service", feel: "Push, fast" },
-  { id: "conference", name: "Conference", feel: "Cross dissolve" },
-  { id: "wedding", name: "Wedding", feel: "Slow cinema fade" },
-  { id: "funeral", name: "Funeral", feel: "Gentle church fade" },
+  { id: "conference", name: "Conference", feel: "Fade" },
+  { id: "wedding", name: "Wedding", feel: "Slow fade" },
+  { id: "funeral", name: "Funeral", feel: "Gentle fade" },
   { id: "christmas", name: "Christmas Service", feel: "Dip to white" },
   { id: "livestream", name: "Livestream", feel: "Cut, instant" },
 ];

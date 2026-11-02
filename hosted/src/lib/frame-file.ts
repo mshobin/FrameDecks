@@ -30,7 +30,7 @@ export type FrameFile = {
 const isObj = (v: unknown): v is JsonObject => typeof v === "object" && v !== null && !Array.isArray(v);
 
 /** The plan for a .frame file, from the workspace's plan as sync gives it to the PC (sync-entities join(records).doc). */
-export function frameFileFromDoc(doc: JsonObject, meta: { app: string; now?: Date }): FrameFile {
+export function frameFileFromDoc(doc: JsonObject, meta: { app: string; now?: Date; media?: FrameMedia[] }): FrameFile {
   const plan: JsonObject = {};
   for (const k of PLAN_KEYS) if (doc[k] !== undefined) plan[k] = doc[k];
   if (isObj(plan.brand)) plan.brand = { ...plan.brand, logo: "", lw: 0, lh: 0 }; // the logo file stays on each PC
@@ -44,8 +44,8 @@ export function frameFileFromDoc(doc: JsonObject, meta: { app: string; now?: Dat
     app: meta.app,
     title,
     plan,
-    media: [],
-    counts: { frames: scenes.filter((s) => isObj(s) && !s.tpl).length, media: 0 },
+    media: meta.media ?? [], // 8.3: files added on the website, kept in this browser (local-media.ts)
+    counts: { frames: scenes.filter((s) => isObj(s) && !s.tpl).length, media: (meta.media ?? []).length },
   };
 }
 

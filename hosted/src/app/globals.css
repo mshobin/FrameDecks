@@ -79,11 +79,7 @@ a {
   text-decoration: none;
 }
 
-.workspace-label {
-  color: var(--text-2);
-  font-size: 13px;
-  font-weight: 600;
-}
+
 
 /* eyebrows are one of the few places for gold (the landing's design principles) */
 .eyebrow {
@@ -1126,8 +1122,7 @@ h1 {
   margin-top: 4px;
 }
 
-.auth-legal a,
-.auth-footnote a {
+.auth-legal a {
   color: var(--gold);
 }
 
