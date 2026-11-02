@@ -35,7 +35,7 @@ const ctx = await b.newContext({ viewport: { width: Number(process.argv[3] || 13
 if (process.env.DARK) await ctx.addInitScript(() => { window.__dark = 1; localStorage.setItem("fd-theme", "dark"); });
 await ctx.addInitScript(() => {
   localStorage.setItem("sb-x-auth-token", JSON.stringify({ access_token: "t", refresh_token: "r", token_type: "bearer", expires_in: 3600, expires_at: 4102444800, user: { id: "u1", email: "a@b.c", aud: "authenticated", role: "authenticated", app_metadata: {}, user_metadata: {} } }));
-  localStorage.setItem("fd-cookie-ok", "1"); if (location.search.includes("dark") || window.__dark) localStorage.setItem("fd-theme", "dark");
+  localStorage.setItem("fd-consent", JSON.stringify({ version: "2026-10-29", at: Date.now(), essential: true, analytics: false })); if (location.search.includes("dark") || window.__dark) localStorage.setItem("fd-theme", "dark");
 });
 await ctx.route("https://x.supabase.co/**", async (route) => {
   const u = route.request().url();
@@ -49,6 +49,7 @@ await ctx.route("https://x.supabase.co/**", async (route) => {
     return route.fulfill({ json: { results: body.changes.map(() => ({ status: "ok", rev: 5 })) } });
   }
   if (u.includes("rpc/remote_computers")) return route.fulfill({ json: [] });
+  if (u.includes("rpc/meetings_supported")) return route.fulfill({ json: true });
   return route.fulfill({ json: [] });
 });
 import { mkdirSync } from "node:fs";
@@ -68,24 +69,25 @@ const st = await p.$$eval(".flow-steps li", (l) => l.map((x) => x.className));
 check(st.join() === "is-done,is-done,is-done,is-now,is-todo", `steps: ${st}`);
 // drag Discussion before Welcome
 const W = Number(process.argv[3] || 1366);
-if (W >= 700) await p.dragAndDrop(".flow-line li:nth-child(3)", ".flow-line li:nth-child(1)", { targetPosition: { x: 10, y: 40 } });
+if (W >= 700) await p.dragAndDrop(".fc-node:nth-child(4)", ".fc-node:nth-child(2)", { targetPosition: { x: 60, y: 6 } });
 else {
-  // a phone: the timeline scrolls sideways, so the same move by keyboard (the cards' arrows work too)
-  await p.focus(".flow-line li:nth-child(3) .flow-tile");
-  await p.keyboard.press("Alt+ArrowLeft");
+  // a phone: the same move by keyboard (the cards' arrows work too)
+  await p.focus(".fc-node:nth-child(4) .fc-card");
+  await p.keyboard.press("Alt+ArrowUp");
   await p.waitForTimeout(700);
-  await p.focus(".flow-line li:nth-child(2) .flow-tile");
-  await p.keyboard.press("Alt+ArrowLeft");
+  await p.focus(".fc-node:nth-child(3) .fc-card");
+  await p.keyboard.press("Alt+ArrowUp");
 }
 await p.waitForTimeout(150);
 await p.screenshot({ path: SP + "/plan-syncing.png", clip: { x: 0, y: 0, width: 1366, height: 500 } });
 await p.waitForTimeout(800);
 check(JSON.stringify(records.find((r) => r.kind === "order").body.scenes) === '["f3","f1","f2"]', "drag and drop saves the new order");
 check((await p.textContent(".flow-sync")).includes("Synced"), "Sync status back to Synced");
-check((await p.textContent(".flow-line li:first-child .flow-name")).includes("Discussion"), "the timeline shows the new order");
+check((await p.textContent(".fc-node:nth-child(2) .fc-text b")).includes("Discussion"), "the timeline shows the new order");
+check((await p.textContent(".frame-list > li:first-child h3")).includes("Discussion"), "the main list shows it too");
 // keyboard move
-await p.focus(".flow-line li:nth-child(1) .flow-tile");
-await p.keyboard.press("Alt+ArrowRight");
+await p.focus(".fc-node:nth-child(2) .fc-card");
+await p.keyboard.press("Alt+ArrowDown");
 await p.waitForTimeout(800);
 check(JSON.stringify(records.find((r) => r.kind === "order").body.scenes) === '["f1","f3","f2"]', "Alt + arrow moves a Frame");
 // Preview
@@ -121,6 +123,46 @@ const f = JSON.parse(readFileSync(path, "utf8"));
 check(f.counts.frames === 3 && f.media.length === 1 && f.media[0].file === "vine photo.png", "the .frame file holds the Frames and the file");
 check((await p.$$eval(".flow-steps li.is-done", (l) => l.length)) === 5, "every step done after the export");
 await p.screenshot({ path: SP + "/plan-end.png", fullPage: true });
+// ---- 8.5 several meetings ----
+const meetingBody = () => records.find((r) => r.kind === "meeting").body;
+await p.evaluate(() => window.scrollTo(0, 0));
+await p.click(".mb-new");
+await p.fill(".mb-form input", "Sunday Service");
+await p.click(".mb-form button[type=submit]");
+await p.waitForTimeout(900);
+check((meetingBody().meetings || []).map((m) => m.name).join() === "Tuesday Bible Study,Sunday Service", "a new meeting is saved in the list");
+check((await p.textContent(".mb-chips [aria-selected=true]")).includes("Sunday Service"), "the new meeting is chosen");
+check((await p.$$(".fc-node")).length === 0, "the new meeting starts with no Frames");
+check(meetingBody().title === "Tuesday Bible Study", "making a meeting does not change what the PC shows");
+await p.click(".fc-end button");
+await p.waitForSelector("li.frame-editing");
+await p.fill("li.frame-editing .planner-grid input >> nth=0", "Sunday Welcome");
+await p.click("li.frame-editing .edit-actions .live-primary");
+await p.waitForTimeout(900);
+const sunday = records.find((r) => r.kind === "frame" && r.body?.name === "Sunday Welcome");
+check(sunday?.body.group === "Sunday Service", "a Frame added here belongs to the meeting");
+check((await p.$$(".fc-node")).length === 1, "the timeline shows only this meeting's Frame");
+await p.screenshot({ path: SP + "/plan-meetings.png" });
+await p.click(".mb-chips button:has-text('Tuesday Bible Study')");
+await p.waitForTimeout(600);
+check((await p.$$(".fc-node")).length === 3, "switching back shows the first meeting's three Frames");
+await p.click(".mb-chips button:has-text('Sunday Service')");
+await p.waitForTimeout(400);
+await p.click(".mb-rename");
+await p.fill(".mb-form input", "Sunday Worship");
+await p.click(".mb-form button[type=submit]");
+await p.waitForTimeout(900);
+check(meetingBody().meetings.some((m) => m.name === "Sunday Worship") && records.find((r) => r.id === sunday.id).body.group === "Sunday Worship", "renaming moves the meeting's Frames with it");
+await p.click(".fc-node .fc-del");
+await p.click(".fd-confirm-submit");
+await p.waitForTimeout(900);
+check(!records.find((r) => r.id === sunday.id)?.body, "delete in the timeline removes the Frame");
+check((await p.$$(".fc-node")).length === 0, "and the timeline shows it gone");
+await p.click(".mb-chips button:has-text('Tuesday Bible Study')");
+await p.waitForTimeout(500);
+const [dl2] = await Promise.all([p.waitForEvent("download"), p.click(".flow-steps li:nth-child(5) button")]);
+const f2 = JSON.parse(readFileSync(await dl2.path(), "utf8"));
+check(f2.counts.frames === 3 && f2.plan.meeting.title === "Tuesday Bible Study" && !f2.plan.meeting.meetings, "the .frame file holds one meeting");
 await b.close(); srv.close();
 console.log(failed ? `${failed} check(s) failed` : "all Plan workflow checks passed");
 process.exit(failed ? 1 : 0);

@@ -1,12 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { ArrowDown, ArrowUp, Eye, Pencil, Plus, Sparkles, Trash2, Upload } from "lucide-react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import { ArrowDown, ArrowUp, Eye, PanelRightClose, PanelRightOpen, Pencil, Plus, Sparkles, Trash2, Upload } from "lucide-react";
 
 import { KindIcon } from "@/components/content-kind";
 import { NotSetUp, WorkspaceGate } from "@/components/workspace-gate";
-import { FlowSteps, PreviewDialog, Timeline, TransitionPicker, type SyncShown } from "@/components/frame-flow";
+import { FlowChart, FlowSteps, MeetingBar, PreviewDialog, TransitionPicker, useFlip, type SyncShown } from "@/components/frame-flow";
+import { currentMeetingId, framesOfMeeting, meetingsOf, newMeetingId, uniqueMeetingName, withMeetings, type Meeting } from "@/lib/meetings";
 import { PROFILE_TX, flowState, frameFilled, mediaNamesOf, moveFrameTo, type StepId } from "@/lib/frame-flow";
 import { keepMedia, keptNames, mediaForExport } from "@/lib/local-media";
 import {
@@ -49,7 +50,7 @@ import type { WorkspaceChoice } from "@/lib/use-workspaces";
 import { EmptyState, ErrorState, PageSkeleton } from "@/components/states";
 
 type Obj = { [key: string]: unknown };
-type Loaded = { records: PulledRecord[]; onAir: string | null; pcs: number } | "not-set-up" | { error: string };
+type Loaded = { records: PulledRecord[]; onAir: string | null; pcs: number; supported: boolean } | "not-set-up" | { error: string };
 type Focus = "script" | "tx" | null;
 type Notice = { ok: boolean; text: string } | null;
 
@@ -77,6 +78,16 @@ function Planner({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
   const [kept, setKept] = useState<Set<string>>(new Set());
   const [meetingOpen, setMeetingOpen] = useState(0);
   const [focus, setFocus] = useState<Focus>(null);
+  // 8.5 the meeting being planned (remembered on this device) and the timeline on the right
+  const remembered = `fd-meeting-${workspace.id}`;
+  const [selected, setSelected] = useState(() => {
+    try {
+      return localStorage.getItem(remembered) ?? "";
+    } catch {
+      return "";
+    }
+  });
+  const [sideOpen, setSideOpen] = useState(true);
 
   useEffect(() => {
     const online = () => setPhase(navigator.onLine ? "synced" : "offline");
@@ -94,7 +105,8 @@ function Planner({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
     if (error) return setLoaded(syncNotSetUp(error) ? "not-set-up" : { error: userSafeError(error, "Couldn’t load the meeting plan. Check your connection and try again.") });
     const pcs = await supabase.rpc("remote_computers", { org: workspace.id });
     const statuses = ((pcs.data as { status: { frame?: { id: string } | null } | null }[] | null) ?? []).map((p) => p.status);
-    setLoaded({ records, onAir: statuses.find((s) => s?.frame)?.frame?.id ?? null, pcs: statuses.length });
+    const supported = await supabase.rpc("meetings_supported"); // 0012: without it, one meeting as before
+    setLoaded({ records, onAir: statuses.find((s) => s?.frame)?.frame?.id ?? null, pcs: statuses.length, supported: !supported.error && supported.data === true });
   }, [supabase, workspace.id]);
 
   useEffect(() => {
@@ -110,17 +122,29 @@ function Planner({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
   const byKey = new Map(records.map((r) => [key(r.kind, r.id), r]));
   const { doc } = join(records, {});
   const scenes = (Array.isArray(doc.scenes) ? (doc.scenes as unknown[]) : []).filter(isObj);
-  const frames = scenes.filter((s) => !s.tpl);
   const meetingRecord = byKey.get(key("meeting", "meeting"));
   const order = byKey.get(key("order", "order")) ?? null;
   const brand = isObj(doc.brand) ? (doc.brand as JsonObject) : {};
-  const title = String((isObj(doc.meeting) ? doc.meeting.title : "") ?? "");
+  // 8.5 several meetings: the one chosen here, and only its Frames
+  const meetingBody = (isObj(doc.meeting) ? doc.meeting : {}) as Obj;
+  const meetings = meetingsOf(meetingBody);
+  const multi = meetings.length > 1;
+  const selId = meetings.some((m) => m.id === selected) ? selected : currentMeetingId(meetingBody, meetings);
+  const sel = meetings.find((m) => m.id === selId) ?? meetings[0];
+  const frames = multi ? framesOfMeeting(scenes, meetings, sel.id) : scenes.filter((s) => !s.tpl);
+  const counts = Object.fromEntries(meetings.map((m) => [m.id, framesOfMeeting(scenes, meetings, m.id).length]));
+  const title = multi ? sel.name : String(meetingBody.title ?? "");
+  const group = multi ? sel.name : title;
 
   /** 8.2 Export for Service PC: the whole plan in one .frame file, for a service PC without internet. 8.3: with the
    * pictures, video, audio and slides added in this browser. */
   async function exportFrameFile() {
-    const { media, left } = await mediaForExport(workspace.id, mediaNamesOf(scenes).filter((n) => kept.has(n)));
-    const file = frameFileFromDoc(doc as JsonObject, { app: String(brandInfo.version ?? ""), media });
+    // 8.5 the meeting chosen here: its Frames, name, date and notes (the PC puts it in a meeting of that name)
+    const meetingOut: Obj = { ...meetingBody, title: sel.name, date: multi ? sel.date : meetingBody.date ?? "", notes: multi ? sel.notes : meetingBody.notes ?? "" };
+    delete meetingOut.meetings;
+    const scenesOut = frames.map((f) => ({ ...f, group: multi ? sel.name : f.group }));
+    const { media, left } = await mediaForExport(workspace.id, mediaNamesOf(scenesOut).filter((n) => kept.has(n)));
+    const file = frameFileFromDoc({ ...doc, scenes: scenesOut, meeting: meetingOut } as JsonObject, { app: String(brandInfo.version ?? ""), media });
     const blob = new Blob([JSON.stringify(file)], { type: "application/json" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
@@ -187,13 +211,72 @@ function Planner({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
     );
   }
 
+  function choose(id: string) {
+    setSelected(id);
+    setEditing(null);
+    setNotice(null);
+    try {
+      localStorage.setItem(remembered, id);
+    } catch {}
+  }
+  const meetingBase = meetingRecord ?? { kind: "meeting" as const, id: "meeting", rev: 0, seq: 0, body: {} };
+
+  async function createMeeting(wanted: string) {
+    if (!supabase || busy) return;
+    const entry: Meeting = { id: newMeetingId(), name: uniqueMeetingName(meetings, wanted), date: "", notes: "" };
+    const body = withMeetings(meetingBody, [...meetings, entry]);
+    setBusy(true);
+    const answer = await pushRecord(supabase, workspace.id, meetingBase, body);
+    setBusy(false);
+    if (answer.status === "ok") {
+      upsert({ ...meetingBase, kind: "meeting", body: body as PulledRecord["body"], rev: answer.rev });
+      choose(entry.id);
+      setNotice({ ok: true, text: `“${entry.name}” made. Add its first Frame: Add Frame.` });
+    } else if (answer.status === "conflict") {
+      setNotice({ ok: false, text: "The meetings changed on the PC meanwhile. Here is the latest; try again." });
+      await load();
+    } else setNotice({ ok: false, text: answer.message });
+  }
+
+  /** Name, date and notes of the chosen meeting; a new name also moves its Frames' group (how the PC knows them). */
+  async function saveMeeting(form: MeetingForm): Promise<string | null> {
+    if (!supabase) return "Not connected.";
+    const newName = form.title.trim().slice(0, 60);
+    if (multi && !newName) return "A meeting needs a name.";
+    if (multi && uniqueMeetingName(meetings, newName, sel.id) !== newName) return `Another meeting is already called “${newName}”.`;
+    const old = sel.name;
+    let body: Obj;
+    if (multi) {
+      const list = meetings.map((m) => (m.id === sel.id ? { ...m, name: newName, date: form.date.trim(), notes: form.notes.trim().slice(0, 2000) } : m));
+      const shows = String(meetingBody.title ?? "").trim().toLowerCase() === old.toLowerCase();
+      body = withMeetings(meetingBody, list, shows ? sel.id : undefined);
+    } else body = meetingFromForm(form, meetingRecord?.body);
+    const renamed = newName && newName !== old ? scenes.filter((f) => !f.tpl && String(f.group ?? "").trim().toLowerCase() === old.toLowerCase()) : [];
+    const changes: Parameters<typeof pushChanges>[2] = [{ kind: "meeting", id: "meeting", rev: meetingBase.rev, body }];
+    for (const f of renamed) {
+      const r = byKey.get(key("frame", String(f.id)));
+      if (r) changes.push({ kind: "frame", id: r.id, rev: r.rev, body: { ...(r.body as Obj), group: newName } });
+    }
+    const answers = await pushChanges(supabase, workspace.id, changes);
+    if (answers.every((a) => a.status === "ok")) {
+      changes.forEach((c, i) => "body" in c && upsert({ kind: c.kind as PulledRecord["kind"], id: c.id, rev: (answers[i] as { rev: number }).rev, seq: 0, body: c.body as PulledRecord["body"] }));
+      return null;
+    }
+    await load();
+    const bad = answers.find((a) => a.status === "error");
+    return bad && bad.status === "error" ? bad.message : "The meeting changed on the PC meanwhile. The latest is shown now; make your change again.";
+  }
+
   async function move(id: string, to: number) {
     if (!supabase || !order || busy) return;
     setBusy(true);
     setNotice(null);
     const body = moveFrameTo(order.body as Obj, frames.map((f) => String(f.id)), id, to);
+    const before = order;
+    upsert({ ...order, body: body as PulledRecord["body"] }); // at once: the timeline and the list move together
     const answer = await pushRecord(supabase, workspace.id, order, body);
     setBusy(false);
+    if (answer.status !== "ok") upsert(before);
     if (answer.status === "ok") {
       upsert({ ...order, body: body as PulledRecord["body"], rev: answer.rev });
       setNotice({ ok: true, text: "Order saved. The service PC picks it up within about a minute." });
@@ -238,17 +321,20 @@ function Planner({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
           ? "Changes reach linked service PCs by themselves. Pictures and video you add here stay in this browser and travel in the .frame file."
           : "View only: owners and admins can edit."}
       </p>
-      <FlowSteps state={steps} onStep={step} sync={phase} />
-      <Timeline
-        frames={frames}
-        onAir={loaded.onAir}
+      <MeetingBar
+        list={meetings}
+        selected={sel.id}
+        counts={counts}
         canEdit={canEdit}
-        busy={busy || editing !== null}
-        onMove={move}
-        onOpen={(id) => (canEdit ? open(id) : preview(frames.findIndex((f) => String(f.id) === id)))}
-        onAdd={() => open("new")}
-        addDisabled={editing !== null || !!frameCountProblem(frames.length)}
+        supported={loaded.supported}
+        busy={busy}
+        onSelect={choose}
+        onCreate={createMeeting}
+        onRename={(name) => saveMeeting({ title: name, date: sel.date || String(meetingBody.date ?? ""), notes: multi ? sel.notes : String(meetingBody.notes ?? "") }).then((err) => setNotice(err ? { ok: false, text: err } : { ok: true, text: `Renamed to “${name}”.` }))}
       />
+      <div className={`plan-grid${sideOpen ? "" : " is-closed"}`}>
+      <div className="plan-main" key={sel.id}>
+      <FlowSteps state={steps} onStep={step} sync={phase} />
       {notice && (
         <p className={notice.ok ? "workspace-notice" : "workspace-problem"} role={notice.ok ? "status" : "alert"}>
           {notice.text}
@@ -256,15 +342,13 @@ function Planner({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
       )}
 
       <MeetingDetails
+        key={`${sel.id}:${sel.name}`}
         openSignal={meetingOpen}
-        record={meetingRecord}
+        initial={multi ? { title: sel.name, date: sel.date, notes: sel.notes } : meetingFormOf(meetingRecord?.body)}
+        fresh={!meetingRecord}
+        older={OLDER_MEETING_FIELDS.some((k) => String(meetingBody[k] ?? "").trim())}
         canEdit={canEdit}
-        workspaceId={workspace.id}
-        onSaved={(r) => {
-          upsert(r);
-          setNotice({ ok: true, text: "Meeting details saved." });
-        }}
-        onConflict={load}
+        onSave={saveMeeting}
       />
 
       <TransitionStyle
@@ -285,7 +369,7 @@ function Planner({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
           <Link href="/computers">Service PCs</Link>.
         </EmptyState>
       )}
-      <ol className="frame-list">
+      <FlipList className="frame-list" ids={frames.map((f) => String(f.id)).join()}>
         {frames.map((frame, i) => {
           const id = String(frame.id);
           const record = byKey.get(key("frame", id));
@@ -388,7 +472,7 @@ function Planner({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
             onAir={false}
             workspaceId={workspace.id}
             brandColor={String(brand.color ?? "")}
-            group={title}
+            group={group}
             otherNames={frames.map((f) => String(f.name))}
             focus={focus}
             kept={kept}
@@ -401,7 +485,7 @@ function Planner({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
             onReplace={upsert}
           />
         )}
-      </ol>
+      </FlipList>
       {canEdit && editing === null && (
         <button
           className="live-btn live-primary planner-add"
@@ -413,9 +497,45 @@ function Planner({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
           <Plus aria-hidden="true" size={16} /> Add Frame
         </button>
       )}
+      </div>
+      <aside className="plan-side" aria-label="Timeline">
+        <button type="button" className="plan-side-toggle" aria-expanded={sideOpen} onClick={() => setSideOpen((v) => !v)}>
+          {sideOpen ? <PanelRightClose aria-hidden="true" size={16} /> : <PanelRightOpen aria-hidden="true" size={16} />}
+          {sideOpen ? "Hide timeline" : "Timeline"}
+        </button>
+        {sideOpen && (
+          <FlowChart
+            key={sel.id}
+            meeting={{ name: title || "Your meeting", date: multi ? sel.date : String(meetingBody.date ?? "") }}
+            frames={frames}
+            onAir={loaded.onAir}
+            active={editing}
+            canEdit={canEdit}
+            busy={busy || editing !== null}
+            onMove={move}
+            onOpen={(id) => (canEdit ? open(id) : preview(frames.findIndex((f) => String(f.id) === id)))}
+            onDelete={remove}
+            onAdd={() => open("new")}
+            addDisabled={editing !== null || !!frameCountProblem(frames.length)}
+            onMeeting={() => setMeetingOpen((n) => n + 1)}
+          />
+        )}
+      </aside>
+      </div>
       {previewAt !== null && <PreviewDialog frames={frames} start={previewAt} styleTx={styleTx} onClose={() => setPreviewAt(null)} />}
       {dialog}
     </>
+  );
+}
+
+/** The main list of Frames, gliding to their new places when they move (the same as the timeline) */
+function FlipList({ className, ids, children }: Readonly<{ className: string; ids: string; children: ReactNode }>) {
+  const ref = useRef<HTMLOListElement>(null);
+  useFlip(ref, [ids]);
+  return (
+    <ol className={className} ref={ref}>
+      {children}
+    </ol>
   );
 }
 
@@ -494,17 +614,16 @@ function TransitionStyle({
 
 function MeetingDetails({
   openSignal,
-  record,
+  initial,
+  fresh,
+  older,
   canEdit,
-  workspaceId,
-  onSaved,
-  onConflict,
-}: Readonly<{ openSignal: number; record: PulledRecord | undefined; canEdit: boolean; workspaceId: string; onSaved: (r: PulledRecord) => void; onConflict: () => void }>) {
-  const supabase = browserSupabase();
-  const [form, setForm] = useState<MeetingForm>(() => meetingFormOf(record?.body));
+  onSave,
+}: Readonly<{ openSignal: number; initial: MeetingForm; fresh: boolean; older: boolean; canEdit: boolean; onSave: (form: MeetingForm) => Promise<string | null> }>) {
+  const [form, setForm] = useState<MeetingForm>(initial);
   const [busy, setBusy] = useState(false);
   const [problem, setProblem] = useState<string | null>(null);
-  const [open, setOpen] = useState(!record);
+  const [open, setOpen] = useState(fresh);
   const box = useRef<HTMLDetailsElement>(null);
   useEffect(() => {
     if (!openSignal) return;
@@ -513,31 +632,19 @@ function MeetingDetails({
     box.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     requestAnimationFrame(() => box.current?.querySelector<HTMLInputElement>("input")?.focus({ preventScroll: true }));
   }, [openSignal]);
-  const base = record ?? { kind: "meeting" as const, id: "meeting", rev: 0, seq: 0, body: {} };
   const [dirty, setDirty] = useState(false);
   const [saved, setSaved] = useState(false);
   const edit = (patch: Record<string, string>) => (setForm({ ...form, ...patch }), setDirty(true), setSaved(false));
-  const rb = (record?.body ?? {}) as Obj;
-  const older = OLDER_MEETING_FIELDS.some((k) => String(rb[k] ?? "").trim());
 
   async function save() {
-    if (!supabase) return;
     setBusy(true);
     setProblem(null);
-    const body = meetingFromForm(form, record?.body);
-    const answer = await pushRecord(supabase, workspaceId, base, body);
+    const err = await onSave(form);
     setBusy(false);
-    if (answer.status === "ok") {
-      setDirty(false);
-      setSaved(true);
-      setTimeout(() => setSaved(false), 4000);
-      onSaved({ ...base, kind: "meeting", body: body as PulledRecord["body"], rev: answer.rev });
-    }
-    else if (answer.status === "conflict") {
-      setProblem("The meeting details changed on the PC meanwhile. The latest are shown now; make your change again.");
-      setForm(meetingFormOf(answer.current.body));
-      onConflict();
-    } else setProblem(answer.message);
+    if (err) return setProblem(err);
+    setDirty(false);
+    setSaved(true);
+    setTimeout(() => setSaved(false), 4000);
   }
 
   return (
@@ -588,7 +695,7 @@ function MeetingDetails({
       )}
       {canEdit && (
         <div className="edit-actions">
-          <button className={`live-btn live-primary${saved ? " is-saved" : ""}`} type="button" disabled={busy || (!dirty && !!record)} onClick={save}>
+          <button className={`live-btn live-primary${saved ? " is-saved" : ""}`} type="button" disabled={busy || (!dirty && !fresh)} onClick={save}>
             {busy ? "Saving…" : saved ? "✓ Saved" : "Save details"}
           </button>
           <span className="workspace-hint" role="status">
