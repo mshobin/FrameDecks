@@ -520,7 +520,7 @@ h3 {
 }
 
 .fd-page {
-  width: min(100%, 1180px);
+  width: min(100%, 1560px); /* 8.6 the signed-in pages use wide screens */
   margin: 0 auto;
   padding: 40px clamp(20px, 4vw, 48px) 64px;
 }

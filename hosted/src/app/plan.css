@@ -71,7 +71,7 @@
 .mb-form{display:flex;flex-wrap:wrap;align-items:end;gap:10px;margin-top:12px}
 .mb-form label{display:grid;flex:1 1 240px;gap:6px;font-weight:600}
 .mb-form input{padding:12px 14px;font-size:16px}
-.plan-grid{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:24px;align-items:start}
+.plan-grid{display:grid;grid-template-columns:minmax(0,1fr) clamp(300px,25vw,380px);gap:clamp(20px,2vw,32px);align-items:start}
 .plan-grid.is-closed{grid-template-columns:minmax(0,1fr) auto}
 .plan-side{position:sticky;top:84px;max-height:calc(100vh - 100px);overflow:auto;padding:14px;border:1px solid var(--hairline);border-radius:var(--radius-lg);background:var(--surface);box-shadow:var(--shadow)}
 .plan-grid.is-closed .plan-side{padding:8px}
@@ -107,3 +107,36 @@
 .fc>li.fc-hint::before{display:none}
 @media (max-width:1100px){.plan-grid,.plan-grid.is-closed{grid-template-columns:minmax(0,1fr)}.plan-side{position:static;max-height:none;order:-1}}
 @media (prefers-reduced-motion:reduce){.fc-card:hover,.mb-chips button:hover{transform:none}}
+
+/* 8.6 the Plan uses the page's width: the five steps in one row when there is room, and Frame cards whose title,
+   tags and Content read at a glance (the name first, then what the Frame holds, then its actions) */
+.plan-main{container-type:inline-size;min-width:0}
+@container (min-width:680px){.flow-steps{grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}.flow-steps li{grid-template-rows:1fr auto;align-items:start;padding:12px}.flow-text small{font-size:12px;line-height:1.35}.flow-steps .fd-btn{min-height:40px;padding:6px 8px;font-size:13px;line-height:1.2;white-space:normal;text-align:center}}
+.plan-frame{position:relative;padding:0;overflow:hidden;transition:border-color .2s var(--ease-out),box-shadow .2s var(--ease-out),transform .2s var(--ease-out)}
+.plan-frame::before{content:"";position:absolute;inset:0 auto 0 0;width:4px;background:linear-gradient(180deg,var(--gold),rgba(227,183,90,0));opacity:.75}
+.plan-frame:hover{border-color:rgba(227,183,90,.42);transform:translateY(-2px);box-shadow:0 24px 48px -28px rgba(0,0,0,.55),var(--shadow)}
+.plan-frame.is-on-air{border-color:rgba(127,209,160,.6)}
+.plan-frame.is-on-air::before{background:var(--green)}
+.plan-frame>header{align-items:flex-start;gap:14px;margin:0;padding:18px 20px 14px 24px}
+.plan-frame .frame-number{width:38px;height:38px;border-radius:12px;font-size:16px;font-weight:800}
+.pf-title{flex:1;min-width:0}
+.plan-frame h3{overflow-wrap:anywhere;font-size:20px;font-weight:800;line-height:1.25;letter-spacing:-.015em}
+.pf-tags{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 0}
+.pf-tags>span{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border:1px solid var(--hairline);border-radius:999px;background:var(--fill);color:var(--text-2);font-size:12px;font-weight:600;line-height:1.4}
+.pf-tags .pf-tx{color:var(--gold-2)}
+.pf-tags .pf-ok{border-color:transparent;background:var(--green-soft);color:var(--green)}
+.pf-tags .pf-todo{border-style:dashed;color:var(--text-3)}
+.pf-tags .live-flag{margin:0}
+.pf-desc{margin:0 24px 12px;color:var(--text-2);line-height:1.55}
+.pf-empty{margin:0 20px 4px 24px;padding:14px 16px;border:1px dashed var(--hairline-strong);border-radius:12px;color:var(--text-3)}
+.pf-content{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px;margin:0 20px 0 24px}
+.pf-content li{display:grid;grid-template-columns:auto minmax(0,1fr);align-content:start;gap:2px 12px;padding:12px 14px;border:1px solid var(--hairline);border-radius:12px;background:var(--field);transition:border-color .2s}
+.pf-content li:hover{border-color:var(--hairline-strong)}
+.pf-ic{display:grid;grid-row:span 2;place-items:center;width:36px;height:36px;border-radius:12px;background:var(--gold-soft)}
+.pf-content .content-title{color:var(--text-3);font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.pf-content .content-line{display:-webkit-box;overflow:hidden;color:var(--text);font-size:14px;font-weight:500;line-height:1.45;-webkit-box-orient:vertical;-webkit-line-clamp:2}
+.pf-content .content-add{justify-self:start}
+.pf-foot{margin:16px 0 0;padding:12px 20px 14px 24px;border-top:1px solid var(--hairline);background:rgba(255,255,255,.02)}
+.pf-foot .fd-btn{min-height:38px;padding:0 14px;font-size:14px}
+@media (max-width:560px){.plan-frame>header{flex-wrap:wrap;padding:16px 16px 12px 20px}.plan-frame .frame-actions{width:100%;justify-content:flex-end}.pf-content{margin:0 16px 0 20px;grid-template-columns:minmax(0,1fr)}.pf-desc,.pf-empty{margin-inline:20px 16px}.pf-foot{padding:12px 16px 14px 20px}}
+@media (prefers-reduced-motion:reduce){.plan-frame,.pf-content li{transition:none}.plan-frame:hover{transform:none}}

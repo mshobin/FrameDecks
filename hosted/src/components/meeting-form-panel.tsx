@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
-import { ArrowDown, ArrowUp, Eye, PanelRightClose, PanelRightOpen, Pencil, Plus, Sparkles, Trash2, Upload } from "lucide-react";
+import { ArrowDown, ArrowUp, Eye, FileText, PanelRightClose, PanelRightOpen, Pencil, Plus, Sparkles, Trash2, Upload } from "lucide-react";
 
 import { KindIcon } from "@/components/content-kind";
 import { NotSetUp, WorkspaceGate } from "@/components/workspace-gate";
@@ -17,6 +17,7 @@ import {
   LIMITS,
   OLDER_MEETING_FIELDS,
   TEXT_ANIMATIONS,
+  TRANSITIONS,
   TYPE_NAME,
   emptyFrame,
   emptyRow,
@@ -400,11 +401,27 @@ function Planner({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
           }
           const form = frameFormOf(frame);
           return (
-            <li className="frame-card" key={id} id={`frame-${id}`}>
+            <li className={`frame-card plan-frame${onAir ? " is-on-air" : ""}`} key={id} id={`frame-${id}`}>
               <header>
                 <span className="frame-number">{i + 1}</span>
-                <h3>{form.name}</h3>
-                {onAir && <span className="live-flag">On screen</span>}
+                <div className="pf-title">
+                  <h3>{form.name}</h3>
+                  {/* 8.6 what the Frame holds at a glance: its Content, its animation, whether it has a script */}
+                  <p className="pf-tags">
+                    <span>
+                      {form.content.length} Content
+                    </span>
+                    <span className="pf-tx">
+                      <Sparkles aria-hidden="true" size={12} />
+                      {form.transition === "profile" ? "Meeting style" : (TRANSITIONS.find(([, v]) => v === form.transition)?.[0] ?? form.transition)}
+                    </span>
+                    <span className={form.script.trim() ? "pf-ok" : "pf-todo"}>
+                      <FileText aria-hidden="true" size={12} />
+                      {form.script.trim() ? "Script" : "No script yet"}
+                    </span>
+                    {onAir && <span className="live-flag">On screen</span>}
+                  </p>
+                </div>
                 {canEdit && record && (
                   <span className="frame-actions">
                     <button type="button" aria-label={`Move ${form.name} up`} disabled={busy || i === 0} onClick={() => move(id, i - 1)}>
@@ -422,15 +439,17 @@ function Planner({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
                   </span>
                 )}
               </header>
-              {form.desc && <p className="workspace-hint">{form.desc}</p>}
+              {form.desc && <p className="pf-desc">{form.desc}</p>}
               {form.content.length === 0 ? (
-                <p className="workspace-hint">No Content.</p>
+                <p className="pf-empty">No Content yet. Choose Edit to add a question, a scripture, text or a picture.</p>
               ) : (
-                <ul className="content-list">
+                <ul className="content-list pf-content">
                   {form.content.map((row, j) => (
                     <li key={row.layerId ?? j}>
-                      <span className="content-title" title={row.type === "other" ? undefined : TYPE_NAME[row.type]}>
+                      <span className="pf-ic" aria-hidden="true">
                         <KindIcon kind={row.type === "other" ? String(row.kind ?? "") : row.type} />
+                      </span>
+                      <span className="content-title" title={row.type === "other" ? undefined : TYPE_NAME[row.type]}>
                         {row.name.trim() || (row.type === "other" ? "Content" : TYPE_NAME[row.type])}
                       </span>
                       {/* an empty item is an action, not a note (owner-approved, 27 October) */}
@@ -445,7 +464,7 @@ function Planner({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
                   ))}
                 </ul>
               )}
-              <div className="frame-quick">
+              <div className="frame-quick pf-foot">
                 {canEdit && record && (
                   <>
                     <button type="button" className="fd-btn fd-btn-glass" disabled={editing !== null} onClick={() => open(id, "script")}>
