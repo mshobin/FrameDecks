@@ -5,10 +5,8 @@ FrameDecks update itself. It installs over 9.1.2 and earlier and keeps all your 
 Memory Cards and recordings.
 
 ## What's New
-- **Signed updates.** FrameDecks can now check that each update notice really comes from FrameDecks: every release's
-  details (the version, the download address, its fingerprint) carry a digital signature, and FrameDecks ignores any
-  notice that is not signed with FrameDecks' key. Even someone who could change the files on the download server could
-  not get FrameDecks to install anything else.
+- No new features in this release. FrameDecks is ready to check a digital signature on every update notice; that
+  check is switched on in a later release.
 
 ## Enhancements
 - **Update now** only ever installs a newer version; going back stays a separate, deliberate choice (**Reinstall the
@@ -20,7 +18,7 @@ Memory Cards and recordings.
 - The installed app always asks FrameDecks' own update service, even if a testing setting on the PC points elsewhere.
 
 ## Performance Improvements
-- Checking an update's signature takes a few thousandths of a second.
+- None in this release.
 
 ## Known Issues
 - The installer is not yet code-signed, so Windows SmartScreen may ask you to confirm: **More info → Run anyway**.
