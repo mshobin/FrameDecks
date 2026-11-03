@@ -93,7 +93,10 @@ variables → Actions:
 | Secret | `R2_SECRET_ACCESS_KEY` | the Secret Access Key |
 | Variable | `R2_ACCOUNT_ID` | your Cloudflare account ID (R2 overview page, right-hand side) |
 | Variable | `R2_BUCKET` | `framedecks-downloads` |
-| Variable | `RELEASE_SIGNED` | `true` only once installers are code-signed (`code-signing.md`); otherwise leave it unset |
+| Secret | `MANIFEST_SIGNING_KEY` | 9.2: the private key that signs release manifests (see "Signed manifests" below) |
+
+9.2: the manifest says `"signed": true` only when the build's "Check the signatures" step passed (code signing on,
+`code-signing.md`); the `RELEASE_SIGNED` variable is no longer read and can be deleted.
 
 The token can only touch this bucket. Nothing else in Cloudflare is reachable from GitHub.
 
@@ -132,7 +135,7 @@ Python 3 and PyYAML, takes about a minute and ends with `release pipeline: ok`. 
    and passes `python tools/make_release_notes.py --check`. Write the notes for users: they are shown on the download
    page and in the program, and the manifest tool refuses any line naming a repository path.
 2. Tag it, **one version at a time**, with the tag equal to `v` + `APP_VERSION`:
-   `git tag v9.1.2 && git push origin v9.1.2`. (A GitHub Release created in the web page with a new tag works too.)
+   `git tag v9.2.0 && git push origin v9.2.0`. (A GitHub Release created in the web page with a new tag works too.)
 3. The workflow builds and tests on Windows, keeps a private copy on the repository's Releases page, then the `publish`
    job uploads the version's files, `index.json`, and finally `latest.json`. Until `latest.json` is replaced, nobody
    sees the new version, so a failed upload half-way changes nothing for users.
@@ -151,19 +154,21 @@ The pipeline refuses, before anything is uploaded:
 | A version older than one already published | `tools/make_release_manifest.py` | "latest" only moves forward; rolling back is the deliberate step below |
 | An index R2 cannot give (anything but "not there yet") | the R2 read step, and the manifest tool for unreadable JSON | Never rebuilds the release list from nothing |
 | A version tag when the R2 secrets or variables are missing or misnamed | `publish` job, "Say what is missing" (fails) | A run that published nothing never shows green |
+| A tag on a commit that is not on `main` (9.2) | `build` job, "The tag must match the version" | Only code that went through `main` and its checks is released |
+| A release without `MANIFEST_SIGNING_KEY` once the program trusts a key, or signed with a key it does not trust (9.2) | `tools/make_release_manifest.py` | Programs would reject the manifest and never see the update |
 
 Version tags run one at a time (`concurrency: publish-releases`), so two publishes never race on `index.json` and
 `latest.json`. GitHub keeps only one waiting run per group, so push one tag and let it finish before the next. The index
 is read from R2 itself, not the five-minute-cached public address; `previous` is always the next lower version and the
 index is sorted newest first, whatever order versions were published in.
 
-To fix a published release, bump the version (9.1.2 → 9.1.3) and tag that; never delete and re-upload a version.
+To fix a published release, bump the version (9.2.0 → 9.2.1) and tag that; never delete and re-upload a version.
 
 Check after a release:
 
 ```bash
 curl -s https://api.framedecks.com/releases/latest | python3 -m json.tool | head
-curl -sL https://downloads.framedecks.com/releases/9.1.2/FrameDecks-9.1.2-Setup.exe.sha256
+curl -sL https://downloads.framedecks.com/releases/9.2.0/FrameDecks-9.2.0-Setup.exe.sha256
 ```
 
 ## How the program updates (integrity and safety)
@@ -171,8 +176,14 @@ curl -sL https://downloads.framedecks.com/releases/9.1.2/FrameDecks-9.1.2-Setup.
 - **Where from:** only the manifest at `api.framedecks.com/releases/latest`, and only installers under
   `https://downloads.framedecks.com/`. A manifest pointing anywhere else, over plain HTTP, with an odd version number,
   a size over 600 MB or a malformed checksum is ignored.
+- **Signed manifests (9.2):** once `TRUSTED_KEYS` in `src/updater.py` holds a key, the program reads a manifest only
+  when that key signed it (Ed25519, `src/manifest_sig.py`). The signature covers the version, the download address, the
+  SHA-256, the size, the `signed` flag and the previous build, so write access to the bucket alone can no longer push
+  an installer. The installed program ignores `FRAMEDECKS_UPDATE_API`, follows redirects only to FrameDecks' own
+  servers, and "Update now" never installs an older version.
 - **What is kept:** the download must match the manifest's size and SHA-256 exactly, or it is deleted. When the
-  manifest says `"signed": true`, the installer's Authenticode signature must also be valid and issued to the publisher (Shobin Mathews), checked with Windows' own WinVerifyTrust.
+  manifest says `"signed": true`, the installer's Authenticode signature must also be valid and issued exactly to the publisher
+(Shobin Mathews), checked with Windows' own WinVerifyTrust.
 - **When:** never while something is on screen (a question, verse or live item), unless the person confirms. They can
   also choose "install when I close FrameDecks".
 - **How (7.1.1):** the program starts the installer itself (`/VERYSILENT /MERGETASKS=!vcam /UPDATE=1`, keeping the
@@ -187,6 +198,22 @@ curl -sL https://downloads.framedecks.com/releases/9.1.2/FrameDecks-9.1.2-Setup.
 The service stores nothing about the caller: no cookies, no identifiers. The program sends only its version and
 system (`FrameDecks/7.0 (Windows)`) in the `User-Agent`.
 
+## Signed manifests (owner, once; 9.2)
+
+1. On your own computer, in the repository: `python tools/manifest_key.py new`. It writes the private key to
+   `framedecks-manifest-key.txt` (never commit it) and prints a line such as `"0123456789abcdef": "<64 hex>",`.
+2. GitHub → Settings → Secrets and variables → Actions → New repository secret: `MANIFEST_SIGNING_KEY`, value = the
+   one line in `framedecks-manifest-key.txt`. Then delete the file, or keep it offline (a password manager).
+3. Put the printed line inside `TRUSTED_KEYS` in `src/updater.py` and release a version as usual. From that version
+   on, programs accept only manifests signed with this key; the workflow refuses to publish without the secret.
+   Programs before it keep reading manifests as before (the signature is an extra field they ignore).
+
+To change keys: add the new key's line to `TRUSTED_KEYS` beside the old one, release, then replace the secret, and
+remove the old line in a later release. `python tools/manifest_key.py public FILE` shows which key a file holds.
+
+Also recommended (GitHub settings, not files): a tag ruleset for `v*` that only the owner may create, and moving the
+R2 and signing secrets into a protected environment with a required reviewer.
+
 ## Rollback (owner)
 
 A bad release is taken back by pointing `latest` at the previous version; files under `releases/<version>/` are
@@ -200,15 +227,14 @@ aws s3 cp s3://framedecks-downloads/releases/6.14/FrameDecks-6.14-Setup.exe s3:/
   --endpoint-url "$R2" --cache-control "public, max-age=300"
 ```
 
-Or in the dashboard: R2 → the bucket → copy the old `manifest.json` over `releases/latest.json`. PCs that already
+Or in the dashboard: R2 → the bucket → copy the old `manifest.json` over `releases/latest.json`. (9.2: a manifest
+published before signing started is unsigned, so programs that trust a key ignore it; they simply see no update. Roll
+back to a signed version, or release a fixed one.) PCs that already
 installed the bad version are not downgraded automatically; release a fixed version with a higher number (the usual
 route), or tell people to use Settings → About → Reinstall the previous version.
 
 ## Later
 
-- **Ed25519-signed manifests (7.1):** sign `latest.json` in the workflow with a key kept as a GitHub secret, and ship
-  the public key inside the program, so even a compromised bucket cannot point PCs at another installer. Today the
-  checksum protects against corrupted or swapped files only together with HTTPS and the bucket's access control.
 - **macOS and Linux:** add `platforms.macos` and `platforms.linux` entries and builds; the download page already
   detects the system and says "coming later".
 - **Staged rollout:** a `rollout` percentage in the manifest that the updater compares with a random number kept on

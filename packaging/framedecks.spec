@@ -46,7 +46,7 @@ a = Analysis(
     pathex=[str(root / "src"), str(root)],
     datas=[(str(root / "app"), "app"), (str(root / "src" / "vcam" / "models"), "vcam/models"), (str(root / "src" / "vcam" / "bin"), "vcam/bin"),
            (str(root / "LICENSE"), "."), (str(root / "NOTICE"), "."), (str(root / "docs" / "legal" / "THIRD_PARTY_NOTICES.md"), ".")] + pptx_data,
-    hiddenimports=["server", "errlog", "supervisor", "ai", "pptx_export", "pptx", "lxml._elementpath", "pystray._win32", "PIL.Image", "vcam.engine", "vcam.blur", "vcam.sink", "vcam.devices", "vcam.overlay", "vcam.cards", "vcam.looks", "vcam.screen", "vcam.layers", "vcam.compositor", "vcam.program", "vcam.chatcard", "media_names", "vcam.priority", "vcam.present_window", "desktop_win", "memory", "capture", "legacy", "meeting_form",
+    hiddenimports=["server", "errlog", "supervisor", "ai", "pptx_export", "pptx", "lxml._elementpath", "pystray._win32", "PIL.Image", "vcam.engine", "vcam.blur", "vcam.sink", "vcam.devices", "vcam.overlay", "vcam.cards", "vcam.looks", "vcam.screen", "vcam.layers", "vcam.compositor", "vcam.program", "vcam.chatcard", "media_names", "ed25519", "manifest_sig", "updater", "vcam.priority", "vcam.present_window", "desktop_win", "memory", "capture", "legacy", "meeting_form",
                    "windows_capture", "pypdfium2", "comtypes", "comtypes.client", "cv2", "numpy",
                    "cv2_enumerate_cameras", "cv2_enumerate_cameras.windows_backend", "cv2_enumerate_cameras._windows_backend"],
     excludes=["tkinter", "unittest", "pydoc_data"],

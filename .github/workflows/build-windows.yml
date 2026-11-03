@@ -24,10 +24,12 @@ concurrency:
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: windows-2025          # 9.2 pinned (was windows-latest): a new runner image never changes a release unannounced
     timeout-minutes: 45
     outputs:
       version: ${{ steps.ver.outputs.version }}
+      # 9.2 (audit M3): "signed" in the manifest comes from the signature check below actually passing, not a variable
+      signed: ${{ steps.sigcheck.outcome == 'success' }}
     env:
       # Code signing by SignPath Foundation (free for open source, M-D1: docs/deployment/code-signing.md). Off until the
       # owner adds the SIGNPATH_API_TOKEN secret; until then every signing step is skipped and the build is as before.
@@ -55,6 +57,8 @@ jobs:
         shell: pwsh
         env:
           PYINSTALLER_COMPILE_BOOTLOADER: "1"
+          # 9.2 (audit M5): the build backend pip fetches to compile PyInstaller (setuptools) is the pinned one too
+          PIP_CONSTRAINT: packaging/constraints.txt
         run: |
           $v = (Select-String -Path packaging/constraints.txt -Pattern '^pyinstaller==(.+)$').Matches[0].Groups[1].Value
           python -m pip install --no-cache-dir --force-reinstall --no-deps --no-binary pyinstaller "pyinstaller==$v"
@@ -122,11 +126,21 @@ jobs:
       - name: The tag must match the version (tags only)
         if: startsWith(github.ref, 'refs/tags/v')
         shell: pwsh
+        env:
+          # 9.2 (audit L8): the tag name reaches the script as data, never as script text
+          TAG: ${{ github.ref_name }}
+          EVENT: ${{ github.event_name }}
+          WANT: v${{ steps.ver.outputs.version }}
         run: |
-          $want = "v${{ steps.ver.outputs.version }}"
-          if ("${{ github.ref_name }}" -ne $want) { throw "Tag ${{ github.ref_name }} does not match APP_VERSION in src/server.py ($want)" }
-          if ("${{ github.event_name }}" -ne "push") { throw "Releases are published only by pushing a version tag, not by a manual run" }
-          Write-Host "Tag ${{ github.ref_name }} matches APP_VERSION"
+          if ($env:TAG -ne $env:WANT) { throw "Tag $($env:TAG) does not match APP_VERSION in src/server.py ($($env:WANT))" }
+          if ($env:EVENT -ne "push") { throw "Releases are published only by pushing a version tag, not by a manual run" }
+          Write-Host "Tag $($env:TAG) matches APP_VERSION"
+          # 9.2 (audit M4): only a commit that is on main is released (a tag on a side branch, or on a commit that never
+          # went through main and its checks, is refused)
+          git fetch --no-tags --depth=500 origin +refs/heads/main:refs/remotes/origin/main
+          git merge-base --is-ancestor $env:GITHUB_SHA origin/main
+          if ($LASTEXITCODE -ne 0) { throw "Tag $($env:TAG) is not on main: tag a commit from main" }
+          Write-Host "The tagged commit is on main"
 
       - name: Build the app (PyInstaller)
         run: pyinstaller --noconfirm --clean packaging/framedecks.spec --distpath dist --workpath build
@@ -196,6 +210,7 @@ jobs:
           output-artifact-directory: dist
 
       - name: Check the signatures (signing on)
+        id: sigcheck
         if: env.SIGNPATH_ON == 'true'
         shell: pwsh
         run: |
@@ -275,7 +290,7 @@ jobs:
   release:
     needs: build
     if: startsWith(github.ref, 'refs/tags/v')
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     permissions:
       contents: write
@@ -311,7 +326,7 @@ jobs:
   publish:
     needs: build
     if: startsWith(github.ref, 'refs/tags/v')
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     permissions:
       contents: read
@@ -364,10 +379,14 @@ jobs:
         if: env.R2_ON != 'true'
         run: echo '{"releases":[]}' > index.json
 
+      # 9.2 (audit H3): the manifest is signed with MANIFEST_SIGNING_KEY (tools/manifest_key.py); once the program trusts a
+      # key, publishing without the secret stops here. "--signed" only when the build's signature check passed (M3).
       - name: Lay out the release and write its manifest
+        env:
+          MANIFEST_SIGNING_KEY: ${{ secrets.MANIFEST_SIGNING_KEY }}
         run: |
           python3 tools/make_release_manifest.py --installer "dist/FrameDecks v${VERSION}.exe" --out publish --index index.json \
-            ${{ vars.RELEASE_SIGNED == 'true' && '--signed' || '' }}
+            ${{ needs.build.outputs.signed == 'true' && '--signed' || '' }}
           find publish -type f | sort
 
       - name: Upload to Cloudflare R2

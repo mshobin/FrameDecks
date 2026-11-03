@@ -14,7 +14,7 @@ security patch; no wider distribution until the update chain is signed (H3, M3) 
 |---|---|---|
 | H1 | Layer file names from the phone (`/api/state`) or cloud sync were joined onto the layers folder unchecked: a UNC name (`\\server\share\a.png`) made every linked PC connect out and leak the Windows sign-in hash; `..\` names put any local file on the camera | **Fixed in 9.1.2** (`src/media_names.py`, `clean_layer`, `scene_media`, `media_check`, `pptx_export`) |
 | H2 | Phone PIN lockout raced: parallel guesses got ~150 tries a minute instead of 5; lockout reset after 60 s; no limit across devices | **Fixed in 9.1.2** (one lock; doubling wait that only a right PIN resets; 100 wrong PINs in 10 minutes from all devices together) |
-| H3 | Updates trust the R2 bucket alone: the SHA-256 comes from the same bucket, Authenticode is checked only when the manifest says `signed: true`, substring publisher match | Open: 9.2 (Ed25519-signed manifest, Authenticode required once signing is on, exact signer, protected release environment) |
+| H3 | Updates trust the R2 bucket alone: the SHA-256 comes from the same bucket, Authenticode is checked only when the manifest says `signed: true`, substring publisher match | **Fixed in 9.2.0, active once the owner adds the key** (`src/ed25519.py`, `src/manifest_sig.py`, `updater.TRUSTED_KEYS`, `tools/manifest_key.py`; the signed manifest protects the `signed` flag, so Authenticode follows the signing step; exact signer). Protected release environment: a GitHub setting (owner) |
 | H4 | The vCam DLL is registered machine-wide (elevated `regsvr32`) from a folder the user can write (`%LOCALAPPDATA%\Programs\FRAMEDECKS`); every update re-runs the elevated step | Open: later, high risk (admin-only folder via an elevated helper / MSI, re-register only when the DLL changes) |
 | H5 | A workspace admin can demote then remove the owner (0001 `memberships_update`; 0002 fixed delete only), rewrite `user_id` / `organization_id`, and insert memberships directly | **Fixed by migration 0013** (`hosted/supabase/migrations/0013_protect_owner.sql`, rollback in `hosted/supabase/rollback/`, tests `hosted/tests/supabase-owner.test.mjs`); the owner runs it in Supabase |
 
@@ -24,9 +24,9 @@ security patch; no wider distribution until the update chain is signed (H3, M3) 
 |---|---|---|
 | M1 | LAN denial of service before sign-in: no socket timeout, no per-device connection cap, 8 MB bodies accepted for the PIN form | **Fixed in 9.1.2** (90 s timeout, 24 connections per other device, 4 KB bodies until signed in) |
 | M2 | Chat-copy parsing backtracked for seconds on long runs of spaces (2.15 s for one 4,000-character copy) | **Fixed in 9.1.2** (runs of spaces collapsed; header patterns only on lines up to 120 characters) |
-| M3 | Code signing off; manifest `signed` flag set from a variable, not from the signing result | Open: 9.2 |
-| M4 | A tag on any branch can publish (only the version is compared) | Open: 9.2 (tag ruleset, ancestor-of-main check, protected environment) |
-| M5 | Python build dependencies pinned without hashes | Open: 9.2 |
+| M3 | Code signing off; manifest `signed` flag set from a variable, not from the signing result | **Flag fixed in 9.2.0** (from the signature check's result); turning on code signing is the owner's step |
+| M4 | A tag on any branch can publish (only the version is compared) | **Fixed in 9.2.0** (a tag must be on `main`); tag ruleset and protected environment are GitHub settings (owner) |
+| M5 | Python build dependencies pinned without hashes | Partly fixed in 9.2.0 (the from-source PyInstaller build uses the pinned setuptools); a fully hashed lock is open |
 | M6 | Anonymous `computer_link_start` can fill the global pending-link cap | Open: cloud hotfix |
 | M7 | No Content-Security-Policy (desktop pages, website); website session in localStorage | Open: 9.3, report-only first |
 | M8 | Imported ids pasted into CSS selectors could throw and break workspace actions | **Fixed in 9.1.2** (`cssq` in `workspace.js`, `CSS.escape` in `overlay.js`) |

@@ -14,9 +14,9 @@ not apply from 7.0 on** (FrameDecks is now proprietary, from a private repositor
 
 Whichever is chosen:
 1. Sign `FRAMEDECKS.exe`, both camera DLLs and the installer, as the steps below describe.
-2. Set the repository variable `RELEASE_SIGNED` to `true` (`release-pipeline.md`). The release manifest then says
-   `"signed": true`, and the program's updater refuses any installer whose Authenticode signature is not valid and
-   issued to the publisher.
+2. Nothing to switch on (9.2): the release manifest says `"signed": true` as soon as the workflow's "Check the
+   signatures" step passes, and the program's updater then refuses any installer whose Authenticode signature is not
+   valid and issued exactly to the publisher. (With another signing service, keep that step and its `id: sigcheck`.)
 3. Update the README's "Code signing policy".
 
 The rest of this page describes the SignPath set-up already wired into the workflow; with Azure Trusted Signing, the

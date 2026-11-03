@@ -53,6 +53,25 @@ Versions before 4.9 (when the program had its earlier name) are described in the
 - The favicons, the tray icon and the small program-icon sizes (16–32 px) use a heavier version of the emblem, so it
   stays visible on light browser tabs and a light taskbar. Larger sizes are unchanged.
 
+## [9.2.0] - 2026-11-04
+
+Full notes: [docs/releases/v9.2.0.md](releases/v9.2.0.md). Audit: [docs/project/2026-11-03-production-audit.md](project/2026-11-03-production-audit.md).
+
+### Security
+- Signed release manifests (audit H3): `src/ed25519.py` (RFC 8032, standard library only; checked against the RFC
+  vectors and the cryptography library), `src/manifest_sig.py` (a `signature` field over every other field in one fixed
+  form; programs before 9.2 ignore it), `updater.TRUSTED_KEYS` (once it holds a key, only manifests signed with it
+  count), `tools/manifest_key.py` (makes the key pair), and `tools/make_release_manifest.py` signs with
+  `MANIFEST_SIGNING_KEY` and refuses to publish without it once the program trusts a key.
+- Updater (audit L7): the installed app ignores `FRAMEDECKS_UPDATE_API`; downloads follow redirects only to
+  FrameDecks' servers over https; "latest" never installs an older version; the Authenticode signer must equal
+  `PUBLISHER` exactly.
+- Release workflow: the manifest's `signed` comes from the "Check the signatures" step passing (`RELEASE_SIGNED` is no
+  longer read) (M3); a tag must be on `main` (M4); the tag name reaches the script through `env` (L8); runners pinned
+  to `windows-2025` and `ubuntu-24.04` (L9); PyInstaller's from-source build uses the pinned setuptools
+  (`PIP_CONSTRAINT`, part of M5).
+- Tests: `tests/test_update_chain.py`.
+
 ## [9.1.2] - 2026-11-03
 
 Full notes: [docs/releases/v9.1.2.md](releases/v9.1.2.md). Audit: [docs/project/2026-11-03-production-audit.md](project/2026-11-03-production-audit.md).

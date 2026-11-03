@@ -18,6 +18,11 @@ scripts): the installer is started directly and signatures are checked with WinV
 
 "Reinstall the previous version" goes through the same steps with the manifest's `previous` build. Updates never
 start while something is on screen (the page asks first; the server checks again). Standard library only.
+
+9.2 (production audit H3): a manifest counts only when it is signed by a key in TRUSTED_KEYS (manifest_sig.py), once
+that list has a key; so the download bucket alone can no longer choose the installer, its checksum or whether the
+Authenticode check runs. The installed app ignores FRAMEDECKS_UPDATE_API, downloads never follow a redirect to another
+server, "latest" never installs an older version, and the signer must be exactly PUBLISHER.
 """
 import hashlib
 import json
@@ -29,15 +34,40 @@ import threading
 import time
 from pathlib import Path
 from urllib.parse import urlparse
-from urllib.request import Request, urlopen
+from urllib.error import HTTPError
+from urllib.request import HTTPRedirectHandler, Request, build_opener
 
-API = os.environ.get("FRAMEDECKS_UPDATE_API", "https://api.framedecks.com/releases/latest")
+import manifest_sig
+
+API_DEFAULT = "https://api.framedecks.com/releases/latest"
+API = os.environ.get("FRAMEDECKS_UPDATE_API", API_DEFAULT)     # for testing a release; the installed app ignores it
 DOWNLOAD_PREFIX = "https://downloads.framedecks.com/"
 VERSION_RE = re.compile(r"^\d+(\.\d+){1,3}$")
 HEX64 = re.compile(r"^[0-9a-f]{64}$")
 MAX_INSTALLER = 600 * 1024 * 1024          # a FrameDecks installer is about 150 MB; anything this big is wrong
 KEEP_INSTALLED = 2                          # installers kept for putting a version back
 PUBLISHER = "Shobin Mathews"                # the code-signing certificate's name (packaging/installer.iss AppPublisher)
+# 9.2 Public keys whose signature a release manifest must carry ({key id: 32-byte public key in hex}), made with
+# tools/manifest_key.py; the private key is the MANIFEST_SIGNING_KEY secret of the release workflow. Empty: manifests
+# are read as before 9.2 (the workflow refuses to publish an unsigned manifest once a key is here).
+TRUSTED_KEYS = {
+}
+ALLOWED_HOSTS = ("https://downloads.framedecks.com/", "https://api.framedecks.com/")
+
+
+class _NoOffsiteRedirect(HTTPRedirectHandler):
+    """9.2 Follows a redirect only to FrameDecks' own servers, over https."""
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        if not str(newurl).startswith(ALLOWED_HOSTS):
+            raise HTTPError(newurl, code, "Redirect away from FrameDecks refused", headers, fp)
+        return super().redirect_request(req, fp, code, msg, headers, newurl)
+
+
+_safe_opener = build_opener(_NoOffsiteRedirect)
+
+
+def safe_open(req, timeout=None):
+    return _safe_opener.open(req, timeout=timeout)
 
 
 def version_tuple(v):
@@ -60,10 +90,13 @@ def _build(d):
     return {"url": url, "sha256": sha, "size": size, "file": os.path.basename(urlparse(url).path)}
 
 
-def parse_manifest(data):
+def parse_manifest(data, trusted=None):
     """The release manifest, checked: a version, a Windows build from downloads.framedecks.com with its SHA-256 and
-    size, the notes, and (if any) the previous build. Returns None for anything else."""
+    size, the notes, and (if any) the previous build. With trusted keys ({id: public key hex}), only a manifest one
+    of them signed. Returns None for anything else."""
     if not isinstance(data, dict):
+        return None
+    if trusted and not manifest_sig.verify(data, trusted):
         return None
     version = str(data.get("version") or "")
     if not VERSION_RE.match(version):
@@ -85,10 +118,12 @@ def parse_manifest(data):
 class Updater:
     """The update state for Settings > About, and the steps above. One per program."""
 
-    def __init__(self, data_dir, current_version, frozen=False, opener=urlopen, platform=None, popen=subprocess.Popen):
+    def __init__(self, data_dir, current_version, frozen=False, opener=safe_open, platform=None, popen=subprocess.Popen,
+                 trusted=None):
         self.dir = Path(data_dir) / "updates"
         self.current = current_version
         self.frozen = frozen
+        self.trusted = TRUSTED_KEYS if trusted is None else trusted
         self.open = opener
         self.popen = popen
         self.windows = (platform or sys.platform) == "win32"
@@ -100,14 +135,22 @@ class Updater:
         self.ready = None                       # path of a checked installer for self.manifest
         self.state["result"] = self.read_result()
 
+    @property
+    def api(self):
+        """9.2 The installed app always asks FrameDecks; FRAMEDECKS_UPDATE_API (API) is for testing from source."""
+        return API_DEFAULT if self.frozen else API
+
     # ---------- asking ----------
     def check(self, timeout=10):
         """Ask the update service once. Never raises; a failure leaves the last answer in place."""
         try:
-            req = Request(API, headers={"Accept": "application/json",
+            req = Request(self.api, headers={"Accept": "application/json",
                                         "User-Agent": f"FrameDecks/{self.current} ({'Windows' if self.windows else sys.platform})"})
             with self.open(req, timeout=timeout) as r:
-                found = parse_manifest(json.loads(r.read(256 * 1024).decode("utf-8")))
+                raw = json.loads(r.read(256 * 1024).decode("utf-8"))
+            found = parse_manifest(raw, self.trusted)
+            if found is None and self.trusted and parse_manifest(raw) is not None:
+                self.state["checkError"] = "BadSignature"        # a manifest FrameDecks did not sign: ignored
             if found:
                 with self.lock:
                     self.manifest = found
@@ -163,7 +206,7 @@ class Updater:
             valid, signer = winapi.authenticode(path)
         except Exception:
             return False
-        return valid and PUBLISHER in signer
+        return valid and str(signer).strip() == PUBLISHER          # 9.2 exactly the publisher, not a name containing it
 
     def download(self, which="latest"):
         """Fetch and check the newest version (or the previous one). Returns the path of the checked installer."""
@@ -175,6 +218,8 @@ class Updater:
         version = m["version"] if which == "latest" else (m["previous"] or {}).get("version")
         if not build:
             raise ValueError("There is no earlier version to go back to.")
+        if which == "latest" and version_tuple(version) <= version_tuple(self.current):
+            raise ValueError(f"FrameDecks {self.current} is already this version or newer; nothing was installed.")
         self.state.update(phase="downloading", progress=0, error=None)
         dest = self.dir / f"FrameDecks-{version}-Setup.exe"
         try:
