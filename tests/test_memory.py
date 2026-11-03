@@ -366,27 +366,47 @@ class OnTheCamera(unittest.TestCase):
     def show(self, layout="beside", side="right", share=False, cards=None):
         self.st["live"]["memory"] = {"cards": cards or self.CARDS, "layout": layout, "side": side, "share": share}
 
-    def test_beside_the_picture_shrinks_left_and_the_chat_takes_the_right(self):
+    def test_beside_the_video_keeps_its_size_and_the_bubbles_go_on_top_at_the_right(self):
         self.fx.need_clean = True
         self.show("beside")
         out = self.run_frames()
-        cols = np.nonzero(self.green(out).any(axis=0))[0]
-        self.assertLessEqual(cols.max(), 640 * 0.71, "the picture is in the left 70 %")
-        self.assertGreater(int(out[:, int(640 * 0.75):].max()), 100, "the chat overlay is on the right")
+        self.assertTrue(self.green(out[:, :int(640 * 0.70)]).all(), "the video is whole on the left: nothing shrunk")
+        self.assertTrue(self.green(out[:12, :]).all() and self.green(out[-12:, :]).all(), "the video fills the picture")
+        right = ~self.green(out[:, int(640 * 0.72):])
+        self.assertGreater(int(right.sum()), 2000, "the bubbles are on top of the video, on the right")
+        self.assertEqual(self.fx.overlay_area(640, 360), [0, 54, 448, 252], "the overlays go into the left 70 %")
         self.assertIsNotNone(self.fx.present_frame)
-        self.assertTrue(self.green(self.fx.present_frame)[:, 600:].all(), "the Share Window keeps the whole picture")
+        self.assertTrue(self.green(self.fx.present_frame)[:, 600:].all(), "the Share Window keeps the picture without them")
 
     def test_below(self):
         self.show("below")
         out = self.run_frames()
-        rows = np.nonzero(self.green(out).any(axis=1))[0]
-        self.assertLessEqual(rows.max(), 360 * 0.73, "the picture is in the top 72 %")
+        self.assertTrue(self.green(out[:int(360 * 0.70)]).all(), "the video is whole above the bubbles")
+        self.assertFalse(self.green(out[int(360 * 0.75):]).all(), "the bubbles run along the bottom, over the video")
+        self.assertEqual(self.fx.overlay_area(640, 360), [90, 0, 461, 259])
 
     def test_left_side(self):
         self.show("beside", side="left")
         out = self.run_frames()
-        cols = np.nonzero(self.green(out).any(axis=0))[0]
-        self.assertGreaterEqual(cols.min(), 640 * 0.29)
+        self.assertTrue(self.green(out[:, int(640 * 0.30):]).all(), "bubbles on the left, the video whole")
+        self.assertFalse(self.green(out[:, :int(640 * 0.28)]).all())
+
+    def test_the_overlays_are_laid_out_beside_the_bubbles(self):
+        from vcam import chatcard
+        self.assertIsNone(chatcard.overlay_rect("over", "right", 1280, 720), "over: nothing moves")
+        self.show("over")
+        self.run_frames(5)
+        self.assertIsNone(self.fx.overlay_area(640, 360))
+        self.st["live"]["blackout"] = True
+        self.show("beside")
+        self.assertIsNone(self.fx.overlay_area(640, 360), "black screen: nothing to move")
+
+    def test_the_bubbles_beside_keep_clear_of_the_camera_inset(self):
+        self.fx.avoid = [640 - 160 - 16, 360 - 90 - 16, 160, 90]
+        self.show("beside")
+        out = self.run_frames()
+        ax, ay, aw, ah = self.fx.avoid
+        self.assertTrue(self.green(out[ay:ay + ah, ax:ax + aw]).all(), "nothing over the inset")
 
     def test_over_keeps_the_whole_picture_and_clears_the_camera_inset(self):
         self.fx.avoid = [640 - 192 - 16, 360 - 144 - 16, 192, 144]
@@ -438,9 +458,8 @@ class OnTheCamera(unittest.TestCase):
         self.assertEqual(chatcard.avatar_colour("Sarah"), chatcard.avatar_colour(" sarah "))
         self.assertGreater(max(chatcard.pop(t / 20) for t in range(21)), 1.0, "the pop overshoots a little")
         self.assertEqual(round(chatcard.pop(1.0), 3), 1.0)
-        r = chatcard.picture_rect("beside", "right", 1280, 720, 1.0)
-        self.assertEqual([round(v) for v in r], [0, 108, 896, 504])
-        self.assertEqual(chatcard.picture_rect("over", "right", 1280, 720, 1.0), [0, 0, 1280, 720])
+        self.assertEqual(chatcard.overlay_rect("beside", "right", 1280, 720), [0, 108, 896, 504])
+        self.assertEqual(chatcard.overlay_rect("beside", "left", 1280, 720), [384, 108, 896, 504])
 
     def test_floating_bubbles_keep_clear_of_the_cards_on_screen(self):
         from vcam import chatcard

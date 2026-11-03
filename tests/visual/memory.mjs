@@ -56,7 +56,9 @@ check(await preview.$(".chatwin, .chat-bar, .chat-typing") === null, "only bubbl
 await preview.waitForFunction(() => getComputedStyle(document.querySelector(".stage-root")).transform.startsWith("matrix(0.7,"), null, { timeout: 3000 }).catch(() => {});
 const beside = await preview.evaluate(() => ({ cls: document.documentElement.className, t: getComputedStyle(document.querySelector(".stage-root")).transform,
   chat: document.querySelector(".zone-chat").getBoundingClientRect().left }));
-check(beside.cls.includes("mem-beside") && beside.t.startsWith("matrix(0.7"), "beside: the rest of the picture shrinks to 70 %");
+check(beside.cls.includes("mem-beside") && beside.t.startsWith("matrix(0.7"), "beside: the overlays shrink to 70 %");
+check(await preview.evaluate(() => getComputedStyle(document.body).backgroundImage.includes("gradient") && getComputedStyle(document.querySelector(".stage-root")).backgroundImage === "none"),
+  "beside: the video (the preview picture) keeps its size; the bubbles are on top of it");
 check(beside.chat >= 1280 * 0.69, "beside: the chat overlay takes the right column");
 if (SHOTS) { await preview.waitForTimeout(800); await preview.screenshot({ path: `${SHOTS}/memory-beside.png` }); }
 

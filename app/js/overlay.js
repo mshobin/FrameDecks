@@ -372,8 +372,8 @@ var TEXT_ICON = {
  * bar or panel; each card is a bubble (the sender's initials on their colour, the name, the app, the message), in the
  * order the cards were copied, newest at the foot. A new bubble pops open from its avatar; one that leaves fades away.
  * Show expands a bubble to its full text; a pinned one has a gold edge and a Pinned tag. In the Studio preview the
- * bubbles follow the camera's layout: beside or below the picture (the rest of the page shrinks: html.mem-beside /
- * mem-below) or over it, where they move clear of the cards on the page (avoidCards). */
+ * bubbles follow the camera's layout: beside or below, on top of the video (only the overlays, .stage-root, shrink
+ * into the rest of the page: html.mem-beside / mem-below; the video is never resized) or over it, where they move clear of the cards on the page (avoidCards). */
 var CHAT_SRC = {zoom: 'Zoom', teams: 'Teams', meet: 'Google Meet', webex: 'Webex', slack: 'Slack', discord: 'Discord', chatgpt: 'ChatGPT',
   claude: 'Claude', copilot: 'Copilot', youtube: 'YouTube', twitch: 'Twitch', facebook: 'Facebook', whatsapp: 'WhatsApp', sms: 'Messages',
   phone: 'Phone', clipboard: ''};

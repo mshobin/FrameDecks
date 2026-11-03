@@ -5,11 +5,14 @@ circle, the sender's name, the app it came from and the message), in the order t
 foot like a chat. A bubble that arrives pops open (program.py scales it up from its avatar with a small overshoot);
 one that leaves fades away; the others glide to their new places. Three layouts (Settings: memLayout):
 
-    beside  the whole picture (video, question cards, drawings, camera inset) shrinks to the left 70 % and the bubbles
-            stack in the free column on the right (or the left: memSide). Nothing can overlap.
-    below   the picture shrinks to the top 72 % and the bubbles run along the bottom, side by side.
-    over    the bubbles float on the picture's edge, placed clear of the camera inset, the question, scripture and
-            birthday cards and every other text Content on screen (stack()).
+    beside  the bubbles stack over the video on the right (or the left: memSide); the video keeps its size and the
+            overlays (question, scripture and birthday cards, lower thirds, branding) are laid out in the left 70 %
+            instead (overlay_rect(): they are drawn into that part of the frame, at that size). Nothing overlaps.
+    below   the bubbles run along the bottom over the video; the overlays go into the top 72 %.
+    over    nothing moves; the bubbles float on the picture's edge, placed clear of the camera inset, the question,
+            scripture and birthday cards and every other text Content on screen (stack()).
+
+In every layout the bubbles keep clear of the camera inset (picture-in-picture), which is part of the video.
 
 A bubble shows a two-line preview; Show expands it to its full text (up to eight lines); a pinned bubble has a gold
 edge and a PINNED tag. Everything is measured from the picture's size, so it scales with the camera's resolution.
@@ -22,10 +25,9 @@ from PIL import Image, ImageDraw, ImageFilter
 
 from .cards import Card, _premult
 
-SQUEEZE = {"beside": 0.70, "below": 0.72}      # how much of the picture the video keeps
+SQUEEZE = {"beside": 0.70, "below": 0.72}      # how much of the picture the overlays keep (the video keeps it all)
 EASE_S, POP_S, MOVE_S, CLOSE_S = 0.45, 0.42, 0.30, 0.30
 CENTRE_Y, TOP_Y = 0.42, 0.12               # the floating bubbles ("over")
-BACKDROP = (34, 18, 11)                         # BGR #0b1222 around the shrunken picture (the compositor's backdrop)
 SRC_NAMES = {"zoom": "Zoom", "teams": "Teams", "meet": "Google Meet", "webex": "Webex", "slack": "Slack",
              "discord": "Discord", "chatgpt": "ChatGPT", "claude": "Claude", "copilot": "Copilot", "youtube": "YouTube",
              "twitch": "Twitch", "facebook": "Facebook", "clipboard": "Chat"}
@@ -80,7 +82,8 @@ def _u(W, H):
 
 
 def regions(layout, side, W, H):
-    """(picture rect, chat rect) as [x, y, w, h]. "over": the picture is whole and the chat rect is only its width."""
+    """(overlay rect, bubble rect) as [x, y, w, h]: where the cards and text overlays are laid out, and where the
+    bubbles go. "over": the overlays keep the whole picture and the bubble rect is only its width."""
     u = _u(W, H)
     m = 2.2 * u
     if layout == "beside":
@@ -239,20 +242,29 @@ def stack(sizes, W, H, layout="beside", side="right", avoid=()):
     if layout == "below":
         _, rect = regions(layout, side, W, H)
         row = sum(w for w, _ in sizes) + 1.2 * u * (len(sizes) - 1)
-        x, out = rect[0] + max(0.0, (rect[2] - row) / 2), []
+        x0 = rect[0] + max(0.0, (rect[2] - row) / 2)
+        tall = max(h for _, h in sizes)
+        for x in sorted({x0, rect[0], rect[0] + max(0.0, rect[2] - row)}, key=lambda v: abs(v - x0)):
+            if not any(_overlaps(x, rect[1], row, tall, r, 1.6 * u) for r in avoid):
+                x0 = x                                    # clear of the camera inset (one end of the strip or the other)
+                break
+        x, out = x0, []
         for w, h in sizes:
             out.append((x, rect[1]))
             x += w + 1.2 * u
         return out
     total = sum(h for _, h in sizes) + gap * (len(sizes) - 1)
     widest = max(w for w, _ in sizes)
+    avoid = [r for r in (avoid or ()) if r and r[2] > 0 and r[3] > 0]
     if layout == "beside":
         _, rect = regions(layout, side, W, H)
-        y = rect[1] + max(0.0, (rect[3] - total) / 2)
         x = rect[0]
+        want = rect[1] + max(0.0, (rect[3] - total) / 2)
+        lo, hi = rect[1], max(rect[1], rect[1] + rect[3] - total)
+        ys = sorted({want} | {lo + i * u for i in range(int((hi - lo) // u) + 1)} | {hi}, key=lambda v: abs(v - want))
+        y = next((yy for yy in ys if not any(_overlaps(x, yy, widest, total, r, 1.6 * u) for r in avoid)), want)
     else:
         m = 3.0 * u
-        avoid = [r for r in (avoid or ()) if r and r[2] > 0 and r[3] > 0]
         pad = 2.6 * u                                     # clear of the cards by the bubbles' shadows and some air
         best = None
         for k, sd in enumerate((side, "left" if side == "right" else "right")):
@@ -294,25 +306,11 @@ def pop(t):
     return 0.6 + 0.4 * (1 + c3 * (t - 1) ** 3 + c1 * (t - 1) ** 2)
 
 
-def picture_rect(layout, side, W, H, k):
-    """Where the picture goes when the chat overlay is k (0..1) of the way in."""
-    if layout not in SQUEEZE or k <= 0:
-        return [0, 0, W, H]
+def overlay_rect(layout, side, W, H):
+    """Where the overlays are laid out while bubbles are on screen ([x, y, w, h] in whole pixels), or None: the
+    whole picture. The video itself is never resized."""
+    if layout not in SQUEEZE:
+        return None
     pic, _ = regions(layout, side, W, H)
-    e = ease(k)
-    return [pic[i] * e + full * (1 - e) for i, full in enumerate((0, 0, W, H))]
-
-
-def squeeze(frame, rect):
-    """The picture shrunk into rect on the backdrop (a new array; the frame is not changed)."""
-    import cv2
-    H, W = frame.shape[:2]
-    x, y, w, h = (int(round(v)) for v in rect)
-    if w >= W and h >= H:
-        return frame
-    w, h = max(2, min(W, w)), max(2, min(H, h))
-    x, y = max(0, min(W - w, x)), max(0, min(H - h, y))
-    out = np.empty_like(frame)
-    out[:] = BACKDROP
-    out[y:y + h, x:x + w] = cv2.resize(frame, (w, h), interpolation=cv2.INTER_AREA)
-    return out
+    x, y = int(round(pic[0])), int(round(pic[1]))
+    return [x, y, max(2, min(W - x, int(round(pic[2])))), max(2, min(H - y, int(round(pic[3]))))]

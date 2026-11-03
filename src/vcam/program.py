@@ -155,7 +155,14 @@ class ProgramFX:
         H, W = frame.shape[:2]
         live = st.get("live") or {}
         hold = bool(live.get("blackout") or live.get("emergency"))
-        self._texts(frame, st, live, W, H, now, dt, hold)
+        r = self._overlay_rect(st, W, H, hold)               # 9.1 bubbles beside / below: the overlays move aside
+        if r:                                                  # (drawn on a contiguous copy, then put back)
+            sub = frame[r[1]:r[1] + r[3], r[0]:r[0] + r[2]]
+            part = np.ascontiguousarray(sub)
+            self._texts(part, st, live, r[2], r[3], now, dt, hold)
+            sub[:] = part
+        else:
+            self._texts(frame, st, live, W, H, now, dt, hold)
         # scene transition: started by a new live sequence number
         seq = live.get("seq", 0)
         if self.seq is None:
@@ -215,10 +222,27 @@ class ProgramFX:
                 rects.append([c.x, c.y, c.w, c.h])
         return tuple(tuple(int(v // u) * u for v in r[:2]) + tuple(int(-(-v // u)) * u + u for v in r[2:4]) for r in rects)
 
+    def _overlay_rect(self, st, W, H, hold=False):
+        m = (st.get("live") or {}).get("memory")
+        if hold or not isinstance(m, dict) or not m.get("cards") or not self.cards_on():
+            return None
+        return chatcard.overlay_rect(m.get("layout"), "left" if m.get("side") == "left" else "right", W, H)
+
+    def overlay_area(self, W, H):
+        """9.1 Where the cards and text overlays go now ([x, y, w, h]), or None for the whole picture: while chat
+        bubbles are beside or below, the overlays are laid out in the rest of the picture, so nothing overlaps and the
+        video keeps its size (the compositor draws the verse / question / birthday cards there too)."""
+        try:
+            st = self.get_state() or {}
+        except Exception:
+            return None
+        live = st.get("live") or {}
+        return self._overlay_rect(st, W, H, bool(live.get("blackout") or live.get("emergency")))
+
     def _memory(self, out, live, W, H, now, dt, hold):
-        """Draw live.memory as chat bubbles: beside / below the picture (the picture shrinks out of their way) or
-        floating over it, clear of everything else. Returns (picture, picture without the bubbles for the Share
-        Window, or None)."""
+        """Draw live.memory as chat bubbles on top of the video: beside / below (the overlays were laid out in the rest
+        of the picture) or floating over it, clear of everything else. Returns (picture, picture without the bubbles
+        for the Share Window, or None)."""
         m = live.get("memory") if isinstance(live.get("memory"), dict) else None
         cards = [c for c in (m or {}).get("cards") or [] if isinstance(c, dict) and c.get("id")]
         on = bool(cards) and not hold and self.cards_on()
@@ -246,13 +270,11 @@ class ProgramFX:
             return out, None
         info = M["info"] or {}
         clean = out.copy() if self.need_clean and not info.get("share") else None
-        if M["layout"] in chatcard.SQUEEZE:                       # the picture makes room: nothing can overlap
-            out = chatcard.squeeze(out, chatcard.picture_rect(M["layout"], M["side"], W, H, M["k"]))
         if out is None or not out.flags.writeable:
             out = out.copy()
         # where each bubble goes (the floating ones: clear of the cards on screen)
         live_ids = [i for i in M["order"] if i in M["items"]]
-        avoid = self._avoid_rects(W, H) if M["layout"] == "over" else ()
+        avoid = self._avoid_rects(W, H) if M["layout"] == "over" else ((tuple(self.avoid),) if self.avoid else ())
         pkey = (tuple((i, M["items"][i]["card"].w, M["items"][i]["card"].h) for i in live_ids), M["layout"], M["side"], avoid, W, H)
         if M["place"] is None or M["place"][0] != pkey:
             spots = chatcard.stack([(M["items"][i]["card"].w, M["items"][i]["card"].h) for i in live_ids], W, H,
@@ -261,7 +283,6 @@ class ProgramFX:
         targets = M["place"][1]
         follow = 1 - math.exp(-dt / (chatcard.MOVE_S / 3))
         from .overlay import OverlayLayer
-        a_all = chatcard.ease(M["k"]) if M["layout"] in chatcard.SQUEEZE else 1.0
         for i, it in list(M["items"].items()):
             c = it["card"]
             if i in targets:
@@ -275,7 +296,7 @@ class ProgramFX:
                 if M["items"].get(i) is it:                      # (the drawing thread may have put a new one there)
                     del M["items"][i]
                 continue
-            alpha, scale = a_all, 1.0
+            alpha, scale = 1.0, 1.0
             if it["gone"]:
                 g = (now - it["gone"]) / chatcard.CLOSE_S
                 if g >= 1:

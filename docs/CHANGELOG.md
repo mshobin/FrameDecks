@@ -62,6 +62,9 @@ Full notes: [docs/releases/v9.1.0.md](releases/v9.1.0.md). Design and testing ch
 - The Memory Cards are drawn as chat bubbles only, with no window, title bar or panel: `vcam/chatcard.py` draws one
   Card per bubble (`bubble`, `draw`, `stack`), `vcam/program.py` pops each new one open (`chatcard.pop`), fades
   leaving ones and glides the rest; `overlay.js` / `overlay.css` do the same with `.chat-list` / `.chat-msg.pop`.
+- The video is never resized: beside / below, the bubbles go on top of it and only the overlays are laid out in the rest
+  of the picture (`chatcard.overlay_rect`, `ProgramFX.overlay_area`, `Compositor._finish`; on the overlay pages only
+  `.stage-root` scales). 9.0 shrank the whole picture.
 - On screen the cards keep the order they were copied in; up to six at once (`MAX_VISIBLE`).
 - Floating bubbles ("over") keep clear of every card on screen: `OverlayLayer.visible()`, the program's text layers
   and the camera inset (`ProgramFX._avoid_rects`, `chatcard.stack`); `avoidCards` on the overlay pages.

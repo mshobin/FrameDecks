@@ -22,8 +22,7 @@ html,body{margin:0;height:100%;background:transparent;overflow:hidden}
 body{font-family:var(--sans);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
 body.bg-dark{background:#0b1222}
 body.bg-green{background:#00b140}
-body.bg-preview{background:#0b1222}
-body.bg-preview .stage-root{background:
+body.bg-preview{background:
   radial-gradient(ellipse 17% 30% at 50% 60%, #59606f 0%, #3a404c 60%, transparent 61%),
   radial-gradient(ellipse 7.5% 13.5% at 50% 30%, #6b7282 0%, #555c6b 70%, transparent 71%),
   linear-gradient(165deg,#465063 0%,#262c38 100%)}
@@ -210,9 +209,10 @@ body.bg-preview .stage-root{background:
 .card-lowerthird .card-rule{margin:calc(var(--s)*.7) 0 calc(var(--s)*.8)}
 .card-lowerthird .card-text{font-weight:500;font-size:calc(var(--s)*1.6);color:var(--gold-text)}
 /* 9.1 the Memory Cards as chat bubbles (the same design as src/vcam/chatcard.py on FrameDecks vCam): only the bubbles,
-   no window or panel. beside: everything else (the stage) shrinks to the left 70 % and the bubbles stack in the right
-   column; below: the stage shrinks to the top 72 % and the bubbles run along the bottom; over: they float on the edge,
-   clear of the cards (overlay.js avoidCards). The Studio preview follows the camera's layout; the OBS / browser overlay
+   no window or panel, on top of the video. The video never changes size: beside: the overlays (the stage: question,
+   scripture and birthday cards, lower thirds, branding) shrink into the left 70 % and the bubbles stack over the video
+   on the right; below: the overlays shrink into the top 72 % and the bubbles run along the bottom; over: nothing
+   shrinks and the bubbles float on the edge, clear of the cards (overlay.js avoidCards). The Studio preview follows the camera's layout; the OBS / browser overlay
    pages always float them ("over"). */
 .stage-root{position:fixed;inset:0;transform-origin:0 50%;transition:transform .45s cubic-bezier(.4,0,.2,1)}
 html.mem-beside .stage-root{transform:scale(.7)}

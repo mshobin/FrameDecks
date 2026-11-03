@@ -6,8 +6,10 @@ keeps all your meetings, members, settings, pinned Memory Cards and recordings.
 
 ## What's New
 - **Only chat bubbles on screen.** When you click **Show**, the Memory Card appears on FrameDecks vCam as a chat
-  bubble: the sender's initials on their own colour, their name, the app it came from and the message. There is no
-  chat window, title bar or panel around the bubbles any more. Each bubble pops open from its avatar; one that leaves
+  bubble on top of your video: the sender's initials on their own colour, their name, the app it came from and the
+  message. There is no chat window, title bar or panel around the bubbles any more, and your video is never resized:
+  only the other overlays (question and scripture cards, lower thirds, branding) become smaller and move aside while
+  bubbles are beside or below. Each bubble pops open from its avatar; one that leaves
   fades away and the others glide into place.
 - **Several chats at once.** Copy as many messages as you like: each keeps its sender's name and its message. Copying
   a whole conversation (WhatsApp, Teams, Slack, Discord or Zoom chat) makes one card per message. Tick several cards

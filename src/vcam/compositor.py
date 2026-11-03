@@ -298,7 +298,12 @@ class Compositor:
 
     def _finish(self, frame, w, h, t):
         if self.cards is not None and self.cards_on():
-            frame = self.cards(frame)
+            r = self.program_fx.overlay_area(w, h) if self.program_fx is not None else None
+            if r:                                     # 9.1 chat bubbles beside / below: the cards go in the rest
+                view = frame[r[1]:r[1] + r[3], r[0]:r[0] + r[2]]
+                view[:] = self.cards(np.ascontiguousarray(view))
+            else:
+                frame = self.cards(frame)
         if self.program_fx is not None:
             try:
                 frame = self.program_fx(frame)

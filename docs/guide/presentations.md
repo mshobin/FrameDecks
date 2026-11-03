@@ -312,9 +312,10 @@ newest. **Esc** (Hide all) takes them all off screen until the next card. You ca
 
 **Where the bubbles go** (⚙ → *On FrameDecks vCam*):
 
-- **Beside the video** (the default): the whole picture (your camera, the question and scripture cards, drawings)
-  shrinks to the left and the bubbles stack in the column on the right (*Side*: or the left). Nothing overlaps.
-- **Below the video**: the picture shrinks upwards and the bubbles run along the bottom.
+- **Beside the video** (the default): the bubbles sit on top of your video on the right (*Side*: or the left). Your
+  video keeps its full size; only the other overlays (the question and scripture cards, lower thirds, branding)
+  become smaller and move to the left, so nothing overlaps. They go back when the bubbles go.
+- **Below the video**: the bubbles run along the bottom, on top of the video; the other overlays move up.
 - **Over the picture**: the bubbles float at the edge of the picture and move out of the way of the question,
   scripture and birthday cards, lower thirds, branding and a camera inset.
 

@@ -1391,8 +1391,10 @@ The camera now draws one small Card per bubble instead of one window image. That
 bubble is scaled, for 0.42 s, with a small overshoot from its avatar) and lets bubbles glide when one leaves. Floating
 bubbles needed a real answer to "never overlap": `chatcard.stack` tries the chosen edge at the place nearest its middle
 that touches none of the rectangles on screen (the camera inset, the verse / question / birthday cards from the
-overlay layer, the scene's text Content), then the other edge. The beside / below layouts keep 9.0's shrink of the
-picture, where nothing can overlap.
+overlay layer, the scene's text Content), then the other edge. Then the owner asked for the bubbles on top of the video, with only the
+overlays resizing: beside / below no longer shrink the picture; the compositor draws the cards, and the program its
+text Content, into the rest of the frame (laid out for that size), and the bubbles go over the video, clear of the
+camera inset.
 
 Copy order is the `at` time of each card; a conversation copied at once is split by `memory.split` and the messages
 get consecutive times. The phone gets its own endpoint, `/api/remote/memory`, because `/api/memory` exposes PC

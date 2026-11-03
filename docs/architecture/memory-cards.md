@@ -35,19 +35,22 @@ Card behaviour:
 
 Settings → *On FrameDecks vCam*:
 
-| Layout | The picture | The chat overlay |
-|---|---|---|
-| **Beside the video** (default) | The whole picture (video, question and scripture cards, lower thirds, branding, drawings, the camera inset) shrinks to the left 70 % (or the right: *Side*) | A full-height column on the right (or left). Nothing can overlap: everything else moved as one. |
-| **Below the video** | Shrinks to the top 72 %, centred | A strip along the bottom, the cards side by side |
-| **Over the picture** | Keeps its size | The 8.8 floating window at the edge, above the middle, clear of the bottom cards, the birthday card, corner badges and the camera inset (it moves above the inset, or to the other edge) |
+| Layout | The video | The overlays (cards, lower thirds, branding) | The bubbles |
+|---|---|---|---|
+| **Beside the video** (default) | Keeps its size | Laid out in the left 70 % (or the right: *Side*), at 70 % of their size | On top of the video in the right 30 % (or left), clear of the camera inset |
+| **Below the video** | Keeps its size | Laid out in the top 72 %, centred | On top of the video along the bottom, side by side |
+| **Over the picture** | Keeps its size | Stay where they are | Float at the edge, clear of the cards, lower thirds, branding and the camera inset (up or down the edge, else the other edge) |
 
-The shrink is animated (0.45 s) when the first card arrives and when the last one goes. All sizes are measured from
-the picture, so the layout scales with the camera's resolution (720p, 1080p, 4K) and works in every app that takes
-the FrameDecks vCam (Teams, Zoom, Google Meet, Webex, Discord, OBS). When a layout has no room for every card, the
-oldest unpinned ones are left out first, then the remaining cards show fewer lines.
+The video and the camera inset (picture-in-picture) are never resized (9.1, owner's request): on the camera the
+compositor draws the verse / question / birthday cards, and the program its text Content, into that part of the frame
+(`chatcard.overlay_rect`, `ProgramFX.overlay_area`), so they are laid out and sized for it. They move back when the last
+bubble goes. All sizes are measured from the picture, so the layout scales with the camera's resolution (720p, 1080p,
+4K) and works in every app that takes FrameDecks vCam (Teams, Zoom, Google Meet, Webex, Discord, OBS). When a layout
+has no room for every bubble, the oldest unpinned ones are left out first, then the rest show fewer lines.
 
-The Studio preview shows the same layout. The OBS / browser overlay pages float the chat overlay (*Over*) because
-they cannot shrink the video under them; they show it only with *Also on the Share Window and overlay pages*.
+The Studio preview shows the same layout (the overlays' `.stage-root` scales; the preview video behind it does not).
+The OBS / browser overlay pages float the bubbles (*Over*) because they cannot know where the video under them is;
+they show them only with *Also on the Share Window and overlay pages*.
 
 ## 3. Architecture
 
@@ -64,8 +67,8 @@ they cannot shrink the video under them; they show it only with *Also on the Sha
                                        ▼
  ┌──────────────────────────────┬────────────────────────────────┬──────────────────────────────┐
  │ vcam/program.py + chatcard.py │ overlay.js / overlay.css       │ memory.js                    │
- │ FrameDecks vCam: squeeze the       │ .stage-root shrinks (beside /   │ the Studio pane and the      │
- │ picture, draw the chat window │ below), .chatwin with bubbles   │ corner popup (desktop_app)   │
+ │ the overlays into the rest of │ .stage-root (the overlays)     │ the Studio pane and the      │
+ │ the frame; bubbles on top     │ scales; .chat-list bubbles     │ corner popup (desktop_app)   │
  └──────────────────────────────┴────────────────────────────────┴──────────────────────────────┘
 ```
 
@@ -103,7 +106,7 @@ The other window drags (the Studio, the Teleprompter, the Share Window) use the 
 2. Capture on (pane, Live tools → Capture copies, or the tray). Copy a message in Teams, Zoom chat, Slack, Discord,
    ChatGPT, Claude, Copilot and a browser: each time the popup shows the card in the screen corner, the Zoom or
    Teams window keeps the keyboard (type in its chat), and the card appears in the chat overlay on FrameDecks vCam (Zoom's
-   own preview): beside the video, the picture shrinking smoothly to the left.
+   own preview): on top of the video at the right; the video keeps its size and a question card moves into the left part.
 3. Share the whole screen in Zoom: the popup is not in the share.
 4. **Show** (popup or pane): the full text; Show again: the first lines. **Pin**: gold edge, stays; restart
    FrameDecks: still there. Unpinned: gone after 12 s.
