@@ -63,7 +63,7 @@ def _wrap(text, font, maxw, max_lines=6):
         else:
             lines.append(cur)
             cur = w
-        while font.getlength(cur) > maxw and len(cur) > 1:   # one very long word: break it
+        while font.getlength(cur) > maxw and len(cur) > 1 and len(lines) <= max_lines:   # one very long word: break it
             k = fit_end(font, cur, 0, len(cur), maxw)           # (a binary search, audit L16)
             lines.append(cur[:k])
             cur = cur[k:]
