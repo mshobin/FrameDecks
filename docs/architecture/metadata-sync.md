@@ -187,7 +187,7 @@ A conflict means the record changed in the cloud since this PC last saw it. Rule
 | First link: the same id made on two PCs for a library item or person (starter questions, imported lists) | The workspace's keeps the id; this PC's is added under a new id. Never overwritten. |
 | `frame`, `template` | **Never lose a Frame.** The cloud's version keeps the id; this PC's version is added as a copy named "‹Frame› (from ‹PC name›)" with a new id, and both appear in the Frames list for a person to tidy. |
 | `order` | Merge: keep the cloud's order, then add Frames and items it lacks at the end. |
-| everything else | Last writer wins: this PC's version is sent again on top. The earlier version stays in the record history (§7). |
+| everything else | Last writer wins: this PC's version is sent again on top. The earlier version stays in the record history (§7), and from 9.3 also on this PC (`kc-sync.json` → `overwritten`: the latest 50, kept 90 days; records over 64 KB only in the history). |
 | `member` | **Never lose a person.** One record per person, so two people edited in two places never collide. The same person changed in two places: last writer wins, and the earlier version stays in the history. |
 | Deleted in one place, changed in the other | The change wins and the record comes back: deleting is never allowed to destroy an edit. |
 

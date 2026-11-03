@@ -9,11 +9,27 @@ import { DOWNLOADS } from "@/lib/pc-setup";
 
 // The program's About page (Settings → About, app/js/about.js) on the website: the same words, from
 // app/js/brand.js through src/lib/brand.json, in the website's design. Opened from the small (i) button.
+// 9.3 (audit L15): the About page's own styles (public/about-page.css) load the first time it opens, not with every
+// page. The dialog opens once they are in (or after a second at most, if the network is slow).
+let aboutStyles: Promise<void> | null = null;
+function loadAboutStyles(): Promise<void> {
+  aboutStyles ??= new Promise<void>((resolve) => {
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = "/about-page.css";
+    link.onload = link.onerror = () => resolve();
+    document.head.appendChild(link);
+    window.setTimeout(resolve, 1000);
+  });
+  return aboutStyles;
+}
+
 export function AboutButton({ label = false }: Readonly<{ label?: boolean }>) {
   const dialog = useRef<HTMLDialogElement>(null);
   const [open, setOpen] = useState(false);
 
-  const show = () => {
+  const show = async () => {
+    await loadAboutStyles();
     setOpen(true);
     dialog.current?.showModal();
     dialog.current?.scrollTo({ top: 0 });

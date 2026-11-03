@@ -221,6 +221,26 @@ class TwoPCs(unittest.TestCase):
         self.assertEqual(self.a.plan["brand"]["meeting"], "From B")
         self.assertEqual(self.b.plan["brand"]["meeting"], "From B")
 
+    def test_the_overwritten_setting_is_kept_on_the_pc_that_won(self):
+        """9.3 (audit L12): last writer wins, and the version it replaced is kept on that PC (latest 50, 90 days)."""
+        for card in ("question", "verse", "birthday"):
+            self.a.plan[card]["visible"] = False
+        self.a.plan["brand"]["meeting"] = "From A"
+        self.b.plan["brand"]["meeting"] = "From B"
+        self.round(self.a, self.b, self.a)
+        kept = self.b.state.get("overwritten") or []
+        self.assertTrue(any(json.dumps(o["body"]).find("From A") >= 0 for o in kept), kept)
+        for o in kept:
+            self.assertEqual(set(o), {"kind", "id", "rev", "by", "at", "body"})
+        engine = C.Engine(self.b.api, self.b.state, self.b.read, self.b.write)
+        for i in range(C.OVERWRITTEN_MAX + 10):
+            engine._keep_overwritten({"kind": "theme", "id": "t", "rev": i, "body": {"n": i}})
+        self.assertEqual(len(self.b.state["overwritten"]), C.OVERWRITTEN_MAX)
+        self.b.state["overwritten"][0]["at"] -= (C.OVERWRITTEN_DAYS + 1) * 86400
+        engine._keep_overwritten({"kind": "theme", "id": "t", "rev": 99, "body": {"x": "y" * (C.OVERWRITTEN_BODY_MAX + 1)}})
+        self.assertEqual(len(self.b.state["overwritten"]), C.OVERWRITTEN_MAX, "the expired one went")
+        self.assertIsNone(self.b.state["overwritten"][-1]["body"], "a very large record is not kept here")
+
     def test_an_edit_beats_a_delete(self):
         frame = self.a.plan["scenes"][2]["id"]
         self.a.plan["scenes"] = [s for s in self.a.plan["scenes"] if s["id"] != frame]

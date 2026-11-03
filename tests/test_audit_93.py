@@ -186,5 +186,91 @@ class PrivateOnThePhone(unittest.TestCase):
         self.assertEqual(mine["text"], "Thank you all")
 
 
+class StateRace(unittest.TestCase):
+    def test_update_state_saves_while_it_still_holds_the_lock(self):
+        """L2: read, change and save happen in one hold of the lock, so a phone's change cannot land in between."""
+        held = []
+        real = server.save_state
+
+        def spy(new):
+            held.append(server.cond._is_owned())
+            return real(new)
+        server.save_state = spy
+        try:
+            server.update_state(lambda st: dict(st, title="Changed by the tray"))
+        finally:
+            server.save_state = real
+        self.assertEqual(held, [True])
+        self.assertEqual(server.state["title"], "Changed by the tray")
+
+    def test_two_threads_changing_the_state_never_lose_a_change(self):
+        start = int(server.state.get("rev", 0))
+
+        def bump(st):
+            st["counter"] = int(st.get("counter") or 0) + 1
+            return st
+        server.update_state(lambda st: dict(st, counter=0))
+        threads = [threading.Thread(target=lambda: [server.update_state(bump) for _ in range(25)]) for _ in range(4)]
+        for t in threads:
+            t.start()
+        for t in threads:
+            t.join()
+        self.assertEqual(server.state["counter"], 100)
+        self.assertEqual(int(server.state["rev"]), start + 101)
+
+
+class BadBodies(unittest.TestCase):
+    def test_a_body_of_the_wrong_shape_is_answered_400(self):
+        """L17: a list where an object belongs used to drop the connection with a traceback."""
+        from http.server import ThreadingHTTPServer
+        import http.client
+        httpd = ThreadingHTTPServer(("127.0.0.1", 0), server.Handler)
+        threading.Thread(target=httpd.serve_forever, daemon=True).start()
+        port = httpd.server_address[1]
+        try:
+            for path in ("/api/vcam/recordings", "/api/vcam/studio"):
+                c = http.client.HTTPConnection("127.0.0.1", port, timeout=10)
+                c.request("POST", path, body="[]", headers={"Host": f"127.0.0.1:{port}", "Content-Type": "application/json",
+                                                           "Origin": f"http://127.0.0.1:{port}"})
+                r = c.getresponse()
+                r.read()
+                c.close()
+                self.assertEqual(r.status, 400, path)
+        finally:
+            httpd.shutdown()
+            httpd.server_close()
+
+
+class LongWords(unittest.TestCase):
+    def test_a_very_long_word_wraps_quickly_and_the_same_way(self):
+        """L16: breaking a word wider than the line is a binary search, with the same result as measuring each step."""
+        from PIL import ImageFont
+        from vcam import cards, chatcard
+        font = ImageFont.truetype(str(next((ROOT / "app" / "fonts").glob("*.ttf"))), 32)
+        text = "x" * 4000 + " and then some words"
+        t0 = time.time()
+        lines = cards.wrap(text, font, 600)
+        bubble = chatcard._wrap(text, font, 600)
+        self.assertLess(time.time() - t0, 2.0)
+        self.assertEqual("".join(text[a:b] for a, b in lines).replace(" ", ""), text.replace(" ", ""))
+        self.assertLessEqual(len(bubble), 6)
+        for a, b in lines:
+            self.assertLessEqual(font.getlength(text[a:b]), 600)
+        for word in ("WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW", "iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii", "a"):
+            for width in (20, 57, 133):
+                j = 1
+                while j < len(word) and font.getlength(word[:j + 1]) <= width:
+                    j += 1
+                self.assertEqual(cards.fit_end(font, word, 0, len(word), width), j, (word, width))
+
+    def test_the_width_cache_has_a_ceiling(self):
+        from PIL import ImageFont
+        from vcam import cards
+        font = ImageFont.truetype(str(next((ROOT / "app" / "fonts").glob("*.ttf"))), 20)
+        for i in range(cards.WIDTH_CACHE_MAX + 50):
+            cards.width(font, f"w{i}")
+        self.assertLessEqual(len(font._bcc_widths), cards.WIDTH_CACHE_MAX)
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -85,15 +85,33 @@ class Fonts:
         return f
 
 
+WIDTH_CACHE_MAX = 4096
+
+
 def width(font, s):
-    """Text width, remembered per font (each word is measured once)."""
+    """Text width, remembered per font (each word is measured once; at most WIDTH_CACHE_MAX words per font, audit L16)."""
     c = getattr(font, "_bcc_widths", None)
     if c is None:
         c = font._bcc_widths = {}
     w = c.get(s)
     if w is None:
+        if len(c) >= WIDTH_CACHE_MAX:
+            c.clear()
         w = c[s] = font.getlength(s)
     return w
+
+
+def fit_end(font, s, a, b, max_w):
+    """9.3 (audit L16): the largest j in (a, b] with s[a:j] at most max_w wide (at least a + 1: one character always
+    goes on a line). A binary search, so breaking a very long word costs a few measurements, not one per character."""
+    lo, hi = a + 1, b
+    while lo < hi:
+        mid = (lo + hi + 1) // 2
+        if font.getlength(s[a:mid]) <= max_w:
+            lo = mid
+        else:
+            hi = mid - 1
+    return lo
 
 
 def _spaced_width(font, s, spacing):
@@ -120,9 +138,7 @@ def wrap(text, font, max_w):
                 return
             k = a
             while k < b:                      # a word wider than the line: break it by characters
-                j = k + 1
-                while j < b and font.getlength(text[k:j + 1]) <= max_w:
-                    j += 1
+                j = fit_end(font, text, k, b, max_w)
                 if j < b:
                     lines.append((k, j))
                     k = j

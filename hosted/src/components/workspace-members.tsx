@@ -21,7 +21,8 @@ export function WorkspaceMembers({
   myRole,
   myUserId,
   onLeft,
-}: Readonly<{ organizationId: string; myRole: Role; myUserId: string; onLeft: () => void }>) {
+  onRoleChange,
+}: Readonly<{ organizationId: string; myRole: Role; myUserId: string; onLeft: () => void; onRoleChange?: () => void }>) {
   const supabase = browserSupabase();
   const { ask, dialog } = useConfirmation();
   const canManage = myRole === "owner" || myRole === "admin";
@@ -129,6 +130,25 @@ export function WorkspaceMembers({
     await load();
   }
 
+  // 9.3 handing the team to someone already in it (0014 transfer_ownership); the owner stays as an admin
+  async function handOver(member: Member) {
+    if (!supabase) return;
+    const name = member.display_name ?? member.email;
+    if (!(await ask({
+      title: `Make ${name} the owner?`,
+      description: "They can then change roles and delete the team. You stay in the team as an admin.",
+      confirmLabel: "Make owner",
+    }))) return;
+    const { error } = await supabase.rpc("transfer_ownership", { org: organizationId, new_owner: member.user_id });
+    if (error) {
+      setMessage({ ok: false, text: userSafeError(error, "Couldn’t hand the team over. Try again.") });
+      return;
+    }
+    setMessage({ ok: true, text: `${name} is now the owner. You are an admin.` });
+    onRoleChange?.();
+    await load();
+  }
+
   async function remove(member: Member) {
     if (!supabase) return;
     const leaving = member.user_id === myUserId;
@@ -181,6 +201,11 @@ export function WorkspaceMembers({
                 )}
                 {runners && member.role === "member" && !canManage && runners.has(member.user_id) && (
                   <span className="member-runner">Can run services</span>
+                )}
+                {myRole === "owner" && !isMe && (
+                  <button className="member-action" type="button" onClick={() => handOver(member)}>
+                    Make owner
+                  </button>
                 )}
                 {canRemove && (
                   <button className="member-action member-danger" type="button" onClick={() => remove(member)}>

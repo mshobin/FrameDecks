@@ -50,6 +50,9 @@ If you see a red cross instead, click the run to read the error, and send it to 
 3. Follow the wizard. Leave **Create a desktop icon** ticked.
    - Leave **Install the FrameDecks vCam for Zoom and Teams** ticked. Windows asks for administrator permission
      once, only for the camera.
+   - From 9.3 the camera's driver file is copied to `C:\Program Files\FrameDecks vCam` (a folder only administrators
+     can change) and registered from there. An update asks for permission again only when the camera itself changed;
+     its copy is named after its content (`vcam-tag.txt`, written by the build).
    - If you had the camera before under its earlier name, it is renamed to **FrameDecks** automatically.
    - Tick **Start automatically when I sign in** if you'd like it ready every time.
 4. When it opens for the first time, it offers to **import your existing data**.

@@ -229,11 +229,27 @@ def pptx_to_pdf(src, dst, timeout=180.0):
             except Exception:
                 box["r"] = "PowerPoint is not installed on this PC. Save the file as PDF in PowerPoint and add the PDF instead."
                 return
-            pres = app.Presentations.Open(str(src), True, False, False)          # read-only, untitled, no window
+            # 9.3 (audit L6): an uploaded file may come from anyone, so its macros never run while it is turned into
+            # slides (3 = msoAutomationSecurityForceDisable). PowerPoint runs one copy for the whole PC, so the
+            # setting the presenter had is put back afterwards.
+            before = None
             try:
-                pres.SaveAs(str(dst), 32)                                         # 32 = ppSaveAsPDF
+                before = app.AutomationSecurity
+                app.AutomationSecurity = 3
+            except Exception as _e:
+                _swallowed("vcam.powerpoint.automation_security", _e)
+            try:
+                pres = app.Presentations.Open(str(src), True, False, False)      # read-only, untitled, no window
+                try:
+                    pres.SaveAs(str(dst), 32)                                     # 32 = ppSaveAsPDF
+                finally:
+                    pres.Close()
             finally:
-                pres.Close()
+                if before is not None:
+                    try:
+                        app.AutomationSecurity = before
+                    except Exception as _e:
+                        _swallowed("vcam.powerpoint.automation_security", _e)
             box["r"] = None
         except Exception as e:
             box["r"] = f"PowerPoint could not open this file ({type(e).__name__})."

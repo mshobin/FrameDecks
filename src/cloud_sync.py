@@ -43,6 +43,7 @@ FRAME_KINDS = ("frame", "template")
 MASS_DELETE_FRAMES = 3      # all Frames gone at once (at least this many): restore from the workspace, never delete
 LIST_KINDS = ("library_question", "library_verse", "member")
 SETTINGS_KINDS = ("theme", "brand", "layout", "meeting")
+OVERWRITTEN_MAX, OVERWRITTEN_DAYS, OVERWRITTEN_BODY_MAX = 50, 90, 64 * 1024
 # 7.1 what the audience sees of the settings: changed only while nothing is on screen, so a look never jumps mid-sentence
 LOOK_KEYS = ("layout/look", "brand/brand", "layout/layout", "theme/cards")
 
@@ -189,6 +190,7 @@ class Engine:
                 apply[k] = dict(r, body=merged)
                 known[k] = {"rev": r["rev"], "hash": remote_hash}   # the merged order differs: it is sent next
             else:                                       # last writer wins: ours is sent on top of theirs
+                self._keep_overwritten(r)               # 9.3 (audit L12): theirs is kept on this PC as well
                 known[k] = {"rev": r["rev"], "hash": remote_hash}
 
         if first_link:                                 # only against records that arrive now, never held ones
@@ -201,6 +203,19 @@ class Engine:
         pushed = self._push()
         return {"pulled": len(remote), "applied": len(apply), "held": len(held), "pushed": pushed,
                 "conflicts": conflicts, "membersRebuilt": rebuilt}
+
+    # 9.3 (audit L12): a list item, setting or order changed both here and elsewhere keeps this PC's version (it is
+    # sent on top). The other version stays in the workspace's history for 30 days; this PC keeps it too, the latest
+    # OVERWRITTEN_MAX for OVERWRITTEN_DAYS, in kc-sync.json ("overwritten"), so an edit is never lost unseen.
+    def _keep_overwritten(self, r):
+        now = time.time()
+        kept = [o for o in self.state.get("overwritten") or [] if now - o.get("at", 0) < OVERWRITTEN_DAYS * 86400]
+        body = r.get("body")
+        if len(json.dumps(body, ensure_ascii=False)) > OVERWRITTEN_BODY_MAX:
+            body = None                                 # too big to keep here; the workspace history still has it
+        kept.append({"kind": r["kind"], "id": r["id"], "rev": r.get("rev"), "by": r.get("updatedBy") or "",
+                     "at": now, "body": body})
+        self.state["overwritten"] = kept[-OVERWRITTEN_MAX:]
 
     def _rebuild_members(self):
         """The member file is gone (deleted, unreadable, a fresh data folder: read() gives None, not []) while this PC

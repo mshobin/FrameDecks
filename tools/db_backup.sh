@@ -22,11 +22,14 @@ printf 'FrameDecks database backup %s\npublic.dump: schema public (pg_restore)\n
 tar -C "$work" -cf "$work/backup.tar" public.dump auth.dump README.txt
 openssl enc -aes-256-cbc -pbkdf2 -iter 200000 -salt -pass env:BACKUP_PASSPHRASE \
   -in "$work/backup.tar" -out "$out/framedecks-backup-$stamp.tar.enc"
+# 9.3 (audit L14): an HMAC of the encrypted file, keyed from the passphrase, so a changed or damaged backup is caught
+python3 "$(dirname "$0")/backup_mac.py" sign "$out/framedecks-backup-$stamp.tar.enc"
 echo "Backup written: $out/framedecks-backup-$stamp.tar.enc ($(stat -c %s "$out/framedecks-backup-$stamp.tar.enc") bytes)"
 # Prove the copy can be restored (audit roadmap step 2): decrypt it again, unpack it and let pg_restore read both
 # archives' tables of contents. A backup that cannot be read fails this run instead of failing on the day it is needed.
 check="$work/check"
 mkdir -p "$check"
+python3 "$(dirname "$0")/backup_mac.py" verify "$out/framedecks-backup-$stamp.tar.enc"
 openssl enc -d -aes-256-cbc -pbkdf2 -iter 200000 -pass env:BACKUP_PASSPHRASE \
   -in "$out/framedecks-backup-$stamp.tar.enc" | tar -C "$check" -xf -
 tables=$(pg_restore --list "$check/public.dump" | grep -c "TABLE DATA" || true)

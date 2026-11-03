@@ -63,6 +63,9 @@ export function ConnectPanel() {
   const admin = useMemo(() => (workspaces ?? []).filter((w) => w.role === "owner" || w.role === "admin"), [workspaces]);
   const chosen = orgId || admin[0]?.id || "";
   const chosenName = admin.find((w) => w.id === chosen)?.name ?? "your workspace";
+  // 9.3 (audit L10): the name the PC gave when it asked for the code (kept in the cloud), not the one in the link,
+  // which anyone could write. Until that answer arrives the page says only "A computer".
+  const pcName = peek?.status === "pending" ? peek.name : "A computer";
 
   async function allow() {
     if (!supabase || !request || !chosen) return;
@@ -100,7 +103,7 @@ export function ConnectPanel() {
   if (!session) {
     return (
       <>
-        <PcLine name={request.name} check={check} />
+        <PcLine name={pcName} check={check} />
         <p className="auth-message">Sign in to allow this PC. You’ll come straight back here.</p>
         <Link className="fd-btn fd-btn-primary auth-primary" href="/sign-in">
           Sign in to continue
@@ -115,7 +118,7 @@ export function ConnectPanel() {
           <Check size={26} strokeWidth={3} />
         </span>
         <p className="fd-connect-big">
-          <b>{request.name}</b> is connected to <b>{chosenName}</b>.
+          <b>{pcName}</b> is connected to <b>{chosenName}</b>.
         </p>
         <p className="auth-message">FrameDecks on the PC shows it within a few seconds. You can close this tab.</p>
         <a className="fd-btn fd-btn-ghost" href="framedecks://linked">
@@ -127,7 +130,7 @@ export function ConnectPanel() {
   if (phase === "cancelled") {
     return (
       <p className="auth-message" role="status">
-        Nothing was shared. {request.name} stays unconnected; you can close this tab.
+        Nothing was shared. {pcName} stays unconnected; you can close this tab.
       </p>
     );
   }
@@ -148,7 +151,7 @@ export function ConnectPanel() {
   if (workspaces !== null && admin.length === 0) {
     return (
       <>
-        <PcLine name={request.name} check={check} />
+        <PcLine name={pcName} check={check} />
         <p className="auth-error" role="alert">
           Only a workspace’s owners and admins can connect a PC. Ask one of them to open this link, or create your own
           workspace first.
@@ -162,9 +165,9 @@ export function ConnectPanel() {
 
   return (
     <>
-      <PcLine name={request.name} check={check} />
+      <PcLine name={pcName} check={check} />
       <p className="fd-connect-ask">
-        Allow <b>{request.name}</b> to use your workspace?
+        Allow <b>{pcName}</b> to use your workspace?
       </p>
       {admin.length > 1 ? (
         <label className="fd-connect-field">

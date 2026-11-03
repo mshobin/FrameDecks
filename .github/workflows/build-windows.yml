@@ -44,12 +44,13 @@ jobs:
         with:
           python-version: "3.12"
           cache: pip
-          cache-dependency-path: packaging/requirements-desktop.txt
+          cache-dependency-path: packaging/requirements-lock.txt
 
+      # 9.3 (audit M5): every package at its pinned version with its SHA-256 (packaging/requirements-lock.txt); pip
+      # refuses anything else. The runner's own pip is used as it is (no unpinned upgrade).
       - name: Install build tools
         run: |
-          python -m pip install --upgrade pip
-          python -m pip install -r packaging/requirements-desktop.txt -c packaging/constraints.txt
+          python -m pip install --require-hashes --no-deps -r packaging/requirements-lock.txt
 
       # 7.1.1: Microsoft Defender quarantined 7.1. PyInstaller's prebuilt launcher is shared by many programs, malware
       # among them, so antivirus models often flag it; building it from source gives FrameDecks its own. Same version
@@ -62,7 +63,13 @@ jobs:
           PIP_CONSTRAINT: packaging/constraints.txt
         run: |
           $v = (Select-String -Path packaging/constraints.txt -Pattern '^pyinstaller==(.+)$').Matches[0].Groups[1].Value
-          python -m pip install --no-cache-dir --force-reinstall --no-deps --no-binary pyinstaller "pyinstaller==$v"
+          # the same PyInstaller source the lock file names, checked against its hash
+          $lock = Get-Content packaging/requirements-lock.txt
+          $at = ($lock | Select-String -Pattern "^pyinstaller==$([regex]::Escape($v))" | Select-Object -First 1).LineNumber
+          $entry = @($lock[$at - 1]); $i = $at
+          while ($i -lt $lock.Count -and $lock[$i] -match '^\s+--hash=') { $entry += $lock[$i]; $i++ }
+          $entry | Set-Content pyinstaller-src.txt
+          python -m pip install --no-cache-dir --force-reinstall --no-deps --no-binary pyinstaller --require-hashes -r pyinstaller-src.txt
           if ($LASTEXITCODE -ne 0) { throw "Building PyInstaller's launcher failed" }
           $boot = python -c "import PyInstaller, pathlib; print(pathlib.Path(PyInstaller.__file__).parent / 'bootloader' / 'Windows-64bit-intel')"
           Get-ChildItem $boot | Format-Table Name, Length, LastWriteTime
@@ -97,6 +104,11 @@ jobs:
           foreach ($f in 'framedecks_vcam64.dll', 'framedecks_vcam32.dll') { $files[$f] = (Get-FileHash "src/vcam/bin/$f" -Algorithm SHA256).Hash }
           @{ builtBy = 'GitHub Actions'; run = '${{ github.run_number }}'; commit = '${{ github.sha }}'; files = $files } |
             ConvertTo-Json | Set-Content -Encoding utf8 src/vcam/bin/build-info.json
+          # 9.3 (audit H4): the name the camera's copy in Program Files gets (register-framedecks-camera.cmd), from the
+          # two files' content, so Windows asks for permission again only when the camera itself changed
+          $tag = (Get-FileHash -InputStream ([IO.MemoryStream]::new([Text.Encoding]::ASCII.GetBytes($files['framedecks_vcam64.dll'] + $files['framedecks_vcam32.dll']))) -Algorithm SHA256).Hash.Substring(0, 16).ToLower()
+          [IO.File]::WriteAllText("$PWD/src/vcam/bin/vcam-tag.txt", $tag)
+          Write-Host "Camera tag: $tag"
           Get-ChildItem src/vcam/bin
 
       - name: Self-check (program starts and serves its pages)
@@ -262,6 +274,20 @@ jobs:
           if ($p.ExitCode -ne 0) { throw "installer exit code $($p.ExitCode)" }
           $dir = Join-Path $env:LOCALAPPDATA 'Programs\FRAMEDECKS'
           if (-not (Test-Path (Join-Path $dir 'FRAMEDECKS.exe'))) { throw "FRAMEDECKS.exe was not installed in $dir" }
+          # 9.3 (audit H4): the camera registers from its copy in Program Files (named by vcam-tag.txt) and is removed
+          # cleanly again. The runner is an administrator, so the scripts run here without a prompt.
+          $bin = Join-Path $dir '_internal\vcam\bin'
+          $tag = (Get-Content (Join-Path $bin 'vcam-tag.txt') -Raw).Trim()
+          $clsid = 'Registry::HKEY_CLASSES_ROOT\CLSID\{6F2B8C3E-4D7A-4B9E-9C11-B5CC0A1E7D21}'
+          & (Join-Path $bin 'register-framedecks-camera.cmd')
+          if ($LASTEXITCODE -ne 0) { throw "registering the camera failed ($LASTEXITCODE)" }
+          $want = Join-Path $env:ProgramFiles "FrameDecks vCam\framedecks_vcam64-$tag.dll"
+          $got = (Get-ItemProperty "$clsid\InprocServer32").'(default)'
+          if ($got -ne $want) { throw "the camera is registered from '$got', not '$want'" }
+          Write-Host "Camera registered from $got"
+          & (Join-Path $bin 'unregister-framedecks-camera.cmd')
+          if (Test-Path $clsid) { throw "the camera is still registered after removing it" }
+          if (Test-Path (Join-Path $env:ProgramFiles 'FrameDecks vCam')) { throw "the camera's folder is still there after removing it" }
           $env:KC_DATA_DIR = Join-Path $env:RUNNER_TEMP 'fd-smoke-data'
           $app = Start-Process (Join-Path $dir 'FRAMEDECKS.exe') -PassThru
           $ok = $false

@@ -44,7 +44,8 @@ lives in one place: `APP_VERSION` in `src/server.py`.
 5. **Update the user documentation** for any changed behaviour.
    - **Changed a Python package?** Builds install `packaging/requirements-desktop.txt` with the exact versions in
      `packaging/constraints.txt`. After changing a requirement, run a build, test the installer, then copy the
-     build log's "Successfully installed …" versions into `constraints.txt`.
+     build log's "Successfully installed …" versions into `constraints.txt`. Then make `packaging/requirements-lock.txt` again with the
+     `uv pip compile` command at its top: the build installs that file with `--require-hashes` (9.3, audit M5).
 6. **Run the checks locally:**
    ```bash
    node tests/run.js

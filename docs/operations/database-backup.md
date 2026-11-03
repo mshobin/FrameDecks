@@ -15,7 +15,8 @@ It holds:
 - `auth.dump`: the sign-in accounts (`auth.users`, `auth.identities`).
 - `README.txt`: when it was made.
 
-It is encrypted with AES-256 using your `BACKUP_PASSPHRASE`. Without the passphrase nobody can read it, GitHub
+It is encrypted with AES-256 using your `BACKUP_PASSPHRASE`, and from 9.3 on each backup has a `.mac` file next to it
+(an HMAC-SHA256 keyed from the same passphrase) that shows whether the backup was changed or damaged since. Without the passphrase nobody can read it, GitHub
 included. **Lose the passphrase and the backups are lost too.**
 
 Made by `tools/db_backup.sh`, which can also be run by hand on any machine with `pg_dump` 17 and `openssl`.
@@ -27,7 +28,13 @@ You need:
 - **openssl:** Git for Windows includes it, at `C:\Program Files\Git\usr\bin\openssl.exe`.
 
 1. **Download the backup.** Pick the latest good run, then download the artifact and unzip it to get the `.tar.enc`
-   file.
+   file and its `.tar.enc.mac` (backups from 9.3 on).
+1. **Check it was not changed** (needs Python 3, from the repository folder; the passphrase stays out of the command):
+   ```powershell
+   $env:BACKUP_PASSPHRASE = "YOUR PASSPHRASE"
+   python tools/backup_mac.py verify framedecks-backup-DATE.tar.enc
+   ```
+   "exactly as it was made" means go on. Anything else: do not restore that file; take the run before it.
 2. **Decrypt it** in PowerShell, replacing the passphrase and file name:
    ```powershell
    & "C:\Program Files\Git\usr\bin\openssl.exe" enc -d -aes-256-cbc -pbkdf2 -iter 200000 `

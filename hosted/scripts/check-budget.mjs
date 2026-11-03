@@ -11,12 +11,27 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { gzipSync } from "node:zlib";
 
-const BUDGET = { totalJsKB: 400, largestJsKB: 90, cssKB: 24 };
+// 3 November (9.3, audit L15): JS is measured like CSS, per page as a visitor downloads it (the scripts one page loads,
+// heaviest page 253 KB), with a 320 KB budget. The total of every chunk stays as a second check, without the
+// old-browser polyfills (noModule: modern browsers never fetch them; 39 KB of the 395 KB that was counted).
+// The About dialog's own styles now load when it is first opened, not with every page.
+const BUDGET = { pageJsKB: 320, totalJsKB: 400, largestJsKB: 90, cssKB: 24 };
 const dir = fileURLToPath(new URL("../out/_next/static/chunks/", import.meta.url)); // a real path on Windows too (not "/C:/…")
+// the scripts browsers that run modules never load (<script noModule>): not counted
+const noModule = new Set();
+(function walk(d) {
+  for (const f of readdirSync(d)) {
+    const p = join(d, f);
+    if (statSync(p).isDirectory()) { if (f !== "_next") walk(p); continue; }
+    if (f.endsWith(".html")) for (const m of readFileSync(p, "utf8").matchAll(/<script src="\/_next\/static\/chunks\/([\w-]+\.js)"[^>]*noModule/g)) noModule.add(m[1]);
+  }
+})(fileURLToPath(new URL("../out/", import.meta.url)));
 let js = 0, largest = 0, css = 0, largestName = "";
+const jsSize = {};
 for (const f of readdirSync(dir)) {
   const size = gzipSync(readFileSync(join(dir, f))).length / 1024;
-  if (f.endsWith(".js")) {
+  if (f.endsWith(".js") && !noModule.has(f)) {
+    jsSize[f] = size;
     js += size;
     if (size > largest) [largest, largestName] = [size, f];
   } else if (f.endsWith(".css")) css += size;
@@ -25,22 +40,27 @@ for (const f of readdirSync(dir)) {
 const out = fileURLToPath(new URL("../out/", import.meta.url));
 const cssSize = {};
 for (const f of readdirSync(dir)) if (f.endsWith(".css")) cssSize[f] = gzipSync(readFileSync(join(dir, f))).length / 1024;
-let pageCss = 0, pageName = "";
+let pageCss = 0, pageName = "", pageJs = 0, pageJsName = "";
 (function walk(d) {
   for (const f of readdirSync(d)) {
     const p = join(d, f);
     if (statSync(p).isDirectory()) { if (f !== "_next") walk(p); continue; }
     if (!f.endsWith(".html")) continue;
-    const linked = [...new Set([...readFileSync(p, "utf8").matchAll(/chunks\/([\w-]+\.css)/g)].map((m) => m[1]))];
+    const html = readFileSync(p, "utf8");
+    const scripts = [...new Set([...html.matchAll(/<script src="\/_next\/static\/chunks\/([\w-]+\.js)"/g)].map((m) => m[1]))];
+    const jsHere = scripts.reduce((a, c) => a + (jsSize[c] ?? 0), 0);
+    if (jsHere > pageJs) [pageJs, pageJsName] = [jsHere, p.slice(out.length)];
+    const linked = [...new Set([...html.matchAll(/chunks\/([\w-]+\.css)/g)].map((m) => m[1]))];
     const size = linked.reduce((a, c) => a + (cssSize[c] ?? 0), 0);
     if (size > pageCss) [pageCss, pageName] = [size, p.slice(out.length)];
   }
 })(out);
 css = pageCss;
-const report = `JS ${js.toFixed(0)} KB (budget ${BUDGET.totalJsKB}), largest ${largest.toFixed(0)} KB ${largestName} ` +
+const report = `JS ${pageJs.toFixed(0)} KB on the heaviest page, ${pageJsName} (budget ${BUDGET.pageJsKB}), ` +
+  `${js.toFixed(0)} KB in all (budget ${BUDGET.totalJsKB}), largest ${largest.toFixed(0)} KB ${largestName} ` +
   `(budget ${BUDGET.largestJsKB}), CSS ${css.toFixed(1)} KB on the heaviest page, ${pageName} (budget ${BUDGET.cssKB}), gzipped`;
 console.log(report);
-if (js > BUDGET.totalJsKB || largest > BUDGET.largestJsKB || css > BUDGET.cssKB) {
+if (pageJs > BUDGET.pageJsKB || js > BUDGET.totalJsKB || largest > BUDGET.largestJsKB || css > BUDGET.cssKB) {
   console.error("Over the performance budget. Find what grew, or raise the budget on purpose in scripts/check-budget.mjs.");
   process.exit(1);
 }

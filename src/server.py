@@ -431,9 +431,9 @@ def apply_live_media(st):
 
 def update_state(change):
     """Change the live state from inside the program (e.g. the tray's Hide all). Every screen picks it up."""
-    with cond:
-        new = change(json.loads(json.dumps(state)))
-    return save_state(new)
+    with cond:                     # 9.3 (audit L2): read, change and save in one hold of the lock, so a phone's Next
+        new = change(json.loads(json.dumps(state)))     # in between is never written over (cond's lock is re-entrant)
+        return save_state(new)
 
 
 # ---------- 9.0 Memory Cards in the FrameDecks vCam chat overlay (docs/architecture/memory-cards.md) ----------
@@ -2646,6 +2646,18 @@ class Handler(BaseHTTPRequestHandler):
         return bad("Unknown action", 404)
 
     def do_POST(self):
+        # 9.3 (audit L17): a body of the wrong shape (a list where an object belongs, a text where a number does) is
+        # answered 400 instead of dropping the connection with a traceback in the log
+        try:
+            return self._do_post()
+        except (TypeError, AttributeError, KeyError, ValueError) as e:
+            _swallowed("server.do_POST " + urlparse(self.path).path, e)
+            try:
+                return self.reply(400, "Invalid data", "text/plain; charset=utf-8")
+            except OSError:
+                return None
+
+    def _do_post(self):
         count_request(urlparse(self.path).path)
         if not self.host_ok() or not self.origin_ok() or self.cross_site_api(urlparse(self.path).path):
             return self.reply(403, "Forbidden", "text/plain; charset=utf-8")

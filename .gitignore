@@ -30,6 +30,7 @@ __pycache__/
 # BCC vCam build files (GitHub builds the camera itself)
 vcam_build/
 src/vcam/bin/*.dll
+src/vcam/bin/vcam-tag.txt
 kc-vcam-settings.json
 kc-looks.json
 kc-studio.json

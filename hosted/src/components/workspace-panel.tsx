@@ -255,6 +255,7 @@ export function WorkspacePanel() {
                       setOpenWorkspace(null);
                       load();
                     }}
+                    onRoleChange={load}
                   />
                 )}
               </li>

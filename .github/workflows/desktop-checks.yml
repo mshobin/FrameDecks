@@ -79,6 +79,9 @@ jobs:
       - name: Accessibility scan (axe, WCAG 2.1 AA, both themes)
         run: node tests/visual/a11y.mjs
 
+      - name: Content-Security-Policy (9.3, report-only; no page may break a rule)
+        run: node tests/visual/csp.mjs
+
       - name: Program log (on failure)
         if: failure()
         run: cat server.log

@@ -7,6 +7,15 @@
 #ifndef AppVersion
   #define AppVersion "0.0"
 #endif
+; 9.3 (audit H4): the name of the camera's copy in Program Files (written by the build; register-framedecks-camera.cmd)
+#define VCamTagFile SourcePath + "..\src\vcam\bin\vcam-tag.txt"
+#if FileExists(VCamTagFile)
+  #define VCamTagHandle FileOpen(VCamTagFile)
+  #define VCamTag Trim(FileRead(VCamTagHandle))
+  #expr FileClose(VCamTagHandle)
+#else
+  #define VCamTag "local"
+#endif
 
 [Setup]
 ; Keep this AppId the same forever, so new versions install over old ones
@@ -117,9 +126,25 @@ begin
   Result := RegKeyExists(HKCR64, CameraKey) or RegKeyExists(HKCR32, CameraKey);
 end;
 
+// 9.3 (audit H4): the camera is registered from its copy in Program Files, named after its content. When Windows
+// already uses exactly this copy, the installer does not ask for administrator permission again.
+function RegisteredFrom(Root: Integer; Want: String): Boolean;
+var v: String;
+begin
+  Result := RegQueryStringValue(Root, CameraKey + '\InprocServer32', '', v) and (CompareText(v, Want) = 0);
+end;
+
+function CameraHere: Boolean;
+var folder: String;
+begin
+  folder := ExpandConstant('{commonpf64}\FrameDecks vCam\');
+  Result := RegisteredFrom(HKCR64, folder + 'framedecks_vcam64-{#VCamTag}.dll') and
+            ((not RegKeyExists(HKCR32, CameraKey)) or RegisteredFrom(HKCR32, folder + 'framedecks_vcam32-{#VCamTag}.dll'));
+end;
+
 function ShouldRegisterCamera: Boolean;
 begin
-  Result := WizardIsTaskSelected('vcam') or CameraRegistered;
+  Result := (WizardIsTaskSelected('vcam') or CameraRegistered) and not CameraHere;
 end;
 
 // 7.1.1: started by FrameDecks' own updater (/UPDATE=1): FrameDecks closes itself a second after starting this

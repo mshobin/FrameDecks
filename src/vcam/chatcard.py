@@ -23,7 +23,7 @@ import math
 import numpy as np
 from PIL import Image, ImageDraw, ImageFilter
 
-from .cards import Card, _premult
+from .cards import Card, _premult, fit_end
 
 SQUEEZE = {"beside": 0.70, "below": 0.72}      # how much of the picture the overlays keep (the video keeps it all)
 EASE_S, POP_S, MOVE_S, CLOSE_S = 0.45, 0.42, 0.30, 0.30
@@ -55,6 +55,8 @@ def avatar_colour(name):
 def _wrap(text, font, maxw, max_lines=6):
     words, lines, cur = str(text or "").split(), [], ""
     for w in words:
+        if len(lines) > max_lines:                          # the rest is cut off with "…" anyway
+            break
         trial = (cur + " " + w).strip()
         if font.getlength(trial) <= maxw or not cur:
             cur = trial
@@ -62,9 +64,7 @@ def _wrap(text, font, maxw, max_lines=6):
             lines.append(cur)
             cur = w
         while font.getlength(cur) > maxw and len(cur) > 1:   # one very long word: break it
-            k = len(cur)
-            while k > 1 and font.getlength(cur[:k]) > maxw:
-                k -= 1
+            k = fit_end(font, cur, 0, len(cur), maxw)           # (a binary search, audit L16)
             lines.append(cur[:k])
             cur = cur[k:]
     if cur:

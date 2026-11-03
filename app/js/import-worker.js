@@ -6,7 +6,17 @@
  */
 importScripts('../vendor/xlsx.full.min.js');
 
-var MAX_ROWS = 5000;
+var MAX_ROWS = 5000, MAX_COLS = 200;
+
+/* 9.3 (audit L16): a sheet's stated range ('!ref') is clamped before it is read, so a file claiming a million rows by
+ * sixteen thousand columns is not walked cell by cell (only the rows and columns FrameDecks reads are kept). */
+function clampRef(ws){
+  if (!ws || !ws['!ref']) return;
+  var r = XLSX.utils.decode_range(ws['!ref']);
+  r.e.r = Math.min(r.e.r, r.s.r + MAX_ROWS + 20);
+  r.e.c = Math.min(r.e.c, r.s.c + MAX_COLS - 1);
+  ws['!ref'] = XLSX.utils.encode_range(r);
+}
 
 function cellText(v){
   if (v == null) return '';
@@ -17,6 +27,7 @@ function cellText(v){
 self.onmessage = function(e){
   try {
     var wb = XLSX.read(new Uint8Array(e.data.buffer), {type: 'array', cellDates: false, raw: false, codepage: 65001});
+    wb.SheetNames.forEach(function(n){ clampRef(wb.Sheets[n]); });
     if (e.data.all){                                   // v6.5 Meeting Workbook: every sheet, each with its own header row
       var book = {}, grids = {};
       wb.SheetNames.forEach(function(n){

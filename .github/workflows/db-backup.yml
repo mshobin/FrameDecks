@@ -58,6 +58,7 @@ jobs:
           path: |
             backup/*.tar.enc
             backup/*.tar.enc.sha256
+            backup/*.tar.enc.mac
           retention-days: 30
           if-no-files-found: error
 

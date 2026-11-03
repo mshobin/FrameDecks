@@ -43,7 +43,7 @@ build_name = _re.search(r'NAME = "([^"]+)"', (root / "packaging" / "build_vcam.p
 assert VCAM_NAME == build_name == "FrameDecks vCam", "the camera must be called FrameDecks vCam"
 assert (root / "src" / "vcam" / "models" / "selfie_segmentation_landscape.tflite").exists(), "blur model missing"
 if os.name == "nt" and os.environ.get("GITHUB_ACTIONS") == "true":
-    missing = [f for f in ("framedecks_vcam64.dll", "framedecks_vcam32.dll", "build-info.json") if not (root / "src" / "vcam" / "bin" / f).exists()]
+    missing = [f for f in ("framedecks_vcam64.dll", "framedecks_vcam32.dll", "build-info.json", "vcam-tag.txt") if not (root / "src" / "vcam" / "bin" / f).exists()]
     if missing:
         sys.exit("STOP: the FrameDecks vCam was not built (" + ", ".join(missing) + " missing).\n"
                  "The build recipe .github/workflows/build-windows.yml in your repository is out of date.\n"

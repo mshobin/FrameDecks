@@ -55,28 +55,50 @@ Versions before 4.9 (when the program had its earlier name) are described in the
 
 ## [9.3.0] - 2026-11-04
 
-Full notes: [docs/releases/v9.3.0.md](releases/v9.3.0.md). Audit: [docs/project/2026-11-03-production-audit.md](project/2026-11-03-production-audit.md).
+Full notes: [docs/releases/v9.3.0.md](releases/v9.3.0.md). Audit: [docs/project/2026-11-03-production-audit.md](project/2026-11-03-production-audit.md)
+(every finding's status). Owner: run migrations 0013 and 0014 in Supabase before the website's **Make owner** is used.
 
 ### Security
-- Content-Security-Policy on every program page (audit M7), report-only for now (`server.CSP_HEADER`): scripts only from
-  the PC plus each page's inline script by its SHA-256 (`page_csp`, worked out as the page is sent), no plug-ins, no
-  framing by other sites, nothing loaded from elsewhere; styles stay open to inline `style`. `tests/visual/csp.mjs`
-  opens every page and view and fails on any reported break.
-- The phone remote no longer receives the text of a private Memory Card until it is on screen (audit L5,
-  `remote_memory_body`).
+- Camera driver (H4): `register-framedecks-camera.cmd` copies the DLLs to `Program Files\FrameDecks vCam` as
+  `framedecks_vcam64-<tag>.dll` (tag from their content, `vcam-tag.txt`, written by the build) and registers them there;
+  the installer skips the elevated step when Windows already uses that copy (`CameraHere`); unregistering removes the
+  folder and any registration from the program folder (before 9.3). The CI installer test registers and removes it.
+- Build dependencies (M5): `packaging/requirements-lock.txt` with every file's SHA-256, installed with
+  `--require-hashes` (PyInstaller's source too); `packaging==26.3` added to the constraints; no unpinned pip upgrade;
+  `tests/test_build_lock.py`. Inno Setup pinned to 6.7.1 (`INNO_VERSION`, L9).
+- Content-Security-Policy, report-only (M7): the program's pages (`server.page_csp`, inline scripts by hash;
+  `tests/visual/csp.mjs`) and the website (`hosted/scripts/write-csp.mjs` after `next build` writes a policy per page
+  into `out/_headers`; `tests/visual/site-csp.mjs`).
+- Migration 0014 (M6, L11, L13): link codes limited to 5 per network (`computer_links.source_hash`, `request_source()`),
+  `remote_take` writes nothing when idle, `delete_my_account` clears `remote_commands.sent_by_name` and `user:<id>`
+  stamps, and `transfer_ownership(org, new_owner)`. Rollback `hosted/supabase/rollback/0014_audit_93_down.sql`; tests
+  `hosted/tests/supabase-0014.test.mjs`.
+- Website: **Make owner** on the Members list (`workspace-members.tsx`); `/connect` shows the PC name stored in the
+  cloud (`computer_link_peek`), not the link's (L10).
+- The phone remote gets no text of a private Memory Card until it is on screen (L5).
+- PowerPoint conversion runs with `AutomationSecurity` 3 (macros off), the presenter's setting restored (L6).
+- Backups: `tools/backup_mac.py` writes and checks an HMAC-SHA256 next to each backup (L14).
+- A POST body of the wrong shape is answered 400 (`do_POST` wrapper, L17).
+
+### Fixed
+- `update_state` saves inside its lock (L2).
+- Sync keeps the overwritten version of a list item, setting or order on the PC (`overwritten` in `kc-sync.json`,
+  latest 50, 90 days) (L12).
+- Long words wrap with a binary search (`cards.fit_end`), the width cache is capped (`WIDTH_CACHE_MAX`), Excel ranges are
+  clamped before reading (`import-worker.js` `clampRef`), and `.frame` files over `MAX_FILE` are refused (L16).
 
 ### Performance
-- `/api/state` (audit M10): the JSON is made once per state (`state_body` keeps it per state object and library
-  version; `save_state` replaces the state, never edits it) and outside `cond`, so waiting devices no longer each
-  serialise the whole state under the lock.
-- FrameDecks vCam (audit M9): the previous picture and the overlay area reuse one buffer each (`program._scratch`); a
-  transition takes its own copy of the starting picture once.
+- `/api/state`: the JSON is made once per state and outside `cond` (M10).
+- FrameDecks vCam reuses its frame buffers (`program._scratch`) (M9).
+- Website: the JS budget is per page (320 KB) and in total without the `noModule` polyfill (400 KB); the About page's
+  styles (`public/about-page.css`) load when it opens (L15).
 
 ### Deferred
-- Overlay polling (audit M11): OBS browser sources share one browser, which allows about six open connections per
-  address, so standalone overlay pages keep their 300 ms `api/rev` check instead of a long-poll.
+- Overlay polling (M11): OBS browser sources share one browser, which allows about six open connections per address, so
+  standalone overlay pages keep their 300 ms `api/rev` check instead of a long-poll.
 
-Tests: `tests/test_audit_93.py`, `tests/visual/csp.mjs`.
+Tests: `tests/test_audit_93.py`, `tests/test_build_lock.py`, `tests/test_cloud_sync.py` (overwritten),
+`tests/import-worker.test.js`, `hosted/tests/supabase-0014.test.mjs`, `tests/visual/csp.mjs`, `tests/visual/site-csp.mjs`.
 
 ## [9.2.0] - 2026-11-04
 

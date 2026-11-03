@@ -6,6 +6,7 @@
 (function(root){
 'use strict';
 var FORMAT = 'framedecks-frame', VERSION = 1, MAX_MEDIA = 300 * 1024 * 1024;
+var MAX_FILE = Math.ceil(MAX_MEDIA * 4 / 3) + 32 * 1024 * 1024;     // the media as base64 plus the plan itself
 var PLAN_KEYS = ['scenes', 'meeting', 'brand', 'layout', 'profile', 'question', 'verse', 'birthday', 'library', 'fx'];
 var FILE_KINDS = ['image', 'video', 'pdf', 'audio'];
 function isObj(v){ return v && typeof v === 'object' && !Array.isArray(v); }
@@ -253,6 +254,10 @@ function ask(sum, name){
 /* 8.6 one import for every place that offers it (Settings → Data / Backup, Quick Start, the meeting menu); answers
  * {ok, mode, error} so the caller can say what happened where the person is */
 function importFile(file){
+  if (file.size > MAX_FILE){                        // 9.3 (audit L16): never read a file bigger than a .frame can be
+    var big = 'That file is larger than any Frame file can be (' + Math.round(MAX_FILE / 1048576) + ' MB). Check you chose the right file.';
+    say(big, true); toast(big, true); return Promise.resolve({ok: false, error: big});
+  }
   say('Reading ' + file.name + '…');
   return file.text().then(function(text){
     var r = check(text);

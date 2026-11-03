@@ -62,7 +62,7 @@ The download page shows the installer's **SHA-256** fingerprint. To check that y
    | Option | Recommended | What it does |
    | --- | --- | --- |
    | **Create a desktop icon** | On | A FrameDecks icon on the desktop |
-   | **Install the FrameDecks vCam for Zoom and Teams** | On | Adds the **FrameDecks** camera to Windows. Windows asks for administrator permission once, only for this |
+   | **Install the FrameDecks vCam for Zoom and Teams** | On | Adds the **FrameDecks** camera to Windows. Windows asks for administrator permission once, only for this (and again after an update only if the camera itself changed) |
    | **Start automatically when I sign in** | Your choice | Opens FrameDecks when you sign in to Windows |
 
 5. Finish the wizard. FrameDecks opens.
