@@ -1359,3 +1359,24 @@ For the dock, shown messages now move to a Shown tab rather than staying in the 
 the keyboard when it has it (pinned or in a browser). On FrameRelay the chat window now knows where the camera inset
 is (the compositor hands its rectangle to the program effects) and keeps clear of it.
 
+
+## 52. Version 9.0.0: Memory Cards instead of the Audience Dock (3 November 2026)
+
+The owner liked the 8.8 chat window but not the dock: a separate floating window to manage during a meeting, and a
+crash (Illegal Instruction 0xC000001D) while dragging its handle. 9.0 removes the dock and puts what is copied
+straight into the chat window on FrameRelay, as Memory Cards. The owner chose a small corner popup plus a Studio pane
+for Show and Pin (the camera picture cannot be clicked), and "beside the video" as the default layout.
+
+"Beside" answers the overlap requirement once and for all: instead of moving every other overlay out of the chat's
+way, the whole finished picture (camera, cards, drawings, inset) is shrunk into the left 70 % and the chat overlay
+gets the column. "Below" does the same vertically; "over" keeps 8.8's floating window, which already avoided the
+camera inset. On the overlay pages the same effect is one CSS transform on a new `.stage-root` that holds everything
+but the chat overlay and the program's black screen; the OBS pages always float it because they cannot shrink the
+video OBS puts under them.
+
+The crash could not be reproduced without Windows. Two causes were found and removed: the dock's thread changed a
+WebView2 window's layered / transparent styles up to 30 times a second, including during Windows' modal drag loop
+started from another window; and `capture.py` let the window procedure Windows had registered be garbage-collected
+when Capture was started a second time, which makes Windows execute freed memory. The popup that replaces the dock is
+made once, never dragged, never faded and never polled. See [memory-cards.md](memory-cards.md).
+

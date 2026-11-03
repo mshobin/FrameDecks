@@ -1,5 +1,8 @@
 # Live Audience Capture Dock (8.8)
 
+> **Replaced in 9.0** by [Memory Cards](memory-cards.md): no dock, no handle; copied text goes into the FrameRelay
+> chat overlay. This page is kept as the record of the 8.8 design.
+
 A floating window that sits over (or beside) any chat: Zoom, Teams, YouTube, Twitch, Facebook Live, Discord, a browser.
 The presenter selects a message there and presses **Ctrl+C**; FrameDecks turns it into an Audience Card in the dock.
 **Show** puts it on the FrameRelay camera (and, if chosen, the Share Window and the overlay pages).

@@ -66,7 +66,7 @@ var DEFAULT_STATE = {
   /* v6: Scenes own Layers; the live scene and the program controls (see KCScenes below) */
   scenes: [],
   live: {scene: '', seq: 0, at: 0, tx: 'cut', txMs: 0, auto: true, blackout: false, emergency: false, freeze: false, ink: {on: false, items: []},
-         message: 'Please stand by \u2014 we\u2019ll be right back.', on: {}, cd: {}},   // 8.8 + audience while an Audience Card is on screen
+         message: 'Please stand by \u2014 we\u2019ll be right back.', on: {}, cd: {}},   // 9.0 + memory while Memory Cards are in the chat overlay
   profile: 'bible-study',
   v6: false,
   /* v6.2 Leader branding: shown only by Branding layers and the layers that ask for it ({meeting} / {org} in their
@@ -515,12 +515,16 @@ function compToMedia(o){
   keep.c = c;
   return cleanLayer(keep);
 }
-/* 8.8 live.audience: the Audience Card on screen (server.py audience_show; same fields as audience.py live_card) */
-var AUDIENCE_SOURCES = ['zoom', 'teams', 'youtube', 'twitch', 'facebook', 'discord', 'clipboard'];
-function cleanAudience(a){
-  if (!isObj(a) || !a.id || !String(a.text || '').trim()) return null;
-  return {id: str(a.id, 40), name: str(a.name, 40), text: str(a.text, 500), src: AUDIENCE_SOURCES.indexOf(a.src) >= 0 ? a.src : 'clipboard',
-    at: Number(a.at) || 0, dur: num(a.dur, 0, 120, 0), share: !!a.share, pos: a.pos === 'left' ? 'left' : 'right'};
+/* 9.0 live.memory: the Memory Cards in the chat overlay (server.py memory_view; memory.py Memory.overlay) */
+var MEMORY_SOURCES = ['zoom', 'teams', 'meet', 'webex', 'slack', 'discord', 'chatgpt', 'claude', 'copilot', 'youtube', 'twitch', 'facebook', 'clipboard'];
+function cleanMemory(m){
+  if (!isObj(m) || !Array.isArray(m.cards)) return null;
+  var cards = m.cards.filter(function(c){ return isObj(c) && c.id && String(c.text || '').trim(); }).slice(0, 6).map(function(c){
+    return {id: str(c.id, 40), title: str(c.title, 40), text: str(c.text, 500), src: MEMORY_SOURCES.indexOf(c.src) >= 0 ? c.src : 'clipboard',
+      pinned: !!c.pinned, full: !!c.full};
+  });
+  if (!cards.length) return null;
+  return {cards: cards, layout: ['beside', 'below', 'over'].indexOf(m.layout) >= 0 ? m.layout : 'beside', side: m.side === 'left' ? 'left' : 'right', share: !!m.share};
 }
 function profileOf(st){ for (var i = 0; i < PROFILES.length; i++) if (PROFILES[i].id === st.profile) return PROFILES[i]; return PROFILES[1]; }
 var Scenes = {
@@ -536,7 +540,7 @@ var Scenes = {
       txMs: num(l.txMs, 0, 5000, 0), auto: l.auto !== false, blackout: !!l.blackout, emergency: !!l.emergency, freeze: !!l.freeze, ink: cleanInk(l.ink), spot: cleanSpot(l.spot),
       message: str(l.message === undefined ? DEFAULT_STATE.live.message : l.message, 300), on: {}, cd: {},
       meeting: str(l.meeting, 40)};                            // 8.5 the meeting this PC shows (its own choice; not synced)
-    var aud = cleanAudience(l.audience); if (aud) st.live.audience = aud;   // 8.8 the Audience Card on screen (kept on every save)
+    var mem = cleanMemory(l.memory); if (mem) st.live.memory = mem;   // 9.0 the chat overlay's Memory Cards (kept on every save)
     if (isObj(l.on)) for (var k in l.on) if (l.on[k]) st.live.on[str(k, 40)] = true;
     if (isObj(l.cd)) for (var j in l.cd) st.live.cd[str(j, 40)] = Number(l.cd[j]) || 0;
     st.profile = PROFILES.some(function(p){ return p.id === raw.profile; }) ? raw.profile : 'bible-study';
@@ -895,7 +899,7 @@ var Scenes = {
     return true;
   },
   /* Hide every layer (cards and text layers); the scene stays live. Media layers stay (they are the picture). */
-  hideAll: function(n){ n.verse.visible = false; n.question.visible = false; n.birthday.visible = false; n.live.on = {}; delete n.live.audience; },
+  hideAll: function(n){ n.verse.visible = false; n.question.visible = false; n.birthday.visible = false; n.live.on = {}; delete n.live.memory; },
   /* Show / hide one layer on the program (live scene only). Used by Hide selected and the live layer eyes. */
   setOn: function(n, sceneId, layerId, on){
     var sc = Scenes.find(n, sceneId), l = Scenes.layer(sc, layerId); if (!l || n.live.scene !== sceneId) return;
@@ -962,17 +966,15 @@ var Scenes = {
     return sc.layers.filter(function(l){ return TEXT_KINDS.indexOf(l.kind) >= 0 && l.kind !== 'brand' && st.live.on[l.id] && (!output || l.c[output] !== false) &&
       (l.kind === 'countdown' || Scenes.brandText(st, l.c.text).trim() !== '' || Scenes.brandText(st, l.c.title).trim() !== ''); });   // an empty layer shows nothing
   },
-  /* 8.8 the Audience Card as a text layer for the overlay pages: always in the Studio's preview (output null), on
-   * the other pages only with "Also show on Share Window". A timed card is gone after its seconds even before the
-   * program clears it. */
-  liveAudience: function(st, output, now){
-    var a = st && st.live && cleanAudience(st.live.audience); if (!a) return [];
-    if (output && !a.share) return [];
-    if (a.dur && (now || Date.now()) >= a.at + a.dur * 1000) return [];
-    return [{id: 'aud-' + a.id, kind: 'audience', visible: true,
-      c: {pos: a.pos, scale: 1, title: a.name || 'Audience', label: true, text: a.text, anim: 'chat', src: a.src, at: a.at, dur: a.dur}}];
+  /* 9.0 the chat overlay with the Memory Cards, as one layer for the overlay pages: always in the Studio's preview
+   * (output null, in the camera's layout: beside / below / over), on the other pages only with "Also show on Share
+   * Window" and always floating over the page (an OBS page cannot shrink the video under it). */
+  liveMemory: function(st, output){
+    var m = st && st.live && cleanMemory(st.live.memory); if (!m) return [];
+    if (output && !m.share) return [];
+    return [{id: 'memory', kind: 'memory', visible: true, c: {cards: m.cards, layout: output ? 'over' : m.layout, side: m.side, anim: 'chat'}}];
   },
-  cleanAudience: function(a){ return cleanAudience(a); },
+  cleanMemory: function(m){ return cleanMemory(m); },
   /* v6.2 Branding: badges on the program, {meeting} / {org} in text, the accent colour */
   liveBrand: function(st, output){
     var sc = Scenes.liveScene(st); if (!sc || (output && sc.out[output] === false)) return [];

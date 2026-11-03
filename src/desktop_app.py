@@ -219,7 +219,7 @@ def tray_hide_all():
             if isinstance(st.get(k), dict):
                 st[k]["visible"] = False
         if isinstance(st.get("live"), dict):
-            st["live"].pop("audience", None)           # 8.8 the Audience Card too
+            st["live"].pop("memory", None)             # 9.0 the chat overlay's Memory Cards too
         return st
     server.update_state(change)
 
@@ -306,8 +306,8 @@ def main():
             pystray.MenuItem("Open App", lambda icon, item: on_open(), default=True),
             pystray.MenuItem("Teleprompter", hook("teleprompter", "toggle"),
                              checked=lambda item: bool(server.DESKTOP.get("teleprompter_open") and server.DESKTOP["teleprompter_open"]())),
-            pystray.MenuItem("Audience Dock", hook("audience_dock", "toggle"),
-                             checked=lambda item: bool(server.DESKTOP.get("dock_open") and server.DESKTOP["dock_open"]())),
+            pystray.MenuItem("Capture copies (Memory Cards)", lambda icon, item: server.memory_capture(not server.MEMORY.capture),
+                             checked=lambda item: bool(server.MEMORY.capture)),
             pystray.MenuItem("Search", hook("spotlight", True)),
             pystray.MenuItem("Settings", hook("open_settings")),
             pystray.Menu.SEPARATOR,
@@ -576,171 +576,78 @@ def main():
         refresh_tray()
         return True
 
-    # ---------- 8.8 the Audience Dock: a click-through queue above the meeting chat, and its handle ----------
-    import dock as dockmod
-    DOCK = {"win": None, "handle": None, "ctl": None, "stop": None, "settings": False}
+    # ---------- 9.0 the Memory Card popup: a small card in the screen corner when something is copied ----------
+    # Replaces 8.8's Audience Dock. Kept deliberately simple, because the dock's handle drag crashed
+    # (Illegal Instruction 0xC000001D): one window, made once and then only shown and hidden; never dragged, never
+    # click-through, never faded (no WS_EX_LAYERED / WS_EX_TRANSPARENT changes on a WebView2 window), no thread polling
+    # it. It never takes the keyboard (pywebview focus=False = WS_EX_NOACTIVATE) and is left out of screen sharing.
+    # Placed in screen pixels by Windows (pywebview scales x / y / size by the display scale: see 8.8.1).
+    POP = {"win": None, "open": False, "h": 236}
+    POP_W, POP_MARGIN = 360, 16
 
-    def dock_state():
-        ctl = DOCK["ctl"]
-        return {"open": bool(DOCK["win"]), "mode": ctl.mode if ctl and ctl.mode else ("click" if DOCK["win"] else ""),
-                "pinned": bool(ctl and ctl.pinned), "settings": DOCK["settings"], "desktop": True}
-
-    def dock_changed():
-        server.AUDIENCE.touch()                        # the dock and its handle show the new mode at once
-
-    def dock_hwnd(x):
-        """The dock's own window handle, or 0 (never window_handle's fallback, which finds the main window)."""
+    def popup_hwnd():
+        w = POP["win"]
         try:
-            return int(x.native.Handle.ToInt64()) if x is not None else 0
+            return int(w.native.Handle.ToInt64()) if w is not None else 0
         except Exception:
             return 0
 
-    class DockWin:                                     # what dock.DockController needs, with Windows' own calls
-        def __init__(self, w, h):
-            self.w, self.h = w, h
+    def popup_rect(scale):
+        wa = dw.work_area() or [0, 0, 1920, 1040]
+        w, h, m = int(POP_W * scale), int(POP["h"] * scale), int(POP_MARGIN * scale)
+        return [wa[0] + wa[2] - w - m, wa[1] + wa[3] - h - m, w, h]
 
-        def rect(self):
-            return dw.window_rect(dock_hwnd(self.w))
+    def popup_place():
+        hwnd = popup_hwnd()
+        if hwnd:
+            dw.place(hwnd, *popup_rect(dw.display_scale(hwnd)))
 
-        def keys(self):
-            return dw.keys_down(dw.VK_CONTROL, dw.VK_SHIFT)
-
-        def cursor(self):
-            return dw.cursor_pos()
-
-        def set_look(self, through, alpha):
-            hwnd = dock_hwnd(self.w)
-            if through:
-                dw.click_through(hwnd, True, alpha)
-                dw.fade(hwnd, alpha)
-            else:
-                dw.click_through(hwnd, False)
-                dw.fade(hwnd, alpha)
-
-        def place_handle(self, r):
-            dw.place(dock_hwnd(self.h), r[0], r[1], r[2], r[3])
-
-    def dock_loop(ctl, stop):
-        while not stop.is_set():
-            try:
-                wait = ctl.tick()
-            except Exception as e:                     # never let the dock take the program down
-                print("Audience Dock:", e)
-                wait = 0.5
-            stop.wait(wait)
-
-    def audience_dock(on="toggle"):
-        """8.8 open or close the Audience Dock (Live tools > Audience Dock, the tray, the command palette)."""
-        w = DOCK["win"]
-        if on == "toggle":
-            on = not w
+    def popup_show(on=True):
+        """A new Memory Card: show the popup (made the first time), without taking the keyboard from Zoom or Teams."""
         if not on:
-            if DOCK["stop"]:
-                DOCK["stop"].set()
-            for k in ("win", "handle"):
-                x, DOCK[k] = DOCK[k], None
-                if x:
-                    try:
-                        x.destroy()
-                    except Exception as _e:
-                        _swallowed("desktop_app.audience_dock", _e)
-            DOCK.update(ctl=None, stop=None, settings=False)
-            server.audience_capture(False)             # Capture never runs without the dock on screen
-            dock_changed()
-            refresh_tray()
-            return False
-        if w:
-            dock_on_screen()                           # already open: make sure it can be seen (8.8.1)
-            return True
-        scale = dw.display_scale()
-        r = dockmod.start_rect(server.app_settings().get("dockRect"), dw.work_area(), dw.on_screen, scale)
-        hr = dockmod.handle_rect(r, scale)
-        lr, lh = dockmod.to_logical(r, scale), dockmod.to_logical(hr, scale)   # pywebview scales what it is given
-        print("Audience Dock: opening at", r, "(display scale %.2f)" % scale)
-        # focus=True: pywebview's focus=False puts WS_EX_NOACTIVATE back on every activation, so the pin could never
-        # let the dock take the keyboard; desktop_win.no_activate() sets it once the window is shown instead.
-        w = webview.create_window(DISPLAY_NAME + " · Audience", url + "audience.html", x=lr[0], y=lr[1], width=lr[2], height=lr[3],
-                                  min_size=dockmod.MIN_SIZE, background_color="#0b1222", frameless=True, easy_drag=False,
-                                  on_top=True, focus=True, text_select=True)
-        h = webview.create_window(DISPLAY_NAME + " · Audience handle", url + "audience-handle.html", x=lh[0], y=lh[1],
-                                  width=lh[2], height=lh[3], background_color="#0b1222", frameless=True, easy_drag=False,
-                                  on_top=True, focus=False, text_select=False)
-        DOCK.update(win=w, handle=h, settings=False)
-        ready = {"n": 0}
+            return popup_op("hide", {})
+        if POP["win"] is None:
+            scale = dw.display_scale()
+            lr = [int(round(v / scale)) for v in popup_rect(scale)]
+            w = webview.create_window(DISPLAY_NAME + " · Memory Card", url + "memory-popup.html", x=lr[0], y=lr[1], width=lr[2],
+                                      height=lr[3], background_color="#0b1222", frameless=True, easy_drag=False, on_top=True,
+                                      focus=False, text_select=False)
+            POP["win"] = w
 
-        def shown():
-            ready["n"] += 1
-            if ready["n"] < 2:
-                return
-            for x in (w, h):
-                hwnd = dock_hwnd(x)
-                dw.no_activate(hwnd)                   # clicks never take the keyboard from Zoom or Teams
-                dw.hide_from_capture(hwnd)             # only the presenter sees the dock, even sharing the whole screen
+            def shown():
+                hwnd = popup_hwnd()
+                dw.hide_from_capture(hwnd)         # only the presenter sees it, even sharing the whole screen
                 dw.round_corners(hwnd)
-            s = dw.display_scale(dock_hwnd(w)) or scale
-            place_dock(r if s == scale else dockmod.start_rect(server.app_settings().get("dockRect"), dw.work_area(), dw.on_screen, s), s)
-            stop = threading.Event()
-            ctl = dockmod.DockController(DockWin(w, h), on_mode=lambda m: dock_changed(),
-                                         on_moved=lambda rect: server.save_app_settings({"dockRect": rect}), scale=s)
-            DOCK.update(ctl=ctl, stop=stop)
-            threading.Thread(target=dock_loop, args=(ctl, stop), name="kc-audience-dock", daemon=True).start()
+                popup_place()
 
-        def closed():
-            if DOCK["win"] is w or DOCK["handle"] is h:
-                threading.Thread(target=lambda: audience_dock(False), daemon=True).start()
-        for x in (w, h):
-            x.events.shown += shown
-            x.events.closed += closed
-        refresh_tray()
+            def closed():
+                POP.update(win=None, open=False)
+            w.events.shown += shown
+            w.events.closed += closed
+        else:
+            popup_place()
+            dw.show_no_activate(popup_hwnd())
+            dw.set_topmost(popup_hwnd(), True)
+        POP["open"] = True
+        server.MEMORY.touch()
         return True
 
-    def place_dock(rect, scale):
-        """Put the dock and its handle exactly at rect (screen pixels), whatever pywebview made of the first guess."""
-        dw.place(dock_hwnd(DOCK["win"]), *rect)
-        dw.place(dock_hwnd(DOCK["handle"]), *dockmod.handle_rect(rect, scale))
-        for k in ("win", "handle"):
-            dw.show_no_activate(dock_hwnd(DOCK[k]))
-        print("Audience Dock: placed at", rect)
+    def popup_op(op, data):
+        """The popup page: hide (nothing left to show), size (its height in pixels, to fit its cards)."""
+        hwnd = popup_hwnd()
+        if op == "hide" and hwnd:
+            dw.show_async(hwnd, dw.SW_HIDE)
+            POP["open"] = False
+        elif op == "size":
+            try:
+                POP["h"] = max(96, min(560, int(data.get("h") or 236)))
+            except (TypeError, ValueError):
+                pass
+            popup_place()
+        return popup_state()
 
-    def dock_on_screen():
-        """An open dock that cannot be seen (off a screen, e.g. a monitor unplugged) comes back to the main screen."""
-        hwnd = dock_hwnd(DOCK["win"])
-        rect = dw.window_rect(hwnd)
-        s = dw.display_scale(hwnd)
-        if not rect or not dw.on_screen(rect):
-            rect = dockmod.start_rect(None, dw.work_area(), scale=s)
-        place_dock(rect, s)
-        dw.set_topmost(hwnd, True)
-        dw.set_topmost(dock_hwnd(DOCK["handle"]), True)
-
-    def dock_op(op, data):
-        """The handle's buttons (POST api/app/dock): drag, resize, pin, settings, close; open / toggle from the Studio."""
-        w, ctl = DOCK["win"], DOCK["ctl"]
-        if op in ("open", "toggle", "close"):
-            return dict(dock_state(), open=audience_dock(True if op == "open" else False if op == "close" else "toggle"))
-        if not w:
-            return dock_state()
-        hwnd = dock_hwnd(w)
-        if op == "drag":
-            dw.mouse_move_or_size(getattr(w, "native", None), hwnd, "caption")
-        elif op == "resize":
-            dw.mouse_move_or_size(getattr(w, "native", None), hwnd, str(data.get("edge") or "bottomleft"))
-        elif op == "pin" and ctl:
-            on = not ctl.pinned if data.get("value") is None else bool(data.get("value"))
-            dw.no_activate(hwnd, not on)               # pinned: the dock may take the keyboard (to type in a card)
-            ctl.set_pinned(on)
-            dock_changed()
-        elif op == "settings":
-            DOCK["settings"] = not DOCK["settings"] if data.get("value") is None else bool(data.get("value"))
-            if DOCK["settings"] and ctl and not ctl.pinned:
-                dw.no_activate(hwnd, False)
-                ctl.set_pinned(True)                   # the settings need clicks: keep the dock usable while open
-                DOCK["settings_pin"] = True
-            elif not DOCK["settings"] and ctl and DOCK.pop("settings_pin", False):
-                dw.no_activate(hwnd, True)
-                ctl.set_pinned(False)                  # closing the settings lets clicks through again
-            dock_changed()
-        return dock_state()
+    def popup_state():
+        return {"desktop": True, "open": bool(POP["open"] and POP["win"] is not None)}
 
     # ---------- 6.8 Spotlight: one small window, made at start-up and only shown and hidden (instant) ----------
     spot = webview.create_window(DISPLAY_NAME + " · Spotlight", url + "spotlight.html", width=760, height=500,
@@ -892,8 +799,8 @@ def main():
                           present_fs_state=present_fs_state, present_open=present_open, teleprompter=teleprompter,
                           teleprompter_open=lambda: bool(state.get("teleprompter")), spotlight=spotlight,
                           palette_index=palette_index, palette_run=palette_run, open_settings=open_settings, win=win,
-                          settings_changed=settings_changed, dock=dock_op, dock_state=dock_state, audience_dock=audience_dock,
-                          dock_open=lambda: bool(DOCK["win"]))
+                          settings_changed=settings_changed, memory_popup=popup_show, popup_op=popup_op,
+                          popup_state=popup_state)
     state["tray"] = build_tray(show, quit_app)
     apply_hotkey(settings.get("spotlightKey", "Alt+Space"))
     # "Light on graphics card" (Settings > General, on by default): the app's windows are drawn without the GPU.

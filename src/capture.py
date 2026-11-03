@@ -1,8 +1,8 @@
-"""FrameDecks 8.8 - Capture: notices when the presenter copies text (Ctrl+C) while Capture is on.
+"""FrameDecks 8.8 - Capture: notices when the presenter copies text (Ctrl+C) while Capture is on (9.0: Memory Cards).
 
 Windows' own clipboard listener (AddClipboardFormatListener) on a message-only window, on its own thread. It is passive:
 no keyboard or mouse hook and no simulated keys, so it looks like any clipboard manager to Windows and to antivirus.
-Only started while the Audience Dock's Capture switch is on; stop() removes the listener and ends the thread.
+Only started while the Capture switch (the Studio's Memory Cards) is on; stop() removes the listener and ends the thread.
 
 A copy is skipped when:
   * the program that made it asked clipboard tools to leave it alone (password managers mark secrets with
@@ -10,9 +10,9 @@ A copy is skipped when:
   * FrameDecks itself made it;
   * it has no text.
 Otherwise on_copy(text, exe, url) gets the text, the program in front (e.g. C:\\...\\Zoom.exe) and, for a browser, the
-web page it came from (the SourceURL of the copied HTML). audience.py decides what becomes a card.
+web page it came from (the SourceURL of the copied HTML). memory.py decides what becomes a card.
 
-On other systems start() returns False and nothing runs (the dock still accepts typed questions).
+On other systems start() returns False and nothing runs (the Studio still takes typed notes).
 """
 from errlog import swallowed as _swallowed  # noqa: E402
 import ctypes
@@ -112,10 +112,38 @@ def _data(fmt):
         kernel32.GlobalUnlock(h)
 
 
+# 9.0 crash fix: Windows keeps the window procedure of the FIRST RegisterClassW("FrameDecksCapture"); a second start
+# registered nothing new but made a new callback and let the first one be freed, so Windows called freed memory when
+# Capture was turned on again (an access violation or Illegal Instruction 0xC000001D). One callback for the whole
+# program, kept here, routes each message to the watcher that owns the window.
+_PROC = {"proc": None, "registered": False, "owners": {}}
+
+
+def _route(hwnd, msg, wparam, lparam):
+    w = _PROC["owners"].get(int(hwnd or 0))
+    if w is not None:
+        return w._wndproc(hwnd, msg, wparam, lparam)
+    return user32.DefWindowProcW(hwnd, msg, wparam, lparam)
+
+
+def _window_class():
+    if not _PROC["registered"]:
+        _PROC["proc"] = WNDPROC(_route)
+        cls = WNDCLASSW()
+        cls.lpfnWndProc = _PROC["proc"]
+        cls.hInstance = kernel32.GetModuleHandleW(None)
+        cls.lpszClassName = "FrameDecksCapture"
+        _PROC["cls"] = cls
+        if not user32.RegisterClassW(ctypes.byref(cls)) and ctypes.get_last_error() != 1410:   # 1410 = already registered
+            raise OSError("RegisterClassW failed (%d)" % ctypes.get_last_error())
+        _PROC["registered"] = True
+    return _PROC["cls"]
+
+
 class ClipboardWatcher:
     def __init__(self, on_copy):
         self.on_copy = on_copy
-        self.hwnd, self._thread, self._proc = None, None, None
+        self.hwnd, self._thread = None, None
         self.running = False
 
     def start(self):
@@ -137,14 +165,11 @@ class ClipboardWatcher:
     # ---------- the message-only window ----------
     def _loop(self, ready):
         try:
-            self._proc = WNDPROC(self._wndproc)                  # kept on self: the callback must outlive the window
-            cls = WNDCLASSW()
-            cls.lpfnWndProc = self._proc
-            cls.hInstance = kernel32.GetModuleHandleW(None)
-            cls.lpszClassName = "FrameDecksCapture"
-            user32.RegisterClassW(ctypes.byref(cls))             # a second start reuses the registered class
+            cls = _window_class()                                # one class and one callback for the program's life
             self.hwnd = user32.CreateWindowExW(0, "FrameDecksCapture", "FrameDecks Capture", 0, 0, 0, 0, 0,
                                                wintypes.HWND(-3), None, cls.hInstance, None)   # HWND_MESSAGE
+            if self.hwnd:
+                _PROC["owners"][int(self.hwnd)] = self
             if not self.hwnd or not user32.AddClipboardFormatListener(self.hwnd):
                 print("Capture: the clipboard listener could not start (", ctypes.get_last_error(), ")")
                 ready.set()
@@ -158,6 +183,8 @@ class ClipboardWatcher:
         except Exception as e:
             print("Capture:", e)
         finally:
+            if self.hwnd:
+                _PROC["owners"].pop(int(self.hwnd), None)
             self.running, self.hwnd = False, None
             ready.set()
 

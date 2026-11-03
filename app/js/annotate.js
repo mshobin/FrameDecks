@@ -266,30 +266,6 @@ function setTp(on){
 }
 var tpb = $('lb-prompter'); if (tpb) tpb.addEventListener('click', function(){ teleprompter(); });
 window.KCTeleprompter = {open: function(){ teleprompter(true); }, toggle: function(){ teleprompter(); }, isOpen: function(){ return tpOpen; }};
-/* 8.8 the Audience Dock: a click-through window above the meeting chat (the desktop app); a pop-up in a browser. */
-var audWin = null, audOpen = false;
-function audienceDock(want){
-  var app = window.KCAppInfo, on = want == null ? !audOpen : !!want;
-  if (!(app && app.desktop)){
-    var isOpen = !!(audWin && !audWin.closed);
-    if (isOpen && !on){ audWin.close(); audWin = null; return setAud(false); }
-    if (isOpen){ audWin.focus(); return setAud(true); }
-    if (!on) return setAud(false);
-    audWin = window.open('audience.html', 'kc-audience', 'popup,width=360,height=600');
-    if (!audWin) toast('Allow pop-ups for this page to open the Audience Dock', true);
-    return setAud(!!audWin);
-  }
-  fetch('api/app/dock', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({op: want == null ? 'toggle' : on ? 'open' : 'close'})})  // toggle: the program knows if ✕ closed it
-    .then(function(r){ return r.json(); })
-    .then(function(d){ setAud(!!(d.desktop && d.open)); if (d.desktop && d.open) toast('The Audience Dock is open. Hold Ctrl+Shift to use it; only you see it.'); else if (!d.desktop) toast('The Audience Dock could not open', true); })
-    .catch(function(){ toast('The Audience Dock could not open', true); });
-}
-function setAud(on){
-  audOpen = on; var b = $('lb-audience');
-  if (b){ b.setAttribute('aria-pressed', String(on)); b.classList.toggle('on', on); }
-}
-var audb = $('lb-audience'); if (audb) audb.addEventListener('click', function(){ audienceDock(); });
-window.KCAudienceDock = {open: function(){ audienceDock(true); }, toggle: function(){ audienceDock(); }, isOpen: function(){ return audOpen; }};
 
 function render(){
   var on = annotating(), fz = !!(live && live.live.freeze);

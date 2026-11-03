@@ -38,9 +38,9 @@ import legacy   # 6.9: moves data saved under the program's earlier name
 import winapi   # 7.1.1: Windows jobs through Windows' own interfaces (no PowerShell, netsh or taskkill)
 import meeting_form   # 6.9: fills the Meeting Workbook's form for Export
 import updater   # 7.0: updates from FrameDecks servers (checked, silent, with rollback)
-import audience   # 8.8: the Live Audience Capture Dock's queue (docs/architecture/audience-dock.md)
+import memory    # 9.0: Memory Cards in the FrameRelay chat overlay (docs/architecture/memory-cards.md)
 
-APP_VERSION = "8.9.0"
+APP_VERSION = "9.0.0"
 STARTED_AT = time.time()
 FROZEN = getattr(sys, "frozen", False)          # True inside the installed Windows app
 HERE = Path(sys.executable).resolve().parent if FROZEN else Path(__file__).resolve().parent.parent   # the repository root (this file is in src/)
@@ -290,7 +290,8 @@ def save_state(new):
         new.pop("libraryRev", None)
         new.pop("libraryOmitted", None)
         new["rev"] = int(state.get("rev", 0)) + 1
-        aud_changed = (new.get("live") or {}).get("audience") != (state.get("live") or {}).get("audience")
+        mem_before = (state.get("live") or {}).get("memory")
+        mem_after = (new.get("live") or {}).get("memory")
         library_changed = new.get("library") != state.get("library")
         if library_changed:
             LIBRARY["rev"] = new["rev"]
@@ -307,8 +308,11 @@ def save_state(new):
                 DISK["timer"].daemon = True
                 DISK["timer"].start()
         cond.notify_all()
-        if aud_changed and "AUDIENCE" in globals():
-            AUDIENCE.touch()               # the dock's Currently live follows (a timer, Esc in the Studio, Hide all)
+        if mem_before != mem_after and "MEMORY" in globals():
+            if mem_before and not mem_after and not _MEM.get("syncing"):
+                MEMORY.hide_all()          # Hide all / Esc in the Studio emptied the chat overlay
+            else:
+                MEMORY.touch()
         eng = VCAM.get("engine") if "VCAM" in globals() else None
         if eng:
             eng.kick()                     # a card was shown/hidden: draw it now, even in the idle rhythm
@@ -390,157 +394,141 @@ def update_state(change):
     return save_state(new)
 
 
-# ---------- 8.8 Live Audience Capture Dock (docs/architecture/audience-dock.md) ----------
-AUDIENCE = audience.Audience()
-_AUD = {"watcher": None, "timer": None, "lock": threading.Lock()}
+# ---------- 9.0 Memory Cards in the FrameRelay chat overlay (docs/architecture/memory-cards.md) ----------
+MEMORY = memory.Memory(DATA / "kc-memory.json")
+_MEM = {"watcher": None, "timer": None, "lock": threading.Lock(), "syncing": False}
 
 
 def _on_copy(text, exe, url):
-    status, item = AUDIENCE.add(text, exe=exe, url=url)
-    if audience.auto_show(status, item, app_settings()["audienceAuto"]):
-        try:
-            audience_show(item["id"])                     # "Show as soon as it's copied" (a chat app's message only)
-        except ValueError as _e:
-            _swallowed("server._on_copy", _e)
+    status, item = MEMORY.add(text, exe=exe, url=url, show=app_settings()["memAuto"])
+    if status == "added":
+        memory_sync()
+        hook = DESKTOP.get("memory_popup")               # the small card in the screen corner (installed app)
+        if hook:
+            try:
+                hook(True)
+            except Exception as _e:
+                _swallowed("server._on_copy", _e)
 
 
-def audience_capture(on):
+def memory_capture(on):
     """Capture on/off: the clipboard listener runs only while it is on. Returns whether copies are being watched."""
-    with _AUD["lock"]:
-        w = _AUD["watcher"]
+    with _MEM["lock"]:
+        w = _MEM["watcher"]
         if on:
             if w is None:
                 import capture
-                w = _AUD["watcher"] = capture.ClipboardWatcher(_on_copy)
+                w = _MEM["watcher"] = capture.ClipboardWatcher(_on_copy)
             watching = w.start()
         else:
             if w is not None:
                 w.stop()
             watching = False
-    AUDIENCE.set_capture(on)
+    MEMORY.set_capture(on)
     return watching
 
 
-def _audience_expire(card_id):
-    def change(st):
-        live = st.setdefault("live", {})
-        cur = live.get("audience")
-        if isinstance(cur, dict) and cur.get("id") == card_id and not audience.visible(cur):
-            live["audience"] = None
-        return st
-    cur = (state.get("live") or {}).get("audience")
-    if isinstance(cur, dict) and cur.get("id") == card_id:
-        update_state(change)
-
-
-def audience_show(item_id, pin=False):
-    """Put a queued card on screen (live.audience). A timed card is cleared by a timer; a new card replaces the old."""
-    item = AUDIENCE.get(item_id)
-    if not item:
-        raise ValueError("That card is no longer in the queue.")
+def memory_view():
+    """What live.memory holds: the cards in the chat overlay and how it is laid out (None = the overlay is empty)."""
     cfg = app_settings()
-    card = audience.live_card(item, pin=pin, seconds=cfg["audienceDur"], share=cfg["audienceShare"], pos=cfg["audiencePos"])
+    cards, nxt = MEMORY.overlay(cfg["memDur"])
+    view = {"cards": cards, "layout": cfg["memLayout"], "side": cfg["memSide"], "share": cfg["memShare"]} if cards else None
+    return view, nxt
 
-    def change(st):
-        st.setdefault("live", {})["audience"] = card
-        return st
-    update_state(change)
-    AUDIENCE.mark_shown(item_id)
-    with _AUD["lock"]:
-        if _AUD["timer"]:
-            _AUD["timer"].cancel()
-        _AUD["timer"] = None
-        if card["dur"]:
-            t = _AUD["timer"] = threading.Timer(card["dur"] + 0.1, _audience_expire, args=(card["id"],))
+
+def memory_sync():
+    """Put the overlay's cards into the state (every screen and FrameRelay follow) and set the timer for the next
+    unpinned card to leave."""
+    view, nxt = memory_view()
+    if (state.get("live") or {}).get("memory") != view:
+        def change(st):
+            live = st.setdefault("live", {})
+            if view:
+                live["memory"] = view
+            else:
+                live.pop("memory", None)
+            return st
+        _MEM["syncing"] = True
+        try:
+            update_state(change)
+        finally:
+            _MEM["syncing"] = False
+    with _MEM["lock"]:
+        if _MEM["timer"]:
+            _MEM["timer"].cancel()
+        _MEM["timer"] = None
+        if nxt is not None:
+            t = _MEM["timer"] = threading.Timer(max(0.05, nxt + 0.05), memory_sync)
             t.daemon = True
             t.start()
-    return card
 
 
-def audience_hide():
-    with _AUD["lock"]:
-        if _AUD["timer"]:
-            _AUD["timer"].cancel()
-        _AUD["timer"] = None
-    if (state.get("live") or {}).get("audience"):
-        def change(st):
-            st.setdefault("live", {})["audience"] = None
-            return st
-        update_state(change)
-
-
-def audience_body():
-    snap = AUDIENCE.snapshot()
+def memory_body():
+    snap = MEMORY.snapshot()
     cfg = app_settings()
-    hook = DESKTOP.get("dock_state")
-    snap.update(live=(state.get("live") or {}).get("audience"), dur=cfg["audienceDur"], share=cfg["audienceShare"],
-                pos=cfg["audiencePos"], auto=cfg["audienceAuto"],
-                stateRev=state.get("rev", 0), canCapture=os.name == "nt", dock=hook() if hook else {"desktop": False})
+    hook = DESKTOP.get("popup_state")
+    snap.update(overlay=(state.get("live") or {}).get("memory"), dur=cfg["memDur"], share=cfg["memShare"],
+                layout=cfg["memLayout"], side=cfg["memSide"], auto=cfg["memAuto"], canCapture=os.name == "nt",
+                popup=hook() if hook else {"desktop": False})
     return snap
 
 
-def audience_action(data):
-    """POST /api/audience {action: capture|add|edit|show|pin|hide|delete|clear|settings, ...} (this PC only)."""
+def memory_action(data):
+    """POST /api/memory {action: capture|add|edit|show|pin|hide|hideall|delete|clear|settings, ...} (this PC only)."""
     act, item_id = str(data.get("action") or ""), str(data.get("id") or "")
-    if act == "capture":
-        return {"watching": audience_capture(bool(data.get("on")))}
-    if act == "add":                                   # a question typed into the dock
-        status, item = AUDIENCE.add(str(data.get("text") or ""), source="clipboard")
-        return {"status": status, "item": item}
-    if act == "edit":
-        item = AUDIENCE.edit(item_id, data.get("name"), data.get("text"))
+
+    def need(item):
         if not item:
-            raise ValueError("That card is no longer in the queue.")
-        cur = (state.get("live") or {}).get("audience")
-        if isinstance(cur, dict) and cur.get("id") == item_id:      # the card on screen follows the edit
-            def change(st):
-                st["live"]["audience"] = dict(cur, name=item["name"], text=item["text"])
-                return st
-            update_state(change)
-        return {"item": item}
-    if act in ("show", "pin"):
-        return {"live": audience_show(item_id, pin=act == "pin" or bool(data.get("pin")))}
-    if act == "hide":
-        audience_hide()
-        return {"live": None}
-    if act == "delete":
-        cur = (state.get("live") or {}).get("audience")
-        if isinstance(cur, dict) and cur.get("id") == item_id:
-            audience_hide()
-        return {"deleted": AUDIENCE.delete(item_id)}
-    if act == "clear":
-        AUDIENCE.clear()
-        return {"ok": True}
-    if act == "settings":
+            raise ValueError("That card is no longer there.")
+        return item
+    if act == "capture":
+        return {"watching": memory_capture(bool(data.get("on")))}
+    if act == "add":                                   # a note typed in the Studio
+        status, item = MEMORY.add(str(data.get("text") or ""), source="clipboard", show=bool(data.get("show", True)))
+        res = {"status": status, "item": item}
+    elif act == "edit":
+        res = {"item": need(MEMORY.edit(item_id, data.get("title"), data.get("text")))}
+    elif act == "show":
+        res = {"item": need(MEMORY.show(item_id, data.get("full")))}
+    elif act == "pin":
+        res = {"item": need(MEMORY.pin(item_id, data.get("on")))}
+    elif act == "hide":
+        res = {"item": need(MEMORY.hide(item_id))}
+    elif act == "hideall":
+        MEMORY.hide_all()
+        res = {"ok": True}
+    elif act == "delete":
+        res = {"deleted": MEMORY.delete(item_id)}
+    elif act == "clear":
+        MEMORY.clear(pinned_too=bool(data.get("pinned")))
+        res = {"ok": True}
+    elif act == "settings":
         ch = {}
         if "dur" in data:
             try:
-                ch["audienceDur"] = max(3, min(120, int(data["dur"])))
+                ch["memDur"] = max(3, min(120, int(data["dur"])))
             except (TypeError, ValueError):
                 raise ValueError("Seconds must be a number.")
-        if "share" in data:
-            ch["audienceShare"] = bool(data["share"])
-        if "auto" in data:
-            ch["audienceAuto"] = bool(data["auto"])
-        if "pos" in data:
-            if data["pos"] not in audience.POSITIONS:
-                raise ValueError("Choose right or left.")
-            ch["audiencePos"] = data["pos"]
+        for key, name in (("share", "memShare"), ("auto", "memAuto")):
+            if key in data:
+                ch[name] = bool(data[key])
+        for key, name, allowed in (("layout", "memLayout", memory.LAYOUTS), ("side", "memSide", ("right", "left"))):
+            if key in data:
+                if data[key] not in allowed:
+                    raise ValueError("Choose one of: " + ", ".join(allowed))
+                ch[name] = data[key]
         save_app_settings(ch)
-        cur = (state.get("live") or {}).get("audience")
-        follow = {k: ch[s] for k, s in (("share", "audienceShare"), ("pos", "audiencePos")) if s in ch}
-        if follow and isinstance(cur, dict) and any(cur.get(k) != v for k, v in follow.items()):
-            def change(st):
-                st["live"]["audience"] = dict(cur, **follow)      # the window on screen follows the setting
-                return st
-            update_state(change)
-        AUDIENCE.touch()
-        return {"ok": True}
-    raise ValueError("Unknown action")
+        MEMORY.touch()
+        res = {"ok": True}
+    else:
+        raise ValueError("Unknown action")
+    memory_sync()
+    return res
 
 
-if isinstance(state.get("live"), dict) and state["live"].get("audience"):
-    state["live"]["audience"] = None                  # a card left on screen when FrameDecks closed is not shown again
+if isinstance(state.get("live"), dict):
+    state["live"].pop("audience", None)               # 8.8's single Audience Card is not shown again
+    state["live"].pop("memory", None)                 # the overlay is rebuilt from the cards (pinned ones come back)
 
 
 # ---------- Read-only checks used by Settings > Phone & iPad Remote and Diagnostics ----------
@@ -848,13 +836,13 @@ APP_SETTINGS_DEFAULTS = {"remoteAutostart": False, "importDecided": False,
                          "cloudRemote": False,    # Phase 5: run a service from the companion (Settings > FrameDecks account)
                          "memberAuthority": "cloud",   # M-D2: the workspace is the member list's source (no switch on screen)
                          "ai": "auto",            # M-D3: "auto" = use Ollama on this PC when it answers; "off" = never
-                         "audienceDur": 12,       # 8.8 Audience Dock: seconds a shown card stays (3..120)
-                         "audienceShare": False,  # 8.8 also show audience cards on the Share Window and overlay pages
-                         "audiencePos": "right",  # 8.8 the chat window's place: the right (or left) edge, mid-height
-                         "audienceAuto": True,    # 8.8 a message copied from a chat app goes on screen at once
-                         "dockRect": [],          # 8.8 the dock's place and size [x, y, w, h] (empty = beside the Studio)
+                         "memDur": 12,            # 9.0 Memory Cards: seconds an unpinned card stays in the chat overlay (3..120)
+                         "memShare": False,       # 9.0 the chat overlay also on the Share Window and the overlay pages
+                         "memLayout": "beside",   # 9.0 on FrameRelay: beside the video, below it, or over it
+                         "memSide": "right",      # 9.0 the chat overlay's side (beside / over)
+                         "memAuto": True,         # 9.0 a copied card goes into the chat overlay at once
                          "guide": {}}             # 6.14 Setup guide progress on this PC (app/js/guide.js, _valid_guide)
-APP_SETTING_CHOICES = {"audiencePos": ("right", "left"), "minimizeTo": ("ask", "tray", "taskbar"), "memberAuthority": ("cloud", "pc"), "ai": ("auto", "off"),
+APP_SETTING_CHOICES = {"memLayout": ("beside", "below", "over"), "memSide": ("right", "left"), "minimizeTo": ("ask", "tray", "taskbar"), "memberAuthority": ("cloud", "pc"), "ai": ("auto", "off"),
                        "prompterLook": ("solid", "presenter", "meeting", "conference", "ghost")}
 
 
@@ -886,11 +874,8 @@ def _valid_setting(k, v):
     if k == "spotlightKey":
         from desktop_win import parse_hotkey
         return isinstance(v, str) and (v == "" or parse_hotkey(v) is not None)
-    if k == "audienceDur":
+    if k == "memDur":
         return isinstance(v, int) and not isinstance(v, bool) and 3 <= v <= 120
-    if k == "dockRect":
-        return isinstance(v, list) and (v == [] or (len(v) == 4 and all(isinstance(n, int) and not isinstance(n, bool)
-                                                                         and -20000 < n < 20000 for n in v) and v[2] >= 200 and v[3] >= 160))
     return False
 
 
@@ -2252,7 +2237,7 @@ class Handler(BaseHTTPRequestHandler):
                     cond.wait_for(lambda: str(state.get("rev")) != since, timeout=wait)
                 body = state_body(q.get("librev", [None])[0])
             return self.reply(200, body, TYPES[".json"])
-        if path == "/api/audience":                     # 8.8 the Audience Dock's queue (this PC only; long-poll)
+        if path == "/api/memory":                       # 9.0 Memory Cards (this PC only; long-poll)
             if not self.is_local():
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
             q = parse_qs(url.query)
@@ -2262,8 +2247,8 @@ class Handler(BaseHTTPRequestHandler):
                     wait = min(25.0, max(1.0, float(q.get("wait", ["25"])[0])))
                 except ValueError:
                     wait = 25.0
-                AUDIENCE.wait(since, wait)
-            return self.reply(200, json.dumps(audience_body()), TYPES[".json"])
+                MEMORY.wait(since, wait)
+            return self.reply(200, json.dumps(memory_body()), TYPES[".json"])
         if path == "/api/rev":
             return self.reply(200, json.dumps({"rev": state.get("rev", 0)}), TYPES[".json"])
         if path == "/api/presence":
@@ -2439,12 +2424,12 @@ class Handler(BaseHTTPRequestHandler):
             if not hook:
                 return ok({"desktop": False})
             return ok({"desktop": True, "open": bool(hook(data.get("on", "toggle")))})
-        if action == "dock":
-            # 8.8 the Audience Dock window and its handle (the installed app on Windows; a browser opens a pop-up)
-            hook = DESKTOP.get("dock")
+        if action == "popup":
+            # 9.0 the Memory Card popup in the screen corner (installed app): hide it, or keep it while the pointer is on it
+            hook = DESKTOP.get("popup_op")
             if not hook:
                 return ok({"desktop": False})
-            return ok(dict(hook(str(data.get("op") or "toggle"), data) or {}, desktop=True))
+            return ok(dict(hook(str(data.get("op") or ""), data) or {}, desktop=True))
         if action == "window":
             # v6.4 native window: the page says whether it is dark or light; the title bar follows
             hook = DESKTOP.get("window_theme")
@@ -2655,14 +2640,14 @@ class Handler(BaseHTTPRequestHandler):
                 return self.reply(200, json.dumps({"ok": True, **res, "studio": remote_studio_info()}), TYPES[".json"])
             except (ValueError, RuntimeError) as e:
                 return self.reply(400, json.dumps({"error": str(e)}), TYPES[".json"])
-        if path == "/api/audience":
+        if path == "/api/memory":
             if not self.is_local():
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
             try:
-                res = audience_action(data if isinstance(data, dict) else {})
+                res = memory_action(data if isinstance(data, dict) else {})
             except ValueError as e:
                 return self.reply(400, json.dumps({"error": str(e)}), TYPES[".json"])
-            return self.reply(200, json.dumps(dict(res, **audience_body())), TYPES[".json"])
+            return self.reply(200, json.dumps(dict(res, **memory_body())), TYPES[".json"])
         if path.startswith("/api/app/"):
             if not self.is_local():
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
@@ -2834,6 +2819,10 @@ def start_main_server():
     threading.Thread(target=_update_loop, daemon=True).start()   # once a day: is a newer version published?
     SYNC.start()                                                # does nothing unless this PC is linked
     CLOUD_REMOTE.start()                                        # idle unless linked and switched on in Settings
+    try:
+        memory_sync()                  # 9.0 pinned Memory Cards from the last session go back into the chat overlay
+    except Exception as e:
+        print("Memory Cards:", e)
     return server
 
 

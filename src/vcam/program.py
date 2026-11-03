@@ -125,8 +125,9 @@ class ProgramFX:
         self.logo_path, self.logo_cache = logo_path, (None, None)      # (version, PIL RGBA)
         self.get_state, self.cards_on = get_state, cards_on
         self.texts = {}                  # layer id -> _Text
-        self.aud = _Text()               # 8.8 the Audience Card (live.audience), drawn above everything but Blackout
-        self.aud_id = None
+        # 9.0 the chat overlay with the Memory Cards (live.memory), drawn above everything but Blackout
+        self.mem = {"k": 0.0, "card": None, "prev": None, "swap": 0.0, "want": None, "layout": "beside", "side": "right",
+                    "info": None, "seen": None, "typing": None}
         self.need_clean = False          # 8.8 the Share Window is open: keep a picture without the Audience Card
         self.avoid = None                # 8.9 the camera inset [x, y, w, h] the chat window keeps clear of (compositor)
         self.present_frame = None        # ... that picture (None = the Share Window shows the camera's own frame)
@@ -187,7 +188,7 @@ class ProgramFX:
         out = self.ink.freeze(out, bool(live.get("freeze")))       # Freeze: hold the picture (drawings still go on top)
         out = self.ink.draw(out if out is not frame else frame, live.get("ink"))
         out = self.spot.draw(out, live.get("spot"), now)
-        out, clean = self._audience(out, st, live, W, H, now, dt, hold)
+        out, clean = self._memory(out, live, W, H, now, dt, hold)
         if self.black > 0.001:
             out = cv2.convertScaleAbs(out, alpha=1 - self.black)
             if clean is not None:
@@ -196,73 +197,65 @@ class ProgramFX:
         self.last = out if out is not frame else frame.copy()
         return out
 
-    # ---------- 8.8 the Audience Card (Audience Dock) ----------
-    def _audience(self, out, st, live, W, H, now, dt, hold):
-        """Draw live.audience as a chat window (vcam/chatcard.py) over the picture. Returns (picture, picture without it
-        for the Share Window or None)."""
-        a = live.get("audience") if isinstance(live.get("audience"), dict) else None
-        on = bool(a and a.get("id") and str(a.get("text") or "").strip() and not hold and self.cards_on())
-        if on and a.get("dur"):
-            on = time.time() * 1000 < float(a.get("at") or 0) + float(a.get("dur") or 0) * 1000
-        t = self.aud
+    # ---------- 9.0 the chat overlay with the Memory Cards (vcam/chatcard.py) ----------
+    def _memory(self, out, live, W, H, now, dt, hold):
+        """Draw live.memory: beside / below the picture (the picture shrinks out of its way) or over it. Returns
+        (picture, picture without the chat overlay for the Share Window, or None)."""
+        m = live.get("memory") if isinstance(live.get("memory"), dict) else None
+        cards = [c for c in (m or {}).get("cards") or [] if isinstance(c, dict) and c.get("id")]
+        on = bool(cards) and not hold and self.cards_on()
+        M = self.mem
         if on:
-            if a["id"] != self.aud_id:                       # a new message replaces the old at once, then opens
-                self.aud_id, t.card, t.key, t.opened, t.closing = a["id"], None, None, None, None
-            side = "left" if a.get("pos") == "left" else "right"
-            name = str(a.get("name") or "").strip() or "Audience"
-            data = {"chat": True, "name": name, "text": str(a.get("text") or " ")[:500], "src": a.get("src"), "side": side}
-            avoid = tuple(self.avoid) if self.avoid else None
-            key = ("@audience", a["id"], name, data["text"], data["src"], side, avoid, W, H)
-            t.info, t.closing = a, None
-            if t.key != key:
+            M["info"] = m
+            M["layout"] = m.get("layout") if m.get("layout") in chatcard.SQUEEZE or m.get("layout") == "over" else "beside"
+            M["side"] = "left" if m.get("side") == "left" else "right"
+            ids = [c["id"] for c in cards]
+            if M["seen"] is None:
+                M["seen"] = set(ids)                              # already there when the overlay opened: no typing
+            new = [i for i in ids if i not in M["seen"]]
+            M["seen"] |= set(ids)
+            if new:
+                M["typing"] = (new[-1], now + chatcard.TYPING_S)  # the newest arrival: typing dots, then its text
+            typing_id = M["typing"][0] if M["typing"] and now < M["typing"][1] and M["typing"][0] in ids else None
+            avoid = tuple(self.avoid) if self.avoid and M["layout"] == "over" else None
+            sig = tuple((c["id"], str(c.get("title") or ""), str(c.get("text") or "")[:500], bool(c.get("pinned")),
+                         bool(c.get("full")), str(c.get("src") or "")) for c in cards)
+            key = ("@memory", sig, M["layout"], M["side"], typing_id, avoid, W, H)
+            if key != M["want"]:
+                M["want"] = key
                 with self.cond:
-                    self.jobs["@audience"] = (key, data, {"avoid": avoid}, W, H, side)
+                    self.jobs["@memory"] = (key, {"memory": True, "cards": [dict(c) for c in cards], "typing": typing_id},
+                                            {"avoid": avoid, "layout": M["layout"]}, W, H, M["side"])
                     self.cond.notify()
-        elif t.card is not None and getattr(t, "closing", None) is None:
-            t.closing = now
-        if t.card is None:
+        M["k"] = self._toward(M["k"], 1.0 if on else 0.0, dt / chatcard.EASE_S)
+        if M["k"] <= 0.001 and not on:
+            M.update(card=None, prev=None, want=None, seen=None, typing=None)
             return out, None
-        if getattr(t, "opened", None) is None:
-            t.opened = now
-        if getattr(t, "closing", None) is not None:
-            k = 1 - (now - t.closing) / chatcard.CLOSE_S
-            if k <= 0:
-                self.aud_id, t.card, t.key, t.opened, t.closing = None, None, None, None, None
-                return out, None
-            f = chatcard.frame(0, k)
-        else:
-            f = chatcard.frame(now - t.opened)
-        info = getattr(t, "info", None) or {}
+        info = M["info"] or {}
         clean = out.copy() if self.need_clean and not info.get("share") else None
-        if not out.flags.writeable:
+        if M["layout"] in chatcard.SQUEEZE:                       # the picture makes room: nothing can overlap
+            out = chatcard.squeeze(out, chatcard.picture_rect(M["layout"], M["side"], W, H, M["k"]))
+        if not out.flags.writeable or out is None:
             out = out.copy()
+        card = M["card"]
+        if card is None:
+            return out, clean
         from .overlay import OverlayLayer
-        card, typing = t.card, getattr(t, "typing", None)
-        sign = -1 if card.x + card.w / 2 < W / 2 else 1         # slides in from the edge it sits at
-        dx = int(round(f["slide"] * card.w * 0.22 * sign))
-        x0, y0 = int(round(card.x - card.margin)) + dx, int(round(card.y - card.margin))
-        def put(c, alpha, h):
-            rows = c.full8[1].shape[0] if h >= c.h else c.margin + max(1, int(h))
-            layer = (c.full8[0][:rows], c.full8[1][:rows])
-            OverlayLayer._blend(out, OverlayLayer._scale(layer, alpha) if alpha < 0.999 else layer, x0, y0)
-        if typing is not None and f["msg"] <= 0.001:          # unfold, then the typing dots
-            put(typing, f["alpha"], typing.h * f["unfold"])
-        else:                                                 # the message unrolls from the compact height
-            start = typing.h if typing is not None else card.h * f["unfold"]
-            put(card, f["alpha"], start + (card.h - start) * f["msg"])
-        dur = float(info.get("dur") or 0)
-        if dur and f["msg"] >= 0.999 and getattr(t, "closing", None) is None:   # the countdown line along the foot
-            left = max(0.0, min(1.0, 1 - (time.time() * 1000 - float(info.get("at") or 0)) / (dur * 1000)))
-            u = min(W / 100, H * 1.7778 / 100)
-            th, r = max(2, int(round(u * 0.25))), int(1.2 * u)
-            x1, y2 = int(round(card.x)) + dx + r, int(round(card.y + card.h)) - 1
-            x2 = x1 + int(round((card.w - 2 * r) * left))
-            x1c, x2c = max(0, x1), min(W, x2)
-            if x2c > x1c and 0 <= y2 - th and y2 <= H:
-                roi = out[y2 - th:y2, x1c:x2c]
-                gold = np.empty_like(roi)
-                gold[:] = (74, 171, 217)                 # gold (217, 171, 74), as BGR
-                cv2.addWeighted(gold, f["alpha"], roi, 1 - f["alpha"], 0, dst=roi)
+        a = chatcard.ease(M["k"])
+        sign = -1 if M["side"] == "left" else 1
+        dy = int(round((1 - a) * card.h * 0.25)) if M["layout"] == "below" else 0
+        dx = 0 if M["layout"] == "below" else int(round((1 - a) * card.w * 0.25 * sign))
+
+        def put(c, alpha):
+            x0, y0 = int(round(c.x - c.margin)) + dx, int(round(c.y - c.margin)) + dy
+            OverlayLayer._blend(out, OverlayLayer._scale(c.full8, alpha) if alpha < 0.999 else c.full8, x0, y0)
+        p = (now - M["swap"]) / chatcard.SWAP_S if M["prev"] is not None else 1.0
+        if p < 1.0:
+            put(M["prev"], a)
+            put(card, a * chatcard.ease(p))
+        else:
+            M["prev"] = None
+            put(card, a)
         return out, clean
 
     @staticmethod
@@ -463,15 +456,15 @@ class ProgramFX:
                     self.cond.wait()
                 lid, (key, data, L, W, H, pos) = self.jobs.popitem()
             try:
-                if data.get("chat"):                        # 8.8 the Audience chat window
-                    typing, card = chatcard.draw(self.drawer.fonts, data, W, H)
-                    OverlayLayer._prepare(typing)
+                if data.get("memory"):                      # 9.0 the chat overlay with the Memory Cards
+                    card = chatcard.draw(self.drawer.fonts, data["cards"], W, H, L.get("layout", "beside"), pos, data.get("typing"))
                     OverlayLayer._prepare(card)
-                    card.x, card.y = chatcard.place(card, W, H, pos, L.get("avoid"))
-                    typing.x, typing.y = card.x, card.y            # the same top: the window grows downwards
-                    t = self.aud
-                    if key[1] == self.aud_id:
-                        t.card, t.typing, t.key = card, typing, key
+                    card.x, card.y = chatcard.place(card, W, H, pos, L.get("avoid"), L.get("layout", "beside"))
+                    M = self.mem
+                    if key == M["want"]:
+                        if M["card"] is not None:
+                            M["prev"], M["swap"] = M["card"], time.monotonic()
+                        M["card"] = card
                     continue
                 if data.get("brand"):
                     card = self._badge(data, L, W, H)
@@ -489,8 +482,8 @@ class ProgramFX:
                 left, right = m, W - m - card.w
                 card.x = left if pos.endswith("left") else right if pos.endswith("right") else (W - card.w) / 2
                 card.y = (top if pos in ("top", "upper-left", "upper-right") else (H - card.h) / 2 if pos == "center" else bottom)
-                t = self.aud if lid == "@audience" else self.texts.get(lid)
-                if t is not None and (lid != "@audience" or key[1] == self.aud_id):
+                t = self.texts.get(lid)
+                if t is not None:
                     t.card, t.key = card, key
             except Exception as e:                      # never let a drawing problem stop the camera
                 print("FRAMEDECKS: could not draw a text layer:", e)

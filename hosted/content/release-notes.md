@@ -1,36 +1,41 @@
-## FrameDecks v8.9.0
+## FrameDecks v9.0.0
 
-See what Next will put on screen before you press it, and an Audience Dock that is easier to run from the keyboard.
-Download from **framedecks.com/download**, or let FrameDecks update itself. It installs over 8.8.1 and earlier and
-keeps all your meetings, members, settings and recordings.
+Memory Cards: what you copy from a chat or an assistant goes straight into the chat overlay on your FrameRelay camera.
+The Audience Dock is gone. Download from **framedecks.com/download**, or let FrameDecks update itself. It installs over
+8.9.0 and earlier and keeps all your meetings, members, settings and recordings.
 
 ## What's New
-- **Up next (Safe Next).** Under the Studio Canvas, a strip shows the Frame **Next** will put on screen: a small live
-  picture of it, its name, its place in the meeting, its transition, and in plain words what appears (the question,
-  the scripture, text, pictures, video, audio). It warns you before you press Next when:
-  - the next Frame shows nothing,
-  - the black screen or the emergency screen is still on,
-  - a picture, video or PowerPoint in it has no file chosen yet.
-
-  **Hide preview** keeps just the line; FrameDecks remembers your choice. The **Next** button's tooltip names the
-  next Frame too.
-- **Audience Dock: Waiting and Shown.** Messages you show move from **Waiting** to **Shown**, so the queue holds only
-  what is still to come and you can show an earlier message again.
-- **Audience Dock: keys.** With the dock usable (📌 on the handle): **↑ ↓** choose a card, **Enter** shows it, **P**
-  pins it, **H** hides what is on screen, **Del** deletes the chosen card, **N** goes to the question box, **Esc**
-  hides.
+- **Memory Cards.** Turn on **Capture**, select text in Teams, Zoom, Google Meet, Webex, Slack, Discord, ChatGPT,
+  Claude, Copilot or a browser, and press **Ctrl+C**. A Memory Card (a title and the text) appears in the chat
+  overlay on FrameRelay, in the same chat window design as before. A new card arrives with typing dots, then its text.
+- **Show and Pin.** A small card appears in the corner of your screen with **Show** and **Pin**. It never takes the
+  keyboard from your meeting and screen sharing leaves it out. **Show** puts a card in the chat overlay with its full
+  text. **Pin** keeps it there, and pinned cards are still there after a restart. Unpinned cards leave after 12
+  seconds (you choose how long).
+- **Beside the video.** By default the whole picture shrinks to the left and the chat overlay takes a column on the
+  right, so it never covers you, the question and scripture cards, drawings or the camera inset. Or choose **Below
+  the video** (the cards along the bottom) or **Over the picture** (a window at the edge, clear of the camera inset).
+  Everything is sized from the camera's resolution, in Teams, Zoom, Google Meet, Webex, Discord, OBS and any app that
+  uses the FrameRelay camera.
+- **Memory Cards in the Studio.** A **Memory Cards** pane under Decks lists the cards with Show, Pin, Hide and
+  Delete, takes typed notes and holds the settings. Folded, it is one line with the Capture switch. Live tools →
+  **Capture copies**, the tray and the command palette turn Capture on and off.
 
 ## Enhancements
-- The chat window on the FrameRelay camera keeps clear of the camera inset: a large inset in a corner moves it up,
-  and with the camera beside the screen it moves to the other edge.
+- Several cards at once in the chat overlay (up to four: pinned ones first, then the newest).
+- The Studio preview shows the chat overlay where FrameRelay puts it.
 
 ## Fixes
-- No separate fixes in this version.
+- **Crash: Illegal Instruction (0xC000001D) while dragging.** The Audience Dock and its handle are removed, with the
+  window-style changes they made many times a second while being dragged. Turning Capture off and on again could
+  also leave Windows calling a released part of FrameDecks; capture now keeps one handler for the program's life.
 
 ## Performance Improvements
-- The Up next picture is only drawn while it is shown and the FrameDecks window is visible.
+- The chat overlay is drawn once per change of cards and blended into the FrameRelay picture; no window polls the
+  keyboard or the pointer any more.
 
 ## Known Issues
 - The installer is not yet code-signed, so Windows SmartScreen may ask you to confirm: **More info → Run anyway**.
-- Up next follows the Studio's order (the meeting this PC shows). When a Frame moves on by itself (Auto-advance), the
-  strip updates as soon as the new Frame is live.
+- Capturing copies is Windows only. Elsewhere, type a note in the Memory Cards pane.
+- The OBS / browser overlay pages float the chat overlay over the picture: they cannot shrink the video under them.
+- The card's title is who wrote it when the copied text says so, otherwise its first words.

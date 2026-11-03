@@ -45,6 +45,29 @@ Versions before 4.9 (when the program had its earlier name) are described in the
 - The favicons, the tray icon and the small program-icon sizes (16–32 px) use a heavier version of the emblem, so it
   stays visible on light browser tabs and a light taskbar. Larger sizes are unchanged.
 
+## [9.0.0] - 2026-11-03
+
+Full notes: [docs/releases/v9.0.0.md](releases/v9.0.0.md). Design, testing checklist and rollback:
+[docs/architecture/memory-cards.md](architecture/memory-cards.md).
+
+### Added
+- Memory Cards: `src/memory.py` (cards, titles, sources incl. ChatGPT / Claude / Copilot / Slack / Meet / Webex,
+  pinned cards in `kc-memory.json`, `overlay(seconds)`), `/api/memory`, `live.memory` {cards, layout, side, share}
+  with a timer for unpinned cards; settings `memDur`, `memShare`, `memLayout` (beside / below / over), `memSide`,
+  `memAuto`.
+- The chat overlay holds several cards: `vcam/chatcard.py` (layouts, squeeze of the picture, fitting) and
+  `overlay.js` / `overlay.css` (`.stage-root` shrinks for beside / below; `.chatwin` bubbles, typing then text).
+- The Studio's Memory Cards pane and the corner popup (`app/js/memory.js`, `app/memory-popup.html`,
+  `app/css/memory.css`, `desktop_app.popup_*`); Live tools → Capture copies; tray and palette entries.
+
+### Removed
+- The Audience Dock (`audience.html`, `audience-handle.html`, `audience.js/.css`, `dock.py`, the dock window code and
+  the click-through / key / cursor helpers in `desktop_win.py`), `/api/audience`, `/api/app/dock`, `live.audience`.
+
+### Fixed
+- Crash while dragging the dock's handle (Illegal Instruction 0xC000001D): the dock is gone. `capture.py` keeps one
+  window procedure for the program's life (a second Capture start let the registered one be freed).
+
 ## [8.9.0] - 2026-11-03
 
 Full notes: [docs/releases/v8.9.0.md](releases/v8.9.0.md).

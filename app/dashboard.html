@@ -11,6 +11,7 @@
 <link rel="stylesheet" href="css/theme.css">
 <link rel="stylesheet" href="css/teleprompter.css">
 <link rel="stylesheet" href="css/window.css">
+<link rel="stylesheet" href="css/memory.css">
 <link rel="stylesheet" href="css/about.css">
 <script>/* Look and light or dark before the first paint (Settings > Meeting & Branding > Look). 8.1: a look (the same six as
    framedecks.com, or "same as my workspace") and Dark / Light / Match Windows; 7.x "Follow my workspace" becomes a look. */
@@ -66,8 +67,8 @@
   <button class="cb-btn lb-ann" type="button" id="lb-annotate" aria-pressed="false" title="Annotate: draw on the picture (D)">Draw on the picture</button>
   <p class="lpm-h" aria-hidden="true">Teleprompter <span>only you see it</span></p>
   <button class="cb-btn lb-tp" type="button" id="lb-prompter" aria-pressed="false" title="Teleprompter: the Frame's script in a window above Zoom or Teams. Never shared or recorded (R)">Teleprompter</button>
-  <p class="lpm-h" aria-hidden="true">Audience <span>only you see it</span></p>
-  <button class="cb-btn lb-aud" type="button" id="lb-audience" aria-pressed="false" title="Audience Dock: copy a chat message (Ctrl+C) and show it on FrameRelay as a card. Never shared or recorded">Audience Dock</button>
+  <p class="lpm-h" aria-hidden="true">Memory Cards <span>from chats</span></p>
+  <button class="cb-btn lb-mem" type="button" id="lb-capture" aria-pressed="false" title="Capture: text you copy (Ctrl+C) in Teams, Zoom, ChatGPT, Claude, Slack, a browser… becomes a Memory Card in the FrameRelay chat overlay">Capture copies</button>
   <p class="lpm-h lpm-warn" aria-hidden="true">Emergency</p>
   <button class="cb-btn lb-emerg" type="button" id="lb-emergency" aria-pressed="false" title="Emergency screen with your message">Emergency screen</button>
     </div>
@@ -136,6 +137,26 @@
         <button class="btn small" type="button" id="layer-add" aria-haspopup="menu"><i data-icon="plus" data-size="15"></i> Content</button></header>
       <ol class="layer-list" id="layer-list" aria-label="Content (top = in front)"></ol>
       <p class="pane-note" id="layers-note"></p>
+    </section>
+    <!-- 9.0 Memory Cards: what you copy from a chat (Capture on) becomes a card in the FrameRelay chat overlay (js/memory.js) -->
+    <section class="pane mem-pane closed" id="mem-pane" aria-labelledby="mem-title">
+      <header class="pane-head"><h2 id="mem-title"><button class="mem-fold" type="button" id="mem-fold" aria-expanded="false" aria-controls="mem-body">Memory Cards</button></h2><span class="pane-sub" id="mem-n"></span>
+        <label class="mem-switch" title="Capture: text you copy (Ctrl+C) becomes a Memory Card"><input type="checkbox" id="mem-capture" role="switch"><span class="mem-knob" aria-hidden="true"></span><span>Capture</span></label>
+        <button class="btn small quiet mem-gear" type="button" id="mem-gear" aria-expanded="false" aria-controls="mem-settings" aria-label="Memory Card settings" title="Memory Card settings"><i data-icon="settings" data-size="15"></i></button></header>
+      <div class="mem-body" id="mem-body">
+      <div class="mem-settings" id="mem-settings" hidden>
+        <label class="mem-row">On FrameRelay <select id="mem-layout"><option value="beside">Beside the video</option><option value="below">Below the video</option><option value="over">Over the picture</option></select></label>
+        <label class="mem-row">Side <select id="mem-side"><option value="right">Right</option><option value="left">Left</option></select></label>
+        <label class="mem-row">Unpinned cards stay <input type="number" id="mem-dur" min="3" max="120" step="1" value="12"> seconds</label>
+        <label class="mem-row"><input type="checkbox" id="mem-auto"> Show a card as soon as it's copied</label>
+        <label class="mem-row"><input type="checkbox" id="mem-share"> Also on the Share Window and overlay pages</label>
+        <div class="mem-acts"><button class="btn small" type="button" id="mem-hideall">Empty the chat overlay</button><button class="btn small danger" type="button" id="mem-clear">Clear unpinned cards</button></div>
+      </div>
+      <p class="mem-status" id="mem-status" role="status" aria-live="polite"></p>
+      <form class="mem-add" id="mem-add" autocomplete="off"><input type="text" id="mem-add-text" maxlength="500" placeholder="Type a note…" aria-label="Type a Memory Card"><button class="btn small" type="submit">Add</button></form>
+      <ol class="mem-list" id="mem-list" aria-label="Memory Cards"></ol>
+      <p class="pane-note" id="mem-empty">Turn on Capture, then copy text in Teams, Zoom, ChatGPT, Claude, Slack or a browser.</p>
+      </div>
     </section>
   </aside>
 
@@ -563,6 +584,7 @@
 <script src="js/scripture.js"></script>
 <script src="js/workspace.js"></script>
 <script src="js/annotate.js"></script>
+<script src="js/memory.js"></script>
 <script src="js/teleprompter.js"></script>
 <script src="js/preview-edit.js"></script>
 <script src="js/panels.js"></script>

@@ -279,63 +279,49 @@ The second row holds the script controls:
 
 On the phone, the Teleprompter is on the remote too. See [Remote control](remote-control.md#teleprompter-on-the-phone).
 
-## Audience Dock: show a chat message
+## Memory Cards: copied chat text in the chat overlay
 
-The **Audience Dock** puts a viewer's chat message on screen as a card, without pasting. It works with any chat you
-can select text in: Zoom, Teams, YouTube, Twitch, Facebook Live, Discord or a web page. Only you see the dock.
+**Memory Cards** put what you copy from a chat or an assistant (Teams, Zoom, Google Meet, Webex, Slack, Discord,
+ChatGPT, Claude, Copilot or a browser) into the **chat overlay** on the FrameRelay camera. There is nothing to paste
+and no extra window to manage.
 
-1. Open it: **Live tools → Audience Dock** (or the tray's **Audience Dock**, or the command palette). It opens at the
-   right of the screen; move it over or beside the chat.
-2. Turn on **Capture** in the dock.
-3. In the chat, select a message and press **Ctrl+C**. The dock says **✓ Audience Question Captured** and the card
-   slides into the queue, with the app it came from and, when the copy says who wrote it, the sender.
-4. The message opens on the FrameRelay camera as a **live chat window**: the window unfolds from the edge of the
-   picture, typing dots appear, then the message, with the sender's initials and name. It stays 12 seconds, with a thin
-   line counting down. (Turn off **Show as soon as it's copied** in the dock's settings to choose each one with **Show**
-   instead. Private messages and copies from other programs always wait for **Show**.)
-5. Hold **Ctrl+Shift** to use the card buttons: **Show** puts a card on screen again, **Pin** keeps it until you hide
-   it, **Hide** (or **Esc** in the dock or the Studio) slides it away. A new message replaces the one on screen.
+1. Turn on **Capture**: the switch in the Studio's **Memory Cards** pane (under Decks), **Live tools → Capture
+   copies**, or the tray's **Capture copies**.
+2. In the chat, select the text and press **Ctrl+C**.
+3. The card appears in the chat overlay on FrameRelay: its title (who wrote it, or the first words) and the first
+   lines, with typing dots for a moment. A small card also appears in the corner of your screen with **Show** and
+   **Pin**. It never takes the keyboard from Zoom or Teams, screen sharing leaves it out, and it goes after a few
+   seconds (keep the pointer on it to keep it).
 
-**Where it appears.** On a chat rail at the right edge of the picture, a little above the middle (or the left edge:
-**Place on screen** in the dock's settings). That keeps it clear of the question, scripture and lower-third cards at
-the bottom, the birthday card at the top, Branding badges in the corners and a camera inset in a bottom corner. On the
-FrameRelay camera it also keeps clear of the camera inset by itself: above a large inset, or at the other edge when the
-camera sits beside the screen.
+**On each card** (in the corner card or the pane):
 
-**Using the dock without leaving your meeting**
+| Button | Does |
+|---|---|
+| **Show** | Puts the card in the chat overlay (again) with its full text. On a card already there, **Less** goes back to the first lines |
+| **Pin** | Keeps it in the chat overlay, also after FrameDecks restarts (up to 12 cards). Pinned cards have a gold edge |
+| **Hide** (pane) | Takes it out of the chat overlay; the card stays in the pane |
+| **✕** (pane) | Deletes the card |
 
-- Clicks go *through* the dock to the chat underneath, and the dock never takes the keyboard, so Zoom or Teams keeps
-  it. While the pointer is over the dock it fades to 20% so you can read the chat beneath it.
-- Hold **Ctrl+Shift** to use the dock: it becomes fully visible and its buttons work. Let go and clicks pass through
-  again.
-- The small bar on the dock's top edge, the **handle**, always takes clicks: **⠿** move (drag), **⤡** resize (drag),
-  **📌** keep the dock usable (needed to type in a card's name or message), **⚙** settings, **✕** close. The dock
-  remembers where it was and its size.
+Unpinned cards leave the chat overlay after 12 seconds (Settings ⚙). At most four cards are in it at once: the
+pinned ones, then the newest. **Esc** (Hide all) empties it until the next card. You can also type a note in the pane.
 
-**Waiting and Shown.** Messages you have shown move from **Waiting** to **Shown**: Waiting is what is still to come,
-Shown is the history of this meeting, where **Show** puts one on screen again.
+**Where the chat overlay goes** (⚙ → *On FrameRelay*):
 
-**Keys** (when the dock is usable: 📌 on the handle, or in a browser):
+- **Beside the video** (the default): the whole picture (your camera, the question and scripture cards, drawings)
+  shrinks to the left and the chat overlay takes a column on the right (*Side*: or the left). Nothing overlaps.
+- **Below the video**: the picture shrinks upwards and the cards run along the bottom.
+- **Over the picture**: a window at the edge of the picture, clear of the bottom cards and of a camera inset.
 
-| Key | Does |
-| --- | --- |
-| **↑** / **↓** | Choose a card |
-| **Enter** | Show the chosen card |
-| **P** | Pin the chosen card |
-| **H** or **Esc** | Hide what is on screen |
-| **Del** | Delete the chosen card |
-| **N** | Type a new question |
+The Studio preview shows the same. **Also on the Share Window and overlay pages** shows it there too (on the OBS
+pages it floats over the picture).
 
-**Settings** (⚙): **Seconds on screen** (3–120, default 12), **Show as soon as it's copied**, **Place on screen**
-(right or left edge), **Also show on Share Window** (off: the chat window is on the FrameRelay camera only; on: also on
-the Share Window and the overlay pages) and **Clear the queue**.
+> **Note:** Unpinned cards are kept only while FrameDecks runs; pinned cards are kept in `kc-memory.json` in the
+> FrameDecks data folder. Nothing is sent anywhere. Copies that a password manager marks as private are never read,
+> and Zoom's private messages wait for **Show**. Turn off **Show a card as soon as it's copied** to choose each card.
 
-> **Note:** The queue is kept only while FrameDecks runs. Nothing about your viewers is saved or sent anywhere.
-> Copies that a password manager marks as private are never read, and Zoom's private messages are marked
-> **Private** and need a second click to show. Capture stops when you close the dock.
+> **Note:** Capturing copies needs the installed app on Windows. Elsewhere, type a note in the pane.
 
-> **Note:** Capture, click-through and Ctrl+Shift need the installed app on Windows. In a browser the dock opens as a
-> pop-up where you can type a question and show it.
+> **Note:** 9.0 replaced the Audience Dock of 8.8 and 8.9 with Memory Cards.
 
 ## Command palette
 
@@ -376,8 +362,8 @@ Ctrl+Space, Ctrl+Alt+Space, Ctrl+Shift+Space, Win+Shift+K, or Off.
 
 ## Projector, TV and screen sharing
 
-The **Presentation window** shows the same finished picture as the FrameRelay camera (an Audience Dock card only when
-**Also show on Share Window** is on).
+The **Presentation window** shows the same finished picture as the FrameRelay camera (the Memory Cards chat overlay
+only when **Also on the Share Window and overlay pages** is on).
 
 1. In the Studio, select **Share Window**. The Presentation window opens.
 2. Drag it to the projector or TV, then select **⛶ Full screen** (or press **F** in that window, or double-click it).

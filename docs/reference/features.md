@@ -1,4 +1,12 @@
-# FrameDecks: feature documentation (v8.9)
+# FrameDecks: feature documentation (v9.0)
+
+## v9.0 at a glance
+| Feature | What it does | Where it lives |
+| --- | --- | --- |
+| **Memory Cards** | Capture on (Studio pane, Live tools → Capture copies, tray, palette) and Ctrl+C in Teams, Zoom, Meet, Webex, Slack, Discord, ChatGPT, Claude, Copilot or a browser: a card (title = who wrote it or the first words; the text; the app) goes into the FrameRelay chat overlay with typing dots then its text (*Show a card as soon as it's copied*, default on; private Zoom messages wait). **Show**: in the overlay with its full text (again: Less). **Pin**: stays, and after a restart (`kc-memory.json`, up to 12). Unpinned: leaves after `memDur` seconds (3–120, default 12). Hide; Hide all / Esc empties the overlay until the next card. Up to four in the overlay: pinned, then newest | `src/memory.py`, `src/capture.py`, `src/server.py` (`/api/memory`, `memory_sync`) |
+| **Chat overlay layouts** | *Beside the video* (default; the whole picture shrinks to the left 70 %, the chat column on the right or left), *Below the video* (picture to the top 72 %, cards side by side), *Over the picture* (floating window clear of the camera inset). Animated, sized from the resolution; layouts drop the oldest unpinned cards, then lines, when full. Studio preview the same; OBS pages float it and only with *Also on the Share Window and overlay pages* | `src/vcam/chatcard.py`, `src/vcam/program.py`, `app/js/overlay.js`, `app/css/overlay.css` |
+| **Memory Cards pane and popup** | Pane under Decks (folds to one line with the Capture switch): cards with Show, Pin, Hide, ✕; typed notes; settings. Corner popup (installed app): the cards just copied with Show, Pin, ✕; never takes the keyboard, hidden from screen sharing, never dragged | `app/js/memory.js`, `app/memory-popup.html`, `app/css/memory.css`, `src/desktop_app.py` |
+
 
 ## v8.9 at a glance
 | Feature | What it does | Where it lives |

@@ -42,7 +42,8 @@ Repository clean-up is on `main` (modules in `src/`; `README.md`, `LICENSE`, `NO
 | 8.0.0: one Teleprompter, Frame cards, no Run/Practice, Setup wizard, plain camera settings, one-view phone remote | Published (1 November) |
 | 8.1.0: Teleprompter transparency and pin, six looks, one Content view, website-matching restyle | On `main`; tag `v8.1.0` publishes it |
 | 8.2.0: bare Teleprompter (controls in its bar, upload, script mode), Spotlight, transitions one per effect + Burst, .frame files, sync status chip | Published (tag `v8.2.0`) |
-| 8.9.0: Safe Next (Up next strip under the Studio Canvas with warnings), Audience Dock Waiting/Shown + keys, chat window clear of the camera inset | On `main`; tag `v8.9.0` |
+| 9.0.0: Memory Cards in the FrameRelay chat overlay (beside / below / over the video, corner popup, Studio pane, pinned cards kept); Audience Dock removed; drag crash fixes | On `main`; tag `v9.0.0`; real-PC checklist in docs/architecture/memory-cards.md |
+| 8.9.0: Safe Next (Up next strip under the Studio Canvas with warnings), Audience Dock Waiting/Shown + keys, chat window clear of the camera inset | Published (tag `v8.9.0`) |
 | 8.8.1: the Audience Dock opens on screen on scaled displays (it was placed off the right edge) and takes typing when pinned | Published (tag `v8.8.1`) |
 | 8.8.0: Audience Dock (Ctrl+C a chat message → a card on FrameRelay; click-through dock with Ctrl+Shift, handle, timer/pin/hide, Share Window option) | Published (tag `v8.8.0`); real-PC checklist in docs/architecture/audience-dock.md |
 | 8.7.0: Spotlight as a soft see-through disc with settings, landing How it works Day 5 and a self-playing See it work | Tagged `v8.7.0` |

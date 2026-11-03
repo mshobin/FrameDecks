@@ -367,12 +367,14 @@ var TEXT_ICON = {
   prayer: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 14c1.5-1.5 3-3.2 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.8 0-3 .5-4.5 2-1.5-1.5-2.7-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4 3 5.5l7 7Z"/></svg>',
   countdown: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M9 2h6"/></svg>',
   lowerthird: '',
-  /* 8.8 the Audience Card (Audience Dock) */
-  audience: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.7 7.1L3 21l1.9-6.3A8 8 0 1 1 21 12z"/></svg>'
 };
-/* 8.8 the Audience chat window (same design as src/vcam/chatcard.py on FrameRelay): a title bar with a live dot, the
- * app it came from, and a bubble with the sender's initials, name and message. Opens: unfold, typing dots, message. */
-var CHAT_SRC = {zoom: 'Zoom', teams: 'Teams', youtube: 'YouTube', twitch: 'Twitch', facebook: 'Facebook', discord: 'Discord', clipboard: 'Chat'};
+/* 9.0 the chat overlay with the Memory Cards (the same design as src/vcam/chatcard.py on FrameRelay): a title bar with
+ * a live dot and the app; the cards as chat bubbles (initials, title, text), newest at the foot. A new card shows
+ * typing dots, then its text; Show expands a card to its full text; a pinned card has a gold edge and a Pinned tag.
+ * In the Studio preview it follows the camera's layout: beside or below the picture (the rest of the page shrinks:
+ * html.mem-beside / mem-below) or over it. */
+var CHAT_SRC = {zoom: 'Zoom', teams: 'Teams', meet: 'Google Meet', webex: 'Webex', slack: 'Slack', discord: 'Discord', chatgpt: 'ChatGPT',
+  claude: 'Claude', copilot: 'Copilot', youtube: 'YouTube', twitch: 'Twitch', facebook: 'Facebook', clipboard: 'Chat'};
 var CHAT_COLOURS = ['#5b8def', '#2eb57d', '#e9804a', '#b06ade', '#e25572', '#28aabe', '#d9ab4a'];
 function chatInitials(n){
   var p = String(n || '').replace(/\./g, ' ').split(/\s+/).filter(function(w){ return /^[\p{L}\p{N}]/u.test(w); });
@@ -383,28 +385,44 @@ function chatColour(n){                            // the same pick as chatcard.
   for (var i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
   return CHAT_COLOURS[h % CHAT_COLOURS.length];
 }
-function makeChat(root){
+function makeChat(){
   var zone = el('div', 'zone-chat'), win = el('section', 'chatwin out');
-  win.innerHTML = '<header class="chat-bar"><i class="chat-live" aria-hidden="true"></i><b>Live chat</b><span class="chat-src"></span></header>' +
-    '<div class="chat-body"><span class="chat-av" aria-hidden="true"></span>' +
-    '<div class="chat-col"><div class="chat-typing" aria-hidden="true"><i></i><i></i><i></i></div>' +
-    '<div class="chat-bubble"><b class="chat-name"></b><p class="chat-text"></p></div></div></div><div class="aud-timer"></div>';
-  zone.appendChild(win); root.appendChild(zone);
-  return {zone: zone, card: win, chat: true, src: win.querySelector('.chat-src'), av: win.querySelector('.chat-av'),
-    name: win.querySelector('.chat-name'), text: win.querySelector('.chat-text'), timer: win.querySelector('.aud-timer')};
+  win.setAttribute('aria-label', 'Live chat');
+  win.innerHTML = '<header class="chat-bar"><i class="chat-live" aria-hidden="true"></i><b>Live chat</b><span class="chat-src"></span></header><ol class="chat-list"></ol>';
+  zone.appendChild(win); document.body.appendChild(zone);
+  return {zone: zone, card: win, chat: true, src: win.querySelector('.chat-src'), list: win.querySelector('.chat-list'), seen: null};
 }
 function fillChat(x, l){
-  var c = l.c;
-  x.zone.className = 'zone-chat chat-' + (c.pos === 'left' ? 'left' : 'right');
-  x.src.textContent = CHAT_SRC[c.src] || 'Chat';
-  x.av.textContent = chatInitials(c.title); x.av.style.background = chatColour(c.title);
-  if (x.name.textContent !== c.title) x.name.textContent = c.title;
-  if (x.text.textContent !== c.text) x.text.textContent = c.text;
+  var c = l.c, cards = c.cards || [], srcs = [];
+  x.zone.className = 'zone-chat chat-' + c.layout + ' chat-' + (c.side === 'left' ? 'left' : 'right');
+  cards.forEach(function(k){ var n = CHAT_SRC[k.src] || 'Chat'; if (srcs.indexOf(n) < 0) srcs.push(n); });
+  x.src.textContent = srcs.length === 1 ? srcs[0] : srcs.length + ' apps';
+  var first = x.seen === null, keep = {};
+  if (first) x.seen = {};
+  cards.forEach(function(k, i){
+    var li = x.list.querySelector('[data-id="' + k.id + '"]');
+    if (!li){
+      li = el('li', 'chat-msg');
+      li.dataset.id = k.id;
+      li.innerHTML = '<span class="chat-av" aria-hidden="true"></span><div class="chat-col"><div class="chat-typing" aria-hidden="true"><i></i><i></i><i></i></div>' +
+        '<div class="chat-bubble"><b class="chat-name"></b><span class="chat-pin">Pinned</span><p class="chat-text"></p></div></div>';
+      if (!first && !x.seen[k.id]) li.classList.add('arrive');            // typing dots, then the text
+    }
+    x.seen[k.id] = true;
+    var av = li.querySelector('.chat-av'), title = k.title || 'Chat';
+    av.textContent = chatInitials(title); av.style.background = chatColour(title);
+    li.querySelector('.chat-name').textContent = title;
+    var t = li.querySelector('.chat-text'); if (t.textContent !== k.text) t.textContent = k.text;
+    li.classList.toggle('pinned', !!k.pinned); li.classList.toggle('full', !!k.full);
+    if (x.list.children[i] !== li) x.list.insertBefore(li, x.list.children[i] || null);
+    keep[k.id] = true;
+  });
+  Array.prototype.slice.call(x.list.children).forEach(function(li){ if (!keep[li.dataset.id]) li.remove(); });
 }
 function TextLayers(root){
   var shown = {};                                  // id -> {el, sig}
   function make(l){
-    if (l.kind === 'audience') return makeChat(root);
+    if (l.kind === 'memory') return makeChat();
     var card = el('section', 'card card-x card-' + l.kind + ' out');
     card.setAttribute('data-layer', l.id);                    // v6.7 the canvas finds which Content to edit
     if (l.kind === 'brand'){                                  // v6.2 Branding: logo + Meeting Name (+ organization)
@@ -424,7 +442,7 @@ function TextLayers(root){
   function setLogo(img, src){ if (img.getAttribute('src') !== src){ if (src) img.setAttribute('src', src); else img.removeAttribute('src'); } img.hidden = !src; }
   function fill(x, l, st){
     var c = l.c, S = window.KCScenes;
-    if (x.chat){ fillChat(x, l); timerOf(x, c); return; }
+    if (x.chat){ fillChat(x, l); return; }
     if (l.kind === 'brand'){
       var b = st.brand || {};
       x.zone.className = 'zone-x zone-brand pos-' + c.pos;
@@ -447,13 +465,6 @@ function TextLayers(root){
     var t = l.kind === 'countdown' ? S.countdown(st, l) : S.brandText(st, c.text);
     if (x.text.textContent !== t) x.text.textContent = t;
     x.zone.style.opacity = String(l.opacity == null ? 1 : l.opacity);
-  }
-  function timerOf(x, c){                          // 8.8 the line shrinks over the card's seconds (none when pinned)
-    var sig = c.at + '|' + c.dur;
-    if (x.timer.dataset.sig === sig) return;
-    x.timer.dataset.sig = sig; x.timer.hidden = !c.dur;
-    x.timer.style.animation = 'none'; void x.timer.offsetWidth;
-    if (c.dur) x.timer.style.animation = 'aud-count ' + c.dur + 's linear ' + (-Math.max(0, Date.now() - c.at) / 1000) + 's forwards';
   }
   return {
     update: function(st, list){
@@ -608,20 +619,23 @@ function mount(opts){
   var bg = params.get('bg');
   if (bg) document.body.classList.add('bg-' + bg);
   var cards = {};
+  /* 9.0 everything but the chat overlay and the program's black / emergency screens sits in one stage, so the chat
+   * overlay's beside / below layouts can shrink it all at once (the same as the FrameRelay picture) */
+  var stage = el('div', 'stage-root'); document.body.appendChild(stage);
   if (opts.verse){
-    var vz = el('div', 'zone zone-verse'); document.body.appendChild(vz);
+    var vz = el('div', 'zone zone-verse'); stage.appendChild(vz);
     cards.verse = Card(vz, 'verse');
   }
   if (opts.question){
-    var qz = el('div', 'zone zone-question'); document.body.appendChild(qz);
+    var qz = el('div', 'zone zone-question'); stage.appendChild(qz);
     cards.question = Card(qz, 'question');
   }
   if (opts.birthday){
-    var bz = el('div', 'zone zone-birthday pos-top'); document.body.appendChild(bz);
+    var bz = el('div', 'zone zone-birthday pos-top'); stage.appendChild(bz);
     cards.birthday = BirthdayCard(bz);
   }
   var Store = window.KCStore, SC = window.KCScenes;
-  var texts = opts.extras ? TextLayers(document.body) : null, program = opts.program ? Program(document.body) : null;
+  var texts = opts.extras ? TextLayers(stage) : null, program = opts.program ? Program(document.body) : null;
   var isPreview = /[?&]preview=1/.test(location.search), sceneQ = params.get('scene');
   /* Output rules: the OBS / browser pages leave out what is set to "not on overlay pages" (previews show everything) */
   function forObs(d){ return !isPreview && d.out && d.out.obs === false ? Object.assign({}, d, {visible: false}) : d; }
@@ -643,17 +657,22 @@ function mount(opts){
       if (cards.birthday) cards.birthday.update(held(st, forObs(st.birthday)));
       brandPalette(st);
       lookSurface(st);
-      if (texts && SC){ lastText = textList(st); texts.update(st, lastText); }
+      if (texts && SC){ lastText = textList(st); texts.update(st, lastText); memLayout(lastText); }
       if (program) program(st);
     });
     Store.start();
     Store.presence(opts.page);
   });
   var rt, last = null, lastText = [], palette = '';
+  function memLayout(list){
+    var m = list.filter(function(l){ return l.kind === 'memory'; })[0], lay = m ? m.c.layout : '', r = document.documentElement;
+    r.classList.toggle('mem-beside', lay === 'beside'); r.classList.toggle('mem-below', lay === 'below');
+    r.classList.toggle('mem-left', !!m && m.c.side === 'left');
+  }
   function textList(st){
     if (st.live && (st.live.blackout || st.live.emergency)) return [];
     var out = isPreview ? null : 'obs';
-    return SC.liveText(st, out).concat(SC.liveBrand(st, out), SC.liveAudience ? SC.liveAudience(st, out) : []);   // 8.8 the Audience Card on top
+    return SC.liveText(st, out).concat(SC.liveBrand(st, out), SC.liveMemory ? SC.liveMemory(st, out) : []);   // 9.0 the chat overlay on top
   }
   /* v6.2 the leader's accent colour replaces the gold of every card on this page (cleared when removed) */
   function brandPalette(st){
@@ -670,13 +689,7 @@ function mount(opts){
     if (v){ r.setProperty('--surf-a', v.a); r.setProperty('--surf-b', v.b); r.setProperty('--scripture', v.font === 'sans' ? 'var(--sans)' : 'var(--serif)'); }
     else ['--surf-a', '--surf-b', '--scripture'].forEach(function(k){ r.removeProperty(k); });
   }
-  if (texts) setInterval(function(){
-    if (!last || !lastText.length) return;
-    if (lastText.some(function(l){ return l.kind === 'audience' && l.c.dur && Date.now() >= l.c.at + l.c.dur * 1000; })){
-      lastText = textList(last); texts.update(last, lastText);          // 8.8 a timed Audience Card fades out on time
-    }
-    texts.tick(last, lastText);
-  }, 250);   // countdowns
+  if (texts) setInterval(function(){ if (last && lastText.length) texts.tick(last, lastText); }, 250);   // countdowns
   window.addEventListener('resize', function(){
     clearTimeout(rt);
     rt = setTimeout(function(){ if (last) placeVerse(last); for (var k in cards) cards[k].refit(); }, 150);
