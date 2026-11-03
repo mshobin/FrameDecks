@@ -311,6 +311,14 @@ class Api(unittest.TestCase):
         server._on_copy("Copied but not shown", "notepad.exe", "")
         self.assertEqual(len(self.live()["cards"]), 1, "Show as soon as it's copied off: it waits")
 
+    def test_the_phone_may_load_every_file_the_remote_page_uses(self):
+        """9.1.1: remote-memory.js was refused to other devices, so Capture Memory did nothing on a real phone."""
+        import re
+        page = (ROOT / "app" / "remote.html").read_text(encoding="utf-8")
+        used = {"/" + u for u in re.findall(r'(?:src|href)="((?:js|css)/[^"]+)"', page)}
+        self.assertTrue(used)
+        self.assertEqual(sorted(used - server.REMOTE_PUBLIC), [], "the phone remote cannot load these")
+
     def test_phone_remote_capture_memory(self):
         self.assertIn("/api/remote/memory", server.REMOTE_SIGNED_IN)
         st, res = self.call("POST", "/api/remote/memory", {"action": "add", "text": "Grace: Can we get the slides afterwards?"})

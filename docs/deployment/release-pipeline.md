@@ -132,7 +132,7 @@ Python 3 and PyYAML, takes about a minute and ends with `release pipeline: ok`. 
    and passes `python tools/make_release_notes.py --check`. Write the notes for users: they are shown on the download
    page and in the program, and the manifest tool refuses any line naming a repository path.
 2. Tag it, **one version at a time**, with the tag equal to `v` + `APP_VERSION`:
-   `git tag v9.1.0 && git push origin v9.1.0`. (A GitHub Release created in the web page with a new tag works too.)
+   `git tag v9.1.1 && git push origin v9.1.1`. (A GitHub Release created in the web page with a new tag works too.)
 3. The workflow builds and tests on Windows, keeps a private copy on the repository's Releases page, then the `publish`
    job uploads the version's files, `index.json`, and finally `latest.json`. Until `latest.json` is replaced, nobody
    sees the new version, so a failed upload half-way changes nothing for users.
@@ -157,13 +157,13 @@ Version tags run one at a time (`concurrency: publish-releases`), so two publish
 is read from R2 itself, not the five-minute-cached public address; `previous` is always the next lower version and the
 index is sorted newest first, whatever order versions were published in.
 
-To fix a published release, bump the version (9.1.0 → 9.1.1) and tag that; never delete and re-upload a version.
+To fix a published release, bump the version (9.1.1 → 9.1.2) and tag that; never delete and re-upload a version.
 
 Check after a release:
 
 ```bash
 curl -s https://api.framedecks.com/releases/latest | python3 -m json.tool | head
-curl -sL https://downloads.framedecks.com/releases/9.1.0/FrameDecks-9.1.0-Setup.exe.sha256
+curl -sL https://downloads.framedecks.com/releases/9.1.1/FrameDecks-9.1.1-Setup.exe.sha256
 ```
 
 ## How the program updates (integrity and safety)

@@ -121,7 +121,7 @@ The other window drags (the Studio, the Teleprompter, the Share Window) use the 
     with a question card and a lower third on screen: the bubbles keep clear of both.
 11. (9.1) Copy three messages of a Teams or WhatsApp conversation at once: three cards, each with its sender. Tick two
     in the pane, **Show selected**: both on screen, the first copied at the top.
-12. (9.1) Phone remote (Wi-Fi): copy a WhatsApp message, paste in **Capture Memory**, **Show on screen**: on Zoom's
+12. (9.1, fixed in 9.1.1) Phone remote on the phone itself, over Wi-Fi with the PIN (not on the PC): copy a WhatsApp message, paste in **Capture Memory**, **Show on screen**: on Zoom's
     preview within a second. Hide and Remove from the phone.
 13. (9.1) After installing 9.1 over 9.0: Zoom, Teams, Google Meet (Chrome / Edge) and OBS list the camera as
     **FrameDecks vCam** (restart them once), and a meeting that had FrameRelay selected still uses it.

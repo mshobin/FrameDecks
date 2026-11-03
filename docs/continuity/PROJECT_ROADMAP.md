@@ -42,7 +42,8 @@ Repository clean-up is on `main` (modules in `src/`; `README.md`, `LICENSE`, `NO
 | 8.0.0: one Teleprompter, Frame cards, no Run/Practice, Setup wizard, plain camera settings, one-view phone remote | Published (1 November) |
 | 8.1.0: Teleprompter transparency and pin, six looks, one Content view, website-matching restyle | On `main`; tag `v8.1.0` publishes it |
 | 8.2.0: bare Teleprompter (controls in its bar, upload, script mode), Spotlight, transitions one per effect + Burst, .frame files, sync status chip | Published (tag `v8.2.0`) |
-| 9.1.0: Memory Cards as chat bubbles only (pop animation, several shown together in copy order, clear of every card), Capture Memory on the phone remote, the camera renamed FrameDecks vCam | On `main`; tag `v9.1.0`; checklist items 10–13 in docs/architecture/memory-cards.md |
+| 9.1.1: Capture Memory works on the phone remote (its script was refused to other devices) | On `main`; tag `v9.1.1` |
+| 9.1.0: Memory Cards as chat bubbles only (pop animation, several shown together in copy order, clear of every card), Capture Memory on the phone remote, the camera renamed FrameDecks vCam | Published (tag `v9.1.0`) |
 | 9.0.0: Memory Cards in the FrameRelay chat overlay (beside / below / over the video, corner popup, Studio pane, pinned cards kept); Audience Dock removed; drag crash fixes | Published (tag `v9.0.0`) |
 | 8.9.0: Safe Next (Up next strip under the Studio Canvas with warnings), Audience Dock Waiting/Shown + keys, chat window clear of the camera inset | Published (tag `v8.9.0`) |
 | 8.8.1: the Audience Dock opens on screen on scaled displays (it was placed off the right edge) and takes typing when pinned | Published (tag `v8.8.1`) |

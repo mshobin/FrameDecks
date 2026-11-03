@@ -45,6 +45,15 @@ Versions before 4.9 (when the program had its earlier name) are described in the
 - The favicons, the tray icon and the small program-icon sizes (16–32 px) use a heavier version of the emblem, so it
   stays visible on light browser tabs and a light taskbar. Larger sizes are unchanged.
 
+## [9.1.1] - 2026-11-03
+
+Full notes: [docs/releases/v9.1.1.md](releases/v9.1.1.md).
+
+### Fixed
+- Capture Memory on the phone remote: `/js/remote-memory.js` was missing from `REMOTE_PUBLIC`, so other devices got
+  403 for it and the section did nothing (it worked only on the PC, where every file is allowed).
+  `tests/test_memory.py` now checks every script and stylesheet `remote.html` uses is in `REMOTE_PUBLIC`.
+
 ## [9.1.0] - 2026-11-03
 
 Full notes: [docs/releases/v9.1.0.md](releases/v9.1.0.md). Design and testing checklist:
