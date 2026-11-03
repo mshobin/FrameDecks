@@ -16,7 +16,7 @@ security patch; no wider distribution until the update chain is signed (H3, M3) 
 | H2 | Phone PIN lockout raced: parallel guesses got ~150 tries a minute instead of 5; lockout reset after 60 s; no limit across devices | **Fixed in 9.1.2** (one lock; doubling wait that only a right PIN resets; 100 wrong PINs in 10 minutes from all devices together) |
 | H3 | Updates trust the R2 bucket alone: the SHA-256 comes from the same bucket, Authenticode is checked only when the manifest says `signed: true`, substring publisher match | Open: 9.2 (Ed25519-signed manifest, Authenticode required once signing is on, exact signer, protected release environment) |
 | H4 | The vCam DLL is registered machine-wide (elevated `regsvr32`) from a folder the user can write (`%LOCALAPPDATA%\Programs\FRAMEDECKS`); every update re-runs the elevated step | Open: later, high risk (admin-only folder via an elevated helper / MSI, re-register only when the DLL changes) |
-| H5 | A workspace admin can demote then remove the owner (0001 `memberships_update`; 0002 fixed delete only), rewrite `user_id` / `organization_id`, and insert memberships directly | Open: cloud hotfix, new migration 0013 (0001–0012 are never edited) |
+| H5 | A workspace admin can demote then remove the owner (0001 `memberships_update`; 0002 fixed delete only), rewrite `user_id` / `organization_id`, and insert memberships directly | **Fixed by migration 0013** (`hosted/supabase/migrations/0013_protect_owner.sql`, rollback in `hosted/supabase/rollback/`, tests `hosted/tests/supabase-owner.test.mjs`); the owner runs it in Supabase |
 
 ## Medium
 

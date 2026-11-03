@@ -10,6 +10,14 @@ Versions before 4.9 (when the program had its earlier name) are described in the
 
 ## [Unreleased]
 
+### Security (website and database)
+- Migration `0013_protect_owner.sql` (audit H5): an admin can no longer demote or remove a team's owner, nobody changes
+  an owner's membership through the website, a membership cannot be moved to another person or team, only the owner
+  changes roles, and only the owner adds someone directly (everyone else joins by invitation). The website's own
+  membership writes (Can run services, removing a member, leaving) are unchanged. Rollback:
+  `hosted/supabase/rollback/0013_protect_owner_down.sql`; tests: `hosted/tests/supabase-owner.test.mjs`. Run it once in
+  the Supabase SQL editor.
+
 ### Added
 - The program can take commands from the FrameDecks companion (Next/Previous Frame, Go Live, Hide all, black screen,
   question, scripture) and run them exactly as the keys do, showing "‹action› · from ‹person›" on the PC. Off by

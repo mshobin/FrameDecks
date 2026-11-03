@@ -42,8 +42,9 @@ Repository clean-up is on `main` (modules in `src/`; `README.md`, `LICENSE`, `NO
 | 8.0.0: one Teleprompter, Frame cards, no Run/Practice, Setup wizard, plain camera settings, one-view phone remote | Published (1 November) |
 | 8.1.0: Teleprompter transparency and pin, six looks, one Content view, website-matching restyle | On `main`; tag `v8.1.0` publishes it |
 | 8.2.0: bare Teleprompter (controls in its bar, upload, script mode), Spotlight, transitions one per effect + Burst, .frame files, sync status chip | Published (tag `v8.2.0`) |
-| 9.1.2: security and reliability patch (production audit 3 Nov: H1, H2, M1, M2, M8 and Low items) | On `main`; tag `v9.1.2` |
-| Next from the audit: cloud hotfix (migration 0013 for H5, M6), 9.2 update chain (H3 signed manifest, M3 SignPath, M4 tag guard, M5 hashed locks), 9.3 (CSP, frame buffers, state cache, overlay long-poll), later H4 (vCam DLL in an admin-only folder) | docs/project/2026-11-03-production-audit.md |
+| Migration 0013: the team owner cannot be demoted or removed by an admin (audit H5) | On `main`; owner runs it in Supabase |
+| 9.1.2: security and reliability patch (production audit 3 Nov: H1, H2, M1, M2, M8 and Low items) | Published (tag `v9.1.2`) |
+| Next from the audit: cloud hotfix (M6 link-code limits, L11 account deletion leftovers), 9.2 update chain (H3 signed manifest, M3 SignPath, M4 tag guard, M5 hashed locks), 9.3 (CSP, frame buffers, state cache, overlay long-poll), later H4 (vCam DLL in an admin-only folder) | docs/project/2026-11-03-production-audit.md |
 | 9.1.1: Capture Memory works on the phone remote (its script was refused to other devices) | Published (tag `v9.1.1`) |
 | 9.1.0: Memory Cards as chat bubbles only (pop animation, several shown together in copy order, clear of every card), Capture Memory on the phone remote, the camera renamed FrameDecks vCam | Published (tag `v9.1.0`) |
 | 9.0.0: Memory Cards in the FrameRelay chat overlay (beside / below / over the video, corner popup, Studio pane, pinned cards kept); Audience Dock removed; drag crash fixes | Published (tag `v9.0.0`) |
