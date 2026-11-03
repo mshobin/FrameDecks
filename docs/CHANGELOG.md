@@ -45,6 +45,27 @@ Versions before 4.9 (when the program had its earlier name) are described in the
 - The favicons, the tray icon and the small program-icon sizes (16–32 px) use a heavier version of the emblem, so it
   stays visible on light browser tabs and a light taskbar. Larger sizes are unchanged.
 
+## [9.1.2] - 2026-11-03
+
+Full notes: [docs/releases/v9.1.2.md](releases/v9.1.2.md). Audit: [docs/project/2026-11-03-production-audit.md](project/2026-11-03-production-audit.md).
+
+### Security
+- Media file names are never paths: `src/media_names.py` `safe_name`, used by `vcam.layers.clean_layer` and when it
+  opens files, `server.scene_media`, `server.media_check` and `pptx_export.frame_parts` (UNC, drive, `..`, control
+  characters refused) (audit H1).
+- Phone PIN: `remote_login` checks, compares and counts under `login_lock`; the wait doubles every five wrong PINs (up
+  to an hour) and only a right PIN resets it; `MAX_LOGIN_FAILS` from all devices in 10 minutes (audit H2).
+- Other devices: `Handler.timeout` 90 s, `MAX_CONN_PER_IP` connections, `MAX_PUBLIC_BODY` 4 KB until signed in, and no
+  `..` or `\` paths (audit M1, L).
+- Scene ids name thumbnail files only when they are plain identifiers.
+
+### Fixed
+- `write_atomic` for the PIN, sessions, app settings (also under a lock), vCam settings, Studio and scripture files.
+- `memory._clean` collapses runs of spaces and header patterns run only on lines up to `MAX_HEAD` (audit M2).
+- Imported ids in CSS selectors are escaped (`workspace.js` `cssq`, `overlay.js`) (audit M8).
+- `chatcard.SRC_NAMES` gains whatsapp, sms, phone.
+- Tests: `tests/test_hardening.py`.
+
 ## [9.1.1] - 2026-11-03
 
 Full notes: [docs/releases/v9.1.1.md](releases/v9.1.1.md).

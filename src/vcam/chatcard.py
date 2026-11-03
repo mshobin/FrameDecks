@@ -30,7 +30,8 @@ EASE_S, POP_S, MOVE_S, CLOSE_S = 0.45, 0.42, 0.30, 0.30
 CENTRE_Y, TOP_Y = 0.42, 0.12               # the floating bubbles ("over")
 SRC_NAMES = {"zoom": "Zoom", "teams": "Teams", "meet": "Google Meet", "webex": "Webex", "slack": "Slack",
              "discord": "Discord", "chatgpt": "ChatGPT", "claude": "Claude", "copilot": "Copilot", "youtube": "YouTube",
-             "twitch": "Twitch", "facebook": "Facebook", "clipboard": "Chat"}
+             "twitch": "Twitch", "facebook": "Facebook", "whatsapp": "WhatsApp", "sms": "Messages", "phone": "Phone",
+             "clipboard": "Chat"}                  # (the same names as memory.APP_NAMES; tests/test_hardening.py checks)
 # avatar colours (the same list as overlay.js CHAT_COLOURS): one per title, chosen from it
 AVATAR = [(91, 141, 239), (46, 181, 125), (233, 128, 74), (176, 106, 222), (226, 85, 114), (40, 170, 190), (217, 171, 74)]
 INK, MUTED, GOLD = (246, 248, 252), (160, 172, 196), (217, 171, 74)

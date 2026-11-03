@@ -403,7 +403,7 @@ function fillChat(x, l){
   var first = x.seen === null, keep = {}, k = 0;
   if (first) x.seen = {};
   cards.forEach(function(m, i){
-    var li = x.list.querySelector('.chat-msg[data-id="' + m.id + '"]:not(.leave)');
+    var li = x.list.querySelector('.chat-msg[data-id="' + (window.CSS && CSS.escape ? CSS.escape(String(m.id)) : m.id) + '"]:not(.leave)');
     if (!li){
       li = el('li', 'chat-msg');
       li.dataset.id = m.id;

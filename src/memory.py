@@ -72,9 +72,15 @@ def detect_source(exe="", url=""):
     return _EXE.get(name, "clipboard")
 
 
+_SPACES = re.compile(r"[ \t\u00a0\u2000-\u200a\u202f\u205f\u3000]+")
+MAX_HEAD = 120            # 9.1.2 a line longer than this is a message, never a "Name 10:32" header
+
+
 def _clean(text):
+    """Line breaks unified, each line trimmed and its runs of spaces made one (9.1.2: long runs of spaces made the
+    header patterns backtrack for seconds on a hostile copy)."""
     t = _INVISIBLE.sub("", str(text or "")).replace("\r\n", "\n").replace("\r", "\n")
-    return "\n".join(line.strip() for line in t.split("\n")).strip()
+    return "\n".join(_SPACES.sub(" ", line).strip() for line in t.split("\n")).strip()
 
 
 def _one_line(text):
@@ -99,7 +105,7 @@ def parse(text, source="clipboard"):
         return {"name": m.group("name").strip(), "text": _one_line(m.group("msg"))[:MAX_TEXT],
                 "private": not to.lower().startswith("everyone") or bool(_PRIVATE.search(to))}
     lines = [line for line in t.split("\n") if line]
-    if len(lines) >= 2:
+    if len(lines) >= 2 and len(lines[0]) <= MAX_HEAD:
         head, private = lines[0], False
         head = _HEAD_TIME.sub("", head).strip()
         to = _HEAD_TO.search(head)
@@ -119,7 +125,7 @@ def parse(text, source="clipboard"):
 
 def _is_header(line):
     """A line that starts a message in a copied conversation: "Sarah Lee 10:32 AM", "Sarah — Today at 10:32"."""
-    if not _HEAD_TIME.search(line) or re.fullmatch(_TIME, line.strip(), re.I):
+    if len(line) > MAX_HEAD or not _HEAD_TIME.search(line) or re.fullmatch(_TIME, line.strip(), re.I):
         return False
     head = _HEAD_TIME.sub("", line).strip()
     to = _HEAD_TO.search(head)

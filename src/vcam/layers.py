@@ -60,8 +60,9 @@ def _clean_props(t, p):
 
 
 def clean_layer(d):
+    from media_names import safe_name                 # 9.1.2: a file name, never a path (UNC, drive, "..")
     out = {"id": str(d.get("id", ""))[:40], "type": d.get("type") if d.get("type") in TYPES else "image",
-           "name": str(d.get("name") or "Layer")[:60], "file": str(d.get("file") or "")[:200]}
+           "name": str(d.get("name") or "Layer")[:60], "file": safe_name(d.get("file"))}
     for k, v in DEFAULT.items():
         val = d.get(k, v)
         if isinstance(v, bool):
@@ -328,6 +329,9 @@ class LayerManager:
             if l["type"] == "window":
                 s = WindowSource(l.get("hwnd"), l["name"])
             else:
+                from media_names import safe_name
+                if not safe_name(l["file"]):
+                    raise RuntimeError("The file is missing: " + str(l["file"])[:80])
                 path = self.folder / l["file"]
                 if not path.is_file():
                     raise RuntimeError("The file is missing: " + l["file"])

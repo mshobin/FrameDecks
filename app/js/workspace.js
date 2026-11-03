@@ -8,6 +8,8 @@
  * layers to the camera picture, and arranging them on the canvas writes them back into the scene. */
 (function(){
 'use strict';
+/* 9.1.2 an id from an imported file goes into a CSS selector escaped, so a quote or bracket in it never breaks the page */
+function cssq(v){ v = String(v == null ? '' : v); return window.CSS && CSS.escape ? CSS.escape(v) : v.replace(/["\\\]\[]/g, '\\$&'); }
 var Store = window.KCStore, SC = window.KCScenes, A = window.KCActions, I = window.KCIcon;
 var $ = function(id){ return document.getElementById(id); };
 if (!$('studio-ws') || !SC) return;
@@ -58,7 +60,7 @@ function select(sid, lid, focusList){
   if (lid && window.KCStudio && isLiveScene(sid)){ var l = layer(); if (l && SC.isMedia(l.kind)) window.KCStudio.select([lid]); }
   renderAll(true);
   if (focusList){
-    var el = document.querySelector(lid ? '#layer-list [data-id="' + lid + '"]' : '#scene-list [data-id="' + sid + '"]');
+    var el = document.querySelector(lid ? '#layer-list [data-id="' + cssq(lid) + '"]' : '#scene-list [data-id="' + cssq(sid) + '"]');
     if (el){ el.scrollIntoView({block: 'nearest'}); el.focus({preventScroll: true}); }
   }
 }
@@ -104,7 +106,7 @@ function pickClick(kind, id, e, ol){
   }
   pickOnly(kind, id);
 }
-function focusItem(ol, id){ var el = ol.querySelector('[data-id="' + id + '"]'); if (el){ el.focus({preventScroll: true}); el.scrollIntoView({block: 'nearest'}); } }
+function focusItem(ol, id){ var el = ol.querySelector('[data-id="' + cssq(id) + '"]'); if (el){ el.focus({preventScroll: true}); el.scrollIntoView({block: 'nearest'}); } }
 function orderedFrames(ids){ return live.scenes.filter(function(s){ return ids.indexOf(s.id) >= 0; }).map(function(s){ return s.id; }); }
 function framesSel(){ var ids = orderedFrames(picked.frames.indexOf(selScene) >= 0 || !selScene ? picked.frames : [selScene]); return ids.length ? ids : selScene ? [selScene] : []; }
 function layersSel(){ var sc = scene(); if (!sc) return []; var ids = picked.layers.indexOf(selLayer) >= 0 || !selLayer ? picked.layers : [selLayer];
@@ -609,7 +611,7 @@ function sceneMenu(id, anchor, ev){
 /* Rename in place (the Frame's name in the list becomes an editor) */
 function renameScene(id){
   if (selScene !== id) select(id, null);
-  setTimeout(function(){ var b = document.querySelector('#scene-list .scene-item[data-id="' + id + '"] .si-name'); if (b) b.dispatchEvent(new MouseEvent('dblclick', {bubbles: true})); }, 0);
+  setTimeout(function(){ var b = document.querySelector('#scene-list .scene-item[data-id="' + cssq(id) + '"] .si-name'); if (b) b.dispatchEvent(new MouseEvent('dblclick', {bubbles: true})); }, 0);
 }
 function deleteScene(id){ deleteFrames([id]); }
 function explode(id, kind){
@@ -749,7 +751,7 @@ function shiftLayer(sid, id, d){
 }
 function renameLayer(sid, lid){
   if (selScene !== sid || selLayer !== lid) select(sid, lid);
-  setTimeout(function(){ var b = document.querySelector('#layer-list .layer-item[data-id="' + lid + '"] .li-name'); if (b) b.dispatchEvent(new MouseEvent('dblclick', {bubbles: true})); }, 0);
+  setTimeout(function(){ var b = document.querySelector('#layer-list .layer-item[data-id="' + cssq(lid) + '"] .li-name'); if (b) b.dispatchEvent(new MouseEvent('dblclick', {bubbles: true})); }, 0);
 }
 function deleteLayer(sid, lid){
   var l = SC.layer(SC.find(live, sid), lid); if (!l) return;
@@ -1444,7 +1446,7 @@ window.KCWorkspace = {
     var sc = SC.find(live, sid), l = sc && SC.layer(sc, lid); if (!l) return;
     tabFor[l.kind] = 'content'; select(sid, lid, true);
     setTimeout(function(){
-      var row = document.querySelector((l.kind === 'scripture' ? '#v-items' : '#q-items') + ' > li[data-id="' + itemId + '"]'); if (!row) return;
+      var row = document.querySelector((l.kind === 'scripture' ? '#v-items' : '#q-items') + ' > li[data-id="' + cssq(itemId) + '"]'); if (!row) return;
       row.scrollIntoView({block: 'center'}); row.classList.add('found'); setTimeout(function(){ row.classList.remove('found'); }, 1600);
       row.focus({preventScroll: true});
     }, 80);

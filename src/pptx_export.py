@@ -13,6 +13,7 @@ import io
 import re
 from datetime import date
 from pathlib import Path
+from media_names import safe_name
 
 NAVY, GOLD, WHITE, SOFT = "0C1426", "E3B75A", "EAEEF6", "AAB5CA"
 WIDTH_IN, HEIGHT_IN = 13.333, 7.5
@@ -39,10 +40,10 @@ def frame_parts(frame):
                     out.append(("verse", ref, _clean(it.get("text"))))
         elif kind == "question":
             out += [("question", _clean(it.get("text"), 600)) for it in items if _clean(it.get("text"))]
-        elif kind == "image" and c.get("file"):
-            out.append(("picture", str(c["file"])))
-        elif kind in ("video", "pdf", "audio") and c.get("file"):
-            out.append(("media", kind, str(c["file"])))
+        elif kind == "image" and safe_name(c.get("file")):          # 9.1.2: names only, never paths
+            out.append(("picture", safe_name(c["file"])))
+        elif kind in ("video", "pdf", "audio") and safe_name(c.get("file")):
+            out.append(("media", kind, safe_name(c["file"])))
         elif kind == "text":
             t = _clean((c.get("props") or {}).get("text"))
             if t:

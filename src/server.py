@@ -38,9 +38,10 @@ import legacy   # 6.9: moves data saved under the program's earlier name
 import winapi   # 7.1.1: Windows jobs through Windows' own interfaces (no PowerShell, netsh or taskkill)
 import meeting_form   # 6.9: fills the Meeting Workbook's form for Export
 import updater   # 7.0: updates from FrameDecks servers (checked, silent, with rollback)
+from media_names import safe_name   # 9.1.2 media file names are never paths
 import memory    # 9.0: Memory Cards in the FrameDecks vCam chat overlay (docs/architecture/memory-cards.md)
 
-APP_VERSION = "9.1.1"
+APP_VERSION = "9.1.2"
 STARTED_AT = time.time()
 FROZEN = getattr(sys, "frozen", False)          # True inside the installed Windows app
 HERE = Path(sys.executable).resolve().parent if FROZEN else Path(__file__).resolve().parent.parent   # the repository root (this file is in src/)
@@ -92,7 +93,26 @@ REMOTE_SIGNED_IN = {"/api/rev", "/api/state", "/api/remote-logout", "/js/overlay
                     "/api/remote/memory",
                     "/css/overlay.css", "/stage.html", "/focus-verse.html", "/discussion-question.html", "/birthday.html"}
 sessions_lock = threading.Lock()
-failures = {}  # ip -> [count, locked_until]
+failures = {}  # ip -> [count, locked_until]  (9.1.2: count keeps growing until a right PIN; the wait doubles)
+login_lock = threading.Lock()   # 9.1.2 one PIN check at a time: parallel guesses cannot slip past the lockout
+login_recent = []               # 9.1.2 times of wrong PINs from any device (the limit for all devices together)
+MAX_LOGIN_FAILS = 100           # wrong PINs from all devices in 10 minutes before everyone waits (slows a many-address attack)
+MAX_PUBLIC_BODY = 4096          # 9.1.2 a request from a device that has not signed in (the PIN form) is small
+MAX_CONN_PER_IP = 24            # 9.1.2 open connections one other device may hold (the remote uses about 4)
+conn_lock = threading.Lock()
+conn_count = {}                 # ip -> open connections (other devices only)
+
+
+def write_atomic(path, text):
+    """9.1.2 Write a settings file so a power cut or a full disk never leaves it empty or half written: a temporary
+    file next to it, flushed to disk, then swapped in."""
+    path = Path(path)
+    tmp = path.with_name(path.name + ".tmp")
+    with open(tmp, "w", encoding="utf-8") as f:
+        f.write(text)
+        f.flush()
+        os.fsync(f.fileno())
+    os.replace(tmp, path)
 seen_devices = set()
 devices = {}  # ip -> {"first": t, "last": t, "signedIn": bool}  (IP addresses only, kept in memory)
 
@@ -105,7 +125,7 @@ def remote_pin():
     except OSError:
         pass
     pin = f"{secrets.randbelow(1000000):06d}"
-    PIN_FILE.write_text(pin + "\n", encoding="utf-8")
+    write_atomic(PIN_FILE, pin + "\n")
     return pin
 
 
@@ -120,7 +140,7 @@ def load_sessions():
 
 def save_sessions():
     try:
-        SESSIONS_FILE.write_text(json.dumps(sessions), encoding="utf-8")
+        write_atomic(SESSIONS_FILE, json.dumps(sessions))
     except OSError:
         pass
 
@@ -350,8 +370,10 @@ def scene_media(st):
         c = dict(l.get("c") or {})
         c.pop("vcam", None)
         c.pop("obs", None)
+        if l["kind"] in ("image", "video", "pdf", "audio") and "file" in c:
+            c["file"] = safe_name(c.get("file"))         # 9.1.2: a file name, never a path
         if l["kind"] in ("image", "video", "pdf") and not c.get("file"):
-            continue                                   # not chosen yet: nothing to draw
+            continue                                   # not chosen yet (or not a plain name): nothing to draw
         if l["kind"] == "window" and c.get("hwnd") is None:
             continue
         c.update(id=str(l.get("id") or ""), name=l.get("name") or l["kind"], type=l["kind"],
@@ -917,7 +939,15 @@ def app_settings():
     return out
 
 
+_settings_lock = threading.RLock()      # 9.1.2 two saves at once never lose one of them
+
+
 def save_app_settings(changes):
+    with _settings_lock:
+        return _save_app_settings(changes)
+
+
+def _save_app_settings(changes):
     cur = app_settings()
     for k, v in changes.items():
         if k in APP_SETTINGS_DEFAULTS and _valid_setting(k, v):
@@ -925,7 +955,7 @@ def save_app_settings(changes):
     if "spotlightKey" in changes:
         from desktop_win import format_hotkey
         cur["spotlightKey"] = format_hotkey(cur["spotlightKey"]) if cur["spotlightKey"] else ""
-    APP_SETTINGS_FILE.write_text(json.dumps(cur, indent=2), encoding="utf-8")
+    write_atomic(APP_SETTINGS_FILE, json.dumps(cur, indent=2))
     if "cloudRemote" in changes and "CLOUD_REMOTE" in globals():
         CLOUD_REMOTE.poke()                # the switch takes effect at once (off: no more asking)
     hook = DESKTOP.get("settings_changed")
@@ -1157,7 +1187,7 @@ def vcam_settings():
 def vcam_save(cur):
     """Write the settings file (only stored keys; derived ones like filterName are recomputed on read)."""
     data = {k: v for k, v in cur.items() if k not in ("filterName", "backgroundMode")}
-    VCAM_SETTINGS_FILE.write_text(json.dumps(data, indent=2), encoding="utf-8")
+    write_atomic(VCAM_SETTINGS_FILE, json.dumps(data, indent=2))
 
 
 def clean_vcam(d):
@@ -1277,8 +1307,8 @@ def media_check(st):
             f = str(((l.get("c") or {}).get("file") or "") if isinstance(l, dict) and l.get("kind") in FILE_KINDS else "")
             if f and f not in missing:
                 if f not in seen:
-                    try:
-                        seen[f] = (LAYERS_DIR / f).is_file()
+                    try:                                       # 9.1.2: a name that is a path is never opened
+                        seen[f] = bool(safe_name(f)) and (LAYERS_DIR / f).is_file()
                     except (OSError, ValueError):
                         seen[f] = False
                 if not seen[f]:
@@ -1334,7 +1364,7 @@ def studio_save():
         return
     cur = studio_load()
     cur.update(layout=comp.layout, layers=comp.layers.layers)
-    STUDIO_FILE.write_text(json.dumps(cur, indent=2), encoding="utf-8")
+    write_atomic(STUDIO_FILE, json.dumps(cur, indent=2))
 
 
 # ---------- v6.2 Branding: the leader's logo (always stored as PNG) ----------
@@ -1394,7 +1424,7 @@ def scripture_settings():
 
 def _write_scripture_file(d):
     try:
-        SCRIPTURE_FILE.write_text(json.dumps(d), encoding="utf-8")
+        write_atomic(SCRIPTURE_FILE, json.dumps(d))
     except OSError:
         pass
 
@@ -1693,7 +1723,7 @@ def _studio_action(d):
                 for sc in st["scenes"]:
                     if sc.get("collection") == cid:
                         sc["collection"] = st["collections"][0]["id"]
-        STUDIO_FILE.write_text(json.dumps(st, indent=2), encoding="utf-8")
+        write_atomic(STUDIO_FILE, json.dumps(st, indent=2))
         return {"collection": cid}
     elif op == "layer-control":
         comp.layers.control(str(d.get("id")), str(d.get("cmd")))
@@ -1732,7 +1762,7 @@ def _studio_action(d):
         if op == "scene-save":
             sid = str(d.get("id") or "") or re.sub(r"\W+", "_", str(d.get("name") or "scene").lower()).strip("_")[:30] or "scene"
             if not sid.isidentifier():
-                sid = "s_" + sid
+                sid = "s_" + re.sub(r"\W+", "_", sid)[:40]  # 9.1.2 always a plain name (it names a file)
             src_layers = comp.staged if comp.staged is not None else comp.layers.layers
             ids = {c["id"] for c in st["collections"]}
             scene = {"id": sid, "name": str(d.get("name") or sid)[:40], "look": vcam_settings()["look"], "layout": comp.layout,
@@ -1749,8 +1779,9 @@ def _studio_action(d):
             st["activeScene"] = sid
         elif op == "scene-delete":
             st["scenes"] = [x for x in st["scenes"] if x["id"] != d.get("id")]
-            try:
-                (SCENES_DIR / (str(d.get("id")) + ".jpg")).unlink(missing_ok=True)
+            try:                                       # 9.1.2 only a scene id names its thumbnail, never a path
+                if str(d.get("id") or "").isidentifier():
+                    (SCENES_DIR / (str(d.get("id")) + ".jpg")).unlink(missing_ok=True)
             except OSError:
                 pass
         else:
@@ -1777,7 +1808,7 @@ def _studio_action(d):
                     eng.configure(grade=vcam_grade(sc["look"]))
             st["activeScene"] = sc["id"]
         st.update(layout=comp.layout, layers=comp.layers.layers)
-        STUDIO_FILE.write_text(json.dumps(st, indent=2), encoding="utf-8")
+        write_atomic(STUDIO_FILE, json.dumps(st, indent=2))
         return {"activeScene": st["activeScene"]}
     else:
         raise ValueError("Unknown action")
@@ -1963,8 +1994,29 @@ TYPES = {
 
 
 class Handler(BaseHTTPRequestHandler):
+    timeout = 90             # 9.1.2 an idle or trickling connection is closed (long-polls answer within 25 s)
+
     def log_message(self, *args):
         pass
+
+    def handle(self):
+        """9.1.2 Another device may hold only MAX_CONN_PER_IP connections at once, so one misbehaving device on the
+        Wi-Fi cannot use up the program's threads (the PC itself is never limited)."""
+        ip = self.client_address[0]
+        if ip in ("127.0.0.1", "::1", "::ffff:127.0.0.1"):
+            return super().handle()
+        with conn_lock:
+            if conn_count.get(ip, 0) >= MAX_CONN_PER_IP:
+                self.close_connection = True
+                return
+            conn_count[ip] = conn_count.get(ip, 0) + 1
+        try:
+            super().handle()
+        finally:
+            with conn_lock:
+                conn_count[ip] -= 1
+                if conn_count[ip] <= 0:
+                    conn_count.pop(ip, None)
 
     def reply(self, code, body, ctype, headers=None):
         if isinstance(body, str):
@@ -1985,8 +2037,12 @@ class Handler(BaseHTTPRequestHandler):
     def read_json(self):
         if not self.headers.get("Content-Type", "").startswith("application/json"):
             raise ValueError("expected JSON")
-        length = int(self.headers.get("Content-Length", 0))
-        if length <= 0 or length > MAX_BODY:
+        try:
+            length = int(self.headers.get("Content-Length", 0))
+        except ValueError:
+            raise ValueError("bad length")
+        cap = MAX_BODY if self.is_local() or self.signed_in() else MAX_PUBLIC_BODY   # 9.1.2 the PIN form is small
+        if length <= 0 or length > cap:
             raise ValueError("bad length")
         return json.loads(self.rfile.read(length).decode("utf-8"))
 
@@ -2037,24 +2093,35 @@ class Handler(BaseHTTPRequestHandler):
         if not REMOTE:
             return False
         self.announce()
+        if ".." in path or "\\" in path:            # 9.1.2 "/fonts/../page.html" is not a font
+            return False
         if path in REMOTE_PUBLIC or path.startswith("/fonts/"):
             return True
         return path in REMOTE_SIGNED_IN and self.signed_in()
 
     def remote_login(self, data):
         ip = self.client_address[0]
-        now = time.time()
-        count, until = failures.get(ip, [0, 0])
-        if until > now:
-            return self.reply(429, json.dumps({"error": "locked", "wait": int(until - now) + 1}), TYPES[".json"])
         pin = str(data.get("pin", "")) if isinstance(data, dict) else ""
-        if not secrets.compare_digest(pin.encode(), remote_pin().encode()):
-            count += 1
-            failures[ip] = [count, now + 60 if count >= 5 else 0]
-            if count >= 5:
-                failures[ip] = [0, now + 60]
-            return self.reply(401, json.dumps({"error": "wrong pin"}), TYPES[".json"])
-        failures.pop(ip, None)
+        with login_lock:                     # 9.1.2 check, compare and count as one step (no parallel guesses)
+            now = time.time()
+            login_recent[:] = [t for t in login_recent if now - t < 600]
+            count, until = failures.get(ip, [0, 0])
+            if until > now:
+                return self.reply(429, json.dumps({"error": "locked", "wait": int(until - now) + 1}), TYPES[".json"])
+            if len(login_recent) >= MAX_LOGIN_FAILS:          # too many wrong PINs from all devices together
+                wait = int(600 - (now - login_recent[0])) + 1
+                return self.reply(429, json.dumps({"error": "locked", "wait": wait}), TYPES[".json"])
+            if not secrets.compare_digest(pin.encode(), remote_pin().encode()):
+                count += 1
+                login_recent.append(now)
+                # 5 wrong PINs: wait 1 minute; each further 5 doubles it (up to an hour). Only a right PIN resets it.
+                wait = min(3600, 60 * 2 ** (count // 5 - 1)) if count >= 5 and count % 5 == 0 else 0
+                failures[ip] = [count, now + wait if wait else 0]
+                if len(failures) > 1000:
+                    failures.pop(next(iter(failures)))
+                return self.reply(401, json.dumps({"error": "wrong pin"}), TYPES[".json"])
+        with login_lock:
+            failures.pop(ip, None)
         token = secrets.token_urlsafe(32)
         with sessions_lock:
             sessions[token] = now + SESSION_DAYS * 86400
