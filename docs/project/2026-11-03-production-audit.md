@@ -46,7 +46,7 @@ security patch; no wider distribution until the update chain is signed (H3, M3) 
   - PowerPoint files open through COM without `AutomationSecurity`.
   - ~~Updater edge cases: redirects, no downgrade check, environment override honoured when frozen.~~ Fixed in 9.2.0.
   - ~~The workflow `ref_name` sits inside a shell string.~~ Fixed in 9.2.0 (passed through `env`).
-  - Runner versions pinned in 9.2.0; the Inno Setup version is not pinned.
+  - ~~Runner and Inno Setup versions are not pinned.~~ Runners pinned in 9.2.0; Inno Setup pinned to 6.7.1 after 9.3.0 (`INNO_VERSION` in the release workflow; the build fails if the compiler reports another version).
   - The `/connect` page shows the PC name from the URL.
   - Account deletion leaves some data behind.
   - Sync conflicts on records other than Frames.

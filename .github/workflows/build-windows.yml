@@ -34,6 +34,7 @@ jobs:
       # Code signing by SignPath Foundation (free for open source, M-D1: docs/deployment/code-signing.md). Off until the
       # owner adds the SIGNPATH_API_TOKEN secret; until then every signing step is skipped and the build is as before.
       SIGNPATH_ON: ${{ secrets.SIGNPATH_API_TOKEN != '' }}
+      INNO_VERSION: "6.7.1"              # the installer compiler, pinned (audit L9): the build fails on any other
     steps:
       - name: Get the code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -174,18 +175,29 @@ jobs:
           wait-for-completion: true
           output-artifact-directory: dist/FRAMEDECKS
 
-      - name: Install Inno Setup (if needed)
+      - name: Install Inno Setup (the pinned version)
         shell: pwsh
         run: |
           $paths = @("${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe", "$env:ProgramFiles\Inno Setup 6\ISCC.exe")
-          if (-not ($paths | Where-Object { Test-Path $_ })) { choco install innosetup -y --no-progress }
+          $iscc = $paths | Where-Object { Test-Path $_ } | Select-Object -First 1
+          $have = if ($iscc) { (Get-Item $iscc).VersionInfo.ProductVersion } else { "" }
+          Write-Host "Inno Setup on this runner: '$have' (pinned: $env:INNO_VERSION)"
+          if (-not $have -or -not $have.StartsWith($env:INNO_VERSION)) {
+            choco install innosetup --version $env:INNO_VERSION -y --no-progress --force --allow-downgrade
+            if ($LASTEXITCODE -ne 0) { throw "Could not install Inno Setup $env:INNO_VERSION" }
+          }
 
       - name: Build the installer (Inno Setup)
         shell: pwsh
         run: |
           $iscc = @("${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe", "$env:ProgramFiles\Inno Setup 6\ISCC.exe") | Where-Object { Test-Path $_ } | Select-Object -First 1
-          & $iscc "/DAppVersion=${{ steps.ver.outputs.version }}" packaging/installer.iss
-          if ($LASTEXITCODE -ne 0) { throw "Inno Setup failed" }
+          $out = & $iscc "/DAppVersion=${{ steps.ver.outputs.version }}" packaging/installer.iss 2>&1
+          $code = $LASTEXITCODE
+          $out | Write-Host
+          if ($code -ne 0) { throw "Inno Setup failed" }
+          if (-not ($out -match "Compiler engine version: Inno Setup $([regex]::Escape($env:INNO_VERSION))\s*$")) {
+            throw "The installer was not built with Inno Setup $env:INNO_VERSION (see the compiler line above)"
+          }
 
       - name: Hand the installer to SignPath (signing on)
         id: unsigned_installer
