@@ -49,6 +49,18 @@ for (const w of [1920, 1440, 1280, 1100]) {
     return { hostShown: !!host && !host.hidden && getComputedStyle(host).display !== "none", programShown: !!program && !program.hidden };
   });
   check(!(r.hostShown && r.programShown), "the camera-picture panel never sits over the Frame preview");
+  // 8.9 Safe Next: the Up next strip sits under the canvas, never over the Frame preview, and names the next Frame
+  const un = await p.evaluate(() => {
+    const box = document.getElementById("upnext"), prog = document.getElementById("program");
+    if (!box || box.hidden) return { shown: false };
+    const a = box.getBoundingClientRect(), b = prog.getBoundingClientRect();
+    return { shown: true, below: a.top >= b.bottom - 1, name: document.getElementById("un-name").textContent.trim(),
+      next: document.getElementById("lb-next").title };
+  });
+  if (un.shown) {
+    check(un.below, "Up next sits under the Frame preview, not over it");
+    check(!!un.name && un.next.includes(un.name), `Up next names the Frame Next will show (${un.name})`);
+  } else check(true, "Up next is hidden when there is no next Frame");
   await shot(p, "studio");
   await p.close();
 }

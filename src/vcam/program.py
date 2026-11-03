@@ -128,6 +128,7 @@ class ProgramFX:
         self.aud = _Text()               # 8.8 the Audience Card (live.audience), drawn above everything but Blackout
         self.aud_id = None
         self.need_clean = False          # 8.8 the Share Window is open: keep a picture without the Audience Card
+        self.avoid = None                # 8.9 the camera inset [x, y, w, h] the chat window keeps clear of (compositor)
         self.present_frame = None        # ... that picture (None = the Share Window shows the camera's own frame)
         self.jobs, self.cond = {}, threading.Condition()
         self.last = None                 # the previous output picture (for transitions)
@@ -210,11 +211,12 @@ class ProgramFX:
             side = "left" if a.get("pos") == "left" else "right"
             name = str(a.get("name") or "").strip() or "Audience"
             data = {"chat": True, "name": name, "text": str(a.get("text") or " ")[:500], "src": a.get("src"), "side": side}
-            key = ("@audience", a["id"], name, data["text"], data["src"], side, W, H)
+            avoid = tuple(self.avoid) if self.avoid else None
+            key = ("@audience", a["id"], name, data["text"], data["src"], side, avoid, W, H)
             t.info, t.closing = a, None
             if t.key != key:
                 with self.cond:
-                    self.jobs["@audience"] = (key, data, {}, W, H, side)
+                    self.jobs["@audience"] = (key, data, {"avoid": avoid}, W, H, side)
                     self.cond.notify()
         elif t.card is not None and getattr(t, "closing", None) is None:
             t.closing = now
@@ -236,7 +238,7 @@ class ProgramFX:
             out = out.copy()
         from .overlay import OverlayLayer
         card, typing = t.card, getattr(t, "typing", None)
-        sign = -1 if info.get("pos") == "left" else 1
+        sign = -1 if card.x + card.w / 2 < W / 2 else 1         # slides in from the edge it sits at
         dx = int(round(f["slide"] * card.w * 0.22 * sign))
         x0, y0 = int(round(card.x - card.margin)) + dx, int(round(card.y - card.margin))
         def put(c, alpha, h):
@@ -465,7 +467,7 @@ class ProgramFX:
                     typing, card = chatcard.draw(self.drawer.fonts, data, W, H)
                     OverlayLayer._prepare(typing)
                     OverlayLayer._prepare(card)
-                    card.x, card.y = chatcard.place(card, W, H, pos)
+                    card.x, card.y = chatcard.place(card, W, H, pos, L.get("avoid"))
                     typing.x, typing.y = card.x, card.y            # the same top: the window grows downwards
                     t = self.aud
                     if key[1] == self.aud_id:

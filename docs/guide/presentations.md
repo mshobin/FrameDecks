@@ -67,6 +67,17 @@ The **Studio Canvas** always tells you whether you are looking at the screen peo
 | Next question | **→** | The round **▶** arrow |
 | Next slide (PowerPoint) | **Page Down** or the slide ▶ button | The round **▶** arrow |
 
+**Up next (Safe Next).** Under the Studio Canvas, the **Up next** strip shows the Frame that **Next** will put on
+screen, before you press it: a small live picture, its name, *Frame 3 of 8*, its transition, and what appears (the
+question, the scripture, text, pictures, video, audio). Before anything is live, Up next is the Frame after the one you
+selected. A gold ⚠ line warns you when:
+- the next Frame shows nothing (no Content in it is set to appear);
+- the black screen or the emergency screen is still on (the audience would still see black or the message);
+- a picture, video or PowerPoint in it has no file chosen yet.
+
+**Hide preview** keeps only the line (FrameDecks remembers it); **Show preview** brings the picture back. On the last
+Frame the strip goes away.
+
 **Auto advance:** a Frame can move to the next one by itself after a number of seconds (Content Settings → **Move
 to the next Frame after N seconds**). It only happens while **Auto-advance** in the command bar is on.
 
@@ -287,8 +298,9 @@ can select text in: Zoom, Teams, YouTube, Twitch, Facebook Live, Discord or a we
 
 **Where it appears.** On a chat rail at the right edge of the picture, a little above the middle (or the left edge:
 **Place on screen** in the dock's settings). That keeps it clear of the question, scripture and lower-third cards at
-the bottom, the birthday card at the top, Branding badges in the corners and a camera inset in a bottom corner. With a
-**large** camera inset in a right-hand corner, choose the left edge.
+the bottom, the birthday card at the top, Branding badges in the corners and a camera inset in a bottom corner. On the
+FrameRelay camera it also keeps clear of the camera inset by itself: above a large inset, or at the other edge when the
+camera sits beside the screen.
 
 **Using the dock without leaving your meeting**
 
@@ -299,6 +311,20 @@ the bottom, the birthday card at the top, Branding badges in the corners and a c
 - The small bar on the dock's top edge, the **handle**, always takes clicks: **⠿** move (drag), **⤡** resize (drag),
   **📌** keep the dock usable (needed to type in a card's name or message), **⚙** settings, **✕** close. The dock
   remembers where it was and its size.
+
+**Waiting and Shown.** Messages you have shown move from **Waiting** to **Shown**: Waiting is what is still to come,
+Shown is the history of this meeting, where **Show** puts one on screen again.
+
+**Keys** (when the dock is usable: 📌 on the handle, or in a browser):
+
+| Key | Does |
+| --- | --- |
+| **↑** / **↓** | Choose a card |
+| **Enter** | Show the chosen card |
+| **P** | Pin the chosen card |
+| **H** or **Esc** | Hide what is on screen |
+| **Del** | Delete the chosen card |
+| **N** | Type a new question |
 
 **Settings** (⚙): **Seconds on screen** (3–120, default 12), **Show as soon as it's copied**, **Place on screen**
 (right or left edge), **Also show on Share Window** (off: the chat window is on the FrameRelay camera only; on: also on

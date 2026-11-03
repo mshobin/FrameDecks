@@ -259,6 +259,7 @@ class Compositor:
             return self._finish(frame, w, h, t)
         L = self.layout
         mode = L["mode"]
+        avoid = None                                                   # 8.9 where the camera inset is (the chat window keeps clear)
         has_screen = self._screen_frame()[0] is not None
         if mode == "camera" or not has_screen:
             frame = cam if cam is not None else self._canvas(w, h)
@@ -275,6 +276,7 @@ class Compositor:
             if cam is not None and mode == "side":
                 cw = w - area[2]
                 frame[:, area[2]:] = fill(cam, cw, h)
+                avoid = [area[2], 0, cw, h]
             elif cam is not None and mode == "pip":
                 pw = int(w * (L["scale"] if L["custom"] else PIP_SIZES[L["size"]]))
                 ph = int(pw * 9 / 16)
@@ -288,6 +290,9 @@ class Compositor:
                 x0, y0 = max(0, min(w - pw, x0)), max(0, min(h - ph, y0))
                 frame[y0:y0 + ph, x0:x0 + pw] = small
                 cv2.rectangle(frame, (x0, y0), (x0 + pw - 1, y0 + ph - 1), (220, 225, 235), max(1, w // 640))
+                avoid = [x0, y0, pw, ph]
+        if self.program_fx is not None:
+            self.program_fx.avoid = avoid
         frame = self.layers.compose(frame, None, None, self.all_variables())
         return self._finish(frame, w, h, t)
 

@@ -144,14 +144,29 @@ def draw(fonts, d, W, H):
     return window(False), window(True)
 
 
-def place(card, W, H, side="right"):
-    """Top-left of the window itself: the chat rail at the right (or left) edge."""
+def _overlaps(x, y, w, h, r, gap=0):
+    return bool(r) and x < r[0] + r[2] + gap and r[0] < x + w + gap and y < r[1] + r[3] + gap and r[1] < y + h + gap
+
+
+def place(card, W, H, side="right", avoid=None):
+    """Top-left of the window itself: the chat rail at the right (or left) edge. 8.9: avoid = the camera inset
+    [x, y, w, h] on the picture; the window moves above or below it, or to the other edge, rather than cover it."""
     u = min(W / 100, H * 1.7778 / 100)
-    m = 3.0 * u
+    m, gap = 3.0 * u, 1.5 * u
+    sides = [side, "left" if side == "right" else "right"]
+    for sd in sides:
+        x = m if sd == "left" else W - m - card.w
+        y = max(H * TOP_Y, min(H * CENTRE_Y - card.h / 2, H * BOTTOM_Y - card.h))
+        if not _overlaps(x, y, card.w, card.h, avoid, gap):
+            return x, y
+        top = avoid[1] - gap - card.h                        # above the inset
+        if top >= H * 0.04:
+            return x, top
+        below = avoid[1] + avoid[3] + gap                    # below it
+        if below + card.h <= H * 0.70:
+            return x, below
     x = m if side == "left" else W - m - card.w
-    y = H * CENTRE_Y - card.h / 2
-    y = max(H * TOP_Y, min(y, H * BOTTOM_Y - card.h))
-    return x, y
+    return x, max(H * TOP_Y, min(H * CENTRE_Y - card.h / 2, H * BOTTOM_Y - card.h))
 
 
 def _ease(t):

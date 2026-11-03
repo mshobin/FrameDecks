@@ -537,6 +537,26 @@ body.studio-focus .ws{grid-template-columns:minmax(0,1fr);height:100vh} body.stu
 .studio-host[hidden]{display:none}
 .studio-host .s2-centre{flex:1;padding:14px;background:transparent}
 .canvas-note{margin:0;padding:0 14px 8px;font-size:12px;color:var(--faint);flex:none;min-height:16px}
+/* 8.9 Safe Next: the Frame Next puts on screen, under the canvas (never over it) */
+.upnext{flex:none;display:flex;align-items:flex-start;gap:12px;margin:0 14px 12px;padding:10px 12px;border:1px solid var(--line);
+  border-radius:12px;background:var(--surface)}
+.upnext[hidden]{display:none}
+.upnext.has-warn{border-color:var(--gold)}
+.un-pic{flex:none;position:relative;width:176px;aspect-ratio:16/9;overflow:hidden;border-radius:8px;background:var(--bg);border:1px solid var(--line-soft)}
+.un-pic iframe{position:absolute;left:0;top:0;width:1280px;height:720px;border:0;transform:scale(.1375);transform-origin:0 0;pointer-events:none}
+.upnext.closed .un-pic,.upnext.closed .un-items{display:none}
+.un-body{flex:1;min-width:0}
+.un-h{margin:0;font-size:14px;font-weight:600;line-height:1.35;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.un-k{color:var(--muted);font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.un-meta{color:var(--faint);font-size:12px;font-weight:500}
+.un-items,.un-warn{list-style:none;margin:4px 0 0;padding:0;font-size:13px;line-height:1.45}
+.un-items li{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted)}
+.un-items .un-more{color:var(--faint)}
+.un-warn li{color:var(--gold)}
+html[data-theme="light"] .un-warn li{color:var(--warn)}
+html[data-theme="light"] .upnext.has-warn{border-color:var(--warn)}
+.un-warn li::before{content:"\26A0\FE0E  "}
+.un-toggle{flex:none}
 
 /* Inspector */
 .inspector .insp-head{display:flex;align-items:center;gap:10px;padding:12px 14px 8px;flex:none}

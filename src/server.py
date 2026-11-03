@@ -40,7 +40,7 @@ import meeting_form   # 6.9: fills the Meeting Workbook's form for Export
 import updater   # 7.0: updates from FrameDecks servers (checked, silent, with rollback)
 import audience   # 8.8: the Live Audience Capture Dock's queue (docs/architecture/audience-dock.md)
 
-APP_VERSION = "8.8.1"
+APP_VERSION = "8.9.0"
 STARTED_AT = time.time()
 FROZEN = getattr(sys, "frozen", False)          # True inside the installed Windows app
 HERE = Path(sys.executable).resolve().parent if FROZEN else Path(__file__).resolve().parent.parent   # the repository root (this file is in src/)

@@ -45,6 +45,20 @@ Versions before 4.9 (when the program had its earlier name) are described in the
 - The favicons, the tray icon and the small program-icon sizes (16–32 px) use a heavier version of the emblem, so it
   stays visible on light browser tabs and a light taskbar. Larger sizes are unchanged.
 
+## [8.9.0] - 2026-11-03
+
+Full notes: [docs/releases/v8.9.0.md](releases/v8.9.0.md).
+
+### Added
+- Safe Next: `KCScenes.upNext(st, selId)` (the Frame Next takes live, `previewState` summary, warnings for nothing
+  shown, black / emergency screen on, media without a file) and the **Up next** strip under the Studio Canvas
+  (`renderUpNext`, a scaled `stage.html?preview=1&scene=` picture while shown).
+- Audience Dock: **Waiting** / **Shown** tabs; keys ↑ ↓ Enter P H Del N Esc.
+
+### Changed
+- The FrameRelay chat window keeps clear of the camera inset (`ProgramFX.avoid` from the compositor's
+  picture-in-picture or side-by-side layout; `chatcard.place(..., avoid)` moves it above or to the other edge).
+
 ## [8.8.1] - 2026-11-02
 
 Full notes: [docs/releases/v8.8.1.md](releases/v8.8.1.md).

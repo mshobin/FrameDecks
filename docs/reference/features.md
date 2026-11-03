@@ -1,4 +1,13 @@
-# FrameDecks: feature documentation (v8.8)
+# FrameDecks: feature documentation (v8.9)
+
+## v8.9 at a glance
+| Feature | What it does | Where it lives |
+| --- | --- | --- |
+| **Up next (Safe Next)** | A strip under the Studio Canvas (never over it): the Frame **Next** puts on screen (after the live Frame; before anything is live, after the selected one), as a small live picture (the canvas preview page, only while shown and the window is visible), its name, *Frame n of m*, its transition, and up to four lines of what appears. ⚠ lines: shows nothing; black screen / emergency screen still on; a picture, video or PowerPoint without its file. **Hide preview** / **Show preview** (remembered, `kc-upnext`). The Next button's tooltip names the next Frame | `app/js/store.js` (`Scenes.upNext`), `app/js/workspace.js` (`renderUpNext`), `app/dashboard.html`, `app/css/theme.css` |
+| **Audience Dock: Waiting / Shown** | Shown messages move to **Shown** (the meeting's history; Show again from there); **Waiting** holds what is still to come | `app/js/audience.js`, `app/audience.html` |
+| **Audience Dock: keys** | ↑ ↓ choose, Enter show, P pin, H / Esc hide, Del delete, N new question (when the dock has the keyboard) | `app/js/audience.js` |
+| **Chat window clear of the camera inset** | On FrameRelay the chat window moves above a camera inset it would cover, or to the other edge (side-by-side layout) | `src/vcam/chatcard.py` (`place`), `src/vcam/compositor.py` (`avoid`) |
+
 
 ## v8.8 at a glance
 | Feature | What it does | Where it lives |

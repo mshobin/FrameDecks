@@ -927,6 +927,34 @@ var Scenes = {
     n.live.blackout = false; n.live.emergency = false; n.live.freeze = false;            // drawings stay: they sit above any Frame
     return n;
   },
+  /* 8.9 Safe Next: the Frame Next would put on screen (the same pick as the Studio's Next: after the live Frame, or
+   * after the selected one before anything is live) and, in plain words, what it shows. null = no next Frame. */
+  upNext: function(st, selId){
+    var base = (st.live && st.live.scene) || selId, sc = Scenes.neighbour(st, base, 1);
+    if (!sc || sc.id === base) return null;
+    var n = Scenes.previewState(st, sc.id), items = [], cut = function(t, k){ t = String(t || '').replace(/\s+/g, ' ').trim(); return t.length > k ? t.slice(0, k - 1) + '\u2026' : t; };
+    if (n.question.visible && String(n.question.text).trim()) items.push({kind: 'question', text: 'Question: ' + cut(n.question.text, 90)});
+    if (n.verse.visible && String(n.verse.text).trim()) items.push({kind: 'scripture', text: 'Scripture: ' + cut(n.verse.ref || n.verse.text, 60)});
+    if (n.birthday.visible) items.push({kind: 'birthday', text: 'Birthday: ' + cut(n.birthday.name || n.birthday.greeting, 50)});
+    Scenes.liveText(n).forEach(function(l){
+      var t = l.kind === 'countdown' ? (l.c.title || 'Timer') : (Scenes.brandText(n, l.c.title) || Scenes.brandText(n, l.c.text));
+      items.push({kind: l.kind, text: KIND_INFO[l.kind].name + ': ' + cut(t, 60)});
+    });
+    if (Scenes.liveBrand(n).length) items.push({kind: 'brand', text: 'Branding'});
+    sc.layers.forEach(function(l){
+      if (MEDIA_KINDS.indexOf(l.kind) >= 0 && l.visible && (['image', 'video', 'pdf'].indexOf(l.kind) < 0 || l.c.file)) items.push({kind: l.kind, text: KIND_INFO[l.kind].name + ': ' + cut(l.name, 40)});
+      if (SOUND_KINDS.indexOf(l.kind) >= 0 && n.live.on[l.id]) items.push({kind: l.kind, text: 'Audio: ' + cut(l.name, 40)});
+    });
+    var warn = [], tx = Scenes.transitionOf(st, sc);
+    if (!items.length) warn.push('Shows nothing: no Content in this Frame is set to appear.');
+    if (st.live && st.live.blackout) warn.push('Black screen is on: the audience still sees black after Next.');
+    if (st.live && st.live.emergency) warn.push('The emergency screen is on: it stays over this Frame.');
+    sc.layers.forEach(function(l){
+      if (['image', 'video', 'pdf'].indexOf(l.kind) >= 0 && l.visible && !l.c.file) warn.push(KIND_INFO[l.kind].name + ' \u201c' + cut(l.name, 30) + '\u201d has no file chosen yet.');
+    });
+    var o = Scenes.order(st), i = o.findIndex(function(x){ return x.id === sc.id; });
+    return {scene: sc, items: items, warn: warn, tx: tx, txName: Scenes.txName(tx.type), pos: i + 1, of: o.length};
+  },
   /* Text layers on the program (for the overlay pages and FrameDecks) */
   liveText: function(st, output){
     var sc = Scenes.liveScene(st); if (!sc) return [];

@@ -343,6 +343,30 @@ class OnTheCamera(unittest.TestCase):
         self.assertEqual(chatcard.initials(""), "?")
         self.assertEqual(chatcard.avatar_colour("Sarah"), chatcard.avatar_colour(" sarah "))
 
+    def test_keeps_clear_of_the_camera_inset(self):
+        """8.9: a large camera inset in the bottom-right corner pushes the window up; side by side, it moves left."""
+        from vcam import chatcard
+
+        class C:
+            w, h = 410, 200
+        W, H = 1280, 720
+        plain = chatcard.place(C, W, H, "right")
+        big = [W - 512 - 32, H - 288 - 32, 512, 288]
+        x, y = chatcard.place(C, W, H, "right", big)
+        self.assertEqual(x, plain[0])
+        self.assertLessEqual(y + C.h, big[1], "above the inset")
+        side = [845, 0, 435, 720]
+        x, _ = chatcard.place(C, W, H, "right", side)
+        self.assertLess(x + C.w, side[0], "the other edge")
+        self.assertEqual(chatcard.place(C, W, H, "right", [20, 20, 200, 112]), plain, "an inset elsewhere changes nothing")
+        # through the camera program: the compositor sets avoid, the window keeps clear of it
+        self.fx.avoid = [640 - 192 - 16, 360 - 144 - 16, 192, 144]          # a large inset at 640 x 360
+        self.card(dur=0)
+        out = self.run_frames(80)
+        ax, ay, aw, ah = self.fx.avoid
+        self.assertEqual(int(out[ay + 4:ay + ah - 4, ax + 4:ax + aw - 4].max()), 0, "nothing drawn over the inset")
+        self.assertGreater(int(out.max()), 100)
+
     def test_shared_card_uses_the_camera_frame(self):
         self.fx.need_clean = True
         self.card(share=True)

@@ -156,6 +156,16 @@
       <div class="studio-host" id="tab-studio" hidden></div>
     </div>
     <p class="canvas-note" id="canvas-note"></p>
+    <!-- 8.9 Safe Next: what Next (or the next Frame) will put on screen, before it does (js/workspace.js renderUpNext) -->
+    <section class="upnext" id="upnext" aria-labelledby="upnext-h" hidden>
+      <div class="un-pic" id="un-pic" aria-hidden="true"><iframe id="un-frame" title="Up next preview" tabindex="-1"></iframe></div>
+      <div class="un-body">
+        <h3 class="un-h" id="upnext-h"><span class="un-k">Up next</span> <b id="un-name"></b> <span class="un-meta" id="un-meta"></span></h3>
+        <ul class="un-items" id="un-items"></ul>
+        <ul class="un-warn" id="un-warn"></ul>
+      </div>
+      <button class="btn small quiet un-toggle" type="button" id="un-toggle" aria-expanded="true" aria-controls="un-pic un-items" title="Hide or show the preview of the next Frame">Hide preview</button>
+    </section>
   </section>
 
   <aside class="ws-right inspector" id="inspector" aria-labelledby="insp-title">

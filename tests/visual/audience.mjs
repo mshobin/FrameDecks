@@ -81,12 +81,33 @@ check(await preview.$eval(".chatwin:not(.out) .aud-timer", (e) => e.hidden), "a 
 await dock.click("#dk-hide");
 await preview.waitForFunction(() => !document.querySelector(".chatwin:not(.out)"));
 check(await dock.isHidden("#dk-live"), "Hide takes it off screen");
+
+// 8.9 Waiting / Shown: both have been shown, so Waiting is empty and Shown holds them
+await dock.waitForFunction(() => document.querySelectorAll(".dk-card").length === 0);
+check((await dock.textContent("#dk-n-shown")).includes("2"), "shown messages move to Shown");
+await dock.click("#dk-tab-shown");
+await dock.waitForFunction(() => document.querySelectorAll(".dk-card").length === 2);
+check(true, "the Shown tab keeps the history");
+
+// 8.9 keys: choose with the arrows, Enter shows, H hides, Esc hides, N types a new one
+await dock.locator(".dk-tabs").click({ position: { x: 2, y: 2 } }).catch(() => {});
+await dock.locator("#dk-tab-shown").focus(); await dock.locator("#dk-tab-shown").evaluate((b) => b.blur());
+await dock.keyboard.press("ArrowDown");
+check(await dock.$(".dk-card.sel") !== null, "the arrow keys choose a card");
+await dock.keyboard.press("Enter");
+await preview.waitForSelector(".chatwin:not(.out)");
+check(true, "Enter shows the chosen card");
+await dock.keyboard.press("h");
+await preview.waitForFunction(() => !document.querySelector(".chatwin:not(.out)"));
+check(true, "H hides it");
 await dock.locator(".dk-card").nth(0).locator(".dk-show").click();
 await preview.waitForSelector(".chatwin:not(.out)");
-await dock.locator("h2.dk-qh").click();
 await dock.keyboard.press("Escape");
 await preview.waitForFunction(() => !document.querySelector(".chatwin:not(.out)"));
 check(true, "Esc in the dock hides it");
+await dock.keyboard.press("n");
+check(await dock.evaluate(() => document.activeElement && document.activeElement.id === "dk-add-text"), "N goes to the question box");
+await dock.keyboard.press("Escape");
 
 // a short timer runs out by itself
 await api({ action: "settings", dur: 3 });
@@ -96,10 +117,15 @@ await preview.waitForFunction(() => !document.querySelector(".chatwin:not(.out)"
 check(true, "a timed card fades out after its seconds");
 await api({ action: "settings", dur: 12, share: false });
 
-// Delete
-await dock.locator(".dk-card").nth(0).locator(".dk-del").click();
+// Delete (the key, then the button)
+await dock.keyboard.press("ArrowDown");
+await dock.keyboard.press("Delete");
 await dock.waitForFunction(() => document.querySelectorAll(".dk-card").length === 1);
+check(true, "Del deletes the chosen card");
+await dock.locator(".dk-card").nth(0).locator(".dk-del").click();
+await dock.waitForFunction(() => document.querySelectorAll(".dk-card").length === 0);
 check(true, "Delete removes a card");
+await dock.click("#dk-tab-wait");
 
 // accessibility, dark and light
 for (const theme of ["dark", "light"]) {

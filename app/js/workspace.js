@@ -1275,6 +1275,32 @@ Array.prototype.forEach.call(document.querySelectorAll('#ctlbar [data-cb="slide"
       .then(function(r){ return r.json(); }).then(function(d){ var s = d.slide || {}; if (s.page) toast('Slide ' + s.page + (s.pages ? ' of ' + s.pages : '')); else if (s.error && !s.busy) toast(s.error, true); }).catch(function(){});
   }));
 });
+/* 8.9 Safe Next: the Frame Next puts on screen, as a small live picture (the same overlay page as the canvas preview)
+ * with what it shows and anything to watch for. Collapsed, only the line stays (remembered on this PC). */
+var unOpen = lsGet('kc-upnext') !== 'closed', unSrc = '';
+function renderUpNext(){
+  var box = $('upnext'); if (!box) return;
+  var u = SC.upNext(live, selScene);
+  box.hidden = !u;
+  if (!u){ $('lb-next').title = 'That\u2019s the last Frame.'; return; }
+  var sc = u.scene;
+  $('un-name').textContent = sc.name;
+  $('un-meta').textContent = 'Frame ' + u.pos + ' of ' + u.of + ' \u00b7 ' + u.txName;
+  $('lb-next').title = 'Next: ' + sc.name + ' (goes live)';
+  var ul = $('un-items'), wl = $('un-warn');
+  ul.textContent = ''; wl.textContent = '';
+  u.items.slice(0, 4).forEach(function(it){ var li = document.createElement('li'); li.textContent = it.text; ul.appendChild(li); });
+  if (u.items.length > 4){ var more = document.createElement('li'); more.className = 'un-more'; more.textContent = '+ ' + (u.items.length - 4) + ' more'; ul.appendChild(more); }
+  u.warn.forEach(function(w){ var li = document.createElement('li'); li.textContent = w; wl.appendChild(li); });
+  box.classList.toggle('has-warn', u.warn.length > 0);
+  box.classList.toggle('closed', !unOpen);
+  $('un-toggle').textContent = unOpen ? 'Hide preview' : 'Show preview';
+  $('un-toggle').setAttribute('aria-expanded', String(unOpen));
+  var src = unOpen && !document.hidden ? 'stage.html?bg=preview&preview=1&scene=' + encodeURIComponent(sc.id) : 'about:blank';
+  if (src !== unSrc){ unSrc = src; $('un-frame').src = src; }
+}
+$('un-toggle').addEventListener('click', function(){ unOpen = !unOpen; lsSet('kc-upnext', unOpen ? 'open' : 'closed'); renderUpNext(); });
+document.addEventListener('visibilitychange', function(){ if (live) renderUpNext(); });
 var slideInfo = null;
 function renderLiveBar(){
   var sc = scene(), L = live.live;
@@ -1334,7 +1360,7 @@ function renderAll(force){
   if (force){ sceneSig = ''; layerSig = ''; inspSig = ''; }
   if (!SC.find(live, selScene)){ var f = SC.liveScene(live) || live.scenes[0]; selScene = f ? f.id : ''; selLayer = null; }
   if (selLayer && !layer()) selLayer = null;
-  renderScenes(); renderLayers(); renderInspector(); renderCanvas(); renderLiveBar();
+  renderScenes(); renderLayers(); renderInspector(); renderCanvas(); renderLiveBar(); renderUpNext();
 }
 Store.subscribe(function(st){ live = st; migrate(); renderAll(false); });
 setInterval(function(){ if (live && !document.hidden && document.body.dataset.tab === 'studio') renderLayers(); }, 3000);   // media layer status from FrameDecks

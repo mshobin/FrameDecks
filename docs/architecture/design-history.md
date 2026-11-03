@@ -1344,3 +1344,18 @@ and size in unscaled units and multiplies them by the display scale; 8.8.0 passe
 rectangle in `dock.py` is now in screen pixels, pywebview gets them divided by the scale as a first guess, and Windows
 places the dock exactly once it is shown. The test suite now opens the dock on a pretend 150 % screen.
 
+
+## 51. Version 8.9.0: Safe Next, and the Audience Dock after its first week (3 November 2026)
+
+The owner chose two of four candidates for 8.9: Audience Dock follow-ups, and Safe Next from the 29 October plan. Safe
+Next answers the question volunteers ask before pressing Next on a live meeting: what will appear? `KCScenes.upNext`
+takes the same Frame the Studio's Next takes (after the live one; before anything is live, after the selected one),
+runs `previewState` on a copy, and lists what that Frame shows in the words volunteers use, plus the three mistakes
+worth a warning: a Frame that shows nothing, a black or emergency screen still on, and media without its file. The
+picture is the canvas preview page itself, scaled down, so it cannot disagree with what Go Live would show. The strip
+sits under the canvas, not over it (DD-02), and the layout test checks that.
+
+For the dock, shown messages now move to a Shown tab rather than staying in the queue, and the dock can be run from
+the keyboard when it has it (pinned or in a browser). On FrameRelay the chat window now knows where the camera inset
+is (the compositor hands its rectangle to the program effects) and keeps clear of it.
+

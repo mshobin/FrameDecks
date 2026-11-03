@@ -61,9 +61,13 @@
     <button class="btn small" type="submit">Add</button>
   </form>
 
-  <h2 class="dk-h dk-qh">Queue <span id="dk-n"></span></h2>
-  <ol class="dk-queue" id="dk-queue" aria-label="Audience questions"></ol>
+  <div class="dk-tabs" role="tablist" aria-label="Messages">
+    <button type="button" role="tab" id="dk-tab-wait" aria-selected="true" aria-controls="dk-queue">Waiting <span id="dk-n"></span></button>
+    <button type="button" role="tab" id="dk-tab-shown" aria-selected="false" aria-controls="dk-queue">Shown <span id="dk-n-shown"></span></button>
+  </div>
+  <ol class="dk-queue" id="dk-queue" aria-label="Audience questions" role="tabpanel"></ol>
   <p class="dk-empty" id="dk-empty">Turn on Capture, select a message in the chat and press <kbd>Ctrl</kbd>+<kbd>C</kbd>.</p>
+  <p class="dk-keys" id="dk-keys"><kbd>↑</kbd><kbd>↓</kbd> choose · <kbd>Enter</kbd> show · <kbd>P</kbd> pin · <kbd>H</kbd> hide · <kbd>Del</kbd> delete · <kbd>N</kbd> new</p>
 
   <script src="js/audience.js"></script>
 </body>

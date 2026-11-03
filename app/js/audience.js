@@ -147,8 +147,14 @@ function fill(li, it){
   li.classList.toggle('is-live', live);
   li.classList.toggle('was-shown', !!it.shown && !live);
 }
+/* 8.9 Waiting (not shown yet) and Shown (the history of this meeting, until FrameDecks closes or Clear) */
+var tab = 'wait', selId = null;
 function renderQueue(){
-  var ol = $('dk-queue'), items = data.items || [], keep = {}, first = rev !== null && Object.keys(known).length === 0 && items.length && !ol.children.length;
+  var all = data.items || [], live = data.live && data.live.id;
+  var waiting = all.filter(function(it){ return !it.shown || it.id === live; }), shown = all.filter(function(it){ return it.shown && it.id !== live; });
+  $('dk-n-shown').textContent = shown.length ? '(' + shown.length + ')' : '';
+  $('dk-tab-wait').setAttribute('aria-selected', String(tab === 'wait')); $('dk-tab-shown').setAttribute('aria-selected', String(tab === 'shown'));
+  var ol = $('dk-queue'), items = tab === 'wait' ? waiting : shown, keep = {}, first = rev !== null && Object.keys(known).length === 0 && items.length && !ol.children.length;
   items.forEach(function(it, i){
     var li = ol.querySelector('[data-id="' + it.id + '"]');
     if (!li){
@@ -160,8 +166,35 @@ function renderQueue(){
     keep[it.id] = true; known[it.id] = true;
   });
   Array.prototype.slice.call(ol.children).forEach(function(li){ if (!keep[li.dataset.id]) li.remove(); });
-  $('dk-n').textContent = items.length ? '(' + items.length + ')' : '';
+  $('dk-n').textContent = waiting.length ? '(' + waiting.length + ')' : '';
   $('dk-empty').hidden = !!items.length;
+  $('dk-empty').innerHTML = tab === 'shown' ? 'Messages you show appear here, so you can show one again.'
+    : 'Turn on Capture, select a message in the chat and press <kbd>Ctrl</kbd>+<kbd>C</kbd>.';
+  if (!items.some(function(it){ return it.id === selId; })) selId = null;
+  Array.prototype.forEach.call(ol.children, function(li){ li.classList.toggle('sel', li.dataset.id === selId); });
+}
+/* ---------- 8.9 keys (when the dock has the keyboard: pinned from the handle, or in a browser) ---------- */
+function cards(){ return Array.prototype.slice.call($('dk-queue').children); }
+function choose(d){
+  var l = cards(); if (!l.length) return;
+  var i = l.findIndex(function(li){ return li.dataset.id === selId; });
+  i = i < 0 ? (d > 0 ? 0 : l.length - 1) : Math.max(0, Math.min(l.length - 1, i + d));
+  selId = l[i].dataset.id;
+  l.forEach(function(li){ li.classList.toggle('sel', li.dataset.id === selId); });
+  l[i].scrollIntoView({block: 'nearest'});
+}
+function selected(){ return cards().filter(function(li){ return li.dataset.id === selId; })[0]; }
+function onKey(e){
+  var typing = /^(INPUT|TEXTAREA|SELECT)$/.test((e.target || {}).tagName || '');
+  if (e.key === 'Escape'){ if (typing) e.target.blur(); else act({action: 'hide'}); return; }
+  if (typing || e.ctrlKey || e.altKey || e.metaKey) return;
+  var k = e.key.length === 1 ? e.key.toLowerCase() : e.key, li = selected();
+  if (k === 'ArrowDown' || k === 'ArrowUp'){ e.preventDefault(); choose(k === 'ArrowDown' ? 1 : -1); }
+  else if (k === 'Enter' && li){ e.preventDefault(); li.querySelector('.dk-show').click(); }
+  else if (k === 'p' && li){ li.querySelector('.dk-pin').click(); }
+  else if ((k === 'Delete' || k === 'Backspace') && li){ e.preventDefault(); choose(1); if (selected() === li) choose(-1); act({action: 'delete', id: li.dataset.id}); }
+  else if (k === 'h'){ act({action: 'hide'}); }
+  else if (k === 'n'){ e.preventDefault(); $('dk-add-text').focus(); }
 }
 
 function initDock(){
@@ -188,9 +221,10 @@ function initDock(){
     if (data && data.dock && data.dock.desktop) dockOp('settings', {value: false});
     else if (data) renderSettings();
   });
-  document.addEventListener('keydown', function(e){
-    if (e.key === 'Escape' && !/^(INPUT|TEXTAREA)$/.test((e.target || {}).tagName || '')) act({action: 'hide'});
-  });
+  document.addEventListener('keydown', onKey);
+  $('dk-tab-wait').addEventListener('click', function(){ tab = 'wait'; if (data) renderQueue(); });
+  $('dk-tab-shown').addEventListener('click', function(){ tab = 'shown'; if (data) renderQueue(); });
+  $('dk-queue').addEventListener('click', function(e){ var li = e.target.closest && e.target.closest('.dk-card'); if (li){ selId = li.dataset.id; renderQueue(); } });
   window.KCDock = {settings: function(on){ settingsOpen = on == null ? !settingsOpen : !!on; if (data) renderSettings(); }};
 }
 

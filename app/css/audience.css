@@ -66,6 +66,15 @@ body.dock[data-mode="live"],body.dock[data-mode="pinned"]{border-color:var(--gol
 .dk-add{display:flex;gap:6px;margin:10px 8px 0}
 .dk-add input{flex:1;min-width:0;padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--field);color:var(--ink);font:inherit}
 
+/* 8.9 Waiting / Shown, and the keys */
+.dk-tabs{display:flex;gap:4px;margin:14px 8px 8px;padding:3px;border-radius:999px;background:var(--surface);border:1px solid var(--line-soft)}
+.dk-tabs button{flex:1;border:0;border-radius:999px;padding:5px 8px;background:transparent;color:var(--muted);font:600 13px var(--sans);cursor:pointer}
+.dk-tabs button[aria-selected="true"]{background:var(--raised);color:var(--ink)}
+.dk-tabs button:focus-visible{outline:2px solid var(--gold);outline-offset:1px}
+.dk-tabs span{font-weight:500}
+.dk-card.sel{outline:2px solid var(--gold);outline-offset:1px}
+.dk-keys{margin:10px 12px 0;color:var(--faint);font-size:12px;line-height:1.8}
+body.dock[data-mode="click"] .dk-keys{display:none}
 /* the queue */
 .dk-queue{list-style:none;margin:0;padding:0 8px;display:grid;gap:8px}
 .dk-card{padding:8px 10px;border-radius:12px;background:var(--surface);border:1px solid var(--line-soft);

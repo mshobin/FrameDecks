@@ -42,7 +42,8 @@ Repository clean-up is on `main` (modules in `src/`; `README.md`, `LICENSE`, `NO
 | 8.0.0: one Teleprompter, Frame cards, no Run/Practice, Setup wizard, plain camera settings, one-view phone remote | Published (1 November) |
 | 8.1.0: Teleprompter transparency and pin, six looks, one Content view, website-matching restyle | On `main`; tag `v8.1.0` publishes it |
 | 8.2.0: bare Teleprompter (controls in its bar, upload, script mode), Spotlight, transitions one per effect + Burst, .frame files, sync status chip | Published (tag `v8.2.0`) |
-| 8.8.1: the Audience Dock opens on screen on scaled displays (it was placed off the right edge) and takes typing when pinned | On `main`; tag `v8.8.1` |
+| 8.9.0: Safe Next (Up next strip under the Studio Canvas with warnings), Audience Dock Waiting/Shown + keys, chat window clear of the camera inset | On `main`; tag `v8.9.0` |
+| 8.8.1: the Audience Dock opens on screen on scaled displays (it was placed off the right edge) and takes typing when pinned | Published (tag `v8.8.1`) |
 | 8.8.0: Audience Dock (Ctrl+C a chat message → a card on FrameRelay; click-through dock with Ctrl+Shift, handle, timer/pin/hide, Share Window option) | Published (tag `v8.8.0`); real-PC checklist in docs/architecture/audience-dock.md |
 | 8.7.0: Spotlight as a soft see-through disc with settings, landing How it works Day 5 and a self-playing See it work | Tagged `v8.7.0` |
 | 8.6.0: Quick Start imports .frame files, Teleprompter bar arrow, Help Center, sign-out to framedecks.com, Plan cards, wider pages | Published (tag `v8.6.0`) |
@@ -50,7 +51,7 @@ Repository clean-up is on `main` (modules in `src/`; `README.md`, `LICENSE`, `NO
 | 8.4.0: .frame Use this plan + import check, Resync Linked PCs, Meeting Details of three fields, Help step-by-step guide with screenshots | Published (tag `v8.4.0`) |
 | 8.3.0: website Plan in five guided steps, drag-and-drop timeline, Preview, Choose Animation, media kept in the browser and carried in .frame files | Published (tag `v8.3.0`) |
 | 7.2: Azure Trusted Signing in the workflow (urgent after the Defender quarantine), Ed25519-signed release manifests | Next (both stay off until the owner adds the signing account / key) |
-| Ideas from the 29 October plan, section 5 (run-through timer, "Take it home" phone page, safe Next preview, backup operator, volunteer rota) | On the roadmap, one at a time after 6.15, each with a live test |
+| Ideas from the 29 October plan, section 5 (run-through timer, "Take it home" phone page, backup operator, volunteer rota; safe Next preview built in 8.9) | On the roadmap, one at a time after 6.15, each with a live test |
 | framedecks.com as the one address (redirects, TLS, cache, WAF) | Live (28 October): framedecks.com serves, pages.dev noindex. Owner: redirect DNS records (www, app, framedecks.app), HSTS, Supabase + Google URLs, then the pages.dev Bulk Redirect |
 | 6.12: FrameRelay rename, still hero arrival, Proverbs 16:3, About wording | Prepared on `main` (28 October). Owner: tag `v6.12`, pilot install, check the camera name in Zoom/Teams |
 | Landing redesign: pinned 4-step guide, demo, bento, statement, Reduce effects; signed-in visual pass | Built (28 October). Owner: real step screenshots (`hosted/public/product/step-*.webp`), compare with the mock-up file |
