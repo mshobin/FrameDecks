@@ -20,6 +20,7 @@ import cv2
 import numpy as np
 
 from .layers import LayerManager, PdfSource
+from .program import _scratch
 from .screen import ScreenCapture
 
 LAYOUTS = ("camera", "screen", "pip", "side")
@@ -301,7 +302,7 @@ class Compositor:
             r = self.program_fx.overlay_area(w, h) if self.program_fx is not None else None
             if r:                                     # 9.1 chat bubbles beside / below: the cards go in the rest
                 view = frame[r[1]:r[1] + r[3], r[0]:r[0] + r[2]]
-                view[:] = self.cards(np.ascontiguousarray(view))
+                view[:] = self.cards(_scratch(self, "_area_buf", view))   # one reused buffer (M9)
             else:
                 frame = self.cards(frame)
         if self.program_fx is not None:

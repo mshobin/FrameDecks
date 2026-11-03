@@ -60,6 +60,7 @@ function render(){
     meta.textContent = (APPS[it.src] || '') + (APPS[it.src] ? ' · ' : '') + ago(it.at); top.appendChild(meta);
     if (it.on){ var o = document.createElement('span'); o.className = 'cm-on'; o.textContent = 'On screen'; top.appendChild(o); }
     var p = document.createElement('p'); p.textContent = it.text;
+    if (it.private && !it.text){ p.className = 'cm-private'; p.textContent = 'Private message. Read it on the PC.'; }
     var acts = document.createElement('div'); acts.className = 'cm-acts';
     acts.appendChild(button(it.on ? 'Show again' : 'Show', 'gold', null, function(){ act({action: 'show', id: it.id, full: true}).then(function(d){ if (d) toast('✓ On screen'); }); }));
     if (it.on) acts.appendChild(button('Hide', '', null, function(){ act({action: 'hide', id: it.id}).then(function(d){ if (d) toast('Hidden'); }); }));

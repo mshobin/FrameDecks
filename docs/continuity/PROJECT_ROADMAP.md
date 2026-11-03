@@ -42,7 +42,8 @@ Repository clean-up is on `main` (modules in `src/`; `README.md`, `LICENSE`, `NO
 | 8.0.0: one Teleprompter, Frame cards, no Run/Practice, Setup wizard, plain camera settings, one-view phone remote | Published (1 November) |
 | 8.1.0: Teleprompter transparency and pin, six looks, one Content view, website-matching restyle | On `main`; tag `v8.1.0` publishes it |
 | 8.2.0: bare Teleprompter (controls in its bar, upload, script mode), Spotlight, transitions one per effect + Burst, .frame files, sync status chip | Published (tag `v8.2.0`) |
-| 9.2.0: signed release manifests (active once the owner adds the key), updater and release workflow hardening (audit H3, M3, M4, L7–L9, part of M5) | On `main`; tag `v9.2.0` (manifest signing left off for now, owner's decision; switch on later per docs/deployment/release-pipeline.md "Signed manifests") |
+| 9.3.0: report-only CSP on desktop pages, state JSON cache outside the lock, reused vCam frame buffers, private card text kept off the phone (audit M7, M9, M10, L5; M11 deferred) | On `main`; tag `v9.3.0` |
+| 9.2.0: signed release manifests (active once the owner adds the key), updater and release workflow hardening (audit H3, M3, M4, L7–L9, part of M5) | Published (manifest signing left off for now, owner's decision; switch on later per docs/deployment/release-pipeline.md "Signed manifests") |
 | Migration 0013: the team owner cannot be demoted or removed by an admin (audit H5) | On `main`; owner runs it in Supabase |
 | 9.1.2: security and reliability patch (production audit 3 Nov: H1, H2, M1, M2, M8 and Low items) | Published (tag `v9.1.2`) |
 | Next from the audit: cloud hotfix (M6 link-code limits, L11 account deletion leftovers), SignPath on (M3), fully hashed build lock (M5), 9.3 (CSP, frame buffers, state cache, overlay long-poll), later H4 (vCam DLL in an admin-only folder) | docs/project/2026-11-03-production-audit.md |

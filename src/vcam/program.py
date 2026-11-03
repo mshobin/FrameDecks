@@ -56,6 +56,18 @@ def live_brand(st, output="vcam"):
                  or ((l.get("c") or {}).get("org") and b.get("org")))]
 
 
+def _scratch(owner, name, src):
+    """9.3 (production audit M9): src copied into a buffer kept on owner as `name`, made again only when the picture
+    size changes, instead of a new array for every camera frame. The caller must not keep the result past the next
+    frame (it is written over)."""
+    buf = getattr(owner, name, None)
+    if buf is None or buf.shape != src.shape or buf.dtype != src.dtype:
+        buf = np.empty(src.shape, src.dtype)
+        setattr(owner, name, buf)
+    np.copyto(buf, src)
+    return buf
+
+
 def _ease(t):
     t = max(0.0, min(1.0, t))
     return t * t * (3 - 2 * t)
@@ -158,7 +170,7 @@ class ProgramFX:
         r = self._overlay_rect(st, W, H, hold)               # 9.1 bubbles beside / below: the overlays move aside
         if r:                                                  # (drawn on a contiguous copy, then put back)
             sub = frame[r[1]:r[1] + r[3], r[0]:r[0] + r[2]]
-            part = np.ascontiguousarray(sub)
+            part = _scratch(self, "_area_buf", sub)
             self._texts(part, st, live, r[2], r[3], now, dt, hold)
             sub[:] = part
         else:
@@ -172,13 +184,13 @@ class ProgramFX:
             kind, ms = str(live.get("tx") or "cut"), float(live.get("txMs") or 0)
             kind = TX_ALIAS.get(kind, kind)
             if kind != "cut" and ms > 0 and self.last is not None and self.last.shape == frame.shape:
-                fx = None
+                fx, prev = None, self.last.copy()          # self.last's buffer is reused next frame (_scratch)
                 if kind == "burst":
                     try:
-                        fx = Burst(self.last, ((st.get("fx") or {}).get("burst") or {}))
+                        fx = Burst(prev, ((st.get("fx") or {}).get("burst") or {}))
                     except Exception:
                         kind = "fade"
-                self.tx = (kind, ms / 1000.0, now, self.last, fx)
+                self.tx = (kind, ms / 1000.0, now, prev, fx)
         out = frame
         if self.tx is not None:
             kind, dur, t0, a, fx = self.tx
@@ -203,7 +215,7 @@ class ProgramFX:
             if clean is not None:
                 clean = cv2.convertScaleAbs(clean, alpha=1 - self.black)
         self.present_frame = clean
-        self.last = out if out is not frame else frame.copy()
+        self.last = out if out is not frame else _scratch(self, "_last_buf", frame)
         return out
 
     # ---------- 9.1 the Memory Cards as chat bubbles (vcam/chatcard.py) ----------

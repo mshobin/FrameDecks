@@ -28,11 +28,11 @@ security patch; no wider distribution until the update chain is signed (H3, M3) 
 | M4 | A tag on any branch can publish (only the version is compared) | **Fixed in 9.2.0** (a tag must be on `main`); tag ruleset and protected environment are GitHub settings (owner) |
 | M5 | Python build dependencies pinned without hashes | Partly fixed in 9.2.0 (the from-source PyInstaller build uses the pinned setuptools); a fully hashed lock is open |
 | M6 | Anonymous `computer_link_start` can fill the global pending-link cap | Open: cloud hotfix |
-| M7 | No Content-Security-Policy (desktop pages, website); website session in localStorage | Open: 9.3, report-only first |
+| M7 | No Content-Security-Policy (desktop pages, website); website session in localStorage | **Desktop pages: 9.3.0, report-only** (`page_csp`, `tests/visual/csp.mjs`; enforce by switching `CSP_HEADER`); website policy and session storage open |
 | M8 | Imported ids pasted into CSS selectors could throw and break workspace actions | **Fixed in 9.1.2** (`cssq` in `workspace.js`, `CSS.escape` in `overlay.js`) |
-| M9 | Full-frame copies every camera frame | Open: 9.3 |
-| M10 | Long-polls serialise the whole state inside the lock | Open: 9.3 |
-| M11 | Local overlays poll every 300 ms | Open: 9.3 |
+| M9 | Full-frame copies every camera frame | **Fixed in 9.3.0** (reused buffers, `program._scratch`) |
+| M10 | Long-polls serialise the whole state inside the lock | **Fixed in 9.3.0** (one JSON per state, made outside the lock) |
+| M11 | Local overlays poll every 300 ms | Deferred: OBS browser sources share one browser with about six connections per address; a long-poll per overlay would starve them. The poll is a tiny `api/rev` read |
 
 ## Low (selected)
 
@@ -42,11 +42,11 @@ security patch; no wider distribution until the update chain is signed (H3, M3) 
   Messages and Phone (`chatcard.SRC_NAMES`), and a test keeps that list equal to `memory.APP_NAMES`.
 - **Open:**
   - The state update race (`update_state` saves outside its lock).
-  - Private cards are visible on the phone.
+  - ~~Private cards are visible on the phone.~~ Fixed in 9.3.0: the phone gets no text until the card is on screen.
   - PowerPoint files open through COM without `AutomationSecurity`.
-  - Updater edge cases: redirects, no downgrade check, environment override honoured when frozen.
-  - The workflow `ref_name` sits inside a shell string.
-  - Runner and Inno Setup versions are not pinned.
+  - ~~Updater edge cases: redirects, no downgrade check, environment override honoured when frozen.~~ Fixed in 9.2.0.
+  - ~~The workflow `ref_name` sits inside a shell string.~~ Fixed in 9.2.0 (passed through `env`).
+  - Runner versions pinned in 9.2.0; the Inno Setup version is not pinned.
   - The `/connect` page shows the PC name from the URL.
   - Account deletion leaves some data behind.
   - Sync conflicts on records other than Frames.
@@ -67,4 +67,4 @@ security patch; no wider distribution until the update chain is signed (H3, M3) 
 - **AI artifacts:** none in code or docs ("Claude" appears only as a chat source app). 153 older commit messages
   carry attribution trailers; they are left in place, since removing them would need a history rewrite.
 
-Tests for the 9.1.2 fixes: `tests/test_hardening.py`.
+Tests for the 9.1.2 fixes: `tests/test_hardening.py`; for 9.3.0: `tests/test_audit_93.py` and `tests/visual/csp.mjs`.

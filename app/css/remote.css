@@ -222,6 +222,7 @@ body.drawing,body.prompting{overflow:hidden}
 .cm-meta{font-size:13px;color:var(--faint)}
 .cm-on{padding:0 8px;border-radius:999px;background:var(--live-soft);color:var(--live);font-size:12px;font-weight:800;line-height:1.7}
 .cm-card p{margin:4px 0 8px;color:var(--muted);font-size:15px;line-height:1.4;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.cm-card p.cm-private{font-style:italic;color:var(--faint)}
 .cm-acts{display:flex;gap:8px;flex-wrap:wrap}
 .cm-acts .cm-btn{min-height:40px;padding:0 14px;font-size:14px}
 @keyframes cm-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}

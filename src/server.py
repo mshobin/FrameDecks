@@ -13,6 +13,7 @@ Mac:     double-click "tools/launchers/Start FrameDecks (Mac).command"
 """
 from errlog import swallowed as _swallowed  # noqa: E402
 import atexit
+import base64
 import hashlib
 import json
 import os
@@ -41,7 +42,7 @@ import updater   # 7.0: updates from FrameDecks servers (checked, silent, with r
 from media_names import safe_name   # 9.1.2 media file names are never paths
 import memory    # 9.0: Memory Cards in the FrameDecks vCam chat overlay (docs/architecture/memory-cards.md)
 
-APP_VERSION = "9.2.0"
+APP_VERSION = "9.3.0"
 STARTED_AT = time.time()
 FROZEN = getattr(sys, "frozen", False)          # True inside the installed Windows app
 HERE = Path(sys.executable).resolve().parent if FROZEN else Path(__file__).resolve().parent.parent   # the repository root (this file is in src/)
@@ -248,13 +249,31 @@ state = load_state()
 LIBRARY = {"rev": int(state.get("rev", 0) or 0)}
 
 
-def state_body(lib_rev=None):
-    """The state as JSON; without the library when the asker already has this library (lib_rev matches)."""
-    if lib_rev is not None and str(lib_rev) == str(LIBRARY["rev"]):
-        out = {k: v for k, v in state.items() if k != "library"}
-        out.update(libraryRev=LIBRARY["rev"], libraryOmitted=True)
-        return json.dumps(out)
-    return json.dumps(dict(state, libraryRev=LIBRARY["rev"]))
+# 9.3 (production audit M10): every device waiting on /api/state used to turn the whole state into JSON again when it
+# changed, inside the lock. save_state replaces the state object (never changes it in place), so the JSON is made once
+# per state and kept for the next asker; the two forms (with and without the library) are kept separately.
+_STATE_JSON = {}
+_STATE_JSON_LOCK = threading.Lock()
+
+
+def state_body(lib_rev=None, snap=None):
+    """The state as JSON; without the library when the asker already has this library (lib_rev matches).
+    snap: (state, library rev) taken under cond, so the JSON can be made after the lock is let go."""
+    st, lrev = snap if snap is not None else (state, LIBRARY["rev"])
+    omit = lib_rev is not None and str(lib_rev) == str(lrev)
+    with _STATE_JSON_LOCK:
+        hit = _STATE_JSON.get(omit)
+        if hit is not None and hit[0] is st and hit[1] == lrev:
+            return hit[2]
+    if omit:
+        out = {k: v for k, v in st.items() if k != "library"}
+        out.update(libraryRev=lrev, libraryOmitted=True)
+    else:
+        out = dict(st, libraryRev=lrev)
+    body = json.dumps(out)
+    with _STATE_JSON_LOCK:
+        _STATE_JSON[omit] = (st, lrev, body)
+    return body
 
 
 # Saving (architecture audit P1, P2): a change to the plan is written at once. A change to what is live only (Next,
@@ -486,6 +505,26 @@ def memory_sync():
             t.start()
 
 
+# 9.3 (production audit M7): a Content-Security-Policy for the program's pages. Scripts only from this PC, plus each
+# page's own inline script by its hash (worked out from the page as it is sent, so editing a page needs no list); no
+# plug-ins, no other site may frame a page, nothing is fetched from elsewhere. Styles stay open to inline style=""
+# (many elements are placed that way). Report-only for now: a page that breaks a rule still works and the browser
+# console names the rule; tests/visual/csp.mjs checks every page reports nothing. Switch CSP_HEADER to
+# "Content-Security-Policy" to enforce it.
+CSP_HEADER = "Content-Security-Policy-Report-Only"
+CSP_BASE = ("default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; "
+            "media-src 'self' data: blob:; font-src 'self' data:; connect-src 'self'; worker-src 'self'; "
+            "frame-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'")
+_INLINE_SCRIPT = re.compile(rb"<script>(.*?)</script>", re.S)
+
+
+def page_csp(html):
+    """The policy for one page: CSP_BASE with script-src naming the page's inline scripts by SHA-256."""
+    hashes = "".join(" 'sha256-" + base64.b64encode(hashlib.sha256(m.group(1)).digest()).decode("ascii") + "'"
+                     for m in _INLINE_SCRIPT.finditer(html))
+    return f"{CSP_BASE}; script-src 'self'{hashes}"
+
+
 REMOTE_MEMORY_ACTIONS = ("add", "show", "showmany", "pin", "hide", "hideall", "delete")   # 9.1 from the phone remote
 
 
@@ -496,6 +535,8 @@ def remote_memory_body():
     items = [{k: i[k] for k in ("id", "title", "text", "src", "private", "at", "pinned")} for i in snap["items"][:60]]
     for i in items:
         i["on"] = i["id"] in on
+        if i["private"] and not i["on"]:       # 9.3 (audit L5): a private message is read on this PC, not on a phone
+            i["text"] = ""
     return {"rev": snap["rev"], "capture": snap["capture"], "items": items, "notice": snap["notice"]}
 
 
@@ -2325,7 +2366,8 @@ class Handler(BaseHTTPRequestHandler):
                 if since is not None:
                     # Long-poll: answer as soon as something changes (or after `wait` seconds, at most 25)
                     cond.wait_for(lambda: str(state.get("rev")) != since, timeout=wait)
-                body = state_body(q.get("librev", [None])[0])
+                snap = (state, LIBRARY["rev"])
+            body = state_body(q.get("librev", [None])[0], snap)    # made outside the lock (M10)
             return self.reply(200, body, TYPES[".json"])
         if path == "/api/remote/memory":                # 9.1 Capture Memory on the phone remote (signed in; long-poll)
             q = parse_qs(url.query)
@@ -2365,7 +2407,9 @@ class Handler(BaseHTTPRequestHandler):
             path = "/dashboard.html"
         target = (APP / path.lstrip("/")).resolve()
         if APP.resolve() in target.parents and target.is_file():
-            return self.reply(200, target.read_bytes(), TYPES.get(target.suffix.lower(), "application/octet-stream"))
+            data = target.read_bytes()
+            extra = [(CSP_HEADER, page_csp(data))] if target.suffix.lower() == ".html" else None
+            return self.reply(200, data, TYPES.get(target.suffix.lower(), "application/octet-stream"), extra)
         self.reply(404, "Not found", "text/plain; charset=utf-8")
 
     def origin_ok(self):

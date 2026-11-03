@@ -53,6 +53,31 @@ Versions before 4.9 (when the program had its earlier name) are described in the
 - The favicons, the tray icon and the small program-icon sizes (16–32 px) use a heavier version of the emblem, so it
   stays visible on light browser tabs and a light taskbar. Larger sizes are unchanged.
 
+## [9.3.0] - 2026-11-04
+
+Full notes: [docs/releases/v9.3.0.md](releases/v9.3.0.md). Audit: [docs/project/2026-11-03-production-audit.md](project/2026-11-03-production-audit.md).
+
+### Security
+- Content-Security-Policy on every program page (audit M7), report-only for now (`server.CSP_HEADER`): scripts only from
+  the PC plus each page's inline script by its SHA-256 (`page_csp`, worked out as the page is sent), no plug-ins, no
+  framing by other sites, nothing loaded from elsewhere; styles stay open to inline `style`. `tests/visual/csp.mjs`
+  opens every page and view and fails on any reported break.
+- The phone remote no longer receives the text of a private Memory Card until it is on screen (audit L5,
+  `remote_memory_body`).
+
+### Performance
+- `/api/state` (audit M10): the JSON is made once per state (`state_body` keeps it per state object and library
+  version; `save_state` replaces the state, never edits it) and outside `cond`, so waiting devices no longer each
+  serialise the whole state under the lock.
+- FrameDecks vCam (audit M9): the previous picture and the overlay area reuse one buffer each (`program._scratch`); a
+  transition takes its own copy of the starting picture once.
+
+### Deferred
+- Overlay polling (audit M11): OBS browser sources share one browser, which allows about six open connections per
+  address, so standalone overlay pages keep their 300 ms `api/rev` check instead of a long-poll.
+
+Tests: `tests/test_audit_93.py`, `tests/visual/csp.mjs`.
+
 ## [9.2.0] - 2026-11-04
 
 Full notes: [docs/releases/v9.2.0.md](releases/v9.2.0.md). Audit: [docs/project/2026-11-03-production-audit.md](project/2026-11-03-production-audit.md).
