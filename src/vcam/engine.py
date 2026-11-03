@@ -259,7 +259,7 @@ class VCamEngine:
                 if not in_use and not previewing and not awake:
                     if self.cam:
                         self._close_camera()            # webcam light goes off
-                    self._set(state="ready", message="Ready. Choose “FrameRelay” as the camera in Zoom or Teams.", fps=0.0)
+                    self._set(state="ready", message="Ready. Choose “FrameDecks vCam” as the camera in Zoom or Teams.", fps=0.0)
                     time.sleep(0.5)
                     continue
                 need_cam = self.compositor.needs_camera() if self.compositor else True

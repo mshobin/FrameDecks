@@ -126,8 +126,10 @@ class ProgramFX:
         self.get_state, self.cards_on = get_state, cards_on
         self.texts = {}                  # layer id -> _Text
         # 9.0 the chat overlay with the Memory Cards (live.memory), drawn above everything but Blackout
-        self.mem = {"k": 0.0, "card": None, "prev": None, "swap": 0.0, "want": None, "layout": "beside", "side": "right",
-                    "info": None, "seen": None, "typing": None}
+        # 9.1: one Card per bubble; "items" id -> {card, x, y, born, gone}; "order" the bubbles on screen, oldest first
+        self.mem = {"k": 0.0, "items": {}, "order": [], "want": None, "layout": "beside", "side": "right", "info": None,
+                    "place": None}
+        self.others = None               # 9.1 () -> the rectangles of the cards on screen (vcam/overlay.py), avoided
         self.need_clean = False          # 8.8 the Share Window is open: keep a picture without the Audience Card
         self.avoid = None                # 8.9 the camera inset [x, y, w, h] the chat window keeps clear of (compositor)
         self.present_frame = None        # ... that picture (None = the Share Window shows the camera's own frame)
@@ -197,10 +199,26 @@ class ProgramFX:
         self.last = out if out is not frame else frame.copy()
         return out
 
-    # ---------- 9.0 the chat overlay with the Memory Cards (vcam/chatcard.py) ----------
+    # ---------- 9.1 the Memory Cards as chat bubbles (vcam/chatcard.py) ----------
+    def _avoid_rects(self, W, H):
+        """What the floating bubbles keep clear of: the camera inset, the verse / question / birthday cards and every
+        text Content on screen (rounded to whole units, so a card gliding a little does not move the bubbles)."""
+        u = max(1.0, chatcard._u(W, H))
+        rects = [list(self.avoid)] if self.avoid else []
+        try:
+            rects += list(self.others() or []) if self.others else []
+        except Exception:
+            pass
+        for t in self.texts.values():
+            c = t.card
+            if c is not None and t.alpha > 0.05:
+                rects.append([c.x, c.y, c.w, c.h])
+        return tuple(tuple(int(v // u) * u for v in r[:2]) + tuple(int(-(-v // u)) * u + u for v in r[2:4]) for r in rects)
+
     def _memory(self, out, live, W, H, now, dt, hold):
-        """Draw live.memory: beside / below the picture (the picture shrinks out of its way) or over it. Returns
-        (picture, picture without the chat overlay for the Share Window, or None)."""
+        """Draw live.memory as chat bubbles: beside / below the picture (the picture shrinks out of their way) or
+        floating over it, clear of everything else. Returns (picture, picture without the bubbles for the Share
+        Window, or None)."""
         m = live.get("memory") if isinstance(live.get("memory"), dict) else None
         cards = [c for c in (m or {}).get("cards") or [] if isinstance(c, dict) and c.get("id")]
         on = bool(cards) and not hold and self.cards_on()
@@ -209,54 +227,105 @@ class ProgramFX:
             M["info"] = m
             M["layout"] = m.get("layout") if m.get("layout") in chatcard.SQUEEZE or m.get("layout") == "over" else "beside"
             M["side"] = "left" if m.get("side") == "left" else "right"
-            ids = [c["id"] for c in cards]
-            if M["seen"] is None:
-                M["seen"] = set(ids)                              # already there when the overlay opened: no typing
-            new = [i for i in ids if i not in M["seen"]]
-            M["seen"] |= set(ids)
-            if new:
-                M["typing"] = (new[-1], now + chatcard.TYPING_S)  # the newest arrival: typing dots, then its text
-            typing_id = M["typing"][0] if M["typing"] and now < M["typing"][1] and M["typing"][0] in ids else None
-            avoid = tuple(self.avoid) if self.avoid and M["layout"] == "over" else None
             sig = tuple((c["id"], str(c.get("title") or ""), str(c.get("text") or "")[:500], bool(c.get("pinned")),
                          bool(c.get("full")), str(c.get("src") or "")) for c in cards)
-            key = ("@memory", sig, M["layout"], M["side"], typing_id, avoid, W, H)
+            key = ("@memory", sig, M["layout"], M["side"], W, H)
             if key != M["want"]:
                 M["want"] = key
                 with self.cond:
-                    self.jobs["@memory"] = (key, {"memory": True, "cards": [dict(c) for c in cards], "typing": typing_id},
-                                            {"avoid": avoid, "layout": M["layout"]}, W, H, M["side"])
+                    self.jobs["@memory"] = (key, {"memory": True, "cards": [dict(c) for c in cards]},
+                                            {"layout": M["layout"]}, W, H, M["side"])
                     self.cond.notify()
+        elif M["order"]:
+            for i in M["order"]:                                  # all of them leave
+                M["items"][i]["gone"] = M["items"][i]["gone"] or now
+            M["order"] = []
         M["k"] = self._toward(M["k"], 1.0 if on else 0.0, dt / chatcard.EASE_S)
-        if M["k"] <= 0.001 and not on:
-            M.update(card=None, prev=None, want=None, seen=None, typing=None)
+        if M["k"] <= 0.001 and not on and not M["items"]:
+            M.update(want=None, place=None)
             return out, None
         info = M["info"] or {}
         clean = out.copy() if self.need_clean and not info.get("share") else None
         if M["layout"] in chatcard.SQUEEZE:                       # the picture makes room: nothing can overlap
             out = chatcard.squeeze(out, chatcard.picture_rect(M["layout"], M["side"], W, H, M["k"]))
-        if not out.flags.writeable or out is None:
+        if out is None or not out.flags.writeable:
             out = out.copy()
-        card = M["card"]
-        if card is None:
-            return out, clean
+        # where each bubble goes (the floating ones: clear of the cards on screen)
+        live_ids = [i for i in M["order"] if i in M["items"]]
+        avoid = self._avoid_rects(W, H) if M["layout"] == "over" else ()
+        pkey = (tuple((i, M["items"][i]["card"].w, M["items"][i]["card"].h) for i in live_ids), M["layout"], M["side"], avoid, W, H)
+        if M["place"] is None or M["place"][0] != pkey:
+            spots = chatcard.stack([(M["items"][i]["card"].w, M["items"][i]["card"].h) for i in live_ids], W, H,
+                                   M["layout"], M["side"], avoid)
+            M["place"] = (pkey, dict(zip(live_ids, spots)))
+        targets = M["place"][1]
+        follow = 1 - math.exp(-dt / (chatcard.MOVE_S / 3))
         from .overlay import OverlayLayer
-        a = chatcard.ease(M["k"])
-        sign = -1 if M["side"] == "left" else 1
-        dy = int(round((1 - a) * card.h * 0.25)) if M["layout"] == "below" else 0
-        dx = 0 if M["layout"] == "below" else int(round((1 - a) * card.w * 0.25 * sign))
-
-        def put(c, alpha):
-            x0, y0 = int(round(c.x - c.margin)) + dx, int(round(c.y - c.margin)) + dy
-            OverlayLayer._blend(out, OverlayLayer._scale(c.full8, alpha) if alpha < 0.999 else c.full8, x0, y0)
-        p = (now - M["swap"]) / chatcard.SWAP_S if M["prev"] is not None else 1.0
-        if p < 1.0:
-            put(M["prev"], a)
-            put(card, a * chatcard.ease(p))
-        else:
-            M["prev"] = None
-            put(card, a)
+        a_all = chatcard.ease(M["k"]) if M["layout"] in chatcard.SQUEEZE else 1.0
+        for i, it in list(M["items"].items()):
+            c = it["card"]
+            if i in targets:
+                tx, ty = targets[i]
+                if it["x"] is None:
+                    it["x"], it["y"] = tx, ty
+                else:
+                    it["x"] += (tx - it["x"]) * follow
+                    it["y"] += (ty - it["y"]) * follow
+            if it["x"] is None:
+                if M["items"].get(i) is it:                      # (the drawing thread may have put a new one there)
+                    del M["items"][i]
+                continue
+            alpha, scale = a_all, 1.0
+            if it["gone"]:
+                g = (now - it["gone"]) / chatcard.CLOSE_S
+                if g >= 1:
+                    if M["items"].get(i) is it:
+                        del M["items"][i]
+                    continue
+                alpha *= 1 - chatcard.ease(g)
+                scale = 1 - 0.08 * chatcard.ease(g)
+            elif now < it["born"]:
+                continue                                          # waiting for its turn (several arrive at once)
+            else:
+                p = (now - it["born"]) / chatcard.POP_S
+                if p < 1:
+                    scale = chatcard.pop(p)
+                    alpha *= min(1.0, p * 2.5)
+            if alpha <= 0.004:
+                continue
+            x0, y0 = it["x"] - c.margin, it["y"] - c.margin
+            if abs(scale - 1) < 0.004:
+                layer = c.full8 if alpha >= 0.999 else OverlayLayer._scale(c.full8, alpha)
+                OverlayLayer._blend(out, layer, int(round(x0)), int(round(y0)), c.full_inv3 if alpha >= 0.999 else None)
+                continue
+            # pop / shrink around the avatar (the bubble's top-left corner, where a chat bubble grows from)
+            fw, fh = c.full8[1].shape[1], c.full8[1].shape[0]
+            sw, sh = max(2, int(round(fw * scale))), max(2, int(round(fh * scale)))
+            ax, ay = c.margin, c.margin + c.h * 0.5
+            col = cv2.resize(c.full8[0], (sw, sh), interpolation=cv2.INTER_LINEAR)
+            alp = cv2.resize(c.full8[1], (sw, sh), interpolation=cv2.INTER_LINEAR)
+            layer = OverlayLayer._scale((col, alp), alpha) if alpha < 0.999 else (col, alp)
+            OverlayLayer._blend(out, layer, int(round(x0 + ax - ax * scale)), int(round(y0 + ay - ay * scale)))
         return out, clean
+
+    def _memory_ready(self, key, cards, now):
+        """The drawing thread finished the bubbles for key: swap them in. New ones pop open one after another."""
+        M = self.mem
+        if key != M["want"]:
+            return
+        ids, k = [], 0
+        for c in cards:
+            ids.append(c.id)
+            it = M["items"].get(c.id)
+            if it and not it["gone"]:
+                it["card"] = c
+            else:
+                M["items"][c.id] = {"card": c, "x": None, "y": None, "born": now + 0.09 * k, "gone": 0.0}
+                k += 1
+        for i in M["order"]:
+            if i not in ids and i in M["items"]:
+                M["items"][i]["gone"] = M["items"][i]["gone"] or now
+        M["order"] = ids
 
     @staticmethod
     def _toward(v, target, step):
@@ -456,15 +525,11 @@ class ProgramFX:
                     self.cond.wait()
                 lid, (key, data, L, W, H, pos) = self.jobs.popitem()
             try:
-                if data.get("memory"):                      # 9.0 the chat overlay with the Memory Cards
-                    card = chatcard.draw(self.drawer.fonts, data["cards"], W, H, L.get("layout", "beside"), pos, data.get("typing"))
-                    OverlayLayer._prepare(card)
-                    card.x, card.y = chatcard.place(card, W, H, pos, L.get("avoid"), L.get("layout", "beside"))
-                    M = self.mem
-                    if key == M["want"]:
-                        if M["card"] is not None:
-                            M["prev"], M["swap"] = M["card"], time.monotonic()
-                        M["card"] = card
+                if data.get("memory"):                      # 9.1 the Memory Cards as chat bubbles
+                    made = chatcard.draw(self.drawer.fonts, data["cards"], W, H, L.get("layout", "beside"), pos)
+                    for c in made:
+                        OverlayLayer._prepare(c)
+                    self._memory_ready(key, made, time.monotonic())
                     continue
                 if data.get("brand"):
                     card = self._badge(data, L, W, H)

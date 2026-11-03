@@ -2,7 +2,7 @@
 // JavaScript or CSS grows past the budget, so a heavy dependency cannot slip in unnoticed. Measured gzipped, as served.
 // Budgets were set on 26 October 2026 with about 25% headroom (then: 317 KB JS in 21 files, largest 70 KB, CSS 12 KB).
 // 28 October: CSS 20 → 24 KB on purpose. The redesigned landing draws its four step screens, the Teleprompter and the
-// FrameRelay preview in CSS instead of shipping pictures (21 KB after removing the old landing's unused rules).
+// FrameDecks vCam preview in CSS instead of shipping pictures (21 KB after removing the old landing's unused rules).
 // 2 November (8.4): CSS is measured per page, as a visitor downloads it: the largest sum of the stylesheets one page
 // links. The landing page's own styles (landing-page.css) and the Help guide's now load only on those pages, so the
 // signed-in app loads about 7 KB less than before; the 24 KB budget is unchanged.

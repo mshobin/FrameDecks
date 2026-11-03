@@ -28,7 +28,7 @@ FrameDecks sends one finished picture to every place you use, all at the same ti
 
 ```mermaid
 flowchart LR
-  K["FrameDecks<br/>(live Frame)"] --> CAM["FrameRelay camera<br/>Zoom · Teams · Meet · OBS"]
+  K["FrameDecks<br/>(live Frame)"] --> CAM["FrameDecks vCam<br/>Zoom · Teams · Meet · OBS"]
   K --> PW["Presentation window<br/>projector, TV, Zoom screen share"]
   K --> OV["Overlay pages<br/>OBS browser source"]
   K --> PH["Phone remote<br/>status and controls"]
@@ -36,7 +36,7 @@ flowchart LR
 
 | Output | Use it for | How |
 | --- | --- | --- |
-| **FrameRelay camera** | Online and hybrid meetings | Choose **FrameDecks** as the camera in Zoom, Teams, Meet or OBS |
+| **FrameDecks vCam** | Online and hybrid meetings | Choose **FrameDecks** as the camera in Zoom, Teams, Meet or OBS |
 | **Presentation window** | A projector or TV in the room, or **Share Screen → window** in Zoom | Studio → **Share Window**, then **Full screen** |
 | **Overlay pages** | OBS setups that add cards over their own video | `http://localhost:8750/...` as an OBS browser source |
 
@@ -179,7 +179,7 @@ then opens out with a few sparks.
 Quicker still: press **Ctrl** twice quickly with the pointer over the picture on the Studio Canvas. This works even
 when you are not annotating.
 
-Everyone sees it: on the FrameRelay camera in Zoom or Teams, in recordings and on the overlay pages. While the
+Everyone sees it: on the FrameDecks vCam in Zoom or Teams, in recordings and on the overlay pages. While the
 Spotlight tool is chosen, its panel sets the style (**Soft disc** or **Gold ring**), the **colour** (white by default
 for the disc), **Size** (bigger by default since 8.7), **Length** (1 to 15 seconds) and **Strength** (how see-through
 the disc is). The same settings are in **Settings → Transitions → Spotlight (Ctrl twice)**. **Try it** shows one in
@@ -226,7 +226,7 @@ close to your camera, so your eyes stay near the lens. With **Each Frame**, it s
 screen. Before you go live, it shows the first Frame, so you can rehearse.
 
 > **Note:** The Teleprompter is never shown in screen sharing or recordings, even when you share your whole screen
-> (Windows 10 version 2004 or later). It is never on the FrameRelay camera either. Spotlight is left out of screen
+> (Windows 10 version 2004 or later). It is never on the FrameDecks vCam either. Spotlight is left out of screen
 > sharing too.
 
 **The top bar**
@@ -279,49 +279,60 @@ The second row holds the script controls:
 
 On the phone, the Teleprompter is on the remote too. See [Remote control](remote-control.md#teleprompter-on-the-phone).
 
-## Memory Cards: copied chat text in the chat overlay
+## Capture Memory: copied chats as bubbles on the camera
 
-**Memory Cards** put what you copy from a chat or an assistant (Teams, Zoom, Google Meet, Webex, Slack, Discord,
-ChatGPT, Claude, Copilot or a browser) into the **chat overlay** on the FrameRelay camera. There is nothing to paste
-and no extra window to manage.
+**Capture Memory** turns what you copy from a chat or an assistant (Teams, Zoom, Google Meet, Webex, Slack, Discord,
+WhatsApp, ChatGPT, Claude, Copilot or a browser) into **Memory Cards**. **Show** puts a card on FrameDecks vCam as a
+**chat bubble**: just the bubble, with no window or panel around it. There is nothing to paste and no extra window to
+manage.
 
-1. Turn on **Capture**: the switch in the Studio's **Memory Cards** pane (under Decks), **Live tools → Capture
+1. Turn on **Capture**: the switch in the Studio's **Capture Memory** pane (under Decks), **Live tools → Capture
    copies**, or the tray's **Capture copies**.
-2. In the chat, select the text and press **Ctrl+C**.
-3. The card appears in the chat overlay on FrameRelay: its title (who wrote it, or the first words) and the first
-   lines, with typing dots for a moment. A small card also appears in the corner of your screen with **Show** and
-   **Pin**. It never takes the keyboard from Zoom or Teams, screen sharing leaves it out, and it goes after a few
-   seconds (keep the pointer on it to keep it).
+2. In the chat, select the text and press **Ctrl+C**. Copy several messages at once and each becomes its own card,
+   with the sender's name and the message.
+3. The bubble pops open on FrameDecks vCam: the sender's initials on their colour, their name, the app and the
+   message. A small card also appears in the corner of your screen with **Show** and **Pin**. It never takes the
+   keyboard from Zoom or Teams, screen sharing leaves it out, and it goes after a few seconds (keep the pointer on it
+   to keep it).
 
 **On each card** (in the corner card or the pane):
 
 | Button | Does |
 |---|---|
-| **Show** | Puts the card in the chat overlay (again) with its full text. On a card already there, **Less** goes back to the first lines |
-| **Pin** | Keeps it in the chat overlay, also after FrameDecks restarts (up to 12 cards). Pinned cards have a gold edge |
-| **Hide** (pane) | Takes it out of the chat overlay; the card stays in the pane |
+| **Show** | Puts the card on screen (again) as a bubble with its full text. On a card already there, **Less** goes back to the first lines |
+| **Pin** | Keeps the bubble on screen, also after FrameDecks restarts (up to 12 cards). Pinned bubbles have a gold edge |
+| **Hide** (pane) | Takes the bubble off screen; the card stays in the pane |
 | **✕** (pane) | Deletes the card |
 
-Unpinned cards leave the chat overlay after 12 seconds (Settings ⚙). At most four cards are in it at once: the
-pinned ones, then the newest. **Esc** (Hide all) empties it until the next card. You can also type a note in the pane.
+**Several at once:** tick the cards in the pane and click **Show selected**. They appear together as separate
+bubbles, in the order they were copied (the first one at the top).
 
-**Where the chat overlay goes** (⚙ → *On FrameRelay*):
+Unpinned bubbles leave after 12 seconds (Settings ⚙). At most six are on screen at once: the pinned ones, then the
+newest. **Esc** (Hide all) takes them all off screen until the next card. You can also type a note in the pane.
+
+**Where the bubbles go** (⚙ → *On FrameDecks vCam*):
 
 - **Beside the video** (the default): the whole picture (your camera, the question and scripture cards, drawings)
-  shrinks to the left and the chat overlay takes a column on the right (*Side*: or the left). Nothing overlaps.
-- **Below the video**: the picture shrinks upwards and the cards run along the bottom.
-- **Over the picture**: a window at the edge of the picture, clear of the bottom cards and of a camera inset.
+  shrinks to the left and the bubbles stack in the column on the right (*Side*: or the left). Nothing overlaps.
+- **Below the video**: the picture shrinks upwards and the bubbles run along the bottom.
+- **Over the picture**: the bubbles float at the edge of the picture and move out of the way of the question,
+  scripture and birthday cards, lower thirds, branding and a camera inset.
 
-The Studio preview shows the same. **Also on the Share Window and overlay pages** shows it there too (on the OBS
-pages it floats over the picture).
+The Studio preview shows the same. **Also on the Share Window and overlay pages** shows them there too (on the OBS
+pages they float over the picture).
+
+**From your phone:** the phone remote has a **Capture Memory** section. Copy a message in WhatsApp, Teams, Zoom,
+Messages or any app on the phone, paste it there and tap **Show on screen**. See
+[Remote control](remote-control.md#capture-memory-on-the-phone).
 
 > **Note:** Unpinned cards are kept only while FrameDecks runs; pinned cards are kept in `kc-memory.json` in the
 > FrameDecks data folder. Nothing is sent anywhere. Copies that a password manager marks as private are never read,
 > and Zoom's private messages wait for **Show**. Turn off **Show a card as soon as it's copied** to choose each card.
 
-> **Note:** Capturing copies needs the installed app on Windows. Elsewhere, type a note in the pane.
+> **Note:** Capturing copies on the PC needs the installed app on Windows. Elsewhere, type a note in the pane or
+> paste on the phone.
 
-> **Note:** 9.0 replaced the Audience Dock of 8.8 and 8.9 with Memory Cards.
+> **Note:** 9.0 replaced the Audience Dock of 8.8 and 8.9 with Memory Cards; 9.1 shows them as bubbles only.
 
 ## Command palette
 
@@ -362,7 +373,7 @@ Ctrl+Space, Ctrl+Alt+Space, Ctrl+Shift+Space, Win+Shift+K, or Off.
 
 ## Projector, TV and screen sharing
 
-The **Presentation window** shows the same finished picture as the FrameRelay camera (the Memory Cards chat overlay
+The **Presentation window** shows the same finished picture as the FrameDecks vCam (the Memory Card bubbles
 only when **Also on the Share Window and overlay pages** is on).
 
 1. In the Studio, select **Share Window**. The Presentation window opens.
@@ -375,7 +386,7 @@ only when **Also on the Share Window and overlay pages** is on).
 To share it in Zoom instead, choose **Share Screen**, then the window named **FrameDecks Share Window**.
 
 > **Note:** Media Content (camera, images, video, PowerPoint, screen and window sharing) is part of the FrameDecks
-> picture, so turn on the FrameRelay camera in **Settings → How people see it → FrameRelay Camera** if you use it.
+> picture, so turn on the FrameDecks vCam in **Settings → How people see it → FrameDecks vCam** if you use it.
 
 ## Keyboard shortcuts
 

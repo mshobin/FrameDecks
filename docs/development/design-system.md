@@ -11,13 +11,13 @@ FrameDecks is for church leaders and volunteers, not engineers. Write for the pe
 | Do | Don't |
 | --- | --- |
 | Say what happens: "Hide all clears the screen." | Say how it works: "Clears the overlay layer stack." |
-| Name things the way the screen does: **Frame**, **Content**, **FrameRelay**, **Live tools**. | Use internal words: "scene", "layer", "vcam", "L1/L2". |
+| Name things the way the screen does: **Frame**, **Content**, **FrameDecks vCam**, **Live tools**. | Use internal words: "scene", "layer", "vcam", "L1/L2". |
 | Put help in one plain line **under** the control. | Put internals in brackets after the label: "Template (kept for…; not in Previous / Next)". |
 | Use sentence case: "Go Live", "Hide all", "Read our story". | Use ALL CAPS or Title Case For Every Word. |
 | Ask before anything that removes, naming it: "Disconnect “Sanctuary PC”?" | Ask "Are you sure?" |
 | Map service errors to a clear next step; keep technical details out of the interface. | Show database, provider or browser error messages directly. |
 | Say what to do next when something is missing: "Link the service PC". | Show error codes or file names to everyone. Keep those for Diagnostics or an admin note. |
-| Say the camera is **FrameRelay** and the program is **FrameDecks**. | Call the camera FrameDecks (`tests/test_camera_name.py` fails). |
+| Say the camera is **FrameDecks vCam** and the program is **FrameDecks**. | Call the camera FrameDecks (`tests/test_camera_name.py` fails). |
 | Use the words in the [glossary](../guide/glossary.md): **Black screen**, **Running order**, **People**, **Up next**. | Use two words for one thing (Blackout and Black screen, Services and Running order). |
 
 ## Type
@@ -93,13 +93,13 @@ Studio since 8.0). There is no Prepare / Run switch, no Run view and no Practice
   away close the menu; Esc then does not also hide everything. To try things out before a meeting, Black screen is
   the answer: the program's own previews still show everything.
 - **Ready checks** (`KCServiceChecks.list`) are a short list read from the status the program already has: Frames in
-  the running order, how people will see it (FrameRelay ready, the Share Window open, or an overlay page open), the
+  the running order, how people will see it (FrameDecks vCam ready, the Share Window open, or an overlay page open), the
   program responding, the phone remote. Each problem has a button that goes to its fix. The Setup guide's **Ready**
   step shows them.
-- **How people see it** (Settings) is one guided choice: FrameRelay, the Share Window, or a projector, TV or OBS. The
+- **How people see it** (Settings) is one guided choice: FrameDecks vCam, the Share Window, or a projector, TV or OBS. The
   camera and display pages sit under it in the menu.
 - Settings that few people need (Transitions, Keyboard shortcuts, Security, Diagnostics) are folded under
-  **Advanced**; Find a setting searches them. FrameRelay shows presets first and its exact numbers under **Fine-tune**.
+  **Advanced**; Find a setting searches them. FrameDecks vCam shows presets first and its exact numbers under **Fine-tune**.
 
 ## Identity (website, 27 October)
 
@@ -119,7 +119,7 @@ One direction, built in `hosted/src/app/identity.css` (loaded after the older lo
 
 `hosted/src/components/landing.tsx` (the words and the order) with one file per part in
 `hosted/src/components/landing/`, styled by `hosted/src/app/landing.css` (loaded after `identity.css`). For every kind
-of gathering; no church-only words, no named third-party streaming or camera products (FrameRelay, our own camera, is
+of gathering; no church-only words, no named third-party streaming or camera products (FrameDecks vCam, our own camera, is
 named), no invented quotes, logos or numbers.
 
 - **Approved words, unchanged:** "Prepare with Purpose. Present with Excellence.", the hero paragraph, **Ready to

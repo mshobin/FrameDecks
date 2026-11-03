@@ -72,7 +72,7 @@ const TABS: readonly FeatureTab[] = [
     title: "On every screen and stream",
     lines: [
       "The room screen, live production tools and video meetings",
-      "FrameRelay, its own virtual camera, with background blur",
+      "FrameDecks vCam, its own virtual camera, with background blur",
       "Your logo and a lower third on the picture",
     ],
   },
@@ -111,7 +111,7 @@ const FAQ = [
   { q: "What does it cost?", a: "Nothing. FrameDecks is free to download and use, with no adverts and no tracking. Paid team features may come later; what is free stays free." },
   {
     q: "Do we need a capture card or extra software?",
-    a: "No. FrameRelay appears as a camera in video meeting and streaming platforms. The live production tools and virtual camera solutions you already use keep working too.",
+    a: "No. FrameDecks vCam appears as a camera in video meeting and streaming platforms. The live production tools and virtual camera solutions you already use keep working too.",
   },
   {
     q: "What if the internet goes down?",

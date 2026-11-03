@@ -49,14 +49,14 @@ python packaging/check.py
 The self-check starts the program on a temporary data folder and checks that:
 
 - every page and script the app needs is served (the list in `packaging/check.py`; add new files there);
-- the camera ID and name in the app match the ones compiled into the FrameRelay camera;
+- the camera ID and name in the app match the ones compiled into the FrameDecks vCam;
 - the background-blur model loads, and the camera's card drawing works;
 - in the GitHub build, the camera driver files were built.
 
 ## Continuous integration
 
 The **Build Windows installer** workflow (`.github/workflows/build-windows.yml`) runs on `windows-latest` for every
-push to `main`, every version tag and every manual run. It builds the FrameRelay camera, runs the self-check and
+push to `main`, every version tag and every manual run. It builds the FrameDecks vCam, runs the self-check and
 the tests, and only then packages the app and the installer. A failing check stops the build, so a broken installer is
 never produced.
 

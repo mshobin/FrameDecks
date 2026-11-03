@@ -1,7 +1,7 @@
 /* FrameDecks v6.5 - Annotate (ZoomIt-style) and Freeze, on the PC.
  *
  * Annotate: press D (or Annotate in the command bar) and draw on the Studio Canvas with the pen, highlighter, arrow,
- * line, rectangle, ellipse or text. The drawings go into the shared state (live.ink), so FrameRelay (Zoom / Teams),
+ * line, rectangle, ellipse or text. The drawings go into the shared state (live.ink), so FrameDecks vCam (Zoom / Teams),
  * the overlay pages and the phone remote all show them, above every Content and card. Esc (or Done) stops annotating;
  * Ctrl+Z / Ctrl+Y undo and redo. Freeze (F) holds the picture; drawings still go on top of it.
  * 8.2 Spotlight: a glowing circle around the word under the pointer, on every picture, for a few seconds. The
@@ -105,7 +105,7 @@ function renderBar(){
 }
 renderBar();
 
-/* the drawing surface: over whichever picture the canvas shows (the overlay preview or the FrameRelay picture) */
+/* the drawing surface: over whichever picture the canvas shows (the overlay preview or the FrameDecks vCam picture) */
 var pad = h('canvas', {cls: 'ann-pad', id: 'ann-pad', width: 1920, height: 1080, hidden: 'hidden', 'aria-label': 'Drawing surface'});
 wrap.appendChild(pad);
 function target(){

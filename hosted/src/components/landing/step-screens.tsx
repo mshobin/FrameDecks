@@ -71,7 +71,7 @@ export function ScriptScreen({ image, alt }: ScreenProps) {
 
 export function CheckScreen({ image, alt }: ScreenProps) {
   if (image) return <Shot image={image} alt={alt} />;
-  const items = ["Frames ready", "Virtual camera FrameRelay", "Phone remote connected"];
+  const items = ["Frames ready", "Virtual camera FrameDecks vCam", "Phone remote connected"];
   return (
     <div className="lp-scr lp-scr-check" role="img" aria-label={alt}>
       <div className="lp-scr-head">

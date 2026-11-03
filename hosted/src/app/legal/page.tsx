@@ -62,7 +62,7 @@ export default function LegalPage() {
           FrameDecks © 2026 Shobin Mathews. All rights reserved. FrameDecks is
           proprietary software: it is licensed, free of charge, under the{" "}
           <Link href="/eula">End User License Agreement</Link>, not sold.
-          FrameDecks, FrameRelay and the FrameDecks emblem are trademarks of
+          FrameDecks, FrameDecks vCam and the FrameDecks emblem are trademarks of
           Shobin Mathews. You may not copy, modify, redistribute or reverse
           engineer the program except as the EULA or the law allows.
         </p>

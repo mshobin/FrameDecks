@@ -350,7 +350,7 @@ function BirthdayCard(zone){
 
 /* ---------- Presentation mode Both: the question leads, the verse supports it ----------
  * Only when a question is shown in Both mode (Question · Both · Verse). Everything else is laid out exactly as before.
- * FrameRelay uses the same numbers (vcam/cards.py effective_layout). */
+ * FrameDecks vCam uses the same numbers (vcam/cards.py effective_layout). */
 var BOTH_VERSE = 0.86, BOTH_QUESTION = 1.06;
 function effective(st){
   var P = window.KCPresent;
@@ -368,13 +368,15 @@ var TEXT_ICON = {
   countdown: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M9 2h6"/></svg>',
   lowerthird: '',
 };
-/* 9.0 the chat overlay with the Memory Cards (the same design as src/vcam/chatcard.py on FrameRelay): a title bar with
- * a live dot and the app; the cards as chat bubbles (initials, title, text), newest at the foot. A new card shows
- * typing dots, then its text; Show expands a card to its full text; a pinned card has a gold edge and a Pinned tag.
- * In the Studio preview it follows the camera's layout: beside or below the picture (the rest of the page shrinks:
- * html.mem-beside / mem-below) or over it. */
+/* 9.1 the Memory Cards as chat bubbles (the same design as src/vcam/chatcard.py on FrameDecks vCam): no window, title
+ * bar or panel; each card is a bubble (the sender's initials on their colour, the name, the app, the message), in the
+ * order the cards were copied, newest at the foot. A new bubble pops open from its avatar; one that leaves fades away.
+ * Show expands a bubble to its full text; a pinned one has a gold edge and a Pinned tag. In the Studio preview the
+ * bubbles follow the camera's layout: beside or below the picture (the rest of the page shrinks: html.mem-beside /
+ * mem-below) or over it, where they move clear of the cards on the page (avoidCards). */
 var CHAT_SRC = {zoom: 'Zoom', teams: 'Teams', meet: 'Google Meet', webex: 'Webex', slack: 'Slack', discord: 'Discord', chatgpt: 'ChatGPT',
-  claude: 'Claude', copilot: 'Copilot', youtube: 'YouTube', twitch: 'Twitch', facebook: 'Facebook', clipboard: 'Chat'};
+  claude: 'Claude', copilot: 'Copilot', youtube: 'YouTube', twitch: 'Twitch', facebook: 'Facebook', whatsapp: 'WhatsApp', sms: 'Messages',
+  phone: 'Phone', clipboard: ''};
 var CHAT_COLOURS = ['#5b8def', '#2eb57d', '#e9804a', '#b06ade', '#e25572', '#28aabe', '#d9ab4a'];
 function chatInitials(n){
   var p = String(n || '').replace(/\./g, ' ').split(/\s+/).filter(function(w){ return /^[\p{L}\p{N}]/u.test(w); });
@@ -386,38 +388,69 @@ function chatColour(n){                            // the same pick as chatcard.
   return CHAT_COLOURS[h % CHAT_COLOURS.length];
 }
 function makeChat(){
-  var zone = el('div', 'zone-chat'), win = el('section', 'chatwin out');
-  win.setAttribute('aria-label', 'Live chat');
-  win.innerHTML = '<header class="chat-bar"><i class="chat-live" aria-hidden="true"></i><b>Live chat</b><span class="chat-src"></span></header><ol class="chat-list"></ol>';
-  zone.appendChild(win); document.body.appendChild(zone);
-  return {zone: zone, card: win, chat: true, src: win.querySelector('.chat-src'), list: win.querySelector('.chat-list'), seen: null};
+  var zone = el('div', 'zone-chat'), list = el('ol', 'chat-list out');
+  list.setAttribute('aria-label', 'Chat messages');
+  zone.appendChild(list); document.body.appendChild(zone);
+  return {zone: zone, card: list, chat: true, list: list, seen: null};
+}
+function lighter(hex, k){
+  var n = parseInt(hex.slice(1), 16), c = [n >> 16, (n >> 8) & 255, n & 255].map(function(v){ return Math.round(v + (255 - v) * k); });
+  return 'rgb(' + c.join(',') + ')';
 }
 function fillChat(x, l){
-  var c = l.c, cards = c.cards || [], srcs = [];
+  var c = l.c, cards = c.cards || [];
   x.zone.className = 'zone-chat chat-' + c.layout + ' chat-' + (c.side === 'left' ? 'left' : 'right');
-  cards.forEach(function(k){ var n = CHAT_SRC[k.src] || 'Chat'; if (srcs.indexOf(n) < 0) srcs.push(n); });
-  x.src.textContent = srcs.length === 1 ? srcs[0] : srcs.length + ' apps';
-  var first = x.seen === null, keep = {};
+  var first = x.seen === null, keep = {}, k = 0;
   if (first) x.seen = {};
-  cards.forEach(function(k, i){
-    var li = x.list.querySelector('[data-id="' + k.id + '"]');
+  cards.forEach(function(m, i){
+    var li = x.list.querySelector('.chat-msg[data-id="' + m.id + '"]:not(.leave)');
     if (!li){
       li = el('li', 'chat-msg');
-      li.dataset.id = k.id;
-      li.innerHTML = '<span class="chat-av" aria-hidden="true"></span><div class="chat-col"><div class="chat-typing" aria-hidden="true"><i></i><i></i><i></i></div>' +
-        '<div class="chat-bubble"><b class="chat-name"></b><span class="chat-pin">Pinned</span><p class="chat-text"></p></div></div>';
-      if (!first && !x.seen[k.id]) li.classList.add('arrive');            // typing dots, then the text
+      li.dataset.id = m.id;
+      li.innerHTML = '<span class="chat-av" aria-hidden="true"></span><div class="chat-bubble"><div class="chat-head"><b class="chat-name"></b>' +
+        '<span class="chat-app"></span><span class="chat-pin">Pinned</span></div><p class="chat-text"></p></div>';
+      if (!x.seen[m.id]){ li.classList.add('pop'); li.style.animationDelay = (k++ * 0.09) + 's'; }   // pops open from its avatar
     }
-    x.seen[k.id] = true;
-    var av = li.querySelector('.chat-av'), title = k.title || 'Chat';
-    av.textContent = chatInitials(title); av.style.background = chatColour(title);
-    li.querySelector('.chat-name').textContent = title;
-    var t = li.querySelector('.chat-text'); if (t.textContent !== k.text) t.textContent = k.text;
-    li.classList.toggle('pinned', !!k.pinned); li.classList.toggle('full', !!k.full);
-    if (x.list.children[i] !== li) x.list.insertBefore(li, x.list.children[i] || null);
-    keep[k.id] = true;
+    x.seen[m.id] = true;
+    var title = m.title || 'Chat', col = chatColour(title), app = CHAT_SRC[m.src] || '';
+    var av = li.querySelector('.chat-av'); av.textContent = chatInitials(title); av.style.background = col;
+    var nm = li.querySelector('.chat-name'); nm.textContent = title; nm.style.color = lighter(col, .45);
+    li.querySelector('.chat-app').textContent = app.toLowerCase() === title.toLowerCase() ? '' : app;
+    var t = li.querySelector('.chat-text'); if (t.textContent !== m.text) t.textContent = m.text;
+    li.classList.toggle('pinned', !!m.pinned); li.classList.toggle('full', !!m.full);
+    var at = x.list.querySelectorAll('.chat-msg:not(.leave)')[i];
+    if (at !== li) x.list.insertBefore(li, at || null);
+    keep[m.id] = true;
   });
-  Array.prototype.slice.call(x.list.children).forEach(function(li){ if (!keep[li.dataset.id]) li.remove(); });
+  Array.prototype.slice.call(x.list.children).forEach(function(li){
+    if (keep[li.dataset.id] || li.classList.contains('leave')) return;
+    li.classList.add('leave'); setTimeout(function(){ li.remove(); }, 320);
+  });
+  if (c.layout === 'over') requestAnimationFrame(function(){ avoidCards(x); });
+}
+/* "over": the bubbles keep clear of the cards on the page (question, scripture, birthday, lower thirds, branding);
+ * they move up or down their edge, else to the other edge (the same rule as chatcard.stack on the camera) */
+function avoidCards(x){
+  var z = x.zone, H = window.innerHeight, list = x.list, pad = Math.max(8, H * 0.02);
+  var cards = Array.prototype.slice.call(document.querySelectorAll('.zone-x .card:not(.out)'))
+    .map(function(e){ return e.getBoundingClientRect(); }).filter(function(r){ return r.width > 0 && r.height > 0; });
+  function clearAt(flip){
+    z.classList.toggle('chat-flip', flip); z.style.setProperty('--chat-y', '0px'); list.style.transition = 'none';
+    var r = list.getBoundingClientRect(); list.style.transition = '';
+    function hits(dy){ return cards.some(function(c){ return r.left < c.right + pad && c.left < r.right + pad && r.top + dy < c.bottom + pad && c.top < r.bottom + dy + pad; }); }
+    if (!hits(0)) return 0;
+    for (var s = 1; s < 70; s++){
+      for (var sign = -1; sign <= 1; sign += 2){
+        var dy = s * H * 0.015 * sign;
+        if (r.top + dy >= H * 0.04 && r.bottom + dy <= H * 0.96 && !hits(dy)) return dy;
+      }
+    }
+    return null;
+  }
+  var dy = clearAt(false);
+  if (dy === null) dy = clearAt(true);                            // nowhere on this edge: the other one
+  if (dy === null){ z.classList.remove('chat-flip'); dy = 0; }
+  z.style.setProperty('--chat-y', dy + 'px');
 }
 function TextLayers(root){
   var shown = {};                                  // id -> {el, sig}
@@ -620,7 +653,7 @@ function mount(opts){
   if (bg) document.body.classList.add('bg-' + bg);
   var cards = {};
   /* 9.0 everything but the chat overlay and the program's black / emergency screens sits in one stage, so the chat
-   * overlay's beside / below layouts can shrink it all at once (the same as the FrameRelay picture) */
+   * overlay's beside / below layouts can shrink it all at once (the same as the FrameDecks vCam picture) */
   var stage = el('div', 'stage-root'); document.body.appendChild(stage);
   if (opts.verse){
     var vz = el('div', 'zone zone-verse'); stage.appendChild(vz);

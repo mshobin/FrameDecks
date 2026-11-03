@@ -1,8 +1,9 @@
-// FrameDecks 9.0 - Memory Cards in a browser, against a started program:
+// FrameDecks 9.0 / 9.1 - Capture Memory in a browser, against a started program:
 //   FRAMEDECKS_NO_UPDATE_CHECK=1 python src/server.py &   then   node tests/visual/memory.mjs [--shots DIR]
-// The Studio's Memory Cards pane (a typed note becomes a card; Show, Pin, Hide, Delete), the chat overlay in the Studio
-// preview in its three layouts (beside / below the picture, which shrinks out of its way, or over it), the OBS pages
-// (only with "Also on the Share Window", always floating), the corner popup, and accessibility (dark and light).
+// The Studio's Capture Memory pane (a typed note becomes a card; Show, Pin, Hide, Delete; several selected and shown
+// together), the chat bubbles in the Studio preview (only bubbles: no window) in their three layouts (beside / below the
+// picture, which shrinks out of their way, or over it), the OBS pages (only with "Also on the Share Window", always
+// floating), the corner popup, the phone remote's Capture Memory, and accessibility (dark and light).
 // Clipboard capture and the popup window itself are Windows-only: see docs/architecture/memory-cards.md.
 import { createRequire } from "node:module";
 
@@ -19,9 +20,10 @@ async function api(body) {
   const r = await fetch(`${BASE}/api/memory`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
   return r.json();
 }
-async function axe(p, where, tags = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"]) {
+async function axe(p, where, tags = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"], off = []) {
   await p.addScriptTag({ path: AXE });
-  const r = await p.evaluate((t) => window.axe.run(document, { runOnly: { type: "tag", values: t } }), tags);
+  const r = await p.evaluate(([t, o]) => window.axe.run(document, { runOnly: { type: "tag", values: t },
+    rules: Object.fromEntries(o.map((k) => [k, { enabled: false }])) }), [tags, off]);
   for (const v of r.violations) console.log(`      ${where}: ${v.id} ${v.nodes.map((n) => n.target.join(" ")).join(", ")}`);
   check(r.violations.length === 0, `no accessibility problems: ${where}`);
 }
@@ -48,8 +50,9 @@ await studio.fill("#mem-add-text", "Sarah Lee: How much does the course cost, an
 await studio.press("#mem-add-text", "Enter");
 await studio.waitForSelector(".mem-card");
 check((await studio.textContent(".mem-card .mem-title")).includes("Sarah Lee"), "the card has a title (who wrote it)");
-await preview.waitForSelector(".chatwin:not(.out) .chat-msg");
-check((await preview.textContent(".chat-msg .chat-name")) === "Sarah Lee", "the card is in the chat overlay");
+await preview.waitForSelector(".chat-list:not(.out) .chat-msg");
+check((await preview.textContent(".chat-msg .chat-name")) === "Sarah Lee", "the card is a chat bubble on screen");
+check(await preview.$(".chatwin, .chat-bar, .chat-typing") === null, "only bubbles: no chat window, title bar or panel");
 await preview.waitForFunction(() => getComputedStyle(document.querySelector(".stage-root")).transform.startsWith("matrix(0.7,"), null, { timeout: 3000 }).catch(() => {});
 const beside = await preview.evaluate(() => ({ cls: document.documentElement.className, t: getComputedStyle(document.querySelector(".stage-root")).transform,
   chat: document.querySelector(".zone-chat").getBoundingClientRect().left }));
@@ -67,7 +70,8 @@ check(await studio.$eval(".mem-card", (e) => e.classList.contains("pinned")), "P
 await studio.fill("#mem-add-text", "The rollout plan has three phases: pilot, regional and national.");
 await studio.press("#mem-add-text", "Enter");
 await preview.waitForFunction(() => document.querySelectorAll(".chat-msg").length === 2);
-check(await preview.$(".chat-msg.arrive") !== null, "a new card arrives with typing dots, then its text");
+check(await preview.$(".chat-msg.pop") !== null, "a new bubble pops open");
+check(await preview.$$eval(".chat-msg .chat-name", (l) => l[0].textContent === "Sarah Lee" && l.length === 2), "in the order they were copied (newest at the foot)");
 
 // layouts
 await api({ action: "settings", layout: "below" });
@@ -85,9 +89,9 @@ await api({ action: "settings", layout: "beside" });
 const obs = await browser.newPage({ viewport: { width: 1280, height: 720 } });
 await obs.goto(`${BASE}/stage.html`);
 await obs.waitForTimeout(1200);
-check(await obs.$(".chatwin") === null, "not on the OBS pages unless shared");
+check(await obs.$(".chat-list") === null, "not on the OBS pages unless shared");
 await api({ action: "settings", share: true });
-await obs.waitForSelector(".chatwin:not(.out)");
+await obs.waitForSelector(".chat-list:not(.out)");
 check(await obs.$eval(".zone-chat", (z) => z.classList.contains("chat-over")), "shared: floating over the OBS page");
 await api({ action: "settings", share: false });
 
@@ -97,8 +101,18 @@ await studio.waitForFunction(() => !document.querySelector(".mem-card.pinned"));
 check(true, "Hide takes a card out of the overlay (and unpins it)");
 await studio.click("#canvas-wrap", { position: { x: 5, y: 5 } }).catch(() => {});
 await studio.keyboard.press("Escape");
-await preview.waitForFunction(() => !document.querySelector(".chatwin:not(.out)"), null, { timeout: 5000 });
-check(true, "Esc (Hide all) empties the chat overlay");
+await preview.waitForFunction(() => !document.querySelector(".chat-list:not(.out)"), null, { timeout: 5000 });
+check(true, "Esc (Hide all) takes every bubble off screen");
+// several selected, shown together in the order copied
+const picks = studio.locator(".mem-card .mem-pick");
+await picks.nth(0).check(); await picks.nth(1).check();
+check(await studio.isVisible("#mem-sel") && (await studio.textContent("#mem-sel-show")) === "Show 2 together", "select several");
+await studio.click("#mem-sel-show");
+await preview.waitForFunction(() => document.querySelectorAll(".chat-list:not(.out) .chat-msg:not(.leave)").length === 2, null, { timeout: 5000 });
+const order = await preview.$$eval(".chat-list:not(.out) .chat-msg:not(.leave) .chat-text", (l) => l.map((e) => e.textContent));
+check(order[0].startsWith("How much") && order[1].startsWith("The rollout"), "shown together, the first copied at the top");
+await studio.keyboard.press("Escape");
+await preview.waitForFunction(() => !document.querySelector(".chat-list:not(.out)"), null, { timeout: 5000 });
 const before = await studio.$$eval(".mem-card", (l) => l.length);
 await studio.locator(".mem-card").first().getByRole("button", { name: "Delete" }).click();
 await studio.waitForFunction((n) => document.querySelectorAll(".mem-card").length === n - 1, before);
@@ -121,6 +135,33 @@ for (let i = 0; i < 8 && await pop.getByRole("button", { name: "Close" }).count(
   await pop.waitForTimeout(150);
 }
 check(asked.includes("hide"), "closing the last card hides the popup");
+
+// the phone remote: paste a conversation, Show, Hide, Remove, several together
+await api({ action: "hideall" });
+const phone = await browser.newPage({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
+await phone.goto(`${BASE}/remote.html`);
+await phone.waitForSelector("#cm-text");
+await phone.fill("#cm-text", "[10:40, 03/11/2026] Grace: Can we get the slides afterwards?\n[10:41, 03/11/2026] Mark: Yes please!");
+await phone.click("#cm-go");
+await preview.waitForFunction(() => [...document.querySelectorAll(".chat-list:not(.out) .chat-name")].map((e) => e.textContent).join("|") === "Grace|Mark", null, { timeout: 5000 });
+check(true, "pasted on the phone: one bubble per message, on screen at once, in order");
+await phone.waitForSelector(".cm-card.on");
+check((await phone.locator(".cm-card").first().locator(".cm-meta").textContent()).startsWith("WhatsApp"), "the phone lists the cards with their app");
+await phone.locator(".cm-card.on").first().getByRole("button", { name: "Hide" }).click();
+await phone.waitForFunction(() => document.querySelectorAll(".cm-card.on").length === 1);
+check(true, "Hide from the phone");
+const nPhone = await phone.locator(".cm-card").count();
+await phone.locator(".cm-card").first().getByRole("button", { name: /^Remove/ }).click();
+await phone.waitForFunction((n) => document.querySelectorAll(".cm-card").length === n - 1, nPhone);
+check(true, "Remove from the phone");
+await phone.locator(".cm-card .cm-pick").nth(0).check(); await phone.locator(".cm-card .cm-pick").nth(1).check();
+await phone.click("#cm-sel-show");
+await phone.waitForFunction(() => document.querySelectorAll(".cm-card.on").length >= 2);
+check(true, "several selected on the phone, shown together");
+if (SHOTS) await phone.locator("#cm").screenshot({ path: `${SHOTS}/memory-phone.png` });
+// the remote keeps its page zoom off (8.0: drawing with a finger), so axe's meta-viewport rule is left out
+await axe(phone, "phone remote", ["wcag2a", "wcag2aa"], ["meta-viewport"]);
+await api({ action: "hideall" });
 
 for (const theme of ["dark", "light"]) {
   await studio.evaluate((t) => { document.documentElement.dataset.theme = t; }, theme);

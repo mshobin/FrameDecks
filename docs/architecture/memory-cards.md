@@ -1,14 +1,20 @@
-# Memory Cards in the FrameRelay chat overlay (9.0)
+# Capture Memory: Memory Cards as chat bubbles on FrameDecks vCam (9.0, 9.1)
+
+> **9.1:** the cards are drawn as **chat bubbles only** (no window, title bar or panel), each popping open from its
+> avatar; several selected cards are shown together in the order they were copied; a copied conversation becomes one
+> card per message (`memory.split`); floating bubbles keep clear of every card on screen (`chatcard.stack`); the phone
+> remote has Capture Memory (`/api/remote/memory`, `app/js/remote-memory.js`); and the camera is called
+> **FrameDecks vCam**. Where this page says "chat overlay", read "the bubbles".
 
 What you copy from a chat or an assistant (Teams, Zoom, Google Meet, Webex, Slack, Discord, ChatGPT, Claude, Copilot,
-a browser) becomes a **Memory Card** in the chat overlay on the FrameRelay camera. It replaces 8.8's Audience Dock: no
+a browser) becomes a **Memory Card** in the chat overlay on the FrameDecks vCam. It replaces 8.8's Audience Dock: no
 dock, no handle, no click-through window.
 
 ## 1. What the presenter sees and does
 
 | Where | What |
 |---|---|
-| **The chat overlay** (on FrameRelay; also on the Share Window and the overlay pages if chosen) | The 8.8 chat window design, kept: a title bar with a live dot, *Live chat* and the app; the cards as bubbles with initials, a title and the text, newest at the foot. A new card shows typing dots, then its text. |
+| **The chat overlay** (on FrameDecks vCam; also on the Share Window and the overlay pages if chosen) | The 8.8 chat window design, kept: a title bar with a live dot, *Live chat* and the app; the cards as bubbles with initials, a title and the text, newest at the foot. A new card shows typing dots, then its text. |
 | **The popup** (a small card in the screen corner, installed app) | The card just copied: title, preview, **Show**, **Pin**, ✕. It never takes the keyboard from the meeting and screen sharing leaves it out. It goes after a few seconds; with the pointer on it, it stays. |
 | **The Studio's Memory Cards pane** (under Decks) | Capture on/off, the cards (title, preview, Show, Pin, Hide, Delete), a box to type a note, and the settings (⚙). Folded, it is one line with the Capture switch. Live tools → **Capture copies**, the tray and the command palette turn Capture on and off too. |
 
@@ -27,7 +33,7 @@ Card behaviour:
 
 ## 2. Layout: no overlaps
 
-Settings → *On FrameRelay*:
+Settings → *On FrameDecks vCam*:
 
 | Layout | The picture | The chat overlay |
 |---|---|---|
@@ -37,7 +43,7 @@ Settings → *On FrameRelay*:
 
 The shrink is animated (0.45 s) when the first card arrives and when the last one goes. All sizes are measured from
 the picture, so the layout scales with the camera's resolution (720p, 1080p, 4K) and works in every app that takes
-the FrameRelay camera (Teams, Zoom, Google Meet, Webex, Discord, OBS). When a layout has no room for every card, the
+the FrameDecks vCam (Teams, Zoom, Google Meet, Webex, Discord, OBS). When a layout has no room for every card, the
 oldest unpinned ones are left out first, then the remaining cards show fewer lines.
 
 The Studio preview shows the same layout. The OBS / browser overlay pages float the chat overlay (*Over*) because
@@ -58,7 +64,7 @@ they cannot shrink the video under them; they show it only with *Also on the Sha
                                        ▼
  ┌──────────────────────────────┬────────────────────────────────┬──────────────────────────────┐
  │ vcam/program.py + chatcard.py │ overlay.js / overlay.css       │ memory.js                    │
- │ FrameRelay: squeeze the       │ .stage-root shrinks (beside /   │ the Studio pane and the      │
+ │ FrameDecks vCam: squeeze the       │ .stage-root shrinks (beside /   │ the Studio pane and the      │
  │ picture, draw the chat window │ below), .chatwin with bubbles   │ corner popup (desktop_app)   │
  └──────────────────────────────┴────────────────────────────────┴──────────────────────────────┘
 ```
@@ -96,7 +102,7 @@ The other window drags (the Studio, the Teleprompter, the Share Window) use the 
 1. Studio: no Audience Dock in Live tools or the tray; **Memory Cards** pane under Decks (folded: one line).
 2. Capture on (pane, Live tools → Capture copies, or the tray). Copy a message in Teams, Zoom chat, Slack, Discord,
    ChatGPT, Claude, Copilot and a browser: each time the popup shows the card in the screen corner, the Zoom or
-   Teams window keeps the keyboard (type in its chat), and the card appears in the chat overlay on FrameRelay (Zoom's
+   Teams window keeps the keyboard (type in its chat), and the card appears in the chat overlay on FrameDecks vCam (Zoom's
    own preview): beside the video, the picture shrinking smoothly to the left.
 3. Share the whole screen in Zoom: the popup is not in the share.
 4. **Show** (popup or pane): the full text; Show again: the first lines. **Pin**: gold edge, stays; restart
@@ -106,8 +112,16 @@ The other window drags (the Studio, the Teleprompter, the Share Window) use the 
 6. Esc in the Studio: the chat overlay empties.
 7. Capture off then on again five times, copying each time: no crash (the callback fix).
 8. Drag and resize the Studio, the Teleprompter and the Share Window for a minute each, with cards in the overlay:
-   no crash, no stutter on FrameRelay.
+   no crash, no stutter on FrameDecks vCam.
 9. Copy a password from a password manager with Capture on: nothing happens.
+10. (9.1) Show: only bubbles on FrameDecks vCam, no window or title bar; each new bubble pops open. Over the picture
+    with a question card and a lower third on screen: the bubbles keep clear of both.
+11. (9.1) Copy three messages of a Teams or WhatsApp conversation at once: three cards, each with its sender. Tick two
+    in the pane, **Show selected**: both on screen, the first copied at the top.
+12. (9.1) Phone remote (Wi-Fi): copy a WhatsApp message, paste in **Capture Memory**, **Show on screen**: on Zoom's
+    preview within a second. Hide and Remove from the phone.
+13. (9.1) After installing 9.1 over 9.0: Zoom, Teams, Google Meet (Chrome / Edge) and OBS list the camera as
+    **FrameDecks vCam** (restart them once), and a meeting that had FrameRelay selected still uses it.
 
 ## 6. Rollback
 
@@ -117,5 +131,7 @@ The other window drags (the Studio, the Teleprompter, the Share Window) use the 
   release pipeline requires. Settings added in 9.0 (`memDur`, `memShare`, `memLayout`, `memSide`, `memAuto`) are
   ignored by 8.9; a leftover `live.memory` is dropped by 8.9's state cleaning on the next save; `kc-memory.json` is
   ignored. 8.9's dock settings (`audience*`, `dockRect`) are ignored by 9.0.
+- **9.1 → 9.0:** install 9.0.0 again as a newer version; the camera is registered again under FrameRelay (same ID).
+  Sources `whatsapp`, `sms`, `phone` become `clipboard` in 9.0's state cleaning; nothing else is stored differently.
 - **In code:** the feature is additive apart from removing the dock; reverting the 9.0 commit brings the 8.9 dock
   back. No cloud, database or synced data depends on it (`live` never syncs).

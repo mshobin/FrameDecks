@@ -38,9 +38,9 @@ import legacy   # 6.9: moves data saved under the program's earlier name
 import winapi   # 7.1.1: Windows jobs through Windows' own interfaces (no PowerShell, netsh or taskkill)
 import meeting_form   # 6.9: fills the Meeting Workbook's form for Export
 import updater   # 7.0: updates from FrameDecks servers (checked, silent, with rollback)
-import memory    # 9.0: Memory Cards in the FrameRelay chat overlay (docs/architecture/memory-cards.md)
+import memory    # 9.0: Memory Cards in the FrameDecks vCam chat overlay (docs/architecture/memory-cards.md)
 
-APP_VERSION = "9.0.0"
+APP_VERSION = "9.1.0"
 STARTED_AT = time.time()
 FROZEN = getattr(sys, "frozen", False)          # True inside the installed Windows app
 HERE = Path(sys.executable).resolve().parent if FROZEN else Path(__file__).resolve().parent.parent   # the repository root (this file is in src/)
@@ -89,6 +89,7 @@ REMOTE_PUBLIC = {"/remote.html", "/css/remote.css", "/js/remote.js", "/js/store.
                  "/icons/favicon-16.png", "/icons/favicon-32.png",
                  "/icons/remote-maskable-512.png", "/img/framedecks-emblem.webp"}
 REMOTE_SIGNED_IN = {"/api/rev", "/api/state", "/api/remote-logout", "/js/overlay.js", "/api/remote/studio", "/api/brand/logo", "/api/remote/live.jpg",
+                    "/api/remote/memory",
                     "/css/overlay.css", "/stage.html", "/focus-verse.html", "/discussion-question.html", "/birthday.html"}
 sessions_lock = threading.Lock()
 failures = {}  # ip -> [count, locked_until]
@@ -394,7 +395,7 @@ def update_state(change):
     return save_state(new)
 
 
-# ---------- 9.0 Memory Cards in the FrameRelay chat overlay (docs/architecture/memory-cards.md) ----------
+# ---------- 9.0 Memory Cards in the FrameDecks vCam chat overlay (docs/architecture/memory-cards.md) ----------
 MEMORY = memory.Memory(DATA / "kc-memory.json")
 _MEM = {"watcher": None, "timer": None, "lock": threading.Lock(), "syncing": False}
 
@@ -437,7 +438,7 @@ def memory_view():
 
 
 def memory_sync():
-    """Put the overlay's cards into the state (every screen and FrameRelay follow) and set the timer for the next
+    """Put the overlay's cards into the state (every screen and FrameDecks vCam follow) and set the timer for the next
     unpinned card to leave."""
     view, nxt = memory_view()
     if (state.get("live") or {}).get("memory") != view:
@@ -463,6 +464,19 @@ def memory_sync():
             t.start()
 
 
+REMOTE_MEMORY_ACTIONS = ("add", "show", "showmany", "pin", "hide", "hideall", "delete")   # 9.1 from the phone remote
+
+
+def remote_memory_body():
+    """What the phone remote sees of Capture Memory: the cards and which are on screen (no PC settings)."""
+    snap = MEMORY.snapshot()
+    on = {c["id"]: c for c in (((state.get("live") or {}).get("memory") or {}).get("cards") or [])}
+    items = [{k: i[k] for k in ("id", "title", "text", "src", "private", "at", "pinned")} for i in snap["items"][:60]]
+    for i in items:
+        i["on"] = i["id"] in on
+    return {"rev": snap["rev"], "capture": snap["capture"], "items": items, "notice": snap["notice"]}
+
+
 def memory_body():
     snap = MEMORY.snapshot()
     cfg = app_settings()
@@ -474,7 +488,8 @@ def memory_body():
 
 
 def memory_action(data):
-    """POST /api/memory {action: capture|add|edit|show|pin|hide|hideall|delete|clear|settings, ...} (this PC only)."""
+    """POST /api/memory {action: capture|add|edit|show|showmany|pin|hide|hideall|delete|clear|settings, ...} (this PC
+    only; the phone remote uses /api/remote/memory, which allows REMOTE_MEMORY_ACTIONS)."""
     act, item_id = str(data.get("action") or ""), str(data.get("id") or "")
 
     def need(item):
@@ -483,13 +498,20 @@ def memory_action(data):
         return item
     if act == "capture":
         return {"watching": memory_capture(bool(data.get("on")))}
-    if act == "add":                                   # a note typed in the Studio
-        status, item = MEMORY.add(str(data.get("text") or ""), source="clipboard", show=bool(data.get("show", True)))
-        res = {"status": status, "item": item}
+    if act == "add":                                   # a note typed in the Studio, or pasted on the phone
+        src = "phone" if data.get("source") == "phone" else "clipboard"
+        status, item = MEMORY.add(str(data.get("text") or ""), source=src, show=bool(data.get("show", True)))
+        res = {"status": status, "item": item, "added": MEMORY.added}
     elif act == "edit":
         res = {"item": need(MEMORY.edit(item_id, data.get("title"), data.get("text")))}
     elif act == "show":
         res = {"item": need(MEMORY.show(item_id, data.get("full")))}
+    elif act == "showmany":                            # 9.1 Show on several selected cards
+        ids = data.get("ids") if isinstance(data.get("ids"), list) else []
+        shown = MEMORY.show_many(ids[:memory.MAX_ITEMS])
+        if not shown:
+            raise ValueError("Those cards are no longer there.")
+        res = {"shown": len(shown)}
     elif act == "pin":
         res = {"item": need(MEMORY.pin(item_id, data.get("on")))}
     elif act == "hide":
@@ -838,7 +860,7 @@ APP_SETTINGS_DEFAULTS = {"remoteAutostart": False, "importDecided": False,
                          "ai": "auto",            # M-D3: "auto" = use Ollama on this PC when it answers; "off" = never
                          "memDur": 12,            # 9.0 Memory Cards: seconds an unpinned card stays in the chat overlay (3..120)
                          "memShare": False,       # 9.0 the chat overlay also on the Share Window and the overlay pages
-                         "memLayout": "beside",   # 9.0 on FrameRelay: beside the video, below it, or over it
+                         "memLayout": "beside",   # 9.0 on FrameDecks vCam: beside the video, below it, or over it
                          "memSide": "right",      # 9.0 the chat overlay's side (beside / over)
                          "memAuto": True,         # 9.0 a copied card goes into the chat overlay at once
                          "guide": {}}             # 6.14 Setup guide progress on this PC (app/js/guide.js, _valid_guide)
@@ -1487,7 +1509,7 @@ def powerpoint_show():
 def slide_move(step):
     """Next (+1) / Previous (-1) for whatever is being presented: the Studio's shared screen or presentation layer
     (PDF deck or captured window) first, else the PowerPoint slide show running on this PC - e.g. full screen and
-    shared directly in Zoom/Teams, which FrameRelay is not capturing. Works without the camera engine."""
+    shared directly in Zoom/Teams, which FrameDecks vCam is not capturing. Works without the camera engine."""
     try:
         step = 1 if int(step) > 0 else -1
     except (TypeError, ValueError):
@@ -1618,7 +1640,7 @@ def _studio_action(d):
     if op == "slide":                                          # slides work even without the camera engine
         return {"slide": slide_move(d.get("step", 1))}
     if not comp:
-        raise ValueError(VCAM.get("reason") or "FrameRelay is not available.")
+        raise ValueError(VCAM.get("reason") or "FrameDecks vCam is not available.")
     if op == "layout":
         comp.set_layout(d.get("layout") or {})
     elif op == "screen":
@@ -1814,7 +1836,7 @@ def vcam_start():
     if VCAM["engine"] is not None:
         return
     demo = os.environ.get("KC_VCAM_DEMO") == "1"
-    start_files_msg = ("The FrameRelay camera works only in the installed FrameDecks. Close the window you started it from, then open "
+    start_files_msg = ("The FrameDecks vCam works only in the installed FrameDecks. Close the window you started it from, then open "
                        "FrameDecks from its desktop or Start-menu icon.")
     os.environ.setdefault("OPENCV_VIDEOIO_MSMF_ENABLE_HW_TRANSFORMS", "0")   # before OpenCV loads
     try:
@@ -1828,7 +1850,7 @@ def vcam_start():
         if FROZEN:
             import traceback
             print("FrameDecks could not load:\n" + traceback.format_exc())
-            VCAM["reason"] = ("FrameRelay couldn’t start because part of it is missing. Please send Settings → Diagnostics "
+            VCAM["reason"] = ("FrameDecks vCam couldn’t start because part of it is missing. Please send Settings → Diagnostics "
                               "→ Copy diagnostics to the developer.")
         else:
             VCAM["reason"] = start_files_msg
@@ -1840,7 +1862,7 @@ def vcam_start():
         make_sink, make_cam = (lambda w, h: vsink.FakeSink(w, h, connected=False)), DemoCamera
     else:
         if os.name != "nt":
-            VCAM["reason"] = start_files_msg if not FROZEN else "FrameRelay works on Windows."
+            VCAM["reason"] = start_files_msg if not FROZEN else "FrameDecks vCam works on Windows."
             return
         dll = vsink.dll_path(RES) if vsink.dll_path(RES).exists() else vsink.dll_path(SRC)
         if not dll.exists():
@@ -1872,6 +1894,7 @@ def vcam_start():
     comp = Compositor(LAYERS_DIR, cards=layer, cards_on=lambda: VCAM.get("cardsOn", True))
     from vcam.program import ProgramFX
     comp.program_fx = ProgramFX(APP / "fonts", lambda: state, lambda: VCAM.get("cardsOn", True), logo_path=BRAND_LOGO)
+    comp.program_fx.others = layer.visible          # 9.1 the Memory Card bubbles keep clear of the cards on screen
     VCAM["compositor"] = comp
     st = studio_load()
     comp.set_layout(st["layout"])
@@ -2237,6 +2260,16 @@ class Handler(BaseHTTPRequestHandler):
                     cond.wait_for(lambda: str(state.get("rev")) != since, timeout=wait)
                 body = state_body(q.get("librev", [None])[0])
             return self.reply(200, body, TYPES[".json"])
+        if path == "/api/remote/memory":                # 9.1 Capture Memory on the phone remote (signed in; long-poll)
+            q = parse_qs(url.query)
+            since = q.get("since", [None])[0]
+            if since is not None:
+                try:
+                    wait = min(25.0, max(1.0, float(q.get("wait", ["25"])[0])))
+                except ValueError:
+                    wait = 25.0
+                MEMORY.wait(since, wait)
+            return self.reply(200, json.dumps(remote_memory_body()), TYPES[".json"])
         if path == "/api/memory":                       # 9.0 Memory Cards (this PC only; long-poll)
             if not self.is_local():
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
@@ -2282,7 +2315,7 @@ class Handler(BaseHTTPRequestHandler):
         almost nothing. Each frame is encoded here, not in the camera thread."""
         comp, eng = VCAM.get("compositor"), VCAM.get("engine")
         if not comp or not eng:
-            return self.reply(404, "FrameRelay is not available", "text/plain; charset=utf-8")
+            return self.reply(404, "FrameDecks vCam is not available", "text/plain; charset=utf-8")
         import cv2 as _cv2
         from vcam.priority import lower_this_thread
         lower_this_thread()                          # picture encoding for the window: background priority
@@ -2640,6 +2673,17 @@ class Handler(BaseHTTPRequestHandler):
                 return self.reply(200, json.dumps({"ok": True, **res, "studio": remote_studio_info()}), TYPES[".json"])
             except (ValueError, RuntimeError) as e:
                 return self.reply(400, json.dumps({"error": str(e)}), TYPES[".json"])
+        if path == "/api/remote/memory":                # 9.1 the phone remote: paste, Show, Hide, Remove
+            d = data if isinstance(data, dict) else {}
+            if d.get("action") not in REMOTE_MEMORY_ACTIONS:
+                return self.reply(400, json.dumps({"error": "Not available from the remote."}), TYPES[".json"])
+            if d.get("action") == "add":
+                d = dict(d, source="phone")
+            try:
+                res = memory_action(d)
+            except ValueError as e:
+                return self.reply(400, json.dumps({"error": str(e)}), TYPES[".json"])
+            return self.reply(200, json.dumps(dict(res, **remote_memory_body())), TYPES[".json"])
         if path == "/api/memory":
             if not self.is_local():
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")

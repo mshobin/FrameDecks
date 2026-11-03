@@ -48,7 +48,7 @@ If you see a red cross instead, click the run to read the error, and send it to 
 2. Windows may show **"Windows protected your PC"**. This appears because the installer isn't
    code-signed (signing costs money every year). Click **More info → Run anyway**.
 3. Follow the wizard. Leave **Create a desktop icon** ticked.
-   - Leave **Install the FrameRelay camera for Zoom and Teams** ticked. Windows asks for administrator permission
+   - Leave **Install the FrameDecks vCam for Zoom and Teams** ticked. Windows asks for administrator permission
      once, only for the camera.
    - If you had the camera before under its earlier name, it is renamed to **FrameDecks** automatically.
    - Tick **Start automatically when I sign in** if you'd like it ready every time.
@@ -81,20 +81,20 @@ If you see a red cross instead, click the run to read the error, and send it to 
 
 ### First test of FrameDecks (the built-in camera)
 
-- [ ] During installation, **Install the FrameRelay camera** was ticked and you allowed the administrator prompt.
-      (If not: Settings → FrameRelay Camera → **Install FrameRelay**.)
-- [ ] Settings → FrameRelay Camera → **Show preview**: you see yourself. Try **Background blur: Light** and **Strong**.
+- [ ] During installation, **Install the FrameDecks vCam** was ticked and you allowed the administrator prompt.
+      (If not: Settings → FrameDecks vCam → **Install FrameDecks vCam**.)
+- [ ] Settings → FrameDecks vCam → **Show preview**: you see yourself. Try **Background blur: Light** and **Strong**.
 - [ ] Close and reopen Zoom. Settings → Video → Camera → **FrameDecks**: Zoom shows you, and the status menu says **FrameDecks · In use**.
 - [ ] Turn off Zoom's own background blur/virtual background while using FrameDecks's blur.
 - [ ] Stop your Zoom video: within a second the laptop webcam light goes off.
-- [ ] Settings → FrameRelay Camera shows the frames per second (aim: about 30) and the work per frame. If the picture is jerky,
+- [ ] Settings → FrameDecks vCam shows the frames per second (aim: about 30) and the work per frame. If the picture is jerky,
       choose **720p**, or blur **Light**, and send me the numbers from Settings → Diagnostics.
 - [ ] Repeat in Microsoft Teams (Settings → Devices → Camera → FrameDecks).
 - [ ] **Cards on FrameDecks:** in a Zoom test meeting (zoom.us/test), select **Show** for a question, then a verse:
       both appear on your video within about a second. **Hide** removes each one. Try a Burst transition too.
-      Check the same in Settings → FrameRelay Camera → Show preview.
+      Check the same in Settings → FrameDecks vCam → Show preview.
 - [ ] **Camera Look:** press **Ctrl+Alt+1** (Warm), **Ctrl+Alt+2** (Dark), **Ctrl+Alt+3** (Neutral), **Ctrl+Alt+0** (Off)
-      while Zoom shows FrameDecks: your picture's colour changes, the cards don't. Settings → FrameRelay Camera shows the
+      while Zoom shows FrameDecks: your picture's colour changes, the cards don't. Settings → FrameDecks vCam shows the
       "look" time per frame; send me that number with the frames per second.
 - [ ] **Screen sharing (fixed in 4.1):** Studio (Alt+2) → Add layer → Layout templates → *Screen + camera corner*,
       pick your display. Within a few seconds your screen appears; move the mouse — the cursor shows. If it can't
@@ -112,7 +112,7 @@ If you see a red cross instead, click the run to read the error, and send it to 
       between apps. Send me a new screenshot including the **FrameDecks** process line.
 - [ ] **4.3 Presentation window:** opens with no title bar or window buttons; drag to move; Full Screen fills the
       screen with no frame; Esc leaves full screen, Esc again (or ✕) closes. Zoom still lists it as "FrameDecks Share Window".
-- [ ] **4.3 Camera quality:** Settings → FrameRelay Camera: the line under the preview shows "Webcam: 1280×720 MJPG at 30 fps"
+- [ ] **4.3 Camera quality:** Settings → FrameDecks vCam: the line under the preview shows "Webcam: 1280×720 MJPG at 30 fps"
       (or similar). If it shows a smaller size, send me that line. In Zoom tick Settings → Video → HD.
 - [ ] **4.3 Blur:** − / + change the blur by 0.5 %; the lowest blur is 0.5 %.
 - [ ] **Acceptance (4.2):** with Zoom in a meeting, FrameDecks on, and the Presentation window shared, switch between apps,
@@ -121,7 +121,7 @@ If you see a red cross instead, click the run to read the error, and send it to 
 - [ ] **Excel import:** Settings → Data / Backup → *Download the Excel template*; on the **Meeting Form** tab add a
       Frame and a Content row; *Import a meeting from Excel…*. Then *Export this meeting (Excel)*: the file opens on
       the **Dashboard**, with the Meeting Form filled in.
-- [ ] **Blur:** Settings → FrameRelay Camera → try Light and Maximum with the preview on; *Save as default*.
+- [ ] **Blur:** Settings → FrameDecks vCam → try Light and Maximum with the preview on; *Save as default*.
 - [ ] **Studio canvas:** drag a layer (pink guides appear near the centre/edges), resize with a corner handle,
       change Corner radius in the inspector, add a Text layer and type your own text.
 - [ ] **Layers:** add a logo (PNG) and a short video; move, resize, rotate, fade; reorder by dragging;
@@ -199,7 +199,7 @@ GitHub builds the installer again and attaches it to that release permanently. T
    into your repository folder. Choose **Replace the files in the destination**.
    The hidden `.git` folder in your repository folder is not in my zip, so your history is kept.
    **Make sure the `.github` folder is copied too.** It holds the build recipe; if it isn't updated, GitHub
-   builds the app the old way (for example without the FrameRelay camera). After pasting, GitHub Desktop should
+   builds the app the old way (for example without the FrameDecks vCam). After pasting, GitHub Desktop should
    list `.github/workflows/build-windows.yml` among the changed files whenever I've changed the recipe.
 3. If you had changed `app/js/brand.js` yourself, GitHub Desktop will show my version replacing yours:
    click the file, check the differences, and put your wording back before committing.
@@ -228,21 +228,21 @@ The installer appears in the `dist` folder.
   "Microsoft Edge WebView2 Runtime". Install it from microsoft.com, then open the app again.
   Everything works in the meantime. The Edge app window has no address bar or tabs.
 - **Zoom / Teams / OBS still shows the camera's earlier name or no FrameDecks:** restart that app. If it is still missing, run
-  the installer again with **Install the FrameRelay camera** ticked.
+  the installer again with **Install the FrameDecks vCam** ticked.
 - **Antivirus blocks or quarantines the app:** this is a known false alarm with unsigned apps made
   with Python. Restore it and add an exception for `%LOCALAPPDATA%\Programs\FRAMEDECKS`.
 - **"Port 8750 is in use" message:** another program is using the address the overlays need.
   Close that program and restart FrameDecks.
-- **"This installer was built without the camera"** (Settings → FrameRelay Camera): the build recipe in your repository
+- **"This installer was built without the camera"** (Settings → FrameDecks vCam): the build recipe in your repository
   is out of date. Copy the `.github` folder from my latest zip into your repository, commit, push, and install
   the new installer.
 - **"The camera file was installed but has since been removed"**: Windows Security (or another antivirus)
   removed `framedecks_vcam64.dll`. Open Windows Security → Virus & threat protection → Protection history, choose
   **Restore** (or **Allow**) for it, then run the installer again.
-- **"The webcam could not be opened" / "Your webcam is being used by …"** (Settings → FrameRelay Camera): only one app can
-  use a laptop webcam at a time. In Zoom and Teams choose **FrameRelay** as the camera (not your webcam), and close
+- **"The webcam could not be opened" / "Your webcam is being used by …"** (Settings → FrameDecks vCam): only one app can
+  use a laptop webcam at a time. In Zoom and Teams choose **FrameDecks vCam** as the camera (not your webcam), and close
   Camo, OBS or the Camera app. If it mentions privacy: Windows Settings → Privacy & security → Camera → turn on
-  **Camera access** and **Let desktop apps access your camera**. Also check Settings → FrameRelay Camera → **Webcam** shows
+  **Camera access** and **Let desktop apps access your camera**. Also check Settings → FrameDecks vCam → **Webcam** shows
   your real webcam (infrared "face sign-in" cameras can't be used).
 - Anything else: Settings → Diagnostics → **Copy diagnostics** (it contains no PIN or member details),
   plus `kc-app-log.txt` from the data folder.

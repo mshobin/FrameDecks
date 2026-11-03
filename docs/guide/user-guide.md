@@ -140,7 +140,7 @@ A Question (or Scripture) Content holds **its own list**, shown full height in C
     hides them.
   - **Spotlight** (S, or press **Ctrl** twice quickly over the picture): click a word and a glowing circle grows
     around it, pulses, then opens out with a few sparks and fades. Click empty space to spotlight a point. Its panel
-    sets the colour, **Size**, **Length** (1–15 s) and **Strength**, with **Try it**. It shows on FrameRelay (Zoom,
+    sets the colour, **Size**, **Length** (1–15 s) and **Strength**, with **Try it**. It shows on FrameDecks vCam (Zoom,
     Teams), recordings and the overlay pages.
 - **Freeze (F)** holds the picture while you get the next thing ready. You can still draw on it.
 - **Blackout (K)** makes the picture black.
@@ -167,9 +167,9 @@ A Question (or Scripture) Content holds **its own list**, shown full height in C
   - The docked Teleprompter, the separate Teleprompter overlay and **Shift+R** were removed in 8.0: this one window
     replaces them, with transparency and pin in its top bar.
 
-## 5. The FrameRelay camera
+## 5. The FrameDecks vCam
 Choose **FrameDecks** as the camera in Zoom, Teams, Google Meet or OBS. Participants see your webcam with the live
-Frame on top. Background blur and Camera Looks are in **Settings → FrameRelay Camera**. If an app doesn't list
+Frame on top. Background blur and Camera Looks are in **Settings → FrameDecks vCam**. If an app doesn't list
 FrameDecks, restart that app.
 
 ## 6. Phone and tablet remote
@@ -177,7 +177,7 @@ FrameDecks, restart that app.
 One screen with large buttons, nothing to set up. Scroll down for the rest.
 - The top bar: the meeting name, the connection status and **Hide all** (solid red while something is on screen).
 - **On screen now**: the live picture with a badge (*Off air*, *On screen*, *Black screen*, *Frozen* or *Emergency*),
-  *Frame 4 of 18*, the Frame's name and what it is showing, plus **FrameRelay** and **Recording** chips.
+  *Frame 4 of 18*, the Frame's name and what it is showing, plus **FrameDecks vCam** and **Recording** chips.
 - **Previous** / **Next** (gold; it says **Start** before anything is live).
 - The Frame's questions, scriptures or PowerPoint slides (*Question 2 of 5*, *Slide 3 of 12*) with round **◀ ▶**
   arrows. Chips choose which when a Frame has more than one; a **Question / Both / Scripture** switch appears when it

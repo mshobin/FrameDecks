@@ -1,4 +1,4 @@
 @echo off
-REM Removes the FrameRelay camera from Windows (needs administrator permission).
+REM Removes the FrameDecks vCam from Windows (needs administrator permission).
 "%SystemRoot%\System32\regsvr32.exe" /u /s "%~dp0framedecks_vcam64.dll"
 if exist "%SystemRoot%\SysWOW64\regsvr32.exe" if exist "%~dp0framedecks_vcam32.dll" "%SystemRoot%\SysWOW64\regsvr32.exe" /u /s "%~dp0framedecks_vcam32.dll"

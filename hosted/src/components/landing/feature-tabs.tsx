@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import { Check } from "lucide-react";
 
-import { FrameRelayPreview, TeleprompterPreview } from "@/components/landing/feature-previews";
+import { VCamPreview, TeleprompterPreview } from "@/components/landing/feature-previews";
 import { NextDemo } from "@/components/next-demo";
 
 // "See it work" and the features in one place (6.13): four tabs, each the thing itself on one side and three short
@@ -56,7 +56,7 @@ export function FeatureTabs({ tabs, private: own }: Readonly<{ tabs: readonly Fe
     return () => seen.disconnect();
   }, []);
   const choose = (i: number) => (setAt(i), setTour(false));
-  const shows = [<NextDemo key="demo" />, <TeleprompterPreview key="prompter" />, <FrameRelayPreview key="relay" />, own];
+  const shows = [<NextDemo key="demo" />, <TeleprompterPreview key="prompter" />, <VCamPreview key="relay" />, own];
 
   function keys(e: KeyboardEvent<HTMLDivElement>) {
     if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;

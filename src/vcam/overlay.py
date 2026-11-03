@@ -162,7 +162,7 @@ class OverlayLayer:
         hold = bool(live.get("blackout") or live.get("emergency"))
         for kind, tr in self.tracks.items():
             d = st.get(kind) or {}
-            if hold or (d.get("out") or {}).get("vcam") is False:      # v6: Blackout / Emergency, or "not on FrameRelay"
+            if hold or (d.get("out") or {}).get("vcam") is False:      # v6: Blackout / Emergency, or "not on FrameDecks vCam"
                 d = dict(d, visible=False)
             tr.update(d, now, self.alpha[kind])
             tr.tick(now)
@@ -177,6 +177,15 @@ class OverlayLayer:
                 continue
             self._draw(frame, kind, tr, card, now, W, H)
         return frame
+
+    def visible(self):
+        """9.1 [x, y, w, h] of each card on screen now (the Memory Card bubbles keep clear of them)."""
+        out = []
+        for kind, have in list(self.cards.items()):
+            card = have[1] if have else None
+            if card is not None and self.alpha.get(kind, 0) > 0.05:
+                out.append([card.x, getattr(card, "y_now", card.y), card.w, card.h])
+        return out
 
     # ---------- drawing happens on its own thread, so the video never pauses ----------
     def _worker(self):

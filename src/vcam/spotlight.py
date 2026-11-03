@@ -1,4 +1,4 @@
-"""8.2 Spotlight on the FrameRelay picture (live.spot, store.js cleanSpot): a glowing circle around a word or a point.
+"""8.2 Spotlight on the FrameDecks vCam picture (live.spot, store.js cleanSpot): a glowing circle around a word or a point.
 
 It grows in with a slight overshoot (0.42 s), pulses gently while it stays (live.spot.dur seconds), then opens out,
 throws off sparks and fades (0.9 s). It starts from the moment this program first sees the spotlight's id, like the

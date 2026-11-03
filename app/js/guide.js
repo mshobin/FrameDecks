@@ -82,7 +82,7 @@ function showMe(find, words){
 /* What each step offers: an action that takes you there, the control "Show me how" points at, and help to recover */
 var HOW = {
   output: {label: 'Choose how', act: function(){ go('settings', 'output'); }, find: function(){ return $('out-choices'); },
-    words: 'Pick one: FrameRelay for Zoom or Teams, the Share Window, or a projector, TV or OBS.'},
+    words: 'Pick one: FrameDecks vCam for Zoom or Teams, the Share Window, or a projector, TV or OBS.'},
   phone: {label: 'Open Phone remote', act: function(){ go('settings', 'ipad'); }, find: function(){ return $('remote-box'); },
     words: 'Turn the remote on, then scan the code with your phone’s camera. The step ticks itself when the phone connects.'},
   connect: {label: 'Connect to FrameDecks', act: function(){ go('settings', 'account'); }, find: function(){ return $('acct-body'); },
@@ -93,7 +93,7 @@ var HOW = {
 var WAIT = {welcome: 'Choose one to go on.', output: 'Waiting for a camera, the Share Window or a screen…', phone: 'Waiting for a phone…',
   connect: 'Waiting for the website to allow this PC…', frame: 'Waiting for a new or changed Frame…', ready: 'Checking…'};
 var TIPS = {
-  output: ['FrameRelay is not in Zoom’s camera list? Close Zoom completely and open it again.', 'Rather not install a camera? Choose the Share Window: nothing to install.'],
+  output: ['FrameDecks vCam is not in Zoom’s camera list? Close Zoom completely and open it again.', 'Rather not install a camera? Choose the Share Window: nothing to install.'],
   phone: ['Your phone must be on the same Wi-Fi as this PC (not a guest Wi-Fi).', 'The page does not open on the phone? In Settings → Phone & iPad Remote choose Allow through Windows Firewall.', 'No phone? Skip this step: the keyboard does everything.'],
   connect: ['Nothing happened in the browser? Settings → FrameDecks account shows a code you can type on the website instead.', 'You can skip this: FrameDecks works on this PC without an account.'],
   frame: ['Choose + Frame at the top of the Frames list, or change the words of one of the ready Frames.'],

@@ -162,7 +162,7 @@ Select the Branding Content in a Frame. Its settings are in Content Settings:
 | Look | **Opacity** · **Padding** | How see-through it is · the space around the logo and name |
 | Look | **Background plate** | On: a navy plate with your accent edge. Off: no plate, and a soft shadow keeps it readable |
 
-The badge is drawn the same way on the FrameRelay camera and on the OBS overlay pages. Its size follows the
+The badge is drawn the same way on the FrameDecks vCam and on the OBS overlay pages. Its size follows the
 picture, so it looks the same at 720p, 1080p or 4K.
 
 ### Remove a logo's background
@@ -185,7 +185,7 @@ unchanged.
 ### Workspace look (7.1)
 
 Chosen on framedecks.com under **Branding → Look**: Gold & Navy (the standard), Morning Light, Chapel Stone, Deep
-Ocean, Forest or Quiet Mono. A look sets the cards' surface (on the room screen, the overlay pages and the FrameRelay
+Ocean, Forest or Quiet Mono. A look sets the cards' surface (on the room screen, the overlay pages and the FrameDecks vCam
 camera), the scripture font (serif or sans) and the accent colour; the accent can still be changed below it. It
 syncs as the record `layout/look` (`{id, name, a, b, font, base}`; `store.js` keeps only a well-formed one) and a PC
 applies it, and any brand, layout or card-setting change, only while nothing is on its screen

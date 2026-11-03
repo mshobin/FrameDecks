@@ -64,7 +64,7 @@ jobs:
           $fresh = Get-ChildItem $boot -Filter 'runw.exe' | Where-Object { $_.LastWriteTime -gt (Get-Date).AddHours(-2) }
           if (-not $fresh) { throw "runw.exe was not built in this run" }
 
-      - name: Get softcam (MIT licence) for the FrameRelay camera
+      - name: Get softcam (MIT licence) for the FrameDecks vCam
         shell: pwsh
         run: |
           # Pinned to the commit behind v1.8.1: the build stops if the tag ever points somewhere else
@@ -72,18 +72,18 @@ jobs:
           $got = (git -C vcam_build/softcam rev-parse HEAD).Trim()
           if ($got -ne 'afb424c2415b04da627fa1a7b4706575c2ba3010') { throw "softcam v1.8.1 is now $got, not the reviewed commit" }
 
-      - name: Prepare the FrameRelay camera (name and ID)
+      - name: Prepare the FrameDecks vCam (name and ID)
         run: python packaging/build_vcam.py vcam_build/softcam
 
       - name: Set up the Microsoft C++ compiler
         uses: microsoft/setup-msbuild@30375c66a4eea26614e0d39710365f22f8b0af57 # v3.0.0
 
-      - name: Build the FrameRelay camera (64-bit and 32-bit)
+      - name: Build the FrameDecks vCam (64-bit and 32-bit)
         shell: pwsh
         run: |
           foreach ($p in 'x64', 'Win32') {
             msbuild vcam_build/softcam/softcam.sln /m /t:softcam /p:Configuration=Release /p:Platform=$p
-            if ($LASTEXITCODE -ne 0) { throw "FrameRelay build failed ($p)" }
+            if ($LASTEXITCODE -ne 0) { throw "FrameDecks vCam build failed ($p)" }
           }
           Copy-Item vcam_build/softcam/x64/Release/softcam.dll src/vcam/bin/framedecks_vcam64.dll
           Copy-Item vcam_build/softcam/Win32/Release/softcam.dll src/vcam/bin/framedecks_vcam32.dll

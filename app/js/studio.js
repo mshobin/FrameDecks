@@ -103,12 +103,12 @@ var focusBtn = ib('maximize-2', 'Focus: hide the rest of the app', function(){ d
 focusBtn.id = 's2-focus';
 var shareChip = h('span', {cls: 's2-chip', id: 's2-share', hidden: 'hidden'});
 /* v5: the scene picker and collection filter are the Scenes list beside the canvas, and the Look is in
- * Settings > FrameRelay Camera (and Ctrl+Alt+1/2/3/0) - the bar shows the active scene instead of repeating them. */
+ * Settings > FrameDecks vCam (and Ctrl+Alt+1/2/3/0) - the bar shows the active scene instead of repeating them. */
 var sceneNow = h('span', {cls: 's2-scene-now', id: 's2-scene-now'});
 var tools = $('canvas-tools');
 if (tools){ [shareChip, presBtn, focusBtn].forEach(function(b){ tools.appendChild(b); }); }
 var recHost = $('rec-host');
-if (recHost){ recHost.appendChild(recBtn); recHost.appendChild(h('span', {cls: 'hint rec-note', id: 's2-rec-note', text: 'Records exactly what FrameRelay sends to Zoom or Teams.'})); }
+if (recHost){ recHost.appendChild(recBtn); recHost.appendChild(h('span', {cls: 'hint rec-note', id: 's2-rec-note', text: 'Records exactly what FrameDecks vCam sends to Zoom or Teams.'})); }
 presBtn.classList.remove('primary'); presBtn.classList.add('small');
 
 colFilter.addEventListener('change', renderScenes);
@@ -261,7 +261,7 @@ function selectFromList(id, e){
 }
 
 /* ---------- Centre: the canvas ---------- */
-var img = h('img', {alt: 'The live FrameRelay picture', id: 's2-img', draggable: 'false'});
+var img = h('img', {alt: 'The live FrameDecks vCam picture', id: 's2-img', draggable: 'false'});
 var boxes = h('div', {cls: 's2-boxes'});
 var guides = h('div', {cls: 's2-guides'});
 var stage = h('div', {cls: 's2-stage', id: 's2-stage', tabindex: '0', 'aria-label': 'Canvas: drag Content to move them; use the handles to resize'}, [img, boxes, guides,
@@ -568,9 +568,9 @@ function draw(){
 function apply(d){
   S = d;
   if (!d.available){
-    root.innerHTML = ''; root.appendChild(h('p', {cls: 'plain u-pad-20', text: d.reason || 'FrameRelay is not available.'}));
+    root.innerHTML = ''; root.appendChild(h('p', {cls: 'plain u-pad-20', text: d.reason || 'FrameDecks vCam is not available.'}));
     scenesSec.hidden = left.hidden = true; railNote.hidden = false;
-    railNote.textContent = 'Frames and Content appear here when FrameRelay is running. ' + (d.reason || '');
+    railNote.textContent = 'Frames and Content appear here when FrameDecks vCam is running. ' + (d.reason || '');
     return;
   }
   scenesSec.hidden = left.hidden = false; railNote.hidden = true;

@@ -72,7 +72,7 @@ export const TOPICS: Topic[] = [
             Plan guides you in five steps: your meeting, Add Frame, Write Script, Preview, then Export for Service PC.
           </li>
           <li>
-            <b>Choose how people see it</b>: in the program, Settings → How people see it (FrameRelay in your video
+            <b>Choose how people see it</b>: in the program, Settings → How people see it (FrameDecks vCam in your video
             meeting or streaming platform, the Share Window, or a projector, TV or live production tool).
           </li>
           <li>
@@ -95,7 +95,7 @@ export const TOPICS: Topic[] = [
             <dd>Plan and edit / run the service, with nothing to edit by accident.</dd>
           </div>
           <div>
-            <dt>FrameRelay</dt>
+            <dt>FrameDecks vCam</dt>
             <dd>FrameDecks&apos;s own camera, which you choose in your video meeting or streaming platform.</dd>
           </div>
           <div>
@@ -305,8 +305,8 @@ export const TOPICS: Topic[] = [
             <dd>Press <kbd>K</kbd> (Black screen); press it again to come back.</dd>
           </div>
           <div>
-            <dt>Your meeting app shows no FrameRelay camera</dt>
-            <dd>In FrameDecks, Settings → How people see it → FrameRelay Camera → Install, then restart the meeting app.</dd>
+            <dt>Your meeting app shows no FrameDecks vCam</dt>
+            <dd>In FrameDecks, Settings → How people see it → FrameDecks vCam → Install, then restart the meeting app.</dd>
           </div>
           <div>
             <dt>The website says the PC is offline</dt>

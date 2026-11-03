@@ -163,7 +163,7 @@ Press **Hide all** (or **Esc** on the PC), then put the right Frame back with **
 Yes. Write them in each Frame's **Teleprompter script** (Frame settings). Open it with **Live tools → Teleprompter** (**R**): a window that stays on top of Zoom or Teams. Or use **Teleprompter** on the phone remote. See [Presentations](presentations.md#teleprompter).
 
 **Can the audience see the teleprompter?**
-No. The Teleprompter is only for the presenter. It is never on the FrameRelay camera, the Presentation window, the OBS pages or the phone's drawing pad.
+No. The Teleprompter is only for the presenter. It is never on the FrameDecks vCam, the Presentation window, the OBS pages or the phone's drawing pad.
 
 **Where did the answers and notes on my questions go?**
 Since 6.7, questions and scriptures have no Answer or Notes fields, and no screen shows them. Nothing was deleted from your data. When you import an older Meeting Workbook, its answers and notes go into the Frame's Teleprompter script.
@@ -197,7 +197,7 @@ framedecks.com. Paid team and cloud features may come later; what is free stays 
 **What licence is it under?**
 FrameDecks is proprietary software, free to use under the [End User License Agreement](https://framedecks.com/eula).
 Download it only from [framedecks.com/download](https://framedecks.com/download), and please do not share the installer
-elsewhere. Components made by others keep their own licences (for example, the FrameRelay camera is built from softcam,
+elsewhere. Components made by others keep their own licences (for example, the FrameDecks vCam is built from softcam,
 MIT licence, and the background-blur model is from MediaPipe, Apache 2.0); they are listed at framedecks.com/legal.
 
 ## Technical

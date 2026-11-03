@@ -196,3 +196,33 @@ body.drawing,body.prompting{overflow:hidden}
   .now-name{font-size:28px}
 }
 @media (prefers-reduced-motion:reduce){ .toast,.nav-btn{transition:none} }
+
+/* 9.1 Capture Memory: paste a message, Show / Hide / Remove, several selected shown together */
+.cm{padding:16px;margin-top:14px}
+.cm-add{display:flex;flex-direction:column;gap:8px;margin:10px 0 4px}
+.cm-add textarea{width:100%;min-height:64px;resize:vertical;border-radius:14px;border:1px solid var(--line2);background:var(--bg2);color:var(--ink);font:inherit;font-size:16px;padding:10px 12px;box-sizing:border-box}
+.cm-add textarea:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(232,185,49,.22)}
+.cm-row{display:flex;gap:8px;justify-content:flex-end}
+.cm-btn{min-height:44px;padding:0 16px;border-radius:999px;border:1px solid var(--line2);background:var(--card2);color:var(--ink);font-weight:700;font-size:15px}
+.cm-btn.gold{border:0;color:var(--gold-ink);background:linear-gradient(180deg,var(--gold2),var(--gold))}
+.cm-btn.quiet{background:none;color:var(--muted)}
+.cm-btn:active{transform:scale(.96)}
+.cm-sel{position:sticky;bottom:8px;z-index:2;display:flex;align-items:center;gap:8px;margin:8px 0;padding:8px 8px 8px 14px;border-radius:999px;background:var(--bg2);border:1px solid var(--gold);font-weight:700}
+.cm-sel[hidden]{display:none}
+.cm-sel span{margin-right:auto}
+.cm-list{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:8px}
+.cm-card{display:flex;gap:10px;align-items:flex-start;padding:12px;border-radius:16px;border:1px solid var(--line);background:var(--card);animation:cm-in .3s cubic-bezier(.2,.8,.3,1) both}
+.cm-card.on{border-color:rgba(61,220,132,.55)}
+.cm-card.pinned{border-color:var(--gold)}
+.cm-card.sel{background:rgba(232,185,49,.08);border-color:var(--gold)}
+.cm-pick{flex:none;width:24px;height:24px;margin:2px 0 0;accent-color:var(--gold)}
+.cm-body{flex:1;min-width:0}
+.cm-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.cm-top b{font-size:16px}
+.cm-meta{font-size:13px;color:var(--faint)}
+.cm-on{padding:0 8px;border-radius:999px;background:var(--live-soft);color:var(--live);font-size:12px;font-weight:800;line-height:1.7}
+.cm-card p{margin:4px 0 8px;color:var(--muted);font-size:15px;line-height:1.4;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.cm-acts{display:flex;gap:8px;flex-wrap:wrap}
+.cm-acts .cm-btn{min-height:40px;padding:0 14px;font-size:14px}
+@keyframes cm-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.cm-card{animation:none}}

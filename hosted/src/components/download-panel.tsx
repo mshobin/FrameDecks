@@ -187,7 +187,7 @@ export function DownloadPanel({ fallback }: Readonly<{ fallback: Fallback }>) {
                 your PC, choose More info, then Run anyway.
               </li>
               <li>
-                Keep “Install the FrameRelay camera” ticked, and allow the one
+                Keep “Install the FrameDecks vCam” ticked, and allow the one
                 administrator prompt.
               </li>
               <li>

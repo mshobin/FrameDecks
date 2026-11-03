@@ -22,7 +22,7 @@ A change must never put a live service at risk.
   - [ ] Hide all (Esc), Blackout (K), Freeze (F)
   - [ ] Annotate (D)
   - [ ] Phone remote (Simple and Advanced)
-  - [ ] FrameRelay camera in Zoom / Teams / OBS
+  - [ ] FrameDecks vCam in Zoom / Teams / OBS
   - [ ] Speaker View / Presentation window
 - [ ] Existing saved meetings still open and look the same (older data converts on load).
 

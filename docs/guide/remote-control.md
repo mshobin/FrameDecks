@@ -25,7 +25,7 @@ The remote is a web page served by FrameDecks on your PC. Your phone opens it ov
 ```mermaid
 flowchart LR
   Phone["Phone or iPad<br/>(browser)"] -- "Wi-Fi, PIN-protected" --> PC["FrameDecks<br/>on the PC (port 8750)"]
-  PC --> Out["FrameRelay camera<br/>Presentation window<br/>overlay pages"]
+  PC --> Out["FrameDecks vCam<br/>Presentation window<br/>overlay pages"]
 ```
 
 Every button on the phone changes the same live state as the PC, so the PC, the phone and everyone watching always agree.
@@ -50,7 +50,7 @@ The phone stays signed in for 30 days. After that, or after a new PIN, enter the
 | **Same network only** | The remote works on your local network; it isn't reachable from the internet |
 | **Lockout** | After 5 wrong PINs, that device must wait 60 seconds before trying again |
 | **New PIN** | **Settings → Phone & iPad Remote → New PIN** signs out every phone and iPad at once |
-| **PC-only settings** | Phones can't open Settings, member lists, the Scripture API key or the FrameRelay camera settings |
+| **PC-only settings** | Phones can't open Settings, member lists, the Scripture API key or the FrameDecks vCam settings |
 | **Live picture** | The picture on the phone's drawing pad is PIN-protected, like the rest of the remote |
 
 > **Important:** Treat the PIN like a key to the sound desk. Share it only with the people running the service, and choose **New PIN** if it has been shared too widely.
@@ -65,7 +65,7 @@ The remote is **one screen** with large buttons, so a volunteer can use it witho
 | --- | --- |
 | **Top bar** | The meeting name and the **Connected** status, always visible |
 | **Hide all** | Hides everything on screen at once. It turns solid red while something is on screen |
-| **On screen now** | The live picture, with a badge: **Off air**, **On screen**, **Black screen**, **Frozen** or **Emergency**. Below it: *Frame 4 of 18*, the Frame's name and what it is showing, plus **FrameRelay** and **Recording** chips when they are on |
+| **On screen now** | The live picture, with a badge: **Off air**, **On screen**, **Black screen**, **Frozen** or **Emergency**. Below it: *Frame 4 of 18*, the Frame's name and what it is showing, plus **FrameDecks vCam** and **Recording** chips when they are on |
 | **Previous / Next** | Move through the Frames, in order. **Next** is gold, and says **Start** before anything is live |
 | **Questions, scriptures or slides** | A card for the Frame's questions, scriptures or PowerPoint slides (*Question 2 of 5*, *Slide 3 of 12*). The round **◀ ▶** arrows step through them. When a Frame has more than one kind, chips choose which one the arrows move through. A Frame with a question **and** a scripture also gets a **Question / Both / Scripture** switch |
 | **Teleprompter** | Opens the Frame's Teleprompter script full screen, on this phone only |
@@ -87,6 +87,27 @@ Select **Teleprompter**. The script opens full screen; select **Done** to close 
 Scroll with your finger, or use the play button to scroll by itself. See
 [Presentations](presentations.md#teleprompter) for how to write the script.
 
+## Capture Memory on the phone
+
+Show a message from your phone on the live screen as a chat bubble:
+
+1. In WhatsApp, Teams, Zoom, Messages or any app, long-press the message and choose **Copy**. Copy several messages
+   or a whole conversation to show them all.
+2. In the remote, scroll to **Capture Memory**, long-press the box and choose **Paste** (or tap **Paste** when the
+   remote is installed as an app).
+3. Tap **Show on screen**. Each message becomes its own bubble with the sender's name, on screen at once.
+
+Below the box are all the Memory Cards, from the phone and from the PC, newest first:
+
+| Button | Does |
+|---|---|
+| **Show** / **Show again** | Puts the bubble on screen with its full text |
+| **Hide** | Takes the bubble off screen; the card stays |
+| **Remove** | Deletes the card |
+
+Tick several cards and tap **Show selected** to put them on screen together, in the order they were copied. Turning
+Capture on and the bubble settings stay on the PC.
+
 ## Drawing from the phone
 
 1. Select **Draw**. The drawing pad opens with the **live picture**, exactly what Zoom, Teams or the projector shows.
@@ -99,7 +120,7 @@ Scroll with your finger, or use the play button to scroll by itself. See
 
 ![Drawing from a phone held sideways](images/remote-annotate.png)
 
-While the pad is open, the phone gets a sharper picture (960 pixels wide). If the FrameRelay camera is off, the pad shows the Frame's cards instead, so you are never drawing on a black box.
+While the pad is open, the phone gets a sharper picture (960 pixels wide). If the FrameDecks vCam is off, the pad shows the Frame's cards instead, so you are never drawing on a black box.
 
 ## iPad and tablet layout
 

@@ -6,7 +6,7 @@ word, the screen is wrong: fix the screen, not this list. (Owner-approved simpli
 | Say | Means | Don't say |
 | --- | --- | --- |
 | **FrameDecks** | The program on the service PC, and the website that goes with it. Always written FrameDecks (capital F and D only). | FRAMEDECKS, Framedecks, KingdomConnect, the app, the software |
-| **FrameRelay** | FrameDecks's own camera: what you choose as the camera in Zoom or Teams. | the virtual camera, vcam, FrameDecks camera |
+| **FrameDecks vCam** | FrameDecks's own camera: what you choose as the camera in Zoom or Teams. | the virtual camera, vcam, FrameDecks camera, FrameRelay (its name before 9.1) |
 | **Frame** | One step of the meeting: what is on screen at one moment. | scene, slide, page |
 | **Content** | What is on a Frame: a verse, a question, a picture, a video, text, a countdown. | layer, element, overlay |
 | **Running order** | The Frames in the order they go on screen. | services list, scene list, playlist |
@@ -24,7 +24,7 @@ word, the screen is wrong: fix the screen, not this list. (Owner-approved simpli
 | **Draw on the picture** | Draw on the live picture (D). | annotate (the shortcut list still says *Annotate*) |
 | **Emergency screen** | A message for everyone when something goes wrong. | slate, panic screen |
 | **Teleprompter** | Your script, which only you see: one window that stays on top of Zoom or Teams and is hidden from screen sharing and recordings (R). | speaker view, confidence monitor, prompter overlay |
-| **How people see it** | The way your meeting reaches people: FrameRelay in Zoom or Teams, the **Share Window**, or a projector, TV or OBS. | output, display settings, sources |
+| **How people see it** | The way your meeting reaches people: FrameDecks vCam in Zoom or Teams, the **Share Window**, or a projector, TV or OBS. | output, display settings, sources |
 | **Share Window** | A clean window with only your Frames, to share in Zoom. | presentation window, present mode |
 | **Live tools** | The menu with Black screen, Freeze, Draw, the Teleprompter and the Emergency screen. | Program menu |
 | **People** | Everyone in your member list (Members → People): the list, or the table. | directory, manage, contacts |

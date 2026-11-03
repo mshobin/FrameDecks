@@ -1,5 +1,5 @@
 /* FrameDecks 9.0 - Memory Cards: the Studio pane (dashboard.html) and the popup in the screen corner (memory-popup.html).
- * The chat overlay itself is in overlay.css (.chatwin) and on FrameRelay in src/vcam/chatcard.py. */
+ * The bubbles on screen are in overlay.css (.chat-list) and on FrameDecks vCam in src/vcam/chatcard.py. */
 .mem-pane{flex:0 0 auto;max-height:45%;border-top:1px solid var(--line-soft);overflow:hidden}
 .mem-pane.closed .mem-body{display:none}
 .mem-body{display:flex;flex-direction:column;min-height:0;overflow-y:auto}
@@ -51,6 +51,11 @@
 .mem-private{background:var(--raised);color:var(--danger)}
 .mem-preview{margin:4px 0 6px;font-size:13px;line-height:1.4;color:var(--muted);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .mem-preview.full{-webkit-line-clamp:6}
+.mem-pick{flex:none;width:16px;height:16px;margin:0;accent-color:var(--gold)}
+.mem-card.sel{border-color:var(--gold);background:var(--raised)}
+.mem-sel{display:flex;align-items:center;gap:6px;margin:0 2px 8px;padding:6px 6px 6px 10px;border:1px solid var(--gold);border-radius:8px;font-size:13px;font-weight:600}
+.mem-sel[hidden]{display:none}
+.mem-sel span{margin-right:auto}
 .mem-card .mem-acts{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
 .mem-card .mem-del,.pop .mem-x{margin-left:auto;padding:2px 8px}
 .mem-pin[aria-pressed="true"]{border-color:var(--gold);color:var(--gold)}

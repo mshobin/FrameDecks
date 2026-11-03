@@ -209,84 +209,54 @@ body.bg-preview .stage-root{background:
 .card-lowerthird .card-label{text-transform:none;letter-spacing:.01em;font-size:calc(var(--s)*1.9);color:#fff}
 .card-lowerthird .card-rule{margin:calc(var(--s)*.7) 0 calc(var(--s)*.8)}
 .card-lowerthird .card-text{font-weight:500;font-size:calc(var(--s)*1.6);color:var(--gold-text)}
-/* 9.0 the chat overlay with the Memory Cards (the same design as src/vcam/chatcard.py on FrameRelay).
-   beside: everything else (the stage) shrinks to the left 70 % and the chat overlay takes the right column;
-   below: the stage shrinks to the top 72 % and the cards run along the bottom; over: a floating window on the edge.
-   The Studio preview follows the camera's layout; the OBS / browser overlay pages always float it ("over"). */
+/* 9.1 the Memory Cards as chat bubbles (the same design as src/vcam/chatcard.py on FrameDecks vCam): only the bubbles,
+   no window or panel. beside: everything else (the stage) shrinks to the left 70 % and the bubbles stack in the right
+   column; below: the stage shrinks to the top 72 % and the bubbles run along the bottom; over: they float on the edge,
+   clear of the cards (overlay.js avoidCards). The Studio preview follows the camera's layout; the OBS / browser overlay
+   pages always float them ("over"). */
 .stage-root{position:fixed;inset:0;transform-origin:0 50%;transition:transform .45s cubic-bezier(.4,0,.2,1)}
 html.mem-beside .stage-root{transform:scale(.7)}
 html.mem-beside.mem-left .stage-root{transform-origin:100% 50%}
 html.mem-below .stage-root{transform:scale(.72);transform-origin:50% 0}
 .zone-chat{position:fixed;display:flex;pointer-events:none;z-index:6;--s:var(--u)}
-.zone-chat.chat-over{top:6vh;bottom:30vh;align-items:center;padding:0 calc(var(--u)*3)}
-.zone-chat.chat-over.chat-right{right:0;justify-content:flex-end}
-.zone-chat.chat-over.chat-left{left:0;justify-content:flex-start}
-.zone-chat.chat-beside{top:0;bottom:0;width:30vw;padding:calc(var(--u)*2.2);box-sizing:border-box}
+.zone-chat.chat-over{top:4vh;bottom:4vh;align-items:center;padding:0 calc(var(--u)*3)}
+.zone-chat.chat-over.chat-right,.zone-chat.chat-over.chat-left.chat-flip{right:0;left:auto;justify-content:flex-end}
+.zone-chat.chat-over.chat-left,.zone-chat.chat-over.chat-right.chat-flip{left:0;right:auto;justify-content:flex-start}
+.zone-chat.chat-beside{top:0;bottom:0;width:30vw;padding:calc(var(--u)*2.2);box-sizing:border-box;align-items:center}
 .zone-chat.chat-beside.chat-right{right:0} .zone-chat.chat-beside.chat-left{left:0}
-.zone-chat.chat-below{left:0;right:0;bottom:0;height:28vh;padding:calc(var(--u)*1.3) calc(var(--u)*2.2) calc(var(--u)*2.2);box-sizing:border-box}
-.chatwin{position:relative;display:flex;flex-direction:column;overflow:hidden;color:#f6f8fc;font-family:var(--sans);
-  background:rgba(16,22,36,.93);border:1px solid rgba(255,255,255,.13);border-radius:calc(var(--u)*1.2);
-  box-shadow:0 calc(var(--u)*.8) calc(var(--u)*2.4) rgba(0,0,0,.45);transform-origin:top right;
-  transition:opacity .35s ease,transform .35s cubic-bezier(.4,0,.2,1)}
-.chat-over .chatwin{width:min(32vw,calc(var(--u)*31));max-height:58vh}
-.chat-beside .chatwin,.chat-below .chatwin{width:100%;height:100%}
-.chat-left .chatwin{transform-origin:top left}
-.chatwin:not(.out){animation:chat-open .42s cubic-bezier(.2,.9,.25,1) both}
-.chatwin.out{opacity:0;transform:translateX(calc(var(--u)*6))}
-.chat-left .chatwin.out{transform:translateX(calc(var(--u)*-6))}
-.chat-below .chatwin.out{transform:translateY(calc(var(--u)*6))}
-.chat-bar{flex:none;display:flex;align-items:center;gap:calc(var(--u)*.8);height:calc(var(--u)*3.4);padding:0 calc(var(--u)*1.3);
-  background:rgb(27,35,54);border-bottom:1px solid rgba(255,255,255,.09);font-size:calc(var(--u)*1.35)}
-.chat-bar b{letter-spacing:.08em;text-transform:uppercase;font-weight:700}
-.chat-live{width:calc(var(--u)*.9);height:calc(var(--u)*.9);border-radius:50%;background:#f05252;box-shadow:0 0 0 0 rgba(240,82,82,.6);
-  animation:chat-live 1.6s ease-out infinite}
-.chat-src{margin-left:auto;padding:calc(var(--u)*.25) calc(var(--u)*.8);border-radius:999px;background:rgba(255,255,255,.1);
-  color:#a0acc4;font-weight:600;font-size:calc(var(--u)*1.2)}
-.chat-list{flex:1;min-height:0;list-style:none;margin:0;padding:calc(var(--u)*1.2);display:flex;flex-direction:column;justify-content:flex-end;
-  gap:calc(var(--u)*.9);overflow:hidden}
-.chat-over .chat-list{justify-content:flex-start}
-.chat-below .chat-list{flex-direction:row;align-items:flex-start;justify-content:flex-start}
-.chat-below .chat-msg{flex:1;min-width:0}
-.chat-msg{display:flex;align-items:flex-start;gap:calc(var(--u)*1);flex:none;animation:chat-msg-in .35s cubic-bezier(.2,.8,.3,1) both}
-.chat-av{flex:none;display:grid;place-items:center;width:calc(var(--u)*3.2);height:calc(var(--u)*3.2);border-radius:50%;
-  color:#fff;font-weight:700;font-size:calc(var(--u)*1.3)}
-.chat-col{position:relative;flex:1;min-width:0;display:flex;flex-direction:column;align-items:flex-start}
-.chat-col::before{content:"";position:absolute;left:calc(var(--u)*-.7);top:calc(var(--u)*1.2);border:calc(var(--u)*.5) solid transparent;
-  border-right:calc(var(--u)*.7) solid rgb(37,48,74);border-left:0}
-.chat-typing{display:none;gap:calc(var(--u)*.55);align-items:center;box-sizing:border-box;height:calc(var(--u)*3);
-  padding:0 calc(var(--u)*1.5);border-radius:calc(var(--u)*1.1);background:rgb(37,48,74);overflow:hidden}
-.chat-typing i{width:calc(var(--u)*.84);height:calc(var(--u)*.84);border-radius:50%;background:#a0acc4;animation:chat-dot .9s ease-in-out infinite}
-.chat-typing i:nth-child(2){animation-delay:.15s} .chat-typing i:nth-child(3){animation-delay:.3s}
-.chat-bubble{position:relative;align-self:stretch;box-sizing:border-box;padding:calc(var(--u)*.9) calc(var(--u)*1.1);
-  border-radius:calc(var(--u)*1.1);background:rgb(37,48,74);border:max(1px,calc(var(--u)*.12)) solid transparent}
-.chat-msg.pinned .chat-bubble{border-color:rgba(217,171,74,.8)}
-.chat-name{display:block;padding-right:calc(var(--u)*6);font-size:calc(var(--u)*1.4);color:#cfd8ea;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.chat-pin{display:none;position:absolute;top:calc(var(--u)*.85);right:calc(var(--u)*1);padding:0 calc(var(--u)*.5);border-radius:calc(var(--u)*.5);
+.zone-chat.chat-below{left:0;right:0;bottom:0;height:28vh;padding:calc(var(--u)*1.3) calc(var(--u)*2.2) calc(var(--u)*2.2);box-sizing:border-box;justify-content:center}
+.chat-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;align-items:flex-start;gap:calc(var(--u)*1);
+  color:#f6f8fc;font-family:var(--sans);max-height:100%;overflow:visible;transition:opacity .3s ease,transform .45s cubic-bezier(.4,0,.2,1)}
+.chat-over .chat-list{width:min(32vw,calc(var(--u)*31));transform:translateY(var(--chat-y,0px))}
+.chat-beside .chat-list{width:100%}
+.chat-below .chat-list{flex-direction:row;align-items:flex-start;max-width:100%}
+.chat-below .chat-msg{flex:0 1 auto;min-width:0}
+.chat-list.out{opacity:0}
+.chat-msg{display:flex;align-items:flex-start;gap:calc(var(--u)*.9);max-width:100%;transform-origin:calc(var(--u)*1.7) 50%}
+.chat-msg.pop{animation:chat-pop .42s cubic-bezier(.34,1.56,.64,1) both}
+.chat-msg.leave{animation:chat-leave .3s ease both}
+.chat-av{flex:none;display:grid;place-items:center;width:calc(var(--u)*3.4);height:calc(var(--u)*3.4);border-radius:50%;
+  color:#fff;font-weight:700;font-size:calc(var(--u)*1.35);box-shadow:0 0 0 max(1px,calc(var(--u)*.1)) rgba(255,255,255,.28),0 calc(var(--u)*.4) calc(var(--u)*1.2) rgba(0,0,0,.45)}
+.chat-bubble{position:relative;min-width:0;box-sizing:border-box;padding:calc(var(--u)*1) calc(var(--u)*1.2);border-radius:calc(var(--u)*1.5);
+  background:linear-gradient(180deg,rgba(44,56,86,.97),rgba(28,37,60,.97));border:max(1px,calc(var(--u)*.08)) solid rgba(255,255,255,.16);
+  box-shadow:0 calc(var(--u)*.6) calc(var(--u)*1.8) rgba(0,0,0,.5)}
+.chat-bubble::before{content:"";position:absolute;left:calc(var(--u)*-.75);top:calc(var(--u)*1.1);border:calc(var(--u)*.55) solid transparent;
+  border-right:calc(var(--u)*.75) solid rgb(44,56,86);border-left:0}
+.chat-msg.pinned .chat-bubble{border-color:rgba(217,171,74,.85);border-width:max(1px,calc(var(--u)*.16))}
+.chat-head{display:flex;align-items:baseline;gap:calc(var(--u)*.9);min-width:0}
+.chat-name{font-size:calc(var(--u)*1.45);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chat-app{flex:none;font-size:calc(var(--u)*1.15);font-weight:600;color:#a0acc4}
+.chat-app:empty{display:none}
+.chat-pin{display:none;flex:none;margin-left:auto;padding:0 calc(var(--u)*.5);border-radius:calc(var(--u)*.5);
   background:rgba(217,171,74,.24);color:#d9ab4a;font-size:calc(var(--u)*1);font-weight:700;text-transform:uppercase;letter-spacing:.04em;line-height:1.6}
 .chat-msg.pinned .chat-pin{display:block}
-.chat-text{margin:calc(var(--u)*.3) 0 0;font-size:calc(var(--u)*1.7);font-weight:600;line-height:1.28;overflow-wrap:anywhere;
+.chat-text{margin:calc(var(--u)*.25) 0 0;font-size:calc(var(--u)*1.75);font-weight:600;line-height:1.3;overflow-wrap:anywhere;
   display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .chat-msg.full .chat-text{-webkit-line-clamp:8}
 .chat-below .chat-msg.full .chat-text{-webkit-line-clamp:3}
-/* a card that has just arrived: typing dots, then the text unrolls */
-.chat-msg.arrive .chat-typing{display:flex;animation:chat-typing-out .01s .65s linear both}
-.chat-msg.arrive .chat-bubble{max-height:0;padding-top:0;padding-bottom:0;opacity:0;overflow:hidden;animation:chat-bubble .35s .65s cubic-bezier(.2,.8,.3,1) both}
-.chat-msg.arrive .chat-col::before{opacity:0;animation:chat-tail .2s .65s ease both}
-@keyframes chat-open{from{opacity:0;transform:translateX(calc(var(--u)*4)) scaleY(.3)}to{opacity:1;transform:none}}
-.chat-left .chatwin:not(.out){animation-name:chat-open-left}
-.chat-below .chatwin:not(.out){animation-name:chat-open-below}
-@keyframes chat-open-left{from{opacity:0;transform:translateX(calc(var(--u)*-4)) scaleY(.3)}to{opacity:1;transform:none}}
-@keyframes chat-open-below{from{opacity:0;transform:translateY(calc(var(--u)*4))}to{opacity:1;transform:none}}
-@keyframes chat-msg-in{from{opacity:0;transform:translateY(calc(var(--u)*1))}to{opacity:1;transform:none}}
-@keyframes chat-dot{0%,60%,100%{transform:translateY(0);opacity:.55}30%{transform:translateY(calc(var(--u)*-.45));opacity:1}}
-@keyframes chat-typing-out{to{height:0;padding:0;opacity:0}}
-@keyframes chat-bubble{from{max-height:0;padding-top:0;padding-bottom:0;opacity:.2}
-  to{max-height:calc(var(--u)*24);padding-top:calc(var(--u)*.9);padding-bottom:calc(var(--u)*.9);opacity:1}}
-@keyframes chat-tail{to{opacity:1}}
-@keyframes chat-live{70%{box-shadow:0 0 0 calc(var(--u)*.7) rgba(240,82,82,0)}100%{box-shadow:0 0 0 0 rgba(240,82,82,0)}}
-@media (prefers-reduced-motion: reduce){.stage-root,.chatwin{transition:none} .chatwin:not(.out),.chat-msg,.chat-live,.chat-typing i{animation:none}
-  .chat-msg.arrive .chat-typing{display:none} .chat-msg.arrive .chat-col::before{animation:none;opacity:1}
-  .chat-msg.arrive .chat-bubble{animation:none;max-height:none;padding:calc(var(--u)*.9) calc(var(--u)*1.1);opacity:1}}
+@keyframes chat-pop{0%{opacity:0;transform:scale(.6)}45%{opacity:1}100%{opacity:1;transform:none}}
+@keyframes chat-leave{to{opacity:0;transform:scale(.92)}}
+@media (prefers-reduced-motion: reduce){.stage-root,.chat-list{transition:none} .chat-msg.pop,.chat-msg.leave{animation:none}}
 
 /* ---------- v6 program: Blackout, Emergency screen, scene dips ---------- */
 .pg-black,.pg-slate,.pg-dip{position:fixed;inset:0;opacity:0;pointer-events:none;transition:opacity .3s ease}

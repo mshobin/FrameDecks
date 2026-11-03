@@ -382,7 +382,7 @@ function cleanInk(o){
   });
   return {on: !!o.on, items: items, undone: (Array.isArray(o.undone) ? o.undone : []).filter(isObj).slice(-50).map(function(x){ return cleanInk({items: [x]}).items[0]; }).filter(Boolean)};
 }
-/* v6.5 Annotate: draw live.ink on a canvas, the same way vcam/annotate.py draws it on FrameRelay */
+/* v6.5 Annotate: draw live.ink on a canvas, the same way vcam/annotate.py draws it on FrameDecks vCam */
 /* 8.2 Spotlight: one glowing circle around a word (or the pointer) on every picture for a few seconds. Each screen
  * plays its own animation the first time it sees a new id (overlay.js, vcam/spotlight.py). */
 function cleanSpot(o){
@@ -516,7 +516,7 @@ function compToMedia(o){
   return cleanLayer(keep);
 }
 /* 9.0 live.memory: the Memory Cards in the chat overlay (server.py memory_view; memory.py Memory.overlay) */
-var MEMORY_SOURCES = ['zoom', 'teams', 'meet', 'webex', 'slack', 'discord', 'chatgpt', 'claude', 'copilot', 'youtube', 'twitch', 'facebook', 'clipboard'];
+var MEMORY_SOURCES = ['zoom', 'teams', 'meet', 'webex', 'slack', 'discord', 'chatgpt', 'claude', 'copilot', 'youtube', 'twitch', 'facebook', 'whatsapp', 'sms', 'phone', 'clipboard'];
 function cleanMemory(m){
   if (!isObj(m) || !Array.isArray(m.cards)) return null;
   var cards = m.cards.filter(function(c){ return isObj(c) && c.id && String(c.text || '').trim(); }).slice(0, 6).map(function(c){
@@ -1270,7 +1270,7 @@ var Store = {
     else fileStart();
   },
   pace: pace,
-  /* Fetch the FrameRelay preview only when it's new: the program answers "not modified" for a picture this
+  /* Fetch the FrameDecks vCam preview only when it's new: the program answers "not modified" for a picture this
    * screen already has, so nothing is downloaded, decoded or redrawn. tag = {etag} remembered per screen. */
   freshPreview: function(tag){
     var h = tag.etag ? {'If-None-Match': tag.etag} : {};

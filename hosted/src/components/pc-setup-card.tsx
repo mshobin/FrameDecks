@@ -84,7 +84,7 @@ export function PcSetupCard() {
           <>
             <h2 id="pc-setup-title">Is FrameDecks installed on this PC?</h2>
             <p>
-              Check for the FrameRelay camera: your browser asks for camera access once, and the camera may turn on for a
+              Check for the FrameDecks vCam: your browser asks for camera access once, and the camera may turn on for a
               moment. Nothing is recorded or sent.
             </p>
           </>
@@ -93,8 +93,8 @@ export function PcSetupCard() {
           <>
             <h2 id="pc-setup-title">FrameDecks is not on this PC yet.</h2>
             <p>
-              Install FrameDecks for Windows and tick “Install the FrameRelay camera”. Already installed? Add the camera in
-              FrameDecks → Settings → FrameRelay Camera.
+              Install FrameDecks for Windows and tick “Install the FrameDecks vCam”. Already installed? Add the camera in
+              FrameDecks → Settings → FrameDecks vCam.
             </p>
           </>
         )}

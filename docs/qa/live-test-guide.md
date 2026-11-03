@@ -60,7 +60,7 @@ SQL editor.
 2. Choose a kind of gathering. **Expect:** its Frames appear, the status line says the step is done and **Next**
    becomes available. Before that, **Next** is not available; **Do this later** moves on anyway.
 3. **How people will see it**: follow "Show me how". **Expect:** the window dims around the right control; once
-   FrameRelay (or the Share Window) is chosen, **Next** becomes available. Open **Something not working?**:
+   FrameDecks vCam (or the Share Window) is chosen, **Next** becomes available. Open **Something not working?**:
    **Expect:** a short list of things to try.
 4. **Your phone as a remote** and **Connect to FrameDecks**. **Expect:** both are marked optional and have **Skip
    this step**; connecting a phone completes the first by itself.
@@ -145,13 +145,13 @@ Needs FrameDecks 6.11 on the linked PC.
 On the service PC, no real call needed.
 1. Open the Studio. **Expect:** no Prepare / Run switch; **◀ Previous**, **Next ▶**, **Go Live**, **Hide all** and
    **Live tools** are in the top bar.
-2. Turn on **Live tools → Black screen**. **Expect:** in Zoom (FrameRelay) the picture is black, while the program's
+2. Turn on **Live tools → Black screen**. **Expect:** in Zoom (FrameDecks vCam) the picture is black, while the program's
    own preview still shows your Frame.
 3. Press **Go Live**, **Next ▶** and **Esc**. **Expect:** **Hide all** is red while something is on screen and calm
    after Esc; the Frames list marks **LIVE** and **NEXT**.
 4. Open **Live tools**, press **Esc**. **Expect:** only the menu closes. Turn **Black screen** off. **Expect:** Zoom
    shows the picture again.
-5. **Settings → How people see it** → **Set up FrameRelay**. **Expect:** the FrameRelay page with **← How people see it**.
+5. **Settings → How people see it** → **Set up FrameDecks vCam**. **Expect:** the FrameDecks vCam page with **← How people see it**.
 6. Press **R**. **Expect:** the Teleprompter window opens on top of Zoom with only the script; move the pointer to its
    top edge (or press the small ▾ button) and the top bar shows Time, the Frame (name · n of m) and a Timer. Share
    your whole screen in a test call: **Expect:** the Teleprompter is not in the share. Press **R** again to close it.
@@ -175,7 +175,7 @@ On the service PC, no real call needed.
 You need a linked PC and the website signed in as an owner or admin.
 1. On the PC, show a question (anything on screen). On the website, open **Branding → Look** and choose **Deep
    Ocean**. **Expect:** "Deep Ocean is your workspace look…"; the preview turns sea blue with teal edges.
-2. Wait two minutes. **Expect:** the question on the PC (room screen, overlay and FrameRelay camera) has **not**
+2. Wait two minutes. **Expect:** the question on the PC (room screen, overlay and FrameDecks vCam) has **not**
    changed.
 3. Press **Hide all** (Esc) on the PC and wait about a minute, then show a scripture. **Expect:** sea-blue cards
    with teal edges, and the scripture in the sans font, in all three outputs.

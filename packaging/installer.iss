@@ -48,7 +48,7 @@ RestartApplications=no
 
 [Tasks]
 Name: "desktopicon"; Description: "Create a desktop icon"; GroupDescription: "Icons:"
-Name: "vcam"; Description: "Install the FrameRelay camera for Zoom and Teams (Windows asks for administrator permission)"; GroupDescription: "Options:"
+Name: "vcam"; Description: "Install the FrameDecks vCam for Zoom and Teams (Windows asks for administrator permission)"; GroupDescription: "Options:"
 Name: "startup"; Description: "Start FrameDecks automatically when I sign in to Windows"; GroupDescription: "Options:"; Flags: unchecked
 
 [Files]
@@ -85,7 +85,7 @@ Name: "{autodesktop}\FRAMEDECKS"; Filename: "{app}\FRAMEDECKS.exe"; Tasks: deskt
 Name: "{userstartup}\FRAMEDECKS"; Filename: "{app}\FRAMEDECKS.exe"; Tasks: startup
 
 [Run]
-Filename: "{app}\_internal\vcam\bin\register-framedecks-camera.cmd"; Verb: "runas"; Flags: shellexec waituntilterminated runhidden; Check: ShouldRegisterCamera; StatusMsg: "Installing the FrameRelay camera..."
+Filename: "{app}\_internal\vcam\bin\register-framedecks-camera.cmd"; Verb: "runas"; Flags: shellexec waituntilterminated runhidden; Check: ShouldRegisterCamera; StatusMsg: "Installing the FrameDecks vCam..."
 Filename: "{app}\FRAMEDECKS.exe"; Description: "Open FrameDecks now"; Flags: nowait postinstall skipifsilent
 ; 7.1.1: an update started by FrameDecks itself (/UPDATE=1, src/updater.py) opens the new version when it is done
 Filename: "{app}\FRAMEDECKS.exe"; Flags: nowait; Check: IsUpdate
@@ -106,8 +106,8 @@ begin
             (RegQueryStringValue(HKCU, WebView2KeyUser, 'pv', v) and (v <> '') and (v <> '0.0.0.0'));
 end;
 
-// The FrameRelay camera (called FRAMECAST before 6.12) keeps the camera ID it had as "BCC vCam", so Zoom, Teams and OBS see the same device
-// under its new name. Its driver file was renamed in 6.4, so a PC that already has the camera registers it again
+// FrameDecks vCam (called FrameRelay before 9.1 and FRAMECAST before 6.12) keeps the camera ID it had as "BCC vCam", so Zoom, Teams
+// and OBS see the same device under its new name: registering it again on an update writes the new name into Windows. Its driver file was renamed in 6.4, so a PC that already has the camera registers it again
 // (pointing Windows at the new file) even when the option is not ticked this time.
 const
   CameraKey = 'CLSID\{6F2B8C3E-4D7A-4B9E-9C11-B5CC0A1E7D21}';

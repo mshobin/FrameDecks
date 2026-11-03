@@ -1380,3 +1380,26 @@ started from another window; and `capture.py` let the window procedure Windows h
 when Capture was started a second time, which makes Windows execute freed memory. The popup that replaces the dock is
 made once, never dragged, never faded and never polled. See [memory-cards.md](memory-cards.md).
 
+
+## 53. Version 9.1.0: chat bubbles only, Capture Memory on the phone, FrameDecks vCam (3 November 2026)
+
+The owner wanted only the chat bubbles on the camera when Show is clicked: no window, panel or container, a modern
+bubble with a pop when it opens, several copied chats shown together in the order they were copied, the same Capture
+Memory on the phone remote (paste from WhatsApp, Teams, Zoom, SMS), and the camera renamed **FrameDecks vCam**.
+
+The camera now draws one small Card per bubble instead of one window image. That makes the pop cheap (only the new
+bubble is scaled, for 0.42 s, with a small overshoot from its avatar) and lets bubbles glide when one leaves. Floating
+bubbles needed a real answer to "never overlap": `chatcard.stack` tries the chosen edge at the place nearest its middle
+that touches none of the rectangles on screen (the camera inset, the verse / question / birthday cards from the
+overlay layer, the scene's text Content), then the other edge. The beside / below layouts keep 9.0's shrink of the
+picture, where nothing can overlap.
+
+Copy order is the `at` time of each card; a conversation copied at once is split by `memory.split` and the messages
+get consecutive times. The phone gets its own endpoint, `/api/remote/memory`, because `/api/memory` exposes PC
+settings and Capture; the phone may add, show, hide and remove cards only.
+
+The rename keeps the camera's CLSID, so the installer registers the same device again and Windows rewrites its
+friendly name; meeting apps keep it selected. The shared-memory and mutex names compiled into the camera change with
+the name, which is safe because the program and the camera DLL are always installed together. The Windows Camera app
+lists only Media Foundation cameras, so a DirectShow camera such as this one does not appear there.
+

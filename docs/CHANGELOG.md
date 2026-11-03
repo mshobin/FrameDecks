@@ -45,6 +45,30 @@ Versions before 4.9 (when the program had its earlier name) are described in the
 - The favicons, the tray icon and the small program-icon sizes (16–32 px) use a heavier version of the emblem, so it
   stays visible on light browser tabs and a light taskbar. Larger sizes are unchanged.
 
+## [9.1.0] - 2026-11-03
+
+Full notes: [docs/releases/v9.1.0.md](releases/v9.1.0.md). Design and testing checklist:
+[docs/architecture/memory-cards.md](architecture/memory-cards.md).
+
+### Added
+- Capture Memory on the phone remote: `app/js/remote-memory.js` and a section in `remote.html` (paste, Show on screen,
+  Show / Hide / Remove, several selected shown together); `GET / POST /api/remote/memory` for signed-in devices
+  (actions add, show, showmany, pin, hide, hideall, delete; capture and settings stay on the PC).
+- `memory.split()`: a copied conversation (WhatsApp, Zoom lines, "Name: message" lines, Teams / Slack / Discord
+  blocks) becomes one card per message; sources `whatsapp`, `sms`, `phone`.
+- `Memory.show_many()` and the `showmany` action; tick boxes and **Show selected** in the Studio pane.
+
+### Changed
+- The Memory Cards are drawn as chat bubbles only, with no window, title bar or panel: `vcam/chatcard.py` draws one
+  Card per bubble (`bubble`, `draw`, `stack`), `vcam/program.py` pops each new one open (`chatcard.pop`), fades
+  leaving ones and glides the rest; `overlay.js` / `overlay.css` do the same with `.chat-list` / `.chat-msg.pop`.
+- On screen the cards keep the order they were copied in; up to six at once (`MAX_VISIBLE`).
+- Floating bubbles ("over") keep clear of every card on screen: `OverlayLayer.visible()`, the program's text layers
+  and the camera inset (`ProgramFX._avoid_rects`, `chatcard.stack`); `avoidCards` on the overlay pages.
+- The virtual camera is called **FrameDecks vCam** (`packaging/build_vcam.py` NAME, `src/vcam/sink.py` VCAM_NAME, every
+  label, the installer, the website and the guides). Same camera ID, so meeting apps keep it selected; updating
+  registers it again under the new name.
+
 ## [9.0.0] - 2026-11-03
 
 Full notes: [docs/releases/v9.0.0.md](releases/v9.0.0.md). Design, testing checklist and rollback:

@@ -1,10 +1,12 @@
-/* FrameDecks 9.0 - Memory Cards: the Studio pane (dashboard.html) and the small popup in the screen corner
+/* FrameDecks 9.0 - Capture Memory: the Studio pane (dashboard.html) and the small popup in the screen corner
  * (memory-popup.html). The cards live in the program (src/memory.py); this page long-polls GET api/memory and sends
- * actions as POST api/memory {action, ...}: capture, add, show, pin, hide, hideall, delete, clear, settings.
+ * actions as POST api/memory {action, ...}: capture, add, show, showmany, pin, hide, hideall, delete, clear, settings.
+ * On screen each card is a chat bubble (9.1: no window around them), in the order the cards were copied.
  *
- *   Show   puts a card in the chat overlay (again) with its full text; on a card already there it toggles full text.
- *   Pin    keeps it in the chat overlay (and after a restart); unpinned cards leave after the overlay's seconds.
- *   Hide   takes it out of the chat overlay; the card stays here.
+ *   Show   puts a card on screen (again) with its full text; on a card already there it toggles full text.
+ *   Select several (the tick boxes) and Show them together (9.1).
+ *   Pin    keeps it on screen (and after a restart); unpinned cards leave after their seconds.
+ *   Hide   takes it off screen; the card stays here.
  *
  * The popup shows the cards copied in the last few seconds (while the pointer is on it they stay) and asks the
  * program to hide it when none are left (POST api/app/popup). */
@@ -13,9 +15,10 @@
 var POPUP = document.body.classList.contains('mem-popup');
 var $ = function(id){ return document.getElementById(id); };
 if (!POPUP && !$('mem-pane')) return;
-var data = null, rev = null, lastNotice = null;
+var data = null, rev = null, lastNotice = null, sel = {};
 var APPS = {zoom: 'Zoom', teams: 'Teams', meet: 'Google Meet', webex: 'Webex', slack: 'Slack', discord: 'Discord', chatgpt: 'ChatGPT',
-  claude: 'Claude', copilot: 'Copilot', youtube: 'YouTube', twitch: 'Twitch', facebook: 'Facebook', clipboard: 'Copied'};
+  claude: 'Claude', copilot: 'Copilot', youtube: 'YouTube', twitch: 'Twitch', facebook: 'Facebook', whatsapp: 'WhatsApp', sms: 'Messages',
+  phone: 'Phone', clipboard: 'Copied'};
 
 function post(url, body){
   return fetch(url, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body)})
@@ -49,11 +52,18 @@ function card(it, opts){
   li.className = 'mem-card' + (on ? ' on' : '') + (it.pinned ? ' pinned' : '');
   li.dataset.id = it.id;
   var head = document.createElement('div'); head.className = 'mem-top';
+  if (!opts.popup){                                          // 9.1 select several, then Show them together
+    var pick = document.createElement('input'); pick.type = 'checkbox'; pick.className = 'mem-pick'; pick.checked = !!sel[it.id];
+    pick.setAttribute('aria-label', 'Select ' + (it.title || 'Memory Card'));
+    pick.addEventListener('change', function(){ if (pick.checked) sel[it.id] = true; else delete sel[it.id]; li.classList.toggle('sel', pick.checked); renderSel(); });
+    head.appendChild(pick);
+    if (sel[it.id]) li.className += ' sel';
+  }
   var title = document.createElement('b'); title.className = 'mem-title'; title.textContent = it.title || 'Memory Card';
   title.title = (APPS[it.src] && it.src !== 'clipboard' ? APPS[it.src] + ' \u00b7 ' : '') + (it.title || '');
   head.appendChild(title);
   if (it.src !== 'clipboard'){ var app = document.createElement('span'); app.className = 'mem-app'; app.textContent = APPS[it.src]; head.appendChild(app); }
-  if (on){ var dot = document.createElement('span'); dot.className = 'mem-on'; dot.textContent = 'In chat'; dot.title = 'In the chat overlay on FrameRelay'; head.appendChild(dot); }
+  if (on){ var dot = document.createElement('span'); dot.className = 'mem-on'; dot.textContent = 'On screen'; dot.title = 'A chat bubble on FrameDecks vCam'; head.appendChild(dot); }
   if (it.private){ var pv = document.createElement('span'); pv.className = 'mem-private'; pv.textContent = 'Private'; head.appendChild(pv); }
   var p = document.createElement('p'); p.className = 'mem-preview' + (on && on.full ? ' full' : ''); p.textContent = it.text;
   var acts = document.createElement('div'); acts.className = 'mem-acts';
@@ -62,13 +72,13 @@ function card(it, opts){
     if (pressed != null) b.setAttribute('aria-pressed', String(!!pressed));
     b.addEventListener('click', fn); acts.appendChild(b); return b;
   }
-  btn(on && on.full ? 'Less' : 'Show', 'primary', on ? 'Show the full text in the chat overlay, or just the start' : 'Put it in the chat overlay with its full text',
+  btn(on && on.full ? 'Less' : 'Show', 'primary', on ? 'Show the full text on screen, or just the start' : 'Put it on screen as a chat bubble with its full text',
     function(){ act({action: 'show', id: it.id}); });
-  btn(it.pinned ? 'Pinned' : 'Pin', 'mem-pin', it.pinned ? 'Pinned: it stays in the chat overlay (also after a restart). Click to unpin' : 'Keep it in the chat overlay',
+  btn(it.pinned ? 'Pinned' : 'Pin', 'mem-pin', it.pinned ? 'Pinned: it stays on screen (also after a restart). Click to unpin' : 'Keep it on screen',
     function(){ act({action: 'pin', id: it.id}); }, it.pinned);
   if (opts.popup) btn('\u2715', 'quiet mem-x', 'Close', opts.close).setAttribute('aria-label', 'Close');
   else {
-    if (on) btn('Hide', 'quiet', 'Take it out of the chat overlay (the card stays here)', function(){ act({action: 'hide', id: it.id}); });
+    if (on) btn('Hide', 'quiet', 'Take it off screen (the card stays here)', function(){ act({action: 'hide', id: it.id}); });
     btn('\u2715', 'quiet mem-del', 'Delete this card', function(){ act({action: 'delete', id: it.id}); }).setAttribute('aria-label', 'Delete');
   }
   li.appendChild(head); li.appendChild(p); li.appendChild(acts);
@@ -82,7 +92,7 @@ function renderPane(){
   var lb = $('lb-capture'); if (lb){ lb.setAttribute('aria-pressed', String(!!data.capture)); lb.classList.toggle('on', !!data.capture); }
   var nt = data.notice || {};
   if (lastNotice !== null && nt.n !== lastNotice){
-    if (nt.kind === 'captured') status('✓ Memory Card created');
+    if (nt.kind === 'captured') status('✓ ' + (nt.text || 'Memory Card created'));
     else if (nt.kind === 'duplicate') status('Already a Memory Card');
     else if (nt.kind === 'ignored') status(nt.text, true);
   }
@@ -94,11 +104,21 @@ function renderPane(){
   $('mem-side').closest('.mem-row').hidden = data.layout === 'below';
   var items = data.items || [], ol = $('mem-list'), n = Object.keys(onOverlay()).length;
   $('mem-n').textContent = items.length ? items.length + (n ? ' · ' + n + ' live' : '') : (data.capture ? 'On' : '');
+  var ids = {}; items.forEach(function(i){ ids[i.id] = true; });
+  Object.keys(sel).forEach(function(k){ if (!ids[k]) delete sel[k]; });
   ol.textContent = '';
   items.slice(0, 40).forEach(function(it){ ol.appendChild(card(it, {})); });
+  renderSel();
   $('mem-empty').hidden = items.length > 0;
   $('mem-empty').textContent = data.capture ? 'Capturing. Copy text in Teams, Zoom, ChatGPT, Claude, Slack or a browser (Ctrl+C).'
     : (data.canCapture ? 'Turn on Capture, then copy text in Teams, Zoom, ChatGPT, Claude, Slack or a browser.' : 'Type a note above. Capturing copies needs FrameDecks on Windows.');
+}
+function renderSel(){
+  var n = Object.keys(sel).length, bar = $('mem-sel');
+  if (!bar) return;
+  bar.hidden = n < 1;
+  $('mem-sel-show').textContent = n > 1 ? 'Show ' + n + ' together' : 'Show selected';
+  $('mem-sel-n').textContent = n + ' selected';
 }
 var fold = (function(){ try { return localStorage.getItem('kc-mem-pane') === 'open'; } catch(e){ return false; } })();
 function setFold(open){
@@ -127,6 +147,11 @@ function initPane(){
     e.preventDefault(); var t = $('mem-add-text'); if (!t.value.trim()) return;
     act({action: 'add', text: t.value}).then(function(d){ if (d && d.status === 'added') t.value = ''; });
   });
+  $('mem-sel-show').addEventListener('click', function(){
+    var ids = Object.keys(sel); if (!ids.length) return;
+    act({action: 'showmany', ids: ids}).then(function(d){ if (d && d.shown){ sel = {}; renderPane(); status('✓ ' + d.shown + (d.shown > 1 ? ' bubbles' : ' bubble') + ' on screen'); } });
+  });
+  $('mem-sel-clear').addEventListener('click', function(){ sel = {}; renderPane(); });
   window.KCMemory = {toggleCapture: function(){ act({action: 'capture', on: !(data && data.capture)}); }};
 }
 

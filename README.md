@@ -77,7 +77,7 @@ the companion never connects to the PC's local HTTP server. See the
 ## Install
 See [INSTALLATION](docs/guide/installation.md) and [GETTING_STARTED](docs/guide/getting-started.md). In short: download the
 installer from [framedecks.com/download](https://framedecks.com/download) (until it is code-signed, check its SHA-256
-shown there and choose **More info → Run anyway** at the SmartScreen prompt), keep **Install the FrameRelay camera**
+shown there and choose **More info → Run anyway** at the SmartScreen prompt), keep **Install the FrameDecks vCam**
 ticked, and allow the one administrator prompt. Windows 10 or 11 (64-bit) is required. Installed copies update
 themselves from FrameDecks servers. The installer comes from the **Build Windows installer** workflow, which publishes
 version tags to Cloudflare R2 ([release pipeline](docs/deployment/release-pipeline.md),
@@ -103,7 +103,7 @@ tools\launchers\build.bat                           # local Windows build (CI is
 ## Quality gates (`.github/workflows/build-windows.yml`)
 | Gate | What it checks |
 |---|---|
-| camera build | Builds the FrameRelay camera (softcam, 64- and 32-bit) and records SHA-256 hashes of the DLLs |
+| camera build | Builds the FrameDecks vCam (softcam, 64- and 32-bit) and records SHA-256 hashes of the DLLs |
 | self-check | `packaging/check.py`: the program starts, serves every page and script, camera name and ID match the build, blur model loads |
 | tests | `node tests/run.js`: Frame-owned lists, independent duplicates, conversion of older data, output folding, Meeting Workbook template, import and export |
 | Python tests | `python -m unittest`: the Spotlight shortcut and desktop settings, moving data saved under the earlier name, and the Meeting Form layout and export |

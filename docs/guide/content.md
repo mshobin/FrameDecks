@@ -46,7 +46,7 @@ Every kind of Content you can put in a Frame, and every setting that controls ho
 
 > **Note:** Picture-based Content (image, video, PowerPoint, camera, screen, window, logo, watermark, free text,
 > shape and background) is part of the **FrameDecks** picture. These items are greyed out until the
-> FrameRelay camera is on (**Settings → FrameRelay Camera**).
+> FrameDecks vCam is on (**Settings → FrameDecks vCam**).
 
 ## The Content list
 
@@ -195,7 +195,7 @@ Branding**. A quick way to add or remove it is the **Branding** tick in a Frame'
 | Look | **Opacity** and **Padding** | How see-through the badge is, and the space around the logo and name |
 | Look | **Background plate** | On: a navy plate with your accent edge. Off: a soft shadow keeps it readable on any picture |
 
-The badge looks the same on the FrameRelay camera and the OBS pages, and it keeps its size at 720p, 1080p or
+The badge looks the same on the FrameDecks vCam and the OBS pages, and it keeps its size at 720p, 1080p or
 4K.
 
 ## Timer

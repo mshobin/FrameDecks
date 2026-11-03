@@ -1,7 +1,7 @@
 # FrameDecks: configuration guide (v6.5)
 
 This guide covers what to set up after installing:
-- the FrameRelay camera;
+- the FrameDecks vCam;
 - the app window;
 - where settings are stored.
 
@@ -9,17 +9,17 @@ For installing, see `docs/development/building-the-installer.md`. For what each 
 
 ---
 
-## 1. FrameRelay camera
+## 1. FrameDecks vCam
 
-1. Install with **Install the FrameRelay camera for Zoom and Teams** ticked, and allow the administrator prompt.
-   - Already installed without it? Use **Settings → FrameRelay Camera → Install FrameRelay**.
+1. Install with **Install the FrameDecks vCam for Zoom and Teams** ticked, and allow the administrator prompt.
+   - Already installed without it? Use **Settings → FrameDecks vCam → Install FrameDecks vCam**.
 2. Restart Zoom, Teams, OBS or the browser you use for Google Meet. They read the camera list when they start.
 3. Choose **FrameDecks** as the camera in each app:
    - **Zoom:** Settings → Video → Camera → FrameDecks. Tick **HD**, and turn off Zoom's own background blur.
    - **Microsoft Teams:** Settings → Devices (or Video and effects) → Camera → FrameDecks.
    - **Google Meet:** ⋮ → Settings → Video → Camera → FrameDecks.
    - **OBS:** Sources → + → Video Capture Device → Device: FrameDecks.
-4. **Settings → FrameRelay Camera** sets:
+4. **Settings → FrameDecks vCam** sets:
    - which webcam is behind it;
    - the resolution (720p or 1080p);
    - background blur;

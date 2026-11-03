@@ -1,12 +1,16 @@
-"""FrameDecks 9.0 - Memory Cards: what the presenter copies from a chat becomes a card in the FrameRelay chat overlay.
+"""FrameDecks 9.0 - Memory Cards (Capture Memory): what the presenter copies from a chat becomes a chat bubble on the
+FrameDecks vCam picture.
 
 The presenter turns Capture on, selects something in Teams, Zoom, Meet, Webex, Slack, Discord, ChatGPT, Claude, Copilot
-or a browser and presses Ctrl+C. capture.py hands the copied text here; this module turns it into a Memory Card
-(a title and the text), works out the app it came from, drops empty, oversized and repeated copies, and decides which
-cards are in the chat overlay:
+or a browser and presses Ctrl+C (or pastes it into the phone remote: WhatsApp, SMS, any app). capture.py hands the
+copied text here; this module turns it into Memory Cards (the sender's name and the message), one per message when a
+copy holds several (9.1: a WhatsApp, Teams, Slack, Discord or Zoom conversation), works out the app it came from, drops
+empty, oversized and repeated copies, and decides which cards are on screen:
 
   * a new card goes in at once (Settings: "Show as soon as it's copied"; never a private Zoom message);
-  * an unpinned card leaves after the overlay's seconds; Show puts it back with its full text;
+  * on screen the cards keep the order they were copied in (9.1), oldest at the top;
+  * an unpinned card leaves after the overlay's seconds; Show puts it back with its full text, and Show on several
+    selected cards (show_many) puts them all on screen together;
   * a pinned card stays, and pinned cards are kept in kc-memory.json so they are there after a restart;
   * Hide all (Esc) empties the overlay until the next card or Show.
 
@@ -20,11 +24,12 @@ import time
 import uuid
 
 SOURCES = ("zoom", "teams", "meet", "webex", "slack", "discord", "chatgpt", "claude", "copilot", "youtube", "twitch",
-           "facebook", "clipboard")
+           "facebook", "whatsapp", "sms", "phone", "clipboard")
 MAX_ITEMS = 100           # the oldest unpinned cards leave beyond this
-MAX_VISIBLE = 4           # cards in the chat overlay at once (pinned first, then the newest)
+MAX_VISIBLE = 6           # bubbles on screen at once (pinned first, then the newest; shown in the order copied)
+MAX_SPLIT = 12            # messages taken from one copy of a conversation
 MAX_PINNED = 12
-MAX_RAW = 2000            # a longer copy is a document, not a chat message: ignored
+MAX_RAW = 4000            # a longer copy is a document, not a chat conversation: ignored
 MAX_TEXT = 500            # what a card keeps of a message
 MAX_NAME = 40
 DUPLICATE_SECONDS = 15    # the same text copied again within this time is the same capture
@@ -33,13 +38,14 @@ DUPLICATE_SECONDS = 15    # the same text copied again within this time is the s
 _EXE = {"zoom.exe": "zoom", "zoomworkplace.exe": "zoom", "ms-teams.exe": "teams", "teams.exe": "teams",
         "discord.exe": "discord", "discordptb.exe": "discord", "discordcanary.exe": "discord", "slack.exe": "slack",
         "webex.exe": "webex", "ciscocollabhost.exe": "webex", "chatgpt.exe": "chatgpt", "claude.exe": "claude",
-        "microsoft.copilot.exe": "copilot", "copilot.exe": "copilot"}
+        "microsoft.copilot.exe": "copilot", "copilot.exe": "copilot", "whatsapp.exe": "whatsapp", "whatsapp.root.exe": "whatsapp"}
 # the web page a browser copied from (its "HTML Format" carries SourceURL)
 _URL = (("chatgpt.com", "chatgpt"), ("chat.openai.com", "chatgpt"), ("claude.ai", "claude"), ("copilot.microsoft.com", "copilot"),
         ("m365.cloud.microsoft", "copilot"), ("app.slack.com", "slack"), ("slack.com", "slack"), ("meet.google.com", "meet"),
         ("webex.com", "webex"), ("youtube.com", "youtube"), ("youtu.be", "youtube"), ("twitch.tv", "twitch"), ("facebook.com", "facebook"),
         ("fb.com", "facebook"), ("discord.com", "discord"), ("teams.microsoft.com", "teams"), ("teams.live.com", "teams"),
-        ("zoom.us", "zoom"), ("zoom.com", "zoom"))
+        ("zoom.us", "zoom"), ("zoom.com", "zoom"), ("web.whatsapp.com", "whatsapp"), ("whatsapp.com", "whatsapp"),
+        ("messages.google.com", "sms"))
 
 _INVISIBLE = re.compile("[​‌‍⁠﻿]")
 _TIME = r"(?:(?:today|yesterday)\s+at\s+)?\d{1,2}:\d{2}(?::\d{2})?\s*(?:[ap]\.?m\.?)?"
@@ -49,6 +55,11 @@ _ZOOM_LINE = re.compile(r"^(?:" + _TIME + r"\s+)?from\s+(?P<name>.+?)\s+to\s+(?P
 _HEAD_TIME = re.compile(r"[\s,·•|\-–—]*" + _TIME + r"\s*$", re.I)
 _HEAD_TO = re.compile(r"\s+to\s+(?P<to>everyone|me|you|host|hosts and panelists|.{1,40}?\((?:privately|direct message)\))\s*$", re.I)
 _PRIVATE = re.compile(r"privately|direct message|\bto\s+(?:me|you)\b", re.I)
+# WhatsApp: "[10:32, 03/11/2026] Sarah Lee: message" (copied from the app) or "03/11/2026, 10:32 - Sarah Lee: message"
+# (an exported chat)
+_DATE = r"\d{1,4}[/.\-]\d{1,2}[/.\-]\d{1,4}"
+_WA_LINE = re.compile(r"^\[?\s*(?:" + _TIME + r"\s*,\s*" + _DATE + r"|" + _DATE + r"\s*,?\s*" + _TIME + r")\s*\]?\s*-?\s*"
+                      r"(?P<name>[^:\n]{1,%d}?):\s+(?P<msg>.*)$" % 40, re.I)
 
 
 def detect_source(exe="", url=""):
@@ -106,6 +117,53 @@ def parse(text, source="clipboard"):
     return {"name": "", "text": _one_line(t)[:MAX_TEXT], "private": False}
 
 
+def _is_header(line):
+    """A line that starts a message in a copied conversation: "Sarah Lee 10:32 AM", "Sarah — Today at 10:32"."""
+    if not _HEAD_TIME.search(line) or re.fullmatch(_TIME, line.strip(), re.I):
+        return False
+    head = _HEAD_TIME.sub("", line).strip()
+    to = _HEAD_TO.search(head)
+    if to:
+        head = head[:to.start()].strip()
+    return _looks_like_name(head)
+
+
+def split(text):
+    """9.1 One copy -> its messages, each as text parse() reads, and the app it shows it came from ("whatsapp" or "").
+    A copy of a conversation (several WhatsApp, Zoom, "Name: message" lines, or Teams / Slack / Discord blocks that
+    each start with a name and a time) gives one chunk per message; anything else gives the copy itself."""
+    t = _clean(text)
+    lines = [line for line in t.split("\n") if line]
+    if len(lines) < 2:
+        return [t], ""
+
+    def by(start, fmt=lambda line: line, join=" "):
+        chunks = []
+        for line in lines:
+            if start(line):
+                chunks.append([fmt(line)])
+            elif chunks:
+                chunks[-1].append(line)
+            else:
+                return None
+        return [join.join(c) for c in chunks] if len(chunks) >= 2 else None
+
+    wa = by(lambda line: bool(_WA_LINE.match(line)),
+            lambda line: "%s: %s" % (_WA_LINE.match(line).group("name").strip(), _WA_LINE.match(line).group("msg")))
+    if wa:
+        return wa[:MAX_SPLIT], "whatsapp"
+    zoom = by(lambda line: bool(_ZOOM_LINE.match(line)))
+    if zoom:
+        return zoom[:MAX_SPLIT], ""
+    named = by(lambda line: bool(re.match(r"^[^:\n]{1,%d}:\s+\S" % MAX_NAME, line)) and _looks_like_name(line.split(":", 1)[0]))
+    if named and all(":" in c.split("\n")[0] for c in named):
+        return named[:MAX_SPLIT], ""
+    blocks = by(_is_header, join="\n")
+    if blocks and all("\n" in b for b in blocks):
+        return blocks[:MAX_SPLIT], ""
+    return [t], ""
+
+
 def _key(text):
     return re.sub(r"\W+", " ", str(text or "").lower()).strip()
 
@@ -125,8 +183,9 @@ def title_of(card, src):
 
 APP_NAMES = {"zoom": "Zoom", "teams": "Teams", "meet": "Google Meet", "webex": "Webex", "slack": "Slack",
              "discord": "Discord", "chatgpt": "ChatGPT", "claude": "Claude", "copilot": "Copilot", "youtube": "YouTube",
-             "twitch": "Twitch", "facebook": "Facebook", "clipboard": "Chat"}
-LAYOUTS = ("beside", "below", "over")     # the chat overlay on FrameRelay: beside the video, below it, or over it
+             "twitch": "Twitch", "facebook": "Facebook", "whatsapp": "WhatsApp", "sms": "Messages", "phone": "Phone",
+             "clipboard": "Chat"}
+LAYOUTS = ("beside", "below", "over")     # the bubbles on FrameDecks vCam: beside the video, below it, or over it
 
 
 class Memory:
@@ -135,6 +194,7 @@ class Memory:
     def __init__(self, path=None, clock=time.time):
         self.path, self.clock = path, clock
         self.items, self.capture, self.rev, self.hidden = [], False, 1, False
+        self.added = 0
         self.notice = {"n": 0, "kind": "", "text": "", "id": ""}
         self._recent = {}
         self.cond = threading.Condition()
@@ -185,7 +245,7 @@ class Memory:
             return next((dict(i) for i in self.items if i["id"] == item_id), None)
 
     def overlay(self, seconds, now=None):
-        """The cards in the chat overlay now, oldest first (chat order): pinned ones, then the newest shown ones.
+        """The cards on screen now, in the order they were copied (oldest first): pinned ones, then the newest shown ones.
         Returns (cards, seconds until the next one leaves or None)."""
         now = self.clock() if now is None else now
         ms, dur = now * 1000, max(3, min(120, int(seconds or 12))) * 1000
@@ -195,8 +255,9 @@ class Memory:
             pinned = [i for i in self.items if i["pinned"]]
             timed = [i for i in self.items if not i["pinned"] and i["shownAt"] and ms < i["shownAt"] + dur]
             room = max(0, MAX_VISIBLE - len(pinned))
-            timed = sorted(timed, key=lambda i: i["shownAt"], reverse=True)[:room]
-            shown = sorted(pinned[:MAX_VISIBLE] + timed, key=lambda i: (i["shownAt"] or i["at"]))
+            timed = sorted(timed, key=lambda i: (i["shownAt"], i["at"]), reverse=True)[:room]
+            order = {id(i): k for k, i in enumerate(self.items)}                   # newest first: ties keep copy order
+            shown = sorted(pinned[:MAX_VISIBLE] + timed, key=lambda i: (i["at"], -order[id(i)]))   # 9.1 the order copied
             nxt = min([(i["shownAt"] + dur - ms) / 1000 for i in timed], default=None)
             cards = [{"id": i["id"], "title": i["title"], "text": i["text"], "src": i["src"], "pinned": i["pinned"],
                       "full": i["full"]} for i in shown]
@@ -226,38 +287,56 @@ class Memory:
             return self.capture
 
     def add(self, raw, exe="", url="", source=None, show=True):
-        """A copy (or a typed note). Returns (status, item): 'added', 'duplicate', 'empty' or 'too-long'. show: put a
-        new card in the overlay at once (never a private message)."""
+        """A copy (or a typed or phone-pasted note). Returns (status, item): 'added', 'duplicate', 'empty' or
+        'too-long'. A copy of a conversation becomes one card per message (9.1), in their order; item is the first new
+        one and self.added the number made. show: put new cards on screen at once (never a private message)."""
         raw = str(raw or "")
+        self.added = 0
         if len(raw) > MAX_RAW:
             with self.cond:
                 self._changed("ignored", "Too long for a Memory Card (over %d characters)" % MAX_RAW)
             return "too-long", None
-        src = source if source in SOURCES else detect_source(exe, url)
-        card = parse(raw, src)
-        if len(card["text"]) < 2 or not any(ch.isalnum() for ch in card["text"]):
+        chunks, seen_src = split(raw)
+        src = source if source in SOURCES and source not in ("clipboard", "phone") else detect_source(exe, url)
+        if src == "clipboard" and seen_src:
+            src = seen_src
+        elif src == "clipboard" and source == "phone":
+            src = "phone"
+        parsed = [parse(c, src) for c in chunks]
+        parsed = [c for c in parsed if len(c["text"]) >= 2 and any(ch.isalnum() for ch in c["text"])]
+        if not parsed:
             return "empty", None
-        key, now = _key(card["text"]), self.clock()
+        now = self.clock()
         with self.cond:
             self._recent = {k: t for k, t in self._recent.items() if now - t < DUPLICATE_SECONDS}
-            dup = next((i for i in self.items if _key(i["text"]) == key), None)
-            if key in self._recent or dup:
+            made, dup = [], None
+            for k, card in enumerate(parsed):
+                key = _key(card["text"])
+                old = next((i for i in self.items if _key(i["text"]) == key), None)
+                if key in self._recent or old:
+                    self._recent[key] = now
+                    dup = dup or old
+                    continue
                 self._recent[key] = now
+                private = bool(card["private"])
+                at = int(now * 1000) + k                       # several from one copy keep their order
+                item = {"id": "m" + uuid.uuid4().hex[:10], "title": title_of(card, src), "text": card["text"], "src": src,
+                        "private": private, "at": at, "pinned": False, "full": False,
+                        "shownAt": int(now * 1000) if show and not private else 0}
+                if item["shownAt"]:
+                    self.hidden = False
+                self.items.insert(0, item)
+                made.append(item)
+            if not made:
                 self._changed("duplicate", "Already a Memory Card", dup["id"] if dup else "")
                 return "duplicate", dict(dup) if dup else None
-            self._recent[key] = now
-            private = bool(card["private"])
-            item = {"id": "m" + uuid.uuid4().hex[:10], "title": title_of(card, src), "text": card["text"], "src": src,
-                    "private": private, "at": int(now * 1000), "pinned": False, "full": False,
-                    "shownAt": int(now * 1000) if show and not private else 0}
-            if item["shownAt"]:
-                self.hidden = False
-            self.items.insert(0, item)
             unpinned = [i for i in self.items if not i["pinned"]]
             for old in unpinned[MAX_ITEMS:]:
                 self.items.remove(old)
-            self._changed("captured", "Memory Card created", item["id"])
-            return "added", dict(item)
+            self.added = len(made)
+            self._changed("captured", "Memory Card created" if len(made) == 1 else "%d Memory Cards created" % len(made),
+                          made[0]["id"])
+            return "added", dict(made[0])
 
     def edit(self, item_id, title=None, text=None):
         with self.cond:
@@ -283,6 +362,21 @@ class Memory:
             self.hidden = False
             self._changed(save=item["pinned"])
             return dict(item)
+
+    def show_many(self, ids):
+        """9.1 Show on several selected cards: all of them on screen together, with their full text, in the order they
+        were copied. Returns the cards found."""
+        with self.cond:
+            want = [i for i in self.items if i["id"] in set(str(x) for x in ids or [])]
+            if not want:
+                return []
+            ms = int(self.clock() * 1000)
+            for i in want:
+                i["shownAt"], i["full"] = ms, True
+            self.hidden = False
+            self._changed(save=any(i["pinned"] for i in want))
+            order = {id(i): k for k, i in enumerate(self.items)}
+            return [dict(i) for i in sorted(want, key=lambda i: (i["at"], -order[id(i)]))]
 
     def pin(self, item_id, on=None):
         with self.cond:

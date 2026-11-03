@@ -11,7 +11,7 @@ import time
 
 import cv2
 
-OWN_NAMES = ("framerelay", "framecast", "framedecks", "bcc vcam")   # the camera's name, and its earlier names
+OWN_NAMES = ("framedecks vcam", "framerelay", "framecast", "framedecks", "bcc vcam")   # the camera's name, and its earlier names
 IR_HINT = re.compile(r"\b(ir|infrared)\b|hello", re.I)   # Windows Hello face sign-in cameras
 
 
@@ -131,7 +131,7 @@ def explain(blockers):
         who = " and ".join(blockers["inUseBy"])
         tip = ""
         if any(w in ("Zoom", "Microsoft Teams") for w in blockers["inUseBy"]):
-            tip = " In Zoom or Teams, choose “FrameRelay” as the camera instead of your webcam."
+            tip = " In Zoom or Teams, choose “FrameDecks vCam” as the camera instead of your webcam."
         return f"Your webcam is being used by {who}, and only one app can use it at a time.{tip} Or close {who}."
     return ""
 

@@ -227,12 +227,12 @@ function render(){
 }
 Store.subscribe(function(st){ live = st; if (!$('login').hidden) showApp(); render(); });
 
-/* ---------- From the PC: FrameRelay, recording, the slide show ---------- */
+/* ---------- From the PC: FrameDecks vCam, recording, the slide show ---------- */
 var studioInfo = null;
 function renderChips(){
   var d = studioInfo || {}, vc = d.vcam || {}, rec = d.recording || {};
   var c1 = $('ch-vcam'); c1.hidden = !vc.state;
-  if (vc.state){ setText(c1, 'FrameRelay · ' + (vc.state === 'live' ? (vc.inUse ? 'in a meeting' : 'on') : vc.state === 'error' ? 'problem' : vc.state)); c1.className = 'chip' + (vc.state === 'live' ? ' ok' : vc.state === 'error' ? ' bad' : ''); }
+  if (vc.state){ setText(c1, 'FrameDecks vCam · ' + (vc.state === 'live' ? (vc.inUse ? 'in a meeting' : 'on') : vc.state === 'error' ? 'problem' : vc.state)); c1.className = 'chip' + (vc.state === 'live' ? ' ok' : vc.state === 'error' ? ' bad' : ''); }
   var c2 = $('ch-rec'); c2.hidden = !rec.on; if (rec.on){ var s = Math.round(rec.seconds || 0); setText(c2, '● Recording ' + Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0')); c2.className = 'chip bad'; }
 }
 function studioPost(body){
@@ -283,7 +283,7 @@ function padFull(on){
     else if (!on && d.fullscreenElement && d.exitFullscreen) d.exitFullscreen().catch(function(){});
   } catch(e){}
 }
-/* The real picture (what Zoom / Teams see, from FrameRelay), refreshed about 5 times a second while the pad is
+/* The real picture (what Zoom / Teams see, from FrameDecks vCam), refreshed about 5 times a second while the pad is
  * open. When the camera is off the phone shows the Frame's cards (stage.html) instead, never a black box. */
 function padLive(){
   clearTimeout(pad.timer);

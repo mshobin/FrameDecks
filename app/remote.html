@@ -85,6 +85,19 @@
         <button class="tool warn" type="button" id="t-black" aria-pressed="false"><span class="ti"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m5.6 5.6 12.8 12.8"/></svg></span><span class="tl">Black screen</span></button>
       </section>
       <p class="note" id="note" role="status"></p>
+
+      <!-- 9.1 Capture Memory: paste a message copied on this phone (WhatsApp, Teams, Zoom, Messages…) and it is on the
+           live screen as a chat bubble; the cards from the PC are here too (js/remote-memory.js) -->
+      <section class="card cm" id="cm" aria-labelledby="cm-title">
+        <div class="frames-head"><h2 id="cm-title">Capture Memory</h2><span class="count" id="cm-count"></span></div>
+        <form class="cm-add" id="cm-add" autocomplete="off">
+          <textarea id="cm-text" rows="2" maxlength="4000" placeholder="Paste a message from WhatsApp, Teams, Zoom, Messages…" aria-label="Message to show"></textarea>
+          <div class="cm-row"><button class="cm-btn" type="button" id="cm-paste" hidden>Paste</button><button class="cm-btn gold" type="submit" id="cm-go">Show on screen</button></div>
+        </form>
+        <div class="cm-sel" id="cm-sel" hidden><span id="cm-sel-n"></span><button class="cm-btn gold" type="button" id="cm-sel-show">Show selected</button><button class="cm-btn" type="button" id="cm-sel-clear">Clear</button></div>
+        <ol class="cm-list" id="cm-list" aria-label="Memory Cards"></ol>
+        <p class="hint" id="cm-empty">Copy a message in any app, then paste it here. Several messages at once become separate bubbles.</p>
+      </section>
     </div>
 
     <!-- every Frame: tap one to put it on screen -->
@@ -124,5 +137,6 @@
 <script src="js/brand.js"></script>
 <script src="js/teleprompter.js"></script>
 <script src="js/remote.js"></script>
+<script src="js/remote-memory.js"></script>
 </body>
 </html>

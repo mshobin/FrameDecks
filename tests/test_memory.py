@@ -1,5 +1,5 @@
 """FrameDecks 9.0 - Memory Cards: reading copied text (who wrote it, which app), the cards' rules (duplicates, pinned
-cards kept after a restart, unpinned ones leaving after their seconds), the API, and the chat overlay on the FrameRelay
+cards kept after a restart, unpinned ones leaving after their seconds), the API, and the chat overlay on the FrameDecks vCam
 picture in its three layouts (beside the video, below it, over it). Also the capture window's callback fix."""
 import http.client
 import json
@@ -117,13 +117,44 @@ class Cards(unittest.TestCase):
         self.m.show(b["id"])
         self.assertFalse(next(c for c in self.m.overlay(12)[0] if c["id"] == b["id"])["full"], "Show again: just the start")
 
-    def test_at_most_four_in_the_overlay_pinned_first(self):
-        ids = [self.m.add("Message number %d" % i)[1]["id"] for i in range(6)]
+    def test_at_most_six_on_screen_pinned_first(self):
+        ids = [self.m.add("Message number %d" % i)[1]["id"] for i in range(9)]
         self.m.pin(ids[0])
         cards, _ = self.m.overlay(12)
         self.assertEqual(len(cards), memory.MAX_VISIBLE)
         self.assertIn(ids[0], [c["id"] for c in cards], "the pinned one is always there")
-        self.assertIn(ids[5], [c["id"] for c in cards], "and the newest")
+        self.assertIn(ids[8], [c["id"] for c in cards], "and the newest")
+
+    def test_on_screen_in_the_order_copied(self):
+        a = self.m.add("First message here")[1]["id"]
+        b = self.m.add("Second message here")[1]["id"]
+        self.m.show(a)                                     # shown again later: it keeps its place
+        self.assertEqual([c["id"] for c in self.m.overlay(12)[0]], [a, b])
+
+    def test_show_many_puts_the_selected_cards_on_screen_together(self):
+        ids = [self.m.add("Note %d for the group" % i, show=False)[1]["id"] for i in range(4)]
+        self.assertEqual(self.m.overlay(12)[0], [])
+        shown = self.m.show_many([ids[3], ids[1]])
+        self.assertEqual([c["id"] for c in shown], [ids[1], ids[3]])
+        cards = self.m.overlay(12)[0]
+        self.assertEqual([c["id"] for c in cards], [ids[1], ids[3]], "in the order they were copied")
+        self.assertTrue(all(c["full"] for c in cards))
+        self.assertEqual(self.m.show_many(["nope"]), [])
+
+    def test_a_copied_conversation_becomes_one_card_per_message(self):
+        wa = "[10:32, 03/11/2026] Sarah Lee: How much is it?\n[10:33, 03/11/2026] Tom: Is it recorded?\nAnd shared?"
+        status, first = self.m.add(wa, source="phone")
+        self.assertEqual((status, self.m.added), ("added", 2))
+        self.assertEqual(first["title"], "Sarah Lee")
+        cards = self.m.overlay(12)[0]
+        self.assertEqual([(c["title"], c["text"], c["src"]) for c in cards],
+                         [("Sarah Lee", "How much is it?", "whatsapp"), ("Tom", "Is it recorded? And shared?", "whatsapp")])
+        teams = "Ana Silva 10:32 AM\nCan we get the slides?\nBen Ode 10:33 AM\nYes please"
+        self.m.add(teams)
+        self.assertEqual([i["title"] for i in self.m.items[:2]], ["Ben Ode", "Ana Silva"])
+        self.assertEqual(self.m.add("Note: plain text.\nAnother line.")[0], "added")
+        self.assertEqual(self.m.added, 1, "plain text with a colon stays one card")
+        self.assertEqual(self.m.add("Just a message from my phone", source="phone")[1]["src"], "phone")
 
     def test_pinned_cards_are_there_after_a_restart(self):
         _, a = self.m.add("Keep this one please")
@@ -280,6 +311,25 @@ class Api(unittest.TestCase):
         server._on_copy("Copied but not shown", "notepad.exe", "")
         self.assertEqual(len(self.live()["cards"]), 1, "Show as soon as it's copied off: it waits")
 
+    def test_phone_remote_capture_memory(self):
+        self.assertIn("/api/remote/memory", server.REMOTE_SIGNED_IN)
+        st, res = self.call("POST", "/api/remote/memory", {"action": "add", "text": "Grace: Can we get the slides afterwards?"})
+        self.assertEqual((st, res["status"]), (200, "added"))
+        cid = res["item"]["id"]
+        self.assertEqual(res["items"][0]["src"], "phone")
+        self.assertTrue(res["items"][0]["on"], "pasted on the phone: on screen at once")
+        self.assertNotIn("layout", res, "the phone gets the cards, not the PC's settings")
+        st, res = self.call("POST", "/api/remote/memory", {"action": "hide", "id": cid})
+        self.assertFalse(res["items"][0]["on"])
+        st, res = self.call("POST", "/api/remote/memory", {"action": "showmany", "ids": [cid]})
+        self.assertEqual(res["shown"], 1)
+        st, res = self.call("POST", "/api/remote/memory", {"action": "capture", "on": True})
+        self.assertEqual(st, 400, "capture and settings stay on the PC")
+        st, res = self.call("POST", "/api/remote/memory", {"action": "delete", "id": cid})
+        self.assertEqual(res["items"], [])
+        st, res = self.call("GET", "/api/remote/memory")
+        self.assertEqual((st, res["items"]), (200, []))
+
     def test_long_poll_wakes(self):
         rev = self.call("GET", "/api/memory")[1]["rev"]
         threading.Timer(0.1, lambda: server.MEMORY.add("Long poll card")).start()
@@ -290,7 +340,7 @@ class Api(unittest.TestCase):
 
 
 class OnTheCamera(unittest.TestCase):
-    """The chat overlay on FrameRelay: beside / below the video (the picture shrinks so nothing overlaps) or over it."""
+    """The chat overlay on FrameDecks vCam: beside / below the video (the picture shrinks so nothing overlaps) or over it."""
     CARDS = [{"id": "a", "title": "Sarah Lee", "text": "How much does it cost?", "src": "zoom", "pinned": True, "full": False},
              {"id": "b", "title": "ChatGPT", "text": "The plan has three phases: pilot, regional and national.", "src": "chatgpt",
               "pinned": False, "full": True}]
@@ -362,21 +412,50 @@ class OnTheCamera(unittest.TestCase):
         self.st["live"]["blackout"] = True
         self.assertEqual(int(self.run_frames(40).max()), 0)
 
-    def test_drawing_fits_every_layout(self):
+    def test_bubbles_only_and_they_fit_every_layout(self):
         from vcam import chatcard
         from vcam.cards import Fonts
         fonts = Fonts(ROOT / "app" / "fonts")
         many = [dict(self.CARDS[1], id=str(i), title="Card %d" % i, full=True) for i in range(5)] + [self.CARDS[0]]
         for layout in ("beside", "below", "over"):
-            card = chatcard.draw(fonts, many, 1280, 720, layout)
+            made = chatcard.draw(fonts, many, 1280, 720, layout)
+            self.assertTrue(made, layout)
+            self.assertIn("a", [b.id for b in made], "the pinned one is kept: " + layout)
             _, rect = chatcard.regions(layout, "right", 1280, 720)
-            self.assertLessEqual(card.h, rect[3] + 1, layout)
-            self.assertLessEqual(card.w, rect[2] + 1, layout)
+            sizes = [(b.w, b.h) for b in made]
+            spots = chatcard.stack(sizes, 1280, 720, layout, "right")
+            for (x, y), (w, h) in zip(spots, sizes):
+                self.assertGreaterEqual(y, -1, layout)
+                self.assertLessEqual(y + h, 720 + 1, layout)
+                self.assertLessEqual(x + w, 1280 + 1, layout)
+            if layout != "over":
+                self.assertLessEqual(max(h for _, h in sizes) if layout == "below" else sum(h for _, h in sizes), rect[3] + 1, layout)
+            if layout == "beside":
+                self.assertTrue(all(x >= rect[0] - 1 for x, _ in spots), "in the free column")
+        one = chatcard.bubble(fonts, {"id": "x", "title": "Al", "text": "Hi"}, 1280, 720, 400)
+        self.assertLess(one.w, 300, "a bubble is as narrow as its text: no window around it")
         self.assertEqual(chatcard.initials("Sarah Lee"), "SL")
         self.assertEqual(chatcard.avatar_colour("Sarah"), chatcard.avatar_colour(" sarah "))
+        self.assertGreater(max(chatcard.pop(t / 20) for t in range(21)), 1.0, "the pop overshoots a little")
+        self.assertEqual(round(chatcard.pop(1.0), 3), 1.0)
         r = chatcard.picture_rect("beside", "right", 1280, 720, 1.0)
         self.assertEqual([round(v) for v in r], [0, 108, 896, 504])
         self.assertEqual(chatcard.picture_rect("over", "right", 1280, 720, 1.0), [0, 0, 1280, 720])
+
+    def test_floating_bubbles_keep_clear_of_the_cards_on_screen(self):
+        from vcam import chatcard
+        card = [900, 200, 360, 300]                          # a question card on the right
+        spots = chatcard.stack([(300, 120), (300, 120)], 1280, 720, "over", "right", [card])
+        for x, y in spots:
+            self.assertFalse(chatcard._overlaps(x, y, 300, 120, card), "a bubble over the card")
+        everywhere = [[0, 0, 1280, 720]]
+        self.assertEqual(len(chatcard.stack([(300, 120)], 1280, 720, "over", "right", everywhere)), 1, "still placed")
+
+    def test_the_cards_from_the_overlay_layer_are_avoided(self):
+        self.fx.others = lambda: [[640 - 260, 40, 250, 280]]
+        self.show("over")
+        out = self.run_frames()
+        self.assertTrue(self.green(out[40:320, 640 - 260:630]).all(), "nothing drawn over the card")
 
 
 if __name__ == "__main__":
