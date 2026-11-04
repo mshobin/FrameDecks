@@ -60,6 +60,8 @@ The phone stays signed in for 30 days. After that, or after a new PIN, enter the
 The remote runs the **whole meeting** from your hand. The top half never moves: the **live picture**, what is on
 screen, and **Previous / Next**. Under it, five tabs hold everything else. Hold the phone upright and the tabs are at
 the bottom; turn it **sideways** (or use a tablet) and the picture sits on the left with the tabs on the right.
+Since 9.9 it has the same look as the PC's [Command Center](presentations.md#command-center): dark glass, a
+floating top bar, the tabs as a floating dock, and each tool's icon in a square of its own colour.
 
 ![The remote on a phone](images/remote-simple.png)
 

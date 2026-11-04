@@ -22,7 +22,8 @@ body.spotlight .pal-ic svg{width:22px;height:22px}
 
 /* compact: the remote only; the results and their key hints appear once you type (js/spotlight-remote.js) */
 body.spotlight .pal.spr-compact{height:auto}
-.pal.spr-compact .pal-list,.pal.spr-compact .pal-foot{display:none}
+.pal.spr-compact .pal-list{display:none}
+body.spr-live .pal.spr-compact .pal-foot{display:none}
 .pal.spr-compact .spr{border-bottom:0}
 
 .spr{display:flex;flex-direction:column;gap:12px;padding:4px 16px 16px;border-bottom:1px solid var(--line-soft,var(--line))}
@@ -114,3 +115,114 @@ body.spotlight:not(.spr-live) .spr{display:none}
 .spr-b.chip .spr-ic svg{width:15px;height:15px}
 .spr-b.chip:hover:not(:disabled){background:var(--raised);box-shadow:inset 0 1px 0 var(--spr-hi)}
 @media (prefers-reduced-motion:reduce){ .spr-b{transition:none} .spr-b:active:not(:disabled){transform:none} }
+
+/* ---------- 9.9 the Command Center (js/command-center.js): dark glass, a floating bar, five modules, Recent ----------
+ * The frost is Windows' own (desktop_win.glass, Acrylic on Windows 11), so the page draws no blur: only gradients,
+ * hairline borders, an inner highlight and soft shadows. One hue per module, used only in its icon square; gold stays
+ * the brand and the one primary action; green is live; red only for Hide all and leaving. */
+:root,html[data-theme="dark"]{
+  --cc-bg-a:rgba(16,26,52,.82); --cc-bg-b:rgba(7,11,24,.9); --cc-light:rgba(122,152,255,.16);
+  --cc-glass:rgba(255,255,255,.055); --cc-glass-2:rgba(255,255,255,.085); --cc-edge:rgba(255,255,255,.11); --cc-edge-2:rgba(255,255,255,.2);
+  --cc-hi:inset 0 1px 0 rgba(255,255,255,.1); --cc-lift:0 12px 30px rgba(0,0,0,.35); --cc-lift-sm:0 4px 14px rgba(0,0,0,.28);
+  --cc-focus:0 0 0 1px rgba(232,185,49,.45),0 0 0 6px rgba(232,185,49,.12),0 16px 40px rgba(0,0,0,.4);
+  --cc-gold-a:#f6d27a; --cc-gold-b:#c8901d; --cc-violet-a:#b79bff; --cc-violet-b:#6d4fd8; --cc-blue-a:#8fb6ff; --cc-blue-b:#3d6fe0;
+  --cc-teal-a:#6fe3cf; --cc-teal-b:#178f86; --cc-slate-a:#c3cad8; --cc-slate-b:#59637a; --cc-glyph:#fff;
+  --cc-teal-ink:#5fe0c8; --cc-sheen:rgba(255,255,255,.12)}
+html[data-theme="light"]{
+  --cc-bg-a:rgba(255,255,255,.86); --cc-bg-b:rgba(238,241,248,.92); --cc-light:rgba(122,152,255,.18);
+  --cc-glass:rgba(255,255,255,.7); --cc-glass-2:rgba(255,255,255,.92); --cc-edge:rgba(22,32,58,.1); --cc-edge-2:rgba(22,32,58,.2);
+  --cc-hi:inset 0 1px 0 rgba(255,255,255,.95); --cc-lift:0 12px 30px rgba(22,32,58,.12); --cc-lift-sm:0 4px 14px rgba(22,32,58,.1);
+  --cc-focus:0 0 0 1px rgba(138,92,10,.4),0 0 0 6px rgba(138,92,10,.1),0 16px 40px rgba(22,32,58,.14); --cc-teal-ink:#0f766e; --cc-sheen:rgba(255,255,255,.7)}
+body.spotlight .pal{background:radial-gradient(90% 60% at 50% -12%,var(--cc-light),transparent 70%),linear-gradient(180deg,var(--cc-bg-a),var(--cc-bg-b))}
+html.kc-glass body.spotlight .pal{background:radial-gradient(90% 60% at 50% -12%,var(--cc-light),transparent 70%),linear-gradient(180deg,var(--cc-bg-a),var(--cc-bg-b))}
+/* the bar: a floating capsule */
+body.spotlight .pal-top{margin:14px 14px 10px;padding:12px 14px 12px 18px;gap:12px;border:1px solid var(--cc-edge-2);border-bottom:1px solid var(--cc-edge-2);border-radius:20px;
+  background:linear-gradient(180deg,var(--cc-glass-2),var(--cc-glass));box-shadow:var(--cc-hi),var(--cc-lift);transition:box-shadow .16s ease}
+body.spotlight .pal-top:focus-within{box-shadow:var(--cc-hi),var(--cc-focus)}
+body.spotlight .pal-in{font-size:20px;font-weight:500}
+body.spotlight .pal-ic svg{stroke:var(--muted)}
+.cc-keys{flex:none;display:flex;gap:4px}
+.cc-keys kbd,.cc-mod kbd,.cc-enter,body.spotlight .pal-foot kbd{display:inline-grid;place-items:center;min-width:24px;height:22px;padding:0 6px;border:1px solid var(--cc-edge);border-radius:8px;
+  background:var(--cc-glass);box-shadow:var(--cc-hi);font:inherit;font-size:12px;font-weight:700;color:var(--muted)}
+.cc-scope{flex:none;display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 8px 0 6px;border:1px solid var(--cc-edge-2);border-radius:999px;background:var(--cc-glass-2);
+  color:var(--ink);font:inherit;font-size:13px;font-weight:700;cursor:pointer;box-shadow:var(--cc-hi)}
+.cc-scope[hidden]{display:none}
+.cc-scope-ic{display:grid;place-items:center;width:22px;height:22px;border-radius:8px;color:var(--cc-glyph)}
+.cc-scope-x{display:grid;place-items:center;color:var(--faint)}
+.cc-scope:hover .cc-scope-x{color:var(--ink)}
+/* the context strip */
+.cc-strip{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:0 18px 10px}
+.cc-chip{display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 10px;border:1px solid var(--cc-edge);border-radius:999px;background:var(--cc-glass);
+  font-size:12px;font-weight:600;color:var(--muted);white-space:nowrap;max-width:260px}
+.cc-chip b{font-weight:600;overflow:hidden;text-overflow:ellipsis}
+.cc-chip i{display:grid;place-items:center;font-style:normal}
+.cc-chip i svg{width:13px;height:13px}
+.cc-dot i{width:8px;height:8px;border-radius:999px;background:var(--faint)}
+.cc-dot.on{color:var(--live);border-color:var(--live-soft);background:var(--live-soft)} .cc-dot.on i{background:var(--live);box-shadow:0 0 0 3px var(--live-soft)}
+.cc-dot.bad{color:var(--red);background:var(--red-soft)} .cc-dot.bad i{background:var(--red)}
+.cc-sync{cursor:pointer} .cc-sync:hover,.cc-sync:focus-visible{color:var(--ink);border-color:var(--cc-edge-2)}
+.cc-sync.synced i,.cc-sync.syncing i{color:var(--cc-teal-ink)}
+.cc-sync.failed,.cc-sync.offline{color:var(--red)}
+.cc-gap{flex:1}
+#cc-private{border-style:dashed}
+/* the modules: glass tiles; the icon in a square of the module's own hue; light follows the pointer */
+.cc-mods{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;padding:2px 14px 12px}
+.cc-mod{position:relative;overflow:hidden;min-height:118px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:12px 6px 10px;
+  border:1px solid var(--cc-edge);border-radius:20px;background:linear-gradient(180deg,var(--cc-glass-2),var(--cc-glass));box-shadow:var(--cc-hi),var(--cc-lift-sm);
+  color:var(--ink);font:inherit;cursor:pointer;transition:transform .16s cubic-bezier(.2,.8,.3,1),box-shadow .16s ease,border-color .16s ease}
+.cc-mod::before{content:'';position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .16s ease;
+  background:radial-gradient(120px circle at var(--mx,50%) var(--my,0),var(--cc-sheen),transparent 70%)}
+.cc-mod:hover{transform:translateY(-2px);border-color:var(--cc-edge-2);box-shadow:var(--cc-hi),var(--cc-lift)}
+.cc-mod:hover::before{opacity:1}
+.cc-mod:active{transform:scale(.97)}
+.cc-mod:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.cc-sq{display:grid;place-items:center;width:46px;height:46px;margin-bottom:4px;border-radius:12px;color:var(--cc-glyph);box-shadow:var(--cc-hi),var(--cc-lift-sm)}
+.cc-sq svg{width:22px;height:22px}
+.cc-mod b{font-size:14px;font-weight:700}
+.cc-sub{max-width:100%;font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cc-mod kbd{position:absolute;top:8px;right:8px;opacity:0;transition:opacity .16s ease}
+.cc-mod:hover kbd,.cc-mod:focus-visible kbd{opacity:1}
+.cc-mod.busy .cc-sub{color:var(--live);font-weight:700}
+.cc-gold .cc-sq,.cc-scope.cc-gold .cc-scope-ic{background:linear-gradient(145deg,var(--cc-gold-a),var(--cc-gold-b))}
+.cc-violet .cc-sq,.cc-scope.cc-violet .cc-scope-ic{background:linear-gradient(145deg,var(--cc-violet-a),var(--cc-violet-b))}
+.cc-blue .cc-sq,.cc-scope.cc-blue .cc-scope-ic{background:linear-gradient(145deg,var(--cc-blue-a),var(--cc-blue-b))}
+.cc-teal .cc-sq,.cc-scope.cc-teal .cc-scope-ic{background:linear-gradient(145deg,var(--cc-teal-a),var(--cc-teal-b))}
+.cc-slate .cc-sq,.cc-scope.cc-slate .cc-scope-ic{background:linear-gradient(145deg,var(--cc-slate-a),var(--cc-slate-b))}
+/* Recent */
+.cc-rec{padding:0 14px 10px}
+.cc-rec[hidden]{display:none}
+.cc-rec h2{margin:0 0 6px 6px;font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
+.cc-rlist{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.cc-rrow{width:100%;display:flex;align-items:center;gap:10px;min-height:44px;padding:6px 8px;border:1px solid transparent;border-radius:12px;background:var(--cc-glass);
+  color:var(--ink);font:inherit;text-align:left;cursor:pointer;transition:background-color .12s ease,border-color .12s ease}
+.cc-rrow:hover,.cc-rrow:focus-visible{background:var(--cc-glass-2);border-color:var(--cc-edge)}
+.cc-rrow:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.cc-rk{flex:none;display:grid;place-items:center;width:28px;height:28px;border-radius:8px;background:var(--cc-glass-2);color:var(--muted)}
+.cc-rk.cc-k-meeting,.cc-rk.cc-k-frame{color:var(--gold-strong)} .cc-rk.cc-k-card{color:var(--cc-violet-a)} .cc-rk.cc-k-setting{color:var(--cc-slate-a)}
+.cc-rt{flex:1;min-width:0;display:flex;flex-direction:column}
+.cc-rt b{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cc-rt small{font-size:12px;color:var(--faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cc-enter{opacity:0} .cc-rrow:hover .cc-enter,.cc-rrow:focus-visible .cc-enter{opacity:1}
+/* when to show what: modules and Recent while preparing; the live remote while live; results while typing or in a module */
+body.spr-live .cc-mods,body.spr-live .cc-rec,.pal.spr-typing .cc-mods,.pal.spr-typing .cc-rec{display:none}
+/* results: glass rows */
+body.spotlight .pal-list{padding:4px 14px 8px}
+body.spotlight .pal-row{border-radius:12px;padding:8px 12px}
+body.spotlight .pal-row[aria-selected="true"]{background:var(--cc-glass-2);box-shadow:inset 0 0 0 1px var(--cc-edge-2)}
+body.spotlight .pal-meeting .pal-kind{color:var(--gold-strong)} body.spotlight .pal-card .pal-kind{color:var(--cc-violet-a)} body.spotlight .pal-ai .pal-kind{color:var(--cc-teal-ink)}
+body.spotlight .pal-foot{gap:16px;padding:10px 18px 12px;border-top:1px solid var(--cc-edge)}
+/* the live remote in the same glass */
+body.spotlight .spr{padding:0 14px 14px;border-bottom:0}
+body.spotlight .spr-b,body.spotlight .spr-now,body.spotlight .spr-step,body.spotlight .spr-seg,body.spotlight .spr-round{border-color:var(--cc-edge);
+  background:linear-gradient(180deg,var(--cc-glass-2),var(--cc-glass));box-shadow:var(--cc-hi),var(--cc-lift-sm)}
+body.spotlight .spr-b{border-radius:16px}
+body.spotlight .spr-b:hover:not(:disabled){border-color:var(--cc-edge-2);box-shadow:var(--cc-hi),var(--cc-lift)}
+body.spotlight .spr-ic{border-radius:8px}
+body.spotlight .spr-b.gold{background:linear-gradient(180deg,var(--spr-gold-top),var(--gold));border-color:var(--gold);box-shadow:inset 0 1px 0 var(--spr-hi-gold),0 4px 14px var(--spr-gold-glow)}
+body.spotlight .spr-b.on{background:var(--ink);border-color:var(--ink)}
+body.spotlight .spr-b.armed{background:var(--red);border-color:var(--red)}
+body.spotlight .spr-seg .spr-b{background:transparent;box-shadow:none}
+body.spotlight .spr-b.chip{background:transparent;box-shadow:none;border-color:transparent}
+body.spotlight .spr-b.chip:hover:not(:disabled){background:var(--cc-glass-2);border-color:var(--cc-edge)}
+@media (prefers-reduced-motion:reduce){ .cc-mod,.cc-mod::before,body.spotlight .pal-top{transition:none} .cc-mod:hover,.cc-mod:active{transform:none} }
+body.spr-live #cc-air{display:none}

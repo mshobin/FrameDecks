@@ -53,7 +53,7 @@ A webcam is optional. You need one only if people should see you on the FrameDec
 
 1. Open **FrameDecks** from the desktop icon.
 2. The first time (also after an update or a reinstall, until you finish it once), **Welcome to FrameDecks** fills the
-   screen: five short pages that show how a meeting is built and how to run it with Spotlight (Alt+Space).
+   screen: five short pages that show how a meeting is built and how to run it with the Command Center (Alt+Space).
    - **Adding Frames**: a Frame is one moment on screen. **+ Frame** adds one; **Quick Start** adds a ready-made set.
    - **Adding Decks**: a Deck is one block on a Frame (a scripture, a question, text, a picture, a video, a timer or
      slides). **+ Deck** adds one to the selected Frame.
@@ -107,8 +107,9 @@ Tick **Remember my choice** to stop the question. You can change it later in **S
 → Minimize button**. In the tray, everything keeps working: the camera, the overlays, the phone remote and the
 shortcuts. Click the tray icon, or choose **Open App** in its menu, to bring the window back.
 
-> **Tip:** Press **Alt+Space** anywhere in Windows to open **Spotlight**, a search box that finds and runs anything
-> in FrameDecks, even from the tray. See [Spotlight](presentations.md#spotlight).
+> **Tip:** Press **Alt+Space** anywhere in Windows to open the **Command Center**: one bar that finds and runs anything
+> in FrameDecks, even from the tray, with Meetings, Memory Cards, Present, Camera and More. See
+> [Command Center](presentations.md#command-center).
 
 If you prefer the Windows title bar, turn off **Modern window** in **Settings → General → Window and tray** and
 restart.
@@ -158,7 +159,7 @@ Not sure how people will see your meeting? **Settings → How people see it** of
 Teams, the Share Window, or a projector, TV or OBS. The words FrameDecks uses are in the [glossary](glossary.md).
 
 See [Presentations](presentations.md) for transitions, Black screen, Freeze, Annotate, the Teleprompter, the command
-palette and Spotlight.
+palette and the Command Center.
 
 ## Add your phone (optional)
 

@@ -308,7 +308,7 @@ def main():
                              checked=lambda item: bool(server.DESKTOP.get("teleprompter_open") and server.DESKTOP["teleprompter_open"]())),
             pystray.MenuItem("Capture copies (Memory Cards)", lambda icon, item: server.memory_capture(not server.MEMORY.capture),
                              checked=lambda item: bool(server.MEMORY.capture)),
-            pystray.MenuItem("Search", hook("spotlight", True)),
+            pystray.MenuItem("Command Center", hook("spotlight", True)),
             pystray.MenuItem("Settings", hook("open_settings")),
             pystray.Menu.SEPARATOR,
             pystray.MenuItem("More", more),
@@ -673,7 +673,7 @@ def main():
     def spot_window(create=False):
         with spot_lock:
             if spot_holder["w"] is None and create:
-                w = webview.create_window(DISPLAY_NAME + " · Spotlight", url + "spotlight.html", width=820, height=620,
+                w = webview.create_window(DISPLAY_NAME + " · Command Center", url + "spotlight.html", width=820, height=620,
                                           background_color="#0f172b", frameless=True, easy_drag=False, hidden=True,
                                           on_top=True, text_select=False, transparent=True)   # 9.6 Windows' frosted glass behind it
                 for ev in (w.events.loaded, w.events.shown):

@@ -15,7 +15,7 @@ or meeting.
 - [When something goes wrong: Hide all, Black screen, Emergency, Freeze](#when-something-goes-wrong-hide-all-black-screen-emergency-freeze)
 - [Annotate: draw on the picture](#annotate-draw-on-the-picture)
 - [Teleprompter](#teleprompter)
-- [Command palette](#command-palette) and [Spotlight](#spotlight)
+- [Command palette](#command-palette) and [Command Center](#command-center)
 - [Projector, TV and screen sharing](#projector-tv-and-screen-sharing)
 - [Keyboard shortcuts](#keyboard-shortcuts)
 - [Live-safety tips](#live-safety-tips)
@@ -190,7 +190,7 @@ the middle of the picture.
 From the phone remote: tap **Spotlight** on the live picture, then drag a finger to move it, or tap for a quick
 circle (see [Remote control](remote-control.md#spotlight-from-the-phone)).
 
-> **Note:** This is not the same as the [Spotlight search](#spotlight), which finds things from anywhere in Windows.
+> **Note:** This is not the same as the [Command Center](#command-center), which finds things from anywhere in Windows.
 
 ## Teleprompter
 
@@ -223,7 +223,7 @@ optional:
 
 **Open it**
 - **Live tools → Teleprompter**, or press **R** (press it again to close it).
-- From the [command palette](#command-palette) or [Spotlight](#spotlight): type *Teleprompter on / off*.
+- From the [command palette](#command-palette) or [Command Center](#command-center): type *Teleprompter on / off*.
 - From the tray icon near the clock: **Teleprompter**.
 
 The Teleprompter is one window that stays on top of Zoom, Teams, Google Meet, PowerPoint and browsers. Place it
@@ -231,7 +231,7 @@ close to your camera, so your eyes stay near the lens. With **Each Frame**, it s
 screen. Before you go live, it shows the first Frame, so you can rehearse.
 
 > **Note:** The Teleprompter is never shown in screen sharing or recordings, even when you share your whole screen
-> (Windows 10 version 2004 or later). It is never on the FrameDecks vCam either. Spotlight is left out of screen
+> (Windows 10 version 2004 or later). It is never on the FrameDecks vCam either. The Command Center is left out of screen
 > sharing too.
 
 **The top bar**
@@ -344,7 +344,7 @@ Messages or any app on the phone, paste it there and tap **Show on screen**. See
 
 The **command palette** finds anything and does most things, from the keyboard.
 
-1. Press **Ctrl+K** or **Ctrl+Space**. (Since 6.9 the command bar has no search box: the palette and **Spotlight**
+1. Press **Ctrl+K** or **Ctrl+Space**. (Since 6.9 the command bar has no search box: the palette and the **Command Center**
    are where you search.)
 2. Type a few letters. It finds Frames, Content, the Frames' questions and scriptures, text, templates, the Library,
    branding, settings, members, Bible references and recent items.
@@ -356,27 +356,47 @@ The **command palette** finds anything and does most things, from the keyboard.
 
 You can change the keys in **Settings → Keyboard shortcuts → Command palette**.
 
-### Spotlight
+### Command Center
 
-**Spotlight** is the command palette for the whole of Windows. It works when another program is in front, and when
-FrameDecks is hidden in the tray.
+The **Command Center** is where everything in FrameDecks starts. It is the command palette for the whole of Windows
+(it was called Spotlight until 9.8): it works when another program is in front, and when FrameDecks is hidden in the
+tray.
 
-1. Press **Alt+Space** anywhere. Spotlight opens in the middle of the screen where your mouse is, above everything.
-   It opens only with its shortcut (or the tray's **Search**), never by itself when FrameDecks starts.
-2. Type to search: the results appear once you type, and you choose with **↑ / ↓** and **Enter**. It finds the same
-   things as the command palette.
-3. While a Frame is live, Spotlight is also a small meeting remote under the search field. When nothing is live it is
-   only the search field.
+1. Press **Alt+Space** anywhere. The Command Center opens in the middle of the screen where your mouse is, above
+   everything. It opens only with its shortcut (or the tray's **Command Center**), never by itself.
+2. Type in the bar to search everything: Frames, meetings, questions, scriptures, Memory Cards, settings and
+   commands. Choose with **↑ / ↓** and **Enter**.
+3. Or choose a module (or press **Alt+1** to **Alt+5**). The bar then searches only that module; **Backspace** or
+   **Esc** goes back to everything.
 4. **Esc**, or a click somewhere else, closes it.
 
-Only you see Spotlight. Like the Teleprompter, it is left out of screen sharing and recordings, even when you share
-the whole screen in Zoom, Teams or Google Meet.
+| Module | What it holds |
+|---|---|
+| **Meetings** | Your meetings (choosing one shows it on this PC) and their Frames |
+| **Memory Cards** | **Capture copies** on or off, and your cards: **Enter** shows a card on screen, or hides it again |
+| **Present** | Teleprompter, Share Window, Draw and Spotlight on the Share Window, Go Live, Next / Previous, Black screen, Freeze, Hide all |
+| **Camera** | Whether FrameDecks vCam is ready or in use by your meeting app, and its settings |
+| **More** | The Studio, Workspace Sync, branding, the phone remote, Quick Start, .frame files, help and every setting |
 
-![Spotlight as a meeting remote](images/spotlight-remote.png)
+Above the modules, a row shows whether you are on air, the meeting this PC shows, **Workspace Sync** (click it to open
+its settings) and **Only you can see this**. Under them, **Recent** lists what you chose last.
 
-### Spotlight as a meeting remote
+Start the search with a sign to narrow it: **>** commands, **#** meetings and Frames, **@** people, **?** Ask AI
+(**Tab** switches to Ask AI). Ask AI drafts discussion questions from the selected Frame's scriptures with a free AI
+that runs on this PC (Ollama), when it is installed; you check them before they are added.
 
-| Row | Buttons (keys while Spotlight is open) |
+Only you see the Command Center. Like the Teleprompter, it is left out of screen sharing and recordings, even when you
+share the whole screen in Zoom, Teams or Google Meet.
+
+![The Command Center: the bar, what is happening now, five modules and Recent](images/command-center.png)
+
+While a Frame is live, the modules make room for the meeting remote:
+
+![The Command Center as a meeting remote](images/spotlight-remote.png)
+
+### The Command Center as a meeting remote
+
+| Row | Buttons (keys while the Command Center is open) |
 |---|---|
 | **On screen** | Live, Off air, Black screen or Frozen, the Frame number and what comes next |
 | **FrameDecks** | **Previous** (Alt+←), **Next Frame** (Alt+→), **Play / Pause** the video (Alt+P), **Hide all** (Alt+H), **Black** (Alt+B) |
@@ -391,8 +411,8 @@ also off when no meeting is open. Windows only.
 
 ### Draw and Spotlight on the Share Window
 
-Choose **Draw** or **Spotlight** in Spotlight (or type *draw* or *spotlight* in its search). The **Share Window** (the
-window you share in Zoom or Teams) opens, comes to the front, and Spotlight closes, so you can work on what everyone
+Choose **Draw** or **Spotlight** in the Command Center (or type *draw* or *spotlight* in its bar). The **Share Window**
+(the window you share in Zoom or Teams) opens, comes to the front, and the Command Center closes, so you can work on what everyone
 sees:
 
 - **Draw:** drag with the mouse. Keys **1**–**5** choose pen, highlighter, arrow, box or circle; **G**, **R** and **W**
@@ -407,11 +427,11 @@ The drawings and the spotlight also show on FrameDecks vCam, the overlay pages a
 bringing the main window back. Everything else opens the main window.
 
 If another program already uses Alt+Space (for example PowerToys Run), FrameDecks uses **Ctrl+Alt+Space**
-instead. **Settings → General → Window and tray → Spotlight** shows which shortcut works. You can choose Alt+Space,
+instead. **Settings → General → Window and tray → Command Center** shows which shortcut works. You can choose Alt+Space,
 Ctrl+Space, Ctrl+Alt+Space, Ctrl+Shift+Space, Win+Shift+K, or Off.
 
 > **Note:** Alt+Space normally opens the window menu of the program in front. If you need that menu, choose another
-> Spotlight shortcut.
+> Command Center shortcut.
 
 ## Projector, TV and screen sharing
 
@@ -432,7 +452,7 @@ To share it in Zoom instead, choose **Share Screen**, then the window named **Fr
 
 ## Keyboard shortcuts
 
-Shortcuts work while the FrameDecks window has focus, and never while you type in a box. Spotlight's shortcut
+Shortcuts work while the FrameDecks window has focus, and never while you type in a box. The Command Center's shortcut
 is the exception: it works everywhere. You can change the
 meeting shortcuts in **Settings**.
 
@@ -451,7 +471,7 @@ meeting shortcuts in **Settings**.
 | **R** | Teleprompter on / off |
 | **M** | Mirror the text (in the Teleprompter) |
 | **Ctrl + K** or **Ctrl + Space** | Command palette |
-| **Alt + Space** | Spotlight, from anywhere in Windows (you can change it in Settings) |
+| **Alt + Space** | The Command Center, from anywhere in Windows (you can change it in Settings) |
 | **F2** | Rename the selected Frame or Content |
 | **Ctrl + D** | Duplicate the selected Frame or Content |
 | **Ctrl + C** · **Ctrl + X** · **Ctrl + V** | Copy · cut · paste the selected Frames or Content |

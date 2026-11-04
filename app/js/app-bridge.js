@@ -154,7 +154,7 @@ function renderWindow(){
       ' Modern window: the app’s own ribbon instead of the Windows title bar (restart to apply)']),
     h('label', {cls: 'field'}, [h('span', {text: 'Minimize button'}), select('app-min', [['ask', 'Ask each time'], ['tray', 'Hide to tray'], ['taskbar', 'Stay in taskbar']], st.minimizeTo || 'ask', 'minimizeTo', 'Saved')]),
     h('p', {cls: 'hint', text: 'In the tray (near the clock) FrameDecks keeps running: camera, overlays, phone remote and shortcuts keep working.'}),
-    h('label', {cls: 'field'}, [h('span', {text: 'Spotlight (works everywhere, even from the tray)'}), select('app-spot', SPOT_KEYS, st.spotlightKey == null ? 'Alt+Space' : st.spotlightKey, 'spotlightKey', 'Saved')]),
+    h('label', {cls: 'field'}, [h('span', {text: 'Command Center (works everywhere, even from the tray)'}), select('app-spot', SPOT_KEYS, st.spotlightKey == null ? 'Alt+Space' : st.spotlightKey, 'spotlightKey', 'Saved')]),
     h('p', {cls: 'hint', id: 'app-spot-state', text: hkText}),
     h('p', {cls: 'hint', text: 'The Teleprompter stays above Zoom and Teams and is never shown in screen sharing or recordings (Windows 10 version 2004 or later).'})];
   if (!box){ box = h('section', {cls: 'box', id: 'app-win', 'aria-labelledby': 'app-win-title'}); sec.appendChild(box); }

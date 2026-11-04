@@ -358,3 +358,54 @@ body.spotting .pic-tools{bottom:max(10px,env(safe-area-inset-bottom));right:max(
 body.spotting #pic-spot{background:var(--live);border-color:var(--live);color:#06210f;min-height:48px;padding:0 18px;font-size:16px}
 body.spotting .spot-hint{top:auto;bottom:max(14px,env(safe-area-inset-bottom));left:12px;right:150px;text-align:left}
 body.spotting{overflow:hidden}
+
+/* ---------- 9.9 the Command Center look (app/css/spotlight.css): dark glass, a floating header like its bar, glass
+ * cards and tiles with a hairline edge and an inner highlight, icons in squares of one hue per tool, and the tabs as a
+ * floating glass dock. Still no backdrop blur and nothing that loops, so the phone stays cool. ---------- */
+:root{--g1:rgba(255,255,255,.085);--g0:rgba(255,255,255,.04);--edge:rgba(255,255,255,.11);--edge2:rgba(255,255,255,.2);
+  --ghi:inset 0 1px 0 rgba(255,255,255,.1);--lift:0 12px 30px rgba(0,0,0,.38);--lift-sm:0 4px 14px rgba(0,0,0,.3);
+  --hue-gold:linear-gradient(145deg,#f6d27a,#c8901d);--hue-violet:linear-gradient(145deg,#b79bff,#6d4fd8);--hue-blue:linear-gradient(145deg,#8fb6ff,#3d6fe0);
+  --hue-teal:linear-gradient(145deg,#6fe3cf,#178f86);--hue-slate:linear-gradient(145deg,#c3cad8,#59637a);--hue-red:linear-gradient(145deg,#ff8a8a,#d23c3c)}
+html,body{background:radial-gradient(90% 55% at 50% -8%,rgba(122,152,255,.2),transparent 70%) fixed,linear-gradient(180deg,#0e1934,#060a17) fixed,var(--bg)}
+/* the header: a floating capsule, like the Command Center's bar */
+.top{margin:10px 12px 0;padding:8px 8px 8px 12px;border:1px solid var(--edge2);border-radius:20px;background:linear-gradient(180deg,var(--g1),var(--g0));box-shadow:var(--ghi),var(--lift)}
+.top-mark{border-radius:8px}
+.conn{display:inline-flex;align-self:flex-start;margin-top:2px;padding:1px 8px 1px 6px;border:1px solid var(--edge);border-radius:999px;background:var(--g0)}
+.conn.ok{color:var(--live);border-color:rgba(61,220,132,.3)}
+/* glass surfaces */
+.card,.tool,.nav-btn.prev,.round,.cm-card,.mtrow,.frow,.more,.fitem.open,.seg,.login-card{border-color:var(--edge)}
+.card,.tool,.cm-card{background:linear-gradient(180deg,var(--g1),var(--g0));box-shadow:var(--ghi),var(--lift-sm)}
+.card{border-radius:20px}
+.nav-btn.prev,.round{background:linear-gradient(180deg,var(--g1),var(--g0));box-shadow:var(--ghi),var(--lift-sm)}
+.nav-btn{border-radius:20px}
+.preview{border-color:var(--edge2);box-shadow:var(--ghi),var(--lift)}
+.chip{background:var(--g0);border-color:var(--edge)}
+.air-mini{border:1px solid var(--edge)}
+.panels{border-top:0}
+/* the tabs: a floating glass dock */
+.tabs{margin:0 12px max(10px,env(safe-area-inset-bottom));padding:4px;gap:2px;border:1px solid var(--edge2);border-radius:22px;background:linear-gradient(180deg,rgba(22,32,60,.94),rgba(10,15,32,.96));
+  box-shadow:var(--ghi),var(--lift)}
+.tabs button{border-radius:16px}
+.tabs button[aria-selected="true"]{background:var(--g1);box-shadow:inset 0 0 0 1px var(--edge)}
+/* tools: the icon in a square of its own hue, like the Command Center's modules */
+.tool{border-radius:20px}
+.tool .ti{border-radius:12px;color:#fff;background:var(--hue-slate);box-shadow:var(--ghi),var(--lift-sm)}
+#t-draw .ti{background:var(--hue-violet)} #t-spot .ti{background:var(--hue-gold)} #t-prompter .ti{background:var(--hue-blue)}
+#t-freeze .ti{background:var(--hue-teal)} #t-black .ti,.tool.warn .ti{background:var(--hue-red);color:#fff}
+.tool.on{border-color:rgba(61,220,132,.55);background:linear-gradient(180deg,rgba(61,220,132,.16),rgba(61,220,132,.06))}
+.tool.on .ti{background:var(--live);color:#06210f}
+#t-spot.on{border-color:var(--gold);background:linear-gradient(180deg,rgba(232,185,49,.16),rgba(232,185,49,.05))} #t-spot.on .ti{background:var(--gold);color:var(--gold-ink)}
+.tool.warn.on .ti{background:var(--red);color:#fff}
+/* rows and lists */
+.frow,.drow,.crow,.mrow,.mtrow{border-radius:14px}
+.frow .n{border-radius:8px}
+.eye{border-radius:12px;background:linear-gradient(180deg,var(--g1),var(--g0));border-color:var(--edge);box-shadow:var(--ghi)}
+.kinds button,.cm-btn,.pic-btn,.hideall{box-shadow:var(--ghi)}
+.kinds button[aria-checked="true"]{background:var(--g1);border-color:var(--edge2);color:var(--ink)}
+.toast{background:linear-gradient(180deg,rgba(30,44,80,.97),rgba(16,24,46,.97));border-color:var(--edge2);box-shadow:var(--ghi),var(--lift)}
+.login-card{background:linear-gradient(180deg,var(--g1),var(--g0));box-shadow:var(--ghi),0 30px 80px rgba(0,0,0,.5)}
+@media (orientation:landscape) and (min-width:600px){
+  .tabs{margin:10px 12px 0 0;order:0}
+  .side{border-left:0}
+}
+@media (orientation:landscape) and (min-width:600px) and (max-height:560px){ .top{margin:6px 10px 0;border-radius:16px} .tabs{margin-top:6px} }

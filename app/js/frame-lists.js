@@ -313,5 +313,5 @@ function onVerse(d){
 Store.subscribe(function(st){ live = st; render(); });
 aiCheck(); setInterval(aiCheck, 120000);
 window.addEventListener('kc-edit-done', function(){ render(); });
-window.KCFrameLists = {render: function(){ render(); }, onVerse: onVerse, edit: openEditor, add: function(kind){ return addItem(kind, frameId()); }, save: saveItem};
+window.KCFrameLists = {render: function(){ render(); }, onVerse: onVerse, suggest: function(sid){ if (ai.busy) return; suggest(sid); }, edit: openEditor, add: function(kind){ return addItem(kind, frameId()); }, save: saveItem};
 })();

@@ -16,7 +16,7 @@ if (!Store || !SC) return;
 var $ = function(id){ return document.getElementById(id); };
 function h(tag, attrs, kids){
   var el = document.createElement(tag);
-  for (var k in (attrs || {})){ var v = attrs[k]; if (k.slice(0, 2) === 'on') el.addEventListener(k.slice(2), v); else if (k === 'text') el.textContent = v; else if (k === 'cls') el.className = v; else if (v != null && v !== false) el.setAttribute(k, v); }
+  for (var k in (attrs || {})){ var v = attrs[k]; if (k.slice(0, 2) === 'on') el.addEventListener(k.slice(2), v); else if (k === 'text') el.textContent = v; else if (k === 'html') el.innerHTML = v; else if (k === 'cls') el.className = v; else if (v != null && v !== false) el.setAttribute(k, v); }
   (kids || []).forEach(function(c){ if (c != null) el.appendChild(typeof c === 'string' ? document.createTextNode(c) : c); });
   return el;
 }
@@ -41,11 +41,12 @@ function comboOf(e){
 }
 
 /* ---------- what can be found ---------- */
-var KIND = {cmd: 'Command', frame: 'Frame', tpl: 'Template', lib: 'Library', content: 'Content', question: 'Question', verse: 'Scripture',
+var KIND = {cmd: 'Command', meeting: 'Meeting', card: 'Memory', ai: 'Ask AI', frame: 'Frame', tpl: 'Template', lib: 'Library', content: 'Content', question: 'Question', verse: 'Scripture',
   text: 'Text', brand: 'Branding', bg: 'Background', member: 'Member', birthday: 'Birthday', setting: 'Settings', bible: 'Bible', recent: 'Recent'};
 var SECTIONS = [['general', 'General', 'appearance theme dark light'], ['meeting', 'Meeting & Branding', 'logo brand meeting name organization colour accent'],
   ['overlays', 'Birthdays', 'birthday reminders'], ['scripture', 'Scripture', 'bible esv api key translation'], ['transitions', 'Transitions', 'fade dip cut profile'],
   ['output', 'How people see it', 'zoom teams share window projector tv obs camera'], ['recording', 'Recording', 'record mp4'], ['display', 'Projector, TV and OBS', 'zoom display overlay obs browser source links'], ['vcam', 'FrameDecks vCam', 'framedecks vcam framerelay camera zoom teams blur background look resolution'],
+  ['account', 'Workspace Sync', 'sync workspace website cloud link connect framedecks.com'],
   ['ipad', 'Phone & iPad Remote', 'remote pin qr phone tablet'], ['keys', 'Keyboard shortcuts', 'keys hotkeys palette'], ['security', 'Security', 'pin privacy'],
   ['data', 'Data / Backup', 'backup restore export import'], ['diag', 'Diagnostics', 'problems errors logs'], ['about', 'About', 'version credits']];
 function commands(){
@@ -91,11 +92,24 @@ function commands(){
   }
   /* commands Spotlight can run while the main window stays in the tray */
   var BG = {golive: 1, next: 1, prev: 1, hideall: 1, blackout: 1, freeze: 1, prompter: 1, share: 0};
-  return c.map(function(x){ return {key: 'cmd:' + x[0], kind: 'cmd', title: x[1], sub: x[4] ? 'Shortcut ' + x[4] : 'Command', words: x[2], run: x[3], bg: !!BG[x[0]]}; });
+  /* 9.9 Ask AI (Command Center): discussion questions drafted on this PC from the selected Frame's scriptures */
+  var aiSc = sel && sel.scene && live ? (typeof sel.scene === 'string' ? SC.find(live, sel.scene) : sel.scene) : null, aiV = aiSc && SC.first(aiSc, 'scripture');
+  if (aiV && Array.isArray(aiV.c.items) && aiV.c.items.length && window.KCFrameLists && window.KCFrameLists.suggest){
+    c.push(['ai-questions', 'Ask AI: draft discussion questions for “' + aiSc.name + '”', 'ai ask assist questions discussion draft suggest ollama', function(){
+      studio(); if (W()) W().select(aiSc.id, null, true); setTimeout(function(){ window.KCFrameLists.suggest(aiSc.id); }, 60); }]);
+  }
+  return c.map(function(x){ return {key: 'cmd:' + x[0], kind: x[0].indexOf('ai-') === 0 ? 'ai' : 'cmd', title: x[1], sub: x[4] ? 'Shortcut ' + x[4] : x[0].indexOf('ai-') === 0 ? 'Drafted on this PC · you check them before they are added' : 'Command', words: x[2], run: x[3], bg: !!BG[x[0]]}; });
 }
 function trimmed(s, n){ s = String(s || '').replace(/\s+/g, ' ').trim(); return s.length > n ? s.slice(0, n - 1) + '…' : s; }
 function index(){
   var out = commands(), st = live; if (!st) return out;
+  /* 9.9 the meetings of this workspace: choosing one shows it on this PC (one meeting at a time, as in the Studio) */
+  var mlist = SC.meetings ? SC.meetings(st) : [], mcur = mlist.length && SC.currentMeeting(st);
+  mlist.forEach(function(m){
+    var n = st.scenes.filter(function(sc){ return !sc.tpl && (mlist.length < 2 || SC.meetingOf(st, sc).id === m.id); }).length;
+    out.push({key: 'meet:' + m.id, kind: 'meeting', title: m.name, sub: (mcur && mcur.id === m.id ? 'Showing on this PC · ' : '') + n + (n === 1 ? ' Frame' : ' Frames') + (m.date ? ' · ' + m.date : ''),
+      words: 'meeting ' + (m.notes || ''), run: function(){ studio(); Store.update(function(x){ SC.switchMeeting(x, m.id); }); }});
+  });
   SC.order(st).concat(st.scenes.filter(function(s){ return s.tpl; })).forEach(function(sc){
     var isLive = st.live.scene === sc.id;
     out.push({key: 'frame:' + sc.id, kind: sc.tpl ? 'tpl' : 'frame', title: sc.name, sub: (isLive ? 'Live · ' : '') + (sc.group || (sc.tpl ? 'Template' : 'Frame')) + ' · ' +
@@ -153,7 +167,7 @@ function score(q, title, words){
   }
   return s - t.length * 0.3;
 }
-var KIND_BONUS = {cmd: 30, frame: 40, content: 10, text: 10, question: 5, verse: 5, tpl: 0, lib: -5, brand: 5, bg: 5, setting: 0, member: -5, birthday: 0};
+var KIND_BONUS = {meeting: 35, card: 20, ai: 10, cmd: 30, frame: 40, content: 10, text: 10, question: 5, verse: 5, tpl: 0, lib: -5, brand: 5, bg: 5, setting: 0, member: -5, birthday: 0};
 function rank(all, q){
   var words = norm(q).trim().split(/\s+/).filter(Boolean), res = [];
   if (!words.length) return [];
@@ -196,8 +210,9 @@ function build(){
     if (e.key === 'ArrowDown' || e.key === 'ArrowUp'){ e.preventDefault(); if (items.length){ active = (active + (e.key === 'ArrowDown' ? 1 : -1) + items.length) % items.length; mark(); } }
     else if (e.key === 'PageDown' || e.key === 'PageUp'){ e.preventDefault(); if (items.length){ active = Math.max(0, Math.min(items.length - 1, active + (e.key === 'PageDown' ? 8 : -8))); mark(); } }
     else if (e.key === 'Enter'){ e.preventDefault(); if (items[active]) choose(items[active]); }
-    else if (e.key === 'Escape'){ e.preventDefault(); close(); }
-    else if (e.key === 'Tab'){ e.preventDefault(); }
+    else if (e.key === 'Escape'){ e.preventDefault(); if (!(hooks.escape && hooks.escape())) close(); }
+    else if (e.key === 'Tab'){ e.preventDefault(); if (hooks.tab) hooks.tab(e.shiftKey); }
+    else if (e.key === 'Backspace' && !input.value && hooks.backspace){ if (hooks.backspace()) e.preventDefault(); }
   });
   document.body.appendChild(back);
 }
@@ -223,8 +238,28 @@ function mark(){
   Array.prototype.forEach.call(list.querySelectorAll('.pal-row'), function(li, n){ li.setAttribute('aria-selected', String(n === active)); if (n === active) li.scrollIntoView({block: 'nearest'}); });
   if (items[active]) input.setAttribute('aria-activedescendant', 'pal-' + active); else input.removeAttribute('aria-activedescendant');
 }
+/* 9.9 Command Center scopes: a module (Meetings, Memory Cards, Present, Camera, More) or a prefix narrows the search.
+ * > commands · # meetings and Frames · @ people · ? Ask AI. A scope is {id, label, items(all) -> the items it searches}. */
+var scope = null, hooks = {};
+var PREFIX = {'>': function(all){ return all.filter(function(it){ return it.kind === 'cmd'; }); },
+  '#': function(all){ return all.filter(function(it){ return it.kind === 'meeting' || it.kind === 'frame'; }); },
+  '@': function(all){ return all.filter(function(it){ return it.kind === 'member' || it.kind === 'birthday'; }); },
+  '?': function(all){ return all.filter(function(it){ return it.kind === 'ai'; }); }};
+function pool(q){
+  var c = q.charAt(0), base = scope ? scope.items(all) : all;
+  if (PREFIX[c]) return {list: PREFIX[c](base), q: q.slice(1), prefix: c};
+  return {list: base, q: q, prefix: ''};
+}
 function update(){
   var q = input.value;
+  if (scope || PREFIX[q.trim().charAt(0)]){                          // 9.9 a module or a prefix: its items, ranked as you type
+    var pl = pool(q.trim()), sq = pl.q.trim(), res = sq ? rank(pl.list, sq) : pl.list.slice(0, 50);
+    if (pl.prefix === '?' && hooks.ai) res = hooks.ai(sq, res);
+    items = res; active = 0;
+    draw([{label: sq ? '' : (scope ? scope.label : ''), items: res}]);
+    if (!res.length) list.firstChild.textContent = scope && scope.empty ? scope.empty : 'Nothing here yet.';
+    return;
+  }
   if (!q.trim()){                                                     // empty: recent items, then useful commands
     var byKey = {}; all.forEach(function(it){ byKey[it.key] = it; });
     var rec = recents().map(function(k){ return byKey[k]; }).filter(Boolean).slice(0, 6);
@@ -243,6 +278,7 @@ function update(){
 }
 function bible(ref){ studio(); if (W()) W().fetchVerse(ref); }
 function choose(it){
+  if (it.local){ try { it.local(); } catch(e){} return; }             // 9.9 done in the Command Center itself (Memory Cards, camera)
   if (it.kind !== 'bible') remember(it);
   if (STANDALONE && (it.key === 'cmd:sharedraw' || it.key === 'cmd:sharespot' || it.key === 'cmd:annotate')){   // 9.7 the Share Window opens for it
     post('annotate', {op: 'mode', mode: it.key === 'cmd:sharespot' ? 'spot' : 'draw'}); input.value = ''; return;
@@ -344,5 +380,15 @@ if (STANDALONE){
     var box = back.querySelector('.pal'); box.classList.remove('spot-in'); void box.offsetWidth; box.classList.add('spot-in'); }};
 }
 
-window.KCPalette = {open: open, close: close, rank: rank, score: score, exportIndex: exportIndex, runKey: runKey};
+/* 9.9 for the Command Center (js/command-center.js) */
+function setScope(s){ scope = s || null; if (back && !back.hidden) update(); }
+function recentItems(n){
+  var byKey = {}; all.forEach(function(it){ byKey[it.key] = it; });
+  var f = freq(), keys = recents().concat(Object.keys(f).sort(function(a, b){ return f[b] - f[a]; })), seen = {}, out = [];
+  keys.forEach(function(k){ if (!seen[k] && byKey[k] && out.length < n){ seen[k] = 1; out.push(byKey[k]); } });
+  return out;
+}
+window.KCPalette = {open: open, close: close, rank: rank, score: score, exportIndex: exportIndex, runKey: runKey,
+  scope: setScope, scoped: function(){ return scope; }, hooks: hooks, choose: function(it){ choose(it); }, all: function(){ return all; },
+  recentItems: recentItems, refresh: function(){ if (back && !back.hidden) update(); }, input: function(){ return input; }};
 })();

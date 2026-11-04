@@ -53,6 +53,26 @@ Versions before 4.9 (when the program had its earlier name) are described in the
 - The favicons, the tray icon and the small program-icon sizes (16–32 px) use a heavier version of the emblem, so it
   stays visible on light browser tabs and a light taskbar. Larger sizes are unchanged.
 
+## [9.9.0] - 2026-11-04
+
+Full notes: [docs/releases/v9.9.0.md](releases/v9.9.0.md).
+
+### Added
+- The Command Center (`app/js/command-center.js`, was Spotlight): context strip (on air, meeting, Workspace Sync,
+  "Only you can see this"), five modules (Meetings, Memory Cards, Present, Camera, More; Alt+1 to Alt+5) as scopes of
+  the bar, Recent, key hints. Glass styles in `app/css/spotlight.css` (Windows Acrylic behind; no CSS blur).
+- `js/palette.js`: scopes and prefixes (`>` commands, `#` meetings and Frames, `@` people, `?` Ask AI), meeting
+  entries (`meet:<id>`, switches the PC's meeting), `cmd:ai-questions` (`KCFrameLists.suggest`), local items and
+  hooks for the Command Center.
+- The phone remote in the same look (`app/css/remote.css`, 9.9 block). `tools/make_product_shots.py --guide-only`
+  captures `docs/guide/images/command-center.png` and the live remote. Tests: `tests/test_command_center_99.py`.
+
+### Changed
+- Tray **Search** and the Settings shortcut label are now **Command Center**; the window title too. Guides updated.
+
+### Fixed
+- The palette's element helper ignored `html`, so its search icon never showed.
+
 ## [9.8.1] - 2026-11-04
 
 Full notes: [docs/releases/v9.8.1.md](releases/v9.8.1.md).

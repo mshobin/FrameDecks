@@ -161,13 +161,12 @@ function build(){
       btn('prompter', 'Teleprompter', 'type', '', function(){ run('cmd:prompter', true); }, 'chip'),
       btn('sharewin', 'Share Window', 'monitor', '', function(){ run('cmd:share', false); }, 'chip'),
       btn('phone', 'Phone remote', 'smartphone', '', function(){ run('set:ipad', false); }, 'chip')])]);
-  top.insertAdjacentElement('afterend', panel);
+  (box.querySelector('.cc-strip') || top).insertAdjacentElement('afterend', panel);   // 9.9 under the Command Center's strip
   var input = top.querySelector('.pal-in');
-  input.placeholder = 'Search or run anything…';
   input.addEventListener('input', mode_);
   // compact: the (hidden) results must not run on Enter or move on the arrows; Esc still closes
   document.addEventListener('keydown', function(e){
-    if (e.target === input && !input.value.trim() && (e.key === 'Enter' || ((e.key === 'ArrowDown' || e.key === 'ArrowUp') && !e.altKey))){ e.preventDefault(); e.stopPropagation(); }
+    if (e.target === input && !(window.KCCommandCenter && window.KCCommandCenter.expanded()) && !input.value.trim() && (e.key === 'Enter' || ((e.key === 'ArrowDown' || e.key === 'ArrowUp') && !e.altKey))){ e.preventDefault(); e.stopPropagation(); }
   }, true);
   mode_();
   return true;
@@ -178,7 +177,7 @@ var sized = 0;
 function mode_(){
   var box = document.querySelector('.pal'), input = box && box.querySelector('.pal-in');
   if (!box) return;
-  var typing = !!(input && input.value.trim());
+  var CC = window.KCCommandCenter, typing = CC ? CC.expanded() : !!(input && input.value.trim());   // 9.9 a module open counts as typing
   box.classList.toggle('spr-typing', typing);
   box.classList.toggle('spr-compact', !typing);
   requestAnimationFrame(function(){

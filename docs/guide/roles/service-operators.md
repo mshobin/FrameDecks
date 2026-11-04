@@ -69,10 +69,10 @@ in **Settings → General → Window and tray**; if another program uses Alt+Spa
 - Watch the status chips: **Black screen on ▾**, **Frozen ▾** or **Drawing ▾** on the Live tools button mean that mode is on.
 - If a remote operator is running Next, don't fight them: agree who has control before the service.
 - Working mostly in Zoom or OBS? Hide FrameDecks to the tray (**Minimize → Hide To Tray**) and press
-  **Alt+Space** for **Spotlight**. **Go Live**, **Next / Previous Frame**, **Hide all**, **Black screen** and **Freeze**
-  run from Spotlight without bringing the main window back. The tray icon's menu has **Open App**, **Teleprompter**,
-  **Search** and, under **More**, **Hide all overlays** and **Stop screen share**. See
-  [Spotlight](../presentations.md#spotlight).
+  **Alt+Space** for the **Command Center**. **Go Live**, **Next / Previous Frame**, **Hide all**, **Black screen** and
+  **Freeze** run from it without bringing the main window back. The tray icon's menu has **Open App**,
+  **Teleprompter**, **Command Center** and, under **More**, **Hide all overlays** and **Stop screen share**. See
+  [Command Center](../presentations.md#command-center).
 
 ## After the service
 
