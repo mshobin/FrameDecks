@@ -53,6 +53,19 @@ Versions before 4.9 (when the program had its earlier name) are described in the
 - The favicons, the tray icon and the small program-icon sizes (16–32 px) use a heavier version of the emblem, so it
   stays visible on light browser tabs and a light taskbar. Larger sizes are unchanged.
 
+## [9.5.1] - 2026-11-04
+
+Full notes: [docs/releases/v9.5.1.md](releases/v9.5.1.md). Numbers: [docs/development/performance.md](development/performance.md).
+
+### Performance
+- Welcome flow (`app/css/onboarding.css`): no `filter: blur` (the background lights are radial gradients painted
+  once; pages slide and fade; the entrance and the emblem have no filter); looping animations play a few times and
+  rest; the window behind is `visibility: hidden` while covered (`.onb-behind`, `app/js/onboarding.js`). Without the
+  GPU and on a 4× slower CPU it goes from 6–8 fps to 60 fps.
+- `vcam/spotlight.py`: the disc's shape is kept per size and strength (`_disc_mask`) and blended with
+  `cv2.blendLinear`; the follow lens goes from 11.4 to 2.2 ms a frame at 1080p (same picture within one level).
+- `tests/visual/perf.mjs`: the older-PC budget (no GPU, 4× CPU).
+
 ## [9.5.0] - 2026-11-04
 
 Full notes: [docs/releases/v9.5.0.md](releases/v9.5.0.md).

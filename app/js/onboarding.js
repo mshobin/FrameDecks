@@ -90,7 +90,7 @@ function art(id){
 }
 
 /* ---------- the flow ---------- */
-var root = null, at = 0, info = null, pick = null, imported = false, lastFocus = null, hiddenSiblings = [];
+var root = null, at = 0, info = null, pick = null, imported = false, lastFocus = null, hiddenSiblings = [], behindT = null;
 function show(i, fromKey){
   i = Math.max(0, Math.min(PAGES.length - 1, i));
   if (!root || i === at && root.dataset.ready) return;
@@ -234,13 +234,16 @@ function open(d){
   document.body.appendChild(root);
   document.documentElement.classList.add('onb-open');
   requestAnimationFrame(function(){ root.classList.add('in'); show(0); });
+  /* 9.5.1 once the welcome covers the window, the window behind is not drawn at all (its previews included) */
+  behindT = setTimeout(function(){ hiddenSiblings.forEach(function(e){ e.classList.add('onb-behind'); }); }, 500);
 }
 /* close: take the flow away (record: also save it as done) */
 function close(){
   stopPoll();
   if (!root) return;
   var r = root; root = null;
-  hiddenSiblings.forEach(function(e){ e.removeAttribute('inert'); }); hiddenSiblings = [];
+  clearTimeout(behindT);
+  hiddenSiblings.forEach(function(e){ e.removeAttribute('inert'); e.classList.remove('onb-behind'); }); hiddenSiblings = [];
   document.documentElement.classList.remove('onb-open');
   r.classList.add('leaving'); r.classList.remove('in');
   var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;

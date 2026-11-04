@@ -121,6 +121,9 @@ class Spotlight:
 
     @staticmethod
     def _paint_disc(frame, spot, r, cx, cy, scale, alpha, wave=0.0):
+        """The soft see-through disc with its bright rim, centred on (cx, cy). 9.5.1: the disc's shape (radius,
+        strength, rim) is worked out once and kept (_disc_mask); each frame only cuts it to the picture and blends it
+        in with OpenCV's per-pixel blend, so a disc that follows the pointer costs well under a millisecond."""
         H, W = frame.shape[:2]
         k = max(0.1, min(1.0, float(spot.get("k") or 60) / 100))
         rr = max(3, int(r * scale))
@@ -131,24 +134,46 @@ class Spotlight:
         if not frame.flags.writeable:
             frame = frame.copy()
         roi = frame[y0:y1, x0:x1]
-        yy, xx = np.ogrid[y0 - cy:y1 - cy, x0 - cx:x1 - cx]
-        d = np.sqrt(xx * xx + yy * yy).astype(np.float32)
-        u = d / rr
-        a = k * (0.38 + 0.17 * np.clip(u / 0.72, 0, 1) + 0.30 * np.clip((u - 0.72) / 0.28, 0, 1))
-        a *= np.clip(rr - d + 0.5, 0, 1)                                           # a smooth edge
-        rim = max(1.5, 1.5 + 1.5 * k)
-        a = np.maximum(a, 0.8 * np.clip(1 - np.abs(d - rr) / rim, 0, 1))          # the bright rim
-        if wave:
-            wr = r * (0.9 + 0.7 * wave)
-            a = np.maximum(a, 0.8 * (1 - wave) * np.clip(1 - np.abs(d - wr) / 2.0, 0, 1))
-        a *= alpha
-        if not a.any():
-            return frame
-        col = np.array(_bgr(spot.get("c") or "#ffffff"), np.float32)
-        a3 = a[..., None]
-        roi[:] = (roi.astype(np.float32) * (1 - a3) + col * a3).astype(np.uint8)
+        if wave:                                    # the 8.2 opening ripple: a few frames, worked out each time
+            m = _disc_shape(pad, rr, r, k, wave)
+        else:
+            m = _disc_mask(pad, rr, round(r, 1), round(k, 2))
+        a = m[y0 - (cy - pad):y1 - (cy - pad), x0 - (cx - pad):x1 - (cx - pad)]
+        if alpha < 0.999:
+            a = a * np.float32(alpha)
+        col = np.empty_like(roi)
+        col[:] = _bgr(spot.get("c") or "#ffffff")
+        roi[:] = cv2.blendLinear(roi, col, np.ascontiguousarray(1 - a, np.float32), np.ascontiguousarray(a, np.float32))
         return frame
 
+
+def _disc_shape(pad, rr, r, k, wave=0.0):
+    """The disc's opacity on a (2*pad x 2*pad) square centred on it, 0..1."""
+    yy, xx = np.ogrid[-pad:pad, -pad:pad]
+    d = np.sqrt(xx * xx + yy * yy).astype(np.float32)
+    u = d / rr
+    a = k * (0.38 + 0.17 * np.clip(u / 0.72, 0, 1) + 0.30 * np.clip((u - 0.72) / 0.28, 0, 1))
+    a *= np.clip(rr - d + 0.5, 0, 1)                                           # a smooth edge
+    rim = max(1.5, 1.5 + 1.5 * k)
+    a = np.maximum(a, 0.8 * np.clip(1 - np.abs(d - rr) / rim, 0, 1))          # the bright rim
+    if wave:
+        wr = r * (0.9 + 0.7 * wave)
+        a = np.maximum(a, 0.8 * (1 - wave) * np.clip(1 - np.abs(d - wr) / 2.0, 0, 1))
+    return a.astype(np.float32)
+
+
+_MASKS = {}
+
+
+def _disc_mask(pad, rr, r, k):
+    """_disc_shape kept for the next frames (a few sizes at most: size and strength rarely change)."""
+    key = (pad, rr, r, k)
+    m = _MASKS.get(key)
+    if m is None:
+        if len(_MASKS) > 24:
+            _MASKS.clear()
+        m = _MASKS[key] = _disc_shape(pad, rr, r, k)
+    return m
 
 
 FOLLOW_FADE = 0.18          # 9.4 the follow lens fades in and out this fast (seconds)

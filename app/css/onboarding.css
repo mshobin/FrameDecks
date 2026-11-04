@@ -5,13 +5,14 @@
   --o-bg:#060b18; --o-bg2:#0b1630; --o-ink:#f4f6fb; --o-muted:#a6b0c4; --o-faint:#6f7a92; --o-line:rgba(255,255,255,.10);
   --o-line2:rgba(255,255,255,.18); --o-card:rgba(255,255,255,.05); --o-card2:rgba(255,255,255,.09); --o-gold:#e8b931;
   --o-gold2:#f6d77a; --o-gold-ink:#1d1503; --o-gold-soft:rgba(232,185,49,.16); --o-live:#3ddc84; --o-live-soft:rgba(61,220,132,.16);
-  --o-blue:#7aa7ff; --o-blob1:rgba(70,110,255,.55); --o-blob2:rgba(232,185,49,.38); --o-blob3:rgba(61,220,132,.22);
+  --o-blue:#7aa7ff;
+  --o-glow-bg:radial-gradient(40vw 40vw at 18% 18%,rgba(70,110,255,.42),rgba(70,110,255,0) 70%),radial-gradient(38vw 38vw at 92% 52%,rgba(232,185,49,.26),rgba(232,185,49,0) 70%),radial-gradient(40vw 34vw at 46% 100%,rgba(61,220,132,.16),rgba(61,220,132,0) 70%);
   --o-screen:linear-gradient(160deg,#18233f,#0b1222 70%); --o-screen-edge:rgba(255,255,255,.14);
   --o-glow:0 30px 80px rgba(232,185,49,.25); --o-lift:0 24px 60px rgba(2,6,18,.55); --o-ease:cubic-bezier(.22,1,.36,1);
   --o-live-ink:#06210f; --o-deck:#8fb3ff; --o-deck-soft:rgba(122,167,255,.12); --o-deck-line:rgba(122,167,255,.4);
   --o-content:#c3a6ff; --o-content-soft:rgba(178,140,255,.12); --o-content-line:rgba(178,140,255,.42); --o-frame-soft:rgba(232,185,49,.08); --o-gold-line:rgba(232,185,49,.35); --o-gold-line2:rgba(232,185,49,.5); --o-live-line:rgba(61,220,132,.5);
   --o-blue-line:rgba(122,167,255,.45); --o-blue-soft:rgba(122,167,255,.25); --o-card-dark:rgba(10,18,38,.86); --o-white:rgba(255,255,255,.9);
-  --o-cursor-ring:0 0 0 8px rgba(255,255,255,.18); --o-emblem-glow:drop-shadow(0 12px 30px rgba(232,185,49,.4));
+  --o-cursor-ring:0 0 0 8px rgba(255,255,255,.18);
   position:fixed;inset:0;z-index:1000;display:grid;grid-template-rows:auto 1fr auto;color:var(--o-ink);
   background:radial-gradient(120% 90% at 15% 0%,var(--o-bg2),var(--o-bg) 60%);font-family:var(--sans);
   opacity:0;transition:opacity .45s var(--o-ease);overflow:hidden}
@@ -20,12 +21,10 @@
 html.onb-open,html.onb-open body{overflow:hidden}
 
 /* the light behind: three soft blobs drifting slowly */
-.onb-bg{position:absolute;inset:-20%;pointer-events:none;filter:blur(90px);opacity:.7}
-.onb-bg i{position:absolute;width:42vw;height:42vw;border-radius:50%}
-.onb-bg .b1{left:5%;top:5%;background:var(--o-blob1);animation:onb-drift 22s ease-in-out infinite alternate}
-.onb-bg .b2{right:0;top:30%;background:var(--o-blob2);animation:onb-drift 26s ease-in-out -6s infinite alternate-reverse}
-.onb-bg .b3{left:30%;bottom:-5%;background:var(--o-blob3);animation:onb-drift 30s ease-in-out -12s infinite alternate}
-@keyframes onb-drift{from{transform:translate(0,0) scale(1)}to{transform:translate(6vw,-4vh) scale(1.15)}}
+/* 9.5.1 the soft light behind: radial gradients that fade to nothing, the same look as blurred circles without a
+ * blur filter (which costs every frame on a PC drawing without its graphics card). Painted once, never animated. */
+.onb-bg{position:absolute;inset:0;pointer-events:none;opacity:.75;background:var(--o-glow-bg)}
+.onb-bg i{display:none}
 
 /* top and bottom bars */
 .onb-top{position:relative;display:flex;align-items:center;justify-content:space-between;padding:22px clamp(20px,4vw,56px)}
@@ -58,11 +57,11 @@ html.onb-open,html.onb-open body{overflow:hidden}
 .onb-slides{position:relative;min-height:0}
 .onb-slide{position:absolute;inset:0;display:grid;grid-template-columns:minmax(0,.95fr) minmax(0,1.05fr);align-items:center;gap:clamp(24px,5vw,80px);
   padding:0 clamp(20px,6vw,96px);overflow:auto;opacity:0;visibility:hidden;
-  transform:translateX(calc(var(--dir,1) * 80px)) scale(.98);filter:blur(10px);
-  transition:opacity .55s var(--o-ease),transform .9s var(--o-ease),filter .7s var(--o-ease),visibility 0s linear .9s}
+  transform:translateX(calc(var(--dir,1) * 80px)) scale(.98);
+  transition:opacity .55s var(--o-ease),transform .9s var(--o-ease),visibility 0s linear .9s}
 .onb-slide.gone{transform:translateX(calc(var(--dir,1) * -80px)) scale(.98)}
-.onb-slide.on{opacity:1;visibility:visible;transform:none;filter:none;
-  transition:opacity .7s var(--o-ease) .12s,transform .9s var(--o-ease) .08s,filter .7s var(--o-ease) .08s,visibility 0s}
+.onb-slide.on{opacity:1;visibility:visible;transform:none;
+  transition:opacity .7s var(--o-ease) .12s,transform .9s var(--o-ease) .08s,visibility 0s}
 
 .onb-text{max-width:560px}
 .onb-kicker{margin:0 0 14px;display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--o-gold)}
@@ -95,7 +94,7 @@ html.onb-open,html.onb-open body{overflow:hidden}
 .onb-art{position:relative;height:min(62vh,520px);min-height:320px}
 .onb-art [style*="--i"]{opacity:0}
 .onb-slide.on .onb-art [style*="--i"]{animation:onb-pop .9s var(--o-ease) both;animation-delay:calc(var(--i) * 130ms + .2s)}
-@keyframes onb-pop{from{opacity:0;transform:translateY(22px) scale(.96);filter:blur(6px)}to{opacity:1;transform:none;filter:none}}
+@keyframes onb-pop{from{opacity:0;transform:translateY(22px) scale(.96)}to{opacity:1;transform:none}}
 .a-pane{position:absolute;padding:14px;border-radius:20px;background:var(--o-card);border:1px solid var(--o-line);box-shadow:var(--o-lift);display:flex;flex-direction:column;gap:8px}
 .a-head{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:13px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--o-muted);padding:2px 2px 6px}
 .a-btn{display:inline-flex;align-items:center;gap:4px;padding:5px 10px;border-radius:999px;font-size:12px;letter-spacing:0;text-transform:none;color:var(--o-ink);background:var(--o-card2);border:1px solid var(--o-line2)}
@@ -115,7 +114,7 @@ html.onb-open,html.onb-open body{overflow:hidden}
 .art-frames .a-pane{left:0;top:0;width:56%}
 .art-frames .a-screen{right:0;bottom:0;width:50%}
 .art-frames .a-cursor{left:46%;top:9%}
-.onb-slide.on .art-frames .a-cursor{animation:onb-pop .6s var(--o-ease) .9s both,onb-click 2.6s var(--o-ease) 1.6s infinite}
+.onb-slide.on .art-frames .a-cursor{animation:onb-pop .6s var(--o-ease) .9s both,onb-click 2.6s var(--o-ease) 1.6s 3}   /* 9.5.1 a few times, then still */
 @keyframes onb-click{0%,60%,100%{transform:scale(1)}70%{transform:scale(.7)}}
 
 .art-decks .a-screen.big{left:0;top:0;width:78%}
@@ -133,15 +132,15 @@ html.onb-open,html.onb-open body{overflow:hidden}
 
 .art-content .a-pane.wide{left:0;top:4%;width:82%}
 .a-item{position:relative;z-index:1;font-weight:500}
-.a-hl{position:absolute;left:14px;right:14px;top:62px;height:54px;border-radius:12px;border:2px solid var(--o-gold);background:var(--o-gold-soft);opacity:0}
-.onb-slide.on .a-hl{animation:onb-step 6s var(--o-ease) 1.4s infinite}
+.a-hl{position:absolute;left:14px;right:14px;top:62px;height:54px;border-radius:12px;border:2px solid var(--o-gold);background:var(--o-gold-soft);opacity:1}   /* at rest: on question 1, as the remote says */
+.onb-slide.on .a-hl{animation:onb-step 6s var(--o-ease) 1.4s 2}
 @keyframes onb-step{0%{opacity:0;transform:translateY(0)}6%,30%{opacity:1;transform:translateY(0)}36%,63%{opacity:1;transform:translateY(62px)}69%,94%{opacity:1;transform:translateY(124px)}100%{opacity:0;transform:translateY(124px)}}
 .a-remote{position:absolute;right:0;bottom:4%;width:56%;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px;border-radius:20px;
   background:var(--o-card2);border:1px solid var(--o-line2);box-shadow:var(--o-lift)}
 .a-round{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:var(--o-card2);border:1px solid var(--o-line2)}
 .a-q{position:relative;display:block;height:22px;width:150px;overflow:hidden;font-size:15px;text-align:center}
 .a-q span{position:absolute;left:0;right:0;opacity:0}
-.onb-slide.on .a-q span{animation:onb-q 6s var(--o-ease) 1.4s infinite}
+.onb-slide.on .a-q span{animation:onb-q 6s var(--o-ease) 1.4s 2}
 .onb-slide.on .a-q span:nth-child(2){animation-delay:3.4s} .onb-slide.on .a-q span:nth-child(3){animation-delay:5.4s}
 .a-q span:first-child{opacity:1}
 @keyframes onb-q{0%{opacity:0;transform:translateY(10px)}6%,30%{opacity:1;transform:none}36%,100%{opacity:0;transform:translateY(-10px)}}
@@ -153,8 +152,8 @@ html.onb-open,html.onb-open body{overflow:hidden}
 .t-node.c{margin-left:56px;font-weight:500;color:var(--o-muted)}
 .a-glow{position:absolute;right:4%;bottom:10%;width:38%;aspect-ratio:1;border-radius:50%;display:grid;place-items:center;
   background:radial-gradient(circle,var(--o-gold-soft),transparent 70%)}
-.a-glow img{width:46%;height:auto;filter:var(--o-emblem-glow)}
-.onb-slide.on .a-glow img{animation:onb-breathe 4s ease-in-out 1.6s infinite}
+.a-glow img{width:46%;height:auto}
+.onb-slide.on .a-glow img{animation:onb-breathe 4s ease-in-out 1.6s 3}
 @keyframes onb-breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
 
 /* ---------- smaller windows: the picture above the words, everything scrolls ---------- */
@@ -177,7 +176,7 @@ html.onb-open,html.onb-open body{overflow:hidden}
 /* reduced motion: pages fade, pictures appear, nothing moves on its own */
 @media (prefers-reduced-motion:reduce){
   .onb-bg i,.onb-slide.on .a-hl,.onb-slide.on .a-q span,.onb-slide.on .a-glow img,.onb-slide.on .art-frames .a-cursor{animation:none}
-  .onb-slide,.onb-slide.gone,.onb-slide.on{transform:none;filter:none}
+  .onb-slide,.onb-slide.gone,.onb-slide.on{transform:none}
   .onb-slide.on .onb-text > *,.onb-slide.on .onb-steps li,.onb-slide.on .onb-art [style*="--i"]{animation:onb-fade .3s linear both}
   .a-hl{opacity:1} .a-q span:not(:first-child){display:none}
   .onb.leaving{transform:none}
@@ -201,3 +200,5 @@ html.onb-open,html.onb-open body{overflow:hidden}
 .onb-ok{color:var(--o-live);font-weight:700}
 .onb-hint-top{margin:0 0 12px}
 .s-finish .onb-opt{margin-top:16px;padding:14px 16px}
+/* 9.5.1 the window behind the welcome is not drawn while it is covered */
+.onb-behind{visibility:hidden}
