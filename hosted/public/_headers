@@ -1,5 +1,6 @@
 # Cloudflare Pages headers for the static companion (ignored by other hosts). framedecks.com is the one public
-# address (docs/deployment/cloudflare-domains.md); HSTS and TLS are set on the framedecks.com zone in Cloudflare.
+# address (docs/deployment/cloudflare-domains.md); HSTS and TLS are set on the framedecks.com zone in Cloudflare, and
+# (9.8) every page also sends HSTS itself, so HTTPS holds even if the zone setting is changed.
 # The Pages address keeps working (older PCs link through it) but never appears in search results:
 https://:project.pages.dev/*
   X-Robots-Tag: noindex
@@ -16,7 +17,13 @@ https://:version.:project.pages.dev/*
   Cache-Control: public, max-age=86400
 /sw.js
   Cache-Control: no-cache
+# 9.8 the link's return page and Sync Workspace are never kept by a cache
+/auth/*
+  Cache-Control: no-store
+/sync
+  Cache-Control: no-store
 /*
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
   X-Frame-Options: DENY

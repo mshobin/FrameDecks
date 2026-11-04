@@ -1,6 +1,7 @@
-// FrameDecks 8.6 - signing out, the same everywhere: end the session, clear what this browser keeps of it, then go to
-// framedecks.com. When the server cannot be reached the session is still cleared here (it then simply expires on the
-// server), so a person is never left signed in because their internet dropped.
+// FrameDecks 8.6 - disconnecting this device, the same everywhere: end the session, clear what this browser keeps of
+// it (9.8: in this tab and on the device), then go to framedecks.com. When the server cannot be reached the session is
+// still cleared here (it then simply expires on the server), so a device is never left connected because the internet
+// dropped.
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 export const SIGNED_OUT_URL = "https://framedecks.com";
@@ -17,7 +18,7 @@ export function clearLocalSession(store: Pick<Storage, "length" | "key" | "remov
   return keys.length;
 }
 
-/** Sign out and leave. Answers an error message only when this browser could not be signed out at all. */
+/** Disconnect and leave. Answers an error message only when this browser could not be disconnected at all. */
 export async function signOutAndLeave(
   supabase: SupabaseClient | null,
   go: (url: string) => void = (url) => window.location.assign(url),
@@ -37,11 +38,13 @@ export async function signOutAndLeave(
     }
   }
   try {
-    if (clearLocalSession(typeof localStorage === "undefined" ? null : localStorage) > 0 || !supabase) cleared = true;
+    const here = clearLocalSession(typeof localStorage === "undefined" ? null : localStorage);
+    const tab = clearLocalSession(typeof sessionStorage === "undefined" ? null : sessionStorage);
+    if (here + tab > 0 || !supabase) cleared = true;
   } catch {
     /* storage blocked: rely on the sign-out above */
   }
-  if (!cleared) return "Couldn’t sign you out. Check your internet connection and try again.";
+  if (!cleared) return "Couldn’t disconnect this device. Check your internet connection and try again.";
   go(SIGNED_OUT_URL);
   return null;
 }

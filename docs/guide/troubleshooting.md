@@ -231,9 +231,9 @@ Open the **Meeting** menu (✨ next to **+ Frame**) and choose **Undo the last E
 | Chip | What to do |
 | --- | --- |
 | **Offline** | The PC has no internet. Nothing to do: changes wait on the PC and go up later, and presenting is not affected. To move a plan without internet, use a [.frame file](service-planning.md#move-a-plan-to-a-service-pc) |
-| **Sync failed** (red) | Open **Settings → FrameDecks account**. It says why |
+| **Sync failed** (red) | Open **Settings → Workspace Sync**. It says why |
 
-To try again straight away, choose **Resync Linked PCs** (Settings → FrameDecks account, or the **Sync** chip's
+To try again straight away, choose **Resync Linked PCs** (Settings → Workspace Sync, or the **Sync** chip's
 panel). The result shows next to it: **Sync complete: N changes received, N sent.**, **No changes found. This PC
 already has the latest plan.** or **Sync failed: …** with the reason, for example no internet. **Last successful
 sync: …** shows when the PC last had the plan.

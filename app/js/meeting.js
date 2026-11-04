@@ -105,7 +105,7 @@ if (!Store.served){ chip('h-sources', '', '—', 'Needs the local program'); chi
 var SYNC = {synced: ['ok', 'Synced', 'Plans are up to date with your workspace'],
   syncing: ['info', 'Syncing', 'Sending and fetching changes'],
   offline: ['info', 'Offline', 'No internet. Changes wait on this PC and go up later. Without internet, use a .frame file (Settings → Data / Backup).'],
-  failed: ['bad', 'Sync failed', 'Open Settings → FrameDecks account to see why']};
+  failed: ['bad', 'Sync failed', 'Open Settings → Workspace Sync to see why']};
 function renderSync(d){
   var c = $('h-sync'), p = d && SYNC[d.phase]; if (!c) return;
   if (c.hidden === !!p) c.hidden = !p;

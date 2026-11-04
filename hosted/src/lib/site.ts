@@ -5,7 +5,7 @@ import type { Metadata } from "next";
 // NEXT_PUBLIC_SITE_URL overrides it for a test deployment only.
 export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || "https://framedecks.com").replace(/\/+$/, "");
 
-/** Public pages that search engines may list; everything else needs an account and is marked noindex. */
+/** Public pages that search engines may list; everything else needs a workspace and is marked noindex. */
 export const PUBLIC_PATHS = [
   "/",
   "/download",
@@ -22,7 +22,7 @@ export const PUBLIC_PATHS = [
   "/security",
   "/security/disclosure",
   "/status",
-  "/sign-in",
+  "/sync",
 ] as const;
 
 /** Each page's own metadata: its tab title, and the title and address a shared link shows (Open Graph). The layout

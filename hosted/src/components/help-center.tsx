@@ -230,17 +230,18 @@ export const TOPICS: Topic[] = [
   },
   {
     id: "account",
-    label: "Account",
+    label: "Workspace",
     icon: UserRound,
-    blurb: "Sign in, your team, linking a service PC and your data.",
+    blurb: "Sync Workspace, Trusted Devices, your team, linking a service PC and your data.",
     body: () => (
       <>
         <div className="hc-cards">
           <section>
-            <h3>Sign in and out</h3>
+            <h3>Your workspace on your devices</h3>
             <ul>
-              <li><Link href="/sign-in">Sign in</Link> with your email: we send a sign-in link. Google or Microsoft appear when your workspace has them switched on.</li>
-              <li>The sign-out button next to your name ends the session on this device and takes you to framedecks.com.</li>
+              <li><Link href="/sync">Sync Workspace</Link> with your email: we send a one-time link that works for 10 minutes. Nothing to remember.</li>
+              <li><b>Trust This Device</b> keeps your workspace open here for 180 days with no new link. <Link href="/devices">Manage Devices</Link> lists them; removing one ends its access at once.</li>
+              <li>The button next to your name disconnects this device and takes you to framedecks.com.</li>
             </ul>
           </section>
           <section>
@@ -253,14 +254,14 @@ export const TOPICS: Topic[] = [
           <section>
             <h3>Link a service PC</h3>
             <ul>
-              <li>On the PC: Settings → FrameDecks account → <b>Connect to FrameDecks</b>, then <b>Allow</b> in your browser.</li>
+              <li>On the PC: Settings → Workspace Sync → <b>Connect to FrameDecks</b>, then <b>Allow</b> in your browser.</li>
               <li>A linked PC gets every change by itself within about a minute.</li>
             </ul>
           </section>
           <section>
             <h3>Your data</h3>
             <ul>
-              <li><Link href="/account">Account</Link> lets you download your data or delete your account.</li>
+              <li><Link href="/account">Your workspace</Link> lets you download your data or delete it, with your workspace email.</li>
               <li>Pictures and video stay on your devices; they are never put in the cloud.</li>
             </ul>
           </section>

@@ -76,7 +76,7 @@ export function WorkspacePanel() {
       <section className="workspace-card workspace-signed-out" aria-label="Your workspace">
         <Building2 aria-hidden="true" size={20} />
         <p>
-          <Link href="/sign-in">Sign in</Link> to create your team&apos;s space.
+          <Link href="/sync?intent=save">Save Workspace</Link> to create your team&apos;s space.
         </p>
       </section>
     );
@@ -204,7 +204,7 @@ export function WorkspacePanel() {
             </Button>
           </div>
           <p className="workspace-hint">
-            Signed in as {session.user.email}. People on your team see this name.
+            Your workspace email: {session.user.email}. People on your team see this name.
           </p>
         </form>
       </article>

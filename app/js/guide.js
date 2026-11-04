@@ -95,7 +95,7 @@ var WAIT = {welcome: 'Choose one to go on.', output: 'Waiting for a camera, the 
 var TIPS = {
   output: ['FrameDecks vCam is not in Zoom’s camera list? Close Zoom completely and open it again.', 'Rather not install a camera? Choose the Share Window: nothing to install.'],
   phone: ['Your phone must be on the same Wi-Fi as this PC (not a guest Wi-Fi).', 'The page does not open on the phone? In Settings → Phone & iPad Remote choose Allow through Windows Firewall.', 'No phone? Skip this step: the keyboard does everything.'],
-  connect: ['Nothing happened in the browser? Settings → FrameDecks account shows a code you can type on the website instead.', 'You can skip this: FrameDecks works on this PC without an account.'],
+  connect: ['Nothing happened in the browser? Settings → Workspace Sync shows a code you can type on the website instead.', 'You can skip this: FrameDecks works on this PC without a workspace.'],
   frame: ['Choose + Frame at the top of the Frames list, or change the words of one of the ready Frames.'],
   ready: ['Each line that needs attention has a button that takes you to the fix.']
 };

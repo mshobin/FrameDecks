@@ -1,0 +1,16 @@
+"use client";
+
+import Link from "next/link";
+import { useEffect } from "react";
+
+export function MovedToSync() {
+  useEffect(() => {
+    const save = window.location.hash === "#new" || new URLSearchParams(window.location.search).has("new");
+    window.location.replace(save ? "/sync?intent=save" : "/sync");
+  }, []);
+  return (
+    <p className="auth-message" role="status">
+      One moment… <Link href="/sync">Sync Workspace</Link>
+    </p>
+  );
+}

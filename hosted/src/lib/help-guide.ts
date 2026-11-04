@@ -10,7 +10,7 @@
 export type GuideTrack = "website" | "pc";
 export type GuideStep = {
   id: string;
-  core: number; // 1-8: sign in, meeting, Frames, script, transitions/drawing, preview, sync/export, the service
+  core: number; // 1-8: sync workspace, meeting, Frames, script, transitions/drawing, preview, sync/export, the service
   title: string;
   why: string; // what it does, in one or two sentences
   steps: string[]; // numbered actions; **bold** = the label on screen
@@ -22,7 +22,7 @@ export type GuideStep = {
 };
 
 export const CORE = [
-  "Sign in",
+  "Sync Workspace",
   "Create a meeting",
   "Add Frames",
   "Write or upload scripts",
@@ -40,14 +40,14 @@ export const GUIDE: Record<GuideTrack, { title: string; lead: string; steps: Gui
       {
         id: "web-sign-in",
         core: 1,
-        title: "Sign in",
-        why: "Your account keeps your workspace: the meetings, the Frames and the people in your team.",
-        steps: ["Open framedecks.com and choose **Sign in**.", "Type your email and choose **Email me a sign-in link**.", "Open the email and tap the link. You are signed in on this device."],
-        ui: ["Sign in", "Email me a sign-in link"],
-        caption: "Email me a sign-in link",
+        title: "Sync Workspace",
+        why: "Your workspace keeps the meetings, the Frames and the people in your team. Nothing to remember: an emailed link opens it.",
+        steps: ["Open framedecks.com and choose **Sync Workspace**.", "Type your email and choose **Email me a link**.", "Open the email on this device and tap the link (it works once, for 10 minutes). Choose **Trust This Device** to skip the link next time."],
+        ui: ["Sync Workspace", "Email me a link", "Trust This Device"],
+        caption: "Email me a link",
         shot: "web-sign-in",
         spot: "send",
-        tip: "Google or Microsoft buttons appear when your workspace has them switched on.",
+        tip: "A Trusted Device stays connected for 180 days. Manage Devices lists them and removes one at once.",
       },
       {
         id: "web-meeting",
@@ -138,8 +138,8 @@ export const GUIDE: Record<GuideTrack, { title: string; lead: string; steps: Gui
         core: 1,
         title: "Install and link",
         why: "Install from framedecks.com/download. Linking to your workspace brings in everything planned on the website.",
-        steps: ["Open FrameDecks and choose **Settings**, then **FrameDecks account**.", "Choose **Connect to FrameDecks**. Your browser opens.", "Sign in, choose the workspace and **Allow**. The page turns to Synced by itself."],
-        ui: ["Settings", "FrameDecks account", "Connect to FrameDecks"],
+        steps: ["Open FrameDecks and choose **Settings**, then **Workspace Sync**.", "Choose **Connect to FrameDecks**. Your browser opens.", "Open your workspace if asked, choose it and **Allow**. The page turns to Synced by itself."],
+        ui: ["Settings", "Workspace Sync", "Connect to FrameDecks"],
         shot: "pc-account",
         spot: "connect",
         tip: "Linking is optional. A PC without internet uses a .frame file instead (step 7).",

@@ -154,7 +154,7 @@ the exact picture.
 
 ## Move a plan to a service PC
 
-**Linked PC.** A PC linked to your team on framedecks.com (**Settings → FrameDecks account**) gets the plan by
+**Linked PC.** A PC linked to your team on framedecks.com (**Settings → Workspace Sync**) gets the plan by
 itself. The header shows a **Sync** chip:
 
 | Chip | Meaning |
@@ -162,14 +162,14 @@ itself. The header shows a **Sync** chip:
 | **Synced** (green) | The PC has the latest plan |
 | **Syncing** | Changes are going up or coming down |
 | **Offline** | No internet. Your changes wait on the PC and go up later. Presenting is not affected |
-| **Sync failed** (red) | Open **Settings → FrameDecks account** to see why |
+| **Sync failed** (red) | Open **Settings → Workspace Sync** to see why |
 
-**Settings → FrameDecks account** shows the same word. Sync carries everything except media: pictures, video,
+**Settings → Workspace Sync** shows the same word. Sync carries everything except media: pictures, video,
 audio and slides are never put in the cloud.
 
 The PC syncs by itself every minute. To sync now, choose **Resync Linked PCs**:
 
-- in **Settings → FrameDecks account**. The line above it says **Last successful sync: …**;
+- in **Settings → Workspace Sync**. The line above it says **Last successful sync: …**;
 - in the header: choose the **Sync** chip (often folded into the status button at the top right; choose it, then
   **Sync**). A small panel shows the status, the workspace, the last successful sync, **Resync Linked PCs** and
   **Sync settings**;

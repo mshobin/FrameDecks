@@ -16,8 +16,8 @@ export function CookieNotice() {
   return (
     <aside className="fd-cookie" role="region" aria-label="Cookies and storage">
       <p>
-        FrameDecks uses only essential storage in your browser: to keep you
-        signed in and remember your choices. No advertising, no tracking.{" "}
+        FrameDecks uses only essential storage in your browser: to keep your
+        workspace open on this device and remember your choices. No advertising, no tracking.{" "}
         <Link href="/cookies">Cookie Policy</Link>
       </p>
       <button

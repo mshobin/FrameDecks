@@ -5,6 +5,7 @@ import { useState } from "react";
 import { LoaderCircle, LogOut } from "lucide-react";
 
 import { signOutAndLeave } from "@/lib/sign-out";
+import { clearTrust, readTrust } from "@/lib/trusted-device";
 import { browserSupabase } from "@/lib/supabase-browser";
 import { useSession } from "@/lib/use-session";
 
@@ -22,15 +23,15 @@ export function AccountStatus() {
   if (!supabase || session === undefined) return null;
   if (!session) {
     return (
-      <Link className="fd-account fd-account-in" href="/sign-in">
-        Sign in
+      <Link className="fd-account fd-account-in" href="/sync">
+        Sync Workspace
       </Link>
     );
   }
   const email = session.user.email ?? "";
   return (
     <span className="fd-account">
-      <Link className="fd-account-link" href="/account" title="Your account: profile and teams">
+      <Link className="fd-account-link" href="/account" title="Your workspace: profile and teams">
         <span className="fd-avatar" aria-hidden="true">
           {initialsOf(String(session.user.user_metadata?.full_name ?? email))}
         </span>
@@ -38,12 +39,18 @@ export function AccountStatus() {
       </Link>
       <button
         type="button"
-        aria-label={leaving ? "Signing out…" : "Sign out"}
-        title={problem ?? "Sign out"}
+        aria-label={leaving ? "Disconnecting…" : "Disconnect this device"}
+        title={problem ?? "Disconnect this device"}
         disabled={leaving}
         onClick={async () => {
           setLeaving(true);
           setProblem(null);
+          // a Trusted Device stops being trusted when it disconnects (Manage Devices no longer lists it)
+          const trust = readTrust();
+          if (trust) {
+            await supabase.rpc("device_revoke", { device: trust.id }).then(() => undefined, () => undefined);
+            clearTrust();
+          }
           const err = await signOutAndLeave(supabase);
           if (err) {
             setProblem(err);

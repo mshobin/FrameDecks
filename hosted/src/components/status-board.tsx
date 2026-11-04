@@ -62,7 +62,7 @@ export function StatusBoard() {
 
   const rows = [
     ["site", "Website", "framedecks.com"],
-    ["account", "Sign-in and workspace sync", "Accounts, plans and linked PCs"],
+    ["account", "Workspace sync", "Workspaces, plans and linked PCs"],
     ["updates", "Update service", "New versions for the program"],
     ["downloads", "Downloads", "The installer"],
   ] as const;

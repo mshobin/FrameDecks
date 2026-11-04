@@ -93,7 +93,7 @@ export function ConnectPanel() {
   if (!request) {
     return (
       <>
-        <p className="auth-message">This page connects a PC to your workspace. Open it from FrameDecks on the PC: Settings → FrameDecks account → Connect to FrameDecks.</p>
+        <p className="auth-message">This page connects a PC to your workspace. Open it from FrameDecks on the PC: Settings → Workspace Sync → Connect to FrameDecks.</p>
         <Link className="auth-link" href="/computers">
           Type a code instead
         </Link>
@@ -104,9 +104,9 @@ export function ConnectPanel() {
     return (
       <>
         <PcLine name={pcName} check={check} />
-        <p className="auth-message">Sign in to allow this PC. You’ll come straight back here.</p>
-        <Link className="fd-btn fd-btn-primary auth-primary" href="/sign-in">
-          Sign in to continue
+        <p className="auth-message">Sync Workspace to allow this PC. You’ll come straight back here.</p>
+        <Link className="fd-btn fd-btn-primary auth-primary" href="/sync">
+          Sync Workspace to continue
         </Link>
       </>
     );

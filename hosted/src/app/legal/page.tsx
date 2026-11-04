@@ -11,7 +11,7 @@ const DOCS = [
   {
     href: "/terms",
     title: "Terms of Service",
-    text: "Your account, workspaces and the online services.",
+    text: "Your workspaces and the online services.",
   },
   {
     href: "/privacy",

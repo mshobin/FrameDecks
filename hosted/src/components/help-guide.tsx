@@ -98,7 +98,7 @@ export function HelpGuide() {
   return (
     <section className="hg" aria-labelledby="guide">
       <h2 id="guide">Step-by-step guide</h2>
-      <p className="hg-lead">From signing in to running the meeting, with the place to click circled on each picture.</p>
+      <p className="hg-lead">From opening your workspace to running the meeting, with the place to click circled on each picture.</p>
       <div className="hg-bar">
         <div className="hg-tabs" role="tablist" aria-label="Where you are working">
           <button type="button" role="tab" aria-selected={!found && track === "website"} onClick={() => (setTrack("website"), setQuery(""))}>

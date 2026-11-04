@@ -17,12 +17,12 @@ export function WorkspaceGate({
   const supabase = browserSupabase();
   const { session, workspaces, selected, select } = useWorkspaces();
 
-  if (!supabase) return <p className="page-note">Sign-in is not set up for this site yet.</p>;
+  if (!supabase) return <p className="page-note">Workspace sync is not set up for this site yet.</p>;
   if (session === undefined || (session && workspaces === null)) return <PageSkeleton />;
   if (!session) {
     return (
       <p className="page-note">
-        <Link href="/sign-in">Sign in</Link> to see {what}.
+        <Link href="/sync">Sync Workspace</Link> to see {what}.
       </p>
     );
   }

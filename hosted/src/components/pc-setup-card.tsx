@@ -103,7 +103,7 @@ export function PcSetupCard() {
             <h2 id="pc-setup-title">FrameDecks is installed on this PC.</h2>
             <p>
               Present from the program; plan the meeting and run it from your phone here. Not linked yet? In FrameDecks →
-              Settings → FrameDecks account → Link, then type the code under <Link href="/computers">Computers</Link>.
+              Settings → Workspace Sync → Link, then type the code under <Link href="/computers">Computers</Link>.
             </p>
           </>
         )}

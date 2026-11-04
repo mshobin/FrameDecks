@@ -50,8 +50,8 @@ export function LandingNav() {
         <EffectsToggle />
         <ThemeToggle />
         <AboutButton />
-        <Link className="fd-btn fd-btn-ghost fd-btn-sm" href="/sign-in">
-          Sign in
+        <Link className="fd-btn fd-btn-ghost fd-btn-sm" href="/sync">
+          Sync Workspace
         </Link>
         <Link className="fd-btn fd-btn-primary fd-btn-sm lp-nav-cta" href="/download">
           <Download aria-hidden="true" size={15} /> Download · free

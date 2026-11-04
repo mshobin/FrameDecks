@@ -82,7 +82,7 @@ function Invitations() {
   return (
     <p className="workspace-notice" role="status">
       You have {count === 1 ? "an invitation" : `${count} invitations`} to join a team.{" "}
-      <Link href="/account">Accept it on Your account</Link>
+      <Link href="/account">Accept it on Your workspace</Link>
     </p>
   );
 }
@@ -159,7 +159,7 @@ function FirstSteps({ name }: Readonly<{ name: string }>) {
           <div>
             <h2>Link that PC</h2>
             <p>
-              In FrameDecks: Settings → FrameDecks account → Connect to FrameDecks. Your browser asks you to allow that PC;
+              In FrameDecks: Settings → Workspace Sync → Connect to FrameDecks. Your browser asks you to allow that PC;
               your plan then reaches it within a minute. Linked PCs show under Service PCs.
             </p>
             <Link className="fd-link" href="/computers">

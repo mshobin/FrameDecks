@@ -136,9 +136,9 @@ export function DownloadPanel({ fallback }: Readonly<{ fallback: Fallback }>) {
               )}
               <Link
                 className="fd-btn fd-btn-ghost fd-btn-lg"
-                href="/sign-in#new"
+                href="/sync?intent=save"
               >
-                Plan on the website
+                Save Workspace
               </Link>
             </div>
           </>
@@ -165,9 +165,9 @@ export function DownloadPanel({ fallback }: Readonly<{ fallback: Fallback }>) {
               {state === "unavailable" && (
                 <Link
                   className="fd-btn fd-btn-ghost fd-btn-lg"
-                  href="/sign-in#new"
+                  href="/sync?intent=save"
                 >
-                  Plan on the website
+                  Save Workspace
                 </Link>
               )}
             </div>

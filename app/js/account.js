@@ -1,4 +1,4 @@
-/* FrameDecks - Settings > FrameDecks account: link this PC to a workspace and show how syncing is going.
+/* FrameDecks - Settings > Workspace Sync: link this PC to a workspace and show how syncing is going.
  * The work is done by src/cloud_sync.py in the program (api/sync); this page only asks it and shows the answer. */
 (function(){
 'use strict';
@@ -90,7 +90,7 @@ function render(){
       h('span', {cls: 'acct-spin', 'aria-hidden': 'true'}),
       h('div', {}, [
         h('p', {cls: 'plain'}, [h('b', {text: 'Allow this PC in your browser'})]),
-        h('p', {cls: 'hint', text: 'Sign in if asked, choose the workspace and press Allow. This page turns to “Linked” by itself.'})]),
+        h('p', {cls: 'hint', text: 'Open your workspace if asked (an emailed link), choose it and press Allow. This page turns to “Linked” by itself.'})]),
       h('span', {cls: 'acct-check', title: 'The browser shows the same number', text: String(d.check || '')})]));
     root.appendChild(h('div', {cls: 'actions'}, [
       d.connectUrl ? h('a', {cls: 'btn small primary', href: d.connectUrl, target: '_blank', rel: 'noopener', text: 'Open the page again'}) : null,
@@ -103,7 +103,7 @@ function render(){
   root.appendChild(h('div', {cls: 'actions'}, [h('button', {cls: 'btn small primary', type: 'button', text: 'Connect to FrameDecks', onclick: act('link', function(r){
     if (r && r.connectUrl) window.open(r.connectUrl, '_blank', 'noopener');   // the app window sends it to your normal browser
   })})]));
-  root.appendChild(h('p', {cls: 'hint', text: 'Opens the FrameDecks website in your browser. Sign in, choose your workspace and allow this PC. Your plans and members then sync; presenting never needs the internet.'}));
+  root.appendChild(h('p', {cls: 'hint', text: 'Opens the FrameDecks website in your browser. Open your workspace there (an emailed link), choose it and allow this PC. Your plans and members then sync; presenting never needs the internet.'}));
 }
 
 function refresh(){

@@ -1,15 +1,16 @@
 import type { Metadata } from "next";
 
 import { AuthShell } from "@/components/auth-shell";
-import { SignInChooser } from "@/components/sign-in-form";
+import { MovedToSync } from "@/components/moved-to-sync";
 import { pageMetadata } from "@/lib/site";
 
-export const metadata: Metadata = pageMetadata("Sign in", "/sign-in");
+export const metadata: Metadata = pageMetadata("Sync Workspace", "/sign-in", { private: true });
 
-export default function SignInPage() {
+// 9.8 the old address (bookmarks, earlier emails, the PC's links) goes on to Sync Workspace, keeping what it asked for
+export default function OldEntryPage() {
   return (
-    <AuthShell>
-      <SignInChooser />
+    <AuthShell eyebrow="FrameDecks" title="Sync Workspace">
+      <MovedToSync />
     </AuthShell>
   );
 }

@@ -98,9 +98,9 @@ function renderSecurity(){
   function pill(cls, text){ return h('p', {}, [h('span', {cls: 'status-pill ' + cls}, [h('i'), text])]); }
   var sync = window.KCSyncInfo ? window.KCSyncInfo() : null, linked = sync && sync.state === 'linked';
   if (linked) g.appendChild(card('Workspace sync', pill('info', 'On'),
-    'This PC syncs its service plans and member list with the workspace “' + (sync.workspace || '') + '” (Settings → FrameDecks account). Pictures, videos, what is live, the phone remote PIN and private settings stay on this PC, and services run from this PC, online or not.'));
+    'This PC syncs its service plans and member list with the workspace “' + (sync.workspace || '') + '” (Settings → Workspace Sync). Pictures, videos, what is live, the phone remote PIN and private settings stay on this PC, and services run from this PC, online or not.'));
   else g.appendChild(card('Local only', pill('ok', 'On'),
-    'Everything runs on this PC. Nothing is uploaded, and no cloud account is used. Unless the phone remote is switched on, only this PC can connect.'));
+    'Everything runs on this PC. Nothing is uploaded, and no cloud workspace is used. Unless the phone remote is switched on, only this PC can connect.'));
   g.appendChild(card('Phone & iPad Remote', r.enabled ? pill('info', 'On (PIN protected)') : pill('ok', 'Off'),
     r.enabled ? 'Other devices on your Wi-Fi need the 6-digit PIN. After 5 wrong tries a device waits 60 seconds. The remote controls overlays only and cannot open member details.'
               : 'Only this PC can reach FrameDecks. Turn it on in Settings → Phone & iPad Remote when you want to use your phone.',

@@ -20,7 +20,7 @@ test("every public table enables row level security", () => {
 test("every table has at least one policy and none is open to anon", () => {
   const tables = [...sql.matchAll(/create table public\.(\w+)/g)].map((m) => m[1]);
   // Reached only through security definer functions: RLS on and no policy means clients get nothing.
-  const functionsOnly = ["workspace_sync", "computer_links", "computer_link_failures"];
+  const functionsOnly = ["workspace_sync", "computer_links", "computer_link_failures", "trusted_devices", "security_events"];
   for (const table of tables) {
     if (functionsOnly.includes(table)) continue;
     assert.match(sql, new RegExp(`create policy \\w+ on public\\.${table}`), table);
@@ -52,11 +52,15 @@ const ANON_BY_DESIGN = [
   "remote_publish",
 ];
 
+// 0015: asking for a link comes before any session (rate-limited, the address only hashed), and the pre-request
+// check runs for every Data API request (it reads one row and can only refuse).
+const BEFORE_A_SESSION = ["magic_link_requested", "check_trusted_session"];
+
 test("functions that read across tenants are closed to anon", () => {
   const definers = [...sql.matchAll(/create or replace function public\.(\w+)\(([^)]*)\)[^$]*?security definer/g)];
   for (const [, name] of definers) {
     if (["is_org_member", "is_org_admin", "add_creator_as_owner"].includes(name)) continue;
-    if (ANON_BY_DESIGN.includes(name)) continue;
+    if (ANON_BY_DESIGN.includes(name) || BEFORE_A_SESSION.includes(name)) continue;
     assert.match(sql, new RegExp(`revoke execute on function public\\.${name}\\([^)]*\\) from public, anon`), name);
   }
 });

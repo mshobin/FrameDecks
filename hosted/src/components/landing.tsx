@@ -136,8 +136,8 @@ function Actions() {
       <Link className="fd-btn fd-btn-primary fd-btn-lg" href={DOWNLOADS}>
         <Download aria-hidden="true" size={18} /> Download for Windows · free
       </Link>
-      <Link className="fd-btn fd-btn-ghost fd-btn-lg" href="/sign-in#new">
-        Plan online first <ArrowRight aria-hidden="true" size={16} />
+      <Link className="fd-btn fd-btn-ghost fd-btn-lg" href="/sync?intent=save">
+        Save Workspace <ArrowRight aria-hidden="true" size={16} />
       </Link>
     </div>
   );

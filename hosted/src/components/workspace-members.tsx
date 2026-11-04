@@ -90,7 +90,7 @@ export function WorkspaceMembers({
       return;
     }
     setEmail("");
-    setMessage({ ok: true, text: `Invited ${address}. They join when they sign in with that email and accept.` });
+    setMessage({ ok: true, text: `Invited ${address}. They join when they open their workspace with that email and accept.` });
     await load();
   }
 
@@ -219,7 +219,7 @@ export function WorkspaceMembers({
             <li className="member-pending" key={invitation.id}>
               <span className="member-who">
                 <strong>{invitation.email}</strong>
-                <span>Invited · waiting for them to sign in</span>
+                <span>Invited · waiting for them to accept</span>
               </span>
               <span className="workspace-role">{roleLabels[invitation.role]}</span>
               <button className="member-action member-danger" type="button" aria-label={`Cancel the invitation to ${invitation.email}`} onClick={() => cancelInvite(invitation.id, invitation.email)}>

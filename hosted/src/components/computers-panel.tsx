@@ -88,7 +88,7 @@ function Computers({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
           <h2>Link a PC</h2>
         </header>
         <p className="workspace-hint">
-          On the service PC: Settings → FrameDecks account → Connect to FrameDecks. Its browser opens and asks you to allow it. No browser there? Type the code the PC shows instead.
+          On the service PC: Settings → Workspace Sync → Connect to FrameDecks. Its browser opens and asks you to allow it. No browser there? Type the code the PC shows instead.
         </p>
         <form className="workspace-form" onSubmit={link}>
           <label htmlFor="link-code">Code from the PC</label>

@@ -43,6 +43,6 @@ test("no internet: the session is still cleared here and the person still leaves
 test("when nothing could be signed out, it says so and stays", async () => {
   let went = "";
   const msg = await signOutAndLeave(client(new Error("down"), new Error("blocked")), (u) => (went = u));
-  assert.match(msg, /Couldn’t sign you out/);
+  assert.match(msg, /Couldn’t disconnect this device/);
   assert.equal(went, "");
 });

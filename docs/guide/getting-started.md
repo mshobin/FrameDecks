@@ -58,8 +58,8 @@ A webcam is optional. You need one only if people should see you on the FrameDec
    - **Adding Decks**: a Deck is one block on a Frame (a scripture, a question, text, a picture, a video, a timer or
      slides). **+ Deck** adds one to the selected Frame.
    - **Adding Content**: what a Deck shows, such as each question or verse (**+ Question**, **+ Scripture**).
-   - **Finish**: optionally **Sign in and connect**, to plan on framedecks.com and sync to this PC (the browser opens;
-     allow this PC, and the page turns to *Linked* by itself; later: Settings → FrameDecks account). Optionally choose a ready-made meeting (Bible Study, Prayer Meeting, Youth Gathering, Fellowship
+   - **Finish**: optionally **Sync Workspace**, to plan on framedecks.com and sync to this PC (the browser opens;
+     allow this PC, and the page turns to *Linked* by itself; later: Settings → Workspace Sync). Optionally choose a ready-made meeting (Bible Study, Prayer Meeting, Youth Gathering, Fellowship
      Meeting or Church Service). If FrameDecks finds data from an earlier version, **Bring it in** copies it (the old
      folder is not changed).
 

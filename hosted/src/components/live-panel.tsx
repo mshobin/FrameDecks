@@ -128,7 +128,7 @@ function Live({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
         )}
         {!online && (
           <p className="workspace-hint">
-            Is FrameDecks running on {pc.name}, with Settings → FrameDecks account → “Allow control from the
+            Is FrameDecks running on {pc.name}, with Settings → Workspace Sync → “Allow control from the
             companion” on? Presses made now are dropped after 10 seconds.
           </p>
         )}

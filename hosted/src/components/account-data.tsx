@@ -66,7 +66,7 @@ export function AccountData() {
     setBusy(null);
     setMessage({
       ok: true,
-      text: "Your file is downloading. It holds your account, your workspaces and their records.",
+      text: "Your file is downloading. It holds your profile, your workspaces and their records.",
     });
   }
 
@@ -78,12 +78,12 @@ export function AccountData() {
     if (error) {
       setBusy(null);
       const text = legalNotSetUp(error)
-        ? "Deleting accounts is not switched on yet. Write to privacy@framedecks.com and it is done within 30 days."
+        ? "Deleting your data is not switched on yet. Write to privacy@framedecks.com and it is done within 30 days."
         : error.message?.startsWith("Make someone else an owner")
           ? `${error.message}. Open that workspace's People page, make someone else an owner, then try again.`
           : userSafeError(
               error,
-              "Couldn’t delete your account. Try again, or write to privacy@framedecks.com.",
+              "Couldn’t delete your data. Try again, or write to privacy@framedecks.com.",
             );
       setMessage({ ok: false, text });
       return;
@@ -100,7 +100,7 @@ export function AccountData() {
         <h2 id="fd-data-title">Your data</h2>
       </header>
       <p className="workspace-hint">
-        Download everything FrameDecks keeps about you, or delete your account.
+        Download everything FrameDecks keeps about you, or delete it all.
         Your presentations on your PC are never affected. See the{" "}
         <Link href="/privacy">Privacy Policy</Link>.
       </p>
@@ -122,7 +122,7 @@ export function AccountData() {
             onClick={() => setConfirming(true)}
             disabled={busy !== null}
           >
-            <Trash2 aria-hidden="true" size={16} /> Delete my account
+            <Trash2 aria-hidden="true" size={16} /> Delete my data
           </Button>
         )}
       </div>
@@ -133,9 +133,9 @@ export function AccountData() {
           aria-labelledby="fd-delete-title"
         >
           <p id="fd-delete-title">
-            <strong>Delete your account for good?</strong> You leave every
+            <strong>Delete your data for good?</strong> You leave every
             workspace; a workspace with nobody else in it is deleted with your
-            account. This cannot be undone. Type <b>DELETE</b> to confirm.
+            data, and your Trusted Devices are removed. This cannot be undone. Type <b>DELETE</b> to confirm.
           </p>
           <div className="workspace-row">
             <label className="sr-only" htmlFor="fd-delete-typed">
@@ -156,7 +156,7 @@ export function AccountData() {
                 busy !== null || typed.trim().toUpperCase() !== "DELETE"
               }
             >
-              {busy === "delete" ? "Deleting…" : "Delete my account"}
+              {busy === "delete" ? "Deleting…" : "Delete my data"}
             </Button>
             <Button
               variant="outline"

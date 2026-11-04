@@ -53,6 +53,31 @@ Versions before 4.9 (when the program had its earlier name) are described in the
 - The favicons, the tray icon and the small program-icon sizes (16–32 px) use a heavier version of the emblem, so it
   stays visible on light browser tabs and a light taskbar. Larger sizes are unchanged.
 
+## [9.8.0] - 2026-11-04
+
+Full notes: [docs/releases/v9.8.0.md](releases/v9.8.0.md). Design and owner steps:
+[docs/architecture/trusted-workspace.md](architecture/trusted-workspace.md).
+
+### Added
+- Migration `0015_trusted_devices.sql` (+ rollback, `hosted/tests/supabase-0015.test.mjs`):
+  - `trusted_devices` (token SHA-256, 180-day expiry, revoke) and `security_events` (one year);
+  - `trust_device`, `device_check`, `device_list`, `device_revoke`, `security_event_list`, `magic_link_requested`
+    (rate-limited, address hashed) and `magic_link_used`;
+  - the `check_trusted_session` pre-request hook, which refuses removed or expired device sessions at once;
+  - the `workspace.synced` audit trigger.
+- Website:
+  - `/sync` (Sync Workspace / Save Workspace / Continue on Another Device, emailed one-time link only);
+  - Trust This Device (`components/trusted-device.tsx`, `lib/trusted-device.ts`: the session in this tab until
+    trusted);
+  - `/devices` Manage Devices;
+  - HSTS in `public/_headers`.
+
+### Changed
+- `/sign-in` forwards to `/sync`; Google / Microsoft buttons removed; first workspace created after the link when the
+  person has none and no invitation.
+- Website and desktop wording: no Sign in / Sign up / Account / Password (test in `hosted/tests/trusted-device.test.mjs`);
+  the PC's Settings section is **Workspace Sync** (same behaviour).
+
 ## [9.7.0] - 2026-11-04
 
 Full notes: [docs/releases/v9.7.0.md](releases/v9.7.0.md). Phone sign-in recommendation (not built):

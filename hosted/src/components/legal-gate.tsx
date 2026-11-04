@@ -118,7 +118,7 @@ export function LegalGate({
             void signOutAndLeave(supabase)
           }
         >
-          Sign out instead
+          Disconnect this device instead
         </button>
       </div>
     </section>

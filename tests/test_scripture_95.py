@@ -108,7 +108,7 @@ class WelcomeFlowWiring(unittest.TestCase):
     def test_finish_offers_the_website_and_the_level_colours(self):
         js = self.read("js/onboarding.js")
         self.assertIn("JSON.stringify({action: 'link'})", js)          # the same linking as Settings → FrameDecks account
-        self.assertIn("Sign in and connect", js)
+        self.assertIn("Sync Workspace", js)
         css = self.read("css/theme.css")
         for lv in ("--lv-frame:", "--lv-deck:", "--lv-content:"):
             self.assertEqual(css.count(lv), 2, lv)                     # dark and light

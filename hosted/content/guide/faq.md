@@ -151,7 +151,7 @@ Yes. Any phone signed in with the PIN can control the meeting, and every screen 
 Use the three-week onboarding plan in [Church operations](roles/README.md): shadow, then assisted, then solo.
 
 **Is there a step-by-step guide?**
-Yes. framedecks.com/help starts with a **Step-by-step guide** with two tabs, **Website** and **Service PC**: eight steps each, from signing in to running the meeting, with a screenshot of the place to click (tap it for the whole screen) and a search box. On the PC: **Settings → Help → Step-by-step guide**, or the command palette.
+Yes. framedecks.com/help starts with a **Step-by-step guide** with two tabs, **Website** and **Service PC**: eight steps each, from opening your workspace to running the meeting, with a screenshot of the place to click (tap it for the whole screen) and a search box. On the PC: **Settings → Help → Step-by-step guide**, or the command palette.
 
 **What is the minimum a volunteer needs to know?**
 Five things: **Go Live**, **Next**, the round **▶** arrow for the next question or slide, **Hide all**, and **Black screen**. See the [volunteer guide](roles/volunteers.md).
@@ -174,7 +174,7 @@ Yes. Press **Ctrl+K** or **Ctrl+Space** to open the command palette. (There is n
 ## Data, privacy and offline use
 
 **Where is our data stored?**
-On your PC, in `%APPDATA%\FRAMEDECKS`. Nothing is uploaded unless you link the PC to your team (Settings → FrameDecks account). Then your plans sync with framedecks.com, but media (pictures, video, audio and slides) never goes to the cloud.
+On your PC, in `%APPDATA%\FRAMEDECKS`. Nothing is uploaded unless you link the PC to your team (Settings → Workspace Sync). Then your plans sync with framedecks.com, but media (pictures, video, audio and slides) never goes to the cloud.
 
 **Does FrameDecks work without the internet?**
 Yes. Everything works offline except fetching new ESV verses, and whatever your meeting app needs (Zoom itself needs the internet). On a linked PC the **Sync** chip shows **Offline**: your changes wait and go up later, and presenting is not affected.

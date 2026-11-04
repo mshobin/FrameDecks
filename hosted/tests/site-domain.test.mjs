@@ -30,10 +30,10 @@ test("every page has its own title, link-preview title and address; signed-in pa
   assert.match(read("app/page.tsx"), /openGraph: \{ title: "FrameDecks · Prepare with Purpose\. Present with Excellence\.", url: "\/" \}/);
   // the layout must not give every page the home page's preview title and address
   assert.doesNotMatch(read("app/layout.tsx"), /openGraph: \{[^}]*\b(title|url):/);
-  for (const p of ["help", "privacy", "sign-in"]) {
+  for (const p of ["help", "privacy", "sync"]) {
     assert.match(read(`app/${p}/page.tsx`), new RegExp(`pageMetadata\\("[^"]+", "/${p}"\\)`), p);
   }
-  for (const p of ["account", "branding", "computers", "live", "meeting", "members", "plan", "services", "auth/callback"]) {
+  for (const p of ["account", "branding", "computers", "devices", "live", "meeting", "members", "plan", "services", "auth/callback", "sign-in"]) {
     assert.match(read(`app/${p}/page.tsx`), new RegExp(`pageMetadata\\("[^"]+", "/${p}", \\{ private: true \\}\\)`), p);
   }
   assert.match(read("lib/site.ts"), /openGraph: \{ title: `\$\{title\} \| FrameDecks`, url: path \}/);

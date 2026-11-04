@@ -139,7 +139,7 @@ function key(e){
   else if (e.key === 'Escape'){ e.preventDefault(); e.stopPropagation(); }   // nothing hides it by accident: Skip does
 }
 
-/* the website: plan anywhere, sync to this PC (the same linking as Settings → FrameDecks account) */
+/* the website: plan anywhere, sync to this PC (the same linking as Settings → Workspace Sync) */
 var syncT = null;
 function syncPanel(){
   var body = h('div', {cls: 'onb-link', id: 'onb-sync-body', 'aria-live': 'polite'});
@@ -152,7 +152,7 @@ function syncPanel(){
       if (d.connectUrl) body.appendChild(h('a', {cls: 'onb-ghost', href: d.connectUrl, target: '_blank', rel: 'noopener', text: 'Open the page again'}));
       startPoll(); return;
     }
-    body.appendChild(h('button', {cls: 'onb-ghost', type: 'button', id: 'onb-connect', html: I('globe', 16) + ' Sign in and connect', onclick: connect}));
+    body.appendChild(h('button', {cls: 'onb-ghost', type: 'button', id: 'onb-connect', html: I('globe', 16) + ' Sync Workspace', onclick: connect}));
     if (d && d.error) body.appendChild(h('span', {cls: 'onb-hint', text: d.error}));
   }
   function connect(ev){
@@ -167,9 +167,9 @@ function syncPanel(){
   check();
   return h('div', {cls: 'onb-opt'}, [
     h('p', {cls: 'onb-opt-t', text: 'Plan on the website, present here (optional)'}),
-    h('p', {cls: 'onb-hint onb-hint-top', text: 'Sign in at framedecks.com to plan meetings from any browser with your team. They sync to this PC by themselves; presenting never needs the internet.'}),
+    h('p', {cls: 'onb-hint onb-hint-top', text: 'Sync Workspace at framedecks.com to plan meetings from any browser with your team. They sync to this PC by themselves; presenting never needs the internet.'}),
     body,
-    h('p', {cls: 'onb-hint', text: 'Later: Settings → FrameDecks account.'})]);
+    h('p', {cls: 'onb-hint', text: 'Later: Settings → Workspace Sync.'})]);
 }
 function stopPoll(){ clearInterval(syncT); syncT = null; }
 
