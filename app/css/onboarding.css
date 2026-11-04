@@ -8,7 +8,8 @@
   --o-blue:#7aa7ff; --o-blob1:rgba(70,110,255,.55); --o-blob2:rgba(232,185,49,.38); --o-blob3:rgba(61,220,132,.22);
   --o-screen:linear-gradient(160deg,#18233f,#0b1222 70%); --o-screen-edge:rgba(255,255,255,.14);
   --o-glow:0 30px 80px rgba(232,185,49,.25); --o-lift:0 24px 60px rgba(2,6,18,.55); --o-ease:cubic-bezier(.22,1,.36,1);
-  --o-live-ink:#06210f; --o-gold-line:rgba(232,185,49,.35); --o-gold-line2:rgba(232,185,49,.5); --o-live-line:rgba(61,220,132,.5);
+  --o-live-ink:#06210f; --o-deck:#8fb3ff; --o-deck-soft:rgba(122,167,255,.12); --o-deck-line:rgba(122,167,255,.4);
+  --o-content:#c3a6ff; --o-content-soft:rgba(178,140,255,.12); --o-content-line:rgba(178,140,255,.42); --o-frame-soft:rgba(232,185,49,.08); --o-gold-line:rgba(232,185,49,.35); --o-gold-line2:rgba(232,185,49,.5); --o-live-line:rgba(61,220,132,.5);
   --o-blue-line:rgba(122,167,255,.45); --o-blue-soft:rgba(122,167,255,.25); --o-card-dark:rgba(10,18,38,.86); --o-white:rgba(255,255,255,.9);
   --o-cursor-ring:0 0 0 8px rgba(255,255,255,.18); --o-emblem-glow:drop-shadow(0 12px 30px rgba(232,185,49,.4));
   position:fixed;inset:0;z-index:1000;display:grid;grid-template-rows:auto 1fr auto;color:var(--o-ink);
@@ -182,3 +183,21 @@ html.onb-open,html.onb-open body{overflow:hidden}
   .onb.leaving{transform:none}
 }
 @keyframes onb-fade{from{opacity:0}to{opacity:1}}
+
+/* 9.5 one colour per level, as in the Studio: Frames gold, Decks blue, Content violet */
+.a-frame{background:var(--o-frame-soft)} .a-frame i{color:var(--o-gold)}
+.a-deck{background:var(--o-deck-soft);border-color:var(--o-deck-line)} .a-deck i{color:var(--o-deck);background:var(--o-deck-soft)}
+.a-item{background:var(--o-content-soft);border-color:var(--o-content-line)} .a-item i{color:var(--o-content);background:var(--o-content-soft)}
+.t-node.d{border-color:var(--o-deck-line);background:var(--o-deck-soft)} .t-node.d i{background:var(--o-deck-soft);color:var(--o-deck)}
+.t-node.c{border-color:var(--o-content-line);background:var(--o-content-soft);color:var(--o-ink)} .t-node.c i{background:var(--o-content-soft);color:var(--o-content)}
+.s-decks .onb-kicker{color:var(--o-deck)} .s-decks .onb-kicker::before{background:var(--o-deck)} .s-decks .onb-steps b{color:var(--o-deck)}
+.s-content .onb-kicker{color:var(--o-content)} .s-content .onb-kicker::before{background:var(--o-content)} .s-content .onb-steps b{color:var(--o-content)}
+.onb-legend{display:flex;flex-wrap:wrap;gap:14px;margin-top:14px;font-size:14px;font-weight:700;color:var(--o-muted)}
+.onb-legend span{display:inline-flex;align-items:center;gap:7px}
+.onb-legend i{width:10px;height:10px;border-radius:999px}
+.onb-legend .lf{background:var(--o-gold)} .onb-legend .ld{background:var(--o-deck)} .onb-legend .lc{background:var(--o-content)}
+.onb-link{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.onb-link .onb-check{font-size:20px;font-weight:800;letter-spacing:.08em;padding:4px 12px;border-radius:12px;background:var(--o-card2);border:1px solid var(--o-line2)}
+.onb-ok{color:var(--o-live);font-weight:700}
+.onb-hint-top{margin:0 0 12px}
+.s-finish .onb-opt{margin-top:16px;padding:14px 16px}

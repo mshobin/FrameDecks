@@ -65,6 +65,11 @@ Full notes: [docs/releases/v9.5.0.md](releases/v9.5.0.md).
   `onboarding` in kc-app-settings.json (`_valid_onboarding`), plus a localStorage copy. Finish offers a Quick Start
   when the PC has only the two starter Frames, and an earlier version's data (`migration.candidates`). It is
   reopened from Settings → About → Welcome tour and the palette.
+- Finish page: **Sign in and connect** (POST `api/sync` `link`, then polls `api/sync` until linked; the same flow as
+  Settings → FrameDecks account) and a Frame / Deck / Content colour key.
+- Level colours: `--lv-frame` (gold), `--lv-deck` (blue), `--lv-content` (violet) with soft tints in dark and light
+  (`theme.css`) for the Frames list, the Decks list and the question / scripture lists; the same on the phone remote's
+  Plan (`remote.css`) and in the welcome's pictures. Green stays "live".
 - KJV and World English Bible fetched without a key from bible-api.com (`OPEN_BIBLES`, `_open_bible_lookup`) and
   cached like the ESV; available from Fetch from (`scripture.js`) and the Workbook import (`meeting-book.js`
   `openBible`).

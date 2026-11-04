@@ -105,6 +105,17 @@ class WelcomeFlowWiring(unittest.TestCase):
         self.assertIn("post('settings', {onboarding: rec})", js)
         self.assertIn("o.done || localDone()) return false;", js)
 
+    def test_finish_offers_the_website_and_the_level_colours(self):
+        js = self.read("js/onboarding.js")
+        self.assertIn("JSON.stringify({action: 'link'})", js)          # the same linking as Settings → FrameDecks account
+        self.assertIn("Sign in and connect", js)
+        css = self.read("css/theme.css")
+        for lv in ("--lv-frame:", "--lv-deck:", "--lv-content:"):
+            self.assertEqual(css.count(lv), 2, lv)                     # dark and light
+        self.assertIn(".scene-list .si-num{color:var(--lv-frame)", css)
+        self.assertIn(".li-n{color:var(--lv-deck)", css)
+        self.assertIn(".fl-list .item .num{font-weight:800;color:var(--lv-content)", css)
+
     def test_pc_only_never_the_remote(self):
         self.assertNotIn("onboarding", self.read("remote.html"))
         self.assertNotIn("onboarding", self.read("js/remote.js"))

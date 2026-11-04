@@ -44,7 +44,7 @@ var PAGES = [
            ['Choose ', b('+ Question'), ' or ', b('+ Scripture'), '. Type a reference and ', b('Fetch'), ' (ESV, KJV or WEB).'],
            ['Live, the ', b('◀ ▶'), ' arrows step through them, one at a time.']]},
   {id: 'finish', kicker: 'All set', title: 'You’re ready',
-   lede: 'Frame › Deck › Content. That is the whole idea, numbered for you: 1\u00a0·\u00a01.1\u00a0·\u00a01.1.1.', steps: []}
+   lede: 'Frame › Deck › Content. That is the whole idea, numbered for you: 1\u00a0·\u00a01.1\u00a0·\u00a01.1.1, and coloured the same way in the Studio.', steps: []}
 ];
 function b(t){ return h('b', {text: t}); }
 
@@ -125,8 +125,44 @@ function key(e){
   else if (e.key === 'Escape'){ e.preventDefault(); e.stopPropagation(); }   // nothing hides it by accident: Skip does
 }
 
+/* the website: plan anywhere, sync to this PC (the same linking as Settings → FrameDecks account) */
+var syncT = null;
+function syncPanel(){
+  var body = h('div', {cls: 'onb-link', id: 'onb-sync-body', 'aria-live': 'polite'});
+  function draw(d){
+    body.innerHTML = '';
+    if (d && d.state === 'linked'){ stopPoll(); body.appendChild(h('span', {cls: 'onb-ok', text: '✓ Linked with ' + (d.workspace || 'your workspace') + '. Plans sync by themselves.'})); return; }
+    if (d && d.state === 'waiting'){
+      body.appendChild(h('span', {text: 'Allow this PC in your browser. It shows'}));
+      body.appendChild(h('span', {cls: 'onb-check', text: String(d.check || '')}));
+      if (d.connectUrl) body.appendChild(h('a', {cls: 'onb-ghost', href: d.connectUrl, target: '_blank', rel: 'noopener', text: 'Open the page again'}));
+      startPoll(); return;
+    }
+    body.appendChild(h('button', {cls: 'onb-ghost', type: 'button', id: 'onb-connect', html: I('globe', 16) + ' Sign in and connect', onclick: connect}));
+    if (d && d.error) body.appendChild(h('span', {cls: 'onb-hint', text: d.error}));
+  }
+  function connect(ev){
+    var btn = ev.currentTarget; btn.disabled = true;
+    fetch('api/sync', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({action: 'link'})})
+      .then(function(r){ return r.json().then(function(d){ if (!r.ok) throw new Error(d.error || 'Not available'); return d; }); })
+      .then(function(d){ if (d.connectUrl) window.open(d.connectUrl, '_blank', 'noopener'); draw(d); })   // the app window sends it to your browser
+      .catch(function(e){ btn.disabled = false; if (window.KCActions) window.KCActions.toast(e.message, true); });
+  }
+  function check(){ return fetch('api/sync', {cache: 'no-store'}).then(function(r){ return r.json(); }).then(draw).catch(function(){ stopPoll(); draw({}); }); }
+  function startPoll(){ if (!syncT) syncT = setInterval(function(){ if (!root) return stopPoll(); check(); }, 3000); }
+  check();
+  return h('div', {cls: 'onb-opt'}, [
+    h('p', {cls: 'onb-opt-t', text: 'Plan on the website, present here (optional)'}),
+    h('p', {cls: 'onb-hint onb-hint-top', text: 'Sign in at framedecks.com to plan meetings from any browser with your team. They sync to this PC by themselves; presenting never needs the internet.'}),
+    body,
+    h('p', {cls: 'onb-hint', text: 'Later: Settings → FrameDecks account.'})]);
+}
+function stopPoll(){ clearInterval(syncT); syncT = null; }
+
 function finishExtras(){
-  var out = [];
+  var out = [h('div', {cls: 'onb-legend', 'aria-label': 'Colours'}, [
+    h('span', {}, [h('i', {cls: 'lf'}), 'Frame']), h('span', {}, [h('i', {cls: 'ld'}), 'Deck']), h('span', {}, [h('i', {cls: 'lc'}), 'Content'])]),
+    syncPanel()];
   if (onlyStarters() && SC && SC.quickStarts){
     out.push(h('div', {cls: 'onb-opt'}, [
       h('p', {cls: 'onb-opt-t', id: 'onb-kinds-t', text: 'Start with a ready-made meeting? (optional)'}),
@@ -201,6 +237,7 @@ function open(d){
 }
 /* close: take the flow away (record: also save it as done) */
 function close(){
+  stopPoll();
   if (!root) return;
   var r = root; root = null;
   hiddenSiblings.forEach(function(e){ e.removeAttribute('inert'); }); hiddenSiblings = [];

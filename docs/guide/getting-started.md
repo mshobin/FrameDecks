@@ -58,13 +58,15 @@ A webcam is optional. You need one only if people should see you on the FrameDec
    - **Adding Decks**: a Deck is one block on a Frame (a scripture, a question, text, a picture, a video, a timer or
      slides). **+ Deck** adds one to the selected Frame.
    - **Adding Content**: what a Deck shows, such as each question or verse (**+ Question**, **+ Scripture**).
-   - **Finish**: optionally choose a ready-made meeting (Bible Study, Prayer Meeting, Youth Gathering, Fellowship
+   - **Finish**: optionally **Sign in and connect**, to plan on framedecks.com and sync to this PC (the browser opens;
+     allow this PC, and the page turns to *Linked* by itself; later: Settings → FrameDecks account). Optionally choose a ready-made meeting (Bible Study, Prayer Meeting, Youth Gathering, Fellowship
      Meeting or Church Service). If FrameDecks finds data from an earlier version, **Bring it in** copies it (the old
      folder is not changed).
 
    Use **Next** and **Back** (or the arrow keys); **Skip** closes it. It does not come back after **Finish** or
    **Skip**; open it again from **Settings → About → Welcome tour** or the command palette (Ctrl+K, "Welcome tour").
-3. The app opens on the **Studio**, where you build and run meetings.
+3. The app opens on the **Studio**, where you build and run meetings. Each level has its own colour, here and on the
+   phone remote: **Frames gold**, **Decks blue**, **Content violet** (green always means *on screen now*).
 4. The **Setup guide** (how people will see it, your phone as a remote, connecting to FrameDecks, and a check that
    everything is working) is in **Settings → About → Guided tour**, and in the command palette (Ctrl+K, "Setup guide").
    It shows one step at a time; **Show me how** points at the button to press.

@@ -16,6 +16,9 @@ installs over 9.4.0 and earlier and keeps all your meetings, members, settings, 
   Each page has a picture of the Studio that builds itself, and the pages glide from one to the next. On Finish you
   can start with a ready-made meeting, or bring in data from an earlier version when FrameDecks finds some.
 
+  The Finish page also offers **Sign in and connect**, so you can plan on framedecks.com with your team and have
+  every plan sync to this PC. It uses the same linking as Settings → FrameDecks account.
+
   It appears once on each PC: after a new install, an update or a reinstall, until you choose **Finish** or **Skip**.
   It never appears on the phone remote. To see it again, open **Settings → About → Welcome tour**.
 
@@ -30,6 +33,8 @@ installs over 9.4.0 and earlier and keeps all your meetings, members, settings, 
   the message, a blessing and a thank-you.
 
 ## Enhancements
+- **A colour for each level.** Frames are gold, Decks blue and Content violet, in soft see-through tints like the
+  welcome, in the Studio (dark and light) and on the phone remote's Plan. Green still means "on screen now".
 - The Decks list's button now reads **+ Deck**, so the Studio, the Meeting Workbook and the welcome all say Frame ›
   Deck › Content.
 - New question and scripture cards are labelled **Question** and **Scripture**. Your saved Frames keep their own

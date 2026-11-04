@@ -1434,3 +1434,31 @@ body{background:radial-gradient(1100px 620px at 88% -12%,var(--fd-glow-a),transp
 .ann-spot-r{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted)}
 .ann-spot-r input{width:110px}
 .ann-spot-r .val{min-width:40px;color:var(--ink)}
+
+/* 9.5 one colour per level, everywhere: Frames gold, Decks blue, Content violet (green stays "live"). Soft,
+ * see-through tints like the Welcome flow (css/onboarding.css); the numbers carry the colour. */
+:root,html[data-theme="dark"]{
+  --lv-frame:#e8b931; --lv-frame-soft:rgba(232,185,49,.075); --lv-frame-soft2:rgba(232,185,49,.16); --lv-frame-line:rgba(232,185,49,.45);
+  --lv-deck:#8fb3ff; --lv-deck-soft:rgba(122,167,255,.075); --lv-deck-soft2:rgba(122,167,255,.17); --lv-deck-line:rgba(122,167,255,.5);
+  --lv-content:#c3a6ff; --lv-content-soft:rgba(178,140,255,.07); --lv-content-soft2:rgba(178,140,255,.16); --lv-content-line:rgba(178,140,255,.5)}
+html[data-theme="light"]{
+  --lv-frame:#8a5c0a; --lv-frame-soft:rgba(214,160,60,.09); --lv-frame-soft2:rgba(214,160,60,.2); --lv-frame-line:rgba(176,124,30,.5);
+  --lv-deck:#1f4fbf; --lv-deck-soft:rgba(37,99,235,.06); --lv-deck-soft2:rgba(37,99,235,.14); --lv-deck-line:rgba(37,99,235,.45);
+  --lv-content:#5b2fc4; --lv-content-soft:rgba(109,63,214,.06); --lv-content-soft2:rgba(109,63,214,.14); --lv-content-line:rgba(109,63,214,.45)}
+.scene-item,.scene-list .scene-item{background:var(--lv-frame-soft);border-color:var(--lv-frame-soft2)}
+.scene-list .scene-item:hover{background:var(--lv-frame-soft2);border-color:var(--lv-frame-line)}
+.scene-list .si-num{color:var(--lv-frame);background:var(--lv-frame-soft2)}
+.scene-list .scene-item.sel .si-num{background:var(--lv-frame);color:var(--gold-ink)}
+.layer-item{background:var(--lv-deck-soft)}
+.fl-list .item{background:var(--lv-content-soft)}
+.scene-item:hover{background:var(--lv-frame-soft2)} .layer-item:hover{background:var(--lv-deck-soft2)} .fl-list .item:hover{background:var(--lv-content-soft2)}
+.scene-item.sel,.scene-list .scene-item.sel{background:var(--lv-frame-soft2);border-color:var(--lv-frame-line)}
+.scene-list .scene-item.live .si-num{background:var(--live);color:var(--green-50)}
+.layer-item.sel{background:var(--lv-deck-soft2);border-color:var(--lv-deck-line)}
+.fl-list .item.loaded{background:var(--lv-content-soft2);box-shadow:inset 0 0 0 1px var(--lv-content-line)}
+.si-num{width:auto;min-width:22px;padding:2px 5px;border-radius:4px;text-align:center;color:var(--lv-frame);background:var(--lv-frame-soft2)}
+.li-n{color:var(--lv-deck);background:var(--lv-deck-soft2)}
+.fl-list .item .num{font-weight:800;color:var(--lv-content);background:var(--lv-content-soft2);border-radius:4px;padding:2px 0}
+.fl-list .item.live{background:var(--live-soft);box-shadow:inset 3px 0 0 var(--live)} .fl-list .item.live .num{color:var(--live)}
+#scenes-title::before,#layers-title::before,.fl-head h3::before{content:"";display:inline-block;width:8px;height:8px;margin-right:7px;border-radius:999px;vertical-align:1px}
+#scenes-title::before{background:var(--lv-frame)} #layers-title::before{background:var(--lv-deck)} .fl-head h3::before{background:var(--lv-content)}
