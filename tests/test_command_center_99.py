@@ -42,6 +42,11 @@ class CommandCenter(unittest.TestCase):
         self.assertIn("dw.glass(hwnd, False)", body)
         self.assertNotIn("dw.round_corners(hwnd)", body)
         self.assertIn("def clear_frame(hwnd):", read("src/desktop_win.py"))
+        # 9.10.1 the form behind the page is black (see-through), not WinForms' default light grey
+        self.assertIn('dw.clear_back(getattr(spot, "native", None))', body)
+        win = read("src/desktop_win.py")
+        self.assertIn("def clear_back(form):", win)
+        self.assertIn("form.BackColor = Color.Black", win)
         css = read("app/css/spotlight.css")
         self.assertIn("html.kc-glass body.spotlight,html.kc-glass body.spotlight .pal-back{background:transparent}", css)
         # as in the design picture: no frame around everything; the tray is tucked under the bar like a drawer

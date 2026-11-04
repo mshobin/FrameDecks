@@ -53,6 +53,15 @@ Versions before 4.9 (when the program had its earlier name) are described in the
 - The favicons, the tray icon and the small program-icon sizes (16–32 px) use a heavier version of the emblem, so it
   stays visible on light browser tabs and a light taskbar. Larger sizes are unchanged.
 
+## [9.10.1] - 2026-11-04
+
+Full notes: [docs/releases/v9.10.1.md](releases/v9.10.1.md).
+
+### Fixed
+- A light grey box behind the Command Center: pywebview makes a transparent window's page see-through but leaves the
+  WinForms form in `SystemColors.Control`. `desktop_win.clear_back` paints the form black (see-through with the frame
+  extended into the window, `desktop_win.glass`), on the form's own thread.
+
 ## [9.10.0] - 2026-11-04
 
 Full notes: [docs/releases/v9.10.0.md](releases/v9.10.0.md).

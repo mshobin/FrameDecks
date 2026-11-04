@@ -704,6 +704,7 @@ def main():
         hwnd = window_handle(spot)
         if not state["spot_ready"]:
             dw.clear_frame(hwnd)                                   # 9.10 no frame, no corners, no border line
+            dw.clear_back(getattr(spot, "native", None))           # 9.10.1 no grey box behind the glass
             state["spot_glass"] = bool(dw.glass(hwnd, False))      # see-through: only the glass bar and its chips show
             state["spot_ready"] = True
         dw.hide_from_capture(hwnd)        # 9.6 every time: like the Teleprompter, only the presenter sees it, even sharing the screen

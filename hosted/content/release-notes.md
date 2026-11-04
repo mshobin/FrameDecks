@@ -1,42 +1,22 @@
-## FrameDecks v9.10.0
+## FrameDecks v9.10.1
 
-The Command Center, redesigned. Press **Alt+Space** and a glass search bar with a bright white rim floats on your
-screen, with a tray of four chips tucked right under it: **Prepare**, **Engage**, **Control** and **More**. There is
-no window around it any more, and it looks the
-same every time you open it. Choose a chip and its panel unfolds under it with everything that belongs there. Like the
-Teleprompter, only you see it, even when you share your screen. Download from **framedecks.com/download**, or let
-FrameDecks update itself. It installs over 9.9.0 and earlier and keeps all your meetings, members, settings, pinned
-Memory Cards and recordings.
+A fix for the new Command Center. On some PCs a light grey box showed behind the search bar and its chips, both when
+it opened and when a chip was chosen. Now only the glass bar, the tray and the open panel show, with nothing around
+them. Download from **framedecks.com/download**, or let FrameDecks update itself. It installs over 9.10.0 and earlier
+and keeps all your meetings, members, settings, pinned Memory Cards and recordings.
 
 ## What's New
-- **Four chips, everything inside them** (also **Alt+1** to **Alt+4**):
-  - **Prepare:** Meetings, Teleprompter, Share Window, Studio, Quick Start, Content Library, Import .frame, Camera
-    check, and what you chose last;
-  - **Engage:** Memory Cards, Capture copies, Draw and Spotlight on the Share Window, Clear drawings, Hide the cards;
-  - **Control:** **Go Live** as a switch, and while you are live the meeting remote: Previous / Next Frame, the
-    Content one by one, Hide all, Black screen, the Live tools and your meeting app's Mute, Camera and Share;
-  - **More:** Workspace Sync, Camera, How people see it, Phone remote, Meeting & Branding, Shortcuts, All settings,
-    Help & tour.
-- **Go Live as a switch.** On puts the first Frame of the meeting on screen; off takes everything off screen.
-- **No window around it.** Only the bar, the tray under it and an open panel show, as glass in the FrameDecks
-  colours. The tray hangs from the bar like a drawer, and an open panel continues it.
-
-## Enhancements
-- Glossy icons: each one a small jewel of its chip's colour, with a soft top sheen and a glow under it.
-- Opening it, the bar springs in and the chips follow one after another. Choosing a chip makes its icon bounce, sends
-  a ring of its colour and a ripple from where you clicked, slides a light under it, and grows the panel out of that
-  chip as a circle; the buttons then all come into focus together as their icons pop in. With **Reduce motion** on in
-  Windows, all of this stays still.
-- A small green dot on **Control** while you are live, and on **Engage** while copies are captured.
-- A click anywhere outside the glass closes it, as a click on another window does.
-- The welcome's Going live page and the user guide show the new Command Center.
-
-## Fixes
 None in this version.
 
+## Enhancements
+None in this version.
+
+## Fixes
+- The Command Center no longer shows a light grey box behind its glass. The window behind the page was painted in
+  the Windows default grey; it is now painted in the colour Windows treats as see-through.
+
 ## Performance Improvements
-- The window draws nothing but its glass shapes, and nothing moves once it has opened.
+None in this version.
 
 ## Known Issues
 - The installer is not yet code-signed, so Windows SmartScreen may ask you to confirm: **More info → Run anyway**.
-- Without a window frame the glass cannot use the Windows blur, so it is a little more solid than before.

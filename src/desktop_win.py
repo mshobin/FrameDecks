@@ -317,6 +317,27 @@ def round_corners(hwnd):
         _swallowed("desktop_win.round_corners", _e)
 
 
+def clear_back(form):
+    """9.10.1 pywebview makes the page of a transparent window see-through but leaves the WinForms form behind it in
+    its default light grey (SystemColors.Control), which showed as a grey box around the Command Center. Black is
+    what Windows treats as see-through on a window whose frame is extended into it (desktop_win.glass), so the form
+    is painted black, on its own thread."""
+    if not (IS_WIN and form is not None):
+        return False
+    try:
+        from System import Action                             # pythonnet (pywebview's WinForms window)
+        from System.Drawing import Color
+
+        def run():
+            form.BackColor = Color.Black
+            form.Invalidate()
+        form.BeginInvoke(Action(run))
+        return True
+    except Exception as _e:
+        _swallowed("desktop_win.clear_back", _e)
+        return False
+
+
 def clear_frame(hwnd):
     """9.10 a window with no frame at all (the Command Center): Windows 11 draws neither rounded corners nor its thin
     border line around it, so only the page's own shapes show (Windows 10 has neither anyway)."""
