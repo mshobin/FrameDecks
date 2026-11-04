@@ -41,7 +41,7 @@ function comboOf(e){
 }
 
 /* ---------- what can be found ---------- */
-var KIND = {cmd: 'Command', meeting: 'Meeting', card: 'Memory', ai: 'Ask AI', frame: 'Frame', tpl: 'Template', lib: 'Library', content: 'Content', question: 'Question', verse: 'Scripture',
+var KIND = {cmd: 'Command', meeting: 'Meeting', card: 'Memory', frame: 'Frame', tpl: 'Template', lib: 'Library', content: 'Content', question: 'Question', verse: 'Scripture',
   text: 'Text', brand: 'Branding', bg: 'Background', member: 'Member', birthday: 'Birthday', setting: 'Settings', bible: 'Bible', recent: 'Recent'};
 var SECTIONS = [['general', 'General', 'appearance theme dark light'], ['meeting', 'Meeting & Branding', 'logo brand meeting name organization colour accent'],
   ['overlays', 'Birthdays', 'birthday reminders'], ['scripture', 'Scripture', 'bible esv api key translation'], ['transitions', 'Transitions', 'fade dip cut profile'],
@@ -92,13 +92,7 @@ function commands(){
   }
   /* commands Spotlight can run while the main window stays in the tray */
   var BG = {golive: 1, next: 1, prev: 1, hideall: 1, blackout: 1, freeze: 1, prompter: 1, share: 0};
-  /* 9.9 Ask AI (Command Center): discussion questions drafted on this PC from the selected Frame's scriptures */
-  var aiSc = sel && sel.scene && live ? (typeof sel.scene === 'string' ? SC.find(live, sel.scene) : sel.scene) : null, aiV = aiSc && SC.first(aiSc, 'scripture');
-  if (aiV && Array.isArray(aiV.c.items) && aiV.c.items.length && window.KCFrameLists && window.KCFrameLists.suggest){
-    c.push(['ai-questions', 'Ask AI: draft discussion questions for “' + aiSc.name + '”', 'ai ask assist questions discussion draft suggest ollama', function(){
-      studio(); if (W()) W().select(aiSc.id, null, true); setTimeout(function(){ window.KCFrameLists.suggest(aiSc.id); }, 60); }]);
-  }
-  return c.map(function(x){ return {key: 'cmd:' + x[0], kind: x[0].indexOf('ai-') === 0 ? 'ai' : 'cmd', title: x[1], sub: x[4] ? 'Shortcut ' + x[4] : x[0].indexOf('ai-') === 0 ? 'Drafted on this PC · you check them before they are added' : 'Command', words: x[2], run: x[3], bg: !!BG[x[0]]}; });
+  return c.map(function(x){ return {key: 'cmd:' + x[0], kind: 'cmd', title: x[1], sub: x[4] ? 'Shortcut ' + x[4] : 'Command', words: x[2], run: x[3], bg: !!BG[x[0]]}; });
 }
 function trimmed(s, n){ s = String(s || '').replace(/\s+/g, ' ').trim(); return s.length > n ? s.slice(0, n - 1) + '…' : s; }
 function index(){
@@ -167,7 +161,7 @@ function score(q, title, words){
   }
   return s - t.length * 0.3;
 }
-var KIND_BONUS = {meeting: 35, card: 20, ai: 10, cmd: 30, frame: 40, content: 10, text: 10, question: 5, verse: 5, tpl: 0, lib: -5, brand: 5, bg: 5, setting: 0, member: -5, birthday: 0};
+var KIND_BONUS = {meeting: 35, card: 20, cmd: 30, frame: 40, content: 10, text: 10, question: 5, verse: 5, tpl: 0, lib: -5, brand: 5, bg: 5, setting: 0, member: -5, birthday: 0};
 function rank(all, q){
   var words = norm(q).trim().split(/\s+/).filter(Boolean), res = [];
   if (!words.length) return [];
@@ -239,12 +233,11 @@ function mark(){
   if (items[active]) input.setAttribute('aria-activedescendant', 'pal-' + active); else input.removeAttribute('aria-activedescendant');
 }
 /* 9.9 Command Center scopes: a module (Meetings, Memory Cards, Present, Camera, More) or a prefix narrows the search.
- * > commands · # meetings and Frames · @ people · ? Ask AI. A scope is {id, label, items(all) -> the items it searches}. */
+ * > commands · # meetings and Frames · @ people. A scope is {id, label, items(all) -> the items it searches}. */
 var scope = null, hooks = {};
 var PREFIX = {'>': function(all){ return all.filter(function(it){ return it.kind === 'cmd'; }); },
   '#': function(all){ return all.filter(function(it){ return it.kind === 'meeting' || it.kind === 'frame'; }); },
-  '@': function(all){ return all.filter(function(it){ return it.kind === 'member' || it.kind === 'birthday'; }); },
-  '?': function(all){ return all.filter(function(it){ return it.kind === 'ai'; }); }};
+  '@': function(all){ return all.filter(function(it){ return it.kind === 'member' || it.kind === 'birthday'; }); }};
 function pool(q){
   var c = q.charAt(0), base = scope ? scope.items(all) : all;
   if (PREFIX[c]) return {list: PREFIX[c](base), q: q.slice(1), prefix: c};
@@ -254,7 +247,6 @@ function update(){
   var q = input.value;
   if (scope || PREFIX[q.trim().charAt(0)]){                          // 9.9 a module or a prefix: its items, ranked as you type
     var pl = pool(q.trim()), sq = pl.q.trim(), res = sq ? rank(pl.list, sq) : pl.list.slice(0, 50);
-    if (pl.prefix === '?' && hooks.ai) res = hooks.ai(sq, res);
     items = res; active = 0;
     draw([{label: sq ? '' : (scope ? scope.label : ''), items: res}]);
     if (!res.length) list.firstChild.textContent = scope && scope.empty ? scope.empty : 'Nothing here yet.';

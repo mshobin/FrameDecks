@@ -1,13 +1,17 @@
-/* FrameDecks 9.9 - the Command Center (spotlight.html; it was called Spotlight until 9.8). Everything in FrameDecks
- * starts here: one bar that searches everything and runs commands (js/palette.js), and around it
- *   - the context strip: on air or not, the meeting this PC shows, Workspace Sync, and "Only you can see this"
- *     (the window is left out of screen sharing and recordings);
- *   - five modules while preparing (Alt+1 … Alt+5): Meetings, Memory Cards, Present, Camera and More. Each one narrows
- *     the bar to what it holds (a scope, shown as a pill in the bar; Backspace or Esc removes it);
- *   - the Recent row: what you chose last;
- *   - while a Frame is live, the live remote instead (js/spotlight-remote.js).
- * Prefixes in the bar: > commands · # meetings and Frames · @ people · ? Ask AI (Tab switches to it).
- * Fast by design: nothing here runs while the window is hidden; a few small requests when it opens. */
+/* FrameDecks 9.10 - the Command Center (spotlight.html). A glass search bar and, under it, four chips that hold
+ * everything else, the same every time the shortcut opens it:
+ *   Prepare  - meetings and Frames, the Teleprompter, the Share Window, the Studio, Quick Start, the Content Library,
+ *              .frame files, the camera check;
+ *   Engage   - Memory Cards (capture, show, hide), Draw and Spotlight on the Share Window;
+ *   Control  - Go Live as a switch (on: the first Frame goes on screen; off: everything leaves the screen) and, while
+ *              live, the meeting remote (js/spotlight-remote.js: Frames, Content, Hide all, Black, the meeting app);
+ *   More     - the settings (Workspace Sync, the camera, how people see it, the phone remote, branding, shortcuts,
+ *              every setting) and help.
+ * A chip opens its panel under the tray (Alt+1 to Alt+4; Esc closes it). Typing searches everything (js/palette.js;
+ * > commands, # meetings and Frames, @ people).
+ * The window itself is see-through with no frame (desktop_app: desktop_win.clear_frame, glass without frost): only the
+ * bar, the tray and the open panel show. Like the Teleprompter, it is left out of screen sharing and recordings.
+ * Nothing here runs while the window is hidden; a few small requests when it opens. */
 (function(){
 'use strict';
 var P = window.KCPalette, Store = window.KCStore, SC = window.KCScenes;
@@ -25,176 +29,261 @@ function post(url, body){
     .then(function(r){ return r.json().catch(function(){ return {}; }); }).catch(function(){ return {}; });
 }
 function setText(el, t){ if (el && el.textContent !== t) el.textContent = t; }
+var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
 var box = document.querySelector('.pal'), top = box && box.querySelector('.pal-top'), input = P.input();
 if (!box || !top || !input) return;
-var live = null, sync = null, cam = null, mem = null, aiOk = null;
+box.classList.add('cc');
+var live = null, sync = null, cam = null, mem = null, annMode = '';
 Store.subscribe(function(st){ live = st; render(); });
 
-/* ---------- what each module holds ---------- */
-function keyed(keys){ return function(all){ var by = {}; all.forEach(function(it){ by[it.key] = it; }); return keys.map(function(k){ return by[k]; }).filter(Boolean); }; }
+/* ---------- doing things ---------- */
+function run(key, bg){ post('api/app/palette-run', {key: key, bg: !!bg}); }            // the main window does it
+function setting(sec){ P.choose({key: 'set:' + sec, kind: 'setting', title: sec, sub: 'Settings'}); }
+function tell(msg, bad){ var s = box.querySelector('.cc-say'); if (!s) return; s.textContent = msg; s.classList.toggle('bad', !!bad); clearTimeout(tell.t); tell.t = setTimeout(function(){ s.textContent = ''; }, 2800); }
+function isLive(){ return !!(live && SC.liveScene(live)); }
+function goLive(on){
+  if (!live) return;
+  if (on){
+    var first = SC.order(live)[0];
+    if (!first){ tell('There are no Frames yet. Plan the meeting first.', true); return; }
+    Store.update(function(n){ n.live.blackout = false; SC.take(n, first.id, null); }).then(function(){ tell('✓ ' + first.name + ' is on screen'); });
+  } else {
+    Store.update(function(n){ SC.hideAll(n); n.live.scene = ''; n.live.blackout = false; n.live.freeze = false; }).then(function(){ tell('✓ Off air: nothing on screen'); });
+  }
+}
+function tool(mode){
+  if (!isLive()){ tell('Go Live first (Control): the Live tools work on what is on screen.', true); return; }
+  post('api/app/annotate', {op: 'mode', mode: annMode === mode ? '' : mode}).then(function(d){ annMode = d.mode || ''; paint(); });
+}
+function capture(){ if (!mem) return; post('api/memory', {action: 'capture', on: !mem.capture}).then(loadMemory); }
+function scope(id){ var s = SCOPES[id]; current = s; P.scope(s); input.value = ''; input.dispatchEvent(new Event('input')); input.focus(); paintScope(); }
+
+/* ---------- scopes: the lists a tile opens in the bar ---------- */
 function memoryItems(){
   if (!mem) return [];
   var onIds = {}; ((live && live.live.memory && live.live.memory.cards) || []).forEach(function(c){ onIds[c.id] = 1; });
-  var out = [{key: 'mem:capture', kind: 'cmd', title: mem.capture ? 'Stop capturing copies' : 'Capture copies (each Ctrl+C becomes a card)', sub: 'Memory Cards', words: 'capture copy clipboard',
-    local: function(){ post('api/memory', {action: 'capture', on: !mem.capture}).then(loadMemory); }}];
-  if (Object.keys(onIds).length) out.push({key: 'mem:hideall', kind: 'cmd', title: 'Hide the cards on screen', sub: 'Memory Cards', words: 'hide clear',
-    local: function(){ post('api/memory', {action: 'hideall'}).then(loadMemory); }});
-  (mem.items || []).slice().reverse().forEach(function(c){
+  return (mem.items || []).slice().reverse().map(function(c){
     var on = !!onIds[c.id];
-    out.push({key: 'card:' + c.id, kind: 'card', title: (c.title || 'Card') + (on ? ' · on screen' : ''), sub: (on ? 'Enter hides it · ' : 'Enter shows it · ') + (c.private ? 'Private' : c.text || ''),
-      words: (c.text || '') + ' ' + (c.title || ''), local: function(){ post('api/memory', {action: on ? 'hide' : 'show', id: c.id}).then(loadMemory); }});
+    return {key: 'card:' + c.id, kind: 'card', title: (c.title || 'Card') + (on ? ' · on screen' : ''), sub: (on ? 'Enter hides it · ' : 'Enter shows it · ') + (c.private ? 'Private' : c.text || ''),
+      words: (c.text || '') + ' ' + (c.title || ''), local: function(){ post('api/memory', {action: on ? 'hide' : 'show', id: c.id}).then(loadMemory); }};
   });
-  return out;
 }
-function cameraItems(all){
-  var s = cam && cam.status, state = !cam ? 'Checking…' : !cam.available ? 'Not available on this PC' : !cam.registered ? 'Not set up yet: open its settings' :
-    s && s.inUse ? 'Sending to your meeting app' : s && s.state === 'running' ? 'Running · not in use by a meeting app' : 'Ready';
-  return [{key: 'cam:status', kind: 'setting', title: 'FrameDecks vCam · ' + state, sub: 'The camera Zoom, Teams and Meet see', words: 'camera vcam status',
-    local: function(){ P.choose({key: 'set:vcam', kind: 'setting', title: 'FrameDecks vCam', sub: 'Settings'}); }}]
-    .concat(keyed(['set:vcam', 'cmd:camera', 'set:output', 'set:recording', 'set:display'])(all));
-}
-var MODS = [
-  {id: 'meetings', label: 'Meetings', icon: 'calendar-days', hue: 'gold', scope: {label: 'Meetings and Frames', empty: 'No meetings yet. Plan one on framedecks.com or in the Studio.',
-    items: function(all){ return all.filter(function(it){ return it.kind === 'meeting'; }).concat(all.filter(function(it){ return it.kind === 'frame'; })); }}},
-  {id: 'memory', label: 'Memory Cards', icon: 'message-circle', hue: 'violet', scope: {label: 'Memory Cards', empty: 'No Memory Cards yet.', items: memoryItems}, load: function(){ loadMemory(); }},
-  {id: 'present', label: 'Present', icon: 'presentation', hue: 'blue', scope: {label: 'Present', items: keyed(['cmd:prompter', 'cmd:share', 'cmd:sharedraw', 'cmd:sharespot', 'cmd:golive', 'cmd:next', 'cmd:prev', 'cmd:blackout', 'cmd:freeze', 'cmd:hideall'])}},
-  {id: 'camera', label: 'Camera', icon: 'video', hue: 'teal', scope: {label: 'Camera', items: cameraItems}, load: function(){ loadCamera(); }},
-  {id: 'more', label: 'More', icon: 'shapes', hue: 'slate', scope: {label: 'More', items: function(all){
-    return keyed(['cmd:studio', 'set:account', 'cmd:resync', 'cmd:branding', 'set:ipad', 'cmd:quick', 'cmd:library', 'cmd:frameimport', 'cmd:frameexport', 'cmd:welcome', 'cmd:guide'])(all)
-      .concat(all.filter(function(it){ return it.kind === 'setting' && it.key !== 'set:account' && it.key !== 'set:ipad'; })); }}}];
-var current = null;
-function openModule(m){
-  if (!m){ current = null; P.scope(null); } else { current = m; if (m.load) m.load(); P.scope({id: m.id, label: m.scope.label, empty: m.scope.empty, items: m.scope.items}); }
-  input.value = ''; input.dispatchEvent(new Event('input')); input.focus();
-  paintScope();
-}
-function paintScope(){
-  pill.hidden = !current;
-  if (current){ pill.className = 'cc-scope cc-' + current.hue; pill.querySelector('.cc-scope-ic').innerHTML = I(current.icon, 15); setText(pill.querySelector('b'), current.label); }
-  input.placeholder = current ? 'Search ' + current.label + '…' : placeholder();
-}
-function placeholder(){
-  var ls = live && SC.liveScene(live);
-  return ls ? 'Jump to a Frame, a verse or a command…' : 'Search or ask anything…';
-}
+var SCOPES = {
+  meetings: {id: 'meetings', label: 'Meetings', hue: 'gold', icon: 'calendar-days', empty: 'No meetings yet. Plan one on framedecks.com or in the Studio.',
+    items: function(all){ return all.filter(function(it){ return it.kind === 'meeting'; }).concat(all.filter(function(it){ return it.kind === 'frame'; })); }},
+  memory: {id: 'memory', label: 'Memory Cards', hue: 'violet', icon: 'message-circle', empty: 'No Memory Cards yet. Turn on Capture copies, then copy a message.', items: memoryItems},
+  settings: {id: 'settings', label: 'All settings', hue: 'slate', icon: 'settings', items: function(all){ return all.filter(function(it){ return it.kind === 'setting'; }); }}
+};
 
-/* ---------- the bar: a scope pill before the field, the shortcut after it ---------- */
-var pill = h('button', {cls: 'cc-scope', type: 'button', hidden: 'hidden', title: 'Back to everything (Backspace)', onclick: function(){ openModule(null); }},
+/* ---------- the four groups ---------- */
+function T(id, icon, label, sub, fn, opt){ return {id: id, icon: icon, label: label, sub: sub, fn: fn, opt: opt || {}}; }
+var GROUPS = [
+  {id: 'prepare', label: 'Prepare', icon: 'layers', hue: 'gold', lede: 'Plan the meeting and get the screens ready.', tiles: function(){ return [
+    T('meetings', 'calendar-days', 'Meetings', meetingSub(), function(){ scope('meetings'); }),
+    T('prompter', 'type', 'Teleprompter', 'Your script, only you see it', function(){ run('cmd:prompter', true); }),
+    T('share', 'monitor', 'Share Window', 'The window you share', function(){ run('cmd:share', false); }),
+    T('studio', 'presentation', 'Studio', 'Frames, Decks, Content', function(){ run('cmd:studio', false); }),
+    T('quick', 'rocket', 'Quick Start', 'Ready-made Frames', function(){ run('cmd:quick', false); }),
+    T('library', 'library', 'Content Library', 'Add ready-made Content', function(){ run('cmd:library', false); }),
+    T('import', 'folder-open', 'Import .frame', 'A plan from the website', function(){ run('cmd:frameimport', false); }),
+    T('camera', 'video', 'Camera check', camSub(), function(){ setting('vcam'); })]; }},
+  {id: 'engage', label: 'Engage', icon: 'sparkles', hue: 'violet', lede: 'Bring the room in: chat, drawings and the spotlight.', tiles: function(){ return [
+    T('cards', 'message-circle', 'Memory Cards', !mem ? 'Chat on screen' : (mem.items || []).length + ((mem.items || []).length === 1 ? ' card' : ' cards'), function(){ scope('memory'); }),
+    T('capture', 'copy', 'Capture copies', mem && mem.capture ? 'On · each Ctrl+C is a card' : 'Off', capture, {on: !!(mem && mem.capture), toggle: true}),
+    T('draw', 'pencil', 'Draw', 'On the Share Window', function(){ tool('draw'); }, {on: annMode === 'draw', toggle: true}),
+    T('spot', 'circle-dot', 'Spotlight', 'Follows your mouse', function(){ tool('spot'); }, {on: annMode === 'spot', toggle: true}),
+    T('clear', 'eraser', 'Clear drawings', 'Everywhere at once', function(){ Store.update(function(n){ SC.ink(n, 'clear'); }).then(function(){ tell('✓ Drawings cleared'); }); }),
+    T('hidecards', 'eye-off', 'Hide the cards', 'Take chat off screen', function(){ post('api/memory', {action: 'hideall'}).then(loadMemory).then(function(){ tell('✓ Cards hidden'); }); })]; }},
+  {id: 'control', label: 'Control', icon: 'radio', hue: 'blue', lede: '', control: true},
+  {id: 'more', label: 'More', icon: 'layout-grid', hue: 'slate', lede: 'Settings for this PC and your workspace, and help.', tiles: function(){ return [
+    T('sync', 'cloud', 'Workspace Sync', syncSub(), function(){ setting('account'); }),
+    T('vcam', 'video', 'Camera', 'FrameDecks vCam', function(){ setting('vcam'); }),
+    T('output', 'cast', 'How people see it', 'Zoom, Teams, projector', function(){ setting('output'); }),
+    T('phone', 'smartphone', 'Phone remote', 'PIN and QR code', function(){ setting('ipad'); }),
+    T('brand', 'palette', 'Meeting & Branding', 'Names, logo, look', function(){ setting('meeting'); }),
+    T('keys', 'keyboard', 'Shortcuts', 'This window and more', function(){ setting('keys'); }),
+    T('all', 'settings', 'All settings', 'Search every setting', function(){ scope('settings'); }),
+    T('help', 'info', 'Help & tour', 'The welcome tour', function(){ run('cmd:welcome', false); })]; }}];
+function meetingSub(){ var c = live && SC.meetings(live).length ? SC.currentMeeting(live) : null; return c ? c.name : 'Switch and plan'; }
+function camSub(){ return !cam ? 'FrameDecks vCam' : cam.status && cam.status.inUse ? 'In your meeting' : cam.registered ? 'Ready' : 'Set it up'; }
+function syncSub(){ var ph = sync && sync.phase; return ph === 'synced' ? 'Synced' : ph === 'syncing' ? 'Syncing…' : ph === 'offline' ? 'Offline' : ph === 'failed' ? 'Needs a look' : 'This PC only'; }
+
+/* ---------- the bar: a scope pill, then the field, then "only you" and the shortcut ---------- */
+var current = null;
+var pill = h('button', {cls: 'cc-scope', type: 'button', hidden: 'hidden', title: 'Back to everything (Backspace)', onclick: function(){ clearScope(); }},
   [h('span', {cls: 'cc-scope-ic', 'aria-hidden': 'true'}), h('b'), h('span', {cls: 'cc-scope-x', 'aria-hidden': 'true', html: I('x', 13)})]);
 top.insertBefore(pill, input);
 var keycaps = h('span', {cls: 'cc-keys', 'aria-hidden': 'true'});
+top.appendChild(h('span', {cls: 'cc-only', title: 'Only you can see this: screen sharing and recordings leave it out', html: I('eye-off', 16)}));
 top.appendChild(keycaps);
 function paintKeys(k){ keycaps.innerHTML = ''; String(k || 'Alt+Space').split('+').forEach(function(p){ keycaps.appendChild(h('kbd', {text: p})); }); }
 paintKeys();
-
-/* ---------- the context strip ---------- */
-function chip(id, icon, label){ return h('span', {cls: 'cc-chip', id: 'cc-' + id}, [h('i', {'aria-hidden': 'true', html: icon ? I(icon, 14) : ''}), h('b', {text: label || ''})]); }
-var strip = h('div', {cls: 'cc-strip', role: 'group', 'aria-label': 'Now'}, [
-  chip('air', '', 'Off air'), chip('meet', 'calendar-days', ''), chip('sync', 'cloud', ''), h('span', {cls: 'cc-gap'}), chip('private', 'eye-off', 'Only you can see this')]);
-strip.querySelector('#cc-air').classList.add('cc-dot');
-var syncChip = strip.querySelector('#cc-sync');
-syncChip.setAttribute('role', 'button'); syncChip.tabIndex = 0;
-function openSync(){ P.choose({key: 'set:account', kind: 'setting', title: 'Workspace Sync', sub: 'Settings'}); }
-syncChip.addEventListener('click', openSync);
-syncChip.addEventListener('keydown', function(e){ if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); openSync(); } });
-strip.querySelector('#cc-private').title = 'Screen sharing and recordings leave this window out, like the Teleprompter';
-
-/* ---------- the modules ---------- */
-var mods = h('div', {cls: 'cc-mods', role: 'group', 'aria-label': 'Modules'}, MODS.map(function(m, i){
-  var b = h('button', {cls: 'cc-mod cc-' + m.hue, type: 'button', id: 'cc-m-' + m.id, 'aria-keyshortcuts': 'Alt+' + (i + 1), title: m.label + ' (Alt+' + (i + 1) + ')', onclick: function(){ openModule(m); }}, [
-    h('span', {cls: 'cc-sq', 'aria-hidden': 'true', html: I(m.icon, 22)}), h('b', {text: m.label}), h('small', {cls: 'cc-sub'}), h('kbd', {text: 'Alt ' + (i + 1)})]);
-  b.addEventListener('pointermove', function(e){ var r = b.getBoundingClientRect(); b.style.setProperty('--mx', (e.clientX - r.left) + 'px'); b.style.setProperty('--my', (e.clientY - r.top) + 'px'); });
-  return b;
-}));
-
-/* ---------- Recent ---------- */
-var KIND_ICON = {cmd: 'sparkles', meeting: 'calendar-days', frame: 'layers', tpl: 'layout-template', lib: 'library', content: 'square', question: 'message-circle', verse: 'book-open',
-  text: 'type', brand: 'palette', bg: 'image', member: 'user', birthday: 'cake', setting: 'settings', card: 'message-circle', ai: 'sparkles'};
-var recList = h('ul', {cls: 'cc-rlist'});
-var rec = h('section', {cls: 'cc-rec', 'aria-labelledby': 'cc-rec-t'}, [h('h2', {id: 'cc-rec-t', text: 'Recent'}), recList]);
-function paintRecent(){
-  var items = P.recentItems(4), sig = items.map(function(it){ return it.key + it.title; }).join('|');
-  rec.hidden = !items.length;
-  if (recList.dataset.sig === sig) return;
-  recList.dataset.sig = sig; recList.innerHTML = '';
-  items.forEach(function(it){
-    recList.appendChild(h('li', {}, [h('button', {cls: 'cc-rrow', type: 'button', onclick: function(){ P.choose(it); }}, [
-      h('span', {cls: 'cc-rk cc-k-' + it.kind, 'aria-hidden': 'true', html: I(KIND_ICON[it.kind] || 'search', 15)}),
-      h('span', {cls: 'cc-rt'}, [h('b', {text: it.title}), it.sub ? h('small', {text: it.sub}) : null]),
-      h('kbd', {cls: 'cc-enter', 'aria-hidden': 'true', text: '↵'})])]));
-  });
+function paintScope(){
+  pill.hidden = !current;
+  if (current){ pill.className = 'cc-scope cc-' + current.hue; pill.querySelector('.cc-scope-ic').innerHTML = I(current.icon, 14); setText(pill.querySelector('b'), current.label); }
+  input.placeholder = current ? 'Search ' + current.label + '…' : 'Search FrameDecks…';
+  layout();
 }
+function clearScope(){ current = null; P.scope(null); input.value = ''; input.dispatchEvent(new Event('input')); input.focus(); paintScope(); }
 
-top.insertAdjacentElement('afterend', strip);
-strip.insertAdjacentElement('afterend', mods);
-mods.insertAdjacentElement('afterend', rec);
-
-/* ---------- the footer: what the keys do ---------- */
+/* ---------- the tray: four chips, and a light that slides to the open one ---------- */
+var glide = h('span', {cls: 'cc-glide', 'aria-hidden': 'true'});
+var chips = GROUPS.map(function(g, i){
+  return h('button', {cls: 'cc-g cc-' + g.hue, type: 'button', id: 'cc-g-' + g.id, role: 'tab', 'aria-selected': 'false', 'aria-controls': 'cc-panel',
+    'aria-keyshortcuts': 'Alt+' + (i + 1), title: g.label + ' (Alt+' + (i + 1) + ')', style: '--i:' + i, onclick: function(e){ toggleGroup(g, e); }}, [
+    h('span', {cls: 'cc-sq', 'aria-hidden': 'true', html: I(g.icon, 24)}), h('b', {text: g.label}), h('i', {cls: 'cc-badge', 'aria-hidden': 'true'})]);
+});
+var tray = h('div', {cls: 'cc-tray', role: 'tablist', 'aria-label': 'Command Center'}, [glide].concat(chips));
+var panel = h('section', {cls: 'cc-panel', id: 'cc-panel', role: 'tabpanel', 'aria-live': 'polite'});
+var stage = h('div', {cls: 'cc-stage'}, [h('div', {cls: 'cc-stage-in'}, [panel])]);
+top.insertAdjacentElement('afterend', tray);
+tray.insertAdjacentElement('afterend', stage);
 var foot = box.querySelector('.pal-foot');
-if (foot){
-  foot.innerHTML = '';
-  [['↵', 'open'], ['Alt 1–5', 'modules'], ['>', 'commands'], ['#', 'meetings'], ['?', 'Ask AI'], ['Esc', 'close']].forEach(function(x){
-    foot.appendChild(h('span', {}, [h('kbd', {text: x[0]}), ' ' + x[1]]));
+if (foot) foot.remove();                                       // the hints live in the panels now
+
+/* the Control panel: Go Live as a switch, then the live remote (js/spotlight-remote.js puts it in the slot) */
+var golive = h('button', {cls: 'cc-switch', type: 'button', role: 'switch', 'aria-checked': 'false', id: 'cc-golive', onclick: function(){ goLive(!isLive()); }},
+  [h('span', {cls: 'cc-switch-t'}, [h('b', {text: 'Go Live'}), h('small', {id: 'cc-golive-sub'})]), h('span', {cls: 'cc-knob', 'aria-hidden': 'true'}, [h('i')])]);
+var control = h('div', {cls: 'cc-control'}, [golive, h('p', {cls: 'cc-offair', id: 'cc-offair'}), h('div', {id: 'cc-remote-slot'})]);
+var hold = h('div', {cls: 'cc-hold', hidden: 'hidden'}, [control]);      // the remote stays in the page (it keeps itself up to date)
+box.appendChild(hold);
+
+var open = null;
+function toggleGroup(g, e){ if (open === g){ closeGroup(); return; } openGroup(g, e); }
+function openGroup(g, e){
+  var from = open ? GROUPS.indexOf(open) : -1, to = GROUPS.indexOf(g);
+  if (current){ current = null; P.scope(null); }
+  if (input.value){ input.value = ''; input.dispatchEvent(new Event('input')); }
+  open = g;
+  chips.forEach(function(c, i){ c.setAttribute('aria-selected', String(i === to)); c.classList.toggle('on', i === to); });
+  box.classList.add('cc-open'); box.dataset.group = g.id;
+  glideTo(to);
+  if (e && e.currentTarget && !reduce) ripple(e.currentTarget, e);
+  panel.dataset.dir = from < 0 ? 'up' : to > from ? 'left' : 'right';
+  fill();
+  panel.classList.remove('in'); void panel.offsetWidth; panel.classList.add('in');
+  paintScope();
+}
+function closeGroup(){
+  if (!open) return;
+  open = null; box.classList.remove('cc-open'); delete box.dataset.group;
+  chips.forEach(function(c){ c.setAttribute('aria-selected', 'false'); c.classList.remove('on'); });
+  glide.classList.remove('on');
+  layout();
+}
+function glideTo(i){
+  var c = chips[i]; if (!c) return;
+  glide.style.setProperty('--x', c.offsetLeft + 'px'); glide.style.setProperty('--w', c.offsetWidth + 'px');
+  glide.className = 'cc-glide on cc-' + GROUPS[i].hue;
+}
+function ripple(btn, e){
+  var r = btn.getBoundingClientRect(), x = (e.clientX || r.left + r.width / 2) - r.left, y = (e.clientY || r.top + r.height / 2) - r.top;
+  var dot = h('span', {cls: 'cc-ripple', style: 'left:' + x + 'px;top:' + y + 'px'});
+  btn.appendChild(dot); setTimeout(function(){ dot.remove(); }, 700);
+}
+var tileEls = {};
+function fill(){
+  var g = open; hold.appendChild(control); panel.innerHTML = ''; tileEls = {};
+  panel.className = 'cc-panel cc-' + g.hue + (g.control ? ' cc-panel-control' : '');
+  panel.appendChild(h('div', {cls: 'cc-head'}, [h('span', {cls: 'cc-head-sq', 'aria-hidden': 'true', html: I(g.icon, 16)}), h('b', {text: g.label}),
+    g.lede ? h('small', {text: g.lede}) : null, h('span', {cls: 'cc-say', role: 'status'})]));
+  if (g.control){ panel.appendChild(control); paint(); layout(); return; }
+  var grid = h('div', {cls: 'cc-tiles'});
+  g.tiles().forEach(function(t, i){
+    var b = h('button', {cls: 'cc-t' + (t.opt.toggle ? ' toggle' : '') + (t.opt.on ? ' on' : ''), type: 'button', id: 'cc-t-' + t.id, style: '--i:' + i,
+      'aria-pressed': t.opt.toggle ? String(!!t.opt.on) : null, onclick: function(){ t.fn(); }}, [
+      h('span', {cls: 'cc-t-sq', 'aria-hidden': 'true', html: I(t.icon, 20)}), h('span', {cls: 'cc-t-x'}, [h('b', {text: t.label}), h('small', {text: t.sub})])]);
+    b.addEventListener('pointermove', function(ev){ var r = b.getBoundingClientRect(); b.style.setProperty('--mx', (ev.clientX - r.left) + 'px'); b.style.setProperty('--my', (ev.clientY - r.top) + 'px'); });
+    tileEls[t.id] = b; grid.appendChild(b);
+  });
+  panel.appendChild(grid);
+  if (g.id === 'prepare') recentRow();
+  panel.appendChild(h('p', {cls: 'cc-hint'}, [h('kbd', {text: 'Alt 1–4'}), ' groups · ', h('kbd', {text: 'Esc'}), ' back · type to search everything']));
+  layout();
+}
+function recentRow(){
+  var items = P.recentItems(3); if (!items.length) return;
+  panel.appendChild(h('div', {cls: 'cc-recent'}, [h('span', {text: 'Recent'})].concat(items.map(function(it){
+    return h('button', {cls: 'cc-rchip', type: 'button', title: it.sub || '', onclick: function(){ P.choose(it); }}, [it.title]);
+  }))));
+}
+/* the open panel follows what changes (live, cards, camera) without rebuilding it */
+function paint(){
+  chips[2].classList.toggle('live', isLive());
+  chips[1].classList.toggle('live', !!(mem && mem.capture));
+  chips[3].classList.toggle('warn', !!(sync && (sync.phase === 'failed' || sync.phase === 'offline')));
+  if (!open) return;
+  if (open.control){
+    var on = isLive(), ls = live && SC.liveScene(live), order = live ? SC.order(live) : [];
+    golive.setAttribute('aria-checked', String(on)); golive.classList.toggle('on', on);
+    setText(golive.querySelector('#cc-golive-sub'), on ? 'On air · Frame ' + (order.indexOf(ls) + 1) + ' of ' + order.length + ' · ' + ls.name + ' · switch off to leave the screen'
+      : order.length ? 'Off air · switch on to put “' + order[0].name + '” on screen' : 'Off air · no Frames yet');
+    setText(control.querySelector('#cc-offair'), on ? '' : 'Go Live and the remote appears here: Frames, the Content one by one, Hide all, Black screen, the Live tools and your meeting app’s Mute and Camera.');
+    return;
+  }
+  var tiles = open.tiles();
+  tiles.forEach(function(t){
+    var b = tileEls[t.id]; if (!b) return;
+    setText(b.querySelector('small'), t.sub);
+    if (t.opt.toggle){ b.classList.toggle('on', !!t.opt.on); b.setAttribute('aria-pressed', String(!!t.opt.on)); }
   });
 }
 
-/* ---------- the keys ---------- */
+/* ---------- the window follows what shows (desktop app); grows before a panel opens, shrinks after it closes ---------- */
+var sized = 0, shrinkT = 0;
+function layout(){
+  requestAnimationFrame(function(){
+    var typing = !!input.value.trim() || !!current;
+    box.classList.toggle('cc-typing', typing);
+    var inner = stage.firstChild, extra = open && !typing ? inner.scrollHeight - stage.offsetHeight : 0;
+    var want = Math.ceil(box.scrollHeight + Math.max(0, extra)) + 28;
+    if (typing) want = Math.max(want, 560);
+    if (want === sized) return;
+    clearTimeout(shrinkT);
+    var go = function(){ sized = want; post('api/app/win', {win: 'spotlight', op: 'fit', h: want}); };
+    if (want > sized) go(); else shrinkT = setTimeout(go, 420);
+  });
+}
+
+/* ---------- keys ---------- */
 P.hooks.escape = function(){
   if (input.value){ input.value = ''; input.dispatchEvent(new Event('input')); return true; }
-  if (current){ openModule(null); return true; }
+  if (current){ clearScope(); return true; }
+  if (open){ closeGroup(); return true; }
   return false;
 };
-P.hooks.backspace = function(){ if (current){ openModule(null); return true; } return false; };
-P.hooks.tab = function(){
-  input.value = input.value.charAt(0) === '?' ? input.value.slice(1) : '?' + input.value;
-  input.dispatchEvent(new Event('input'));
-};
-P.hooks.ai = function(q, res){
-  if (res.length) return res;
-  var why = aiOk === false ? 'Ask AI uses a free AI that runs on this PC (Ollama) when it is installed. Nothing leaves the PC.' :
-    'Select a Frame with scriptures in the Studio, then ask again: the AI drafts discussion questions you check before they are added.';
-  return [{key: 'ai:help', kind: 'ai', title: aiOk === false ? 'Ask AI is not set up on this PC' : 'Ask AI drafts discussion questions', sub: why, local: function(){}}];
-};
+P.hooks.backspace = function(){ if (current){ clearScope(); return true; } return false; };
+input.addEventListener('input', function(){ if (input.value.trim() && open) closeGroup(); layout(); });
 document.addEventListener('keydown', function(e){
-  if (!e.altKey || e.ctrlKey || e.metaKey || !/^[1-5]$/.test(e.key)) return;
+  if (!e.altKey || e.ctrlKey || e.metaKey || !/^[1-4]$/.test(e.key)) return;
   e.preventDefault(); e.stopPropagation();
-  var m = MODS[+e.key - 1]; openModule(current === m ? null : m);
+  toggleGroup(GROUPS[+e.key - 1]);
 }, true);
+/* a click on the see-through part closes the Command Center, as a click on another window would */
+document.addEventListener('mousedown', function(e){
+  var t = e.target;
+  if (t === document.body || t === document.documentElement || t === box || t === stage || (t.classList && t.classList.contains('pal-back'))) post('api/app/win', {win: 'spotlight', op: 'hide'});
+});
 
 /* ---------- now ---------- */
-function loadMemory(){ return get('api/memory').then(function(d){ if (d){ mem = d; render(); if (current && current.id === 'memory') P.refresh(); } }); }
-function loadCamera(){ return get('api/vcam/status?lite=1').then(function(d){ if (d){ cam = d; render(); if (current && current.id === 'camera') P.refresh(); } }); }
-function render(){
-  if (!live) return;
-  var L = live.live, ls = SC.liveScene(live), air = strip.querySelector('#cc-air');
-  air.className = 'cc-chip cc-dot' + (L.blackout ? ' bad' : ls ? ' on' : '');
-  setText(air.querySelector('b'), L.blackout ? 'Black screen' : ls ? 'On air' : 'Off air');
-  var cur = SC.meetings(live).length ? SC.currentMeeting(live) : null, n = SC.order(live).length;
-  setText(strip.querySelector('#cc-meet b'), (cur ? cur.name : (live.meeting && live.meeting.title) || 'Meeting') + ' · ' + n + (n === 1 ? ' Frame' : ' Frames'));
-  var ph = sync ? sync.phase : '';
-  syncChip.className = 'cc-chip cc-sync ' + (ph || 'none');
-  setText(syncChip.querySelector('b'), !sync ? 'Workspace Sync' : ph === 'synced' ? 'Synced' : ph === 'syncing' ? 'Syncing…' : ph === 'offline' ? 'Offline' : ph === 'failed' ? 'Sync needs a look' : 'This PC only');
-  syncChip.title = sync && sync.workspace ? 'Workspace: ' + sync.workspace + ' (Workspace Sync)' : 'Workspace Sync: link this PC to your workspace';
-  // the modules' second line
-  var subs = {meetings: cur ? cur.name : 'Plan and switch', memory: !mem ? 'Chat messages on screen' : mem.capture ? 'Capturing copies' : (mem.items || []).length + ((mem.items || []).length === 1 ? ' card' : ' cards'),
-    present: 'Teleprompter, sharing', camera: !cam ? 'FrameDecks vCam' : cam.status && cam.status.inUse ? 'In your meeting' : cam.registered ? 'Ready' : 'Set it up', more: 'Settings, sync, help'};
-  MODS.forEach(function(m){ setText(document.querySelector('#cc-m-' + m.id + ' .cc-sub'), subs[m.id]); });
-  document.querySelector('#cc-m-memory').classList.toggle('busy', !!(mem && mem.capture));
-  document.querySelector('#cc-m-camera').classList.toggle('busy', !!(cam && cam.status && cam.status.inUse));
-  if (!current) input.placeholder = placeholder();
-  paintRecent();
-}
+function loadMemory(){ return get('api/memory').then(function(d){ if (d){ mem = d; paint(); if (current && current.id === 'memory') P.refresh(); } }); }
+function render(){ if (live) paint(); }
 function opened(){
-  current = null; P.scope(null); paintScope();
-  get('api/sync').then(function(d){ sync = d; render(); });
+  current = null; P.scope(null); open = null; box.classList.remove('cc-open', 'cc-typing'); delete box.dataset.group;
+  chips.forEach(function(c){ c.setAttribute('aria-selected', 'false'); c.classList.remove('on'); }); glide.classList.remove('on');
+  paintScope();
+  if (!reduce){ box.classList.remove('cc-enter'); void box.offsetWidth; box.classList.add('cc-enter'); }
+  get('api/sync').then(function(d){ sync = d; paint(); });
   get('api/app/info').then(function(d){ if (d) paintKeys((d.settings || {}).spotlightKey); });
-  get('api/ai/status').then(function(d){ aiOk = !!(d && d.ok); });
-  loadMemory(); loadCamera();
-  render();
+  get('api/vcam/status?lite=1').then(function(d){ if (d){ cam = d; paint(); } });
+  post('api/app/annotate', {op: 'get'}).then(function(d){ annMode = d.mode || ''; paint(); });
+  loadMemory();
+  sized = 0; layout();
 }
 var orig = window.KCSpotlight && window.KCSpotlight.opened;
 window.KCSpotlight = window.KCSpotlight || {};
 window.KCSpotlight.opened = function(){ if (orig) orig(); opened(); };
-window.KCCommandCenter = {expanded: function(){ return !!input.value.trim() || !!current; }, open: function(id){ openModule(MODS.filter(function(m){ return m.id === id; })[0] || null); }};
+window.KCCommandCenter = {expanded: function(){ return !!input.value.trim() || !!current; }, layout: layout,
+  open: function(id){ var g = GROUPS.filter(function(x){ return x.id === id; })[0]; if (g) openGroup(g); else closeGroup(); }};
 opened();
 })();

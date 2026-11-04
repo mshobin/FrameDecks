@@ -116,113 +116,171 @@ body.spotlight:not(.spr-live) .spr{display:none}
 .spr-b.chip:hover:not(:disabled){background:var(--raised);box-shadow:inset 0 1px 0 var(--spr-hi)}
 @media (prefers-reduced-motion:reduce){ .spr-b{transition:none} .spr-b:active:not(:disabled){transform:none} }
 
-/* ---------- 9.9 the Command Center (js/command-center.js): dark glass, a floating bar, five modules, Recent ----------
- * The frost is Windows' own (desktop_win.glass, Acrylic on Windows 11), so the page draws no blur: only gradients,
- * hairline borders, an inner highlight and soft shadows. One hue per module, used only in its icon square; gold stays
- * the brand and the one primary action; green is live; red only for Hide all and leaving. */
+/* ---------- 9.10 the Command Center (js/command-center.js): no window frame at all. The window is see-through
+ * (desktop_win.clear_frame, glass without frost), so only three shapes of glass float on the desktop: the search bar,
+ * the tray of four chips under it, and the panel a chip opens. The glass is drawn here: a tinted gradient, a bright
+ * hairline rim, an inner highlight and a soft shadow, in the program's own colours. Motion: a short spring when it
+ * opens, a light that slides to the chosen chip, a ripple where you click, the panel unfolding and its tiles rising
+ * in one after another. Nothing loops; all of it stops for "reduce motion". ---------- */
 :root,html[data-theme="dark"]{
-  --cc-bg-a:rgba(16,26,52,.82); --cc-bg-b:rgba(7,11,24,.9); --cc-light:rgba(122,152,255,.16);
-  --cc-glass:rgba(255,255,255,.055); --cc-glass-2:rgba(255,255,255,.085); --cc-edge:rgba(255,255,255,.11); --cc-edge-2:rgba(255,255,255,.2);
-  --cc-hi:inset 0 1px 0 rgba(255,255,255,.1); --cc-lift:0 12px 30px rgba(0,0,0,.35); --cc-lift-sm:0 4px 14px rgba(0,0,0,.28);
-  --cc-focus:0 0 0 1px rgba(232,185,49,.45),0 0 0 6px rgba(232,185,49,.12),0 16px 40px rgba(0,0,0,.4);
+  --cc-tint-a:rgba(30,42,74,.82); --cc-tint-b:rgba(12,18,36,.88); --cc-tray-a:rgba(24,34,62,.74); --cc-tray-b:rgba(10,15,32,.82);
+  --cc-rim:rgba(255,255,255,.22); --cc-rim-2:rgba(255,255,255,.4); --cc-cell:rgba(255,255,255,.05); --cc-cell-2:rgba(255,255,255,.1);
+  --cc-hi:inset 0 1px 0 rgba(255,255,255,.16); --cc-glow:0 0 0 1px rgba(255,255,255,.06),0 18px 50px rgba(0,0,0,.45),0 2px 10px rgba(0,0,0,.3);
+  --cc-glow-focus:0 0 0 1px rgba(255,255,255,.12),0 0 28px rgba(160,190,255,.22),0 18px 50px rgba(0,0,0,.45);
   --cc-gold-a:#f6d27a; --cc-gold-b:#c8901d; --cc-violet-a:#b79bff; --cc-violet-b:#6d4fd8; --cc-blue-a:#8fb6ff; --cc-blue-b:#3d6fe0;
   --cc-teal-a:#6fe3cf; --cc-teal-b:#178f86; --cc-slate-a:#c3cad8; --cc-slate-b:#59637a; --cc-glyph:#fff;
-  --cc-teal-ink:#5fe0c8; --cc-sheen:rgba(255,255,255,.12)}
+  --cc-gold-halo:rgba(232,185,49,.35); --cc-violet-halo:rgba(150,118,255,.35); --cc-blue-halo:rgba(102,150,255,.35); --cc-slate-halo:rgba(170,180,200,.3);
+  --cc-sheen:rgba(255,255,255,.14); --cc-ripple:rgba(255,255,255,.35); --cc-knob:#fff;
+  --cc-sq-sh:0 6px 16px rgba(0,0,0,.25); --cc-knob-sh:0 2px 6px rgba(0,0,0,.35)}
 html[data-theme="light"]{
-  --cc-bg-a:rgba(255,255,255,.86); --cc-bg-b:rgba(238,241,248,.92); --cc-light:rgba(122,152,255,.18);
-  --cc-glass:rgba(255,255,255,.7); --cc-glass-2:rgba(255,255,255,.92); --cc-edge:rgba(22,32,58,.1); --cc-edge-2:rgba(22,32,58,.2);
-  --cc-hi:inset 0 1px 0 rgba(255,255,255,.95); --cc-lift:0 12px 30px rgba(22,32,58,.12); --cc-lift-sm:0 4px 14px rgba(22,32,58,.1);
-  --cc-focus:0 0 0 1px rgba(138,92,10,.4),0 0 0 6px rgba(138,92,10,.1),0 16px 40px rgba(22,32,58,.14); --cc-teal-ink:#0f766e; --cc-sheen:rgba(255,255,255,.7)}
-body.spotlight .pal{background:radial-gradient(90% 60% at 50% -12%,var(--cc-light),transparent 70%),linear-gradient(180deg,var(--cc-bg-a),var(--cc-bg-b))}
-html.kc-glass body.spotlight .pal{background:radial-gradient(90% 60% at 50% -12%,var(--cc-light),transparent 70%),linear-gradient(180deg,var(--cc-bg-a),var(--cc-bg-b))}
-/* the bar: a floating capsule */
-body.spotlight .pal-top{margin:14px 14px 10px;padding:12px 14px 12px 18px;gap:12px;border:1px solid var(--cc-edge-2);border-bottom:1px solid var(--cc-edge-2);border-radius:20px;
-  background:linear-gradient(180deg,var(--cc-glass-2),var(--cc-glass));box-shadow:var(--cc-hi),var(--cc-lift);transition:box-shadow .16s ease}
-body.spotlight .pal-top:focus-within{box-shadow:var(--cc-hi),var(--cc-focus)}
-body.spotlight .pal-in{font-size:20px;font-weight:500}
-body.spotlight .pal-ic svg{stroke:var(--muted)}
+  --cc-tint-a:rgba(255,255,255,.9); --cc-tint-b:rgba(240,243,250,.9); --cc-tray-a:rgba(255,255,255,.82); --cc-tray-b:rgba(236,240,248,.86);
+  --cc-rim:rgba(22,32,58,.12); --cc-rim-2:rgba(22,32,58,.22); --cc-cell:rgba(255,255,255,.6); --cc-cell-2:rgba(255,255,255,.95);
+  --cc-hi:inset 0 1px 0 rgba(255,255,255,.95); --cc-glow:0 0 0 1px rgba(22,32,58,.04),0 18px 50px rgba(22,32,58,.18),0 2px 10px rgba(22,32,58,.08);
+  --cc-glow-focus:0 0 0 1px rgba(22,32,58,.08),0 0 28px rgba(80,120,220,.18),0 18px 50px rgba(22,32,58,.18);
+  --cc-sheen:rgba(255,255,255,.8); --cc-ripple:rgba(22,32,58,.12)}
+/* the window: nothing of its own */
+html.kc-glass body.spotlight,html.kc-glass body.spotlight .pal-back{background:transparent}
+body.spotlight .pal.cc,html.kc-glass body.spotlight .pal.cc{width:100%;height:auto;max-height:none;padding:14px 22px 30px;gap:10px;background:transparent;border:0;box-shadow:none;overflow:visible}
+body.spotlight .pal.cc.spr-compact{height:auto}
+/* the search bar: a floating pill of glass with a bright rim */
+body.spotlight .cc .pal-top{position:relative;margin:0;min-height:68px;padding:10px 14px 10px 22px;gap:12px;border:1px solid var(--cc-rim-2);border-radius:20px;
+  background:linear-gradient(180deg,var(--cc-tint-a),var(--cc-tint-b));box-shadow:var(--cc-hi),var(--cc-glow);transition:box-shadow .2s ease,border-color .2s ease}
+body.spotlight .cc .pal-top:focus-within{box-shadow:var(--cc-hi),var(--cc-glow-focus);border-color:var(--cc-rim-2)}
+body.spotlight .cc .pal-in{font-size:20px;font-weight:500}
+body.spotlight .cc .pal-ic svg{width:24px;height:24px;stroke:var(--muted)}
+.cc-only{display:grid;place-items:center;color:var(--faint)}
+.cc-only svg{width:16px;height:16px}
 .cc-keys{flex:none;display:flex;gap:4px}
-.cc-keys kbd,.cc-mod kbd,.cc-enter,body.spotlight .pal-foot kbd{display:inline-grid;place-items:center;min-width:24px;height:22px;padding:0 6px;border:1px solid var(--cc-edge);border-radius:8px;
-  background:var(--cc-glass);box-shadow:var(--cc-hi);font:inherit;font-size:12px;font-weight:700;color:var(--muted)}
-.cc-scope{flex:none;display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 8px 0 6px;border:1px solid var(--cc-edge-2);border-radius:999px;background:var(--cc-glass-2);
-  color:var(--ink);font:inherit;font-size:13px;font-weight:700;cursor:pointer;box-shadow:var(--cc-hi)}
+.cc-keys kbd,.cc-hint kbd{display:inline-grid;place-items:center;min-width:26px;height:26px;padding:0 7px;border:1px solid var(--cc-rim);border-radius:8px;
+  background:var(--cc-cell-2);box-shadow:var(--cc-hi);font:inherit;font-size:12px;font-weight:700;color:var(--muted)}
+.cc-scope{flex:none;display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 8px 0 5px;border:1px solid var(--cc-rim);border-radius:999px;background:var(--cc-cell-2);
+  color:var(--ink);font:inherit;font-size:13px;font-weight:700;cursor:pointer;box-shadow:var(--cc-hi);animation:cc-pop .32s cubic-bezier(.2,.9,.3,1.3)}
 .cc-scope[hidden]{display:none}
 .cc-scope-ic{display:grid;place-items:center;width:22px;height:22px;border-radius:8px;color:var(--cc-glyph)}
 .cc-scope-x{display:grid;place-items:center;color:var(--faint)}
-.cc-scope:hover .cc-scope-x{color:var(--ink)}
-/* the context strip */
-.cc-strip{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:0 18px 10px}
-.cc-chip{display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 10px;border:1px solid var(--cc-edge);border-radius:999px;background:var(--cc-glass);
-  font-size:12px;font-weight:600;color:var(--muted);white-space:nowrap;max-width:260px}
-.cc-chip b{font-weight:600;overflow:hidden;text-overflow:ellipsis}
-.cc-chip i{display:grid;place-items:center;font-style:normal}
-.cc-chip i svg{width:13px;height:13px}
-.cc-dot i{width:8px;height:8px;border-radius:999px;background:var(--faint)}
-.cc-dot.on{color:var(--live);border-color:var(--live-soft);background:var(--live-soft)} .cc-dot.on i{background:var(--live);box-shadow:0 0 0 3px var(--live-soft)}
-.cc-dot.bad{color:var(--red);background:var(--red-soft)} .cc-dot.bad i{background:var(--red)}
-.cc-sync{cursor:pointer} .cc-sync:hover,.cc-sync:focus-visible{color:var(--ink);border-color:var(--cc-edge-2)}
-.cc-sync.synced i,.cc-sync.syncing i{color:var(--cc-teal-ink)}
-.cc-sync.failed,.cc-sync.offline{color:var(--red)}
-.cc-gap{flex:1}
-#cc-private{border-style:dashed}
-/* the modules: glass tiles; the icon in a square of the module's own hue; light follows the pointer */
-.cc-mods{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;padding:2px 14px 12px}
-.cc-mod{position:relative;overflow:hidden;min-height:118px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:12px 6px 10px;
-  border:1px solid var(--cc-edge);border-radius:20px;background:linear-gradient(180deg,var(--cc-glass-2),var(--cc-glass));box-shadow:var(--cc-hi),var(--cc-lift-sm);
-  color:var(--ink);font:inherit;cursor:pointer;transition:transform .16s cubic-bezier(.2,.8,.3,1),box-shadow .16s ease,border-color .16s ease}
-.cc-mod::before{content:'';position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .16s ease;
-  background:radial-gradient(120px circle at var(--mx,50%) var(--my,0),var(--cc-sheen),transparent 70%)}
-.cc-mod:hover{transform:translateY(-2px);border-color:var(--cc-edge-2);box-shadow:var(--cc-hi),var(--cc-lift)}
-.cc-mod:hover::before{opacity:1}
-.cc-mod:active{transform:scale(.97)}
-.cc-mod:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.cc-sq{display:grid;place-items:center;width:46px;height:46px;margin-bottom:4px;border-radius:12px;color:var(--cc-glyph);box-shadow:var(--cc-hi),var(--cc-lift-sm)}
-.cc-sq svg{width:22px;height:22px}
-.cc-mod b{font-size:14px;font-weight:700}
-.cc-sub{max-width:100%;font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.cc-mod kbd{position:absolute;top:8px;right:8px;opacity:0;transition:opacity .16s ease}
-.cc-mod:hover kbd,.cc-mod:focus-visible kbd{opacity:1}
-.cc-mod.busy .cc-sub{color:var(--live);font-weight:700}
-.cc-gold .cc-sq,.cc-scope.cc-gold .cc-scope-ic{background:linear-gradient(145deg,var(--cc-gold-a),var(--cc-gold-b))}
-.cc-violet .cc-sq,.cc-scope.cc-violet .cc-scope-ic{background:linear-gradient(145deg,var(--cc-violet-a),var(--cc-violet-b))}
-.cc-blue .cc-sq,.cc-scope.cc-blue .cc-scope-ic{background:linear-gradient(145deg,var(--cc-blue-a),var(--cc-blue-b))}
-.cc-teal .cc-sq,.cc-scope.cc-teal .cc-scope-ic{background:linear-gradient(145deg,var(--cc-teal-a),var(--cc-teal-b))}
-.cc-slate .cc-sq,.cc-scope.cc-slate .cc-scope-ic{background:linear-gradient(145deg,var(--cc-slate-a),var(--cc-slate-b))}
-/* Recent */
-.cc-rec{padding:0 14px 10px}
-.cc-rec[hidden]{display:none}
-.cc-rec h2{margin:0 0 6px 6px;font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
-.cc-rlist{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:6px}
-.cc-rrow{width:100%;display:flex;align-items:center;gap:10px;min-height:44px;padding:6px 8px;border:1px solid transparent;border-radius:12px;background:var(--cc-glass);
-  color:var(--ink);font:inherit;text-align:left;cursor:pointer;transition:background-color .12s ease,border-color .12s ease}
-.cc-rrow:hover,.cc-rrow:focus-visible{background:var(--cc-glass-2);border-color:var(--cc-edge)}
-.cc-rrow:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
-.cc-rk{flex:none;display:grid;place-items:center;width:28px;height:28px;border-radius:8px;background:var(--cc-glass-2);color:var(--muted)}
-.cc-rk.cc-k-meeting,.cc-rk.cc-k-frame{color:var(--gold-strong)} .cc-rk.cc-k-card{color:var(--cc-violet-a)} .cc-rk.cc-k-setting{color:var(--cc-slate-a)}
-.cc-rt{flex:1;min-width:0;display:flex;flex-direction:column}
-.cc-rt b{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.cc-rt small{font-size:12px;color:var(--faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.cc-enter{opacity:0} .cc-rrow:hover .cc-enter,.cc-rrow:focus-visible .cc-enter{opacity:1}
-/* when to show what: modules and Recent while preparing; the live remote while live; results while typing or in a module */
-body.spr-live .cc-mods,body.spr-live .cc-rec,.pal.spr-typing .cc-mods,.pal.spr-typing .cc-rec{display:none}
-/* results: glass rows */
-body.spotlight .pal-list{padding:4px 14px 8px}
-body.spotlight .pal-row{border-radius:12px;padding:8px 12px}
-body.spotlight .pal-row[aria-selected="true"]{background:var(--cc-glass-2);box-shadow:inset 0 0 0 1px var(--cc-edge-2)}
-body.spotlight .pal-meeting .pal-kind{color:var(--gold-strong)} body.spotlight .pal-card .pal-kind{color:var(--cc-violet-a)} body.spotlight .pal-ai .pal-kind{color:var(--cc-teal-ink)}
-body.spotlight .pal-foot{gap:16px;padding:10px 18px 12px;border-top:1px solid var(--cc-edge)}
-/* the live remote in the same glass */
-body.spotlight .spr{padding:0 14px 14px;border-bottom:0}
-body.spotlight .spr-b,body.spotlight .spr-now,body.spotlight .spr-step,body.spotlight .spr-seg,body.spotlight .spr-round{border-color:var(--cc-edge);
-  background:linear-gradient(180deg,var(--cc-glass-2),var(--cc-glass));box-shadow:var(--cc-hi),var(--cc-lift-sm)}
-body.spotlight .spr-b{border-radius:16px}
-body.spotlight .spr-b:hover:not(:disabled){border-color:var(--cc-edge-2);box-shadow:var(--cc-hi),var(--cc-lift)}
-body.spotlight .spr-ic{border-radius:8px}
-body.spotlight .spr-b.gold{background:linear-gradient(180deg,var(--spr-gold-top),var(--gold));border-color:var(--gold);box-shadow:inset 0 1px 0 var(--spr-hi-gold),0 4px 14px var(--spr-gold-glow)}
-body.spotlight .spr-b.on{background:var(--ink);border-color:var(--ink)}
-body.spotlight .spr-b.armed{background:var(--red);border-color:var(--red)}
-body.spotlight .spr-seg .spr-b{background:transparent;box-shadow:none}
-body.spotlight .spr-b.chip{background:transparent;box-shadow:none;border-color:transparent}
-body.spotlight .spr-b.chip:hover:not(:disabled){background:var(--cc-glass-2);border-color:var(--cc-edge)}
-@media (prefers-reduced-motion:reduce){ .cc-mod,.cc-mod::before,body.spotlight .pal-top{transition:none} .cc-mod:hover,.cc-mod:active{transform:none} }
-body.spr-live #cc-air{display:none}
+/* the tray: four chips on one strip of glass, a little narrower than the bar */
+.cc-tray{position:relative;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin:0 18px;padding:8px;border:1px solid var(--cc-rim);border-radius:20px;
+  background:linear-gradient(180deg,var(--cc-tray-a),var(--cc-tray-b));box-shadow:var(--cc-hi),var(--cc-glow)}
+.cc-g{position:relative;z-index:1;overflow:hidden;min-height:92px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:10px 6px;
+  border:1px solid transparent;border-radius:16px;background:var(--cc-cell);color:var(--ink);font:inherit;cursor:pointer;
+  transition:background-color .2s ease,border-color .2s ease,opacity .2s ease,transform .18s cubic-bezier(.2,.9,.3,1.3)}
+.cc-g:hover{background:var(--cc-cell-2);border-color:var(--cc-rim);transform:translateY(-2px)}
+.cc-g:active{transform:scale(.96)}
+.cc-g:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.cc-g b{font-size:14px;font-weight:700}
+.cc-sq,.cc-t-sq,.cc-head-sq{display:grid;place-items:center;color:var(--cc-glyph);box-shadow:var(--cc-hi),var(--cc-sq-sh)}
+.cc-sq{width:48px;height:48px;border-radius:16px;transition:transform .32s cubic-bezier(.2,.9,.3,1.4),box-shadow .3s ease}
+.cc-sq svg{width:24px;height:24px}
+.cc-gold .cc-sq,.cc-gold .cc-t-sq,.cc-gold .cc-head-sq,.cc-scope.cc-gold .cc-scope-ic{background:linear-gradient(145deg,var(--cc-gold-a),var(--cc-gold-b))}
+.cc-violet .cc-sq,.cc-violet .cc-t-sq,.cc-violet .cc-head-sq,.cc-scope.cc-violet .cc-scope-ic{background:linear-gradient(145deg,var(--cc-violet-a),var(--cc-violet-b))}
+.cc-blue .cc-sq,.cc-blue .cc-t-sq,.cc-blue .cc-head-sq{background:linear-gradient(145deg,var(--cc-blue-a),var(--cc-blue-b))}
+.cc-slate .cc-sq,.cc-slate .cc-t-sq,.cc-slate .cc-head-sq,.cc-scope.cc-slate .cc-scope-ic{background:linear-gradient(145deg,var(--cc-slate-a),var(--cc-slate-b))}
+/* the chosen chip: its square grows a little and glows; the others step back */
+.cc.cc-open .cc-g:not(.on){opacity:.66}
+.cc-g.on{background:var(--cc-cell-2);border-color:var(--cc-rim-2)}
+.cc-g.on .cc-sq{transform:translateY(-2px) scale(1.08)}
+.cc-gold.on .cc-sq{box-shadow:var(--cc-hi),0 8px 26px var(--cc-gold-halo)} .cc-violet.on .cc-sq{box-shadow:var(--cc-hi),0 8px 26px var(--cc-violet-halo)}
+.cc-blue.on .cc-sq{box-shadow:var(--cc-hi),0 8px 26px var(--cc-blue-halo)} .cc-slate.on .cc-sq{box-shadow:var(--cc-hi),0 8px 26px var(--cc-slate-halo)}
+/* the light under the chosen chip slides from one chip to the next */
+.cc-glide{position:absolute;z-index:0;left:0;bottom:3px;height:3px;width:var(--w,0);border-radius:999px;opacity:0;transform:translateX(var(--x,0));
+  transition:transform .45s cubic-bezier(.2,.9,.25,1.15),width .45s cubic-bezier(.2,.9,.25,1.15),opacity .25s ease,background-color .3s ease}
+.cc-glide.on{opacity:1}
+.cc-glide.cc-gold{background:var(--gold);box-shadow:0 0 14px var(--cc-gold-halo)} .cc-glide.cc-violet{background:var(--cc-violet-a);box-shadow:0 0 14px var(--cc-violet-halo)}
+.cc-glide.cc-blue{background:var(--cc-blue-a);box-shadow:0 0 14px var(--cc-blue-halo)} .cc-glide.cc-slate{background:var(--cc-slate-a);box-shadow:0 0 14px var(--cc-slate-halo)}
+.cc-ripple{position:absolute;width:20px;height:20px;margin:-10px 0 0 -10px;border-radius:999px;background:var(--cc-ripple);pointer-events:none;animation:cc-ripple .65s ease-out forwards}
+/* a small dot on a chip: live (Control), capturing (Engage), sync needs a look (Settings) */
+.cc-badge{position:absolute;top:10px;right:12px;width:8px;height:8px;border-radius:999px;opacity:0;transform:scale(.4);transition:opacity .2s ease,transform .3s cubic-bezier(.2,.9,.3,1.5)}
+.cc-g.live .cc-badge{opacity:1;transform:none;background:var(--live);box-shadow:0 0 0 3px var(--live-soft)}
+.cc-g.warn .cc-badge{opacity:1;transform:none;background:var(--red);box-shadow:0 0 0 3px var(--red-soft)}
+/* the panel: unfolds under the tray (grid rows 0fr -> 1fr), then its tiles rise in one after another */
+.cc-stage{display:grid;grid-template-rows:0fr;margin:0 18px;transition:grid-template-rows .46s cubic-bezier(.2,.9,.2,1)}
+.cc.cc-open:not(.cc-typing) .cc-stage{grid-template-rows:1fr}
+.cc-stage-in{min-height:0;overflow:hidden;padding:0 40px 80px;margin:0 -40px -80px}
+.cc-panel{position:relative;overflow:hidden;margin-top:2px;padding:14px;border:1px solid var(--cc-rim);border-radius:20px;background:linear-gradient(180deg,var(--cc-tray-a),var(--cc-tray-b));
+  box-shadow:var(--cc-hi),var(--cc-glow);opacity:0;transform:translateY(-10px) scale(.98);transform-origin:50% 0;transition:opacity .3s ease,transform .46s cubic-bezier(.2,.9,.25,1.1)}
+.cc.cc-open:not(.cc-typing) .cc-panel{opacity:1;transform:none}
+/* a soft light of the group's colour at the top of the panel, and one sheen across it as it opens */
+.cc-panel::before{content:'';position:absolute;inset:-40% 10% auto;height:160px;pointer-events:none;opacity:.55;filter:blur(30px)}
+.cc-panel.cc-gold::before{background:var(--cc-gold-halo)} .cc-panel.cc-violet::before{background:var(--cc-violet-halo)}
+.cc-panel.cc-blue::before{background:var(--cc-blue-halo)} .cc-panel.cc-slate::before{background:var(--cc-slate-halo)}
+.cc-panel::after{content:'';position:absolute;inset:0;pointer-events:none;transform:translateX(-110%);background:linear-gradient(105deg,transparent 30%,var(--cc-sheen) 50%,transparent 70%)}
+.cc-panel.in::after{animation:cc-sheen 1s .15s cubic-bezier(.3,.7,.2,1) forwards}
+.cc-head{position:relative;display:flex;align-items:center;gap:10px;margin:0 2px 12px}
+.cc-head-sq{width:28px;height:28px;border-radius:8px}
+.cc-head-sq svg{width:16px;height:16px}
+.cc-head b{font-size:16px;font-weight:700}
+.cc-head small{flex:1;min-width:0;font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cc-say{flex:none;max-width:50%;font-size:13px;font-weight:700;color:var(--live);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cc-say.bad{color:var(--red)}
+.cc-tiles{position:relative;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.cc-t{position:relative;overflow:hidden;display:flex;align-items:center;gap:10px;min-height:64px;padding:10px;border:1px solid var(--cc-rim);border-radius:16px;
+  background:var(--cc-cell);color:var(--ink);font:inherit;text-align:left;cursor:pointer;box-shadow:var(--cc-hi);
+  transition:background-color .16s ease,border-color .16s ease,transform .18s cubic-bezier(.2,.9,.3,1.3)}
+.cc-t::before{content:'';position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .16s ease;background:radial-gradient(110px circle at var(--mx,50%) var(--my,0),var(--cc-sheen),transparent 70%)}
+.cc-t:hover{background:var(--cc-cell-2);border-color:var(--cc-rim-2);transform:translateY(-2px)} .cc-t:hover::before{opacity:1}
+.cc-t:active{transform:scale(.97)}
+.cc-t:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.cc-t-sq{flex:none;width:38px;height:38px;border-radius:12px}
+.cc-t-sq svg{width:20px;height:20px}
+.cc-t-x{min-width:0;display:flex;flex-direction:column;gap:1px}
+.cc-t-x b{font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cc-t-x small{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cc-t.toggle.on{border-color:var(--live);background:var(--live-soft)} .cc-t.toggle.on small{color:var(--live);font-weight:700}
+/* tiles rise in one after another; from the side when moving between chips */
+.cc-panel.in .cc-t,.cc-panel.in .cc-switch,.cc-panel.in .spr-now,.cc-panel.in .spr-row,.cc-panel.in .spr-step{animation:cc-rise .5s cubic-bezier(.2,.9,.25,1.15) both;animation-delay:calc(var(--i,0) * 32ms + 90ms)}
+.cc-panel[data-dir="left"].in .cc-t{animation-name:cc-from-right} .cc-panel[data-dir="right"].in .cc-t{animation-name:cc-from-left}
+.cc-recent{position:relative;display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:12px;font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
+.cc-rchip{max-width:220px;height:28px;padding:0 12px;border:1px solid var(--cc-rim);border-radius:999px;background:var(--cc-cell);color:var(--ink);font:inherit;font-size:13px;font-weight:600;
+  letter-spacing:0;text-transform:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
+.cc-rchip:hover{background:var(--cc-cell-2)}
+.cc-hint{position:relative;margin:12px 2px 0;font-size:12px;color:var(--faint)}
+/* Control: Go Live as a switch, then the remote */
+.cc-hold[hidden]{display:none}
+.cc-control{position:relative;display:flex;flex-direction:column;gap:10px}
+.cc-switch{display:flex;align-items:center;gap:14px;width:100%;min-height:64px;padding:10px 12px 10px 16px;border:1px solid var(--cc-rim);border-radius:16px;background:var(--cc-cell);
+  color:var(--ink);font:inherit;text-align:left;cursor:pointer;box-shadow:var(--cc-hi);transition:background-color .2s ease,border-color .2s ease}
+.cc-switch:hover{background:var(--cc-cell-2)}
+.cc-switch:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.cc-switch.on{border-color:var(--live);background:var(--live-soft)}
+.cc-switch-t{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.cc-switch-t b{font-size:16px;font-weight:700}
+.cc-switch-t small{font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cc-switch.on .cc-switch-t small{color:var(--live);font-weight:700}
+.cc-knob{flex:none;position:relative;width:56px;height:32px;border-radius:999px;background:var(--cc-cell-2);border:1px solid var(--cc-rim-2);transition:background-color .25s ease,border-color .25s ease}
+.cc-knob i{position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:999px;background:var(--cc-knob);box-shadow:var(--cc-knob-sh);transition:transform .4s cubic-bezier(.2,.9,.3,1.4)}
+.cc-switch.on .cc-knob{background:var(--live);border-color:var(--live)}
+.cc-switch.on .cc-knob i{transform:translateX(24px)}
+.cc-offair{margin:0 4px;font-size:13px;color:var(--muted)}
+.cc-offair:empty{display:none}
+.cc-panel .spr{padding:0;border:0;gap:10px}
+.cc-panel .spr-b,.cc-panel .spr-now,.cc-panel .spr-step,.cc-panel .spr-seg,.cc-panel .spr-round{border-color:var(--cc-rim);background:var(--cc-cell);box-shadow:var(--cc-hi)}
+.cc-panel .spr-b{border-radius:16px;min-height:76px}
+.cc-panel .spr-b:hover:not(:disabled){background:var(--cc-cell-2);border-color:var(--cc-rim-2)}
+.cc-panel .spr-ic{border-radius:8px}
+.cc-panel .spr-b.gold{background:linear-gradient(180deg,var(--spr-gold-top),var(--gold));border-color:var(--gold);box-shadow:inset 0 1px 0 var(--spr-hi-gold),0 4px 14px var(--spr-gold-glow)}
+.cc-panel .spr-b.on{background:var(--ink);border-color:var(--ink)}
+.cc-panel .spr-b.armed{background:var(--red);border-color:var(--red)}
+.cc-panel .spr-seg .spr-b,.cc-panel .spr-b.chip{background:transparent;box-shadow:none;border-color:transparent}
+/* search results: one more panel of glass under the tray */
+body.spotlight .cc .pal-list{margin:0 18px;padding:8px;border:1px solid var(--cc-rim);border-radius:20px;background:linear-gradient(180deg,var(--cc-tray-a),var(--cc-tray-b));
+  box-shadow:var(--cc-hi),var(--cc-glow);max-height:380px;animation:cc-rise .32s cubic-bezier(.2,.9,.25,1.1)}
+body.spotlight .cc .pal-row{border-radius:12px;padding:8px 12px}
+body.spotlight .cc .pal-row[aria-selected="true"]{background:var(--cc-cell-2);box-shadow:inset 0 0 0 1px var(--cc-rim-2)}
+body.spotlight .pal-meeting .pal-kind{color:var(--gold-strong)} body.spotlight .pal-card .pal-kind{color:var(--cc-violet-a)}
+/* opening: the bar springs in, then the chips one after another */
+.cc.cc-enter .pal-top{animation:cc-bar .5s cubic-bezier(.2,.9,.25,1.15) both}
+.cc.cc-enter .cc-tray{animation:cc-rise .5s .06s cubic-bezier(.2,.9,.25,1.15) both}
+.cc.cc-enter .cc-g{animation:cc-chip .55s cubic-bezier(.2,.9,.3,1.3) both;animation-delay:calc(var(--i) * 45ms + 110ms)}
+@keyframes cc-bar{from{opacity:0;transform:translateY(-12px) scale(.96)}to{opacity:1;transform:none}}
+@keyframes cc-rise{from{opacity:0;transform:translateY(12px) scale(.97)}to{opacity:1;transform:none}}
+@keyframes cc-chip{from{opacity:0;transform:translateY(12px) scale(.85)}to{opacity:1;transform:none}}
+@keyframes cc-from-right{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:none}}
+@keyframes cc-from-left{from{opacity:0;transform:translateX(-18px)}to{opacity:1;transform:none}}
+@keyframes cc-pop{from{opacity:0;transform:scale(.8)}to{opacity:1;transform:none}}
+@keyframes cc-ripple{from{opacity:1;transform:scale(0)}to{opacity:0;transform:scale(9)}}
+@keyframes cc-sheen{from{transform:translateX(-110%)}to{transform:translateX(110%)}}
+@media (prefers-reduced-motion:reduce){
+  .cc-stage,.cc-panel,.cc-g,.cc-sq,.cc-glide,.cc-t,.cc-knob i,.cc-badge{transition:none}
+  .cc .pal-top,.cc-tray,.cc-g,.cc-t,.cc-scope,.cc-panel::after,.cc-panel.in .cc-t,.cc-panel.in .cc-switch,.cc-panel.in .spr-now,.cc-panel.in .spr-row,.cc-panel.in .spr-step,body.spotlight .cc .pal-list{animation:none}
+  .cc-g:hover,.cc-t:hover,.cc-g.on .cc-sq{transform:none}
+}

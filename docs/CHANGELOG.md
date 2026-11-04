@@ -53,6 +53,22 @@ Versions before 4.9 (when the program had its earlier name) are described in the
 - The favicons, the tray icon and the small program-icon sizes (16–32 px) use a heavier version of the emblem, so it
   stays visible on light browser tabs and a light taskbar. Larger sizes are unchanged.
 
+## [9.10.0] - 2026-11-04
+
+Full notes: [docs/releases/v9.10.0.md](releases/v9.10.0.md).
+
+### Changed
+- Command Center redesigned (`app/js/command-center.js`, `app/css/spotlight.css` 9.10 block): a frameless glass bar
+  and four chips, Prepare / Engage / Control / More (Alt+1 to Alt+4), each opening a panel. Control has Go Live as a
+  switch (off: `SC.hideAll`, `live.scene = ''`) and holds the live remote (`#cc-remote-slot`, js/spotlight-remote.js).
+- The window has no frame: `desktop_win.clear_frame` (no rounded corners, no border line) and glass without frost;
+  `fit` allows up to 760 px. A click on the see-through part closes it.
+- `layout-grid` icon added for More. Guide pictures captured over a desktop-like backdrop.
+
+### Removed
+- Ask AI from the Command Center and the palette (`?` prefix, `cmd:ai-questions`); the Studio's own Suggest is
+  unchanged. The 9.9 context strip, modules and Recent row (Recent is now in Prepare).
+
 ## [9.9.0] - 2026-11-04
 
 Full notes: [docs/releases/v9.9.0.md](releases/v9.9.0.md).

@@ -1,40 +1,38 @@
-## FrameDecks v9.9.0
+## FrameDecks v9.10.0
 
-Everything in FrameDecks starts here. Press **Alt+Space** anywhere and the new **Command Center** opens (it was
-called Spotlight): one bar that finds and runs anything, five modules for the things you reach for most, and what you
-used last. While you are live it is your meeting remote, and only you see it, even when you share your screen. The
-phone and tablet remote now has the same look. Download from **framedecks.com/download**, or let FrameDecks update
-itself. It installs over 9.8.1 and earlier and keeps all your meetings, members, settings, pinned Memory Cards and
-recordings.
+The Command Center, redesigned. Press **Alt+Space** and a glass search bar floats on your screen with four chips under
+it: **Prepare**, **Engage**, **Control** and **More**. There is no window frame around it any more, and it looks the
+same every time you open it. Choose a chip and its panel unfolds under it with everything that belongs there. Like the
+Teleprompter, only you see it, even when you share your screen. Download from **framedecks.com/download**, or let
+FrameDecks update itself. It installs over 9.9.0 and earlier and keeps all your meetings, members, settings, pinned
+Memory Cards and recordings.
 
 ## What's New
-- **The Command Center.** Dark glass with a floating search bar, and under it:
-  - a row that shows whether you are on air, the meeting this PC shows, Workspace Sync, and *Only you can see this*;
-  - five modules, also on **Alt+1** to **Alt+5**: **Meetings**, **Memory Cards**, **Present**, **Camera** and **More**.
-    Each one narrows the bar to what it holds; **Backspace** or **Esc** goes back to everything;
-  - **Recent**: what you chose last, one click away.
-- **Meetings in the search.** Your meetings appear in the bar; choosing one shows it on this PC.
-- **Memory Cards from the Command Center.** Turn **Capture copies** on or off, and show or hide any card with Enter.
-- **Narrow the search with a sign:** **>** commands, **#** meetings and Frames, **@** people, **?** Ask AI.
-- **Ask AI** (**Tab**): drafts discussion questions from the selected Frame's scriptures with a free AI on this PC
-  (Ollama), when it is installed. You check them before they are added; nothing leaves the PC.
-- **The phone remote in the same look:** a floating top bar, glass cards, the tabs as a floating dock, and each tool's
-  icon in a square of its own colour.
+- **Four chips, everything inside them** (also **Alt+1** to **Alt+4**):
+  - **Prepare:** Meetings, Teleprompter, Share Window, Studio, Quick Start, Content Library, Import .frame, Camera
+    check, and what you chose last;
+  - **Engage:** Memory Cards, Capture copies, Draw and Spotlight on the Share Window, Clear drawings, Hide the cards;
+  - **Control:** **Go Live** as a switch, and while you are live the meeting remote: Previous / Next Frame, the
+    Content one by one, Hide all, Black screen, the Live tools and your meeting app's Mute, Camera and Share;
+  - **More:** Workspace Sync, Camera, How people see it, Phone remote, Meeting & Branding, Shortcuts, All settings,
+    Help & tour.
+- **Go Live as a switch.** On puts the first Frame of the meeting on screen; off takes everything off screen.
+- **No frame.** Only the bar, the chips and the open panel show, as glass, in the FrameDecks colours.
 
 ## Enhancements
-- While a Frame is live, the Command Center shows the meeting remote in the same glass style.
-- The tray menu's **Search** is now **Command Center**, and so is its shortcut in **Settings → General → Window and
-  tray**.
-- The welcome's Going live page introduces the Command Center.
-- The user guide shows the Command Center and its live remote.
+- Opening it, the bar springs in and the chips follow one after another. Choosing a chip sends a ripple from where you
+  clicked, a light slides under it, the panel unfolds and its buttons rise in one by one. With **Reduce motion** on in
+  Windows, all of this stays still.
+- A small green dot on **Control** while you are live, and on **Engage** while copies are captured.
+- A click anywhere outside the glass closes it, as a click on another window does.
+- The welcome's Going live page and the user guide show the new Command Center.
 
 ## Fixes
-- The search icon in the command palette and the Command Center was missing; it shows again.
+None in this version.
 
 ## Performance Improvements
-- The Command Center draws no blur of its own: the frosted glass comes from Windows, so it costs FrameDecks nothing.
-  The phone remote's new look uses no blur and nothing that loops, so the phone stays cool.
+- The window draws nothing but its glass shapes, and nothing moves once it has opened.
 
 ## Known Issues
 - The installer is not yet code-signed, so Windows SmartScreen may ask you to confirm: **More info → Run anyway**.
-- Ask AI needs Ollama installed on this PC; without it, the Command Center says so and nothing else changes.
+- Without a window frame the glass cannot use the Windows blur, so it is a little more solid than before.

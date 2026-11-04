@@ -161,7 +161,8 @@ function build(){
       btn('prompter', 'Teleprompter', 'type', '', function(){ run('cmd:prompter', true); }, 'chip'),
       btn('sharewin', 'Share Window', 'monitor', '', function(){ run('cmd:share', false); }, 'chip'),
       btn('phone', 'Phone remote', 'smartphone', '', function(){ run('set:ipad', false); }, 'chip')])]);
-  (box.querySelector('.cc-strip') || top).insertAdjacentElement('afterend', panel);   // 9.9 under the Command Center's strip
+  var slot = document.getElementById('cc-remote-slot');              // 9.10 inside the Command Center's Control panel
+  if (slot) slot.appendChild(panel); else top.insertAdjacentElement('afterend', panel);
   var input = top.querySelector('.pal-in');
   input.addEventListener('input', mode_);
   // compact: the (hidden) results must not run on Enter or move on the arrows; Esc still closes
@@ -180,6 +181,7 @@ function mode_(){
   var CC = window.KCCommandCenter, typing = CC ? CC.expanded() : !!(input && input.value.trim());   // 9.9 a module open counts as typing
   box.classList.toggle('spr-typing', typing);
   box.classList.toggle('spr-compact', !typing);
+  if (CC && CC.layout){ CC.layout(); return; }                         // 9.10 the Command Center sizes the window
   requestAnimationFrame(function(){
     var want = typing ? 620 : Math.ceil(box.scrollHeight) + 2;
     if (want === sized) return;

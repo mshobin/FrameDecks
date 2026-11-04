@@ -44,9 +44,9 @@ var PAGES = [
            ['Choose ', b('+ Question'), ' or ', b('+ Scripture'), '. Type a reference and ', b('Fetch'), ' (ESV, KJV or WEB).'],
            ['Live, the ', b('◀ ▶'), ' arrows step through them, one at a time.']]},
   {id: 'live', kicker: 'Going live', title: 'Your remote is one key away',
-   lede: 'The Command Center opens anywhere with Alt+Space, even with FrameDecks in the tray. Everything starts there: search, meetings, Memory Cards and commands. While you are live it is your remote, and only you see it, even when you share your screen.',
-   steps: [['Press ', b('Alt+Space'), ' anywhere. Type to search, or choose Meetings, Memory Cards, Present, Camera or More.'],
-           ['Live, the Command Center shows ', b('Next Frame'), ', the ', b('◀ ▶'), ' Content arrows, ', b('Hide all'), ' and your meeting’s Mute and Camera.'],
+   lede: 'The Command Center opens anywhere with Alt+Space, even with FrameDecks in the tray. Everything starts there: one search bar and four chips, Prepare, Engage, Control and More. While you are live it is your remote, and only you see it, even when you share your screen.',
+   steps: [['Press ', b('Alt+Space'), ' anywhere. Type to search, or choose Prepare, Engage, Control or More.'],
+           ['Under ', b('Control'), ', switch ', b('Go Live'), ' on; then you have ', b('Next Frame'), ', the ', b('◀ ▶'), ' Content arrows, ', b('Hide all'), ' and your meeting’s Mute and Camera.'],
            ['Choose ', b('Draw'), ' or ', b('Spotlight'), ': the Share Window opens and you draw or point on it with the mouse. ', b('Esc'), ' when you are done.']]},
   {id: 'finish', kicker: 'All set', title: 'You’re ready',
    lede: 'Frame › Deck › Content. That is the whole idea, numbered for you: 1\u00a0·\u00a01.1\u00a0·\u00a01.1.1, and coloured the same way in the Studio.', steps: []}

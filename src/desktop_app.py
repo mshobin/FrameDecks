@@ -703,8 +703,8 @@ def main():
         spot = spot_window(create=True)
         hwnd = window_handle(spot)
         if not state["spot_ready"]:
-            dw.round_corners(hwnd)
-            state["spot_glass"] = bool(dw.glass(hwnd, True))       # 9.6 drawn by Windows, so it costs FrameDecks nothing
+            dw.clear_frame(hwnd)                                   # 9.10 no frame, no corners, no border line
+            state["spot_glass"] = bool(dw.glass(hwnd, False))      # see-through: only the glass bar and its chips show
             state["spot_ready"] = True
         dw.hide_from_capture(hwnd)        # 9.6 every time: like the Teleprompter, only the presenter sees it, even sharing the screen
         dw.center_on_cursor(hwnd)
@@ -784,7 +784,7 @@ def main():
                 server.save_app_settings({"prompterOnTop": bool(data.get("value"))})
         elif op == "fit" and name == "spotlight":            # 9.6 compact remote; taller only while search results show
             try:
-                height = max(160, min(620, int(data.get("h") or 0)))
+                height = max(160, min(760, int(data.get("h") or 0)))
             except (TypeError, ValueError):
                 height = 620
             if height != state.get("spot_h"):

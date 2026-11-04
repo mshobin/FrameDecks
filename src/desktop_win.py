@@ -317,6 +317,20 @@ def round_corners(hwnd):
         _swallowed("desktop_win.round_corners", _e)
 
 
+def clear_frame(hwnd):
+    """9.10 a window with no frame at all (the Command Center): Windows 11 draws neither rounded corners nor its thin
+    border line around it, so only the page's own shapes show (Windows 10 has neither anyway)."""
+    if not (IS_WIN and hwnd):
+        return
+    try:
+        pref = ctypes.c_int(1)                                 # DWMWCP_DONOTROUND
+        dwmapi.DwmSetWindowAttribute(hwnd, 33, ctypes.byref(pref), ctypes.sizeof(pref))
+        none = ctypes.c_uint(0xFFFFFFFE)                       # DWMWA_BORDER_COLOR = DWMWA_COLOR_NONE
+        dwmapi.DwmSetWindowAttribute(hwnd, 34, ctypes.byref(none), ctypes.sizeof(none))
+    except Exception as _e:
+        _swallowed("desktop_win.clear_frame", _e)
+
+
 SWP_ASYNCWINDOWPOS = 0x4000
 HWND_TOPMOST, HWND_NOTOPMOST = -1, -2
 

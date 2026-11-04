@@ -169,7 +169,7 @@ No. The Teleprompter is only for the presenter. It is never on the FrameDecks vC
 Since 6.7, questions and scriptures have no Answer or Notes fields, and no screen shows them. Nothing was deleted from your data. When you import an older Meeting Workbook, its answers and notes go into the Frame's Teleprompter script.
 
 **Is there a quick way to find something?**
-Yes. Press **Ctrl+K** or **Ctrl+Space** to open the command palette. (There is no search box in the top bar since 6.9.) Type a few letters to find a Frame, a question, a scripture, a setting or a member, or to run a command such as **Go Live**. See [Presentations](presentations.md#command-palette). From anywhere in Windows, even with the app in the tray, press **Alt+Space** to open the **Command Center**: the same search, plus Meetings, Memory Cards, Present, Camera and More. See [Command Center](presentations.md#command-center).
+Yes. Press **Ctrl+K** or **Ctrl+Space** to open the command palette. (There is no search box in the top bar since 6.9.) Type a few letters to find a Frame, a question, a scripture, a setting or a member, or to run a command such as **Go Live**. See [Presentations](presentations.md#command-palette). From anywhere in Windows, even with the app in the tray, press **Alt+Space** to open the **Command Center**: the same search, plus the chips Prepare, Engage, Control and More. See [Command Center](presentations.md#command-center).
 
 ## Data, privacy and offline use
 

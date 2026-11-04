@@ -108,7 +108,7 @@ Tick **Remember my choice** to stop the question. You can change it later in **S
 shortcuts. Click the tray icon, or choose **Open App** in its menu, to bring the window back.
 
 > **Tip:** Press **Alt+Space** anywhere in Windows to open the **Command Center**: one bar that finds and runs anything
-> in FrameDecks, even from the tray, with Meetings, Memory Cards, Present, Camera and More. See
+> in FrameDecks, even from the tray, with the chips Prepare, Engage, Control and More. See
 > [Command Center](presentations.md#command-center).
 
 If you prefer the Windows title bar, turn off **Modern window** in **Settings → General → Window and tray** and

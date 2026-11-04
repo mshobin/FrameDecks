@@ -17,28 +17,49 @@ class CommandCenter(unittest.TestCase):
         self.assertLess(tag("palette.js"), tag("command-center.js"))
         self.assertLess(tag("command-center.js"), tag("spotlight-remote.js"))
 
-    def test_five_modules_with_their_keys_and_scopes(self):
+    def test_four_chips_prepare_engage_control_more(self):
+        """9.10 the same every time: the bar, then four chips; a chip opens its panel (Alt+1 to Alt+4)"""
         js = read("app/js/command-center.js")
-        for mod in ("id: 'meetings'", "id: 'memory'", "id: 'present'", "id: 'camera'", "id: 'more'"):
-            self.assertIn(mod, js)
-        self.assertIn("/^[1-5]$/.test(e.key)", js)            # Alt+1 … Alt+5
-        self.assertIn("P.scope({id: m.id", js)
-        self.assertIn("Only you can see this", js)
-        self.assertIn("api/memory", js)                          # Memory Cards from this PC only
+        ids = [js.index("{id: '%s', label: '%s'" % (i, n)) for i, n in (("prepare", "Prepare"), ("engage", "Engage"), ("control", "Control"), ("more", "More"))]
+        self.assertEqual(ids, sorted(ids))
+        self.assertIn("/^[1-4]$/.test(e.key)", js)
+        self.assertIn("api/memory", js)
         self.assertIn("api/vcam/status?lite=1", js)
+        self.assertIn("Only you can see this", js)
+        self.assertIn('"layout-grid"', read("app/js/icons.js"))
 
-    def test_the_palette_knows_scopes_prefixes_meetings_and_ask_ai(self):
+    def test_control_has_go_live_as_a_switch_and_the_remote(self):
+        js = read("app/js/command-center.js")
+        self.assertIn("role: 'switch'", js)
+        self.assertIn("SC.hideAll(n); n.live.scene = ''", js)          # switching it off leaves the screen
+        self.assertIn("id: 'cc-remote-slot'", js)
+        self.assertIn("document.getElementById('cc-remote-slot')", read("app/js/spotlight-remote.js"))
+
+    def test_no_window_frame(self):
+        src = read("src/desktop_app.py")
+        body = src[src.index("    def spotlight(on=True):"):src.index("    def palette_index():")]
+        self.assertIn("dw.clear_frame(hwnd)", body)
+        self.assertIn("dw.glass(hwnd, False)", body)
+        self.assertNotIn("dw.round_corners(hwnd)", body)
+        self.assertIn("def clear_frame(hwnd):", read("src/desktop_win.py"))
+        css = read("app/css/spotlight.css")
+        self.assertIn("html.kc-glass body.spotlight,html.kc-glass body.spotlight .pal-back{background:transparent}", css)
+
+    def test_the_palette_knows_scopes_prefixes_and_meetings(self):
         js = read("app/js/palette.js")
-        for need in ("var PREFIX = {'>':", "'#':", "'@':", "'?':", "kind: 'meeting'", "SC.switchMeeting(x, m.id)",
-                     "'ai-questions'", "if (it.local){", "hooks.escape", "hooks.tab", "recentItems: recentItems"):
+        for need in ("var PREFIX = {'>':", "'#':", "'@':", "kind: 'meeting'", "SC.switchMeeting(x, m.id)",
+                     "if (it.local){", "hooks.escape", "recentItems: recentItems"):
             self.assertIn(need, js)
+        # 9.10 no Ask AI in the Command Center (not part of the design for now)
+        self.assertNotIn("'ai-questions'", js)
+        self.assertNotIn("Ask AI", read("app/js/command-center.js"))
         # the helper draws icons (the search icon never showed before 9.9)
         self.assertIn("else if (k === 'html') el.innerHTML = v;", js)
-        self.assertIn("suggest: function(sid)", read("app/js/frame-lists.js"))
 
-    def test_modules_while_preparing_and_the_remote_while_live(self):
+    def test_the_panel_unfolds_and_motion_stops_for_reduce(self):
         css = read("app/css/spotlight.css")
-        self.assertIn("body.spr-live .cc-mods,body.spr-live .cc-rec,.pal.spr-typing .cc-mods,.pal.spr-typing .cc-rec{display:none}", css)
+        self.assertIn(".cc.cc-open:not(.cc-typing) .cc-stage{grid-template-rows:1fr}", css)
+        self.assertIn("@media (prefers-reduced-motion:reduce)", css[css.index("9.10 the Command Center"):])
         self.assertIn("window.KCCommandCenter", read("app/js/spotlight-remote.js"))
 
     def test_named_command_center_where_people_see_it(self):

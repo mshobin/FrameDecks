@@ -358,41 +358,34 @@ You can change the keys in **Settings → Keyboard shortcuts → Command palette
 
 ### Command Center
 
-The **Command Center** is where everything in FrameDecks starts. It is the command palette for the whole of Windows
-(it was called Spotlight until 9.8): it works when another program is in front, and when FrameDecks is hidden in the
-tray.
+The **Command Center** is where everything in FrameDecks starts. It works when another program is in front, and when
+FrameDecks is hidden in the tray. It has no window frame: only a glass search bar floats on your screen, with four
+chips under it, the same every time you open it.
 
-1. Press **Alt+Space** anywhere. The Command Center opens in the middle of the screen where your mouse is, above
-   everything. It opens only with its shortcut (or the tray's **Command Center**), never by itself.
+1. Press **Alt+Space** anywhere. It opens near the top of the screen your mouse is on, above everything. It opens only
+   with its shortcut (or the tray's **Command Center**), never by itself.
 2. Type in the bar to search everything: Frames, meetings, questions, scriptures, Memory Cards, settings and
-   commands. Choose with **↑ / ↓** and **Enter**.
-3. Or choose a module (or press **Alt+1** to **Alt+5**). The bar then searches only that module; **Backspace** or
-   **Esc** goes back to everything.
-4. **Esc**, or a click somewhere else, closes it.
+   commands. Choose with **↑ / ↓** and **Enter**. Start with **>** for commands only, **#** for meetings and Frames,
+   or **@** for people.
+3. Or choose a chip (or press **Alt+1** to **Alt+4**). Its panel opens under the chips; **Esc** closes it.
+4. **Esc** again, or a click anywhere else, closes the Command Center.
 
-| Module | What it holds |
+| Chip | What it holds |
 |---|---|
-| **Meetings** | Your meetings (choosing one shows it on this PC) and their Frames |
-| **Memory Cards** | **Capture copies** on or off, and your cards: **Enter** shows a card on screen, or hides it again |
-| **Present** | Teleprompter, Share Window, Draw and Spotlight on the Share Window, Go Live, Next / Previous, Black screen, Freeze, Hide all |
-| **Camera** | Whether FrameDecks vCam is ready or in use by your meeting app, and its settings |
-| **More** | The Studio, Workspace Sync, branding, the phone remote, Quick Start, .frame files, help and every setting |
+| **Prepare** | Meetings (switch the meeting this PC shows), Teleprompter, Share Window, Studio, Quick Start, Content Library, Import .frame, Camera check, and what you chose last |
+| **Engage** | Memory Cards, Capture copies, Draw and Spotlight on the Share Window, Clear drawings, Hide the cards |
+| **Control** | **Go Live** as a switch, and while you are live the meeting remote (below) |
+| **More** | Workspace Sync, Camera, How people see it, Phone remote, Meeting & Branding, Shortcuts, All settings, Help & tour |
 
-Above the modules, a row shows whether you are on air, the meeting this PC shows, **Workspace Sync** (click it to open
-its settings) and **Only you can see this**. Under them, **Recent** lists what you chose last.
-
-Start the search with a sign to narrow it: **>** commands, **#** meetings and Frames, **@** people, **?** Ask AI
-(**Tab** switches to Ask AI). Ask AI drafts discussion questions from the selected Frame's scriptures with a free AI
-that runs on this PC (Ollama), when it is installed; you check them before they are added.
+**Go Live** in Control is a switch. On: the first Frame of the meeting goes on screen. Off: everything leaves the
+screen and you are off air. A green dot on **Control** shows you are live.
 
 Only you see the Command Center. Like the Teleprompter, it is left out of screen sharing and recordings, even when you
 share the whole screen in Zoom, Teams or Google Meet.
 
-![The Command Center: the bar, what is happening now, five modules and Recent](images/command-center.png)
+![The Command Center: a glass search bar and the four chips Prepare, Engage, Control and More](images/command-center.png)
 
-While a Frame is live, the modules make room for the meeting remote:
-
-![The Command Center as a meeting remote](images/spotlight-remote.png)
+![Control while you are live: Go Live switched on, then the meeting remote](images/spotlight-remote.png)
 
 ### The Command Center as a meeting remote
 
@@ -411,7 +404,7 @@ also off when no meeting is open. Windows only.
 
 ### Draw and Spotlight on the Share Window
 
-Choose **Draw** or **Spotlight** in the Command Center (or type *draw* or *spotlight* in its bar). The **Share Window**
+Choose **Draw** or **Spotlight** in the Command Center (in **Engage** or **Control**, or type *draw* or *spotlight* in its bar). The **Share Window**
 (the window you share in Zoom or Teams) opens, comes to the front, and the Command Center closes, so you can work on what everyone
 sees:
 

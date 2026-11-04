@@ -22,26 +22,26 @@ QUIET = ("window.KCOnboarding && window.KCOnboarding.close();"
          "document.querySelectorAll('.gd-panel, .gd-spot, .gd-tip, .app-modal-back, .onb, .toast').forEach(e => e.remove())")
 
 
+BACKDROP = ("document.documentElement.classList.add('kc-glass');"
+            "document.documentElement.style.background = 'linear-gradient(160deg,#6b5fa8 0%,#c58a7a 45%,#2c3e66 75%,#16213b 100%)'")
+
+
 async def command_center(b, base):
-    """9.9 the Command Center: its modules (nothing live), then the live remote. Recent shows the first few items."""
-    main = await b.new_page(viewport={"width": 1280, "height": 800})
-    await main.goto(base + "/dashboard.html")
-    await main.wait_for_timeout(2500)
-    index = await main.evaluate("JSON.stringify(window.KCPalette.exportIndex())")
-    await main.close()
-    sp = await b.new_page(viewport={"width": 820, "height": 448}, device_scale_factor=2, reduced_motion="reduce")
-    await sp.add_init_script("localStorage.setItem('kc-spotlight-index', %r);"
-                             "localStorage.setItem('kc-palette-recent', JSON.stringify(%r.length ? JSON.parse(%r)"
-                             ".filter(x => x.kind === 'frame' || x.key === 'cmd:golive' || x.key === 'cmd:prompter').slice(0, 4).map(x => x.key) : []))"
-                             % (index, index, index))
+    """9.10 the Command Center over a desktop-like picture (the window itself is see-through): the bar and its four
+    chips, then Control while a Frame is live."""
+    sp = await b.new_page(viewport={"width": 820, "height": 270}, device_scale_factor=2, reduced_motion="reduce")
     await sp.goto(base + "/spotlight.html")
-    await sp.wait_for_timeout(1800)
-    await sp.screenshot(path=str(COMMAND_CENTER), animations="disabled")
-    await sp.set_viewport_size({"width": 820, "height": 640})
-    await sp.evaluate("KCStore.update(n => { KCScenes.take(n, KCScenes.order(n)[0].id, null); })")
     await sp.wait_for_timeout(1500)
+    await sp.evaluate(BACKDROP)
+    await sp.wait_for_timeout(300)
+    await sp.screenshot(path=str(COMMAND_CENTER), animations="disabled")
+    await sp.set_viewport_size({"width": 820, "height": 720})
+    await sp.evaluate("KCStore.update(n => { KCScenes.take(n, KCScenes.order(n)[0].id, null); })")
+    await sp.wait_for_timeout(800)
+    await sp.keyboard.press("Alt+3")
+    await sp.wait_for_timeout(1200)
     await sp.screenshot(path=str(SPOTLIGHT), animations="disabled")
-    await sp.evaluate("KCStore.update(n => { n.live.scene = null; KCScenes.hideAll(n); })")
+    await sp.evaluate("KCStore.update(n => { KCScenes.hideAll(n); n.live.scene = ''; })")
     await sp.wait_for_timeout(400)
 
 
