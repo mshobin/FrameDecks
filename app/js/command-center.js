@@ -236,7 +236,7 @@ function layout(){
     var typing = !!input.value.trim() || !!current;
     box.classList.toggle('cc-typing', typing);
     var inner = stage.firstChild, extra = open && !typing ? inner.scrollHeight - stage.offsetHeight : 0;
-    var want = Math.ceil(box.scrollHeight + Math.max(0, extra)) + 28;
+    var want = Math.ceil(box.offsetHeight + Math.max(0, extra)) + 16;   // plus room for the shadows
     if (typing) want = Math.max(want, 560);
     if (want === sized) return;
     clearTimeout(shrinkT);

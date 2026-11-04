@@ -44,6 +44,10 @@ class CommandCenter(unittest.TestCase):
         self.assertIn("def clear_frame(hwnd):", read("src/desktop_win.py"))
         css = read("app/css/spotlight.css")
         self.assertIn("html.kc-glass body.spotlight,html.kc-glass body.spotlight .pal-back{background:transparent}", css)
+        # as in the design picture: no frame around everything; the tray is tucked under the bar like a drawer
+        drawer = css[css.index("9.10.1 as in the design picture"):]
+        self.assertIn(".cc .cc-tray{margin:-1px 26px 0;", drawer)
+        self.assertNotIn("--cc-frame-rim", css)
 
     def test_the_palette_knows_scopes_prefixes_and_meetings(self):
         js = read("app/js/palette.js")

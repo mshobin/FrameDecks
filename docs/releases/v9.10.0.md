@@ -1,7 +1,8 @@
 ## FrameDecks v9.10.0
 
-The Command Center, redesigned. Press **Alt+Space** and a glass search bar floats on your screen with four chips under
-it: **Prepare**, **Engage**, **Control** and **More**. There is no window frame around it any more, and it looks the
+The Command Center, redesigned. Press **Alt+Space** and a glass search bar with a bright white rim floats on your
+screen, with a tray of four chips tucked right under it: **Prepare**, **Engage**, **Control** and **More**. There is
+no window around it any more, and it looks the
 same every time you open it. Choose a chip and its panel unfolds under it with everything that belongs there. Like the
 Teleprompter, only you see it, even when you share your screen. Download from **framedecks.com/download**, or let
 FrameDecks update itself. It installs over 9.9.0 and earlier and keeps all your meetings, members, settings, pinned
@@ -17,7 +18,8 @@ Memory Cards and recordings.
   - **More:** Workspace Sync, Camera, How people see it, Phone remote, Meeting & Branding, Shortcuts, All settings,
     Help & tour.
 - **Go Live as a switch.** On puts the first Frame of the meeting on screen; off takes everything off screen.
-- **No frame.** Only the bar, the chips and the open panel show, as glass, in the FrameDecks colours.
+- **No window around it.** Only the bar, the tray under it and an open panel show, as glass in the FrameDecks
+  colours. The tray hangs from the bar like a drawer, and an open panel continues it.
 
 ## Enhancements
 - Opening it, the bar springs in and the chips follow one after another. Choosing a chip sends a ripple from where you

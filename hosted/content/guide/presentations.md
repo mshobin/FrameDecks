@@ -359,8 +359,8 @@ You can change the keys in **Settings → Keyboard shortcuts → Command palette
 ### Command Center
 
 The **Command Center** is where everything in FrameDecks starts. It works when another program is in front, and when
-FrameDecks is hidden in the tray. It has no window frame: only a glass search bar floats on your screen, with four
-chips under it, the same every time you open it.
+FrameDecks is hidden in the tray. It has no window around it: a glass search bar floats on your screen with a tray of
+four chips tucked under it, the same every time you open it.
 
 1. Press **Alt+Space** anywhere. It opens near the top of the screen your mouse is on, above everything. It opens only
    with its shortcut (or the tray's **Command Center**), never by itself.

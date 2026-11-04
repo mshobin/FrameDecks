@@ -284,3 +284,35 @@ body.spotlight .pal-meeting .pal-kind{color:var(--gold-strong)} body.spotlight .
   .cc .pal-top,.cc-tray,.cc-g,.cc-t,.cc-scope,.cc-panel::after,.cc-panel.in .cc-t,.cc-panel.in .cc-switch,.cc-panel.in .spr-now,.cc-panel.in .spr-row,.cc-panel.in .spr-step,body.spotlight .cc .pal-list{animation:none}
   .cc-g:hover,.cc-t:hover,.cc-g.on .cc-sq{transform:none}
 }
+/* ---------- 9.10.1 as in the design picture: no frame around everything. The search bar is the brightest piece; the
+ * tray of four chips is its own, slightly narrower piece of glass tucked under the bar like a drawer (its top hides
+ * behind the bar, no gap), with the chips as soft cells inside it. An open panel hangs under the tray the same way. ---------- */
+:root,html[data-theme="dark"]{--cc-bar-a:rgba(70,84,128,.86); --cc-bar-b:rgba(40,52,88,.9); --cc-bar-rim:rgba(255,255,255,.7);
+  --cc-bar-glow:0 0 0 1px rgba(255,255,255,.12),0 0 24px rgba(255,255,255,.22),0 12px 30px rgba(0,0,0,.35);
+  --cc-drawer-a:rgba(52,64,104,.8); --cc-drawer-b:rgba(26,34,62,.88); --cc-drawer-rim:rgba(255,255,255,.3);
+  --cc-drawer-sh:0 18px 40px rgba(0,0,0,.4); --cc-celln:rgba(255,255,255,.06); --cc-cell-line:rgba(255,255,255,.09)}
+html[data-theme="light"]{--cc-bar-a:rgba(255,255,255,.96); --cc-bar-b:rgba(250,251,255,.9); --cc-bar-rim:rgba(255,255,255,1);
+  --cc-bar-glow:0 0 0 1px rgba(22,32,58,.06),0 0 24px rgba(255,255,255,.8),0 12px 30px rgba(22,32,58,.16);
+  --cc-drawer-a:rgba(246,248,253,.86); --cc-drawer-b:rgba(232,237,247,.9); --cc-drawer-rim:rgba(255,255,255,.95);
+  --cc-drawer-sh:0 18px 40px rgba(22,32,58,.16); --cc-celln:rgba(255,255,255,.6); --cc-cell-line:rgba(22,32,58,.06)}
+/* the bar sits above everything under it */
+body.spotlight .cc .pal-top{z-index:3;border:1.5px solid var(--cc-bar-rim);background:linear-gradient(180deg,var(--cc-bar-a),var(--cc-bar-b));box-shadow:var(--cc-hi),var(--cc-bar-glow)}
+body.spotlight .cc .pal-top:focus-within{border-color:var(--cc-bar-rim);box-shadow:var(--cc-hi),var(--cc-bar-glow)}
+/* the tray: narrower, its top tucked behind the bar (no gap), soft cells inside */
+.cc .cc-tray{z-index:2;margin:-22px 26px 0;padding:28px 8px 8px;gap:4px;border:1px solid var(--cc-drawer-rim);border-top:0;border-radius:0 0 20px 20px;
+  background:linear-gradient(180deg,var(--cc-drawer-a),var(--cc-drawer-b));box-shadow:var(--cc-hi),var(--cc-drawer-sh)}
+.cc .cc-g{min-height:88px;background:var(--cc-celln);border:0;border-radius:16px;box-shadow:inset 0 0 0 1px var(--cc-cell-line)}
+.cc .cc-g:hover,.cc .cc-g.on{background:var(--cc-cell-2);border:0;box-shadow:inset 0 0 0 1px var(--cc-rim)}
+.cc .cc-glide{bottom:3px}
+/* an open panel, or the search results, hang under the tray the same way */
+.cc .cc-stage{position:relative;z-index:1;margin:0 26px}
+.cc .cc-panel,body.spotlight .cc .pal-list{margin-top:-20px;padding-top:30px;border:1px solid var(--cc-drawer-rim);border-top:0;border-radius:0 0 20px 20px;
+  background:linear-gradient(180deg,var(--cc-drawer-b),var(--cc-drawer-b));box-shadow:var(--cc-hi),var(--cc-drawer-sh)}
+body.spotlight .cc .pal-list{position:relative;z-index:1;margin:-20px 26px 0;padding:28px 8px 8px}
+/* the pieces meet edge to edge (the bar is see-through, so nothing hides behind it); with a panel open the tray's
+ * bottom corners square off and the panel continues it, one drawer under the bar */
+body.spotlight .pal.cc,html.kc-glass body.spotlight .pal.cc{gap:0}
+.cc .cc-tray{margin:-1px 26px 0;padding:10px 8px 8px;transition:border-radius .3s ease}
+.cc.cc-open:not(.cc-typing) .cc-tray,.cc.cc-typing .cc-tray{border-radius:0}
+.cc .cc-panel,body.spotlight .cc .pal-list{margin-top:0;padding-top:14px;border-top:1px solid var(--cc-cell-line)}
+body.spotlight .cc .pal-list{margin:0 26px;padding:8px}
