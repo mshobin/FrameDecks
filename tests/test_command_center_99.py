@@ -45,7 +45,7 @@ class CommandCenter(unittest.TestCase):
         css = read("app/css/spotlight.css")
         self.assertIn("html.kc-glass body.spotlight,html.kc-glass body.spotlight .pal-back{background:transparent}", css)
         # as in the design picture: no frame around everything; the tray is tucked under the bar like a drawer
-        drawer = css[css.index("9.10.1 as in the design picture"):]
+        self.assertIn("9.10.1 as in the design picture", css)
         self.assertIn(".cc .cc-tray::before{left:-22px;", css)          # 9.10.5 the tray flows out of the bar
         # everything under the tray falls in its border line, like a waterfall
         self.assertIn(".cc .cc-stage,body.spotlight .cc .pal-list{margin-left:30px;margin-right:30px}", css)
