@@ -6,6 +6,12 @@ it, drag an edge to resize it, double-click / F / the button for full screen, Es
 closes it. Moving the mouse shows the Full screen and Exit buttons for two seconds. The window is called
 "FRAMEDECKS Share Window" (never displayed) so Zoom lists it under Share Screen > specific window.
 
+9.7 Draw and Spotlight (chosen in Spotlight, Alt+Space): the picture takes the mouse instead of moving the window.
+Draw: drag to draw (keys 1-5 pen, highlighter, arrow, box, circle; G / R / W colours; Ctrl+Z undo; Delete clear).
+Spotlight: the spotlight follows the mouse on every screen; a click is a quick circle. Esc or Done finishes. The
+strokes go into the shared live state through the `annotator` callback (server.annotate_op), so the camera, the
+overlay pages and the phone show them too. The buttons (Undo, Clear, Done) appear only when the mouse is near the top.
+
 The pure functions at the top (layout, buttons, hit test, drawing) have no Windows dependencies.
 """
 from errlog import swallowed as _swallowed  # noqa: E402
@@ -30,24 +36,50 @@ def letterbox(cw, ch, fw, fh):
     return (cw - w) // 2, (ch - h) // 2, w, h
 
 
-def button_rects(cw, scale=1.0):
-    """Top-right buttons (like the web version): Full screen, then Exit."""
+BUTTONS = {"": ("fullscreen", "exit"), "draw": ("undo", "clear", "fullscreen", "done"), "spot": ("fullscreen", "done")}
+BUTTON_W = {"fullscreen": 150, "exit": 92, "undo": 84, "clear": 84, "done": 92}
+TOP_ZONE = 72                    # 9.7 while drawing, the buttons show only with the mouse this near the top (px)
+INK_KEYS = {0x31: "pen", 0x32: "highlighter", 0x33: "arrow", 0x34: "rect", 0x35: "ellipse"}
+INK_COLOURS = {0x47: "#e8b931", 0x52: "#ff4b4b", 0x57: "#ffffff"}
+
+
+def button_rects(cw, scale=1.0, mode=""):
+    """Top-right buttons, right to left from the corner: Full screen and Exit; 9.7 while drawing Undo, Clear,
+    Full screen and Done; with the Spotlight Full screen and Done."""
     h, gap, m = int(36 * scale), int(8 * scale), int(14 * scale)
-    exit_w, fs_w = int(92 * scale), int(150 * scale)
-    x1 = cw - m
-    exit_r = (x1 - exit_w, m, x1, m + h)
-    fs_r = (exit_r[0] - gap - fs_w, m, exit_r[0] - gap, m + h)
-    return {"fullscreen": fs_r, "exit": exit_r}
+    out, x1 = {}, cw - m
+    for name in reversed(BUTTONS.get(mode, BUTTONS[""])):
+        w = int(BUTTON_W[name] * scale)
+        out[name] = (x1 - w, m, x1, m + h)
+        x1 -= w + gap
+    return out
+
+
+def pic_point(x, y, pic_rect):
+    """A window point as a place on the picture (0..1 each way), or None outside it."""
+    px, py, pw, ph = pic_rect
+    if pw <= 0 or ph <= 0 or not (px <= x < px + pw and py <= y < py + ph):
+        return None
+    return [round((x - px) / pw, 4), round((y - py) / ph, 4)]
+
+
+def thin(points, most=600):
+    """A long stroke kept to about `most` points (the first and last stay)."""
+    if len(points) <= most:
+        return points
+    step = -(-len(points) // most)
+    return points[::step] + [points[-1]]
 
 
 HT = {"client": 1, "caption": 2, "left": 10, "right": 11, "top": 12, "topleft": 13, "topright": 14,
       "bottom": 15, "bottomleft": 16, "bottomright": 17}
 
 
-def hit_test(x, y, cw, ch, ui_visible, fullscreen, scale=1.0):
-    """What the mouse is over: a button (client), an edge (resize) or the picture (drag to move)."""
+def hit_test(x, y, cw, ch, ui_visible, fullscreen, scale=1.0, mode=""):
+    """What the mouse is over: a button (client), an edge (resize) or the picture (drag to move; 9.7 while drawing
+    or with the Spotlight the picture itself takes the mouse)."""
     if ui_visible:
-        for r in button_rects(cw, scale).values():
+        for r in button_rects(cw, scale, mode).values():
             if r[0] <= x < r[2] and r[1] <= y < r[3]:
                 return HT["client"]
     if fullscreen:
@@ -62,11 +94,11 @@ def hit_test(x, y, cw, ch, ui_visible, fullscreen, scale=1.0):
     if right: return HT["right"]
     if top: return HT["top"]
     if bottom: return HT["bottom"]
-    return HT["caption"]
+    return HT["client"] if mode else HT["caption"]
 
 
-def which_button(x, y, cw, scale=1.0):
-    for name, r in button_rects(cw, scale).items():
+def which_button(x, y, cw, scale=1.0, mode=""):
+    for name, r in button_rects(cw, scale, mode).items():
         if r[0] <= x < r[2] and r[1] <= y < r[3]:
             return name
     return None
@@ -84,7 +116,7 @@ def _button_img(label, w, h, kind, scale, fonts_dir):
     k = 2
     img = Image.new("RGBA", (w * k, h * k), (0, 0, 0, 0))
     d = ImageDraw.Draw(img)
-    bg = (160, 30, 30, 230) if kind == "exit" else (10, 18, 34, 220)
+    bg = (160, 30, 30, 230) if kind == "exit" else (40, 140, 84, 235) if kind == "done" else (10, 18, 34, 220)
     d.rounded_rectangle([0, 0, w * k - 1, h * k - 1], radius=10 * k * scale, fill=bg, outline=(255, 255, 255, 70), width=max(1, int(k * scale)))
     try:
         font = ImageFont.truetype(str(Path(fonts_dir) / "SourceSans3.ttf"), int(14 * k * scale))
@@ -94,9 +126,11 @@ def _button_img(label, w, h, kind, scale, fonts_dir):
             _swallowed("vcam.present_window._button_img", _e)
     except Exception:
         font = ImageFont.load_default()
-    icon = int(12 * k * scale)
+    icon = int(12 * k * scale) if kind in ("exit", "fullscreen") else 0
     ix, iy = int(14 * k * scale), (h * k - icon) // 2
-    if kind == "exit":                                  # ✕
+    if not icon:                                        # 9.7 Undo, Clear, Done: the word only
+        pass
+    elif kind == "exit":                                # ✕
         d.line([ix, iy, ix + icon, iy + icon], fill="white", width=int(2 * k * scale))
         d.line([ix, iy + icon, ix + icon, iy], fill="white", width=int(2 * k * scale))
     else:                                               # expand corners
@@ -104,7 +138,7 @@ def _button_img(label, w, h, kind, scale, fonts_dir):
         for (cx, cy, dx, dy) in ((ix, iy, 1, 1), (ix + icon, iy, -1, 1), (ix, iy + icon, 1, -1), (ix + icon, iy + icon, -1, -1)):
             d.line([cx, cy, cx + dx * q, cy], fill="white", width=t)
             d.line([cx, cy, cx, cy + dy * q], fill="white", width=t)
-    tx = ix + icon + int(8 * k * scale)
+    tx = ix + icon + (int(8 * k * scale) if icon else 0)
     ty = (h * k - int(14 * k * scale)) // 2 - int(2 * k * scale)
     d.text((tx, ty), label, font=font, fill="white")
     small = img.resize((w, h), Image.LANCZOS)
@@ -122,13 +156,16 @@ def _over(canvas, img, x, y):
     canvas[y:y + h, x:x + w, :3] = ((img[..., :3].astype(np.uint16) * a + roi * (255 - a)) // 255).astype(np.uint8)
 
 
-def button_patches(frame, pic_rect, cw, ui_fullscreen, scale=1.0, fonts_dir=None):
-    """The two buttons as small BGRA patches over the picture behind them: [(x, y, patch)].
+LABELS = {"exit": "Exit", "undo": "Undo", "clear": "Clear", "done": "Done"}
+
+
+def button_patches(frame, pic_rect, cw, ui_fullscreen, scale=1.0, fonts_dir=None, mode=""):
+    """The buttons as small BGRA patches over the picture behind them: [(x, y, patch)].
     Only these patches are composed in Python; Windows scales and draws the picture itself."""
     out = []
     px, py, pw, ph = pic_rect
     fh, fw = frame.shape[:2] if frame is not None else (1, 1)
-    for name, (x0, y0, x1, y1) in button_rects(cw, scale).items():
+    for name, (x0, y0, x1, y1) in button_rects(cw, scale, mode).items():
         w, h = x1 - x0, y1 - y0
         under = np.zeros((h, w, 4), np.uint8)
         under[..., 3] = 255
@@ -139,7 +176,7 @@ def button_patches(frame, pic_rect, cw, ui_fullscreen, scale=1.0, fonts_dir=None
             if cx1 > cx0 and cy1 > cy0:
                 crop = cv2.resize(frame[cy0:cy1, cx0:cx1, :3], (w, h), interpolation=cv2.INTER_LINEAR)
                 under[..., :3] = crop
-        label = ("Exit full screen" if ui_fullscreen else "Full screen") if name == "fullscreen" else "Exit"
+        label = ("Exit full screen" if ui_fullscreen else "Full screen") if name == "fullscreen" else LABELS[name]
         if fonts_dir:
             _over(under, _button_img(label, w, h, name, scale, fonts_dir), 0, 0)
         out.append((x0, y0, np.ascontiguousarray(under)))
@@ -176,7 +213,7 @@ def _route(hwnd, msg, wp, lp):
 class NativePresentation:
     """Opens the window on its own thread. close(), set_fullscreen() and is_open() are safe from any thread."""
 
-    def __init__(self, compositor, keep_awake, get_fps, fonts_dir, on_closed=None):
+    def __init__(self, compositor, keep_awake, get_fps, fonts_dir, on_closed=None, annotator=None):
         if os.name != "nt":
             raise RuntimeError("The native Presentation window is only available on Windows.")
         self.comp, self.keep_awake, self.get_fps = compositor, keep_awake, get_fps
@@ -190,11 +227,18 @@ class NativePresentation:
         self.error = None
         self.ready = threading.Event()
         self._handler = None
+        # 9.7 Draw / Spotlight on this window: annotator(dict) changes the shared live state (server.annotate_op);
+        # it runs on its own thread, in order, so the window never waits for a save
+        self.annotator, self.ann_mode, self.ann_tool, self.ann_color = annotator, "", "pen", "#e8b931"
+        self._jobs, self._stroke = [], None
+        self._jobs_cv = threading.Condition()
         threading.Thread(target=self._window_thread, name="bcc-present-window", daemon=True).start()
         if not self.ready.wait(6) or self.error:
             self.alive = False
             raise RuntimeError(self.error or "The Presentation window did not open.")
         threading.Thread(target=self._feed_thread, name="bcc-present-feed", daemon=True).start()
+        if annotator:
+            threading.Thread(target=self._ann_thread, name="bcc-present-annotate", daemon=True).start()
 
     # ---- called from other threads
     def is_open(self):
@@ -203,6 +247,40 @@ class NativePresentation:
     def close(self):
         if self.hwnd:
             self._u32.PostMessageW(self.hwnd, 0x0010, 0, 0)          # WM_CLOSE
+
+    def set_annotate(self, mode, tool=None, color=None):
+        """9.7 '' (move the window, as before), 'draw' or 'spot'. Safe from any thread."""
+        self.ann_mode = mode if mode in ("draw", "spot") else ""
+        if tool:
+            self.ann_tool = tool
+        if color:
+            self.ann_color = color
+        self._stroke = None
+        if self.hwnd:
+            self._u32.PostMessageW(self.hwnd, self.WM_APP_ANN, 0, 0)
+
+    def _send(self, job, merge=None):
+        """Queue a change for the shared state; `merge` replaces a waiting job of the same kind (the newest wins)."""
+        with self._jobs_cv:
+            if merge:
+                self._jobs = [j for j in self._jobs if j[0] != merge]
+            self._jobs.append((merge, job))
+            self._jobs_cv.notify()
+
+    def _ann_thread(self):
+        while self.alive:
+            with self._jobs_cv:
+                self._jobs_cv.wait_for(lambda: self._jobs or not self.alive, timeout=1.0)
+                if not self._jobs:
+                    continue
+                _kind, job = self._jobs.pop(0)
+            try:
+                if callable(job):
+                    job()
+                else:
+                    self.annotator(job)
+            except Exception as _e:
+                _swallowed("vcam.present_window._ann_thread", _e)
 
     def set_fullscreen(self, want=None):
         target = (not self.fullscreen) if want is None else bool(want)
@@ -263,6 +341,7 @@ class NativePresentation:
 
     WM_APP_FRAME = 0x8000 + 1
     WM_APP_FS = 0x8000 + 2
+    WM_APP_ANN = 0x8000 + 3
 
     def _create_and_run(self):
         import ctypes
@@ -323,6 +402,9 @@ class NativePresentation:
         u32.SetForegroundWindow.argtypes = [W.HWND]
         u32.LoadCursorW.argtypes = [W.HINSTANCE, ctypes.c_void_p]
         u32.LoadCursorW.restype = W.HANDLE
+        u32.SetCursor.argtypes = [W.HANDLE]
+        u32.SetCapture.argtypes = [W.HWND]
+        u32.GetKeyState.restype = ctypes.c_short
         u32.GetMessageW.argtypes = [ctypes.POINTER(W.MSG), W.HWND, W.UINT, W.UINT]
         u32.TranslateMessage.argtypes = [ctypes.POINTER(W.MSG)]
         u32.DispatchMessageW.argtypes = [ctypes.POINTER(W.MSG)]
@@ -408,13 +490,83 @@ class NativePresentation:
                     g32.SetStretchBltMode(hdc, 4)                                      # HALFTONE
                     g32.SetBrushOrgEx(hdc, 0, 0, None)
                     g32.StretchDIBits(hdc, x, y, w, h, 0, 0, fw, fh, bgra.ctypes.data, ctypes.byref(bmi), 0, 0x00CC0020)   # SRCCOPY
-                if time.time() < self.ui_until:                                        # buttons: two small patches
-                    for bx, by, patch in button_patches(frame, (x, y, w, h), cw, self.fullscreen, dpi_scale(), self.fonts_dir):
+                cache["pic"] = (x, y, w, h)
+                if time.time() < self.ui_until:                                        # buttons: small patches
+                    for bx, by, patch in button_patches(frame, (x, y, w, h), cw, self.fullscreen, dpi_scale(), self.fonts_dir, self.ann_mode):
                         ph_, pw_ = patch.shape[:2]
                         bmi.biWidth, bmi.biHeight = pw_, -ph_
                         g32.SetDIBitsToDevice(hdc, bx, by, pw_, ph_, 0, 0, 0, ph_, patch.ctypes.data, ctypes.byref(bmi), 0)
             finally:
                 u32.EndPaint(hwnd, ctypes.byref(ps))
+
+        # ---- 9.7 Draw / Spotlight: where the mouse is on the picture, sent to the shared state off this thread
+        ann = {"last_set": 0.0, "down": None, "ptr_at": 0.0, "ptr_on": False}
+
+        def pic_at(x, y):
+            return pic_point(x, y, cache.get("pic") or (0, 0, 0, 0))
+
+        def ann_move(x, y):
+            p = pic_at(x, y)
+            if self.ann_mode == "spot":
+                if p is None:
+                    if ann["ptr_on"]:
+                        ann["ptr_on"] = False
+                        self._send({"op": "pointer", "on": False}, merge="pointer")
+                elif time.time() - ann["ptr_at"] > 0.03:
+                    ann["ptr_at"], ann["ptr_on"] = time.time(), True
+                    self._send({"op": "pointer", "on": True, "x": p[0], "y": p[1]}, merge="pointer")
+                return
+            st = self._stroke
+            if st is None or p is None:
+                return
+            if st["item"]["t"] in ("pen", "highlighter"):
+                st["item"]["p"].append(p)
+            else:
+                st["item"]["p"][1] = p
+            if time.time() - ann["last_set"] > 0.1:              # about 10 times a second the stroke grows on every screen
+                ann["last_set"] = time.time()
+                send_stroke(st)
+
+        def send_stroke(st):
+            item = dict(st["item"], p=thin(list(st["item"]["p"])))
+            self._send(lambda: self.annotator({"op": "set", "i": st["i"], "item": item}) if st["i"] is not None else None,
+                       merge="stroke")
+
+        def ann_down(x, y):
+            p = pic_at(x, y)
+            if p is None:
+                return
+            u32.SetCapture(hwnd_now())
+            if self.ann_mode == "spot":
+                ann["down"] = (x, y, p)
+                return
+            st = {"i": None, "item": {"t": self.ann_tool, "c": self.ann_color, "w": 0.006, "p": [p, p]}}
+            self._stroke = st
+
+            def add():
+                r = self.annotator({"op": "add", "item": dict(st["item"], p=list(st["item"]["p"]))}) or {}
+                st["i"] = r.get("i")
+            self._send(add)
+
+        def ann_up(x, y):
+            u32.ReleaseCapture()
+            if self.ann_mode == "spot":
+                d, ann["down"] = ann["down"], None
+                if d and abs(x - d[0]) + abs(y - d[1]) < 6:
+                    self._send({"op": "spot", "x": d[2][0], "y": d[2][1]})
+                return
+            st, self._stroke = self._stroke, None
+            if st:
+                send_stroke(st)
+
+        def ann_done():
+            self._stroke = None
+            if ann["ptr_on"]:
+                ann["ptr_on"] = False
+            self._send({"op": "mode", "mode": "", "hide": True})
+
+        def hwnd_now():
+            return self.hwnd
 
         def lparam_xy(lp):
             x, y = lp & 0xFFFF, (lp >> 16) & 0xFFFF
@@ -429,22 +581,58 @@ class NativePresentation:
                     pt = W.POINT(x, y)
                     u32.ScreenToClient(hwnd, ctypes.byref(pt))
                     cw, ch = client_size()
-                    return hit_test(pt.x, pt.y, cw, ch, time.time() < self.ui_until, self.fullscreen, dpi_scale())
+                    return hit_test(pt.x, pt.y, cw, ch, time.time() < self.ui_until, self.fullscreen, dpi_scale(), self.ann_mode)
+                if msg == 0x0020 and self.ann_mode and (lp & 0xFFFF) == 1:   # WM_SETCURSOR over the picture: a cross
+                    u32.SetCursor(u32.LoadCursorW(None, ctypes.c_void_p(32515)))        # IDC_CROSS
+                    return 1
                 if msg in (0x0200, 0x00A0):                 # WM_MOUSEMOVE, WM_NCMOUSEMOVE: show the buttons
-                    if time.time() >= self.ui_until - UI_SECONDS + 0.25:
+                    x, y = lparam_xy(lp)
+                    near_top = msg == 0x0200 and y < TOP_ZONE * dpi_scale()
+                    if (not self.ann_mode or (near_top and not self._stroke)) and time.time() >= self.ui_until - UI_SECONDS + 0.25:
                         show_ui()
+                    if self.ann_mode and msg == 0x0200:
+                        ann_move(x, y)
+                        return 0
                     return u32.DefWindowProcW(hwnd, msg, wp, lp)
-                if msg == 0x0202:                           # WM_LBUTTONUP on a button
+                if msg == 0x0201 and self.ann_mode:         # WM_LBUTTONDOWN: start a stroke (or a click)
                     x, y = lparam_xy(lp)
                     cw, _ = client_size()
-                    b = which_button(x, y, cw, dpi_scale()) if time.time() < self.ui_until else None
+                    if not (time.time() < self.ui_until and which_button(x, y, cw, dpi_scale(), self.ann_mode)):
+                        ann_down(x, y)
+                    return 0
+                if msg == 0x0202:                           # WM_LBUTTONUP on a button (or the end of a stroke)
+                    x, y = lparam_xy(lp)
+                    cw, _ = client_size()
+                    b = which_button(x, y, cw, dpi_scale(), self.ann_mode) if time.time() < self.ui_until and not self._stroke else None
                     if b == "exit":
                         leave()
                     elif b == "fullscreen":
                         apply_fullscreen(not self.fullscreen)
+                    elif b in ("undo", "clear"):
+                        self._send({"op": b})
+                    elif b == "done":
+                        ann_done()
+                    elif self.ann_mode:
+                        ann_up(x, y)
                     return 0
                 if msg in (0x00A3, 0x0203):                 # double-click (frame area or client): full screen
-                    apply_fullscreen(not self.fullscreen)
+                    if not self.ann_mode:
+                        apply_fullscreen(not self.fullscreen)
+                    return 0
+                if msg == 0x0100 and self.ann_mode:         # 9.7 keys while drawing or with the Spotlight
+                    ctrl = u32.GetKeyState(0x11) < 0
+                    if wp == 0x1B:
+                        ann_done()
+                    elif ctrl and wp == 0x5A:
+                        self._send({"op": "undo"})
+                    elif wp == 0x2E:
+                        self._send({"op": "clear"})
+                    elif wp in INK_KEYS:
+                        self.ann_tool = INK_KEYS[wp]
+                    elif wp in INK_COLOURS and not ctrl:
+                        self.ann_color = INK_COLOURS[wp]
+                    elif wp in (0x46, 0x7A):
+                        apply_fullscreen(not self.fullscreen)
                     return 0
                 if msg == 0x0100:                           # WM_KEYDOWN
                     if wp == 0x1B:                          # Esc: leave full screen first, then close
@@ -462,6 +650,11 @@ class NativePresentation:
                     return 0
                 if msg == self.WM_APP_FS:
                     apply_fullscreen(bool(wp))
+                    return 0
+                if msg == self.WM_APP_ANN:                  # 9.7 the tool changed: the buttons change with it
+                    if self.ann_mode:
+                        u32.SetForegroundWindow(hwnd)
+                    show_ui()
                     return 0
                 if msg == 0x0024:                           # WM_GETMINMAXINFO: smallest size
                     mmi = ctypes.cast(lp, ctypes.POINTER(MINMAXINFO)).contents

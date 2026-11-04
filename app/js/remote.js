@@ -345,7 +345,10 @@ function renderMeeting(){
 
 /* ---------- The live picture ---------- */
 function setFrame(f, src){ if (f.dataset.src !== src){ f.dataset.src = src; f.src = src; } }
-function renderCanvas(){ setFrame($('frame'), !$('app').hidden && !document.hidden ? 'stage.html?bg=preview&preview=1' : 'about:blank'); scale(); }
+/* 9.7 upright the picture is hidden (unless Spotlight is on), so it is not loaded either: less work for the phone */
+var portrait = window.matchMedia ? matchMedia('(orientation: portrait)') : {matches: false};
+function renderCanvas(){ setFrame($('frame'), !$('app').hidden && !document.hidden && (spotMode || !portrait.matches) ? 'stage.html?bg=preview&preview=1' : 'about:blank'); scale(); }
+if (portrait.addEventListener) portrait.addEventListener('change', function(){ renderCanvas(); });
 function scale(){ var box = $('canvas'); if (box && box.clientWidth) $('frame').style.transform = 'scale(' + (box.clientWidth / 1920) + ')'; }
 window.addEventListener('resize', scale);
 if (window.ResizeObserver) new ResizeObserver(scale).observe($('canvas'));
@@ -369,9 +372,12 @@ function setSpot(on){
   spotMode = on;
   document.body.classList.toggle('spotting', on);
   $('pic-spot').setAttribute('aria-pressed', String(on));
+  $('pic-spot').querySelector('span').textContent = on ? 'Done' : 'Spotlight';
   $('spot-hint').hidden = !on;
   if (!on){ endGesture(false); pointer(false); }
-  if (live) render();
+  if (on) padFull(matchMedia('(orientation: landscape)').matches);   // 9.7 the whole screen sideways (where the phone allows)
+  else if ($('drawpad').hidden) padFull(false);
+  if (live) render(); else renderCanvas();
 }
 function toggleSpot(){ setSpot(!spotMode); toast(spotMode ? 'Spotlight: touch the picture' : 'Spotlight off'); }
 $('pic-spot').addEventListener('click', guard('ps', toggleSpot));
@@ -429,6 +435,7 @@ function render(){
   var oa = $('onair'), oc = 'air' + (L.blackout || L.emergency ? ' bad' : anyOn ? ' on' : '');
   if (oa.className !== oc) oa.className = oc;
   setText(oa.querySelector('b'), L.blackout ? 'Black screen' : L.emergency ? 'Emergency' : L.freeze ? 'Frozen' : anyOn ? 'On screen' : 'Off air');
+  var om = $('onair-mini'); if (om.className !== oc + ' air-mini') om.className = oc + ' air-mini'; setText(om.querySelector('b'), oa.querySelector('b').textContent);
   setText($('now-pos'), ls ? 'Frame ' + (pos + 1) + ' of ' + order.length : order.length ? 'Not started · ' + order.length + (order.length === 1 ? ' Frame' : ' Frames') : 'No Frames yet');
   setText($('now-name'), ls ? ls.name : order.length ? 'Ready when you are' : 'Nothing to show yet');
   var bits = [];

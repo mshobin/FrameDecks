@@ -135,6 +135,26 @@ html.onb-open,html.onb-open body{overflow:hidden}
 .a-hl{position:absolute;left:14px;right:14px;top:62px;height:54px;border-radius:12px;border:2px solid var(--o-gold);background:var(--o-gold-soft);opacity:1}   /* at rest: on question 1, as the remote says */
 .onb-slide.on .a-hl{animation:onb-step 6s var(--o-ease) 1.4s 2}
 @keyframes onb-step{0%{opacity:0;transform:translateY(0)}6%,30%{opacity:1;transform:translateY(0)}36%,63%{opacity:1;transform:translateY(62px)}69%,94%{opacity:1;transform:translateY(124px)}100%{opacity:0;transform:translateY(124px)}}
+/* 9.7 Going live: the Spotlight remote over the Share Window, with a stroke and the spotlight on it */
+.art-live .a-screen.share{left:0;top:4%;width:72%}
+.a-ink{position:absolute;left:24%;top:66%;width:44%;height:4px;border-radius:999px;background:var(--o-gold);transform:rotate(-6deg)}
+.a-spot{position:absolute;left:58%;top:22%;width:64px;height:64px;border-radius:50%;background:var(--o-white);opacity:.18;box-shadow:0 0 0 2px var(--o-white)}
+.a-spl{position:absolute;right:0;bottom:2%;width:56%;display:flex;flex-direction:column;gap:8px;padding:12px;border-radius:20px;background:var(--o-card-dark);
+  border:1px solid var(--o-line2);box-shadow:var(--o-lift)}
+.a-spl-search{display:flex;align-items:center;gap:8px;padding:4px 4px 8px;border-bottom:1px solid var(--o-line);font-size:14px;color:var(--o-muted)}
+.a-spl-search span{flex:1}
+.a-spl-search kbd{font:inherit;font-size:12px;font-weight:700;padding:2px 8px;border-radius:8px;border:1px solid var(--o-line2);color:var(--o-ink)}
+.a-spl-now{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--o-muted)}
+.a-live{display:inline-flex;align-items:center;gap:5px;padding:2px 9px 2px 7px;border-radius:999px;background:var(--o-live-soft);color:var(--o-live);font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.06em}
+.a-live i{width:7px;height:7px;border-radius:50%;background:var(--o-live)}
+.a-spl-row{display:flex;gap:6px;align-items:stretch}
+.a-key{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:5px;min-height:36px;border-radius:12px;font-size:13px;font-weight:700;
+  background:var(--o-card2);border:1px solid var(--o-line2);color:var(--o-ink)}
+.a-key.gold{flex:2;background:var(--o-gold);border-color:var(--o-gold);color:var(--o-gold-ink)}
+.a-key.round{flex:none;width:36px;border-radius:50%}
+.a-key.flat{background:none;border-color:transparent}
+.a-key.tool{color:var(--o-content);background:var(--o-content-soft);border-color:var(--o-content-line)}
+.a-key.tool.on{background:var(--o-content);color:var(--o-gold-ink)}
 .a-remote{position:absolute;right:0;bottom:4%;width:56%;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px;border-radius:20px;
   background:var(--o-card2);border:1px solid var(--o-line2);box-shadow:var(--o-lift)}
 .a-round{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:var(--o-card2);border:1px solid var(--o-line2)}

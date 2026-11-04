@@ -33,10 +33,11 @@ for (const theme of ["dark", "light"]) {
   }
   if (theme === "dark") {                                                      // 9.5 the Welcome flow, every page
     await p.evaluate(() => { if (!window.KCOnboarding.isOpen()) window.KCOnboarding.open(); });
-    for (let i = 0; i < 4; i++) {
+    const pages = await p.evaluate(() => window.KCOnboarding.pages.length);
+    for (let i = 0; i < pages; i++) {
       await p.waitForTimeout(1600);
       await scan(p, `welcome page ${i + 1}`);
-      if (i < 3) await p.click("#onb-next");
+      if (i < pages - 1) await p.click("#onb-next");
     }
   }
   await p.evaluate(() => window.KCOnboarding && window.KCOnboarding.close());

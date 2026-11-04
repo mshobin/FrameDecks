@@ -67,7 +67,7 @@ the bottom; turn it **sideways** (or use a tablet) and the picture sits on the l
 | --- | --- |
 | **Top bar** | The meeting name and the **Connected** status, always visible |
 | **Hide all** | Hides everything on screen at once. It turns solid red while something is on screen |
-| **Live picture** | Exactly what is on screen, with a badge: **Off air**, **On screen**, **Black screen**, **Frozen** or **Emergency**. Its two buttons: **Spotlight** (touch the picture to point) and **Draw** |
+| **Live picture** | Exactly what is on screen, with a badge: **Off air**, **On screen**, **Black screen**, **Frozen** or **Emergency**. Its two buttons: **Spotlight** (touch the picture to point) and **Draw**. Since 9.7 the picture shows when the phone is sideways (and on a tablet held sideways); upright it is left out so Previous / Next and the Content have the room, and only the badge stays |
 | **On screen now** | *Frame 4 of 18*, the Frame's name and what it is showing, plus chips for **FrameDecks vCam**, **Recording**, **Black screen**, **Frozen** or drawings on screen |
 | **Previous / Next** | Move through the Frames, in order. **Next** is gold, shows the name of the Frame it will put on screen, and says **Start** before anything is live |
 
@@ -88,7 +88,8 @@ The **Emergency** screen is on the PC only. If it is on, the badge says **Emerge
 
 ## Spotlight from the phone
 
-1. Tap **Spotlight** on the live picture (or in **Tools**). The picture gets a gold edge.
+1. Tap **Spotlight** on the live picture (or in **Tools**). The picture fills the whole screen, on black; **Done**
+   brings the remote back.
 2. **Drag** a finger on the picture: the spotlight follows it on every screen, live. Lift your finger and it fades.
 3. **Tap** once for a quick circle that stays for a few seconds.
 4. Tap **Spotlight** again to turn it off, so touches scroll the page as usual.

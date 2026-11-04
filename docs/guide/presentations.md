@@ -361,11 +361,13 @@ You can change the keys in **Settings → Keyboard shortcuts → Command palette
 **Spotlight** is the command palette for the whole of Windows. It works when another program is in front, and when
 FrameDecks is hidden in the tray.
 
-1. Press **Alt+Space** anywhere. Spotlight opens in the middle of the screen where your mouse is, above everything,
-   as a small meeting remote.
-2. Press a button, or type to search: the results appear only once you type, and choose with **↑ / ↓** and **Enter**.
-   It finds the same things as the command palette. Clear the search and the remote comes back.
-3. **Esc**, or a click somewhere else, closes it.
+1. Press **Alt+Space** anywhere. Spotlight opens in the middle of the screen where your mouse is, above everything.
+   It opens only with its shortcut (or the tray's **Search**), never by itself when FrameDecks starts.
+2. Type to search: the results appear once you type, and you choose with **↑ / ↓** and **Enter**. It finds the same
+   things as the command palette.
+3. While a Frame is live, Spotlight is also a small meeting remote under the search field. When nothing is live it is
+   only the search field.
+4. **Esc**, or a click somewhere else, closes it.
 
 Only you see Spotlight. Like the Teleprompter, it is left out of screen sharing and recordings, even when you share
 the whole screen in Zoom, Teams or Google Meet.
@@ -377,13 +379,29 @@ the whole screen in Zoom, Teams or Google Meet.
 | Row | Buttons (keys while Spotlight is open) |
 |---|---|
 | **On screen** | Live, Off air, Black screen or Frozen, the Frame number and what comes next |
-| **FrameDecks** | **Previous** (Alt+←), **Next Frame** (Alt+→; **Start** when nothing is live), **Slide** back and forward for a PowerPoint or PDF on screen (Alt+↑ / Alt+↓), **Play / Pause** the video (Alt+P), **Hide all** (Alt+H), **Black** (Alt+B) |
+| **FrameDecks** | **Previous** (Alt+←), **Next Frame** (Alt+→), **Play / Pause** the video (Alt+P), **Hide all** (Alt+H), **Black** (Alt+B) |
+| **Content** | The questions, scriptures or slides of the live Frame, one at a time, like the phone remote: choose **Questions**, **Scriptures** or **Slides**, then **‹ ›** (Alt+↑ / Alt+↓) |
+| **Live tools** | **Spotlight** (Alt+L) and **Draw** (Alt+D) open the Share Window to point or draw on it (below), **Clear drawings** |
 | **Meeting** | Zoom, Microsoft Teams or Google Meet, whichever has a meeting open: **Mute** (Alt+M), **Camera** (Alt+V), **Share screen** (Alt+S), **Leave** (press twice), and the PC's volume (Alt+- / Alt+=) |
 | **Open** | **Studio**, **Teleprompter**, **Share Window**, **Phone remote** |
 
 The meeting buttons press the meeting app's own keyboard shortcut in its window, then give the focus back to the
 window you were in. Google Meet has no shortcut for sharing or leaving, so those buttons are off for Meet. A button is
 also off when no meeting is open. Windows only.
+
+### Draw and Spotlight on the Share Window
+
+Choose **Draw** or **Spotlight** in Spotlight (or type *draw* or *spotlight* in its search). The **Share Window** (the
+window you share in Zoom or Teams) opens, comes to the front, and Spotlight closes, so you can work on what everyone
+sees:
+
+- **Draw:** drag with the mouse. Keys **1**–**5** choose pen, highlighter, arrow, box or circle; **G**, **R** and **W**
+  choose gold, red or white; **Ctrl+Z** undoes, **Delete** clears.
+- **Spotlight:** the spotlight follows the mouse on every screen; a click circles that spot for a few seconds.
+- **Undo**, **Clear** and **Done** appear when you move the mouse near the top of the Share Window. **Esc** or
+  **Done** finishes, hides the drawings, and the Share Window moves and resizes as before.
+
+The drawings and the spotlight also show on FrameDecks vCam, the overlay pages and the phone remote.
 
 **Go Live**, **Next / Previous Frame**, **Hide all**, **Black screen**, **Freeze** and the **Teleprompter** run without
 bringing the main window back. Everything else opens the main window.

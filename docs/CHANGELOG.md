@@ -53,6 +53,27 @@ Versions before 4.9 (when the program had its earlier name) are described in the
 - The favicons, the tray icon and the small program-icon sizes (16–32 px) use a heavier version of the emblem, so it
   stays visible on light browser tabs and a light taskbar. Larger sizes are unchanged.
 
+## [9.7.0] - 2026-11-04
+
+Full notes: [docs/releases/v9.7.0.md](releases/v9.7.0.md). Phone sign-in recommendation (not built):
+[docs/architecture/remote-sign-in.md](architecture/remote-sign-in.md).
+
+### Added
+- Draw / Spotlight on the Share Window from Spotlight: `server.annotate_op` (`/api/app/annotate`, this PC only: mode,
+  add / set / undo / clear strokes, quick spot), `desktop_app.share_annotate` (opens the Share Window, hides
+  Spotlight), the native window takes the mouse in that mode (`vcam/present_window.py`: `button_rects` by mode,
+  `pic_point`, `thin`, hit test, annotate thread), and `app/present.html` does the same in WebView2.
+- Spotlight: the live Frame's Content one by one (`contentStep`, Alt+↑/↓), Live tools row, palette commands
+  `cmd:sharedraw` / `cmd:sharespot`.
+- Welcome page **Going live** before Finish (`app/js/onboarding.js`, `.art-live`).
+
+### Changed
+- Spotlight shows its remote only while a Frame is live (`body.spotlight:not(.spr-live) .spr{display:none}`); never
+  opens by itself (`spot.events.shown` hides it unless opened by the shortcut).
+- Main window `maximized=True`; `show()` restores only a minimized window.
+- Phone remote: the live picture only sideways (portrait hides it and does not load it; `#onair-mini`); Spotlight
+  fills the screen (`body.spotting .preview{position:fixed…}`).
+
 ## [9.6.0] - 2026-11-04
 
 Full notes: [docs/releases/v9.6.0.md](releases/v9.6.0.md).

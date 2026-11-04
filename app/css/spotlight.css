@@ -26,6 +26,8 @@ body.spotlight .pal.spr-compact{height:auto}
 .pal.spr-compact .spr{border-bottom:0}
 
 .spr{display:flex;flex-direction:column;gap:12px;padding:4px 16px 16px;border-bottom:1px solid var(--line-soft,var(--line))}
+/* 9.7 nothing live: only the search field (the remote appears with Go Live) */
+body.spotlight:not(.spr-live) .spr{display:none}
 .pal.spr-typing .spr{display:none}
 /* what is on screen: one quiet card */
 .spr-now{display:flex;align-items:center;gap:10px;min-height:44px;padding:8px 12px 8px 8px;border:1px solid var(--line-soft,var(--line));border-radius:12px;
@@ -72,7 +74,7 @@ body.spotlight .pal.spr-compact{height:auto}
 /* the meeting row: its app's name, its four buttons, then the PC's volume as one segmented control */
 .spr-mt{align-items:center}
 .spr-tag{flex:none;width:92px;font-size:12px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.spr-mt .spr-b{min-height:84px}
+.spr-mt .spr-b,.spr-tools .spr-b{min-height:84px}
 .spr-gap{flex:0 0 4px}
 .spr-seg{flex:none;display:flex;align-self:stretch;padding:3px;gap:2px;border:1px solid var(--line-soft,var(--line));border-radius:12px;background:var(--panel-2,var(--raised));box-shadow:inset 0 1px 0 var(--spr-hi)}
 .spr-mt .spr-seg .spr-b{flex:0 0 44px;height:auto;min-height:0;border:0;border-radius:8px;background:transparent;box-shadow:none}
@@ -81,6 +83,30 @@ body.spotlight .pal.spr-compact{height:auto}
 .spr-seg .spr-b:hover:not(:disabled) .spr-ic{color:var(--ink)}
 .spr-b.icon .spr-l{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 .spr-b.icon kbd{display:none}
+/* 9.7 the Content of the live Frame, one by one: Questions / Scriptures / Slides, then ‹ title › */
+.spr-step{display:flex;align-items:center;gap:10px;min-height:56px;padding:6px 8px;border:1px solid var(--line-soft,var(--line));border-radius:12px;
+  background:var(--panel-2,var(--raised));box-shadow:inset 0 1px 0 var(--spr-hi)}
+.spr-step[hidden]{display:none}
+.spr-kinds{flex:none;display:flex;gap:4px}
+.spr-kinds:empty{display:none}
+.spr-kinds button{min-height:32px;padding:0 12px;border:1px solid var(--line-soft,var(--line));border-radius:999px;background:transparent;color:var(--muted);
+  font:inherit;font-size:13px;font-weight:700;cursor:pointer}
+.spr-kinds button[aria-checked="true"]{background:var(--lv-content-soft,var(--raised));border-color:var(--lv-content,var(--line));color:var(--ink)}
+.spr-kinds button:focus-visible,.spr-round:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.spr-round{flex:none;display:grid;place-items:center;width:44px;height:44px;border-radius:999px;border:1px solid var(--line-soft,var(--line));
+  background:var(--raised);color:var(--ink);cursor:pointer;box-shadow:inset 0 1px 0 var(--spr-hi),0 1px 2px var(--spr-sh);transition:background-color .14s ease,transform .08s ease}
+.spr-round:hover{background:var(--hover-2)}
+.spr-round:active{transform:scale(.95)}
+.spr-step-t{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:2px;text-align:center}
+.spr-step-t b{font-size:15px;font-weight:700;color:var(--ink)}
+.spr-step-t small{max-width:100%;font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.spr-step-t small.on{color:var(--live);font-weight:700}
+/* 9.7 Live tools: Draw and Spotlight open the Share Window */
+.spr-tools{align-items:center}
+.spr-tools .spr-ic{background:var(--lv-content-soft,var(--spr-well));color:var(--lv-content,var(--ink))}
+.spr-tools .spr-b.on{background:var(--lv-content-soft,var(--raised));border-color:var(--lv-content,var(--line));color:var(--ink)}
+.spr-tools .spr-b.on .spr-ic{background:var(--lv-content);color:var(--surface)}
+
 /* shortcuts into FrameDecks: small pills */
 .spr-apps{flex-wrap:wrap;gap:6px;padding-top:2px}
 .spr-b.chip{flex:0 0 auto;min-height:36px;flex-direction:row;gap:6px;padding:0 14px 0 6px;border-radius:999px;background:transparent;box-shadow:none}

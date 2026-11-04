@@ -380,8 +380,9 @@ def main():
 
     webview.settings["ALLOW_DOWNLOADS"] = True                 # backups and Excel exports
     webview.settings["OPEN_EXTERNAL_LINKS_IN_BROWSER"] = True  # WhatsApp etc. open in your browser
+    # 9.7 the main window opens maximized: it fills the screen (the taskbar stays), after an install and every start
     window = webview.create_window(DISPLAY_NAME, url, width=1440, height=900, min_size=(1000, 640),
-                                   background_color="#070c18", text_select=True)
+                                   background_color="#070c18", text_select=True, maximized=True)
     state["window"] = window
     server.DESKTOP["shell"] = "webview"
     state["dark"] = True
@@ -413,7 +414,9 @@ def main():
     def show():
         try:
             window.show()
-            window.restore()
+            hwnd = window_handle(window)
+            if not (dw.IS_WIN and hwnd) or dw.user32.IsIconic(hwnd):   # minimized: back as it was (maximized stays maximized)
+                window.restore()
         except Exception as _e:
             _swallowed("desktop_app.show", _e)
 
@@ -496,7 +499,8 @@ def main():
                 state["present"] = NativePresentation(
                     comp, eng.keep_awake, lambda: server.vcam_settings().get("presentFps", 15), server.APP / "fonts",
                     on_closed=lambda: (state.update(present=None) if isinstance(state.get("present"), NativePresentation)
-                                       and not state["present"].is_open() else None, refresh_tray()))
+                                       and not state["present"].is_open() else None, refresh_tray()),
+                    annotator=share_annotator)
                 print("Presentation window: native (no browser engine)")
                 refresh_tray()
                 return
@@ -655,6 +659,19 @@ def main():
                                  on_top=True, text_select=False, transparent=True)     # 9.6 Windows' frosted glass behind it
     state["spot_ready"] = False
 
+    def spot_shown():
+        """9.7 Spotlight appears only from its shortcut (or the tray's Search): never by itself at start, after an
+        install or when FrameDecks is opened again."""
+        if not state.get("spot_open"):
+            try:
+                spot.hide()
+            except Exception as _e:
+                _swallowed("desktop_app.spot_shown", _e)
+    try:
+        spot.events.shown += spot_shown
+    except Exception as _e:
+        _swallowed("desktop_app.main", _e)
+
     def spotlight(on=True):
         hwnd = window_handle(spot)
         if on == "toggle":
@@ -796,6 +813,35 @@ def main():
                 _swallowed("desktop_app.present_fullscreen", _e)
         return bool(state.get("present_fs"))
 
+    def share_annotator(d):
+        """9.7 the native Share Window's strokes and pointer, into the shared live state."""
+        if d.get("op") == "pointer":
+            return server.pointer_set({"on": bool(d.get("on")), "x": d.get("x"), "y": d.get("y")})
+        return server.annotate_op(d)
+
+    def share_annotate(mode):
+        """9.7 Draw or Spotlight from Spotlight: the Share Window (the one shared in Zoom or Teams) opens, comes to the
+        front and takes the mouse in that mode; '' gives it back its usual behaviour (drag to move)."""
+        if mode:
+            spotlight(False)
+            present(True)
+        w = state.get("present")
+        if not w:
+            return
+        if isinstance(w, NativePresentation):
+            w.set_annotate(mode, server.ANNOTATE["tool"], server.ANNOTATE["c"])
+            if mode:
+                dw.bring_to_front(w.hwnd)
+            return
+        try:
+            w.evaluate_js("window.KCShareAnnotate && KCShareAnnotate(%s)" % json.dumps(mode))
+            if mode:
+                w.restore()
+                w.show()
+                dw.bring_to_front(window_handle(w))
+        except Exception as _e:
+            _swallowed("desktop_app.share_annotate", _e)
+
     def present_open():
         w = state.get("present")
         return bool(w) and (w.is_open() if isinstance(w, NativePresentation) else True)
@@ -811,7 +857,7 @@ def main():
                           teleprompter_open=lambda: bool(state.get("teleprompter")), spotlight=spotlight,
                           palette_index=palette_index, palette_run=palette_run, open_settings=open_settings, win=win,
                           settings_changed=settings_changed, memory_popup=popup_show, popup_op=popup_op,
-                          popup_state=popup_state)
+                          popup_state=popup_state, share_annotate=share_annotate)
     state["tray"] = build_tray(show, quit_app)
     apply_hotkey(settings.get("spotlightKey", "Alt+Space"))
     # "Light on graphics card" (Settings > General, on by default): the app's windows are drawn without the GPU.

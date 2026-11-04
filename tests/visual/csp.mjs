@@ -37,7 +37,8 @@ for (const page of PAGES) {
   if (page === "dashboard.html") {
     await p.evaluate(() => document.querySelectorAll(".app-modal-back").forEach((m) => m.remove()));
     await p.evaluate(() => { window.KCOnboarding.open(); });                // 9.5 the Welcome flow, then away
-    for (let i = 0; i < 3; i++) { await p.waitForTimeout(500); await p.click("#onb-next"); }
+    const pages = await p.evaluate(() => window.KCOnboarding.pages.length);
+    for (let i = 0; i < pages - 1; i++) { await p.waitForTimeout(500); await p.click("#onb-next"); }
     await p.evaluate(() => window.KCOnboarding.close());
     for (const tab of ["studio", "members", "birthdays", "email", "settings"]) {
       await p.evaluate((t) => window.KCSetTab(t), tab);

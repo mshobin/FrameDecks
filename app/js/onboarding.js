@@ -43,6 +43,11 @@ var PAGES = [
    steps: [['Select a Deck. Its settings open on the right.'],
            ['Choose ', b('+ Question'), ' or ', b('+ Scripture'), '. Type a reference and ', b('Fetch'), ' (ESV, KJV or WEB).'],
            ['Live, the ', b('◀ ▶'), ' arrows step through them, one at a time.']]},
+  {id: 'live', kicker: 'Going live', title: 'Your remote is one key away',
+   lede: 'Spotlight opens anywhere with Alt+Space, even with FrameDecks in the tray. While you are live it is your remote, and only you see it, even when you share your screen.',
+   steps: [['Press ', b('Alt+Space'), ' anywhere. Type to search, or Go Live.'],
+           ['Live, Spotlight shows ', b('Next Frame'), ', the ', b('◀ ▶'), ' Content arrows, ', b('Hide all'), ' and your meeting’s Mute and Camera.'],
+           ['Choose ', b('Draw'), ' or ', b('Spotlight'), ': the Share Window opens and you draw or point on it with the mouse. ', b('Esc'), ' when you are done.']]},
   {id: 'finish', kicker: 'All set', title: 'You’re ready',
    lede: 'Frame › Deck › Content. That is the whole idea, numbered for you: 1\u00a0·\u00a01.1\u00a0·\u00a01.1.1, and coloured the same way in the Studio.', steps: []}
 ];
@@ -79,6 +84,15 @@ function art(id){
       h('div', {cls: 'a-hl'})]),
     part('a-remote', 4, [h('span', {cls: 'a-round', html: I('chevron-left', 16)}), h('div', {}, [h('b', {cls: 'a-q'}, [h('span', {text: 'Question 1 of 3'}), h('span', {text: 'Question 2 of 3'}), h('span', {text: 'Question 3 of 3'})])]),
       h('span', {cls: 'a-round', html: I('chevron-right', 16)})])]);
+  if (id === 'live') return h('div', {cls: 'onb-art art-live', 'aria-hidden': 'true'}, [
+    part('a-screen share', 0, [h('div', {cls: 'a-screen-in'}, [h('small', {text: 'Share Window'}), h('b', {text: 'What stood out to you?'}), h('span', {cls: 'a-ink'})]),
+      h('span', {cls: 'a-spot'})]),
+    part('a-spl', 2, [
+      h('div', {cls: 'a-spl-search', html: I('search', 14) + '<span>Search or run anything…</span><kbd>Alt+Space</kbd>'}),
+      h('div', {cls: 'a-spl-now'}, [h('span', {cls: 'a-live'}, [h('i'), h('span', {text: 'Live'})]), h('span', {text: 'Frame 3 of 5 · Discussion'})]),
+      h('div', {cls: 'a-spl-row'}, [h('span', {cls: 'a-key', html: I('chevron-left', 14) + 'Previous'}), h('span', {cls: 'a-key gold', html: 'Next Frame' + I('chevron-right', 14)})]),
+      h('div', {cls: 'a-spl-row'}, [h('span', {cls: 'a-key round', html: I('chevron-left', 14)}), h('span', {cls: 'a-key flat', text: 'Question 2 of 3'}), h('span', {cls: 'a-key round', html: I('chevron-right', 14)})]),
+      part('a-spl-row tools', 4, [h('span', {cls: 'a-key tool', html: I('circle-dot', 14) + 'Spotlight'}), h('span', {cls: 'a-key tool on', html: I('pencil', 14) + 'Draw'})])])]);
   return h('div', {cls: 'onb-art art-finish', 'aria-hidden': 'true'}, [
     part('a-tree', 0, [
       part('t-node f', 1, [h('i', {text: '1'}), h('span', {text: 'Frame'})]),

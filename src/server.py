@@ -42,7 +42,7 @@ import updater   # 7.0: updates from FrameDecks servers (checked, silent, with r
 from media_names import safe_name   # 9.1.2 media file names are never paths
 import memory    # 9.0: Memory Cards in the FrameDecks vCam chat overlay (docs/architecture/memory-cards.md)
 
-APP_VERSION = "9.6.0"
+APP_VERSION = "9.7.0"
 STARTED_AT = time.time()
 FROZEN = getattr(sys, "frozen", False)          # True inside the installed Windows app
 HERE = Path(sys.executable).resolve().parent if FROZEN else Path(__file__).resolve().parent.parent   # the repository root (this file is in src/)
@@ -585,6 +585,98 @@ def pointer_set(d):
             return st
         update_state(follow)
     return pointer_now()
+
+
+# ---------- 9.7 Draw and Spotlight on the Share Window, from Spotlight (docs/guide/presentations.md) ----------
+# The presenter chooses Draw or Spotlight in Spotlight (Alt+Space); the Share Window (the window shared in Zoom or
+# Teams) opens in that mode and takes the mouse: drawings go into live.ink and the spotlight follows the pointer
+# (POST /api/pointer), exactly as from the Studio's Annotate or the phone. The native window (vcam/present_window.py)
+# and present.html both call annotate_op, so the rules live in one place (the same as js/store.js KCScenes.ink).
+INK_TOOLS = ("pen", "highlighter", "arrow", "line", "rect", "ellipse")
+ANNOTATE = {"mode": "", "tool": "pen", "c": "#e8b931"}
+_HEX = re.compile(r"#[0-9a-fA-F]{6}")
+
+
+def _clean_ink_item(it):
+    if not isinstance(it, dict) or it.get("t") not in INK_TOOLS or not isinstance(it.get("p"), list) or not it["p"]:
+        return None
+    pts = []
+    for q in it["p"][:1500]:
+        if isinstance(q, (list, tuple)) and len(q) >= 2:
+            pts.append([round(_num(q[0], -0.5, 1.5, 0.0), 4), round(_num(q[1], -0.5, 1.5, 0.0), 4)])
+    if not pts:
+        return None
+    c = str(it.get("c") or "")
+    return {"t": it["t"], "c": c if _HEX.fullmatch(c) else "#e8b931", "w": _num(it.get("w"), 0.001, 0.05, 0.006), "p": pts}
+
+
+def annotate_op(d):
+    """POST /api/app/annotate (this PC only). {op: 'mode', mode: 'draw'|'spot'|'', tool?, c?, hide?} switches the Share
+    Window's tool; {op: 'add', item} / {op: 'set', i, item} (a stroke as it is drawn) / 'undo' / 'clear' change the
+    drawings; {op: 'spot', x, y} a quick circle. Returns the mode and the index of an added stroke."""
+    if not isinstance(d, dict):
+        raise ValueError("Invalid data")
+    op, out = str(d.get("op") or ""), {}
+    if op == "get":
+        return dict(ANNOTATE)
+    if op == "mode":
+        mode = str(d.get("mode") or "")
+        if mode not in ("", "draw", "spot"):
+            raise ValueError("Unknown tool")
+        if d.get("tool") in INK_TOOLS:
+            ANNOTATE["tool"] = d["tool"]
+        if _HEX.fullmatch(str(d.get("c") or "")):
+            ANNOTATE["c"] = str(d["c"]).lower()
+        was, ANNOTATE["mode"] = ANNOTATE["mode"], mode
+        if was == "spot" and mode != "spot":
+            pointer_set({"on": False})
+        ink_on = True if mode == "draw" else (False if was == "draw" and d.get("hide") else None)
+        if ink_on is not None:
+            def ink(st):
+                k = st.setdefault("live", {}).setdefault("ink", {"on": False, "items": [], "undone": []})
+                k["on"] = ink_on
+                return st
+            update_state(ink)
+        hook = DESKTOP.get("share_annotate")
+        if hook:
+            hook(mode)
+        return dict(ANNOTATE)
+    if op == "spot":
+        spot = {"id": "s%x" % int(time.time() * 1000), "x": _num(d.get("x"), 0, 1, 0.5), "y": _num(d.get("y"), 0, 1, 0.5),
+                "w": 0, "h": 0, "c": ANNOTATE["c"], "size": 1, "dur": 3, "k": 60, "style": "disc"}
+
+        def put(st):
+            st.setdefault("live", {})["spot"] = spot
+            return st
+        update_state(put)
+        return {"ok": True}
+    if op not in ("add", "set", "undo", "clear", "off", "on"):
+        raise ValueError("Unknown action")
+    item = _clean_ink_item(d.get("item")) if op in ("add", "set") else None
+    if op in ("add", "set") and not item:
+        raise ValueError("Invalid stroke")
+
+    def change(st):
+        k = st.setdefault("live", {}).setdefault("ink", {"on": False, "items": [], "undone": []})
+        items, undone = k.setdefault("items", []), k.setdefault("undone", [])
+        if op == "add":
+            items.append(item)
+            del items[:-300]
+            k["undone"], k["on"] = [], True
+            out["i"] = len(items) - 1
+        elif op == "set":
+            i = d.get("i")
+            if isinstance(i, int) and 0 <= i < len(items):
+                items[i] = item
+        elif op == "undo" and items:
+            undone.append(items.pop())
+        elif op == "clear" and items:
+            k["undone"], k["items"] = list(reversed(items)), []
+        elif op in ("on", "off"):
+            k["on"] = op == "on"
+        return st
+    update_state(change)
+    return dict(ANNOTATE, **out)
 
 
 def remote_memory_body():
@@ -2759,6 +2851,11 @@ class Handler(BaseHTTPRequestHandler):
             import meeting_keys
             try:
                 return ok(meeting_keys.send(str(data.get("act") or "")))
+            except ValueError as e:
+                return bad(str(e))
+        if action == "annotate":                            # 9.7 Draw / Spotlight on the Share Window (this PC)
+            try:
+                return ok(annotate_op(data))
             except ValueError as e:
                 return bad(str(e))
         if action == "skip-import":

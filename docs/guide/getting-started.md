@@ -53,7 +53,7 @@ A webcam is optional. You need one only if people should see you on the FrameDec
 
 1. Open **FrameDecks** from the desktop icon.
 2. The first time (also after an update or a reinstall, until you finish it once), **Welcome to FrameDecks** fills the
-   screen: four short pages that show how a meeting is built.
+   screen: five short pages that show how a meeting is built and how to run it with Spotlight (Alt+Space).
    - **Adding Frames**: a Frame is one moment on screen. **+ Frame** adds one; **Quick Start** adds a ready-made set.
    - **Adding Decks**: a Deck is one block on a Frame (a scripture, a question, text, a picture, a video, a timer or
      slides). **+ Deck** adds one to the selected Frame.

@@ -81,7 +81,8 @@ for (const w of [1920, 1440, 1280, 1100]) {
   check(first.open && first.full && first.behind && first.text === "Build your meeting from Frames",
     `first run: the Welcome flow, full screen, focus on its title, the window behind waits (${JSON.stringify(first)})`);
   await shot(p, "first-run");
-  for (let i = 0; i < 3; i++) { await p.click("#onb-next"); await p.waitForTimeout(400); }
+  const pages = await p.evaluate(() => window.KCOnboarding.pages.length);      // 9.7: five pages (Going live)
+  for (let i = 0; i < pages - 1; i++) { await p.click("#onb-next"); await p.waitForTimeout(400); }
   check(await p.locator("#onb-import").isVisible(), "its last page offers the earlier version's data");
   await p.keyboard.press("Escape");
   check(await p.evaluate(() => window.KCOnboarding.isOpen()), "Escape never closes it by accident (Skip does)");

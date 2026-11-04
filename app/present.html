@@ -25,14 +25,28 @@
         background:rgba(10,18,34,.8);padding:6px 12px;border-radius:8px;opacity:0;transition:opacity .2s}
   body.ui .hint{opacity:1}
   .msg{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;color:#8a97b3;font-size:15px;pointer-events:none}
+  /* 9.7 Draw / Spotlight (chosen in Spotlight): the picture takes the mouse; Undo, Clear and Done near the top */
+  #ink{position:fixed;display:none;touch-action:none;z-index:3}
+  body.ann #ink{display:block;cursor:crosshair}
+  body.ann{cursor:crosshair}
+  .bar .ann-b{display:none}
+  body.ann .bar .ann-b{display:inline-flex}
+  body.ann .bar #exit{display:none}
+  body.ann-spot .bar .draw-only{display:none}
+  .bar .done{background:rgba(40,140,84,.92)}
+  body.ann .hint{display:none}
 </style>
 </head>
 <body>
 <img id="pic" alt="FrameDecks Share Window">
 <iframe id="fallback" title="Overlays" tabindex="-1"></iframe>
+<canvas id="ink" aria-label="Draw on the picture"></canvas>
 <div class="msg" id="msg">Starting the presentation…</div>
 <div class="bar" role="toolbar" aria-label="Presentation controls">
+  <button type="button" id="a-undo" class="ann-b draw-only" title="Undo (Ctrl+Z)">Undo</button>
+  <button type="button" id="a-clear" class="ann-b draw-only" title="Clear (Delete)">Clear</button>
   <button type="button" id="fs" title="Full screen (F)">⛶ Full screen</button>
+  <button type="button" id="a-done" class="ann-b done" title="Done (Esc)">✓ Done</button>
   <button type="button" id="exit" class="x" title="Close this window (Esc)">✕ Exit</button>
 </div>
 <div class="hint">Share this window in Zoom: Share Screen → <b>FrameDecks Share Window</b>. Esc or ✕ to exit.</div>
@@ -56,9 +70,10 @@
     }).catch(function(){ msg.textContent = 'Reconnecting…'; msg.style.display = 'flex'; retry = setTimeout(connect, 2000); });
   });
   connect();
-  /* Controls: shown for 2 seconds after the mouse moves; nothing runs while you're not moving it. */
+  /* Controls: shown for 2 seconds after the mouse moves; nothing runs while you're not moving it. While drawing or
+     with the Spotlight (9.7) only with the mouse near the top, so the audience rarely sees them. */
   function showUi(){ document.body.classList.add('ui'); clearTimeout(uiT); uiT = setTimeout(function(){ document.body.classList.remove('ui'); }, 2000); }
-  document.addEventListener('mousemove', showUi, {passive: true});
+  document.addEventListener('mousemove', function(e){ if (!ann.mode || (e.clientY < 72 && !ann.stroke)) showUi(); }, {passive: true});
   document.addEventListener('touchstart', showUi, {passive: true});
   /* Full Screen: in the installed app the frameless window itself fills the screen (no frame, no title bar);
      in a browser popup the page's own full screen is used. */
@@ -84,7 +99,73 @@
   }
   document.getElementById('fs').addEventListener('click', fullscreen);
   document.getElementById('exit').addEventListener('click', exit);
-  document.addEventListener('dblclick', fullscreen);
+  document.addEventListener('dblclick', function(){ if (!ann.mode) fullscreen(); });
+
+  /* ---------- 9.7 Draw and Spotlight on this window (the same rules as the native window: server.annotate_op) ---------- */
+  var ann = {mode: '', tool: 'pen', c: '#e8b931', stroke: null, i: null, last: 0, ptrAt: 0, down: null}, cv = document.getElementById('ink');
+  function annPost(body){ return fetch('api/app/annotate', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body)}).then(function(r){ return r.json(); }); }
+  function pointer(on, p){ fetch('api/pointer', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(on ? {on: true, x: p[0], y: p[1]} : {on: false})}).catch(function(){}); }
+  function fit(){                                     // the canvas lies exactly over the 16:9 picture
+    var W = innerWidth, H = innerHeight, k = Math.min(W / 16, H / 9), w = Math.round(16 * k), h = Math.round(9 * k);
+    cv.style.left = Math.round((W - w) / 2) + 'px'; cv.style.top = Math.round((H - h) / 2) + 'px';
+    cv.style.width = w + 'px'; cv.style.height = h + 'px'; cv.width = w; cv.height = h;
+  }
+  function pt(e){ var r = cv.getBoundingClientRect(); return [Math.round((e.clientX - r.left) / r.width * 1e4) / 1e4, Math.round((e.clientY - r.top) / r.height * 1e4) / 1e4]; }
+  function drawLocal(){                                // the stroke being drawn, until the picture shows it
+    var c = cv.getContext('2d'); c.clearRect(0, 0, cv.width, cv.height);
+    var s = ann.stroke; if (!s) return;
+    c.strokeStyle = s.c; c.lineWidth = Math.max(2, s.w * cv.height); c.lineCap = c.lineJoin = 'round';
+    c.globalAlpha = s.t === 'highlighter' ? 0.4 : 1;
+    var p = s.p, a = p[0], b = p[p.length - 1], X = function(q){ return q[0] * cv.width; }, Y = function(q){ return q[1] * cv.height; };
+    c.beginPath();
+    if (s.t === 'rect') c.rect(X(a), Y(a), X(b) - X(a), Y(b) - Y(a));
+    else if (s.t === 'ellipse') c.ellipse((X(a) + X(b)) / 2, (Y(a) + Y(b)) / 2, Math.abs(X(b) - X(a)) / 2, Math.abs(Y(b) - Y(a)) / 2, 0, 0, 7);
+    else { c.moveTo(X(a), Y(a)); (s.t === 'pen' || s.t === 'highlighter' ? p : [a, b]).forEach(function(q){ c.lineTo(X(q), Y(q)); }); }
+    c.stroke();
+  }
+  function thin(p){ if (p.length <= 600) return p; var k = Math.ceil(p.length / 600); return p.filter(function(_, i){ return i % k === 0; }).concat([p[p.length - 1]]); }
+  function sendStroke(){ if (ann.i == null || !ann.stroke) return; annPost({op: 'set', i: ann.i, item: {t: ann.stroke.t, c: ann.stroke.c, w: ann.stroke.w, p: thin(ann.stroke.p.slice())}}).catch(function(){}); }
+  window.KCShareAnnotate = function(mode, tool, c){
+    if (ann.mode === 'spot' && mode !== 'spot') pointer(false);
+    ann.mode = mode === 'draw' || mode === 'spot' ? mode : ''; if (tool) ann.tool = tool; if (c) ann.c = c;
+    ann.stroke = null; document.body.classList.toggle('ann', !!ann.mode); document.body.classList.toggle('ann-spot', ann.mode === 'spot');
+    fit(); drawLocal(); if (ann.mode) showUi();
+  };
+  annPost({op: 'get'}).then(function(d){ if (d && d.mode) KCShareAnnotate(d.mode, d.tool, d.c); }).catch(function(){});
+  window.addEventListener('resize', fit);
+  cv.addEventListener('pointerdown', function(e){
+    if (!ann.mode) return; e.preventDefault(); try { cv.setPointerCapture(e.pointerId); } catch(err){}
+    var p = pt(e);
+    if (ann.mode === 'spot'){ ann.down = {x: e.clientX, y: e.clientY, p: p}; return; }
+    ann.stroke = {t: ann.tool, c: ann.c, w: 0.006, p: [p, p]}; ann.i = null; drawLocal();
+    annPost({op: 'add', item: ann.stroke}).then(function(d){ ann.i = d && d.i; }).catch(function(){});
+  });
+  cv.addEventListener('pointermove', function(e){
+    if (ann.mode === 'spot'){ if (Date.now() - ann.ptrAt > 30){ ann.ptrAt = Date.now(); pointer(true, pt(e)); } return; }
+    if (!ann.stroke) return;
+    var p = pt(e); if (ann.stroke.t === 'pen' || ann.stroke.t === 'highlighter') ann.stroke.p.push(p); else ann.stroke.p[1] = p;
+    drawLocal();
+    if (Date.now() - ann.last > 100){ ann.last = Date.now(); sendStroke(); }
+  });
+  cv.addEventListener('pointerup', function(e){
+    if (ann.mode === 'spot'){ var d = ann.down; ann.down = null; if (d && Math.abs(e.clientX - d.x) + Math.abs(e.clientY - d.y) < 6) annPost({op: 'spot', x: d.p[0], y: d.p[1]}).catch(function(){}); return; }
+    sendStroke(); ann.stroke = null; setTimeout(drawLocal, 400);
+  });
+  cv.addEventListener('pointerleave', function(){ if (ann.mode === 'spot') pointer(false); });
+  function done(){ annPost({op: 'mode', mode: '', hide: true}).catch(function(){}); KCShareAnnotate(''); }
+  document.getElementById('a-undo').addEventListener('click', function(){ annPost({op: 'undo'}).catch(function(){}); });
+  document.getElementById('a-clear').addEventListener('click', function(){ annPost({op: 'clear'}).catch(function(){}); });
+  document.getElementById('a-done').addEventListener('click', done);
+  var TOOLS = {'1': 'pen', '2': 'highlighter', '3': 'arrow', '4': 'rect', '5': 'ellipse'}, COLS = {g: '#e8b931', r: '#ff4b4b', w: '#ffffff'};
+  document.addEventListener('keydown', function(e){
+    if (!ann.mode) return;
+    var k = e.key.toLowerCase();
+    if (e.key === 'Escape'){ e.preventDefault(); e.stopImmediatePropagation(); done(); }
+    else if ((e.ctrlKey || e.metaKey) && k === 'z'){ e.preventDefault(); e.stopImmediatePropagation(); annPost({op: 'undo'}).catch(function(){}); }
+    else if (e.key === 'Delete'){ e.stopImmediatePropagation(); annPost({op: 'clear'}).catch(function(){}); }
+    else if (TOOLS[e.key]){ e.stopImmediatePropagation(); ann.tool = TOOLS[e.key]; }
+    else if (COLS[k] && !e.ctrlKey){ e.stopImmediatePropagation(); ann.c = COLS[k]; }
+  }, true);
   document.addEventListener('keydown', function(e){
     if (e.key === 'Escape'){ e.preventDefault(); exit(); }
     else if (e.key === 'f' || e.key === 'F' || e.key === 'F11'){ e.preventDefault(); fullscreen(); }

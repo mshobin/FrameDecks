@@ -63,6 +63,8 @@ function commands(){
     ['blackout', 'Black screen on / off', 'blackout', function(){ if (PT) PT.blackout(); }, 'K'],
     ['freeze', 'Freeze the picture on / off', 'hold', function(){ if (PT) PT.freeze(); }, 'F'],
     ['annotate', 'Annotate on / off', 'draw pen ink', function(){ if (PT) PT.annotate(); }, 'D'],
+    ['sharedraw', 'Draw on the Share Window', 'draw pen ink annotate live tools share window zoom teams meeting', function(){ post('annotate', {op: 'mode', mode: 'draw'}); }],   /* 9.7 */
+    ['sharespot', 'Spotlight on the Share Window', 'spotlight pointer point laser annotate live tools share window zoom teams meeting', function(){ post('annotate', {op: 'mode', mode: 'spot'}); }],
     ['prompter', 'Teleprompter on / off', 'script notes prompter speaker overlay zoom teams on top', function(){ if (TP) TP.toggle(); }, 'R'],
     ['capture', 'Capture copies on / off (Memory Cards)', 'memory card chat overlay copy clipboard capture zoom teams chatgpt claude copilot slack discord', function(){ if (window.KCMemory) window.KCMemory.toggleCapture(); }],
     ['share', 'Share Window (Presentation window)', 'present window zoom share screen', function(){ studio(); click($('s2-present')); }],
@@ -242,6 +244,9 @@ function update(){
 function bible(ref){ studio(); if (W()) W().fetchVerse(ref); }
 function choose(it){
   if (it.kind !== 'bible') remember(it);
+  if (STANDALONE && (it.key === 'cmd:sharedraw' || it.key === 'cmd:sharespot' || it.key === 'cmd:annotate')){   // 9.7 the Share Window opens for it
+    post('annotate', {op: 'mode', mode: it.key === 'cmd:sharespot' ? 'spot' : 'draw'}); input.value = ''; return;
+  }
   if (STANDALONE){                                                    // Spotlight: the main window does it
     post('palette-run', {key: it.key, bg: !!it.bg}); input.value = ''; return;
   }

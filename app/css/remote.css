@@ -340,3 +340,21 @@ body:has(.app:not([hidden])){overflow:hidden}
 .pic-btn{box-shadow:inset 0 1px 0 var(--hi)}
 .hideall{box-shadow:inset 0 1px 0 var(--hi)}
 @media (prefers-reduced-motion:reduce){ .nav-btn,.tool,.round,.hideall{transition:none} }
+
+/* ---------- 9.7 The live picture only sideways; Spotlight takes the whole screen ----------
+ * Upright, the picture is left out so Previous / Next, the Content and the tabs have the room; a small On screen
+ * badge stays. Spotlight (from the picture or Tools) shows the picture as large as the screen allows, on black, with
+ * Done; Draw already opens its own full-screen pad. */
+.air-mini{position:static;display:none;align-self:flex-start;margin-bottom:2px}
+@media (orientation:portrait){
+  body:not(.spotting) .stage .preview{display:none}
+  .air-mini{display:inline-flex}
+}
+body.spotting::before{content:'';position:fixed;inset:0;z-index:54;background:#000}
+body.spotting .preview{position:fixed;z-index:55;left:50%;top:50%;width:min(100vw,calc(100dvh * 16 / 9));height:auto;transform:translate(-50%,-50%);
+  border-radius:0;border:0;box-shadow:none}
+body.spotting #pic-draw{display:none}
+body.spotting .pic-tools{bottom:max(10px,env(safe-area-inset-bottom));right:max(10px,env(safe-area-inset-right))}
+body.spotting #pic-spot{background:var(--live);border-color:var(--live);color:#06210f;min-height:48px;padding:0 18px;font-size:16px}
+body.spotting .spot-hint{top:auto;bottom:max(14px,env(safe-area-inset-bottom));left:12px;right:150px;text-align:left}
+body.spotting{overflow:hidden}
