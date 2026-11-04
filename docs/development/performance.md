@@ -82,3 +82,29 @@ What changed:
 
 Budget (`tests/visual/perf.mjs`): the welcome at 45 fps or more with no frame over 120 ms; the Studio and the
 remote under 25 % busy at rest.
+
+## 9.10.2: the Command Center
+
+It runs beside Zoom, Teams or a browser, often on the same older PC, so it is measured the same way (no graphics
+card, processor slowed 4x; `tests/visual/perf.mjs`).
+
+| | 9.10.1 | 9.10.2 |
+|---|---|---|
+| At rest | 3 % busy | 2 % |
+| Opening a chip | 29 % busy, worst frame 100 ms | **15 %**, worst 33 ms |
+| Moving between chips (five in three seconds) | 44 % busy, 399 ms of style | **29 %**, 266 ms, no long frames |
+
+What changed:
+
+- **The window never resizes.** It keeps one see-through size (`SPOT_H` in `desktop_app.py`); resizing the window
+  while a panel opened relaid the whole page and the WebView on every chip.
+- **Only transform and opacity move.** The panel unfolded by animating its height (`grid-template-rows`), was revealed
+  with an animated `clip-path` circle, and its buttons came into focus from `filter: blur()`; each of those costs the
+  processor on every frame without a graphics card. The panel now shows at once and rises and grows from the chosen
+  chip; its glow is a radial gradient instead of a blur filter; the icons have no drop-shadow filter.
+- **Fewer moving parts.** The buttons came in one by one, each with its icon; they now come in together, so the grid
+  moves as one piece.
+- **Built once.** Each chip's panel is built the first time and kept; the pointer light updates once a frame.
+- Ready before it shows: the window is made see-through when it is created, so the first open no longer flashes grey.
+
+Budget: opening a chip and moving between chips at 45 fps or more with no frame over 120 ms; at rest under 25 % busy.

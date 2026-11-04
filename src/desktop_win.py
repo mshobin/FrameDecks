@@ -317,11 +317,12 @@ def round_corners(hwnd):
         _swallowed("desktop_win.round_corners", _e)
 
 
-def clear_back(form):
+def clear_back(form, wait=False):
     """9.10.1 pywebview makes the page of a transparent window see-through but leaves the WinForms form behind it in
     its default light grey (SystemColors.Control), which showed as a grey box around the Command Center. Black is
     what Windows treats as see-through on a window whose frame is extended into it (desktop_win.glass), so the form
-    is painted black, on its own thread."""
+    is painted black, on its own thread. 9.10.2: wait=True finishes before returning, so it is done before the window
+    is first shown."""
     if not (IS_WIN and form is not None):
         return False
     try:
@@ -331,7 +332,12 @@ def clear_back(form):
         def run():
             form.BackColor = Color.Black
             form.Invalidate()
-        form.BeginInvoke(Action(run))
+        if not form.InvokeRequired:
+            run()
+        elif wait:
+            form.Invoke(Action(run))
+        else:
+            form.BeginInvoke(Action(run))
         return True
     except Exception as _e:
         _swallowed("desktop_win.clear_back", _e)

@@ -187,31 +187,51 @@ function ripple(btn, e){
   var dot = h('span', {cls: 'cc-ripple', style: 'left:' + x + 'px;top:' + y + 'px'});
   btn.appendChild(dot); setTimeout(function(){ dot.remove(); }, 700);
 }
-var tileEls = {};
-function fill(){
-  var g = open; hold.appendChild(control); panel.innerHTML = ''; tileEls = {};
-  panel.className = 'cc-panel cc-' + g.hue + (g.control ? ' cc-panel-control' : '');
-  panel.appendChild(h('div', {cls: 'cc-head'}, [h('span', {cls: 'cc-head-sq', 'aria-hidden': 'true', html: I(g.icon, 16)}), h('b', {text: g.label}),
-    g.lede ? h('small', {text: g.lede}) : null, h('span', {cls: 'cc-say', role: 'status'})]));
-  if (g.control){ panel.appendChild(control); paint(); layout(); return; }
+var tileEls = {}, lightAt = null, lightRaf = 0;
+function light(ev){                                          // the light that follows the pointer: once a frame at most
+  lightAt = {el: ev.currentTarget, x: ev.clientX, y: ev.clientY}; if (lightRaf) return;
+  lightRaf = requestAnimationFrame(function(){
+    lightRaf = 0; var b = lightAt.el, r = b.getBoundingClientRect();
+    b.style.setProperty('--mx', (lightAt.x - r.left) + 'px'); b.style.setProperty('--my', (lightAt.y - r.top) + 'px');
+  });
+}
+/* 9.10.2 each chip's panel is built once and kept: choosing a chip again only swaps the kept pieces in (and paint()
+ * refreshes their second lines), so nothing is rebuilt while you move between chips */
+var built = {};
+function build(g){
+  var parts = {head: h('div', {cls: 'cc-head'}, [h('span', {cls: 'cc-head-sq', 'aria-hidden': 'true', html: I(g.icon, 16)}), h('b', {text: g.label}),
+    g.lede ? h('small', {text: g.lede}) : null, h('span', {cls: 'cc-say', role: 'status'})]), tiles: {}, list: []};
+  parts.list.push(parts.head);
+  if (g.control){ parts.list.push(control); return parts; }
   var grid = h('div', {cls: 'cc-tiles'});
   g.tiles().forEach(function(t, i){
     var b = h('button', {cls: 'cc-t' + (t.opt.toggle ? ' toggle' : '') + (t.opt.on ? ' on' : ''), type: 'button', id: 'cc-t-' + t.id, style: '--i:' + i,
       'aria-pressed': t.opt.toggle ? String(!!t.opt.on) : null, onclick: function(){ t.fn(); }}, [
       h('span', {cls: 'cc-t-sq', 'aria-hidden': 'true', html: I(t.icon, 20)}), h('span', {cls: 'cc-t-x'}, [h('b', {text: t.label}), h('small', {text: t.sub})])]);
-    b.addEventListener('pointermove', function(ev){ var r = b.getBoundingClientRect(); b.style.setProperty('--mx', (ev.clientX - r.left) + 'px'); b.style.setProperty('--my', (ev.clientY - r.top) + 'px'); });
-    tileEls[t.id] = b; grid.appendChild(b);
+    b.addEventListener('pointermove', light);
+    parts.tiles[t.id] = b; grid.appendChild(b);
   });
-  panel.appendChild(grid);
-  if (g.id === 'prepare') recentRow();
-  panel.appendChild(h('p', {cls: 'cc-hint'}, [h('kbd', {text: 'Alt 1–4'}), ' groups · ', h('kbd', {text: 'Esc'}), ' back · type to search everything']));
-  layout();
+  parts.list.push(grid);
+  if (g.id === 'prepare'){ parts.recent = h('div', {cls: 'cc-recent'}); parts.list.push(parts.recent); }
+  parts.list.push(h('p', {cls: 'cc-hint'}, [h('kbd', {text: 'Alt 1–4'}), ' groups · ', h('kbd', {text: 'Esc'}), ' back · type to search everything']));
+  return parts;
 }
-function recentRow(){
-  var items = P.recentItems(3); if (!items.length) return;
-  panel.appendChild(h('div', {cls: 'cc-recent'}, [h('span', {text: 'Recent'})].concat(items.map(function(it){
-    return h('button', {cls: 'cc-rchip', type: 'button', title: it.sub || '', onclick: function(){ P.choose(it); }}, [it.title]);
-  }))));
+function fill(){
+  var g = open, parts = built[g.id] || (built[g.id] = build(g));
+  if (!g.control) hold.appendChild(control);
+  panel.className = 'cc-panel cc-' + g.hue + (g.control ? ' cc-panel-control' : '');
+  panel.replaceChildren.apply(panel, parts.list);
+  tileEls = parts.tiles;
+  if (parts.recent) recentRow(parts.recent);
+  paint(); layout();
+}
+function recentRow(el){
+  var items = P.recentItems(3), sig = items.map(function(it){ return it.key; }).join('|');
+  el.hidden = !items.length;
+  if (el.dataset.sig === sig) return;
+  el.dataset.sig = sig; el.innerHTML = '';
+  el.appendChild(h('span', {text: 'Recent'}));
+  items.forEach(function(it){ el.appendChild(h('button', {cls: 'cc-rchip', type: 'button', title: it.sub || '', onclick: function(){ P.choose(it); }}, [it.title])); });
 }
 /* the open panel follows what changes (live, cards, camera) without rebuilding it */
 function paint(){
@@ -235,20 +255,11 @@ function paint(){
   });
 }
 
-/* ---------- the window follows what shows (desktop app); grows before a panel opens, shrinks after it closes ---------- */
-var sized = 0, shrinkT = 0;
+/* ---------- 9.10.2 the window keeps one fixed, see-through size (desktop_app), so nothing is ever resized while a
+ * panel animates; this only marks whether the search results show ---------- */
 function layout(){
-  requestAnimationFrame(function(){
-    var typing = !!input.value.trim() || !!current;
-    box.classList.toggle('cc-typing', typing);
-    var inner = stage.firstChild, extra = open && !typing ? inner.scrollHeight - stage.offsetHeight : 0;
-    var want = Math.ceil(box.offsetHeight + Math.max(0, extra)) + 16;   // plus room for the shadows
-    if (typing) want = Math.max(want, 560);
-    if (want === sized) return;
-    clearTimeout(shrinkT);
-    var go = function(){ sized = want; post('api/app/win', {win: 'spotlight', op: 'fit', h: want}); };
-    if (want > sized) go(); else shrinkT = setTimeout(go, 420);
-  });
+  var typing = !!input.value.trim() || !!current;
+  if (box.classList.contains('cc-typing') !== typing) box.classList.toggle('cc-typing', typing);
 }
 
 /* ---------- keys ---------- */
@@ -284,7 +295,7 @@ function opened(){
   get('api/vcam/status?lite=1').then(function(d){ if (d){ cam = d; paint(); } });
   post('api/app/annotate', {op: 'get'}).then(function(d){ annMode = d.mode || ''; paint(); });
   loadMemory();
-  sized = 0; layout();
+  layout();
 }
 var orig = window.KCSpotlight && window.KCSpotlight.opened;
 window.KCSpotlight = window.KCSpotlight || {};

@@ -53,6 +53,22 @@ Versions before 4.9 (when the program had its earlier name) are described in the
 - The favicons, the tray icon and the small program-icon sizes (16–32 px) use a heavier version of the emblem, so it
   stays visible on light browser tabs and a light taskbar. Larger sizes are unchanged.
 
+## [9.10.2] - 2026-11-04
+
+Full notes: [docs/releases/v9.10.2.md](releases/v9.10.2.md).
+
+### Fixed
+- The grey box on the first open: the window is prepared when it is made (`spot_prepare`: `clear_frame`,
+  `clear_back(wait=True)`, `glass`, the page's own glass flag) and the form is painted black on `before_show`.
+
+### Performance
+- One fixed see-through window size (`SPOT_H`); the Command Center never posts `fit`.
+- Panels show with `display` and animate by transform and opacity only (no `grid-template-rows`, `clip-path` or
+  `filter` animations, no blur filters); the grid of buttons moves as one piece; each piece is `contain`ed.
+- Each chip's panel is built once (`built`), the pointer light updates once a frame.
+- `tests/visual/perf.mjs` now measures the Command Center at rest, opening a chip and moving between chips (4x slower
+  processor, no graphics card): opening 29% to 15% busy, worst frame 100 ms to 33 ms.
+
 ## [9.10.1] - 2026-11-04
 
 Full notes: [docs/releases/v9.10.1.md](releases/v9.10.1.md).

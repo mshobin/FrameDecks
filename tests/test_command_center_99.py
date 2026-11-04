@@ -37,15 +37,15 @@ class CommandCenter(unittest.TestCase):
 
     def test_no_window_frame(self):
         src = read("src/desktop_app.py")
-        body = src[src.index("    def spotlight(on=True):"):src.index("    def palette_index():")]
+        body = src[src.index("    def spot_prepare(w):"):src.index("    def palette_index():")]   # 9.10.2 set up once, before it shows
         self.assertIn("dw.clear_frame(hwnd)", body)
         self.assertIn("dw.glass(hwnd, False)", body)
         self.assertNotIn("dw.round_corners(hwnd)", body)
         self.assertIn("def clear_frame(hwnd):", read("src/desktop_win.py"))
         # 9.10.1 the form behind the page is black (see-through), not WinForms' default light grey
-        self.assertIn('dw.clear_back(getattr(spot, "native", None))', body)
+        self.assertIn('dw.clear_back(getattr(w, "native", None), wait=True)', body)
         win = read("src/desktop_win.py")
-        self.assertIn("def clear_back(form):", win)
+        self.assertIn("def clear_back(form, wait=False):", win)
         self.assertIn("form.BackColor = Color.Black", win)
         css = read("app/css/spotlight.css")
         self.assertIn("html.kc-glass body.spotlight,html.kc-glass body.spotlight .pal-back{background:transparent}", css)
@@ -103,6 +103,34 @@ class PhoneRemote(unittest.TestCase):
         for need in (".top{margin:10px 12px 0", ".tabs{margin:0 12px", "#t-draw .ti{background:var(--hue-violet)}", "--hue-gold:"):
             self.assertIn(need, block)
         self.assertNotIn("backdrop-filter", block)              # no blur on the phone
+
+
+
+class Performance(unittest.TestCase):
+    """9.10.2 smooth on an older PC beside Zoom or Teams: no resizing, no animated filters or heights, few moving parts"""
+    def test_the_window_has_one_size_and_is_prepared_before_it_shows(self):
+        src = read("src/desktop_app.py")
+        self.assertIn("SPOT_H = 720", src)
+        self.assertIn("w.events.before_show += lambda *_a: dw.clear_back(", src)
+        self.assertIn("spot_prepare(w)", src)
+        self.assertIn('dw.clear_back(getattr(w, "native", None), wait=True)', src)
+        js = read("app/js/command-center.js")
+        self.assertNotIn("op: 'fit'", js)                               # never resizes the window
+        self.assertIn("built[g.id] || (built[g.id] = build(g))", js)     # each panel built once
+        self.assertIn("requestAnimationFrame", js[js.index("function light("):])
+
+    def test_only_transform_and_opacity_move(self):
+        css = read("app/css/spotlight.css")
+        perf = css[css.index("9.10.2 performance for older PCs"):]
+        self.assertIn(".cc .cc-stage{display:none;transition:none}", perf)
+        self.assertIn(".cc-sq svg,.cc-t-sq svg,.cc-head-sq svg{filter:none}", perf)
+        self.assertIn(".cc-panel.in .cc-tiles,.cc-panel.in .cc-control{animation:cc-t-in", perf)
+        for name in ("cc-p-in", "cc-t-in", "cc-glow-in"):
+            body = perf[perf.index("@keyframes " + name):]
+            body = body[:body.index("}}") + 2]
+            self.assertNotIn("filter", body)
+            self.assertNotIn("clip-path", body)
+        self.assertIn("command center chip change", read("tests/visual/perf.mjs"))
 
 
 if __name__ == "__main__":

@@ -657,6 +657,7 @@ def main():
     # 9.8.1: made the first time it is asked for (the shortcut or the tray's Search), never at start. pywebview shows a
     # see-through window by itself whenever its page starts loading (edgechromium on_navigation_start: Show + Activate,
     # whatever "hidden" says), so a Spotlight made at start-up popped up over the welcome after an install.
+    SPOT_H = 720                                  # 9.10.2 the Command Center's fixed height (see spot_window)
     spot_holder = {"w": None}
     spot_lock = threading.Lock()
     state["spot_ready"] = False
@@ -673,9 +674,15 @@ def main():
     def spot_window(create=False):
         with spot_lock:
             if spot_holder["w"] is None and create:
-                w = webview.create_window(DISPLAY_NAME + " · Command Center", url + "spotlight.html", width=820, height=620,
+                # 9.10.2 one fixed size: the window is see-through, so its empty part costs nothing, and the
+                # Command Center never resizes a window while its panels animate (that made chip changes stutter)
+                w = webview.create_window(DISPLAY_NAME + " · Command Center", url + "spotlight.html", width=820, height=SPOT_H,
                                           background_color="#0f172b", frameless=True, easy_drag=False, hidden=True,
-                                          on_top=True, text_select=False, transparent=True)   # 9.6 Windows' frosted glass behind it
+                                          on_top=True, text_select=False, transparent=True)
+                try:                                  # 9.10.2 black (see-through) before Windows first shows it
+                    w.events.before_show += lambda *_a: dw.clear_back(getattr(w, "native", None))
+                except Exception as _e:
+                    _swallowed("desktop_app.spot_window", _e)
                 for ev in (w.events.loaded, w.events.shown):
                     try:
                         ev += spot_settle
@@ -686,7 +693,22 @@ def main():
                     w.events.loaded.wait(8)          # the page is ready before it is shown the first time
                 except Exception as _e:
                     _swallowed("desktop_app.spot_window", _e)
+                spot_prepare(w)                       # see-through, no frame: all done before the first open
             return spot_holder["w"]
+
+    def spot_prepare(w):
+        if state["spot_ready"]:
+            return
+        hwnd = window_handle(w)
+        dw.clear_frame(hwnd)                                   # 9.10 no frame, no corners, no border line
+        dw.clear_back(getattr(w, "native", None), wait=True)   # 9.10.1 no grey box behind the glass
+        state["spot_glass"] = bool(dw.glass(hwnd, False))      # see-through: only the glass bar and its chips show
+        state["spot_ready"] = True
+        try:                                                   # the page's own background goes see-through before it shows
+            w.evaluate_js("window.KCSpotlight && KCSpotlight.glass && KCSpotlight.glass(%s)"
+                          % ("true" if state.get("spot_glass") else "false"))
+        except Exception as _e:
+            _swallowed("desktop_app.spot_prepare", _e)
 
     def spotlight(on=True):
         if on == "toggle":
@@ -702,11 +724,7 @@ def main():
             return
         spot = spot_window(create=True)
         hwnd = window_handle(spot)
-        if not state["spot_ready"]:
-            dw.clear_frame(hwnd)                                   # 9.10 no frame, no corners, no border line
-            dw.clear_back(getattr(spot, "native", None))           # 9.10.1 no grey box behind the glass
-            state["spot_glass"] = bool(dw.glass(hwnd, False))      # see-through: only the glass bar and its chips show
-            state["spot_ready"] = True
+        spot_prepare(spot)
         dw.hide_from_capture(hwnd)        # 9.6 every time: like the Teleprompter, only the presenter sees it, even sharing the screen
         dw.center_on_cursor(hwnd)
         state["spot_open"] = True

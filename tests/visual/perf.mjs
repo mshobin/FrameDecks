@@ -41,12 +41,24 @@ await rc.send("Performance.enable"); await rc.send("Emulation.setCPUThrottlingRa
 await r.setViewportSize({ width: 390, height: 844 });
 await r.goto(B + "/remote.html"); await r.waitForSelector("#app:not([hidden])"); await r.waitForTimeout(2500);
 await measure(r, rc, "remote idle", 5000);
+// 9.10.2 the Command Center: at rest, opening, and moving between its chips (it runs beside Zoom or Teams)
+const c = await ctx.newPage(); const cc = await ctx.newCDPSession(c);
+await cc.send("Performance.enable"); await cc.send("Emulation.setCPUThrottlingRate", { rate: SLOW });
+await c.setViewportSize({ width: 820, height: 720 });
+await c.goto(B + "/spotlight.html"); await c.waitForSelector(".cc-tray"); await c.waitForTimeout(2500);
+await c.evaluate(() => document.documentElement.classList.add("kc-glass"));
+await measure(c, cc, "command center idle", 5000);
+await measure(c, cc, "command center chip", 1500, () => c.click("#cc-g-prepare"));
+await measure(c, cc, "command center chip change", 3000, async () => {
+  for (const id of ["engage", "control", "more", "prepare", "engage"]) { await c.click("#cc-g-" + id); await c.waitForTimeout(420); }
+});
 await b.close();
 
 const fail = [];
 for (const r of rows) {
   if (r.label.startsWith("welcome") && (r.fps < 45 || r.worstFrameMs > 120)) fail.push(`${r.label}: ${r.fps} fps, worst frame ${r.worstFrameMs} ms`);
   if (/idle/.test(r.label) && !r.label.startsWith("welcome") && r.cpuBusyPct > 25) fail.push(`${r.label}: ${r.cpuBusyPct}% busy at rest`);
+  if (r.label.startsWith("command center chip") && (r.fps < 45 || r.worstFrameMs > 120)) fail.push(`${r.label}: ${r.fps} fps, worst frame ${r.worstFrameMs} ms`);
 }
 if (fail.length) { console.error("Performance: " + fail.join("; ")); process.exit(1); }
 console.log("Performance: within the budget for an older PC");

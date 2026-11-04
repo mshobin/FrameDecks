@@ -82,7 +82,7 @@ class SpotlightRemote(unittest.TestCase):
         # like the Teleprompter: screen sharing and recordings leave Spotlight out, set on every show
         src = (ROOT / "src" / "desktop_app.py").read_text(encoding="utf-8")
         body = src[src.index("    def spotlight(on=True):"):src.index("    def palette_index():")]
-        self.assertIn("dw.hide_from_capture(hwnd)", body[body.index("if not state[\"spot_ready\"]"):])
+        self.assertIn("dw.hide_from_capture(hwnd)", body[body.index("spot_prepare(spot)"):])   # every show, after the one-time setup
         self.assertLess(body.index("dw.hide_from_capture(hwnd)"), body.index("spot.show()"))
 
 
