@@ -69,6 +69,8 @@ class CommandCenter(unittest.TestCase):
         for need in ("@keyframes cc-reveal", "@keyframes cc-boing", "@keyframes cc-focus", ".cc-sq::after"):
             self.assertIn(need, polish)
         self.assertIn("panel.style.setProperty('--ox'", read("app/js/command-center.js"))
+        # 9.10.3 the chips are not boxes (as in the design picture)
+        self.assertIn(".cc .cc-g,.cc .cc-g:hover,.cc .cc-g.on{background:transparent;border:0;box-shadow:none}", css)
 
     def test_named_command_center_where_people_see_it(self):
         src = read("src/desktop_app.py")

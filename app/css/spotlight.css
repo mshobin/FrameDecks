@@ -364,3 +364,14 @@ html[data-theme="light"]{--cc-gloss:inset 0 1px 0 rgba(255,255,255,.7),inset 0 -
   .cc-g.pop .cc-sq,.cc-g.pop::after,.cc-panel.in,.cc-panel.in::before,.cc-panel.in .cc-head-sq,.cc-panel.in .cc-t,.cc-panel.in .cc-t-sq{animation:none}
   .cc-g:hover .cc-sq,.cc-t:hover .cc-t-sq{transform:none}
 }
+/* 9.10.3 as in the design picture: the chips are not boxes. Icon and name sit straight on the tray; hovering lights
+ * a soft glow behind the icon, and the chosen chip shows by its icon (lifted, glowing) and the light under it. */
+.cc .cc-g,.cc .cc-g:hover,.cc .cc-g.on{background:transparent;border:0;box-shadow:none}
+.cc .cc-g{border-radius:16px}
+.cc .cc-g::before{content:'';position:absolute;left:50%;top:40%;width:110px;height:80px;margin:-40px 0 0 -55px;border-radius:999px;pointer-events:none;opacity:0;
+  background:radial-gradient(closest-side,var(--cc-sheen),transparent);transition:opacity .25s ease}
+.cc .cc-g:hover::before,.cc .cc-g.on::before{opacity:1}
+.cc .cc-g:hover{transform:none}
+.cc.cc-open .cc-g:not(.on){opacity:.72}
+.cc .cc-g.on b{color:var(--ink)}
+.cc .cc-g:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
