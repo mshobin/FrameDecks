@@ -316,3 +316,51 @@ body.spotlight .pal.cc,html.kc-glass body.spotlight .pal.cc{gap:0}
 .cc.cc-open:not(.cc-typing) .cc-tray,.cc.cc-typing .cc-tray{border-radius:0}
 .cc .cc-panel,body.spotlight .cc .pal-list{margin-top:0;padding-top:14px;border-top:1px solid var(--cc-cell-line)}
 body.spotlight .cc .pal-list{margin:0 26px;padding:8px}
+/* ---------- 9.10.2 polish: glossy icons and a richer opening ----------
+ * Icons: each square is a small glass jewel: its colour, a soft top sheen, a light rim and a coloured glow under it.
+ * Opening a chip: its icon bounces, a ring of its colour spreads out, the panel is revealed as a circle growing out
+ * of that chip, its light blooms, and the buttons all come into focus together, their icons popping in just after. */
+:root,html[data-theme="dark"]{--cc-gloss:inset 0 1px 0 rgba(255,255,255,.55),inset 0 -3px 8px rgba(0,0,0,.18),inset 0 0 0 1px rgba(255,255,255,.18);
+  --cc-sheen-top:linear-gradient(180deg,rgba(255,255,255,.42),rgba(255,255,255,.08) 48%,rgba(255,255,255,0) 52%);
+  --cc-icon-drop:drop-shadow(0 1px 1px rgba(0,0,0,.25))}
+html[data-theme="light"]{--cc-gloss:inset 0 1px 0 rgba(255,255,255,.7),inset 0 -3px 8px rgba(0,0,0,.12),inset 0 0 0 1px rgba(255,255,255,.3)}
+.cc-sq,.cc-t-sq,.cc-head-sq{position:relative;overflow:hidden}
+.cc-sq::after,.cc-t-sq::after,.cc-head-sq::after{content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:var(--cc-sheen-top)}
+.cc-sq svg,.cc-t-sq svg,.cc-head-sq svg{position:relative;z-index:1;stroke-width:2.2;filter:var(--cc-icon-drop)}
+.cc-sq{width:52px;height:52px}
+.cc-sq svg{width:26px;height:26px}
+.cc-gold .cc-sq,.cc-gold .cc-t-sq{box-shadow:var(--cc-gloss),0 8px 20px var(--cc-gold-halo)}
+.cc-violet .cc-sq,.cc-violet .cc-t-sq{box-shadow:var(--cc-gloss),0 8px 20px var(--cc-violet-halo)}
+.cc-blue .cc-sq,.cc-blue .cc-t-sq{box-shadow:var(--cc-gloss),0 8px 20px var(--cc-blue-halo)}
+.cc-slate .cc-sq,.cc-slate .cc-t-sq{box-shadow:var(--cc-gloss),0 8px 20px var(--cc-slate-halo)}
+.cc-head-sq{box-shadow:var(--cc-gloss)}
+.cc-g:hover .cc-sq{transform:translateY(-3px) scale(1.06)}
+.cc .cc-g b{letter-spacing:.01em}
+/* the chosen chip: its icon bounces and a ring of its colour spreads out */
+.cc-g.pop .cc-sq{animation:cc-boing .7s cubic-bezier(.3,1.6,.4,1) both}
+.cc-g::after{content:'';position:absolute;left:50%;top:38%;width:52px;height:52px;margin:-26px 0 0 -26px;border-radius:16px;pointer-events:none;opacity:0;border:2px solid var(--cc-ring,transparent)}
+.cc-gold{--cc-ring:var(--cc-gold-a)} .cc-violet{--cc-ring:var(--cc-violet-a)} .cc-blue{--cc-ring:var(--cc-blue-a)} .cc-slate{--cc-ring:var(--cc-slate-a)}
+.cc-g.pop::after{animation:cc-ring .75s cubic-bezier(.2,.8,.3,1) forwards}
+/* the panel grows out of the chip as a circle; its light blooms */
+.cc-panel.in{animation:cc-reveal .62s cubic-bezier(.25,.9,.25,1) both}
+.cc-panel.in::before{animation:cc-bloom .9s cubic-bezier(.2,.8,.3,1) both}
+.cc-panel.in .cc-head-sq{animation:cc-spin-in .6s .08s cubic-bezier(.3,1.5,.4,1) both}
+/* the buttons come into focus one after another, their icons popping in just after */
+.cc-panel.in .cc-t{animation:cc-focus .55s cubic-bezier(.2,.9,.25,1.1) both;animation-delay:110ms}
+.cc-panel.in .cc-t-sq{animation:cc-icon-in .6s cubic-bezier(.3,1.6,.4,1) both;animation-delay:220ms}
+.cc-panel[data-dir="left"].in .cc-t{animation-name:cc-focus-r} .cc-panel[data-dir="right"].in .cc-t{animation-name:cc-focus-l}
+.cc-t:hover .cc-t-sq{transform:scale(1.08) rotate(-4deg)}
+.cc-t-sq{transition:transform .3s cubic-bezier(.3,1.6,.4,1)}
+@keyframes cc-boing{0%{transform:scale(1)}25%{transform:scale(.84)}55%{transform:scale(1.2) rotate(-8deg)}75%{transform:scale(.97) rotate(3deg)}100%{transform:translateY(-2px) scale(1.08)}}
+@keyframes cc-ring{0%{opacity:.9;transform:scale(1)}100%{opacity:0;transform:scale(2.6)}}
+@keyframes cc-reveal{from{clip-path:circle(0 at var(--ox,50%) 0);opacity:.4}to{clip-path:circle(150% at var(--ox,50%) 0);opacity:1}}
+@keyframes cc-bloom{from{opacity:0;transform:scale(.5)}60%{opacity:.85}to{opacity:.55;transform:none}}
+@keyframes cc-spin-in{from{opacity:0;transform:scale(.3) rotate(-90deg)}to{opacity:1;transform:none}}
+@keyframes cc-focus{from{opacity:0;transform:translateY(16px) scale(.92);filter:blur(6px)}to{opacity:1;transform:none;filter:none}}
+@keyframes cc-focus-r{from{opacity:0;transform:translateX(22px) scale(.95);filter:blur(5px)}to{opacity:1;transform:none;filter:none}}
+@keyframes cc-focus-l{from{opacity:0;transform:translateX(-22px) scale(.95);filter:blur(5px)}to{opacity:1;transform:none;filter:none}}
+@keyframes cc-icon-in{from{opacity:0;transform:scale(.3) rotate(-25deg)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){
+  .cc-g.pop .cc-sq,.cc-g.pop::after,.cc-panel.in,.cc-panel.in::before,.cc-panel.in .cc-head-sq,.cc-panel.in .cc-t,.cc-panel.in .cc-t-sq{animation:none}
+  .cc-g:hover .cc-sq,.cc-t:hover .cc-t-sq{transform:none}
+}

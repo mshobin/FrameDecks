@@ -22,8 +22,10 @@ Memory Cards and recordings.
   colours. The tray hangs from the bar like a drawer, and an open panel continues it.
 
 ## Enhancements
-- Opening it, the bar springs in and the chips follow one after another. Choosing a chip sends a ripple from where you
-  clicked, a light slides under it, the panel unfolds and its buttons rise in one by one. With **Reduce motion** on in
+- Glossy icons: each one a small jewel of its chip's colour, with a soft top sheen and a glow under it.
+- Opening it, the bar springs in and the chips follow one after another. Choosing a chip makes its icon bounce, sends
+  a ring of its colour and a ripple from where you clicked, slides a light under it, and grows the panel out of that
+  chip as a circle; the buttons then all come into focus together as their icons pop in. With **Reduce motion** on in
   Windows, all of this stays still.
 - A small green dot on **Control** while you are live, and on **Engage** while copies are captured.
 - A click anywhere outside the glass closes it, as a click on another window does.

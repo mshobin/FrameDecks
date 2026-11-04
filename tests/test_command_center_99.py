@@ -65,6 +65,10 @@ class CommandCenter(unittest.TestCase):
         self.assertIn(".cc.cc-open:not(.cc-typing) .cc-stage{grid-template-rows:1fr}", css)
         self.assertIn("@media (prefers-reduced-motion:reduce)", css[css.index("9.10 the Command Center"):])
         self.assertIn("window.KCCommandCenter", read("app/js/spotlight-remote.js"))
+        polish = css[css.index("9.10.2 polish"):]
+        for need in ("@keyframes cc-reveal", "@keyframes cc-boing", "@keyframes cc-focus", ".cc-sq::after"):
+            self.assertIn(need, polish)
+        self.assertIn("panel.style.setProperty('--ox'", read("app/js/command-center.js"))
 
     def test_named_command_center_where_people_see_it(self):
         src = read("src/desktop_app.py")

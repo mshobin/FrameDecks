@@ -159,6 +159,10 @@ function openGroup(g, e){
   box.classList.add('cc-open'); box.dataset.group = g.id;
   glideTo(to);
   if (e && e.currentTarget && !reduce) ripple(e.currentTarget, e);
+  var chip = chips[to];                                      // 9.10.2 the icon bounces; the panel grows out of this chip
+  chip.classList.remove('pop'); void chip.offsetWidth; chip.classList.add('pop');
+  clearTimeout(chip.popT); chip.popT = setTimeout(function(){ chip.classList.remove('pop'); }, 800);
+  panel.style.setProperty('--ox', Math.round(chip.offsetLeft + chip.offsetWidth / 2) + 'px');
   panel.dataset.dir = from < 0 ? 'up' : to > from ? 'left' : 'right';
   fill();
   panel.classList.remove('in'); void panel.offsetWidth; panel.classList.add('in');
