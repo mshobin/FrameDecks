@@ -361,11 +361,29 @@ You can change the keys in **Settings → Keyboard shortcuts → Command palette
 **Spotlight** is the command palette for the whole of Windows. It works when another program is in front, and when
 FrameDecks is hidden in the tray.
 
-1. Press **Alt+Space** anywhere. Spotlight opens in the middle of the screen where your mouse is, above everything.
-2. Type, then choose with **↑ / ↓** and **Enter**. It finds the same things as the command palette.
+1. Press **Alt+Space** anywhere. Spotlight opens in the middle of the screen where your mouse is, above everything,
+   as a small meeting remote.
+2. Press a button, or type to search: the results appear only once you type, and choose with **↑ / ↓** and **Enter**.
+   It finds the same things as the command palette. Clear the search and the remote comes back.
 3. **Esc**, or a click somewhere else, closes it.
 
-With an empty search, Spotlight shows **Recent**, **Frequently used** and **Suggested** items.
+Only you see Spotlight. Like the Teleprompter, it is left out of screen sharing and recordings, even when you share
+the whole screen in Zoom, Teams or Google Meet.
+
+![Spotlight as a meeting remote](images/spotlight-remote.png)
+
+### Spotlight as a meeting remote
+
+| Row | Buttons (keys while Spotlight is open) |
+|---|---|
+| **On screen** | Live, Off air, Black screen or Frozen, the Frame number and what comes next |
+| **FrameDecks** | **Previous** (Alt+←), **Next Frame** (Alt+→; **Start** when nothing is live), **Slide** back and forward for a PowerPoint or PDF on screen (Alt+↑ / Alt+↓), **Play / Pause** the video (Alt+P), **Hide all** (Alt+H), **Black** (Alt+B) |
+| **Meeting** | Zoom, Microsoft Teams or Google Meet, whichever has a meeting open: **Mute** (Alt+M), **Camera** (Alt+V), **Share screen** (Alt+S), **Leave** (press twice), and the PC's volume (Alt+- / Alt+=) |
+| **Open** | **Studio**, **Teleprompter**, **Share Window**, **Phone remote** |
+
+The meeting buttons press the meeting app's own keyboard shortcut in its window, then give the focus back to the
+window you were in. Google Meet has no shortcut for sharing or leaving, so those buttons are off for Meet. A button is
+also off when no meeting is open. Windows only.
 
 **Go Live**, **Next / Previous Frame**, **Hide all**, **Black screen**, **Freeze** and the **Teleprompter** run without
 bringing the main window back. Everything else opens the main window.

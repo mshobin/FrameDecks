@@ -52,6 +52,7 @@ function commands(){
   var PT = window.KCPresenterTools, TP = window.KCTeleprompter, sel = W() && W().selected();
   var c = [
     ['golive', 'Go Live', 'take selected frame on screen', function(){ if (W()) W().take(); }, 'T'],
+    ['studio', 'Open the Studio', 'studio frames main window plan', function(){ studio(); }],   /* 9.6 Spotlight */
     ['next', 'Next Frame', 'forward advance', function(){ if (W()) W().step(1); }, ']'],
     ['prev', 'Previous Frame', 'back', function(){ if (W()) W().step(-1); }, '['],
     ['newframe', 'New Frame', 'add create blank', function(){ studio(); if (W()) W().newFrame(); }],

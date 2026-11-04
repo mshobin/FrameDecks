@@ -650,9 +650,9 @@ def main():
         return {"desktop": True, "open": bool(POP["open"] and POP["win"] is not None)}
 
     # ---------- 6.8 Spotlight: one small window, made at start-up and only shown and hidden (instant) ----------
-    spot = webview.create_window(DISPLAY_NAME + " · Spotlight", url + "spotlight.html", width=760, height=500,
+    spot = webview.create_window(DISPLAY_NAME + " · Spotlight", url + "spotlight.html", width=820, height=620,
                                  background_color="#0f172b", frameless=True, easy_drag=False, hidden=True,
-                                 on_top=True, text_select=False)
+                                 on_top=True, text_select=False, transparent=True)     # 9.6 Windows' frosted glass behind it
     state["spot_ready"] = False
 
     def spotlight(on=True):
@@ -668,8 +668,9 @@ def main():
             return
         if not state["spot_ready"]:
             dw.round_corners(hwnd)
-            dw.hide_from_capture(hwnd)
+            state["spot_glass"] = bool(dw.glass(hwnd, True))       # 9.6 drawn by Windows, so it costs FrameDecks nothing
             state["spot_ready"] = True
+        dw.hide_from_capture(hwnd)        # 9.6 every time: like the Teleprompter, only the presenter sees it, even sharing the screen
         dw.center_on_cursor(hwnd)
         state["spot_open"] = True
         try:
@@ -678,7 +679,8 @@ def main():
             _swallowed("desktop_app.spotlight", _e)
         dw.bring_to_front(hwnd)
         try:
-            spot.evaluate_js("window.KCSpotlight && KCSpotlight.opened()")
+            spot.evaluate_js("window.KCSpotlight && (KCSpotlight.glass && KCSpotlight.glass(%s), KCSpotlight.opened())"
+                             % ("true" if state.get("spot_glass") else "false"))
         except Exception as _e:
             _swallowed("desktop_app.spotlight", _e)
 
@@ -744,6 +746,15 @@ def main():
                 threading.Thread(target=lambda: setattr(w, "on_top", bool(data.get("value"))), daemon=True).start()
             if name == "teleprompter":
                 server.save_app_settings({"prompterOnTop": bool(data.get("value"))})
+        elif op == "fit" and name == "spotlight":            # 9.6 compact remote; taller only while search results show
+            try:
+                height = max(160, min(620, int(data.get("h") or 0)))
+            except (TypeError, ValueError):
+                height = 620
+            if height != state.get("spot_h"):
+                state["spot_h"] = height
+                later(lambda: w.resize(820, height))
+            return {"ok": True}
         elif op == "look" and name == "teleprompter":
             cfg = server.save_app_settings({"prompterLook": str(data.get("look") or "")})
             prompter_look(w, cfg.get("prompterLook", "solid"))

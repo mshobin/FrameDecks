@@ -322,3 +322,21 @@ body:has(.app:not([hidden])){overflow:hidden}
 .frow.live{background:var(--live-soft)} .frow.live .n{background:var(--live);color:#06210f}
 .drow.on,.dnode.on > .drow{background:var(--live-soft)} .drow.on .num,.dnode.on > .drow .num{color:var(--live)}
 .crow.on{background:var(--live-soft)} .crow.on .num{color:var(--live)}
+
+/* ---------- 9.6 the same buttons as Spotlight (app/css/spotlight.css): soft raised tiles with a hairline highlight
+ * and a small shadow, the icon in a round tinted well, Next the one gold action. Static: no blur, nothing loops. ---------- */
+:root{--hi:rgba(255,255,255,.07);--hi-gold:rgba(255,255,255,.38);--sh:rgba(0,0,0,.32);--gold-soft:rgba(232,185,49,.14);--well:rgba(255,255,255,.06)}
+.nav-btn.prev,.round,.dp-tool,.dp-act,.cm-btn{background:linear-gradient(180deg,var(--card2),var(--card));box-shadow:inset 0 1px 0 var(--hi),0 2px 8px var(--sh)}
+.nav-btn.next{box-shadow:inset 0 1px 0 var(--hi-gold),0 12px 30px rgba(232,185,49,.26)}
+.nav-btn.prev:active:not(:disabled),.round:active:not(:disabled),.tool:active:not(:disabled){box-shadow:inset 0 1px 0 var(--hi)}
+.round.primary{background:var(--ink);box-shadow:inset 0 1px 0 var(--hi-gold),0 4px 14px var(--sh)}
+.tool{background:linear-gradient(180deg,var(--card2),var(--card));border-color:var(--line2);box-shadow:inset 0 1px 0 var(--hi),0 2px 8px var(--sh)}
+.tool .ti{border-radius:999px;background:var(--gold-soft);color:var(--gold2)}
+.tool.warn .ti{background:var(--red-soft);color:var(--red)}
+.tool.on .ti{background:var(--live);color:#06210f}
+.tool.warn.on .ti{background:var(--red);color:#fff}
+.tool .tl{color:var(--ink)}
+.dp-tool.on,.cm-btn.gold,.tp-done{background:linear-gradient(180deg,var(--gold2),var(--gold));box-shadow:inset 0 1px 0 var(--hi-gold),0 4px 14px rgba(232,185,49,.22)}
+.pic-btn{box-shadow:inset 0 1px 0 var(--hi)}
+.hideall{box-shadow:inset 0 1px 0 var(--hi)}
+@media (prefers-reduced-motion:reduce){ .nav-btn,.tool,.round,.hideall{transition:none} }

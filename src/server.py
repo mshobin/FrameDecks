@@ -42,7 +42,7 @@ import updater   # 7.0: updates from FrameDecks servers (checked, silent, with r
 from media_names import safe_name   # 9.1.2 media file names are never paths
 import memory    # 9.0: Memory Cards in the FrameDecks vCam chat overlay (docs/architecture/memory-cards.md)
 
-APP_VERSION = "9.5.1"
+APP_VERSION = "9.6.0"
 STARTED_AT = time.time()
 FROZEN = getattr(sys, "frozen", False)          # True inside the installed Windows app
 HERE = Path(sys.executable).resolve().parent if FROZEN else Path(__file__).resolve().parent.parent   # the repository root (this file is in src/)
@@ -2750,6 +2750,15 @@ class Handler(BaseHTTPRequestHandler):
         if action == "import":
             try:
                 return ok({"imported": import_from(str(data.get("folder") or ""))})
+            except ValueError as e:
+                return bad(str(e))
+        if action == "meeting-app":                         # 9.6 Spotlight: the meeting app it can control
+            import meeting_keys
+            return ok(meeting_keys.status())
+        if action == "meeting-key":                         # 9.6 Spotlight: mute, camera, share, leave, PC volume
+            import meeting_keys
+            try:
+                return ok(meeting_keys.send(str(data.get("act") or "")))
             except ValueError as e:
                 return bad(str(e))
         if action == "skip-import":

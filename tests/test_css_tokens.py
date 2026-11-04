@@ -36,6 +36,15 @@ class CssTokens(unittest.TestCase):
             first = html.index('rel="stylesheet"')
             self.assertIn('href="css/palette.css"', html[first:first + 60], page)
 
+    def test_the_website_has_the_apps_tokens(self):
+        # 9.6: hosted/src/app/tokens.css is generated from the app's CSS (tools/design_tokens.py) and the site uses it
+        run = subprocess.run([sys.executable, str(ROOT / "tools/design_tokens.py"), "--check"], capture_output=True, text=True)
+        self.assertEqual(run.returncode, 0, run.stdout)
+        site = (ROOT / "hosted/src/app/globals.css").read_text(encoding="utf-8")
+        self.assertIn('@import "./tokens.css";', site)
+        self.assertIn("var(--fd-gold)", site)
+        self.assertIn("var(--fd-", (ROOT / "hosted/src/app/light.css").read_text(encoding="utf-8"))
+
 
 if __name__ == "__main__":
     unittest.main()

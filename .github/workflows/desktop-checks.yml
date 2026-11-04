@@ -43,6 +43,9 @@ jobs:
       - name: Design tokens (type scale, weights, radii, elevations; tools/css_tokens.py)
         run: python tools/css_tokens.py
 
+      - name: The website has the app's design tokens (tools/design_tokens.py)
+        run: python tools/design_tokens.py --check
+
   # The program's screens in a real browser: the command bar fits, nothing covers the canvas, the first run and the
   # Teleprompter offer the right action, Settings lines up (tests/visual/layout.mjs; design audit DD-26).
   visual:

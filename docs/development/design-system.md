@@ -36,6 +36,10 @@ FrameDecks is for church leaders and volunteers, not engineers. Write for the pe
   (gold), `--live` (green), `--red`, `--warn` in `app/css/theme.css`, for dark and light. Website: `--text`, `--text-2`,
   `--text-3`, `--surface`, `--hairline`, `--gold`, `--green`, `--red`, `--focus` in `hosted/src/app/globals.css`, with the
   light values in `light.css`.
+- **One source for both (9.6).** The program's CSS is the source. `python tools/design_tokens.py` writes its colours
+  (dark and light), the level colours, radii and type sizes to `hosted/src/app/tokens.css` as `--fd-*`, and the
+  website's variables point at them, so a palette change in the program reaches the website with one command.
+  `--text-3` stays a literal on the website because its contrast is measured there. Never edit `tokens.css` by hand.
 - **One palette file.** Every colour the program writes out lives in `app/css/palette.css`, named by hue and lightness
   (`--blue-150`, `--gold-650`; 0 is black, 1000 is white). Translucent colours take their channels from `--rgb-*`:
   `rgba(var(--rgb-gold-650),.14)`. `python tools/css_palette.py` moves any new colour there (safe to rerun);
@@ -221,6 +225,7 @@ first run says **Welcome to FrameDecks** with **Start fresh** as the main choice
 | Check | Where | What fails it |
 | --- | --- | --- |
 | `python tools/css_tokens.py` | Desktop checks (CI), `tests/test_css_tokens.py` | a font size, weight or radius off the scale; a hand-written drop shadow; a colour outside the palette; more `!important` than the baseline (program 16, website 7) |
+| `python tools/design_tokens.py --check` | Desktop checks (CI), `tests/test_css_tokens.py` | `hosted/src/app/tokens.css` not what the program's CSS says (run the tool and commit) |
 | `node tests/visual/layout.mjs` | Desktop checks → visual (CI) | a Prepare / Run switch; the section under the Frames not called Decks; Hide all red with nothing on screen; Esc leaving Live tools open; the command bar cut short or scrolling at 1100–1920 px; anything over the Studio canvas; first run not focusing Start fresh; Teleprompter empty state without its action; the Settings menu out of line; serif headings |
 | `hosted/tests/design-audit.test.mjs` | Hosted companion checks (CI) | missing skip link or `<main>`; "Loading…" text instead of the state kit; text under 12 px or under 4.5:1; links in gold; the light theme not applied before paint |
 | `node tests/visual/a11y.mjs` | Desktop checks → visual (CI) | any axe WCAG 2.1 AA violation on any tab, Settings section, the first-run question, or the Teleprompter (`speaker.html`) and Spotlight windows, in dark and light |

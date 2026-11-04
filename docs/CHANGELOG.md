@@ -53,6 +53,29 @@ Versions before 4.9 (when the program had its earlier name) are described in the
 - The favicons, the tray icon and the small program-icon sizes (16–32 px) use a heavier version of the emblem, so it
   stays visible on light browser tabs and a light taskbar. Larger sizes are unchanged.
 
+## [9.6.0] - 2026-11-04
+
+Full notes: [docs/releases/v9.6.0.md](releases/v9.6.0.md).
+
+### Added
+- Spotlight as a meeting remote (`app/js/spotlight-remote.js`, `app/css/spotlight.css`): what is on screen, Previous /
+  Next Frame, slides, video, Hide all, Black; Zoom / Teams / Google Meet mute, camera, share and leave through each
+  app's own shortcut (`src/meeting_keys.py`, `/api/app/meeting-app`, `/api/app/meeting-key`, local only); the PC's
+  volume; Studio, Teleprompter, Share Window and phone remote shortcuts; Alt keys. Opens compact; the search results
+  show only once you type and the window follows the panel's height (`desktop_app` win op `fit`).
+- `tools/design_tokens.py`: the program's colours, level colours, radii and type sizes written to
+  `hosted/src/app/tokens.css` (`--fd-*`); the website's variables point at them; `--check` in CI and
+  `tests/test_css_tokens.py`.
+- `tools/make_product_shots.py`: the landing's Studio picture and the guide's Spotlight picture from the running program.
+
+### Changed
+- Spotlight is hidden from screen capture on every show (was the first show only), like the Teleprompter.
+- Spotlight window 820 px wide, transparent, with Windows' acrylic behind it when available (`desktop_win.glass`).
+- Phone and tablet remote buttons (`app/css/remote.css`) take Spotlight's style: hairline highlight, soft shadow,
+  round tinted icon wells, gold Next.
+- Website: `globals.css` and `light.css` use the `--fd-*` tokens (the light theme is now the program's warm light
+  look); the Plan's Frame cards carry `--lv-frame-soft`.
+
 ## [9.5.1] - 2026-11-04
 
 Full notes: [docs/releases/v9.5.1.md](releases/v9.5.1.md). Numbers: [docs/development/performance.md](development/performance.md).

@@ -1,0 +1,90 @@
+/* FrameDecks 9.6 - Spotlight as a meeting remote (js/spotlight-remote.js, spotlight.html). A calm panel: the search
+ * field first, then what is on screen, Previous / Next and the meeting's own controls in large, clear buttons.
+ * Frosted glass comes from Windows behind the window (desktop_win.glass) when it is there, so the program draws no
+ * blur itself; otherwise the panel is solid. Theme tokens only (dark and light). Motion: a short press, nothing loops. */
+@font-face{font-family:'KC Sans';src:url('../fonts/SourceSans3.ttf') format('truetype');font-weight:400 900;font-display:swap}
+body.spotlight{font-family:var(--sans,'KC Sans','Segoe UI',system-ui,sans-serif);-webkit-font-smoothing:antialiased}
+body.spotlight .pal{border-radius:0}
+html.kc-glass body.spotlight{background:transparent}
+html.kc-glass body.spotlight .pal{background:var(--spr-glass)}
+:root,html[data-theme="dark"]{--spr-glass:rgba(12,18,34,.72);
+  /* the buttons' hairline highlight, shadow and icon wells */
+  --spr-hi:rgba(255,255,255,.06); --spr-sh:rgba(0,0,0,.28); --spr-well:rgba(255,255,255,.06); --spr-well-on:rgba(0,0,0,.14);
+  --spr-hi-gold:rgba(255,255,255,.35); --spr-gold-glow:rgba(232,185,49,.22); --spr-gold-top:var(--gold-strong); --spr-gold-hover:var(--gold-strong);
+  /* the dark theme's live and red (console.css, not loaded in this small window); the light theme keeps its own */
+  --live:#34d17c; --live-soft:rgba(52,209,124,.15); --red:#f26363; --red-soft:rgba(242,99,99,.13); --gold-ink:#1d1503; --gold-strong:#f4d58e}
+html[data-theme="light"]{--spr-glass:rgba(250,250,252,.74);
+  --spr-hi:rgba(255,255,255,.9); --spr-sh:rgba(22,32,58,.08); --spr-well:rgba(22,32,58,.05); --spr-well-on:rgba(0,0,0,.1);
+  --spr-hi-gold:rgba(255,255,255,.45); --spr-gold-glow:rgba(138,92,10,.18); --spr-gold-top:#e2b259; --spr-gold-hover:#cc9632}
+body.spotlight .pal-top{padding:18px 20px 14px}
+body.spotlight .pal-in{font-size:24px;font-weight:500;letter-spacing:-.01em}
+body.spotlight .pal-ic svg{width:22px;height:22px}
+
+/* compact: the remote only; the results and their key hints appear once you type (js/spotlight-remote.js) */
+body.spotlight .pal.spr-compact{height:auto}
+.pal.spr-compact .pal-list,.pal.spr-compact .pal-foot{display:none}
+.pal.spr-compact .spr{border-bottom:0}
+
+.spr{display:flex;flex-direction:column;gap:12px;padding:4px 16px 16px;border-bottom:1px solid var(--line-soft,var(--line))}
+.pal.spr-typing .spr{display:none}
+/* what is on screen: one quiet card */
+.spr-now{display:flex;align-items:center;gap:10px;min-height:44px;padding:8px 12px 8px 8px;border:1px solid var(--line-soft,var(--line));border-radius:12px;
+  background:var(--panel-2,var(--raised));box-shadow:inset 0 1px 0 var(--spr-hi);font-size:14px;color:var(--muted)}
+.spr-air{flex:none;display:inline-flex;align-items:center;gap:6px;padding:4px 10px 4px 8px;border-radius:999px;background:var(--raised);
+  font-size:12px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.spr-air i{width:8px;height:8px;border-radius:999px;background:var(--faint)}
+.spr-air.on{background:var(--live-soft);color:var(--live)} .spr-air.on i{background:var(--live);box-shadow:0 0 0 3px var(--live-soft)}
+.spr-air.bad{background:var(--red-soft);color:var(--red)} .spr-air.bad i{background:var(--red)}
+.spr-what{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--ink);font-weight:600}
+.spr-say{flex:none;max-width:45%;margin:0;font-size:13px;font-weight:700;color:var(--live);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.spr-say.bad{color:var(--red)}
+
+/* the buttons: soft raised tiles with a hairline highlight; the icon sits in a tinted well of its group's colour */
+.spr-row{display:flex;gap:8px;align-items:stretch}
+.spr-b{position:relative;flex:1 1 0;min-width:0;min-height:84px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:8px 6px 6px;
+  border:1px solid var(--line-soft,var(--line));border-radius:12px;background:var(--raised);color:var(--ink);font:inherit;cursor:pointer;
+  box-shadow:inset 0 1px 0 var(--spr-hi),0 1px 2px var(--spr-sh);
+  transition:background-color .14s ease,border-color .14s ease,box-shadow .14s ease,transform .08s ease}
+.spr-b:hover:not(:disabled){background:var(--hover-2);border-color:var(--line-hover,var(--line));box-shadow:inset 0 1px 0 var(--spr-hi),0 4px 12px var(--spr-sh)}
+.spr-b:active:not(:disabled){transform:scale(.97);box-shadow:inset 0 1px 0 var(--spr-hi)}
+.spr-b:disabled{opacity:.4;cursor:default;box-shadow:none}
+.spr-b:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.spr-ic{display:grid;place-items:center;width:32px;height:32px;border-radius:999px;background:var(--spr-well);color:inherit}
+.spr-ic svg{width:18px;height:18px}
+.spr-fd .spr-ic{background:var(--gold-soft);color:var(--gold-strong)}
+.spr-mt .spr-ic{background:var(--accent-soft);color:var(--accent)}
+.spr-l{font-size:13px;font-weight:700;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.spr-b kbd{font:inherit;font-size:12px;font-weight:700;color:var(--faint);letter-spacing:.02em}
+.spr-b.wide{flex-grow:2}
+.spr-b.slim{flex-grow:.8}
+/* Next: the one gold action */
+.spr-b.gold{background:linear-gradient(180deg,var(--spr-gold-top),var(--gold));border-color:var(--gold);color:var(--gold-ink);box-shadow:inset 0 1px 0 var(--spr-hi-gold),0 4px 14px var(--spr-gold-glow)}
+.spr-b.gold .spr-ic{background:var(--spr-well-on);color:var(--gold-ink)}
+.spr-b.gold kbd{color:var(--gold-ink);opacity:.7}
+.spr-b.gold:hover:not(:disabled){background:var(--spr-gold-hover);border-color:var(--spr-gold-hover);box-shadow:inset 0 1px 0 var(--spr-hi-gold),0 6px 18px var(--spr-gold-glow)}
+.spr-b.red{color:var(--red)}
+.spr-b.red .spr-ic{background:var(--red-soft);color:var(--red)}
+.spr-b.red:hover:not(:disabled){background:var(--red-soft);border-color:var(--red-soft)}
+.spr-b.on{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.spr-b.on .spr-ic{background:var(--spr-well-on);color:var(--surface)}
+.spr-b.armed{background:var(--red);border-color:var(--red);color:var(--gray-1000)}
+.spr-b.armed .spr-ic{background:var(--spr-well-on);color:var(--gray-1000)}
+/* the meeting row: its app's name, its four buttons, then the PC's volume as one segmented control */
+.spr-mt{align-items:center}
+.spr-tag{flex:none;width:92px;font-size:12px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.spr-mt .spr-b{min-height:84px}
+.spr-gap{flex:0 0 4px}
+.spr-seg{flex:none;display:flex;align-self:stretch;padding:3px;gap:2px;border:1px solid var(--line-soft,var(--line));border-radius:12px;background:var(--panel-2,var(--raised));box-shadow:inset 0 1px 0 var(--spr-hi)}
+.spr-mt .spr-seg .spr-b{flex:0 0 44px;height:auto;min-height:0;border:0;border-radius:8px;background:transparent;box-shadow:none}
+.spr-seg .spr-b .spr-ic{background:transparent;color:var(--muted)}
+.spr-seg .spr-b:hover:not(:disabled){background:var(--hover-2);box-shadow:none}
+.spr-seg .spr-b:hover:not(:disabled) .spr-ic{color:var(--ink)}
+.spr-b.icon .spr-l{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.spr-b.icon kbd{display:none}
+/* shortcuts into FrameDecks: small pills */
+.spr-apps{flex-wrap:wrap;gap:6px;padding-top:2px}
+.spr-b.chip{flex:0 0 auto;min-height:36px;flex-direction:row;gap:6px;padding:0 14px 0 6px;border-radius:999px;background:transparent;box-shadow:none}
+.spr-b.chip .spr-ic{width:26px;height:26px;background:var(--spr-well)}
+.spr-b.chip .spr-ic svg{width:15px;height:15px}
+.spr-b.chip:hover:not(:disabled){background:var(--raised);box-shadow:inset 0 1px 0 var(--spr-hi)}
+@media (prefers-reduced-motion:reduce){ .spr-b{transition:none} .spr-b:active:not(:disabled){transform:none} }
