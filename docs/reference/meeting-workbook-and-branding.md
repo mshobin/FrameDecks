@@ -38,7 +38,7 @@ Meeting name, Date and Meeting notes; the workbook keeps all its own fields.
 | **Meeting Form** | One guided page, read from top to bottom. Everything you plan goes here | Yes |
 
 ### The Meeting Form
-The form is one page in nine numbered sections. Type in the **cream** boxes; **Tab** moves to the next one.
+The form is one page in six numbered sections. Type in the **cream** boxes; **Tab** moves to the next one.
 
 | Section | Boxes or columns |
 | --- | --- |
@@ -46,48 +46,50 @@ The form is one page in nine numbered sections. Type in the **cream** boxes; **T
 | **2 · Speaker** | Speaker name · Speaker contact |
 | **3 · Attendees** | Expected attendees · Attendee notes |
 | **4 · Presentation** | Presentation owner · Content notes |
-| **5 · Frames** | Table: Frame # · Frame name · Purpose / description · Background · Transition · Presenter script |
-| **6 · Content** | Table: Frame # · Order · Content type · Item name · Main content / file · On-screen label · Duration (min) · Animation · PPT background · Notes |
-| **7 · Discussion questions** | Table: Frame # · Content name · Question # · Label · Question text · Media · Timer (min) · Animation |
-| **8 · Scripture readings** | Table: Frame # · Content name · Scripture # · Label · Reference · Scripture text · Translation · Animation |
-| **9 · Additional notes** | Anything else: equipment, follow-ups, prayer requests |
+| **5 · Meeting plan** | One table (9.4): No. · Level · Type · Name · Text · Bible reference · On-screen label · Effect · Notes / script |
+| **6 · Additional notes** | Anything else: equipment, follow-ups, prayer requests |
 
 **Typing the details**
 - **Date**: type it like `2026-10-25`. **Time**: like `19:00`.
 - **Expected attendees**: a number, for example `24`.
 - The **Meeting name** also names the group of imported Frames.
 
-**The tables**
-- Each table starts with a header row beginning **Frame #**. Below it, a few empty rows are open.
-- Need more rows? Select the **+** button in the left margin next to the table. The extra rows are grouped (folded)
-  until you open them.
-- Room in each table: **Frames 60**, **Content 150**, **Discussion questions 150**, **Scripture readings 100**.
-- Drop-down lists are built into the cells: Content type, Background, Transition, Animation and PPT background.
-  Frame #, Order, Question # and Scripture # accept whole numbers only.
+**The Meeting plan (9.4): Frame > Deck > Content**
 
-**What the columns mean**
+The plan follows the app, one row each, top to bottom:
 
-| Table | Column | What to type |
-| --- | --- | --- |
-| Frames | **Frame #** | 1, 2, 3… One row per Frame, each number used once |
-| Frames | **Background** | None, Navy, Black, White, Brand, or a colour like `#1F3A6D` |
-| Frames | **Transition** | Frame default, Cut, Fade, Cross Dissolve, Dip to Black / White, Slide Left / Right, Push, Zoom Fade, Soft Scale, Cinema Fade |
-| Frames | **Presenter script** | Becomes the Frame's Teleprompter script. Only the presenter sees it |
-| Content | **Frame #** · **Order** | Which Frame it belongs to, and its order inside that Frame |
-| Content | **Content type** | Question, Scripture, Text, Image, Video, Timer, PowerPoint, Free Content, plus Announcement, Prayer Point, Lower Third, Birthday, Branding, Camera, Screen. Audio and Web Page are accepted but skipped with a note (not yet available) |
-| Content | **Item name** | Unique within its Frame. Questions and scriptures use it to find their item |
-| Content | **Main content / file** | The text, or a file name for a picture, video or PowerPoint (choose the file in the app afterwards) |
-| Content | **Duration (min)** | For a Timer: minutes (`5`) or a time (`10:30`) |
-| Content | **Animation** | Content default, Fade, Gentle Rise, Word by Word, Typewriter, Burst, Cut |
-| Content | **PPT background** | Show (the whole slide) or Hide (only the slide's objects) |
-| Discussion questions | **Frame #** · **Content name** | The Frame and the Question item it belongs to, in **Question #** order |
-| Scripture readings | **Scripture text** | Leave it empty to fetch it from the ESV (when a key is set in Settings → Scripture) |
+| Level | What it is | Example | No. |
+| --- | --- | --- | --- |
+| **Frame** | One screen, one step of the meeting | Discussion | 3 |
+| **Deck** | A block on that screen: questions, a reading, text, a timer, slides… | Questions | 3.1 |
+| **Content** | One item in the Deck above: each question, each verse | What does “no condemnation” mean? | 3.1.1 |
+
+- Pick the **Level** from the drop-down. **No.** numbers itself (1 · 1.1 · 1.1.1); never type in it.
+- A Frame can hold several Decks (3.1 Questions, 3.2 a Lower Third), and a Deck several Contents (3.1.1, 3.1.2…).
+- A Frame can have one Questions Deck and one Scripture Deck (they share the question-and-scripture card).
+- About 400 rows. Need more than the open rows? Select the **+** button in the left margin.
+
+| Column | Frame row | Deck row | Content row |
+| --- | --- | --- | --- |
+| **Type** | (empty) | Question, Scripture, Text, Announcement, Prayer Point, Lower Third, Timer, Image, Video, PowerPoint, Birthday, Branding, Camera, Screen, Background | (empty: it belongs to the Deck above) |
+| **Name** | The Frame's name | The Deck's name | Optional |
+| **Text** | What the Frame is for (optional) | Its text, the file name (choose the file in the app afterwards), a Timer's minutes (`5`) or time (`10:30`), a Background colour | The question, or the verse text (leave it empty to fetch it from the ESV when a key is set) |
+| **Bible reference** | | | For a verse: `Romans 8:1` or `Romans 8:1 (NIV)` |
+| **On-screen label** | | The card's heading | This item's label |
+| **Effect** | A transition (Fade, Cross Dissolve, Dip to Black…) | How it appears (Fade, Gentle Rise, Word by Word, Typewriter, Burst, Cut) | The same, for this item |
+| **Notes / script** | Becomes the Frame's Teleprompter script | Notes (a PowerPoint: `Hide slide background` shows only the slide's objects) | |
+
+- A second Content under a one-item Deck (Text, Timer, a picture…) becomes its own Deck of the same type, right
+  after it.
+- Problems name the row: *Meeting Form · Meeting plan · row 34: This Content has no Deck above it…*
+- Forms from 6.9 to 9.3 (the four tables Frames, Content, Discussion questions and Scripture readings) and the older
+  one-sheet-per-list workbooks still import.
 
 ### The Dashboard
 The Dashboard fills itself in from the Meeting Form. It has only formulas, so the import never reads it.
 - **Logo and name** at the top, with a **status pill**: *In N days*, *Today*, *Held*, or *Add the date*.
 - **This meeting**: the name, date, time, location, speaker and days to go.
-- **At a glance**: Frames, Content items, Questions, Scriptures and Expected attendees.
+- **At a glance**: Frames, Decks, Questions, Scriptures and Expected attendees.
 - **Meetings**: Total meetings, Upcoming, Recent (last 30 days), **Ready x / 6** and Files to choose (pictures,
   videos and PowerPoint files to choose in the app after the import).
 - **Readiness**: a checklist of six things: a meeting name, a date, a speaker, at least one Frame, content in every

@@ -25,7 +25,7 @@ var live = null;
 var TOOL = {t: 'pen', c: '#e8b931', w: 0.005};
 var TOOLS = [['pen', 'pencil', 'Pen (P)'], ['highlighter', 'highlighter', 'Highlighter (H)'], ['arrow', 'move-up-right', 'Arrow (A)'], ['line', 'minus', 'Line (L)'],
   ['rect', 'square', 'Rectangle (R)'], ['ellipse', 'circle', 'Ellipse (E)'], ['text', 'type', 'Text (T)'],
-  ['spot', 'sparkles', 'Spotlight: click a word (S), or press Ctrl twice']];
+  ['spot', 'sparkles', 'Spotlight (S): it follows your pointer; click a word to circle it. Or press Ctrl twice']];
 var COLORS = [['#e8b931', 'Gold'], ['#ff4b4b', 'Red'], ['#34d17c', 'Green'], ['#4c8dff', 'Blue'], ['#ffffff', 'White'], ['#111111', 'Black']];
 
 /* the toolbar, above the canvas, while annotating */
@@ -102,6 +102,8 @@ function renderBar(){
   Array.prototype.forEach.call(bar.querySelectorAll('.ann-tool'), function(b){ b.classList.toggle('on', b.dataset.tool === TOOL.t); b.setAttribute('aria-pressed', String(b.dataset.tool === TOOL.t)); });
   Array.prototype.forEach.call(bar.querySelectorAll('.ann-col'), function(b){ b.classList.toggle('on', b.dataset.col === TOOL.c); });
   spotSet.hidden = TOOL.t !== 'spot' || bar.hidden;
+  if (TOOL.t !== 'spot') pointer(false);
+  if (typeof pad !== 'undefined'){ pad.classList.toggle('spot', TOOL.t === 'spot'); if (!pad.hidden) placePad(); }   // 9.4 the Spotlight settings row moves the picture down
 }
 renderBar();
 
@@ -120,6 +122,13 @@ function placePad(){
   pad.style.width = ww + 'px'; pad.style.height = hh + 'px';
 }
 window.addEventListener('resize', function(){ if (!pad.hidden) placePad(); });
+/* 9.4 the drawing surface stays exactly over the picture whatever moves it (the Spotlight row, panels, the window):
+   before, choosing Spotlight pushed the picture down while the surface stayed put, so the pointer missed it */
+if (window.ResizeObserver){
+  var padRO = new ResizeObserver(function(){ if (!pad.hidden) placePad(); });
+  padRO.observe(wrap);
+  [$('program'), document.querySelector('.s2-stage')].forEach(function(t){ if (t) padRO.observe(t); });
+}
 
 function annotating(){ return !!(live && live.live.ink && live.live.ink.on); }
 function ink(op, item){ return commit(function(n){ SC.ink(n, op, item); }); }
@@ -147,6 +156,7 @@ pad.addEventListener('pointerdown', function(e){
   drawLocal();
 });
 pad.addEventListener('pointermove', function(e){
+  if (TOOL.t === 'spot' && annotating() && !stroke){ var q0 = pt(e); pointer(true, q0[0], q0[1]); return; }
   if (!stroke) return;
   var p = pt(e);
   if (stroke.t === 'pen' || stroke.t === 'highlighter'){ var q = stroke.p[stroke.p.length - 1]; if (Math.abs(q[0] - p[0]) + Math.abs(q[1] - p[1]) > 0.002) stroke.p.push(p); }
@@ -161,6 +171,22 @@ function endStroke(){
 }
 pad.addEventListener('pointerup', endStroke);
 pad.addEventListener('pointercancel', endStroke);
+pad.addEventListener('pointerleave', function(){ pointer(false); });
+
+/* ---------- 9.4 the follow Spotlight: while the Spotlight tool is on, a lens follows the pointer on every picture,
+   in real time (api/pointer, not the saved state). At most one move is on its way at a time; the newest wins. ---------- */
+var ptr = {busy: false, want: null, on: false};
+function pointer(on, x, y){
+  if (!ptr || (!on && !ptr.on && !ptr.want)) return;          // (renderBar runs once before ptr exists)
+  ptr.want = on ? {on: true, x: x, y: y, c: SPOT.c, size: SPOT.size, k: SPOT.k} : {on: false};
+  if (!ptr.busy) pointerSend();
+}
+function pointerSend(){
+  var body = ptr.want; if (!body) return;
+  ptr.want = null; ptr.busy = true; ptr.on = body.on;
+  fetch('api/pointer', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body)})
+    .catch(function(){}).then(function(){ ptr.busy = false; if (ptr.want) setTimeout(pointerSend, 25); });
+}
 
 /* ---------- 8.2 Spotlight ---------- */
 /* the 16:9 picture inside whatever the canvas shows, in screen pixels */
@@ -270,6 +296,8 @@ window.KCTeleprompter = {open: function(){ teleprompter(true); }, toggle: functi
 function render(){
   var on = annotating(), fz = !!(live && live.live.freeze);
   bar.hidden = !on; pad.hidden = !on; spotSet.hidden = !on || TOOL.t !== 'spot';
+  if (!on) pointer(false);
+  pad.classList.toggle('spot', TOOL.t === 'spot');
   document.body.classList.toggle('annotating', on);
   if (on) placePad(); else if (stroke){ stroke = null; drawLocal(); }
   var a = $('lb-annotate'), f = $('lb-freeze');

@@ -22,7 +22,7 @@ from PIL import Image, ImageDraw, ImageFilter
 
 from .annotate import Ink
 from .burst import Burst
-from .spotlight import Spotlight
+from .spotlight import Follow, Spotlight
 from . import chatcard
 from .cards import CardDrawer, Card, accent_palette, logo_rgba, surface_of, _premult, GOLD_TEXT as _GOLD_TEXT
 
@@ -150,6 +150,8 @@ class ProgramFX:
         self.seq = None
         self.tx = None                   # (type, ms, t0, from_frame, burst)
         self.spot = Spotlight()          # 8.2 the glowing circle around a word
+        self.follow = Follow()           # 9.4 the lens that follows the pointer
+        self.get_pointer = None          # 9.4 () -> the pointer (server.pointer_now), set by the server
         self.black = 0.0
         self.slate_a = 0.0
         self.slate = None                # (key, image)
@@ -209,6 +211,12 @@ class ProgramFX:
         out = self.ink.freeze(out, bool(live.get("freeze")))       # Freeze: hold the picture (drawings still go on top)
         out = self.ink.draw(out if out is not frame else frame, live.get("ink"))
         out = self.spot.draw(out, live.get("spot"), now)
+        if self.get_pointer is not None:
+            try:
+                out = self.follow.draw(out, self.get_pointer(), now)
+            except Exception as _e:                         # never let the lens stop the camera
+                self.get_pointer = None
+                print("FRAMEDECKS: follow spotlight:", _e)
         out, clean = self._memory(out, live, W, H, now, dt, hold)
         if self.black > 0.001:
             out = cv2.convertScaleAbs(out, alpha=1 - self.black)

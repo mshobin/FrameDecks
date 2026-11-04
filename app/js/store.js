@@ -537,7 +537,7 @@ var Scenes = {
     var seen = {}; st.scenes = st.scenes.filter(function(sc){ if (seen[sc.id]) return false; return (seen[sc.id] = true); });
     var l = isObj(raw.live) ? raw.live : {};
     st.live = {scene: str(l.scene, 40), seq: Number(l.seq) || 0, at: Number(l.at) || 0, tx: txId(l.tx) || 'cut',
-      txMs: num(l.txMs, 0, 5000, 0), auto: l.auto !== false, blackout: !!l.blackout, emergency: !!l.emergency, freeze: !!l.freeze, ink: cleanInk(l.ink), spot: cleanSpot(l.spot),
+      txMs: num(l.txMs, 0, 5000, 0), auto: l.auto !== false, blackout: !!l.blackout, emergency: !!l.emergency, freeze: !!l.freeze, ink: cleanInk(l.ink), spot: cleanSpot(l.spot), follow: !!l.follow,
       message: str(l.message === undefined ? DEFAULT_STATE.live.message : l.message, 300), on: {}, cd: {},
       meeting: str(l.meeting, 40)};                            // 8.5 the meeting this PC shows (its own choice; not synced)
     var mem = cleanMemory(l.memory); if (mem) st.live.memory = mem;   // 9.0 the chat overlay's Memory Cards (kept on every save)

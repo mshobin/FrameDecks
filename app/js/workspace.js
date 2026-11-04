@@ -353,7 +353,7 @@ function renderLibrary(ol){
   ol.innerHTML = '';
   function head(g, n){
     var open = !collapsed['lib:' + g];
-    ol.appendChild(h('li', {cls: 'sg-head', role: 'presentation'}, [h('button', {type: 'button', cls: 'sg-btn', 'aria-expanded': String(open), onclick: function(){ collapsed['lib:' + g] = open; sceneSig = ''; renderScenes(); }},
+    ol.appendChild(h('li', {cls: 'sg-head'}, [h('button', {type: 'button', cls: 'sg-btn', 'aria-expanded': String(open), onclick: function(){ collapsed['lib:' + g] = open; sceneSig = ''; renderScenes(); }},
       [h('span', {cls: 'sg-car', text: open ? '▾' : '▸'}), h('span', {text: g}), h('em', {text: String(n)})])]));
     return open;
   }
@@ -405,7 +405,7 @@ function renderScenes(){
   groups.forEach(function(g){
     if (g){
       var open = !collapsed[g];
-      ol.appendChild(h('li', {cls: 'sg-head', role: 'presentation'}, [h('button', {type: 'button', cls: 'sg-btn', 'aria-expanded': String(open), onclick: function(){ collapsed[g] = open; sceneSig = ''; renderScenes(); }},
+      ol.appendChild(h('li', {cls: 'sg-head'}, [h('button', {type: 'button', cls: 'sg-btn', 'aria-expanded': String(open), onclick: function(){ collapsed[g] = open; sceneSig = ''; renderScenes(); }},
         [h('span', {cls: 'sg-car', text: open ? '▾' : '▸'}), h('span', {text: g}), h('em', {text: String(byGroup[g].length)})])]));
       if (!open) return;
     }
@@ -513,7 +513,8 @@ function meetingMenu(anchor){
     '-', {label: 'Ready-made Frames'},
     {icon: 'sparkles', text: 'Quick Start…', run: openQuickStart}, {icon: 'library', text: 'Browse the Content Library', run: function(){ setFilter('tpl'); }}];
   if (saved.length){ items.push('-', {label: 'From your templates'}); saved.forEach(function(t){ items.push({icon: 'layout-template', text: t.name, run: function(){ fromTemplate(t.id); }}); }); }
-  items.push('-', {icon: 'folder-open', text: 'Import a Frame file…', run: importScene});
+  items.push('-', {icon: 'folder-open', text: 'Import a Frame file…', run: importScene},
+    {icon: 'file-spreadsheet', text: 'Import from Excel…', run: function(){ if (window.KCMeetingImport) window.KCMeetingImport.pick(); }});
   menu(anchor, items);
 }
 /* M-D4: the whole service as an editable PowerPoint file (one slide per Frame, scripts as speaker notes), made on this PC */
@@ -574,7 +575,11 @@ function openQuickStart(){
     grid,
     h('p', {cls: 'qs-result', role: 'status', 'aria-live': 'polite', hidden: 'hidden'}),
     h('div', {cls: 'kc-dlg-foot'}, [
-      h('button', {cls: 'btn', type: 'button', id: 'qs-import', html: I('folder-open', 15) + ' Import a Frame file…', title: 'A .frame file from framedecks.com or another PC, or one exported Frame', onclick: importScene}),
+      h('span', {cls: 'qs-imports'}, [
+        h('button', {cls: 'btn', type: 'button', id: 'qs-import', html: I('folder-open', 15) + ' Import a Frame file…', title: 'A .frame file from framedecks.com or another PC, or one exported Frame', onclick: importScene}),
+        /* 9.4 the whole meeting from the Excel Meeting Workbook (also in Settings → Data), right under the Frame file */
+        h('button', {cls: 'btn', type: 'button', id: 'qs-excel', html: I('file-spreadsheet', 15) + ' Import from Excel…', title: 'A whole meeting from the FrameDecks Meeting Workbook (Frame > Deck > Content)',
+          onclick: function(){ dlg.close(); if (window.KCMeetingImport) window.KCMeetingImport.pick(); }})]),
       h('button', {cls: 'btn quiet', type: 'button', text: 'Browse the Library instead', onclick: function(){ dlg.close(); setFilter('tpl'); }}),
       h('button', {cls: 'btn', type: 'button', text: 'Cancel', onclick: function(){ dlg.close(); }})])]));
   if (window.KCSetTab && document.body.dataset.tab !== 'studio') window.KCSetTab('studio');

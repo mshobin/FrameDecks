@@ -331,4 +331,8 @@ body[data-stx="burst"] .card.out{transition:none !important;opacity:0 !important
 @keyframes disc-breathe{50%{transform:scale(1.04)}}
 @keyframes disc-wave{from{transform:scale(.9);opacity:.8}to{transform:scale(1.6);opacity:0}}
 @keyframes disc-out{from{transform:scale(1);opacity:1}to{transform:scale(.55);opacity:0}}
+/* 9.4 the follow Spotlight: a steady soft lens that glides with the pointer (overlay.js followLens) */
+.pg-follow{position:fixed;left:0;top:0;width:0;height:0;z-index:31;pointer-events:none;opacity:0;transition:transform 70ms linear,opacity .18s ease}
+.pg-follow.on{opacity:1}
+.pg-follow .pg-spot-ring{border:0;background:radial-gradient(circle,color-mix(in srgb,var(--c) calc(var(--k) * 38%),transparent) 0%,color-mix(in srgb,var(--c) calc(var(--k) * 55%),transparent) 72%,color-mix(in srgb,var(--c) calc(var(--k) * 85%),transparent) 100%);box-shadow:0 0 0 2px color-mix(in srgb,var(--c) 80%,transparent);animation:none}
 @media (prefers-reduced-motion: reduce){ .pg-spot-ring,.pg-spot.out .pg-spark,.pg-spot.disc .pg-spot-ring,.pg-spot-wave{animation:none} .pg-spot-wave{display:none} .pg-spot.out{opacity:0;transition:opacity .3s} }

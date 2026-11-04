@@ -104,7 +104,6 @@ class Spotlight:
         if el > dur + DISC_OUT:
             return frame
         H, W = frame.shape[:2]
-        k = max(0.1, min(1.0, float(spot.get("k") or 60) / 100))
         r = max(float(spot.get("w") or 0) * W * 0.62, float(spot.get("h") or 0) * H * 1.15, 0.045 * W) * float(spot.get("size") or 1)
         cx, cy = int(float(spot.get("x", 0.5)) * W), int(float(spot.get("y", 0.5)) * H)
         if el < DISC_IN:
@@ -115,10 +114,16 @@ class Spotlight:
         else:
             e = (el - dur) / DISC_OUT
             scale, alpha = 1 - 0.45 * e * e, max(0.0, 1 - e)
-        rr = max(3, int(r * scale))
         wave = 0.0
         if WAVE[0] <= el <= WAVE[1]:
             wave = (el - WAVE[0]) / (WAVE[1] - WAVE[0])
+        return self._paint_disc(frame, spot, r, cx, cy, scale, alpha, wave)
+
+    @staticmethod
+    def _paint_disc(frame, spot, r, cx, cy, scale, alpha, wave=0.0):
+        H, W = frame.shape[:2]
+        k = max(0.1, min(1.0, float(spot.get("k") or 60) / 100))
+        rr = max(3, int(r * scale))
         pad = int(max(rr, r * 1.6) + 6)
         x0, y0, x1, y1 = max(0, cx - pad), max(0, cy - pad), min(W, cx + pad), min(H, cy + pad)
         if x1 <= x0 or y1 <= y0:
@@ -144,3 +149,39 @@ class Spotlight:
         roi[:] = (roi.astype(np.float32) * (1 - a3) + col * a3).astype(np.uint8)
         return frame
 
+
+
+FOLLOW_FADE = 0.18          # 9.4 the follow lens fades in and out this fast (seconds)
+FOLLOW_EASE = 0.045         # and eases toward the pointer with this time constant: smooth, never behind
+
+
+class Follow:
+    """9.4 the follow Spotlight on the FrameDecks vCam picture: a steady soft lens at the pointer (server POINTER),
+    moving with it every frame. The position is eased a little, so a phone's finger or a mouse sending 30 moves a
+    second still glides at the camera's frame rate."""
+
+    def __init__(self):
+        self.x = self.y = 0.5
+        self.a = 0.0
+        self.t = None
+
+    def draw(self, frame, p, now=None):
+        now = time.monotonic() if now is None else now
+        dt = 0.0 if self.t is None else max(0.0, min(0.2, now - self.t))
+        self.t = now
+        on = bool(p and p.get("on"))
+        if on:
+            tx, ty = float(p.get("x", 0.5)), float(p.get("y", 0.5))
+            if self.a <= 0.001:
+                self.x, self.y = tx, ty                       # appears where the pointer is, never slides in
+            else:
+                f = 1 - math.exp(-dt / FOLLOW_EASE) if dt else 1.0
+                self.x += (tx - self.x) * f
+                self.y += (ty - self.y) * f
+        self.a = max(0.0, min(1.0, self.a + (dt / FOLLOW_FADE if on else -dt / FOLLOW_FADE) if dt else (1.0 if on else self.a)))
+        if self.a <= 0.001 or not p:
+            return frame
+        H, W = frame.shape[:2]
+        r = 0.045 * W * float(p.get("size") or 1.4)
+        spot = {"k": p.get("k") or 60, "c": p.get("c") or "#ffffff"}
+        return Spotlight._paint_disc(frame, spot, r, int(self.x * W), int(self.y * H), 0.85 + 0.15 * self.a, self.a)

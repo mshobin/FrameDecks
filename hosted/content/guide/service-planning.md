@@ -232,16 +232,14 @@ Since 6.9 the workbook has just two tabs.
 | **2 · Speaker** | Speaker name, Speaker contact |
 | **3 · Attendees** | Expected attendees, Attendee notes |
 | **4 · Presentation** | Presentation owner, Content notes |
-| **5 · Frames** | A table: one row per Frame (name, purpose, background, transition, presenter script) |
-| **6 · Content** | A table: what each Frame shows, in order |
-| **7 · Discussion questions** | A table: the questions of each Question item |
-| **8 · Scripture readings** | A table: the scriptures of each Scripture item |
-| **9 · Additional notes** | Anything else: equipment, follow-ups, prayer requests |
+| **5 · Meeting plan** | One table, like the app: a **Frame** row for each screen (1, 2, 3), **Deck** rows for what it shows (1.1, 1.2) and **Content** rows for each question or verse in a Deck (1.1.1, 1.1.2). The numbers fill in by themselves |
+| **6 · Additional notes** | Anything else: equipment, follow-ups, prayer requests |
 
 - Type in the **cream** boxes. **Tab** moves to the next box.
 - Type the date like `2026-10-25` and the time like `19:00`.
-- Many cells have a drop-down list (Content type, Background, Transition, Animation and so on). Pick from it.
-- Each table shows a few empty rows. Need more? Select the **+** button in the left margin to open the next rows.
+- Many cells have a drop-down list (Level, Type, Effect). Pick from it.
+- The plan shows a few empty rows. Need more? Select the **+** button in the left margin to open the next rows.
+- Import it with **Import from Excel…** in Quick Start (under **Import a Frame file…**), or in Settings → Data / Backup.
 
 **Dashboard** fills itself in from the Meeting Form. You never type on it, and it is never imported. It shows the
 meeting at a glance: how many days to go, the counts of Frames, Content, questions and scriptures, a **Readiness**

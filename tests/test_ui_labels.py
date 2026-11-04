@@ -198,17 +198,31 @@ class RunningAService(unittest.TestCase):
 
 
 class PhoneRemote(unittest.TestCase):
-    """8.0: the phone remote is one view: no layouts, no tabs, big Previous / Next, tools, every Frame one tap away."""
+    """9.4: the phone remote runs the whole meeting: the live picture (Spotlight, Draw), Previous / Next and Hide all
+    always in view, and five tabs: Show, Plan (Frame > Deck > Content), Tools, Memory, Meeting."""
 
-    def test_one_view(self):
+    def test_stage_and_tabs(self):
         html = read("remote.html")
-        for need in ('id="hide-all"', 'id="prev"', 'id="next"', 'id="flist"', 'id="t-prompter"', 'id="t-draw"', 'id="t-freeze"', 'id="t-black"'):
+        for need in ('id="hide-all"', 'id="prev"', 'id="next"', 'id="flist"', 'id="t-prompter"', 'id="t-draw"', 'id="t-freeze"',
+                     'id="t-black"', 'id="t-spot"', 'id="pic-spot"', 'id="touch"', 'id="dlist"', 'id="mlist"', 'id="mtlist"', 'id="cm"'):
             self.assertIn(need, html)
-        for gone in ('id="tabbar"', "data-role-pick", 'id="more"', 'id="rehearse"', 'id="tx"', 'id="emergency"', 'id="ssearch"'):
+        for t in ("show", "plan", "tools", "memory", "meeting"):
+            self.assertIn(f'role="tab" id="tab-{t}" aria-controls="p-{t}"', html)
+            self.assertIn(f'id="p-{t}" role="tabpanel"', html)
+        for gone in ("data-role-pick", 'id="rehearse"', 'id="emergency"', 'id="ssearch"'):
             self.assertNotIn(gone, html)
         js = read("js/remote.js")
-        for gone in ("setRole", "setTab", "Create variant", "structure only"):
+        for need in ("api/pointer", "SC.toggleVisible(n, sc.id, l.id)", "op: 'media'", "SC.switchMeeting(n, m.id)", "n.live.spot = SC.cleanSpot(spot)"):
+            self.assertIn(need, js)
+        for gone in ("setRole", "Create variant", "structure only"):
             self.assertNotIn(gone, js)
+
+    def test_media_is_the_only_new_remote_studio_action(self):
+        src = (ROOT / "src" / "server.py").read_text(encoding="utf-8")
+        body = src[src.index("def remote_studio_action"):src.index("def recordings_dir")]
+        self.assertIn('cmd not in ("play", "pause", "stop", "restart")', body)
+        self.assertIn('x["type"] == "video"', body)
+        self.assertIn('raise ValueError("Not allowed from the remote")', body)
 
 
 class Release81(unittest.TestCase):

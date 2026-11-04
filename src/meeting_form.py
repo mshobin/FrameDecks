@@ -6,11 +6,11 @@ The Meeting Workbook has two tabs: Dashboard (formulas only) and Meeting Form (o
     2 · Speaker             Speaker name · Speaker contact
     3 · Attendees           Expected attendees · Attendee notes
     4 · Presentation        Presentation owner · Content notes
-    5 · Frames              } tables: a header row ("Frame #" ...) and a fixed number of rows; the unused rows are
-    6 · Content             } folded away (Excel's + button on the left opens them)
-    7 · Discussion questions
-    8 · Scripture readings
-    9 · Additional notes
+    5 · Meeting plan        9.4 ONE table in the app's own order, Frame > Deck(s) > Content(s), one row each: a header
+                            row ("No." · "Level" ...) and a fixed number of rows; the unused rows are folded away
+                            (Excel's + button on the left opens them). No. numbers itself (a formula: 1 · 1.1 · 1.1.1)
+                            from the Level column, so it is never written here.
+    6 · Additional notes
 
 tools/make_meeting_workbook.py draws the template from this layout; fill() writes a meeting into that template for
 "Export this meeting to Excel" (src/server.py, POST api/meeting/workbook), so the export looks exactly like the template.
@@ -40,16 +40,12 @@ DETAILS = [
 ]
 # (key, title, hint, column names, rows) - the column names and their order match app/js/meeting-book.js FORM_TABLES
 TABLES = [
-    ("frames", "Frames", "One row per Frame: one screen, one step of the meeting. Number them 1, 2, 3…",
-     ["Frame #", "Frame name", "Purpose / description", "Background", "Transition", "Presenter script"], 60),
-    ("content", "Content", "What each Frame shows. Frame # says which Frame; Order is the order inside it.",
-     ["Frame #", "Order", "Content type", "Item name", "Main content / file", "On-screen label", "Duration (min)", "Animation",
-      "PPT background", "Notes"], 150),
-    ("questions", "Discussion questions", "The questions of a Question item (same Frame # and item name), in order.",
-     ["Frame #", "Content name", "Question #", "Label", "Question text", "Media", "Timer (min)", "Animation"], 150),
-    ("scriptures", "Scripture readings", "The scriptures of a Scripture item. Leave the text empty to fetch it from the ESV.",
-     ["Frame #", "Content name", "Scripture #", "Label", "Reference", "Scripture text", "Translation", "Animation"], 100),
+    ("plan", "Meeting plan",
+     "Level: Frame = one screen · Deck = a block on it (questions, a reading, text, a timer, slides…) · Content = an item in "
+     "the Deck above (each question or verse). No. numbers them for you: 1 · 1.1 · 1.1.1.",
+     ["No.", "Level", "Type", "Name", "Text", "Bible reference", "On-screen label", "Effect", "Notes / script"], 400),
 ]
+FORMULA_COLUMNS = {"plan": {0}}     # columns the template works out itself (never written by fill)
 EXTRA = ("Additional notes", "Anything else: equipment, follow-ups, prayer requests.", [("extra", "Additional notes", 3)])
 SHOW_BLANK = 3            # empty table rows left open below the filled ones
 
@@ -198,10 +194,12 @@ def fill(template, meeting, tables):
         if len(data) > last - first + 1:
             title = next(t[1] for t in TABLES if t[0] == key)
             raise ValueError(f"{title}: {len(data)} rows, the form has room for {last - first + 1}")
+        skip = FORMULA_COLUMNS.get(key, set())
         for i in range(last - first + 1):
             row = data[i] if i < len(data) else []
             for j in range(len(cols)):
-                values[f"{COLUMNS[j]}{first + i}"] = _cell_value(row[j]) if j < len(row) else ""
+                if j not in skip:
+                    values[f"{COLUMNS[j]}{first + i}"] = _cell_value(row[j]) if j < len(row) else ""
             (show if i < len(data) + SHOW_BLANK else hide).add(first + i)
     src = zipfile.ZipFile(io.BytesIO(template))
     path = _sheet_path(src)

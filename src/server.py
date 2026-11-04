@@ -42,7 +42,7 @@ import updater   # 7.0: updates from FrameDecks servers (checked, silent, with r
 from media_names import safe_name   # 9.1.2 media file names are never paths
 import memory    # 9.0: Memory Cards in the FrameDecks vCam chat overlay (docs/architecture/memory-cards.md)
 
-APP_VERSION = "9.3.0"
+APP_VERSION = "9.4.0"
 STARTED_AT = time.time()
 FROZEN = getattr(sys, "frozen", False)          # True inside the installed Windows app
 HERE = Path(sys.executable).resolve().parent if FROZEN else Path(__file__).resolve().parent.parent   # the repository root (this file is in src/)
@@ -91,7 +91,7 @@ REMOTE_PUBLIC = {"/remote.html", "/css/remote.css", "/js/remote.js", "/js/store.
                  "/icons/favicon-16.png", "/icons/favicon-32.png",
                  "/icons/remote-maskable-512.png", "/img/framedecks-emblem.webp"}
 REMOTE_SIGNED_IN = {"/api/rev", "/api/state", "/api/remote-logout", "/js/overlay.js", "/api/remote/studio", "/api/brand/logo", "/api/remote/live.jpg",
-                    "/api/remote/memory",
+                    "/api/remote/memory", "/api/pointer",
                     "/css/overlay.css", "/stage.html", "/focus-verse.html", "/discussion-question.html", "/birthday.html"}
 sessions_lock = threading.Lock()
 failures = {}  # ip -> [count, locked_until]  (9.1.2: count keeps growing until a right PIN; the wait doubles)
@@ -526,6 +526,65 @@ def page_csp(html):
 
 
 REMOTE_MEMORY_ACTIONS = ("add", "show", "showmany", "pin", "hide", "hideall", "delete")   # 9.1 from the phone remote
+
+
+# ---------- 9.4 the follow Spotlight: a lens that follows the pointer (or a finger on the phone) in real time ----------
+# Moves are many a second, so they never go through the saved state (which every screen would re-read): they live
+# here, the camera reads them every frame, and the overlay pages wait for them (GET /api/pointer, a long-poll) only
+# while live.follow is on. A lens nobody has moved for POINTER_IDLE seconds fades by itself (a phone put away).
+POINTER = {"seq": 0, "on": False, "x": 0.5, "y": 0.5, "at": 0.0, "c": "#ffffff", "size": 1.4, "k": 60}
+pointer_cond = threading.Condition()
+POINTER_IDLE = 6.0
+
+
+def pointer_now():
+    with pointer_cond:
+        p = dict(POINTER)
+    if p["on"] and time.time() - p["at"] > POINTER_IDLE:
+        p["on"] = False
+    return p
+
+
+def _num(v, lo, hi, default):
+    try:
+        f = float(v)
+    except (TypeError, ValueError):
+        return default
+    return default if f != f else max(lo, min(hi, f))
+
+
+def pointer_set(d):
+    """POST /api/pointer {on, x, y, c?, size?, k?}: move (or lift) the follow Spotlight."""
+    if not isinstance(d, dict):
+        raise ValueError("Invalid data")
+    on = d.get("on") is True
+    with pointer_cond:
+        was = POINTER["on"] and time.time() - POINTER["at"] <= POINTER_IDLE
+        if on:
+            POINTER["x"] = _num(d.get("x"), 0.0, 1.0, POINTER["x"])
+            POINTER["y"] = _num(d.get("y"), 0.0, 1.0, POINTER["y"])
+            c = str(d.get("c") or "")
+            if re.fullmatch(r"#[0-9a-fA-F]{6}", c):
+                POINTER["c"] = c.lower()
+            POINTER["size"] = _num(d.get("size"), 0.5, 3.0, POINTER["size"])
+            POINTER["k"] = _num(d.get("k"), 10, 100, POINTER["k"])
+        POINTER["on"] = on
+        POINTER["seq"] += 1
+        POINTER["at"] = time.time()
+        pointer_cond.notify_all()
+    eng = VCAM.get("engine") if "VCAM" in globals() else None
+    if eng:
+        try:
+            eng.kick()
+        except Exception as _e:
+            _swallowed("server.pointer_set", _e)
+    if on != was:                       # the overlay pages start (or stop) following: one state change per gesture
+        def follow(st):
+            if isinstance(st.get("live"), dict):
+                st["live"]["follow"] = on
+            return st
+        update_state(follow)
+    return pointer_now()
 
 
 def remote_memory_body():
@@ -1635,15 +1694,28 @@ def remote_studio_info():
     except Exception:
         est = {}
     rec = comp.recorder
+    lay = comp.layers.status()
+    media = [{"id": x["id"], "name": x.get("name") or "Video", "state": lay.get(x["id"], {}).get("state", ""),
+              "ended": bool(lay.get(x["id"], {}).get("ended"))}
+             for x in comp.layers.layers[::-1] if x["type"] == "video" and x.get("visible", True)]
     return {"available": True, "scenes": [{"id": x["id"], "name": x["name"]} for x in st["scenes"]],
-            "activeScene": st["activeScene"], "presentation": pres,
+            "activeScene": st["activeScene"], "presentation": pres, "media": media[:6],
             "vcam": {"state": est.get("state", ""), "inUse": bool(est.get("inUse")), "fps": est.get("fps", 0)},
             "recording": {"on": rec is not None, "seconds": round(time.time() - rec.started, 1) if rec else 0}}
 
 
 def remote_studio_action(d):
-    """Only two things are allowed from the remote: switch scene, and next/previous slide."""
+    """What the remote may do in the Studio: switch scene, next/previous slide, and (9.4) play, pause or restart a
+    video Deck of the picture."""
     op = d.get("op")
+    if op == "media":
+        comp = VCAM.get("compositor")
+        cmd, lid = str(d.get("cmd") or ""), str(d.get("id") or "")
+        if not comp or cmd not in ("play", "pause", "stop", "restart"):
+            raise ValueError("Not allowed from the remote")
+        if not any(x["id"] == lid and x["type"] == "video" for x in comp.layers.layers) or not comp.layers.control(lid, cmd):
+            raise ValueError("That video isn’t playing on the PC")
+        return {}
     if op == "scene":
         studio_action({"op": "scene-apply", "id": str(d.get("id") or "")})
         return {}
@@ -1967,6 +2039,7 @@ def vcam_start():
     from vcam.program import ProgramFX
     comp.program_fx = ProgramFX(APP / "fonts", lambda: state, lambda: VCAM.get("cardsOn", True), logo_path=BRAND_LOGO)
     comp.program_fx.others = layer.visible          # 9.1 the Memory Card bubbles keep clear of the cards on screen
+    comp.program_fx.get_pointer = pointer_now       # 9.4 the follow Spotlight
     VCAM["compositor"] = comp
     st = studio_load()
     comp.set_layout(st["layout"])
@@ -2369,6 +2442,17 @@ class Handler(BaseHTTPRequestHandler):
                 snap = (state, LIBRARY["rev"])
             body = state_body(q.get("librev", [None])[0], snap)    # made outside the lock (M10)
             return self.reply(200, body, TYPES[".json"])
+        if path == "/api/pointer":                      # 9.4 the follow Spotlight (long-poll on seq)
+            q = parse_qs(url.query)
+            since = q.get("since", [None])[0]
+            try:
+                wait = min(10.0, max(0.5, float(q.get("wait", ["10"])[0])))
+            except ValueError:
+                wait = 10.0
+            if since is not None:
+                with pointer_cond:
+                    pointer_cond.wait_for(lambda: str(POINTER["seq"]) != since, timeout=wait)
+            return self.reply(200, json.dumps(pointer_now()), TYPES[".json"])
         if path == "/api/remote/memory":                # 9.1 Capture Memory on the phone remote (signed in; long-poll)
             q = parse_qs(url.query)
             since = q.get("since", [None])[0]
@@ -2796,6 +2880,8 @@ class Handler(BaseHTTPRequestHandler):
                 return self.reply(200, json.dumps({"ok": True, **res, "studio": remote_studio_info()}), TYPES[".json"])
             except (ValueError, RuntimeError) as e:
                 return self.reply(400, json.dumps({"error": str(e)}), TYPES[".json"])
+        if path == "/api/pointer":
+            return self.reply(200, json.dumps(pointer_set(data)), TYPES[".json"])
         if path == "/api/remote/memory":                # 9.1 the phone remote: paste, Show, Hide, Remove
             d = data if isinstance(data, dict) else {}
             if d.get("action") not in REMOTE_MEMORY_ACTIONS:

@@ -83,7 +83,7 @@ function start(){
   drop.addEventListener('dragleave', function(){ drop.classList.remove('over'); });
   drop.addEventListener('drop', function(e){ e.preventDefault(); drop.classList.remove('over'); var f = e.dataTransfer.files[0]; if (f) read(f); });
   frame([h('h2', {id: 'mi-title', text: 'Build a whole meeting from one file'}),
-    h('p', {cls: 'kc-dlg-sub', text: 'Fill in the Meeting Form tab of the Meeting Workbook: meeting details, Frames, Content, questions and scriptures, top to bottom. You will see a preview first; nothing changes until you select Import.'}),
+    h('p', {cls: 'kc-dlg-sub', text: 'Fill in the Meeting Form tab of the Meeting Workbook: the meeting details, then the Meeting plan, one row per Frame, Deck and Content (1 · 1.1 · 1.1.1). You will see a preview first; nothing changes until you select Import.'}),
     drop,
     h('div', {cls: 'kc-dlg-foot'}, [
       h('button', {cls: 'btn', type: 'button', html: I('file-text', 15) + ' Download the template', onclick: template}),

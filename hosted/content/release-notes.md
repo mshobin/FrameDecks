@@ -1,48 +1,56 @@
-## FrameDecks v9.3.0
+## FrameDecks v9.4.0
 
-A security and reliability release that completes the November 2026 review. On screen, little changes: private chat
-messages stay off the phone, and the team owner can hand a team to someone else. Download from
-**framedecks.com/download**, or let FrameDecks update itself. It installs over 9.2.0 and earlier and keeps all your
-meetings, members, settings, pinned Memory Cards and recordings.
+Run the whole meeting from your phone. The remote has been redesigned around the live picture: point at it with the
+Spotlight, step through every Frame, Deck and question, play videos and switch meetings, upright or sideways. On the
+PC, the Spotlight now follows your mouse, and the Meeting Workbook plans a meeting the same way the app does. Download
+from **framedecks.com/download**, or let FrameDecks update itself. It installs over 9.3.0 and earlier and keeps all
+your meetings, members, settings, pinned Memory Cards and recordings.
 
 ## What's New
-- **Make owner.** On the website, a team's owner can hand the team to another member (Members → **Make owner**). The
-  old owner stays in the team as an admin. Before you delete your account, use it to pass on a team you share.
+- **A new phone and tablet remote.** The live picture, what is on screen and **Previous / Next** stay in view, with
+  five tabs under them:
+  - **Show**: the Frame on screen, with its questions, scriptures or slides, its videos, and every Deck with an eye.
+  - **Plan**: the whole meeting, numbered 1 · 1.1 · 1.1.1. Tap any Frame, Deck or question to show it.
+  - **Tools**: Draw, Spotlight, Teleprompter, Freeze, Black screen and Clear drawings.
+  - **Memory**: Capture Memory.
+  - **Meeting**: the meeting's details, Switch meeting, what the PC is doing, and Disconnect.
+
+  Hold the phone upright and the tabs sit at the bottom. Turn it sideways, or use a tablet, and the picture sits on
+  the left with the tabs on the right.
+- **Spotlight from the phone.** Tap **Spotlight** on the live picture, then drag a finger: the spotlight follows it
+  on every screen. Tap once for a quick circle.
+- **The Spotlight follows the mouse on the PC.** With the Spotlight tool chosen, move the pointer over the picture and
+  the spotlight moves with it, live, on FrameDecks vCam and the overlay pages. It fades away when the pointer leaves
+  the picture. Click a word to circle it, as before.
+- **Video controls on the remote.** Play, pause or restart a video that is in the picture.
+- **The Meeting plan in the Meeting Workbook.** The Meeting Form's plan is now one table in the app's own order,
+  Frame > Deck > Content:
+  - Choose a Level from the list. The No. column numbers itself: Frame 1, Decks 1.1 and 1.2, Contents 1.1.1 and
+    1.1.2.
+  - A Frame can have several Decks, and a Deck several questions or verses.
+  - The Dashboard tab is unchanged in purpose: it counts Frames, Decks, questions and scriptures, and its readiness
+    list now also checks that every Deck has a Type.
+- **Import from Excel in Quick Start**, under *Import from a file*, as well as in Settings.
 
 ## Enhancements
-- **Private messages stay on the PC.** A private chat message in Capture Memory (for example a Zoom message sent to
-  you privately) shows on the phone remote as "Private message. Read it on the PC." Its sender and actions are still
-  there. Once you put it on screen, the phone shows its text like everyone else sees it.
-- **The camera driver now lives in a protected folder.** FrameDecks vCam is installed in Program Files, where only an
-  administrator can change it. Windows asks for permission only when the camera itself changed in an update, not
-  with every update.
-- **Linking a PC is harder to block.** One network can ask for only a few link codes at a time, so nobody can stop
-  other churches linking their PCs.
-- **The link page names your PC as FrameDecks knows it**, not as the link says.
-- **Edits are never lost in sync.** When a setting or list item was changed on two computers, the version that was
-  replaced is now also kept on the PC.
-- **Deleting your account removes your name** from remote commands and records you changed.
-- FrameDecks' own pages and the website now carry a security policy that tells the browser what they may load. It
-  only reports for now, so nothing can stop working.
-- PowerPoint files you add are turned into slides with their macros switched off.
-- Database backups are checked for changes before they are restored.
+- The remote's **Next** button shows the name of the Frame it will put on screen.
+- The remote shows a chip when the screen is black or frozen, or has drawings on it.
+- The remote remembers the tab you used last.
+- Its buttons pause while the PC can't be reached.
+- Upright or sideways, the remote uses the whole screen and never scrolls behind its own buttons.
+- Hand-made Meeting Forms still import. When the Level column is empty, it is worked out from the numbering.
 
 ## Fixes
-- A change from the tray (such as Hide all) can no longer be overwritten by a phone pressing Next at the same moment.
-- A badly formed request to the PC now gets a clear answer instead of a dropped connection.
-- A very long word with no spaces no longer slows down a card on the camera.
-- An Excel file that claims to be enormous opens quickly, and a file far larger than any Frame file is refused before
-  it is read.
+- With the Spotlight tool chosen, the pointer no longer froze over the picture.
+- In the Studio, screen readers now read the meeting groups in the Frames list correctly.
 
 ## Performance Improvements
-- With several screens open (Studio, phone remote, Teleprompter), each change is prepared once for all of them instead
-  of once per screen, and no screen waits for another while it is sent.
-- FrameDecks vCam no longer makes a new copy of the picture for every frame, which gives the PC less work during a
-  meeting.
-- A linked PC with nothing waiting no longer writes to the cloud every 15 seconds.
-- The website loads the About page's styles only when you open it.
+- The spotlight moves on the phone and the PC send only their newest position, one at a time, so a slow network
+  never queues up old movements.
+- Screens only check where the spotlight is while it is on.
 
 ## Known Issues
 - The installer is not yet code-signed, so Windows SmartScreen may ask you to confirm: **More info → Run anyway**.
+- On iPhone, Safari does not allow vibration, so remote presses are confirmed by a message only.
 - On the phone, the **Paste** button needs the installed web app or https; otherwise long-press the box and choose
   **Paste**.

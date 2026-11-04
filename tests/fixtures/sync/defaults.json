@@ -101,6 +101,7 @@
     "undone": []
    },
    "spot": null,
+   "follow": false,
    "message": "Please stand by — we’ll be right back.",
    "on": {},
    "cd": {},
@@ -438,6 +439,7 @@
      "undone": []
     },
     "spot": null,
+    "follow": false,
     "message": "Please stand by — we’ll be right back.",
     "on": {},
     "cd": {},

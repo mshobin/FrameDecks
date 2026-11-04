@@ -1,4 +1,4 @@
-"""Writes the FrameDecks Meeting Workbook template (6.9): two tabs, Dashboard and Meeting Form.
+"""Writes the FrameDecks Meeting Workbook template (6.9; 9.4 the Meeting plan): two tabs, Dashboard and Meeting Form.
 
     python3 tools/make_meeting_workbook.py
 
@@ -27,13 +27,14 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "src"))
 import meeting_form as MF  # noqa: E402
 
-CONTENT_TYPES = ["Question", "Scripture", "Text", "Image", "Video", "Timer", "PowerPoint", "Free Content",
-                 "Announcement", "Prayer Point", "Lower Third", "Birthday", "Branding", "Camera", "Screen"]
+LEVELS = ["Frame", "Deck", "Content"]
+DECK_TYPES = ["Question", "Scripture", "Text", "Announcement", "Prayer Point", "Lower Third", "Timer", "Image", "Video", "PowerPoint",
+              "Birthday", "Branding", "Camera", "Screen", "Background"]
 BACKGROUNDS = ["None", "Navy", "Black", "White", "Brand"]
 TRANSITIONS = ["Frame default", "Cut", "Fade", "Cross Dissolve", "Dip to Black", "Dip to White", "Slide Left", "Slide Right", "Push",
                "Zoom Fade", "Soft Scale", "Cinema Fade"]
 ANIMATIONS = ["Content default", "Fade", "Gentle Rise", "Word by Word", "Typewriter", "Burst", "Cut"]
-PPT_BG = ["Show", "Hide"]
+EFFECTS = TRANSITIONS + [a for a in ["Content default", "Fade", "Gentle Rise", "Word by Word", "Typewriter", "Burst", "Cut"] if a not in TRANSITIONS]
 
 # the app's colours; every height is a multiple of 6 pt (8 px)
 NAVY, GOLD, INK, MUTED, LINE, PAPER, CARD, INPUT = "0F1F3D", "E3B75A", "1B2333", "6B7385", "D5DCE8", "FFFFFF", "F4F6FA", "FFFBEF"
@@ -57,41 +58,56 @@ TOP = Alignment(horizontal="left", vertical="top", wrap_text=True, indent=1)
 CENTER = Alignment(horizontal="center", vertical="center", wrap_text=True)
 
 SAMPLE_MEETING = {
-    "title": "Romans · Week 5", "date": datetime.date(2026, 10, 25), "time": datetime.time(19, 0),
+    "title": "Evening Bible Study", "date": datetime.date(2026, 10, 25), "time": datetime.time(19, 0),
     "location": "Fellowship Hall, or paste the Zoom / Teams link", "notes": "Anything the team should know about this meeting.",
     "presenter": "Your name", "contact": "name@example.com · 555 0100", "attendees": 24,
     "attendeeNotes": "Two newcomers expected: welcome them by name.", "owner": "Your name",
-    "contentNotes": "Slides from the Romans series; the countdown starts five minutes before.", "extra": "",
+    "contentNotes": "Slides are in the shared folder; the countdown starts five minutes before.", "extra": "",
 }
-SAMPLE_TABLES = {
-    "frames": [
-        [1, "Welcome", "People arrive and settle in", "Navy", "Fade", "Greet people by name as they join."],
-        [2, "Worship", "Opening song", "None", "Frame default", "Song lyrics are on the shared screen."],
-        [3, "Scripture Reading", "Romans 8:1-4", "None", "Cross Dissolve", "Ask a volunteer to read."],
-        [4, "Questions", "Small-group discussion", "None", "Fade", "Allow 10 minutes per question."],
-        [5, "Lesson Slides", "This week's teaching slides", "None", "Fade", "Open the PowerPoint first."],
-        [6, "Closing", "Prayer and goodbye", "Navy", "Dip to Black", "Thank everyone for coming."]],
-    "content": [
-        [1, 1, "Text", "Welcome message", "Welcome! We begin in just a moment.", "Welcome", "", "Fade", "", ""],
-        [1, 2, "Timer", "Countdown", "", "Starting in", 5, "", "", "Five-minute countdown"],
-        [2, 1, "Free Content", "Song", "Announcement: Please join in the opening song.", "Worship", "", "Gentle Rise", "", ""],
-        [3, 1, "Scripture", "Reading", "", "Focus Verse", "", "Gentle Rise", "", "The scriptures are in Scripture readings below."],
-        [4, 1, "Question", "Discussion", "", "Discussion Question", "", "Fade", "", "The questions are in Discussion questions below."],
-        [5, 1, "PowerPoint", "Lesson", "Romans Week 5.pptx", "", "", "", "Show", "Choose the file in the app after the import."],
-        [6, 1, "Prayer Point", "Closing prayer", "Let’s close our time together in prayer.", "Closing Prayer", "", "Fade", "", ""],
-        [6, 2, "Lower Third", "Goodbye", "See you next week", "Thank you for joining!", "", "Gentle Rise", "", ""]],
-    "questions": [
-        [4, "Discussion", 1, "Question 1", "What does “no condemnation” mean for you this week?", "", 3, "Fade"],
-        [4, "Discussion", 2, "Question 2", "How does the Spirit help us live differently?", "", 3, "Word by Word"],
-        [4, "Discussion", 3, "Question 3", "What is one step you will take before we meet again?", "", "", "Fade"]],
-    "scriptures": [
-        [3, "Reading", 1, "Focus Verse", "Romans 8:1", "There is therefore now no condemnation for those who are in Christ Jesus.", "ESV", "Gentle Rise"],
-        [3, "Reading", 2, "Read together", "Romans 8:2", "For the law of the Spirit of life has set you free in Christ Jesus from the law of sin and death.", "ESV", ""]],
-}
-FORM_WIDTHS = [22, 14, 18, 22, 44, 26, 14, 16, 15, 30]
-LONG = {"frames": {2, 5}, "content": {4, 9}, "questions": {4}, "scriptures": {5}}   # columns that wrap long text
-NUMBERS = {"frames": {0}, "content": {0, 1, 6}, "questions": {0, 2, 6}, "scriptures": {0, 2}}   # centred number columns
+# 9.4 the Meeting plan: Frame > Deck(s) > Content(s). No. (column A) is a formula, so the sample starts at Level.
+#           Level      Type            Name               Text                                              Bible reference  On-screen label          Effect           Notes / script
+SAMPLE_PLAN = [
+    ["Frame", "", "Welcome", "", "", "", "Fade", "Greet people by name as they join."],
+    ["Deck", "Text", "Welcome message", "Welcome! We begin in just a moment.", "", "Welcome", "Fade", ""],
+    ["Deck", "Timer", "Countdown", 5, "", "Starting in", "", "Five-minute countdown."],
+    ["Frame", "", "Scripture Reading", "", "", "", "Cross Dissolve", "Ask a volunteer to read."],
+    ["Deck", "Scripture", "Reading", "", "", "Focus Verse", "Gentle Rise", ""],
+    ["Content", "", "", "There is therefore now no condemnation for those who are in Christ Jesus.", "Romans 8:1 (ESV)", "", "", ""],
+    ["Content", "", "", "For the law of the Spirit of life has set you free in Christ Jesus from the law of sin and death.", "Romans 8:2 (ESV)",
+     "Read together", "", "With an ESV key (Settings → Scripture), leave Text empty and FrameDecks fills it in."],
+    ["Frame", "", "Discussion", "", "", "", "Fade", "Allow 10 minutes per question."],
+    ["Deck", "Question", "Questions", "", "", "Discussion Question", "Fade", ""],
+    ["Content", "", "", "What does “no condemnation” mean for you?", "", "Question 1", "", ""],
+    ["Content", "", "", "How does the Spirit help us live differently?", "", "Question 2", "Word by Word", ""],
+    ["Content", "", "", "What is one step you will take this week?", "", "Question 3", "", ""],
+    ["Deck", "Lower Third", "Group time", "Discuss in groups of three", "", "Small groups", "Gentle Rise", ""],
+    ["Frame", "", "Teaching", "", "", "", "Fade", "Open the slides in the app after the import."],
+    ["Deck", "PowerPoint", "Slides", "Teaching slides.pptx", "", "", "", "Choose the file in the app after the import."],
+    ["Frame", "", "Closing", "", "", "", "Dip to Black", "Thank everyone for coming."],
+    ["Deck", "Prayer Point", "Closing prayer", "Let’s close our time together in prayer.", "", "Closing Prayer", "Fade", ""],
+    ["Deck", "Lower Third", "Goodbye", "See you next time", "", "Thank you for joining!", "Gentle Rise", ""],
+]
+FORM_WIDTHS = [20, 11, 15, 22, 46, 20, 22, 16, 32, 14]
+PLAN_LONG = {4, 8}                  # columns that wrap long text (Text, Notes)
+LEVEL_FILL = {"Frame": "E8EEF9", "Deck": "FFFFFF", "Content": "FFFFFF"}
 VALUE_SPAN = "F"             # a detail's box: B..F
+
+
+def no_formula(first, n):
+    """No. for row n: Frame 1 · Deck 1.1 · Content 1.1.1, worked out from the Level column (B) above it."""
+    rng = f"B${first}:B{n}"
+    last = lambda what: f'INDEX(B:B,LOOKUP(2,1/({rng}="{what}"),ROW({rng})))'      # noqa: E731 - the row of the last Frame / Deck
+    frames = f'COUNTIF({rng},"Frame")'
+    decks = f'COUNTIF({last("Frame")}:B{n},"Deck")'
+    contents = f'COUNTIF({last("Deck")}:B{n},"Content")'
+    return (f'=IFERROR(IF(B{n}="","",IF(B{n}="Frame",{frames},IF(B{n}="Deck",{frames}&"."&{decks},'
+            f'{frames}&"."&{decks}&"."&{contents}))),"?")')
+
+
+def deck_type_formula(first, n):
+    """Column J (hidden): the Deck type of a row (its own for a Deck, its Deck's for a Content), for the Dashboard."""
+    rng = f"B${first}:B{n}"
+    return (f'=IFERROR(IF(B{n}="Deck",C{n},IF(B{n}="Content",LOOKUP(2,1/({rng}="Deck"),C${first}:C{n}),"")),"")')
 
 
 def list_rule(ws, values, cells, prompt, strict=True):
@@ -137,8 +153,9 @@ def meeting_form(wb):
         elif kind == "intro":
             band(ws, row, H_INTRO, CARD)
             ws.merge_cells(f"A{row}:{last_col}{row}")
-            a.value = ("Work down the page and fill in the cream boxes (Tab moves to the next one). Each table opens more rows "
-                       "with the + button on the left. Then, in FrameDecks: Meeting → Import meeting from Excel…")
+            a.value = ("Fill in the cream boxes, then plan the meeting in section 5: a Frame row for each screen, Deck rows for "
+                       "what it shows, Content rows for each question or verse. More rows: the + button on the left. "
+                       "Then, in FrameDecks: Quick Start or Settings → Import from Excel.")
             a.font, a.alignment = font(10, MUTED), LEFT
         elif kind == "gap":
             band(ws, row, H_GAP)
@@ -186,22 +203,29 @@ def meeting_form(wb):
         elif kind == "data":
             head, first, last, cols = tables[data]
             i = row - first
-            sample = SAMPLE_TABLES[data]
+            sample = SAMPLE_PLAN[i] if i < len(SAMPLE_PLAN) else None
+            level = sample[0] if sample else ""
+            shade = LEVEL_FILL.get(level, PAPER)
             for j in range(len(cols)):
                 c = ws[f"{MF.COLUMNS[j]}{row}"]
-                c.fill = fill(PAPER if i % 2 == 0 else CARD)
-                c.border, c.font = BOX, font(10)
-                c.alignment = (TOP if j in LONG[data] else Alignment(horizontal="center", vertical="top") if j in NUMBERS[data]
-                               else Alignment(vertical="top", indent=1))
-                if i < len(sample) and sample[i][j] != "":
-                    c.value = sample[i][j]
-            if i >= len(sample) + MF.SHOW_BLANK:                      # folded away: + opens them
+                c.fill = fill(INPUT if j and not sample else shade) if j else fill(CARD)
+                c.border = BOX
+                c.font = font(10, NAVY if level == "Frame" else INK, bold=(level == "Frame" and j in (0, 1, 3)))
+                c.alignment = (TOP if j in PLAN_LONG else Alignment(horizontal="center", vertical="top") if j == 0
+                               else Alignment(vertical="top", indent=1 if j != 3 or level != "Content" else 2))
+                if j == 0:
+                    c.value = no_formula(first, row)
+                elif sample and sample[j - 1] != "":
+                    c.value = sample[j - 1]
+            h = ws[f"J{row}"]                                     # hidden helper: the Deck type (Dashboard counts)
+            h.value = deck_type_formula(first, row)
+            if i >= len(SAMPLE_PLAN) + MF.SHOW_BLANK:              # folded away: + opens them
                 ws.row_dimensions[row].hidden = True
                 ws.row_dimensions[row].outlineLevel = 1
         elif kind == "footer":
             band(ws, row, H_INTRO, CARD)
             ws.merge_cells(f"A{row}:{last_col}{row}")
-            a.value = ("Done? Save this file, then in FrameDecks choose Meeting → Import meeting from Excel… "
+            a.value = ("Done? Save this file, then in FrameDecks choose Import from Excel (Quick Start, or Settings). "
                        "You see a preview first; nothing changes until you select Import.")
             a.font, a.alignment = font(10, NAVY, bold=True), LEFT
     ws.sheet_format.outlineLevelRow = 1
@@ -210,15 +234,13 @@ def meeting_form(wb):
     def col_range(key, letter):
         _h, first, last, _c = tables[key]
         return f"{letter}{first}:{letter}{last}"
-    for key in tables:
-        whole_rule(ws, col_range(key, "A"), "The Frame number from the Frames table: 1, 2, 3…")
-    list_rule(ws, BACKGROUNDS, col_range("frames", "D"), "None, Navy, Black, White or Brand (or type a colour like #1F3A6D).", strict=False)
-    list_rule(ws, TRANSITIONS, col_range("frames", "E"), "How the screen changes to this Frame.")
-    whole_rule(ws, col_range("content", "B"), "1 = first in the Frame.")
-    list_rule(ws, CONTENT_TYPES, col_range("content", "C"), "The kind of Content.")
-    list_rule(ws, ANIMATIONS, f"{col_range('content', 'H')} {col_range('questions', 'H')} {col_range('scriptures', 'H')}", "How it appears.")
-    list_rule(ws, PPT_BG, col_range("content", "I"), "Show = the whole slide. Hide = only the slide's objects.")
-    whole_rule(ws, f"{col_range('questions', 'C')} {col_range('scriptures', 'C')}", "1 = first.")
+    list_rule(ws, LEVELS, col_range("plan", "B"), "Frame (a screen), Deck (a block in it: questions, a verse, text…) or Content (an item in the Deck above).")
+    list_rule(ws, DECK_TYPES, col_range("plan", "C"), "For a Deck: what kind of block it is. Leave it empty for a Frame or a Content.")
+    list_rule(ws, EFFECTS, col_range("plan", "H"), "Frame: how the screen changes to it. Deck or Content: how it appears.", strict=False)
+    ws.column_dimensions["J"].hidden = True
+    ws[f"J{tables['plan'][0]}"] = "Deck type (auto)"
+    ws[f"J{tables['plan'][0]}"].font = font(9, MUTED)
+    ws.freeze_panes = None
     ws.page_setup.orientation = "landscape"
     ws.page_setup.fitToWidth, ws.page_setup.fitToHeight = 1, 0
     ws.sheet_properties.pageSetUpPr.fitToPage = True
@@ -339,10 +361,11 @@ def dashboard(wb):
 
     label("B12", "AT A GLANCE")
     att = fld["attendees"]
-    tiles(13, [("Frames", f'=COUNTIF({rng("frames", "B")},"?*")'),
-               ("Content items", f'=COUNTIF({rng("content", "C")},"?*")'),
-               ("Questions", f'=COUNTIF({rng("questions", "E")},"?*")'),
-               ("Scriptures", f'=COUNTIF({rng("scriptures", "E")},"?*")'),
+    lv, ty, kinds = rng("plan", "B"), rng("plan", "C"), rng("plan", "J")
+    tiles(13, [("Frames", f'=COUNTIF({lv},"Frame")'),
+               ("Decks", f'=COUNTIF({lv},"Deck")'),
+               ("Questions", f'=COUNTIFS({lv},"Content",{kinds},"Question")'),
+               ("Scriptures", f'=COUNTIFS({lv},"Content",{kinds},"Scripture")'),
                ("Expected attendees", f'=IF({att}="","–",{att})')])
 
     # the meeting log (rows 40 on) feeds the meeting tiles
@@ -353,20 +376,19 @@ def dashboard(wb):
                ("Upcoming", f'=COUNTIFS({dates},">="&TODAY())'),
                ("Recent (last 30 days)", f'=COUNTIFS({dates},"<"&TODAY(),{dates},">="&TODAY()-30)'),
                ("Ready", '=COUNTIF($C$22:$C$27,"✓")&" / 6"'),
-               ("Files to choose", f'=SUM(COUNTIF({rng("content", "C")},{{"Image","Video","PowerPoint"}}))')])
+               ("Files to choose", f'=SUM(COUNTIFS({lv},"Deck",{ty},{{"Image","Video","PowerPoint"}}))')])
 
     # readiness + quick actions
     label("B21", "READINESS")
     label("H21", "QUICK ACTIONS")
-    fr, ct = tb["frames"], tb["content"]
-    frame_nums, content_frames = rng("frames", "A"), rng("content", "A")
+    pl = tb["plan"]
     checks = [
         ("Meeting name", f'{fld["title"]}<>""'),
         ("Date set", f"ISNUMBER({d})"),
         ("Speaker named", f'{fld["presenter"]}<>""'),
-        ("At least one Frame", f'COUNTIF({rng("frames", "B")},"?*")>0'),
-        ("Every Frame has content", f'AND(COUNT({frame_nums})>0,SUMPRODUCT(({frame_nums}<>"")*(COUNTIF({content_frames},{frame_nums})=0))=0)'),
-        ("Presenter script for every Frame", f'AND(COUNTIF({rng("frames", "B")},"?*")>0,COUNTIF({rng("frames", "F")},"?*")>=COUNTIF({rng("frames", "B")},"?*"))'),
+        ("At least one Frame", f'COUNTIF({lv},"Frame")>0'),
+        ("Every Deck has a Type", f'AND(COUNTIF({lv},"Deck")>0,COUNTIFS({lv},"Deck",{ty},"")=0)'),
+        ("Presenter script for every Frame", f'AND(COUNTIF({lv},"Frame")>0,COUNTIFS({lv},"Frame",{rng("plan", "I")},"")=0)'),
     ]
     for i, (text, test) in enumerate(checks):
         r = 22 + i
@@ -380,9 +402,9 @@ def dashboard(wb):
     first = MF.LAYOUT["fields"]
     actions = [("Fill in the meeting details →", f"'{MF.SHEET}'!B{first['title']}"),
                ("Speaker and attendees →", f"'{MF.SHEET}'!B{first['presenter']}"),
-               ("Plan the Frames →", f"'{MF.SHEET}'!B{fr[1]}"),
-               ("Add the content →", f"'{MF.SHEET}'!C{ct[1]}"),
-               ("Questions and scriptures →", f"'{MF.SHEET}'!E{tb['questions'][1]}"),
+               ("Plan the Frames →", f"'{MF.SHEET}'!B{pl[1]}"),
+               ("Add Decks and Contents →", f"'{MF.SHEET}'!C{pl[1] + 1}"),
+               ("Questions and scriptures →", f"'{MF.SHEET}'!E{pl[1] + 8}"),
                ("Log a meeting below →", f"'{MF.DASHBOARD}'!B{LOG_FIRST + 1}")]
     for i, (text, target) in enumerate(actions):
         r = 22 + i
@@ -393,10 +415,9 @@ def dashboard(wb):
 
     # content mix: a small table and its chart
     label("B29", "CONTENT MIX")
-    types = rng("content", "C")
-    mix = [("Questions", f'=COUNTIF({types},"Question")'), ("Scriptures", f'=COUNTIF({types},"Scripture")'),
-           ("Text and notices", f'=SUM(COUNTIF({types},{{"Text","Free Content","Announcement","Prayer Point","Lower Third"}}))'),
-           ("Timers", f'=COUNTIF({types},"Timer")'), ("Media", f'=SUM(COUNTIF({types},{{"Image","Video","PowerPoint","Camera","Screen"}}))')]
+    mix = [("Questions", f'=COUNTIFS({lv},"Content",{kinds},"Question")'), ("Scriptures", f'=COUNTIFS({lv},"Content",{kinds},"Scripture")'),
+           ("Text and notices", f'=SUM(COUNTIFS({lv},"Deck",{ty},{{"Text","Announcement","Prayer Point","Lower Third"}}))'),
+           ("Timers", f'=COUNTIFS({lv},"Deck",{ty},"Timer")'), ("Media", f'=SUM(COUNTIFS({lv},"Deck",{ty},{{"Image","Video","PowerPoint","Camera","Screen"}}))')]
     for i, (name, formula) in enumerate(mix):
         r = 30 + i
         ws.row_dimensions[r].height = 18
@@ -453,7 +474,7 @@ def dashboard(wb):
     ws.row_dimensions[r].height = 30
     ws.merge_cells(f"B{r}:K{r}")
     ws[f"B{r}"] = ("How it works: plan everything on the Meeting Form tab, save, then in FrameDecks choose "
-                   "Meeting → Import meeting from Excel…   This Dashboard is never imported.")
+                   "Import from Excel (Quick Start, or Settings).   This Dashboard is never imported.")
     ws[f"B{r}"].font, ws[f"B{r}"].alignment = font(9, MUTED), LEFT
     card(f"B{r}:K{r}")
     ws.page_setup.orientation = "portrait"

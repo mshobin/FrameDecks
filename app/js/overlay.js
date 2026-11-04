@@ -595,6 +595,29 @@ function Program(root){
     setTimeout(function(){ d.classList.add('out'); }, sp.dur * 1000);
     setTimeout(function(){ d.remove(); }, sp.dur * 1000 + 1100);
   }
+  /* 9.4 the follow Spotlight: a steady lens at the pointer (the PC's mouse or a finger on the phone remote). Its
+     moves never go through the saved state: while live.follow is on, this page waits for them (api/pointer, a
+     long-poll) and glides the lens there. */
+  var fl = null, flOn = false, flSeq = '', flBusy = false;
+  function followLens(p){
+    if (!fl){ fl = el('div', 'pg-follow'); fl.appendChild(el('i', 'pg-spot-ring')); root.appendChild(fl); }
+    var W = innerWidth, H = innerHeight, r = 0.045 * W * (p.size || 1.4);
+    fl.style.cssText = '--r:' + r + 'px;--c:' + (p.c || '#ffffff') + ';--k:' + ((p.k || 60) / 100).toFixed(2) + ';transform:translate(' + (p.x * W) + 'px,' + (p.y * H) + 'px)';
+    fl.classList.toggle('on', !!p.on);
+  }
+  function followLoop(){
+    if (!flOn || flBusy) return;
+    flBusy = true;
+    fetch('api/pointer?wait=10' + (flSeq !== '' ? '&since=' + flSeq : ''), {cache: 'no-store', credentials: 'same-origin'})
+      .then(function(r){ return r.ok ? r.json() : null; })
+      .then(function(p){ if (p){ flSeq = String(p.seq); followLens(p); } flBusy = false; if (flOn) setTimeout(followLoop, p ? 0 : 1000); })
+      .catch(function(){ flBusy = false; if (flOn) setTimeout(followLoop, 1500); });
+  }
+  function follow(on){
+    if (on === flOn) return;
+    flOn = on;
+    if (on) followLoop(); else if (fl) fl.classList.remove('on');
+  }
   function grab(){
     prevRects = Array.prototype.slice.call(document.querySelectorAll('.card:not(.out)')).map(function(c){
       var b = c.getBoundingClientRect(), bg = getComputedStyle(c).backgroundColor;
@@ -605,6 +628,7 @@ function Program(root){
     setTimeout(grab, 0);
     if (spotSeen === '') spotSeen = st.live && st.live.spot ? null : '-';     // remember what was already there
     spotlight(st.live && st.live.spot);                             // where the cards are now, for the next Burst
+    follow(!!(st.live && st.live.follow) && !/[?&](scene|pending)=/.test(location.search));   // not in previews of another Frame
     var L = st.live || {};
     var isig = JSON.stringify(L.ink && L.ink.on ? L.ink.items : []);
     if (isig !== inkSig){ inkSig = isig; window.KCScenes.drawInk(ink, L.ink && L.ink.on ? L.ink.items : []); }

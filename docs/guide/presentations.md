@@ -171,7 +171,9 @@ You can also draw with your finger on the phone. See [Remote control](remote-con
 
 ### Spotlight a word
 
-**Spotlight** points people to one word. Choose the Spotlight tool (**S**) and click a word on the picture. Since 8.7
+**Spotlight** points people to one word. Choose the Spotlight tool (**S**) and move the pointer over the picture: since
+9.4 the spotlight **follows the pointer** in real time on every screen, and fades away when the pointer leaves the
+picture. Click a word to circle it for a few seconds. Since 8.7
 a soft see-through disc lands on it with a ripple, breathes gently while it stays, then closes softly. Click empty
 space to spotlight that point instead. Prefer the 8.2 look? Choose **Gold ring**: a glowing gold circle that pulses,
 then opens out with a few sparks.
@@ -184,6 +186,9 @@ Spotlight tool is chosen, its panel sets the style (**Soft disc** or **Gold ring
 for the disc), **Size** (bigger by default since 8.7), **Length** (1 to 15 seconds) and **Strength** (how see-through
 the disc is). The same settings are in **Settings → Transitions → Spotlight (Ctrl twice)**. **Try it** shows one in
 the middle of the picture.
+
+From the phone remote: tap **Spotlight** on the live picture, then drag a finger to move it, or tap for a quick
+circle (see [Remote control](remote-control.md#spotlight-from-the-phone)).
 
 > **Note:** This is not the same as the [Spotlight search](#spotlight), which finds things from anywhere in Windows.
 

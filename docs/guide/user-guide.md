@@ -173,22 +173,19 @@ Frame on top. Background blur and Camera Looks are in **Settings → FrameDecks 
 FrameDecks, restart that app.
 
 ## 6. Phone and tablet remote
-**Settings → Phone & iPad Remote** → turn it on, scan the QR code, enter the PIN.
-One screen with large buttons, nothing to set up. Scroll down for the rest.
-- The top bar: the meeting name, the connection status and **Hide all** (solid red while something is on screen).
-- **On screen now**: the live picture with a badge (*Off air*, *On screen*, *Black screen*, *Frozen* or *Emergency*),
-  *Frame 4 of 18*, the Frame's name and what it is showing, plus **FrameDecks vCam** and **Recording** chips.
-- **Previous** / **Next** (gold; it says **Start** before anything is live).
-- The Frame's questions, scriptures or PowerPoint slides (*Question 2 of 5*, *Slide 3 of 12*) with round **◀ ▶**
-  arrows. Chips choose which when a Frame has more than one; a **Question / Both / Scripture** switch appears when it
-  has both.
-- **Teleprompter** opens the Frame's script full screen on the phone (**Done** closes it).
-- **Draw**: draw with your finger on the live picture (exactly what Zoom / Teams see). Turn the phone sideways and the
-  picture fills the screen, with the tools in a narrow column at the side.
-- **Freeze** and **Black screen** (it reads **Show picture** while on).
-- **All Frames**: every Frame as a card; tap one to put it on screen (**Live** and **Next** tags). On a tablet the list
-  sits beside the controls.
-- **Disconnect this device** at the bottom. The **Emergency** screen is on the PC only.
+**Settings → Phone & iPad Remote** → turn it on, scan the QR code, enter the PIN. Run the whole meeting from it (9.4):
+- Always in view: the meeting name, the connection status and **Hide all** (solid red while something is on screen);
+  the **live picture** with its badge (*Off air*, *On screen*, *Black screen*, *Frozen* or *Emergency*); *Frame 4 of
+  18*, the Frame's name and what it shows; **Previous** / **Next** (gold; it shows the next Frame's name and says
+  **Start** before anything is live).
+- **Spotlight** on the picture: drag a finger and the spotlight follows it on every screen; tap for a quick circle.
+  **Draw** opens the drawing pad (turn the phone sideways for a bigger picture).
+- Five tabs. **Show**: the Frame's questions, scriptures or slides with ◀ ▶ arrows, the Question / Both / Scripture
+  switch, video play / pause / from the start, and every Deck with an eye. **Plan**: every Frame > Deck > Content
+  (1 · 1.1 · 1.1.1); tap to show any of them. **Tools**: Draw, Spotlight, Teleprompter, Freeze, Black screen, Clear
+  drawings. **Memory**: Capture Memory. **Meeting**: details, switch meeting, PC status, **Disconnect this device**.
+- Upright: tabs at the bottom. Sideways or on a tablet: the picture on the left, the tabs on the right.
+- The **Emergency** screen is on the PC only.
 
 ## 7. Excel (optional)
 FrameDecks works fully without Excel. The **Meeting Workbook** is for planning, review and bulk editing. To move a
@@ -196,9 +193,9 @@ plan to another PC, use a .frame file instead (see [Service planning](service-pl
 
 It has two tabs (6.9):
 - **Meeting Form**: one guided page, top to bottom, in numbered sections: 1 · Meeting details, 2 · Speaker,
-  3 · Attendees, 4 · Presentation, 5 · Frames, 6 · Content, 7 · Discussion questions, 8 · Scripture readings,
-  9 · Additional notes. Type in the cream boxes; **Tab** moves on. Each table shows a few empty rows; the **+**
-  button on the left opens more.
+  3 · Attendees, 4 · Presentation, 5 · Meeting plan, 6 · Additional notes. Type in the cream boxes; **Tab** moves
+  on. The Meeting plan (9.4) is one table in the app's order, Frame > Deck > Content, numbered by itself
+  (1 · 1.1 · 1.1.1); the **+** button on the left opens more rows.
 - **Dashboard**: fills itself in from the form (days to go, counts, a Readiness checklist, Quick actions, a Content
   mix chart and a Recent meetings log). It is never imported.
 

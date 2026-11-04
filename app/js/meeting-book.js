@@ -1,9 +1,14 @@
 /* FrameDecks - the Meeting Workbook: one Excel file plans, reviews and hands over a meeting.
  *
- * 6.9 the workbook has two tabs: Dashboard (a summary made by formulas; never read) and Meeting Form, one guided page
- * with the meeting details (label | value) and four tables, each under its own numbered heading ("6 · Frames"):
- *   Frames · Content · Discussion questions · Scripture readings   (a table starts at its "Frame #" header row)
- * formBook() turns the Meeting Form into the five lists below, so one parser serves both layouts. Workbooks from
+ * 9.4 the workbook has two tabs: Dashboard (a summary made by formulas; never read) and Meeting Form, one guided page
+ * with the meeting details (label | value) and ONE table, the Meeting plan, in the app's own order:
+ *   Frame > Deck(s) > Content(s), one row each. The Level column says which (Frame, Deck or Content); the No. column
+ *   numbers them by itself (1 · 1.1 · 1.1.1). A Deck is one block of a Frame (Questions, Scripture, Text, a Timer, a
+ *   picture…); its Contents are the items in it (each question, each verse).
+ *   No. · Level · Type · Name · Text · Bible reference · On-screen label · Effect · Notes / script
+ * planBook() turns the Meeting plan into the five lists below, so one parser serves every layout. Forms from 6.9-9.3
+ * (four tables: Frames · Content · Discussion questions · Scripture readings, each starting at a "Frame #" header row)
+ * still import through formBook(), and so do workbooks from
  * 6.5-6.8 (one sheet per list) still import:
  *   Meeting Overview   Meeting Title · Date · Presenter · Notes                      (Field | Value)
  *   Frames             Frame Number · Frame Name · Description · Background · Transition · Presenter Notes
@@ -104,8 +109,16 @@ function isBook(names){ var s = (names || []).map(norm); return s.indexOf('frame
 /* ---------- 6.9 the Meeting Form: one sheet, read as the five lists ---------- */
 var FRAME_COL = ['frame#', 'framenumber', 'frameno', 'frame'];
 var FORM_TITLE = {'Meeting Overview': 'Meeting details', Frames: 'Frames', Content: 'Content', Questions: 'Discussion questions', Scriptures: 'Scripture readings'};
-/* the Meeting Form's four tables: title and column names (the same order as exportSheets) */
+/* 9.4 the Meeting Form's one table: the Meeting plan (src/meeting_form.py TABLES has the same columns) */
+var PLAN_COLS = ['No.', 'Level', 'Type', 'Name', 'Text', 'Bible reference', 'On-screen label', 'Effect', 'Notes / script'];
 var FORM_TABLES = [
+  ['plan', 'Meeting plan', ['No.', 'Level', 'Type', 'Name', 'Text', 'Bible reference', 'On-screen label', 'Effect', 'Notes / script']]];
+var LEVELS = ['Frame', 'Deck', 'Content'];
+var DECK_TYPES = ['Question', 'Scripture', 'Text', 'Announcement', 'Prayer Point', 'Lower Third', 'Timer', 'Image', 'Video', 'PowerPoint', 'Birthday',
+  'Branding', 'Camera', 'Screen', 'Background'];
+var EFFECTS = TRANSITIONS.concat(ANIMATIONS.filter(function(a){ return TRANSITIONS.indexOf(a) < 0; }));
+/* the 6.9-9.3 Meeting Form's four tables (still read) */
+var OLD_FORM_TABLES = [
   ['frames', 'Frames', ['Frame #', 'Frame name', 'Purpose / description', 'Background', 'Transition', 'Presenter script']],
   ['content', 'Content', ['Frame #', 'Order', 'Content type', 'Item name', 'Main content / file', 'On-screen label', 'Duration (min)', 'Animation', 'PPT background', 'Notes']],
   ['questions', 'Discussion questions', ['Frame #', 'Content name', 'Question #', 'Label', 'Question text', 'Media', 'Timer (min)', 'Animation']],
@@ -122,12 +135,14 @@ function tableKind(cells){
 }
 /* a section heading ("6 · Frames", "3. Presentation content") ends the table above it */
 function isHeading(cells){ var f = cells.filter(function(c){ return trim(c) !== ''; }); return f.length === 1 && /^\d{1,2}\s*[·.):\-]\s*\D/.test(trim(f[0])); }
-function isForm(grid){ return (grid || []).some(function(r){ return tableKind(r) === 'frames'; }); }
+function isPlanHeader(cells){ var n = (cells || []).map(norm); return n.indexOf('level') >= 0 && n.indexOf('type') >= 0 && n.indexOf('name') >= 0; }
+function isForm(grid){ return (grid || []).some(function(r){ return tableKind(r) === 'frames' || isPlanHeader(r); }); }
 /* grid: the sheet's rows as text (row i is Excel row first + i). Returns a book like an older workbook's. */
 function formBook(grid, first){
   first = first || 1;
   var book = {}, used = {}, meeting = [['Field', 'Value']];
-  for (var i = 0; i < grid.length; i++){
+  for (var p = 0; p < grid.length; p++) if (isPlanHeader(grid[p])){ book = planBook(grid, first, p, used); break; }
+  for (var i = 0; i < grid.length && !book.__outline; i++){
     var kind = tableKind(grid[i]);
     if (!kind || book[SHEETS[kind].name]) continue;
     used[i] = 1;
@@ -144,6 +159,97 @@ function formBook(grid, first){
     }
   });
   book[SHEETS.meeting.name] = {headers: ['Field', 'Value'], headerRow: 0, rows: meeting.slice(1)};
+  return book;
+}
+/* 9.4 the Meeting plan (one table, Frame > Deck > Content) -> the five lists. Each list keeps the Excel row of every
+   line (rowNums), so a problem still names the row the person typed it in. */
+var SINGLE = {question: 0, scripture: 0, background: 0};
+function looksLikeRef(t){ return t.length <= 40 && /^\s*(\d\s*)?[A-Za-z][A-Za-z. ]{1,24}\s+\d{1,3}(:\d{1,3}([-–]\d{1,3})?)?\s*(\(?[A-Za-z]{2,5}\)?)?\s*$/.test(t); }
+function planBook(grid, first, hi, used){
+  var book = {__outline: true, __errors: [], __warnings: []}, hd = grid[hi].map(norm), idx = {};
+  [['no', ['no', 'number', '#']], ['level', ['level', 'what']], ['type', ['type', 'kind']], ['name', ['name', 'title']], ['text', ['text', 'content', 'file']],
+   ['ref', ['biblereference', 'reference', 'ref']], ['label', ['onscreenlabel', 'label', 'heading']], ['effect', ['effect', 'animation', 'transition']],
+   ['notes', ['notesscript', 'notes', 'script', 'teleprompterscript']]].forEach(function(c){
+    for (var i = 0; i < hd.length; i++) if (c[1].indexOf(hd[i]) >= 0){ idx[c[0]] = i; break; }
+  });
+  var lists = {frames: [], content: [], questions: [], scriptures: []};
+  function put(key, row, rowNum){ lists[key].push({cells: row, row: rowNum}); }
+  function err(row, msg){ book.__errors.push({sheet: 'Plan', row: row, msg: msg}); }
+  function warn(row, msg){ book.__warnings.push({sheet: 'Plan', row: row, msg: msg}); }
+  var F = 0, frame = null, deck = null, names = {};
+  used[hi] = 1;
+  for (var j = hi + 1; j < grid.length && !isHeading(grid[j]) && !isPlanHeader(grid[j]) && !tableKind(grid[j]); j++){
+    used[j] = 1;
+    var r = grid[j], rowNum = first + j, v = {};
+    Object.keys(idx).forEach(function(k){ v[k] = trim(r[idx[k]]); });
+    if (!v.level && !v.type && !v.name && !v.text && !v.ref && !v.label && !v.notes) continue;   // an empty row (the No. formula alone)
+    var lv = norm(v.level);
+    if (!lv){                                       // no Level: the number says it (1 · 1.2 · 1.2.3)
+      var dots = (v.no.match(/\./g) || []).length;
+      lv = /^\d+(\.\d+){0,2}$/.test(v.no) ? ['frame', 'deck', 'content'][dots] : (v.type ? 'deck' : '');
+    }
+    if (lv === 'frame'){
+      F++; frame = {num: F, decks: 0, row: null}; deck = null; names[F] = {};
+      var tx = v.effect;
+      if (tx && TX[norm(tx)] == null && ANIM[norm(tx)] != null){ warn(rowNum, '“' + tx + '” is a Content effect; a Frame uses a transition. Using Frame default.'); tx = ''; }
+      frame.row = [F, v.name || 'Frame ' + F, v.text, '', tx, v.notes];
+      put('frames', frame.row, rowNum);
+    } else if (lv === 'deck'){
+      if (!frame){ err(rowNum, 'This Deck has no Frame above it. Start with a row whose Level is Frame.'); continue; }
+      deck = addDeck(v, rowNum);
+    } else if (lv === 'content'){
+      if (!deck){ err(rowNum, 'This Content has no Deck above it. Add a row whose Level is Deck (with its Type) first.'); continue; }
+      deck.n++;
+      var anim = effectOf(v.effect, rowNum), label = v.label || v.name;
+      if (deck.t === 'question'){
+        put('questions', [frame.num, deck.name, deck.n, label, v.text, '', '', anim], rowNum);
+      } else if (deck.t === 'scripture'){
+        var ref = v.ref, txt = v.text;
+        if (!ref && looksLikeRef(txt)){ ref = txt; txt = ''; }
+        put('scriptures', [frame.num, deck.name, deck.n, label, ref, txt, '', anim], rowNum);
+      } else if (deck.t === 'background'){
+        frame.row[3] = v.text || frame.row[3];
+      } else if (!deck.filled){                     // the Deck's one item
+        fillDeck(deck, v, anim);
+      } else {                                      // a second item of a one-item Deck: its own Deck of the same type
+        var copy = addDeck({type: deck.typeText, name: deck.name + ' ' + deck.n, text: '', label: '', effect: '', notes: ''}, rowNum);
+        fillDeck(copy, v, anim);                    // (later Content rows still belong to the Deck the person wrote)
+      }
+    } else {
+      err(rowNum, 'Level “' + v.level + '” is not one of: ' + LEVELS.join(', ') + '.');
+    }
+  }
+  function effectOf(e, rowNum){
+    if (!e) return '';
+    if (ANIM[norm(e)] != null) return e;
+    if (TX[norm(e)] != null){ warn(rowNum, '“' + e + '” is a Frame transition; Decks and Contents use an effect such as Fade or Gentle Rise. Using Content default.'); return ''; }
+    return e;                                       // unknown: the parser says what is allowed
+  }
+  function addDeck(v, rowNum){
+    frame.decks++;
+    var t = TYPE_KEY[norm(v.type)] || (norm(v.type) === 'background' ? 'background' : ''), base = v.name || (t ? (norm(v.type) === 'background' ? 'Background' : TYPE_NAME[t]) : 'Deck'), name = base, k = 2;
+    while (names[frame.num][name.toLowerCase()]) name = base + ' ' + k++;
+    names[frame.num][name.toLowerCase()] = 1;
+    var d = {t: t, typeText: v.type, name: name, n: 0, filled: false, row: null};
+    if (t === 'background'){ frame.row[3] = v.text || 'Navy'; return d; }
+    var pb = t === 'powerpoint' && /hide (the )?slide background/i.test(v.notes) ? 'Hide' : '';
+    d.row = [frame.num, frame.decks, v.type, name, '', v.label, '', effectOf(v.effect, rowNum), pb, v.notes];
+    put('content', d.row, rowNum);
+    if (v.text && !(t in SINGLE)){ fillDeck(d, {text: v.text, label: '', effect: ''}, ''); d.n = 1; }   // the Deck row's own text is its first item
+    else if (v.text && (t === 'question' || t === 'scripture')) d.row[4] = v.text;   // one question or verse on the Deck row itself
+    return d;
+  }
+  function fillDeck(d, v, anim){
+    d.filled = true;
+    if (d.t === 'countdown') d.row[6] = v.text; else d.row[4] = v.text;
+    if (v.label && !d.row[5]) d.row[5] = v.label;
+    if (anim && !d.row[7]) d.row[7] = anim;
+  }
+  Object.keys(lists).forEach(function(key){
+    var sh = book[SHEETS[key].name] = {headers: header(key), headerRow: first + hi, rows: [], rowNums: []};
+    lists[key].forEach(function(x){ sh.rows.push(x.cells.map(function(c){ return c == null ? '' : String(c); })); sh.rowNums.push(x.row); });
+  });
+  if (!lists.frames.length && !book.__errors.length) err(first + hi, 'The Meeting plan has no Frames yet. Add a row whose Level is Frame.');
   return book;
 }
 /* the import worker's result -> {book, form} (form = the Meeting Form's sheet name, '' for an older workbook) */
@@ -167,7 +273,7 @@ function rowsOf(book, key, errors){
   var first = (sh.headerRow || 1) + 1, out = [];
   if (key !== 'meeting' && map.frame == null) errors.push({sheet: SHEETS[key].name, row: 0, msg: 'The “' + SHEETS[key].name + '” sheet needs a “Frame Number” column. Start from the FrameDecks Meeting Workbook template.'});
   sh.rows.forEach(function(r, i){
-    var o = {row: first + i}, any = false;
+    var o = {row: sh.rowNums ? sh.rowNums[i] : first + i}, any = false;
     cols.forEach(function(c){ o[c[0]] = map[c[0]] == null ? '' : trim(r[map[c[0]]]); if (o[c[0]]) any = true; });
     if (any) out.push(o);
   });
@@ -180,7 +286,9 @@ function parse(book, ctx){
   var errors = [], warnings = [], fetchList = [];
   function err(sheet, row, msg){ errors.push({sheet: sheet, row: row, msg: msg}); }
   function warn(sheet, row, msg){ warnings.push({sheet: sheet, row: row, msg: msg}); }
-  var plan = {frames: [], meeting: emptyMeeting(), errors: errors, warnings: warnings, fetch: fetchList, counts: {}, form: ctx.form || ''};
+  var plan = {frames: [], meeting: emptyMeeting(), errors: errors, warnings: warnings, fetch: fetchList, counts: {}, form: ctx.form || '', outline: !!book.__outline};
+  plan.pending = book.__errors || [];             // the Meeting plan's own row problems: reported with all the others (finish)
+  (book.__warnings || []).forEach(function(e){ warnings.push(e); });
   // the meeting details (optional)
   (rowsOf(book, 'meeting', errors) || []).forEach(function(r){
     var f = fieldOf(r.field); if (f) plan.meeting[f[0]] = r.value.slice(0, f[3]);
@@ -189,6 +297,7 @@ function parse(book, ctx){
   if (!frames) err('Frames', 0, ctx.form ? 'The Meeting Form has no Frames table (its header row starts with “Frame #” and “Frame name”).' : 'The workbook has no “Frames” sheet.');
   if (!content) err('Content', 0, ctx.form ? 'The Meeting Form has no Content table (its header row has “Frame #” and “Content type”).' : 'The workbook has no “Content” sheet.');
   if (errors.length) return finish(plan);
+  if (plan.outline && !frames.length) return finish(plan);
   var byNum = {};
   frames.forEach(function(r){
     var n = intOf(r.frame);
@@ -288,13 +397,20 @@ function parse(book, ctx){
   return finish(plan);
 }
 function finish(plan){
+  (plan.pending || []).forEach(function(e){ plan.errors.push(e); }); delete plan.pending;
   var c = {frames: plan.frames.length, content: 0, questions: 0, scriptures: 0, media: 0};
   plan.frames.forEach(function(F){ F.content.forEach(function(C){ c.content++; if (C.type === 'question') c.questions += C.items.length; if (C.type === 'scripture') c.scriptures += C.items.length;
     if (['image', 'video', 'powerpoint', 'camera', 'screen'].indexOf(C.type) >= 0) c.media++; }); });
   plan.counts = c;
   var order = {'Meeting Overview': 0, Frames: 1, Content: 2, Questions: 3, Scriptures: 4};
-  [plan.errors, plan.warnings].forEach(function(a){ a.sort(function(x, y){ return (order[x.sheet] || 0) - (order[y.sheet] || 0) || x.row - y.row; }); });
-  if (plan.form) [plan.errors, plan.warnings].forEach(function(a){      // one sheet: say the section, and "section" for "sheet"
+  [plan.errors, plan.warnings].forEach(function(a){ a.sort(function(x, y){ return (plan.outline ? 0 : (order[x.sheet] || 0) - (order[y.sheet] || 0)) || x.row - y.row; }); });
+  if (plan.outline) [plan.errors, plan.warnings].forEach(function(a){   // 9.4 one table: "Meeting plan", and the plan's words
+    a.forEach(function(e){ e.sheet = (plan.form || 'Meeting Form') + ' · Meeting plan';
+      e.msg = e.msg.replace(/Put all of its (questions|scriptures|items) in one Content \(Questions \/ Scriptures sheets\), or use another Frame\./, 'Put all of its $1 as Content rows under one Deck, or use another Frame.')
+        .replace(/\b(the )?(Frames|Content|Questions|Scriptures)( \/ Scriptures)? sheets?\b/g, 'the Meeting plan').replace(/Content Type/g, 'Type').replace(/ Content “/g, ' Deck “')
+        .replace(/Question Number|Scripture Number/g, 'Number'); });
+  });
+  else if (plan.form) [plan.errors, plan.warnings].forEach(function(a){      // one sheet: say the section, and "section" for "sheet"
     a.forEach(function(e){ e.sheet = plan.form + ' · ' + (FORM_TITLE[e.sheet] || e.sheet);
       e.msg = e.msg.replace(/\b(Frames|Content|Questions|Scriptures)( \/ Scriptures)? sheets?\b/g, function(m, a1, a2){ return (FORM_TITLE[a1] || a1) + (a2 ? ' / Scripture readings' : '') + ' table'; }); });
   });
@@ -366,23 +482,38 @@ function header(key){ return SHEETS[key].cols.filter(function(c){ return !(c[3] 
 function exportSheets(st){
   var m = st.meeting || {}, frames = st.scenes.filter(function(s){ return !s.tpl; });
   var out = {meeting: [['Field', 'Value']].concat(FIELDS.map(function(f){ return [f[1], f[0] === 'title' ? m.title || (st.brand && st.brand.meeting) || '' : m[f[0]] || '']; })),
-    frames: [header('frames')], content: [header('content')], questions: [header('questions')], scriptures: [header('scriptures')]};
+    frames: [header('frames')], content: [header('content')], questions: [header('questions')], scriptures: [header('scriptures')], plan: [PLAN_COLS.slice()]};
   frames.forEach(function(sc, i){
     var num = i + 1, bgL = sc.layers.filter(function(l){ return l.kind === 'background'; })[0], bgc = bgL ? ((bgL.c.props || {}).color || '') : '';
     var notes = String(sc.notes || ''), desc = '';
     var dm = /\n?About this Frame: ([^\n]*)/.exec(notes); if (dm){ desc = dm[1]; notes = notes.replace(dm[0], '').trim(); }
     out.frames.push([num, sc.name, desc, bgL ? (BG_NAME[bgc] || bgc) : 'None', TX_NAME[sc.tx.type] || sc.tx.type, notes]);
+    out.plan.push([String(num), 'Frame', '', sc.name, desc, '', '', TX_NAME[sc.tx.type] || sc.tx.type, notes]);
     var order = 0;
+    /* a Content-table row -> the Meeting plan's Deck row (9.4) */
+    function planDeck(r){
+      var timer = r[2] === 'Timer', note = [r[9], r[8] === 'Hide' ? 'Hide slide background' : ''].filter(Boolean).join('. ');
+      out.plan.push([num + '.' + r[1], 'Deck', r[2], r[3], timer ? r[6] : r[4], '', r[5], r[7] === 'Content default' ? '' : r[7], note]);
+    }
     sc.layers.forEach(function(l){
-      if (l.kind === 'background') return;
+      if (l.kind === 'background'){ order++; out.plan.push([num + '.' + order, 'Deck', 'Background', l.name || 'Background', BG_NAME[(l.c.props || {}).color] || (l.c.props || {}).color || 'Navy', '', '', '', '']); return; }
       var c = l.c || {}, row = null;
       order++;
       if (l.kind === 'question' || l.kind === 'scripture'){
         row = [num, order, l.kind === 'question' ? 'Question' : 'Scripture', l.name, '', c.label || '', '', ANIM_NAME[(c.look || {}).transition || ''] || 'Content default', '', ''];
+        planDeck(row);
         (c.items || []).forEach(function(it, j){
-          if (l.kind === 'question') out.questions.push([num, l.name, j + 1, it.label || '', it.text || '', it.media || '', it.timer || '', ANIM_NAME[it.transition || ''] || '']);
-          else out.scriptures.push([num, l.name, j + 1, it.label || '', it.ref || '', it.text || '', it.version || '', ANIM_NAME[it.transition || ''] || '']);
+          var an = ANIM_NAME[it.transition || ''] || '';
+          if (l.kind === 'question'){
+            out.questions.push([num, l.name, j + 1, it.label || '', it.text || '', it.media || '', it.timer || '', an]);
+            out.plan.push([num + '.' + order + '.' + (j + 1), 'Content', '', '', it.text || '', '', it.label || '', an, '']);
+          } else {
+            out.scriptures.push([num, l.name, j + 1, it.label || '', it.ref || '', it.text || '', it.version || '', an]);
+            out.plan.push([num + '.' + order + '.' + (j + 1), 'Content', '', '', it.text || '', (it.ref || '') + (it.version ? ' (' + it.version + ')' : ''), it.label || '', an, '']);
+          }
         });
+        out.content.push(row);
+        return;
       }
       else if (l.kind === 'announcement' && !c.label) row = [num, order, 'Text', l.name, c.text || '', '', '', ANIM_NAME[c.anim] || '', '', ''];
       else if (l.kind === 'announcement') row = [num, order, 'Text', l.name, c.text || '', c.title || '', '', ANIM_NAME[c.anim] || '', '', ''];
@@ -398,6 +529,7 @@ function exportSheets(st){
       else if (l.kind === 'screen') row = [num, order, 'Screen', l.name, '', '', '', '', '', ''];
       else { order--; return; }
       out.content.push(row);
+      planDeck(row);
     });
   });
   return out;
@@ -420,7 +552,7 @@ function exportBook(X, st){
   return wb;
 }
 
-window.KCMeetingBook = {SHEETS: SHEETS, FIELDS: FIELDS, FORM_TABLES: FORM_TABLES, CONTENT_TYPES: CONTENT_TYPES, FREE_TYPES: FREE_TYPES, BACKGROUNDS: BACKGROUNDS,
+window.KCMeetingBook = {SHEETS: SHEETS, FIELDS: FIELDS, FORM_TABLES: FORM_TABLES, PLAN_COLS: PLAN_COLS, LEVELS: LEVELS, DECK_TYPES: DECK_TYPES, EFFECTS: EFFECTS, planBook: planBook, CONTENT_TYPES: CONTENT_TYPES, FREE_TYPES: FREE_TYPES, BACKGROUNDS: BACKGROUNDS,
   TRANSITIONS: TRANSITIONS, ANIMATIONS: ANIMATIONS, PPT_BG: PPT_BG, TYPE_NAME: TYPE_NAME, isBook: isBook, isForm: isForm, formBook: formBook, bookOf: bookOf,
   parse: parse, apply: apply, exportSheets: exportSheets, exportBook: exportBook, formRows: formRows, header: header};
 })();

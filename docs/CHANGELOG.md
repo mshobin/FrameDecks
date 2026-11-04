@@ -53,6 +53,35 @@ Versions before 4.9 (when the program had its earlier name) are described in the
 - The favicons, the tray icon and the small program-icon sizes (16–32 px) use a heavier version of the emblem, so it
   stays visible on light browser tabs and a light taskbar. Larger sizes are unchanged.
 
+## [9.4.0] - 2026-11-04
+
+Full notes: [docs/releases/v9.4.0.md](releases/v9.4.0.md).
+
+### Added
+- Phone and tablet remote redesigned (`app/remote.html`, `app/js/remote.js`, `app/css/remote.css`): a fixed stage (live
+  picture with **Spotlight** / **Draw**, what is on screen, Previous / Next with the next Frame's name) and five tabs:
+  Show (steppers, video controls, every Deck with an eye via `SC.toggleVisible`), Plan (Frame > Deck > Content numbered
+  1 · 1.1 · 1.1.1; tap a Frame, Deck or question), Tools, Memory, Meeting (details, `SC.switchMeeting`, PC status,
+  disconnect). Portrait: tabs at the bottom; landscape and tablets: two columns.
+- Spotlight that follows the pointer: `POST/GET /api/pointer` (long-poll, `POINTER`, 6 s idle), `live.follow` while on;
+  the `Follow` lens in `src/vcam/spotlight.py` (eased position, fade) and `.pg-follow` on the overlay pages. The PC's
+  Annotate Spotlight tool and the phone (drag; a tap gives a timed `live.spot`) drive it. `/api/pointer` is allowed to
+  signed-in phones.
+- `remote_studio_action` op `media` (play / pause / stop / restart a visible video layer); `remote_studio_info` lists
+  the visible videos (`media`).
+- Meeting Workbook: one **Meeting plan** table (No. formula · Level · Type · Name · Text · Bible reference · On-screen
+  label · Effect · Notes / script; `src/meeting_form.py`, `tools/make_meeting_workbook.py`, `app/js/meeting-book.js`
+  `planBook`); Dashboard counts Frames, Decks, questions, scriptures; hand-made forms import (Level from the numbering).
+- Quick Start: **Import from Excel…** under *Import from a file* (and in the meeting menu).
+
+### Fixed
+- With the Spotlight tool chosen the pointer froze over the Studio picture (the annotation pad now follows the target's
+  geometry and lets the pointer through).
+- Studio Frames list: meeting group headings were `<li role="presentation">`, which broke the list for screen readers.
+
+### Changed
+- `tests/fixtures/sync/*.json` regenerated (`live.follow`).
+
 ## [9.3.0] - 2026-11-04
 
 Full notes: [docs/releases/v9.3.0.md](releases/v9.3.0.md). Audit: [docs/project/2026-11-03-production-audit.md](project/2026-11-03-production-audit.md)

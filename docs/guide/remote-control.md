@@ -57,7 +57,9 @@ The phone stays signed in for 30 days. After that, or after a new PIN, enter the
 
 ## The remote
 
-The remote is **one screen** with large buttons, so a volunteer can use it without training. Scroll down for the rest.
+The remote runs the **whole meeting** from your hand. The top half never moves: the **live picture**, what is on
+screen, and **Previous / Next**. Under it, five tabs hold everything else. Hold the phone upright and the tabs are at
+the bottom; turn it **sideways** (or use a tablet) and the picture sits on the left with the tabs on the right.
 
 ![The remote on a phone](images/remote-simple.png)
 
@@ -65,17 +67,33 @@ The remote is **one screen** with large buttons, so a volunteer can use it witho
 | --- | --- |
 | **Top bar** | The meeting name and the **Connected** status, always visible |
 | **Hide all** | Hides everything on screen at once. It turns solid red while something is on screen |
-| **On screen now** | The live picture, with a badge: **Off air**, **On screen**, **Black screen**, **Frozen** or **Emergency**. Below it: *Frame 4 of 18*, the Frame's name and what it is showing, plus **FrameDecks vCam** and **Recording** chips when they are on |
-| **Previous / Next** | Move through the Frames, in order. **Next** is gold, and says **Start** before anything is live |
-| **Questions, scriptures or slides** | A card for the Frame's questions, scriptures or PowerPoint slides (*Question 2 of 5*, *Slide 3 of 12*). The round **◀ ▶** arrows step through them. When a Frame has more than one kind, chips choose which one the arrows move through. A Frame with a question **and** a scripture also gets a **Question / Both / Scripture** switch |
-| **Teleprompter** | Opens the Frame's Teleprompter script full screen, on this phone only |
-| **Draw** | Opens the drawing pad |
-| **Freeze** | Holds the picture while you get the next thing ready |
-| **Black screen** | Makes the picture black. Select it again (**Show picture**) to bring it back |
-| **All Frames** | Every Frame as a card. Tap one to put it on screen. **Live** and **Next** tags show where you are |
-| **Disconnect this device** | At the bottom: signs this phone out. Enter the PIN to connect again |
+| **Live picture** | Exactly what is on screen, with a badge: **Off air**, **On screen**, **Black screen**, **Frozen** or **Emergency**. Its two buttons: **Spotlight** (touch the picture to point) and **Draw** |
+| **On screen now** | *Frame 4 of 18*, the Frame's name and what it is showing, plus chips for **FrameDecks vCam**, **Recording**, **Black screen**, **Frozen** or drawings on screen |
+| **Previous / Next** | Move through the Frames, in order. **Next** is gold, shows the name of the Frame it will put on screen, and says **Start** before anything is live |
+
+### The five tabs
+
+| Tab | What is in it |
+| --- | --- |
+| **Show** | The Frame on screen. Its questions, scriptures or PowerPoint slides with round **◀ ▶** arrows (*Question 2 of 5*, *Slide 3 of 12*); a **Question / Both / Scripture** switch when it has both; **Video** controls (play, pause, from the start) for videos in the picture; and **On this Frame**: every Deck with an eye to show or hide it |
+| **Plan** | The whole meeting, Frame > Deck > Content, numbered like the Meeting Workbook (1 · 1.1 · 1.1.1). Tap a Frame to put it on screen. Open it (**⌄**) to see its Decks with their eyes, and every question or scripture: tap one to show it (its Frame goes live first if needed) |
+| **Tools** | **Draw**, **Spotlight**, **Teleprompter**, **Freeze**, **Black screen** (*Show picture* while on) and **Clear drawings** |
+| **Memory** | Capture Memory (see below) |
+| **Meeting** | This meeting's date, time, place, speaker and expected people; **Switch meeting** when there are several; what the PC is doing (FrameDecks vCam, recording, slides); **Disconnect this device** |
+
+The remote remembers the tab you used last. A short vibration (on Android) and a message at the bottom confirm each
+press; buttons pause while the PC can't be reached.
 
 The **Emergency** screen is on the PC only. If it is on, the badge says **Emergency**; turn it off on the PC.
+
+## Spotlight from the phone
+
+1. Tap **Spotlight** on the live picture (or in **Tools**). The picture gets a gold edge.
+2. **Drag** a finger on the picture: the spotlight follows it on every screen, live. Lift your finger and it fades.
+3. **Tap** once for a quick circle that stays for a few seconds.
+4. Tap **Spotlight** again to turn it off, so touches scroll the page as usual.
+
+The spotlight uses the colour, size and strength set on the PC (Settings → Transitions → Spotlight).
 
 ## Teleprompter on the phone
 
@@ -93,7 +111,7 @@ Show a message from your phone on the live screen as a chat bubble:
 
 1. In WhatsApp, Teams, Zoom, Messages or any app, long-press the message and choose **Copy**. Copy several messages
    or a whole conversation to show them all.
-2. In the remote, scroll to **Capture Memory**, long-press the box and choose **Paste** (or tap **Paste** when the
+2. In the remote, open the **Memory** tab, long-press the box and choose **Paste** (or tap **Paste** when the
    remote is installed as an app).
 3. Tap **Show on screen**. Each message becomes its own bubble with the sender's name, on screen at once.
 
@@ -110,7 +128,7 @@ Capture on and the bubble settings stay on the PC.
 
 ## Drawing from the phone
 
-1. Select **Draw**. The drawing pad opens with the **live picture**, exactly what Zoom, Teams or the projector shows.
+1. Select **Draw** (on the live picture or in **Tools**). The drawing pad opens with the **live picture**, exactly what Zoom, Teams or the projector shows.
 2. Choose a tool (**Pen**, **Highlight**, **Arrow**, **Box**, **Circle**) and a colour.
 3. Draw with your finger. The drawing appears on screen when you lift your finger.
 4. **Undo** removes the last drawing; **Clear** removes them all.
@@ -124,7 +142,7 @@ While the pad is open, the phone gets a sharper picture (960 pixels wide). If th
 
 ## iPad and tablet layout
 
-On an iPad or a large tablet, the **All Frames** list sits beside the controls, so you can see the whole meeting at once. On a phone it is below them.
+On an iPad or a large tablet held sideways, the live picture and **Previous / Next** sit on the left and the tabs on the right, so the whole plan is in view while you run the meeting. Upright, the tabs are at the bottom as on a phone.
 
 ## Add it to your home screen
 

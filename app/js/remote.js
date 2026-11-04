@@ -1,7 +1,9 @@
-/* FrameDecks 8.0 - the phone and tablet remote (remote.html): one view for anyone.
- *   On screen now (the live picture, the Frame and what it shows) · Previous / Next Frame · the Frame's questions,
- *   scriptures or PowerPoint slides with their own arrows · Teleprompter, Draw, Freeze, Black screen · every Frame,
- *   one tap to put it on screen · Hide all, always at the top.
+/* FrameDecks 9.4 - the phone and tablet remote (remote.html): run the whole meeting from your hand.
+ *   The stage, always in view: the live picture (touch it to Spotlight, or open Draw), what is on screen, Previous / Next.
+ *   Five tabs: Show (the Frame on screen: its questions, scriptures or slides with their own arrows, its videos, and
+ *   every Deck with an eye) · Plan (every Frame > Deck > Content, numbered 1 · 1.1 · 1.1.1, one tap to put any of them
+ *   on screen) · Tools (Draw, Spotlight, Teleprompter, Freeze, Black screen) · Memory (js/remote-memory.js) · Meeting
+ *   (switch meeting, what the PC is doing, disconnect). Hide all, always at the top.
  * Everything acts on the shared state (js/store.js KCScenes), so a press here is exactly the same action as on the PC.
  * Member data never comes here. */
 (function(){
@@ -17,7 +19,7 @@ function toast(msg, bad){ var t = $('toast'); t.textContent = msg; t.className =
 /* A short vibration confirms a press on Android phones (iPhone Safari does not allow it) */
 function buzz(ms){ try { if (navigator.vibrate) navigator.vibrate(ms); } catch(e){} }
 if (window.KCBrand) all('[data-credit]').forEach(function(p){ p.textContent = KCBrand.name + ' · ' + KCBrand.tagline + '. By ' + KCBrand.creator.name + ' · ' + KCBrand.creator.email + '. ' + KCBrand.disclaimer; });
-try { localStorage.removeItem('bcc-remote-role'); localStorage.removeItem('bcc-remote-tab'); } catch(e){}   // 8.0: one view, no layouts or tabs
+try { localStorage.removeItem('bcc-remote-role'); localStorage.removeItem('bcc-remote-tab'); } catch(e){}   // older layouts
 
 /* ---------- Sign in ---------- */
 function showLogin(msg){ $('app').hidden = true; $('login').hidden = false; $('login-msg').textContent = msg || ''; setTimeout(function(){ $('pin').focus(); }, 50); }
@@ -59,6 +61,31 @@ function stepScene(d){
 $('prev').addEventListener('click', guard('prev', function(){ stepScene(-1); }));
 $('next').addEventListener('click', guard('next', function(){ stepScene(1); }));
 $('hide-all').addEventListener('click', function(){ buzz(25); update(function(n){ SC.hideAll(n); }, 'Everything hidden'); });
+
+/* ---------- 9.4 Tabs: Show · Plan · Tools · Memory · Meeting (the one you used last comes back) ---------- */
+var TABS = ['show', 'plan', 'tools', 'memory', 'meeting'], tab = 'show';
+try { var savedTab = localStorage.getItem('fd-remote-tab'); if (TABS.indexOf(savedTab) >= 0) tab = savedTab; } catch(e){}
+function openTab(t, focus){
+  if (TABS.indexOf(t) < 0) return;
+  tab = t;
+  try { localStorage.setItem('fd-remote-tab', t); } catch(e){}
+  TABS.forEach(function(x){
+    var b = $('tab-' + x), on = x === t;
+    b.setAttribute('aria-selected', String(on)); b.tabIndex = on ? 0 : -1;
+    $('p-' + x).hidden = !on;
+  });
+  document.body.dataset.tab = t;
+  var panels = document.querySelector('.panels'); if (panels) panels.scrollTop = 0;
+  if (focus) $('tab-' + t).focus();
+  if (live) render();
+}
+all('[data-tab]').forEach(function(b){ b.addEventListener('click', function(){ if (tab !== b.dataset.tab) buzz(6); openTab(b.dataset.tab); }); });
+$('tabs').addEventListener('keydown', function(e){
+  var i = TABS.indexOf(tab), d = e.key === 'ArrowRight' || e.key === 'ArrowDown' ? 1 : e.key === 'ArrowLeft' || e.key === 'ArrowUp' ? -1 : 0;
+  if (e.key === 'Home') { e.preventDefault(); openTab(TABS[0], true); } else if (e.key === 'End') { e.preventDefault(); openTab(TABS[TABS.length - 1], true); }
+  else if (d){ e.preventDefault(); openTab(TABS[(i + d + TABS.length) % TABS.length], true); }
+});
+openTab(tab);
 
 /* ---------- Inside the Frame: its slides, questions or scriptures ---------- */
 var KIND_NAMES = {slides: 'Slides', question: 'Questions', verse: 'Scriptures'}, ONE = {slides: 'Slide', question: 'Question', verse: 'Scripture'}, chosenKind = null;
@@ -112,12 +139,15 @@ all('[data-qs]').forEach(function(b){
 });
 
 /* ---------- Tools ---------- */
+function clearInk(){ update(function(n){ SC.ink(n, 'clear'); }, 'Drawings cleared'); }
 function blackout(){ update(function(n){ n.live.blackout = !n.live.blackout; }, live.live.blackout ? 'Picture back' : 'Black screen'); }
 function freeze(){ update(function(n){ n.live.freeze = !n.live.freeze; }, live.live.freeze ? 'Picture live again' : 'Picture frozen'); }
-function annotate(){ if (live.live.ink && live.live.ink.on) openPad(); else update(function(n){ SC.ink(n, 'on'); }).then(openPad); }
+function annotate(){ setSpot(false); if (live.live.ink && live.live.ink.on) openPad(); else update(function(n){ SC.ink(n, 'on'); }).then(openPad); }
 $('t-black').addEventListener('click', guard('tb', blackout));
 $('t-freeze').addEventListener('click', guard('tf', freeze));
 $('t-draw').addEventListener('click', guard('td', annotate));
+$('pic-draw').addEventListener('click', guard('td', annotate));
+$('t-ink-clear').addEventListener('click', guard('tc', clearInk));
 
 /* Teleprompter: the script of the Frame on screen (else the first), full screen; only you see it */
 var tp = null;
@@ -134,30 +164,183 @@ $('t-prompter').addEventListener('click', guard('tp', openPrompter));
 $('tp-close').addEventListener('click', closePrompter);
 document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && !$('tp').hidden){ e.preventDefault(); closePrompter(); } });
 
-/* ---------- All Frames: tap one to put it on screen ---------- */
-var listSig = '';
+/* ---------- 9.4 Show: every Deck of the Frame on screen, with its eye ---------- */
+function deckName(l){ return String(l.name || '').trim() || (SC.info[l.kind] || {name: l.kind}).name; }
+function deckDetail(l){
+  var c = l.c || {}, items = Array.isArray(c.items) ? c.items : null;
+  if (items && items.length) return items.length + (l.kind === 'question' ? (items.length === 1 ? ' question' : ' questions') : items.length === 1 ? ' scripture' : ' scriptures');
+  var t = String(c.text || c.title || c.file || '').replace(/\s+/g, ' ').trim();
+  return (SC.info[l.kind] || {name: ''}).name + (t ? ' · ' + t.slice(0, 60) : '');
+}
+var EYE_ON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>';
+var EYE_OFF = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3l18 18"/><path d="M10.6 5.1A10 10 0 0 1 12 5c6.4 0 10 7 10 7a17 17 0 0 1-3.3 4.2M6.6 6.6A17 17 0 0 0 2 12s3.6 7 10 7a9.7 9.7 0 0 0 5.4-1.6"/></svg>';
+function deckOn(sc, l){ return live.live.scene === sc.id ? SC.layerOn(live, sc, l) : !!l.visible; }
+function toggleDeck(sc, l){
+  var on = deckOn(sc, l), nm = deckName(l);
+  update(function(n){ SC.toggleVisible(n, sc.id, l.id); },
+    live.live.scene === sc.id ? (on ? nm + ' hidden' : nm + ' on screen') : (on ? nm + ' won’t show' : nm + ' will show'));
+}
+function eyeButton(sc, l, on){
+  var b = h('button', 'eye' + (on ? ' on' : '')); b.type = 'button'; b.innerHTML = on ? EYE_ON : EYE_OFF;
+  b.setAttribute('aria-pressed', String(on));
+  b.setAttribute('aria-label', (on ? 'Hide ' : 'Show ') + deckName(l));
+  b.addEventListener('click', guard('e' + l.id, function(e){ e.stopPropagation(); toggleDeck(sc, l); }));
+  return b;
+}
+var decksSig = '';
+function renderDecks(){
+  var ls = SC.liveScene(live), ul = $('dlist');
+  var sig = JSON.stringify(ls ? [ls.id, ls.layers.map(function(l){ return [l.id, l.name, l.kind, deckOn(ls, l), deckDetail(l)]; })] : null);
+  if (sig === decksSig) return; decksSig = sig;
+  ul.innerHTML = '';
+  var shown = ls ? ls.layers.filter(function(l){ return l.kind !== 'background'; }) : [];
+  setText($('decks-count'), ls ? shown.length + (shown.length === 1 ? ' Deck' : ' Decks') : '');
+  if (!ls){ ul.appendChild(h('li', 'empty', SC.order(live).length ? 'Nothing is on screen yet. Tap Start, or pick a Frame in Plan.' : 'No Frames yet. Make them on the PC.')); return; }
+  if (!shown.length){ ul.appendChild(h('li', 'empty', 'This Frame has no Decks.')); return; }
+  var pos = SC.order(live).indexOf(ls) + 1;
+  shown.forEach(function(l, i){
+    var on = deckOn(ls, l), li = h('li', 'drow' + (on ? ' on' : ''));
+    li.appendChild(h('span', 'num', (pos > 0 ? pos + '.' : '') + (i + 1)));
+    var t = h('span', 't'); t.appendChild(h('b', null, deckName(l))); t.appendChild(h('small', null, deckDetail(l))); li.appendChild(t);
+    li.appendChild(eyeButton(ls, l, on));
+    ul.appendChild(li);
+  });
+}
+
+/* ---------- 9.4 Plan: every Frame > Deck > Content, numbered 1 · 1.1 · 1.1.1; tap any of them to show it ---------- */
+var openFrames = {}, listSig = '';
+function contentsOf(l){ return (l.kind === 'question' || l.kind === 'scripture') && Array.isArray(l.c && l.c.items) ? l.c.items : []; }
+function contentText(l, it){ return l.kind === 'scripture' ? (it.ref || 'Scripture') + (it.text ? ' · ' + it.text : '') : (it.text || 'Question'); }
+function contentOn(sc, l, it){
+  if (live.live.scene !== sc.id) return false;
+  return l.kind === 'question' ? live.question.visible && live.question.itemId === it.id : live.verse.visible && live.verse.itemId === it.id;
+}
+/* one question or scripture on screen: its Frame first (when another is live), then the item */
+function showContent(sc, l, it, idx){
+  var k = l.kind === 'question' ? 'question' : 'verse';
+  update(function(n){
+    if (n.live.scene !== sc.id) SC.take(n, sc.id, null);
+    var f = SC.itemById(n, k, it.id, true); if (!f) return;
+    f.layer.visible = true;
+    if (k === 'question') SC._loadQuestion(n, it.id); else { f.layer.c.itemId = it.id; SC._loadVerse(n, f.layer); }
+    var o = n[k]; o.visible = true; o.seq = (o.seq || 0) + 1;
+    T.resolve(n, k, it.id);
+    if (k === 'question') P.afterShow(n);
+  }, ONE[k] + ' ' + (idx + 1) + ' on screen');
+}
 function renderFrames(){
   var ol = $('flist'), order = SC.order(live), next = live.live.scene ? SC.neighbour(live, live.live.scene, 1) : order[0];
-  var sig = JSON.stringify([order.map(function(s){ return [s.id, s.name, s.group, s.layers.length]; }), live.live.scene, next && next.id]);
+  if (live.live.scene && openFrames[live.live.scene] === undefined) openFrames[live.live.scene] = true;
+  var sig = JSON.stringify([order.map(function(s){ return [s.id, s.name, s.group, s.layers.map(function(l){ return [l.id, l.name, l.kind, deckOn(s, l), contentsOf(l).map(function(it){ return [it.id, it.text, it.ref]; })]; })]; }),
+    live.live.scene, next && next.id, openFrames, live.question.visible && live.question.itemId, live.verse.visible && live.verse.itemId]);
   if (sig === listSig) return; listSig = sig;
   setText($('fr-count'), order.length ? order.length + (order.length === 1 ? ' Frame' : ' Frames') : '');
   ol.innerHTML = '';
-  if (!order.length){ ol.appendChild(h('li', 'empty', 'No Frames yet. Make them on the PC, in the Studio.')); return; }
-  var lastGroup = null;
+  if (!order.length){ ol.appendChild(h('li', 'empty', 'No Frames yet. Make them on the PC, or import a Meeting Workbook.')); return; }
   order.forEach(function(sc, i){
-    if (sc.group && sc.group !== lastGroup) ol.appendChild(h('li', 'fgroup', sc.group));
-    lastGroup = sc.group;
-    var isLive = live.live.scene === sc.id, isNext = !isLive && next && next.id === sc.id;
-    var li = h('li'), b = h('button', 'frow' + (isLive ? ' live' : '') + (isNext ? ' nx' : '')); b.type = 'button';
-    b.setAttribute('aria-label', (isLive ? 'Live now: ' : 'Put on screen: ') + sc.name);
+    var isLive = live.live.scene === sc.id, isNext = !isLive && next && next.id === sc.id, open = !!openFrames[sc.id];
+    var decks = sc.layers.filter(function(l){ return l.kind !== 'background'; });
+    var li = h('li', 'fitem' + (isLive ? ' live' : '') + (open ? ' open' : '')), row = h('div', 'frow-wrap');
+    var b = h('button', 'frow' + (isLive ? ' live' : '') + (isNext ? ' nx' : '')); b.type = 'button';
+    b.setAttribute('aria-label', (isLive ? 'Live now: ' : 'Put on screen: ') + (i + 1) + ' ' + sc.name);
     if (isLive) b.setAttribute('aria-current', 'true');
     b.appendChild(h('span', 'n', String(i + 1)));
     var t = h('span', 't'); t.appendChild(h('b', null, sc.name));
-    t.appendChild(h('small', null, sc.layers.map(function(l){ return SC.info[l.kind].name; }).join(' · ') || 'Empty Frame')); b.appendChild(t);
+    t.appendChild(h('small', null, decks.length ? decks.length + (decks.length === 1 ? ' Deck' : ' Decks') + ' · ' + decks.map(deckName).slice(0, 3).join(' · ') : 'Empty Frame')); b.appendChild(t);
     if (isLive || isNext) b.appendChild(h('span', 'tag', isLive ? 'Live' : 'Next'));
     b.addEventListener('click', guard('f' + sc.id, function(){ if (live.live.scene === sc.id) toast(sc.name + ' is already on screen'); else take(sc.id); }));
-    li.appendChild(b); ol.appendChild(li);
+    row.appendChild(b);
+    if (decks.length){
+      var x = h('button', 'more'); x.type = 'button'; x.setAttribute('aria-expanded', String(open));
+      x.setAttribute('aria-label', (open ? 'Close ' : 'Open ') + sc.name);
+      x.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>';
+      x.addEventListener('click', function(){ buzz(6); openFrames[sc.id] = !open; renderFrames(); });
+      row.appendChild(x);
+    }
+    li.appendChild(row);
+    if (open && decks.length){
+      var dl = h('ol', 'dtree');
+      decks.forEach(function(l, j){
+        var on = deckOn(sc, l), d = h('li', 'dnode' + (on ? ' on' : ''));
+        var dr = h('div', 'drow');
+        dr.appendChild(h('span', 'num', (i + 1) + '.' + (j + 1)));
+        var dt = h('span', 't'); dt.appendChild(h('b', null, deckName(l))); dt.appendChild(h('small', null, deckDetail(l))); dr.appendChild(dt);
+        dr.appendChild(eyeButton(sc, l, on));
+        d.appendChild(dr);
+        var items = contentsOf(l);
+        if (items.length){
+          var cl = h('ol', 'ctree');
+          items.forEach(function(it, m){
+            var con = contentOn(sc, l, it), cb = h('button', 'crow' + (con ? ' on' : '')); cb.type = 'button';
+            cb.setAttribute('aria-label', 'Show ' + (l.kind === 'question' ? 'question ' : 'scripture ') + (m + 1) + ': ' + contentText(l, it).slice(0, 80));
+            if (con) cb.setAttribute('aria-current', 'true');
+            cb.appendChild(h('span', 'num', (i + 1) + '.' + (j + 1) + '.' + (m + 1)));
+            cb.appendChild(h('span', 'ct', contentText(l, it)));
+            cb.addEventListener('click', guard('c' + it.id, function(){ showContent(sc, l, it, m); }));
+            var cli = h('li'); cli.appendChild(cb); cl.appendChild(cli);
+          });
+          d.appendChild(cl);
+        }
+        dl.appendChild(d);
+      });
+      li.appendChild(dl);
+    }
+    ol.appendChild(li);
   });
+}
+
+/* ---------- 9.4 Video: play, pause, from the start (the videos in the FrameDecks vCam picture) ---------- */
+var mediaSig = '';
+function renderMedia(){
+  var list = (studioInfo && studioInfo.media) || [], sig = JSON.stringify(list);
+  $('media').hidden = !list.length;
+  if (sig === mediaSig) return; mediaSig = sig;
+  var ul = $('mlist'); ul.innerHTML = '';
+  list.forEach(function(m){
+    var li = h('li', 'mrow'), playing = m.state === 'play' && !m.ended || m.state === 'restart';
+    var t = h('span', 't'); t.appendChild(h('b', null, m.name)); t.appendChild(h('small', null, m.ended ? 'Finished' : playing ? 'Playing' : m.state === 'stop' ? 'Stopped' : 'Paused')); li.appendChild(t);
+    [['restart', 'From the start', '<path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/>'],
+     [playing ? 'pause' : 'play', playing ? 'Pause' : 'Play', playing ? '<rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/>' : '<path d="M7 4.5v15l12-7.5z"/>']].forEach(function(c){
+      var b = h('button', 'round sm' + (c[0] === 'play' || c[0] === 'pause' ? ' primary' : '')); b.type = 'button';
+      b.setAttribute('aria-label', c[1] + ': ' + m.name); b.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true">' + c[2] + '</svg>';
+      b.addEventListener('click', guard('m' + m.id + c[0], function(){
+        studioPost({op: 'media', id: m.id, cmd: c[0]}).then(function(r){ studioInfo = r.studio || studioInfo; toast(c[1] === 'From the start' ? m.name + ' from the start' : c[1] === 'Play' ? m.name + ' playing' : m.name + ' paused'); render(); })
+          .catch(function(e){ toast(e.message, true); });
+      }));
+      li.appendChild(b);
+    });
+    ul.appendChild(li);
+  });
+}
+
+/* ---------- 9.4 Meeting: which meeting, switch to another, what the PC is doing ---------- */
+var meetSig = '';
+function fact(dl, k, v){ if (!v) return; dl.appendChild(h('dt', null, k)); dl.appendChild(h('dd', null, v)); }
+function niceDate(d){ var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(d || ''); if (!m) return d || ''; try { return new Date(+m[1], +m[2] - 1, +m[3]).toLocaleDateString([], {weekday: 'long', day: 'numeric', month: 'long'}); } catch(e){ return d; } }
+function renderMeeting(){
+  var mt = live.meeting || {}, list = SC.meetings(live), cur = SC.currentMeeting(live), d = studioInfo || {}, vc = d.vcam || {}, rec = d.recording || {};
+  var sig = JSON.stringify([mt.title, mt.date, mt.time, mt.location, mt.presenter, mt.attendees, list.map(function(m){ return [m.id, m.name, m.date]; }), cur.id, SC.order(live).length, vc, rec.on, d.presentation && d.presentation.name]);
+  if (sig === meetSig) return; meetSig = sig;
+  setText($('mt-title'), mt.title || cur.name || 'Meeting');
+  var f = $('mt-facts'); f.innerHTML = '';
+  fact(f, 'Date', niceDate(mt.date)); fact(f, 'Time', mt.time); fact(f, 'Where', mt.location); fact(f, 'Speaker', mt.presenter);
+  fact(f, 'Expected', mt.attendees ? mt.attendees + ' people' : ''); fact(f, 'Frames', String(SC.order(live).length));
+  $('mt-switch').hidden = list.length < 2;
+  var ul = $('mtlist'); ul.innerHTML = '';
+  list.forEach(function(m){
+    var b = h('button', 'mtrow' + (m.id === cur.id ? ' on' : '')); b.type = 'button';
+    var t = h('span', 't'); t.appendChild(h('b', null, m.name)); if (m.date) t.appendChild(h('small', null, niceDate(m.date))); b.appendChild(t);
+    if (m.id === cur.id){ b.setAttribute('aria-current', 'true'); b.appendChild(h('span', 'tag', 'Showing')); }
+    b.addEventListener('click', guard('mt' + m.id, function(){
+      if (m.id === SC.currentMeeting(live).id){ toast(m.name + ' is already showing'); return; }
+      update(function(n){ SC.switchMeeting(n, m.id); }, m.name);
+    }));
+    var li = h('li'); li.appendChild(b); ul.appendChild(li);
+  });
+  var pc = $('mt-pc'); pc.innerHTML = '';
+  fact(pc, 'FrameDecks vCam', vc.state ? (vc.state === 'live' ? (vc.inUse ? 'On, in a meeting' : 'On') : vc.state === 'error' ? 'Has a problem' : vc.state) : 'Off');
+  fact(pc, 'Recording', rec.on ? 'Recording' : 'Not recording');
+  fact(pc, 'Slides', d.presentation ? d.presentation.name + (d.presentation.page ? ' · slide ' + d.presentation.page : '') : 'None open');
 }
 
 /* ---------- The live picture ---------- */
@@ -166,6 +349,75 @@ function renderCanvas(){ setFrame($('frame'), !$('app').hidden && !document.hidd
 function scale(){ var box = $('canvas'); if (box && box.clientWidth) $('frame').style.transform = 'scale(' + (box.clientWidth / 1920) + ')'; }
 window.addEventListener('resize', scale);
 if (window.ResizeObserver) new ResizeObserver(scale).observe($('canvas'));
+
+/* ---------- 9.4 Spotlight: touch the live picture. Drag and the spotlight follows your finger on every screen (the
+ * same follow lens as the PC's mouse, POST api/pointer); a quick tap circles that spot for a few seconds (live.spot). */
+var spotMode = false, touch = $('touch'), ptr = {want: null, busy: false, on: false}, g = null;
+function pointer(on, x, y){
+  if (!on && !ptr.on && !ptr.want) return;
+  ptr.want = on ? {on: true, x: x, y: y} : {on: false};          // the PC's colour, size and strength stay
+  if (!ptr.busy) pointerSend();
+}
+function pointerSend(){
+  var body = ptr.want; if (!body) return;
+  ptr.want = null; ptr.busy = true; ptr.on = body.on;
+  fetch('api/pointer', {method: 'POST', headers: {'Content-Type': 'application/json'}, credentials: 'same-origin', body: JSON.stringify(body)})
+    .catch(function(){}).then(function(){ ptr.busy = false; if (ptr.want) setTimeout(pointerSend, 30); });
+}
+function setSpot(on){
+  if (on === spotMode) return;
+  spotMode = on;
+  document.body.classList.toggle('spotting', on);
+  $('pic-spot').setAttribute('aria-pressed', String(on));
+  $('spot-hint').hidden = !on;
+  if (!on){ endGesture(false); pointer(false); }
+  if (live) render();
+}
+function toggleSpot(){ setSpot(!spotMode); toast(spotMode ? 'Spotlight: touch the picture' : 'Spotlight off'); }
+$('pic-spot').addEventListener('click', guard('ps', toggleSpot));
+$('t-spot').addEventListener('click', guard('ps', toggleSpot));
+function picPt(e){
+  var r = touch.getBoundingClientRect(), cl = function(v){ return Math.round(Math.min(1, Math.max(0, v)) * 1e4) / 1e4; };
+  return {x: cl((e.clientX - r.left) / r.width), y: cl((e.clientY - r.top) / r.height), px: e.clientX - r.left, py: e.clientY - r.top};
+}
+function finger(p){
+  var f = $('finger');
+  if (!p){ f.classList.remove('on'); return; }
+  f.style.transform = 'translate(' + Math.round(p.px) + 'px,' + Math.round(p.py) + 'px)';
+  f.classList.add('on');
+  f.classList.toggle('drag', !!(g && g.drag));
+}
+function startDrag(){ if (!g || g.drag) return; g.drag = true; buzz(10); finger(g.p); pointer(true, g.p.x, g.p.y);
+  g.keep = setInterval(function(){ if (g && g.drag) pointer(true, g.p.x, g.p.y); }, 2000); }   // held still: the spotlight stays
+function endGesture(tap){
+  if (!g) return;
+  var was = g; g = null; clearTimeout(was.hold); clearInterval(was.keep); finger(null);
+  if (was.drag) pointer(false);
+  else if (tap){
+    var spot = {id: 's' + Date.now().toString(36), x: was.p.x, y: was.p.y, w: 0, h: 0, c: '#e8b931', size: 1, dur: 3, k: 60, style: 'disc'};
+    buzz(12);
+    update(function(n){ n.live.spot = SC.cleanSpot(spot); }, 'Spotlight');
+  }
+}
+touch.addEventListener('pointerdown', function(e){
+  if (!spotMode || !connOk) return;
+  e.preventDefault();
+  try { touch.setPointerCapture(e.pointerId); } catch(err){}
+  endGesture(false);
+  g = {x0: e.clientX, y0: e.clientY, p: picPt(e), drag: false};
+  g.hold = setTimeout(startDrag, 220);                           // press and hold: the spotlight comes up where you are
+  finger(g.p);
+});
+touch.addEventListener('pointermove', function(e){
+  if (!g) return;
+  g.p = picPt(e);
+  if (!g.drag && Math.abs(e.clientX - g.x0) + Math.abs(e.clientY - g.y0) > 10) startDrag();
+  finger(g.p);
+  if (g.drag) pointer(true, g.p.x, g.p.y);
+});
+touch.addEventListener('pointerup', function(){ endGesture(true); });
+touch.addEventListener('pointercancel', function(){ endGesture(false); });
+document.addEventListener('visibilitychange', function(){ if (document.hidden){ endGesture(false); pointer(false); } });
 
 /* ---------- Render ---------- */
 function render(){
@@ -187,7 +439,9 @@ function render(){
   setText($('now-sub'), bits.join(' · ') || (ls ? 'Nothing from this Frame is showing' : order.length ? 'Next puts “' + order[0].name + '” on screen' : 'Make your Frames on the PC'));
   var nx = ls ? SC.neighbour(live, ls.id, 1) : order[0];
   setText($('next-t'), ls ? 'Next' : 'Start');
-  $('next').setAttribute('aria-label', nx ? 'Next Frame: ' + nx.name : 'Next Frame');
+  setText($('next-name'), nx ? nx.name : ls ? 'Last Frame' : '');
+  $('next').setAttribute('aria-label', nx ? (ls ? 'Next Frame: ' : 'Start: ') + nx.name : 'Next Frame');
+  $('prev').disabled = !ls || !SC.neighbour(live, ls.id, -1) || $('prev').dataset.off === '1';
   // inside the Frame
   var ks = kinds(), k = curKind();
   $('step').hidden = !k;
@@ -218,12 +472,18 @@ function render(){
   }
   // tools
   var ink = !!(L.ink && L.ink.on);
-  [['t-draw', ink, 'Draw', 'Drawing'], ['t-freeze', !!L.freeze, 'Freeze', 'Unfreeze'], ['t-black', !!L.blackout, 'Black screen', 'Show picture']].forEach(function(b){
+  [['t-draw', ink, 'Draw', 'Drawing'], ['t-spot', spotMode, 'Spotlight', 'Spotlight on'], ['t-freeze', !!L.freeze, 'Freeze', 'Unfreeze'], ['t-black', !!L.blackout, 'Black screen', 'Show picture']].forEach(function(b){
     var el = $(b[0]); el.classList.toggle('on', b[1]); el.setAttribute('aria-pressed', String(b[1])); setText(el.querySelector('.tl'), b[1] ? b[3] : b[2]);
   });
+  $('t-ink-clear').disabled = !(L.ink && L.ink.items && L.ink.items.length) || !connOk;
+  var cs = $('ch-state'), stt = L.blackout ? 'Black screen' : L.freeze ? 'Frozen' : L.emergency ? 'Emergency screen' : ink && L.ink.items && L.ink.items.length ? 'Drawings on screen' : '';
+  cs.hidden = !stt; setText(cs, stt);
   setText($('note'), L.blackout ? 'The screen is black. Tap Show picture to bring it back.' : L.freeze ? 'The picture is frozen. Tap Unfreeze to go live again.' : L.emergency ? 'The Emergency screen is on. Turn it off on the PC.' : '');
   if (tp && !$('tp').hidden) tp.update(live, tpFrame());
-  renderFrames(); renderCanvas(); renderChips();
+  if (tab === 'show'){ renderDecks(); renderMedia(); }
+  if (tab === 'plan') renderFrames();
+  if (tab === 'meeting') renderMeeting();
+  renderCanvas(); renderChips();
 }
 Store.subscribe(function(st){ live = st; if (!$('login').hidden) showApp(); render(); });
 
@@ -324,7 +584,7 @@ $('dp-clear').addEventListener('click', guard('dc', function(){ update(function(
 $('dp-done').addEventListener('click', function(){ closePad(); update(function(n){ SC.ink(n, 'off'); }, 'Drawings hidden'); });
 
 /* ---------- Connection: buttons pause while the PC can't be reached (the page is only touched when it changes) ---------- */
-var offlineSince = null, lastOk = null, lastOnline = null;
+var connOk = true, offlineSince = null, lastOk = null, lastOnline = null;
 setInterval(function(){
   if (Store.online) offlineSince = null; else if (offlineSince === null) offlineSince = Date.now();
   var ok = Store.online || (Date.now() - offlineSince < 2500);
@@ -333,7 +593,10 @@ setInterval(function(){
   lastOk = ok; lastOnline = Store.online;
   var c = $('conn');
   c.className = 'conn ' + (Store.online ? 'ok' : ok ? '' : 'bad'); c.querySelector('b').textContent = Store.online ? 'Connected' : ok ? 'Connecting…' : 'Reconnecting…';
-  all('.nav-btn, #hide-all, .round, .tool, .frow, .seg button').forEach(function(b){ b.disabled = !ok; });
+  connOk = ok;
+  all('.nav-btn, #hide-all, .round, .tool, .frow, .seg button, .eye, .crow, .mtrow, .pic-btn').forEach(function(b){ b.disabled = !ok; });
+  $('prev').dataset.off = ok ? '' : '1';
+  decksSig = listSig = mediaSig = meetSig = '';                // rebuilt lists pick up the paused state
   if (ok && live) render();
 }, 700);
 

@@ -54,9 +54,9 @@ class Layout(unittest.TestCase):
 
 
 class Fill(unittest.TestCase):
-    def test_details_and_tables(self):
+    def test_details_and_the_plan(self):
         out = MF.fill(TEMPLATE, {"title": "Romans <8> & more", "date": "2026-11-02", "time": "18:30", "attendees": "40"},
-                      {"frames": [[1, "Welcome", "", "Navy", "Fade", "Hi\nthere"], [2, "Talk"]], "content": [], "questions": [], "scriptures": []})
+                      {"plan": [["1", "Frame", "", "Welcome", "", "", "", "Fade", "Hi\nthere"], ["1.1", "Deck", "Text", "Hello", "Hi all"]]})
         xml = form_xml(out)
         f = MF.LAYOUT["fields"]
         self.assertEqual(cell(xml, f"B{f['title']}"), "Romans &lt;8&gt; &amp; more")
@@ -64,9 +64,13 @@ class Fill(unittest.TestCase):
         self.assertEqual(cell(xml, f"B{f['time']}"), str(round(1110 / 1440, 10)))
         self.assertEqual(cell(xml, f"B{f['attendees']}"), "40")
         self.assertEqual(cell(xml, f"B{f['notes']}"), "")                # the template's example is cleared
-        _h, first, last, _c = MF.LAYOUT["tables"]["frames"]
-        self.assertEqual([cell(xml, f"B{first}"), cell(xml, f"B{first + 1}"), cell(xml, f"B{first + 2}")], ["Welcome", "Talk", ""])
-        self.assertEqual(cell(xml, f"F{first}"), "Hi\nthere")
+        _h, first, last, _c = MF.LAYOUT["tables"]["plan"]
+        self.assertEqual([cell(xml, f"D{first}"), cell(xml, f"D{first + 1}"), cell(xml, f"D{first + 2}")], ["Welcome", "Hello", ""])
+        self.assertEqual([cell(xml, f"B{first}"), cell(xml, f"C{first + 1}")], ["Frame", "Text"])
+        self.assertEqual(cell(xml, f"I{first}"), "Hi\nthere")
+        self.assertEqual(cell(xml, f"B{first + 2}"), "", "the template's sample rows are cleared")
+        for r in (first, first + 1, first + 5, last):                    # No. stays a formula on every row (1 · 1.1 · 1.1.1)
+            self.assertRegex(re.search(r'<c r="A' + str(r) + r'"[^>]*>(.*?)</c>', xml, re.S).group(1), r"<f>", r)
         self.assertNotIn("hidden", row_attrs(xml, first + 1 + MF.SHOW_BLANK))   # 2 rows + 3 open
         self.assertIn('hidden="1"', row_attrs(xml, first + 2 + MF.SHOW_BLANK))
         self.assertIn('outlineLevel="1"', row_attrs(xml, last))
@@ -77,14 +81,13 @@ class Fill(unittest.TestCase):
     def test_too_many_rows(self):
         n = MF.TABLES[0][4]
         with self.assertRaises(ValueError):
-            MF.fill(TEMPLATE, {}, {"frames": [[i + 1, "F"] for i in range(n + 1)]})
+            MF.fill(TEMPLATE, {}, {"plan": [["", "Frame", "", "F"] for _ in range(n + 1)]})
 
     def test_from_sheets(self):
         meeting, tables = MF.from_sheets({"meeting": [["Field", "Value"], ["Meeting name", "M"], ["Speaker contact", "c"], ["Odd", "x"]],
-                                          "frames": [["Frame #"], [1, "A", None]]})
+                                          "plan": [["No."], ["1", "Frame", None, "A"]]})
         self.assertEqual(meeting, {"title": "M", "contact": "c"})
-        self.assertEqual(tables["frames"], [[1, "A", ""]])
-        self.assertEqual(tables["content"], [])
+        self.assertEqual(tables["plan"], [["1", "Frame", "", "A"]])
 
 
 if __name__ == "__main__":

@@ -36,32 +36,38 @@ function readWorker(wb){          // the same reading as app/js/import-worker.js
 }
 function planOf(wb){ const fb = B.bookOf(readWorker(wb)); assert.ok(fb, 'a Meeting Workbook'); return B.parse(fb.book, {form: fb.form}); }
 
-/* 1. the template: two tabs, the form's tables have the app's columns, and it imports cleanly */
+/* 1. the template: two tabs, the Meeting plan has the app's columns, and it imports cleanly (9.4: Frame > Deck > Content) */
 const tpl = X.read(fs.readFileSync(TEMPLATE), {type: 'buffer'});
 same(tpl.SheetNames, ['Dashboard', 'Meeting Form'], 'two tabs');
 const d = readWorker(tpl);
 const fb = B.bookOf(d);
 assert.strictEqual(fb.form, 'Meeting Form', 'the Meeting Form is found');
 B.FORM_TABLES.forEach(t => {
-  const head = d.grids['Meeting Form'].rows.find(r => r.length && text(r[0]) === 'Frame #' && r[2] === t[2][2]);
+  const head = d.grids['Meeting Form'].rows.find(r => r.length && text(r[0]) === t[2][0] && r[1] === t[2][1]);
   assert.ok(head, 'table ' + t[1]);
   same(head.slice(0, t[2].length), t[2], 'columns of ' + t[1]);
 });
 const plan = B.parse(fb.book, {form: fb.form});
 same(plan.errors, [], 'the template imports without errors');
-assert.strictEqual(plan.counts.frames, 6);
+assert.strictEqual(plan.counts.frames, 5);
 assert.strictEqual(plan.counts.content, 8);
 assert.strictEqual(plan.counts.questions, 3);
 assert.strictEqual(plan.counts.scriptures, 2);
-assert.strictEqual(plan.meeting.title, 'Romans · Week 5');
+assert.strictEqual(plan.meeting.title, 'Evening Bible Study');
 assert.strictEqual(plan.meeting.date, '2026-10-25');
 assert.strictEqual(plan.meeting.time, '19:00');
 assert.strictEqual(plan.meeting.attendees, '24');
 assert.strictEqual(plan.meeting.presenter, 'Your name');
 assert.ok(plan.warnings.every(w => /^Meeting Form · /.test(w.sheet)), 'problems name the form and its section');
 const st = Store.defaults();
-assert.strictEqual(B.apply(st, plan, {}).length, 6);
-assert.strictEqual(st.meeting.title, 'Romans · Week 5');
+assert.strictEqual(B.apply(st, plan, {}).length, 5);
+assert.strictEqual(st.meeting.title, 'Evening Bible Study');
+const disc = st.scenes.filter(s => s.name === 'Discussion')[0];
+same(disc.layers.map(l => l.kind), ['question', 'lowerthird'], 'a Frame with two Decks');
+same(disc.layers[0].c.items.map(i => i.label), ['Question 1', 'Question 2', 'Question 3'], 'a Deck with three Contents, in order');
+const read = st.scenes.filter(s => s.name === 'Scripture Reading')[0].layers[0];
+same(read.c.items.map(i => [i.ref, i.version]), [['Romans 8:1', 'ESV'], ['Romans 8:2', 'ESV']], 'references keep their translation');
+assert.strictEqual(st.scenes.filter(s => s.name === 'Welcome')[0].layers.filter(l => l.kind === 'countdown')[0].c.minutes, 5, 'a Timer Deck: its minutes');
 assert.strictEqual(st.meeting.location, 'Fellowship Hall, or paste the Zoom / Teams link');
 const kept = Store.normalize ? Store.normalize(JSON.parse(JSON.stringify(st))) : st;
 assert.strictEqual(kept.meeting.attendeeNotes, 'Two newcomers expected: welcome them by name.', 'the store keeps the new details');
@@ -71,7 +77,7 @@ const plainWb = X.read(X.write(B.exportBook(X, st), {type: 'buffer', bookType: '
 same(plainWb.SheetNames, ['Meeting Form'], 'the plain export is one sheet');
 const plan2 = planOf(plainWb);
 same(plan2.errors, [], 'a plain export imports again');
-same([plan2.counts.frames, plan2.counts.content, plan2.counts.questions, plan2.counts.scriptures], [6, 8, 3, 2]);
+same([plan2.counts.frames, plan2.counts.content, plan2.counts.questions, plan2.counts.scriptures], [5, 8, 3, 2]);
 assert.strictEqual(plan2.meeting.contact, 'name@example.com · 555 0100');
 
 /* 3. export: the program's styled form (src/meeting_form.py fills the template) imports again */
@@ -87,7 +93,7 @@ if (py && py.status === 0){
   same(styled.SheetNames, ['Dashboard', 'Meeting Form'], 'the styled export keeps both tabs');
   const plan3 = planOf(styled);
   same(plan3.errors, [], 'a styled export imports again');
-  same([plan3.counts.frames, plan3.counts.content, plan3.counts.questions, plan3.counts.scriptures], [6, 8, 3, 2]);
+  same([plan3.counts.frames, plan3.counts.content, plan3.counts.questions, plan3.counts.scriptures], [5, 8, 3, 2]);
   same(plan3.meeting, plan.meeting, 'the meeting details survive the round trip');
   [sheetsJson, filled].forEach(f => fs.unlinkSync(f));
 } else {
@@ -95,7 +101,7 @@ if (py && py.status === 0){
   console.log('(Python not found: the styled export was not checked)');
 }
 
-/* 4. a hand-made form: labels anywhere on the row, its own section names, "None" animations */
+/* 4. a 6.9-9.3 Meeting Form (four tables) and a hand-made one: labels anywhere on the row, its own section names */
 const hand = [['FrameDecks | MEETING FORM'], ['Fill the highlighted fields.'], [], ['1 · MEETING DETAILS'],
   ['Meeting title', 'Hand made', '', '', 'Date', '2026-12-01'], ['Presenter', 'Sam'], [],
   ['2 · MEETING FRAMES'], ['Frame #', 'Frame name', 'Purpose / description', 'Background', 'Transition', 'Presenter script'],
@@ -113,6 +119,34 @@ const badWb = X.utils.book_new(); X.utils.book_append_sheet(badWb, X.utils.aoa_t
 const plan5 = planOf(X.read(X.write(badWb, {type: 'buffer', bookType: 'xlsx'}), {type: 'buffer'}));
 same(plan5.errors.map(e => [e.sheet, e.row]), [['Meeting Form · Content', 15]], 'a problem names the section and the Excel row');
 assert.ok(/Frames table/.test(plan5.errors[0].msg), 'and says "table", not "sheet": ' + plan5.errors[0].msg);
+
+/* 4b. 9.4 the Meeting plan by hand: the Level column, or only the numbers; problems name the Excel row */
+function planWb(rows){ const wb = X.utils.book_new(); X.utils.book_append_sheet(wb, X.utils.aoa_to_sheet(rows), 'Meeting Form'); return X.read(X.write(wb, {type: 'buffer', bookType: 'xlsx'}), {type: 'buffer'}); }
+const PH = ['No.', 'Level', 'Type', 'Name', 'Text', 'Bible reference', 'On-screen label', 'Effect', 'Notes / script'];
+const p7wb = planWb([['Meeting name', 'Plan by hand'], [], ['5 · Meeting plan'], PH,
+  ['', 'Frame', '', 'Opening', '', '', '', 'Fade', 'Say hello'],
+  ['', 'Deck', 'Text', 'Notice', 'Coffee after', '', 'Notices', '', ''],
+  ['', 'Content', '', '', 'Parking at the back', '', '', '', ''],            // a second item of a one-item Deck: its own Deck
+  ['', 'Deck', 'Question', '', '', '', '', '', ''],
+  ['', 'Content', '', '', 'Why?', '', '', 'Typewriter', ''],
+  ['2', '', '', 'Reading', '', '', '', '', ''],                              // no Level: the numbers say it
+  ['2.1', '', 'Scripture', 'Verse', '', '', '', '', ''],
+  ['2.1.1', '', '', '', 'John 15:5', '', '', '', ''],                        // a reference typed in Text
+  ['2.2', '', 'Background', '', 'Black', '', '', '', '']]);
+const fb7 = B.bookOf(readWorker(p7wb)), p7 = B.parse(fb7.book, {form: fb7.form, esv: true});          // with an ESV key: empty verses are fetched
+same(p7.errors, [], 'a hand-made Meeting plan imports');
+same([p7.counts.frames, p7.counts.content, p7.counts.questions], [2, 4, 1]);
+same(p7.frames[0].content.map(c => [c.type, c.name, c.main]), [['text', 'Notice', 'Coffee after'], ['text', 'Notice 2', 'Parking at the back'], ['question', 'Question', '']],
+  'a second item of a one-item Deck becomes the next Deck, right after it');
+assert.strictEqual(p7.frames[1].bg, '#000000', 'a Background Deck');
+same(p7.frames[1].content[0].items.map(i => [i.ref, !!i.fetch]), [['John 15:5', true]], 'the reference from Text, fetched');
+const p8 = planOf(planWb([['5 · Meeting plan'], PH, ['', 'Deck', 'Text', 'Orphan', 'x'], ['', 'Frame', '', 'One'], ['', 'Content', '', '', 'no deck'],
+  ['', 'Deck', 'Question', 'Q', ''], ['', 'Deck', 'Question', 'Q again', ''], ['', 'Thing']]));
+same(p8.errors.map(e => [e.sheet, e.row]), [['Meeting Form · Meeting plan', 3], ['Meeting Form · Meeting plan', 5], ['Meeting Form · Meeting plan', 7], ['Meeting Form · Meeting plan', 8]],
+  'problems name the Meeting plan and the Excel row');
+assert.ok(/no Frame above/.test(p8.errors[0].msg) && /no Deck above/.test(p8.errors[1].msg), p8.errors.map(e => e.msg).join(' | '));
+assert.ok(/under one Deck/.test(p8.errors[2].msg) && !/sheet/.test(p8.errors[2].msg), p8.errors[2].msg);
+assert.ok(/Level “Thing”/.test(p8.errors[3].msg), p8.errors[3].msg);
 
 /* 5. a 6.5-6.8 workbook (one sheet per list) still imports; 6.7: its Answer Text and Notes columns become talking
    points in the Frame's teleprompter script */
