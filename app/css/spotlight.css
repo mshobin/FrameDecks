@@ -375,3 +375,40 @@ html[data-theme="light"]{--cc-gloss:inset 0 1px 0 rgba(255,255,255,.7),inset 0 -
 .cc.cc-open .cc-g:not(.on){opacity:.72}
 .cc .cc-g.on b{color:var(--ink)}
 .cc .cc-g:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+/* ---------- 9.10.4 the program's own colours, and the tray as in the design picture ----------
+ * Every surface here is mixed from the theme tokens the rest of FrameDecks uses (surface, raised, panel, line, ink,
+ * gold and the Frame / Deck / Content colours), so the Command Center follows the chosen look and Dark / Light like
+ * every other window. The tray is its own rounded piece (curved at all four corners) sitting right under the bar,
+ * and thin separators divide the chips. */
+:root,html[data-theme="dark"],html[data-theme="light"]{
+  --cc-bar-a:color-mix(in srgb,var(--raised) 94%,transparent); --cc-bar-b:color-mix(in srgb,var(--surface) 94%,transparent);
+  --cc-bar-rim:color-mix(in srgb,var(--ink) 34%,transparent);
+  --cc-drawer-a:color-mix(in srgb,var(--panel-2) 93%,transparent); --cc-drawer-b:color-mix(in srgb,var(--panel) 95%,transparent);
+  --cc-drawer-rim:color-mix(in srgb,var(--ink) 16%,transparent); --cc-cell-line:color-mix(in srgb,var(--ink) 11%,transparent);
+  --cc-rim:color-mix(in srgb,var(--ink) 14%,transparent); --cc-rim-2:color-mix(in srgb,var(--ink) 26%,transparent);
+  --cc-cell:color-mix(in srgb,var(--raised) 70%,transparent); --cc-cell-2:color-mix(in srgb,var(--raised) 100%,transparent);
+  --cc-sheen:color-mix(in srgb,var(--ink) 10%,transparent);
+  --cc-gold-a:color-mix(in srgb,var(--lv-frame,var(--gold)) 78%,#fff); --cc-gold-b:color-mix(in srgb,var(--lv-frame,var(--gold)) 88%,#000);
+  --cc-violet-a:color-mix(in srgb,var(--lv-content) 70%,#fff); --cc-violet-b:color-mix(in srgb,var(--lv-content) 62%,#000);
+  --cc-blue-a:color-mix(in srgb,var(--lv-deck) 72%,#fff); --cc-blue-b:color-mix(in srgb,var(--lv-deck) 62%,#000);
+  --cc-slate-a:color-mix(in srgb,var(--muted) 80%,#fff); --cc-slate-b:color-mix(in srgb,var(--muted) 55%,#000);
+  --cc-gold-halo:color-mix(in srgb,var(--lv-frame,var(--gold)) 38%,transparent); --cc-violet-halo:color-mix(in srgb,var(--lv-content) 38%,transparent);
+  --cc-blue-halo:color-mix(in srgb,var(--lv-deck) 38%,transparent); --cc-slate-halo:color-mix(in srgb,var(--muted) 32%,transparent)}
+/* the tray: its own rounded piece right under the bar, a little narrower */
+.cc .cc-tray{margin:0 26px;padding:6px 6px 8px;gap:0;border:1px solid var(--cc-drawer-rim);border-top-color:transparent;border-radius:20px;
+  background:linear-gradient(180deg,var(--cc-drawer-a),var(--cc-drawer-b))}
+.cc.cc-open:not(.cc-typing) .cc-tray,.cc.cc-typing .cc-tray{border-radius:20px 20px 0 0}
+/* thin separators between the chips */
+.cc .cc-g + .cc-g,.cc .cc-g + .cc-g:hover,.cc .cc-g + .cc-g.on{background:linear-gradient(var(--cc-cell-line),var(--cc-cell-line)) left center / 1px 58% no-repeat}
+.cc .cc-g{border-radius:0}
+/* 9.10.5 the tray flows out of the bar: attached to it, its top widens into the bar on both sides in a smooth curve
+ * (two small concave joins drawn in the tray's own colour and rim), then falls to its rounded bottom corners */
+.cc .cc-tray{margin:0 30px;border-top:0;border-radius:0 0 20px 20px}
+.cc .cc-tray::before,.cc .cc-tray::after{content:'';position:absolute;top:0;width:22px;height:22px;pointer-events:none}
+.cc .cc-tray::before{left:-22px;background:radial-gradient(circle at 0 100%,transparent 21px,var(--cc-drawer-rim) 21.5px,var(--cc-drawer-rim) 22.5px,var(--cc-drawer-a) 23px)}
+.cc .cc-tray::after{right:-22px;background:radial-gradient(circle at 100% 100%,transparent 21px,var(--cc-drawer-rim) 21.5px,var(--cc-drawer-rim) 22.5px,var(--cc-drawer-a) 23px)}
+.cc.cc-open:not(.cc-typing) .cc-tray,.cc.cc-typing .cc-tray{border-radius:0}
+/* the tray covers the bar's bottom rim where they join, so the two read as one flowing shape */
+.cc .cc-tray{z-index:4;margin-top:-2px}
+.cc .cc-tray{box-shadow:var(--cc-drawer-sh)}
+.cc .cc-stage,body.spotlight .cc .pal-list{margin-left:30px;margin-right:30px}

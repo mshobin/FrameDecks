@@ -167,10 +167,12 @@ function openGroup(g, e){
   fill();
   panel.classList.remove('in'); void panel.offsetWidth; panel.classList.add('in');
   paintScope();
+  input.focus({preventScroll: true});                         // typing and Esc keep working after a click on a chip
 }
 function closeGroup(){
   if (!open) return;
   open = null; box.classList.remove('cc-open'); delete box.dataset.group;
+  panel.classList.remove('in');                               // its opening animation no longer holds it visible
   chips.forEach(function(c){ c.setAttribute('aria-selected', 'false'); c.classList.remove('on'); });
   glide.classList.remove('on');
   layout();

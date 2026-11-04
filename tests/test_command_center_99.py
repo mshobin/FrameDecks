@@ -46,7 +46,12 @@ class CommandCenter(unittest.TestCase):
         self.assertIn("html.kc-glass body.spotlight,html.kc-glass body.spotlight .pal-back{background:transparent}", css)
         # as in the design picture: no frame around everything; the tray is tucked under the bar like a drawer
         drawer = css[css.index("9.10.1 as in the design picture"):]
-        self.assertIn(".cc .cc-tray{margin:-1px 26px 0;", drawer)
+        self.assertIn(".cc .cc-tray::before{left:-22px;", css)          # 9.10.5 the tray flows out of the bar
+        # everything under the tray falls in its border line, like a waterfall
+        self.assertIn(".cc .cc-stage,body.spotlight .cc .pal-list{margin-left:30px;margin-right:30px}", css)
+        js = read("app/js/command-center.js")
+        self.assertIn("input.focus({preventScroll: true});", js)
+        self.assertIn("panel.classList.remove('in');", js)
         self.assertNotIn("--cc-frame-rim", css)
 
     def test_the_palette_knows_scopes_prefixes_and_meetings(self):
@@ -71,6 +76,10 @@ class CommandCenter(unittest.TestCase):
         self.assertIn("panel.style.setProperty('--ox'", read("app/js/command-center.js"))
         # 9.10.3 the chips are not boxes (as in the design picture)
         self.assertIn(".cc .cc-g,.cc .cc-g:hover,.cc .cc-g.on{background:transparent;border:0;box-shadow:none}", css)
+        # 9.10.4 the program's own colours (theme tokens), a rounded tray, separators between the chips
+        own = css[css.index("9.10.4 the program's own colours"):]
+        for need in ("--cc-bar-a:color-mix(in srgb,var(--raised)", "var(--lv-content)", "var(--lv-deck)", ".cc .cc-g + .cc-g"):
+            self.assertIn(need, own)
 
     def test_named_command_center_where_people_see_it(self):
         src = read("src/desktop_app.py")
