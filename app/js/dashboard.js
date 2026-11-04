@@ -8,7 +8,7 @@ var TRANS = [['fade','Fade'],['rise','Gentle rise'],['words','Word by word'],['t
 var T = window.KCTransitions, P = window.KCPresent;
 var SPEEDS = [['slow','Slow'],['normal','Medium'],['fast','Fast']];
 var ALIGNS = [['left','Left'],['center','Center'],['right','Right']];
-var NAMES = {verse: 'Focus Verse', question: 'Discussion Question'};
+var NAMES = {verse: 'Scripture', question: 'Question'};
 
 var live = null;      // latest shared state
 
@@ -313,8 +313,8 @@ function refreshMode(){
 
 /* ---------- Links ---------- */
 var LINKS = [
-  {page: 'verse', name: 'Focus Verse', file: 'focus-verse.html'},
-  {page: 'question', name: 'Discussion Question', file: 'discussion-question.html'},
+  {page: 'verse', name: 'Scripture', file: 'focus-verse.html'},
+  {page: 'question', name: 'Question', file: 'discussion-question.html'},
   {page: 'birthday', name: 'Birthday Celebration', file: 'birthday.html'},
   {page: 'stage', name: 'All overlays in one source', file: 'stage.html'}
 ];

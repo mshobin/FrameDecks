@@ -76,8 +76,8 @@ function saveItem(kind, sid, id, patch){
     Object.assign(it, patch);
     if (onScreen(kind, id)){
       var o = n[kind];
-      if (kind === 'question'){ o.text = it.text; o.label = it.label || l.c.label || 'Discussion Question'; }
-      else { o.text = it.text; o.ref = it.ref; o.version = it.version; o.label = it.label || l.c.label || 'Focus Verse'; }
+      if (kind === 'question'){ o.text = it.text; o.label = it.label || l.c.label || 'Question'; }
+      else { o.text = it.text; o.ref = it.ref; o.version = it.version; o.label = it.label || l.c.label || 'Scripture'; }
     }
   }).then(function(){ sigs[kind] = ''; render(); });
 }
@@ -121,7 +121,7 @@ function renderList(host, kind, sid, l){
     var t1 = kind === 'verse' ? (it.ref || 'Untitled scripture') + (it.version ? ' · ' + it.version : '') : it.text || '(empty question)';
     var t2 = kind === 'verse' ? String(it.text || '').replace(/\s+/g, ' ') : '';
     /* v6.7 the label, the text (and a scripture's reference) are edited right here: double-click them */
-    var defLbl = l.c.label || (kind === 'question' ? 'Discussion Question' : 'Focus Verse');
+    var defLbl = l.c.label || (kind === 'question' ? 'Question' : 'Scripture');
     var lblEl = h('span', {cls: 'fl-lbl' + (it.label ? '' : ' inherit'), text: it.label || defLbl, title: it.label ? 'Double-click to rename this label' : 'Label from the Content (' + defLbl + '). Double-click to give this ' + N.one + ' its own'});
     var t1El = h('span', {cls: 't1', text: t1}), t2El = t2 ? h('span', {cls: 't2', text: t2}) : null;
     KCEditable.bind(lblEl, {value: it.label || '', placeholder: defLbl, maxLength: 80, label: N.One + ' label', save: function(v){ return saveItem(kind, sid, it.id, {label: v}); }});
@@ -233,7 +233,7 @@ function renderEditor(host, kind, sid, l, it){
   host.appendChild(grid);
   var g = function(name){ sec = h('section', {cls: 'fl-sec'}, [h('div', {cls: 'cs-group', text: name})]); grid.appendChild(sec); return sec; };
   g(N.One);
-  sec.appendChild(fieldEl('Label', input('text', it.label, 'fl-ed-label-' + kind, 'label', {placeholder: l.c.label || (kind === 'question' ? 'Discussion Question' : 'Focus Verse')}),
+  sec.appendChild(fieldEl('Label', input('text', it.label, 'fl-ed-label-' + kind, 'label', {placeholder: l.c.label || (kind === 'question' ? 'Question' : 'Scripture')}),
     'Shown above this ' + N.one + ' on screen. Empty = the Content’s label.'));
   if (kind === 'question'){
     sec.appendChild(fieldEl('Question', input('textarea', it.text, 'fl-ed-text-question', 'text', {cls: 'q'})));
@@ -267,10 +267,10 @@ function renderLabel(kind, sid, l){
   var sig = JSON.stringify([sid, l && l.id, l && l.c.label, l && l.c.look && l.c.look.showLabel]);
   if (box.dataset.sig === sig || box.contains(document.activeElement)) return; box.dataset.sig = sig; box.innerHTML = '';
   if (!l) return;
-  var inp = h('input', {type: 'text', value: l.c.label || '', id: kind === 'verse' ? 'v-label' : 'q-label', 'aria-label': 'Label', placeholder: kind === 'question' ? 'Discussion Question' : 'Focus Verse'});
+  var inp = h('input', {type: 'text', value: l.c.label || '', id: kind === 'verse' ? 'v-label' : 'q-label', 'aria-label': 'Label', placeholder: kind === 'question' ? 'Question' : 'Scripture'});
   inp.addEventListener('keydown', stop);
   var t = null;
-  inp.addEventListener('input', function(){ clearTimeout(t); t = setTimeout(function(){ editList(kind, sid, function(x, n){ x.c.label = inp.value.trim(); if (isLiveFrame(sid)){ var o = n[kind]; var cur = SC.itemById(n, kind, o.itemId); if (o.visible && !(cur && cur.label)) o.label = x.c.label || (kind === 'question' ? 'Discussion Question' : 'Focus Verse'); } }); }, 400); });
+  inp.addEventListener('input', function(){ clearTimeout(t); t = setTimeout(function(){ editList(kind, sid, function(x, n){ x.c.label = inp.value.trim(); if (isLiveFrame(sid)){ var o = n[kind]; var cur = SC.itemById(n, kind, o.itemId); if (o.visible && !(cur && cur.label)) o.label = x.c.label || (kind === 'question' ? 'Question' : 'Scripture'); } }); }, 400); });
   var show = h('input', {type: 'checkbox', id: kind === 'verse' ? 'v-showlabel' : 'q-showlabel'});
   show.checked = window.KCCardLook ? window.KCCardLook.of(kind, 'showLabel') !== false : true;
   show.addEventListener('change', function(){ if (window.KCCardLook) window.KCCardLook.set(kind, 'showLabel', show.checked); });

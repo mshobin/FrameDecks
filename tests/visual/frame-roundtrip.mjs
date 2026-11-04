@@ -94,6 +94,7 @@ const q = await b.newPage({ viewport: { width: 1500, height: 950 } });
 q.on("pageerror", (e) => console.log("PC PAGEERR", e.message));
 await q.goto(PC + "/dashboard.html");
 await q.waitForTimeout(2500);
+await q.evaluate(() => window.KCOnboarding && window.KCOnboarding.close());          // 9.5 the Welcome flow
 // 8.5: the PC shows another meeting with a Frame of its own; the file's meeting is added beside it, that one is kept
 await q.evaluate(() => KCStore.update((n) => {
   n.scenes = n.scenes.filter((s) => s.tpl);

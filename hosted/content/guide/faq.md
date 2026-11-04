@@ -60,7 +60,7 @@ Not in the program. Plan together on framedecks.com; a PC linked to your team ge
 Yes. Each Frame can **Auto advance** after a number of seconds (Content Settings → **Move to the next Frame after N seconds**), while **Auto** is on in the command bar.
 
 **Is there a countdown timer?**
-Yes. **+ Content → Timer** counts down a number of minutes, or until a time of day, and shows your message at zero.
+Yes. **+ Deck → Timer** counts down a number of minutes, or until a time of day, and shows your message at zero.
 
 **Can we run a poll?**
 Not as a ready-made card since 8.0 (the Poll, Discussion topic and Icebreaker cards were removed; Frames that already have them keep them). Put the question and the choices in a **Question** or **Text** Content and ask people to raise a hand or type in the chat. FrameDecks does not collect or count votes.
@@ -159,7 +159,7 @@ Five things: **Go Live**, **Next**, the round **▶** arrow for the next questio
 **What if a volunteer presses the wrong thing on air?**
 Press **Hide all** (or **Esc** on the PC), then put the right Frame back with **Go Live**. Nothing is ever deleted by these buttons.
 
-**Can the leader see notes that the congregation can't?**
+**Can the leader see notes that the group can't?**
 Yes. Write them in each Frame's **Teleprompter script** (Frame settings). Open it with **Live tools → Teleprompter** (**R**): a window that stays on top of Zoom or Teams. Or use **Teleprompter** on the phone remote. See [Presentations](presentations.md#teleprompter).
 
 **Can the audience see the teleprompter?**
@@ -186,7 +186,7 @@ Yes, automatically once a day (the newest 10 are kept), plus **Back up now** in 
 The Members section stays on the PC. Member details are never sent to the phone remote or the overlay pages, and **Copy diagnostics** never includes them.
 
 **How do we move to a new PC?**
-Install FrameDecks on the new PC. On first run it offers to import data from an earlier installation, or copy your data folder across while the app is closed.
+Install FrameDecks on the new PC. On first run, the last page of **Welcome to FrameDecks** offers to bring in data from an earlier installation it finds (also in **Settings → Data**), or copy your data folder across while the app is closed.
 
 ## Cost and licensing
 

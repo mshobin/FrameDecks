@@ -27,10 +27,20 @@ for (const theme of ["dark", "light"]) {
   const p = await browser.newPage({ viewport: { width: 1600, height: 900 } });
   await p.goto(`${BASE}/dashboard.html`);
   await p.waitForTimeout(2200);
-  if (await p.evaluate(() => !!document.querySelector(".app-modal-back"))) {      // a fresh program asks the first-run question
+  if (await p.evaluate(() => !!document.querySelector(".app-modal-back"))) {      // an import dialog
     await scan(p, `${theme} first run`);
     await p.evaluate(() => document.querySelectorAll(".app-modal-back").forEach((m) => m.remove()));
   }
+  if (theme === "dark") {                                                      // 9.5 the Welcome flow, every page
+    await p.evaluate(() => { if (!window.KCOnboarding.isOpen()) window.KCOnboarding.open(); });
+    for (let i = 0; i < 4; i++) {
+      await p.waitForTimeout(1600);
+      await scan(p, `welcome page ${i + 1}`);
+      if (i < 3) await p.click("#onb-next");
+    }
+  }
+  await p.evaluate(() => window.KCOnboarding && window.KCOnboarding.close());
+  await p.waitForSelector("#onb", { state: "detached" });
   await p.evaluate((t) => { window.KCSetTab("settings"); document.querySelector(`[data-theme-pick="${t}"]`).click(); }, theme);
   for (const tab of ["studio", "members"]) {
     await p.evaluate((t) => window.KCSetTab(t), tab);

@@ -13,6 +13,7 @@
 <link rel="stylesheet" href="css/window.css">
 <link rel="stylesheet" href="css/memory.css">
 <link rel="stylesheet" href="css/about.css">
+<link rel="stylesheet" href="css/onboarding.css">
 <script>/* Look and light or dark before the first paint (Settings > Meeting & Branding > Look). 8.1: a look (the same six as
    framedecks.com, or "same as my workspace") and Dark / Light / Match Windows; 7.x "Follow my workspace" becomes a look. */
 (function(){ var d = document.documentElement, p = 'dark', lk = 'gold-navy', wb = 'dark', wl = 'gold-navy';
@@ -134,7 +135,7 @@
     </section>
     <section class="pane layers-pane" aria-labelledby="layers-title">
       <header class="pane-head"><h2 id="layers-title">Decks</h2><span class="pane-sub" id="layers-of"></span>
-        <button class="btn small" type="button" id="layer-add" aria-haspopup="menu"><i data-icon="plus" data-size="15"></i> Content</button></header>
+        <button class="btn small" type="button" id="layer-add" aria-haspopup="menu"><i data-icon="plus" data-size="15"></i> Deck</button></header>
       <ol class="layer-list" id="layer-list" aria-label="Content (top = in front)"></ol>
       <p class="pane-note" id="layers-note"></p>
     </section>
@@ -227,9 +228,9 @@
       <div class="ip" data-kind="scripture" data-itab="content" hidden>
         <section class="scr" id="scr" aria-label="Fetch scripture">
           <div class="scr-row"><label class="field scr-ref"><span>Reference</span><input type="text" id="scr-ref" list="scr-books" placeholder="e.g. Romans 2:28-29" autocomplete="off"></label>
-            <label class="field scr-tr"><span>Fetch from</span><select id="scr-tr"><option value="ESV">ESV (online)</option><option value="typed">Type it myself</option></select></label></div>
+            <label class="field scr-tr"><span>Fetch from</span><select id="scr-tr"><option value="ESV">ESV (online, your key)</option><option value="KJV">KJV (online, public domain)</option><option value="WEB">World English Bible (online, public domain)</option><option value="typed">Type it myself</option></select></label></div>
           <datalist id="scr-books"></datalist>
-          <div class="scr-acts"><button class="btn primary small" type="button" id="scr-fetch">Fetch scripture</button><button class="btn small" type="button" id="scr-refresh" title="Fetch again from the ESV">Refresh</button>
+          <div class="scr-acts"><button class="btn primary small" type="button" id="scr-fetch">Fetch scripture</button><button class="btn small" type="button" id="scr-refresh" title="Fetch again from the internet">Refresh</button>
             <button class="btn small" type="button" id="scr-context" title="Read the whole chapter">Context</button><button class="btn small" type="button" id="scr-read" title="Read aloud on this PC (not sent to the meeting)">Read aloud</button>
             <button class="btn quiet small" type="button" id="scr-fav" title="Add this passage to favourites">☆</button></div>
           <p class="scr-msg" id="scr-msg" role="status"></p>
@@ -605,6 +606,7 @@
 <script src="js/cloud-remote.js"></script>
 <script src="js/guide-steps.js"></script>
 <script src="js/guide.js"></script>
+<script src="js/onboarding.js"></script>
 <script src="js/app-bridge.js"></script>
 <script src="js/window-chrome.js"></script>
 </body>

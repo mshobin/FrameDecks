@@ -129,7 +129,7 @@ function preview(){
   var summary = h('div', {cls: 'mi-chips'}, [chip(c.scenes, c.scenes === 1 ? 'Frame' : 'Frames', 'big'), chip(c.layers, 'Content', 'big'),
     c.questions ? chip(c.questions, c.questions === 1 ? 'question' : 'questions') : null, c.verses ? chip(c.verses, c.verses === 1 ? 'verse' : 'verses') : null,
     c.text ? chip(c.text, 'text') : null, c.media ? chip(c.media, 'media') : null, c.branded ? chip(c.branded, 'branded') : null, c.hidden ? chip(c.hidden, 'hidden') : null,
-    plan.fetch.length ? chip(plan.fetch.length, 'from the ESV') : null]);
+    plan.fetch.length ? chip(plan.fetch.length, 'to fetch online') : null]);
   var table = h('ol', {cls: 'mi-scenes'}, plan.scenes.map(function(sc){
     var kinds = [];
     sc.layers.forEach(function(L){ kinds.push(M.KIND_LABEL[L.type] + (L.visible ? '' : ' (hidden)')); });
@@ -176,7 +176,7 @@ function previewBook(){
   var existing = live.scenes.filter(function(s){ return !s.tpl; }).length;
   var summary = h('div', {cls: 'mi-chips'}, [chip(c.frames, c.frames === 1 ? 'Frame' : 'Frames', 'big'), chip(c.content, 'Content', 'big'),
     c.questions ? chip(c.questions, c.questions === 1 ? 'question' : 'questions') : null, c.scriptures ? chip(c.scriptures, c.scriptures === 1 ? 'scripture' : 'scriptures') : null,
-    c.media ? chip(c.media, 'media') : null, plan.fetch.length ? chip(plan.fetch.length, 'from the ESV') : null]);
+    c.media ? chip(c.media, 'media') : null, plan.fetch.length ? chip(plan.fetch.length, 'to fetch online') : null]);
   var m = plan.meeting, more = [m.date, m.time, m.location, m.presenter].filter(Boolean);
   var meet = m.title || more.length ? h('p', {cls: 'kc-dlg-sub'}, [h('b', {text: m.title || 'Meeting'}), more.length ? ' · ' + more.join(' · ') : '']) : null;
   var table = h('ol', {cls: 'mi-scenes'}, plan.frames.map(function(F){
@@ -221,10 +221,11 @@ function fillVerses(){
   function next(){
     if (i >= list.length) return Promise.resolve();
     var L = list[i++];
-    setBusy('Fetching ' + L.ref + ' from the ESV (' + i + ' of ' + list.length + ')…');
-    return fetch('api/scripture?ref=' + encodeURIComponent(L.ref) + '&tr=ESV').then(function(r){ return r.json().then(function(d){ if (!r.ok) throw new Error(d.error || 'not found'); return d; }); })
-      .then(function(d){ if (isBook) L.text = d.text; else L.vtext = d.text; L.ref = d.ref || L.ref; L.version = 'ESV'; return next(); })
-      .catch(function(e){ throw new Error('Row ' + L.row + ': ' + L.ref + ' could not be fetched from the ESV (' + e.message + '). Type the verse text in the file, or try again when online.'); });
+    var tr = /^(KJV|WEB)$/i.test(L.version || '') ? String(L.version).toUpperCase() : 'ESV';   // 9.5 public-domain ones need no key
+    setBusy('Fetching ' + L.ref + ' (' + tr + ', ' + i + ' of ' + list.length + ')…');
+    return fetch('api/scripture?ref=' + encodeURIComponent(L.ref) + '&tr=' + tr).then(function(r){ return r.json().then(function(d){ if (!r.ok) throw new Error(d.error || 'not found'); return d; }); })
+      .then(function(d){ if (isBook) L.text = d.text; else L.vtext = d.text; L.ref = d.ref || L.ref; L.version = d.version || tr; return next(); })
+      .catch(function(e){ throw new Error('Row ' + L.row + ': ' + L.ref + ' could not be fetched (' + e.message + '). Type the verse text in the file, or try again when online.'); });
   }
   return next();
 }

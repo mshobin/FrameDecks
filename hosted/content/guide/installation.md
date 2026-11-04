@@ -37,7 +37,7 @@ administrator.
 
 Download FrameDecks from **[framedecks.com/download](https://framedecks.com/download)**. The page picks the right
 download for your computer and always offers the latest version. The installer is a single file named
-**FrameDecks-9.4.0-Setup.exe** (the number is the version).
+**FrameDecks-9.5.0-Setup.exe** (the number is the version).
 
 ## Check the download (optional)
 
@@ -111,7 +111,7 @@ is new with an **Update now** button:
 FrameDecks never updates while something is on screen. You can also download the latest installer from
 framedecks.com/download and run it over the old version.
 
-> **Note:** Earlier releases were named FrameDecks and BSF Command Center. Version 6.9 installs over every earlier
+> **Note:** Earlier releases had other names. Version 6.9 and later install over every earlier
 > version, removes the old program folder and shortcuts, and on first start moves your data (including backups and
 > recordings) to the FrameDecks folders below. Nothing newer is overwritten.
 

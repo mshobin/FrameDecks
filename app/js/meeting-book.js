@@ -31,6 +31,7 @@
  */
 (function(){
 'use strict';
+function openBible(v){ return /^(KJV|WEB)$/i.test(String(v || '').trim()); }   // 9.5 public domain: fetched without a key
 var SC = window.KCScenes;
 
 var SHEETS = {
@@ -96,7 +97,7 @@ function norm(s){ return String(s == null ? '' : s).toLowerCase().replace(/[^a-z
 function trim(s){ return String(s == null ? '' : s).trim(); }
 function intOf(v){ var s = trim(v); if (!s) return null; return /^\d{1,5}$/.test(s) ? +s : 'bad'; }
 function splitRef(ref){
-  var m = /^(.*?)\s*[\(\[]?\b(ESV|NIV|KJV|NKJV|NASB|NLT|CSB|RSV|NRSV|MSG|AMP|NET|HCSB)\b[\)\]]?\s*$/i.exec(trim(ref));
+  var m = /^(.*?)\s*[\(\[]?\b(ESV|NIV|KJV|NKJV|NASB|NLT|CSB|RSV|NRSV|MSG|AMP|NET|HCSB|WEB)\b[\)\]]?\s*$/i.exec(trim(ref));
   return m && m[1] ? {ref: m[1].trim(), version: m[2].toUpperCase()} : {ref: trim(ref), version: ''};
 }
 function sheetOf(book, key){
@@ -365,8 +366,8 @@ function parse(book, ctx){
         if (!rr.ref){ err(sheet, r.row, 'Reference is empty (for example John 15:5).'); return; }
         it.ref = rr.ref; it.version = r.version || rr.version; it.text = r.text;
         if (!it.text){
-          if (ctx.esv){ it.fetch = true; it.version = it.version || 'ESV'; fetchList.push(it); }
-          else { err(sheet, r.row, 'Text is empty for ' + it.ref + '. Type the verse, or add an ESV key in Settings → Scripture and it is filled in for you.'); return; }
+          if (ctx.esv || openBible(it.version)){ it.fetch = true; it.version = it.version || 'ESV'; fetchList.push(it); }
+          else { err(sheet, r.row, 'Text is empty for ' + it.ref + '. Type the verse, write KJV or WEB after the reference, or add an ESV key in Settings → Scripture and it is filled in for you.'); return; }
         }
       }
       C.items.push(it);
@@ -380,7 +381,7 @@ function parse(book, ctx){
       if (C.type === 'question' && !C.items.length){ if (C.main) C.items.push({row: C.row, idx: 0, text: C.main, label: ''}); else warn('Content', C.row, 'Question Content “' + C.name + '” has no questions (Questions sheet or Main Content): it starts empty.'); }
       if (C.type === 'scripture' && !C.items.length){
         if (C.main){ var rr = splitRef(C.main), it = {row: C.row, idx: 0, ref: rr.ref, version: rr.version, text: '', label: ''};
-          if (ctx.esv){ it.fetch = true; it.version = it.version || 'ESV'; fetchList.push(it); C.items.push(it); }
+          if (ctx.esv || openBible(it.version)){ it.fetch = true; it.version = it.version || 'ESV'; fetchList.push(it); C.items.push(it); }
           else warn('Content', C.row, 'Scripture “' + C.main + '” has no text: add it in the Scriptures sheet, or add an ESV key and import again. It starts empty.');
         } else warn('Content', C.row, 'Scripture Content “' + C.name + '” has no scriptures: it starts empty.');
       }

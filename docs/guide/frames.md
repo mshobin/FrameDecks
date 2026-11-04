@@ -49,7 +49,7 @@ never changes another.
 | **From a file** | **✨ Meeting → Import a Frame file…**, or **Import a Frame file…** in the Quick Start dialog | A Frame exported from another PC (.json), or a whole plan (.frame) |
 | **From a .frame file** | **Settings → Data / Backup → Import Frame File…**, or Quick Start → **Import a Frame file…** (the same import, 8.6) | A whole plan from framedecks.com or another PC. See [Move a plan to a service PC](service-planning.md#move-a-plan-to-a-service-pc) |
 
-After creating a Frame, add Content with **+ Content**. See [Content](content.md).
+After creating a Frame, add Content with **+ Deck**. See [Content](content.md).
 
 ## Name, group and order
 

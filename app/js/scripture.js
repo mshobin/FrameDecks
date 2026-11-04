@@ -50,6 +50,8 @@ function remember(ref){ var r = load('bcc-scr-recent').filter(function(x){ retur
 
 /* ---------- the Scripture layer's fetch bar ---------- */
 var refIn = $('scr-ref'), trSel = $('scr-tr'), msg = $('scr-msg');
+var FETCHABLE = ['ESV', 'KJV', 'WEB'];               // 9.5 the KJV and WEB are public domain (no key)
+function tr0(){ var v = trSel ? trSel.value : 'ESV'; return FETCHABLE.indexOf(v) >= 0 ? v : ''; }
 function say(t, bad){ if (!msg) return; msg.textContent = t || ''; msg.className = 'scr-msg' + (bad ? ' bad' : ''); }
 function setField(id, v){ var f = $(id); if (!f) return; f.value = v; f.dispatchEvent(new Event('input', {bubbles: true})); }
 function fill(d){
@@ -62,14 +64,15 @@ function fetchRef(ref, fresh){
   var r = parse(ref) || String(ref || '').trim();
   if (!r){ say('Type a reference, for example Romans 2:29.', true); return Promise.resolve(null); }
   if (!Store.served){ say('Fetching needs the installed app. Type or paste the verse text below.', true); return Promise.resolve(null); }
-  if (trSel && trSel.value !== 'ESV'){ say('Type or paste the verse below, with its translation. Choose ESV (online) to fetch it.'); setField('v-ref', r); return Promise.resolve(null); }
-  say('Fetching ' + r + '…');
-  return fetch('api/scripture?ref=' + encodeURIComponent(r) + '&tr=ESV' + (fresh ? '&fresh=1' : ''), {cache: 'no-store'})
+  var tr = tr0();
+  if (!tr){ say('Type or paste the verse below, with its translation. Choose ESV, KJV or WEB to fetch it.'); setField('v-ref', r); return Promise.resolve(null); }
+  say('Fetching ' + r + ' (' + tr + ')…');
+  return fetch('api/scripture?ref=' + encodeURIComponent(r) + '&tr=' + tr + (fresh ? '&fresh=1' : ''), {cache: 'no-store'})
     .then(function(x){ return x.json(); })
     .then(function(d){
       if (d.error){ say(d.error, true); return null; }
       fill(d);
-      say(d.stale ? 'Offline: the copy saved on this PC is shown.' : d.cached ? 'From this PC (saved for offline use). It is in this Frame’s list.' : 'Fetched from the ESV and saved for offline use. It is in this Frame’s list.');
+      say(d.stale ? 'Offline: the copy saved on this PC is shown.' : d.cached ? 'From this PC (saved for offline use). It is in this Frame’s list.' : 'Fetched (' + (d.version || tr) + ') and saved for offline use. It is in this Frame’s list.' + (d.version === 'KJV' || d.version === 'WEB' ? ' Public domain.' : ''));
       return d;
     })
     .catch(function(){ say('The program did not answer. Try again in a moment.', true); return null; });
@@ -95,10 +98,11 @@ if (refIn){
     if (!r){ say('Type a reference first.', true); return; }
     if (!box.hidden && box.dataset.ref === chapterOf(r)){ box.hidden = true; return; }
     var ch = chapterOf(r);
-    fetch('api/scripture?ref=' + encodeURIComponent(ch) + '&tr=ESV', {cache: 'no-store'}).then(function(x){ return x.json(); }).then(function(d){
+    var tr = tr0() || 'ESV';
+    fetch('api/scripture?ref=' + encodeURIComponent(ch) + '&tr=' + tr, {cache: 'no-store'}).then(function(x){ return x.json(); }).then(function(d){
       if (d.error){ say(d.error, true); return; }
       box.hidden = false; box.dataset.ref = ch; box.innerHTML = '';
-      box.appendChild(h('div', {cls: 'scr-ctx-head'}, [h('b', {text: d.ref + ' (ESV)'}), h('button', {cls: 'btn quiet small', type: 'button', text: 'Close', onclick: function(){ box.hidden = true; }})]));
+      box.appendChild(h('div', {cls: 'scr-ctx-head'}, [h('b', {text: d.ref + ' (' + (d.version || tr) + ')'}), h('button', {cls: 'btn quiet small', type: 'button', text: 'Close', onclick: function(){ box.hidden = true; }})]));
       box.appendChild(h('p', {cls: 'scr-ctx-text', text: d.text}));
     });
   });
@@ -117,8 +121,8 @@ if (refIn){
   });
   trSel.addEventListener('change', function(){
     try { localStorage.setItem('bcc-scr-tr', trSel.value); } catch(e){}
-    ['scr-fetch', 'scr-refresh', 'scr-context'].forEach(function(id){ $(id).disabled = trSel.value !== 'ESV'; });
-    say(trSel.value === 'ESV' ? '' : 'Type or paste the verse below, with its translation.');
+    ['scr-fetch', 'scr-refresh', 'scr-context'].forEach(function(id){ $(id).disabled = !tr0(); });
+    say(tr0() ? (tr0() === 'ESV' ? '' : trSel.value + ' is public domain: no key needed.') : 'Type or paste the verse below, with its translation.');
   });
   try { var t0 = localStorage.getItem('bcc-scr-tr'); if (t0) { trSel.value = t0; trSel.dispatchEvent(new Event('change')); } } catch(e){}
   chips();
@@ -151,7 +155,8 @@ function renderSettings(){
     root.appendChild(status);
     root.appendChild(h('p', {cls: 'hint', text: 'Get a free key for church and non-commercial use at api.esv.org (Create an API application). The key stays on this PC: it is never sent to the phone remote or the overlay pages. ' +
       'Fetched passages are saved here so a Bible study keeps working without internet (up to ' + d.cacheMax + ' passages; the ESV terms limit how much may be stored). ' +
-      'Other translations (NIV, NKJV, KJV, CSB, NLT, NASB…): choose “Type it myself” on the Scripture Content and type or paste the text.'}));
+      'Other translations (NIV, NKJV, CSB, NLT, NASB…): choose “Type it myself” on the Scripture Content and type or paste the text.'}));
+    root.appendChild(h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'No key needed'}), h('span', {cls: 'plain', text: 'KJV (King James Version) and WEB (World English Bible): both public domain, fetched from bible-api.com'})]));
     show(d);
   }).catch(function(){ root.textContent = 'Not available right now.'; });
 }

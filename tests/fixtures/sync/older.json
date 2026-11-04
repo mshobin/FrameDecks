@@ -52,7 +52,7 @@
  "normalized": {
   "rev": 3,
   "verse": {
-   "label": "Focus Verse",
+   "label": "Scripture",
    "showLabel": true,
    "text": "Thy word is a lamp unto my feet, and a light unto my path.",
    "ref": "Psalm 119:105",
@@ -79,7 +79,7 @@
    }
   },
   "question": {
-   "label": "Discussion Question",
+   "label": "Question",
    "showLabel": true,
    "text": "Old question",
    "visible": false,
@@ -422,7 +422,7 @@
     "id": "cards",
     "body": {
      "question": {
-      "label": "Discussion Question",
+      "label": "Question",
       "showLabel": true,
       "transition": "fade",
       "speed": "normal",
@@ -436,7 +436,7 @@
       "burst": "gentle"
      },
      "verse": {
-      "label": "Focus Verse",
+      "label": "Scripture",
       "showLabel": true,
       "transition": "rise",
       "speed": "normal",

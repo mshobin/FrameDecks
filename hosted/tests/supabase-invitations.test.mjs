@@ -20,7 +20,7 @@ before(async () => {
     [INVITEE]: "Invitee@Church.org",
     [OUTSIDER]: "outsider@else.org",
   }));
-  org = (await as(OWNER, "insert into organizations(name, created_by) values ('BSF Study', $1) returning id", [OWNER]))
+  org = (await as(OWNER, "insert into organizations(name, created_by) values ('Evening Study', $1) returning id", [OWNER]))
     .rows[0].id;
   await as(OWNER, "insert into memberships(organization_id, user_id, role) values ($1, $2, 'admin')", [org, ADMIN]);
 });
@@ -47,7 +47,7 @@ test("only owners and admins invite, as themselves, never as owner, with a valid
 
 test("the invitee sees their invitation with the workspace name; outsiders and plain members do not", async () => {
   const mine = await as(INVITEE, "select organization_name, role from my_invitations()");
-  assert.deepEqual(mine.rows, [{ organization_name: "BSF Study", role: "member" }]);
+  assert.deepEqual(mine.rows, [{ organization_name: "Evening Study", role: "member" }]);
   assert.equal((await as(OUTSIDER, "select * from my_invitations()")).rows.length, 0);
   assert.equal((await as(OUTSIDER, "select * from invitations")).rows.length, 0);
   assert.equal((await as(ADMIN, "select * from invitations")).rows.length, 1);

@@ -44,7 +44,7 @@ SQL editor.
    `framedecks.com/connect`, and the PC shows a two-digit check number.
 2. Sign in if asked. **Expect:** "Allow ‹PC name› to use your workspace?" with the same check number as the PC.
    Choose the workspace, press **Allow**.
-3. **Expect:** the page says the PC is connected, and within a few seconds the PC shows "Linked to BSF Study"
+3. **Expect:** the page says the PC is connected, and within a few seconds the PC shows "Linked to Evening Study"
    without typing anything; this is also the first time Windows Credential Manager stores the PC's key.
 4. Fallback: Unlink, choose **Connect to FrameDecks** again, close the browser tab, and on another device open
    **Service PCs**, type the code shown on the PC and press **Link**. **Expect:** the same result.

@@ -75,7 +75,7 @@ A one-hour team training session that covers everyone:
 | Time | Topic | Who |
 | --- | --- | --- |
 | 0:00 | What FrameDecks is: Meeting → Frame → Content → Present | All |
-| 0:10 | Building a Frame: + Frame, + Content, Content Settings | Media team |
+| 0:10 | Building a Frame: + Frame, + Deck, Content Settings | Media team |
 | 0:25 | Presenting: Go Live, Next, Hide all, Black screen, Freeze | Operators |
 | 0:35 | The phone remote: connect, Previous / Next, All Frames, drawing | Remote operators, volunteers |
 | 0:45 | The Teleprompter: the script, what's next, timer | Leaders |

@@ -53,6 +53,36 @@ Versions before 4.9 (when the program had its earlier name) are described in the
 - The favicons, the tray icon and the small program-icon sizes (16–32 px) use a heavier version of the emblem, so it
   stays visible on light browser tabs and a light taskbar. Larger sizes are unchanged.
 
+## [9.5.0] - 2026-11-04
+
+Full notes: [docs/releases/v9.5.0.md](releases/v9.5.0.md).
+
+### Added
+- Welcome to FrameDecks (`app/js/onboarding.js`, `app/css/onboarding.css`): a full-screen, four-page flow (Adding
+  Frames, Adding Decks, Adding Content, Finish) with pictures built in HTML/CSS and page transitions (fade only under
+  reduced motion). It is shown at start on the PC only (`thisPC`: the program window or a browser on this PC; the phone
+  remote never loads it and other devices get 403 for it) until finished or skipped. The record is kept as
+  `onboarding` in kc-app-settings.json (`_valid_onboarding`), plus a localStorage copy. Finish offers a Quick Start
+  when the PC has only the two starter Frames, and an earlier version's data (`migration.candidates`). It is
+  reopened from Settings → About → Welcome tour and the palette.
+- KJV and World English Bible fetched without a key from bible-api.com (`OPEN_BIBLES`, `_open_bible_lookup`) and
+  cached like the ESV; available from Fetch from (`scripture.js`) and the Workbook import (`meeting-book.js`
+  `openBible`).
+- Quick Start **Church Service**.
+
+### Changed
+- The first-run import dialog and the Setup guide's automatic start are removed (`app-bridge.js`); the guide opens
+  on request only. The browser tests close the welcome with `KCOnboarding.close()`.
+- The Decks list's add button reads **+ Deck** (guides updated).
+- Default card labels are **Scripture** / **Question** (were Focus Verse / Discussion Question), and the overlay
+  page titles changed to match (their file names are unchanged). Sample text is neutral; the role examples are
+  Leader / Host; the AI prompt is neutral (`src/ai.py`).
+- Earlier product names removed from the README and the installation guide; test fixtures say "Evening Study".
+- `tools/css_tokens.py` also checks `onboarding.css`.
+
+### Fixed
+- Studio Frames list group headings no longer carry `role="presentation"` inside the list.
+
 ## [9.4.0] - 2026-11-04
 
 Full notes: [docs/releases/v9.4.0.md](releases/v9.4.0.md).

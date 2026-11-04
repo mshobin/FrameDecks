@@ -2,7 +2,7 @@
  "input": {
   "rev": 57,
   "verse": {
-   "label": "Focus Verse",
+   "label": "Scripture",
    "showLabel": true,
    "text": "Thy word is a lamp unto my feet, and a light unto my path.",
    "ref": "Psalm 119:105",
@@ -29,7 +29,7 @@
    }
   },
   "question": {
-   "label": "Discussion Question",
+   "label": "Question",
    "showLabel": true,
    "text": "What does this passage reveal about God?",
    "visible": true,
@@ -84,13 +84,13 @@
   },
   "scenes": [
    {
-    "id": "sc_tqw4nam",
+    "id": "sc_rz34vpm",
     "name": "Welcome",
     "group": "",
     "fav": false,
     "tpl": false,
-    "created": 1793772242303,
-    "modified": 1793772242303,
+    "created": 1793775715408,
+    "modified": 1793775715408,
     "version": 1,
     "creator": "",
     "from": "",
@@ -111,7 +111,7 @@
     },
     "layers": [
      {
-      "id": "Lavgxqaz",
+      "id": "Lxsw7pzy",
       "kind": "announcement",
       "name": "Announcement",
       "visible": true,
@@ -133,13 +133,13 @@
     ]
    },
    {
-    "id": "sc_wiyfbc9",
+    "id": "sc_i311yxj",
     "name": "Study: John 3",
     "group": "Teaching",
     "fav": false,
     "tpl": false,
-    "created": 1793772242304,
-    "modified": 1793772242304,
+    "created": 1793775715410,
+    "modified": 1793775715410,
     "version": 1,
     "creator": "",
     "from": "",
@@ -160,7 +160,7 @@
     },
     "layers": [
      {
-      "id": "Lo5vabal",
+      "id": "Lif1ddcn",
       "kind": "scripture",
       "name": "Scripture",
       "visible": true,
@@ -178,7 +178,7 @@
       }
      },
      {
-      "id": "Ln8vzops",
+      "id": "L96p2ua5",
       "kind": "question",
       "name": "Question",
       "visible": true,
@@ -195,13 +195,13 @@
     ]
    },
    {
-    "id": "sc_90chro6",
+    "id": "sc_g6zlibx",
     "name": "Video",
     "group": "",
     "fav": false,
     "tpl": false,
-    "created": 1793772242304,
-    "modified": 1793772242304,
+    "created": 1793775715411,
+    "modified": 1793775715411,
     "version": 1,
     "creator": "",
     "from": "",
@@ -222,7 +222,7 @@
     },
     "layers": [
      {
-      "id": "Lbfrkfhq",
+      "id": "Lqowupea",
       "kind": "video",
       "name": "Video",
       "visible": true,
@@ -241,13 +241,13 @@
     ]
    },
    {
-    "id": "sc_olc9h6k",
+    "id": "sc_ck14v63",
     "name": "Slide",
     "group": "",
     "fav": false,
     "tpl": false,
-    "created": 1793772242304,
-    "modified": 1793772242304,
+    "created": 1793775715411,
+    "modified": 1793775715411,
     "version": 1,
     "creator": "",
     "from": "",
@@ -284,13 +284,13 @@
     ]
    },
    {
-    "id": "sc_oecysdk",
+    "id": "sc_7en1bft",
     "name": "Prayer template",
     "group": "",
     "fav": false,
     "tpl": true,
-    "created": 1793772242304,
-    "modified": 1793772242304,
+    "created": 1793775715411,
+    "modified": 1793775715411,
     "version": 1,
     "creator": "",
     "from": "",
@@ -311,7 +311,7 @@
     },
     "layers": [
      {
-      "id": "Lsz1tm7w",
+      "id": "Ldcacaf9",
       "kind": "prayer",
       "name": "Prayer Point",
       "visible": true,
@@ -331,7 +331,7 @@
       }
      },
      {
-      "id": "Lgjt4xfq",
+      "id": "Lehu1sh8",
       "kind": "scripture",
       "name": "Scripture",
       "visible": true,
@@ -352,9 +352,9 @@
    }
   ],
   "live": {
-   "scene": "sc_wiyfbc9",
+   "scene": "sc_i311yxj",
    "seq": 1,
-   "at": 1793772242305,
+   "at": 1793775715412,
    "tx": "cut",
    "txMs": 0,
    "auto": true,
@@ -385,7 +385,7 @@
    "auto": true
   },
   "meeting": {
-   "title": "BSF Study",
+   "title": "Evening Study",
    "date": "2026-10-27",
    "time": "",
    "location": "",
@@ -461,7 +461,7 @@
  "normalized": {
   "rev": 57,
   "verse": {
-   "label": "Focus Verse",
+   "label": "Scripture",
    "showLabel": true,
    "text": "Thy word is a lamp unto my feet, and a light unto my path.",
    "ref": "Psalm 119:105",
@@ -488,7 +488,7 @@
    }
   },
   "question": {
-   "label": "Discussion Question",
+   "label": "Question",
    "showLabel": true,
    "text": "What does this passage reveal about God?",
    "visible": true,
@@ -543,13 +543,13 @@
   },
   "scenes": [
    {
-    "id": "sc_tqw4nam",
+    "id": "sc_rz34vpm",
     "name": "Welcome",
     "group": "",
     "fav": false,
     "tpl": false,
-    "created": 1793772242303,
-    "modified": 1793772242303,
+    "created": 1793775715408,
+    "modified": 1793775715408,
     "version": 1,
     "creator": "",
     "from": "",
@@ -570,7 +570,7 @@
     },
     "layers": [
      {
-      "id": "Lavgxqaz",
+      "id": "Lxsw7pzy",
       "kind": "announcement",
       "name": "Announcement",
       "visible": true,
@@ -592,13 +592,13 @@
     ]
    },
    {
-    "id": "sc_wiyfbc9",
+    "id": "sc_i311yxj",
     "name": "Study: John 3",
     "group": "Teaching",
     "fav": false,
     "tpl": false,
-    "created": 1793772242304,
-    "modified": 1793772242304,
+    "created": 1793775715410,
+    "modified": 1793775715410,
     "version": 1,
     "creator": "",
     "from": "",
@@ -619,7 +619,7 @@
     },
     "layers": [
      {
-      "id": "Lo5vabal",
+      "id": "Lif1ddcn",
       "kind": "scripture",
       "name": "Scripture",
       "visible": true,
@@ -637,7 +637,7 @@
       }
      },
      {
-      "id": "Ln8vzops",
+      "id": "L96p2ua5",
       "kind": "question",
       "name": "Question",
       "visible": true,
@@ -654,13 +654,13 @@
     ]
    },
    {
-    "id": "sc_90chro6",
+    "id": "sc_g6zlibx",
     "name": "Video",
     "group": "",
     "fav": false,
     "tpl": false,
-    "created": 1793772242304,
-    "modified": 1793772242304,
+    "created": 1793775715411,
+    "modified": 1793775715411,
     "version": 1,
     "creator": "",
     "from": "",
@@ -681,7 +681,7 @@
     },
     "layers": [
      {
-      "id": "Lbfrkfhq",
+      "id": "Lqowupea",
       "kind": "video",
       "name": "Video",
       "visible": true,
@@ -700,13 +700,13 @@
     ]
    },
    {
-    "id": "sc_olc9h6k",
+    "id": "sc_ck14v63",
     "name": "Slide",
     "group": "",
     "fav": false,
     "tpl": false,
-    "created": 1793772242304,
-    "modified": 1793772242304,
+    "created": 1793775715411,
+    "modified": 1793775715411,
     "version": 1,
     "creator": "",
     "from": "",
@@ -745,13 +745,13 @@
     ]
    },
    {
-    "id": "sc_oecysdk",
+    "id": "sc_7en1bft",
     "name": "Prayer template",
     "group": "",
     "fav": false,
     "tpl": true,
-    "created": 1793772242304,
-    "modified": 1793772242304,
+    "created": 1793775715411,
+    "modified": 1793775715411,
     "version": 1,
     "creator": "",
     "from": "",
@@ -772,7 +772,7 @@
     },
     "layers": [
      {
-      "id": "Lsz1tm7w",
+      "id": "Ldcacaf9",
       "kind": "prayer",
       "name": "Prayer Point",
       "visible": true,
@@ -792,7 +792,7 @@
       }
      },
      {
-      "id": "Lgjt4xfq",
+      "id": "Lehu1sh8",
       "kind": "scripture",
       "name": "Scripture",
       "visible": true,
@@ -813,9 +813,9 @@
    }
   ],
   "live": {
-   "scene": "sc_wiyfbc9",
+   "scene": "sc_i311yxj",
    "seq": 1,
-   "at": 1793772242305,
+   "at": 1793775715412,
    "tx": "cut",
    "txMs": 0,
    "auto": true,
@@ -846,7 +846,7 @@
    "auto": true
   },
   "meeting": {
-   "title": "BSF Study",
+   "title": "Evening Study",
    "date": "2026-10-27",
    "time": "",
    "location": "",
@@ -903,15 +903,15 @@
   "entities": [
    {
     "kind": "frame",
-    "id": "sc_tqw4nam",
+    "id": "sc_rz34vpm",
     "body": {
-     "id": "sc_tqw4nam",
+     "id": "sc_rz34vpm",
      "name": "Welcome",
      "group": "",
      "fav": false,
      "tpl": false,
-     "created": 1793772242303,
-     "modified": 1793772242303,
+     "created": 1793775715408,
+     "modified": 1793775715408,
      "version": 1,
      "creator": "",
      "from": "",
@@ -932,7 +932,7 @@
      },
      "layers": [
       {
-       "id": "Lavgxqaz",
+       "id": "Lxsw7pzy",
        "kind": "announcement",
        "name": "Announcement",
        "visible": true,
@@ -956,15 +956,15 @@
    },
    {
     "kind": "frame",
-    "id": "sc_wiyfbc9",
+    "id": "sc_i311yxj",
     "body": {
-     "id": "sc_wiyfbc9",
+     "id": "sc_i311yxj",
      "name": "Study: John 3",
      "group": "Teaching",
      "fav": false,
      "tpl": false,
-     "created": 1793772242304,
-     "modified": 1793772242304,
+     "created": 1793775715410,
+     "modified": 1793775715410,
      "version": 1,
      "creator": "",
      "from": "",
@@ -985,7 +985,7 @@
      },
      "layers": [
       {
-       "id": "Lo5vabal",
+       "id": "Lif1ddcn",
        "kind": "scripture",
        "name": "Scripture",
        "visible": true,
@@ -1003,7 +1003,7 @@
        }
       },
       {
-       "id": "Ln8vzops",
+       "id": "L96p2ua5",
        "kind": "question",
        "name": "Question",
        "visible": true,
@@ -1022,15 +1022,15 @@
    },
    {
     "kind": "frame",
-    "id": "sc_90chro6",
+    "id": "sc_g6zlibx",
     "body": {
-     "id": "sc_90chro6",
+     "id": "sc_g6zlibx",
      "name": "Video",
      "group": "",
      "fav": false,
      "tpl": false,
-     "created": 1793772242304,
-     "modified": 1793772242304,
+     "created": 1793775715411,
+     "modified": 1793775715411,
      "version": 1,
      "creator": "",
      "from": "",
@@ -1051,7 +1051,7 @@
      },
      "layers": [
       {
-       "id": "Lbfrkfhq",
+       "id": "Lqowupea",
        "kind": "video",
        "name": "Video",
        "visible": true,
@@ -1072,15 +1072,15 @@
    },
    {
     "kind": "frame",
-    "id": "sc_olc9h6k",
+    "id": "sc_ck14v63",
     "body": {
-     "id": "sc_olc9h6k",
+     "id": "sc_ck14v63",
      "name": "Slide",
      "group": "",
      "fav": false,
      "tpl": false,
-     "created": 1793772242304,
-     "modified": 1793772242304,
+     "created": 1793775715411,
+     "modified": 1793775715411,
      "version": 1,
      "creator": "",
      "from": "",
@@ -1121,15 +1121,15 @@
    },
    {
     "kind": "template",
-    "id": "sc_oecysdk",
+    "id": "sc_7en1bft",
     "body": {
-     "id": "sc_oecysdk",
+     "id": "sc_7en1bft",
      "name": "Prayer template",
      "group": "",
      "fav": false,
      "tpl": true,
-     "created": 1793772242304,
-     "modified": 1793772242304,
+     "created": 1793775715411,
+     "modified": 1793775715411,
      "version": 1,
      "creator": "",
      "from": "",
@@ -1150,7 +1150,7 @@
      },
      "layers": [
       {
-       "id": "Lsz1tm7w",
+       "id": "Ldcacaf9",
        "kind": "prayer",
        "name": "Prayer Point",
        "visible": true,
@@ -1170,7 +1170,7 @@
        }
       },
       {
-       "id": "Lgjt4xfq",
+       "id": "Lehu1sh8",
        "kind": "scripture",
        "name": "Scripture",
        "visible": true,
@@ -1256,11 +1256,11 @@
     "id": "order",
     "body": {
      "scenes": [
-      "sc_tqw4nam",
-      "sc_wiyfbc9",
-      "sc_90chro6",
-      "sc_olc9h6k",
-      "sc_oecysdk"
+      "sc_rz34vpm",
+      "sc_i311yxj",
+      "sc_g6zlibx",
+      "sc_ck14v63",
+      "sc_7en1bft"
      ],
      "questions": [
       "q1",
@@ -1280,7 +1280,7 @@
     "id": "cards",
     "body": {
      "question": {
-      "label": "Discussion Question",
+      "label": "Question",
       "showLabel": true,
       "transition": "rise",
       "speed": "normal",
@@ -1294,7 +1294,7 @@
       "burst": "gentle"
      },
      "verse": {
-      "label": "Focus Verse",
+      "label": "Scripture",
       "showLabel": true,
       "transition": "rise",
       "speed": "normal",
@@ -1347,7 +1347,7 @@
     "kind": "meeting",
     "id": "meeting",
     "body": {
-     "title": "BSF Study",
+     "title": "Evening Study",
      "date": "2026-10-27",
      "time": "",
      "location": "",
@@ -1416,9 +1416,9 @@
     }
    },
    "live": {
-    "scene": "sc_wiyfbc9",
+    "scene": "sc_i311yxj",
     "seq": 1,
-    "at": 1793772242305,
+    "at": 1793775715412,
     "tx": "cut",
     "txMs": 0,
     "auto": true,

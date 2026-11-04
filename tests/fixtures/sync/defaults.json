@@ -4,7 +4,7 @@
  "normalized": {
   "rev": 0,
   "verse": {
-   "label": "Focus Verse",
+   "label": "Scripture",
    "showLabel": true,
    "text": "Thy word is a lamp unto my feet, and a light unto my path.",
    "ref": "Psalm 119:105",
@@ -31,7 +31,7 @@
    }
   },
   "question": {
-   "label": "Discussion Question",
+   "label": "Question",
    "showLabel": true,
    "text": "What does this passage reveal about the character of God?",
    "visible": false,
@@ -169,7 +169,7 @@
     },
     {
      "id": "q2",
-     "text": "Which phrase in today’s focus verse stood out to you most this week, and why?",
+     "text": "Which phrase in this passage stood out to you most, and why?",
      "num": "",
      "note": "",
      "pair": "",
@@ -177,7 +177,7 @@
     },
     {
      "id": "q3",
-     "text": "Think of a situation you are facing right now. How could the truth of this passage change the way you respond to it, and what is one practical step you could take before we meet again next week?",
+     "text": "Think of a situation you are facing right now. How could the truth of this passage change the way you respond to it, and what is one practical step you could take before we meet again?",
      "num": "",
      "note": "",
      "pair": "",
@@ -213,7 +213,7 @@
     "id": "q2",
     "body": {
      "id": "q2",
-     "text": "Which phrase in today’s focus verse stood out to you most this week, and why?",
+     "text": "Which phrase in this passage stood out to you most, and why?",
      "num": "",
      "note": "",
      "pair": "",
@@ -225,7 +225,7 @@
     "id": "q3",
     "body": {
      "id": "q3",
-     "text": "Think of a situation you are facing right now. How could the truth of this passage change the way you respond to it, and what is one practical step you could take before we meet again next week?",
+     "text": "Think of a situation you are facing right now. How could the truth of this passage change the way you respond to it, and what is one practical step you could take before we meet again?",
      "num": "",
      "note": "",
      "pair": "",
@@ -288,7 +288,7 @@
     "id": "cards",
     "body": {
      "question": {
-      "label": "Discussion Question",
+      "label": "Question",
       "showLabel": true,
       "transition": "fade",
       "speed": "normal",
@@ -302,7 +302,7 @@
       "burst": "gentle"
      },
      "verse": {
-      "label": "Focus Verse",
+      "label": "Scripture",
       "showLabel": true,
       "transition": "rise",
       "speed": "normal",

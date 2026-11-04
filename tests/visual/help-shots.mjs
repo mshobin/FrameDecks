@@ -101,6 +101,7 @@ await shot(p, "web-preview", { stage: ".pv-stage" });
 const pcx = await b.newContext({ viewport: { width: 1280, height: 800 }, reducedMotion: "reduce" });
 const q = await pcx.newPage();
 await q.goto(PC + "/dashboard.html"); await q.waitForTimeout(2500);
+await q.evaluate(() => window.KCOnboarding && window.KCOnboarding.close());          // 9.5 the Welcome flow
 await shot(q, "pc-studio", { guide: ".gd-panel", add: "#scene-add", canvas: ".canvas-pane, #canvas-title" });
 await q.evaluate(() => document.querySelector(".gd-panel")?.remove());
 await shot(q, "pc-bar", { transition: ".lb-tx", golive: "#cb-take" });

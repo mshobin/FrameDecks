@@ -5,7 +5,7 @@ Google Meet. It is meeting-first:
 
 1. **Meeting**: one meeting, for example *Romans · Week 5*.
 2. **+ Frame**: one screen or one step of the meeting (Welcome, Worship, Scripture Reading, Questions, Closing).
-3. **+ Content**: what is shown inside a Frame (a question, a scripture, text, a picture, a video, a timer, PowerPoint).
+3. **+ Deck**: what is shown inside a Frame (a question, a scripture, text, a picture, a video, a timer, PowerPoint).
 4. **Present**: Go Live, then step through the Frames.
 5. **Annotate**: draw on the picture.
 6. **Phone**: run all of it from a phone if you like.
@@ -74,7 +74,7 @@ move the window, and double-click it to maximize. Snap and resizing from the edg
   - your Frame templates.
 - **+ Frame** adds one **blank** Frame after the selected one. Name it by double-clicking its **name** (or F2), or
   in its **Name** box in Content Settings. The name is edited right in the list: **Enter** saves, **Esc** cancels.
-- Select the Frame, then **+ Content** (the **Decks** section under the Frames list shows its Content):
+- Select the Frame, then **+ Deck** (the **Decks** section under the Frames list shows its Content):
   - **Question**, **Scripture**, **Text**, **Image**, **Video**, **Timer**, **PowerPoint**;
   - **Free Content**: announcement, prayer point, lower third, birthday, branding, camera, screen share, a live
     window, logo, watermark, free text, shape, background.

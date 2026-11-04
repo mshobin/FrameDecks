@@ -30,7 +30,7 @@ before(async () => {
     [INVITEE]: "invitee@church.org",
     [OUTSIDER]: "x@else.org",
   }));
-  org = (await as(OWNER, "insert into organizations(name, created_by) values ('BSF Study', $1) returning id", [OWNER])).rows[0].id;
+  org = (await as(OWNER, "insert into organizations(name, created_by) values ('Evening Study', $1) returning id", [OWNER])).rows[0].id;
 });
 
 after(() => db?.close());

@@ -21,7 +21,7 @@ Store.subscribe(function(st){ live = st; });
 
 function frameId(){ return (window.KCSelFrame && window.KCSelFrame()) || (live ? live.live.scene : ''); }
 function studioOn(){ var t = $('tab-studio'); return !!(t && !t.hidden); }
-var KIND = {question: {one: 'Question', layer: 'question', def: 'Discussion Question'}, verse: {one: 'Scripture', layer: 'scripture', def: 'Focus Verse'}};
+var KIND = {question: {one: 'Question', layer: 'question', def: 'Question'}, verse: {one: 'Scripture', layer: 'scripture', def: 'Scripture'}};
 var TEXT_NAME = {announcement: 'Announcement', prayer: 'Prayer', lowerthird: 'Lower Third', countdown: 'Timer'};
 
 /* The item a Question / Scripture card shows for this Frame: the live one, or the one its preview shows */

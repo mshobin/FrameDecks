@@ -48,7 +48,7 @@ class PartsTest(unittest.TestCase):
         self.assertEqual(pptx_export.frame_parts({"layers": [{"kind": "audio", "c": {"file": "Song.mp3"}}]}), [("media", "audio", "Song.mp3")])
 
     def test_file_name(self):
-        self.assertRegex(pptx_export.file_name(PLAN), r"^BSF Study - \d{4}-\d{2}-\d{2}\.pptx$")
+        self.assertRegex(pptx_export.file_name(PLAN), r"^Evening Study - \d{4}-\d{2}-\d{2}\.pptx$")
 
 
 @unittest.skipUnless(HAVE_PPTX, "python-pptx is installed with the desktop build")
@@ -64,7 +64,7 @@ class BuildTest(unittest.TestCase):
         slides = list(deck.slides)
         self.assertEqual(frames, 4, "templates are left out")
         self.assertEqual(len(slides), 5, "a title slide and one per Frame")
-        self.assertIn("BSF Study", texts(slides[0]))
+        self.assertIn("Evening Study", texts(slides[0]))
         self.assertEqual([texts(s).split(" | ")[0] for s in slides[1:]], ["Welcome", "Study: John 3", "Video", "Slide"])
         study = slides[2]
         self.assertIn("John 3:16 ESV", texts(study))

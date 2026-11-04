@@ -35,7 +35,7 @@ When the meeting starts, you press **Go Live** and step from Frame to Frame. Wha
 ```mermaid
 flowchart LR
   A["Meeting"] --> B["+ Frame"]
-  B --> C["+ Content"]
+  B --> C["+ Deck"]
   C --> D["Go Live"]
   D --> E["Step through: Frame ▶"]
   E --> F["Phone remote (optional)"]
@@ -52,18 +52,22 @@ A webcam is optional. You need one only if people should see you on the FrameDec
 ## First launch
 
 1. Open **FrameDecks** from the desktop icon.
-2. If you used the zip version of FrameDecks before, the app offers to **import your existing data**. Choose
-   your old folder (it is usually found automatically) and select **Import**. Your old folder is not changed. (An
-   installed earlier version needs nothing: the installer updates it and your data is kept.)
+2. The first time (also after an update or a reinstall, until you finish it once), **Welcome to FrameDecks** fills the
+   screen: four short pages that show how a meeting is built.
+   - **Adding Frames**: a Frame is one moment on screen. **+ Frame** adds one; **Quick Start** adds a ready-made set.
+   - **Adding Decks**: a Deck is one block on a Frame (a scripture, a question, text, a picture, a video, a timer or
+     slides). **+ Deck** adds one to the selected Frame.
+   - **Adding Content**: what a Deck shows, such as each question or verse (**+ Question**, **+ Scripture**).
+   - **Finish**: optionally choose a ready-made meeting (Bible Study, Prayer Meeting, Youth Gathering, Fellowship
+     Meeting or Church Service). If FrameDecks finds data from an earlier version, **Bring it in** copies it (the old
+     folder is not changed).
+
+   Use **Next** and **Back** (or the arrow keys); **Skip** closes it. It does not come back after **Finish** or
+   **Skip**; open it again from **Settings → About → Welcome tour** or the command palette (Ctrl+K, "Welcome tour").
 3. The app opens on the **Studio**, where you build and run meetings.
-4. On a new PC the **Setup guide** opens at the right. It shows one step at a time ("Step 1 of 6", with a progress
-   bar): **Welcome**, **How people will see it**, **Your phone as a remote** (optional), **Connect to FrameDecks**
-   (optional), **Make your first Frame** and **Ready**. **Next** becomes available when FrameDecks sees the step is
-   done; **Back** goes back, **Do this later** moves on, and optional steps have **Skip this step**. **Show me how**
-   dims the window and points at the button to press, and **Something not working?** lists what to try. **Ready**
-   checks that everything is working, and each problem has a button to fix it; the last screen offers **Open the
-   Studio**. Close the guide any time; it comes back from **Settings → About → Guided tour** or the command palette
-   (Ctrl+K, "Setup guide").
+4. The **Setup guide** (how people will see it, your phone as a remote, connecting to FrameDecks, and a check that
+   everything is working) is in **Settings → About → Guided tour**, and in the command palette (Ctrl+K, "Setup guide").
+   It shows one step at a time; **Show me how** points at the button to press.
 
 > **Note:** Everything you do is saved automatically on this PC. There is no Save button to remember.
 
@@ -77,7 +81,7 @@ A webcam is optional. You need one only if people should see you on the FrameDec
 | --- | --- | --- |
 | **Command bar** | Across the top | Studio · Members · Settings (Alt+1, Alt+3, Alt+4), **◀ Frame · Go Live · Frame ▶**, transitions, the question and scripture steppers, the **Live tools** menu, **Hide all** (with its **Esc** key) and the LIVE status. A PC linked to your team also shows a **Sync** chip |
 | **Frames** | Left, top | Every Frame in your meetings, in order, as compact cards. The live Frame is marked **LIVE**, the next one **NEXT** |
-| **Decks** | Left, bottom | The Content inside the selected Frame (**+ Content** adds to it). The top of the list is in front |
+| **Decks** | Left, bottom | The Content inside the selected Frame (**+ Deck** adds to it). The top of the list is in front |
 | **Studio Canvas** | Middle | A preview of the selected Frame, or the live picture. The badge says **PREVIEW · not on air** or **LIVE** |
 | **Content Settings** | Below the canvas | Every setting for what you selected: **Content** (label and words) first, then Position and size, Look, Animation and Show on, which open with a click (a Frame shows its name, Teleprompter script and auto-advance, with the rest under **Advanced**) |
 
@@ -123,7 +127,7 @@ There are two quick ways to start.
 
 1. Select **+ Frame**. A blank Frame appears after the selected one.
 2. Double-click its name (or press **F2**), type a name such as *Discussion*, and press **Enter**.
-3. With the Frame selected, select **+ Content** and choose **Question**.
+3. With the Frame selected, select **+ Deck** and choose **Question**.
 4. Type your first question in the editor and select **Done**. Add more with **+ Question**, or paste many at once
    with **Add several**.
 5. Repeat for the other parts of your meeting: a **Scripture**, a **Timer**, a **Text** welcome and so on.

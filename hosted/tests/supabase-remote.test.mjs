@@ -49,7 +49,7 @@ before(async () => {
     [VIEWER]: "viewer@church.org",
     [OUTSIDER]: "x@else.org",
   }));
-  org = (await as(OWNER, "insert into organizations(name, created_by) values ('BSF Study', $1) returning id", [OWNER])).rows[0].id;
+  org = (await as(OWNER, "insert into organizations(name, created_by) values ('Evening Study', $1) returning id", [OWNER])).rows[0].id;
   const other = (await as(OUTSIDER, "insert into organizations(name, created_by) values ('Elsewhere', $1) returning id", [OUTSIDER]))
     .rows[0].id;
   await as(OWNER, "insert into memberships(organization_id, user_id, role) values ($1, $2, 'member'), ($1, $3, 'member')", [org, RUNNER, VIEWER]);

@@ -40,7 +40,7 @@ Every button on the phone changes the same live state as the PC, so the PC, the 
 
 The phone stays signed in for 30 days. After that, or after a new PIN, enter the PIN again.
 
-> **Tip:** In the same Settings section, tick the option to turn the remote on whenever FrameDecks starts, so it is ready every Sunday.
+> **Tip:** In the same Settings section, tick the option to turn the remote on whenever FrameDecks starts, so it is ready for every meeting.
 
 ## Security
 

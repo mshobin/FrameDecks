@@ -410,7 +410,7 @@ function editMember(m){
     field('phone', 'Phone Number (with country code, e.g. +965 5000 1234)', '+965 5000 1234'), codeBtn,
     field('email', 'Email', 'name@example.com'),
     field('birthDate', 'Birth Date (YYYY-MM-DD, e.g. 1985-03-15; the year is optional)', '1985-03-15'),
-    field('role', 'Role (optional)', 'e.g. Group Leader, Discussion Leader, Serving Member')
+    field('role', 'Role (optional)', 'e.g. Leader, Host, Welcome team')
   ]);
   function check(){
     var r = M.checkMember({name: f.name.input.value, country: f.country.input.value, phone: f.phone.input.value,
@@ -610,7 +610,7 @@ function downloadTemplateNow(){
   var wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, sheetFrom([M.EXPORT_COLUMNS,
     ['Grace Mensah', 'Ghana', '+233 20 000 0001', 'grace@example.com', '1985-03-15', 'Group Leader'],
-    ['Daniel Okafor', 'Nigeria', '+234 800 000 0002', 'daniel@example.com', '1990-11-02', 'Discussion Leader'],
+    ['Daniel Okafor', 'Nigeria', '+234 800 000 0002', 'daniel@example.com', '1990-11-02', 'Host'],
     ['Priya Nair', 'India', '+91 90000 00003', 'priya@example.com', '--07-21', '']]), 'Members');
   var info = XLSX.utils.aoa_to_sheet([
     ['Members template - how to fill it in'], [''],

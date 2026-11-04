@@ -437,9 +437,9 @@ class LinkAndUnlink(unittest.TestCase):
         self.assertEqual((info["state"], info["code"]), ("waiting", "ABCD2345"))
         self.assertEqual(self.started[0], "Church PC")
         self.assertIsNone(self.secret.get(), "the key is stored only once linked")
-        self.approved.update(computerId="c1", organizationId="o1", organizationName="BSF Study")
+        self.approved.update(computerId="c1", organizationId="o1", organizationName="Evening Study")
         self.wait(lambda: self.svc.info()["state"] == "linked")
-        self.assertEqual(self.svc.info()["workspace"], "BSF Study")
+        self.assertEqual(self.svc.info()["workspace"], "Evening Study")
         self.assertTrue(self.secret.get())
         saved = json.loads((self.dir / "kc-sync.json").read_text())
         self.assertNotIn(self.secret.get(), json.dumps(saved), "the key is never in the sync file")
@@ -466,7 +466,7 @@ class LinkAndUnlink(unittest.TestCase):
 
     def test_a_pc_revoked_in_the_companion_stops_and_forgets_its_key(self):
         self.svc.link_start()
-        self.approved.update(computerId="c1", organizationId="o1", organizationName="BSF Study")
+        self.approved.update(computerId="c1", organizationId="o1", organizationName="Evening Study")
         self.wait(lambda: self.svc.info()["lastSync"])
 
         def refuse(*a, **k):
@@ -479,7 +479,7 @@ class LinkAndUnlink(unittest.TestCase):
 
     def test_offline_shows_in_the_status_and_nothing_is_lost(self):
         self.svc.link_start()
-        self.approved.update(computerId="c1", organizationId="o1", organizationName="BSF Study")
+        self.approved.update(computerId="c1", organizationId="o1", organizationName="Evening Study")
         self.wait(lambda: self.svc.info()["lastSync"])
         self.api.offline = True
         self.pc.plan["meeting"]["title"] = "While offline"
@@ -495,7 +495,7 @@ class LinkAndUnlink(unittest.TestCase):
     def test_resync_says_what_happened(self):
         self.assertEqual(self.svc.resync()["result"]["outcome"], "failed", "not linked")
         self.svc.link_start()
-        self.approved.update(computerId="c1", organizationId="o1", organizationName="BSF Study")
+        self.approved.update(computerId="c1", organizationId="o1", organizationName="Evening Study")
         self.wait(lambda: self.svc.info()["lastSync"])
         self.assertEqual(self.svc.resync()["result"]["outcome"], "nochange")
         self.pc.plan["meeting"]["title"] = "Changed here"
@@ -512,7 +512,7 @@ class LinkAndUnlink(unittest.TestCase):
     def test_the_header_word_for_each_sync_state(self):
         self.assertEqual(self.svc.info()["phase"], "", "not linked: no chip")
         self.svc.link_start()
-        self.approved.update(computerId="c1", organizationId="o1", organizationName="BSF Study")
+        self.approved.update(computerId="c1", organizationId="o1", organizationName="Evening Study")
         self.wait(lambda: self.svc.info()["lastSync"])
         self.assertEqual(self.svc.info()["phase"], "synced")
         self.svc.busy = True

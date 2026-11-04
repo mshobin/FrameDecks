@@ -26,7 +26,7 @@ How to prepare a meeting in FrameDecks so the service runs smoothly: Frames, Con
 
 ## Five things to know
 
-1. **+ Frame, then + Content.** + Frame adds a blank Frame after the selected one; select it, then **+ Content** to add a Question, Scripture, Text, Image, Video, Timer or PowerPoint. The Frame's Content is listed under **Decks**, below the Frames.
+1. **+ Frame, then + Deck.** + Frame adds a blank Frame after the selected one; select it, then **+ Deck** to add a Question, Scripture, Text, Image, Video, Timer or PowerPoint. The Frame's Content is listed under **Decks**, below the Frames.
 2. **Every Frame owns its Content.** Changing a question in one Frame never changes another. **Duplicate Frame** (right-click, or **Ctrl+D**) makes a fully separate copy right after it.
 3. **Content Settings has everything.** One view: Content (its label and words) first, then sections that open with a click: Position and size, Look, Animation, Show on; Media for pictures, video and slides.
 4. **FrameDecks keeps copies of your files.** Added pictures, videos and slides keep working if the originals move.

@@ -23,7 +23,7 @@ Every kind of Content you can put in a Frame, and every setting that controls ho
 ## Add Content
 
 1. Select a Frame.
-2. Select **+ Content**.
+2. Select **+ Deck**.
 3. Choose a type. The menu has two parts:
 
 | Main types | Free Content |
@@ -38,7 +38,7 @@ Every kind of Content you can put in a Frame, and every setting that controls ho
 | | Logo…, Watermark…, Free text on the picture, Shape, Background |
 
 > **Note:** The ready-made **Discussion topic**, **Icebreaker** and **Poll (show of hands)** cards were removed from
-> **+ Content** and the Library in 8.0. Frames that already have them keep them.
+> **+ Deck** and the Library in 8.0. Frames that already have them keep them.
 
 > **Note:** A Frame has at most one Question, one Scripture, one Birthday and one Branding Content. Put all of a
 > Frame's questions into its one Question list. If you choose Question again, FrameDecks takes you to the
@@ -50,7 +50,7 @@ Every kind of Content you can put in a Frame, and every setting that controls ho
 
 ## The Content list
 
-The **Decks** section (left, below the Frames) lists the Content in the selected Frame. **+ Content** adds to it.
+The **Decks** section (left, below the Frames) lists the Content in the selected Frame. **+ Deck** adds to it.
 
 - **Order:** the top of the list is in front. Drag to change the order.
 - **Eye:** show or hide one piece of Content.
@@ -115,12 +115,16 @@ hide it. Each question can have its own label.
 
 A **Scripture** Content holds this Frame's list of Bible passages. It works like the Question list.
 
-**Fetch a passage (ESV, online)**
-1. Type a reference above the list, for example *Romans 8:28*.
+**Fetch a passage (ESV, KJV or WEB, online)**
+1. Choose the translation in **Fetch from**: **ESV**, **KJV** (King James Version) or **World English Bible**. Then
+   type a reference above the list, for example *Romans 8:28*.
 2. Select **Fetch scripture**. The passage is added to the list, or fills the scripture you are editing.
 3. **Refresh**, **Context** and **Read aloud** are next to it.
 
-Fetching ESV text needs internet and an ESV API key in **Settings → Scripture**.
+Fetching needs internet. The ESV also needs an ESV API key in **Settings → Scripture**; the KJV and the World English
+Bible are public domain and need no key (they come from bible-api.com). Every fetched passage is saved on this PC, so it
+works offline afterwards. In the Meeting Workbook, write *KJV* or *WEB* after a reference (for example *John 3:16
+KJV*) and the import fills in the text without a key.
 
 **Any other translation (offline)**
 1. Set **Fetch from** to **Type it myself**.
@@ -232,7 +236,7 @@ slide show as **Free Content → Window** instead. See [Media](media.md) and
 
 ## Audio
 
-**+ Content → Audio…** adds a sound file (MP3, M4A, WAV or OGG) to the Frame, such as a song, a reading, or a bell
+**+ Deck → Audio…** adds a sound file (MP3, M4A, WAV or OGG) to the Frame, such as a song, a reading, or a bell
 before prayer. It is never part of the picture.
 
 | Setting | What it does |

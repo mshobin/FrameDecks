@@ -26,7 +26,7 @@ st.library.questions = [{id: 'q1', text: 'What stands out?', num: '1', note: '',
   {id: 'q1', text: 'A second item with the same id', num: '2', note: '', pair: '', mode: ''}];
 st.library.verses = [{id: 'v1', ref: 'John 3:16', version: 'ESV', text: 'For God so loved the world…', pair: 'q1'}];
 st.brand = {meeting: 'Tuesday Study', org: 'Grace Church', color: '#c9a04a', logo: '3', lw: 400, lh: 120, auto: true};
-st.meeting.title = 'BSF Study'; st.meeting.date = '2026-10-27'; st.meeting.presenter = 'Shobin';
+st.meeting.title = 'Evening Study'; st.meeting.date = '2026-10-27'; st.meeting.presenter = 'Shobin';
 st.question.transition = 'rise';
 SC.take(st, study.id, 'cut');
 st.question.text = 'What does this passage reveal about God?'; st.question.visible = true;

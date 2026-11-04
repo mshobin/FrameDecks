@@ -214,7 +214,9 @@ function renderAbout(){
   box.appendChild(h('div', {cls: 'box-head'}, [h('h2', {id: 'gd-about-title', text: 'Setup guide'})]));
   box.appendChild(h('p', {cls: 'plain'}, state.finished || complete() ? [h('span', {cls: 'status-pill ok'}, [h('i'), 'Setup complete'])] :
     [n + ' of ' + G.steps.length + ' steps done on this PC.']));
-  box.appendChild(h('div', {cls: 'actions'}, [h('button', {cls: 'btn small', type: 'button', text: 'Guided tour', onclick: function(){ window.KCGuide.open(); }})]));
+  box.appendChild(h('div', {cls: 'actions'}, [
+    h('button', {cls: 'btn small', type: 'button', text: 'Welcome tour', title: 'Frames, Decks and Content in four pages', onclick: function(){ if (window.KCOnboarding) window.KCOnboarding.open(); }}),   // 9.5
+    h('button', {cls: 'btn small', type: 'button', text: 'Guided tour', onclick: function(){ window.KCGuide.open(); }})]));
 }
 window.KCAboutGuide = renderAbout;
 (window.KCSectionHooks = window.KCSectionHooks || []).push(function(id){ if (id === 'about') renderAbout(); });

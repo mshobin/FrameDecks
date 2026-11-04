@@ -153,5 +153,5 @@ needed now). The workflow's signing steps stay off until the owner adds the sign
   links a PC to its own workspace (see [docs/architecture/metadata-sync.md](docs/architecture/metadata-sync.md)); it
   collects no telemetry.
 
-<sub>Earlier versions were named FrameDecks and BSF Command Center. Version 6.9 installs over those versions and
-moves their data into the FrameDecks folder on first start, so each church keeps its data.</sub>
+<sub>Earlier versions had other names. Version 6.9 and later install over those versions and move their data into the
+FrameDecks folder on first start, so every group keeps its data.</sub>

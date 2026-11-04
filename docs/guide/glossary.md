@@ -13,7 +13,7 @@ word, the screen is wrong: fix the screen, not this list. (Owner-approved simpli
 | **Plan** | The website page where you plan a meeting (Frames, questions, scripture, the presenter's script) and see its history. It replaced the Meeting Form and Running order pages. | Meeting Form (the Excel file is the *Meeting Workbook*), services |
 | **Home** | The website's first page: your next service and whether it is ready. | Overview, dashboard |
 | **Studio** | The one place where you plan, edit and run a meeting. Previous, Next, Go Live, Hide all and Live tools are always in its top bar. (The separate Prepare / Run views were removed in 8.0.) | edit mode, design view, show mode, live mode, presenter mode |
-| **Decks** | The section under the Frames list that holds the selected Frame's Content (**+ Content** adds to it). | layers |
+| **Decks** | The section under the Frames list that holds the selected Frame's Content (**+ Deck** adds to it). | layers |
 | **Go Live** | Put the chosen Frame on screen. | take, cut, send |
 | **Previous / Next** | Put the Frame before or after the one on screen. | back / forward, prev |
 | **Up next** | The Frame that Next (or Go Live) puts on screen, marked **NEXT** in the Frames list. | cue, preview (alone) |

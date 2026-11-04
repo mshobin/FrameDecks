@@ -36,14 +36,14 @@ var CHANNEL = 'framedecks';
 var DEFAULT_STATE = {
   rev: 0,
   verse: {
-    label: 'Focus Verse', showLabel: true,
+    label: 'Scripture', showLabel: true,
     text: 'Thy word is a lamp unto my feet, and a light unto my path.', ref: 'Psalm 119:105', version: 'KJV',
     visible: false, seq: 0, cut: 0, itemId: 's1',
     transition: 'rise', speed: 'normal',
     random: false, pool: ['fade', 'rise', 'words', 'burst'], burst: 'gentle', play: '', upcoming: ''
   },
   question: {
-    label: 'Discussion Question', showLabel: true,
+    label: 'Question', showLabel: true,
     text: 'What does this passage reveal about the character of God?',
     visible: false, seq: 0, cut: 0, itemId: 'q1',
     mode: '',   /* Presentation mode: '' / 'question' (the question only - the classic behaviour), 'both', 'verse' */
@@ -86,8 +86,8 @@ var DEFAULT_STATE = {
     ],
     questions: [
       {id: 'q1', text: 'What does this passage reveal about the character of God?'},
-      {id: 'q2', text: 'Which phrase in today\u2019s focus verse stood out to you most this week, and why?'},
-      {id: 'q3', text: 'Think of a situation you are facing right now. How could the truth of this passage change the way you respond to it, and what is one practical step you could take before we meet again next week?'}
+      {id: 'q2', text: 'Which phrase in this passage stood out to you most, and why?'},
+      {id: 'q3', text: 'Think of a situation you are facing right now. How could the truth of this passage change the way you respond to it, and what is one practical step you could take before we meet again?'}
     ]
   }
 };
@@ -471,7 +471,7 @@ var TEMPLATES = [
   {id: 'blank', name: 'Blank', layers: []}];
 /* v6.1 Content Library: reusable ready-made scenes. Each layer: [kind, {name, c}] (text is editable afterwards) */
 var BENEDICTION = 'The Lord bless you and keep you; the Lord make his face to shine upon you and be gracious to you; the Lord lift up his countenance upon you and give you peace.';
-var LIBRARY_CATS = [['welcome', 'Welcome Slides'], ['prayer', 'Prayer Slides'], ['discussion', 'Discussion Questions'], ['scripture', 'Scripture Layouts'], ['closing', 'Closing Slides']];
+var LIBRARY_CATS = [['welcome', 'Welcome Slides'], ['prayer', 'Prayer Slides'], ['discussion', 'Questions'], ['scripture', 'Scripture Layouts'], ['closing', 'Closing Slides']];
 var LIBRARY = [
   {id: 'lib-welcome', cat: 'welcome', name: 'Welcome', layers: [['announcement', {name: 'Welcome', c: {title: 'Welcome', text: 'We’re glad you’re here. We’ll begin in just a moment.'}}]]},
   {id: 'lib-welcome-countdown', cat: 'welcome', name: 'Starting Soon', layers: [['countdown', {name: 'Countdown', c: {title: 'We begin in', text: 'Welcome!', minutes: 5}}]]},
@@ -482,14 +482,14 @@ var LIBRARY = [
   {id: 'lib-prayer-requests', cat: 'prayer', name: 'Prayer Requests', layers: [['prayer', {name: 'Prayer Requests', c: {title: 'Prayer Requests', text: 'Share your prayer requests in the chat or unmute to pray together.'}}]]},
   {id: 'lib-prayer-points', cat: 'prayer', name: 'Prayer Points', layers: [['prayer', {name: 'Prayer Points', c: {title: 'Let Us Pray', text: 'For our church and its leaders\nFor families and those who are sick\nFor the nations to know Christ'}}]]},
   {id: 'lib-prayer-close', cat: 'prayer', name: 'Closing Prayer', layers: [['prayer', {name: 'Closing Prayer', c: {title: 'Closing Prayer', text: 'Let’s close our time together in prayer.'}}]]},
-  {id: 'lib-question', cat: 'discussion', name: 'Discussion Question', layers: [['question', {}]]},
+  {id: 'lib-question', cat: 'discussion', name: 'Question', layers: [['question', {}]]},
   {id: 'lib-question-scripture', cat: 'discussion', name: 'Question + Scripture', layers: [['question', {}], ['scripture', {}]]},
   {id: 'lib-breakout', cat: 'discussion', name: 'Small-Group Breakout', layers: [['announcement', {name: 'Breakout', c: {title: 'Small Groups', text: 'Discuss the next question together in your small group.'}}]]},
-  {id: 'lib-focus-verse', cat: 'scripture', name: 'Focus Verse', layers: [['scripture', {name: 'Focus Verse'}]]},
+  {id: 'lib-focus-verse', cat: 'scripture', name: 'Scripture', layers: [['scripture', {name: 'Scripture'}]]},
   {id: 'lib-reading', cat: 'scripture', name: 'Scripture Reading', layers: [['scripture', {name: 'Reading'}], ['lowerthird', {name: 'Reader', c: {title: 'Scripture Reading', text: ''}}]]},
   {id: 'lib-memory-verse', cat: 'scripture', name: 'Memory Verse', layers: [['scripture', {name: 'Memory Verse'}], ['announcement', {name: 'Memory Verse', c: {title: 'Memory Verse', text: '', pos: 'top', w: 40, scale: 0.8}}]]},
-  {id: 'lib-thanks', cat: 'closing', name: 'Thank You', layers: [['announcement', {name: 'Thank You', c: {title: 'Thank You', text: 'Thank you for joining us. God bless you this week.'}}]]},
-  {id: 'lib-next', cat: 'closing', name: 'Next Meeting', layers: [['announcement', {name: 'Next Meeting', c: {title: 'Next Meeting', text: 'Join us next week at the same time.'}}]]},
+  {id: 'lib-thanks', cat: 'closing', name: 'Thank You', layers: [['announcement', {name: 'Thank You', c: {title: 'Thank You', text: 'Thank you for joining us. God bless you.'}}]]},
+  {id: 'lib-next', cat: 'closing', name: 'Next Meeting', layers: [['announcement', {name: 'Next Meeting', c: {title: 'Next Meeting', text: 'Join us next time.'}}]]},
   {id: 'lib-benediction', cat: 'closing', name: 'Benediction', layers: [['scripture', {name: 'Benediction', c: {ref: 'Numbers 6:24–26', version: 'ESV', text: BENEDICTION}}]]}
 ];
 /* v6.1 Quick Start: one click makes a ready-to-run set of scenes */
@@ -501,7 +501,9 @@ var QUICK_START = [
   {id: 'youth', name: 'Youth Gathering', icon: 'flame', text: 'A countdown, welcome, Scripture, a discussion question and what’s next.',
    scenes: [['lib-welcome-countdown'], ['lib-welcome'], ['lib-focus-verse', 'Scripture'], ['lib-question', 'Discussion'], ['lib-prayer-close', 'Prayer'], ['lib-next']]},
   {id: 'fellowship', name: 'Fellowship Meeting', icon: 'users', text: 'Welcome, birthdays, announcements, a verse, prayer and goodbye.',
-   scenes: [['lib-welcome'], ['@birthday', 'Celebrations'], ['@announcement', 'Announcements'], ['lib-focus-verse', 'Scripture'], ['lib-prayer-close'], ['lib-thanks']]}
+   scenes: [['lib-welcome'], ['@birthday', 'Celebrations'], ['@announcement', 'Announcements'], ['lib-focus-verse', 'Scripture'], ['lib-prayer-close'], ['lib-thanks']]},
+  {id: 'service', name: 'Church Service', icon: 'church', text: 'A countdown, welcome, announcements, the reading, the message and a blessing.',   /* 9.5 */
+   scenes: [['lib-welcome-countdown'], ['lib-welcome'], ['@announcement', 'Announcements'], ['lib-reading'], ['@announcement', 'Message'], ['lib-benediction'], ['lib-thanks']]}
 ];
 function mediaToComp(l){
   var o = JSON.parse(JSON.stringify(l.c || {}));
@@ -847,7 +849,7 @@ var Scenes = {
     var f = Scenes.itemById(n, 'question', itemId, true); if (!f) return false;
     var it = f.item, l = f.layer;
     n.question.text = it.text; n.question.itemId = it.id; l.c.itemId = it.id;
-    n.question.label = it.label || l.c.label || 'Discussion Question';
+    n.question.label = it.label || l.c.label || 'Question';
     return true;
   },
   _loadVerse: function(n, l){
@@ -855,7 +857,7 @@ var Scenes = {
     for (var i = 0; i < a.length; i++) if (a[i].id === l.c.itemId) it = a[i];
     it = it || a[0];
     if (it){ n.verse.text = it.text; n.verse.ref = it.ref; n.verse.version = it.version; n.verse.itemId = it.id; l.c.itemId = it.id;
-      n.verse.label = it.label || l.c.label || 'Focus Verse'; return String(it.text || '').trim() !== ''; }
+      n.verse.label = it.label || l.c.label || 'Scripture'; return String(it.text || '').trim() !== ''; }
     return false;
   },
   /* the item a Frame's Question Content shows when the Frame goes live: the one it was on, else its first */

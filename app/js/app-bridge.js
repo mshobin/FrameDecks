@@ -54,7 +54,7 @@ function pickFolder(){
     return p && p.trim();
   });
 }
-function importDialog(candidates, firstRun){
+function importDialog(candidates, firstRun){   // firstRun: before 9.5 (the Welcome flow has taken that place)
   var list = h('div', {cls: 'app-cands'});
   if (candidates.length){
     candidates.forEach(function(c){
@@ -71,7 +71,7 @@ function importDialog(candidates, firstRun){
     list
   ], [
     {text: fresh ? 'Import from a folder…' : 'Choose a folder…', cls: fresh ? 'quiet' : '', onclick: function(){ pickFolder().then(function(f){ if (f) doImport(f, closeFn); }); return false; }},
-    {text: firstRun ? 'Start fresh' : 'Cancel', cls: fresh ? 'primary' : 'quiet', onclick: function(){ if (firstRun){ post('skip-import'); if (window.KCGuide) window.KCGuide.start(info, true); } }}
+    {text: firstRun ? 'Start fresh' : 'Cancel', cls: fresh ? 'primary' : 'quiet', onclick: function(){ if (firstRun) post('skip-import'); }}
   ]);
 }
 
@@ -231,10 +231,10 @@ if (window.matchMedia) try { matchMedia('(prefers-color-scheme: light)').addEven
 document.documentElement.classList.toggle('kc-native', appShell);
 document.addEventListener('kc-app-info', function(){ document.documentElement.classList.toggle('kc-native', isNative()); syncTitleBar(); });
 
-refresh().then(function(d){
-  if (d.migration.needed) importDialog(d.migration.candidates, true);
-  else if (window.KCGuide) window.KCGuide.start(d, false);      // 6.14 Setup guide (guide.js)
-});
+/* 9.5 at start: the Welcome flow for anyone on this PC who has not finished it (js/onboarding.js). It replaces the
+ * first-run dialog and the Setup guide that opened by itself; bringing in an earlier version's data is on its last
+ * page (and in Settings → Data), the Setup guide in Settings → About. */
+refresh().then(function(d){ if (window.KCOnboarding) window.KCOnboarding.start(d); });
 setInterval(function(){ var s = $('sec-data'); if (s && !s.hidden) refresh(); }, 15000);
 window.KCAppRefresh = refresh;
 })();

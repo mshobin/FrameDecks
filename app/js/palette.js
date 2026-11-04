@@ -74,6 +74,7 @@ function commands(){
     ['knock', 'Remove the logo background', 'transparent png', function(){ if (window.KCBrandSettings) window.KCBrandSettings.removeBackground(); }],
     ['camera', 'Camera background (blur, image)', 'framedecks blur background', function(){ settings('vcam'); }],
     ['shortcuts', 'Keyboard shortcuts', 'keys palette', function(){ settings('keys'); }],
+    ['welcome', 'Welcome tour (Frames, Decks, Content)', 'welcome onboarding intro tour frames decks content', function(){ if (window.KCOnboarding) window.KCOnboarding.open(); }],
     ['guide', 'Setup guide (guided tour)', 'help start tour onboarding first steps', function(){ if (window.KCGuide) window.KCGuide.open(); }]];
   if (window.KCTheme){
     var t = window.KCTheme.get();

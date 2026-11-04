@@ -32,14 +32,12 @@ async def capture(url, chromium):
         pg = await b.new_page(viewport={"width": 1180, "height": 900}, device_scale_factor=2, reduced_motion="reduce")
         await pg.goto(url)
         await pg.wait_for_timeout(1500)
-        first_run = pg.get_by_role("button", name="Start fresh")
-        if await first_run.count():
-            await first_run.click()
-            await pg.locator(".app-modal-back").wait_for(state="detached")
+        await pg.evaluate("window.KCOnboarding && window.KCOnboarding.close()")   # 9.5 the Welcome flow
+        await pg.wait_for_timeout(600)
         await pg.evaluate("KCSetTab('settings'); KCShowSection('about')")
         await pg.wait_for_timeout(1500)
         # nothing may sit over the About screen: the Setup guide, a toast, a dialog (8.0.0's header caught the guide)
-        await pg.evaluate("document.querySelectorAll('.gd-panel, .gd-spot, .gd-tip, .app-modal-back, .toast').forEach(e => e.remove())")
+        await pg.evaluate("document.querySelectorAll('.gd-panel, .gd-spot, .gd-tip, .app-modal-back, .onb, .toast').forEach(e => e.remove())")
         await pg.wait_for_timeout(200)
         hero = pg.locator("#about-body .kc-hero")
         await hero.screenshot(path=str(PNG), animations="disabled", omit_background=True)

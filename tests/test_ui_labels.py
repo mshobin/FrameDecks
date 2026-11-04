@@ -19,12 +19,13 @@ class FirstRun(unittest.TestCase):
         self.assertIn("row.querySelector('.btn.primary') || row.querySelector('.btn')", js)   # focus lands on it
         self.assertNotIn("Welcome! Bring in", js)
 
-    def test_the_setup_guide_follows_the_first_run_choice_and_never_blocks(self):
-        # 6.14: the Setup guide (js/guide.js) replaced the Getting started card
+    def test_the_setup_guide_is_on_request_and_never_blocks(self):
+        # 6.14: the Setup guide (js/guide.js) replaced the Getting started card; 9.5: the Welcome flow
+        # (js/onboarding.js) opens at start instead, and the guide waits in Settings → About and the palette
         bridge = read("js/app-bridge.js")
         self.assertNotIn("gettingStarted", bridge)
-        self.assertIn("window.KCGuide.start(info, true)", bridge)          # Start fresh opens it
-        self.assertIn("window.KCGuide.start(d, false)", bridge)            # every start: open if not finished
+        self.assertNotIn("KCGuide.start(", bridge)
+        self.assertIn("window.KCOnboarding.start(d)", bridge)
         guide = read("js/guide.js")
         self.assertNotIn("app-modal", guide)                               # a side panel, never a modal
         self.assertIn("aside", guide)

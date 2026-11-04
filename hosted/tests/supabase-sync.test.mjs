@@ -47,7 +47,7 @@ const memberRun = (sql, params) => as(MEMBER, sql, params);
 
 before(async () => {
   ({ db, as, denied } = await supabaseStandIn({ [OWNER]: "owner@church.org", [MEMBER]: "member@church.org", [OTHER]: "x@else.org" }));
-  org = (await as(OWNER, "insert into organizations(name, created_by) values ('BSF Study', $1) returning id", [OWNER])).rows[0].id;
+  org = (await as(OWNER, "insert into organizations(name, created_by) values ('Evening Study', $1) returning id", [OWNER])).rows[0].id;
   otherOrg = (await as(OTHER, "insert into organizations(name, created_by) values ('Elsewhere', $1) returning id", [OTHER])).rows[0].id;
   await as(OWNER, "insert into memberships(organization_id, user_id, role) values ($1, $2, 'member')", [org, MEMBER]);
 });
@@ -74,7 +74,7 @@ test("linking: the PC sends only its key's hash, an admin approves the code, the
   await db.exec("set role anon");
   try {
     const answer = (await db.query("select computer_link_poll($1) as r", [pcKey])).rows[0].r;
-    assert.deepEqual(answer, { status: "approved", computerId: pcId, organizationId: org, organizationName: "BSF Study" });
+    assert.deepEqual(answer, { status: "approved", computerId: pcId, organizationId: org, organizationName: "Evening Study" });
     assert.equal((await db.query("select computer_link_poll($1) as r", [pcKey])).rows[0].r.status, "unknown");
   } finally {
     await db.exec("reset role");

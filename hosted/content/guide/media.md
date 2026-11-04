@@ -26,22 +26,22 @@ Media Content is part of the **FrameDecks picture**: the finished 16:9 image tha
 
 | Content | What it shows | Where you add it |
 | --- | --- | --- |
-| **Image** | A picture (photo, graphic, announcement slide) | + Content → Image |
-| **Video** | A video file, playing in the picture | + Content → Video |
-| **PowerPoint** | A .pptx (or PDF) as still slides you step through | + Content → PowerPoint |
-| **Window** | A live window on your PC, such as a running PowerPoint slide show | + Content → Free Content → Window |
-| **Screen** | A whole display | + Content → Free Content → Screen share |
-| **Camera** | Your webcam | + Content → Free Content → Camera |
-| **Background** | A full-screen background behind everything | + Content → Free Content → Background |
-| **Logo / Watermark** | Your logo in a corner | + Content → Free Content |
-| **Shape / free text** | A rectangle, ellipse or simple text on the picture | + Content → Free Content |
+| **Image** | A picture (photo, graphic, announcement slide) | + Deck → Image |
+| **Video** | A video file, playing in the picture | + Deck → Video |
+| **PowerPoint** | A .pptx (or PDF) as still slides you step through | + Deck → PowerPoint |
+| **Window** | A live window on your PC, such as a running PowerPoint slide show | + Deck → Free Content → Window |
+| **Screen** | A whole display | + Deck → Free Content → Screen share |
+| **Camera** | Your webcam | + Deck → Free Content → Camera |
+| **Background** | A full-screen background behind everything | + Deck → Free Content → Background |
+| **Logo / Watermark** | Your logo in a corner | + Deck → Free Content |
+| **Shape / free text** | A rectangle, ellipse or simple text on the picture | + Deck → Free Content |
 
 > **Note:** FrameDecks does not carry sound. Audio from your microphone (and from a video you play) reaches Zoom or Teams through your normal audio settings. See [Troubleshooting](troubleshooting.md#audio).
 
 ## Adding media to a Frame
 
 1. Select the Frame in the **Frames** list.
-2. Select **+ Content** and choose the type.
+2. Select **+ Deck** and choose the type.
 3. Choose the file. FrameDecks keeps its own copy in the data folder (`%APPDATA%\FRAMEDECKS\layers\`), so the Frame keeps working if the original file is moved or deleted.
 4. Set it up in **Content Settings → Media**: the file, position (Centre X / Y), size (Width / Height) and **Opacity**.
 5. When the Frame is live and the FrameDecks vCam is on, you can also **drag** the Content on the Studio Canvas and resize it with its handles. Turn on **Snap to guides** for neat alignment.
@@ -58,7 +58,7 @@ Your organisation's own logo and Meeting Name are set once in **Settings → Mee
 
 ## Videos
 
-1. **+ Content → Video**, then choose the file.
+1. **+ Deck → Video**, then choose the file.
 2. Set its position and size in **Content Settings → Media**, or drag it on the canvas.
 3. The video plays while its Frame is live.
 
@@ -70,7 +70,7 @@ FrameDecks offers two ways to show a PowerPoint. Choose the one that fits the de
 
 | | **PowerPoint Content (slides)** | **Live slide show (Window Content)** |
 | --- | --- | --- |
-| How | + Content → **PowerPoint**, choose a .pptx (or a PDF) | Start the slide show in PowerPoint, then + Content → Free Content → **Window** and choose its window |
+| How | + Deck → **PowerPoint**, choose a .pptx (or a PDF) | Start the slide show in PowerPoint, then + Deck → Free Content → **Window** and choose its window |
 | Animations and transitions | No (each slide is a still picture) | **Yes**, exactly as in PowerPoint |
 | Embedded videos | No | Yes |
 | Needs PowerPoint on this PC | Yes for .pptx (the PDF route works without it) | Yes |
@@ -79,7 +79,7 @@ FrameDecks offers two ways to show a PowerPoint. Choose the one that fits the de
 
 ### Adding a PowerPoint file
 
-1. **+ Content → PowerPoint**, then choose the **.pptx**.
+1. **+ Deck → PowerPoint**, then choose the **.pptx**.
 2. The PowerPoint installed on this PC saves it as a PDF. This can take a moment for a big deck. FrameDecks gives it up to **3 minutes**, so a stuck PowerPoint never freezes the app.
 3. Set **Start at slide** in **Content Settings → Media** if you want to begin part-way through.
 4. During the service, step through the slides with **Page Down / Page Up**, the slide buttons in the command bar, or the phone.

@@ -36,8 +36,8 @@ const browser = await chromium.launch();
 const studio = await browser.newPage({ viewport: { width: 1440, height: 900 } });
 await studio.goto(`${BASE}/dashboard.html`);
 await studio.waitForTimeout(2200);
-const fresh = studio.getByRole("button", { name: "Start fresh" });
-if (await fresh.count()) await fresh.click();
+await studio.evaluate(() => window.KCOnboarding && window.KCOnboarding.close());     // 9.5 the Welcome flow
+await studio.waitForTimeout(600);
 check(await studio.$("#lb-audience") === null && await studio.$("#mem-pane") !== null, "no Audience Dock; a Memory Cards pane in the Studio");
 if (await studio.$eval("#mem-pane", (e) => e.classList.contains("closed"))) await studio.click("#mem-fold");
 check(await studio.isVisible("#mem-add-text"), "the pane opens");

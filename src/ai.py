@@ -167,7 +167,8 @@ class Service:
         if not st["ok"]:
             raise AiError(st["reason"] or "No AI is available")
         text = "\n\n".join(f"{p['ref']}\n{p['text']}".strip() for p in passages)
-        system = ("You help a church small-group leader prepare a Bible study. You write open discussion questions "
+        system = ("You help a leader prepare a meeting around a Bible passage (a study, a small group, a service or "
+                  "a youth gathering). You write open discussion questions "
                   "that help people observe the text, understand it in context, and apply it. Be faithful to the "
                   "passage, warm, and clear. Never invent verses. Answer only with JSON.")
         prompt = (f"Write {count} discussion questions for this passage. Mix observation, meaning and application; "

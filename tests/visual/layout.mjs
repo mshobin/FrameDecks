@@ -65,19 +65,27 @@ for (const w of [1920, 1440, 1280, 1100]) {
   await p.close();
 }
 
-// 3. First run with nothing found: Start fresh is the focused, main choice (DD-03)
+// 3. First run (9.5): the Welcome flow fills the window, its first page's title has the focus, the window behind waits,
+//    and an earlier version's data is offered on its last page
 {
   const p = await page(1440, 860, async (pg) => {
     await pg.route("**/api/app/info", async (route) => {
       const res = await route.fetch();
       const info = await res.json();
-      info.migration = { needed: true, candidates: [] };
+      info.migration = { needed: true, candidates: [{ folder: "C:\\Users\\Pat\\Desktop\\FrameDecks data", members: 3 }] };
       await route.fulfill({ response: res, json: info });
     });
   });
-  const focused = await p.evaluate(() => ({ text: document.activeElement?.textContent?.trim(), primary: document.activeElement?.classList.contains("primary") }));
-  check(focused.text === "Start fresh" && focused.primary, `first run focuses Start fresh (got "${focused.text}")`);
+  const first = await p.evaluate(() => ({ text: document.activeElement?.textContent?.trim(), open: window.KCOnboarding.isOpen(),
+    behind: document.querySelector(".ws")?.closest("[inert]") !== null, full: (() => { const r = document.getElementById("onb").getBoundingClientRect(); return r.width === innerWidth && r.height === innerHeight; })() }));
+  check(first.open && first.full && first.behind && first.text === "Build your meeting from Frames",
+    `first run: the Welcome flow, full screen, focus on its title, the window behind waits (${JSON.stringify(first)})`);
   await shot(p, "first-run");
+  for (let i = 0; i < 3; i++) { await p.click("#onb-next"); await p.waitForTimeout(400); }
+  check(await p.locator("#onb-import").isVisible(), "its last page offers the earlier version's data");
+  await p.keyboard.press("Escape");
+  check(await p.evaluate(() => window.KCOnboarding.isOpen()), "Escape never closes it by accident (Skip does)");
+  await p.evaluate(() => window.KCOnboarding.close());
   await p.close();
 }
 
@@ -125,7 +133,7 @@ for (const w of [1920, 1440, 1280, 1100]) {
 //    while nothing is on screen; Esc closes Live tools without hiding everything; the bar fits at 1440 px
 {
   const p = await page(1440);
-  await p.evaluate(() => { document.querySelectorAll(".app-modal-back").forEach((m) => m.remove()); window.KCSetTab("studio"); });
+  await p.evaluate(() => { document.querySelectorAll(".app-modal-back").forEach((m) => m.remove()); if (window.KCOnboarding) window.KCOnboarding.close(); window.KCSetTab("studio"); });
   await p.waitForTimeout(600);
   const r = await p.evaluate(() => ({
     modes: !!document.getElementById("mode-switch"),

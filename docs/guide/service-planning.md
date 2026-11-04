@@ -2,7 +2,7 @@
 
 How to plan a service, Bible study or meeting in FrameDecks, from a blank page or from Excel.
 
-**Who this is for:** worship leaders, small-group leaders and whoever prepares the order of service each week.
+**Who this is for:** worship leaders, small-group leaders and whoever prepares the plan for each meeting.
 
 **On this page**
 - [Think in Frames](#think-in-frames)
@@ -23,7 +23,7 @@ How to plan a service, Bible study or meeting in FrameDecks, from a blank page o
 ## Think in Frames
 
 A **Meeting** is your service or meeting. It is made of **Frames**, in order. Each Frame is one moment the
-congregation or group sees, and it holds the **Content** for that moment.
+group or congregation sees, and it holds the **Content** for that moment.
 
 ```mermaid
 flowchart LR
@@ -66,7 +66,7 @@ If you saved a Frame as a template (see [Frames](frames.md#templates)), it appea
 ### 3. From scratch
 1. Select **+ Frame** for each part of the service. Each new Frame is blank and goes after the selected one.
 2. Name each Frame (double-click its name or press **F2**, type, then **Enter**).
-3. Select a Frame, then **+ Content**, and add what it needs. See [Content](content.md).
+3. Select a Frame, then **+ Deck**, and add what it needs. See [Content](content.md).
 
 ## Organize your Frames
 
@@ -288,9 +288,9 @@ send. The file is made on this PC and never uploaded.
 FrameDecks does not have a song library yet. A dedicated song library is on the [roadmap](../ROADMAP.md).
 Today, churches show lyrics in one of two ways:
 
-1. **Text Content:** one Frame per verse or chorus. Add **+ Content → Text**, give it a title (the song name) and
+1. **Text Content:** one Frame per verse or chorus. Add **+ Deck → Text**, give it a title (the song name) and
    type the words. Duplicate the Frame for the next verse and change the words; step through with **Frame ▶**.
-2. **PowerPoint or PDF:** add your existing lyric slides with **+ Content → PowerPoint…** and step through the slides
+2. **PowerPoint or PDF:** add your existing lyric slides with **+ Deck → PowerPoint…** and step through the slides
    with Page Up / Page Down or the phone.
 
 > **Important:** Make sure your church has the right licence to project the songs you use. FrameDecks does not

@@ -1,56 +1,52 @@
-## FrameDecks v9.4.0
+## FrameDecks v9.5.0
 
-Run the whole meeting from your phone. The remote has been redesigned around the live picture: point at it with the
-Spotlight, step through every Frame, Deck and question, play videos and switch meetings, upright or sideways. On the
-PC, the Spotlight now follows your mouse, and the Meeting Workbook plans a meeting the same way the app does. Download
-from **framedecks.com/download**, or let FrameDecks update itself. It installs over 9.3.0 and earlier and keeps all
-your meetings, members, settings, pinned Memory Cards and recordings.
+A warmer first start and a FrameDecks for every kind of gathering. The first time FrameDecks opens on a PC, a
+full-screen welcome shows how a meeting is built, in four short pages. Scripture now comes in the KJV and the World
+English Bible as well as the ESV, with no key needed, and new Frames use neutral words that suit a Bible study, a
+church service or any gathering. Download from **framedecks.com/download**, or let FrameDecks update itself. It
+installs over 9.4.0 and earlier and keeps all your meetings, members, settings, pinned Memory Cards and recordings.
 
 ## What's New
-- **A new phone and tablet remote.** The live picture, what is on screen and **Previous / Next** stay in view, with
-  five tabs under them:
-  - **Show**: the Frame on screen, with its questions, scriptures or slides, its videos, and every Deck with an eye.
-  - **Plan**: the whole meeting, numbered 1 · 1.1 · 1.1.1. Tap any Frame, Deck or question to show it.
-  - **Tools**: Draw, Spotlight, Teleprompter, Freeze, Black screen and Clear drawings.
-  - **Memory**: Capture Memory.
-  - **Meeting**: the meeting's details, Switch meeting, what the PC is doing, and Disconnect.
+- **Welcome to FrameDecks.** The first time FrameDecks opens on a PC, a full-screen welcome walks through four pages:
+  - **Adding Frames:** a Frame is one moment on screen.
+  - **Adding Decks:** a Deck is one block on a Frame.
+  - **Adding Content:** each question or verse in a Deck.
+  - **Finish.**
 
-  Hold the phone upright and the tabs sit at the bottom. Turn it sideways, or use a tablet, and the picture sits on
-  the left with the tabs on the right.
-- **Spotlight from the phone.** Tap **Spotlight** on the live picture, then drag a finger: the spotlight follows it
-  on every screen. Tap once for a quick circle.
-- **The Spotlight follows the mouse on the PC.** With the Spotlight tool chosen, move the pointer over the picture and
-  the spotlight moves with it, live, on FrameDecks vCam and the overlay pages. It fades away when the pointer leaves
-  the picture. Click a word to circle it, as before.
-- **Video controls on the remote.** Play, pause or restart a video that is in the picture.
-- **The Meeting plan in the Meeting Workbook.** The Meeting Form's plan is now one table in the app's own order,
-  Frame > Deck > Content:
-  - Choose a Level from the list. The No. column numbers itself: Frame 1, Decks 1.1 and 1.2, Contents 1.1.1 and
-    1.1.2.
-  - A Frame can have several Decks, and a Deck several questions or verses.
-  - The Dashboard tab is unchanged in purpose: it counts Frames, Decks, questions and scriptures, and its readiness
-    list now also checks that every Deck has a Type.
-- **Import from Excel in Quick Start**, under *Import from a file*, as well as in Settings.
+  Each page has a picture of the Studio that builds itself, and the pages glide from one to the next. On Finish you
+  can start with a ready-made meeting, or bring in data from an earlier version when FrameDecks finds some.
+
+  It appears once on each PC: after a new install, an update or a reinstall, until you choose **Finish** or **Skip**.
+  It never appears on the phone remote. To see it again, open **Settings → About → Welcome tour**.
+
+  It replaces the "Welcome to FrameDecks / Start fresh" box and the Setup guide that opened by itself. The Setup guide
+  is still in **Settings → About**.
+- **KJV and World English Bible.** In a Scripture Deck, **Fetch from** now offers the KJV and the World English
+  Bible beside the ESV. Both are public domain, so they need no key. Like the ESV, every passage is saved on the PC
+  for offline use.
+
+  In the Meeting Workbook, write *KJV* or *WEB* after a reference and the import fills in the text.
+- **Church Service** joins the ready-made meetings in Quick Start: a countdown, welcome, announcements, the reading,
+  the message, a blessing and a thank-you.
 
 ## Enhancements
-- The remote's **Next** button shows the name of the Frame it will put on screen.
-- The remote shows a chip when the screen is black or frozen, or has drawings on it.
-- The remote remembers the tab you used last.
-- Its buttons pause while the PC can't be reached.
-- Upright or sideways, the remote uses the whole screen and never scrolls behind its own buttons.
-- Hand-made Meeting Forms still import. When the Level column is empty, it is worked out from the numbering.
+- The Decks list's button now reads **+ Deck**, so the Studio, the Meeting Workbook and the welcome all say Frame ›
+  Deck › Content.
+- New question and scripture cards are labelled **Question** and **Scripture**. Your saved Frames keep their own
+  labels.
+- Sample questions and closing slides no longer assume a weekly meeting.
+- The example roles in Members are Leader and Host.
+- The AI drafts questions for any meeting around a passage, not only a church small group.
+- Leftover mentions of the program's earlier names were removed from the guides.
 
 ## Fixes
-- With the Spotlight tool chosen, the pointer no longer froze over the picture.
-- In the Studio, screen readers now read the meeting groups in the Frames list correctly.
+- In the Studio's Frames list, screen readers now read the meeting groups correctly.
 
 ## Performance Improvements
-- The spotlight moves on the phone and the PC send only their newest position, one at a time, so a slow network
-  never queues up old movements.
-- Screens only check where the spotlight is while it is on.
+- The welcome's pictures are drawn by the page itself, with no images to download. They move only while the welcome
+  is open, and not at all when Windows asks for reduced motion.
 
 ## Known Issues
 - The installer is not yet code-signed, so Windows SmartScreen may ask you to confirm: **More info → Run anyway**.
-- On iPhone, Safari does not allow vibration, so remote presses are confirmed by a message only.
-- On the phone, the **Paste** button needs the installed web app or https; otherwise long-press the box and choose
-  **Paste**.
+- Fetching the KJV or the World English Bible needs internet the first time. The free service allows about 15
+  passages in 30 seconds, so a very large Meeting Workbook import may ask you to wait a moment and try again.

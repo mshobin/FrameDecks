@@ -42,7 +42,7 @@ import updater   # 7.0: updates from FrameDecks servers (checked, silent, with r
 from media_names import safe_name   # 9.1.2 media file names are never paths
 import memory    # 9.0: Memory Cards in the FrameDecks vCam chat overlay (docs/architecture/memory-cards.md)
 
-APP_VERSION = "9.4.0"
+APP_VERSION = "9.5.0"
 STARTED_AT = time.time()
 FROZEN = getattr(sys, "frozen", False)          # True inside the installed Windows app
 HERE = Path(sys.executable).resolve().parent if FROZEN else Path(__file__).resolve().parent.parent   # the repository root (this file is in src/)
@@ -985,7 +985,8 @@ APP_SETTINGS_DEFAULTS = {"remoteAutostart": False, "importDecided": False,
                          "memLayout": "beside",   # 9.0 on FrameDecks vCam: beside the video, below it, or over it
                          "memSide": "right",      # 9.0 the chat overlay's side (beside / over)
                          "memAuto": True,         # 9.0 a copied card goes into the chat overlay at once
-                         "guide": {}}             # 6.14 Setup guide progress on this PC (app/js/guide.js, _valid_guide)
+                         "guide": {},             # 6.14 Setup guide progress on this PC (app/js/guide.js, _valid_guide)
+                         "onboarding": {}}        # 9.5 the Welcome flow: {done, skipped, at} (app/js/onboarding.js)
 APP_SETTING_CHOICES = {"memLayout": ("beside", "below", "over"), "memSide": ("right", "left"), "minimizeTo": ("ask", "tray", "taskbar"), "memberAuthority": ("cloud", "pc"), "ai": ("auto", "off"),
                        "prompterLook": ("solid", "presenter", "meeting", "conference", "ghost")}
 
@@ -1007,10 +1008,22 @@ def _valid_guide(v):
     return isinstance(done, list) and len(done) <= len(GUIDE_STEPS) and all(d in GUIDE_STEPS for d in done)
 
 
+def _valid_onboarding(v):
+    """9.5 the Welcome flow: {done: bool, skipped: bool, at: seconds}. Kept in kc-app-settings.json, which an update
+    or a reinstall keeps, so it shows once per PC."""
+    if not isinstance(v, dict) or not set(v) <= {"done", "skipped", "at"}:
+        return False
+    if any(k in v and not isinstance(v[k], bool) for k in ("done", "skipped")):
+        return False
+    return "at" not in v or (isinstance(v["at"], (int, float)) and not isinstance(v["at"], bool) and 0 <= v["at"] < 1e11)
+
+
 def _valid_setting(k, v):
     d = APP_SETTINGS_DEFAULTS[k]
     if k == "guide":
         return _valid_guide(v)
+    if k == "onboarding":
+        return _valid_onboarding(v)
     if isinstance(d, bool):
         return isinstance(v, bool)
     if k in APP_SETTING_CHOICES:
@@ -1545,13 +1558,68 @@ def _scr_cache():
         return {}
 
 
+OPEN_BIBLES = {"KJV": "kjv", "WEB": "web"}    # 9.5 public-domain translations, no key needed (bible-api.com)
+OPEN_BIBLE_URL = "https://bible-api.com/"
+
+
+def _scr_save(key, canon, text):
+    with _scr_lock:
+        cache = _scr_cache()
+        cache[key] = {"ref": canon, "text": text, "at": time.time()}
+        if len(cache) > SCRIPTURE_CACHE_MAX:
+            for k in sorted(cache, key=lambda k: cache[k].get("at", 0))[:len(cache) - SCRIPTURE_CACHE_MAX]:
+                cache.pop(k, None)
+        tmp = SCRIPTURE_CACHE.with_suffix(".tmp")
+        tmp.write_text(json.dumps(cache, ensure_ascii=False), encoding="utf-8")
+        os.replace(tmp, SCRIPTURE_CACHE)
+
+
+def _open_bible_lookup(ref, translation, fresh=False):
+    """9.5 the KJV or the World English Bible (both public domain) from bible-api.com; saved for offline use like the ESV."""
+    key = translation + "|" + ref.lower()
+    with _scr_lock:
+        cache = _scr_cache()
+    hit = cache.get(key)
+    if hit and not fresh:
+        hit["at"] = time.time()
+        return {"ref": hit["ref"], "text": hit["text"], "version": translation, "cached": True}
+    from urllib.request import Request, urlopen
+    from urllib.parse import quote
+    url = OPEN_BIBLE_URL + quote(ref) + "?translation=" + OPEN_BIBLES[translation]
+    try:
+        with urlopen(Request(url, headers={"User-Agent": "FRAMEDECKS/" + APP_VERSION}), timeout=8) as r:
+            data = json.loads(r.read().decode("utf-8"))
+    except Exception as e:
+        if hit:
+            return {"ref": hit["ref"], "text": hit["text"], "version": translation, "cached": True, "stale": True}
+        if getattr(e, "code", None) == 404:
+            raise ValueError("That reference wasn’t found. Try e.g. John 3:16, Psalm 23 or Matthew 5:1-12.")
+        if getattr(e, "code", None) == 429:
+            raise ValueError("Too many passages fetched in a short time. Wait half a minute and try again.")
+        raise ValueError("No internet connection, and this passage isn’t saved on this PC yet. Type the text, or try again when online.")
+    verses = data.get("verses") if isinstance(data, dict) else None
+    if isinstance(verses, list) and verses:
+        text = " ".join(re.sub(r"\s+", " ", str(v.get("text") or "")).strip() for v in verses if isinstance(v, dict))
+    else:
+        text = re.sub(r"\s+", " ", str((data or {}).get("text") or "")).strip()
+    text = text.strip()[:20000]
+    if not text:
+        raise ValueError("That reference wasn’t found. Try e.g. John 3:16, Psalm 23 or Matthew 5:1-12.")
+    canon = str(data.get("reference") or ref)[:120]
+    _scr_save(key, canon, text)
+    return {"ref": canon, "text": text, "version": translation, "cached": False}
+
+
 def scripture_lookup(ref, translation="ESV", fresh=False):
     """{ref, text, version, cached, stale?} for a reference such as "Romans 2:28-29"; raises ValueError with a plain message."""
     ref = re.sub(r"\s+", " ", str(ref or "")).strip()[:120]
     if not ref:
         raise ValueError("Type a reference first, for example Romans 2:29.")
+    translation = str(translation or "ESV").upper()
+    if translation in OPEN_BIBLES:
+        return _open_bible_lookup(ref, translation, fresh)
     if translation != "ESV":
-        raise ValueError("Only the ESV can be fetched. For other translations type or paste the text (or plan them in the Meeting Workbook).")
+        raise ValueError("FrameDecks fetches the ESV, KJV and WEB. For other translations type or paste the text (or plan them in the Meeting Workbook).")
     key = "ESV|" + ref.lower()
     with _scr_lock:
         cache = _scr_cache()
@@ -3092,8 +3160,8 @@ def main():
     print("  FrameDecks is running.")
     print()
     print(f"  Dashboard (opens automatically):  {base}/")
-    print(f"  Focus Verse overlay:          {base}/focus-verse.html")
-    print(f"  Discussion Question overlay: {base}/discussion-question.html")
+    print(f"  Scripture overlay:            {base}/focus-verse.html")
+    print(f"  Question overlay:             {base}/discussion-question.html")
     print(f"  Birthday Celebration overlay:     {base}/birthday.html")
     print(f"  All overlays in one page:         {base}/stage.html")
     if port != PREFERRED_PORT:
