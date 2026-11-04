@@ -35,6 +35,7 @@ const ctx = await b.newContext({ viewport: { width: 1280, height: 800 }, acceptD
 await ctx.addInitScript(() => { window.__dark = 1; localStorage.setItem("fd-theme", "dark"); });
 await ctx.addInitScript(() => {
   localStorage.setItem("sb-x-auth-token", JSON.stringify({ access_token: "t", refresh_token: "r", token_type: "bearer", expires_in: 3600, expires_at: 4102444800, user: { id: "u1", email: "a@b.c", aud: "authenticated", role: "authenticated", app_metadata: {}, user_metadata: {} } }));
+  localStorage.setItem("fd-trusted-device", JSON.stringify({ token: "t".repeat(64), id: "d1", name: "This PC", expiresAt: "2027-05-01T00:00:00Z" })); localStorage.setItem("fd-trust-decided", "1");
   localStorage.setItem("fd-consent", JSON.stringify({ version: "2026-10-29", at: Date.now(), essential: true, analytics: false })); if (location.search.includes("dark") || window.__dark) localStorage.setItem("fd-theme", "dark");
 });
 await ctx.route("https://x.supabase.co/**", async (route) => {
@@ -49,6 +50,7 @@ await ctx.route("https://x.supabase.co/**", async (route) => {
     return route.fulfill({ json: { results: body.changes.map(() => ({ status: "ok", rev: 5 })) } });
   }
   if (u.includes("rpc/remote_computers")) return route.fulfill({ json: [] });
+  if (u.includes("rpc/device_check")) return route.fulfill({ json: "trusted" });
   if (u.includes("rpc/meetings_supported")) return route.fulfill({ json: true });
   return route.fulfill({ json: [] });
 });
@@ -73,9 +75,10 @@ async function shot(page, name, spots) {
 const pub = await b.newContext({ viewport: { width: 1280, height: 800 }, reducedMotion: "reduce" });
 await pub.addInitScript(() => { localStorage.setItem("fd-theme", "dark"); });
 const s = await pub.newPage();
-await s.goto("http://127.0.0.1:8931/sign-in"); await s.waitForTimeout(900);
+await s.goto("http://127.0.0.1:8931/sync"); await s.waitForTimeout(900);
 await s.evaluate(() => document.querySelector(".fd-cookie button")?.click()); await s.waitForTimeout(300);
-await shot(s, "web-sign-in", { send: "button:has-text('Email me a sign-in link')" });
+await s.fill("input[type=email]", "you@example.org");
+await shot(s, "web-sign-in", { send: "button:has-text('Email me a link')" });
 await pub.close();
 const p = await ctx.newPage();
 await p.goto("http://127.0.0.1:8931/plan");
@@ -102,6 +105,7 @@ const pcx = await b.newContext({ viewport: { width: 1280, height: 800 }, reduced
 const q = await pcx.newPage();
 await q.goto(PC + "/dashboard.html"); await q.waitForTimeout(2500);
 await q.evaluate(() => window.KCOnboarding && window.KCOnboarding.close());          // 9.5 the Welcome flow
+await q.evaluate(() => { if (!document.querySelector(".gd-panel")) window.KCGuide?.open(); }); await q.waitForTimeout(500);
 await shot(q, "pc-studio", { guide: ".gd-panel", add: "#scene-add", canvas: ".canvas-pane, #canvas-title" });
 await q.evaluate(() => document.querySelector(".gd-panel")?.remove());
 await shot(q, "pc-bar", { transition: ".lb-tx", golive: "#cb-take" });

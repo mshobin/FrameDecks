@@ -42,7 +42,7 @@ import updater   # 7.0: updates from FrameDecks servers (checked, silent, with r
 from media_names import safe_name   # 9.1.2 media file names are never paths
 import memory    # 9.0: Memory Cards in the FrameDecks vCam chat overlay (docs/architecture/memory-cards.md)
 
-APP_VERSION = "9.8.0"
+APP_VERSION = "9.8.1"
 STARTED_AT = time.time()
 FROZEN = getattr(sys, "frozen", False)          # True inside the installed Windows app
 HERE = Path(sys.executable).resolve().parent if FROZEN else Path(__file__).resolve().parent.parent   # the repository root (this file is in src/)

@@ -84,7 +84,14 @@ class Desktop(unittest.TestCase):
     def test_spotlight_only_on_its_shortcut_and_the_main_window_maximized(self):
         src = read("src/desktop_app.py")
         self.assertIn("maximized=True", src)
-        self.assertIn("spot.events.shown += spot_shown", src)
+        # 9.8.1: pywebview shows a see-through window whenever its page starts loading, so Spotlight is made only when
+        # first asked for (never at start) and hidden again whenever it shows itself
+        main = src[src.index("def main"):]
+        self.assertNotIn('url + "spotlight.html"', main[:main.index("def spot_window")])
+        body = main[main.index("def spot_window"):main.index("def spotlight(")]
+        self.assertIn("if spot_holder[\"w\"] is None and create:", body)
+        self.assertIn("for ev in (w.events.loaded, w.events.shown):", body)
+        self.assertIn("spot = spot_window(create=True)", main)
         self.assertIn("share_annotate=share_annotate", src)
         self.assertIn("annotator=share_annotator", src)
 

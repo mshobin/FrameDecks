@@ -53,6 +53,25 @@ Versions before 4.9 (when the program had its earlier name) are described in the
 - The favicons, the tray icon and the small program-icon sizes (16–32 px) use a heavier version of the emblem, so it
   stays visible on light browser tabs and a light taskbar. Larger sizes are unchanged.
 
+## [9.8.1] - 2026-11-04
+
+Full notes: [docs/releases/v9.8.1.md](releases/v9.8.1.md).
+
+### Fixed
+- Spotlight no longer opens with the program after installing or on reopening. pywebview shows a `transparent=True`
+  window when its page starts loading, even when created hidden; `src/desktop_app.py` now creates the Spotlight
+  window only on the first shortcut or tray Search (`spot_window(create=True)`) and hides it on `loaded` / `shown`
+  unless it was asked for.
+
+### Changed
+- `docs/legal/security.md` rewritten: an "At a glance" table of protocols and controls (TLS 1.2+, HSTS, OAuth 2.0
+  PKCE S256, JWT with rotating refresh tokens, SHA-256-hashed 256-bit device tokens, pre-request revocation, RLS,
+  AES-256 at rest, AES-256-CBC + PBKDF2 + HMAC-SHA256 backups, Credential Manager, update checks, supply chain) and
+  known limits.
+- Privacy, Terms, Cookies and Vulnerability Disclosure use the 9.8 wording (workspace, one-time link, Trusted
+  Devices); legal version unchanged (2026-10-29). Guides: installation, FAQ and glossary wording.
+- Help screenshots recaptured; `tests/visual/help-shots.mjs` shoots `/sync` as a Trusted Device.
+
 ## [9.8.0] - 2026-11-04
 
 Full notes: [docs/releases/v9.8.0.md](releases/v9.8.0.md). Design and owner steps:

@@ -1,25 +1,28 @@
 # FrameDecks Terms of Service
 
-*Effective 29 October 2026 · Version 2026-10-29*
+*Effective 29 October 2026 · Version 2026-10-29 · Wording updated 4 November 2026 (passwordless workspace; no change to what you agreed)*
 
-These Terms cover your use of the FrameDecks website at framedecks.com, your FrameDecks account and workspaces, and
-the online services the FrameDecks program uses (sign-in, workspace sync, phone control from anywhere, and updates)
+These Terms cover your use of the FrameDecks website at framedecks.com, your FrameDecks workspaces, and the online
+services the FrameDecks program uses (opening your workspace with one-time links, Trusted Devices, workspace sync,
+phone control from anywhere, and updates)
 (together, the "Service"). The Service is provided by **Shobin Mathews** ("we", "us"). The desktop program itself is
-covered by the End User License Agreement. By creating an account or using the Service you accept these Terms and the
+covered by the End User License Agreement. By saving a workspace or using the Service you accept these Terms and the
 Privacy Policy.
 
-## 1. Your account
+## 1. You and your email address
 
-- You must be at least 16 years old, or the age of digital consent where you live, to create an account.
-- Give a working email address and keep your sign-in secure. You are responsible for what happens under your account.
-- One account is for one person. Do not share it.
+- You must be at least 16 years old, or the age of digital consent where you live, to use a workspace.
+- Give a working email address and keep it secure: one-time links that open your workspace are sent there. Trust only
+  devices you use yourself, and remove any device you lose in Manage Devices. You are responsible for what happens
+  through your email address and your Trusted Devices.
+- Your email address and Trusted Devices are for one person. Do not share them.
 
 ## 2. Workspaces
 
 - A workspace belongs to the organisation or group it is for. The person who creates it is its first owner.
 - Owners and admins decide who joins, what role they have, and which computers are linked. Owners are responsible for
   having permission to keep the personal data of the people listed in their workspace (for example, a member list).
-- A workspace must always have an owner. Before you leave or delete your account, make someone else an owner.
+- A workspace must always have an owner. Before you leave or delete your data, make someone else an owner.
 
 ## 3. Your content
 
@@ -43,8 +46,8 @@ stop something you rely on, we will try to give 30 days' notice and a way to exp
 
 ## 6. Ending
 
-You can delete your account at any time from **Your account → Delete my account**. We may suspend or close an account
-that breaks these Terms. When an account ends, its data is deleted as the Privacy Policy describes.
+You can delete your data at any time from **Your workspace → Delete my data**. We may suspend access that breaks these
+Terms. When your data is deleted, it goes as the Privacy Policy describes.
 
 ## 7. No warranty, and limits
 

@@ -31,13 +31,13 @@ administrator.
 | **Internet** | Not needed to run a meeting. Needed only to fetch ESV scripture text, to install WebView2, and for your video-call app itself |
 | **Network** | Only for the phone remote: the PC and phone on the same Wi-Fi |
 
-> **Note:** FrameDecks runs entirely on one PC. An account is needed only to plan together on framedecks.com.
+> **Note:** FrameDecks runs entirely on one PC. A workspace on framedecks.com (opened with an emailed link, no password) is needed only to plan together.
 
 ## Get the installer
 
 Download FrameDecks from **[framedecks.com/download](https://framedecks.com/download)**. The page picks the right
 download for your computer and always offers the latest version. The installer is a single file named
-**FrameDecks-9.8.0-Setup.exe** (the number is the version).
+**FrameDecks-9.8.1-Setup.exe** (the number is the version).
 
 ## Check the download (optional)
 

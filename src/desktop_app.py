@@ -439,7 +439,7 @@ def main():
         server.install_on_exit()         # 7.0: "Update when I close FrameDecks" starts its install now
         threading.Timer(5.0, lambda: os._exit(0)).start()
         for close in (lambda: present(False), lambda: teleprompter(False),
-                      lambda: spot.destroy(), lambda: window.destroy()):
+                      lambda: spot_window() and spot_window().destroy(), lambda: window.destroy()):
             try:
                 close()
             except Exception as _e:
@@ -653,36 +653,55 @@ def main():
     def popup_state():
         return {"desktop": True, "open": bool(POP["open"] and POP["win"] is not None)}
 
-    # ---------- 6.8 Spotlight: one small window, made at start-up and only shown and hidden (instant) ----------
-    spot = webview.create_window(DISPLAY_NAME + " · Spotlight", url + "spotlight.html", width=820, height=620,
-                                 background_color="#0f172b", frameless=True, easy_drag=False, hidden=True,
-                                 on_top=True, text_select=False, transparent=True)     # 9.6 Windows' frosted glass behind it
+    # ---------- 6.8 Spotlight: one small window, shown and hidden ----------
+    # 9.8.1: made the first time it is asked for (the shortcut or the tray's Search), never at start. pywebview shows a
+    # see-through window by itself whenever its page starts loading (edgechromium on_navigation_start: Show + Activate,
+    # whatever "hidden" says), so a Spotlight made at start-up popped up over the welcome after an install.
+    spot_holder = {"w": None}
+    spot_lock = threading.Lock()
     state["spot_ready"] = False
 
-    def spot_shown():
-        """9.7 Spotlight appears only from its shortcut (or the tray's Search): never by itself at start, after an
-        install or when FrameDecks is opened again."""
-        if not state.get("spot_open"):
+    def spot_settle():
+        """Whenever the page has (re)loaded or the window showed itself: hidden unless the shortcut opened it."""
+        w = spot_holder["w"]
+        if w is not None and not state.get("spot_open"):
             try:
-                spot.hide()
+                w.hide()
             except Exception as _e:
-                _swallowed("desktop_app.spot_shown", _e)
-    try:
-        spot.events.shown += spot_shown
-    except Exception as _e:
-        _swallowed("desktop_app.main", _e)
+                _swallowed("desktop_app.spot_settle", _e)
+
+    def spot_window(create=False):
+        with spot_lock:
+            if spot_holder["w"] is None and create:
+                w = webview.create_window(DISPLAY_NAME + " · Spotlight", url + "spotlight.html", width=820, height=620,
+                                          background_color="#0f172b", frameless=True, easy_drag=False, hidden=True,
+                                          on_top=True, text_select=False, transparent=True)   # 9.6 Windows' frosted glass behind it
+                for ev in (w.events.loaded, w.events.shown):
+                    try:
+                        ev += spot_settle
+                    except Exception as _e:
+                        _swallowed("desktop_app.spot_window", _e)
+                spot_holder["w"] = w
+                try:
+                    w.events.loaded.wait(8)          # the page is ready before it is shown the first time
+                except Exception as _e:
+                    _swallowed("desktop_app.spot_window", _e)
+            return spot_holder["w"]
 
     def spotlight(on=True):
-        hwnd = window_handle(spot)
         if on == "toggle":
             on = not state.get("spot_open")
         if not on:
             state["spot_open"] = False
-            try:
-                spot.hide()
-            except Exception as _e:
-                _swallowed("desktop_app.spotlight", _e)
+            spot = spot_window()
+            if spot is not None:
+                try:
+                    spot.hide()
+                except Exception as _e:
+                    _swallowed("desktop_app.spotlight", _e)
             return
+        spot = spot_window(create=True)
+        hwnd = window_handle(spot)
         if not state["spot_ready"]:
             dw.round_corners(hwnd)
             state["spot_glass"] = bool(dw.glass(hwnd, True))       # 9.6 drawn by Windows, so it costs FrameDecks nothing
@@ -727,7 +746,7 @@ def main():
 
     # ---------- 6.8 the page's window buttons and ribbon ----------
     def win(name, op, data):
-        w = {"main": window, "teleprompter": state.get("teleprompter"), "spotlight": spot}.get(name)
+        w = {"main": window, "teleprompter": state.get("teleprompter"), "spotlight": spot_window()}.get(name)
         if w is None:
             return {"ok": False}
         hwnd = window_handle(w)

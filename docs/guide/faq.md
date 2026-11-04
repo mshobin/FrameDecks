@@ -191,8 +191,8 @@ Install FrameDecks on the new PC. On first run, the last page of **Welcome to Fr
 ## Cost and licensing
 
 **Is there a subscription?**
-No. FrameDecks is free: no subscription, billing or per-seat fees. An account is needed only to plan together on
-framedecks.com. Paid team and cloud features may come later; what is free stays free.
+No. FrameDecks is free: no subscription, billing or per-seat fees. A workspace on framedecks.com, opened with an emailed
+link, is needed only to plan together. Paid team and cloud features may come later; what is free stays free.
 
 **What licence is it under?**
 FrameDecks is proprietary software, free to use under the [End User License Agreement](https://framedecks.com/eula).
