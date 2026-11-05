@@ -53,6 +53,20 @@ Versions before 4.9 (when the program had its earlier name) are described in the
 - The favicons, the tray icon and the small program-icon sizes (16–32 px) use a heavier version of the emblem, so it
   stays visible on light browser tabs and a light taskbar. Larger sizes are unchanged.
 
+## [9.12.1] - 2026-11-05
+
+Full notes: [docs/releases/v9.12.1.md](releases/v9.12.1.md).
+
+### Changed
+- Spotlight on demand: the Spotlight tool no longer drives the follow lens (`api/pointer`) in the Studio
+  (`annotate.js`) or on the Share Window (`present.html`, `vcam/present_window.py`). A double-click (Studio, both
+  Share Windows: WM_LBUTTONDBLCLK) or Ctrl twice lights the word there; one click does nothing. The Share Window asks
+  the main window for the word (`spot: snap` → `DESKTOP.spot_word` → `KCAnnotate.spotAtPicture`, `wordAtStage`) and
+  lights the point when there is none. The phone remote's finger lens is unchanged.
+- The soft disc's exit: `disc-bloom` (a breath in, then open to 1.5x and fade), `disc-wave-out` (a last ripple), and
+  fine sparks (`overlay.js`); the same bloom and ripple on FrameDecks vCam (`vcam/spotlight.py`, DISC_OUT 0.8 s).
+  Reduced motion: no animation.
+
 ## [9.12.0] - 2026-11-05
 
 Full notes: [docs/releases/v9.12.0.md](releases/v9.12.0.md).

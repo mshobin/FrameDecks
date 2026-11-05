@@ -25,7 +25,7 @@ var live = null;
 var TOOL = {t: 'pen', c: '#e8b931', w: 0.005};
 var TOOLS = [['pen', 'pencil', 'Pen (P)'], ['highlighter', 'highlighter', 'Highlighter (H)'], ['arrow', 'move-up-right', 'Arrow (A)'], ['line', 'minus', 'Line (L)'],
   ['rect', 'square', 'Rectangle (R)'], ['ellipse', 'circle', 'Ellipse (E)'], ['text', 'type', 'Text (T)'],
-  ['spot', 'sparkles', 'Spotlight (S): it follows your pointer; click a word to circle it. Or press Ctrl twice']];
+  ['spot', 'sparkles', 'Spotlight (S): double-click a word, or press Ctrl twice over it, to light it up']];
 var COLORS = [['#e8b931', 'Gold'], ['#ff4b4b', 'Red'], ['#34d17c', 'Green'], ['#4c8dff', 'Blue'], ['#ffffff', 'White'], ['#111111', 'Black']];
 
 /* the toolbar, above the canvas, while annotating */
@@ -145,7 +145,11 @@ pad.addEventListener('pointerdown', function(e){
   if (!annotating()) return;
   e.preventDefault(); e.stopPropagation();
   var p = pt(e);
-  if (TOOL.t === 'spot'){ spotAt(e); return; }
+  if (TOOL.t === 'spot'){                                          // 9.12.1 a double-click lights the word; one click does nothing
+    var now = Date.now(), lc = lastClick; lastClick = {t: now, x: e.clientX, y: e.clientY};
+    if (lc && now - lc.t < 450 && Math.abs(e.clientX - lc.x) + Math.abs(e.clientY - lc.y) < 10){ lastClick = null; spotAt(e); }
+    return;
+  }
   if (TOOL.t === 'text'){
     var s = prompt('Text to write on the picture:');
     if (s && s.trim()) ink('add', {t: 'text', c: TOOL.c, w: TOOL.w, s: s.trim().slice(0, 200), p: [p]});
@@ -156,7 +160,7 @@ pad.addEventListener('pointerdown', function(e){
   drawLocal();
 });
 pad.addEventListener('pointermove', function(e){
-  if (TOOL.t === 'spot' && annotating() && !stroke){ var q0 = pt(e); pointer(true, q0[0], q0[1]); return; }
+  if (TOOL.t === 'spot' && !stroke) return;                       // 9.12.1 no lens follows the pointer
   if (!stroke) return;
   var p = pt(e);
   if (stroke.t === 'pen' || stroke.t === 'highlighter'){ var q = stroke.p[stroke.p.length - 1]; if (Math.abs(q[0] - p[0]) + Math.abs(q[1] - p[1]) > 0.002) stroke.p.push(p); }
@@ -173,8 +177,9 @@ pad.addEventListener('pointerup', endStroke);
 pad.addEventListener('pointercancel', endStroke);
 pad.addEventListener('pointerleave', function(){ pointer(false); });
 
-/* ---------- 9.4 the follow Spotlight: while the Spotlight tool is on, a lens follows the pointer on every picture,
-   in real time (api/pointer, not the saved state). At most one move is on its way at a time; the newest wins. ---------- */
+var lastClick = null;
+/* ---------- 9.4 the follow lens (api/pointer). 9.12.1: the Spotlight tool no longer drives it (the phone remote's finger
+   still does); pointer(false) only clears a lens left on by an older version. ---------- */
 var ptr = {busy: false, want: null, on: false};
 function pointer(on, x, y){
   if (!ptr || (!on && !ptr.on && !ptr.want)) return;          // (renderBar runs once before ptr exists)
@@ -200,10 +205,17 @@ function pictureRect(){
 function wordAt(cx, cy){
   var fr = $('program-frame'), prog = $('program');
   if (!fr || !prog || prog.hidden) return null;
+  var r = fr.getBoundingClientRect(), sc = r.width / 1920;
+  if (!sc) return null;
+  return wordAtStage((cx - r.left) / sc, (cy - r.top) / sc);
+}
+/* the word at a point of the 1920 x 1080 overlay page (9.12.1: also for a double-click on the Share Window) */
+function wordAtStage(x, y){
+  var fr = $('program-frame'), prog = $('program');
+  if (!fr || !prog || prog.hidden) return null;
   try {
-    var r = fr.getBoundingClientRect(), sc = r.width / 1920, doc = fr.contentDocument;
-    if (!doc || !sc) return null;
-    var x = (cx - r.left) / sc, y = (cy - r.top) / sc;
+    var doc = fr.contentDocument;
+    if (!doc) return null;
     // the cards ignore the pointer (pointer-events: none), so look through the text of whatever box is under it
     var best = null, walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_TEXT, {acceptNode: function(n){
       var el = n.parentElement; if (!el || !n.textContent.trim()) return NodeFilter.FILTER_REJECT;
@@ -242,6 +254,16 @@ function spotAt(e){
   if (spot.x < 0 || spot.x > 1 || spot.y < 0 || spot.y > 1) return;
   commit(function(n){ n.live.spot = SC.cleanSpot(spot); });
 }
+/* 9.12.1 the Share Window's double-click or Ctrl twice (desktop_app spot_word): the word at that point of the picture,
+   lit with this PC's Spotlight look; false when there is no picture to read (the server then lights the point) */
+window.KCAnnotate = {spotAtPicture: function(fx, fy){
+  fx = Math.max(0, Math.min(1, +fx || 0)); fy = Math.max(0, Math.min(1, +fy || 0));
+  var wd = wordAtStage(fx * 1920, fy * 1080);
+  var spot = {id: 's' + Date.now().toString(36), x: wd ? wd.x : fx, y: wd ? wd.y : fy, w: wd ? wd.w : 0, h: wd ? wd.h : 0,
+    c: SPOT.c, size: SPOT.size, dur: SPOT.dur, k: SPOT.k, style: SPOT.style};
+  commit(function(n){ n.live.spot = SC.cleanSpot(spot); });
+  return true;
+}};
 /* Ctrl twice quickly, with the pointer over the canvas: Spotlight there */
 var ctrlAt = 0, ctrlClean = true;
 document.addEventListener('keydown', function(e){ if (e.key !== 'Control') ctrlClean = false; else if (!e.repeat) ctrlClean = true; }, true);

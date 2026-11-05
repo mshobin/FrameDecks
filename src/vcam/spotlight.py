@@ -12,7 +12,7 @@ import cv2
 import numpy as np
 
 IN, OUT = 0.42, 0.9
-DISC_IN, DISC_OUT, WAVE = 0.5, 0.55, (0.12, 0.9)     # 8.6 the soft disc: lands, ripples once, breathes, closes
+DISC_IN, DISC_OUT, WAVE = 0.5, 0.8, (0.12, 0.9)      # 8.6 the soft disc: lands, ripples once, breathes; 9.12.1 blooms out
 
 
 def _bgr(c):
@@ -111,12 +111,18 @@ class Spotlight:
             scale, alpha = 0.2 + 0.8 * _back_out(t), min(1.0, t * 1.8)
         elif el < dur:
             scale, alpha = 1 + 0.04 * (0.5 - 0.5 * math.cos((el - DISC_IN) / 2.4 * 2 * math.pi)), 1.0
-        else:
+        else:                                   # 9.12.1 the exit (overlay.css disc-bloom): a breath in, then open into light
             e = (el - dur) / DISC_OUT
-            scale, alpha = 1 - 0.45 * e * e, max(0.0, 1 - e)
+            if e < 0.22:
+                scale, alpha = 1 - 0.1 * (e / 0.22), 1.0
+            else:
+                f = (e - 0.22) / 0.78
+                scale, alpha = 0.9 + 0.6 * (1 - (1 - f) ** 3), max(0.0, 1 - f)
         wave = 0.0
         if WAVE[0] <= el <= WAVE[1]:
             wave = (el - WAVE[0]) / (WAVE[1] - WAVE[0])
+        elif el >= dur:                         # and a last ripple runs out
+            wave = min(1.0, (el - dur) / DISC_OUT)
         return self._paint_disc(frame, spot, r, cx, cy, scale, alpha, wave)
 
     @staticmethod

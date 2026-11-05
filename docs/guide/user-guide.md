@@ -145,8 +145,9 @@ A Question (or Scripture) Content holds **its own list**, shown full height in C
   - **Eraser** or **Undo** (Ctrl+Z), **Redo** (Ctrl+Y), **Clear**.
   - The drawings appear above everything: slides, PowerPoint, cards. Everyone sees them in Zoom or Teams. **Esc**
     hides them.
-  - **Spotlight** (S, or press **Ctrl** twice quickly over the picture): click a word and a glowing circle grows
-    around it, pulses, then opens out with a few sparks and fades. Click empty space to spotlight a point. Its panel
+  - **Spotlight** (S): double-click a word, or press **Ctrl** twice quickly with the mouse over it, and the light
+    lands on it, breathes, then blooms open with a last ripple and a few sparks and fades. Nothing follows the mouse
+    in between (9.12.1). Double-click empty space to spotlight a point. Its panel
     sets the colour, **Size**, **Length** (1–15 s) and **Strength**, with **Try it**. It shows on FrameDecks vCam (Zoom,
     Teams), recordings and the overlay pages.
 - **Freeze (F)** holds the picture while you get the next thing ready. You can still draw on it.

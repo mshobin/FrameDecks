@@ -171,10 +171,10 @@ You can also draw with your finger on the phone. See [Remote control](remote-con
 
 ### Spotlight a word
 
-**Spotlight** points people to one word. Choose the Spotlight tool (**S**) and move the pointer over the picture: since
-9.4 the spotlight **follows the pointer** in real time on every screen, and fades away when the pointer leaves the
-picture. Click a word to circle it for a few seconds. Since 8.7
-a soft see-through disc lands on it with a ripple, breathes gently while it stays, then closes softly. Click empty
+**Spotlight** points people to one word. Choose the Spotlight tool (**S**): nothing follows the mouse (9.12.1), so
+you can move freely. **Double-click a word**, or put the mouse over it and press **Ctrl twice**, and a soft
+see-through disc lands on it with a ripple and breathes gently while it stays. Then it blooms open into light, a last
+ripple runs out and a few fine sparks drift away. Do it again on the next word whenever you like. Double-click empty
 space to spotlight that point instead. Prefer the 8.2 look? Choose **Gold ring**: a glowing gold circle that pulses,
 then opens out with a few sparks.
 
@@ -431,7 +431,8 @@ sees:
 
 - **Draw:** drag with the mouse. Keys **1**–**5** choose pen, highlighter, arrow, box or circle; **G**, **R** and **W**
   choose gold, red or white; **Ctrl+Z** undoes, **Delete** clears.
-- **Spotlight:** the spotlight follows the mouse on every screen; a click circles that spot for a few seconds.
+- **Spotlight:** double-click a word (or press **Ctrl** twice with the mouse over it) and it lights up for a few
+  seconds on every screen, then blooms away. Nothing follows the mouse in between.
 - **Undo**, **Clear** and **Done** appear when you move the mouse near the top of the Share Window. **Esc** or
   **Done** finishes, hides the drawings, and the Share Window moves and resizes as before.
 

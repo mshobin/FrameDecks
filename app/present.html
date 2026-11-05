@@ -102,7 +102,7 @@
   document.addEventListener('dblclick', function(){ if (!ann.mode) fullscreen(); });
 
   /* ---------- 9.7 Draw and Spotlight on this window (the same rules as the native window: server.annotate_op) ---------- */
-  var ann = {mode: '', tool: 'pen', c: '#e8b931', stroke: null, i: null, last: 0, ptrAt: 0, down: null}, cv = document.getElementById('ink');
+  var ann = {mode: '', tool: 'pen', c: '#e8b931', stroke: null, i: null, last: 0, click: null, at: null, ctrlAt: 0, ctrlClean: true}, cv = document.getElementById('ink');
   function annPost(body){ return fetch('api/app/annotate', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body)}).then(function(r){ return r.json(); }); }
   function pointer(on, p){ fetch('api/pointer', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(on ? {on: true, x: p[0], y: p[1]} : {on: false})}).catch(function(){}); }
   function fit(){                                     // the canvas lies exactly over the 16:9 picture
@@ -136,22 +136,34 @@
   cv.addEventListener('pointerdown', function(e){
     if (!ann.mode) return; e.preventDefault(); try { cv.setPointerCapture(e.pointerId); } catch(err){}
     var p = pt(e);
-    if (ann.mode === 'spot'){ ann.down = {x: e.clientX, y: e.clientY, p: p}; return; }
+    if (ann.mode === 'spot'){                       // 9.12.1 a double-click lights the word there; one click does nothing
+      var c = ann.click, now = Date.now(); ann.click = {t: now, x: e.clientX, y: e.clientY};
+      if (c && now - c.t < 450 && Math.abs(e.clientX - c.x) + Math.abs(e.clientY - c.y) < 10){ ann.click = null; annPost({op: 'spot', x: p[0], y: p[1], snap: true}).catch(function(){}); }
+      return;
+    }
     ann.stroke = {t: ann.tool, c: ann.c, w: 0.006, p: [p, p]}; ann.i = null; drawLocal();
     annPost({op: 'add', item: ann.stroke}).then(function(d){ ann.i = d && d.i; }).catch(function(){});
   });
   cv.addEventListener('pointermove', function(e){
-    if (ann.mode === 'spot'){ if (Date.now() - ann.ptrAt > 30){ ann.ptrAt = Date.now(); pointer(true, pt(e)); } return; }
+    if (ann.mode === 'spot'){ ann.at = pt(e); return; }   // 9.12.1 no lens follows the mouse: only where it is, for Ctrl twice
     if (!ann.stroke) return;
     var p = pt(e); if (ann.stroke.t === 'pen' || ann.stroke.t === 'highlighter') ann.stroke.p.push(p); else ann.stroke.p[1] = p;
     drawLocal();
     if (Date.now() - ann.last > 100){ ann.last = Date.now(); sendStroke(); }
   });
   cv.addEventListener('pointerup', function(e){
-    if (ann.mode === 'spot'){ var d = ann.down; ann.down = null; if (d && Math.abs(e.clientX - d.x) + Math.abs(e.clientY - d.y) < 6) annPost({op: 'spot', x: d.p[0], y: d.p[1]}).catch(function(){}); return; }
+    if (ann.mode === 'spot') return;
     sendStroke(); ann.stroke = null; setTimeout(drawLocal, 400);
   });
-  cv.addEventListener('pointerleave', function(){ if (ann.mode === 'spot') pointer(false); });
+  cv.addEventListener('pointerleave', function(){ ann.at = null; });
+  /* 9.12.1 Ctrl twice with the mouse over the picture: the word there lights up */
+  document.addEventListener('keydown', function(e){ if (e.key !== 'Control') ann.ctrlClean = false; else if (!e.repeat) ann.ctrlClean = true; }, true);
+  document.addEventListener('keyup', function(e){
+    if (ann.mode !== 'spot' || e.key !== 'Control' || !ann.ctrlClean) return;
+    var now = Date.now();
+    if (now - ann.ctrlAt < 450 && ann.at){ ann.ctrlAt = 0; annPost({op: 'spot', x: ann.at[0], y: ann.at[1], snap: true}).catch(function(){}); }
+    else ann.ctrlAt = now;
+  }, true);
   function done(){ annPost({op: 'mode', mode: '', hide: true}).catch(function(){}); KCShareAnnotate(''); }
   document.getElementById('a-undo').addEventListener('click', function(){ annPost({op: 'undo'}).catch(function(){}); });
   document.getElementById('a-clear').addEventListener('click', function(){ annPost({op: 'clear'}).catch(function(){}); });

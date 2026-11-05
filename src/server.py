@@ -44,7 +44,7 @@ from media_names import safe_name   # 9.1.2 media file names are never paths
 import meeting_notes  # 9.12 the leader's private notes (Command Center > Notes)
 import memory    # 9.0: Memory Cards in the FrameDecks vCam chat overlay (docs/architecture/memory-cards.md)
 
-APP_VERSION = "9.12.0"
+APP_VERSION = "9.12.1"
 STARTED_AT = time.time()
 FROZEN = getattr(sys, "frozen", False)          # True inside the installed Windows app
 HERE = Path(sys.executable).resolve().parent if FROZEN else Path(__file__).resolve().parent.parent   # the repository root (this file is in src/)
@@ -618,7 +618,7 @@ def _clean_ink_item(it):
 def annotate_op(d):
     """POST /api/app/annotate (this PC only). {op: 'mode', mode: 'draw'|'spot'|'', tool?, c?, hide?} switches the Share
     Window's tool; {op: 'add', item} / {op: 'set', i, item} (a stroke as it is drawn) / 'undo' / 'clear' change the
-    drawings; {op: 'spot', x, y} a quick circle. Returns the mode and the index of an added stroke."""
+    drawings; {op: 'spot', x, y, snap?} a quick circle (snap: on the word there, 9.12.1). Returns the mode and the index of an added stroke."""
     if not isinstance(d, dict):
         raise ValueError("Invalid data")
     op, out = str(d.get("op") or ""), {}
@@ -647,6 +647,15 @@ def annotate_op(d):
             hook(mode)
         return dict(ANNOTATE)
     if op == "spot":
+        # 9.12.1 a double-click (or Ctrl twice) on the Share Window: the main window finds the word at that point of the
+        # picture and lights it with this PC's Spotlight look; without it (or with no words there) the point is lit
+        hook = DESKTOP.get("spot_word")
+        if d.get("snap") and hook:
+            try:
+                if hook(_num(d.get("x"), 0, 1, 0.5), _num(d.get("y"), 0, 1, 0.5)):
+                    return {"ok": True}
+            except Exception as e:
+                print("Spotlight word:", e)
         spot = {"id": "s%x" % int(time.time() * 1000), "x": _num(d.get("x"), 0, 1, 0.5), "y": _num(d.get("y"), 0, 1, 0.5),
                 "w": 0, "h": 0, "c": ANNOTATE["c"], "size": 1, "dur": 3, "k": 60, "style": "disc"}
 

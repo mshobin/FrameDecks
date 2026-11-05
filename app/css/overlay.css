@@ -326,13 +326,19 @@ body[data-stx="burst"] .card.out{transition:none !important;opacity:0 !important
   animation:disc-in .5s cubic-bezier(.2,1.5,.35,1) both,disc-breathe 2.4s ease-in-out .5s infinite}
 .pg-spot-wave{position:absolute;left:calc(var(--r) * -1);top:calc(var(--r) * -1);width:calc(var(--r) * 2);height:calc(var(--r) * 2);border-radius:50%;
   border:2px solid var(--c);opacity:0;animation:disc-wave .9s ease-out .12s both}
-.pg-spot.disc.out .pg-spot-ring{animation:disc-out .55s cubic-bezier(.5,0,.75,0) both}
+/* 9.12.1 the exit: the lens draws in a breath, then blooms open into light, a last ripple runs out and fine sparks drift
+   away, all fading together (transform and opacity only) */
+.pg-spot.disc.out .pg-spot-ring{animation:disc-bloom .8s cubic-bezier(.22,.8,.25,1) both}
+.pg-spot.disc.out .pg-spot-wave{animation:disc-wave-out .9s cubic-bezier(.2,.7,.3,1) both}
+.pg-spot.disc .pg-spark{width:4px;height:4px;left:-2px;top:-2px}
 @keyframes disc-in{from{transform:scale(.2);opacity:0}to{transform:scale(1);opacity:1}}
 @keyframes disc-breathe{50%{transform:scale(1.04)}}
 @keyframes disc-wave{from{transform:scale(.9);opacity:.8}to{transform:scale(1.6);opacity:0}}
 @keyframes disc-out{from{transform:scale(1);opacity:1}to{transform:scale(.55);opacity:0}}
+@keyframes disc-bloom{0%{transform:scale(1);opacity:1}22%{transform:scale(.9);opacity:1}100%{transform:scale(1.5);opacity:0}}
+@keyframes disc-wave-out{0%{transform:scale(.95);opacity:.9}100%{transform:scale(2.2);opacity:0}}
 /* 9.4 the follow Spotlight: a steady soft lens that glides with the pointer (overlay.js followLens) */
 .pg-follow{position:fixed;left:0;top:0;width:0;height:0;z-index:31;pointer-events:none;opacity:0;transition:transform 70ms linear,opacity .18s ease}
 .pg-follow.on{opacity:1}
 .pg-follow .pg-spot-ring{border:0;background:radial-gradient(circle,color-mix(in srgb,var(--c) calc(var(--k) * 38%),transparent) 0%,color-mix(in srgb,var(--c) calc(var(--k) * 55%),transparent) 72%,color-mix(in srgb,var(--c) calc(var(--k) * 85%),transparent) 100%);box-shadow:0 0 0 2px color-mix(in srgb,var(--c) 80%,transparent);animation:none}
-@media (prefers-reduced-motion: reduce){ .pg-spot-ring,.pg-spot.out .pg-spark,.pg-spot.disc .pg-spot-ring,.pg-spot-wave{animation:none} .pg-spot-wave{display:none} .pg-spot.out{opacity:0;transition:opacity .3s} }
+@media (prefers-reduced-motion: reduce){ .pg-spot-ring,.pg-spot.out .pg-spark,.pg-spot.disc .pg-spot-ring,.pg-spot-wave,.pg-spot.disc.out .pg-spot-ring,.pg-spot.disc.out .pg-spot-wave{animation:none} .pg-spot-wave{display:none} .pg-spot.out{opacity:0;transition:opacity .3s} }

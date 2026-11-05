@@ -578,14 +578,9 @@ function Program(root){
     var d = el('div', disc ? 'pg-spot disc' : 'pg-spot'), ring = el('i', 'pg-spot-ring');
     d.style.cssText = '--x:' + (sp.x * W) + 'px;--y:' + (sp.y * H) + 'px;--r:' + r + 'px;--c:' + sp.c + ';--k:' + k.toFixed(2) + ';--dur:' + sp.dur + 's';
     d.appendChild(ring);
-    if (disc){                                        // 8.6 a soft see-through disc that pops in with a ripple, then gently closes
-      d.appendChild(el('i', 'pg-spot-wave'));
-      root.appendChild(d);
-      setTimeout(function(){ d.classList.add('out'); }, sp.dur * 1000);
-      setTimeout(function(){ d.remove(); }, sp.dur * 1000 + 700);
-      return;
-    }
-    var n = Math.round(8 + 14 * k);
+    if (disc) d.appendChild(el('i', 'pg-spot-wave'));   // 8.6 a soft see-through disc that pops in with a ripple
+    // 9.12.1 both styles leave with sparks: the disc blooms open into light and a few fine sparks drift away
+    var n = disc ? Math.round(6 + 6 * k) : Math.round(8 + 14 * k);
     for (var i = 0; i < n; i++){
       var sk = el('b', 'pg-spark'), a = (i / n) * Math.PI * 2 + Math.random() * 0.4, dist = r * (0.9 + Math.random() * 0.9);
       sk.style.cssText = '--sx:' + (Math.cos(a) * dist).toFixed(1) + 'px;--sy:' + (Math.sin(a) * dist).toFixed(1) + 'px;--sd:' + (Math.random() * 0.15).toFixed(2) + 's';

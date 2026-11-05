@@ -51,7 +51,8 @@ Repository clean-up is on `main` (modules in `src/`; `README.md`, `LICENSE`, `NO
 | 9.11.0: live push (doorbell; docs/architecture/live-push.md) and the Command Center tray that folds away | Published (0016 run) |
 | 9.11.1: website Go to Home when signed in; How it works + See it work as one stage | Folded into 9.11.2 |
 | 9.11.2: website motion (one rhythm, living hero, progress line, closing scene, pointer light, button moments) | Published |
-| 9.12.0: Command Center Notes, Compact and top/centre/bottom, one place per action; Settings in six groups | On `main`; owner tags `v9.12.0` |
+| 9.12.0: Command Center Notes, Compact and top/centre/bottom, one place per action; Settings in six groups | Published |
+| 9.12.1: Spotlight on demand (double-click or Ctrl twice) with a bloom exit | On `main`; owner tags `v9.12.1` |
 | 9.10.1: no grey box behind the Command Center (form painted black: `desktop_win.clear_back`) | Published |
 | 9.10.0: Command Center redesigned: frameless glass bar, four chips Prepare / Engage / Control / More with panels, Go Live switch, animations; Ask AI removed | Published |
 | 9.9.0: the Command Center (was Spotlight): glass bar, context strip, five modules as scopes (Alt+1 to 5), Recent, prefixes, Ask AI, meetings and Memory Cards in the bar; phone remote in the same look | Published |

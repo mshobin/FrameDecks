@@ -864,6 +864,15 @@ def main():
             return server.pointer_set({"on": bool(d.get("on")), "x": d.get("x"), "y": d.get("y")})
         return server.annotate_op(d)
 
+    def spot_word(x, y):
+        """9.12.1 the Share Window's double-click or Ctrl twice: the main window lights the word at (x, y) of the picture
+        (app/js/annotate.js KCAnnotate.spotAtPicture). False when it could not (the server then lights the point)."""
+        try:
+            return bool(window.evaluate_js("!!(window.KCAnnotate && KCAnnotate.spotAtPicture(%s, %s))" % (float(x), float(y))))
+        except Exception as e:
+            print("Spotlight word:", e)
+            return False
+
     def share_annotate(mode):
         """9.7 Draw or Spotlight from Spotlight: the Share Window (the one shared in Zoom or Teams) opens, comes to the
         front and takes the mouse in that mode; '' gives it back its usual behaviour (drag to move)."""
@@ -902,7 +911,7 @@ def main():
                           teleprompter_open=lambda: bool(state.get("teleprompter")), spotlight=spotlight,
                           palette_index=palette_index, palette_run=palette_run, open_settings=open_settings, win=win,
                           settings_changed=settings_changed, memory_popup=popup_show, popup_op=popup_op,
-                          popup_state=popup_state, share_annotate=share_annotate)
+                          popup_state=popup_state, share_annotate=share_annotate, spot_word=spot_word)
     state["tray"] = build_tray(show, quit_app)
     apply_hotkey(settings.get("spotlightKey", "Alt+Space"))
     # "Light on graphics card" (Settings > General, on by default): the app's windows are drawn without the GPU.

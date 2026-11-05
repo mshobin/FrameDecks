@@ -500,21 +500,15 @@ class NativePresentation:
                 u32.EndPaint(hwnd, ctypes.byref(ps))
 
         # ---- 9.7 Draw / Spotlight: where the mouse is on the picture, sent to the shared state off this thread
-        ann = {"last_set": 0.0, "down": None, "ptr_at": 0.0, "ptr_on": False}
+        ann = {"last_set": 0.0, "down": None, "ptr_at": 0.0, "ptr_on": False, "at": None, "ctrl_at": 0.0, "ctrl_clean": True}
 
         def pic_at(x, y):
             return pic_point(x, y, cache.get("pic") or (0, 0, 0, 0))
 
         def ann_move(x, y):
             p = pic_at(x, y)
-            if self.ann_mode == "spot":
-                if p is None:
-                    if ann["ptr_on"]:
-                        ann["ptr_on"] = False
-                        self._send({"op": "pointer", "on": False}, merge="pointer")
-                elif time.time() - ann["ptr_at"] > 0.03:
-                    ann["ptr_at"], ann["ptr_on"] = time.time(), True
-                    self._send({"op": "pointer", "on": True, "x": p[0], "y": p[1]}, merge="pointer")
+            if self.ann_mode == "spot":                         # 9.12.1 no lens follows the mouse: only where it is
+                ann["at"] = p
                 return
             st = self._stroke
             if st is None or p is None:
@@ -536,10 +530,9 @@ class NativePresentation:
             p = pic_at(x, y)
             if p is None:
                 return
-            u32.SetCapture(hwnd_now())
-            if self.ann_mode == "spot":
-                ann["down"] = (x, y, p)
+            if self.ann_mode == "spot":                         # 9.12.1 a double-click lights the word (below)
                 return
+            u32.SetCapture(hwnd_now())
             st = {"i": None, "item": {"t": self.ann_tool, "c": self.ann_color, "w": 0.006, "p": [p, p]}}
             self._stroke = st
 
@@ -551,13 +544,14 @@ class NativePresentation:
         def ann_up(x, y):
             u32.ReleaseCapture()
             if self.ann_mode == "spot":
-                d, ann["down"] = ann["down"], None
-                if d and abs(x - d[0]) + abs(y - d[1]) < 6:
-                    self._send({"op": "spot", "x": d[2][0], "y": d[2][1]})
                 return
             st, self._stroke = self._stroke, None
             if st:
                 send_stroke(st)
+
+        def spot_here(p):
+            if p is not None:
+                self._send({"op": "spot", "x": p[0], "y": p[1], "snap": True})
 
         def ann_done():
             self._stroke = None
@@ -618,9 +612,24 @@ class NativePresentation:
                 if msg in (0x00A3, 0x0203):                 # double-click (frame area or client): full screen
                     if not self.ann_mode:
                         apply_fullscreen(not self.fullscreen)
+                    elif self.ann_mode == "spot" and msg == 0x0203:   # 9.12.1 with the Spotlight: light the word there
+                        spot_here(pic_at(*lparam_xy(lp)))
+                    return 0
+                if msg == 0x0101 and self.ann_mode == "spot" and wp == 0x11:   # 9.12.1 Ctrl twice: the word under the mouse
+                    if ann["ctrl_clean"]:
+                        if time.time() - ann["ctrl_at"] < 0.45 and ann["at"] is not None:
+                            ann["ctrl_at"] = 0.0
+                            spot_here(ann["at"])
+                        else:
+                            ann["ctrl_at"] = time.time()
                     return 0
                 if msg == 0x0100 and self.ann_mode:         # 9.7 keys while drawing or with the Spotlight
                     ctrl = u32.GetKeyState(0x11) < 0
+                    if wp == 0x11:                          # Ctrl alone (9.12.1 twice: the Spotlight)
+                        if not (lp >> 30) & 1:
+                            ann["ctrl_clean"] = True
+                        return 0
+                    ann["ctrl_clean"] = False
                     if wp == 0x1B:
                         ann_done()
                     elif ctrl and wp == 0x5A:

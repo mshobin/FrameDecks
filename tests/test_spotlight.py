@@ -48,7 +48,8 @@ class SpotlightOnThePicture(unittest.TestCase):
         self.assertEqual(int(sp.draw(self.frame(), ring, 1.0 + 2 + 1.0).max()), 0)
 
     def test_the_soft_disc_is_see_through_with_a_brighter_rim(self):
-        """8.6 the default style: the middle lets the picture through, the rim is brighter, and it closes within 0.6 s"""
+        """8.6 the default style: the middle lets the picture through, the rim is brighter; 9.12.1 it blooms out and is gone
+        within 0.85 s"""
         sp = Spotlight()
         sp.draw(self.frame(), None, 0.0)
         sp.draw(self.frame(), SPOT, 1.0)
@@ -57,7 +58,8 @@ class SpotlightOnThePicture(unittest.TestCase):
         self.assertTrue(30 < mid < 160, mid)                        # see-through in the middle
         self.assertGreater(int(f[..., 2].max()), mid + 40)          # a brighter rim
         self.assertEqual(int(f[..., 0].max()), 0)
-        self.assertEqual(int(sp.draw(self.frame(), SPOT, 1.0 + 2 + 0.6).max()), 0)
+        self.assertGreater(int(sp.draw(self.frame(), SPOT, 1.0 + 2 + 0.5).max()), 0)     # still blooming
+        self.assertEqual(int(sp.draw(self.frame(), SPOT, 1.0 + 2 + 0.85).max()), 0)
 
     def test_near_the_edge_never_fails(self):
         sp = Spotlight()
