@@ -6,6 +6,7 @@
 :root {
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-soft: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --t-move: 0.35s; /* 9.11.2 one transition language: things arrive in about a third of a second, rising 8 px */
 }
 
 /* ---------- The stage light behind every page ----------
@@ -69,19 +70,19 @@
   }
 
   html.fd-motion [data-reveal][data-in] {
-    animation: fd-reveal 1s var(--ease-out) var(--d, 0ms) backwards;
+    animation: fd-reveal var(--t-move) var(--ease-out) var(--d, 0ms) backwards;
   }
 
   @keyframes fd-reveal {
     from {
       opacity: 0;
-      transform: translate3d(0, 34px, 0) scale(0.985);
+      transform: translate3d(0, 8px, 0);
     }
   }
 
   /* ---------- Entrances when a page opens ---------- */
   .fd-enter {
-    animation: fd-reveal 1.05s var(--ease-out) var(--d, 0ms) backwards;
+    animation: fd-reveal var(--t-move) var(--ease-out) var(--d, 0ms) backwards;
   }
 
   .fd-word {
@@ -107,7 +108,7 @@
 
   /* App pages: the title and each block rise in, one after another */
   .fd-page > * {
-    animation: fd-reveal 0.9s var(--ease-out) backwards;
+    animation: fd-reveal var(--t-move) var(--ease-out) backwards;
   }
 
   .fd-page > *:nth-child(2) {
@@ -129,7 +130,7 @@
   /* Cards in the page's lists follow, gently */
   .frame-list > .frame-card,
   .workspace-grid > .workspace-card {
-    animation: fd-reveal 0.8s var(--ease-out) backwards;
+    animation: fd-reveal var(--t-move) var(--ease-out) backwards;
   }
 
   .frame-list > .frame-card:nth-child(2),
@@ -213,7 +214,7 @@
   }
 
   .fd-auth-side > * {
-    animation: fd-reveal 1.1s var(--ease-out) backwards;
+    animation: fd-reveal var(--t-move) var(--ease-out) backwards;
   }
 
   .fd-auth-side > *:nth-child(2) {

@@ -11,6 +11,7 @@ import {
   Terminal,
 } from "lucide-react";
 
+import { FlourishLater } from "@/components/landing/flourish-later";
 import {
   UPDATE_API,
   detectOs,
@@ -101,7 +102,8 @@ export function DownloadPanel({ fallback }: Readonly<{ fallback: Fallback }>) {
 
   return (
     <div className="fd-dl">
-      <section className="fd-dl-card" aria-labelledby="fd-dl-title">
+      <FlourishLater />
+      <section className="fd-dl-card" aria-labelledby="fd-dl-title" data-spotlight="">
         <span className="fd-dl-icon" aria-hidden="true">
           {os === "macos" ? (
             <Apple size={26} />
@@ -223,7 +225,7 @@ export function DownloadPanel({ fallback }: Readonly<{ fallback: Fallback }>) {
         )}
       </section>
 
-      <section className="fd-dl-notes" aria-labelledby="fd-dl-notes-title">
+      <section className="fd-dl-notes" aria-labelledby="fd-dl-notes-title" data-spotlight="">
         <h2 id="fd-dl-notes-title">What&apos;s new in {version}</h2>
         {notes.map((b) => (
           <div key={b.heading}>

@@ -152,12 +152,21 @@ named), no invented quotes, logos or numbers.
 - **Real screenshots (TODO):** capture each step at 1200 × 750 as WebP into `hosted/public/product/step-*.webp` and
   pass `image` per step in `landing.tsx`; the drawn screens are the fallback.
 - **Motion rules** (`motion.css`, `landing.css`, `components/motion.tsx`): one easing family (`--ease-out` for
-  entrances of 600–1100 ms, `--ease-soft` for loops), nothing bouncy. Only `transform` and `opacity` move, except two
+  entrances (0.35 s since 9.11.2; the hero's one-off arrival is longer), `--ease-soft` for loops), nothing bouncy. Only `transform` and `opacity` move, except two
   one-off entrances that sharpen from a small blur (hero words, step screens). The stage light (two glows, navy and
   gold) drifts for about a minute after a page opens and then rests. Every endless loop (teleprompter, LIVE dot) is
   declared paused and runs only while its `data-loop` element is on screen (`data-live`); none runs under "reduce
   motion" or **Reduce effects** (`components/effects-toggle.tsx`, `html.fd-calm`, saved in this browser).
   `tests/idle-performance.test.mjs` enforces this.
+- **One rhythm (9.11.2):** entrances use `--t-move` (0.35 s) on `--ease-out`, rising 8 px (`fd-reveal`). The finishing
+  touches live in `app/flourish.css`, loaded just after first paint (`components/landing/flourish-later.tsx`, held to
+  3 KB by `scripts/check-budget.mjs`): the living hero (`.lp-hl-*` overlays: Next pressed, Go Live glows, the room screen
+  changes, every 6 s), the dark-mode gold drift behind the hero, the scroll-linked gold line on the showcase stage
+  (`animation-timeline: view()`), button icon nudges, and Frame / Deck / Content coming together above Ready to Serve?
+  (`.lp-assemble`, drawn `display: none` inline so it stays hidden without that stylesheet). `data-spotlight` also sits
+  on the FAQ items, the closing panel and the download cards. `tests/motion-rules.test.mjs` holds the rules: only
+  `transform` and `opacity`, all behind reduced motion and `html.fd-motion:not(.fd-calm)`, loops paused unless
+  `[data-live]`.
 - **Reveal fix:** `data-reveal` content is visible without JavaScript; it is hidden only after `motion.tsx` has run
   (`html.fd-reveal-ready`) and has already shown whatever is on or above the screen. An IntersectionObserver
   (`rootMargin "0px 0px -8% 0px"`) reveals the rest, and a scroll/hash safety net shows anything passed over by an

@@ -53,6 +53,22 @@ Versions before 4.9 (when the program had its earlier name) are described in the
 - The favicons, the tray icon and the small program-icon sizes (16–32 px) use a heavier version of the emblem, so it
   stays visible on light browser tabs and a light taskbar. Larger sizes are unchanged.
 
+## [9.11.2] - 2026-11-05
+
+Full notes: [docs/releases/v9.11.2.md](releases/v9.11.2.md).
+
+### Added
+- Website finishing touches in `app/flourish.css`, loaded after first paint (`components/landing/flourish-later.tsx`,
+  `next/dynamic` with `ssr: false`; `scripts/check-budget.mjs` holds stylesheets loaded later to 3 KB): the living hero
+  (`.lp-hl-*` overlays, 6 s loop), the closing scene (`.lp-assemble`), the scroll-linked progress line on the showcase
+  stage, the dark-mode gold drift behind the hero, button icon nudges.
+- `tests/motion-rules.test.mjs`: only transform and opacity move, everything behind `prefers-reduced-motion` and
+  `html.fd-motion:not(.fd-calm)`, loops paused unless `[data-live]`, one timing token.
+
+### Changed
+- One transition language: `--t-move: 0.35s` with `--ease-out`; `fd-reveal` rises 8 px (was 34 px with a scale, 0.8–1.1 s).
+- `data-spotlight` on the FAQ items, the closing panel and the download page's cards; `data-loop` on the hero.
+
 ## [9.11.1] - 2026-11-05
 
 Full notes: [docs/releases/v9.11.1.md](releases/v9.11.1.md).

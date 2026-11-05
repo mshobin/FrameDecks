@@ -7,6 +7,7 @@ import { type FeatureTab } from "@/components/landing/feature-tabs";
 import { Showcase } from "@/components/landing/showcase";
 import { LandingHero } from "@/components/landing/hero";
 import { LandingNav } from "@/components/landing/nav";
+import { FlourishLater } from "@/components/landing/flourish-later";
 import { SiteFooter } from "@/components/site-footer";
 import { DOWNLOADS } from "@/lib/pc-setup";
 import "@/app/landing-page.css"; // 8.4 only the landing page loads its own styles
@@ -147,7 +148,7 @@ function Questions({ list }: Readonly<{ list: readonly { q: string; a: string }[
   return (
     <div className="lp-faq">
       {list.map((f) => (
-        <details key={f.q}>
+        <details key={f.q} data-spotlight="">
           <summary>
             {f.q}
             <span className="lp-plus" aria-hidden="true" />
@@ -165,6 +166,7 @@ export function Landing() {
   return (
     <div className="fd-landing fd-lp">
       <LandingNav />
+      <FlourishLater />
 
       <main id="main" tabIndex={-1}>
         <LandingHero
@@ -227,7 +229,7 @@ export function Landing() {
         </section>
 
         <section className="lp-cta" aria-labelledby="lp-cta-title">
-          <div className="lp-cta-panel" data-reveal="">
+          <div className="lp-cta-panel" data-reveal="" data-spotlight="">
             <div className="lp-beam lp-beam-cta" aria-hidden="true" />
             <Image className="lp-cta-mark" src="/framedecks-emblem.webp" alt="" width={56} height={56} loading="lazy" unoptimized />
             <p className="lp-promise fd-serif">
@@ -237,6 +239,13 @@ export function Landing() {
               <p className="fd-serif">“{VERSE.text}”</p>
               <cite>{VERSE.ref}</cite>
             </blockquote>
+            {/* 9.11.2 the closing scene: a Frame, its Deck and its Content come together above the title (flourish.css
+                shows it; without that stylesheet it stays hidden) */}
+            <p className="lp-assemble" style={{ display: "none" }} aria-hidden="true">
+              <span>Frame</span>
+              <span>Deck</span>
+              <span>Content</span>
+            </p>
             <h2 id="lp-cta-title" className="lp-h2 lp-cta-title" aria-label={CTA_TITLE}>
               {ctaWords.slice(0, -1).join(" ")} <span className="lp-sheen">{ctaWords.at(-1)}</span>
             </h2>

@@ -7,6 +7,9 @@ import { CircleCheck } from "lucide-react";
 // the Studio window rises a short way into place, its screen comes on from top to bottom, the gold corners settle
 // onto the frame, the phone slides in beside it, and one soft light passes across the glass. Nothing floats or
 // loops afterwards; the light behind it is still.
+// 9.11.2 then the picture lives, quietly, while it is on screen ([data-loop], flourish.css): Next is pressed on the
+// phone, Go Live glows and the room screen changes, every 6 s; in dark mode a slow gold light drifts behind the
+// headline. Only light overlays move (transform and opacity); with less motion asked for the picture stays still.
 
 const delay = (ms: number) => ({ "--d": `${ms}ms` }) as CSSProperties;
 
@@ -41,7 +44,7 @@ export function LandingHero({
 }>) {
   const secondStart = 120 + first.split(" ").length * 80;
   return (
-    <section className="lp-hero" aria-labelledby="lp-hero-title">
+    <section className="lp-hero" aria-labelledby="lp-hero-title" data-loop="">
       <div className="lp-hero-copy">
         <p className="lp-pill fd-enter" style={delay(0)}>
           <span className="lp-pill-dot" aria-hidden="true" /> {pill}
@@ -84,6 +87,8 @@ export function LandingHero({
                 unoptimized
               />
               <i className="lp-glint" aria-hidden="true" />
+              <i className="lp-hl lp-hl-go" aria-hidden="true" />
+              <i className="lp-hl lp-hl-change" aria-hidden="true" />
             </div>
           </div>
           <div className="lp-float-phone">
@@ -95,6 +100,7 @@ export function LandingHero({
               priority
               unoptimized
             />
+            <i className="lp-hl lp-hl-tap" aria-hidden="true" />
           </div>
         </div>
         <figcaption>The Studio on your PC. What you see is what the room and the stream see.</figcaption>

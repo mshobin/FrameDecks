@@ -15,7 +15,9 @@ import { gzipSync } from "node:zlib";
 // heaviest page 253 KB), with a 320 KB budget. The total of every chunk stays as a second check, without the
 // old-browser polyfills (noModule: modern browsers never fetch them; 39 KB of the 395 KB that was counted).
 // The About dialog's own styles now load when it is first opened, not with every page.
-const BUDGET = { pageJsKB: 320, totalJsKB: 400, largestJsKB: 90, cssKB: 24 };
+// 5 November (9.11.2): the website's finishing touches (app/flourish.css) load just after a page appears, linked by no
+// page. Each stylesheet loaded that way is held to its own small budget, so "later" cannot become a back door.
+const BUDGET = { pageJsKB: 320, totalJsKB: 400, largestJsKB: 90, cssKB: 24, laterCssKB: 3 };
 const dir = fileURLToPath(new URL("../out/_next/static/chunks/", import.meta.url)); // a real path on Windows too (not "/C:/…")
 // the scripts browsers that run modules never load (<script noModule>): not counted
 const noModule = new Set();
@@ -41,6 +43,7 @@ const out = fileURLToPath(new URL("../out/", import.meta.url));
 const cssSize = {};
 for (const f of readdirSync(dir)) if (f.endsWith(".css")) cssSize[f] = gzipSync(readFileSync(join(dir, f))).length / 1024;
 let pageCss = 0, pageName = "", pageJs = 0, pageJsName = "";
+const linkedAnywhere = new Set();
 (function walk(d) {
   for (const f of readdirSync(d)) {
     const p = join(d, f);
@@ -51,16 +54,21 @@ let pageCss = 0, pageName = "", pageJs = 0, pageJsName = "";
     const jsHere = scripts.reduce((a, c) => a + (jsSize[c] ?? 0), 0);
     if (jsHere > pageJs) [pageJs, pageJsName] = [jsHere, p.slice(out.length)];
     const linked = [...new Set([...html.matchAll(/chunks\/([\w-]+\.css)/g)].map((m) => m[1]))];
+    for (const c of linked) linkedAnywhere.add(c);
     const size = linked.reduce((a, c) => a + (cssSize[c] ?? 0), 0);
     if (size > pageCss) [pageCss, pageName] = [size, p.slice(out.length)];
   }
 })(out);
 css = pageCss;
+// the stylesheets no page links (loaded later by a script): the largest of them
+let laterCss = 0;
+for (const [f, size] of Object.entries(cssSize)) if (!linkedAnywhere.has(f)) laterCss = Math.max(laterCss, size);
 const report = `JS ${pageJs.toFixed(0)} KB on the heaviest page, ${pageJsName} (budget ${BUDGET.pageJsKB}), ` +
   `${js.toFixed(0)} KB in all (budget ${BUDGET.totalJsKB}), largest ${largest.toFixed(0)} KB ${largestName} ` +
-  `(budget ${BUDGET.largestJsKB}), CSS ${css.toFixed(1)} KB on the heaviest page, ${pageName} (budget ${BUDGET.cssKB}), gzipped`;
+  `(budget ${BUDGET.largestJsKB}), CSS ${css.toFixed(1)} KB on the heaviest page, ${pageName} (budget ${BUDGET.cssKB}), ` +
+  `largest stylesheet loaded later ${laterCss.toFixed(1)} KB (budget ${BUDGET.laterCssKB}), gzipped`;
 console.log(report);
-if (pageJs > BUDGET.pageJsKB || js > BUDGET.totalJsKB || largest > BUDGET.largestJsKB || css > BUDGET.cssKB) {
+if (pageJs > BUDGET.pageJsKB || js > BUDGET.totalJsKB || largest > BUDGET.largestJsKB || css > BUDGET.cssKB || laterCss > BUDGET.laterCssKB) {
   console.error("Over the performance budget. Find what grew, or raise the budget on purpose in scripts/check-budget.mjs.");
   process.exit(1);
 }
