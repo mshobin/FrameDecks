@@ -10,6 +10,9 @@ earlier and keeps all your meetings, members, settings, pinned Memory Cards and 
 - **Live push.** A linked PC is told when a phone sends a command, when the workspace changes and when someone opens
   the Live page. It listens only while it is needed (presenting, in use, or watched) and rests otherwise, checking in
   once a minute.
+- **The Command Center's chips fold away** under the search bar behind a small arrow, as the Teleprompter's top bar
+  does: point at the arrow to see Prepare, Engage, Control and More, click it to keep them open (remembered), click
+  again to fold them. **Alt+1** to **Alt+4** still open a chip at once.
 - **The Live page reads only when something changed**, and wakes a resting PC when you open it. Its badge now says
   **Online**, **Waking up…** (usually under a minute) or **Not connected**.
 
@@ -24,6 +27,8 @@ None in this version.
 - A PC that is open but not in use asks about 60 times an hour instead of about 420.
 - Running a service from a phone uses about 400 to 600 requests an hour instead of about 6,300.
 - No new software on the PC: the connection uses Windows' own encryption and proxy settings.
+- Folded, the Command Center draws only its bar; unfolding moves by position and fade alone (no frame over 17 ms on a
+  simulated older PC).
 
 ## Known Issues
 - The installer is not yet code-signed, so Windows SmartScreen may ask you to confirm: **More info → Run anyway**.

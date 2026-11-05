@@ -67,6 +67,10 @@ Full notes: [docs/releases/v9.11.0.md](releases/v9.11.0.md). Design: [docs/archi
 - Website Live page: private channel `live:<workspace>`, `remote_watch`, `pcState` (Online / Waking up… / Not
   connected) and `refreshEvery` in `hosted/src/lib/live-view.ts`.
 
+- Command Center: the tray folds away under the bar behind a Teleprompter-style arrow (`.cc-handle`; hover shows,
+  click keeps it open, `localStorage` `kc-cc-tray`); Alt+1 to Alt+4 still open a chip; perf.mjs measures the unfold.
+  Tests: `tests/test_command_center_911.py`.
+
 ### Changed
 - Without 0016, with push switched off, or when the connection cannot be made, the PC and the website poll exactly as
   in 9.10.

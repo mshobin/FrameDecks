@@ -463,3 +463,20 @@ html[data-theme="light"]{--cc-gloss:inset 0 1px 0 rgba(255,255,255,.7),inset 0 -
 .cc-panel[data-dir="left"].in .cc-tiles{animation-name:cc-t-in-r} .cc-panel[data-dir="right"].in .cc-tiles{animation-name:cc-t-in-l}
 .cc-panel.in .cc-switch,.cc-panel.in .spr-now,.cc-panel.in .spr-row,.cc-panel.in .spr-step{animation:none}
 @media (prefers-reduced-motion:reduce){ .cc-panel.in .cc-tiles,.cc-panel.in .cc-control{animation:none} }
+
+/* 9.11 the tray folds away under the bar, as the Teleprompter's top bar does: a small tab with an arrow hangs under the
+   drawer. Pointing at it unfolds the chips (transform and opacity only), clicking keeps them open; folded, nothing of the
+   tray is laid out or painted */
+.cc.cc-fold:not(.cc-peek) .cc-tray,.cc.cc-fold:not(.cc-peek) .cc-stage{display:none}
+.cc .cc-tray.cc-unfold{animation:cc-unfold .26s cubic-bezier(.2,.9,.25,1.1) both;transform-origin:50% 0}
+@keyframes cc-unfold{from{opacity:0;transform:translateY(-10px) scaleY(.9)}to{opacity:1;transform:none}}
+.cc-handle-row{position:relative;z-index:5;height:0;display:flex;justify-content:center}
+.cc-handle{position:absolute;top:-1px;width:44px;height:16px;display:grid;place-items:center;padding:0;cursor:pointer;
+  border:1px solid var(--cc-drawer-rim);border-top:0;border-radius:0 0 8px 8px;background:var(--cc-drawer-b);color:var(--muted);
+  opacity:.72;box-shadow:var(--cc-drawer-sh);transition:opacity .15s ease,color .15s ease}
+.cc-handle svg{width:14px;height:14px;transition:transform .18s ease}
+.cc-handle:hover,.cc-handle:focus-visible{opacity:1;color:var(--ink)}
+.cc.cc-peek .cc-handle svg,.cc:not(.cc-fold) .cc-handle svg{transform:rotate(180deg)}
+.cc-handle[aria-pressed="true"]{color:var(--gold)}
+.cc.cc-typing .cc-handle-row{display:none}
+@media (prefers-reduced-motion:reduce){ .cc .cc-tray.cc-unfold{animation:none} .cc-handle,.cc-handle svg{transition:none} }

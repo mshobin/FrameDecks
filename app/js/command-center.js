@@ -138,6 +138,50 @@ var panel = h('section', {cls: 'cc-panel', id: 'cc-panel', role: 'tabpanel', 'ar
 var stage = h('div', {cls: 'cc-stage'}, [h('div', {cls: 'cc-stage-in'}, [panel])]);
 top.insertAdjacentElement('afterend', tray);
 tray.insertAdjacentElement('afterend', stage);
+
+/* 9.11 the tray folds away under the bar, as the Teleprompter's top bar does: a small tab with an arrow hangs under
+ * the drawer; pointing at it shows the chips for as long as the pointer stays, clicking it keeps them open (or folds
+ * them again), remembered. A chip opened with Alt+1 to Alt+4 shows the tray while its panel is open. */
+var FOLD_KEY = 'kc-cc-tray', pinned = false, peekT = 0;
+try { pinned = localStorage.getItem(FOLD_KEY) === '1'; } catch(e){}
+var handle = h('button', {cls: 'cc-handle', type: 'button', 'aria-controls': 'cc-tray', html: I('chevron-down', 14)});
+var handleRow = h('div', {cls: 'cc-handle-row'}, [handle]);
+tray.id = 'cc-tray';
+stage.insertAdjacentElement('afterend', handleRow);
+function paintFold(){
+  var shown = pinned || box.classList.contains('cc-peek');
+  box.classList.toggle('cc-fold', !pinned);
+  handle.setAttribute('aria-expanded', String(shown));
+  handle.setAttribute('aria-pressed', String(pinned));
+  handle.title = pinned ? 'Fold the chips away' : 'Keep the chips open (point here to see them)';
+  handle.setAttribute('aria-label', pinned ? 'Fold the chips away' : 'Keep the chips open');
+}
+function peek(on){
+  clearTimeout(peekT);
+  if (on === box.classList.contains('cc-peek')) return;
+  box.classList.toggle('cc-peek', on);
+  if (on && !reduce){ tray.classList.remove('cc-unfold'); void tray.offsetWidth; tray.classList.add('cc-unfold'); }
+  paintFold();
+}
+function inDrawer(el){ return !!el && (handleRow.contains(el) || tray.contains(el) || stage.contains(el)); }
+function settle(){                                           // fold again once the pointer and the keyboard have left
+  clearTimeout(peekT);
+  peekT = setTimeout(function(){
+    if (pinned || open || inDrawer(document.activeElement) || box.querySelector('.cc-handle-row:hover,.cc-tray:hover,.cc-stage:hover')) return;
+    peek(false);
+  }, 380);
+}
+document.addEventListener('mouseover', function(e){ if (inDrawer(e.target)) peek(true); else if (box.classList.contains('cc-peek')) settle(); });
+box.addEventListener('focusin', function(e){ if (inDrawer(e.target)) peek(true); });
+box.addEventListener('focusout', function(){ settle(); });
+handle.addEventListener('click', function(){
+  pinned = !pinned;
+  try { localStorage.setItem(FOLD_KEY, pinned ? '1' : '0'); } catch(e){}
+  if (!pinned){ if (open) closeGroup(); box.classList.remove('cc-peek'); input.focus({preventScroll: true}); }
+  else peek(true);
+  paintFold();
+});
+paintFold();
 var foot = box.querySelector('.pal-foot');
 if (foot) foot.remove();                                       // the hints live in the panels now
 
@@ -155,6 +199,7 @@ function openGroup(g, e){
   if (current){ current = null; P.scope(null); }
   if (input.value){ input.value = ''; input.dispatchEvent(new Event('input')); }
   open = g;
+  peek(true);
   chips.forEach(function(c, i){ c.setAttribute('aria-selected', String(i === to)); c.classList.toggle('on', i === to); });
   box.classList.add('cc-open'); box.dataset.group = g.id;
   glideTo(to);
@@ -176,6 +221,7 @@ function closeGroup(){
   chips.forEach(function(c){ c.setAttribute('aria-selected', 'false'); c.classList.remove('on'); });
   glide.classList.remove('on');
   layout();
+  settle();
 }
 function glideTo(i){
   var c = chips[i]; if (!c) return;
@@ -286,7 +332,8 @@ document.addEventListener('mousedown', function(e){
 function loadMemory(){ return get('api/memory').then(function(d){ if (d){ mem = d; paint(); if (current && current.id === 'memory') P.refresh(); } }); }
 function render(){ if (live) paint(); }
 function opened(){
-  current = null; P.scope(null); open = null; box.classList.remove('cc-open', 'cc-typing'); delete box.dataset.group;
+  current = null; P.scope(null); open = null; box.classList.remove('cc-open', 'cc-typing', 'cc-peek'); delete box.dataset.group;
+  paintFold();
   chips.forEach(function(c){ c.setAttribute('aria-selected', 'false'); c.classList.remove('on'); }); glide.classList.remove('on');
   paintScope();
   if (!reduce){ box.classList.remove('cc-enter'); void box.offsetWidth; box.classList.add('cc-enter'); }

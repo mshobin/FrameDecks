@@ -360,14 +360,16 @@ You can change the keys in **Settings → Keyboard shortcuts → Command palette
 
 The **Command Center** is where everything in FrameDecks starts. It works when another program is in front, and when
 FrameDecks is hidden in the tray. It has no window around it: a glass search bar floats on your screen with a tray of
-four chips tucked under it, the same every time you open it.
+four chips folded away under it, behind a small arrow (9.11), as the Teleprompter's top bar is.
 
 1. Press **Alt+Space** anywhere. It opens near the top of the screen your mouse is on, above everything. It opens only
    with its shortcut (or the tray's **Command Center**), never by itself.
 2. Type in the bar to search everything: Frames, meetings, questions, scriptures, Memory Cards, settings and
    commands. Choose with **↑ / ↓** and **Enter**. Start with **>** for commands only, **#** for meetings and Frames,
    or **@** for people.
-3. Or choose a chip (or press **Alt+1** to **Alt+4**). Its panel opens under the chips; **Esc** closes it.
+3. Or point at the small arrow under the bar: the four chips unfold for as long as the pointer stays. Click the arrow
+   to keep them open every time (click again to fold them away; it is remembered). Choose a chip, or press **Alt+1**
+   to **Alt+4** even while they are folded. Its panel opens under the chips; **Esc** closes it.
 4. **Esc** again, or a click anywhere else, closes the Command Center.
 
 | Chip | What it holds |
