@@ -8,6 +8,8 @@ import { rememberAcceptance } from "@/lib/legal";
 import { browserSupabase, callbackUrl } from "@/lib/supabase-browser";
 import { statusMessage, type DeviceStatus } from "@/lib/trusted-device";
 import { userSafeError } from "@/lib/user-error";
+import { takeReturn } from "@/lib/connect-link";
+import { useSession } from "@/lib/use-session";
 
 /** 9.8 the three ways in, one form: an emailed one-time link (10 minutes, once), no password and nothing to remember.
  * Open my workspace (9.11, was Sync Workspace): your workspace on this device. Start a new one (was Save Workspace):
@@ -46,6 +48,12 @@ export function WorkspaceSyncChooser() {
   const [intent, setIntent] = useState<SyncIntent>("sync");
   const [email, setEmail] = useState("");
   const [notice, setNotice] = useState<string | null>(null);
+  const session = useSession();
+  const returning = !!session && !/[?&]reason=/.test(typeof window === "undefined" ? "" : window.location.search);
+  useEffect(() => {
+    // 9.11.1 already signed in on this browser: no email form, straight to Home (or back to a PC's connect request)
+    if (returning) window.location.replace(takeReturn(localStorage) ?? "/");
+  }, [returning]);
   useEffect(() => {
     // The address is only known in the browser (static export), so the choice is read after the first render.
     const q = new URLSearchParams(window.location.search);
@@ -57,6 +65,13 @@ export function WorkspaceSyncChooser() {
     if (reason === "revoked" || reason === "expired") setNotice(statusMessage(reason as DeviceStatus));
   }, []);
   const text = INTENTS[intent];
+  if (returning) {
+    return (
+      <p className="auth-message" role="status">
+        Opening your workspace…
+      </p>
+    );
+  }
   return (
     <>
       <div className="auth-modes" role="tablist" aria-label="Your workspace">

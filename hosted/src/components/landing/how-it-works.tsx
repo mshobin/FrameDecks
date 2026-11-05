@@ -16,12 +16,23 @@ function motionAllowed() {
   return root.classList.contains("fd-motion") && !root.classList.contains("fd-calm");
 }
 
+// 9.11.1 it can also play inside the showcase (components/landing/showcase.tsx), without its own heading: then the
+// end of the last day hands over to "See it work" (onLoopEnd) instead of starting again.
 export function HowItWorks({
   steps,
   eyebrow,
   title,
   lead,
-}: Readonly<{ steps: readonly Step[]; eyebrow: string; title: string; lead: string }>) {
+  embedded = false,
+  onLoopEnd,
+}: Readonly<{
+  steps: readonly Step[];
+  eyebrow: string;
+  title: string;
+  lead: string;
+  embedded?: boolean;
+  onLoopEnd?: () => void;
+}>) {
   const section = useRef<HTMLElement>(null);
   const [step, setStep] = useState(0);
   const [prev, setPrev] = useState(steps.length - 1);
@@ -56,13 +67,24 @@ export function HowItWorks({
     document.getElementById(`lp-step-tab-${to}`)?.focus();
   }
 
+  function advance() {
+    if (onLoopEnd && step === steps.length - 1) {
+      setPrev(step);
+      setStep(0);
+      onLoopEnd();
+      return;
+    }
+    go(step + 1);
+  }
+
   const active = steps[step];
+  const Box = embedded ? "div" : "section";
   return (
-    <section
+    <Box
       className="lp-how"
-      id="how"
-      ref={section}
-      aria-labelledby="lp-how-title"
+      id={embedded ? undefined : "how"}
+      ref={section as never}
+      aria-labelledby={embedded ? undefined : "lp-how-title"}
       data-auto={auto ? "" : undefined}
       data-run={running ? "" : undefined}
       onPointerEnter={() => setHold(true)}
@@ -72,13 +94,15 @@ export function HowItWorks({
         if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setHold(false);
       }}
     >
-      <div className="lp-head" data-reveal="">
-        <p className="lp-eyebrow">{eyebrow}</p>
-        <h2 id="lp-how-title" className="lp-h2">
-          {title}
-        </h2>
-        <p>{lead}</p>
-      </div>
+      {!embedded && (
+        <div className="lp-head" data-reveal="">
+          <p className="lp-eyebrow">{eyebrow}</p>
+          <h2 id="lp-how-title" className="lp-h2">
+            {title}
+          </h2>
+          <p>{lead}</p>
+        </div>
+      )}
 
       <div className="lp-how-body">
         {/* 8.6: the days and their words in one list beside the window; the steps play in a loop by themselves
@@ -97,7 +121,7 @@ export function HowItWorks({
               onClick={() => go(i)}
             >
               <span className="lp-tab-bar" aria-hidden="true">
-                <i key={i === step ? `on-${step}` : "off"} onAnimationEnd={i === step ? () => go(step + 1) : undefined} />
+                <i key={i === step ? `on-${step}` : "off"} onAnimationEnd={i === step ? advance : undefined} />
               </span>
               <span className="lp-tab-label">{s.label}</span>
               <span className="lp-tab-title">{s.title}</span>
@@ -133,6 +157,6 @@ export function HowItWorks({
           </p>
         </div>
       </div>
-    </section>
+    </Box>
   );
 }

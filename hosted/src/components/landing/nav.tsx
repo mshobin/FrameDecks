@@ -8,11 +8,13 @@ import { Download } from "lucide-react";
 import { AboutButton } from "@/components/about-dialog";
 import { EffectsToggle } from "@/components/effects-toggle";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { useSession } from "@/lib/use-session";
 
 // The front page's bar: clear over the hero, then blurred navy with a hairline once the page has moved 20 px.
 // One passive scroll listener that writes only when the state changes.
 export function LandingNav() {
   const [solid, setSolid] = useState(false);
+  const session = useSession(); // 9.11.1 already signed in on this browser: the bar leads home, not to the email form
 
   useEffect(() => {
     let frame = 0;
@@ -50,8 +52,8 @@ export function LandingNav() {
         <EffectsToggle />
         <ThemeToggle />
         <AboutButton />
-        <Link className="fd-btn fd-btn-ghost fd-btn-sm" href="/sync">
-          Open Workspace
+        <Link className="fd-btn fd-btn-ghost fd-btn-sm" href={session ? "/" : "/sync"}>
+          {session ? "Go to Home" : "Open Workspace"}
         </Link>
         <Link className="fd-btn fd-btn-primary fd-btn-sm lp-nav-cta" href="/download">
           <Download aria-hidden="true" size={15} /> Download · free

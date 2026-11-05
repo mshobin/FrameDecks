@@ -419,10 +419,9 @@
   transform: translate3d(8%, 0, 0);
   visibility: hidden;
   transition:
-    opacity 0.4s var(--ease-out),
-    transform 0.5s var(--ease-out),
-    filter 0.4s var(--ease-out),
-    visibility 0s linear 0.4s;
+    opacity 0.3s var(--ease-out),
+    transform 0.36s var(--ease-out),
+    visibility 0s linear 0.3s;
 }
 
 .lp-screen.is-prev {
@@ -1624,10 +1623,6 @@
     animation: lp-glint 1.6s var(--ease-soft) 2.1s 1 both;
   }
 
-.lp-screen:not(.is-on) {
-    filter: blur(6px);
-  }
-
 .lp-callout {
     animation: lp-callout-in 0.6s var(--ease-out) 0.15s backwards;
   }
@@ -1701,7 +1696,7 @@
 
 @media (prefers-reduced-motion: no-preference) {
 html.fd-motion:not(.fd-calm) .lp-how[data-auto] .lp-tab.is-on .lp-tab-bar i {
-    animation: lp-tab-fill 4s linear both paused;
+    animation: lp-tab-fill 3s linear both paused;
   }
 
 html.fd-motion:not(.fd-calm) .lp-how[data-run] .lp-tab.is-on .lp-tab-bar i {
@@ -1977,7 +1972,7 @@ html.fd-motion:not(.fd-calm) .lp-screen.is-on .lp-ann-under path {
 
 @media (prefers-reduced-motion: no-preference) {
 html.fd-motion:not(.fd-calm) .lp-features[data-tour] .lp-feature-bar i {
-    animation: lp-feature-fill 5s linear both paused;
+    animation: lp-feature-fill 3.5s linear both paused;
   }
 
 html.fd-motion:not(.fd-calm) .lp-features[data-run] .lp-feature-bar i {
@@ -2016,4 +2011,13 @@ html.fd-motion:not(.fd-calm) [data-in] .lp-feature-tab:nth-child(4) {
       opacity: 0;
     }
   }
+}
+
+/* 9.11.1 one stage for How it works and See it work: a two-part switch above it; the parts glide in by
+   transform and opacity only, quicker steps (3 s and 3.5 s), no blur */
+.lp-show .lp-how { padding: 0; }
+.lp-show-switch { justify-content: center; }
+.lp-show-anchor { display: block; scroll-margin-top: 64px; }
+@media (prefers-reduced-motion: no-preference) {
+  html.fd-motion:not(.fd-calm) .lp-show-part:not([hidden]) { animation: lp-feature-in 0.4s var(--ease-out); }
 }

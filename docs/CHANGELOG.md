@@ -53,6 +53,19 @@ Versions before 4.9 (when the program had its earlier name) are described in the
 - The favicons, the tray icon and the small program-icon sizes (16–32 px) use a heavier version of the emblem, so it
   stays visible on light browser tabs and a light taskbar. Larger sizes are unchanged.
 
+## [9.11.1] - 2026-11-05
+
+Full notes: [docs/releases/v9.11.1.md](releases/v9.11.1.md).
+
+### Fixed
+- Website: signed in on this browser, the landing bar says **Go to Home** (`landing/nav.tsx`) and `/sync` goes straight
+  to Home or back to a PC's connect request (`workspace-sync-form.tsx`; not after a revoked or expired device).
+
+### Changed
+- Home page: How it works and See it work in one stage (`components/landing/showcase.tsx`): the days hand over to the
+  features and back (`onLoopEnd`), `#how` / `#features` pick the part, both parts stay in the page for search; steps
+  3 s and 3.5 s (were 4 s and 5 s), no blur between screens. About a screen shorter.
+
 ## [9.11.0] - 2026-11-05
 
 Full notes: [docs/releases/v9.11.0.md](releases/v9.11.0.md). Design: [docs/architecture/live-push.md](architecture/live-push.md).

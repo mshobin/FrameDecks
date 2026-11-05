@@ -86,7 +86,7 @@ test("the landing page carries the owner's brief (27 October): approved words, e
   assert.doesNotMatch(words, />[^<]*FRAMEDECKS/);
   assert.ok(landing.indexOf("Download for Windows") < landing.indexOf("Start a free workspace"));
   assert.match(landing, /data-reveal/);
-  assert.match(landing, /data-spotlight/);
+  assert.match(words, /data-spotlight/); // 9.11.1 on the showcase's stage
   assert.match(src("components/landing/feature-previews.tsx"), /data-loop/);
   // 6.13: about four screens. How it works plays its steps by itself, without pinning (no GSAP); 8.6: in a loop, no buttons
   const how = src("components/landing/how-it-works.tsx");
@@ -94,9 +94,19 @@ test("the landing page carries the owner's brief (27 October): approved words, e
   assert.match(how, /onAnimationEnd/);
   assert.match(how, /go\(step \+ 1\)/); // the last day's end starts the first again
   assert.doesNotMatch(how, /Previous step|Play the steps/);
-  assert.match(src("app/landing-page.css"), /\.lp-how\[data-auto\] \.lp-tab\.is-on \.lp-tab-bar i \{\s*animation: lp-tab-fill 4s linear both paused;/);
+  assert.match(src("app/landing-page.css"), /\.lp-how\[data-auto\] \.lp-tab\.is-on \.lp-tab-bar i \{\s*animation: lp-tab-fill 3s linear both paused;/);
   assert.match(src("app/landing-page.css"), /\.lp-how\[data-run\] \.lp-tab\.is-on \.lp-tab-bar i \{\s*animation-play-state: running;/);
   assert.equal(JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8")).dependencies.gsap, undefined);
+  // 9.11.1 one stage for How it works and See it work: the days hand over to the features and back, both header
+  // links land on it, and the steps are quicker (3 s a day, 3.5 s a feature)
+  const show = src("components/landing/showcase.tsx");
+  assert.match(landing, /<Showcase/);
+  assert.match(show, /id="how"/);
+  assert.match(show, /id="features"/);
+  assert.match(show, /onLoopEnd=\{next\}/);
+  assert.match(show, /chapterFromHash/);
+  assert.match(src("app/landing-page.css"), /animation: lp-feature-fill 3\.5s linear both paused;/);
+  assert.doesNotMatch(src("app/landing-page.css"), /filter: blur\(6px\)/);
   assert.match(landing, /FAQ\.slice\(0, 4\)/);
   assert.match(landing, /More questions/);
   assert.match(landing, /Every member of your team\./);

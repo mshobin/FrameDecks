@@ -39,7 +39,12 @@ function Panel({ tab, active, children }: Readonly<{ tab: FeatureTab; active: bo
   );
 }
 
-export function FeatureTabs({ tabs, private: own }: Readonly<{ tabs: readonly FeatureTab[]; private: ReactNode }>) {
+// 9.11.1 in the showcase, the end of the last tab hands back to "How it works" (onLoopEnd)
+export function FeatureTabs({
+  tabs,
+  private: own,
+  onLoopEnd,
+}: Readonly<{ tabs: readonly FeatureTab[]; private: ReactNode; onLoopEnd?: () => void }>) {
   const [at, setAt] = useState(0);
   const box = useRef<HTMLDivElement>(null);
   const [tour, setTour] = useState(false);
@@ -91,7 +96,13 @@ export function FeatureTabs({ tabs, private: own }: Readonly<{ tabs: readonly Fe
             {t.tab}
             {tour && i === at && (
               <span className="lp-feature-bar" aria-hidden="true">
-                <i key={at} onAnimationEnd={() => setAt((at + 1) % tabs.length)} />
+                <i
+                  key={at}
+                  onAnimationEnd={() => {
+                    if (onLoopEnd && at === tabs.length - 1) onLoopEnd();
+                    setAt((at + 1) % tabs.length);
+                  }}
+                />
               </span>
             )}
           </button>

@@ -3,8 +3,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Download, Quote, ShieldCheck, Smartphone, Users } from "lucide-react";
 
-import { FeatureTabs, type FeatureTab } from "@/components/landing/feature-tabs";
-import { HowItWorks } from "@/components/landing/how-it-works";
+import { type FeatureTab } from "@/components/landing/feature-tabs";
+import { Showcase } from "@/components/landing/showcase";
 import { LandingHero } from "@/components/landing/hero";
 import { LandingNav } from "@/components/landing/nav";
 import { SiteFooter } from "@/components/site-footer";
@@ -177,40 +177,38 @@ export function Landing() {
           proof={PROOF}
         />
 
-        <HowItWorks
+        {/* 9.11.1 "How it works" and "See it work" share one stage (components/landing/showcase.tsx) */}
+        <Showcase
+          chapters={[
+            {
+              id: "how",
+              label: "How it works",
+              title: "From first idea to final word.",
+              lead: "Plan, prompt, present: the same steps every time, with nothing to learn twice.",
+            },
+            {
+              id: "see",
+              label: "See it work",
+              title: "Powerful tools. Effortless creation.",
+              lead: "Plan, prompt and present from one place, with every tool ready the moment you reach for it.",
+            },
+          ]}
           steps={DAYS.map((d, i) => ({ ...d, label: `Day ${i + 1}` }))}
-          eyebrow="How it works"
-          title="From first idea to final word."
-          lead="Plan, prompt, present: the same steps every time, with nothing to learn twice."
+          tabs={TABS}
+          extra={
+            <ul className="lp-promises">
+              {FEATURES.map((f) => (
+                <li key={f.title}>
+                  <span className="lp-icon">
+                    <f.icon aria-hidden="true" size={18} />
+                  </span>
+                  <b>{f.title}</b>
+                  <span>{f.text}</span>
+                </li>
+              ))}
+            </ul>
+          }
         />
-
-        <section className="lp-section" id="features" aria-labelledby="lp-features-title">
-          <div className="lp-head" data-reveal="">
-            <p className="lp-eyebrow">See it work</p>
-            <h2 id="lp-features-title" className="lp-h2">
-              Powerful tools. Effortless creation.
-            </h2>
-            <p>Plan, prompt and present from one place, with every tool ready the moment you reach for it.</p>
-          </div>
-          <div data-reveal="" data-spotlight="" style={delay(80)}>
-            <FeatureTabs
-              tabs={TABS}
-              private={
-                <ul className="lp-promises">
-                  {FEATURES.map((f) => (
-                    <li key={f.title}>
-                      <span className="lp-icon">
-                        <f.icon aria-hidden="true" size={18} />
-                      </span>
-                      <b>{f.title}</b>
-                      <span>{f.text}</span>
-                    </li>
-                  ))}
-                </ul>
-              }
-            />
-          </div>
-        </section>
 
         <section className="lp-section" id="questions" aria-labelledby="lp-faq-title">
           <div className="lp-head" data-reveal="">
