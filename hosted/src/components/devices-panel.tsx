@@ -62,8 +62,8 @@ export function DevicesPanel() {
     const ok = await ask({
       title: `Remove “${device.name}”?`,
       description: here
-        ? "This device stops being trusted and leaves your workspace now. To come back, Sync Workspace again."
-        : "That device loses access to your workspace at once. To use it again, Sync Workspace on it.",
+        ? "This device stops being trusted and leaves your workspace now. To come back, open your workspace again."
+        : "That device loses access to your workspace at once. To use it again, open your workspace on it.",
       confirmLabel: "Remove device",
       tone: "danger",
     });

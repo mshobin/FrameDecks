@@ -44,7 +44,7 @@ export function userSafeError(error: unknown, fallback = "That didn’t work. Pl
       return "That link couldn’t be verified. Ask for a new one and try again.";
   }
 
-  if (errorStatus === 401) return "Your workspace session has ended. Sync Workspace again and retry.";
+  if (errorStatus === 401) return "Your workspace session has ended. Open your workspace again and retry.";
   if (errorStatus === 403) return "You don’t have permission to make that change. Ask a workspace owner.";
   if (errorStatus === 429) return "Too many attempts just now. Wait a moment, then try again.";
   if (errorStatus >= 500) return "The service is having trouble. Please try again shortly.";

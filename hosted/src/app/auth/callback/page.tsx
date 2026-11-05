@@ -8,7 +8,7 @@ export const metadata: Metadata = pageMetadata("Opening your workspace", "/auth/
 
 export default function AuthCallbackPage() {
   return (
-    <AuthShell eyebrow="Sync Workspace" title="Opening your workspace">
+    <AuthShell eyebrow="Open Workspace" title="Opening your workspace">
       <AuthCallback />
     </AuthShell>
   );

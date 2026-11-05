@@ -22,7 +22,7 @@ export type GuideStep = {
 };
 
 export const CORE = [
-  "Sync Workspace",
+  "Open Workspace",
   "Create a meeting",
   "Add Frames",
   "Write or upload scripts",
@@ -40,10 +40,10 @@ export const GUIDE: Record<GuideTrack, { title: string; lead: string; steps: Gui
       {
         id: "web-sign-in",
         core: 1,
-        title: "Sync Workspace",
+        title: "Open Workspace",
         why: "Your workspace keeps the meetings, the Frames and the people in your team. Nothing to remember: an emailed link opens it.",
-        steps: ["Open framedecks.com and choose **Sync Workspace**.", "Type your email and choose **Email me a link**.", "Open the email on this device and tap the link (it works once, for 10 minutes). Choose **Trust This Device** to skip the link next time."],
-        ui: ["Sync Workspace", "Email me a link", "Trust This Device"],
+        steps: ["Open framedecks.com and choose **Open Workspace**.", "Type your email and choose **Email me a link**.", "Open the email on this device and tap the link (it works once, for 10 minutes). Choose **Trust This Device** to skip the link next time."],
+        ui: ["Open Workspace", "Email me a link", "Trust This Device"],
         caption: "Email me a link",
         shot: "web-sign-in",
         spot: "send",

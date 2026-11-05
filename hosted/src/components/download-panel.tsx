@@ -138,7 +138,7 @@ export function DownloadPanel({ fallback }: Readonly<{ fallback: Fallback }>) {
                 className="fd-btn fd-btn-ghost fd-btn-lg"
                 href="/sync?intent=save"
               >
-                Save Workspace
+                Start a free workspace
               </Link>
             </div>
           </>
@@ -167,7 +167,7 @@ export function DownloadPanel({ fallback }: Readonly<{ fallback: Fallback }>) {
                   className="fd-btn fd-btn-ghost fd-btn-lg"
                   href="/sync?intent=save"
                 >
-                  Save Workspace
+                  Start a free workspace
                 </Link>
               )}
             </div>

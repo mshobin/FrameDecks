@@ -84,7 +84,7 @@ test("the landing page carries the owner's brief (27 October): approved words, e
   const words = [landing, src("components/next-demo.tsx"), ...parts].join("\n");
   assert.doesNotMatch(words, /church|sunday|\bobs\b|\bcamo\b/i);
   assert.doesNotMatch(words, />[^<]*FRAMEDECKS/);
-  assert.ok(landing.indexOf("Download for Windows") < landing.indexOf("Save Workspace"));
+  assert.ok(landing.indexOf("Download for Windows") < landing.indexOf("Start a free workspace"));
   assert.match(landing, /data-reveal/);
   assert.match(landing, /data-spotlight/);
   assert.match(src("components/landing/feature-previews.tsx"), /data-loop/);

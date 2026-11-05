@@ -24,7 +24,7 @@ export function AccountStatus() {
   if (!session) {
     return (
       <Link className="fd-account fd-account-in" href="/sync">
-        Sync Workspace
+        Open Workspace
       </Link>
     );
   }

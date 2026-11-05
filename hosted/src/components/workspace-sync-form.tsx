@@ -10,22 +10,23 @@ import { statusMessage, type DeviceStatus } from "@/lib/trusted-device";
 import { userSafeError } from "@/lib/user-error";
 
 /** 9.8 the three ways in, one form: an emailed one-time link (10 minutes, once), no password and nothing to remember.
- * Sync Workspace: your workspace on this device. Save Workspace: start keeping your plans (asks for the Terms once).
+ * Open my workspace (9.11, was Sync Workspace): your workspace on this device. Start a new one (was Save Workspace):
+ * start keeping your plans (asks for the Terms once).
  * Continue on Another Device: the same workspace on a phone, tablet or second computer. */
 export type SyncIntent = "sync" | "save" | "continue";
 
 const INTENTS: Record<SyncIntent, { tab: string; title: string; lede: string; button: string }> = {
   sync: {
-    tab: "Sync Workspace",
-    title: "Sync your workspace.",
+    tab: "Open my workspace",
+    title: "Open your workspace.",
     lede: "Enter your email. We send a one-time link that opens your workspace on this device.",
     button: "Email me a link",
   },
   save: {
-    tab: "Save Workspace",
-    title: "Save your workspace.",
+    tab: "Start a new one",
+    title: "Start a free workspace.",
     lede: "Keep your meetings, Frames and people safe in a workspace you can open anywhere. Free, and nothing to remember.",
-    button: "Email me a link to save it",
+    button: "Email me a link to start it",
   },
   continue: {
     tab: "Continue on Another Device",

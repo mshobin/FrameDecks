@@ -22,7 +22,7 @@ export function WorkspaceGate({
   if (!session) {
     return (
       <p className="page-note">
-        <Link href="/sync">Sync Workspace</Link> to see {what}.
+        <Link href="/sync">Open your workspace</Link> to see {what}.
       </p>
     );
   }

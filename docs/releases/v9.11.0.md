@@ -21,6 +21,9 @@ earlier and keeps all your meetings, members, settings, pinned Memory Cards and 
   matches the bars: Step 1 of 3.
 - **A slimmer Up next** in the Studio: one line beside a small picture, so the canvas keeps its room. Warnings still
   show first.
+- **Clearer website buttons**: **Open Workspace** for people who already have one, and **Start a free workspace**
+  for new people (they were Sync Workspace and Save Workspace). On the PC, **Sync Workspace** keeps its name: it
+  connects this PC to your workspace.
 - **The website on a phone** keeps the FrameDecks name in its header, and the cookie notice is one slim line at the
   bottom.
 - Settings → Workspace Sync shows how this PC gets updates: **Live connection on**, **Resting** or **Regular checks**.

@@ -106,7 +106,7 @@ export function deviceName(ua: string = globalThis.navigator?.userAgent ?? ""): 
 
 /** What a device-check answer means for the person. */
 export function statusMessage(status: DeviceStatus): string | null {
-  if (status === "revoked") return "This device was removed from your workspace. Sync Workspace again to continue here.";
-  if (status === "expired") return "It has been 180 days since this device was trusted. Sync Workspace again to keep it trusted.";
+  if (status === "revoked") return "This device was removed from your workspace. Open your workspace again to continue here.";
+  if (status === "expired") return "It has been 180 days since this device was trusted. Open your workspace again to keep it trusted.";
   return null;
 }

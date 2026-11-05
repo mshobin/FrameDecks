@@ -5,8 +5,8 @@ Status: built on `main`. The owner runs migration `0015_trusted_devices.sql` and
 ## In short
 
 - **No sign-in pages any more.** The website has three ways in:
-  - **Sync Workspace**: open your workspace on this device.
-  - **Save Workspace**: start keeping your plans (asks for the Terms once).
+  - **Open my workspace** (9.11; was Sync Workspace; the website's header says **Open Workspace**): open your workspace on this device.
+  - **Start a new one** (9.11; was Save Workspace; **Start a free workspace** on the home and download pages): start keeping your plans (asks for the Terms once).
   - **Continue on Another Device**: the same workspace somewhere else.
 
   All three ask only for an email address and send a **one-time link** that works once, for 10 minutes. There are no
@@ -28,7 +28,7 @@ Status: built on `main`. The owner runs migration `0015_trusted_devices.sql` and
 ## 1. Flow
 
 ```
-Sync Workspace / Save Workspace / Continue on Another Device  (/sync?intent=sync|save|continue)
+Open my workspace / Start a new one / Continue on Another Device  (/sync?intent=sync|save|continue)
   └ email → rpc magic_link_requested(email)      security log (address hashed), 10 per address / 30 per network an hour
           → supabase.auth.signInWithOtp(email)    one-time link, PKCE, 10 minutes (Supabase setting), single use
 /auth/callback (the link)
@@ -91,7 +91,7 @@ Rollback: `hosted/supabase/rollback/0015_trusted_devices_down.sql`. Tests:
 | Workspace data encrypted at rest | Supabase encrypts the database and its backups at rest (AES-256), and the encrypted nightly backups (`tools/backup_mac.py`) stay as they are. Encrypting fields inside the database would change the data model and the sync engine, which this change must not do. |
 | Device tokens hashed | SHA-256 in `trusted_devices.token_hash`; the token itself is returned once and never stored in the cloud |
 | Audit log | `security_events` (link requested, link used, device trusted, removed, expired), workspace audit log (`device.*`, `workspace.synced`), and Supabase's own authentication log (`auth.audit_log_entries`) |
-| Wording | Sync Workspace, Save Workspace, Continue on Another Device, Trust This Device, Trusted Devices, Manage Devices, Your workspace; a test fails if Sign in, Sign up, Account or Password appear in the website's interface text |
+| Wording | Open Workspace (Open my workspace), Start a free workspace (Start a new one), Continue on Another Device, Trust This Device, Trusted Devices, Manage Devices, Your workspace; a test fails if Sign in, Sign up, Account or Password appear in the website's interface text |
 | Nothing else changes | No change to workspaces, roles, invitations, entities, `sync_push` / `sync_pull`, PC linking or the desktop's sync engine |
 
 ## 4a. The desktop application

@@ -65,7 +65,7 @@ export function AuthCallback() {
         {problem}
       </p>
       <Link className="auth-link" href="/sync">
-        Back to Sync Workspace
+        Back to Open Workspace
       </Link>
     </>
   );

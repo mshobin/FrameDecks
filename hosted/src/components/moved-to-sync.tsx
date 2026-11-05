@@ -10,7 +10,7 @@ export function MovedToSync() {
   }, []);
   return (
     <p className="auth-message" role="status">
-      One moment… <Link href="/sync">Sync Workspace</Link>
+      One moment… <Link href="/sync">Open Workspace</Link>
     </p>
   );
 }

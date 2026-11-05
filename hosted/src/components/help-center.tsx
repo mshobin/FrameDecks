@@ -232,14 +232,14 @@ export const TOPICS: Topic[] = [
     id: "account",
     label: "Workspace",
     icon: UserRound,
-    blurb: "Sync Workspace, Trusted Devices, your team, linking a service PC and your data.",
+    blurb: "Opening your workspace, Trusted Devices, your team, linking a service PC and your data.",
     body: () => (
       <>
         <div className="hc-cards">
           <section>
             <h3>Your workspace on your devices</h3>
             <ul>
-              <li><Link href="/sync">Sync Workspace</Link> with your email: we send a one-time link that works for 10 minutes. Nothing to remember.</li>
+              <li><Link href="/sync">Open your workspace</Link> with your email: we send a one-time link that works for 10 minutes. Nothing to remember.</li>
               <li><b>Trust This Device</b> keeps your workspace open here for 180 days with no new link. <Link href="/devices">Manage Devices</Link> lists them; removing one ends its access at once.</li>
               <li>The button next to your name disconnects this device and takes you to framedecks.com.</li>
             </ul>

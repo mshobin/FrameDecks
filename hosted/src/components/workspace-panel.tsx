@@ -76,7 +76,7 @@ export function WorkspacePanel() {
       <section className="workspace-card workspace-signed-out" aria-label="Your workspace">
         <Building2 aria-hidden="true" size={20} />
         <p>
-          <Link href="/sync?intent=save">Save Workspace</Link> to create your team&apos;s space.
+          <Link href="/sync?intent=save">Start a free workspace</Link> to create your team&apos;s space.
         </p>
       </section>
     );

@@ -104,9 +104,9 @@ export function ConnectPanel() {
     return (
       <>
         <PcLine name={pcName} check={check} />
-        <p className="auth-message">Sync Workspace to allow this PC. You’ll come straight back here.</p>
+        <p className="auth-message">Open your workspace to allow this PC. You’ll come straight back here.</p>
         <Link className="fd-btn fd-btn-primary auth-primary" href="/sync">
-          Sync Workspace to continue
+          Open your workspace to continue
         </Link>
       </>
     );

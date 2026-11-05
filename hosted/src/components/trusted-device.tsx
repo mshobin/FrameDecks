@@ -24,7 +24,7 @@ const ASKED_KEY = "fd-trust-asked";          // this tab: "Just this visit" was 
 const CHECK_EVERY_MS = 60_000;
 
 /** At every start (and when the window comes back, at most once a minute) a trusted device checks its token. A removed
- * device, or one trusted 180 days ago, forgets the session here and goes to Sync Workspace. */
+ * device, or one trusted 180 days ago, forgets the session here and goes to Open Workspace. */
 export function TrustedDeviceGuard() {
   const session = useSession();
   useEffect(() => {

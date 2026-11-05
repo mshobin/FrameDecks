@@ -139,7 +139,7 @@ function syncPanel(){
   check();
   return h('div', {cls: 'onb-opt'}, [
     h('p', {cls: 'onb-opt-t', text: 'Plan on the website, present here (optional)'}),
-    h('p', {cls: 'onb-hint onb-hint-top', text: 'Sync Workspace at framedecks.com to plan meetings from any browser with your team. They sync to this PC by themselves; presenting never needs the internet.'}),
+    h('p', {cls: 'onb-hint onb-hint-top', text: 'Open your workspace at framedecks.com to plan meetings from any browser with your team. They sync to this PC by themselves; presenting never needs the internet.'}),
     body,
     h('p', {cls: 'onb-hint', text: 'Later: Settings → Workspace Sync.'})]);
 }

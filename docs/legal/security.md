@@ -50,7 +50,7 @@ yourself.
 
 FrameDecks has no passwords and nothing to remember.
 
-- **One-time link.** Sync Workspace, Save Workspace and Continue on Another Device send a one-time link to your
+- **One-time link.** Open my workspace, Start a new one and Continue on Another Device send a one-time link to your
   email address:
   - it uses the OAuth 2.0 authorization code flow with PKCE (S256), so only the browser that asked can use it;
   - it works once, for 10 minutes.
@@ -112,7 +112,7 @@ FrameDecks has no passwords and nothing to remember.
 - **Only the public key in the browser.** The website and the program use only the database's public (anon) key.
   Access is decided by row-level security and by functions that check who is asking. No secret or service key is
   ever in the website or the program, and a test fails the build if one appears.
-- **Pages that are never kept by a cache.** The one-time link's return page and Sync Workspace are served with
+- **Pages that are never kept by a cache.** The one-time link's return page and Open Workspace are served with
   `Cache-Control: no-store`.
 
 ## Audit and accountability
