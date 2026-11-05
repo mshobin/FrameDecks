@@ -41,9 +41,10 @@ import winapi   # 7.1.1: Windows jobs through Windows' own interfaces (no PowerS
 import meeting_form   # 6.9: fills the Meeting Workbook's form for Export
 import updater   # 7.0: updates from FrameDecks servers (checked, silent, with rollback)
 from media_names import safe_name   # 9.1.2 media file names are never paths
+import meeting_notes  # 9.12 the leader's private notes (Command Center > Notes)
 import memory    # 9.0: Memory Cards in the FrameDecks vCam chat overlay (docs/architecture/memory-cards.md)
 
-APP_VERSION = "9.11.2"
+APP_VERSION = "9.12.0"
 STARTED_AT = time.time()
 FROZEN = getattr(sys, "frozen", False)          # True inside the installed Windows app
 HERE = Path(sys.executable).resolve().parent if FROZEN else Path(__file__).resolve().parent.parent   # the repository root (this file is in src/)
@@ -441,6 +442,7 @@ def update_state(change):
 
 # ---------- 9.0 Memory Cards in the FrameDecks vCam chat overlay (docs/architecture/memory-cards.md) ----------
 MEMORY = memory.Memory(DATA / "kc-memory.json")
+NOTES = meeting_notes.Notes(str(DATA / "notes"))   # 9.12 one file per meeting, this PC only
 _MEM = {"watcher": None, "timer": None, "lock": threading.Lock(), "syncing": False}
 
 
@@ -702,6 +704,22 @@ def memory_body():
                 layout=cfg["memLayout"], side=cfg["memSide"], auto=cfg["memAuto"], canCapture=os.name == "nt",
                 popup=hook() if hook else {"desktop": False})
     return snap
+
+
+def notes_action(data):
+    """POST /api/notes {action: add|edit|delete|clear, meeting, name?, text?, frame?, id?} (this PC only). The leader's
+    private notes: kept in <data>/notes, never synced, never sent to the phone, never in the diagnostics file."""
+    act, meeting = str(data.get("action") or ""), data.get("meeting")
+    if act == "add":
+        note, res = NOTES.add(meeting, data.get("text"), name=str(data.get("name") or ""), frame=str(data.get("frame") or ""))
+        return dict(res, added=note)
+    if act == "edit":
+        return NOTES.edit(meeting, str(data.get("id") or ""), data.get("text"))
+    if act == "delete":
+        return NOTES.delete(meeting, str(data.get("id") or ""))
+    if act == "clear":
+        return NOTES.clear(meeting)
+    raise ValueError("Unknown action.")
 
 
 def memory_action(data):
@@ -1084,6 +1102,8 @@ APP_SETTINGS_DEFAULTS = {"remoteAutostart": False, "importDecided": False,
                          "customChrome": True,    # the app's ribbon instead of the Windows title bar (restart to change)
                          "minimizeTo": "ask",     # minimize button: ask / tray / taskbar
                          "spotlightKey": "Alt+Space",   # system-wide shortcut for Spotlight ('' = off)
+                         "ccSize": "regular",     # 9.12 the Command Center: regular, or compact (slim chips, narrower)
+                         "ccPlace": "top",        # 9.12 where it opens: top, centre or bottom (chips above the bar)
                          "prompterLook": "solid",       # 8.1 Teleprompter transparency: solid/presenter/meeting/conference/ghost
                          "prompterOnTop": True,         # 8.1 the Teleprompter stays above Zoom, Teams and PowerPoint (pin)
                          "cloudRemote": False,    # Phase 5: run a service from the companion (Settings > FrameDecks account)
@@ -1097,7 +1117,8 @@ APP_SETTINGS_DEFAULTS = {"remoteAutostart": False, "importDecided": False,
                          "guide": {},             # 6.14 Setup guide progress on this PC (app/js/guide.js, _valid_guide)
                          "onboarding": {}}        # 9.5 the Welcome flow: {done, skipped, at} (app/js/onboarding.js)
 APP_SETTING_CHOICES = {"memLayout": ("beside", "below", "over"), "memSide": ("right", "left"), "minimizeTo": ("ask", "tray", "taskbar"), "memberAuthority": ("cloud", "pc"), "ai": ("auto", "off"),
-                       "prompterLook": ("solid", "presenter", "meeting", "conference", "ghost")}
+                       "prompterLook": ("solid", "presenter", "meeting", "conference", "ghost"),
+                       "ccSize": ("regular", "compact"), "ccPlace": ("top", "centre", "bottom")}
 
 
 GUIDE_STEPS = ("welcome", "output", "phone", "connect", "frame", "ready")    # app/js/guide-steps.js (8.0: no "rehearse")
@@ -2642,6 +2663,14 @@ class Handler(BaseHTTPRequestHandler):
                     wait = 25.0
                 MEMORY.wait(since, wait)
             return self.reply(200, json.dumps(remote_memory_body()), TYPES[".json"])
+        if path == "/api/notes":                        # 9.12 the leader's notes (this PC only)
+            if not self.is_local():
+                return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
+            q = parse_qs(url.query)
+            data = NOTES.get(q.get("meeting", [""])[0])
+            if q.get("format", [""])[0] == "md":
+                return self.reply(200, meeting_notes.as_text(data), "text/markdown; charset=utf-8")
+            return self.reply(200, json.dumps(data), TYPES[".json"])
         if path == "/api/memory":                       # 9.0 Memory Cards (this PC only; long-poll)
             if not self.is_local():
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
@@ -3086,6 +3115,14 @@ class Handler(BaseHTTPRequestHandler):
             except ValueError as e:
                 return self.reply(400, json.dumps({"error": str(e)}), TYPES[".json"])
             return self.reply(200, json.dumps(dict(res, **remote_memory_body())), TYPES[".json"])
+        if path == "/api/notes":
+            if not self.is_local():
+                return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
+            try:
+                res = notes_action(data if isinstance(data, dict) else {})
+            except ValueError as e:
+                return self.reply(400, json.dumps({"error": str(e)}), TYPES[".json"])
+            return self.reply(200, json.dumps(res), TYPES[".json"])
         if path == "/api/memory":
             if not self.is_local():
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")

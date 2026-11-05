@@ -37,7 +37,7 @@ A printable timeline for running a service with FrameDecks, plus an emergency ca
 - [ ] Walk through the first Frames with **Go Live**; check the projector and the meeting app's self-view.
 - [ ] **Teleprompter** open where the leader can see it (**Live tools → Teleprompter** or **R** on the PC, or **Teleprompter** on the leader's phone).
 - [ ] Leader on Zoom or Teams from the same PC: check that the Teleprompter sits over the participants (not over the leader's own video or the chat they need), and click into Zoom: the Teleprompter should stay in front.
-- [ ] Spotlight works: press **Alt+Space** (or the shortcut shown in **Settings → General → Window and tray**) with Zoom in front.
+- [ ] Spotlight works: press **Alt+Space** (or the shortcut shown in **Settings → Controls → General → Window and tray**) with Zoom in front.
 - [ ] Agree who controls Next (PC or phone) and the hand signals.
 
 ## 10 minutes before

@@ -106,7 +106,7 @@ function renderAbout(){
   if (!p){ p = h('p', {cls: 'hint', id: 'app-about'}); sec.appendChild(p); }
   p.textContent = 'FrameDecks version ' + info.version + (info.installedApp ? ' (installed app)' : '') + '.';
 }
-/* Settings > General > Performance (installed app): draw this window without the graphics card */
+/* Settings > Controls > General > Performance (installed app): draw this window without the graphics card */
 function renderPerf(){
   var sec = $('sec-general'); if (!sec || !info || !info.desktop) return;
   var box = $('app-perf');
@@ -130,7 +130,7 @@ function renderPerf(){
   $('app-native-present').checked = info.settings.nativePresent !== false;
   $('app-lowgpu-state').textContent = 'Now: ' + (info.lowGpuActive ? 'on' : 'off') + (want !== !!info.lowGpuActive ? ' (restart the app to apply your change)' : '');
 }
-/* 6.8 Settings > General > Window and tray: ribbon, minimize, Spotlight shortcut */
+/* 6.8 Settings > Controls > General > Window and tray: ribbon, minimize, Spotlight shortcut */
 var SPOT_KEYS = [['Alt+Space', 'Alt + Space (like PowerToys Run)'], ['Ctrl+Space', 'Ctrl + Space'], ['Ctrl+Alt+Space', 'Ctrl + Alt + Space'],
   ['Ctrl+Shift+Space', 'Ctrl + Shift + Space'], ['Win+Shift+K', 'Win + Shift + K'], ['', 'Off']];
 function renderWindow(){
@@ -156,6 +156,9 @@ function renderWindow(){
     h('p', {cls: 'hint', text: 'In the tray (near the clock) FrameDecks keeps running: camera, overlays, phone remote and shortcuts keep working.'}),
     h('label', {cls: 'field'}, [h('span', {text: 'Command Center (works everywhere, even from the tray)'}), select('app-spot', SPOT_KEYS, st.spotlightKey == null ? 'Alt+Space' : st.spotlightKey, 'spotlightKey', 'Saved')]),
     h('p', {cls: 'hint', id: 'app-spot-state', text: hkText}),
+    // 9.12 the Command Center's size and where it opens (applied the next time it opens)
+    h('label', {cls: 'field'}, [h('span', {text: 'Command Center size'}), select('app-cc-size', [['regular', 'Regular'], ['compact', 'Compact: slim chips, a narrower bar']], st.ccSize || 'regular', 'ccSize', 'Saved. The Command Center opens this size next time.')]),
+    h('label', {cls: 'field'}, [h('span', {text: 'Command Center opens at'}), select('app-cc-place', [['top', 'Top of the screen'], ['centre', 'Centre of the screen'], ['bottom', 'Bottom of the screen (the chips above the search bar)']], st.ccPlace || 'top', 'ccPlace', 'Saved. The Command Center opens there next time.')]),
     h('p', {cls: 'hint', text: 'The Teleprompter stays above Zoom and Teams and is never shown in screen sharing or recordings (Windows 10 version 2004 or later).'})];
   if (!box){ box = h('section', {cls: 'box', id: 'app-win', 'aria-labelledby': 'app-win-title'}); sec.appendChild(box); }
   box.innerHTML = ''; body.forEach(function(n){ box.appendChild(n); });

@@ -726,7 +726,14 @@ def main():
         hwnd = window_handle(spot)
         spot_prepare(spot)
         dw.hide_from_capture(hwnd)        # 9.6 every time: like the Teleprompter, only the presenter sees it, even sharing the screen
-        dw.center_on_cursor(hwnd)
+        cfg = server.app_settings()
+        place = cfg.get("ccPlace", "top")
+        dw.center_on_cursor(hwnd, where=place)
+        try:                              # 9.12 its size and place are drawn before it shows (no jump on opening)
+            spot.evaluate_js("window.KCSpotlight && KCSpotlight.look && KCSpotlight.look(%s)"
+                             % json.dumps({"size": cfg.get("ccSize", "regular"), "place": place}))
+        except Exception as _e:
+            _swallowed("desktop_app.spotlight", _e)
         state["spot_open"] = True
         try:
             spot.show()

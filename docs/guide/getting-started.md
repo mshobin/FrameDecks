@@ -104,7 +104,7 @@ The first time you select **Minimize**, the app asks *Hide application to system
 - **Hide To Tray** removes the taskbar button. The icon stays in the tray near the clock.
 - **Stay In Taskbar** minimizes as usual.
 
-Tick **Remember my choice** to stop the question. You can change it later in **Settings → General → Window and tray
+Tick **Remember my choice** to stop the question. You can change it later in **Settings → Controls → General → Window and tray
 → Minimize button**. In the tray, everything keeps working: the camera, the overlays, the phone remote and the
 shortcuts. Click the tray icon, or choose **Open App** in its menu, to bring the window back.
 
@@ -112,7 +112,7 @@ shortcuts. Click the tray icon, or choose **Open App** in its menu, to bring the
 > in FrameDecks, even from the tray, with the chips Prepare, Engage, Control and More. See
 > [Command Center](presentations.md#command-center).
 
-If you prefer the Windows title bar, turn off **Modern window** in **Settings → General → Window and tray** and
+If you prefer the Windows title bar, turn off **Modern window** in **Settings → Controls → General → Window and tray** and
 restart.
 
 ## Build your first meeting

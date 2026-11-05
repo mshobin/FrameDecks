@@ -168,7 +168,7 @@ If you already produce your stream in OBS, you can use FrameDecks's overlay page
 
 ## Performance tips
 
-- Keep **Settings → General → Light on graphics card** on (the default). The app window then uses the processor, leaving the graphics card free for Zoom and Windows.
+- Keep **Settings → Controls → General → Light on graphics card** on (the default). The app window then uses the processor, leaving the graphics card free for Zoom and Windows.
 - Close what you don't need: extra browser tabs, other video apps and unused overlay pages.
 - Prefer 720p if the PC is older or the internet connection is weak.
 - **Settings → Diagnostics** shows frame rate, dropped frames and processor use. The Studio Canvas shows the same figures under the picture while live.

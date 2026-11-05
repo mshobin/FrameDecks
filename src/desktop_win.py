@@ -284,8 +284,10 @@ def hide_from_capture(hwnd, on=True):
         return False
 
 
-def center_on_cursor(hwnd, top_third=True):
-    """Centre the window on the monitor the mouse is on (Spotlight opens where you are looking)."""
+def center_on_cursor(hwnd, top_third=True, where=None):
+    """Centre the window on the monitor the mouse is on (Spotlight opens where you are looking).
+    9.12 where: "top" (a third of the way down), "centre", or "bottom" (its bottom edge on the taskbar's edge: the
+    Command Center draws itself at the bottom of its see-through window then)."""
     if not (IS_WIN and hwnd):
         return
     try:
@@ -300,10 +302,22 @@ def center_on_cursor(hwnd, top_third=True):
         w, h = r.right - r.left, r.bottom - r.top
         wa = mi.rcWork
         x = wa.left + (wa.right - wa.left - w) // 2
-        y = wa.top + ((wa.bottom - wa.top) // 4 - h // 6 if top_third else (wa.bottom - wa.top - h) // 2)
+        y = spot_y(wa.top, wa.bottom, h, where or ("top" if top_third else "centre"))
         user32.SetWindowPos(hwnd, None, x, max(wa.top, y), 0, 0, SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE)
     except Exception as _e:
         _swallowed("desktop_win.center_on_cursor", _e)
+
+
+def spot_y(top, bottom, h, where):
+    """The window's top edge for a place on a work area from top to bottom (screen pixels), never above the top."""
+    tall = bottom - top
+    if where == "bottom":
+        y = bottom - h
+    elif where == "centre":
+        y = top + tall * 2 // 5 - h // 8          # the bar a little above the middle, its panel opening below
+    else:
+        y = top + tall // 4 - h // 6
+    return max(top, y)
 
 
 def round_corners(hwnd):

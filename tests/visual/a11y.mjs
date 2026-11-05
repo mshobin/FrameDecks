@@ -52,7 +52,7 @@ for (const theme of ["dark", "light"]) {
   await p.waitForTimeout(400);
   await scan(p, `${theme} Setup guide`);
   await p.evaluate(() => document.querySelector(".gd-panel")?.remove());
-  const sections = await p.evaluate(() => [...document.querySelectorAll("#s-nav [data-sec]")].map((b) => b.dataset.sec));
+  const sections = await p.evaluate(() => [...document.querySelectorAll("#s-tabs [data-sec]")].map((b) => b.dataset.sec));
   for (const s of sections) {
     await p.evaluate((id) => { window.KCSetTab("settings"); window.KCShowSection(id); }, s);
     await p.waitForTimeout(250);

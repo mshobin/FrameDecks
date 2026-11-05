@@ -252,7 +252,7 @@ and again to hide it. Its first row shows:
 - **Keep open** / **Hide bar**, and the window buttons.
 
 FrameDecks remembers the transparency and the pin. They are only in the installed app, not in a web browser. With
-**Settings → General → Performance → Light on graphics card** on (the default), the whole window fades, text
+**Settings → Controls → General → Performance → Light on graphics card** on (the default), the whole window fades, text
 included. With it off, only the background goes see-through and the text stays solid.
 
 Drag the bar to move the window, and drag an edge to resize it.
@@ -360,16 +360,16 @@ You can change the keys in **Settings → Keyboard shortcuts → Command palette
 
 The **Command Center** is where everything in FrameDecks starts. It works when another program is in front, and when
 FrameDecks is hidden in the tray. It has no window around it: a glass search bar floats on your screen with a tray of
-four chips folded away under it, behind a small arrow (9.11), as the Teleprompter's top bar is.
+five chips folded away under it, behind a small arrow (9.11), as the Teleprompter's top bar is.
 
 1. Press **Alt+Space** anywhere. It opens near the top of the screen your mouse is on, above everything. It opens only
    with its shortcut (or the tray's **Command Center**), never by itself.
 2. Type in the bar to search everything: Frames, meetings, questions, scriptures, Memory Cards, settings and
    commands. Choose with **↑ / ↓** and **Enter**. Start with **>** for commands only, **#** for meetings and Frames,
    or **@** for people.
-3. Or point at the small arrow under the bar: the four chips unfold for as long as the pointer stays. Click the arrow
+3. Or point at the small arrow under the bar: the five chips unfold for as long as the pointer stays. Click the arrow
    to keep them open every time (click again to fold them away; it is remembered). Choose a chip, or press **Alt+1**
-   to **Alt+4** even while they are folded. Its panel opens under the chips; **Esc** closes it.
+   to **Alt+5** even while they are folded. Its panel opens under the chips; **Esc** closes it.
 4. **Esc** again, or a click anywhere else, closes the Command Center.
 
 | Chip | What it holds |
@@ -377,7 +377,27 @@ four chips folded away under it, behind a small arrow (9.11), as the Teleprompte
 | **Prepare** | Meetings (switch the meeting this PC shows), Teleprompter, Share Window, Studio, Quick Start, Content Library, Import .frame, Camera check, and what you chose last |
 | **Engage** | Memory Cards, Capture copies, Draw and Spotlight on the Share Window, Clear drawings, Hide the cards |
 | **Control** | **Go Live** as a switch, and while you are live the meeting remote (below) |
-| **More** | Workspace Sync, Camera, How people see it, Phone remote, Meeting & Branding, Shortcuts, All settings, Help & tour |
+| **Notes** | Your private notes for this meeting (below) |
+| **More** | Workspace Sync, How people see it, Phone remote, Meeting & Branding, Shortcuts, All settings, Help & tour |
+
+Each thing is in one chip only (9.12): Draw, Spotlight and Clear drawings are in **Engage**; the Studio, the
+Teleprompter, the Share Window and the camera check in **Prepare**; the phone remote in **More**.
+
+**Size and place (9.12).** In **Settings → Controls → General → Window and tray** choose **Command Center size**
+(**Regular**, or **Compact**: slim chips in one row and a narrower bar) and **Command Center opens at** (**Top**,
+**Centre** or **Bottom** of the screen). At the bottom it stacks upwards: the search bar sits at the bottom, the
+chips above it, and the panels open above the chips.
+
+### Notes
+
+**Notes** (Alt+5) opens a small sticky note under the chip for the meeting shown. Type a note and press **Enter**
+(**Shift+Enter** starts a new line): it is saved at once with the time and the Frame on screen, for example
+*7:42 pm · Frame 3 · Discussion question*. The pencil changes a note and the bin deletes it. **Copy all**, **Save as a
+file** (Markdown) and **Email to me** are the three small buttons at its foot.
+
+Notes stay on this PC (in the program's data folder, one file per meeting): they are never synced to your workspace,
+never shown on screen or on the phone remote, and never in the file sent when asking for help. **Alt+←** and
+**Alt+→** still move the Frames while you type.
 
 **Go Live** in Control is a switch. On: the first Frame of the meeting goes on screen. Off: everything leaves the
 screen and you are off air. A green dot on **Control** shows you are live.
@@ -396,9 +416,8 @@ share the whole screen in Zoom, Teams or Google Meet.
 | **On screen** | Live, Off air, Black screen or Frozen, the Frame number and what comes next |
 | **FrameDecks** | **Previous** (Alt+←), **Next Frame** (Alt+→), **Play / Pause** the video (Alt+P), **Hide all** (Alt+H), **Black** (Alt+B) |
 | **Content** | The questions, scriptures or slides of the live Frame, one at a time, like the phone remote: choose **Questions**, **Scriptures** or **Slides**, then **‹ ›** (Alt+↑ / Alt+↓) |
-| **Live tools** | **Spotlight** (Alt+L) and **Draw** (Alt+D) open the Share Window to point or draw on it (below), **Clear drawings** |
+| **Live tools** | In **Engage** (9.12); **Alt+L** (Spotlight) and **Alt+D** (Draw) still work here |
 | **Meeting** | Zoom, Microsoft Teams or Google Meet, whichever has a meeting open: **Mute** (Alt+M), **Camera** (Alt+V), **Share screen** (Alt+S), **Leave** (press twice), and the PC's volume (Alt+- / Alt+=) |
-| **Open** | **Studio**, **Teleprompter**, **Share Window**, **Phone remote** |
 
 The meeting buttons press the meeting app's own keyboard shortcut in its window, then give the focus back to the
 window you were in. Google Meet has no shortcut for sharing or leaving, so those buttons are off for Meet. A button is
@@ -406,7 +425,7 @@ also off when no meeting is open. Windows only.
 
 ### Draw and Spotlight on the Share Window
 
-Choose **Draw** or **Spotlight** in the Command Center (in **Engage** or **Control**, or type *draw* or *spotlight* in its bar). The **Share Window**
+Choose **Draw** or **Spotlight** in the Command Center (in **Engage**, with **Alt+D** or **Alt+L**, or type *draw* or *spotlight* in its bar). The **Share Window**
 (the window you share in Zoom or Teams) opens, comes to the front, and the Command Center closes, so you can work on what everyone
 sees:
 
@@ -422,7 +441,7 @@ The drawings and the spotlight also show on FrameDecks vCam, the overlay pages a
 bringing the main window back. Everything else opens the main window.
 
 If another program already uses Alt+Space (for example PowerToys Run), FrameDecks uses **Ctrl+Alt+Space**
-instead. **Settings → General → Window and tray → Command Center** shows which shortcut works. You can choose Alt+Space,
+instead. **Settings → Controls → General → Window and tray → Command Center** shows which shortcut works. You can choose Alt+Space,
 Ctrl+Space, Ctrl+Alt+Space, Ctrl+Shift+Space, Win+Shift+K, or Off.
 
 > **Note:** Alt+Space normally opens the window menu of the program in front. If you need that menu, choose another

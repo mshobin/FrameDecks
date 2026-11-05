@@ -53,6 +53,24 @@ Versions before 4.9 (when the program had its earlier name) are described in the
 - The favicons, the tray icon and the small program-icon sizes (16–32 px) use a heavier version of the emblem, so it
   stays visible on light browser tabs and a light taskbar. Larger sizes are unchanged.
 
+## [9.12.0] - 2026-11-05
+
+Full notes: [docs/releases/v9.12.0.md](releases/v9.12.0.md).
+
+### Added
+- Command Center **Notes** chip (Alt+5, `app/js/command-center.js` Notes): private notes per meeting, stamped with the
+  time and the Frame on screen, shown as a sticky note; Copy all, Save as a file (Markdown), Email to me. Stored in
+  `<data>/notes/<meeting>.json` (`src/meeting_notes.py`); `GET/POST /api/notes` for this PC only; not synced.
+- Command Center size and place: app settings `ccSize` (regular / compact) and `ccPlace` (top / centre / bottom);
+  `desktop_win.spot_y`; at the bottom the page stacks upwards (`cc-bottom`). Settings → Controls → General.
+
+### Changed
+- Settings menu: six groups (`data-sgroup`) with the pages as tabs (`#s-tabs`, moved under the page title); every
+  page keeps its id; group dots follow the pages' dots; Find a setting opens the matching page.
+- One place for each Command Center action: the remote's Live tools and Open-in rows are left out inside the
+  Command Center; More no longer repeats the camera (it is Prepare's Camera check).
+- Help: "Settings → General" is now "Settings → Controls → General".
+
 ## [9.11.2] - 2026-11-05
 
 Full notes: [docs/releases/v9.11.2.md](releases/v9.11.2.md).

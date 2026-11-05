@@ -50,7 +50,7 @@ How to run the FrameDecks PC during a service: setup, presenting, and calm recov
 | **Alt+Space** | Spotlight: the same search from anywhere in Windows, even with FrameDecks in the tray |
 
 Shortcuts are ignored while you type in a box. Shortcut keys can be changed in Settings. Spotlight's shortcut is set
-in **Settings → General → Window and tray**; if another program uses Alt+Space, it is **Ctrl+Alt+Space**.
+in **Settings → Controls → General → Window and tray**; if another program uses Alt+Space, it is **Ctrl+Alt+Space**.
 
 ## Before the service
 

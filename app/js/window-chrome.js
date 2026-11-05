@@ -78,7 +78,7 @@ function askMinimize(){
     '<label class="check"><input type="checkbox" class="wc-remember"> Remember my choice</label>' +
     '<div class="wc-ask-acts"><button type="button" class="btn primary wc-tray">Hide To Tray</button>' +
     '<button type="button" class="btn wc-bar">Stay In Taskbar</button></div>' +
-    '<p class="hint">You can change this later in Settings → General → Window and tray.</p></div>';
+    '<p class="hint">You can change this later in Settings → Controls → General → Window and tray.</p></div>';
   document.body.appendChild(back);
   function done(choice){
     var remember = back.querySelector('.wc-remember').checked;

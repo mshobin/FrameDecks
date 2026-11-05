@@ -1476,3 +1476,17 @@ html[data-theme="light"]{
 .un-items{flex:1}
 .un-items li + li::before{content:"·";margin-right:10px;color:var(--faint)}
 .un-warn li{overflow:hidden;text-overflow:ellipsis}
+
+/* ---------- 9.12 Settings: six groups in the menu, the group's pages as tabs under the page title (js/settings.js) ---------- */
+.s-tabs{display:flex;flex-wrap:wrap;gap:6px;margin:-4px 0 18px;padding:4px;border:1px solid var(--line-soft);border-radius:12px;background:var(--panel)}
+.s-tabs[hidden],.s-tabs .st-tab[hidden]{display:none}
+.s-tabs .st-tab{all:unset;box-sizing:border-box;display:inline-flex;align-items:center;gap:8px;min-height:36px;padding:6px 12px;border-radius:8px;cursor:pointer;
+  color:var(--muted);font-size:14px;font-weight:600}
+.s-tabs .st-tab:hover{background:var(--hover,rgba(var(--rgb-gray-1000),.04));color:var(--ink)}
+.s-tabs .st-tab:focus-visible{outline:2px solid var(--gold);outline-offset:1px}
+.s-tabs .st-tab[aria-selected="true"]{background:var(--accent-soft);color:var(--ink);box-shadow:inset 0 -2px 0 var(--gold)}
+.s-tabs .st-tab .sn-i{width:16px;opacity:.85}
+.s-tabs .st-tab .sn-t{display:flex}
+.s-tabs .st-tab .sn-t b{font-weight:inherit}
+.s-tabs .st-tab .sn-t small{display:none}
+.s-tabs .st-tab .sn-dot{margin-left:2px}

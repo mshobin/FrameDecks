@@ -53,7 +53,7 @@ move the window, and double-click it to maximize. Snap and resizing from the edg
   the middle of the screen, from anywhere, even with the app in the tray. Go Live, Next / Previous Frame, Hide all,
   Blackout, Freeze and the Teleprompter run without bringing the main window back. An empty search shows Recent,
   Frequently used and Suggested.
-- **Settings → General → Window and tray**: Modern window (off brings the Windows title bar back, after a restart),
+- **Settings → Controls → General → Window and tray**: Modern window (off brings the Windows title bar back, after a restart),
   Minimize button (Ask each time / Hide to tray / Stay in taskbar), the Spotlight shortcut (Alt+Space, Ctrl+Space,
   Ctrl+Alt+Space, Ctrl+Shift+Space, Win+Shift+K or Off, with a line saying whether it works). **Settings →
   General** is now just *Window, tray and performance*.
@@ -63,6 +63,13 @@ move the window, and double-click it to maximize. Snap and resizing from the edg
   light or dark included. Under it, **Light or dark**: **Dark**, **Light** or **Match Windows**. A look picks its own
   light or dark (Morning Light is light), and you can change it. Only this window changes: the camera picture, the
   overlays and the phone remote keep their own look.
+
+
+**Settings (9.12)** has six groups: **Meeting look** (Meeting & Branding, Transitions), **Content** (Scripture,
+Birthdays), **Screens & camera** (How people see it, FrameDecks vCam, Projector TV and OBS, Recording), **Controls**
+(General, Phone & iPad Remote, Keyboard shortcuts), **Workspace & privacy** (Workspace Sync, Security) and **Data &
+help** (Data / Backup, Diagnostics, About). A group's pages are tabs under its title; **Find a setting** searches all
+of them.
 
 ## 2. Frames and Content
 - **Meeting (8.5):** with several meetings, the **Meeting** list above the Frames chooses the one this PC shows and

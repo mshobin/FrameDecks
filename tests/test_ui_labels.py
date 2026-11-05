@@ -90,7 +90,7 @@ class DesignSystem(unittest.TestCase):
         html = read("dashboard.html")
         for glyph in "★✝⇄🎂◉◧▭☁⚙⌨⛨⛁✚ⓘ":
             self.assertNotIn(f'<span class="sn-i">{glyph}</span>', html)
-        self.assertEqual(html.count('<span class="sn-i"><i data-icon="'), 17)   # 8.4 + Step-by-step guide
+        self.assertEqual(html.count('<span class="sn-i"><i data-icon="'), 23)   # 9.12: 6 groups + 16 page tabs + Step-by-step guide
 
     def test_headings_use_the_interface_typeface(self):
         css = read("css/theme.css")
@@ -177,14 +177,13 @@ class RunningAService(unittest.TestCase):
         self.assertNotIn(">Blackout</button>", html)
         self.assertIn("e.key === 'Escape' && prog.classList.contains('open')", read("js/panels.js"))
 
-    def test_one_guided_way_to_reach_people_and_an_advanced_group(self):
+    def test_one_guided_way_to_reach_people_and_the_rarer_pages_in_groups(self):
+        # 9.12: How people see it, the vCam and the projector pages are tabs of Screens & camera; the pages that were
+        # under Advanced are tabs of the group they belong to (tests/test_command_center_912.py holds the groups)
         html = read("dashboard.html")
-        self.assertIn('data-sec="output"', html)
-        self.assertIn('class="sn-sub" data-sec="vcam"', html)
-        self.assertIn('class="sn-sub" data-sec="display"', html)
-        adv = html[html.index('id="sn-adv"'):html.index('aria-label="Help"')]
-        for sec in ("transitions", "keys", "security", "diag"):
-            self.assertIn('data-sec="' + sec + '"', adv)
+        for sec, group in (("output", "screens"), ("vcam", "screens"), ("display", "screens"), ("transitions", "look"),
+                           ("keys", "controls"), ("security", "workspace"), ("diag", "data")):
+            self.assertIn('data-in="' + group + '" data-sec="' + sec + '"', html)
 
     def test_people_has_a_list_and_a_table(self):
         html = read("dashboard.html")

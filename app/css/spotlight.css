@@ -480,3 +480,125 @@ html[data-theme="light"]{--cc-gloss:inset 0 1px 0 rgba(255,255,255,.7),inset 0 -
 .cc-handle[aria-pressed="true"]{color:var(--gold)}
 .cc.cc-typing .cc-handle-row{display:none}
 @media (prefers-reduced-motion:reduce){ .cc .cc-tray.cc-unfold{animation:none} .cc-handle,.cc-handle svg{transition:none} }
+
+/* ---------- 9.12 Compact: slim chips in one row, a slimmer bar, a narrower Command Center (Settings > Controls >
+   General > Command Center). The window keeps its size; only what is drawn in it is smaller. ---------- */
+body.spotlight .pal.cc.cc-compact{width:min(660px,100%)}
+body.spotlight .cc.cc-compact .pal-top{min-height:52px;padding:6px 12px 6px 16px;border-radius:16px}
+body.spotlight .cc.cc-compact .pal-in{font-size:16px}
+body.spotlight .cc.cc-compact .pal-ic svg{width:19px;height:19px}
+.cc.cc-compact .cc-keys kbd{min-width:22px;height:22px;font-size:11px;border-radius:4px}
+.cc.cc-compact .cc-tray{padding:4px 4px 6px}
+.cc.cc-compact .cc-g{min-height:46px;flex-direction:row;gap:8px;padding:6px 8px}
+.cc.cc-compact .cc-sq{width:28px;height:28px;border-radius:8px}
+.cc.cc-compact .cc-sq svg{width:16px;height:16px}
+.cc.cc-compact .cc-g b{font-size:13px}
+.cc.cc-compact .cc-g::after{display:none}
+.cc.cc-compact .cc-g::before{width:90px;height:44px;margin:-22px 0 0 -45px;top:50%}
+.cc.cc-compact .cc-badge{top:6px;right:6px}
+.cc.cc-compact .cc-panel{padding:10px}
+.cc.cc-compact .cc-head{margin-bottom:8px}
+.cc.cc-compact .cc-tiles{gap:6px}
+.cc.cc-compact .cc-t{min-height:50px;padding:7px;gap:8px;border-radius:12px}
+.cc.cc-compact .cc-t-sq{width:30px;height:30px;border-radius:8px}
+.cc.cc-compact .cc-t-sq svg{width:17px;height:17px}
+.cc.cc-compact .cc-t-x b{font-size:13px}
+.cc.cc-compact .cc-t-x small{font-size:12px}
+.cc.cc-compact .cc-switch{min-height:52px}
+
+/* ---------- 9.12 At the bottom of the screen: the pieces stack upwards. The bar sits at the bottom, the chips above
+   it, the panels and the results open above the chips; the tray's curves, the fold tab and the motion turn over to
+   match. Placed by desktop_app (desktop_win.spot_y) with the window's bottom on the taskbar's edge. ---------- */
+body.spotlight.cc-at-bottom .pal-back{align-items:flex-end}
+body.spotlight .pal.cc.cc-bottom{flex-direction:column-reverse;padding:30px 22px 14px}
+.cc.cc-bottom .cc-tray{margin-top:0;margin-bottom:-2px;border-top:1px solid var(--cc-drawer-rim);border-bottom:0;border-radius:20px 20px 0 0;
+  background:linear-gradient(0deg,var(--cc-drawer-a),var(--cc-drawer-b))}
+.cc.cc-bottom .cc-tray::before,.cc.cc-bottom .cc-tray::after{top:auto;bottom:0}
+.cc.cc-bottom .cc-tray::before{background:radial-gradient(circle at 0 0,transparent 21px,var(--cc-drawer-rim) 21.5px,var(--cc-drawer-rim) 22.5px,var(--cc-drawer-a) 23px)}
+.cc.cc-bottom .cc-tray::after{background:radial-gradient(circle at 100% 0,transparent 21px,var(--cc-drawer-rim) 21.5px,var(--cc-drawer-rim) 22.5px,var(--cc-drawer-a) 23px)}
+.cc.cc-bottom .cc-glide{bottom:auto;top:3px}
+.cc.cc-bottom .cc-panel,body.spotlight .cc.cc-bottom .pal-list{border-top:1px solid var(--cc-drawer-rim);border-bottom:1px solid var(--cc-cell-line);border-radius:20px 20px 0 0}
+.cc.cc-bottom .cc-panel{transform-origin:var(--ox,50%) 100%}
+.cc.cc-bottom .cc-panel::before{inset:auto 8% -80px}
+.cc.cc-bottom .cc-panel.in{animation-name:cc-p-up}
+.cc.cc-bottom .cc-tray.cc-unfold{animation-name:cc-unfold-up;transform-origin:50% 100%}
+.cc.cc-bottom.cc-enter .pal-top{animation-name:cc-rise}
+@keyframes cc-p-up{from{opacity:0;transform:translateY(8px) scale(.965)}to{opacity:1;transform:none}}
+@keyframes cc-unfold-up{from{opacity:0;transform:translateY(10px) scaleY(.9)}to{opacity:1;transform:none}}
+/* the fold tab stands on top of the chips (or of the bar while they are folded); its arrow points the way they open */
+.cc.cc-bottom .cc-handle{top:auto;bottom:-1px;border-top:1px solid var(--cc-drawer-rim);border-bottom:0;border-radius:8px 8px 0 0}
+.cc.cc-bottom .cc-handle svg{transform:rotate(180deg)}
+.cc.cc-bottom.cc-peek .cc-handle svg,.cc.cc-bottom:not(.cc-fold) .cc-handle svg{transform:none}
+
+/* ---------- 9.12 Notes, the fifth chip (teal): a field to write in, the meeting's notes with their time and Frame,
+   and Copy / Save as a file / Email to me. Only on this PC (js/command-center.js Notes, src/meeting_notes.py). ---------- */
+.cc-tray,.cc .cc-tray{grid-template-columns:repeat(5,minmax(0,1fr))}
+:root,html[data-theme="dark"],html[data-theme="light"]{--cc-teal-halo:color-mix(in srgb,var(--cc-teal-b) 38%,transparent)}
+.cc-teal .cc-sq,.cc-teal .cc-t-sq,.cc-teal .cc-head-sq{background:linear-gradient(145deg,var(--cc-teal-a),var(--cc-teal-b))}
+.cc-teal .cc-sq{box-shadow:var(--cc-gloss),0 8px 20px var(--cc-teal-halo)}
+.cc-teal{--cc-ring:var(--cc-teal-a)}
+.cc-teal.on .cc-sq{box-shadow:var(--cc-hi),0 8px 26px var(--cc-teal-halo)}
+.cc-glide.cc-teal{background:var(--cc-teal-a);box-shadow:0 0 14px var(--cc-teal-halo)}
+.cc-panel.cc-teal::before{background:radial-gradient(closest-side,var(--cc-teal-halo),transparent)}
+.cc-notes{position:relative;display:flex;flex-direction:column;gap:10px}
+.cc-note-top{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--muted)}
+.cc-note-where{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cc-note-count{flex:none;font-weight:700}
+.cc-note-write{display:flex;align-items:flex-end;gap:8px}
+.cc-note-in{flex:1;min-width:0;min-height:44px;max-height:120px;resize:vertical;padding:10px 12px;border:1px solid var(--cc-rim-2);border-radius:12px;
+  background:var(--cc-cell);color:var(--ink);font:inherit;font-size:14px;line-height:1.4;box-shadow:var(--cc-hi)}
+.cc-note-in:focus{outline:2px solid var(--cc-teal-a);outline-offset:1px}
+.cc-note-save{flex:none;height:40px;padding:0 14px;border:0;border-radius:12px;background:linear-gradient(145deg,var(--cc-teal-a),var(--cc-teal-b));
+  color:var(--cc-glyph);font:inherit;font-size:13px;font-weight:700;cursor:pointer;box-shadow:var(--cc-gloss)}
+.cc-note-save:focus-visible,.cc-note-act:focus-visible,.cc-note-b:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.cc-note-list{list-style:none;margin:0;padding:0;max-height:220px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;contain:content}
+.cc-note{display:flex;align-items:flex-start;gap:6px;padding:8px 10px;border:1px solid var(--cc-rim);border-radius:12px;background:var(--cc-cell)}
+.cc-note.editing{border-color:var(--cc-teal-a)}
+.cc-note-x{flex:1;min-width:0}
+.cc-note-x small{display:block;font-size:12px;font-weight:700;color:var(--muted)}
+.cc-note-x p{margin:2px 0 0;font-size:14px;white-space:pre-wrap;overflow-wrap:anywhere}
+.cc-note-b{flex:none;display:grid;place-items:center;width:28px;height:28px;padding:0;border:0;border-radius:8px;background:transparent;color:var(--muted);cursor:pointer}
+.cc-note-b:hover{background:var(--cc-cell-2);color:var(--ink)}
+.cc-note-empty{padding:12px;border:1px dashed var(--cc-rim-2);border-radius:12px;font-size:13px;color:var(--muted)}
+.cc-note-acts{display:flex;flex-wrap:wrap;gap:6px}
+.cc-note-act{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 12px;border:1px solid var(--cc-rim);border-radius:999px;background:var(--cc-cell);
+  color:var(--ink);font:inherit;font-size:13px;font-weight:600;cursor:pointer}
+.cc-note-act:hover{background:var(--cc-cell-2)}
+.cc-note-act span{display:grid;place-items:center;color:var(--muted)}
+.cc.cc-compact .cc-note-list{max-height:170px}
+/* 9.12 one place for each thing: inside the Command Center the remote leaves out its Live tools row (Draw, Spotlight
+   and Clear drawings are in Engage) and its Open-in row (Studio, Teleprompter, Share Window are in Prepare; the phone
+   remote in More). Their shortcuts (Alt+L, Alt+D) still work. */
+.cc-panel .spr-tools,.cc-panel .spr-apps{display:none}
+/* 9.12 Notes opens as a sticky note: a small square of warm paper right under (or, at the bottom, right above) the
+   Notes chip, not the full-width panel. The write field on top, the notes under it, the actions as small icons. */
+.cc[data-group="notes"] .cc-stage-in{display:flex}
+.cc[data-group="notes"] .cc-panel{flex:none;width:300px;min-height:300px;max-width:100%;padding:12px 12px 14px;margin-left:clamp(0px,calc(var(--ox,50%) - 150px),calc(100% - 300px));
+  border:1px solid color-mix(in srgb,var(--lv-frame,var(--gold)) 40%,transparent);border-radius:4px 4px 20px 4px;
+  background:linear-gradient(180deg,color-mix(in srgb,var(--lv-frame,var(--gold)) 26%,var(--raised)),color-mix(in srgb,var(--lv-frame,var(--gold)) 18%,var(--raised)));
+  box-shadow:var(--cc-drawer-sh),var(--cc-sq-sh)}
+html[data-theme="light"] .cc[data-group="notes"] .cc-panel{background:linear-gradient(180deg,color-mix(in srgb,var(--lv-frame,var(--gold)) 22%,var(--gray-1000)),color-mix(in srgb,var(--lv-frame,var(--gold)) 30%,var(--gray-1000)))}
+.cc[data-group="notes"] .cc-panel::before{display:none}
+.cc[data-group="notes"] .cc-panel::after{content:'';position:absolute;right:0;bottom:0;left:auto;top:auto;inset:auto 0 0 auto;width:22px;height:22px;transform:none;display:block;
+  border-radius:12px 0 20px 0;background:linear-gradient(315deg,transparent 50%,color-mix(in srgb,var(--lv-frame,var(--gold)) 40%,var(--raised)) 50%)}
+.cc[data-group="notes"] .cc-head{margin:0 0 8px}
+.cc[data-group="notes"] .cc-head small,.cc[data-group="notes"] .cc-hint{display:none}
+.cc[data-group="notes"] .cc-say{max-width:60%}
+.cc[data-group="notes"] .cc-notes{gap:8px}
+.cc[data-group="notes"] .cc-note-write{flex-direction:column;align-items:stretch;gap:6px}
+.cc[data-group="notes"] .cc-note-in{min-height:64px;background:color-mix(in srgb,var(--raised) 55%,transparent);border-color:color-mix(in srgb,var(--ink) 18%,transparent)}
+.cc[data-group="notes"] .cc-note-save{height:32px}
+.cc[data-group="notes"] .cc-note-list{max-height:150px}
+.cc[data-group="notes"] .cc-note{padding:6px 8px;background:color-mix(in srgb,var(--raised) 45%,transparent)}
+.cc[data-group="notes"] .cc-note-x p{font-size:13px}
+.cc[data-group="notes"] .cc-note-acts{justify-content:flex-end;gap:4px}
+.cc[data-group="notes"] .cc-note-act{width:32px;height:30px;padding:0;justify-content:center;background:color-mix(in srgb,var(--raised) 55%,transparent)}
+.cc[data-group="notes"] .cc-note-act em{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.cc-note-act em{font-style:normal}
+.cc[data-group="notes"] .cc-note-top{font-size:12px}
+.cc.cc-compact[data-group="notes"] .cc-panel{width:260px;min-height:260px;margin-left:clamp(0px,calc(var(--ox,50%) - 130px),calc(100% - 260px))}
+.cc.cc-compact[data-group="notes"] .cc-note-list{max-height:120px}
+.cc.cc-open[data-group="notes"]:not(.cc-typing) .cc-tray{border-radius:0 0 20px 20px}
+.cc.cc-bottom.cc-open[data-group="notes"]:not(.cc-typing) .cc-tray{border-radius:20px 20px 0 0}
+.cc[data-group="notes"] .cc-panel{margin-top:8px}
+.cc.cc-bottom[data-group="notes"] .cc-panel{margin-top:0;margin-bottom:8px;border-radius:4px 4px 4px 20px}

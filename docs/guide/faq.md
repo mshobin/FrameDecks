@@ -203,7 +203,7 @@ MIT licence, and the background-blur model is from MediaPipe, Apache 2.0); they 
 ## Technical
 
 **Can I keep the app running without a taskbar button?**
-Yes. Select **Minimize** and choose **Hide To Tray**. FrameDecks keeps running from its icon near the clock: the camera, the overlays, the phone remote and the shortcuts keep working. Click the icon, or choose **Open App** in its menu, to bring the window back. To make it the default, tick **Remember my choice**, or set **Settings → General → Window and tray → Minimize button**.
+Yes. Select **Minimize** and choose **Hide To Tray**. FrameDecks keeps running from its icon near the clock: the camera, the overlays, the phone remote and the shortcuts keep working. Click the icon, or choose **Open App** in its menu, to bring the window back. To make it the default, tick **Remember my choice**, or set **Settings → Controls → General → Window and tray → Minimize button**.
 
 **What computer do we need?**
 A Windows 10 or 11 (64-bit) PC, plus a webcam if you want the camera picture. On older or busy PCs use 720p and light background blur; **Settings → Diagnostics** shows whether the PC keeps up (dropped frames should stay at 0).

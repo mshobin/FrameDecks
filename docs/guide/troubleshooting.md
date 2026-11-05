@@ -78,11 +78,11 @@ overlays, the phone remote and the shortcuts keep working.
 | Cause | Fix |
 | --- | --- |
 | The app is hidden in the tray | Click its icon near the clock (it may be under the **^** arrow), or right-click it and choose **Open App** |
-| You want a taskbar button again | **Settings → General → Window and tray → Minimize button** → **Stay in taskbar** (or **Ask each time**) |
+| You want a taskbar button again | **Settings → Controls → General → Window and tray → Minimize button** → **Stay in taskbar** (or **Ask each time**) |
 
 ### I want the Windows title bar back
 
-Turn off **Modern window** in **Settings → General → Window and tray**, then restart FrameDecks. The Windows
+Turn off **Modern window** in **Settings → Controls → General → Window and tray**, then restart FrameDecks. The Windows
 title bar comes back. Do the same if the ribbon at the top ever misbehaves on your PC (it does not move, maximize or
 snap as it should).
 
@@ -90,8 +90,8 @@ snap as it should).
 
 | Cause | Fix |
 | --- | --- |
-| Another program already uses Alt+Space (for example PowerToys Run) | FrameDecks then uses **Ctrl+Alt+Space**. **Settings → General → Window and tray** shows which shortcut works |
-| The chosen shortcut is taken too, or set to **Off** | Pick another shortcut in **Settings → General → Window and tray → Spotlight**: Ctrl+Space, Ctrl+Alt+Space, Ctrl+Shift+Space or Win+Shift+K. The line under it says whether it works |
+| Another program already uses Alt+Space (for example PowerToys Run) | FrameDecks then uses **Ctrl+Alt+Space**. **Settings → Controls → General → Window and tray** shows which shortcut works |
+| The chosen shortcut is taken too, or set to **Off** | Pick another shortcut in **Settings → Controls → General → Window and tray → Spotlight**: Ctrl+Space, Ctrl+Alt+Space, Ctrl+Shift+Space or Win+Shift+K. The line under it says whether it works |
 | You need Alt+Space for the window menu of other programs | Choose another Spotlight shortcut |
 
 Inside FrameDecks, **Ctrl+K** always opens the command palette, which finds the same things.
@@ -101,7 +101,7 @@ Inside FrameDecks, **Ctrl+K** always opens the command palette, which finds the 
 | Cause | Fix |
 | --- | --- |
 | **Transparency** is **Solid** | Show the Teleprompter's top bar and choose **40%** or more |
-| **Light on graphics card** is on (the default) | The whole window then fades, text included. Choose a more see-through setting (**65%** or **85%**). For solid text over a see-through background, turn off **Settings → General → Performance → Light on graphics card** and restart |
+| **Light on graphics card** is on (the default) | The whole window then fades, text included. Choose a more see-through setting (**65%** or **85%**). For solid text over a see-through background, turn off **Settings → Controls → General → Performance → Light on graphics card** and restart |
 | The Teleprompter hides behind Zoom or Teams | Click **Pin** in its top bar, so it reads **Pinned** |
 | You are using FrameDecks in a web browser | The Teleprompter can be see-through and pinned only in the installed app |
 
@@ -197,7 +197,7 @@ Other translations aren't fetched. Choose **Type it myself** and type or paste t
 
 | Cause | Fix |
 | --- | --- |
-| The graphics card is busy | Keep **Settings → General → Light on graphics card** on |
+| The graphics card is busy | Keep **Settings → Controls → General → Light on graphics card** on |
 | Too much running at once | Close extra browser tabs, video apps and unused overlay pages |
 | 1080p on an older PC | Use **720p** in **Settings → How people see it → FrameDecks vCam** |
 | Background blur on a slow PC | Lower the blur, or turn it off |

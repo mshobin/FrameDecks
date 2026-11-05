@@ -12,19 +12,35 @@ function h(tag, attrs, kids){
 }
 window.KCh = h;
 
-/* ---------- Section navigation ---------- */
+/* ---------- Section navigation ----------
+ * 9.12 six groups in the menu (Meeting look, Content, Screens & camera, Controls, Workspace & privacy, Data & help)
+ * instead of sixteen entries. A group's pages are tabs under the page title (#s-tabs, moved into the page shown);
+ * every page keeps its id, so showSection('vcam') and the links into Settings (data-sec) open the right tab. */
 var current = null;
 /* Sections built on their first visit, so the page carries less while they are hidden (design audit DD-25) */
 var buildOnce = {keys: function(){ if (window.KCShortcuts) window.KCShortcuts.mountEditor($('keys-body')); }};
+var tabs = $('s-tabs');
+function tabOf(id){ return tabs && tabs.querySelector('[data-sec="' + id + '"]'); }
+function groupOf(id){ var t = tabOf(id); return t ? t.dataset.in : ''; }
+function firstIn(g){ var t = tabs && tabs.querySelector('[data-in="' + g + '"]'); return t ? t.dataset.sec : 'general'; }
 function showSection(id){
   if (!$('sec-' + id)) id = 'general';
   current = id;
+  var g = groupOf(id);
   Array.prototype.forEach.call(document.querySelectorAll('.s-sec'), function(s){ s.hidden = s.id !== 'sec-' + id; });
   document.body.classList.toggle('s-about-open', id === 'about');
-  // the camera and display pages belong to How people see it; an Advanced page opens its folded group
-  $('s-nav').classList.toggle('out-open', ['output', 'vcam', 'display'].indexOf(id) >= 0);
-  var adv = $('sn-adv'); if (adv && adv.querySelector('[data-sec="' + id + '"]')) setAdvanced(true);
-  Array.prototype.forEach.call(document.querySelectorAll('#s-nav button'), function(b){ b.setAttribute('aria-current', String(b.dataset.sec === id)); });
+  Array.prototype.forEach.call(document.querySelectorAll('#s-nav [data-sgroup]'), function(b){ b.setAttribute('aria-current', String(b.dataset.sgroup === g)); });
+  if (tabs){
+    var many = 0;
+    Array.prototype.forEach.call(tabs.querySelectorAll('[data-sec]'), function(b){
+      var mine = b.dataset.in === g, on = b.dataset.sec === id; if (mine) many++;
+      b.hidden = !mine; b.setAttribute('aria-selected', String(on)); b.tabIndex = on ? 0 : -1;
+      b.setAttribute('aria-controls', 'sec-' + b.dataset.sec);
+    });
+    tabs.hidden = many < 2;
+    var head = $('sec-' + id).querySelector('.s-head');     // the tabs sit under the page's title
+    if (head && head.nextElementSibling !== tabs) head.insertAdjacentElement('afterend', tabs);
+  }
   try { localStorage.setItem(SEC_KEY, id); } catch(e){}
   if (buildOnce[id]){ buildOnce[id](); delete buildOnce[id]; }
   if (id === 'diag') renderDiag();
@@ -34,43 +50,46 @@ function showSection(id){
 }
 window.KCShowSection = showSection;
 window.KCRenderSecurity = function(){ if (current === 'security') renderSecurity(); };
-$('s-nav').addEventListener('click', function(e){ var b = e.target.closest('[data-sec]'); if (b) showSection(b.dataset.sec); });
+var lastIn = {};                                          // a group opens on the page last used in it
+$('s-nav').addEventListener('click', function(e){
+  var b = e.target.closest('[data-sgroup]'); if (!b) return;
+  showSection(b.dataset.hit || (lastIn[b.dataset.sgroup] && groupOf(lastIn[b.dataset.sgroup]) === b.dataset.sgroup ? lastIn[b.dataset.sgroup] : firstIn(b.dataset.sgroup)));
+});
+if (tabs){
+  tabs.addEventListener('click', function(e){ var b = e.target.closest('[data-sec]'); if (b){ showSection(b.dataset.sec); lastIn[b.dataset.in] = b.dataset.sec; } });
+  tabs.addEventListener('keydown', function(e){                                   // arrows move between the tabs
+    if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+    var list = Array.prototype.filter.call(tabs.querySelectorAll('[data-sec]'), function(b){ return !b.hidden; });
+    var i = list.indexOf(document.activeElement); if (i < 0) return;
+    var nx = list[(i + (e.key === 'ArrowRight' ? 1 : -1) + list.length) % list.length];
+    e.preventDefault(); showSection(nx.dataset.sec); lastIn[nx.dataset.in] = nx.dataset.sec; nx.focus();
+  });
+}
 /* 8.4 the step-by-step guide lives on the website (Help); the app window opens it in the normal browser */
 var guideBtn = $('sn-guide'); if (guideBtn) guideBtn.addEventListener('click', function(){ window.open('https://framedecks.com/help#guide', '_blank', 'noopener'); });
 document.addEventListener('click', function(e){
   var b = e.target.closest('[data-goto="settings"][data-sec]'); if (b) setTimeout(function(){ showSection(b.dataset.sec); }, 0);
 });
-/* Advanced: the settings few people need (transitions, keys, security, diagnostics), folded until asked for */
-var ADV_KEY = 'kc-settings-advanced';
-function setAdvanced(open){
-  var g = $('sn-adv'), b = $('sn-adv-btn'); if (!g || !b) return;
-  g.classList.toggle('open', open); b.setAttribute('aria-expanded', String(open));
-  b.lastElementChild.textContent = open ? '▾' : '▸';
-  try { localStorage.setItem(ADV_KEY, open ? '1' : ''); } catch(e){}
-}
-if ($('sn-adv-btn')){
-  $('sn-adv-btn').addEventListener('click', function(){ setAdvanced(!$('sn-adv').classList.contains('open')); });
-  var advOpen = ''; try { advOpen = localStorage.getItem(ADV_KEY) || ''; } catch(e){}
-  setAdvanced(!!advOpen);
-}
-/* Find a setting: filters the menu by name, description and keywords; Enter opens the first match */
+/* Find a setting: a group shows when it or one of its pages matches (name, description, keywords); clicking it, or
+ * Enter, opens the first page that matched */
 function findSetting(q){
   q = String(q || '').trim().toLowerCase();
-  $('s-nav').classList.toggle('finding', !!q);          // while searching, folded and sub-pages are searched too
+  $('s-nav').classList.toggle('finding', !!q);
   var any = false;
-  Array.prototype.forEach.call(document.querySelectorAll('#s-nav .sn-group'), function(g){
-    var shown = 0;
-    Array.prototype.forEach.call(g.querySelectorAll('button[data-sec]'), function(b){
-      var hit = !q || (b.textContent + ' ' + (b.dataset.k || '')).toLowerCase().indexOf(q) >= 0;
-      b.hidden = !hit; if (hit) shown++;
+  Array.prototype.forEach.call(document.querySelectorAll('#s-nav [data-sgroup]'), function(g){
+    var hit = '';
+    if (q && tabs) Array.prototype.some.call(tabs.querySelectorAll('[data-in="' + g.dataset.sgroup + '"]'), function(t){
+      if ((t.textContent + ' ' + (t.dataset.k || '')).toLowerCase().indexOf(q) >= 0){ hit = t.dataset.sec; return true; } return false;
     });
+    var shown = !q || !!hit || (g.textContent + ' ' + (g.dataset.k || '')).toLowerCase().indexOf(q) >= 0;
     g.hidden = !shown; if (shown) any = true;
+    if (hit) g.dataset.hit = hit; else delete g.dataset.hit;
   });
   $('sn-none').hidden = any;
 }
 $('sn-find').addEventListener('input', function(){ findSetting(this.value); });
 $('sn-find').addEventListener('keydown', function(e){
-  if (e.key === 'Enter'){ var b = document.querySelector('#s-nav button[data-sec]:not([hidden])'); if (b){ showSection(b.dataset.sec); b.focus(); } e.preventDefault(); }
+  if (e.key === 'Enter'){ var b = document.querySelector('#s-nav [data-sgroup]:not([hidden])'); if (b){ b.click(); b.focus(); } e.preventDefault(); }
   else if (e.key === 'Escape' && this.value){ this.value = ''; findSetting(''); e.stopPropagation(); }
 });
 var saved = null; try { saved = localStorage.getItem(SEC_KEY); } catch(e){}
@@ -78,6 +97,20 @@ showSection(saved || 'general');
 
 /* ---------- Nav status dots ---------- */
 function dot(id, cls){ var d = $(id); if (d) d.className = 'sn-dot ' + (cls || ''); }
+/* 9.12 each group in the menu shows its pages' most important dot (the pages' dots are set here and by account.js,
+ * scripture.js and vcam-panel.js) */
+function groupDots(){
+  var rank = {bad: 4, warn: 3, info: 2, ok: 1}, best = {};
+  Array.prototype.forEach.call(tabs.querySelectorAll('[data-in] .sn-dot'), function(x){
+    var g = x.closest('[data-in]').dataset.in, c = (x.className.match(/\b(bad|warn|info|ok)\b/) || [])[1] || '';
+    if ((rank[c] || 0) > (rank[best[g]] || 0)) best[g] = c;
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('#s-nav [data-sgroup]'), function(b){
+    var gd = $('sg-' + b.dataset.sgroup), k = 'sn-dot ' + (best[b.dataset.sgroup] || '');
+    if (gd && gd.className !== k) gd.className = k;
+  });
+}
+if (tabs){ var dotT = 0; new MutationObserver(function(){ clearTimeout(dotT); dotT = setTimeout(groupDots, 50); }).observe(tabs, {subtree: true, attributes: true, attributeFilter: ['class']}); }
 if (Store.served){
   Status.on('remote', function(r){
     if (!r.enabled) return dot('sn-ipad', '');

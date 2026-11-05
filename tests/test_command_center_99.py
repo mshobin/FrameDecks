@@ -22,7 +22,7 @@ class CommandCenter(unittest.TestCase):
         js = read("app/js/command-center.js")
         ids = [js.index("{id: '%s', label: '%s'" % (i, n)) for i, n in (("prepare", "Prepare"), ("engage", "Engage"), ("control", "Control"), ("more", "More"))]
         self.assertEqual(ids, sorted(ids))
-        self.assertIn("/^[1-4]$/.test(e.key)", js)
+        self.assertIn("/^[1-5]$/.test(e.key)", js)       # 9.12: five chips (Notes)
         self.assertIn("api/memory", js)
         self.assertIn("api/vcam/status?lite=1", js)
         self.assertIn("Only you can see this", js)
