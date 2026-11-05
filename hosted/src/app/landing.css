@@ -89,7 +89,8 @@
 }
 
 @media (max-width: 420px) {
-  .lp-nav .fd-brand-copy {
+  /* 9.11 the name stays on a phone; the effects switch (decoration only) steps aside to make room */
+  .lp-nav .fd-effects-toggle {
     display: none;
   }
 }

@@ -72,6 +72,9 @@ Full notes: [docs/releases/v9.11.0.md](releases/v9.11.0.md). Design: [docs/archi
   Tests: `tests/test_command_center_911.py`.
 
 ### Changed
+- Welcome: three pages (`build`, `live`, `finish` in `app/js/onboarding.js`), counter "Step n of 3" for three bars.
+- Studio Up next on one line (theme.css 9.11 block); website: name kept in the phone header (the effects switch
+  steps aside under 420 px), slim one-line cookie notice on phones (`.fd-cookie-more`).
 - Without 0016, with push switched off, or when the connection cannot be made, the PC and the website poll exactly as
   in 9.10.
 

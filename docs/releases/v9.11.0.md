@@ -17,6 +17,12 @@ earlier and keeps all your meetings, members, settings, pinned Memory Cards and 
   **Online**, **Waking up…** (usually under a minute) or **Not connected**.
 
 ## Enhancements
+- **A shorter welcome**: three pages instead of five (Frames, Decks and Content now share one page), and the counter
+  matches the bars: Step 1 of 3.
+- **A slimmer Up next** in the Studio: one line beside a small picture, so the canvas keeps its room. Warnings still
+  show first.
+- **The website on a phone** keeps the FrameDecks name in its header, and the cookie notice is one slim line at the
+  bottom.
 - Settings → Workspace Sync shows how this PC gets updates: **Live connection on**, **Resting** or **Regular checks**.
 - The workspace owner can switch live push off for everyone with one line in the database, without a new version.
 

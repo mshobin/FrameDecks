@@ -1462,3 +1462,17 @@ html[data-theme="light"]{
 .fl-list .item.live{background:var(--live-soft);box-shadow:inset 3px 0 0 var(--live)} .fl-list .item.live .num{color:var(--live)}
 #scenes-title::before,#layers-title::before,.fl-head h3::before{content:"";display:inline-block;width:8px;height:8px;margin-right:7px;border-radius:999px;vertical-align:1px}
 #scenes-title::before{background:var(--lv-frame)} #layers-title::before{background:var(--lv-deck)} .fl-head h3::before{background:var(--lv-content)}
+
+/* 9.11 a slimmer Up next: one line beside a small picture (the canvas keeps the room); the same facts, the warning
+   first so it is never cut off */
+.upnext{align-items:center;gap:10px;margin:0 14px 8px;padding:6px 10px}
+.un-pic{width:96px}
+.un-pic iframe{transform:scale(.075)}
+.un-body{display:flex;align-items:center;gap:12px;min-width:0;overflow:hidden;white-space:nowrap}
+.un-h{flex:none;max-width:45%;order:-2}
+.un-items,.un-warn{display:flex;gap:10px;min-width:0;margin:0;overflow:hidden}
+.un-warn{order:-1;flex:none;max-width:60%}
+.un-warn:empty{display:none}
+.un-items{flex:1}
+.un-items li + li::before{content:"·";margin-right:10px;color:var(--faint)}
+.un-warn li{overflow:hidden;text-overflow:ellipsis}

@@ -98,10 +98,12 @@ class WelcomeFlowWiring(unittest.TestCase):
         self.assertIn('href="css/onboarding.css"', html)
         self.assertLess(html.index("js/onboarding.js"), html.index("js/app-bridge.js"))
 
-    def test_four_pages_and_a_saved_finish(self):
+    def test_three_pages_and_a_saved_finish(self):
         js = self.read("js/onboarding.js")
-        for kicker in ("Adding Frames", "Adding Decks", "Adding Content", "All set"):
+        for kicker in ("Building a meeting", "Going live", "All set"):                # 9.11: was five pages
             self.assertIn(kicker, js)
+        self.assertEqual(js[js.index("var PAGES = ["):js.index("function b(t)")].count("{id: '"), 3)
+        self.assertIn("'Step ' + (i + 1) + ' of ' + PAGES.length", js)               # as many steps as bars
         self.assertIn("post('settings', {onboarding: rec})", js)
         self.assertIn("o.done || localDone()) return false;", js)
 

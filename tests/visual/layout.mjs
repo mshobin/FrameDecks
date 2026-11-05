@@ -78,7 +78,7 @@ for (const w of [1920, 1440, 1280, 1100]) {
   });
   const first = await p.evaluate(() => ({ text: document.activeElement?.textContent?.trim(), open: window.KCOnboarding.isOpen(),
     behind: document.querySelector(".ws")?.closest("[inert]") !== null, full: (() => { const r = document.getElementById("onb").getBoundingClientRect(); return r.width === innerWidth && r.height === innerHeight; })() }));
-  check(first.open && first.full && first.behind && first.text === "Build your meeting from Frames",
+  check(first.open && first.full && first.behind && first.text === "Frames, Decks and Content",
     `first run: the Welcome flow, full screen, focus on its title, the window behind waits (${JSON.stringify(first)})`);
   await shot(p, "first-run");
   const pages = await p.evaluate(() => window.KCOnboarding.pages.length);      // 9.7: five pages (Going live)

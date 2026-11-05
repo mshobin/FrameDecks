@@ -28,35 +28,26 @@ function localDone(){ try { return localStorage.getItem(LOCAL) === '1'; } catch(
 
 /* ---------- the pages ---------- */
 var PAGES = [
-  {id: 'frames', kicker: 'Adding Frames', title: 'Build your meeting from Frames',
-   lede: 'A Frame is one moment on screen: a welcome, a reading, a question. Your meeting is simply Frames in order.',
-   steps: [['In the Studio, look at ', b('Frames'), ' on the left.'],
-           ['Choose ', b('+ Frame'), ' for a blank one, or ', b('Quick Start'), ' for a ready-made set.'],
-           ['Drag Frames to change the order. ', b('Next'), ' shows them one after another.']]},
-  {id: 'decks', kicker: 'Adding Decks', title: 'Put Decks on each Frame',
-   lede: 'A Deck is one block on a Frame: a scripture, a question, text, a picture, a video, a timer or slides.',
-   steps: [['Select a Frame.'],
-           ['Under ', b('Decks'), ', choose ', b('+ Deck'), ' and pick what it holds.'],
-           ['The eye shows or hides a Deck. The top of the list sits in front.']]},
-  {id: 'content', kicker: 'Adding Content', title: 'Fill each Deck with Content',
-   lede: 'Content is what a Deck shows: each question, each verse, the words on a slide.',
-   steps: [['Select a Deck. Its settings open on the right.'],
-           ['Choose ', b('+ Question'), ' or ', b('+ Scripture'), '. Type a reference and ', b('Fetch'), ' (ESV, KJV or WEB).'],
-           ['Live, the ', b('◀ ▶'), ' arrows step through them, one at a time.']]},
+  /* 9.11 one page for the whole idea (it was three: Frames, Decks, Content), so the welcome is three pages in all */
+  {id: 'build', kicker: 'Building a meeting', title: 'Frames, Decks and Content',
+   lede: 'A Frame is one moment on screen. It holds Decks: a scripture, a question, text, a picture, a video or slides. Each Deck holds its Content. Numbered for you 1\u00a0·\u00a01.1\u00a0·\u00a01.1.1, and coloured the same way in the Studio.',
+   steps: [['Under ', b('Frames'), ', choose ', b('+ Frame'), ', or ', b('Quick Start'), ' for a ready-made set. Drag to reorder.'],
+           ['Select a Frame. Under ', b('Decks'), ', choose ', b('+ Deck'), ' and pick what it holds.'],
+           ['Select a Deck and add its Content: ', b('+ Question'), ' or ', b('+ Scripture'), ' (type a reference and ', b('Fetch'), ').']]},
   {id: 'live', kicker: 'Going live', title: 'Your remote is one key away',
    lede: 'The Command Center opens anywhere with Alt+Space, even with FrameDecks in the tray. Everything starts there: one search bar and four chips, Prepare, Engage, Control and More. While you are live it is your remote, and only you see it, even when you share your screen.',
    steps: [['Press ', b('Alt+Space'), ' anywhere. Type to search, or choose Prepare, Engage, Control or More.'],
            ['Under ', b('Control'), ', switch ', b('Go Live'), ' on; then you have ', b('Next Frame'), ', the ', b('◀ ▶'), ' Content arrows, ', b('Hide all'), ' and your meeting’s Mute and Camera.'],
            ['Choose ', b('Draw'), ' or ', b('Spotlight'), ': the Share Window opens and you draw or point on it with the mouse. ', b('Esc'), ' when you are done.']]},
   {id: 'finish', kicker: 'All set', title: 'You’re ready',
-   lede: 'Frame › Deck › Content. That is the whole idea, numbered for you: 1\u00a0·\u00a01.1\u00a0·\u00a01.1.1, and coloured the same way in the Studio.', steps: []}
+   lede: 'Start from a ready-made meeting, bring your plan from the website, or open the Studio and begin with a blank Frame.', steps: []}
 ];
 function b(t){ return h('b', {text: t}); }
 
 /* the pictures: a small Studio drawn in HTML; --i orders the entrance of each part */
 function part(cls, i, kids, attrs){ var a = attrs || {}; a.cls = cls; a.style = '--i:' + i; return h('div', a, kids); }
 function art(id){
-  if (id === 'frames') return h('div', {cls: 'onb-art art-frames', 'aria-hidden': 'true'}, [
+  if (id === 'finish') return h('div', {cls: 'onb-art art-frames', 'aria-hidden': 'true'}, [
     part('a-pane', 0, [
       h('div', {cls: 'a-head'}, [h('span', {text: 'Frames'}), h('span', {cls: 'a-btn gold', html: I('plus', 12) + ' Frame'})]),
       part('a-frame', 1, [h('i', {text: '1'}), h('span', {text: 'Welcome'})]),
@@ -65,25 +56,6 @@ function art(id){
       part('a-frame new', 5, [h('i', {text: '4'}), h('span', {text: 'Prayer'})])]),
     part('a-screen', 2, [h('div', {cls: 'a-screen-in'}, [h('small', {text: 'On screen'}), h('b', {text: 'Discussion'}), h('span', {cls: 'a-line'}), h('span', {cls: 'a-line short'})])]),
     part('a-cursor', 4, [])]);
-  if (id === 'decks') return h('div', {cls: 'onb-art art-decks', 'aria-hidden': 'true'}, [
-    part('a-screen big', 0, [h('div', {cls: 'a-stage'}, [
-      part('a-card verse', 2, [h('small', {text: 'Scripture'}), h('span', {text: 'Your word is a lamp to my feet'}), h('em', {text: 'Psalm 119:105'})]),
-      part('a-card question', 4, [h('small', {text: 'Question'}), h('span', {text: 'What stood out to you?'})]),
-      part('a-third', 6, [h('b', {text: 'Small groups'}), h('span', {text: 'Discuss in threes'})])])]),
-    part('a-pane slim', 1, [
-      h('div', {cls: 'a-head'}, [h('span', {text: 'Decks'}), h('span', {cls: 'a-btn', html: I('plus', 12) + ' Deck'})]),
-      part('a-deck', 3, [h('i', {text: '1.1'}), h('span', {text: 'Scripture'}), h('span', {cls: 'a-eye', html: I('eye', 12)})]),
-      part('a-deck', 5, [h('i', {text: '1.2'}), h('span', {text: 'Question'}), h('span', {cls: 'a-eye', html: I('eye', 12)})]),
-      part('a-deck', 7, [h('i', {text: '1.3'}), h('span', {text: 'Lower third'}), h('span', {cls: 'a-eye', html: I('eye', 12)})])])]);
-  if (id === 'content') return h('div', {cls: 'onb-art art-content', 'aria-hidden': 'true'}, [
-    part('a-pane wide', 0, [
-      h('div', {cls: 'a-head'}, [h('span', {text: '1.2 · Questions'}), h('span', {cls: 'a-btn gold', html: I('plus', 12) + ' Question'})]),
-      part('a-item', 1, [h('i', {text: '1.2.1'}), h('span', {text: 'What does this passage say about God?'})]),
-      part('a-item', 2, [h('i', {text: '1.2.2'}), h('span', {text: 'Which word stood out to you, and why?'})]),
-      part('a-item', 3, [h('i', {text: '1.2.3'}), h('span', {text: 'What is one step you will take?'})]),
-      h('div', {cls: 'a-hl'})]),
-    part('a-remote', 4, [h('span', {cls: 'a-round', html: I('chevron-left', 16)}), h('div', {}, [h('b', {cls: 'a-q'}, [h('span', {text: 'Question 1 of 3'}), h('span', {text: 'Question 2 of 3'}), h('span', {text: 'Question 3 of 3'})])]),
-      h('span', {cls: 'a-round', html: I('chevron-right', 16)})])]);
   if (id === 'live') return h('div', {cls: 'onb-art art-live', 'aria-hidden': 'true'}, [
     part('a-screen share', 0, [h('div', {cls: 'a-screen-in'}, [h('small', {text: 'Share Window'}), h('b', {text: 'What stood out to you?'}), h('span', {cls: 'a-ink'})]),
       h('span', {cls: 'a-spot'})]),
@@ -93,7 +65,7 @@ function art(id){
       h('div', {cls: 'a-spl-row'}, [h('span', {cls: 'a-key', html: I('chevron-left', 14) + 'Previous'}), h('span', {cls: 'a-key gold', html: 'Next Frame' + I('chevron-right', 14)})]),
       h('div', {cls: 'a-spl-row'}, [h('span', {cls: 'a-key round', html: I('chevron-left', 14)}), h('span', {cls: 'a-key flat', text: 'Question 2 of 3'}), h('span', {cls: 'a-key round', html: I('chevron-right', 14)})]),
       part('a-spl-row tools', 4, [h('span', {cls: 'a-key tool', html: I('circle-dot', 14) + 'Spotlight'}), h('span', {cls: 'a-key tool on', html: I('pencil', 14) + 'Draw'})])])]);
-  return h('div', {cls: 'onb-art art-finish', 'aria-hidden': 'true'}, [
+  return h('div', {cls: 'onb-art art-finish', 'aria-hidden': 'true'}, [          // 'build': Frame › Deck › Content
     part('a-tree', 0, [
       part('t-node f', 1, [h('i', {text: '1'}), h('span', {text: 'Frame'})]),
       part('t-node d', 2, [h('i', {text: '1.1'}), h('span', {text: 'Deck'})]),
@@ -122,7 +94,7 @@ function show(i, fromKey){
   if (ex && i === PAGES.length - 1 && !ex.dataset.done){ ex.dataset.done = '1'; finishExtras().forEach(function(n){ ex.appendChild(n); }); }
   root.setAttribute('aria-labelledby', 'onb-t-' + PAGES[i].id);
   root.querySelectorAll('.onb-dot').forEach(function(d, k){ d.classList.toggle('on', k === i); d.classList.toggle('past', k < i); d.setAttribute('aria-current', k === i ? 'step' : 'false'); });
-  setTextOf('onb-count', i < PAGES.length - 1 ? 'Step ' + (i + 1) + ' of ' + (PAGES.length - 1) : 'Finish');
+  setTextOf('onb-count', 'Step ' + (i + 1) + ' of ' + PAGES.length);      // 9.11 as many steps as bars
   var back = root.querySelector('#onb-back'), next = root.querySelector('#onb-next');
   back.disabled = i === 0;
   var last = i === PAGES.length - 1;

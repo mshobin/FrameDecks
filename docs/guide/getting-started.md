@@ -53,11 +53,12 @@ A webcam is optional. You need one only if people should see you on the FrameDec
 
 1. Open **FrameDecks** from the desktop icon.
 2. The first time (also after an update or a reinstall, until you finish it once), **Welcome to FrameDecks** fills the
-   screen: five short pages that show how a meeting is built and how to run it with the Command Center (Alt+Space).
-   - **Adding Frames**: a Frame is one moment on screen. **+ Frame** adds one; **Quick Start** adds a ready-made set.
-   - **Adding Decks**: a Deck is one block on a Frame (a scripture, a question, text, a picture, a video, a timer or
-     slides). **+ Deck** adds one to the selected Frame.
-   - **Adding Content**: what a Deck shows, such as each question or verse (**+ Question**, **+ Scripture**).
+   screen: three short pages (9.11) that show how a meeting is built and how to run it with the Command Center
+   (Alt+Space).
+   - **Building a meeting**: a Frame is one moment on screen; it holds Decks (a scripture, a question, text, a picture,
+     a video or slides), and each Deck holds its Content. **+ Frame** (or **Quick Start**), **+ Deck**, **+ Question**
+     and **+ Scripture** add them.
+   - **Going live**: the Command Center with **Alt+Space**, **Go Live** under Control, Draw and Spotlight.
    - **Finish**: optionally **Sync Workspace**, to plan on framedecks.com and sync to this PC (the browser opens;
      allow this PC, and the page turns to *Linked* by itself; later: Settings → Workspace Sync). Optionally choose a ready-made meeting (Bible Study, Prayer Meeting, Youth Gathering, Fellowship
      Meeting or Church Service). If FrameDecks finds data from an earlier version, **Bring it in** copies it (the old
