@@ -1765,14 +1765,15 @@ html.fd-light .lp-cta-panel {
     0 40px 90px -60px rgba(15, 25, 50, 0.45);
 }
 
-/* 8.6 the width of the screen: the features on a full-width band, the questions beside their heading */
-#features {
+/* 8.6 the width of the screen: the features on a full-width band, the questions beside their heading. 9.12 the band
+   belongs to the showcase (How it works and See it work, one section since 9.11.1); #features is only its anchor now */
+.lp-show {
   position: relative;
   isolation: isolate;
   padding-bottom: clamp(48px, 6vw, 88px);
 }
 
-#features::before {
+.lp-show::before {
   position: absolute;
   z-index: -1;
   inset: clamp(24px, 3vw, 44px) calc(50% - 50vw) 0;
@@ -1798,12 +1799,14 @@ html.fd-light .lp-cta-panel {
 }
 
 /* 8.6 bands between sections, as on Apple's pages: a deeper navy in dark, grey in light; solid cards on them */
-#features::before {
+.lp-show::before {
   border: 0;
   background: #0b111e;
+  -webkit-mask-image: linear-gradient(180deg, transparent, #000 140px, #000 calc(100% - 140px), transparent);
+  mask-image: linear-gradient(180deg, transparent, #000 140px, #000 calc(100% - 140px), transparent);
 }
 
-html.fd-light #features::before {
+html.fd-light .lp-show::before {
   background: #f5f5f7;
 }
 
