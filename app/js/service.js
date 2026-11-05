@@ -1,6 +1,6 @@
 /* FrameDecks - getting a meeting on screen (docs/development/design-system.md "Running a meeting")
  *  - 8.0: Prepare is the one Studio. The separate Run view and Practice mode are gone; the live controls (Previous,
- *    Next, Go Live, Hide all and Live tools) are always in the top bar.
+ *    Next, Go Live, Hide all and the five chips) are always in the top bar.
  *  - Ready checks: a short list read from the status the program already shows (the Setup guide uses it).
  *  - How people see it: one guided choice between FrameDecks vCam (Zoom/Teams camera), the Share Window, and a projector,
  *    TV or OBS. The camera and display pages are unchanged, under it. */

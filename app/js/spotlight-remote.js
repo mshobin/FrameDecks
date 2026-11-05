@@ -111,7 +111,7 @@ function contentStep(d){
  * mouse (server.annotate_op; vcam/present_window.py, present.html). Esc or Done on the Share Window finishes. ---------- */
 var annMode = '';
 function openTool(mode){
-  if (!live || !SC.liveScene(live)){ tell('Go Live first: the Live tools work on what is on screen.'); return; }
+  if (!live || !SC.liveScene(live)){ tell('Go Live first: Draw and Spotlight work on what is on screen.'); return; }
   var want = annMode === mode ? '' : mode;
   post('api/app/annotate', {op: 'mode', mode: want}).then(function(d){ annMode = d.mode || ''; render(); })
     .catch(function(e){ tell(e.message, true); });

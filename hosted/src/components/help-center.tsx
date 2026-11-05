@@ -202,7 +202,7 @@ export const TOPICS: Topic[] = [
           <section>
             <h3>Open it</h3>
             <ul>
-              <li>On the PC: Live tools → <b>Teleprompter</b>, or press <kbd>R</kbd>.</li>
+              <li>On the PC: Prepare → <b>Teleprompter</b>, or press <kbd>R</kbd>.</li>
               <li>It stays out of screen sharing and recordings. Only you see it.</li>
               <li>The small arrow at the top shows its top bar: time, Frame, timer and the script tools.</li>
             </ul>

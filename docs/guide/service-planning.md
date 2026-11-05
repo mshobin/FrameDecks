@@ -99,7 +99,7 @@ Teleprompter's top bar. That script is kept with the meeting details.
 
 | Where you write it | Where you read it during the meeting |
 | --- | --- |
-| Content Settings → **Teleprompter script**, or **✎ Write Script** in the Teleprompter, or **⇪ Upload** a .txt, .md or Word (.docx) file there | **Live tools → Teleprompter** (R), a window over Zoom or Teams that is hidden from screen sharing, or the phone remote's Teleprompter |
+| Content Settings → **Teleprompter script**, or **✎ Write Script** in the Teleprompter, or **⇪ Upload** a .txt, .md or Word (.docx) file there | **Prepare → Teleprompter** (R), a window over Zoom or Teams that is hidden from screen sharing, or the phone remote's Teleprompter |
 
 Use `# Heading`, `- bullet`, `**bold**`, `*italic*`, `[PAUSE]` and `---` to make it easy to read at a glance. See
 [Presentations](presentations.md#teleprompter).

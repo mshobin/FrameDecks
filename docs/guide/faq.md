@@ -160,7 +160,7 @@ Five things: **Go Live**, **Next**, the round **▶** arrow for the next questio
 Press **Hide all** (or **Esc** on the PC), then put the right Frame back with **Go Live**. Nothing is ever deleted by these buttons.
 
 **Can the leader see notes that the group can't?**
-Yes. Write them in each Frame's **Teleprompter script** (Frame settings). Open it with **Live tools → Teleprompter** (**R**): a window that stays on top of Zoom or Teams. Or use **Teleprompter** on the phone remote. See [Presentations](presentations.md#teleprompter).
+Yes. Write them in each Frame's **Teleprompter script** (Frame settings). Open it with **Prepare → Teleprompter** (**R**): a window that stays on top of Zoom or Teams. Or use **Teleprompter** on the phone remote. See [Presentations](presentations.md#teleprompter).
 
 **Can the audience see the teleprompter?**
 No. The Teleprompter is only for the presenter. It is never on the FrameDecks vCam, the Presentation window, the OBS pages or the phone's drawing pad.

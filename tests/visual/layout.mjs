@@ -146,10 +146,11 @@ for (const w of [1920, 1440, 1280, 1100]) {
   check(r.decks === "Decks", `the section under the Frames is called Decks (${r.decks})`);
   check(!r.scroll, "the command bar fits at 1440 px");
   check(r.onAir || !/220, 38, 38/.test(r.hide), `Hide all is calm while nothing is on screen (${r.hide})`);
-  await p.click("#lb-prog-btn");
+  await p.click("#lc-control");
+  check(await p.evaluate(() => !document.getElementById("lc-pop-control").hidden), "the Control chip opens its panel");
   await p.keyboard.press("Escape");
   await p.waitForTimeout(200);
-  check(!(await p.evaluate(() => document.getElementById("lb-prog").classList.contains("open"))), "Esc closes Live tools");
+  check(!(await p.evaluate(() => document.querySelector(".lc-wrap.open"))), "Esc closes the open chip");
   await shot(p, "studio");
   await p.close();
 }

@@ -540,32 +540,32 @@ body.spotlight .pal.cc.cc-bottom{flex-direction:column-reverse;padding:30px 22px
 .cc-teal.on .cc-sq{box-shadow:var(--cc-hi),0 8px 26px var(--cc-teal-halo)}
 .cc-glide.cc-teal{background:var(--cc-teal-a);box-shadow:0 0 14px var(--cc-teal-halo)}
 .cc-panel.cc-teal::before{background:radial-gradient(closest-side,var(--cc-teal-halo),transparent)}
-.cc-notes{position:relative;display:flex;flex-direction:column;gap:10px}
-.cc-note-top{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--muted)}
-.cc-note-where{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.cc-note-count{flex:none;font-weight:700}
-.cc-note-write{display:flex;align-items:flex-end;gap:8px}
-.cc-note-in{flex:1;min-width:0;min-height:44px;max-height:120px;resize:vertical;padding:10px 12px;border:1px solid var(--cc-rim-2);border-radius:12px;
+.np{position:relative;display:flex;flex-direction:column;gap:10px}
+.np-top{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--muted)}
+.np-where{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.np-count{flex:none;font-weight:700}
+.np-write{display:flex;align-items:flex-end;gap:8px}
+.np-in{flex:1;min-width:0;min-height:44px;max-height:120px;resize:vertical;padding:10px 12px;border:1px solid var(--cc-rim-2);border-radius:12px;
   background:var(--cc-cell);color:var(--ink);font:inherit;font-size:14px;line-height:1.4;box-shadow:var(--cc-hi)}
-.cc-note-in:focus{outline:2px solid var(--cc-teal-a);outline-offset:1px}
-.cc-note-save{flex:none;height:40px;padding:0 14px;border:0;border-radius:12px;background:linear-gradient(145deg,var(--cc-teal-a),var(--cc-teal-b));
+.np-in:focus{outline:2px solid var(--cc-teal-a);outline-offset:1px}
+.np-save{flex:none;height:40px;padding:0 14px;border:0;border-radius:12px;background:linear-gradient(145deg,var(--cc-teal-a),var(--cc-teal-b));
   color:var(--cc-glyph);font:inherit;font-size:13px;font-weight:700;cursor:pointer;box-shadow:var(--cc-gloss)}
-.cc-note-save:focus-visible,.cc-note-act:focus-visible,.cc-note-b:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.cc-note-list{list-style:none;margin:0;padding:0;max-height:220px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;contain:content}
-.cc-note{display:flex;align-items:flex-start;gap:6px;padding:8px 10px;border:1px solid var(--cc-rim);border-radius:12px;background:var(--cc-cell)}
-.cc-note.editing{border-color:var(--cc-teal-a)}
-.cc-note-x{flex:1;min-width:0}
-.cc-note-x small{display:block;font-size:12px;font-weight:700;color:var(--muted)}
-.cc-note-x p{margin:2px 0 0;font-size:14px;white-space:pre-wrap;overflow-wrap:anywhere}
-.cc-note-b{flex:none;display:grid;place-items:center;width:28px;height:28px;padding:0;border:0;border-radius:8px;background:transparent;color:var(--muted);cursor:pointer}
-.cc-note-b:hover{background:var(--cc-cell-2);color:var(--ink)}
-.cc-note-empty{padding:12px;border:1px dashed var(--cc-rim-2);border-radius:12px;font-size:13px;color:var(--muted)}
-.cc-note-acts{display:flex;flex-wrap:wrap;gap:6px}
-.cc-note-act{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 12px;border:1px solid var(--cc-rim);border-radius:999px;background:var(--cc-cell);
+.np-save:focus-visible,.np-act:focus-visible,.np-b:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.np-list{list-style:none;margin:0;padding:0;max-height:220px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;contain:content}
+.np-note{display:flex;align-items:flex-start;gap:6px;padding:8px 10px;border:1px solid var(--cc-rim);border-radius:12px;background:var(--cc-cell)}
+.np-note.editing{border-color:var(--cc-teal-a)}
+.np-x{flex:1;min-width:0}
+.np-x small{display:block;font-size:12px;font-weight:700;color:var(--muted)}
+.np-x p{margin:2px 0 0;font-size:14px;white-space:pre-wrap;overflow-wrap:anywhere}
+.np-b{flex:none;display:grid;place-items:center;width:28px;height:28px;padding:0;border:0;border-radius:8px;background:transparent;color:var(--muted);cursor:pointer}
+.np-b:hover{background:var(--cc-cell-2);color:var(--ink)}
+.np-empty{padding:12px;border:1px dashed var(--cc-rim-2);border-radius:12px;font-size:13px;color:var(--muted)}
+.np-acts{display:flex;flex-wrap:wrap;gap:6px}
+.np-act{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 12px;border:1px solid var(--cc-rim);border-radius:999px;background:var(--cc-cell);
   color:var(--ink);font:inherit;font-size:13px;font-weight:600;cursor:pointer}
-.cc-note-act:hover{background:var(--cc-cell-2)}
-.cc-note-act span{display:grid;place-items:center;color:var(--muted)}
-.cc.cc-compact .cc-note-list{max-height:170px}
+.np-act:hover{background:var(--cc-cell-2)}
+.np-act span{display:grid;place-items:center;color:var(--muted)}
+.cc.cc-compact .np-list{max-height:170px}
 /* 9.12 one place for each thing: inside the Command Center the remote leaves out its Live tools row (Draw, Spotlight
    and Clear drawings are in Engage) and its Open-in row (Studio, Teleprompter, Share Window are in Prepare; the phone
    remote in More). Their shortcuts (Alt+L, Alt+D) still work. */
@@ -584,20 +584,20 @@ html[data-theme="light"] .cc[data-group="notes"] .cc-panel{background:linear-gra
 .cc[data-group="notes"] .cc-head{margin:0 0 8px}
 .cc[data-group="notes"] .cc-head small,.cc[data-group="notes"] .cc-hint{display:none}
 .cc[data-group="notes"] .cc-say{max-width:60%}
-.cc[data-group="notes"] .cc-notes{gap:8px}
-.cc[data-group="notes"] .cc-note-write{flex-direction:column;align-items:stretch;gap:6px}
-.cc[data-group="notes"] .cc-note-in{min-height:64px;background:color-mix(in srgb,var(--raised) 55%,transparent);border-color:color-mix(in srgb,var(--ink) 18%,transparent)}
-.cc[data-group="notes"] .cc-note-save{height:32px}
-.cc[data-group="notes"] .cc-note-list{max-height:150px}
-.cc[data-group="notes"] .cc-note{padding:6px 8px;background:color-mix(in srgb,var(--raised) 45%,transparent)}
-.cc[data-group="notes"] .cc-note-x p{font-size:13px}
-.cc[data-group="notes"] .cc-note-acts{justify-content:flex-end;gap:4px}
-.cc[data-group="notes"] .cc-note-act{width:32px;height:30px;padding:0;justify-content:center;background:color-mix(in srgb,var(--raised) 55%,transparent)}
-.cc[data-group="notes"] .cc-note-act em{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
-.cc-note-act em{font-style:normal}
-.cc[data-group="notes"] .cc-note-top{font-size:12px}
+.cc[data-group="notes"] .np{gap:8px}
+.cc[data-group="notes"] .np-write{flex-direction:column;align-items:stretch;gap:6px}
+.cc[data-group="notes"] .np-in{min-height:64px;background:color-mix(in srgb,var(--raised) 55%,transparent);border-color:color-mix(in srgb,var(--ink) 18%,transparent)}
+.cc[data-group="notes"] .np-save{height:32px}
+.cc[data-group="notes"] .np-list{max-height:150px}
+.cc[data-group="notes"] .np-note{padding:6px 8px;background:color-mix(in srgb,var(--raised) 45%,transparent)}
+.cc[data-group="notes"] .np-x p{font-size:13px}
+.cc[data-group="notes"] .np-acts{justify-content:flex-end;gap:4px}
+.cc[data-group="notes"] .np-act{width:32px;height:30px;padding:0;justify-content:center;background:color-mix(in srgb,var(--raised) 55%,transparent)}
+.cc[data-group="notes"] .np-act em{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.np-act em{font-style:normal}
+.cc[data-group="notes"] .np-top{font-size:12px}
 .cc.cc-compact[data-group="notes"] .cc-panel{width:260px;min-height:260px;margin-left:clamp(0px,calc(var(--ox,50%) - 130px),calc(100% - 260px))}
-.cc.cc-compact[data-group="notes"] .cc-note-list{max-height:120px}
+.cc.cc-compact[data-group="notes"] .np-list{max-height:120px}
 .cc.cc-open[data-group="notes"]:not(.cc-typing) .cc-tray{border-radius:0 0 20px 20px}
 .cc.cc-bottom.cc-open[data-group="notes"]:not(.cc-typing) .cc-tray{border-radius:20px 20px 0 0}
 .cc[data-group="notes"] .cc-panel{margin-top:8px}

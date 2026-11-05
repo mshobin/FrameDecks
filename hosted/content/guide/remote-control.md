@@ -58,10 +58,11 @@ The phone stays signed in for 30 days. After that, or after a new PIN, enter the
 ## The remote
 
 The remote runs the **whole meeting** from your hand. The top half never moves: the **live picture**, what is on
-screen, and **Previous / Next**. Under it, five tabs hold everything else. Hold the phone upright and the tabs are at
-the bottom; turn it **sideways** (or use a tablet) and the picture sits on the left with the tabs on the right.
+screen, and **Previous / Next**. Under it, the five chips hold everything else, the same **Prepare**, **Engage**,
+**Control**, **Notes** and **More** as the PC's top bar and Command Center (9.13). Hold the phone upright and the chips are at
+the bottom; turn it **sideways** (or use a tablet) and the picture sits on the left with the chips on the right.
 Since 9.9 it has the same look as the PC's [Command Center](presentations.md#command-center): dark glass, a
-floating top bar, the tabs as a floating dock, and each tool's icon in a square of its own colour.
+floating top bar, the chips as a floating dock, and each tool's icon in a square of its own colour.
 
 ![The remote on a phone](images/remote-simple.png)
 
@@ -73,24 +74,24 @@ floating top bar, the tabs as a floating dock, and each tool's icon in a square 
 | **On screen now** | *Frame 4 of 18*, the Frame's name and what it is showing, plus chips for **FrameDecks vCam**, **Recording**, **Black screen**, **Frozen** or drawings on screen |
 | **Previous / Next** | Move through the Frames, in order. **Next** is gold, shows the name of the Frame it will put on screen, and says **Start** before anything is live |
 
-### The five tabs
+### The five chips
 
-| Tab | What is in it |
+| Chip | What is in it |
 | --- | --- |
-| **Show** | The Frame on screen. Its questions, scriptures or PowerPoint slides with round **◀ ▶** arrows (*Question 2 of 5*, *Slide 3 of 12*); a **Question / Both / Scripture** switch when it has both; **Video** controls (play, pause, from the start) for videos in the picture; and **On this Frame**: every Deck with an eye to show or hide it |
-| **Plan** | The whole meeting, Frame > Deck > Content, numbered like the Meeting Workbook (1 · 1.1 · 1.1.1). Tap a Frame to put it on screen. Open it (**⌄**) to see its Decks with their eyes, and every question or scripture: tap one to show it (its Frame goes live first if needed) |
-| **Tools** | **Draw**, **Spotlight**, **Teleprompter**, **Freeze**, **Black screen** (*Show picture* while on) and **Clear drawings** |
-| **Memory** | Capture Memory (see below) |
-| **Meeting** | This meeting's date, time, place, speaker and expected people; **Switch meeting** when there are several; what the PC is doing (FrameDecks vCam, recording, slides); **Disconnect this device** |
+| **Control** (blue, opens first) | The Frame on screen. Its questions, scriptures or PowerPoint slides with round **◀ ▶** arrows (*Question 2 of 5*, *Slide 3 of 12*); a **Question / Both / Scripture** switch when it has both; **Video** controls (play, pause, from the start) for videos in the picture; **On this Frame**: every Deck with an eye to show or hide it; **Black screen** (*Show picture* while on) and **Freeze** |
+| **Prepare** (gold) | This meeting's date, time, place, speaker and expected people; **Switch meeting** when there are several; the whole meeting, Frame > Deck > Content, numbered like the Meeting Workbook (1 · 1.1 · 1.1.1). Tap a Frame to put it on screen, open it (**⌄**) to see its Decks and every question or scripture; and the **Teleprompter** |
+| **Engage** (violet) | **Draw**, **Spotlight**, **Clear drawings** and Capture Memory (see below) |
+| **Notes** (teal) | Add a note for this meeting from the phone (see below) |
+| **More** (slate) | What the PC is doing (FrameDecks vCam, recording, slides) and **Disconnect this device** |
 
-The remote remembers the tab you used last. A short vibration (on Android) and a message at the bottom confirm each
+The remote remembers the chip you used last (a tab saved by an older version opens the chip it moved to). A short vibration (on Android) and a message at the bottom confirm each
 press; buttons pause while the PC can't be reached.
 
 The **Emergency** screen is on the PC only. If it is on, the badge says **Emergency**; turn it off on the PC.
 
 ## Spotlight from the phone
 
-1. Tap **Spotlight** on the live picture (or in **Tools**). The picture fills the whole screen, on black; **Done**
+1. Tap **Spotlight** on the live picture (or in **Engage**). The picture fills the whole screen, on black; **Done**
    brings the remote back.
 2. **Drag** a finger on the picture: the spotlight follows it on every screen, live. Lift your finger and it fades.
 3. **Tap** once for a quick circle that stays for a few seconds.
@@ -114,7 +115,7 @@ Show a message from your phone on the live screen as a chat bubble:
 
 1. In WhatsApp, Teams, Zoom, Messages or any app, long-press the message and choose **Copy**. Copy several messages
    or a whole conversation to show them all.
-2. In the remote, open the **Memory** tab, long-press the box and choose **Paste** (or tap **Paste** when the
+2. In the remote, open the **Engage** chip, long-press the box and choose **Paste** (or tap **Paste** when the
    remote is installed as an app).
 3. Tap **Show on screen**. Each message becomes its own bubble with the sender's name, on screen at once.
 
@@ -129,9 +130,25 @@ Below the box are all the Memory Cards, from the phone and from the PC, newest f
 Tick several cards and tap **Show selected** to put them on screen together, in the order they were copied. Turning
 Capture on and the bubble settings stay on the PC.
 
+## Notes from the phone
+
+The **Notes** chip adds a note to this meeting's notes on the PC, stamped with the time and the Frame on screen, the
+same as the Notes chip on the PC. Type it and tap **Save note**.
+
+Your notes stay private, so the phone works on two levels, both set on the PC in **Settings → Controls → Phone & iPad
+Remote → Notes on the phone**:
+
+| Setting | Default | What it does |
+| --- | --- | --- |
+| **Add notes from the phone** | On | The phone can add notes. It never edits or deletes them |
+| **Read my notes on the phone** | Off | The phone can show the notes too. Tap **Show my notes**; they hide again after a minute, or when you leave the chip or lock the phone |
+
+Nothing of the notes is kept on the phone: it only shows how many there are until you tap **Show my notes**, and the
+PC tells the browser not to keep a copy.
+
 ## Drawing from the phone
 
-1. Select **Draw** (on the live picture or in **Tools**). The drawing pad opens with the **live picture**, exactly what Zoom, Teams or the projector shows.
+1. Select **Draw** (on the live picture or in **Engage**). The drawing pad opens with the **live picture**, exactly what Zoom, Teams or the projector shows.
 2. Choose a tool (**Pen**, **Highlight**, **Arrow**, **Box**, **Circle**) and a colour.
 3. Draw with your finger. The drawing appears on screen when you lift your finger.
 4. **Undo** removes the last drawing; **Clear** removes them all.
@@ -145,7 +162,7 @@ While the pad is open, the phone gets a sharper picture (960 pixels wide). If th
 
 ## iPad and tablet layout
 
-On an iPad or a large tablet held sideways, the live picture and **Previous / Next** sit on the left and the tabs on the right, so the whole plan is in view while you run the meeting. Upright, the tabs are at the bottom as on a phone.
+On an iPad or a large tablet held sideways, the live picture and **Previous / Next** sit on the left and the chips on the right, so the whole plan is in view while you run the meeting. Upright, the chips are at the bottom as on a phone.
 
 ## Add it to your home screen
 

@@ -44,7 +44,7 @@ from media_names import safe_name   # 9.1.2 media file names are never paths
 import meeting_notes  # 9.12 the leader's private notes (Command Center > Notes)
 import memory    # 9.0: Memory Cards in the FrameDecks vCam chat overlay (docs/architecture/memory-cards.md)
 
-APP_VERSION = "9.12.1"
+APP_VERSION = "9.13.0"
 STARTED_AT = time.time()
 FROZEN = getattr(sys, "frozen", False)          # True inside the installed Windows app
 HERE = Path(sys.executable).resolve().parent if FROZEN else Path(__file__).resolve().parent.parent   # the repository root (this file is in src/)
@@ -88,12 +88,13 @@ SESSION_DAYS = 30
 COOKIE = "kc_remote"
 # What a signed-in phone or iPad may open. Member data and the dashboard are never on this list.
 REMOTE_PUBLIC = {"/remote.html", "/css/remote.css", "/js/remote.js", "/js/store.js", "/js/brand.js", "/api/remote-login",
+                 "/js/chips.js", "/js/icons.js", "/js/notes-pad.js", "/css/notes-pad.css",   # 9.13 the chips and the Notes pad
                  "/js/teleprompter.js", "/css/teleprompter.css", "/js/remote-memory.js",
                  "/remote-manifest.json", "/icons/remote-180.png", "/icons/remote-192.png", "/icons/remote-512.png",
                  "/icons/favicon-16.png", "/icons/favicon-32.png",
                  "/icons/remote-maskable-512.png", "/img/framedecks-emblem.webp"}
 REMOTE_SIGNED_IN = {"/api/rev", "/api/state", "/api/remote-logout", "/js/overlay.js", "/api/remote/studio", "/api/brand/logo", "/api/remote/live.jpg",
-                    "/api/remote/memory", "/api/pointer",
+                    "/api/remote/memory", "/api/pointer", "/api/remote/notes",
                     "/css/overlay.css", "/stage.html", "/focus-verse.html", "/discussion-question.html", "/birthday.html"}
 sessions_lock = threading.Lock()
 failures = {}  # ip -> [count, locked_until]  (9.1.2: count keeps growing until a right PIN; the wait doubles)
@@ -715,6 +716,29 @@ def memory_body():
     return snap
 
 
+def remote_notes_body(meeting, show):
+    """9.13 what the phone remote sees of the leader's notes: whether it may add and read, how many there are, and the
+    notes themselves only when reading is allowed on this PC and the phone asked to show them."""
+    cfg = app_settings()
+    data = NOTES.get(meeting)
+    out = {"canAdd": bool(cfg["remoteNotesAdd"]), "canRead": bool(cfg["remoteNotesRead"]), "count": len(data["notes"]),
+           "meeting": data["meeting"]}
+    if out["canRead"] and show:
+        out.update(name=data["name"], notes=data["notes"])
+    return out
+
+
+def remote_notes_action(data):
+    """POST /api/remote/notes {action: 'add', meeting, text, name?, frame?}: the phone adds a note (when allowed). It
+    never edits or deletes; the reply carries the count, not the notes."""
+    if not isinstance(data, dict) or data.get("action") != "add":
+        raise ValueError("Not available from the remote.")
+    if not app_settings()["remoteNotesAdd"]:
+        raise ValueError("Notes from the phone are off on the PC.")
+    NOTES.add(data.get("meeting"), data.get("text"), name=str(data.get("name") or ""), frame=str(data.get("frame") or ""))
+    return remote_notes_body(data.get("meeting"), False)
+
+
 def notes_action(data):
     """POST /api/notes {action: add|edit|delete|clear, meeting, name?, text?, frame?, id?} (this PC only). The leader's
     private notes: kept in <data>/notes, never synced, never sent to the phone, never in the diagnostics file."""
@@ -1113,6 +1137,8 @@ APP_SETTINGS_DEFAULTS = {"remoteAutostart": False, "importDecided": False,
                          "spotlightKey": "Alt+Space",   # system-wide shortcut for Spotlight ('' = off)
                          "ccSize": "regular",     # 9.12 the Command Center: regular, or compact (slim chips, narrower)
                          "ccPlace": "top",        # 9.12 where it opens: top, centre or bottom (chips above the bar)
+                         "remoteNotesAdd": True,  # 9.13 the phone remote may add notes (they are saved on this PC)
+                         "remoteNotesRead": False,  # 9.13 the phone remote may read them (off: whoever has the PIN could)
                          "prompterLook": "solid",       # 8.1 Teleprompter transparency: solid/presenter/meeting/conference/ghost
                          "prompterOnTop": True,         # 8.1 the Teleprompter stays above Zoom, Teams and PowerPoint (pin)
                          "cloudRemote": False,    # Phase 5: run a service from the companion (Settings > FrameDecks account)
@@ -2672,6 +2698,10 @@ class Handler(BaseHTTPRequestHandler):
                     wait = 25.0
                 MEMORY.wait(since, wait)
             return self.reply(200, json.dumps(remote_memory_body()), TYPES[".json"])
+        if path == "/api/remote/notes":                 # 9.13 the phone remote's Notes (signed in; never cached)
+            q = parse_qs(url.query)
+            body = remote_notes_body(q.get("meeting", [""])[0], q.get("peek", [""])[0] != "1")
+            return self.reply(200, json.dumps(body), TYPES[".json"], headers=[("Cache-Control", "no-store")])
         if path == "/api/notes":                        # 9.12 the leader's notes (this PC only)
             if not self.is_local():
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
@@ -3124,6 +3154,12 @@ class Handler(BaseHTTPRequestHandler):
             except ValueError as e:
                 return self.reply(400, json.dumps({"error": str(e)}), TYPES[".json"])
             return self.reply(200, json.dumps(dict(res, **remote_memory_body())), TYPES[".json"])
+        if path == "/api/remote/notes":                 # 9.13 the phone adds a note (when the PC allows it)
+            try:
+                res = remote_notes_action(data)
+            except ValueError as e:
+                return self.reply(400, json.dumps({"error": str(e)}), TYPES[".json"])
+            return self.reply(200, json.dumps(res), TYPES[".json"], headers=[("Cache-Control", "no-store")])
         if path == "/api/notes":
             if not self.is_local():
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")

@@ -98,11 +98,13 @@ class Notes(unittest.TestCase):
 
     def test_the_chip_stamps_time_and_frame_and_opens_as_a_sticky_note(self):
         js = read("app/js/command-center.js")
-        for need in ("{id: 'notes', label: 'Notes', icon: 'sticky-note', hue: 'teal'", "frame: frameNow()",
-                     "'Frame ' + (order.indexOf(ls) + 1) + ' · ' + ls.name", "/^[1-5]$/.test(e.key)",
-                     "act('copy', 'Copy all', copyAll)", "act('file-text', 'Save as a file', saveFile)", "act('mail', 'Email to me', email)",
-                     "if (g.notes) Notes.focus();"):
+        pad = read("app/js/notes-pad.js")                                 # 9.13 one Notes pad for every surface
+        self.assertIn("{id: 'notes', label: 'Notes', icon: 'sticky-note', hue: 'teal'", read("app/js/chips.js"))
+        for need in ("/^[1-5]$/.test(e.key)", "if (g.notes) Notes.focus();", "window.KCNotesPad.create("):
             self.assertIn(need, js)
+        for need in ("frame: frameNow()", "'Frame ' + (SC.order(st).indexOf(ls) + 1) + ' · ' + ls.name",
+                     "act('copy', 'Copy all', copyAll)", "act('file-text', 'Save as a file', saveFile)", "act('mail', 'Email to me', email)"):
+            self.assertIn(need, pad)
         css = read("app/css/spotlight.css")
         self.assertIn('.cc[data-group="notes"] .cc-panel{flex:none;width:300px;min-height:300px', css)
         self.assertIn(".cc-tray,.cc .cc-tray{grid-template-columns:repeat(5,minmax(0,1fr))}", css)
@@ -111,7 +113,7 @@ class Notes(unittest.TestCase):
 class OnePlaceForEachThing(unittest.TestCase):
     def test_no_action_is_in_two_chips(self):
         js = read("app/js/command-center.js")
-        groups = js[js.index("var GROUPS = ["):js.index("function meetingSub()")]
+        groups = js[js.index("var MAKE = {"):js.index("var GROUPS = CH.list.map(")]
         actions = re.findall(r"function\(\)\{ (setting\('[a-z]+'\)|scope\('[a-z]+'\)|run\('[a-z:]+', (?:true|false)\)|tool\('[a-z]+'\)); \}", groups)
         self.assertGreater(len(actions), 15)
         self.assertEqual(len(actions), len(set(actions)), "an action appears in two chips")

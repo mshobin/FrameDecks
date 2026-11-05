@@ -143,7 +143,7 @@ await api({ action: "hideall" });
 const phone = await browser.newPage({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
 await phone.goto(`${BASE}/remote.html`);
 await phone.waitForSelector("#app:not([hidden])");
-await phone.click("#tab-memory");                 // 9.4 Capture Memory has its own tab
+await phone.click("#tab-engage");                 // 9.13 Capture Memory lives in the Engage chip
 await phone.waitForSelector("#cm-text");
 await phone.fill("#cm-text", "[10:40, 03/11/2026] Grace: Can we get the slides afterwards?\n[10:41, 03/11/2026] Mark: Yes please!");
 await phone.click("#cm-go");

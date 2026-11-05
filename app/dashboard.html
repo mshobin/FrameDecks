@@ -12,6 +12,7 @@
 <link rel="stylesheet" href="css/teleprompter.css">
 <link rel="stylesheet" href="css/window.css">
 <link rel="stylesheet" href="css/memory.css">
+<link rel="stylesheet" href="css/notes-pad.css">
 <link rel="stylesheet" href="css/about.css">
 <link rel="stylesheet" href="css/onboarding.css">
 <script>/* Look and light or dark before the first paint (Settings > Meeting & Branding > Look). 8.1: a look (the same six as
@@ -58,22 +59,18 @@
     <span class="lb-step-t" id="lb-slides-t">Slides</span>
     <button class="cb-btn" type="button" data-cb="slide" data-step="1" aria-label="Next slide">▶</button>
   </div>
-    <div class="lb-prog" id="lb-prog">
-    <button class="cb-btn lb-prog-btn" type="button" id="lb-prog-btn" aria-haspopup="true" aria-expanded="false" aria-controls="lb-prog-menu" title="Live tools: black screen, freeze, draw, the Teleprompter and the emergency screen">Live tools ▾</button>
-    <div class="lb-prog-menu" id="lb-prog-menu" role="group" aria-label="Live tools">
-  <p class="lpm-h" aria-hidden="true">On screen</p>
-  <button class="cb-btn" type="button" id="lb-hide-layer" aria-label="Hide the selected Content">Hide the selected Content</button>
-  <button class="cb-btn lb-black" type="button" id="lb-blackout" aria-pressed="false" title="Black picture on FrameDecks vCam and the overlay page">Black screen</button>
-  <button class="cb-btn lb-frz" type="button" id="lb-freeze" aria-pressed="false" title="Freeze: hold the picture (F)">Freeze the picture</button>
-  <button class="cb-btn lb-ann" type="button" id="lb-annotate" aria-pressed="false" title="Annotate: draw on the picture (D)">Draw on the picture</button>
-  <p class="lpm-h" aria-hidden="true">Teleprompter <span>only you see it</span></p>
-  <button class="cb-btn lb-tp" type="button" id="lb-prompter" aria-pressed="false" title="Teleprompter: the Frame's script in a window above Zoom or Teams. Never shared or recorded (R)">Teleprompter</button>
-  <p class="lpm-h" aria-hidden="true">Memory Cards <span>from chats</span></p>
-  <button class="cb-btn lb-mem" type="button" id="lb-capture" aria-pressed="false" title="Capture: text you copy (Ctrl+C) in Teams, Zoom, ChatGPT, Claude, Slack, a browser… becomes a Memory Card you can show on FrameDecks vCam as a chat bubble">Capture copies</button>
-  <p class="lpm-h lpm-warn" aria-hidden="true">Emergency</p>
-  <button class="cb-btn lb-emerg" type="button" id="lb-emergency" aria-pressed="false" title="Emergency screen with your message">Emergency screen</button>
+    <!-- 9.13 the five chips (js/chips.js, js/chip-bar.js) in place of the "Live tools" menu: the same as the Command
+         Center and the phone remote. The buttons below keep their ids and code and move into their chip's panel. -->
+    <div class="lb-chips" id="lb-chips" role="group" aria-label="Prepare, Engage, Control, Notes and More"></div>
+    <div id="lb-chip-stock" hidden>
+      <button class="cb-btn" type="button" id="lb-hide-layer" aria-label="Hide the selected Content">Hide the selected Content</button>
+      <button class="cb-btn lb-black" type="button" id="lb-blackout" aria-pressed="false" title="Black picture on FrameDecks vCam and the overlay page">Black screen</button>
+      <button class="cb-btn lb-frz" type="button" id="lb-freeze" aria-pressed="false" title="Freeze: hold the picture (F)">Freeze the picture</button>
+      <button class="cb-btn lb-ann" type="button" id="lb-annotate" aria-pressed="false" title="Annotate: draw on the picture (D)">Draw on the picture</button>
+      <button class="cb-btn lb-tp" type="button" id="lb-prompter" aria-pressed="false" title="Teleprompter: the Frame's script in a window above Zoom or Teams. Never shared or recorded (R)">Teleprompter</button>
+      <button class="cb-btn lb-mem" type="button" id="lb-capture" aria-pressed="false" title="Capture: text you copy (Ctrl+C) in Teams, Zoom, ChatGPT, Claude, Slack, a browser… becomes a Memory Card you can show on FrameDecks vCam as a chat bubble">Capture copies</button>
+      <button class="cb-btn lb-emerg" type="button" id="lb-emergency" aria-pressed="false" title="Emergency screen with your message">Emergency screen</button>
     </div>
-  </div>
   <button class="cb-btn hide" type="button" data-cb="hideAll" aria-label="Hide all Content">Hide all<kbd class="key" data-sc="hideAll">Esc</kbd></button>
 </div>
   <!-- LIVE plus every output's status, at a glance and only here (each chip opens its details).
@@ -474,6 +471,13 @@
       <div class="box-head"><h2 id="remote-title">phone remote</h2></div>
       <div id="remote-body"></div>
     </section>
+    <!-- 9.13 the leader's Notes on the phone remote: adding on, reading off unless turned on here (js/chip-bar.js) -->
+    <section class="box" id="remote-notes-box" aria-labelledby="remote-notes-title">
+      <div class="box-head"><h2 id="remote-notes-title">Notes on the phone</h2></div>
+      <label class="check"><input type="checkbox" id="rn-add"> Add notes from the phone (saved on this PC, stamped with the time and the Frame)</label>
+      <label class="check"><input type="checkbox" id="rn-read"> Read my notes on the phone</label>
+      <p class="hint">Anyone who has the PIN can open the phone remote, so reading stays off unless you turn it on. Read notes are never kept on the phone: they hide after a minute without use and when the phone sleeps. Notes are never sent to the website.</p>
+    </section>
     </section>
     <section class="s-sec" id="sec-keys" aria-labelledby="sech-keys" hidden>
       <header class="s-head"><h2 id="sech-keys">Keyboard shortcuts</h2><p>Keys that work in the Studio (not while typing in a box).</p></header>
@@ -595,6 +599,9 @@
 <script src="js/panels.js"></script>
 <script src="js/nav.js"></script>
 <script src="js/palette.js"></script>
+<script src="js/chips.js"></script>
+<script src="js/notes-pad.js"></script>
+<script src="js/chip-bar.js"></script>
 <script src="js/brand.js"></script>
 <script src="js/about.js"></script>
 <script src="js/frame-file.js"></script>

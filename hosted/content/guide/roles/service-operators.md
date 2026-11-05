@@ -28,7 +28,7 @@ How to run the FrameDecks PC during a service: setup, presenting, and calm recov
 1. **Selecting a Frame does not put it on air.** The Studio Canvas shows a **PREVIEW**. **Go Live** (**T**) puts it on screen; the badge then reads **LIVE**.
 2. **◀ Frame / Frame ▶** in the command bar move to the previous or next Frame and put it on screen.
 3. **◀ Question ▶** (or the arrow keys) step through the live Frame's questions; **Shift + arrows** step through its scriptures; **Page Up / Page Down** step through slides.
-4. **The Live tools menu is your safety kit:** Hide Content, **Black screen** (K), Emergency, **Annotate** (D), **Freeze** (F), **Teleprompter** (R).
+4. **The Control chip is your safety kit** (Draw is in **Engage**, the Teleprompter in **Prepare**): Hide Content, **Black screen** (K), Emergency, **Annotate** (D), **Freeze** (F), **Teleprompter** (R).
 5. **Hide all** (**Esc**) clears everything and deletes nothing.
 
 ![The Studio during a service](../images/studio.png)
@@ -66,7 +66,7 @@ in **Settings → Controls → General → Window and tray**; if another program
 
 - Keep your eyes on the leader as well as the screen.
 - Use **Freeze** before switching files or windows on the PC, so viewers don't see the change.
-- Watch the status chips: **Black screen on ▾**, **Frozen ▾** or **Drawing ▾** on the Live tools button mean that mode is on.
+- Watch the chips: **Black screen on**, **Emergency on** or **Frozen** on the **Control** chip, or a gold **Engage** chip (drawing), mean that mode is on.
 - If a remote operator is running Next, don't fight them: agree who has control before the service.
 - Working mostly in Zoom or OBS? Hide FrameDecks to the tray (**Minimize → Hide To Tray**) and press
   **Alt+Space** for the **Command Center**. **Go Live**, **Next / Previous Frame**, **Hide all**, **Black screen** and
@@ -88,7 +88,7 @@ in **Settings → Controls → General → Window and tray**; if another program
 | Wrong thing on screen | **Esc** (Hide all) | Select the right Frame, **Go Live** |
 | Must go dark now | **K** (Black screen) | Press **K** again when ready |
 | Need time to fix something | **F** (Freeze) | Fix it, then **F** again |
-| A message for everyone (technical problem) | **Live tools → Emergency screen** | Turn it off when solved |
+| A message for everyone (technical problem) | **Control → Emergency screen** | Turn it off when solved |
 | Meeting app shows no camera | Choose **FrameDecks** again in the app | Restart the app if it isn't listed |
 | Phone remote stopped | Carry on from the PC | See [Troubleshooting](../troubleshooting.md#phone-remote) |
 
@@ -96,7 +96,7 @@ in **Settings → Controls → General → Window and tray**; if another program
 
 1. Read [Presentations](../presentations.md), [Media](../media.md) and [Troubleshooting](../troubleshooting.md).
 2. Practise Go Live, Next, Black screen, Freeze and Hide all on a meeting that is not on a real call. On a real call,
-   turn on **Live tools → Black screen** first: people see black while your own preview shows everything.
+   turn on **Control → Black screen** first: people see black while your own preview shows everything.
 3. Follow the [three-week onboarding plan](README.md#onboarding-new-volunteers).
 
 ## Related

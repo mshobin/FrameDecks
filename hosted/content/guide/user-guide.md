@@ -28,7 +28,7 @@ The **command bar** across the top holds everything you need live:
 | Studio · Members · Settings | The three sections (Alt+1, Alt+3, Alt+4) |
 | ◀ Frame · **Go Live** · Frame ▶ | Put the selected Frame on screen (T), or step to the previous or next Frame |
 | Transition · Auto · ◀ Question ▶ | How the next Frame appears; auto-advance; step through the Frame's questions or scriptures |
-| Live tools ▾ | A drop-down menu: Hide the selected Content · **Black screen** (K) · **Freeze the picture** (F) · **Draw on the picture** (D) · **Teleprompter** (R) · Emergency screen |
+| Prepare · Engage · Control · Notes · More | The five chips (9.13, in place of Live tools), the same as in the Command Center and on the phone remote. Each opens a panel under it; **Esc** closes it. **Prepare**: meetings, **Teleprompter** (R), share, Quick Start, library, import, camera. **Engage**: Memory Cards, Capture copies, **Draw** and **Spotlight** (on the desktop app they open the Share Window, the window you share in Zoom or Teams), clear drawings, hide cards. **Control**: Hide the selected Content, **Black screen** (K), **Freeze the picture** (F), Emergency screen. **Notes**: your private notes for this meeting. **More**: settings and help |
 | Hide all **Esc** | Hide everything. The **Esc** key is shown inside the button |
 | ● Off air / LIVE | What is on screen now |
 | Window buttons | Minimize, Maximize / Restore and Close, at the top right |
@@ -152,7 +152,7 @@ A Question (or Scripture) Content holds **its own list**, shown full height in C
     Teams), recordings and the overlay pages.
 - **Freeze (F)** holds the picture while you get the next thing ready. You can still draw on it.
 - **Blackout (K)** makes the picture black.
-- **Teleprompter** (Live tools → Teleprompter, **R**, the command palette's *Teleprompter on / off*, or the tray's
+- **Teleprompter** (Prepare → Teleprompter, **R**, the command palette's *Teleprompter on / off*, or the tray's
   **Teleprompter**) shows the Frame's **Teleprompter script** in one window that stays on top of Zoom, Teams or Meet.
   Only you see it: it is never on any output, and it is hidden from screen sharing and recordings.
   - Write the script in Frame settings → **Teleprompter script** (up to 20,000 characters), with **✎ Write Script**
@@ -188,11 +188,13 @@ FrameDecks, restart that app.
   **Start** before anything is live).
 - **Spotlight** on the picture: drag a finger and the spotlight follows it on every screen; tap for a quick circle.
   **Draw** opens the drawing pad (turn the phone sideways for a bigger picture).
-- Five tabs. **Show**: the Frame's questions, scriptures or slides with ◀ ▶ arrows, the Question / Both / Scripture
-  switch, video play / pause / from the start, and every Deck with an eye. **Plan**: every Frame > Deck > Content
-  (1 · 1.1 · 1.1.1); tap to show any of them. **Tools**: Draw, Spotlight, Teleprompter, Freeze, Black screen, Clear
-  drawings. **Memory**: Capture Memory. **Meeting**: details, switch meeting, PC status, **Disconnect this device**.
-- Upright: tabs at the bottom. Sideways or on a tablet: the picture on the left, the tabs on the right.
+- Five chips (9.13), the same as the PC's top bar and Command Center. **Control**: the Frame's questions, scriptures
+  or slides with ◀ ▶ arrows, the Question / Both / Scripture switch, video play / pause / from the start, every Deck
+  with an eye, Black screen and Freeze. **Prepare**: meeting details, switch meeting, every Frame > Deck > Content
+  (1 · 1.1 · 1.1.1, tap to show any of them) and the Teleprompter. **Engage**: Draw, Spotlight, Clear drawings and
+  Capture Memory. **Notes**: add a note to this meeting (reading them is off unless the PC turns it on). **More**: PC
+  status, **Disconnect this device**.
+- Upright: chips at the bottom. Sideways or on a tablet: the picture on the left, the chips on the right.
 - The **Emergency** screen is on the PC only.
 
 ## 7. Excel (optional)

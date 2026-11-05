@@ -20,8 +20,10 @@ class CommandCenter(unittest.TestCase):
     def test_four_chips_prepare_engage_control_more(self):
         """9.10 the same every time: the bar, then four chips; a chip opens its panel (Alt+1 to Alt+4)"""
         js = read("app/js/command-center.js")
-        ids = [js.index("{id: '%s', label: '%s'" % (i, n)) for i, n in (("prepare", "Prepare"), ("engage", "Engage"), ("control", "Control"), ("more", "More"))]
+        chips = read("app/js/chips.js")                                   # 9.13 the chips are defined once, for every surface
+        ids = [chips.index("{id: '%s', label: '%s'" % (i, n)) for i, n in (("prepare", "Prepare"), ("engage", "Engage"), ("control", "Control"), ("notes", "Notes"), ("more", "More"))]
         self.assertEqual(ids, sorted(ids))
+        self.assertIn("var GROUPS = CH.list.map(", js)
         self.assertIn("/^[1-5]$/.test(e.key)", js)       # 9.12: five chips (Notes)
         self.assertIn("api/memory", js)
         self.assertIn("api/vcam/status?lite=1", js)
@@ -100,7 +102,7 @@ class PhoneRemote(unittest.TestCase):
     def test_the_same_glass_look(self):
         css = read("app/css/remote.css")
         block = css[css.index("9.9 the Command Center look"):]
-        for need in (".top{margin:10px 12px 0", ".tabs{margin:0 12px", "#t-draw .ti{background:var(--hue-violet)}", "--hue-gold:"):
+        for need in (".top{margin:10px 12px 0", ".tabs{margin:0 12px", "#t-draw .ti,#t-spot .ti,#t-ink-clear .ti{background:var(--hue-violet)}", "--hue-gold:"):
             self.assertIn(need, block)
         self.assertNotIn("backdrop-filter", block)              # no blur on the phone
 

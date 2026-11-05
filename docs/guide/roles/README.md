@@ -21,7 +21,7 @@ Small groups often have one person doing everything. Larger services split the w
 | --- | --- | --- | --- |
 | **Worship leader / teacher** | Leads the service; decides what is said and shown | The Teleprompter (or Teleprompter window), sometimes the phone remote | [Worship leaders](worship-leaders.md) |
 | **Media team** | Prepares Frames, slides, videos and scripture before the service | The Studio on the PC | [Media team](media-team.md) |
-| **Service operator** | Runs the PC during the service: Go Live, Next, recovery | The PC (command bar, Live tools menu) | [Service operators](service-operators.md) |
+| **Service operator** | Runs the PC during the service: Go Live, Next, recovery | The PC (command bar, the Prepare · Engage · Control · Notes · More chips) | [Service operators](service-operators.md) |
 | **Remote operator** | Runs the service, or draws, from a phone or iPad | The phone remote | [Remote operators](remote-operators.md) |
 | **Volunteer** | Helps with one simple task, usually Next on the phone | The phone remote | [Volunteers](volunteers.md) |
 

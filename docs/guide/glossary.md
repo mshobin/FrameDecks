@@ -12,7 +12,7 @@ word, the screen is wrong: fix the screen, not this list. (Owner-approved simpli
 | **Running order** | The Frames in the order they go on screen. | services list, scene list, playlist |
 | **Plan** | The website page where you plan a meeting (Frames, questions, scripture, the presenter's script) and see its history. It replaced the Meeting Form and Running order pages. | Meeting Form (the Excel file is the *Meeting Workbook*), services |
 | **Home** | The website's first page: your next service and whether it is ready. | Overview, dashboard |
-| **Studio** | The one place where you plan, edit and run a meeting. Previous, Next, Go Live, Hide all and Live tools are always in its top bar. (The separate Prepare / Run views were removed in 8.0.) | edit mode, design view, show mode, live mode, presenter mode |
+| **Studio** | The one place where you plan, edit and run a meeting. Previous, Next, Go Live, Hide all and the five chips are always in its top bar. (The separate Prepare / Run views were removed in 8.0.) | edit mode, design view, show mode, live mode, presenter mode |
 | **Decks** | The section under the Frames list that holds the selected Frame's Content (**+ Deck** adds to it). | layers |
 | **Go Live** | Put the chosen Frame on screen. | take, cut, send |
 | **Previous / Next** | Put the Frame before or after the one on screen. | back / forward, prev |
@@ -26,7 +26,7 @@ word, the screen is wrong: fix the screen, not this list. (Owner-approved simpli
 | **Teleprompter** | Your script, which only you see: one window that stays on top of Zoom or Teams and is hidden from screen sharing and recordings (R). | speaker view, confidence monitor, prompter overlay |
 | **How people see it** | The way your meeting reaches people: FrameDecks vCam in Zoom or Teams, the **Share Window**, or a projector, TV or OBS. | output, display settings, sources |
 | **Share Window** | A clean window with only your Frames, to share in Zoom. | presentation window, present mode |
-| **Live tools** | The menu with Black screen, Freeze, Draw, the Teleprompter and the Emergency screen. | Program menu |
+| **Chips** | The five groups, **Prepare**, **Engage**, **Control**, **Notes** and **More**, the same in the top bar, the Command Center and the phone remote. Each action is in one chip only. | Live tools, Program menu |
 | **People** | Everyone in your member list (Members → People): the list, or the table. | directory, manage, contacts |
 | **Team** | Your organisation, church, class or group on the website: its people, its plans and its service PCs (*workspace* in the code). | church (on the website), workspace, organisation, tenant |
 | **Service PC** | The Windows PC that runs the service, linked to your team (*Linked PC* in the program). | computer, device, runtime, client |

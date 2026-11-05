@@ -390,8 +390,8 @@ html,body{background:radial-gradient(90% 55% at 50% -8%,rgba(122,152,255,.2),tra
 /* tools: the icon in a square of its own hue, like the Command Center's modules */
 .tool{border-radius:20px}
 .tool .ti{border-radius:12px;color:#fff;background:var(--hue-slate);box-shadow:var(--ghi),var(--lift-sm)}
-#t-draw .ti{background:var(--hue-violet)} #t-spot .ti{background:var(--hue-gold)} #t-prompter .ti{background:var(--hue-blue)}
-#t-freeze .ti{background:var(--hue-teal)} #t-black .ti,.tool.warn .ti{background:var(--hue-red);color:#fff}
+#t-draw .ti,#t-spot .ti,#t-ink-clear .ti{background:var(--hue-violet)} #t-prompter .ti{background:var(--hue-gold)}
+#t-freeze .ti{background:var(--hue-blue)} #t-black .ti,.tool.warn .ti{background:var(--hue-red);color:#fff}
 .tool.on{border-color:rgba(61,220,132,.55);background:linear-gradient(180deg,rgba(61,220,132,.16),rgba(61,220,132,.06))}
 .tool.on .ti{background:var(--live);color:#06210f}
 #t-spot.on{border-color:var(--gold);background:linear-gradient(180deg,rgba(232,185,49,.16),rgba(232,185,49,.05))} #t-spot.on .ti{background:var(--gold);color:var(--gold-ink)}
@@ -409,3 +409,18 @@ html,body{background:radial-gradient(90% 55% at 50% -8%,rgba(122,152,255,.2),tra
   .side{border-left:0}
 }
 @media (orientation:landscape) and (min-width:600px) and (max-height:560px){ .top{margin:6px 10px 0;border-radius:16px} .tabs{margin-top:6px} }
+
+/* ---------- 9.13 the tabs are the five chips (js/chips.js), as in the app's top bar and the Command Center: each with
+   its colour square; each tool takes its chip's colour (Engage violet, Prepare gold, Control blue) ---------- */
+.tabs .tab-chip{gap:4px;color:var(--muted)}
+.tab-sq{display:grid;place-items:center;width:28px;height:28px;border-radius:9px;color:#fff;box-shadow:var(--ghi),var(--lift-sm);opacity:.82}
+.tab-sq svg{width:16px;height:16px}
+.hue-gold .tab-sq{background:var(--hue-gold)} .hue-violet .tab-sq{background:var(--hue-violet)} .hue-blue .tab-sq{background:var(--hue-blue)}
+.hue-teal .tab-sq{background:var(--hue-teal)} .hue-slate .tab-sq{background:var(--hue-slate)}
+.tabs .tab-chip[aria-selected="true"]{color:var(--ink)}
+.tabs .tab-chip[aria-selected="true"] .tab-sq{opacity:1;transform:translateY(-1px)}
+.tools-2{grid-template-columns:repeat(2,1fr);margin-top:14px}
+.tools-1{grid-template-columns:1fr;margin-top:14px}
+.tools-1 .tool{min-height:64px;flex-direction:row;gap:12px}
+.notes-card{padding:14px}
+.np-phone .np-in{font-size:16px}

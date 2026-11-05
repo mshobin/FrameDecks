@@ -62,9 +62,23 @@ $('prev').addEventListener('click', guard('prev', function(){ stepScene(-1); }))
 $('next').addEventListener('click', guard('next', function(){ stepScene(1); }));
 $('hide-all').addEventListener('click', function(){ buzz(25); update(function(n){ SC.hideAll(n); }, 'Everything hidden'); });
 
-/* ---------- 9.4 Tabs: Show · Plan · Tools · Memory · Meeting (the one you used last comes back) ---------- */
-var TABS = ['show', 'plan', 'tools', 'memory', 'meeting'], tab = 'show';
-try { var savedTab = localStorage.getItem('fd-remote-tab'); if (TABS.indexOf(savedTab) >= 0) tab = savedTab; } catch(e){}
+/* ---------- 9.13 Tabs: the five chips of js/chips.js (Prepare · Engage · Control · Notes · More), the same names, icons
+ * and colours as the app's top bar and the Command Center. Control is where it opens; the one used last comes back. ---------- */
+var CHIPS = window.KCChips ? window.KCChips.list : [{id: 'control', label: 'Control', icon: 'radio', hue: 'blue'}];
+var TABS = CHIPS.map(function(c){ return c.id; }), tab = 'control';
+var OLD_TABS = {show: 'control', plan: 'prepare', tools: 'engage', memory: 'engage', meeting: 'more'};   // 9.12 and older
+(function(){
+  var nav = $('tabs'); if (!nav || nav.children.length) return;
+  CHIPS.forEach(function(c){
+    var b = document.createElement('button');
+    b.type = 'button'; b.setAttribute('role', 'tab'); b.id = 'tab-' + c.id; b.setAttribute('aria-controls', 'p-' + c.id);
+    b.dataset.tab = c.id; b.className = 'tab-chip hue-' + c.hue;
+    b.innerHTML = '<span class="tab-sq" aria-hidden="true">' + (window.KCIcon ? window.KCIcon(c.icon, 18) : '') + '</span><span></span>';
+    b.lastChild.textContent = c.label;
+    nav.appendChild(b);
+  });
+})();
+try { var savedTab = localStorage.getItem('fd-remote-tab'); savedTab = OLD_TABS[savedTab] || savedTab; if (TABS.indexOf(savedTab) >= 0) tab = savedTab; } catch(e){}
 function openTab(t, focus){
   if (TABS.indexOf(t) < 0) return;
   tab = t;
@@ -77,6 +91,7 @@ function openTab(t, focus){
   document.body.dataset.tab = t;
   var panels = document.querySelector('.panels'); if (panels) panels.scrollTop = 0;
   if (focus) $('tab-' + t).focus();
+  notesTab(t === 'notes');
   if (live) render();
 }
 all('[data-tab]').forEach(function(b){ b.addEventListener('click', function(){ if (tab !== b.dataset.tab) buzz(6); openTab(b.dataset.tab); }); });
@@ -85,6 +100,18 @@ $('tabs').addEventListener('keydown', function(e){
   if (e.key === 'Home') { e.preventDefault(); openTab(TABS[0], true); } else if (e.key === 'End') { e.preventDefault(); openTab(TABS[TABS.length - 1], true); }
   else if (d){ e.preventDefault(); openTab(TABS[(i + d + TABS.length) % TABS.length], true); }
 });
+/* 9.13 Notes: the leader's notes, saved on the PC (js/notes-pad.js); made the first time the tab opens, and its read
+ * notes leave the screen when you go to another tab */
+var notesPad = null;
+function notesTab(on){
+  if (!window.KCNotesPad) return;
+  if (on && !notesPad){
+    notesPad = window.KCNotesPad.create({phone: true, getLive: function(){ return live; }, SC: SC, tell: function(m, bad){ toast(m, bad); }});
+    $('notes-slot').appendChild(notesPad.el);
+  }
+  if (!notesPad) return;
+  if (on) notesPad.paint(); else notesPad.hide();
+}
 openTab(tab);
 
 /* ---------- Inside the Frame: its slides, questions or scriptures ---------- */
@@ -487,9 +514,10 @@ function render(){
   cs.hidden = !stt; setText(cs, stt);
   setText($('note'), L.blackout ? 'The screen is black. Tap Show picture to bring it back.' : L.freeze ? 'The picture is frozen. Tap Unfreeze to go live again.' : L.emergency ? 'The Emergency screen is on. Turn it off on the PC.' : '');
   if (tp && !$('tp').hidden) tp.update(live, tpFrame());
-  if (tab === 'show'){ renderDecks(); renderMedia(); }
-  if (tab === 'plan') renderFrames();
-  if (tab === 'meeting') renderMeeting();
+  if (tab === 'control'){ renderDecks(); renderMedia(); }
+  if (tab === 'prepare'){ renderFrames(); renderMeeting(); }
+  if (tab === 'more') renderMeeting();
+  if (tab === 'notes' && notesPad) notesPad.paint();
   renderCanvas(); renderChips();
 }
 Store.subscribe(function(st){ live = st; if (!$('login').hidden) showApp(); render(); });

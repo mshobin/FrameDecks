@@ -134,10 +134,11 @@ its look in **Settings → Transitions → Burst**:
 | **Freeze** | **F** | The picture held still | You are changing things and do not want people to see it |
 | **Hide Content** | — | The selected Content is hidden | One item should go away, the rest stays |
 
-Black screen, Emergency, Annotate, Freeze and the Teleprompter are in the **Live tools** menu. **Live tools**, **Go
-Live**, **◀ Previous**, **Next ▶** and **Hide all** are always in the top bar. The menu button changes to
-**Black screen on ▾**, **Emergency on ▾**, **Frozen ▾** or **Drawing ▾** so you never forget one is on. Press the same
-control again to turn it off.
+Black screen, Freeze, Emergency and Hide the selected Content are in the **Control** chip of the top bar; Draw and
+Spotlight are in **Engage**, and the Teleprompter in **Prepare** (9.13: the chips replace the old Live tools menu).
+**Go Live**, **◀ Previous**, **Next ▶** and **Hide all** are always in the top bar. The Control chip changes to
+**Black screen on**, **Emergency on** or **Frozen**, and Engage turns gold while you draw, so you never forget one is
+on. Press the same control again to turn it off.
 
 > **Important:** Remember to unfreeze. While the picture is frozen, people do not see anything you change. The phone
 > remote also shows a note while it is frozen.
@@ -147,7 +148,8 @@ control again to turn it off.
 Annotate works like ZoomIt: draw over whatever is on screen, slides and cards included. Everyone in Zoom, Teams and
 on the projector sees it.
 
-1. Press **D**, or choose **Live tools → Draw on the picture**.
+1. Press **D** (or, in a browser, choose **Engage → Draw**). In the desktop app, **Engage → Draw** opens the Share Window
+   to draw on instead, as Spotlight does: see [Draw and Spotlight on the Share Window](#draw-and-spotlight-on-the-share-window).
 2. Pick a tool and draw on the Studio Canvas.
 3. Press **Esc** (or **Done**) to stop. The drawings are hidden.
 
@@ -222,7 +224,7 @@ optional:
 | `---` | A divider line |
 
 **Open it**
-- **Live tools → Teleprompter**, or press **R** (press it again to close it).
+- **Prepare → Teleprompter**, or press **R** (press it again to close it).
 - From the [command palette](#command-palette) or [Command Center](#command-center): type *Teleprompter on / off*.
 - From the tray icon near the clock: **Teleprompter**.
 
@@ -291,7 +293,7 @@ WhatsApp, ChatGPT, Claude, Copilot or a browser) into **Memory Cards**. **Show**
 **chat bubble**: just the bubble, with no window or panel around it. There is nothing to paste and no extra window to
 manage.
 
-1. Turn on **Capture**: the switch in the Studio's **Capture Memory** pane (under Decks), **Live tools → Capture
+1. Turn on **Capture**: the switch in the Studio's **Capture Memory** pane (under Decks), **Engage → Capture
    copies**, or the tray's **Capture copies**.
 2. In the chat, select the text and press **Ctrl+C**. Copy several messages at once and each becomes its own card,
    with the sender's name and the message.
@@ -416,7 +418,7 @@ share the whole screen in Zoom, Teams or Google Meet.
 | **On screen** | Live, Off air, Black screen or Frozen, the Frame number and what comes next |
 | **FrameDecks** | **Previous** (Alt+←), **Next Frame** (Alt+→), **Play / Pause** the video (Alt+P), **Hide all** (Alt+H), **Black** (Alt+B) |
 | **Content** | The questions, scriptures or slides of the live Frame, one at a time, like the phone remote: choose **Questions**, **Scriptures** or **Slides**, then **‹ ›** (Alt+↑ / Alt+↓) |
-| **Live tools** | In **Engage** (9.12); **Alt+L** (Spotlight) and **Alt+D** (Draw) still work here |
+| **Draw and Spotlight** | In **Engage** (9.12); **Alt+L** (Spotlight) and **Alt+D** (Draw) still work here |
 | **Meeting** | Zoom, Microsoft Teams or Google Meet, whichever has a meeting open: **Mute** (Alt+M), **Camera** (Alt+V), **Share screen** (Alt+S), **Leave** (press twice), and the PC's volume (Alt+- / Alt+=) |
 
 The meeting buttons press the meeting app's own keyboard shortcut in its window, then give the focus back to the
@@ -425,7 +427,7 @@ also off when no meeting is open. Windows only.
 
 ### Draw and Spotlight on the Share Window
 
-Choose **Draw** or **Spotlight** in the Command Center (in **Engage**, with **Alt+D** or **Alt+L**, or type *draw* or *spotlight* in its bar). The **Share Window**
+Choose **Draw** or **Spotlight** in the Command Center (in **Engage**, with **Alt+D** or **Alt+L**, or type *draw* or *spotlight* in its bar), or in the **Engage** chip of the Studio's top bar (9.13). The **Share Window**
 (the window you share in Zoom or Teams) opens, comes to the front, and the Command Center closes, so you can work on what everyone
 sees:
 
@@ -496,7 +498,7 @@ meeting shortcuts in **Settings**.
 
 ## Live-safety tips
 
-- **Rehearse** once on the same PC, room and network. To try things out before people join, turn on **Live tools →
+- **Rehearse** once on the same PC, room and network. To try things out before people join, turn on **Control →
   Black screen**: your own preview still shows everything.
 - **Check the badge** before you edit: PREVIEW is safe, LIVE is public.
 - **Keep Esc in mind.** It hides everything instantly.

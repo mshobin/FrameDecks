@@ -57,7 +57,7 @@ function goLive(on){
   }
 }
 function tool(mode){
-  if (!isLive()){ tell('Go Live first (Control): the Live tools work on what is on screen.', true); return; }
+  if (!isLive()){ tell('Go Live first (Control): Draw and Spotlight work on what is on screen.', true); return; }
   post('api/app/annotate', {op: 'mode', mode: annMode === mode ? '' : mode}).then(function(d){ annMode = d.mode || ''; paint(); });
 }
 function capture(){ if (!mem) return; post('api/memory', {action: 'capture', on: !mem.capture}).then(loadMemory); }
@@ -80,134 +80,43 @@ var SCOPES = {
   settings: {id: 'settings', label: 'All settings', hue: 'slate', icon: 'settings', items: function(all){ return all.filter(function(it){ return it.kind === 'setting'; }); }}
 };
 
-/* ---------- 9.12 Notes: the leader's private notes for the meeting shown, on this PC only ---------- */
-var Notes = (function(){
-  var data = null, meetingId = '', editing = null, saving = false;
-  var field = h('textarea', {cls: 'cc-note-in', rows: '2', maxlength: '4000', 'aria-label': 'Write a note', placeholder: 'Write a note…'});
-  var list = h('ol', {cls: 'cc-note-list', 'aria-label': 'Notes for this meeting'});
-  var where = h('span', {cls: 'cc-note-where'});
-  var count = h('span', {cls: 'cc-note-count'});
-  function act(icon, label, fn){ return h('button', {cls: 'cc-note-act', type: 'button', title: label, 'aria-label': label, onclick: fn}, [h('span', {'aria-hidden': 'true', html: I(icon, 15)}), h('em', {text: label})]); }
-  var save = h('button', {cls: 'cc-note-save', type: 'button', onclick: function(){ commit(); }}, ['Save note']);
-  var el = h('div', {cls: 'cc-notes'}, [
-    h('div', {cls: 'cc-note-top'}, [where, count]),
-    h('div', {cls: 'cc-note-write'}, [field, save]),
-    list,
-    h('div', {cls: 'cc-note-acts'}, [act('copy', 'Copy all', copyAll), act('file-text', 'Save as a file', saveFile), act('mail', 'Email to me', email)])]);
-  function meeting(){
-    var m = live && SC.meetings(live).length ? SC.currentMeeting(live) : null;
-    return {id: m && m.id ? String(m.id) : 'no-meeting', name: (m && m.name) || (live && live.meeting && live.meeting.title) || 'This meeting'};
-  }
-  function frameNow(){
-    var ls = live && SC.liveScene(live); if (!ls) return '';
-    var order = SC.order(live); return 'Frame ' + (order.indexOf(ls) + 1) + ' · ' + ls.name;
-  }
-  function when(t){ try { return new Date(t * 1000).toLocaleTimeString([], {hour: 'numeric', minute: '2-digit'}); } catch(e){ return ''; } }
-  function load(){
-    var m = meeting(); meetingId = m.id;
-    return get('api/notes?meeting=' + encodeURIComponent(m.id)).then(function(d){ if (d && meetingId === m.id){ data = d; draw(); } });
-  }
-  function draw(){
-    var m = meeting();
-    setText(where, m.name + ' · on this PC only');
-    var notes = (data && data.notes) || [];
-    setText(count, notes.length ? notes.length + (notes.length === 1 ? ' note' : ' notes') : '');
-    list.innerHTML = '';
-    if (!notes.length) list.appendChild(h('li', {cls: 'cc-note-empty', text: 'No notes yet for this meeting. They stay on this PC: never synced, never shown on screen.'}));
-    notes.forEach(function(n){
-      list.appendChild(h('li', {cls: 'cc-note' + (editing === n.id ? ' editing' : '')}, [
-        h('div', {cls: 'cc-note-x'}, [h('small', {text: when(n.at) + (n.frame ? ' · ' + n.frame : '')}), h('p', {text: n.text})]),
-        h('button', {cls: 'cc-note-b', type: 'button', title: 'Edit this note', 'aria-label': 'Edit this note', html: I('pencil', 14), onclick: function(){ edit(n); }}),
-        h('button', {cls: 'cc-note-b', type: 'button', title: 'Delete this note', 'aria-label': 'Delete this note', html: I('trash-2', 14), onclick: function(){ remove(n); }})]));
-    });
-    list.scrollTop = list.scrollHeight;
-    hint();
-  }
-  function hint(){                                             // what the next note will be stamped with
-    setText(save, editing ? 'Save change' : 'Save note');
-    var p = editing ? 'Change the note (Esc cancels)' : 'Write a note… Enter saves it with the time' + (frameNow() ? ' and “' + frameNow() + '”' : '');
-    if (field.placeholder !== p) field.placeholder = p;
-  }
-  function send(body){
-    return post('api/notes', Object.assign({meeting: meeting().id}, body)).then(function(d){
-      if (d && d.error){ tell(d.error, true); return null; }
-      if (d && d.notes){ data = d; draw(); }
-      return d;
-    });
-  }
-  function commit(){
-    var text = field.value.trim(); if (saving) return;
-    if (!text && !editing){ field.focus(); return; }
-    saving = true;
-    var p = editing ? send({action: 'edit', id: editing, text: text}) : send({action: 'add', text: text, name: meeting().name, frame: frameNow()});
-    p.then(function(d){ saving = false; if (d && !d.error){ field.value = ''; editing = null; draw(); tell('✓ Saved on this PC'); } field.focus(); });
-  }
-  function edit(n){ editing = n.id; field.value = n.text; draw(); field.focus(); field.setSelectionRange(field.value.length, field.value.length); }
-  function remove(n){ send({action: 'delete', id: n.id}).then(function(d){ if (d && !d.error){ if (editing === n.id){ editing = null; field.value = ''; } tell('✓ Note deleted'); draw(); } }); }
-  function asText(){
-    var notes = (data && data.notes) || [];
-    return 'Notes: ' + meeting().name + '\n\n' + notes.map(function(n){ return when(n.at) + (n.frame ? ' · ' + n.frame : '') + '\n' + n.text; }).join('\n\n') + '\n';
-  }
-  function none(){ if ((data && data.notes || []).length) return false; tell('No notes yet.', true); return true; }
-  function copyAll(){
-    if (none()) return;
-    var t = asText();
-    (navigator.clipboard && navigator.clipboard.writeText ? navigator.clipboard.writeText(t) : Promise.reject()).then(function(){ tell('✓ Copied'); }, function(){
-      var a = h('textarea', {}); a.value = t; document.body.appendChild(a); a.select(); try { document.execCommand('copy'); tell('✓ Copied'); } catch(e){ tell('Could not copy', true); } a.remove(); });
-  }
-  function saveFile(){
-    if (none()) return;
-    fetch('api/notes?format=md&meeting=' + encodeURIComponent(meeting().id), {cache: 'no-store'}).then(function(r){ return r.text(); }).then(function(md){
-      var a = h('a', {href: URL.createObjectURL(new Blob([md], {type: 'text/markdown'})), download: 'Notes - ' + meeting().name.replace(/[\\/:*?"<>|]+/g, ' ').trim() + '.md'});
-      document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 1000);
-      tell('✓ Saved: choose where in the window that opens');
-    });
-  }
-  function email(){
-    if (none()) return;
-    var body = asText(); if (body.length > 1800) body = body.slice(0, 1800) + '\n… (the rest: Save as a file)';
-    post('api/app/open-external', {url: 'mailto:?subject=' + encodeURIComponent('Notes: ' + meeting().name) + '&body=' + encodeURIComponent(body)});
-    tell('✓ Opening your email app');
-  }
-  field.addEventListener('keydown', function(e){
-    if (e.altKey || e.ctrlKey || e.metaKey) return;              // Alt shortcuts (Frames, groups) still work here
-    e.stopPropagation();
-    if (e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); commit(); }
-    else if (e.key === 'Escape'){ e.preventDefault(); if (editing){ editing = null; field.value = ''; draw(); } else { closeGroup(); input.focus({preventScroll: true}); } }
-  });
-  return {el: el, focus: function(){ field.focus({preventScroll: true}); },
-    paint: function(){ var m = meeting(); if (!data || m.id !== meetingId) load(); else hint(); }, reload: load};
-})();
+/* ---------- 9.12 Notes (9.13: the shared pad, js/notes-pad.js) ---------- */
+var Notes = window.KCNotesPad.create({getLive: function(){ return live; }, SC: SC, tell: tell,
+  onEscape: function(){ closeGroup(); input.focus({preventScroll: true}); }});
 
-/* ---------- the five groups (9.12: Notes) ---------- */
-function T(id, icon, label, sub, fn, opt){ return {id: id, icon: icon, label: label, sub: sub, fn: fn, opt: opt || {}}; }
-var GROUPS = [
-  {id: 'prepare', label: 'Prepare', icon: 'layers', hue: 'gold', lede: 'Plan the meeting and get the screens ready.', tiles: function(){ return [
-    T('meetings', 'calendar-days', 'Meetings', meetingSub(), function(){ scope('meetings'); }),
-    T('prompter', 'type', 'Teleprompter', 'Your script, only you see it', function(){ run('cmd:prompter', true); }),
-    T('share', 'monitor', 'Share Window', 'The window you share', function(){ run('cmd:share', false); }),
-    T('studio', 'presentation', 'Studio', 'Frames, Decks, Content', function(){ run('cmd:studio', false); }),
-    T('quick', 'rocket', 'Quick Start', 'Ready-made Frames', function(){ run('cmd:quick', false); }),
-    T('library', 'library', 'Content Library', 'Add ready-made Content', function(){ run('cmd:library', false); }),
-    T('import', 'folder-open', 'Import .frame', 'A plan from the website', function(){ run('cmd:frameimport', false); }),
-    T('camera', 'video', 'Camera check', camSub(), function(){ setting('vcam'); })]; }},
-  {id: 'engage', label: 'Engage', icon: 'sparkles', hue: 'violet', lede: 'Bring the room in: chat, drawings and the spotlight.', tiles: function(){ return [
-    T('cards', 'message-circle', 'Memory Cards', !mem ? 'Chat on screen' : (mem.items || []).length + ((mem.items || []).length === 1 ? ' card' : ' cards'), function(){ scope('memory'); }),
-    T('capture', 'copy', 'Capture copies', mem && mem.capture ? 'On · each Ctrl+C is a card' : 'Off', capture, {on: !!(mem && mem.capture), toggle: true}),
-    T('draw', 'pencil', 'Draw', 'On the Share Window', function(){ tool('draw'); }, {on: annMode === 'draw', toggle: true}),
-    T('spot', 'circle-dot', 'Spotlight', 'Follows your mouse', function(){ tool('spot'); }, {on: annMode === 'spot', toggle: true}),
-    T('clear', 'eraser', 'Clear drawings', 'Everywhere at once', function(){ Store.update(function(n){ SC.ink(n, 'clear'); }).then(function(){ tell('✓ Drawings cleared'); }); }),
-    T('hidecards', 'eye-off', 'Hide the cards', 'Take chat off screen', function(){ post('api/memory', {action: 'hideall'}).then(loadMemory).then(function(){ tell('✓ Cards hidden'); }); })]; }},
-  {id: 'control', label: 'Control', icon: 'radio', hue: 'blue', lede: '', control: true},
-  {id: 'notes', label: 'Notes', icon: 'sticky-note', hue: 'teal', lede: 'Only on this PC: each note keeps the time and the Frame on screen.', notes: true},
-  {id: 'more', label: 'More', icon: 'layout-grid', hue: 'slate', lede: 'Settings for this PC and your workspace, and help.', tiles: function(){ return [
-    T('sync', 'cloud', 'Workspace Sync', syncSub(), function(){ setting('account'); }),
-    T('output', 'cast', 'How people see it', 'Zoom, Teams, projector', function(){ setting('output'); }),
-    T('phone', 'smartphone', 'Phone remote', 'PIN and QR code', function(){ setting('ipad'); }),
-    T('brand', 'palette', 'Meeting & Branding', 'Names, logo, look', function(){ setting('meeting'); }),
-    T('keys', 'keyboard', 'Shortcuts', 'This window and more', function(){ setting('keys'); }),
-    T('all', 'settings', 'All settings', 'Search every setting', function(){ scope('settings'); }),
-    T('help', 'info', 'Help & tour', 'The welcome tour', function(){ run('cmd:welcome', false); })]; }}];
+/* ---------- the five chips: names, icons, colours and what is in each come from js/chips.js (9.13), the same in the
+ * app's top bar and on the phone remote; here only what each one does ---------- */
+var CH = window.KCChips;
+function T(id, fn, opt, sub){ var a = CH.action(id); return {id: id, icon: a.icon, label: a.label, sub: sub == null ? a.sub : sub, fn: fn, opt: opt || {}}; }
+var MAKE = {
+  meetings: function(){ return T('meetings', function(){ scope('meetings'); }, null, meetingSub()); },
+  prompter: function(){ return T('prompter', function(){ run('cmd:prompter', true); }); },
+  share: function(){ return T('share', function(){ run('cmd:share', false); }); },
+  studio: function(){ return T('studio', function(){ run('cmd:studio', false); }); },
+  quick: function(){ return T('quick', function(){ run('cmd:quick', false); }); },
+  library: function(){ return T('library', function(){ run('cmd:library', false); }); },
+  import: function(){ return T('import', function(){ run('cmd:frameimport', false); }); },
+  camera: function(){ return T('camera', function(){ setting('vcam'); }, null, camSub()); },
+  cards: function(){ return T('cards', function(){ scope('memory'); }, null, !mem ? 'Chat on screen' : (mem.items || []).length + ((mem.items || []).length === 1 ? ' card' : ' cards')); },
+  capture: function(){ return T('capture', capture, {on: !!(mem && mem.capture), toggle: true}, mem && mem.capture ? 'On · each Ctrl+C is a card' : 'Off'); },
+  draw: function(){ return T('draw', function(){ tool('draw'); }, {on: annMode === 'draw', toggle: true}, 'On the Share Window'); },
+  spot: function(){ return T('spot', function(){ tool('spot'); }, {on: annMode === 'spot', toggle: true}); },
+  clear: function(){ return T('clear', function(){ Store.update(function(n){ SC.ink(n, 'clear'); }).then(function(){ tell('✓ Drawings cleared'); }); }); },
+  hidecards: function(){ return T('hidecards', function(){ post('api/memory', {action: 'hideall'}).then(loadMemory).then(function(){ tell('✓ Cards hidden'); }); }); },
+  sync: function(){ return T('sync', function(){ setting('account'); }, null, syncSub()); },
+  output: function(){ return T('output', function(){ setting('output'); }); },
+  phone: function(){ return T('phone', function(){ setting('ipad'); }); },
+  brand: function(){ return T('brand', function(){ setting('meeting'); }); },
+  keys: function(){ return T('keys', function(){ setting('keys'); }); },
+  all: function(){ return T('all', function(){ scope('settings'); }); },
+  help: function(){ return T('help', function(){ run('cmd:welcome', false); }); }};
+var GROUPS = CH.list.map(function(c){
+  var g = {id: c.id, label: c.label, icon: c.icon, hue: c.hue, lede: c.lede};
+  if (c.id === 'control') g.control = true;
+  else if (c.id === 'notes') g.notes = true;
+  else g.tiles = function(){ return CH.actions(c.id, 'cc').map(function(a){ return MAKE[a.id] ? MAKE[a.id]() : null; }).filter(Boolean); };
+  return g;
+});
 function meetingSub(){ var c = live && SC.meetings(live).length ? SC.currentMeeting(live) : null; return c ? c.name : 'Switch and plan'; }
 function camSub(){ return !cam ? 'FrameDecks vCam' : cam.status && cam.status.inUse ? 'In your meeting' : cam.registered ? 'Ready' : 'Set it up'; }
 function syncSub(){ var ph = sync && sync.phase; return ph === 'synced' ? 'Synced' : ph === 'syncing' ? 'Syncing…' : ph === 'offline' ? 'Offline' : ph === 'failed' ? 'Needs a look' : 'This PC only'; }

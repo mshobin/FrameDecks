@@ -82,7 +82,7 @@ A webcam is optional. You need one only if people should see you on the FrameDec
 
 | Area | Where | What it does |
 | --- | --- | --- |
-| **Command bar** | Across the top | Studio · Members · Settings (Alt+1, Alt+3, Alt+4), **◀ Frame · Go Live · Frame ▶**, transitions, the question and scripture steppers, the **Live tools** menu, **Hide all** (with its **Esc** key) and the LIVE status. A PC linked to your team also shows a **Sync** chip |
+| **Command bar** | Across the top | Studio · Members · Settings (Alt+1, Alt+3, Alt+4), **◀ Frame · Go Live · Frame ▶**, transitions, the question and scripture steppers, the five chips (**Prepare**, **Engage**, **Control**, **Notes**, **More**), **Hide all** (with its **Esc** key) and the LIVE status. A PC linked to your team also shows a **Sync** chip |
 | **Frames** | Left, top | Every Frame in your meetings, in order, as compact cards. The live Frame is marked **LIVE**, the next one **NEXT** |
 | **Decks** | Left, bottom | The Content inside the selected Frame (**+ Deck** adds to it). The top of the list is in front |
 | **Studio Canvas** | Middle | A preview of the selected Frame, or the live picture. The badge says **PREVIEW · not on air** or **LIVE** |
@@ -144,7 +144,7 @@ See [Service planning](service-planning.md), [Frames](frames.md) and [Content](c
 ## Go Live and step through
 
 You build and run the meeting in the same place, the Studio. **◀ Previous**, **Next ▶**, **Go Live**, **Hide all** and
-**Live tools** are always in the top bar.
+The five chips (**Prepare**, **Engage**, **Control**, **Notes**, **More**) are always in the top bar, the same as in the Command Center and on the phone remote.
 
 1. Select the first Frame.
 2. Select **Go Live** (or press **T**). The badge turns to **Live** and **Hide all** turns red: something is on screen.
@@ -154,7 +154,7 @@ You build and run the meeting in the same place, the Studio. **◀ Previous**, *
    - **Shift + → / ←** step through its scriptures.
 4. When you need a clean screen, press **Esc** (**Hide all**).
 
-**Try it out first.** Turn on **Live tools → Black screen**: your audience sees a black screen while you try Go Live,
+**Try it out first.** Turn on **Control → Black screen**: your audience sees a black screen while you try Go Live,
 Next and Hide all, and your own preview still shows everything. Turn it off when you are ready.
 Not sure how people will see your meeting? **Settings → How people see it** offers three ways: FrameDecks vCam in Zoom or
 Teams, the Share Window, or a projector, TV or OBS. The words FrameDecks uses are in the [glossary](glossary.md).
@@ -184,7 +184,7 @@ Do this once, a day or two before your first real meeting.
 - [ ] **Hide all (Esc)** and **Black screen (K)** work.
 - [ ] If you use a projector: **Share Window** opens the Presentation window and it fills the projector screen.
 - [ ] If you use your phone: it connects, and **NEXT FRAME** works.
-- [ ] You know where the **Teleprompter** is (**Live tools → Teleprompter**, or **R**) if you want your script in
+- [ ] You know where the **Teleprompter** is (**Prepare → Teleprompter**, or **R**) if you want your script in
       front of you. It stays on top of Zoom or Teams, and only you see it: it is hidden from screen sharing and
       recordings.
 - [ ] Do a 10-minute rehearsal with one other person on a test Zoom call.

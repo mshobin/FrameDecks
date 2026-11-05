@@ -65,7 +65,8 @@ class NoOverlaps(unittest.TestCase):
 class CommandBar(unittest.TestCase):
     def test_labels_are_words_in_sentence_case(self):
         html = read("dashboard.html")
-        self.assertIn(">Live tools ▾</button>", html)
+        self.assertNotIn("Live tools ▾", html)                 # 9.13 the five chips instead
+        self.assertIn('id="lb-chips"', html)
         self.assertIn("><span>Auto<span class=\"aa-x\">-advance</span></span></button>", html)
         self.assertNotIn("Program ▾", html)
         self.assertNotIn("Program ▾", read("js/panels.js"))
@@ -167,15 +168,15 @@ class RunningAService(unittest.TestCase):
         self.assertIn("document.body.classList.toggle('kc-on-air'", read("js/dashboard.js"))
         self.assertIn('body:not(.kc-on-air) #ctlbar .cb-btn.hide{', read("css/theme.css"))
 
-    def test_live_tools_are_grouped_and_close_on_escape(self):
+    def test_the_chips_replace_live_tools_and_close_on_escape(self):
+        # 9.13 the five chips (js/chips.js) in the top bar; the old Live tools buttons keep their ids in their chip
         html = read("dashboard.html")
-        for words in ('<p class="lpm-h" aria-hidden="true">On screen</p>', ">Black screen</button>", ">Teleprompter</button>",
-                      ">Emergency screen</button>"):
+        for words in ('id="lb-chips"', ">Black screen</button>", ">Teleprompter</button>", ">Emergency screen</button>"):
             self.assertIn(words, html)
-        for gone in (">In this window</button>", ">Over Zoom</button>", ">Own window</button>"):   # 8.0: one Teleprompter
+        for gone in (">In this window</button>", ">Over Zoom</button>", ">Own window</button>", "lpm-h", 'id="lb-prog"'):
             self.assertNotIn(gone, html)
         self.assertNotIn(">Blackout</button>", html)
-        self.assertIn("e.key === 'Escape' && prog.classList.contains('open')", read("js/panels.js"))
+        self.assertIn("if (e.key === 'Escape' && open){", read("js/chip-bar.js"))
 
     def test_one_guided_way_to_reach_people_and_the_rarer_pages_in_groups(self):
         # 9.12: How people see it, the vCam and the projector pages are tabs of Screens & camera; the pages that were
@@ -206,9 +207,9 @@ class PhoneRemote(unittest.TestCase):
         for need in ('id="hide-all"', 'id="prev"', 'id="next"', 'id="flist"', 'id="t-prompter"', 'id="t-draw"', 'id="t-freeze"',
                      'id="t-black"', 'id="t-spot"', 'id="pic-spot"', 'id="touch"', 'id="dlist"', 'id="mlist"', 'id="mtlist"', 'id="cm"'):
             self.assertIn(need, html)
-        for t in ("show", "plan", "tools", "memory", "meeting"):
-            self.assertIn(f'role="tab" id="tab-{t}" aria-controls="p-{t}"', html)
-            self.assertIn(f'id="p-{t}" role="tabpanel"', html)
+        for t in ("prepare", "engage", "control", "notes", "more"):            # 9.13 the five chips
+            self.assertIn(f'id="p-{t}" role="tabpanel" aria-labelledby="tab-{t}"', html)
+        self.assertIn("var TABS = CHIPS.map(function(c){ return c.id; }), tab = 'control';", read("js/remote.js"))
         for gone in ("data-role-pick", 'id="rehearse"', 'id="emergency"', 'id="ssearch"'):
             self.assertNotIn(gone, html)
         js = read("js/remote.js")

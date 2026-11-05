@@ -290,7 +290,7 @@ document.addEventListener('keydown', function(e){
 $('lb-annotate').addEventListener('click', function(){ setAnnotate(!annotating()); });
 $('lb-freeze').addEventListener('click', function(){ setFreeze(!(live && live.live.freeze)); });
 /* 8.0 the Teleprompter: one window above Zoom and Teams, never shared (the desktop app); a pop-up in a browser.
-   R (or Live tools > Teleprompter) opens it and closes it again. */
+   R (or Prepare > Teleprompter) opens it and closes it again. */
 var tpWin = null, tpOpen = false;
 function teleprompter(want){
   var app = window.KCAppInfo, on = want == null ? !tpOpen : !!want;
@@ -329,6 +329,10 @@ function render(){
 Store.subscribe(function(st){ live = st; render(); });
 window.KCPresenterTools = {
   annotate: function(){ setAnnotate(!annotating()); },
+  // 9.13 the top bar's Engage chip: the Spotlight (annotating with its tool), Clear drawings, and what is on
+  spot: function(){ if (annotating() && TOOL.t === 'spot'){ setAnnotate(false); return; } TOOL.t = 'spot'; renderBar(); if (!annotating()) setAnnotate(true); },
+  clear: function(){ return ink('clear'); },
+  state: function(){ return {annotating: annotating(), tool: TOOL.t}; },
   freeze: function(){ setFreeze(!(live && live.live.freeze)); },
   blackout: function(){ var b = $('lb-blackout'); if (b) b.click(); },
   teleprompter: function(){ teleprompter(); }

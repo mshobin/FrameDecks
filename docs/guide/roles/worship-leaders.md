@@ -26,7 +26,7 @@ How to lead a service or Bible study with FrameDecks, so the technology supports
 
 1. **A meeting is a list of Frames.** Each Frame is one step of the service (Welcome, Scripture Reading, Discussion…). See [Frames](../frames.md).
 2. **Your script is private.** Write what you plan to say in each Frame's **Teleprompter script**. It never appears on screen; only you see it.
-3. **The Teleprompter is your confidence monitor.** **Live tools → Teleprompter** (**R**) opens your script in a window that stays on top of Zoom or Teams, so you can lead from one laptop. Zoom and Teams never share it, and recordings never show it. Its top bar (the time, the current Frame and a timer) appears when you move the pointer to the top edge. The phone remote has a Teleprompter too. See [Teleprompter](../presentations.md#teleprompter).
+3. **The Teleprompter is your confidence monitor.** **Prepare → Teleprompter** (**R**) opens your script in a window that stays on top of Zoom or Teams, so you can lead from one laptop. Zoom and Teams never share it, and recordings never show it. Its top bar (the time, the current Frame and a timer) appears when you move the pointer to the top edge. The phone remote has a Teleprompter too. See [Teleprompter](../presentations.md#teleprompter).
 4. **You can draw.** **Annotate** (**D**) lets you circle a word in a verse or underline a phrase, on the PC or from a phone. **Spotlight** (press **Ctrl** twice over the picture) puts a glowing circle around one word.
 5. **Hide all is always safe.** **Esc** (or **Hide all** on the phone) clears the screen without deleting anything.
 

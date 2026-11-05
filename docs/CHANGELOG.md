@@ -53,6 +53,30 @@ Versions before 4.9 (when the program had its earlier name) are described in the
 - The favicons, the tray icon and the small program-icon sizes (16–32 px) use a heavier version of the emblem, so it
   stays visible on light browser tabs and a light taskbar. Larger sizes are unchanged.
 
+## [9.13.0] - 2026-11-05
+
+Full notes: [docs/releases/v9.13.0.md](releases/v9.13.0.md).
+
+### Added
+- One definition of the five chips and their actions, `app/js/chips.js` (`window.KCChips`: `list`, `all`, `actions(chip,
+  where)`; each action's `on` names where it shows: `cc`, `app`, `phone`). The Command Center (`command-center.js`),
+  the Studio's top bar (`app/js/chip-bar.js`, `#lb-chips`) and the phone remote (`remote.js`) are built from it.
+- One Notes pad for every surface, `app/js/notes-pad.js` + `app/css/notes-pad.css` (`KCNotesPad.create`).
+- Phone notes: `GET/POST /api/remote/notes` (signed-in remote only; `peek=1` returns the count only; POST adds only;
+  `Cache-Control: no-store`). App settings `remoteNotesAdd` (default on) and `remoteNotesRead` (default off), with
+  switches in Settings → Phone & iPad Remote.
+- `KCPresenterTools.spot()`, `.clear()` and `.state()` (`annotate.js`).
+
+### Changed
+- The Studio's **Live tools** menu is replaced by the five chips; its buttons keep their ids (`lb-prompter`,
+  `lb-capture`, `lb-blackout`, `lb-freeze`, `lb-emergency`, `lb-hide-layer`) and move into their chip's panel.
+- Top-bar **Draw** and **Spotlight** open the Share Window in that mode on the desktop app (`api/app/annotate` `mode`);
+  in a browser they work on the Studio's picture.
+- The phone remote's tabs are the chips: Control, Prepare, Engage, Notes, More (old saved tabs map to their chip).
+
+### Removed
+- The Live tools menu (`#lb-prog`) and its styles.
+
 ## [9.12.1] - 2026-11-05
 
 Full notes: [docs/releases/v9.12.1.md](releases/v9.12.1.md).

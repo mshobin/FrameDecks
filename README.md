@@ -43,7 +43,7 @@ rendering and camera output stay on the PC. FrameDecks is proprietary software, 
   away. PIN-protected, local network only;
   draw on the real live picture, full screen in landscape ([REMOTE_CONTROL](docs/guide/remote-control.md)).
 - **Teleprompter**: each Frame's script, or one script for the whole meeting, seen only by the presenter, in one
-  window that stays on top of Zoom, Teams or Meet (Live tools → Teleprompter, or R), or on the phone. The screen shows
+  window that stays on top of Zoom, Teams or Meet (Prepare → Teleprompter, or R), or on the phone. The screen shows
   only the words; every control (Scroll, speed, text size, **Write Script**, **Upload** a .txt, .md or .docx file,
   **Next Frame**, transparency and **Pin**) is in a top bar that stays hidden until you need it. Never on any output,
   and left out of screen sharing and recordings (Windows 10 2004 or later)

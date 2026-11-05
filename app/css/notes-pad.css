@@ -1,0 +1,30 @@
+/* FrameDecks 9.13 - the Notes pad (js/notes-pad.js), the same piece in the app's top bar and on the phone remote
+   (the Command Center draws its own sticky note in spotlight.css). Theme tokens only, light and dark. */
+.np{display:flex;flex-direction:column;gap:10px;color:var(--ink)}
+.np-top{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--muted)}
+.np-where{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.np-count{flex:none;font-weight:700}
+.np-write{display:flex;align-items:flex-end;gap:8px}
+.np-write[hidden],.np-list[hidden],.np-locked[hidden],.np-reveal[hidden],.np-acts[hidden]{display:none}
+.np-in{flex:1;min-width:0;min-height:44px;max-height:140px;resize:vertical;box-sizing:border-box;padding:10px 12px;border:1px solid var(--line);border-radius:12px;
+  background:var(--card,var(--raised));color:var(--ink);font:inherit;font-size:15px;line-height:1.4}
+.np-in:focus{outline:2px solid var(--ch-teal,var(--live));outline-offset:1px}
+.np-save,.np-reveal{flex:none;min-height:40px;padding:0 14px;border:0;border-radius:12px;background:var(--hue-teal,var(--ch-teal,var(--live)));color:var(--gray-1000,var(--ink));
+  font:inherit;font-size:14px;font-weight:700;cursor:pointer}
+.np-reveal{align-self:flex-start}
+.np-save:focus-visible,.np-reveal:focus-visible,.np-act:focus-visible,.np-b:focus-visible{outline:2px solid var(--accent,var(--gold));outline-offset:2px}
+.np-locked{margin:0;padding:10px 12px;border:1px dashed var(--line);border-radius:12px;font-size:13px;color:var(--muted)}
+.np-list{list-style:none;margin:0;padding:0;max-height:260px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;contain:content}
+.np-note{display:flex;align-items:flex-start;gap:6px;padding:8px 10px;border:1px solid var(--line);border-radius:12px;background:var(--card,var(--raised))}
+.np-note.editing{border-color:var(--ch-teal,var(--live))}
+.np-x{flex:1;min-width:0}
+.np-x small{display:block;font-size:12px;font-weight:700;color:var(--muted)}
+.np-x p{margin:2px 0 0;font-size:14px;white-space:pre-wrap;overflow-wrap:anywhere}
+.np-b{flex:none;display:grid;place-items:center;width:28px;height:28px;padding:0;border:0;border-radius:8px;background:transparent;color:var(--muted);cursor:pointer}
+.np-b:hover{color:var(--ink)}
+.np-empty{padding:12px;border:1px dashed var(--line);border-radius:12px;font-size:13px;color:var(--muted)}
+.np-acts{display:flex;flex-wrap:wrap;gap:6px}
+.np-act{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 12px;border:1px solid var(--line);border-radius:999px;background:var(--card,var(--raised));
+  color:var(--ink);font:inherit;font-size:13px;font-weight:600;cursor:pointer}
+.np-act span{display:grid;place-items:center;color:var(--muted)}
+.np-act em{font-style:normal}

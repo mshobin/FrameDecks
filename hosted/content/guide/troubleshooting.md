@@ -27,9 +27,9 @@ If something wrong appears on screen during a service, fix the picture first and
 | You need to… | Do this |
 | --- | --- |
 | Remove everything from the screen | **Hide all** (**Esc**), or **HIDE ALL** on the phone |
-| Hide the picture completely | **Live tools → Black screen** (**K**), or **BLACK SCREEN** on the phone |
-| Keep the current picture while you fix something | **Live tools → Freeze the picture** (**F**), or **FREEZE** on the phone |
-| Show a holding message | **Live tools → Emergency screen** |
+| Hide the picture completely | **Control → Black screen** (**K**), or **BLACK SCREEN** on the phone |
+| Keep the current picture while you fix something | **Control → Freeze the picture** (**F**), or **FREEZE** on the phone |
+| Show a holding message | **Control → Emergency screen** |
 
 Then put the right Frame back on screen with **Go Live** (**T**).
 
@@ -122,7 +122,7 @@ Inside FrameDecks, **Ctrl+K** always opens the command palette, which finds the 
 
 | Cause | Fix |
 | --- | --- |
-| **Black screen** or **Freeze** is on | Check the **Live tools** button: it reads **Black screen on ▾** or **Frozen ▾**. Turn it off |
+| **Black screen** or **Freeze** is on | Check the **Control** chip in the top bar: it reads **Black screen on** or **Frozen**. Turn it off |
 | FrameDecks is off | **Settings → How people see it → FrameDecks vCam** → turn it on |
 | Another app has the webcam | Choose **FrameDecks** (not the webcam) in every meeting app. Only one app can open a webcam |
 | The wrong webcam is selected | **Settings → How people see it → FrameDecks vCam** → choose the webcam |

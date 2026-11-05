@@ -848,7 +848,7 @@ body{padding-bottom:0}
 .cmdbar .brand{order:1;flex:0 1 auto;min-width:0}
 .cmdbar .tabs{order:2}
 .cmdbar .lb-scenes{order:4;margin-left:auto}
-.cmdbar .lb-tx{order:5} .cmdbar .lb-auto{order:6} .cmdbar .lb-step{order:7} .cmdbar .lb-slides{order:8} .cmdbar .lb-prog{order:9}
+.cmdbar .lb-tx{order:5} .cmdbar .lb-auto{order:6} .cmdbar .lb-step{order:7} .cmdbar .lb-slides{order:8}
 .cmdbar .live-ind{order:11;margin-left:auto} .cmdbar .sysstat{order:12}
 .cmdbar #ctlbar [data-cb="hideAll"]{order:14}
 .cmdbar .mode{order:15}
@@ -872,14 +872,6 @@ body{padding-bottom:0}
 .cmdbar{min-width:0;max-width:100%}
 .cmdbar > *{min-width:0}
 .cmdbar #ctlbar{min-width:0}
-/* program controls: inline on wide screens, a small menu below 1700 px (the button turns red while Blackout or Emergency is on) */
-.lb-prog{position:relative;display:flex;align-items:center}
-/* 6.9: Program is always a menu (eight tools inline overflowed the bar on 1920 px screens) */
-.lb-prog-menu{display:none;position:absolute;right:0;top:46px;z-index:85;flex-direction:column;align-items:stretch;gap:6px;padding:8px;min-width:220px;
-  background:var(--surface);border:1px solid var(--line);border-radius:var(--r-2);box-shadow:var(--shadow-pop)}
-.lb-prog.open .lb-prog-menu{display:flex}
-.lb-prog-menu .cb-btn{justify-content:flex-start;height:40px}
-.lb-prog-btn.alert{background:var(--red-soft);border-color:var(--red);color:var(--ink)}
 /* status: one dot button with every output in its menu */
 .cmdbar .sys-sum{display:inline-flex;padding:0 10px}
 .cmdbar .sys-sum .sys-text{display:none}
@@ -1490,3 +1482,53 @@ html[data-theme="light"]{
 .s-tabs .st-tab .sn-t b{font-weight:inherit}
 .s-tabs .st-tab .sn-t small{display:none}
 .s-tabs .st-tab .sn-dot{margin-left:2px}
+
+/* ---------- 9.13 the five chips in the top bar (js/chip-bar.js), as in the Command Center and on the phone remote:
+   Prepare (gold), Engage (violet), Control (blue), Notes (teal), More (slate). Each opens its panel under it. ---------- */
+:root,html[data-theme="dark"],html[data-theme="light"]{
+  --ch-gold:var(--lv-frame,var(--gold)); --ch-violet:var(--lv-content); --ch-blue:var(--lv-deck); --ch-teal:color-mix(in srgb,var(--live) 55%,var(--lv-deck)); --ch-slate:var(--muted)}
+.cmdbar .lb-chips{order:9}
+.lb-chips{display:flex;align-items:center;gap:4px;flex:none}
+.lc-wrap{position:relative}
+.lc{display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 10px 0 6px;border:1px solid var(--line-soft);border-radius:12px;background:var(--panel);
+  color:var(--ink);font:inherit;font-size:13px;font-weight:700;cursor:pointer;position:relative;transition:background-color .15s ease,border-color .15s ease}
+.lc:hover,.lc-wrap.open .lc{background:var(--raised);border-color:var(--line)}
+.lc:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.lc-sq{display:grid;place-items:center;width:24px;height:24px;border-radius:8px;color:var(--gray-1000);background:var(--ch,var(--muted))}
+.lc-gold{--ch:var(--ch-gold)} .lc-violet{--ch:var(--ch-violet)} .lc-blue{--ch:var(--ch-blue)} .lc-teal{--ch:var(--ch-teal)} .lc-slate{--ch:var(--ch-slate)}
+.lc-wrap.open .lc{box-shadow:inset 0 -2px 0 var(--ch)}
+.lc-dot{position:absolute;top:4px;right:4px;width:7px;height:7px;border-radius:999px;opacity:0}
+.lc.alert{border-color:var(--red);background:var(--red-soft)} .lc.alert .lc-dot{opacity:1;background:var(--red)}
+.lc.held{border-color:var(--gold)} .lc.held .lc-dot{opacity:1;background:var(--gold)}
+.lc.live .lc-dot{opacity:1;background:var(--live)}
+.lc-pop{position:absolute;left:0;top:44px;z-index:85;width:440px;max-width:calc(100vw - 24px);padding:12px;border:1px solid var(--line);border-radius:16px;
+  background:var(--panel);box-shadow:var(--el-4);animation:lc-in .18s var(--ease-out,ease-out) both}
+.lc-pop[hidden]{display:none}
+@keyframes lc-in{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+.lc-head{display:flex;align-items:center;gap:8px;margin:0 2px 10px}
+.lc-head b{font-size:15px}
+.lc-head small{flex:1;min-width:0;font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lc-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.lc-t{display:flex;align-items:center;gap:10px;min-height:52px;padding:8px 10px;border:1px solid var(--line-soft);border-radius:12px;background:var(--raised);
+  color:var(--ink);font:inherit;text-align:left;cursor:pointer}
+.lc-t:hover{border-color:var(--line)}
+.lc-t:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.lc-t:disabled{opacity:.5;cursor:default}
+.lc-t-ic{flex:none;display:grid;place-items:center;width:32px;height:32px;border-radius:8px;background:color-mix(in srgb,var(--ch) 22%,transparent);color:var(--ch)}
+.lc-t-x{min-width:0;display:flex;flex-direction:column;gap:1px}
+.lc-t-x b{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lc-t-x small{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lc-t.on,.lc-t[aria-pressed="true"]{border-color:var(--live);background:var(--live-soft)}
+.lc-t.warn.on,.lc-t.warn[aria-pressed="true"]{border-color:var(--red);background:var(--red-soft)}
+.lc-hint{margin:10px 2px 0;font-size:12px;color:var(--muted)}
+/* Notes opens as a sticky note, as in the Command Center */
+.lc-pop-notes{width:320px;min-height:300px;border-color:color-mix(in srgb,var(--ch-gold) 40%,transparent);border-radius:4px 4px 20px 4px;
+  background:linear-gradient(180deg,color-mix(in srgb,var(--ch-gold) 24%,var(--panel)),color-mix(in srgb,var(--ch-gold) 16%,var(--panel)))}
+.lc-pop-notes .lc-head small{display:none}
+.lc-pop-notes .np-write{flex-direction:column;align-items:stretch}
+.lc-pop-notes .np-acts{justify-content:flex-end}
+.lc-pop-notes .np-act{width:34px;padding:0;justify-content:center}
+.lc-pop-notes .np-act em{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.lc-pop-notes .np-list{max-height:170px}
+@media (max-width:1500px){ .lc .lc-l{display:none} .lc{padding:0 6px} .lc.alert .lc-l,.lc.held .lc-l{display:inline} }
+@media (prefers-reduced-motion:reduce){ .lc-pop{animation:none} .lc{transition:none} }
