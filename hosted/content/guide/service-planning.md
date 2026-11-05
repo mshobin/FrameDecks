@@ -167,7 +167,7 @@ itself. The header shows a **Sync** chip:
 **Settings → Workspace Sync** shows the same word. Sync carries everything except media: pictures, video,
 audio and slides are never put in the cloud.
 
-The PC syncs by itself every minute. To sync now, choose **Resync Linked PCs**:
+The PC syncs by itself as soon as the workspace changes (within a minute while it rests). To sync now, choose **Resync Linked PCs**:
 
 - in **Settings → Workspace Sync**. The line above it says **Last successful sync: …**;
 - in the header: choose the **Sync** chip (often folded into the status button at the top right; choose it, then

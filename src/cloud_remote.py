@@ -132,6 +132,16 @@ class RemoteService:
         self.wake = threading.Event()
         self.thread = None
         self.stopping = False
+        # 9.11 live push: live_push.Doorbell.remote_plan(phone_active) -> None (as before) or what to do this round
+        self.plan_for = lambda phone_active: None
+        self.cmd_waiting = False         # the bell rang for this PC: take at once
+        self.last_take = 0.0
+
+    def _plan(self):
+        try:
+            return self.plan_for(time.monotonic() < self.active_until)
+        except Exception:
+            return None
 
     def info(self):
         on, linked = bool(self.allowed()), self.credentials() is not None
@@ -154,6 +164,11 @@ class RemoteService:
         self.last_status = None
         self.wake.set()
 
+    def command_waiting(self):
+        """9.11: the bell rang for this PC (or it just started listening): take commands now."""
+        self.cmd_waiting = True
+        self.wake.set()
+
     def changed(self):
         """The plan was saved: the status goes up on the next round, which comes now (it is only sent if it changed)."""
         self.wake.set()
@@ -164,8 +179,18 @@ class RemoteService:
         creds = self.credentials()
         if not creds or not self.allowed():
             return []
+        plan = self._plan()
+        if plan and not plan["take"]:
+            return []                                 # resting: the doorbell checks in and wakes this loop
         api = self.make_api(*creds)
-        taken = api._rpc("remote_take", {}) or []
+        # listening: take when the bell rang, or now and then in case a ring was missed (a change on this PC only
+        # sends its status); as before 9.11: every round
+        due = not plan or self.cmd_waiting or time.monotonic() - self.last_take >= plan["pause"]
+        taken = []
+        if due:
+            self.cmd_waiting = False
+            self.last_take = time.monotonic()
+            taken = api._rpc("remote_take", {}) or []
         if taken:
             self.active_until = time.monotonic() + ACTIVE_FOR
             self.bridge.offer(taken)
@@ -178,9 +203,17 @@ class RemoteService:
                 self.log(entry)
             self.last_status = None                   # the screen probably changed: send it now
             api._rpc("remote_report", {"results": results})
+            plan = self._plan()                       # a phone is in use now: its status goes up
+        if plan and not plan["publish"]:
+            return taken                              # nobody is watching: no status (it goes up once a Live page opens)
         status = status_from(self.read_plan())
+        if plan:
+            status["push"] = True                     # the Live page reads only when told, not every 2 seconds
         comparable = {k: v for k, v in status.items() if k != "at"}
-        every = STATUS_EVERY_ACTIVE if time.monotonic() < self.active_until else STATUS_EVERY_IDLE
+        if plan:
+            every = plan["heartbeat"]
+        else:
+            every = STATUS_EVERY_ACTIVE if time.monotonic() < self.active_until else STATUS_EVERY_IDLE
         if comparable != self.last_status or time.monotonic() - self.last_status_at >= every:
             api._rpc("remote_publish", {"status": status})
             self.last_status, self.last_status_at = comparable, time.monotonic()
@@ -211,6 +244,12 @@ class RemoteService:
             except Exception as e:                 # never let this stop the program
                 backoff = 30.0
                 self.error = f"Problem: {e}"
-            pause = backoff or (ACTIVE_EVERY if time.monotonic() < self.active_until else IDLE_EVERY)
+            plan = self._plan()
+            if backoff:
+                pause = backoff
+            elif plan:
+                pause = plan["pause"]
+            else:
+                pause = ACTIVE_EVERY if time.monotonic() < self.active_until else IDLE_EVERY
             self.wake.wait(timeout=pause)
             self.wake.clear()

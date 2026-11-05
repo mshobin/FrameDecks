@@ -202,7 +202,7 @@ export const GUIDE: Record<GuideTrack, { title: string; lead: string; steps: Gui
         id: "pc-sync",
         core: 7,
         title: "Sync, or import a .frame file",
-        why: "A linked PC syncs every minute by itself. Resync gets the latest now. A .frame file brings a plan without internet.",
+        why: "A linked PC syncs by itself as soon as the workspace changes. Resync gets the latest now. A .frame file brings a plan without internet.",
         steps: ["Choose the status button at the top right, then **Sync**, then **Resync Linked PCs**. It says **Sync complete** or **No changes found**.", "Without internet: **Settings** → **Data / Backup** → **Import Frame File…**, or in Studio: **Quick Start** → **Import a Frame file…** (the same import).", "Choose the file, then **Use this plan**. A check confirms everything matches. With several meetings, only the file's meeting is replaced."],
         ui: ["Resync Linked PCs", "Sync complete", "No changes found", "Data / Backup", "Import Frame File…", "Quick Start", "Import a Frame file…", "Use this plan"],
         caption: "Settings → Data / Backup → Frame files: Import Frame File…",

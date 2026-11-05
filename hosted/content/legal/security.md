@@ -83,6 +83,14 @@ FrameDecks has no passwords and nothing to remember.
     for each command.
   - Every command is shown on the PC and kept for 7 days.
   - One switch on the PC turns it off.
+- **Live push (9.11).** A linked PC is told when something changed instead of asking every few seconds.
+  - It keeps one encrypted WebSocket (TLS) to Supabase Realtime, only while it is needed, on a channel named by a
+    256-bit random value that only linked PCs of the workspace receive. A message on it carries no plan data, only
+    what kind of thing changed; the PC then reads it with its own key, as before.
+  - Unlinking a PC gives the workspace a new channel name.
+  - The website's Live page listens on a private channel that only people allowed to run services can join (Realtime
+    Authorization, checked by the database).
+  - If the connection cannot be made, everything works as before, by asking.
 - **The program's own server.** It listens on the PC itself (127.0.0.1) for everything except the phone remote.
 - **The phone remote on the local Wi-Fi.** It is off until you turn it on.
   - It asks for a 6-digit PIN. After 5 wrong PINs the device waits a minute, and each further 5 doubles the wait (up

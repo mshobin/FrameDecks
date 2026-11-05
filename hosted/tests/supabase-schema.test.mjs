@@ -20,7 +20,9 @@ test("every public table enables row level security", () => {
 test("every table has at least one policy and none is open to anon", () => {
   const tables = [...sql.matchAll(/create table public\.(\w+)/g)].map((m) => m[1]);
   // Reached only through security definer functions: RLS on and no policy means clients get nothing.
-  const functionsOnly = ["workspace_sync", "computer_links", "computer_link_failures", "trusted_devices", "security_events"];
+  const functionsOnly = [
+    "workspace_sync", "computer_links", "computer_link_failures", "trusted_devices", "security_events", "live_push", "workspace_bells",
+  ];
   for (const table of tables) {
     if (functionsOnly.includes(table)) continue;
     assert.match(sql, new RegExp(`create policy \\w+ on public\\.${table}`), table);
@@ -50,6 +52,7 @@ const ANON_BY_DESIGN = [
   "remote_take",
   "remote_report",
   "remote_publish",
+  "computer_hello",
 ];
 
 // 0015: asking for a link comes before any session (rate-limited, the address only hashed), and the pre-request

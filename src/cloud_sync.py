@@ -571,6 +571,7 @@ class Service:
         self._due = 0.0                               # when the next round is due
         self._retry_at = 0.0                          # while offline: not before this
         self.poll_every = 1.5                         # while waiting: "was this PC allowed?" (connected ~2 s after Allow)
+        self.next_pull = lambda: PULL_EVERY           # 9.11: live_push.Doorbell.sync_every (longer while listening or resting)
 
     # -- the state file --
     def _load(self):
@@ -744,7 +745,7 @@ class Service:
             self.status.update(error=f"Sync problem: {e}")
             return {**self.info(), "result": {"outcome": "failed", "message": f"Sync failed: {e}"}}
         self._retry_at = 0.0
-        self._due = time.time() + PULL_EVERY
+        self._due = time.time() + self.next_pull()
         came, went = summary.get("applied", 0), summary.get("pushed", 0)
         held, conflicts = summary.get("held", 0), summary.get("conflicts", 0)
         if not (came or went or held or conflicts):
@@ -774,7 +775,7 @@ class Service:
                 self.sync_once()
                 backoff = 0
                 self._retry_at = 0.0
-                self._due = time.time() + PULL_EVERY
+                self._due = time.time() + self.next_pull()
                 continue
             except Offline as e:
                 backoff = min(MAX_BACKOFF, max(30, backoff * 2))

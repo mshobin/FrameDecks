@@ -53,6 +53,24 @@ Versions before 4.9 (when the program had its earlier name) are described in the
 - The favicons, the tray icon and the small program-icon sizes (16–32 px) use a heavier version of the emblem, so it
   stays visible on light browser tabs and a light taskbar. Larger sizes are unchanged.
 
+## [9.11.0] - 2026-11-05
+
+Full notes: [docs/releases/v9.11.0.md](releases/v9.11.0.md). Design: [docs/architecture/live-push.md](architecture/live-push.md).
+
+### Added
+- Live push ("the doorbell"): migration `0016_live_push.sql` (switch `live_push`, `workspace_bells`, `computer_hello`,
+  `remote_watch`, `live_computers`, ring triggers, Realtime Authorization policy on `realtime.messages`; rollback
+  `0016_live_push_down.sql`; tests `hosted/tests/supabase-live-push.test.mjs`).
+- `src/live_push.py`: standard-library WebSocket client, Realtime channel (`Bell`), and `Doorbell` (push / asleep /
+  poll); `cloud_sync.Service.next_pull` and `cloud_remote.RemoteService.plan_for` follow it. Tests:
+  `tests/test_live_push.py`.
+- Website Live page: private channel `live:<workspace>`, `remote_watch`, `pcState` (Online / Waking up… / Not
+  connected) and `refreshEvery` in `hosted/src/lib/live-view.ts`.
+
+### Changed
+- Without 0016, with push switched off, or when the connection cannot be made, the PC and the website poll exactly as
+  in 9.10.
+
 ## [9.10.3] - 2026-11-05
 
 Full notes: [docs/releases/v9.10.3.md](releases/v9.10.3.md).

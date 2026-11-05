@@ -33,6 +33,7 @@ from urllib.parse import urlparse, parse_qs, unquote
 
 import sync_entities   # what is live and what is plan (the same split as sync)
 import cloud_remote   # Phase 5: running a service from the companion (only when linked and switched on)
+import live_push      # 9.11: the doorbell (told when something changed instead of asking every few seconds)
 import cloud_sync   # Phase 4: syncing service plans with a workspace (only when this PC is linked)
 import ai           # M-D3: optional AI, free by default (Ollama on this PC); hidden when none answers
 import legacy   # 6.9: moves data saved under the program's earlier name
@@ -42,7 +43,7 @@ import updater   # 7.0: updates from FrameDecks servers (checked, silent, with r
 from media_names import safe_name   # 9.1.2 media file names are never paths
 import memory    # 9.0: Memory Cards in the FrameDecks vCam chat overlay (docs/architecture/memory-cards.md)
 
-APP_VERSION = "9.10.3"
+APP_VERSION = "9.11.0"
 STARTED_AT = time.time()
 FROZEN = getattr(sys, "frozen", False)          # True inside the installed Windows app
 HERE = Path(sys.executable).resolve().parent if FROZEN else Path(__file__).resolve().parent.parent   # the repository root (this file is in src/)
@@ -362,6 +363,8 @@ def save_state(new):
             SYNC.poke()                    # linked to a workspace: send this change after a few quiet seconds
         if "CLOUD_REMOTE" in globals():
             CLOUD_REMOTE.changed()         # the companion's Live page shows the new screen soon
+        if "DOORBELL" in globals():
+            DOORBELL.activity()            # in use: keep listening for a while
         return state
 
 
@@ -994,6 +997,20 @@ CLOUD_BRIDGE = cloud_remote.Bridge()
 CLOUD_REMOTE = cloud_remote.RemoteService(_remote_credentials, lambda: app_settings()["cloudRemote"], _remote_plan,
                                           CLOUD_BRIDGE)
 
+# 9.11 live push (src/live_push.py; docs/architecture/live-push.md): listens on the workspace's bell while needed and
+# rests otherwise; whenever the bell cannot be used, sync and the remote run exactly as before.
+DOORBELL = live_push.Doorbell(
+    _remote_credentials,
+    computer_id=lambda: (SYNC.state.get("link") or {}).get("computerId"),
+    cursor=lambda: SYNC.state.get("cursor", 0),
+    control=lambda: bool(app_settings()["cloudRemote"]),
+    read_plan=_remote_plan,
+    on_sync=lambda: SYNC.poke(0.5),
+    on_cmd=CLOUD_REMOTE.command_waiting,
+    on_watch=CLOUD_REMOTE.poke)
+SYNC.next_pull = DOORBELL.sync_every
+CLOUD_REMOTE.plan_for = DOORBELL.remote_plan
+
 
 # ---------- Phone remote on/off while running ----------
 # The main server only ever listens on this PC (127.0.0.1). Turning the remote on adds a listener
@@ -1163,6 +1180,8 @@ def _save_app_settings(changes):
     write_atomic(APP_SETTINGS_FILE, json.dumps(cur, indent=2))
     if "cloudRemote" in changes and "CLOUD_REMOTE" in globals():
         CLOUD_REMOTE.poke()                # the switch takes effect at once (off: no more asking)
+        if "DOORBELL" in globals():
+            DOORBELL.recheck()             # tell the workspace at once whether this PC takes commands
     hook = DESKTOP.get("settings_changed")
     if hook:
         try:
@@ -2572,7 +2591,7 @@ class Handler(BaseHTTPRequestHandler):
         if path == "/api/sync":                                   # Settings > FrameDecks account (this PC only)
             if not self.is_local():
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
-            return self.reply(200, json.dumps(dict(SYNC.info(), remote=CLOUD_REMOTE.info())), TYPES[".json"])
+            return self.reply(200, json.dumps(dict(SYNC.info(), remote=CLOUD_REMOTE.info(), live=DOORBELL.info())), TYPES[".json"])
         if path == "/api/remote-cloud/next":                       # the program's own window asks for commands
             if not self.is_local():
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
@@ -3246,6 +3265,7 @@ def start_main_server():
     threading.Thread(target=_update_loop, daemon=True).start()   # once a day: is a newer version published?
     SYNC.start()                                                # does nothing unless this PC is linked
     CLOUD_REMOTE.start()                                        # idle unless linked and switched on in Settings
+    DOORBELL.start()                                            # checks in only while linked; listens only while needed
     try:
         memory_sync()                  # 9.0 pinned Memory Cards from the last session go back into the chat overlay
     except Exception as e:

@@ -116,7 +116,8 @@ big Previous / Next buttons, Hide all, Black screen, show or hide the question a
 Live on, the Teleprompter script, and the PC's answer to the last press ("Done", or why not). Built for a phone first.
 People who are not owners or admins cannot read `computers`, so the page reads `remote_computers(org)`
 (`0005_remote_live.sql`): the workspace's PCs that are not disconnected, each with its latest status and the
-database's time, only for people who may run services. It polls every 2 seconds while the page is visible.
+database's time, only for people who may run services. It polls every 2 seconds while the page is visible (9.11: only
+as a safety net when live push is on; see [live-push.md](live-push.md)).
 
 ## 8. Tests and delivery
 

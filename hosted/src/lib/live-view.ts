@@ -10,6 +10,8 @@ export type LiveStatus = {
   scripture: { visible: boolean; text: string; ref: string; version: string };
   blackout: boolean;
   freeze: boolean;
+  /** 9.11: the PC listens on its bell and sends its status while this page watches it (docs/architecture/live-push.md). */
+  push?: boolean;
 };
 
 export type LiveComputer = {
@@ -18,6 +20,10 @@ export type LiveComputer = {
   status: LiveStatus | null;
   updated_at: string | null;
   server_now: string;
+  /** From live_computers (0016): when the PC last said it takes commands; null from remote_computers. */
+  control_seen_at?: string | null;
+  /** From live_computers (0016): live push is switched on for everyone. */
+  push?: boolean;
 };
 
 export type Op = "next" | "previous" | "go_live" | "hide_all" | "blackout" | "question" | "scripture";
@@ -61,4 +67,33 @@ export function outcome(result: string | null): string {
   if (result === "expired") return "Not run: the PC did not take it within 10 seconds";
   if (result === "refused") return "Not run: you are no longer allowed to run services";
   return result.charAt(0).toUpperCase() + result.slice(1);
+}
+
+// ---------- 9.11 live push (docs/architecture/live-push.md) ----------
+
+/** A PC that takes commands checks in at least every 5 minutes, even asleep (computer_hello). */
+export const READY_FOR_SECONDS = 360;
+
+export type PcState = "online" | "waking" | "offline";
+
+/** Online: its status is fresh. Waking: it is running and takes commands but is asleep to save data, and this page's
+ * remote_watch wakes it (within a minute). Offline: neither. */
+export function pcState(pc: Pick<LiveComputer, "updated_at" | "server_now" | "control_seen_at" | "push">): PcState {
+  if (isOnline(pc)) return "online";
+  if (pc.push && pc.control_seen_at) {
+    const age = (Date.parse(pc.server_now) - Date.parse(pc.control_seen_at)) / 1000;
+    if (Number.isFinite(age) && age < READY_FOR_SECONDS) return "waking";
+  }
+  return "offline";
+}
+
+/** How often the page reads again. Every 2 seconds, as before, unless the private channel is open and the PC is one
+ * that pushes: then only as a safety net, because each change already makes the page read at once. While a PC is
+ * waking or a press waits for its answer, a little more often in case a ring was missed. */
+export function refreshEvery(o: { channel: boolean; pc: Pick<LiveComputer, "status"> | null; state: PcState; waiting: boolean }): number {
+  if (!o.channel || !o.pc?.status?.push) {
+    return o.state === "waking" ? 5_000 : 2_000;
+  }
+  if (o.waiting) return 2_000;
+  return o.state === "online" ? 30_000 : 5_000;
 }

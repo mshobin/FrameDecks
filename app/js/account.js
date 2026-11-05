@@ -71,10 +71,12 @@ function render(){
     root.appendChild(h('p', {cls: 'plain'}, [pill(ph[0], ph[1]), ' with ', h('b', {text: d.workspace || 'your workspace'})]));
     if (d.phase === 'offline') root.appendChild(h('p', {cls: 'hint', text: 'No internet right now. Presenting is not affected. To bring a plan from the website without internet, export a .frame file there and import it in Settings → Data / Backup.'}));
     root.appendChild(h('p', {cls: 'plain', text: 'Last successful sync: ' + when(d.lastSync) + (d.held ? ' · ' + d.held + ' change(s) wait until the live Frame leaves the screen' : '')}));
+    /* 9.11 live push: whether this PC is told about changes at once, resting, or checking as before */
+    if (d.live && d.live.text) root.appendChild(h('p', {cls: 'hint', id: 'acct-live', text: 'Updates: ' + d.live.text + (d.live.mode === 'asleep' ? '. It wakes the moment someone opens the Live page or uses this PC.' : '')}));
     /* 8.4 Resync Linked PCs: a round now, with what it did. Automatic sync carries on every minute as before. */
     root.appendChild(h('div', {cls: 'acct-resync'}, [
       h('button', {cls: 'btn primary', type: 'button', id: 'acct-resync', text: resyncing ? 'Syncing…' : 'Resync Linked PCs', disabled: resyncing ? 'disabled' : null, onclick: function(){ resync(); }}),
-      h('span', {cls: 'hint', id: 'acct-resync-result', role: 'status', text: lastResult ? lastResult.message : 'Gets the latest changes from your workspace now and sends this PC’s. It also happens by itself every minute.'})]));
+      h('span', {cls: 'hint', id: 'acct-resync-result', role: 'status', text: lastResult ? lastResult.message : 'Gets the latest changes from your workspace now and sends this PC’s. It also happens by itself whenever the workspace changes.'})]));
     if (d.error) root.appendChild(h('p', {cls: 'hint', text: d.error}));
     root.appendChild(h('div', {cls: 'actions'}, [
       h('button', {cls: 'btn small danger', type: 'button', text: 'Unlink this PC', onclick: function(e){

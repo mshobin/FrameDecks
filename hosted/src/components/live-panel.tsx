@@ -5,16 +5,17 @@ import { ChevronLeft, ChevronRight, EyeOff, Moon } from "lucide-react";
 
 import { WorkspaceGate } from "@/components/workspace-gate";
 import { userSafeError } from "@/lib/user-error";
-import { isOnline, label, nowShowing, outcome, type LiveComputer, type Op } from "@/lib/live-view";
+import { label, nowShowing, outcome, pcState, refreshEvery, type LiveComputer, type Op } from "@/lib/live-view";
 import { browserSupabase } from "@/lib/supabase-browser";
 import type { WorkspaceChoice } from "@/lib/use-workspaces";
 import { syncNotSetUp } from "@/lib/workspace-sync";
 import { EmptyState, ErrorState, PageSkeleton } from "@/components/states";
 
-const POLL_MS = 2000;
-
 // Running a service from a phone (Phase 5, docs/architecture/remote-control-design.md): commands go to the workspace with
-// remote_send; the linked PC takes them and publishes what is on its screen, which this page reads every 2 seconds.
+// remote_send; the linked PC takes them and publishes what is on its screen. 9.11 live push (docs/architecture/live-push.md):
+// where the database has 0016, this page listens on the workspace's private channel and reads again the moment a status
+// or an answer changes, and keeps the PC it shows awake with remote_watch. Otherwise, and for PCs from before 9.11, it
+// reads every 2 seconds exactly as before.
 function Live({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
   const supabase = browserSupabase();
   const [computers, setComputers] = useState<LiveComputer[] | "not-set-up" | null>(null);
@@ -22,14 +23,30 @@ function Live({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
   const [last, setLast] = useState<{ id: number; text: string; result: string | null } | null>(null);
   const [problem, setProblem] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [pushReady, setPushReady] = useState(false);   // live_computers answered: the database has live push
+  const [channel, setChannel] = useState(false);       // the private channel is open
+  const [waiting, setWaiting] = useState(false);       // a press waits for the PC's answer
   const lastRef = useRef(last);
+  const pushRef = useRef<boolean | null>(null);
   useEffect(() => {
     lastRef.current = last;
   }, [last]);
 
   const load = useCallback(async () => {
     if (!supabase) return;
-    const { data, error } = await supabase.rpc("remote_computers", { org: workspace.id });
+    let answer: { data: unknown; error: { code?: string; message?: string } | null } | null = null;
+    if (pushRef.current !== false) {
+      answer = await supabase.rpc("live_computers", { org: workspace.id });
+      if (answer.error && syncNotSetUp(answer.error)) {
+        pushRef.current = false;                       // 0016 not run yet: as before 9.11
+        answer = null;
+      } else if (!answer.error && pushRef.current === null) {
+        pushRef.current = true;
+        setPushReady(true);
+      }
+    }
+    if (!answer) answer = await supabase.rpc("remote_computers", { org: workspace.id });
+    const { data, error } = answer;
     if (error) {
       if (syncNotSetUp(error)) setComputers("not-set-up");
       else setProblem(userSafeError(error, "Couldn’t check the service PC. Check your connection and try again."));
@@ -38,20 +55,85 @@ function Live({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
     setComputers((data as LiveComputer[]) ?? []);
     const sent = lastRef.current;
     if (sent && sent.result === null) {
-      const answer = await supabase.from("remote_commands").select("result").eq("id", sent.id).maybeSingle();
-      const result = (answer.data as { result: string | null } | null)?.result ?? null;
-      if (result !== null) setLast({ ...sent, result });
+      const reply = await supabase.from("remote_commands").select("result").eq("id", sent.id).maybeSingle();
+      const result = (reply.data as { result: string | null } | null)?.result ?? null;
+      if (result !== null) {
+        setLast({ ...sent, result });
+        setWaiting(false);
+      }
     }
   }, [supabase, workspace.id]);
+  const loadRef = useRef(load);
+  useEffect(() => {
+    loadRef.current = load;
+  }, [load]);
+
+  const selected = Array.isArray(computers) ? (computers.find((c) => c.id === pcId) ?? computers[0] ?? null) : null;
+  const selectedId = selected?.id ?? null;
+  const state = selected ? pcState(selected) : "offline";
+  const every = refreshEvery({ channel, pc: selected, state, waiting });
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     load();
+  }, [load]);
+
+  useEffect(() => {
     const timer = setInterval(() => {
       if (!document.hidden) load();
-    }, POLL_MS);
+    }, every);
     return () => clearInterval(timer);
-  }, [load]);
+  }, [load, every]);
+
+  // The private channel: each ring ("status", "result") makes the page read once (a burst of rings, once).
+  useEffect(() => {
+    if (!supabase || !pushReady) return;
+    let soon: ReturnType<typeof setTimeout> | undefined;
+    let alive = true;
+    const ping = () => {
+      clearTimeout(soon);
+      soon = setTimeout(() => loadRef.current(), 150);
+    };
+    const live = supabase.channel(`live:${workspace.id}`, { config: { private: true } });
+    live.on("broadcast", { event: "*" }, ping);
+    (async () => {
+      try {
+        await supabase.realtime.setAuth();
+      } catch {
+        // signed out meanwhile: the channel is refused and the page keeps reading every 2 seconds
+      }
+      if (!alive) return;
+      live.subscribe((status) => {
+        setChannel(status === "SUBSCRIBED");
+        if (status === "SUBSCRIBED") ping();
+      });
+    })();
+    return () => {
+      alive = false;
+      clearTimeout(soon);
+      setChannel(false);
+      supabase.removeChannel(live);
+    };
+  }, [supabase, pushReady, workspace.id]);
+
+  // Keep the PC on screen awake while this page is visible (an asleep PC wakes within a minute).
+  useEffect(() => {
+    if (!supabase || !pushReady || !selectedId) return;
+    const watch = () => {
+      if (!document.hidden) supabase.rpc("remote_watch", { computer: selectedId }).then(() => undefined, () => undefined);
+    };
+    const shown = () => {
+      if (document.hidden) return;
+      watch();
+      loadRef.current();
+    };
+    watch();
+    const timer = setInterval(watch, 60_000);
+    document.addEventListener("visibilitychange", shown);
+    return () => {
+      clearInterval(timer);
+      document.removeEventListener("visibilitychange", shown);
+    };
+  }, [supabase, pushReady, selectedId]);
 
   if (!supabase) return null;
   if (computers === "not-set-up") {
@@ -62,7 +144,7 @@ function Live({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
     );
   }
   if (computers === null) return problem ? <ErrorState text={problem} onRetry={() => (setProblem(null), load())} /> : <PageSkeleton cards={2} />;
-  if (computers.length === 0) {
+  if (computers.length === 0 || !selected) {
     return (
       <EmptyState title="No service PC to run yet">
         Owners and admins link the service PC under Service PCs, and can let a member run services with “Can run
@@ -71,8 +153,8 @@ function Live({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
     );
   }
 
-  const pc = computers.find((c) => c.id === pcId) ?? computers[0];
-  const online = isOnline(pc);
+  const pc = selected;
+  const online = state === "online";
   const s = pc.status;
 
   async function send(op: Op, args: Record<string, unknown> = {}) {
@@ -92,6 +174,8 @@ function Live({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
       return;
     }
     setLast({ id: data as number, text: label(op, args), result: null });
+    setWaiting(true);
+    setTimeout(() => setWaiting(false), 15_000);         // answered, expired or the PC is off: back to the usual pace
     setTimeout(load, 700);
   }
 
@@ -113,7 +197,9 @@ function Live({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
       <article className="workspace-card live-now">
         <header>
           <h2>{pc.name}</h2>
-          <span className={online ? "live-state live-on" : "live-state"}>{online ? "Online" : "Not connected"}</span>
+          <span className={online ? "live-state live-on" : "live-state"}>
+            {online ? "Online" : state === "waking" ? "Waking up…" : "Not connected"}
+          </span>
         </header>
         <p className="live-frame">{nowShowing(s)}</p>
         {s && (
@@ -126,7 +212,13 @@ function Live({ workspace }: Readonly<{ workspace: WorkspaceChoice }>) {
             )}
           </p>
         )}
-        {!online && (
+        {state === "waking" && (
+          <p className="workspace-hint">
+            {pc.name} rests between services to save data and wakes now that this page is open, usually within a
+            minute. Presses made before it shows Online are dropped after 10 seconds.
+          </p>
+        )}
+        {state === "offline" && (
           <p className="workspace-hint">
             Is FrameDecks running on {pc.name}, with Settings → Workspace Sync → “Allow control from the
             companion” on? Presses made now are dropped after 10 seconds.

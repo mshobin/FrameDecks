@@ -223,7 +223,7 @@ Frames** to keep yours and add the file's at the end. The **Frame files** box th
 
 A PC linked to your team (**Settings → Workspace Sync**) also syncs its plans with framedecks.com. The **Sync**
 chip in the header shows **Synced**, **Syncing**, **Offline** (changes wait and go up later; presenting is not
-affected) or **Sync failed** (see Settings → Workspace Sync for why). It syncs by itself every minute. To sync
+affected) or **Sync failed** (see Settings → Workspace Sync for why). It syncs by itself as soon as the workspace changes (9.11). To sync
 now, choose **Resync Linked PCs** in Settings → Workspace Sync or in the **Sync** chip's panel. Media is never put
 in the cloud. Without a
 link, your meeting stays on your PC unless you export it.
