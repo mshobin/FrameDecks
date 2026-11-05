@@ -395,6 +395,14 @@ class RemoteWithDoorbell(unittest.TestCase):
         svc.plan_for = lambda active: plan
         return svc, calls
 
+    def test_the_first_round_takes_even_just_after_windows_started(self):
+        svc, calls = self.make({"take": True, "pause": 300.0, "publish": False, "heartbeat": 30.0})
+        real = cloud_remote.time.monotonic
+        cloud_remote.time.monotonic = lambda: 12.0         # a PC switched on 12 seconds ago
+        self.addCleanup(setattr, cloud_remote.time, "monotonic", real)
+        svc.once()
+        self.assertEqual(calls, ["remote_take"])
+
     def test_resting_asks_nothing(self):
         svc, calls = self.make({"take": False, "pause": 60.0, "publish": False, "heartbeat": 30.0})
         svc.once()

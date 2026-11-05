@@ -135,7 +135,7 @@ class RemoteService:
         # 9.11 live push: live_push.Doorbell.remote_plan(phone_active) -> None (as before) or what to do this round
         self.plan_for = lambda phone_active: None
         self.cmd_waiting = False         # the bell rang for this PC: take at once
-        self.last_take = 0.0
+        self.last_take = None            # never yet: the first round takes (time.monotonic() can be small after boot)
 
     def _plan(self):
         try:
@@ -185,7 +185,8 @@ class RemoteService:
         api = self.make_api(*creds)
         # listening: take when the bell rang, or now and then in case a ring was missed (a change on this PC only
         # sends its status); as before 9.11: every round
-        due = not plan or self.cmd_waiting or time.monotonic() - self.last_take >= plan["pause"]
+        due = (not plan or self.cmd_waiting or self.last_take is None
+               or time.monotonic() - self.last_take >= plan["pause"])
         taken = []
         if due:
             self.cmd_waiting = False
