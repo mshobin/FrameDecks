@@ -41,11 +41,15 @@ except Exception as e:
     print("Note: python-pptx data not found:", e)
     pptx_data = []
 
+# 9.10.3 the cloud's address and publishable key, when the build wrote them (tools/write_cloud_builtin.py)
+builtin = root / "src" / "cloud_builtin.json"
+cloud_data = [(str(builtin), ".")] if builtin.exists() else []
+
 a = Analysis(
     [str(root / "src" / "desktop_app.py")],
     pathex=[str(root / "src"), str(root)],
     datas=[(str(root / "app"), "app"), (str(root / "src" / "vcam" / "models"), "vcam/models"), (str(root / "src" / "vcam" / "bin"), "vcam/bin"),
-           (str(root / "LICENSE"), "."), (str(root / "NOTICE"), "."), (str(root / "docs" / "legal" / "THIRD_PARTY_NOTICES.md"), ".")] + pptx_data,
+           (str(root / "LICENSE"), "."), (str(root / "NOTICE"), "."), (str(root / "docs" / "legal" / "THIRD_PARTY_NOTICES.md"), ".")] + pptx_data + cloud_data,
     hiddenimports=["server", "errlog", "supervisor", "ai", "pptx_export", "pptx", "lxml._elementpath", "pystray._win32", "PIL.Image", "vcam.engine", "vcam.blur", "vcam.sink", "vcam.devices", "vcam.overlay", "vcam.cards", "vcam.looks", "vcam.screen", "vcam.layers", "vcam.compositor", "vcam.program", "vcam.chatcard", "media_names", "ed25519", "manifest_sig", "updater", "vcam.priority", "vcam.present_window", "desktop_win", "memory", "capture", "legacy", "meeting_form", "meeting_keys",
                    "windows_capture", "pypdfium2", "comtypes", "comtypes.client", "cv2", "numpy",
                    "cv2_enumerate_cameras", "cv2_enumerate_cameras.windows_backend", "cv2_enumerate_cameras._windows_backend"],

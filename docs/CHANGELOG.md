@@ -53,6 +53,17 @@ Versions before 4.9 (when the program had its earlier name) are described in the
 - The favicons, the tray icon and the small program-icon sizes (16–32 px) use a heavier version of the emblem, so it
   stays visible on light browser tabs and a light taskbar. Larger sizes are unchanged.
 
+## [9.10.3] - 2026-11-05
+
+Full notes: [docs/releases/v9.10.3.md](releases/v9.10.3.md).
+
+### Changed
+- The Windows build carries the cloud's address and publishable key (`cloud_builtin.json`, written by
+  `tools/write_cloud_builtin.py` from the repository secrets `SUPABASE_URL` / `SUPABASE_ANON_KEY`, git-ignored,
+  publishable/anon keys only), so linking a PC no longer needs `/api/sync-config` to answer first; the website stays
+  the backup and is the only source when `FRAMEDECKS_COMPANION_URL` is set. Tests: `BuiltInCloud` in
+  `tests/test_cloud_sync.py`.
+
 ## [9.10.2] - 2026-11-04
 
 Full notes: [docs/releases/v9.10.2.md](releases/v9.10.2.md).

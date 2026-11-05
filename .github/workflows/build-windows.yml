@@ -155,6 +155,12 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw "Tag $($env:TAG) is not on main: tag a commit from main" }
           Write-Host "The tagged commit is on main"
 
+      - name: Build in the cloud's address and publishable key (9.10.3; the website stays the backup)
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: python tools/write_cloud_builtin.py
+
       - name: Build the app (PyInstaller)
         run: pyinstaller --noconfirm --clean packaging/framedecks.spec --distpath dist --workpath build
 
@@ -164,6 +170,7 @@ jobs:
           if (-not (Test-Path "dist/FRAMEDECKS/FRAMEDECKS.exe")) { throw "The app was not built" }
           if (-not (Get-ChildItem -Recurse "dist/FRAMEDECKS" -Filter dashboard.html)) { throw "App pages are missing" }
           if (-not (Get-ChildItem -Recurse "dist/FRAMEDECKS" -Filter framedecks_vcam64.dll)) { throw "FrameDecks is missing" }
+          if (-not (Get-ChildItem -Recurse "dist/FRAMEDECKS" -Filter cloud_builtin.json)) { Write-Host "::notice::No built-in cloud address (SUPABASE_URL / SUPABASE_ANON_KEY secrets not set): new PCs ask the website, as before" }
 
       - name: Hand the program folder to SignPath (signing on)
         id: unsigned_app

@@ -21,6 +21,7 @@ webview/
 !assets/samples/*.xlsx
 !app/templates/*.xlsx
 # ---- Build output ----
+src/cloud_builtin.json
 dist/
 build/
 .build-venv/

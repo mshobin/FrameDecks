@@ -1,6 +1,6 @@
 // FrameDecks - writes public/api/sync-config before every build (and `npm run dev`).
-// The desktop program asks <companion>/api/sync-config for the cloud's address and public key when a PC is linked
-// (cloud_sync.companion_config), so neither is written into the program. Both are public by design (row-level
+// The desktop program carries the cloud's address and public key since 9.10.3 (tools/write_cloud_builtin.py); this file is
+// its backup when a PC is linked (cloud_sync.companion_config) and what a program pointed at another website reads. Both are public by design (row-level
 // security protects the data); no secret is here. A file instead of a server route, so the companion is plain static
 // files any free host can serve (docs/architecture/hosting.md). The file is git-ignored: it is made from the two
 // NEXT_PUBLIC_ variables of the host (Cloudflare Pages, Vercel) or hosted/.env.local.

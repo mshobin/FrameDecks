@@ -46,7 +46,8 @@ Repository clean-up is on `main` (modules in `src/`; `README.md`, `LICENSE`, `NO
 | 9.5.1: speed on older PCs (welcome without blur filters or endless loops, follow-lens cache, `tests/visual/perf.mjs`) | On `main`; folded into 9.6.0 unless the owner tags `v9.5.1` |
 | 9.6.0: Spotlight as a meeting remote (compact until you type, hidden from capture, Zoom / Teams / Meet keys, volume), one button style with the phone remote, website tokens from the program (`tools/design_tokens.py`), fresh product shots | Published |
 | 9.7.0: Draw / Spotlight on the Share Window from Spotlight, Content arrows and live-only remote in Spotlight, Spotlight only on its shortcut, main window maximized, phone picture only sideways, welcome Going live page; phone sign-in recommendation (docs/architecture/remote-sign-in.md, owner decides) | Published |
-| 9.10.2: Command Center smooth on older PCs (fixed window size, transform/opacity-only motion, panels built once) and no grey flash on first open | On `main`; owner tags `v9.10.2` |
+| 9.10.2: Command Center smooth on older PCs (fixed window size, transform/opacity-only motion, panels built once) and no grey flash on first open | Published |
+| 9.10.3: the cloud's address and publishable key built into the program (website is the backup when linking a PC) | On `main`; owner tags `v9.10.3` |
 | 9.10.1: no grey box behind the Command Center (form painted black: `desktop_win.clear_back`) | Published |
 | 9.10.0: Command Center redesigned: frameless glass bar, four chips Prepare / Engage / Control / More with panels, Go Live switch, animations; Ask AI removed | Published |
 | 9.9.0: the Command Center (was Spotlight): glass bar, context strip, five modules as scopes (Alt+1 to 5), Recent, prefixes, Ask AI, meetings and Memory Cards in the bar; phone remote in the same look | Published |

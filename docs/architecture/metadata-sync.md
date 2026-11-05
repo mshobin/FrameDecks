@@ -164,10 +164,13 @@ sequenceDiagram
 - **Never in the way.** Sync failures are logged and shown in the sync status only; they never block saving,
   presenting, the camera or the phone remote.
 - **No new packages.** HTTPS through the Python standard library (`urllib`), JSON as today.
-- **Where the cloud is.** When linking, the PC asks the companion (`https://framedecks.com/api/sync-config`, then `https://framedecks.pages.dev` if that does
-  not answer) for
-  the Supabase address and public key, and keeps them in `kc-sync.json`; nothing about the cloud is written into the
-  program. `FRAMEDECKS_COMPANION_URL` points it elsewhere for testing.
+- **Where the cloud is.** Since 9.10.3 the Windows build carries the Supabase address and publishable key
+  (`cloud_builtin.json`, written by `tools/write_cloud_builtin.py` from the repository secrets `SUPABASE_URL` and
+  `SUPABASE_ANON_KEY`; git-ignored; only a publishable/anon key is accepted), so linking needs no answer from the
+  website first. Without it, the PC asks the companion (`https://framedecks.com/api/sync-config`, then
+  `https://framedecks.pages.dev`), as before. Either way it keeps them in `kc-sync.json`. `FRAMEDECKS_COMPANION_URL`
+  points it at another website for testing (the built-in address is then not used). The approval page (`/connect`) is
+  still on the website.
 - **Settings → FrameDecks account** (D1) shows Not linked with **Connect to FrameDecks** / waiting for the browser
   (check number, Open the page again, Cancel, and the code as a fallback) / Linked to ‹workspace› with the last
   sync, Sync now and Unlink. Once linked, Settings → Security and Data / Backup say that plans and members sync.

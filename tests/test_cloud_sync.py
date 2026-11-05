@@ -8,6 +8,8 @@ import os
 import sys
 import tempfile
 import time
+import urllib.error
+import urllib.request
 import unittest
 from pathlib import Path
 
@@ -663,6 +665,12 @@ class DamagedPlanFile(unittest.TestCase):
 
 
 class WebsiteIdentity(unittest.TestCase):
+    def setUp(self):
+        # these tests are about asking the website: no built-in address, even on a PC that has a local build file
+        real = C.BUILTIN_FILE
+        C.BUILTIN_FILE = Path(tempfile.mkdtemp()) / "none.json"
+        self.addCleanup(setattr, C, "BUILTIN_FILE", real)
+
     """Cloudflare refuses Python's default identity with 403 (owner's report, 26 October): say we are FrameDecks."""
 
     def capture(self, answer):
@@ -716,6 +724,81 @@ class WebsiteIdentity(unittest.TestCase):
         seen = self.capture([])
         C.CloudApi("https://x.supabase.co", "k", "org").pull(0)
         self.assertIn("FrameDecks", seen[0].get_header("User-agent"))
+
+
+class BuiltInCloud(unittest.TestCase):
+    """9.10.3 the address and publishable key are built in, so a new PC links without the website answering first."""
+
+    def setUp(self):
+        self.dir = Path(tempfile.mkdtemp())
+        real = C.BUILTIN_FILE
+        C.BUILTIN_FILE = self.dir / "cloud_builtin.json"
+        self.addCleanup(setattr, C, "BUILTIN_FILE", real)
+        real_env = C._COMPANION_ENV
+        self.addCleanup(setattr, C, "_COMPANION_ENV", real_env)
+        C._COMPANION_ENV = ""
+        real_open = urllib.request.urlopen
+        self.asked = []
+
+        def website(req, timeout=None):
+            self.asked.append(req.full_url)
+            raise urllib.error.URLError("the website is down")
+        urllib.request.urlopen = website
+        self.addCleanup(setattr, urllib.request, "urlopen", real_open)
+
+    def write(self, url="https://x.supabase.co", key="sb_publishable_abc"):
+        C.BUILTIN_FILE.write_text(json.dumps({"url": url, "anonKey": key}), encoding="utf-8")
+
+    @staticmethod
+    def jwt(role):
+        import base64
+        part = lambda d: base64.urlsafe_b64encode(json.dumps(d).encode()).decode().rstrip("=")
+        return part({"alg": "HS256"}) + "." + part({"role": role}) + ".sig"
+
+    def test_the_built_in_address_is_used_without_asking_the_website(self):
+        self.write()
+        cfg = C.companion_config()
+        self.assertEqual(cfg, {"url": "https://x.supabase.co", "anonKey": "sb_publishable_abc", "site": C.COMPANION_URL})
+        self.assertEqual(self.asked, [])
+
+    def test_without_it_the_website_is_asked_as_before(self):
+        with self.assertRaises(C.Offline):
+            C.companion_config()
+        self.assertEqual(self.asked, ["https://framedecks.com/api/sync-config", "https://framedecks.pages.dev/api/sync-config"])
+
+    def test_another_website_set_for_development_wins(self):
+        self.write()
+        C._COMPANION_ENV = "http://127.0.0.1:3000"
+        with self.assertRaises(C.Offline):
+            C.companion_config()
+        self.assertTrue(self.asked)                  # the website was asked; the built-in address was not used
+
+    def test_only_the_publishable_key_is_ever_used(self):
+        for bad in ("sb_secret_abc", self.jwt("service_role"), "", "x.y.z"):
+            self.write(key=bad)
+            self.assertIsNone(C.builtin_config(), bad)
+        self.write(url="http://x.supabase.co")
+        self.assertIsNone(C.builtin_config())
+        self.write(key=self.jwt("anon"))
+        self.assertIsNotNone(C.builtin_config())
+        C.BUILTIN_FILE.write_text("not json", encoding="utf-8")
+        self.assertIsNone(C.builtin_config())
+
+    def test_the_build_writes_it_from_the_secrets_and_refuses_a_secret_key(self):
+        sys.path.insert(0, str(ROOT / "tools"))
+        import write_cloud_builtin as W
+        self.assertEqual(W.make({"SUPABASE_URL": "https://x.supabase.co/", "SUPABASE_ANON_KEY": "sb_publishable_k"})[0],
+                         {"url": "https://x.supabase.co", "anonKey": "sb_publishable_k"})
+        self.assertIsNone(W.make({})[0])
+        self.assertIsNone(W.make({"SUPABASE_URL": "https://x.supabase.co", "SUPABASE_ANON_KEY": "sb_secret_k"})[0])
+        self.assertIsNone(W.make({"SUPABASE_URL": "https://x.supabase.co", "SUPABASE_ANON_KEY": self.jwt("service_role")})[0])
+
+    def test_the_build_bundles_it_and_git_never_holds_it(self):
+        self.assertIn("src/cloud_builtin.json", (ROOT / ".gitignore").read_text(encoding="utf-8").splitlines())
+        self.assertIn("+ cloud_data", (ROOT / "packaging" / "framedecks.spec").read_text(encoding="utf-8"))
+        wf = (ROOT / ".github" / "workflows" / "build-windows.yml").read_text(encoding="utf-8")
+        self.assertLess(wf.index("python tools/write_cloud_builtin.py"), wf.index("Build the app (PyInstaller)"))
+        self.assertIn("SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}", wf)
 
 
 if __name__ == "__main__":

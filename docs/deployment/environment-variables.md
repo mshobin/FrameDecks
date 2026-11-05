@@ -25,6 +25,8 @@ Set in Cloudflare Pages (Settings → Variables and secrets), never in source co
 | --- | --- |
 | `NEXT_PUBLIC_SUPABASE_URL` | The Supabase project address (public). Also written to `/api/sync-config` for the program. |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | The Supabase public (anon) key; row-level security protects the data. |
+
+The Windows build reads the same two values from the repository secrets `SUPABASE_URL` and `SUPABASE_ANON_KEY` (also used by the keep-alive) and builds them into the program (`tools/write_cloud_builtin.py`, 9.10.3). Change all of them together if the Supabase project ever changes.
 | `NODE_VERSION` | `22`. |
 | `NEXT_PUBLIC_SITE_URL` | Optional, for a test deployment only. Unset, canonical links, `robots.txt` and `sitemap.xml` use `https://framedecks.com` ([domains](cloudflare-domains.md)). |
 

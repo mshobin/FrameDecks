@@ -18,6 +18,7 @@ import hashlib
 import json
 import os
 import secrets
+import sys
 import threading
 import time
 import urllib.error
@@ -406,9 +407,51 @@ def _fetch_config(base, timeout):
     return {"url": data["url"], "anonKey": data["anonKey"], "site": base}
 
 
+# 9.10.3 the cloud's address and public key are built into the program (cloud_builtin.json, written by the Windows build
+# from the repository secrets SUPABASE_URL / SUPABASE_ANON_KEY: tools/write_cloud_builtin.py), so linking a PC no
+# longer needs the website to answer first. The website's /api/sync-config stays as the backup, and is the only source
+# when FRAMEDECKS_COMPANION_URL points the program at another website (development, tests).
+BUILTIN_FILE = Path(getattr(sys, "_MEIPASS", Path(__file__).resolve().parent)) / "cloud_builtin.json"
+
+
+def public_key_ok(key):
+    """A key the program may carry: the publishable (anon) key only, never a secret or service_role key."""
+    key = str(key or "").strip()
+    if not key or key.startswith("sb_secret_"):
+        return False
+    if key.count(".") == 2:                      # an older JWT-style key: its middle part says which role it is
+        import base64
+        try:
+            part = key.split(".")[1]
+            claims = json.loads(base64.urlsafe_b64decode(part + "=" * (-len(part) % 4)).decode("utf-8"))
+        except (ValueError, UnicodeDecodeError):
+            return False
+        return isinstance(claims, dict) and claims.get("role") == "anon"
+    return True
+
+
+def builtin_config(path=None):
+    """The address and publishable key built into this program, or None (a build without them, or anything odd)."""
+    try:
+        data = json.loads(Path(path or BUILTIN_FILE).read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+    if not isinstance(data, dict):
+        return None
+    url, key = str(data.get("url", "")).rstrip("/"), str(data.get("anonKey", "")).strip()
+    if not url.startswith("https://") or not public_key_ok(key):
+        return None
+    return {"url": url, "anonKey": key, "site": COMPANION_URL}
+
+
 def companion_config(timeout=10):
-    """The cloud's address and public key, from the companion (it holds them; nothing secret is in this program).
-    Asks framedecks.com first, then the fallback address; the first website's problem is the one reported."""
+    """The cloud's address and public key. Built into the program (9.10.3); otherwise, or when the program is pointed
+    at another website, asked from the website: framedecks.com first, then the fallback address (the first website's
+    problem is the one reported). Both are public by design; nothing secret is in this program."""
+    if not _COMPANION_ENV:
+        built = builtin_config()
+        if built:
+            return built
     first = None
     for base in (COMPANION_URL, *COMPANION_FALLBACKS):
         try:

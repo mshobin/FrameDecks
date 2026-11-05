@@ -34,7 +34,8 @@ program call it directly, and Supabase's own row-level security protects the dat
 - `hosted/src/app/robots.ts` and `sitemap.ts` build `robots.txt` and `sitemap.xml` on framedecks.com.
 - `hosted/public/_headers`: `X-Robots-Tag: noindex` on `*.pages.dev`; build files cached for a year (`immutable`);
   the existing security headers on every page.
-- The Windows program (`src/cloud_sync.py`) asks `https://framedecks.com/api/sync-config` first and
+- From 9.10.3 the Windows program carries the cloud's address and publishable key itself; `/api/sync-config` is its
+  backup. When it asks (`src/cloud_sync.py`), it tries `https://framedecks.com/api/sync-config` first and
   `https://framedecks.pages.dev` second, so it links before, during and after the move. It identifies itself as
   `FrameDecks (Windows; +https://framedecks.com)`; the WAF rules below rely on that.
 
