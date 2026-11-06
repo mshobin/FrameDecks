@@ -182,3 +182,33 @@ class ClipsAndVotes(unittest.TestCase):
         sql = read("hosted/supabase/migrations/0017_help_votes.sql")
         self.assertIn("revoke all on table public.help_votes from public, anon, authenticated;", sql)
         self.assertTrue((ROOT / "hosted/supabase/rollback/0017_help_votes_down.sql").exists())
+
+
+class SupportAndHelpBot(unittest.TestCase):
+    def test_the_support_report_is_shown_in_full_before_anything_is_sent(self):
+        js = read("app/js/settings.js")
+        body = js[js.index("function supportReport("):js.index("window.KCSupport =")]
+        self.assertIn("Your reference: ", body)
+        self.assertIn("Nothing is sent until you choose below.", body)
+        self.assertIn("'mailto:' + SUPPORT", body)                     # only when Email support is chosen
+        lines = js[js.index("function reportLines("):js.index("function copyReport(")]
+        for never in ("d.pin", "folder", "dataFolder", "members"):
+            self.assertNotIn(never, lines)                               # no PIN, paths or member data
+        self.assertIn("Connection check: ", lines)
+        self.assertIn("KCSupport.open()", read("app/js/remote-panel.js"))
+
+    def test_ask_help_answers_from_help_and_sends_nothing(self):
+        bot = read("hosted/src/components/help-bot.tsx")
+        self.assertIn("searchHelp(index, q, 3)", bot)
+        self.assertNotIn("fetch(", bot)
+        self.assertNotIn("supabase", bot)
+        for code_step in ("FD-NET-05",):
+            self.assertIn(code_step, bot)
+        self.assertIn('id: "ask"', read("hosted/src/components/help-center.tsx"))
+        self.assertIn('href="https://framedecks.com/help#ask"', read("app/remote.html"))
+
+
+class Release(unittest.TestCase):
+    def test_whats_new_speaks_about_this_version(self):
+        import server
+        self.assertIn("'%s': [" % server.APP_VERSION, read("app/js/whats-new.js"))

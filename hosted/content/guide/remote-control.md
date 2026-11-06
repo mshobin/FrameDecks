@@ -181,6 +181,12 @@ The icon opens the remote directly. You still need to be on the same Wi-Fi as th
 
 ## If the phone can't connect
 
+On the PC, open **Settings → Phone & iPad Remote** and choose **Check my connection**. It goes through every step from
+the PC to the phone and stops at the first one that needs fixing, with a short code (like **FD-NET-02**) and one button
+that fixes it: turn the remote on, restart it, open the Wi-Fi or network settings, or allow it through Windows Firewall
+(Windows asks first). The last step turns green as soon as the phone arrives. On the phone, **Test connection** at the
+bottom of the remote shows how quickly the PC answers. Every code is explained at framedecks.com/help (Error codes).
+
 | Cause | Fix |
 | --- | --- |
 | The remote is off | **Settings → Phone & iPad Remote** → turn it on |

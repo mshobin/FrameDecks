@@ -184,6 +184,7 @@ function cxSteps(r, t){
 function cxDraw(){
   if (!cx.open || !cx.info) return;
   var steps = cxSteps(cx.info, cx.test);
+  cx.codes = steps.filter(function(st){ return st.code && st.state !== 'ok'; }).map(function(st){ return st.code; });
   testOut.innerHTML = '';
   var list = h('ol', {cls: 'cx', 'aria-live': 'polite'});
   steps.forEach(function(st){
@@ -195,7 +196,11 @@ function cxDraw(){
     list.appendChild(row);
   });
   testOut.appendChild(list);
+  if (steps.some(function(st){ return st.state === 'bad'; }) && window.KCSupport)
+    testOut.appendChild(h('p', {cls: 'hint cx-more'}, ['Still stuck? ', h('a', {href: '#', text: 'Send a report to support', onclick: function(e){ e.preventDefault(); KCSupport.open(); }}),
+      ' (the code above goes with it).']));
 }
+window.KCConnection = {codes: function(){ return cx.codes || null; }};
 function runCheck(){
   cx.open = true; cx.started = cx.started && Date.now() - cx.started < 90000 ? cx.started : Date.now();
   testOut.innerHTML = ''; testOut.appendChild(h('p', {cls: 'hint', text: 'Checking…'}));

@@ -66,7 +66,7 @@ Overlay pages and the phone remote expect port 8750. Another program is using it
 | Antivirus blocks or quarantines the app (for example Microsoft Defender: "Trojan … executes commands from an attacker", and FrameDecks disappears) | A false alarm that unsigned apps made with Python sometimes get. FrameDecks starts no hidden PowerShell or other background commands | Windows Security → Virus & threat protection → **Protection history** → the entry → **Actions → Restore**. Then **Manage settings → Exclusions → Add an exclusion → Folder** `%LOCALAPPDATA%\Programs\FRAMEDECKS`, and update to the latest version |
 
 > **Note:** Check the download first: compare its SHA-256 with the one on framedecks.com/download, in PowerShell:
-> `Get-FileHash .\FrameDecks-26.11.3-Setup.exe -Algorithm SHA256`.
+> `Get-FileHash .\FrameDecks-26.11.4-Setup.exe -Algorithm SHA256`.
 
 ## Window, tray and Spotlight
 
@@ -254,15 +254,24 @@ the check: "✓ Checked against the file: … Everything matches.", or each diff
 …" lists pictures and videos the Frames use that are not on this PC: add them, or export the .frame file from a
 computer that has them.
 
+## Error codes
+
+When something goes wrong with a connection, FrameDecks shows a short code such as **FD-NET-02**, the same on the PC,
+the phone and the website. framedecks.com/help → **Error codes** explains each one (what happened, why, and the fix);
+typing the code into the Help search or **Ask Help** opens it.
+
 ## Collecting diagnostics
 
-**Settings → Diagnostics → Copy diagnostics** copies the information needed for support to the clipboard. It contains no PIN and no member details. Paste it into your message.
+**Settings → Diagnostics → Send a report to support** shows the whole report first (your version, the PC's setup, the
+connection check and recent problems; no PIN, keys, file paths, plan or member details) with a reference number, then
+lets you **Email support**, **Copy report** or **Save support bundle**. Nothing is sent until you choose.
+**Copy diagnostics** still copies the same information to the clipboard.
 
 ## Getting help
 
-1. Check this page, the [FAQ](faq.md) and the **Step-by-step guide** at framedecks.com/help (on the PC: **Settings →
-   Help → Step-by-step guide**).
-2. Copy diagnostics (above).
+1. Check this page, the [FAQ](faq.md) and framedecks.com/help: search it, or choose **Ask Help** to go through a
+   problem one step at a time. The small **?** next to a heading in FrameDecks opens the right page.
+2. Send a report to support (above), or copy diagnostics.
 3. Contact the person who installed FrameDecks for your church, or write to hello@framedecks.com.
 
 ## Related

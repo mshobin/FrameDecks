@@ -37,7 +37,7 @@ async def capture(url, chromium):
         await pg.evaluate("KCSetTab('settings'); KCShowSection('about')")
         await pg.wait_for_timeout(1500)
         # nothing may sit over the About screen: the Setup guide, a toast, a dialog (8.0.0's header caught the guide)
-        await pg.evaluate("document.querySelectorAll('.gd-panel, .gd-spot, .gd-tip, .app-modal-back, .onb, .toast').forEach(e => e.remove())")
+        await pg.evaluate("document.querySelectorAll('.gd-panel, .gd-spot, .gd-tip, .app-modal-back, .onb, .toast, .wn').forEach(e => e.remove())")
         await pg.wait_for_timeout(200)
         hero = pg.locator("#about-body .kc-hero")
         await hero.screenshot(path=str(PNG), animations="disabled", omit_background=True)

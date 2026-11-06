@@ -10,6 +10,10 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
 
 ## [Unreleased]
 
+## [26.11.4] - 2026-11-06
+
+Full notes: [docs/releases/v26.11.4.md](releases/v26.11.4.md).
+
 ### Added
 - **Error codes** (`app/js/help-codes.js`, the only list; the website gets a copy in `hosted/content/help-codes.json`):
   every connection problem has a short code (FD-REM, FD-NET, FD-CLD) shown on the PC, the phone and the website, each
@@ -41,6 +45,13 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
 - **Was this helpful?** under every Help topic and guide page (`components/help-vote.tsx`). Only the article and the
   vote are kept (migration `0017_help_votes.sql`: no person, no address; anyone may vote through `help_vote()`, nobody
   reads the table from the website). A "No" offers to say what was missing. **Owner: run 0017 in Supabase.**
+- **Send a report to support** (Settings → Diagnostics, and from a failed connection check): the report in full first
+  (version, setup, the connection check's codes, recent problems; no PIN, keys, paths, plan or members) with a
+  reference number, then Email support (`mailto`, nothing sent before), Copy report or Save support bundle.
+- **Ask Help** on framedecks.com/help (`components/help-bot.tsx`): choose a problem and go through it one question at a
+  time (phone, FrameDecks vCam, something wrong on screen, website and PC out of step, installing, an error code), or
+  type a question or a code; answers come from the Help Center's own pages (no AI, nothing sent). The phone remote
+  links to it.
 
 ### Changed
 - New front-page chapter, Memory Cards (owner's request), between Engage and Control: with Capture on, three chat

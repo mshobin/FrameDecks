@@ -19,6 +19,7 @@ import {
   Layers,
   LifeBuoy,
   Mail,
+  MessageCircle,
   MonitorPlay,
   Rocket,
   ScrollText,
@@ -31,6 +32,7 @@ import {
 import { HelpGuide } from "@/components/help-guide";
 import { HelpVote } from "@/components/help-vote";
 import { HelpClips } from "@/components/help-clip";
+import { HelpBot } from "@/components/help-bot";
 import codes from "../../content/help-codes.json";
 import { searchHelp, type HelpEntry } from "@/lib/help-search";
 import { ShowGuide } from "@/components/show-guide";
@@ -112,6 +114,13 @@ export const TOPICS: Topic[] = [
         <More links={[["/docs/getting-started", "Getting started guide"], ["/docs/glossary", "Glossary"]]} />
       </>
     ),
+  },
+  {
+    id: "ask",
+    label: "Ask Help",
+    icon: MessageCircle,
+    blurb: "Choose a problem and go through it one step at a time, or type a question or an error code. Nothing you type leaves this page.",
+    body: () => null, // HelpCenter draws the helper (it needs the search index)
   },
   {
     id: "studio",
@@ -558,7 +567,7 @@ export function HelpCenter({ index = [] }: Readonly<{ index?: HelpEntry[] }>) {
           </div>
         </header>
         <div className="hc-body" key={`b-${topic.id}`}>
-          {topic.body()}
+          {topic.id === "ask" ? <HelpBot index={index} /> : topic.body()}
         </div>
         <HelpVote key={`v-${topic.id}`} article={`help#${topic.id}`} />
       </div>

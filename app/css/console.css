@@ -660,5 +660,10 @@ body.studio-focus .studio.s2{height:100vh !important}
 .wn-list li{padding:10px 12px;border:1px solid var(--edge);border-radius:12px}
 .wn-list p{margin:4px 0 8px;color:var(--muted);font-size:13px}
 .kc-show-me{outline:3px solid var(--gold);outline-offset:4px;border-radius:12px}
+/* 26.11.4 Send a report to support: the report in full before anything is sent */
+.app-modal.sr-card{width:min(640px,calc(100vw - 40px))}
+.sr-ref{margin:8px 0;color:var(--muted)} .sr-ref b{color:var(--ink);font-family:ui-monospace,Consolas,monospace}
+.sr-text{max-height:260px;margin:0 0 12px;padding:10px 12px;overflow:auto;border:1px solid var(--edge);border-radius:12px;background:var(--field);color:var(--ink);font:12px/1.5 ui-monospace,Consolas,monospace;white-space:pre-wrap;word-break:break-word}
+.cx-more{margin-top:8px}
 @media (prefers-reduced-motion:reduce){ .gd-prog li.done.kc-new button{animation:none} }
 

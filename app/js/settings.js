@@ -174,6 +174,7 @@ function renderDiag(){
               zoom: Math.round((window.devicePixelRatio || 1) * 100) + '%', mode: Store.served ? 'Local program' : 'No-install (file)'};
   var box = h('section', {cls: 'box'});
   var head = h('div', {cls: 'box-head'}, [h('h2', {text: 'Connection & system'}),
+    h('button', {cls: 'btn small primary', type: 'button', text: 'Send a report to support', onclick: supportReport}),
     h('button', {cls: 'btn small', type: 'button', text: 'Copy diagnostics', onclick: function(){ copyReport(); }}),
     Store.served ? h('button', {cls: 'btn small', type: 'button', text: 'Save support bundle',
       title: 'One file with the log, Diagnostics and settings, to send when asking for help (no plan, members, PIN or keys)',
@@ -240,10 +241,45 @@ function renderDiag(){
   }).catch(function(){ root.appendChild(h('div', {cls: 'alert bad', text: 'The local program is not responding. Check the black FrameDecks window is open.'})); });
 }
 var lastDiag = null;
-function copyReport(){
-  // No PIN, secret key or member data is ever included.
+var SUPPORT = 'hello@framedecks.com';
+function post(action, body){ return fetch('api/app/' + action, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body || {})}).then(function(r){ return r.json(); }).catch(function(){ return {}; }); }
+/* 26.11.4 Send a report to support: the report shown in full first (what you see is all it holds), a reference number
+   to quote, then Copy, Save support bundle or Email support. Nothing leaves this PC until one of them is chosen. */
+function supportReport(){
+  var ready = lastDiag ? Promise.resolve(lastDiag) : fetch('api/diagnostics', {cache: 'no-store'}).then(function(r){ return r.json(); }).then(function(d){ lastDiag = d; return d; });
+  ready.catch(function(){ return {}; }).then(function(){
+    var abc = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789', ref = 'FD-';
+    for (var i = 0; i < 6; i++) ref += abc[Math.floor(Math.random() * abc.length)];
+    var text = ['Reference: ' + ref].concat(reportLines()).join('\n');
+    var back = h('div', {cls: 'app-modal-back', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Send a report to support'});
+    var close = function(){ back.remove(); };
+    var pre = h('pre', {cls: 'sr-text', text: text});
+    var act = function(label, cls, fn){ return h('button', {cls: 'btn ' + cls, type: 'button', text: label, onclick: fn}); };
+    var card = h('div', {cls: 'app-modal sr-card'}, [
+      h('h2', {text: 'Send a report to support'}),
+      h('p', {cls: 'plain', text: 'This is everything the report holds: your version, this PC’s setup, the connection check and recent problems. No PIN, keys, file paths, plan or member details. Nothing is sent until you choose below.'}),
+      h('p', {cls: 'sr-ref'}, ['Your reference: ', h('b', {text: ref}), ' (quote it if you write to us again)']),
+      pre,
+      h('div', {cls: 'app-modal-actions'}, [
+        act('Email support…', 'primary', function(){
+          var body = text.length > 1500 ? text.slice(0, 1500) + '\n… (cut short: choose Copy report in FrameDecks and paste the rest)' : text;
+          post('open-external', {url: 'mailto:' + SUPPORT + '?subject=' + encodeURIComponent('FrameDecks support ' + ref + ' (' + (lastDiag && lastDiag.version || '') + ')') + '&body=' + encodeURIComponent('What happened:\n\n\n---\n' + body)});
+          close();
+        }),
+        act('Copy report', '', function(){ var ta = h('textarea'); ta.value = text; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); window.KCActions.toast('Report copied'); } catch(e){} ta.remove(); }),
+        Store.served ? act('Save support bundle', '', saveSupportBundle) : null,
+        act('Close', 'quiet', close)])]);
+    back.appendChild(card); document.body.appendChild(back);
+    back.addEventListener('keydown', function(e){ if (e.key === 'Escape'){ e.stopPropagation(); close(); } });
+    card.querySelector('.btn.primary').focus();
+  });
+}
+window.KCSupport = {open: supportReport};
+/* 26.11.4 the report's lines: no PIN, secret key, folder path or member data is ever included */
+function reportLines(){
   var d = lastDiag || {};
-  var lines = ['FrameDecks diagnostics', 'Version: ' + (d.version || '?'), 'Mode: ' + (Store.served ? 'local program' : 'no-install'),
+  var cx = window.KCConnection ? KCConnection.codes() : null;
+  return ['FrameDecks diagnostics', 'Version: ' + (d.version || '?'), 'Mode: ' + (Store.served ? 'local program' : 'no-install'),
     'Program: ' + (Store.online ? 'connected' : 'not responding'), 'Port: ' + (d.port || '?'), 'Listening on: ' + (d.listeningOn || '?'),
     'Addresses: ' + (d.addresses || []).join(', '), 'Python: ' + (d.python || '?'), 'OS: ' + (d.os || '?'),
     'Signed-in phones/iPads: ' + (d.remoteSessions != null ? d.remoteSessions : '?'),
@@ -253,8 +289,11 @@ function copyReport(){
     'Network: ' + (d.network ? JSON.stringify(d.network) : 'n/a'),
     'Files: ' + (d.files ? Object.keys(d.files).map(function(n){ return n + '=' + (d.files[n].exists ? 'yes' : 'no'); }).join(', ') : '?'),
     'Browser: ' + navigator.userAgent, 'Window: ' + window.innerWidth + 'x' + window.innerHeight,
-    'Recent problems: ' + (errors.length ? errors.slice(-10).map(function(e){ return e.time + ' ' + e.message; }).join(' | ') : 'none')];
-  var text = lines.join('\n');
+    'Recent problems: ' + (errors.length ? errors.slice(-10).map(function(e){ return e.time + ' ' + e.message; }).join(' | ') : 'none'),
+    'Connection check: ' + (!cx ? 'not run' : cx.length ? cx.join(', ') : 'all steps passed')];
+}
+function copyReport(){
+  var text = reportLines().join('\n');
   var ta = h('textarea'); ta.value = text; document.body.appendChild(ta); ta.select();
   try { document.execCommand('copy'); window.KCActions.toast('Diagnostics copied (no PIN, keys or member details included)'); } catch(e){}
   ta.remove();

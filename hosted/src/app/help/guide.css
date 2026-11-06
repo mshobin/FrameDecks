@@ -141,3 +141,25 @@ html.fd-light .hg-spot{box-shadow:0 0 0 9999px rgba(15,25,50,.22),0 0 24px rgba(
 .hc-clip .hc-clip-still{display:none}
 html.fd-calm .hc-clip picture{display:none}
 html.fd-calm .hc-clip .hc-clip-still{display:block}
+
+/* 26.11.4 Ask Help: bubbles from Help, the person's on the right; quick answers as pills */
+.hb{display:grid;gap:12px}
+.hb-log{display:grid;gap:10px;max-height:min(60vh,560px);overflow:auto;padding:4px 2px}
+.hb-msg{display:grid;gap:8px;justify-items:start}
+.hb-you{justify-items:end}
+.hb-bubble{max-width:min(560px,92%);padding:10px 14px;border:1px solid var(--hairline-strong);border-radius:16px 16px 16px 4px;background:var(--surface-solid);color:var(--text);line-height:1.5}
+.hb-you .hb-bubble{border-color:rgba(232,185,49,.45);border-radius:16px 16px 4px 16px;background:rgba(232,185,49,.1)}
+.hb-bubble kbd{padding:0 6px;border:1px solid var(--hairline-strong);border-radius:4px;font-size:13px}
+.hb-opts{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.hb-opts span{color:var(--muted);font-size:14px}
+.hb-opts button{padding:7px 14px;border:1px solid var(--hairline-strong);border-radius:999px;background:transparent;color:var(--text);font:inherit;font-size:14px;cursor:pointer}
+.hb-opts button:hover,.hb-opts button:focus-visible{border-color:var(--gold)}
+.hb-found{display:grid;gap:6px;margin:8px 0 0;padding:0;list-style:none}
+.hb-found a{display:grid;gap:1px;padding:8px 10px;border:1px solid var(--hairline);border-radius:12px;color:var(--text);text-decoration:none}
+.hb-found a:hover{border-color:var(--gold)}
+.hb-found small{color:var(--gold);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.hb-found span{color:var(--muted);font-size:13px}
+.hb-ask{display:flex;gap:8px}
+.hb-ask input{flex:1;min-width:0;padding:11px 14px;border:1px solid var(--hairline-strong);border-radius:999px;background:var(--surface-solid);color:var(--text);font:inherit}
+.hb-ask input:focus{outline:none;border-color:var(--gold)}
+.hb-note{margin:0;color:var(--muted);font-size:13px}
