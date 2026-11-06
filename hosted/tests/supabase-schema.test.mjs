@@ -22,6 +22,7 @@ test("every table has at least one policy and none is open to anon", () => {
   // Reached only through security definer functions: RLS on and no policy means clients get nothing.
   const functionsOnly = [
     "workspace_sync", "computer_links", "computer_link_failures", "trusted_devices", "security_events", "live_push", "workspace_bells",
+    "help_votes", // 0017: votes go in through help_vote() and are read only in the SQL editor
   ];
   for (const table of tables) {
     if (functionsOnly.includes(table)) continue;
@@ -58,14 +59,23 @@ const ANON_BY_DESIGN = [
 // 0015: asking for a link comes before any session (rate-limited, the address only hashed), and the pre-request
 // check runs for every Data API request (it reads one row and can only refuse).
 const BEFORE_A_SESSION = ["magic_link_requested", "check_trusted_session"];
+// 0017: the public Help pages' "Was this helpful?": it reads nothing, only adds a checked article name and a yes or no.
+const PUBLIC_HELP = ["help_vote"];
 
 test("functions that read across tenants are closed to anon", () => {
   const definers = [...sql.matchAll(/create or replace function public\.(\w+)\(([^)]*)\)[^$]*?security definer/g)];
   for (const [, name] of definers) {
     if (["is_org_member", "is_org_admin", "add_creator_as_owner"].includes(name)) continue;
-    if (ANON_BY_DESIGN.includes(name) || BEFORE_A_SESSION.includes(name)) continue;
+    if (ANON_BY_DESIGN.includes(name) || BEFORE_A_SESSION.includes(name) || PUBLIC_HELP.includes(name)) continue;
     assert.match(sql, new RegExp(`revoke execute on function public\\.${name}\\([^)]*\\) from public, anon`), name);
   }
+});
+
+test("help_vote only adds a vote: it reads no table and returns nothing but whether it was kept", () => {
+  const body = sql.split("create or replace function public.help_vote(")[1].split("$$;")[0];
+  assert.match(body, /security definer/);
+  assert.match(body, /returns boolean/);
+  assert.doesNotMatch(body.replace(/select count\(\*\) from public\.help_votes/, ""), /select [^;]* from public\.(?!help_votes)/);
 });
 
 test("functions open to anon check the computer key or only handle linking", () => {

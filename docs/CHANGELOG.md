@@ -35,6 +35,12 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
 - **What's new** (`app/js/whats-new.js`): after an update, one small card with the release's three changes, each with
   **Show me** (it opens the place and outlines it for a moment). Once per version, only for someone who used an
   earlier one, never while live.
+- **Short clips** in the Help Center, recorded from the real program by `tools/make_help_clips.py` (Go Live,
+  Spotlight, Memory Cards, Check my connection, the phone remote): looping animated WebP, a still for less motion
+  (the system setting or Reduce effects), loaded only when scrolled near.
+- **Was this helpful?** under every Help topic and guide page (`components/help-vote.tsx`). Only the article and the
+  vote are kept (migration `0017_help_votes.sql`: no person, no address; anyone may vote through `help_vote()`, nobody
+  reads the table from the website). A "No" offers to say what was missing. **Owner: run 0017 in Supabase.**
 
 ### Changed
 - New front-page chapter, Memory Cards (owner's request), between Engage and Control: with Capture on, three chat

@@ -129,3 +129,15 @@ html.fd-light .hg-spot{box-shadow:0 0 0 9999px rgba(15,25,50,.22),0 0 24px rgba(
 .hc-codes-area{float:right;color:var(--muted);font-size:13px}
 .hc-codes p{margin:6px 0 0;color:var(--muted)}
 .hc-codes p b{color:var(--text)}
+
+
+/* 26.11.4 short clips of the real program; the still for less motion (the system setting, or Reduce effects) */
+.hc-clips{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:16px;margin:20px 0 4px}
+.hc-clip{margin:0}
+.hc-clip img{display:block;width:100%;height:auto;border:1px solid var(--hairline-strong);border-radius:12px;background:var(--surface-solid)}
+.hc-clip.is-tall img{max-width:240px}
+.hc-clip figcaption{margin-top:8px;color:var(--muted);font-size:14px}
+.hc-clip figcaption b{color:var(--text)}
+.hc-clip .hc-clip-still{display:none}
+html.fd-calm .hc-clip picture{display:none}
+html.fd-calm .hc-clip .hc-clip-still{display:block}

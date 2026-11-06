@@ -157,3 +157,28 @@ class KeysAndWhatsNew(unittest.TestCase):
         self.assertIn("if (live) return;", js)                                     # never over a live meeting
         for spot in re.findall(r"spot: '#([\w-]+)'", block):
             self.assertTrue(f'id="{spot}"' in read("app/dashboard.html") or f"id: '{spot}'" in read("app/js/remote-panel.js"), spot)
+
+
+class ClipsAndVotes(unittest.TestCase):
+    def test_every_clip_shown_has_its_moving_picture_and_its_still(self):
+        tsx = read("hosted/src/components/help-center.tsx")
+        names = re.findall(r'name: "([a-z-]+)", title:', tsx)
+        self.assertGreaterEqual(len(names), 5)
+        for n in names:
+            for f in (n + ".webp", n + "-still.webp"):
+                p = ROOT / "hosted/public/help/clips" / f
+                self.assertTrue(p.exists(), f)
+                self.assertLess(p.stat().st_size, 400_000, f)      # small enough for a phone
+        clip = read("hosted/src/components/help-clip.tsx")
+        self.assertIn('media="(prefers-reduced-motion: reduce)"', clip)    # less motion: the still
+        self.assertIn("html.fd-calm .hc-clip .hc-clip-still{display:block}", read("hosted/src/app/help/guide.css"))
+        self.assertIn('loading="lazy"', clip)
+
+    def test_votes_keep_only_the_article_and_the_answer(self):
+        vote = read("hosted/src/components/help-vote.tsx")
+        self.assertIn('rpc("help_vote", { article, helpful })', vote)
+        self.assertIn("<HelpVote", read("hosted/src/components/help-center.tsx"))
+        self.assertIn("<HelpVote", read("hosted/src/app/docs/[slug]/page.tsx"))
+        sql = read("hosted/supabase/migrations/0017_help_votes.sql")
+        self.assertIn("revoke all on table public.help_votes from public, anon, authenticated;", sql)
+        self.assertTrue((ROOT / "hosted/supabase/rollback/0017_help_votes_down.sql").exists())

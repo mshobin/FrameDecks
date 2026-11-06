@@ -29,6 +29,8 @@ import {
 } from "lucide-react";
 
 import { HelpGuide } from "@/components/help-guide";
+import { HelpVote } from "@/components/help-vote";
+import { HelpClips } from "@/components/help-clip";
 import codes from "../../content/help-codes.json";
 import { searchHelp, type HelpEntry } from "@/lib/help-search";
 import { ShowGuide } from "@/components/show-guide";
@@ -155,6 +157,13 @@ export const TOPICS: Topic[] = [
             </ul>
           </section>
         </div>
+        <HelpClips
+          clips={[
+            { name: "go-live", title: "Go Live.", caption: "The first Frame goes on screen, then → shows the next question." },
+            { name: "spotlight", title: "Spotlight.", caption: "A soft light on the word you are talking about, for everyone at once." },
+            { name: "memory-cards", title: "Memory Cards.", caption: "Copied chat messages pop up beside you on the picture." },
+          ]}
+        />
         <More links={[["/docs/user-guide", "User guide"], ["/docs/presentations", "Presenting"], ["/docs/remote-control", "Phone remote"]]} />
       </>
     ),
@@ -330,6 +339,12 @@ export const TOPICS: Topic[] = [
             <dd>The installer is not yet code-signed: choose <b>More info → Run anyway</b>.</dd>
           </div>
         </dl>
+        <HelpClips
+          clips={[
+            { name: "check-connection", title: "Check my connection.", caption: "Every step from the PC to the phone; the first problem gets one button that fixes it." },
+            { name: "phone-remote", title: "The phone remote.", caption: "Next Frame from your seat, on the same Wi-Fi.", portrait: true },
+          ]}
+        />
         <More links={[["/docs/troubleshooting", "Troubleshooting guide"], ["/docs/faq", "Questions and answers"]]} />
       </>
     ),
@@ -545,6 +560,7 @@ export function HelpCenter({ index = [] }: Readonly<{ index?: HelpEntry[] }>) {
         <div className="hc-body" key={`b-${topic.id}`}>
           {topic.body()}
         </div>
+        <HelpVote key={`v-${topic.id}`} article={`help#${topic.id}`} />
       </div>
     </div>
   );

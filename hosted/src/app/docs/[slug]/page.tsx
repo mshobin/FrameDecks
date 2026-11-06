@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { DocBody, PublicPage } from "@/components/public-page";
+import { HelpVote } from "@/components/help-vote";
 import { guidePage, guides } from "@/lib/markdown";
 import { pageMetadata } from "@/lib/site";
 
@@ -36,6 +37,7 @@ export default async function GuidePage({
         <Link href="/docs">All guides</Link>
       </p>
       <DocBody html={doc.html} />
+      <HelpVote article={`docs/${slug}`} />
     </PublicPage>
   );
 }
