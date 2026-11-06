@@ -334,10 +334,6 @@
 }
 
 /* ---------- light theme ---------- */
-html.fd-light .fd-landing-bar.lp-nav[data-solid] {
-  background: rgba(244, 245, 249, 0.86);
-}
-
 /* the large button (landing and Download) */
 /* The landing page's own styles (8.4: split from landing.css so only the landing page loads them; the bar, titles and
  * contents list every public page shares stay in landing.css) */

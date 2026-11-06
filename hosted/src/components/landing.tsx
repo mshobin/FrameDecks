@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Download, Quote, ShieldCheck, Smartphone, Users } from "lucide-react";
 
-import { LandingNav } from "@/components/landing/nav";
+import { DarkOnly, LandingNav } from "@/components/landing/nav";
 import { Keys, Tour, type TourChapter } from "@/components/landing/tour";
 import { FlourishLater } from "@/components/landing/flourish-later";
 import { SiteFooter } from "@/components/site-footer";
@@ -160,7 +160,8 @@ export function Landing() {
   const ctaWords = CTA_TITLE.split(" ");
   return (
     <div className="fd-landing fd-lp">
-      <LandingNav />
+      <DarkOnly />
+      <LandingNav theme={false} />
       <FlourishLater />
 
       <main id="main" tabIndex={-1}>

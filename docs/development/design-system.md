@@ -131,7 +131,9 @@ numbers. **Every picture of the program is a real screenshot** (`tools/make_prod
   Serve?**, every promise and question, the KJV verse above the closing call (Colossians 3:23).
 - **Order and parts (26.11.2):**
   1. `landing/nav.tsx`: clear, then blurred navy with a hairline after 20 px; How it works, Features, Download;
-     Reduce effects, theme, About, Open Workspace, gold Download · free.
+     Reduce effects, About, Open Workspace, gold Download · free. **The front page is always dark** (`DarkOnly`,
+     `html.fd-dark-only`, set before the first paint in `layout.tsx`), so its bar has no theme button; the other
+     public pages and the signed-in pages keep Light, Dark and Auto.
   2. `landing/tour.tsx`, the stage (Apple's way: the words on the left, the product on the right, one idea per
      screen; stacked under 1000 px). The words are the headline, paragraph and both buttons, then one chapter each.
      The stage (1000 × 620, scaled) is the app's own dark colours in both themes. On arrival, with no scrolling, a

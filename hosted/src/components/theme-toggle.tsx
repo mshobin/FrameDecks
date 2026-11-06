@@ -20,8 +20,15 @@ function read(): Choice {
 }
 
 function apply(choice: Choice) {
-  const light = choice === "light" || (choice === "auto" && matchMedia("(prefers-color-scheme: light)").matches);
+  // 26.11.2 the front page is always dark (html.fd-dark-only, components/landing/nav.tsx)
+  const dark = document.documentElement.classList.contains("fd-dark-only");
+  const light = !dark && (choice === "light" || (choice === "auto" && matchMedia("(prefers-color-scheme: light)").matches));
   document.documentElement.classList.toggle("fd-light", light);
+}
+
+/** Puts back the visitor's own choice (after leaving a page that is always dark). */
+export function applySavedTheme() {
+  apply(read());
 }
 
 export function ThemeToggle() {

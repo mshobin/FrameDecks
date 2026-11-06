@@ -18,6 +18,10 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
   Alt+H, Alt+B). The old hero, How it works / See it work showcase, drawn previews and press-Next demo are gone, with
   their styles (home page CSS 23.9 → 21.3 KB). `tools/make_product_shots.py` also writes `teleprompter.webp` and
   `phone-remote.webp`; `hosted/tests/motion-rules.test.mjs` now holds tour.css to the same motion rules.
+- The website's front page is always dark, like the program and its screenshots: `layout.tsx` leaves the light theme
+  off before the first paint at `/` for a visitor who is not signed in (`html.fd-dark-only`), `DarkOnly` in
+  `landing/nav.tsx` holds it and gives the visitor's own choice back on the next page, and the front page's bar has
+  no theme button. Every other page, signed in or not, keeps Light, Dark and Auto.
 
 ## [26.11.2] - 2026-11-06
 

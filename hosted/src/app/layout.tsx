@@ -60,7 +60,8 @@ export default function RootLayout({
             __html:
               "if(window.IntersectionObserver&&!matchMedia('(prefers-reduced-motion: reduce)').matches)document.documentElement.classList.add('fd-motion');" +
               "try{if(localStorage.getItem('fd-effects')==='calm')document.documentElement.classList.add('fd-calm')}catch(e){}" +
-              "try{var t=localStorage.getItem('fd-theme');if(t==='light'||(t!=='dark'&&matchMedia('(prefers-color-scheme: light)').matches))document.documentElement.classList.add('fd-light')}catch(e){}",
+              "try{var k=Object.keys(localStorage).concat(Object.keys(sessionStorage)).join(' ');if(location.pathname==='/'&&!/sb-\\S*-auth-token/.test(k))document.documentElement.classList.add('fd-dark-only')}catch(e){}" +
+              "try{var t=localStorage.getItem('fd-theme');if(!document.documentElement.classList.contains('fd-dark-only')&&(t==='light'||(t!=='dark'&&matchMedia('(prefers-color-scheme: light)').matches)))document.documentElement.classList.add('fd-light')}catch(e){}",
           }}
         />
       </head>

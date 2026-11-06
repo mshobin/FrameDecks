@@ -45,6 +45,19 @@ test("gold is kept for the main action and the selection; links are neutral (DD-
   assert.match(rules, /\.page-note a,[\s\S]*?color: var\(--text\);[\s\S]*?text-decoration: underline;/);
 });
 
+test("the front page is always dark; the signed-in pages keep Light, Dark and Auto (26.11.2)", () => {
+  const layout = src("app/layout.tsx");
+  assert.match(layout, /location\.pathname==='\/'&&!\/sb-/); // the front page, for a visitor who is not signed in
+  assert.match(layout, /!document\.documentElement\.classList\.contains\('fd-dark-only'\)&&/);
+  const nav = src("components/landing/nav.tsx");
+  assert.match(nav, /\{theme && <ThemeToggle \/>\}/); // the other public pages keep the theme button
+  assert.match(nav, /root\.classList\.add\("fd-dark-only"\)/);
+  assert.match(nav, /applySavedTheme\(\)/);
+  assert.match(src("components/landing.tsx"), /<DarkOnly \/>\s*<LandingNav theme=\{false\} \/>/);
+  assert.match(src("components/theme-toggle.tsx"), /const light = !dark &&/);
+  assert.doesNotMatch(src("app/landing-page.css"), /fd-light/);
+});
+
 test("the light theme is chosen before the first paint and can be changed (DD-23)", () => {
   assert.match(src("app/layout.tsx"), /localStorage\.getItem\('fd-theme'\)/);
   assert.match(src("app/layout.tsx"), /import "\.\/light\.css";/);

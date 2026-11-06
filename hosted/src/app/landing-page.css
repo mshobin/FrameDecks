@@ -69,7 +69,7 @@
   text-wrap: balance;
 }
 
-.lp-faq details{
+.lp-faq details {
   border: 1px solid var(--hairline);
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.015));
   box-shadow:
@@ -302,6 +302,7 @@
   }
 
 
+
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -319,35 +320,7 @@
   }
 
 
-}
 
-html.fd-light .lp-sheen {
-  background-image: linear-gradient(100deg, #8a6416 0%, #a5781f 30%, #8a6416 40%, #c99a3a 50%, #8a6416 60%, #a5781f 70%, #8a6416 100%);
-}
-
-html.fd-light .lp-beam {
-  opacity: 0.6;
-}
-
-html.fd-light .lp-faq details{
-  background: #ffffff;
-  box-shadow:
-    inset 0 1px 0 rgba(184, 134, 47, 0.3),
-    0 1px 2px rgba(15, 25, 50, 0.04),
-    0 18px 40px -22px rgba(15, 25, 50, 0.25);
-}
-
-html.fd-light .lp-promise b {
-  color: #8a6416;
-}
-
-html.fd-light .lp-cta-panel {
-  background:
-    radial-gradient(60% 90% at 50% 0%, rgba(184, 134, 47, 0.14), transparent 70%),
-    #ffffff;
-  box-shadow:
-    inset 0 1px 0 rgba(184, 134, 47, 0.3),
-    0 40px 90px -60px rgba(15, 25, 50, 0.45);
 }
 
 @media (min-width: 1100px) {
@@ -366,17 +339,10 @@ html.fd-light .lp-cta-panel {
   }
 
 
+
 }
 
 .lp-faq details {
   background: var(--surface);
   box-shadow: var(--shadow);
-}
-
-html.fd-light .lp-faq details {
-  border-color: transparent;
-}
-
-html.fd-light .lp-h2 {
-  letter-spacing: -0.035em;
 }

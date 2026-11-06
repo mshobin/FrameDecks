@@ -7,12 +7,29 @@ import { Download } from "lucide-react";
 
 import { AboutButton } from "@/components/about-dialog";
 import { EffectsToggle } from "@/components/effects-toggle";
-import { ThemeToggle } from "@/components/theme-toggle";
+import { applySavedTheme, ThemeToggle } from "@/components/theme-toggle";
 import { useSession } from "@/lib/use-session";
 
 // The front page's bar: clear over the hero, then blurred navy with a hairline once the page has moved 20 px.
 // One passive scroll listener that writes only when the state changes.
-export function LandingNav() {
+/** 26.11.2 the front page is always dark, like the program and its screenshots: layout.tsx already leaves the light
+ *  theme off before the first paint at "/" for a visitor who is not signed in; this holds it while the front page is
+ *  shown and gives the visitor's own choice back when they move on (every other page keeps Light, Dark and Auto). */
+export function DarkOnly() {
+  useEffect(() => {
+    const root = document.documentElement;
+    root.classList.add("fd-dark-only");
+    root.classList.remove("fd-light");
+    return () => {
+      root.classList.remove("fd-dark-only");
+      applySavedTheme();
+    };
+  }, []);
+  return null;
+}
+
+/** The public pages' bar; the front page (always dark) leaves out the theme button. */
+export function LandingNav({ theme = true }: Readonly<{ theme?: boolean }>) {
   const [solid, setSolid] = useState(false);
   const session = useSession(); // 9.11.1 already signed in on this browser: the bar leads home, not to the email form
 
@@ -50,7 +67,7 @@ export function LandingNav() {
       </nav>
       <div className="fd-topbar-right">
         <EffectsToggle />
-        <ThemeToggle />
+        {theme && <ThemeToggle />}
         <AboutButton />
         <Link className="fd-btn fd-btn-ghost fd-btn-sm" href={session ? "/" : "/sync"}>
           {session ? "Go to Home" : "Open Workspace"}
