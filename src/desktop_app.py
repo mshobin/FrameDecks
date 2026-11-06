@@ -710,6 +710,7 @@ def main():
         hwnd = window_handle(w)
         dw.clear_frame(hwnd)                                   # 9.10 no frame, no corners, no border line
         dw.clear_back(getattr(w, "native", None), wait=True)   # 9.10.1 no grey box behind the glass
+        dw.unlayer(hwnd)                                       # 26.11.3 no black box either (see desktop_win.unlayer)
         state["spot_glass"] = bool(dw.glass(hwnd, False))      # see-through: only the glass bar and its chips show
         state["spot_ready"] = True
         try:                                                   # the page's own background goes see-through before it shows
@@ -733,6 +734,7 @@ def main():
         spot = spot_window(create=True)
         hwnd = window_handle(spot)
         spot_prepare(spot)
+        dw.unlayer(hwnd)                  # 26.11.3 every time: see-through behind the glass, over the desktop too
         dw.hide_from_capture(hwnd)        # 9.6 every time: like the Teleprompter, only the presenter sees it, even sharing the screen
         cfg = server.app_settings()
         place = cfg.get("ccPlace", "top")

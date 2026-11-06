@@ -344,6 +344,10 @@ def clear_back(form, wait=False):
         from System.Drawing import Color
 
         def run():
+            try:                                              # 26.11.3 not a layered window (see unlayer)
+                form.AllowTransparency = False
+            except Exception as _e:
+                _swallowed("desktop_win.clear_back", _e)
             form.BackColor = Color.Black
             form.Invalidate()
         if not form.InvokeRequired:
@@ -355,6 +359,26 @@ def clear_back(form, wait=False):
         return True
     except Exception as _e:
         _swallowed("desktop_win.clear_back", _e)
+        return False
+
+
+def unlayer(hwnd):
+    """26.11.3 the Command Center showed a black box behind its glass over the desktop (it hid against the dark
+    Studio). pywebview makes a hidden window by setting its opacity to 0, showing it, hiding it and setting the
+    opacity back to 1; that leaves it a layered window (WS_EX_LAYERED), and Windows draws a layered window with one
+    opacity for the whole box, so the black form behind the page (clear_back) stayed black instead of see-through.
+    Taking the style off hands the window back to the desktop's per-pixel see-through (glass)."""
+    if not (IS_WIN and hwnd):
+        return False
+    try:
+        ex = _get_long(hwnd, GWL_EXSTYLE)
+        if ex & WS_EX_LAYERED:
+            _set_long(hwnd, GWL_EXSTYLE, ex & ~WS_EX_LAYERED)
+            user32.SetWindowPos(hwnd, None, 0, 0, 0, 0,
+                                SWP_FRAMECHANGED | SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE)
+        return True
+    except Exception as _e:
+        _swallowed("desktop_win.unlayer", _e)
         return False
 
 

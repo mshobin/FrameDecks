@@ -108,6 +108,29 @@ class PhoneRemote(unittest.TestCase):
 
 
 
+class SeeThrough(unittest.TestCase):
+    """26.11.3 nothing behind the glass over the desktop: the hidden-made window is not left a layered window"""
+    def test_the_window_is_not_layered(self):
+        src = read("src/desktop_app.py")
+        prep = src[src.index("    def spot_prepare(w):"):src.index("    def spotlight(on=True):")]
+        self.assertLess(prep.index("dw.clear_back("), prep.index("dw.unlayer(hwnd)"))
+        self.assertLess(prep.index("dw.unlayer(hwnd)"), prep.index("dw.glass(hwnd, False)"))
+        opened = src[src.index("    def spotlight(on=True):"):src.index("    def palette_index():")]
+        self.assertLess(opened.index("dw.unlayer(hwnd)"), opened.index("spot.show()"))   # every open, before it shows
+        win = read("src/desktop_win.py")
+        body = win[win.index("def unlayer(hwnd):"):win.index("def clear_frame(hwnd):")]
+        self.assertIn("ex & ~WS_EX_LAYERED", body)
+        self.assertIn("SWP_FRAMECHANGED", body)
+        self.assertIn("form.AllowTransparency = False", win[win.index("def clear_back("):win.index("def unlayer(")])
+
+    def test_unlayer_is_safe_off_windows(self):
+        import sys
+        sys.path.insert(0, str(ROOT / "src"))
+        import desktop_win as dw
+        self.assertFalse(dw.unlayer(0))
+        self.assertFalse(dw.unlayer(1234) if not dw.IS_WIN else False)
+
+
 class Performance(unittest.TestCase):
     """9.10.2 smooth on an older PC beside Zoom or Teams: no resizing, no animated filters or heights, few moving parts"""
     def test_the_window_has_one_size_and_is_prepared_before_it_shows(self):

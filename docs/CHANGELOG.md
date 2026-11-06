@@ -10,6 +10,18 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
 
 ## [Unreleased]
 
+## [26.11.3] - 2026-11-06
+
+Full notes: [docs/releases/v26.11.3.md](releases/v26.11.3.md).
+
+### Fixed
+- The Command Center showed a black box behind its glass bar and chips over the desktop (plain to see with the
+  program in the tray, hidden against the dark Studio). pywebview makes a hidden window by setting its opacity to 0
+  and back to 1, which leaves it a layered window, and Windows draws a layered window at one opacity for the whole
+  box, so the black form behind the page (`desktop_win.clear_back`) stayed black. `desktop_win.unlayer` takes the
+  layered style off (and `clear_back` sets `AllowTransparency = False`) before the glass is set up and on every open;
+  `tests/test_command_center_99.py` (`SeeThrough`) holds the order.
+
 ### Changed
 - Website front page rebuilt around one pinned stage (`hosted/src/components/landing/tour.tsx`, `app/tour.css`): on
   arrival a meeting builds itself (Frame, Decks, Content in the app's level colours) and flies into the real Studio
