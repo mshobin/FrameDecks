@@ -123,9 +123,9 @@ html.fd-light .hg-spot{box-shadow:0 0 0 9999px rgba(15,25,50,.22),0 0 24px rgba(
 .hc-results span{color:var(--muted);font-size:14px}
 .hc-none{padding:12px;color:var(--muted)}
 .hc-codes{display:grid;gap:10px;margin:0;padding:0;list-style:none}
-.hc-codes li{padding:14px 16px;border:1px solid var(--hairline-strong);border-radius:14px;scroll-margin-top:90px}
+.hc-codes li{padding:14px 16px;border:1px solid var(--hairline-strong);border-radius:12px;scroll-margin-top:90px}
 .hc-codes li.is-asked{border-color:var(--gold);box-shadow:0 0 0 3px rgba(232,185,49,.18)}
-.hc-codes code{margin-right:6px;padding:1px 6px;border-radius:6px;background:var(--hairline);font-size:13px}
+.hc-codes code{margin-right:6px;padding:1px 6px;border-radius:4px;background:var(--hairline);font-size:13px}
 .hc-codes-area{float:right;color:var(--muted);font-size:13px}
 .hc-codes p{margin:6px 0 0;color:var(--muted)}
 .hc-codes p b{color:var(--text)}
