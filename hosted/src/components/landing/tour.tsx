@@ -84,7 +84,7 @@ type Scene = {
 };
 const SCENES: readonly Scene[] = [
   {
-    src: "/product/command-center.webp",
+    src: "/product/cc-bar.webp",
     w: 820,
     h: 270,
     cls: "tr-sc-cc",
@@ -115,7 +115,7 @@ const SCENES: readonly Scene[] = [
     sweep: [28, 86.4, 19],
   },
   {
-    src: "/product/command-center-live.webp",
+    src: "/product/cc-control.webp",
     w: 820,
     h: 720,
     cls: "tr-sc-live",

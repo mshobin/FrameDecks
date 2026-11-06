@@ -108,7 +108,7 @@ test("the landing page carries the owner's brief (27 October): approved words, e
   assert.match(landing, /<Tour/);
   for (const k of ["Alt+Space", "Alt+→", "Alt+H", "Alt+B", "Alt+D"]) assert.ok(landing.includes(`k="${k}"`), k);
   assert.match(tour, /className="tr-band"/); // the Teleprompter is the one live piece, in the program's own style
-  for (const shot of ["studio", "command-center", "annotate", "command-center-live", "phone-remote"])
+  for (const shot of ["studio", "cc-bar", "annotate", "cc-control", "phone-remote"])
     assert.match(tour, new RegExp(`/product/${shot}\\.webp`), shot);
   assert.match(tour, /new IntersectionObserver/); // starts once on screen; the scroll listener only while the stage is near
   assert.match(tour, /addEventListener\("scroll", onScroll, \{ passive: true \}\)/);

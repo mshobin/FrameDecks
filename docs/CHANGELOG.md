@@ -10,6 +10,11 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
 
 ## [Unreleased]
 
+### Fixed
+- The front page's Command Center pictures are now `cc-bar.webp` and `cc-control.webp`: browsers and Cloudflare
+  kept serving the old `command-center*.webp` (with the coloured desktop behind them) under the same names, so the
+  see-through pictures never showed. New names make every cache fetch them.
+
 ## [26.11.3] - 2026-11-06
 
 Full notes: [docs/releases/v26.11.3.md](releases/v26.11.3.md).
