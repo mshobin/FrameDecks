@@ -7,8 +7,10 @@ import Image from "next/image";
 // On arrival, with no scrolling, a meeting builds itself: a Frame, its Decks, their Content, joined by lines in the
 // app's own level colours; then each card flies to its place in the real Studio and the screenshot takes over. From
 // there the page's scroll moves through the program, one real screenshot per chapter (tools/make_product_shots.py
-// writes them all): the Command Center (Alt+Space), the Teleprompter, Spotlight on the live picture, the Command
-// Center's Control chip while live, and the phone remote. Every key shown is the app's own.
+// writes them all): the Command Center (Alt+Space), Spotlight on the live picture, the Command Center's Control chip
+// while live, and the phone remote. The Teleprompter is the one live piece (owner's choice, 6 November): drawn in the
+// app's own Teleprompter style (speaker.css: the type, the gold reading band, read words fading), it follows the
+// page's scroll word by word, as Follow my voice follows the presenter. Every key shown is the app's own.
 // Light on resources: one passive scroll listener, attached only while the stage is on screen and batched to one
 // frame; only transform and opacity move; nothing runs at rest. "Reduce effects" (html.fd-calm) shows the finished
 // Studio at once; with less motion asked for (no html.fd-motion) the steps still arrive one by one, without moving.
@@ -68,11 +70,21 @@ const LINES = [
 type Scene = { src: string; w: number; h: number; cls: string; alt: string; keys: readonly (readonly [string, string])[] };
 const SCENES: readonly Scene[] = [
   { src: "/product/command-center.webp", w: 820, h: 270, cls: "tr-sc-cc", alt: "The Command Center: a search bar and the chips Prepare, Engage, Control, Notes and More", keys: [["Alt+Space", "opens it anywhere"]] },
-  { src: "/product/teleprompter.webp", w: 1100, h: 640, cls: "tr-sc-tp", alt: "The Teleprompter showing the presenter's script", keys: [["R", "Teleprompter"], ["V", "Follow my voice"]] },
+  { src: "", w: 0, h: 0, cls: "tr-sc-tp", alt: "", keys: [["R", "Teleprompter"], ["V", "Follow my voice"]] },
   { src: "/product/annotate.webp", w: 1000, h: 490, cls: "tr-sc-an", alt: "A soft spotlight on a word of the live scripture, and an underline", keys: [["Ctrl", "twice: Spotlight"], ["Alt+D", "Draw"]] },
   { src: "/product/command-center-live.webp", w: 820, h: 720, cls: "tr-sc-live", alt: "The Command Center's Control chip while a Frame is live: Go Live, Previous, Next Frame, Hide all and Black", keys: [["Alt+→", "Next Frame"], ["Alt+H", "Hide all"], ["Alt+B", "Black screen"]] },
   { src: "/product/phone-remote.webp", w: 390, h: 844, cls: "tr-sc-phone", alt: "The phone remote: what is on screen, Previous and Next, and the meeting plan", keys: [] },
 ];
+
+// The Teleprompter's script (the same words as the program's own capture)
+const SCRIPT = [
+  "Good evening, and welcome to week five of our study.",
+  "Tonight we look at one simple idea: small faithful steps, taken together.",
+  "Turn to the reading on the screen, Psalm 119:105.",
+  "Take a moment with the first question before we share in groups.",
+  "Then we will close in prayer.",
+];
+const BAND = 170; // where the reading line sits in the Teleprompter (as in the program, about a third of the way down)
 
 const PHASES = ["is-frame", "is-decks", "is-items", "is-studio", "is-done"];
 
@@ -94,6 +106,9 @@ export function Tour({ intro, chapters }: Readonly<{ intro: ReactNode; chapters:
     const calm = document.documentElement.classList.contains("fd-calm");
     const name = st.querySelector(".tr-name") as HTMLElement;
     const scenes = Array.from(st.querySelectorAll<HTMLElement>(".tr-sc"));
+    const words = Array.from(st.querySelectorAll<HTMLElement>(".tr-w"));
+    const script = st.querySelector(".tr-tp-text") as HTMLElement;
+    let said = -1;
 
     // ---- size: the stage is drawn at 1000 × 620 and scaled to the room it has ----
     const size = () => {
@@ -177,7 +192,18 @@ export function Tour({ intro, chapters }: Readonly<{ intro: ReactNode; chapters:
       rail.current.forEach((b, i) => b?.style.setProperty("--f", String(i < ch ? 1 : i === ch ? t : 0)));
       // a slow drift through the chapter: the screenshot rises a little as the page moves on
       const on = scenes[ch - 1];
-      if (on) on.style.setProperty("--y", `${(-14 * t).toFixed(1)}px`);
+      if (on && ch !== 2) on.style.setProperty("--y", `${(-14 * t).toFixed(1)}px`);
+      // the Teleprompter follows the page as Follow my voice follows the presenter: read words fade, the next word
+      // stays on the reading line
+      if (ch === 2 && words.length) {
+        const n = Math.min(words.length, Math.floor(clamp(t * 1.12) * words.length));
+        if (n !== said) {
+          words.forEach((w, i) => w.classList.toggle("is-said", i < n));
+          said = n;
+          const next = words[Math.min(n, words.length - 1)];
+          script.style.transform = `translate3d(0, ${BAND - next.offsetTop}px, 0)`;
+        }
+      }
     };
     const onScroll = () => {
       if (!raf) raf = requestAnimationFrame(frame);
@@ -273,8 +299,26 @@ export function Tour({ intro, chapters }: Readonly<{ intro: ReactNode; chapters:
 
             {/* the chapters: the program's own screens */}
             {SCENES.map((s) => (
-              <figure key={s.src} className={`tr-sc ${s.cls}`}>
-                <Image src={s.src} alt={s.alt} width={s.w} height={s.h} unoptimized />
+              <figure key={s.cls} className={`tr-sc ${s.cls}`}>
+                {s.src ? (
+                  <Image src={s.src} alt={s.alt} width={s.w} height={s.h} unoptimized />
+                ) : (
+                  <div className="tr-tp" role="img" aria-label="The Teleprompter following the presenter's voice: the words already read fade, the next word waits on the gold reading line">
+                    <span className="tr-tp-live">Following your voice</span>
+                    <span className="tr-band" />
+                    <div className="tr-tp-text" aria-hidden="true">
+                      {SCRIPT.map((line) => (
+                        <p key={line}>
+                          {line.split(" ").map((w, i) => (
+                            <span key={i} className="tr-w">
+                              {w}{" "}
+                            </span>
+                          ))}
+                        </p>
+                      ))}
+                    </div>
+                  </div>
+                )}
                 {s.keys.length > 0 && (
                   <figcaption className="tr-callouts">
                     {s.keys.map(([k, what]) => (

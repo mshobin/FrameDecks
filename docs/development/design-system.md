@@ -140,7 +140,8 @@ numbers. **Every picture of the program is a real screenshot** (`tools/make_prod
      meeting builds itself in about five seconds: the Frame (gold) types its name, lines grow to its Decks (blue) and
      their Content (violet), then each card flies to its place in the real Studio screenshot (one transform each) and
      fades into it; ↻ Replay plays it again. Scrolling then chooses a chapter, each one real screenshot with the keys
-     it uses: Command Center (Alt+Space, the keys pressed as it drops in), Prepare (Teleprompter, R and V), Engage
+     it uses: Command Center (Alt+Space, the keys pressed as it drops in), Prepare (the one live piece: the Teleprompter
+     in the program's own style, its reading band and read words following the scroll word by word; R and V), Engage
      (Spotlight, Ctrl twice and Alt+D), Control (live: T, Alt+→, Alt+H, Alt+B), Phone. The chapter row under the
      stage fills as you go and jumps to a chapter.
   3. Features: four promises on one row.

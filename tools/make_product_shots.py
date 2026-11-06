@@ -20,7 +20,6 @@ COMMAND_CENTER = ROOT / "docs/guide/images/command-center.png"
 ANNOTATE = ROOT / "hosted/public/product/annotate.webp"        # 26.11.2 the landing's "Point it out" tab
 CC_WEB = ROOT / "hosted/public/product/command-center.webp"    # 26.11.2 the landing's Command Center tab (from the guide's picture)
 CC_LIVE_WEB = ROOT / "hosted/public/product/command-center-live.webp"
-PROMPTER_WEB = ROOT / "hosted/public/product/teleprompter.webp"  # 26.11.2 the landing's Prepare chapter
 PHONE_SHOT = ROOT / "docs/guide/images/remote-simple.png"        # the phone remote (tests/visual/help-shots.mjs)
 PHONE_WEB = ROOT / "hosted/public/product/phone-remote.webp"      # 26.11.2 the landing's phone chapter
 GUIDE_STUDIO = ROOT / "docs/guide/images/studio.png"            # 26.11.2 the Studio with its content area (user guide)
@@ -111,34 +110,6 @@ async def annotate(b, base):
     tmp.unlink()
 
 
-PROMPTER_SCRIPT = ("Good evening, and welcome to week five of our study.\n\nTonight we look at one simple idea: small faithful"
-                   " steps, taken together.\n\nTurn to the reading on the screen, Psalm 119:105.\n\nTake a moment with the first"
-                   " question before we share in groups.\n\nThen we will close in prayer.")
-
-
-async def prompter(b, base):
-    """26.11.2 the Teleprompter with the first Frame live and its script (the landing's Prepare chapter)."""
-    d = await b.new_page(viewport={"width": 1600, "height": 900}, reduced_motion="reduce")
-    await d.goto(base + "/dashboard.html")
-    await d.wait_for_timeout(2000)
-    await d.evaluate("(t) => KCStore.update(n => { const s = KCScenes.order(n)[0]; s.notes = t; KCScenes.take(n, s.id, null); })",
-                     PROMPTER_SCRIPT)
-    await d.wait_for_timeout(800)
-    p = await b.new_page(viewport={"width": 1100, "height": 640}, device_scale_factor=2, reduced_motion="reduce")
-    await p.goto(base + "/speaker.html")
-    await p.wait_for_timeout(1500)
-    await p.mouse.move(550, 600)                  # the bar stays tucked away, as while presenting: only the words
-    await p.wait_for_timeout(900)
-    tmp = PROMPTER_WEB.with_suffix(".png")
-    await p.screenshot(path=str(tmp), animations="disabled")
-    await d.evaluate("KCStore.update(n => { KCScenes.hideAll(n); n.live.scene = ''; })")
-    await p.close()
-    await d.close()
-    from PIL import Image
-    Image.open(tmp).convert("RGB").resize((1100, 640), Image.LANCZOS).save(PROMPTER_WEB, "WEBP", quality=86, method=6)
-    tmp.unlink()
-
-
 def web_copies():
     """26.11.2 the guide's Command Center pictures, as small webp for the landing."""
     from PIL import Image
@@ -183,7 +154,6 @@ async def capture(base, chromium, guide_only=False):
         await command_center(b, base)       # 9.9 the Command Center, in the dark theme
         await guide_studio(b, base)
         await annotate(b, base)
-        await prompter(b, base)
         await b.close()
 
 
