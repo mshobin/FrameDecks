@@ -108,3 +108,32 @@ What changed:
 - Ready before it shows: the window is made see-through when it is created, so the first open no longer flashes grey.
 
 Budget: opening a chip and moving between chips at 45 fps or more with no frame over 120 ms; at rest under 25 % busy.
+
+## 26.11: the whole program on a 4 GB PC
+
+`tests/visual/perf-4gb.mjs` goes through every window, tab, chip and panel with a 40-Frame meeting, the processor
+slowed 4× and nothing drawn by the graphics card, then opens and closes everything 15 times and checks that memory comes
+back. Budget: at most 15 % busy at rest, 40 MB of JavaScript memory and 6,000 elements per window, no frame over
+250 ms, at most 2 MB kept after 15 rounds, and the program (the Python server) under 260 MB.
+
+| What | Busy at rest | JS memory | Elements |
+| --- | ---: | ---: | ---: |
+| Studio, 40 Frames (idle / live) | 4 % / 4 % | 6–8 MB | 2,800 |
+| Members, Settings (each of the six groups) | 2–6 % | 6.5–7 MB | 2,800–3,000 |
+| Top-bar chips, command palette | 3–10 % (opening) | 7–10 MB | 2,800 |
+| Teleprompter (idle / scrolling) | 4 % / 7 % | 2.7 MB | 310 |
+| Command Center (idle / each chip) | 4 % / 6–7 % | 3–3.7 MB | 350–1,100 |
+| Phone remote (idle / each chip) | 2 % / 2–3 % | 3.8–4.7 MB | 600–1,300 |
+| Share Window, overlay pages | 3–6 % | 1.7–2.6 MB | 50–180 |
+| The program (Python server) | | 75–81 MB resident | |
+
+Every frame took 33 ms or less. Opening and closing tabs, chips and the palette 15 times kept nothing; the server
+stayed at 79 MB through 500 changes with the phone remote connected. Follow my voice adds its own process (about
+150–250 MB) only while it is on, and does not start below 350 MB of free memory.
+
+**Fixed: the Studio's previews kept every old page.** The two preview frames (the canvas and Up next) reload each time
+a Frame is chosen, and each reload left its listener on the main window's state (`store.js`, `shareParent`): every old
+page stayed in memory, about 0.3 MB each, and kept redrawing on every change. 120 Frame choices kept 33 MB; after
+480 the main window would have held over 130 MB and spent processor time on dead pages. A preview now lets go when
+it is replaced (`pagehide`, and a listener whose page has gone removes itself): after 480 choices the main window
+stays at 4 MB with no extra documents (`tests/test_perf_4gb.py`).

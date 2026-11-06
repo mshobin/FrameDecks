@@ -1143,9 +1143,14 @@ function shareParent(){
   try {
     var P = window.parent !== window && window.parent.KCStore;
     if (!P || !P.served) return false;
-    P.subscribe(function(st){
+    /* 26.11 (the 4 GB check): the preview frames reload each time a Frame is chosen. Each reload left its listener
+       here, so every old page stayed in memory (about 0.3 MB each) and kept redrawing on every change. Let go when the
+       page goes, and drop any listener whose page has already gone. */
+    var off = P.subscribe(function(st){
+      if (!document.defaultView){ off(); return; }                  // this page was replaced: let go
       state = normalize(JSON.parse(JSON.stringify(st))); started = true; Store.online = P.online; emit();
     });
+    window.addEventListener('pagehide', function(){ off(); });
     return (shared = true);
   } catch(e){ return false; }                     // a different address: keep our own loop
 }
@@ -1252,7 +1257,9 @@ var Store = {
   defaults: function(){ return normalize(null); },
   get: function(){ return JSON.parse(JSON.stringify(state)); },
   brand: function(){ return Object.assign({}, state.brand); },          // v6.2 cheap read for the header
-  subscribe: function(fn){ listeners.push(fn); if (started) fn(state); },
+  /* → a function that unsubscribes (26.11: a preview that is reloaded must let go, or the old page stays in memory) */
+  subscribe: function(fn){ listeners.push(fn); if (started) fn(state);
+    return function(){ var i = listeners.indexOf(fn); if (i >= 0) listeners.splice(i, 1); }; },
   save: function(next){ return served ? serverSave(next) : fileSave(next); },
   /* Change the shared state safely: fn edits a fresh copy. If another device (e.g. the
    * phone remote) changed it at the same moment, fn is simply run again on the latest. */

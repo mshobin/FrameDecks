@@ -27,6 +27,12 @@ Full notes: [docs/releases/v26.11.md](releases/v26.11.md).
 - `.github/workflows/clean-up-history.yml`: run once by hand after this release, it removes every older GitHub
   Release, tag and workflow run (the latest run of each workflow stays) and the 4.9 to 9.13 installers in R2.
 
+### Fixed
+- The Studio's two preview frames (canvas and Up next) left their listener on the main window's state at every reload
+  (`store.js` `shareParent`), keeping each old page in memory (about 0.3 MB per Frame chosen) and redrawing it on
+  every change. A preview now unsubscribes on `pagehide`, and a listener whose page has gone removes itself.
+  `tests/visual/perf-4gb.mjs` checks the whole program on a 4 GB PC (every window, tab and chip, leaks, the server).
+
 ### Changed
 - Versions are YY.MM (`APP_VERSION = "26.11"`): compared as numbers padded to four parts (`updater.version_tuple`,
   `tools/make_release_manifest.py`), so every 9.x PC sees 26.11 as newer. The first YY.MM release starts a fresh

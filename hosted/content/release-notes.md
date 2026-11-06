@@ -21,7 +21,9 @@ your meetings, members, settings, notes, pinned Memory Cards and recordings.
 - The help pages read as one current guide, without the version numbers of earlier releases.
 
 ## Fixes
-- None in this version.
+- The Studio no longer gets heavier the longer you work: each Frame you chose used to leave its preview behind in
+  memory, and every one kept redrawing. After a long session of planning it now uses about 4 MB instead of over
+  100 MB, and stays quick on older PCs.
 
 ## Performance Improvements
 - Follow my voice is made for older PCs with 4 GB of memory: it runs only while it is on, in the background at low
