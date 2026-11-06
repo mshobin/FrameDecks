@@ -34,6 +34,12 @@ Full notes: [docs/releases/v26.11.2.md](releases/v26.11.2.md).
   (`KCFrameLists.ping`); choosing an item outlines its card (`KCPreviewEdit.outline`); edits to words on screen are
   drafts (`KCEditable.float` `draft` / `saveText`: Enter twice or Update screen); a hint on the preview until used.
 
+- Content polish: state colours and pills (`fl-pill`), corner toolbar (`fl-tools`), label chip and ⋯ menu
+  (`pop()`), FLIP glide and sliding live light (`glide()`), fade-out remove, roomy cards (`roomy()`), settings buttons
+  with values (`foldValues()`) opening as sheets (`.cs-sheet`), writing focus (`kc-writing`), scripture small caps.
+- Website and guide pictures from the new Studio (`tools/make_product_shots.py` also writes the guide's studio.png and
+  canvas-edit.png); `tests/visual/help-shots.mjs` gains `ONLY=pc` (the website half no longer reaches its pages).
+
 ### Added
 - A Microsoft Defender scan of the program folder and the installer in `build-windows.yml`; the release stops if
   anything is flagged.

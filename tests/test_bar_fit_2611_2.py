@@ -143,7 +143,7 @@ class ContentArea(unittest.TestCase):
         self.assertIn("id: 'fl-new-question'", fl)                         # a new question is typed into the last card
 
     def test_a_fold_from_another_content_never_hides_the_frame_form(self):
-        self.assertIn("var gen = $('ip-gen'); gen.classList.remove('cs-closed');", read("app/js/workspace.js"))
+        self.assertIn("var gen = $('ip-gen'); gen.classList.remove('cs-closed', 'cs-sheet');", read("app/js/workspace.js"))
 
     def test_the_preview_and_the_list_point_at_each_other(self):
         pe = read("app/js/preview-edit.js")
@@ -166,3 +166,50 @@ class ContentArea(unittest.TestCase):
         reduce = motion[motion.index("@media (prefers-reduced-motion:reduce){\n  #cb-take"):]
         self.assertIn(".kc-arrive .scene-item,.fl-list .item.fl-ping::after{animation:none}", reduce)
         self.assertIn(".pv-outline.on{animation:none;opacity:1}", reduce)
+
+
+class ContentPolish(unittest.TestCase):
+    """26.11.2 polish: one colour per state, a quiet title row, calm cards, settings that show their value, one-off
+    motion (transform and opacity only; reduce motion stops it), a calm script, scripture as quotations."""
+
+    def test_one_colour_per_state(self):
+        fl = read("app/js/frame-lists.js")
+        self.assertIn("var isNext = !on && liveIdx >= 0 && i === liveIdx + 1;", fl)
+        self.assertIn("h('span', {cls: 'fl-pill on'", fl)
+        css = read("app/css/theme.css")
+        for need in (".fl-list .item.next{border-style:dashed;border-color:var(--gold)}", ".fl-pill.on{background:var(--live-soft);color:var(--live)",
+                     ".fl-tb.danger:hover,.fl-tb.danger:focus-visible{background:var(--red-soft);color:var(--red)}"):
+            self.assertIn(need, css)
+
+    def test_quiet_title_row(self):
+        fl = read("app/js/frame-lists.js")
+        self.assertIn("pop('fl-more-' + kind", fl)                         # Add several, Suggest, Remove all under ⋯
+        self.assertIn("box.appendChild(pop('fl-label-' + kind, face,", fl)  # the label as a chip
+        self.assertIn("id: 'fl-bulk-' + kind", fl)
+        self.assertIn("if (e.key === 'Escape'){ e.stopPropagation(); closePops(); btn.focus(); }", fl)
+
+    def test_settings_show_their_value_and_open_as_a_sheet(self):
+        ws = read("app/js/workspace.js")
+        for need in ("function summary(el){", "function foldValues(){", "if (open) Object.keys(openGrp).forEach(function(k){ openGrp[k] = false; });",
+                     "p.classList.add('cs-sheet');"):
+            self.assertIn(need, ws)
+        self.assertIn(".inspector .insp-body > .cs-sheet{position:absolute;", read("app/css/theme.css"))
+
+    def test_motion_is_one_off_and_cheap(self):
+        motion = read("app/css/motion.css")
+        for name in ("kc-glow", "kc-nudge", "kc-sheet"):
+            body = re.search(r"@keyframes " + name + r"\{(.*?\})\}", motion, re.S).group(1)
+            self.assertTrue(set(re.findall(r"([a-z-]+)\s*:", body)) <= {"opacity", "transform"}, name)
+        self.assertIn(".ef-armed .pv-acts .btn.primary{animation:kc-nudge .5s var(--ease) 1}", motion)
+        reduce = motion[motion.index("@media (prefers-reduced-motion:reduce){\n  #cb-take"):]
+        for sel in (".fl-list .item.fl-born", ".fl-glow{display:none}", "body.kc-writing .ws-left", ".inspector .insp-body > .cs-sheet"):
+            self.assertIn(sel, reduce)
+        fl = read("app/js/frame-lists.js")
+        self.assertIn("if (reduce.matches || !before) return;", fl)          # the glide and the sliding light respect it
+
+    def test_writing_and_scripture(self):
+        ws = read("app/js/workspace.js")
+        self.assertIn("ta.addEventListener('focus', function(){ document.body.classList.add('kc-writing'); });", ws)
+        css = read("app/css/theme.css")
+        self.assertIn(".fl-list.fl-verses .t1{font-variant:small-caps", css)
+        self.assertIn(".fl-list.fl-verses .item.loaded .t2{white-space:normal", css)

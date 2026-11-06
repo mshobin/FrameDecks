@@ -88,18 +88,19 @@ function saveItem(kind, sid, id, patch){
 function renderList(host, kind, sid, l){
   var N = NAMES[kind], list = items(l), cur = l.c.itemId;
   var add = h('button', {cls: 'btn primary small', type: 'button', id: 'fl-add-' + kind, html: I('plus', 14) + ' ' + N.One, title: 'Add a ' + N.one + ' to this Frame', onclick: function(){ addItem(kind, sid); }});
-  var more = h('button', {cls: 'btn quiet small', type: 'button', text: 'Add several', id: 'fl-bulk-' + kind, onclick: function(){ bulkOpen[kind] = !bulkOpen[kind]; sigs[kind] = ''; render(); }});
-  var draft = kind === 'question' && ai.ok ? h('button', {cls: 'btn quiet small', type: 'button', id: 'fl-suggest-question', html: I('sparkles', 14) + ' ' + (ai.busy ? 'Drafting…' : 'Suggest'),
+  var more = h('button', {cls: 'fl-mi', type: 'button', role: 'menuitem', text: 'Add several…', id: 'fl-bulk-' + kind, onclick: function(){ closePops(); bulkOpen[kind] = !bulkOpen[kind]; sigs[kind] = ''; render(); }});
+  var draft = kind === 'question' && ai.ok ? h('button', {cls: 'fl-mi', type: 'button', role: 'menuitem', id: 'fl-suggest-question', html: I('sparkles', 14) + ' ' + (ai.busy ? 'Drafting…' : 'Suggest questions'),
     disabled: ai.busy ? 'disabled' : null, title: 'Draft discussion questions from this Frame’s scripture with the free AI on this PC (' + (ai.model || 'Ollama') + '). Nothing is added until you choose.',
-    onclick: function(){ suggest(sid); }}) : null;
+    onclick: function(){ closePops(); suggest(sid); }}) : null;
   /* the count and the buttons go to the title row; what Show puts on screen (Question / Both / Scripture) stays on the
      Frame card in the Frames list */
   var acts = $('fl-acts-' + kind);
   if (acts){
     acts.innerHTML = '';
-    [h('span', {cls: 'fl-count', text: list.length + ' ' + (list.length === 1 ? N.one : N.many)}), add, more, draft,
-      list.length ? h('button', {cls: 'btn quiet small danger', type: 'button', text: 'Remove all', title: 'Remove every ' + N.one + ' from this Frame',
-        onclick: function(){ if (confirm('Remove every ' + N.one + ' from this Frame? Anything on screen stays on screen.')) editList(kind, sid, function(x){ x.c.items = []; x.c.itemId = ''; }); }}) : null]
+    var clear = list.length ? h('button', {cls: 'fl-mi danger', type: 'button', role: 'menuitem', text: 'Remove all', title: 'Remove every ' + N.one + ' from this Frame',
+      onclick: function(){ closePops(); if (confirm('Remove every ' + N.one + ' from this Frame? Anything on screen stays on screen.')) editList(kind, sid, function(x){ x.c.items = []; x.c.itemId = ''; }); }}) : null;
+    [h('span', {cls: 'fl-count', text: list.length + ' ' + (list.length === 1 ? N.one : N.many)}), add,
+      pop('fl-more-' + kind, h('span', {cls: 'fl-dots', 'aria-hidden': 'true', text: '⋯'}), 'More for these ' + N.many, h('div', {cls: 'fl-menu', role: 'menu'}, [more, draft, clear]))]
       .forEach(function(x){ if (x) acts.appendChild(x); });
   }
   if (bulkOpen[kind]){
@@ -120,6 +121,13 @@ function renderList(host, kind, sid, l){
   var ol = h('ol', {cls: 'items fl-list fl-' + kind + 's', id: kind === 'verse' ? 'v-items' : 'q-items', role: 'listbox', 'aria-label': N.Many + ' in this Frame',
     title: kind === 'question' ? '→ / ← step through this Frame’s questions when it is on screen' : 'Shift + → / ← step through this Frame’s scriptures'});
   if (!list.length) ol.appendChild(h('li', {cls: 'fl-empty', text: 'No ' + N.many + ' in this Frame yet. Select + ' + N.One + (kind === 'verse' ? ', or type a reference above and Fetch.' : ', or Add several.')}));
+  var liveIdx = -1; list.forEach(function(it, i){ if (onScreen(kind, it.id)) liveIdx = i; });
+  var known = seen[kind + sid], fresh = {}, justOn = '';
+  if (known){ list.forEach(function(it){ if (!known[it.id]) fresh[it.id] = 1; }); }
+  seen[kind + sid] = {}; list.forEach(function(it){ seen[kind + sid][it.id] = 1; });
+  var onId = liveIdx >= 0 ? list[liveIdx].id : '';
+  if (onId && lastOn[kind] !== undefined && lastOn[kind] !== onId) justOn = onId;
+  lastOn[kind] = onId;
   list.forEach(function(it, i){
     var isCur = it.id === cur || (!cur && i === 0), on = onScreen(kind, it.id);
     var t1 = kind === 'verse' ? (it.ref || 'Untitled scripture') + (it.version ? ' · ' + it.version : '') : it.text || '(empty question)';
@@ -134,18 +142,22 @@ function renderList(host, kind, sid, l){
       KCEditable.bind(t1El, {value: it.ref || '', maxLength: 80, label: 'Reference', placeholder: 'e.g. John 15:5', save: function(v){ return saveItem(kind, sid, it.id, {ref: v}); }});
       if (t2El) KCEditable.bind(t2El, {value: it.text || '', multiline: true, maxLength: 4000, label: 'Scripture text', selectAll: false, save: function(v){ return saveItem(kind, sid, it.id, {text: v}); }});
     }
-    var li = h('li', {cls: 'item' + (on ? ' live' : '') + (isCur ? ' loaded' : ''), role: 'option', tabindex: '0', 'aria-selected': String(isCur), 'data-id': it.id,
+    /* 26.11.2 one colour per state: green = on screen, gold = next (live) or where Go Live starts, red only on hover */
+    var isNext = !on && liveIdx >= 0 && i === liveIdx + 1;
+    var li = h('li', {cls: 'item' + (on ? ' live' : '') + (isCur ? ' loaded' : '') + (isNext ? ' next' : '') + (fresh[it.id] ? ' fl-born' : ''), role: 'option', tabindex: '0', 'aria-selected': String(isCur), 'data-id': it.id,
       draggable: list.length > 1 ? 'true' : null, title: 'Click: make it current · Double-click the label or text to edit it · Drag to move'}, [
       list.length > 1 ? h('span', {cls: 'fl-grip', 'aria-hidden': 'true', html: I('grip-vertical', 14)}) : null,
       h('span', {cls: 'num', text: String(i + 1)}),
       h('span', {cls: 'txt'}, [lblEl, t1El, t2El]),
       h('span', {cls: 'ops'}, [
-        on ? h('span', {cls: 'btn quiet small fl-on', text: 'On screen'}) :
+        on ? h('span', {cls: 'fl-pill on' + (justOn === it.id ? ' kc-lit' : ''), html: '<i aria-hidden="true"></i>On screen'}) :
           h('button', {cls: 'btn small', type: 'button', text: 'Show', onclick: function(e){ e.stopPropagation(); showItem(kind, sid, it); }}),
-        h('button', {cls: 'btn quiet small', type: 'button', html: I('type', 13), title: 'All settings for this ' + N.one + ' (transition, what Show puts on screen)', 'aria-label': 'Settings', onclick: function(e){ e.stopPropagation(); openEditor(kind, it.id); }}),
-        h('button', {cls: 'btn quiet small', type: 'button', text: '↑', title: 'Move up', 'aria-label': 'Move up', disabled: i === 0 ? 'disabled' : null, onclick: function(e){ e.stopPropagation(); move(kind, sid, it.id, -1); }}),
-        h('button', {cls: 'btn quiet small', type: 'button', text: '↓', title: 'Move down', 'aria-label': 'Move down', disabled: i === list.length - 1 ? 'disabled' : null, onclick: function(e){ e.stopPropagation(); move(kind, sid, it.id, 1); }}),
-        h('button', {cls: 'btn quiet small danger', type: 'button', text: '✕', title: 'Remove', 'aria-label': 'Remove', onclick: function(e){ e.stopPropagation(); remove(kind, sid, it.id); }})])]);
+        isNext ? h('span', {cls: 'fl-pill next', text: 'Next'}) : null]),
+      h('span', {cls: 'fl-tools', role: 'group', 'aria-label': N.One + ' ' + (i + 1) + ' tools'}, [
+        h('button', {cls: 'fl-tb', type: 'button', html: I('type', 13), title: 'All settings for this ' + N.one + ' (transition, what Show puts on screen)', 'aria-label': 'Settings', onclick: function(e){ e.stopPropagation(); openEditor(kind, it.id); }}),
+        h('button', {cls: 'fl-tb', type: 'button', text: '↑', title: 'Move up', 'aria-label': 'Move up', disabled: i === 0 ? 'disabled' : null, onclick: function(e){ e.stopPropagation(); move(kind, sid, it.id, -1); }}),
+        h('button', {cls: 'fl-tb', type: 'button', text: '↓', title: 'Move down', 'aria-label': 'Move down', disabled: i === list.length - 1 ? 'disabled' : null, onclick: function(e){ e.stopPropagation(); move(kind, sid, it.id, 1); }}),
+        h('button', {cls: 'fl-tb danger', type: 'button', text: '✕', title: 'Remove', 'aria-label': 'Remove', onclick: function(e){ e.stopPropagation(); remove(kind, sid, it.id, li); }})])]);
     li.addEventListener('click', function(e){ if (e.target.closest('button')) return; makeCurrent(kind, sid, it.id); outlineSoon(kind); });
     dragHooks(li, kind, sid, it.id);
     li.addEventListener('dblclick', function(e){ if (!KCEditable.active()) t1El.dispatchEvent(new MouseEvent('dblclick', {bubbles: false})); });   // anywhere else on the row edits the text
@@ -169,10 +181,56 @@ function renderList(host, kind, sid, l){
       editList(kind, sid, function(x){ x.c.items.push({id: newId(kind), text: t}); });
     });
     ol.appendChild(h('li', {cls: 'fl-new', role: 'presentation'}, [h('span', {cls: 'num', 'aria-hidden': 'true', text: '+'}), nq]));
+    if (ai.ok && list.length < 6) ol.appendChild(h('li', {cls: 'fl-new fl-ai', role: 'presentation'}, [h('button', {type: 'button', cls: 'fl-ai-btn', disabled: ai.busy ? 'disabled' : null,
+      html: I('sparkles', 15) + ' ' + (ai.busy ? 'Drafting questions…' : 'Suggest questions from this passage'), onclick: function(){ suggest(sid); }})]));
   }
   host.appendChild(ol);
 }
 var refocus = '';
+var seen = {}, lastOn = {};
+/* 26.11.2 a small pop-over from the title row (the label, the ⋯ menu): one open at a time, Esc or a click away closes */
+function closePops(except){ Array.prototype.forEach.call(document.querySelectorAll('.fl-pop-wrap.open'), function(w){ if (w !== except){ w.classList.remove('open'); w.firstChild.setAttribute('aria-expanded', 'false'); } }); }
+function pop(id, face, label, body){
+  var wrap = h('span', {cls: 'fl-pop-wrap'}), panel = h('div', {cls: 'fl-pop', id: id + '-pop'}, [body]);
+  var btn = h('button', {cls: 'btn quiet small fl-pop-btn', type: 'button', id: id, 'aria-haspopup': 'true', 'aria-expanded': 'false', 'aria-controls': id + '-pop', 'aria-label': label, title: label,
+    onclick: function(e){ e.stopPropagation(); var open = !wrap.classList.contains('open'); closePops(wrap); wrap.classList.toggle('open', open); btn.setAttribute('aria-expanded', String(open));
+      if (open){ var f = panel.querySelector('input, button'); if (f) setTimeout(function(){ f.focus(); }, 0); } }}, [face]);
+  panel.addEventListener('keydown', function(e){ if (e.key === 'Escape'){ e.stopPropagation(); closePops(); btn.focus(); } });
+  wrap.appendChild(btn); wrap.appendChild(panel);
+  return wrap;
+}
+document.addEventListener('pointerdown', function(e){ if (!(e.target.closest && e.target.closest('.fl-pop-wrap'))) closePops(); }, true);
+/* 26.11.2 the cards glide to their new places (FLIP: transform only), and the green "on screen" light slides from the
+   card it left to the card it lit */
+var reduce = window.matchMedia ? matchMedia('(prefers-reduced-motion: reduce)') : {matches: false};
+function places(host){ var o = {}; Array.prototype.forEach.call(host.querySelectorAll('li.item[data-id]'), function(li){ var r = li.getBoundingClientRect(); o[li.dataset.id] = {x: r.left, y: r.top, live: li.classList.contains('live')}; }); return o; }
+function glide(host, before){
+  if (reduce.matches || !before) return;
+  var from = null, to = null;
+  Object.keys(before).forEach(function(id){ if (before[id].live) from = before[id]; });
+  Array.prototype.forEach.call(host.querySelectorAll('li.item[data-id]'), function(li){
+    var was = before[li.dataset.id]; if (li.classList.contains('live')) to = li;
+    if (!was) return;
+    var r = li.getBoundingClientRect(), dx = was.x - r.left, dy = was.y - r.top;
+    if (Math.abs(dx) < 1 && Math.abs(dy) < 1) return;
+    li.style.transition = 'none'; li.style.transform = 'translate(' + dx + 'px,' + dy + 'px)';
+    requestAnimationFrame(function(){ li.style.transition = ''; li.style.transform = ''; li.classList.add('fl-glide'); setTimeout(function(){ li.classList.remove('fl-glide'); }, 320); });
+  });
+  if (from && to && !before[to.dataset.id].live){                                      // the light moved to another card
+    var r = to.getBoundingClientRect(), g = h('span', {cls: 'fl-glow', 'aria-hidden': 'true'});
+    to.appendChild(g);
+    g.style.transform = 'translate(' + (from.x - r.left) + 'px,' + (from.y - r.top) + 'px)';
+    requestAnimationFrame(function(){ requestAnimationFrame(function(){ g.style.transform = ''; g.classList.add('go'); }); });
+    setTimeout(function(){ g.remove(); }, 520);
+  }
+}
+/* 26.11.2 a few questions in a tall area: the cards take three lines instead of two (no empty band below them) */
+function roomy(host){
+  var ol = host.querySelector('.fl-list'), box = host.parentNode; if (!ol || !box) return;
+  ol.classList.remove('fl-roomy');
+  if (ol.scrollHeight < box.clientHeight * 0.55) ol.classList.add('fl-roomy');
+}
+window.addEventListener('resize', function(){ ['question', 'verse'].forEach(function(k){ var x = $('fl-' + k); if (x && x.offsetParent) roomy(x); }); });
 /* the preview gets a soft outline round the card this item appears in (after the preview has drawn it) */
 var outlineT = 0;
 function outlineSoon(kind){ clearTimeout(outlineT); outlineT = setTimeout(function(){ if (window.KCPreviewEdit && window.KCPreviewEdit.outline) window.KCPreviewEdit.outline(kind); }, 260); }
@@ -235,8 +293,9 @@ function moveTo(kind, sid, id, targetId, after){
     a.splice(after ? j + 1 : j, 0, it);
   });
 }
-function remove(kind, sid, id){
+function remove(kind, sid, id, li){
   if (editing && editing.id === id) editing = null;
+  if (li && !reduce.matches && !li.classList.contains('fl-leaving')){ li.classList.add('fl-leaving'); setTimeout(function(){ remove(kind, sid, id); }, 170); return; }
   editList(kind, sid, function(l){ l.c.items = l.c.items.filter(function(x){ return x.id !== id; }); if (l.c.itemId === id) l.c.itemId = ''; });
 }
 
@@ -302,10 +361,11 @@ function renderLabel(kind, sid, l){
   var show = h('input', {type: 'checkbox', id: kind === 'verse' ? 'v-showlabel' : 'q-showlabel'});
   show.checked = window.KCCardLook ? window.KCCardLook.of(kind, 'showLabel') !== false : true;
   show.addEventListener('change', function(){ if (window.KCCardLook) window.KCCardLook.set(kind, 'showLabel', show.checked); });
-  inp.title = 'Used for every ' + NAMES[kind].one + ' in this Frame that has no label of its own';
-  box.appendChild(h('label', {cls: 'fl-lab', 'for': inp.id}, [h('span', {cls: 'lbl', text: 'Label'})]));
-  box.appendChild(inp);
-  box.appendChild(h('label', {cls: 'check', title: 'Show the label above the words on screen'}, [show, ' Show label']));
+  /* 26.11.2 a quiet chip ("Label: Question ✓") that opens the label and its switch */
+  var face = h('span', {cls: 'fl-chip-face'}, [h('span', {cls: 'lbl', text: 'Label'}), h('b', {text: l.c.label || (kind === 'question' ? 'Question' : 'Scripture')}), h('span', {cls: 'fl-chip-on', 'aria-hidden': 'true', text: show.checked ? '✓' : '–'})]);
+  box.appendChild(pop('fl-label-' + kind, face, 'Label shown above every ' + NAMES[kind].one + ' (unless it has its own)', h('div', {cls: 'fl-label-form'}, [
+    h('label', {cls: 'fl-lab', 'for': inp.id}, [h('span', {cls: 'lbl', text: 'Label for every ' + NAMES[kind].one + ' in this Frame'})]), inp,
+    h('label', {cls: 'check', title: 'Show the label above the words on screen'}, [show, ' Show the label on screen'])])));
 }
 
 function render(){
@@ -323,13 +383,14 @@ function render(){
     var ed = editing && editing.kind === kind ? items(l).filter(function(x){ return x.id === editing.id; })[0] : null;
     if (editing && editing.kind === kind && !ed) editing = null;
     var sig = JSON.stringify([sid, l && l.id, ed ? ['ed', ed.id, items(l).length, items(l).indexOf(ed)] : [l && l.c, live[kind].itemId, live[kind].visible, live.live.scene, bulkOpen[kind], live.question.mode, ai.ok, ai.busy]]);
-    if (sigs[kind] === sig) return;
+    if (sigs[kind] === sig){ roomy(host); return; }
     if (ed && host.contains(document.activeElement) && /INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName) && sigs[kind] && sigs[kind].indexOf('"ed"') >= 0) return;   // typing: keep the cursor
     if (!ed && bulkOpen[kind] && host.contains(document.activeElement) && document.activeElement.tagName === 'TEXTAREA') return;
     sigs[kind] = sig; host.innerHTML = '';
     if (!l){ host.appendChild(h('p', {cls: 'hint', text: 'Select a Frame and its ' + NAMES[kind].One + ' Content.'})); return; }
+    var before = ed ? null : places(host);
     if (ed){ renderEditor(host, kind, sid, l, ed); var a2 = $('fl-acts-' + kind); if (a2) a2.innerHTML = ''; }
-    else renderList(host, kind, sid, l);
+    else { renderList(host, kind, sid, l); roomy(host); glide(host, before); }
     if (refocus){ var rf = $(refocus); refocus = ''; if (rf) rf.focus(); }
   });
 }

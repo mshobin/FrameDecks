@@ -88,12 +88,28 @@
 .pv-outline.on{animation:kc-outline 1.8s var(--ease) both}
 @keyframes kc-outline{0%{opacity:0;transform:scale(1.03)}18%{opacity:1;transform:none}70%{opacity:1}to{opacity:0}}
 
+/* 26.11.2 the content area's moments, each played once */
+.fl-list .item.fl-born{animation:kc-pop-in .22s var(--ease) both}                     /* a new card drops in */
+.fl-list .item.fl-leaving{opacity:0;transform:scale(.96);transition:opacity .16s ease-out,transform .16s ease-out}   /* a removed card fades */
+.fl-list .item.fl-glide{transition:transform .3s var(--ease)}                          /* the others close the gap */
+.fl-glow{position:absolute;inset:-1px;border-radius:inherit;box-shadow:0 0 0 2px var(--live);pointer-events:none;transition:transform .42s var(--ease);animation:kc-glow .52s var(--ease) both}
+@keyframes kc-glow{0%,70%{opacity:1}to{opacity:0}}                                       /* the green light slides to the next card */
+.fl-pill.on.kc-lit::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,var(--live-soft),transparent);animation:kc-sweep .6s var(--ease) both}
+.ef-armed .pv-acts .btn.primary{animation:kc-nudge .5s var(--ease) 1}                   /* Update screen, once, when the draft is ready */
+@keyframes kc-nudge{0%,100%{transform:none}40%{transform:scale(1.06)}}
+.inspector .insp-body > .cs-sheet{animation:kc-sheet .2s var(--ease) both}               /* a settings sheet slides up */
+@keyframes kc-sheet{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
 /* ---------- reduce motion: every animation above is off; things simply appear ---------- */
 @media (prefers-reduced-motion:reduce){
   #cb-take.kc-took::after,#program.kc-took::after,#live-ind.kc-took b,#upnext.kc-lift,.live-ind.swap b,.live-ind.swap .live-what,
   #program.kc-from-right,#program.kc-from-left,.lc-pop.lc-in,.lc-pop.lc-out,.toast .toast-time,.pe-art .pe-l,
   .pane-empty.start .btn.primary::after,.kc-arrive .scene-item,.fl-list .item.fl-ping::after{animation:none}
   .pv-outline.on{animation:none;opacity:1}
+  .fl-list .item.fl-born,.fl-pill.on.kc-lit::after,.ef-armed .pv-acts .btn.primary,.inspector .insp-body > .cs-sheet,.fl-list.fl-verses .item.loaded .t2{animation:none}
+  .fl-glow{display:none}
+  .fl-list .item,.fl-list .item.fl-leaving,.fl-list .item.fl-glide,.fl-tools,body.kc-writing .ws-left,body.kc-writing .ws-center,.ws-left,.ws-center{transition:none}
+  .fl-list.fl-questions .item:hover{transform:none}
   .pe-art .pe-l{stroke-dashoffset:0}
   .scene-item.kc-glide,#tab-settings input[type="checkbox"],.lc,.lc-t,.tab,.subtab,.live-ind,.toast{transition:none}
   .cb-btn:active,.btn:active,.lc:active,.lc-t:active,.tab:active,.subtab:active,.pe-go:active{transform:none}

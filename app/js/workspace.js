@@ -899,9 +899,12 @@ function groupHead(key, name, sub, fold){
 function headFor(groups, key){ var g = groups.filter(function(t){ return t[0] === key; })[0]; return g ? groupHead(g[0], g[1], g[2], g[3]) : null; }
 /* 8.1 the settings sections open and close on a click; remembered on this PC */
 function applyGroups(){
-  var gen = $('ip-gen'); gen.classList.remove('cs-closed');     // 26.11.2 a fold left from another Content never hides the Frame form
+  var gen = $('ip-gen'); gen.classList.remove('cs-closed', 'cs-sheet');   // 26.11.2 a fold left from another Content never hides the Frame form
+  Array.prototype.forEach.call(document.querySelectorAll('#insp-body .cs-sheet'), function(x){ x.classList.remove('cs-sheet'); });
   Array.prototype.forEach.call(document.querySelectorAll('#insp-body .cs-fold'), function(hd){
     var open = !!openGrp[hd.dataset.grp], p = hd.parentNode;
+    /* 26.11.2 an open section is a sheet over the area (css), so nothing is pushed down */
+    if (open && (p.classList.contains('ip') ? p !== gen || hd === gen.firstElementChild : false)) p.classList.add('cs-sheet');
     hd.setAttribute('aria-expanded', String(open));
     if (p.classList.contains('ip')) p.classList.toggle('cs-closed', !open);
     else { var nx = hd.nextElementSibling; if (nx && nx.classList.contains('cs-sec') && nx.hidden === open) nx.hidden = !open; }
@@ -910,12 +913,41 @@ function applyGroups(){
 function foldClick(e){
   var hd = e.target.closest && e.target.closest('.cs-fold'); if (!hd) return;
   if (e.type === 'keydown'){ if (e.key !== 'Enter' && e.key !== ' ') return; e.preventDefault(); }
-  openGrp[hd.dataset.grp] = !openGrp[hd.dataset.grp];
+  var open = !openGrp[hd.dataset.grp];
+  if (open) Object.keys(openGrp).forEach(function(k){ openGrp[k] = false; });     // 26.11.2 one sheet at a time
+  openGrp[hd.dataset.grp] = open;
   lsSet('kc-insp-open', JSON.stringify(openGrp)); applyGroups();
 }
 $('insp-body').addEventListener('click', foldClick); $('insp-body').addEventListener('keydown', foldClick);
+/* 26.11.2 Esc closes an open sheet */
+$('insp-body').addEventListener('keydown', function(e){
+  if (e.key !== 'Escape' || !document.querySelector('#insp-body .cs-sheet') || (window.KCEditable && KCEditable.active())) return;
+  var hd = document.querySelector('#insp-body .cs-sheet > .cs-fold'); Object.keys(openGrp).forEach(function(k){ openGrp[k] = false; });
+  lsSet('kc-insp-open', JSON.stringify(openGrp)); applyGroups(); e.stopPropagation(); if (hd) hd.focus();
+});
+/* 26.11.2 each settings button shows what it is set to now ("Position · Bottom", "Look · Text size 100%") */
+function summary(el){
+  if (!el) return '';
+  var seg = el.querySelector('.seg [aria-pressed="true"], .seg [aria-checked="true"]'); if (seg && seg.textContent.trim()) return seg.textContent.trim();
+  var rv = el.querySelector('.range .val'); if (rv && rv.textContent.trim()){ var lb = rv.closest('.row') && rv.closest('.row').querySelector('.lbl'); return ((lb && lb.textContent.trim() ? lb.textContent.trim() + ' ' : '') + rv.textContent.trim()); }
+  var sel = el.querySelector('select'); if (sel && sel.selectedIndex >= 0 && sel.options[sel.selectedIndex]) return sel.options[sel.selectedIndex].text;
+  var on = Array.prototype.filter.call(el.querySelectorAll('input[type=checkbox]'), function(c){ return c.checked; })
+    .map(function(c){ var t = (c.closest('label') || {}).textContent || ''; return t.replace(/^\s*(FrameDecks\s+)?/, '').split(/[\s/]+/)[0]; }).filter(Boolean);
+  return on.length ? on.join(' + ') : el.querySelector('input[type=checkbox]') ? 'Off' : '';
+}
+function foldValues(){
+  Array.prototype.forEach.call(document.querySelectorAll('#insp-body .cs-fold'), function(hd){
+    var p = hd.parentNode, body = p.classList.contains('ip') && p.id !== 'ip-gen' ? p : hd.nextElementSibling;
+    var v = summary(body); if (v.length > 26) v = v.slice(0, 25) + '…';
+    var el = hd.querySelector('.cs-val'); if (!el){ el = h('span', {cls: 'cs-val'}); hd.insertBefore(el, hd.lastChild); }
+    if (el.textContent !== v) el.textContent = v;
+  });
+}
+var valT = 0;
+function foldValuesSoon(){ clearTimeout(valT); valT = setTimeout(foldValues, 60); }
+$('insp-body').addEventListener('input', foldValuesSoon); $('insp-body').addEventListener('change', foldValuesSoon); $('insp-body').addEventListener('click', foldValuesSoon);
 var genAtEnd = false;
-function renderInspector(){ renderInspectorBody(); applyGroups(); }
+function renderInspector(){ renderInspectorBody(); applyGroups(); foldValuesSoon(); }
 function renderInspectorBody(){
   var sc = scene(), l = layer(), kind = l ? l.kind : '', g = group(kind);
   if (!genAtEnd){ genAtEnd = true; $('insp-body').appendChild($('ip-gen')); }          // generated groups follow the editors
@@ -939,6 +971,7 @@ function renderInspectorBody(){
   var gen = $('ip-gen'); gen.hidden = false;
   gen.classList.toggle('gen-frame', !!sc && !l);                 // 26.11.2 the Frame form fills the area (css)
   orderPanels(panelKind, groups, gen);
+  if (!SC.isCard(kind) && window.KCFrameLists) window.KCFrameLists.render();       // 26.11.2 the title row lets go of a deck's label and buttons
   if (SC.isCard(kind)){ if (window.KCRenderLists) window.KCRenderLists(); if (window.KCRefreshControls) window.KCRefreshControls(); if (kind === 'birthday' && window.KCRenderBirthday) window.KCRenderBirthday(); }
   var sig = JSON.stringify([sc && sc.id, l, sc && !l ? [sc.name, sc.group, sc.fav, sc.tpl, sc.tx, sc.auto, sc.out, sc.modified, sc.notes, live.profile, !!SC.first(sc, 'brand')] : 0, l && l.kind === 'brand' ? live.brand : 0, isLiveScene(sc && sc.id), live.live.on, !!mediaLive]);
   var ae = document.activeElement;
@@ -1044,6 +1077,9 @@ function notesCtl(sc){
   function measure(){ var w = (ta.value.replace(/\[[^\]\n]{1,40}\]|[#*_>~|-]/g, ' ').match(/\S+/g) || []).length;
     len.textContent = w ? '≈ ' + (w < 130 ? Math.max(1, Math.round(w / 130 * 60)) + ' s' : Math.round(w / 130) + ' min') + ' · ' + w + ' words' : ''; }
   ta.addEventListener('input', measure); measure();
+  /* 26.11.2 writing: the rest of the window steps back while the script has the keyboard */
+  ta.addEventListener('focus', function(){ document.body.classList.add('kc-writing'); });
+  ta.addEventListener('blur', function(){ document.body.classList.remove('kc-writing'); });
   return h('div', {cls: 'tp-script-field'}, [h('div', {cls: 'tp-script-top'}, [h('span', {cls: 'tp-script-name', text: 'Teleprompter script'}), h('small', {cls: 'hint', text: 'only you see it'}), len, open]),
     ta, h('small', {cls: 'hint tp-script-help', text: '# Heading · - bullet · **bold** · *italic* · [PAUSE] cue · --- divider. Never shown to the audience.'})]);
 }

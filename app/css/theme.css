@@ -1643,3 +1643,81 @@ html[data-theme="light"]{
 .ef-note-b{display:none}
 .ef-armed .ef-note-a{display:none}
 .ef-armed .ef-note-b{display:inline}
+
+/* ---------- 26.11.2 polish for the content area: one colour per state, calm cards, quiet title row ----------
+   green = on screen, gold = next or where Go Live starts, red only under the pointer on Remove. */
+/* 2. the title row: the label as a chip, extras in ⋯ */
+.fl-pop-wrap{position:relative;display:inline-flex}
+.fl-pop-btn{gap:8px}
+.fl-chip-face{display:inline-flex;align-items:baseline;gap:6px}
+.fl-chip-face .lbl{font-size:12px;font-weight:700;color:var(--muted)}
+.fl-chip-face b{font-size:13px;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fl-chip-on{color:var(--gold);font-weight:800}
+.fl-dots{font-size:18px;line-height:1;letter-spacing:1px}
+.fl-pop{display:none;position:absolute;top:calc(100% + 6px);left:0;z-index:40;min-width:240px;padding:10px;border:1px solid var(--line);border-radius:var(--r-2);
+  background:var(--panel);box-shadow:var(--shadow-2)}
+.fl-acts .fl-pop{left:auto;right:0;min-width:200px;padding:6px}
+.fl-pop-wrap.open > .fl-pop{display:block}
+.fl-label-form{display:flex;flex-direction:column;gap:8px}
+.insp-tools .fl-label-form input[type=text]{width:100%}
+.fl-menu{display:flex;flex-direction:column}
+.fl-mi{display:flex;align-items:center;gap:8px;width:100%;min-height:34px;padding:0 10px;border:0;border-radius:var(--r-1);background:none;color:var(--ink);font:inherit;font-size:13px;font-weight:600;text-align:left;cursor:pointer}
+.fl-mi:hover,.fl-mi:focus-visible{background:var(--raised)}
+.fl-mi.danger{color:var(--muted)}
+.fl-mi.danger:hover,.fl-mi.danger:focus-visible{background:var(--red-soft);color:var(--red)}
+/* 1 + 3. calm cards */
+.fl-list.fl-questions{padding-top:8px}
+.fl-list.fl-questions .item[draggable="true"],.fl-list.fl-questions .item{grid-template-columns:14px 30px minmax(0,1fr) auto;gap:8px}
+.fl-list.fl-questions .item:not([draggable]){grid-template-columns:30px minmax(0,1fr) auto}
+.fl-list.fl-questions .num{width:auto;height:auto;padding:0;border:0;background:none;font-size:24px;font-weight:800;color:var(--faint);opacity:.55;text-align:center;line-height:1}
+.fl-list.fl-questions .t1{font-size:15px;font-weight:600}
+.fl-list .item{transition:border-color var(--t-fast),transform var(--t-fast) var(--ease)}
+.fl-list.fl-questions .item:hover{transform:translateY(-1px);border-color:var(--line-hover)}
+.fl-list .item.loaded:not(.live){border-color:var(--gold)}
+.fl-list .item.next{border-style:dashed;border-color:var(--gold)}
+.fl-list .item.live,.fl-list.fl-questions .item.live,.fl-list.fl-verses .item.live{border-color:var(--live);background:var(--live-soft);box-shadow:inset 0 0 0 1px var(--live)}
+.fl-list .item.live .num{color:var(--live);opacity:1}
+.fl-list .item .ops{display:flex;align-items:center;gap:6px}
+.fl-pill{display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 10px;border-radius:999px;font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap;position:relative;overflow:hidden}
+.fl-pill.on{background:var(--live-soft);color:var(--live);border:1px solid var(--live)}
+.fl-pill.on i{width:7px;height:7px;border-radius:50%;background:var(--live)}
+.fl-pill.next{border:1px dashed var(--gold);color:var(--gold)}
+.fl-tools{position:absolute;top:-13px;right:10px;display:flex;gap:2px;padding:2px;border-radius:var(--r-1);border:1px solid var(--line);background:var(--panel);
+  box-shadow:var(--shadow-1);opacity:0;transform:translateY(3px);pointer-events:none;transition:opacity var(--t-fast),transform var(--t-fast) var(--ease);z-index:2}
+.fl-list .item:hover > .fl-tools,.fl-list .item:focus-within > .fl-tools,.fl-list .item.loaded > .fl-tools{opacity:1;transform:none;pointer-events:auto}
+.fl-tb{display:inline-grid;place-items:center;min-width:26px;height:24px;padding:0 6px;border:0;border-radius:var(--r-1);background:none;color:var(--muted);font:inherit;font-size:13px;font-weight:700;cursor:pointer}
+.fl-tb:hover,.fl-tb:focus-visible{background:var(--raised);color:var(--ink)}
+.fl-tb:disabled{opacity:.35;cursor:default}
+.fl-tb.danger:hover,.fl-tb.danger:focus-visible{background:var(--red-soft);color:var(--red)}
+.fl-list.fl-verses{padding-top:8px}
+.fl-list .item.fl-dragging{opacity:.45;transform:scale(.98)}
+/* 7. a few questions in a tall area: three lines each; and the suggest card */
+.fl-list.fl-questions.fl-roomy .item{min-height:84px}
+.fl-list.fl-questions.fl-roomy .t1{-webkit-line-clamp:3}
+.fl-ai{border-style:dashed;border-color:var(--line)}
+.fl-ai-btn{display:inline-flex;align-items:center;gap:8px;width:100%;min-height:44px;border:0;background:none;color:var(--muted);font:inherit;font-size:14px;font-weight:700;cursor:pointer;text-align:left}
+.fl-ai-btn:hover{color:var(--gold)}
+/* 8. a calm place to write the script; the rest of the window steps back while it has the keyboard */
+.sc-main .tp-script-in{font-size:16px;line-height:1.7;padding:14px 18px 14px 22px;box-shadow:inset 3px 0 0 var(--gold-soft)}
+.sc-main .tp-script-in:focus{box-shadow:inset 3px 0 0 var(--gold)}
+body.kc-writing .ws-left,body.kc-writing .ws-center,body.kc-writing .kc-split{opacity:.38;transition:opacity .3s var(--ease)}
+.ws-left,.ws-center{transition:opacity .3s var(--ease)}
+/* 9. scripture as quotations: the reference in small capitals; the chosen passage opens in full */
+.fl-list.fl-verses .t1{font-variant:small-caps;letter-spacing:.05em;font-size:14px}
+.fl-list.fl-verses .item.loaded .txt{align-items:flex-start}
+.fl-list.fl-verses .item.loaded .t2{white-space:normal;overflow:visible;line-height:1.45;animation:kc-fade .2s ease-out}
+/* 5. the settings as buttons that show their value; an open one is a sheet over the area */
+.inspector .insp-body{position:relative}
+.insp-body .cs-fold .cs-val{margin-left:4px;font-weight:600;color:var(--ink);text-transform:none;letter-spacing:0}
+.insp-body .cs-fold .cs-val:empty{display:none}
+.insp-body .cs-fold .cs-val::before{content:"· ";color:var(--faint)}
+.inspector .insp-body > .cs-sheet{position:absolute;left:14px;right:14px;bottom:56px;max-height:calc(100% - 66px);overflow:auto;z-index:6;padding:4px 16px 14px;
+  border:1px solid var(--line);border-radius:var(--r-3);background:var(--panel);box-shadow:var(--shadow-2);columns:2 300px}
+.inspector .insp-body > .cs-sheet > .cs-fold{column-span:all;position:sticky;top:0;background:var(--panel);z-index:1}
+/* 10. one focus ring everywhere in the area */
+.fl-pop-btn:focus-visible,.fl-tb:focus-visible,.fl-mi:focus-visible,.fl-new-in:focus-visible,.insp-body .cs-fold:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.fl-list.fl-verses .fl-tools{top:50%;right:128px;transform:translateY(-50%)}
+.fl-list.fl-verses .item:hover > .fl-tools,.fl-list.fl-verses .item:focus-within > .fl-tools,.fl-list.fl-verses .item.loaded > .fl-tools{transform:translateY(-50%)}
+.fl-list.fl-verses.fl-roomy .t2{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.fl-list.fl-verses.fl-roomy .item.loaded .t2{display:block}
+.insp-body .cs-fold .cs-val{margin-right:auto}

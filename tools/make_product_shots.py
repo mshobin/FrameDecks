@@ -17,6 +17,8 @@ ROOT = Path(__file__).resolve().parent.parent
 STUDIO = ROOT / "hosted/public/product/studio.webp"
 SPOTLIGHT = ROOT / "docs/guide/images/spotlight-remote.png"
 COMMAND_CENTER = ROOT / "docs/guide/images/command-center.png"
+GUIDE_STUDIO = ROOT / "docs/guide/images/studio.png"            # 26.11.2 the Studio with its content area (user guide)
+GUIDE_EDIT = ROOT / "docs/guide/images/canvas-edit.png"         # 26.11.2 editing a card on the live preview: a draft
 TMP = ROOT / "hosted/public/product/.studio.png"          # the full-quality capture (not committed)
 QUIET = ("window.KCOnboarding && window.KCOnboarding.close();"
          "document.querySelectorAll('.gd-panel, .gd-spot, .gd-tip, .app-modal-back, .onb, .toast').forEach(e => e.remove())")
@@ -46,19 +48,48 @@ async def command_center(b, base):
     await sp.wait_for_timeout(400)
 
 
+async def guide_studio(b, base):
+    """26.11.2 the user guide's Studio (live, the question cards under the preview) and a card edited on the live
+    preview (the draft with Update screen)."""
+    pg = await b.new_page(viewport={"width": 1600, "height": 900}, reduced_motion="reduce")
+    await pg.add_init_script("try { localStorage.setItem('kc-pv-hint', '1') } catch (e) {}")
+    await pg.goto(base + "/dashboard.html")
+    await pg.wait_for_timeout(1500)
+    await pg.evaluate(QUIET)
+    await pg.evaluate("KCStore.update(n => { KCScenes.take(n, KCScenes.order(n)[0].id, null); })")
+    await pg.wait_for_timeout(1200)
+    await pg.evaluate(QUIET)
+    await pg.evaluate("(() => { const s = KCScenes.order(KCStore.get())[0]; const q = (s.layers || []).find(l => l.kind === 'question');"
+                      " if (q) KCWorkspace.select(s.id, q.id); })()")
+    await pg.wait_for_timeout(800)
+    await pg.mouse.move(1, 1)
+    await pg.screenshot(path=str(GUIDE_STUDIO), animations="disabled")
+    box = await pg.evaluate("""(() => { const f = document.getElementById('program-frame'), r = f.getBoundingClientRect(), s = r.width / 1920;
+        const c = f.contentDocument.querySelector('.card-question:not(.out)'); if (!c) return null; const b = c.getBoundingClientRect();
+        return {x: r.left + (b.left + b.width / 2) * s, y: r.top + (b.top + b.height * .7) * s, top: r.top}; })()""")
+    if box:
+        await pg.mouse.dblclick(box["x"], box["y"])
+        await pg.wait_for_timeout(500)
+        await pg.screenshot(path=str(GUIDE_EDIT), animations="disabled", clip={"x": 304, "y": 58, "width": 1296, "height": 560})
+        await pg.keyboard.press("Escape")
+    await pg.close()
+
+
 async def capture(base, chromium, guide_only=False):
     from playwright.async_api import async_playwright
     async with async_playwright() as p:
         b = await p.chromium.launch(**({"executable_path": chromium} if chromium else {}))
         if guide_only:
             await command_center(b, base)
+            await guide_studio(b, base)
             await b.close()
             return
         # the Studio, live, at 1600 x 640 (the landing's 2.5 : 1), scaled to 1200 x 480 below
         pg = await b.new_page(viewport={"width": 1600, "height": 640}, device_scale_factor=2, reduced_motion="reduce")
-        # the picture's layout (this browser only, never the program's own): the Inspector folded, so the canvas has the room
-        await pg.add_init_script("try { localStorage.setItem('kc-layout', JSON.stringify({left: 300, canvas: 85, scenes: 58,"
-                                 " c: {insp: true}})) } catch (e) {}")
+        # the picture's layout (this browser only, never the program's own). 26.11.2: the content area under the preview
+        # is shown (the question cards of the live Frame), so the website shows the Studio as people use it
+        await pg.add_init_script("try { localStorage.setItem('kc-layout', JSON.stringify({left: 300, canvas: 60, scenes: 58,"
+                                 " c: {}})); localStorage.setItem('kc-pv-hint', '1') } catch (e) {}")
         await pg.goto(base + "/dashboard.html")
         await pg.wait_for_timeout(1500)
         await pg.evaluate(QUIET)
@@ -69,11 +100,14 @@ async def capture(base, chromium, guide_only=False):
         btn = pg.get_by_role("button", name="Hide preview")      # the Up next card folds away
         if await btn.count():
             await btn.first.click()
+        await pg.evaluate("(() => { const s = KCScenes.order(KCStore.get())[0]; const q = (s.layers || []).find(l => l.kind === 'question');"
+                          " if (q) KCWorkspace.select(s.id, q.id); })()")
         await pg.wait_for_timeout(600)
         await pg.mouse.move(1, 1)
         await pg.wait_for_timeout(300)
         await pg.screenshot(path=str(TMP), animations="disabled")
         await command_center(b, base)       # 9.9 the Command Center, in the dark theme
+        await guide_studio(b, base)
         await b.close()
 
 

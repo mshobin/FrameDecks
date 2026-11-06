@@ -23,6 +23,18 @@ keeps all your meetings, members, settings, notes, pinned Memory Cards and recor
   old words until you select **Update screen**, or press Enter a second time.
 
 ## Enhancements
+- **Calmer, clearer cards**: one colour for each state (green on screen, gold next, red only when you point at Remove),
+  large quiet numbers, and the tools (settings, move, remove) appear at a card's corner when you point at it.
+- **A quieter title row**: the label is a small chip ("Label: Question ✓"); Add several, Suggest questions and Remove
+  all are under ⋯.
+- **Settings that show their value**: "Position · Bottom", "Look · Text size 100%", "Animation · Fade". Each opens as a
+  sheet over the area; Esc closes it.
+- **Small moments**: a new question drops in, a removed one fades and the others close the gap, the green "on screen"
+  light slides to the next question, and Update screen nudges once when a draft is ready. Reduce motion turns them off.
+- **Room to breathe**: with only a few questions, cards show three lines; scripture passages read as quotations, and
+  the chosen one opens in full.
+- **A calm place to write**: the Teleprompter script has a writing margin and its reading time, and the rest of the
+  window steps back while you type.
 - A small hint on the preview, "Double-click any card to edit it", until you have used it once.
 - What Show puts on screen (Question, Scripture or Both) is chosen in one place: on the Frame's card.
 - **Follow my voice listens whenever the Teleprompter is above every other window**: pinned, as before, or simply the

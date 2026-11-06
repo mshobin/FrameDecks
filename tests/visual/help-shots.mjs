@@ -72,6 +72,10 @@ async function shot(page, name, spots) {
   console.log("ok  ", name, Object.keys(out).join(", "));
 }
 // ---- the website ----
+// ONLY=pc node tests/visual/help-shots.mjs: only the program's pictures (the website's stay as they are)
+const ONLY_PC = process.env.ONLY === "pc";
+if (ONLY_PC) Object.assign(shots, Object.fromEntries(Object.entries(JSON.parse(readFileSync(new URL("../../hosted/src/lib/help-shots.json", import.meta.url), "utf8"))).filter(([k]) => k.startsWith("web-"))));
+if (!ONLY_PC) {
 const pub = await b.newContext({ viewport: { width: 1280, height: 800 }, reducedMotion: "reduce" });
 await pub.addInitScript(() => { localStorage.setItem("fd-theme", "dark"); });
 const s = await pub.newPage();
@@ -100,6 +104,7 @@ await p.click("li.frame-editing .edit-actions button:has-text('Cancel')");
 await p.evaluate(() => window.scrollTo(0, 0));
 await p.click(".flow-steps li:nth-child(4) button"); await p.waitForSelector(".flow-preview[open]"); await p.waitForTimeout(500);
 await shot(p, "web-preview", { stage: ".pv-stage" });
+}
 // ---- the program ----
 const pcx = await b.newContext({ viewport: { width: 1280, height: 800 }, reducedMotion: "reduce" });
 const q = await pcx.newPage();
