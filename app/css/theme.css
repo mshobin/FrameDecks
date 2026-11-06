@@ -639,7 +639,7 @@ html[data-theme="light"] .insp-live.on{color:var(--gray-1000)}     /* white on t
 .cb-btn.lb-black.on{background:var(--gray-0);border-color:var(--red);color:var(--gray-1000);box-shadow:0 0 0 2px var(--red)}
 .cb-btn.lb-emerg.on{background:var(--warn);border-color:var(--warn);color:var(--orange-50)}
 .livebar .cb-btn.hide{margin-left:0}
-@media (max-width:1500px){ :root{--left-w:264px;--right-w:340px} .lb-t,.lb-l{display:none} .livebar .cb-btn.take{min-width:170px} .livebar .cb-btn.take .tk-what{max-width:140px} }
+@media (max-width:1500px){ :root{--left-w:264px;--right-w:340px} }
 @media (max-width:1280px){ :root{--left-w:240px;--right-w:318px} .livebar .cb-btn kbd{display:none} .livebar .cb-btn{padding:0 10px} .livebar .cb-btn.take{min-width:130px} }
 @media (max-width:1080px){
   .ws{grid-template-columns:var(--left-w) minmax(0,1fr);grid-template-rows:minmax(0,1fr) auto;height:auto;min-height:calc(100vh - var(--top-h,56px) - var(--cb-h,0px))}
@@ -884,24 +884,6 @@ body{padding-bottom:0}
 .cmdbar .live-ind .live-what{max-width:160px}
 .cmdbar .tabs .tab{padding:6px 10px}
 .cmdbar .meeting-title{max-width:180px}
-@media (max-width:1880px){ .cmdbar .live-ind .live-what{display:none} }
-@media (max-width:1620px){
-  .cmdbar .brand-text{display:none}
-  .cmdbar .tabs .tab{font-size:0;gap:0;padding:7px 9px}
-  .cmdbar .tabs .tab .ic{width:18px;height:18px}
-  .cmdbar .tabs .tab .tab-badge{font-size:12px}
-}
-@media (max-width:1380px){
-  .cmdbar .lb-tx select{max-width:118px}
-  .cmdbar .cb-btn.take{min-width:136px} .cmdbar .cb-btn.take .tk-what{max-width:120px}
-  .cmdbar .live-ind b{display:none} .cmdbar .live-ind{padding:0 10px}
-}
-@media (max-width:1140px){
-  .cmdbar{flex-wrap:wrap;row-gap:6px}
-  .cmdbar .lb-scenes{order:20;margin-left:0}
-  .cmdbar .lb-tx{order:21} .cmdbar .lb-auto{order:22} .cmdbar .lb-step{order:23} .cmdbar .lb-slides{order:24} .cmdbar .lb-prog{order:25}
-  .cmdbar #ctlbar [data-cb="hideAll"]{order:26;margin-left:auto}
-}
 body.studio-focus .cmdbar{display:flex}
 
 /* ---------- v6.3 Elastic Studio: Scenes / Layers on the left, Preview over Inspector on the right ---------- */
@@ -1186,10 +1168,7 @@ body.spotlight .pal.spot-in{animation:pal-in .12s ease-out}
 .cmdbar .sys-sum .sys-text{display:inline;max-width:180px;overflow:hidden;text-overflow:ellipsis}
 .cmdbar .live-ind b{display:inline}
 .cb-btn.take .tl,.cmdbar #ctlbar [data-cb="hideAll"],.cb-btn.hide{text-transform:none;letter-spacing:0}
-@media (max-width:1380px){ .cmdbar .live-ind{padding:0 10px} }
 .cmdbar .lb-auto,.cmdbar .lb-prog-btn{flex:none}
-@media (max-width:1600px){ .cmdbar .sys-sum .sys-text{max-width:110px} .cmdbar .lb-tx select{max-width:130px} }
-@media (max-width:1380px){ .cmdbar .lb-l,.cmdbar .lb-auto .aa-x,.cmdbar .sys-sum .sys-text{display:none} }   /* the dot keeps its tooltip and name */
 
 /* ---------- 6.11.1 one interface typeface (design audit DD-04) ----------
  * Headings and labels in the program use Source Sans 3, the same family as the website, in sentence case. The serif
@@ -1226,15 +1205,6 @@ body.spotlight .pal.spot-in{animation:pal-in .12s ease-out}
  * Prepare / Run, labelled main tabs, worded Previous / Next, Hide all red only while something is on screen, grouped
  * Live tools, one status pill, the Up next panel, the pre-service checklist, Practice, and How people see it. */
 /* main tabs keep their words at every width the bar stays on one row */
-@media (max-width:1700px){
-  .cmdbar .tabs .tab{font-size:13px;gap:6px;padding:6px 8px}
-  .cmdbar .lb-l,.cmdbar .lb-auto .aa-x{display:none}        /* the Transition list and Auto keep their names for screen readers and tooltips */
-  .cmdbar .lb-tx select{max-width:132px}
-  .cmdbar .tabs .tab .ic{display:none}                      /* the words stay; the icons give way first */
-  .cmdbar .cb-btn.take{min-width:150px} .cmdbar .cb-btn.take .tk-what{max-width:118px}
-}
-@media (max-width:1800px){ .cmdbar .sys-sum .sys-text{display:none} .cmdbar .cb-btn.take .tk-what{max-width:120px} }
-@media (max-width:2100px){ .cmdbar .live-ind .live-what{display:none} }      /* what is on screen shows in the picture itself */
 .cmdbar .tabs .tab .ic{flex:none}
 /* Previous / Next in words, as tall as Go Live */
 .cmdbar .cb-btn.lb-step-big{height:42px;min-height:42px;padding:0 12px;gap:6px;font-size:14px;font-weight:700}
@@ -1268,12 +1238,6 @@ body:not(.kc-on-air) #ctlbar .cb-btn.hide:hover{border-color:var(--red);filter:n
 .s-nav .sn-adv-btn{display:flex;align-items:center;justify-content:space-between;padding:4px 10px;margin:2px 0 4px;cursor:pointer}
 .s-nav .sn-adv:not(.open) > button[data-sec]{display:none}
 .s-nav.finding .sn-adv > button[data-sec]:not([hidden]){display:flex}
-@media (max-width:1320px){
-  .cmdbar .tabs .tab{padding:6px 6px;gap:4px}
-  .cmdbar .lb-tx select{max-width:112px}
-  .cmdbar .cb-btn.take{min-width:120px;padding:0 12px} .cmdbar .cb-btn.take .tk-what{max-width:96px}
-  .cmdbar .cb-btn.lb-step-big{padding:0 10px}
-}
 /* People: one tab, two views of the same list */
 .people-view{margin-left:auto;align-self:center;display:inline-flex;gap:2px;padding:2px;border:1px solid var(--line-soft);border-radius:8px}
 .people-view[hidden]{display:none}
@@ -1288,15 +1252,7 @@ body:not(.kc-on-air) #ctlbar .cb-btn.hide:hover{border-color:var(--red);filter:n
 .vcam-adv > summary::before{content:"▸";color:var(--muted)}
 .vcam-adv[open] > summary::before{content:"▾"}
 /* below 1560 px: the selected Frame is highlighted in the list, so Go Live drops its subtitle */
-@media (max-width:1560px){ .cmdbar .cb-btn.take .tk-what{display:none} .cmdbar .cb-btn.take{min-width:116px} }
 /* the live controls take a second row where one row would not fit */
-@media (max-width:1460px){
-  .cmdbar{flex-wrap:wrap;row-gap:6px}
-  .cmdbar .lb-scenes{order:20;margin-left:0}
-  .cmdbar .lb-tx{order:21} .cmdbar .lb-auto{order:22} .cmdbar .lb-step{order:23}
-  .cmdbar .lb-slides{order:24} .cmdbar .lb-prog{order:25}
-  .cmdbar #ctlbar [data-cb="hideAll"]{order:26;margin-left:auto}
-}
 .subtabs-tabs{display:flex;gap:4px}
 html[data-theme="light"] .s2-badge:not(.pv){color:var(--green-500)}     /* the badge sits on the always-dark picture: the bright green reads there */
 
@@ -1530,5 +1486,59 @@ html[data-theme="light"]{
 .lc-pop-notes .np-act{width:34px;padding:0;justify-content:center}
 .lc-pop-notes .np-act em{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .lc-pop-notes .np-list{max-height:170px}
-@media (max-width:1500px){ .lc .lc-l{display:none} .lc{padding:0 6px} .lc.alert .lc-l,.lc.held .lc-l{display:inline} }
 @media (prefers-reduced-motion:reduce){ .lc-pop{animation:none} .lc{transition:none} }
+
+/* ---------- 26.11.2 the top bar fits the window at every size (js/bar-fit.js) ----------
+   The bar used to follow fixed widths, so with the question stepper or a long Frame name it ran past the window
+   (the page scrolled sideways and left a blank strip) or wrapped and pushed the window buttons onto a row of their
+   own. Now js/bar-fit.js measures it and steps down one notch at a time until it fits on one row: each level below
+   adds to the ones before. Only at the last one do the live controls take a second row, laid out on purpose. */
+.cmdbar{flex-wrap:nowrap}
+.cmdbar[data-fit]>*,.cmdbar[data-fit] #ctlbar>*{flex-shrink:0}
+.cmdbar .live-ind .live-what{max-width:240px}
+.cmdbar .cb-btn.take .tk-what{max-width:170px}
+.cmdbar[data-fit="1"] .live-ind .live-what,.cmdbar[data-fit="1"] .sys-sum .sys-text{display:none}
+/* 2: Go Live keeps its name, the Transition list and Auto drop their labels, the main tabs drop their icons */
+.cmdbar[data-fit="2"] .live-ind .live-what,.cmdbar[data-fit="2"] .sys-sum .sys-text,
+.cmdbar[data-fit="2"] .cb-btn.take .tk-what,.cmdbar[data-fit="2"] .lb-l,.cmdbar[data-fit="2"] .lb-auto .aa-x,.cmdbar[data-fit="2"] .tabs .tab .ic{display:none}
+/* 3: the five chips show their icons (a chip that is on keeps its word) */
+.cmdbar[data-fit="3"] .live-ind .live-what,.cmdbar[data-fit="3"] .sys-sum .sys-text,
+.cmdbar[data-fit="3"] .cb-btn.take .tk-what,.cmdbar[data-fit="3"] .lb-l,.cmdbar[data-fit="3"] .lb-auto .aa-x,.cmdbar[data-fit="3"] .tabs .tab .ic,
+.cmdbar[data-fit="3"] .lc:not(.alert):not(.held) .lc-l{display:none}
+.cmdbar[data-fit="3"] .lc{padding:0 7px}
+/* 4: Previous / Next keep their arrows; the main tabs become icons (their names stay as tooltips) */
+.cmdbar[data-fit="4"] .live-ind .live-what,.cmdbar[data-fit="4"] .sys-sum .sys-text,
+.cmdbar[data-fit="4"] .cb-btn.take .tk-what,.cmdbar[data-fit="4"] .lb-l,.cmdbar[data-fit="4"] .lb-auto .aa-x,
+.cmdbar[data-fit="4"] .lc:not(.alert):not(.held) .lc-l,.cmdbar[data-fit="4"] .lb-scenes .lb-t,.cmdbar[data-fit="4"] .tabs .tab kbd{display:none}
+.cmdbar[data-fit="4"] .lc{padding:0 7px}
+.cmdbar[data-fit="4"] .tabs .tab{font-size:0;gap:0;padding:7px 9px}
+.cmdbar[data-fit="4"] .tabs .tab .ic{display:inline-block;width:18px;height:18px}
+.cmdbar[data-fit="4"] .cb-btn.take{min-width:116px}
+.cmdbar[data-fit="4"] .lb-tx select{max-width:112px}
+/* 5: the smallest one row: LIVE is a dot, Hide all drops its key hint */
+.cmdbar[data-fit="5"] .live-ind .live-what,.cmdbar[data-fit="5"] .sys-sum .sys-text,
+.cmdbar[data-fit="5"] .cb-btn.take .tk-what,.cmdbar[data-fit="5"] .lb-l,.cmdbar[data-fit="5"] .lb-auto .aa-x,
+.cmdbar[data-fit="5"] .lc:not(.alert):not(.held) .lc-l,.cmdbar[data-fit="5"] .lb-scenes .lb-t,.cmdbar[data-fit="5"] .tabs .tab kbd,
+.cmdbar[data-fit="5"] .live-ind b,.cmdbar[data-fit="5"] #ctlbar [data-cb="hideAll"] kbd{display:none}
+.cmdbar[data-fit="5"] .lc{padding:0 6px}
+.cmdbar[data-fit="5"] .tabs .tab{font-size:0;gap:0;padding:7px 8px}
+.cmdbar[data-fit="5"] .tabs .tab .ic{display:inline-block;width:18px;height:18px}
+.cmdbar[data-fit="5"] .cb-btn.take{min-width:104px;padding:0 12px}
+.cmdbar[data-fit="5"] .lb-tx select{max-width:96px}
+.cmdbar[data-fit="5"] .live-ind{padding:0 10px}
+/* 6: a narrow window: the app's own row on top (brand, tabs, chips, status, window buttons), the live controls
+   on a full row below, Hide all at its right end */
+.cmdbar[data-fit="6"]{flex-wrap:wrap;row-gap:6px}
+.cmdbar[data-fit="6"]::after{content:"";order:19;flex:0 0 100%;height:0}
+.cmdbar[data-fit="6"] .live-ind .live-what,.cmdbar[data-fit="6"] .sys-sum .sys-text,.cmdbar[data-fit="6"] .cb-btn.take .tk-what,
+.cmdbar[data-fit="6"] .lb-l,.cmdbar[data-fit="6"] .lb-auto .aa-x,.cmdbar[data-fit="6"] .lc:not(.alert):not(.held) .lc-l,
+.cmdbar[data-fit="6"] .tabs .tab kbd{display:none}
+.cmdbar[data-fit="6"] .lc{padding:0 6px}
+.cmdbar[data-fit="6"] .tabs .tab{font-size:0;gap:0;padding:7px 8px}
+.cmdbar[data-fit="6"] .tabs .tab .ic{display:inline-block;width:18px;height:18px}
+.cmdbar[data-fit="6"] .lb-scenes{order:20;margin-left:0}
+.cmdbar[data-fit="6"] .lb-tx{order:21} .cmdbar[data-fit="6"] .lb-auto{order:22} .cmdbar[data-fit="6"] .lb-step{order:23}
+.cmdbar[data-fit="6"] .lb-slides{order:24}
+.cmdbar[data-fit="6"] #ctlbar [data-cb="hideAll"]{order:26;margin-left:auto}
+.cmdbar[data-fit="6"] .live-ind{margin-left:auto}
+.cmdbar[data-fit="6"] [data-win-controls]{order:12}

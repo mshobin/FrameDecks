@@ -135,7 +135,7 @@ Python 3 and PyYAML, takes about a minute and ends with `release pipeline: ok`. 
    and passes `python tools/make_release_notes.py --check`. Write the notes for users: they are shown on the download
    page and in the program, and the manifest tool refuses any line naming a repository path.
 2. Tag it, **one version at a time**, with the tag equal to `v` + `APP_VERSION`:
-   `git tag v26.11.1 && git push origin v26.11.1`. (A GitHub Release created in the web page with a new tag works too.)
+   `git tag v26.11.2 && git push origin v26.11.2`. (A GitHub Release created in the web page with a new tag works too.)
 3. The workflow builds and tests on Windows, keeps a private copy on the repository's Releases page, then the `publish`
    job uploads the version's files, `index.json`, and finally `latest.json`. Until `latest.json` is replaced, nobody
    sees the new version, so a failed upload half-way changes nothing for users.
@@ -162,13 +162,13 @@ Version tags run one at a time (`concurrency: publish-releases`), so two publish
 is read from R2 itself, not the five-minute-cached public address; `previous` is always the next lower version and the
 index is sorted newest first, whatever order versions were published in.
 
-To fix a published release, bump the version (26.11.1 → 26.11.2) and tag that; never delete and re-upload a version.
+To fix a published release, bump the version (26.11.2 → 26.11.3) and tag that; never delete and re-upload a version.
 
 Check after a release:
 
 ```bash
 curl -s https://api.framedecks.com/releases/latest | python3 -m json.tool | head
-curl -sL https://downloads.framedecks.com/releases/26.11.1/FrameDecks-26.11.1-Setup.exe.sha256
+curl -sL https://downloads.framedecks.com/releases/26.11.2/FrameDecks-26.11.2-Setup.exe.sha256
 ```
 
 ## How the program updates (integrity and safety)
@@ -235,8 +235,10 @@ route), or tell people to use Settings → About → Reinstall the previous vers
 
 ## Voice files for Follow my voice (26.11)
 
-The Teleprompter's **Follow my voice** downloads two files the first time it is turned on: the Vosk speech engine for
-Windows and the small English model. Both are pinned by size and SHA-256 in `src/voice_files.json`. The program asks
+The Vosk speech engine for Windows and the small English model are pinned by size and SHA-256 in
+`src/voice_files.json`. Since 26.11.2 the engine (four DLLs) is put into the installer by **Build Windows installer**
+(step "Put the speech engine in"), so the installed app downloads only the model the first time **Follow my voice** is
+turned on, and never program code; a copy run from source still downloads both. The program asks
 `downloads.framedecks.com/voice/` first and the address where each is published second, and uses a file only when it
 matches. **Voice files** (`.github/workflows/voice-files.yml`, run by hand from the Actions tab) checks both, runs the
 real engine on spoken test audio (`tools/voice_e2e.py`) and, with **upload** ticked, copies them to R2 under `voice/`.

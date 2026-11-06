@@ -155,6 +155,38 @@ for (const w of [1920, 1440, 1280, 1100]) {
   await p.close();
 }
 
+// 26.11.2 the top bars fit their window at every size (js/bar-fit.js): live, with the question stepper and the window
+// buttons, the main bar stays one row from 1280 px up and never runs past the window; the Teleprompter keeps its window
+// buttons on the first row at any width
+{
+  const p = await page(1920, 900, null);
+  await p.evaluate(() => { window.KCOnboarding && window.KCOnboarding.close(); document.documentElement.classList.add("win-chrome");
+    document.querySelectorAll("[data-win-controls]").forEach((e) => window.KCWindow.mount(e));
+    KCStore.update((n) => KCScenes.take(n, n.scenes.filter((x) => !x.tpl)[0].id)); });
+  await p.waitForTimeout(600);
+  for (const w of [2560, 1920, 1600, 1366, 1280, 1100]) {
+    await p.setViewportSize({ width: w, height: 900 }); await p.waitForTimeout(250);
+    const r = await p.evaluate(() => { const bar = document.querySelector(".cmdbar");
+      return { fit: bar.dataset.fit, fits: window.KCBarFit.fits(bar), scroll: document.documentElement.scrollWidth > innerWidth,
+        ctl: document.querySelector("[data-win-controls]").getBoundingClientRect().right <= innerWidth + 1 }; });
+    check(!r.scroll && r.ctl && (w < 1280 || (r.fits && r.fit !== "6")), `top bar fits at ${w} px (level ${r.fit})`);
+  }
+  await p.close();
+  const t = await browser.newPage({ viewport: { width: 1280, height: 600 } });
+  await t.goto(`${BASE}/speaker.html`); await t.waitForTimeout(1200);
+  await t.evaluate(() => { document.body.classList.add("sp-bar-open"); document.documentElement.classList.add("win-chrome");
+    document.querySelectorAll("[data-win-controls]").forEach((e) => window.KCWindow.mount(e));
+    ["sp-look", "sp-pin", "sp-voice-wrap"].forEach((id) => { document.getElementById(id).hidden = false; }); });
+  for (const w of [1920, 1280, 1024, 760, 600]) {
+    await t.setViewportSize({ width: w, height: 600 }); await t.waitForTimeout(250);
+    const r = await t.evaluate(() => { const c = document.querySelector("[data-win-controls]").getBoundingClientRect(), f = document.querySelector(".sp-clock").getBoundingClientRect();
+      return { scroll: document.documentElement.scrollWidth > innerWidth, row1: Math.abs(c.top - f.top) < 24 && c.right <= innerWidth + 1,
+        fit: [...document.querySelectorAll(".sp-row")].map((x) => x.dataset.fit).join("/") }; });
+    check(!r.scroll && r.row1, `Teleprompter bar fits at ${w} px, window buttons on the first row (levels ${r.fit})`);
+  }
+  await t.close();
+}
+
 await browser.close();
 console.log(failed ? `${failed} visual check(s) failed` : "all visual checks passed");
 process.exit(failed ? 1 : 0);

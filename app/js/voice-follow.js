@@ -102,10 +102,10 @@ function post(body){
 var SAY = {
   off: '', unavailable: 'Follow my voice works in the FrameDecks app for Windows.',
   needs: 'Getting the voice files ready…', downloading: 'Getting the voice files ready', starting: 'Starting to listen…',
-  listening: 'Listening', lost: 'Off script: waiting for your words', pin: 'Pin the Teleprompter to follow your voice',
+  listening: 'Listening', lost: 'Off script: waiting for your words', front: 'Bring the Teleprompter to the front, or pin it, to follow your voice',
   memory: 'Not enough free memory to listen. Close some programs and try again.', error: 'Follow my voice stopped'};
 
-/* opts: {scroll, text (the elements), button, status, level (elements), canListen() → '' or the reason (pin),
+/* opts: {scroll, text (the elements), button, status, level (elements), canListen() → '' or the reason (front),
    onStart() (stop the plain scrolling)} */
 function create(opts){
   var on = false, seq = 0, polling = false, words = [], spans = [], m = matcher([]), shownPos = -1;
@@ -264,7 +264,7 @@ function create(opts){
       if (newFrame) m.anchor(0);
       if (state === 'listening' || state === 'lost' || state === 'starting' || state === 'downloading') post({op: 'words', words: words}).catch(function(){});
     },
-    /* the pin (or anything canListen() depends on) changed */
+    /* the pin or the window in front (anything canListen() depends on) changed */
     recheck: function(){ if (on) stopListening().then(function(){ if (on) start(); }); }
   };
 }

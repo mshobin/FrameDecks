@@ -169,7 +169,7 @@ A Question (or Scripture) Content holds **its own list**, shown full height in C
     above Zoom, Teams and PowerPoint; click to unpin), with **Keep open** / **Hide bar** and the window buttons. Drag
     the bar to move the window; resize from the edges.
   - Second row: **▶ Scroll** (Space), **Follow my voice** (V: the script moves as you speak; it listens only on
-    this PC and only while the Teleprompter is pinned), speed from Very slow to Very fast, A− / A+, line spacing, contrast, Mirror (M),
+    this PC and only while the Teleprompter is pinned or in front), speed from Very slow to Very fast, A− / A+, line spacing, contrast, Mirror (M),
     **✎ Write Script**, **⇪ Upload** and **Each Frame** / **Whole meeting**.
   - Transparency and pin are remembered, and work only in the installed app. With **Light on graphics card** on (the
     default) the whole window fades, text included; with it off, only the background is see-through.

@@ -17,6 +17,7 @@
   if (p === 'workspace'){ lk = 'workspace'; p = 'dark'; }
   d.dataset.themePref = p; d.dataset.lookPref = lk; d.dataset.look = lk === 'workspace' ? wl : lk;
   d.dataset.theme = lk === 'workspace' ? wb : p === 'system' ? (window.matchMedia && matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark') : (p === 'light' ? 'light' : 'dark');
+  if (/[?&]glass=1/.test(location.search)) d.classList.add('kc-glass');   // 26.11.2 the app's window: see-through from the first paint
 })();</script>
 </head>
 <body data-win="spotlight" class="spotlight">

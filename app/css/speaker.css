@@ -58,6 +58,30 @@ body.sp-glass .tp-text{text-shadow:0 0 calc(var(--sp-halo) * .12em) rgba(var(--r
 .sp-ctl .tp-speed{min-height:34px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;font-size:13px;padding:0 8px}
 .sp-next{display:inline-flex;align-items:center;gap:6px;background:var(--accent-soft);border-color:var(--accent)}
 .sp-next:disabled{opacity:.45;cursor:default}
+/* ---------- 26.11.2 the top bar fits the window at every size (js/bar-fit.js) ----------
+   Each row stays on one line and steps down a notch at a time while it does not fit: smaller labels, then icons only.
+   Only on the last notch does it take a second line, and the window buttons always stay on the first. */
+.sp-row[data-fit]{flex-wrap:nowrap}
+.sp-row[data-fit]>*,.sp-tools[data-fit] .tp-controls{flex-shrink:0}
+.sp-tools[data-fit] .tp-controls{flex-wrap:nowrap}
+.sp-row[data-fit] .sp-frame{flex:1 1 auto;min-width:150px}
+.sp-row1[data-fit="1"] .sp-look button,.sp-row1[data-fit="2"] .sp-look button,.sp-row1[data-fit="3"] .sp-look button,.sp-row1[data-fit="4"] .sp-look button{padding:0 6px}
+.sp-row1[data-fit="1"] .sp-pin span,.sp-row1[data-fit="2"] .sp-pin span,.sp-row1[data-fit="3"] .sp-pin span,.sp-row1[data-fit="4"] .sp-pin span{display:none}
+.sp-row1[data-fit="2"] .sp-clock>span,.sp-row1[data-fit="3"] .sp-clock>span,.sp-row1[data-fit="4"] .sp-clock>span{display:none}
+.sp-row1[data-fit="2"] .sp-clock,.sp-row1[data-fit="3"] .sp-clock,.sp-row1[data-fit="4"] .sp-clock{padding:4px 10px}
+.sp-row1[data-fit="2"] .sp-clock b,.sp-row1[data-fit="3"] .sp-clock b,.sp-row1[data-fit="4"] .sp-clock b{font-size:18px}
+.sp-row1[data-fit="3"] .sp-next .sp-wd,.sp-row1[data-fit="4"] .sp-next .sp-wd{display:none}
+.sp-row1[data-fit="3"] .sp-frame,.sp-row1[data-fit="4"] .sp-frame{min-width:110px}
+.sp-row1[data-fit="4"]{flex-wrap:wrap;row-gap:8px}
+.sp-row1[data-fit="4"]>*{order:5}
+.sp-row1[data-fit="4"]>.sp-clock:first-child{order:1}
+.sp-row1[data-fit="4"]>.sp-frame{order:2}
+.sp-row1[data-fit="4"]>[data-win-controls]{order:3}
+.sp-row1[data-fit="4"]::after{content:"";order:4;flex:0 0 100%;height:0}
+.sp-tools[data-fit="1"] .sp-voice-st,.sp-tools[data-fit="2"] .sp-voice-st,.sp-tools[data-fit="3"] .sp-voice-st{max-width:160px}
+.sp-tools[data-fit="2"] .sp-wd,.sp-tools[data-fit="3"] .sp-wd{display:none}
+.sp-tools[data-fit="2"] .sp-voice,.sp-tools[data-fit="3"] .sp-voice{gap:0}
+.sp-tools[data-fit="3"]{flex-wrap:wrap;row-gap:6px}
 .sp-mode{display:inline-flex;gap:2px;padding:3px;margin-left:auto;border-radius:12px;background:var(--surface);border:1px solid var(--line)}
 .sp-mode button{min-height:28px;padding:0 10px;border:0;border-radius:8px;background:none;color:var(--muted);font:inherit;font-size:13px;font-weight:700;cursor:pointer}
 .sp-mode button[aria-checked="true"]{background:var(--accent-soft);color:var(--ink);box-shadow:inset 0 0 0 1px var(--accent)}
@@ -93,7 +117,7 @@ body.sp-glass .sp-main{border-radius:0}
 .sp-voice.on .sp-mic{box-shadow:0 0 0 calc(var(--lv,0) * 6px) var(--live-soft);transition:box-shadow .2s ease}
 .sp-voice-set{display:inline-grid;place-items:center;width:34px;padding:0}
 .sp-voice-st{font-size:12px;font-weight:700;color:var(--muted);max-width:280px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.sp-voice-st[data-state="pin"],.sp-voice-st[data-state="memory"],.sp-voice-st[data-state="error"],.sp-voice-st[data-state="unavailable"]{color:var(--ink)}
+.sp-voice-st[data-state="front"],.sp-voice-st[data-state="memory"],.sp-voice-st[data-state="error"],.sp-voice-st[data-state="unavailable"]{color:var(--ink)}
 .sp-voice-st[data-state="lost"]{color:var(--muted)}
 .sp-voice-pop{position:absolute;top:calc(100% + 8px);left:0;z-index:30;display:grid;gap:6px;width:280px;padding:12px;border:1px solid var(--line);
   border-radius:var(--r-2,12px);background:var(--surface);box-shadow:var(--el-4);font-size:13px}
@@ -117,3 +141,4 @@ body.sp-glass .sp-main{border-radius:0}
 @keyframes tp-breathe{0%,100%{opacity:.55}50%{opacity:1}}
 .tp-voice-on .tp-w{transition:opacity .35s ease}
 @media (prefers-reduced-motion:reduce){ .tp-voice-on .tp-band.hearing{animation:none} .tp-voice-on .tp-w,.tp-band{transition:none} }
+

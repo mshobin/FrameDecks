@@ -27,10 +27,10 @@
   <div class="sp-head" id="sp-head">
     <button class="sp-bar-btn" type="button" id="sp-bar-btn" aria-expanded="false" aria-controls="sp-top" aria-label="Show the top bar" title="Show the top bar: time, Frame and timer"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
     <header class="sp-top" id="sp-top" data-win-drag>
-      <div class="sp-row">
+      <div class="sp-row sp-row1" data-bar-fit="4">
         <div class="sp-clock"><span>Time</span><b id="sp-clock">--:--</b></div>
         <div class="sp-clock sp-frame"><span>Frame</span><b id="sp-frame-pos">–</b></div>
-        <button class="sp-next" type="button" id="sp-next" title="Put the next Frame on screen">Next Frame <span aria-hidden="true">▸</span></button>
+        <button class="sp-next" type="button" id="sp-next" aria-label="Next Frame" title="Put the next Frame on screen">Next<span class="sp-wd">Frame</span> <span aria-hidden="true">▸</span></button>
         <div class="sp-clock sp-watch"><span>Timer</span><b id="sp-watch">0:00</b>
           <div class="sp-watch-btns"><button class="btn small" type="button" id="sp-watch-go">Start</button><button class="btn quiet small" type="button" id="sp-watch-reset">Reset</button></div></div>
         <div class="sp-look" id="sp-look" role="radiogroup" aria-label="Transparency" hidden>
@@ -39,10 +39,10 @@
         <button class="btn quiet small sp-bar-pin" type="button" id="sp-bar-pin" aria-controls="sp-top" title="Keep the top bar open">Keep open</button>
         <div data-win-controls></div>
       </div>
-      <div class="sp-row sp-tools" id="sp-tools" data-no-drag>
+      <div class="sp-row sp-tools" id="sp-tools" data-no-drag data-bar-fit="3">
         <div class="sp-ctl" id="sp-ctl"></div>
         <div class="sp-voice-wrap" id="sp-voice-wrap" hidden>
-          <button class="sp-act sp-voice" type="button" id="sp-voice" aria-pressed="false" title="Follow my voice: the script moves as you speak (V). Listens only on this PC, only while the Teleprompter is pinned"><span class="sp-mic" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></span>Follow my voice</button>
+          <button class="sp-act sp-voice" type="button" id="sp-voice" aria-pressed="false" aria-label="Follow my voice" title="Follow my voice: the script moves as you speak (V). Listens only on this PC, only while the Teleprompter is above every other window: pinned or in front"><span class="sp-mic" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></span><span class="sp-wd">Follow my voice</span></button>
           <button class="sp-act sp-voice-set" type="button" id="sp-voice-set" aria-expanded="false" aria-controls="sp-voice-pop" aria-label="Microphone and sensitivity" title="Microphone and sensitivity"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg></button>
           <span class="sp-voice-st" id="sp-voice-st" role="status" hidden></span>
           <div class="sp-voice-pop" id="sp-voice-pop" role="group" aria-label="Follow my voice" hidden>
@@ -51,12 +51,12 @@
             <label for="sp-sens">Sensitivity <small id="sp-sens-v"></small></label>
             <input type="range" id="sp-sens" min="1" max="5" step="1" value="3" aria-describedby="sp-sens-help">
             <p class="sp-voice-help" id="sp-sens-help">Lower it if other voices or noise move the script; raise it for a soft voice.</p>
-            <p class="sp-voice-help" id="sp-voice-files">The voice files download once (about 53 MB) and stay on this PC. Nothing you say is recorded or sent anywhere.</p>
+            <p class="sp-voice-help" id="sp-voice-files">The voice files download once (about 40 MB) and stay on this PC. Nothing you say is recorded or sent anywhere.</p>
             <button class="sp-act sp-voice-rm" type="button" id="sp-voice-rm" hidden>Remove the voice files</button>
           </div>
         </div>
-        <button class="sp-act" type="button" id="sp-write">✎ Write Script</button>
-        <button class="sp-act" type="button" id="sp-upload" title="Load a script from a .txt, .md or Word (.docx) file">⇪ Upload</button>
+        <button class="sp-act" type="button" id="sp-write" aria-label="Write Script" title="Write the script">✎<span class="sp-wd"> Write Script</span></button>
+        <button class="sp-act" type="button" id="sp-upload" aria-label="Upload" title="Load a script from a .txt, .md or Word (.docx) file">⇪<span class="sp-wd"> Upload</span></button>
         <input type="file" id="sp-file" hidden>
         <div class="sp-mode" role="radiogroup" aria-label="Script">
           <button type="button" role="radio" data-mode="frame" aria-checked="true" title="Each Frame has its own script">Each Frame</button><button type="button" role="radio" data-mode="all" aria-checked="false" title="One script for the whole meeting">Whole meeting</button></div>
@@ -70,6 +70,7 @@
 <script src="js/script-file.js"></script>
 <script src="js/voice-follow.js"></script>
 <script src="js/window-chrome.js"></script>
+<script src="js/bar-fit.js"></script>
 <script src="js/speaker.js"></script>
 </body>
 </html>

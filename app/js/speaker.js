@@ -26,16 +26,27 @@ function saveScript(id, text){
   });
 }
 var voice = null, desk = {app: false, onTop: true};          // 26.11 Follow my voice (desktop app only)
+function inFront(){ return desk.onTop || document.hasFocus() ? '' : 'front'; }
 var prompter = P.create($('sp-prompt'), {key: 'window', editable: true, edit: saveScript, source: source,
   controlsHost: $('sp-ctl'), cues: false, bare: true,
   onRender: function(newFrame){ if (voice) voice.rendered(newFrame); },
   onPlay: function(on){ if (on && voice && voice.on()) voice.toggle(false); }});     // Scroll or voice, one at a time
 
 /* 26.11 Follow my voice: the script moves as you speak. Listens only in the desktop app and only while the
-   Teleprompter is pinned above every other window; unpinned, the microphone is let go until it is pinned again. */
+   Teleprompter is above every other window: pinned there, or (26.11.2) the window in front, the one you last clicked.
+   Unpinned and behind another window, the microphone is let go until it comes to the front or is pinned again. */
 if (window.KCVoiceFollow){
   voice = window.KCVoiceFollow.create({scroll: prompter.scrollEl, text: prompter.textEl, button: $('sp-voice'), status: $('sp-voice-st'),
-    level: $('sp-voice'), canListen: function(){ return desk.onTop ? '' : 'pin'; }, onStart: function(){ prompter.play(false); }});
+    level: $('sp-voice'), canListen: inFront, onStart: function(){ prompter.play(false); }});
+  /* the answer changes only when the pin or the window in front changes; then listening stops or starts again (a
+     short wait first, so a click on the window's own title bar or a menu does not stop and start the microphone) */
+  var lastWhy = inFront(), frontT = 0;
+  desk.recheck = function(){
+    clearTimeout(frontT);
+    frontT = setTimeout(function(){ var why = inFront(); if (why !== lastWhy){ lastWhy = why; voice.recheck(); } }, 400);
+  };
+  window.addEventListener('focus', desk.recheck);
+  window.addEventListener('blur', desk.recheck);
   document.addEventListener('keydown', function(e){
     var t = e.target;
     if ((e.key === 'v' || e.key === 'V') && !e.ctrlKey && !e.altKey && !e.metaKey && !(t && /INPUT|TEXTAREA|SELECT/.test(t.tagName)) &&
@@ -155,7 +166,7 @@ function flash(msg){
   lookBox.addEventListener('click', function(e){ var b = e.target.closest('[data-look]'); if (b) look(b.dataset.look); });
   pin.addEventListener('click', function(){
     cur.onTop = !cur.onTop; desk.onTop = cur.onTop; paint(); if (W) W.call('on-top', {value: cur.onTop});
-    if (voice) voice.recheck();                       // 26.11 Follow my voice listens only while pinned
+    if (voice) desk.recheck();                        // 26.11.2 Follow my voice listens while pinned or in front
   });
 })();
 

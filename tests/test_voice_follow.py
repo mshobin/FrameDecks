@@ -227,15 +227,19 @@ def server_remote_paths():
 
 
 class Teleprompter(unittest.TestCase):
-    def test_listens_only_while_pinned_and_in_the_app(self):
+    def test_listens_only_while_in_front_and_in_the_app(self):
         js = read("app/js/speaker.js")
-        for need in ("canListen: function(){ return desk.onTop ? '' : 'pin'; }",
-                     "if (voice) voice.recheck();                       // 26.11 Follow my voice listens only while pinned",
+        for need in ("function inFront(){ return desk.onTop || document.hasFocus() ? '' : 'front'; }",
+                     "canListen: inFront",
+                     "window.addEventListener('focus', desk.recheck);",
+                     "window.addEventListener('blur', desk.recheck);",
+                     "if (why !== lastWhy){ lastWhy = why; voice.recheck(); }",
+                     "if (voice) desk.recheck();                        // 26.11.2 Follow my voice listens while pinned or in front",
                      "if (voice){ $('sp-voice-wrap').hidden = false;",
                      "onPlay: function(on){ if (on && voice && voice.on()) voice.toggle(false); }"):
             self.assertIn(need, js)
         vf = read("app/js/voice-follow.js")
-        for need in ("pin: 'Pin the Teleprompter to follow your voice'",
+        for need in ("front: 'Bring the Teleprompter to the front, or pin it, to follow your voice'",
                      "document.addEventListener('visibilitychange', function(){ if (!on) return; if (document.hidden) stopListening(); else start(); });",
                      "navigator.sendBeacon('api/voice'"):
             self.assertIn(need, vf)

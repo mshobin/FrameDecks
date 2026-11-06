@@ -88,6 +88,17 @@ same three signing points get the Trusted Signing action instead (a small workfl
 
 ## Until installers are signed
 
+What keeps Microsoft Defender from removing an unsigned FrameDecks (each one learned from a false alarm):
+
+- PyInstaller's launcher is built from source for each release, and nothing is compressed with UPX (7.1.1).
+- No hidden PowerShell, `netsh` or script runs from the app or the updater (7.1.1).
+- The installed app downloads no program code: the speech engine for Follow my voice comes with the installer, and only
+  the language model (data) is downloaded on first use. The app starts its listening process at low priority without
+  hiding it (26.11.2).
+- Every release build scans the program folder and the installer with Microsoft Defender, on the latest signatures,
+  before anything is published. If Defender flags them, the run stops with "Microsoft Defender flags: ...": submit
+  the file as below, wait for Microsoft's answer (usually one to three days), then run the build again (26.11.2).
+
 - Publish the SHA-256 checksum next to each installer; the build writes it and the download page shows it.
 - Submit each new installer to Microsoft as a false positive at
   https://www.microsoft.com/en-us/wdsi/filesubmission. SmartScreen learns from these submissions and from downloads.

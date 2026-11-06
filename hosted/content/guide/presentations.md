@@ -280,8 +280,9 @@ Instead of scrolling at a set speed, the Teleprompter can follow you as you spea
 press **V**) and read: the words you have read go quieter and the next words stay at the reading line, about a third
 of the way down, marked by a soft gold band that breathes while it hears you. Speak at your own pace; pause, slow down or go back over a line, and it waits for you.
 
-- **Only while it is pinned.** It listens only in the installed app, and only while the Teleprompter is **Pinned**
-  above every other window. Unpin it, hide it or close it and the microphone is let go at once; pin it again and it
+- **Only while it is in front.** It listens only in the installed app, and only while the Teleprompter is above every
+  other window: **Pinned**, or unpinned but the window in front (the one you clicked last). Unpinned, click another
+  window, hide the Teleprompter or close it and the microphone is let go at once; click the Teleprompter or pin it and it
   carries on.
 - **Off script.** Talk freely (a welcome, a question from the room): the script holds still and carries on when you
   come back to the words. Scroll by hand at any time, and it carries on from there.
@@ -289,7 +290,7 @@ of the way down, marked by a soft gold band that breathes while it hears you. Sp
 - **Microphone and sensitivity.** The button beside it chooses the microphone (the one you use in Zoom or Teams is
   fine; both can use it at once) and the sensitivity. Lower it if other voices or noise move the script; raise it
   for a soft voice.
-- **The first time** it downloads the voice files once (about 53 MB) and keeps them on this PC. **Remove the voice
+- **The first time** it downloads the voice files once (about 40 MB) and keeps them on this PC. **Remove the voice
   files** (beside the microphone) frees the space; they download again the next time you turn it on.
 - **Private.** Everything happens on this PC. Nothing you say is recorded, kept or sent anywhere.
 - **Light on older PCs.** It runs only while it is on, in the background at low priority, and recognises only the

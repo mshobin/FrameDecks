@@ -161,6 +161,31 @@ jobs:
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
         run: python tools/write_cloud_builtin.py
 
+      # 26.11.2 the speech engine for Follow my voice goes into the installer, so the installed app never downloads
+      # program code (an unsigned program that downloads a DLL and loads it is what antivirus programs look for). The
+      # same pinned file as src/voice_files.json, refused unless its size and SHA-256 match.
+      - name: Put the speech engine in (Follow my voice)
+        shell: pwsh
+        run: |
+          $rt = (Get-Content src/voice_files.json -Raw | ConvertFrom-Json).runtime
+          $zip = Join-Path $env:RUNNER_TEMP $rt.name
+          $got = $false
+          foreach ($u in @("https://downloads.framedecks.com/voice/$($rt.name)", $rt.upstream)) {
+            try { Invoke-WebRequest -Uri $u -OutFile $zip -UseBasicParsing; $got = $true; break } catch { Write-Host "Not from $($u): $($_.Exception.Message)" }
+          }
+          if (-not $got) { throw "Could not get $($rt.name)" }
+          if ((Get-Item $zip).Length -ne $rt.size) { throw "$($rt.name) has the wrong size" }
+          if ((Get-FileHash $zip -Algorithm SHA256).Hash.ToLower() -ne $rt.sha256) { throw "$($rt.name) does not match its SHA-256" }
+          $tmp = Join-Path $env:RUNNER_TEMP "vosk-rt"
+          Expand-Archive $zip -DestinationPath $tmp -Force
+          New-Item -ItemType Directory -Force src/voice_runtime | Out-Null
+          foreach ($f in $rt.keep) {
+            $hit = Get-ChildItem $tmp -Recurse -Filter $f | Select-Object -First 1
+            if (-not $hit) { throw "$f is missing from $($rt.name)" }
+            Copy-Item $hit.FullName src/voice_runtime/
+          }
+          Get-ChildItem src/voice_runtime
+
       - name: Build the app (PyInstaller)
         run: pyinstaller --noconfirm --clean packaging/framedecks.spec --distpath dist --workpath build
 
@@ -170,6 +195,7 @@ jobs:
           if (-not (Test-Path "dist/FRAMEDECKS/FRAMEDECKS.exe")) { throw "The app was not built" }
           if (-not (Get-ChildItem -Recurse "dist/FRAMEDECKS" -Filter dashboard.html)) { throw "App pages are missing" }
           if (-not (Get-ChildItem -Recurse "dist/FRAMEDECKS" -Filter framedecks_vcam64.dll)) { throw "FrameDecks is missing" }
+          if (-not (Test-Path "dist/FRAMEDECKS/_internal/voice_runtime/libvosk.dll")) { throw "The speech engine (Follow my voice) is missing" }
           if (-not (Get-ChildItem -Recurse "dist/FRAMEDECKS" -Filter cloud_builtin.json)) { Write-Host "::notice::No built-in cloud address (SUPABASE_URL / SUPABASE_ANON_KEY secrets not set): new PCs ask the website, as before" }
 
       - name: Hand the program folder to SignPath (signing on)
@@ -252,6 +278,30 @@ jobs:
             Write-Host "$($s.Status)  $($f.Name)"
             if ($s.Status -ne 'Valid') { throw "Not signed: $($f.Name)" }
           }
+
+      # 26.11.2 until the installer is signed: Microsoft Defender, with today's signatures, checks the program folder and
+      # the installer before anything is published. If it flags either, the release stops here, so no one downloads
+      # an installer that Defender would remove (submit the file to Microsoft as a false positive, then run again:
+      # docs/deployment/code-signing.md).
+      - name: Scan with Microsoft Defender (the release stops if anything is flagged)
+        shell: pwsh
+        run: |
+          $mp = Join-Path $env:ProgramFiles "Windows Defender\MpCmdRun.exe"
+          if (-not (Test-Path $mp)) { Write-Host "::warning::Microsoft Defender is not on this runner, so nothing was scanned"; exit 0 }
+          & $mp -SignatureUpdate | Out-Host
+          if ($LASTEXITCODE -ne 0) { Write-Host "::warning::Defender's signatures could not be updated (exit $LASTEXITCODE); scanning with the ones it has" }
+          $targets = @((Resolve-Path "dist/FRAMEDECKS").Path) + @(Get-ChildItem dist -Filter "FrameDecks v*.exe" | ForEach-Object FullName)
+          $flagged = @(); $scanned = 0
+          foreach ($t in $targets) {
+            $out = & $mp -Scan -ScanType 3 -File $t -DisableRemediation 2>&1 | Out-String
+            $code = $LASTEXITCODE
+            Write-Host $out
+            if ($code -eq 2) { $flagged += $t }
+            elseif ($code -eq 0) { $scanned++ }
+            else { Write-Host "::warning::Defender could not scan $t (exit $code)" }
+          }
+          if ($flagged.Count) { throw "Microsoft Defender flags: $($flagged -join ', '). Nothing was published." }
+          "- Microsoft Defender: $scanned of $($targets.Count) scanned, nothing flagged" >> $env:GITHUB_STEP_SUMMARY
 
       - name: Write the SHA-256 checksum
         shell: pwsh

@@ -10,6 +10,32 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
 
 ## [Unreleased]
 
+## [26.11.2] - 2026-11-06
+
+Full notes: [docs/releases/v26.11.2.md](releases/v26.11.2.md).
+
+### Changed
+- The main window's top bar fits by measuring (`app/js/bar-fit.js`, `data-bar-fit` / `data-fit` levels 0 to 6 in
+  `theme.css`) instead of fixed window widths: one row from 1280 px up, a planned second row below; the old
+  `.cmdbar` breakpoints are gone. The Teleprompter's two bar rows use it too (`speaker.html`, `speaker.css`), with
+  the window buttons kept on the first row.
+- Follow my voice listens while the Teleprompter is pinned or the window in front (`speaker.js` `inFront`, focus and
+  blur with a short wait; status `front` in `voice-follow.js`).
+- The Vosk engine DLLs go into the installer (`build-windows.yml` "Put the speech engine in", `framedecks.spec`
+  `voice_runtime`); `voice_follow.py` uses them when frozen and downloads only the model. The installed app starts
+  its listening process at below-normal priority without `CREATE_NO_WINDOW`.
+
+### Added
+- A Microsoft Defender scan of the program folder and the installer in `build-windows.yml`; the release stops if
+  anything is flagged.
+- `tests/test_bar_fit_2611_2.py`; bar checks for both windows in `tests/visual/layout.mjs`.
+
+### Fixed
+- The top bar overflowing when maximized (sideways scroll, empty strip under Hide all) and wrapping the window buttons
+  onto their own row.
+- The Command Center showing an empty 820 x 720 box before its bar on first open: the window is made off-screen and
+  see-through from its first paint (`spotlight.html?glass=1`).
+
 ## [26.11.1] - 2026-11-06
 
 Full notes: [docs/releases/v26.11.1.md](releases/v26.11.1.md).

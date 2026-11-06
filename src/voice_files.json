@@ -1,5 +1,5 @@
 {
-  "_note": "26.11 Follow my voice: the two files the Teleprompter downloads the first time it is turned on (src/voice_follow.py). Each is fetched from downloads.framedecks.com/voice/ first (mirrored by .github/workflows/voice-files.yml), then from where it is published, and is used only when its size and SHA-256 match.",
+  "_note": "26.11 Follow my voice: the speech engine (runtime: put into the installer by build-windows.yml since 26.11.2, so the installed app downloads no program code) and the model the Teleprompter downloads the first time it is turned on (src/voice_follow.py). Each is fetched from downloads.framedecks.com/voice/ first (mirrored by .github/workflows/voice-files.yml), then from where it is published, and is used only when its size and SHA-256 match.",
   "runtime": {
     "name": "vosk-win64-0.3.45.zip",
     "upstream": "https://github.com/alphacep/vosk-api/releases/download/v0.3.45/vosk-win64-0.3.45.zip",

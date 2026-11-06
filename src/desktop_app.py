@@ -680,7 +680,11 @@ def main():
             if spot_holder["w"] is None and create:
                 # 9.10.2 one fixed size: the window is see-through, so its empty part costs nothing, and the
                 # Command Center never resizes a window while its panels animate (that made chip changes stutter)
-                w = webview.create_window(DISPLAY_NAME + " · Command Center", url + "spotlight.html", width=820, height=SPOT_H,
+                # 26.11.2 made off the screen and see-through from its first paint (?glass=1): pywebview shows a new
+                # window by itself while its page loads, and that showed an empty 820 x 720 box before the bar; the
+                # shortcut moves it to where you are (center_on_cursor) only when it opens for real
+                w = webview.create_window(DISPLAY_NAME + " · Command Center", url + "spotlight.html?glass=1", width=820, height=SPOT_H,
+                                          x=-32000, y=-32000,
                                           background_color="#0f172b", frameless=True, easy_drag=False, hidden=True,
                                           on_top=True, text_select=False, transparent=True)
                 try:                                  # 9.10.2 black (see-through) before Windows first shows it

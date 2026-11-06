@@ -5,9 +5,12 @@ Light by design, for older PCs with 4 GB of memory:
     the Teleprompter is unpinned or closed, or the window stops asking (15 s);
   * the listening runs in its own process at below-normal priority, so it can never slow the app or the meeting;
   * it does not start when the PC has too little free memory (MIN_FREE_MB);
-  * the speech engine and the small English model (about 53 MB to download, 120 MB on disk) are fetched only the first
-    time, from downloads.framedecks.com/voice/ (or where they are published), and used only when their size and
-    SHA-256 match src/voice_files.json.
+  * the small English model (about 40 MB to download, 70 MB on disk) is fetched only the first time, from
+    downloads.framedecks.com/voice/ (or where it is published), and used only when its size and SHA-256 match
+    src/voice_files.json;
+  * 26.11.2: the speech engine itself (its four DLLs) comes with the installer (voice_runtime, put in by the build from
+    the same pinned file), so the installed app never downloads program code: an unsigned program that downloads a DLL
+    and loads it is what antivirus programs look for. Only the running-from-source copy still fetches it.
 Nothing heard is recorded, kept or sent anywhere: the worker reports words, and the Teleprompter only uses them to
 find its place.
 
@@ -30,6 +33,8 @@ FILES = json.loads((HERE / "voice_files.json").read_text(encoding="utf-8"))
 MIN_FREE_MB = 350            # the model needs about 150-250 MB while listening; leave the rest of the PC room
 IDLE_STOP = 15.0             # seconds without the Teleprompter asking: it has gone, so stop listening
 _NO_WINDOW = 0x08000000 | 0x00004000      # CREATE_NO_WINDOW | BELOW_NORMAL_PRIORITY_CLASS (Windows)
+_LOW = 0x00004000                         # 26.11.2 the installed app is a windowed program: low priority, nothing hidden
+BUNDLED = Path(getattr(sys, "_MEIPASS", HERE)) / "voice_runtime"      # 26.11.2 the engine the installer brought
 
 
 def free_memory_mb():
@@ -91,8 +96,13 @@ class VoiceFollow:
 
     # ---------- files ----------
     @property
+    def bundled(self):
+        """26.11.2 the engine came with the installer (nothing to download but the model)."""
+        return self.frozen and (BUNDLED / "libvosk.dll").is_file()
+
+    @property
     def runtime_dir(self):
-        return self.dir / FILES["runtime"]["name"].rsplit(".", 1)[0]
+        return BUNDLED if self.bundled else self.dir / FILES["runtime"]["name"].rsplit(".", 1)[0]
 
     @property
     def model_dir(self):
@@ -145,9 +155,10 @@ class VoiceFollow:
 
     def _download_then_launch(self):
         self.dir.mkdir(parents=True, exist_ok=True)
-        total = FILES["runtime"]["size"] + FILES["model"]["size"]
+        keys = ("model",) if self.bundled else ("runtime", "model")
+        total = sum(FILES[k]["size"] for k in keys)
         done, err = 0, None
-        for key in ("runtime", "model"):
+        for key in keys:
             item = FILES[key]
             target = self.runtime_dir if key == "runtime" else self.model_dir
             if not (target.is_dir() and any(target.iterdir())):
@@ -200,7 +211,7 @@ class VoiceFollow:
                 self.proc = subprocess.Popen(self._command(), stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
                                              text=True, encoding="utf-8", bufsize=1, close_fds=True,
                                              env=dict(os.environ, FRAMEDECKS_VOICE_CHILD="1"),
-                                             creationflags=_NO_WINDOW if os.name == "nt" else 0)
+                                             creationflags=(_LOW if self.frozen else _NO_WINDOW) if os.name == "nt" else 0)
             except OSError as e:
                 self.proc = None
                 self._set("error", "Listening could not start (%s)." % e.__class__.__name__)
@@ -337,5 +348,5 @@ class VoiceFollow:
     def info(self):
         from voice_worker import microphones
         return {"available": self.available, "ready": self.files_ready(), "diskMb": self.disk_mb(),
-                "downloadMb": round((FILES["runtime"]["size"] + FILES["model"]["size"]) / (1024 * 1024)),
+                "downloadMb": round(sum(FILES[k]["size"] for k in (("model",) if self.bundled else ("runtime", "model"))) / (1024 * 1024)),
                 "mics": microphones() if self.available else []}

@@ -45,12 +45,17 @@ except Exception as e:
 builtin = root / "src" / "cloud_builtin.json"
 cloud_data = [(str(builtin), ".")] if builtin.exists() else []
 
+# 26.11.2 the speech engine for Follow my voice comes with the installer (the build puts it in src/voice_runtime from the
+# pinned file in src/voice_files.json): the installed app then downloads only the model, never program code
+voice_rt = root / "src" / "voice_runtime"
+voice_data = [(str(voice_rt), "voice_runtime")] if (voice_rt / "libvosk.dll").exists() else []
+
 a = Analysis(
     [str(root / "src" / "desktop_app.py")],
     pathex=[str(root / "src"), str(root)],
     datas=[(str(root / "app"), "app"), (str(root / "src" / "vcam" / "models"), "vcam/models"), (str(root / "src" / "vcam" / "bin"), "vcam/bin"),
            (str(root / "LICENSE"), "."), (str(root / "NOTICE"), "."), (str(root / "docs" / "legal" / "THIRD_PARTY_NOTICES.md"), "."),
-           (str(root / "src" / "voice_files.json"), ".")] + pptx_data + cloud_data,
+           (str(root / "src" / "voice_files.json"), ".")] + pptx_data + cloud_data + voice_data,
     hiddenimports=["server", "errlog", "supervisor", "ai", "pptx_export", "pptx", "lxml._elementpath", "pystray._win32", "PIL.Image", "vcam.engine", "vcam.blur", "vcam.sink", "vcam.devices", "vcam.overlay", "vcam.cards", "vcam.looks", "vcam.screen", "vcam.layers", "vcam.compositor", "vcam.program", "vcam.chatcard", "media_names", "ed25519", "manifest_sig", "updater", "vcam.priority", "vcam.present_window", "desktop_win", "memory", "capture", "legacy", "meeting_form", "meeting_keys", "live_push", "meeting_notes", "voice_follow", "voice_worker",
                    "windows_capture", "pypdfium2", "comtypes", "comtypes.client", "cv2", "numpy",
                    "cv2_enumerate_cameras", "cv2_enumerate_cameras.windows_backend", "cv2_enumerate_cameras._windows_backend"],

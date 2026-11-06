@@ -145,3 +145,11 @@ The animations added in 26.11.1 follow four rules, checked by `tests/test_motion
 while it hears a voice; the empty-list shimmer plays twice); nothing runs while nothing happens; and the system's
 "reduce motion" turns all of them off. `tests/visual/perf-4gb.mjs` gives the same results as 26.11: 2–5 % busy at
 rest on every screen, no frame over 34 ms, nothing kept after 15 rounds, the program at 72 MB.
+
+## 26.11.2: the top bar measures itself
+
+`app/js/bar-fit.js` sets a bar's `data-fit` level from 0 up until its buttons fit on one row. It runs only on a window
+resize, a change in the bar's buttons (shown, hidden, new words: a MutationObserver that ignores its own attribute) and
+once the fonts are ready, at most once per drawn frame; it never polls. A fit is a handful of layout reads (one per
+level tried). The 4 GB check is unchanged: studio idle 4 % busy, worst frame 17 ms.
+

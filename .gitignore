@@ -22,6 +22,7 @@ webview/
 !app/templates/*.xlsx
 # ---- Build output ----
 src/cloud_builtin.json
+src/voice_runtime/
 dist/
 build/
 .build-venv/

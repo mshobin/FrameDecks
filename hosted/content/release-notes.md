@@ -1,40 +1,37 @@
-## FrameDecks v26.11.1
+## FrameDecks v26.11.2
 
-FrameDecks now moves with you: every important moment answers with a short, calm animation, so you always see what
-just happened. It stays as light as before on older PCs. Download from **framedecks.com/download**, or let
-FrameDecks update itself. It installs over every earlier version and keeps all your meetings, members, settings,
-notes, pinned Memory Cards and recordings.
+The top bar now fits every window, from a small laptop to a maximized wide screen, in the main window and in the
+Teleprompter. Follow my voice listens whenever the Teleprompter is in front, and the Command Center opens cleanly.
+Download from **framedecks.com/download**, or let FrameDecks update itself. It installs over every earlier version and
+keeps all your meetings, members, settings, notes, pinned Memory Cards and recordings.
 
 ## What's New
-- **The Go Live moment**: when a Frame goes live, the Go Live button fills with light, the canvas lights up once,
-  the LIVE pill drops in and Up next lifts into place.
-- **Frames that move**: choosing a Frame slides the canvas a little the way you went, and Frames you reorder glide
-  to their new places instead of jumping.
-- **Follow my voice has a reading line**: a soft gold band marks where the next word sits. It breathes while it hears
-  you and rests while you pause; words you have read fade gently.
-- **Phone remote**: swipe across the picture for the next or previous Frame, and each chip's panel slides in from its
-  side.
+- **A top bar that fits the window**: the buttons always sit on one row and line up with the window's edges. As the
+  window gets narrower they tidy themselves a step at a time (shorter words first, then icons only), and only in a
+  small window do the live controls take a second row, laid out on purpose. The window buttons (minimize, maximize,
+  close) always stay at the top right.
+- **The Teleprompter's top bar does the same**, at any size of its window: the clock, the Frame and the window buttons
+  stay on the first row, and the buttons below turn into icons when space is short.
 
 ## Enhancements
-- Every button answers a press with a small push down.
-- The top-bar chips drop in when opened and leave quicker than they came.
-- **Undo you can see**: after a delete, a thin line under the message shows the time left to undo.
-- **One status pill**: it turns red for Black screen or Emergency, gold while Frozen, and its words change with a
-  short cross-fade.
-- Empty Frames and Decks lists now teach the next step, with a small drawing and one button to begin.
-- Settings switches slide, like a phone's.
-- A new Memory Card pops in, a note you just wrote is drawn in once, and a finished Setup guide step lights up.
-- The Welcome closes into the Studio with your Frames arriving one after another; the next Frame's script rises into
-  the Teleprompter.
+- **Follow my voice listens whenever the Teleprompter is above every other window**: pinned, as before, or simply the
+  window in front (the one you clicked last). Unpinned, click another window and it lets the microphone go; click the
+  Teleprompter and it carries on.
+- The first time you use Follow my voice it now downloads only the language model (about 40 MB instead of 53 MB):
+  the speech engine comes with the installer.
 
 ## Fixes
-- None in this version.
+- The main window's top bar no longer runs past the right edge when maximized, which left the page scrolled sideways
+  with an empty strip under **Hide all**.
+- The window buttons no longer drop onto a row of their own when FrameDecks opens in a normal-size window.
+- The Command Center no longer shows a large empty box for a moment before its bar the first time you press its
+  shortcut.
 
 ## Performance Improvements
-- Every animation moves only position and fade, lasts a fraction of a second and stops: nothing runs while nothing
-  happens, so the PC is exactly as quiet at rest as before (checked on a simulated older 4 GB PC).
-- Windows' **Reduce motion** setting (Settings → Accessibility → Visual effects → Animation effects off) turns every
-  one of them off; things simply appear.
+- The top bar measures itself only when the window is resized or its buttons change, at most once per drawn frame:
+  nothing runs at rest (checked on a simulated older 4 GB PC).
 
 ## Known Issues
 - The installer is not yet code-signed, so Windows SmartScreen may ask you to confirm: **More info → Run anyway**.
+  Until it is, each release is checked with Microsoft Defender before it is published, and the installed program no
+  longer downloads any program code of its own.
