@@ -479,7 +479,17 @@ html[data-theme="light"]{--cc-gloss:inset 0 1px 0 rgba(255,255,255,.7),inset 0 -
 .cc.cc-peek .cc-handle svg,.cc:not(.cc-fold) .cc-handle svg{transform:rotate(180deg)}
 .cc-handle[aria-pressed="true"]{color:var(--gold)}
 .cc.cc-typing .cc-handle-row{display:none}
-@media (prefers-reduced-motion:reduce){ .cc .cc-tray.cc-unfold{animation:none} .cc-handle,.cc-handle svg{transition:none} }
+.cc-handle .cc-pin-ic{display:none;width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.cc-handle-t{display:none;font-size:12px;font-weight:700;letter-spacing:.02em;white-space:nowrap}
+/* 26.11.2 while the chips show, the tab is a labelled pill: Keep open / Pinned */
+.cc.cc-peek .cc-handle,.cc:not(.cc-fold) .cc-handle{width:auto;height:22px;padding:0 12px 0 10px;gap:6px;grid-auto-flow:column;opacity:1;color:var(--ink)}
+.cc.cc-peek .cc-handle .cc-pin-ic,.cc:not(.cc-fold) .cc-handle .cc-pin-ic,.cc.cc-peek .cc-handle-t,.cc:not(.cc-fold) .cc-handle-t{display:inline-block}
+.cc.cc-peek .cc-handle > svg:first-child,.cc:not(.cc-fold) .cc-handle > svg:first-child{display:none}
+.cc:not(.cc-fold) .cc-handle{color:var(--gold);border-color:var(--gold)}
+.cc:not(.cc-fold) .cc-handle .cc-pin-ic{fill:currentColor}
+.cc-handle.cc-tip{animation:cc-tip .8s cubic-bezier(.2,.9,.25,1.1) 1}
+@keyframes cc-tip{0%,100%{transform:none}30%{transform:translateY(3px) scale(1.08)}60%{transform:translateY(-1px)}}
+@media (prefers-reduced-motion:reduce){ .cc .cc-tray.cc-unfold{animation:none} .cc-handle,.cc-handle svg{transition:none} .cc-handle.cc-tip{animation:none} }
 
 /* ---------- 9.12 Compact: slim chips in one row, a slimmer bar, a narrower Command Center (Settings > Controls >
    General > Command Center). The window keeps its size; only what is drawn in it is smaller. ---------- */

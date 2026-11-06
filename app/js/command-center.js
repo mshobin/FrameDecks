@@ -157,7 +157,11 @@ tray.insertAdjacentElement('afterend', stage);
  * them again), remembered. A chip opened with Alt+1 to Alt+5 shows the tray while its panel is open. */
 var FOLD_KEY = 'kc-cc-tray', pinned = false, peekT = 0;
 try { pinned = localStorage.getItem(FOLD_KEY) === '1'; } catch(e){}
-var handle = h('button', {cls: 'cc-handle', type: 'button', 'aria-controls': 'cc-tray', html: I('chevron-down', 14)});
+/* 26.11.2 the tab says what it does: while the chips show it reads "Keep open" (with a pin), pinned it reads "Pinned"
+   in gold; the first time the chips unfold it nudges once, so the pin is found without being told */
+var PIN_SVG = '<svg class="cc-pin-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 17v5"/><path d="M9 10.8V5h6v5.8l2.5 3.2H6.5z"/><path d="M8 5h8"/></svg>';
+var handle = h('button', {cls: 'cc-handle', type: 'button', 'aria-controls': 'cc-tray', html: I('chevron-down', 14) + PIN_SVG + '<span class="cc-handle-t"></span>'});
+var tipDone = false; try { tipDone = localStorage.getItem('kc-cc-pin-tip') === '1'; } catch(e){}
 var handleRow = h('div', {cls: 'cc-handle-row'}, [handle]);
 tray.id = 'cc-tray';
 stage.insertAdjacentElement('afterend', handleRow);
@@ -166,8 +170,11 @@ function paintFold(){
   box.classList.toggle('cc-fold', !pinned);
   handle.setAttribute('aria-expanded', String(shown));
   handle.setAttribute('aria-pressed', String(pinned));
-  handle.title = pinned ? 'Fold the chips away' : 'Keep the chips open (point here to see them)';
-  handle.setAttribute('aria-label', pinned ? 'Fold the chips away' : 'Keep the chips open');
+  handle.title = pinned ? 'Pinned: the chips stay open. Click to fold them away' : 'Keep the chips open (point here to see them)';
+  handle.setAttribute('aria-label', pinned ? 'Pinned: fold the chips away' : 'Keep the chips open');
+  handle.lastChild.textContent = pinned ? 'Pinned' : 'Keep open';
+  if (shown && !pinned && !tipDone && !reduce){ tipDone = true; try { localStorage.setItem('kc-cc-pin-tip', '1'); } catch(e){}
+    handle.classList.remove('cc-tip'); void handle.offsetWidth; handle.classList.add('cc-tip'); setTimeout(function(){ handle.classList.remove('cc-tip'); }, 900); }
 }
 function peek(on){
   clearTimeout(peekT);

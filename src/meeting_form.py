@@ -3,14 +3,11 @@
 The Meeting Workbook has two tabs: Dashboard (formulas only) and Meeting Form (one guided page, top to bottom):
 
     1 · Meeting details     Meeting name · Date · Time · Location / link · Meeting notes      (label in A, value in B)
-    2 · Speaker             Speaker name · Speaker contact
-    3 · Attendees           Expected attendees · Attendee notes
-    4 · Presentation        Presentation owner · Content notes
-    5 · Meeting plan        9.4 ONE table in the app's own order, Frame > Deck(s) > Content(s), one row each: a header
+    2 · Meeting plan        9.4 ONE table in the app's own order, Frame > Deck(s) > Content(s), one row each: a header
                             row ("No." · "Level" ...) and a fixed number of rows; the unused rows are folded away
                             (Excel's + button on the left opens them). No. numbers itself (a formula: 1 · 1.1 · 1.1.1)
                             from the Level column, so it is never written here.
-    6 · Additional notes
+    3 · Speaker, 4 · Attendees, 5 · Presentation, 6 · Additional notes   (26.11.2 optional, after the plan)
 
 tools/make_meeting_workbook.py draws the template from this layout; fill() writes a meeting into that template for
 "Export this meeting to Excel" (src/server.py, POST api/meeting/workbook), so the export looks exactly like the template.
@@ -41,8 +38,8 @@ DETAILS = [
 # (key, title, hint, column names, rows) - the column names and their order match app/js/meeting-book.js FORM_TABLES
 TABLES = [
     ("plan", "Meeting plan",
-     "Level: Frame = one screen · Deck = a block on it (questions, a reading, text, a timer, slides…) · Content = an item in "
-     "the Deck above (each question or verse). No. numbers them for you: 1 · 1.1 · 1.1.1.",
+     "Frame = one screen (needs a Name) · Deck = a block on it (needs a Type: questions, a reading, text, a timer, slides…) · "
+     "Content = an item in the Deck above (needs its Text: each question or verse). No. numbers them for you: 1 · 1.1 · 1.1.1.",
      ["No.", "Level", "Type", "Name", "Text", "Bible reference", "On-screen label", "Effect", "Notes / script"], 400),
 ]
 FORMULA_COLUMNS = {"plan": {0}}     # columns the template works out itself (never written by fill)
@@ -67,13 +64,17 @@ def layout():
     add("intro")
     add("gap")
     n = 0
-    for title, hint, items in DETAILS:
+
+    def section(title, hint, items, optional=False):
+        nonlocal n
         n += 1
-        add("heading", f"{n} · {title}")
+        add("heading", f"{n} · {title}" + ("   (optional)" if optional else ""))
         add("hint", hint)
         for key, label, lines in items:
             fields[key] = add("field", (key, label, lines))
         add("gap")
+    # 26.11.2 what a meeting needs first: its details, then the plan; the rest is optional and comes after
+    section(*DETAILS[0])
     for key, title, hint, cols, count in TABLES:
         n += 1
         add("heading", f"{n} · {title}")
@@ -84,13 +85,8 @@ def layout():
             add("data", key)
         tables[key] = (head, first, r, cols)
         add("gap")
-    n += 1
-    title, hint, items = EXTRA
-    add("heading", f"{n} · {title}")
-    add("hint", hint)
-    for key, label, lines in items:
-        fields[key] = add("field", (key, label, lines))
-    add("gap")
+    for title, hint, items in DETAILS[1:] + [EXTRA]:
+        section(title, hint, items, optional=True)
     add("footer")
     return {"rows": rows, "fields": fields, "tables": tables}
 

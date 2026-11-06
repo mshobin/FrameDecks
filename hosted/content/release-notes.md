@@ -35,6 +35,11 @@ keeps all your meetings, members, settings, notes, pinned Memory Cards and recor
   the chosen one opens in full.
 - **A calm place to write**: the Teleprompter script has a writing margin and its reading time, and the rest of the
   window steps back while you type.
+- **Command Center: a pin you can see.** While the chips show, the tab under the bar reads **Keep open** with a pin;
+  pinned, it reads **Pinned** in gold. The first time the chips unfold, it nudges once.
+- **A simpler Excel template.** Three steps across the top (name and date, the plan, save and import), the meeting
+  plan straight after the meeting details, and Speaker, Attendees, Presentation and notes marked optional below it.
+  Rows you type colour themselves by Level (Frame, Deck, Content), and the plan's hint says what each Level needs.
 - A small hint on the preview, "Double-click any card to edit it", until you have used it once.
 - What Show puts on screen (Question, Scripture or Both) is chosen in one place: on the Frame's card.
 - **Follow my voice listens whenever the Teleprompter is above every other window**: pinned, as before, or simply the

@@ -153,10 +153,9 @@ def meeting_form(wb):
         elif kind == "intro":
             band(ws, row, H_INTRO, CARD)
             ws.merge_cells(f"A{row}:{last_col}{row}")
-            a.value = ("Fill in the cream boxes, then plan the meeting in section 5: a Frame row for each screen, Deck rows for "
-                       "what it shows, Content rows for each question or verse. More rows: the + button on the left. "
-                       "Then, in FrameDecks: Quick Start or Settings → Import from Excel.")
-            a.font, a.alignment = font(10, MUTED), LEFT
+            a.value = ("①  Name and date in the cream boxes      →      ②  The plan: a Frame row for each screen, Deck rows "
+                       "under it, Content rows under each Deck      →      ③  Save, then FrameDecks → Import from Excel")
+            a.font, a.alignment = font(11, NAVY, bold=True), LEFT
         elif kind == "gap":
             band(ws, row, H_GAP)
         elif kind == "heading":
@@ -234,6 +233,13 @@ def meeting_form(wb):
     def col_range(key, letter):
         _h, first, last, _c = tables[key]
         return f"{letter}{first}:{letter}{last}"
+    # 26.11.2 a row looks like its Level as soon as it is chosen, also on rows typed by hand
+    from openpyxl.formatting.rule import FormulaRule
+    _h0, f0, l0, cols0 = tables["plan"]
+    area = f"A{f0}:{MF.COLUMNS[len(cols0) - 1]}{l0}"
+    ws.conditional_formatting.add(area, FormulaRule(formula=[f'$B{f0}="Frame"'], fill=fill(LEVEL_FILL["Frame"]), font=Font(name=FONT, bold=True, color=NAVY), stopIfTrue=True))
+    ws.conditional_formatting.add(area, FormulaRule(formula=[f'$B{f0}="Deck"'], fill=fill(PAPER), stopIfTrue=True))
+    ws.conditional_formatting.add(area, FormulaRule(formula=[f'$B{f0}="Content"'], fill=fill(PAPER), font=Font(name=FONT, color=INK), stopIfTrue=True))
     list_rule(ws, LEVELS, col_range("plan", "B"), "Frame (a screen), Deck (a block in it: questions, a verse, text…) or Content (an item in the Deck above).")
     list_rule(ws, DECK_TYPES, col_range("plan", "C"), "For a Deck: what kind of block it is. Leave it empty for a Frame or a Content.")
     list_rule(ws, EFFECTS, col_range("plan", "H"), "Frame: how the screen changes to it. Deck or Content: how it appears.", strict=False)

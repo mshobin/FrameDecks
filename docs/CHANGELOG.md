@@ -37,6 +37,10 @@ Full notes: [docs/releases/v26.11.2.md](releases/v26.11.2.md).
 - Content polish: state colours and pills (`fl-pill`), corner toolbar (`fl-tools`), label chip and ⋯ menu
   (`pop()`), FLIP glide and sliding live light (`glide()`), fade-out remove, roomy cards (`roomy()`), settings buttons
   with values (`foldValues()`) opening as sheets (`.cs-sheet`), writing focus (`kc-writing`), scripture small caps.
+- Command Center tab labelled Keep open / Pinned with a pin icon, a one-off nudge on first unfold (`command-center.js`
+  `paintFold`, `spotlight.css`).
+- Meeting Workbook: the plan is section 2 (`meeting_form.layout`), optional sections after it, a three-step intro,
+  conditional formatting by Level (`make_meeting_workbook.py`).
 - Website and guide pictures from the new Studio (`tools/make_product_shots.py` also writes the guide's studio.png and
   canvas-edit.png); `tests/visual/help-shots.mjs` gains `ONLY=pc` (the website half no longer reaches its pages).
 
