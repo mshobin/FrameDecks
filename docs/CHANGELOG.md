@@ -10,6 +10,13 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
 
 ## [Unreleased]
 
+### Changed
+- The front page's opening reads as one page (owner's request): the finished flowchart stays 5 s before the Studio
+  takes over, the Studio has no box (its edges fade into the page), and scrolling carries each screen in as the last
+  one rises away (`tour.tsx` sets their place each frame, `MIX` / `RISE`) instead of swapping pictures sideways.
+  Scrolling on before the build has finished completes it at once. Reduced motion and Reduce effects keep the plain
+  chapter changes.
+
 ### Fixed
 - The front page's Command Center pictures are now `cc-bar.webp` and `cc-control.webp`: browsers and Cloudflare
   kept serving the old `command-center*.webp` (with the coloured desktop behind them) under the same names, so the

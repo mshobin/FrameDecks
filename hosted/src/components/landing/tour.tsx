@@ -157,6 +157,9 @@ const SCRIPT = [
 const BAND = 170; // where the reading line sits in the Teleprompter (as in the program, about a third of the way down)
 
 const PHASES = ["is-frame", "is-decks", "is-items", "is-studio", "is-done"];
+const HOLD = 5000; // 26.11.3 the finished flowchart stays this long before the Studio takes over (owner: about 5 s)
+const MIX = 0.3; // 26.11.3 how much of the scroll two neighbouring screens share while one hands over to the next
+const RISE = 70; // ...and how far (stage pixels) a screen rises as it arrives, or as it leaves upwards
 
 /** The pinned stage and its chapters. `intro` is the first chapter's words (the page's headline and actions). */
 export function Tour({ intro, chapters }: Readonly<{ intro: ReactNode; chapters: readonly TourChapter[] }>) {
@@ -178,6 +181,14 @@ export function Tour({ intro, chapters }: Readonly<{ intro: ReactNode; chapters:
     const scenes = Array.from(st.querySelectorAll<HTMLElement>(".tr-sc"));
     const words = Array.from(st.querySelectorAll<HTMLElement>(".tr-w"));
     const script = st.querySelector(".tr-tp-text") as HTMLElement;
+    const base = st.querySelector(".tr-base") as HTMLElement;
+    const html = document.documentElement;
+    const still = matchMedia("(prefers-reduced-motion: reduce)");
+    // 26.11.3 one flow: with motion allowed, the page's scroll itself carries each screen in and the last one out
+    // (screens rise as one page rather than swap); otherwise the chapters change as before, without movement
+    const fluid = () => !still.matches && html.classList.contains("fd-motion") && !html.classList.contains("fd-calm");
+    const layers = [base, ...scenes];
+    const loose = () => layers.forEach((l) => ["opacity", "transform", "visibility"].forEach((k) => l.style.removeProperty(k)));
     let said = -1;
     // the movement on each screenshot (Scene.moves / ring / sweep), driven by the chapter's own progress
     const kit = scenes.map((fig, i) => ({
@@ -243,6 +254,8 @@ export function Tour({ intro, chapters }: Readonly<{ intro: ReactNode; chapters:
     const play = () => {
       timers.forEach(clearTimeout);
       timers = [];
+      base.style.removeProperty("opacity");
+      base.style.removeProperty("transform");
       PHASES.forEach((p) => set(p, false));
       name.textContent = "";
       const word = "Bible Study";
@@ -251,8 +264,16 @@ export function Tour({ intro, chapters }: Readonly<{ intro: ReactNode; chapters:
       for (let i = 1; i <= word.length; i++) at(500 + i * 55, () => (name.textContent = word.slice(0, i)));
       at(1400, () => set("is-decks"));
       at(2200, () => set("is-items"));
-      at(3300, () => set("is-studio"));
-      at(4600, () => set("is-done"));
+      at(3300 + HOLD, () => set("is-studio"));
+      at(4600 + HOLD, () => set("is-done"));
+    };
+    // scrolled on before the build has finished: it finishes at once, so the Studio is there when they come back
+    const finish = () => {
+      if (st.classList.contains("is-done")) return;
+      timers.forEach(clearTimeout);
+      timers = [];
+      name.textContent = "Bible Study";
+      PHASES.forEach((p) => set(p));
     };
     if (!calm) PHASES.forEach((p) => set(p, false));
     st.setAttribute("data-ready", "");
@@ -282,6 +303,7 @@ export function Tour({ intro, chapters }: Readonly<{ intro: ReactNode; chapters:
       const x = clamp(-r.top / (tr.offsetHeight - innerHeight)) * n;
       const ch = Math.min(n - 1, Math.floor(x));
       const t = clamp(x - ch);
+      if (ch > 0) finish();
       if (ch !== prev) {
         st.dataset.ch = String(ch);
         caps.current.forEach((c, i) => c?.classList.toggle("is-on", i === ch));
@@ -306,9 +328,36 @@ export function Tour({ intro, chapters }: Readonly<{ intro: ReactNode; chapters:
         prev = ch;
       }
       rail.current.forEach((b, i) => b?.style.setProperty("--f", String(i < ch ? 1 : i === ch ? t : 0)));
-      // a slow drift through the chapter: the screenshot rises a little as the page moves on
-      const on = scenes[ch - 1];
-      if (on && ch !== 2) on.style.setProperty("--y", `${(-14 * t).toFixed(1)}px`);
+      if (fluid()) {
+        st.dataset.fluid = "";
+        // each screen shares MIX of the scroll with its neighbours: it rises in as the last one rises away, and
+        // drifts up a little while it is the one on show (the Teleprompter's words do their own moving)
+        layers.forEach((l, i) => {
+          if (i === 0 && !st.classList.contains("is-done")) return; // the build still owns the Studio
+          const a = i === 0 ? 1 : clamp((x - i + MIX / 2) / MIX);
+          const b = i === n - 1 ? 1 : clamp((i + 1 + MIX / 2 - x) / MIX);
+          let o = Math.min(a, b);
+          let y = (a < 1 ? 1 - a : b - 1) * RISE + (i === 2 ? 0 : -14 * clamp(x - i));
+          let tx = 0;
+          let sc = 0.97 + 0.03 * o;
+          if (i === 0) {
+            // the phone chapter brings the Studio back beside the phone, quieter, as on the day
+            const p = clamp((x - (n - 1) + MIX / 2) / MIX);
+            if (p > 0) [o, y, tx, sc] = [0.55 * p, (1 - p) * RISE, -120, 0.84];
+          }
+          l.style.opacity = (o * o).toFixed(3); // eased: two screens never sit half and half on each other
+          l.style.transform = `translate3d(${tx}px, ${y.toFixed(1)}px, 0) scale(${sc.toFixed(4)})`;
+          l.style.visibility = o > 0.002 ? "visible" : "hidden";
+        });
+      } else {
+        if ("fluid" in st.dataset) {
+          delete st.dataset.fluid;
+          loose();
+        }
+        // a slow drift through the chapter: the screenshot rises a little as the page moves on
+        const on = scenes[ch - 1];
+        if (on && ch !== 2) on.style.setProperty("--y", `${(-14 * t).toFixed(1)}px`);
+      }
       if (ch >= 1 && kit[ch - 1]) move(kit[ch - 1], t);
       // the Teleprompter follows the page as Follow my voice follows the presenter: read words fade, the next word
       // stays on the reading line

@@ -137,6 +137,10 @@ numbers. **Every picture of the program is a real screenshot** (`tools/make_prod
   2. `landing/tour.tsx`, the stage (as in the owner's mockup: the words centred above, the product below, one idea
      per screen). The words are the headline and paragraph, then one chapter each. The stage has no frame: the build
      and the screens float on the page in a soft light coloured by the chapter.
+     **One flow (26.11.3):** the finished flowchart holds for `HOLD` (5 s) before the Studio takes over; the Studio's
+     edges fade into the page (a mask, no border); with motion allowed the scroll itself carries the screens (each
+     shares `MIX` of the scroll with its neighbour, rising `RISE` px in as the last rises away, opacity eased), and
+     scrolling on before the build has finished finishes it at once. Without motion the chapters change as before.
      The stage (1000 × 620, scaled) is the app's own dark colours in both themes. On arrival, with no scrolling, a
      meeting builds itself in about five seconds: the Frame (gold) types its name, lines grow to its Decks (blue) and
      their Content (violet), then each card flies to its place in the real Studio screenshot (one transform each) and

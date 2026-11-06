@@ -255,10 +255,16 @@
   height: 100%;
 }
 
+/* 26.11.3 no box: the Studio's edges fade into the page, so the build lands in the page rather than on a picture */
 .tr-base img {
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 14px;
-  box-shadow: 0 40px 90px -30px rgba(0, 0, 0, 0.8);
+  -webkit-mask-image:
+    linear-gradient(to bottom, transparent, #000 4%, #000 78%, transparent),
+    linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
+  -webkit-mask-composite: source-in;
+  mask-image:
+    linear-gradient(to bottom, transparent, #000 4%, #000 78%, transparent),
+    linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
+  mask-composite: intersect;
 }
 
 .is-studio .tr-base {
@@ -824,6 +830,15 @@ html:not(.fd-calm) .tr-stage:not([data-ready]) :is(.tr-build > *, .tr-base) {
       transform 1s var(--ease-out) 0.2s;
   }
 
+  /* 26.11.3 one flow: the scroll carries the screens (tour.tsx sets their place each frame), so they only smooth
+     the steps of a mouse wheel instead of playing a change of their own */
+  html.fd-motion:not(.fd-calm) .tr-stage[data-fluid].is-done .tr-base,
+  html.fd-motion:not(.fd-calm) .tr-stage[data-fluid] .tr-sc {
+    transition:
+      transform 0.18s linear,
+      opacity 0.18s linear;
+  }
+
   html.fd-motion:not(.fd-calm) .tr-ptr,
   html.fd-motion:not(.fd-calm) .tr-ring {
     transition: transform 0.3s var(--ease-out);
@@ -879,7 +894,7 @@ html:not(.fd-calm) .tr-stage:not([data-ready]) :is(.tr-build > *, .tr-base) {
     animation: tr-kp 1.4s var(--ease-out);
   }
 
-  html.fd-motion:not(.fd-calm) .tr-stage.is-boot .tr-sc-cc {
+  html.fd-motion:not(.fd-calm) .tr-stage.is-boot:not([data-fluid]) .tr-sc-cc {
     animation: tr-drop 0.6s var(--ease-out) 0.85s backwards;
   }
 
