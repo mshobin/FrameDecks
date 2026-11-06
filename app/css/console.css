@@ -642,7 +642,23 @@ body.studio-focus .studio.s2{height:100vh !important}
 .cx-code{display:inline-block;padding:0 6px;border-radius:4px;background:var(--neutral-btn);color:var(--ink);font:600 12px/1.6 ui-monospace,Consolas,monospace;text-decoration:none}
 .cx-code:hover{text-decoration:underline}
 /* 26.11.4 the "?" next to a heading: opens that part of the guide in the browser */
-.help-q{display:inline-grid;place-items:center;width:22px;height:22px;margin-left:8px;padding:0;border:1px solid var(--edge);border-radius:999px;background:transparent;color:var(--muted);font:700 12px/1 var(--font, inherit);cursor:pointer;vertical-align:middle}
+.help-q{display:inline-grid;place-items:center;width:22px;height:22px;margin-left:8px;padding:0;border:1px solid var(--edge);border-radius:999px;background:transparent;color:var(--muted);font-weight:700;font-size:12px;line-height:1;cursor:pointer;vertical-align:middle}
 .help-q:hover,.help-q:focus-visible{color:var(--ink);border-color:var(--gold)}
+/* 26.11.4 the keys that work everywhere (js/keys.js) */
+.kk{display:grid;gap:2px}
+.kk-row{display:grid;grid-template-columns:minmax(200px,auto) 1fr auto;gap:12px;align-items:center;padding:7px 4px;border-bottom:1px solid var(--edge);font-size:14px}
+.kk-row:last-child{border-bottom:0}
+.kk-keys kbd{display:inline-block;min-width:22px;padding:1px 6px;border:1px solid var(--kbd-line);border-radius:4px;background:var(--neutral-btn);color:var(--ink);font-weight:600;font-size:12px;line-height:1.6;text-align:center}
+.kk-what{color:var(--ink)} .kk-where{color:var(--muted);font-size:13px}
+/* 26.11.4 What's new: one small card after an update; Show me lights the place for a moment */
+.wn{position:fixed;right:20px;bottom:20px;z-index:80;width:min(380px,calc(100vw - 40px));padding:14px 16px;border:1px solid var(--edge);border-radius:16px;background:var(--surface, var(--neutral-btn));box-shadow:var(--el-4);color:var(--ink)}
+.wn-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.wn-head b{font-size:16px}
+.wn-x{width:28px;height:28px;padding:0;border:0;border-radius:999px;background:transparent;color:var(--muted);font-size:18px;cursor:pointer}
+.wn-x:hover{color:var(--ink)}
+.wn-list{display:grid;gap:10px;margin:0;padding:0;list-style:none}
+.wn-list li{padding:10px 12px;border:1px solid var(--edge);border-radius:12px}
+.wn-list p{margin:4px 0 8px;color:var(--muted);font-size:13px}
+.kc-show-me{outline:3px solid var(--gold);outline-offset:4px;border-radius:12px}
 @media (prefers-reduced-motion:reduce){ .gd-prog li.done.kc-new button{animation:none} }
 

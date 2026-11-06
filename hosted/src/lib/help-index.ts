@@ -5,6 +5,7 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 
 import codes from "../../content/help-codes.json";
+import keys from "../../content/help-keys.json";
 import { GUIDE } from "@/lib/help-guide";
 import { guides, slugify } from "@/lib/markdown";
 import type { HelpEntry } from "@/lib/help-search";
@@ -27,6 +28,8 @@ export function helpIndex(): HelpEntry[] {
   const out: HelpEntry[] = [];
   for (const c of HELP_CODES)
     out.push({ kind: "Error code", title: `${c.code} · ${c.title}`, text: `${c.why} ${c.fix}`, href: `/help?code=${c.code}#codes` });
+  for (const k of keys as { keys: string; what: string; where: string }[])
+    out.push({ kind: `Key · ${k.where}`, title: `${k.keys} · ${k.what}`, text: `${k.what}. Works: ${k.where}.`, href: "/docs/presentations#keyboard-shortcuts" });
   for (const track of Object.values(GUIDE))
     for (const s of track.steps)
       out.push({ kind: "Step by step", title: s.title, text: cut(plain(`${s.why} ${s.steps.join(" ")}`)), href: "/help#getting-started" });

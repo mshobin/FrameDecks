@@ -52,7 +52,13 @@ export function contentFiles() {
 export function derivedFiles() {
   const js = readFileSync(new URL("app/js/help-codes.js", root), "utf8");
   const codes = JSON.parse(js.slice(js.indexOf("/* codes:start */") + 17, js.indexOf("/* codes:end */")));
-  return [["content/help-codes.json", JSON.stringify(codes, null, 2) + "\n"]];
+  // the keys that work anywhere (app/js/keys.js): {keys, what, where}, read from its plain one-line entries
+  const keysJs = readFileSync(new URL("app/js/keys.js", root), "utf8");
+  const keys = [...keysJs.matchAll(/\{keys: '([^']+)', what: '([^']+)', where: '([^']+)'\}/g)].map(([, k, what, where]) => ({ keys: k, what, where }));
+  return [
+    ["content/help-codes.json", JSON.stringify(codes, null, 2) + "\n"],
+    ["content/help-keys.json", JSON.stringify(keys, null, 2) + "\n"],
+  ];
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {

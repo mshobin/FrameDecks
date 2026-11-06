@@ -18,7 +18,10 @@ window.KCh = h;
  * every page keeps its id, so showSection('vcam') and the links into Settings (data-sec) open the right tab. */
 var current = null;
 /* Sections built on their first visit, so the page carries less while they are hidden (design audit DD-25) */
-var buildOnce = {keys: function(){ if (window.KCShortcuts) window.KCShortcuts.mountEditor($('keys-body')); }};
+var buildOnce = {keys: function(){
+  if (window.KCShortcuts) window.KCShortcuts.mountEditor($('keys-body'));
+  if (window.KCKeys && $('keys-global')) $('keys-global').appendChild(KCKeys.table(function(k){ return k.where !== 'Studio'; }));   // 26.11.4
+}};
 var tabs = $('s-tabs');
 function tabOf(id){ return tabs && tabs.querySelector('[data-sec="' + id + '"]'); }
 function groupOf(id){ var t = tabOf(id); return t ? t.dataset.in : ''; }

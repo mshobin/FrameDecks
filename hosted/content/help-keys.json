@@ -1,0 +1,82 @@
+[
+  {
+    "keys": "Alt+Space",
+    "what": "Open the Command Center",
+    "where": "Anywhere"
+  },
+  {
+    "keys": "?",
+    "what": "This list of keys",
+    "where": "Command Center"
+  },
+  {
+    "keys": "Alt+1 … Alt+5",
+    "what": "Open a chip: Prepare, Engage, Control, Notes, More",
+    "where": "Command Center"
+  },
+  {
+    "keys": "Alt+→ / Alt+←",
+    "what": "Next / previous Frame",
+    "where": "Command Center"
+  },
+  {
+    "keys": "Alt+↓ / Alt+↑",
+    "what": "Next / previous Content (question, verse)",
+    "where": "Command Center"
+  },
+  {
+    "keys": "Alt+H",
+    "what": "Hide all",
+    "where": "Command Center"
+  },
+  {
+    "keys": "Alt+B",
+    "what": "Black screen",
+    "where": "Command Center"
+  },
+  {
+    "keys": "Alt+P",
+    "what": "Play or pause the video",
+    "where": "Command Center"
+  },
+  {
+    "keys": "Alt+L",
+    "what": "Spotlight",
+    "where": "Command Center"
+  },
+  {
+    "keys": "Alt+D",
+    "what": "Draw on the picture",
+    "where": "Command Center"
+  },
+  {
+    "keys": "Alt+M",
+    "what": "Mute in your meeting app",
+    "where": "Command Center"
+  },
+  {
+    "keys": "Alt+V",
+    "what": "Camera on or off in your meeting app",
+    "where": "Command Center"
+  },
+  {
+    "keys": "Alt+S",
+    "what": "Share your screen in your meeting app",
+    "where": "Command Center"
+  },
+  {
+    "keys": "Alt+= / Alt+-",
+    "what": "Volume up / down",
+    "where": "Command Center"
+  },
+  {
+    "keys": "Ctrl+C",
+    "what": "With Capture on, a copied message becomes a Memory Card",
+    "where": "Anywhere"
+  },
+  {
+    "keys": "Ctrl+K or Ctrl+Space",
+    "what": "The command palette: search every action",
+    "where": "Studio"
+  }
+]

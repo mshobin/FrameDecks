@@ -1,0 +1,61 @@
+/* FrameDecks 26.11.4 - "What's new": after an update, one small card with the three changes worth knowing, each with
+ * a "Show me" that opens the place and lights it once. It shows once per version, only to someone who has used an
+ * earlier version (a new install has the Welcome tour instead), and never while live. Close it and it stays closed.
+ * Each release adds its three items here (tests/test_help_2611_4.py checks this version has them). */
+(function(){
+'use strict';
+var NEWS = {
+  '26.11.4': [
+    {title: 'Check my connection', text: 'Phone won’t connect? Settings → Phone & iPad Remote now checks every step and fixes the first problem in one click.', show: {settings: 'ipad', spot: '#cx-run'}},
+    {title: 'Help where you need it', text: 'A small ? next to the remote, the camera, Capture Memory and Sync opens the right page of the guide. Problems now show a short code like FD-NET-02.', show: {settings: 'ipad', spot: '#remote-box'}},
+    {title: 'Every key on one page', text: 'Press ? in the Command Center (Alt+Space) to see all its keys. They are also in Settings → Keyboard shortcuts.', show: {settings: 'keys', spot: '#keys-global'}}
+  ]
+};
+var SEEN = 'kc-whats-new';
+function get(){ try { return localStorage.getItem(SEEN); } catch(e){ return null; } }
+function seen(v){ try { localStorage.setItem(SEEN, v); } catch(e){} }
+function h(tag, cls, text){ var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+var card = null;
+function close(v){ if (card){ card.remove(); card = null; } seen(v); }
+function showMe(item){
+  if (item.show.settings && window.KCSetTab){ KCSetTab('settings'); if (window.KCShowSection) KCShowSection(item.show.settings); }
+  setTimeout(function(){
+    var el = item.show.spot && document.querySelector(item.show.spot);
+    if (!el) return;
+    el.scrollIntoView({block: 'center'});
+    el.classList.add('kc-show-me');
+    setTimeout(function(){ el.classList.remove('kc-show-me'); }, 2600);
+  }, 350);
+}
+function open(v){
+  var items = NEWS[v];
+  if (!items || card) return;
+  card = h('aside', 'wn');
+  card.setAttribute('role', 'dialog'); card.setAttribute('aria-label', 'What’s new in FrameDecks ' + v);
+  var head = h('div', 'wn-head');
+  head.appendChild(h('b', '', 'What’s new in ' + v));
+  var x = h('button', 'wn-x', '×'); x.type = 'button'; x.setAttribute('aria-label', 'Close'); x.title = 'Close';
+  x.addEventListener('click', function(){ close(v); });
+  head.appendChild(x); card.appendChild(head);
+  var list = h('ol', 'wn-list');
+  items.forEach(function(it){
+    var li = h('li'), go = h('button', 'btn small', 'Show me');
+    go.type = 'button';
+    go.addEventListener('click', function(){ showMe(it); });
+    li.appendChild(h('b', '', it.title)); li.appendChild(h('p', '', it.text)); li.appendChild(go);
+    list.appendChild(li);
+  });
+  card.appendChild(list);
+  document.body.appendChild(card);
+}
+document.addEventListener('kc-app-info', function(e){
+  var d = e.detail || {}, v = d.version, last = get();
+  if (!v || last === v) return;
+  var ob = (d.settings && d.settings.onboarding) || {};
+  if (!(ob.done || ob.skipped)){ seen(v); return; }           // a new install: the Welcome tour, not "what's new"
+  var st = window.KCStore && KCStore.get(), live = st && st.live && st.live.scene;
+  if (live) return;                                         // never over a live meeting: next start instead
+  open(v);
+});
+window.KCWhatsNew = {news: NEWS, open: open};
+})();

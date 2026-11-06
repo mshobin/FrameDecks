@@ -107,7 +107,7 @@ var MAKE = {
   output: function(){ return T('output', function(){ setting('output'); }); },
   phone: function(){ return T('phone', function(){ setting('ipad'); }); },
   brand: function(){ return T('brand', function(){ setting('meeting'); }); },
-  keys: function(){ return T('keys', function(){ setting('keys'); }); },
+  keys: function(){ return T('keys', function(){ keySheet(true); }); },
   all: function(){ return T('all', function(){ scope('settings'); }); },
   help: function(){ return T('help', function(){ run('cmd:welcome', false); }); }};
 var GROUPS = CH.list.map(function(c){
@@ -332,8 +332,27 @@ function layout(){
   if (box.classList.contains('cc-typing') !== typing) box.classList.toggle('cc-typing', typing);
 }
 
+/* ---------- 26.11.4 the Keys sheet: every key that works here (js/keys.js), one glass page over the panels; ? when
+ * the search is empty, or More → Shortcuts. The Studio's own keys can be changed in Settings → Keyboard shortcuts. */
+var sheet = null;
+function keySheet(on){
+  if (on && !sheet && window.KCKeys){
+    sheet = h('section', {cls: 'cc-keysheet', role: 'dialog', 'aria-label': 'Keys'}, [
+      h('div', {cls: 'cc-ks-head'}, [h('b', {text: 'Keys'}), h('span', {text: 'They work while the Command Center is open, and Alt+Space anywhere.'}),
+        h('button', {cls: 'cc-ks-x', type: 'button', 'aria-label': 'Close', title: 'Close (Esc)', html: I('x', 15), onclick: function(){ keySheet(false); }})]),
+      KCKeys.table(),
+      h('button', {cls: 'cc-ks-more', type: 'button', text: 'Change the Studio’s keys →', onclick: function(){ keySheet(false); setting('keys'); }})]);
+    box.appendChild(sheet);
+  } else if (!on && sheet){ sheet.remove(); sheet = null; input.focus(); }
+}
+document.addEventListener('keydown', function(e){
+  if (e.key !== '?' || e.ctrlKey || e.altKey || e.metaKey || input.value) return;
+  e.preventDefault(); e.stopPropagation(); keySheet(!sheet);
+}, true);
+
 /* ---------- keys ---------- */
 P.hooks.escape = function(){
+  if (sheet){ keySheet(false); return true; }
   if (input.value){ input.value = ''; input.dispatchEvent(new Event('input')); return true; }
   if (current){ clearScope(); return true; }
   if (open){ closeGroup(); return true; }

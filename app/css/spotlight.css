@@ -612,3 +612,17 @@ html[data-theme="light"] .cc[data-group="notes"] .cc-panel{background:linear-gra
 .cc.cc-bottom.cc-open[data-group="notes"]:not(.cc-typing) .cc-tray{border-radius:20px 20px 0 0}
 .cc[data-group="notes"] .cc-panel{margin-top:8px}
 .cc.cc-bottom[data-group="notes"] .cc-panel{margin-top:0;margin-bottom:8px;border-radius:4px 4px 4px 20px}
+/* 26.11.4 the Keys sheet (? or More → Shortcuts): one glass page over the panels, the keys from js/keys.js */
+.cc-keysheet{position:absolute;top:96px;left:30px;right:30px;z-index:6;max-height:560px;overflow:auto;padding:14px 18px 16px;border-radius:20px;
+  background:linear-gradient(180deg,var(--cc-bar-a),var(--cc-bar-b));box-shadow:inset 0 1px 0 var(--cc-bar-rim),var(--el-4);color:var(--ink)}
+.cc.cc-bottom .cc-keysheet{top:auto;bottom:96px}
+.cc-ks-head{display:flex;align-items:baseline;gap:10px;margin-bottom:8px}
+.cc-ks-head b{font-size:16px} .cc-ks-head span{flex:1;color:var(--muted);font-size:13px}
+.cc-ks-x{display:grid;place-items:center;width:28px;height:28px;padding:0;border:0;border-radius:999px;background:transparent;color:var(--muted);cursor:pointer}
+.cc-ks-x:hover{color:var(--ink);background:rgba(var(--rgb-gray-1000),.08)}
+.cc-keysheet .kk{display:grid;gap:0} .cc-keysheet .kk-keys{white-space:nowrap}
+.cc-keysheet .kk-row{display:grid;grid-template-columns:200px 1fr auto;gap:12px;align-items:center;padding:6px 2px;border-bottom:1px solid rgba(var(--rgb-gray-1000),.08);font-size:13px}
+.cc-keysheet .kk-keys kbd{display:inline-block;min-width:20px;padding:0 6px;border:1px solid rgba(var(--rgb-gray-1000),.22);border-radius:4px;background:rgba(var(--rgb-gray-1000),.08);font-weight:600;font-size:12px;line-height:1.6;text-align:center}
+.cc-keysheet .kk-where{color:var(--muted);font-size:12px}
+.cc-ks-more{margin-top:10px;padding:6px 12px;border:1px solid rgba(var(--rgb-gray-1000),.2);border-radius:999px;background:transparent;color:var(--ink);font-weight:600;font-size:13px;cursor:pointer}
+.cc-ks-more:hover{border-color:var(--gold)}

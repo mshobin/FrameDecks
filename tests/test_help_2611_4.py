@@ -1,5 +1,6 @@
 """FrameDecks 26.11.4 - Help: error codes, the connection check, Help links, What's new and Keys, the support report."""
 import json
+import re
 import sys
 import unittest
 from pathlib import Path
@@ -121,3 +122,38 @@ class HelpSearch(unittest.TestCase):
         self.assertIn('get("code")', tsx)
         self.assertIn("<HelpSearch", tsx)
         self.assertIn("helpIndex()", read("hosted/src/app/help/page.tsx"))
+
+
+class KeysAndWhatsNew(unittest.TestCase):
+    def keys(self):
+        import re as _re
+        return _re.findall(r"\{keys: '([^']+)', what: '([^']+)', where: '([^']+)'\}", read("app/js/keys.js"))
+
+    def test_every_listed_key_is_answered_by_the_code(self):
+        rows = self.keys()
+        self.assertEqual(len(rows), len(json.loads(read("hosted/content/help-keys.json"))))
+        remote = read("app/js/spotlight-remote.js")
+        cc = read("app/js/command-center.js")
+        for keys, what, where in rows:
+            if where != "Command Center" or not keys.startswith("Alt+"):
+                continue
+            if "…" in keys:                                      # Alt+1 … Alt+5: the chips
+                self.assertIn("/^[1-5]$/.test(e.key)", cc)
+                continue
+            for part in keys.replace(" / ", "|").split("|"):
+                k = part.split("+", 1)[1].strip()
+                k = {"→": "ArrowRight", "←": "ArrowLeft", "↓": "ArrowDown", "↑": "ArrowUp"}.get(k, k.lower())
+                self.assertIn("'Alt+%s'" % k, remote, keys)
+        self.assertIn("e.key !== '?'", cc)                       # ? opens the sheet when the search is empty
+        self.assertIn('<script src="js/keys.js"></script>', read("app/spotlight.html"))
+        self.assertIn('id="keys-global"', read("app/dashboard.html"))
+
+    def test_whats_new_has_three_items_for_this_release_and_waits_for_returning_people(self):
+        js = read("app/js/whats-new.js")
+        self.assertIn("'26.11.4': [", js)
+        block = js[js.index("'26.11.4': ["):js.index("]\n};")]
+        self.assertEqual(block.count("{title:"), 3)
+        self.assertIn("if (!(ob.done || ob.skipped)){ seen(v); return; }", js)   # not on a first install
+        self.assertIn("if (live) return;", js)                                     # never over a live meeting
+        for spot in re.findall(r"spot: '#([\w-]+)'", block):
+            self.assertTrue(f'id="{spot}"' in read("app/dashboard.html") or f"id: '{spot}'" in read("app/js/remote-panel.js"), spot)

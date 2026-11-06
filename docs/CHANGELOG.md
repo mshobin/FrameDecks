@@ -28,6 +28,13 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
   guide page and section, the step-by-step guide and the error codes, scored in the browser (an exact error code
   first; nothing is sent anywhere). A new **Error codes** topic lists every code; `help?code=FD-NET-02` opens and
   lights that one.
+- **Keys on one page** (`app/js/keys.js`, the keys that work anywhere and in the Command Center, each checked against
+  the code that answers it): press **?** in the Command Center (or More → Shortcuts) for a Keys sheet; Settings →
+  Keyboard shortcuts now lists them above the Studio's own keys; the website's Help search finds them too
+  (`content/help-keys.json`).
+- **What's new** (`app/js/whats-new.js`): after an update, one small card with the release's three changes, each with
+  **Show me** (it opens the place and outlines it for a moment). Once per version, only for someone who used an
+  earlier one, never while live.
 
 ### Changed
 - New front-page chapter, Memory Cards (owner's request), between Engage and Control: with Capture on, three chat
