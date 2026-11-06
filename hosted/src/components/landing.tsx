@@ -60,6 +60,18 @@ const CHAPTERS: readonly TourChapter[] = [
     ),
   },
   {
+    id: "memory-cards",
+    label: "Memory Cards",
+    eyebrow: "Engage · Memory Cards",
+    title: "Their words, right beside you.",
+    text: (
+      <>
+        With Capture on, copy a message from the meeting chat with <Keys k="Ctrl+C" /> and it becomes a Memory Card. Show it and it pops up beside you on the
+        camera, in the order you copied, while your picture makes room.
+      </>
+    ),
+  },
+  {
     id: "control",
     label: "Control",
     eyebrow: "Control · Live",

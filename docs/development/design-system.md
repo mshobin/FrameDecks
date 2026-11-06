@@ -141,6 +141,11 @@ numbers. **Every picture of the program is a real screenshot** (`tools/make_prod
      edges fade into the page (a mask, no border); with motion allowed the scroll itself carries the screens (each
      shares `MIX` of the scroll with its neighbour, rising `RISE` px in as the last rises away, opacity eased), and
      scrolling on before the build has finished finishes it at once. Without motion the chapters change as before.
+     **Memory Cards (26.11.3)** is the second drawn chapter (with the Teleprompter): a meeting chat with Capture on,
+     three messages copied (Ctrl+C) in turn; each copied card arcs onto the FrameDecks vCam picture and pops up as a
+     bubble in the program's own overlay style (`overlay.css` `.chat-list`, the same pop curve), in copy order, the
+     presenter (a drawn backlit silhouette, never a photo) moving aside to make room, the prayer request pinned in
+     gold. `CHAT` / `COPIED` / `COPY_AT` / `PIN_AT` in `tour.tsx`; the flying card shows only with motion.
      The stage (1000 × 620, scaled) is the app's own dark colours in both themes. On arrival, with no scrolling, a
      meeting builds itself in about five seconds: the Frame (gold) types its name, lines grow to its Decks (blue) and
      their Content (violet), then each card flies to its place in the real Studio screenshot (one transform each) and

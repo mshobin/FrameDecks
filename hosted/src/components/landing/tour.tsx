@@ -81,6 +81,7 @@ type Scene = {
   moves?: readonly Move[];
   ring?: readonly (readonly [number, number])[];
   sweep?: readonly [number, number, number];
+  draw?: "tp" | "mc"; // drawn live in the program's own style instead of a screenshot (Teleprompter, Memory Cards)
 };
 const SCENES: readonly Scene[] = [
   {
@@ -96,7 +97,7 @@ const SCENES: readonly Scene[] = [
       [50, 54],
     ],
   },
-  { src: "", w: 0, h: 0, cls: "tr-sc-tp", alt: "", keys: [["R", "Teleprompter"], ["V", "Follow my voice"]] },
+  { src: "", w: 0, h: 0, cls: "tr-sc-tp", alt: "", draw: "tp", keys: [["R", "Teleprompter"], ["V", "Follow my voice"]] },
   {
     src: "/product/annotate.webp",
     w: 1000,
@@ -114,6 +115,7 @@ const SCENES: readonly Scene[] = [
     ],
     sweep: [28, 86.4, 19],
   },
+  { src: "", w: 0, h: 0, cls: "tr-sc-mc", alt: "", draw: "mc", keys: [["Ctrl+C", "a copied message becomes a Memory Card"]] },
   {
     src: "/product/cc-control.webp",
     w: 820,
@@ -146,6 +148,20 @@ const SCENES: readonly Scene[] = [
   },
 ];
 
+// 26.11.3 Memory Cards (owner's request): a meeting's chat, three messages copied (Ctrl+C) one after another, each
+// flying to the camera picture and popping up there as a bubble in the program's own overlay style (overlay.css
+// .chat-list: initials, name, the words; pinned in gold), the picture shrinking beside them as FrameDecks vCam does.
+type Chat = { who: string; ini: string; c: string; text: string };
+const CHAT: readonly Chat[] = [
+  { who: "Grace", ini: "G", c: "#b5651d", text: "Could we pray for my mother's surgery on Friday?" },
+  { who: "Daniel", ini: "D", c: "#3a7bd5", text: "Verse 105 is my favourite: a light for each step." },
+  { who: "Ruth", ini: "R", c: "#2e9e6b", text: "Joining from the car, I can hear you clearly." },
+  { who: "Samuel", ini: "S", c: "#8a5cc7", text: "How do we stay faithful when the path is unclear?" },
+];
+const COPIED = [1, 3, 0] as const; // the rows copied, in copy order (the bubbles keep this order)
+const COPY_AT = [0.08, 0.34, 0.6] as const; // where in the chapter each copy happens
+const PIN_AT = 0.84; // ...and when the prayer request is pinned
+
 // The Teleprompter's script (the same words as the program's own capture)
 const SCRIPT = [
   "Good evening, and welcome to week five of our study.",
@@ -156,6 +172,8 @@ const SCRIPT = [
 ];
 const BAND = 170; // where the reading line sits in the Teleprompter (as in the program, about a third of the way down)
 
+const TPI = SCENES.findIndex((s) => s.draw === "tp") + 1; // the chapter numbers of the two drawn chapters
+const MCI = SCENES.findIndex((s) => s.draw === "mc") + 1;
 const PHASES = ["is-frame", "is-decks", "is-items", "is-studio", "is-done"];
 const HOLD = 5000; // 26.11.3 the finished flowchart stays this long before the Studio takes over (owner: about 5 s)
 const MIX = 0.3; // 26.11.3 how much of the scroll two neighbouring screens share while one hands over to the next
@@ -190,6 +208,57 @@ export function Tour({ intro, chapters }: Readonly<{ intro: ReactNode; chapters:
     const layers = [base, ...scenes];
     const loose = () => layers.forEach((l) => ["opacity", "transform", "visibility"].forEach((k) => l.style.removeProperty(k)));
     let said = -1;
+    // Memory Cards: the copied rows, their bubbles and the card that flies between them (positions in stage pixels)
+    const mcRoot = st.querySelector<HTMLElement>(".tr-mc");
+    const mc = mcRoot && {
+      rows: Array.from(mcRoot.querySelectorAll<HTMLElement>(".tr-mc-row")),
+      msgs: Array.from(mcRoot.querySelectorAll<HTMLElement>(".tr-mc-msg")),
+      ghost: mcRoot.querySelector<HTMLElement>(".tr-mc-ghost")!,
+      ghostText: mcRoot.querySelector<HTMLElement>(".tr-mc-ghost span")!,
+      pic: mcRoot.querySelector<HTMLElement>(".tr-mc-cam")!,
+    };
+    const rel = (el: HTMLElement) => {
+      let x = 0;
+      let y = 0;
+      for (let e: HTMLElement | null = el; e && e !== mcRoot; e = e.offsetParent as HTMLElement | null) {
+        x += e.offsetLeft;
+        y += e.offsetTop;
+      }
+      return [x, y];
+    };
+    let flying = -1;
+    const cards = (t: number) => {
+      if (!mc) return;
+      let fly = -1;
+      let g = 0;
+      COPIED.forEach((row, k) => {
+        const at = COPY_AT[k];
+        mc.rows[row].classList.toggle("is-sel", t >= at);
+        mc.rows[row].classList.toggle("is-key", t >= at && t < at + 0.12);
+        mc.msgs[k].classList.toggle("is-pop", t >= at + 0.17);
+        const f = clamp((t - at - 0.04) / 0.13);
+        if (f > 0 && f < 1) [fly, g] = [k, f];
+      });
+      mc.msgs[2].classList.toggle("is-pin", t >= PIN_AT);
+      mc.pic.classList.toggle("is-room", t >= COPY_AT[0] + 0.15);
+      // the copied card lifts off the chat and arcs onto the picture (only with motion; otherwise the bubbles simply appear)
+      if (fly < 0 || !fluid()) {
+        mc.ghost.style.opacity = "0";
+        flying = -1;
+        return;
+      }
+      if (fly !== flying) {
+        mc.ghostText.textContent = CHAT[COPIED[fly]].text;
+        flying = fly;
+      }
+      const [ax, ay] = rel(mc.rows[COPIED[fly]]);
+      const [bx, by] = rel(mc.msgs[fly]);
+      const e = ease(g);
+      const gx = ax + 40 + (bx - ax - 40) * e;
+      const gy = ay + 6 + (by - ay - 6) * e - Math.sin(Math.PI * e) * 70;
+      mc.ghost.style.opacity = (g < 0.85 ? 1 : (1 - g) / 0.15).toFixed(3);
+      mc.ghost.style.transform = `translate3d(${gx.toFixed(1)}px, ${gy.toFixed(1)}px, 0) rotate(${(-6 * Math.sin(Math.PI * e)).toFixed(2)}deg) scale(${(1 - 0.25 * e).toFixed(3)})`;
+    };
     // the movement on each screenshot (Scene.moves / ring / sweep), driven by the chapter's own progress
     const kit = scenes.map((fig, i) => ({
       fig,
@@ -337,7 +406,7 @@ export function Tour({ intro, chapters }: Readonly<{ intro: ReactNode; chapters:
           const a = i === 0 ? 1 : clamp((x - i + MIX / 2) / MIX);
           const b = i === n - 1 ? 1 : clamp((i + 1 + MIX / 2 - x) / MIX);
           let o = Math.min(a, b);
-          let y = (a < 1 ? 1 - a : b - 1) * RISE + (i === 2 ? 0 : -14 * clamp(x - i));
+          let y = (a < 1 ? 1 - a : b - 1) * RISE + (i === TPI ? 0 : -14 * clamp(x - i));
           let tx = 0;
           let sc = 0.97 + 0.03 * o;
           if (i === 0) {
@@ -356,12 +425,13 @@ export function Tour({ intro, chapters }: Readonly<{ intro: ReactNode; chapters:
         }
         // a slow drift through the chapter: the screenshot rises a little as the page moves on
         const on = scenes[ch - 1];
-        if (on && ch !== 2) on.style.setProperty("--y", `${(-14 * t).toFixed(1)}px`);
+        if (on && ch !== TPI) on.style.setProperty("--y", `${(-14 * t).toFixed(1)}px`);
       }
       if (ch >= 1 && kit[ch - 1]) move(kit[ch - 1], t);
       // the Teleprompter follows the page as Follow my voice follows the presenter: read words fade, the next word
       // stays on the reading line
-      if (ch === 2 && words.length) {
+      if (ch === MCI && mc) cards(t);
+      if (ch === TPI && words.length) {
         const n = Math.min(words.length, Math.floor(clamp(t * 1.12) * words.length));
         if (n !== said) {
           words.forEach((w, i) => w.classList.toggle("is-said", i < n));
@@ -471,7 +541,9 @@ export function Tour({ intro, chapters }: Readonly<{ intro: ReactNode; chapters:
             {/* the chapters: the program's own screens */}
             {SCENES.map((s) => (
               <figure key={s.cls} className={`tr-sc ${s.cls}`}>
-                {s.src ? (
+                {s.draw === "mc" ? (
+                  <MemoryCards />
+                ) : s.src ? (
                   <Image src={s.src} alt={s.alt} width={s.w} height={s.h} unoptimized />
                 ) : (
                   <div className="tr-tp" role="img" aria-label="The Teleprompter following the presenter's voice: the words already read fade, the next word waits on the gold reading line">
@@ -541,5 +613,65 @@ export function Tour({ intro, chapters }: Readonly<{ intro: ReactNode; chapters:
         </nav>
       </div>
     </section>
+  );
+}
+
+/** The Memory Cards chapter, drawn in the program's own chat-overlay style (app/css/overlay.css .chat-list). */
+function MemoryCards() {
+  const tint = (c: string) => `color-mix(in srgb, ${c} 45%, #fff)`;
+  return (
+    <div
+      className="tr-mc"
+      role="img"
+      aria-label="Three messages copied from the meeting chat pop up as bubbles beside the presenter on the camera picture, in the order they were copied; the prayer request is pinned"
+    >
+      <div className="tr-mc-chat" aria-hidden="true">
+        <p className="tr-mc-h">
+          Meeting chat <span className="tr-mc-cap">Capture on</span>
+        </p>
+        {CHAT.map((m) => (
+          <div key={m.who} className="tr-mc-row">
+            <span className="tr-mc-av" style={{ background: m.c }}>
+              {m.ini}
+            </span>
+            <div>
+              <b style={{ color: tint(m.c) }}>{m.who}</b>
+              <p>{m.text}</p>
+            </div>
+            <span className="tr-mc-key">
+              <kbd>Ctrl</kbd>+<kbd>C</kbd>
+            </span>
+          </div>
+        ))}
+      </div>
+      <div className="tr-mc-cam" aria-hidden="true">
+        <div className="tr-mc-pic">
+          <i className="tr-mc-who" />
+        </div>
+        <span className="tr-mc-live">FrameDecks vCam</span>
+        <ul className="tr-mc-list">
+          {COPIED.map((row) => {
+            const m = CHAT[row];
+            return (
+              <li key={m.who} className="tr-mc-msg">
+                <span className="tr-mc-av" style={{ background: m.c }}>
+                  {m.ini}
+                </span>
+                <div className="tr-mc-bub">
+                  <span className="tr-mc-head">
+                    <b style={{ color: tint(m.c) }}>{m.who}</b>
+                    <em>Pinned</em>
+                  </span>
+                  <p>{m.text}</p>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+      <div className="tr-mc-ghost" aria-hidden="true">
+        <span />
+      </div>
+    </div>
   );
 }

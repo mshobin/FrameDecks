@@ -6,6 +6,7 @@
 
 .tr {
   --tr-bg: #070c18;
+  --tr-pop: cubic-bezier(0.34, 1.56, 0.64, 1); /* the program's chat pop: a little past full size, then settle */
   --tr-surface: #0f172b;
   --tr-raised: #1b2540;
   --tr-line: #313a4d;
@@ -209,10 +210,14 @@
 }
 
 .tr-glows i:nth-child(5) {
-  --g: rgba(52, 209, 124, 0.13);
+  --g: rgba(94, 214, 200, 0.15);
 }
 
 .tr-glows i:nth-child(6) {
+  --g: rgba(52, 209, 124, 0.13);
+}
+
+.tr-glows i:nth-child(7) {
   --g: rgba(143, 179, 255, 0.18);
 }
 
@@ -221,7 +226,8 @@
 .tr-stage[data-ch="2"] .tr-glows i:nth-child(3),
 .tr-stage[data-ch="3"] .tr-glows i:nth-child(4),
 .tr-stage[data-ch="4"] .tr-glows i:nth-child(5),
-.tr-stage[data-ch="5"] .tr-glows i:nth-child(6) {
+.tr-stage[data-ch="5"] .tr-glows i:nth-child(6),
+.tr-stage[data-ch="6"] .tr-glows i:nth-child(7) {
   opacity: 1;
 }
 
@@ -278,7 +284,7 @@
   transform: scale(0.97);
 }
 
-.tr-stage[data-ch="5"] .tr-base {
+.tr-stage[data-ch="6"] .tr-base {
   opacity: 0.55;
   transform: translate3d(-120px, 0, 0) scale(0.84);
 }
@@ -659,6 +665,298 @@ html:not(.fd-calm) .tr-stage:not([data-ready]) :is(.tr-build > *, .tr-base) {
   border-radius: 36px;
 }
 
+/* ---------- 26.11.3 Memory Cards: the chat, the camera picture, the bubbles (overlay.css .chat-list) ---------- */
+.tr-sc-mc {
+  top: 24px;
+  left: 0;
+  width: 1000px;
+  height: 500px;
+}
+
+.tr-mc {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  font-family: var(--font);
+}
+
+.tr-mc-chat {
+  position: absolute;
+  top: 18px;
+  left: 18px;
+  width: 300px;
+  padding: 14px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgba(22, 30, 50, 0.92), rgba(14, 20, 36, 0.92));
+  box-shadow: 0 30px 70px -24px rgba(0, 0, 0, 0.8);
+}
+
+.tr-mc-h {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 0 4px 10px;
+  color: #c9d2e6;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.tr-mc-cap {
+  padding: 2px 8px 2px 18px;
+  border-radius: 999px;
+  background: rgba(52, 209, 124, 0.14) radial-gradient(circle at 9px 50%, #34d17c 3px, transparent 3.5px);
+  color: #7fe3ad;
+  font-size: 11px;
+}
+
+.tr-mc-row {
+  position: relative;
+  display: flex;
+  gap: 10px;
+  padding: 9px 8px;
+  border-radius: 12px;
+}
+
+/* the selection the copy makes, and the keys that copy it */
+.tr-mc-row::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  background: rgba(232, 185, 49, 0.1);
+  box-shadow: inset 0 0 0 1px rgba(232, 185, 49, 0.5);
+  opacity: 0;
+}
+
+.tr-mc-row.is-sel::after {
+  opacity: 1;
+}
+
+.tr-mc-row b {
+  font-size: 12.5px;
+}
+
+.tr-mc-row p {
+  margin: 2px 0 0;
+  color: #dfe5f2;
+  font-size: 12.5px;
+  line-height: 1.35;
+}
+
+.tr-mc-av {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.28),
+    0 3px 8px rgba(0, 0, 0, 0.45);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.tr-mc-key {
+  position: absolute;
+  top: -12px;
+  right: 6px;
+  z-index: 1;
+  color: var(--tr-muted);
+  font-size: 12px;
+  opacity: 0;
+  transform: translate3d(0, 6px, 0) scale(0.9);
+}
+
+.tr-mc-row.is-key .tr-mc-key {
+  opacity: 1;
+  transform: none;
+}
+
+/* the camera picture: a warm room, the presenter, and the bubbles beside them */
+.tr-mc-cam {
+  position: absolute;
+  top: 0;
+  right: 18px;
+  width: 620px;
+  height: 349px;
+  overflow: hidden;
+  border-radius: 18px;
+  background: #161c2e;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.08),
+    0 40px 90px -30px rgba(0, 0, 0, 0.85);
+}
+
+.tr-mc-pic {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(30% 40% at 46% 28%, rgba(255, 206, 140, 0.34), transparent 70%),
+    radial-gradient(10% 14% at 14% 30%, rgba(255, 226, 170, 0.22), transparent 70%),
+    radial-gradient(7% 10% at 70% 64%, rgba(140, 170, 255, 0.16), transparent 70%),
+    linear-gradient(160deg, #3a3346 0%, #262c40 45%, #161c2e 100%);
+}
+
+/* the presenter: a silhouette against the warm room, rim-lit by the lamp (drawn, never a photo of a real person) */
+.tr-mc-who {
+  position: absolute;
+  bottom: 0;
+  left: 160px;
+  width: 300px;
+  height: 300px;
+  background:
+    radial-gradient(19% 23% at 50% 36%, #0b0f19 0 80%, #4a3a35 92%, transparent 100%),
+    radial-gradient(9% 10% at 50% 58%, #0b0f19 0 80%, transparent 100%),
+    radial-gradient(52% 38% at 50% 100%, #0b0f19 0 78%, #3e3436 90%, transparent 100%);
+  filter: blur(1.4px);
+  transform-origin: 50% 100%;
+}
+
+/* the picture makes room: the presenter moves aside and the bubbles take the space beside them */
+.tr-mc-cam.is-room .tr-mc-who {
+  transform: translate3d(-110px, 0, 0) scale(0.92);
+}
+
+.tr-mc-live {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  padding: 3px 10px 3px 20px;
+  border-radius: 999px;
+  background: rgba(8, 12, 22, 0.66) radial-gradient(circle at 10px 50%, #ef4b4b 3.5px, transparent 4px);
+  color: #e8edf7;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.tr-mc-list {
+  position: absolute;
+  top: 26px;
+  right: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 214px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tr-mc-msg {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  opacity: 0;
+  transform: scale(0.6);
+  transform-origin: 14px 50%;
+}
+
+.tr-mc-msg.is-pop {
+  opacity: 1;
+  transform: none;
+}
+
+.tr-mc-bub {
+  position: relative;
+  min-width: 0;
+  padding: 8px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 12px;
+  background: linear-gradient(180deg, rgba(44, 56, 86, 0.97), rgba(28, 37, 60, 0.97));
+  box-shadow: 0 5px 14px rgba(0, 0, 0, 0.5);
+  color: #f6f8fc;
+}
+
+.tr-mc-bub::before {
+  content: "";
+  position: absolute;
+  top: 9px;
+  left: -6px;
+  border: 5px solid transparent;
+  border-right: 6px solid rgb(44, 56, 86);
+  border-left: 0;
+}
+
+/* pinned: the gold ring and its label (the ring fades in over the plain edge) */
+.tr-mc-bub::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: 12px;
+  box-shadow: inset 0 0 0 1.5px rgba(217, 171, 74, 0.9);
+  opacity: 0;
+}
+
+.tr-mc-msg.is-pin .tr-mc-bub::after {
+  opacity: 1;
+}
+
+.tr-mc-head {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  font-size: 11.5px;
+}
+
+.tr-mc-head em {
+  margin-left: auto;
+  padding: 0 5px;
+  border-radius: 4px;
+  background: rgba(217, 171, 74, 0.24);
+  color: #d9ab4a;
+  font-size: 9px;
+  font-style: normal;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1.6;
+  text-transform: uppercase;
+  opacity: 0;
+}
+
+.tr-mc-msg.is-pin .tr-mc-head em {
+  opacity: 1;
+}
+
+.tr-mc-bub p {
+  display: -webkit-box;
+  margin: 2px 0 0;
+  overflow: hidden;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.3;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+/* the copied card in flight (tour.tsx moves it; it shows only with motion) */
+.tr-mc-ghost {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 4;
+  width: 230px;
+  padding: 8px 10px;
+  border: 1px solid rgba(232, 185, 49, 0.7);
+  border-radius: 12px;
+  background: linear-gradient(180deg, rgba(48, 44, 30, 0.96), rgba(30, 30, 30, 0.96));
+  box-shadow:
+    0 0 24px rgba(232, 185, 49, 0.35),
+    0 18px 40px -10px rgba(0, 0, 0, 0.8);
+  color: #fbecc4;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.3;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.tr-sc-mc .tr-callouts {
+  bottom: -14px;
+}
+
 .tr-callouts {
   position: absolute;
   bottom: -50px;
@@ -837,6 +1135,29 @@ html:not(.fd-calm) .tr-stage:not([data-ready]) :is(.tr-build > *, .tr-base) {
     transition:
       transform 0.18s linear,
       opacity 0.18s linear;
+  }
+
+  /* Memory Cards: the pop is the program's own (overlay.css chat-pop: a little past full size, then settle) */
+  html.fd-motion:not(.fd-calm) .tr-mc-msg {
+    transition:
+      transform 0.46s var(--tr-pop),
+      opacity 0.22s var(--ease-out);
+  }
+
+  html.fd-motion:not(.fd-calm) .tr-mc-who {
+    transition: transform 0.8s var(--ease-out);
+  }
+
+  html.fd-motion:not(.fd-calm) .tr-mc-row::after,
+  html.fd-motion:not(.fd-calm) .tr-mc-bub::after,
+  html.fd-motion:not(.fd-calm) .tr-mc-head em {
+    transition: opacity 0.3s var(--ease-out);
+  }
+
+  html.fd-motion:not(.fd-calm) .tr-mc-key {
+    transition:
+      transform 0.25s var(--ease-out),
+      opacity 0.2s var(--ease-out);
   }
 
   html.fd-motion:not(.fd-calm) .tr-ptr,

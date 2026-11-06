@@ -11,6 +11,10 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
 ## [Unreleased]
 
 ### Changed
+- New front-page chapter, Memory Cards (owner's request), between Engage and Control: with Capture on, three chat
+  messages are copied (Ctrl+C) one after another as the page scrolls; each copied card arcs onto the FrameDecks vCam
+  picture and pops up as a bubble in the program's own overlay style, in copy order, while the presenter moves aside
+  to make room; the prayer request is then pinned in gold. Drawn live like the Teleprompter chapter.
 - The front page's opening reads as one page (owner's request): the finished flowchart stays 5 s before the Studio
   takes over, the Studio has no box (its edges fade into the page), and scrolling carries each screen in as the last
   one rises away (`tour.tsx` sets their place each frame, `MIX` / `RISE`) instead of swapping pictures sideways.
