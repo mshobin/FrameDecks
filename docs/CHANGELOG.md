@@ -21,6 +21,13 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
   when the phone arrives. Only two Windows settings pages can be opened (`server.SETTINGS_PAGES`).
 - The phone remote's **Test connection** (three round trips to the PC, the middle one shown) and codes on its
   messages; linking a PC on the website now waits for the PC to confirm before it says done (FD-CLD-03).
+- **"?" Help links** next to the places people get stuck (Phone & iPad Remote, its Fix the connection, FrameDecks vCam,
+  Capture Memory, Workspace Sync, Follow my voice): each opens that part of the guide on framedecks.com. One list
+  (`LINKS` in `app/js/help-codes.js`), and `tests/test_help_2611_4.py` checks every page and heading exists.
+- **Help search** on the Help Center (`lib/help-search.ts`, `lib/help-index.ts`): one box across the Help topics, every
+  guide page and section, the step-by-step guide and the error codes, scored in the browser (an exact error code
+  first; nothing is sent anywhere). A new **Error codes** topic lists every code; `help?code=FD-NET-02` opens and
+  lights that one.
 
 ### Changed
 - New front-page chapter, Memory Cards (owner's request), between Engage and Control: with Capture on, three chat

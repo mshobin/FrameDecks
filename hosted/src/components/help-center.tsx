@@ -22,11 +22,15 @@ import {
   MonitorPlay,
   Rocket,
   ScrollText,
+  Search,
+  TriangleAlert,
   UserRound,
   type LucideIcon,
 } from "lucide-react";
 
 import { HelpGuide } from "@/components/help-guide";
+import codes from "../../content/help-codes.json";
+import { searchHelp, type HelpEntry } from "@/lib/help-search";
 import { ShowGuide } from "@/components/show-guide";
 import brand from "@/lib/brand.json";
 import { DOWNLOADS } from "@/lib/pc-setup";
@@ -331,6 +335,35 @@ export const TOPICS: Topic[] = [
     ),
   },
   {
+    id: "codes",
+    label: "Error codes",
+    icon: TriangleAlert,
+    blurb: "A short code like FD-NET-02 appears with every connection problem, on the PC, the phone and here.",
+    body: () => (
+      <>
+        <ul className="hc-codes">
+          {(codes as { code: string; area: string; title: string; why: string; fix: string }[]).map((c) => (
+            <li key={c.code} id={c.code}>
+              <b>
+                <code>{c.code}</code> {c.title}
+              </b>
+              <span className="hc-codes-area">{c.area}</span>
+              <p>{c.why}</p>
+              <p>
+                <b>Fix:</b> {c.fix}
+              </p>
+            </li>
+          ))}
+        </ul>
+        <p className="hc-more">
+          On the PC, <b>Settings → Phone &amp; iPad Remote → Check my connection</b> goes through every step and shows the code for
+          the first one that needs fixing.
+        </p>
+        <More links={[["/docs/remote-control", "Phone remote guide"], ["/docs/troubleshooting", "Troubleshooting guide"]]} />
+      </>
+    ),
+  },
+  {
     id: "contact",
     label: "Contact Support",
     icon: Mail,
@@ -377,7 +410,54 @@ function back(home: () => void) {
   else home();
 }
 
-export function HelpCenter() {
+/** An error code from the program or the phone (help?code=FD-NET-02): its entry, scrolled to and lit once */
+function mark(id: string) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.scrollIntoView({ block: "start" });
+  el.classList.add("is-asked");
+}
+
+/** 26.11.4 search across everything Help can answer: the index from the server plus these topics */
+function HelpSearch({ index, onTopic }: Readonly<{ index: HelpEntry[]; onTopic: (id: string, anchor?: string) => void }>) {
+  const [q, setQ] = useState("");
+  const all = [...TOPICS.map((t) => ({ kind: "Help topic", title: t.label, text: t.blurb, href: `/help#${t.id}` })), ...index];
+  const found = searchHelp(all, q);
+  function go(e: HelpEntry, ev: React.MouseEvent) {
+    const m = /^\/help(?:\?code=([^#]+))?#(.+)$/.exec(e.href);
+    if (!m) return; // another page: the link does it
+    ev.preventDefault();
+    setQ("");
+    onTopic(m[2], m[1]);
+  }
+  return (
+    <div className="hc-search" role="search">
+      <Search aria-hidden="true" size={16} />
+      <input type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search Help: “black screen”, “phone won’t connect”, FD-NET-02…" aria-label="Search Help" />
+      {q.trim() && (
+        <ul className="hc-results" aria-live="polite">
+          {found.length ? (
+            found.map((e) => (
+              <li key={e.href + e.title}>
+                <Link href={e.href} onClick={(ev) => go(e, ev)}>
+                  <small>{e.kind}</small>
+                  <b>{e.title}</b>
+                  <span>{e.text}</span>
+                </Link>
+              </li>
+            ))
+          ) : (
+            <li className="hc-none">
+              Nothing found for “{q}”. Try other words, or <a href="#contact" onClick={(ev) => (ev.preventDefault(), setQ(""), onTopic("contact"))}>contact us</a>.
+            </li>
+          )}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+export function HelpCenter({ index = [] }: Readonly<{ index?: HelpEntry[] }>) {
   const session = useSession();
   const router = useRouter();
   const [active, setActive] = useState(TOPICS[0].id);
@@ -387,19 +467,21 @@ export function HelpCenter() {
 
   useEffect(() => {
     function read() {
-      const { topic: t, anchor } = topicFromHash(window.location.hash);
+      const code = new URLSearchParams(window.location.search).get("code");
+      const { topic: t, anchor } = code ? { topic: "codes", anchor: code } : topicFromHash(window.location.hash);
       setActive(t);
-      if (anchor) requestAnimationFrame(() => document.getElementById(anchor)?.scrollIntoView({ block: "start" }));
+      if (anchor) requestAnimationFrame(() => mark(anchor));
     }
     read();
     window.addEventListener("hashchange", read);
     return () => window.removeEventListener("hashchange", read);
   }, []);
 
-  function choose(id: string) {
+  function choose(id: string, anchor?: string) {
     setActive(id);
     setOpen(false);
-    history.replaceState(null, "", `#${id}`);
+    history.replaceState(null, "", anchor ? `?code=${anchor}#${id}` : `#${id}`);
+    if (anchor) requestAnimationFrame(() => mark(anchor));
     const top = panel.current?.getBoundingClientRect().top ?? 0;
     if (top < 0 || top > window.innerHeight * 0.6) panel.current?.scrollIntoView({ block: "start" });
     panel.current?.focus({ preventScroll: true });
@@ -414,6 +496,7 @@ export function HelpCenter() {
   return (
     <div className="hc">
       <div className="hc-top">
+        <HelpSearch index={index} onTopic={choose} />
         <button type="button" className="hc-back" onClick={() => back(() => router.push("/"))}>
           <ArrowLeft aria-hidden="true" size={16} /> Back
         </button>

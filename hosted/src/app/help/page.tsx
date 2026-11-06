@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import { PublicPage } from "@/components/public-page";
 import { HelpCenter } from "@/components/help-center";
+import { helpIndex } from "@/lib/help-index";
 import brand from "@/lib/brand.json";
 import { pageMetadata } from "@/lib/site";
 
@@ -18,7 +19,7 @@ export default function HelpPage() {
       lead="Choose a topic. New here? Getting Started walks you through it step by step, on the website and on the service PC."
       size="full"
     >
-      <HelpCenter />
+      <HelpCenter index={helpIndex()} />
     </PublicPage>
   );
 }

@@ -52,14 +52,45 @@ var CODES = /* codes:start */[
    "why": "This device has no internet, or a network filter blocks framedecks.com.",
    "fix": "Check the internet connection, then try again."}
 ]/* codes:end */;
+/* 26.11.4 the "?" links: a place in the program -> its page in the guide (framedecks.com/docs, the same words as
+   docs/guide/) or the Help Center. tests/test_help_2611_4.py checks every page and heading exists. */
+var LINKS = {
+  'remote': ['Phone & iPad Remote', 'docs/remote-control#set-up-the-remote'],
+  'remote-fix': ['If the phone can’t connect', 'docs/remote-control#if-the-phone-cant-connect'],
+  'vcam': ['FrameDecks vCam in Zoom, Teams and Meet', 'docs/faq#online-and-hybrid-services'],
+  'memory': ['Capture Memory', 'docs/presentations#capture-memory-copied-chats-as-bubbles-on-the-camera'],
+  'voice': ['Teleprompter and Follow my voice', 'docs/presentations#teleprompter'],
+  'sync': ['Workspace Sync', 'help#account'],
+  'keys': ['Keyboard shortcuts', 'docs/presentations#keyboard-shortcuts']
+};
 var by = {};
 CODES.forEach(function(c){ by[c.code] = c; });
-var SITE = 'https://framedecks.com/help';
+var SITE = 'https://framedecks.com/help', HOME = 'https://framedecks.com/';
+function open(url){
+  fetch('api/app/open-external', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({url: url})})
+    .then(function(r){ return r.json(); }).then(function(d){ if (!d.opened) window.open(url, '_blank', 'noopener'); })
+    .catch(function(){ window.open(url, '_blank', 'noopener'); });
+}
+/* any element with data-help="memory" opens that page: one handler for the whole window */
+document.addEventListener('click', function(e){
+  var el = e.target.closest && e.target.closest('[data-help]');
+  if (!el || !LINKS[el.getAttribute('data-help')]) return;
+  e.preventDefault();
+  open(HOME + LINKS[el.getAttribute('data-help')][1]);
+});
 window.KCHelpCodes = {
   list: CODES,
   get: function(code){ return by[code] || null; },
   /* The Help Center page for a code (or a topic), opened in the browser */
   url: function(code){ return SITE + (code ? '?code=' + encodeURIComponent(code) : ''); },
-  topic: function(id){ return SITE + '?topic=' + encodeURIComponent(id); }
+  topic: function(id){ return SITE + '?topic=' + encodeURIComponent(id); },
+  links: LINKS,
+  open: open,
+  /* the small round "?" that opens the Help page for a place: KCHelpCodes.button('memory') */
+  button: function(area){
+    var b = document.createElement('button'), t = 'Help: ' + LINKS[area][0];
+    b.type = 'button'; b.className = 'help-q'; b.textContent = '?'; b.title = t; b.setAttribute('aria-label', t); b.setAttribute('data-help', area);
+    return b;
+  }
 };
 })();

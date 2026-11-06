@@ -60,7 +60,7 @@ var connectBox = h('section', {cls: 'box'}, [h('div', {cls: 'box-head'}, [h('h2'
 var devBody = h('div');
 var devBox = h('section', {cls: 'box'}, [h('div', {cls: 'box-head'}, [h('h2', {text: 'Connected devices'})]), devBody]);
 var fixBox = h('section', {cls: 'box'});
-var helpBox = h('section', {cls: 'box'}, [h('div', {cls: 'box-head'}, [h('h2', {text: 'How to connect your phone or iPad'})]),
+var helpBox = h('section', {cls: 'box'}, [h('div', {cls: 'box-head'}, [h('h2', {}, ['How to connect your phone or iPad', KCHelpCodes.button('remote')])]),
   h('ol', {cls: 'steps'}, [
     h('li', {}, ['Put the PC and the phone or iPad on the ', h('b', {text: 'same Wi-Fi'}), ' (not a guest network).']),
     h('li', {}, ['Turn on the ', h('b', {text: 'Phone remote'}), ' switch at the top of this page.']),
@@ -127,7 +127,7 @@ function update(r){
   fixBox.hidden = !showFix;
   if (showFix){
     fixBox.innerHTML = '';
-    fixBox.appendChild(h('div', {cls: 'box-head'}, [h('h2', {text: 'Fix the connection'})]));
+    fixBox.appendChild(h('div', {cls: 'box-head'}, [h('h2', {}, ['Fix the connection', KCHelpCodes.button('remote-fix')])]));
     if (publicNets.length) fixBox.appendChild(h('div', {cls: 'alert warn'}, [h('b', {text: 'Network set to Public. '}),
       'Windows blocks other devices on Public networks. If “' + (publicNets[0].name || 'this network') + '” is your own home or church Wi-Fi: Settings → Network & internet → Wi-Fi → ' + (publicNets[0].name || 'your network') + ' → Private.']));
     if (net) fixBox.appendChild(h('div', {cls: 'alert'}, [

@@ -293,7 +293,7 @@ var settingsBox = h('section', {cls: 'box'}, [
   h('p', {cls: 'hint', text: 'The preview turns your webcam on while it is showing.'})
 ]);
 var helpBox = h('section', {cls: 'box'}, [
-  h('div', {cls: 'box-head'}, [h('h2', {text: 'Use it in your meeting'})]),
+  h('div', {cls: 'box-head'}, [h('h2', {}, ['Use it in your meeting', window.KCHelpCodes ? KCHelpCodes.button('vcam') : null])]),
   h('ol', {cls: 'steps'}, [
     h('li', {}, [h('b', {text: 'Zoom: '}), 'Settings → Video → Camera → choose ', h('b', {text: 'FrameDecks vCam'}), '. Turn off Zoom’s own background blur if it is on, and tick ', h('b', {text: 'HD'}), ' so Zoom sends a sharp picture (without it Zoom sends a low-resolution, softer version).']),
     h('li', {}, [h('b', {text: 'Microsoft Teams: '}), 'Settings → Devices (or Video and effects) → Camera → choose ', h('b', {text: 'FrameDecks vCam'}), '.']),

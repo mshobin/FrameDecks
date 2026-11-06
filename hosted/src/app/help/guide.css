@@ -111,3 +111,21 @@ html.fd-light .hg-spot{box-shadow:0 0 0 9999px rgba(15,25,50,.22),0 0 24px rgba(
 .fd-public-main .hc-places a:hover{background:var(--fill);color:var(--text)}
 @media (max-width:560px){.hc-places{width:100%;overflow-x:auto;flex-wrap:nowrap}}
 .fd-public-main .hc-body a,.fd-public-main .hc-more a{text-decoration:underline;text-decoration-thickness:1px}
+
+/* 26.11.4 Help search and the error codes */
+.hc-search{position:relative;display:flex;flex:1 1 100%;align-items:center;gap:8px;order:-1;padding:0 14px;border:1px solid var(--hairline-strong);border-radius:999px;background:var(--surface-solid)}
+.hc-search input{flex:1;min-width:0;padding:12px 0;border:0;background:none;color:var(--text);font:inherit;outline:none}
+.hc-search:focus-within{border-color:var(--gold)}
+.hc-results{position:absolute;top:calc(100% + 6px);left:0;right:0;z-index:20;max-height:min(70vh,520px);margin:0;padding:6px;overflow:auto;list-style:none;border:1px solid var(--hairline-strong);border-radius:16px;background:var(--surface-solid);box-shadow:0 24px 60px -20px rgba(0,0,0,.6)}
+.hc-results a{display:grid;gap:2px;padding:10px 12px;border-radius:12px;color:var(--text);text-decoration:none}
+.hc-results a:hover,.hc-results a:focus-visible{background:var(--hairline)}
+.hc-results small{color:var(--gold);font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+.hc-results span{color:var(--muted);font-size:14px}
+.hc-none{padding:12px;color:var(--muted)}
+.hc-codes{display:grid;gap:10px;margin:0;padding:0;list-style:none}
+.hc-codes li{padding:14px 16px;border:1px solid var(--hairline-strong);border-radius:14px;scroll-margin-top:90px}
+.hc-codes li.is-asked{border-color:var(--gold);box-shadow:0 0 0 3px rgba(232,185,49,.18)}
+.hc-codes code{margin-right:6px;padding:1px 6px;border-radius:6px;background:var(--hairline);font-size:13px}
+.hc-codes-area{float:right;color:var(--muted);font-size:13px}
+.hc-codes p{margin:6px 0 0;color:var(--muted)}
+.hc-codes p b{color:var(--text)}

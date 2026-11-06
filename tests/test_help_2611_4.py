@@ -73,3 +73,51 @@ class ConnectionCheck(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+def slugify(text):
+    """hosted/src/lib/markdown.ts slugify, so a link's #anchor is the heading's id on the website"""
+    import re as _re
+    t = _re.sub(r"<[^>]+>", "", text.lower())
+    t = _re.sub(r"[^\w\s-]", "", t).replace("_", "")
+    return _re.sub(r"\s", "-", t.strip())
+
+
+class HelpLinks(unittest.TestCase):
+    def links(self):
+        import re as _re
+        js = read("app/js/help-codes.js")
+        return dict(_re.findall(r"'([a-z-]+)': \['[^']+', '([^']+)'\]", js))
+
+    def test_every_help_link_opens_a_real_page_and_heading(self):
+        links = self.links()
+        self.assertGreaterEqual(len(links), 6)
+        for area, url in links.items():
+            page, _, anchor = url.partition("#")
+            if page == "help":
+                self.assertIn('id: "%s"' % anchor, read("hosted/src/components/help-center.tsx"), area)
+                continue
+            self.assertTrue(page.startswith("docs/"), area)
+            md = read("docs/guide/%s.md" % page[5:])
+            heads = [slugify(line[3:]) for line in md.splitlines() if line.startswith("## ")]
+            self.assertIn(anchor, heads, area + " → " + url)
+
+    def test_the_question_marks_sit_where_people_get_stuck(self):
+        dash = read("app/dashboard.html")
+        self.assertIn('data-help="memory"', dash)
+        self.assertIn('data-help="sync"', dash)
+        self.assertIn("KCHelpCodes.button('remote')", read("app/js/remote-panel.js"))
+        self.assertIn("KCHelpCodes.button('vcam')", read("app/js/vcam-panel.js"))
+        sp = read("app/speaker.html")
+        self.assertIn('data-help="voice"', sp)
+        self.assertLess(sp.index("<script src=\"js/help-codes.js\">"), sp.index("<script src=\"js/speaker.js\">"))
+        self.assertLess(dash.index("<script src=\"js/help-codes.js\">"), dash.index("<script src=\"js/remote-panel.js\">"))
+
+
+class HelpSearch(unittest.TestCase):
+    def test_the_help_center_searches_and_opens_error_codes(self):
+        tsx = read("hosted/src/components/help-center.tsx")
+        self.assertIn('id: "codes"', tsx)
+        self.assertIn('get("code")', tsx)
+        self.assertIn("<HelpSearch", tsx)
+        self.assertIn("helpIndex()", read("hosted/src/app/help/page.tsx"))
