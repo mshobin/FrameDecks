@@ -30,6 +30,10 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
   always: `layout.tsx` sets `html.fd-dark-only` before the first paint for a visitor who is not signed in and on the
   public paths, the public pages' bar (`landing/nav.tsx`) holds it and has no theme button, and Light, Dark and Auto
   live only in the signed-in workspace (`ThemeToggle` in `app-shell.tsx` clears it on arrival).
+- The front page's Command Center pictures have nothing behind them (captured see-through, as the window is, by
+  `command_center_web` in `tools/make_product_shots.py`), so the Command Center sits on the website's own background
+  instead of a coloured desktop; the guide's pictures keep their desktop. After the Studio, each screen stands on the
+  page alone.
 - The front page's stage has no frame any more: the build, the Studio and each screen float on the page itself, each
   with its own soft shadow, in a soft light that takes the colour of the chapter (`.tr-glows`, one gradient per
   chapter, only its opacity changes).

@@ -266,8 +266,9 @@
   transform: none;
 }
 
+/* after the Studio, each screen stands on the page alone (the phone keeps the Studio beside it, as on the day) */
 .tr-stage:not([data-ch="0"]) .tr-base {
-  opacity: 0.2;
+  opacity: 0;
   transform: scale(0.97);
 }
 
@@ -540,11 +541,19 @@ html:not(.fd-calm) .tr-stage:not([data-ready]) :is(.tr-build > *, .tr-base) {
   box-shadow: 0 30px 70px -20px rgba(0, 0, 0, 0.75);
 }
 
+/* the Command Center is see-through, captured with nothing behind it: it sits on the page's own background */
+.tr-sc-cc img,
+.tr-sc-live img {
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
 .tr-sc-cc {
   top: 120px;
-  left: 120px;
-  width: 760px;
-  height: 250px;
+  left: 40px;
+  width: 920px;
+  height: 303px;
 }
 
 .tr-sc-tp {

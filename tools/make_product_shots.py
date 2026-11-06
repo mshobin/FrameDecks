@@ -53,6 +53,35 @@ async def command_center(b, base):
     await sp.wait_for_timeout(400)
 
 
+async def command_center_web(b, base):
+    """26.11.2 the website's Command Center pictures with nothing behind them (transparent): the see-through window sits
+    on the website's own background, as it sits on whatever app is open (the guide's pictures keep their desktop)."""
+    sp = await b.new_page(viewport={"width": 820, "height": 270}, device_scale_factor=2, reduced_motion="reduce")
+    await sp.goto(base + "/spotlight.html")
+    await sp.wait_for_timeout(1500)
+    await sp.evaluate("document.documentElement.classList.add('kc-glass');"
+                      "for (const e of [document.documentElement, document.body]) e.style.background = 'transparent'")
+    await sp.hover(".cc-handle")
+    await sp.wait_for_timeout(300)
+    from PIL import Image
+    tmp = CC_WEB.with_suffix(".png")
+    await sp.screenshot(path=str(tmp), animations="disabled", omit_background=True)
+    im = Image.open(tmp).convert("RGBA")
+    im.resize((820, round(820 * im.height / im.width)), Image.LANCZOS).save(CC_WEB, "WEBP", quality=88, method=6)
+    await sp.set_viewport_size({"width": 820, "height": 720})
+    await sp.evaluate("KCStore.update(n => { KCScenes.take(n, KCScenes.order(n)[0].id, null); })")
+    await sp.wait_for_timeout(800)
+    await sp.keyboard.press("Alt+3")
+    await sp.wait_for_timeout(1200)
+    await sp.screenshot(path=str(tmp), animations="disabled", omit_background=True)
+    im = Image.open(tmp).convert("RGBA")
+    im.resize((820, round(820 * im.height / im.width)), Image.LANCZOS).save(CC_LIVE_WEB, "WEBP", quality=88, method=6)
+    tmp.unlink()
+    await sp.evaluate("KCStore.update(n => { KCScenes.hideAll(n); n.live.scene = ''; })")
+    await sp.wait_for_timeout(400)
+    await sp.close()
+
+
 async def guide_studio(b, base):
     """26.11.2 the user guide's Studio (live, the question cards under the preview) and a card edited on the live
     preview (the draft with Update screen)."""
@@ -111,11 +140,8 @@ async def annotate(b, base):
 
 
 def web_copies():
-    """26.11.2 the guide's Command Center pictures, as small webp for the landing."""
+    """26.11.2 the phone remote's picture (from the guide's), as a small webp for the landing."""
     from PIL import Image
-    for src, dst in ((COMMAND_CENTER, CC_WEB), (SPOTLIGHT, CC_LIVE_WEB)):
-        im = Image.open(src).convert("RGB")
-        im.resize((820, round(820 * im.height / im.width)), Image.LANCZOS).save(dst, "WEBP", quality=86, method=6)
     im = Image.open(PHONE_SHOT).convert("RGB")
     im.resize((390, round(390 * im.height / im.width)), Image.LANCZOS).save(PHONE_WEB, "WEBP", quality=86, method=6)
 
@@ -152,6 +178,7 @@ async def capture(base, chromium, guide_only=False):
         await pg.wait_for_timeout(300)
         await pg.screenshot(path=str(TMP), animations="disabled")
         await command_center(b, base)       # 9.9 the Command Center, in the dark theme
+        await command_center_web(b, base)   # 26.11.2 and with nothing behind it, for the website
         await guide_studio(b, base)
         await annotate(b, base)
         await b.close()
