@@ -54,18 +54,32 @@ const DAYS = [
   },
 ];
 
+// 26.11.2 the four things only FrameDecks does lead the tour: the phone remote, a Teleprompter that follows your
+// voice, pointing it out on the live picture, and the Command Center
 const TABS: readonly FeatureTab[] = [
   {
     id: "present",
-    tab: "Present",
-    title: "A tap on the phone. The room follows.",
-    lines: ["Press Next and watch the screen change", "Hide all or a black screen in one tap", "Questions show a gentle timer"],
+    tab: "Phone remote",
+    title: "Your phone runs the whole meeting.",
+    lines: ["Swipe for the next Frame; Hide all or a black screen in one tap", "Spotlight and draw on the picture from your seat", "On the local Wi-Fi or from across town"],
   },
   {
     id: "prompter",
-    tab: "Teleprompter",
-    title: "A Teleprompter only you see",
-    lines: ["Your script beside the controls", "Over the meeting window, or in a window of its own", "It moves on with every Frame"],
+    tab: "Follow my voice",
+    title: "A Teleprompter that follows your voice.",
+    lines: ["The script moves as you read, at your own pace", "It waits when you talk off script", "It listens on your PC only. Nothing is recorded or sent"],
+  },
+  {
+    id: "annotate",
+    tab: "Point it out",
+    title: "Point it out. Everyone sees it.",
+    lines: ["Press Ctrl twice and a soft spotlight lands on the word", "Underline, circle and draw on the live picture", "In the room and on the stream at the same moment"],
+  },
+  {
+    id: "command",
+    tab: "Command Center",
+    title: "Everything, one shortcut away.",
+    lines: ["Opens over Zoom, PowerPoint or any app", "Run the live show, find any Frame, take notes", "Pin it open, or let it fold out of the way"],
   },
   {
     id: "relay",

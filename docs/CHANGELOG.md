@@ -43,6 +43,9 @@ Full notes: [docs/releases/v26.11.2.md](releases/v26.11.2.md).
   conditional formatting by Level (`make_meeting_workbook.py`).
 - Website and guide pictures from the new Studio (`tools/make_product_shots.py` also writes the guide's studio.png and
   canvas-edit.png); `tests/visual/help-shots.mjs` gains `ONLY=pc` (the website half no longer reaches its pages).
+- Website "See it work" tabs lead with what sets FrameDecks apart: Phone remote, Follow my voice ("Following your
+  voice" in the preview), Point it out (`annotate.webp`) and Command Center (`command-center-live.webp`), pictures
+  from `make_product_shots.py` (`annotate()`, `web_copies()`), chosen by tab id in `feature-tabs.tsx`.
 
 ### Added
 - A Microsoft Defender scan of the program folder and the installer in `build-windows.yml`; the release stops if

@@ -48,6 +48,10 @@ keeps all your meetings, members, settings, notes, pinned Memory Cards and recor
 - The first time you use Follow my voice it now downloads only the language model (about 40 MB instead of 53 MB):
   the speech engine comes with the installer.
 
+- The website's **See it work** section now opens on what only FrameDecks does: your phone running the meeting,
+  the Teleprompter that follows your voice, pointing things out on the live picture, and the Command Center, each with
+  a real picture of the program.
+
 ## Fixes
 - The main window's top bar no longer runs past the right edge when maximized, which left the page scrolled sideways
   with an empty strip under **Hide all**.

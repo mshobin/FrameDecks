@@ -15,12 +15,12 @@ const SCRIPT = [
   "Thank you for being here.",
 ];
 
-export function TeleprompterPreview() {
+export function TeleprompterPreview({ listening = false }: Readonly<{ listening?: boolean }>) {
   return (
     <div className="lp-prompter" aria-hidden="true">
       <div className="lp-prompter-bar">
         <span>Teleprompter</span>
-        <span>Only you see this</span>
+        <span>{listening ? "● Following your voice" : "Only you see this"}</span>
       </div>
       <div className="lp-prompter-view" data-loop="">
         <div className="lp-prompter-roll">

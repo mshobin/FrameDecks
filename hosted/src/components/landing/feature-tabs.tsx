@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import { Check } from "lucide-react";
 
@@ -61,7 +62,18 @@ export function FeatureTabs({
     return () => seen.disconnect();
   }, []);
   const choose = (i: number) => (setAt(i), setTour(false));
-  const shows = [<NextDemo key="demo" />, <TeleprompterPreview key="prompter" />, <VCamPreview key="relay" />, own];
+  // 26.11.2 each tab's picture by its id: live demos drawn in HTML, real screens of the program for the rest
+  const shot = (src: string, alt: string, w: number, h: number) => (
+    <Image src={src} alt={alt} width={w} height={h} loading="lazy" unoptimized style={{ width: "100%", height: "auto", borderRadius: 16 }} />
+  );
+  const byId: Record<string, ReactNode> = {
+    present: <NextDemo key="demo" />,
+    prompter: <TeleprompterPreview key="prompter" listening />,
+    annotate: shot("/product/annotate.webp", "The Studio with a gold underline drawn under the question and the Spotlight on a word of the verse", 1000, 490),
+    command: shot("/product/command-center-live.webp", "The Command Center over the desktop: the search bar, its chips and the live controls", 820, 720),
+    relay: <VCamPreview key="relay" />,
+  };
+  const shows = tabs.map((t) => byId[t.id] ?? own);
 
   function keys(e: KeyboardEvent<HTMLDivElement>) {
     if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;

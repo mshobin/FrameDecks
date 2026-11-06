@@ -17,6 +17,9 @@ ROOT = Path(__file__).resolve().parent.parent
 STUDIO = ROOT / "hosted/public/product/studio.webp"
 SPOTLIGHT = ROOT / "docs/guide/images/spotlight-remote.png"
 COMMAND_CENTER = ROOT / "docs/guide/images/command-center.png"
+ANNOTATE = ROOT / "hosted/public/product/annotate.webp"        # 26.11.2 the landing's "Point it out" tab
+CC_WEB = ROOT / "hosted/public/product/command-center.webp"    # 26.11.2 the landing's Command Center tab (from the guide's picture)
+CC_LIVE_WEB = ROOT / "hosted/public/product/command-center-live.webp"
 GUIDE_STUDIO = ROOT / "docs/guide/images/studio.png"            # 26.11.2 the Studio with its content area (user guide)
 GUIDE_EDIT = ROOT / "docs/guide/images/canvas-edit.png"         # 26.11.2 editing a card on the live preview: a draft
 TMP = ROOT / "hosted/public/product/.studio.png"          # the full-quality capture (not committed)
@@ -75,6 +78,44 @@ async def guide_studio(b, base):
     await pg.close()
 
 
+async def annotate(b, base):
+    """26.11.2 the landing's "Point it out": live, a gold underline drawn under the question and the Spotlight on a word."""
+    pg = await b.new_page(viewport={"width": 1600, "height": 900}, device_scale_factor=2, reduced_motion="reduce")
+    await pg.add_init_script("try { localStorage.setItem('kc-pv-hint', '1'); localStorage.setItem('kc-layout', JSON.stringify("
+                             "{left: 300, canvas: 85, scenes: 58, c: {insp: true}})) } catch (e) {}")
+    await pg.goto(base + "/dashboard.html")
+    await pg.wait_for_timeout(1500)
+    await pg.evaluate(QUIET)
+    await pg.evaluate("KCStore.update(n => { KCScenes.take(n, KCScenes.order(n)[0].id, null); })")
+    await pg.wait_for_timeout(1200)
+    await pg.keyboard.press("d")
+    await pg.wait_for_timeout(500)
+    r = await pg.evaluate("(() => { const e = document.getElementById('program').getBoundingClientRect(); return {x: e.x, y: e.y, w: e.width, h: e.height}; })()")
+    await pg.mouse.move(r["x"] + r["w"] * 0.22, r["y"] + r["h"] * 0.86)
+    await pg.mouse.down()
+    for i in range(21):
+        await pg.mouse.move(r["x"] + r["w"] * (0.22 + i * 0.012), r["y"] + r["h"] * 0.86)
+    await pg.mouse.up()
+    await pg.evaluate("window.KCAnnotate.spotAtPicture(0.47, 0.30)")
+    await pg.wait_for_timeout(700)
+    tmp = ANNOTATE.with_suffix(".png")
+    await pg.screenshot(path=str(tmp), clip={"x": 320, "y": 116, "width": 1266, "height": 620})
+    await pg.keyboard.press("Escape")
+    await pg.close()
+    from PIL import Image
+    im = Image.open(tmp).convert("RGB")
+    im.resize((1000, round(1000 * im.height / im.width)), Image.LANCZOS).save(ANNOTATE, "WEBP", quality=86, method=6)
+    tmp.unlink()
+
+
+def web_copies():
+    """26.11.2 the guide's Command Center pictures, as small webp for the landing."""
+    from PIL import Image
+    for src, dst in ((COMMAND_CENTER, CC_WEB), (SPOTLIGHT, CC_LIVE_WEB)):
+        im = Image.open(src).convert("RGB")
+        im.resize((820, round(820 * im.height / im.width)), Image.LANCZOS).save(dst, "WEBP", quality=86, method=6)
+
+
 async def capture(base, chromium, guide_only=False):
     from playwright.async_api import async_playwright
     async with async_playwright() as p:
@@ -108,6 +149,7 @@ async def capture(base, chromium, guide_only=False):
         await pg.screenshot(path=str(TMP), animations="disabled")
         await command_center(b, base)       # 9.9 the Command Center, in the dark theme
         await guide_studio(b, base)
+        await annotate(b, base)
         await b.close()
 
 
@@ -123,6 +165,7 @@ def main():
         return
     from PIL import Image
     Image.open(TMP).convert("RGB").resize((1200, 480), Image.LANCZOS).save(STUDIO, "WEBP", quality=88, method=6)
+    web_copies()
     TMP.unlink()
     print("wrote", STUDIO.relative_to(ROOT), "and", SPOTLIGHT.relative_to(ROOT))
 
