@@ -51,7 +51,7 @@ box.appendChild(h('div', {cls: 'big-switch'}, [sw, h('div', {}, [swText,
   h('div', {cls: 'hint', text: 'When on, phones and iPads on your Wi-Fi can connect using the PIN. When off, nothing on the network can reach this PC.'})])]));
 box.appendChild(h('label', {cls: 'check', style: 'margin-bottom:10px'}, [auto, ' Turn on automatically when FrameDecks starts']));
 box.appendChild(h('div', {cls: 'box-head'}, [h('h2', {text: 'Remote status'}),
-  h('button', {cls: 'btn small', type: 'button', text: 'Connection test', onclick: runTest})]));
+  h('button', {cls: 'btn small', type: 'button', text: 'Check my connection', id: 'cx-run', onclick: runCheck})]));
 box.appendChild(pillEl); box.appendChild(msgEl); box.appendChild(testOut);
 var qrEl = h('div', {cls: 'qr'});
 var kv = h('dl', {cls: 'kv'});
@@ -137,7 +137,7 @@ function update(r){
         net.ruleExists ? null : h('button', {cls: 'btn small', type: 'button', text: 'Allow through Windows Firewall', onclick: function(){ firewall('allow'); }}),
         net.ruleExists ? h('button', {cls: 'btn small', type: 'button', text: 'Undo (remove the permission)', onclick: function(){ firewall('undo'); }}) : null])]));
     fixBox.appendChild(h('ol', {cls: 'steps'}, [
-      h('li', {text: 'Run “Connection test” above. If it passes, this PC is ready and something between the phone or iPad and the PC is blocking it.'}),
+      h('li', {text: 'Run “Check my connection” above: it goes through every step and points at the one to fix.'}),
       h('li', {text: 'Security software such as Norton, McAfee or Kaspersky has its own firewall: allow Python (or port ' + r.port + ') on your home network.'}),
       h('li', {text: 'Some routers stop devices talking to each other (“AP isolation”). Try both devices on a phone hotspot to check.'})
     ]));
@@ -147,17 +147,65 @@ function firewall(action){
   toast(action === 'allow' ? 'Windows will ask for permission…' : 'Removing the permission…');
   post('firewall', {action: action}).then(function(d){ toast(d.message, !d.ok); }).catch(function(e){ toast(e.message, true); });
 }
-function runTest(){
-  testOut.innerHTML = ''; testOut.appendChild(h('p', {cls: 'hint', text: 'Testing…'}));
-  fetch('api/remote-selftest', {cache: 'no-store'}).then(function(r){ return r.json(); }).then(function(t){
-    testOut.innerHTML = '';
-    if (!t.enabled){ testOut.appendChild(h('div', {cls: 'alert', text: 'The remote is off, so there is nothing to test. Turn on the switch above first.'})); return; }
-    if (!t.results.length){ testOut.appendChild(h('div', {cls: 'alert bad', text: 'No network address found. Connect this PC to Wi-Fi.'})); return; }
-    var ok = t.results.filter(function(x){ return x.ok; });
-    if (ok.length) testOut.appendChild(h('div', {cls: 'alert ok'}, [h('b', {text: 'This PC is ready. '}),
-      'It answers on ' + ok.map(function(x){ return x.ip; }).join(', ') + '. If the phone or iPad still cannot open the page, Windows Firewall, security software or the router is blocking it. (This test cannot see the phone or iPad’s side.)']));
-    else testOut.appendChild(h('div', {cls: 'alert bad', text: 'The program is not answering on its network address. Turn the switch off and on again, or restart FrameDecks.'}));
-  }).catch(function(){ testOut.innerHTML = ''; testOut.appendChild(h('div', {cls: 'alert bad', text: 'The local program is not responding.'})); });
+/* 26.11.4 "Check my connection": every step from this PC to the phone in order, each with a tick, the first problem
+   with its error code (js/help-codes.js), why it happens and one button that fixes it. It reads only; a fix runs only
+   when it is pressed (the firewall one asks Windows first). The last step stays open and turns green when the phone
+   arrives, so it can be followed while someone tries on their phone. */
+var cx = {open: false, info: null, test: null, started: 0};
+function openSettings(page){ post('open-external', {url: 'ms-settings:' + page}); }
+function helpLink(code){ return h('a', {cls: 'cx-code', href: '#', title: 'Open this in the Help Center', onclick: function(e){ e.preventDefault(); post('open-external', {url: KCHelpCodes.url(code)}); }}, [code]); }
+function cxSteps(r, t){
+  var steps = [], now = r.now || Date.now() / 1000;
+  var urls = r.urls || [], devs = r.devices || [], net = r.network;
+  var add = function(state, title, text, code, action){ steps.push({state: state, title: title, text: text, code: code, action: action}); return state !== 'bad'; };
+  if (!add(r.enabled ? 'ok' : 'bad', 'Phone remote is on', r.enabled ? 'Phones on your Wi-Fi can reach FrameDecks with the PIN.' : 'It is off, so nothing on the network can reach this PC.',
+    r.enabled ? null : 'FD-REM-01', r.enabled ? null : {label: 'Turn it on', run: function(){ return post('remote', {enabled: true}); }})) return steps;
+  if (!add(urls.length ? 'ok' : 'bad', 'This PC is on a network', urls.length ? 'Its address is ' + (r.addresses || [])[0] + '.' : 'No Wi-Fi or cable connection was found.',
+    urls.length ? null : 'FD-NET-01', urls.length ? null : {label: 'Open Wi-Fi settings', run: function(){ openSettings('network-wifi'); }})) return steps;
+  var answers = t && t.results.some(function(x){ return x.ok; });
+  if (!add(answers ? 'ok' : 'bad', 'This PC answers on its address', answers ? 'FrameDecks is listening for phones.' : 'The network connection didn’t open.',
+    answers ? null : 'FD-NET-04', answers ? null : {label: 'Restart the remote', run: function(){ return post('remote', {enabled: false}).then(function(){ return post('remote', {enabled: true}); }); }})) return steps;
+  var publicNets = net ? (net.profiles || []).filter(function(p){ return p.category === 'Public'; }) : [];
+  if (!net) add('info', 'Network type', 'Not checked on this computer.');
+  else if (!add(publicNets.length ? 'bad' : 'ok', 'The network is Private', publicNets.length ? 'Windows treats “' + (publicNets[0].name || 'this network') + '” as Public and blocks other devices.' : 'Windows lets devices on this network reach the PC.',
+    publicNets.length ? 'FD-NET-02' : null, publicNets.length ? {label: 'Open network settings', run: function(){ openSettings('network-status'); }} : null)) return steps;
+  if (net && net.ruleExists === false) add('warn', 'Windows Firewall permission', 'Not added. Most PCs work without it; add it if the phone can’t connect.', 'FD-NET-03',
+    {label: 'Allow through Windows Firewall', run: function(){ firewall('allow'); }});
+  else if (net && net.ruleExists) add('ok', 'Windows Firewall permission', 'Added for this program, on private networks only.');
+  if (urls.length > 1) add('warn', 'More than one address', 'The QR code uses ' + (r.addresses || [])[0] + '. If the phone can’t connect, try ' + (r.addresses || []).slice(1).join(' or ') + '.', 'FD-NET-06');
+  var signed = devs.filter(function(d){ return d.signedIn; }), recent = signed.filter(function(d){ return now - d.lastSeen < 12; });
+  if (recent.length) add('ok', 'Your phone is connected', recent.length === 1 ? 'Ready to run the meeting.' : recent.length + ' devices are connected.');
+  else if (signed.length) add('warn', 'Your phone stopped responding', 'It was connected ' + ago(signed[0].lastSeen, now) + '.', 'FD-REM-04');
+  else if (devs.length) add('wait', 'A phone reached this PC', 'Waiting for the PIN on the phone.');
+  else if (Date.now() - cx.started > 90000) add('bad', 'No phone has reached this PC', 'This PC is ready, so something between the phone and the PC is blocking it.', 'FD-NET-05');
+  else add('wait', 'Waiting for your phone', 'Open the address on your phone now. This step turns green as soon as it arrives.');
+  return steps;
 }
+function cxDraw(){
+  if (!cx.open || !cx.info) return;
+  var steps = cxSteps(cx.info, cx.test);
+  testOut.innerHTML = '';
+  var list = h('ol', {cls: 'cx', 'aria-live': 'polite'});
+  steps.forEach(function(st){
+    var row = h('li', {cls: 'cx-' + st.state}, [h('span', {cls: 'cx-mark', 'aria-hidden': 'true', text: {ok: '✓', warn: '!', bad: '✕', wait: '…', info: '–'}[st.state]}),
+      h('div', {}, [h('b', {text: st.code && st.state !== 'ok' ? KCHelpCodes.get(st.code).title + '.' : st.title}), h('span', {text: ' ' + st.text}), st.code ? h('div', {cls: 'cx-why'}, [helpLink(st.code), ' ', KCHelpCodes.get(st.code).fix]) : null,
+        st.action ? h('button', {cls: 'btn small' + (st.state === 'bad' ? ' primary' : ''), type: 'button', text: st.action.label, onclick: function(){
+          Promise.resolve(st.action.run()).then(function(){ setTimeout(runCheck, 900); }).catch(function(e){ toast(e.message, true); });
+        }}) : null])]);
+    list.appendChild(row);
+  });
+  testOut.appendChild(list);
+}
+function runCheck(){
+  cx.open = true; cx.started = cx.started && Date.now() - cx.started < 90000 ? cx.started : Date.now();
+  testOut.innerHTML = ''; testOut.appendChild(h('p', {cls: 'hint', text: 'Checking…'}));
+  var get = function(u){ return fetch(u, {cache: 'no-store'}).then(function(r){ return r.json(); }); };
+  // the network check refreshes in the background (read-only, Windows' own interfaces): ask, then read again
+  get('api/remote-info?fresh=1').then(function(){ return new Promise(function(res){ setTimeout(res, 1200); }); })
+    .then(function(){ return Promise.all([get('api/remote-info'), get('api/remote-selftest')]); })
+    .then(function(v){ cx.info = v[0]; cx.test = v[1]; cxDraw(); })
+    .catch(function(){ testOut.innerHTML = ''; testOut.appendChild(h('div', {cls: 'alert bad', text: 'The local program is not responding. Restart FrameDecks.'})); });
+}
+Status.on('remote', function(r){ if (cx.open && cx.info){ cx.info = Object.assign({}, cx.info, {devices: r.devices, now: r.now, enabled: r.enabled}); cxDraw(); } });
 Status.on('remote', update);
 })();

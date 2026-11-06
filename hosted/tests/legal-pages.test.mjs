@@ -5,7 +5,7 @@ import assert from "node:assert/strict";
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { test } from "node:test";
 
-import { contentFiles } from "../scripts/write-content.mjs";
+import { contentFiles, derivedFiles } from "../scripts/write-content.mjs";
 import { CONSENT_VERSION, readConsent, saveConsent } from "../src/lib/consent.ts";
 import { TERMS_VERSION, rememberAcceptance, takeAcceptance } from "../src/lib/legal.ts";
 import { detectOs, downloadState, noteBlocks, parseRelease } from "../src/lib/releases.ts";
@@ -22,6 +22,13 @@ test("the published legal texts and guides are the repository's own (run npm run
   for (const [from, to] of contentFiles()) {
     assert.ok(existsSync(new URL(to, here)), `${to} is missing`);
     assert.ok(readFileSync(new URL(from, root)).equals(readFileSync(new URL(to, here))), `${to} is out of date with ${from}`);
+  }
+});
+
+test("the lists the website takes from the program (error codes) are up to date (run npm run build)", () => {
+  for (const [to, text] of derivedFiles()) {
+    assert.ok(existsSync(new URL(to, here)), `${to} is missing`);
+    assert.equal(readFileSync(new URL(to, here), "utf8"), text, `${to} is out of date`);
   }
 });
 

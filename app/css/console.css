@@ -631,4 +631,15 @@ body.studio-focus .studio.s2{height:100vh !important}
 .gd-prog li button{transition:background-color .3s ease}
 .gd-prog li.done.kc-new button{animation:gd-done .6s cubic-bezier(.3,1.5,.5,1) both}
 @keyframes gd-done{0%{transform:scaleY(1)}40%{transform:scaleY(2.2)}100%{transform:none}}
+/* 26.11.4 Check my connection: one row per step, a mark, the words, the code that opens its Help page, one fix */
+.cx{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:6px}
+.cx li{display:grid;grid-template-columns:24px 1fr;gap:10px;align-items:start;padding:9px 12px;border:1px solid var(--edge);border-radius:12px;font-size:14px}
+.cx li b{color:var(--ink)} .cx li span{color:var(--muted)}
+.cx-mark{display:grid;place-items:center;width:22px;height:22px;border-radius:50%;font-weight:800;font-size:12px;background:var(--neutral-btn);color:var(--ink)}
+.cx-ok .cx-mark{background:var(--live);color:var(--gray-1000)} .cx-warn .cx-mark{background:var(--warn);color:var(--gray-1000)} .cx-bad .cx-mark{background:var(--red);color:var(--gray-1000)}
+.cx li.cx-bad{border-color:rgba(var(--rgb-red-650),.55);background:var(--red-soft)} .cx-warn{background:var(--warn-soft)}
+.cx-why{margin-top:4px;color:var(--ink);font-size:13px} .cx li .btn{margin-top:8px}
+.cx-code{display:inline-block;padding:0 6px;border-radius:4px;background:var(--neutral-btn);color:var(--ink);font:600 12px/1.6 ui-monospace,Consolas,monospace;text-decoration:none}
+.cx-code:hover{text-decoration:underline}
 @media (prefers-reduced-motion:reduce){ .gd-prog li.done.kc-new button{animation:none} }
+

@@ -10,6 +10,18 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
 
 ## [Unreleased]
 
+### Added
+- **Error codes** (`app/js/help-codes.js`, the only list; the website gets a copy in `hosted/content/help-codes.json`):
+  every connection problem has a short code (FD-REM, FD-NET, FD-CLD) shown on the PC, the phone and the website, each
+  with what happened, why and the one fix; framedecks.com/help?code=… opens it.
+- **Check my connection** (Settings → Phone & iPad Remote): every step from the PC to the phone in order (remote on,
+  on a network, listening, Private network, firewall permission, more than one address, the phone arriving), each
+  ticked, the first problem with its code and one button that fixes it (turn on, restart the remote, open Wi-Fi or
+  network settings, allow through the firewall with Windows asking first). The last step stays open and turns green
+  when the phone arrives. Only two Windows settings pages can be opened (`server.SETTINGS_PAGES`).
+- The phone remote's **Test connection** (three round trips to the PC, the middle one shown) and codes on its
+  messages; linking a PC on the website now waits for the PC to confirm before it says done (FD-CLD-03).
+
 ### Changed
 - New front-page chapter, Memory Cards (owner's request), between Engage and Control: with Capture on, three chat
   messages are copied (Ctrl+C) one after another as the page scrolls; each copied card arcs onto the FrameDecks vCam

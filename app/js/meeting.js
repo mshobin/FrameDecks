@@ -91,11 +91,11 @@ Status.on('remote', function(r){
   var net = r.network, publicNet = net && (net.profiles || []).some(function(p){ return p.category === 'Public'; });
   if (recent.length){ chip('h-ipad', 'ok', recent.length > 1 ? recent.length + ' connected' : 'Connected', recent.length + ' device(s) connected'); ipadWasConnected = true; }
   else if (ipadWasConnected || signed.some(function(d){ return now - d.lastSeen < 10800; })){
-    chip('h-ipad', 'warn', 'Disconnected', 'The phone or iPad stopped responding. Check its Wi-Fi or reopen the remote.');
+    chip('h-ipad', 'warn', 'Disconnected', 'The phone or iPad stopped responding. Check its Wi-Fi or reopen the remote. (FD-REM-04)');
     if (ipadWasConnected){ A.toast('Phone remote disconnected. You can keep using this screen.', true); ipadWasConnected = false; }
   }
-  else if (!(r.urls || []).length) chip('h-ipad', 'bad', 'No network', 'This PC is not connected to Wi-Fi or a network');
-  else if (publicNet) chip('h-ipad', 'warn', 'Check firewall', 'Your network is set to Public. See Settings → Phone & iPad Remote.');
+  else if (!(r.urls || []).length) chip('h-ipad', 'bad', 'No network', 'This PC is not connected to Wi-Fi or a network. (FD-NET-01)');
+  else if (publicNet) chip('h-ipad', 'warn', 'Check firewall', 'Your network is set to Public. See Settings → Phone & iPad Remote → Check my connection. (FD-NET-02)');
   else chip('h-ipad', 'info', 'Waiting', 'Remote is on. Waiting for the phone or iPad to connect.');
 });
 if (!Store.served){ chip('h-sources', '', '—', 'Needs the local program'); chip('h-ipad', '', '—', 'Needs the local program'); }

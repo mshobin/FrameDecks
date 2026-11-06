@@ -1422,7 +1422,16 @@ def open_folder(path):
     return False
 
 
+# 26.11.4 the Windows settings pages the connection check opens (Wi-Fi, network type), nothing else
+SETTINGS_PAGES = ("ms-settings:network-wifi", "ms-settings:network-status")
+
+
 def open_external(url):
+    if (url or "").lower() in SETTINGS_PAGES:
+        if os.name == "nt":
+            os.startfile(url)    # Windows' own Settings app, like opening a link; no command line, nothing hidden
+            return True
+        return False
     if not re.match(r"^(https?:|mailto:|tel:)", url or "", re.I):
         return False
     if os.name == "nt" and not url.lower().startswith("http"):

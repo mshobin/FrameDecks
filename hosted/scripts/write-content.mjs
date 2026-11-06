@@ -47,6 +47,14 @@ export function contentFiles() {
   return out;
 }
 
+/** 26.11.4 lists the website takes from the program's own files (one list each, never typed twice):
+ *  [destination in hosted/, its text]. The error codes come from app/js/help-codes.js (between its markers). */
+export function derivedFiles() {
+  const js = readFileSync(new URL("app/js/help-codes.js", root), "utf8");
+  const codes = JSON.parse(js.slice(js.indexOf("/* codes:start */") + 17, js.indexOf("/* codes:end */")));
+  return [["content/help-codes.json", JSON.stringify(codes, null, 2) + "\n"]];
+}
+
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   if (!existsSync(new URL("docs/legal/eula.md", root))) {
     console.log(
@@ -60,6 +68,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
         writeFileSync(dest, readFileSync(new URL(from, root)));
       else copyFileSync(new URL(from, root), dest);
     }
-    console.log("write-content: legal texts and guides copied");
+    for (const [to, text] of derivedFiles()) writeFileSync(new URL(to, here), text);
+    console.log("write-content: legal texts, guides and help lists copied");
   }
 }

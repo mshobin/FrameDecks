@@ -33,10 +33,20 @@ $('login-form').addEventListener('submit', function(e){
     .then(function(res){
       if (res.status === 200){ $('pin').value = ''; showApp(); toast('Connected'); return; }
       $('pin').value = '';
-      $('login-msg').textContent = res.status === 429 ? 'Too many tries. Wait ' + res.d.wait + ' seconds and try again.'
-        : res.status === 401 ? 'That PIN isn’t right. Check the PIN on your PC.' : 'The phone remote isn’t on. Turn it on in FrameDecks: Settings → Phone & iPad Remote.';
+      // 26.11.4 each message carries its error code, the same on the PC and at framedecks.com/help?code=…
+      $('login-msg').textContent = res.status === 429 ? 'Too many tries. Wait ' + res.d.wait + ' seconds and try again. (FD-REM-03)'
+        : res.status === 401 ? 'That PIN isn’t right. Check the PIN on your PC. (FD-REM-02)' : 'The phone remote isn’t on. Turn it on in FrameDecks: Settings → Phone & iPad Remote. (FD-REM-01)';
     })
     .catch(function(){ $('login-msg').textContent = 'Can’t reach your PC. Check it’s on the same Wi-Fi and FrameDecks is open.'; });
+});
+/* 26.11.4 Test connection: three quick round trips to the PC, the middle one shown (what a press here feels like) */
+$('cx-test').addEventListener('click', function(){
+  var times = [], one = function(){ var t0 = performance.now(); return fetch('api/rev', {cache: 'no-store'}).then(function(r){ if (!r.ok) throw new Error(r.status); times.push(performance.now() - t0); }); };
+  toast('Testing…');
+  one().then(one).then(one).then(function(){
+    var ms = Math.round(times.sort(function(a, b){ return a - b; })[1]);
+    toast(ms < 250 ? 'Connected to your PC · ' + ms + ' ms' : 'Connected, but slow (' + ms + ' ms). Move closer to the Wi-Fi router.', ms >= 250);
+  }).catch(function(){ toast('Can’t reach your PC. Same Wi-Fi? Is FrameDecks open? (FD-REM-04)', true); });
 });
 $('logout').addEventListener('click', function(){
   fetch('api/remote-logout', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: '{}'}).finally(function(){ showLogin('Disconnected. Enter the PIN to connect again.'); });
@@ -657,5 +667,5 @@ setInterval(function(){
 fetch('api/rev', {cache: 'no-store'}).then(function(r){
   if (r.status === 403 || r.status === 401) showLogin(); else showApp();
   Store.start({longPoll: true});
-}).catch(function(){ showLogin('Can’t reach your PC. Check it’s on the same Wi-Fi and FrameDecks is open.'); Store.start({longPoll: true}); });
+}).catch(function(){ showLogin('Can’t reach your PC. Check it’s on the same Wi-Fi and FrameDecks is open. (FD-NET-05)'); Store.start({longPoll: true}); });
 })();

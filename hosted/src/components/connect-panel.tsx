@@ -139,7 +139,7 @@ export function ConnectPanel() {
       <>
         <p className="auth-error" role="alert">
           {peek.status === "expired"
-            ? "This request has expired (requests last 10 minutes). On the PC, choose Connect to FrameDecks again."
+            ? "This request has expired (requests last 10 minutes). On the PC, choose Connect to FrameDecks again. (FD-CLD-02)"
             : "This request is not known, or it was already used. On the PC, choose Connect to FrameDecks again."}
         </p>
         <Link className="auth-link" href="/computers">
