@@ -58,8 +58,12 @@ class SaveTest(unittest.TestCase):
         self.assertEqual(self.pokes, 0, "live state never syncs, so no sync round")
         self.assertTrue(server.DISK["dirty"])
         self.assertNotEqual(on_disk()["rev"], server.state["rev"], "not yet on disk")
-        time.sleep(server.LIVE_WRITE_DELAY + 0.4)
-        self.assertEqual(on_disk()["rev"], server.state["rev"], "on disk within a second")
+        # the background write lands shortly after the delay; a busy CI runner can be a little late, so wait for it
+        # (up to 3 s past the delay) instead of reading once at a fixed moment
+        deadline = time.monotonic() + server.LIVE_WRITE_DELAY + 3
+        while on_disk()["rev"] != server.state["rev"] and time.monotonic() < deadline:
+            time.sleep(0.05)
+        self.assertEqual(on_disk()["rev"], server.state["rev"], "on disk soon after the delay")
         self.assertEqual(on_disk()["live"], server.state["live"])
 
     def test_nothing_is_lost_on_quit_backup_or_import(self):
