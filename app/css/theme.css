@@ -1542,3 +1542,104 @@ html[data-theme="light"]{
 .cmdbar[data-fit="6"] #ctlbar [data-cb="hideAll"]{order:26;margin-left:auto}
 .cmdbar[data-fit="6"] .live-ind{margin-left:auto}
 .cmdbar[data-fit="6"] [data-win-controls]{order:12}
+
+/* ---------- 26.11.2 the content area under the preview, used to the full (js/frame-lists.js, js/workspace.js) ----------
+   One title row (the deck's name, its label and its add buttons) instead of three, then the content across the whole
+   width at the height that is there: questions as cards in a grid, scripture as fetch + passages side by side, birthday
+   in three columns, a Frame as name and settings beside its script. Position, Look, Animation and Show on sit as one row
+   of buttons along the bottom; one opens below. A list longer than the area scrolls inside it, never the page. */
+.insp-tools{display:flex;align-items:center;gap:10px;flex-wrap:wrap;min-width:0;padding:6px 12px}
+.insp-tools .fl-label-sec{display:flex;align-items:center;gap:8px;max-width:none}
+.insp-tools .fl-label-sec[hidden],.insp-tools .fl-acts[hidden]{display:none}
+.insp-tools .fl-label-sec input[type=text]{width:150px;min-height:32px;padding:4px 10px;font-size:14px;font-weight:600}
+.insp-tools .fl-lab .lbl{font-size:12px;font-weight:700;color:var(--muted)}
+.insp-tools .fl-label-sec .check{font-size:13px;font-weight:700;white-space:nowrap}
+.insp-tools .fl-acts{display:flex;align-items:center;gap:6px;margin-left:auto;flex-wrap:wrap}
+.insp-tools .fl-acts .btn.danger{background:transparent;border-color:transparent;color:var(--red)}
+.insp-tools .fl-acts .btn.danger:hover{border-color:var(--red)}
+.insp-tools .fl-count{min-width:0;height:auto;padding:0;margin:0 4px 0 0;border:0;background:none;font-size:13px;font-weight:700;color:var(--muted);line-height:1.2}
+.inspector .insp-t{flex-direction:row;align-items:baseline;gap:8px}
+.inspector .insp-head{padding:6px 12px}
+.inspector .insp-ic{width:30px;height:30px;border-radius:var(--r-1)}
+@media (min-width:1081px){
+  .ws-right .insp-head{padding:6px 12px;min-width:200px}
+  .ws-right .insp-tools{grid-column:2 / -1;grid-row:1;padding:6px 12px 6px 0}
+}
+.inspector .insp-body{display:grid;grid-template-columns:repeat(6,max-content) minmax(0,1fr);grid-template-rows:minmax(120px,1fr);grid-auto-rows:auto;
+  gap:8px;padding:10px 14px 12px}
+.inspector .insp-body > *{grid-column:1 / -1;min-width:0;margin:0}
+.inspector .insp-body > [hidden]{display:none}
+.inspector .insp-body > .ip[data-itab="content"]:not([hidden]),.inspector .insp-body > #ip-gen.gen-frame{columns:auto;min-height:0;overflow:auto}
+/* the settings sections, folded: one row of buttons */
+.inspector .insp-body > .ip.cs-closed,.inspector .insp-body > #ip-gen.cs-closed{grid-column:auto;grid-row:2;columns:auto}
+.inspector .insp-body > .ip.cs-closed > .cs-fold,.inspector .insp-body > #ip-gen.cs-closed > .cs-fold{margin:0;padding:5px 12px;gap:8px;
+  border:1px solid var(--line);border-radius:var(--r-2);background:var(--surface);font-size:13px;white-space:nowrap}
+.inspector .insp-body > .ip.cs-closed > .cs-fold:hover,.inspector .insp-body > #ip-gen.cs-closed > .cs-fold:hover{border-color:var(--line-hover)}
+/* questions: cards across the width */
+.insp-body .ip[data-kind="question"][data-itab="content"]:not([hidden]){display:flex;flex-direction:column}
+.insp-body .fl{margin:0;gap:8px}
+.insp-body #fl-question{flex:1 1 auto;min-height:0}
+.fl-list.fl-questions{display:grid;grid-template-columns:repeat(auto-fill,minmax(400px,1fr));grid-auto-rows:minmax(64px,auto);gap:8px;align-content:start;border:0;border-radius:0;overflow:visible}
+.fl-list.fl-questions .item{min-height:64px;border:1px solid var(--line-soft);border-radius:var(--r-2);background:var(--surface)}
+.fl-list.fl-questions .item:first-child{border-top:1px solid var(--line-soft)}
+.fl-list.fl-questions .item.live{border-color:var(--gold)}
+.fl-list.fl-questions .item.loaded:not(.live){border-color:var(--line-hover)}
+.fl-list.fl-questions .t1{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.3}
+.fl-list.fl-questions .t1:has(.ef-input){display:block;overflow:visible}
+.fl-list .fl-lbl.inherit{display:none}
+.fl-list .item{position:relative}
+.fl-new{display:flex;align-items:center;gap:10px;min-height:64px;padding:0 12px;border:1px dashed var(--line);border-radius:var(--r-2);list-style:none}
+.fl-new .num{width:24px;text-align:center;color:var(--faint);font-weight:800}
+.fl-new-in{flex:1;min-width:0;border:0;background:transparent;color:var(--ink);font:inherit;font-size:14px;padding:6px 0}
+.fl-new-in:focus{outline:none}
+.fl-new:focus-within{border-color:var(--accent)}
+/* scripture: fetch on the left, the passages as one line each on the right */
+.insp-body .ip[data-kind="scripture"][data-itab="content"]:not([hidden]){display:grid;grid-template-columns:minmax(320px,420px) minmax(0,1fr);gap:16px;align-items:start}
+.insp-body .ip[data-kind="scripture"][data-itab="content"] > .scr{margin:0}
+.fl-list.fl-verses{border:0;display:flex;flex-direction:column;gap:6px}
+.fl-list.fl-verses .item{border:1px solid var(--line-soft);border-radius:var(--r-1);background:var(--surface);padding:6px 10px}
+.fl-list.fl-verses .item:first-child{border-top:1px solid var(--line-soft)}
+.fl-list.fl-verses .item.live{border-color:var(--gold)}
+.fl-list.fl-verses .txt{display:flex;flex-direction:row;align-items:baseline;gap:10px;min-width:0}
+.fl-list.fl-verses .t1{flex:none;color:var(--gold);font-size:13px;font-weight:800}
+.fl-list.fl-verses .t2{flex:1;min-width:0;font-family:var(--serif);font-size:15px;color:var(--ink)}
+.fl-list.fl-verses .t2:has(.ef-input){white-space:normal}
+/* birthday: who · greeting and label · message */
+.insp-body .ip[data-kind="birthday"][data-itab="content"]:not([hidden]){display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2fr);gap:16px;align-items:stretch}
+.insp-body .ip[data-kind="birthday"][data-itab="content"] > .ip-sec{margin:0}
+.insp-body .ip[data-kind="birthday"][data-itab="content"] > .ip-sec:first-child{display:flex;flex-direction:column;gap:6px}
+.insp-body .ip[data-kind="birthday"][data-itab="content"] > .ip-sec:first-child > .ctx-label{order:-2}
+.insp-body .ip[data-kind="birthday"][data-itab="content"] > .ip-sec:first-child > .bday-pick{order:-1;margin-bottom:4px}
+.insp-body .ip[data-kind="birthday"][data-itab="content"] .air{min-height:0}
+.insp-body .ip[data-kind="birthday"][data-itab="content"] > .ip-sec + .ip-sec{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-areas:"g m" "l m";gap:10px 16px;align-content:start}
+.insp-body .ip[data-kind="birthday"][data-itab="content"] > .ip-sec + .ip-sec > .field{margin:0}
+.insp-body .ip[data-kind="birthday"][data-itab="content"] > .ip-sec + .ip-sec > .field:nth-child(1){grid-area:g}
+.insp-body .ip[data-kind="birthday"][data-itab="content"] > .ip-sec + .ip-sec > .field:nth-child(2){grid-area:m;display:flex;flex-direction:column}
+.insp-body .ip[data-kind="birthday"][data-itab="content"] > .ip-sec + .ip-sec > .field:nth-child(2) textarea{flex:1;min-height:60px;resize:none}
+.insp-body .ip[data-kind="birthday"][data-itab="content"] > .ip-sec + .ip-sec > .field:nth-child(3){grid-area:l}
+/* a Frame: name and settings beside the script, which fills the rest */
+.inspector .insp-body > #ip-gen.gen-frame{display:flex;flex-direction:column;gap:8px}
+.sc-main{display:grid;grid-template-columns:minmax(260px,320px) minmax(0,1fr);gap:16px;flex:1 1 auto;min-height:0;margin:0}
+.sc-side{display:flex;flex-direction:column;gap:10px;min-width:0}
+.sc-side .ip-adv{margin:0}
+.sc-main .tp-script-field{display:flex;flex-direction:column;gap:6px;min-height:0}
+.tp-script-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.tp-script-name{font-size:12px;font-weight:700;color:var(--muted)}
+.tp-len{margin-left:auto;font-size:12px;font-weight:700;color:var(--muted)}
+.sc-main .tp-script-in{flex:1 1 auto;min-height:90px;resize:none}
+.tp-script-help{font-size:12px}
+/* narrow windows: back to one column */
+@container insp (max-width:820px){
+  .insp-body .ip[data-kind="scripture"][data-itab="content"]:not([hidden]),.insp-body .ip[data-kind="birthday"][data-itab="content"]:not([hidden]),.sc-main{grid-template-columns:minmax(0,1fr)}
+  .fl-list.fl-questions{grid-template-columns:minmax(0,1fr)}
+}
+/* 26.11.2 the preview and the content area point at each other (js/preview-edit.js); the moving parts are in motion.css */
+.pv-hint{position:absolute;right:10px;top:10px;padding:5px 12px;border-radius:999px;background:rgba(var(--rgb-gray-1000),.6);
+  color:var(--ink);font-size:12px;font-weight:700;pointer-events:none;white-space:nowrap;z-index:3}
+.pv-hint[hidden]{display:none}
+.pv-outline{position:absolute;pointer-events:none;border-radius:var(--r-1);box-shadow:0 0 0 2px var(--gold),0 0 0 6px var(--gold-soft);opacity:0;z-index:30}
+.ef-draft{border-color:var(--live);box-shadow:var(--shadow-1),0 0 0 4px var(--live-soft)}
+.ef-note{margin:0;padding:6px 10px;border-radius:var(--r-1);background:var(--live-soft);color:var(--ink);font-size:12px;font-weight:600;line-height:1.35}
+.ef-note-b{display:none}
+.ef-armed .ef-note-a{display:none}
+.ef-armed .ef-note-b{display:inline}

@@ -8,7 +8,14 @@
  *
  * The cards are found where they really are: the overlay page (the same page OBS uses) is hit-tested. On the live
  * FrameDecks vCam picture the cards are part of the video, so the same page is laid out invisibly over it (only while
- * editing, and removed again after a minute) instead of guessing positions. */
+ * editing, and removed again after a minute) instead of guessing positions.
+ *
+ * 26.11.2 the preview and the content area below it point at each other:
+ *   - a click on a card in the preview selects its Content, and its item lights up in the list below;
+ *   - choosing an item in the list gives its card on the preview a soft outline (outline(kind));
+ *   - words that are on screen now are edited as a draft: the audience keeps seeing the old words until Update screen
+ *     (or Enter a second time);
+ *   - while nothing of the Frame is live, a small hint says that a double-click edits a card, until it has been used. */
 (function(){
 'use strict';
 var SC = window.KCScenes, Store = window.KCStore, E = window.KCEditable;
@@ -43,6 +50,46 @@ function cardAt(doc, x, y){
   });
   return hit.length ? hit[hit.length - 1] : null;                 // the one in front (drawn last)
 }
+/* 26.11.2 is this item's card on screen right now (live Frame, shown, this item)? Then an edit is a draft first */
+function onAirItem(kind, t){
+  var o = live && live[kind];
+  return !!(o && live.live.scene === t.sid && o.visible && o.itemId === t.it.id && String(o.text || '').trim());
+}
+function draft(){ return {draft: 'On screen now: the audience keeps seeing the old words until you update it.', saveText: 'Update screen'}; }
+/* the card under a point of the preview, and where it is on the canvas */
+function previewDoc(){ try { return frame.contentDocument; } catch(err){ return null; } }
+function toWrap(b){
+  var f = frame.getBoundingClientRect(), s = f.width / 1920, wr = wrap.getBoundingClientRect();
+  return {left: f.left - wr.left + b.left * s, top: f.top - wr.top + b.top * s, width: b.width * s, height: b.height * s};
+}
+/* a soft outline round a card of the preview, for a moment: which card an item of the list appears in */
+var ring = null, ringT = 0;
+function outline(kind, layerId){
+  var doc = previewDoc(); if (!doc) return;
+  var sel = kind === 'question' ? '.card-question' : kind === 'verse' ? '.card-verse' : '.card-x[data-layer="' + layerId + '"]';
+  var card = Array.prototype.filter.call(doc.querySelectorAll(sel), function(c){ return !c.classList.contains('out') && !c.classList.contains('empty'); })[0];
+  if (!card) return;
+  var r = toWrap(card.getBoundingClientRect());
+  if (!ring){ ring = document.createElement('div'); ring.className = 'pv-outline'; ring.setAttribute('aria-hidden', 'true'); }
+  ring.style.left = (r.left - 4 + wrap.scrollLeft) + 'px'; ring.style.top = (r.top - 4 + wrap.scrollTop) + 'px';
+  ring.style.width = (r.width + 8) + 'px'; ring.style.height = (r.height + 8) + 'px';
+  ring.classList.remove('on'); void ring.offsetWidth; ring.classList.add('on');
+  if (ring.parentNode !== wrap) wrap.appendChild(ring);
+  clearTimeout(ringT); ringT = setTimeout(function(){ if (ring) ring.classList.remove('on'); }, 1900);
+}
+/* the hint, until a card has been edited on the preview once (remembered on this PC) */
+var hintDone = false; try { hintDone = localStorage.getItem('kc-pv-hint') === '1'; } catch(e){}
+function used(){ if (hintDone) return; hintDone = true; try { localStorage.setItem('kc-pv-hint', '1'); } catch(e){} hint(); }
+function hint(){
+  var el = $('pv-hint'); if (!el) return;
+  var sid = frameId(), sc = live && sid ? SC.find(live, sid) : null;
+  var show = !hintDone && !!sc && live.live.scene !== sid && !studioOn() &&
+    (sc.layers || []).some(function(l){ return l.kind === 'question' || l.kind === 'scripture' || TEXT_NAME[l.kind]; });
+  if (el.hidden === show) el.hidden = !show;
+}
+Store.subscribe(function(){ hint(); });
+document.addEventListener('kc-frame-select', function(){ setTimeout(hint, 0); });
+
 /* edit(card, x, y, map): map turns the page's coordinates into #canvas-wrap's */
 function edit(card, x, y, map, sid){
   var lbl = card.querySelector('.card-label'), onLabel = lbl && lbl.offsetParent !== null && within(lbl.getBoundingClientRect(), x, y);
@@ -50,22 +97,25 @@ function edit(card, x, y, map, sid){
   if (card.classList.contains('card-question') || card.classList.contains('card-verse')){
     var kind = card.classList.contains('card-verse') ? 'verse' : 'question', t = shownItem(kind, sid);
     if (!t){ toast('Add a ' + KIND[kind].one.toLowerCase() + ' to this Frame first.', true); return; }
-    var def = t.l.c.label || KIND[kind].def, save = function(patch){ return window.KCFrameLists.save(kind, t.sid, t.it.id, patch).then(function(){ toast(KIND[kind].one + ' saved'); }); };
-    if (onLabel) return E.float(wrap, r, {title: 'Label', value: t.it.label || '', placeholder: def, maxLength: 80, label: KIND[kind].one + ' label', save: function(v){ return save({label: v}); }});
-    if (kind === 'question') return E.float(wrap, r, {title: 'Edit ' + (t.it.label || def), value: t.it.text || '', multiline: true, maxLength: 2000, label: 'Question',
-      save: function(v){ if (!v.trim()){ toast('A question needs some text. Nothing was changed.', true); return; } return save({text: v}); }});
-    return E.float(wrap, r, {title: 'Edit ' + (t.it.label || def), value: t.it.text || '', multiline: true, serif: true, maxLength: 4000, label: 'Scripture text',
+    var air = onAirItem(kind, t), def = t.l.c.label || KIND[kind].def;
+    var save = function(patch){ return window.KCFrameLists.save(kind, t.sid, t.it.id, patch).then(function(){ used(); toast(air ? 'On screen now' : KIND[kind].one + ' saved'); }); };
+    var d = air ? draft() : {};
+    if (onLabel) return E.float(wrap, r, Object.assign({title: 'Label', value: t.it.label || '', placeholder: def, maxLength: 80, label: KIND[kind].one + ' label', save: function(v){ return save({label: v}); }}, d));
+    if (kind === 'question') return E.float(wrap, r, Object.assign({title: 'Edit ' + (t.it.label || def), value: t.it.text || '', multiline: true, maxLength: 2000, label: 'Question',
+      save: function(v){ if (!v.trim()){ toast('A question needs some text. Nothing was changed.', true); return; } return save({text: v}); }}, d));
+    return E.float(wrap, r, Object.assign({title: 'Edit ' + (t.it.label || def), value: t.it.text || '', multiline: true, serif: true, maxLength: 4000, label: 'Scripture text',
       fields: [{key: 'ref', value: t.it.ref || '', placeholder: 'e.g. John 15:5', label: 'Reference'}, {key: 'version', value: t.it.version || '', placeholder: 'ESV', label: 'Translation', width: '110px'}],
-      save: function(v, extra){ return save({text: v, ref: (extra.ref || '').trim(), version: (extra.version || '').trim()}); }});
+      save: function(v, extra){ return save({text: v, ref: (extra.ref || '').trim(), version: (extra.version || '').trim()}); }}, d));
   }
   /* a text Content: announcement, prayer, lower third, timer */
   var sc = SC.find(live, sid), l = sc && SC.layer(sc, card.getAttribute('data-layer'));
   if (!l){ toast('That Content is not in this Frame.', true); return; }
-  var setC = function(key){ return function(v){ return window.KCCommit(function(n){ var s2 = SC.find(n, sid), x = s2 && SC.layer(s2, l.id); if (!x) return; x.c[key] = v; SC.stamp(s2); }).then(function(){ toast(l.name + ' saved'); }); }; };
-  var what = TEXT_NAME[l.kind] || 'Text';
+  var on = !!(live.live.scene === sid && SC.layerOn(live, sc, l));
+  var setC = function(key){ return function(v){ return window.KCCommit(function(n){ var s2 = SC.find(n, sid), x = s2 && SC.layer(s2, l.id); if (!x) return; x.c[key] = v; SC.stamp(s2); }).then(function(){ used(); toast(on ? 'On screen now' : l.name + ' saved'); }); }; };
+  var what = TEXT_NAME[l.kind] || 'Text', d2 = on ? draft() : {};
   if (onLabel || l.kind === 'countdown')
-    return E.float(wrap, r, {title: l.kind === 'lowerthird' ? 'Name' : 'Label', value: l.c.title || '', maxLength: 120, label: what + ' label', placeholder: what, save: setC('title')});
-  return E.float(wrap, r, {title: 'Edit ' + (l.c.title || l.name), value: l.c.text || '', multiline: true, maxLength: 2000, label: l.kind === 'lowerthird' ? 'Second line' : what + ' text', selectAll: false, save: setC('text')});
+    return E.float(wrap, r, Object.assign({title: l.kind === 'lowerthird' ? 'Name' : 'Label', value: l.c.title || '', maxLength: 120, label: what + ' label', placeholder: what, save: setC('title')}, d2));
+  return E.float(wrap, r, Object.assign({title: 'Edit ' + (l.c.title || l.name), value: l.c.text || '', multiline: true, maxLength: 2000, label: l.kind === 'lowerthird' ? 'Second line' : what + ' text', selectAll: false, save: setC('text')}, d2));
 }
 
 /* ---------- the Frame preview: the overlay page in the canvas (it takes no clicks itself) ---------- */
@@ -77,6 +127,21 @@ $('program').addEventListener('dblclick', function(e){
   e.preventDefault(); e.stopPropagation();
   var wr = wrap.getBoundingClientRect();
   edit(card, x, y, function(b){ return {left: f.left - wr.left + b.left * s, top: f.top - wr.top + b.top * s, width: b.width * s, height: b.height * s}; }, frameId());
+});
+
+/* 26.11.2 a click on a card: its Content is selected and its item lights up in the list below */
+$('program').addEventListener('click', function(e){
+  if (E.active() || e.detail > 1) return;
+  var doc = previewDoc(); if (!doc) return;
+  var f = frame.getBoundingClientRect(), s = f.width / 1920;
+  var card = cardAt(doc, (e.clientX - f.left) / s, (e.clientY - f.top) / s); if (!card) return;
+  var sid = frameId(), sc = live && SC.find(live, sid); if (!sc) return;
+  var kind = card.classList.contains('card-verse') ? 'verse' : card.classList.contains('card-question') ? 'question' : '';
+  var lid = kind ? (SC.first(sc, KIND[kind].layer) || {}).id : card.getAttribute('data-layer');
+  if (!lid || !window.KCWorkspace) return;
+  window.KCWorkspace.select(sid, lid);
+  if (kind){ var t = shownItem(kind, sid); if (t && window.KCFrameLists && window.KCFrameLists.ping) window.KCFrameLists.ping(kind, t.it.id); }
+  outline(kind, lid);
 });
 
 /* ---------- the live FrameDecks vCam picture: the same overlay page, laid out invisibly over it ---------- */
@@ -110,5 +175,6 @@ document.addEventListener('dblclick', function(e){
   });
 }, true);
 
-window.KCPreviewEdit = {close: function(){ E.close(true); }};
+window.KCPreviewEdit = {close: function(){ E.close(true); }, outline: outline};
+hint();
 })();

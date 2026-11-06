@@ -114,7 +114,10 @@ Large, plus a fine size), **Opacity**, **Padding** and **Background plate** (off
 on the camera and the OBS pages, at any resolution.
 
 ### Questions and Scriptures
-A Question (or Scripture) Content holds **its own list**, shown full height in Content Settings:
+A Question (or Scripture) Content holds **its own list**, in the area under the preview. Its **Label** and the
+**+ Question** / **+ Scripture**, **Add several** and **Remove all** buttons sit in the title row; questions are
+cards across the width, and scriptures are rows beside **Fetch scripture**. **Position and size**, **Look**,
+**Animation** and **Show on** are buttons along the bottom; each opens its settings below.
 - **Click** an item to make it the Frame's current one.
 - **Show** puts it on screen.
 - **Double-click** its **label** or its **text** to edit it right there in the list. **Enter** saves,
@@ -123,10 +126,13 @@ A Question (or Scripture) Content holds **its own list**, shown full height in C
   *Question 1* or *John 15:5*), the text and its own transition. Press **Done** (or Esc) to go back to the list.
 - **Or edit it on the canvas:** double-click any card on the Studio Canvas (question, scripture, announcement,
   prayer, lower third, timer) to edit its text; double-click the card's label
-  (its top line) to edit the label. The same keys apply. If the card is on screen, the screen changes too.
+  (its top line) to edit the label. The same keys apply. If the card is on screen, the edit is a draft until you
+  select **Update screen** (or press **Enter** twice). Clicking a card selects it and lights up its item in the
+  list; choosing an item outlines its card on the preview.
 - Questions have no Answer or Notes fields any more. Old ones are kept in your data but not shown; put
   reminders in the Frame's **Teleprompter script**.
-- **+ Question** / **+ Scripture** adds one; **Add several** pastes many at once.
+- **+ Question** / **+ Scripture** adds one; **Add several** pastes many at once. Or type a new question into
+  the last card (**Type a new question and press Enter**); it stays ready for the next one.
 - **Drag** an item by its handle (⋮⋮) to move it, or use the ↑ / ↓ buttons. A line shows where it will land.
 - For scripture, type a reference above the list and press **Fetch scripture** (ESV, with a key in Settings →
   Scripture). Choose **Fetch from → Type it myself** for other translations.

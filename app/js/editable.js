@@ -11,7 +11,10 @@
  *       fields (float only: extra one-line fields [{key, value, placeholder, label, width}]),
  *       enterNewline (long texts such as a teleprompter script: Enter = new line, Ctrl+Enter saves),
  *       save(value, extra) -> promise | value   called only when something changed,
- *       cancel(), done()                         after closing either way. */
+ *       cancel(), done()                         after closing either way.
+ *       draft (float only, 26.11.2): a note saying the words are on screen now. The edit is a draft the audience does
+ *         not see: clicking away keeps it open, the first Enter asks for a second one, and only the second Enter (or
+ *         saveText's button, "Update screen") puts it on screen. */
 (function(){
 'use strict';
 var current = null;
@@ -42,7 +45,8 @@ function session(o, root, fields, restore){
       Promise.resolve(o.save(o.multiline ? main : main.trim(), now)).catch(function(){}).then(function(){ if (o.done) o.done(true); });
     } else { if (!save && o.cancel) o.cancel(); if (o.done) o.done(false); }
   }
-  function outside(e){ if (!root.contains(e.target)) close(true); }
+  function outside(e){ if (!root.contains(e.target) && !o.draft) close(true); }   // a live draft stays open until Update screen or Cancel
+  var armed = false;
   function onBlurWin(){ /* switching windows keeps the editor open */ }
   fields.forEach(function(f){
     f.el.addEventListener('keydown', function(e){
@@ -50,7 +54,10 @@ function session(o, root, fields, restore){
       if (e.key === 'Escape'){ e.preventDefault(); close(false); }
       else if (e.key === 'Enter' && !e.isComposing){
         var newline = f.multiline && (e.shiftKey || (o.enterNewline && !(e.ctrlKey || e.metaKey)));   // scripts: Enter = new line, Ctrl+Enter saves
-        if (!newline){ e.preventDefault(); close(true); }
+        if (newline) return;
+        e.preventDefault();
+        if (o.draft && !armed){ armed = true; root.classList.add('ef-armed'); return; }   // live: Enter twice puts it on screen
+        close(true);
       }
     });
     f.el.addEventListener('keyup', function(e){ e.stopPropagation(); });
@@ -97,12 +104,14 @@ var E = {
     var f = input(o);
     if (o.serif) f.el.classList.add('serif');
     var row = extras.length ? h('div', {cls: 'ef-row'}, extras.map(function(x, i){ var w = (o.fields[i] || {}).width; if (w) x.el.style.flex = '0 0 ' + w; return x.el; })) : null;
-    var box = h('div', {cls: 'pv-ed ef-float', role: 'dialog', 'aria-label': o.title || 'Edit'}, [
-      h('div', {cls: 'pv-head'}, [h('b', {text: o.title || 'Edit'}), h('span', {cls: 'hint', text: (f.multiline ? 'Enter saves · Shift+Enter new line' : 'Enter saves') + ' · Esc cancels'})]),
+    var keys = o.draft ? (f.multiline ? 'Enter twice puts it on screen · Shift+Enter new line' : 'Enter twice puts it on screen') : (f.multiline ? 'Enter saves · Shift+Enter new line' : 'Enter saves');
+    var box = h('div', {cls: 'pv-ed ef-float' + (o.draft ? ' ef-draft' : ''), role: 'dialog', 'aria-label': o.title || 'Edit'}, [
+      h('div', {cls: 'pv-head'}, [h('b', {text: o.title || 'Edit'}), h('span', {cls: 'hint', text: keys + ' · Esc cancels'})]),
+      o.draft ? h('p', {cls: 'ef-note', role: 'status'}, [h('span', {cls: 'ef-note-a', text: o.draft}), h('span', {cls: 'ef-note-b', text: 'Press Enter again to put it on screen, or Esc to keep what is there.'})]) : null,
       row, f.el,
       h('div', {cls: 'pv-acts'}, [
         h('button', {cls: 'btn small', type: 'button', text: 'Cancel', onclick: function(){ s.close(false); }}),
-        h('button', {cls: 'btn small primary', type: 'button', text: 'Save', onclick: function(){ s.close(true); }})])]);
+        h('button', {cls: 'btn small primary', type: 'button', text: o.saveText || 'Save', onclick: function(){ s.close(true); }})])]);
     host.appendChild(box);
     var W = host.clientWidth, H = host.clientHeight;
     var w = Math.min(Math.max(rect.width, o.multiline ? 380 : 300), W - 16);

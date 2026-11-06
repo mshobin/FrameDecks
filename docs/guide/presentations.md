@@ -91,15 +91,19 @@ A Frame with a Question or Scripture list shows one item at a time.
 - In the command bar, **◀ Question ▶** does the same as the arrow keys.
 - In the list, **Show** puts one item on screen directly.
 
-**Show: Question · Both · Scripture** (above the question list) chooses what **Show** puts on screen:
+**Question · Scripture · Both** on the Frame's card in the Frames list chooses what **Show** puts on screen:
 - **Question**: the question only;
 - **Both**: the question with its scripture;
 - **Scripture**: the scripture only.
 
-> **Tip:** Found a typo while it is on screen? Double-click the card on the Studio Canvas, correct it and press
-> **Enter**. The screen updates immediately. This works for every card: question, scripture, announcement, prayer,
-> lower third and timer. Double-click the card's label (its top line) to change
-> the label.
+> **Tip:** Found a typo while it is on screen? Double-click the card on the Studio Canvas and correct it. While the
+> card is on screen your change is a **draft**: the audience keeps seeing the old words until you select
+> **Update screen** (or press **Enter** a second time). **Esc** keeps what is there. This works for every card:
+> question, scripture, announcement, prayer, lower third and timer. Double-click the card's label (its top line)
+> to change the label.
+>
+> A single click on a card in the preview selects it, and its item lights up in the list below; choosing an item in
+> the list outlines its card on the preview.
 
 ![Editing a question directly on the Studio Canvas](images/canvas-edit.png)
 

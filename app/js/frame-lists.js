@@ -3,7 +3,9 @@
  * Every Question / Scripture Content owns its list (layer.c.items), so changing one Frame never changes another.
  * The list fills the Content Settings panel; a click makes an item the Frame's current one, Show puts it on screen,
  * and a double-click (or Enter) opens the item's editor in the same panel - no pop-ups. Labels are per item and per
- * Content. Edits save as you type. */
+ * Content. Edits save as you type.
+ * 26.11.2 the Content's label and the add buttons sit in the title row above (#insp-tools); the questions are cards in
+ * a grid that fills the width, and the preview and the list point at each other (js/preview-edit.js). */
 (function(){
 'use strict';
 var Store = window.KCStore, SC = window.KCScenes, I = window.KCIcon;
@@ -90,14 +92,15 @@ function renderList(host, kind, sid, l){
   var draft = kind === 'question' && ai.ok ? h('button', {cls: 'btn quiet small', type: 'button', id: 'fl-suggest-question', html: I('sparkles', 14) + ' ' + (ai.busy ? 'Drafting…' : 'Suggest'),
     disabled: ai.busy ? 'disabled' : null, title: 'Draft discussion questions from this Frame’s scripture with the free AI on this PC (' + (ai.model || 'Ollama') + '). Nothing is added until you choose.',
     onclick: function(){ suggest(sid); }}) : null;
-  host.appendChild(h('div', {cls: 'fl-head'}, [h('h3', {text: N.Many + ' in this Frame'}), h('span', {cls: 'fl-count', text: String(list.length)}), add, more, draft]));
-  if (kind === 'question'){
-    var m = window.KCActions && window.KCActions.mode ? window.KCActions.mode() : 'question';
-    var g = h('div', {cls: 'pmode fl-pmode', role: 'radiogroup', 'aria-label': 'What Show puts on screen'});
-    [['question', 'Question'], ['both', 'Both'], ['verse', 'Scripture']].forEach(function(o){
-      g.appendChild(h('button', {type: 'button', role: 'radio', 'aria-checked': String(m === o[0]), text: o[1], onclick: function(){ window.KCActions.setMode(o[0]); }}));
-    });
-    host.appendChild(h('div', {cls: 'fl-sub'}, [h('span', {cls: 'hint', text: 'Show:'}), g]));
+  /* the count and the buttons go to the title row; what Show puts on screen (Question / Both / Scripture) stays on the
+     Frame card in the Frames list */
+  var acts = $('fl-acts-' + kind);
+  if (acts){
+    acts.innerHTML = '';
+    [h('span', {cls: 'fl-count', text: list.length + ' ' + (list.length === 1 ? N.one : N.many)}), add, more, draft,
+      list.length ? h('button', {cls: 'btn quiet small danger', type: 'button', text: 'Remove all', title: 'Remove every ' + N.one + ' from this Frame',
+        onclick: function(){ if (confirm('Remove every ' + N.one + ' from this Frame? Anything on screen stays on screen.')) editList(kind, sid, function(x){ x.c.items = []; x.c.itemId = ''; }); }}) : null]
+      .forEach(function(x){ if (x) acts.appendChild(x); });
   }
   if (bulkOpen[kind]){
     var ta = h('textarea', {rows: 5, id: 'fl-bulk-text-' + kind, placeholder: kind === 'question' ? 'One question per line' : 'One per line: Reference | text   (e.g. John 3:16 | For God so loved the world…)'});
@@ -114,7 +117,8 @@ function renderList(host, kind, sid, l){
       }}),
       h('button', {cls: 'btn quiet small', type: 'button', text: 'Cancel', onclick: function(){ bulkOpen[kind] = false; sigs[kind] = ''; render(); }})])]));
   }
-  var ol = h('ol', {cls: 'items fl-list', id: kind === 'verse' ? 'v-items' : 'q-items', role: 'listbox', 'aria-label': N.Many + ' in this Frame'});
+  var ol = h('ol', {cls: 'items fl-list fl-' + kind + 's', id: kind === 'verse' ? 'v-items' : 'q-items', role: 'listbox', 'aria-label': N.Many + ' in this Frame',
+    title: kind === 'question' ? '→ / ← step through this Frame’s questions when it is on screen' : 'Shift + → / ← step through this Frame’s scriptures'});
   if (!list.length) ol.appendChild(h('li', {cls: 'fl-empty', text: 'No ' + N.many + ' in this Frame yet. Select + ' + N.One + (kind === 'verse' ? ', or type a reference above and Fetch.' : ', or Add several.')}));
   list.forEach(function(it, i){
     var isCur = it.id === cur || (!cur && i === 0), on = onScreen(kind, it.id);
@@ -142,7 +146,7 @@ function renderList(host, kind, sid, l){
         h('button', {cls: 'btn quiet small', type: 'button', text: '↑', title: 'Move up', 'aria-label': 'Move up', disabled: i === 0 ? 'disabled' : null, onclick: function(e){ e.stopPropagation(); move(kind, sid, it.id, -1); }}),
         h('button', {cls: 'btn quiet small', type: 'button', text: '↓', title: 'Move down', 'aria-label': 'Move down', disabled: i === list.length - 1 ? 'disabled' : null, onclick: function(e){ e.stopPropagation(); move(kind, sid, it.id, 1); }}),
         h('button', {cls: 'btn quiet small danger', type: 'button', text: '✕', title: 'Remove', 'aria-label': 'Remove', onclick: function(e){ e.stopPropagation(); remove(kind, sid, it.id); }})])]);
-    li.addEventListener('click', function(){ makeCurrent(kind, sid, it.id); });
+    li.addEventListener('click', function(e){ if (e.target.closest('button')) return; makeCurrent(kind, sid, it.id); outlineSoon(kind); });
     dragHooks(li, kind, sid, it.id);
     li.addEventListener('dblclick', function(e){ if (!KCEditable.active()) t1El.dispatchEvent(new MouseEvent('dblclick', {bubbles: false})); });   // anywhere else on the row edits the text
     li.addEventListener('keydown', function(e){
@@ -153,9 +157,33 @@ function renderList(host, kind, sid, l){
     });
     ol.appendChild(li);
   });
+  /* 26.11.2 a new question is typed straight into the last card: Enter adds it and the line stays ready for the next */
+  if (kind === 'question'){
+    var nq = h('input', {type: 'text', id: 'fl-new-question', cls: 'fl-new-in', placeholder: 'Type a new question and press Enter', 'aria-label': 'New question', maxlength: 2000});
+    nq.addEventListener('keydown', function(e){
+      e.stopPropagation();
+      if (e.key !== 'Enter' || e.isComposing) return;
+      e.preventDefault();
+      var t = nq.value.trim(); if (!t) return;
+      nq.value = ''; refocus = 'fl-new-question';
+      editList(kind, sid, function(x){ x.c.items.push({id: newId(kind), text: t}); });
+    });
+    ol.appendChild(h('li', {cls: 'fl-new', role: 'presentation'}, [h('span', {cls: 'num', 'aria-hidden': 'true', text: '+'}), nq]));
+  }
   host.appendChild(ol);
-  if (list.length) host.appendChild(h('div', {cls: 'fl-foot'}, [h('span', {cls: 'hint', text: kind === 'question' ? '→ / ← step through this Frame’s questions when it is on screen.' : 'Shift + → / ← step through this Frame’s scriptures.'}),
-    h('button', {cls: 'btn quiet small danger', type: 'button', text: 'Remove all', onclick: function(){ if (confirm('Remove every ' + N.one + ' from this Frame? Anything on screen stays on screen.')) editList(kind, sid, function(x){ x.c.items = []; x.c.itemId = ''; }); }})]));
+}
+var refocus = '';
+/* the preview gets a soft outline round the card this item appears in (after the preview has drawn it) */
+var outlineT = 0;
+function outlineSoon(kind){ clearTimeout(outlineT); outlineT = setTimeout(function(){ if (window.KCPreviewEdit && window.KCPreviewEdit.outline) window.KCPreviewEdit.outline(kind); }, 260); }
+/* the card clicked on the preview: its item lights up in the list and comes into view */
+function ping(kind, id){
+  setTimeout(function(){
+    var li = document.querySelector('#fl-' + kind + ' li[data-id="' + id + '"]'); if (!li) return;
+    li.scrollIntoView({block: 'nearest', inline: 'nearest'});
+    li.classList.remove('fl-ping'); void li.offsetWidth; li.classList.add('fl-ping');
+    clearTimeout(li._pt); li._pt = setTimeout(function(){ li.classList.remove('fl-ping'); }, 1600);
+  }, 120);
 }
 function addItem(kind, sid, data){
   var id = newId(kind);
@@ -274,15 +302,21 @@ function renderLabel(kind, sid, l){
   var show = h('input', {type: 'checkbox', id: kind === 'verse' ? 'v-showlabel' : 'q-showlabel'});
   show.checked = window.KCCardLook ? window.KCCardLook.of(kind, 'showLabel') !== false : true;
   show.addEventListener('change', function(){ if (window.KCCardLook) window.KCCardLook.set(kind, 'showLabel', show.checked); });
-  box.appendChild(h('div', {cls: 'row'}, [h('span', {cls: 'lbl', text: 'Label'}), h('div', {cls: 'two', style: 'grid-template-columns:1fr auto;align-items:center'}, [inp, h('label', {cls: 'check'}, [show, ' Show'])])]));
-  box.appendChild(h('p', {cls: 'hint', text: 'Used for every ' + NAMES[kind].one + ' in this Frame that has no label of its own.'}));
+  inp.title = 'Used for every ' + NAMES[kind].one + ' in this Frame that has no label of its own';
+  box.appendChild(h('label', {cls: 'fl-lab', 'for': inp.id}, [h('span', {cls: 'lbl', text: 'Label'})]));
+  box.appendChild(inp);
+  box.appendChild(h('label', {cls: 'check', title: 'Show the label above the words on screen'}, [show, ' Show label']));
 }
 
 function render(){
   if (!live || drag) return;                      // never redraw the list under a drag (it redraws when the drag ends)
   var sid = frameId();
   ['question', 'verse'].forEach(function(kind){
-    var host = $('fl-' + kind); if (!host || host.offsetParent === null) return;      // hidden: drawn when it opens
+    var host = $('fl-' + kind), vis = !!(host && host.offsetParent !== null);
+    var lb = document.querySelector('[data-fl-label="' + kind + '"]'), ac = $('fl-acts-' + kind);
+    if (lb && lb.hidden === vis) lb.hidden = !vis;
+    if (ac && ac.hidden === vis) ac.hidden = !vis;
+    if (!vis) return;                                                                    // hidden: drawn when it opens
     if (KCEditable.within(host)){ sigs[kind] = ''; return; }                           // an in-place editor is open here
     var l = cardOf(live, kind, sid);
     renderLabel(kind, sid, l);
@@ -294,7 +328,9 @@ function render(){
     if (!ed && bulkOpen[kind] && host.contains(document.activeElement) && document.activeElement.tagName === 'TEXTAREA') return;
     sigs[kind] = sig; host.innerHTML = '';
     if (!l){ host.appendChild(h('p', {cls: 'hint', text: 'Select a Frame and its ' + NAMES[kind].One + ' Content.'})); return; }
-    if (ed) renderEditor(host, kind, sid, l, ed); else renderList(host, kind, sid, l);
+    if (ed){ renderEditor(host, kind, sid, l, ed); var a2 = $('fl-acts-' + kind); if (a2) a2.innerHTML = ''; }
+    else renderList(host, kind, sid, l);
+    if (refocus){ var rf = $(refocus); refocus = ''; if (rf) rf.focus(); }
   });
 }
 
@@ -313,5 +349,5 @@ function onVerse(d){
 Store.subscribe(function(st){ live = st; render(); });
 aiCheck(); setInterval(aiCheck, 120000);
 window.addEventListener('kc-edit-done', function(){ render(); });
-window.KCFrameLists = {render: function(){ render(); }, onVerse: onVerse, edit: openEditor, add: function(kind){ return addItem(kind, frameId()); }, save: saveItem};
+window.KCFrameLists = {render: function(){ render(); }, onVerse: onVerse, edit: openEditor, add: function(kind){ return addItem(kind, frameId()); }, save: saveItem, ping: ping};
 })();

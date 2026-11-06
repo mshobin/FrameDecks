@@ -79,11 +79,21 @@
 .kc-arrive .scene-item:nth-child(n+6){animation-delay:.25s}
 @keyframes kc-arrive{from{opacity:0;transform:translateX(-12px)}to{opacity:1;transform:none}}
 
+/* ---------- 26.11.2 the preview and the content area point at each other (js/preview-edit.js, js/frame-lists.js) ---------- */
+/* the item behind a card clicked on the preview: a gold ring that fades */
+.fl-list .item.fl-ping::after{content:"";position:absolute;inset:-3px;border-radius:inherit;box-shadow:0 0 0 3px var(--gold);pointer-events:none;
+  animation:kc-ping 1.6s var(--ease) both}
+@keyframes kc-ping{0%,45%{opacity:1}to{opacity:0}}
+/* the card an item of the list appears in: a soft outline on the preview, for a moment */
+.pv-outline.on{animation:kc-outline 1.8s var(--ease) both}
+@keyframes kc-outline{0%{opacity:0;transform:scale(1.03)}18%{opacity:1;transform:none}70%{opacity:1}to{opacity:0}}
+
 /* ---------- reduce motion: every animation above is off; things simply appear ---------- */
 @media (prefers-reduced-motion:reduce){
   #cb-take.kc-took::after,#program.kc-took::after,#live-ind.kc-took b,#upnext.kc-lift,.live-ind.swap b,.live-ind.swap .live-what,
   #program.kc-from-right,#program.kc-from-left,.lc-pop.lc-in,.lc-pop.lc-out,.toast .toast-time,.pe-art .pe-l,
-  .pane-empty.start .btn.primary::after,.kc-arrive .scene-item{animation:none}
+  .pane-empty.start .btn.primary::after,.kc-arrive .scene-item,.fl-list .item.fl-ping::after{animation:none}
+  .pv-outline.on{animation:none;opacity:1}
   .pe-art .pe-l{stroke-dashoffset:0}
   .scene-item.kc-glide,#tab-settings input[type="checkbox"],.lc,.lc-t,.tab,.subtab,.live-ind,.toast{transition:none}
   .cb-btn:active,.btn:active,.lc:active,.lc-t:active,.tab:active,.subtab:active,.pe-go:active{transform:none}

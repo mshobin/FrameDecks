@@ -12,8 +12,19 @@ keeps all your meetings, members, settings, notes, pinned Memory Cards and recor
   close) always stay at the top right.
 - **The Teleprompter's top bar does the same**, at any size of its window: the clock, the Frame and the window buttons
   stay on the first row, and the buttons below turn into icons when space is short.
+- **A content area that uses all of its space**: under the preview, each deck now fits without scrolling. Its label
+  and its add buttons sit in one title row; questions are cards across the width (type a new one straight into the
+  last card), scripture shows Fetch beside the passages, birthday uses three columns, and a Frame shows its name and
+  settings beside a full-size Teleprompter script with its reading time. Position and size, Look, Animation and Show
+  on are one row of buttons along the bottom.
+- **The preview and the list point at each other**: click a card in the preview and its item lights up in the list;
+  choose an item in the list and its card is outlined on the preview.
+- **Safe edits while live**: double-clicking a card that is on screen edits a draft. The audience keeps seeing the
+  old words until you select **Update screen**, or press Enter a second time.
 
 ## Enhancements
+- A small hint on the preview, "Double-click any card to edit it", until you have used it once.
+- What Show puts on screen (Question, Scripture or Both) is chosen in one place: on the Frame's card.
 - **Follow my voice listens whenever the Teleprompter is above every other window**: pinned, as before, or simply the
   window in front (the one you clicked last). Unpinned, click another window and it lets the microphone go; click the
   Teleprompter and it carries on.
@@ -26,6 +37,8 @@ keeps all your meetings, members, settings, notes, pinned Memory Cards and recor
 - The window buttons no longer drop onto a row of their own when FrameDecks opens in a normal-size window.
 - The Command Center no longer shows a large empty box for a moment before its bar the first time you press its
   shortcut.
+- Opening a Frame straight after a Birthday (or another Content with closed settings) no longer shows an empty area
+  instead of the Frame's name and script.
 
 ## Performance Improvements
 - The top bar measures itself only when the window is resized or its buttons change, at most once per drawn frame:

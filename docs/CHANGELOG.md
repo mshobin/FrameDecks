@@ -25,6 +25,15 @@ Full notes: [docs/releases/v26.11.2.md](releases/v26.11.2.md).
   `voice_runtime`); `voice_follow.py` uses them when frozen and downloads only the model. The installed app starts
   its listening process at below-normal priority without `CREATE_NO_WINDOW`.
 
+- The content area under the preview: the deck's label and add buttons in `#insp-tools` (title row), the label
+  panels removed, questions as a card grid with a "type a new question" card, scripture fetch and passages side by
+  side, birthday in three columns, the Frame form as name and settings beside the script (`.sc-main`, reading time),
+  and folded settings sections as one row of buttons (`theme.css` 26.11.2 block). The Question / Both / Scripture
+  switch is only on the Frame card.
+- The preview and the list linked (`preview-edit.js`): a click on a card selects its Content and pings its item
+  (`KCFrameLists.ping`); choosing an item outlines its card (`KCPreviewEdit.outline`); edits to words on screen are
+  drafts (`KCEditable.float` `draft` / `saveText`: Enter twice or Update screen); a hint on the preview until used.
+
 ### Added
 - A Microsoft Defender scan of the program folder and the installer in `build-windows.yml`; the release stops if
   anything is flagged.
@@ -35,6 +44,7 @@ Full notes: [docs/releases/v26.11.2.md](releases/v26.11.2.md).
   onto their own row.
 - The Command Center showing an empty 820 x 720 box before its bar on first open: the window is made off-screen and
   see-through from its first paint (`spotlight.html?glass=1`).
+- The Frame form hidden after selecting a Content whose "Show on" section was folded: `#ip-gen` kept `cs-closed`.
 
 ## [26.11.1] - 2026-11-06
 

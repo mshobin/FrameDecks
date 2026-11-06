@@ -113,3 +113,56 @@ class NothingForAntivirusToMistake(unittest.TestCase):
         self.assertLess(wf.index("Scan with Microsoft Defender"), wf.index("Publish on the Releases page"))
         self.assertLess(wf.index("Put the speech engine in"), wf.index("Build the app (PyInstaller)"))
         self.assertIn("src/voice_runtime/", read(".gitignore"))
+
+
+class ContentArea(unittest.TestCase):
+    """26.11.2 the content area under the preview: one title row, the rest filled across, linked to the preview."""
+
+    def test_the_label_and_add_buttons_sit_in_the_title_row(self):
+        html = read("app/dashboard.html")
+        self.assertIn('<div class="insp-tools" id="insp-tools">', html)
+        for need in ('<div class="fl-label-sec" data-fl-label="question" hidden></div>', '<div class="fl-acts" id="fl-acts-question" hidden></div>',
+                     '<div class="fl-label-sec" data-fl-label="verse" hidden></div>', '<div class="fl-acts" id="fl-acts-verse" hidden></div>'):
+            self.assertIn(need, html)
+        self.assertNotIn('data-itab="label"', html)                       # no Label panel taking a row of its own
+        ws = read("app/js/workspace.js")
+        self.assertIn("card: [['content', null], ['layout', 'Position and size', 0, 1]", ws)
+        fl = read("app/js/frame-lists.js")
+        self.assertIn("var acts = $('fl-acts-' + kind);", fl)
+        self.assertNotIn("fl-pmode", fl)                                   # Question / Both / Scripture stays on the Frame card
+
+    def test_each_deck_fills_the_width(self):
+        css = read("app/css/theme.css")
+        for need in (".fl-list.fl-questions{display:grid;grid-template-columns:repeat(auto-fill,minmax(400px,1fr))",
+                     '.insp-body .ip[data-kind="scripture"][data-itab="content"]:not([hidden]){display:grid;grid-template-columns:minmax(320px,420px) minmax(0,1fr)',
+                     'grid-template-areas:"g m" "l m"',
+                     ".sc-main{display:grid;grid-template-columns:minmax(260px,320px) minmax(0,1fr)",
+                     ".inspector .insp-body > .ip.cs-closed,.inspector .insp-body > #ip-gen.cs-closed{grid-column:auto;grid-row:2;columns:auto}"):
+            self.assertIn(need, css)
+        fl = read("app/js/frame-lists.js")
+        self.assertIn("id: 'fl-new-question'", fl)                         # a new question is typed into the last card
+
+    def test_a_fold_from_another_content_never_hides_the_frame_form(self):
+        self.assertIn("var gen = $('ip-gen'); gen.classList.remove('cs-closed');", read("app/js/workspace.js"))
+
+    def test_the_preview_and_the_list_point_at_each_other(self):
+        pe = read("app/js/preview-edit.js")
+        for need in ("$('program').addEventListener('click', function(e){", "window.KCFrameLists.ping(kind, t.it.id)",
+                     "window.KCPreviewEdit = {close: function(){ E.close(true); }, outline: outline};",
+                     "function onAirItem(kind, t){", "saveText: 'Update screen'"):
+            self.assertIn(need, pe)
+        fl = read("app/js/frame-lists.js")
+        self.assertIn("makeCurrent(kind, sid, it.id); outlineSoon(kind);", fl)
+        ed = read("app/js/editable.js")
+        self.assertIn("if (o.draft && !armed){ armed = true; root.classList.add('ef-armed'); return; }", ed)
+        self.assertIn("if (!root.contains(e.target) && !o.draft) close(true);", ed)    # clicking away never puts a draft on screen
+        self.assertIn('<div class="pv-hint" id="pv-hint" hidden>Double-click any card to edit it</div>', read("app/dashboard.html"))
+
+    def test_the_new_motion_is_cheap_and_reduce_motion_stops_it(self):
+        motion = read("app/css/motion.css")
+        for name in ("kc-ping", "kc-outline"):
+            body = re.search(r"@keyframes " + name + r"\{(.*?\})\}", motion, re.S).group(1)
+            self.assertTrue(set(re.findall(r"([a-z-]+)\s*:", body)) <= {"opacity", "transform"}, name)
+        reduce = motion[motion.index("@media (prefers-reduced-motion:reduce){\n  #cb-take"):]
+        self.assertIn(".kc-arrive .scene-item,.fl-list .item.fl-ping::after{animation:none}", reduce)
+        self.assertIn(".pv-outline.on{animation:none;opacity:1}", reduce)

@@ -880,7 +880,8 @@ function pickFile(kind){
 var GROUPS = {scene: [['scene', 'Frame']],          // 8.0: one simple Frame form; the rarer settings sit under Advanced
   /* 8.1 one view: the Content first (its label and words, always open), then the settings as sections that open on a
    * click: [key, name, sub, foldable]. A null name: no heading (the Content heading covers it). */
-  card: [['label', 'Content'], ['content', null], ['layout', 'Position and size', 0, 1], ['style', 'Look', 0, 1], ['animation', 'Animation', 0, 1], ['output', 'Show on', 0, 1]],
+  /* 26.11.2 a deck's label sits in the title row (#insp-tools), so its words start at the top of the area */
+  card: [['content', null], ['layout', 'Position and size', 0, 1], ['style', 'Look', 0, 1], ['animation', 'Animation', 0, 1], ['output', 'Show on', 0, 1]],
   text: [['label', 'Content'], ['content', null], ['layout', 'Position and size', 0, 1], ['style', 'Look', 0, 1], ['animation', 'Animation', 0, 1], ['output', 'Show on', 0, 1]],
   brand: [['content', 'Content'], ['layout', 'Position and size', 0, 1], ['style', 'Look', 0, 1], ['output', 'Show on', 0, 1]],
   media: [['content', 'Media']]};
@@ -898,6 +899,7 @@ function groupHead(key, name, sub, fold){
 function headFor(groups, key){ var g = groups.filter(function(t){ return t[0] === key; })[0]; return g ? groupHead(g[0], g[1], g[2], g[3]) : null; }
 /* 8.1 the settings sections open and close on a click; remembered on this PC */
 function applyGroups(){
+  var gen = $('ip-gen'); gen.classList.remove('cs-closed');     // 26.11.2 a fold left from another Content never hides the Frame form
   Array.prototype.forEach.call(document.querySelectorAll('#insp-body .cs-fold'), function(hd){
     var open = !!openGrp[hd.dataset.grp], p = hd.parentNode;
     hd.setAttribute('aria-expanded', String(open));
@@ -935,6 +937,7 @@ function renderInspectorBody(){
     if (p.hidden === show) p.hidden = !show;
   });
   var gen = $('ip-gen'); gen.hidden = false;
+  gen.classList.toggle('gen-frame', !!sc && !l);                 // 26.11.2 the Frame form fills the area (css)
   orderPanels(panelKind, groups, gen);
   if (SC.isCard(kind)){ if (window.KCRenderLists) window.KCRenderLists(); if (window.KCRefreshControls) window.KCRefreshControls(); if (kind === 'birthday' && window.KCRenderBirthday) window.KCRenderBirthday(); }
   var sig = JSON.stringify([sc && sc.id, l, sc && !l ? [sc.name, sc.group, sc.fav, sc.tpl, sc.tx, sc.auto, sc.out, sc.modified, sc.notes, live.profile, !!SC.first(sc, 'brand')] : 0, l && l.kind === 'brand' ? live.brand : 0, isLiveScene(sc && sc.id), live.live.on, !!mediaLive]);
@@ -991,10 +994,12 @@ function sceneForm(gen, sc){
   sec.addEventListener('change', function(){ edit(sid, function(x){ x.auto.sec = Math.max(2, Math.min(3600, +sec.value || 30)); }); });
   var auto = h('input', {type: 'checkbox', id: 'sc-auto'}); auto.checked = !!sc.auto.on;
   auto.addEventListener('change', function(){ var v = auto.checked; sec.disabled = !v; edit(sid, function(x){ x.auto.on = v; }); });
-  gen.appendChild(h('div', {cls: 'ip-sec sc-main'}, [field('Name', nm), notesCtl(sc),
-    h('div', {cls: 'sc-auto'}, [h('label', {cls: 'check'}, [auto, ' Move to the next Frame after']), sec, h('span', {cls: 'hint', text: 'seconds'})]),
-    h('p', {cls: 'hint', text: 'Moves on only while Auto-advance is on in the top bar.'}),
-    h('div', {cls: 'ip-acts'}, [h('button', {cls: 'btn small', type: 'button', id: 'sc-dup', html: I('copy', 15) + ' Duplicate Frame', title: 'A copy of this Frame, right after it (Ctrl+D)', onclick: function(){ duplicate(sid, {}); }})])]));
+  /* 26.11.2 the name and the everyday settings in a column on the left, the Teleprompter script filling the rest */
+  var main = h('div', {cls: 'ip-sec sc-main'}, [h('div', {cls: 'sc-side'}, [field('Name', nm),
+    h('div', {cls: 'sc-auto'}, [h('label', {cls: 'check', title: 'Moves on only while Auto-advance is on in the top bar'}, [auto, ' Next Frame after']), sec, h('span', {cls: 'hint', text: 'seconds'})]),
+    h('div', {cls: 'ip-acts'}, [h('button', {cls: 'btn small', type: 'button', id: 'sc-dup', html: I('copy', 15) + ' Duplicate Frame', title: 'A copy of this Frame, right after it (Ctrl+D)', onclick: function(){ duplicate(sid, {}); }})])]),
+    notesCtl(sc)]);
+  gen.appendChild(main);
   // Advanced: grouping, looks and history - rarely needed, one click away
   var gr = h('input', {type: 'text', value: sc.group, list: 'sc-groups', 'aria-label': 'Group'}); gr.addEventListener('keydown', stop);
   var dl = h('datalist', {id: 'sc-groups'}); live.scenes.map(function(s){ return s.group; }).filter(function(g, i, a){ return g && a.indexOf(g) === i; }).forEach(function(g){ dl.appendChild(h('option', {value: g})); });
@@ -1024,7 +1029,7 @@ function sceneForm(gen, sc){
       h('dt', {text: 'Original Frame'}), h('dd', {}, [par ? h('button', {cls: 'linkish', type: 'button', text: par.name, onclick: function(){ select(par.id, null, true); }}) : document.createTextNode('—')])])])]);
   advd.open = advOpen;
   advd.addEventListener('toggle', function(){ advOpen = advd.open; });
-  gen.appendChild(advd);
+  main.firstChild.appendChild(advd);
 }
 /* ---------- Text layers ---------- */
 var POS_NAMES = {top: 'Top', center: 'Centre', bottom: 'Bottom', 'lower-left': 'Lower left', 'lower-right': 'Lower right', 'upper-left': 'Upper left', 'upper-right': 'Upper right'};
@@ -1034,7 +1039,13 @@ function notesCtl(sc){
   ta.addEventListener('keydown', stop);
   ta.addEventListener('input', function(){ var v = ta.value; later('notes', function(){ edit(sc.id, function(x){ x.notes = v.slice(0, 20000); }); }); });
   var open = h('button', {cls: 'btn small', type: 'button', text: 'Open the Teleprompter', onclick: function(e){ e.preventDefault(); if (window.KCTeleprompter) window.KCTeleprompter.open(); }});
-  return h('div', {cls: 'tp-script-field'}, [field('Teleprompter script', ta, '# Heading · - bullet · **bold** · *italic* · [PAUSE] cue · --- divider. Never shown to the audience.'), open]);
+  /* 26.11.2 how long it takes to say, at an easy speaking pace (about 130 words a minute) */
+  var len = h('span', {cls: 'tp-len', 'aria-live': 'polite'});
+  function measure(){ var w = (ta.value.replace(/\[[^\]\n]{1,40}\]|[#*_>~|-]/g, ' ').match(/\S+/g) || []).length;
+    len.textContent = w ? '≈ ' + (w < 130 ? Math.max(1, Math.round(w / 130 * 60)) + ' s' : Math.round(w / 130) + ' min') + ' · ' + w + ' words' : ''; }
+  ta.addEventListener('input', measure); measure();
+  return h('div', {cls: 'tp-script-field'}, [h('div', {cls: 'tp-script-top'}, [h('span', {cls: 'tp-script-name', text: 'Teleprompter script'}), h('small', {cls: 'hint', text: 'only you see it'}), len, open]),
+    ta, h('small', {cls: 'hint tp-script-help', text: '# Heading · - bullet · **bold** · *italic* · [PAUSE] cue · --- divider. Never shown to the audience.'})]);
 }
 function brandStatus(){
   var b = live.brand, bits = [b.logo ? 'logo' : '', b.meeting ? '“' + b.meeting + '”' : '', b.org ? '“' + b.org + '”' : ''].filter(Boolean);

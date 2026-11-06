@@ -174,6 +174,7 @@
         <img id="program-live" alt="The FrameDecks vCam picture Zoom participants see" hidden>
         <div class="canvas-boxes" id="canvas-boxes" aria-hidden="true"></div>
         <div class="program-badge" id="program-badge">NOTHING ON SCREEN</div>
+        <div class="pv-hint" id="pv-hint" hidden>Double-click any card to edit it</div>
       </div>
       <div class="studio-host" id="tab-studio" hidden></div>
     </div>
@@ -192,13 +193,17 @@
 
   <aside class="ws-right inspector" id="inspector" aria-labelledby="insp-title">
     <header class="insp-head"><span class="insp-ic" id="insp-ic"></span><div class="insp-t"><h2 id="insp-title">Frame</h2><small id="insp-sub"></small></div><span class="insp-live" id="insp-live"></span></header>
+    <!-- 26.11.2 the deck's label and its add buttons sit in the title row, so the space below is all content (js/frame-lists.js) -->
+    <div class="insp-tools" id="insp-tools">
+      <div class="fl-label-sec" data-fl-label="question" hidden></div><div class="fl-label-sec" data-fl-label="verse" hidden></div>
+      <div class="fl-acts" id="fl-acts-question" hidden></div><div class="fl-acts" id="fl-acts-verse" hidden></div>
+    </div>
     <nav class="insp-tabs" id="insp-tabs" aria-label="Inspector"></nav>
     <div class="insp-body" id="insp-body">
       <!-- built by js/workspace.js: scene settings, text layers, media layers, output -->
       <div class="ip" id="ip-gen"></div>
 
       <!-- Question layer (6.7 order: Label · Content · Display Settings · Visual Settings) -->
-      <div class="ip" data-kind="question" data-itab="label" hidden><div class="ip-sec fl-label-sec" data-fl-label="question"></div></div>
       <div class="ip" data-kind="question" data-itab="content" hidden>
         <!-- v6.5: this Frame's own questions (js/frame-lists.js): full-height list, double-click edits in this panel -->
         <div class="fl" id="fl-question" data-fl="question"></div>
@@ -222,7 +227,6 @@
     <div class="row" data-burst-row="question" hidden><span class="lbl">Burst strength</span><div class="seg" data-bseg="question"></div></div></div></div>
 
       <!-- Scripture layer -->
-      <div class="ip" data-kind="scripture" data-itab="label" hidden><div class="ip-sec fl-label-sec" data-fl-label="verse"></div></div>
       <div class="ip" data-kind="scripture" data-itab="content" hidden>
         <section class="scr" id="scr" aria-label="Fetch scripture">
           <div class="scr-row"><label class="field scr-ref"><span>Reference</span><input type="text" id="scr-ref" list="scr-books" placeholder="e.g. Romans 2:28-29" autocomplete="off"></label>

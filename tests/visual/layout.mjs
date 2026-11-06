@@ -187,6 +187,47 @@ for (const w of [1920, 1440, 1280, 1100]) {
   await t.close();
 }
 
+// 26.11.2 the content area under the preview: every deck fits without the page scrolling, and the preview and the
+// list point at each other (a click on a card lights its item; an item gives its card an outline; live words are a draft)
+{
+  for (const [w, hh] of [[1366, 768], [1920, 1080]]) {
+    const p = await browser.newPage({ viewport: { width: w, height: hh } });
+    await p.goto(`${BASE}/dashboard.html`); await p.waitForTimeout(2200);
+    await p.evaluate(() => window.KCOnboarding && window.KCOnboarding.close()); await p.waitForTimeout(400);
+    const picks = await p.evaluate(() => { const o = {}; for (const s of KCStore.get().scenes.filter((x) => !x.tpl)) { if (!o.frame) o.frame = [s.id, null]; for (const l of s.layers || []) if (!o[l.kind]) o[l.kind] = [s.id, l.id]; } return o; });
+    for (const k of ["frame", "birthday", "question", "scripture"]) {
+      if (!picks[k]) continue;
+      await p.evaluate((x) => KCWorkspace.select(x[0], x[1]), picks[k]); await p.waitForTimeout(350);
+      const r = await p.evaluate(() => { const b = document.getElementById("insp-body"), kids = [...b.children].filter((e) => getComputedStyle(e).display !== "none");
+        return { page: document.documentElement.scrollHeight > innerHeight + 1 || document.documentElement.scrollWidth > innerWidth, body: b.scrollHeight > b.clientHeight + 1,
+          empty: kids.some((e) => e.getBoundingClientRect().height < 1) }; });
+      check(!r.page && !r.body && !r.empty, `content area: ${k} fits at ${w} px without scrolling`);
+    }
+    if (w === 1366) {
+      await p.evaluate((x) => KCWorkspace.select(x[0], null), picks.frame); await p.waitForTimeout(350);
+      const at = await p.evaluate(() => { const f = document.getElementById("program-frame"), r = f.getBoundingClientRect(), s = r.width / 1920;
+        const c = f.contentDocument.querySelector(".card-question:not(.out)"); if (!c) return null; const b = c.getBoundingClientRect(); return { x: r.left + (b.left + b.width / 2) * s, y: r.top + (b.top + b.height / 2) * s }; });
+      if (at) {
+        await p.mouse.click(at.x, at.y); await p.waitForTimeout(250);
+        check(await p.evaluate(() => !!document.querySelector("#fl-question .fl-ping")), "a click on a card in the preview lights up its item in the list");
+        await p.click("#fl-question li.item:nth-child(2) .num"); await p.waitForTimeout(500);
+        check(await p.evaluate(() => !!document.querySelector(".pv-outline.on")), "choosing an item outlines its card on the preview");
+        await p.evaluate((s) => KCStore.update((n) => KCScenes.take(n, s)), picks.frame[0]); await p.waitForTimeout(900);
+        const at2 = await p.evaluate(() => { const f = document.getElementById("program-frame"), r = f.getBoundingClientRect(), s = r.width / 1920;
+          const c = f.contentDocument.querySelector(".card-question:not(.out)"); const b = c.getBoundingClientRect(); return { x: r.left + (b.left + b.width / 2) * s, y: r.top + (b.top + b.height * .7) * s }; });
+        const before = await p.evaluate(() => KCStore.get().question.text);
+        await p.mouse.dblclick(at2.x, at2.y); await p.waitForTimeout(300);
+        await p.keyboard.press("End"); await p.keyboard.type(" now"); await p.keyboard.press("Enter"); await p.waitForTimeout(300);
+        const mid = await p.evaluate(() => ({ text: KCStore.get().question.text, open: !!document.querySelector(".pv-ed.ef-draft.ef-armed") }));
+        await p.keyboard.press("Enter"); await p.waitForTimeout(800);
+        const after = await p.evaluate(() => KCStore.get().question.text);
+        check(mid.open && mid.text === before && after === before + " now", "live words are a draft: the first Enter keeps the screen, the second updates it");
+      }
+    }
+    await p.close();
+  }
+}
+
 await browser.close();
 console.log(failed ? `${failed} visual check(s) failed` : "all visual checks passed");
 process.exit(failed ? 1 : 0);
