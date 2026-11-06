@@ -1,0 +1,72 @@
+# 26.11 Follow my voice: checks the two files the Teleprompter downloads on first use (src/voice_files.json) against
+# their pinned size and SHA-256, runs the voice worker end to end on spoken test audio, and (upload: true, with the
+# R2 secrets of build-windows.yml) mirrors them to downloads.framedecks.com/voice/. Run it by hand (Actions tab).
+name: Voice files
+
+on:
+  workflow_dispatch:
+    inputs:
+      upload:
+        description: "Mirror the files to downloads.framedecks.com/voice/ (needs the R2 secrets)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  voice:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      R2_ON: ${{ secrets.R2_ACCESS_KEY_ID != '' && vars.R2_ACCOUNT_ID != '' }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: auto
+      R2: https://${{ vars.R2_ACCOUNT_ID }}.r2.cloudflarestorage.com
+      BUCKET: ${{ vars.R2_BUCKET || 'framedecks-downloads' }}
+      AWS_REQUEST_CHECKSUM_CALCULATION: when_required
+      AWS_RESPONSE_CHECKSUM_VALIDATION: when_required
+    steps:
+      - name: Get the code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Python
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.12"
+
+      - name: Download and check the files
+        run: |
+          mkdir -p voice
+          for k in runtime model; do
+            name=$(python -c "import json;print(json.load(open('src/voice_files.json'))['$k']['name'])")
+            url=$(python -c "import json;print(json.load(open('src/voice_files.json'))['$k']['upstream'])")
+            want=$(python -c "import json;print(json.load(open('src/voice_files.json'))['$k']['sha256'])")
+            curl -sSfL --retry 3 -o "voice/$name" "$url"
+            got=$(sha256sum "voice/$name" | cut -d' ' -f1); size=$(stat -c %s "voice/$name")
+            echo "$name size=$size sha256=$got"
+            echo "- \`$name\`: size $size, sha256 \`$got\`" >> "$GITHUB_STEP_SUMMARY"
+            if [ -n "$want" ] && [ "$want" != "$got" ]; then echo "::error::$name does not match its pinned SHA-256"; exit 1; fi
+          done
+
+      - name: The voice worker hears the script (end to end)
+        if: hashFiles('src/voice_worker.py') != ''
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq espeak-ng sox > /dev/null
+          python -m pip install -q vosk==0.3.45
+          (cd voice && unzip -q vosk-model-small-en-us-0.15.zip)
+          python tools/voice_e2e.py --model voice/vosk-model-small-en-us-0.15
+
+      - name: Mirror to downloads.framedecks.com/voice/
+        if: inputs.upload && env.R2_ON == 'true'
+        run: |
+          for f in voice/*.zip; do
+            aws s3 cp "$f" "s3://${BUCKET}/voice/$(basename "$f")" --endpoint-url "$R2" --only-show-errors \
+              --cache-control "public, max-age=31536000, immutable"
+          done
+          echo "Mirrored to voice/ in the bucket." >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Say what is missing (R2 not set up)
+        if: inputs.upload && env.R2_ON != 'true'
+        run: echo "::warning::R2 is not set up, so nothing was mirrored; the app falls back to the published addresses."
