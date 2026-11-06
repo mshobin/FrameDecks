@@ -122,10 +122,12 @@ function codeAnswer(c: Code): ReactNode {
 export function HelpBot({ index }: Readonly<{ index: HelpEntry[] }>) {
   const [msgs, setMsgs] = useState<Msg[]>(() => [{ from: "bot", body: STEPS.start.say, options: STEPS.start.options }]);
   const [text, setText] = useState("");
-  const end = useRef<HTMLDivElement>(null);
+  const log = useRef<HTMLDivElement>(null);
 
+  // follow the conversation inside its own box; the page itself never moves
   useEffect(() => {
-    end.current?.scrollIntoView({ block: "nearest" });
+    const l = log.current;
+    if (l && msgs.length > 1) l.scrollTo({ top: l.scrollHeight });
   }, [msgs]);
 
   function bot(body: ReactNode, options?: [string, string][], ask = false) {
@@ -180,7 +182,7 @@ export function HelpBot({ index }: Readonly<{ index: HelpEntry[] }>) {
 
   return (
     <div className="hb">
-      <div className="hb-log" role="log" aria-live="polite" aria-label="Ask Help">
+      <div className="hb-log" ref={log} role="log" aria-live="polite" aria-label="Ask Help">
         {msgs.map((m, i) => (
           <div key={i} className={`hb-msg hb-${m.from}`}>
             <div className="hb-bubble">{m.body}</div>
@@ -209,11 +211,10 @@ export function HelpBot({ index }: Readonly<{ index: HelpEntry[] }>) {
             )}
           </div>
         ))}
-        <div ref={end} />
       </div>
       <form className="hb-ask" onSubmit={ask}>
         <input value={text} onChange={(e) => setText(e.target.value)} placeholder="Type a question, or an error code like FD-NET-02" aria-label="Your question" />
-        <button type="submit" className="fd-btn">
+        <button type="submit" className="fd-btn fd-btn-primary">
           Ask
         </button>
       </form>

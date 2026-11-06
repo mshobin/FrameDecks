@@ -284,7 +284,7 @@ function reportLines(){
     'Addresses: ' + (d.addresses || []).join(', '), 'Python: ' + (d.python || '?'), 'OS: ' + (d.os || '?'),
     'Signed-in phones/iPads: ' + (d.remoteSessions != null ? d.remoteSessions : '?'),
     'Installed app: ' + (d.installedApp ? 'yes' : 'no'),
-    'FrameDecks vCam: ' + (d.vcam ? JSON.stringify(d.vcam.status || {reason: d.vcam.reason, detail: d.vcam.detail}) : 'n/a'),
+    'FrameDecks vCam: ' + (!d.vcam ? 'n/a' : d.vcam.status ? d.vcam.status.state + (d.vcam.status.fps ? ', ' + d.vcam.status.fps + ' fps' : '') + (d.vcam.status.message ? ', ' + d.vcam.status.message : '') : [d.vcam.reason, d.vcam.detail].filter(Boolean).join(' ') || 'not available'),
     'Resources: ' + JSON.stringify(d.resources || {}),
     'Network: ' + (d.network ? JSON.stringify(d.network) : 'n/a'),
     'Files: ' + (d.files ? Object.keys(d.files).map(function(n){ return n + '=' + (d.files[n].exists ? 'yes' : 'no'); }).join(', ') : '?'),

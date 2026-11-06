@@ -665,5 +665,7 @@ body.studio-focus .studio.s2{height:100vh !important}
 .sr-ref{margin:8px 0;color:var(--muted)} .sr-ref b{color:var(--ink);font-family:ui-monospace,Consolas,monospace}
 .sr-text{max-height:260px;margin:0 0 12px;padding:10px 12px;overflow:auto;border:1px solid var(--edge);border-radius:12px;background:var(--field);color:var(--ink);font:12px/1.5 ui-monospace,Consolas,monospace;white-space:pre-wrap;word-break:break-word}
 .cx-more{margin-top:8px}
+.cx-more a{color:var(--q);font-weight:600;text-decoration:none}
+.cx-more a:hover{text-decoration:underline}
 @media (prefers-reduced-motion:reduce){ .gd-prog li.done.kc-new button{animation:none} }
 
