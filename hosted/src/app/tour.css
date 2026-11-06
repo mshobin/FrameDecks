@@ -628,6 +628,64 @@ html:not(.fd-calm) .tr-stage:not([data-ready]) :is(.tr-build > *, .tr-base) {
   font-weight: 600;
 }
 
+/* the movement over the screenshots: a pointer or a fingertip, a press, a ring on the chips, a pen stroke */
+.tr-ptr,
+.tr-ring,
+.tr-tap {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 4;
+  pointer-events: none;
+}
+
+.tr-ptr {
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5));
+}
+
+.tr-ptr-finger {
+  width: 46px;
+  height: 46px;
+  margin: -23px 0 0 -23px;
+  border: 2px solid rgba(255, 255, 255, 0.85);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.28);
+}
+
+.tr-tap {
+  width: 44px;
+  height: 44px;
+  margin: -22px 0 0 -22px;
+  border: 3px solid var(--tr-gold);
+  border-radius: 50%;
+  opacity: 0;
+}
+
+.tr-ring {
+  width: 74px;
+  height: 74px;
+  margin: -37px 0 0 -37px;
+  border: 2px solid var(--tr-gold);
+  border-radius: 20px;
+  box-shadow: 0 0 24px rgba(227, 183, 90, 0.45);
+}
+
+.tr-sweep {
+  position: absolute;
+  z-index: 3;
+  height: 4px;
+  border-radius: 3px;
+  background: #f4d58e;
+  box-shadow: 0 0 14px rgba(244, 213, 142, 0.9);
+  transform: scaleX(0);
+  transform-origin: left;
+}
+
+.tr-callouts > span.is-hot {
+  border-color: var(--tr-gold);
+  color: var(--tr-ink);
+}
+
 /* the keys, pressed as the Command Center opens */
 .tr-bigkeys {
   position: absolute;
@@ -706,6 +764,27 @@ html:not(.fd-calm) .tr-stage:not([data-ready]) :is(.tr-build > *, .tr-base) {
     transition:
       opacity 0.6s var(--ease-out) 0.35s,
       transform 1s var(--ease-out) 0.2s;
+  }
+
+  html.fd-motion:not(.fd-calm) .tr-ptr,
+  html.fd-motion:not(.fd-calm) .tr-ring {
+    transition: transform 0.3s var(--ease-out);
+  }
+
+  html.fd-motion:not(.fd-calm) .tr-tap.is-tap {
+    animation: tr-tap 0.7s var(--ease-out);
+  }
+
+  @keyframes tr-tap {
+    from {
+      opacity: 1;
+      transform: scale(0.4);
+    }
+
+    to {
+      opacity: 0;
+      transform: scale(2.2);
+    }
   }
 
   html.fd-motion:not(.fd-calm) .tr-tp-text {

@@ -21,6 +21,11 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
 - The front page's Teleprompter chapter is live again (owner's choice): drawn in the program's own Teleprompter style
   (the gold reading band, read words at half strength), it follows the page's scroll word by word as Follow my voice
   follows the presenter; the other chapters stay real screenshots (`teleprompter.webp` and its capture removed).
+- Every chapter of the front page's stage now moves with the scroll, drawn over the real screenshots, never into
+  them (`Scene.moves` / `ring` / `sweep` in `tour.tsx`): a gold ring walks the Command Center's chips (Prepare,
+  Engage, Control); a pointer lands on the spotlit word, then a pen stroke runs along the real underline; the pointer
+  switches Go Live on and presses Next Frame; a fingertip taps Next on the phone. Each press ripples once and lights
+  its key below the picture (Ctrl twice, Alt+D, Alt+→).
 - The website's front page is always dark, like the program and its screenshots: `layout.tsx` leaves the light theme
   off before the first paint at `/` for a visitor who is not signed in (`html.fd-dark-only`), `DarkOnly` in
   `landing/nav.tsx` holds it and gives the visitor's own choice back on the next page, and the front page's bar has

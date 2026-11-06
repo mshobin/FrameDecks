@@ -143,7 +143,9 @@ numbers. **Every picture of the program is a real screenshot** (`tools/make_prod
      it uses: Command Center (Alt+Space, the keys pressed as it drops in), Prepare (the one live piece: the Teleprompter
      in the program's own style, its reading band and read words following the scroll word by word; R and V), Engage
      (Spotlight, Ctrl twice and Alt+D), Control (live: T, Alt+→, Alt+H, Alt+B), Phone. The chapter row under the
-     stage fills as you go and jumps to a chapter.
+     stage fills as you go and jumps to a chapter. Each screenshot chapter moves with the scroll, drawn over the
+     picture and never into it: a gold ring walks the chips, a pointer goes to the real control and presses it (one
+     ripple, its key lights below), a pen stroke runs along the real underline, a fingertip taps Next on the phone.
   3. Features: four promises on one row.
   4. Questions: the first four; the rest behind **More questions**.
   5. Ready to Serve?: the serif promise, the verse, both buttons → footer.

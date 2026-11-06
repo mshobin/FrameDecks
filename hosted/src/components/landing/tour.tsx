@@ -66,14 +66,84 @@ const LINES = [
   ["tr-a2", "M720 280 C720 305 890 305 890 330"],
 ] as const;
 
-// One real screenshot per chapter after the Studio, with the keys that chapter is about
-type Scene = { src: string; w: number; h: number; cls: string; alt: string; keys: readonly (readonly [string, string])[] };
+// One real screenshot per chapter after the Studio, with the keys that chapter is about. The movement on it is drawn
+// over the picture, never into it: a pointer or a fingertip that goes to the real control (in % of the picture) and
+// presses it, a ring that walks the chips, a pen stroke along the real underline. The page's scroll drives it.
+type Move = { at: number; x: number; y: number; tap?: boolean; hot?: number };
+type Scene = {
+  src: string;
+  w: number;
+  h: number;
+  cls: string;
+  alt: string;
+  keys: readonly (readonly [string, string])[];
+  pointer?: "cursor" | "finger";
+  moves?: readonly Move[];
+  ring?: readonly (readonly [number, number])[];
+  sweep?: readonly [number, number, number];
+};
 const SCENES: readonly Scene[] = [
-  { src: "/product/command-center.webp", w: 820, h: 270, cls: "tr-sc-cc", alt: "The Command Center: a search bar and the chips Prepare, Engage, Control, Notes and More", keys: [["Alt+Space", "opens it anywhere"]] },
+  {
+    src: "/product/command-center.webp",
+    w: 820,
+    h: 270,
+    cls: "tr-sc-cc",
+    alt: "The Command Center: a search bar and the chips Prepare, Engage, Control, Notes and More",
+    keys: [["Alt+Space", "opens it anywhere"]],
+    ring: [
+      [15.7, 54],
+      [32.9, 54],
+      [50, 54],
+    ],
+  },
   { src: "", w: 0, h: 0, cls: "tr-sc-tp", alt: "", keys: [["R", "Teleprompter"], ["V", "Follow my voice"]] },
-  { src: "/product/annotate.webp", w: 1000, h: 490, cls: "tr-sc-an", alt: "A soft spotlight on a word of the live scripture, and an underline", keys: [["Ctrl", "twice: Spotlight"], ["Alt+D", "Draw"]] },
-  { src: "/product/command-center-live.webp", w: 820, h: 720, cls: "tr-sc-live", alt: "The Command Center's Control chip while a Frame is live: Go Live, Previous, Next Frame, Hide all and Black", keys: [["Alt+→", "Next Frame"], ["Alt+H", "Hide all"], ["Alt+B", "Black screen"]] },
-  { src: "/product/phone-remote.webp", w: 390, h: 844, cls: "tr-sc-phone", alt: "The phone remote: what is on screen, Previous and Next, and the meeting plan", keys: [] },
+  {
+    src: "/product/annotate.webp",
+    w: 1000,
+    h: 490,
+    cls: "tr-sc-an",
+    alt: "A soft spotlight on a word of the live scripture, and an underline",
+    keys: [["Ctrl", "twice: Spotlight"], ["Alt+D", "Draw"]],
+    pointer: "cursor",
+    moves: [
+      { at: 0, x: 82, y: 90 },
+      { at: 0.32, x: 47, y: 40, tap: true, hot: 0 },
+      { at: 0.5, x: 47, y: 40 },
+      { at: 0.62, x: 28, y: 86, hot: 1 },
+      { at: 0.92, x: 47, y: 86 },
+    ],
+    sweep: [28, 86.4, 19],
+  },
+  {
+    src: "/product/command-center-live.webp",
+    w: 820,
+    h: 720,
+    cls: "tr-sc-live",
+    alt: "The Command Center's Control chip while a Frame is live: Go Live, Previous, Next Frame, Hide all and Black",
+    keys: [["Alt+→", "Next Frame"], ["Alt+H", "Hide all"], ["Alt+B", "Black screen"]],
+    pointer: "cursor",
+    moves: [
+      { at: 0, x: 70, y: 92 },
+      { at: 0.25, x: 87.5, y: 41.5, tap: true },
+      { at: 0.4, x: 87.5, y: 41.5 },
+      { at: 0.62, x: 35.5, y: 64.5, tap: true, hot: 0 },
+      { at: 1, x: 35.5, y: 64.5 },
+    ],
+  },
+  {
+    src: "/product/phone-remote.webp",
+    w: 390,
+    h: 844,
+    cls: "tr-sc-phone",
+    alt: "The phone remote: what is on screen, Previous and Next, and the meeting plan",
+    keys: [],
+    pointer: "finger",
+    moves: [
+      { at: 0, x: 80, y: 78 },
+      { at: 0.42, x: 68, y: 48.5, tap: true },
+      { at: 1, x: 68, y: 48.5 },
+    ],
+  },
 ];
 
 // The Teleprompter's script (the same words as the program's own capture)
@@ -109,6 +179,52 @@ export function Tour({ intro, chapters }: Readonly<{ intro: ReactNode; chapters:
     const words = Array.from(st.querySelectorAll<HTMLElement>(".tr-w"));
     const script = st.querySelector(".tr-tp-text") as HTMLElement;
     let said = -1;
+    // the movement on each screenshot (Scene.moves / ring / sweep), driven by the chapter's own progress
+    const kit = scenes.map((fig, i) => ({
+      fig,
+      s: SCENES[i],
+      ptr: fig.querySelector<HTMLElement>(".tr-ptr"),
+      tap: fig.querySelector<HTMLElement>(".tr-tap"),
+      ring: fig.querySelector<HTMLElement>(".tr-ring"),
+      sweep: fig.querySelector<HTMLElement>(".tr-sweep"),
+      calls: Array.from(fig.querySelectorAll<HTMLElement>(".tr-callouts > span")),
+      fired: new Set<number>(),
+    }));
+    const ease = (v: number) => (v < 0.5 ? 2 * v * v : 1 - (-2 * v + 2) ** 2 / 2);
+    const px = (fig: HTMLElement, x: number, y: number) => [(x / 100) * fig.offsetWidth, (y / 100) * fig.offsetHeight];
+    const move = (k: (typeof kit)[number], t: number) => {
+      const { s, fig } = k;
+      if (s.ring && k.ring) {
+        const [x, y] = px(fig, ...(s.ring[Math.min(s.ring.length - 1, Math.floor(t * s.ring.length))] as [number, number]));
+        k.ring.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0)`;
+      }
+      if (s.sweep && k.sweep) k.sweep.style.transform = `scaleX(${clamp((t - 0.62) / 0.3).toFixed(3)})`;
+      if (!s.moves || !k.ptr) return;
+      const m = s.moves;
+      let j = 0;
+      while (j < m.length - 1 && m[j + 1].at <= t) j++;
+      const a = m[j];
+      const b = m[Math.min(j + 1, m.length - 1)];
+      const f = b === a ? 0 : ease(clamp((t - a.at) / (b.at - a.at)));
+      const [x, y] = px(fig, a.x + (b.x - a.x) * f, a.y + (b.y - a.y) * f);
+      k.ptr.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0)`;
+      let hot = -1;
+      m.forEach((p, i) => {
+        if (p.hot !== undefined && p.at <= t) hot = p.hot;
+        if (!p.tap) return;
+        if (t < p.at) k.fired.delete(i);
+        else if (!k.fired.has(i) && t - p.at < 0.2 && k.tap) {
+          k.fired.add(i);
+          const [tx, ty] = px(fig, p.x, p.y);
+          k.tap.style.left = `${tx}px`;
+          k.tap.style.top = `${ty}px`;
+          k.tap.classList.remove("is-tap");
+          void k.tap.offsetWidth;
+          k.tap.classList.add("is-tap");
+        } else if (!k.fired.has(i)) k.fired.add(i);
+      });
+      k.calls.forEach((c, i) => c.classList.toggle("is-hot", i === hot));
+    };
 
     // ---- size: the stage is drawn at 1000 × 620 and scaled to the room it has ----
     const size = () => {
@@ -193,6 +309,7 @@ export function Tour({ intro, chapters }: Readonly<{ intro: ReactNode; chapters:
       // a slow drift through the chapter: the screenshot rises a little as the page moves on
       const on = scenes[ch - 1];
       if (on && ch !== 2) on.style.setProperty("--y", `${(-14 * t).toFixed(1)}px`);
+      if (ch >= 1 && kit[ch - 1]) move(kit[ch - 1], t);
       // the Teleprompter follows the page as Follow my voice follows the presenter: read words fade, the next word
       // stays on the reading line
       if (ch === 2 && words.length) {
@@ -318,6 +435,26 @@ export function Tour({ intro, chapters }: Readonly<{ intro: ReactNode; chapters:
                       ))}
                     </div>
                   </div>
+                )}
+                {s.ring && <span className="tr-ring" aria-hidden="true" />}
+                {s.sweep && (
+                  <span
+                    className="tr-sweep"
+                    aria-hidden="true"
+                    style={{ left: `${s.sweep[0]}%`, top: `${s.sweep[1]}%`, width: `${s.sweep[2]}%` }}
+                  />
+                )}
+                {s.moves && (
+                  <>
+                    <span className="tr-tap" aria-hidden="true" />
+                    <span className={`tr-ptr tr-ptr-${s.pointer}`} aria-hidden="true">
+                      {s.pointer === "cursor" && (
+                        <svg width="22" height="26" viewBox="0 0 22 26">
+                          <path d="M2 2 L2 21 L7.5 16 L11 24 L14.5 22.5 L11 14.8 L18.5 14.8 Z" fill="#fff" stroke="#0b1020" strokeWidth="1.6" strokeLinejoin="round" />
+                        </svg>
+                      )}
+                    </span>
+                  </>
                 )}
                 {s.keys.length > 0 && (
                   <figcaption className="tr-callouts">
