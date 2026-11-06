@@ -42,6 +42,7 @@ import meeting_form   # 6.9: fills the Meeting Workbook's form for Export
 import updater   # 7.0: updates from FrameDecks servers (checked, silent, with rollback)
 from media_names import safe_name   # 9.1.2 media file names are never paths
 import meeting_notes  # 9.12 the leader's private notes (Command Center > Notes)
+import voice_follow   # 26.11 the Teleprompter's Follow my voice (listens only while it is on)
 import memory    # 9.0: Memory Cards in the FrameDecks vCam chat overlay (docs/architecture/memory-cards.md)
 
 APP_VERSION = "9.13.0"
@@ -739,6 +740,30 @@ def remote_notes_action(data):
     return remote_notes_body(data.get("meeting"), False)
 
 
+# 26.11 Follow my voice: listens only while the Teleprompter has it on (src/voice_follow.py)
+VOICE = voice_follow.VoiceFollow(DATA, frozen=FROZEN, settings=lambda: app_settings(),
+                                 available=os.name == "nt" or os.environ.get("FRAMEDECKS_VOICE") == "1")
+atexit.register(VOICE.stop)
+
+
+def voice_action(data):
+    """{op: start, words} | {op: words, words} | {op: stop} | {op: remove} (the downloaded voice files)"""
+    op = data.get("op")
+    words = data.get("words")
+    if op in ("start", "words") and not isinstance(words, list):
+        raise ValueError("words must be a list")
+    if op == "start":
+        return VOICE.start(words)
+    if op == "words":
+        return VOICE.words(words)
+    if op == "stop":
+        return VOICE.stop()
+    if op == "remove":
+        VOICE.remove_files()
+        return {"state": "off", "removed": True}
+    raise ValueError("Unknown voice action.")
+
+
 def notes_action(data):
     """POST /api/notes {action: add|edit|delete|clear, meeting, name?, text?, frame?, id?} (this PC only). The leader's
     private notes: kept in <data>/notes, never synced, never sent to the phone, never in the diagnostics file."""
@@ -1141,6 +1166,8 @@ APP_SETTINGS_DEFAULTS = {"remoteAutostart": False, "importDecided": False,
                          "remoteNotesRead": False,  # 9.13 the phone remote may read them (off: whoever has the PIN could)
                          "prompterLook": "solid",       # 8.1 Teleprompter transparency: solid/presenter/meeting/conference/ghost
                          "prompterOnTop": True,         # 8.1 the Teleprompter stays above Zoom, Teams and PowerPoint (pin)
+                         "voiceMic": -1,          # 26.11 Follow my voice: the microphone (-1 = the Windows default)
+                         "voiceSensitivity": 3,   # 26.11 1 = only a loud, close voice ... 5 = a soft voice in a quiet room
                          "cloudRemote": False,    # Phase 5: run a service from the companion (Settings > FrameDecks account)
                          "memberAuthority": "cloud",   # M-D2: the workspace is the member list's source (no switch on screen)
                          "ai": "auto",            # M-D3: "auto" = use Ollama on this PC when it answers; "off" = never
@@ -1198,6 +1225,10 @@ def _valid_setting(k, v):
         return isinstance(v, str) and (v == "" or parse_hotkey(v) is not None)
     if k == "memDur":
         return isinstance(v, int) and not isinstance(v, bool) and 3 <= v <= 120
+    if k == "voiceMic":
+        return isinstance(v, int) and not isinstance(v, bool) and -1 <= v <= 31
+    if k == "voiceSensitivity":
+        return isinstance(v, int) and not isinstance(v, bool) and 1 <= v <= 5
     return False
 
 
@@ -2702,6 +2733,17 @@ class Handler(BaseHTTPRequestHandler):
             q = parse_qs(url.query)
             body = remote_notes_body(q.get("meeting", [""])[0], q.get("peek", [""])[0] != "1")
             return self.reply(200, json.dumps(body), TYPES[".json"], headers=[("Cache-Control", "no-store")])
+        if path == "/api/voice":                        # 26.11 Follow my voice: what was heard (this PC only; never cached)
+            if not self.is_local():
+                return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
+            q = parse_qs(url.query)
+            if q.get("info", [""])[0] == "1":
+                return self.reply(200, json.dumps(VOICE.info()), TYPES[".json"], headers=[("Cache-Control", "no-store")])
+            try:
+                after, wait = int(q.get("after", ["0"])[0]), float(q.get("wait", ["0"])[0])
+            except ValueError:
+                after, wait = 0, 0.0
+            return self.reply(200, json.dumps(VOICE.heard(after, wait)), TYPES[".json"], headers=[("Cache-Control", "no-store")])
         if path == "/api/notes":                        # 9.12 the leader's notes (this PC only)
             if not self.is_local():
                 return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
@@ -3157,6 +3199,14 @@ class Handler(BaseHTTPRequestHandler):
         if path == "/api/remote/notes":                 # 9.13 the phone adds a note (when the PC allows it)
             try:
                 res = remote_notes_action(data)
+            except ValueError as e:
+                return self.reply(400, json.dumps({"error": str(e)}), TYPES[".json"])
+            return self.reply(200, json.dumps(res), TYPES[".json"], headers=[("Cache-Control", "no-store")])
+        if path == "/api/voice":
+            if not self.is_local():
+                return self.reply(403, "Not available from this device", "text/plain; charset=utf-8")
+            try:
+                res = voice_action(data if isinstance(data, dict) else {})
             except ValueError as e:
                 return self.reply(400, json.dumps({"error": str(e)}), TYPES[".json"])
             return self.reply(200, json.dumps(res), TYPES[".json"], headers=[("Cache-Control", "no-store")])

@@ -41,6 +41,20 @@
       </div>
       <div class="sp-row sp-tools" id="sp-tools" data-no-drag>
         <div class="sp-ctl" id="sp-ctl"></div>
+        <div class="sp-voice-wrap" id="sp-voice-wrap" hidden>
+          <button class="sp-act sp-voice" type="button" id="sp-voice" aria-pressed="false" title="Follow my voice: the script moves as you speak (V). Listens only on this PC, only while the Teleprompter is pinned"><span class="sp-mic" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></span>Follow my voice</button>
+          <button class="sp-act sp-voice-set" type="button" id="sp-voice-set" aria-expanded="false" aria-controls="sp-voice-pop" aria-label="Microphone and sensitivity" title="Microphone and sensitivity"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg></button>
+          <span class="sp-voice-st" id="sp-voice-st" role="status" hidden></span>
+          <div class="sp-voice-pop" id="sp-voice-pop" role="group" aria-label="Follow my voice" hidden>
+            <label for="sp-mic-sel">Microphone</label>
+            <select id="sp-mic-sel"><option value="-1">Windows default microphone</option></select>
+            <label for="sp-sens">Sensitivity <small id="sp-sens-v"></small></label>
+            <input type="range" id="sp-sens" min="1" max="5" step="1" value="3" aria-describedby="sp-sens-help">
+            <p class="sp-voice-help" id="sp-sens-help">Lower it if other voices or noise move the script; raise it for a soft voice.</p>
+            <p class="sp-voice-help" id="sp-voice-files">The voice files download once (about 53 MB) and stay on this PC. Nothing you say is recorded or sent anywhere.</p>
+            <button class="sp-act sp-voice-rm" type="button" id="sp-voice-rm" hidden>Remove the voice files</button>
+          </div>
+        </div>
         <button class="sp-act" type="button" id="sp-write">✎ Write Script</button>
         <button class="sp-act" type="button" id="sp-upload" title="Load a script from a .txt, .md or Word (.docx) file">⇪ Upload</button>
         <input type="file" id="sp-file" hidden>
@@ -54,6 +68,7 @@
 <script src="js/editable.js"></script>
 <script src="js/teleprompter.js"></script>
 <script src="js/script-file.js"></script>
+<script src="js/voice-follow.js"></script>
 <script src="js/window-chrome.js"></script>
 <script src="js/speaker.js"></script>
 </body>

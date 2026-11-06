@@ -174,6 +174,7 @@ function create(host, opts){
 
   return {
     el: root,
+    scrollEl: scroll, textEl: text,                               // 26.11 for Follow my voice
     play: setPlay,
     playing: function(){ return playing; },
     showControls: ui,
@@ -197,6 +198,7 @@ function create(host, opts){
         (!sc ? '' : opts.editable && opts.edit ? '<button class="tp-btn tp-empty-act" type="button">Write a script</button><p class="tp-empty-hint">Or double-click here.</p>' :
           '<p class="tp-empty-hint">Add one in the main window: Frame settings → Teleprompter script.</p>') + '</div>';
       if (newFrame){ scroll.scrollTop = 0; acc = 0; }
+      if (opts.onRender) opts.onRender(newFrame);               // 26.11 Follow my voice wraps the new words
     }
   };
 }

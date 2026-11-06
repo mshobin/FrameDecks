@@ -22,6 +22,10 @@ if __name__ == "__main__" and "--firewall" in sys.argv:
     import winapi                  # 7.1.1: "Allow through Windows Firewall", started with administrator rights
     sys.exit(winapi.firewall_main(sys.argv))
 
+if __name__ == "__main__" and "--voice-worker" in sys.argv:
+    import voice_worker            # 26.11 Follow my voice: the listening process (only while the Teleprompter has it on;
+    sys.exit(voice_worker.main())  # it refuses to start unless the app itself started it, never from a link)
+
 if __name__ == "__main__":
     import supervisor              # the installed app first starts as a small watchdog (restarts it after a crash)
     if supervisor.wanted():

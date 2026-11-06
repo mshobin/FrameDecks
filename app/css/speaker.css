@@ -82,3 +82,27 @@ body.sp-glass .sp-main{border-radius:0}
 .sp-head:hover .sp-bar-btn,.sp-head:focus-within .sp-bar-btn,body.sp-bar-open .sp-bar-btn{transform:translate(-50%,var(--sp-bar-h,0px))}
 .sp-head:hover .sp-bar-btn svg,.sp-head:focus-within .sp-bar-btn svg,body.sp-bar-open .sp-bar-btn svg{transform:rotate(180deg)}
 @media (prefers-reduced-motion:reduce){ .sp-bar-btn,.sp-bar-btn svg{transition:none} }
+/* 26.11 Follow my voice: the button (its microphone grows with your voice while listening), the status, the settings */
+.sp-voice-wrap{position:relative;display:flex;align-items:center;gap:4px}
+.sp-voice-wrap[hidden],.sp-voice-pop[hidden],.sp-voice-st[hidden],.sp-voice-rm[hidden]{display:none}
+.sp-voice{display:inline-flex;align-items:center;gap:6px}
+.sp-mic{display:grid;place-items:center;width:18px;height:18px;border-radius:50%}
+.sp-mic svg,.sp-voice-set svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.sp-voice.on{background:var(--live-soft);border-color:var(--live);color:var(--ink)}
+.sp-voice.on .sp-mic{color:var(--live)}
+.sp-voice.on .sp-mic{box-shadow:0 0 0 calc(var(--lv,0) * 6px) var(--live-soft);transition:box-shadow .2s ease}
+.sp-voice-set{display:inline-grid;place-items:center;width:34px;padding:0}
+.sp-voice-st{font-size:12px;font-weight:700;color:var(--muted);max-width:280px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sp-voice-st[data-state="pin"],.sp-voice-st[data-state="memory"],.sp-voice-st[data-state="error"],.sp-voice-st[data-state="unavailable"]{color:var(--ink)}
+.sp-voice-st[data-state="lost"]{color:var(--muted)}
+.sp-voice-pop{position:absolute;top:calc(100% + 8px);left:0;z-index:30;display:grid;gap:6px;width:280px;padding:12px;border:1px solid var(--line);
+  border-radius:var(--r-2,12px);background:var(--surface);box-shadow:var(--el-4);font-size:13px}
+.sp-voice-pop label{font-weight:700}
+.sp-voice-pop label small{font-weight:600;color:var(--muted)}
+.sp-voice-pop select{min-height:34px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;padding:0 8px}
+.sp-voice-pop input[type=range]{width:100%;accent-color:var(--accent)}
+.sp-voice-help{margin:0;font-size:12px;color:var(--muted)}
+.sp-voice:focus-visible,.sp-voice-set:focus-visible,.sp-voice-pop select:focus-visible,.sp-voice-pop input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+/* the words already read go quieter, so the eye finds its place */
+.tp-voice-on .tp-w.tp-said{opacity:.5}
+@media (prefers-reduced-motion:reduce){ .sp-voice.on .sp-mic{transition:none} }

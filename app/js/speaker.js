@@ -25,8 +25,56 @@ function saveScript(id, text){
     var sc = SC.find(n, id); if (!sc) return; sc.notes = String(text || '').slice(0, 20000); SC.stamp(sc);
   });
 }
+var voice = null, desk = {app: false, onTop: true};          // 26.11 Follow my voice (desktop app only)
 var prompter = P.create($('sp-prompt'), {key: 'window', editable: true, edit: saveScript, source: source,
-  controlsHost: $('sp-ctl'), cues: false, bare: true});
+  controlsHost: $('sp-ctl'), cues: false, bare: true,
+  onRender: function(newFrame){ if (voice) voice.rendered(newFrame); },
+  onPlay: function(on){ if (on && voice && voice.on()) voice.toggle(false); }});     // Scroll or voice, one at a time
+
+/* 26.11 Follow my voice: the script moves as you speak. Listens only in the desktop app and only while the
+   Teleprompter is pinned above every other window; unpinned, the microphone is let go until it is pinned again. */
+if (window.KCVoiceFollow){
+  voice = window.KCVoiceFollow.create({scroll: prompter.scrollEl, text: prompter.textEl, button: $('sp-voice'), status: $('sp-voice-st'),
+    level: $('sp-voice'), canListen: function(){ return desk.onTop ? '' : 'pin'; }, onStart: function(){ prompter.play(false); }});
+  document.addEventListener('keydown', function(e){
+    var t = e.target;
+    if ((e.key === 'v' || e.key === 'V') && !e.ctrlKey && !e.altKey && !e.metaKey && !(t && /INPUT|TEXTAREA|SELECT/.test(t.tagName)) &&
+        !(t && t.isContentEditable) && desk.app){ e.preventDefault(); voice.toggle(); }
+  });
+  (function(){
+    var setBtn = $('sp-voice-set'), pop = $('sp-voice-pop'), mic = $('sp-mic-sel'), sens = $('sp-sens'), rm = $('sp-voice-rm');
+    var NAMES = {1: 'Low', 2: 'Lower', 3: 'Normal', 4: 'Higher', 5: 'High'};
+    function saveSetting(o){ return fetch('api/app/settings', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(o)}); }
+    function showSens(){ $('sp-sens-v').textContent = NAMES[sens.value] || ''; }
+    function fill(){
+      fetch('api/voice?info=1', {cache: 'no-store'}).then(function(r){ return r.json(); }).then(function(d){
+        var keep = mic.value;
+        mic.innerHTML = '';
+        (d.mics && d.mics.length ? d.mics : [{id: -1, name: 'Windows default microphone'}]).forEach(function(m){
+          var o = document.createElement('option'); o.value = String(m.id); o.textContent = m.name; mic.appendChild(o); });
+        mic.value = keep;
+        if (mic.selectedIndex < 0) mic.value = '-1';
+        rm.hidden = !d.ready;
+        $('sp-voice-files').textContent = d.ready ? 'The voice files are on this PC (' + d.diskMb + ' MB). Nothing you say is recorded or sent anywhere.' :
+          'The voice files download once (about ' + d.downloadMb + ' MB) and stay on this PC. Nothing you say is recorded or sent anywhere.';
+      }).catch(function(){});
+    }
+    function open(on){ pop.hidden = !on; setBtn.setAttribute('aria-expanded', String(on)); if (on) fill(); }
+    setBtn.addEventListener('click', function(e){ e.stopPropagation(); open(pop.hidden); });
+    document.addEventListener('click', function(e){ if (!pop.hidden && !pop.contains(e.target) && e.target !== setBtn) open(false); });
+    pop.addEventListener('keydown', function(e){ if (e.key === 'Escape'){ e.stopPropagation(); open(false); setBtn.focus(); } });
+    mic.addEventListener('change', function(){ saveSetting({voiceMic: +mic.value}).then(function(){ voice.recheck(); }); });
+    sens.addEventListener('input', showSens);
+    sens.addEventListener('change', function(){ saveSetting({voiceSensitivity: +sens.value}).then(function(){ voice.recheck(); }); });
+    rm.addEventListener('click', function(){
+      if (!confirm('Remove the voice files from this PC? Follow my voice downloads them again the next time you turn it on.')) return;
+      voice.toggle(false);
+      fetch('api/voice', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({op: 'remove'})})
+        .then(function(){ flash('Voice files removed'); fill(); }).catch(function(){});
+    });
+    desk.fillVoice = function(st){ mic.value = String(st.voiceMic != null ? st.voiceMic : -1); sens.value = String(st.voiceSensitivity || 3); showSens(); };
+  })();
+}
 
 $('sp-write').addEventListener('click', function(){ prompter.edit(); });
 $('sp-next').addEventListener('click', function(){
@@ -100,10 +148,15 @@ function flash(msg){
     var st = info.settings || {};
     cur.look = st.prompterLook || 'solid'; cur.onTop = st.prompterOnTop !== false;
     lookBox.hidden = pin.hidden = false; document.body.classList.add('sp-desk');
+    desk.app = true; desk.onTop = cur.onTop;
+    if (voice){ $('sp-voice-wrap').hidden = false; if (desk.fillVoice) desk.fillVoice(st); }
     look(cur.look);
   }).catch(function(){});
   lookBox.addEventListener('click', function(e){ var b = e.target.closest('[data-look]'); if (b) look(b.dataset.look); });
-  pin.addEventListener('click', function(){ cur.onTop = !cur.onTop; paint(); if (W) W.call('on-top', {value: cur.onTop}); });
+  pin.addEventListener('click', function(){
+    cur.onTop = !cur.onTop; desk.onTop = cur.onTop; paint(); if (W) W.call('on-top', {value: cur.onTop});
+    if (voice) voice.recheck();                       // 26.11 Follow my voice listens only while pinned
+  });
 })();
 
 /* the Frame the script comes from: the one on screen, else the first (rehearse before going live) */
