@@ -3,99 +3,80 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Download, Quote, ShieldCheck, Smartphone, Users } from "lucide-react";
 
-import { type FeatureTab } from "@/components/landing/feature-tabs";
-import { Showcase } from "@/components/landing/showcase";
-import { LandingHero } from "@/components/landing/hero";
 import { LandingNav } from "@/components/landing/nav";
+import { Keys, Tour, type TourChapter } from "@/components/landing/tour";
 import { FlourishLater } from "@/components/landing/flourish-later";
 import { SiteFooter } from "@/components/site-footer";
 import { DOWNLOADS } from "@/lib/pc-setup";
 import "@/app/landing-page.css"; // 8.4 only the landing page loads its own styles
+import "@/app/tour.css";
 
-// The front page (owner's brief, 27 October; redesign 28 October; about four screens since 6.13, 29 October:
+// The front page (owner's brief, 27 October; redesign 28 October; 26.11.2 the stage, 6 November:
 // docs/development/design-system.md "Landing").
-// One story for every kind of gathering, told with the real screens on a calm stage: a slow light behind the page,
-// one easing family, gold only where the eye should go, the serif for scripture and statements. Every loop runs only
-// while on screen and stops under "reduce motion" or "Reduce effects" (motion.tsx). No invented quotes, logos or
-// usage numbers.
+// The product tells the story: on arrival a meeting builds itself (Frame, Decks, Content) and lands in the real Studio;
+// the page's scroll then moves through the program's own screens, each with the keys it uses
+// (components/landing/tour.tsx). Apple's way: one idea per screen, the words beside the picture, gold only where the
+// eye should go, the app's own colours. Nothing runs at rest; "reduce motion" and "Reduce effects" are honoured.
+// No invented quotes, logos or usage numbers.
 
 const delay = (ms: number) => ({ "--d": `${ms}ms` }) as CSSProperties;
 
 const HERO = { first: "Prepare with Purpose.", second: "Present with Excellence." };
 
-const PROOF = ["Free to download and use", "Works without internet", "Your phone is the remote", "Every screen and stream"] as const;
-
-// How it works: the steps that play by themselves (components/landing/how-it-works.tsx), Day 1 to Day 5
-const DAYS = [
+// After the Studio, one chapter per screen of the program (tools/make_product_shots.py); every key is the app's own
+const CHAPTERS: readonly TourChapter[] = [
   {
-    title: "Plan together",
-    text: "Build the meeting on the website from any computer: slides, readings, discussion questions and the presenter's script. Invite your team to help.",
-    callout: "Team invited",
-  },
-  {
-    title: "Speak with confidence",
-    text: "Your script waits in the Teleprompter, above your video meeting, where only you can see it. It is never shared or recorded.",
-    callout: "Only you see it",
-  },
-  {
-    title: "Check before you begin",
-    text: "A short checklist confirms your Frames, the virtual camera and the phone remote. Green means ready.",
-    callout: "Green means ready",
-  },
-  {
-    title: "Present from anywhere",
-    text: "Stand at the back or sit with the group. Each tap moves the room screen and the stream together.",
-    callout: "One tap, every screen",
-  },
-  {
-    title: "Point it out",
-    text: "Press Ctrl twice and a soft circle lands on the word you mean; draw on the picture to underline it. Everyone sees it, in the room and on the stream.",
-    callout: "Everyone sees it",
-  },
-];
-
-// 26.11.2 the four things only FrameDecks does lead the tour: the phone remote, a Teleprompter that follows your
-// voice, pointing it out on the live picture, and the Command Center
-const TABS: readonly FeatureTab[] = [
-  {
-    id: "present",
-    tab: "Phone remote",
-    title: "Your phone runs the whole meeting.",
-    lines: ["Swipe for the next Frame; Hide all or a black screen in one tap", "Spotlight and draw on the picture from your seat", "On the local Wi-Fi or from across town"],
-  },
-  {
-    id: "prompter",
-    tab: "Follow my voice",
-    title: "A Teleprompter that follows your voice.",
-    lines: ["The script moves as you read, at your own pace", "It waits when you talk off script", "It listens on your PC only. Nothing is recorded or sent"],
-  },
-  {
-    id: "annotate",
-    tab: "Point it out",
-    title: "Point it out. Everyone sees it.",
-    lines: ["Press Ctrl twice and a soft spotlight lands on the word", "Underline, circle and draw on the live picture", "In the room and on the stream at the same moment"],
-  },
-  {
-    id: "command",
-    tab: "Command Center",
+    id: "command-center",
+    label: "Command Center",
+    eyebrow: "Alt + Space",
     title: "Everything, one shortcut away.",
-    lines: ["Opens over Zoom, PowerPoint or any app", "Run the live show, find any Frame, take notes", "Pin it open, or let it fold out of the way"],
+    text: (
+      <>
+        Press <Keys k="Alt+Space" /> over Zoom, PowerPoint or any app. One search and five chips: Prepare, Engage, Control, Notes and More.
+      </>
+    ),
   },
   {
-    id: "relay",
-    tab: "Every screen",
-    title: "On every screen and stream",
-    lines: [
-      "The room screen, live production tools and video meetings",
-      "FrameDecks vCam, its own virtual camera, with background blur",
-      "Your logo and a lower third on the picture",
-    ],
+    id: "prepare",
+    label: "Prepare",
+    eyebrow: "Prepare · Teleprompter",
+    title: "A Teleprompter that follows your voice.",
+    text: (
+      <>
+        Your script, where only you can see it. Press <Keys k="R" /> to show it and <Keys k="V" /> to have it follow your voice. It listens on your PC only.
+      </>
+    ),
   },
   {
-    id: "team",
-    tab: "Team and privacy",
-    title: "Your whole team. Your own PC.",
-    lines: ["Plan together on the website", "Everyone sees only what their role allows", "Pictures, video and the camera stay on your PC"],
+    id: "engage",
+    label: "Engage",
+    eyebrow: "Engage · Spotlight",
+    title: "Point it out. Everyone sees it.",
+    text: (
+      <>
+        Press <Keys k="Ctrl" /> twice and a soft spotlight lands on the word under your pointer; <Keys k="Alt+D" /> draws on the live picture. In the room
+        and on the stream at the same moment.
+      </>
+    ),
+  },
+  {
+    id: "control",
+    label: "Control",
+    eyebrow: "Control · Live",
+    title: "Go Live, then just press Next.",
+    text: (
+      <>
+        <Keys k="T" /> puts the Frame on screen; <Keys k="Alt+→" /> moves to the next one. <Keys k="Alt+H" /> hides everything and <Keys k="Alt+B" /> goes to a
+        black screen.
+      </>
+    ),
+  },
+  {
+    id: "phone",
+    label: "Phone",
+    eyebrow: "Phone remote",
+    title: "Then run it from your seat.",
+    text: "Your phone becomes the remote: what is on screen, Previous and Next, Hide all and the meeting plan, on the local Wi-Fi or from across town.",
   },
 ];
 
@@ -183,48 +164,42 @@ export function Landing() {
       <FlourishLater />
 
       <main id="main" tabIndex={-1}>
-        <LandingHero
-          pill="For meetings, classes, conferences, events and services"
-          first={HERO.first}
-          second={HERO.second}
-          lede="From prayerful preparation to meaningful moments, FrameDecks keeps your entire service seamlessly connected
-              across every screen, every stream, and every member of your team."
-          actions={<Actions />}
-          proof={PROOF}
+        <Tour
+          intro={
+            <>
+              <p className="lp-eyebrow">For meetings, classes, conferences, events and services</p>
+              <h1>
+                {HERO.first} <span>{HERO.second}</span>
+              </h1>
+              <p className="tr-lede">
+                From prayerful preparation to meaningful moments, FrameDecks keeps your entire service seamlessly connected across every screen, every
+                stream, and every member of your team.
+              </p>
+              <Actions />
+            </>
+          }
+          chapters={CHAPTERS}
         />
 
-        {/* 9.11.1 "How it works" and "See it work" share one stage (components/landing/showcase.tsx) */}
-        <Showcase
-          chapters={[
-            {
-              id: "how",
-              label: "How it works",
-              title: "From first idea to final word.",
-              lead: "Plan, prompt, present: the same steps every time, with nothing to learn twice.",
-            },
-            {
-              id: "see",
-              label: "See it work",
-              title: "Powerful tools. Effortless creation.",
-              lead: "Plan, prompt and present from one place, with every tool ready the moment you reach for it.",
-            },
-          ]}
-          steps={DAYS.map((d, i) => ({ ...d, label: `Day ${i + 1}` }))}
-          tabs={TABS}
-          extra={
-            <ul className="lp-promises">
-              {FEATURES.map((f) => (
-                <li key={f.title}>
-                  <span className="lp-icon">
-                    <f.icon aria-hidden="true" size={18} />
-                  </span>
-                  <b>{f.title}</b>
-                  <span>{f.text}</span>
-                </li>
-              ))}
-            </ul>
-          }
-        />
+        <section className="lp-section" id="features" aria-labelledby="lp-features-title">
+          <div className="lp-head" data-reveal="">
+            <p className="lp-eyebrow">Made for the whole team</p>
+            <h2 id="lp-features-title" className="lp-h2">
+              Calm on the day. Ready every week.
+            </h2>
+          </div>
+          <ul className="lp-promises" data-reveal="" data-spotlight="">
+            {FEATURES.map((f) => (
+              <li key={f.title}>
+                <span className="lp-icon">
+                  <f.icon aria-hidden="true" size={18} />
+                </span>
+                <b>{f.title}</b>
+                <span>{f.text}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
 
         <section className="lp-section" id="questions" aria-labelledby="lp-faq-title">
           <div className="lp-head" data-reveal="">

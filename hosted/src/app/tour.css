@@ -1,0 +1,736 @@
+/* 26.11.2 the front page's stage (components/landing/tour.tsx). One pinned stage: the words on the left change with
+   the chapter, the product on the right does what they say. The product stays in its own dark colours in both themes,
+   as it does on screen (the app's tokens, app/tokens.css dark values); the page around it follows the site's theme.
+   Light on resources: only transform and opacity move, never a blur; nothing runs at rest; every movement is behind
+   html.fd-motion:not(.fd-calm) and stops for less motion or "Reduce effects". */
+
+.tr {
+  --tr-bg: #070c18;
+  --tr-surface: #0f172b;
+  --tr-raised: #1b2540;
+  --tr-line: #313a4d;
+  --tr-soft: #222a3c;
+  --tr-ink: #f5f7fb;
+  --tr-muted: #aeb8cc;
+  --tr-gold: #e3b75a;
+  --tr-gold-ink: #1a1405;
+  --tr-frame: #e8b931;
+  --tr-deck: #8fb3ff;
+  --tr-content: #c3a6ff;
+  position: relative;
+  height: calc(var(--n) * 90vh + 100vh);
+}
+
+.tr-pin {
+  position: sticky;
+  top: 0;
+  display: grid;
+  grid-template-columns: minmax(300px, 400px) minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr) auto;
+  gap: 12px clamp(24px, 3vw, 48px);
+  width: min(100%, 1600px);
+  height: 100vh;
+  height: 100svh;
+  margin: 0 auto;
+  padding: 84px clamp(16px, 3vw, 40px) 18px;
+}
+
+.tr-caps {
+  display: grid;
+  align-self: center;
+}
+
+.tr-cap {
+  grid-area: 1 / 1;
+}
+
+.tr-cap:not(.is-on) {
+  visibility: hidden;
+  opacity: 0;
+  transform: translate3d(0, 10px, 0);
+}
+
+.tr-cap h1,
+.tr-h {
+  margin: 6px 0 14px;
+  color: var(--text);
+  font-size: clamp(34px, 3.6vw, 54px);
+  font-weight: 800;
+  line-height: 1.04;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+}
+
+.tr-cap h1 span {
+  display: block;
+  color: var(--text-2);
+}
+
+.tr-text,
+.tr-cap .tr-lede {
+  margin: 0;
+  color: var(--text-2);
+  font-size: clamp(16px, 1.3vw, 19px);
+  line-height: 1.5;
+}
+
+.tr-cap .fd-hero-actions {
+  margin-top: 26px;
+}
+
+.tr-keys {
+  white-space: nowrap;
+}
+
+.tr-text kbd,
+.tr-keys kbd {
+  display: inline-block;
+  margin: 0 2px;
+  padding: 0 7px;
+  border: 1px solid var(--hairline-strong);
+  border-bottom-width: 3px;
+  border-radius: 7px;
+  color: var(--text);
+  font: 700 0.82em/1.6 var(--font);
+}
+
+.tr-fit {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+}
+
+.tr-replay {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  padding: 6px 12px;
+  border: 1px solid var(--hairline);
+  border-radius: 999px;
+  background: var(--surface-solid);
+  color: var(--text);
+  font: 700 13px var(--font);
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.tr-stage.is-done[data-ch="0"] + .tr-replay {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.tr-rail {
+  display: flex;
+  grid-column: 2;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px;
+}
+
+.tr-rail button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: var(--text-3);
+  font: 600 14px var(--font);
+  cursor: pointer;
+}
+
+.tr-rail button.is-on {
+  color: var(--text);
+}
+
+.tr-rail i {
+  position: relative;
+  width: 26px;
+  height: 3px;
+  overflow: hidden;
+  border-radius: 2px;
+  background: var(--hairline-strong);
+}
+
+.tr-rail i::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--gold);
+  transform: scaleX(var(--f, 0));
+  transform-origin: left;
+}
+
+/* ---------- the stage: 1000 × 620, scaled by the component ---------- */
+.tr-stage {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1000px;
+  height: 620px;
+  overflow: hidden;
+  border-radius: 22px;
+  background: radial-gradient(70% 80% at 50% 0%, #1a2550, transparent 70%), var(--tr-bg);
+  color: var(--tr-ink);
+  font-family: var(--font);
+  box-shadow:
+    0 0 0 1px var(--tr-soft),
+    0 50px 120px -40px rgba(227, 183, 90, 0.22),
+    0 40px 80px -40px rgba(0, 0, 0, 0.7);
+  transform-origin: 0 0;
+}
+
+.tr-stage kbd {
+  display: inline-block;
+  margin: 0 2px;
+  padding: 1px 8px;
+  border: 1px solid var(--tr-line);
+  border-bottom-width: 3px;
+  border-radius: 7px;
+  background: var(--tr-raised);
+  color: var(--tr-ink);
+  font: 700 13px/1.5 var(--font);
+}
+
+/* the real Studio: the build lands on it, and it stays behind the later chapters, quieter */
+.tr-base {
+  position: absolute;
+  top: 110px;
+  left: 0;
+  width: 1000px;
+  height: 400px;
+  opacity: 0;
+  transform: scale(1.03);
+}
+
+.tr-base img,
+.tr-sc img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.is-studio .tr-base {
+  opacity: 1;
+  transform: none;
+}
+
+.tr-stage:not([data-ch="0"]) .tr-base {
+  opacity: 0.2;
+  transform: scale(0.97);
+}
+
+.tr-stage[data-ch="5"] .tr-base {
+  opacity: 0.55;
+  transform: translate3d(-120px, 0, 0) scale(0.84);
+}
+
+/* before the component has started, the build waits (the finished Studio shows after 4 s if it never does) */
+html:not(.fd-calm) .tr-stage:not([data-ready]) :is(.tr-build > *, .tr-base) {
+  opacity: 0;
+  animation: tr-fallback 0s 4s forwards;
+}
+
+@keyframes tr-fallback {
+  to {
+    opacity: 1;
+  }
+}
+
+/* ---------- the build ---------- */
+.tr-build {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+}
+
+.tr-stage:not([data-ch="0"]) .tr-build {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.tr-steps {
+  position: absolute;
+  top: 26px;
+  left: 50%;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transform: translate3d(-50%, 0, 0);
+}
+
+.tr-steps span {
+  padding: 5px 13px;
+  border: 1px solid var(--tr-line);
+  border-radius: 999px;
+  color: var(--tr-muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.tr-steps i {
+  width: 14px;
+  height: 1px;
+  background: var(--tr-line);
+}
+
+.is-frame .tr-s1,
+.is-decks .tr-s2,
+.is-items .tr-s3,
+.is-studio .tr-s4 {
+  border-color: var(--tr-gold);
+  background: var(--tr-gold);
+  color: var(--tr-gold-ink);
+}
+
+.is-done .tr-steps {
+  opacity: 0;
+}
+
+.tr-lv {
+  position: absolute;
+  left: 24px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--tr-muted);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  opacity: 0;
+}
+
+.tr-lv::after {
+  content: "";
+  width: 34px;
+  height: 1px;
+  background: var(--tr-line);
+}
+
+.tr-l1 {
+  top: 134px;
+}
+
+.tr-l2 {
+  top: 252px;
+}
+
+.tr-l3 {
+  top: 368px;
+}
+
+.is-frame .tr-l1,
+.is-decks .tr-l2,
+.is-items .tr-l3 {
+  opacity: 1;
+}
+
+.tr-links {
+  position: absolute;
+  inset: 0;
+}
+
+.tr-links path {
+  fill: none;
+  stroke: rgba(227, 183, 90, 0.6);
+  stroke-width: 1.6;
+  opacity: 0;
+  transform: scaleY(0.6);
+  transform-box: fill-box;
+  transform-origin: top;
+}
+
+.is-decks .tr-a1,
+.is-items .tr-a2 {
+  opacity: 1;
+  transform: none;
+}
+
+.is-studio .tr-links,
+.is-studio .tr-lv {
+  opacity: 0;
+}
+
+/* the cards, in the app's level colours: Frames gold, Decks blue, Content violet */
+.tr-b {
+  position: absolute;
+  z-index: 2;
+  display: flex;
+  overflow: hidden;
+  border: 1px solid var(--tr-line);
+  border-radius: 12px;
+  background: var(--tr-surface);
+  opacity: 0;
+  transform: translate3d(0, 16px, 0) scale(0.88);
+  transform-origin: 0 0;
+}
+
+.tr-bk {
+  color: var(--tr-muted);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.tr-frame {
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 16px;
+  border-color: var(--tr-frame);
+  background: linear-gradient(rgba(232, 185, 49, 0.08), rgba(232, 185, 49, 0.08)), var(--tr-surface);
+  box-shadow: 0 0 0 4px rgba(232, 185, 49, 0.08);
+  font-size: 20px;
+}
+
+.tr-frame .tr-bk {
+  color: var(--tr-frame);
+}
+
+.tr-frame b {
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.tr-caret {
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  margin-left: 2px;
+  background: var(--tr-gold);
+  vertical-align: -2px;
+}
+
+.is-decks .tr-caret {
+  display: none;
+}
+
+.tr-deck {
+  align-items: center;
+  gap: 10px;
+  padding: 0 14px;
+  border-color: rgba(143, 179, 255, 0.55);
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.tr-deck i {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--tr-deck);
+}
+
+.tr-item {
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 12px;
+  border-color: rgba(195, 166, 255, 0.45);
+  font-size: 13px;
+  line-height: 1.3;
+}
+
+.tr-item .tr-bk {
+  color: var(--tr-content);
+}
+
+.tr-verse {
+  font-family: var(--font-serif, "EB Garamond", Georgia, serif);
+  font-size: 15px;
+}
+
+.tr-verse .tr-bk {
+  font-family: var(--font);
+}
+
+.is-frame .tr-frame,
+.is-decks .tr-deck,
+.is-items .tr-item {
+  opacity: 1;
+  transform: none;
+}
+
+.is-studio .tr-b {
+  transform: var(--to);
+}
+
+.is-studio .tr-b > * {
+  opacity: 0;
+}
+
+.is-done .tr-b.tr-b {
+  opacity: 0;
+}
+
+/* ---------- the chapters: one real screen each ---------- */
+.tr-sc {
+  position: absolute;
+  z-index: 3;
+  margin: 0;
+  opacity: 0;
+  transform: translate3d(48px, 0, 0) scale(0.97);
+}
+
+.tr-sc.is-past {
+  transform: translate3d(-48px, 0, 0) scale(0.97);
+}
+
+.tr-sc.is-on {
+  opacity: 1;
+  transform: translate3d(0, var(--y, 0px), 0);
+}
+
+.tr-sc img {
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  box-shadow: 0 30px 70px -20px rgba(0, 0, 0, 0.75);
+}
+
+.tr-sc-cc {
+  top: 120px;
+  left: 120px;
+  width: 760px;
+  height: 250px;
+}
+
+.tr-sc-tp {
+  top: 16px;
+  left: 53px;
+  width: 894px;
+  height: 520px;
+}
+
+.tr-sc-an {
+  top: 36px;
+  left: 30px;
+  width: 940px;
+  height: 461px;
+}
+
+.tr-sc-live {
+  top: 12px;
+  left: 192px;
+  width: 615px;
+  height: 540px;
+}
+
+.tr-sc-phone {
+  top: 26px;
+  right: 110px;
+  width: 271px;
+  height: 572px;
+}
+
+.tr-sc-phone img {
+  border: 6px solid #1f2639;
+  border-radius: 36px;
+}
+
+.tr-callouts {
+  position: absolute;
+  bottom: -50px;
+  left: 50%;
+  display: flex;
+  gap: 10px;
+  white-space: nowrap;
+  transform: translate3d(-50%, 0, 0);
+}
+
+.tr-sc-cc .tr-callouts {
+  bottom: -64px;
+}
+
+.tr-sc-tp .tr-callouts,
+.tr-sc-an .tr-callouts {
+  bottom: -60px;
+}
+
+.tr-sc-live .tr-callouts {
+  bottom: -54px;
+}
+
+.tr-callouts > span {
+  padding: 6px 12px 6px 8px;
+  border: 1px solid var(--tr-line);
+  border-radius: 999px;
+  background: rgba(15, 23, 43, 0.92);
+  color: var(--tr-muted);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* the keys, pressed as the Command Center opens */
+.tr-bigkeys {
+  position: absolute;
+  top: 300px;
+  left: 50%;
+  z-index: 6;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--tr-muted);
+  font-size: 24px;
+  font-weight: 800;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate3d(-50%, -50%, 0);
+}
+
+.tr-stage .tr-bigkeys kbd {
+  padding: 14px 24px;
+  border-bottom-width: 6px;
+  border-radius: 14px;
+  font-size: 24px;
+}
+
+/* ---------- movement: only with motion allowed and effects on ---------- */
+@media (prefers-reduced-motion: no-preference) {
+  html.fd-motion:not(.fd-calm) .tr-cap,
+  html.fd-motion:not(.fd-calm) .tr-base,
+  html.fd-motion:not(.fd-calm) .tr-build,
+  html.fd-motion:not(.fd-calm) .tr-steps,
+  html.fd-motion:not(.fd-calm) .tr-lv,
+  html.fd-motion:not(.fd-calm) .tr-links,
+  html.fd-motion:not(.fd-calm) .tr-replay,
+  html.fd-motion:not(.fd-calm) .tr-sc {
+    transition:
+      transform 0.6s var(--ease-out),
+      opacity 0.45s var(--ease-out);
+  }
+
+  html.fd-motion:not(.fd-calm) .tr-cap {
+    transition-property: transform, opacity, visibility;
+  }
+
+  html.fd-motion:not(.fd-calm) .tr-sc.is-on {
+    transition:
+      transform 0.6s var(--ease-out),
+      opacity 0.45s var(--ease-out) 0.1s;
+  }
+
+  html.fd-motion:not(.fd-calm) .tr-b {
+    transition:
+      transform 0.75s var(--ease-out),
+      opacity 0.35s var(--ease-out);
+    transition-delay: var(--d);
+  }
+
+  html.fd-motion:not(.fd-calm) .tr-b > * {
+    transition: opacity 0.2s var(--ease-out);
+  }
+
+  html.fd-motion:not(.fd-calm) .is-studio .tr-b {
+    transition-delay: 0s;
+  }
+
+  html.fd-motion:not(.fd-calm) .is-done .tr-b {
+    transition: opacity 0.45s var(--ease-out);
+  }
+
+  html.fd-motion:not(.fd-calm) .tr-links path {
+    transition:
+      transform 0.45s var(--ease-out),
+      opacity 0.3s var(--ease-out);
+  }
+
+  html.fd-motion:not(.fd-calm) .is-studio .tr-base {
+    transition:
+      opacity 0.6s var(--ease-out) 0.35s,
+      transform 1s var(--ease-out) 0.2s;
+  }
+
+  html.fd-motion:not(.fd-calm) .tr-caret {
+    animation: tr-blink 1s steps(1) 4;
+  }
+
+  html.fd-motion:not(.fd-calm) .tr-stage.is-boot .tr-bigkeys {
+    animation: tr-keys 1.4s var(--ease-out);
+  }
+
+  html.fd-motion:not(.fd-calm) .tr-stage.is-boot .tr-bigkeys kbd {
+    animation: tr-kp 1.4s var(--ease-out);
+  }
+
+  html.fd-motion:not(.fd-calm) .tr-stage.is-boot .tr-sc-cc {
+    animation: tr-drop 0.6s var(--ease-out) 0.85s backwards;
+  }
+
+  @keyframes tr-blink {
+    50% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes tr-keys {
+    15%,
+    60% {
+      opacity: 1;
+    }
+
+    to {
+      opacity: 0;
+      transform: translate3d(-50%, -80%, 0);
+    }
+  }
+
+  @keyframes tr-kp {
+    45% {
+      transform: translate3d(0, 4px, 0);
+    }
+  }
+
+  @keyframes tr-drop {
+    from {
+      opacity: 0;
+      transform: translate3d(0, -40px, 0) scale(0.96);
+    }
+  }
+}
+
+/* ---------- narrow screens: the words above, the stage below ---------- */
+@media (max-width: 1000px) {
+  .tr-pin {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    padding-top: 76px;
+  }
+
+  .tr-caps {
+    text-align: center;
+  }
+
+  .tr-cap h1,
+  .tr-h {
+    font-size: clamp(28px, 6.4vw, 40px);
+  }
+
+  .tr-cap .fd-hero-actions {
+    justify-content: center;
+    margin-top: 16px;
+  }
+
+  .tr-rail {
+    grid-column: 1;
+  }
+
+  .tr-rail button {
+    padding: 6px;
+    font-size: 13px;
+  }
+
+  .tr-rail i {
+    width: 14px;
+  }
+}
+
+@media (max-width: 640px) {
+  .tr-cap .tr-lede,
+  .tr-text {
+    font-size: 15px;
+  }
+}

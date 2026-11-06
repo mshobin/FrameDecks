@@ -119,38 +119,35 @@ One direction, built in `hosted/src/app/identity.css` (loaded after the older lo
 - **Places.** Home · Plan · Live · People, then Settings: Branding, Service PCs, Help. Your account is the avatar.
 - **Words.** Team, Service PCs, People, Go Live (`docs/guide/glossary.md`). The name is always **FrameDecks**.
 
-## Landing (website, redesigned 28 October; about four screens since 6.13)
+## Landing (website, redesigned 28 October; one pinned stage since 26.11.2)
 
 `hosted/src/components/landing.tsx` (the words and the order) with one file per part in
-`hosted/src/components/landing/`, styled by `hosted/src/app/landing.css` (loaded after `identity.css`). For every kind
-of gathering; no church-only words, no named third-party streaming or camera products (FrameDecks vCam, our own camera, is
-named), no invented quotes, logos or numbers.
+`hosted/src/components/landing/`, styled by `hosted/src/app/landing.css` (loaded after `identity.css`),
+`landing-page.css` and `tour.css` (this page only). For every kind of gathering; no church-only words, no named
+third-party streaming or camera products (FrameDecks vCam, our own camera, is named), no invented quotes, logos or
+numbers. **Every picture of the program is a real screenshot** (`tools/make_product_shots.py`).
 
 - **Approved words, unchanged:** "Prepare with Purpose. Present with Excellence.", the hero paragraph, **Ready to
-  Serve?**, the steps **Day 1 … Day 4**, every feature, demo frame and question, the KJV verse above the closing call
-  (Colossians 3:23).
-- **Order and parts (6.13, about 4.5 screens at 1366 × 768, 3.2 at 1920 × 1080):**
-  1. `landing/nav.tsx`: clear, then blurred navy with a hairline after 20 px; How it works, See it work, Questions;
-     Reduce effects, theme, About, Sign in, gold Download · free.
-  2. `landing/hero.tsx`, two columns above the fold (one column under 1000 px): the pill line with the audiences, the
-     words rising blur-to-sharp with the gold second line sweeping once, the paragraph, both buttons and four proof
-     ticks; beside them the Studio window arrives once and stays still (it rises 28 px without fading, its screen
-     wakes from the top, the gold corners settle, the phone slides in, one light crosses the glass).
-  3. `landing/how-it-works.tsx` + `landing/step-screens.tsx`: four tabs across the top over one app window, with the
-     step's day, title, text and Previous / Pause / Next beside it. The active tab's gold bar fills over 6 s (a finite
-     CSS animation, `lp-tab-fill`, declared paused and running only under `[data-run]`); its `animationend` moves to
-     the next step. It plays only while the section is on screen, holds on hover and keyboard focus, stops after one
-     round or when someone picks a step, and never starts under reduce motion or **Reduce effects** (step 1 waits).
-     Arrow keys move between tabs. No pinning and no GSAP.
-  4. `landing/feature-tabs.tsx` ("See it work"): one tab set for the demo and the features: **Present** (the
-     press-Next demo, `next-demo.tsx`), **Teleprompter** and **Every screen** (`landing/feature-previews.tsx`), and
-     **Team and privacy** (four small promises). Each panel: three short lines and the thing itself. Hidden panels stay
-     in the page.
-  5. Questions: the first four in two columns; the rest behind **More questions**.
-  6. Ready to Serve?: the serif promise "Every screen. Every stream. Every member of your team.", the verse, the gold
-     sweep on "Serve?", both buttons → footer.
-- **Real screenshots (TODO):** capture each step at 1200 × 750 as WebP into `hosted/public/product/step-*.webp` and
-  pass `image` per step in `landing.tsx`; the drawn screens are the fallback.
+  Serve?**, every promise and question, the KJV verse above the closing call (Colossians 3:23).
+- **Order and parts (26.11.2):**
+  1. `landing/nav.tsx`: clear, then blurred navy with a hairline after 20 px; How it works, Features, Download;
+     Reduce effects, theme, About, Open Workspace, gold Download · free.
+  2. `landing/tour.tsx`, the stage (Apple's way: the words on the left, the product on the right, one idea per
+     screen; stacked under 1000 px). The words are the headline, paragraph and both buttons, then one chapter each.
+     The stage (1000 × 620, scaled) is the app's own dark colours in both themes. On arrival, with no scrolling, a
+     meeting builds itself in about five seconds: the Frame (gold) types its name, lines grow to its Decks (blue) and
+     their Content (violet), then each card flies to its place in the real Studio screenshot (one transform each) and
+     fades into it; ↻ Replay plays it again. Scrolling then chooses a chapter, each one real screenshot with the keys
+     it uses: Command Center (Alt+Space, the keys pressed as it drops in), Prepare (Teleprompter, R and V), Engage
+     (Spotlight, Ctrl twice and Alt+D), Control (live: T, Alt+→, Alt+H, Alt+B), Phone. The chapter row under the
+     stage fills as you go and jumps to a chapter.
+  3. Features: four promises on one row.
+  4. Questions: the first four; the rest behind **More questions**.
+  5. Ready to Serve?: the serif promise, the verse, both buttons → footer.
+- **Cost:** one passive scroll listener, attached only while the stage is on screen and batched to one frame; only
+  `transform` and `opacity` move; nothing runs at rest (measured: 0.05 % busy, no layout or style work while idle).
+  **Reduce effects** shows the finished Studio at once; with less motion asked for, the build still arrives step by
+  step, without movement. If the script never runs, the finished Studio shows after 4 s (`tr-fallback`).
 - **Motion rules** (`motion.css`, `landing.css`, `components/motion.tsx`): one easing family (`--ease-out` for
   entrances (0.35 s since 9.11.2; the hero's one-off arrival is longer), `--ease-soft` for loops), nothing bouncy. Only `transform` and `opacity` move, except two
   one-off entrances that sharpen from a small blur (hero words, step screens). The stage light (two glows, navy and
@@ -160,13 +157,11 @@ named), no invented quotes, logos or numbers.
   `tests/idle-performance.test.mjs` enforces this.
 - **One rhythm (9.11.2):** entrances use `--t-move` (0.35 s) on `--ease-out`, rising 8 px (`fd-reveal`). The finishing
   touches live in `app/flourish.css`, loaded just after first paint (`components/landing/flourish-later.tsx`, held to
-  3 KB by `scripts/check-budget.mjs`): the living hero (`.lp-hl-*` overlays: Next pressed, Go Live glows, the room screen
-  changes, every 6 s), the dark-mode gold drift behind the hero, the scroll-linked gold line on the showcase stage
-  (`animation-timeline: view()`), button icon nudges, and Frame / Deck / Content coming together above Ready to Serve?
+  3 KB by `scripts/check-budget.mjs`): button icon nudges and Frame / Deck / Content coming together above Ready to Serve?
   (`.lp-assemble`, drawn `display: none` inline so it stays hidden without that stylesheet). `data-spotlight` also sits
   on the FAQ items, the closing panel and the download cards. `tests/motion-rules.test.mjs` holds the rules: only
   `transform` and `opacity`, all behind reduced motion and `html.fd-motion:not(.fd-calm)`, loops paused unless
-  `[data-live]`.
+  `[data-live]`; since 26.11.2 it holds `app/tour.css` to the same rules.
 - **Reveal fix:** `data-reveal` content is visible without JavaScript; it is hidden only after `motion.tsx` has run
   (`html.fd-reveal-ready`) and has already shown whatever is on or above the screen. An IntersectionObserver
   (`rootMargin "0px 0px -8% 0px"`) reveals the rest, and a scroll/hash safety net shows anything passed over by an

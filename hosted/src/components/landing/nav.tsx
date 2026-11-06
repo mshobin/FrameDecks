@@ -45,7 +45,7 @@ export function LandingNav() {
       </Link>
       <nav className="fd-landing-links" aria-label="On this page">
         <Link href="/#how">How it works</Link>
-        <Link href="/#features">See it work</Link>
+        <Link href="/#features">Features</Link>
         <Link href="/download">Download</Link>
       </nav>
       <div className="fd-topbar-right">

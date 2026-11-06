@@ -10,6 +10,15 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
 
 ## [Unreleased]
 
+### Changed
+- Website front page rebuilt around one pinned stage (`hosted/src/components/landing/tour.tsx`, `app/tour.css`): on
+  arrival a meeting builds itself (Frame, Decks, Content in the app's level colours) and flies into the real Studio
+  screenshot; scrolling then moves through real screenshots of the Command Center, the Teleprompter, Spotlight, the
+  live Control chip and the phone remote, each with the app's own keys (Alt+Space, R, V, Ctrl twice, Alt+D, T, Alt+→,
+  Alt+H, Alt+B). The old hero, How it works / See it work showcase, drawn previews and press-Next demo are gone, with
+  their styles (home page CSS 23.9 → 21.3 KB). `tools/make_product_shots.py` also writes `teleprompter.webp` and
+  `phone-remote.webp`; `hosted/tests/motion-rules.test.mjs` now holds tour.css to the same motion rules.
+
 ## [26.11.2] - 2026-11-06
 
 Full notes: [docs/releases/v26.11.2.md](releases/v26.11.2.md).

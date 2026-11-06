@@ -33,25 +33,29 @@ function declarations(css) {
 }
 
 const flourish = declarations(read("src/app/flourish.css"));
+// 26.11.2 the front page's stage keeps the same rules (app/tour.css)
+const tour = declarations(read("src/app/tour.css"));
+const moving = [...flourish, ...tour];
 const QUIET = "@media (prefers-reduced-motion: no-preference)";
 const GUARD = "html.fd-motion:not(.fd-calm)";
 
 test("keyframes move only transform and opacity", () => {
-  const frames = flourish.filter((d) => d.within.some((w) => w.startsWith("@keyframes")));
-  assert.ok(frames.length > 10);
+  const frames = moving.filter((d) => d.within.some((w) => w.startsWith("@keyframes")));
+  assert.ok(frames.length > 8);
   for (const d of frames) assert.ok(["transform", "opacity"].includes(d.prop), `${d.within.join(" > ")}: ${d.prop}`);
 });
 
 test("transitions move only transform or opacity", () => {
-  for (const d of flourish.filter((x) => x.prop === "transition"))
+  for (const d of moving.filter((x) => x.prop === "transition"))
     for (const part of d.value.split(","))
       assert.match(part.trim(), /^(transform|opacity)\s/, `${d.within.at(-1)}: ${d.value}`);
 });
 
 test("every animation and transition stops for less motion and for Reduce effects", () => {
-  const moving = flourish.filter((d) => /^(animation|transition)/.test(d.prop) && !d.within.some((w) => w.startsWith("@keyframes")));
-  assert.ok(moving.length >= 8);
-  for (const d of moving) {
+  const animated = moving.filter((d) => /^(animation|transition)(?!-(?:delay|property))/.test(d.prop) && !d.within.some((w) => w.startsWith("@keyframes")));
+  assert.ok(animated.length >= 12);
+  for (const d of animated) {
+    if (d.within.at(-1).includes(":not([data-ready])")) continue; // tour.css: the 4 s safety net that shows the Studio
     assert.ok(d.within.includes(QUIET), `${d.within.at(-1)} is outside ${QUIET}`);
     for (const sel of d.within.at(-1).split(","))
       assert.ok(sel.trim().startsWith(GUARD), `${sel.trim()} is not behind ${GUARD}`);
@@ -59,11 +63,10 @@ test("every animation and transition stops for less motion and for Reduce effect
 });
 
 test("endless loops run only while on screen", () => {
-  const loops = flourish.filter((d) => d.prop === "animation" && /\binfinite\b/.test(d.value));
-  assert.ok(loops.length >= 4);
+  // 26.11.2 the hero's loops are gone with the hero; any loop that comes back keeps the rule
+  const loops = moving.filter((d) => d.prop === "animation" && /\binfinite\b/.test(d.value));
   for (const d of loops) assert.match(d.value, /\bpaused$/, `${d.within.at(-1)} must start paused`);
-  const running = flourish.filter((d) => d.prop === "animation-play-state" && d.value === "running");
-  assert.ok(running.length);
+  const running = moving.filter((d) => d.prop === "animation-play-state" && d.value === "running");
   for (const d of running) for (const sel of d.within.at(-1).split(",")) assert.match(sel, /\[data-live\]/);
 });
 
@@ -78,9 +81,6 @@ test("one timing language: about a third of a second, rising 8 px", () => {
 test("the finishing touches load after the page appears, and their hooks are in place", () => {
   assert.match(read("src/components/landing/flourish-later.tsx"), /dynamic\(\(\) => import\("@\/components\/landing\/flourish"\), \{ ssr: false \}\)/);
   assert.match(read("src/components/landing/flourish.tsx"), /import "@\/app\/flourish\.css";/);
-  const hero = read("src/components/landing/hero.tsx");
-  assert.match(hero, /className="lp-hero"[^>]*data-loop=""/);
-  for (const hl of ["lp-hl-go", "lp-hl-change", "lp-hl-tap"]) assert.ok(hero.includes(hl), hl);
   const landing = read("src/components/landing.tsx");
   assert.match(landing, /<FlourishLater \/>/);
   assert.match(landing, /<p className="lp-assemble" style=\{\{ display: "none" \}\} aria-hidden="true">/);
