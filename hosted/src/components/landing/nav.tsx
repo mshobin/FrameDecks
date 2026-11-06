@@ -7,15 +7,16 @@ import { Download } from "lucide-react";
 
 import { AboutButton } from "@/components/about-dialog";
 import { EffectsToggle } from "@/components/effects-toggle";
-import { applySavedTheme, ThemeToggle } from "@/components/theme-toggle";
+import { applySavedTheme } from "@/components/theme-toggle";
 import { useSession } from "@/lib/use-session";
 
 // The front page's bar: clear over the hero, then blurred navy with a hairline once the page has moved 20 px.
 // One passive scroll listener that writes only when the state changes.
-/** 26.11.2 the front page is always dark, like the program and its screenshots: layout.tsx already leaves the light
- *  theme off before the first paint at "/" for a visitor who is not signed in; this holds it while the front page is
- *  shown and gives the visitor's own choice back when they move on (every other page keeps Light, Dark and Auto). */
-export function DarkOnly() {
+/** 26.11.2 the website is dark until someone signs in, like the program and its screenshots: layout.tsx leaves the
+ *  light theme off before the first paint for a visitor who is not signed in and on every public page; this holds it
+ *  while a public page is shown and gives the visitor's own choice back when they move on. Light, Dark and Auto live
+ *  in the signed-in workspace only (components/app-shell.tsx). */
+function useDarkOnly() {
   useEffect(() => {
     const root = document.documentElement;
     root.classList.add("fd-dark-only");
@@ -25,12 +26,12 @@ export function DarkOnly() {
       applySavedTheme();
     };
   }, []);
-  return null;
 }
 
-/** The public pages' bar; the front page (always dark) leaves out the theme button. */
-export function LandingNav({ theme = true }: Readonly<{ theme?: boolean }>) {
+/** The public pages' bar (the front page, Help, Download, the legal pages): always dark, so no theme button. */
+export function LandingNav() {
   const [solid, setSolid] = useState(false);
+  useDarkOnly();
   const session = useSession(); // 9.11.1 already signed in on this browser: the bar leads home, not to the email form
 
   useEffect(() => {
@@ -67,7 +68,6 @@ export function LandingNav({ theme = true }: Readonly<{ theme?: boolean }>) {
       </nav>
       <div className="fd-topbar-right">
         <EffectsToggle />
-        {theme && <ThemeToggle />}
         <AboutButton />
         <Link className="fd-btn fd-btn-ghost fd-btn-sm" href={session ? "/" : "/sync"}>
           {session ? "Go to Home" : "Open Workspace"}

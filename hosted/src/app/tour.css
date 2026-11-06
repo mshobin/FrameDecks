@@ -19,25 +19,30 @@
   --tr-content: #c3a6ff;
   position: relative;
   height: calc(var(--n) * 90vh + 100vh);
+  /* the stage starts under the page's sticky bar (65 px), so the pinned screen is the whole window from the start */
+  margin-top: -65px;
 }
 
 .tr-pin {
   position: sticky;
   top: 0;
   display: grid;
-  grid-template-columns: minmax(300px, 400px) minmax(0, 1fr);
-  grid-template-rows: minmax(0, 1fr) auto;
-  gap: 12px clamp(24px, 3vw, 48px);
-  width: min(100%, 1600px);
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: 14px;
+  box-sizing: border-box;
+  width: min(100%, 1400px);
   height: 100vh;
   height: 100svh;
   margin: 0 auto;
-  padding: 84px clamp(16px, 3vw, 40px) 18px;
+  padding: 76px clamp(16px, 3vw, 40px) 16px;
 }
 
+/* the words centred above the stage, as in the owner's mockup (6 November) */
 .tr-caps {
   display: grid;
-  align-self: center;
+  justify-self: center;
+  width: min(100%, 880px);
+  text-align: center;
 }
 
 .tr-cap {
@@ -52,9 +57,9 @@
 
 .tr-cap h1,
 .tr-h {
-  margin: 6px 0 14px;
+  margin: 4px 0 8px;
   color: var(--text);
-  font-size: clamp(34px, 3.6vw, 54px);
+  font-size: clamp(28px, min(4vw, 6vh), 54px);
   font-weight: 800;
   line-height: 1.04;
   letter-spacing: -0.035em;
@@ -62,20 +67,17 @@
 }
 
 .tr-cap h1 span {
-  display: block;
   color: var(--text-2);
 }
 
 .tr-text,
 .tr-cap .tr-lede {
-  margin: 0;
+  max-width: 64ch;
+  margin: 0 auto;
   color: var(--text-2);
-  font-size: clamp(16px, 1.3vw, 19px);
+  font-size: clamp(15px, min(1.25vw, 2.2vh), 18px);
   line-height: 1.5;
-}
-
-.tr-cap .fd-hero-actions {
-  margin-top: 26px;
+  text-wrap: balance;
 }
 
 .tr-keys {
@@ -122,7 +124,6 @@
 
 .tr-rail {
   display: flex;
-  grid-column: 2;
   flex-wrap: wrap;
   justify-content: center;
   gap: 4px;
@@ -853,32 +854,8 @@ html:not(.fd-calm) .tr-stage:not([data-ready]) :is(.tr-build > *, .tr-base) {
   }
 }
 
-/* ---------- narrow screens: the words above, the stage below ---------- */
+/* ---------- narrow screens ---------- */
 @media (max-width: 1000px) {
-  .tr-pin {
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: auto minmax(0, 1fr) auto;
-    padding-top: 76px;
-  }
-
-  .tr-caps {
-    text-align: center;
-  }
-
-  .tr-cap h1,
-  .tr-h {
-    font-size: clamp(28px, 6.4vw, 40px);
-  }
-
-  .tr-cap .fd-hero-actions {
-    justify-content: center;
-    margin-top: 16px;
-  }
-
-  .tr-rail {
-    grid-column: 1;
-  }
-
   .tr-rail button {
     padding: 6px;
     font-size: 13px;

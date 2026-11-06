@@ -26,10 +26,15 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
   Engage, Control); a pointer lands on the spotlit word, then a pen stroke runs along the real underline; the pointer
   switches Go Live on and presses Next Frame; a fingertip taps Next on the phone. Each press ripples once and lights
   its key below the picture (Ctrl twice, Alt+D, Alt+→).
-- The website's front page is always dark, like the program and its screenshots: `layout.tsx` leaves the light theme
-  off before the first paint at `/` for a visitor who is not signed in (`html.fd-dark-only`), `DarkOnly` in
-  `landing/nav.tsx` holds it and gives the visitor's own choice back on the next page, and the front page's bar has
-  no theme button. Every other page, signed in or not, keeps Light, Dark and Auto.
+- The website is dark until someone signs in, and its public pages (the front page, Help, Download, the legal pages)
+  always: `layout.tsx` sets `html.fd-dark-only` before the first paint for a visitor who is not signed in and on the
+  public paths, the public pages' bar (`landing/nav.tsx`) holds it and has no theme button, and Light, Dark and Auto
+  live only in the signed-in workspace (`ThemeToggle` in `app-shell.tsx` clears it on arrival).
+- The front page's words sit centred above the stage again, as in the owner's mockup (no side column); the headline
+  scales with the window's height so the whole stage and its chapter row fit on a laptop screen.
+- Help pictures recaptured from the current website and program (`tests/visual/help-shots.mjs`; the website half
+  needs a build against the stand-in workspace: `NEXT_PUBLIC_SUPABASE_URL=https://x.supabase.co
+  NEXT_PUBLIC_SUPABASE_ANON_KEY=stub npm run build`).
 
 ## [26.11.2] - 2026-11-06
 

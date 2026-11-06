@@ -35,6 +35,10 @@ export function ThemeToggle() {
   const [choice, setChoice] = useState<Choice>("auto");
 
   useEffect(() => {
+    // 26.11.2 the button lives only in the signed-in workspace (app-shell.tsx): arriving there, from a public page or
+    // the sign-in page (always dark), the visitor's own choice comes back
+    document.documentElement.classList.remove("fd-dark-only");
+    apply(read());
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setChoice(read());
     const media = matchMedia("(prefers-color-scheme: light)");

@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Download, Quote, ShieldCheck, Smartphone, Users } from "lucide-react";
 
-import { DarkOnly, LandingNav } from "@/components/landing/nav";
+import { LandingNav } from "@/components/landing/nav";
 import { Keys, Tour, type TourChapter } from "@/components/landing/tour";
 import { FlourishLater } from "@/components/landing/flourish-later";
 import { SiteFooter } from "@/components/site-footer";
@@ -160,8 +160,7 @@ export function Landing() {
   const ctaWords = CTA_TITLE.split(" ");
   return (
     <div className="fd-landing fd-lp">
-      <DarkOnly />
-      <LandingNav theme={false} />
+      <LandingNav />
       <FlourishLater />
 
       <main id="main" tabIndex={-1}>
@@ -176,7 +175,6 @@ export function Landing() {
                 From prayerful preparation to meaningful moments, FrameDecks keeps your entire service seamlessly connected across every screen, every
                 stream, and every member of your team.
               </p>
-              <Actions />
             </>
           }
           chapters={CHAPTERS}
