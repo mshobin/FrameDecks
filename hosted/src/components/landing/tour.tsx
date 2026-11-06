@@ -374,6 +374,11 @@ export function Tour({ intro, chapters }: Readonly<{ intro: ReactNode; chapters:
 
         <div className="tr-fit" ref={fit}>
           <div className="tr-stage is-frame is-decks is-items is-studio is-done" ref={stage} data-ch="0">
+            <div className="tr-glows" aria-hidden="true">
+              {labels.map((l) => (
+                <i key={l} />
+              ))}
+            </div>
             {/* the real Studio stays behind every chapter, quieter once the program moves on */}
             <div className="tr-base">
               <Image src="/product/studio.webp" alt="The FrameDecks Studio: Frames and Decks on the left, the live preview, and the question cards under it" width={1200} height={480} priority unoptimized />

@@ -171,16 +171,58 @@
   left: 0;
   width: 1000px;
   height: 620px;
-  overflow: hidden;
-  border-radius: 22px;
-  background: radial-gradient(70% 80% at 50% 0%, #1a2550, transparent 70%), var(--tr-bg);
   color: var(--tr-ink);
   font-family: var(--font);
-  box-shadow:
-    0 0 0 1px var(--tr-soft),
-    0 50px 120px -40px rgba(227, 183, 90, 0.22),
-    0 40px 80px -40px rgba(0, 0, 0, 0.7);
   transform-origin: 0 0;
+}
+
+/* no frame (owner, 6 November): the build and the screens float on the page itself, in a soft light that takes the
+   colour of each chapter (one gradient per chapter, only its opacity changes) */
+.tr-glows {
+  position: absolute;
+  inset: -220px -320px;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.tr-glows i {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  background: radial-gradient(42% 46% at 50% 52%, var(--g), transparent 72%);
+}
+
+.tr-glows i:nth-child(1) {
+  --g: rgba(232, 185, 49, 0.16);
+}
+
+.tr-glows i:nth-child(2) {
+  --g: rgba(155, 127, 214, 0.2);
+}
+
+.tr-glows i:nth-child(3) {
+  --g: rgba(227, 183, 90, 0.14);
+}
+
+.tr-glows i:nth-child(4) {
+  --g: rgba(195, 166, 255, 0.18);
+}
+
+.tr-glows i:nth-child(5) {
+  --g: rgba(52, 209, 124, 0.13);
+}
+
+.tr-glows i:nth-child(6) {
+  --g: rgba(143, 179, 255, 0.18);
+}
+
+.tr-stage[data-ch="0"] .tr-glows i:nth-child(1),
+.tr-stage[data-ch="1"] .tr-glows i:nth-child(2),
+.tr-stage[data-ch="2"] .tr-glows i:nth-child(3),
+.tr-stage[data-ch="3"] .tr-glows i:nth-child(4),
+.tr-stage[data-ch="4"] .tr-glows i:nth-child(5),
+.tr-stage[data-ch="5"] .tr-glows i:nth-child(6) {
+  opacity: 1;
 }
 
 .tr-stage kbd {
@@ -211,6 +253,12 @@
   display: block;
   width: 100%;
   height: 100%;
+}
+
+.tr-base img {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  box-shadow: 0 40px 90px -30px rgba(0, 0, 0, 0.8);
 }
 
 .is-studio .tr-base {
@@ -786,6 +834,10 @@ html:not(.fd-calm) .tr-stage:not([data-ready]) :is(.tr-build > *, .tr-base) {
       opacity: 0;
       transform: scale(2.2);
     }
+  }
+
+  html.fd-motion:not(.fd-calm) .tr-glows i {
+    transition: opacity 0.9s var(--ease-out);
   }
 
   html.fd-motion:not(.fd-calm) .tr-tp-text {

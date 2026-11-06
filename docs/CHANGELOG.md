@@ -30,6 +30,9 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
   always: `layout.tsx` sets `html.fd-dark-only` before the first paint for a visitor who is not signed in and on the
   public paths, the public pages' bar (`landing/nav.tsx`) holds it and has no theme button, and Light, Dark and Auto
   live only in the signed-in workspace (`ThemeToggle` in `app-shell.tsx` clears it on arrival).
+- The front page's stage has no frame any more: the build, the Studio and each screen float on the page itself, each
+  with its own soft shadow, in a soft light that takes the colour of the chapter (`.tr-glows`, one gradient per
+  chapter, only its opacity changes).
 - The front page's words sit centred above the stage again, as in the owner's mockup (no side column); the headline
   scales with the window's height so the whole stage and its chapter row fit on a laptop screen.
 - Help pictures recaptured from the current website and program (`tests/visual/help-shots.mjs`; the website half

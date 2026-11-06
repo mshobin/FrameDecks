@@ -135,7 +135,8 @@ numbers. **Every picture of the program is a real screenshot** (`tools/make_prod
      pages always** (`html.fd-dark-only`, set before the first paint in `layout.tsx`, held by this bar), so the bar
      has no theme button; Light, Dark and Auto live only in the signed-in workspace.
   2. `landing/tour.tsx`, the stage (as in the owner's mockup: the words centred above, the product below, one idea
-     per screen). The words are the headline and paragraph, then one chapter each.
+     per screen). The words are the headline and paragraph, then one chapter each. The stage has no frame: the build
+     and the screens float on the page in a soft light coloured by the chapter.
      The stage (1000 × 620, scaled) is the app's own dark colours in both themes. On arrival, with no scrolling, a
      meeting builds itself in about five seconds: the Frame (gold) types its name, lines grow to its Decks (blue) and
      their Content (violet), then each card flies to its place in the real Studio screenshot (one transform each) and
