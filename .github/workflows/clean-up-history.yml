@@ -1,0 +1,117 @@
+# 26.11 clean-up (run once, by hand, after the 26.11 release is published): keeps only the current release and removes
+# everything from before the YY.MM version numbers:
+#   * every GitHub Release and v* tag except the current version's (APP_VERSION in src/server.py);
+#   * every workflow run except the latest run of each workflow (and this one), with their logs and artifacts;
+#   * every 4.9 to 9.13 installer on downloads.framedecks.com (R2: releases/<old version>/).
+# It refuses to start unless the current version's release is published, its manifest is the one downloads.framedecks.com
+# serves as the latest, and "DELETE" is typed below. Nothing here can be undone; the old release notes and changelog
+# stay in docs/archive/. The workflow files themselves are kept: they build, test and publish every release.
+name: Clean up old releases (once)
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type DELETE to remove every old release, tag, workflow run and old installer'
+        required: true
+        default: ""
+
+permissions:
+  contents: write     # delete releases and tags
+  actions: write      # delete workflow runs
+
+concurrency:
+  group: publish-releases       # never while a release is being published (build-windows.yml uses the same group)
+
+jobs:
+  clean:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      GH_TOKEN: ${{ github.token }}
+      REPO: ${{ github.repository }}
+      CONFIRM: ${{ inputs.confirm }}
+      R2_ON: ${{ secrets.R2_ACCESS_KEY_ID != '' && vars.R2_ACCOUNT_ID != '' }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: auto
+      R2: https://${{ vars.R2_ACCOUNT_ID }}.r2.cloudflarestorage.com
+      BUCKET: ${{ vars.R2_BUCKET || 'framedecks-downloads' }}
+      AWS_REQUEST_CHECKSUM_CALCULATION: when_required
+      AWS_RESPONSE_CHECKSUM_VALIDATION: when_required
+    steps:
+      - name: Get the code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Check before anything is removed
+        id: keep
+        run: |
+          set -euo pipefail
+          if [ "$CONFIRM" != "DELETE" ]; then echo "::error::Type DELETE to run the clean-up. Nothing was removed."; exit 1; fi
+          version=$(python3 packaging/get_version.py)
+          case "$version" in [2-9][0-9].*) ;; *) echo "::error::$version is not a YY.MM version. Nothing was removed."; exit 1;; esac
+          keep="v$version"
+          state=$(gh release view "$keep" --repo "$REPO" --json isDraft,assets -q '[.isDraft, (.assets | length)] | @tsv')
+          if [ "$(echo "$state" | cut -f1)" != "false" ] || [ "$(echo "$state" | cut -f2)" -lt 1 ]; then
+            echo "::error::The $keep release is not published with its installer yet. Nothing was removed."; exit 1
+          fi
+          if [ "$R2_ON" = "true" ]; then
+            aws s3 cp "s3://${BUCKET}/releases/index.json" index.json --endpoint-url "$R2" --only-show-errors
+            latest=$(python3 -c "import json;print(json.load(open('index.json'))['latest'])")
+            if [ "$latest" != "$version" ]; then
+              echo "::error::downloads.framedecks.com still offers $latest as the latest, not $version. Nothing was removed."; exit 1
+            fi
+          fi
+          echo "keep=$keep" >> "$GITHUB_OUTPUT"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "Keeping $keep. Everything older goes." | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - name: Remove the old GitHub Releases and tags
+        env:
+          KEEP: ${{ steps.keep.outputs.keep }}
+        run: |
+          set -uo pipefail
+          n=0
+          for tag in $(gh release list --repo "$REPO" --limit 1000 --json tagName -q '.[].tagName'); do
+            [ "$tag" = "$KEEP" ] && continue
+            gh release delete "$tag" --repo "$REPO" --yes --cleanup-tag && n=$((n+1))
+          done
+          t=0
+          for ref in $(gh api --paginate "repos/$REPO/git/matching-refs/tags/v" -q '.[].ref'); do
+            [ "$ref" = "refs/tags/$KEEP" ] && continue
+            gh api -X DELETE "repos/$REPO/git/${ref}" && t=$((t+1))
+          done
+          echo "- Releases removed: $n; other tags removed: $t" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Remove old workflow runs (the latest run of each workflow stays)
+        run: |
+          set -uo pipefail
+          gh api --paginate "repos/$REPO/actions/runs?per_page=100" -q '.workflow_runs[] | [.id, .workflow_id, .status] | @tsv' > runs.tsv
+          n=0; seen=" "
+          while IFS=$'\t' read -r id wf status; do
+            [ "$id" = "$GITHUB_RUN_ID" ] && continue
+            case "$seen" in *" $wf "*) ;; *) seen="$seen$wf "; continue;; esac        # newest first: keep the first of each
+            [ "$status" = "completed" ] || continue
+            gh api -X DELETE "repos/$REPO/actions/runs/$id" > /dev/null 2>&1 && n=$((n+1))
+          done < runs.tsv
+          echo "- Workflow runs removed: $n (with their logs and artifacts)" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Remove the old installers from downloads.framedecks.com
+        if: env.R2_ON == 'true'
+        run: |
+          set -euo pipefail
+          n=0
+          for prefix in $(aws s3 ls "s3://${BUCKET}/releases/" --endpoint-url "$R2" | awk '/PRE/ {print $2}'); do
+            v="${prefix%/}"
+            major="${v%%.*}"
+            case "$major" in ''|*[!0-9]*) continue;; esac
+            if [ "$major" -lt 20 ]; then
+              aws s3 rm "s3://${BUCKET}/releases/${v}/" --recursive --endpoint-url "$R2" --only-show-errors && n=$((n+1))
+            fi
+          done
+          echo "- Old versions removed from downloads.framedecks.com: $n" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Say what was not done (R2 not set up)
+        if: env.R2_ON != 'true'
+        run: echo "::warning::R2 is not set up, so the old installers on downloads.framedecks.com were not touched."

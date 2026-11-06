@@ -5,14 +5,15 @@ FrameDecks keeps two records of every release:
 | Record | Audience | Where |
 | --- | --- | --- |
 | **Changelog** | Everyone: a short, scannable list of changes across all versions. | [`CHANGELOG.md`](../CHANGELOG.md) |
-| **Release notes** | Volunteers installing one version: what is new, how to use it, what to watch out for. Published as the GitHub Release text. | `docs/releases/vX.Y.md` |
+| **Release notes** | Volunteers installing one version: what is new, how to use it, what to watch out for. Published as the GitHub Release text. | `docs/releases/vYY.MM.md` |
 
 ## CHANGELOG.md
 
 The changelog follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-- Newest version first. An **Unreleased** section at the top collects changes merged since the last release.
-- Each version is a heading `## [X.Y] - YYYY-MM-DD` followed by a link to its release notes.
+- Newest version first. Versions before 26.11 are in [docs/archive/changelog-before-26.11.md](../archive/changelog-before-26.11.md).
+- An **Unreleased** section at the top collects changes merged since the last release.
+- Each version is a heading `## [YY.MM] - YYYY-MM-DD` (versions are YY.MM, see [release-process.md](release-process.md#version-numbers)) followed by a link to its release notes.
 - Group entries under these headings, in this order, and leave out empty ones:
 
 | Heading | Use for |
@@ -35,14 +36,14 @@ The changelog follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - **Be honest about limits.** If something needs PowerPoint installed, or works only on Windows, say so.
 - **Never include personal data** (church names, member names) in examples.
 
-## Release notes (`docs/releases/vX.Y.md`)
+## Release notes (`docs/releases/vYY.MM.md`)
 
 Use this shape:
 
 ```markdown
-## FrameDecks vX.Y
+## FrameDecks vYY.MM
 
-Download **FrameDecks vX.Y.exe** below and run it. It installs over earlier versions and keeps all your data.
+Download **FrameDecks vYY.MM.exe** below and run it. It installs over earlier versions and keeps all your data.
 (Any action needed before installing, for example closing Zoom.)
 
 ### <First headline feature>
@@ -59,4 +60,4 @@ Download **FrameDecks vX.Y.exe** below and run it. It installs over earlier vers
 - …
 ```
 
-The file name must be exactly `docs/releases/vX.Y.md`; the release workflow publishes it as the release text.
+The file name must be exactly `docs/releases/vYY.MM.md`; the release workflow publishes it as the release text.

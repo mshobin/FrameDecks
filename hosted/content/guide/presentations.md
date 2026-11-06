@@ -113,7 +113,7 @@ A Frame with a Question or Scripture list shows one item at a time.
 | One-off override | The command bar's transition list (**Frame default**) | Uses another transition for your next takes, until you set it back to **Frame default** |
 | A card's own animation | Question / Scripture Content → **Animation** | How the card itself appears, for example Fade, Gentle rise, Word by word, Typewriter |
 
-Since 8.2 there is one transition for each effect. Frames that used an older choice are moved for you: Cross
+There is one transition for each effect. Frames that used an older choice are moved for you: Cross
 Dissolve, Cinema Fade and Church Service Fade become **Fade**, Slide Right becomes **Slide**, and Soft Scale becomes
 **Zoom**.
 
@@ -135,7 +135,7 @@ its look in **Settings → Transitions → Burst**:
 | **Hide Content** | — | The selected Content is hidden | One item should go away, the rest stays |
 
 Black screen, Freeze, Emergency and Hide the selected Content are in the **Control** chip of the top bar; Draw and
-Spotlight are in **Engage**, and the Teleprompter in **Prepare** (9.13: the chips replace the old Live tools menu).
+Spotlight are in **Engage**, and the Teleprompter in **Prepare** (the chips replace the old Live tools menu).
 **Go Live**, **◀ Previous**, **Next ▶** and **Hide all** are always in the top bar. The Control chip changes to
 **Black screen on**, **Emergency on** or **Frozen**, and Engage turns gold while you draw, so you never forget one is
 on. Press the same control again to turn it off.
@@ -173,11 +173,11 @@ You can also draw with your finger on the phone. See [Remote control](remote-con
 
 ### Spotlight a word
 
-**Spotlight** points people to one word. Choose the Spotlight tool (**S**): nothing follows the mouse (9.12.1), so
+**Spotlight** points people to one word. Choose the Spotlight tool (**S**): nothing follows the mouse, so
 you can move freely. **Double-click a word**, or put the mouse over it and press **Ctrl twice**, and a soft
 see-through disc lands on it with a ripple and breathes gently while it stays. Then it blooms open into light, a last
 ripple runs out and a few fine sparks drift away. Do it again on the next word whenever you like. Double-click empty
-space to spotlight that point instead. Prefer the 8.2 look? Choose **Gold ring**: a glowing gold circle that pulses,
+space to spotlight that point instead. Prefer a ring? Choose **Gold ring**: a glowing gold circle that pulses,
 then opens out with a few sparks.
 
 Quicker still: press **Ctrl** twice quickly with the pointer over the picture on the Studio Canvas. This works even
@@ -185,7 +185,7 @@ when you are not annotating.
 
 Everyone sees it: on the FrameDecks vCam in Zoom or Teams, in recordings and on the overlay pages. While the
 Spotlight tool is chosen, its panel sets the style (**Soft disc** or **Gold ring**), the **colour** (white by default
-for the disc), **Size** (bigger by default since 8.7), **Length** (1 to 15 seconds) and **Strength** (how see-through
+for the disc), **Size** (bigger by default), **Length** (1 to 15 seconds) and **Strength** (how see-through
 the disc is). The same settings are in **Settings → Transitions → Spotlight (Ctrl twice)**. **Try it** shows one in
 the middle of the picture.
 
@@ -212,7 +212,7 @@ In the Teleprompter itself:
 - **⇪ Upload** loads a script from a .txt, .md or Word (.docx) file. Word headings, bullets and bold are kept. If
   there is already a script, FrameDecks asks before it replaces it.
 
-A script can be up to 20,000 characters. In 6.6 the Frame's script was called *Leader notes*. Simple markup, all
+A script can be up to 20,000 characters. Simple markup, all
 optional:
 
 | Type | You get |
@@ -241,7 +241,7 @@ screen. Before you go live, it shows the first Frame, so you can rehearse.
 All the controls are in the top bar. The script area shows only your script: no buttons, labels or overlays. The
 text fills the whole window, in width and height, at every text size.
 
-The top bar is hidden at first. A small arrow (**▾**) at the top always shows that it is there (8.6). Point at the
+The top bar is hidden at first. A small arrow (**▾**) at the top always shows that it is there. Point at the
 arrow or the top edge and the bar slides down, with the arrow riding under it; choose the arrow to keep the bar open,
 and again to hide it. Its first row shows:
 - **Time**: the time of day;
@@ -264,6 +264,7 @@ The second row holds the script controls:
 | Control | Key (while the Teleprompter has focus) |
 | --- | --- |
 | **▶ Scroll**: play / pause | **Space** |
+| **Follow my voice**: the script moves as you speak (see below) | **V** |
 | Speed: Very slow, Slow, Normal, Fast, Very fast | — |
 | Text smaller / larger (**A−** / **A+**) | **−** / **+** |
 | Line spacing, high contrast | — |
@@ -273,16 +274,30 @@ The second row holds the script controls:
 | Back to the top | **Home** |
 | Scroll by hand | **↑ ↓**, **Page Up / Page Down**, the mouse wheel or touch |
 
+**Follow my voice**
+
+Instead of scrolling at a set speed, the Teleprompter can follow you as you speak. Choose **Follow my voice** (or
+press **V**) and read: the words you have read go quieter and the next words stay at the reading line, about a third
+of the way down. Speak at your own pace; pause, slow down or go back over a line, and it waits for you.
+
+- **Only while it is pinned.** It listens only in the installed app, and only while the Teleprompter is **Pinned**
+  above every other window. Unpin it, hide it or close it and the microphone is let go at once; pin it again and it
+  carries on.
+- **Off script.** Talk freely (a welcome, a question from the room): the script holds still and carries on when you
+  come back to the words. Scroll by hand at any time, and it carries on from there.
+- **One at a time.** **▶ Scroll** and **Follow my voice** take turns: choosing one stops the other.
+- **Microphone and sensitivity.** The button beside it chooses the microphone (the one you use in Zoom or Teams is
+  fine; both can use it at once) and the sensitivity. Lower it if other voices or noise move the script; raise it
+  for a soft voice.
+- **The first time** it downloads the voice files once (about 53 MB) and keeps them on this PC. **Remove the voice
+  files** (beside the microphone) frees the space; they download again the next time you turn it on.
+- **Private.** Everything happens on this PC. Nothing you say is recorded, kept or sent anywhere.
+- **Light on older PCs.** It runs only while it is on, in the background at low priority, and recognises only the
+  words of your script. It needs about 350 MB of free memory, and says so if the PC has less.
+- English scripts. Names and unusual words it does not know are skipped; the words around them keep it on track.
+
 > **Note:** In a web browser (not the installed app), the Teleprompter opens as a pop-up and cannot stay on top or
 > be kept out of screen sharing.
-
-> **Note:** Version 8.0 has one Teleprompter. The Teleprompter docked in the Studio (left, right, bottom or
-> floating), the separate *Teleprompter overlay* with its frosted glass, **Shift+R**, and the old Teleprompter
-> window's **On screen & next** panel were removed. Since 8.1, transparency and pin are in the Teleprompter's top bar.
-> Since 8.2, every control is in the top bar; the small toolbar that floated over the script is gone.
-
-> **Note:** Answers and presenter notes on questions and scriptures were removed in 6.7. Nothing was deleted from
-> your data. Put what you want to remember in the Frame's Teleprompter script.
 
 On the phone, the Teleprompter is on the remote too. See [Remote control](remote-control.md#teleprompter-on-the-phone).
 
@@ -340,13 +355,11 @@ Messages or any app on the phone, paste it there and tap **Show on screen**. See
 > **Note:** Capturing copies on the PC needs the installed app on Windows. Elsewhere, type a note in the pane or
 > paste on the phone.
 
-> **Note:** 9.0 replaced the Audience Dock of 8.8 and 8.9 with Memory Cards; 9.1 shows them as bubbles only.
-
 ## Command palette
 
 The **command palette** finds anything and does most things, from the keyboard.
 
-1. Press **Ctrl+K** or **Ctrl+Space**. (Since 6.9 the command bar has no search box: the palette and the **Command Center**
+1. Press **Ctrl+K** or **Ctrl+Space**. (The command bar has no search box: the palette and the **Command Center**
    are where you search.)
 2. Type a few letters. It finds Frames, Content, the Frames' questions and scriptures, text, templates, the Library,
    branding, settings, members, Bible references and recent items.
@@ -362,7 +375,7 @@ You can change the keys in **Settings → Keyboard shortcuts → Command palette
 
 The **Command Center** is where everything in FrameDecks starts. It works when another program is in front, and when
 FrameDecks is hidden in the tray. It has no window around it: a glass search bar floats on your screen with a tray of
-five chips folded away under it, behind a small arrow (9.11), as the Teleprompter's top bar is.
+five chips folded away under it, behind a small arrow, as the Teleprompter's top bar is.
 
 1. Press **Alt+Space** anywhere. It opens near the top of the screen your mouse is on, above everything. It opens only
    with its shortcut (or the tray's **Command Center**), never by itself.
@@ -382,10 +395,10 @@ five chips folded away under it, behind a small arrow (9.11), as the Teleprompte
 | **Notes** | Your private notes for this meeting (below) |
 | **More** | Workspace Sync, How people see it, Phone remote, Meeting & Branding, Shortcuts, All settings, Help & tour |
 
-Each thing is in one chip only (9.12): Draw, Spotlight and Clear drawings are in **Engage**; the Studio, the
+Each thing is in one chip only: Draw, Spotlight and Clear drawings are in **Engage**; the Studio, the
 Teleprompter, the Share Window and the camera check in **Prepare**; the phone remote in **More**.
 
-**Size and place (9.12).** In **Settings → Controls → General → Window and tray** choose **Command Center size**
+**Size and place.** In **Settings → Controls → General → Window and tray** choose **Command Center size**
 (**Regular**, or **Compact**: slim chips in one row and a narrower bar) and **Command Center opens at** (**Top**,
 **Centre** or **Bottom** of the screen). At the bottom it stacks upwards: the search bar sits at the bottom, the
 chips above it, and the panels open above the chips.
@@ -418,7 +431,7 @@ share the whole screen in Zoom, Teams or Google Meet.
 | **On screen** | Live, Off air, Black screen or Frozen, the Frame number and what comes next |
 | **FrameDecks** | **Previous** (Alt+←), **Next Frame** (Alt+→), **Play / Pause** the video (Alt+P), **Hide all** (Alt+H), **Black** (Alt+B) |
 | **Content** | The questions, scriptures or slides of the live Frame, one at a time, like the phone remote: choose **Questions**, **Scriptures** or **Slides**, then **‹ ›** (Alt+↑ / Alt+↓) |
-| **Draw and Spotlight** | In **Engage** (9.12); **Alt+L** (Spotlight) and **Alt+D** (Draw) still work here |
+| **Draw and Spotlight** | In **Engage**; **Alt+L** (Spotlight) and **Alt+D** (Draw) still work here |
 | **Meeting** | Zoom, Microsoft Teams or Google Meet, whichever has a meeting open: **Mute** (Alt+M), **Camera** (Alt+V), **Share screen** (Alt+S), **Leave** (press twice), and the PC's volume (Alt+- / Alt+=) |
 
 The meeting buttons press the meeting app's own keyboard shortcut in its window, then give the focus back to the
@@ -427,7 +440,7 @@ also off when no meeting is open. Windows only.
 
 ### Draw and Spotlight on the Share Window
 
-Choose **Draw** or **Spotlight** in the Command Center (in **Engage**, with **Alt+D** or **Alt+L**, or type *draw* or *spotlight* in its bar), or in the **Engage** chip of the Studio's top bar (9.13). The **Share Window**
+Choose **Draw** or **Spotlight** in the Command Center (in **Engage**, with **Alt+D** or **Alt+L**, or type *draw* or *spotlight* in its bar), or in the **Engage** chip of the Studio's top bar. The **Share Window**
 (the window you share in Zoom or Teams) opens, comes to the front, and the Command Center closes, so you can work on what everyone
 sees:
 

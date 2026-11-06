@@ -248,7 +248,7 @@ export function MeetingBar({
         </form>
       )}
       {canEdit && !supported && list.length < 2 && (
-        <p className="workspace-hint">More than one meeting needs a small database update first: the workspace owner runs 0012_meetings.sql in Supabase (see the 8.5 release notes).</p>
+        <p className="workspace-hint">More than one meeting needs a small database update first: the workspace owner runs 0012_meetings.sql in Supabase (docs/deployment, migration 0012).</p>
       )}
     </nav>
   );

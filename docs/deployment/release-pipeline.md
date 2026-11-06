@@ -135,7 +135,7 @@ Python 3 and PyYAML, takes about a minute and ends with `release pipeline: ok`. 
    and passes `python tools/make_release_notes.py --check`. Write the notes for users: they are shown on the download
    page and in the program, and the manifest tool refuses any line naming a repository path.
 2. Tag it, **one version at a time**, with the tag equal to `v` + `APP_VERSION`:
-   `git tag v9.13.0 && git push origin v9.13.0`. (A GitHub Release created in the web page with a new tag works too.)
+   `git tag v26.11 && git push origin v26.11`. (A GitHub Release created in the web page with a new tag works too.)
 3. The workflow builds and tests on Windows, keeps a private copy on the repository's Releases page, then the `publish`
    job uploads the version's files, `index.json`, and finally `latest.json`. Until `latest.json` is replaced, nobody
    sees the new version, so a failed upload half-way changes nothing for users.
@@ -162,13 +162,13 @@ Version tags run one at a time (`concurrency: publish-releases`), so two publish
 is read from R2 itself, not the five-minute-cached public address; `previous` is always the next lower version and the
 index is sorted newest first, whatever order versions were published in.
 
-To fix a published release, bump the version (9.13.0 → 9.13.1) and tag that; never delete and re-upload a version.
+To fix a published release, bump the version (26.11 → 26.11.1) and tag that; never delete and re-upload a version.
 
 Check after a release:
 
 ```bash
 curl -s https://api.framedecks.com/releases/latest | python3 -m json.tool | head
-curl -sL https://downloads.framedecks.com/releases/9.13.0/FrameDecks-9.13.0-Setup.exe.sha256
+curl -sL https://downloads.framedecks.com/releases/26.11/FrameDecks-26.11-Setup.exe.sha256
 ```
 
 ## How the program updates (integrity and safety)
@@ -232,6 +232,24 @@ published before signing started is unsigned, so programs that trust a key ignor
 back to a signed version, or release a fixed one.) PCs that already
 installed the bad version are not downgraded automatically; release a fixed version with a higher number (the usual
 route), or tell people to use Settings → About → Reinstall the previous version.
+
+## Voice files for Follow my voice (26.11)
+
+The Teleprompter's **Follow my voice** downloads two files the first time it is turned on: the Vosk speech engine for
+Windows and the small English model. Both are pinned by size and SHA-256 in `src/voice_files.json`. The program asks
+`downloads.framedecks.com/voice/` first and the address where each is published second, and uses a file only when it
+matches. **Voice files** (`.github/workflows/voice-files.yml`, run by hand from the Actions tab) checks both, runs the
+real engine on spoken test audio (`tools/voice_e2e.py`) and, with **upload** ticked, copies them to R2 under `voice/`.
+Run it again whenever `src/voice_files.json` changes.
+
+## The one-time clean-up (26.11)
+
+Versions became YY.MM with 26.11, and the first YY.MM release starts a fresh release index: its manifest and
+`releases/index.json` list only YY.MM releases. After 26.11 is published, run **Clean up old releases (once)**
+(`.github/workflows/clean-up-history.yml`) from the Actions tab on `main` and type `DELETE`. It checks that the 26.11
+release is published and is the latest on downloads.framedecks.com, then removes every older GitHub Release and `v*`
+tag, every workflow run except the latest of each workflow, and the `releases/<4.9 to 9.13>/` folders in R2. It cannot
+be undone; the old notes stay in `docs/releases/archive/` and `docs/archive/`.
 
 ## Later
 

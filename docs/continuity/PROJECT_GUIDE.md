@@ -191,8 +191,8 @@ Read this first, then [NEXT_SESSION.md](NEXT_SESSION.md).
 - Actions (27 October): checkout v7, setup-python v7, setup-msbuild v3, download-artifact v8, action-gh-release v3; the
   last two run only in the release job, so watch the next tag's release job.
 - Releases: [release-checklist.md](../development/release-checklist.md) (pilot first; rollback). Publish by
-  pushing a tag `vX.Y.Z` on `main`: "Build Windows installer" builds, smoke-tests and publishes `FrameDecks vX.Y.Z.exe` with
-  `docs/releases/vX.Y.Z.md` as the notes (`tools/make_release_notes.py`). Push the tag from a local clone.
+  pushing a tag `vYY.MM` (or `vYY.MM.N`) on `main`: "Build Windows installer" builds, smoke-tests and publishes `FrameDecks vYY.MM.exe` with
+  `docs/releases/vYY.MM.md` as the notes (`tools/make_release_notes.py`). Push the tag from a local clone.
 
 ## Gotchas
 - Moving code changes two layouts, not one: from source `src/vcam/` sits under `src/`, but the installer bundles it as

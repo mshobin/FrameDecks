@@ -175,10 +175,11 @@ class ReleaseTool(unittest.TestCase):
 
     def test_published_manifests_are_signed(self):
         d = Path(tempfile.mkdtemp())
-        inst = d / "FrameDecks v9.1.2.exe"
+        v = mrm.app_version()                     # 26.11: the notes of this version (the older ones are archived)
+        inst = d / f"FrameDecks v{v}.exe"
         inst.write_bytes(b"installer")
-        m = mrm.build(inst, d / "out", "9.1.2", "2026-11-04", None, False, key=SECRET)
-        for f in (d / "out" / "releases" / "latest.json", d / "out" / "releases" / "9.1.2" / "manifest.json"):
+        m = mrm.build(inst, d / "out", v, "2026-11-04", None, False, key=SECRET)
+        for f in (d / "out" / "releases" / "latest.json", d / "out" / "releases" / v / "manifest.json"):
             self.assertTrue(manifest_sig.verify(json.loads(f.read_text()), TRUSTED), f.name)
         self.assertEqual(m["signature"]["key"], next(iter(TRUSTED)))
 

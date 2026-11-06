@@ -1,0 +1,1329 @@
+# FrameDecks changelog before 26.11
+
+Internal history: every change before the version numbers became YY.MM (26.11). The full notes of each of
+these releases are in [release-notes-before-26.11.md](../releases/archive/release-notes-before-26.11.md).
+
+## [Unreleased]
+
+### Security (website and database)
+- Migration `0013_protect_owner.sql` (audit H5): an admin can no longer demote or remove a team's owner, nobody changes
+  an owner's membership through the website, a membership cannot be moved to another person or team, only the owner
+  changes roles, and only the owner adds someone directly (everyone else joins by invitation). The website's own
+  membership writes (Can run services, removing a member, leaving) are unchanged. Rollback:
+  `hosted/supabase/rollback/0013_protect_owner_down.sql`; tests: `hosted/tests/supabase-owner.test.mjs`. Run it once in
+  the Supabase SQL editor.
+
+### Added
+- The program can take commands from the FrameDecks companion (Next/Previous Frame, Go Live, Hide all, black screen,
+  question, scripture) and run them exactly as the keys do, showing "‹action› · from ‹person›" on the PC. Off by
+  default and only for a linked PC: Settings → FrameDecks account → "Allow control from the companion", with the
+  last ten actions. The Wi-Fi phone remote is unchanged.
+- Companion: **Live** page to run a service from a phone (Previous / Next, Go Live on any Frame, Hide all, Black
+  screen, question and scripture, the Teleprompter script, whether the PC is online), and a "Can run services"
+  checkbox for members. Needs `0004_remote.sql` and `0005_remote_live.sql` run in Supabase.
+- Settings → **FrameDecks account**: link this PC to a workspace in the FrameDecks companion with a short code, and
+  its service plans, Teleprompter scripts and member list sync in the background (pictures, videos, what is live and
+  the phone remote PIN stay on the PC). Optional and off until linked; services always run from the PC, online or
+  not.
+- Companion: **History** on each Frame of the Services page (the last 30 days: who changed what, and when). Owners and
+  admins can restore an earlier version, and bring back a Frame deleted in the last 30 days.
+- Companion: owners and admins can **edit services** on the Services page: a Frame's name, group, Teleprompter
+  script, questions and scripture, and the order of Frames. The service PC picks changes up within about a minute; a
+  Frame that is on screen is changed only when it leaves the screen; if the PC changed the same Frame meanwhile, the
+  companion shows the latest version with your changes kept and asks you to save again.
+- Companion: **Services** (the synced plan, view only: Frames, Content, scripts; pictures and videos named, never
+  uploaded), **Members** (owners and admins only) and **Computers** (link a PC with its code, see and disconnect
+  linked PCs). Needs `0003_sync.sql` run in Supabase; until then the pages say so.
+- Hosted companion: sign-in with an emailed link (and Google or Microsoft once they are switched on in Supabase),
+  a sign-in return page and a top-bar account button. The desktop app is unchanged.
+- Hosted companion: signed-in people can set a display name and create their church's workspace (they become its
+  owner) and see the workspaces they belong to, with their role.
+- Hosted companion: workspace members and invitations. Owners and admins invite people by email (as Member or
+  Admin); the invited person sees "You're invited" after signing in and joins with one click. Needs
+  `hosted/supabase/migrations/0002_invitations.sql` run in Supabase.
+
+### Changed
+- Updated the FrameDecks logo and tagline across the desktop app, phone remote, PWA icons, favicons, workbook,
+  Windows installer, and marketing header. Presentation workflows are unchanged.
+- The favicons, the tray icon and the small program-icon sizes (16–32 px) use a heavier version of the emblem, so it
+  stays visible on light browser tabs and a light taskbar. Larger sizes are unchanged.
+
+## [9.13.0] - 2026-11-05
+
+Full notes: [docs/releases/v9.13.0.md](../releases/archive/release-notes-before-26.11.md).
+
+### Added
+- One definition of the five chips and their actions, `app/js/chips.js` (`window.KCChips`: `list`, `all`, `actions(chip,
+  where)`; each action's `on` names where it shows: `cc`, `app`, `phone`). The Command Center (`command-center.js`),
+  the Studio's top bar (`app/js/chip-bar.js`, `#lb-chips`) and the phone remote (`remote.js`) are built from it.
+- One Notes pad for every surface, `app/js/notes-pad.js` + `app/css/notes-pad.css` (`KCNotesPad.create`).
+- Phone notes: `GET/POST /api/remote/notes` (signed-in remote only; `peek=1` returns the count only; POST adds only;
+  `Cache-Control: no-store`). App settings `remoteNotesAdd` (default on) and `remoteNotesRead` (default off), with
+  switches in Settings → Phone & iPad Remote.
+- `KCPresenterTools.spot()`, `.clear()` and `.state()` (`annotate.js`).
+
+### Changed
+- The Studio's **Live tools** menu is replaced by the five chips; its buttons keep their ids (`lb-prompter`,
+  `lb-capture`, `lb-blackout`, `lb-freeze`, `lb-emergency`, `lb-hide-layer`) and move into their chip's panel.
+- Top-bar **Draw** and **Spotlight** open the Share Window in that mode on the desktop app (`api/app/annotate` `mode`);
+  in a browser they work on the Studio's picture.
+- The phone remote's tabs are the chips: Control, Prepare, Engage, Notes, More (old saved tabs map to their chip).
+
+### Removed
+- The Live tools menu (`#lb-prog`) and its styles.
+
+## [9.12.1] - 2026-11-05
+
+Full notes: [docs/releases/v9.12.1.md](../releases/archive/release-notes-before-26.11.md).
+
+### Changed
+- Spotlight on demand: the Spotlight tool no longer drives the follow lens (`api/pointer`) in the Studio
+  (`annotate.js`) or on the Share Window (`present.html`, `vcam/present_window.py`). A double-click (Studio, both
+  Share Windows: WM_LBUTTONDBLCLK) or Ctrl twice lights the word there; one click does nothing. The Share Window asks
+  the main window for the word (`spot: snap` → `DESKTOP.spot_word` → `KCAnnotate.spotAtPicture`, `wordAtStage`) and
+  lights the point when there is none. The phone remote's finger lens is unchanged.
+- The soft disc's exit: `disc-bloom` (a breath in, then open to 1.5x and fade), `disc-wave-out` (a last ripple), and
+  fine sparks (`overlay.js`); the same bloom and ripple on FrameDecks vCam (`vcam/spotlight.py`, DISC_OUT 0.8 s).
+  Reduced motion: no animation.
+
+## [9.12.0] - 2026-11-05
+
+Full notes: [docs/releases/v9.12.0.md](../releases/archive/release-notes-before-26.11.md).
+
+### Added
+- Command Center **Notes** chip (Alt+5, `app/js/command-center.js` Notes): private notes per meeting, stamped with the
+  time and the Frame on screen, shown as a sticky note; Copy all, Save as a file (Markdown), Email to me. Stored in
+  `<data>/notes/<meeting>.json` (`src/meeting_notes.py`); `GET/POST /api/notes` for this PC only; not synced.
+- Command Center size and place: app settings `ccSize` (regular / compact) and `ccPlace` (top / centre / bottom);
+  `desktop_win.spot_y`; at the bottom the page stacks upwards (`cc-bottom`). Settings → Controls → General.
+
+### Changed
+- Settings menu: six groups (`data-sgroup`) with the pages as tabs (`#s-tabs`, moved under the page title); every
+  page keeps its id; group dots follow the pages' dots; Find a setting opens the matching page.
+- One place for each Command Center action: the remote's Live tools and Open-in rows are left out inside the
+  Command Center; More no longer repeats the camera (it is Prepare's Camera check).
+- Help: "Settings → General" is now "Settings → Controls → General".
+
+## [9.11.2] - 2026-11-05
+
+Full notes: [docs/releases/v9.11.2.md](../releases/archive/release-notes-before-26.11.md).
+
+### Added
+- Website finishing touches in `app/flourish.css`, loaded after first paint (`components/landing/flourish-later.tsx`,
+  `next/dynamic` with `ssr: false`; `scripts/check-budget.mjs` holds stylesheets loaded later to 3 KB): the living hero
+  (`.lp-hl-*` overlays, 6 s loop), the closing scene (`.lp-assemble`), the scroll-linked progress line on the showcase
+  stage, the dark-mode gold drift behind the hero, button icon nudges.
+- `tests/motion-rules.test.mjs`: only transform and opacity move, everything behind `prefers-reduced-motion` and
+  `html.fd-motion:not(.fd-calm)`, loops paused unless `[data-live]`, one timing token.
+
+### Changed
+- One transition language: `--t-move: 0.35s` with `--ease-out`; `fd-reveal` rises 8 px (was 34 px with a scale, 0.8–1.1 s).
+- `data-spotlight` on the FAQ items, the closing panel and the download page's cards; `data-loop` on the hero.
+
+## [9.11.1] - 2026-11-05
+
+Full notes: [docs/releases/v9.11.1.md](../releases/archive/release-notes-before-26.11.md).
+
+### Fixed
+- Website: signed in on this browser, the landing bar says **Go to Home** (`landing/nav.tsx`) and `/sync` goes straight
+  to Home or back to a PC's connect request (`workspace-sync-form.tsx`; not after a revoked or expired device).
+
+### Changed
+- Home page: How it works and See it work in one stage (`components/landing/showcase.tsx`): the days hand over to the
+  features and back (`onLoopEnd`), `#how` / `#features` pick the part, both parts stay in the page for search; steps
+  3 s and 3.5 s (were 4 s and 5 s), no blur between screens. About a screen shorter.
+
+## [9.11.0] - 2026-11-05
+
+Full notes: [docs/releases/v9.11.0.md](../releases/archive/release-notes-before-26.11.md). Design: [docs/architecture/live-push.md](../architecture/live-push.md).
+
+### Added
+- Live push ("the doorbell"): migration `0016_live_push.sql` (switch `live_push`, `workspace_bells`, `computer_hello`,
+  `remote_watch`, `live_computers`, ring triggers, Realtime Authorization policy on `realtime.messages`; rollback
+  `0016_live_push_down.sql`; tests `hosted/tests/supabase-live-push.test.mjs`).
+- `src/live_push.py`: standard-library WebSocket client, Realtime channel (`Bell`), and `Doorbell` (push / asleep /
+  poll); `cloud_sync.Service.next_pull` and `cloud_remote.RemoteService.plan_for` follow it. Tests:
+  `tests/test_live_push.py`.
+- Website Live page: private channel `live:<workspace>`, `remote_watch`, `pcState` (Online / Waking up… / Not
+  connected) and `refreshEvery` in `hosted/src/lib/live-view.ts`.
+
+- Command Center: the tray folds away under the bar behind a Teleprompter-style arrow (`.cc-handle`; hover shows,
+  click keeps it open, `localStorage` `kc-cc-tray`); Alt+1 to Alt+4 still open a chip; perf.mjs measures the unfold.
+  Tests: `tests/test_command_center_911.py`.
+
+### Changed
+- Website wording: Open Workspace / Open my workspace (was Sync Workspace), Start a free workspace / Start a new one
+  (was Save Workspace); the PC's Sync Workspace is unchanged.
+- Welcome: three pages (`build`, `live`, `finish` in `app/js/onboarding.js`), counter "Step n of 3" for three bars.
+- Studio Up next on one line (theme.css 9.11 block); website: name kept in the phone header (the effects switch
+  steps aside under 420 px), slim one-line cookie notice on phones (`.fd-cookie-more`).
+- Without 0016, with push switched off, or when the connection cannot be made, the PC and the website poll exactly as
+  in 9.10.
+
+## [9.10.3] - 2026-11-05
+
+Full notes: [docs/releases/v9.10.3.md](../releases/archive/release-notes-before-26.11.md).
+
+### Changed
+- The Windows build carries the cloud's address and publishable key (`cloud_builtin.json`, written by
+  `tools/write_cloud_builtin.py` from the repository secrets `SUPABASE_URL` / `SUPABASE_ANON_KEY`, git-ignored,
+  publishable/anon keys only), so linking a PC no longer needs `/api/sync-config` to answer first; the website stays
+  the backup and is the only source when `FRAMEDECKS_COMPANION_URL` is set. Tests: `BuiltInCloud` in
+  `tests/test_cloud_sync.py`.
+
+## [9.10.2] - 2026-11-04
+
+Full notes: [docs/releases/v9.10.2.md](../releases/archive/release-notes-before-26.11.md).
+
+### Fixed
+- The grey box on the first open: the window is prepared when it is made (`spot_prepare`: `clear_frame`,
+  `clear_back(wait=True)`, `glass`, the page's own glass flag) and the form is painted black on `before_show`.
+
+### Performance
+- One fixed see-through window size (`SPOT_H`); the Command Center never posts `fit`.
+- Panels show with `display` and animate by transform and opacity only (no `grid-template-rows`, `clip-path` or
+  `filter` animations, no blur filters); the grid of buttons moves as one piece; each piece is `contain`ed.
+- Each chip's panel is built once (`built`), the pointer light updates once a frame.
+- `tests/visual/perf.mjs` now measures the Command Center at rest, opening a chip and moving between chips (4x slower
+  processor, no graphics card): opening 29% to 15% busy, worst frame 100 ms to 33 ms.
+
+## [9.10.1] - 2026-11-04
+
+Full notes: [docs/releases/v9.10.1.md](../releases/archive/release-notes-before-26.11.md).
+
+### Fixed
+- A light grey box behind the Command Center: pywebview makes a transparent window's page see-through but leaves the
+  WinForms form in `SystemColors.Control`. `desktop_win.clear_back` paints the form black (see-through with the frame
+  extended into the window, `desktop_win.glass`), on the form's own thread.
+
+## [9.10.0] - 2026-11-04
+
+Full notes: [docs/releases/v9.10.0.md](../releases/archive/release-notes-before-26.11.md).
+
+### Changed
+- Command Center redesigned (`app/js/command-center.js`, `app/css/spotlight.css` 9.10 block): a frameless glass bar
+  and four chips, Prepare / Engage / Control / More (Alt+1 to Alt+4), each opening a panel. Control has Go Live as a
+  switch (off: `SC.hideAll`, `live.scene = ''`) and holds the live remote (`#cc-remote-slot`, js/spotlight-remote.js).
+- The window has no frame: `desktop_win.clear_frame` (no rounded corners, no border line) and glass without frost;
+  `fit` allows up to 760 px. A click on the see-through part closes it.
+- `layout-grid` icon added for More. Guide pictures captured over a desktop-like backdrop.
+
+### Removed
+- Ask AI from the Command Center and the palette (`?` prefix, `cmd:ai-questions`); the Studio's own Suggest is
+  unchanged. The 9.9 context strip, modules and Recent row (Recent is now in Prepare).
+
+## [9.9.0] - 2026-11-04
+
+Full notes: [docs/releases/v9.9.0.md](../releases/archive/release-notes-before-26.11.md).
+
+### Added
+- The Command Center (`app/js/command-center.js`, was Spotlight): context strip (on air, meeting, Workspace Sync,
+  "Only you can see this"), five modules (Meetings, Memory Cards, Present, Camera, More; Alt+1 to Alt+5) as scopes of
+  the bar, Recent, key hints. Glass styles in `app/css/spotlight.css` (Windows Acrylic behind; no CSS blur).
+- `js/palette.js`: scopes and prefixes (`>` commands, `#` meetings and Frames, `@` people, `?` Ask AI), meeting
+  entries (`meet:<id>`, switches the PC's meeting), `cmd:ai-questions` (`KCFrameLists.suggest`), local items and
+  hooks for the Command Center.
+- The phone remote in the same look (`app/css/remote.css`, 9.9 block). `tools/make_product_shots.py --guide-only`
+  captures `docs/guide/images/command-center.png` and the live remote. Tests: `tests/test_command_center_99.py`.
+
+### Changed
+- Tray **Search** and the Settings shortcut label are now **Command Center**; the window title too. Guides updated.
+
+### Fixed
+- The palette's element helper ignored `html`, so its search icon never showed.
+
+## [9.8.1] - 2026-11-04
+
+Full notes: [docs/releases/v9.8.1.md](../releases/archive/release-notes-before-26.11.md).
+
+### Fixed
+- Spotlight no longer opens with the program after installing or on reopening. pywebview shows a `transparent=True`
+  window when its page starts loading, even when created hidden; `src/desktop_app.py` now creates the Spotlight
+  window only on the first shortcut or tray Search (`spot_window(create=True)`) and hides it on `loaded` / `shown`
+  unless it was asked for.
+
+### Changed
+- `docs/legal/security.md` rewritten: an "At a glance" table of protocols and controls (TLS 1.2+, HSTS, OAuth 2.0
+  PKCE S256, JWT with rotating refresh tokens, SHA-256-hashed 256-bit device tokens, pre-request revocation, RLS,
+  AES-256 at rest, AES-256-CBC + PBKDF2 + HMAC-SHA256 backups, Credential Manager, update checks, supply chain) and
+  known limits.
+- Privacy, Terms, Cookies and Vulnerability Disclosure use the 9.8 wording (workspace, one-time link, Trusted
+  Devices); legal version unchanged (2026-10-29). Guides: installation, FAQ and glossary wording.
+- Help screenshots recaptured; `tests/visual/help-shots.mjs` shoots `/sync` as a Trusted Device.
+
+## [9.8.0] - 2026-11-04
+
+Full notes: [docs/releases/v9.8.0.md](../releases/archive/release-notes-before-26.11.md). Design and owner steps:
+[docs/architecture/trusted-workspace.md](../architecture/trusted-workspace.md).
+
+### Added
+- Migration `0015_trusted_devices.sql` (+ rollback, `hosted/tests/supabase-0015.test.mjs`):
+  - `trusted_devices` (token SHA-256, 180-day expiry, revoke) and `security_events` (one year);
+  - `trust_device`, `device_check`, `device_list`, `device_revoke`, `security_event_list`, `magic_link_requested`
+    (rate-limited, address hashed) and `magic_link_used`;
+  - the `check_trusted_session` pre-request hook, which refuses removed or expired device sessions at once;
+  - the `workspace.synced` audit trigger.
+- Website:
+  - `/sync` (Sync Workspace / Save Workspace / Continue on Another Device, emailed one-time link only);
+  - Trust This Device (`components/trusted-device.tsx`, `lib/trusted-device.ts`: the session in this tab until
+    trusted);
+  - `/devices` Manage Devices;
+  - HSTS in `public/_headers`.
+
+### Changed
+- `/sign-in` forwards to `/sync`; Google / Microsoft buttons removed; first workspace created after the link when the
+  person has none and no invitation.
+- Website and desktop wording: no Sign in / Sign up / Account / Password (test in `hosted/tests/trusted-device.test.mjs`);
+  the PC's Settings section is **Workspace Sync** (same behaviour).
+
+## [9.7.0] - 2026-11-04
+
+Full notes: [docs/releases/v9.7.0.md](../releases/archive/release-notes-before-26.11.md). Phone sign-in recommendation (not built):
+[docs/architecture/remote-sign-in.md](../architecture/remote-sign-in.md).
+
+### Added
+- Draw / Spotlight on the Share Window from Spotlight: `server.annotate_op` (`/api/app/annotate`, this PC only: mode,
+  add / set / undo / clear strokes, quick spot), `desktop_app.share_annotate` (opens the Share Window, hides
+  Spotlight), the native window takes the mouse in that mode (`vcam/present_window.py`: `button_rects` by mode,
+  `pic_point`, `thin`, hit test, annotate thread), and `app/present.html` does the same in WebView2.
+- Spotlight: the live Frame's Content one by one (`contentStep`, Alt+↑/↓), Live tools row, palette commands
+  `cmd:sharedraw` / `cmd:sharespot`.
+- Welcome page **Going live** before Finish (`app/js/onboarding.js`, `.art-live`).
+
+### Changed
+- Spotlight shows its remote only while a Frame is live (`body.spotlight:not(.spr-live) .spr{display:none}`); never
+  opens by itself (`spot.events.shown` hides it unless opened by the shortcut).
+- Main window `maximized=True`; `show()` restores only a minimized window.
+- Phone remote: the live picture only sideways (portrait hides it and does not load it; `#onair-mini`); Spotlight
+  fills the screen (`body.spotting .preview{position:fixed…}`).
+
+## [9.6.0] - 2026-11-04
+
+Full notes: [docs/releases/v9.6.0.md](../releases/archive/release-notes-before-26.11.md).
+
+### Added
+- Spotlight as a meeting remote (`app/js/spotlight-remote.js`, `app/css/spotlight.css`): what is on screen, Previous /
+  Next Frame, slides, video, Hide all, Black; Zoom / Teams / Google Meet mute, camera, share and leave through each
+  app's own shortcut (`src/meeting_keys.py`, `/api/app/meeting-app`, `/api/app/meeting-key`, local only); the PC's
+  volume; Studio, Teleprompter, Share Window and phone remote shortcuts; Alt keys. Opens compact; the search results
+  show only once you type and the window follows the panel's height (`desktop_app` win op `fit`).
+- `tools/design_tokens.py`: the program's colours, level colours, radii and type sizes written to
+  `hosted/src/app/tokens.css` (`--fd-*`); the website's variables point at them; `--check` in CI and
+  `tests/test_css_tokens.py`.
+- `tools/make_product_shots.py`: the landing's Studio picture and the guide's Spotlight picture from the running program.
+
+### Changed
+- Spotlight is hidden from screen capture on every show (was the first show only), like the Teleprompter.
+- Spotlight window 820 px wide, transparent, with Windows' acrylic behind it when available (`desktop_win.glass`).
+- Phone and tablet remote buttons (`app/css/remote.css`) take Spotlight's style: hairline highlight, soft shadow,
+  round tinted icon wells, gold Next.
+- Website: `globals.css` and `light.css` use the `--fd-*` tokens (the light theme is now the program's warm light
+  look); the Plan's Frame cards carry `--lv-frame-soft`.
+
+## [9.5.1] - 2026-11-04
+
+Full notes: [docs/releases/v9.5.1.md](../releases/archive/release-notes-before-26.11.md). Numbers: [docs/development/performance.md](../development/performance.md).
+
+### Performance
+- Welcome flow (`app/css/onboarding.css`): no `filter: blur` (the background lights are radial gradients painted
+  once; pages slide and fade; the entrance and the emblem have no filter); looping animations play a few times and
+  rest; the window behind is `visibility: hidden` while covered (`.onb-behind`, `app/js/onboarding.js`). Without the
+  GPU and on a 4× slower CPU it goes from 6–8 fps to 60 fps.
+- `vcam/spotlight.py`: the disc's shape is kept per size and strength (`_disc_mask`) and blended with
+  `cv2.blendLinear`; the follow lens goes from 11.4 to 2.2 ms a frame at 1080p (same picture within one level).
+- `tests/visual/perf.mjs`: the older-PC budget (no GPU, 4× CPU).
+
+## [9.5.0] - 2026-11-04
+
+Full notes: [docs/releases/v9.5.0.md](../releases/archive/release-notes-before-26.11.md).
+
+### Added
+- Welcome to FrameDecks (`app/js/onboarding.js`, `app/css/onboarding.css`): a full-screen, four-page flow (Adding
+  Frames, Adding Decks, Adding Content, Finish) with pictures built in HTML/CSS and page transitions (fade only under
+  reduced motion). It is shown at start on the PC only (`thisPC`: the program window or a browser on this PC; the phone
+  remote never loads it and other devices get 403 for it) until finished or skipped. The record is kept as
+  `onboarding` in kc-app-settings.json (`_valid_onboarding`), plus a localStorage copy. Finish offers a Quick Start
+  when the PC has only the two starter Frames, and an earlier version's data (`migration.candidates`). It is
+  reopened from Settings → About → Welcome tour and the palette.
+- Finish page: **Sign in and connect** (POST `api/sync` `link`, then polls `api/sync` until linked; the same flow as
+  Settings → FrameDecks account) and a Frame / Deck / Content colour key.
+- Level colours: `--lv-frame` (gold), `--lv-deck` (blue), `--lv-content` (violet) with soft tints in dark and light
+  (`theme.css`) for the Frames list, the Decks list and the question / scripture lists; the same on the phone remote's
+  Plan (`remote.css`) and in the welcome's pictures. Green stays "live".
+- KJV and World English Bible fetched without a key from bible-api.com (`OPEN_BIBLES`, `_open_bible_lookup`) and
+  cached like the ESV; available from Fetch from (`scripture.js`) and the Workbook import (`meeting-book.js`
+  `openBible`).
+- Quick Start **Church Service**.
+
+### Changed
+- The first-run import dialog and the Setup guide's automatic start are removed (`app-bridge.js`); the guide opens
+  on request only. The browser tests close the welcome with `KCOnboarding.close()`.
+- The Decks list's add button reads **+ Deck** (guides updated).
+- Default card labels are **Scripture** / **Question** (were Focus Verse / Discussion Question), and the overlay
+  page titles changed to match (their file names are unchanged). Sample text is neutral; the role examples are
+  Leader / Host; the AI prompt is neutral (`src/ai.py`).
+- Earlier product names removed from the README and the installation guide; test fixtures say "Evening Study".
+- `tools/css_tokens.py` also checks `onboarding.css`.
+
+### Fixed
+- Studio Frames list group headings no longer carry `role="presentation"` inside the list.
+
+## [9.4.0] - 2026-11-04
+
+Full notes: [docs/releases/v9.4.0.md](../releases/archive/release-notes-before-26.11.md).
+
+### Added
+- Phone and tablet remote redesigned (`app/remote.html`, `app/js/remote.js`, `app/css/remote.css`): a fixed stage (live
+  picture with **Spotlight** / **Draw**, what is on screen, Previous / Next with the next Frame's name) and five tabs:
+  Show (steppers, video controls, every Deck with an eye via `SC.toggleVisible`), Plan (Frame > Deck > Content numbered
+  1 · 1.1 · 1.1.1; tap a Frame, Deck or question), Tools, Memory, Meeting (details, `SC.switchMeeting`, PC status,
+  disconnect). Portrait: tabs at the bottom; landscape and tablets: two columns.
+- Spotlight that follows the pointer: `POST/GET /api/pointer` (long-poll, `POINTER`, 6 s idle), `live.follow` while on;
+  the `Follow` lens in `src/vcam/spotlight.py` (eased position, fade) and `.pg-follow` on the overlay pages. The PC's
+  Annotate Spotlight tool and the phone (drag; a tap gives a timed `live.spot`) drive it. `/api/pointer` is allowed to
+  signed-in phones.
+- `remote_studio_action` op `media` (play / pause / stop / restart a visible video layer); `remote_studio_info` lists
+  the visible videos (`media`).
+- Meeting Workbook: one **Meeting plan** table (No. formula · Level · Type · Name · Text · Bible reference · On-screen
+  label · Effect · Notes / script; `src/meeting_form.py`, `tools/make_meeting_workbook.py`, `app/js/meeting-book.js`
+  `planBook`); Dashboard counts Frames, Decks, questions, scriptures; hand-made forms import (Level from the numbering).
+- Quick Start: **Import from Excel…** under *Import from a file* (and in the meeting menu).
+
+### Fixed
+- With the Spotlight tool chosen the pointer froze over the Studio picture (the annotation pad now follows the target's
+  geometry and lets the pointer through).
+- Studio Frames list: meeting group headings were `<li role="presentation">`, which broke the list for screen readers.
+
+### Changed
+- `tests/fixtures/sync/*.json` regenerated (`live.follow`).
+
+## [9.3.0] - 2026-11-04
+
+Full notes: [docs/releases/v9.3.0.md](../releases/archive/release-notes-before-26.11.md). Audit: [docs/project/2026-11-03-production-audit.md](../project/2026-11-03-production-audit.md)
+(every finding's status). Owner: run migrations 0013 and 0014 in Supabase before the website's **Make owner** is used.
+
+### Security
+- Camera driver (H4): `register-framedecks-camera.cmd` copies the DLLs to `Program Files\FrameDecks vCam` as
+  `framedecks_vcam64-<tag>.dll` (tag from their content, `vcam-tag.txt`, written by the build) and registers them there;
+  the installer skips the elevated step when Windows already uses that copy (`CameraHere`); unregistering removes the
+  folder and any registration from the program folder (before 9.3). The CI installer test registers and removes it.
+- Build dependencies (M5): `packaging/requirements-lock.txt` with every file's SHA-256, installed with
+  `--require-hashes` (PyInstaller's source too); `packaging==26.3` added to the constraints; no unpinned pip upgrade;
+  `tests/test_build_lock.py`. Inno Setup pinned to 6.7.1 (`INNO_VERSION`, L9).
+- Content-Security-Policy, report-only (M7): the program's pages (`server.page_csp`, inline scripts by hash;
+  `tests/visual/csp.mjs`) and the website (`hosted/scripts/write-csp.mjs` after `next build` writes a policy per page
+  into `out/_headers`; `tests/visual/site-csp.mjs`).
+- Migration 0014 (M6, L11, L13): link codes limited to 5 per network (`computer_links.source_hash`, `request_source()`),
+  `remote_take` writes nothing when idle, `delete_my_account` clears `remote_commands.sent_by_name` and `user:<id>`
+  stamps, and `transfer_ownership(org, new_owner)`. Rollback `hosted/supabase/rollback/0014_audit_93_down.sql`; tests
+  `hosted/tests/supabase-0014.test.mjs`.
+- Website: **Make owner** on the Members list (`workspace-members.tsx`); `/connect` shows the PC name stored in the
+  cloud (`computer_link_peek`), not the link's (L10).
+- The phone remote gets no text of a private Memory Card until it is on screen (L5).
+- PowerPoint conversion runs with `AutomationSecurity` 3 (macros off), the presenter's setting restored (L6).
+- Backups: `tools/backup_mac.py` writes and checks an HMAC-SHA256 next to each backup (L14).
+- A POST body of the wrong shape is answered 400 (`do_POST` wrapper, L17).
+
+### Fixed
+- `update_state` saves inside its lock (L2).
+- Sync keeps the overwritten version of a list item, setting or order on the PC (`overwritten` in `kc-sync.json`,
+  latest 50, 90 days) (L12).
+- Long words wrap with a binary search (`cards.fit_end`), the width cache is capped (`WIDTH_CACHE_MAX`), Excel ranges are
+  clamped before reading (`import-worker.js` `clampRef`), and `.frame` files over `MAX_FILE` are refused (L16).
+
+### Performance
+- `/api/state`: the JSON is made once per state and outside `cond` (M10).
+- FrameDecks vCam reuses its frame buffers (`program._scratch`) (M9).
+- Website: the JS budget is per page (320 KB) and in total without the `noModule` polyfill (400 KB); the About page's
+  styles (`public/about-page.css`) load when it opens (L15).
+
+### Deferred
+- Overlay polling (M11): OBS browser sources share one browser, which allows about six open connections per address, so
+  standalone overlay pages keep their 300 ms `api/rev` check instead of a long-poll.
+
+Tests: `tests/test_audit_93.py`, `tests/test_build_lock.py`, `tests/test_cloud_sync.py` (overwritten),
+`tests/import-worker.test.js`, `hosted/tests/supabase-0014.test.mjs`, `tests/visual/csp.mjs`, `tests/visual/site-csp.mjs`.
+
+## [9.2.0] - 2026-11-04
+
+Full notes: [docs/releases/v9.2.0.md](../releases/archive/release-notes-before-26.11.md). Audit: [docs/project/2026-11-03-production-audit.md](../project/2026-11-03-production-audit.md).
+
+### Security
+- Signed release manifests (audit H3): `src/ed25519.py` (RFC 8032, standard library only; checked against the RFC
+  vectors and the cryptography library), `src/manifest_sig.py` (a `signature` field over every other field in one fixed
+  form; programs before 9.2 ignore it), `updater.TRUSTED_KEYS` (once it holds a key, only manifests signed with it
+  count), `tools/manifest_key.py` (makes the key pair), and `tools/make_release_manifest.py` signs with
+  `MANIFEST_SIGNING_KEY` and refuses to publish without it once the program trusts a key.
+- Updater (audit L7): the installed app ignores `FRAMEDECKS_UPDATE_API`; downloads follow redirects only to
+  FrameDecks' servers over https; "latest" never installs an older version; the Authenticode signer must equal
+  `PUBLISHER` exactly.
+- Release workflow: the manifest's `signed` comes from the "Check the signatures" step passing (`RELEASE_SIGNED` is no
+  longer read) (M3); a tag must be on `main` (M4); the tag name reaches the script through `env` (L8); runners pinned
+  to `windows-2025` and `ubuntu-24.04` (L9); PyInstaller's from-source build uses the pinned setuptools
+  (`PIP_CONSTRAINT`, part of M5).
+- Tests: `tests/test_update_chain.py`.
+
+## [9.1.2] - 2026-11-03
+
+Full notes: [docs/releases/v9.1.2.md](../releases/archive/release-notes-before-26.11.md). Audit: [docs/project/2026-11-03-production-audit.md](../project/2026-11-03-production-audit.md).
+
+### Security
+- Media file names are never paths: `src/media_names.py` `safe_name`, used by `vcam.layers.clean_layer` and when it
+  opens files, `server.scene_media`, `server.media_check` and `pptx_export.frame_parts` (UNC, drive, `..`, control
+  characters refused) (audit H1).
+- Phone PIN: `remote_login` checks, compares and counts under `login_lock`; the wait doubles every five wrong PINs (up
+  to an hour) and only a right PIN resets it; `MAX_LOGIN_FAILS` from all devices in 10 minutes (audit H2).
+- Other devices: `Handler.timeout` 90 s, `MAX_CONN_PER_IP` connections, `MAX_PUBLIC_BODY` 4 KB until signed in, and no
+  `..` or `\` paths (audit M1, L).
+- Scene ids name thumbnail files only when they are plain identifiers.
+
+### Fixed
+- `write_atomic` for the PIN, sessions, app settings (also under a lock), vCam settings, Studio and scripture files.
+- `memory._clean` collapses runs of spaces and header patterns run only on lines up to `MAX_HEAD` (audit M2).
+- Imported ids in CSS selectors are escaped (`workspace.js` `cssq`, `overlay.js`) (audit M8).
+- `chatcard.SRC_NAMES` gains whatsapp, sms, phone.
+- Tests: `tests/test_hardening.py`.
+
+## [9.1.1] - 2026-11-03
+
+Full notes: [docs/releases/v9.1.1.md](../releases/archive/release-notes-before-26.11.md).
+
+### Fixed
+- Capture Memory on the phone remote: `/js/remote-memory.js` was missing from `REMOTE_PUBLIC`, so other devices got
+  403 for it and the section did nothing (it worked only on the PC, where every file is allowed).
+  `tests/test_memory.py` now checks every script and stylesheet `remote.html` uses is in `REMOTE_PUBLIC`.
+
+## [9.1.0] - 2026-11-03
+
+Full notes: [docs/releases/v9.1.0.md](../releases/archive/release-notes-before-26.11.md). Design and testing checklist:
+[docs/architecture/memory-cards.md](../architecture/memory-cards.md).
+
+### Added
+- Capture Memory on the phone remote: `app/js/remote-memory.js` and a section in `remote.html` (paste, Show on screen,
+  Show / Hide / Remove, several selected shown together); `GET / POST /api/remote/memory` for signed-in devices
+  (actions add, show, showmany, pin, hide, hideall, delete; capture and settings stay on the PC).
+- `memory.split()`: a copied conversation (WhatsApp, Zoom lines, "Name: message" lines, Teams / Slack / Discord
+  blocks) becomes one card per message; sources `whatsapp`, `sms`, `phone`.
+- `Memory.show_many()` and the `showmany` action; tick boxes and **Show selected** in the Studio pane.
+
+### Changed
+- The Memory Cards are drawn as chat bubbles only, with no window, title bar or panel: `vcam/chatcard.py` draws one
+  Card per bubble (`bubble`, `draw`, `stack`), `vcam/program.py` pops each new one open (`chatcard.pop`), fades
+  leaving ones and glides the rest; `overlay.js` / `overlay.css` do the same with `.chat-list` / `.chat-msg.pop`.
+- The video is never resized: beside / below, the bubbles go on top of it and only the overlays are laid out in the rest
+  of the picture (`chatcard.overlay_rect`, `ProgramFX.overlay_area`, `Compositor._finish`; on the overlay pages only
+  `.stage-root` scales). 9.0 shrank the whole picture.
+- On screen the cards keep the order they were copied in; up to six at once (`MAX_VISIBLE`).
+- Floating bubbles ("over") keep clear of every card on screen: `OverlayLayer.visible()`, the program's text layers
+  and the camera inset (`ProgramFX._avoid_rects`, `chatcard.stack`); `avoidCards` on the overlay pages.
+- The virtual camera is called **FrameDecks vCam** (`packaging/build_vcam.py` NAME, `src/vcam/sink.py` VCAM_NAME, every
+  label, the installer, the website and the guides). Same camera ID, so meeting apps keep it selected; updating
+  registers it again under the new name.
+
+## [9.0.0] - 2026-11-03
+
+Full notes: [docs/releases/v9.0.0.md](../releases/archive/release-notes-before-26.11.md). Design, testing checklist and rollback:
+[docs/architecture/memory-cards.md](../architecture/memory-cards.md).
+
+### Added
+- Memory Cards: `src/memory.py` (cards, titles, sources incl. ChatGPT / Claude / Copilot / Slack / Meet / Webex,
+  pinned cards in `kc-memory.json`, `overlay(seconds)`), `/api/memory`, `live.memory` {cards, layout, side, share}
+  with a timer for unpinned cards; settings `memDur`, `memShare`, `memLayout` (beside / below / over), `memSide`,
+  `memAuto`.
+- The chat overlay holds several cards: `vcam/chatcard.py` (layouts, squeeze of the picture, fitting) and
+  `overlay.js` / `overlay.css` (`.stage-root` shrinks for beside / below; `.chatwin` bubbles, typing then text).
+- The Studio's Memory Cards pane and the corner popup (`app/js/memory.js`, `app/memory-popup.html`,
+  `app/css/memory.css`, `desktop_app.popup_*`); Live tools → Capture copies; tray and palette entries.
+
+### Removed
+- The Audience Dock (`audience.html`, `audience-handle.html`, `audience.js/.css`, `dock.py`, the dock window code and
+  the click-through / key / cursor helpers in `desktop_win.py`), `/api/audience`, `/api/app/dock`, `live.audience`.
+
+### Fixed
+- Crash while dragging the dock's handle (Illegal Instruction 0xC000001D): the dock is gone. `capture.py` keeps one
+  window procedure for the program's life (a second Capture start let the registered one be freed).
+
+## [8.9.0] - 2026-11-03
+
+Full notes: [docs/releases/v8.9.0.md](../releases/archive/release-notes-before-26.11.md).
+
+### Added
+- Safe Next: `KCScenes.upNext(st, selId)` (the Frame Next takes live, `previewState` summary, warnings for nothing
+  shown, black / emergency screen on, media without a file) and the **Up next** strip under the Studio Canvas
+  (`renderUpNext`, a scaled `stage.html?preview=1&scene=` picture while shown).
+- Audience Dock: **Waiting** / **Shown** tabs; keys ↑ ↓ Enter P H Del N Esc.
+
+### Changed
+- The FrameRelay chat window keeps clear of the camera inset (`ProgramFX.avoid` from the compositor's
+  picture-in-picture or side-by-side layout; `chatcard.place(..., avoid)` moves it above or to the other edge).
+
+## [8.8.1] - 2026-11-02
+
+Full notes: [docs/releases/v8.8.1.md](../releases/archive/release-notes-before-26.11.md).
+
+### Fixed
+- The Audience Dock opened off the right edge of a display scaled above 100 %: pywebview multiplies a window's
+  position and size by the display scale, and 8.8.0 gave it screen pixels. The dock is now placed in screen pixels by
+  Windows once shown (`desktop_app.place_dock`, `dock.start_rect(..., scale)`, `dock.to_logical`), a saved place off
+  every screen is ignored, and opening an open dock brings it back on screen (`dock_on_screen`).
+- The dock is made with `focus=True`: pywebview's `focus=False` puts `WS_EX_NOACTIVATE` back on every activation, so
+  the pin could not let the dock take the keyboard; `desktop_win.no_activate` sets it after the window is shown.
+
+## [8.8.0] - 2026-11-02
+
+Full notes: [docs/releases/v8.8.0.md](../releases/archive/release-notes-before-26.11.md). Design: [docs/architecture/audience-dock.md](../architecture/audience-dock.md).
+
+### Added
+- Audience Dock (`app/audience.html`, `app/js/audience.js`, `app/css/audience.css`, handle `app/audience-handle.html`):
+  a click-through, always-on-top window kept out of capture; Ctrl+Shift or the handle's pin makes it usable; 85 % /
+  20 % under the pointer / 100 % (`src/dock.py`); place and size saved (`dockRect`).
+- Capture: `src/capture.py` (Windows clipboard listener, only while Capture is on; skips password managers' private
+  copies and FrameDecks' own) and `src/audience.py` (sender parsing, source app, duplicates, the in-memory queue).
+- `GET/POST /api/audience` (this PC only; long-poll) and `POST /api/app/dock`; settings `audienceDur`,
+  `audienceShare`.
+- `live.audience` {id, name, text, src, at, dur, share, pos}: a chat window (its own design, `vcam/chatcard.py` and
+  `.chatwin` in `overlay.css`: unfold, typing dots, message) on a chat rail at the right or left edge (`audiencePos`);
+  shown at once when copied from a chat app (`audienceAuto`, not private); drawn on FrameRelay by `vcam/program.py` with a countdown
+  line; on the overlay pages by `KCScenes.liveAudience` (Studio preview always, others with `share`); the Share
+  Window gets the frame without it unless shared; cleared by its timer, Hide, Hide all and the tray.
+
+## [8.7.0] - 2026-11-02
+
+Full notes: [docs/releases/v8.7.0.md](../releases/archive/release-notes-before-26.11.md).
+
+### Added
+- Spotlight style `live.spot.style`: `disc` (default; a see-through disc with a rim, a ripple in, a soft close;
+  `overlay.css` `.pg-spot.disc`, `vcam/spotlight.py` `_disc`) or `ring` (8.2). Settings beside the Annotate toolbar
+  and in Settings → Transitions (`annotate.js` `spotPanel`); a PC's saved gold ring becomes the white disc once.
+
+### Changed (website)
+- How it works: Day 2 shows the script and what the meeting sees again (the Teleprompter is in See it work); a fifth
+  day, **Point it out**, shows a pointer, the soft disc landing on a word and a pen underlining another.
+- See it work plays its tabs through by itself while on screen (a gold line under the chosen tab, 5 s each), until a
+  tab is chosen; the tabs rise in as the section arrives.
+
+## Website update - 2026-11-02 (after 8.6.0, no program change)
+
+### Changed
+- Light theme closer to Apple's pages: a near-white page, white cards, grey `#f5f5f7` bands and soft shadows
+  (`light.css`); the features band is clearly grey in light.
+- How it works: the four days as a list beside the window, played in a loop with no Play, Previous or Next (holds
+  while pointed at; still for "reduce motion"), slides gliding between days; Day 2 shows the Teleprompter's script
+  scrolling past its reading line.
+- Frame editor: each Content is its own bordered block with a header strip; the one being edited is outlined.
+- Help Center: **Back** (where you came from on this site, else Home) and links to Home, Plan, Live, Download and
+  Documentation.
+- Dark theme as polished as the light one: solid navy surfaces instead of see-through glass, quieter lines and soft
+  shadows (`globals.css` tokens), a deeper navy band behind the features.
+- How it works moves on every 4 s (was 6 s), with quicker slides between days.
+
+## [8.6.0] - 2026-11-02
+
+Full notes: [docs/releases/v8.6.0.md](../releases/archive/release-notes-before-26.11.md).
+
+### Added
+- Quick Start → **Import a Frame file…**; `importFrameFile` (`app/js/workspace.js`) sends .frame plans through
+  `KCFrameFile.check` and `KCFrameFile.importFile` (now answering `{ok, mode, error}`), and single exported Frames
+  through the old path; a result line in the Quick Start dialog.
+- Website Help Center (`hosted/src/components/help-center.tsx`): topics on the left, the chosen one on the right,
+  `#topic` in the address, older anchors (`#guide`, `#problems`…) mapped.
+- `hosted/src/lib/sign-out.ts` (`signOutAndLeave`, `clearLocalSession`) used by every sign-out, with
+  `hosted/tests/sign-out.test.mjs`.
+
+### Changed
+- Teleprompter: the top bar's arrow is always shown and rides under the bar (`--sp-bar-h`).
+- Plan frame cards (`plan-frame`, `pf-*` in `plan.css`); the steps in one row via a container query; `.fd-page` up to
+  1560 px; landing sections up to 1320 px with less vertical space, a full-width features band, FAQ beside its
+  heading; features headline "Powerful tools. Effortless creation."
+
+### Fixed
+- The ✨ Meeting menu's import accepted only `.json`, so .frame files exported from Settings or the website could not
+  be imported there.
+
+## [8.5.0] - 2026-11-02
+
+Full notes: [docs/releases/v8.5.0.md](../releases/archive/release-notes-before-26.11.md).
+
+### Added
+- Several meetings per workspace: the meeting record holds `meetings` ([{id, name, date, notes}]) and a Frame's
+  `group` names its meeting (`hosted/src/lib/meetings.ts`, `Scenes.meetings` in `app/js/store.js`, kept equal by
+  `hosted/tests/meetings.test.mjs`). The PC shows one at a time (`live.meeting`, `Scenes.order`).
+- `hosted/supabase/migrations/0012_meetings.sql` (rollback file): a trigger keeps the meeting list when an older PC
+  saves the meeting record without it; `meetings_supported()` lets the website offer several meetings only once it
+  has run. Run it in Supabase.
+- Website Plan: meeting bar (choose, **New meeting**, **Rename**) and a right-side timeline (drag and drop,
+  Alt + ↑/↓, delete, FLIP animations, hideable); export per meeting.
+- PC: **Meeting** picker above the Frames with **New** and rename; new Frames and Quick Start go into the meeting
+  shown; **Use this plan** replaces only the file's meeting.
+
+### Changed
+- `tests/visual/plan-flow.mjs` and `frame-roundtrip.mjs` cover meetings; the Help guide's steps and screenshots show
+  them.
+
+## [8.4.0] - 2026-11-02
+
+Full notes: [docs/releases/v8.4.0.md](../releases/archive/release-notes-before-26.11.md).
+
+### Added
+- .frame import check: files declare `integrity` (Frames, Content, items, files used, files included) and are refused
+  when it does not match; after an import, `verify()` compares every Frame and the meeting with the file and the PC
+  names missing media (`app/js/frame-file.js`, `hosted/src/lib/frame-file.ts`).
+- **Use this plan** as the main import action; a PC's export carries its Teleprompter and Spotlight settings.
+- **Resync Linked PCs**: `api/sync` action `resync` runs a round now and answers complete / nochange / failed
+  (`cloud_sync.resync`); in the Sync chip's panel, Settings → FrameDecks account and the command palette.
+- Help: a step-by-step guide (`hosted/src/lib/help-guide.ts`, `components/help-guide.tsx`) with screenshots made by
+  `tests/visual/help-shots.mjs`, kept true by `hosted/tests/help-guide.test.mjs`; Settings → Help → Step-by-step guide.
+- `tests/visual/frame-roundtrip.mjs`: website → .frame → program, compared field by field.
+
+### Changed
+- Website Meeting Details: Meeting name, Date and Meeting notes; older fields are kept in the record.
+- Website CSS per page: `landing-page.css` and `plan.css` load only on their pages; the budget measures the heaviest
+  page (24 KB).
+
+### Fixed
+- Website plans imported on the PC looked different: the default added the Frames after the PC's own and dropped
+  the meeting's date and notes.
+
+## [8.3.0] - 2026-11-02
+
+Full notes: [docs/releases/v8.3.0.md](../releases/archive/release-notes-before-26.11.md).
+
+### Added
+- Website Plan: five guided steps (`hosted/src/lib/frame-flow.ts`, `components/frame-flow.tsx`) with Edit details,
+  Add Frame, Write Script, Preview and Export for Service PC, and the Sync status (`watchSync` in `workspace-sync.ts`).
+- A drag-and-drop timeline of the Frames (Alt + arrow keys too); the order is saved with `moveFrameTo`.
+- Preview of each Frame with its transition and script; Choose Animation as buttons.
+- Media chosen on the website is kept in the browser (IndexedDB, `local-media.ts`) and embedded in the .frame file.
+- `tests/visual/plan-flow.mjs`: the workflow in a browser against a stand-in workspace, with axe.
+
+### Changed
+- Transition style descriptions: Fade, Slow fade, Gentle fade.
+
+### Removed
+- About 6 KB of unused website CSS from earlier designs.
+
+## [8.2.0] - 2026-11-02
+
+Full notes: [docs/releases/v8.2.0.md](../releases/archive/release-notes-before-26.11.md).
+
+### Added
+- Teleprompter: **⇪ Upload** (.txt, .md, .docx) and a script mode, **Each Frame** or **Whole meeting**
+  (`meeting.script`, `meeting.scriptMode`).
+- Annotate → **Spotlight** (S, or Ctrl twice): a glowing circle around the word under the pointer (`live.spot`), drawn
+  by FrameRelay (`src/vcam/spotlight.py`) and the overlay pages.
+- **Burst** transition (`src/vcam/burst.py`, overlay canvas), with dust, direction, colour and strength (`fx.burst`).
+- **.frame files** ([docs/reference/frame-file.md](../reference/frame-file.md)): Export for Service PC on the website;
+  Import / Export Frame File on the PC (Settings → Data / Backup, command palette). Local-only `GET /api/media/file`.
+- Header **Sync** chip and Settings wording: Synced, Syncing, Offline, Sync failed (`api/sync` `phase`).
+
+### Changed
+- Every Teleprompter control is in its folding top bar, with **Next Frame**; the script area holds only the text, at
+  full width.
+- Transitions are one per effect: Cut, Fade, Dip to Black, Dip to White, Blur Fade, Zoom, Slide, Push, Wipe, Burst.
+  Dissolve, Cinema and Church become Fade, Slide Right becomes Slide, Soft Scale becomes Zoom (on load, on the
+  website and in the Meeting Workbook).
+
+## [8.1.0] - 2026-11-01
+
+Full notes: [docs/releases/v8.1.0.md](../releases/archive/release-notes-before-26.11.md).
+
+### Added
+- Teleprompter: **transparency** (Solid, 20%, 40%, 65%, 85%) and **Pin** (stay on top) in its top bar, remembered.
+- **Looks**: Settings → Meeting & Branding → Look, the six looks of framedecks.com or "Same as my workspace", with
+  Dark / Light / Match Windows; "Look: …" commands in the command palette.
+
+### Changed
+- Content settings are one view: the Content first, then Position and size, Look, Animation and Show on, each
+  opening on a click (remembered). The Label / Content / Display Settings / Visual Settings tabs are gone.
+- The desktop window is restyled to match framedecks.com (static, no extra resource use).
+- Settings → General is "Window, tray and performance"; the Look moved to Meeting & Branding.
+
+### Removed
+- "Your details & email wording" in Settings → General.
+
+### Fixed
+- The About header image (README and release notes) was captured with the Setup guide in front of it;
+  `tools/make_readme_header.py` now clears overlays first.
+
+## [8.0.0] - 2026-11-01
+
+Full notes: [docs/releases/v8.0.0.md](../releases/archive/release-notes-before-26.11.md). A major version: several features were removed to make
+FrameDecks simpler. Saved meetings, settings and Setup guide progress carry over.
+
+### Added
+- **The Setup guide is a step-by-step wizard**: one step at a time with a progress bar, Back and Next (Next waits until
+  the step is really done), "Do this later", and "Something not working?" tips for each step. The Ready step lists
+  every check with a button to fix what needs attention.
+- **The phone remote is one view**: the live picture, Previous / Next, the Frame's questions, scriptures or slides,
+  Teleprompter, Draw, Freeze, Black screen and every Frame as a tappable card, with Hide all at the top.
+- FrameRelay **Diagnostics** starts with a one-line answer ("Everything looks normal", or what to try).
+
+### Changed
+- **One Teleprompter**: a window above Zoom and Teams, kept out of screen sharing and recordings, with a top bar
+  (time, current Frame, timer) that appears at the top edge or from its button. Live tools → Teleprompter, or R.
+- **Frames are compact cards**; the right-click menu has one **Duplicate Frame** (Ctrl+D). The selected Frame shows
+  name, Teleprompter script, auto-advance and Duplicate; everything else is under **Advanced**.
+- The section under the Frames is called **Decks**.
+- FrameRelay **Picture quality** uses plain words in three groups (quick setting, light and colour, more webcam
+  options); the technical numbers are under Diagnostics → Technical details.
+- The Setup guide has six steps; Your phone as a remote is optional.
+
+### Removed
+- The docked Teleprompter (left, right, bottom, floating), the see-through Teleprompter overlay with its transparency
+  modes and settings (Settings → General), the Teleprompter window's side panel, and Shift+R.
+- The **Run** view (Prepare / Run switch, Up next, Before you start): the Studio is the one view.
+- **Practice mode** and the Setup guide's Rehearse step.
+- The Discussion topic, Icebreaker and Poll ready-made Content and Library entries.
+- The other Duplicate choices (with options, as template, structure only, variant, to group, & edit question).
+- Phone remote: the Simple / Advanced layouts, tabs, Frame search, Content list, transition picker, Run-through,
+  Emergency button and the Frame actions sheet.
+
+## [7.1.2] - 2026-11-01
+
+Full notes: [docs/releases/v7.1.2.md](../releases/archive/release-notes-before-26.11.md). The program is unchanged from 7.1.1; this hardens
+publishing (the 1 November release audit).
+
+### Fixed
+- **A tag could publish another version, or an old one.** The `build` job now stops when the tag is not `v` +
+  `APP_VERSION`, or when a release is started by a manual run instead of a pushed tag.
+- **Version tags could publish at the same time** and race on `releases/index.json` and `latest.json`:
+  `concurrency: publish-releases` runs them one at a time.
+- **The release list was read from the cached public address, and any error turned into an empty list**; a
+  published version could also be uploaded again over its year-long cached installer. The `publish` job now reads
+  `releases/index.json` from R2 with `aws s3api head-object`/`s3 cp`, fails on anything but "not there yet", and
+  refuses a version whose `releases/<v>/manifest.json` already exists.
+- **"latest" could move backwards, and `previous` followed upload order.** `tools/make_release_manifest.py` refuses a
+  version older than one already published, takes `previous` as the next lower version, sorts the index newest first,
+  and stops on an unreadable index.
+
+- **A tag run without the R2 settings showed green** while publishing nothing: it now fails with an error.
+- The AWS CLI sends integrity checksums only when an operation requires one
+  (`AWS_REQUEST_CHECKSUM_CALCULATION`/`AWS_RESPONSE_CHECKSUM_VALIDATION: when_required`); R2 has rejected the newer
+  default ones.
+
+### Changed
+- `infra/update-api/local-test.sh` runs the workflow's own read and upload steps against the local bucket, checks
+  that republishing and an older version are refused with nothing changed, and guards its removals (`${W:?}`).
+- `tests/test_release_manifest.py`: the refusals, the ordering, and the workflow guards.
+
+## [7.1.1] - 2026-10-31
+
+Full notes: [docs/releases/v7.1.1.md](../releases/archive/release-notes-before-26.11.md)
+
+### Fixed
+- Microsoft Defender quarantined `FRAMEDECKS.exe` 7.1 as `Trojan` ("executes commands from an attacker"): an unsigned
+  program that kept starting hidden PowerShell (the phone remote's network check every 15 minutes, an encoded command
+  for the firewall rule, a camera install through `Start-Process -Verb RunAs`, an update script with a bypassed script
+  policy) plus `netsh` and `taskkill`. All of it now goes through `src/winapi.py`: ShellExecuteEx "runas" for
+  administrator prompts, Toolhelp + TerminateProcess for a stuck copy, the Network List Manager and
+  `HNetCfg.FwPolicy2` (comtypes) for the network type and firewall rule, WinVerifyTrust for signatures. The firewall
+  rule is added by `FRAMEDECKS.exe --firewall allow|undo` run with administrator rights.
+
+### Changed
+- Updates start the installer directly with `/UPDATE=1`; `installer.iss` waits for FrameDecks to close and opens
+  the new version (`IsUpdate`). Inno Setup's own rollback replaces the 7.0 script's fallback installer.
+- The network check runs only while Settings → Phone & iPad Remote asks for it.
+- The Windows build compiles PyInstaller's launcher from source instead of using the shared prebuilt one.
+- `tests/test_winapi.py`: no file in `src/` may start PowerShell, `taskkill`, `netsh`, `cmd`, `wmic` or `schtasks`;
+  on the Windows runner the real signature, process, network and firewall calls are exercised.
+
+## [7.1] - 2026-10-29
+
+Full notes: [docs/releases/v7.1.md](../releases/archive/release-notes-before-26.11.md)
+
+### Added
+- **Workspace looks:** Branding → Look on the website offers six looks (Gold & Navy, Morning Light, Chapel Stone,
+  Deep Ocean, Forest, Quiet Mono). A look is the synced record `layout/look` (`{id, name, a, b, font, base}`): the card
+  surface and scripture font, applied by the output pages (`--surf-a`, `--surf-b`, `--scripture` in `overlay.css`)
+  and the FrameRelay camera (`vcam/cards.py` `surface_of`); choosing one also sets the brand accent. No database
+  change: `layout` already accepts any id.
+- **Follow my workspace** in Settings → General → Appearance and the command palette: the window follows the look's
+  light or dark base.
+
+### Changed
+- Settings that change what the audience sees (`layout/look`, `brand`, `layout/layout`, `theme/cards`) are applied
+  by a PC only while nothing is on its screen; until then they are held, like the live Frame (`cloud_sync.on_screen`,
+  also used by the updater).
+
+### Also since 7.0
+- The download page offers a download link only from a checked manifest ("Download opens soon" until the download
+  service answers), and `infra/update-api/local-test.sh` tests the release pipeline end to end on one computer.
+
+## [7.0] - 2026-10-29
+
+Full notes: [docs/releases/v7.0.md](../releases/archive/release-notes-before-26.11.md) · plan:
+[docs/project/2026-10-29-commercial-model-plan.md](../project/2026-10-29-commercial-model-plan.md)
+
+### Added
+- **Downloads from framedecks.com.** `/download` detects the visitor's system and shows the newest version, size,
+  release notes and SHA-256 from `api.framedecks.com/releases/latest`. Version tags are published to Cloudflare R2
+  (`downloads.framedecks.com`) by the workflow's new `publish` job (`tools/make_release_manifest.py`), and the
+  manifests are served by a read-only Worker (`infra/update-api`). See
+  [release-pipeline.md](../deployment/release-pipeline.md).
+- **Automatic updates** (`src/updater.py`): a daily check of the FrameDecks manifest; downloads only from
+  `downloads.framedecks.com`, kept only when size and SHA-256 match (and Authenticode once signed); a silent install
+  after the program closes, never while something is on screen unless confirmed; the previous version put back if
+  the install fails; the outcome told once at the next start. Settings → About shows the notes, Update now, Update
+  when I close FrameDecks, and Reinstall the previous version.
+- **Legal and security pages** on framedecks.com from the Markdown in `docs/legal/`: Terms, Privacy, Cookies, EULA,
+  Security, Vulnerability Disclosure, legal notices; plus About, Contact, Roadmap, Documentation (the user guides),
+  Status, a five-column footer, a cookie notice and `/.well-known/security.txt`.
+- **Accounts:** a required Terms and Privacy tick when an account is created, a one-time acceptance screen for
+  existing accounts, Account → Your data (download everything as JSON, delete the account). Needs
+  `hosted/supabase/migrations/0011_accounts_legal.sql` run in Supabase.
+
+### Changed
+- **FrameDecks is proprietary software**, free to download and use: `LICENSE` is the FrameDecks End User License
+  Agreement, `NOTICE` and the third-party notices were rewritten, and the installer shows the EULA. Versions up to
+  6.14 remain under the Apache License 2.0.
+- The program no longer asks GitHub for new versions; every website download link goes to `/download`.
+- Contacts are hello@, security@ and privacy@framedecks.com (Cloudflare Email Routing).
+
+## [6.14] - 2026-10-29
+
+Full notes: [docs/releases/v6.14.md](../releases/archive/release-notes-before-26.11.md)
+
+### Added
+- **Setup guide** in the program: a panel at the right with seven steps (kind of gathering, how people see it, the
+  phone remote, Connect to FrameDecks (optional), your first Frame, rehearse in Practice mode, Ready). Each step
+  ticks itself when the program sees it is true; "Show me how" dims the window around the real control. It opens on
+  a new PC, can be made smaller or skipped, keeps its progress in `kc-app-settings.json`, and returns from
+  Settings → About → Guided tour or the command palette. It replaces the Getting started card.
+- **Setup guide on the website's Home**: the same seven steps (one list, kept equal by a test), ticked only where the
+  website can see them (the kind chosen, a linked PC, a Frame added or changed on the website); the PC's steps say
+  "On the PC". Help → "Show the Setup guide on Home" brings it back.
+
+## [6.13] - 2026-10-29
+
+Full notes: [docs/releases/v6.13.md](../releases/archive/release-notes-before-26.11.md)
+
+### Added
+- **One-click linking.** Settings → FrameDecks account → **Connect to FrameDecks** opens `framedecks.com/connect` in
+  the browser; a signed-in owner or admin sees "Allow ‹PC› to use your workspace?" with the PC's two-digit check
+  number, picks the workspace and presses Allow. The PC turns to "Linked" by itself (it checks every 1.5 s while
+  waiting). Signing in on the way comes straight back to the request. Typing the code under Service PCs still works.
+  Needs `hosted/supabase/migrations/0010_link_by_url.sql` (`computer_link_peek`) run in Supabase.
+
+### Changed
+- framedecks.com is the website's one address: canonical links, Open Graph, `robots.txt` and `sitemap.xml` use it;
+  signed-in pages are not indexed; the Pages address answers `noindex`. Each page has its own title in the browser
+  tab and when shared. The program links through `https://framedecks.com` and falls back to
+  `https://framedecks.pages.dev`. Cloudflare DNS, redirects (framedecks.app and www → 301), TLS, cache, security and
+  WAF settings: [docs/deployment/cloudflare-domains.md](../deployment/cloudflare-domains.md).
+- Website front page: about four screens instead of nine. The hero has the words and the product side by side with
+  four proof ticks; **How it works** plays its four steps by itself once (tabs with a filling bar, pause on hover or
+  focus, Previous / Pause / Next), with no scroll pinning; the demo and the features share one set of tabs; four
+  questions show and the rest open from "More questions"; the promise moved into the closing panel. GSAP is removed.
+
+## [6.12] - 2026-10-28
+
+Full notes: [docs/releases/v6.12.md](../releases/archive/release-notes-before-26.11.md)
+
+### Changed
+- The virtual camera FRAMECAST is renamed **FrameRelay** everywhere: the registered camera name, the program, the
+  website, the documentation, the installer and the GitHub templates. Same Windows camera ID; FrameDecks still
+  recognises a camera registered under the old name.
+- Website front page: the Studio picture arrives once (rise, screen on, corners, phone, one light across the glass)
+  instead of tilting, following the mouse, floating and swaying; the closing light is still too.
+- The quotation in the website's demo is replaced by Proverbs 16:3 (KJV), and the front page's Studio picture was
+  captured again with that verse.
+- About screen: "Ministry Servant" removed from the founder's roles and journey.
+
+## [6.11.2] - 2026-10-27
+
+Full notes: [docs/releases/v6.11.2.md](../releases/archive/release-notes-before-26.11.md)
+
+### Changed
+- The FrameDecks website explains problems in plain words and asks for confirmation in a FrameDecks dialog (trust
+  fixes, PR #39). The program on the PC is unchanged.
+- Repository layout: the program's Python modules are in `src/`, community files in `.github/`, licences in `legal/`
+  and the changelog and roadmap in `docs/`. The installer, the launchers and the program behave exactly as before.
+
+### Fixed
+- The website's size check (`hosted/scripts/check-budget.mjs`) works on Windows.
+
+## [6.11.1] - 2026-10-26
+
+Full notes: [docs/releases/v6.11.1.md](../releases/archive/release-notes-before-26.11.md)
+
+### Added
+- A damaged saved plan is kept aside and the newest readable daily backup opens instead; a linked PC then restores
+  the plan from its workspace. Settings → Diagnostics says what happened.
+- Settings menu grouped (Your meeting, Presenting, Account, This PC, Help), with descriptions and Find a setting.
+- First run: Start fresh is the main choice when no earlier data is found; a Getting started card (3 steps) follows.
+- Settings → Diagnostics → Save support bundle (log, Diagnostics, settings; never plan, members, PIN or keys).
+- About announces a newer published version once a day (never downloads; `FRAMEDECKS_NO_UPDATE_CHECK=1` turns it off).
+- CI: Desktop checks (ruff, JS syntax, doc links), the website's performance budget, an installer smoke test, and
+  a backup check that the nightly copy decrypts and lists its tables; failed scheduled runs open a GitHub issue.
+
+### Changed
+- Design roadmap completed (ranks 8, 12–21): website state kit, skip link and landmarks, gold discipline, task-first
+  Overview, light theme, Source Sans 3; program sentence-case labels in Source Sans 3, Lucide icons, one email composer,
+  Import / Export menu, Frame actions More…, compact About, help text under checkboxes; one type scale, weights, radii
+  and elevations (`tools/css_tokens.py`), visual layout checks in CI (`tests/visual/layout.mjs`), `docs/development/design-system.md`.
+- Running a service (owner-approved simplification, 27 October; `app/js/service.js`): Prepare / Run (Run hides every
+  editor and blocks rename, drag, menus, Delete, cut, paste and undo in the Studio), Up next, Before you start,
+  Practice mode (Black screen for the audience, `practice=1` previews), How people see it (Settings), Advanced
+  (Transitions, Keyboard shortcuts, Security, Diagnostics), FrameRelay presets with Fine-tune, Members → People (List /
+  Table), labelled main tabs, worded Previous / Next, Hide all red only while something is on screen, one status pill,
+  Live tools grouped (one Teleprompter entry) and closed by Esc, Blackout renamed Black screen, Q + S → Both, no
+  "350 ms" or double PREVIEW badges, a four-step first-service guide, `docs/guide/glossary.md`. Website: Services is now
+  **Running order**, cross-links with the Meeting Form, and a factual trust strip on the front page.
+- The name is written **FrameDecks** everywhere people read it: the program, the installer's names and messages, the
+  website, its metadata and the guides (identifiers stay: data folder, settings names, the exe, the local API's
+  `app` value, the firewall rule, the old camera names that upgrades look for). The legacy Wi-Fi phone remote is
+  unchanged (protected).
+- Website front page for every gathering (owner's brief, 27 October): "Prepare with Purpose. Present with
+  Excellence.", the approved line about every screen, every stream and every member of your team, made-for pills,
+  a bento of features, Day 1–4, **Ready to Serve?**; no church-only words or named streaming products; new neutral
+  product pictures. Motion is back and lighter (transform and opacity only, plays once, nothing animated when idle,
+  no animated blur). The website says **team** where it said church. The About screen is readable in the light theme.
+- Website, one place per job (owner-approved, 27 October): four main places, **Home · Plan · Live · People**, with
+  Branding, **Service PCs** and **Help** under Settings; the Meeting Form and the running order are one **Plan** page
+  (Edit the meeting / History and restore; old addresses still open it); Home shows the next service and whether it is
+  ready (volunteers who may run services get **Run the service**); your churches and invitations moved to **Your
+  account** (the avatar); sign-in asks **New here?** or **Welcome back** and a first visit walks through naming the
+  church, installing and linking the service PC; the transition style is a dropdown; empty lists say **+ Add a
+  question**. A **Help** page (getting started, Sunday morning, problems, words, contact, version) and a tablet layout
+  for Live.
+- Website look (identity): no glows, glass, word-by-word headline or pointer spotlight; one flat gold main action;
+  gold frame corners around product pictures; scripture in EB Garamond. The front page is rebuilt: what it is in one
+  sentence, Download first, a press-Next demo, a week with FrameDecks, a verse, what it does, questions churches ask,
+  and a full footer.
+- Run: **Up next** as large as the picture on screen, keyboard hints under it (from your own shortcuts), and at the
+  meeting's start time a reminder if Practice mode is still on.
+- Steps to 90+ after the re-audit: every program colour in `app/css/palette.css` (`tools/css_palette.py`; the token
+  check fails on a colour anywhere else), radii and shadows on tokens (`--el-2-up`), `!important` 42 → 16; the keyboard
+  editor and About story built on first open (page 2,220 → 1,796 elements); an axe WCAG 2.1 AA scan in CI
+  (`tests/visual/a11y.mjs`, both themes) and its fixes: list rows, inspector links and Theme radios with the right ARIA,
+  light-theme green `#15803d`, faint `#5f6678`, undimmed light menu text, full-strength Esc hint.
+- Website (design audit ranks 5, 6, 7, 9, 10, 11): one date helper (`src/lib/when.ts`: "2 h ago", exact on hover);
+  a bottom tab bar on phones; landing with real product screenshots and specific copy, mission and lockup once;
+  destructive actions styled apart with named confirmations; labels at 12 px+ and `--text-3` #8793ad (4.5:1+);
+  Content previews with kind icons on Services and Meeting cards. Program: labels at 12 px+, `--faint` 4.5:1+.
+- Command bar in words (design audit DD-13): Transition label, Auto-advance, Live tools ▾, Ready / Off air,
+  sentence-case Go Live and Hide all, tooltips on the icon-only tabs. Teleprompter empty state with Write a script.
+- Sync no longer deletes every Frame in the workspace when they all vanish from one PC; they are restored instead.
+- The program's local API refuses calls from other websites (`Sec-Fetch-Site: cross-site`).
+
+### Fixed
+- Companion errors now use clear, actionable messages instead of exposing database or authentication details.
+- Destructive companion actions use named, keyboard-accessible confirmation dialogs; deleting a workspace requires
+  typing its name.
+- README installation and companion descriptions now reflect the published release and shipped online features.
+- Errors the program recovers from are logged (at most once a minute each).
+- Window buttons (minimise, maximise, restore, close) never wait on the window's thread.
+- One OpenCV (opencv-python 5.0); the unused opencv-python-headless 4.14 is gone from the installer.
+- Build: every GitHub Action and the softcam source pinned to a reviewed commit; only the release job can write.
+- Database `0009_seen_throttle.sql`: a PC's last-seen time is written at most once a minute.
+
+### Removed
+- The Stream Deck plugin (`streamdeck/`) and the local `/api/command` endpoints it used (owner's decision).
+
+### Fixed
+- "Could not reach https://framedecks.pages.dev: Forbidden" in FrameDecks account (requests now identify FrameDecks).
+- Unpinning the Teleprompter overlay froze the program.
+- Camera labels that still said FrameDecks (switch, status, Teams step, Cards, Camera Look, Diagnostics) now say
+  FrameRelay; `tests/test_camera_name.py` guards it (design audit DD-01).
+- The camera's start-file message no longer sits over the Studio canvas (Members' tab switch showed the camera
+  picture panel on every visit). `tests/test_ui_labels.py` guards ranks 2–4.
+
+## [6.11] - 2026-10-26
+
+Full notes: [docs/releases/v6.11.md](../releases/archive/release-notes-before-26.11.md)
+
+### Added
+- Companion: **Meeting Form** page. Plan the whole meeting online as in the Excel Meeting Form (meeting details,
+  Frames, every Content type, questions, scripture); a linked PC shows it within about a minute.
+- Companion: on a Windows PC, the Overview checks for the FrameDecks camera and offers the download or **Open
+  FrameDecks on this PC**; the installer registers the `framedecks:` link for the current user.
+
+### Changed
+- The Excel Meeting Workbook (import, template, export, undo) moved to **Settings → Data / Backup**; the Meeting
+  menu, Meeting tab and empty Studio no longer show it (owner decision W2).
+- The dark theme uses the website's colour palette (colours only), so the program and the website match.
+
+## [6.10] - 2026-10-20
+
+Full notes: [docs/releases/v6.10.md](../releases/archive/release-notes-before-26.11.md)
+
+### Fixed
+- After **Quit**, the program kept running out of sight: the hidden Spotlight window kept `webview.start()` from
+  returning. The next start then showed *127.0.0.1 refused to connect*, because on Windows its server could share port
+  8750 with the silent copy.
+  - Quit now closes every window, and a five-second safety net ends the process.
+  - The server releases its port at once.
+  - On Windows the main server binds its port exclusively (`SO_EXCLUSIVEADDRUSE`, `server.MainServer`).
+  - A start that finds a copy which holds the port but does not answer ends that copy. Only processes with the
+    program's own name are ended, never the starting one.
+  - The installer closes a running copy before it updates.
+  - Tests: `tests/test_desktop.py` → `Restart`.
+
+## [6.9] - 2026-10-20
+
+Full notes: [docs/releases/v6.9.md](../releases/archive/release-notes-before-26.11.md)
+
+### Added
+- **Meeting Workbook with two tabs.**
+  - **Dashboard**, made only of formulas: this meeting, KPI tiles, meeting counts from a log, readiness checks,
+    quick links into the form and a content-mix chart.
+  - **Meeting Form**, one guided page: meeting details, speaker, attendees, presentation, the Frames, Content,
+    question and scripture tables, and additional notes. Spare rows fold away behind Excel's + button.
+- `meeting_form.py` holds the form's layout. It also fills the form for **Export this meeting to Excel**, through
+  `POST api/meeting/workbook`, so an export looks like the template.
+- The import reads the form by its labels and header rows, so a hand-made form in the same style imports too.
+- The meeting now stores time, location, speaker contact, expected attendees, attendee notes, presentation owner,
+  content notes and additional notes.
+- `legacy.py` moves data saved under the program's earlier name (tested by `tests/test_legacy.py`).
+- `tests/test_meeting_form.py`.
+
+### Changed
+- The program now uses the FrameDecks name everywhere: the program (`FRAMEDECKS.exe`), the program folder,
+  the data folder (`%APPDATA%\FRAMEDECKS`), the data files (`kc-*.json`), the start files, the recordings folder,
+  the firewall rule and the Share Window title (*FrameDecks Share Window*). Default labels and the About text no
+  longer mention the program's earlier name, and the default Group Name is empty.
+- On first start, 6.9 moves data saved by earlier versions (folder, files, backups, recordings and browser settings)
+  to the new names once, never overwriting newer data. The installer installs over every earlier version and removes
+  the old program folder and shortcuts.
+- **Hide All** and its **Esc** hint form one unit that never overlaps or clips. The top bar wraps under 1140 px, and
+  the Program menu is always a drop-down.
+- The import preview shows the meeting's date, time, location and speaker. Problems name the form section, for
+  example *Meeting Form · Content · row 26*.
+
+### Removed
+- The search box in the top bar, with its shortcuts and code. The command palette and Spotlight cover search.
+- **Presentation Mode**: its button, its **P** shortcut, its command and its state.
+- The **Hide the app window** button in the Studio.
+- The workbook's Read Me and Lists sheets, and the one-sheet-per-list layout. Older workbooks still import.
+- The unused rail toggle code and styles.
+- `docs/reference/legacy-manual-v4.6.txt`.
+
+### Fixed
+- The Teleprompter overlay and the other frameless windows can be moved and resized again (6.8).
+
+## [6.8] - 2026-10-20
+
+Full notes: [docs/releases/v6.8.md](../releases/archive/release-notes-before-26.11.md) · Plan: [docs/project/history/2026-10-20-v6.8-plan.md](../project/history/2026-10-20-v6.8-plan.md)
+
+### Added
+- **Teleprompter overlay** (Meeting Leader mode, Shift+R): a see-through window over Zoom, Teams or Meet with five
+  transparency modes (Solid, Presenter, Meeting, Conference, Ghost), frosted glass, stay on top, mirror, a floating
+  toolbar that hides itself, and exclusion from screen sharing and recordings.
+- **Modern window:** no Windows title bar; the app's ribbon moves and maximizes the window, with one shared set of
+  window buttons (`app/js/window-chrome.js`) in every window. Snap and edge resizing keep working.
+- **Minimize to tray** with *Hide application to system tray?* (Hide To Tray / Stay In Taskbar / Remember my choice);
+  tray menu Open App, Teleprompter, Search, Settings, More, Exit.
+- **Spotlight:** a system-wide shortcut (Alt+Space by default) opens the command palette in its own window, also from
+  the tray; background-safe commands run without the main window; Frequently used items.
+- Settings → General → **Window and tray**.
+- `desktop_win.py` (Win32 via ctypes: window chrome, glass, fade, capture exclusion, global shortcuts) and
+  `tests/test_desktop.py`, run in CI.
+
+### Changed
+- Teleprompter window: the script takes the full width; *On screen & next* slides in on request; floating toolbar.
+- Teleprompter engine: optional floating toolbar, mirror mode, reading width that adapts to the text size.
+- The README and release header picture is regenerated for 6.8; CI fails if it shows another version.
+
+## [6.7] - 2026-10-19
+
+Full notes: [docs/releases/archive/v6.7.md](../releases/archive/release-notes-before-26.11.md)
+
+### Added
+- **Teleprompter** (Program → Teleprompter, **R**): the Frame's script docked left, right or bottom of the Studio, or
+  floating; auto and manual scrolling at five speeds, size, line spacing, contrast and Focus mode, cues for the next
+  Frame and item, simple formatting. Never shown on any output. Also in its own window (**Program → Teleprompter
+  window**, formerly Speaker View) and on the phone remote (full screen in the Simple remote).
+- **Inline editing** of every Content on the Studio Canvas (body and label) and of Frame and Content names in the
+  lists (double-click or F2); Enter saves, Esc cancels, clicking away saves.
+- **Command palette** (Ctrl+K / Ctrl+Space, configurable): fuzzy search over Frames, Content, questions and
+  scriptures, templates, the Content Library, branding, settings and members, recent items, and commands.
+- **Multi-select** of Frames and Content (Ctrl/Shift+Click, box select) with delete (Undo), copy, cut, paste,
+  duplicate and move; right-click menu.
+- **Branding options:** Logo only / Name only / Logo + Name, four corners, Small / Medium / Large, opacity, padding,
+  safe margin, background plate on or off. **Remove background** for logos, done locally, with Undo.
+- Content presets **Discussion topic**, **Icebreaker** and **Poll**, also in the Content Library.
+- Branded GitHub release pages, generated by `tools/make_release_notes.py` (the About screen's logo, name, tagline and
+  motto, then What's New, Enhancements, Fixes, Performance Improvements and Known Issues).
+- Tests: the Teleprompter script never reaches an output; script rendering is escaped; Branding defaults and ranges.
+- A documentation suite for churches: getting started, installation, service planning, presentations, Frames,
+  Content, media, remote control, troubleshooting, FAQ, architecture, and guides for each ministry role.
+- Contributor documentation: developer guide, branching strategy, release process, changelog standards, testing
+  and code style.
+- GitHub issue forms (bug report, feature request, service-day problem) and a pull request template with a
+  service-safety checklist.
+- `ROADMAP.md`, `SECURITY.md`, `SUPPORT.md` and `CODE_OF_CONDUCT.md`.
+- Automated store tests (Frame-owned lists, independent duplicates, conversion of older data, output folding) and a
+  test runner, `node tests/run.js`, which the installer build now runs.
+
+### Changed
+- Inspector order: Label, Content, Display Settings, Visual Settings (then Animation and Show on).
+- The Frame's **Leader notes** are its **Teleprompter script** (up to 20,000 characters).
+- The Meeting Workbook has no Answer or Notes columns. Older workbooks still import; their answers and notes are added
+  to the Frame's Teleprompter script.
+- The Excel library loads on first use (main window: 10.8 → 4.0 MB JS heap, 1,590 → 742 KB of scripts).
+- The header search opens the command palette.
+- Repository organization: earlier guides moved to `docs/reference/`, the engineering log to
+  `docs/architecture/design-history.md`, the installer build guide to `docs/development/building-the-installer.md`,
+  and tests to `tests/`. Program code and the installer are unchanged.
+- Installer builds use the exact package versions of the last good build (`packaging/constraints.txt`), so every
+  build of the same code produces the same app.
+- The scripture message for non-ESV translations no longer mentions the Excel import removed in 6.6.
+
+### Removed
+- Answers and presenter notes from every screen (main window, Teleprompter window, phone, Inspector). Stored data is
+  kept.
+
+### Fixed
+- Typing in an editor no longer triggers Studio shortcuts.
+- Double-clicking overlapping cards on the live picture edits the card in front.
+
+## [6.6] - 2026-10-18
+
+Full notes: [docs/releases/archive/v6.6.md](../releases/archive/release-notes-before-26.11.md)
+
+### Added
+- **Speaker View** (Program → Speaker View): a window only the leader sees, with the question or scripture on
+  screen, its answer and notes, what comes next, Frame and meeting notes, the time, time on this Frame and a timer.
+- **Edit on the canvas:** double-click a question or scripture card on the Studio Canvas to edit it in place.
+- **Drag to reorder** questions and scriptures in a Frame's list.
+
+### Changed
+- The phone's drawing pad shows the real live picture (what Zoom and Teams see), 960 pixels wide while it is open,
+  and fills the screen in landscape.
+- Content Settings: where Content appears is set only in each Content's Behavior group (older Frame-wide settings
+  carry over); "Show the title" sits under the title; Timer shows only the field for its mode; Branding position is
+  in one place; the scripture fetch selector is now **Fetch from**.
+
+### Removed
+- The Excel import inside Question Content. Excel is used only through the Meeting Workbook.
+
+### Fixed
+- The phone's drawing pad no longer shows a black picture when the Frame contains camera, screen or PowerPoint
+  Content.
+
+## [6.5] - 2026-10-18
+
+Full notes: [docs/releases/archive/v6.5.md](../releases/archive/release-notes-before-26.11.md)
+
+### Added
+- **Annotate (D):** pen, highlighter, arrow, line, rectangle, ellipse and text over everything on screen, with undo,
+  redo and clear. **Freeze (F)** holds the picture.
+- **PowerPoint Content:** a .pptx becomes slides through the installed PowerPoint; **Show objects only** removes a
+  plain slide background.
+- **Simple phone remote** (the new default) with very large Frame and Content buttons, Annotate, Freeze and Black
+  Screen; the **Advanced** remote adds search, presenter notes and a run-through mode.
+- **Excel Meeting Workbook:** a five-sheet template (Meeting Overview, Frames, Content, Questions, Scriptures) with
+  import preview and export.
+- SHA-256 checksum file published with each installer.
+
+### Changed
+- Scenes are now **Frames** and layers are now **Content** throughout the app.
+- Every Frame owns its questions and scriptures; Duplicate makes a fully independent copy.
+- **+ Frame** adds a blank Frame; **+ Content** lists Question, Scripture, Text, Image, Video, Timer, PowerPoint and
+  Free Content.
+- One **Content Settings** panel with groups replaces Basic / Advanced.
+
+### Removed
+- Team Space (co-leader collaboration over WireGuard).
+- The pinned-question section.
+
+## [6.4] - 2026-10-15
+
+Full notes: [docs/releases/archive/v6.4.md](../releases/archive/release-notes-before-26.11.md)
+
+### Added
+- Team Space: co-leaders connected directly between PCs over WireGuard (removed again in 6.5).
+- New guides: user, installation, configuration and feature documentation.
+
+### Changed
+- The camera is called **FrameDecks** in Zoom, Teams, Google Meet and OBS (same device ID as before).
+- The app shows only the Book + Candle logo as its branding.
+- The installed app is a real desktop window: no address bar or browser controls, and the title bar follows the
+  theme.
+
+## [6.3] - 2026-10-15
+
+Full notes: [docs/releases/archive/v6.3.md](../releases/archive/release-notes-before-26.11.md)
+
+### Changed
+- One command bar at the top replaces the top bar and the bottom live bar.
+- Studio panels can be resized, folded and reset; sizes are remembered.
+- Phone remote profiles: Simple, Standard and Advanced.
+
+## [6.2] - 2026-10-13
+
+Full notes: [docs/releases/archive/v6.2.md](../releases/archive/release-notes-before-26.11.md)
+
+### Added
+- **Meeting & Branding** settings: Meeting Name, organization name, logo and accent colour, shown only where you
+  choose; `{meeting}` and `{org}` placeholders in text.
+- One Excel file builds a whole meeting, with a preview listing each problem by row; export a meeting to Excel.
+
+### Changed
+- The live action is one clear **Go Live** button.
+
+## [6.1] - 2026-10-13
+
+Full notes: [docs/releases/archive/v6.1.md](../releases/archive/release-notes-before-26.11.md)
+
+### Added
+- **Quick Start** builds a complete set of scenes for a meeting; **Presentation Mode** (P); a built-in Content
+  Library of ready-made scenes; Duplicate & edit question.
+
+### Changed
+- The program got its current name, **FrameDecks**, with a navy and gold design in dark and light
+  themes, and a new About page.
+
+## [6.0] - 2026-10-12
+
+Full notes: [docs/releases/archive/v6.0.md](../releases/archive/release-notes-before-26.11.md)
+
+### Added
+- **Scenes · Layers · Canvas:** scenes with layers, smart duplicate, templates, version history and transitions.
+- Scripture lookup from the ESV API (with a free key), with context, read aloud, recent and favourite references.
+- Phone and tablet layouts of the remote with scenes, canvas and layers.
+
+## [5.1] - 2026-10-12
+
+Full notes: [docs/releases/archive/v5.1.md](../releases/archive/release-notes-before-26.11.md)
+
+### Added
+- Command Center layout: production panel, live outputs under the picture, an Inspector, and Take live (T).
+- Mobile Director remote with a run sheet and tablet control surface.
+
+### Changed
+- Wider search (birthdays, scenes, slide decks, settings); faster stepping through long lists.
+
+## [5.0] - 2026-10-11
+
+Full notes: [docs/releases/archive/v5.0.md](../releases/archive/release-notes-before-26.11.md)
+
+### Added
+- Presentation modes **Question · Both · Verse**, including a `PresentationMode` column in Excel.
+
+### Changed
+- Simpler screens: one way to do each thing, one LIVE indicator, one status button, search with Ctrl+K.
+
+## [4.9] - 2026-10-11
+
+Full notes: [docs/releases/archive/v4.9.md](../releases/archive/release-notes-before-26.11.md)
+
+### Added
+- Studio workspace with Scenes and Layers, a control bar, and Dark / Light / Match Windows appearance.
+- Natural background blur with fine control, alongside the Classic style.
+
+### Changed
+- Three tabs: Studio · Members · Settings.
+- Much faster stepping through long question and verse lists.
+
+[Unreleased]: releases/
+[6.6]: releases/archive/v6.6.md
+[6.5]: releases/archive/v6.5.md
+[6.4]: releases/archive/v6.4.md
+[6.3]: releases/archive/v6.3.md
+[6.2]: releases/archive/v6.2.md
+[6.1]: releases/archive/v6.1.md
+[6.0]: releases/archive/v6.0.md
+[5.1]: releases/archive/v5.1.md
+[5.0]: releases/archive/v5.0.md
+[4.9]: releases/archive/v4.9.md

@@ -104,10 +104,6 @@ Teleprompter's top bar. That script is kept with the meeting details.
 Use `# Heading`, `- bullet`, `**bold**`, `*italic*`, `[PAUSE]` and `---` to make it easy to read at a glance. See
 [Presentations](presentations.md#teleprompter).
 
-> **Note:** Before 6.7 this was called *Leader notes*, and questions and scriptures had their own Answer and Notes.
-> Those are no longer shown anywhere, but they are kept in your data. Older workbooks still import: their answers
-> and notes go into the Frame's Teleprompter script.
-
 ## Plan on the website
 
 On framedecks.com, **Plan** guides you in five steps. Each step shows a tick when it is done, and the step to do next
@@ -130,15 +126,12 @@ no longer shown. A meeting that has them keeps them, and the form says "This mee
 version (speaker, location and so on). They are kept." The Excel Meeting Workbook on the PC is unchanged and still has
 its own fields.
 
-**Several meetings (8.5).** A workspace can hold more than one meeting, each with its own name, date, notes and
+**Several meetings.** A workspace can hold more than one meeting, each with its own name, date, notes and
 Frames. The meetings are listed at the top of Plan, each with its date and number of Frames:
 
 - choose a meeting to plan it; the steps, the Frames and the timeline are that meeting's;
 - **New meeting** asks for a name; **Make the meeting** creates it, empty, and chooses it;
 - **Rename** renames the chosen meeting. Its Frames stay with it.
-
-A second meeting needs a one-time database update: the workspace owner runs `0012_meetings.sql` in Supabase (see the
-8.5 release notes). Until then Plan shows one meeting, as before, and says so.
 
 **The timeline.** Beside the plan (under it on a phone), the timeline shows the chosen meeting from its name down to
 the last Frame, each Frame with its number, a small picture, its name and what it shows. Drag a Frame to a new place,
@@ -209,9 +202,6 @@ While it runs, the button says **Syncing…**. Then the result shows next to it:
    exactly what is in the file. Otherwise each difference is marked ⚠. "⚠ Not on this PC yet: …" lists pictures and
    videos the Frames use that are not on this PC.
 
-> **Note:** Before 8.4, **Add after my Frames** was the default. That is why a plan could look different from the
-> website. Choose **Use this plan** to see the plan exactly as it is on the website.
-
 Both commands are also in the [command palette](presentations.md#command-palette): type *Frame File*. Full details
 are in [The .frame file](../reference/frame-file.md).
 
@@ -222,7 +212,7 @@ once. To move a plan to another PC, use a [.frame file](#move-a-plan-to-a-servic
 
 ### Two tabs: Dashboard and Meeting Form
 
-Since 6.9 the workbook has just two tabs.
+The workbook has just two tabs.
 
 **Meeting Form** is where you type. It is one page, read from top to bottom, in numbered sections:
 
@@ -261,7 +251,7 @@ It reaches a linked PC by itself, with no file to import
 4. Choose **Append** (add to what you have) or **Replace**.
 5. Changed your mind? **Undo the last Excel import** (same place in Settings).
 
-Workbooks from earlier versions (one sheet per list, from 6.5 to 6.8, or the 6.2 one-sheet template) still import.
+Workbooks made with earlier versions still import.
 
 ### Export a meeting
 **Export this meeting (Excel)** (**Settings → Data / Backup → Meeting from Excel**) saves the same **Dashboard** and **Meeting Form**, filled in, to your

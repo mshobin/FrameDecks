@@ -53,8 +53,14 @@ def user_notes(markdown):
     return body.strip() + "\n"
 
 
+def is_yymm(v):
+    """26.11 and later (YY.MM); the 4.9 to 9.13.0 versions before them are not."""
+    return version_tuple(v)[0] >= 20
+
+
 def version_tuple(v):
-    return tuple(int(x) for x in re.findall(r"\d+", str(v or "")))[:4]
+    t = [int(x) for x in re.findall(r"\d+", str(v or ""))[:4]]     # the same as src/updater.py (padded: 26.11 == 26.11.0)
+    return tuple(t + [0] * (4 - len(t)))
 
 
 def internal_lines(notes):
@@ -114,6 +120,10 @@ def build(installer, out, version, date, index, signed, base=BASE, key=None):
     (folder / f"{name}.sha256").write_text(f"{digest}  {name}\n", encoding="ascii")
     url = f"{base}/releases/{version}/{name}"
     entries = [e for e in (index or {}).get("releases", []) if e.get("version") != version]
+    # 26.11: versions became YY.MM. A YY.MM release lists only YY.MM releases: the 9.x ones before it are history
+    # (docs/archive/), their installers are removed from downloads.framedecks.com, and nothing may point at them.
+    if is_yymm(version):
+        entries = [e for e in entries if is_yymm(e.get("version"))]
     # 7.1.2: "latest" only ever moves forward. A version older than one already published is refused, so pushing an old
     # tag can never make the download page or new installs go back (rolling back is a deliberate owner step:
     # docs/deployment/release-pipeline.md, "Rollback").

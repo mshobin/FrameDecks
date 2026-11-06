@@ -48,10 +48,10 @@ Yes. **Duplicate Frame** (right-click the Frame, or **Ctrl+D**) makes a fully in
 Yes, optionally. The **Meeting Workbook** (Settings → Data / Backup → Download the Excel template) has two tabs: the **Meeting Form**, one guided page where you type the meeting details, Frames, Content, questions and scriptures, and the **Dashboard**, which sums it up for you. Import shows every problem with where it is (for example *Meeting Form · Content · row 26*) before anything changes, and can be undone. Workbooks from earlier versions still import. See [Meeting Workbook and branding](../reference/meeting-workbook-and-branding.md).
 
 **Can I plan more than one meeting?**
-Yes, since 8.5. On framedecks.com, Plan → **New meeting** makes another meeting with its own name, date, notes and Frames; choose a meeting at the top to plan it. The service PC shows one meeting at a time: choose it in the **Meeting** list above the Frames. Next, Previous, the phone remote and the Teleprompter follow that meeting only. A workspace owner first runs `0012_meetings.sql` in Supabase once (see the 8.5 release notes). Service PCs still on 8.4 or earlier show every meeting's Frames together until they are updated.
+Yes. On framedecks.com, Plan → **New meeting** makes another meeting with its own name, date, notes and Frames; choose a meeting at the top to plan it. The service PC shows one meeting at a time: choose it in the **Meeting** list above the Frames. Next, Previous, the phone remote and the Teleprompter follow that meeting only.
 
 **Where did the speaker, time and location go on the website?**
-Since 8.4 the website's meeting details have only **Meeting name**, **Date** and **Meeting notes**. A meeting that already has a speaker, time, location and so on keeps them; the form says so. The Excel Meeting Workbook still has its own fields.
+The website's meeting details have only **Meeting name**, **Date** and **Meeting notes**. A meeting that already has a speaker, time, location and so on keeps them; the form says so. The Excel Meeting Workbook still has its own fields.
 
 **Can two people edit the same service at once?**
 Not in the program. Plan together on framedecks.com; a PC linked to your team gets the plan by itself within about a minute (the **Sync** chip in the header shows **Synced**; **Resync Linked PCs** syncs at once). For a service PC without internet, export a **.frame file** and import it there (Settings → Data / Backup → **Import Frame File…**, then **Use this plan**). See [Move a plan to a service PC](service-planning.md#move-a-plan-to-a-service-pc).
@@ -63,7 +63,7 @@ Yes. Each Frame can **Auto advance** after a number of seconds (Content Settings
 Yes. **+ Deck → Timer** counts down a number of minutes, or until a time of day, and shows your message at zero.
 
 **Can we run a poll?**
-Not as a ready-made card since 8.0 (the Poll, Discussion topic and Icebreaker cards were removed; Frames that already have them keep them). Put the question and the choices in a **Question** or **Text** Content and ask people to raise a hand or type in the chat. FrameDecks does not collect or count votes.
+Not as a ready-made card (the Poll, Discussion topic and Icebreaker cards were removed; Frames that already have them keep them). Put the question and the choices in a **Question** or **Text** Content and ask people to raise a hand or type in the chat. FrameDecks does not collect or count votes.
 
 ## Worship and lyrics
 
@@ -166,10 +166,10 @@ Yes. Write them in each Frame's **Teleprompter script** (Frame settings). Open i
 No. The Teleprompter is only for the presenter. It is never on the FrameDecks vCam, the Presentation window, the OBS pages or the phone's drawing pad.
 
 **Where did the answers and notes on my questions go?**
-Since 6.7, questions and scriptures have no Answer or Notes fields, and no screen shows them. Nothing was deleted from your data. When you import an older Meeting Workbook, its answers and notes go into the Frame's Teleprompter script.
+Questions and scriptures have no Answer or Notes fields, and no screen shows them. Nothing was deleted from your data. When you import an older Meeting Workbook, its answers and notes go into the Frame's Teleprompter script.
 
 **Is there a quick way to find something?**
-Yes. Press **Ctrl+K** or **Ctrl+Space** to open the command palette. (There is no search box in the top bar since 6.9.) Type a few letters to find a Frame, a question, a scripture, a setting or a member, or to run a command such as **Go Live**. See [Presentations](presentations.md#command-palette). From anywhere in Windows, even with the app in the tray, press **Alt+Space** to open the **Command Center**: the same search, plus the chips Prepare, Engage, Control and More. See [Command Center](presentations.md#command-center).
+Yes. Press **Ctrl+K** or **Ctrl+Space** to open the command palette. (There is no search box in the top bar.) Type a few letters to find a Frame, a question, a scripture, a setting or a member, or to run a command such as **Go Live**. See [Presentations](presentations.md#command-palette). From anywhere in Windows, even with the app in the tray, press **Alt+Space** to open the **Command Center**: the same search, plus the chips Prepare, Engage, Control and More. See [Command Center](presentations.md#command-center).
 
 ## Data, privacy and offline use
 

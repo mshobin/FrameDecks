@@ -218,7 +218,7 @@ function build(){
     h('div', {cls: 'actions mb-acts'}, [
       h('button', {cls: 'btn small', type: 'button', html: I('star', 15) + ' Add a Meeting Title Frame', onclick: function(){ addLib('lib-meeting-title'); }}),
       h('button', {cls: 'btn small', type: 'button', html: I('panel-bottom', 15) + ' Add a Meeting lower third Frame', onclick: function(){ addLib('lib-meeting-lower'); }})]),
-    h('p', {cls: 'hint', text: 'Excel import and export are in Settings → Data / Backup (6.11).'})]));
+    h('p', {cls: 'hint', text: 'Excel import and export are in Settings → Data / Backup.'})]));
 }
 function addLib(id){
   var made = null;

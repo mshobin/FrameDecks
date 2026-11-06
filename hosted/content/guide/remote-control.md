@@ -59,9 +59,9 @@ The phone stays signed in for 30 days. After that, or after a new PIN, enter the
 
 The remote runs the **whole meeting** from your hand. The top half never moves: the **live picture**, what is on
 screen, and **Previous / Next**. Under it, the five chips hold everything else, the same **Prepare**, **Engage**,
-**Control**, **Notes** and **More** as the PC's top bar and Command Center (9.13). Hold the phone upright and the chips are at
+**Control**, **Notes** and **More** as the PC's top bar and Command Center. Hold the phone upright and the chips are at
 the bottom; turn it **sideways** (or use a tablet) and the picture sits on the left with the chips on the right.
-Since 9.9 it has the same look as the PC's [Command Center](presentations.md#command-center): dark glass, a
+It has the same look as the PC's [Command Center](presentations.md#command-center): dark glass, a
 floating top bar, the chips as a floating dock, and each tool's icon in a square of its own colour.
 
 ![The remote on a phone](images/remote-simple.png)
@@ -70,7 +70,7 @@ floating top bar, the chips as a floating dock, and each tool's icon in a square
 | --- | --- |
 | **Top bar** | The meeting name and the **Connected** status, always visible |
 | **Hide all** | Hides everything on screen at once. It turns solid red while something is on screen |
-| **Live picture** | Exactly what is on screen, with a badge: **Off air**, **On screen**, **Black screen**, **Frozen** or **Emergency**. Its two buttons: **Spotlight** (touch the picture to point) and **Draw**. Since 9.7 the picture shows when the phone is sideways (and on a tablet held sideways); upright it is left out so Previous / Next and the Content have the room, and only the badge stays |
+| **Live picture** | Exactly what is on screen, with a badge: **Off air**, **On screen**, **Black screen**, **Frozen** or **Emergency**. Its two buttons: **Spotlight** (touch the picture to point) and **Draw**. The picture shows when the phone is sideways (and on a tablet held sideways); upright it is left out so Previous / Next and the Content have the room, and only the badge stays |
 | **On screen now** | *Frame 4 of 18*, the Frame's name and what it is showing, plus chips for **FrameDecks vCam**, **Recording**, **Black screen**, **Frozen** or drawings on screen |
 | **Previous / Next** | Move through the Frames, in order. **Next** is gold, shows the name of the Frame it will put on screen, and says **Start** before anything is live |
 

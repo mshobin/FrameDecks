@@ -28,21 +28,21 @@ The **command bar** across the top holds everything you need live:
 | Studio · Members · Settings | The three sections (Alt+1, Alt+3, Alt+4) |
 | ◀ Frame · **Go Live** · Frame ▶ | Put the selected Frame on screen (T), or step to the previous or next Frame |
 | Transition · Auto · ◀ Question ▶ | How the next Frame appears; auto-advance; step through the Frame's questions or scriptures |
-| Prepare · Engage · Control · Notes · More | The five chips (9.13, in place of Live tools), the same as in the Command Center and on the phone remote. Each opens a panel under it; **Esc** closes it. **Prepare**: meetings, **Teleprompter** (R), share, Quick Start, library, import, camera. **Engage**: Memory Cards, Capture copies, **Draw** and **Spotlight** (on the desktop app they open the Share Window, the window you share in Zoom or Teams), clear drawings, hide cards. **Control**: Hide the selected Content, **Black screen** (K), **Freeze the picture** (F), Emergency screen. **Notes**: your private notes for this meeting. **More**: settings and help |
+| Prepare · Engage · Control · Notes · More | The five chips (in place of Live tools), the same as in the Command Center and on the phone remote. Each opens a panel under it; **Esc** closes it. **Prepare**: meetings, **Teleprompter** (R), share, Quick Start, library, import, camera. **Engage**: Memory Cards, Capture copies, **Draw** and **Spotlight** (on the desktop app they open the Share Window, the window you share in Zoom or Teams), clear drawings, hide cards. **Control**: Hide the selected Content, **Black screen** (K), **Freeze the picture** (F), Emergency screen. **Notes**: your private notes for this meeting. **More**: settings and help |
 | Hide all **Esc** | Hide everything. The **Esc** key is shown inside the button |
 | ● Off air / LIVE | What is on screen now |
 | Window buttons | Minimize, Maximize / Restore and Close, at the top right |
 
-**Search and commands.** The command bar has no search box (6.9). Press **Ctrl+K** or **Ctrl+Space** for the **command
+**Search and commands.** The command bar has no search box. Press **Ctrl+K** or **Ctrl+Space** for the **command
 palette** (from anywhere in Windows: **Spotlight**, Alt+Space). It finds Frames, Content, questions, scriptures, text,
 templates, the Library, branding, settings, members, Bible references and recent items, and runs commands such as Go
 Live, New Frame, Duplicate, Teleprompter, Export meeting, *Look: <name>* and Add Content. **↑ / ↓** and **Enter**
 choose; **Esc** closes. Change the keys in Settings → Keyboard shortcuts → Command palette.
 
 The command bar fits any window: narrow, maximized, ultra-wide or on a high-resolution screen. Under 1140 px wide it
-wraps onto two rows, so nothing is cut off (6.9).
+wraps onto two rows, so nothing is cut off.
 
-**The window (6.8).** There is no Windows title bar: the command bar is the window's ribbon. Drag its empty space to
+**The window.** There is no Windows title bar: the command bar is the window's ribbon. Drag its empty space to
 move the window, and double-click it to maximize. Snap and resizing from the edges work as usual. Every FrameDecks
  window has the same three buttons at the top right.
 - **Minimize** asks *Hide application to system tray?*: **Hide To Tray** or **Stay In Taskbar**, with **Remember my
@@ -57,7 +57,7 @@ move the window, and double-click it to maximize. Snap and resizing from the edg
   Minimize button (Ask each time / Hide to tray / Stay in taskbar), the Spotlight shortcut (Alt+Space, Ctrl+Space,
   Ctrl+Alt+Space, Ctrl+Shift+Space, Win+Shift+K or Off, with a line saying whether it works). **Settings →
   General** is now just *Window, tray and performance*.
-- **The look of the window (8.1):** **Settings → Meeting & Branding → Look**. Pick a colour card: **Gold & Navy**
+- **The look of the window:** **Settings → Meeting & Branding → Look**. Pick a colour card: **Gold & Navy**
   (the standard), **Morning Light**, **Chapel Stone**, **Deep Ocean**, **Forest** or **Quiet Mono** (the same looks
   as on framedecks.com, Branding → Look), or **Same as my workspace** to follow the look chosen on the website,
   light or dark included. Under it, **Light or dark**: **Dark**, **Light** or **Match Windows**. A look picks its own
@@ -65,14 +65,14 @@ move the window, and double-click it to maximize. Snap and resizing from the edg
   overlays and the phone remote keep their own look.
 
 
-**Settings (9.12)** has six groups: **Meeting look** (Meeting & Branding, Transitions), **Content** (Scripture,
+**Settings** has six groups: **Meeting look** (Meeting & Branding, Transitions), **Content** (Scripture,
 Birthdays), **Screens & camera** (How people see it, FrameDecks vCam, Projector TV and OBS, Recording), **Controls**
 (General, Phone & iPad Remote, Keyboard shortcuts), **Workspace & privacy** (Workspace Sync, Security) and **Data &
 help** (Data / Backup, Diagnostics, About). A group's pages are tabs under its title; **Find a setting** searches all
 of them.
 
 ## 2. Frames and Content
-- **Meeting (8.5):** with several meetings, the **Meeting** list above the Frames chooses the one this PC shows and
+- **Meeting:** with several meetings, the **Meeting** list above the Frames chooses the one this PC shows and
   runs; **New** makes another. See [Frames](frames.md#name-group-and-order).
 - **Meeting** (the ✨ button next to + Frame) has:
   - Import / Export / Download the Excel Meeting Workbook;
@@ -124,7 +124,7 @@ A Question (or Scripture) Content holds **its own list**, shown full height in C
 - **Or edit it on the canvas:** double-click any card on the Studio Canvas (question, scripture, announcement,
   prayer, lower third, timer) to edit its text; double-click the card's label
   (its top line) to edit the label. The same keys apply. If the card is on screen, the screen changes too.
-- Questions have no Answer or Notes fields any more (6.7). Old ones are kept in your data but not shown; put
+- Questions have no Answer or Notes fields any more. Old ones are kept in your data but not shown; put
   reminders in the Frame's **Teleprompter script**.
 - **+ Question** / **+ Scripture** adds one; **Add several** pastes many at once.
 - **Drag** an item by its handle (⋮⋮) to move it, or use the ↑ / ↓ buttons. A line shows where it will land.
@@ -147,7 +147,7 @@ A Question (or Scripture) Content holds **its own list**, shown full height in C
     hides them.
   - **Spotlight** (S): double-click a word, or press **Ctrl** twice quickly with the mouse over it, and the light
     lands on it, breathes, then blooms open with a last ripple and a few sparks and fades. Nothing follows the mouse
-    in between (9.12.1). Double-click empty space to spotlight a point. Its panel
+    in between. Double-click empty space to spotlight a point. Its panel
     sets the colour, **Size**, **Length** (1–15 s) and **Strength**, with **Try it**. It shows on FrameDecks vCam (Zoom,
     Teams), recordings and the overlay pages.
 - **Freeze (F)** holds the picture while you get the next thing ready. You can still draw on it.
@@ -168,12 +168,11 @@ A Question (or Scripture) Content holds **its own list**, shown full height in C
     a **Timer** (Start / Pause, Reset), **Transparency** (Solid, 20%, 40%, 65%, 85%) and **Pin** (*Pinned* keeps it
     above Zoom, Teams and PowerPoint; click to unpin), with **Keep open** / **Hide bar** and the window buttons. Drag
     the bar to move the window; resize from the edges.
-  - Second row: **▶ Scroll** (Space), speed from Very slow to Very fast, A− / A+, line spacing, contrast, Mirror (M),
+  - Second row: **▶ Scroll** (Space), **Follow my voice** (V: the script moves as you speak; it listens only on
+    this PC and only while the Teleprompter is pinned), speed from Very slow to Very fast, A− / A+, line spacing, contrast, Mirror (M),
     **✎ Write Script**, **⇪ Upload** and **Each Frame** / **Whole meeting**.
   - Transparency and pin are remembered, and work only in the installed app. With **Light on graphics card** on (the
     default) the whole window fades, text included; with it off, only the background is see-through.
-  - The docked Teleprompter, the separate Teleprompter overlay and **Shift+R** were removed in 8.0: this one window
-    replaces them, with transparency and pin in its top bar.
 
 ## 5. The FrameDecks vCam
 Choose **FrameDecks** as the camera in Zoom, Teams, Google Meet or OBS. Participants see your webcam with the live
@@ -181,14 +180,14 @@ Frame on top. Background blur and Camera Looks are in **Settings → FrameDecks 
 FrameDecks, restart that app.
 
 ## 6. Phone and tablet remote
-**Settings → Phone & iPad Remote** → turn it on, scan the QR code, enter the PIN. Run the whole meeting from it (9.4):
+**Settings → Phone & iPad Remote** → turn it on, scan the QR code, enter the PIN. Run the whole meeting from it:
 - Always in view: the meeting name, the connection status and **Hide all** (solid red while something is on screen);
   the **live picture** with its badge (*Off air*, *On screen*, *Black screen*, *Frozen* or *Emergency*); *Frame 4 of
   18*, the Frame's name and what it shows; **Previous** / **Next** (gold; it shows the next Frame's name and says
   **Start** before anything is live).
 - **Spotlight** on the picture: drag a finger and the spotlight follows it on every screen; tap for a quick circle.
   **Draw** opens the drawing pad (turn the phone sideways for a bigger picture).
-- Five chips (9.13), the same as the PC's top bar and Command Center. **Control**: the Frame's questions, scriptures
+- Five chips, the same as the PC's top bar and Command Center. **Control**: the Frame's questions, scriptures
   or slides with ◀ ▶ arrows, the Question / Both / Scripture switch, video play / pause / from the start, every Deck
   with an eye, Black screen and Freeze. **Prepare**: meeting details, switch meeting, every Frame > Deck > Content
   (1 · 1.1 · 1.1.1, tap to show any of them) and the Teleprompter. **Engage**: Draw, Spotlight, Clear drawings and
@@ -201,22 +200,22 @@ FrameDecks, restart that app.
 FrameDecks works fully without Excel. The **Meeting Workbook** is for planning, review and bulk editing. To move a
 plan to another PC, use a .frame file instead (see [Service planning](service-planning.md#move-a-plan-to-a-service-pc)).
 
-It has two tabs (6.9):
+It has two tabs:
 - **Meeting Form**: one guided page, top to bottom, in numbered sections: 1 · Meeting details, 2 · Speaker,
   3 · Attendees, 4 · Presentation, 5 · Meeting plan, 6 · Additional notes. Type in the cream boxes; **Tab** moves
-  on. The Meeting plan (9.4) is one table in the app's order, Frame > Deck > Content, numbered by itself
+  on. The Meeting plan is one table in the app's order, Frame > Deck > Content, numbered by itself
   (1 · 1.1 · 1.1.1); the **+** button on the left opens more rows.
 - **Dashboard**: fills itself in from the form (days to go, counts, a Readiness checklist, Quick actions, a Content
   mix chart and a Recent meetings log). It is never imported.
 
-Use it through **Settings → Data / Backup → Meeting from Excel** (6.11):
+Use it through **Settings → Data / Backup → Meeting from Excel**:
 - **Download the Excel template** (drop-down lists, an example meeting);
 - **Import a meeting from Excel…** (preview with every problem and where it is, such as *Meeting Form · Content ·
   row 26*; Append or Replace; Undo);
 - **Export this meeting (Excel)** (the same Dashboard and Meeting Form, filled in).
 
-After an import the app is the source of truth. Workbooks from 6.5 to 6.8 (one sheet per list) and the 6.2
-one-sheet template still import; their answers and notes go into the Frame's Teleprompter script. The Excel library
+After an import the app is the source of truth. Workbooks made with earlier versions still
+import; their answers and notes go into the Frame's Teleprompter script. The Excel library
 loads only when you first need it, so the app starts faster.
 
 ## 8. Your branding
@@ -233,7 +232,7 @@ Frames** to keep yours and add the file's at the end. The **Frame files** box th
 
 A PC linked to your team (**Settings → Workspace Sync**) also syncs its plans with framedecks.com. The **Sync**
 chip in the header shows **Synced**, **Syncing**, **Offline** (changes wait and go up later; presenting is not
-affected) or **Sync failed** (see Settings → Workspace Sync for why). It syncs by itself as soon as the workspace changes (9.11). To sync
+affected) or **Sync failed** (see Settings → Workspace Sync for why). It syncs by itself as soon as the workspace changes. To sync
 now, choose **Resync Linked PCs** in Settings → Workspace Sync or in the **Sync** chip's panel. Media is never put
 in the cloud. Without a
 link, your meeting stays on your PC unless you export it.

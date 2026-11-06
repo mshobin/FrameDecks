@@ -53,7 +53,7 @@ A webcam is optional. You need one only if people should see you on the FrameDec
 
 1. Open **FrameDecks** from the desktop icon.
 2. The first time (also after an update or a reinstall, until you finish it once), **Welcome to FrameDecks** fills the
-   screen: three short pages (9.11) that show how a meeting is built and how to run it with the Command Center
+   screen: three short pages that show how a meeting is built and how to run it with the Command Center
    (Alt+Space).
    - **Building a meeting**: a Frame is one moment on screen; it holds Decks (a scripture, a question, text, a picture,
      a video or slides), and each Deck holds its Content. **+ Frame** (or **Quick Start**), **+ Deck**, **+ Question**

@@ -58,7 +58,7 @@ When a released version has a problem that would affect next Sunday:
 
 1. Branch `hotfix/<version>` from the release tag (for example from `v6.6`).
 2. Make the smallest possible fix. No refactoring, no unrelated changes.
-3. Bump the version (for example 6.6 → 6.7, since versions are major.minor), add release notes, and run the full
+3. Bump the version (YY.MM: for example 26.11 → 26.12, or 26.11 → 26.11.1 for another release that month), add release notes, and run the full
    [release process](release-process.md), including the manual service-safety test on a real PC.
 4. Tag and publish, then merge the hotfix back into `main`.
 

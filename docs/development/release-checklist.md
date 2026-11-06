@@ -1,6 +1,6 @@
 # Release checklist
 
-Use this for every FrameDecks release (`major.minor`, or `major.minor.patch` for a fix release such as 6.11.1).
+Use this for every FrameDecks release (`YY.MM`, or `YY.MM.N` for another release in the same month, such as 26.11.1).
 It follows the production audit's roadmap ([2026-10-26 audit](../project/2026-10-26-production-audit.md)).
 
 ## 1. Before tagging
@@ -31,7 +31,7 @@ It follows the production audit's roadmap ([2026-10-26 audit](../project/2026-10
 
 ## 4. Rollback
 - **The program:** the previous release stays on the Releases page. Install it over the new one; data is kept.
-  Its plan file and settings are compatible within the same major version (they are only ever extended).
+  Its plan file and settings stay compatible from one version to the next (they are only ever extended).
 - **A release with a serious problem:** edit the GitHub release and mark it as a pre-release (it stops being
   "Latest"), so the update notice and the website's download link point back to the previous one. Fix forward with
   a `.patch` release.

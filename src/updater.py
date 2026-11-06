@@ -71,7 +71,10 @@ def safe_open(req, timeout=None):
 
 
 def version_tuple(v):
-    return tuple(int(x) for x in re.findall(r"\d+", str(v or ""))[:4])
+    """26.11 versions are YY.MM (26.11, then 26.11.1 for another release that month): numbers, padded to four parts so
+    26.11 equals 26.11.0, 26.01 is January, and every YY.MM is newer than the 9.x versions before it."""
+    t = [int(x) for x in re.findall(r"\d+", str(v or ""))[:4]]
+    return tuple(t + [0] * (4 - len(t)))
 
 
 def _build(d):

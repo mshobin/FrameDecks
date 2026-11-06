@@ -37,7 +37,7 @@ administrator.
 
 Download FrameDecks from **[framedecks.com/download](https://framedecks.com/download)**. The page picks the right
 download for your computer and always offers the latest version. The installer is a single file named
-**FrameDecks-9.13.0-Setup.exe** (the number is the version).
+**FrameDecks-26.11-Setup.exe**. The number is the version: the year and the month it came out (26.11 is November 2026).
 
 ## Check the download (optional)
 
@@ -46,7 +46,7 @@ The download page shows the installer's **SHA-256** fingerprint. To check that y
 1. Open **PowerShell** in your Downloads folder.
 2. Run:
    ```powershell
-   Get-FileHash ".\FrameDecks-7.0-Setup.exe" -Algorithm SHA256
+   Get-FileHash ".\FrameDecks-26.11-Setup.exe" -Algorithm SHA256
    ```
 3. Compare the **Hash** with the SHA-256 on the download page. Upper or lower case does not matter. They must match
    exactly.
@@ -54,7 +54,7 @@ The download page shows the installer's **SHA-256** fingerprint. To check that y
 ## Install
 
 1. Close **Zoom, Teams and OBS**. They keep the camera in use and can block the camera installation.
-2. Double-click **FrameDecks-7.0-Setup.exe**.
+2. Double-click **FrameDecks-26.11-Setup.exe**.
 3. Windows may show **"Windows protected your PC"**. The installer is not code-signed, so Windows does not recognise
    it yet. Select **More info → Run anyway**.
 4. Read and accept the End User License Agreement, then follow the wizard. The options are:
@@ -111,9 +111,9 @@ is new with an **Update now** button:
 FrameDecks never updates while something is on screen. You can also download the latest installer from
 framedecks.com/download and run it over the old version.
 
-> **Note:** Earlier releases had other names. Version 6.9 and later install over every earlier
-> version, removes the old program folder and shortcuts, and on first start moves your data (including backups and
-> recordings) to the FrameDecks folders below. Nothing newer is overwritten.
+> **Note:** It installs over every earlier version, including those with the program's earlier names: it removes the
+> old program folder and shortcuts, and on first start moves your data (including backups and recordings) to the
+> FrameDecks folders below. Nothing newer is overwritten.
 
 Read the release notes in [CHANGELOG.md](../CHANGELOG.md) before a big update, and avoid updating on the morning of a
 service.

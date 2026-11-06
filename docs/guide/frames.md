@@ -47,7 +47,7 @@ never changes another.
 | **From a template** | **✨ Meeting → From your templates** | A new Frame made from one of your templates |
 | **From Excel** | **Settings → Data / Backup → Meeting from Excel** **→ Import a meeting from Excel…** (or Plan on the website: see [Plan on the website](service-planning.md#plan-on-the-website)) | Every Frame in the workbook. See [Service planning](service-planning.md#plan-in-excel-with-the-meeting-workbook) |
 | **From a file** | **✨ Meeting → Import a Frame file…**, or **Import a Frame file…** in the Quick Start dialog | A Frame exported from another PC (.json), or a whole plan (.frame) |
-| **From a .frame file** | **Settings → Data / Backup → Import Frame File…**, or Quick Start → **Import a Frame file…** (the same import, 8.6) | A whole plan from framedecks.com or another PC. See [Move a plan to a service PC](service-planning.md#move-a-plan-to-a-service-pc) |
+| **From a .frame file** | **Settings → Data / Backup → Import Frame File…**, or Quick Start → **Import a Frame file…**  | A whole plan from framedecks.com or another PC. See [Move a plan to a service PC](service-planning.md#move-a-plan-to-a-service-pc) |
 
 After creating a Frame, add Content with **+ Deck**. See [Content](content.md).
 
@@ -57,9 +57,9 @@ After creating a Frame, add Content with **+ Deck**. See [Content](content.md).
   name becomes a text box right in the list: **Enter** saves, **Esc** cancels, and clicking away saves. Double-clicking
   anywhere else on the Frame's row puts it on screen (**Go Live**).
 - **Group:** Content Settings → **Advanced → Group**, or **⋯ → Move to group…**. Groups fold away in the list; use one
-  group per service, such as *Sunday 12 May* or *Romans · Week 5*. With several meetings (8.5), a Frame's group is
+  group per service, such as *Sunday 12 May* or *Romans · Week 5*. With several meetings, a Frame's group is
   its meeting: moving it to the group of another meeting's name moves it to that meeting.
-- **Meeting (8.5):** above the Frames, the **Meeting** list chooses the meeting this PC shows. Only its Frames are in
+- **Meeting:** above the Frames, the **Meeting** list chooses the meeting this PC shows. Only its Frames are in
   the list, and **Next**, **Previous**, the phone remote and the Teleprompter follow them. **New** makes another
   meeting (it asks for a name) and the pencil renames the one shown. New Frames and Quick Start go into the meeting
   shown. Each PC chooses for itself; meetings made on framedecks.com appear here too. With one meeting the list shows
@@ -96,7 +96,7 @@ list; its settings show only what you change often.
 | Setting | What it does |
 | --- | --- |
 | **Name** | Shown in the Frames list, on the phone remote and in the Teleprompter |
-| **Teleprompter script** | What you plan to say on this Frame, up to 20,000 characters. Only you see it, in the Teleprompter (on the PC and the phone), never on screen. If the Teleprompter is set to **Whole meeting**, it shows the meeting's one script instead. **Open the Teleprompter** opens it. Called *Leader notes* before 6.7. See [Presentations](presentations.md#teleprompter) |
+| **Teleprompter script** | What you plan to say on this Frame, up to 20,000 characters. Only you see it, in the Teleprompter (on the PC and the phone), never on screen. If the Teleprompter is set to **Whole meeting**, it shows the meeting's one script instead. **Open the Teleprompter** opens it. See [Presentations](presentations.md#teleprompter) |
 | **Move to the next Frame after N seconds** | Moves on by itself after that many seconds, but only while **Auto** is on in the command bar |
 
 Below them, **Duplicate Frame** puts a copy right after this Frame.
@@ -126,7 +126,7 @@ on the copy.
 > **Note:** A duplicate is completely independent. Every Content and every question and scripture gets new IDs,
 > and nothing is linked back to the original.
 
-> **Note:** Since 8.0 there is one Duplicate. The other choices (with options, as template, structure only, Create
+> **Note:** There is one Duplicate. The other choices (with options, as template, structure only, Create
 > variant, to group) were removed; **Save as template** is under **Advanced**.
 
 ## One Frame per question
@@ -152,7 +152,7 @@ A **template** is a Frame you keep for making new Frames, such as your standard 
 
 - **Export:** **⋯ → Export Frame file** saves the Frame to your Downloads folder.
 - **Import:** **✨ Meeting → Import a Frame file…** (or **Import a Frame file…** in Quick Start) on the other PC.
-  Since 8.6 this also opens .frame files: they go through the same import as Settings → Data / Backup (**Use this
+  This also opens .frame files: they go through the same import as Settings → Data / Backup (**Use this
   plan** or **Add after my Frames**, then the check). A file that is not a Frame file, comes from a newer FrameDecks
   or is damaged is refused with a plain message in the Quick Start dialog, and nothing changes.
 

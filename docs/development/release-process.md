@@ -7,15 +7,20 @@ release surprises them.
 
 ## Version numbers
 
-Versions are **major.minor**, with a third number for fix releases since 7.1.1 (6.5, 7.0, 7.1.2, 8.0.0). The number
-lives in one place: `APP_VERSION` in `src/server.py`.
-`packaging/get_version.py` reads it for the installer name, and the app shows it in Settings → About.
+Since November 2026 versions are **YY.MM**: the year and the month of the release (26.11 is November 2026, 27.01
+January 2027; the month always has two digits). A further release in the same month adds a number: 26.11.1, 26.11.2.
+The number lives in one place: `APP_VERSION` in `src/server.py`. `packaging/get_version.py` reads it for the
+installer name, and the app shows it in Settings → About.
 
-- Increase **minor** (6.6 → 6.7) for a release with new features.
-- Increase the third number (7.1.1 → 7.1.2) for a release with fixes only.
-- Increase **major** (7.x → 8.0.0) when the way volunteers work changes significantly, or saved data from the new
-  version cannot be opened by the previous one. 8.0.0 was a major release because the Studio, the Teleprompter and
-  the Setup guide changed for every volunteer.
+- A new month's first release takes that month's number (26.11 → 26.12, or 27.02 if nothing was released in
+  between).
+- Another release in the same month adds or raises the last number (26.11 → 26.11.1 → 26.11.2).
+- The updater, the release manifest and the website compare versions as numbers padded to four parts, so 26.11
+  equals 26.11.0 and every YY.MM is newer than the 9.x versions before it (`tests/test_version_scheme.py`).
+- A date does not say how big a change is: the release notes' first line does ("A big update: …").
+
+Versions before 26.11 (4.9 to 9.13.0) are recorded in
+[docs/archive/changelog-before-26.11.md](../archive/changelog-before-26.11.md).
 
 ## Before you start
 
@@ -24,21 +29,21 @@ lives in one place: `APP_VERSION` in `src/server.py`.
 
 ## Steps
 
-1. **Bump the version.** Set `APP_VERSION = "X.Y"` in `src/server.py`. Update places that name the installer file, such
+1. **Bump the version.** Set `APP_VERSION = "YY.MM"` in `src/server.py`. Update places that name the installer file, such
    as the version in [building-the-installer.md](building-the-installer.md).
    Then refresh the header picture, which shows the version: start the app (`python src/server.py --no-browser`) and run
    `python tools/make_readme_header.py`. It captures the About screen's header into
    `assets/brand/framedecks-about-header.webp`, used at the top of the README and of the GitHub Release. The build fails if
    the picture shows another version.
-2. **Write the release notes** in `docs/releases/vX.Y.md`, with the sections `## What's New`, `## Enhancements`,
+2. **Write the release notes** in `docs/releases/vYY.MM.md`, with the sections `## What's New`, `## Enhancements`,
    `## Fixes`, `## Performance Improvements` and `## Known Issues`. Other sections, such as `## Removed` (used in
    8.0.0 for features that were taken out), are kept and placed after them. The file name must match the version
    exactly. On a version tag, the workflow runs `tools/make_release_notes.py`, which puts the About screen's header
    first and the sections in that order, and publishes the result as the GitHub Release. Write for volunteers (see
    [changelog standards](changelog-standards.md)), starting with the download instruction.
-3. **Update `docs/CHANGELOG.md`.** Move the **Unreleased** entries into a new `## [X.Y] - YYYY-MM-DD` section and add the
+3. **Update `docs/CHANGELOG.md`.** Move the **Unreleased** entries into a new `## [YY.MM] - YYYY-MM-DD` section and add the
    link at the bottom.
-4. **Update the design history.** Add a section `## N. Version X.Y: …` to
+4. **Update the design history.** Add a section `## N. Version YY.MM: …` to
    [docs/architecture/design-history.md](../architecture/design-history.md) describing design decisions and anything a
    future maintainer needs to know.
 5. **Update the user documentation** for any changed behaviour.
@@ -54,21 +59,21 @@ lives in one place: `APP_VERSION` in `src/server.py`.
    python tools/make_release_notes.py --check
    ```
 7. **Build.** Push to `main`, or run **Build Windows installer** on the release branch. Download the
-   **FrameDecks vX.Y** artifact.
+   **FrameDecks vYY.MM** artifact.
 8. **Test the installer on a real Windows PC** (not only a development machine):
    - install over the previous version, and check that meetings, members and settings are still there;
    - run the [manual service-safety test](testing.md#manual-service-safety-test) with a real webcam, Zoom or Teams,
      the phone remote on the church Wi-Fi, and PowerPoint if the release touches it.
 9. **Tag and publish.**
    ```bash
-   git tag vX.Y
-   git push origin vX.Y
+   git tag vYY.MM
+   git push origin vYY.MM
    ```
-   The workflow builds again and publishes a GitHub Release named **Version X.Y** with the installer and its
+   The workflow builds again and publishes a GitHub Release named **FrameDecks YY.MM** with the installer and its
    `.sha256` file.
 10. **Verify the release.** Download the installer from the Releases page and check its SHA-256:
     ```powershell
-    Get-FileHash ".\FrameDecks vX.Y.exe" -Algorithm SHA256
+    Get-FileHash ".\FrameDecks vYY.MM.exe" -Algorithm SHA256
     ```
     The hash must match the `.sha256` file.
 11. **Announce** the release to the churches using it, with a link to the release notes and any action volunteers

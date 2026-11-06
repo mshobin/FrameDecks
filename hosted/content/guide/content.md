@@ -37,9 +37,6 @@ Every kind of Content you can put in a Frame, and every setting that controls ho
 | **PowerPoint…** | Screen…, Window (live PowerPoint or any app)… |
 | | Logo…, Watermark…, Free text on the picture, Shape, Background |
 
-> **Note:** The ready-made **Discussion topic**, **Icebreaker** and **Poll (show of hands)** cards were removed from
-> **+ Deck** and the Library in 8.0. Frames that already have them keep them.
-
 > **Note:** A Frame has at most one Question, one Scripture, one Birthday and one Branding Content. Put all of a
 > Frame's questions into its one Question list. If you choose Question again, FrameDecks takes you to the
 > existing list.
@@ -156,7 +153,7 @@ the same panel:
 Changes save as you type. Use the **‹ ›** buttons to edit the previous or next item, **Show on screen** to show it,
 and **Done** (or **Esc**) to return to the list.
 
-> **Note:** Questions no longer have an **Answer** or **Notes** field (6.7). Older answers and notes are kept in
+> **Note:** Questions no longer have an **Answer** or **Notes** field. Older answers and notes are kept in
 > your data, but no screen shows them. Write what you want to remember in the Frame's **Teleprompter script**. See
 > [Presentations](presentations.md#teleprompter).
 
