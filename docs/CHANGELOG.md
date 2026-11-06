@@ -39,6 +39,9 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
   chapter, only its opacity changes).
 - The front page's words sit centred above the stage again, as in the owner's mockup (no side column); the headline
   scales with the window's height so the whole stage and its chapter row fit on a laptop screen.
+- The user guide's last hand-made pictures are now captured from the program too (`guide_more` in
+  `tools/make_product_shots.py`): Annotate on the live picture, the command palette, and the phone remote upright and
+  sideways while drawing; the front page's phone chapter follows the new remote picture.
 - Help pictures recaptured from the current website and program (`tests/visual/help-shots.mjs`; the website half
   needs a build against the stand-in workspace: `NEXT_PUBLIC_SUPABASE_URL=https://x.supabase.co
   NEXT_PUBLIC_SUPABASE_ANON_KEY=stub npm run build`).

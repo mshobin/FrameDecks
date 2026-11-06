@@ -139,9 +139,9 @@ const SCENES: readonly Scene[] = [
     keys: [],
     pointer: "finger",
     moves: [
-      { at: 0, x: 80, y: 78 },
-      { at: 0.42, x: 68, y: 48.5, tap: true },
-      { at: 1, x: 68, y: 48.5 },
+      { at: 0, x: 80, y: 62 },
+      { at: 0.42, x: 67, y: 27.4, tap: true },
+      { at: 1, x: 67, y: 27.4 },
     ],
   },
 ];
