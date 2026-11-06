@@ -119,6 +119,7 @@ function create(opts){
     opts.button.setAttribute('aria-pressed', String(on));
     opts.button.classList.toggle('on', on);
     document.body.classList.toggle('tp-voice-on', on);
+    if (on) placeBand(); else band.classList.remove('hearing');
   }
   /* the script's words wrapped in spans, built from what is on screen (so the words and their places always agree) */
   function wrap(){
@@ -143,6 +144,16 @@ function create(opts){
     paint();
   }
   function lineY(){ return opts.scroll.clientHeight * 0.33; }
+  /* 26.11.1 the reading line: a soft gold band where the next word sits. It breathes while it hears you and rests
+     while you pause, so you can see it is with you without reading anything (css in speaker.css) */
+  var band = document.createElement('div'); band.className = 'tp-band'; band.setAttribute('aria-hidden', 'true');
+  opts.scroll.parentNode.appendChild(band);
+  function placeBand(){
+    var lh = parseFloat(getComputedStyle(opts.text).fontSize || '34') * (parseFloat(getComputedStyle(opts.text).lineHeight) / parseFloat(getComputedStyle(opts.text).fontSize) || 1.5);
+    band.style.top = Math.round(opts.scroll.offsetTop + lineY() - lh * 0.2) + 'px';
+    band.style.height = Math.round(lh * 1.4) + 'px';
+  }
+  window.addEventListener('resize', function(){ if (on) placeBand(); });
   /* the first word at or below the reading line (where the reader is after scrolling by hand) */
   function firstAtLine(){
     if (!spans.length) return 0;
@@ -196,6 +207,7 @@ function create(opts){
       seq = d.seq || seq;
       (d.events || []).forEach(heard);
       if (opts.level) opts.level.style.setProperty('--lv', String(d.level || 0));
+      band.classList.toggle('hearing', (d.level || 0) > 0.06);
       if (d.state === 'listening'){ if (state !== 'listening' && state !== 'lost') setStatus('listening'); }
       else if (d.state === 'downloading') setStatus('downloading', d.progress);
       else if (d.state === 'starting') setStatus('starting');

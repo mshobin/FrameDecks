@@ -278,7 +278,7 @@ The second row holds the script controls:
 
 Instead of scrolling at a set speed, the Teleprompter can follow you as you speak. Choose **Follow my voice** (or
 press **V**) and read: the words you have read go quieter and the next words stay at the reading line, about a third
-of the way down. Speak at your own pace; pause, slow down or go back over a line, and it waits for you.
+of the way down, marked by a soft gold band that breathes while it hears you. Speak at your own pace; pause, slow down or go back over a line, and it waits for you.
 
 - **Only while it is pinned.** It listens only in the installed app, and only while the Teleprompter is **Pinned**
   above every other window. Unpin it, hide it or close it and the microphone is let go at once; pin it again and it

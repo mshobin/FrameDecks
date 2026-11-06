@@ -72,7 +72,7 @@ floating top bar, the chips as a floating dock, and each tool's icon in a square
 | **Hide all** | Hides everything on screen at once. It turns solid red while something is on screen |
 | **Live picture** | Exactly what is on screen, with a badge: **Off air**, **On screen**, **Black screen**, **Frozen** or **Emergency**. Its two buttons: **Spotlight** (touch the picture to point) and **Draw**. The picture shows when the phone is sideways (and on a tablet held sideways); upright it is left out so Previous / Next and the Content have the room, and only the badge stays |
 | **On screen now** | *Frame 4 of 18*, the Frame's name and what it is showing, plus chips for **FrameDecks vCam**, **Recording**, **Black screen**, **Frozen** or drawings on screen |
-| **Previous / Next** | Move through the Frames, in order. **Next** is gold, shows the name of the Frame it will put on screen, and says **Start** before anything is live |
+| **Previous / Next** | Move through the Frames, in order. You can also swipe across the picture: left for the next Frame, right for the previous one (not while the Spotlight is on). **Next** is gold, shows the name of the Frame it will put on screen, and says **Start** before anything is live |
 
 ### The five chips
 

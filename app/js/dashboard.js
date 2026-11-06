@@ -39,6 +39,7 @@ function toastAction(msg, label, run){
   b.type = 'button'; b.className = 'toast-act'; b.textContent = label;
   b.addEventListener('click', function(){ clearTimeout(toastT); t.className = 'toast'; run(); });
   t.appendChild(b);
+  t.appendChild(Object.assign(document.createElement('i'), {className: 'toast-time'}));   // 26.11.1 the time left to undo, shrinking
   clearTimeout(toastT); toastT = setTimeout(function(){ t.className = 'toast'; }, 7000);
 }
 function isOn(kind){ return !!(live && live[kind].visible && live[kind].text.trim()); }
@@ -295,10 +296,17 @@ function refreshStatus(){
   if (tl) on.push(tl === 1 ? '1 text Content' : tl + ' text Content');
   if (live.live && live.live.blackout) on = ['Black screen'];
   else if (live.live && live.live.emergency) on = ['Emergency screen'];
-  var cls = 'live-ind' + (on.length ? ' on' : ''), what = (ls ? ls.name + (on.length ? ' · ' : '') : '') + on.join(' + ');
-  if (el.className !== cls) el.className = cls;
+  /* 26.11.1 one status pill: its colour says the state (live, black screen or emergency, frozen) and its words change
+     with a short cross-fade (css/motion.css) */
+  var state = live.live && (live.live.blackout || live.live.emergency) ? ' alert' : live.live && live.live.freeze && on.length ? ' held' : '';
+  if (live.live && live.live.freeze && on.length && on[0] !== 'Black screen' && on[0] !== 'Emergency screen') on = ['Frozen'].concat(on);
+  var what = (ls ? ls.name + (on.length ? ' · ' : '') : '') + on.join(' + ');
+  el.classList.toggle('on', on.length > 0); el.classList.toggle('alert', state === ' alert'); el.classList.toggle('held', state === ' held');
   document.body.classList.toggle('kc-on-air', on.length > 0);         // Hide all turns red only while something is on screen
   var b = el.querySelector('b'), w = el.querySelector('.live-what');
+  if (b.textContent !== (on.length ? 'LIVE' : 'Off air') || w.textContent !== what){
+    el.classList.remove('swap'); void el.offsetWidth; el.classList.add('swap');
+  }
   if (b.textContent !== (on.length ? 'LIVE' : 'Off air')) b.textContent = on.length ? 'LIVE' : 'Off air';
   if (w.textContent !== what) w.textContent = what;
   el.title = on.length ? 'On screen now: ' + what : 'Nothing is on screen';

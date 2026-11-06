@@ -627,3 +627,8 @@ body.studio-focus .studio.s2{height:100vh !important}
 .mt-bar.one .mt-pick select{border-style:dashed}
 .mt-ask{display:grid;gap:6px;margin:12px 0}
 .mt-ask input{padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--field,var(--surface));color:var(--ink);font-size:16px}
+/* 26.11.1 a Setup guide step just finished: its segment fills with a small spark (js/guide.js) */
+.gd-prog li button{transition:background-color .3s ease}
+.gd-prog li.done.kc-new button{animation:gd-done .6s cubic-bezier(.3,1.5,.5,1) both}
+@keyframes gd-done{0%{transform:scaleY(1)}40%{transform:scaleY(2.2)}100%{transform:none}}
+@media (prefers-reduced-motion:reduce){ .gd-prog li.done.kc-new button{animation:none} }

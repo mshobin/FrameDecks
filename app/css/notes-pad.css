@@ -28,3 +28,11 @@
   color:var(--ink);font:inherit;font-size:13px;font-weight:600;cursor:pointer}
 .np-act span{display:grid;place-items:center;color:var(--muted)}
 .np-act em{font-style:normal}
+/* 26.11.1 a note just added is written in once (js/notes-pad.js): it slides down into place while a soft highlight
+   sweeps across it and fades */
+.np-note.kc-new{position:relative;animation:kc-ink .5s var(--ease,cubic-bezier(.2,.8,.2,1)) both}
+.np-note.kc-new::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:var(--gold-soft,rgba(214,160,60,.16));
+  transform-origin:left center;animation:kc-ink-mark 1.2s var(--ease,cubic-bezier(.2,.8,.2,1)) .15s both}
+@keyframes kc-ink{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+@keyframes kc-ink-mark{0%{opacity:1;transform:scaleX(0)}45%{opacity:1;transform:scaleX(1)}100%{opacity:0;transform:scaleX(1)}}
+@media (prefers-reduced-motion:reduce){ .np-note.kc-new,.np-note.kc-new::after{animation:none} .np-note.kc-new::after{opacity:0} }

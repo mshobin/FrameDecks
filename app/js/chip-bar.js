@@ -99,7 +99,8 @@ CH.list.forEach(function(c){
 function show(id){
   close();
   var it = chips.filter(function(x){ return x.c.id === id; })[0]; if (!it) return;
-  open = id; it.pop.hidden = false; it.btn.setAttribute('aria-expanded', 'true'); it.wrap.classList.add('open');
+  open = id; clearTimeout(it.pop.outT); it.pop.classList.remove('lc-out'); it.pop.hidden = false; it.btn.setAttribute('aria-expanded', 'true'); it.wrap.classList.add('open');
+  it.pop.classList.remove('lc-in'); void it.pop.offsetWidth; it.pop.classList.add('lc-in');      // 26.11.1 drops in (css/motion.css)
   it.pop.style.left = ''; it.pop.style.right = '';
   var r = it.pop.getBoundingClientRect();
   if (r.right > innerWidth - 8){ it.pop.style.left = 'auto'; it.pop.style.right = '0'; }
@@ -108,7 +109,15 @@ function show(id){
   paint();
 }
 function close(){
-  chips.forEach(function(x){ x.pop.hidden = true; x.btn.setAttribute('aria-expanded', 'false'); x.wrap.classList.remove('open'); });
+  /* 26.11.1 a panel leaves faster than it came (90 ms), so the app feels quick; with reduced motion it just goes */
+  var quick = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  chips.forEach(function(x){
+    x.btn.setAttribute('aria-expanded', 'false'); x.wrap.classList.remove('open');
+    if (x.pop.hidden) return;
+    if (quick){ x.pop.hidden = true; return; }
+    x.pop.classList.remove('lc-in'); x.pop.classList.add('lc-out');
+    clearTimeout(x.pop.outT); x.pop.outT = setTimeout(function(){ x.pop.hidden = true; x.pop.classList.remove('lc-out'); }, 90);
+  });
   open = null;
 }
 document.addEventListener('click', function(e){ if (open && !bar.contains(e.target)) close(); });

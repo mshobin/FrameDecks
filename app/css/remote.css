@@ -424,3 +424,11 @@ html,body{background:radial-gradient(90% 55% at 50% -8%,rgba(122,152,255,.2),tra
 .tools-1 .tool{min-height:64px;flex-direction:row;gap:12px}
 .notes-card{padding:14px}
 .np-phone .np-in{font-size:16px}
+/* 26.11.1 changing chip: the panel slides in from its side (js/remote.js); Previous / Next feel pressed */
+.panel.slide-l{animation:rm-from-r .26s cubic-bezier(.2,.8,.2,1) both}
+.panel.slide-r{animation:rm-from-l .26s cubic-bezier(.2,.8,.2,1) both}
+@keyframes rm-from-r{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:none}}
+@keyframes rm-from-l{from{opacity:0;transform:translateX(-18px)}to{opacity:1;transform:none}}
+.nav-btn{transition:transform .12s cubic-bezier(.2,.8,.2,1)}
+.nav-btn:active:not(:disabled){transform:scale(.95)}
+@media (prefers-reduced-motion:reduce){ .panel.slide-l,.panel.slide-r{animation:none} .nav-btn{transition:none} .nav-btn:active:not(:disabled){transform:none} }

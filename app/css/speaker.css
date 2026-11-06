@@ -106,3 +106,14 @@ body.sp-glass .sp-main{border-radius:0}
 /* the words already read go quieter, so the eye finds its place */
 .tp-voice-on .tp-w.tp-said{opacity:.5}
 @media (prefers-reduced-motion:reduce){ .sp-voice.on .sp-mic{transition:none} }
+/* 26.11.1 the reading line in Follow my voice: a soft gold band where the next word sits. It breathes only while it
+   hears you (one small element, opacity only) and rests while you pause; read words fade instead of switching */
+.sp-prompt .tp{position:relative}
+.tp-band{position:absolute;left:0;right:0;height:52px;pointer-events:none;opacity:0;
+  background:linear-gradient(180deg,transparent,var(--gold-soft) 30%,var(--gold-soft) 70%,transparent);
+  border-left:3px solid var(--gold);transition:opacity .4s var(--ease,ease)}
+.tp-voice-on .tp-band{opacity:.55}
+.tp-voice-on .tp-band.hearing{animation:tp-breathe 2.4s ease-in-out infinite}
+@keyframes tp-breathe{0%,100%{opacity:.55}50%{opacity:1}}
+.tp-voice-on .tp-w{transition:opacity .35s ease}
+@media (prefers-reduced-motion:reduce){ .tp-voice-on .tp-band.hearing{animation:none} .tp-voice-on .tp-w,.tp-band{transition:none} }

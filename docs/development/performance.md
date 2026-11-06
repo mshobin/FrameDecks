@@ -137,3 +137,11 @@ page stayed in memory, about 0.3 MB each, and kept redrawing on every change. 12
 480 the main window would have held over 130 MB and spent processor time on dead pages. A preview now lets go when
 it is replaced (`pagehide`, and a listener whose page has gone removes itself): after 480 choices the main window
 stays at 4 MB with no extra documents (`tests/test_perf_4gb.py`).
+
+## 26.11.1: motion within the same budget
+
+The animations added in 26.11.1 follow four rules, checked by `tests/test_motion_2611_1.py`: only `transform`,
+`opacity` (and one small stroke drawing) move; each is a one-off of 0.1 to 0.9 s (the reading band breathes only
+while it hears a voice; the empty-list shimmer plays twice); nothing runs while nothing happens; and the system's
+"reduce motion" turns all of them off. `tests/visual/perf-4gb.mjs` gives the same results as 26.11: 2–5 % busy at
+rest on every screen, no frame over 34 ms, nothing kept after 15 rounds, the program at 72 MB.

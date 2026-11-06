@@ -69,3 +69,8 @@ body.mem-popup{margin:0;background:var(--bg);color:var(--ink);font:14px/1.4 var(
 .pop .mem-card{animation:mem-pop .32s cubic-bezier(.2,.8,.3,1) both}
 @keyframes mem-pop{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){ .pop .mem-card{animation:none} .mem-knob,.mem-knob::after,.mem-status{transition:none} }
+
+/* 26.11.1 a new card pops in once (js/memory.js) */
+.mem-card.kc-new{animation:kc-card .42s cubic-bezier(.3,1.4,.5,1) both}
+@keyframes kc-card{from{opacity:0;transform:translateY(8px) scale(.94)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){ .mem-card.kc-new{animation:none} }

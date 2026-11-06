@@ -80,7 +80,7 @@ function create(host, opts){
   var source = opts.source || function(st, sc){ return sc ? {id: sc.id, text: String(sc.notes || ''), name: sc.name} : null; };
   var key = opts.key || 'main', S = Object.assign({size: opts.compact ? 22 : float ? 44 : 34, line: float ? 1.55 : 1.5, speed: 'normal',
     contrast: false, focus: false, mirror: false}, load(key));
-  var playing = false, raf = 0, last = 0, acc = 0, sig = '', curSid = '', curText = '', curSc = null;
+  var playing = false, raf = 0, last = 0, acc = 0, sig = '', curSid = '', curText = '', curSc = null, curSidWas = '';
   var cueNow = h('b', {cls: 'tp-now'}), cuePos = h('span', {cls: 'tp-pos'}), cueNext = h('span', {cls: 'tp-next'}), cueUp = h('span', {cls: 'tp-up'});
   var text = h('div', {cls: 'tp-text', 'aria-live': 'off'}), scroll = h('div', {cls: 'tp-scroll', tabindex: '0', role: 'region', 'aria-label': 'Teleprompter script'}, [text, h('div', {cls: 'tp-end'})]);
   var playBtn = h('button', {cls: 'tp-btn tp-play', type: 'button', title: 'Start / pause scrolling (Space)', onclick: function(){ setPlay(!playing); }});
@@ -197,7 +197,10 @@ function create(host, opts){
       text.innerHTML = t.trim() ? render(t) : opts.bare ? '' : '<div class="tp-empty-box"><p class="tp-empty">' + (sc ? 'No script for “' + esc(sc.name) + '” yet.' : 'Select a Frame.') + '</p>' +
         (!sc ? '' : opts.editable && opts.edit ? '<button class="tp-btn tp-empty-act" type="button">Write a script</button><p class="tp-empty-hint">Or double-click here.</p>' :
           '<p class="tp-empty-hint">Add one in the main window: Frame settings → Teleprompter script.</p>') + '</div>';
-      if (newFrame){ scroll.scrollTop = 0; acc = 0; }
+      if (newFrame){ scroll.scrollTop = 0; acc = 0;
+        if (curSidWas){ text.classList.remove('tp-swap'); void text.offsetWidth; text.classList.add('tp-swap'); }   // 26.11.1 the next script rises in
+      }
+      curSidWas = curSid;
       if (opts.onRender) opts.onRender(newFrame);               // 26.11 Follow my voice wraps the new words
     }
   };

@@ -106,6 +106,7 @@ function skip(){ state.closed = true; save(); close(); toast('The Setup guide is
 function toast(m){ if (window.KCActions) window.KCActions.toast(m); }
 function setSmall(v){ small = v; try { localStorage.setItem('kc-guide-small', v ? '1' : ''); } catch(e){} render(); }
 function shown(){ var i = view == null ? G.steps.indexOf(current()) : view; return i < 0 ? 0 : Math.min(i, G.steps.length - 1); }
+var seenDone = null;                                  // 26.11.1 steps already shown as done (the first drawing animates nothing)
 function goTo(i){ endSpot(); view = Math.max(0, Math.min(G.steps.length - 1, i)); render(); var t = panel && panel.querySelector('.gd-step-t'); if (t) t.focus(); }
 function nextStep(){ var i = shown(); if (i + 1 >= G.steps.length){ if (complete()) render(); return; } goTo(i + 1); }
 
@@ -174,9 +175,11 @@ function render(){
     h('button', {cls: 'gd-icon', type: 'button', title: 'Make smaller', 'aria-label': 'Make the Setup guide smaller', html: I('minus', 16), onclick: function(){ setSmall(true); }}),
     h('button', {cls: 'gd-icon', type: 'button', title: 'Close', 'aria-label': 'Close the Setup guide', html: I('x', 16), onclick: skip})]));
   // progress: one segment per step; any step can be opened again
+  if (!seenDone){ seenDone = {}; G.steps.forEach(function(x){ if (isDone(x.id)) seenDone[x.id] = true; }); }
   panel.appendChild(h('ol', {cls: 'gd-prog', 'aria-label': 'Steps'}, G.steps.map(function(x, k){
-    var d = isDone(x.id), on = !fin && k === i;
-    return h('li', {cls: (d ? 'done' : '') + (on ? ' on' : '')}, [h('button', {type: 'button', 'aria-current': on ? 'step' : null, title: x.title,
+    var d = isDone(x.id), on = !fin && k === i, fresh = d && seenDone && !seenDone[x.id];   // 26.11.1 a step just finished lights up
+    if (d){ seenDone = seenDone || {}; seenDone[x.id] = true; }
+    return h('li', {cls: (d ? 'done' : '') + (on ? ' on' : '') + (fresh ? ' kc-new' : '')}, [h('button', {type: 'button', 'aria-current': on ? 'step' : null, title: x.title,
       'aria-label': 'Step ' + (k + 1) + ': ' + x.title + (d ? ' (done)' : ''), onclick: function(){ goTo(k); }})]);
   })));
   if (fin){ finishView().forEach(function(x){ panel.appendChild(x); }); return; }

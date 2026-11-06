@@ -75,3 +75,7 @@
 .tp-float-mode .tp-end{height:70vh}
 @media (prefers-reduced-motion:reduce){ .tp-float.tp-controls,.tp-float-mode .tp-cues{transition:none} }
 .tp-float .tp-speed{min-height:30px;font-size:13px}
+/* 26.11.1 the next Frame's script rises in (js/teleprompter.js), once */
+.tp-text.tp-swap{animation:tp-swap .32s var(--ease,cubic-bezier(.2,.8,.2,1)) both}
+@keyframes tp-swap{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){ .tp-text.tp-swap{animation:none} }

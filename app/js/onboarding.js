@@ -245,6 +245,9 @@ function done(skipped){
   if (m && m.needed && !imported) post('skip-import').catch(function(){});
   close();
   if (window.KCSetTab) window.KCSetTab('studio');
+  /* 26.11.1 the Welcome closes into the Studio: the Frames arrive one after another (css/motion.css) */
+  var ws = document.getElementById('tab-studio') || document.body;
+  if (window.KCMotion) setTimeout(function(){ window.KCMotion.once(ws, 'kc-arrive', 1200); }, 150);
   if (imported){ setTimeout(function(){ location.reload(); }, 300); return; }        // members and settings appear everywhere
   if (kind && window.KCWorkspace && window.KCWorkspace.quickStartKind) window.KCWorkspace.quickStartKind(kind);
   else if (window.KCActions) window.KCActions.toast(skipped ? 'The welcome is in Settings → About whenever you want it.' : 'Welcome! Start with + Frame, or Quick Start.');

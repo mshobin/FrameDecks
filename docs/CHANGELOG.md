@@ -10,6 +10,23 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
 
 ## [Unreleased]
 
+## [26.11.1] - 2026-11-06
+
+Full notes: [docs/releases/v26.11.1.md](releases/v26.11.1.md).
+
+### Added
+- Motion for the main window (`app/js/motion.js`, `app/css/motion.css`): the Go Live moment (button sweep, canvas ring,
+  LIVE pill drop, Up next lift), the canvas sliding on Frame choice (`kc-frame-select` from `workspace.js`), reordered
+  Frames gliding (FLIP on `#scene-list`), press feedback, chip panels in and out (`chip-bar.js`), the undo timer
+  (`toastAction`), the status pill's states and cross-fade (`dashboard.js`), teaching empty Frames and Decks lists,
+  sliding Settings switches, and the Welcome closing into the Studio.
+- Follow my voice's reading band (`voice-follow.js`, `speaker.css`), the Teleprompter's script rising in on a new
+  Frame (`teleprompter.js`), new Memory Cards and notes animated once (`memory.js`, `notes-pad.js`), finished Setup
+  guide steps (`guide.js`), and on the phone remote a swipe for Next / Previous and chip panels sliding in
+  (`remote.js`, `remote.css`).
+- `tests/test_motion_2611_1.py`: only transform, opacity and a stroke drawing animate; nothing loops while idle;
+  reduce motion turns everything off. The 4 GB check is unchanged.
+
 ## [26.11] - 2026-11-06
 
 Full notes: [docs/releases/v26.11.md](releases/v26.11.md).

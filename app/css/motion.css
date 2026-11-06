@@ -1,0 +1,90 @@
+/* FrameDecks 26.11.1 - motion in the main window (js/motion.js and the hooks it names).
+   One rhythm: 0.12 to 0.3 s for answers to a click, up to 0.9 s for the Go Live moment, one easing (--ease).
+   Only transform and opacity move (the window is drawn without the graphics card on most PCs); nothing loops while
+   nothing happens; "reduce motion" turns every one of them off (end of file). */
+
+/* every button answers a press: a small push down (cheap: transform only) */
+.cb-btn:not(:disabled):active,.btn:not(:disabled):active,.lc:active,.lc-t:active,.tab:active,.subtab:active,.pe-go:active{transform:scale(.97)}
+.lc,.lc-t,.tab,.subtab{transition:transform var(--t-fast) var(--ease)}
+
+/* ---------- the Go Live moment ---------- */
+#cb-take{position:relative;overflow:hidden}
+#cb-take::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:0;transform:translateX(-100%);
+  background:linear-gradient(90deg,transparent 0%,rgba(var(--rgb-gray-1000),.38) 45%,transparent 90%)}
+#cb-take.kc-took::after{animation:kc-sweep .6s var(--ease) both}
+@keyframes kc-sweep{0%{opacity:1;transform:translateX(-100%)}100%{opacity:1;transform:translateX(100%)}}
+#program::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:0;box-shadow:inset 0 0 0 3px var(--live)}
+#program.kc-took::after{animation:kc-ring .9s var(--ease) both}
+@keyframes kc-ring{0%{opacity:0}25%{opacity:1}100%{opacity:0}}
+#live-ind.kc-took b{display:inline-block;animation:kc-drop .5s cubic-bezier(.3,1.5,.5,1) both}
+@keyframes kc-drop{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+#upnext.kc-lift{animation:kc-lift .45s var(--ease) both}
+@keyframes kc-lift{from{opacity:.35;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+/* ---------- the status pill: one place that says what is on screen ---------- */
+.live-ind{transition:border-color var(--t) var(--ease),color var(--t) var(--ease)}
+.live-ind.on{border-color:var(--live)}
+.live-ind.alert{border-color:var(--red);color:var(--ink)}
+.live-ind.alert i{background:var(--red)}
+.live-ind.held{border-color:var(--gold)}
+.live-ind.held i{background:var(--gold)}
+.live-ind.swap b,.live-ind.swap .live-what{animation:kc-swap .22s var(--ease) both}
+@keyframes kc-swap{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:none}}
+
+/* ---------- moving between Frames ---------- */
+#program.kc-from-right{animation:kc-from-r .3s var(--ease) both}
+#program.kc-from-left{animation:kc-from-l .3s var(--ease) both}
+@keyframes kc-from-r{from{opacity:.55;transform:translateX(14px)}to{opacity:1;transform:none}}
+@keyframes kc-from-l{from{opacity:.55;transform:translateX(-14px)}to{opacity:1;transform:none}}
+.scene-item.kc-glide{transition:transform .28s var(--ease)}
+
+/* ---------- the chips in the top bar: drop in, leave faster ---------- */
+.lc-pop.lc-in{animation:kc-pop-in .16s var(--ease) both}
+.lc-pop.lc-out{animation:kc-pop-out .09s ease-in both;pointer-events:none}
+@keyframes kc-pop-in{from{opacity:0;transform:translateY(-6px) scale(.98)}to{opacity:1;transform:none}}
+@keyframes kc-pop-out{from{opacity:1;transform:none}to{opacity:0;transform:translateY(-4px) scale(.99)}}
+
+/* ---------- Undo you can see: the time left shrinks under the message ---------- */
+.toast{transition:opacity .25s var(--ease),transform .25s var(--ease)}
+.toast .toast-time{position:absolute;left:12px;right:12px;bottom:4px;height:2px;border-radius:4px;background:var(--accent);
+  transform-origin:left center;animation:kc-time 7s linear both}
+@keyframes kc-time{from{transform:scaleX(1)}to{transform:scaleX(0)}}
+
+/* ---------- empty lists that teach the next step ---------- */
+.pe-art{display:block;width:120px;height:72px;color:var(--faint)}
+.pe-art svg{width:100%;height:100%}
+.pe-art .pe-g{color:var(--gold);stroke:var(--gold)}
+.pe-art .pe-l{stroke-dasharray:320;stroke-dashoffset:320;animation:kc-draw 1.1s var(--ease) .1s forwards}
+.pe-art .pe-g{animation-delay:.55s}
+@keyframes kc-draw{to{stroke-dashoffset:0}}
+.pane-empty.start .btn.primary{position:relative;overflow:hidden}
+.pane-empty.start .btn.primary::after{content:"";position:absolute;inset:0;pointer-events:none;transform:translateX(-110%);
+  background:linear-gradient(100deg,transparent 30%,rgba(var(--rgb-gray-1000),.35) 50%,transparent 70%);animation:kc-shimmer 1.6s var(--ease) 1.2s 2 both}
+@keyframes kc-shimmer{to{transform:translateX(110%)}}
+
+/* ---------- Settings: switches that slide (the same checkboxes, drawn as switches) ---------- */
+#tab-settings input[type="checkbox"]{appearance:none;-webkit-appearance:none;flex:none;width:36px;height:20px;margin:0 8px 0 0;vertical-align:middle;
+  border-radius:999px;border:1px solid var(--line);cursor:pointer;background-color:var(--raised);
+  background-image:radial-gradient(circle,var(--muted) 0 6px,transparent 6.5px);background-repeat:no-repeat;background-size:20px 20px;
+  background-position:-1px center;transition:background-position .18s var(--ease),background-color .18s var(--ease),border-color .18s var(--ease)}
+#tab-settings input[type="checkbox"]:checked{background-color:var(--accent);border-color:var(--accent);
+  background-image:radial-gradient(circle,var(--accent-ink) 0 6px,transparent 6.5px);background-position:15px center}
+#tab-settings input[type="checkbox"]:disabled{opacity:.5;cursor:default}
+#tab-settings input[type="checkbox"]:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* ---------- the Welcome closes into the Studio: the Frames arrive one after another ---------- */
+.kc-arrive .scene-item{animation:kc-arrive .45s var(--ease) both}
+.kc-arrive .scene-item:nth-child(2){animation-delay:.05s} .kc-arrive .scene-item:nth-child(3){animation-delay:.1s}
+.kc-arrive .scene-item:nth-child(4){animation-delay:.15s} .kc-arrive .scene-item:nth-child(5){animation-delay:.2s}
+.kc-arrive .scene-item:nth-child(n+6){animation-delay:.25s}
+@keyframes kc-arrive{from{opacity:0;transform:translateX(-12px)}to{opacity:1;transform:none}}
+
+/* ---------- reduce motion: every animation above is off; things simply appear ---------- */
+@media (prefers-reduced-motion:reduce){
+  #cb-take.kc-took::after,#program.kc-took::after,#live-ind.kc-took b,#upnext.kc-lift,.live-ind.swap b,.live-ind.swap .live-what,
+  #program.kc-from-right,#program.kc-from-left,.lc-pop.lc-in,.lc-pop.lc-out,.toast .toast-time,.pe-art .pe-l,
+  .pane-empty.start .btn.primary::after,.kc-arrive .scene-item{animation:none}
+  .pe-art .pe-l{stroke-dashoffset:0}
+  .scene-item.kc-glide,#tab-settings input[type="checkbox"],.lc,.lc-t,.tab,.subtab,.live-ind,.toast{transition:none}
+  .cb-btn:active,.btn:active,.lc:active,.lc-t:active,.tab:active,.subtab:active,.pe-go:active{transform:none}
+}

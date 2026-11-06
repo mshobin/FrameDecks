@@ -39,17 +39,19 @@ function poll(){
     .catch(function(){ setTimeout(poll, 1500); });
 }
 function onOverlay(){ var m = {}; ((data && data.overlay && data.overlay.cards) || []).forEach(function(c){ m[c.id] = c; }); return m; }
+var seen = {}, painted = false;                    // 26.11.1 cards already drawn (the first drawing animates nothing)
 function apply(d){
   if (!d || d.rev == null) return;
   data = d; rev = d.rev;
-  if (POPUP) return renderPopup();
-  renderPane();
+  if (POPUP){ renderPopup(); painted = true; return; }
+  renderPane(); painted = true;
 }
 
 /* ---------- one card (pane and popup share it) ---------- */
 function card(it, opts){
   var li = document.createElement('li'), on = onOverlay()[it.id];
-  li.className = 'mem-card' + (on ? ' on' : '') + (it.pinned ? ' pinned' : '');
+  li.className = 'mem-card' + (on ? ' on' : '') + (it.pinned ? ' pinned' : '') + (painted && !seen[it.id] ? ' kc-new' : '');   // 26.11.1 a new card pops in once
+  seen[it.id] = true;
   li.dataset.id = it.id;
   var head = document.createElement('div'); head.className = 'mem-top';
   if (!opts.popup){                                          // 9.1 select several, then Show them together

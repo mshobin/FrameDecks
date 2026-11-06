@@ -81,6 +81,7 @@ var OLD_TABS = {show: 'control', plan: 'prepare', tools: 'engage', memory: 'enga
 try { var savedTab = localStorage.getItem('fd-remote-tab'); savedTab = OLD_TABS[savedTab] || savedTab; if (TABS.indexOf(savedTab) >= 0) tab = savedTab; } catch(e){}
 function openTab(t, focus){
   if (TABS.indexOf(t) < 0) return;
+  var from = TABS.indexOf(tab), to = TABS.indexOf(t);
   tab = t;
   try { localStorage.setItem('fd-remote-tab', t); } catch(e){}
   TABS.forEach(function(x){
@@ -89,6 +90,9 @@ function openTab(t, focus){
     $('p-' + x).hidden = !on;
   });
   document.body.dataset.tab = t;
+  /* 26.11.1 the new chip's panel slides in from the side it is on, like iPhone tabs (css: remote.css) */
+  var pn = $('p-' + t);
+  if (pn && from >= 0 && from !== to){ pn.classList.remove('slide-l', 'slide-r'); void pn.offsetWidth; pn.classList.add(to > from ? 'slide-l' : 'slide-r'); }
   var panels = document.querySelector('.panels'); if (panels) panels.scrollTop = 0;
   if (focus) $('tab-' + t).focus();
   notesTab(t === 'notes');
@@ -406,6 +410,20 @@ function setSpot(on){
   else if ($('drawpad').hidden) padFull(false);
   if (live) render(); else renderCanvas();
 }
+/* 26.11.1 swipe across the picture for the next (left) or previous (right) Frame, when the picture is not being used
+   to point or draw; a short buzz says it was taken */
+(function(){
+  var c = $('canvas'), x0 = null, y0 = 0, t0 = 0;
+  if (!c) return;
+  c.addEventListener('touchstart', function(e){ if (spotMode || e.touches.length !== 1){ x0 = null; return; } x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; t0 = Date.now(); }, {passive: true});
+  c.addEventListener('touchend', function(e){
+    if (x0 === null || spotMode) return;
+    var t = e.changedTouches[0], dx = t.clientX - x0, dy = t.clientY - y0; x0 = null;
+    if (Date.now() - t0 > 600 || Math.abs(dx) < 60 || Math.abs(dy) > Math.abs(dx) * 0.6) return;
+    var b = $(dx < 0 ? 'next' : 'prev'); if (!b || b.disabled) return;
+    buzz(10); b.click();
+  }, {passive: true});
+})();
 function toggleSpot(){ setSpot(!spotMode); toast(spotMode ? 'Spotlight: touch the picture' : 'Spotlight off'); }
 $('pic-spot').addEventListener('click', guard('ps', toggleSpot));
 $('t-spot').addEventListener('click', guard('ps', toggleSpot));

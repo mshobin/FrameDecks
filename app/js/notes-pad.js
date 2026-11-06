@@ -75,13 +75,15 @@ function create(o){
     list.hidden = !notes;
     list.innerHTML = '';
     if (notes && !notes.length) list.appendChild(h('li', {cls: 'np-empty', text: 'No notes yet for this meeting. They stay on the PC: never synced, never shown on screen.'}));
+    var newest = fresh && notes && notes.length ? notes.reduce(function(a, b){ return (b.at || 0) >= (a.at || 0) ? b : a; }).id : null;
+    fresh = false;
     (notes || []).forEach(function(nt){
       var kids = [h('div', {cls: 'np-x'}, [h('small', {text: when(nt.at) + (nt.frame ? ' · ' + nt.frame : '')}), h('p', {text: nt.text})])];
       if (!phone){
         kids.push(h('button', {cls: 'np-b', type: 'button', title: 'Edit this note', 'aria-label': 'Edit this note', html: I('pencil', 14), onclick: function(){ edit(nt); }}));
         kids.push(h('button', {cls: 'np-b', type: 'button', title: 'Delete this note', 'aria-label': 'Delete this note', html: I('trash-2', 14), onclick: function(){ remove(nt); }}));
       }
-      list.appendChild(h('li', {cls: 'np-note' + (editing === nt.id ? ' editing' : '')}, kids));
+      list.appendChild(h('li', {cls: 'np-note' + (editing === nt.id ? ' editing' : '') + (nt.id === newest ? ' kc-new' : '')}, kids));   // 26.11.1 a new note is written in
     });
     list.scrollTop = list.scrollHeight;
     if (acts) acts.hidden = false;
@@ -104,12 +106,14 @@ function create(o){
       return d;
     });
   }
+  var fresh = false;                                   // 26.11.1 the note just added is drawn in once (notes-pad.css)
   function commit(){
     var text = field.value.trim(); if (saving) return;
     if (!text && !editing){ field.focus(); return; }
     saving = true;
     var p = editing ? send({action: 'edit', id: editing, text: text}) : send({action: 'add', text: text, name: meeting().name, frame: frameNow()});
-    p.then(function(d){ saving = false; if (d && !d.error){ field.value = ''; editing = null; draw(); tell(phone ? '✓ Saved on the PC' : '✓ Saved on this PC'); } field.focus(); });
+    var adding = !editing;
+    p.then(function(d){ saving = false; if (d && !d.error){ field.value = ''; editing = null; fresh = adding; draw(); tell(phone ? '✓ Saved on the PC' : '✓ Saved on this PC'); } field.focus(); });
   }
   function edit(nt){ editing = nt.id; field.value = nt.text; draw(); field.focus(); field.setSelectionRange(field.value.length, field.value.length); }
   function remove(nt){ send({action: 'delete', id: nt.id}).then(function(d){ if (d && !d.error){ if (editing === nt.id){ editing = null; field.value = ''; } tell('✓ Note deleted'); draw(); } }); }

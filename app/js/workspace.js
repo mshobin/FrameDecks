@@ -50,15 +50,27 @@ function editLayerSoon(sid, lid, fn){
 /* ===================================================================================================== */
 /* Selection                                                                                             */
 /* ===================================================================================================== */
+/* 26.11.1 the empty Frames and Content lists teach the next step: a small drawing (it draws itself once), a line of
+   help and one gold button with a soft shimmer (styles in css/motion.css) */
+var EMPTY_ART = {
+  frames: '<svg viewBox="0 0 120 72" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+    '<rect class="pe-l" x="6" y="10" width="44" height="28" rx="6"/><rect class="pe-l" x="38" y="22" width="44" height="28" rx="6"/>' +
+    '<rect class="pe-l pe-g" x="70" y="34" width="44" height="28" rx="6"/><path class="pe-l pe-g" d="M86 48h12M92 42v12"/></svg>',
+  content: '<svg viewBox="0 0 120 72" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+    '<rect class="pe-l" x="10" y="8" width="100" height="56" rx="8"/><path class="pe-l" d="M24 26h46M24 36h62M24 46h34"/>' +
+    '<circle class="pe-l pe-g" cx="92" cy="46" r="9"/><path class="pe-l pe-g" d="M92 42v8M88 46h8"/></svg>'};
+
 function select(sid, lid, focusList){
   if (!picking){                                     // selected from elsewhere (search, palette, a new Frame): a single selection
     if (sid !== selScene || picked.frames.indexOf(sid) < 0) picked.frames = sid ? [sid] : [];
     picked.layers = lid ? [lid] : [];
   }
+  var fromScene = selScene;
   if (sid !== selScene){ selScene = sid; lsSet('bcc-sel-scene', sid); if (!picking) picked.layers = lid ? [lid] : []; }
   selLayer = lid || null;
   if (lid && window.KCStudio && isLiveScene(sid)){ var l = layer(); if (l && SC.isMedia(l.kind)) window.KCStudio.select([lid]); }
   renderAll(true);
+  if (fromScene !== sid) document.dispatchEvent(new CustomEvent('kc-frame-select', {detail: {from: fromScene, to: sid}}));   // 26.11.1 motion.js
   if (focusList){
     var el = document.querySelector(lid ? '#layer-list [data-id="' + cssq(lid) + '"]' : '#scene-list [data-id="' + cssq(sid) + '"]');
     if (el){ el.scrollIntoView({block: 'nearest'}); el.focus({preventScroll: true}); }
@@ -388,7 +400,7 @@ function renderScenes(){
   ol.innerHTML = '';
   if (!list.length){
     if (live.scenes.length){ ol.appendChild(h('li', {cls: 'pane-empty', text: 'No Frames match.'})); return; }
-    ol.appendChild(h('li', {cls: 'pane-empty start'}, [h('b', {text: 'Ready when you are'}), h('span', {text: 'Quick Start makes a full set of Frames for a Bible study, prayer meeting, youth gathering or fellowship meeting in one click.'}),
+    ol.appendChild(h('li', {cls: 'pane-empty start'}, [h('span', {cls: 'pe-art', 'aria-hidden': 'true', html: EMPTY_ART.frames}), h('b', {text: 'Ready when you are'}), h('span', {text: 'Quick Start makes a full set of Frames for a Bible study, prayer meeting, youth gathering or fellowship meeting in one click.'}),
       h('button', {cls: 'btn primary small', type: 'button', html: I('sparkles', 15) + ' Quick Start', onclick: function(){ openQuickStart(); }}),
       h('button', {cls: 'btn quiet small', type: 'button', text: 'Browse the Library', onclick: function(){ setFilter('tpl'); }})]));
     return;
@@ -706,7 +718,9 @@ function renderLayers(){
   ol.innerHTML = '';
   $('layer-add').disabled = !sc;
   if (!sc){ ol.appendChild(h('li', {cls: 'pane-empty', text: 'Select a Frame to see its Content.'})); $('layers-note').textContent = ''; return; }
-  if (!sc.layers.length) ol.appendChild(h('li', {cls: 'pane-empty', text: 'No Content yet. Use + Content.'}));
+  if (!sc.layers.length) ol.appendChild(h('li', {cls: 'pane-empty start'}, [h('span', {cls: 'pe-art', 'aria-hidden': 'true', html: EMPTY_ART.content}),
+    h('b', {text: 'Nothing in this Frame yet'}), h('span', {text: 'Add a Deck: a question, a scripture, text, a picture or slides. It shows on screen when this Frame goes live.'}),
+    h('button', {cls: 'btn primary small pe-go', type: 'button', html: I('plus', 15) + ' Deck', onclick: function(){ var b = $('layer-add'); if (b) b.click(); }})]));
   var n = sc.layers.length;
   sc.layers.forEach(function(l, i){
     var on = isLiveScene(sc.id) ? SC.layerOn(live, sc, l) : l.visible, st = status[l.id] || {};
