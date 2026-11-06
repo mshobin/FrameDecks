@@ -207,9 +207,9 @@ FrameDecks works fully without Excel. The **Meeting Workbook** is for planning, 
 plan to another PC, use a .frame file instead (see [Service planning](service-planning.md#move-a-plan-to-a-service-pc)).
 
 It has two tabs:
-- **Meeting Form**: one guided page, top to bottom, in numbered sections: 1 · Meeting details, 2 · Speaker,
-  3 · Attendees, 4 · Presentation, 5 · Meeting plan, 6 · Additional notes. Type in the cream boxes; **Tab** moves
-  on. The Meeting plan is one table in the app's order, Frame > Deck > Content, numbered by itself
+- **Meeting Form**: one guided page, top to bottom, with three steps across the top. 1 · Meeting details,
+  2 · Meeting plan, then the optional sections: 3 · Speaker, 4 · Attendees, 5 · Presentation, 6 · Additional notes.
+  Type in the cream boxes; **Tab** moves on. Each plan row colours itself by its Level as you choose it. The Meeting plan is one table in the app's order, Frame > Deck > Content, numbered by itself
   (1 · 1.1 · 1.1.1); the **+** button on the left opens more rows.
 - **Dashboard**: fills itself in from the form (days to go, counts, a Readiness checklist, Quick actions, a Content
   mix chart and a Recent meetings log). It is never imported.
