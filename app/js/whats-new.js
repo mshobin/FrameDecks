@@ -5,6 +5,9 @@
 (function(){
 'use strict';
 var NEWS = {
+  '26.11.11': [
+    {title: 'A clean Command Center in meetings', text: 'No grey box behind the Command Center any more, also when you open it over Zoom or Teams or keep it pinned.', show: {settings: 'keys', spot: '#keys-global'}}
+  ],
   '26.11.10': [
     {title: 'Question, Both or Scripture', text: 'In the Command Center\u2019s Control, a Frame with a question and a scripture has a Shows switch: the question, both, or the scripture.', show: {settings: 'keys', spot: '#keys-global'}},
     {title: 'A smoother camera', text: 'With background blur on, FrameDecks vCam now shares its work across two cores, so it keeps up better on slower PCs.', show: {settings: 'keys', spot: '#keys-global'}}

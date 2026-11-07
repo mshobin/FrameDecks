@@ -10,6 +10,19 @@ Changes before 26.11 are kept in [docs/archive/changelog-before-26.11.md](archiv
 
 ## [Unreleased]
 
+## [26.11.11] - 2026-11-07
+
+Full notes: [docs/releases/v26.11.11.md](releases/v26.11.11.md).
+
+### Fixed
+- Owner's photo in a Zoom meeting: the grey box behind the Command Center was back. Cause: da0be19 (26.11.7) made
+  `cc-shape.js` measure only while `document.hasFocus()`; the shortcut brings the window forward but WebView2's page
+  often has no focus (and a pinned Command Center stays open behind the meeting), so no `clip` was ever sent and
+  the window had no region. Reproduced in a browser with `hasFocus` false: 0 shapes sent before, 13 after.
+  Now the program calls `KCShape.wake()` on every open (always resends) and `KCShape.rest()` on hide, keeps the
+  last rects (`state["spot_rects"]`) and re-applies them before `show()` and after the `fit` resize.
+  Tests `tests/test_cc_shape_2611_11.py`.
+
 ## [26.11.10] - 2026-11-07
 
 Full notes: [docs/releases/v26.11.10.md](releases/v26.11.10.md).

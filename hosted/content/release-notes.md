@@ -1,27 +1,24 @@
-## FrameDecks v26.11.10
+## FrameDecks v26.11.11
 
-The camera uses two cores, and the Command Center chooses question, scripture or both. Download from
-**framedecks.com/download**, or let FrameDecks update itself. It installs over every earlier version and keeps all
-your meetings, members, settings, notes, pinned Memory Cards and recordings.
+No grey box behind the Command Center, in a meeting too. Download from **framedecks.com/download**, or let
+FrameDecks update itself. It installs over every earlier version and keeps all your meetings, members, settings,
+notes, pinned Memory Cards and recordings.
 
 ## What's New
-- **Question, Both or Scripture in the Command Center.** When the Frame on screen has a question and a scripture,
-  Control shows a **Shows** switch under Next Frame: the question only, both together, or the scripture only. It is
-  the same switch as on the phone remote and in the Studio, and it changes the screen straight away.
+None in this version.
 
 ## Enhancements
-- The support report's FrameDecks vCam line now says which picture size the camera sends, and from which webcam size.
+None in this version.
 
 ## Fixes
-- With background blur on, FrameDecks vCam stopped with an error when nobody was in the picture (for example when
-  you stepped away from the desk). It now simply shows the blurred room.
+- **The grey box behind the Command Center is gone again, also over Zoom or Teams.** Since 26.11.7 the Command
+  Center only shaped its window to what it shows while it had the keyboard. Opened with the shortcut over a meeting
+  app, or pinned while you work in the meeting, it often does not, so the whole window showed as a grey or black
+  box. It now takes its shape every time it opens, keeps it when its size changes, and keeps it while it is pinned
+  behind your meeting.
 
 ## Performance Improvements
-- **The camera works on two cores.** The background blur of each picture is worked out at the same time as the
-  picture before it is finished and sent to Zoom or Teams, so on a slower PC the camera can send up to about twice as
-  many frames a second. Each picture reaches the meeting about 33 ms later, which nobody can see.
-- The blur's soft edge around you is now prepared by the same helper that finds your outline, so the camera no
-  longer stops for it five times a second.
+None in this version.
 
 ## Known Issues
 - The installer is not yet code-signed, so Windows SmartScreen may ask you to confirm: **More info → Run anyway**.

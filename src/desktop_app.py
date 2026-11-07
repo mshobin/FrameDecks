@@ -726,6 +726,10 @@ def main():
             state["spot_open"] = False
             spot = spot_window()
             if spot is not None:
+                try:                                  # 26.11.11 the shape rests while it is hidden
+                    spot.evaluate_js("window.KCShape && KCShape.rest()")
+                except Exception as _e:
+                    _swallowed("desktop_app.spotlight", _e)
                 try:
                     spot.hide()
                 except Exception as _e:
@@ -745,13 +749,16 @@ def main():
         except Exception as _e:
             _swallowed("desktop_app.spotlight", _e)
         state["spot_open"] = True
+        if state.get("spot_rects"):                   # 26.11.11 the last shape before it shows: never the whole box
+            dw.clip(hwnd, *state["spot_rects"])
         try:
             spot.show()
         except Exception as _e:
             _swallowed("desktop_app.spotlight", _e)
         dw.bring_to_front(hwnd)
-        try:
-            spot.evaluate_js("window.KCSpotlight && (KCSpotlight.glass && KCSpotlight.glass(%s), KCSpotlight.opened())"
+        try:                                          # 26.11.11 and the page sends its shape again, focused or not
+            spot.evaluate_js("window.KCSpotlight && (KCSpotlight.glass && KCSpotlight.glass(%s), KCSpotlight.opened());"
+                             " window.KCShape && KCShape.wake()"
                              % ("true" if state.get("spot_glass") else "false"))
         except Exception as _e:
             _swallowed("desktop_app.spotlight", _e)
@@ -825,11 +832,15 @@ def main():
                 height = 620
             if height != state.get("spot_h"):
                 state["spot_h"] = height
-                later(lambda: w.resize(820, height))
+                rects = state.get("spot_rects")
+                # 26.11.11 the shape is put back after the size changes (it must never fall back to the whole box)
+                later(lambda: (w.resize(820, height), rects and dw.clip(hwnd, *rects)))
             return {"ok": True}
         elif op == "clip" and name == "spotlight":           # 26.11.5 the window takes the shape of what it shows
             rects, scale = data.get("rects"), data.get("scale")
             if isinstance(rects, list):
+                if rects:
+                    state["spot_rects"] = (rects, scale)    # 26.11.11 kept, to put back on every open and resize
                 later(lambda: dw.clip(hwnd, rects, scale))
             return {"ok": True}
         elif op == "look" and name == "teleprompter":

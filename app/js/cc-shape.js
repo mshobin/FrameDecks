@@ -2,12 +2,14 @@
  * really paints (the bar, the chips, an open panel, a list, Keep open, a note) and the program cuts the window to
  * exactly those boxes (desktop_win.clip, SetWindowRgn). Outside them there is no window, so nothing can be drawn
  * there: no grey or black box behind the glass on any PC, and clicks there go to the window behind. While something
- * moves the shape covers where it was and where it is going; when it settles the shape is exact again. It works only
- * while the window has focus (it hides when it loses it), so a hidden Command Center costs nothing. */
+ * moves the shape covers where it was and where it is going; when it settles the shape is exact again.
+ * 26.11.11 it works while the Command Center is open, focused or not (opened by the shortcut over Zoom the page often
+ * has no focus, and a pinned one stays open behind the meeting): the program says when it opens (KCShape.wake, which
+ * always sends the shape again) and when it hides (KCShape.rest), so a hidden Command Center still costs nothing. */
 (function(){
 'use strict';
 if (document.body.getAttribute('data-win') !== 'spotlight') return;
-var last = '', burst = null, SKIP = {SCRIPT: 1, STYLE: 1, LINK: 1, META: 1, TEMPLATE: 1, BR: 1};
+var last = '', burst = null, open = true, SKIP = {SCRIPT: 1, STYLE: 1, LINK: 1, META: 1, TEMPLATE: 1, BR: 1};
 function alpha(c){
   if (!c || c === 'transparent') return 0;
   var m = /rgba?\(([^)]+)\)/.exec(c);
@@ -74,7 +76,7 @@ function send(rects){
     body: JSON.stringify({win: 'spotlight', op: 'clip', rects: rects, scale: window.devicePixelRatio || 1})}).catch(function(){});
 }
 function sample(final){
-  if (document.hidden) return;
+  if (document.hidden || !open) return;
   var now = boxes();
   if (final){ burst = null; send(now); return; }
   burst = (burst || []).concat(now);                                           // where it was and where it is going
@@ -82,7 +84,7 @@ function sample(final){
 }
 var chain = false, finalT = 0;
 function schedule(){                       // a few looks while things move, then one exact shape (at most 0.8 s later)
-  if (!document.hasFocus()) return;        // hidden (it closes when it loses focus): live updates cost nothing here
+  if (!open) return;                       // hidden by the program: live updates cost nothing here
   if (!finalT) finalT = setTimeout(function(){ finalT = 0; requestAnimationFrame(function(){ sample(true); }); }, 800);
   if (chain) return;
   chain = true;
@@ -94,7 +96,8 @@ new MutationObserver(schedule).observe(document.body, {subtree: true, childList:
 ['transitionend', 'animationend', 'pointerover', 'pointerout', 'focusin'].forEach(function(t){ document.addEventListener(t, schedule, true); });
 window.addEventListener('resize', schedule);
 document.addEventListener('visibilitychange', function(){ if (!document.hidden){ last = ''; schedule(); } });
-window.addEventListener('focus', function(){ schedule(); });           // opened: measure what shows now
+function wake(){ open = true; last = ''; schedule(); requestAnimationFrame(function(){ sample(true); }); }   // opened: send it again
+window.addEventListener('focus', wake);
 schedule();
-window.KCShape = {boxes: boxes, now: function(){ sample(true); }};
+window.KCShape = {boxes: boxes, now: function(){ sample(true); }, wake: wake, rest: function(){ open = false; }};
 })();

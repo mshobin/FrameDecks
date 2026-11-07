@@ -33,7 +33,7 @@ class Shape(unittest.TestCase):
     def test_the_command_center_window_accepts_its_shape_without_waiting_on_its_thread(self):
         src = read("src/desktop_app.py")
         i = src.index('elif op == "clip" and name == "spotlight":')
-        self.assertIn("later(lambda: dw.clip(hwnd, rects, scale))", src[i:i + 400])
+        self.assertIn("later(lambda: dw.clip(hwnd, rects, scale))", src[i:i + 600])
 
     def test_the_page_measures_what_it_paints_and_sends_it(self):
         js = read("app/js/cc-shape.js")
